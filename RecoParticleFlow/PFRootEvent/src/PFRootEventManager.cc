@@ -74,6 +74,8 @@ void PFRootEventManager::reset() {
 void PFRootEventManager::readOptions(const char* file, bool refresh) {
   PFGeometry pfGeometry; // initialize geometry
 
+  cout<<"reading options "<<endl;
+
   if( !options_ )
     options_ = new IO(file);
   else if( refresh) {
@@ -258,6 +260,11 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   algosToDisplay_.clear();
   for(unsigned i=0; i< algos.size(); i++) algosToDisplay_.insert( algos[i] );
 
+  displayClusterLines_ = false;
+  options_->GetOpt("display", "cluster_lines", displayClusterLines_);
+  
+  if(displayClusterLines_) 
+    cout<<"will display cluster lines "<<endl;
 
   viewSizeEtaPhi_.clear();
   options_->GetOpt("display", "viewsize_etaphi", viewSizeEtaPhi_);
@@ -1131,6 +1138,7 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
 				       double maxe, double phi0) 
 {
 
+
   double me = maxe;
   double thresh = 0;
   int layer = rh.layer();
@@ -1179,6 +1187,11 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
 
   double rheta = rh.positionREP().Eta();
   double rhphi = rh.positionREP().Phi();
+
+//   if( abs(rheta - 1.69) > 0.05 ||
+//       abs(rhphi + 1.61) > 0.05 || 
+//       layer<0) return;
+
   double sign = 1.;
   if (cos(phi0 - rhphi) < 0.) sign = -1.;
 
@@ -1212,6 +1225,9 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
   if(me>0) ampl = (log(rh.energy() + 1.)/log(me + 1.));
 
   for ( unsigned jc=0; jc<4; ++jc ) { 
+
+    // cout<<"corner "<<jc<<" "<<corners[jc].Eta()<<" "<<corners[jc].Phi()<<endl;
+
     phiSize[jc] = rhphi-corners[jc].Phi();
     etaSize[jc] = rheta-corners[jc].Eta();
     if ( phiSize[jc] > 1. ) phiSize[jc] -= 2.*TMath::Pi();  // this is strange...
@@ -1225,8 +1241,8 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
     y[jc] = cornerposxyz.Y();
     z[jc] = cornerposxyz.Z();
     r[jc] = sign*cornerposxyz.Rho();
-    eta[jc] = rheta + etaSize[jc];
-    phi[jc] = rhphi + phiSize[jc];
+    eta[jc] = rheta - etaSize[jc];
+    phi[jc] = rhphi - phiSize[jc];
     
 
     // cell area is prop to log(E)
@@ -1421,7 +1437,7 @@ void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
   m.SetMarkerColor(color);
   m.SetMarkerStyle(20);
     
-  math::XYZPoint xyzPos = cluster.positionXYZ();
+  const math::XYZPoint& xyzPos = cluster.positionXYZ();
 
   switch(viewType) {
   case XY:
@@ -1436,14 +1452,42 @@ void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
       break;
     }
   case EPE:
-    if(cluster.layer()<0)
+    if( cluster.layer()<0 ) {
       m.DrawMarker(xyzPos.Eta(), xyzPos.Phi());
+      if( displayClusterLines_ ) displayClusterLines(cluster);
+    }
     break;
   case EPH:
-    if(cluster.layer()>0)
+    if( cluster.layer()>0 ) {
       m.DrawMarker(xyzPos.Eta(), xyzPos.Phi());
+      if( displayClusterLines_ ) displayClusterLines(cluster);
+    }
     break;
   }      
+}
+
+
+void PFRootEventManager::displayClusterLines(const reco::PFCluster& cluster) {
+  
+  cout<<"displayClusterLines"<<endl;
+  
+  const math::XYZPoint& xyzPos = cluster.positionXYZ();
+  double eta = xyzPos.Eta(); 
+  double phi = xyzPos.Phi(); 
+  
+  // draw a line from the cluster to each of the rechits
+  const std::vector< reco::PFRecHitFraction >& rhfracs = 
+    cluster.recHitFractions();
+
+  TLine l;
+
+  for(unsigned i=0; i<rhfracs.size(); i++) {
+    double rheta = rhfracs[i].getRecHit()->positionXYZ().Eta();
+    double rhphi = rhfracs[i].getRecHit()->positionXYZ().Phi();
+    cout<<" "<<eta<<" "<<phi<<" "<<rheta<<" "<<rhphi<<endl;
+
+    l.DrawLine(eta,phi,rheta,rhphi);
+  }
 }
 
 
