@@ -39,7 +39,7 @@ std::pair<RectangularPlaneBounds, GlobalVector> PlaneBuilderForGluedDet::compute
   std::vector<GlobalPoint> corners;
   for (std::vector<const GeomDetUnit*>::const_iterator idet=dets.begin();
        idet != dets.end(); idet++) {
-    const BoundPlane& plane = dynamic_cast<const BoundPlane&>(dets.front()->surface());
+    const BoundPlane& plane = dynamic_cast<const BoundPlane&>(*idets->surface());
     std::vector<GlobalPoint> dc = BoundingBox().corners(plane);
     corners.insert( corners.end(), dc.begin(), dc.end());
   }
