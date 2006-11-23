@@ -2,9 +2,15 @@
 #define TrackingTools_TrackRefitter_TrackTransformer_H
 
 /** \class TrackTransformer
- *  No description available.
+ *  This class takes a reco::Track and refits the rechits inside it.
+ *  The final result is a Trajectory refitted and smoothed.
+ *  To make the refitting (and the smoothing) the usual KF tools are used.
  *
- *  $Date: 2006/11/22 18:36:45 $
+ *  CAVEAT: till now (it will be changed in the near future) the class stores the
+ *  pointers to the services, therefore EACH event the setServices(const edm::EventSetup&)
+ *  method MUST be called in the code in which the TrackTransformer is used.
+ *
+ *  $Date: 2006/11/23 11:23:49 $
  *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -31,13 +37,13 @@ public:
   /// Constructor
   TrackTransformer(const edm::ParameterSet&);
 
+  /// Destructor
+  virtual ~TrackTransformer();
+  
   // Operations
 
   /// Convert a reco::Track into Trajectory
   std::vector<Trajectory> transform(const reco::Track&);
-
-  /// Destructor
-  virtual ~TrackTransformer();
   
   /// the magnetic field
   const MagneticField* magneticField() const {return &*theMGField;}
@@ -46,23 +52,23 @@ public:
   edm::ESHandle<GlobalTrackingGeometry> trackingGeometry() const {return theTrackingGeometry;}
 
   /// set the services needed by the TrackTransformer
-  void setServices(const edm::EventSetup& setup);
+  void setServices(const edm::EventSetup&);
 
   /// the refitter used to refit the reco::Track
   edm::ESHandle<TrajectoryFitter> refitter() const {return theFitter;}
   
   /// the smoother used to smooth the trajectory which came from the refitting step
   edm::ESHandle<TrajectorySmoother> smoother() const {return theSmoother;}
-
+  
  protected:
   
-private:
+ private:
   
   unsigned long long theCacheId_TC;
   unsigned long long theCacheId_GTG;
   unsigned long long theCacheId_MG;
   unsigned long long theCacheId_TRH;
-
+  
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMGField;
   
@@ -73,14 +79,14 @@ private:
   edm::ESHandle<TrajectorySmoother> theSmoother;
 
   TransientTrackingRecHit::ConstRecHitContainer
-  getTransientRecHits(const reco::TransientTrack& track) const;
+    getTransientRecHits(const reco::TransientTrack& track) const;
   
   std::string theTrackerRecHitBuilderName;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-
+  
   std::string theMuonRecHitBuilderName;
   edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
-
+  
   // std::string thePropagatorName;
   // edm::ESHandle<Propagator> thePropagator;
 };
