@@ -4,6 +4,7 @@
 namespace CLHEP { 
   class RandFlat;
   class RandGaussQ;
+  class RandPoissonQ;
 }
 
 namespace edm {
@@ -23,6 +24,7 @@ public:
 
   double flatShoot(double xmin=0., double xmax=1.);
   double gaussShoot(double mean=0., double sigma=1.);
+  double poissonShoot(double mean);
 
 private:
 
@@ -32,6 +34,7 @@ private:
 
   CLHEP::RandFlat* flatDistribution_;
   CLHEP::RandGaussQ* gaussianDistribution_;
+  CLHEP::RandPoissonQ* poissonDistribution_;
 
 };
 
