@@ -1,6 +1,7 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagatorESProducer.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePropagatorESProducer.h"
+#include "TrackingTools/GeomPropagators/interface/SmartPropagatorESProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -12,4 +13,4 @@
 EVENTSETUP_DATA_REG(Propagator);
 DEFINE_FWK_EVENTSETUP_MODULE(StraightLinePropagatorESProducer);
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(AnalyticalPropagatorESProducer);
-
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(SmartPropagatorESProducer);
