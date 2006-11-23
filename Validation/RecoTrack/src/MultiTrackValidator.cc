@@ -433,11 +433,13 @@ void MultiTrackValidator::endJob() {
       }
 
       //fill fakerate plot
-      double frate;
+      double frate,ferr;
       for (unsigned int j=0; j<totASS2[w].size(); j++){
         if (totREC[w][j]!=0){
           frate = 1-((double) totASS2[w][j])/((double) totREC[w][j]);
+	  ferr = sqrt( frate*(1-frate)/(double) totREC[w][j] );
           h_fakerate[w]->setBinContent(j+1, frate);
+	  h_fakerate[w]->setBinError(j+1,ferr);
         }
         else {
           h_fakerate[w]->setBinContent(j+1, 0);
