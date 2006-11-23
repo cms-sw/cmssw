@@ -42,7 +42,7 @@ void CandMatcherBase::produce( Event& evt, const EventSetup& ) {
     vector<helper::MatchPair> v;
     for( size_t m = 0; m != matched->size(); ++ m ) {
       const Candidate & match = (*matched)[ m ];
-      if ( select( match ) ){
+      if ( select( cand, match ) ) {
 	double dist = matchDistance( cand, match );
 	if ( dist < distMin_ ) v.push_back( make_pair( m, dist ) );
       }

@@ -22,7 +22,7 @@ namespace reco {
       edm::InputTag matched_;
       double distMin_;
       virtual double matchDistance( const reco::Candidate &, const reco::Candidate & ) const = 0;
-      virtual bool select( const reco::Candidate & ) const = 0;
+      virtual bool select( const reco::Candidate &, const reco::Candidate & ) const = 0;
     };
   }
 }
@@ -43,7 +43,9 @@ namespace reco {
       double matchDistance( const reco::Candidate & c1, const reco::Candidate & c2 ) const {
 	return distance_( c1, c2 );
       }
-      bool select( const reco::Candidate & c ) const { return select_( c ); }
+      bool select( const reco::Candidate & c1, const reco::Candidate & c2 ) const { 
+	return select_( c1, c2 ); 
+      }
       S select_;
       D distance_;
     };
