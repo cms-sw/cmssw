@@ -78,8 +78,7 @@ void TrajectoryReader::analyze(const Event & event, const EventSetup& eventSetup
   ESHandle<MagneticField> magField;    
   eventSetup.get<IdealMagneticFieldRecord>().get(magField);
 
-  // FIXME
-  const std::string metname = "Muon|RecoMuon|TrajectoryReader";
+  const std::string metname = "Reco|TrackingTools|TrajectoryReader";
   
   // Get the Trajectory collection from the event
   Handle<Trajectories> trajectories;
@@ -99,7 +98,6 @@ void TrajectoryReader::analyze(const Event & event, const EventSetup& eventSetup
 	double r = geomDet->surface().position().perp();
 	double z = geomDet->toGlobal((*recHit)->localPosition()).z();
 	LogDebug(metname) <<  i++ <<" r: "<< r <<" z: "<<z <<" "<<geomDet->toGlobal((*recHit)->localPosition())
-	  // <<" Id: "<<debug.dumpMuonId((*recHit)->geographicalId())
 			  <<endl;
       }
   }
@@ -121,7 +119,6 @@ void TrajectoryReader::analyze(const Event & event, const EventSetup& eventSetup
 	double r = geomDet->surface().position().perp();
 	double z = geomDet->toGlobal((*recHit)->localPosition()).z();
 	LogDebug(metname) << i++ <<" r: "<< r <<" z: "<<z <<" "<<geomDet->toGlobal((*recHit)->localPosition())
-	  // <<" Id: "<<debug.dumpMuonId((*recHit)->geographicalId())
 	    <<endl;
       }
   }
