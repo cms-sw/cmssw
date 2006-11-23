@@ -21,18 +21,19 @@
 #ifndef L1EXTRADISTRIBUTIONS_H
 #define L1EXTRADISTRIBUTIONS_H
 
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 class L1ExtraDistributions {
 
  public:
 
-  // name is base for histograms
+  // use name as base for histograms
   L1ExtraDistributions(string name);
 
   ~L1ExtraDistributions();
 
   // fill the histos
-  void fill(L1ExtraParticle* l1);
+  void fill(reco::LeafCandidate& l1cand);
 
  private:
 

@@ -20,6 +20,8 @@
 #ifndef L1EXTRACOMPARATOR_H
 #define L1EXTRACOMPARATOR_H
 
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
+
 
 class L1ExtraComparator {
 
@@ -31,7 +33,7 @@ class L1ExtraComparator {
   ~L1ExtraComparator();
 
   // fill the histos
-  void fill(L1ExtraParticle* l1, Particle* mc);
+  void fill(reco::LeafCandidate& l1cand, Particle& mc);
 
  private:
 

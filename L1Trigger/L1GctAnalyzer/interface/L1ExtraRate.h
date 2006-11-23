@@ -20,6 +20,8 @@
 #ifndef L1EXTRARATE_H
 #define L1EXTRARATE_H
 
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
+
 
 class L1ExtraRate {
 
@@ -28,11 +30,15 @@ class L1ExtraRate {
   L1ExtraRate(string name);
   ~L1ExtraRate();
 
-  void fill (L1ExtraParticle& l1);
-  void weightedFill(L1ExtraParticle& l1, double weight);
+  /// set weight (for use with eg binned QCD datasets)
+  void setWeight(double w);
+
+  /// fill histograms
+  void fill(reco::LeafCandidate& l1cand);
 
  private:
 
+  // rate as fn of threshold
   TH1F rate_;
 
 }
