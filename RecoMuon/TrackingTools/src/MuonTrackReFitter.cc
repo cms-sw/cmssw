@@ -6,8 +6,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/09/01 15:47:05 $
- *   $Revision: 1.6 $
+ *   $Date: 2006/09/01 21:33:37 $
+ *   $Revision: 1.7 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author   C. Liu                   Purdue University
@@ -304,7 +304,9 @@ vector<Trajectory> MuonTrackReFitter::smooth(const Trajectory& t) const {
 		   avtm.front().layer()));
   }
 
-  return vector<Trajectory>(1, myTraj);
+  if (myTraj.foundHits() > 3)
+    return vector<Trajectory>(1, myTraj);
+  else return vector<Trajectory>();
 
 }
 
