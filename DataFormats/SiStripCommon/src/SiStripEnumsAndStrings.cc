@@ -175,7 +175,7 @@ string SiStripHistoNamingScheme::summaryHisto( const sistrip::SummaryHisto& hist
   else if ( histo == sistrip::FED_CABLING_SIGNAL_LEVEL ) { return sistrip::fedCablingSignalLevel_; }
 
   // apv timing
-  if ( histo == sistrip::APV_TIMING_TIME ) { return sistrip::apvTimingTime_; } 
+  else if ( histo == sistrip::APV_TIMING_TIME ) { return sistrip::apvTimingTime_; } 
   else if ( histo == sistrip::APV_TIMING_MAX_TIME ) { return sistrip::apvTimingMax_; }
   else if ( histo == sistrip::APV_TIMING_DELAY ) { return sistrip::apvTimingDelay_; }
   else if ( histo == sistrip::APV_TIMING_ERROR ) { return sistrip::apvTimingError_; }
@@ -208,7 +208,7 @@ string SiStripHistoNamingScheme::summaryHisto( const sistrip::SummaryHisto& hist
   else if ( histo == sistrip::VPSP_SCAN_APV1 ) { return sistrip::vpspScanApv1_; }
 
   // pedestals / noise
-  if ( histo == sistrip::PEDESTALS_ALL_STRIPS ) { return sistrip::pedestalsAllStrips_; }
+  else if ( histo == sistrip::PEDESTALS_ALL_STRIPS ) { return sistrip::pedestalsAllStrips_; }
   else if ( histo == sistrip::PEDESTALS_MEAN ) { return sistrip::pedestalsMean_; }
   else if ( histo == sistrip::PEDESTALS_SPREAD ) { return sistrip::pedestalsSpread_; }
   else if ( histo == sistrip::PEDESTALS_MAX ) { return sistrip::pedestalsMax_; }
@@ -220,6 +220,9 @@ string SiStripHistoNamingScheme::summaryHisto( const sistrip::SummaryHisto& hist
   else if ( histo == sistrip::NOISE_MIN ) { return sistrip::noiseMin_; }
   else if ( histo == sistrip::NUM_OF_DEAD ) { return sistrip::numOfDead_; }
   else if ( histo == sistrip::NUM_OF_NOISY ) { return sistrip::numOfNoisy_; }
+
+  // scope mode 
+  else if ( histo == sistrip::DAQ_SCOPE_MODE_MEAN_SIGNAL ) { return sistrip::daqScopeModeMeanSignal_; }
 
   // unknown
   else if ( histo == sistrip::UNDEFINED_SUMMARY_HISTO ) { return sistrip::undefinedSummaryHisto_; }
@@ -241,7 +244,7 @@ sistrip::SummaryHisto SiStripHistoNamingScheme::summaryHisto( const string& hist
   else if ( histo.find( sistrip::apvTimingHeight_ ) != string::npos ) { return sistrip::APV_TIMING_HEIGHT; }
 
   // fed timing
-  if ( histo.find( sistrip::fedTimingTime_ ) != string::npos ) { return sistrip::FED_TIMING_TIME; } 
+  else if ( histo.find( sistrip::fedTimingTime_ ) != string::npos ) { return sistrip::FED_TIMING_TIME; } 
   else if ( histo.find( sistrip::fedTimingMax_ ) != string::npos ) { return sistrip::FED_TIMING_MAX_TIME; }
   else if ( histo.find( sistrip::fedTimingDelay_ ) != string::npos ) { return sistrip::FED_TIMING_DELAY; }
   else if ( histo.find( sistrip::fedTimingError_ ) != string::npos ) { return sistrip::FED_TIMING_ERROR; }
@@ -265,7 +268,7 @@ sistrip::SummaryHisto SiStripHistoNamingScheme::summaryHisto( const string& hist
   else if ( histo.find( sistrip::vpspScanApv1_ ) != string::npos ) { return sistrip::VPSP_SCAN_APV1; }
 
   // pedestals / noise
-  if ( histo.find( sistrip::pedestalsAllStrips_ ) != string::npos ) { return sistrip::PEDESTALS_ALL_STRIPS; }
+  else if ( histo.find( sistrip::pedestalsAllStrips_ ) != string::npos ) { return sistrip::PEDESTALS_ALL_STRIPS; }
   else if ( histo.find( sistrip::pedestalsMean_ ) != string::npos ) { return sistrip::PEDESTALS_MEAN; }
   else if ( histo.find( sistrip::pedestalsSpread_ ) != string::npos ) { return sistrip::PEDESTALS_SPREAD; }
   else if ( histo.find( sistrip::pedestalsMax_ ) != string::npos ) { return sistrip::PEDESTALS_MAX; }
@@ -277,11 +280,14 @@ sistrip::SummaryHisto SiStripHistoNamingScheme::summaryHisto( const string& hist
   else if ( histo.find( sistrip::noiseMin_ ) != string::npos ) { return sistrip::NOISE_MIN; }
   else if ( histo.find( sistrip::numOfDead_ ) != string::npos ) { return sistrip::NUM_OF_DEAD; }
   else if ( histo.find( sistrip::numOfNoisy_ ) != string::npos ) { return sistrip::NUM_OF_NOISY; }
-
+  
+  // scope mode
+  else if ( histo.find( sistrip::daqScopeModeMeanSignal_ ) != string::npos ) { return sistrip::DAQ_SCOPE_MODE_MEAN_SIGNAL; }
+  
   // unknown
   else if ( histo.find( sistrip::undefinedSummaryHisto_ ) != string::npos ) { return sistrip::UNDEFINED_SUMMARY_HISTO; }
   else { return sistrip::UNKNOWN_SUMMARY_HISTO; }
-
+  
 }  
 
 // -----------------------------------------------------------------------------
@@ -304,7 +310,7 @@ sistrip::SummaryType SiStripHistoNamingScheme::summaryType( const string& type )
   else if ( type.find( sistrip::summaryProf_ ) != string::npos ) { return sistrip::SUMMARY_PROF; }
   else if ( type.find( sistrip::undefinedSummaryType_ ) != string::npos ) { return sistrip::UNDEFINED_SUMMARY_TYPE; }
   else { return sistrip::UNKNOWN_SUMMARY_TYPE; }
-}  
+}
 
 // -----------------------------------------------------------------------------
 // 

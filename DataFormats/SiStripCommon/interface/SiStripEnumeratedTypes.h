@@ -198,7 +198,9 @@ namespace sistrip {
 		      NOISE_MAX = 209, 
 		      NOISE_MIN = 210, 
 		      NUM_OF_DEAD = 211, 
-		      NUM_OF_NOISY = 212
+		      NUM_OF_NOISY = 212,
+		      // DAQ SCOPE MODE
+		      DAQ_SCOPE_MODE_MEAN_SIGNAL = 1501
 		      //@@ add other summary histos here... 
   };
   

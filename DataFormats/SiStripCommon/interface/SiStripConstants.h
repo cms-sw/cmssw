@@ -251,6 +251,9 @@ namespace sistrip {
   static const std::string noiseMin_ = "Noise_Min";
   static const std::string numOfDead_ = "NumOfDead_Strips";
   static const std::string numOfNoisy_ = "NumOfNoisy_Strips";
+
+  // summary histo names (daq scope mode)
+  static const std::string daqScopeModeMeanSignal_ = "DaqScopeMode_MeanSignal";
   
 }
   
