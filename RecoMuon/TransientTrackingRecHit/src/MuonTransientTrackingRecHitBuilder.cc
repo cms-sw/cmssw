@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2006/08/28 14:28:04 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/09/01 15:48:56 $
+ *  $Revision: 1.4 $
  *
  *  Authors :
  *  A. Everett               Purdue University
@@ -14,6 +14,11 @@
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+
+MuonTransientTrackingRecHitBuilder::MuonTransientTrackingRecHitBuilder(edm::ESHandle<GlobalTrackingGeometry> trackingGeometry):
+  theTrackingGeometry(trackingGeometry)
+{}
+
 
 MuonTransientTrackingRecHitBuilder::RecHitPointer
 MuonTransientTrackingRecHitBuilder::build (const TrackingRecHit* p, 
@@ -25,4 +30,12 @@ MuonTransientTrackingRecHitBuilder::build (const TrackingRecHit* p,
   
   return 0;
 
+}
+
+MuonTransientTrackingRecHitBuilder::RecHitPointer
+MuonTransientTrackingRecHitBuilder::build(const TrackingRecHit * p) const{
+  if(theTrackingGeometry.isValid()) return build(p,theTrackingGeometry);
+  else
+    throw cms::Exception("Muon|RecoMuon|MuonTransientTrackingRecHitBuilder")
+      <<"ERROR! You are trying to build a MuonTransientTrackingRecHit with a non valid GlobalTrackingGeometry";
 }
