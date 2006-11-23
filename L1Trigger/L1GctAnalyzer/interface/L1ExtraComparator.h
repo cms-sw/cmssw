@@ -1,6 +1,24 @@
+// -*- C++ -*-
+//
+// Package:    L1GctAnalyzer
+// Class:      L1ExtraComparator
+// 
+/**\class L1ExtraComparator L1ExtraComparator.cc L1Trigger/L1GctAnalyzer/src/L1ExtraComparator.cc
 
+ Description: Makes histograms from comparison between L1Extra candidate and MC particle
 
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Jim Brooke
+//         Created:  23 Nov 2006
+// $Id:
+//
+//
 
+#ifndef L1EXTRACOMPARATOR_H
+#define L1EXTRACOMPARATOR_H
 
 
 class L1ExtraComparator {
@@ -26,4 +44,7 @@ class L1ExtraComparator {
   TH1F phiDiff_; // phi(L1)-phi(MC)
   TH1F rDiff_; // difference in R between L1 and MC
 
-}
+};
+
+#endif
+
