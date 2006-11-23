@@ -34,12 +34,6 @@
 #include "FastSimulation/Utilities/interface/Histos.h"
 //#include "FastSimulation/Utilities/interface/FamosLooses.h"
 
-//CLHEP Headers
-#include "CLHEP/Random/Random.h"
-#include "CLHEP/Random/RandGauss.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/HepMC/GenParticle.h"
-
 #include <iostream>
 #include <list>
 #include <cmath>

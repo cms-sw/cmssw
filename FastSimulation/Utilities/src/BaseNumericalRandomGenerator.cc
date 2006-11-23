@@ -1,7 +1,5 @@
 #include "FastSimulation/Utilities/interface/BaseNumericalRandomGenerator.h"
-
-#include "CLHEP/Random/Random.h"
-#include "CLHEP/Random/RandFlat.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include <cmath>
 #include <iostream>
@@ -10,6 +8,7 @@ BaseNumericalRandomGenerator::BaseNumericalRandomGenerator(
 			      double xmin, double xmax, int n, int iter ) :
                               xmin(xmin), xmax(xmax), n(n), iter(iter) 
 {
+  random = RandomEngine::instance();
   // Limit the array size to the hard-coded maximum 
   if ( n>1000) n=1000;
 }
@@ -77,7 +76,7 @@ BaseNumericalRandomGenerator::initialize() {
 double 
 BaseNumericalRandomGenerator::generate() const {
 
-  double r=rmin+deltar*RandFlat::shoot();
+  double r=rmin+deltar*random->flatShoot();
   int i=(int)r;
   double s=r-(double)i;
   //  cout << " i,r,s = " << i << " " << r << " " << s << endl;
@@ -88,7 +87,7 @@ BaseNumericalRandomGenerator::generate() const {
 double 
 BaseNumericalRandomGenerator::generateExp() const {
 
-  double r=rmin+deltar*RandFlat::shoot();
+  double r=rmin+deltar*random->flatShoot();
   int i=(int)r;
   //  double s=r-(double)i;
   //  cout << " i,r,s = " << i << " " << r << " " << s << endl;
@@ -97,7 +96,7 @@ BaseNumericalRandomGenerator::generateExp() const {
 
   double umin = -a/b*exp(-b*sampling[i]);
   double umax = -a/b*exp(-b*sampling[i+1]);
-  double u= (umax-umin) * RandFlat::shoot() + umin;
+  double u= (umax-umin) * random->flatShoot() + umin;
 
   return -log(-b/a*u) / b;
 
@@ -106,7 +105,7 @@ BaseNumericalRandomGenerator::generateExp() const {
 double 
 BaseNumericalRandomGenerator::generateLin() const {
 
-  double r=rmin+deltar*RandFlat::shoot();
+  double r=rmin+deltar*random->flatShoot();
   int i=(int)r;
   //  double s=r-(double)i;
   //  cout << " i,r,s = " << i << " " << r << " " << s << endl;
@@ -115,7 +114,7 @@ BaseNumericalRandomGenerator::generateLin() const {
 
   double umin = a*sampling[i]*sampling[i]/2. + b*sampling[i];
   double umax = a*sampling[i+1]*sampling[i+1]/2. + b*sampling[i+1];
-  double u= (umax-umin) * RandFlat::shoot() + umin;
+  double u= (umax-umin) * random->flatShoot() + umin;
 
   return (-b+sqrt(b*b+2.*a*u))/a;
 

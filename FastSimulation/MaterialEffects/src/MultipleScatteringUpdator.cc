@@ -1,8 +1,5 @@
 #include "FastSimulation/MaterialEffects/interface/MultipleScatteringUpdator.h"
 
-#include "CLHEP/Random/Random.h"
-#include "CLHEP/Random/RandGauss.h"
-#include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Vector/LorentzVector.h"
@@ -37,8 +34,8 @@ void MultipleScatteringUpdator::compute(ParticlePropagator &Particle)
 
   // Generate multiple scattering angles in the two directions 
   // perpendicular to the particle motion
-  double theta1 = RandGauss::shoot(0.,theta0); 
-  double theta2 = RandGauss::shoot(0.,theta0); 
+  double theta1 = random->gaussShoot(0.,theta0); 
+  double theta2 = random->gaussShoot(0.,theta0); 
 
   HepVector3D theP(Particle.px(),Particle.py(),Particle.pz());
   HepVector3D perpP1 = theP.orthogonal();
@@ -56,10 +53,10 @@ void MultipleScatteringUpdator::compute(ParticlePropagator &Particle)
   // are silicon only to determine the thickness) in the directions orthogonal
   // to the vector normal to the surface
 
-  double xp = (theta1/2. + RandGauss::shoot(0.,theta0)/sqrt(12.))
-                * radLengths * radLenIncm() * 10.;
-  double yp = (theta2/2. + RandGauss::shoot(0.,theta0)/sqrt(12.))
-                * radLengths * radLenIncm() * 10.;
+  double xp = (theta1/2. + random->gaussShoot(0.,theta0)/sqrt(12.))
+                         * radLengths * radLenIncm() * 10.;
+  double yp = (theta2/2. + random->gaussShoot(0.,theta0)/sqrt(12.))
+                         * radLengths * radLenIncm() * 10.;
   
   HepVector3D 
     normal(theNormalVector.x(),theNormalVector.y(),theNormalVector.z());

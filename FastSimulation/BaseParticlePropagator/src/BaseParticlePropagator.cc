@@ -1,9 +1,6 @@
 //FAMOS headers
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
-
-//CLHEP Headers
-#include "CLHEP/Random/Random.h"
-#include "CLHEP/Random/RandFlat.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include <iomanip>
 //#include <fstream>
@@ -39,8 +36,9 @@ BaseParticlePropagator::init() {
   propDir = 1;
   // And this is the proper time at which the particle will decay
   properDecayTime = 
-    (pid()==0||pid()==22||abs(pid())==11||abs(pid())==2112||abs(pid())==2212) ?
-    1E99 : -PDGcTau() * log(RandFlat::shoot());
+    (pid()==0||pid()==22||abs(pid())==11||abs(pid())==2112||abs(pid())==2212||
+     !RandomEngine::instance()) ?
+    1E99 : -PDGcTau() * log(RandomEngine::instance()->flatShoot());
 
 }
 

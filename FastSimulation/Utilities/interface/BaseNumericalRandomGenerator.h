@@ -20,6 +20,8 @@
  * \author Patrick Janot
  * $Date: 12 Jan 2004 14:40 */
 
+class RandomEngine;
+
 class BaseNumericalRandomGenerator
 {
  public:
@@ -62,6 +64,7 @@ class BaseNumericalRandomGenerator
   double xmin, xmax;
   int n, iter;
   double rmin, deltar;
+  RandomEngine* random;
   
  private:
 

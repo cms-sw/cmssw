@@ -5,6 +5,8 @@
 // 11/09/06 
 // Gaussian tail generator. Copied from the GNU Scientific library
 
+class RandomEngine;
+
 class GaussianTail
 {
  public:
@@ -24,6 +26,8 @@ class GaussianTail
   double threshold_;
   double s_;
   double ssquare_;
+
+  RandomEngine* random;
 
 };
 

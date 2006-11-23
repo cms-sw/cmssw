@@ -9,6 +9,7 @@
 #include "Geometry/Surface/interface/BoundDisk.h"
 
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include <list>
 #include <utility>
@@ -32,7 +33,10 @@ class MaterialEffectsUpdator
 
   typedef std::list<const RawParticle*>::const_iterator RHEP_const_iter;
 
-  MaterialEffectsUpdator() { _theUpdatedState.clear(); }
+  MaterialEffectsUpdator() { 
+    random = RandomEngine::instance();
+    _theUpdatedState.clear(); 
+}
 
   virtual ~MaterialEffectsUpdator() {
     // Don't delete the objects contained in the list
@@ -43,17 +47,17 @@ class MaterialEffectsUpdator
   /// Here the tracker material is assumed to be 100% Silicon
 
   /// A
-  double theA() const { return 28.0855; }
+  inline double theA() const { return 28.0855; }
   /// Z
-  double theZ() const { return 14.0000; }
+  inline double theZ() const { return 14.0000; }
   ///Density in g/cm3
-  double rho() const { return 2.329; }
+  inline double rho() const { return 2.329; }
   ///One radiation length in cm
-  double radLenIncm() const { return 9.360; }
+  inline double radLenIncm() const { return 9.360; }
   ///Mean excitation energy (in GeV)
-  double excitE() const { return 12.5E-9*theZ(); }
+  inline double excitE() const { return 12.5E-9*theZ(); }
   ///Electron mass in GeV/c2
-  double eMass() const { return 0.000510998902; }
+  inline double eMass() const { return 0.000510998902; }
 
 
   /// Compute the material effect (calls the sub class)
@@ -79,7 +83,7 @@ class MaterialEffectsUpdator
   virtual void compute(ParticlePropagator& Particle ) = 0;
 
   /// Returns the fraction of radiation lengths traversed
-  double radiationLength() const {return radLengths;}
+  inline double radiationLength() const {return radLengths;}
 
 
  protected:
@@ -89,6 +93,8 @@ class MaterialEffectsUpdator
   double radLengths;
 
   GlobalVector theNormalVector;
+
+  RandomEngine* random;
 
 };
 

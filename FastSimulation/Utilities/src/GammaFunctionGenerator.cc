@@ -1,9 +1,6 @@
 //FAMOS headers
 #include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
-
-// CLHEP headers
-#include "CLHEP/Random/RandFlat.h"
-
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include <iostream>
 
@@ -12,6 +9,8 @@ GammaFunctionGenerator* GammaFunctionGenerator::myself = 0;
 GammaFunctionGenerator::GammaFunctionGenerator() 
 {
   //  std::cout << "Starting GammaFunctionGenerator " << std::endl;
+  random = RandomEngine::instance();
+
   xmax = 30.;
 
   for(unsigned i=1;i<=12;++i)
@@ -81,8 +80,8 @@ double GammaFunctionGenerator::gammaFrac ()
   p = M_E / (frac + M_E);
   do
     {
-      u = RandFlat::shoot();
-      v = RandFlat::shoot();
+      u = random->flatShoot();
+      v = random->flatShoot();
 
       if (u < p)
         {
@@ -95,7 +94,7 @@ double GammaFunctionGenerator::gammaFrac ()
           q = exp ((frac - 1) * log (x));
         }
     }
-  while (RandFlat::shoot() >= q);
+  while (random->flatShoot() >= q);
 
   return x;
 }
@@ -105,22 +104,22 @@ double GammaFunctionGenerator::gammaInt()
   // Exponential distribution : no approximation
   if(na==1)
     {
-      return xmin-log(RandFlat::shoot());
+      return xmin-log(random->flatShoot());
     }
 
   unsigned gn=na-1;
 
   // are we sure to be in the tail 
   if(coreProba==0.)
-    return xmin-coreCoeff[gn]*log(RandFlat::shoot());
+    return xmin-coreCoeff[gn]*log(random->flatShoot());
 
   // core-tail interval
-  if(RandFlat::shoot()<coreProba)
+  if(random->flatShoot()<coreProba)
     {
       return theGammas[gn].gamma_lin();
     }
   //  std::cout << " Tail called " << std::endl;
-  return approxLimit[gn]-coreCoeff[gn]*log(RandFlat::shoot());
+  return approxLimit[gn]-coreCoeff[gn]*log(random->flatShoot());
 }
 
 void GammaFunctionGenerator::setParameters(double a,double b, double xm)

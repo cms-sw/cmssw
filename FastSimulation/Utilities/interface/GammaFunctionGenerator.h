@@ -16,6 +16,8 @@
 //STL
 #include <vector>
 
+class RandomEngine;
+
 class GammaFunctionGenerator
 {
  public:
@@ -77,5 +79,7 @@ class GammaFunctionGenerator
 
   // if xmin>xmax
   bool badRange;
+
+  RandomEngine* random;
 };
 #endif

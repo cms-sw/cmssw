@@ -1,6 +1,7 @@
 <flags SEAL_PLUGIN_NAME="FastSimulationEventProducer">
 <use name=Utilities/Notification>
 <use name=Foundation/PluginManager>
+<use name=FastSimulation/Utilities>
 <use name=FastSimulation/Event>
 <use name=FastSimulation/TrajectoryManager>
 <use name=FastSimulation/PileUpProducer>
@@ -30,6 +31,7 @@
 <export>
  <lib name=FastSimulationEventProducer>
  <use name=Utilities/Notification>
+ <use name=FastSimulation/Utilities>
  <use name=FastSimulation/Event>
  <use name=FastSimulation/TrajectoryManager>
  <use name=FastSimulation/PileUpProducer>

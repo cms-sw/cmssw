@@ -3,8 +3,6 @@
 
 #include "FastSimulation/MaterialEffects/interface/PairProductionUpdator.h"
 
-#include "CLHEP/Random/Random.h"
-#include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
@@ -36,7 +34,7 @@ void PairProductionUpdator::compute(ParticlePropagator& Particle)
     // Author : Patrick Janot - 7-Jan-2004
 
     // Probability to convert is 7/9*(dx/X0)
-    if ( -log(RandFlat::shoot()) <= (7./9.)*radLengths ) {
+    if ( -log(random->flatShoot()) <= (7./9.)*radLengths ) {
       
       double xe=0;
       double xm=eMass()/eGamma;
@@ -44,9 +42,9 @@ void PairProductionUpdator::compute(ParticlePropagator& Particle)
   
       // Generate electron energy between emass and eGamma-emass
       do {
-	xe = RandFlat::shoot()*(1.-2.*xm) + xm;
+	xe = random->flatShoot()*(1.-2.*xm) + xm;
 	weight = 1. - 4./3.*xe*(1.-xe);
-      } while ( weight < RandFlat::shoot() );
+      } while ( weight < random->flatShoot() );
   
       double eElectron = xe * eGamma;
       double tElectron = eElectron-eMass();
@@ -57,7 +55,7 @@ void PairProductionUpdator::compute(ParticlePropagator& Particle)
       double pPositron = sqrt((ePositron+eMass())*tPositron);
       
       // Generate angles
-      double phi    = RandFlat::shoot()*2.*M_PI;
+      double phi    = random->flatShoot()*2.*M_PI;
       double sphi   = sin(phi);
       double cphi   = cos(phi);
 
@@ -118,12 +116,9 @@ double PairProductionUpdator::gbteth(double ener,double partm,double efrac)
 
   do {
       double beta;
-      if (RandFlat::shoot()<=w1) beta = alfa;
+      if (random->flatShoot()<=w1) beta = alfa;
       else beta = 3.0*alfa;
-      double ran[2];
-      ran[0] = RandFlat::shoot();
-      ran[1] = RandFlat::shoot();
-      u = -(log(ran[0]*ran[1]))/beta;
+      u = -(log(random->flatShoot()*random->flatShoot()))/beta;
   } while (u>=umax);
 
   return u;

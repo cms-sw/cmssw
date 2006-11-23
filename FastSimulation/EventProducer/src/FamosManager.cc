@@ -1,6 +1,9 @@
 // CMSSW Header
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
@@ -29,6 +32,7 @@
 #include "CLHEP/Random/JamesRandom.h"
 
 // FAMOS Header
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "FastSimulation/EventProducer/interface/FamosManager.h"
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
 #include "FastSimulation/PileUpProducer/interface/PUProducer.h"
@@ -47,13 +51,6 @@ using namespace std;
 FamosManager::FamosManager(edm::ParameterSet const & p)
     : iEvent(0),
       myGenEvent(0),
-      mySimEvent(new FSimEvent(p.getParameter<edm::ParameterSet>("VertexGenerator"),
-			       p.getParameter<edm::ParameterSet>("ParticleFilter"))),
-      myTrajectoryManager(new TrajectoryManager
-			      (mySimEvent,
-			       p.getParameter<edm::ParameterSet>("MaterialEffects"),
-			       p.getParameter<edm::ParameterSet>("TrackerSimHits"),
-			       p.getParameter<bool>("ActivateDecays"))),
       myPileUpProducer(0),
       myCalorimetry(0),
       m_FamosSeed(p.getParameter<int>("FamosSeed")),
@@ -70,16 +67,40 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
   HepRandom::setTheSeeds(&m_FamosSeed,2);
   HepRandom::showEngineStatus(); 
 
+  // Initialize the random number generator service
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable() ) {
+    throw cms::Exception("Configuration")
+      << "FamosManager requires the RandomGeneratorService\n"
+         "which is not present in the configuration file.\n"
+         "You must add the service in the configuration file\n"
+         "or remove the module that requires it";
+  }
+  RandomEngine::instance(&(*rng));
 
-  // Initialize PileUp Producer
+  // Initialize the FSimEvent
+  mySimEvent = 
+    new FSimEvent(p.getParameter<edm::ParameterSet>("VertexGenerator"),
+		  p.getParameter<edm::ParameterSet>("ParticleFilter"));
+
+  /// Initialize the TrajectoryManager
+  myTrajectoryManager = 
+    new TrajectoryManager(mySimEvent,
+			  p.getParameter<edm::ParameterSet>("MaterialEffects"),
+			  p.getParameter<edm::ParameterSet>("TrackerSimHits"),
+			  p.getParameter<bool>("ActivateDecays"));
+
+  // Initialize PileUp Producer (if requested)
   if ( m_PileUp ) 
-    myPileUpProducer = new PUProducer(mySimEvent,
-				      p.getParameter<edm::ParameterSet>("PUProducer"));
+    myPileUpProducer = 
+      new PUProducer(mySimEvent,
+                     p.getParameter<edm::ParameterSet>("PUProducer"));
 
-  // Initialize Calorimetry Fast Simulation
+  // Initialize Calorimetry Fast Simulation (if requested)
   if ( m_Calorimetry) 
-    myCalorimetry = new CalorimetryManager(mySimEvent,
-					   p.getParameter<edm::ParameterSet>("Calorimetry"));
+    myCalorimetry = 
+      new CalorimetryManager(mySimEvent,
+			     p.getParameter<edm::ParameterSet>("Calorimetry"));
 
 }
 

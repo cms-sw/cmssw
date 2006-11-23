@@ -7,9 +7,6 @@
 #include "FastSimulation/MaterialEffects/interface/BremsstrahlungUpdator.h"
 
 //CLHEP Headers
-#include "CLHEP/Random/Random.h"
-#include "CLHEP/Random/RandGauss.h"
-#include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Vector/LorentzVector.h"
@@ -96,16 +93,16 @@ HepLorentzVector BremsstrahlungUpdator::brem(HepLorentzVector pp) {
   double weight = 0.;
   
   do {
-    xp = xmin * exp ( -log(xmin) * RandFlat::shoot() );
+    xp = xmin * exp ( -log(xmin) * random->flatShoot() );
     weight = 1. - xp + 3./4.*xp*xp;
-  } while ( weight < RandFlat::shoot() );
+  } while ( weight < random->flatShoot() );
   
   
   // Have photon energy. Now generate angles with respect to the z axis 
   // defined by the incoming particle's momentum.
 
   // Isotropic in phi
-  const double phi = RandFlat::shoot()*2*M_PI;
+  const double phi = random->flatShoot()*2*M_PI;
   // theta from universal distribution
   const double theta = gbteth(pp.e(),emass,xp)*emass/pp.e(); 
   
@@ -130,13 +127,8 @@ double BremsstrahlungUpdator::gbteth(const double ener,
   double u;
   
   do {
-    double beta;
-    double r1,r2;
-    r1 = RandFlat::shoot();
-    beta = (r1<=w1) ? alfa : 3.0*alfa;
-    r1 = RandFlat::shoot();
-    r2 = RandFlat::shoot();
-    u = -log(r1*r2)/beta;
+    double beta = (random->flatShoot()<=w1) ? alfa : 3.0*alfa;
+    u = -log(random->flatShoot()*random->flatShoot())/beta;
   } while (u>=umax);
 
   return u;
@@ -149,7 +141,7 @@ BremsstrahlungUpdator::poisson(double ymu) {
   unsigned int n = 0;
   double prob = exp(-ymu);
   double proba = prob;
-  double x = RandFlat::shoot();
+  double x = random->flatShoot();
   
   while ( proba <= x ) {
     prob *= ymu / double(++n);

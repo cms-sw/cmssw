@@ -1,12 +1,12 @@
 #include "FastSimulation/Utilities/interface/GaussianTail.h"
-
-// CLHEP headers
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGaussQ.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include "math.h"
-GaussianTail::GaussianTail(double sigma,double threshold):sigma_(sigma),threshold_(threshold)
+GaussianTail::GaussianTail(double sigma,double threshold) : 
+  sigma_(sigma),
+  threshold_(threshold)
 {
+  random = RandomEngine::instance();
   s_=threshold_/sigma_;
   ssquare_ = s_ * s_;
 }
@@ -31,10 +31,10 @@ double GaussianTail::shoot()
       
       do
         {
-          u = RandFlat::shoot();
+          u = random->flatShoot();
           do
             {
-              v = RandFlat::shoot();
+              v = random->flatShoot();
             }
           while (v == 0.0);
           x = sqrt (ssquare_ - 2 * log (v));
@@ -52,7 +52,7 @@ double GaussianTail::shoot()
 
       do
         {
-          x = RandGaussQ::shoot();
+          x = random->gaussShoot();
         }
       while (x < s_);
       return x * sigma_; 
