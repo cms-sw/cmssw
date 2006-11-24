@@ -53,13 +53,37 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    using namespace edm;
    using namespace std;
 
-   // Get the generated event from the edm::Event
-   Handle<HepMCProduct> evt;
-   iEvent.getByType(evt);
-   const HepMC::GenEvent* myGenEvent = evt->GetEvent();
+   // Get the generated event(s) from the edm::Event
+   Handle<HepMCProduct> evtSource;
+   Handle<HepMCProduct> evtVtxSmeared;
+   bool source = false;
+   bool vtxSmeared = false;
+   vector< Handle<HepMCProduct> > evts; 
+   iEvent.getManyByType(evts);
+   for ( unsigned i=0; i<evts.size(); ++i ) {
+     if ( !vtxSmeared && evts[i].provenance()->moduleLabel()=="VtxSmeared" ) {
+       vtxSmeared = true;      
+       evtVtxSmeared = evts[i];
+       break;
+     } else if ( !source &&  evts[i].provenance()->moduleLabel()=="source" ) {
+       source = true;
+       evtSource = evts[i];
+     }
+   }
+
+   // Take the VtxSmeared if it exists, the source otherwise
+   // (The vertex smearing is done in Famos only in the latter case)
+   const HepMC::GenEvent* myGenEvent;
+   if ( vtxSmeared ) {
+     myGenEvent = evtVtxSmeared->GetEvent();
+   } else if ( source ) {
+     myGenEvent = evtSource->GetEvent();
+   } else {
+     myGenEvent = 0;
+   }
 
    // .and pass it to the Famos Manager (should be EventManager)
-   famosManager_->reconstruct(myGenEvent);
+   if ( myGenEvent ) famosManager_->reconstruct(myGenEvent);
 
    // Put info on to the end::Event
    FSimEvent* fevt = famosManager_->simEvent();
