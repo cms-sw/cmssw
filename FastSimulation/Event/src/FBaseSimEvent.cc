@@ -1,5 +1,4 @@
 //CLHEP Headers
-#include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/HepMC/GenEvent.h"
 #include "CLHEP/HepMC/GenVertex.h"
 #include "CLHEP/HepMC/GenParticle.h"
