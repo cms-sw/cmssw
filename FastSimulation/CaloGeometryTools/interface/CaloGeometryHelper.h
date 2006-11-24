@@ -42,7 +42,7 @@ class CaloGeometryHelper:public Calorimeter
   inline double magneticField() const {return bfield_;}
   
   // temporary. Requires a missing geometry tool 
-  bool borderCrossing(const DetId&, const DetId&) const { return false; }
+  bool borderCrossing(const DetId&, const DetId&) const ;
 
   bool move(DetId& cell, const CaloDirection& dir,bool fast=true) const;
 

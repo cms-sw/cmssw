@@ -367,3 +367,25 @@ bool CaloGeometryHelper::diagonalmove(DetId& cell, const CaloDirection& dir) con
   cell = DetId(0);
   return false;
 }
+
+bool CaloGeometryHelper::borderCrossing(const DetId& c1, const DetId& c2) const
+{
+  if(c1.subdetId()!=c2.subdetId()) return false;
+
+  if(c1.subdetId()==EcalBarrel)
+    {
+      // there is a crack if the two cells don't belong to the same 
+      // module
+      EBDetId cc1(c1);
+      EBDetId cc2(c2);
+      return (cc1.im()!=cc2.im()||cc1.ism()!=cc2.ism() );
+    }
+  
+if(c1.subdetId()==EcalEndcap)
+    {
+      // there is a crack if the two cells don't belong to the same 
+      // module
+      return (EEDetId(c1).isc()!=EEDetId(c2).isc());
+    }
+ return false;
+}
