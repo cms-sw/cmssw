@@ -3,12 +3,12 @@
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
 #include <TTree.h>
 
-EcalBarrelFenixStrip::EcalBarrelFenixStrip(const TTree *tree) { 
-  for (int i=0;i<nCrystalsPerStrip_;i++) linearizer_[i] = new  EcalFenixLinearizer(); 
+EcalBarrelFenixStrip::EcalBarrelFenixStrip(const TTree *tree, DBInterface * db) { 
+  for (int i=0;i<nCrystalsPerStrip_;i++) linearizer_[i] = new  EcalFenixLinearizer(db); 
   adder_ = new  EcalFenixEtStrip();
-  amplitude_filter_ = new EcalFenixAmplitudeFilter();
+  amplitude_filter_ = new EcalFenixAmplitudeFilter(db);
   peak_finder_ = new  EcalFenixPeakFinder();
-  formatter_= new EcalFenixStripFormat();
+  formatter_= new EcalFenixStripFormat(db);
 }
 
 
@@ -37,8 +37,11 @@ std::vector<int>  EcalBarrelFenixStrip::process(std::vector<const EBDataFrame *>
     // 	if (df[cryst][i].adc() > 210) cout<<" is great!!";
     //       }
     //       cout<<endl;
+    int crystalNumberInStrip=((df[cryst]->id()).ic()-1)%numberOfCrystalsInStrip;
+    if ((df[cryst]->id()).ieta()<0) crystalNumberInStrip=numberOfCrystalsInStrip - crystalNumberInStrip - 1;
+    this->getLinearizer(cryst)->setParameters(1, townr, stripnr, crystalNumberInStrip) ; // PP: sm number must be here instead of 1
     EBDataFrame *ebdfp= new EBDataFrame(df[cryst]->id());
-    this->getLinearizer(cryst)->process(*(df[cryst]),stripnr,townr,ebdfp);
+    this->getLinearizer(cryst)->process(*(df[cryst]),ebdfp);
     lin_out.push_back(ebdfp);
   }
 
@@ -67,8 +70,9 @@ std::vector<int>  EcalBarrelFenixStrip::process(std::vector<const EBDataFrame *>
   //     cout<<endl;
  
   // call amplitudefilter
+  this->getFilter()->setParameters(1, townr,stripnr) ; // PP: sm number must be here instead of 1
   std::vector<int> filt_out;
-  filt_out= this->getFilter()->process(add_out);
+  filt_out= this->getFilter()->process(add_out); 
   //this is a test:
   //     cout<< "output of amplitude filter is a vector of size: "<<filt_out.size()<<endl; 
   //     cout<< "value : "<<endl;
@@ -90,6 +94,7 @@ std::vector<int>  EcalBarrelFenixStrip::process(std::vector<const EBDataFrame *>
   //     cout<<endl;
 
   // call formatter
+  this->getFormatter()->setParameters(1, townr,stripnr) ; // PP: sm number must be here instead of 1
   std::vector<int> format_out(peak_out.size());
   format_out =this->getFormatter()->process(peak_out,filt_out);
      

@@ -27,6 +27,7 @@
 
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixLinearizer.h"
+#include "SimCalorimetry/EcalTrigPrimAlgos/interface/DBInterface.h"
 
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
@@ -36,12 +37,12 @@
 #include <TMath.h>
 //----------------------------------------------------------------------
 
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax,int nrsamples, double lowthresh, double highthresh):valid_(false),valTree_(NULL),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples), threshLow_(lowthresh), threshHigh_(highthresh)
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax,int nrsamples, DBInterface *db):valid_(false),valTree_(NULL),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples), db_(db)
 
 {this->init(setup);}
 
 //----------------------------------------------------------------------
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,TTree *tree,int binofmax, int nrsamples, double lowthresh, double highthresh):valid_(true),valTree_(tree),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples), threshLow_(lowthresh), threshHigh_(highthresh)
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,TTree *tree,int binofmax, int nrsamples,  DBInterface *db):valid_(true),valTree_(tree),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples), db_(db)
 {this->init(setup);}
 
 //----------------------------------------------------------------------
@@ -52,8 +53,8 @@ void EcalTrigPrimFunctionalAlgo::init(const edm::EventSetup & setup) {
   setup.get<IdealGeometryRecord>().get( theGeometry );
   setup.get<IdealGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
   theEndcapGeometry = &(*theEndcapGeometry_handle);
-  ebstrip_=new EcalBarrelFenixStrip(valTree_);
-
+  ebstrip_= new EcalBarrelFenixStrip(valTree_, db_);
+  ebtcp_ = new EcalBarrelFenixTcp(db_) ;
   setup.get<IdealGeometryRecord>().get(eTTmap_);
 }
 //----------------------------------------------------------------------
@@ -61,11 +62,12 @@ void EcalTrigPrimFunctionalAlgo::init(const edm::EventSetup & setup) {
 EcalTrigPrimFunctionalAlgo::~EcalTrigPrimFunctionalAlgo() 
 {
     delete ebstrip_;
+    delete ebtcp_;
 }
 
 //----------------------------------------------------------------------
 
-void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigiCollection* eedcol, EcalTrigPrimDigiCollection & result, int fgvbMinEn) {
+void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigiCollection* eedcol, EcalTrigPrimDigiCollection & result) {
   
   sumBarrel_.clear();
  
@@ -149,7 +151,7 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 
 
       std::vector<EcalTriggerPrimitiveSample> towtp;
-      ebtcp_.process(striptp,towtp);
+      ebtcp_->process(striptp,towtp, 1, townr);  //PP 1 should be Supermodule nb
 
       // Fill TriggerPrimitiveDigi
       EcalTriggerPrimitiveDigi tptow(thisTower);
@@ -226,7 +228,9 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 	}
 
 	int fgvb=0;
-	if (etmax > fgvbMinEn && float(et)/float(etmax) > .85) fgvb=1;
+        int fgvbMinEn = 50; //FIXME: temporary for temporary Endcap code!!!!
+
+        if (etmax > fgvbMinEn && float(et)/float(etmax) > .85) fgvb=1;
 	int ttf=calculateTTF(et);
  	et=et>>4;
 	if (et>0xFF) et=0xFF;
@@ -300,6 +304,11 @@ int EcalTrigPrimFunctionalAlgo::calculateTTF(const int en) {
   //temporary version of TTF calculation for Endcap
   //  int high=83; // adc value corresponding to 5 GeV, factor 0.06
   //  int low=42;  // adc value corresponding to 2.5 GeV, factor 0.06
+  // temporary for temporary Endcap version !!!
+
+  double threshLow_ =2.5; //GeV
+  double threshHigh_=5.;
+  //  
   int high=int(threshHigh_/0.06);
   int low=int(threshLow_/0.06);
   int ttf=0;
