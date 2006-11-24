@@ -28,7 +28,7 @@ class KineParticleFilter;
 
 class SimTrack;
 class SimVertex;
-class BaseEventVertexGenerator;
+class PrimaryVertexGenerator;
 //class Histos;
 
 namespace HepMC {
@@ -137,7 +137,7 @@ public:
 
   const DefaultConfig::ParticleDataTable * pdt;
 
-  BaseEventVertexGenerator* theVertexGenerator;
+  PrimaryVertexGenerator* theVertexGenerator;
 
   //  Histos* myHistos;
 

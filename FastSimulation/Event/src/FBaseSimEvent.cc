@@ -8,9 +8,6 @@
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 
-// CMSSW IOMC Headers
-#include "IOMC/GaussianEventVertexGenerator/interface/GaussianEventVertexGenerator.h"
-#include "IOMC/FlatEventVertexGenerator/interface/FlatEventVertexGenerator.h"
 
 //FAMOS Headers
 #include "FastSimulation/Event/interface/FBaseSimEvent.h"
@@ -18,6 +15,9 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "FastSimulation/Event/interface/GaussianPrimaryVertexGenerator.h"
+#include "FastSimulation/Event/interface/FlatPrimaryVertexGenerator.h"
+#include "FastSimulation/Event/interface/NoPrimaryVertexGenerator.h"
 //#include "FastSimulation/Utilities/interface/Histos.h"
 
 using namespace std;
@@ -39,11 +39,12 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
 
   // Initialize the vertex generator
   string vtxType = vtx.getParameter<string>("type");
-  long seed = vtx.getParameter<int>("seed");
   if ( vtxType == "Gaussian" ) 
-    theVertexGenerator = new GaussianEventVertexGenerator(vtx,seed);
+    theVertexGenerator = new GaussianPrimaryVertexGenerator(vtx);
   else if ( vtxType == "Flat" ) 
-    theVertexGenerator = new FlatEventVertexGenerator(vtx,seed);
+    theVertexGenerator = new FlatPrimaryVertexGenerator(vtx);
+  else
+    theVertexGenerator = new NoPrimaryVertexGenerator();
 
   // Initialize the vectors of particles and vertices
   theGenParticles = new vector<GenParticle*>(); 
@@ -297,17 +298,17 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
   // Are there particles in the FSimEvent already ? 
   int offset = nGenParts();
 
-  // Primary vertex
+  // Primary vertex (already smeared by the SmearedVtx module)
   GenVertex* primaryVertex = *(myGenEvent.vertices_begin());
+
+  // Smear the main vertex
+  theVertexGenerator->generate();
 
   // Set the main vertex with smearing
   HepLorentzVector smearedVertex = 
-     primaryVertex->point3d().mag() > 1E-10 || !theVertexGenerator ?
-     HepLorentzVector(0.,0.,0.,0.) :
-     HepLorentzVector(theVertexGenerator->newVertex()->x(),
-		      theVertexGenerator->newVertex()->y(),
-		      theVertexGenerator->newVertex()->z(),
-		      0.);
+    primaryVertex->point3d().mag() > 1E-10 ?
+    HepLorentzVector(0.,0.,0.,0.) :
+    HepLorentzVector(*theVertexGenerator);
 
   // Fill Histos
   /* 
@@ -317,7 +318,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
   cout << smearedVertex << endl;
   */
 
-  myFilter->setMainVertex(primaryVertex->position()/10.+smearedVertex);
+  myFilter->setMainVertex(smearedVertex);
 
   // This is the smeared main vertex
   //  GenVertex* mainVertex = new GenVertex(myFilter.vertex());
