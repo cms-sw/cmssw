@@ -84,23 +84,11 @@ SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) cons
   // Linearization Point
   GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
 
-  //   edm::LogInfo("RecoVertex/SequentialVertexFitter") 
-  //	 << "linearization point is " << linP << "\n";
-
   // Initial vertex state, with a very large error matrix
   AlgebraicSymMatrix we(3,1);
   GlobalError error(we*10000);
   VertexState state(linP, error);
-  
-
-  //   edm::LogInfo("RecoVertex/SequentialVertexFitter") 
-  //	 << "Now linearizing tracks" << "\n";
-
   vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, state);
-
-  //   edm::LogInfo("RecoVertex/SequentialVertexFitter") 
-  //	 << "Now fitting vertex" << "\n";
-
   return fit(vtContainer, state, false);
 }
 
@@ -243,10 +231,6 @@ SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
     // update sequentially the vertex estimate
     for (vector<RefCountedVertexTrack>::const_iterator i 
 	   = globalVTracks.begin(); i != globalVTracks.end(); i++) {
-
-      //      edm::LogInfo("RecoVertex/SequentialVertexFitter") 
-      //	<< "Now updating vertex" << "\n";
-      
       fVertex = theUpdator->add(fVertex,*i);
     }
 
@@ -279,9 +263,13 @@ SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
   	    ((previousPosition - newPosition).transverse() > theMaxShift) );
 
   if (step >= theMaxStep) {
+    edm::LogError("RecoVertex/SequentialVertexFitter") 
+       << "The maximum number of steps has been exceeded. Returned vertex is invalid\n";
     return CachingVertex(); // return invalid vertex
   }
   if (!inTrackerBounds) {
+    edm::LogError("RecoVertex/SequentialVertexFitter") 
+       << "Fitted position is out of tracker bounds. Returned vertex is invalid\n";
     return CachingVertex(); // return invalid vertex
   }
 
