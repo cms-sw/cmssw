@@ -250,7 +250,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 //
 void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* const summary,
 						    const edm::DetSetVector<SiStripRawDigi>& raw ) {
-  LogTrace(mlDqmSource_) << "[SiStripCommissioningSource::" << __func__ << "]";
+  //LogTrace(mlDqmSource_) << "[SiStripCommissioningSource::" << __func__ << "]";
     
   // Create FEC key using DCU id and LLD channel from SiStripEventSummary
   const SiStripModule& module = fecCabling_->module( summary->dcuId() );
@@ -258,20 +258,20 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
   fec_path.channel_ = summary->deviceId() & 0x3;
   uint32_t fec_key = SiStripFecKey::key( fec_path );
   
-  stringstream ss;
-  ss << "[SiStripCommissioningSource::" << __func__ << "]" 
-     << " SiStripSummaryEvent info:" 
-     << "  DcuId: 0x" << hex << setw(8) << setfill('0') << summary->dcuId() << dec 
-     << " LldChannel: " << fec_path.channel_ 
-     << "  FecKey: 0x" << hex << setw(8) << setfill('0') << fec_key << dec
-     << " Crate/FEC/ring/CCU/module/LLDchan: "
-     << fec_path.fecCrate_ << "/"
-     << fec_path.fecSlot_ << "/"
-     << fec_path.fecRing_ << "/"
-     << fec_path.ccuAddr_ << "/"
-     << fec_path.ccuChan_ << "/"
-     << fec_path.channel_;
-  LogTrace(mlDqmSource_) << ss.str();
+//   stringstream ss;
+//   ss << "[SiStripCommissioningSource::" << __func__ << "]" 
+//      << " SiStripSummaryEvent info:" 
+//      << "  DcuId: 0x" << hex << setw(8) << setfill('0') << summary->dcuId() << dec 
+//      << " LldChannel: " << fec_path.channel_ 
+//      << "  FecKey: 0x" << hex << setw(8) << setfill('0') << fec_key << dec
+//      << " Crate/FEC/ring/CCU/module/LLDchan: "
+//      << fec_path.fecCrate_ << "/"
+//      << fec_path.fecSlot_ << "/"
+//      << fec_path.fecRing_ << "/"
+//      << fec_path.ccuAddr_ << "/"
+//      << fec_path.ccuChan_ << "/"
+//      << fec_path.channel_;
+//   LogTrace(mlDqmSource_) << ss.str();
 
   // Check on whether DCU id is found
   if ( !fec_path.fecCrate_ &&
@@ -302,7 +302,7 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
     
     // Iterate through FED channels
     for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
-      LogTrace(mlDqmSource_) << " FedCh: " << ichan;
+//       LogTrace(mlDqmSource_) << " FedCh: " << ichan;
       
       // Retrieve digis for given FED key
       uint32_t fed_key = SiStripFedKey::key( *ifed, ichan );
@@ -310,13 +310,13 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
       if ( digis != raw.end() ) { 
 	if ( !digis->data.size() ) { continue; }
 	
-	if ( digis->data[0].adc() > 500 ) {
-	  stringstream ss;
-	  ss << " HIGH SIGNAL " << digis->data[0].adc() << " FOR"
-	     << " FedKey: 0x" << hex << setw(8) << setfill('0') << fed_key << dec
-	     << " FedId/Ch: " << *ifed << "/" << ichan;
-	  LogTrace(mlDqmSource_) << ss.str();
-	}
+// 	if ( digis->data[0].adc() > 500 ) {
+// 	  stringstream ss;
+// 	  ss << " HIGH SIGNAL " << digis->data[0].adc() << " FOR"
+// 	     << " FedKey: 0x" << hex << setw(8) << setfill('0') << fed_key << dec
+// 	     << " FedId/Ch: " << *ifed << "/" << ichan;
+// 	  LogTrace(mlDqmSource_) << ss.str();
+// 	}
 	
 	Averages ave;
 	for ( uint16_t idigi = 0; idigi < digis->data.size(); idigi++ ) { 
@@ -326,17 +326,17 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
 	ave.calc(params);
 	medians[ichan] = params.median_; // Store median signal level
 	      
-		stringstream ss;
-		ss << "Channel Averages:" << endl
-		   << "  nDigis: " << digis->data.size() << endl
-		   << "  num/mean/MEDIAN/rms/max/min: "
-		   << params.num_ << "/"
-		   << params.mean_ << "/"
-		   << params.median_ << "/"
-		   << params.rms_ << "/"
-		   << params.max_ << "/"
-		   << params.min_ << endl;
-		LogTrace(mlDqmSource_) << ss.str();
+// 		stringstream ss;
+// 		ss << "Channel Averages:" << endl
+// 		   << "  nDigis: " << digis->data.size() << endl
+// 		   << "  num/mean/MEDIAN/rms/max/min: "
+// 		   << params.num_ << "/"
+// 		   << params.mean_ << "/"
+// 		   << params.median_ << "/"
+// 		   << params.rms_ << "/"
+// 		   << params.max_ << "/"
+// 		   << params.min_ << endl;
+// 		LogTrace(mlDqmSource_) << ss.str();
 
       }
       
@@ -349,17 +349,17 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
     Averages::Params tmp;
     average.calc(tmp);
       
-    stringstream ss;
-    ss << "FED Averages:" << endl
-       << "  nChans: " << medians.size() << endl
-       << "  num/mean/median/rms/max/min: "
-       << tmp.num_ << "/"
-       << tmp.mean_ << "/"
-       << tmp.median_ << "/"
-       << tmp.rms_ << "/"
-       << tmp.max_ << "/"
-       << tmp.min_ << endl;
-    LogTrace(mlDqmSource_) << ss.str();
+//     stringstream ss;
+//     ss << "FED Averages:" << endl
+//        << "  nChans: " << medians.size() << endl
+//        << "  num/mean/median/rms/max/min: "
+//        << tmp.num_ << "/"
+//        << tmp.mean_ << "/"
+//        << tmp.median_ << "/"
+//        << tmp.rms_ << "/"
+//        << tmp.max_ << "/"
+//        << tmp.min_ << endl;
+//     LogTrace(mlDqmSource_) << ss.str();
       
     // Calculate mean and spread on "filtered" data
     Averages truncated;
@@ -372,37 +372,37 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
     Averages::Params params;
     truncated.calc(params);
       
-    stringstream ss1;
-    ss1 << "Truncated Averages:" << endl
-	<< "  nChans: " << medians.size() << endl
-	<< "  num/mean/median/rms/max/min: "
-	<< params.num_ << "/"
-	<< params.mean_ << "/"
-	<< params.median_ << "/"
-	<< params.rms_ << "/"
-	<< params.max_ << "/"
-	<< params.min_ << endl;
-    LogTrace(mlDqmSource_) << ss1.str();
+//     stringstream ss1;
+//     ss1 << "Truncated Averages:" << endl
+// 	<< "  nChans: " << medians.size() << endl
+// 	<< "  num/mean/median/rms/max/min: "
+// 	<< params.num_ << "/"
+// 	<< params.mean_ << "/"
+// 	<< params.median_ << "/"
+// 	<< params.rms_ << "/"
+// 	<< params.max_ << "/"
+// 	<< params.min_ << endl;
+//     LogTrace(mlDqmSource_) << ss1.str();
 
     // Identify channels with signal
-    stringstream ss2;
-    ss2 << "Number of possible connections: " << medians.size()
-	<< " channel/signal: ";
+//     stringstream ss2;
+//     ss2 << "Number of possible connections: " << medians.size()
+// 	<< " channel/signal: ";
     map<uint16_t,float> channels;
     map<uint16_t,float>::const_iterator ichan = medians.begin();
     for ( ; ichan != medians.end(); ichan++ ) { 
-            cout << " mean: " << params.mean_
-      	   << " rms: " << params.rms_
-      	   << " thresh: " << params.mean_ + 5.*params.rms_
-      	   << " value: " << ichan->second
-      	   << " strip: " << ichan->first << endl;
+//             cout << " mean: " << params.mean_
+//       	   << " rms: " << params.rms_
+//       	   << " thresh: " << params.mean_ + 5.*params.rms_
+//       	   << " value: " << ichan->second
+//       	   << " strip: " << ichan->first << endl;
       if ( ichan->second > params.mean_ + 5.*params.rms_ ) { 
  	channels[ichan->first] = ichan->second;
- 	ss2 << ichan->first << "/" << ichan->second << " ";
+//  	ss2 << ichan->first << "/" << ichan->second << " ";
       }
     }
-    ss2 << endl;
-    LogTrace(mlDqmSource_) << ss2.str();
+//     ss2 << endl;
+//     LogTrace(mlDqmSource_) << ss2.str();
 
 //     LogTrace(mlDqmSource_)
 //       << "[FedCablingTask::" << __func__ << "]"
