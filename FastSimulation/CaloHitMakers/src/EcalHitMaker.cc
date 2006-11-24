@@ -696,12 +696,11 @@ void EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
 	      // Now check if a gap or crack should be added
 	      if(is<nsegments)
 		{		  
-		  //		  DetId cell3=cp[2*is].getDetId();
+		  DetId cell3=cp[2*is].getDetId();
 		  if(cp[2*is].whichDetector()!=DetId::Hcal) 
 		    {
 		      // Crack inside the ECAL
-		      //		      bool bordercrossing=myCalorimeter->borderCrossing(cell2,cell3);
-		      bool bordercrossing=false;
+		      bool bordercrossing=myCalorimeter->borderCrossing(cell2,cell3);
 		      CaloSegment cracksegment(cp[2*is-1],cp[2*is],s,sX0,sL0,(bordercrossing)?CaloSegment::CRACK:CaloSegment::GAP,myCalorimeter);
 		      segments_.push_back(cracksegment);
 		      s+=cracksegment.length();
