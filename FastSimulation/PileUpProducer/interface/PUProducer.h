@@ -18,6 +18,7 @@ namespace HepMC {
 }
 
 class FSimEvent;
+class RandomEngine;
 
 class PUProducer 
 //: public edm::EDProducer
@@ -46,6 +47,7 @@ class PUProducer
   //  RandFlat flatDistribution_;
   edm::ModuleDescription md_;
   FSimEvent* mySimEvent;
+  RandomEngine* random;
 
   //  std::vector<const HepMC::GenEvent*>* myPileUpEvents;
 

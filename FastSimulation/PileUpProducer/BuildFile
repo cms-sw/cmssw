@@ -12,6 +12,7 @@
 <use name=rootcore>
 <use name=DataFormats/Common>
 <use name=FastSimulation/Event>
+<use name=FastSimulation/Utilities>
 <export>
  <lib name=FastSimulationPileUpProducer>
  <use name=clhep>
@@ -27,4 +28,5 @@
  <use name=rootcore>
  <use name=DataFormats/Common>
  <use name=FastSimulation/Event>
+ <use name=FastSimulation/Utilities>
 </export>

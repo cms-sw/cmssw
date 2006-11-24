@@ -14,11 +14,9 @@
 #include "FastSimulation/PileUpProducer/interface/PUProducer.h"
 #include "FastSimulation/PileUpProducer/interface/PUSource.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandPoissonQ.h"
-
 
 #include <iostream>
 #include <memory>
@@ -35,6 +33,8 @@ PUProducer::PUProducer(FSimEvent* aSimEvent, edm::ParameterSet const & p) :
   md_(),
   mySimEvent(aSimEvent)
 {
+  // Famos random engine
+  random = RandomEngine::instance();
 }
 
 PUProducer::~PUProducer() {;}
@@ -48,13 +48,13 @@ void PUProducer::produce()
   EventPrincipalVector result;
   Handle<HepMCProduct> evt;
   //  int evts = poissonDistribution_.fire();
-  int evts = RandPoissonQ::shoot(averageNumber_);
+  int evts = (int) random->poissonShoot(averageNumber_);
 
   for ( int ievt=0; ievt<evts; ++ievt ) { 
 
     // Select a minbias event
     //    int entry = (int) (flatDistribution_.fire());
-    int entry = (int) (RandFlat::shoot() * 1E8);
+    int entry = (int) (random->flatShoot() * 1E8);
     input->readMany(entry,result); // Warning! we read here only one entry !
     Event e(**(result.begin()),md_);
     e.getByType(evt);
