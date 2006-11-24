@@ -13,7 +13,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
 #include "PhysicsTools/CandAlgos/src/TrivialDeltaRMatcher.h"
-#include "PhysicsTools/CandAlgos/src/MCTruthDeltaRMatcher.h"
 
 DEFINE_SEAL_MODULE();
 
@@ -59,7 +58,6 @@ DEFINE_ANOTHER_FWK_MODULE( CandCombiner );
 DEFINE_ANOTHER_FWK_MODULE( CandReducer );
 DEFINE_ANOTHER_FWK_MODULE( CandMerger );
 DEFINE_ANOTHER_FWK_MODULE( TrivialDeltaRMatcher );
-DEFINE_ANOTHER_FWK_MODULE( MCTruthDeltaRMatcher );
 
   }
 }
