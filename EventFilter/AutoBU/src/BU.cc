@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
 // BU
 // --
@@ -68,6 +68,8 @@ BU::BU(xdaq::ApplicationStub *s)
   , fedSizeMean_(1024)   // mean  of fed size for rnd generation
   , fedSizeWidth_(256)   // width of fed size for rnd generation
   , useFixedFedSize_(false)
+  , nbPostFrame_(0)
+  , nbPostFrameFailed_(0)
   , nbMeasurements_(0)
   , nbEventsLast_(0)
   , nbBytes_(0)
@@ -447,7 +449,19 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
       xdaq::ApplicationDescriptor *fuAppDesc= 
 	i2o::utils::getAddressMap()->getApplicationDescriptor(fuTid);
       
-      getApplicationContext()->postFrame(superFrag,buAppDesc,fuAppDesc);
+      // post frame until it succeeds
+      bool framePosted(false);
+      while (!framePosted) {
+	try {
+	  getApplicationContext()->postFrame(superFrag,buAppDesc,fuAppDesc);
+	  nbPostFrame_.value_++;
+	  framePosted=true;
+	}
+	catch (xcept::Exception& e) {
+	  nbPostFrameFailed_.value_++;
+	}
+      }
+      
     }
     
     if (0!=event) delete event;
@@ -619,6 +633,9 @@ void BU::exportParameters()
   gui_->addStandardParam("fedSizeMean",       &fedSizeMean_);
   gui_->addStandardParam("fedSizeWidth",      &fedSizeWidth_);
   gui_->addStandardParam("useFixedFedSize",   &useFixedFedSize_);
+  
+  gui_->addDebugCounter("nbPostFrame",        &nbPostFrame_);
+  gui_->addDebugCounter("nbPostFrameFailed",  &nbPostFrameFailed_);
   
   gui_->exportParameters();
 

@@ -188,7 +188,9 @@ namespace evf {
     xdata::UnsignedInteger32  fedSizeMean_;
     xdata::UnsignedInteger32  fedSizeWidth_;
     xdata::Boolean            useFixedFedSize_;
-
+    
+    xdata::UnsignedInteger32  nbPostFrame_;
+    xdata::UnsignedInteger32  nbPostFrameFailed_;
     
     // internal parameters and counters (not to be exported)
     unsigned int              nbMeasurements_;
