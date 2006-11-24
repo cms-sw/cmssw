@@ -301,14 +301,12 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
   // Primary vertex (already smeared by the SmearedVtx module)
   GenVertex* primaryVertex = *(myGenEvent.vertices_begin());
 
-  // Smear the main vertex
-  theVertexGenerator->generate();
-
-  // Set the main vertex with smearing
-  HepLorentzVector smearedVertex = 
-    primaryVertex->point3d().mag() > 1E-10 ?
-    HepLorentzVector(0.,0.,0.,0.) :
-    HepLorentzVector(*theVertexGenerator);
+  // Smear the main vertex if needed
+  HepLorentzVector smearedVertex; 
+  if ( primaryVertex->point3d().mag() < 1E-10 ) {
+    theVertexGenerator->generate();
+    smearedVertex = HepLorentzVector(*theVertexGenerator);
+  }
 
   // Fill Histos
   /* 
@@ -318,7 +316,8 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
   cout << smearedVertex << endl;
   */
 
-  myFilter->setMainVertex(smearedVertex);
+  // Set the main vertex
+  myFilter->setMainVertex(primaryVertex->position()/10.+smearedVertex);
 
   // This is the smeared main vertex
   //  GenVertex* mainVertex = new GenVertex(myFilter.vertex());
