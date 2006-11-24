@@ -36,6 +36,9 @@
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
+#include "Geometry/EcalEndcapAlgo/interface/EcalEndcapGeometry.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -57,6 +60,7 @@
 #include <TArrow.h>
 #include <TBox.h>
 #include <TPolyLine3D.h>
+#include <TMarker.h>
 #include <iostream>
 #include <sstream>
 //
@@ -73,6 +77,9 @@ public:
 private:
   // ----------member data ---------------------------
   void testpoint(const HepPoint3D& , std::string name, bool barrel);
+  void checkSM();
+  void checkSC();
+  void testBorderCrossing();
   int pass_;
 
   Histos * myHistos;
@@ -131,7 +138,58 @@ testCaloGeometryTools::analyze( const edm::Event& iEvent, const edm::EventSetup&
    testpoint(p1,"barrel",true);
    HepPoint3D p2(60,60,-317);
    testpoint(p1,"endcap",false);
+
+   checkSM();
+   checkSC();
+   testBorderCrossing();
 }
+
+void testCaloGeometryTools::checkSM()
+{
+  std::vector<DetId> vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
+  unsigned size=vec.size();
+  for(unsigned ic=0;ic<size;++ic)
+    {
+      const CaloCellGeometry * geom=myGeometry.getEcalBarrelGeometry()->getGeometry(vec[ic]);
+      GlobalPoint p=geom->getPosition();
+      HepPoint3D pp(p.x(),p.y(),p.z());
+       // Build the name of the object
+      std::ostringstream oss,oss2;
+      oss << "iM"<< ic;
+      oss2 <<"iSM" << ic;
+      TMarker * myMarker= new TMarker(pp.eta(),pp.phi(),1);
+      myMarker->SetMarkerColor(EBDetId(vec[ic]).im());
+      TMarker * myMarker2= new TMarker(pp.eta(),pp.phi(),1);
+      myMarker2->SetMarkerColor(EBDetId(vec[ic]).ism());
+      myHistos->addObject(oss.str(),myMarker);
+      myHistos->addObject(oss2.str(),myMarker2);
+    }
+}
+
+void testCaloGeometryTools::checkSC()
+{
+  std::vector<DetId> vec(myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap));
+  unsigned size=vec.size();
+  for(unsigned ic=0;ic<size;++ic)
+    {
+      const CaloCellGeometry * geom=myGeometry.getEcalEndcapGeometry()->getGeometry(vec[ic]);
+      GlobalPoint p=geom->getPosition();
+      HepPoint3D pp(p.x(),p.y(),p.z());
+       // Build the name of the object
+      std::ostringstream oss,oss2;
+      if(p.z()>0)
+	oss << "iSCP"<< ic;
+      else
+	oss << "iSCN" << ic ;
+      TMarker * myMarker= new TMarker(pp.x(),pp.y(),1);
+      if(pp.perp()<10)
+	std::cout << EEDetId(vec[ic]) << " " << pp.x() << " " << pp.y() << std::endl;
+      myMarker->SetMarkerColor(EEDetId(vec[ic]).isc()%100);
+      myMarker->SetMarkerStyle(22);
+      myHistos->addObject(oss.str(),myMarker);
+    }
+}
+
 
 
 void testCaloGeometryTools::testpoint(const HepPoint3D& point, std::string name, bool barrel)
@@ -172,6 +230,68 @@ void testCaloGeometryTools::testpoint(const HepPoint3D& point, std::string name,
    TH3F * frame = new TH3F(std::string(name+"frame").c_str(),"",100,xmin*0.9,xmax*1.1,100,ymin*0.9,ymax*1.1,100,zmin*0.9,zmax*1.1);
    myHistos->addObject("frame"+name,frame);
   
+}
+
+void testCaloGeometryTools::testBorderCrossing()
+{
+  // Barrel 
+  std::vector<DetId> vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
+  unsigned size=vec.size();
+  unsigned counter=0;
+  for(unsigned ic=0;ic<size;++ic)
+    {
+      std::vector<DetId> neighbours=myGeometry.getNeighbours(vec[ic]);
+      for(unsigned in=0;in<8;++in)
+	{
+	  if(neighbours[in].null()) continue;
+	  if(myGeometry.borderCrossing(vec[ic],neighbours[in]))
+	    {
+	      const CaloCellGeometry * geom=myGeometry.getEcalBarrelGeometry()->getGeometry(vec[ic]);
+	      GlobalPoint p1=geom->getPosition();
+	      HepPoint3D pp1(p1.x(),p1.y(),p1.z());
+	      geom=myGeometry.getEcalBarrelGeometry()->getGeometry(neighbours[in]);
+	      GlobalPoint p2=geom->getPosition();
+	      HepPoint3D pp2(p2.x(),p2.y(),p2.z());
+	      TMarker * myMarker= new TMarker((pp1+pp2).eta()*0.5,((pp1+pp2)*0.5).phi(),22);
+	      std::ostringstream oss;
+	      oss << "iBCB"<< counter;
+	      myHistos->addObject(oss.str(),myMarker);
+	      ++counter;
+	    }
+	}
+    }
+  
+  // Endcap 
+  vec=myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap);
+  size=vec.size();
+  counter=0;
+  for(unsigned ic=0;ic<size;++ic)
+    {
+      std::vector<DetId> neighbours=myGeometry.getNeighbours(vec[ic]);
+      for(unsigned in=0;in<8;++in)
+	{
+	  if(neighbours[in].null()) continue;
+	  if(myGeometry.borderCrossing(vec[ic],neighbours[in]))
+	    {
+	      const CaloCellGeometry * geom=myGeometry.getEcalEndcapGeometry()->getGeometry(vec[ic]);
+	      GlobalPoint p1=geom->getPosition();
+	      HepPoint3D pp1(p1.x(),p1.y(),p1.z());
+	      geom=myGeometry.getEcalEndcapGeometry()->getGeometry(neighbours[in]);
+	      GlobalPoint p2=geom->getPosition();
+	      HepPoint3D pp2(p2.x(),p2.y(),p2.z());
+	      TMarker * myMarker= new TMarker((pp1+pp2).x()*0.5,(pp1+pp2).y()*0.5,22);
+	      std::ostringstream oss;
+	      if(p1.z()>0)
+		oss << "iBCEN"<< counter;
+	      else
+		oss << "iBCEP" << counter; 
+	      
+	      myHistos->addObject(oss.str(),myMarker);
+	      ++counter;
+	    }
+	}
+    }
+
 }
 
 
