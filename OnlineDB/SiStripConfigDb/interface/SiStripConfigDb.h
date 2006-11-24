@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.16 2006/11/07 10:23:58 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.17 2006/11/08 15:58:36 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h,v $
 
@@ -87,52 +87,53 @@ class SiStripConfigDb {
   typedef Sgi::hash_map<unsigned long, TkDcuConversionFactors*> DcuConversionFactors;
   
   // -------------------- Structs and enums --------------------
-  
-  /** Struct containing database connection parameters. */
+
+  /** 
+   * Container class for database connection parameters: 
+   * Connection params: usingDB flag, confdb, user, passwd and path strings.
+   * Partition info: partition name and major, minor versions.
+   * Input XML files: for modules, DCU-DetId map (dcuinfo.xml), FECs and FEDs.
+   * Output XML files: as for input XML files.
+   */
   class DbParams { 
   public:
-    // Constructor, destructor
+    // Constructor and methods
     DbParams();
     ~DbParams();
-    // Methods
     void print( std::stringstream& ) const; 
+    void reset(); 
+    void setParams( const edm::ParameterSet& );
     void confdb( const std::string& );
-    // Database connection params
+    void confdb( const std::string& user,
+		 const std::string& passwd,
+		 const std::string& path );
+    // Public member data 
     bool usingDb_;
     std::string confdb_;
     std::string user_;
     std::string passwd_;
     std::string path_;
-    // Partition and version info
     std::string partition_; 
     uint32_t major_;
     uint32_t minor_;
-    // Input XML files
     std::string inputModuleXml_;
     std::string inputDcuInfoXml_;
     std::vector<std::string> inputFecXml_;
     std::vector<std::string> inputFedXml_;
     std::string inputDcuConvXml_;
-    // Output XML files
     std::string outputModuleXml_;
     std::string outputDcuInfoXml_;
     std::string outputFecXml_;
     std::string outputFedXml_;
   };
   
-  /** Struct containing partition name and version. */
-  struct Partition { 
-    /*     Partition() : name_(""), major_(0), minor_(0); */
-    std::string name_;
-    uint32_t major_;
-    uint32_t minor_;
-  };
-  
-  /** Struct that holds addresses that uniquely identify a hardware
+  /** Class that holds addresses that uniquely identify a hardware
       component within the control system. */
-  struct DeviceAddress { 
-    /*     DeviceAddress : fecCrate_(0), fecSlot_(0), fecRing_(0),  */
-    /* 		    ccuAddr_(0), ccuChan_(0), i2cAddr_(0); */
+  class DeviceAddress { 
+  public:
+    DeviceAddress() : 
+      fecCrate_(0), fecSlot_(0), fecRing_(0), 
+      ccuAddr_(0), ccuChan_(0), i2cAddr_(0) {;}
     uint16_t fecCrate_; 
     uint16_t fecSlot_;
     uint16_t fecRing_;
@@ -158,19 +159,6 @@ class SiStripConfigDb {
   /** Resets and clears all local caches and synchronizes with
       descriptions retrieved from database or xml files. */
   void refreshLocalCaches();
-  
-  // -------------------- Partitioning and versioning --------------------
-  
-  /** Returns name and major/minor versions for current partition. */
-  inline const Partition& getPartitionNameAndVersion() const;
-
-  /** Sets partition name and version. */
-  inline void setPartitionNameAndVersion( const Partition& );
-
-  /** Sets partition name and version. */
-  inline void setPartitionNameAndVersion( const std::string& partition_name,
-					  const uint32_t& major_version,
-					  const uint32_t& minor_version );
   
   // -------------------- FEC / Front-End devices -------------------- 
   
@@ -299,9 +287,12 @@ class SiStripConfigDb {
   void createPartition( const std::string& partition_name,
 			const SiStripFecCabling& ); 
   
+
  private:
+
   
   // -------------------- Miscellaneous private methods --------------------
+
   
   /** */
   void usingDatabase();
@@ -318,66 +309,20 @@ class SiStripConfigDb {
   
   /** Returns device identifier based on device type. */
   std::string deviceType( const enumDeviceType& device_type ) const;
+
   
   // ---------- Database connection, partitions and versions ----------
+
   
   /** Pointer to the DeviceFactory API. */
   DeviceFactory* factory_; 
 
   /** Instance of struct that holds all DB connection parameters. */
   DbParams dbParams_;
-  
-  /** Switch to identify whether using configuration database or not
-      (if not, then the xml files are used). */
-  bool usingDb_;
 
-  /** Configuration database connection parameter: "user name". */
-  std::string user_;
-  
-  /** Configuration database connection parameter: "password". */
-  std::string passwd_;
-  
-  /** Configuration database connection parameter: "path". */
-  std::string path_;
-
-  /** Partition name and version. */
-  Partition partition_;
-  
-  // -------------------- Input xml file --------------------
-
-  /** Path to input "module.xml" file containing hardware connections. */
-  std::string inputModuleXml_;
-
-  /** Path to input "DcuInfo" xml file that contains DcuId-DetId map and
-      other parameters from static table. */
-  std::string inputDcuInfoXml_;
-
-  /** Paths to input FEC xml file(s) containing device information. */
-  std::vector<std::string> inputFecXml_;
-
-  /** Paths to input FED "description" xml file(s). */
-  std::vector<std::string> inputFedXml_;
-
-  /** Path to input "DcuConv" xml file that contains DCU conversion
-      factors. */
-  std::string inputDcuConvXml_;
-  
-  // -------------------- Output xml files --------------------
-
-  /** Path to output "module.xml" file containing hardware connections. */
-  std::string outputModuleXml_;
-
-  /** Path to output "DcuInfo" xml file that contains DcuId-DetId map and
-      other parameters from static table. */
-  std::string outputDcuInfoXml_;
-
-  /** Paths to output FEC xml file(s) containing device information. */
-  std::string outputFecXml_;
-
-  /** Paths to output FED "description" xml file(s). */
-  std::string outputFedXml_;
 
   // -------------------- Local cache --------------------
+
 
   /** Vector of descriptions for all FEC devices (including DCUs). */
   DeviceDescriptions devices_;
@@ -397,7 +342,9 @@ class SiStripConfigDb {
   /** */
   DcuConversionFactors dcuConversionFactors_;
 
+
   // -------------------- Reset flags --------------------
+
 
   /** Indicates device descriptions have been reset. */
   bool resetDevices_;
@@ -417,7 +364,9 @@ class SiStripConfigDb {
   /** Indicates DCU conversion factors have been reset. */
   bool resetDcuConvs_;
 
+
   // -------------------- Miscellaneous --------------------
+
   
   /** Switch to enable/disable transfer of strip information. */
   bool usingStrips_;
@@ -427,27 +376,21 @@ class SiStripConfigDb {
   
 };
 
+
 // -------------------- Inline methods --------------------
 
-const bool& SiStripConfigDb::usingDb() const { return usingDb_; }
+/** Indicates whether DB (true) or XML files (false) are used. */
+const bool& SiStripConfigDb::usingDb() const { return dbParams_.usingDb_; }
 
-const SiStripConfigDb::Partition& SiStripConfigDb::getPartitionNameAndVersion() const { return partition_; }
-void SiStripConfigDb::setPartitionNameAndVersion( const SiStripConfigDb::Partition& partition ) { partition_ = partition; }
-void SiStripConfigDb::setPartitionNameAndVersion( const std::string& partition_name,
-						  const uint32_t& major_version,
-						  const uint32_t& minor_version ) { 
-  partition_.name_ = partition_name;
-  partition_.major_ = major_version;
-  partition_.minor_ = minor_version;
-}
-
-void SiStripConfigDb::usingStrips( bool using_strips ) { usingStrips_ = using_strips; }
+/** Indicates whether FED strip info is uploaded/downloaded. */
 const bool& SiStripConfigDb::usingStrips() const { return usingStrips_; }
 
-/** Debug info for FedChannelConnection class. */
+/** Switches on/off of upload/download for FED strip info. */
+void SiStripConfigDb::usingStrips( bool using_strips ) { usingStrips_ = using_strips; }
+
+/** Debug printout for DbParams class. */
 std::ostream& operator<< ( std::ostream&, const SiStripConfigDb::DbParams& );
 
+
 #endif // SiStripConfigDb_H
-
-
 

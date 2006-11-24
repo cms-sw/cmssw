@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.6 2006/10/30 21:03:12 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.7 2006/11/03 11:17:24 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedDescriptions.cc,v $
 
@@ -18,7 +18,7 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
   
   try {
     deviceFactory(__func__)->setUsingStrips( usingStrips_ );
-    feds_ = *( deviceFactory(__func__)->getFed9UDescriptions( partition_.name_, 
+    feds_ = *( deviceFactory(__func__)->getFed9UDescriptions( dbParams_.partition_, 
 							      -1, -1 ) ); //partition_.major_, partition_.minor_ ) );
     resetFeds_ = false;
   }
@@ -31,8 +31,8 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
   ss << "[SiStripConfigDb::" << __func__ << "]";
   if ( feds_.empty() ) { ss << " Found no FED descriptions"; }
   else { ss << " Found " << feds_.size() << " FED descriptions"; }
-  if ( !usingDb_ ) { ss << " in " << inputFedXml_.size() << " 'fed.xml' file(s)"; }
-  else { ss << " in database partition '" << partition_.name_ << "'"; }
+  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputFedXml_.size() << " 'fed.xml' file(s)"; }
+  else { ss << " in database partition '" << dbParams_.partition_ << "'"; }
   if ( feds_.empty() ) { edm::LogWarning(mlConfigDb_) << ss; }
   else { LogTrace(mlConfigDb_) << ss; }
   
@@ -56,8 +56,8 @@ void SiStripConfigDb::uploadFedDescriptions( bool new_major_version ) { //@@ thi
     SiStripConfigDb::FedDescriptions::iterator ifed = feds_.begin();
     for ( ; ifed != feds_.end(); ifed++ ) {
       deviceFactory(__func__)->setFed9UDescription( **ifed, 
- 						    (uint16_t*)(&partition_.major_), 
- 						    (uint16_t*)(&partition_.minor_),
+ 						    (uint16_t*)(&dbParams_.major_), 
+ 						    (uint16_t*)(&dbParams_.minor_),
  						    (new_major_version?1:0) );
     }
   }

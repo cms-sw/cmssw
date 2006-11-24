@@ -1,4 +1,4 @@
-// Last commit: $Id: PiaResetDescriptions.cc,v 1.4 2006/10/10 14:35:45 bainbrid Exp $
+// Last commit: $Id: PiaResetDescriptions.cc,v 1.5 2006/10/30 21:03:12 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/PiaResetDescriptions.cc,v $
 
@@ -15,7 +15,7 @@ const SiStripConfigDb::PiaResetDescriptions& SiStripConfigDb::getPiaResetDescrip
   if ( !resetPiaResets_ ) { return piaResets_; }
   
   try { 
-    deviceFactory(__func__)->getPiaResetDescriptions( partition_.name_, piaResets_ );
+    deviceFactory(__func__)->getPiaResetDescriptions( dbParams_.partition_, piaResets_ );
     resetPiaResets_ = false;
   } catch (...) { 
     handleException( __func__ ); 
@@ -43,7 +43,7 @@ void SiStripConfigDb::uploadPiaResetDescriptions() {
   
   try { 
     deviceFactory(__func__)->setPiaResetDescriptions( piaResets_, 
-						      partition_.name_ );
+						      dbParams_.partition_ );
   } catch (...) { 
     handleException( __func__ ); 
   }

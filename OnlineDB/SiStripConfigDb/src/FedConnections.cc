@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.5 2006/10/30 21:03:12 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.6 2006/11/03 11:17:24 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedConnections.cc,v $
 
@@ -30,8 +30,8 @@ const SiStripConfigDb::FedConnections& SiStripConfigDb::getFedConnections() {
   ss << "[SiStripConfigDb::" << __func__ << "]";
   if ( connections_.empty() ) { ss << " Found no FED connections"; }
   else { ss << " Found " << connections_.size() << " FED connections"; }
-  if ( !usingDb_ ) { ss << " in " << inputModuleXml_ << " 'module.xml' file"; }
-  else { ss << " in database partition '" << partition_.name_ << "'"; }
+  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputModuleXml_ << " 'module.xml' file"; }
+  else { ss << " in database partition '" << dbParams_.partition_ << "'"; }
   if ( connections_.empty() ) { edm::LogWarning(mlConfigDb_) << ss; }
   else { LogTrace(mlConfigDb_) << ss; }
   
@@ -51,7 +51,7 @@ void SiStripConfigDb::uploadFedConnections( bool new_major_version ) {
 
   if ( !deviceFactory(__func__) ) { return; }
   
-  if ( usingDb_ ) {
+  if ( dbParams_.usingDb_ ) {
     
     try { 
       
@@ -68,7 +68,7 @@ void SiStripConfigDb::uploadFedConnections( bool new_major_version ) {
     
   } else {
     
-    ofstream out( outputModuleXml_.c_str() );
+    ofstream out( dbParams_.outputModuleXml_.c_str() );
     out << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>" << endl
 	<< "<!DOCTYPE TrackerDescription SYSTEM \"http://cmsdoc.cern.ch/cms/cmt/System_aspects/Daq/dtd/trackerdescription.dtd\">" << endl
 	<< "<TrackerDescription>" << endl

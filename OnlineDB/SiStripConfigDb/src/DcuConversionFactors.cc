@@ -1,4 +1,4 @@
-// Last commit: $Id: DcuConversionFactors.cc,v 1.5 2006/10/10 14:35:45 bainbrid Exp $
+// Last commit: $Id: DcuConversionFactors.cc,v 1.6 2006/10/30 21:03:12 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DcuConversionFactors.cc,v $
 
@@ -28,8 +28,8 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::getDcuConversionFa
   ss << "[SiStripConfigDb::" << __func__ << "]";
   if ( dcuConversionFactors_.empty() ) { ss << " Found no DCU conversion factors"; }
   else { ss << " Found " << dcuConversionFactors_.size() << " DCU conversion factors"; }
-  if ( !usingDb_ ) { ss << " in " << inputDcuConvXml_ << " 'module.xml' file"; }
-  else { ss << " in database partition '" << partition_.name_ << "'"; }
+  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputDcuConvXml_ << " 'module.xml' file"; }
+  else { ss << " in database partition '" << dbParams_.partition_ << "'"; }
   if ( dcuConversionFactors_.empty() ) { edm::LogWarning(mlConfigDb_) << ss; }
   else { LogTrace(mlConfigDb_) << ss; }
   

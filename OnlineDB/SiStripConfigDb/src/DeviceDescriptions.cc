@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.7 2006/10/30 21:03:12 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.8 2006/11/03 11:17:24 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DeviceDescriptions.cc,v $
 
@@ -52,15 +52,15 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
 
   // Retrieve descriptions
   try { 
-    if ( !usingDb_ ) {
+    if ( !dbParams_.usingDb_ ) {
       resetPiaResetDescriptions();
       getPiaResetDescriptions();
     }
-    deviceFactory(__func__)->getFecDeviceDescriptions( partition_.name_, 
+    deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partition_, 
 						       devices_,
-						       partition_.major_,
-						       partition_.minor_ );
-    deviceFactory(__func__)->getDcuDescriptions( partition_.name_, 
+						       dbParams_.major_,
+						       dbParams_.minor_ );
+    deviceFactory(__func__)->getDcuDescriptions( dbParams_.partition_, 
 						 devices_ );
     resetDevices_ = false;
   }
@@ -71,8 +71,8 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
   ss << "[SiStripConfigDb::" << __func__ << "]";
   if ( devices_.empty() ) { ss << " Found no device descriptions"; }
   else { ss << " Found " << devices_.size() << " device descriptions"; }
-  if ( !usingDb_ ) { ss << " in " << inputFecXml_.size() << " 'fec.xml' file(s)"; }
-  else { ss << " in database partition '" << partition_.name_ << "'"; }
+  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputFecXml_.size() << " 'fec.xml' file(s)"; }
+  else { ss << " in database partition '" << dbParams_.partition_ << "'"; }
   if ( devices_.empty() ) { edm::LogWarning(mlConfigDb_) << ss; }
   else { LogTrace(mlConfigDb_) << ss; }
 
@@ -96,9 +96,9 @@ void SiStripConfigDb::uploadDeviceDescriptions( bool new_major_version ) {
   
   try { 
     
-    if ( !usingDb_ ) {
+    if ( !dbParams_.usingDb_ ) {
       deviceFactory(__func__)->setPiaResetDescriptions( piaResets_, 
-							partition_.name_ );
+							dbParams_.partition_ );
     }
 
     // Retrieve all devices except DCUs
@@ -107,9 +107,9 @@ void SiStripConfigDb::uploadDeviceDescriptions( bool new_major_version ) {
 
     // Upload devices
     deviceFactory(__func__)->setFecDeviceDescriptions( devices,
-						       partition_.name_, 
-						       &partition_.major_,
-						       &partition_.minor_,
+						       dbParams_.partition_, 
+						       &dbParams_.major_,
+						       &dbParams_.minor_,
 						       new_major_version );
     
   }

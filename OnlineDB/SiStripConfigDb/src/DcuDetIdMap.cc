@@ -1,4 +1,4 @@
-// Last commit: $Id: DcuDetIdMap.cc,v 1.7 2006/10/10 14:35:45 bainbrid Exp $
+// Last commit: $Id: DcuDetIdMap.cc,v 1.8 2006/10/30 21:03:12 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DcuDetIdMap.cc,v $
 
@@ -27,8 +27,8 @@ const SiStripConfigDb::DcuDetIdMap& SiStripConfigDb::getDcuDetIdMap() {
   ss << "[SiStripConfigDb::" << __func__ << "]";
   if ( devices_.empty() ) { ss << " Found no entries in DCU-DetId map"; }
   else { ss << " Found " << devices_.size() << " entries in DCU-DetId map"; }
-  if ( !usingDb_ ) { ss << " in " << inputDcuInfoXml_.size() << " 'dcuinfo.xml' file(s)"; }
-  else { ss << " in database partition '" << partition_.name_ << "'"; }
+  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputDcuInfoXml_.size() << " 'dcuinfo.xml' file(s)"; }
+  else { ss << " in database partition '" << dbParams_.partition_ << "'"; }
   if ( devices_.empty() ) { edm::LogWarning(mlConfigDb_) << ss; }
   else { LogTrace(mlConfigDb_) << ss; }
 
