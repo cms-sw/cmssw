@@ -434,8 +434,8 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 // -----------------------------------------------------------------------------
 /** */
 void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
-					   SiStripEventSummary& summarym
-					   const uin32_t& event ) {
+					   SiStripEventSummary& summary,
+					   const uint32_t& event ) {
   
   // Pointer to data (recast as 32-bit words) and number of 32-bit words
   uint32_t* data_u32 = 0;
