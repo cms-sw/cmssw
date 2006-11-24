@@ -17,7 +17,7 @@ void SetGenParticleMotherReference::analyze( const Event & event, const EventSet
   
   for( CandidateCollection::const_iterator p = particles->begin();
        p != particles->end(); ++ p ) {
-    for( size_t i = 0; i < p->numberOfDaughters(); ++ i ) {
+    for( int i = 0; i < p->numberOfDaughters(); ++ i ) {
       const Candidate & d = p->daughter( i );
       const GenParticleCandidate * dau = 
 	dynamic_cast<const GenParticleCandidate *>( & d );
