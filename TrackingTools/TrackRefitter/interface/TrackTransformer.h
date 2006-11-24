@@ -10,8 +10,8 @@
  *  pointers to the services, therefore EACH event the setServices(const edm::EventSetup&)
  *  method MUST be called in the code in which the TrackTransformer is used.
  *
- *  $Date: 2006/11/23 11:23:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/23 11:42:53 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -63,12 +63,15 @@ public:
  protected:
   
  private:
+  enum RefitDirection{insideOut,outsideIn};
   
   unsigned long long theCacheId_TC;
   unsigned long long theCacheId_GTG;
   unsigned long long theCacheId_MG;
   unsigned long long theCacheId_TRH;
   
+  RefitDirection theRefitDirection;
+
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMGField;
   

@@ -50,7 +50,7 @@ void TracksToTrajectories::produce(Event& event, const EventSetup& setup){
     
     vector<Trajectory> trajectoriesSM = theTrackTransformer->transform(*newTrack);
     
-    if(trajectoriesSM.size())
+    if(!trajectoriesSM.empty())
       trajectoryCollection->push_back(trajectoriesSM.front());
     
   }

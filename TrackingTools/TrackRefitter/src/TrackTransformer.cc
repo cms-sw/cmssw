@@ -10,7 +10,6 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
-//#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -27,17 +26,27 @@ using namespace edm;
 
 /// Constructor
 TrackTransformer::TrackTransformer(const ParameterSet& parameterSet){
-
+  
+  // Refit direction
+  string refitDirectionName = parameterSet.getParameter<string>("RefitDirection");
+  
+  if (refitDirectionName == "insideOut" ) theRefitDirection = insideOut;
+    else if (refitDirectionName == "outsideIn" ) theRefitDirection = outsideIn;
+    else 
+      throw cms::Exception("TrackTransformer constructor") 
+	<<"Wrong refit direction chosen in TrackTransformer ParameterSet"
+	<< "\n"
+	<< "Possible choices are:"
+	<< "\n"
+	<< "RefitDirection = insideOut or RefitDirection = outsideIn";
+  
   theFitterName = parameterSet.getParameter<string>("Fitter");  
   theSmootherName = parameterSet.getParameter<string>("Smoother");  
   
-  //thePropagatorName = parameterSet.getParameter<string>("Propagator");
-
   theTrackerRecHitBuilderName = parameterSet.getParameter<string>("TrackerRecHitBuilder");
   theMuonRecHitBuilderName = parameterSet.getParameter<string>("MuonRecHitBuilder");
 
   theCacheId_TC = theCacheId_GTG = theCacheId_MG = theCacheId_TRH = 0;
-
 }
 
 /// Destructor
@@ -110,36 +119,31 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack){
   
   reco::TransientTrack track(newTrack,magneticField(),trackingGeometry());   
   
-  TransientTrackingRecHit::ConstRecHitContainer transientRecHits = getTransientRecHits(track);
+  TransientTrackingRecHit::ConstRecHitContainer recHitsForReFit = getTransientRecHits(track);
   
-  // The outermost state is made of the combination of the most external rechit and the 
-  // state coming from the in-out refit
-  TrajectoryStateOnSurface outerTSOS = track.outermostMeasurementState();
   
-  TransientTrackingRecHit::ConstRecHitContainer recHitsForReFit;
-  
-  // copy(transientRecHits.begin(),transientRecHits.end()-1,back_inserter(recHitsForReFit));
-  copy(transientRecHits.begin(),transientRecHits.end(),back_inserter(recHitsForReFit));
-  reverse(recHitsForReFit.begin(),recHitsForReFit.end());
-  
+  TrajectoryStateOnSurface firstTSOS;
+
+  if(theRefitDirection == insideOut)
+    firstTSOS = track.innermostMeasurementState();
+  else{
+    firstTSOS = track.outermostMeasurementState();
+    reverse(recHitsForReFit.begin(),recHitsForReFit.end());
+  }
+
   if(recHitsForReFit.size() < 2) return vector<Trajectory>();
   
-  // In order to avoid to refit two times the first hit (the outerTSOS already contains its information)
-  // the first propagation is done by hand
-  TrajectoryStateOnSurface lastBOpredictedTSOS = 
-    // thePropagator->propagate(outerTSOS,recHitsForReFit.front()->det()->surface());
-    outerTSOS;
   
-  if(!lastBOpredictedTSOS.isValid()){
+  if(!firstTSOS.isValid()){
     LogDebug(metname)<<"Propagation error!"<<endl;
     return vector<Trajectory>();
   }
   
   TrajectorySeed seed;
-  vector<Trajectory> trajectories = theFitter->fit(seed,recHitsForReFit,lastBOpredictedTSOS);
+  vector<Trajectory> trajectories = theFitter->fit(seed,recHitsForReFit,firstTSOS);
   
   
-  if(!trajectories.size()){
+  if(trajectories.empty()){
     LogDebug(metname)<<"No Track refitted!"<<endl;
     return vector<Trajectory>();
   }
@@ -148,11 +152,9 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack){
     
   vector<Trajectory> trajectoriesSM = theSmoother->trajectories(trajectoryBW);
   
-  if(!trajectoriesSM.size()){
+  if(trajectoriesSM.empty()){
     LogDebug(metname)<<"No Track smoothed!"<<endl;
     return vector<Trajectory>();
-    // FIXME! Maybe should be:
-    // return trajectories;
   }
   
   return trajectoriesSM;
