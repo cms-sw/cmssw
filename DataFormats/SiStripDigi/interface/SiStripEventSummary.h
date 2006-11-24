@@ -43,7 +43,8 @@ class SiStripEventSummary {
   // ----- Commissioning information -----
 
   /** Sets commissioning-related information. */
-  void commissioningInfo( const uint32_t* const buffer );
+  void commissioningInfo( const uint32_t* const buffer,
+			  const uint32_t& event );
   
   /** Returns commissioning task. */ 
   inline const sistrip::Task& task() const { return task_; }

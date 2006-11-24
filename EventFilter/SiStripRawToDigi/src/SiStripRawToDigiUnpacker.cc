@@ -286,7 +286,16 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       } else if ( mode == sistrip::VIRGIN_RAW ) {
 
 	edm::DetSet<SiStripRawDigi>& vr = virgin_raw.find_or_insert( key );
-	vector<uint16_t> samples; samples.reserve(256);
+	//@@ FIX FOR S.DUTTA!!!!
+	//@@ FIX FOR S.DUTTA!!!!
+	//@@ FIX FOR S.DUTTA!!!!
+	//@@ FIX FOR S.DUTTA!!!!
+	//@@ FIX FOR S.DUTTA!!!!
+	//@@ FIX FOR S.DUTTA!!!!
+	//@@ FIX FOR S.DUTTA!!!!
+	//@@ FIX FOR S.DUTTA!!!!
+	//@@ FIX FOR S.DUTTA!!!!
+	vector<uint16_t> samples; samples.reserve(256*conn.nApvPairs()); samples.resize(256*conn.nApvPairs(),0); 
 	try {
 	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
 	} catch(...) { 
@@ -425,7 +434,8 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 // -----------------------------------------------------------------------------
 /** */
 void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
-					   SiStripEventSummary& summary ) {
+					   SiStripEventSummary& summarym
+					   const uin32_t& event ) {
   
   // Pointer to data (recast as 32-bit words) and number of 32-bit words
   uint32_t* data_u32 = 0;
@@ -512,8 +522,8 @@ void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
     // Write commissioning information to event 
     uint32_t hsize = sizeof(TFHeaderDescription)/sizeof(uint32_t);
     uint32_t* head = &data_u32[hsize];
-    summary.commissioningInfo( head );
-
+    summary.commissioningInfo( head, event );
+    
   }
   
 }

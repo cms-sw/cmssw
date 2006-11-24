@@ -10,7 +10,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 void SiStripEventSummary::print( stringstream& ss ) const {
-  ss << "SiStripEventSummary:" << endl
+  ss << "[SiStripEventSummary::" << __func__ << "]" << endl
      << " Event: " << event_ << endl 
      << " BX: " << bx_ << endl
      << " CommissioningTask: " << task_ << endl
@@ -41,12 +41,13 @@ void SiStripEventSummary::check() const {
 
 // -----------------------------------------------------------------------------
 //
-void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer ) {
+void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
+					     const uint32_t& event ) {
   
   // Set commissioning task
   if      ( buffer[10] == 11 ||
-	    buffer[10] == 13 ) { task_ = sistrip::FED_CABLING; }
-  else if ( buffer[10] ==  5 ) { task_ = sistrip::APV_TIMING; }
+	    buffer[10] == 13 || 
+	    buffer[10] == 16 ) { task_ = sistrip::FED_CABLING; }
   else if ( buffer[10] == 12 ) { task_ = sistrip::FED_TIMING; }
   else if ( buffer[10] ==  4 ) { task_ = sistrip::OPTO_SCAN; }
   else if ( buffer[10] == 14 ) { task_ = sistrip::VPSP_SCAN; }
@@ -105,12 +106,53 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer ) {
     param2_ = buffer[13]; // ttcrx delay
 
   } else if ( buffer[10] == 11 ||
-	      buffer[10] == 13 ) { // Connection loop 
+	      buffer[10] == 13 ||
+	      buffer[10] == 16 ) { // Connection loop 
 
-    param0_ = buffer[11]; // device id
-    param1_ = buffer[12]; // process id
-    param2_ = buffer[13]; // process ip
-    param3_ = buffer[14]; // dcu hard id
+    if ( buffer[10] == 16 ) { // If fast connection
+
+      uint16_t ii = 0;
+      bool found = false;
+      while ( !found && ii < 20 ) {
+	uint32_t dcu = buffer[21+3*ii];
+	uint32_t key = buffer[21+3*ii+1];
+	uint32_t evt = buffer[21+3*ii+2];
+	if ( evt == event ) {
+	  param0_ = key; // device id
+	  param1_ = 0;   // process id
+	  param2_ = 0;   // process ip
+	  param3_ = dcu; // dcu hard id
+	  found = true;
+	} 
+	ii++;
+      }
+      stringstream ss;
+      ss << "[SiStripEventSummary::" << __func__ << "]";
+      if ( !found ) { 
+	ss << " Did not find DeviceId/DCUid for event " 
+	   << event << "!";
+	edm::LogWarning(mlDigis_) << ss.str();
+	param0_ = 0; 
+	param1_ = 0; 
+	param2_ = 0;
+	param3_ = 0;
+      } else {
+	ss << " Found DeviceId/DCUid for event " 
+	   << event << ": 0x" 
+	   << hex << setw(8) << setfill('0') << param0_ << dec
+	   << "/0x"
+	   << hex << setw(8) << setfill('0') << param3_ << dec;
+	LogTrace(mlDigis_) << ss.str();
+      }
+
+    } else { // If not fast connection
+
+      param0_ = buffer[11]; // device id
+      param1_ = buffer[12]; // process id
+      param2_ = buffer[13]; // process ip
+      param3_ = buffer[14]; // dcu hard id
+
+    }
 
   } else if ( buffer[10] == 14 ) { // VPSP scan
 

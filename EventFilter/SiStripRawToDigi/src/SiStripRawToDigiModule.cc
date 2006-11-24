@@ -87,7 +87,7 @@ void SiStripRawToDigiModule::produce( edm::Event& event,
   
   // Populate SiStripEventSummary object with "trigger FED" info
   auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
-  rawToDigi_->triggerFed( *buffers, *summary ); 
+  rawToDigi_->triggerFed( *buffers, *summary, event.id().event() ); 
   
   // Create auto pointers for digi products
   auto_ptr< edm::DetSetVector<SiStripRawDigi> > sm( new edm::DetSetVector<SiStripRawDigi> );

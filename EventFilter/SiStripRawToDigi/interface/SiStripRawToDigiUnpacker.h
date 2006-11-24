@@ -56,7 +56,8 @@ class SiStripRawToDigiUnpacker {
   
   /** */
   void triggerFed( const FEDRawDataCollection&, 
-		   SiStripEventSummary& );
+		   SiStripEventSummary&,
+		   const uint32_t& event );
 
  private:
   
