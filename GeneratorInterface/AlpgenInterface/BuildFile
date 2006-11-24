@@ -1,0 +1,27 @@
+<use name=boost>
+<use name=FWCore/Framework>
+<use name=SimDataFormats/HepMCProduct>
+<use name=clhep> 
+<use name=pythia6_227>
+#<use name=photos215>
+ 
+<flags SEAL_PLUGIN_NAME="GeneratorInterfaceAlpgenInterface">
+<export>
+ <lib name=GeneratorInterfaceAlpgenInterface>
+ <use name=boost>
+ <use name=FWCore/Framework>
+ <use name=SimDataFormats/HepMCProduct>
+ <use name=clhep> 
+ <use name=pythia6_227>
+# <use name=tauola27.121_aux1>
+# <use name=tauola27.121>
+# <use name=photos215>
+ 
+</export>
+
+ <lib name=g2c></lib>
+ <lib name=m></lib>
+# <lib name=tauola27.121_aux1>
+# <lib name=tauola27.121>
+#
+
