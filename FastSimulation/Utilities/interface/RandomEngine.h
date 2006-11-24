@@ -15,7 +15,7 @@ class RandomEngine {
 
 public:
 
-  edm::RandomNumberGenerator* theHepRandomEngine() const {return rng_;}
+  edm::RandomNumberGenerator* theRandomNumberGenerator() const {return rng_;}
 
   static RandomEngine* instance(edm::RandomNumberGenerator* rng) ;
   static RandomEngine* instance() ;
