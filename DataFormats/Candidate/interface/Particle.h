@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Particle.h,v 1.8 2006/07/26 08:08:34 llista Exp $
+ * \version $Id: Particle.h,v 1.9 2006/10/10 09:10:50 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -72,6 +72,8 @@ namespace reco {
     double theta() const { return p4_.Theta(); }
     /// momentum pseudorapidity
     double eta() const { return p4_.Eta(); }
+    /// repidity
+    double rapidity() const { return p4_.Rapidity(); }
     /// repidity
     double y() const { return p4_.Rapidity(); }
     /// set 4-momentum
