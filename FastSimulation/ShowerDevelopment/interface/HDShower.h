@@ -21,6 +21,7 @@ typedef Steps::const_iterator step_iterator;
 
 class EcalHitMaker;
 class HcalHitMaker;
+class RandomEngine;
 
 class HDShower 
 {
@@ -108,6 +109,9 @@ class HDShower
   double maxTRfactor;
   // Balance between ECAL and HCAL "visible" energy (default = 1.)
   double balanceEH;
+
+  // Famos Random Engine
+  RandomEngine* random;
   
 };
 

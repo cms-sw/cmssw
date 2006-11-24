@@ -5,11 +5,9 @@
 #include "FastSimulation/CaloHitMakers/interface/PreshowerHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 #include "FastSimulation/Utilities/interface/Histos.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 //Anaphe headers
 #include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Random/RandPoissonQ.h"
-#include "CLHEP/Random/RandFlat.h"
 #include <iostream>
 #include <iomanip>
 #include <math.h>
@@ -26,6 +24,9 @@ EMShower::EMShower(EMECALShowerParametrization* const myParam,
     theGrid(myGrid),
     thePreshower(myPresh)    
 { 
+
+  // The Famos random engine
+  random = RandomEngine::instance();
   // Get the Famos Histos pointer
   //  myHistos = Histos::instance();
   myGammaGenerator = GammaFunctionGenerator::instance();
@@ -69,7 +70,7 @@ EMShower::EMShower(EMECALShowerParametrization* const myParam,
     // The number of spots in ECAL / HCAL
     theNumberOfSpots.push_back(myParam->nSpots(E[i]));
     //    theNumberOfSpots.push_back(myParam->nSpots(E[i])*spotFraction);
-    //theNumberOfSpots = RandPoissonQ::shoot(myParam->nSpots(myPart->e()));
+    //theNumberOfSpots = random->poissonShoot(myParam->nSpots(myPart->e()));
 
     // Photo-statistics
     photos.push_back(E[i] * fotos);
@@ -82,8 +83,8 @@ EMShower::EMShower(EMECALShowerParametrization* const myParam,
 
     // Protect against too large fluctuations (a < 1) for small energies
     while ( aa <= 1. ) {
-      z1 = RandGaussQ::shoot(0.,1.);
-      z2 = RandGaussQ::shoot(0.,1.);
+      z1 = random->gaussShoot(0.,1.);
+      z2 = random->gaussShoot(0.,1.);
       aa = exp(theMeanLnAlpha + theSigmaLnAlpha * (z1*rhop-z2*rhom));
     }
 
@@ -250,8 +251,8 @@ EMShower::compute() {
       // ECAL case : Account for photostatistics and long'al non-uniformity
       if (ecal) {
 
-	dE = RandPoissonQ::shoot(dE*photos[i])/photos[i];
-	double z0 = RandGaussQ::shoot(0.,1.);
+	dE = random->poissonShoot(dE*photos[i])/photos[i];
+	double z0 = random->gaussShoot(0.,1.);
 	dE *= 1. + z0*theECAL->lightCollectionUniformity();
 
 	// Expected spot number
@@ -267,7 +268,7 @@ EMShower::compute() {
 	       / tgamma(aSpot[i]))* theHCAL->spotFraction();
 	double nSo = nS ;
 	
-	nS = RandPoissonQ::shoot(nS);
+	nS = random->poissonShoot(nS);
 	dE *= nS/nSo;
 //	if(true)
 //	  {
@@ -277,7 +278,7 @@ EMShower::compute() {
       }
       else if ( presh1 ) {
 	
-	nS = RandPoissonQ::shoot(dE*E[i]*theLayer1->mipsPerGeV());
+	nS = random->poissonShoot(dE*E[i]*theLayer1->mipsPerGeV());
 	dE = nS/(E[i]*theLayer1->mipsPerGeV());
 	//        E1 += dE*E[i]; 
 	//	n1 += nS; 
@@ -285,7 +286,7 @@ EMShower::compute() {
       
       } else if ( presh2 ) {
 	
-	nS = RandPoissonQ::shoot(dE*E[i]*theLayer2->mipsPerGeV());
+	nS = random->poissonShoot(dE*E[i]*theLayer2->mipsPerGeV());
         dE = nS/(E[i]*theLayer2->mipsPerGeV());
 	//        E2 += dE*E[i]; 
 	//	n2 += nS; 
@@ -307,7 +308,7 @@ EMShower::compute() {
 	  theHcalHitMaker->setSpotEnergy(SpotEnergy);
 	}
       // Poissonian fluctuations for the number of spots
-      //    int nSpot = RandPoissonQ::shoot(nS);
+      //    int nSpot = random->poissonShoot(nS);
       int nSpot = (int)(nS+0.5);
       
       
@@ -326,7 +327,7 @@ EMShower::compute() {
       //    myHistos->fill("h302",taui,proba);
       
 	 double dSpotsCore = 
-	RandGaussQ::shoot(proba*nSpot,sqrt(proba*(1.-proba)*nSpot));
+	random->gaussShoot(proba*nSpot,sqrt(proba*(1.-proba)*nSpot));
       
       if(dSpotsCore<0) dSpotsCore=0;
       
@@ -372,7 +373,7 @@ EMShower::compute() {
 	       // Go for the lateral development
 	       for ( unsigned  ispot=0; ispot<nradspots; ++ispot ) 
 		 {
-		   double z3=RandFlat::shoot(umin,umax);
+		   double z3=random->flatShoot(umin,umax);
 		   double ri=theR * sqrt(z3/(1.-z3)) ;
 
 		   //Fig. 12
@@ -388,7 +389,7 @@ EMShower::compute() {
 		   //      myHistos->fill("h400",ri,1./1000.*eSpot/0.2);
 		   
 		   // Generate phi
-		   double phi = 2.*M_PI*RandFlat::shoot();
+		   double phi = 2.*M_PI*random->flatShoot();
 		   
 		   // Add the hit in the crystal
 		   //	if( ecal ) theGrid->addHit(ri*theECAL->moliereRadius(),phi);

@@ -26,6 +26,8 @@ typedef std::pair<double,double> response;
 enum part{hcbarrel=0, hcendcap=1, hcforward=2};
 enum type{ECAL=0, HCAL=1, VFCAL=2};
 
+class RandomEngine;
+
 class HCALResponse
 {
 public:
@@ -82,6 +84,9 @@ private:
 
   // Tabulated response and mean for e/gamma in HF specifically (normalized) 
   double meanEM[maxEMe][maxEMeta], sigmaEM[maxEMe][maxEMeta];
+
+  // Famos random engine
+  RandomEngine* random;
 
 };
 #endif

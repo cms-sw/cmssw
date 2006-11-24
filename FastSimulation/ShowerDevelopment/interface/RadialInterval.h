@@ -9,6 +9,8 @@
 #include <vector>
 #include <iostream>
 
+class RandomEngine;
+
 class RadialInterval
 {
  public:
@@ -63,6 +65,9 @@ class RadialInterval
  private:
     // Fraction of the energy in rm Moliere radius
   double energyFractionInRadius(double rm);
+
+  // Famos Random Engine
+  RandomEngine* random;
   
 };
 #endif

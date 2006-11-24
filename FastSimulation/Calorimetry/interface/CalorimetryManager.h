@@ -22,6 +22,7 @@ class RawParticle;
 class CaloGeometryHelper;
 class Histos;
 class HSParameters;
+class RandomEngine;
 
 class CalorimetryManager{
 
@@ -98,5 +99,8 @@ class CalorimetryManager{
   //FR
   int optionHDSim_, hdGridSize_, hdSimMethod_;
   //RF
+
+  // Famos Random Engine
+  RandomEngine* random;
 };
 #endif

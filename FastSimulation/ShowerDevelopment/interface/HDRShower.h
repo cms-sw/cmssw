@@ -17,6 +17,7 @@
 
 class EcalHitMaker;
 class HcalHitMaker;
+class RandomEngine;
 
 class HDRShower 
 {
@@ -67,6 +68,9 @@ class HDRShower
   float Theta1LambdaSig[NEnergyScan];
   float ThetaLam21[NEnergyScan];
   float ThetaLam21Sig[NEnergyScan];
+
+  // The famos random engine
+  RandomEngine* random;
 };
 
 #endif

@@ -1,6 +1,8 @@
 //FastSimulation Headers
 #include "FastSimulation/ShowerDevelopment/interface/HDShower.h"
 #include "FastSimulation/Utilities/interface/Histos.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
+
 
 //////////////////////////////////////////////////////////////////////
 // What's this?
@@ -11,9 +13,6 @@
 
 //Anaphe headers
 #include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Random/RandPoissonQ.h"
-#include "CLHEP/Random/RandFlat.h"
 
 // CMSSW headers
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -46,6 +45,9 @@ HDShower::HDShower(HDShowerParametrization* myParam,
   // To get an access to constants read in FASTCalorimeter
   //  FASTCalorimeter * myCalorimeter= FASTCalorimeter::instance();
 
+  // The Famos random engine
+  random = RandomEngine::instance();
+
   // Values taken from FamosGeneric/FamosCalorimeter/src/FASTCalorimeter.cc
   lossesOpt      = myParam->hsParameters()->getHDlossesOpt();
   nDepthSteps    = myParam->hsParameters()->getHDnDepthSteps();
@@ -58,7 +60,7 @@ HDShower::HDShower(HDShowerParametrization* myParam,
   balanceEH      = myParam->hsParameters()->getHDbalanceEH();
 
   // Special tr.size fluctuations 
-  transParam *= (1. + RandFlat::shoot());
+  transParam *= (1. + random->flatShoot());
 
   transFactor = 1.;   // normally 1, in HF - might be smaller 
                      // to take into account
@@ -222,7 +224,7 @@ HDShower::HDShower(HDShowerParametrization* myParam,
   // if too deep - get flat random in the allowed region
   // if no HCAL material behind - force to deposit in ECAL
   double maxDepth    = depthToHCAL + depthHCAL - 1.1 * depthStep;
-  double depthStart  = log(1./RandFlat::shoot()); // starting point lambda unts
+  double depthStart  = log(1./random->flatShoot()); // starting point lambda unts
 
   if(e < emin) {
     if(debug)
@@ -234,7 +236,7 @@ HDShower::HDShower(HDShowerParametrization* myParam,
     if(debug) LogDebug("FastCalorimetry") << " FamosHDShower : depthStart too big ...   = " 
 		   << depthStart << endl; 
     
-    depthStart = maxDepth *  RandFlat::shoot();
+    depthStart = maxDepth *  random->flatShoot();
     if( depthStart < 0.) depthStart = 0.;
     if(debug) LogDebug("FastCalorimetry") << " FamosHDShower : depthStart re-calculated = " 
 		   << depthStart << endl; 
@@ -243,7 +245,7 @@ HDShower::HDShower(HDShowerParametrization* myParam,
   if( onECAL && e < emid ) {
     if((depthECAL - depthStart)/depthECAL > 0.2 && depthECAL > depthStep ) {
       
-      depthStart = 0.5 * depthECAL * RandFlat::shoot();
+      depthStart = 0.5 * depthECAL * random->flatShoot();
       if(debug) 
  	LogDebug("FastCalorimetry") << " FamosHDShower : small energy, "
 	     << " depthStart reduced to = " << depthStart << endl; 
@@ -412,7 +414,7 @@ void HDShower::makeSteps(int nsteps) {
     double oldHCALenergy = sumes - oldECALenergy ;
     double newECALenergy = 2. * sumes;
     for (int i = 0; newECALenergy > sumes && i < infinity; i++)
-      newECALenergy = 2.* balanceEH * RandFlat::shoot() * oldECALenergy; 
+      newECALenergy = 2.* balanceEH * random->flatShoot() * oldECALenergy; 
      
     if(debug == 2)
       LogDebug("FastCalorimetry") << "*** FamosHDShower::makeSteps " << " ECAL fraction : old/new - "
@@ -531,11 +533,11 @@ bool HDShower::compute() {
 	if(nok == nspots[i]) break;
 	count ++;
 	
-	double prob   = RandFlat::shoot();
+	double prob   = random->flatShoot();
 	int index     = indexFinder(prob,Fhist);
 	double radius = rlamStep[i] * rhist[index] +
-	  RandFlat::shoot() * rbinsize; // in-bin  
-	double phi = 2.*M_PI*RandFlat::shoot();
+	  random->flatShoot() * rbinsize; // in-bin  
+	double phi = 2.*M_PI*random->flatShoot();
 	
 	if(debug == 2)
 	  LogDebug("FastCalorimetry") << endl << " FamosHDShower::compute " << " r = " << radius 

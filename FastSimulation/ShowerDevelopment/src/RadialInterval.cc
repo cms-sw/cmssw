@@ -1,8 +1,8 @@
 //FAMOS header
 #include "FastSimulation/ShowerDevelopment/interface/RadialInterval.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 //CLHECP headers
-#include "CLHEP/Random/RandGaussQ.h"
 #include <iostream>
 #include "math.h"
 
@@ -10,6 +10,10 @@
 RadialInterval::RadialInterval(double RC,unsigned nSpots,double energy)
   :theR(RC),theNumberOfSpots(nSpots),theSpotEnergy(energy)
 {
+
+  // The Famos random engine
+  random = RandomEngine::instance();
+
   currentRad=0.;
   currentEnergyFraction=0.;
   currentUlim=0.;
@@ -26,7 +30,7 @@ void RadialInterval::addInterval(double radius, double spotf)
   //  std::cout << " Rad " << nInter << " Energy frac " << energyFrac << std::endl;
   
   // Calculates the number of spots. Add binomial fluctuations
-  double dspot = RandGaussQ::shoot(theNumberOfSpots*energyFrac,
+  double dspot = random->gaussShoot(theNumberOfSpots*energyFrac,
 			    sqrt(energyFrac*(1.-energyFrac)*theNumberOfSpots));
   //  std::cout << " Normal : " << theNumberOfSpots*energyFrac << " "<< dspot << std::endl;
   unsigned nspot=(unsigned)(dspot*spotf+0.5);

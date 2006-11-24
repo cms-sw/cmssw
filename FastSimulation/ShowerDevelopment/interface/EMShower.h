@@ -20,6 +20,8 @@ class EcalHitMaker;
 class PreshowerHitMaker;
 class HcalHitMaker;
 class GammaDistributionGenerator;
+class RandomEngine;
+
 class EMShower 
 {
 
@@ -123,6 +125,9 @@ class EMShower
   GammaFunctionGenerator * myGammaGenerator;
 
   Genfun::IncompleteGamma myIncompleteGamma;
+
+  // Random engine
+  RandomEngine* random;
   
   
 };

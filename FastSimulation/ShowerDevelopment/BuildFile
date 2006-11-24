@@ -1,8 +1,10 @@
 <use name=clhep>
 <use name=FastSimulation/CalorimeterProperties>
 <use name=FastSimulation/CaloHitMakers>
+<use name=FastSimulation/Utilities>
 <export>
  <lib name=FastSimulationShowerDevelopment>
  <use name=FastSimulation/CalorimeterProperties>
  <use name=FastSimulation/CaloHitMakers>
+ <use name=FastSimulation/Utilities>
 </export>

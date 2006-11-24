@@ -1,14 +1,12 @@
 //FastSimulation Headers
 #include "FastSimulation/ShowerDevelopment/interface/HDRShower.h"
 #include "FastSimulation/Utilities/interface/Histos.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 
 //Anaphe headers
 #include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Random/RandPoissonQ.h"
-#include "CLHEP/Random/RandFlat.h"
 
 //CMSSW headers
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -39,6 +37,10 @@ HDRShower::HDRShower(HDShowerParametrization* myParam,
     onEcal(onECAL),
     e(epart)
 { 
+
+  // The Famos random engine
+  random = RandomEngine::instance();
+
   eHDspot = 0.2;
   EsCut = 0.050;
   EcalShift = 0.12;
@@ -60,10 +62,10 @@ bool HDRShower::computeShower()
 
   //  maxDepth   = depthECAL + depthGAP + depthHCAL - 1.0;
   maxDepth   = depthECAL + depthHCAL - 0.5;
-  depthStart = log(1./RandFlat::shoot()); // starting point lambda unts
+  depthStart = log(1./random->flatShoot()); // starting point lambda unts
 
   if( depthStart > maxDepth ) { 
-    depthStart = maxDepth *  RandFlat::shoot();
+    depthStart = maxDepth *  random->flatShoot();
     if( depthStart < 0.) depthStart = 0.;
   }
   
@@ -90,7 +92,7 @@ bool HDRShower::computeShower()
       else es = eHDspot;
       float loops = 0;
       for(int j=0; j<maxLoops; j++) {
-	theta = (itheta+RandFlat::shoot())*thetaStep;
+	theta = (itheta+random->flatShoot())*thetaStep;
 	if( setHit(es, theta) ) break;
 	loops++;
       }
@@ -102,7 +104,7 @@ bool HDRShower::computeShower()
 
 bool HDRShower::setHit(float espot, float theta) {
 
-  float phi = 2.*M_PI*RandFlat::shoot(); // temporary: 1st approximation
+  float phi = 2.*M_PI*random->flatShoot(); // temporary: 1st approximation
   float rshower = getR();     // temporary: 1st approximation
 
   float d = depthStart + rshower*cos(theta);
@@ -130,7 +132,7 @@ bool HDRShower::setHit(float espot, float theta) {
 }
 
 float HDRShower::getR() {
-  float p = RandFlat::shoot();
+  float p = random->flatShoot();
   unsigned int i = 0; while( rpdf[i]<p && i<R_range-1) { i++; }
   float r;
   float dr = rpdf[i+1] - rpdf[i];
@@ -158,10 +160,10 @@ void HDRShower::thetaFunction(int nthetaStep)
   lam21 += (ThetaLam21[i]-ThetaLam21[i-1]) * c;
   lam21sig += (ThetaLam21Sig[i]-ThetaLam21Sig[i-1]) * c;
 
-  float a = exp(amean + asig*RandGaussQ::shoot());
-  float L1 = lambda1 + lambda1sig*RandGaussQ::shoot();
+  float a = exp(amean + asig*random->gaussShoot());
+  float L1 = lambda1 + lambda1sig*random->gaussShoot();
   if(L1 < 0.02) L1 = 0.02;
-  float L2 = L1*(lam21 + lam21sig*RandGaussQ::shoot());
+  float L2 = L1*(lam21 + lam21sig*random->gaussShoot());
 
   vector<double> pdf;
   pdf.erase(pdf.begin(),pdf.end());
@@ -190,7 +192,7 @@ void HDRShower::thetaFunction(int nthetaStep)
   en = esum - n*EsCut;
 
   for(int i=0; i<=n; i++) {
-    int k = int(nthetaStep*RandFlat::shoot());
+    int k = int(nthetaStep*random->flatShoot());
     if(k<0 || k>nthetaStep-1) k = k%nthetaStep;
     if(i == n) elastspot[k] += en;
     else elastspot[k] += EsCut;

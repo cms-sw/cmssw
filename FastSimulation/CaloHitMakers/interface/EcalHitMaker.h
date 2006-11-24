@@ -11,8 +11,6 @@
 #include "FastSimulation/CaloGeometryTools/interface/Crystal.h"
 #include "FastSimulation/Calorimetry/interface/FamosDebug.h"
 
-#include "FastSimulation/Utilities/interface/Histos.h"
-
 // CLHEP headers
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Plane3D.h"
@@ -23,6 +21,8 @@
 
 class CaloGeometryHelper;
 class CrystalWindowMap;
+class Histos;
+class RandomEngine;
 
 class EcalHitMaker: public CaloHitMaker
 {
@@ -273,7 +273,7 @@ class EcalHitMaker: public CaloHitMaker
 
   bool hitmaphasbeencalculated_ ;
 
-
+  RandomEngine* random;
 
 
 #ifdef FAMOSDEBUG

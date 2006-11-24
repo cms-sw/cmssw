@@ -13,6 +13,7 @@
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/PreshowerHitMaker.h"
 #include "FastSimulation/Utilities/interface/Histos.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
   
 // STL headers 
 #include <vector>
@@ -20,8 +21,6 @@
 
 // CLHEP headers
 #include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGaussQ.h"
 
 //CMSSW headers 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -33,11 +32,14 @@
 using namespace std;
 using namespace edm;
 
-CalorimetryManager::CalorimetryManager():myCalorimeter_(0),myHistos(0)
+CalorimetryManager::CalorimetryManager() : 
+  myCalorimeter_(0),
+  myHistos(0),
+  random(0)
 {;}
 
 CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent, const edm::ParameterSet& fastCalo)
-  :mySimEvent(aSimEvent)
+  : mySimEvent(aSimEvent), random(RandomEngine::instance())
 {
   readParameters(fastCalo);
 
@@ -182,7 +184,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   if ( myTrack.type() == 22 ) {
     
     // Depth for the first e+e- pair creation (in X0)
-    X0depth = -log(RandFlat::shoot()) * (9./7.);
+    X0depth = -log(random->flatShoot()) * (9./7.);
     
     // Initialization
     double eMass = 0.000510998902; 
@@ -192,9 +194,9 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
     
     // Generate electron energy between emass and eGamma-emass
     do {
-      xe = RandFlat::shoot()*(1.-2.*xm) + xm;
+      xe = random->flatShoot()*(1.-2.*xm) + xm;
       weight = 1. - 4./3.*xe*(1.-xe);
-    } while ( weight < RandFlat::shoot() );
+    } while ( weight < random->flatShoot() );
     
     // Protection agains infinite loop in Famos Shower
     if ( myPart.e()*xe < 0.055 || myPart.e()*(1.-xe) < 0.055 ) {
@@ -356,7 +358,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
     sigma = myHDResponse_->getHCALEnergyResolution(EGen, hit);
   
     double emeas = 0.;
-    emeas = RandGaussQ::shoot(e,sigma);  
+    emeas = random->gaussShoot(e,sigma);  
   }
 
   if(debug_)
@@ -427,7 +429,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
   }
 
   double emeas = 0.;
-  emeas = RandGaussQ::shoot(e,sigma);
+  emeas = random->gaussShoot(e,sigma);
 
   if(debug_)
     LogDebug("FastCalorimetry") << "CalorimetryManager::HDShowerSimulation - on-calo " << endl  

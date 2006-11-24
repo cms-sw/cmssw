@@ -3,6 +3,7 @@
 <use name=FastSimulation/CalorimeterProperties>
 <use name=FastSimulation/CaloGeometryTools>
 <use name=FastSimulation/ShowerDevelopment>
+<use name=FastSimulation/Utilities>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/HcalDetId>
 <use name=SimDataFormats/CaloHit>
@@ -15,6 +16,7 @@
  <use name=FastSimulation/CalorimeterProperties>
  <use name=FastSimulation/CaloGeometryTools>
  <use name=FastSimulation/ShowerDevelopment>
+ <use name=FastSimulation/Utilities>
  <use name=DataFormats/EcalDetId>
  <use name=DataFormats/HcalDetId>
  <use name=SimDataFormats/CaloHit>

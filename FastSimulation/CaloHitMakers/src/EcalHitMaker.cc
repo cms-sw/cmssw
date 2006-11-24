@@ -15,8 +15,8 @@
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer1Properties.h"
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer2Properties.h"
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
-
-#include "CLHEP/Random/RandFlat.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/Histos.h"
 
 #include <algorithm>
 
@@ -25,7 +25,8 @@ EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
 			   const DetId& cell, int onEcal,
 			   unsigned size, unsigned showertype):
   CaloHitMaker(theCalo,DetId::Ecal,((onEcal==1)?EcalBarrel:EcalEndcap),onEcal,showertype),
-  EcalEntrance_(ecalentrance),onEcal_(onEcal),myTrack_(NULL)
+  EcalEntrance_(ecalentrance),onEcal_(onEcal),myTrack_(NULL),
+  random(RandomEngine::instance())
 {
 #ifdef FAMOSDEBUG
   myHistos = Histos::instance();
@@ -186,7 +187,7 @@ bool EcalHitMaker::addHit(double r,double phi,unsigned layer)
       if(sp==1.)
 	hits_[xtal]+=spotEnergy;	
       else      
-	hits_[xtal]+=(RandFlat::shoot()<sp)*spotEnergy;
+	hits_[xtal]+=(random->flatShoot()<sp)*spotEnergy;
       return true;
     }
 

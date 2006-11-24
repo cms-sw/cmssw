@@ -1,8 +1,6 @@
 //FastSimulation headers
 #include "FastSimulation/Calorimetry/interface/HCALResponse.h"
-
-//Anaphe headers
-#include "CLHEP/Random/RandFlat.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 //CMSSW headers
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,7 +12,8 @@
 using namespace std;
 using namespace edm;
 
-HCALResponse::HCALResponse(const edm::ParameterSet& pset)
+HCALResponse::HCALResponse(const edm::ParameterSet& pset) :
+  random(RandomEngine::instance())
 { 
   
   RespPar[HCAL][0][0] =  pset.getParameter<double>("HadronBarrelResolution_Stochastic");
@@ -306,7 +305,7 @@ HCALResponse::responseHCAL(double energy, double eta, int partype)
 void HCALResponse::interMU(double e, int ie, int ieta)
 {
 
-  double x = RandFlat::shoot();
+  double x = random->flatShoot();
 
   int bin1 = maxMUbin;
   for(int i = 0; i < maxMUbin; i++) {
@@ -325,8 +324,8 @@ void HCALResponse::interMU(double e, int ie, int ieta)
    
   double x1 = eGridMU[ie];
   double x2 = eGridMU[ie+1];
-  double y1 = (bin1 + RandFlat::shoot()) * muStep;   
-  double y2 = (bin2 + RandFlat::shoot()) * muStep;   
+  double y1 = (bin1 + random->flatShoot()) * muStep;   
+  double y2 = (bin2 + random->flatShoot()) * muStep;   
 
   if(debug) {
     //  cout.width(6);
