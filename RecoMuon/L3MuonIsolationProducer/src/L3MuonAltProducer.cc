@@ -128,7 +128,7 @@ TrackRef L3MuonAltProducer::muonMatch(const TrackRef& mu, const Handle<TrackColl
             }
       }
 
-      LogDebug(metname)<<" L2 Muon has been matched to a track: ptmu= " << mu->pt() << ", pttk= " << best->pt();
+      LogDebug(metname)<<" L2 Muon has been matched to a track: ptmu= " << mu->pt() << ", pttk= " << best->pt() << ", chi2/ndof= " << chi2min/par_mu.num_row();
 
       return best;
 }
