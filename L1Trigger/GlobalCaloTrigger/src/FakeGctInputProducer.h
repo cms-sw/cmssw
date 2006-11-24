@@ -1,13 +1,9 @@
-#ifndef L1FAKERCTPRODUCER_H
-#define L1FAKERCTPRODUCER_H
-
-
 // -*- C++ -*-
 //
 // Package:    L1FakeRctProducer
-// Class:      L1FakeRctProducer
+// Class:      FakeGctInputProducer
 // 
-/**\class L1FakeRctProducer L1FakeRctProducer.cc L1Trigger/L1FakeRctProducer/src/L1FakeRctProducer.cc
+/**\class FakeGctInputProducer FakeGctInputProducer.h L1Trigger/GlobalCaloTrigger/src/FakeGctInputProducer.h
 
  Description: <one line class summary>
 
@@ -17,10 +13,13 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu Nov 16 00:07:32 CET 2006
-// $Id$
+// $Id: FakeGctInputProducer.h,v 1.1 2006/11/16 00:38:20 jbrooke Exp $
 //
 //
 
+
+#ifndef FAKEGCTINPUTPRODUCER_H
+#define FAKEGCTINPUTPRODUCER_H
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -32,10 +31,10 @@
 // class decleration
 //
 
-class L1FakeRctProducer : public edm::EDProducer {
+class FakeGctInputProducer : public edm::EDProducer {
    public:
-      explicit L1FakeRctProducer(const edm::ParameterSet&);
-      ~L1FakeRctProducer();
+      explicit FakeGctInputProducer(const edm::ParameterSet&);
+      ~FakeGctInputProducer();
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
