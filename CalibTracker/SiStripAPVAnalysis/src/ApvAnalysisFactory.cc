@@ -130,7 +130,8 @@ void ApvAnalysisFactory::update(uint32_t detId, const edm::DetSet<SiStripRawDigi
 	   
 	   for(int istrip = startStrip; istrip < stopStrip;istrip++)
 	     {
-	       tmpRawDigi.data.push_back(in.data[istrip]); //maybe dangerous
+               if (in.data.size() < istrip) tmpRawDigi.data.push_back(0);
+	       else tmpRawDigi.data.push_back(in.data[istrip]); //maybe dangerous
 	     }
 
 	   (*apvIt)->newEvent();
