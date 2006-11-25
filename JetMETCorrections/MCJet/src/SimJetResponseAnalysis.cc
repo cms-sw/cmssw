@@ -539,7 +539,7 @@ void  SimJetResponseAnalysis::GetSimJetResponse(){
 	  m[it] = h1D->second->GetMean();
 	  e[it] = h1D->second->GetRMS()/sqrt(n[it]);
 	  GetMPV(h1D->second,fittedMean[it],fittedWidth[it],fittedError[it]);
-	  cout << "itower " << it <<" Nevents " << nevents<< " Mean " << m[it]<< " Fitted Mean " << fittedMean[it] <<endl;
+	  // cout << "itower " << it <<" Nevents " << nevents<< " Mean " << m[it]<< " Fitted Mean " << fittedMean[it] <<endl;
 	}
         else{
 	  m[it] =0.0;
