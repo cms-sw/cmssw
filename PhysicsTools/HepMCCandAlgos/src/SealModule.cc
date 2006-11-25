@@ -6,7 +6,7 @@
 #include "PhysicsTools/HepMCCandAlgos/src/HepMCCandidateSelector.h"
 #include "PhysicsTools/HepMCCandAlgos/src/SetGenParticleMotherReference.h"
 #include "PhysicsTools/HepMCCandAlgos/src/ParticleTreeDrawer.h"
-#include "PhysicsTools/CandAlgos/src/MCTruthDeltaRMatcher.h"
+#include "PhysicsTools/HepMCCandAlgos/src/MCTruthDeltaRMatcher.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE( HepMCCandidateProducer );
