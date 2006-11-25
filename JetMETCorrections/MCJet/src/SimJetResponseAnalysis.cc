@@ -93,7 +93,7 @@ void SimJetResponseAnalysis::fillHist1D(const TString& histName,const Double_t& 
 
   std::map<TString, TH1*>::iterator hid=m_HistNames1D.find(histName);
   if (hid==m_HistNames1D.end()){
-    // std::cout << "%fillHist -- Could not find histogram with name: " << histName << std::endl;
+    std::cout << "%fillHist -- Could not find histogram with name: " << histName << std::endl;
   }
   else{
     hid->second->Fill(value,wt);
@@ -310,26 +310,25 @@ void SimJetResponseAnalysis::bookSimJetResponse() {
       htitle="JetResponsePt"+oip.str()+"Eta"+oie.str();
       m_HistNames1D[hname] = new TH1F(hname,htitle,100,0.,2.0);
 
-      hname="Rmin"+oip.str()+"_"+oie.str();
+      hname="RminPt"+oip.str()+"Eta"+oie.str();
       htitle="Rmin"+oip.str()+"_"+oie.str();
 
       m_HistNames1D[hname] = new TH1F(hname,htitle,100,0.,2.0);
 
-      hname="GenJetPt"+oip.str()+"_"+oie.str();
-      htitle="GenJetPt"+oip.str()+"_"+oie.str();
+      hname="PtGenJetPt"+oip.str()+"Eta"+oie.str();
+      htitle="PtGenJetPt"+oip.str()+"Eta"+oie.str();
       m_HistNames1D[hname] = new TH1F(hname,htitle,200,0.,2000.0);
 
-      hname="CaloJetPt"+oip.str()+"_"+oie.str();
-      htitle="CaloJetPt"+oip.str()+"_"+oie.str();
+      hname="PtCaloJetPt"+oip.str()+"Eta"+oie.str();
+      htitle="PtCaloJetPt"+oip.str()+"Eta"+oie.str();
       m_HistNames1D[hname] = new TH1F(hname,htitle,200,0.,2000.0);
 
-
-      hname="GenJetEta"+oip.str()+"_"+oie.str();
-      htitle="GenJetEta"+oip.str()+"_"+oie.str();
+      hname="EtaGenJetPt"+oip.str()+"Eta"+oie.str();
+      htitle="EtaGenJetPt"+oip.str()+"Eta"+oie.str();
       m_HistNames1D[hname] = new TH1F(hname,htitle,82,CaloTowerEtaBoundries);
 
-      hname="CaloJetEta"+oip.str()+"_"+oie.str();
-      htitle="CaloJetEta"+oip.str()+"_"+oie.str();
+      hname="EtaCaloJetPt"+oip.str()+"Eta"+oie.str();
+      htitle="EtaCaloJetPt"+oip.str()+"Eta"+oie.str();
       m_HistNames1D[hname] = new TH1F(hname,htitle,82,CaloTowerEtaBoundries);
       
     }
@@ -342,6 +341,24 @@ void SimJetResponseAnalysis::bookSimJetResponse() {
       hname="JetResponsePt"+oip.str()+"Tower"+oit.str();
       htitle="JetResponsePt"+oip.str()+"Tower"+oit.str();
       m_HistNames1D[hname] = new TH1F(hname,htitle,100,0.,2.0);
+
+      hname="EtaCaloJetPt"+oip.str()+"Tower"+oit.str();
+      htitle="EtaCaloJetPt"+oip.str()+"Tower"+oit.str();
+      m_HistNames1D[hname] = new TH1F(hname,htitle,82,CaloTowerEtaBoundries);
+
+
+      hname="EtaGenJetPt"+oip.str()+"Tower"+oit.str();
+      htitle="EtaGenJetPt"+oip.str()+"Tower"+oit.str();
+      m_HistNames1D[hname] = new TH1F(hname,htitle,82,CaloTowerEtaBoundries);
+
+      hname="PtGenJetPt"+oip.str()+"Tower"+oit.str();
+      htitle="PtGenJetPt"+oip.str()+"Tower"+oit.str();
+      m_HistNames1D[hname] = new TH1F(hname,htitle,200,0.,2000.0);
+
+      hname="PtCaloJetPt"+oip.str()+"Tower"+oit.str();
+      htitle="PtCaloJetPt"+oip.str()+"Tower"+oit.str();
+      m_HistNames1D[hname] = new TH1F(hname,htitle,200,0.,2000.0);
+
     }
   }
 
@@ -419,26 +436,40 @@ void SimJetResponseAnalysis::SimulatedJetResponse(const GenJetCollection& genjet
 	std::ostringstream oie; oie <<ie;
 	std::ostringstream oit; oit << it;
 
-	hname="Rmin"+oip.str()+"_"+oie.str();
+	hname="RminPt"+oip.str()+"Eta"+oie.str();
 	fillHist1D(hname,rmin);
 	if(rmin<MatchRadius_){
 	    //	    cout << " radius " << rmin << " GenPt " << GenJetPt << " CalPt " << caljet->pt() <<" rr  " << calpt/GenJetPt <<endl;
 	  hname="JetResponsePt"+oip.str()+"Eta"+oie.str();
 	  fillHist1D(hname,Response);
 
+	  hname="EtaGenJetPt"+oip.str()+"Eta"+oie.str();
+	  fillHist1D(hname,GenJetEta);
+
+	  hname="PtGenJetPt"+oip.str()+"Eta"+oie.str();
+	  fillHist1D(hname,GenJetPt);
+
+	  hname="PtCaloJetPt"+oip.str()+"Eta"+oie.str();
+	  fillHist1D(hname,CaloJetPt);
+
+	  hname="EtaCaloJetPt"+oip.str()+"Eta"+oie.str();
+	  fillHist1D(hname,CaloJetEta);
+
+	  // Tower plots
+
 	  hname="JetResponsePt"+oip.str()+"Tower"+oit.str();
 	  fillHist1D(hname,Response);
 
-	  hname="GenJetEta"+oip.str()+"_"+oie.str();
-	  fillHist1D(hname,GenJetEta);
-
-	  hname="GenJetPt"+oip.str()+"_"+oie.str();
-	  fillHist1D(hname,GenJetPt);
-
-	  hname="CaloJetEta"+oip.str()+"_"+oie.str();
+	  hname="EtaCaloJetPt"+oip.str()+"Tower"+oit.str();
 	  fillHist1D(hname,CaloJetEta);
 
-	  hname="CaloJetPt"+oip.str()+"_"+oie.str();
+	  hname="EtaGenJetPt"+oip.str()+"Tower"+oit.str();
+	  fillHist1D(hname,GenJetEta);
+
+	  hname="PtGenJetPt"+oip.str()+"Tower"+oit.str();
+	  fillHist1D(hname,GenJetPt);
+
+	  hname="PtCaloJetPt"+oip.str()+"Tower"+oit.str();
 	  fillHist1D(hname,CaloJetPt);
 	}
       }
