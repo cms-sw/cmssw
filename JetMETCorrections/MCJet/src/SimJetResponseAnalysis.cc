@@ -304,7 +304,8 @@ void SimJetResponseAnalysis::bookSimJetResponse() {
   for(int ip=0;ip<NPtBins;ip++){
     std::ostringstream oip; oip << GenJetPtBins_[ip];
     for(int ie=0;ie<NEtaBins;ie++){
-      //      std::ostringstream oie; oie << RecJetEtaBins_[ie];
+      //      std::ostringstream oie; oie << RecJetEtaBins_[ie]; 
+
       std::ostringstream oie; oie << ie;
       hname="JetResponsePt"+oip.str()+"Eta"+oie.str();
       htitle="JetResponsePt"+oip.str()+"Eta"+oie.str();
@@ -330,7 +331,36 @@ void SimJetResponseAnalysis::bookSimJetResponse() {
       hname="EtaCaloJetPt"+oip.str()+"Eta"+oie.str();
       htitle="EtaCaloJetPt"+oip.str()+"Eta"+oie.str();
       m_HistNames1D[hname] = new TH1F(hname,htitle,82,CaloTowerEtaBoundries);
-      
+
+      //----------------------------
+
+
+      //      std::ostringstream oie; oie << ie;
+      hname="JetResponseEt"+oip.str()+"Eta"+oie.str();
+      htitle="JetResponseEt"+oip.str()+"Eta"+oie.str();
+      m_HistNames1D[hname] = new TH1F(hname,htitle,100,0.,2.0);
+
+      hname="RminEt"+oip.str()+"Eta"+oie.str();
+      htitle="Rmin"+oip.str()+"_"+oie.str();
+
+      m_HistNames1D[hname] = new TH1F(hname,htitle,100,0.,2.0);
+
+      hname="EtGenJetEt"+oip.str()+"Eta"+oie.str();
+      htitle="EtGenJetEt"+oip.str()+"Eta"+oie.str();
+      m_HistNames1D[hname] = new TH1F(hname,htitle,200,0.,2000.0);
+
+      hname="EtCaloJetEt"+oip.str()+"Eta"+oie.str();
+      htitle="EtCaloJetEt"+oip.str()+"Eta"+oie.str();
+      m_HistNames1D[hname] = new TH1F(hname,htitle,200,0.,2000.0);
+
+      hname="EtaGenJetEt"+oip.str()+"Eta"+oie.str();
+      htitle="EtaGenJetEt"+oip.str()+"Eta"+oie.str();
+      m_HistNames1D[hname] = new TH1F(hname,htitle,82,CaloTowerEtaBoundries);
+
+      hname="EtaCaloJetEt"+oip.str()+"Eta"+oie.str();
+      htitle="EtaCaloJetEt"+oip.str()+"Eta"+oie.str();
+      m_HistNames1D[hname] = new TH1F(hname,htitle,82,CaloTowerEtaBoundries);
+     
     }
   }
 
@@ -415,6 +445,7 @@ void SimJetResponseAnalysis::SimulatedJetResponse(const GenJetCollection& genjet
     njet++;
     if(njet>NJetMax_) return;                     // only two leading jets 
     Double_t GenJetPt = i->pt();
+    Double_t GenJetEt = i->et();
     Double_t GenJetEta = i->eta();
     if(GenJetPt>GenJetPtMin) {
       if(fabs(GenJetEta)<GenJetEtaMax){
@@ -425,51 +456,72 @@ void SimJetResponseAnalysis::SimulatedJetResponse(const GenJetCollection& genjet
 	  if(rr<rmin){rmin=rr;caljet=j;}
 	}
 	double CaloJetPt=caljet->pt();
+	double CaloJetEt=caljet->et();
 	double CaloJetEta=caljet->eta();
-	double Response=CaloJetPt/GenJetPt;
+	double ResponsePt=CaloJetPt/GenJetPt;
+	double ResponseEt=CaloJetEt/GenJetEt;
 
-	int ip = GetPtBin(GenJetPt);
+	int ipt = GetPtBin(GenJetPt);
+	int iet = GetPtBin(GenJetEt);
 	int ie = GetEtaBin(CaloJetEta);
 	int it = TowerNumber(CaloJetEta);
-	std::ostringstream oip; oip << GenJetPtBins_[ip];
+	std::ostringstream oipt; oipt << GenJetPtBins_[ipt];
+	std::ostringstream oiet; oiet << GenJetPtBins_[iet];
 	//	std::ostringstream oie; oie << RecJetEtaBins_[ie];
 	std::ostringstream oie; oie <<ie;
 	std::ostringstream oit; oit << it;
 
-	hname="RminPt"+oip.str()+"Eta"+oie.str();
+	hname="RminPt"+oipt.str()+"Eta"+oie.str();
 	fillHist1D(hname,rmin);
 	if(rmin<MatchRadius_){
 	    //	    cout << " radius " << rmin << " GenPt " << GenJetPt << " CalPt " << caljet->pt() <<" rr  " << calpt/GenJetPt <<endl;
-	  hname="JetResponsePt"+oip.str()+"Eta"+oie.str();
-	  fillHist1D(hname,Response);
+	  hname="JetResponsePt"+oipt.str()+"Eta"+oie.str();
+	  fillHist1D(hname,ResponsePt);
 
-	  hname="EtaGenJetPt"+oip.str()+"Eta"+oie.str();
+	  hname="EtaGenJetPt"+oipt.str()+"Eta"+oie.str();
 	  fillHist1D(hname,GenJetEta);
 
-	  hname="PtGenJetPt"+oip.str()+"Eta"+oie.str();
+	  hname="PtGenJetPt"+oipt.str()+"Eta"+oie.str();
 	  fillHist1D(hname,GenJetPt);
 
-	  hname="PtCaloJetPt"+oip.str()+"Eta"+oie.str();
+	  hname="PtCaloJetPt"+oipt.str()+"Eta"+oie.str();
 	  fillHist1D(hname,CaloJetPt);
 
-	  hname="EtaCaloJetPt"+oip.str()+"Eta"+oie.str();
+	  hname="EtaCaloJetPt"+oipt.str()+"Eta"+oie.str();
 	  fillHist1D(hname,CaloJetEta);
 
-	  // Tower plots
+	  // Et plots==================================
+ 
+	  hname="JetResponseEt"+oiet.str()+"Eta"+oie.str();
+	  fillHist1D(hname,ResponseEt);
 
-	  hname="JetResponsePt"+oip.str()+"Tower"+oit.str();
-	  fillHist1D(hname,Response);
-
-	  hname="EtaCaloJetPt"+oip.str()+"Tower"+oit.str();
-	  fillHist1D(hname,CaloJetEta);
-
-	  hname="EtaGenJetPt"+oip.str()+"Tower"+oit.str();
+	  hname="EtaGenJetEt"+oiet.str()+"Eta"+oie.str();
 	  fillHist1D(hname,GenJetEta);
 
-	  hname="PtGenJetPt"+oip.str()+"Tower"+oit.str();
+	  hname="EtGenJetEt"+oiet.str()+"Eta"+oie.str();
+	  fillHist1D(hname,GenJetEt);
+
+	  hname="EtCaloJetEt"+oiet.str()+"Eta"+oie.str();
+	  fillHist1D(hname,CaloJetEt);
+
+	  hname="EtaCaloJetEt"+oiet.str()+"Eta"+oie.str();
+	  fillHist1D(hname,CaloJetEta);
+
+	  // Tower plots=====================================
+
+	  hname="JetResponsePt"+oipt.str()+"Tower"+oit.str();
+	  fillHist1D(hname,ResponsePt);
+
+	  hname="EtaCaloJetPt"+oipt.str()+"Tower"+oit.str();
+	  fillHist1D(hname,CaloJetEta);
+
+	  hname="EtaGenJetPt"+oipt.str()+"Tower"+oit.str();
+	  fillHist1D(hname,GenJetEta);
+
+	  hname="PtGenJetPt"+oipt.str()+"Tower"+oit.str();
 	  fillHist1D(hname,GenJetPt);
 
-	  hname="PtCaloJetPt"+oip.str()+"Tower"+oit.str();
+	  hname="PtCaloJetPt"+oipt.str()+"Tower"+oit.str();
 	  fillHist1D(hname,CaloJetPt);
 	}
       }
@@ -598,16 +650,8 @@ void  SimJetResponseAnalysis::GetSimJetResponse(){
     h1D=m_HistNames1D.find(hname);
 
     for(int i=0;i<NETA;i++){
-      //      if(fittedMean[i]>0.0 and fittedMean[i]<2.0) {
-	h1D->second->SetBinContent(i,fittedMean[i]);
-	h1D->second->SetBinError(i,fittedError[i]);
-	//  }
-	//  else {
-	//	h1D->second->SetBinContent(i,0.0);
-	//      h1D->second->SetBinError(i,0.0);
-	// }
-
-
+      h1D->second->SetBinContent(i,fittedMean[i]);
+      h1D->second->SetBinError(i,fittedError[i]);
     }
   }
 }
