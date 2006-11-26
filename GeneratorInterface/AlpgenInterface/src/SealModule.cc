@@ -6,5 +6,5 @@
   using edm::AlpgenSource;
 
   DEFINE_SEAL_MODULE();
-  DEFINE_ANOTHER_FWK_INPUT_SOURCE(AlpgenSource)
+  DEFINE_ANOTHER_FWK_INPUT_SOURCE(AlpgenSource);
 
