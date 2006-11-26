@@ -64,7 +64,6 @@ class FamosManager
 
  private:
 
-  long int m_FamosSeed;
   bool m_pUseMagneticField;
   bool m_Tracking;
   bool m_Calorimetry;

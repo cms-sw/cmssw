@@ -28,8 +28,6 @@
 
 // CLHEP headers
 #include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/Random/Random.h"
-#include "CLHEP/Random/JamesRandom.h"
 
 // FAMOS Header
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
@@ -53,7 +51,6 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
       myGenEvent(0),
       myPileUpProducer(0),
       myCalorimetry(0),
-      m_FamosSeed(p.getParameter<int>("FamosSeed")),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_Tracking(p.getParameter<bool>("SimulateTracking")),
       m_Calorimetry(p.getParameter<bool>("SimulateCalorimetry")),
@@ -61,11 +58,6 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
       m_pRunNumber(p.getUntrackedParameter<int>("RunNumber",1)),
       m_pVerbose(p.getUntrackedParameter<int>("Verbosity",1))
 {
-
-  // Define the random generator engine for Famos
-  HepRandom::setTheEngine(new HepJamesRandom());
-  HepRandom::setTheSeeds(&m_FamosSeed,2);
-  HepRandom::showEngineStatus(); 
 
   // Initialize the random number generator service
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -124,15 +116,6 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
   edm::ESHandle<DDCompactView> pDD;
   es.get<IdealGeometryRecord>().get(pDD);
 
-  // magnetic field
-  if (m_pUseMagneticField) {
-    edm::ESHandle<MagneticField> pMF;
-    es.get<IdealMagneticFieldRecord>().get(pMF);
-    const GlobalPoint g(0.,0.,0.);
-    std::cout << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g) << std::endl;      
-    MagneticFieldMap::instance( &(*pMF) ); 
- }    
-  
   // Initialize the tracker reco geometry (always needed)
   edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
   es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
@@ -147,6 +130,15 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
 
   }
 
+  // magnetic field
+  if (m_pUseMagneticField) {
+    edm::ESHandle<MagneticField> pMF;
+    es.get<IdealMagneticFieldRecord>().get(pMF);
+    const GlobalPoint g(0.,0.,0.);
+    std::cout << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g) << std::endl;      
+    MagneticFieldMap::instance( &(*pMF), myTrajectoryManager->theGeometry() ); 
+ }    
+  
 
   //  Initialize the calorimeter geometry
   if ( myCalorimetry ) {
