@@ -338,8 +338,9 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
     // 2) or particles with stable daughters
     bool testDaugh = false;
-    for ( unsigned i=0; i<p->listChildren().size(); ++i ) { 
-      GenParticle* daugh = p->listChildren()[i];
+    vector<GenParticle*> children = p->listChildren();
+    for ( unsigned i=0; i<children.size(); ++i ) { 
+      GenParticle* daugh = children[i];
       if ( daugh->status()==1 ) {
 	testDaugh=true;
 	break;

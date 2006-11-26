@@ -26,6 +26,7 @@ private:
   virtual bool isOKForMe(const RawParticle* p) const;
 
   double etaMin, etaMax, phiMin, phiMax, pTMin, pTMax, EMin, EMax;
+  double cos2Max, cos2PreshMin, cos2PreshMax;
   HepLorentzVector mainVertex;
 
 };

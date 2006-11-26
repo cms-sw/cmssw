@@ -14,6 +14,17 @@ KineParticleFilter::KineParticleFilter(const edm::ParameterSet& kine)
   pTMin  = kine.getParameter<double>("pTMin");  // Lower pT  bound (charged, in GeV/c)
   EMin   = kine.getParameter<double>("EMin");   // Lower E  bound (all, in GeV)
 
+  // Change eta cuts to cos**2(theta) cuts (less CPU consuming)
+  double cosMax = (exp(2.*etaMax)-1.) / (exp(2.*etaMax)+1.);
+  cos2Max = cosMax*cosMax;
+
+  double etaPreshMin = 1.479;
+  double etaPreshMax = 1.594;
+  double cosPreshMin = (exp(2.*etaPreshMin)-1.) / (exp(2.*etaPreshMin)+1.);
+  double cosPreshMax = (exp(2.*etaPreshMax)-1.) / (exp(2.*etaPreshMax)+1.);
+  cos2PreshMin = cosPreshMin*cosPreshMin;
+  cos2PreshMax = cosPreshMax*cosPreshMax;
+
 }
 
 bool KineParticleFilter::isOKForMe(const RawParticle* p) const
@@ -48,7 +59,17 @@ bool KineParticleFilter::isOKForMe(const RawParticle* p) const
     if (!pTCut) return false;
 
     // Cut on eta if the origin vertex is close to the beam
-    bool etaCut = (p->vertex()-mainVertex).perp()>5. || fabs(p->eta())<=etaMax;
+    //    bool etaCut = (p->vertex()-mainVertex).perp()>5. || fabs(p->eta())<=etaMax;
+    bool etaCut = (p->vertex()-mainVertex).perp()>5. || p->vect().cos2Theta()<= cos2Max;
+
+    /*
+    if ( etaCut != etaCut2 ) 
+      cout << "WANRNING ! etaCut != etaCut2 " 
+	   << etaCut << " " 
+	   << etaCut2 << " "
+	   << (p->eta()) << " " << etaMax << " " 
+	   << p->vect().cos2Theta() << " " << cos2Max << endl; 
+    */
     if (!etaCut) return false;
 
   }
@@ -60,10 +81,12 @@ bool KineParticleFilter::isOKForMe(const RawParticle* p) const
   HepLorentzVector position = p->vertex();
   double radius = position.perp();
   double zed = fabs(position.z());
-  double eta = fabs(position.eta());
+  double cos2Tet = position.vect().cos2Theta();
   // Ecal entrance
   bool ecalAcc = ( (radius<129.01 && zed<317.01) ||
-		(eta>1.479 && eta<1.594 && radius<171.11 && zed<317.01) );
+		   (cos2Tet>cos2PreshMin && cos2Tet<cos2PreshMax 
+		    && radius<171.11 && zed<317.01) );
+
   return ecalAcc;
 
   // OBSOLETE
