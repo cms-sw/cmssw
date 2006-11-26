@@ -232,7 +232,7 @@ TrajectoryManager::reconstruct()
 	if ( saveHit ) { 
 
 	  // Consider only active layers
-	  if ( cyliter->layerNumber() ) {
+	  if ( cyliter->sensitive() ) {
 	    // Add information to the FSimTrack (not yet available)
 	    //	    myTrack.addSimHit(PP,layer);
 
