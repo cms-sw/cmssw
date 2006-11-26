@@ -88,6 +88,15 @@ ParticlePropagator::fieldMap(double xx,double yy, double zz) {
     4. : MagneticFieldMap::instance()->inTeslaZ(GlobalPoint(xx,yy,zz));
 }
 
+double
+ParticlePropagator::fieldMap(const TrackerLayer& layer, double coord, int success) {
+  // Arguments now passed in cm.
+  //  return MagneticFieldMap::instance()->inTesla(GlobalPoint(xx/10.,yy/10.,zz/10.)).z();
+  // Return a dummy value for neutral particles!
+  return charge() == 0.0 ? 
+    4. : MagneticFieldMap::instance()->inTeslaZ(layer,coord,success);
+}
+
 bool
 ParticlePropagator::propagateToBoundSurface(const TrackerLayer& layer) {
 
@@ -108,8 +117,23 @@ ParticlePropagator::propagateToBoundSurface(const TrackerLayer& layer) {
   bool done = propagate();
 
   // Set the magnetic field at the new location (if succesfully propagated)
-  if ( done ) setMagneticField(fieldMap(x(),y(),z()));
-
+  //  if ( done ) setMagneticField(fieldMap(x(),y(),z()));
+  //  std::cout << "Real bfield = " << getMagneticField() << std::endl;
+  //  double realB = getMagneticField();
+  if ( done ) { 
+    if ( success == 2 ) 
+      setMagneticField(fieldMap(layer,vertex().perp(),success));
+    else if ( success == 1 )
+      setMagneticField(fieldMap(layer,z(),success));
+    //    std::cout << "Histo bfield = " << getMagneticField() << std::endl;
+  }	       
+  //  double histoB = getMagneticField();
+  //  if ( fabs(realB-histoB) > 0.0004 ) 
+  //    std::cout << "WARNING Diff ! " 
+  //	      << realB-histoB 
+  //	      << " R/z = " << vertex().perp() << " " << z()   
+  //	      << std::endl; 
+	       
   // There is some real material here
   fiducial = !(!disk &&  success!=1) &&
 	     !( disk && (success!=2  || position().perp()<innerradius));

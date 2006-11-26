@@ -70,7 +70,8 @@ public:
 
   /** The fieldMap given by the detector geormetry */
   double fieldMap(double x,double y,double z);
-
+  double fieldMap(const TrackerLayer& layer, double coord, int success);
+ 
   bool propagateToBoundSurface(const TrackerLayer&);
   void setPropagationConditions(const TrackerLayer&, 
 				bool firstLoop=true);
