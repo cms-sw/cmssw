@@ -159,21 +159,21 @@ public:
   // O(log(e))
   //index_type addEdge(const node_type & from, const node_type & to, const E & e);
  
-  index_result nodeIndex(const N &) const;
+  inline index_result nodeIndex(const N &) const;
   
   //index_type edgeIndex(const E &) const;
   
   // indexed edge_ranges, O(1) operation
-  edge_range edges(index_type nodeIndex);
-  const_edge_range edges(index_type nodeIndex) const;
+  inline edge_range edges(index_type nodeIndex);
+  inline const_edge_range edges(index_type nodeIndex) const;
   
   // indexed edge_ranges, O(log(n)) operation, n...number of nodes
-  edge_range edges(const N &);
-  const_edge_range edges(const N &) const;
+  inline edge_range edges(const N &);
+  inline const_edge_range edges(const N &) const;
   
-  const N & nodeData(const edge_type &) const;
-  const N & nodeData(index_type) const;
-  const N & nodeData(const const_adj_iterator &) const;
+  inline const N & nodeData(const edge_type &) const;
+  inline const N & nodeData(index_type) const;
+  inline const N & nodeData(const const_adj_iterator &) const;
  
   // replace oldNode by newNode O(log(n))
   bool replace(const N  & oldNode , const N & newNode );

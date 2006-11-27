@@ -211,14 +211,16 @@ void DDLSpecPar::processElement (const std::string& type, const std::string& nms
       vvvp[atts.find("name")->second] = make_pair(true,vvp);
     }
   
+  svt.reserve(vvvp.size());
   for (vvvpType::const_iterator it = vvvp.begin(); it != vvvp.end(); it++)
     {
       DDValue val(it->first, it->second.second);
       bool isEvaluated = it->second.first;
       val.setEvalState(isEvaluated);
-      svt[val] = val;
-      
+      svt.push_back(DDsvalues_Content_type(val,val));      
     }
+  std::sort(svt.begin(),svt.end());
+
 
   DCOUT_V('p', "DDLSpecPar::processElement\n\tname " << getDDName(nmspace) << "\n\tpartsels.size() = " << myPartSelector->size() << "\n\tsvt " << svt);
 
