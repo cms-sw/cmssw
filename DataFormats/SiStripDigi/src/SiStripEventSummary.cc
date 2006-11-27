@@ -48,6 +48,7 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
   if      ( buffer[10] == 11 ||
 	    buffer[10] == 13 || 
 	    buffer[10] == 16 ) { task_ = sistrip::FED_CABLING; }
+  else if ( buffer[10] ==  5 ) { task_ = sistrip::APV_TIMING; }
   else if ( buffer[10] == 12 ) { task_ = sistrip::FED_TIMING; }
   else if ( buffer[10] ==  4 ) { task_ = sistrip::OPTO_SCAN; }
   else if ( buffer[10] == 14 ) { task_ = sistrip::VPSP_SCAN; }
