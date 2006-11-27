@@ -5,8 +5,9 @@
 #include "DQM/SiStripCommissioningClients/interface/FedCablingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/FedTimingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
-#include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/DaqScopeModeHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/HistogramDisplayHandler.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -147,6 +148,7 @@ sistrip::Task SiStripCommissioningClient::extractTask( const vector<string>& con
 	  mui_->setCurrentFolder(sistrip::root_);
 	  mui_->getBEInterface()->bookString( istr->substr(pos,string::npos), value ); 
 	}
+	cout << "TASK: " << SiStripHistoNamingScheme::task( SiStripHistoNamingScheme::task(value) ) << endl;
 	return SiStripHistoNamingScheme::task( value ); 
       }
     }
@@ -164,12 +166,13 @@ void SiStripCommissioningClient::createHistograms( const sistrip::Task& task ) c
   if ( histos_ ) { return; }
   
   // Create corresponding "commissioning histograms" object 
-  if      ( task == sistrip::APV_TIMING )     { histos_ = new ApvTimingHistograms( mui_ ); }
-  else if ( task == sistrip::FED_CABLING )    { histos_ = new FedCablingHistograms( mui_ ); }
-  else if ( task == sistrip::FED_TIMING )     { histos_ = new FedTimingHistograms( mui_ ); }
-  else if ( task == sistrip::OPTO_SCAN )      { histos_ = new OptoScanHistograms( mui_ ); }
-  else if ( task == sistrip::PEDESTALS )      { histos_ = new PedestalsHistograms( mui_ ); }
-  else if ( task == sistrip::VPSP_SCAN )      { histos_ = new VpspScanHistograms( mui_ ); }
+  if      ( task == sistrip::APV_TIMING ) { histos_ = new ApvTimingHistograms( mui_ ); }
+  else if ( task == sistrip::FED_CABLING ) { histos_ = new FedCablingHistograms( mui_ ); }
+  else if ( task == sistrip::FED_TIMING ) { histos_ = new FedTimingHistograms( mui_ ); }
+  else if ( task == sistrip::OPTO_SCAN ) { histos_ = new OptoScanHistograms( mui_ ); }
+  else if ( task == sistrip::VPSP_SCAN ) { histos_ = new VpspScanHistograms( mui_ ); }
+  else if ( task == sistrip::PEDESTALS ) { histos_ = new PedestalsHistograms( mui_ ); }
+  else if ( task == sistrip::DAQ_SCOPE_MODE ) { histos_ = new DaqScopeModeHistograms( mui_ ); }
   else if ( task == sistrip::UNDEFINED_TASK ) { histos_ = 0; }
   else if ( task == sistrip::UNKNOWN_TASK ) {
     histos_ = 0;
