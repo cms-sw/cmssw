@@ -31,5 +31,6 @@ namespace {
     edm::helpers::KeyVal<reco::CandidateRef,reco::CandidateRef> kv1;
     reco::CandMatchMap cmm1;
     edm::Wrapper<reco::CandMatchMap> wcmm1;
+    edm::helpers::KeyVal<edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > > ,edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > > > kv2;
   }
 }
