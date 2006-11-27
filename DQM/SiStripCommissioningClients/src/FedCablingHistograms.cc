@@ -38,6 +38,7 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
   data_.clear();
 
   // Iterate through map containing vectors of profile histograms
+  uint32_t connected = 0;
   CollationsMap::const_iterator iter = collations().begin();
   for ( ; iter != collations().end(); iter++ ) {
     
@@ -69,14 +70,23 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
 	   << ss.str();
       cntr++;
     }
-    
+
+    // Count connections
+    if ( anal.fedId() < sistrip::maximum_ &&
+	 anal.fedId() < sistrip::maximum_ ) {
+      connected++;
+    }
+
   }
   
   cout << endl // LogTrace(mlDqmClient_)
        << "[FedCablingHistograms::" << __func__ << "]"
-       << " Analyzed histograms for " 
-       << collations().size() 
-       << " FED channels";
+       << " Analyzed histograms and found "
+       << connected 
+       << " connected FED channels out of a possible "
+       << collations().size()
+       << " (" << (100*connected/collations().size())
+       << "%)";
   
 }
 
