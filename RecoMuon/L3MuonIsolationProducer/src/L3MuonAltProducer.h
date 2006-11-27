@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -39,9 +38,6 @@ class L3MuonAltProducer : public edm::EDProducer {
 
   // Maximum Chi2 per dof allowed in muon-track matching 
   double theMaxChi2PerDof;
-
-  // Transient track builder
-  edm::ESHandle<TransientTrackBuilder> theTTB;
 
 };
   

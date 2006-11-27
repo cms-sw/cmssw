@@ -15,8 +15,6 @@
 
 // Input and output collections
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 #include <string>
 
@@ -46,13 +44,6 @@ L3MuonAltProducer::~L3MuonAltProducer(){
 void L3MuonAltProducer::produce(Event& event, const EventSetup& eventSetup){
   const string metname = "Muon|RecoMuon|L3MuonAltProducer";
   
-  // Get the transient track builder
-  eventSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTTB);
-  if (!theTTB.isValid()) {
-      LogDebug(metname)<<" No valid TransientTrackBuilder found!";
-      return;
-  }
-
   // Take the L3 container
   LogDebug(metname)<<" Taking the regional track collection: "<<theTrackCollectionLabel.label();
   Handle<TrackCollection> tracks; 
@@ -84,51 +75,25 @@ TrackRef L3MuonAltProducer::muonMatch(const TrackRef& mu, const Handle<TrackColl
 
       TrackRef best;
 
-      if (!theTTB.isValid()) return best;
-
-      TransientTrack* t_mu = (*theTTB).build(&mu);
-      TrajectoryStateOnSurface tos_mu = t_mu->impactPointState();
-      if (!t_mu->impactPointStateAvailable()) {
-            LogDebug(metname)<<" No impactPointStateAvailable for the muon!";
-            return best;
-      }
-      AlgebraicVector par_mu = tos_mu.globalParameters().vector();
-      AlgebraicSymMatrix err_mu = tos_mu.cartesianError().matrix();
-
-      vector<TransientTrack> t_trks = (*theTTB).build(trks);
-
-      double chi2min = par_mu.num_row() * theMaxChi2PerDof;
-      for (unsigned int it=0; it<t_trks.size(); it++) {
-            TransientTrack t_tk = t_trks[it];
-
-            TrajectoryStateOnSurface tos_tk = t_tk.impactPointState();
-            if (!t_tk.impactPointStateAvailable()) {
-                  LogDebug(metname)<<" No impactPointStateAvailable for track: " << it;
-                  continue;
-            }
-
-            AlgebraicVector delta = par_mu - tos_tk.globalParameters().vector();
-            int ifail = -1;
-            AlgebraicSymMatrix covinv = err_mu + tos_tk.cartesianError().matrix();
-            covinv.invertCholesky5(ifail);
-            if (ifail) {
-                  LogDebug(metname)<<" Covariance matrix inversion failed for track: " << it;
-                  continue;
-            }
-
+      double chi2min = TrackBase::dimension * theMaxChi2PerDof;
+      for (unsigned int it=0; it<trks->size(); it++) {
+            TrackRef tk(trks,it);
+            TrackBase::ParameterVector delta = mu->parameters() - tk->parameters();
+            TrackBase::CovarianceMatrix cov = mu->covariance()+tk->covariance();
+            if (!cov.Invert()) continue;
             double chi2 = 0.;
             for (unsigned int i=0; i<TrackBase::dimension; i++) {
                   for (unsigned int j=0; j<TrackBase::dimension; j++) {
-                        chi2 += delta[i]*covinv[i][j]*delta[j];
+                        chi2 += delta[i]*cov(i,j)*delta[j];
                   }
             }
             if (chi2<chi2min) {
                   chi2min = chi2;
-                  best = t_tk.persistentTrackRef();
+                  best = tk;
             }
       }
 
-      LogDebug(metname)<<" L2 Muon has been matched to a track: ptmu= " << mu->pt() << ", pttk= " << best->pt() << ", chi2/ndof= " << chi2min/par_mu.num_row();
+      LogDebug(metname)<<" L2 Muon has been matched to a track: ptmu= " << mu->pt() << ", pttk= " << best->pt() << ", chi2/ndof= " << chi2min/TrackBase::dimension;
 
       return best;
 }
