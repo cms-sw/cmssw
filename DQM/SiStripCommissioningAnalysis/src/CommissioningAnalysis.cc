@@ -17,7 +17,7 @@ CommissioningAnalysis::CommissioningAnalysis()
 
 // ----------------------------------------------------------------------------
 // 
-void CommissioningAnalysis::analysis( const vector<TProfile*>& histos ) { 
+void CommissioningAnalysis::analysis( const vector<TH1*>& histos ) { 
   reset();
   extract( histos );
   analyse();

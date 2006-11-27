@@ -7,7 +7,7 @@
 #include <sstream>
 #include <vector>
 
-class TProfile;
+class TH1;
 
 /** 
     @class PedestalsAnalysis
@@ -43,7 +43,7 @@ class PedestalsAnalysis : public CommissioningAnalysis {
  private:
   
   void reset();
-  void extract( const std::vector<TProfile*>& );
+  void extract( const std::vector<TH1*>& );
   void analyse();
   
  private:

@@ -8,7 +8,7 @@
 #include <vector>
 #include <map>
 
-class TProfile;
+class TH1;
 
 /** 
    @class FedCablingAnalysis
@@ -40,7 +40,7 @@ class FedCablingAnalysis : public CommissioningAnalysis {
  private:
   
   void reset();
-  void extract( const std::vector<TProfile*>& );
+  void extract( const std::vector<TH1*>& );
   void analyse();
 
  private:

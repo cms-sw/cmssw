@@ -1,6 +1,7 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/PedestalsAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "TProfile.h"
+#include "TH1.h"
 #include <iostream>
 #include <iomanip>
 #include <cmath>
@@ -109,7 +110,7 @@ void PedestalsAnalysis::reset() {
 
 // ----------------------------------------------------------------------------
 // 
-void PedestalsAnalysis::extract( const vector<TProfile*>& histos ) { 
+void PedestalsAnalysis::extract( const vector<TH1*>& histos ) { 
 
   // Check
   if ( histos.size() != 2 ) {
@@ -120,11 +121,10 @@ void PedestalsAnalysis::extract( const vector<TProfile*>& histos ) {
   }
   
   // Extract
-  vector<TProfile*>::const_iterator ihis = histos.begin();
+  vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
     
     // Check pointer
-    //cout << "[" << __PRETTY_FUNCTION__ << "] ptr: " << *ihis << endl;
     if ( !(*ihis) ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	   << " NULL pointer to histogram!" << endl;
@@ -175,8 +175,9 @@ void PedestalsAnalysis::analyse() {
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " NULL pointer to 'peds and raw noise' histogram!"
 	 << endl;
+    return;
   }
-  
+
   // Checks on whether noise histo exists and if binning is correct
   if ( hNoise_.first ) {
     if ( hNoise_.first->GetNbinsX() != 256 ) {
@@ -188,6 +189,27 @@ void PedestalsAnalysis::analyse() {
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " NULL pointer to 'residuals and noise' histogram!"
 	 << endl;
+    return;
+  }
+
+  // Extract TProfile histograms
+  TProfile* peds_histo = dynamic_cast<TProfile*>(hPeds_.first);
+  TProfile* noise_histo = dynamic_cast<TProfile*>(hNoise_.first);
+
+  // Checks on whether pedestals TProfile histo exists
+  if ( !peds_histo ) {
+    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	 << " NULL pointer to 'peds and raw noise' TProfile histogram!"
+	 << endl;
+    return;
+  }
+
+  // Checks on whether noise TProfile histo exists
+  if ( !noise_histo ) {
+    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	 << " NULL pointer to 'residuals and noise' TProfile histogram!"
+	 << endl;
+    return;
   }
   
   // Iterate through APVs 
@@ -200,9 +222,9 @@ void PedestalsAnalysis::analyse() {
       static uint16_t strip;
       strip = iapv*128 + istr;
       // Pedestals 
-      if ( hPeds_.first ) {
-	if ( hPeds_.first->GetBinEntries(strip+1) ) {
-	  peds_[iapv][istr] = hPeds_.first->GetBinContent(strip+1);
+      if ( peds_histo ) {
+	if ( peds_histo->GetBinEntries(strip+1) ) {
+	  peds_[iapv][istr] = peds_histo->GetBinContent(strip+1);
 	  p_sum += peds_[iapv][istr];
 	  p_sum2 += (peds_[iapv][istr] * peds_[iapv][istr]);
 	  if ( peds_[iapv][istr] > p_max ) { p_max = peds_[iapv][istr]; }
@@ -210,9 +232,9 @@ void PedestalsAnalysis::analyse() {
 	}
       } 
       // Noise
-      if ( hNoise_.first ) {
-	if ( hNoise_.first->GetBinEntries(strip+1) ) {
-	  noise_[iapv][istr] = hNoise_.first->GetBinError(strip+1);
+      if ( noise_histo ) {
+	if ( noise_histo->GetBinEntries(strip+1) ) {
+	  noise_[iapv][istr] = noise_histo->GetBinError(strip+1);
 	  n_sum += noise_[iapv][istr];
 	  n_sum2 += (noise_[iapv][istr] * noise_[iapv][istr]);
 	  if ( noise_[iapv][istr] > n_max ) { n_max = noise_[iapv][istr]; }

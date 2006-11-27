@@ -1,6 +1,7 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/VpspScanAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "TProfile.h"
+#include "TH1.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -52,7 +53,7 @@ void VpspScanAnalysis::reset() {
 
 // ----------------------------------------------------------------------------
 // 
-void VpspScanAnalysis::extract( const vector<TProfile*>& histos ) { 
+void VpspScanAnalysis::extract( const vector<TH1*>& histos ) { 
 
   // Check
   if ( histos.size() != 2 ) {
@@ -63,7 +64,7 @@ void VpspScanAnalysis::extract( const vector<TProfile*>& histos ) {
   }
   
   // Extract
-  vector<TProfile*>::const_iterator ihis = histos.begin();
+  vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
     
     // Check pointer
@@ -126,9 +127,9 @@ void VpspScanAnalysis::deprecated() {
     
     histos.clear();
     if ( iapv == 0 ) {
-      histos.push_back( const_cast<const TProfile*>(hVpsp0_.first) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(hVpsp0_.first) ) );
     } else if ( iapv == 1 ) {
-      histos.push_back( const_cast<const TProfile*>(hVpsp1_.first) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(hVpsp1_.first) ) );
     } 
     if ( !histos[0] ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"

@@ -8,6 +8,7 @@
 #include <vector>
 
 class TProfile;
+class TH1;
 
 /** 
    @class ApvLatencyAnalysis
@@ -30,7 +31,7 @@ class ApvLatencyAnalysis : public CommissioningAnalysis {
  private:
   
   void reset();
-  void extract( const std::vector<TProfile*>& );
+  void extract( const std::vector<TH1*>& );
   void analyse();
   
  private:

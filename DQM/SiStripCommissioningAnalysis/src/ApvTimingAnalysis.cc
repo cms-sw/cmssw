@@ -1,6 +1,7 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "TProfile.h"
+#include "TH1.h"
 #include <iostream>
 #include <iomanip>
 #include <cmath>
@@ -87,7 +88,7 @@ void ApvTimingAnalysis::maxTime( const float& time ) {
 
 // ----------------------------------------------------------------------------
 // 
-void ApvTimingAnalysis::extract( const vector<TProfile*>& histos ) { 
+void ApvTimingAnalysis::extract( const vector<TH1*>& histos ) { 
   
   // Check
   if ( histos.size() != 1 ) {
@@ -98,7 +99,7 @@ void ApvTimingAnalysis::extract( const vector<TProfile*>& histos ) {
   }
   
   // Extract
-  vector<TProfile*>::const_iterator ihis = histos.begin();
+  vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
     
     // Check pointer
@@ -135,12 +136,19 @@ void ApvTimingAnalysis::analyse() {
 	 << " NULL pointer to histogram!" << endl;
     return;
   }
+
+  TProfile* histo = dynamic_cast<TProfile*>(histo_.first);
+  if ( !histo ) {
+    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	 << " NULL pointer to TProfile histogram!" << endl;
+    return;
+  }
   
   // Transfer histogram contents/errors/stats to containers
   uint16_t non_zero = 0;
   float max = -1.e9;
   float min =  1.e9;
-  uint16_t nbins = static_cast<uint16_t>( histo_.first->GetNbinsX() );
+  uint16_t nbins = static_cast<uint16_t>( histo->GetNbinsX() );
   vector<float> bin_contents; 
   vector<float> bin_errors;
   vector<float> bin_entries;
@@ -148,9 +156,9 @@ void ApvTimingAnalysis::analyse() {
   bin_errors.reserve( nbins );
   bin_entries.reserve( nbins );
   for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
-    bin_contents.push_back( histo_.first->GetBinContent(ibin+1) );
-    bin_errors.push_back( histo_.first->GetBinError(ibin+1) );
-    bin_entries.push_back( histo_.first->GetBinEntries(ibin+1) );
+    bin_contents.push_back( histo->GetBinContent(ibin+1) );
+    bin_errors.push_back( histo->GetBinError(ibin+1) );
+    bin_entries.push_back( histo->GetBinEntries(ibin+1) );
     if ( bin_entries[ibin] ) { 
       if ( bin_contents[ibin] > max ) { max = bin_contents[ibin]; }
       if ( bin_contents[ibin] < min ) { min = bin_contents[ibin]; }
@@ -289,8 +297,8 @@ void ApvTimingAnalysis::analyse() {
     float mindev = 9999;
     int ideriv = 1;
     int idevmin = 1;
-    for ( int is = 10; is < histo_.first->GetNbinsX()-10 ; is++ ) {
-      float deriv = (histo_.first->GetBinContent(is+1)-histo_.first->GetBinContent(is-1));
+    for ( int is = 10; is < histo->GetNbinsX()-10 ; is++ ) {
+      float deriv = (histo->GetBinContent(is+1)-histo->GetBinContent(is-1));
       if ( deriv > maxdev ) {
 	maxdev=deriv;
 	ideriv=is;
@@ -303,8 +311,8 @@ void ApvTimingAnalysis::analyse() {
     
     if ( maxdev > 10. ) {
       deriv_bin = ideriv;
-      baseline = histo_.first->GetBinContent(ideriv-10);
-      tickmark = histo_.first->GetBinContent(ideriv+10);
+      baseline = histo->GetBinContent(ideriv-10);
+      tickmark = histo->GetBinContent(ideriv+10);
     } else {
       deriv_bin = 0;
       baseline = 0;

@@ -2,6 +2,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/Utilities.h"
 #include "TProfile.h"
+#include "TH1.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -96,7 +97,7 @@ void OptoScanAnalysis::reset() {
   
 // ----------------------------------------------------------------------------
 // 
-void OptoScanAnalysis::extract( const vector<TProfile*>& histos ) { 
+void OptoScanAnalysis::extract( const vector<TH1*>& histos ) { 
 
   // Check
   if ( histos.size() != 8 ) {
@@ -107,7 +108,7 @@ void OptoScanAnalysis::extract( const vector<TProfile*>& histos ) {
   }
   
   // Extract
-  vector<TProfile*>::const_iterator ihis = histos.begin();
+  vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
     
     // Check pointer
@@ -197,23 +198,41 @@ void OptoScanAnalysis::analyse() {
   for ( uint16_t igain = 0; igain < 4; igain++ ) {
     
     // Select histos appropriate for gain setting
-    TProfile* base_histo = 0;
-    TProfile* peak_histo = 0;
-    if      ( igain == 0 ) { base_histo = g0d0_.first; peak_histo = g0d1_.first; }
-    else if ( igain == 1 ) { base_histo = g1d0_.first; peak_histo = g1d1_.first; }
-    else if ( igain == 2 ) { base_histo = g2d0_.first; peak_histo = g2d1_.first; }
-    else if ( igain == 3 ) { base_histo = g3d0_.first; peak_histo = g3d1_.first; }
+    TH1* base_his = 0;
+    TH1* peak_his = 0;
+    if      ( igain == 0 ) { base_his = g0d0_.first; peak_his = g0d1_.first; }
+    else if ( igain == 1 ) { base_his = g1d0_.first; peak_his = g1d1_.first; }
+    else if ( igain == 2 ) { base_his = g2d0_.first; peak_his = g2d1_.first; }
+    else if ( igain == 3 ) { base_his = g3d0_.first; peak_his = g3d1_.first; }
 
     // Check for valid pointers to histograms
-    if ( !peak_histo ) {
+    if ( !peak_his ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	   << " NULL pointer to 'peak' histogram for gain setting: " 
 	   << igain << endl;
       continue;
     }
-    if ( !base_histo ) {
+    if ( !base_his ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	   << " NULL pointer to 'base' histogram for gain setting: " 
+	   << igain << endl;
+      continue;
+    }
+
+    // Extract TProfile histograms
+    TProfile* base_histo = dynamic_cast<TProfile*>(base_his);
+    TProfile* peak_histo = dynamic_cast<TProfile*>(peak_his);
+
+    // Check for valid pointers to histograms
+    if ( !peak_histo ) {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " NULL pointer to 'peak' TProfile histogram for gain setting: " 
+	   << igain << endl;
+      continue;
+    }
+    if ( !base_histo ) {
+      cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	   << " NULL pointer to 'base' TProfile histogram for gain setting: " 
 	   << igain << endl;
       continue;
     }
@@ -478,17 +497,17 @@ void OptoScanAnalysis::deprecated() {
 
     histos.clear();
     if ( igain == 0 ) {
-      histos.push_back( const_cast<const TProfile*>(g0d0_.first) );
-      histos.push_back( const_cast<const TProfile*>(g0d1_.first) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(g0d0_.first) ) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(g0d1_.first) ) );
     } else if ( igain == 1 ) {
-      histos.push_back( const_cast<const TProfile*>(g1d0_.first) );
-      histos.push_back( const_cast<const TProfile*>(g1d1_.first) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(g1d0_.first) ) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(g1d1_.first) ) );
     } else if ( igain == 2 ) {
-      histos.push_back( const_cast<const TProfile*>(g2d0_.first) );
-      histos.push_back( const_cast<const TProfile*>(g2d1_.first) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(g2d0_.first) ) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(g2d1_.first) ) );
     } else if ( igain == 3 ) {
-      histos.push_back( const_cast<const TProfile*>(g3d0_.first) );
-      histos.push_back( const_cast<const TProfile*>(g3d1_.first) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(g3d0_.first) ) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(g3d1_.first) ) );
     } 
     
     if ( !histos[0] ) {

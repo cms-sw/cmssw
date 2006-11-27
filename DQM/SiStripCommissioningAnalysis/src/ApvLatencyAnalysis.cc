@@ -30,7 +30,7 @@ void ApvLatencyAnalysis::reset() {
 
 // ----------------------------------------------------------------------------
 // 
-void ApvLatencyAnalysis::extract( const vector<TProfile*>& histos ) { 
+void ApvLatencyAnalysis::extract( const vector<TH1*>& histos ) { 
   
   // Check
   if ( histos.size() != 1 ) {
@@ -41,7 +41,7 @@ void ApvLatencyAnalysis::extract( const vector<TProfile*>& histos ) {
   }
   
   // Extract
-  vector<TProfile*>::const_iterator ihis = histos.begin();
+  vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
     
     // Check pointer
@@ -86,7 +86,7 @@ void ApvLatencyAnalysis::deprecated() {
   vector<unsigned short> monitorables;
     
   histos.clear();
-  histos.push_back( const_cast<const TProfile*>(histo_.first) );
+  histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(histo_.first) ) );
   if ( !histos[0] ) {
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " NULL pointer to latency histo!" << endl;

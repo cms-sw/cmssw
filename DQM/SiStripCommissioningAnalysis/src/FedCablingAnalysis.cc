@@ -2,6 +2,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "TProfile.h"
+#include "TH1.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -81,7 +82,7 @@ void FedCablingAnalysis::print( stringstream& ss, uint32_t not_used ) {
 
 // ----------------------------------------------------------------------------
 // 
-void FedCablingAnalysis::extract( const vector<TProfile*>& histos ) { 
+void FedCablingAnalysis::extract( const vector<TH1*>& histos ) { 
 
   // Check
   if ( histos.size() != 2 ) {
@@ -89,7 +90,7 @@ void FedCablingAnalysis::extract( const vector<TProfile*>& histos ) {
 	 << "[FedCablingAnalysis::" << __func__ << "]"
 	 << " Unexpected number of histograms: " 
 	 << histos.size();
-    vector<TProfile*>::const_iterator ihis = histos.begin();
+    vector<TH1*>::const_iterator ihis = histos.begin();
     for ( ; ihis != histos.end(); ihis++ ) {
       cout << "[FedCablingAnalysis::" << __func__ << "]"
 	   << " Histogram name: " << (*ihis)->GetName() << endl;
@@ -97,7 +98,7 @@ void FedCablingAnalysis::extract( const vector<TProfile*>& histos ) {
   }
   
   // Extract
-  vector<TProfile*>::const_iterator ihis = histos.begin();
+  vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
     
     // Check pointer
@@ -155,6 +156,21 @@ void FedCablingAnalysis::analyse() {
     return;
   }
 
+  TProfile* fedid_histo = dynamic_cast<TProfile*>(hFedId_.first);
+  TProfile* fedch_histo = dynamic_cast<TProfile*>(hFedCh_.first);
+
+  if ( !fedid_histo ) {
+    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	 << " NULL pointer to FedId TProfile histogram!" << endl;
+    return;
+  }
+
+  if ( !fedch_histo ) {
+    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	 << " NULL pointer to FedCh TProfile histogram!" << endl;
+    return;
+  }
+
   // Some initialization
   candidates_.clear();
   float max = -1.*sistrip::invalid_;
@@ -162,19 +178,19 @@ void FedCablingAnalysis::analyse() {
   uint16_t ch_val = sistrip::invalid_;
 
   // FED id
-  for ( uint16_t ifed = 0; ifed < hFedId_.first->GetNbinsX(); ifed++ ) {
-    if ( hFedId_.first->GetBinEntries(ifed+1) ) {
+  for ( uint16_t ifed = 0; ifed < fedid_histo->GetNbinsX(); ifed++ ) {
+    if ( fedid_histo->GetBinEntries(ifed+1) ) {
       // FED channel
-      for ( uint16_t ichan = 0; ichan < hFedCh_.first->GetNbinsX(); ichan++ ) {
-	if ( hFedCh_.first->GetBinEntries(ichan+1) ) {
+      for ( uint16_t ichan = 0; ichan < fedch_histo->GetNbinsX(); ichan++ ) {
+	if ( fedch_histo->GetBinEntries(ichan+1) ) {
 	  // Build FED key
 	  SiStripFedKey::Path path( ifed, ichan );
 	  uint32_t key = SiStripFedKey::key( path );
 	  // Calc weighted bin contents from FED id and ch histos
 	  float weight = 
-	    hFedId_.first->GetBinContent(ifed+1) * hFedId_.first->GetBinEntries(ifed+1) + 
-	    hFedCh_.first->GetBinContent(ichan+1) * hFedCh_.first->GetBinEntries(ichan+1);
-	  weight /= ( hFedId_.first->GetBinEntries(ifed+1) + hFedCh_.first->GetBinEntries(ichan+1) );
+	    fedid_histo->GetBinContent(ifed+1) * fedid_histo->GetBinEntries(ifed+1) + 
+	    fedch_histo->GetBinContent(ichan+1) * fedch_histo->GetBinEntries(ichan+1);
+	  weight /= ( fedid_histo->GetBinEntries(ifed+1) + fedch_histo->GetBinEntries(ichan+1) );
 	  // Record candidates and "best" candidate
 	  candidates_[key] = static_cast<uint16_t>(weight);
 	  if ( candidates_[key] > max ) {

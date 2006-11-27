@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-class TProfile;
+class TH1;
 
 /**
    @class CommissioningAnalysis
@@ -15,7 +15,7 @@ class TProfile;
    @brief Abstract base for derived classes that provide analysis of
    commissioning histograms. Analysis is always performed at the level
    of a FED channel, so analysis() method takes vector of all
-   TProfile histograms associated with a given FED channel. 
+   TH1 histograms associated with a given FED channel. 
 */
 class CommissioningAnalysis {
 
@@ -30,21 +30,21 @@ class CommissioningAnalysis {
   typedef std::vector<uint16_t> VInts;
   typedef std::vector<VInts> VVInts;
   
-  /** Extracts monitorables from TProfiles for a given FED channel. */
-  void analysis( const std::vector<TProfile*>& );
+  /** Extracts monitorables from TH1s for a given FED channel. */
+  void analysis( const std::vector<TH1*>& );
   
   /** Prints monitorables */
   virtual void print( std::stringstream&, uint32_t ) = 0;
   
  protected:
   
-  typedef std::pair<TProfile*,std::string> Histo;
+  typedef std::pair<TH1*,std::string> Histo;
   inline uint32_t key() const;
   
  private:
   
   virtual void reset() = 0; 
-  virtual void extract( const std::vector<TProfile*>& ) = 0; 
+  virtual void extract( const std::vector<TH1*>& ) = 0; 
   virtual void analyse() = 0; 
   
   uint32_t key_;

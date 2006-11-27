@@ -1,6 +1,7 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/FedTimingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "TProfile.h"
+#include "TH1.h"
 #include <iostream>
 #include <iomanip>
 #include <cmath>
@@ -80,7 +81,7 @@ void FedTimingAnalysis::max( const float& max ) {
 
 // ----------------------------------------------------------------------------
 // 
-void FedTimingAnalysis::extract( const vector<TProfile*>& histos ) { 
+void FedTimingAnalysis::extract( const vector<TH1*>& histos ) { 
   
   // Check
   if ( histos.size() != 1 ) {
@@ -91,7 +92,7 @@ void FedTimingAnalysis::extract( const vector<TProfile*>& histos ) {
   }
   
   // Extract
-  vector<TProfile*>::const_iterator ihis = histos.begin();
+  vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
     
     // Check pointer
@@ -144,7 +145,7 @@ void FedTimingAnalysis::analyse() {
   for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
     bin_contents.push_back( histo_.first->GetBinContent(ibin+1) );
     bin_errors.push_back( histo_.first->GetBinError(ibin+1) );
-    bin_entries.push_back( histo_.first->GetBinEntries(ibin+1) );
+    //bin_entries.push_back( histo_.first->GetBinEntries(ibin+1) );
     if ( bin_entries[ibin] ) { 
       if ( bin_contents[ibin] > max ) { max = bin_contents[ibin]; }
       if ( bin_contents[ibin] < min ) { min = bin_contents[ibin]; }

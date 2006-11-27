@@ -8,6 +8,7 @@
 #include <vector>
 
 class TProfile;
+class TH1;
 
 /** 
    @class OptoScanAnalysis
@@ -36,7 +37,7 @@ class OptoScanAnalysis : public CommissioningAnalysis {
  private:
   
   void reset();
-  void extract( const std::vector<TProfile*>& );
+  void extract( const std::vector<TH1*>& );
   void analyse();
 
  private:
