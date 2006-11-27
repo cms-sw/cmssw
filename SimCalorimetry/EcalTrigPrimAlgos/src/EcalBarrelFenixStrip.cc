@@ -39,6 +39,7 @@ std::vector<int>  EcalBarrelFenixStrip::process(std::vector<const EBDataFrame *>
     //       cout<<endl;
     int crystalNumberInStrip=((df[cryst]->id()).ic()-1)%numberOfCrystalsInStrip;
     if ((df[cryst]->id()).ieta()<0) crystalNumberInStrip=numberOfCrystalsInStrip - crystalNumberInStrip - 1;
+    crystalNumberInStrip++;  // to start with 1
     this->getLinearizer(cryst)->setParameters(1, townr, stripnr, crystalNumberInStrip) ; // PP: sm number must be here instead of 1
     EBDataFrame *ebdfp= new EBDataFrame(df[cryst]->id());
     this->getLinearizer(cryst)->process(*(df[cryst]),ebdfp);

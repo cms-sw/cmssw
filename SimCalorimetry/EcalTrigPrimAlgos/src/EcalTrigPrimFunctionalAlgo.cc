@@ -144,7 +144,7 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 	  std::vector<const EBDataFrame *> df=it->second[i];
 
 	  if (df.size()>0) {
-	    tp=ebstrip_->process(df,i,townr);
+	    tp=ebstrip_->process(df,i+1,townr);
 	    striptp.push_back(tp);
 	  }
 	}
