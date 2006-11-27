@@ -55,7 +55,7 @@ public:
   
   result_type next();
   
-  value_type current() const;
+  inline value_type current() const;
   
   result_type next_bfs();
   value_type current_bfs() const;

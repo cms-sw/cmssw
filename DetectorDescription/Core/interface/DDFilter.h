@@ -93,6 +93,8 @@ protected:
   // dectree_type * decTree_; // decissiontree
   criteria_type criteria_; 
   logops_type logOps_;
+  bool allAnd;
+  bool allOr;
 };
 
 // SpecificsFilterString-comparison (sfs)
