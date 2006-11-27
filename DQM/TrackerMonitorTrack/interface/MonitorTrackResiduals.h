@@ -16,7 +16,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.h,v 1.4 2006/09/29 17:03:44 goitom Exp $
+// $Id: MonitorTrackResiduals.h,v 1.5 2006/11/01 10:50:59 goitom Exp $
 //
 //
 
@@ -44,9 +44,7 @@
 
   using namespace std;
 
-typedef std::map<std::string, MonitorElement *> HistoClass;
-typedef std::map<int, MonitorElement *> HistoClass2;
-typedef std::map<long, long> Numerator;
+typedef std::map<int, MonitorElement *> HistoClass;
 
 class MonitorTrackResiduals : public edm::EDAnalyzer {
    public:
@@ -65,9 +63,6 @@ class MonitorTrackResiduals : public edm::EDAnalyzer {
   edm::ParameterSet conf_;
 
   HistoClass HitResidual;
-  HistoClass2 HitResidual2;
-  Numerator DetIdToInt;
-  Numerator IntToDetId;
 };
 
 #endif
