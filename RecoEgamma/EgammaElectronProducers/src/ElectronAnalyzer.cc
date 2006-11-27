@@ -1,190 +1,85 @@
 // -*- C++ -*-
 //
-// Package:     EgammaElectronProducers
-// Class  :     ElectronAnalyzer
+// Package:    ElectronAnalyzer
+// Class:      ElectronAnalyzer
 // 
-// Implementation:
-//     <Notes on implementation>
+/**\class ElectronAnalyzer ElectronAnalyzer.cc 
+
+ Description: <one line class summary>
+
+ Implementation:
+     <Notes on implementation>
+*/
 //
-// Original Author:  Jim Pivarski
-//         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id: ElectronAnalyzer.cc,v 1.7 2006/09/20 12:18:42 rahatlou Exp $
+// Original Author:  Alessandro Palma
+//         Created:  Thu Sep 21 11:41:35 CEST 2006
+// $Id$
 //
+//
+
 
 // system include files
 #include <memory>
-
+#include<string>
+#include "math.h"
 
 // user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Handle.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/ElectronAnalyzer.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/Math/interface/Point3D.h"
-#include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-
-// for Si hits
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
+#include "TH1.h"
+#include "TFile.h"
 
 //
 // constructors and destructor
 //
 ElectronAnalyzer::ElectronAnalyzer(const edm::ParameterSet& iConfig) :
-minElePt_(iConfig.getParameter<double>("minElectronPt")),
-  REleCut_(iConfig.getParameter<double>("drElectronMCMatchCut")),
-  electronProducer_(iConfig.getParameter<std::string>("electronProducer")),
-  mctruthProducer_(iConfig.getParameter<std::string>("mctruthProducer"))
-
+  minElePt_(iConfig.getParameter<double>("minElePt")), REleCut_(iConfig.getParameter<double>("REleCut")), outputFile_(iConfig.getParameter<std::string>("outputFile")), electronProducer_(iConfig.getParameter<edm::InputTag>("electronProducer")), mcProducer_(iConfig.getParameter<std::string>("mcProducer")), scProducer_(iConfig.getParameter<edm::InputTag>("superClusterProducer"))
 {
    //now do what ever initialization is needed
-   fileName_ = iConfig.getParameter<std::string>("fileName");
-
-   file_ = new TFile(fileName_.c_str(), "RECREATE");
-   numCand_ = new TH1F("numCandidates", "Number of candidates found", 10, -0.5, 9.5);
-
-   mctruthProducer_ = iConfig.getParameter<std::string>("mctruthProducer");
-   mctruthCollection_ = iConfig.getParameter<std::string>("mctruthCollection");
-
-   superClusterProducer_ = iConfig.getParameter<std::string>("superClusterProducer");
-   superClusterCollection_ = iConfig.getParameter<std::string>("superClusterCollection");
-
-   electronProducer_ = iConfig.getParameter<std::string>("electronProducer");
-   electronCollection_ = iConfig.getParameter<std::string>("electronCollection");
-
-   siHitProducer_ = iConfig.getParameter<std::string>("siHitProducer");
-   siRphiHitCollection_ = iConfig.getParameter<std::string>("siRphiHitCollection");
-   siStereoHitCollection_ = iConfig.getParameter<std::string>("siStereoHitCollection");
-
-
-
+  rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE"); // open output file to store histograms
 }
 
-// ElectronAnalyzer::ElectronAnalyzer(const ElectronAnalyzer& rhs)
-// {
-//    // do actual copying here;
-// }
 
 ElectronAnalyzer::~ElectronAnalyzer()
 {
+ 
+   // do anything here that needs to be done at desctruction time
+   // (e.g. close files, deallocate resources etc.)
+  delete rootFile_;
 }
 
-//
-// assignment operators
-//
-// const ElectronAnalyzer& ElectronAnalyzer::operator=(const ElectronAnalyzer& rhs)
-// {
-//   //An exception safe implementation is
-//   ElectronAnalyzer temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
 //
 
-// ------------ method called to produce the data  ------------
+// ------------ method called to for each event  ------------
 void
 ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace std;  // so you can say "cout" and "endl"
-   using namespace edm; // needed for FW stuff
-   edm::Handle<reco::SuperClusterCollection> clusterHandle;
-   iEvent.getByLabel(superClusterProducer_, superClusterCollection_, clusterHandle);
-
-   for (reco::SuperClusterCollection::const_iterator clusterIter = clusterHandle->begin();
-                                                     clusterIter != clusterHandle->end();
-                                                     ++clusterIter) {
-      double energy = clusterIter->energy();
-      math::XYZPoint position = clusterIter->position();
-
-      edm::LogInfo("")  << "supercluster " << energy << " GeV, position " << position << " cm" << endl;
-   }
-
-   // SiStrip Electrons
-   edm::Handle<reco::SiStripElectronCollection> electronHandle;
-   iEvent.getByLabel(electronProducer_, electronCollection_, electronHandle);
-
-   int numberOfElectrons = 0;
-   for (reco::SiStripElectronCollection::const_iterator electronIter = electronHandle->begin();
-	electronIter != electronHandle->end();
-	++electronIter) {
-       edm::LogInfo("")  << "about to get stuff from electroncandidate..." << endl;
-      edm::LogInfo("")  << "supercluster energy = " << electronIter->superCluster()->energy() << endl;
-      edm::LogInfo("")  << "fit results are phi(r) = " << electronIter->phiAtOrigin() << " + " << electronIter->phiVsRSlope() << "*r" << endl;
-      edm::LogInfo("")  << "you get the idea..." << endl;
-
-      numberOfElectrons++;
-   }
-   numCand_->Fill(numberOfElectrons);
-
-   ///////////////////////////////////////////////////////////////////////////////// Now for tracker hits:
-   edm::ESHandle<TrackerGeometry> trackerHandle;
-   iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
-
-   edm::Handle<SiStripRecHit2DCollection> rphiHitsHandle;
-   iEvent.getByLabel(siHitProducer_, siRphiHitCollection_, rphiHitsHandle);
-
-   edm::Handle<SiStripRecHit2DCollection> stereoHitsHandle;
-   iEvent.getByLabel(siHitProducer_, siStereoHitCollection_, stereoHitsHandle);
-
-   // Loop over the detector ids
-   const std::vector<DetId> ids = stereoHitsHandle->ids();
-   for (std::vector<DetId>::const_iterator id = ids.begin();  id != ids.end();  ++id) {
-
-      // Get the hits on this detector id
-      SiStripRecHit2DCollection::range hits = stereoHitsHandle->get(*id);
-
-      // Count the number of hits on this detector id
-      unsigned int numberOfHits = 0;
-      for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
-	 numberOfHits++;
-      }
-
-      // Only take the hits if there aren't too many
-      // (Would it be better to loop only once, fill a temporary list,
-      // and copy that if numberOfHits <= maxHitsOnDetId_?)
-      if (numberOfHits <= 5) {
-	 for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
-	    if (trackerHandle->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB  ||
-		trackerHandle->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB    ) {
-
-	       GlobalPoint position = trackerHandle->idToDet(hit->geographicalId())->surface().toGlobal(hit->localPosition());
-	       edm::LogInfo("")   << "this stereo hit is at " << position.x() << ", " << position.y() << ", " << position.z() << endl;
-
-	    } // end if this is the right subdetector
-	 } // end loop over hits
-      } // end if this detector id doesn't have too many hits on it
-   } // loop over stereo hits
-
+   using namespace edm;
 
     //SUPERCLUSTERS - BEGIN
    
    Handle<reco::SuperClusterCollection> mySC;
-   iEvent.getByLabel("hybridSuperClusters", mySC); 
+   iEvent.getByLabel(scProducer_, mySC); 
    
    for(reco::SuperClusterCollection::const_iterator scIt = mySC->begin();
        scIt != mySC->end(); scIt++){
@@ -198,7 +93,7 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    //GET GENERATOR EVENT - BEGIN
 
    Handle< HepMCProduct > hepProd ;
-   iEvent.getByLabel( mctruthProducer_.c_str(), hepProd ) ;
+   iEvent.getByLabel( mcProducer_.c_str(), hepProd ) ;
    const HepMC::GenEvent * myGenEvent = hepProd->GetEvent();
 
    //GET GENERATOR EVENT - END
@@ -206,7 +101,8 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    
    //LOOP OVER ELECTRONS - BEGIN
    Handle<reco::ElectronCollection> myEle;
-   iEvent.getByLabel(electronProducer_.c_str(), myEle); 
+   //   iEvent.getByLabel(electronProducer_.c_str(), myEle); 
+   iEvent.getByLabel(electronProducer_, myEle); 
    
    std::vector<reco::Electron> eleVec;
    std::vector<reco::Electron> posVec;
@@ -295,13 +191,72 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      }
    }
    //loop over MC positrons and find the closest MC positron in (eta,phi) phace space - end
+ 
+   /*
+   
+   //OTHER (COMMENTED) ANALYSIS - begin
 
+   // SiStrip Electrons
+   edm::Handle<reco::SiStripElectronCollection> electronHandle;
+   iEvent.getByLabel(electronProducer_, electronCollection_, electronHandle);
 
+   int numberOfElectrons = 0;
+   for (reco::SiStripElectronCollection::const_iterator electronIter = electronHandle->begin();
+	electronIter != electronHandle->end();
+	++electronIter) {
+     edm::LogInfo("")  << "about to get stuff from electroncandidate..." << endl;
+     edm::LogInfo("")  << "supercluster energy = " << electronIter->superCluster()->energy() << endl;
+     edm::LogInfo("")  << "fit results are phi(r) = " << electronIter->phiAtOrigin() << " + " << electronIter->phiVsRSlope() << "*r" << endl;
+     edm::LogInfo("")  << "you get the idea..." << endl;
 
+     numberOfElectrons++;
+   }
+   numCand_->Fill(numberOfElectrons);
 
+   ///////////////////////////////////////////////////////////////////////////////// Now for tracker hits:
+   edm::ESHandle<TrackerGeometry> trackerHandle;
+   iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
 
+   edm::Handle<SiStripRecHit2DCollection> rphiHitsHandle;
+   iEvent.getByLabel(siHitProducer_, siRphiHitCollection_, rphiHitsHandle);
 
-} // end of ::analyze()
+   edm::Handle<SiStripRecHit2DCollection> stereoHitsHandle;
+   iEvent.getByLabel(siHitProducer_, siStereoHitCollection_, stereoHitsHandle);
+
+   // Loop over the detector ids
+   const std::vector<DetId> ids = stereoHitsHandle->ids();
+   for (std::vector<DetId>::const_iterator id = ids.begin();  id != ids.end();  ++id) {
+
+     // Get the hits on this detector id
+     SiStripRecHit2DCollection::range hits = stereoHitsHandle->get(*id);
+
+     // Count the number of hits on this detector id
+     unsigned int numberOfHits = 0;
+     for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
+       numberOfHits++;
+     }
+
+     // Only take the hits if there aren't too many
+     // (Would it be better to loop only once, fill a temporary list,
+     // and copy that if numberOfHits <= maxHitsOnDetId_?)
+     if (numberOfHits <= 5) {
+       for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
+	 if (trackerHandle->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB  ||
+	     trackerHandle->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB    ) {
+
+	   GlobalPoint position = trackerHandle->idToDet(hit->geographicalId())->surface().toGlobal(hit->localPosition());
+	   edm::LogInfo("")   << "this stereo hit is at " << position.x() << ", " << position.y() << ", " << position.z() << endl;
+
+	 } // end if this is the right subdetector
+       } // end loop over hits
+     } // end if this detector id doesn't have too many hits on it
+   } // loop over stereo hits
+
+   //OTHER (COMMENTED) ANALYSIS - end
+
+   */
+  
+}
 
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -310,7 +265,7 @@ ElectronAnalyzer::beginJob(const edm::EventSetup&)
 {
 
 // go to *OUR* rootfile and book histograms
-file_->cd();
+rootFile_->cd();
 
 h1_nEleReco_ = new TH1F("nEleReco","Number of reco electrons",10,-0.5,10.5);
  h1_nEleReco_->SetXTitle("nEleReco");
@@ -337,7 +292,8 @@ h1_eleERecoOverEtrue_= new TH1F("eleERecoOverEtrue","Ereco/Etrue for MC matched 
 
 
 // ------------ method called once each job just after ending the event loop  ------------
-void ElectronAnalyzer::endJob() {
+void 
+ElectronAnalyzer::endJob() {
 
   h1_nEleReco_->Write();
   h1_recoEleEnergy_->Write();
@@ -347,17 +303,7 @@ void ElectronAnalyzer::endJob() {
   h1_RMin_->Write();
   h1_eleERecoOverEtrue_->Write();
 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-   file_->Write();
-   file_->Close();
+  rootFile_->Close();
 
 }
 
-//
-// const member functions
-//
-
-//
-// static member functions
-//

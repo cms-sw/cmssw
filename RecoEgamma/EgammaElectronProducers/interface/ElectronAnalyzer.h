@@ -1,75 +1,85 @@
-#ifndef EgammaElectronProducers_ElectronAnalyzer_h
-#define EgammaElectronProducers_ElectronAnalyzer_h
+#ifndef ElectronAnalyzer_h
+#define ElectronAnalyzer_h
+
 // -*- C++ -*-
 //
-// Package:     EgammaElectronProducers
-// Class  :     ElectronAnalyzer
+// Package:    ElectronAnalyzer
+// Class:      ElectronAnalyzer
 // 
-/**\class ElectronAnalyzer ElectronAnalyzer.h RecoEgamma/EgammaElectronProducers/interface/ElectronAnalyzer.h
+/**\class ElectronAnalyzer ElectronAnalyzer.cc Demo/ElectronAnalyzer/src/ElectronAnalyzer.cc
 
  Description: <one line class summary>
 
- Usage:
-    <usage>
-
+ Implementation:
+     <Notes on implementation>
 */
 //
-// Original Author:  
-//         Created:  Fri May 26 16:52:45 EDT 2006
-// $Id: ElectronAnalyzer.h,v 1.3 2006/06/21 22:48:31 pivarski Exp $
+// Original Author:  Alessandro Palma
+//         Created:  Thu Sep 21 11:41:35 CEST 2006
+// $Id$
 //
+//
+
 
 // system include files
+#include <memory>
+#include<string>
+#include "math.h"
 
 // user include files
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Handle.h"
 
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+
+#include "TH1.h"
 #include "TFile.h"
-#include "TH1F.h"
-
-// forward declarations
 
 //
-// class decleration
+// class declaration
 //
 
 class ElectronAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit ElectronAnalyzer(const edm::ParameterSet&);
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void endJob() ;
-      ~ElectronAnalyzer();
+ public:
+  explicit ElectronAnalyzer(const edm::ParameterSet&);
+  ~ElectronAnalyzer();
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-   private:
-      // ----------member data ---------------------------
-      std::string fileName_;
-      TFile* file_;
-      TH1F* numCand_;
+ private:
+  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
 
-      double minElePt_;
-      double REleCut_;
+  // ----------member data ---------------------------
 
-      std::string mctruthProducer_;
-      std::string mctruthCollection_;
-      std::string superClusterProducer_;
-      std::string superClusterCollection_;
-      std::string electronProducer_;
-      std::string electronCollection_;
-      std::string siHitProducer_;
-      std::string siRphiHitCollection_;
-      std::string siStereoHitCollection_;
+  double minElePt_;
+  double REleCut_;
+  TFile*  rootFile_;  
+  std::string outputFile_;
+  edm::InputTag electronProducer_;
+  std::string mcProducer_;
+  edm::InputTag scProducer_;
 
-      TH1F* h1_nEleReco_;
-      TH1F* h1_recoEleEnergy_;
-      TH1F* h1_recoElePt_;
-      TH1F* h1_recoEleEta_;
-      TH1F* h1_recoElePhi_;
-      TH1F* h1_RMin_;
-      TH1F* h1_eleERecoOverEtrue_;
+  TH1F* h1_nEleReco_;
+  TH1F* h1_recoEleEnergy_;
+  TH1F* h1_recoElePt_;
+  TH1F* h1_recoEleEta_;
+  TH1F* h1_recoElePhi_;
+  TH1F* h1_RMin_;
+  TH1F* h1_eleERecoOverEtrue_;
 };
 
 #endif
