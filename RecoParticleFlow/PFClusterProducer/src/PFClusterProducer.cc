@@ -44,6 +44,7 @@
 
 
 using namespace std;
+using namespace edm;
 
 PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
 {
@@ -184,7 +185,6 @@ PFClusterProducer::~PFClusterProducer() {}
 void PFClusterProducer::produce(edm::Event& iEvent, 
 				const edm::EventSetup& iSetup) {
 
-  using namespace edm;
   
 
   // for output  
@@ -459,7 +459,7 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	  // cout<<"CaloTower "<<(*ict)<<endl;
 	  
 
-	  cout<<"new tower ---------------"<<endl;
+
 	  const CaloTower& ct = (*ict);
 
 	
@@ -490,10 +490,11 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	    LogError("PFClusterProducer")
 	      <<"CaloTower constituent: unknown layer : "
 	      <<detid.subdet()<<endl;
-	    continue;
 	  } 
 	  
-	  assert(layer);
+	  // either detid.subdet() not treated in switch/case
+	  // or calotower under threshold
+	  if(!layer) continue; 
 
 	  // get the geometry 
 
@@ -513,26 +514,24 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 				  position.x(), position.y(), position.z(), 
 				  0,0,0 );
 
-	  cout<<"rechit : "<<*pfrechit<<endl;
+	  // cout<<"rechit : "<<*pfrechit<<endl;
 	  // note that the key is the CaloTower detid, 
 	  // not the constituent detid. 
 
 	  
 	  hcalrechits.insert( make_pair(ct.id().rawId(), pfrechit) ); 
 
-	  cout<<"CT : "<<ct<<endl;
+	  // cout<<"CT : "<<ct<<endl;
 	}
 
 
 	// do navigation 
 	for( PFClusterAlgo::IDH ih = hcalrechits.begin(); 
 	     ih != hcalrechits.end(); ih++) {
-	  findRecHitNeighbours( ih->second, 
-				hcalrechits, 
-				caloTowerTopology, 
-				*caloTowerGeometry, 
-				caloTowerTopology,
-				*caloTowerGeometry);
+	  findRecHitNeighboursCT( ih->second, 
+				  hcalrechits, 
+				  caloTowerTopology, 
+				  *caloTowerGeometry );
 	}
 	// do clustering 
 	
@@ -912,6 +911,8 @@ void PFClusterProducer::produce(edm::Event& iEvent,
   //   iEvent.put( outClustersPS, "PS");
 }
 
+
+
 void 
 PFClusterProducer::findRecHitNeighbours
 ( reco::PFRecHit* rh, 
@@ -921,8 +922,6 @@ PFClusterProducer::findRecHitNeighbours
   const CaloSubdetectorTopology& endcapTopology, 
   const CaloSubdetectorGeometry& endcapGeometry ) {
   
-  
-
   const math::XYZPoint& cpos = rh->positionXYZ();
   double posx = cpos.X();
   double posy = cpos.Y();
@@ -1192,6 +1191,320 @@ PFClusterProducer::findRecHitNeighbours
 //   cout<<(*rh)<<endl;
 
 }
+
+
+void 
+PFClusterProducer::findRecHitNeighboursCT
+( reco::PFRecHit* rh, 
+  const map<unsigned, reco::PFRecHit* >& rechits, 
+  const CaloSubdetectorTopology& topology, 
+  const CaloSubdetectorGeometry& geometry ) {
+ 
+  const math::XYZVector& rhpos = math::XYZVector(rh->positionXYZ());
+  double rhposx = rhpos.X();
+  double rhposy = rhpos.Y();
+  double rhposz = rhpos.Z();
+  
+
+  math::XYZVector dummy(rhpos);
+  dummy += rhpos;
+
+  bool debug = false;
+  //   if( rh->layer() == PFLayer::PS1 ||
+  //       rh->layer() == PFLayer::PS2 ) debug = true;
+  
+  
+  DetId detid( rh->detId() );
+
+  vector<DetId> northids = topology.north(detid);
+  vector<DetId> westids = topology.west(detid);
+  vector<DetId> southids = topology.south(detid);
+  vector<DetId> eastids = topology.east(detid);
+
+  DetId badId;
+
+  DetId north;
+  DetId northwest;
+  DetId west;
+  DetId southwest;
+  DetId south;
+  DetId southeast;
+  DetId east;
+  DetId northeast;
+  
+  // for north and south, there is no ambiguity : 1 or 0 neighbours
+  string err("PFClusterProducer::findRecHitNeighboursCT : incorrect number of neighbours "); 
+  char n[20];
+  
+  switch( northids.size() ) {
+  case 0: 
+    break;
+  case 1: 
+    north = northids[0];
+    break;
+  default:
+    sprintf(n, "north: %d", northids.size() );
+    err += n;
+    throw( err ); 
+  }
+
+  switch( southids.size() ) {
+  case 0: 
+    break;
+  case 1: 
+    south = southids[0];
+    break;
+  default:
+    sprintf(n, "south %d", southids.size() );
+    err += n;
+    throw( err ); 
+  }
+  
+  // for east and west, one must take care 
+  // of the pitch change in HCAL endcap.
+
+  switch( eastids.size() ) {
+  case 0: 
+    break;
+  case 1: 
+    east = eastids[0];
+    northeast = getNorth(east, topology);
+    southeast = getSouth(east, topology);
+    break;
+  case 2:  
+    // in this case, 0 is more on the north than 1
+    east = eastids[0];
+    northeast = getNorth(east, topology );
+    southeast = getSouth(eastids[1], topology);    
+    break;
+  default:
+    sprintf(n, "%d", eastids.size() );
+    err += n;
+    throw( err ); 
+  }
+  
+  
+  switch( westids.size() ) {
+  case 0: 
+    break;
+  case 1: 
+    west = westids[0];
+    northwest = getNorth(west, topology);
+    southwest = getSouth(west, topology);
+    break;
+  case 2:  
+    // in this case, 0 is more on the north than 1
+    west = westids[0];
+    northwest = getNorth(west, topology );
+    southwest = getSouth(westids[1], topology );    
+    break;
+  default:
+    sprintf(n, "%d", westids.size() );
+    err += n;
+    throw( err ); 
+  }
+
+
+  
+  // set corners
+  // Attention !!! in CMSSW east corresponds to negative eta. 
+  // this is counterintuitive -> changing it. 
+
+  if(northeast != badId) {
+    const CaloCellGeometry *thisCell = geometry.getGeometry(northeast);
+    if(!thisCell) {
+      LogError("PFClusterProducer")
+	<<"warning detid "<<detid.rawId()
+	<<" not found in geometry"<<endl;
+    }
+    else {
+      const GlobalPoint& pos = thisCell->getPosition();
+      double cornerposx = pos.x(); 
+      double cornerposy = pos.y(); 
+      double cornerposz = pos.z(); 
+      cornerposx += rhposx; cornerposx /= 2.;
+      cornerposy += rhposy; cornerposy /= 2.;
+      cornerposz += rhposz; cornerposz /= 2.;
+            
+      rh->setNWCorner(cornerposx, cornerposy, cornerposz);
+    }
+  }
+ 
+
+  if(southeast != badId) {
+    const CaloCellGeometry *thisCell = geometry.getGeometry(southeast);
+    if(!thisCell) {
+      LogError("PFClusterProducer")
+	<<"warning detid "<<detid.rawId()
+	<<" not found in geometry"<<endl;
+    }
+    else {
+      const GlobalPoint& pos = thisCell->getPosition();
+      double cornerposx = pos.x(); 
+      double cornerposy = pos.y(); 
+      double cornerposz = pos.z(); 
+      cornerposx += rhposx; cornerposx /= 2.;
+      cornerposy += rhposy; cornerposy /= 2.;
+      cornerposz += rhposz; cornerposz /= 2.;
+            
+      rh->setSWCorner(cornerposx, cornerposy, cornerposz);
+    }
+  }
+ 
+   
+  if(southwest != badId) {
+    const CaloCellGeometry *thisCell = geometry.getGeometry(southwest);
+    if(!thisCell) {
+      LogError("PFClusterProducer")
+	<<"warning detid "<<detid.rawId()
+	<<" not found in geometry"<<endl;
+    }
+    else {
+      const GlobalPoint& pos = thisCell->getPosition();
+      double cornerposx = pos.x(); 
+      double cornerposy = pos.y(); 
+      double cornerposz = pos.z(); 
+      cornerposx += rhposx; cornerposx /= 2.;
+      cornerposy += rhposy; cornerposy /= 2.;
+      cornerposz += rhposz; cornerposz /= 2.;
+            
+      rh->setSECorner(cornerposx, cornerposy, cornerposz);
+    }
+  }
+ 
+   
+  if(northwest != badId) {
+    const CaloCellGeometry *thisCell = geometry.getGeometry(northwest);
+    if(!thisCell) {
+      LogError("PFClusterProducer")
+	<<"warning detid "<<detid.rawId()
+	<<" not found in geometry"<<endl;
+    }
+    else {
+      const GlobalPoint& pos = thisCell->getPosition();
+      double cornerposx = pos.x(); 
+      double cornerposy = pos.y(); 
+      double cornerposz = pos.z(); 
+      cornerposx += rhposx; cornerposx /= 2.;
+      cornerposy += rhposy; cornerposy /= 2.;
+      cornerposz += rhposz; cornerposz /= 2.;
+            
+      rh->setNECorner(cornerposx, cornerposy, cornerposz);
+    }
+  }
+ 
+   
+
+
+  // find and set neighbours
+
+  reco::PFRecHit* rhnorth = 0;
+  PFClusterAlgo::IDH i = rechits.find( north.rawId() );
+  if(i != rechits.end() ) 
+    rhnorth = i->second;
+    
+  reco::PFRecHit* rhnortheast = 0;
+  i = rechits.find( northeast.rawId() );
+  if(i != rechits.end() ) 
+    rhnortheast = i->second;
+    
+  reco::PFRecHit* rhsouth = 0;
+  i = rechits.find( south.rawId() );
+  if(i != rechits.end() ) 
+    rhsouth = i->second;
+    
+  reco::PFRecHit* rhsouthwest = 0;
+  i = rechits.find( southwest.rawId() );
+  if(i != rechits.end() ) 
+    rhsouthwest = i->second;
+  
+  reco::PFRecHit* rheast = 0;
+  i = rechits.find( east.rawId() );
+  if(i != rechits.end() ) 
+    rheast = i->second;
+  
+  reco::PFRecHit* rhsoutheast = 0;
+  i = rechits.find( southeast.rawId() );
+  if(i != rechits.end() ) 
+    rhsoutheast = i->second;
+  
+  reco::PFRecHit* rhwest = 0;
+  i = rechits.find( west.rawId() );
+  if(i != rechits.end() ) 
+    rhwest = i->second;
+  
+  reco::PFRecHit* rhnorthwest = 0;
+  i = rechits.find( northwest.rawId() );
+  if(i != rechits.end() ) 
+    rhnorthwest = i->second;
+  
+  vector<reco::PFRecHit*> neighbours;
+  neighbours.reserve(8);
+  neighbours.push_back( rhnorth );
+  neighbours.push_back( rhnorthwest );
+  neighbours.push_back( rhwest );
+  neighbours.push_back( rhsouthwest );
+  neighbours.push_back( rhsouth );
+  neighbours.push_back( rhsoutheast );
+  neighbours.push_back( rheast );
+  neighbours.push_back( rhnortheast );
+  
+  rh->setNeighbours( neighbours );
+ 
+  
+  if(westids.size()==2 || eastids.size()==2) 
+    debug = true;
+  
+  if(debug) {
+    
+    cout<<"NWSE "
+	<<northids.size()<<" "
+	<<westids.size()<<" "
+	<<southids.size()<<" "
+	<<eastids.size()<<" "
+	<<rhpos.Eta()<<" "<<rhpos.Phi()<<endl;
+    
+    cout<<"west neighbours:"<<endl;
+    for(unsigned i=0; i<westids.size(); i++) {
+      const CaloCellGeometry *thisCell = geometry.getGeometry( westids[i] );
+      const GlobalPoint& npos = thisCell->getPosition();
+      cout<<"\t"<<i<<": "
+	  <<npos.eta()<<" "
+	  <<npos.phi()<<endl;
+    }
+    cout<<"east neighbours:"<<endl;
+    for(unsigned i=0; i<eastids.size(); i++) {
+      const CaloCellGeometry *thisCell = geometry.getGeometry( eastids[i] );
+      const GlobalPoint& npos = thisCell->getPosition();
+    
+      cout<<"\t"<<i<<": "
+	  <<npos.eta()<<" "
+	  <<npos.phi()<<endl;
+    }
+  }
+}
+
+DetId PFClusterProducer::getSouth(const DetId& id, 
+				  const CaloSubdetectorTopology& topology) {
+
+  DetId south;
+  vector<DetId> sids = topology.south(id);
+  if(sids.size() == 1)
+    south = sids[0];
+  
+  return south;
+} 
+
+DetId PFClusterProducer::getNorth(const DetId& id, 
+				  const CaloSubdetectorTopology& topology) {
+
+  DetId north;
+  vector<DetId> nids = topology.north(id);
+  if(nids.size() == 1)
+    north = nids[0];
+  
+  return north;
+} 
 
 
 reco::PFRecHit* 

@@ -52,6 +52,15 @@ class PFClusterProducer : public edm::EDProducer {
 			  const CaloSubdetectorTopology& endcapTopo,
 			  const CaloSubdetectorGeometry& endcapGeom );
   
+  void 
+    findRecHitNeighboursCT( reco::PFRecHit* rh, 
+			    const std::map<unsigned,reco::PFRecHit* >& rechits,
+			    const CaloSubdetectorTopology& topology, 
+			    const CaloSubdetectorGeometry& geometry );
+  
+  DetId getNorth(const DetId& id, const CaloSubdetectorTopology& topology);
+  DetId getSouth(const DetId& id, const CaloSubdetectorTopology& topology);
+  
   reco::PFRecHit*  createHcalRecHit( const DetId& detid, 
 				     double energy,
 				     int layer,
