@@ -26,7 +26,7 @@ class DDValue //: public std::vector<DDValuePair>
   friend class DDLSpecPar;
 public:
   //! create a unnamed emtpy value. One can assing a named DDValue to it.
-  DDValue() : id_(0), vecPair_(0) { } ;
+  DDValue() : id_(0), vecPair_(0) { }
   
   //! create a named empty value
   DDValue(const std::string &);
