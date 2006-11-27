@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // EdmFileUtil.cpp
 //
-// $Id: EdmFileUtil.cpp,v 1.1 2006/11/03 16:17:38 dlange Exp $
+// $Id: EdmFileUtil.cpp,v 1.2 2006/11/22 06:10:22 dlange Exp $
 //
 // Author: Chih-hsiang Cheng, LLNL
 //         Chih-Hsiang.Cheng@cern.ch
@@ -43,6 +43,7 @@ int main(int argc, char* argv[]) {
     ("print,P", "Print all")
     ("uuid,u", "Print uuid")
     ("verbose,v","Verbose printout")
+    ("decodeLFN,d", "Convert LFN to PFN")
     ("printBranchDetails,b","Call Print()sc for all branches")
     ("allowRecovery","Allow root to auto-recover corrupted files") 
     ("events,e",boost::program_options::value<std::string>(), 
@@ -117,95 +118,105 @@ int main(int argc, char* argv[]) {
     std::vector<std::string> in = vm["file"].as<std::vector<std::string> >();
     std::string catalogIn = (vm.count("catalog") ? vm["catalog"].as<std::string>() : std::string());
     
-    std::cout << in[0] << "\n"; 
     pset.addUntrackedParameter<std::vector<std::string> >("fileNames", in);
     pset.addUntrackedParameter<std::string>("catalog", catalogIn);
     
     edm::InputFileCatalog catalog(pset);
     std::vector<std::string> const& filesIn = catalog.fileNames();
-    
-    // open a data file
-    std::string datafile=filesIn[0];
-    TFile *tfile= edm::openFileHdl(datafile);
-    
-    
-    
-    if ( tfile == 0 ) return 1;
-    if ( verbose ) std::cout << "ECU:: Opened " << datafile << std::endl;
-    
-    // First check that this file is not auto-recovered
-    // Stop the job unless specified to do otherwise
-    
-    bool isRecovered = tfile->TestBit(TFile::kRecovered);
-    if ( isRecovered ) {
-      std::cout << datafile << " appears not to have been closed correctly and has been autorecovered \n";
-      if ( vm.count("allowRecovery") ) {
-	std::cout << "Proceeding anyway\n";
+
+    // Allow user to input multiple files
+    for(unsigned int j = 0;j < in.size();j++) {
+      
+      // We _only_ want the LFN->PFN conversion. No need to open the file, 
+      // just check the catalog and move on
+      if ( vm.count("decodeLFN") ) {
+	std::cout << filesIn[j] << std::endl;
+	continue;
+      }
+
+      // open a data file
+      std::cout << in[j] << "\n"; 
+      std::string datafile=filesIn[j];
+      TFile *tfile= edm::openFileHdl(datafile);
+      
+      if ( tfile == 0 ) return 1;
+      if ( verbose ) std::cout << "ECU:: Opened " << datafile << std::endl;
+      
+      // First check that this file is not auto-recovered
+      // Stop the job unless specified to do otherwise
+      
+      bool isRecovered = tfile->TestBit(TFile::kRecovered);
+      if ( isRecovered ) {
+	std::cout << datafile << " appears not to have been closed correctly and has been autorecovered \n";
+	if ( vm.count("allowRecovery") ) {
+	  std::cout << "Proceeding anyway\n";
+	}
+	else{
+	  std::cout << "Stopping. Use --allowRecovery to try ignoring this\n";
+	  return 1;
+	}
       }
       else{
-	std::cout << "Stopping. Use --allowRecovery to try ignoring this\n";
-	return 1;
+	if ( verbose ) std::cout << "ECU:: Collection not autorecovered. Continuing\n";
       }
-    }
-    else{
-      if ( verbose ) std::cout << "ECU:: Collection not autorecovered. Continuing\n";
-    }
-    
-    // Ok. Do we have the expected trees?
-    for ( unsigned int i=0; i<expectedTrees.size(); i++) {
-      TTree *t= (TTree*) tfile->Get(expectedTrees[i].c_str());
-      if ( t==0 ) {
-	std::cout << "Tree " << expectedTrees[i] << " appears to be missing. Not a valid collection\n";
-	std::cout << "Exiting\n";
-	return 1;
-      }
-      else{
+      
+      // Ok. Do we have the expected trees?
+      for ( unsigned int i=0; i<expectedTrees.size(); i++) {
+	TTree *t= (TTree*) tfile->Get(expectedTrees[i].c_str());
+	if ( t==0 ) {
+	  std::cout << "Tree " << expectedTrees[i] << " appears to be missing. Not a valid collection\n";
+	  std::cout << "Exiting\n";
+	  return 1;
+	}
+	else{
 	if ( verbose ) std::cout << "ECU:: Found Tree " << expectedTrees[i] << std::endl;
+	}
       }
-    }
-    
-    if ( verbose ) std::cout << "ECU:: Found all expected trees\n"; 
-    
-    // Ok. How many events?
-    long int nevts= edm::numEntries(tfile,"Events");
-    std::cout << tfile->GetName() << " ( " << nevts << " events, " 
-	      << tfile->GetSize() << " bytes )" << std::endl;
-    
-    // Look at the collection contents
-    if ( vm.count("ls")) {
-      if ( tfile != 0 ) tfile->ls();
-    }
-    
-    // Print out each tree
-    if ( vm.count("print") ) {
-      TTree *eventsTree=(TTree*)tfile->Get("Events");
-      edm::printBranchNames(eventsTree);
-    }
-
-    if ( vm.count("printBranchDetails") ) {
-      TTree *printTree=(TTree*)tfile->Get("Events");
-      edm::longBranchPrint(printTree);
-    }
-
-    if ( vm.count("uuid") ) {
-      TTree *paramsTree=(TTree*)tfile->Get("##Params");
-      edm::printUuids(paramsTree);
-    }
-        
-    // Print out event lists 
-    if ( vm.count("events") ) {
-      bool listentries=false;  
-      std::string remainingStr=vm["events"].as<std::string>();
-      edm::printEventLists(remainingStr, nevts, tfile, listentries);
-    }
-    
+      
+      if ( verbose ) std::cout << "ECU:: Found all expected trees\n"; 
+      
+      // Ok. How many events?
+      long int nevts= edm::numEntries(tfile,"Events");
+      std::cout << tfile->GetName() << " ( " << nevts << " events, " 
+		<< tfile->GetSize() << " bytes )" << std::endl;
+      
+      // Look at the collection contents
+      if ( vm.count("ls")) {
+	if ( tfile != 0 ) tfile->ls();
+      }
+      
+      // Print out each tree
+      if ( vm.count("print") ) {
+	TTree *eventsTree=(TTree*)tfile->Get("Events");
+	edm::printBranchNames(eventsTree);
+      }
+      
+      if ( vm.count("printBranchDetails") ) {
+	TTree *printTree=(TTree*)tfile->Get("Events");
+	edm::longBranchPrint(printTree);
+      }
+      
+      if ( vm.count("uuid") ) {
+	TTree *paramsTree=(TTree*)tfile->Get("##Params");
+	edm::printUuids(paramsTree);
+      }
+      
+      // Print out event lists 
+      if ( vm.count("events") ) {
+	bool listentries=false;  
+	std::string remainingStr=vm["events"].as<std::string>();
+	edm::printEventLists(remainingStr, nevts, tfile, listentries);
+      }
+      
 //     if ( vm.count("entries") ) {
 //       bool listentries=true;  
 //       std::string remainingStr=vm["entries"].as<std::string>();
 //       edm::printEventLists(remainingStr, nevts, tfile, listentries);   
 //     }
+    
+    }
   }
-
+  
   catch (cms::Exception& e) {
     std::cout << "cms::Exception caught in "
               <<"EdmFileUtil"
