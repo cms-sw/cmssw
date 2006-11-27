@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.26 2006/09/01 09:38:11 llista Exp $
+ * \version $Id: GsfTrack.h,v 1.1 2006/10/06 12:09:19 adamwo Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -25,8 +25,8 @@ namespace reco {
     /// constructor from fit parameters and error matrix
     /// notice that the reference point must be 
     /// the point of closest approch to the beamline.    
-    GsfTrack( double chi2, double ndof,
-	   const ParameterVector & par, double pt, const CovarianceMatrix & cov );
+    GsfTrack( double chi2, double ndof, const Point &, const Vector &, int charge, 
+	   const CovarianceMatrix & );
     /// return true if the outermost point is valid
     bool outerOk() const { return extra_->outerOk(); }
     /// return true if the innermost point is valid

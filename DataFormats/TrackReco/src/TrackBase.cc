@@ -3,23 +3,13 @@
 #include <algorithm>
 using namespace reco;
 
-TrackBase::TrackBase( double chi2, double ndof,
-		      const ParameterVector & par, double pt, const CovarianceMatrix & cov, 
-		      int charge ) :
-  chi2_( chi2 ), ndof_( ndof ) {
-  if ( charge == 0 ) charge = par[ 0 ] < 0 ? + 1 : - 1;
-  pt_ = charge > 0 ? fabs( pt ) : - fabs( pt );
-  std::copy( par.begin(), par.end(), parameters_ );
+TrackBase::TrackBase( double chi2, double ndof, const Point & vertex, const Vector & momentum, int charge,
+		      const CovarianceMatrix & cov ) :
+  chi2_( chi2 ), ndof_( ndof ), vertex_( vertex ), momentum_( momentum ), charge_( charge ) {
   index idx = 0;
   for( index i = 0; i < dimension; ++ i ) 
     for( index j = 0; j <= i; ++ j )
       covariance_[ idx ++ ] = cov( i, j );
-}
-
-
-TrackBase::ParameterVector & TrackBase::fill( ParameterVector & v ) const {
-  std::copy( parameters_, parameters_ + dimension, v.begin() );
-  return v;
 }
 
 TrackBase::CovarianceMatrix & TrackBase::fill( CovarianceMatrix & v ) const {
