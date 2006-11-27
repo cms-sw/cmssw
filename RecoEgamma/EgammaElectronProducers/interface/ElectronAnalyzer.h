@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri May 26 16:52:45 EDT 2006
-// $Id: ElectronAnalyzer.h,v 1.2 2006/06/21 17:02:13 pivarski Exp $
+// $Id: ElectronAnalyzer.h,v 1.3 2006/06/21 22:48:31 pivarski Exp $
 //
 
 // system include files
@@ -38,6 +38,8 @@
 class ElectronAnalyzer : public edm::EDAnalyzer {
    public:
       explicit ElectronAnalyzer(const edm::ParameterSet&);
+      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void endJob() ;
       ~ElectronAnalyzer();
 
 
@@ -48,6 +50,9 @@ class ElectronAnalyzer : public edm::EDAnalyzer {
       TFile* file_;
       TH1F* numCand_;
 
+      double minElePt_;
+      double REleCut_;
+
       std::string mctruthProducer_;
       std::string mctruthCollection_;
       std::string superClusterProducer_;
@@ -57,6 +62,14 @@ class ElectronAnalyzer : public edm::EDAnalyzer {
       std::string siHitProducer_;
       std::string siRphiHitCollection_;
       std::string siStereoHitCollection_;
+
+      TH1F* h1_nEleReco_;
+      TH1F* h1_recoEleEnergy_;
+      TH1F* h1_recoElePt_;
+      TH1F* h1_recoEleEta_;
+      TH1F* h1_recoElePhi_;
+      TH1F* h1_RMin_;
+      TH1F* h1_eleERecoOverEtrue_;
 };
 
 #endif
