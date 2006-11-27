@@ -47,8 +47,10 @@ void CandMatcherBase::produce( Event& evt, const EventSetup& ) {
 	if ( dist < distMin_ ) v.push_back( make_pair( m, dist ) );
       }
     }
-    size_t mMin = min_element( v.begin(), v.end(), helper::SortBySecond() )->first;
-    matchMap->insert( CandidateRef( cands, c ), CandidateRef( matched, mMin ) );
+    if ( v.size() > 0 ) {
+      size_t mMin = min_element( v.begin(), v.end(), helper::SortBySecond() )->first;
+      matchMap->insert( CandidateRef( cands, c ), CandidateRef( matched, mMin ) );
+    }
   }
 
   evt.put( matchMap );
