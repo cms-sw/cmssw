@@ -92,7 +92,7 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const 
 
     //std::cout << "size of spec=" << spec.size() << std::endl;
     for (;  spit != spec.end(); spit++) {
-      std::map< unsigned int, DDValue >::const_iterator it = (**spit).begin();
+      DDsvalues_type::const_iterator it = (**spit).begin();
       for (;  it != (**spit).end(); it++) {
 	//std::cout << "it->second.name()=" << it->second.name() << std::endl;  
 	if (it->second.name() == upstr) {
