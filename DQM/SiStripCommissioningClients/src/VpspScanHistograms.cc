@@ -48,7 +48,7 @@ void VpspScanHistograms::histoAnalysis( bool debug ) {
     }
     
     // Retrieve pointers to profile histos for this FED channel 
-    vector<TProfile*> profs;
+    vector<TH1*> profs;
     Collations::const_iterator ihis = iter->second.begin(); 
     for ( ; ihis != iter->second.end(); ihis++ ) {
       TProfile* prof = ExtractTObject<TProfile>().extract( mui()->get( *ihis ) );

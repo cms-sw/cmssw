@@ -54,13 +54,13 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     }
     
     // Retrieve pointers to profile histos for this FED channel 
-    vector<TProfile*> profs;
+    vector<TH1*> profs;
     Collations::const_iterator ihis = iter->second.begin(); 
     for ( ; ihis != iter->second.end(); ihis++ ) {
       TProfile* prof = ExtractTObject<TProfile>().extract( mui()->get( *ihis ) );
       if ( prof ) { profs.push_back(prof); }
     } 
-
+    
     // Perform histo analysis
     ApvTimingAnalysis anal( iter->first );
     anal.analysis( profs );
