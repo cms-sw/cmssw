@@ -25,7 +25,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.45 2006/11/27 12:06:58 llista Exp $
+ * \version $Id: TrackBase.h,v 1.46 2006/11/27 13:02:16 jalcaraz Exp $
  *
  */
 
@@ -84,7 +84,7 @@ namespace reco {
     /// Lambda angle
     double lambda() const { return M_PI/2 - momentum_.theta(); }
     /// track impact parameter (distance of closest approach to beamline)
-    double dxy() const { return ( - vx() * py() + vy() * px() ) / p (); }
+    double dxy() const { return ( - vx() * py() + vy() * px() ) / pt(); }
     /// track impact parameter in perigee convention (d0 = - dxy)
     double d0() const { return - dxy(); }
     /// sz distance to beamline
