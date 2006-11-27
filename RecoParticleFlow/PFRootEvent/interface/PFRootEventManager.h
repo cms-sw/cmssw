@@ -161,6 +161,8 @@ class PFRootEventManager {
   void displayCluster(const reco::PFCluster& cluster,
 		      unsigned viewType, double phi0 = 0.);
   
+  /// display cluster-to-rechits lines
+  void displayClusterLines(const reco::PFCluster& cluster);
 
   /// display reconstructed tracks
   void displayRecTracks(unsigned viewType, double phi0 = 0.);
@@ -312,6 +314,9 @@ class PFRootEventManager {
 
   /// algos to display
   std::set<int>            algosToDisplay_;  
+
+  /// display cluster-to-rechits lines ? 
+  bool                     displayClusterLines_;
 
   /// display pad xy size for eta/phi view
   std::vector<int>         viewSizeEtaPhi_;        
