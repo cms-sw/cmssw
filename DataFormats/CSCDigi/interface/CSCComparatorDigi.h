@@ -5,13 +5,13 @@
  *
  * Digi for CSC Comparators.
  *  
- *  $Date: 2006/05/16 15:22:57 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/11/16 16:55:38 $
+ *  $Revision: 1.7 $
  *
  * \author M. Schmitt, Northwestern
  *
  */
-#include <boost/cstdint.hpp>
+
 #include <iosfwd>
 #include <vector>
 

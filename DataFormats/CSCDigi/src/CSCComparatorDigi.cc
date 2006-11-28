@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2006/05/25 15:11:36 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/11/16 16:55:47 $
+ *  $Revision: 1.7 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -25,30 +25,28 @@ CSCComparatorDigi::CSCComparatorDigi()
 
 // Comparison
 
-//@@ op== doesn't care about the time data. Does that make sense?!
-
 bool
 CSCComparatorDigi::operator == (const CSCComparatorDigi& digi) const {
   if ( getStrip() != digi.getStrip() ) return false;
   if ( getComparator() != digi.getComparator() ) return false;
+  if ( getTimeBinWord() != digi.getTimeBinWord() ) return false;
   return true;
 }
 
 
-//@@ op< is a little tricky too...
-// - 'true' means the compared digis have the same time bin and strip LHS < strip RHS, 
-// - 'false' means either the times are different OR 
-// the times are the same but strip LHS !< strip RHS.
+//@@ If one wanted to order comparator digis how would one want op< to behave?
+// I don't know...
+// I think LHS < RHS only makes sense if
+// i) time(LHS) .eq. time(RHS)
+// AND
+// ii) strip(LHS) .lt. strip(RHS)
+// But I don't see how this can be useful.
 
 bool 
 CSCComparatorDigi::operator<(const CSCComparatorDigi& digi) const {
-  bool result = true;
-  // sort on time first, then strip
+  bool result = false;
   if(getTimeBin() == digi.getTimeBin()) {
     result = (getStrip() < digi.getStrip());
-  }
-  else {
-    result = false;
   }
   return result;
 }
