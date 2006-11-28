@@ -1,4 +1,4 @@
-// $Id: OverlapChecker.cc,v 1.4 2006/02/21 10:37:32 llista Exp $
+// $Id: OverlapChecker.cc,v 1.1 2006/02/28 10:43:30 llista Exp $
 #include "DataFormats/Candidate/interface/OverlapChecker.h"  
 #include "DataFormats/Candidate/interface/Candidate.h"
 using namespace reco;
@@ -7,7 +7,10 @@ bool OverlapChecker::operator()( const Candidate & c1, const Candidate & c2 ) co
   typedef Candidate::const_iterator iterator;
   if( c1.numberOfDaughters() == 0 ) {
     if ( c2.numberOfDaughters() == 0 ) {
-      return c1.overlap( c2 );
+      if( c2.hasMasterClone() )
+	return c1.overlap( *(c2.masterClone()) );
+      else
+	return c1.overlap( c2 );
     }
     for( iterator i2 = c2.begin(); i2 != c2.end(); ++ i2 ) {
       if( operator()( c1, * i2 ) ) { 
