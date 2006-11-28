@@ -25,7 +25,7 @@ public:
   virtual ~DDFilter();
   
   //! true, if the DDExpandedNode fulfills the filter criteria
-  virtual bool accept(const DDExpandedView &) = 0;
+  virtual bool accept(const DDExpandedView &) const = 0;
   
 };
 
@@ -52,10 +52,8 @@ public:
   
   ~DDSpecificsFilter();
   
-  bool accept(const DDExpandedView &); 
+  bool accept(const DDExpandedView &) const; 
 	      
-  bool accept_impl(const DDExpandedView &);	      
-    
   void setCriteria(const DDValue & nameVal, // name & value of a variable 
                    comp_op, 
 		   log_op l = AND, 
@@ -81,6 +79,9 @@ public:
   };
   
 protected:  
+
+  bool accept_impl(const DDExpandedView &) const;
+    
   typedef SpecificCriterion  criterion_type;  
   typedef std::vector<criterion_type> criteria_type;
   typedef std::vector<log_op> logops_type;
