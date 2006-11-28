@@ -379,21 +379,13 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
     unsigned int runNumber=0; // not needed
     unsigned int evtNumber=(nbEvents_+1)%0x1000000;
     FEDRawDataCollection* event(0);
-    if (0!=PlaybackRawDataProvider::instance()) {
+    if (0!=PlaybackRawDataProvider::instance())
       event=PlaybackRawDataProvider::instance()->getFEDRawData(runNumber,evtNumber);
-    }
     
     
     //
     // loop over all superfragments in each event    
     //
-    std::vector<unsigned int> validFedIds;
-    if (0!=event) {
-      for (unsigned int j=0;j<(unsigned int)FEDNumbering::lastFEDId()+1;j++)
-	if (event->FEDData(j).size()>0) validFedIds.push_back(j);
-      if (0==fedN_) initFedBuffers(validFedIds.size());
-    }
-    
     for (unsigned int iSuperFrag=0;iSuperFrag<nSuperFrag_;iSuperFrag++) {
       
       // fill FED buffers
@@ -480,7 +472,9 @@ void BU::initFedBuffers(unsigned int nFed)
   clearFedBuffers();
 
   if (nFed<nSuperFrag_) nSuperFrag_=nFed;
-    
+  
+  assert(nSuperFrag_.value_>0);
+  
   fedN_ =new unsigned int[nSuperFrag_];
   fedId_=new unsigned int*[nSuperFrag_];
   
@@ -488,7 +482,7 @@ void BU::initFedBuffers(unsigned int nFed)
   unsigned int fedN2=fedN1;
   unsigned int mod  =nFed%nSuperFrag_;
   if (mod>0) fedN2++;
-
+  
   for (unsigned int i=0;i<nSuperFrag_;i++) {
     fedN_[i] =(i<mod)?fedN2:fedN1;
     fedId_[i]=new unsigned int[fedN_[i]];
@@ -514,7 +508,10 @@ void BU::clearFedBuffers()
     fedData_=0;
   }
 
-  if (0!=fedSize_) delete [] fedSize_; fedSize_=0;
+  if (0!=fedSize_) {
+    delete [] fedSize_;
+    fedSize_=0;
+  }
   
   if (0!=fedId_) {
     for (unsigned int i=0;i<nSuperFrag_;i++) delete [] fedId_[i];
@@ -532,12 +529,20 @@ void BU::fillFedBuffers(unsigned int iSuperFrag,FEDRawDataCollection* event)
   // determine valid FED Ids and number of FEDs per superfragment if necessary
   if (fedN_==0) {
     vector<unsigned int> validFedIds;
-    for (int i=0;i<FEDNumbering::lastFEDId()+1;i++)
-      if (FEDNumbering::inRange(i)) validFedIds.push_back(i);
-    
+    for (unsigned int i=0;i<(unsigned int)FEDNumbering::lastFEDId()+1;i++) {
+      if (0==event) {
+	if (FEDNumbering::inRange(i)) validFedIds.push_back(i);
+      }
+      else {
+	unsigned int fedSize=event->FEDData(i).size();
+	if (fedSize>0) validFedIds.push_back(i);
+      }
+    }
     unsigned int nFed=validFedIds.size();
+    assert(nFed>0);
+    
     initFedBuffers(nFed);
-
+    
     unsigned int i(0),j(0);
     for (unsigned int k=0;k<nFed;k++) {
       unsigned int fedId=validFedIds[k];

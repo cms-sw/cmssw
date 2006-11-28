@@ -1,5 +1,10 @@
 2006-11-28  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
+	* tag V00-02-09
+	* bug fix
+
+2006-11-28  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
 	* tag V00-02-08
 	* fix the way the internal fed buffers are filled in PLAYBACK
 	mode. It wouldn't have worked for more than 64 feds (so it
