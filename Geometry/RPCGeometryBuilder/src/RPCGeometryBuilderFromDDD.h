@@ -10,13 +10,14 @@
  */
 
 #include <string>
-//#include <vector>
-
+#include <map>
+#include <list>
 
 class DDCompactView;
 class DDFilteredView;
 class RPCGeometry;
-//class RPCChamber;
+class RPCDetId;
+class RPCRoll;
 class MuonDDDConstants;
 
 class RPCGeometryBuilderFromDDD 
@@ -32,12 +33,8 @@ class RPCGeometryBuilderFromDDD
 
  private:
   RPCGeometry* buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants);
-  
-  //  RPCChamber* buildChamber(DDFileterView& fview,
-  //			   RPCGeometry& geometry,
-  //			   const std::string& type);
+  std::map<RPCDetId,std::list<RPCRoll *> > chids;
 
-  //std::vector<double> extractParameters(DDFilteredView& fview);
   bool theComp11Flag;
 
 };
