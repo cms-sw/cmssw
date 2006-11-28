@@ -211,7 +211,7 @@ int main (int argc, char* argv[]) {
     cout << "             p = " << pStart << endl;
     //      RandomPlaneGenerator::PlanePtr startPlane = (*surfaceGenerator)(xStart,pStart);
     RandomPlaneGenerator::PlanePtr startPlane(0);
-    RandomCylinderGenerator::CylinderPtr startCylinder(0);
+    BoundCylinder::BoundCylinderPointer startCylinder(0);
     if ( surfaceIsPlane )
       startPlane = (*planeGenerator)(xStart,pStart);
     else
@@ -284,7 +284,7 @@ int main (int argc, char* argv[]) {
       //        cout << "            p = " << pGen << endl;
       //        RandomPlaneGenerator::PlanePtr currentPlane = (*surfaceGenerator)(xGen,pGen);
       RandomPlaneGenerator::PlanePtr currentPlane(0);
-      RandomCylinderGenerator::CylinderPtr currentCylinder(0);
+      BoundCylinder::BoundCylinderPointer currentCylinder(0);
       if ( surfaceIsPlane )
 	currentPlane = (*planeGenerator)(xGen,pGen);
       else
@@ -360,7 +360,7 @@ int main (int argc, char* argv[]) {
       //          cout << "            p = " << pGen << endl;
       //        RandomPlaneGenerator::PlanePtr currentPlane = (*surfaceGenerator)(xGen,pGen); 
       RandomPlaneGenerator::PlanePtr currentPlane(0);
-      RandomCylinderGenerator::CylinderPtr currentCylinder(0);
+      BoundCylinder::BoundCylinderPointer currentCylinder(0);
       if ( surfaceIsPlane )
 	currentPlane = (*planeGenerator)(xGen,pGen);
       else
