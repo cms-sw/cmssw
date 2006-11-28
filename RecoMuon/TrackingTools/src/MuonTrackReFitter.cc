@@ -6,8 +6,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/11/23 02:18:44 $
- *   $Revision: 1.8 $
+ *   $Date: 2006/11/28 10:15:27 $
+ *   $Revision: 1.9 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author   C. Liu                   Purdue University
@@ -161,7 +161,7 @@ vector<Trajectory> MuonTrackReFitter::fit(const TrajectorySeed& seed,
   for ( ConstRecHitContainer::const_iterator ihit = hits.begin() + 1; 
         ihit != hits.end(); ++ihit ) {
 
-    if((**ihit).isValid()) continue;
+    if(!(**ihit).isValid()) continue;
     
     predTsos = thePropagator1->propagate(currTsos, (**ihit).det()->surface());
 
