@@ -13,7 +13,7 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: TrackParameterAnalyzer.h,v 1.3 2006/09/15 15:42:04 vanlaer Exp $
+// $Id: TrackParameterAnalyzer.h,v 1.4 2006/09/29 11:36:14 werdmann Exp $
 //
 //
 
@@ -100,5 +100,6 @@ class TrackParameterAnalyzer : public edm::EDAnalyzer {
       TH1*   h1_par4_;
 
       edm::InputTag simG4_;
-       bool verbose_;
+      bool verbose_;
+      double simUnit_;               
 };

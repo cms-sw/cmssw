@@ -18,6 +18,7 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "CLHEP/HepMC/GenEvent.h"
 #include "CLHEP/HepMC/GenVertex.h"
+
 // HepPDT // for simtracks
 #include "SimGeneral/HepPDT/interface/HepPDTable.h"
 #include "SimGeneral/HepPDT/interface/HepParticleData.h"
@@ -53,8 +54,11 @@ PrimaryVertexAnalyzer::PrimaryVertexAnalyzer(const edm::ParameterSet& iConfig)
   outputFile_  = iConfig.getUntrackedParameter<std::string>("outputFile");
   vtxSample_   = iConfig.getUntrackedParameter<std::string>("vtxSample");
   rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE");
-  simUnit_= 1;
   verbose_= iConfig.getUntrackedParameter<bool>("verbose", false);
+  simUnit_= 1.0;  // starting with CMSSW_1_2_x
+    if ( (edm::getReleaseVersion()).find("CMSSW_1_1_",0)!=std::string::npos){
+    simUnit_=0.1;  // for use in  CMSSW_1_1_1 tutorial
+  }
 }
 
 
@@ -72,6 +76,8 @@ PrimaryVertexAnalyzer::~PrimaryVertexAnalyzer()
 // member functions
 //
 void PrimaryVertexAnalyzer::beginJob(edm::EventSetup const&){
+  std::cout << " PrimaryVertexAnalyzer::beginJob  conversion from sim units to rec units is " << simUnit_ << std::endl;
+
   rootFile_->cd();
   // release validation histograms used in DoCompare.C
   h["nbvtx"]        = new TH1F("nbvtx","nb rec vertices in event",100,-0.5,99.5);
@@ -162,16 +168,16 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     int ivtx=0;
     for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
 	v!=recVtxs->end(); ++v){
-      std::cout << "recvtx "<< ivtx++
-	      << "#trk " << std::setw(3) << v->tracksSize()
+      std::cout << "recvtx "<< std::setw(3) << std::setfill(' ')<<ivtx++
+		<< "#trk " << std::setw(3) << v->tracksSize() 
 	      << " chi2 " << std::setw(4) << v->chi2() 
 	      << " ndof " << std::setw(3) << v->ndof() << std::endl 
-      	      << " x "  << std::setw(6) << v->x() 
-	      << " dx " << std::setw(6) << v->xError()<< std::endl
-      	      << " y "  << std::setw(6) << v->y() 
- 	      << " dy " << std::setw(6) << v->yError()<< std::endl
-      	      << " z "  << std::setw(6) << v->z() 
- 	      << " dz " << std::setw(6) << v->zError()
+		<< " x "  << std::setw(8) <<std::fixed << std::setprecision(4) << v->x() 
+	      << " dx " << std::setw(8) << v->xError()<< std::endl
+      	      << " y "  << std::setw(8) << v->y() 
+ 	      << " dy " << std::setw(8) << v->yError()<< std::endl
+      	      << " z "  << std::setw(8) << v->z() 
+ 	      << " dz " << std::setw(8) << v->zError()
 	      << std::endl;
     }
 
@@ -288,7 +294,7 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 
 
-  // vertex matching and  efficiency accounting
+  // vertex matching and  efficiency bookkeeping
   h["nsimvtx"]->Fill(simpv.size());
   h["nrecvtx"]->Fill(recVtxs->size());
   h["nsimtrk"]->Fill(simTrks->size());
@@ -314,6 +320,7 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }
     }
 
+    // histogram properties of matched vertices
     if (vsim->recVtx){
 
       if(verbose_){std::cout <<"primary matched " << vsim->x << " " << vsim->y << " " << vsim->z << std:: endl;}
@@ -397,7 +404,7 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  for (int i = 0; i != 5; i++) {
 	    for (int j = 0; j != 5; j++) {
 	      data[i2] = (**t).covariance(i, j);
-	      std::cout << data[i2] << " ";
+	      std::cout << std:: scientific << data[i2] << " ";
 	      i2++;
 	    }
 	    std::cout << std::endl;

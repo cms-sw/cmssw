@@ -3,7 +3,7 @@
 #include <vector>
 #include "SimGeneral/HepPDT/interface/HepPDTable.h"
 #include "SimGeneral/HepPDT/interface/HepParticleData.h"
-
+#include "FWCore/Utilities/interface/GetReleaseVersion.h"
 
 //
 //
@@ -27,13 +27,17 @@ TrackParameterAnalyzer::TrackParameterAnalyzer(const edm::ParameterSet& iConfig)
   outputFile_   = iConfig.getUntrackedParameter<std::string>("outputFile");
   rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE"); 
   verbose_= iConfig.getUntrackedParameter<bool>("verbose", false);
+  simUnit_=1.0;  //  starting from  CMSSW_1_2_x, I think
+  if ( (edm::getReleaseVersion()).find("CMSSW_1_1_",0)!=std::string::npos){
+    simUnit_=0.1;  // for use in  CMSSW_1_1_1 tutorial
+  }
 }
 
 
 TrackParameterAnalyzer::~TrackParameterAnalyzer()
 {
  
-   // do anything here that needs to be done at desctruction time
+   // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
   delete rootFile_;
 }
@@ -44,6 +48,8 @@ TrackParameterAnalyzer::~TrackParameterAnalyzer()
 // member functions
 //
 void TrackParameterAnalyzer::beginJob(edm::EventSetup const&){
+  std::cout << " TrackParameterAnalyzer::beginJob  conversion from sim units to rec units is " << simUnit_ << std::endl;
+
   rootFile_->cd();
   h1_pull0_ = new TH1F("pull0","pull kappa",100,-25.,25.);
   h1_pull1_ = new TH1F("pull1","pull theta",100,-25.,25.);
@@ -112,7 +118,7 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
      for(edm::SimVertexContainer::const_iterator v=simVtcs->begin();
 	 v!=simVtcs->end(); ++v){
        std::cout << "simvtx "
-		 << std::setw(10) << std::setprecision(3)
+		 << std::setw(10) << std::setprecision(4)
 		 << v->position().x() << " "
 		 << v->position().y() << " "
 		 << v->position().z() << " "
@@ -157,9 +163,9 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 		       << std::endl;
 	   }
 	   if ( (Q != 0) && (p.perp()>0.1) ){
-	     double x0=v.x(); // no conversion to cm anymore??
-	     double y0=v.y();
-	     double z0=v.z();
+	     double x0=v.x()*simUnit_;
+	     double y0=v.y()*simUnit_;
+	     double z0=v.z()*simUnit_;
 	     double kappa=-Q*0.002998*fBfield/p.perp();
 	     double D0=x0*sin(p.phi())-y0*cos(p.phi())-0.5*kappa*(x0*x0+y0*y0);
 	     double q=sqrt(1.-2.*kappa*D0);
