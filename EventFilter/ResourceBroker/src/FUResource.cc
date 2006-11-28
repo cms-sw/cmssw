@@ -664,7 +664,7 @@ void FUResource::findFEDs() throw (evf::Exception)
       crcChk=compute_crc(fedHeaderAddr,fedSize);
       
       if (crc!=crcChk) {
-	LOG4CPLUS_WARN(log_,"crc check failed."
+	LOG4CPLUS_INFO(log_,"crc check failed."
 		       <<" evtNumber:"<<evtNumber_
 		       <<" fedid:"<<fedId
 		       <<" crc:"<<crc

@@ -52,6 +52,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , resourceTable_(0)
   , instance_(0)
   , runNumber_(0)
+  , nbShmClients_(0)
   , nbMBTot_(0.0)
   , nbMBPerSec_(0.0)
   , nbMBPerSecMin_(0.0)
@@ -78,6 +79,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , queueSize_(16)
   , nbAllocateSent_(0)
   , nbTakeReceived_(0)
+  , nbTimeExpired_(0)
   , nbMeasurements_(0)
   , nbEventsLast_(0)
 {
@@ -190,6 +192,13 @@ void FUResourceBroker::timeExpired(toolbox::task::TimerEvent& e)
   nbMBPerSecAvg_=nbMBTot_/nbMeasurements_;
 
   gui_->unlockInfoSpaces();
+
+  // check if the event queue should be filled up again.
+  if (itsTimeToAllocate()) {
+    sendAllocate();
+    nbTimeExpired_.value_++;
+  }
+  
   lock_.give();
 }
 
@@ -238,6 +247,7 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
     
     string item=dynamic_cast<xdata::ItemRetrieveEvent&>(e).itemName();
     
+    if (item=="nbShmClients")      nbShmClients_     =resourceTable_->nbShmClients();
     if (item=="nbAllocatedEvents") nbAllocatedEvents_=resourceTable_->nbAllocated();
     if (item=="nbReceivedEvents")  nbReceivedEvents_ =resourceTable_->nbCompleted();
     if (item=="nbLostEvents")      nbLostEvents_     =resourceTable_->nbLost();
@@ -490,10 +500,9 @@ void FUResourceBroker::webPageRequest(xgi::Input *in,xgi::Output *out)
 //______________________________________________________________________________
 bool FUResourceBroker::itsTimeToAllocate()
 {
-  bool   isEnabled     =(fsm_->getCurrentState()=='E');
   UInt_t nbFreeSlots   =resourceTable_->nbFreeSlots();
   UInt_t nbFreeSlotsMax=queueSize_/2;
-  if (isEnabled&&nbFreeSlots>nbFreeSlotsMax) return true;
+  if (nbFreeSlots>nbFreeSlotsMax) return true;
   return false;
 }
 
@@ -508,6 +517,7 @@ void FUResourceBroker::exportParameters()
   gui_->addMonitorParam("instance",           &instance_);
   gui_->addMonitorParam("runNumber",          &runNumber_);
   gui_->addMonitorParam("stateName",          &fsm_->stateName_);
+  gui_->addMonitorParam("nbShmClients",       &nbShmClients_);
 
   gui_->addMonitorParam("nbMBTot",            &nbMBTot_);
   gui_->addMonitorParam("nbMBPerSec",         &nbMBPerSec_);
@@ -538,14 +548,17 @@ void FUResourceBroker::exportParameters()
   
   gui_->addDebugCounter("nbAllocateSent",     &nbAllocateSent_);
   gui_->addDebugCounter("nbTakeReceived",     &nbTakeReceived_);
+  gui_->addDebugCounter("nbTimeExpired",      &nbTimeExpired_);
 
   gui_->exportParameters();
 
+  gui_->addItemRetrieveListener("nbShmClients",     this);
+  gui_->addItemRetrieveListener("nbAllocatedEvents",this);
   gui_->addItemRetrieveListener("nbReceivedEvents", this);
   gui_->addItemRetrieveListener("nbLostEvents",     this);
   gui_->addItemRetrieveListener("nbDataErrors",     this);
   gui_->addItemRetrieveListener("nbCrcErrors",      this);
-  gui_->addItemRetrieveListener("nbAllocatedEvents",this);
+
 
   gui_->addItemChangedListener("doCrcCheck",        this);
 }

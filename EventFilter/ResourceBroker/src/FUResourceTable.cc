@@ -267,3 +267,13 @@ bool FUResourceTable::isLastMessageOfEvent(MemRef_t* bufRef)
 
   return ((iSuperFrag==nSuperFrag-1)&&(iBlock==nBlock-1));
 }
+
+
+//______________________________________________________________________________
+UInt_t FUResourceTable::nbShmClients() const
+{
+  UInt_t result(0);
+  if (shmMode_&&0!=shmBuffer_)
+    result=FUShmBuffer::shm_nattch(shmBuffer_->shmid())-1;
+  return result;
+}

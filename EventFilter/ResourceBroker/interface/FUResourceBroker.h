@@ -155,7 +155,8 @@ namespace evf {
     xdata::String            class_;
     xdata::UnsignedInteger32 instance_;
     xdata::UnsignedInteger32 runNumber_;
-
+    xdata::UnsignedInteger32 nbShmClients_;
+    
     xdata::Double            nbMBTot_;
     xdata::Double            nbMBPerSec_;
     xdata::Double            nbMBPerSecMin_;
@@ -189,7 +190,8 @@ namespace evf {
     // debug parameters
     xdata::UnsignedInteger32 nbAllocateSent_;
     xdata::UnsignedInteger32 nbTakeReceived_;
-
+    xdata::UnsignedInteger32 nbTimeExpired_;
+    
     // internal parameters, not exported
     unsigned int             nbMeasurements_;
     unsigned int             nbEventsLast_;

@@ -1,3 +1,12 @@
+2006-11-28  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-00-02
+	* check if new events should be allocated in 'timeExpired' to
+	avoid synchronization problem in shm mode. debug counter
+	nbTimeExpired counts how often this takes place.
+	* add 'nbShmClients' monitor variable, indicates the number of
+	connected clients (processors) in shm mode.
+	
 2006-11-22  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-00-01

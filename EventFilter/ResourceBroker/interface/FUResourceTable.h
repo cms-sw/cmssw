@@ -60,6 +60,7 @@ namespace evf {
     // various counters
     UInt_t nbResources() const { return resources_.size(); }
     UInt_t nbFreeSlots() const;
+    UInt_t nbShmClients()const;
     UInt_t nbAllocated() const { return nbAllocated_; }
     UInt_t nbPending()   const { return nbPending_; }
     UInt_t nbCompleted() const { return nbCompleted_; }
