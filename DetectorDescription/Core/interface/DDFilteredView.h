@@ -83,11 +83,11 @@ private:
 private:
   DDExpandedView epv_;
   const DDScope * scope_;
-  typedef DDFilter * criterion_type;
+  typedef DDFilter const * criterion_type;
   typedef std::vector<criterion_type> criteria_type;
   typedef std::vector<log_op> logops_type;
   
-  criteria_type criteria_; // one filter and the result on the current node
+  criteria_type criteria_;
   logops_type logOps_; // logical operation for merging the result of 2 filters
   std::vector<DDGeoHistory> parents_; // filtered-parents
 

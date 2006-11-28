@@ -1,20 +1,19 @@
 #ifndef DDExpandedNode_h
 #define DDExpandedNode_h
 
-#include <vector>
-#include <iostream>
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include <vector>
+#include <iosfwd>
+
 class DDExpandedView;
 class DDPosData;
-struct DDExpandedNodeLess;
 
 //! represents one node in the DDExpandedView
 class DDExpandedNode
 {
    friend class DDExpandedView;
-   friend class DDExpandedNodeLess;
 
 public:
   DDExpandedNode(const DDLogicalPart & lp, 
@@ -25,7 +24,8 @@ public:
  
   ~DDExpandedNode();
   
-  bool operator==(const DDExpandedNode & n) const;				 		  		 
+
+  bool operator==(const DDExpandedNode & n) const;
   
   //! the LogicalPart describing this node    
   const DDLogicalPart & logicalPart() const { return logp_; }
@@ -66,8 +66,8 @@ struct DDExpandedNodeLess
 
   bool operator()(const DDExpandedNode & n1, const DDExpandedNode & n2)
   {
-     const DDTranslation & t1 = n1.trans_;
-     const DDTranslation & t2 = n2.trans_;
+     const DDTranslation & t1 = n1.absTranslation();
+     const DDTranslation & t2 = n2.absTranslation();
      
      bool result = false;
      
@@ -89,7 +89,7 @@ struct DDExpandedNodeLess
      {
        result=true;
      }
-     else if (n1.logp_.ddname() < n2.logp_.ddname())
+     else if (n1.logicalPart().ddname() < n2.logicalPart().ddname())
      {
        result=true;
      }  
