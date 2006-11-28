@@ -38,10 +38,9 @@ MagneticFieldMap::initialize()
   std::list<TrackerLayer>::iterator cylitEnd=geometry_->cylinderEnd();
   
   // Prepare the histograms
-  cout << "Prepare magnetic field local database" << endl;
+  cout << "Prepare magnetic field local database for FAMOS speed-up" << endl;
   for ( cyliter=cylitBeg; cyliter != cylitEnd; ++cyliter ) {
     int layer = cyliter->layerNumber();
-    string hist = Form("Layer_%u",layer);
     //    cout << " Fill Histogram " << hist << endl;
 
     // Cylinder bounds
@@ -54,7 +53,8 @@ MagneticFieldMap::initialize()
       rmax = cyliter->disk()->outerRadius();
     } else {
       zmax = cyliter->cylinder()->bounds().length()/2.;
-      rmax = cyliter->cylinder()->bounds().width()/2.;
+      rmax = cyliter->cylinder()->bounds().width()/2.
+	   - cyliter->cylinder()->bounds().thickness()/2.;
     }
 
     // Histograms
@@ -62,18 +62,20 @@ MagneticFieldMap::initialize()
     double step;
 
     // Disk histogram
+    string histEndcap = Form("LayerEndCap_%u",layer);
     step = (rmax-rmin)/(bins-1);
     fieldEndcapHistos[layer] = 
-      new TH1D(Form(hist.c_str(),layer+1),"",bins,rmin,rmax+step);
+      new TH1D(histEndcap.c_str(),"",bins,rmin,rmax+step);
     for ( double radius=rmin+step/2.; radius<rmax+step; radius+=step ) {
       double field = inTeslaZ(GlobalPoint(radius,0.,zmax));
       fieldEndcapHistos[layer]->Fill(radius,field);
     }
-    
+
     // Barrel Histogram
+    string histBarrel = Form("LayerBarrel_%u",layer);
     step = (zmax-zmin)/(bins-1);
     fieldBarrelHistos[layer] = 
-      new TH1D(Form(hist.c_str(),layer+1),"",bins,0.,zmax+step);
+      new TH1D(histBarrel.c_str(),"",bins,0.,zmax+step);
     for ( double zed=zmin+step/2.; zed<zmax+step; zed+=step ) {
       double field = inTeslaZ(GlobalPoint(rmax,0.,zed));
       fieldBarrelHistos[layer]->Fill(zed,field);
