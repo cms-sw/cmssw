@@ -25,7 +25,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.46 2006/11/27 13:02:16 jalcaraz Exp $
+ * \version $Id: TrackBase.h,v 1.47 2006/11/27 16:12:39 jalcaraz Exp $
  *
  */
 
@@ -116,6 +116,19 @@ namespace reco {
     const Vector & momentum() const { return momentum_; }
     /// position of point of closest approach to the beamline
     const Point & vertex() const { return vertex_; }
+
+    /// dxy with respect to a user-given beamSpot. Use with caution: new beamSpot must be close to (0,0,0), since the extrapolation is linear
+    double dxy(const Point& myBeamSpot) const { 
+      return ( - (vx()-myBeamSpot.x()) * py() + (vy()-myBeamSpot.y()) * px() ) / pt(); 
+    }
+    /// dsz with respect to a user-given beamSpot. Use with caution: new beamSpot must be close to (0,0,0), since the extrapolation is linear
+    double dsz(const Point& myBeamSpot) const { 
+      return ( (vz()-myBeamSpot.z())*pt() - (myBeamSpot.x()*px()+myBeamSpot.y()*py())/pt()*pz() ) / p(); 
+    }
+    /// dz with respect to a user-given beamSpot. Use with caution: new beamSpot must be close to (0,0,0), since the extrapolation is linear
+    double dz(const Point& myBeamSpot) const { 
+      return (vz()-myBeamSpot.z()) - (myBeamSpot.x()*px()+myBeamSpot.y()*py())/pt() * (pz()/pt()); 
+    }
 
     /// Parameters with one-to-one corerspondence to the covariance matrix
     ParameterVector parameters() const { 
