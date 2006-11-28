@@ -14,8 +14,14 @@
 
 #include "L1Trigger/GlobalCaloTrigger/src/FakeGctInputTester.h"
 
+// Root includes
+#include "TFile.h"
+#include "TH1.h"
+
+
 using std::cout;
 using std::endl;
+using std::string;
 
 //
 // constructors and destructor
@@ -24,7 +30,8 @@ FakeGctInputTester::FakeGctInputTester(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
 
-  
+  hFileName_ = iConfig.getUntrackedParameter<string>("histoFile", "FakeRctTest.root"); 
+
 
 }
 
@@ -50,7 +57,6 @@ FakeGctInputTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   
    Handle<L1CaloEmCollection> rctCands;
    iEvent.getByLabel("fakeRct",rctCands);
-
 
    Handle<L1CaloRegionCollection> rctRgns;
    iEvent.getByLabel("fakeRct",rctRgns);
@@ -107,6 +113,9 @@ FakeGctInputTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 //        }	 
 //      }
      
+     jetDEta_->Fill(gctEta-rctEta);
+     jetDPhi_->Fill(gctPhi-rctPhi);
+
      if ( (rctEta != gctEta) || ( rctPhi != gctPhi) ) {
        cout << "Region mismatch" << endl;
        cout << "RCT eta,phi : " << rctEta << "," << rctPhi << endl;
@@ -132,6 +141,9 @@ FakeGctInputTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      unsigned int rctPhi = rctCands->at(nRctIso).regionId().iphi();
      unsigned int gctPhi = gctIsoCands->at(0).regionId().iphi();
 
+     isoEmDEta_->Fill(gctEta-rctEta);
+     isoEmDPhi_->Fill(gctPhi-rctPhi);
+
      if ( (rctEta != gctEta) || ( rctPhi != gctPhi) ) {
        cout << "Iso EM mismatch" << endl;
        cout << "RCT eta,phi : " << rctEta << "," << rctPhi << endl;
@@ -156,6 +168,9 @@ FakeGctInputTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      unsigned int rctPhi = rctCands->at(nRctNonIso).regionId().iphi();
      unsigned int gctPhi = gctNonIsoCands->at(0).regionId().iphi();
 
+     nonIsoEmDEta_->Fill(gctEta-rctEta);
+     nonIsoEmDPhi_->Fill(gctPhi-rctPhi);
+
      if ( (rctEta != gctEta) || ( rctPhi != gctPhi) ) {
        cout << "Noniso EM mismatch" << endl;
        cout << "RCT eta,phi : " << rctEta << "," << rctPhi << endl;
@@ -173,10 +188,24 @@ FakeGctInputTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 void 
 FakeGctInputTester::beginJob(const edm::EventSetup&)
 {
+   hFile_   = new TFile( hFileName_.c_str(), "RECREATE" ) ;
+
+   isoEmDEta_ = new TH1F ( "isoEmDEta", "Iso EM delta eta", 41, -20.5, 20.5 );
+   isoEmDPhi_ = new TH1F ( "isoEmDPhi", "Iso EM delta phi", 41, -20, 20 );
+
+   nonIsoEmDEta_ = new TH1F ( "nonIsoEmDEta", "Non-iso EM delta eta", 41, -20.5, 20.5 );
+   nonIsoEmDPhi_ = new TH1F ( "nonIsoEmDPhi", "Non-iso EM delta phi", 41, -20.5, 20.5 );
+
+   jetDEta_ = new TH1F ( "jetDEta", "jet delta eta", 41, -20.5, 20.5 );
+   jetDPhi_ = new TH1F ( "jetDPhi", "jet delta phi", 41, -20.5, 20.5 );
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 FakeGctInputTester::endJob() {
+   hFile_->Write() ;
+   hFile_->Close() ;
+
 }
 

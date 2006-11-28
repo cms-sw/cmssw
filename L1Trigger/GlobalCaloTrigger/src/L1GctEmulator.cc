@@ -60,7 +60,7 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   // instantiate the GCT
   m_gct = new L1GlobalCaloTrigger(false,L1GctJetLeafCard::tdrJetFinder,fp.fullPath());
 
-  // set verbosity (not implemented yet!)
+   // set verbosity (not implemented yet!)
   //  m_gct->setVerbose(m_verbose);
 
   // print debug info?

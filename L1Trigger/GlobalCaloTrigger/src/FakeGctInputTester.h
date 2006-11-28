@@ -14,7 +14,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Tue Nov 21 14:49:14 CET 2006
-// $Id$
+// $Id: FakeGctInputTester.h,v 1.1 2006/11/24 17:28:47 jbrooke Exp $
 //
 //
 
@@ -27,18 +27,38 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include <string>
+
+
+class TH1F;
+class TFile;
+
 class FakeGctInputTester : public edm::EDAnalyzer {
-   public:
-      explicit FakeGctInputTester(const edm::ParameterSet&);
-      ~FakeGctInputTester();
+public:
+  explicit FakeGctInputTester(const edm::ParameterSet&);
+  ~FakeGctInputTester();
+  
+  
+private:
+  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
+  
+  // ----------member data ---------------------------
+
+  std::string hFileName_;
+  TFile* hFile_;
+
+  TH1F* isoEmDEta_;
+  TH1F* isoEmDPhi_;
+
+  TH1F* nonIsoEmDEta_;
+  TH1F* nonIsoEmDPhi_;
+
+  TH1F* jetDEta_;
+  TH1F* jetDPhi_;
 
 
-   private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-      // ----------member data ---------------------------
 };
 
 #endif
