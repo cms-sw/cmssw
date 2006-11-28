@@ -30,9 +30,9 @@ public:
   //
   
   // EDAnalyzer interface
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob(const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void endJob();
 
   // provide cached fed collection (and run/evt number, if needed!)
   FEDRawDataCollection* getFEDRawData();
@@ -45,17 +45,36 @@ public:
   
 private:
   //
+  // private member functions
+  //
+  void lock()         { sem_wait(&lock_); }
+  void unlock()       { sem_post(&lock_); }
+  void waitWriteSem() { sem_wait(&writeSem_); }
+  void postWriteSem() { sem_post(&writeSem_); }
+  void waitReadSem()  { sem_wait(&readSem_); }
+  void postReadSem()  { sem_post(&readSem_); }
+
+
+  void sem_print();
+  
+  
+private:
+  //
   // member data
   //
   static PlaybackRawDataProvider* instance_;
   
-  FEDRawDataCollection*           rawData_;
-  unsigned int                    runNumber_;
-  unsigned int                    evtNumber_;
-  unsigned int                    count_;
+  unsigned int           queueSize_;
+  FEDRawDataCollection **eventQueue_;
+  unsigned int          *runNumber_;
+  unsigned int          *evtNumber_;
+  unsigned int           count_;
   
-  sem_t                           mutex1_;
-  sem_t                           mutex2_;
+  sem_t                  lock_;
+  sem_t                  writeSem_;
+  sem_t                  readSem_;
+  unsigned int           writeIndex_;
+  unsigned int           readIndex_;
   
 };
 

@@ -1,3 +1,9 @@
+2006-11-28  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-00-05
+	* preload events from file into a queue. the size of the queue
+	(parameter 'QueueSize') is 128 by default.
+
 2006-11-14  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-00-04
