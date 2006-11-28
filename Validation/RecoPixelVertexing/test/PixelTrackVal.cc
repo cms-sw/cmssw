@@ -67,11 +67,11 @@ void PixelTrackVal::beginJob(const edm::EventSetup& es) {
 //  const char* cwd= gDirectory->GetPath();
   f_ = new TFile(file.c_str(),"RECREATE");
 
-  h_Pt        = new TH1F("h_Pt","h_Pt",20, 0., 2.);
-  h_dR        = new TH1F("h_dR","h_dR",20,0.,0.1);
+  h_Pt        = new TH1F("h_Pt","h_Pt",31, -2., 1.2);
+  h_dR        = new TH1F("h_dR","h_dR",30,0.,0.06);
   h_TIP       = new TH1F("h_TIP","h_TIP",100,-0.1,0.1);
   h_VtxZ      = new TH1F("h_VtxZ","h_VtxZ",100,-0.1,0.1);
-  h_VtxZ_Pull = new TH1F("h_VtxZ_Pull","h_VtxZ_Pull",100,0.,10);
+  h_VtxZ_Pull = new TH1F("h_VtxZ_Pull","h_VtxZ_Pull",80,0.,8);
   h_Nan       = new TH1F("h_Nan","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz",9,0.5,9.5);
 }
 
@@ -199,7 +199,7 @@ void PixelTrackVal::analyze(
         h_Pt->Fill( (pt_gen - pt_rec)/pt_gen);
         h_TIP->Fill( it->d0() );
         h_VtxZ->Fill( dz );
-        h_VtxZ_Pull->Fill( dz/it->dzError() );
+        h_VtxZ_Pull->Fill( fabs( dz/it->dzError()) );
       }
     }
   } 
