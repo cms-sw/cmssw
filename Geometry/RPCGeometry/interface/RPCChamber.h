@@ -8,54 +8,54 @@
  *  A chamber is a GeomDet.
  *  The chamber is composed by 2 or 3 Roll (GeomDetUnit).
  *
- *  $Date: 2006/08/3 12:00:00 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/09/21 15:33:47 $
+ *  $Revision: 1.1 $
  *  \author R. Trentadue
  */
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 class RPCRoll;
 
 class RPCChamber : public GeomDet {
+ public:
+  /// Constructor
+  RPCChamber(RPCDetId id, const ReferenceCountingPointer<BoundPlane>& plane);
+  /// Destructor
+  virtual ~RPCChamber();
 
-  public:
-    /// Constructor
-    RPCChamber(RPCDetId id, const BoundPlane::BoundPlanePointer& plane);
+  /// Return the DetId of this chamber
+  virtual DetId geographicalId() const;
 
-    /// Destructor
-    virtual ~RPCChamber();
-
-    /// Return the DetId of this chamber
-    virtual DetId geographicalId() const;
-
-    /// Return the RPCChamberId of this chamber
-    RPCDetId id() const;
+  /// Return the RPCChamberId of this chamber
+  RPCDetId id() const;
 
     // Which subdetector
-    virtual SubDetector subDetector() const {return GeomDetEnumerators::RPCBarrel;}
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::RPCBarrel;}
 
-    /// equal if the id is the same
-    bool operator==(const RPCChamber& ch) const;
+  /// equal if the id is the same
+  bool operator==(const RPCChamber& ch) const;
 
     /// Add Roll to the chamber which takes ownership
-    void add(RPCRoll* rl);
+  void add(RPCRoll* rl);
 
     /// Return the rolls in the chamber
-    virtual std::vector< const GeomDet*> components() const;
+  virtual std::vector< const GeomDet*> components() const;
 
-    /// Return the sub-component (roll) with a given id in this chamber
-    virtual const GeomDet* component(DetId id) const;
+  /// Return the sub-component (roll) with a given id in this chamber
+  virtual const GeomDet* component(DetId id) const;
 
-    /// Return the Roll corresponding to the given id 
-      const RPCRoll* roll(RPCDetId id) const;
+  /// Return the Roll corresponding to the given id 
+  const RPCRoll* roll(RPCDetId id) const;
 
-      const RPCRoll* roll(int isl) const;
+  const RPCRoll* roll(int isl) const;
+  
+  /// Return the Rolls
+  const std::vector<const RPCRoll*>& rolls() const;
 
-    /// Return the Rolls
-      const std::vector<const RPCRoll*>& rolls() const;
+  /// Retunr numbers of rolls
+  const int nrolls() const;
 
   private:
 
