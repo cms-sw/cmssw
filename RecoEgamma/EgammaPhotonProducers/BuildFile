@@ -2,15 +2,20 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/TrajectorySeed>
+<use name=DataFormats/Common>
+<use name=DataFormats/Math>
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=RecoEcal/EgammaClusterAlgos>
 <use name=RecoEgamma/EgammaPhotonAlgos>
-<use name=DataFormats/Math>
 <use name=RecoEcal/EgammaClusterProducers>
 <use name=RecoTracker/MeasurementDet>
 <use name=RecoTracker/CkfPattern>
+<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/TrackingHit>
+<use name=SimDataFormats/Track>
+<use name=SimDataFormats/Vertex>
 <use name=clhep>
 <flags SEAL_PLUGIN_NAME="RecoEgammaEgammaPhotonProducers">
 <export>
@@ -19,13 +24,18 @@
   <use name=FWCore/ParameterSet>
   <use name=DataFormats/EgammaCandidates
   <use name=DataFormats/TrajectorySeed>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/Math>
   <use name=Geometry/CaloEventSetup>
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloTopology>
   <use name=RecoEcal/EgammaClusterAlgos>
   <use name=RecoEgamma/EgammaPhotonAlgos> 
-  <use name=DataFormats/Math>
   <use name=RecoTracker/MeasurementDet>
   <use name=RecoTracker/CkfPattern>
+  <use name=SimDataFormats/HepMCProduct>
+  <use name=SimDataFormats/TrackingHit>
+  <use name=SimDataFormats/Track>
+  <use name=SimDataFormats/Vertex>
   <use name=clhep>
 </export>
