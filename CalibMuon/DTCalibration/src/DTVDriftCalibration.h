@@ -4,8 +4,8 @@
 /** \class DTVDriftCalibration
  *  No description available.
  *
- *  $Date: 2006/08/07 10:23:50 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/09/12 08:00:46 $
+ *  $Revision: 1.4 $
  *  \author M. Giunta
  */
 
@@ -26,6 +26,8 @@ namespace edm {
   class EventSetup;
 }
 
+class TFile;
+class DTMeanTimerFitter;
 
 class DTVDriftCalibration : public edm::EDAnalyzer {
 public:
@@ -41,7 +43,6 @@ public:
 
   void endJob();
   
-  std::vector<float> evaluateVDriftAndReso (const DTWireId& wireId);
 protected:
 
 private:
@@ -94,6 +95,9 @@ private:
   
   // The file which will contain the tMax histograms
   TFile *theFile;
+
+ // The fitter
+   DTMeanTimerFitter *theFitter;
 
   // Perform the vDrift and t0 evaluation or just fill the
   //  tMaxHists (if you read the dataset in different jobs)

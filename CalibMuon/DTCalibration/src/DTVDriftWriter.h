@@ -4,8 +4,8 @@
 /* Program to evaluate v_drift and t0 from TMax histograms
  *  and write the results to a file for each SL
  
- *  $Date: 2006/08/31 15:30:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/09/12 08:10:03 $
+ *  $Revision: 1.2 $
  *  \author M. Giunta - e-mail:marina.giunta@cern.ch
  */
 
@@ -25,6 +25,7 @@ namespace edm {
 }
 
 class TFile;
+class DTMeanTimerFitter;
 class DTMtime;
 
 class DTVDriftWriter : public edm::EDAnalyzer {
@@ -40,7 +41,6 @@ public:
 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
  
-  std::vector<float> evaluateVDriftAndReso (const DTWireId& wireId);
 protected:
 
 private:
@@ -61,6 +61,9 @@ private:
   
   // the granularity to be used for calib consts evaluation
   std::string theGranularity;
+
+  // The fitter
+   DTMeanTimerFitter *theFitter;
 
   // The object to be written to DB
   DTMtime* theMTime;
