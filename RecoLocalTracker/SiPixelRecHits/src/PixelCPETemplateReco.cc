@@ -89,8 +89,13 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster, const GeomDetUn
   float yerr = thePitchY / sqrt(12.);
 
   //--- Are we near either of the edges?
-  bool edgex = (cluster.edgeHitX()) || (cluster.maxPixelRow() > theNumOfRow); 
-  bool edgey = (cluster.edgeHitY()) || (cluster.maxPixelCol() > theNumOfCol); 
+  //bool edgex = (cluster.edgeHitX()) || (cluster.maxPixelRow() > theNumOfRow);//wrong
+  //bool edgey = (cluster.edgeHitY()) || (cluster.maxPixelCol() > theNumOfCol); 
+
+  bool edgex = (cluster.minPixelRow()==0) ||  // use min and max pixels
+    (cluster.maxPixelRow()==(theNumOfRow-1));
+  bool edgey = (cluster.minPixelCol()==0) ||
+    (cluster.maxPixelCol()==(theNumOfCol-1));
 
   if (edgex && edgey) {
     //--- Both axes on the edge, no point in calling PixelErrorParameterization,

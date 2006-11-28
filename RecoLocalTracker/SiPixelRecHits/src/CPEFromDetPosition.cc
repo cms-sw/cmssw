@@ -155,8 +155,17 @@ CPEFromDetPosition::localError( const SiPixelCluster& cluster,
   setTheDet( det );
   int sizex = cluster.sizeX();
   int sizey = cluster.sizeY();
-  bool edgex = (cluster.edgeHitX()) || (cluster.maxPixelRow()> theNumOfRow); 
-  bool edgey = (cluster.edgeHitY()) || (cluster.maxPixelCol() > theNumOfCol); 
+
+  // Find edge clusters
+  //bool edgex = (cluster.edgeHitX()) || (cluster.maxPixelRow()> theNumOfRow);//wrong 
+  //bool edgey = (cluster.edgeHitY()) || (cluster.maxPixelCol() > theNumOfCol); 
+
+  bool edgex = (cluster.minPixelRow()==0) ||  // use min and max pixels
+    (cluster.maxPixelRow()==(theNumOfRow-1));
+  bool edgey = (cluster.minPixelCol()==0) ||
+    (cluster.maxPixelCol()==(theNumOfCol-1));
+
+
   //&&& testing...
   if (theVerboseLevel > 9) {
     LogDebug("CPEFromDetPosition") <<
