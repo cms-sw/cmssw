@@ -25,7 +25,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.47 2006/11/27 16:12:39 jalcaraz Exp $
+ * \version $Id: TrackBase.h,v 1.48 2006/11/28 08:42:42 jalcaraz Exp $
  *
  */
 
@@ -48,8 +48,6 @@ namespace reco {
     typedef math::Vector<dimension>::type ParameterVector;
     /// 5 parameter covariance matrix
     typedef math::Error<dimension>::type CovarianceMatrix;
-    /// position-momentum covariance matrix (6x6)
-    typedef math::Error<6>::type PosMomError;
     /// spatial vector
     typedef math::XYZVector Vector;
     /// point in the space
@@ -151,7 +149,7 @@ namespace reco {
     /// error on lambda
     double lambdaError() const { return error( i_lambda ); }
     /// error on eta
-    double etaError() const { return error( i_lambda ) / sin(theta()); }
+    double etaError() const { return error( i_lambda ) * p()/pt(); }
     /// error on phi
     double phiError() const { return error( i_phi ); }
     /// error on dxy
