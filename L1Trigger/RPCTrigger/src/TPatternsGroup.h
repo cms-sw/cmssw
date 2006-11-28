@@ -13,35 +13,35 @@
     <usage>
 
 */
-#include "L1Trigger/RPCTrigger/src/L1RpcPattern.h"
-#include "L1Trigger/RPCTrigger/src/L1RpcLogCone.h"
+#include "L1Trigger/RPCTrigger/src/RPCPattern.h"
+#include "L1Trigger/RPCTrigger/src/RPCLogCone.h"
   /** \class TPatternsGroup
  * Basic class for storing grouped patterns inside Pac.
  * In group (object of class TPatternsGroup) the patterns belonging to given
-   * group are stored in PatternsVec. These patterns are use in trigger algorithm*/
+   * group are stored in m_PatternsVec. These patterns are use in trigger algorithm*/
   class TPatternsGroup {
-    friend class L1RpcPac;
+    friend class RPCPac;
     protected:
-      L1RpcConst::TPatternType PatternsGroupType;
-    //L1RpcPatternsVec PatternsVec; //!< Vector of patterns.
-      std::vector<L1RpcPatternsVec::const_iterator> PatternsItVec; //!< Vector of itereator on PatternsVec in Pac.
-      L1RpcLogCone GroupShape; //!< Set LogStrips denotes strips beloging to the group.
-      std::string GroupDescription;
+      RPCConst::TPatternType m_PatternsGroupType;
+    //L1RpcPatternsVec m_PatternsVec; //!< Vector of patterns.
+      std::vector<L1RpcPatternsVec::const_iterator> m_PatternsItVec; //!< Vector of itereator on m_PatternsVec in Pac.
+      RPCLogCone m_GroupShape; //!< Set LogStrips denotes strips beloging to the group.
+      std::string m_GroupDescription;
 
     public:
 
-      void AddPattern(const L1RpcPatternsVec::const_iterator& pattern);
+      void addPattern(const L1RpcPatternsVec::const_iterator& pattern);
 
-    ///Updates GroupShape, i.e. sets to true strips belonging to the pattern. Coleed in AddPattern()
-      void UpdateShape(const L1RpcPatternsVec::const_iterator& pattern); 
+    ///Updates m_GroupShape, i.e. sets to true strips belonging to the pattern. Coleed in addPattern()
+      void updateShape(const L1RpcPatternsVec::const_iterator& pattern); 
 
-      void SetPatternsGroupType(L1RpcConst::TPatternType patternsGroupType);
+      void setPatternsGroupType(RPCConst::TPatternType patternsGroupType);
 
-      L1RpcConst::TPatternType GetPatternsGroupType();
+      RPCConst::TPatternType getPatternsGroupType();
 
-      void SetGroupDescription(std::string groupDescription);
+      void setGroupDescription(std::string groupDescription);
 
-      std::string GetGroupDescription() const;
+      std::string getGroupDescription() const;
       
   };
 

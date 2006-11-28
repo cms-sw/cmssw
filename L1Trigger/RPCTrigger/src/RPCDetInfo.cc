@@ -1,7 +1,7 @@
 /** \file RPCDetInfo.cc
  *
- *  $Date: 2006/06/19 15:28:49 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/07/27 08:57:33 $
+ *  $Revision: 1.9 $
  *  \author Tomasz Fruboes
  */
 
@@ -45,14 +45,14 @@ RPCDetInfo::RPCDetInfo(RPCRoll* roll){
   edges.push_back(LocalPoint(0., stripLength/2., 0.)); // Add (?) correction for
   edges.push_back(LocalPoint(0.,-stripLength/2., 0.)); // nonzero chamber height
 
-  std::vector<float> etas;
+  std::vector<float> m_etas;
   for (unsigned int i=0; i < edges.size(); i++){
     GlobalPoint gp = roll->toGlobal( edges[i] );
-    etas.push_back( gp.eta() );
+    m_etas.push_back( gp.eta() );
   }
 
-  m_etaMin = *(min_element(etas.begin(), etas.end()));
-  m_etaMax = *(max_element(etas.begin(), etas.end()));
+  m_etaMin = *(min_element(m_etas.begin(), m_etas.end()));
+  m_etaMax = *(max_element(m_etas.begin(), m_etas.end()));
   m_etaCentre =   roll->toGlobal(LocalPoint( 0., 0., 0. )).eta();
   
   m_towerMin = etaToTower(m_etaMin);
@@ -170,7 +170,7 @@ int RPCDetInfo::getGlobRollNo(){
 ///////////////////////////////////////////////////////////////////////////////
 /**
  *
- * \brief Converts eta to coresponding tower number
+ * \brief Converts eta to coresponding m_tower number
  * \todo store somewhere MAXTOWER no.
  * \todo store somewhere the max eta value (it will tell us if we properly used geometry)
  *
@@ -181,16 +181,16 @@ int RPCDetInfo::etaToTower(float eta){
   int sign = etaToSign(eta);
   eta = std::fabs(eta);
 
-  int tower = 0;
-  // The highest tower no is 16
-  while ( (eta > m_towerBounds[tower]) && (tower!=16) ){
-    tower++;
+  int m_tower = 0;
+  // The highest m_tower no is 16
+  while ( (eta > m_towerBounds[m_tower]) && (m_tower!=16) ){
+    m_tower++;
   }
 
   if (sign == 0)
-    return -tower;
+    return -m_tower;
   else
-    return tower;
+    return m_tower;
 
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -248,8 +248,8 @@ uint32_t RPCDetInfo::rawId(){
   return m_detId;
 }
 ///////////////////////////////////////////////////////////////////////////////
-int RPCDetInfo::getMinTower(){ return m_towerMin; }///<Gives the lowest tower number
-int RPCDetInfo::getMaxTower(){ return m_towerMax; } ///<Gives the highest tower number
+int RPCDetInfo::getMinTower(){ return m_towerMin; }///<Gives the lowest m_tower number
+int RPCDetInfo::getMaxTower(){ return m_towerMax; } ///<Gives the highest m_tower number
 float RPCDetInfo::getPhi(){ return m_phi; }///<Gets phi of this detid
 float RPCDetInfo::getMinPhi(){ return m_phiMin; }///<Gets minPhi of this detid
 float RPCDetInfo::getMaxPhi(){ return m_phiMax; }///<Gets maxPhi of this detid
@@ -295,7 +295,7 @@ void RPCDetInfo::printContents() {
   //*
   LogDebug("RPCTrigger")<<"####"<<std::endl;
   LogDebug("RPCTrigger")<< "DetId "<< rawId() << " Centre Phi " << getPhi();
-  LogDebug("RPCTrigger")<< " Tower min" << m_towerMin << " tower max " << m_towerMax;
+  LogDebug("RPCTrigger")<< " m_Tower min" << m_towerMin << " m_tower max " << m_towerMax;
     
   /*
   RPCStripPhiMap::const_iterator it;

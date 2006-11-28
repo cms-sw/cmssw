@@ -21,8 +21,10 @@
 #include "L1Trigger/RPCTrigger/src/RPCDetInfo.h"
 #include "L1Trigger/RPCTrigger/src/RPCRingFromRolls.h"
 
-#include "L1Trigger/RPCTrigger/src/L1RpcLogCone.h" 
-#include "set"
+#include "L1Trigger/RPCTrigger/src/RPCLogCone.h" 
+#include <set>
+#include <vector>
+
 
 class RPCTriggerGeo {
   public:
@@ -35,6 +37,8 @@ class RPCTriggerGeo {
     L1RpcLogConesVec getCones(edm::Handle<RPCDigiCollection> rpcDigis);
     void printLinks();   
 
+    std::vector<int> getTowersForStrip(RPCDetId detID, int strip);
+    //int getTowersForStrip(RPCDetId detID, int strip);
   private:
     void addDet(RPCRoll* roll);
     void printRingFromRollsMapInfo();
