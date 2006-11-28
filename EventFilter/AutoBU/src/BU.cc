@@ -85,10 +85,7 @@ BU::BU(xdaq::ApplicationStub *s)
   class_   =getApplicationDescriptor()->getClassName();
   instance_=getApplicationDescriptor()->getInstance();
   hostname_=getApplicationDescriptor()->getContextDescriptor()->getURL();
-  
-  stringstream oss;
-  oss<<class_.toString()<<instance_.toString();
-  sourceId_=oss.str();
+  sourceId_=class_.toString()+instance_.toString();
   
   // initialize state machine
   fsm_=new EPStateMachine(log_);
@@ -369,7 +366,8 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
   msg   =(I2O_BU_ALLOCATE_MESSAGE_FRAME*)stdMsg;
 
   // loop over all requested events
-  unsigned int nbEvents=msg->n;
+  
+  unsigned int nbEvents=msg->n; nbEventsInBU_=nbEvents;
   for(unsigned int i=0;i<nbEvents;i++) {
     
     unsigned int evtSizeInBytes(0);
@@ -389,46 +387,25 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
     //
     // loop over all superfragments in each event    
     //
-    unsigned int nSuperFrag(nSuperFrag_);
     std::vector<unsigned int> validFedIds;
     if (0!=event) {
       for (unsigned int j=0;j<(unsigned int)FEDNumbering::lastFEDId()+1;j++)
 	if (event->FEDData(j).size()>0) validFedIds.push_back(j);
-      nSuperFrag=validFedIds.size();
-      if (0==fedN_) initFedBuffers(nSuperFrag);
+      if (0==fedN_) initFedBuffers(validFedIds.size());
     }
     
-    if (0==nSuperFrag) {
-      LOG4CPLUS_INFO(log_,"No data in FEDRawDataCollection, skip!");
-      continue;
-    }
-    
-    for (unsigned int iSuperFrag=0;iSuperFrag<nSuperFrag;iSuperFrag++) {
+    for (unsigned int iSuperFrag=0;iSuperFrag<nSuperFrag_;iSuperFrag++) {
       
-      // "playback", read events from a file
-      if (0!=event) {
-	fedData_[0]=event->FEDData(validFedIds[iSuperFrag]).data();
-	fedSize_[0]=event->FEDData(validFedIds[iSuperFrag]).size();
-	if (fedSize_[0]>fedSizeMax_) {
-	  LOG4CPLUS_FATAL(log_,"fedSize too big. fedSize:"<<fedSize_[0]
-			  <<" fedSizeMax:"<<fedSizeMax_);
-	  exit(1);
-	}
-      }
-      
-      // randomly generate fed data (*including* headers and trailers)
-      else {
-	generateRndmFEDs(iSuperFrag);
-      }
-      
-      
+      // fill FED buffers
+      fillFedBuffers(iSuperFrag,event);
+
       // create super fragment
       toolbox::mem::Reference *superFrag=
 	createSuperFrag(fuTid,           // fuTid
 			fuTransactionId, // fuTransaction
 			evtNumber,       // current trigger (event) number
 			iSuperFrag,      // current super fragment
-			nSuperFrag       // number of super fragments
+			nSuperFrag_      // number of super fragments
 			);
       
       if (debug_) debug(superFrag);
@@ -436,7 +413,9 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
       I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *frame =
 	(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*)(superFrag->getDataLocation());
       
-      unsigned int msgSizeInBytes=frame->PvtMessageFrame.StdMessageFrame.MessageSize<<2;
+      unsigned int msgSizeInBytes=
+	frame->PvtMessageFrame.StdMessageFrame.MessageSize<<2;
+
       superFrag->setDataSize(msgSizeInBytes);
       lock();
       nbBytes_      +=msgSizeInBytes;
@@ -468,6 +447,7 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
     
     lock();
     nbEvents_.value_++;
+    nbEventsInBU_.value_--;
     sumOfSquares_+=evtSizeInBytes*evtSizeInBytes;
     sumOfSizes_  +=evtSizeInBytes;
     unlock();
@@ -482,17 +462,15 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
 void BU::I2O_BU_COLLECT_Callback(toolbox::mem::Reference *bufRef)
 {
   bufRef->release();
-  LOG4CPLUS_FATAL(log_,"I2O_BU_COLLECT_Callback() not implemented!");
-  exit(-1);
+  LOG4CPLUS_WARN(log_,"I2O_BU_COLLECT_Callback() not implemented!");
 }
 
 
 //______________________________________________________________________________
 void BU::I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef)
 {
-  // Does nothing but free the incoming I2O message
-  nbDiscardedEvents_.value_++;
   bufRef->release();
+  nbDiscardedEvents_.value_++;
 }
 
 
@@ -549,16 +527,15 @@ void BU::clearFedBuffers()
 
 
 //______________________________________________________________________________
-void BU::generateRndmFEDs(unsigned int iSuperFrag)
+void BU::fillFedBuffers(unsigned int iSuperFrag,FEDRawDataCollection* event)
 {
-  // determine valid FED Ids and number of FEDs per superfragment
+  // determine valid FED Ids and number of FEDs per superfragment if necessary
   if (fedN_==0) {
     vector<unsigned int> validFedIds;
     for (int i=0;i<FEDNumbering::lastFEDId()+1;i++)
       if (FEDNumbering::inRange(i)) validFedIds.push_back(i);
     
     unsigned int nFed=validFedIds.size();
-    
     initFedBuffers(nFed);
 
     unsigned int i(0),j(0);
@@ -570,24 +547,33 @@ void BU::generateRndmFEDs(unsigned int iSuperFrag)
     }
   }
   
-  // size of FEDs
-  if(useFixedFedSize_) {
-    for (unsigned int i=0;i<fedN_[iSuperFrag];i++)
-      fedSize_[i]=fedSizeMean_;
-  }
-  else {
-    for(unsigned int i=0;i<fedN_[iSuperFrag];i++) {
-      unsigned int iFedSize(0);
-      while (iFedSize<(fedTrailerSize_+fedHeaderSize_)||iFedSize>fedSizeMax_) {
-	double logSize=RandGauss::shoot(std::log((double)fedSizeMean_),
-					std::log((double)fedSizeMean_)-
-					std::log((double)fedSizeWidth_/2.));
-	iFedSize=(int)(std::exp(logSize));
-	iFedSize-=iFedSize % 8; // all blocks aligned to 64 bit words
+  // generate random FEDs (RANDOM mode)
+  if (0==event) {
+    if(useFixedFedSize_) {
+      for (unsigned int i=0;i<fedN_[iSuperFrag];i++) fedSize_[i]=fedSizeMean_;
+    }
+    else {
+      for(unsigned int i=0;i<fedN_[iSuperFrag];i++) {
+	unsigned int iFedSize(0);
+	while (iFedSize<(fedTrailerSize_+fedHeaderSize_)||iFedSize>fedSizeMax_) {
+	  double logSize=RandGauss::shoot(std::log((double)fedSizeMean_),
+					  std::log((double)fedSizeMean_)-
+					  std::log((double)fedSizeWidth_/2.));
+	  iFedSize=(int)(std::exp(logSize));
+	  iFedSize-=iFedSize % 8; // all blocks aligned to 64 bit words
+	}
+	fedSize_[i]=iFedSize;
       }
-      fedSize_[i]=iFedSize;
     }
   }
+  // generate FEDs from data file (PLAYBACK mode)
+  else {
+    for (unsigned int i=0;i<fedN_[iSuperFrag];i++) {
+      fedSize_[i]=event->FEDData(fedId_[iSuperFrag][i]).size();
+      fedData_[i]=event->FEDData(fedId_[iSuperFrag][i]).data();
+    }
+  }
+  
 }
 
 

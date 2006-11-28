@@ -111,13 +111,11 @@ namespace evf {
     // private member functions
     //
     
-    // initialize/clean up internal FED data buffers
+    // fed buffers for one superfragment
     void initFedBuffers(unsigned int nFed);
+    void fillFedBuffers(unsigned int iSuperFrag,FEDRawDataCollection* event);
     void clearFedBuffers();
-
-    // generate FEDs with random payload (including headers/trailers, not yet valid!)
-    void generateRndmFEDs(unsigned int iSuperFrag);
-  
+    
     //estimate number of blocks needed for a superfragment
     int  estimateNBlocks(unsigned int iSuperFrag,unsigned int fullBlockPayload);
     
@@ -148,7 +146,7 @@ namespace evf {
     WebGUI*                   gui_;
     
     std::string               sourceId_;
-
+    
     unsigned int             *fedN_;       // nFED/SF, [iSF]
     unsigned char           **fedData_;    // current SF, [iFED][pos]
     unsigned int             *fedSize_;    // current SF, [iFED]
@@ -161,6 +159,7 @@ namespace evf {
     xdata::UnsignedInteger32  instance_;
     xdata::String             hostname_;
     xdata::UnsignedInteger32  runNumber_;
+    
     xdata::Double             nbMBTot_;
     xdata::Double             nbMBPerSec_;
     xdata::Double             nbMBPerSecMin_;
@@ -202,9 +201,9 @@ namespace evf {
     // memory pool for i20 communication
     toolbox::mem::Pool*       i2oPool_;
 
-    // binary semaphore
+    // synchronization
     BSem                      lock_;
-  
+    
   
     //
     // static member data
