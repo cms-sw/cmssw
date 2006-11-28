@@ -20,6 +20,15 @@
 // There are a lot of hardwired constants, sorry but this is a very 
 // specific class. For any other sensor design it has to be rewritten.
 
+// G. Giurgiu 11/27/06 ---------------------------------------------
+// Check whether the pixel is at the edge of the module by adding the 
+// following functions (ixbin and iybin are the pixel row and column 
+// inside the module):
+// bool isItEdgePixelInX (int ixbin) 
+// bool isItEdgePixelInY (int iybin) 
+// bool isItEdgePixel (int ixbin, int iybin) 
+// ------------------------------------------------------------------
+
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
 #include <iostream>
@@ -103,6 +112,21 @@ public:
     int iybin0 = iybin%52;
     return ( (iybin0 == 0) || (iybin0 == 51));
   } 
+
+  // Check whether the pixel is at the edge of the module
+  bool isItEdgePixelInX (int ixbin) 
+  {
+    return ( (ixbin == 0) || (ixbin == (m_nrows-1)) );
+  } 
+  bool isItEdgePixelInY (int iybin) 
+  {
+    return ( (iybin == 0) || (iybin == (m_ncols-1)) );
+  } 
+  bool isItEdgePixel (int ixbin, int iybin) 
+  {
+    return ( isItEdgePixelInX( ixbin ) || isItEdgePixelInY( iybin ) );
+  } 
+  //------------------------------------------------------------------
 
   // Return pitch
   virtual std::pair<float,float> pitch() const {
