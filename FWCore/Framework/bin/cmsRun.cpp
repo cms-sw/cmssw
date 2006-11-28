@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.20 2006/10/27 15:03:01 paterno Exp $
+$Id: cmsRun.cpp,v 1.21 2006/11/17 00:35:26 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
   // Make JobReport Service up front
   // 
   std::string jobReportFile = "FrameworkJobReport.xml";
-  std::auto_ptr<edm::JobReport> jobRep( new edm::JobReport() );  
+  std::auto_ptr<edm::JobReport> jobRep(new edm::JobReport());  
   edm::ServiceToken jobReportToken = 
            edm::ServiceRegistry::createContaining(jobRep);
   
@@ -128,6 +128,7 @@ int main(int argc, char* argv[])
     notify(vm);
   } catch(const error& iException) {
     edm::LogError("FwkJob") << "Exception from command line processing: " << iException.what();
+    edm::LogSystem("CommandLineProcessing") << "Exception from command line processing: " << iException.what() << "\n";
     return 7000;
   }
     
@@ -147,23 +148,22 @@ int main(int argc, char* argv[])
 	     << "'.";
     int exitCode = 7001;
     jobRep->reportError(shortDesc, longDesc.str(), exitCode);
-    std::cout << longDesc.str() <<std::endl;
+    edm::LogSystem(shortDesc) << longDesc.str() << "\n";
     return exitCode;
   }
 
   std::string configstring;
   std::string fileName(vm[kParameterSetOpt].as<std::string>());
-  if( fileName.size()> 3 && fileName.substr(fileName.size()-3) ==".py") {
-
+  if (fileName.size() > 3 && fileName.substr(fileName.size()-3) == ".py") {
     try {
-      configstring = edm::pythonFileToConfigure( fileName);
-    }catch(cms::Exception& iException) {
+      configstring = edm::pythonFileToConfigure(fileName);
+    } catch(cms::Exception& iException) {
       std::string shortDesc("ConfigFileReadError");
       std::ostringstream longDesc;
       longDesc << "python found a problem "<<iException.what();
       int exitCode = 7002;
       jobRep->reportError(shortDesc, longDesc.str(), exitCode);
-      std::cout << longDesc.str() <<std::endl;
+      edm::LogSystem(shortDesc) << longDesc.str() << "\n";
       return exitCode;
     }
   } else {
@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
         << vm[kParameterSetOpt].as<std::string>();
       int exitCode = 7002;
       jobRep->reportError(shortDesc, longDesc.str(), exitCode);
-      std::cout << longDesc.str() <<std::endl;
+      edm::LogSystem(shortDesc) << longDesc.str() << "\n";
       return exitCode;
     }
     
@@ -184,11 +184,10 @@ int main(int argc, char* argv[])
     // the program.
     std::string line;
     
-    while(std::getline(configFile,line)) 
-      {
-	configstring+=line; 
-	configstring+="\n"; 
-      }
+    while(std::getline(configFile,line)) {
+      configstring += line; 
+      configstring += "\n"; 
+    }
   }
 
   EventProcessorWithSentry proc;
@@ -196,19 +195,19 @@ int main(int argc, char* argv[])
   using std::auto_ptr;
   using edm::EventProcessor;
   try {
-      auto_ptr<EventProcessor> 
+    auto_ptr<EventProcessor> 
 	procP(new 
 	      EventProcessor(configstring, jobReportToken, 
 			     edm::serviceregistry::kTokenOverrides,
 			     defaultServices, forcedServices));
-      EventProcessorWithSentry procTmp(procP);
-      proc = procTmp;
-      proc->beginJob();
-      proc.on();
-      proc->run();
-      proc.off();
-      proc->endJob();
-      rc = 0;
+    EventProcessorWithSentry procTmp(procP);
+    proc = procTmp;
+    proc->beginJob();
+    proc.on();
+    proc->run();
+    proc.off();
+    proc->endJob();
+    rc = 0;
   }
   catch (seal::Error& e) {
     std::string shortDesc("SEALException");
@@ -219,40 +218,40 @@ int main(int argc, char* argv[])
 	     << e.explainSelf();
     rc = 8000;
     jobRep->reportError(shortDesc, longDesc.str(), rc);
-    std::cout << longDesc.str() <<std::endl;
+    edm::LogSystem(shortDesc) << longDesc.str() << "\n";
   }
   catch (cms::Exception& e) {
-     std::string shortDesc("CMSException");
-     std::ostringstream longDesc;
-     longDesc << "cms::Exception caught in " 
-	      << kProgramName
-	      << "\n"
-	      << e.explainSelf();
-     rc = 8001;
-     jobRep->reportError(shortDesc, longDesc.str(), rc);
-     std::cout << longDesc.str() <<std::endl;      
+    std::string shortDesc("CMSException");
+    std::ostringstream longDesc;
+    longDesc << "cms::Exception caught in " 
+	     << kProgramName
+	     << "\n"
+	     << e.explainSelf();
+    rc = 8001;
+    jobRep->reportError(shortDesc, longDesc.str(), rc);
+    edm::LogSystem(shortDesc) << longDesc.str() << "\n";
   }
   catch (std::exception& e) {
-      std::string shortDesc("StdLibException");
-      std::ostringstream longDesc;
-      longDesc << "Standard library exception caught in " 
-	       << kProgramName
-	       << "\n"
-	       << e.what();
-      rc = 8002;
-      jobRep->reportError(shortDesc, longDesc.str(), rc);
-      std::cout << longDesc.str() <<std::endl;
+    std::string shortDesc("StdLibException");
+    std::ostringstream longDesc;
+    longDesc << "Standard library exception caught in " 
+	     << kProgramName
+	     << "\n"
+	     << e.what();
+    rc = 8002;
+    jobRep->reportError(shortDesc, longDesc.str(), rc);
+    edm::LogSystem(shortDesc) << longDesc.str() << "\n";
          
   }
   catch (...) {
-      std::string shortDesc("UnknownException");
-      std::ostringstream longDesc;
-      longDesc << "Unknown exception caught in "
-	       << kProgramName
-	       << "\n";
-      rc = 8003;
-      jobRep->reportError(shortDesc, longDesc.str(), rc);
-      std::cout << longDesc.str() <<std::endl;
+    std::string shortDesc("UnknownException");
+    std::ostringstream longDesc;
+    longDesc << "Unknown exception caught in "
+	     << kProgramName
+	     << "\n";
+    rc = 8003;
+    jobRep->reportError(shortDesc, longDesc.str(), rc);
+    edm::LogSystem(shortDesc) << longDesc.str() << "\n";
   }
   
   return rc;
