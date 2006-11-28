@@ -5,11 +5,9 @@
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 
-RPCRoll::RPCRoll(RPCDetId id, BoundPlane::BoundPlanePointer bp, RPCRollSpecs* rrs, const RPCChamber* ch) :
-  GeomDetUnit(bp), _id(id),_rrs(rrs), theCh(ch)
-{
-  
-}
+RPCRoll::RPCRoll(RPCDetId id, BoundPlane::BoundPlanePointer bp, RPCRollSpecs* rrs) :
+  GeomDetUnit(bp), _id(id),_rrs(rrs)
+{}
 
 RPCRoll::~RPCRoll()
 {
@@ -115,4 +113,13 @@ const StripTopology&
 RPCRoll::specificTopology() const
 {
   return _rrs->specificTopology();
+}
+
+
+
+
+void
+RPCRoll::setChamber(const RPCChamber* ch)
+{
+  theCh = ch; 
 }

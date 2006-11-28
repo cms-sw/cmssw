@@ -13,7 +13,7 @@ class RPCRoll : public GeomDetUnit{
 
  public:
   
-  RPCRoll(RPCDetId id, BoundPlane::BoundPlanePointer bp, RPCRollSpecs* rrs, const RPCChamber* ch=0);
+  RPCRoll(RPCDetId id, BoundPlane::BoundPlanePointer bp, RPCRollSpecs* rrs);
   ~RPCRoll();
   const RPCRollSpecs* specs() const;
   DetId geographicalId() const;
@@ -22,10 +22,8 @@ class RPCRoll : public GeomDetUnit{
   const StripTopology& specificTopology() const;
   const GeomDetType& type() const; 
  
-  /// Return the chamber this SL belongs to (0 if any, eg if a SL is
-  /// built on his own)
-    
-    const RPCChamber* chamber() const;
+  /// Return the chamber this roll belongs to 
+  const RPCChamber* chamber() const;
   
   int nstrips() const;
 
@@ -39,6 +37,9 @@ class RPCRoll : public GeomDetUnit{
   bool isBarrel() const; 
   bool isForward() const;
   
+ private:
+  void setChamber(const RPCChamber* ch);
+
  private:
   RPCDetId _id;
   RPCRollSpecs* _rrs;
