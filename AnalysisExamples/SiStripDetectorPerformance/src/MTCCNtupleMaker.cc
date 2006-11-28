@@ -712,9 +712,9 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
   // Get SiStripDigis
   edm::Handle<edm::DetSetVector<SiStripDigi> > oDSVDigis;
   if( oSiStripDigisProdInstName_.size()) {
-    e.getByLabel( oSiStripDigisLabel_.c_str(), oDSVDigis);
-  } else {
     e.getByLabel( oSiStripDigisLabel_.c_str(), oSiStripDigisProdInstName_.c_str(), oDSVDigis);
+  } else {
+    e.getByLabel( oSiStripDigisLabel_.c_str(), oDSVDigis);
   }
       
   std::map<uint32_t, int> oProcessedClusters;
@@ -783,6 +783,15 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
       clusterseednoise=-99;
     
       const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(hitsiter->first);
+      dLclX = hit->localPosition().x(); 
+      dLclY = hit->localPosition().y(); 
+      dLclZ = hit->localPosition().z(); 
+
+      GlobalPoint oRecHitGlobalPos = tracker->idToDet( hit->geographicalId())->toGlobal( hit->localPosition());
+      dGlbX = oRecHitGlobalPos.x();
+      dGlbY = oRecHitGlobalPos.y();
+      dGlbZ = oRecHitGlobalPos.z();
+
       const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=hit->cluster();
 
       std::vector<SiStripDigi> oDigis = 
@@ -892,12 +901,6 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
       }
       }
 
-      dLclX = roLclDir.second.x();
-      dLclY = roLclDir.second.y();
-      dLclZ = roLclDir.second.z();
-      dGlbX = roGlbDir.second.x();
-      dGlbY = roGlbDir.second.y();
-      dGlbZ = roGlbDir.second.z();
 
       //Filling histograms
             
