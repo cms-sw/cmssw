@@ -31,22 +31,22 @@ using namespace evf;
 //______________________________________________________________________________
 FUShmBuffer::FUShmBuffer(int shmid,int semid,
 			 unsigned int  nCell,
+			 unsigned int  cellBufferSize,
 			 unsigned int  nFed,
 			 unsigned int  nSuperFrag,
-			 unsigned int  cellBufferSize,
 			 bool          ownsMemory)
   : ownsMemory_(ownsMemory)
   , shmid_(shmid)
   , semid_(semid)
   , nCell_(nCell)
+  , cellBufferSize_(cellBufferSize)
   , nFed_(nFed)
   , nSuperFrag_(nSuperFrag)
-  , cellBufferSize_(cellBufferSize)
   , cellOffset_(0)
   , cellSize_(0)
   // don't initialize readIndex_/writeIndex_, might have been set by another prc!
 {
-  cellSize_=FUShmBufferCell::size(nFed_,nSuperFrag_,cellBufferSize_);
+  cellSize_=FUShmBufferCell::size(cellBufferSize_,nFed_,nSuperFrag_);
   
   if (ownsMemory_) {
     unsigned char* buffer=new unsigned char[nCell_*cellSize_];
@@ -58,7 +58,7 @@ FUShmBuffer::FUShmBuffer(int shmid,int semid,
   
   for (unsigned int i=0;i<nCell_;i++) {
     void* addr=(void*)((unsigned int)this+cellOffset_+i*cellSize_);
-    new(addr) FUShmBufferCell(i,nFed_,nSuperFrag_,cellBufferSize_,false);
+    new(addr) FUShmBufferCell(i,cellBufferSize_,nFed_,nSuperFrag_,false);
   }
 }
 
@@ -185,12 +185,12 @@ void FUShmBuffer::print(int verbose)
 
 //______________________________________________________________________________
 unsigned int FUShmBuffer::size(unsigned int nCell,
+			       unsigned int cellBufferSize,	
 			       unsigned int nFed,
-			       unsigned int nSuperFrag,
-			       unsigned int cellBufferSize)
+			       unsigned int nSuperFrag)
 {
   unsigned int offset  =sizeof(FUShmBuffer);
-  unsigned int cellSize=FUShmBufferCell::size(nFed,nSuperFrag,cellBufferSize);
+  unsigned int cellSize=FUShmBufferCell::size(cellBufferSize,nFed,nSuperFrag);
   unsigned int realSize=offset+cellSize*nCell;
   unsigned int result  =realSize/0x10*0x10 + (realSize%0x10>0)*0x10;
   return result;
@@ -199,9 +199,10 @@ unsigned int FUShmBuffer::size(unsigned int nCell,
 
 //______________________________________________________________________________
 FUShmBuffer* FUShmBuffer::createShmBuffer(unsigned int nCell,
+					  unsigned int cellBufferSize,
 					  unsigned int nFed,
-					  unsigned int nSuperFrag,
-					  unsigned int cellBufferSize)
+					  unsigned int nSuperFrag)
+  
 {
   // if necessary, release shared memory first!
   if (FUShmBuffer::releaseSharedMemory())
@@ -226,15 +227,15 @@ FUShmBuffer* FUShmBuffer::createShmBuffer(unsigned int nCell,
   // store buffer parameters in segment
   cout<<"FUShmBuffer::createShmBuffer():"
       <<" nCell="<<nCell
+      <<" cellBufferSize="<<cellBufferSize
       <<" nFed="<<nFed
       <<" nSuperFrag="<<nSuperFrag
-      <<" cellBufferSize="<<cellBufferSize
       <<endl;
   unsigned int* p=(unsigned int*)shmAddr1;
-  *p++=nCell; *p++=nFed; *p++=nSuperFrag; *p=cellBufferSize;
+  *p++=nCell; *p++=cellBufferSize; *p++=nFed; *p=nSuperFrag;
   
   // create the 'real' shared memory buffer
-  int size =FUShmBuffer::size(nCell,nFed,nSuperFrag,cellBufferSize);
+  int size =FUShmBuffer::size(nCell,cellBufferSize,nFed,nSuperFrag);
   int shmid=shm_create(FUShmBuffer::getShmKey(),size); if (shmid<0) return 0;
   
   // attach the 'real' segment to the address space of this prc
@@ -253,9 +254,9 @@ FUShmBuffer* FUShmBuffer::createShmBuffer(unsigned int nCell,
   // allocate the shared memory buffer using a 'placement new'
   FUShmBuffer* buffer=new(shmAddr) FUShmBuffer(shmid,semid,
 					       nCell,
+					       cellBufferSize,
 					       nFed,
 					       nSuperFrag,
-					       cellBufferSize,
 					       false);
   cout<<"FUShmBuffer::createShmBuffer(): created shared memory buffer."<<endl;
   
@@ -286,21 +287,21 @@ FUShmBuffer* FUShmBuffer::getShmBuffer()
   // retrieve buffer parameters
   unsigned int*p             =(unsigned int*)shmAddr1;
   unsigned int nCell         =*p++;
+  unsigned int cellBufferSize=*p++;
   unsigned int nFed          =*p++;
-  unsigned int nSuperFrag    =*p++;
-  unsigned int cellBufferSize=*p;
+  unsigned int nSuperFrag    =*p;
   cout<<"FUShmBuffer::getShmBuffer():"
       <<" nCell="<<nCell
+      <<" cellBufferSize="<<cellBufferSize  
       <<" nFed="<<nFed
       <<" nSuperFrag="<<nSuperFrag
-      <<" cellBufferSize="<<cellBufferSize
       <<endl;
   
   // no reason to stay attached to this segment
   shmdt(shmAddr1);
   
   // get the 'real' shared memory buffer
-  int size =FUShmBuffer::size(nCell,nFed,nSuperFrag,cellBufferSize);
+  int size =FUShmBuffer::size(nCell,cellBufferSize,nFed,nSuperFrag);
   int shmid=shm_get(FUShmBuffer::getShmKey(),size); if (shmid<0) return 0;
   
   // attach the 'real' segment to the address space of this prc
@@ -319,9 +320,9 @@ FUShmBuffer* FUShmBuffer::getShmBuffer()
   // allocate the shared memory buffer using a 'placement new'
   FUShmBuffer* buffer=new(shmAddr) FUShmBuffer(shmid,semid,
 					       nCell,
+					       cellBufferSize,
 					       nFed,
 					       nSuperFrag,
-					       cellBufferSize,
 					       false);
   cout<<"FUShmBuffer::getShmBuffer(): got shared memory buffer."<<endl;
   
@@ -352,21 +353,21 @@ bool FUShmBuffer::releaseSharedMemory()
   // retrieve buffer parameters
   unsigned int*p             =(unsigned int*)shmAddr1;
   unsigned int nCell         =*p++;
+  unsigned int cellBufferSize=*p++;
   unsigned int nFed          =*p++;
-  unsigned int nSuperFrag    =*p++;
-  unsigned int cellBufferSize=*p;
+  unsigned int nSuperFrag    =*p;
   cout<<"FUShmBuffer::releaseSharedMemory():"
       <<" nCell="<<nCell
+      <<" cellBufferSize="<<cellBufferSize  
       <<" nFed="<<nFed
       <<" nSuperFrag="<<nSuperFrag
-      <<" cellBufferSize="<<cellBufferSize
       <<endl;
   
   // no reason to stay attached to this segment
   shmdt(shmAddr1);
   
   // get the 'real' shared memory buffer
-  int size =FUShmBuffer::size(nCell,nFed,nSuperFrag,cellBufferSize);
+  int size =FUShmBuffer::size(nCell,cellBufferSize,nFed,nSuperFrag);
   int shmid=shm_get(FUShmBuffer::getShmKey(),size);
   if (shmid<0) return false;
   

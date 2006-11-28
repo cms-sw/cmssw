@@ -21,15 +21,15 @@ using namespace std;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-FUResourceTable::FUResourceTable(UInt_t nbResources,bool shmMode,
-				 log4cplus::Logger logger)
+FUResourceTable::FUResourceTable(UInt_t nbResources,UInt_t eventBufferSize,
+				 bool shmMode,log4cplus::Logger logger)
   : log_(logger)
   , shmMode_(shmMode)
   , shmBuffer_(0)
   , doCrcCheck_(1)
   , lock_(BSem::FULL)
 {
-  initialize(nbResources);
+  initialize(nbResources,eventBufferSize);
 }
 
 
@@ -38,7 +38,7 @@ FUResourceTable::~FUResourceTable()
 {
   clear();
   if (FUShmBuffer::releaseSharedMemory())
-    LOG4CPLUS_INFO(log_,"Shared Memory segments cleaned up successfully.");
+    LOG4CPLUS_INFO(log_,"SHARED MEMORY SEGMENTS CLEANED UP SUCCESSFULLY.");
 }
 
 
@@ -47,14 +47,14 @@ FUResourceTable::~FUResourceTable()
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void FUResourceTable::initialize(UInt_t nbResources)
+void FUResourceTable::initialize(UInt_t nbResources,UInt_t eventBufferSize)
 {
   clear();
   
   if (shmMode_) {
-    shmBuffer_=FUShmBuffer::createShmBuffer(nbResources);
+    shmBuffer_=FUShmBuffer::createShmBuffer(nbResources,eventBufferSize);
     if (0==shmBuffer_) {
-      LOG4CPLUS_WARN(log_,"creation of shared memory segment failed.");
+      LOG4CPLUS_ERROR(log_,"Creation of shared memory segment failed.");
     }
     else {
       for (UInt_t i=0;i<nbResources;i++) {
@@ -64,7 +64,7 @@ void FUResourceTable::initialize(UInt_t nbResources)
   }
   else {
     for (UInt_t i=0;i<nbResources;i++) {
-      resources_.push_back(new FUResource(i,log_));
+      resources_.push_back(new FUResource(i,eventBufferSize,log_));
       freeResourceIds_.push(i);
     }
     sem_init(&writeSem_,0,nbResources);

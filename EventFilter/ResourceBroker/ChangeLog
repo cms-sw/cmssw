@@ -1,5 +1,11 @@
 2006-11-28  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
+	* tag V00-00-03
+	* add parameter 'eventBufferSize' to FUResourceBroker, default is
+	'4194304' (4MB).
+
+2006-11-28  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
 	* tag V00-00-02
 	* check if new events should be allocated in 'timeExpired' to
 	avoid synchronization problem in shm mode. debug counter

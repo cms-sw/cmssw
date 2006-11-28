@@ -21,7 +21,8 @@ namespace evf {
     //
     // construction/destruction
     //
-    FUResourceTable(UInt_t nbResources,bool shmMode,log4cplus::Logger logger);
+    FUResourceTable(UInt_t nbResources,UInt_t eventBufferSize,
+		    bool shmMode,log4cplus::Logger logger);
     virtual ~FUResourceTable();
 
     
@@ -30,7 +31,7 @@ namespace evf {
     //
     
     // initialization of the resource queue
-    void   initialize(UInt_t nbResources);
+    void   initialize(UInt_t nbResources,UInt_t eventBufferSize);
     
     // emtpy all containers (resources & ids)
     void   clear();

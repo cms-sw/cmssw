@@ -22,15 +22,15 @@ using namespace evf;
 
 //______________________________________________________________________________
 FUShmBufferCell::FUShmBufferCell(unsigned int index,
+				 unsigned int bufferSize,
 				 unsigned int nFed,
 				 unsigned int nSuperFrag,
-				 unsigned int bufferSize,
 				 bool         ownsMemory)
   : ownsMemory_(ownsMemory)
   , fuResourceId_(index)
+  , bufferSize_(bufferSize)
   , nFed_(nFed)
   , nSuperFrag_(nSuperFrag)
-  , bufferSize_(bufferSize)
 {
   if (this->ownsMemory()) {
     unsigned int* fedSizeArray=new unsigned int[nFed_];
@@ -210,9 +210,9 @@ void FUShmBufferCell::print(int verbose) const
       <<" ownsMemory="<<ownsMemory()
       <<endl
       <<"                "
+      <<" bufferSize="<<bufferSize()
       <<" nFed="<<nFed()
       <<" nSuperFrag="<<nSuperFrag()
-      <<" bufferSize="<<bufferSize()
       <<" eventSize="<<eventSize()
       <<endl;
   if (verbose>0) {
@@ -329,9 +329,10 @@ bool FUShmBufferCell::markSuperFrag(unsigned int i,
 				  
 
 //______________________________________________________________________________
-unsigned int FUShmBufferCell::size(unsigned int nFed,
-				   unsigned int nSuperFrag,
-				   unsigned int bufferSize)
+unsigned int FUShmBufferCell::size(unsigned int bufferSize,
+				   unsigned int nFed,
+				   unsigned int nSuperFrag)
+
 {
   return 
     sizeof(FUShmBufferCell)+

@@ -14,9 +14,9 @@ namespace evf {
     // construction/destruction
     //
     FUShmBufferCell(unsigned int index,
+		    unsigned int bufferSize,
 		    unsigned int nFed,
 		    unsigned int nSuperFrag,
-		    unsigned int bufferSize,
 		    bool         ownsMemory=true);
     ~FUShmBufferCell();
     
@@ -36,6 +36,9 @@ namespace evf {
     bool           isRead()                       const { return (state_==2); }
     bool           isProcessed()                  const { return (state_==3); }
 
+    unsigned int   bufferSize()                   const { return bufferSize_; }
+    unsigned char* bufferAddr()                   const;
+    
     unsigned int   nFed()                         const { return nFed_; }
     unsigned int   fedSize(unsigned int i)        const;
     unsigned char* fedAddr(unsigned int i)        const;
@@ -43,9 +46,6 @@ namespace evf {
     unsigned int   nSuperFrag()                   const { return nSuperFrag_; }
     unsigned int   superFragSize(unsigned int i)  const;
     unsigned char* superFragAddr(unsigned int i)  const;
-    
-    unsigned int   bufferSize()                   const { return bufferSize_; }
-    unsigned char* bufferAddr()                   const;
     
     unsigned int   eventSize()                    const;
 
@@ -78,9 +78,10 @@ namespace evf {
     //
     // static member functions
     //
-    static unsigned int size(unsigned int nFed,
-			     unsigned int nSuperFrag,
-			     unsigned int bufferSize);
+    static unsigned int size(unsigned int bufferSize,
+			     unsigned int nFed,
+			     unsigned int nSuperFrag);
+
     
     
   private:
@@ -92,9 +93,9 @@ namespace evf {
     unsigned int buResourceId_;
     unsigned int evtNumber_;
     unsigned int state_;
-    unsigned int nFed_;    
+    unsigned int bufferSize_;
+    unsigned int nFed_;
     unsigned int nSuperFrag_;
-    unsigned int bufferSize_;    
     unsigned int fedSizeOffset_;
     unsigned int fedOffset_;
     unsigned int superFragSizeOffset_;

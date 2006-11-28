@@ -39,22 +39,23 @@ using namespace evf;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-FUResource::FUResource(UInt_t fuResourceId,log4cplus::Logger logger)
+FUResource::FUResource(UInt_t fuResourceId,UInt_t eventBufferSize,
+		       log4cplus::Logger logger)
   : log_(logger)
   , fuResourceId_(fuResourceId)
   , superFragHead_(0)
   , superFragTail_(0)
+  , eventBufferSize_(eventBufferSize)
   , nFedMax_(1024)
   , nSuperFragMax_(64)
-  , eventSizeMax_(4096000) // 4 MB
   , nbBytes_(0)
   , superFragSize_(0)
   , eventSize_(0)
   , eventBuffer_(0)
   , fedData_(0)
 {
-  eventBuffer_=new FUShmBufferCell(fuResourceId_,
-				   nFedMax_,nSuperFragMax_,eventSizeMax_,true);
+  eventBuffer_=new FUShmBufferCell(fuResourceId_,eventBufferSize_,
+				   nFedMax_,nSuperFragMax_,true);
   release();
 }
 
@@ -70,10 +71,11 @@ FUResource::FUResource(FUShmBufferCell* eventBuffer,log4cplus::Logger logger)
   , eventBuffer_(eventBuffer)
   , fedData_(0)
 {
-  fuResourceId_ =eventBuffer_->fuResourceId();
-  nFedMax_      =eventBuffer_->nFed();
-  nSuperFragMax_=eventBuffer_->nSuperFrag();
-  eventSizeMax_ =eventBuffer_->bufferSize();
+  fuResourceId_   =eventBuffer_->fuResourceId();
+  eventBufferSize_=eventBuffer_->bufferSize();
+  nFedMax_        =eventBuffer_->nFed();
+  nSuperFragMax_  =eventBuffer_->nSuperFrag();
+
   
   release();
 }
@@ -491,7 +493,7 @@ void FUResource::superFragSize() throw (evf::Exception)
   
   eventSize_+=superFragSize_;
 
-  if (eventSize_>eventSizeMax_) {  
+  if (eventSize_>eventBufferSize_) {  
     nbErrors_++;
     stringstream oss;
     oss<<"Event size exceeds maximum size."
@@ -499,7 +501,7 @@ void FUResource::superFragSize() throw (evf::Exception)
        <<" evtNumber:"<<evtNumber_
        <<" iSuperFrag:"<<iSuperFrag_
        <<" eventSize:"<<eventSize_
-       <<" eventSizeMax:"<<eventSizeMax_;
+       <<" eventBufferSize:"<<eventBufferSize_;
     XCEPT_RAISE(evf::Exception,oss.str());
   }
   

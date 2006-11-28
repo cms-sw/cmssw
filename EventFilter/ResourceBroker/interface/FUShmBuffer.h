@@ -21,9 +21,9 @@ namespace evf {
   private:
     FUShmBuffer(int shmid,int semid,
 		unsigned int  nCell,
+		unsigned int  cellBufferSize,
 		unsigned int  nFed,
 		unsigned int  nSuperFrag,
-		unsigned int  cellBufferSize,
 		bool          ownsMemory=true);
   public:
     ~FUShmBuffer();
@@ -36,9 +36,9 @@ namespace evf {
     int              shmid()          const { return shmid_; }
     int              semid()          const { return semid_; }
     unsigned int     nCell()          const { return nCell_; }
+    unsigned int     cellBufferSize() const { return cellBufferSize_; }
     unsigned int     nFed()           const { return nFed_; }
     unsigned int     nSuperFrag()     const { return nSuperFrag_; }
-    unsigned int     cellBufferSize() const { return cellBufferSize_; }
     unsigned int     cellOffset()     const { return cellOffset_; }
     unsigned int     cellSize()       const { return cellSize_; }
     unsigned int     writeIndex()     const { return writeIndex_; }
@@ -69,13 +69,14 @@ namespace evf {
     // static member functions
     //
     static unsigned int size(unsigned int nCell,
+			     unsigned int cellBufferSize,
 			     unsigned int nFed,
-			     unsigned int nSuperFrag,
-			     unsigned int cellBufferSize);
+			     unsigned int nSuperFrag);
     static FUShmBuffer* createShmBuffer(unsigned int nCell,
+					unsigned int cellBufferSize=4096000, //4MB
 					unsigned int nFed=1024,
-					unsigned int nSuperFrag=64,
-					unsigned int cellBufferSize=4096000);
+					unsigned int nSuperFrag=64);
+
     static FUShmBuffer* getShmBuffer();
 
     static bool         releaseSharedMemory();
@@ -113,9 +114,9 @@ namespace evf {
     unsigned int    writeIndex_;
     unsigned int    readIndex_;
     unsigned int    nCell_;
+    unsigned int    cellBufferSize_;
     unsigned int    nFed_;
     unsigned int    nSuperFrag_;
-    unsigned int    cellBufferSize_;
     unsigned int    cellOffset_;
     unsigned int    cellSize_;
     

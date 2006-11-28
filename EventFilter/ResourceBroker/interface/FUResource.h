@@ -21,7 +21,7 @@ namespace evf {
     //
     // construction/destruction
     //
-    FUResource(unsigned int fuResourceId,log4cplus::Logger logger);
+    FUResource(UInt_t fuResourceId,UInt_t eventBufferSize,log4cplus::Logger logger);
     FUResource(FUShmBufferCell* eventBuffer, log4cplus::Logger logger);
     virtual ~FUResource();
     
@@ -76,9 +76,9 @@ namespace evf {
     MemRef_t* superFragHead_;
     MemRef_t* superFragTail_;
 
+    UInt_t    eventBufferSize_;
     UInt_t    nFedMax_;
     UInt_t    nSuperFragMax_;
-    UInt_t    eventSizeMax_;
     
     UInt_t    iBlock_;
     UInt_t    nBlock_;

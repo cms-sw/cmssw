@@ -71,6 +71,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , nbDataErrors_(0)
   , nbCrcErrors_(0)
   , shmMode_(false)
+    , eventBufferSize_(4194304) // 4MB
   //, doDumpFragments_(false)
   , doDropEvents_(false)
   , doCrcCheck_(1)
@@ -272,10 +273,10 @@ void FUResourceBroker::configureAction(toolbox::Event::Reference e)
 {
   // initialize resource table
   if (0==resourceTable_) {
-    resourceTable_=new FUResourceTable(queueSize_,shmMode_,log_);
+    resourceTable_=new FUResourceTable(queueSize_,eventBufferSize_,shmMode_,log_);
   }
   else if (resourceTable_->nbResources()!=queueSize_) {
-    resourceTable_->initialize(queueSize_);
+    resourceTable_->initialize(queueSize_,eventBufferSize_);
   }
   resourceTable_->resetCounters();
   
@@ -539,6 +540,7 @@ void FUResourceBroker::exportParameters()
   gui_->addMonitorCounter("nbCrcErrors",      &nbCrcErrors_);
 
   gui_->addStandardParam("shmMode",           &shmMode_);
+  gui_->addStandardParam("eventBufferSize",   &eventBufferSize_);
   //gui_->addStandardParam("doDumpLostEvents",   &doDumpLostEvents_);
   gui_->addStandardParam("doDropEvents",      &doDropEvents_);
   gui_->addStandardParam("doCrcCheck",        &doCrcCheck_);
