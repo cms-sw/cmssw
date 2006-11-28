@@ -105,7 +105,7 @@ class Process(object):
     def __setattr__(self,name,value):
         if not isinstance(value,_ConfigureComponent):
             raise TypeError("can only assign labels to an object which inherits from '_ConfigureComponent'")
-        if not isinstance(value,_Labelable) and not isinstance(value,Source):
+        if not isinstance(value,_Labelable) and not isinstance(value,Source) and not isinstance(value,Looper):
             if name == value.type_():
                 self.add_(value)
                 return
@@ -155,9 +155,13 @@ class Process(object):
     def _placeESSource(self,name,mod):
         self.__essources[name]=mod
     def _placeSource(self,name,mod):
+        """Allow the source to be referenced by 'source' or by type name"""
         if name != 'source':
             raise ValueError("The label '"+name+"' can not be used for a Source.  Only 'source' is allowed.")
+        if self.__dict__['_Process__source'] is not None :
+            del self.__dict__[self.__dict__['_Process__source'].type_()]
         self.__dict__['_Process__source'] = mod
+        self.__dict__[mod.type_()] = mod
     def _placeLooper(self,name,mod):
         if name != 'looper':
             raise ValueError("The label '"+name+"' can not be used for a Looper.  Only 'looper' is allowed.")
@@ -190,28 +194,66 @@ class Process(object):
             newSeq = seq.copy()
             #
             self.__setattr__(name,newSeq)
+    def _dumpConfigNamedList(self,items,typeName,indent):
+        returnValue = ''
+        for name,item in items:
+            returnValue +=indent+typeName+' '+name+' = '+item.dumpConfig(indent,indent)
+        return returnValue    
+    def _dumpConfigUnnamedList(self,items,typeName,indent):
+        returnValue = ''
+        for name,item in items:
+            returnValue +=indent+typeName+' = '+item.dumpConfig(indent,indent)
+        return returnValue
+    def _dumpConfigOptionallyNamedList(self,items,typeName,indent):
+        returnValue = ''
+        for name,item in items:
+            if name == item.type_():
+                name = ''
+            else:
+                name = ' '+name
+            returnValue +=indent+typeName+name+' = '+item.dumpConfig(indent,indent)
+        return returnValue
+
     def dumpConfig(self):
         """return a string containing the equivalent process defined using the configuration language"""
         config = "process "+self.__name+" = {\n"
         indent = "  "
         if self.source_():
             config += indent+"source = "+self.source_().dumpConfig(indent,indent)
-        for name, item in self.producers_().iteritems():
-            config += indent+"module "+name+" = "+item.dumpConfig(indent,indent)
-        for name, item in self.filters_().iteritems():
-            config += indent+"module "+name+" = "+item.dumpConfig(indent,indent)
-        for name, item in self.analyzers_().iteritems():
-            config += indent+"module "+name+" = "+item.dumpConfig(indent,indent)
-        for name, item in self.outputModules_().iteritems():
-            config += indent+"module "+name+" = "+item.dumpConfig(indent,indent)
-        for name, item in self.paths_().iteritems():
-            config += indent+"path "+name+" = "+item.dumpConfig(indent,indent)
-        for name, item in self.endpaths_().iteritems():
-            config += indent+"endpath "+name+" = "+item.dumpConfig(indent,indent)
-        for name, item in self.sequences_().iteritems():
-            config += indent+"sequence "+name+" = "+item.dumpConfig(indent,indent)
-        for name, item in self.services_().iteritems():
-            config += indent+"service = "+item.dumpConfig(indent,indent)
+        if self.looper_():
+            config += indent+"looper = "+self.looper_().dumpConfig(indent,indent)
+        config+=self._dumpConfigNamedList(self.producers_().iteritems(),
+                                  'module',
+                                  indent)
+        config+=self._dumpConfigNamedList(self.filters_().iteritems(),
+                                  'module',
+                                  indent)
+        config+=self._dumpConfigNamedList(self.analyzers_().iteritems(),
+                                  'module',
+                                  indent)
+        config+=self._dumpConfigNamedList(self.outputModules_().iteritems(),
+                                  'module',
+                                  indent)
+        config+=self._dumpConfigNamedList(self.sequences_().iteritems(),
+                                  'sequence',
+                                  indent)
+        config+=self._dumpConfigNamedList(self.paths_().iteritems(),
+                                  'path',
+                                  indent)
+        config+=self._dumpConfigNamedList(self.endpaths_().iteritems(),
+                                  'endpath',
+                                  indent)
+        config+=self._dumpConfigUnnamedList(self.services_().iteritems(),
+                                  'service',
+                                  indent)
+        config+=self._dumpConfigOptionallyNamedList(
+            self.es_producers_().iteritems(),
+            'es_module',
+            indent)
+        config+=self._dumpConfigOptionallyNamedList(
+            self.es_sources_().iteritems(),
+            'es_source',
+            indent)
         config += "}\n"
         return config
     
@@ -335,7 +377,7 @@ class _Labelable(object):
     def dumpSequenceConfig(self):
         return str(self.__label)
     def _findDependencies(self,knownDeps,presentDeps):
-        print 'in labelled'
+        #print 'in labelled'
         myDeps=knownDeps.get(self.label(),None)
         if myDeps!=None:
             if presentDeps != myDeps:
@@ -388,13 +430,20 @@ class int32(_SimpleParameterTypeBase):
         return isinstance(value,int)
     @staticmethod
     def _valueFromString(value):
+        if len(value) >1 and '0x' == value[:2]:
+            return int32(int(value,16))
         return int32(int(value))
 
 class uint32(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
         return ((isinstance(value,int) and value > 0) or
-                (ininstance(value,long) and value > 0) and value <= 0xFFFFFFFF)
+                (isinstance(value,long) and value > 0) and value <= 0xFFFFFFFF)
+    @staticmethod
+    def _valueFromString(value):
+        if len(value) >1 and '0x' == value[:2]:
+            return uint32(long(value,16))
+        return uint32(long(value))
 
 class int64(_SimpleParameterTypeBase):
     @staticmethod
@@ -402,17 +451,30 @@ class int64(_SimpleParameterTypeBase):
         return isinstance(value,int) or (
             isinstance(value,long) and
             (-0x7FFFFFFFFFFFFFFF < value <= 0x7FFFFFFFFFFFFFFF) )
+    @staticmethod
+    def _valueFromString(value):
+        if len(value) >1 and '0x' == value[:2]:
+            return uint32(long(value,16))
+        return int64(long(value))
 
 class uint64(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
         return ((isinstance(value,int) and value > 0) or
                 (ininstance(value,long) and value > 0) and value <= 0xFFFFFFFFFFFFFFFF)
+    @staticmethod
+    def _valueFromString(value):
+        if len(value) >1 and '0x' == value[:2]:
+            return uint32(long(value,16))
+        return uint64(long(value))
 
 class double(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
         return True
+    @staticmethod
+    def _valueFromString(value):
+        return double(float(value))
 
 class bool(_SimpleParameterTypeBase):
     @staticmethod
@@ -469,6 +531,9 @@ class InputTag(_ParameterTypeBase):
         if not v:
             return self.__productInstance <> other.__productInstance
         return v
+    @staticmethod
+    def formatValueForConfig(value):
+        return value.configValue('','')
 
 class FileInPath(_SimpleParameterTypeBase):
     def __init__(self,value):
@@ -737,30 +802,22 @@ class Looper(_ConfigureComponent,_TypedParameterizable):
 class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     """Base class for classes which define a sequence of modules"""
     def __init__(self,first):
-        self.__seq = first
+        self._seq = first
     def _place(self,name,proc):
         self._placeImpl(name,proc)
     def __imul__(self,rhs):
-        self.__seq = _SequenceOpAids(self.__seq,rhs)
+        self._seq = _SequenceOpAids(self._seq,rhs)
         return self
     def __iadd__(self,rhs):
-        self.__seq = _SequenceOpFollows(self.__seq,rhs)
+        self._seq = _SequenceOpFollows(self._seq,rhs)
         return self
-    def __mul__(self,rhs):
-        returnValue =_ModuleSequenceType.__new__(type(self))
-        returnValue.__init__(self.__seq*rhs)
-        return returnValue
-    def __add__(self,rhs):
-        returnValue =_ModuleSequenceType.__new__(type(self))
-        returnValue.__init__(self.__seq+rhs)
-        return returnValue
     def __str__(self):
-        return str(self.__seq)
+        return str(self._seq)
     def dumpConfig(self,indent,deltaIndent):
-        return '{'+self.__seq.dumpSequenceConfig()+'}\n'
+        return '{'+self._seq.dumpSequenceConfig()+'}\n'
     def copy(self):
         returnValue =_ModuleSequenceType.__new__(type(self))
-        returnValue.__init__(self.__seq)
+        returnValue.__init__(self._seq)
         return returnValue
     #def replace(self,old,new):
     #"""Find all instances of old and replace with new"""
@@ -774,7 +831,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     #"""returns whether or not 'item' is in the sequence"""
     #def modules_(self):
     def _findDependencies(self,knownDeps,presentDeps):
-        self.__seq._findDependencies(knownDeps,presentDeps)
+        self._seq._findDependencies(knownDeps,presentDeps)
     def moduleDependencies(self):
         deps = dict()
         self._findDependencies(deps,set())
@@ -811,6 +868,7 @@ class _SequenceOpFollows(_Sequenceable):
         end = len(presentDeps)
         presentDeps.update(oldDepsL)
         presentDeps.update(oldDepsR)
+
 
 class Path(_ModuleSequenceType):
     def __init__(self,first):
@@ -858,6 +916,14 @@ if __name__=="__main__":
             p.b = untracked(PSet(fii = int32(1)))
             self.assertEqual(p.b.fii.value(),1)
             self.failIf(p.b.isTracked())
+            #test the fact that values can be shared
+            v = int32(10)
+            p=_Parameterizable(a=v)
+            v.setValue(11)
+            self.assertEqual(p.a.value(),11)
+            p.a = 12
+            self.assertEqual(p.a.value(),12)
+            self.assertEqual(v.value(),12)
         def testTypedParameterizable(self):
             p = _TypedParameterizable("blah", b=int32(1))
             #see if copy works deeply
@@ -868,6 +934,8 @@ if __name__=="__main__":
             i = int32(1)
             self.assertEqual(i.value(),1)
             self.assertRaises(ValueError,int32,"i")
+            i = int32._valueFromString("0xA")
+            self.assertEqual(i.value(),10)
         def testvint32(self):
             v = vint32()
             self.assertEqual(len(v),0)
@@ -944,6 +1012,17 @@ if __name__=="__main__":
             self.assertEqual(withParam.foo.value(), 1)
             self.assertEqual(withParam.bar.value(), "it")
             
+        def testSequence(self):
+            p = Process('test')
+            p.a = EDAnalyzer("MyAnalyzer")
+            p.b = EDAnalyzer("YourAnalyzer")
+            p.c = EDAnalyzer("OurAnalyzer")
+            p.s = Sequence(p.a*p.b)
+            self.assertEqual(str(p.s),'(a*b)')
+            self.assertEqual(p.s.label(),'s')
+            path = Path(p.c+p.s)
+            self.assertEqual(str(path),'(c+(a*b))')
+            
         def testPath(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
@@ -955,8 +1034,8 @@ if __name__=="__main__":
             self.assertEqual(str(path),'((a*b)+c)')
             path = Path(p.a*p.b+p.c)
             self.assertEqual(str(path),'((a*b)+c)')
-            path = Path(p.a)*p.b+p.c
-            self.assertEqual(str(path),'((a*b)+c)')
+#            path = Path(p.a)*p.b+p.c #This leads to problems with sequences
+#            self.assertEqual(str(path),'((a*b)+c)')
             path = Path(p.a+ p.b*p.c)
             self.assertEqual(str(path),'(a+(b*c))')
             path = Path(p.a*(p.b+p.c))
@@ -967,7 +1046,7 @@ if __name__=="__main__":
             p.foos = EDProducer("FooProducer")
             p.bars = EDProducer("BarProducer", foos=InputTag("foos"))
             p.out = OutputModule("PoolOutputModule",fileName=untracked(string("file:foos.root")))
-            p.p = Path(p.foos)*p.bars
+            p.p = Path(p.foos*p.bars)
             p.e = EndPath(p.out)
             p.add_(Service("MessageLogger"))
         def testFindDependencies(self):
