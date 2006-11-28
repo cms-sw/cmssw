@@ -17,8 +17,7 @@ CSCWireElectronicsSim::CSCWireElectronicsSim(const edm::ParameterSet & p)
    theFraction(0.5),
    theWireNoise(0.0),
    theWireThreshold(0.),
-   theTimingCalibrationError(p.getParameter<double>("wireTimingError")),
-   theOffsetOfBxZero(p.getParameter<int>("timeBitForBxZero"))
+   theTimingCalibrationError(p.getParameter<double>("wireTimingError"))
 {
   fillAmpResponse();
 }
@@ -47,7 +46,7 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
 
   // Loop over analog signals, run the fractional discriminator on each one,
   // and save the DIGI in the layer.
-  for(MESignalMap::iterator mapI = theSignalMap.begin(); 
+  for(CSCSignalMap::iterator mapI = theSignalMap.begin(); 
       mapI != theSignalMap.end(); ++mapI) {
     int wireGroup            = (*mapI).first;
     CSCAnalogSignal signal = (*mapI).second;
@@ -133,18 +132,18 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
       //      ...           ...       ....
       //     16th             15  <-> bx +9
 
-      // Parameter theOffsetOfBxZero = 6 @@WARNING! Hardware people may change convention!
+      // Parameter theOffsetOfBxZero = 6 @@WARNING! This offset may be changed (hardware)!
 
       int nBitsToOffset = beamCrossingTag + theOffsetOfBxZero;
-      int timeWord = 0; // and this will remain if too early (i.e. earlier than bx -6)
-      if ( nBitsToOffset >= 0 ) timeWord = (1 << nBitsToOffset ); // Set appropriate bit
+      int timeWord = 0; // and this will remain if too early or late (<bx-6 or >bx+9)
+      if ( (nBitsToOffset>= 0) && (nBitsToOffset<16) ) 
+ 	 timeWord = (1 << nBitsToOffset ); // set appropriate bit
+
       CSCWireDigi newDigi(wireGroup, timeWord);
       LogDebug("CSCWireElectronicsSim") << newDigi;
       digis.insertDigi(layerId(), newDigi);
 
-      // we code the channels so strips start at 0, wire groups at 100
-      //@@ I believe above comment is wrong... (Tim, Aug-2005)
-      //@@ ... We count from 1 unless there's a _strong_ reason to count from 0
+      // we code the channels so strips start at 1, wire groups at 101
       addLinks(channelIndex(wireGroup));
       // skip over all the time bins used for this digi
       ibin = lastbin;

@@ -50,7 +50,7 @@ private:
   float theWireNoise;
   float theWireThreshold;
   float theTimingCalibrationError; // in ns
-  int theOffsetOfBxZero; // bit corresponding to bx 0 (counting from 0-15)
+
 };
 
 #endif
