@@ -29,7 +29,7 @@ FSimTrack::FSimTrack(const RawParticle* p, int iv, int ig, int id, FBaseSimEvent
 FSimTrack::~FSimTrack() {
   // Clear the maps 
   //  theRecHits.clear();
-  theSimHits.clear();
+  //  theSimHits.clear();
 }
 
 const DefaultConfig::ParticleData*
@@ -188,6 +188,7 @@ FSimTrack::addRecHit(const FamosBasicRecHit* hit, unsigned layer) {
 */
 
 /// Add a SimHit on a tracker layer
+/*
 void 
 FSimTrack::addSimHit(const RawParticle& pp, unsigned layer) { 
   //    theSimHits[layer]=pp; 
@@ -195,6 +196,7 @@ FSimTrack::addSimHit(const RawParticle& pp, unsigned layer) {
   theSimHits.insert(pair<unsigned,RawParticle>(layer,pp));
 
 }
+*/
     
 /*
 /// Is there a RecHit on this layer?
@@ -211,6 +213,7 @@ FSimTrack::recHit(unsigned layer) const {
 }
 */
 
+/*
 /// Is there a SimHit on this layer?
 bool 
 FSimTrack::isASimHit(const unsigned layer) const { 
@@ -223,6 +226,7 @@ FSimTrack::simHit(unsigned layer) const {
   if ( isASimHit(layer) ) return theSimHits.find(layer)->second;
   return zeroTrack;
 }
+*/
 
 ostream& operator <<(ostream& o , const FSimTrack& t) {
 

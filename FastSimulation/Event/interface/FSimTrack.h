@@ -154,7 +154,7 @@ class FSimTrack : public SimTrack {
   // const map<unsigned,const FamosBasicRecHit*>& recHits() const {return theRecHits;}
 
   /// The SimHits in the Tracker
-  inline const std::map<unsigned,RawParticle>& simHits() const {return theSimHits;}
+  //  inline const std::map<unsigned,RawParticle>& simHits() const {return theSimHits;}
 
   /// Is there a RecHit on this layer?
   //  bool isARecHit(const unsigned layer) const;
@@ -163,10 +163,10 @@ class FSimTrack : public SimTrack {
   //  const FamosBasicRecHit* recHit(unsigned layer) const; 
 
   /// Is there a SimHit on this layer?
-  bool isASimHit(const unsigned layer) const;
+  //  bool isASimHit(const unsigned layer) const;
 
   /// If yes, here is the corresponding RawParticle
-  const RawParticle& simHit(unsigned layer) const;
+  //  const RawParticle& simHit(unsigned layer) const;
 
   /// Set the end vertex
   void setEndVertex(int endv) { endv_ = endv; } 
@@ -193,7 +193,7 @@ class FSimTrack : public SimTrack {
   //  void addRecHit(const FamosBasicRecHit* hit, unsigned layer);
 
   /// Add a RecHit for a track on a layer
-  void addSimHit(const RawParticle& pp, unsigned layer);
+  //  void addSimHit(const RawParticle& pp, unsigned layer);
 
   /// Update the vactors of daughter's id
   inline void addDaughter(int i) { daugh_.push_back(i); }
@@ -225,7 +225,7 @@ class FSimTrack : public SimTrack {
   std::vector<int> daugh_; // The indices of the daughters in FSimTrack
 
   //  std::map<unsigned,const FamosBasicRecHit*> theRecHits;
-  std::map<unsigned,RawParticle> theSimHits;
+  //  std::map<unsigned,RawParticle> theSimHits;
 };
 
 #include<iosfwd>
