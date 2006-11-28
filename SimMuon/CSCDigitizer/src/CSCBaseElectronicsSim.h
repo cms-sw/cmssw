@@ -32,7 +32,7 @@ class CSCBaseElectronicsSim
 {
 public:
 
-  typedef std::map<int, CSCAnalogSignal, std::less<int> > MESignalMap;
+  typedef std::map<int, CSCAnalogSignal, std::less<int> > CSCSignalMap;
   
   // takes the input detector hits, turns them into DIGIs, and
   // stores them in the layer
@@ -107,7 +107,7 @@ protected:
   const CSCLayerGeometry * theLayerGeometry;
   const CSCLayer * theLayer;  // the one currently being digitized
 
-  MESignalMap theSignalMap;
+  CSCSignalMap theSignalMap;
   CSCAnalogSignal theAmpResponse;
 
   // Useful parameters
@@ -139,6 +139,9 @@ protected:
 
   // time bins for pulse shape
   int theNumberOfSamples;
+
+  // Which bit in the 16-bit time word corresponds to the zeroth beam crossing?
+  int theOffsetOfBxZero; // bit corresponding to bx 0 (counting from 0-15)
 
   bool doNoise_;
 

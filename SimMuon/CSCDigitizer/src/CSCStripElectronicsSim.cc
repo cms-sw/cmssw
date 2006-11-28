@@ -125,9 +125,11 @@ CSCStripElectronicsSim::runComparator() {
   // need to run
   std::vector<CSCComparatorDigi> result;
   std::list<int> comparatorsWithSignal;
-  MESignalMap::iterator signalMapItr;
+  CSCSignalMap::iterator signalMapItr;
   for(signalMapItr = theSignalMap.begin();
       signalMapItr != theSignalMap.end(); ++signalMapItr) {
+    // Elements in signal map count from 1
+    // 1,2->0,  3,4->1,  5,6->2, ...
 	comparatorsWithSignal.push_back( ((*signalMapItr).first-1)/2 );
   }
   comparatorsWithSignal.unique();
@@ -135,6 +137,8 @@ CSCStripElectronicsSim::runComparator() {
       listItr != comparatorsWithSignal.end(); ++listItr) {
     int iComparator = *listItr;
     // find signal1 and signal2
+    // iComparator counts from 0
+    // icomp =0->1,2,  =1->3,4,  =2->5,6, ...
     CSCAnalogSignal signal1 = find(readoutElement(iComparator*2 + 1));
     CSCAnalogSignal signal2 = find(readoutElement(iComparator*2 + 2));
     for(float time = theSignalStartTime; time < theSignalStopTime; time += theSamplingTime) {
@@ -189,7 +193,26 @@ CSCStripElectronicsSim::runComparator() {
              lockingTime += theSamplingTime;
            }
            int timeBin = (int)(comparatorTime/theBunchSpacing) + theComparatorTimeBinOffset;
-           CSCComparatorDigi newDigi(strip, output, timeBin);
+
+      // Comparator digi as of Nov-2006 adapted to real data: time word has 16 bits with set bit
+      // flagging appropriate bunch crossing, and bx 0 corresponding to 9th bit i.e.
+
+      //      1st bit set (bit 0) <-> bx -9
+      //      2nd              1  <-> bx -8
+      //      ...           ...       ....
+      //      8th              9  <-> bx  0
+      //      9th             10  <-> bx +1
+      //      ...           ...       ....
+      //     16th             15  <-> bx +6
+
+      // Parameter theOffsetOfBxZero = 9 @@WARNING! This offset may be changed (hardware)!
+
+           int nBitsToOffset = timeBin + theOffsetOfBxZero;
+           int timeWord = 0; // and this will remain if too early or late
+           if ( (nBitsToOffset>= 0) && (nBitsToOffset<16) ) 
+ 	       timeWord = (1 << nBitsToOffset ); // set appropriate bit
+
+           CSCComparatorDigi newDigi(strip, output, timeWord);
            result.push_back(newDigi);
            time = lockingTime;
          }
@@ -332,7 +355,7 @@ void CSCStripElectronicsSim::addCrosstalk() {
   // without messing up any iterators
   std::vector<CSCAnalogSignal> realSignals;
   realSignals.reserve(theSignalMap.size());
-  for(MESignalMap::iterator mapI = theSignalMap.begin(); mapI != theSignalMap.end(); ++mapI) {
+  for(CSCSignalMap::iterator mapI = theSignalMap.begin(); mapI != theSignalMap.end(); ++mapI) {
     realSignals.push_back((*mapI).second);
   }
   sort(realSignals.begin(), realSignals.end(), SortSignalsByTotal);

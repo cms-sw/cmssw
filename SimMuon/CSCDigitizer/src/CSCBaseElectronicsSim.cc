@@ -35,6 +35,7 @@ CSCBaseElectronicsSim::CSCBaseElectronicsSim(const edm::ParameterSet & p)
   theSignalStopTime(p.getParameter<double>("signalStopTime")),
   theSamplingTime(p.getParameter<double>("samplingTime")),
   theNumberOfSamples(static_cast<int>((theSignalStopTime-theSignalStartTime)/theSamplingTime)),
+  theOffsetOfBxZero(p.getParameter<int>("timeBitForBxZero")),
   doNoise_(p.getParameter<bool>("doNoise"))
 {
   assert(theBunchTimingOffsets.size() == 11);
@@ -116,7 +117,7 @@ CSCAnalogSignal CSCBaseElectronicsSim::makeNoiseSignal(int element) {
 
 
 void CSCBaseElectronicsSim::addNoise() {
-  for(MESignalMap::iterator mapI = theSignalMap.begin(); 
+  for(CSCSignalMap::iterator mapI = theSignalMap.begin(); 
       mapI!=  theSignalMap.end(); ++mapI) {
     // superimpose electronics noise
     (*mapI).second.superimpose(makeNoiseSignal((*mapI).first));
@@ -136,7 +137,7 @@ CSCAnalogSignal & CSCBaseElectronicsSim::find(int element) {
          ". There are " << nElements  << " elements.";
     edm::LogError("Error in CSCBaseElectronicsSim:  element out of bounds");
   }
-  MESignalMap::iterator signalMapItr = theSignalMap.find(element);
+  CSCSignalMap::iterator signalMapItr = theSignalMap.find(element);
   if(signalMapItr == theSignalMap.end()) {
     CSCAnalogSignal newSignal;
     if(theNoiseWasAdded) {
