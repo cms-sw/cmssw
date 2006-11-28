@@ -83,7 +83,7 @@ private:
 private:
   DDExpandedView epv_;
   const DDScope * scope_;
-  typedef std::pair<bool, DDFilter *> criterion_type;
+  typedef DDFilter * criterion_type;
   typedef std::vector<criterion_type> criteria_type;
   typedef std::vector<log_op> logops_type;
   

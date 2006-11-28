@@ -1,13 +1,15 @@
 #ifndef DDCore_DDFilter_h
 #define DDCore_DDFilter_h
-
+/**
+ * 28/11/2006  VI clean up of data structure
+ *
+ *
+ */
 #include <vector>
 #include <string>
-#include <utility>
+#include <iosfwd>
 
-//#include "DetectorDescription/Core/interface/DDScope.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
-//#include "DetectorDescription/Core/interface/tree.h"
 
 class DDQuery;
 class DDExpandedView;
@@ -25,21 +27,18 @@ public:
   //! true, if the DDExpandedNode fulfills the filter criteria
   virtual bool accept(const DDExpandedView &) = 0;
   
-		      //const DDGeoHistory &,
-		      //const DDsvalues_type *) = 0;
-  
 };
 
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDValuePair.h"
 
 
-
-
 //! The DDGenericFilter is a runtime-parametrized Filter looking on DDSpecifcs
 class DDSpecificsFilter : public DDFilter
 {
+
   friend std::ostream & operator<<(std::ostream & os, const DDSpecificsFilter & f);
+
 public:
   //! comparison operators to be used with this filter
   //! \todo use functors!
@@ -54,10 +53,8 @@ public:
   ~DDSpecificsFilter();
   
   bool accept(const DDExpandedView &); 
-              //const DDGeoHistory &,
-	      //const DDsvalues_type * );
 	      
-  inline bool accept_impl(const DDExpandedView &);	      
+  bool accept_impl(const DDExpandedView &);	      
     
   void setCriteria(const DDValue & nameVal, // name & value of a variable 
                    comp_op, 
@@ -84,30 +81,15 @@ public:
   };
   
 protected:  
-  typedef std::pair<bool, SpecificCriterion >  criterion_type;  
+  typedef SpecificCriterion  criterion_type;  
   typedef std::vector<criterion_type> criteria_type;
   typedef std::vector<log_op> logops_type;
-  // descision tree: logical-operation are the nodes, index to the criteria-std::vector the edges
-  // typedef TreeNode<criterion_type,log_op> dectree_type;
-  // result of one SpecificCriterion comparison is stored in the bool of the pair
-  // dectree_type * decTree_; // decissiontree
+
   criteria_type criteria_; 
   logops_type logOps_;
-  bool allAnd;
-  bool allOr;
 };
 
-// SpecificsFilterString-comparison (sfs)
-// template <class C> 
- inline bool sfs_compare(const DDSpecificsFilter::SpecificCriterion & crit,
-                  const DDsvalues_type & sv);
- inline bool sfd_compare(const DDSpecificsFilter::SpecificCriterion & crit,
-                  const DDsvalues_type & sv);		  
- inline bool sfs_compare_nm(const DDSpecificsFilter::SpecificCriterion & crit,
-			    const std::vector<const DDsvalues_type *> & specs);
- inline bool sfd_compare_nm(const DDSpecificsFilter::SpecificCriterion & crit,
-			    const std::vector<const DDsvalues_type *> & specs);
- std::ostream & operator<<(std::ostream & os, const DDSpecificsFilter & f);
+std::ostream & operator<<(std::ostream & os, const DDSpecificsFilter & f);
 #endif
 
 
