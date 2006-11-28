@@ -7,6 +7,7 @@
 #include "PhysicsTools/HepMCCandAlgos/src/SetGenParticleMotherReference.h"
 #include "PhysicsTools/HepMCCandAlgos/src/ParticleTreeDrawer.h"
 #include "PhysicsTools/HepMCCandAlgos/src/MCTruthDeltaRMatcher.h"
+#include "PhysicsTools/HepMCCandAlgos/src/MCTruthCompositeMatcher.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE( HepMCCandidateProducer );
@@ -16,3 +17,4 @@ DEFINE_ANOTHER_FWK_MODULE( HepMCCandidateSelector );
 DEFINE_ANOTHER_FWK_MODULE( SetGenParticleMotherReference );
 DEFINE_ANOTHER_FWK_MODULE( ParticleTreeDrawer );
 DEFINE_ANOTHER_FWK_MODULE( MCTruthDeltaRMatcher );
+DEFINE_ANOTHER_FWK_MODULE( MCTruthCompositeMatcher );
