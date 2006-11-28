@@ -167,12 +167,14 @@ TStyle * getStyle(TString name="myStyle")
     theStyle->SetPadBorderMode(0);
     theStyle->SetCanvasBorderMode(0);
     theStyle->SetPadColor(0);
+    theStyle->SetStatColor(0);
     theStyle->SetCanvasColor(0);
     theStyle->SetMarkerStyle(8);
     theStyle->SetMarkerSize(0.7);
     //   theStyle->SetTextFont(132);
     //   theStyle->SetTitleFont(132);
     theStyle->SetTitleBorderSize(1);
+    theStyle->SetTitleFillColor(0);
     theStyle->SetPalette(1);
 // } else if { ... 
   } else {

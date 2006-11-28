@@ -10,7 +10,8 @@
 
   // Retrieve histogram sets
   TFile *f = gROOT->GetListOfFiles()->Last();
-  DTTimeBoxPlotter *plotter = new DTTimeBoxPlotter(f);
+  DTTimeBoxPlotter *TBplotter = new DTTimeBoxPlotter(f);
+DTMeanTimerPlotter *MTplotter = new DTMeanTimerPlotter(f);
 
 
 }
