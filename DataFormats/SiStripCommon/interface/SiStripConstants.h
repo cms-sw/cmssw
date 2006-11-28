@@ -106,6 +106,7 @@ namespace sistrip {
 namespace sistrip { 
   
   // general
+  static const std::string dqmRoot_ = "DQMData";
   static const std::string root_ = "SiStrip";
   static const std::string dir_ = "/";
   static const std::string sep_ = "_";
