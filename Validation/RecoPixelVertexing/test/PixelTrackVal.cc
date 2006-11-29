@@ -96,7 +96,7 @@ void PixelTrackVal::analyze(
   typedef reco::TrackCollection::const_iterator IT;
 
   if (verbose_ > 0) {
-    std::cout << *(trackCollection.provenance()) << std::endl;
+//    std::cout << *(trackCollection.provenance()) << std::endl;
     cout << "Reconstructed "<< tracks.size() << " tracks" << std::endl;
   }
 
@@ -133,24 +133,18 @@ void PixelTrackVal::analyze(
     }
   }
 
-//------------------------ simulated tracks
+//------------------------ simulated vertices and tracks
    
    InputTag simG4 = conf_.getParameter<edm::InputTag>( "simG4" );
    Handle<SimVertexContainer> simVtcs;
    ev.getByLabel( simG4, simVtcs);
-   std::cout << "SimVertex " << simVtcs->size() << std::endl;
 
-     for(edm::SimVertexContainer::const_iterator v=simVtcs->begin();
-       v!=simVtcs->end(); ++v){
-       std::cout << "simvtx "
-             << std::setw(10) << std::setprecision(3)
-             << v->position().x() << " "
-             << v->position().y() << " "
-             << v->position().z() << " "
-             << v->parentIndex() << " "
-             << v->noParent() << " "
-             << std::endl;
-     }
+//   std::cout << "SimVertex " << simVtcs->size() << std::endl;
+//   for(edm::SimVertexContainer::const_iterator v=simVtcs->begin();
+//       v!=simVtcs->end(); ++v){
+//     std::cout << "simvtx " << std::setw(10) << std::setprecision(3)
+//         << v->position().x() << " " << v->position().y() << " " << v->position().z() << " "
+//         << v->parentIndex() << " " << v->noParent() << " " << std::endl; }
 
    Handle<SimTrackContainer> simTrks;
    ev.getByLabel( simG4, simTrks);

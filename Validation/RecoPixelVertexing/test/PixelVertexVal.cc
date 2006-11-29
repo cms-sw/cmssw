@@ -88,10 +88,10 @@ void PixelVertexVal::analyze(
 
   reco::TrackRefVector trks;
 
-  if (verbose_ > 0) {
+//  if (verbose_ > 0) {
 //    std::cout << *(trackCollection.provenance()) << std::endl;
-    cout << "Reconstructed "<< tracks.size() << " tracks" << std::endl;
-  }
+//    cout << "Reconstructed "<< tracks.size() << " tracks" << std::endl;
+//  }
 
   edm::Handle<reco::VertexCollection> vertexCollection;
   std::string vertexCollName = conf_.getParameter<std::string>("VertexCollection");
@@ -106,7 +106,7 @@ void PixelVertexVal::analyze(
   edm::Handle<edm::SimVertexContainer> simVtcs;
   ev.getByLabel( simG4, simVtcs);
   if (verbose_ > 0) {
-    cout << "simulated vertices "<< simVtcs->size() << std::endl;
+    cout << "simulated vertices: "<< simVtcs->size() << std::endl;
   }
 
   bool hasPV = (simVtcs->size() > 0 );
