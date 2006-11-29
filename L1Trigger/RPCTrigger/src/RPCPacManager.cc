@@ -6,7 +6,7 @@
 *******************************************************************************/
 #include "L1Trigger/RPCTrigger/src/RPCPacManager.h"
 //#include "L1Trigger/RPCTrigger/src/RPCException.h"                                                     
-using namespace std;
+//using namespace std;
 /*
 template<class TPacType> void RPCPacManager<TPacType>::init(string patFilesDirectory) {
   PatFilesDirectory = patFilesDirectory;

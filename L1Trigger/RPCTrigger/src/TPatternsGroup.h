@@ -20,6 +20,7 @@
  * In group (object of class TPatternsGroup) the patterns belonging to given
    * group are stored in m_PatternsVec. These patterns are use in trigger algorithm*/
   class TPatternsGroup {
+    friend class RPCPacData;
     friend class RPCPac;
     protected:
       RPCConst::TPatternType m_PatternsGroupType;

@@ -2,7 +2,7 @@
 #include "L1Trigger/RPCTrigger/src/RPCException.h"
 
 /// Ctor
-RPCBasicTrigConfig::RPCBasicTrigConfig(RPCPacManager<RPCPac>* pacManager) {
+RPCBasicTrigConfig::RPCBasicTrigConfig(RPCPacManager<RPCPacData>* pacManager) {
   m_PacManager  = pacManager;
 }
 
@@ -73,7 +73,7 @@ int RPCBasicTrigConfig::getTowerNumOnTb(const RPCConst::l1RpcConeCrdnts& coneCrd
   return m_TOWER_ON_TB[RPCConst::ITOW_MAX + coneCrdnts.m_Tower];
 }
 
-const RPCPac* RPCBasicTrigConfig::getPac(const RPCConst::l1RpcConeCrdnts& coneCrdnts) const {
+const RPCPacData* RPCBasicTrigConfig::getPac(const RPCConst::l1RpcConeCrdnts& coneCrdnts) const {
   return m_PacManager->getPac(coneCrdnts.m_Tower, coneCrdnts.m_LogSector, coneCrdnts.m_LogSegment);
 }
 

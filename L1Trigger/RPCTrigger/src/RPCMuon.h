@@ -61,7 +61,7 @@ public:
 
   void setRefStripNum(int refStripNum);
 
-  /** continous number of strip in reference plane, set by	RPCPac::run
+  /** continous number of strip in reference plane, set by	RPCPacData::run
     * int refStripNum = getPattern(bestMuon.getPatternNum()).getStripFrom(m_REF_PLANE[abs(m_CurrConeCrdnts.m_Tower)]) + m_CurrConeCrdnts.m_LogSector * 96 + m_CurrConeCrdnts.m_LogSegment * 8; 
     */
   int getRefStripNum() const;

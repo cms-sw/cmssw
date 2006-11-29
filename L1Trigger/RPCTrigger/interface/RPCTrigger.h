@@ -4,8 +4,8 @@
 /** \class RPCTrigger
  *  \brief Implements RPC trigger emulation
  *
- *  $Date: 2006/07/27 08:57:32 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/11/28 11:23:44 $
+ *  $Revision: 1.7 $
  *  \author Tomasz Fruboes
  *  \todo All the code must be reviewed and cleaned to comply coding rules
  */
@@ -36,7 +36,7 @@
 
 #include "L1Trigger/RPCTrigger/src/RPCPacTrigger.h"
 #include "L1Trigger/RPCTrigger/src/RPCBasicTrigConfig.h"
-#include "L1Trigger/RPCTrigger/src/RPCPac.h"
+#include "L1Trigger/RPCTrigger/src/RPCPacData.h"
 #include "L1Trigger/RPCTrigger/src/RPCConst.h"
 #include "L1Trigger/RPCTrigger/src/RPCPacManager.h"
 
@@ -60,7 +60,7 @@ class RPCTrigger : public edm::EDProducer {
     
     RPCTriggerGeo m_theLinksystem;  ///< Tells where to send no of fired strip.
     
-    RPCPacManager<RPCPac> m_pacManager;
+    RPCPacManager<RPCPacData> m_pacManager;
     
     RPCBasicTrigConfig* m_trigConfig;
     

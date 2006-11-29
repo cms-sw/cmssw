@@ -14,7 +14,7 @@
 //---------------------------------------------------------------------------
 class RPCBasicTrigConfig: public RPCTriggerConfiguration {
 public:
-  RPCBasicTrigConfig(RPCPacManager<RPCPac>* pacManager);
+  RPCBasicTrigConfig(RPCPacManager<RPCPacData>* pacManager);
   
   RPCBasicTrigConfig();
 
@@ -29,7 +29,7 @@ public:
   int getTowerNumOnTb(const RPCConst::l1RpcConeCrdnts& coneCrdnts);
 
   ///Returns pointer to m_PAC that should run given LogCone. The PACs are holded by L1PacManager.
-  const RPCPac* getPac(const RPCConst::l1RpcConeCrdnts& coneCrdnts) const;
+  const RPCPacData* getPac(const RPCConst::l1RpcConeCrdnts& coneCrdnts) const;
 
   ///Returns the index of TC that should run given LogCone.
   int getTCNum(const RPCConst::l1RpcConeCrdnts& coneCrdnts);
@@ -62,6 +62,6 @@ private:
 
   static const int m_TOW_ADDR_2_TOW_NUM[36];
 
-  RPCPacManager<RPCPac>* m_PacManager;
+  RPCPacManager<RPCPacData>* m_PacManager;
 };
 #endif

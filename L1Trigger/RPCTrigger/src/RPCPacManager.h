@@ -1,10 +1,3 @@
-/*******************************************************************************
-*                                                                              *
-*  Karol Bunkowski                                                             *
-*  Warsaw University 2002                                                      *
-*                                                                              *
-*******************************************************************************/
-
 #ifndef L1RpcPacManagerH
 #define L1RpcPacManagerH
 /** \class RPCPacManager
@@ -12,7 +5,7 @@
  * The singleton object of thise class stores all PACs of L1RPC trigger.
  * The tempalte type TPacTypeshould be derived from RPCPacBase,
  * and containe the constructor:
- * RPCPac(std::string patFilesDir, int m_tower, int logSector, int logSegment).
+ * RPCPacData(std::string patFilesDir, int m_tower, int logSector, int logSegment).
  * 3 configuration are suported:
  * ONE_PAC_PER_TOWER - the same m_PAC (set of patterns etc.) for every LogCone in a m_tower
  * _12_PACS_PER_TOWER - the same m_PAC in the same segment in every sector,
@@ -26,10 +19,9 @@
 #include <string>
 #include <vector>
 #include "L1Trigger/RPCTrigger/src/RPCConst.h"
-#include "L1Trigger/RPCTrigger/src/RPCConst.h"
 #include "L1Trigger/RPCTrigger/src/RPCException.h"
 #include <xercesc/util/PlatformUtils.hpp>
-
+#include <cstdlib>
 #ifndef _STAND_ALONE
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #endif // _STAND_ALONE
@@ -122,8 +114,8 @@ public:
       logSector = 0;
     }
 
-    m_PacTab[abs(m_tower)][logSector][logSegment]->setCurrentPosition(m_tower, curLogSector, curlogSegment);
-    return  m_PacTab[abs(m_tower)][logSector][logSegment];
+    //XXXX//m_PacTab[abs(m_tower)][logSector][logSegment]->setCurrentPosition(m_tower, curLogSector, curlogSegment);
+    return  m_PacTab[std::abs(m_tower)][logSector][logSegment];
   };
   
   //const 

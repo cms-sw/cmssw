@@ -21,6 +21,7 @@
 */
 
   class TEPatternsGroup: public TPatternsGroup {
+    //friend class RPCPacData;
     friend class RPCPac;
     public:
       

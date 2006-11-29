@@ -15,7 +15,7 @@
 #include "L1Trigger/RPCTrigger/src/TPatternsGroup.h"
  
 class TTPatternsGroup: public TPatternsGroup {
-    friend class RPCPac;
+    friend class RPCPacData;
     public:
       TTPatternsGroup();
 };

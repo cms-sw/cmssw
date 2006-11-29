@@ -8,7 +8,7 @@
   * \author Karol Bunkowski (Warsaw)
   */
 
-#include "L1Trigger/RPCTrigger/src/RPCPac.h"
+#include "L1Trigger/RPCTrigger/src/RPCPacData.h"
 
 //interface class for storing the geometry of trigger
 //f.e. which pac, or TB or TC should run given LogCone
@@ -24,7 +24,7 @@ public:
   virtual int getTowerNumOnTb(const RPCConst::l1RpcConeCrdnts& coneCrdnts) = 0;
 
   ///Returns pointer to m_PAC that should run given LogCone.
-  virtual const RPCPac* getPac(const RPCConst::l1RpcConeCrdnts& coneCrdnts) const = 0;
+  virtual const RPCPacData* getPac(const RPCConst::l1RpcConeCrdnts& coneCrdnts) const = 0;
 
   ///Returns the index of TC that should run given LogCone.
   virtual int getTCNum(const RPCConst::l1RpcConeCrdnts& coneCrdnts) = 0;

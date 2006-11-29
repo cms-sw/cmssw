@@ -1,9 +1,3 @@
-/*******************************************************************************
-*                                                                              *
-*  Karol Bunkowski                                                             *
-*  Warsaw University 2004                                                      *
-*                                                                              *
-*******************************************************************************/
 #ifndef L1RpcTriggerBoardH
 #define L1RpcTriggerBoardH
 
@@ -20,14 +14,15 @@
 #include <string>
 #include "L1Trigger/RPCTrigger/src/RPCTBGhostBuster.h"
 #include "L1Trigger/RPCTrigger/src/RPCTriggerConfiguration.h"
+#include "L1Trigger/RPCTrigger/src/RPCPac.h"
 //---------------------------------------------------------------------------
 class RPCTriggerBoard {
 public:
   RPCTriggerBoard(RPCTBGhostBuster* tbGhostBuster,
                     RPCTriggerConfiguration* triggerConfig,
-                    int tbNum);
+                    int tbNum, int tcNum);
 
-  /** Runs RPCPac::run() for cone. Converts RPCPacMuon to RPCTBMuon
+  /** Runs RPCPacData::run() for cone. Converts RPCPacMuon to RPCTBMuon
     * and puts it to the m_PacsMuonsVec. @return true if non-empty muon was return
     * by m_PAC*/
   bool runCone(const RPCLogCone& cone);
@@ -46,6 +41,11 @@ private:
   RPCTBGhostBuster* m_TBGhostBuster;
 
   L1RpcTBMuonsVec m_PacsMuonsVec;
+  
+  typedef std::vector<RPCPac*> PACsVec; // PACs in single tower
+  typedef std::map<int,PACsVec> PACsAll; // Holds pacs for all towers covered by tb
+      
+  PACsAll m_pacs;
 
 };
 #endif
