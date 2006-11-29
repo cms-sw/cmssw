@@ -1,6 +1,6 @@
-#ifndef CandUtils_NBodyCombiner_h
-#define CandUtils_NBodyCombiner_h
-/** \class NBodyCombiner
+#ifndef CandUtils_NBodyShallowCloneCombiner_h
+#define CandUtils_NBodyShallowCloneCombiner_h
+/** \class NBodyShallowCloneCombiner
  *
  * \author Luca Lista, INFN
  *
@@ -9,37 +9,38 @@
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Framework/interface/Handle.h"
 #include <boost/shared_ptr.hpp>
 #include <vector>
 #include <utility>
 
-class NBodyCombinerBase {
+class NBodyShallowCloneCombinerBase {
 public:
   /// constructor from a selector, specifying optionally to check for charge
-  NBodyCombinerBase( bool checkCharge, const std::vector <int> & );
+  NBodyShallowCloneCombinerBase( bool checkCharge, const std::vector <int> & );
   /// destructor
-  virtual ~NBodyCombinerBase();
+  virtual ~NBodyShallowCloneCombinerBase();
   /// return all selected candidate pairs
   std::auto_ptr<reco::CandidateCollection> 
-    combine( const std::vector<const reco::CandidateCollection *> & ) const;
+  combine( const std::vector<reco::CandidateRefProd> & ) const;
 
 private:
   /// verify that the two candidate don't overlap and check charge
   bool preselect( const reco::Candidate &, const reco::Candidate & ) const;
   /// returns a composite candidate combined from two daughters
-  reco::Candidate * combine( const reco::Candidate &, const reco::Candidate & ) const;
+  reco::Candidate * combine( const reco::CandidateRef &, const reco::CandidateRef & ) const;
   /// charge information flag
   enum ChargeInfo { undetermined, same, opposite, invalid };
   /// return charge information
   static ChargeInfo chargeInfo( int q1, int q2 ); 
   /// temporary candidate stack
   typedef std::vector<std::pair<reco::CandidateCollection::const_iterator, 
-                                std::vector<const reco::CandidateCollection *>::const_iterator> 
+                                std::vector<reco::CandidateRefProd>::const_iterator> 
                      > CandStack;
   /// returns a composite candidate combined from two daughters
   void combine( size_t collectionIndex, ChargeInfo ch, CandStack &, 
-		std::vector<const reco::CandidateCollection *>::const_iterator begin,
-		std::vector<const reco::CandidateCollection *>::const_iterator end,
+		std::vector<reco::CandidateRefProd>::const_iterator begin,
+		std::vector<reco::CandidateRefProd>::const_iterator end,
 		std::auto_ptr<reco::CandidateCollection> & comps
 		) const;
   /// select a candidate
@@ -55,18 +56,18 @@ private:
 };
 
 template<typename S>
-class NBodyCombiner : public NBodyCombinerBase {
+class NBodyShallowCloneCombiner : public NBodyShallowCloneCombinerBase {
 public:
   /// constructor from a selector, specifying optionally to check for charge
   template<typename B>
-  NBodyCombiner( const B & select,
+  NBodyShallowCloneCombiner( const B & select,
 		 bool checkCharge, const std::vector <int> & dauCharge ) : 
-    NBodyCombinerBase( checkCharge, dauCharge ), 
+    NBodyShallowCloneCombinerBase( checkCharge, dauCharge ), 
     select_( select ) { }
   /// constructor from a selector, specifying optionally to check for charge
-  NBodyCombiner( const edm::ParameterSet & cfg,
+  NBodyShallowCloneCombiner( const edm::ParameterSet & cfg,
 		 bool checkCharge, const std::vector <int> & dauCharge ) : 
-    NBodyCombinerBase( checkCharge, dauCharge ), 
+    NBodyShallowCloneCombinerBase( checkCharge, dauCharge ), 
     select_( cfg ) { }
 
 private:
