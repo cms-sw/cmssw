@@ -70,8 +70,8 @@ void L1GctElectronSorter::process() {
 
   //Convert from caloEmCand to gctEmCand and make temporary copy of data
   std::vector<L1GctEmCand> data(4);
-  for (int i=0; i<m_inputCands.size(); i++) {
-    data[i] = L1GctEmCand(m_inputCands[i].rank(), m_inputCands[i].regionId().ieta(), m_inputCands[i].regionId().iphi(), m_inputCands[i].isolated());
+  for (int i=0; i<4; i++) {
+    data[i] = L1GctEmCand(m_inputCands[i]);
   }
 
   //Then sort it
