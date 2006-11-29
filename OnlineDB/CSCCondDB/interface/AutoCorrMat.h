@@ -28,6 +28,7 @@ class AutoCorrMat{
     }
    for (int i=3;i<7;i++){ 
      variance[i]=0.0;
+     mymean[i]=0.0;
    }
    evt=0;
   }
