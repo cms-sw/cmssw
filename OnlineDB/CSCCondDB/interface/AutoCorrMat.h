@@ -68,7 +68,7 @@ class AutoCorrMat{
   float N[12];
   float tMat[12];
   float mymean[12];
-  float variance[4];
+  float variance[8];
   int evt;
 };
 
