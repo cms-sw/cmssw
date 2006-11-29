@@ -102,7 +102,7 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
   double frame[C::MAXSAMPLES];// will contain the ADC values
   double pedestal =0;
   
-  int gainId0 = dataFrame.sample(0).gainId();
+  int gainId0 = 1;
   int iGainSwitch = 0;
   int GainId= 0;
   double maxsample(-1);
@@ -118,7 +118,7 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
 	// FIX-ME: warning: the vector pedestal is supposed to have in the order G12, G6 and G1
 	frame[iSample] = (double(dataFrame.sample(iSample).adc())-pedestals[GainId-1])*gainRatios[GainId-1];
 	//Gain12Equivalent[GainId];
-	if (GainId > gainId0) iGainSwitch = 1;
+	if (GainId != gainId0) iGainSwitch = 1;
 	if( frame[iSample]>maxsample ) {
           maxsample = frame[iSample];
           imax = iSample;

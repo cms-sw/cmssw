@@ -1,13 +1,13 @@
 /** \class EcalTBWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.5 2006/09/07 18:34:31 meridian Exp $
-  *  $Date: 2006/09/07 18:34:31 $
-  *  $Revision: 1.5 $
+  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.6 2006/11/18 10:00:29 meridian Exp $
+  *  $Date: 2006/11/18 10:00:29 $
+  *  $Revision: 1.6 $
   *
   *  $Alex Zabi$
-  *  $Date: 2006/09/07 18:34:31 $
-  *  $Revision: 1.5 $
+  *  $Date: 2006/11/18 10:00:29 $
+  *  $Revision: 1.6 $
   *  Modification to detect first sample to switch gain.
   *  used for amplitude recontruction at high energy
   *  Add TDC convention option (P. Meridiani)
@@ -198,7 +198,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
      gainRatios.push_back(1.);gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());
 
      //GAIN SWITCHING DETECTION ///////////////////////////////////////////////////////////////////////////////////////////////////     
-     double sampleGainRef = itdg->sample(0).gainId();
+     double sampleGainRef = 1;
      int    sampleSwitch  = 999;
      for (int sample = 0; sample < itdg->size(); ++sample)
        {

@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.1 2005/10/25 09:10:01 rahatlou Exp $
-  *  $Date: 2005/10/25 09:10:01 $
-  *  $Revision: 1.1 $
+  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.2 2006/06/19 18:51:53 meridian Exp $
+  *  $Date: 2006/06/19 18:51:53 $
+  *  $Revision: 1.2 $
   *  \author R. Bruneliere - A. Zabi
   */
 
@@ -31,11 +31,11 @@ template<class C> class EcalUncalibRecHitRecWeightsAlgo : public EcalUncalibRecH
 
     // Get time samples
     HepMatrix frame(C::MAXSAMPLES, 1);
-    int gainId0 = dataFrame.sample(0).gainId();
+    int gainId0 = 1;
     int iGainSwitch = 0;
     for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
       int gainId = dataFrame.sample(iSample).gainId(); 
-      if (gainId > gainId0) iGainSwitch = 1;
+      if (gainId != gainId0) iGainSwitch = 1;
       if (!iGainSwitch)
 	frame[iSample][0] = double(dataFrame.sample(iSample).adc());
       else
