@@ -101,7 +101,6 @@ void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
       idTau++;
     }
 
-  cout <<"Ma crasha qui? 2"<<endl;
   evt.put( cands );
   
 }
