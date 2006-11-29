@@ -119,6 +119,7 @@ namespace evf {
     //
     bool itsTimeToAllocate();
     void exportParameters();
+    void reset();
     
     
   private:    

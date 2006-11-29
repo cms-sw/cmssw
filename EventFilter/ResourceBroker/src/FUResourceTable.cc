@@ -88,6 +88,27 @@ void FUResourceTable::clear()
 
 
 //______________________________________________________________________________
+void FUResourceTable::reset()
+{
+  if (shmMode_) {
+    shmBuffer_->initialize();
+  }
+  else {
+    while (!freeResourceIds_.empty()) freeResourceIds_.pop();
+    for (UInt_t i=0;i<resources_.size();i++) {
+      resources_[i]->release();
+      freeResourceIds_.push(i);
+    }
+    builtResourceIds_.clear();
+    buIdsToBeDiscarded_.clear();
+    sem_init(&writeSem_,0,resources_.size());
+    sem_init(&readSem_, 0,0);
+  }
+  resetCounters();
+}
+
+
+//______________________________________________________________________________
 void FUResourceTable::resetCounters()
 {
   nbAllocated_=0;

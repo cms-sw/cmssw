@@ -1,3 +1,14 @@
+2006-11-29  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-00-04
+	* fixed stopTimer()/initTimer() (crashed before when configuring a
+	second time).
+	* add FUResourceTable::reset(), call it when configuring a second
+	time.
+	* add FUResourceBroker::reset(), to set all counters *and*
+	non-counters to their 'configured' state
+	
+
 2006-11-28  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-00-03

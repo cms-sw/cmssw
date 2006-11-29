@@ -71,7 +71,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , nbDataErrors_(0)
   , nbCrcErrors_(0)
   , shmMode_(false)
-    , eventBufferSize_(4194304) // 4MB
+  , eventBufferSize_(4194304) // 4MB
   //, doDumpFragments_(false)
   , doDropEvents_(false)
   , doCrcCheck_(1)
@@ -210,21 +210,26 @@ void FUResourceBroker::initTimer()
   toolbox::task::getTimerFactory()->createTimer(sourceId_);
   toolbox::task::Timer *timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
   timer->stop();
+  cout<<"initTimer() finished."<<endl;
 }
 
 
 //______________________________________________________________________________
 void FUResourceBroker::startTimer()
 {
-  toolbox::task::Timer *timer =toolbox::task::getTimerFactory()->getTimer(sourceId_);
+  toolbox::task::Timer *timer(0);
+  try {
+    timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
+  }
+  catch (toolbox::task::exception::Exception& e) {
+    LOG4CPLUS_ERROR(log_,"getTimer() failed.");
+  }
+
   if (0!=timer) {
     toolbox::TimeInterval oneSec(1.);
     toolbox::TimeVal      startTime=toolbox::TimeVal::gettimeofday();
     timer->start();
     timer->scheduleAtFixedRate(startTime,this,oneSec,gui_->monInfoSpace(),sourceId_);
-  }
-  else {
-    LOG4CPLUS_ERROR(log_,"Could't start timer for performance measurements.");
   }
 }
 
@@ -232,8 +237,9 @@ void FUResourceBroker::startTimer()
 //______________________________________________________________________________
 void FUResourceBroker::stopTimer()
 { 
-  toolbox::task::Timer *timer =toolbox::task::getTimerFactory()->getTimer(sourceId_);
+  toolbox::task::Timer *timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
   if (0!=timer) timer->stop();
+  toolbox::task::getTimerFactory()->removeTimer(sourceId_);
 }
 
 
@@ -261,6 +267,10 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
     string item=dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
     
     if (item=="doCrcCheck") resourceTable_->setDoCrcCheck(doCrcCheck_);
+    if (item=="runNumber") {
+      resourceTable_->reset();
+      gui_->resetCounters();
+    }
   }
   
   gui_->unlockInfoSpaces();
@@ -274,25 +284,22 @@ void FUResourceBroker::configureAction(toolbox::Event::Reference e)
   // initialize resource table
   if (0==resourceTable_) {
     resourceTable_=new FUResourceTable(queueSize_,eventBufferSize_,shmMode_,log_);
+    resourceTable_->resetCounters();
   }
   else if (resourceTable_->nbResources()!=queueSize_) {
     resourceTable_->initialize(queueSize_,eventBufferSize_);
   }
-  resourceTable_->resetCounters();
+  else {
+    resourceTable_->reset();
+  }
   
-  // reset counters
-  gui_->resetCounters();
-
+  // reset counters and other variables to 'configured' state
+  reset();
+  
   // establish connection to builder unit(s)
   connectToBUs();
 
-  // initialze timer for nbEventsPerSec / nbMBPerSec measurements
-  nbEventsPerSecMin_=10000;
-  nbMBPerSecMin_    =1e06;
-  nbMBPerSecMax_    =0.0;
-  nbMeasurements_   =0;
-  nbEventsLast_     =0;
-
+  // initialize timer
   initTimer();
   
   LOG4CPLUS_INFO(log_,"FUResourceBroker -> CONFIGURED <-");
@@ -412,7 +419,7 @@ void FUResourceBroker::connectToBUs()
 void FUResourceBroker::sendAllocate()
 {
   if (bu_.size()<=buInstance_||bu_[buInstance_]==0) return;
-
+  
   UInt_t    nbEvents=resourceTable_->nbFreeSlots();
   UIntVec_t fuResourceIds;
   for(UInt_t i=0;i<nbEvents;i++)
@@ -560,9 +567,26 @@ void FUResourceBroker::exportParameters()
   gui_->addItemRetrieveListener("nbLostEvents",     this);
   gui_->addItemRetrieveListener("nbDataErrors",     this);
   gui_->addItemRetrieveListener("nbCrcErrors",      this);
-
-
+  
   gui_->addItemChangedListener("doCrcCheck",        this);
+  gui_->addItemChangedListener("runNumber",         this);
+}
+
+
+//______________________________________________________________________________
+void FUResourceBroker::reset()
+{
+  gui_->resetCounters();
+  
+  nbMBTot_          =0.0;
+  nbMBPerSec_       =0.0;
+  nbMBPerSecMin_    =1e06;
+  nbMBPerSecMax_    =0.0;
+  nbMBPerSecAvg_    =0.0;
+  nbEventsPerSecMin_=10000;
+  
+  nbMeasurements_   =0;
+  nbEventsLast_     =0;
 }
 
 

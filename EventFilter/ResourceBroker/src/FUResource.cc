@@ -76,7 +76,6 @@ FUResource::FUResource(FUShmBufferCell* eventBuffer,log4cplus::Logger logger)
   nFedMax_        =eventBuffer_->nFed();
   nSuperFragMax_  =eventBuffer_->nSuperFrag();
 
-  
   release();
 }
 

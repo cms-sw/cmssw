@@ -35,7 +35,10 @@ namespace evf {
     
     // emtpy all containers (resources & ids)
     void   clear();
-    
+
+    // reset the resource table to start over (in its current configuration)
+    void   reset();
+
     // reset event & error counters
     void   resetCounters();
 
