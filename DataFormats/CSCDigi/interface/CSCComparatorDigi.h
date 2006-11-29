@@ -11,7 +11,7 @@
  * \author M. Schmitt, Northwestern
  *
  */
-
+#include <boost/cstdint.hpp>
 #include <iosfwd>
 #include <vector>
 
