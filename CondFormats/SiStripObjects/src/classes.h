@@ -2,6 +2,7 @@
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 
 namespace {
 
@@ -48,5 +49,5 @@ template std::vector<FedChannelConnection>::iterator;
 template std::vector<FedChannelConnection>::const_iterator;
 //template std::vector<uint16_t>::iterator;
 //template std::vector<uint16_t>::const_iterator;
-
 */
+
