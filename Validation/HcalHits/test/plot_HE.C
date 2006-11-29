@@ -548,7 +548,8 @@
       {
          // everything OK - perform Chi2 test
 	 //
-	 Double_t pval = h1l[ih]->Chi2Test( ref_hist, "OU" ) ;
+	Double_t *res;
+	Double_t pval = h1l[ih]->Chi2Test( ref_hist, "UU", res ) ;
 	 
 	 // output Chi2 comparison results
 	 //
@@ -580,13 +581,14 @@
       }
       else
       {
-         // everything OK - perform Chi2 test
-	 //
-	 Double_t pval = h1[ih]->Chi2Test( ref_hist, "OU" ) ;
-	 
-	 // output Chi2 comparison results
-	 //
-	 cout << "[OVAL] : histo " << ih << ", p-value= " << pval << endl ;
+	// everything OK - perform Chi2 test
+	//
+	Double_t *res;
+	Double_t pval = h1[ih]->Chi2Test( ref_hist, "UU", res) ;
+	
+	// output Chi2 comparison results
+	//
+	cout << "[OVAL] : histo " << ih << ", p-value= " << pval << endl ;
       }
    }
 
