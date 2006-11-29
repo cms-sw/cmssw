@@ -1,5 +1,7 @@
 #include "PhysicsTools/CandUtils/interface/NBodyCombiner.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
+
 using namespace reco;
 using namespace std;
 

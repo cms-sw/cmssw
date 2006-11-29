@@ -13,6 +13,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
 #include "PhysicsTools/CandAlgos/src/TrivialDeltaRMatcher.h"
+#include "PhysicsTools/CandAlgos/interface/ShallowCloneProducer.h"
 
 DEFINE_SEAL_MODULE();
 
@@ -51,6 +52,10 @@ namespace reco {
               >
            > MassRangeAndChargeCandCombiner;
 
+    typedef ShallowCloneProducer<
+              reco::CandidateCollection
+            > CandShallowCloneProducer;
+
 DEFINE_ANOTHER_FWK_MODULE( CandSelector );
 DEFINE_ANOTHER_FWK_MODULE( PtMinCandSelector );
 DEFINE_ANOTHER_FWK_MODULE( MassRangeAndChargeCandCombiner );
@@ -58,6 +63,8 @@ DEFINE_ANOTHER_FWK_MODULE( CandCombiner );
 DEFINE_ANOTHER_FWK_MODULE( CandReducer );
 DEFINE_ANOTHER_FWK_MODULE( CandMerger );
 DEFINE_ANOTHER_FWK_MODULE( TrivialDeltaRMatcher );
+DEFINE_ANOTHER_FWK_MODULE( CandShallowCloneProducer );
+
 
   }
 }

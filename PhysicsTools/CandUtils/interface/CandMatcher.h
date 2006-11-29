@@ -12,8 +12,6 @@ class CandMatcher {
 public:
   /// constructor
   explicit CandMatcher( const reco::CandMatchMap & map );
-  /// get match from persistent reference
-  reco::CandidateRef operator()( const reco::CandidateRef & ) const;
   /// get match from transient reference
   reco::CandidateRef operator()( const reco::Candidate & ) const;
 
@@ -26,8 +24,8 @@ private:
   RefMap candRefs_;
   /// pointer map of matched candidates (e.g.: MC truth)
   RefMap matchedRefs_;
-  /// mother indices
-  std::vector<std::vector<size_t> > mothers_;
+  /// mother + n.daughters indices from matched
+  std::vector<std::vector<size_t> > matchedMothers_;
 };
 
 #endif
