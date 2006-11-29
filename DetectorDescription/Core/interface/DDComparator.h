@@ -42,8 +42,10 @@ private:
   DDCompareEqual();  
   const DDGeoHistory & hist_;
   const DDPartSelection & partsel_;
-  DDGeoHistory::size_type hMax_, hIndex_;
-  DDPartSelection::size_type sMax_, sIndex_;
+  DDGeoHistory::size_type const hMax_;
+  DDGeoHistory::size_type hIndex_;
+  DDPartSelection::size_type const sMax_;
+  DDPartSelection::size_type sIndex_;
   DDLogicalPart sLp_;
   /*
   lpredir_type * hLp_;
