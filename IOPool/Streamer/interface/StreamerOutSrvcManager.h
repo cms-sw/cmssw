@@ -1,56 +1,56 @@
-#ifndef _StreamerOutSrvcManager_h
-#define _StreamerOutSrvcManager_h
+#ifndef _STREAMEROUTSRVCMANAGER_H_
+#define _STREAMEROUTSRVCMANAGER_H_
 
 // $Id:$
 
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
+#include "FWCore/Framework/interface/EventSelector.h"
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
-
 #include "IOPool/Streamer/interface/StreamerOutputService.h"
+#include "IOPool/Streamer/interface/StreamService.h"
 
+#include <boost/shared_ptr.hpp>
 #include <vector>
 #include <list>
 #include <string>
 
-namespace edm {
-
- class StreamerOutSrvcManager {
-
- public:  
-
-  explicit StreamerOutSrvcManager(const std::string& config);
-  ~StreamerOutSrvcManager(); 
-
-  void stop(); 
-
-  /** Handles arrival of New Init Message */
-  //Currently the fileName parameter is ignored
-  void manageInitMsg(std::string fileName, uint32 runNum, unsigned long maxFileSize, double highWaterMark,
-		     std::string path, std::string mpath, std::string catalog, uint32 disks, 
-		     InitMsgView& init_message);
-
-  /** mages event messages */
-  void manageEventMsg(EventMsgView& msg);
-
-  std::list<std::string>& get_filelist();
-  std::list<std::string>& get_currfiles();
-
- private:   
-  void collectStreamerPSets(const std::string& config);        
-  //Store References ?? 
-  std::vector<edm::ParameterSet> outModPSets_;
-  std::vector<edm::StreamerOutputService*> managedOutputs_;  
-
-  // Maintain these lists here, so that we 
-  // could return by refs, instead of by value
-  std::list<std::string> filelist_;
-  std::list<std::string> currfiles_;
-
- };
-
+namespace edm 
+{
+  
+  typedef std::vector<boost::shared_ptr<StreamService> >            Streams;
+  typedef std::vector<boost::shared_ptr<StreamService> >::iterator  StreamsIterator;
+  
+  
+  class StreamerOutSrvcManager {
+    
+  public:  
+    
+    explicit StreamerOutSrvcManager(const std::string& config);
+    ~StreamerOutSrvcManager(); 
+    
+    void stop(); 
+    
+    void manageInitMsg(std::string fileName, uint32 runNum, unsigned long maxFileSize, double highWaterMark,
+		       std::string path, std::string mpath, std::string catalog, uint32 disks, 
+		       InitMsgView& init_message);
+    
+    void manageEventMsg(EventMsgView& msg);
+    
+    std::list<std::string>& get_filelist();
+    std::list<std::string>& get_currfiles();
+    
+  private:   
+    void collectStreamerPSets(const std::string& config);        
+    
+    std::vector<ParameterSet>              outModPSets_;
+    Streams                                managedOutputs_;  
+    boost::shared_ptr<edm::EventSelector>  eventSelector_;
+    std::list<std::string>                 filelist_;
+    std::list<std::string>                 currfiles_;
+  };
+  
 }//edm-namespace
 
 #endif

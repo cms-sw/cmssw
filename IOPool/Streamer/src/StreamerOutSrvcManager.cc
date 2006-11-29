@@ -1,11 +1,12 @@
-// $Id: StreamerOutSrvcManager.cc,v 1.8 2006/11/02 00:29:47 hcheung Exp $
-#include "IOPool/Streamer/interface/StreamerOutSrvcManager.h"
-#include "IOPool/Streamer/interface/StreamerOutputService.h"
+// $Id:$
 
-#include <iomanip>
+#include "IOPool/Streamer/interface/StreamerOutSrvcManager.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
 using namespace edm;
+using boost::shared_ptr;
+
 
 StreamerOutSrvcManager::StreamerOutSrvcManager(const std::string& config):
   outModPSets_(0),
@@ -14,48 +15,102 @@ StreamerOutSrvcManager::StreamerOutSrvcManager(const std::string& config):
   collectStreamerPSets(config);
 } 
 
+
 StreamerOutSrvcManager::~StreamerOutSrvcManager()
-{
-   for(std::vector<StreamerOutputService*>::iterator it = managedOutputs_.begin();
-       it != managedOutputs_.end(); ++it)
-       { 
-          delete (*it);
-       }
+{ 
+  managedOutputs_.clear();
 }
+
 
 void StreamerOutSrvcManager::stop()
 {
-       // Received a stop(), Pass it ON to each outputFile
-       // outputFile(service) will close files and write EOF Message
-       
-       // Not caling stop() from destructor, as its not a preffered way
-       // for some mysterious reason. Hope to figure that out soon. 
-       // Though it seems OK to call it from destructor here
-       // instead of explicitly calling in FragCollector
-
-       for(std::vector<StreamerOutputService*>::iterator it = managedOutputs_.begin();
-          it != managedOutputs_.end(); ++it)
-        {
-            (*it)->stop();
-        }
+  for(StreamsIterator  it = managedOutputs_.begin();
+      it != managedOutputs_.end(); ++it)
+    {
+      (*it)->stop();
+    }
 }
 
+
+void StreamerOutSrvcManager::manageInitMsg(std::string fileName, uint32 runNum, 
+				  unsigned long maxFileSize, double highWaterMark,
+				  std::string path, std::string mpath, 
+				  std::string catalog, uint32 disks, 
+				  InitMsgView& view)
+{
+  for(std::vector<ParameterSet>::iterator it = outModPSets_.begin();
+      it != outModPSets_.end(); ++it)
+    {
+      shared_ptr<StreamService> stream = shared_ptr<StreamService>(new StreamService((*it),view));
+      stream -> setCatalog(catalog);
+      stream -> setNumberOfFileSystems(disks);
+      managedOutputs_. push_back( stream );
+      stream -> report(cout,3);
+    }
+}
+
+
+void StreamerOutSrvcManager::manageEventMsg(EventMsgView& msg)
+{
+  bool eventAccepted = false;
+  for(StreamsIterator  it = managedOutputs_.begin(); it != managedOutputs_.end(); ++it)
+    eventAccepted = (*it)->nextEvent(msg) || eventAccepted;
+
+}
+
+
+//
+// *** get all files from all streams
+//
+std::list<std::string>& StreamerOutSrvcManager::get_filelist() 
+{ 
+  filelist_.clear();
+  for(StreamsIterator it = managedOutputs_.begin();
+      it != managedOutputs_.end(); ++it)
+    {
+      std::list<std::string> sub_list = (*it)->getFileList();
+      if(sub_list.size() > 0)
+	filelist_.insert(filelist_.end(), sub_list.begin(), sub_list.end() );
+      filelist_.assign(sub_list.begin(), sub_list.end() );
+    } 
+  return filelist_; 
+}
+
+
+//
+// *** get all current files from all streams
+//
+std::list<std::string>& StreamerOutSrvcManager::get_currfiles()
+{ 
+  currfiles_.clear();
+  for(StreamsIterator it = managedOutputs_.begin();
+      it != managedOutputs_.end(); ++it)
+    {
+      std::list<std::string> sub_list = (*it)->getCurrentFileList();
+      if(sub_list.size() > 0)
+	filelist_.insert(filelist_.end(), sub_list.begin(), sub_list.end() );
+      filelist_.assign(sub_list.begin(), sub_list.end() );
+    }
+  return currfiles_;  
+}
+
+
+//
+// *** wrote similar example code in IOPool/Streamer/test/ParamSetWalker_t.cpp 
+// *** this method is diluted version of same code.
+// *** if more items needs to be extracted for config, refer to example code
+//
 void StreamerOutSrvcManager::collectStreamerPSets(const std::string& config)
 {
-     // wrote similar example code in IOPool/Streamer/test/ParamSetWalker_t.cpp 
-     // this method is diluted version of same code.
-     // if more items needs to be extracted for config, refer to example code
 
      try{
        
        ProcessDesc  pdesc(config.c_str());
        
        boost::shared_ptr<ParameterSet> procPset = pdesc.getProcessPSet();
-       //std::cout<<"Process PSet:"<<procPset->toString()<<endl;
        
        ParameterSet allTrigPaths = procPset->
 	 getUntrackedParameter<ParameterSet>("@trigger_paths");
-       //std::cout <<"Found  Trig Path :"<<allTrigPaths.toString()<<endl;
        
        if (allTrigPaths.empty())
          throw cms::Exception("collectStreamerPSets","StreamerOutSrvcManager")
@@ -72,28 +127,19 @@ void StreamerOutSrvcManager::collectStreamerPSets(const std::string& config)
 	   it != allEndPaths.end();
 	   ++it)
 	 {
-	   //std::cout <<"Found an end Path :"<<(*it)<<std::endl;
-	   //Lets try to get this PSet from the Process PSet
 	   std::vector<std::string> anEndPath = procPset->getParameter<std::vector<std::string> >((*it));
 	   for(std::vector<std::string>::iterator it = anEndPath.begin();
 	       it != anEndPath.end(); ++it) 
 	     {
-	       //std::cout <<"Found a end Path PSet :"<<(*it)<<endl;
-	       //Lets Check this Module if its a EventStreamFileWriter type
-	      ParameterSet aModInEndPathPset = 
-		procPset->getParameter<ParameterSet>((*it));
-	      if (aModInEndPathPset.empty())
-		throw cms::Exception("collectStreamerPSets","StreamerOutSrvcManager")
-		  << "Empty End Path Found in the Config File" <<endl;
-	      //std::cout <<"This Module PSet is: "<<aModInEndPathPset.toString()<<std::endl;
-	      std::string mod_type = aModInEndPathPset.getParameter<std::string> ("@module_type");
-	      //std::cout <<"Type of This Module is: "<<mod_type<<endl;
-	      if (mod_type == "EventStreamFileWriter") 
-	      //if (mod_type == "I2OStreamConsumer") 
-		{
-		  //cout<<"FOUND WHAT WAS LOOKING FOR:::"<<std::endl;
-		  outModPSets_.push_back(aModInEndPathPset);
-		}
+	       ParameterSet aModInEndPathPset = 
+		 procPset->getParameter<ParameterSet>((*it));
+	       if (aModInEndPathPset.empty())
+		 throw cms::Exception("collectStreamerPSets","StreamerOutSrvcManager")
+		   << "Empty End Path Found in the Config File" <<endl;
+	      
+	       std::string mod_type = aModInEndPathPset.getParameter<std::string> ("@module_type");
+	       if (mod_type == "EventStreamFileWriter") 
+		 outModPSets_.push_back(aModInEndPathPset);
 	     }
 	 }
      }catch (cms::Exception & e) {
@@ -102,98 +148,3 @@ void StreamerOutSrvcManager::collectStreamerPSets(const std::string& config)
      }
 }
 
-void StreamerOutSrvcManager::manageInitMsg(std::string fileName, uint32 runNum, 
-					   unsigned long maxFileSize, double highWaterMark,
-					   std::string path, std::string mpath, 
-					   std::string catalog, uint32 disks, 
-					   InitMsgView& init_message)
-     {
-
-      //received file name is ignored for now, and later we can remove it, not understood if its required
-
-      // An INIT Message has arrived, and we need to open 
-      // StreamerOutputService (output file)
-      // for each of outModPSets_
-
-      for(std::vector<ParameterSet>::iterator it = outModPSets_.begin();
-          it != outModPSets_.end(); ++it)
-        {
-	   //Get the filename (HWKC - how to specify default parameters in call?
-           std::string fileNameLocal = (*it).getParameter<string> ("fileName");
-           std::string filePathLocal = (*it).getParameter<string> ("filePath");
-           std::string mailboxPathLocal = (*it).getParameter<string> ("mailboxPath");
-           std::string setupLabelLocal = (*it).getParameter<string> ("setupLabel");
-           std::string streamLabelLocal = (*it).getParameter<string> ("streamLabel");
-           uint32 maxFileSizeLocal = (*it).getParameter<int> ("maxSize");
-           double highWaterMarkLocal = (*it).getParameter<double> ("highWaterMark");
-          
-           //Other parameters can also be pulled here, if provided in config file. 
-           
-           StreamerOutputService* outputFile = new StreamerOutputService((*it));
-           //invoke its init, later StreamerOutputService CTOR will call its own init 
-           //it should take a SelectEvents PSet too
-           // HWKC - we need to check no two outputs streams have the same filename!
-           //outputFile->init(fileNameLocal, maxFileSize, highWaterMark,
-           //                  path, mpath, catalog, disks, init_message);
-           std::ostringstream stm;
-           stm << setupLabelLocal << "." << setfill('0') << std::setw(8) << runNum
-               << "." << streamLabelLocal << "." << fileName;
-           std::string filenLocal = stm.str();
-           outputFile->init(filenLocal, maxFileSizeLocal, highWaterMarkLocal,
-                             filePathLocal, mailboxPathLocal, catalog, disks, init_message);
-          
-           //Stor it in list of managed outputFiles
-           managedOutputs_.push_back(outputFile);
-        }
-     }
-
-void StreamerOutSrvcManager::manageEventMsg(EventMsgView& msg)
-    {
-      //Received an Event Message, Pass it ON to each outputFile
-      // outputFile(service) will decide to write or Pass it
-       
-      bool condition = true;
-      
-      for(std::vector<StreamerOutputService*>::iterator it = managedOutputs_.begin();
-	  it != managedOutputs_.end(); ++it)
-	{
-	  condition = condition && (*it)->writeEvent(msg);
-	}
-
-      // close all managed file synchronous ( if condition == false )
-      if ( !condition )
-	{
-	  for(std::vector<StreamerOutputService*>::iterator it = managedOutputs_.begin();
-	      it != managedOutputs_.end(); ++it)
-	    {
-	      (*it)->closeFile(msg);
-	    }
-	}
-    }
-
-
-std::list<std::string>& StreamerOutSrvcManager::get_filelist() 
-    { 
-     filelist_.clear();
-     for(std::vector<StreamerOutputService*>::iterator it = managedOutputs_.begin();
-          it != managedOutputs_.end(); ++it)
-        {
-            std::list<std::string>& sub_list = (*it)->get_filelist();
-            if(sub_list.size() > 0)
-              filelist_.insert(filelist_.end(), sub_list.begin(), sub_list.end() );
-//              filelist_.assign(sub_list.begin(), sub_list.end() );
-        } 
-     return filelist_; 
-    }
-
-
-std::list<std::string>& StreamerOutSrvcManager::get_currfiles()
-    { 
-      currfiles_.clear();
-      for(std::vector<StreamerOutputService*>::iterator it = managedOutputs_.begin();
-          it != managedOutputs_.end(); ++it)
-        {
-            currfiles_.push_back((*it)->get_currfile());
-        }
-      return currfiles_;  
-    }
