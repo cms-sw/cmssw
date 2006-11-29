@@ -73,18 +73,13 @@
                  onClick="CheckQualityTestResults()" 
                  type="submit">
              </input>  
-              <label id="tkmap"
-               style="width:22%;margin-left:2%">                  
-                Create TkMap:
-	     </label>
-             <select name="TrackerMap" 
-                   id="create_tkmap"
-                   style="width:18%;text-align:left;margin-right:2%"
-                   onchange="CreateTrackerMap()">                   
-                   <option value="Temporary" SELECTED> Temporary </option>
-                   <option value="Persistant"> Persistant </option>
-
-             </select>
+             <input name="UpdateTrackerMap" 
+                 id="create_tkmap"
+                 value="Create Tk Map"
+		 style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+                 onClick="CreateTrackerMap()"
+                 type="submit">                   
+             </input>
           </fieldset>
         </div>  
         <div id="dhtmlgoodies_tabView1" style="float=right:width:50%;padding:0.1% 0%">

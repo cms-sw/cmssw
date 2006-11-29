@@ -53,7 +53,7 @@ void TrackerMapCreator::create(MonitorUserInterface* mui, vector<string>& me_nam
 	if ((*ic).find(me_name) == string::npos) continue;
         MonitorElement * me = mui->get((*ic));
         if (!me) continue;
-        istat =  getStatus(me); 
+        istat =  SiStripUtility::getStatus(me); 
         local_mes.insert(pair<MonitorElement*, int>(me, istat));
 	if (istat > gstat) gstat = istat;
         MonitorElement* tkmap_me = getTkMapMe(mui,me_name,ndet);
@@ -67,21 +67,14 @@ void TrackerMapCreator::create(MonitorUserInterface* mui, vector<string>& me_nam
        tkmap_gme->Fill(ibin, gstat);
        tkmap_gme->setBinLabel(ibin, det_id.c_str());
     }    
-    drawMEs(atoi(det_id.c_str()), local_mes);
+    paintTkMap(atoi(det_id.c_str()), local_mes);
   }
   trackerMap->print(true);  
 }
 //
 // -- Draw Monitor Elements
 //
-void TrackerMapCreator::drawMEs(int det_id, map<MonitorElement*, int>& me_map) {
-
-  TCanvas canvas("display");
-  canvas.Clear();
-  if (me_map.size() == 2) canvas.Divide(1,2);
-  if (me_map.size() == 3) canvas.Divide(1,3);
-  if (me_map.size() == 4) canvas.Divide(2,2);
-
+void TrackerMapCreator::paintTkMap(int det_id, map<MonitorElement*, int>& me_map) {
   int icol;
   string tag;
 
@@ -90,47 +83,24 @@ void TrackerMapCreator::drawMEs(int det_id, map<MonitorElement*, int>& me_map) {
   int gstatus = 0;
 
   MonitorElement* me;
-  int i = 0;
- 
   for (map<MonitorElement*,int>::const_iterator it = me_map.begin(); 
               it != me_map.end(); it++) {
-    i++;
     me = it->first;
     if (!me) continue;
     float mean = me->getMean();
     comment <<   mean <<  " : " ;
     // global status 
     if (it->second > gstatus ) gstatus = it->second;
-
-    getStatusColor(it->second, icol, tag);
-   
-    // Access the Root object and plot
-    MonitorElementT<TNamed>* ob = 
-        dynamic_cast<MonitorElementT<TNamed>*>(me);
-    if (ob) {
-      canvas.cd(i);
-      TText tt;
-      tt.SetTextSize(0.15);
-      tt.SetTextColor(icol);
-      ob->operator->()->Draw();
-      tt.DrawTextNDC(0.6, 0.5, tag.c_str());
-      canvas.Update();
-    }
+    SiStripUtility::getStatusColor(it->second, icol, tag);   
   }
-
   cout << " Detector ID : " << det_id 
        << " " << comment.str()
        << " Status : " << gstatus  << endl;
   
   trackerMap->setText(det_id, comment.str());
   int rval, gval, bval;
-  getStatusColor(gstatus, rval, gval, bval);
+  SiStripUtility::getStatusColor(gstatus, rval, gval, bval);
   trackerMap->fillc(det_id, rval, gval, bval);
-
-    
-  ostringstream name_str;
-  name_str << det_id << ".jpg";
-  canvas.SaveAs(name_str.str().c_str());    
 }
 //
 // -- get Tracker Map ME 
@@ -149,59 +119,4 @@ MonitorElement* TrackerMapCreator::getTkMapMe(MonitorUserInterface* mui,
     bei->setCurrentFolder(save_dir);
   }
   return tkmap_me;
-}
-//
-// -- Get Color code from Status
-//
-void TrackerMapCreator::getStatusColor(int status, int& rval, int&gval, int& bval) {
-  if (status == dqm::qstatus::STATUS_OK) { 
-    rval = 0;   gval = 255;   bval = 0; 
-  } else if (status == dqm::qstatus::WARNING) { 
-    rval = 255; gval = 255; bval = 0;
-  } else if (status == dqm::qstatus::ERROR) { 
-    rval = 255; gval = 0;  bval = 0;
-  } else if (status == dqm::qstatus::OTHER) { 
-    rval = 255; gval = 150;  bval = 0;
-  } else {
-    rval = 0; gval = 0;  bval = 255;
-  }        
-}
-//
-// -- Get Color code from Status
-//
-void TrackerMapCreator::getStatusColor(int status, int& icol, string& tag) {
-  if (status == dqm::qstatus::STATUS_OK) { 
-    tag = "Ok";
-    icol = 3;
-  } else if (status == dqm::qstatus::WARNING) { 
-    tag = "Warning";
-    icol = 5;     
-  } else if (status == dqm::qstatus::ERROR) { 
-    tag = "Error";
-    icol = 2;
-  } else if (status == dqm::qstatus::OTHER) { 
-    tag = "Other";
-    icol = 1;
-  } else {
-    tag = " ";
-    icol = 1;
-  }     
-}
-//
-// -- Get Status of Monitor Element
-//
-int TrackerMapCreator::getStatus(MonitorElement* me) {
-  int status = 0; 
-  if (me->getQReports().size() == 0) {
-    status = 0;
-  } else if (me->hasError()) {
-    status = dqm::qstatus::ERROR;
-  } else if (me->hasWarning()) {
-    status = dqm::qstatus::WARNING;
-  } else if (me->hasOtherReport()) {
-    status = dqm::qstatus::OTHER;
-  } else {  
-    status = dqm::qstatus::STATUS_OK;
-  }
-  return status;
 }

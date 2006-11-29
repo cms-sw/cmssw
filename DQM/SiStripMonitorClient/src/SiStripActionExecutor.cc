@@ -61,18 +61,18 @@ bool SiStripActionExecutor::readConfiguration(int& tkmap_freq, int& sum_freq) {
 void SiStripActionExecutor::createTkMap(MonitorUserInterface* mui) {
   string tkmap_name;
   vector<string> me_names;
-  if (!configParser_->getMENamesForTrackerMap(tkmap_name, me_names)){
+  if (!configParser_->getMENamesForTrackerMap(tkmap_name, tkMapMENames)){
     cout << "SiStripActionExecutor::createTkMap: Failed to read TrackerMap configuration parameters!! ";
     return;
   }
-  cout << " # of MEs in Tk Map " << me_names.size() << endl;
+  cout << " # of MEs in Tk Map " << tkMapMENames.size() << endl;
  
   // Create and Fill the Tracker Map
   mui->cd();
   if (collationDone) mui->cd("Collector/Collated/SiStrip");
 
   TrackerMapCreator tkmap_creator;
-  tkmap_creator.create(mui, me_names);
+  tkmap_creator.create(mui, tkMapMENames);
   
   mui->cd();  
 }
@@ -445,7 +445,6 @@ void SiStripActionExecutor::fillHistos(int ival, int istep,
   if (name.find("Noise") == string::npos && 
       name.find("NoisyStrips") == string::npos &&
       name.find("PedsPerStrip") == string::npos) {
-    if (ival == 1) cout << name  << me_src->getMean() << endl;
     me->Fill(ival, me_src->getMean());
   } else {
     int nbins = me_src->getNbinsX();
@@ -466,4 +465,15 @@ void SiStripActionExecutor::fillHistos(int ival, int istep,
       } else me->setBinContent(istep+k,me_src->getBinContent(k));
     }
   }  
+}
+//
+// -- Get TkMap ME names
+//
+int SiStripActionExecutor::getTkMapMENames(std::vector<std::string>& names) {
+  if (tkMapMENames.size() == 0) return 0;
+  for (vector<string>::iterator it = tkMapMENames.begin();
+       it != tkMapMENames.end(); it++) {
+    names.push_back(*it) ;
+  }
+  return names.size();
 }

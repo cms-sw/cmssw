@@ -21,12 +21,7 @@ class TrackerMapCreator {
  private:
   MonitorElement* getTkMapMe(MonitorUserInterface* mui,std::string& me_name,int ndet);
 
-  void getStatusColor(int status, int& rval, int&gval, int& bval);
-  void getStatusColor(int status, int& icol, std::string& tag);
-  int getStatus(MonitorElement* me);
-
-
-  void drawMEs(int det_id, std::map<MonitorElement*, int>& me_map);
+  void paintTkMap(int det_id, std::map<MonitorElement*, int>& me_map);
 
   TrackerMap* trackerMap;
 };
