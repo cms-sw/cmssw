@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.51 2006/11/08 00:27:44 rpw Exp $
+ * $Id: pset_parse.y,v 1.52 2006/11/09 03:57:46 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -975,8 +975,6 @@ namedmodule:     MODULE_tok
                  ES_MODULE_tok
                |
                  ES_PREFER_tok
-               |
-                 SOURCE_tok
                |
                  ES_SOURCE_tok
                ;
