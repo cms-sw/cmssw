@@ -1,20 +1,21 @@
-#ifndef CandAlgos_CandCombiner_h
-#define CandAlgos_CandCombiner_h
-/** \class CandCombiner
+#ifndef CandAlgos_CandShallowCloneCombiner_h
+#define CandAlgos_CandShallowCloneCombiner_h
+/** \class CandShallowCloneCombiner
  *
  * performs all possible and selected combinations
- * of particle pairs using the NBodyCombiner utility
+ * of particle pairs using the
+ * NBodyShallowCloneCombiner utility
  *
  * \author Luca Lista, INFN
  *
  * \version $Revision: 1.10 $
  *
- * $Id: CandCombiner.h,v 1.10 2006/10/11 10:08:59 llista Exp $
+ * $Id: CandShallowCloneCombiner.h,v 1.10 2006/10/11 10:08:59 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "PhysicsTools/CandUtils/interface/NBodyCombiner.h"
+#include "PhysicsTools/CandUtils/interface/NBodyShallowCloneCombiner.h"
 #include "PhysicsTools/CandAlgos/src/decayParser.h"
 #include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -27,12 +28,12 @@ namespace edm {
   class ParameterSet;
 }
 
-class CandCombinerBase : public edm::EDProducer {
+class CandShallowCloneCombinerBase : public edm::EDProducer {
 public:
   /// constructor from parameter set
-  explicit CandCombinerBase( const edm::ParameterSet & );    
+  explicit CandShallowCloneCombinerBase( const edm::ParameterSet & );    
   /// destructor
-  virtual ~CandCombinerBase();
+  virtual ~CandShallowCloneCombinerBase();
   
 protected:
   /// daughter charges
@@ -42,14 +43,14 @@ protected:
 };
 
 template<typename S>
-class CandCombiner : public CandCombinerBase {
+class CandShallowCloneCombiner : public CandShallowCloneCombinerBase {
 public:
   /// constructor from parameter set
-  explicit CandCombiner( const edm::ParameterSet & cfg ) :
-    CandCombinerBase( cfg ), combiner_( cfg, true, dauCharge_ ) {
+  explicit CandShallowCloneCombiner( const edm::ParameterSet & cfg ) :
+    CandShallowCloneCombinerBase( cfg ), combiner_( cfg, true, dauCharge_ ) {
   }
   /// destructor
-  virtual ~CandCombiner() { }
+  virtual ~CandShallowCloneCombiner() { }
 private:
   /// process an event
   void produce( edm::Event& evt, const edm::EventSetup& ) {
@@ -58,15 +59,15 @@ private:
     for( int i = 0; i < n; ++i )
       evt.getByLabel( labels_[ i ].tag_, colls[ i ] );
     
-    std::vector<const reco::CandidateCollection *> cv;
+    std::vector<reco::CandidateRefProd> cv;
     for( std::vector<edm::Handle<reco::CandidateCollection> >::const_iterator c = colls.begin();
 	 c != colls.end(); ++ c )
-      cv.push_back( & * * c );
+      cv.push_back( reco::CandidateRefProd( * c ) );
     
     evt.put( combiner_.combine( cv ) );
   }
   /// combiner utility
-  NBodyCombiner<S> combiner_;
+  NBodyShallowCloneCombiner<S> combiner_;
 };
 
 #endif
