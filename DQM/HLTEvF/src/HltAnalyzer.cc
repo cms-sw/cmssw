@@ -14,11 +14,11 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  Thu Nov  9 07:51:28 CST 2006
-// $Id$
+// $Id: HltAnalyzer.cc,v 1.1 2006/11/16 22:59:01 wittich Exp $
 //
 //
 
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQM/HLTEvF/interface/HltAnalyzer.h"
 
@@ -45,11 +45,13 @@ HltAnalyzer::HltAnalyzer(const edm::ParameterSet& iConfig)
   // entry point so that the EDM can call it when modules run
   perfInfo_.clear();
   
-  trigResLabel_ = iConfig.getParameter< edm::InputTag > ("triggerResultsLabel");
+  trigResLabel_ = iConfig.getParameter< edm::InputTag >("triggerResultsLabel");
 
   // attach method to Timing service's "new measurement" signal
   edm::Service<edm::service::Timing> time;
-  time->newMeasurementSignal.connect(boost::bind(boost::mem_fn(&HltAnalyzer::newTimingMeasurement), this, _1, _2) );
+  time->newMeasurementSignal.
+    connect(boost::bind(boost::mem_fn(&HltAnalyzer::newTimingMeasurement), 
+			this, _1, _2) );
 
 
 }
@@ -80,8 +82,24 @@ HltAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   using namespace edm;
   Handle<TriggerResults> pTrig;
-  iEvent.getByType(pTrig);
-  //iEvent.getByLabel(trigResLabel_,pTrig);
+  //iEvent.getByType(pTrig);
+  try {
+    iEvent.getByLabel(trigResLabel_, pTrig );
+  } 
+  catch(...) { // and drop...
+    ;
+  }
+  if (pTrig.isValid()) {
+    //LogDebug(myName_) << "TriggerResults " << (*i)
+    std::cout << "TriggerResults " << trigResLabel_
+	      << " found, number of HLT paths: " 
+	      << pTrig->size() << std::endl;;
+  } else {
+    //LogDebug(myName_) << "TriggerResults " << (*i) << " product not found - "
+    std::cout<< "TriggerResults product not found - "<< trigResLabel_
+	     << "returning result=false!" << std::endl;
+    return false;
+  }
 
 
   using edm::service::TriggerNamesService;
@@ -97,7 +115,7 @@ HltAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     p.setStatus( pTrig->at(where));
     if ( verbose() ) {
       std::cout << "Path is " << *i
-		<< " with result " << p.Status().state()
+		<< " with result " << p.status().state()
 		<< std::endl;
     }
     TriggerNamesService::Strings 
@@ -114,19 +132,23 @@ HltAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   if ( verbose() ) {
-    const HLTPerformanceInfo::Modules *l = perfInfo_.ListOfModules();
     std::cout << myName_<< ": dumping modules internal to perfinfo: " 
-	      << l->size()
+	      << perfInfo_.numberOfModules()
 	      << std::endl;
-    for ( HLTPerformanceInfo::Modules::const_iterator i = l->begin(); 
-	  i != l->end(); ++i ) {
-      std::cout << i->Name() << ": " << i->Time() << std::endl;
+    for ( HLTPerformanceInfo::Modules::const_iterator i = 
+	    perfInfo_.beginModules(); 
+	  i != perfInfo_.endModules(); 
+	  ++i ) {
+      std::cout << i->name() << ": " << i->time() << std::endl;
     }
     std::cout << myName_ << ": dumping path times.... " << std::endl;
-    const HLTPerformanceInfo::PathList *p = perfInfo_.ListOfPaths();
-    for ( HLTPerformanceInfo::PathList::const_iterator j = p->begin();
-	  j != p->end(); ++j ) {
-      std::cout << "\t" << j->Name() << ": " << j->Time() << std::endl;
+    for ( HLTPerformanceInfo::PathList::const_iterator j = 
+	    perfInfo_.beginPaths(); 
+	  j != perfInfo_.endPaths(); ++j ) {
+      std::cout << "\t" << j->name() << ": " 
+		<< j->time() 
+		<< j->status().state()
+		<< std::endl;
     }
   }
 
@@ -163,7 +185,7 @@ void HltAnalyzer::newTimingMeasurement(const edm::ModuleDescription& iMod,
   if ( verbose() ) {
     std::cout << myName_ << ": adding module with name " << iMod.moduleLabel()
 	      << " and time " << diffTime 
-	      << ", size " << perfInfo_.ListOfModules()->size()
+	      << ", size " << perfInfo_.numberOfModules()
 	      << std::endl;
   }
 
