@@ -61,7 +61,6 @@ BU::BU(xdaq::ApplicationStub *s)
   , nbEventsPerSecAvg_(0)
   , nbDiscardedEvents_(0)
   , mode_("RANDOM")
-  , debug_(true)
   , dataBufSize_(32768)
   , nSuperFrag_(64)
   , fedSizeMax_(65536)
@@ -194,24 +193,27 @@ void BU::initTimer()
 {
   toolbox::task::getTimerFactory()->createTimer(sourceId_);
   toolbox::task::Timer *timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
-  if (0!=timer) timer->stop();
+  timer->stop();
 }
 
 
 //______________________________________________________________________________
 void BU::startTimer()
 {
-  toolbox::task::Timer *timer =toolbox::task::getTimerFactory()->getTimer(sourceId_);
+  toolbox::task::Timer *timer(0);
+  try {
+    timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
+  }
+  catch (toolbox::task::exception::Exception& e) {
+    LOG4CPLUS_ERROR(log_,"getTimer() failed.");
+  }
+  
   if (0!=timer) {
     toolbox::TimeInterval oneSec(1.);
     toolbox::TimeVal      startTime=toolbox::TimeVal::gettimeofday();
     timer->start();
     timer->scheduleAtFixedRate(startTime,this,oneSec,gui_->appInfoSpace(),sourceId_);
   }
-  else {
-    LOG4CPLUS_WARN(log_,"Failed to start timer.");
-  }
-  
 }
 
 
@@ -219,7 +221,8 @@ void BU::startTimer()
 void BU::stopTimer()
 {
   toolbox::task::Timer *timer =toolbox::task::getTimerFactory()->getTimer(sourceId_);
-  if (0!=timer) timer->stop();
+  timer->stop();
+  toolbox::task::getTimerFactory()->removeTimer(sourceId_);
 }
 
 
@@ -245,22 +248,12 @@ void BU::actionPerformed(xdata::Event& e)
 void BU::configureAction(toolbox::Event::Reference e) 
   throw (toolbox::fsm::exception::Exception)
 {
-  // reset counters
-  if (0!=gui_) gui_->resetCounters();
-
-  // reset counters for throughput measurements
-  nbEventsPerSecMin_=10000;
-  nbMBPerSecMin_    =1e06;
-  nbMBPerSecMax_    =0.0;
-  nbMeasurements_   =0;
-  nbEventsLast_     =0;
-  nbBytes_          =0;
-  sumOfSquares_     =0;
-  sumOfSizes_       =0;
+  // reset all relevant variables to 'configured' state
+  reset();
 
   // intialize timer for performance measurements
   initTimer();
-
+  
   LOG4CPLUS_INFO(log_,"BU -> CONFIGURED <-");
 }
 
@@ -399,8 +392,6 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
 			iSuperFrag,      // current super fragment
 			nSuperFrag_      // number of super fragments
 			);
-      
-      if (debug_) debug(superFrag);
       
       I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *frame =
 	(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*)(superFrag->getDataLocation());
@@ -617,7 +608,6 @@ void BU::exportParameters()
   gui_->addMonitorCounter("nbDiscardedEvents",&nbDiscardedEvents_);
 
   gui_->addStandardParam("mode",              &mode_);
-  gui_->addStandardParam("debug",             &debug_);
   gui_->addStandardParam("dataBufSize",       &dataBufSize_);
   gui_->addStandardParam("nSuperFrag",        &nSuperFrag_);
   gui_->addStandardParam("fedSizeMax",        &fedSizeMax_);
@@ -634,6 +624,30 @@ void BU::exportParameters()
   gui_->addItemRetrieveListener("memUsedInMB",this);
 }
 
+
+//______________________________________________________________________________
+void BU::reset()
+{
+  gui_->resetCounters();
+  
+  nbEventsPerSecMin_=10000;
+  nbMBTot_          =0.0;
+  nbMBPerSec_       =0.0;
+  nbMBPerSecMin_    =1e6;
+  nbMBPerSecMax_    =0.0;
+  nbMBPerSecAvg_    =0.0;
+  nbEventsInBU_     =0;
+  deltaN_           =0;
+  deltaSumOfSquares_=0;
+  deltaSumOfSizes_  =0;
+  
+  nbMeasurements_   =0;
+  nbEventsLast_     =0;
+  nbBytes_          =0;
+  sumOfSquares_     =0;
+  sumOfSizes_       =0;
+}
+  
 
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of private member functions
@@ -995,194 +1009,13 @@ void BU::unlock()
 
 
 //______________________________________________________________________________
-int BU::check_event_data(unsigned long* blocks_adrs, int nmb_blocks)
-{
-  int   retval= 0;
-  int   fedid =-1;
-
-  int   feds  =-1; // fed size  
-  char* fedd  = 0; //temporary buffer for fed data
-
-  unsigned char* blk_cursor    = 0;
-  int            current_trigno=-1;
-
-  int            seglen_left=0;
-  int            fed_left   =0;
-  
-  //loop on blocks starting from last
-  for(int iblk=nmb_blocks-1;iblk>=0;iblk--) {
-    
-    blk_cursor=(unsigned char*)blocks_adrs[iblk];
-
-    frlh_t *ph        =(frlh_t *)blk_cursor;
-    int hd_trigno     =ph->trigno;
-    int hd_segsize    =ph->segsize;
-    int segsize_proper=hd_segsize & ~FRL_LAST_SEGM ;
-    
-    // check trigno
-    if (current_trigno == -1) {
-      current_trigno=hd_trigno;
-    }
-    else {
-      if (current_trigno!=hd_trigno) {
-	printf("data error nmb_blocks %d iblock %d trigno expect %d got %d \n"
-	       ,nmb_blocks,iblk,current_trigno,hd_trigno) ;
-	return -1;
-      } 
-    }
-    
-    // check that last block flagged as last segment and none of the others
-    if (iblk == nmb_blocks-1) {
-      if  (!(hd_segsize & FRL_LAST_SEGM)) {
-	printf("data error nmb_blocks %d iblock %d last_segm not set \n",
-	       nmb_blocks,iblk) ;
-	return -1;
-      }
-    }
-    else {
-      if ((hd_segsize & FRL_LAST_SEGM)) {
-	printf("data error nmb_blocks %d iblock %d last_segm  set \n",
-	       nmb_blocks,iblk) ;
-	return -1;
-      }
-    }
-    
-    blk_cursor += frlHeaderSize_;
-    seglen_left = segsize_proper;
-    blk_cursor += segsize_proper;
-    while(seglen_left>=0) {
-
-      if(fed_left == 0) {
-	
-	if(feds>=0) {
-	  retval += 0;
-	  delete[] fedd;
-	  feds = -1;
-	}
-	
-	if(seglen_left==0)break;
-	
-	seglen_left-=fedTrailerSize_;
-	blk_cursor -=fedTrailerSize_;
-	fedt_t *pft =(fedt_t*)blk_cursor;
-	int fedlen  =pft->eventsize & FED_EVSZ_MASK;
-	fedlen     *=8; // in the fed trailer, wc is in 64 bit words
-	
-	feds=fedlen-fedHeaderSize_-fedTrailerSize_;
-	fedd=new char[feds];
-
-	if((seglen_left-(fedlen-fedTrailerSize_)) >= 0) {
-	  blk_cursor-=feds;
-	  memcpy(fedd,blk_cursor,feds);
-	  seglen_left-=(fedlen-fedTrailerSize_);
-	  fed_left=0;
-	  blk_cursor-=fedHeaderSize_;
-	  fedh_t *pfh=(fedh_t *)blk_cursor;
-	  fedid=pfh->sourceid & FED_SOID_MASK;
-	  fedid=fedid >> 8;
-	  
-	  // DEBUG
-	  if((pfh->eventid & FED_HCTRLID_MASK)!=0x50000000)
-	    cout<<"check_event_data (1): fedh error! trigno="<<hd_trigno
-		<<" fedid="<<fedid<<endl;
-	  // END DEBUG
-	}
-	else {
-	  blk_cursor=(unsigned char*)blocks_adrs[iblk]+frlHeaderSize_;
-	  fed_left  =fedlen-fedTrailerSize_-seglen_left;
-	  memcpy(fedd+feds-seglen_left,blk_cursor,seglen_left);
-	  seglen_left=0;
-	}
-      }
-      else if(fed_left > fedHeaderSize_) {
-	if(seglen_left==0)break;
-	if(seglen_left-fed_left >= 0) {
-	  blk_cursor-=(fed_left-fedHeaderSize_);
-	  memcpy(fedd,blk_cursor,fed_left-fedHeaderSize_);
-	  seglen_left-=fed_left;
-	  blk_cursor -=fedHeaderSize_;
-	  fed_left    =0;
-	  fedh_t *pfh =(fedh_t *)blk_cursor;
-	  fedid=pfh->sourceid & FED_SOID_MASK;
-	  fedid=fedid >> 8;
-	  
-	  // DEBUG
-	  if((pfh->eventid & FED_HCTRLID_MASK)!=0x50000000)
-	    cout<<"check_event_data (2): fedh error! trigno="<<hd_trigno
-		<<" fedid="<<fedid<<endl;
-	  // END DEBUG
-	}
-	else if(seglen_left-fed_left+fedHeaderSize_>0) {
-	  blk_cursor=(unsigned char*)blocks_adrs[iblk]+frlHeaderSize_;
-	  memcpy(fedd,blk_cursor,fed_left-fedHeaderSize_);
-	  fed_left=fedHeaderSize_;
-	  seglen_left=0;
-	}
-	else {
-	  blk_cursor=(unsigned char*)blocks_adrs[iblk]+frlHeaderSize_;
-	  memcpy(fedd+fed_left-fedHeaderSize_-seglen_left,blk_cursor,seglen_left);
-	  fed_left-=seglen_left;
-	  seglen_left=0;
-	}
-      }
-      else {
-	if(seglen_left==0)break;
-	blk_cursor-=fedHeaderSize_;
-	fed_left=0;
-	seglen_left-=fedHeaderSize_;
-	fedh_t *pfh=(fedh_t *)blk_cursor;
-	fedid=pfh->sourceid & FED_SOID_MASK;
-	fedid=fedid >> 8;
-      }
-    }
-    
-    //dumpFrame((unsigned char*)blocks_adrs[iblk],segsize_proper+frlHeaderSize_);
-  }
-
-  return retval;
-}
-
-
-//______________________________________________________________________________
-void BU::debug(toolbox::mem::Reference* ref)
-{
-  vector<toolbox::mem::Reference*> chain;
-  toolbox::mem::Reference *nn = ref;
-  chain.push_back(ref);
-  int ind = 1;
-  while((nn=nn->getNextReference())!=0) {
-    chain.push_back(nn);
-    ind++;
-  }
-	  
-  //unsigned long blocks_adrs[chain.size()];
-  unsigned long* blocks_adrs=new unsigned long[chain.size()];
-  for(unsigned int i=0;i<chain.size();i++) {
-    blocks_adrs[i]=(unsigned long)chain[i]->getDataLocation()+
-      sizeof(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME);
-  }
-  
-  // call method to unwind data structure and check H/T content 
-  int ierr=check_event_data(blocks_adrs,chain.size());
-  if(ierr!=0) cerr<<"ERROR::check_event_data, code = "<<ierr<<endl;
-  delete [] blocks_adrs;
-}
-
-
-//______________________________________________________________________________
 void BU::dumpFrame(unsigned char* data,unsigned int len)
 {
-  //PI2O_MESSAGE_FRAME  ptrFrame = (PI2O_MESSAGE_FRAME)data;
-  //printf ("\nMessageSize: %d Function %d\n",
-  //ptrFrame->MessageSize,ptrFrame->Function);
-  
   char left1[20];
   char left2[20];
   char right1[20];
   char right2[20];
-  
-  //LOG4CPLUS_ERROR(log_,
-  //  toolbox::toString("Byte  0  1  2  3  4  5  6  7\n"));
+
   printf("Byte  0  1  2  3  4  5  6  7\n");
   
   int c(0);
@@ -1205,8 +1038,6 @@ void BU::dumpFrame(unsigned char* data,unsigned int len)
     }
     c+=8;
     
-    //LOG4CPLUS_ERROR(log_,
-    //  toolbox::toString("%4d: %s  ||  %s \n", c-8, left, right));
     printf ("%4d: %s%s ||  %s%s  %x\n",
 	    c-8, left1, left2, right1, right2, (int)&data[c-8]);
   }

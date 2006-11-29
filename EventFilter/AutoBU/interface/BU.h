@@ -105,6 +105,9 @@ namespace evf {
     // export parameters to info space(s)
     void exportParameters();
     
+    // reset all variables in its 'configured' state
+    void reset();
+    
     
   private:
     //
@@ -132,8 +135,6 @@ namespace evf {
     void unlock();
 
     // debug functionality
-    void debug(toolbox::mem::Reference* ref);
-    int  check_event_data(unsigned long* blocks_adrs,int nmb_blocks);
     void dumpFrame(unsigned char* data,unsigned int len);
   
   
@@ -147,11 +148,10 @@ namespace evf {
     
     std::string               sourceId_;
     
-    unsigned int             *fedN_;       // nFED/SF, [iSF]
+    unsigned int             *fedN_;       // nFED/SF,    [iSF ]
     unsigned char           **fedData_;    // current SF, [iFED][pos]
     unsigned int             *fedSize_;    // current SF, [iFED]
-
-    unsigned int            **fedId_;      // fedid, [iSF][iFED] (RANDOM only)
+    unsigned int            **fedId_;      // fedid,      [iSF ][iFED]
     
     // parameters and counters to be exported
     xdata::String             url_;
@@ -180,7 +180,6 @@ namespace evf {
     xdata::UnsignedInteger32  nbDiscardedEvents_;
     
     xdata::String             mode_;
-    xdata::Boolean            debug_;
     xdata::UnsignedInteger32  dataBufSize_;
     xdata::UnsignedInteger32  nSuperFrag_;
     xdata::UnsignedInteger32  fedSizeMax_;
