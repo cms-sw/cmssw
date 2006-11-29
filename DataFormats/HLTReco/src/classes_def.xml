@@ -40,4 +40,18 @@
   <class name="edm::EventTime"/>
   <class name="edm::Wrapper<edm::EventTime>"/>
 
+  <class name="HLTPerformanceInfo"/>
+  <class name="edm::Wrapper<HLTPerformanceInfo >"/>
+
+  <class name="HLTPerformanceInfo::Module"/>
+  <class name="std::vector<HLTPerformanceInfo::Module>"/>
+  <class name="std::vector<HLTPerformanceInfo::Module>::const_iterator"/>
+
+  <class name="HLTPerformanceInfo::Path"/>
+  <class name="HLTPerformanceInfo::Path::const_iterator"/>
+  <class name="HLTPerformanceInfo::Path::Adapter"/>
+  <class name="std::vector<HLTPerformanceInfo::Path>"/>
+  <class name="std::vector<HLTPerformanceInfo::Path>::const_iterator"/>
+
+
 </lcgdict>

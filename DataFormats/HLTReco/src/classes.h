@@ -4,6 +4,7 @@
 #include "DataFormats/HLTReco/interface/HLTPathObject.h"
 #include "DataFormats/HLTReco/interface/HLTGlobalObject.h"
 #include "DataFormats/HLTReco/interface/ModuleTiming.h"
+#include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
@@ -42,5 +43,20 @@ namespace {
     edm::EventTime                                et0;
 
     edm::Wrapper<edm::EventTime>                wet10;
+
+    // Performance Information
+    HLTPerformanceInfo pw0;
+    edm::Wrapper<HLTPerformanceInfo> pw1;
+    HLTPerformanceInfoCollection pw2; 
+    edm::Wrapper<HLTPerformanceInfoCollection> pw3; 
+
+    HLTPerformanceInfo::Module pw4;
+    HLTPerformanceInfo::Path pw6;
+    std::vector<HLTPerformanceInfo::Module> pw8;
+    std::vector<HLTPerformanceInfo::Module>::const_iterator pw9;
+    std::vector<HLTPerformanceInfo::Path> pw10;
+    std::vector<HLTPerformanceInfo::Path>::const_iterator pw11;
+    HLTPerformanceInfo::Path::Adapter pw12;
+
   }
 }
