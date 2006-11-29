@@ -8,9 +8,10 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.4 2006/07/24 06:33:58 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.5 2006/10/26 14:23:07 llista Exp $
  *
  */
+
 namespace reco {
 
   class CompositeCandidate : public Candidate {
