@@ -209,17 +209,17 @@ void WebGUI::resetCounters()
   // standard counters
   for (unsigned int i=0;i<standardCounters_.size();i++) {
     Counter_t* counter=standardCounters_[i].second;
-    counter=0;
+    *counter=0;
   }
   // monitor counters
   for (unsigned int i=0;i<monitorCounters_.size();i++) {
     Counter_t* counter=monitorCounters_[i].second;
-    counter=0;
+    *counter=0;
   }
   // debug counters
   for (unsigned int i=0;i<debugCounters_.size();i++) {
     Counter_t* counter=debugCounters_[i].second;
-    counter=0;
+    *counter=0;
   }
 }
 

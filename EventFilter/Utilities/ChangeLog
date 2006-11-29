@@ -1,3 +1,8 @@
+2006-11-29  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+        * tag V00-11-06
+	* src/WebGUI.cc: fix resetCounters(), which did not do its job.
+
 2006-11-10  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-11-05
