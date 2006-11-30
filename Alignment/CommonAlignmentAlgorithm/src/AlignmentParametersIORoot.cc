@@ -1,7 +1,14 @@
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
-
 // this class's header
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParametersIORoot.h"
+
+#include <TTree.h>
+
+#include "Alignment/CommonAlignmentParametrization/interface/CompositeRigidBodyAlignmentParameters.h"
+#include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
+
+#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
+
+
 
 // ----------------------------------------------------------------------------
 // constructor
@@ -76,10 +83,8 @@ int AlignmentParametersIORoot::writeOne(Alignable* ali)
 
 // ----------------------------------------------------------------------------
 
-AlignmentParameters* AlignmentParametersIORoot::readOne( Alignable* ali, 
-														 int& ierr )
+AlignmentParameters* AlignmentParametersIORoot::readOne( Alignable* ali, int& ierr )
 {
-
   
   TrackerAlignableId converter;
   int obj = converter.alignableTypeId(ali);
