@@ -4,8 +4,8 @@
  *  class to build trajectories of muons from cosmic rays
  *  using DirectMuonNavigation
  *
- *  $Date: 2006/09/24 18:30:43 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/10/19 20:23:48 $
+ *  $Revision: 1.18 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -48,9 +48,22 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
   bool enableCSCMeasurement = par.getUntrackedParameter<bool>("EnableCSCMeasurement",true);
   bool enableRPCMeasurement = par.getUntrackedParameter<bool>("EnableRPCMeasurement",true);
 
+//  if(enableDTMeasurement)
+    string DTRecSegmentLabel = par.getUntrackedParameter<string>("DTRecSegmentLabel", "dt4DSegments");
+
+//  if(enableCSCMeasurement)
+    string CSCRecSegmentLabel = par.getUntrackedParameter<string>("CSCRecSegmentLabel","cscSegments");
+
+//  if(enableRPCMeasurement)
+    string RPCRecSegmentLabel = par.getUntrackedParameter<string>("CSCRecSegmentLabel","rpcRecHits");
+
+
   theLayerMeasurements= new MuonDetLayerMeasurements(enableDTMeasurement,
 						     enableCSCMeasurement,
-						     enableRPCMeasurement);
+						     enableRPCMeasurement,
+                                                     DTRecSegmentLabel,
+                                                     CSCRecSegmentLabel,
+                                                     RPCRecSegmentLabel);
 
   // FIXME: check if the propagator is updated each event!!!  
   ParameterSet muonUpdatorPSet = par.getParameter<ParameterSet>("MuonTrajectoryUpdatorParameters");
