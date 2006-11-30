@@ -99,7 +99,7 @@ class DDLogicalPart : public DDBase<DDName,DDI::LogicalPart*>
   //friend DDSpecificsImpl;
 public:  
   //! The default constructor provides an uninitialzed reference object. 
-  DDLogicalPart() : : DDBase<DDName,DDI::LogicalPart*>(){ }   
+  DDLogicalPart() : DDBase<DDName,DDI::LogicalPart*>(){ }   
   
   //! Creates a reference object referring to the appropriate XML specification.
   DDLogicalPart(const DDName & name);

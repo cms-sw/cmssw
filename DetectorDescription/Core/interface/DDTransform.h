@@ -83,9 +83,9 @@ public:
 
   DDRotation(const DDName &, DDRotationMatrix*);
   //! Returns the read-only rotation-matrix     
-  const DDRotationMatrix * rotation() const;// { return rep().rotation(); }   
+  const DDRotationMatrix * rotation() const { return rep().rotation(); }   
   
-  DDRotationMatrix * rotation();
+  DDRotationMatrix * rotation()  { return rep().rotation(); } 
   
   DDRotationMatrix * matrix() { return rotation(); }
   //DDRotationMatrix* unit();
