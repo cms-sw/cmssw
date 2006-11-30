@@ -1,7 +1,6 @@
 /** 
- * Analyzer for reading CSC bin by bin ADC information.
- * author S. Durkin, O.Boeriu 26/04/06 
- * ripped from Jeremy's and Rick's analyzers
+ * Analyzer for reading CSC bin by bin ADC information for noise matrix.
+ * author S. Durkin, O.Boeriu 30/11/06 
  *   
  */
 #include <iostream>
@@ -167,7 +166,7 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
   CSCobject *cn = new CSCobject();
   cscmap *map = new cscmap();
   condbon *dbon = new condbon();
-    
+  
   //root ntuple
   TCalibNoiseMatrixEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
@@ -220,7 +219,6 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
 	  std::cout<<"Chamber "<<i<<" Layer "<<j<<" strip "<<k<<" Matrix elements "<<tmp[max]<<std::endl;
 	  
 	  cn->obj[layer_id][k].resize(12);
-	  
 	  cn->obj[layer_id][k][0] = tmp[0];
 	  cn->obj[layer_id][k][1] = tmp[1];
 	  cn->obj[layer_id][k][2] = tmp[3];
@@ -233,7 +231,7 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
 	  cn->obj[layer_id][k][9] = tmp[8];
 	  cn->obj[layer_id][k][10] = tmp[10];
 	  cn->obj[layer_id][k][11] = tmp[11];
-	     
+	  
 	}
       }
     }
@@ -243,7 +241,8 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
   //send data to DB
   dbon->cdbon_last_record("noisematrix",&record);
   std::cout<<"record "<<record<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
-  if(debug) dbon->cdbon_write(cn,"noisematrix",11,myTime);
+  if(debug) dbon->cdbon_write(cn,"noisematrix",12,myTime);
+  std::cout<<"record "<<record<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
   
   calibfile.Write();
   calibfile.Close();

@@ -26,9 +26,10 @@ class AutoCorrMat{
      Mat[i]=0.0;
      N[i]=0.0;
     }
-   for (int i=3;i<7;i++){ 
-     variance[i]=0.0;
-     mymean[i]=0.0;
+   for (int i=3;i<12;i++){
+     evar[i]=1; 
+     variance[i]=10.0;
+     mymean[i]=3.2;
    }
    evt=0;
   }
@@ -38,18 +39,22 @@ class AutoCorrMat{
     double ped=(adc[0]+adc[1])/2.;
     evt++;      
 
-    for(int i=3;i<7;i++){
-      mymean[i]   += adc[i]-ped;
-      variance[i] += (adc[i]-ped)*(adc[i]-ped);
+    for(int i=3;i<8;i++){
+      if(fabs(adc[i]-ped)<25.){
+        evar[i]++;
+        mymean[i]   += adc[i]-ped;
+        variance[i] += (adc[i]-ped)*(adc[i]-ped);
+      }
     }
     
     for(int i=0;i<12;i++){
       
       //Add values within 3 sigma of mean only
-      float threeSigma0 = 3. * sqrt(variance[pairs[i][0]]/evt);
-      float threeSigma1 = 3. * sqrt(variance[pairs[i][1]]/evt);
-      if (adc[pairs[i][0]]-ped<threeSigma0 && adc[pairs[i][1]]-ped<threeSigma1){
-	N[i]=N[i]+1;
+      float threeSigma0 = 3. * sqrt(variance[pairs[i][0]]/evar[pairs[i][0]]);
+      float threeSigma1 = 3. * sqrt(variance[pairs[i][1]]/evar[pairs[i][1]]);
+      
+     if (fabs(adc[pairs[i][0]]-ped)<threeSigma0 && fabs(adc[pairs[i][1]]-ped)<threeSigma1){
+  	N[i]=N[i]+1;
 	Mat[i]=Mat[i]+(adc[pairs[i][0]]-ped)*(adc[pairs[i][1]]-ped);
       }
       //end 3 sigma 
@@ -69,8 +74,9 @@ class AutoCorrMat{
   float N[12];
   float tMat[12];
   float mymean[12];
-  float variance[8];
+  float variance[12];
   int evt;
+  int evar[12];
 };
 
 class Chamber_AutoCorrMat{
