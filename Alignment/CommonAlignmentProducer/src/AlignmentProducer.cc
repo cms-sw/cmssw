@@ -1,11 +1,13 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.14 $
-///  last update: $Date: 2006/11/07 17:48:25 $
-///  by         : $Author: flucke $
+///  Revision   : $Revision: 1.15 $
+///  last update: $Date: 2006/11/08 16:38:00 $
+///  by         : $Author: fronga $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
+
+#include "TrackingTools/PatternTools/interface/Trajectory.h" // patch for CMSSW_1_0_6
 
 // System include files
 #include <memory>
@@ -283,7 +285,10 @@ void AlignmentProducer::simpleMisalignment(const Alignables &alivec, const std::
     std::vector<bool> commSel(0);
     if (selection != "-1") {
       AlignmentParameterSelector aSelector(0); // no tracker needed here...
-      commSel = aSelector.decodeParamSel(selection);
+      const std::vector<char> cSel(aSelector.convertParamSel(selection));
+      for (std::vector<char>::const_iterator cIter = cSel.begin(); cIter != cSel.end(); ++cIter) {
+        commSel.push_back(*cIter == '0' ? false : true);
+      }
       output << "parameters defined by (" << selection 
              << "), representing (x,y,z,alpha,beta,gamma).";
     } else {
