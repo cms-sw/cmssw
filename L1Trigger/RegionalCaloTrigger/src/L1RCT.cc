@@ -213,6 +213,8 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     }
   }
 
+  cout << "ecalSum = " << ecalSum << "\thbSum = " << hbSum << "\theSum = " << heSum << "\thfSum = " << hfSum << endl;
+
   /*  Why do we need to write a file always -- this should be optional -- In any case we should reuse "barrel" and "hf"
 
   vector<vector<unsigned short> > ecalBarrel(72,vector<unsigned short>(56));
@@ -703,8 +705,8 @@ L1CaloEmCollection L1RCT::getIsolatedEGObjects(int crate){
     unsigned short crd = (((isoEmObjects.at(i))/2) & 7);
     unsigned short energy = ((isoEmObjects.at(i))/16);
     unsigned short rank = gctEmScale->rank(energy);
-    L1CaloEmCand isoCand(energy, rgn, crd, crate, 1);  // uses 7-bit energy as rank here, temporarily
-    //L1CaloEmCand isoCand(rank, rgn, crd, crate, 1);
+    L1CaloEmCand isoCand(rank, rgn, crd, crate, 1);
+    // L1CaloEmCand isoCand(energy, rgn, crd, crate, 1);  // uses 7-bit energy as rank here, temporarily
     // cout << "card " << crd << "region " << rgn << "energy " << energy << endl;
     isoEmCands.push_back(isoCand);
   }
@@ -722,8 +724,8 @@ L1CaloEmCollection L1RCT::getNonisolatedEGObjects(int crate){
     unsigned short crd = (((nonIsoEmObjects.at(i))/2) & 7);
     unsigned short energy = ((nonIsoEmObjects.at(i))/16);
     unsigned short rank = gctEmScale->rank(energy);
-    L1CaloEmCand nonIsoCand(energy, rgn, crd, crate, 0);  // uses 7-bit energy as rank here, temporarily
-    //L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0);
+    L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0);
+    //L1CaloEmCand nonIsoCand(energy, rgn, crd, crate, 0);  // uses 7-bit energy as rank here, temporarily
     nonIsoEmCands.push_back(nonIsoCand);
   }
   return nonIsoEmCands;

@@ -7,11 +7,19 @@
 using std::cout;
 using std::endl;
 
+// public variable initialization - these are typical values -- they are reset to values stored in the LUTFile
+
+short L1RCTLookupTables::eActivityCut_ = 2;
+short L1RCTLookupTables::hActivityCut_ = 2;
+float L1RCTLookupTables::hOeCut_ = 0.05;
+float L1RCTLookupTables::eGammaLSB_ = 0.5;
+float L1RCTLookupTables::jetMETLSB_ = 0.5;
+
 // constructor
 
 L1RCTLookupTables::L1RCTLookupTables(const std::string& filename)
 {
-  loadHcalConstants(filename);
+  loadLUTConstants(filename);
 }
 
 // lookup method for HF
@@ -42,9 +50,10 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
   float ecalLinear = convertEcal(ecal);
   float hcalLinear = hcalConversionConstants_[iAbsEta-1][hcal];
   float etLinear = ecalLinear + hcalLinear;
-  unsigned long HE_FGBit = (calcHEBit(ecalLinear,hcalLinear) || fgbit);
-  unsigned long etIn7Bits = convertToInteger(etLinear, eGammaLSB(), 7);
-  unsigned long etIn9Bits = convertToInteger(etLinear, jetMETLSB(), 9);
+  //  unsigned long HE_FGBit = (calcHEBit(ecalLinear,hcalLinear) || fgbit);
+  unsigned long HE_FGBit = (calcHEBit(ecalLinear,0));  // Temporarily do not use hcal or FG bit
+  unsigned long etIn7Bits = convertToInteger(ecalLinear, eGammaLSB_, 7);
+  unsigned long etIn9Bits = convertToInteger(etLinear, jetMETLSB_, 9);
   unsigned long activityBit = calcActivityBit(ecal,hcal);
   unsigned long shiftEtIn9Bits = etIn9Bits<<8;
   unsigned long shiftHE_FGBit = HE_FGBit<<7;
@@ -55,17 +64,17 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
 
 // converts compressed ecal energy to linear (real) scale
 float L1RCTLookupTables::convertEcal(unsigned short ecal){
-  return ((float) ecal) * eGammaLSB();
+  return ((float) ecal) * eGammaLSB_;
 }
 
 // calculates activity bit for each tower - assume that noise is well suppressed
 unsigned short L1RCTLookupTables::calcActivityBit(unsigned short ecal, unsigned short hcal){
-  return ((ecal > 2) || (hcal > 2));
+  return ((ecal > eActivityCut_) || (hcal > hActivityCut_));
 }
 
 // calculates h-over-e veto bit (true if hcal/ecal energy > 5%)
 unsigned short L1RCTLookupTables::calcHEBit(float ecal, float hcal){
-  return ((ecal > 3) && (hcal/ecal)>0.05);
+  return ((ecal > eActivityCut_) && (hcal/ecal)>hOeCut_);
 }
 
 // integerize given an LSB and set maximum value of 2^precision
@@ -78,7 +87,7 @@ unsigned long L1RCTLookupTables::convertToInteger(float et, float lsb, int preci
     return etBits;
 }
 
-void L1RCTLookupTables::loadHcalConstants(const std::string& filename)
+void L1RCTLookupTables::loadLUTConstants(const std::string& filename)
 {
   std::ifstream userfile;
   userfile.open(filename.c_str());
@@ -89,6 +98,14 @@ void L1RCTLookupTables::loadHcalConstants(const std::string& filename)
       userfile.getline(junk, 256);
       userfile.getline(junk, 256);
       userfile.getline(junk, 256);
+      userfile.getline(junk, 256);
+      userfile >> eActivityCut_;
+      userfile.getline(junk, 256);
+      userfile >> hActivityCut_;
+      userfile.getline(junk, 256);
+      userfile >> eGammaLSB_;
+      userfile.getline(junk, 256);
+      userfile >> jetMETLSB_;
       userfile.getline(junk, 256);
       hcalConversionConstants_.resize(N_TOWERS);
       for(int iAbsEta = 0; iAbsEta < N_TOWERS; iAbsEta++) {
