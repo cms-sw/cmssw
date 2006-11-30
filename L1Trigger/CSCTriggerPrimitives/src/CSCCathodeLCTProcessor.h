@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2006/10/09 13:59:49 $
- * $Revision: 1.7 $
+ * $Date: 2006/11/08 16:35:05 $
+ * $Revision: 1.8 $
  *
  */
 
@@ -32,7 +32,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCLCTDigi.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+#include <DataFormats/L1CSCTrackFinder/interface/CSCConstants.h>
 
 class CSCCathodeLCTProcessor
 {

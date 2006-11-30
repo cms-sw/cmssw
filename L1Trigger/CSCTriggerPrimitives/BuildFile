@@ -9,6 +9,7 @@
  <use name=Geometry/Records>
  <use name=DataFormats/CSCDigi>
  <use name=DataFormats/MuonDetId>
+ <use name=DataFormats/L1CSCTrackFinder>
 </export>
 
 <use name=L1Trigger/CSCCommonTrigger>
@@ -16,4 +17,5 @@
 <use name=Geometry/Records>
 <use name=DataFormats/CSCDigi>
 <use name=DataFormats/MuonDetId>
+<use name=DataFormats/L1CSCTrackFinder>
 <use name=boost>

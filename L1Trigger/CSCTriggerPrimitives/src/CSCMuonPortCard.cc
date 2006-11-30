@@ -11,8 +11,8 @@
 //   Author List: Benn Tannenbaum 30 August 1999.
 //                Based on code by Nick Wisniewski.
 //
-//   $Date: 2006/06/23 13:55:41 $
-//   $Revision: 1.1 $
+//   $Date: 2006/06/27 14:38:48 $
+//   $Revision: 1.2 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -21,7 +21,7 @@
 //-----------------------------------------------------------------------------
 
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+#include <DataFormats/L1CSCTrackFinder/interface/CSCConstants.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 

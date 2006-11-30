@@ -18,8 +18,8 @@
 #include <vector>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerContainer.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTrackStub.h>
+#include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
+#include <DataFormats/L1CSCTrackFinder/interface/CSCTrackStub.h>
 
 
 class CSCMuonPortCard

@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2006/10/09 13:46:17 $
-//   $Revision: 1.5 $
+//   $Date: 2006/10/16 13:34:55 $
+//   $Revision: 1.6 $
 //
 //   Modifications:
 //
@@ -213,7 +213,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
 
   std::vector<CSCTrackStub>::const_iterator itr = result.begin();
   for (; itr != result.end(); itr++) {
-    oc_sorted_lct.insertDigi(itr->getDetId(), itr->getDigi());
+    oc_sorted_lct.insertDigi(itr->getDetId(), *(itr->getDigi()));
     LogDebug("L1CSCTrigger")
       << "MPC " << itr->getDigi() << " found in"
       << " endcap "    << itr->getDetId().endcap()

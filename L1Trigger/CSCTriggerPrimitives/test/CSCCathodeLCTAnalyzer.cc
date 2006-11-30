@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2006/09/20 12:34:09 $
- * $Revision: 1.2 $
+ * $Date: 2006/11/10 15:53:28 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -15,7 +15,7 @@
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/CSCGeometry/src/RadialStripTopology.h>
 
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+#include <DataFormats/L1CSCTrackFinder/interface/CSCConstants.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h>
 #include <L1Trigger/CSCTriggerPrimitives/test/CSCCathodeLCTAnalyzer.h>
 
