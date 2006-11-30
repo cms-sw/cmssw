@@ -15,8 +15,8 @@
 /// [derived from AlignmentParameters]. The number of parameters
 /// N_PARAM is fixed to 6 (3 translations + 3 rotations)
 ///
-///  $Date: 2006/10/17 11:02:42 $
-///  $Revision: 1.11 $
+///  $Date: 2006/10/19 14:20:59 $
+///  $Revision: 1.2 $
 /// (last update by $Author: flucke $)
 
 class AlignableDetUnit;
@@ -33,6 +33,9 @@ public:
 	  dalpha, dbeta, dgamma,
 	  N_PARAM
 	};
+
+  /// Constructor creating parameters (no covariance) from current (mis-)placement of alignable
+  explicit RigidBodyAlignmentParameters(Alignable* alignable);
 
   /// Constructor for full set of parameters
   RigidBodyAlignmentParameters( Alignable* alignable, 
