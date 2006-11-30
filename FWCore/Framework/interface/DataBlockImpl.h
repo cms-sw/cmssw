@@ -14,7 +14,7 @@ through shared pointers.
 The DataBlockImpl returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: DataBlockImpl.h,v 1.1 2006/10/27 20:56:42 wmtan Exp $
+$Id: DataBlockImpl.h,v 1.2 2006/11/08 00:19:06 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -54,6 +54,7 @@ namespace edm {
                    boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     virtual ~DataBlockImpl();
+    size_t  size() const { return groups_.size(); }
 
     EDProductGetter const* prodGetter() const {return this;}
 

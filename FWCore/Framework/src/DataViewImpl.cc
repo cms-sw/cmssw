@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.2 2006/11/04 07:17:39 wmtan Exp $
+$Id: DataViewImpl.cc,v 1.3 2006/11/04 18:56:23 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -35,6 +35,11 @@ namespace edm {
     // anything left here must be the result of a failure
     // let's record them as failed attempts in the event principal
     std::for_each(put_products_.begin(),put_products_.end(),deleter());
+  }
+
+  size_t
+  DataViewImpl::size() const {
+    return put_products_.size() + dbk_.size();
   }
 
   void 

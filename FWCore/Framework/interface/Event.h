@@ -15,7 +15,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.48 2006/11/04 07:17:38 wmtan Exp $
+$Id: Event.h,v 1.49 2006/11/04 18:56:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -54,6 +54,7 @@ namespace edm {
     using DataViewImpl::getProvenance;
     using DataViewImpl::getRefBeforePut;
     using DataViewImpl::put;
+    using DataViewImpl::size;
 
   private:
     // commit_() is called to complete the transaction represented by

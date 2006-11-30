@@ -74,7 +74,7 @@ been committed (which happens after the EDProducer::produce method has ended)
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.6 2006/11/09 00:28:22 wmtan Exp $
+$Id: DataViewImpl.h,v 1.7 2006/11/11 16:50:48 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -113,6 +113,8 @@ namespace edm {
 	BranchType const& branchType);
 
     ~DataViewImpl();
+
+    size_t size() const;
 
     template <typename PROD>
     void 
@@ -545,6 +547,5 @@ namespace edm {
     }
     results.swap(products);
   }
-
 }
 #endif
