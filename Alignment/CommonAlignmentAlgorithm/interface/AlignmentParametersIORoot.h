@@ -1,20 +1,19 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentParametersIORoot_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentParametersIORoot_h
 
-
-#include "TTree.h"
+/// \class AlignmentParametersIORoot
+///
+/// Concrete class for ROOT-based I/O of AlignmentParameters 
+///
+///  $Date: 2006/10/19 14:20:59 $
+///  $Revision: 1.2 $
+/// (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORootBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParametersIO.h"
 
-#include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
-
-#include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
-#include "Alignment/CommonAlignmentParametrization/interface/CompositeRigidBodyAlignmentParameters.h"
-
-
-/// Concrete class for ROOT-based I/O of AlignmentParameters 
+class Alignable;
+class AlignmentParameters;
 
 class AlignmentParametersIORoot : public AlignmentIORootBase, public AlignmentParametersIO
 {

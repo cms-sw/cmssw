@@ -1,16 +1,22 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentIO_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentIO_h
 
+/// \class AlignmentIO
+///
+/// Abstract base class for input/output of Alignment parameters,
+/// Correlations, as well as absolute and relative coordinates of
+/// Alignables
+///
+///  $Date: 2006/10/19 14:20:59 $
+///  $Revision: 1.2 $
+/// (last update by $Author: flucke $)
+
 #include <map>
 
-#include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignableData.h"
 
-/// Abstract base class for input/output of Alignment parameters,
-//  Correlations, as well as absolute and relative coordinates of
-//  Alignables
- 
+class Alignable;
+class AlignmentParameters;
 
 class AlignmentIO
 {
@@ -30,6 +36,10 @@ class AlignmentIO
   /// read AlignmentParameters 
   virtual Parameters readAlignmentParameters (const Alignables& alivec, 
     const char* filename, int iter, int& ierr) = 0;
+
+  /// write RigidBodyAlignmentParameters as applied on top of original positions
+  virtual void writeOrigRigidBodyAlignmentParameters (const Alignables& alivec, 
+    const char* filename, int iter, bool validCheck, int& ierr) = 0;
 
   /// write Correlations 
   virtual void writeCorrelations (const Correlations& cormap, 

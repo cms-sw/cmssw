@@ -46,6 +46,23 @@ AlignmentIORoot::readAlignmentParameters(const Alignables& alivec,
 }
 
 // ----------------------------------------------------------------------------
+// write alignment parameters 
+void
+AlignmentIORoot::writeOrigRigidBodyAlignmentParameters
+(const Alignables& alivec, const char* filename, int iter, bool validCheck, int& ierr)
+{
+  AlignmentParametersIORoot theIO;
+  ierr = 0;
+  int iret = theIO.open(filename, iter, true);
+  if (iret != 0) { ierr = -1; return;}
+  iret = theIO.writeOrigRigidBody(alivec, validCheck);
+  if (iret != 0) { ierr = -2; return;}
+  iret = theIO.close();
+  if (iret != 0) { ierr = -3; return;}
+}
+
+
+// ----------------------------------------------------------------------------
 // write correlations
 
 void 

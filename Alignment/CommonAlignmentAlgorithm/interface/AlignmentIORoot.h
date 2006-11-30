@@ -1,18 +1,20 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignableIORoot_h
 #define Alignment_CommonAlignmentAlgorithm_AlignableIORoot_h
 
-#include <map>
-
-#include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
+/// \class AlignmentIORoot
+///
+/// concrete class for ROOT-based I/O of Alignment parameters, correlations 
+///  and Alignable positions. Derived from AlignmentIO
+///
+///  $Date: 2006/10/19 14:20:59 $
+///  $Revision: 1.2 $
+/// (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIO.h"
 
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignableData.h"
+class Alignable;
+class AlignmentParameters;
 
-/// concrete class for ROOT-based I/O of Alignment parameters, correlations 
-///  and Alignable positions. Derived from AlignmentIO
- 
 
 class AlignmentIORoot : public AlignmentIO
 {
@@ -26,6 +28,10 @@ class AlignmentIORoot : public AlignmentIO
   /// read AlignmentParameters 
   Parameters readAlignmentParameters (const Alignables& alivec, 
 				      const char* filename, int iter, int& ierr);
+
+  /// write RigidBodyAlignmentParameters as applied on top of original positions
+  void writeOrigRigidBodyAlignmentParameters (const Alignables& alivec, const char* filename,
+					      int iter, bool validCheck, int& ierr);
 
   /// write Correlations 
   void writeCorrelations (const Correlations& cormap, 
