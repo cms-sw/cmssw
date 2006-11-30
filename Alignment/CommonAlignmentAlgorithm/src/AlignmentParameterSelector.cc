@@ -1,9 +1,9 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2006/11/07 15:41:13 $
- *  $Revision: 1.2 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2006/11/08 16:36:22 $
+ *  $Revision: 1.3 $
+ *  (last update by $Author: fronga $)
  */
 
 #include <cctype>
@@ -40,7 +40,7 @@ const std::vector<Alignable*>& AlignmentParameterSelector::selectedAlignables() 
 }
 
 //________________________________________________________________________________
-const std::vector<std::vector<bool> >& AlignmentParameterSelector::selectedParameters() const
+const std::vector<std::vector<char> >& AlignmentParameterSelector::selectedParameters() const
 {
   return theSelectedParameters;
 }
@@ -115,10 +115,10 @@ unsigned int AlignmentParameterSelector::addSelections(const edm::ParameterSet &
                                         << " should have at least 2 ','-separated parts";
     } else if (decompSel.size() > 2) {
       const edm::ParameterSet geoSel(pSet.getParameter<edm::ParameterSet>(decompSel[2].c_str()));
-      this->addSelection(decompSel[0], this->decodeParamSel(decompSel[1]), geoSel);
+      this->addSelection(decompSel[0], this->convertParamSel(decompSel[1]), geoSel);
     } else {
       this->clearGeometryCuts();
-      this->addSelection(decompSel[0], this->decodeParamSel(decompSel[1]));
+      this->addSelection(decompSel[0], this->convertParamSel(decompSel[1]));
     }
     
     ++addedSets;
@@ -139,7 +139,7 @@ void AlignmentParameterSelector::setGeometryCuts(const edm::ParameterSet &pSet)
 
 //________________________________________________________________________________
 unsigned int AlignmentParameterSelector::addSelection(const std::string &name,
-                                                      const std::vector<bool> &paramSel,
+                                                      const std::vector<char> &paramSel,
                                                       const edm::ParameterSet &pSet)
 {
   this->setGeometryCuts(pSet);
@@ -148,7 +148,7 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &name,
 
 //________________________________________________________________________________
 unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInput, 
-                                                      const std::vector<bool> &paramSel)
+                                                      const std::vector<char> &paramSel)
 {
 
   const std::string name(this->setSpecials(nameInput)); // possibly changing name
@@ -257,7 +257,7 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
 
 //________________________________________________________________________________
 unsigned int AlignmentParameterSelector::add(const std::vector<Alignable*> &alignables,
-                                             const std::vector<bool> &paramSel)
+                                             const std::vector<char> &paramSel)
 {
   unsigned int numAli = 0;
 
@@ -369,28 +369,18 @@ AlignmentParameterSelector::decompose(const std::string &s, std::string::value_t
 }
 
 //__________________________________________________________________________________________________
-std::vector<bool> AlignmentParameterSelector::decodeParamSel(const std::string &selString) const
+std::vector<char> AlignmentParameterSelector::convertParamSel(const std::string &selString) const
 {
 
-  // Note: old implementation in AlignmentParameterBuilder tolerated other chars than 0,
-  // but was rigid in length, expecting RigidBodyAlignmentParameters::N_PARAM.
+  // Convert selString into vector<char> of same length.
+  // Note: Old implementation in AlignmentParameterBuilder was rigid in length,
+  // expecting RigidBodyAlignmentParameters::N_PARAM.
   // But I prefer to be more general and allow other Alignables. It will throw anyway if
   // RigidBodyAlignmentParameters are build with wrong selection length.
-  // I do not tolerate other chars to detect if another kind of string was mixed up.
-  std::vector<bool> result(selString.size());
+  std::vector<char> result(selString.size());
 
   for (std::string::size_type pos = 0; pos < selString.size(); ++pos) {
-    switch (selString[pos]) {
-    case '0':
-      result[pos] = false;
-      break;
-    case '1':
-      result[pos] = true;
-      break;
-    default:
-      throw cms::Exception("BadConfig") <<"@SUB=AlignmentParameterSelector::decodeSelections"
-                                        << selString << " must contain only '0' and '1'";
-    }
+    result[pos] = selString[pos];
   }
 
   return result;
@@ -445,7 +435,7 @@ std::string AlignmentParameterSelector::setSpecials(const std::string &name)
 }
 
 //________________________________________________________________________________
-unsigned int AlignmentParameterSelector::addAllDets(const std::vector<bool> &paramSel)
+unsigned int AlignmentParameterSelector::addAllDets(const std::vector<char> &paramSel)
 {
   unsigned int numAli = 0;
 
@@ -459,7 +449,7 @@ unsigned int AlignmentParameterSelector::addAllDets(const std::vector<bool> &par
 }
 
 //________________________________________________________________________________
-unsigned int AlignmentParameterSelector::addAllRods(const std::vector<bool> &paramSel)
+unsigned int AlignmentParameterSelector::addAllRods(const std::vector<char> &paramSel)
 {
   unsigned int numAli = 0;
 
@@ -473,7 +463,7 @@ unsigned int AlignmentParameterSelector::addAllRods(const std::vector<bool> &par
 }
 
 //________________________________________________________________________________
-unsigned int AlignmentParameterSelector::addAllLayers(const std::vector<bool> &paramSel)
+unsigned int AlignmentParameterSelector::addAllLayers(const std::vector<char> &paramSel)
 {
   unsigned int numAli = 0;
 
@@ -487,7 +477,7 @@ unsigned int AlignmentParameterSelector::addAllLayers(const std::vector<bool> &p
 }
 
 //________________________________________________________________________________
-unsigned int AlignmentParameterSelector::addAllAlignables(const std::vector<bool> &paramSel)
+unsigned int AlignmentParameterSelector::addAllAlignables(const std::vector<char> &paramSel)
 {
   unsigned int numAli = 0;
 

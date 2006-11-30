@@ -8,8 +8,8 @@
  *  additional constraints on eta, phi, r or z are possible.
  *  Furthermore stores the 'selection' of selected AlignmentParameters.
  *
- *  $Date: 2006/11/07 10:22:56 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/07 15:41:13 $
+ *  $Revision: 1.2 $
  *  (last update by $Author: flucke $)
  */
 
@@ -32,8 +32,8 @@ class AlignmentParameterSelector {
 
   /// vector of alignables selected so far
   const std::vector<Alignable*>& selectedAlignables() const;
-  /// vector of selected parameters for alignables, parallel to selectedAlignables()
-  const std::vector<std::vector<bool> >& selectedParameters() const;
+  /// vector of selection 'strings' for alignables, parallel to selectedAlignables()
+  const std::vector<std::vector<char> >& selectedParameters() const;
   /// remove all selected Alignables and geometrical restrictions
   void clear();
   /// remove all geometrical restrictions
@@ -41,9 +41,9 @@ class AlignmentParameterSelector {
 
   /// Add several selections defined by the PSet which must contain a vstring like e.g.
   /// vstring alignableParamSelector = { "PixelHalfBarrelLadders,111000,pixelSelection",
-  ///                                    "BarrelDSRods,111000",
-  ///                                    "BarrelSSRods,101000"}
-  /// The '111000' is decoded into vector<bool> and stored.
+  ///                                    "BarrelDSRods,111ff0",
+  ///                                    "BarrelSSRods,101ff0"}
+  /// The e.g. '111ff0' is decoded into vector<char> and stored.
   /// Returns number of added selections or -1 if problems (then also an error is logged)
   /// If a string contains a third, comma separated part (e.g. ',pixelSelection'),
   /// a further PSet of that name is expected to select eta/z/phi/r-ranges
@@ -54,9 +54,9 @@ class AlignmentParameterSelector {
   void setGeometryCuts(const edm::ParameterSet &pSet);
   /// add Alignables corresponding to predefined name, taking into account geometrical restrictions
   /// as defined in setSpecials, returns number of added alignables
-  unsigned int addSelection(const std::string &name, const std::vector<bool> &paramSel);
+  unsigned int addSelection(const std::string &name, const std::vector<char> &paramSel);
   /// as addSelection with one argument, but overwriting geometrical restrictions
-  unsigned int addSelection(const std::string &name, const std::vector<bool> &paramSel, 
+  unsigned int addSelection(const std::string &name, const std::vector<char> &paramSel, 
 			    const edm::ParameterSet &pSet);
 
   /// true if geometrical restrictions in eta, phi, r, z not satisfied
@@ -66,24 +66,22 @@ class AlignmentParameterSelector {
   bool insideRanges(double value, const std::vector<double> &ranges, bool isPhi = false) const;
   /// Decomposing input string 's' into parts separated by 'delimiter'
   std::vector<std::string> decompose(const std::string &s, std::string::value_type delimiter) const;
-  /// Decoding string to select local rigid body parameters into vector<bool>,
-  /// e.g. "101001" will mean x, z and gamma, but not y, alpha and beta 
-  /// for (Composite)RigidBodyAlignmentParameters
-  std::vector<bool> decodeParamSel(const std::string &selString) const;
+  /// Converting std::string into std::vector<char>
+  std::vector<char> convertParamSel(const std::string &selString) const;
 
  protected:
   /// adding alignables which fulfil geometrical restrictions and special switches 
-  unsigned int add(const std::vector<Alignable*> &alignables, const std::vector<bool> &paramSel);
+  unsigned int add(const std::vector<Alignable*> &alignables, const std::vector<char> &paramSel);
   /// some helper methods
-  unsigned int addAllDets(const std::vector<bool> &paramSel);
-  unsigned int addAllRods(const std::vector<bool> &paramSel);
-  unsigned int addAllLayers(const std::vector<bool> &paramSel);
-  unsigned int addAllAlignables(const std::vector<bool> &paramSel);
+  unsigned int addAllDets(const std::vector<char> &paramSel);
+  unsigned int addAllRods(const std::vector<char> &paramSel);
+  unsigned int addAllLayers(const std::vector<char> &paramSel);
+  unsigned int addAllAlignables(const std::vector<char> &paramSel);
 
  private:
   AlignableTracker        *theTracker;
   std::vector<Alignable*>  theSelectedAlignables;
-  std::vector<std::vector<bool> > theSelectedParameters;
+  std::vector<std::vector<char> > theSelectedParameters;
 
   /// geometrical restrictions in eta, phi, r, z to be applied for next addSelection
   std::vector<double> theRangesEta;
