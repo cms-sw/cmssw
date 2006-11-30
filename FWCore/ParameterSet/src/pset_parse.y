@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.52 2006/11/09 03:57:46 rpw Exp $
+ * $Id: pset_parse.y,v 1.53 2006/11/29 17:23:36 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -102,6 +102,8 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token DOTDELIMITED_tok
 %token PRODUCTTAG_tok
 %token BANGSTART_tok
+%token MINUSLETTERSTART_tok
+%token MINUSINF_tok
 %token EQUAL_tok
 %token PLUSEQUAL_tok
 %left COMMA_tok
@@ -587,6 +589,12 @@ any:             VALUE_tok
                    DBPRINT("any: LETTERSTART");
                    $<str>$ = $<str>1;
                  }
+               |
+                 MINUSINF_tok
+                 {
+                   DBPRINT("any: MINUSINF");
+                   $<str>$ = $<str>1;
+                 } 
                ;
 
 /* with or without a colon.  Some people even use the "source"
@@ -614,6 +622,8 @@ replaceEntry:    VALUE_tok
                  PRODUCTTAG_tok
                |
                  anyquote
+               |
+                 MINUSINF_tok
                ;
 
 producttags:     producttags COMMA_tok anyproducttag
@@ -1066,6 +1076,8 @@ worker:          bangorletter
 bangorletter: LETTERSTART_tok
       { $<str>$=$<str>1 }
       | BANGSTART_tok
+      { $<str>$=$<str>1 }
+      | MINUSLETTERSTART_tok
       { $<str>$=$<str>1 }
 	  ;
 

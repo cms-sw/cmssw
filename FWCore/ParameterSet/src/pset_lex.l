@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.27 2006/09/13 22:03:34 rpw Exp $
+ * $Id: pset_lex.l,v 1.28 2006/09/21 18:46:52 rpw Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -49,6 +49,8 @@ letterstart	[a-zA-Z]+[a-zA-Z0-9\-_]*
 dotdelimited    ([a-zA-Z]+[a-zA-Z0-9\-_]*+\.)+[a-zA-Z]+[a-zA-Z0-9\-_]*
 producttag      [a-zA-Z]+[a-zA-Z0-9\-_:]*
 bangstart	\![a-zA-Z]+[a-zA-Z0-9\-_]*
+minusinf        -inf
+minusletterstart -[a-zA-Z]+[a-zA-Z0-9\-_]*
 alphanumeric	[^\'\"\{\}\(\)\&=\n\t\r ,;:`]+
 comment	        #.*[\n]?
 comment2        "//".*[\n]?
@@ -111,6 +113,8 @@ comment2        "//".*[\n]?
 {dotdelimited}  { yylval.str = stringDup(yytext); return DOTDELIMITED_tok; }
 {producttag}    { yylval.str = stringDup(yytext); return PRODUCTTAG_tok; }
 {bangstart}	{ yylval.str = stringDup(yytext); return BANGSTART_tok; }
+{minusinf}      { yylval.str = stringDup(yytext); return MINUSINF_tok; }
+{minusletterstart} {yylval.str = stringDup(yytext); return MINUSLETTERSTART_tok;}
 {alphanumeric}	{ yylval.str = stringDup(yytext); return VALUE_tok; }
 {comment}	{ ++lines; break ; }
 {comment2}	{ ++lines; break ; }
