@@ -2,8 +2,8 @@
 #define CSCTrackFinder_CSCTFSPCoreLogic_h
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerContainer.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTrackStub.h>
+#include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
+#include <DataFormats/L1CSCTrackFinder/interface/CSCTrackStub.h>
 #include <DataFormats/L1CSCTrackFinder/interface/L1Track.h>
 
 class SPvpp;

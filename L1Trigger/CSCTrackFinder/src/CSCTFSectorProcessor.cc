@@ -69,12 +69,14 @@ CSCTFSectorProcessor::~CSCTFSectorProcessor()
 bool CSCTFSectorProcessor::run(const CSCTriggerContainer<CSCTrackStub>& stubs)
 {
   l1_tracks.clear();
+  dt_stubs.clear();
   
   /** STEP ONE
    *  We take stubs from the MPC and assign their eta and phi
    *  coordinates using the SR Lookup tables.
    *  This is independent of what BX we are on so we can
    *  process one large vector of stubs.
+   *  After this we append the stubs gained from the DT system.
    */
     
   std::vector<CSCTrackStub> stub_vec = stubs.get();
@@ -97,6 +99,15 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<CSCTrackStub>& stubs)
     }
 
   CSCTriggerContainer<CSCTrackStub> processedStubs(stub_vec);
+
+  //Add stubs to be sent to DTTF.
+  for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
+    for(int s = CSCTriggerNumbering::minTriggerSectorId(); s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s)
+      for(int ss = CSCTriggerNumbering::minTriggerSubSectorId(); 
+	  ss <= CSCTriggerNumbering::maxTriggerSubSectorId(); ++ss)
+	for(int bx = m_minBX; bx <= m_maxBX; ++bx)
+	  dt_stubs.push_many(processedStubs.get(e,1,s,ss,bx));    
+
 
   /** STEP TWO
    *  We take the stubs filled by the SR LUTs and load them

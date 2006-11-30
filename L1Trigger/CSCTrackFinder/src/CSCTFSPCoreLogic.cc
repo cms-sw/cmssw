@@ -1,6 +1,6 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFSPCoreLogic.h>
 #include <L1Trigger/CSCTrackFinder/src/SPvpp.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+#include <DataFormats/L1CSCTrackFinder/interface/CSCConstants.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 #include <L1Trigger/CSCTrackFinder/src/spbits.h>
