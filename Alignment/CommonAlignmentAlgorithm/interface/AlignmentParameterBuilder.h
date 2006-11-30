@@ -8,15 +8,17 @@
  *
  *  Build Alignment Parameter Structure 
  *
- *  $Date: 2006/11/03 16:28:54 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/11/07 10:22:56 $
+ *  $Revision: 1.5 $
  *  (last update by $Author: flucke $)
  */
 
 namespace edm {
   class ParameterSet;
 }
-class Alignabletracker;
+class AlignableTracker;
+class Alignable;
+class AlignmentParameters;
 
 class AlignmentParameterBuilder 
 {
@@ -51,6 +53,12 @@ public:
   void fixAlignables( int n );
 
 private:
+
+  /// convert char selection (from ParameterSelector) to bool (for AlignmentParameters)
+  /// true if anything else than 0 and 1 is found in vector<char>
+  bool decodeParamSel(const std::vector<char> &paramSelChar, std::vector<bool> &result) const;
+  /// add SelectionUserVariables corresponding to fullSel 
+  bool addFullParamSel(AlignmentParameters *aliPar, const std::vector<char> &fullSel) const;
 
   // data members
 

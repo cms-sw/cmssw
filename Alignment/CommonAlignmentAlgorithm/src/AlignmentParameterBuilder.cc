@@ -1,7 +1,7 @@
 /** \file AlignableParameterBuilder.cc
  *
- *  $Date: 2006/11/07 17:48:25 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/11/08 16:36:22 $
+ *  $Revision: 1.11 $
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,6 +17,7 @@
 //#include "Alignment/TrackerAlignment/interface/AlignableTracker.h" not needed since only forwarded
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/SelectionUserVariables.h"
 
 // This class's header
 
@@ -45,14 +46,18 @@ unsigned int AlignmentParameterBuilder::addSelections(const edm::ParameterSet &p
    const unsigned int addedSets = selector.addSelections(pSet);
 
    const std::vector<Alignable*> &alignables = selector.selectedAlignables();
-   const std::vector<std::vector<bool> > &paramSels = selector.selectedParameters();
+   const std::vector<std::vector<char> > &paramSels = selector.selectedParameters();
 
    std::vector<Alignable*>::const_iterator iAli = alignables.begin();
-   std::vector<std::vector<bool> >::const_iterator iParamSel = paramSels.begin();
+   std::vector<std::vector<char> >::const_iterator iParamSel = paramSels.begin();
    unsigned int nHigherLevel = 0;
 
    while (iAli != alignables.end() && iParamSel != paramSels.end()) {
-     if (this->add(*iAli, *iParamSel)) ++nHigherLevel;
+     std::vector<bool> boolParSel;
+     bool charSelIsGeneral = this->decodeParamSel(*iParamSel, boolParSel);
+     if (this->add(*iAli, boolParSel)) ++nHigherLevel;
+     if (charSelIsGeneral) this->addFullParamSel((*iAli)->alignmentParameters(), *iParamSel);
+
      ++iAli;
      ++iParamSel;
    }
@@ -136,3 +141,38 @@ void AlignmentParameterBuilder::fixAlignables(int n)
                             << theAlignables.size() << " alignables left";
 }
 
+//__________________________________________________________________________________________________
+bool AlignmentParameterBuilder::decodeParamSel(const std::vector<char> &paramSelChar,
+                                               std::vector<bool> &result) const
+{
+  result.clear();
+  bool anyNon01 = false;
+
+  for (unsigned int pos = 0; pos < paramSelChar.size(); ++pos) {
+
+    switch (paramSelChar[pos]) {
+    default:
+      anyNon01 = true;
+      // no break;
+    case '1':
+      result.push_back(true);
+      break;
+    case '0':
+      result.push_back(false);
+      break;
+    }
+  }
+
+  return anyNon01;
+}
+
+//__________________________________________________________________________________________________
+bool AlignmentParameterBuilder::addFullParamSel(AlignmentParameters *aliParams,
+                                                const std::vector<char> &fullSel) const
+{
+  if (!aliParams) return false;
+
+  aliParams->setUserVariables(new SelectionUserVariables(fullSel));
+
+  return true;
+}
