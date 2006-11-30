@@ -28,6 +28,14 @@ Examples of configuration for the modules is the following:
 \htmlinclude genCandidates.cfi
 </pre>
 
+- GenParticleCandidateProducer:  produces a collection of reco::Candidate of concrete type
+reco::GenParticleCandidate representing generator particles.
+<br><br>
+Examples of configuration for the modules is the following:
+<pre>
+\htmlinclude genParticleCandidates.cfi
+</pre>
+
 <hr>
 Last updated: @DATE@ L. Lista
 */
