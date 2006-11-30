@@ -15,15 +15,15 @@ void SetGenParticleMotherReference::analyze( const Event & event, const EventSet
   Handle<CandidateCollection> particles;
   event.getByLabel( src_, particles );
   
-  for( CandidateCollection::const_iterator p = particles->begin();
-       p != particles->end(); ++ p ) {
-    for( int i = 0; i < p->numberOfDaughters(); ++ i ) {
-      const Candidate & d = p->daughter( i );
+  for( size_t i = 0; i != particles->size(); ++ i ) {
+    const Candidate & p = (*particles)[ i ];
+    for( int j = 0; j < p.numberOfDaughters(); ++ j ) {
+      const Candidate & d = p.daughter( j );
       const GenParticleCandidate * dau = 
 	dynamic_cast<const GenParticleCandidate *>( & d );
       if( dau == 0 )
 	throw cms::Exception( "InvalidReference" ) 
-	  << "input collection contains candidates that"
+	  << "input collection contains candidates that "
 	  << "are not of type GenParticleCandidate";
       dau->setMother( CandidateRef( particles, i ) );
     }
