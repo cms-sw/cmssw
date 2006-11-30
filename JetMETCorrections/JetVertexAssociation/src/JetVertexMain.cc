@@ -35,7 +35,7 @@ pair<double,bool> JetVertexMain::Main(const reco::CaloJet& jet, edm::Handle<Trac
 
   if (tracks->size() > 0 )   { 
    for (; track != tracks->end (); track++) {
-     double Vertex_Z = track->z();
+     double Vertex_Z = track->vz();
      double track_eta = track->eta();
      double track_phi = track->phi();
 
