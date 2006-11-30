@@ -34,8 +34,8 @@ CSCTFTrackBuilder::~CSCTFTrackBuilder()
     }
 }
 
-void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, L1CSCTrackCollection* trkcoll,
-				    CSCTriggerContainer<CSCTrackStub>* stubs_to_dt)
+void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, const L1MuDTChambPhContainer* dttrig,
+				    L1CSCTrackCollection* trkcoll, CSCTriggerContainer<CSCTrackStub>* stubs_to_dt)
 {
   std::vector<csc::L1Track> trks;
   CSCTriggerContainer<CSCTrackStub> stub_list;
@@ -54,9 +54,10 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
 	}     
     }   
 
-  //add the DT Stubs our track stub list.
-  // add magic code here 
+  // Now we append the track stubs the the DT Sector Collector
+  // after processing from the DT Receiver.
 
+  // stub_list.push_many(my_dtrc->process(dttrig));
 
   for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
     {

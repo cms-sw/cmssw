@@ -6,6 +6,8 @@
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTrackStub.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
+#include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
+
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
@@ -22,7 +24,7 @@ class CSCTFTrackBuilder
 
   ~CSCTFTrackBuilder();
 
-  void buildTracks(const CSCCorrelatedLCTDigiCollection*, L1CSCTrackCollection*, 
+  void buildTracks(const CSCCorrelatedLCTDigiCollection*, const L1MuDTChambPhContainer*, L1CSCTrackCollection*, 
 		   CSCTriggerContainer<CSCTrackStub>*);
   
  private:
