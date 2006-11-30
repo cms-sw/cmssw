@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/11/08 08:04:53 $
- *  $Revision: 1.37 $
+ *  $Date: 2006/11/10 17:23:26 $
+ *  $Revision: 1.38 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -131,6 +131,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     float theCSCChi2Cut;
     float theRPCChi2Cut;
     std::string theTkTrackLabel;
+    std::string ckfBuilderName;
 
     bool convert;
     bool tkTrajsAvailable;

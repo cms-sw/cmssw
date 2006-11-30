@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/11/22 17:54:34 $
- *  $Revision: 1.58 $
+ *  $Date: 2006/11/28 06:37:31 $
+ *  $Revision: 1.59 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -118,7 +118,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   tkTrajsAvailable = par.getParameter<bool>("TkTrajectoryAvailable");
   first = true;
   
-  std::string ckfBuilderName = par.getParameter<std::string>("TkTrackBuilder");
+  ckfBuilderName = par.getParameter<std::string>("TkTrackBuilder");
 
 }
 
@@ -165,7 +165,7 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   if( first ) {
     first = false;
     LogInfo(metname) << "Constructing a CkfBuilder";
-    theService->eventSetup().get<CkfComponentsRecord>().get("CkfTrajectoryBuilder",theCkfBuilder);
+    theService->eventSetup().get<CkfComponentsRecord>().get(ckfBuilderName,theCkfBuilder);
   }
   theCkfBuilder->setEvent(event);
 }
@@ -354,22 +354,27 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
       if ( mom.mag() < 2.5 || mom.perp() < thePtCut ) continue;
       ConstRecHitContainer trackerRecHits = (*it)->trajectory()->recHits();
 
-      if ( theDirection == insideOut ) {
+      if ( tkSeedFlag && theDirection == insideOut ) {
 	reverse(trackerRecHits.begin(),trackerRecHits.end());
       }
 
-      TrajectoryMeasurement firstTM = ( theDirection == outsideIn ) ? (*it)->trajectory()->firstMeasurement() : (*it)->trajectory()->lastMeasurement();
+      if ( theDirection == insideOut ) {
+	reverse(trackerRecHits.begin(),trackerRecHits.end());
+      }
+      
+      TrajectoryMeasurement firstTM = ( theDirection == outsideIn || tkSeedFlag ) ? (*it)->trajectory()->firstMeasurement() : (*it)->trajectory()->lastMeasurement();
+      
       TrajectoryStateOnSurface firstTsos = firstTM.updatedState();
       firstTsos.rescaleError(100.);
 
       TC refitted1,refitted2,refitted3;
       vector<Trajectory*> refit(4);
       MuonCandidate* finalTrajectory = 0;
+
       // tracker only track
       refit[0] = (*it)->trajectory();
-
       ConstRecHitContainer rechits(trackerRecHits);
-      
+
       // full track with all muon hits
       if ( theMuonHitsOption == 1 || theMuonHitsOption == 3 || theMuonHitsOption == 4 ) {
 	rechits.insert(rechits.end(), muonRecHits1.begin(), muonRecHits1.end());
@@ -808,21 +813,21 @@ double GlobalMuonTrajectoryBuilder::trackProbability(const Trajectory& track) co
 // print RecHits
 //
 void GlobalMuonTrajectoryBuilder::printHits(const ConstRecHitContainer& hits) const {
-
+  
   LogInfo("GlobalMuonTrajectoryBuilder") << "Used RecHits: ";
   for (ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
     if ( !(*ir)->isValid() ) {
       LogInfo("GlobalMuonTrajectoryBuilder") << "invalid RecHit";
       continue; 
     }
-
+    
     const GlobalPoint& pos = (*ir)->globalPosition();
     LogInfo("GlobalMuonTrajectoryBuilder") 
-    << "r = " << sqrt(pos.x() * pos.x() + pos.y() * pos.y())
-    << "  z = " << pos.z()
-    << "  dimension = " << (*ir)->dimension()
-    << "  " << (*ir)->det()->geographicalId().det()
-    << "  " << (*ir)->det()->subDetector();
+      << "r = " << sqrt(pos.x() * pos.x() + pos.y() * pos.y())
+      << "  z = " << pos.z()
+      << "  dimension = " << (*ir)->dimension()
+      << "  " << (*ir)->det()->geographicalId().det()
+      << "  " << (*ir)->det()->subDetector();
   }
 
 }
