@@ -8,29 +8,28 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2006/11/14 08:29:05 $
- * $Revision: 1.3 $
+ * $Date: 2006/11/15 14:26:44 $
+ * $Revision: 1.4 $
  * (last update by $Author: flucke $)
  */
 
 #include <fstream>
 #include <vector>
 #include <map> 
+#include <string>
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class Alignable;
-class AlignableTracker;
-class AlignmentParameterStore;
-namespace edm {
-  class ParameterSet;
-}
 
 /***************************************
 ****************************************/
 class PedeSteerer
 {
  public:
-  PedeSteerer(AlignableTracker *tracker, AlignmentParameterStore *store,
-	      const edm::ParameterSet &config, const char *fileDir = 0);
+  /// constructor from e.g. AlignableTracker and the Alignables from the ParameterStore
+  PedeSteerer(Alignable *highestLevelAlignable, const std::vector<Alignable*> &alignables,
+	      const edm::ParameterSet &config);
   /** non-virtual destructor: do not inherit from this class */
   ~PedeSteerer();
     
@@ -47,6 +46,10 @@ class PedeSteerer
   /// alignable from alignable or parameter label
   Alignable* alignableFromLabel(unsigned int label) const;
 
+  bool runPede(const std::string &binaryFile) const;
+  std::string pedeOutFile() const;
+  float cmsToPedeFactor(unsigned int parNum) const;
+
  private:
   typedef std::map <Alignable*, unsigned int> AlignableToIdMap;
   typedef std::pair<Alignable*, unsigned int> AlignableToIdPair;
@@ -56,9 +59,12 @@ class PedeSteerer
 
   unsigned int buildMap(Alignable *highestLevelAli);
   unsigned int buildReverseMap();
-  unsigned int fixParameters(AlignmentParameterStore *store, AlignableTracker *alignableTracker,
-			     const edm::ParameterSet &config);
+  std::pair<unsigned int, unsigned int> fixParameters(const std::vector<Alignable*> &alignables);
+  int fixParameter(Alignable *ali, unsigned int iParam, char selector);
 
+  std::string directory() const;
+
+  edm::ParameterSet myConfig;
   std::ofstream     mySteerFile; // text file
   AlignableToIdMap  myAlignableToIdMap; /// providing unique ID for alignable with space for params
   IdToAlignableMap  myIdToAlignableMap; /// reverse map

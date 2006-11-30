@@ -8,8 +8,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.2 $
- *  $Date: 2006/11/07 10:45:09 $
+ *  $Revision: 1.1 $
+ *  $Date: 2006/11/14 08:43:38 $
  *  (last update by $Author: flucke $)
  */
 
@@ -52,6 +52,28 @@ class MillePedeVariables : public AlignmentUserVariables {
   /// get array of presigmas (<= 0: means fixed) for changing it
   std::vector<float>& preSigma() {return myPreSigma;}
 
+  /// get array of sigmas
+  const std::vector<float>& sigma() const {return mySigma;}
+  /// get array of sigmas for changing it
+  std::vector<float>& sigma() {return mySigma;}
+
+  /// get alignable label as used by pede
+  unsigned int label() const {return myLabel;}
+  /// set alignable label as used by pede
+  void setLabel(unsigned int label) { myLabel = label;}
+
+  /// get number of hits for x-measurement
+  unsigned int hitsX() const {return myHitsX;}
+  /// increase hits for x-measurement
+  void increaseHitsX(unsigned int add = 1) { myHitsX += add;}
+  void setHitsX(unsigned int hitsX) { myHitsX = hitsX;}
+
+  /// get number of hits for y-measurement
+  unsigned int hitsY() const {return myHitsY;}
+  /// increase hits for y-measurement
+  void increaseHitsY(unsigned int add = 1) { myHitsY += add;}
+  void setHitsY(unsigned int hitsY) { myHitsY = hitsY;}
+
   /// true if parameter is fixed
   bool isFixed(unsigned int nParam) const;
 
@@ -60,6 +82,10 @@ class MillePedeVariables : public AlignmentUserVariables {
   std::vector<float> myDiffBefore;
   std::vector<float> myGlobalCor;
   std::vector<float> myPreSigma; /// <= 0 means fixed
+  std::vector<float> mySigma;
+  unsigned int       myHitsX;
+  unsigned int       myHitsY;
+  unsigned int       myLabel;
 };
 
 #endif

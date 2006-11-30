@@ -4,8 +4,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.2 $
- *  $Date: 2006/11/07 10:45:09 $
+ *  $Revision: 1.1 $
+ *  $Date: 2006/11/14 08:43:39 $
  *  (last update by $Author: flucke $)
  */
 
@@ -13,7 +13,8 @@
 
 //__________________________________________________________________________________________________
 MillePedeVariables::MillePedeVariables(unsigned int nParams)
-  :  myIsValid(nParams), myDiffBefore(nParams), myGlobalCor(nParams), myPreSigma(nParams)
+  :  myIsValid(nParams), myDiffBefore(nParams), myGlobalCor(nParams), myPreSigma(nParams),
+     mySigma(nParams), myHitsX(0), myHitsY(0), myLabel(0)
 {
   for (unsigned int i = 0; i < nParams; ++i) {
     this->setAllDefault(i);
@@ -28,7 +29,8 @@ bool MillePedeVariables::setAllDefault(unsigned int nParam)
   myIsValid[nParam] = true;
   myDiffBefore[nParam] = -999999.;
   myGlobalCor[nParam] = -1.;
-  myPreSigma[nParam] = -1.;
+  myPreSigma[nParam] = -11.; // -1 means fixed in pede
+  mySigma[nParam] = -1.;
 
   return true;
 }

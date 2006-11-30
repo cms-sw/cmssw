@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.2 $
- *  $Date: 2006/11/07 10:45:09 $
+ *  $Revision: 1.1 $
+ *  $Date: 2006/11/14 08:43:39 $
  *  (last update by $Author: flucke $)
  */
 
@@ -81,7 +81,7 @@ int MillePedeVariablesIORoot::writeOne(Alignable* ali)
   if (!ali || !ali->alignmentParameters() 
       || !dynamic_cast<MillePedeVariables*>(ali->alignmentParameters()->userVariables())) {
     edm::LogError("Alignment") << "@SUB=MillePedeVariablesIORoot::writeOne"
-                               << "no MillePedeVariables found!"; 
+                               << "No MillePedeVariables found!"; 
     return -1;
   }
 
@@ -90,7 +90,7 @@ int MillePedeVariablesIORoot::writeOne(Alignable* ali)
   myNumPar = mpVar->size();
   if (myNumPar >= kMaxNumPar) {
     edm::LogError("Alignment") << "@SUB=MillePedeVariablesIORoot::writeOne"
-                               << "ignoring parameters " << kMaxNumPar << " to " << myNumPar-1;
+                               << "Ignoring parameters " << kMaxNumPar << " to " << myNumPar-1;
     myNumPar = kMaxNumPar;
   }
 
@@ -99,7 +99,11 @@ int MillePedeVariablesIORoot::writeOne(Alignable* ali)
     myDiffBefore[iPar] = mpVar->diffBefore()[iPar];
     myGlobalCor[iPar]  = mpVar->globalCor()[iPar];
     myPreSigma[iPar]   = mpVar->preSigma()[iPar];
+    mySigma[iPar]      = mpVar->sigma()[iPar];
   }
+  myHitsX = mpVar->hitsX();
+  myHitsY = mpVar->hitsY();
+  myLabel = mpVar->label();
 
   const TrackerAlignableId ID;
   const TrackerAlignableId::UniqueId detType = ID.alignableUniqueId(ali); 
@@ -121,7 +125,7 @@ AlignmentUserVariables* MillePedeVariablesIORoot::readOne(Alignable *ali, int &i
   
   if (tree->GetEntryWithIndex(detType.first, detType.second) < 0) {
     edm::LogError("Alignment") << "@SUB=MillePedeVariablesIORoot::readOne"
-                               << "no index for detType = (" << detType.first << "/"
+                               << "No index for detType = (" << detType.first << "/"
                                << detType.second << ") found!";
     ierr = 1;
     return 0;
@@ -133,7 +137,11 @@ AlignmentUserVariables* MillePedeVariablesIORoot::readOne(Alignable *ali, int &i
     mpVar->diffBefore()[iPar] = myDiffBefore[iPar];
     mpVar->globalCor()[iPar]  = myGlobalCor[iPar];
     mpVar->preSigma()[iPar]   = myPreSigma[iPar];
+    mpVar->sigma()[iPar]      = mySigma[iPar];
   }
+  mpVar->setHitsX(myHitsX);
+  mpVar->setHitsY(myHitsY);
+  mpVar->setLabel(myLabel);
   
   return mpVar;
 }
@@ -148,6 +156,10 @@ void MillePedeVariablesIORoot::createBranches()
   tree->Branch("DiffBefore", myDiffBefore,"DiffBefore[NumPar]/F");
   tree->Branch("GlobalCor",  myGlobalCor, "GlobalCor[NumPar]/F");
   tree->Branch("PreSigma",   myPreSigma,  "PreSigma[NumPar]/F");
+  tree->Branch("Sigma",      mySigma,     "Sigma[NumPar]/F");
+  tree->Branch("HitsX",     &myHitsX,     "HitsX/i");
+  tree->Branch("HitsY",     &myHitsY,     "HitsY/i");
+  tree->Branch("Label",     &myLabel,     "Label/i");
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -160,4 +172,8 @@ void MillePedeVariablesIORoot::setBranchAddresses()
   tree->SetBranchAddress("DiffBefore", myDiffBefore);
   tree->SetBranchAddress("GlobalCor",  myGlobalCor);
   tree->SetBranchAddress("PreSigma",   myPreSigma);
+  tree->SetBranchAddress("Sigma",      mySigma);
+  tree->SetBranchAddress("HitsX",     &myHitsX);
+  tree->SetBranchAddress("HitsY",     &myHitsY);
+  tree->SetBranchAddress("Label",     &myLabel);
 }

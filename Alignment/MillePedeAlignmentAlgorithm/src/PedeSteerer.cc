@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.4 $
- *  $Date: 2006/11/14 08:29:05 $
+ *  $Revision: 1.5 $
+ *  $Date: 2006/11/15 14:26:44 $
  *  (last update by $Author: flucke $)
  */
 
@@ -14,10 +14,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/SelectionUserVariables.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
 #include "Geometry/Vector/interface/GlobalPoint.h"
@@ -25,29 +25,35 @@
 #include <fstream>
 #include <algorithm>
 
+// from ROOT
+#include <TSystem.h>
+
 const unsigned int PedeSteerer::theMaxNumParam = RigidBodyAlignmentParameters::N_PARAM;
 const unsigned int PedeSteerer::theMinLabel = 1; // must be > 0
 
 //___________________________________________________________________________
 
-PedeSteerer::PedeSteerer(AlignableTracker *alignableTracker, AlignmentParameterStore *store,
-			 const edm::ParameterSet &config, const char *fileDir) 
+PedeSteerer::PedeSteerer(Alignable *highestLevelAlignable, const std::vector<Alignable*> &alis,
+//PedeSteerer::PedeSteerer(AlignableTracker *alignableTracker, AlignmentParameterStore *store,
+			 const edm::ParameterSet &config) :
+  myConfig(config)
 {
-  // opens steerFileName as text output file
-  std::string dir(fileDir);
-  if (!dir.empty()) dir += '/';
-  mySteerFile.open((dir + config.getParameter<std::string>("steerFile")).c_str(), std::ios::out);
+  // opens steerFileName as text output file, appending .txt
+
+  std::string name(this->directory());
+  name += myConfig.getParameter<std::string>("steerFile") += ".txt";
+  mySteerFile.open(name.c_str(), std::ios::out);
 
   if (!mySteerFile.is_open()) {
     edm::LogError("Alignment") << "@SUB=PedeSteerer::PedeSteerer"
-			       << "Could not open " << config.getParameter<std::string>("steerFile")
-			       << " as output file.";
+			       << "Could not open " << name << " as output file.";
   }
 
-  this->buildMap(alignableTracker);
-
-  this->fixParameters(store, alignableTracker,
-                      config.getParameter<edm::ParameterSet>("fixedParameterSelection"));
+  this->buildMap(highestLevelAlignable);//alignableTracker);
+  const std::pair<unsigned int, unsigned int> nFixFixCor(this->fixParameters(alis));
+  edm::LogInfo("Alignment") << "@SUB=PedeSteerer" 
+                            << nFixFixCor.first << " parameters fixed at 0. and "
+                            << nFixFixCor.second << " at 'original' position";
 }
 
 //___________________________________________________________________________
@@ -60,7 +66,6 @@ PedeSteerer::~PedeSteerer()
 
 //___________________________________________________________________________
 /// Return 32-bit unique label for alignable, 0 indicates failure.
-/// So far works only within the tracker.
 unsigned int PedeSteerer::alignableLabel(Alignable *alignable) const
 {
   if (!alignable) return 0;
@@ -71,7 +76,7 @@ unsigned int PedeSteerer::alignableLabel(Alignable *alignable) const
   } else {
     //throw cms::Exception("LogicError") 
     edm::LogWarning("LogicError")
-      << "@SUB=PedeSteerer::alignableLabel" << "alignable "
+      << "@SUB=PedeSteerer::alignableLabel" << "Alignable "
       << typeid(*alignable).name() << " not in map";
     return 0;
   }
@@ -114,7 +119,7 @@ unsigned int PedeSteerer::parameterLabel(unsigned int aliLabel, unsigned int par
 {
   if (parNum >= theMaxNumParam) {
     throw cms::Exception("Alignment") << "@SUB=PedeSteerer::parameterLabel" 
-                                      << "parameter number " << parNum 
+                                      << "Parameter number " << parNum 
                                       << " out of range 0 <= num < " << theMaxNumParam;
   }
   return aliLabel + parNum;
@@ -150,7 +155,7 @@ unsigned int PedeSteerer::paramNumFromLabel(unsigned int paramLabel) const
 {
   if (paramLabel < theMinLabel) {
     edm::LogError("LogicError") << "@SUB=PedeSteerer::paramNumFromLabel"
-                                << "label " << paramLabel << " should be >= " << theMinLabel;
+                                << "Label " << paramLabel << " should be >= " << theMinLabel;
     return 0;
   }
   return (paramLabel - theMinLabel) % theMaxNumParam;
@@ -174,8 +179,27 @@ Alignable* PedeSteerer::alignableFromLabel(unsigned int label) const
     return position->second;
   } else {
     edm::LogError("LogicError") << "@SUB=PedeSteerer::alignableFromLabel"
-                                << "alignable label " << aliLabel << " not in map";
+                                << "Alignable label " << aliLabel << " not in map";
     return 0;
+  }
+}
+
+//_________________________________________________________________________
+float PedeSteerer::cmsToPedeFactor(unsigned int parNum) const
+{
+  switch (parNum) {
+  case RigidBodyAlignmentParameters::dx:
+  case RigidBodyAlignmentParameters::dy:
+    return 1000.; // cm to mum *1/10 to get smaller values
+  case RigidBodyAlignmentParameters::dz:
+    return 2500.;   // cm to mum *1/4 
+  case RigidBodyAlignmentParameters::dalpha:
+  case RigidBodyAlignmentParameters::dbeta:
+    return 1000.; // rad to mrad (no first guess for sensitivity yet)
+  case RigidBodyAlignmentParameters::dgamma:
+    return 10000.; // rad to mrad *10 to get larger values
+  default:
+    return 1.;
   }
 }
 
@@ -218,49 +242,100 @@ unsigned int PedeSteerer::buildReverseMap()
 }
 
 //_________________________________________________________________________
-unsigned int PedeSteerer::fixParameters(AlignmentParameterStore *store,
-                                        AlignableTracker *alignableTracker,
-					const edm::ParameterSet &config)
+std::pair<unsigned int, unsigned int>
+PedeSteerer::fixParameters(const std::vector<Alignable*> &alis)
 {
-  // return number of fixed parameters
-  if (!store) return 0;
+  // return number of parameters fixed at 0. and fixed at original position 
+  std::pair<unsigned int, unsigned int> numFixNumFixCor(0, 0);
 
-  AlignmentParameterSelector selector(alignableTracker);
-  selector.addSelections(config);
-  const std::vector<Alignable*> &alignables = selector.selectedAlignables();
-  const std::vector<std::vector<bool> > &paramSels = selector.selectedParameters();
+  for (std::vector<Alignable*>::const_iterator iAli = alis.begin() ; iAli != alis.end(); ++iAli) {
+    AlignmentParameters *params = (*iAli)->alignmentParameters();
+    if (!params) continue; // should not happen, but not worth to log an error here...
+    SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables*>(params->userVariables());
+    if (!selVar) continue;
 
-  const AlignmentParameterStore::Alignables &storeAli = store->alignables();
-  unsigned int numFixed = 0;
-
-  std::vector<Alignable*>::const_iterator iAli = alignables.begin();
-  std::vector<std::vector<bool> >::const_iterator iParamSel = paramSels.begin();
-  for ( ; iAli != alignables.end() && iParamSel != paramSels.end(); ++iAli, ++iParamSel) {
-
-    const AlignmentParameters *params = (*iAli)->alignmentParameters();
-    if (!params) {
-      if (find(storeAli.begin(), storeAli.end(), *iAli) != storeAli.end()) {
-        edm::LogError("Alignment") << "@SUB=PedeSteerer::fixParameters" 
-                                   << "no parameters for Alignable in AlignmentParameterStore";
-      } else {
-        edm::LogInfo("Alignment") << "@SUB=PedeSteerer::fixParameters" << "ali NOT in store";
+    for (unsigned int iParam = 0; static_cast<int>(iParam) < params->size(); ++iParam) {
+      int whichFix = this->fixParameter(*iAli, iParam, selVar->fullSelection()[iParam]);
+      if (whichFix == 1) {
+        ++(numFixNumFixCor.first);
+      } else if (whichFix == -1) {
+        ++(numFixNumFixCor.second);
       }
-      continue;
     }
-
-    const unsigned int aliLabel = this->alignableLabel(*iAli);
-    for (int iParam = 0; iParam < params->size(); ++iParam) {
-      if (!(*iParamSel)[iParam]) continue;
-      ++numFixed;
-      mySteerFile << this->parameterLabel(aliLabel, iParam) << "  0.0  -1.0";
-      if (0) { // debug
-        const GlobalPoint position((*iAli)->globalPosition());
-        mySteerFile << " eta " << position.eta() << ", z " << position.z()
-                    << ", r " << position.perp() << ", phi " << position.phi();
-      }
-      mySteerFile << "\n";
-    }
+    params->setUserVariables(0); // erase the info since it is not needed anymore
   }
 
-  return numFixed;
+  // Flush to disc in case we want to use it before closed (e.g. in runPede...), put keep open...
+  mySteerFile.flush(); // ...in case this method is called again to add further constraints.
+
+  return numFixNumFixCor;
+}
+
+//_________________________________________________________________________
+int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector)
+{
+  int result = 0;
+  float fixAt = 0.;
+  if (selector == 'c') {
+    fixAt = RigidBodyAlignmentParameters(ali).parameters()[iParam];//this->origParam(ali, iParam);
+    result = -1;
+  } else if (selector == 'f') {
+    result = 1;
+  } else if (selector != '1' && selector != '0') {
+    throw cms::Exception("BadConfig")
+      << "@SUB=PedeSteerer::fixParameter" << "Unexpected parameter selector '" << selector
+      << "', use 'f' (fix), 'c' (fix at correct pos.), '1' (free) or '0' (ignore).";
+  }
+
+  if (result) {
+    const unsigned int aliLabel = this->alignableLabel(ali);
+    mySteerFile << this->parameterLabel(aliLabel, iParam) << "  " << fixAt << " -1.0";
+    if (0) { // debug
+      const GlobalPoint position(ali->globalPosition());
+      mySteerFile << " eta " << position.eta() << ", z " << position.z()
+                  << ", r " << position.perp() << ", phi " << position.phi();
+    }
+    mySteerFile << "\n";
+  }
+
+  return result;
+}
+
+//_________________________________________________________________________
+std::string PedeSteerer::directory() const 
+{
+  std::string dir(myConfig.getUntrackedParameter<std::string>("fileDir"));
+  if (!dir.empty() && dir.find_last_of('/') != dir.size() - 1) {
+    dir += '/'; // directory may need '/'
+  }
+
+  return dir;
+}
+
+//_________________________________________________________________________
+std::string PedeSteerer::pedeOutFile() const
+{
+  return this->directory() += myConfig.getParameter<std::string>("steerFile") += ".log";
+}
+
+//_________________________________________________________________________
+bool PedeSteerer::runPede(const std::string &binaryFile) const
+{
+  std::string command(myConfig.getUntrackedParameter<std::string>("pedeCommand"));
+  command += "n ";
+  command += this->directory() += myConfig.getParameter<std::string>("steerFile");
+  command += " ";
+  command += binaryFile;
+  const std::string dump(myConfig.getUntrackedParameter<std::string>("pedeDump"));
+  if (!dump.empty()) {
+    command += " > ";
+    command += this->directory() += dump;
+  }
+
+  edm::LogInfo("Alignment") << "@SUB=PedeSteerer::runPede" << "Start running " << command;
+  // FIXME: Recommended interface to system commands?
+  int shellReturn = gSystem->Exec(command.c_str());
+  edm::LogInfo("Alignment") << "@SUB=PedeSteerer::runPede" << "Pede command returns " << shellReturn;
+
+  return !shellReturn;
 }
