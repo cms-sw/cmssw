@@ -136,5 +136,5 @@ int AlignmentIORootBase::testFile(const char* filename, const TString &tname)
 
 TString AlignmentIORootBase::treeName(int iter, const TString &tname)
 {
-  return TString(tname + Form(":%i",iter));
+  return TString(tname + Form("_%i",iter));
 }
