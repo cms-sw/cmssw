@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GsfTrack.h,v 1.1 2006/10/06 12:09:19 adamwo Exp $
+ * \version $Id: GsfTrack.h,v 1.2 2006/11/27 09:03:05 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -26,17 +26,15 @@ namespace reco {
     /// notice that the reference point must be 
     /// the point of closest approch to the beamline.    
     GsfTrack( double chi2, double ndof, const Point &, const Vector &, int charge, 
-	   const CovarianceMatrix & );
+	      const CovarianceMatrix & );
     /// return true if the outermost point is valid
     bool outerOk() const { return extra_->outerOk(); }
     /// return true if the innermost point is valid
     bool innerOk() const { return extra_->innerOk(); }
     /// position of the innermost point
-    const math::XYZPoint & innerPosition()  const { return extra_->innerPosition
-(); }
+    const math::XYZPoint & innerPosition()  const { return extra_->innerPosition(); }
     /// momentum vector at the innermost point
-    const math::XYZVector & innerMomentum() const { return extra_->innerMomentum
-(); }
+    const math::XYZVector & innerMomentum() const { return extra_->innerMomentum(); }
     /// position of the outermost point
     const math::XYZPoint & outerPosition()  const { return extra_->outerPosition(); }
     /// momentum vector at the outermost point
