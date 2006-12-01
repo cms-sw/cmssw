@@ -4,7 +4,9 @@
   <class name="PFRootEventManagerColin"/>
   <class name="EventColin"/>
   <class name="EventColin::Particle"/>
+  <class name="std::vector<EventColin::Particle>"/>
   <class name="EventColin::Cluster"/>
+  <class name="std::vector<EventColin::Cluster>"/>
   <class name="ResidualFitter"/>
 </lcgdict>
 
