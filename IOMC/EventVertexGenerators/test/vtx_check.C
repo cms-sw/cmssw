@@ -10,10 +10,10 @@
    
    int nevt = tevt->GetEntries() ;
    std::cout << "Number of Events = " << nevt << std::endl ;
-   
+
    edm::HepMCProduct EvtProd ;
    TBranch* bhepmc =
-      tevt->GetBranch( "edmHepMCProduct_VtxSmeared__PROD.obj") ;
+      tevt->GetBranch( "edmHepMCProduct_source__PROD.obj") ;
 
    bhepmc->SetAddress( & EvtProd ) ;
    
