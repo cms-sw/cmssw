@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:31 EDT 2006
-// $Id: BareRootProductGetter.cc,v 1.6 2006/09/27 11:42:34 dmytro Exp $
+// $Id: BareRootProductGetter.cc,v 1.7 2006/10/19 15:06:09 chrjones Exp $
 //
 
 // system include files
@@ -212,8 +212,6 @@ BareRootProductGetter::createNewBuffer(const edm::ProductID& iID) const
     cms::Exception("FailedToCreate") <<"could not create an instance of '"<<fullName<<"'";
     return 0;
   }
-  void* address  = wrapperObj.Address();
-  branch->SetAddress( &address );
       
   ROOT::Reflex::Object edProdObj = wrapperObj.CastObject( ROOT::Reflex::Type::ByName("edm::EDProduct") );
   
@@ -226,8 +224,14 @@ BareRootProductGetter::createNewBuffer(const edm::ProductID& iID) const
   }
 
   //connect the instance to the branch
-  Buffer b(prod, branch);
+  void* address  = wrapperObj.Address();
+  Buffer b(prod, branch,address);
   idToBuffers_[iID]=b;
+  
+  //As of 5.13 ROOT expects the memory address held by the pointer passed to
+  // SetAddress to be valid forever
+  address = &(idToBuffers_[iID].address_);
+  branch->SetAddress( address );
   
   return &(idToBuffers_[iID]);
 }
