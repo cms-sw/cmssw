@@ -110,7 +110,7 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
   std::string value     = "COCOA";
   DDValue val(attribute, value, 0.0);
   
-  // get all parts labelled with COCOA using a SpecPar
+	  // get all parts labelled with COCOA using a SpecPar
   DDSpecificsFilter filter;
   filter.setCriteria(val,  // name & value of a variable 
 		     DDSpecificsFilter::matches,
@@ -139,7 +139,8 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
 
     std::vector<DDExpandedNode> history = fv.geoHistory();
     oaInfo.parentName_ = "";
-    for(size_t ii = 0; ii < history.size()-1;ii++ ) {
+    size_t ii;
+    for(ii = 0; ii < history.size()-1;ii++ ) {
       if( ii != 0 ) oaInfo.parentName_ += "/";
       std::string name = history[ii].logicalPart().name();
       icol = name.find(":");
@@ -639,7 +640,9 @@ bool CocoaAnalyzer::DumpCocoaResults()
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( mydbservice.isAvailable() ){
     //    try{
-       mydbservice->newValidityForNewPayload<OpticalAlignments>(myobj,mydbservice->endOfTime());
+          size_t alignmentsToken = mydbservice->callbackToken("Alignments");
+
+       mydbservice->newValidityForNewPayload<OpticalAlignments>(myobj,mydbservice->endOfTime(),alignmentsToken);
        /*? compilation error??
     }catch(const cond::Exception& er){
       std::cout<<er.what()<<std::endl;
