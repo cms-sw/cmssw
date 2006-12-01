@@ -35,7 +35,7 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
 void CSCALCTHeader::setEventInformation(const CSCDMBHeader & dmb) {
   l1Acc = dmb.l1a();
   cscID = dmb.dmbID();
-  nTBins = 8;
+  nTBins = 16;
   bxnCount = dmb.bxn();
 }
 

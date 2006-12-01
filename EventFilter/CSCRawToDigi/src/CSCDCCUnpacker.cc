@@ -205,6 +205,24 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	      if (cscData[iCSC].alctHeader().check()) {
 		std::vector <CSCALCTDigi>  alctDigis =
 		  cscData[iCSC].alctHeader().ALCTDigis();
+	
+		///ugly kludge to fix wiregroup numbering - need to remove as soon as new firmware is uploaded
+		if (((layer.ring()==3)&&(layer.station()==1))||
+		    ((layer.ring()==1)&&(layer.station()==3))||
+		    ((layer.ring()==1)&&(layer.station()==4)))
+		  {
+		    for (int unsigned i=0; i<alctDigis.size(); ++i) {
+		      int wiregroup = alctDigis[i].getKeyWG();
+		      if (wiregroup <= 16) edm::LogError("CSCDCCUnpacker") <<
+					     "Wire group is out of range!";
+		      else wiregroup = wiregroup - 16; /// adjust by 16
+		      alctDigis[i].setWireGroup(wiregroup);
+		    }
+		  }
+
+		
+
+
 		alctProduct->put(std::make_pair(alctDigis.begin(), alctDigis.end()),layer);
 	      }
 	    }

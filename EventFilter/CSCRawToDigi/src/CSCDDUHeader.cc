@@ -30,7 +30,7 @@ void CSCDDUHeader::init() {
 
 bool CSCDDUHeader::check() const {
 
-  std::cout <<"SANDRIK"<<std::hex <<header2_1_<<" "<<header2_2_ <<" "<<header2_3_<<std::endl;
+  //std::cout <<"SANDRIK"<<std::hex <<header2_1_<<" "<<header2_2_ <<" "<<header2_3_<<std::endl;
   return bit64_ == 5 && header2_1_ == 0x8000 && header2_3_ == 0x8000
   && header2_2_ == 0x0001;
 

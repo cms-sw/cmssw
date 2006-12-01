@@ -159,7 +159,7 @@ void CSCDDUEventData::unpack_data(unsigned short *buf) {
   }
   buf += theDDUHeader.sizeInWords();
 
-  std::cout << "sandrik dduID =" << theDDUHeader.source_id() << std::endl; 
+  //std::cout << "sandrik dduID =" << theDDUHeader.source_id() << std::endl; 
   
   int i=-1;
  
@@ -223,17 +223,17 @@ boost::dynamic_bitset<> CSCDDUEventData::pack() {
   
   boost::dynamic_bitset<> result = bitset_utilities::ushortToBitset( theDDUHeader.sizeInWords()*16,
 								     theDDUHeader.data());
-  std::cout <<"SANDRIK inside DDUEvdata check = ";
-  theDDUHeader.check();
-  std::cout <<std::endl;
-  std::cout <<"printing out ddu header words"<<std::endl;
-  for (unsigned int i=0;i<theDDUHeader.sizeInWords();i++) {
-    unsigned short * buf = theDDUHeader.data();
-    printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]);
-    i+=3;
-  }
-  std::cout <<"printing out ddu header words via bitset"<<std::endl;
-  bitset_utilities::printWords(result);
+  //std::cout <<"SANDRIK inside DDUEvdata check = ";
+  //theDDUHeader.check();
+  //std::cout <<std::endl;
+  //std::cout <<"printing out ddu header words"<<std::endl;
+  //for (unsigned int i=0;i<theDDUHeader.sizeInWords();i++) {
+  //  unsigned short * buf = theDDUHeader.data();
+  //  printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]);
+  //  i+=3;
+  //}
+  //std::cout <<"printing out ddu header words via bitset"<<std::endl;
+  //bitset_utilities::printWords(result);
  
     
   for(unsigned int i = 0; i < theData.size(); ++i) {
