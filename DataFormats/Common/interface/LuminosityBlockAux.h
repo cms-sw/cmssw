@@ -2,7 +2,6 @@
 #define Common_LuminosityBlockAux_h
 
 #include <iosfwd>
-#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Common/interface/ProcessHistory.h"
 #include "DataFormats/Common/interface/ProcessHistoryID.h"
@@ -15,15 +14,12 @@
 namespace edm
 {
   struct LuminosityBlockAux {
-    typedef LuminosityBlockID IDValue;
-    typedef Timestamp TimeValue;
-    typedef LuminosityBlockID LumiValue;
     LuminosityBlockAux() :
 	processHistoryID_(),
 	id_(),
 	runID_(),
 	time_() {}
-    LuminosityBlockAux(LuminosityBlockID const& theId, RunNumber_t const& theRun, Timestamp const& theTime) :
+    LuminosityBlockAux(LuminosityBlockID const& theId, Timestamp const& theTime, RunNumber_t const& theRun = 1UL) :
 	processHistoryID_(),
 	id_(theId),
 	runID_(theRun),

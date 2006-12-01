@@ -2,7 +2,6 @@
 #define Common_RunAux_h
 
 #include <iosfwd>
-#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Common/interface/ProcessHistory.h"
 #include "DataFormats/Common/interface/ProcessHistoryID.h"
@@ -14,9 +13,6 @@
 namespace edm
 {
   struct RunAux {
-    typedef RunNumber_t IDValue;
-    typedef Timestamp TimeValue;
-    typedef int LumiValue;
     RunAux() :
 	processHistoryID_(),
 	id_(),

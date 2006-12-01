@@ -2,7 +2,6 @@
 #define Common_EventAux_h
 
 #include <iosfwd>
-#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Common/interface/ProcessHistory.h"
 #include "DataFormats/Common/interface/ProcessHistoryID.h"
@@ -15,9 +14,6 @@
 namespace edm
 {
   struct EventAux {
-    typedef EventID IDValue;
-    typedef Timestamp TimeValue;
-    typedef LuminosityBlockID LumiValue;
     EventAux() :
 	processHistoryID_(),
 	id_(),
