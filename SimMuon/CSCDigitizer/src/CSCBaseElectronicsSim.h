@@ -13,9 +13,8 @@
  *
  */
 
-#include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
+//#include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
 #include "SimMuon/CSCDigitizer/src/CSCAnalogSignal.h"
-#include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
 #include <map>
@@ -23,6 +22,7 @@
 // declarations
 class CSCLayer;
 class CSCChamberSpecs;
+class CSCDetectorHit;
 class CSCLayerGeometry;
 class CSCDetId;
 class DetId;
