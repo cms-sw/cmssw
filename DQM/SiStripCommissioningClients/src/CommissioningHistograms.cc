@@ -46,8 +46,7 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
     string collector_dir = idir->substr( 0, idir->find(":") );
     SiStripFecKey::Path path = SiStripHistoNamingScheme::controlPath( collector_dir );
     string client_dir = SiStripHistoNamingScheme::controlPath( path );
-    // client_dir = "Client" + client_dir;
-    
+
     if ( path.fecCrate_ == sistrip::invalid_ ||
 	 path.fecSlot_ == sistrip::invalid_ ||
 	 path.fecRing_ == sistrip::invalid_ ||
@@ -84,7 +83,7 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
       }
 
       // Build FEC key and fill FED-FEC map
-      uint32_t key = SiStripFecKey::key( sistrip::invalid_, //@@ WARNING: only good for one partition only!!!
+      uint32_t key = SiStripFecKey::key( path.fecCrate_,
 					 path.fecSlot_,
 					 path.fecRing_,
 					 path.ccuAddr_,
