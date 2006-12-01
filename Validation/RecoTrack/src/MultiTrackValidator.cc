@@ -36,8 +36,10 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       string subDirName = dirName + "/pt_d0_residues";
       dbe_->setCurrentFolder(subDirName.c_str());
       vector<double> etaintervalsv;
+      vector<double> pTintervalsv;
       vector<double> hitsetav;
-      vector<int>    totSIMv,totASSv,totASS2v,totRECv;
+      vector<int>    totSIMveta,totASSveta,totASS2veta,totRECveta;
+      vector<int>    totSIMvpT,totASSvpT,totASS2vpT,totRECvpT;
       vector<TH1F*>  ptdistribv;
       vector<TH1F*>  d0distribv;
   
@@ -47,10 +49,10 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       for (int k=1;k<nint+1;k++) {
 	double d=k*step;
 	etaintervalsv.push_back(d);
-	totSIMv.push_back(0);
-	totASSv.push_back(0);
-	totASS2v.push_back(0);
-	totRECv.push_back(0);
+	totSIMveta.push_back(0);
+	totASSveta.push_back(0);
+	totASS2veta.push_back(0);
+	totRECveta.push_back(0);
 	hitsetav.push_back(0);
 	name.str("");
 	title.str("");
@@ -64,13 +66,29 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
 	d0distribv.push_back(new TH1F(name.str().c_str(),title.str().c_str(), 200, -0.2, 0.2 ));
       }
       etaintervals.push_back(etaintervalsv);
-      totSIM.push_back(totSIMv);
-      totASS.push_back(totASSv);
-      totASS2.push_back(totASS2v);
-      totREC.push_back(totRECv);
+      totSIMeta.push_back(totSIMveta);
+      totASSeta.push_back(totASSveta);
+      totASS2eta.push_back(totASS2veta);
+      totRECeta.push_back(totRECveta);
       hitseta.push_back(hitsetav);
       ptdistrib.push_back(ptdistribv);
       d0distrib.push_back(d0distribv);
+
+      double steppT = (maxpT-minpT)/nintpT;
+      pTintervalsv.push_back(0);
+      for (int k=1;k<nintpT+1;k++) {
+        double d=k*steppT;
+        pTintervalsv.push_back(d);
+        totSIMvpT.push_back(0);
+        totASSvpT.push_back(0);
+        totASS2vpT.push_back(0);
+        totRECvpT.push_back(0);
+      }
+      pTintervals.push_back(pTintervalsv);
+      totSIMpT.push_back(totSIMvpT);
+      totASSpT.push_back(totASSvpT);
+      totASS2pT.push_back(totASS2vpT);
+      totRECpT.push_back(totRECvpT);
 
       dbe_->goUp();
       subDirName = dirName + "/simulation";
@@ -91,10 +109,14 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
 
       h_effic.push_back( dbe_->book1D("effic","efficiency vs #eta",nint,min,max) );
       h_fakerate.push_back( dbe_->book1D("fakerate","fake rate vs #eta",nint,min,max) );
-      h_reco.push_back( dbe_->book1D("num_reco","N of reco track vs eta",nint,min,max) );
-      h_assoc.push_back( dbe_->book1D("num_assoc(simToReco)","N of associated tracks (simToReco) vs eta",nint,min,max) );
-      h_assoc2.push_back( dbe_->book1D("num_assoc(recoToSim)","N of associated (recoToSim) tracks vs eta",nint,min,max) );
-      h_simul.push_back( dbe_->book1D("num_simul","N of simulated tracks vs eta",nint,min,max) );
+      h_recoeta.push_back( dbe_->book1D("num_reco_eta","N of reco track vs eta",nint,min,max) );
+      h_assoceta.push_back( dbe_->book1D("num_assoc(simToReco)_eta","N of associated tracks (simToReco) vs eta",nint,min,max) );
+      h_assoc2eta.push_back( dbe_->book1D("num_assoc(recoToSim)_eta","N of associated (recoToSim) tracks vs eta",nint,min,max) );
+      h_simuleta.push_back( dbe_->book1D("num_simul_eta","N of simulated tracks vs eta",nint,min,max) );
+      h_recopT.push_back( dbe_->book1D("num_reco_pT","N of reco track vs pT",nintpT,minpT,maxpT) );
+      h_assocpT.push_back( dbe_->book1D("num_assoc(simToReco)_pT","N of associated tracks (simToReco) vs pT",nintpT,minpT,maxpT) );
+      h_assoc2pT.push_back( dbe_->book1D("num_assoc(recoToSim)_pT","N of associated (recoToSim) tracks vs pT",nintpT,minpT,maxpT) );
+      h_simulpT.push_back( dbe_->book1D("num_simul_pT","N of simulated tracks vs pT",nintpT,minpT,maxpT) );
       h_ptrmsh.push_back( dbe_->book1D("sigmaPt/Pt","#singmaPt/Pt vs #eta",nint,min,max) );
       h_d0rmsh.push_back( dbe_->book1D("sigmad0","#sigmad0 vs #eta",nint,min,max) );
       h_hits_eta.push_back( dbe_->book1D("hits_eta","hits_eta",nint,min,max) );
@@ -175,11 +197,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	TrackingParticleRef tp(TPCollectionH, i);
 	if (!selectTPs4Efficiency( *tp )) continue;
 	if (tp->charge()==0) continue;
-	//int type = tp->g4Track_begin()->type();
-	//if (abs(type)!=13&&abs(type)!=11&&abs(type)!=211&&abs(type)!=321&&abs(type)!=2212) continue;
-	// 	LogDebug("TrackValidator") << "tp->charge(): " << tp->charge()
-	// 				   << "\ntp->trackPSimHit().size(): " << tp->trackPSimHit().size() 
-	// 				   << "\n";
 	st++;
 	h_ptSIM[w]->Fill(sqrt(tp->momentum().perp2()));
 	h_etaSIM[w]->Fill(tp->momentum().eta());
@@ -187,9 +204,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
 	  if (fabs(tp->momentum().eta())>etaintervals[w][f]&&
 	      fabs(tp->momentum().eta())<etaintervals[w][f+1]) {
-	    //LogDebug("TrackValidator") << "TrackingParticle with eta: " << tp->momentum().eta() << "\n"
-	    //			       << "TrackingParticle with pt : " << sqrt(tp->momentum().perp2()) <<"\n" ;
-	    totSIM[w][f]++;
+	    totSIMeta[w][f]++;
 	    std::vector<std::pair<reco::TrackRef, double> > rt;
 	    try {
 	      rt = simRecColl[tp];
@@ -203,13 +218,29 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	      reco::TrackRef t = rt.begin()->first;
  	      if ( !selectTracks4Efficiency( *t ) ) continue;//FIXME TRY WITH SECOND
 	      ats++;
-	      totASS[w][f]++;
+	      totASSeta[w][f]++;
 	      hitseta[w][f]+=t->numberOfValidHits();
 	      edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st << " with pt=" << t->pt() 
 					 << " associated with quality:" << rt.begin()->second <<"\n";
 	    }
 	  }
-	}
+	} // END for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
+
+	for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
+          if (sqrt(tp->momentum().perp2())>pTintervals[w][f]&&
+              sqrt(tp->momentum().perp2())<pTintervals[w][f+1]) {
+            totSIMpT[w][f]++;
+	    std::vector<std::pair<reco::TrackRef, double> > rt;
+            try {
+              rt = simRecColl[tp];
+            } catch (cms::Exception e) { }
+            if (rt.size()!=0) {
+	      reco::TrackRef t = rt.begin()->first;
+              if ( !selectTracks4Efficiency( *t ) ) continue;//FIXME TRY WITH SECOND
+              totASSpT[w][f]++;
+            }
+          }
+        } // END for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
       }
       if (st!=0) h_tracksSIM[w]->Fill(st);
       
@@ -231,7 +262,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
 	  if (fabs(track->momentum().eta())>etaintervals[w][f]&&
 	      fabs(track->momentum().eta())<etaintervals[w][f+1]) {
-	    totREC[w][f]++;
+	    totRECeta[w][f]++;
 	    try {
 	      tp = recSimColl[track];
 	    } catch (cms::Exception e) {
@@ -241,12 +272,26 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    }
 	    if (tp.size()!=0) {
 	      if (!selectTPs4FakeRate( *tp.begin()->first )) continue;//FIXME TRY WITH SECOND
-	      totASS2[w][f]++;
+	      totASS2eta[w][f]++;
 	      edm::LogVerbatim("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt() 
 					 << " associated with quality:" << tp.begin()->second <<"\n";
 	    }
 	  }
 	}
+
+        for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
+          if (sqrt(track->momentum().perp2())>pTintervals[w][f]&&
+              sqrt(track->momentum().perp2())<pTintervals[w][f+1]) {
+            totRECpT[w][f]++;
+            try {
+              tp = recSimColl[track];
+            } catch (cms::Exception e) { }
+            if (tp.size()!=0) {
+              if (!selectTPs4FakeRate( *tp.begin()->first )) continue;//FIXME TRY WITH SECOND
+              totASS2pT[w][f]++;
+            }
+          }
+        }
 
 	//Fill other histos
  	try{
@@ -255,7 +300,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  at++;
 
 	  TrackingParticleRef tpr = tp.begin()->first;
-	  //SimTrackRefVector::iterator it=tpr->g4Track_begin();
 	  const SimTrack * assocTrack = &(*tpr->g4Track_begin());
 	
 	  if (associators[ww]=="TrackAssociatorByChi2"){
@@ -413,17 +457,10 @@ void MultiTrackValidator::endJob() {
       
       //fill efficiency plot
       double eff,err;
-      for (unsigned int j=0; j<totASS[w].size(); j++){
-        if (totSIM[w][j]!=0){
-          eff = ((double) totASS[w][j])/((double) totSIM[w][j]);
-	  err = sqrt(eff*(1-eff)/((double) totSIM[w][j]));
-	  //	  edm::LogVerbatim("TrackValidatorInfo") 
-	  cout
-	    << "efficiency in eta interval [" << etaintervals[w][j] << ","
-	    << etaintervals[w][j+1] << "] is "
-	    << eff << " (" << totASS[w][j] << "/" << totSIM[w][j] << ") +- "
-	    << err <<"\n";
-
+      for (unsigned int j=0; j<totASSeta[w].size(); j++){
+        if (totSIMeta[w][j]!=0){
+          eff = ((double) totASSeta[w][j])/((double) totSIMeta[w][j]);
+	  err = sqrt(eff*(1-eff)/((double) totSIMeta[w][j]));
           h_effic[w]->setBinContent(j+1, eff);
           h_effic[w]->setBinError(j+1,err);
         }
@@ -434,10 +471,10 @@ void MultiTrackValidator::endJob() {
 
       //fill fakerate plot
       double frate,ferr;
-      for (unsigned int j=0; j<totASS2[w].size(); j++){
-        if (totREC[w][j]!=0){
-          frate = 1-((double) totASS2[w][j])/((double) totREC[w][j]);
-	  ferr = sqrt( frate*(1-frate)/(double) totREC[w][j] );
+      for (unsigned int j=0; j<totASS2eta[w].size(); j++){
+        if (totRECeta[w][j]!=0){
+          frate = 1-((double) totASS2eta[w][j])/((double) totRECeta[w][j]);
+	  ferr = sqrt( frate*(1-frate)/(double) totRECeta[w][j] );
           h_fakerate[w]->setBinContent(j+1, frate);
 	  h_fakerate[w]->setBinError(j+1,ferr);
         }
@@ -446,23 +483,36 @@ void MultiTrackValidator::endJob() {
         }
       }
 
-      for (unsigned int j=0; j<totREC[w].size(); j++){
-	h_reco[w]->setBinContent(j+1, totREC[w][j]);
+      for (unsigned int j=0; j<totRECeta[w].size(); j++){
+	h_recoeta[w]->setBinContent(j+1, totRECeta[w][j]);
       }
-      for (unsigned int j=0; j<totSIM[w].size(); j++){
-	h_simul[w]->setBinContent(j+1, totSIM[w][j]);
+      for (unsigned int j=0; j<totSIMeta[w].size(); j++){
+	h_simuleta[w]->setBinContent(j+1, totSIMeta[w][j]);
       }
-      for (unsigned int j=0; j<totASS[w].size(); j++){
-	h_assoc[w]->setBinContent(j+1, totASS[w][j]);
+      for (unsigned int j=0; j<totASSeta[w].size(); j++){
+	h_assoceta[w]->setBinContent(j+1, totASSeta[w][j]);
       }
-      for (unsigned int j=0; j<totASS2[w].size(); j++){
-	h_assoc2[w]->setBinContent(j+1, totASS2[w][j]);
+      for (unsigned int j=0; j<totASS2eta[w].size(); j++){
+	h_assoc2eta[w]->setBinContent(j+1, totASS2eta[w][j]);
       }
+
+      for (unsigned int j=0; j<totRECpT[w].size(); j++){
+        h_recopT[w]->setBinContent(j+1, totRECpT[w][j]);
+      }
+      for (unsigned int j=0; j<totSIMpT[w].size(); j++){
+        h_simulpT[w]->setBinContent(j+1, totSIMpT[w][j]);
+      }
+      for (unsigned int j=0; j<totASSpT[w].size(); j++){
+        h_assocpT[w]->setBinContent(j+1, totASSpT[w][j]);
+      }
+      for (unsigned int j=0; j<totASS2pT[w].size(); j++){
+        h_assoc2pT[w]->setBinContent(j+1, totASS2pT[w][j]);
+      }   
       
       //fill hits vs eta plot
       for (unsigned int rr=0; rr<hitseta[w].size(); rr++){
-	if (totASS[w][rr]!=0)
-	  h_hits_eta[w]->setBinContent(rr+1,((double)  hitseta[w][rr])/((double) totASS[w][rr]));
+	if (totASSeta[w][rr]!=0)
+	  h_hits_eta[w]->setBinContent(rr+1,((double)  hitseta[w][rr])/((double) totASSeta[w][rr]));
 	else h_hits_eta[w]->setBinContent(rr+1, 0);
       }
       w++;

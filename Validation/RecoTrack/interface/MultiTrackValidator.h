@@ -41,6 +41,9 @@ class MultiTrackValidator : public edm::EDAnalyzer {
     min(pset.getParameter<double>("min")),
     max(pset.getParameter<double>("max")),
     nint(pset.getParameter<int>("nint")),
+    minpT(pset.getParameter<double>("minpT")),
+    maxpT(pset.getParameter<double>("maxpT")),
+    nintpT(pset.getParameter<int>("nintpT")),
     selectTracks4Efficiency(pset.getParameter<edm::ParameterSet>("TracksEfficCuts")),
     selectTPs4Efficiency(pset.getParameter<edm::ParameterSet>("TPEfficCuts")),
     selectTracks4FakeRate(pset.getParameter<edm::ParameterSet>("TracksFakeRateCuts")),
@@ -64,17 +67,22 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   string out;
   double  min, max;
   int nint;
+  double minpT, maxpT;
+  int nintpT;
   
   vector<MonitorElement*> h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM;
   vector<MonitorElement*> h_tracks, h_fakes, h_nchi2, h_nchi2_prob, h_hits,  h_ptrmsh, h_d0rmsh, h_charge;
-  vector<MonitorElement*> h_effic, h_fakerate, h_reco, h_assoc, h_assoc2, h_simul;
+  vector<MonitorElement*> h_effic, h_fakerate, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta;
+  vector<MonitorElement*> h_recopT, h_assocpT, h_assoc2pT, h_simulpT;
   vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi0,h_pullD0,h_pullDz,h_pullK;
   vector<MonitorElement*> chi2_vs_nhits, chi2_vs_eta, nhits_vs_eta, ptres_vs_eta, etares_vs_eta, nrec_vs_nsim;
   vector<MonitorElement*> h_assochi2, h_assochi2_prob, h_hits_eta;
   
   vector< vector<double> > etaintervals;
+  vector< vector<double> > pTintervals;
   vector< vector<double> > hitseta;
-  vector< vector<int> > totSIM,totREC,totASS,totASS2;
+  vector< vector<int> > totSIMeta,totRECeta,totASSeta,totASS2eta;
+  vector< vector<int> > totSIMpT,totRECpT,totASSpT,totASS2pT;
   
   vector< vector<TH1F*> > ptdistrib;
   vector< vector<TH1F*> > d0distrib;
