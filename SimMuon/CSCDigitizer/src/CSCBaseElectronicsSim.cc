@@ -80,10 +80,15 @@ void CSCBaseElectronicsSim::simulate(const CSCLayer * layer,
 
 void CSCBaseElectronicsSim::fillAmpResponse() {
   std::vector<float> ampBinValues(theNumberOfSamples);
-  for(int i = 0; i < theNumberOfSamples; ++i) {
+  int i = 0;
+  for( ; i < theNumberOfSamples; ++i) {
     ampBinValues[i] = calculateAmpResponse(i*theSamplingTime);
+    // truncate any entries that are trivially small
+    if(i>5 && ampBinValues[i] < 0.000001) break;
   }
+  ampBinValues.resize(i);
   theAmpResponse = CSCAnalogSignal(0, theSamplingTime, ampBinValues, 1., 0.);
+
   LogDebug("CSCBaseElectronicsSim") << 
     "CSCBaseElectronicsSim: dump of theAmpResponse follows...\n"
 	 << theAmpResponse;
