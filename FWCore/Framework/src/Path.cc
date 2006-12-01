@@ -33,10 +33,15 @@ namespace edm
   {
   }
   
-  void Path::runOneEvent(EventPrincipal& ep, EventSetup const& es)
+  void Path::runOneEvent(EventPrincipal& ep,
+	     EventSetup const& es,
+	     BranchActionType const& bat)
   {
-    RunStopwatch stopwatch(stopwatch_);
-    ++timesRun_;
+    bool const isEvent = (bat == BranchActionEvent);
+    if (isEvent) {
+      RunStopwatch stopwatch(stopwatch_);
+      ++timesRun_;
+    }
     state_ = edm::hlt::Ready;
 
     // nwrue =  numWorkersRunWithoutUnhandledException
@@ -51,27 +56,27 @@ namespace edm
           i != end && should_continue;
           ++i, ++idx ) {
       ++nwrwue;
-      assert ( static_cast<int>(idx) == nwrwue );
+      assert (static_cast<int>(idx) == nwrwue);
       try {
         cpc.activate(idx, i->getWorker()->descPtr());
-        should_continue = i->runWorker(ep, es, &cpc);
+        should_continue = i->runWorker(ep, es, bat, &cpc);
       }
       catch(cms::Exception& e) {
         // handleWorkerFailure may throw a new exception.
-        should_continue = handleWorkerFailure(e, nwrwue);
+        should_continue = handleWorkerFailure(e, nwrwue, isEvent);
       }
       catch(...) {
-        recordUnknownException(nwrwue);
+        recordUnknownException(nwrwue, isEvent);
         throw;
       }
     }
-    updateCounters(should_continue);
-    recordStatus(nwrwue);
+    updateCounters(should_continue, isEvent);
+    recordStatus(nwrwue, isEvent);
   }
 
   bool
   Path::handleWorkerFailure(cms::Exception const& e,
-			    int nwrwue)
+			    int nwrwue, bool isEvent)
   {
     bool should_continue = true;
 
@@ -80,65 +85,61 @@ namespace edm
     
     actions::ActionCodes code = act_table_->find(e.rootCause());
 
-    switch(code)
-      {
-      case actions::IgnoreCompletely:
-	{
+    switch(code) {
+      case actions::IgnoreCompletely: {
 	  LogWarning(e.category())
 	    << "Ignoring Exception in path " << name_
 	    << ", message:\n"  << e.what() << "\n";
 	  break;
-	}
-      case actions::FailPath:
-	{
+      }
+      case actions::FailPath: {
 	  should_continue = false;
 	  LogWarning(e.category())
 	    << "Failing path " << name_
 	    << ", due to exception, message:\n"
 	    << e.what() << "\n";
 	  break;
-	}
-      default:
-	{
-	  ++timesExcept_;
+      }
+      default: {
+	  if (isEvent) ++timesExcept_;
 	  state_ = edm::hlt::Exception;
-	  recordStatus(nwrwue);
+	  recordStatus(nwrwue, isEvent);
 	  throw edm::Exception(errors::ScheduleExecutionFailure,
 			       "ProcessingStopped", e)
 	    << "Exception going through path " << name_ << "\n";
-	}
       }
+    }
 
     return should_continue;
   }
 
   void
-  Path::recordUnknownException(int nwrwue)
+  Path::recordUnknownException(int nwrwue, bool isEvent)
   {
     LogError("PassingThrough")
       << "Exception passing through path " << name_ << "\n";
-    ++timesExcept_;
+    if (isEvent) ++timesExcept_;
     state_ = edm::hlt::Exception;
-    recordStatus(nwrwue);
+    recordStatus(nwrwue, isEvent);
   }
 
   void
-  Path::recordStatus(int nwrwue)
+  Path::recordStatus(int nwrwue, bool isEvent)
   {
-    (*trptr_)[bitpos_]=HLTPathStatus(state_, nwrwue);    
+    if(isEvent) (*trptr_)[bitpos_]=HLTPathStatus(state_, nwrwue);    
   }
 
   void
-  Path::updateCounters(bool success)
+  Path::updateCounters(bool success, bool isEvent)
   {
     if (success)
       {
-	++timesPassed_;
+	if (isEvent) ++timesPassed_;
 	state_ = edm::hlt::Pass;
       }
     else
       {
-	++timesFailed_;
+	if(isEvent) ++timesFailed_;
 	state_ = edm::hlt::Fail;
       }
   }

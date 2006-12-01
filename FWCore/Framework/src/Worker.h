@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.15 2006/08/08 00:41:39 chrjones Exp $
+$Id: Worker.h,v 1.16 2006/11/03 17:57:52 wmtan Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -29,6 +29,7 @@ the worker is reset().
 
 #include "boost/scoped_ptr.hpp"
 #include "boost/shared_ptr.hpp"
+#include "boost/array.hpp"
 
 #include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -44,6 +45,7 @@ namespace edm {
     virtual ~Worker();
 
     bool doWork(EventPrincipal&, EventSetup const& c,
+		BranchActionType const& bat,
 		CurrentProcessingContext const* cpc) ;
     void beginJob(EventSetup const&) ;
     void endJob();

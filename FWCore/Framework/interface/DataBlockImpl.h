@@ -14,7 +14,7 @@ through shared pointers.
 The DataBlockImpl returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: DataBlockImpl.h,v 1.2 2006/11/08 00:19:06 wmtan Exp $
+$Id: DataBlockImpl.h,v 1.3 2006/11/30 15:37:06 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -41,11 +41,12 @@ $Id: DataBlockImpl.h,v 1.2 2006/11/08 00:19:06 wmtan Exp $
 
 namespace edm {
   class ProductRegistry;
+  class UnscheduledHandler;
   class DataBlockImpl : public EDProductGetter {
   public:
     typedef std::vector<boost::shared_ptr<Group> > GroupVec;
     typedef GroupVec::const_iterator               const_iterator;
-    typedef ProcessHistory::const_iterator        ProcessNameConstIterator;
+    typedef ProcessHistory::const_iterator         ProcessNameConstIterator;
     typedef boost::shared_ptr<const Group>         SharedConstGroupPtr;
     typedef std::vector<BasicHandle>               BasicHandleVec;
 
@@ -59,6 +60,8 @@ namespace edm {
     EDProductGetter const* prodGetter() const {return this;}
 
     DataBlockImpl const& groupGetter() const {return *this;}
+
+    DataBlockImpl & groupGetter() {return *this;}
 
     // Return the number of EDProducts contained.
     unsigned long numEDProducts() const;
@@ -131,14 +134,18 @@ namespace edm {
 
     boost::shared_ptr<DelayedReader> store() const {return store_;}
 
+    void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler) {
+      setUnscheduledHandler_(iHandler);
+    }
+
     virtual EDProduct const* getIt(ProductID const& oid) const;
 
   private:
+    virtual void setUnscheduledHandler_(boost::shared_ptr<UnscheduledHandler> iHandler) = 0;
 
     virtual bool unscheduledFill(Group const& group) const = 0;
 
-    virtual bool fillAndMatchSelector(Provenance& prov,
-				 SelectorBase const& selector) const = 0;
+    virtual bool fillAndMatchSelector(Provenance& prov, SelectorBase const& selector) const = 0;
 
     typedef boost::shared_ptr<Group> SharedGroupPtr;
 

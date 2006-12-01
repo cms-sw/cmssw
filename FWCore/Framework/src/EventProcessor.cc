@@ -796,7 +796,7 @@ namespace edm {
     IOVSyncValue ts(pep->id(), pep->time());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     
-    schedule_->runOneEvent(*pep.get(),es);
+    schedule_->runOneEvent(*pep.get(),es,BranchActionEvent);
     toerror.succeeded();
     return EventHelperDescription(pep,&es);
   }
@@ -849,7 +849,7 @@ namespace edm {
 	IOVSyncValue ts(pep->id(), pep->time());
 	EventSetup const& es = esp_->eventSetupForInstance(ts);
 	
-	schedule_->runOneEvent(*pep.get(),es);
+	schedule_->runOneEvent(*pep.get(),es,BranchActionEvent);
       }
 
     // check once more for shutdown signal
@@ -906,7 +906,7 @@ namespace edm {
 	IOVSyncValue ts(pep->id(), pep->time());
 	EventSetup const& es = esp_->eventSetupForInstance(ts);
 
-	schedule_->runOneEvent(*pep.get(),es);
+	schedule_->runOneEvent(*pep.get(),es,BranchActionEvent);
 	changeState(mCountComplete);
       }
 

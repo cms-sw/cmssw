@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.13 2006/08/08 00:41:39 chrjones Exp $
+$Id: Worker.cc,v 1.14 2006/09/01 18:16:42 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -9,6 +9,8 @@ $Id: Worker.cc,v 1.13 2006/08/08 00:41:39 chrjones Exp $
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "boost/signal.hpp"
@@ -69,21 +71,23 @@ namespace edm
   }
 
   bool Worker::doWork(EventPrincipal& ep, EventSetup const& es,
+		      BranchActionType const& bat,
 		      CurrentProcessingContext const* cpc)
   {
     using namespace std;
-    RunStopwatch stopwatch(stopwatch_);
 
+    bool const isEvent = (bat == BranchActionEvent);
+    if (isEvent) {
+      RunStopwatch stopwatch(stopwatch_);
+      ++timesVisited_;
+    }
     bool rc = false;
-    ++timesVisited_;
 
-    switch(state_)
-      {
+    switch(state_) {
       case Ready: break;
       case Pass: return true;
       case Fail: return false;
-      case Exception:
-	{
+      case Exception: {
 	  // rethrow the cached exception again
 	  // only cms::Exceptions can be cached and contributing to
 	  // actions or processing routing.  It seems impossible to
@@ -97,62 +101,77 @@ namespace edm
 			       << "configuration problem.\n";
 
 	  throw *cached_exception_;
-	}
       }
+    }
 
-    ++timesRun_;
+    if (isEvent) ++timesRun_;
 
-    try
-      {
+    try {
 
 	CallPrePost cpp(sigs_,md_);
 
-	rc = implDoWork(ep,es,cpc);
-
-	if(rc)
-	  {
-	    ++timesPassed_;
-	    state_ = Pass;
+	switch(bat) {
+	  case BranchActionEvent: {
+	    rc = implDoWork(ep, es, cpc);
+	    break;
 	  }
-	else
-	  {
-	    ++timesFailed_;
-	    state_ = Fail;
+	  case BranchActionBeginLumi: {
+	    LuminosityBlockPrincipal & lbp = const_cast<LuminosityBlockPrincipal&>(ep.luminosityBlockPrincipal());
+	    rc = implBeginLuminosityBlock(lbp, es, cpc);
+	    break;
 	  }
-      }
+	  case BranchActionEndLumi: {
+	    LuminosityBlockPrincipal & lbp = const_cast<LuminosityBlockPrincipal&>(ep.luminosityBlockPrincipal());
+	    rc = implEndLuminosityBlock(lbp, es, cpc);
+	    break;
+	  }
+	  case BranchActionBeginRun: {
+	    RunPrincipal & rp = const_cast<RunPrincipal&>(ep.luminosityBlockPrincipal().runPrincipal());
+	    rc = implBeginRun(rp, es, cpc);
+	    break;
+	  }
+	  case BranchActionEndRun: {
+	    RunPrincipal & rp = const_cast<RunPrincipal&>(ep.luminosityBlockPrincipal().runPrincipal());
+	    rc = implEndRun(rp, es, cpc);
+	    break;
+	  }
+	  default:
+	    assert(0);
+	    break;
+	}
 
-    catch(cms::Exception& e)
-      {
+	if (isEvent) {
+	  if(rc) ++timesPassed_; else ++timesFailed_;
+	}
+    }
+
+    catch(cms::Exception& e) {
       
 	// NOTE: the warning printed as a result of ignoring or failing
 	// a module will only be printed during the full true processing
 	// pass of this module
 
-	switch(actions_->find(e.rootCause()))
-	  {
-	  case actions::IgnoreCompletely:
-	    {
+	switch(actions_->find(e.rootCause())) {
+	  case actions::IgnoreCompletely: {
 	      rc=true;
-	      ++timesPassed_;
+	      if (isEvent) ++timesPassed_;
 	      state_=Pass;
 	      LogWarning("IgnoreCompletely")
 		<< "Module ignored an exception\n"
                 <<e.what()<<"\n";
 	      break;
-	    }
+	  }
 
-	  case actions::FailModule:
-	    {
+	  case actions::FailModule: {
 	      LogWarning("FailModule")
               << "Module failed an event due to exception\n"
               <<e.what()<<"\n";
-	      ++timesFailed_;
+	      if (isEvent) ++timesFailed_;
 	      state_=Fail;
 	      break;
-	    }
+	  }
 	    
-	  default:
-	    {
+	  default: {
 
 	      // we should not need to include the event/run/module names
 	      // the exception because the error logger will pick this
@@ -164,19 +183,18 @@ namespace edm
 	      // it as something else and embedded with this exception
 	      // as an argument to the constructor.
 
-	      ++timesExcept_;
+	      if (isEvent) ++timesExcept_;
 	      state_ = Exception;
 	      e << "cms::Exception going through module ";
               exceptionContext(md_,ep,e);
 	      cached_exception_.reset(new cms::Exception(e));
 	      throw;
-	    }
 	  }
+	}
       }
     
-    catch(seal::Error& e)
-      {
-	++timesExcept_;
+    catch(seal::Error& e) {
+	if (isEvent) ++timesExcept_;
 	state_ = Exception;
 	cached_exception_.reset(new cms::Exception("SealError"));
 	*cached_exception_
@@ -184,10 +202,9 @@ namespace edm
         exceptionContext(md_,ep,*cached_exception_)<< "and cannot be repropagated.\n"
 	  << "Previous information:\n" << e.explainSelf();
 	throw *cached_exception_;
-      }
-    catch(std::exception& e)
-      {
-	++timesExcept_;
+    }
+    catch(std::exception& e) {
+	if (isEvent) ++timesExcept_;
 	state_ = Exception;
 	cached_exception_.reset(new cms::Exception("StdException"));
 	*cached_exception_
@@ -195,10 +212,9 @@ namespace edm
         exceptionContext(md_,ep,*cached_exception_)<< "module and cannot be repropagated.\n"
 	  << "Previous information:\n" << e.what();
 	throw *cached_exception_;
-      }
-    catch(std::string& s)
-      {
-	++timesExcept_;
+    }
+    catch(std::string& s) {
+	if (isEvent) ++timesExcept_;
 	state_ = Exception;
 	cached_exception_.reset(new cms::Exception("BadExceptionType","std::string"));
 	*cached_exception_
@@ -206,10 +222,9 @@ namespace edm
         exceptionContext(md_,ep,*cached_exception_)<< "and cannot be repropagated.\n"
 	  << "Previous information:\n string = " << s;
 	throw *cached_exception_;
-      }
-    catch(const char* c)
-      {
-	++timesExcept_;
+    }
+    catch(const char* c) {
+	if (isEvent) ++timesExcept_;
 	state_ = Exception;
 	cached_exception_.reset(new cms::Exception("BadExceptionType","const char*"));
 	*cached_exception_
@@ -217,17 +232,16 @@ namespace edm
         exceptionContext(md_,ep,*cached_exception_)<< "and cannot be repropagated.\n"
 	  << "Previous information:\n const char* = " << c<<"\n";
 	throw *cached_exception_;
-      }
-    catch(...)
-      {
-	++timesExcept_;
+    }
+    catch(...) {
+	if (isEvent) ++timesExcept_;
 	state_ = Exception;
 	cached_exception_.reset(new cms::Exception("repeated"));
 	*cached_exception_
 	  << "An unknown occurred during a previous call to the module ";
         exceptionContext(md_,ep,*cached_exception_)<< " and cannot be repropagated.\n";
         throw;
-      }
+    }
 
     return rc;
   }
@@ -236,12 +250,10 @@ namespace edm
   {
     using namespace std;
     
-    try
-      {
+    try {
 	implBeginJob(es);
-      }
-    catch(cms::Exception& e)
-      {
+    }
+    catch(cms::Exception& e) {
 	// should event id be included?
 	LogError("BeginJob")
 	  << "A cms::Exception is going through "<< workerType()<<":\n";
@@ -249,57 +261,50 @@ namespace edm
 	e << "A cms::Exception is going through "<< workerType()<<":\n"
 	  << description();
 	throw;
-      }
-    catch(seal::Error& e)
-      {
+    }
+    catch(seal::Error& e) {
 	LogError("BeginJob")
 	  << "A seal::Error is going through "<< workerType()<<":\n"
 	  << description() << "\n";
 	throw;
-      }
-    catch(std::exception& e)
-      {
+    }
+    catch(std::exception& e) {
 	LogError("BeginJob")
 	  << "An std::exception is going through "<< workerType()<<":\n"
 	  << description() << "\n";
 	throw;
-      }
-    catch(std::string& s)
-      {
+    }
+    catch(std::string& s) {
 	LogError("BeginJob") 
 	  << "module caught an std::string during beginJob\n";
 
 	throw cms::Exception("BadExceptionType","std::string") 
 	  << "string = " << s << "\n"
 	  << description() << "\n" ;
-      }
-    catch(const char* c)
-      {
+    }
+    catch(const char* c) {
 	LogError("BeginJob") 
 	  << "module caught an const char* during beginJob\n";
 
 	throw cms::Exception("BadExceptionType","const char*") 
 	  << "cstring = " << c << "\n"
 	  << description() ;
-      }
-    catch(...)
-      {
+    }
+    catch(...) {
 	LogError("BeginJob")
 	  << "An unknown Exception occured in\n" << description() << "\n";
 	throw;
-      }
+    }
   }
   
   void Worker::endJob()
   {
     using namespace std;
     
-    try
-      {
+    try {
 	implEndJob();
-      }
-    catch(cms::Exception& e)
-      {
+    }
+    catch(cms::Exception& e) {
 	LogError("EndJob")
 	  << "A cms::Exception is going through "<< workerType()<<":\n";
 
@@ -307,45 +312,40 @@ namespace edm
 	e << "A cms::Exception is going through "<< workerType()<<":\n"
 	  << description();
 	throw;
-      }
-    catch(seal::Error& e)
-      {
+    }
+    catch(seal::Error& e) {
 	LogError("EndJob")
 	  << "A seal::Error is going through "<< workerType()<<":\n"
 	  << description() << "\n";
 	throw;
-      }
-    catch(std::exception& e)
-      {
+    }
+    catch(std::exception& e) {
 	LogError("EndJob")
 	  << "An std::exception is going through "<< workerType()<<":\n"
 	  << description() << "\n";
 	throw;
-      }
-    catch(std::string& s)
-      {
+    }
+    catch(std::string& s) {
 	LogError("EndJob") 
 	  << "module caught an std::string during endJob\n";
 
 	throw cms::Exception("BadExceptionType","std::string") 
 	  << "string = " << s << "\n"
 	  << description() << "\n";
-      }
-    catch(const char* c)
-      {
+    }
+    catch(const char* c) {
 	LogError("EndJob") 
 	  << "module caught an const char* during endJob\n";
 
 	throw cms::Exception("BadExceptionType","const char*") 
 	  << "cstring = " << c << "\n"
 	  << description() << "\n";
-      }
-    catch(...)
-      {
+    }
+    catch(...) {
 	LogError("EndJob")
 	  << "An unknown Exception occured in\n" << description() << "\n";
 	throw;
-      }
+    }
   }
   
 }

@@ -4,13 +4,13 @@
 
 namespace edm
 {
-  WorkerInPath::WorkerInPath(Worker* w, State theState):
+  WorkerInPath::WorkerInPath(Worker* w, FilterAction theFilterAction):
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     timesVisited_(),
     timesPassed_(),
     timesFailed_(),
     timesExcept_(),
-    state_(theState),
+    filterAction_(theFilterAction),
     worker_(w)
   {
   }
@@ -21,40 +21,42 @@ namespace edm
     timesPassed_(),
     timesFailed_(),
     timesExcept_(),
-    state_(Normal),
+    filterAction_(Normal),
     worker_(w)
   {
   }
 
   bool WorkerInPath::runWorker(EventPrincipal& ep, EventSetup const & es,
+			       BranchActionType const& bat,
 			       CurrentProcessingContext const* cpc)
   {
-    RunStopwatch stopwatch(stopwatch_);
-    ++timesVisited_;
+    bool const isEvent = (bat == BranchActionEvent);
+    if (isEvent) {
+      RunStopwatch stopwatch(stopwatch_);
+      ++timesVisited_;
+    }
     bool rc = true;
 
-    if(state_ == Ignore)
-      {
+    if (filterAction_ == Ignore) {
 	// ++timesPassed_; // should this be incremented or not?
 	return rc;
-      }
-
-    try 
-      {
+    }
+    try {
 	// may want to change the return value from the worker to be 
-	// the Worker::State so conditions in the path will be easier to 
+	// the Worker::FilterAction so conditions in the path will be easier to 
 	// identify
-	rc = worker_->doWork(ep,es,cpc);
+	rc = worker_->doWork(ep, es, bat, cpc);
 
-	if(state_ == Veto) rc = !rc;
+	if (filterAction_ == Veto) rc = !rc;
 
-	if(rc) ++timesPassed_; else ++timesFailed_;
-      }
-    catch(...)
-      {
-	++timesExcept_;
+	if (isEvent) {
+	  if(rc) ++timesPassed_; else ++timesFailed_;
+	}
+    }
+    catch(...) {
+	if (isEvent) ++timesExcept_;
 	throw;
-      }
+    }
 
     return rc;
   }

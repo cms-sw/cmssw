@@ -4,7 +4,7 @@
 namespace edm {
 
     LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal& dbk, ModuleDescription const& md) :
-	DataViewImpl(dbk.impl(), md, InLumi),
+	DataViewImpl(dbk.groupGetter(), md, InLumi),
 	aux_(dbk.aux()) {
     }
 }

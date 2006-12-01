@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.16.2.2 2006/07/05 23:57:17 wmtan Exp $
+  $Id: Schedule.h,v 1.17 2006/07/06 19:11:42 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -134,7 +134,8 @@ namespace edm
     enum State { Ready=0, Running, Latched };
 
     void runOneEvent(EventPrincipal& eventPrincipal, 
-		     EventSetup const& eventSetup);
+		     EventSetup const& eventSetup,
+		     BranchActionType const& branchActionType);
 
     void beginJob(EventSetup const&);
     void endJob();
@@ -202,8 +203,8 @@ namespace edm
     { return all_workers_.end(); }
 
     void resetAll();
-    bool runTriggerPaths(EventPrincipal&, EventSetup const&);
-    void runEndPaths(EventPrincipal&, EventSetup const&);
+    bool runTriggerPaths(EventPrincipal&, EventSetup const&, BranchActionType const&);
+    void runEndPaths(EventPrincipal&, EventSetup const&, BranchActionType const&);
 
     void setupOnDemandSystem(EventPrincipal& ep, EventSetup const& es);
 

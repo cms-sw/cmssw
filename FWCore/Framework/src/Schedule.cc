@@ -56,14 +56,15 @@ namespace edm
     {
     public:
       typedef void result_type;
-      run_one_event(EventPrincipal& principal, EventSetup const& setup) :
-	ep(principal), es(setup) { };
+      run_one_event(EventPrincipal& principal, EventSetup const& setup, BranchActionType const& branchActionType) :
+	ep(principal), es(setup), bat(branchActionType) {};
 
-      void operator()(Path& p) { p.runOneEvent(ep, es); }
+      void operator()(Path& p) {p.runOneEvent(ep, es, bat);}
 
     private:      
       EventPrincipal&   ep;
       EventSetup const& es;
+      BranchActionType const& bat;
     };
 
     // Function template to transform each element in the input range to
@@ -174,7 +175,7 @@ namespace edm
 	  // Unscheduled reconstruction has no accepted definition
 	  // (yet) of the "current path". We indicate this by passing
 	  // a null pointer as the CurrentProcessingContext.
-	  itFound->second->doWork(event,eventSetup, 0);
+	  itFound->second->doWork(event, eventSetup, BranchActionEvent, 0);
 	  return true;
 	}
       return false;
@@ -370,8 +371,8 @@ namespace edm
 
     for(;it!=ie;++it) {
       bool invert = (*it)[0]=='!';
-      string realname = invert?string(it->begin()+1,it->end()):*it;
-      WorkerInPath::State state =
+      string realname = invert ? string(it->begin()+1, it->end()) : *it;
+      WorkerInPath::FilterAction filterAction =
 	invert ? WorkerInPath::Veto : WorkerInPath::Normal;
 
       ParameterSet modpset;
@@ -387,7 +388,7 @@ namespace edm
       }
       WorkerParams params(pset_, modpset, *prod_reg_, *act_table_,
 			  processName_, getReleaseVersion(), getPassID());
-      WorkerInPath w(worker_reg_->getWorker(params),state);
+      WorkerInPath w(worker_reg_->getWorker(params), filterAction);
       tmpworkers.push_back(w);
     }
 
@@ -455,25 +456,31 @@ namespace edm
     all_workers_.insert(holder.begin(), holder.end());
   }
 
-  void Schedule::runOneEvent(EventPrincipal& ep, EventSetup const& es)
+  void Schedule::runOneEvent(EventPrincipal& ep, EventSetup const& es, BranchActionType const& bat)
   {
-    ++total_events_;
-    RunStopwatch stopwatch(stopwatch_);
     this->resetAll();
-
     state_ = Running;
-    setupOnDemandSystem(ep, es);
-    try 
-      {
-	CallPrePost cpp(act_reg_.get(), &ep, &es);
 
-	if ( runTriggerPaths(ep, es) ) ++total_passed_;
+    bool const isEvent = (bat == BranchActionEvent);
+    if (isEvent) {
+      ++total_events_;
+      RunStopwatch stopwatch(stopwatch_);
+      setupOnDemandSystem(ep, es);
+    }
+    try {
+	if (isEvent) {
+ 	  CallPrePost cpp(act_reg_.get(), &ep, &es);
+	}
+
+	if (runTriggerPaths(ep, es, bat)) {
+	  if (isEvent) ++total_passed_;
+        }
 	state_ = Latched;
 	
-	if(results_inserter_.get()) results_inserter_->doWork(ep,es,0);
+	if(results_inserter_.get()) results_inserter_->doWork(ep, es, bat, 0);
 	
-	if (endpathsAreActive_) runEndPaths(ep,es);
-      }
+	if (endpathsAreActive_) runEndPaths(ep, es, bat);
+    }
     catch(cms::Exception& e) {
       actions::ActionCodes code = act_table_->find(e.rootCause());
 
@@ -910,9 +917,9 @@ namespace edm
   }
 
   bool
-  Schedule::runTriggerPaths(EventPrincipal& ep, EventSetup const& es)
+  Schedule::runTriggerPaths(EventPrincipal& ep, EventSetup const& es, BranchActionType const& bat)
   {
-    for_each(trig_paths_.begin(), trig_paths_.end(), run_one_event(ep, es));
+    for_each(trig_paths_.begin(), trig_paths_.end(), run_one_event(ep, es, bat));
     return results_->accept();
   }
 
@@ -946,11 +953,11 @@ namespace edm
   //   }
 
   void
-  Schedule::runEndPaths(EventPrincipal& ep, EventSetup const& es)
+  Schedule::runEndPaths(EventPrincipal& ep, EventSetup const& es, BranchActionType const& bat)
   {
     // Note there is no state-checking safety controlling the
     // activation/deactivation of endpaths.
-    for_each(end_paths_.begin(), end_paths_.end(), run_one_event(ep,es));
+    for_each(end_paths_.begin(), end_paths_.end(), run_one_event(ep, es, bat));
 
     // We could get rid of the functor run_one_event if we used
     // boost::lambda, but the use of lambda with member functions

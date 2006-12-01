@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.30 2006/11/07 18:06:52 wmtan Exp $
+$Id: OutputModule.h,v 1.31 2006/11/17 23:05:00 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -38,7 +38,7 @@ namespace edm {
   public:
     typedef OutputModule ModuleType;
     typedef std::vector<BranchDescription const *> Selections;
-    typedef boost::array<Selections, 3> SelectionsArray;
+    typedef boost::array<Selections, EndBranchType> SelectionsArray;
 
     explicit OutputModule(ParameterSet const& pset);
     virtual ~OutputModule();
