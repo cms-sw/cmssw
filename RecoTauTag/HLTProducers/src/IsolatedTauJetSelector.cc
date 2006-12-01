@@ -56,7 +56,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
       JetTracksAssociationRef     jetTracks = i->jetRef()->jtaRef();
       math::XYZVector jetDir(jetTracks->key->px(),jetTracks->key->py(),jetTracks->key->pz());   
       float discriminator = i->discriminator(jetDir, matching_cone, signal_cone, isolation_cone, pt_min_leadTrack, pt_min_isolation,  n_tracks_isolation_ring,dZ_vertex); 
-
+      cout <<"Number of selected tracks "<<i->selectedTracks().size()<<endl;
       if(discriminator > 0) {
 	JetTag pippoTag(discriminator,jetTracks);
 	baseCollectionTmp->push_back(pippoTag);
@@ -68,12 +68,11 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
     }
      
   }
-
   if(useVertex){//We have to select jets which comes from the same vertex
 
     //Using vertex constraint needed for Pixel
     VertexCollection::const_iterator myVertex = vertices->begin();
-    int iVertex =0;
+
     for(;myVertex!= vertices->end();myVertex++){
       JetTagCollection* myCollection = new JetTagCollection();
       CaloJetCollection* myJetCollection = new CaloJetCollection();
@@ -93,15 +92,15 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	    const CaloJet* pippo = dynamic_cast<const CaloJet*>(&(myIsolJet->jet()));
 	    myJetCollection->push_back(*pippo);
 	  }
-	//check if we have at least 2 jets from the same vertex
-	if(taggedJets > 1) 
-	  {
-	    baseCollection = myCollection;
-	    jetCollection = myJetCollection;
-	    break;
-	  }
-	iVertex++;
       }
+      //check if we have at least 2 jets from the same vertex
+      cout <<"Tagged Jets with vertex constr "<<taggedJets<<endl;
+      if(taggedJets > 1) 
+	{
+	  baseCollection = myCollection;
+	  jetCollection = myJetCollection;
+	  break;
+	}
     }
   }else{// no Vertex constraint is used 
     baseCollection = baseCollectionTmp;
