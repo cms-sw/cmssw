@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.8 2006/11/03 11:17:24 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.9 2006/11/24 11:41:58 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DeviceDescriptions.cc,v $
 
@@ -311,17 +311,32 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 
 // -----------------------------------------------------------------------------
 // 
+SiStripConfigDb::DeviceAddress::DeviceAddress() : 
+  fecCrate_(sistrip::invalid_), 
+  fecSlot_(sistrip::invalid_), 
+  fecRing_(sistrip::invalid_), 
+  ccuAddr_(sistrip::invalid_), 
+  ccuChan_(sistrip::invalid_), 
+  i2cAddr_(sistrip::invalid_) { reset(); }
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripConfigDb::DeviceAddress::reset() { 
+  fecCrate_ = sistrip::invalid_; 
+  fecSlot_ = sistrip::invalid_; 
+  fecRing_ = sistrip::invalid_; 
+  ccuAddr_ = sistrip::invalid_; 
+  ccuChan_ = sistrip::invalid_; 
+  i2cAddr_ = sistrip::invalid_;
+}
+
+// -----------------------------------------------------------------------------
+// 
 const SiStripConfigDb::DeviceAddress& SiStripConfigDb::deviceAddress( const deviceDescription& description ) {
 
   // Set default values
   static SiStripConfigDb::DeviceAddress addr;
-  static uint16_t all_ = 0xFFFF;
-  addr.fecCrate_ = all_;
-  addr.fecSlot_  = all_;
-  addr.fecRing_  = all_;
-  addr.ccuAddr_  = all_;
-  addr.ccuChan_  = all_;
-  addr.i2cAddr_  = all_;
+  addr.reset();
   
   // Retrieve FEC key
   keyType key;
@@ -329,13 +344,13 @@ const SiStripConfigDb::DeviceAddress& SiStripConfigDb::deviceAddress( const devi
   catch (...) { handleException( __func__ ); }
   
   // Extract hardware addresses
-  addr.fecCrate_ = static_cast<uint16_t>( 0 ); //@@ getCrateKey(key) );
+  addr.fecCrate_ = static_cast<uint16_t>( 0 ); //@@ always zero???
   addr.fecSlot_  = static_cast<uint16_t>( getFecKey(key) );
   addr.fecRing_  = static_cast<uint16_t>( getRingKey(key) );
   addr.ccuAddr_  = static_cast<uint16_t>( getCcuKey(key) );
   addr.ccuChan_  = static_cast<uint16_t>( getChannelKey(key) );
   addr.i2cAddr_  = static_cast<uint16_t>( getAddressKey(key) );
-
+  
   return addr;
 }
 

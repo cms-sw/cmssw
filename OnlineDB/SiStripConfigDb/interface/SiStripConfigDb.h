@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.17 2006/11/08 15:58:36 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.18 2006/11/24 11:41:57 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h,v $
 
@@ -131,9 +131,8 @@ class SiStripConfigDb {
       component within the control system. */
   class DeviceAddress { 
   public:
-    DeviceAddress() : 
-      fecCrate_(0), fecSlot_(0), fecRing_(0), 
-      ccuAddr_(0), ccuChan_(0), i2cAddr_(0) {;}
+    DeviceAddress();
+    void reset();
     uint16_t fecCrate_; 
     uint16_t fecSlot_;
     uint16_t fecRing_;
@@ -141,7 +140,7 @@ class SiStripConfigDb {
     uint16_t ccuChan_;
     uint16_t i2cAddr_;
   };
-
+  
   // -------------------- Connection and local cache --------------------
   
   /** Establishes connection to DeviceFactory API. */
