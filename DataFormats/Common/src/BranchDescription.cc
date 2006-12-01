@@ -6,7 +6,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.20 2006/11/04 07:16:18 wmtan Exp $
+$Id: BranchDescription.cc,v 1.21 2006/11/07 00:29:38 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -90,7 +90,7 @@ namespace edm {
 
     ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(fullClassName());
     ROOT::Reflex::PropertyList p = t.Properties();
-    transient_ = (p.HasKey("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
+    transient_ = (p.HasProperty("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
   }
 
   ParameterSetID const&
