@@ -250,28 +250,12 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 //
 void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* const summary,
 						    const edm::DetSetVector<SiStripRawDigi>& raw ) {
-  //LogTrace(mlDqmSource_) << "[SiStripCommissioningSource::" << __func__ << "]";
     
   // Create FEC key using DCU id and LLD channel from SiStripEventSummary
   const SiStripModule& module = fecCabling_->module( summary->dcuId() );
   SiStripFecKey::Path fec_path = module.path();
   fec_path.channel_ = summary->deviceId() & 0x3;
   uint32_t fec_key = SiStripFecKey::key( fec_path );
-  
-//   stringstream ss;
-//   ss << "[SiStripCommissioningSource::" << __func__ << "]" 
-//      << " SiStripSummaryEvent info:" 
-//      << "  DcuId: 0x" << hex << setw(8) << setfill('0') << summary->dcuId() << dec 
-//      << " LldChannel: " << fec_path.channel_ 
-//      << "  FecKey: 0x" << hex << setw(8) << setfill('0') << fec_key << dec
-//      << " Crate/FEC/ring/CCU/module/LLDchan: "
-//      << fec_path.fecCrate_ << "/"
-//      << fec_path.fecSlot_ << "/"
-//      << fec_path.fecRing_ << "/"
-//      << fec_path.ccuAddr_ << "/"
-//      << fec_path.ccuChan_ << "/"
-//      << fec_path.channel_;
-//   LogTrace(mlDqmSource_) << ss.str();
 
   // Check on whether DCU id is found
   if ( !fec_path.fecCrate_ &&

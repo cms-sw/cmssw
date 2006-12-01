@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.26 2006/11/08 16:15:45 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.27 2006/11/19 19:54:53 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
@@ -312,7 +312,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
 
   SiStripConfigDb::FedConnections::const_iterator ifed = conns.begin();
   for ( ; ifed != conns.end(); ifed++ ) {
-    uint16_t fec_crate = static_cast<uint16_t>( (*ifed)->getFecInstance() ); //@@ needs implementing!
+    uint16_t fec_crate = static_cast<uint16_t>( (*ifed)->getFecInstance() );
     uint16_t fec_slot  = static_cast<uint16_t>( (*ifed)->getSlot() );
     uint16_t fec_ring  = static_cast<uint16_t>( (*ifed)->getRing() );
     uint16_t ccu_addr  = static_cast<uint16_t>( (*ifed)->getCcu() );
@@ -462,7 +462,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
 			       addr.fecRing_, 
 			       addr.ccuAddr_, 
 			       addr.ccuChan_,
-			       0, 0, //@@ APV I2C addresses (not used)
+			       0, 0, // APV I2C addresses not used
 			       dcu->getDcuHardId() ); 
     fec_cabling.dcuId( conn );
   }
