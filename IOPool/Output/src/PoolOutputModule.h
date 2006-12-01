@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.13 2006/11/07 18:06:55 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.14 2006/11/09 00:09:33 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -93,8 +93,8 @@ namespace edm {
       pool::Placement productPlacement_;
     };
     typedef std::vector<OutputItem> OutputItemList;
-    typedef boost::array<OutputItemList, 3> OutputItemListArray;
-    typedef boost::array<std::vector<std::string>, 3> BranchNamesArray;
+    typedef boost::array<OutputItemList, EndBranchType> OutputItemListArray;
+    typedef boost::array<std::vector<std::string>, EndBranchType> BranchNamesArray;
 
     void fillBranches(OutputItemList const& items, DataBlockImpl const& dataBlock) const;
 
@@ -105,7 +105,7 @@ namespace edm {
     JobReport::Token reportToken_;
     unsigned long eventCount_;
     unsigned long fileSizeCheckEvent_;
-    boost::array<pool::Placement, 3> auxiliaryPlacement_;
+    boost::array<pool::Placement, EndBranchType> auxiliaryPlacement_;
     pool::Placement productDescriptionPlacement_;
     pool::Placement parameterSetPlacement_;
     pool::Placement moduleDescriptionPlacement_;
