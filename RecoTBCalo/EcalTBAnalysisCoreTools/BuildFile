@@ -1,0 +1,20 @@
+use name=DataFormats/EcalRecHit>
+<use name=DataFormats/EgammaReco>
+<use name=DataFormats/Math>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloTopology>
+<use name=Geometry/EcalTestBeam>
+<use name=Geometry/EcalBarrelAlgo>
+<use name=clhep>
+
+<export>
+  <lib name=RecoEcalEgammaCoreTools>
+  <use name=DataFormats/EcalRecHit>
+  <use name=DataFormats/EgammaReco>
+  <use name=DataFormats/Math>
+  <use name=Geometry/CaloGeometry>
+  <use name=Geometry/EcalTestBeam>
+  <use name=Geometry/CaloTopology>
+  <use name=Geometry/EcalBarrelAlgo>
+  <use name=clhep>
+</export>
