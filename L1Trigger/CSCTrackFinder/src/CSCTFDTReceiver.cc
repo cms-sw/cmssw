@@ -4,6 +4,7 @@
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCConstants.h>
+#include <DataFormats/MuonDetId/interface/DTChamberId.h>
 
 CSCTriggerContainer<CSCTrackStub> CSCTFDTReceiver::process(const L1MuDTChambPhContainer* dttrig)
 {
@@ -32,7 +33,7 @@ CSCTriggerContainer<CSCTrackStub> CSCTFDTReceiver::process(const L1MuDTChambPhCo
 	      for(int stub = 0; stub < 2; ++stub)
 		{
 		  dtts[stub] = (stub == 0) ? dttrig->chPhiSegm1(wheel,1,iss,bx) :
-		                           dttrig->chPhiSegm2(wheel,1,iss,bx);
+		                             dttrig->chPhiSegm2(wheel,1,iss,bx);
 		  if(dtts[stub])
 		    {
 		      // Convert stubs to CSC format (signed -> unsigned)
@@ -60,16 +61,18 @@ CSCTriggerContainer<CSCTrackStub> CSCTFDTReceiver::process(const L1MuDTChambPhCo
 		      int phib = (dtts[stub]->phiB() + DTConfig::RESOLPSI) / 16;
 		      int qual = dtts[stub]->code();
 		      // barrel allows quality=0!
-		      ///  if (qual <=0 ) qual = 1;
-		      /// force to just 10 for now...
-		      qual = 7;
+		      /// shift all by one and take mod 8, since DT quality of 7 is a null stub
+		      qual = (qual + 1)%8;
 		        
+		      CSCCorrelatedLCTDigi dtinfo(stub+1,1, qual, 0, 0, 0, phib, csc_bx, (stub+1) + 2*stub);
+		      DTChamberId dtid(wheel,1,is);
+		      CSCTrackStub tsCSC(dtinfo,dtid, phi, 0);
+
+		      dtstubs.push_back(tsCSC);
 		    }
 		}
 	    }
 	}
-    
-  
 
   return dtstubs;
 }

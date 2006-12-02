@@ -44,7 +44,7 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<CSCTrackStub>& theStub
 		  switch(stubi->getMPCLink())
 		    {
 		    case 1:		    
-		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 1)
+		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(stubi->getDetId().rawId())) == 1)
 			{
 			  io_[relative_bx].me1aVp   = stubi->isValid();
 			  io_[relative_bx].me1aQp   = stubi->getQuality(); 
@@ -53,7 +53,7 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<CSCTrackStub>& theStub
 			  io_[relative_bx].me1aAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
 			  io_[relative_bx].me1aCSCIdp  = stubi->cscid();
 			}
-		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 2)
+		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(stubi->getDetId().rawId())) == 2)
 			{
 			  io_[relative_bx].me1dVp   = stubi->isValid();
 			  io_[relative_bx].me1dQp   = stubi->getQuality(); 
@@ -64,7 +64,7 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<CSCTrackStub>& theStub
 			}
 		      break;		   
 		    case 2:
-		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 1)
+		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(stubi->getDetId().rawId())) == 1)
 			{
 			  io_[relative_bx].me1bVp   = stubi->isValid();
 			  io_[relative_bx].me1bQp   = stubi->getQuality(); 
@@ -73,7 +73,7 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<CSCTrackStub>& theStub
 			  io_[relative_bx].me1bAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
 			io_[relative_bx].me1bCSCIdp  = stubi->cscid();
 			}
-		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 2)
+		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(stubi->getDetId().rawId())) == 2)
 			{
 			  io_[relative_bx].me1eVp   = stubi->isValid();
 			  io_[relative_bx].me1eQp   = stubi->getQuality(); 
@@ -84,7 +84,7 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<CSCTrackStub>& theStub
 			}
 		      break;
 		    case 3:
-		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 1)
+		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(stubi->getDetId().rawId())) == 1)
 			{
 			  io_[relative_bx].me1cVp   = stubi->isValid();
 			  io_[relative_bx].me1cQp   = stubi->getQuality(); 
@@ -93,7 +93,7 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<CSCTrackStub>& theStub
 			  io_[relative_bx].me1cAmp  = (stubi->getQuality() == 1 || stubi->getQuality() == 2);  
 			  io_[relative_bx].me1cCSCIdp  = stubi->cscid();
 			}
-		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(stubi->getDetId()) == 2)
+		      if(CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(stubi->getDetId().rawId())) == 2)
 			{
 			  io_[relative_bx].me1fVp   = stubi->isValid();
 			  io_[relative_bx].me1fQp   = stubi->getQuality(); 
@@ -195,8 +195,35 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<CSCTrackStub>& theStub
 								     << " NOT IN RANGE [1,3]\n";
 		    };
 		  break;
+		case 5:
+		  switch(stubi->getMPCLink())
+		    {
+		    case 1:
+		      io_[relative_bx].mb1aVp   = stubi->isValid();
+		      io_[relative_bx].mb1aQp   = stubi->getQuality();
+		      io_[relative_bx].mb1aPhip = stubi->phiPacked();
+		      break;
+		    case 2:
+		      io_[relative_bx].mb1bVp   = stubi->isValid();
+                      io_[relative_bx].mb1bQp   = stubi->getQuality();
+                      io_[relative_bx].mb1bPhip = stubi->phiPacked();
+                      break;
+		    case 3:
+		      io_[relative_bx].mb1cVp   = stubi->isValid();
+                      io_[relative_bx].mb1cQp   = stubi->getQuality();
+                      io_[relative_bx].mb1cPhip = stubi->phiPacked();
+                      break;
+		    case 4:
+		      io_[relative_bx].mb1dVp   = stubi->isValid();
+                      io_[relative_bx].mb1dQp   = stubi->getQuality();
+                      io_[relative_bx].mb1dPhip = stubi->phiPacked();
+                      break;
+		    default:
+		      edm::LogWarning("CSCTFSPCoreLogic::loadData()") <<  "SERIOUS ERROR: DT LINK " << stubi->getMPCLink()
+								      << " NOT IN RANGE [1,4]\n";
+		    }
 		default:
-		  edm::LogWarning("CSCTFSPCoreLogic::loadData()") << "SERIOUS ERROR: STATION " << st << " NOT IN RANGE [1,4]\n";
+		  edm::LogWarning("CSCTFSPCoreLogic::loadData()") << "SERIOUS ERROR: STATION " << st << " NOT IN RANGE [1,5]\n";
 		};
 	    }
 	}
@@ -433,3 +460,5 @@ CSCTriggerContainer<csc::L1Track> CSCTFSPCoreLogic::tracks()
 {
   return mytracks;
 }
+
+//  LocalWords:  isValid

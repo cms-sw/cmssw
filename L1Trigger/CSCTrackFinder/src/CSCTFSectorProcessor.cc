@@ -85,17 +85,20 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<CSCTrackStub>& stubs)
 
   for(; itr != end; itr++)
     {
-      CSCDetId id = itr->getDetId();
-      unsigned fpga = (id.station() == 1) ? CSCTriggerNumbering::triggerSubSectorFromLabels(id) - 1 : id.station();
-      
-      lclphidat lclPhi = srLUTs_[FPGAs[fpga]]->localPhi(itr->getStrip(), itr->getCLCTPattern(), itr->getQuality(), itr->getBend());
-      gblphidat gblPhi = srLUTs_[FPGAs[fpga]]->globalPhiME(lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
-      gbletadat gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
-      itr->setEtaPacked(gblEta.global_eta);
-      itr->setPhiPacked(gblPhi.global_phi);
-
-      LogDebug("CSCTFSectorProcessor:run()") << "LCT found, processed by FPGA: " << FPGAs[fpga] << std::endl
-					     << " LCT now has (eta, phi) of: (" << itr->etaValue() << "," << itr->phiValue() <<")\n";
+      if(itr->station() != 5)
+	{
+	  CSCDetId id(itr->getDetId().rawId());
+	  unsigned fpga = (id.station() == 1) ? CSCTriggerNumbering::triggerSubSectorFromLabels(id) - 1 : id.station();
+	  
+	  lclphidat lclPhi = srLUTs_[FPGAs[fpga]]->localPhi(itr->getStrip(), itr->getCLCTPattern(), itr->getQuality(), itr->getBend());
+	  gblphidat gblPhi = srLUTs_[FPGAs[fpga]]->globalPhiME(lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
+	  gbletadat gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
+	  itr->setEtaPacked(gblEta.global_eta);
+	  itr->setPhiPacked(gblPhi.global_phi);
+	  
+	  LogDebug("CSCTFSectorProcessor:run()") << "LCT found, processed by FPGA: " << FPGAs[fpga] << std::endl
+						 << " LCT now has (eta, phi) of: (" << itr->etaValue() << "," << itr->phiValue() <<")\n";
+	}
     }
 
   CSCTriggerContainer<CSCTrackStub> processedStubs(stub_vec);
