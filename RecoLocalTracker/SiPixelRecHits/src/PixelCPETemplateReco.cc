@@ -218,8 +218,6 @@ PixelCPETemplateReco::measurementPosition( const SiPixelCluster& cluster,
 		    templXrec_, templSigmaX_);
   // ******************************************************************
 
-  // &&& need a class const
-  static const float micronsToCm = 1e-4;
 
   // Check exit status
   if (ierr != 0) {
@@ -227,8 +225,17 @@ PixelCPETemplateReco::measurementPosition( const SiPixelCluster& cluster,
     // &&&  throw an exception?
     return MeasurementPoint( nonsense, nonsense );
   }
-  else 
-    return MeasurementPoint( templXrec_*micronsToCm , templYrec_*micronsToCm );
+
+  // &&& need a class const
+  static const float micronsToCm = 1e-4;
+
+  // The template code returns the answer in microns.  We need to return in
+  // the units of pixel size, so we convert first to cm, then divide by the pitch:
+  float xpos_in_pixels = templXrec_ * micronsToCm / thePitchX + row_offset + 0.5;
+  float ypos_in_pixels = templYrec_ * micronsToCm / thePitchY + col_offset + 0.5;
+
+
+  return MeasurementPoint( xpos_in_pixels, ypos_in_pixels );
 
 }
 
