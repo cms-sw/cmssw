@@ -79,12 +79,11 @@ void SiLinearChargeDivider::fluctuateEloss(int pid, float particleMomentum,
   if( length > 0.) dedx = eloss/length;
   else dedx = eloss;
 
-  double particleMass = 139.57; // Mass in MeV, Assume pion
-  /*
-  if( particleTable->getParticleData(pid) ) {  // Get mass from the PDTable
-    particleMass = 1000. * particleTable->getParticleData(pid)->mass(); //Conv. GeV to MeV
-  }
-  */
+  double particleMass = 139.57;              // Mass in MeV, Assume pion
+  pid = abs(pid);
+  if(pid==11) particleMass = 0.511;          // Electron
+  else if(pid==13) particleMass = 105.658;   // Muon
+  else if(pid==2212) particleMass = 938.271; // Proton
 
   float segmentLength = length/NumberOfSegs;
 
