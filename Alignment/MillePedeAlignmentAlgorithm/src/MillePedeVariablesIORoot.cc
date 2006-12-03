@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.1 $
- *  $Date: 2006/11/14 08:43:39 $
+ *  $Revision: 1.2 $
+ *  $Date: 2006/11/30 10:34:05 $
  *  (last update by $Author: flucke $)
  */
 
@@ -90,7 +90,7 @@ int MillePedeVariablesIORoot::writeOne(Alignable* ali)
   myNumPar = mpVar->size();
   if (myNumPar >= kMaxNumPar) {
     edm::LogError("Alignment") << "@SUB=MillePedeVariablesIORoot::writeOne"
-                               << "Ignoring parameters " << kMaxNumPar << " to " << myNumPar-1;
+                               << "Ignoring parameters " << static_cast<int>(kMaxNumPar) << " to " << myNumPar-1;
     myNumPar = kMaxNumPar;
   }
 
