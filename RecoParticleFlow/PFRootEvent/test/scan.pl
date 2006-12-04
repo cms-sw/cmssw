@@ -9,17 +9,24 @@ my $tag1=0;
 my $tag2=0;
 my $sfiles=0;
 my $svalues=0;
+
 my $masterfile="pfRootEvent.opt";
 my $doNotSubmit=0;
-
+my $help=0;
 
 GetOptions ('tag1=s' => \$tag1,
 	    'tag2=s' => \$tag2,
 	    'files=s' => \$sfiles,
 	    'values=s' => \$svalues,
 	    'master=s' => \$masterfile, 
+	    'h' => \$help,
 	    'n' => \$doNotSubmit );
 
+if($help) {
+    print "usage : scan.pl -tag1 clustering -tag2 thresh_Ecal_Endcap -files=\"*.root\" -values \"0.1 0.3 0.5\" -master pfRootEvent.opt [-n]\n";
+    print " -n means : do not proceed\n";
+    exit(1);
+}
 
 if($doNotSubmit) {
     print "will do nothing... \n";
