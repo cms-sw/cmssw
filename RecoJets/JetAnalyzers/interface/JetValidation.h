@@ -52,7 +52,7 @@ private:
   TH2F GenEnergyVsEta2D, AllGenEnergyVsEta2D;
 
   //Matched jets Analysis Histograms for MC5 CaloJets only
-  TH1F dR, dRcor;
+  TH1F dR, dPhi, dEta, dRcor;
   TProfile respVsPt, corRespVsPt;
 
   //Histo File 
