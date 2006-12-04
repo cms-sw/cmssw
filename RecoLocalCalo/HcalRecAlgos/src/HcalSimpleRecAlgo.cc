@@ -339,6 +339,6 @@ float timeshift_ns_hf(float wpksamp) {
   // float delta_x  = 1/(float)num_bins_hf;
   // yval = y1 + (y2-y1)*(flx-(float)index)/delta_x;
 
-  yval = y1 + (y2-y1)*(flx-(float)index)*(float)num_bins_hf;
+  yval = y1 + (y2-y1)*(flx-(float)index);
   return yval;
 }
