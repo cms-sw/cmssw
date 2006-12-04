@@ -14,10 +14,11 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  Thu Nov  9 07:51:28 CST 2006
-// $Id: HltAnalyzer.cc,v 1.1 2006/11/16 22:59:01 wittich Exp $
+// $Id: HltAnalyzer.cc,v 1.2 2006/11/29 16:17:46 wittich Exp $
 //
 //
 
+#include <iostream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQM/HLTEvF/interface/HltAnalyzer.h"
@@ -36,7 +37,9 @@
 HltAnalyzer::HltAnalyzer(const edm::ParameterSet& iConfig)
   : perfInfo_(),
     myName_(iConfig.getParameter<std::string>("@module_label")),
-    verbose_(iConfig.getUntrackedParameter("verbose",false))
+    verbose_(iConfig.getUntrackedParameter("verbose",false)),
+    skipNames_(iConfig.getParameter<std::vector<std::string> >("skipNames")),
+    trigResLabel_(iConfig.getParameter<edm::InputTag>("triggerResultsLabel"))
 {
   // now do what ever initialization is needed
   produces<HLTPerformanceInfo>();
@@ -45,8 +48,6 @@ HltAnalyzer::HltAnalyzer(const edm::ParameterSet& iConfig)
   // entry point so that the EDM can call it when modules run
   perfInfo_.clear();
   
-  trigResLabel_ = iConfig.getParameter< edm::InputTag >("triggerResultsLabel");
-
   // attach method to Timing service's "new measurement" signal
   edm::Service<edm::service::Timing> time;
   time->newMeasurementSignal.
@@ -79,10 +80,8 @@ HltAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // module information in the perfInfo_ member variable.
   // Beware, though, that this can fail if the module in question did not run. 
 
-
   using namespace edm;
   Handle<TriggerResults> pTrig;
-  //iEvent.getByType(pTrig);
   try {
     iEvent.getByLabel(trigResLabel_, pTrig );
   } 
@@ -91,23 +90,29 @@ HltAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   if (pTrig.isValid()) {
     //LogDebug(myName_) << "TriggerResults " << (*i)
-    std::cout << "TriggerResults " << trigResLabel_
-	      << " found, number of HLT paths: " 
-	      << pTrig->size() << std::endl;;
+    if ( verbose() ) 
+      std::cout << "TriggerResults " << trigResLabel_
+		<< " found, number of HLT paths: " 
+		<< pTrig->size() << std::endl;;
   } else {
     //LogDebug(myName_) << "TriggerResults " << (*i) << " product not found - "
     std::cout<< "TriggerResults product not found - "<< trigResLabel_
 	     << "returning result=false!" << std::endl;
+    // clear for next event
+    perfInfo_.clear();
     return false;
   }
 
-
+  // assign modules to paths.  The perfInfo module might already contain
+  // an entry for this module with timing. in that case, the module is just
+  // added to the paths. If it does not, a module with time = 0 is added.
   using edm::service::TriggerNamesService;
   Service<TriggerNamesService> trigger_paths;
   TriggerNamesService::Strings paths = trigger_paths->getTrigPaths();
   if ( verbose() ) {
     std::cout << "Dumping paths." << std::endl;
   }
+  // Loop over paths
   for ( TriggerNamesService::Strings::const_iterator i = paths.begin();
 	i != paths.end(); ++i ) {
     HLTPerformanceInfo::Path p(*i);
@@ -118,19 +123,22 @@ HltAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		<< " with result " << p.status().state()
 		<< std::endl;
     }
+    // get a list of the names of the modules on the path in question
     TriggerNamesService::Strings 
       mods_on_path = trigger_paths->getTrigPathModules(*i);
+    // loop over modules on the path
     for ( TriggerNamesService::Strings::const_iterator 
 	    j = mods_on_path.begin();
 	  j != mods_on_path.end(); ++j ) {
-      if ( verbose() ) 
-	std::cout << "module is " << *j << std::endl;
-      // this call could fail if the module didn't run this event.
+      if ( verbose() ) {
+	std::cout << "\tmodule is " << *j << std::endl;
+      }
       perfInfo_.addModuleToPath(j->c_str(), &p); 
     }
     perfInfo_.addPath(p);
   }
 
+  // DEBUG ONLY: PRINT OUT ALL MODULES
   if ( verbose() ) {
     std::cout << myName_<< ": dumping modules internal to perfinfo: " 
 	      << perfInfo_.numberOfModules()
@@ -151,6 +159,9 @@ HltAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		<< std::endl;
     }
   }
+  // END DEBUG
+
+  // 
 
  
   // done - now store
@@ -180,6 +191,11 @@ HltAnalyzer::endJob() {
 void HltAnalyzer::newTimingMeasurement(const edm::ModuleDescription& iMod, 
 				       double diffTime) 
 {
+  // skip this module if it's in the skip list
+  if ( std::find(skipNames_.begin(), skipNames_.end(), iMod.moduleLabel())
+       != skipNames_.end() ) 
+    return;
+  //
   HLTPerformanceInfo::Module m(iMod.moduleLabel().c_str(), diffTime);
   perfInfo_.addModule(m);
   if ( verbose() ) {

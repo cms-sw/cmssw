@@ -14,7 +14,7 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  Thu Nov  9 07:51:28 CST 2006
-// $Id$
+// $Id: HltAnalyzer.h,v 1.1 2006/11/16 22:59:01 wittich Exp $
 //
 //
 
@@ -23,6 +23,8 @@
 
 // system include files
 #include <memory>
+#include <vector>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -69,8 +71,11 @@ private:
   std::string myName_;
   bool verbose_;
   bool verbose() { return verbose_; }
+
+  std::vector<std::string> skipNames_;
+
   edm::InputTag trigResLabel_;
-      
+
 };
 
 #endif // HLTANALYZER_H
