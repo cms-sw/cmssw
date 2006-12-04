@@ -14,7 +14,7 @@ The Data Format is defined in the following package sets:
 \htmlinclude datatable_begin.doi
 
 \htmlinclude RecoTracker_RECO.doi
-\htmlinclude VertexRecoCollections.doi
+\htmlinclude RecoVertex_RECO.doi
 \htmlinclude EcalRecoCollections.doi
 \htmlinclude CaloJetRecoCollections.doi
 \htmlinclude CaloTowerRecoCollections.doi

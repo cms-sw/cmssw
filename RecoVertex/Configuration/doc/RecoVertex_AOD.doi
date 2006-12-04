@@ -2,20 +2,6 @@
   <td class="colgroup" colspan=5>Vertex collections</td>
 </tr>
 <tr>
-  <td><a href="classreco_1_1Vertex.html">reco::TrackCollection</a></td>
-  <td><a href="DataFormats_RecoVertex.html">reco::TrackCollection</a></td>
-  <td><a href="RecoVertex_PrimaryVertexProducer.html">pixelTracks</a></td>
-  <td class="description">...</td>
-  <td>P.Vanlaer</td>
-</tr>
-<tr>
-  <td><a href="classreco_1_1Vertex.html">reco::TrackCollection</a></td>
-  <td><a href="DataFormats_RecoVertex.html">reco::VertexCollection</a></td>
-  <td><a href="  "> pixelVertices</a></td>
-  <td class="description">...</td>
-  <td>P.Vanlaer</td>
-</tr>
-<tr>
   <td><a href="classreco_1_1Vertex.html">reco::Vertex</a></td>
   <td><a href="DataFormats_RecoVertex.html">reco::VertexCollection</a></td>
   <td><a href="RecoVertex_PrimaryVertexProducer.html"> offlinePrimaryVerticesFromCTFTracks</a></td>
