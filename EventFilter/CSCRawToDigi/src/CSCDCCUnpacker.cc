@@ -252,9 +252,22 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	      if (cscData[iCSC].tmbHeader().check()) {
 		std::vector <CSCCorrelatedLCTDigi>  correlatedlctDigis =
 		  cscData[iCSC].tmbHeader().CorrelatedLCTDigis();
+
+                ///ugly kludge to fix wiregroup numbering - need to remove as soon as new firmware is uploaded
+                if (((layer.ring()==3)&&(layer.station()==1))||
+                    ((layer.ring()==1)&&(layer.station()==3))||
+                    ((layer.ring()==1)&&(layer.station()==4)))
+                  {
+                    for (int unsigned i=0; i<correlatedlctDigis.size(); ++i) {
+                      int wiregroup = correlatedlctDigis[i].getKeyWG();
+                      if (wiregroup <= 16) edm::LogError("CSCDCCUnpacker") <<
+                                             "Wire group is out of range!";
+                      else wiregroup = wiregroup - 16; /// adjust by 16
+                      correlatedlctDigis[i].setWireGroup(wiregroup);
+                    }
+                  }
 		corrlctProduct->put(std::make_pair(correlatedlctDigis.begin(), 
 						   correlatedlctDigis.end()),layer);
-             
 	      }
 
 	    }
