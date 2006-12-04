@@ -138,6 +138,8 @@ void JetValidation::beginJob( const EventSetup & ) {
 
   //Matched jets Analysis Histograms for MC5 CaloJets only
   dR = TH1F("dR","Leading GenJets dR with matched CaloJet",100,0,0.5);
+  dPhi = TH1F("dPhi","Leading GenJets dPhi with matched CaloJet",200,-0.5,0.5);
+  dEta = TH1F("dEta","Leading GenJets dEta with matched CaloJet",200,-0.5,0.5);
   respVsPt = TProfile("respVsPt","CaloJet Response of Leading GenJets in Barrel",100,0.0,PtHistMax/2); 
   dRcor = TH1F("dRcor","CorJets dR with matched CaloJet",100,0.0,0.01);
   corRespVsPt = TProfile("corRespVsPt","Corrected CaloJet Response of Leading GenJets in Barrel",100,0.0,PtHistMax/2); 
@@ -343,6 +345,10 @@ void JetValidation::analyze( const Event& evt, const EventSetup& es ) {
        }
     }
     dR.Fill(dRmin[jetInd]);
+    double dphi = deltaphi(p4cal[jetInd].phi(), p4gen[jetInd].phi());
+    dPhi.Fill(dphi);
+    double deta = p4cal[jetInd].eta() - p4gen[jetInd].eta();
+    dEta.Fill(deta);
     if(dRmin[jetInd]>0.5)cout << "MC5 Match Warning: dR=" <<dRmin[jetInd]<<", GenPt="<<p4gen[jetInd].Pt()<<", CalPt="<<p4cal[jetInd].Pt()<<endl;
     jetInd++;    
   }
