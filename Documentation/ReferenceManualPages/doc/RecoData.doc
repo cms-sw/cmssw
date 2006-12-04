@@ -13,10 +13,7 @@ The Data Format is defined in the following package sets:
 
 \htmlinclude datatable_begin.doi
 
-<!-- new format -->
-\htmlinclude RecoLocalTrackerRECO.doi
-<!-- old format -->
-\htmlinclude TrackRecoCollections.doi
+\htmlinclude RecoTracker_RECO.doi
 \htmlinclude VertexRecoCollections.doi
 \htmlinclude EcalRecoCollections.doi
 \htmlinclude CaloJetRecoCollections.doi

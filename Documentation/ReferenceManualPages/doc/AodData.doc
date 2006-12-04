@@ -15,7 +15,7 @@ AOD contains a subset of \ref RecoData "RECO" data.
 
 \htmlinclude datatable_begin.doi
 
-\htmlinclude RecoLocalTrackerAOD.doi
+\htmlinclude RecoTracker_AOD.doi
 
 \htmlinclude datatable_end.doi
 
