@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.38 2006/12/01 03:36:16 wmtan Exp $
+$Id: RootFile.cc,v 1.39 2006/12/04 23:13:42 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -210,7 +210,7 @@ namespace edm {
     // We're not done ... so prepare the EventPrincipal
     boost::shared_ptr<DelayedReader> store_(new RootDelayedReader(entryNumber(), branches_, filePtr_));
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
-		eventID_, evAux.time(), pReg,
+                eventID_, evAux.time(), pReg, evAux.luminosityBlockID(),
 		evAux.processHistoryID_, store_));
     // Loop over provenance
     std::vector<BranchEntryDescription>::iterator pit = eventProvenance_.begin();
