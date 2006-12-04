@@ -22,6 +22,4 @@ PFResolutionMap* etanew = (PFResolutionMap*) eri1_sigma.Clone("etanew");
 PFResolutionMap etaold("etaold","../../PFProducer/data/resmap_ECAL_eta.dat");
 etaold.SetMaximum(max);
 etanew.SetMinimum(min);
-
-
 }

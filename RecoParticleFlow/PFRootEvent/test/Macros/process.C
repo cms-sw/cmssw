@@ -13,10 +13,10 @@ PFRootEventManagerColin em("pfRootEvent.opt");
 
 int n =  em.tree_->GetEntries();
 // int n = 100;
-for(unsigned i=0; i<n; i++) {
-  em.processEntry(i);
-}
-
+// for(unsigned i=0; i<n; i++) {
+//   em.processEntry(i);
+// }
+em.processEntry(1126);
 em.write();
 gApplication->Terminate();
 

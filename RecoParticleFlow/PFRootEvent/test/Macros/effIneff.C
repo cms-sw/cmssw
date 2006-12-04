@@ -12,9 +12,9 @@ void Init(const char* files="Out_std/out_b_singlegamma_pf_*root") {
 void EffIneff2D(int clustertype, const char* cut= "") {
   
   
-  string var;
   string hname = "effineff1"; 
 
+  string var;
   char type[2];
   sprintf(type,"%d",clustertype);
   hname += type;
@@ -38,6 +38,72 @@ void EffIneff2D(int clustertype, const char* cut= "") {
   chain->Draw( var.c_str(), cut, "lego2");
 }
 
+TH1F* EffPlateau(Chain* chain, 
+		 int clustertype, 
+		 const char* hname="effplateau", 
+		 float drmax=0.1,
+		 float etamax=1 ) { 
+  
+  // if(!chain) Init();
+
+  string var = "particles_.e";
+
+  string shname = hname;
+  char type[2];
+  sprintf(type,"%d",clustertype);
+  shname += type;
+
+  char cdrmax[10];
+  sprintf(cdrmax,"%f",drmax);
+
+  char cetamax[10];
+  sprintf(cetamax,"%f",etamax);
+  string cut = "abs(particles_.eta)<";   
+  cut += cetamax;
+ 
+  string cutseen = cut;
+  
+  switch(clustertype) {
+  case 0:
+    cutseen += " && sqrt((clusters_.eta-particles_.eta)^2 + (clusters_.phi-particles_.phi)^2) < ";
+    cutseen += cdrmax;
+
+    cout<<"eflow"<<endl;
+    break;
+  case 1:
+    cutseen += " && sqrt((clustersIsland_.eta-particles_.eta)^2 + (clustersIsland_.phi-particles_.phi)^2) < ";
+    cutseen += cdrmax;
+
+    cout<<"island"<<endl;
+    break;
+  }
+
+  TH1F* h=new TH1F(shname.c_str(), shname.c_str(), 50,0,10);
+  
+  string nameref = shname;
+  nameref += "_ref";
+  TH1F* ref = (TH1F*) h->Clone( nameref.c_str() );
+
+  string nameseen = shname;
+  nameseen += "_seen";
+  TH1F* seen = (TH1F*) h->Clone( nameseen.c_str() );
+  
+  string varref = var;
+  varref += ">>"; varref += nameref;
+
+  cout<<varref<<" "<<cut<<endl;
+  chain->Draw(varref.c_str(), cut.c_str(), "goff");
+
+  string varseen = var;
+  varseen += ">>"; varseen += nameseen;
+  cout<<varseen<<" "<<cutseen<<endl;
+  chain->Draw(varseen.c_str(), cutseen.c_str(),"goff" );
+  
+  h->Add(seen);
+  h->Divide(ref);
+
+  return h;
+}  
 
 TH2F* EffIneff2( int clustertype, 
 		 float drmax=0.1,
