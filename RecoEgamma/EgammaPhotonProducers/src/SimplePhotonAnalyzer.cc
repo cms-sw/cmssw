@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2006/07/14 15:31:55 $ 
- ** $Revision: 1.2 $
+ ** $Date: 2006/11/28 16:12:37 $ 
+ ** $Revision: 1.3 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -63,8 +63,8 @@ SimplePhotonAnalyzer::beginJob(edm::EventSetup const&) {
   h1_phoPhi_ = new TH1F("phoPhi","Uncorrected photons: photon Phi ",40,-3.14, 3.14);
   //
   h1_recEoverTrueE_ = new TH1F("recEoverTrueE"," Reco photon Energy over Generated photon Energy ",100,0., 3);
-  h1_recEtaoverTrueEta_ = new TH1F("recEtaoverTrueEta"," Reco photon Eta over Generated photon Eta  ",40,0, 3.);
-  h1_recPhioverTruePhi_ = new TH1F("recPhioverTruePhi","Reco photon Phi over Generated photon Phi ",40,0., 2);
+  h1_deltaEta_ = new TH1F("deltaEta"," Reco photon Eta minus Generated photon Eta  ",100,-0.2, 0.2);
+  h1_deltaPhi_ = new TH1F("deltaPhi","Reco photon Phi minus Generated photon Phi ",100,-0.2, 0.2);
   //
   h1_corrPho_scE_ = new TH1F("scCorrE","Corrected photons : SC Energy ",100,0., 100.);
   h1_corrPho_scEta_ = new TH1F("scCorrEta","Corrected photons: SC Eta ",40,-3., 3.);
@@ -189,14 +189,12 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
     
 
     h1_recEoverTrueE_     -> Fill( (*iPho).energy()/ mcMatchedPhoton.momentum().e() );
-    h1_recEtaoverTrueEta_ -> Fill( (*iPho).eta()/ mcMatchedPhoton.momentum().eta() );
-    h1_recPhioverTruePhi_ -> Fill( (*iPho).phi()/ mcMatchedPhoton.momentum().phi() );
+    h1_deltaEta_ -> Fill(  (*iPho).eta()- mcMatchedPhoton.momentum().eta()  );
+    h1_deltaPhi_ -> Fill(  (*iPho).phi()-mcMatchedPhoton.momentum().phi()  );
     
 
 
   }  //  End loop over reconstructed photons
-
-
 
 
 
@@ -220,8 +218,8 @@ SimplePhotonAnalyzer::endJob() {
   h1_phoPhi_-> Write();
 
   h1_recEoverTrueE_     ->  Write();
-  h1_recEtaoverTrueEta_ ->  Write();
-  h1_recPhioverTruePhi_ ->  Write();
+  h1_deltaEta_ ->  Write();
+  h1_deltaPhi_ ->  Write();
 
 
   h1_corrPho_scE_->Write();

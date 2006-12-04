@@ -4,6 +4,10 @@
 #include "RecoEgamma/EgammaPhotonProducers/interface/SimplePhotonAnalyzer.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonCorrectionProducer.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/ConvertedPhotonProducer.h"
+#include "RecoEgamma/EgammaPhotonProducers/interface/ConversionTrackCandidateProducer.h"
+#include "RecoEgamma/EgammaPhotonProducers/interface/ConvertedPhotonAnalyzer.h"
+
+
 
 DEFINE_SEAL_MODULE();
 
@@ -12,3 +16,5 @@ DEFINE_ANOTHER_FWK_MODULE(PhotonProducer);
 DEFINE_ANOTHER_FWK_MODULE(SimplePhotonAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(PhotonCorrectionProducer);
 DEFINE_ANOTHER_FWK_MODULE(ConvertedPhotonProducer);
+DEFINE_ANOTHER_FWK_MODULE(ConversionTrackCandidateProducer);
+DEFINE_ANOTHER_FWK_MODULE(ConvertedPhotonAnalyzer)
