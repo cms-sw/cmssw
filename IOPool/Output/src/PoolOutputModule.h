@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.14 2006/11/09 00:09:33 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.15 2006/12/01 03:38:17 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -112,6 +112,7 @@ namespace edm {
     pool::Placement processHistoryPlacement_;
     pool::Placement fileFormatVersionPlacement_;
     PoolOutputModule const* om_;
+    mutable std::list<BranchEntryDescription> provenances_;
   };
 }
 
