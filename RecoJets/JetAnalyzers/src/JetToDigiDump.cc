@@ -24,6 +24,7 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -81,6 +82,7 @@ void JetToDigiDump::analyze( const Event& evt, const EventSetup& es ) {
   Handle<HBHEDigiCollection> HBHEDigis;
   Handle<HODigiCollection> HODigis;
   Handle<HFDigiCollection> HFDigis;
+  Handle<edm::SortedCollection<EBDataFrame> > EBDigis;
    
   //Find the CaloTowers in leading CaloJets
   evt.getByLabel( CaloJetAlg, caloJets );
@@ -90,9 +92,10 @@ void JetToDigiDump::analyze( const Event& evt, const EventSetup& es ) {
   evt.getByLabel( "hfreco", HFRecHits );
   evt.getByLabel( "ecalRecHit", "EcalRecHitsEB", EBRecHits );
   evt.getByLabel( "ecalRecHit", "EcalRecHitsEE", EERecHits );
-  evt.getByLabel( "hcalDigis", HBHEDigis );
-  evt.getByLabel( "hcalDigis", HODigis );
-  evt.getByLabel( "hcalDigis", HFDigis );
+  evt.getByLabel( "hcaldigi", HBHEDigis );
+  evt.getByLabel( "hcaldigi", HODigis );
+  evt.getByLabel( "hcaldigi", HFDigis );
+  evt.getByLabel( "ecalSelectiveReadout", "ebDigis", EBDigis );
     
   cout << endl << "Evt: "<<evtCount <<", Num Jets=" <<caloJets->end() - caloJets->begin() << endl;
   if(Dump>=1)cout <<"   *********************************************************" <<endl;
@@ -224,9 +227,16 @@ void JetToDigiDump::analyze( const Event& evt, const EventSetup& es ) {
             if( EcalNum == 1 ){
 	      EBDetId EcalID = RecHitDetID;
               EBRecHitCollection::const_iterator theRecHit=EBRecHits->find(EcalID);	    
+              edm::SortedCollection<EBDataFrame>::const_iterator theDigis=EBDigis->find(EcalID);
 	      sumRecHitE += theRecHit->energy();
-	      cout << "         RecHit " << j << ": EB, ieta=" << EcalID.ieta() <<  ", iphi=" << EcalID.iphi() <<  ", SM=" << EcalID.ism() << ", energy=" << theRecHit->energy() << endl;
-            }
+	      cout << "         RecHit " << j << ": EB, ieta=" << EcalID.ieta() <<  ", iphi=" << EcalID.iphi() <<  ", SM=" << EcalID.ism() << ", energy=" << theRecHit->energy() <<", All Digis=" << theDigis->size()<< endl;
+              if(Dump>=4)cout << "            ......................................"<<endl;
+              if(Dump>=4)for(int k=0; k<theDigis->size(); k++){
+                const EcalMGPASample MGPA = theDigis->sample(k);
+		cout << "            Digi: " << k <<   ": ADC Sample = " << MGPA.adc() << ", Gain ID = "<< MGPA.gainId() <<endl;
+	      }
+              if(Dump>=4)cout << "            ......................................"<<endl;
+	    }
             else if(  EcalNum == 2 ){
 	      EEDetId EcalID = RecHitDetID;
               EERecHitCollection::const_iterator theRecHit=EERecHits->find(EcalID);	    
