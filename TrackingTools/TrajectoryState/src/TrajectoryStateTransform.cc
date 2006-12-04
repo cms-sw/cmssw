@@ -61,7 +61,31 @@ FreeTrajectoryState TrajectoryStateTransform::innerFreeState( const reco::Track&
   return FreeTrajectoryState( par, err);
 }
 
+FreeTrajectoryState TrajectoryStateTransform::innerFreeState( const reco::GsfTrack& tk,
+							      const MagneticField* field) const
+{
+  Basic3DVector<float> pos( tk.innerPosition());
+  GlobalPoint gpos( pos);
+  Basic3DVector<float> mom( tk.innerMomentum());
+  GlobalVector gmom( mom);
+  GlobalTrajectoryParameters par( gpos, gmom, tk.charge(), field);
+  CurvilinearTrajectoryError err( tk.extra()->innerStateCovariance());
+  return FreeTrajectoryState( par, err);
+}
+
 FreeTrajectoryState TrajectoryStateTransform::outerFreeState( const reco::Track& tk,
+							      const MagneticField* field) const
+{
+  Basic3DVector<float> pos( tk.outerPosition());
+  GlobalPoint gpos( pos);
+  Basic3DVector<float> mom( tk.outerMomentum());
+  GlobalVector gmom( mom);
+  GlobalTrajectoryParameters par( gpos, gmom, tk.charge(), field);
+  CurvilinearTrajectoryError err( tk.extra()->outerStateCovariance());
+  return FreeTrajectoryState( par, err);
+}
+
+FreeTrajectoryState TrajectoryStateTransform::outerFreeState( const reco::GsfTrack& tk,
 							      const MagneticField* field) const
 {
   Basic3DVector<float> pos( tk.outerPosition());
