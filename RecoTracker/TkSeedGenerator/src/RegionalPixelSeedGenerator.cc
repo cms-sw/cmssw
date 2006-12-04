@@ -58,10 +58,12 @@ void RegionalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& e
   e.getByLabel(vertexSrc,vertices);
   const reco::VertexCollection vertCollection = *(vertices.product());
   reco::VertexCollection::const_iterator ci = vertCollection.begin();
-  if(vertCollection.size() == 0) return;
-  originz = ci->z();
-
-
+  if(vertCollection.size() > 0) {
+    originz = ci->z();
+  }else{
+    originz = 0.;
+    halflength=7.0;
+  }
 
   //
   // get the pixel Hits
