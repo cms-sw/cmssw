@@ -6,7 +6,7 @@
 RefVectorIterator: An iterator for a RefVector
 
 
-$Id: RefVectorIterator.h,v 1.4 2006/06/14 23:42:01 wmtan Exp $
+$Id: RefVectorIterator.h,v 1.5 2006/07/14 01:57:20 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,9 +18,9 @@ $Id: RefVectorIterator.h,v 1.4 2006/06/14 23:42:01 wmtan Exp $
 namespace edm {
 
   template <typename C, typename T = typename Ref<C>::value_type, typename F = typename Ref<C>::finder_type>
-  class RefVectorIterator : public std::iterator <std::random_access_iterator_tag, T> {
+  class RefVectorIterator : public std::iterator <std::random_access_iterator_tag, Ref<C, T, F> > {
   public:
-    typedef T value_type;
+    typedef Ref<C, T, F> value_type;
     typedef typename Ref<C, T, F>::key_type key_type;
 
     typedef RefVectorIterator<C, T, F> iterator;

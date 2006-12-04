@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.14 2006/10/28 23:50:34 wmtan Exp $
+$Id: RefVector.h,v 1.15 2006/10/30 23:07:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -30,11 +30,13 @@ namespace edm {
     typedef RefVectorIterator<C, T, F> iterator;
     typedef iterator const_iterator;
 
-    typedef T value_type;
-
     // C is the type of the collection
     // T is the type of a member the collection
     
+    typedef Ref<C, T, F> value_type;
+    //typedef value_type& reference; //Don't define these yet until we see how people use them
+    //typedef value_type const& const_reference;
+
     // key_type is the type of the key into the collextion
     typedef typename Ref<C, T, F>::key_type key_type;
     typedef RefItem<key_type> RefItemType;
