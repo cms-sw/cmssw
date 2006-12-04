@@ -15,9 +15,9 @@ The Data Format is defined in the following package sets:
 
 \htmlinclude RecoTracker_RECO.doi
 \htmlinclude RecoVertex_RECO.doi
-\htmlinclude EcalRecoCollections.doi
-\htmlinclude CaloJetRecoCollections.doi
-\htmlinclude CaloTowerRecoCollections.doi
+\htmlinclude RecoEcal_RECO.doi
+\htmlinclude RecoJets_RECO.doi
+\htmlinclude RecoLocalCalo_RECO.doi
 \htmlinclude MuonRecoCollections.doi
 \htmlinclude BTauRecoCollections.doi
 

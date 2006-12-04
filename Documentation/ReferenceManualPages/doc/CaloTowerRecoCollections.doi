@@ -1,9 +1,0 @@
-<tr class="colgroup">
-  <td class="colgroup" colspan=5>CaloTower Candidates</td>
-<tr>
-  <td><a href="classreco_1_1RecoCaloTowerCandidate.html">reco::RecoCaloTowerCandidate</a></rd>
-  <td><a href="DataFormats_RecoCandidate.html">reco::CandidateCollection</a></td>
-  <td><a href="RecoLocalCalo_CaloTowersCreator.html">caloTowerCandidates</a></td>
-  <td class="description">Candidates collection derived from CaloTowers</td>
-  <td> F.Ratnikov </td>
-</tr>
