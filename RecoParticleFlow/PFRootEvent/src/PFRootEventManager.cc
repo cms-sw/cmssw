@@ -118,7 +118,7 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
 	  <<inFileName_<<endl;
     }
   }
-
+  
   // hits branches ----------------------------------------------
 
   string rechitsECALbranchname;
@@ -241,6 +241,21 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   else {
     trueParticlesBranch_->SetAddress(&trueParticles_);
   }    
+
+  string caloTowersBranchName;
+  caloTowersBranch_ = 0;
+  options_->GetOpt("root","caloTowers_branch", caloTowersBranchName);
+  if(!caloTowersBranchName.empty() ) {
+    caloTowersBranch_ = tree_->GetBranch(caloTowersBranchName.c_str()); 
+    if(!caloTowersBranch_) {
+      cerr<<"PFRootEventManager::ReadOptions : caloTowers_branch not found : "
+	  <<caloTowersBranchName<< endl;
+    }
+    else {
+      // cerr<<"setting address"<<endl;
+      caloTowersBranch_->SetAddress(&caloTowers_);
+    }           
+  }
 
 
   // output root file   ------------------------------------------
@@ -603,6 +618,12 @@ bool PFRootEventManager::readFromSimulation(int entry) {
     if(clustersIslandBarrelBranch_) {
       clustersIslandBarrelBranch_->GetEntry(entry);
     }
+    if(caloTowersBranch_) {
+      caloTowersBranch_->GetEntry(entry);
+      cout<<"number of calotowers :"<<caloTowers_.size()<<endl;
+    }
+    
+    
     if(recTracksBranch_) recTracksBranch_->GetEntry(entry);
 
     return true;

@@ -7,6 +7,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFParticle.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 #include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
@@ -245,6 +247,9 @@ class PFRootEventManager {
 
   /// ECAL island clusters branch_;
   TBranch*   clustersIslandBarrelBranch_;
+
+  /// calotowers
+  TBranch* caloTowersBranch_;
   
   /// reconstructed tracks branch  
   TBranch*   recTracksBranch_;          
@@ -280,6 +285,8 @@ class PFRootEventManager {
   /// clusters ECAL island barrel
   std::vector<reco::BasicCluster>  clustersIslandBarrel_;
   
+  CaloTowerCollection              caloTowers_;
+
   /// reconstructed tracks
   std::vector<reco::PFRecTrack> recTracks_;
   
