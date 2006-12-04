@@ -16,9 +16,11 @@ fi
 #
 
 # Download the source file
-echo "Download the Monte Carlo source file..."
-wget `cat $CMSSW_RELEASE_BASE/src/Validation/Geometry/data/download.url`
-echo "...done"
+if [ ! -e single_neutrino.random.dat ]; then
+    echo "Download the Monte Carlo source file..."
+    wget `cat $CMSSW_RELEASE_BASE/src/Validation/Geometry/data/download.url`
+    echo "...done"
+fi
 #
 
 # Download the reference files and rename them to 'old'
@@ -39,16 +41,43 @@ echo "...done"
 
 # Run all the Tracker scripts and rename files as 'new'
 echo "Run all the scripts to produce the 'new' files..."
+rm -rf TkStrct.txt
+rm -rf PixBar.txt PixFwdPlus.txt PixFwdMinus.txt
+rm -rf TIB.txt TIDF.txt TIDB.txt TOB.txt TEC.txt
+rm -rf Tracker.txt
+rm -rf BeamPipe.txt
+#
+echo "Running Tracker Structure..."
 cmsRun runP_TkStrct.cfg     > TkStrct.txt
+echo "...done"
+echo "Running Pixel Barrel..."
 cmsRun runP_PixBar.cfg      > PixBar.txt
+echo "...done"
+echo "Running Pixel Forward Plus..."
 cmsRun runP_PixFwdPlus.cfg  > PixFwdPlus.txt
+echo "...done"
+echo "Running Pixel Forward Minus..."
 cmsRun runP_PixFwdMinus.cfg > PixFwdMinus.txt
+echo "...done"
+echo "Running TIB..."
 cmsRun runP_TIB.cfg         > TIB.txt
+echo "...done"
+echo "Running TID+..."
 cmsRun runP_TIDF.cfg        > TIDF.txt
+echo "...done"
+echo "Running TID-..."
 cmsRun runP_TIDB.cfg        > TIDB.txt
+echo "...done"
+echo "Running TOB..."
 cmsRun runP_TOB.cfg         > TOB.txt
+echo "...done"
+echo "Running TEC..."
 cmsRun runP_TEC.cfg         > TEC.txt
+echo "...done"
+echo "Running Tracker..."
 cmsRun runP_Tracker.cfg     > Tracker.txt
+echo "...done"
+echo "Running BeamPipe..."
 cmsRun runP_BeamPipe.cfg    > BeamPipe.txt
 #
 cp matbdg_TkStrct.root     matbdg_TkStrct_new.root 
