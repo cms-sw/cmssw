@@ -2,13 +2,6 @@
   <td class="colgroup" colspan=5>B and Tau tagging collections</td>
 </tr>
 <tr>
-  <td><a href="JetTracksAssociation_8h-source.html">reco::JetTracksAssociation</a></td>
-  <td><a href="DataFormats_BTauReco.html">reco::JetTracksAssociationCollection</a></td>
-  <td><a href="RecoBTau_JetTracksAssociator.html">jetTracksAssociator</a></td>
-  <td class="description">Cone based tracks to jet associator</td>
-  <td>A.Rizzi</td>
-</tr>
-<tr>
   <td><a href="classreco_1_1JetTag.html">reco::JetTag</a></td>
   <td><a href="DataFormats_BTauReco.html">reco::JetTagCollection</a></td>
   <td><a href="RecoBTag_TrackCounting.html">trackCountingJetTags</a></td>
@@ -32,7 +25,8 @@
 <tr>
   <td><a href="classreco_1_1IsolatedTauTagInfo.html">reco::IsolatedTauTagInfo</a></td>
   <td><a href="DataFormats_BTauReco.html">reco::IsolatedTauTagInfoCollection</a></td>
-  <td><a href="RecoTauTag_ConeIsolation.html">IsolatedTauTagInfo</a></td>  <td class="description">Extended tagging information from tracker isolation tau-tagging</td>
+  <td><a href="RecoTauTag_ConeIsolation.html">IsolatedTauTagInfo</a></td>  
+  <td class="description">Extended tagging information from tracker isolation tau-tagging</td>
   <td>S.Gennai</td>
 </tr>
 

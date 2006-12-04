@@ -20,7 +20,8 @@ The Data Format is defined in the following package sets:
 \htmlinclude RecoLocalCalo_RECO.doi
 \htmlinclude RecoMuon_RECO.doi
 \htmlinclude RecoLocalMuon_RECO.doi
-\htmlinclude BTauRecoCollections.doi
+\htmlinclude RecoBTau_RECO.doi
+\htmlinclude RecoBTag_RECO.doi
 
 \htmlinclude datatable_end.doi
 
