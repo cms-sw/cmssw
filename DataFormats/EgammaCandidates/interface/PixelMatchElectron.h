@@ -1,5 +1,5 @@
-#ifndef PixelMatchGsfElectron_h
-#define PixelMatchGsfElectron_h
+#ifndef PixelMatchElectron_h
+#define PixelMatchElectron_h
 //**********************************************************
 // For the moment, this is just the interface definition
 // Implementation to come
@@ -8,7 +8,7 @@
 //
 // Package EgammaCandidates
 //
-/** \class PixelMatchGsfElectron
+/** \class PixelMatchElectron
 */
 //  adapted from the TRecElectron class in ORCA
 //
@@ -17,15 +17,15 @@
 // Claude Charlot - CNRS & IN2P3, LLR Ecole polytechnique
 // Ursula Berthon - LLR Ecole polytechnique
 // 
-// $Log: PixelMatchGsfElectron.h,v $
+// $Log: PixelMatchElectron.h,v $
 // Revision 1.3  2006/11/14 18:52:22  uberthon
 // add some missing data (HoE etc)
 //
 // Revision 1.2  2006/10/27 15:02:49  uberthon
-// add PixelMatchGsfElectron
+// add PixelMatchElectron
 //
 // Revision 1.1  2006/10/18 15:29:56  uberthon
-// add PixelMatchGsfElectron class interface
+// add PixelMatchElectron class interface
 //
 // initial version
 //
@@ -33,15 +33,11 @@
 //-------------------------------------------------------------------
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchElectronFwd.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-//FIXME #include "DataFormats/TrackReco/interface/GsfTrack.h"
-#include "DataFormats/TrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/TrackReco/interface/GsfTrack.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-//#include "DataFormats/Math/interface/Point3D.h"
-//#include "DataFormats/Math/interface/Vector3D.h"
-//#include "DataFormats/Math/interface/LorentzVector.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/Vector/interface/GlobalVector.h"
 
@@ -55,17 +51,17 @@ class ElectronClassification;
 namespace reco {
 
   // inheritance of the Electron class is not possible because of the different track type (lack of polymorphism!)
-class PixelMatchGsfElectron : public LeafCandidate {
+class PixelMatchElectron : public LeafCandidate {
 
  public:
   
-  PixelMatchGsfElectron(): LeafCandidate() {;}  //FIXME: defaults
-/*   PixelMatchGsfElectron(const SuperClusterRef scl, const GsfTrackRef gsft, */
+  PixelMatchElectron(): LeafCandidate() {;}  //FIXME: defaults
+/*   PixelMatchElectron(const SuperClusterRef scl, const TrackRef t, */
 /* 			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom); */
-  PixelMatchGsfElectron(const SuperClusterRef scl, const GsfTrackRef gsft,
+  PixelMatchElectron(const SuperClusterRef scl, const TrackRef t,
 			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom, double HoE);
 
-  virtual ~PixelMatchGsfElectron(){};
+  virtual ~PixelMatchElectron(){};
 
   //Public methods
 
@@ -129,9 +125,9 @@ class PixelMatchGsfElectron : public LeafCandidate {
   //! get associated superCluster Pointer
   const SuperClusterRef superCluster() const { return superCluster_; } 
 
-  //! get associated GsfTrack pointer
-  //  const GsfTrackRef track() const { return track_; } 
-  const GsfTrackRef track() const { return track_; } 
+  //! get associated Track pointer
+  //  const TrackRef track() const { return Track_; } 
+  const TrackRef track() const { return track_; } 
 
   //! number of related brem clusters
   int numberOfClusters() const {return superCluster_->clustersSize();}
@@ -170,8 +166,8 @@ class PixelMatchGsfElectron : public LeafCandidate {
   float hadOverEm_;
 
   reco::SuperClusterRef superCluster_;
-  //  reco::GsfTrackRef track_;
-  reco::GsfTrackRef track_;
+  //  reco::TrackRef Track_;
+  reco::TrackRef track_;
 
   bool energyScaleCorrected_;
   bool momentumFromEpCombination_;
