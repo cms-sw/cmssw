@@ -55,10 +55,11 @@ PrimaryVertexAnalyzer::PrimaryVertexAnalyzer(const edm::ParameterSet& iConfig)
   vtxSample_   = iConfig.getUntrackedParameter<std::string>("vtxSample");
   rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE");
   verbose_= iConfig.getUntrackedParameter<bool>("verbose", false);
-  simUnit_= 1.0;  // starting with CMSSW_1_2_x
-    if ( (edm::getReleaseVersion()).find("CMSSW_1_1_",0)!=std::string::npos){
+  //simUnit_= 1.0;  // starting with CMSSW_1_2_x ??
+  if ( (edm::getReleaseVersion()).find("CMSSW_1_1_",0)!=std::string::npos){
     simUnit_=0.1;  // for use in  CMSSW_1_1_1 tutorial
   }
+  simUnit_= 0.1;  // apparently not, still need this
 }
 
 
@@ -130,6 +131,7 @@ bool PrimaryVertexAnalyzer::isResonance(const HepMC::GenParticle * p){
 
 
 
+
 // ------------ method called to produce the data  ------------
 void
 PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -139,36 +141,54 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   Handle<reco::VertexCollection> recVtxs;
   iEvent.getByLabel(vtxSample_, recVtxs);
   
+  Handle<reco::TrackCollection> recTrks;
+  iEvent.getByLabel(recoTrackProducer_, recTrks);
+
   Handle<edm::SimVertexContainer> simVtcs;
   iEvent.getByLabel( simG4_, simVtcs);
   
   Handle<SimTrackContainer> simTrks;
   iEvent.getByLabel( simG4_, simTrks);
 
-  Handle<reco::TrackCollection> recTrks;
-  iEvent.getByLabel(recoTrackProducer_, recTrks);
-
-  Handle<HepMCProduct> evt;
-  //iEvent.getByType(evt);
-  iEvent.getByLabel("source",evt);
-  const HepMC::GenEvent *genEvt=evt->GetEvent();
-  //genEvt->print();
+  bool MC=false;
+  Handle<HepMCProduct> evtMC;
+  try{
+    iEvent.getByLabel("VtxSmeared",evtMC);
+    MC=true;
+    if(verbose_){
+      std::cout << "VtxSmeared HepMCProduct found"<< std::endl;
+    }
+    //if(evtMC->GetEvent()){ evtMC->GetEvent()->print();
+  }catch(const edm::Exception&){
+    // VtxSmeared not found, try source
+    try{
+      iEvent.getByLabel("source",evtMC);
+      if(verbose_){
+	std::cout << "source HepMCProduct found"<< std::endl;
+      }
+      MC=true;
+    }catch(const edm::Exception&) {
+      MC=false;
+      if(verbose_){
+	std::cout << "no HepMCProduct found"<< std::endl;
+      }
+    }
+  }
 
   /*
-  if(evt->GetEvent()->signal_process_vertex()){
-    HepLorentzVector vsig=evt->GetEvent()->signal_process_vertex()->position();
+  if(evtMC->GetEvent()->signal_process_vertex()){
+    HepLorentzVector vsig=evtMC->GetEvent()->signal_process_vertex()->position();
     std::cout <<" signal vertex " << vsig.x() << " " << vsig.z() << std::endl;
   }else{
     std::cout <<" no signal vertex"  << std::endl;
   }
   */
 
-
   if(verbose_){
     int ivtx=0;
     for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
 	v!=recVtxs->end(); ++v){
-      std::cout << "recvtx "<< std::setw(3) << std::setfill(' ')<<ivtx++
+      std::cout << "Recvtx "<< std::setw(3) << std::setfill(' ')<<ivtx++
 		<< "#trk " << std::setw(3) << v->tracksSize() 
 	      << " chi2 " << std::setw(4) << v->chi2() 
 	      << " ndof " << std::setw(3) << v->ndof() << std::endl 
@@ -198,7 +218,7 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     int i=1;
     for(edm::SimTrackContainer::const_iterator t=simTrks->begin();
 	t!=simTrks->end(); ++t){
-      HepMC::GenParticle* gp=genEvt->particle( (*t).genpartIndex() );
+      HepMC::GenParticle* gp=evtMC->GetEvent()->particle( (*t).genpartIndex() );
 	std::cout << i++ << ")" 
 		  << (*t)
 		  << " index="
@@ -212,139 +232,139 @@ PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     */
   }
 
-  // make a list of primary vertices:
-  std::vector<simPrimaryVertex> simpv;
-  // simvertices don't have enough information to decide, 
-  // genVertices don't have the simulated coordinates 
-  // go through simtracks to get the link between simulated and generated vertices
-  // this might fail, if there are primary vertices which only produce particles that don't
-  // make it into the simTracks. Is this possible?
-  int idx=0;
-  for(edm::SimTrackContainer::const_iterator t=simTrks->begin();
-      t!=simTrks->end(); ++t){
-    if ( !(t->noVertex()) && !(t->type()==-99) ){
+  if(MC){
+   // make a list of primary vertices:
+   std::vector<simPrimaryVertex> simpv;
+   // simvertices don't have enough information to decide, 
+   // genVertices don't have the simulated coordinates  ( with VtxSmeared they might)
+   // go through simtracks to get the link between simulated and generated vertices
+   // this might fail, if there are primary vertices which only produce particles that don't
+   // make it into the simTracks. Is this possible?
+   int idx=0;
+   for(edm::SimTrackContainer::const_iterator t=simTrks->begin();
+       t!=simTrks->end(); ++t){
+     if ( !(t->noVertex()) && !(t->type()==-99) ){
 
-
-      bool primary=false;     
-      bool resonance=false;
-      bool track=false;
-      HepMC::GenParticle* gp=genEvt->particle( (*t).genpartIndex() );
-      if (gp) {
-	HepMC::GenVertex * gv=gp->production_vertex();
-	if (gv->position().t()==0){
-	  primary=true;
-	}else if ( gp->mother() && isResonance(gp->mother())){
-	  resonance=true;
-	}
-	if (gp->status()==1){
-	  track=(HepPDT::theTable().getParticleData(gp->pdg_id())->charge() != 0);
-	}
-      }
-      /* else
+       bool primary=false;     
+       bool resonance=false;
+       bool track=false;
+       HepMC::GenParticle* gp=evtMC->GetEvent()->particle( (*t).genpartIndex() );
+       if (gp) {
+	 HepMC::GenVertex * gv=gp->production_vertex();
+	 if (gv->position().t()==0){
+	   primary=true;
+	 }else if ( gp->mother() && isResonance(gp->mother())){
+	   resonance=true;
+	 }
+	 if (gp->status()==1){
+	   track=(HepPDT::theTable().getParticleData(gp->pdg_id())->charge() != 0);
+	 }
+       }
+       /* else
 	 {
-	// this simTrk does not have a GenParticle, it should have a parent in SimTrks then,
-	// but pointers appear to be illegal occasionally => ignore them for now
-	const SimVertex & simv=(*simVtcs)[t->vertIndex()];
-	if ( (simv.parentIndex()>0) && (simv.parentIndex()<simTrks->size()) ){
-	  const SimTrack &parent=(*simTrks)[simv.parentIndex()];
-	  double cTau=HepPDT::theTable().getParticleData(parent.type())->cTau();
-	  //std::cout << parent.type() << " ctau [mm]"  << cTau << std::endl;
-	}
-      }
-      */
+	 // this simTrk does not have a GenParticle, it should have a parent in SimTrks then,
+	 // but pointers appear to be illegal occasionally => ignore them for now
+	 const SimVertex & simv=(*simVtcs)[t->vertIndex()];
+	 if ( (simv.parentIndex()>0) && (simv.parentIndex()<simTrks->size()) ){
+	 const SimTrack &parent=(*simTrks)[simv.parentIndex()];
+	 double cTau=HepPDT::theTable().getParticleData(parent.type())->cTau();
+	 //std::cout << parent.type() << " ctau [mm]"  << cTau << std::endl;
+	 }
+	 }
+       */
 
-      const HepLorentzVector & v=(*simVtcs)[t->vertIndex()].position();
-      if(primary or resonance){
-	{
-	  // check all primaries found so far to avoid multiple entries
-	  bool newVertex=true;
-	  for(std::vector<simPrimaryVertex>::iterator v0=simpv.begin();
-	      v0!=simpv.end(); v0++){
-	    if( (fabs(v0->x-v.x())<0.001) && (fabs(v0->y-v.y())<0.001) && (fabs(v0->z-v.z())<0.001) ){
-	      if (track) v0->simTrackIndex.push_back(idx);
-	      newVertex=false;
-	    }
-	  }
-	  if(newVertex && !resonance){
-	    simPrimaryVertex anotherVertex(v.x(),v.y(),v.z());
-	    if (track) anotherVertex.simTrackIndex.push_back(idx);
-	    simpv.push_back(anotherVertex);
-	  }
-	}// 
-      }
-
-    }// simtrack has vertex and valid type
-    idx++;
-  }//simTrack loop
-
-
-
-  if(verbose_){
-    for(std::vector<simPrimaryVertex>::const_iterator vsim=simpv.begin();
-	vsim!=simpv.end(); vsim++){
-      std::cout <<"primary " << vsim->x << " " << vsim->y << " " << vsim->z << " : ";
-      for(unsigned int i=0; i<vsim->simTrackIndex.size(); i++){
-	std::cout << (*simTrks)[vsim->simTrackIndex[i]].type() << " ";
-      }
-      std::cout << std::endl;
-    }
-  }
+       const HepLorentzVector & v=(*simVtcs)[t->vertIndex()].position();
+       if(primary or resonance){
+	 {
+	   // check all primaries found so far to avoid multiple entries
+	   bool newVertex=true;
+	   for(std::vector<simPrimaryVertex>::iterator v0=simpv.begin();
+	       v0!=simpv.end(); v0++){
+	     if( (fabs(v0->x-v.x())<0.001) && (fabs(v0->y-v.y())<0.001) && (fabs(v0->z-v.z())<0.001) ){
+	       if (track) v0->simTrackIndex.push_back(idx);
+	       newVertex=false;
+	     }
+	   }
+	   if(newVertex && !resonance){
+	     simPrimaryVertex anotherVertex(v.x(),v.y(),v.z());
+	     if (track) anotherVertex.simTrackIndex.push_back(idx);
+	     simpv.push_back(anotherVertex);
+	   }
+	 }// 
+       }
+       
+     }// simtrack has vertex and valid type
+     idx++;
+   }//simTrack loop
+   
 
 
+   if(verbose_){
+     for(std::vector<simPrimaryVertex>::const_iterator vsim=simpv.begin();
+	 vsim!=simpv.end(); vsim++){
+       std::cout <<"primary " << vsim->x << " " << vsim->y << " " << vsim->z << " : ";
+       for(unsigned int i=0; i<vsim->simTrackIndex.size(); i++){
+	 std::cout << (*simTrks)[vsim->simTrackIndex[i]].type() << " ";
+       }
+       std::cout << std::endl;
+     }
+   }
 
 
-
-  // vertex matching and  efficiency bookkeeping
-  h["nsimvtx"]->Fill(simpv.size());
-  h["nrecvtx"]->Fill(recVtxs->size());
-  h["nsimtrk"]->Fill(simTrks->size());
-  h["nrectrk"]->Fill(recTrks->size());
-  for(std::vector<simPrimaryVertex>::iterator vsim=simpv.begin();
-      vsim!=simpv.end(); vsim++){
-
-    h["nbsimtksinvtx"]->Fill(vsim->simTrackIndex.size());
-    h["xsim"]->Fill(vsim->x*simUnit_);
-    h["ysim"]->Fill(vsim->y*simUnit_);
-    h["zsim"]->Fill(vsim->z*simUnit_);
-
-    // look for a matching reconstructed vertex
-    vsim->recVtx=NULL;
-    for(reco::VertexCollection::const_iterator vrec=recVtxs->begin(); 
-	vrec!=recVtxs->end(); ++vrec){
-      if ( matchVertex(*vsim,*vrec) ){
-	if(    ((vsim->recVtx) && (fabs(vsim->recVtx->position().z()-vsim->z)>fabs(vrec->z()-vsim->z)))
-	       || (!vsim->recVtx) )
-	  {
-	    vsim->recVtx=&(*vrec);
-	  }
-      }
-    }
-
-    // histogram properties of matched vertices
-    if (vsim->recVtx){
-
-      if(verbose_){std::cout <<"primary matched " << vsim->x << " " << vsim->y << " " << vsim->z << std:: endl;}
-
-      h["resx"]->Fill( vsim->recVtx->x()-vsim->x*simUnit_ );
-      h["resy"]->Fill( vsim->recVtx->y()-vsim->y*simUnit_ );
-      h["resz"]->Fill( vsim->recVtx->z()-vsim->z*simUnit_ );
-      h["pullx"]->Fill( (vsim->recVtx->x()-vsim->x*simUnit_)/vsim->recVtx->xError() );
-      h["pully"]->Fill( (vsim->recVtx->y()-vsim->y*simUnit_)/vsim->recVtx->yError() );
-      h["pullz"]->Fill( (vsim->recVtx->z()-vsim->z*simUnit_)/vsim->recVtx->zError() );
-      h["eff"]->Fill( 1.);
-      
-    }else{  // no rec vertex found for this simvertex
-
-      if(verbose_){std::cout <<"primary not found " << vsim->x << " " << vsim->y << " " << vsim->z << std:: endl;}
-      h["eff"]->Fill( 0.);
-
-    }
-  }
+   // vertex matching and  efficiency bookkeeping
+   h["nsimvtx"]->Fill(simpv.size());
+   h["nsimtrk"]->Fill(simTrks->size());
+   for(std::vector<simPrimaryVertex>::iterator vsim=simpv.begin();
+       vsim!=simpv.end(); vsim++){
+     
+     h["nbsimtksinvtx"]->Fill(vsim->simTrackIndex.size());
+     h["xsim"]->Fill(vsim->x*simUnit_);
+     h["ysim"]->Fill(vsim->y*simUnit_);
+     h["zsim"]->Fill(vsim->z*simUnit_);
+     
+     // look for a matching reconstructed vertex
+     vsim->recVtx=NULL;
+     for(reco::VertexCollection::const_iterator vrec=recVtxs->begin(); 
+	 vrec!=recVtxs->end(); ++vrec){
+       if ( matchVertex(*vsim,*vrec) ){
+	 if(    ((vsim->recVtx) && (fabs(vsim->recVtx->position().z()-vsim->z)>fabs(vrec->z()-vsim->z)))
+		|| (!vsim->recVtx) )
+	   {
+	     vsim->recVtx=&(*vrec);
+	   }
+       }
+     }
+     
+     // histogram properties of matched vertices
+     if (vsim->recVtx){
+       
+       if(verbose_){std::cout <<"primary matched " << vsim->x << " " << vsim->y << " " << vsim->z << std:: endl;}
+       
+       h["resx"]->Fill( vsim->recVtx->x()-vsim->x*simUnit_ );
+       h["resy"]->Fill( vsim->recVtx->y()-vsim->y*simUnit_ );
+       h["resz"]->Fill( vsim->recVtx->z()-vsim->z*simUnit_ );
+       h["pullx"]->Fill( (vsim->recVtx->x()-vsim->x*simUnit_)/vsim->recVtx->xError() );
+       h["pully"]->Fill( (vsim->recVtx->y()-vsim->y*simUnit_)/vsim->recVtx->yError() );
+       h["pullz"]->Fill( (vsim->recVtx->z()-vsim->z*simUnit_)/vsim->recVtx->zError() );
+       h["eff"]->Fill( 1.);
+       
+     }else{  // no rec vertex found for this simvertex
+       
+       if(verbose_){std::cout <<"primary not found " << vsim->x << " " << vsim->y << " " << vsim->z << std:: endl;}
+       h["eff"]->Fill( 0.);
+       
+     }
+   }
+  }//found MC event
   // end of sim/rec matching 
 
 
 
   // test track links, use reconstructed vertices
+
+  h["nrecvtx"]->Fill(recVtxs->size());
+  h["nrectrk"]->Fill(recTrks->size());
+
   for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
       v!=recVtxs->end(); ++v){
 
