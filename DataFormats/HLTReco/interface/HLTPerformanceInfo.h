@@ -1,13 +1,12 @@
 // -*-c++-*-
-// $Id$
+// $Id: HLTPerformanceInfo.h,v 1.1 2006/11/29 16:12:09 wittich Exp $
 #ifndef HLTPERFORMANCEINFO_H
 #define HLTPERFORMANCEINFO_H
 
-#include <list>
+//#include <list>
 #include <string>
 #include <vector>
-#include <iostream>
-#include <algorithm>
+//#include <iostream>
 
 #include "boost/iterator/transform_iterator.hpp"
 
@@ -114,6 +113,8 @@ class HLTPerformanceInfo
     }
     double time() const;
 
+    double lastModuleTime() const;
+
     void addModuleRef( size_t m) {
       moduleView_.push_back(m);
     }
@@ -140,20 +141,8 @@ class HLTPerformanceInfo
 
   // find a module, given its name.
   // returns endModules() on failure
-  Modules::const_iterator findModule(const char* moduleInstanceName) {
-    return std::find(modules_.begin(), modules_.end(),
-		     moduleInstanceName);
-  }
-  PathList::const_iterator findPath(const char* pathName) {
-    PathList::const_iterator l = std::find(paths_.begin(), paths_.end(),
-				       pathName);
-    if ( l != endPaths() ) {
-      return l;
-    }
-    else {
-      return endPaths();
-    }
-  }
+  Modules::const_iterator findModule(const char* moduleInstanceName) ;
+  PathList::const_iterator findPath(const char* pathName) ;
  
   size_t numberOfPaths() {
     return paths_.size();
@@ -178,8 +167,8 @@ class HLTPerformanceInfo
   }
 
   double totalTime() const;
-   
-
+  double longestModuleTime() const;
+  const char* longestModuleTimeName() const;
 };
 
 typedef std::vector<HLTPerformanceInfo> HLTPerformanceInfoCollection;
