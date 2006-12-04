@@ -39,7 +39,7 @@ HistoCompare::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te )
        && myoldHisto1->GetSumOfWeights() ==0 && mynewHisto1->GetSumOfWeights() ==0) { 
     mypv = 1.;
   } else {
-     mypv = myoldHisto1->Chi2Test(mynewHisto1,"OU");
+     mypv = myoldHisto1->Chi2Test(mynewHisto1,"UU");
   }
 
   std::strstream buf;
@@ -61,7 +61,7 @@ HistoCompare::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te )
   mynewHisto2 = newHisto;
   myte = te;
 
-  Double_t mypv = myoldHisto2->Chi2Test(mynewHisto2,"OU");
+  Double_t mypv = myoldHisto2->Chi2Test(mynewHisto2,"UU");
   std::strstream buf;
   std::string value;
   buf<<"PV="<<mypv<<std::endl;
@@ -82,7 +82,7 @@ HistoCompare::PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te )
   mynewProfile = newHisto;
   myte = te;
 
-  Double_t mypv = myoldProfile->Chi2Test(mynewProfile,"OU");
+  Double_t mypv = myoldProfile->Chi2Test(mynewProfile,"UU");
   std::strstream buf;
   std::string value;
   buf<<"PV="<<mypv<<std::endl;
