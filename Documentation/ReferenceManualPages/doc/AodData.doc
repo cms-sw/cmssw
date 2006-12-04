@@ -20,6 +20,8 @@ AOD contains a subset of \ref RecoData "RECO" data.
 \htmlinclude RecoEcal_AOD.doi
 \htmlinclude RecoJets_AOD.doi
 \htmlinclude RecoLocalCalo_AOD.doi
+\htmlinclude RecoMuon_AOD.doi
+\htmlinclude RecoLocalMuon_AOD.doi
 
 \htmlinclude datatable_end.doi
 

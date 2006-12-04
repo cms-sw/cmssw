@@ -18,7 +18,8 @@ The Data Format is defined in the following package sets:
 \htmlinclude RecoEcal_RECO.doi
 \htmlinclude RecoJets_RECO.doi
 \htmlinclude RecoLocalCalo_RECO.doi
-\htmlinclude MuonRecoCollections.doi
+\htmlinclude RecoMuon_RECO.doi
+\htmlinclude RecoLocalMuon_RECO.doi
 \htmlinclude BTauRecoCollections.doi
 
 \htmlinclude datatable_end.doi
