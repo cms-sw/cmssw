@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.37 2006/11/07 00:25:52 wmtan Exp $
+$Id: RootFile.cc,v 1.38 2006/12/01 03:36:16 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -223,13 +223,15 @@ namespace edm {
       // br->GetEntry(rootFile_->entryNumber());
       // std::auto_ptr<Provenance> prov(new Provenance(*pit));
       // prov->product = productMap_[prov.event.productID_];
-      // std::auto_ptr<Group> g(new Group(std::auto_ptr<EDProduct>(p), prov));
+      // bool const isPresent = prov->event.isPresent();
+      // std::auto_ptr<Group> g(new Group(std::auto_ptr<EDProduct>(p), prov, isPresent));
       // END These lines read all branches
       // BEGIN These lines defer reading branches
       std::auto_ptr<Provenance> prov(new Provenance);
       prov->event = *pit;
       prov->product = productMap_[prov->event.productID_];
-      std::auto_ptr<Group> g(new Group(prov, prov->event.isPresent()));
+      bool const isPresent = prov->event.isPresent();
+      std::auto_ptr<Group> g(new Group(prov, isPresent));
       // END These lines defer reading branches
       thisEvent->addGroup(g);
     }
