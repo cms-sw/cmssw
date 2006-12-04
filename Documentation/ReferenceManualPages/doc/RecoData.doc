@@ -15,11 +15,12 @@ The Data Format is defined in the following package sets:
 
 \htmlinclude RecoTracker_RECO.doi
 \htmlinclude RecoVertex_RECO.doi
+\htmlinclude RecoMuon_RECO.doi
+\htmlinclude RecoLocalMuon_RECO.doi
+\htmlinclude RecoEgamma_RECO.doi
 \htmlinclude RecoEcal_RECO.doi
 \htmlinclude RecoJets_RECO.doi
 \htmlinclude RecoLocalCalo_RECO.doi
-\htmlinclude RecoMuon_RECO.doi
-\htmlinclude RecoLocalMuon_RECO.doi
 \htmlinclude RecoBTau_RECO.doi
 \htmlinclude RecoBTag_RECO.doi
 
