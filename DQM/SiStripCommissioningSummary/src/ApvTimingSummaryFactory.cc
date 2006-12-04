@@ -9,15 +9,14 @@ using namespace std;
 // -----------------------------------------------------------------------------
 //
 SummaryHistogramFactory<ApvTimingAnalysis>::SummaryHistogramFactory() :
-  histo_(sistrip::UNKNOWN_SUMMARY_HISTO),
-  type_(sistrip::UNKNOWN_SUMMARY_TYPE),
+  mon_(sistrip::UNKNOWN_MONITORABLE),
+  pres_(sistrip::UNKNOWN_PRESENTATION),
   view_(sistrip::UNKNOWN_VIEW),
   level_(sistrip::root_),
   gran_(sistrip::UNKNOWN_GRAN),
   generator_(0) 
 {
 } 
-
 
 // -----------------------------------------------------------------------------
 //
@@ -27,17 +26,18 @@ SummaryHistogramFactory<ApvTimingAnalysis>::~SummaryHistogramFactory() {
 
 // -----------------------------------------------------------------------------
 //
-void SummaryHistogramFactory<ApvTimingAnalysis>::init( const sistrip::SummaryHisto& histo, 
-						       const sistrip::SummaryType& type,
+void SummaryHistogramFactory<ApvTimingAnalysis>::init( const sistrip::Monitorable& mon, 
+						       const sistrip::Presentation& pres,
 						       const sistrip::View& view, 
 						       const string& top_level_dir, 
 						       const sistrip::Granularity& gran ) {
-  histo_ = histo;
-  type_ = type;
+  
+  mon_ = mon;
+  pres_ = pres;
   view_ = view;
   level_ = top_level_dir;
   gran_ = gran;
-
+  
   // Retrieve utility class used to generate summary histograms
   if ( generator_ ) { delete generator_; generator_ = 0; }
   generator_ = SummaryGenerator::instance( view );
@@ -66,19 +66,19 @@ uint32_t SummaryHistogramFactory<ApvTimingAnalysis>::extract( const map<uint32_t
   generator_->clearMap();
   map<uint32_t,ApvTimingAnalysis>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
-    if ( histo_ == sistrip::APV_TIMING_TIME ) { 
+    if ( mon_ == sistrip::APV_TIMING_TIME ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.time() ); 
-    } else if ( histo_ == sistrip::APV_TIMING_MAX_TIME ) { 
+    } else if ( mon_ == sistrip::APV_TIMING_MAX_TIME ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.maxTime() ); 
-    } else if ( histo_ == sistrip::APV_TIMING_DELAY ) { 
+    } else if ( mon_ == sistrip::APV_TIMING_DELAY ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.delay() ); 
-    } else if ( histo_ == sistrip::APV_TIMING_ERROR ) { 
+    } else if ( mon_ == sistrip::APV_TIMING_ERROR ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.error() ); 
-    } else if ( histo_ == sistrip::APV_TIMING_BASE ) { 
+    } else if ( mon_ == sistrip::APV_TIMING_BASE ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.base() ); 
-    } else if ( histo_ == sistrip::APV_TIMING_PEAK ) { 
+    } else if ( mon_ == sistrip::APV_TIMING_PEAK ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.peak() ); 
-    } else if ( histo_ == sistrip::APV_TIMING_HEIGHT ) {
+    } else if ( mon_ == sistrip::APV_TIMING_HEIGHT ) {
       generator_->fillMap( level_, gran_, iter->first, iter->second.height() ); 
     } else { continue; }
   }
@@ -111,38 +111,38 @@ void SummaryHistogramFactory<ApvTimingAnalysis>::fill( TH1& summary_histo ) {
   } 
 
   // Generate appropriate summary histogram 
-  if ( type_ == sistrip::SUMMARY_DISTR ) {
-    generator_->summaryDistr( summary_histo );
-  } else if ( type_ == sistrip::SUMMARY_1D ) {
+  if ( pres_ == sistrip::SUMMARY_HISTO ) {
+    generator_->summaryHisto( summary_histo );
+  } else if ( pres_ == sistrip::SUMMARY_1D ) {
     generator_->summary1D( summary_histo );
-  } else if ( type_ == sistrip::SUMMARY_2D ) {
+  } else if ( pres_ == sistrip::SUMMARY_2D ) {
     generator_->summary2D( summary_histo );
-  } else if ( type_ == sistrip::SUMMARY_PROF ) {
+  } else if ( pres_ == sistrip::SUMMARY_PROF ) {
     generator_->summaryProf( summary_histo );
   } else { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]" 
 	 << " Unexpected SummaryType value:"
-	 << SiStripHistoNamingScheme::summaryType( type_ ) 
+	 << SiStripHistoNamingScheme::presentation( pres_ ) 
 	 << endl;
     return; 
   }
   
   // Histogram formatting
-  if ( histo_ == sistrip::APV_TIMING_TIME ) {
+  if ( mon_ == sistrip::APV_TIMING_TIME ) {
     generator_->axisLabel( "Timing delay [ns]" );
-  } else if ( histo_ == sistrip::APV_TIMING_MAX_TIME ) { 
-  } else if ( histo_ == sistrip::APV_TIMING_DELAY ) { 
-  } else if ( histo_ == sistrip::APV_TIMING_ERROR ) { 
-  } else if ( histo_ == sistrip::APV_TIMING_BASE ) { 
-  } else if ( histo_ == sistrip::APV_TIMING_PEAK ) { 
-  } else if ( histo_ == sistrip::APV_TIMING_HEIGHT ) {
+  } else if ( mon_ == sistrip::APV_TIMING_MAX_TIME ) { 
+  } else if ( mon_ == sistrip::APV_TIMING_DELAY ) { 
+  } else if ( mon_ == sistrip::APV_TIMING_ERROR ) { 
+  } else if ( mon_ == sistrip::APV_TIMING_BASE ) { 
+  } else if ( mon_ == sistrip::APV_TIMING_PEAK ) { 
+  } else if ( mon_ == sistrip::APV_TIMING_HEIGHT ) {
   } else { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]" 
 	 << " Unexpected SummaryHisto value:"
-	 << SiStripHistoNamingScheme::summaryHisto( histo_ ) 
+	 << SiStripHistoNamingScheme::monitorable( mon_ ) 
 	 << endl;
   } 
-  generator_->format( sistrip::APV_TIMING, histo_, type_, view_, level_, gran_, summary_histo );
+  generator_->format( sistrip::APV_TIMING, mon_, pres_, view_, level_, gran_, summary_histo );
   
 }
 

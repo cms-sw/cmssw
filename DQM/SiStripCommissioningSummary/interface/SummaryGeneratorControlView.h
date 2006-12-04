@@ -6,7 +6,7 @@
 /**
    @class SummaryGeneratorControlView
    @author M.Wingham, R.Bainbridge
-   @brief Fills "summary histograms" in "control view".
+   @brief Fills "summary histograms" in FEC or "control" view.
 */
 
 class SummaryGeneratorControlView : public SummaryGenerator {

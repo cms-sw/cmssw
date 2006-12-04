@@ -14,8 +14,8 @@ class SummaryHistogramFactory<ApvTimingAnalysis> {
   SummaryHistogramFactory();
   ~SummaryHistogramFactory();
 
-  void init( const sistrip::SummaryHisto&, 
-	     const sistrip::SummaryType&,
+  void init( const sistrip::Monitorable&, 
+	     const sistrip::Presentation&,
 	     const sistrip::View&, 
 	     const std::string& top_level_dir, 
 	     const sistrip::Granularity& );
@@ -26,8 +26,8 @@ class SummaryHistogramFactory<ApvTimingAnalysis> {
   
  private:
   
-  sistrip::SummaryHisto histo_;
-  sistrip::SummaryType type_;
+  sistrip::Monitorable mon_;
+  sistrip::Presentation pres_;
   sistrip::View view_;
   std::string level_;
   sistrip::Granularity gran_;

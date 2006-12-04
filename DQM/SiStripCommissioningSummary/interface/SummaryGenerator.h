@@ -37,13 +37,13 @@ class SummaryGenerator {
 
   /** Constructs the summary histogram name. */
   static std::string name( const sistrip::Task&, 
-			   const sistrip::SummaryHisto&, 
-			   const sistrip::SummaryType&,
+			   const sistrip::Monitorable&, 
+			   const sistrip::Presentation&,
 			   const sistrip::View&, 
 			   const std::string& directory );
 
   /** Creates instance of derived class based on view parameter. */
-  static TH1* histogram( const sistrip::SummaryType&,
+  static TH1* histogram( const sistrip::Presentation&,
 			 const uint32_t& xbins );
   
   // ---------- Fill map and update histogram ----------
@@ -53,21 +53,21 @@ class SummaryGenerator {
 		const sistrip::Granularity&,
 		const uint32_t& key, 
 		const float& value, 
-	const float& error = 0. );
-
+		const float& error = 0. );
+  
 
   /** Clear the map that is used to generate the histogram(s). */
   void clearMap();
   
-  /** Creates simple 1D distribution of the parameter values. */
-  void summaryDistr( TH1& ); 
+  /** Creates simple 1D histogram of the parameter values. */
+  void summaryHisto( TH1& ); 
   
   /** Creates a 1D histogram, with the weighted sum of the parameter
       (y-axis) binned as a function of position within the given
       logical structure, which is view-dependent (x-axis). */
   void summary1D( TH1& );
   
-  /** Creates a profile histogram, with individual values of the
+  /** Creates a 2D scatter histogram, with individual values of the
       parameter (y-axis) binned as a function of position within the
       given logical structure, which is view-dependent (x-axis). */
   void summary2D( TH1& );
@@ -81,8 +81,8 @@ class SummaryGenerator {
   
   /** Some generic formatting of histogram. */
   void format( const sistrip::Task&, 
-	       const sistrip::SummaryHisto&, 
-	       const sistrip::SummaryType&,
+	       const sistrip::Monitorable&, 
+	       const sistrip::Presentation&,
 	       const sistrip::View&, 
 	       const std::string& directory,
 	       const sistrip::Granularity&,

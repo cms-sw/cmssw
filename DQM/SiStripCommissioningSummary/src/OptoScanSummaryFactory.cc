@@ -9,8 +9,8 @@ using namespace std;
 // -----------------------------------------------------------------------------
 //
 SummaryHistogramFactory<OptoScanAnalysis>::SummaryHistogramFactory() :
-  histo_(sistrip::UNKNOWN_SUMMARY_HISTO),
-  type_(sistrip::UNKNOWN_SUMMARY_TYPE),
+  mon_(sistrip::UNKNOWN_MONITORABLE),
+  pres_(sistrip::UNKNOWN_PRESENTATION),
   view_(sistrip::UNKNOWN_VIEW),
   level_(sistrip::root_),
   gran_(sistrip::UNKNOWN_GRAN),
@@ -27,13 +27,13 @@ SummaryHistogramFactory<OptoScanAnalysis>::~SummaryHistogramFactory() {
 
 // -----------------------------------------------------------------------------
 //
-void SummaryHistogramFactory<OptoScanAnalysis>::init( const sistrip::SummaryHisto& histo, 
-						      const sistrip::SummaryType& type,
+void SummaryHistogramFactory<OptoScanAnalysis>::init( const sistrip::Monitorable& mon, 
+						      const sistrip::Presentation& pres,
 						      const sistrip::View& view, 
 						      const string& top_level_dir, 
 						      const sistrip::Granularity& gran ) {
-  histo_ = histo;
-  type_ = type;
+  mon_ = mon;
+  pres_ = pres;
   view_ = view;
   level_ = top_level_dir;
   gran_ = gran;
@@ -67,26 +67,26 @@ uint32_t SummaryHistogramFactory<OptoScanAnalysis>::extract( const map<uint32_t,
   map<uint32_t,OptoScanAnalysis>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
     uint16_t igain = iter->second.gain();
-    if ( histo_ == sistrip::OPTO_SCAN_LLD_GAIN_SETTING ) { 
+    if ( mon_ == sistrip::OPTO_SCAN_LLD_GAIN_SETTING ) { 
       generator_->fillMap( level_, gran_, iter->first, igain ); 
-    } else if ( histo_ == sistrip::OPTO_SCAN_LLD_BIAS_SETTING ) {
+    } else if ( mon_ == sistrip::OPTO_SCAN_LLD_BIAS_SETTING ) {
       generator_->fillMap( level_, gran_, iter->first, iter->second.bias()[igain] ); 
-    } else if ( histo_ == sistrip::OPTO_SCAN_MEASURED_GAIN ) { 
+    } else if ( mon_ == sistrip::OPTO_SCAN_MEASURED_GAIN ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.measGain()[igain] ); 
-    } else if ( histo_ == sistrip::OPTO_SCAN_ZERO_LIGHT_LEVEL ) { 
+    } else if ( mon_ == sistrip::OPTO_SCAN_ZERO_LIGHT_LEVEL ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.zeroLight()[igain] ); 
-    } else if ( histo_ == sistrip::OPTO_SCAN_LINK_NOISE ) {
+    } else if ( mon_ == sistrip::OPTO_SCAN_LINK_NOISE ) {
       generator_->fillMap( level_, gran_, iter->first, iter->second.linkNoise()[igain] ); 
-    } else if ( histo_ == sistrip::OPTO_SCAN_BASELINE_LIFT_OFF ) {
+    } else if ( mon_ == sistrip::OPTO_SCAN_BASELINE_LIFT_OFF ) {
       generator_->fillMap( level_, gran_, iter->first, iter->second.liftOff()[igain] ); 
-    } else if ( histo_ == sistrip::OPTO_SCAN_LASER_THRESHOLD ) {
+    } else if ( mon_ == sistrip::OPTO_SCAN_LASER_THRESHOLD ) {
       generator_->fillMap( level_, gran_, iter->first, iter->second.threshold()[igain] ); 
-    } else if ( histo_ == sistrip::OPTO_SCAN_TICK_HEIGHT ) {
+    } else if ( mon_ == sistrip::OPTO_SCAN_TICK_HEIGHT ) {
       generator_->fillMap( level_, gran_, iter->first, iter->second.tickHeight()[igain] ); 
     } else { 
       cerr << "[" << __PRETTY_FUNCTION__ << "]" 
 	   << " Unexpected SummaryHisto value:"
-	   << SiStripHistoNamingScheme::summaryHisto( histo_ ) 
+	   << SiStripHistoNamingScheme::monitorable( mon_ ) 
 	   << endl;
       continue;
     }
@@ -120,38 +120,38 @@ void SummaryHistogramFactory<OptoScanAnalysis>::fill( TH1& summary_histo ) {
   } 
 
   // Generate appropriate summary histogram 
-  if ( type_ == sistrip::SUMMARY_DISTR ) {
-    generator_->summaryDistr( summary_histo );
-  } else if ( type_ == sistrip::SUMMARY_1D ) {
+  if ( pres_ == sistrip::SUMMARY_HISTO ) {
+    generator_->summaryHisto( summary_histo );
+  } else if ( pres_ == sistrip::SUMMARY_1D ) {
     generator_->summary1D( summary_histo );
-  } else if ( type_ == sistrip::SUMMARY_2D ) {
+  } else if ( pres_ == sistrip::SUMMARY_2D ) {
     generator_->summary2D( summary_histo );
-  } else if ( type_ == sistrip::SUMMARY_PROF ) {
+  } else if ( pres_ == sistrip::SUMMARY_PROF ) {
     generator_->summaryProf( summary_histo );
   } else { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]" 
 	 << " Unexpected SummaryType value:"
-	 << SiStripHistoNamingScheme::summaryType( type_ ) 
+	 << SiStripHistoNamingScheme::presentation( pres_ ) 
 	 << endl;
     return; 
   }
   
   // Histogram formatting
-  if ( histo_ == sistrip::OPTO_SCAN_LLD_GAIN_SETTING ) { 
-  } else if ( histo_ == sistrip::OPTO_SCAN_LLD_BIAS_SETTING ) {
-  } else if ( histo_ == sistrip::OPTO_SCAN_MEASURED_GAIN ) { 
-  } else if ( histo_ == sistrip::OPTO_SCAN_ZERO_LIGHT_LEVEL ) { 
-  } else if ( histo_ == sistrip::OPTO_SCAN_LINK_NOISE ) {
-  } else if ( histo_ == sistrip::OPTO_SCAN_BASELINE_LIFT_OFF ) {
-  } else if ( histo_ == sistrip::OPTO_SCAN_LASER_THRESHOLD ) {
-  } else if ( histo_ == sistrip::OPTO_SCAN_TICK_HEIGHT ) {
+  if ( mon_ == sistrip::OPTO_SCAN_LLD_GAIN_SETTING ) { 
+  } else if ( mon_ == sistrip::OPTO_SCAN_LLD_BIAS_SETTING ) {
+  } else if ( mon_ == sistrip::OPTO_SCAN_MEASURED_GAIN ) { 
+  } else if ( mon_ == sistrip::OPTO_SCAN_ZERO_LIGHT_LEVEL ) { 
+  } else if ( mon_ == sistrip::OPTO_SCAN_LINK_NOISE ) {
+  } else if ( mon_ == sistrip::OPTO_SCAN_BASELINE_LIFT_OFF ) {
+  } else if ( mon_ == sistrip::OPTO_SCAN_LASER_THRESHOLD ) {
+  } else if ( mon_ == sistrip::OPTO_SCAN_TICK_HEIGHT ) {
   } else { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]" 
 	 << " Unexpected SummaryHisto value:"
-	 << SiStripHistoNamingScheme::summaryHisto( histo_ ) 
+	 << SiStripHistoNamingScheme::monitorable( mon_ ) 
 	 << endl;
   } 
-  generator_->format( sistrip::OPTO_SCAN, histo_, type_, view_, level_, gran_, summary_histo );
+  generator_->format( sistrip::OPTO_SCAN, mon_, pres_, view_, level_, gran_, summary_histo );
 
 }
 

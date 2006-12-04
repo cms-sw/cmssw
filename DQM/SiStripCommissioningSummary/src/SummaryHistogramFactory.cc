@@ -10,8 +10,8 @@ using namespace std;
 //
 template<class T> 
 SummaryHistogramFactory<T>::SummaryHistogramFactory() :
-  histo_(sistrip::UNKNOWN_SUMMARY_HISTO),
-  type_(sistrip::UNKNOWN_SUMMARY_TYPE),
+  mon_(sistrip::UNKNOWN_MONITORABLE),
+  pres_(sistrip::UNKNOWN_PRESENTATION),
   view_(sistrip::UNKNOWN_VIEW),
   level_(sistrip::root_),
   gran_(sistrip::UNKNOWN_GRAN),
@@ -31,14 +31,14 @@ SummaryHistogramFactory<T>::~SummaryHistogramFactory() {
 // -----------------------------------------------------------------------------
 //
 template<class T> 
-void SummaryHistogramFactory<T>::init( const sistrip::SummaryHisto& histo, 
-				       const sistrip::SummaryType& type,
+void SummaryHistogramFactory<T>::init( const sistrip::Monitorable& mon, 
+				       const sistrip::Presentation& pres,
 				       const sistrip::View& view, 
 				       const string& top_level_dir, 
 				       const sistrip::Granularity& gran ) {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
-  histo_ = histo;
-  type_ = type;
+  mon_ = mon;
+  pres_ = pres;
   view_ = view;
   level_ = top_level_dir;
   gran_ = gran;
@@ -113,18 +113,18 @@ void SummaryHistogramFactory<T>::fill( TH1& summary_histo ) {
   } 
   
   // Generate appropriate summary histogram 
-  if ( type_ == sistrip::SUMMARY_DISTR ) {
-    generator_->summaryDistr( summary_histo );
-  } else if ( type_ == sistrip::SUMMARY_1D ) {
+  if ( pres_ == sistrip::SUMMARY_HISTO ) {
+    generator_->summaryHisto( summary_histo );
+  } else if ( pres_ == sistrip::SUMMARY_1D ) {
     generator_->summary1D( summary_histo );
-  } else if ( type_ == sistrip::SUMMARY_2D ) {
+  } else if ( pres_ == sistrip::SUMMARY_2D ) {
     generator_->summary2D( summary_histo );
-  } else if ( type_ == sistrip::SUMMARY_PROF ) {
+  } else if ( pres_ == sistrip::SUMMARY_PROF ) {
     generator_->summaryProf( summary_histo );
   } else { return; }
   
   // Histogram formatting
-  generator_->format( sistrip::UNKNOWN_TASK, histo_, type_, view_, level_, gran_, summary_histo );
+  generator_->format( sistrip::UNKNOWN_TASK, mon_, pres_, view_, level_, gran_, summary_histo );
   
 }
 

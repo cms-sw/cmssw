@@ -1,6 +1,6 @@
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGeneratorControlView.h"
-//#include "DQM/SiStripCommissioningSummary/interface/SummaryGeneratorReadoutView.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryGeneratorReadoutView.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include <iostream>
 #include <sstream>
@@ -28,6 +28,7 @@ SummaryGenerator* SummaryGenerator::instance( const sistrip::View& view ) {
   if ( view == sistrip::CONTROL ) {
     generator = new SummaryGeneratorControlView();
   } else if ( view == sistrip::READOUT ) {
+    generator = new SummaryGeneratorReadoutView();
   } else { 
     generator = 0;
   }  
@@ -37,19 +38,19 @@ SummaryGenerator* SummaryGenerator::instance( const sistrip::View& view ) {
 // -----------------------------------------------------------------------------
 // 
 string SummaryGenerator::name( const sistrip::Task& task, 
-			       const sistrip::SummaryHisto& histo, 
-			       const sistrip::SummaryType& type,
+			       const sistrip::Monitorable& mon, 
+			       const sistrip::Presentation& pres,
 			       const sistrip::View& view, 
 			       const std::string& directory ) {
   stringstream ss;
-  ss << SiStripHistoNamingScheme::summaryType( type ) << sistrip::sep_; 
+  ss << SiStripHistoNamingScheme::presentation( pres ) << sistrip::sep_; 
   if ( task != sistrip::UNKNOWN_TASK && 
        task != sistrip::UNDEFINED_TASK ) { 
     ss << SiStripHistoNamingScheme::task( task ) << sistrip::sep_;
   }
   ss << SiStripHistoNamingScheme::view( view ) << sistrip::sep_;
-  ss << SiStripHistoNamingScheme::summaryHisto( histo );
-
+  ss << SiStripHistoNamingScheme::monitorable( mon );
+  
   return ss.str();
 }
 
@@ -60,22 +61,26 @@ string SummaryGenerator::name( const sistrip::Task& task,
   methods with SetBins() methods? but must limit nbins to < 1024!!!
 
 */
-TH1* SummaryGenerator::histogram( const sistrip::SummaryType& type,
+TH1* SummaryGenerator::histogram( const sistrip::Presentation& pres,
 				  const uint32_t& xbins ) {
   TH1* summary;
-  if      ( type == sistrip::SUMMARY_DISTR ) { summary = new TH1F( "", "", 1024, 0., static_cast<float>(1024) ); } 
-  else if ( type == sistrip::SUMMARY_1D )    { summary = new TH1F( "", "", xbins, 0., static_cast<float>(xbins) ); }
-  else if ( type == sistrip::SUMMARY_2D )    { summary = new TH2F( "", "", 100*xbins, 0., static_cast<float>(100*xbins), 1025, 0., 1025. ); }
-  else if ( type == sistrip::SUMMARY_PROF )  { summary = new TProfile( "", "", xbins, 0., static_cast<float>(xbins), 0., 1025. ); }
-  else { summary = 0; }
+  if ( pres == sistrip::SUMMARY_HISTO ) { 
+    summary = new TH1F( "", "", 1024, 0., static_cast<float>(1024) ); 
+  } else if ( pres == sistrip::SUMMARY_1D ) { 
+    summary = new TH1F( "", "", xbins, 0., static_cast<float>(xbins) ); 
+  } else if ( pres == sistrip::SUMMARY_2D ) { 
+    summary = new TH2F( "", "", 100*xbins, 0., static_cast<float>(100*xbins), 1025, 0., 1025. ); 
+  } else if ( pres == sistrip::SUMMARY_PROF ) { 
+    summary = new TProfile( "", "", xbins, 0., static_cast<float>(xbins), 0., 1025. ); 
+  } else { summary = 0; }
   return summary;
 }
 
 // -----------------------------------------------------------------------------
 // 
 void SummaryGenerator::format( const sistrip::Task& task, 
-			       const sistrip::SummaryHisto& histo, 
-			       const sistrip::SummaryType& type,
+			       const sistrip::Monitorable& mon, 
+			       const sistrip::Presentation& pres,
 			       const sistrip::View& view, 
 			       const std::string& directory,
 			       const sistrip::Granularity& gran,
@@ -83,7 +88,7 @@ void SummaryGenerator::format( const sistrip::Task& task,
   
   // Set name and title
   stringstream ss;
-  string name = SummaryGenerator::name( task, histo, type, view, directory );
+  string name = SummaryGenerator::name( task, mon, pres, view, directory );
   summary_histo.SetName( name.c_str() );
   summary_histo.SetTitle( name.c_str() );
 
@@ -100,7 +105,7 @@ void SummaryGenerator::format( const sistrip::Task& task,
   //gPad->SetLeftMargin(0.2);
   
   // Axis label
-  if ( type == sistrip::SUMMARY_DISTR ) {
+  if ( pres == sistrip::SUMMARY_HISTO ) {
     string xtitle = label_ + " (for " + directory + ")";
     summary_histo.GetXaxis()->SetTitle( xtitle.c_str() );
     summary_histo.GetYaxis()->SetTitle( "Frequency" );
@@ -112,16 +117,16 @@ void SummaryGenerator::format( const sistrip::Task& task,
   }    
   
   // Formatting for 2D plots
-  if ( type == sistrip::SUMMARY_2D ) { 
+  if ( pres == sistrip::SUMMARY_2D ) { 
     // Markers (open circles)
-    summary_histo.SetMarkerStyle(2);
+    summary_histo.SetMarkerStyle(2); 
     summary_histo.SetMarkerSize(0.6);
   }
 
   // Semi-generic formatting
-  if ((type == sistrip::SUMMARY_1D) || 
-      (type == sistrip::SUMMARY_2D) ||
-      (type == sistrip::SUMMARY_PROF)) {
+  if ((pres == sistrip::SUMMARY_1D) || 
+      (pres == sistrip::SUMMARY_2D) ||
+      (pres == sistrip::SUMMARY_PROF)) {
     /*
     //put solid and dotted lines on summary to separate top- and
     //2nd-from-top- level bin groups.
@@ -169,7 +174,7 @@ void SummaryGenerator::fillMap( const string& top_level_dir,
   // Calculate maximum and minimum values in map
   if ( value > max_ ) { max_ = value; }
   if ( value < min_ ) { min_ = value; }
-
+  
   // Fill map
   fill( top_level_dir, gran, device_key, value, error );
   
@@ -190,7 +195,7 @@ void SummaryGenerator::fill( const string& top_level_dir,
 
 //------------------------------------------------------------------------------
 //
-void SummaryGenerator::summaryDistr( TH1& his ) {
+void SummaryGenerator::summaryHisto( TH1& his ) {
   
   // Check number of entries in map
   if ( map_.empty() ) { 

@@ -9,8 +9,8 @@ using namespace std;
 // -----------------------------------------------------------------------------
 //
 SummaryHistogramFactory<FedCablingAnalysis>::SummaryHistogramFactory() :
-  histo_(sistrip::UNKNOWN_SUMMARY_HISTO),
-  type_(sistrip::UNKNOWN_SUMMARY_TYPE),
+  mon_(sistrip::UNKNOWN_MONITORABLE),
+  pres_(sistrip::UNKNOWN_PRESENTATION),
   view_(sistrip::UNKNOWN_VIEW),
   level_(sistrip::root_),
   gran_(sistrip::UNKNOWN_GRAN),
@@ -27,13 +27,13 @@ SummaryHistogramFactory<FedCablingAnalysis>::~SummaryHistogramFactory() {
 
 // -----------------------------------------------------------------------------
 //
-void SummaryHistogramFactory<FedCablingAnalysis>::init( const sistrip::SummaryHisto& histo, 
-							const sistrip::SummaryType& type,
+void SummaryHistogramFactory<FedCablingAnalysis>::init( const sistrip::Monitorable& mon, 
+							const sistrip::Presentation& pres,
 							const sistrip::View& view, 
 							const string& top_level_dir, 
 							const sistrip::Granularity& gran ) {
-  histo_ = histo;
-  type_ = type;
+  mon_ = mon;
+  pres_ = pres;
   view_ = view;
   level_ = top_level_dir;
   gran_ = gran;
@@ -66,16 +66,16 @@ uint32_t SummaryHistogramFactory<FedCablingAnalysis>::extract( const map<uint32_
   generator_->clearMap();
   map<uint32_t,FedCablingAnalysis>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
-    if ( histo_ == sistrip::FED_CABLING_FED_ID ) {
+    if ( mon_ == sistrip::FED_CABLING_FED_ID ) {
       generator_->fillMap( level_, gran_, iter->first, iter->second.fedId() ); 
-    } else if ( histo_ == sistrip::FED_CABLING_FED_ID ) { 
+    } else if ( mon_ == sistrip::FED_CABLING_FED_CH ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.fedCh() ); 
-    } else if ( histo_ == sistrip::FED_CABLING_SIGNAL_LEVEL ) { 
-      generator_->fillMap( level_, gran_, iter->first, iter->second.signalLevel() ); 
+    } else if ( mon_ == sistrip::FED_CABLING_ADC_LEVEL ) { 
+      generator_->fillMap( level_, gran_, iter->first, iter->second.adcLevel() ); 
     } else { 
       cerr << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
-	   << " Unexpected SummaryHisto value:"
-	   << SiStripHistoNamingScheme::summaryHisto( histo_ ) 
+	   << " Unexpected SummaryHisto value: "
+	   << SiStripHistoNamingScheme::monitorable( mon_ ) 
 	   << endl;
       continue;
     }
@@ -109,36 +109,36 @@ void SummaryHistogramFactory<FedCablingAnalysis>::fill( TH1& summary_histo ) {
   } 
 
   // Generate appropriate summary histogram 
-  if ( type_ == sistrip::SUMMARY_DISTR ) {
-    generator_->summaryDistr( summary_histo );
-  } else if ( type_ == sistrip::SUMMARY_1D ) {
+  if ( pres_ == sistrip::SUMMARY_HISTO ) {
+    generator_->summaryHisto( summary_histo );
+  } else if ( pres_ == sistrip::SUMMARY_1D ) {
     generator_->summary1D( summary_histo );
-  } else if ( type_ == sistrip::SUMMARY_2D ) {
+  } else if ( pres_ == sistrip::SUMMARY_2D ) {
     generator_->summary2D( summary_histo );
-  } else if ( type_ == sistrip::SUMMARY_PROF ) {
+  } else if ( pres_ == sistrip::SUMMARY_PROF ) {
     generator_->summaryProf( summary_histo );
   } else { 
     cerr << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
 	 << " Unexpected SummaryType value:"
-	 << SiStripHistoNamingScheme::summaryType( type_ ) 
+	 << SiStripHistoNamingScheme::presentation( pres_ ) 
 	 << endl;
     return; 
   }
   
   // Histogram formatting
-  if ( histo_ == sistrip::FED_CABLING_FED_ID ) {
+  if ( mon_ == sistrip::FED_CABLING_FED_ID ) {
     generator_->axisLabel( "FED id" );
-  } else if ( histo_ == sistrip::FED_CABLING_FED_CH ) { 
+  } else if ( mon_ == sistrip::FED_CABLING_FED_CH ) { 
     generator_->axisLabel( "FED channel" );
-  } else if ( histo_ == sistrip::FED_CABLING_SIGNAL_LEVEL ) { 
-    generator_->axisLabel( "Signal level for connected channel [adc]" );
+  } else if ( mon_ == sistrip::FED_CABLING_ADC_LEVEL ) { 
+    generator_->axisLabel( "ADC level" );
   } else { 
     cerr << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
 	 << " Unexpected SummaryHisto value:"
-	 << SiStripHistoNamingScheme::summaryHisto( histo_ ) 
+	 << SiStripHistoNamingScheme::monitorable( mon_ ) 
 	 << endl;
   } 
-  generator_->format( sistrip::FED_CABLING, histo_, type_, view_, level_, gran_, summary_histo );
+  generator_->format( sistrip::FED_CABLING, mon_, pres_, view_, level_, gran_, summary_histo );
   
 }
 

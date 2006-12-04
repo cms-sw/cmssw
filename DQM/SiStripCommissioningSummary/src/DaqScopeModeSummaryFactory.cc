@@ -9,8 +9,8 @@ using namespace std;
 // -----------------------------------------------------------------------------
 //
 SummaryHistogramFactory<DaqScopeModeAnalysis>::SummaryHistogramFactory() :
-  histo_(sistrip::UNKNOWN_SUMMARY_HISTO),
-  type_(sistrip::UNKNOWN_SUMMARY_TYPE),
+  mon_(sistrip::UNKNOWN_MONITORABLE),
+  pres_(sistrip::UNKNOWN_PRESENTATION),
   view_(sistrip::UNKNOWN_VIEW),
   level_(sistrip::root_),
   gran_(sistrip::UNKNOWN_GRAN),
@@ -27,13 +27,13 @@ SummaryHistogramFactory<DaqScopeModeAnalysis>::~SummaryHistogramFactory() {
 
 // -----------------------------------------------------------------------------
 //
-void SummaryHistogramFactory<DaqScopeModeAnalysis>::init( const sistrip::SummaryHisto& histo, 
-							  const sistrip::SummaryType& type,
+void SummaryHistogramFactory<DaqScopeModeAnalysis>::init( const sistrip::Monitorable& mon, 
+							  const sistrip::Presentation& pres,
 							  const sistrip::View& view, 
 							  const string& top_level_dir, 
 							  const sistrip::Granularity& gran ) {
-  histo_ = histo;
-  type_ = type;
+  mon_ = mon;
+  pres_ = pres;
   view_ = view;
   level_ = top_level_dir;
   gran_ = gran;
@@ -66,7 +66,7 @@ uint32_t SummaryHistogramFactory<DaqScopeModeAnalysis>::extract( const map<uint3
   generator_->clearMap();
   map<uint32_t,DaqScopeModeAnalysis>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
-    if ( histo_ == sistrip::DAQ_SCOPE_MODE_MEAN_SIGNAL ) { 
+    if ( mon_ == sistrip::DAQ_SCOPE_MODE_MEAN_SIGNAL ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.mean() ); 
     } else { continue; }
   }
@@ -99,32 +99,32 @@ void SummaryHistogramFactory<DaqScopeModeAnalysis>::fill( TH1& summary_histo ) {
   } 
 
   // Generate appropriate summary histogram 
-  if ( type_ == sistrip::SUMMARY_DISTR ) {
-    generator_->summaryDistr( summary_histo );
-  } else if ( type_ == sistrip::SUMMARY_1D ) {
+  if ( pres_ == sistrip::SUMMARY_HISTO ) {
+    generator_->summaryHisto( summary_histo );
+  } else if ( pres_ == sistrip::SUMMARY_1D ) {
     generator_->summary1D( summary_histo );
-  } else if ( type_ == sistrip::SUMMARY_2D ) {
+  } else if ( pres_ == sistrip::SUMMARY_2D ) {
     generator_->summary2D( summary_histo );
-  } else if ( type_ == sistrip::SUMMARY_PROF ) {
+  } else if ( pres_ == sistrip::SUMMARY_PROF ) {
     generator_->summaryProf( summary_histo );
   } else { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]" 
 	 << " Unexpected SummaryType value:"
-	 << SiStripHistoNamingScheme::summaryType( type_ ) 
+	 << SiStripHistoNamingScheme::presentation( pres_ ) 
 	 << endl;
     return; 
   }
   
   // Histogram formatting
-  if ( histo_ == sistrip::DAQ_SCOPE_MODE_MEAN_SIGNAL ) { 
+  if ( mon_ == sistrip::DAQ_SCOPE_MODE_MEAN_SIGNAL ) { 
     generator_->axisLabel( "Mean signal [adc]" );
   } else { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]" 
 	 << " Unexpected SummaryHisto value:"
-	 << SiStripHistoNamingScheme::summaryHisto( histo_ ) 
+	 << SiStripHistoNamingScheme::monitorable( mon_ ) 
 	 << endl;
   } 
-  generator_->format( sistrip::APV_TIMING, histo_, type_, view_, level_, gran_, summary_histo );
+  generator_->format( sistrip::APV_TIMING, mon_, pres_, view_, level_, gran_, summary_histo );
   
 }
 
