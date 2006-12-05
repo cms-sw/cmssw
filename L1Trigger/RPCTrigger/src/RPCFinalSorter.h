@@ -2,9 +2,7 @@
 #define L1RpcFinalSorterH
 
 /** \class RPCFinalSorter
-  * Peformes the m_FinalSorter Ghost Buster and sorter algorithms.
-  * Because the class does not keep any data and GB is the same for every TB,
-  * there might be one and the same object of this class for all TBs.
+  * Emulates FinalSorter 
   * \author Karol Bunkowski (Warsaw)
   */
 
@@ -25,7 +23,8 @@ public:
 
   void runFinalSorter(L1RpcTBMuonsVec2 &finalMuons);
 
-  L1RpcTBMuonsVec2 run(L1RpcTBMuonsVec2 &tcsMuonsVec2);
+  //L1RpcTBMuonsVec2 run(L1RpcTBMuonsVec2 &tcsMuonsVec2);
+  L1RpcTBMuonsVec2 run(L1RpcTBMuonsVec2 tcsMuonsVec2);
 
 private:
   L1RpcTBMuonsVec2 m_GBOutputMuons;

@@ -10,7 +10,8 @@
 #endif
 
 RPCPacTrigger::RPCPacTrigger(RPCTriggerConfiguration* triggerConfig):
-  m_FinalSorter(triggerConfig)
+  m_FinalSorter(triggerConfig),
+  m_HalfSorters(triggerConfig)
 {
   m_TrigCnfg = triggerConfig;
   for(int iTC = 0; iTC < m_TrigCnfg->getTCsCnt(); iTC++) {
@@ -53,28 +54,8 @@ L1RpcTBMuonsVec2 RPCPacTrigger::runEvent(const L1RpcLogConesVec& logConesVec) {
     }
   }
 
-  m_GBFinalMuons = m_FinalSorter.run(tcsMuonsVec2);
-  /* // Moved to m_FinalSorter to have HS and FS info
-  if (m_TrigCnfg->getDebugLevel()!=0){
-     // iterate over m_GBFinalMuons and call printDebug()
-    for (unsigned  int iTC = 0; iTC < m_GBFinalMuons.size(); iTC++){
-        for (unsigned  int iTB = 0; iTB < m_GBFinalMuons[iTC].size(); iTB++){
-#ifdef _STAND_ALONE
-	  std::cout <<"GB 3 "<<m_GBFinalMuons[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel())<< std::endl;
-#else
-	  LogDebug("RPCHwDebug") <<"GB 3 "<<m_GBFinalMuons[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel());
+  m_GBFinalMuons = m_FinalSorter.run(m_HalfSorters.run(tcsMuonsVec2));
 
-#endif // _STAND_ALONE
-        }
-    }                               
-  }
-  */
-  /*
-  #ifdef _GRAB_MUONS
-    L1RpcMuonsGrabber::Instance()->StoreAnswers(m_GBFinalMuons);
-  #endif
-  */
-  
 #ifdef GETCONES
   bool foundMuons = false;
   L1RpcTBMuonsVec bMuons = m_GBFinalMuons[0];

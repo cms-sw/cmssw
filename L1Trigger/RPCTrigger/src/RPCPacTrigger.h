@@ -9,6 +9,7 @@
 #include "L1Trigger/RPCTrigger/src/RPCLogCone.h"
 #include "L1Trigger/RPCTrigger/src/RPCTriggerCrate.h"
 #include "L1Trigger/RPCTrigger/src/RPCFinalSorter.h"
+#include "L1Trigger/RPCTrigger/src/RPCHalfSorter.h"
 #include "L1Trigger/RPCTrigger/src/RPCTriggerConfiguration.h"
 
 class RPCPacTrigger {
@@ -38,7 +39,8 @@ private:
   RPCTriggerConfiguration* m_TrigCnfg;
 
   RPCFinalSorter m_FinalSorter;
-
+  RPCHalfSorter m_HalfSorters;
+  
   //---------------------------------------
 
   /** Muons found in each event. m_GBFinalMuons[be][iMU] be = 0 = barrel; be = 1 = endcaps,
