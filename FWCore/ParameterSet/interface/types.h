@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.h,v 1.9 2006/06/21 17:54:28 rpw Exp $
+// $Id: types.h,v 1.10 2006/09/21 19:29:45 rpw Exp $
 //
 // declaration of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -95,6 +95,14 @@ namespace edm
   // VInputTag
   bool  decode(std::vector<edm::InputTag>&, std::string const&);
   bool  encode(std::string &, std::vector<edm::InputTag> const&);
+
+  // EventID
+  bool  decode(edm::EventID&, std::string const&);
+  bool  encode(std::string &, edm::EventID const&);
+
+  // VEventID
+  bool  decode(std::vector<edm::EventID>&, std::string const&);
+  bool  encode(std::string &, std::vector<edm::EventID> const&);
 
   // ParameterSet
   bool  decode(ParameterSet &, std::string  const&);

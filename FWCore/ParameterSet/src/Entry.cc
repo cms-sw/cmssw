@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.19 2006/10/20 13:43:02 chrjones Exp $
+// $Id: Entry.cc,v 1.20 2006/10/20 15:26:11 chrjones Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -56,6 +56,11 @@ namespace edm {
       table_['F'] = "FileInPath";
       table_['t'] = "InputTag";
       table_['v'] = "VInputTag";
+      table_['e'] = "VEventID";
+      table_['E'] = "EventID";
+
+
+
       
       for(CodeMap::const_iterator itCode = table_.begin();
            itCode != table_.end();
@@ -153,6 +158,16 @@ namespace edm {
       case 'v':  {  // VInputTag
         std::vector<edm::InputTag> val;
         if(!decode(val, rep)) throwEntryError("VInputTag", rep);
+        break;
+      }
+      case 'E':  {  // EventID
+        edm::EventID val; 
+        if(!decode(val, rep)) throwEntryError("EventID", rep);
+        break;
+      }
+      case 'e':  {  // VEventID
+        std::vector<edm::EventID> val;
+        if(!decode(val, rep)) throwEntryError("VEventID", rep);
         break;
       }
       case 'D':  {  // Double
@@ -349,6 +364,29 @@ namespace edm {
     if (!encode(rep, val)) throwEncodeError("VInputTag");
     validate();
   }
+
+
+// ----------------------------------------------------------------------
+//  EventID
+
+  Entry::Entry(std::string const& name, edm::EventID const& val, bool is_tracked) :
+    name_(name), rep(), type('E'), tracked(is_tracked ? '+' : '-')
+  {
+    if (!encode(rep, val)) throwEncodeError("EventID");
+    validate();
+  }
+
+
+// ----------------------------------------------------------------------
+// VEventID
+
+  Entry::Entry(std::string const& name, std::vector<edm::EventID> const& val, bool is_tracked) :
+    name_(name), rep(), type('e'), tracked(is_tracked ? '+' : '-')
+  {
+    if (!encode(rep, val)) throwEncodeError("VEventID");
+    validate();
+  }
+
 
 
 // ----------------------------------------------------------------------
@@ -668,6 +706,30 @@ namespace edm {
     return val;
   }
 
+
+// ----------------------------------------------------------------------
+// EventID
+
+  edm::EventID
+  Entry::getEventID() const
+  {
+    if(type != 'E') throwValueError("EventID");
+    edm::EventID val;
+    if(!decode(val, rep)) throwEntryError("EventID", rep);
+    return val;
+  }
+
+// ----------------------------------------------------------------------
+// VEventID
+
+  std::vector<edm::EventID>
+  Entry::getVEventID() const
+  {
+    if(type != 'e') throwValueError("VEventID");
+    std::vector<edm::EventID> val;
+    if(!decode(val, rep)) throwEntryError("EventID", rep);
+    return val;
+  }
 
 
 // ----------------------------------------------------------------------

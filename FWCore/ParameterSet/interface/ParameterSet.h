@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.30 2006/10/25 13:30:14 rpw Exp $
+// $Id: ParameterSet.h,v 1.31 2006/10/25 21:57:55 wmtan Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -287,6 +287,29 @@ private:
 
 
   // ----------------------------------------------------------------------
+  // EventID
+
+  template <>
+  inline
+  edm::EventID
+  ParameterSet::getParameter<edm::EventID>(std::string const& name) const {
+    return retrieve(name).getEventID();
+  }
+
+
+  // ----------------------------------------------------------------------
+  // VEventID
+
+  template <>
+  inline
+  std::vector<edm::EventID>
+  ParameterSet::getParameter<std::vector<edm::EventID> >(std::string const& name) const {
+    return retrieve(name).getVEventID();
+  }
+
+
+
+  // ----------------------------------------------------------------------
   // PSet, vPSet
   
   template<>
@@ -512,6 +535,43 @@ private:
   ParameterSet::getUntrackedParameter<std::vector<edm::InputTag> >(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getVInputTag();
   }
+
+  // ----------------------------------------------------------------------
+  // EventID, VEventID
+
+  template<>
+  inline
+  edm::EventID
+  ParameterSet::getUntrackedParameter<edm::EventID>(std::string const& name, edm::EventID const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getEventID();
+  }
+
+  template<>
+  inline
+  edm::EventID
+  ParameterSet::getUntrackedParameter<edm::EventID>(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getEventID();
+  }
+
+  template<>
+  inline
+  std::vector<edm::EventID>
+  ParameterSet::getUntrackedParameter<std::vector<edm::EventID> >(std::string const& name,
+                                      std::vector<edm::EventID> const& defaultValue) const
+  {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getVEventID();
+  }
+
+
+  template<>
+  inline
+  std::vector<edm::EventID>
+  ParameterSet::getUntrackedParameter<std::vector<edm::EventID> >(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getVEventID();
+  }
+
 
 
   

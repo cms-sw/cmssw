@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ReplaceNode.h"
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ParameterSet/interface/types.h"
 #include <boost/cstdint.hpp>
 
 using std::string;
@@ -66,6 +67,13 @@ namespace edm {
        {
          edm::InputTag tag(withoutQuotes(value_));
          return Entry(name(), tag, !tracked_);
+       }
+     else if (type()=="EventID")
+       {
+         // decodes, then encodes again
+         edm::EventID eventID;
+         edm::decode(eventID, value_);
+         return Entry(name(), eventID, !tracked_);
        }
      else if(type()=="double")
        {

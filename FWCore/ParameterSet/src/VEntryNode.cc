@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/EntryNode.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/parse.h"
+#include "FWCore/ParameterSet/interface/types.h"
 #include <boost/cstdint.hpp>
 #include <ostream>
 #include <iterator>
@@ -161,6 +162,17 @@ namespace edm {
        {
          vector<InputTag> d ;
          for(ib=k;ib!=ie;++ib) d.push_back( InputTag(withoutQuotes(*ib)) );
+         return Entry(name(), d, !tracked_);
+       }
+     else if(type()=="VEventID")
+       {
+         vector<edm::EventID> d ;
+         for(ib=k;ib!=ie;++ib)
+         {
+           edm::EventID eventID;
+           edm::decode(eventID, *ib);
+           d.push_back( eventID );
+         }
          return Entry(name(), d, !tracked_);
        }
      else

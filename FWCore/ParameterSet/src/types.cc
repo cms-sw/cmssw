@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.cc,v 1.9 2006/10/04 19:54:27 rpw Exp $
+// $Id: types.cc,v 1.10 2006/10/18 22:15:15 wmtan Exp $
 //
 // definition of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -14,6 +14,7 @@
 #include "boost/lexical_cast.hpp"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/split.h"
+#include "FWCore/ParameterSet/interface/parse.h"
 #include <algorithm>
 #include <cctype>
 #include <cstdlib>
@@ -720,6 +721,72 @@ bool
        tagItr != from.end(); ++tagItr)
   {
     strings.push_back(tagItr->encode());
+  }
+  encode(to, strings);
+  return true;
+}
+
+
+
+// ----------------------------------------------------------------------
+// EventID
+// ----------------------------------------------------------------------
+
+bool
+  edm::decode(edm::EventID& to, std::string const& from)
+{
+  std::vector<std::string> tokens = edm::pset::tokenize(from, ":");
+  assert(tokens.size() == 2);
+  unsigned long run = strtoul(tokens[0].c_str(), 0, 0);
+  unsigned long event = strtoul(tokens[1].c_str(), 0, 0);
+  to = edm::EventID(run, event);
+  return true;
+}  // decode to EventID
+
+
+
+bool
+  edm::encode(std::string& to, const edm::EventID & from)
+{
+  std::ostringstream os;
+  os << from.run() << ":" << from.event();
+  to = os.str();
+  return true;
+}
+
+
+// ----------------------------------------------------------------------
+// VEventID
+// ----------------------------------------------------------------------
+
+bool
+  edm::decode(std::vector<edm::EventID>& to, std::string const& from)
+{
+  std::vector<std::string> strings;
+  decode(strings, from);
+
+  for(std::vector<std::string>::const_iterator stringItr = strings.begin();
+      stringItr != strings.end(); ++stringItr)
+  {
+    edm::EventID eventID;
+    decode(eventID, *stringItr);
+    to.push_back(eventID);
+  }
+  return true;
+}  // decode to VInputTag
+
+
+
+bool
+  edm::encode(std::string& to, const std::vector<edm::EventID>& from)
+{
+  std::vector<std::string> strings;
+  for(std::vector<edm::EventID>::const_iterator idItr = from.begin();
+      idItr != from.end(); ++idItr)
+  {
+    std::string encodedEventID;
+    encode(encodedEventID, *idItr);
+    strings.push_back(encodedEventID);
   }
   encode(to, strings);
   return true;

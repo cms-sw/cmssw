@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.28 2006/09/21 18:46:52 rpw Exp $
+ * $Id: pset_lex.l,v 1.29 2006/11/30 20:51:23 rpw Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -48,6 +48,7 @@
 letterstart	[a-zA-Z]+[a-zA-Z0-9\-_]*
 dotdelimited    ([a-zA-Z]+[a-zA-Z0-9\-_]*+\.)+[a-zA-Z]+[a-zA-Z0-9\-_]*
 producttag      [a-zA-Z]+[a-zA-Z0-9\-_:]*
+eventid         [0-9]*+:+[0-9]*
 bangstart	\![a-zA-Z]+[a-zA-Z0-9\-_]*
 minusinf        -inf
 minusletterstart -[a-zA-Z]+[a-zA-Z0-9\-_]*
@@ -97,6 +98,8 @@ comment2        "//".*[\n]?
 "from"          { return FROM_tok; }
 "InputTag"      { return INPUTTAG_tok; }
 "VInputTag"     { return VINPUTTAG_tok; }
+"EventID"       { return EVENTID_tok; }
+"VEventID"      { return VEVENTID_tok; }
 "module"        { yylval.str = stringDup(yytext); return MODULE_tok; }
 "service"       { yylval.str = stringDup(yytext); return SERVICE_tok; }
 "es_module"     { yylval.str = stringDup(yytext); return ES_MODULE_tok; }
@@ -112,6 +115,7 @@ comment2        "//".*[\n]?
 {letterstart}	{ yylval.str = stringDup(yytext); return LETTERSTART_tok; }
 {dotdelimited}  { yylval.str = stringDup(yytext); return DOTDELIMITED_tok; }
 {producttag}    { yylval.str = stringDup(yytext); return PRODUCTTAG_tok; }
+{eventid}       { yylval.str = stringDup(yytext); return EVENTIDVALUE_tok;}
 {bangstart}	{ yylval.str = stringDup(yytext); return BANGSTART_tok; }
 {minusinf}      { yylval.str = stringDup(yytext); return MINUSINF_tok; }
 {minusletterstart} {yylval.str = stringDup(yytext); return MINUSLETTERSTART_tok;}

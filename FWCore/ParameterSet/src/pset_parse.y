@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.53 2006/11/29 17:23:36 rpw Exp $
+ * $Id: pset_parse.y,v 1.54 2006/11/30 20:51:29 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -156,6 +156,9 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token FROM_tok
 %token INPUTTAG_tok
 %token VINPUTTAG_tok
+%token EVENTID_tok
+%token VEVENTID_tok
+%token EVENTIDVALUE_tok
 %token MODULE_tok
 %token SERVICE_tok
 %token ES_MODULE_tok
@@ -320,6 +323,26 @@ lowlevelnode:    untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                    StringListPtr value($<_StringList>5);
                    bool tr = $<_bool>1;
                    VEntryNode* en(new VEntryNode("VInputTag",name,value,tr,lines));
+                   $<_Node>$ = en;
+                 }
+               |
+                 untracked EVENTID_tok LETTERSTART_tok EQUAL_tok EVENTIDVALUE_tok
+                 {
+                   DBPRINT("lowlevelnode: EVENTID");
+                   bool tr = $<_bool>1;
+                   string name(toString($<str>3));
+                   string value(toString($<str>5));
+                   EntryNode* en(new EntryNode("EventID",name,value,tr,lines));
+                   $<_Node>$ = en;
+                 }
+               |
+                untracked VEVENTID_tok LETTERSTART_tok EQUAL_tok possiblyblankeventidarray
+                 {
+                   DBPRINT("lowlevelnode: VEVENTID");
+                   string name(toString($<str>3));
+                   StringListPtr value($<_StringList>5);
+                   bool tr = $<_bool>1;
+                   VEntryNode* en(new VEntryNode("VEventID",name,value,tr,lines));
                    $<_Node>$ = en;
                  }
                |
@@ -500,6 +523,8 @@ anyarray:        array
                  strarray
                |
                  blankarray
+               |
+                 eventidarray
 /*               |
                  producttagarray
 */               ;
@@ -581,19 +606,19 @@ stranys:         stranys COMMA_tok anyquote
 any:             VALUE_tok
                  {
                    DBPRINT("any: VALUE");
-                   $<str>$ = $<str>1;
+                   //$<str>$ = $<str>1;
                  }
                |
                  LETTERSTART_tok
                  {
                    DBPRINT("any: LETTERSTART");
-                   $<str>$ = $<str>1;
+                   //$<str>$ = $<str>1;
                  }
                |
                  MINUSINF_tok
                  {
                    DBPRINT("any: MINUSINF");
-                   $<str>$ = $<str>1;
+                   //$<str>$ = $<str>1;
                  } 
                ;
 
@@ -624,6 +649,8 @@ replaceEntry:    VALUE_tok
                  anyquote
                |
                  MINUSINF_tok
+               |
+                 EVENTIDVALUE_tok
                ;
 
 producttags:     producttags COMMA_tok anyproducttag
@@ -656,6 +683,37 @@ producttagarray: SCOPE_START_tok  producttags SCOPE_END_tok
                    DBPRINT("producttagarray: empty");
                    $<_StringList>$ = new StringList();
                  }
+               ;
+
+eventids:        eventids COMMA_tok EVENTIDVALUE_tok
+                 {
+                   DBPRINT("eventids comma");
+                   StringList* p = $<_StringList>1;
+                   string s(toString($<str>3));
+                   p->push_back(s);
+                   $<_StringList>$ = p;
+                 }
+               |
+                 EVENTIDVALUE_tok
+                 {
+                   DBPRINT("eventids");
+                   string s(toString($<str>1));
+                   StringList* p(new StringList);
+                   p->push_back(s);
+                   $<_StringList>$ = p;
+                 }
+               ;
+
+eventidarray: SCOPE_START_tok eventids SCOPE_END_tok
+                 {
+                   DBPRINT("eventids: not empty");
+                   $<_StringList>$ = $<_StringList>2;
+                 }
+               ;
+
+possiblyblankeventidarray : eventidarray
+               |
+                 blankarray
                ;
 
 /* Returns a C-string */
