@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:49 CEST 2006
-// $Id: SiStripHistoricInfoClient.cc,v 1.4 2006/11/14 11:17:16 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.cc,v 1.5 2006/12/05 17:46:07 dkcira Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoClient.h"
@@ -129,8 +129,25 @@ void SiStripHistoricInfoClient::onUpdate() const
   //
   int nr_updates = mui_->getNumUpdates();
   cout<<"SiStripHistoricInfoClient::onUpdate() : nr_updates="<<nr_updates<<" "<<nr_updates-firstUpdate<<endl;
-  if(nr_updates==10){
+  if(nr_updates==2){
     retrievePointersToModuleMEs();
+    cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+    cout<<"SiStripHistoricInfoClient::retrievePointersToModuleMEs ClientPointersToModuleMEs.size()="<<ClientPointersToModuleMEs.size()<<endl;
+    for(std::map<uint32_t , vector<MonitorElement *> >::iterator imapmes = ClientPointersToModuleMEs.begin(); imapmes != ClientPointersToModuleMEs.end(); imapmes++){
+       cout<<"      ++++++detid  "<<imapmes->first<<endl;
+       // MEs from pointer map
+       vector<MonitorElement*> locvec = imapmes->second;
+       for(vector<MonitorElement*>::const_iterator imep = locvec.begin(); imep != locvec.end() ; imep++){
+         cout<<"          ++  "<<(*imep)->getName()<<endl;
+       }
+       //  tagged MEs
+       DaqMonitorBEInterface * dbe_ = mui_->getBEInterface();
+       std::vector<MonitorElement *> taggedMEs = dbe_->get(imapmes->first);
+       for(std::vector<MonitorElement *>::const_iterator itme = taggedMEs.begin(); itme != taggedMEs.end(); itme++){
+         cout<<"          --  "<<(*itme)->getName()<<endl;
+       }
+    }
+    cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
   }
 }
 
