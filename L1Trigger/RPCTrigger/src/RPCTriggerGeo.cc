@@ -1,7 +1,7 @@
 /** \file RPCTriggerGeo.cc
  *
- *  $Date: 2006/08/05 13:22:59 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/11/28 11:23:44 $
+ *  $Revision: 1.16 $
  *  \author Tomasz Fruboes
  */
 
@@ -146,7 +146,8 @@ std::vector<int> RPCTriggerGeo::getTowersForStrip(RPCDetId detID, int strip){
   }
 
   else if ( m_detsToIngore.find(sc.m_detRawId)==m_detsToIngore.end() ) { 
-    throw RPCException( "Strip not present in map ");
+    // FIXME: commented out due to changes in handling of overlaping chambers
+    //throw RPCException( "Strip not present in map ");
   } 
   
   else {
@@ -169,7 +170,7 @@ void RPCTriggerGeo::addDet(RPCRoll* roll){
 
   RPCDetInfo detInfo(roll);
 
-  // This two curls werent connected anywhere in ORCA. They are filtered out for consitency with ORCA.
+  // This two RingFromRolls werent connected anywhere in ORCA. They are filtered out for consitency with ORCA.
   if ( (detInfo.getRingFromRollsId() == 2108) ||(detInfo.getRingFromRollsId() == 2008) ){
     m_detsToIngore.insert(detInfo.rawId());
     return;
@@ -180,7 +181,7 @@ void RPCTriggerGeo::addDet(RPCRoll* roll){
 
      m_RPCRingFromRollsMap[detInfo.getRingFromRollsId()].addDetId(detInfo);
 
-  } else {  // add a new curl
+  } else {  // add a new RingFromRolls
     
     RPCRingFromRolls newRingFromRolls;
     newRingFromRolls.addDetId(detInfo);
@@ -238,8 +239,8 @@ L1RpcLogConesVec RPCTriggerGeo::getCones(edm::Handle<RPCDigiCollection> rpcDigis
       // m_detsToIngore fixes problem with two unconnected curls (ORCA consistency)
       else if ( m_detsToIngore.find(rawId)==m_detsToIngore.end() ) { 
 //       RPCDetId missing = RPCDetId(sc.m_detRawId);
-         
-        throw RPCException( "Strip not present in map ");
+        // FIXME: commented out due to changes in handling of overlaping chambers
+        //throw RPCException( "Strip not present in map ");
 //            << missing;
         
         

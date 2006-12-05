@@ -1,13 +1,14 @@
 /** \file RPCRingFromRolls.cc
  *
- *  $Date: 2006/08/04 14:08:29 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/11/28 11:23:44 $
+ *  $Revision: 1.5 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/src/RPCRingFromRolls.h"
 #include "L1Trigger/RPCTrigger/src/RPCDetInfo.h"
+#include "L1Trigger/RPCTrigger/src/RPCException.h"
 #include <cmath>
-//#include <algorithm>
+#include <algorithm>
 //#############################################################################
 /**
  *
@@ -32,6 +33,7 @@ RPCRingFromRolls::RPCRingFromRolls()
   m_isRefPlane = false;
   m_isDataFresh = true;
   m_didVirtuals = false; 
+  m_didFiltering = false;
   
 }
 
@@ -127,6 +129,7 @@ int RPCRingFromRolls::makeOtherConnections(float phiCentre, int m_tower, int m_P
     return 0;
 
   doVirtualStrips();
+  filterMixedStrips(); // Fixes overlaping chambers problem
   
   RPCConnection newConnection;
   newConnection.m_PAC = m_PAC;
@@ -160,8 +163,8 @@ int RPCRingFromRolls::makeOtherConnections(float phiCentre, int m_tower, int m_P
       it == m_stripPhiMap.begin();
   }
     
-  // XXX - possible source of logical errors - cones may be shifted +-1 comparing to ORCA
-  for (int i=0; i < logplaneSize/2; i++){
+  
+  for (int i=0; i < logplaneSize/2; i++){ 
     if (it==m_stripPhiMap.begin())
       it=m_stripPhiMap.end();  // (m_stripPhiMap.end()--) is ok.
     it--;
@@ -169,6 +172,7 @@ int RPCRingFromRolls::makeOtherConnections(float phiCentre, int m_tower, int m_P
   
   // In barell station 4 (farrest station) chambers overlap in phi.
   // This is the q&d method to avoid mixing of strips in logplanes
+  /*
   if (m_region == 0 && m_hwPlane == 4){
                
       std::map<uint32_t,GlobalStripPhiMap> chambersMap;
@@ -222,7 +226,7 @@ int RPCRingFromRolls::makeOtherConnections(float phiCentre, int m_tower, int m_P
           }
       }
   
-  }
+}
   else // Normal, non overlaping chamber
   {
       for (int i=0; i < logplaneSize; i++){
@@ -235,6 +239,20 @@ int RPCRingFromRolls::makeOtherConnections(float phiCentre, int m_tower, int m_P
           it=m_stripPhiMap.begin();
       }
   }
+  */
+  
+  // 
+  for (int i=0; i < logplaneSize; i++){
+    stripCords scTemp = it->second;
+    newConnection.m_posInCone = i;
+    m_links[it->second].push_back(newConnection);
+    
+    it++;
+    if (it==m_stripPhiMap.end())
+      it=m_stripPhiMap.begin();
+  }
+
+    
   return 0;
   
 }
@@ -349,19 +367,16 @@ int RPCRingFromRolls::makeRefConnections(RPCRingFromRolls *otherRingFromRolls){
  *
  */
 //#############################################################################
-int RPCRingFromRolls::giveLogPlaneForTower(int m_tower){
+int RPCRingFromRolls::giveLogPlaneForTower(int tower){
     
-  int m_logplane = -1;
+  int logplane = -1;
   for (int i=0;i<3;i++){
     int ttemp = m_mrtow [std::abs(m_globRoll)] [m_hwPlane-1][i];
-    if ( ttemp == std::abs(m_tower) )
-      m_logplane = m_mrlogp [std::abs(m_globRoll)] [m_hwPlane-1][i];
+    if ( ttemp == std::abs(tower) )
+      logplane = m_mrlogp [std::abs(m_globRoll)] [m_hwPlane-1][i];
   }
-    
 
-
-  return m_logplane;
-
+  return logplane;
 }
 //#############################################################################
 /**
@@ -410,6 +425,96 @@ void RPCRingFromRolls::updatePhiStripsMap(RPCDetInfo detInfo){
     m_physStripsInRingFromRolls++;
   }// loop end
   
+}
+//#############################################################################
+/**
+ *
+ * \brief Filters strip
+ *
+ */
+//#############################################################################
+void RPCRingFromRolls::filterMixedStrips(){
+
+  if (m_didFiltering){ // run once
+    return;
+  }
+  
+  m_didFiltering=true;
+  
+  if (m_region != 0 || m_hwPlane != 4) 
+    return;
+  
+//  std::cout << "Another filtering" << std::endl;
+  
+  RPCRingFromRolls::phiMapCompare compare;
+  /*
+                  // compare(a,b) <=>  (a<b)
+  if (compare(lowestPhiMap[scTemp.m_detRawId],it->first))
+  {
+    lowestPhiMap[scTemp.m_detRawId]=it->first;
+  }
+  */
+  /*  
+  std::map<uint32_t,float> phiCutMap;
+  //Iterate over the chambers. For each chamber calculate a cut in phi
+  RPCDetInfoPhiMap::const_iterator it = m_RPCDetPhiMap.begin();
+  for(;it!=m_RPCDetPhiMap.end();it++){
+  
+  
+}*/
+  
+  // filter strips
+  
+  uint32_t curRawID = 0, firstRawID = 0;
+  bool firstRun=true;
+  float phiCut = 0;
+  
+  std::vector<uint32_t> procChambers; // Stores rawIds of chambers that were processed
+    
+  GlobalStripPhiMap::iterator it = m_stripPhiMap.begin();
+  for(;it!=m_stripPhiMap.end();it++){
+    
+    if(firstRun){
+      firstRun=false;
+      curRawID = it->second.m_detRawId;
+      phiCut = m_RPCDetInfoMap[curRawID].getMaxPhi();
+      firstRawID = curRawID; // First chamber is processed twice - at begin at the end of processing
+    } 
+    else {
+      float phi = it->first;
+      uint32_t rawID = it->second.m_detRawId;
+  //    std::cout << rawID << " " << phi << " " << phiCut << std::endl;
+      if (rawID!=curRawID){ // Region of mixed strips
+        //if (procChambers.find(rawID)!=procChambers.end()){
+        if (std::find(procChambers.begin(),procChambers.end(),rawID)!=procChambers.end()){
+          if (rawID == firstRawID && procChambers.size() != 1) {} //do nothing for first processed chamber when  
+                                                                  // proccesing it second time at the end
+          else
+            throw RPCException("The chamber should be allready processed");
+        }
+        if (compare(phi,phiCut)){  // compare(a,b) <=>  (a<b)
+          //GlobalStripPhiMap::iterator ittemp = it;
+          m_stripPhiMap.erase(it++);// delete strip pointed by it (not by it++ !)
+          //ittemp--; // 
+          //it=ittemp; 
+          it--; // go to prev. element - loop will inc. it for us
+        } 
+        else { // Strip is ok - start new chamber
+          procChambers.push_back(curRawID); // Store info, that the chamber was proccessd
+          curRawID=rawID; // save new chamber id
+          phiCut = m_RPCDetInfoMap[curRawID].getMaxPhi(); // get new cut
+        }
+      
+      }
+        
+        
+    }
+  
+  
+  }
+  
+  
+
 }
 //#############################################################################
 /**

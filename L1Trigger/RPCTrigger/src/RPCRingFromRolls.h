@@ -68,6 +68,7 @@ class RPCRingFromRolls {
   private:
     void setRefPlane();
     void doVirtualStrips();
+    void filterMixedStrips();
     int giveLogPlaneForTower(int m_tower);
     
     void updatePhiStripsMap(RPCDetInfo detInfo);//
@@ -88,6 +89,7 @@ class RPCRingFromRolls {
     bool m_isDataFresh; ///< Defines if data has real world contents
     bool m_isRefPlane;  ///< tells if detIds from this curl form a reference plane
     bool m_didVirtuals;
+    bool m_didFiltering;
     RPCLinks m_links;
     
     
