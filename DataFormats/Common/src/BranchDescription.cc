@@ -1,4 +1,5 @@
 #include "DataFormats/Common/interface/BranchDescription.h"
+#include "DataFormats/Common/interface/ModuleDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Reflex/Type.h"
 #include <ostream>
@@ -28,7 +29,42 @@ namespace edm {
     present_(true),
     provenancePresent_(true),
     transient_(false)
-  { }
+  {
+    // do not call init here! It will result in an exception throw.
+  }
+
+  BranchDescription::BranchDescription(
+			BranchType const& branchType,
+			std::string const& mdLabel, 
+			std::string const& procName, 
+			std::string const& name, 
+			std::string const& fName, 
+			std::string const& pin,
+			ModuleDescription const& modDesc,
+			std::set<std::string> const& aliases) :
+    branchType_(branchType),
+    moduleLabel_(mdLabel),
+    processName_(procName),
+    productID_(),
+    fullClassName_(name),
+    friendlyClassName_(fName),
+    productInstanceName_(pin),
+    moduleDescriptionID_(modDesc.id()),
+    psetIDs_(),
+    processConfigurationIDs_(),
+    branchAliases_(aliases),
+    branchName_(),
+    produced_(true),
+    present_(true),
+    provenancePresent_(true),
+    transient_(false) 
+  {
+    psetIDs_.insert(modDesc.parameterSetID());
+    processConfigurationIDs_.insert(modDesc.processConfigurationID());
+    init();
+  }
+
+
 
   BranchDescription::BranchDescription(
 			BranchType const& branchType,
@@ -62,6 +98,8 @@ namespace edm {
 
   void
   BranchDescription::init() const {
+    throwIfInvalid_();
+
     char const underscore('_');
     char const period('.');
 
@@ -90,7 +128,7 @@ namespace edm {
 
     ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(fullClassName());
     ROOT::Reflex::PropertyList p = t.Properties();
-    transient_ = (p.HasProperty("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
+    transient_ = (p.HasKey("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
   }
 
   ParameterSetID const&
@@ -122,6 +160,39 @@ namespace edm {
     os << "Friendly Class Name = " << friendlyClassName() << '\n';
     os << "Product Instance Name = " << productInstanceName() << std::endl;
   }
+
+  void throwExceptionWithText(const char* txt)
+  {
+    edm::Exception e(edm::errors::LogicError);
+    e << "Problem using an incomplete BranchDescription\n"
+      << txt 
+      << "\nPlease report this error to the FWCore developers";
+    throw e;
+  }
+
+  void
+  BranchDescription::throwIfInvalid_() const
+  {
+    if (branchType_ >= edm::EndBranchType)
+      throwExceptionWithText("Illegal BranchType detected");
+
+    if (moduleLabel_.empty())
+      throwExceptionWithText("Module label is not allowed to be empty");
+
+    if (processName_.empty())
+      throwExceptionWithText("Process name is not allowed to be empty");
+
+    if (fullClassName_.empty())
+      throwExceptionWithText("Full class name is not allowed to be empty");
+
+    if (friendlyClassName_.empty())
+      throwExceptionWithText("Friendly class name is not allowed to be empty");
+
+    if (!moduleDescriptionID_.isValid())
+      throwExceptionWithText("Invalid ModuleDescriptionID detected");    
+  }
+
+
 
   bool
   operator<(BranchDescription const& a, BranchDescription const& b) {

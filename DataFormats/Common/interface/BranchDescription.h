@@ -6,12 +6,13 @@
 BranchDescription: The full description of a Branch.
 This description also applies to every product instance on the branch.  
 
-$Id: BranchDescription.h,v 1.22 2006/11/04 00:34:35 wmtan Exp $
+$Id: BranchDescription.h,v 1.23 2006/11/04 07:16:17 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
 #include <set>
 
+#include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/BranchType.h"
 #include "DataFormats/Common/interface/ProductID.h"
 #include "DataFormats/Common/interface/ParameterSetID.h"
@@ -27,7 +28,6 @@ $Id: BranchDescription.h,v 1.22 2006/11/04 00:34:35 wmtan Exp $
 */
 
 namespace edm {
-  class EDProduct;
   struct BranchDescription {
 
     enum MatchMode { Strict = 0,
@@ -35,17 +35,26 @@ namespace edm {
 
     BranchDescription();
 
-    explicit BranchDescription(
-		BranchType const& branchType,
-		std::string const& mdLabel, 
-		std::string const& procName, 
-		std::string const& name, 
-		std::string const& fName, 
-		std::string const& pin, 
-		ModuleDescriptionID const& mdID = ModuleDescriptionID(),
-		std::set<ParameterSetID> const& psIDs = std::set<ParameterSetID>(),
-		std::set<ProcessConfigurationID> const& procConfigIDs = std::set<ProcessConfigurationID>(),
-		std::set<std::string> const& aliases = std::set<std::string>());
+    BranchDescription(BranchType const& branchType,
+		      std::string const& mdLabel, 
+		      std::string const& procName, 
+		      std::string const& name, 
+		      std::string const& fName, 
+		      std::string const& pin, 
+		      ModuleDescription const& modDesc,
+		      std::set<std::string> const& aliases = std::set<std::string>());
+
+
+    BranchDescription(BranchType const& branchType,
+		      std::string const& mdLabel, 
+		      std::string const& procName, 
+		      std::string const& name, 
+		      std::string const& fName, 
+		      std::string const& pin, 
+		      ModuleDescriptionID const& mdID, // = ModuleDescriptionID(),
+		      std::set<ParameterSetID> const& psIDs, // = std::set<ParameterSetID>(),
+		      std::set<ProcessConfigurationID> const& procConfigIDs, // = std::set<ProcessConfigurationID>(),
+		      std::set<std::string> const& aliases = std::set<std::string>());
 
     ~BranchDescription() {}
 
@@ -75,8 +84,11 @@ namespace edm {
     std::string const& branchName() const {return branchName_;}
     BranchType const& branchType() const {return branchType_;}
 
+  private:
+    void throwIfInvalid_() const;
 
   //TODO: Make all the data private!
+  public:
 
     // What tree is the branch in?
     BranchType branchType_;

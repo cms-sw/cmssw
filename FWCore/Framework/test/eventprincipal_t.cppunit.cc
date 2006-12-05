@@ -2,16 +2,19 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.31 2006/11/15 23:11:49 paterno Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.32 2006/11/17 23:05:01 paterno Exp $
 
 ----------------------------------------------------------------------*/  
+#include <map>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <typeinfo>
 
+#include <cppunit/extensions/HelperMacros.h>
 
 #include "DataFormats/Common/interface/BranchDescription.h"
+#include "DataFormats/Common/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/ProcessConfiguration.h"
 #include "DataFormats/Common/interface/ProductID.h"
@@ -28,27 +31,27 @@ $Id: eventprincipal_t.cppunit.cc,v 1.31 2006/11/15 23:11:49 paterno Exp $
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/Utilities/interface/PretendToUse.h"
-#include <cppunit/extensions/HelperMacros.h>
+#include "FWCore/Utilities/interface/value_ptr.h"
 
 typedef edm::BasicHandle handle;
 
 class testeventprincipal: public CppUnit::TestFixture 
 {
   CPPUNIT_TEST_SUITE(testeventprincipal);
-  CPPUNIT_TEST_EXCEPTION(failgetbyIdTest, edm::Exception);
-  CPPUNIT_TEST_EXCEPTION(failgetbySelectorTest, edm::Exception);
-  CPPUNIT_TEST_EXCEPTION(failgetbyLabelTest, edm::Exception);
-  CPPUNIT_TEST_EXCEPTION(failgetManyTest, edm::Exception);
-  CPPUNIT_TEST_EXCEPTION(failgetbyTypeTest, edm::Exception);
-  CPPUNIT_TEST_EXCEPTION(failgetManybyTypeTest, edm::Exception);
-  CPPUNIT_TEST_EXCEPTION(failgetbyInvalidIdTest, edm::Exception);
-  CPPUNIT_TEST_EXCEPTION(failgetProvenanceTest, edm::Exception);
-  CPPUNIT_TEST(getbyIdTest);
-  CPPUNIT_TEST(getbySelectorTest);
-  CPPUNIT_TEST(getbyLabelTest);
-  CPPUNIT_TEST(getbyTypeTest);
-  CPPUNIT_TEST(getProvenanceTest);
-  CPPUNIT_TEST(getAllProvenanceTest);
+  CPPUNIT_TEST(failgetbyIdTest);
+  CPPUNIT_TEST(failgetbySelectorTest);
+  CPPUNIT_TEST(failgetbyLabelTest);
+  CPPUNIT_TEST(failgetManyTest);
+  CPPUNIT_TEST(failgetbyTypeTest);
+  CPPUNIT_TEST(failgetManybyTypeTest);
+  CPPUNIT_TEST(failgetbyInvalidIdTest);
+  CPPUNIT_TEST(failgetProvenanceTest);
+  //   CPPUNIT_TEST(getbyIdTest);
+  //   CPPUNIT_TEST(getbySelectorTest);
+  //   CPPUNIT_TEST(getbyLabelTest);
+  //   CPPUNIT_TEST(getbyTypeTest);
+  //   CPPUNIT_TEST(getProvenanceTest);
+  //   CPPUNIT_TEST(getAllProvenanceTest);
   CPPUNIT_TEST_SUITE_END();
  public:
   void setUp();
@@ -61,97 +64,187 @@ class testeventprincipal: public CppUnit::TestFixture
   void failgetManybyTypeTest();
   void failgetbyInvalidIdTest();
   void failgetProvenanceTest();
-  void getbyIdTest();
-  void getbySelectorTest();
-  void processNameSelectorTest();
-  void getbyLabelTest();
-  void getbyTypeTest();
-  void getProvenanceTest();
-  void getAllProvenanceTest();
+
+  //   void getAllProvenanceTest();
+  //   void getbyIdTest();
+  //   void getbySelectorTest();
+  //   void processNameSelectorTest();
+  //   void getbyLabelTest();
+  //   void getbyTypeTest();
+  //   void getProvenanceTest();
 
  private:
 
+  edm::ProcessConfiguration* 
+  fake_single_module_process(std::string const& tag,
+			     std::string const& processName,
+			     edm::ParameterSet const& moduleParams,
+			     std::string const& release = edm::getReleaseVersion(),
+			     std::string const& pass = edm::getPassID() );
+  edm::BranchDescription*
+  fake_single_process_branch(std::string const& tag,
+			     std::string const& processName, 
+			     std::string const& productInstanceName = std::string() );
+  // Put a DummyProduct into the EventPrincipal, recorded as having come from
+  // the module and process identified by the 'tag'.
+  //void put_a_dummy_product(std::string const& tag);
   template <class PRODUCT_TYPE>
-  void put_a_product(edm::ProcessConfiguration* config,
-		     std::string const& moduleLabel,
-		     std::string const& productInstanceName = std::string() );
-
-
-  edm::ProcessConfiguration* pHltConfig_;
-  edm::ProcessConfiguration* pProdConfig_;  
-  edm::ProcessConfiguration* pTestConfig_;
-  edm::ProcessConfiguration* pUserConfig_;
+  void 
+  put_a_product(edm::ProcessConfiguration* config,
+		std::string const& moduleLabel,
+		std::string const& productInstanceName = std::string() );
+  
+  //   edm::ProcessConfiguration* pHltConfig_;
+  //   edm::ProcessConfiguration* pProdConfig_;  
+  //   edm::ProcessConfiguration* pTestConfig_;
+  //   edm::ProcessConfiguration* pUserConfig_;
+  
+  std::map<std::string, edm::BranchDescription*>    branchDescriptions_;
+  std::map<std::string, edm::ProcessConfiguration*> processConfigurations_;
   
   edm::ProductRegistry*      pProductRegistry_;
   edm::EventPrincipal*       pEvent_;
-
+  
   edm::EventID               eventID_;
 };
+
+edm::ProcessConfiguration*
+testeventprincipal::fake_single_module_process(std::string const& tag,
+					       std::string const& processName,
+					       edm::ParameterSet const& moduleParams,
+					       std::string const& release,
+					       std::string const& pass)
+{
+  edm::ParameterSet processParams;
+  processParams.addParameter(processName, moduleParams);
+  processParams.addParameter<std::string>("@process_name",
+					  processName);
+  
+  edm::ProcessConfiguration* result = 
+    new edm::ProcessConfiguration(processName, processParams.id(), release, pass);
+  processConfigurations_[tag] = result;
+  return result;
+}
+
+edm::BranchDescription*
+testeventprincipal::fake_single_process_branch(std::string const& tag, 
+					       std::string const& processName,
+					       std::string const& productInstanceName)
+{
+  edm::ModuleDescription mod;
+  std::string moduleLabel = processName + "dummyMod";
+  std::string moduleClass("DummyModule");
+  edm::TypeID dummyType(typeid(edmtest::DummyProduct));
+  std::string productClassName = dummyType.userClassName();
+  std::string friendlyProductClassName = dummyType.friendlyClassName();
+  edm::ParameterSet modParams;
+  modParams.addParameter<std::string>("@module_type", moduleClass);
+  modParams.addParameter<std::string>("@module_label", moduleLabel);
+  mod.parameterSetID_ = modParams.id();
+  mod.moduleName_ = moduleClass;
+  mod.moduleLabel_ = moduleLabel;
+  edm::ProcessConfiguration* process = 
+    fake_single_module_process(tag, processName, modParams);
+  mod.processConfiguration_ = *process;
+
+  edm::BranchDescription* result = 
+    new edm::BranchDescription(edm::InEvent, 
+			       moduleLabel, 
+			       processName,
+			       productClassName,
+			       friendlyProductClassName,
+			       productInstanceName,
+			       mod);
+  branchDescriptions_[tag] = result;
+  return result;
+}
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testeventprincipal);
 
 void testeventprincipal::setUp()
 {
-  // Making a functional EventPrincipal is not trivial, so we do it here...
+  // Making a functional EventPrincipal is not trivial, so we do it
+  // all here.
   eventID_ = edm::EventID(101, 20, false);
 
-  edm::ParameterSet hlt;
-  hlt.addParameter<std::string>("name", "HLT");
-  pHltConfig_ = new edm::ProcessConfiguration("HLT", 
-					       hlt.id(), 
-					       edm::getReleaseVersion(), 
-					       edm::getPassID());
-
-  edm::ParameterSet prod;
-  prod.addParameter<std::string>("name", "PROD");
-  pProdConfig_ = new edm::ProcessConfiguration("PROD", 
-					       prod.id(),
-					       edm::getReleaseVersion(), 
-					       edm::getPassID());
-
-  edm::ParameterSet test;
-  test.addParameter<std::string>("name", "TEST");
-  pTestConfig_ = new edm::ProcessConfiguration("TEST", 
-					       test.id(), 
-					       edm::getReleaseVersion(), 
-					       edm::getPassID());
-
-  edm::ParameterSet user;
-  user.addParameter<std::string>("name", "USER");
-  pUserConfig_ = new edm::ProcessConfiguration("USER", 
-					       user.id(),
-					       edm::getReleaseVersion(), 
-					       edm::getPassID());
-
   pProductRegistry_ = new edm::ProductRegistry;
+
+  pProductRegistry_->addProduct(*fake_single_process_branch("hlt",  "HLT"));
+  pProductRegistry_->addProduct(*fake_single_process_branch("prod", "PROD"));
+  pProductRegistry_->addProduct(*fake_single_process_branch("test", "TEST"));
+  pProductRegistry_->addProduct(*fake_single_process_branch("user", "USER"));
+  pProductRegistry_->addProduct(*fake_single_process_branch("rick", "USER2", "rick"));
+  pProductRegistry_->setProductIDs();
+ 
   edm::Timestamp now(1234567UL);
   pEvent_  = new edm::EventPrincipal(eventID_, now, *pProductRegistry_);
+
+  // Put products we'll look for into the EventPrincipal.
+  {
+    typedef edmtest::DummyProduct PRODUCT_TYPE;
+    typedef edm::Wrapper<PRODUCT_TYPE> WDP;
+    std::auto_ptr<edm::EDProduct>  product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)));
+    std::auto_ptr<edm::Provenance> provenance(new edm::Provenance);
+
+    std::string tag("rick");
+    edm::BranchDescription* branch = branchDescriptions_[tag];
+    assert(branch);
+
+    provenance->product.fullClassName_       = branch->fullClassName_;
+    provenance->product.friendlyClassName_   = branch->friendlyClassName_;
+    provenance->product.moduleLabel_         = branch->moduleLabel_;
+    provenance->product.processName_         = branch->processName_;
+    provenance->product.productInstanceName_ = branch->productInstanceName_;
+    provenance->product.moduleDescriptionID_ = branch->moduleDescriptionID_;
+    provenance->product.init();
+
+    edm::ProductRegistry::ProductList const& pl = pProductRegistry_->productList();
+    edm::BranchKey const bk(provenance->product);
+    edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
+    provenance->product.productID_ = it->second.productID_;
+
+    edm::ProcessConfiguration* process = processConfigurations_[tag];
+    assert(process);
+    pEvent_->addToProcessHistory(*process);
+    pEvent_->put(product, provenance);
+  }
+  
+}
+
+template <class MAP>
+void clear_map(MAP& m)
+{
+  for (typename MAP::iterator i = m.begin(), e = m.end(); i != e; ++i)
+    delete i->second;
 }
 
 void testeventprincipal::tearDown()
 {
-  // in case of error in CPPUNIT code, clear pointers...
+
+  clear_map(branchDescriptions_);
+  clear_map(processConfigurations_);  
+
   delete pEvent_;
   pEvent_ = 0;
 
   delete pProductRegistry_;
   pProductRegistry_ = 0;
-
-  delete pHltConfig_;
-  pHltConfig_ = 0;
-
-  delete pProdConfig_;
-  pProdConfig_ = 0;
-
-  delete pTestConfig_;
-  pTestConfig_ = 0;
-
-  delete pUserConfig_;
-  pUserConfig_ = 0;
-
-
 }
+
+// void 
+// testeventprincipal::put_a_dummy_product(std::string const& tag)
+// {
+//   edm::ProcessConfiguration* config = processConfigurations_[tag];
+//   assert(config);
+
+//   edm::BranchDescription* branch = branchDescriptions_[tag];
+//   assert(branch);
+
+//   put_a_product<edmtest::DummyProduct>(config,
+// 				       branch->moduleLabel_,
+// 				       branch->productInstanceName_);
+// }
 
 template <class PRODUCT_TYPE>
 void testeventprincipal::put_a_product(edm::ProcessConfiguration* config,
@@ -173,17 +266,17 @@ void testeventprincipal::put_a_product(edm::ProcessConfiguration* config,
   provenance->product.productInstanceName_ = productInstanceName;
   provenance->product.init();
 
-  pProductRegistry_->addProduct(provenance->product);
-  pProductRegistry_->setProductIDs();
+  //   pProductRegistry_->addProduct(provenance->product);
+  //   pProductRegistry_->setProductIDs();
 
   edm::ProductRegistry::ProductList const& pl = pProductRegistry_->productList();
   edm::BranchKey const bk(provenance->product);
   edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
   provenance->product.productID_ = it->second.productID_;
 
-  edm::EventID col(1L);
-  edm::Timestamp fakeTime;
-  edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_);
+  //   edm::EventID col(1L);
+  //   edm::Timestamp fakeTime;
+  //   edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_);
   pEvent_->addToProcessHistory(*pProdConfig_);
   pEvent_->put(product, provenance);
 }
@@ -194,83 +287,100 @@ void testeventprincipal::put_a_product(edm::ProcessConfiguration* config,
 
 void testeventprincipal::failgetbyIdTest() 
 {
-  pEvent_->addToProcessHistory(*pProdConfig_);
-  edm::ProductID id;
-  handle h = pEvent_->get(id);
-  pretendToUse(h);
+  //pEvent_->addToProcessHistory(*pProdConfig_);
+  edm::ProductID invalid;
+  CPPUNIT_ASSERT_THROW(pEvent_->get(invalid), edm::Exception);
+
+  edm::ProductID notpresent(10000000);
+  CPPUNIT_ASSERT_THROW(pEvent_->get(notpresent), edm::Exception);
 }
 
 void testeventprincipal::failgetbySelectorTest()
 {
-  pEvent_->addToProcessHistory(*pProdConfig_);
+  //pEvent_->addToProcessHistory(*pProdConfig_);
 
-  edm::TypeID tid(*pEvent_);   // sure not to match any product
-  edm::ProcessNameSelector sel("PROD");
-  handle h = pEvent_->getBySelector(tid, sel);
-  pretendToUse(h);  
+  // We don't put EventPrincipals into the EventPrincipal,
+  // so that's a type sure not to match any product.
+  edm::TypeID tid(*pEvent_); 
+
+  edm::ProcessNameSelector pnsel("PROD");
+  CPPUNIT_ASSERT_THROW(pEvent_->getBySelector(tid, pnsel), edm::Exception);
 }
 
 void testeventprincipal::failgetbyLabelTest() 
 {
-  pEvent_->addToProcessHistory(*pProdConfig_);
-  edm::TypeID tid(*pEvent_);   // sure not to match any product
+  //pEvent_->addToProcessHistory(*pProdConfig_);
+  // We don't put EventPrincipals into the EventPrincipal,
+  // so that's a type sure not to match any product.
+  edm::TypeID tid(*pEvent_);
+
   std::string label("this does not exist");
-  handle h = pEvent_->getByLabel(tid, label, std::string());
-  pretendToUse(h);
+
+  CPPUNIT_ASSERT_THROW(pEvent_->getByLabel(tid, label, std::string()),
+		       edm::Exception);
 }
 
 void testeventprincipal::failgetManyTest() 
 {
-  pEvent_->addToProcessHistory(*pProdConfig_);
-  edm::TypeID tid(*pEvent_);   // sure not to match any product
+  //pEvent_->addToProcessHistory(*pProdConfig_);
+
+  // We don't put EventPrincipals into the EventPrincipal,
+  // so that's a type sure not to match any product.
+  edm::TypeID tid(*pEvent_);
+
   edm::ProcessNameSelector sel("PROD");
   std::vector<handle> handles;
-  pEvent_->getMany(tid, sel, handles);
+  CPPUNIT_ASSERT_THROW(pEvent_->getMany(tid, sel, handles),
+		       edm::Exception);
 }
 
 void testeventprincipal::failgetbyTypeTest() 
 {
-  pEvent_->addToProcessHistory(*pProdConfig_);
+  //pEvent_->addToProcessHistory(*pProdConfig_);
 
-  edm::TypeID tid(*pEvent_);   // sure not to match any product
-  handle h = pEvent_->getByType(tid);
-  pretendToUse(h);
+  edm::TypeID tid(*pEvent_);
+  CPPUNIT_ASSERT_THROW(pEvent_->getByType(tid), edm::Exception);
 }
 
 void testeventprincipal::failgetManybyTypeTest() 
 {
-  pEvent_->addToProcessHistory(*pProdConfig_);
+  //pEvent_->addToProcessHistory(*pProdConfig_);
 
-  edm::TypeID tid(*pEvent_);   // sure not to match any product
+  // We don't put EventPrincipals into the EventPrincipal,
+  // so that's a type sure not to match any product.
+  edm::TypeID tid(*pEvent_);
   std::vector<handle> handles;
-  pEvent_->getManyByType(tid, handles);
+
+  // TODO: Why does this throw? The design was for getManyByType NOT
+  // to throw if no matches were found -- it can just return an empty
+  // collection!
+  CPPUNIT_ASSERT_THROW(pEvent_->getManyByType(tid, handles),
+		       edm::Exception);
 }
 
 void testeventprincipal::failgetbyInvalidIdTest() 
 {
-  std::string label("fred");
-  put_a_product<edmtest::DummyProduct>(pProdConfig_, label);
+  //put_a_dummy_product("HLT");
+  //put_a_product<edmtest::DummyProduct>(pProdConfig_, label);
 
   edm::ProductID id;
-
-  handle h = pEvent_->get(id);
-  pretendToUse(h);
+  CPPUNIT_ASSERT_THROW(pEvent_->get(id), edm::Exception);
 }
 
 void testeventprincipal::failgetProvenanceTest() 
 {
-  pEvent_->addToProcessHistory(*pProdConfig_);
+  //pEvent_->addToProcessHistory(*pProdConfig_);
 
   edm::ProductID id;
-  edm::Provenance const& prov = pEvent_->getProvenance(id);
-  pretendToUse(prov);
+  CPPUNIT_ASSERT_THROW(pEvent_->getProvenance(id), edm::Exception);
 }
 
-
+#if 0
 void testeventprincipal::getbyIdTest() 
 {
-  std::string label("modulename");
-  put_a_product<edmtest::DummyProduct>(pProdConfig_, label);
+  //   std::string label("modulename");
+  //   put_a_product<edmtest::DummyProduct>(pProdConfig_, label);
+  put_a_dummy_product("PROD");
   edm::ProductID id(1);
   handle h = pEvent_->get(id);
   CPPUNIT_ASSERT(h.isValid());
@@ -465,3 +575,5 @@ void testeventprincipal::getAllProvenanceTest()
   CPPUNIT_ASSERT(provenances.size() == 1);
   CPPUNIT_ASSERT(provenances[0]->productID() == id);
 }
+#endif
+

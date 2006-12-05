@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: ProductRegistryHelper.cc,v 1.12 2006/07/21 18:00:39 wmtan Exp $
+$Id: ProductRegistryHelper.cc,v 1.13 2006/11/04 00:35:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,10 +19,10 @@ namespace edm {
 
   void
   ProductRegistryHelper::addToRegistry(TypeLabelList::const_iterator const& iBegin,
-                             TypeLabelList::const_iterator const& iEnd,
-                             ModuleDescription const& iDesc,
-                             ProductRegistry& iReg,
-                             bool iIsListener) {
+				       TypeLabelList::const_iterator const& iEnd,
+				       ModuleDescription const& iDesc,
+				       ProductRegistry& iReg,
+				       bool iIsListener) {
     for (TypeLabelList::const_iterator p = iBegin; p != iEnd; ++p) {
       BranchDescription pdesc(p->branchType_,
                               iDesc.moduleLabel(),
@@ -30,9 +30,7 @@ namespace edm {
                               p->typeID_.userClassName(),
                               p->typeID_.friendlyClassName(), 
                               p->productInstanceName_,
-                              iDesc.id());
-      pdesc.psetIDs_.insert(iDesc.parameterSetID());
-      pdesc.processConfigurationIDs_.insert(iDesc.processConfigurationID());
+			      iDesc);
       if (!p->branchAlias_.empty()) pdesc.branchAliases_.insert(p->branchAlias_);
       iReg.addProduct(pdesc, iIsListener);
       ModuleDescriptionRegistry::instance()->insertMapped(iDesc);

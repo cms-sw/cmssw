@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.12 2006/10/27 21:06:05 wmtan Exp $
+$Id: generichandle_t.cppunit.cc,v 1.13 2006/11/04 00:35:44 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <string>
@@ -98,10 +98,13 @@ void testGenericHandle::getbyLabelTest() {
   pprov->product.fullClassName_ = dummytype.userClassName();
   pprov->product.friendlyClassName_ = className;
 
+  edm::ModuleDescription modDesc;
+  modDesc.moduleName_ = "Blah";
 
   pprov->product.moduleLabel_ = label;
   pprov->product.productInstanceName_ = productInstanceName;
   pprov->product.processName_ = processName;
+  pprov->product.moduleDescriptionID_ = modDesc.id();
   pprov->product.init();
 
   edm::ProductRegistry preg;

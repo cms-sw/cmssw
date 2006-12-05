@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.3 2006/11/04 18:56:23 wmtan Exp $
+$Id: DataViewImpl.cc,v 1.4 2006/11/30 15:37:06 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -146,7 +146,10 @@ namespace edm {
           << bk.moduleLabel_ << ","
           << bk.productInstanceName_ << ","
           << bk.processName_
-          << ")\n";
+          << ")\nProductRegistry contains:\n"
+	  << dbk_.productRegistry()
+	  << '\n';
+	  
     }
     if(it->second.branchType() != branchType_) {
         throw edm::Exception(edm::errors::InsertFailure,"Not Registered")

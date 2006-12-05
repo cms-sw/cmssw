@@ -2,7 +2,7 @@
 
 Test program for edm::Event.
 
-$Id: typeid_t.cppunit.cc,v 1.3 2006/02/20 01:51:59 wmtan Exp $
+$Id: Event_t.cpp,v 1.1 2006/11/30 15:37:07 paterno Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -14,10 +14,14 @@ $Id: typeid_t.cppunit.cc,v 1.3 2006/02/20 01:51:59 wmtan Exp $
 #include "DataFormats/Common/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/Timestamp.h"
+#include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Selector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Utilities/interface/GetPassID.h"
 
 using namespace edm;
 using namespace std;
@@ -27,15 +31,16 @@ class testEvent: public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE(testEvent);
   CPPUNIT_TEST(emptyEvent);
   CPPUNIT_TEST(getBySelectorFromEmpty);
-  //  CPPUNIT_TEST(putAnInt);
+  CPPUNIT_TEST(putAnIntProduct);
   CPPUNIT_TEST_SUITE_END();
 
  public:
+  testEvent();
   void setUp();
   void tearDown();
   void emptyEvent();
   void getBySelectorFromEmpty();
-  //void putAnInt();
+  void putAnIntProduct();
 
  private:
   
@@ -56,20 +61,62 @@ namespace
 EventID   make_id() { return EventID(2112, 25, true); }
 Timestamp make_timestamp() { return Timestamp(1); }
 
+testEvent::testEvent() :
+  availableProducts_(0),
+  principal_(0),
+  emptyEvent_(0),
+  currentModuleDescription_(0)
+{ }
+
 void
 testEvent::setUp()
 {
   availableProducts_ = new ProductRegistry();
 
-  BranchDescription intDescription;
-  availableProducts_->addProduct(intDescription);
+  // Fake up the production of a single IntProduct from an IntProducer
+  // module, run in the 'FUNKY' process.
+
+  ParameterSet moduleParams;
+  string moduleLabel("modInt");
+  string moduleClassName("IntProducer");
+  moduleParams.addParameter<std::string>("@module_type", moduleClassName);
+  moduleParams.addParameter<std::string>("@module_label", moduleLabel);
+
+  ParameterSet processParams;
+  string processName("FUNKY");
+  processParams.addParameter<std::string>("@process_name", processName);
+  processParams.addParameter(moduleLabel, moduleParams);
+
+  ProcessConfiguration process;
+  process.processName_    = processName;
+  process.releaseVersion_ = getReleaseVersion();
+  process.passID_         = getPassID();
+  process.parameterSetID_ = processParams.id();
+
+  TypeID product_type(typeid(edmtest::IntProduct));
+
+  currentModuleDescription_ = new ModuleDescription();
+  currentModuleDescription_->parameterSetID_       = moduleParams.id();
+  currentModuleDescription_->moduleName_           = moduleClassName;
+  currentModuleDescription_->moduleLabel_          = moduleLabel;
+  currentModuleDescription_->processConfiguration_ = process;
+
+
+  BranchDescription branch;
+  branch.moduleLabel_         = moduleLabel;
+  branch.processName_         = processName;
+  branch.fullClassName_       = product_type.userClassName();
+  branch.friendlyClassName_   = product_type.friendlyClassName();
+  branch.moduleDescriptionID_ = currentModuleDescription_->id();
+  
+  availableProducts_->addProduct(branch);
   availableProducts_->setProductIDs();
   availableProducts_->setFrozen();
     
   principal_  = new EventPrincipal(make_id(),
 				   make_timestamp(),
 				   *availableProducts_);
-  currentModuleDescription_ = new ModuleDescription();
+
   emptyEvent_ = new Event(*principal_, *currentModuleDescription_);
 }
 
@@ -100,10 +147,10 @@ void testEvent::getBySelectorFromEmpty()
 		       edm::Exception);
 }
 
-// void testEvent::putAnInt()
-// {
-//   auto_ptr<int> three(new int(3));
-//   emptyEvent_->put(three);
-//   CPPUNIT_ASSERT(emptyEvent_->size() == 1);
-// }
+void testEvent::putAnIntProduct()
+{
+  auto_ptr<edmtest::IntProduct> three(new edmtest::IntProduct(3));
+  emptyEvent_->put(three);
+  CPPUNIT_ASSERT(emptyEvent_->size() == 1);
+}
 

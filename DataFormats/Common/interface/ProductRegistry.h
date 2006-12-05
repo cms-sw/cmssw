@@ -7,11 +7,12 @@
 
    \original author Stefano ARGIRO
    \current author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.5 2006/08/30 23:28:33 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.6 2006/09/28 20:35:10 wmtan Exp $
    \date 19 Jul 2005
 */
 
 #include <map>
+#include <ostream>
 #include <string>
 
 #include "DataFormats/Common/interface/BranchKey.h"
@@ -72,6 +73,8 @@ namespace edm {
     }
     ProductList::size_type size() const {return productList_.size();}
 
+    void print(std::ostream& os) const;
+
   private:
     virtual void addCalled(BranchDescription const&, bool iFromListener);
     void throwIfNotFrozen() const;
@@ -92,6 +95,13 @@ namespace edm {
   bool
   operator!=(ProductRegistry const& a, ProductRegistry const& b) {
     return !(a == b);
+  }
+
+  inline
+  std::ostream&
+  operator<<(std::ostream& os, ProductRegistry const& pr) {
+    pr.print(os);
+    return os;    
   }
 
 } // edm

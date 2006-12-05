@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: EDProductfwd.h,v 1.3 2006/07/06 18:34:05 wmtan Exp $
+$Id: EDProductfwd.h,v 1.4 2006/07/07 19:42:34 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -20,6 +20,9 @@ namespace edm
   class EDProductGetter;
   class ProductID;
   class RefCore;
+
+  struct BranchDescription;
+  struct ModuleDescription;
 
   template <typename C, typename T, typename F> class Ref;
   template <typename T> class RefBase;

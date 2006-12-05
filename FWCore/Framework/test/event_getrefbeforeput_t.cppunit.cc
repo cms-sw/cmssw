@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: event_getrefbeforeput_t.cppunit.cc,v 1.2 2006/07/06 19:11:44 wmtan Exp $
+$Id: event_getrefbeforeput_t.cppunit.cc,v 1.3 2006/10/04 14:53:21 paterno Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -92,9 +92,13 @@ void testEventGetRefBeforePut::getRefTest() {
   pprov->product.fullClassName_ = dummytype.userClassName();
   pprov->product.friendlyClassName_ = className;
 
+  edm::ModuleDescription modDesc;
+  modDesc.moduleName_ = "Blah";
+
   pprov->product.moduleLabel_ = label;
   pprov->product.productInstanceName_ = productInstanceName;
   pprov->product.processName_ = processName;
+  pprov->product.moduleDescriptionID_ = modDesc.id();
   pprov->product.init();
 
   edm::ProductRegistry preg;
