@@ -27,7 +27,7 @@ public:
     theResolutionAlongY(theResolutionAlongY),
     theHitEfficiency(theHitEfficiency)
    { 
-     isSensitive = (theLayerNumber!=0);
+     isSensitive = (theLayerNumber<100);
      theFirstRing = 0;
      theLastRing = 0;
      if ( isForward ) { 
