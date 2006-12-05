@@ -3,10 +3,10 @@
 #include "L1Trigger/RPCTrigger/src/RPCTriggerCrate.h"
 
 //---------------------------------------------------------------------------
-RPCTriggerCrate::RPCTriggerCrate(RPCTCGhostBusterSorter* tcGhostBusterSorter,
-                                 RPCTriggerConfiguration* triggerConfig, 
-                                 int tcNum) {
-  m_TCGhostBusterSorter = tcGhostBusterSorter;
+RPCTriggerCrate::RPCTriggerCrate(RPCTriggerConfiguration* triggerConfig, int tcNum):
+  m_TCGhostBusterSorter(triggerConfig)
+{
+  //m_TCGhostBusterSorter = tcGhostBusterSorter;
   m_TriggerConfig = triggerConfig;
   m_WasMuon = false;
 
@@ -43,7 +43,7 @@ L1RpcTBMuonsVec RPCTriggerCrate::runTCGBSorter() {
 
   }
 
-  return m_TCGhostBusterSorter->run(tbMuonsVec2);
+  return m_TCGhostBusterSorter.run(tbMuonsVec2);
 }
 
 

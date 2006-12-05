@@ -14,7 +14,7 @@
 class RPCTCGhostBusterSorter {
 public:
   RPCTCGhostBusterSorter(RPCTriggerConfiguration* triggerConfig);
-
+  
   /** Peformes the Trigger Crate Ghost Buster and sorter algorithm -
     * in eta between TB of one TC.
     * Coverts muons etaAddr from 2bit tow num on TB (0-2 or 0-3)

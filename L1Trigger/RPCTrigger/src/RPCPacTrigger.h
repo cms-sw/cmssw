@@ -39,17 +39,7 @@ private:
 
   RPCFinalSorter m_FinalSorter;
 
-  /** One m_TCGhostBusterSorter, the same for every TC.
-    * (In hardware there is 12 TCGhostBusterSorters, one per each TC.
-    * TriggerCrates are constructed with pointer to this object. */
-  RPCTCGhostBusterSorter m_TCGhostBusterSorter;
-
-  /** One m_TBGhostBuster, the same for every TB.
-    * (In hardware thery is one per each TB.
-    * TB are constructed with pointer to this object. */
-  //RPCTBGhostBuster m_TBGhostBuster;
-
-//---------------------------------------
+  //---------------------------------------
 
   /** Muons found in each event. m_GBFinalMuons[be][iMU] be = 0 = barrel; be = 1 = endcaps,
     * 4 muons from barrel and 4 muons from endcaps, (some can be empty)*/

@@ -20,9 +20,7 @@
 //---------------------------------------------------------------------------
 class RPCTriggerCrate {
 public:
-  RPCTriggerCrate(RPCTCGhostBusterSorter* tcGhostBusterSorter, 
-                  RPCTriggerConfiguration* triggerConfig,
-                  int tcNum);
+  RPCTriggerCrate(RPCTriggerConfiguration* triggerConfig, int tcNum);
 
   /** Runs RPCTriggerBoard::runCone() for every TB. Cheks, if any non empty muons were found*/
   void runCone(const RPCLogCone& cone);
@@ -39,7 +37,7 @@ private:
 
   std::vector<RPCTriggerBoard> m_TBsVec; //!< Here TB belonging to thie TC are stored.
 
-  RPCTCGhostBusterSorter* m_TCGhostBusterSorter; //!< Should point to the object kept by RPCPacTrigger.
+  RPCTCGhostBusterSorter m_TCGhostBusterSorter;
 
   bool m_WasMuon;
 };
