@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date: 2006/11/16 16:55:12 $
- * $Revision: 1.12 $
+ * $Date: 2006/11/17 15:23:06 $
+ * $Revision: 1.13 $
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,7 +12,7 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.12 2006/11/16 16:55:12 ptc Exp $";
+static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.13 2006/11/17 15:23:06 ptc Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -299,8 +299,7 @@ void testCSCDigis::fillCSCCFEBStatusDigi(CSCCFEBStatusDigiCollection & collectio
            int aCfeb = i;
            CSCCFEBStatusDigi digi(aCfeb);
            digi.setL1AOverlap(1);
-           digi.setSCAFull(2);
-           digi.setFPGAFIFOFull(3);
+           digi.setSCAFullCond(0XB221);
            std::vector<uint16_t> crc(8,0); crc[0]=1;crc[7]=8;
            digi.setCRC(crc);
            std::vector<uint16_t> scac(8,0); scac[0]=11;scac[7]=18;
@@ -415,7 +414,7 @@ void testCSCDigis::readCSCComparatorDigi(CSCComparatorDigiCollection & collectio
       CPPUNIT_ASSERT((*digiIt).getComparator()==2);
       CPPUNIT_ASSERT((*digiIt).getStrip()==10);
       CPPUNIT_ASSERT((*digiIt).getTimeBin()==1); // time bin word=6 means bit 1 should be first!
-      printf("CSCComparatorDigi - endcap station ring csc layer strip comparator: %3d %3d %3d %3d %3d %3d %3d %3d\n",
+      printf("CSCComparatorDigi - endcap station ring csc layer strip comparator time: %3d %3d %3d %3d %3d %3d %3d %3d\n",
          id.endcap(),id.station(),id.ring(),id.chamber(),id.layer(),
 	     (*digiIt).getStrip(), (*digiIt).getComparator(), (*digiIt).getTimeBin());
       std::cout << " CSCComparatorDigi - time bins ON: ";
@@ -570,8 +569,11 @@ void testCSCDigis::readCSCCFEBStatusDigi(CSCCFEBStatusDigiCollection & collectio
            range.first; digiIt!=range.second; ++digiIt){
       cfebcount++;
       CPPUNIT_ASSERT((*digiIt).getCFEBNmb()==cfebcount);
-      printf("CSC CFEBStatus - endcap station ring csc cfeb L1Aoverlap SCACapFull FPGAFull: %3d %3d %3d %3d %3d %3d %3d %3d \n",id.endcap(),id.station(),id.ring(),id.chamber(),(*digiIt).getCFEBNmb(),(*digiIt).getL1AOverlap(),(*digiIt).getSCACapFull(),(*digiIt).getFPGAFIFOFull());
+      printf("CSC CFEBStatus - endcap station ring csc cfeb L1Aoverlap: %3d %3d %3d %3d %3d %3d \n",id.endcap(),id.station(),id.ring(),id.chamber(),(*digiIt).getCFEBNmb(),(*digiIt).getL1AOverlap());
 
+      std::cout<<"CSC CFEBStatus - SCA Full Condition:";
+      for(int i=0;i<4;i++) std::cout<<" "<<(*digiIt).getSCAFullCond()[i];
+      std::cout<<std::endl;
       std::cout<<"CSC CFEBStatus - CRC:";
       for(int i=0;i<8;i++) std::cout<<" "<<(*digiIt).getCRC()[i];
       std::cout<<std::endl;

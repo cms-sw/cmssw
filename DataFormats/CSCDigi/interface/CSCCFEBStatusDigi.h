@@ -5,8 +5,8 @@
  *
  * Digi for CSC CFEB status.
  *  
- *  $Date: 2006/09/06 14:04:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/17 17:45:11 $
+ *  $Revision: 1.2 $
  *
  * \author N. Terentiev, CMU
  *
@@ -29,11 +29,8 @@ public:
   void setL1AOverlap(int overlap) {L1AOverlap_ = overlap;}
                                 
             /// Set the word SCA Full condition
-  void setSCAFull(int scacapfull) {SCACapFull_ = scacapfull;}
+  void setSCAFullCond(int scafullcond) {SCAFullCond_ = scafullcond;}                                                
 
-            /// Set the word FPGA FIFO Full condition
-  void setFPGAFIFOFull(int fpgafifafull) { FPGAFIFOFull_ = fpgafifafull;}
-                                                
             /// Set CRC vector 
   void setCRC (std::vector<uint16_t> crc) {CRCWord_ = crc;}
 
@@ -46,11 +43,8 @@ public:
             /// Get the  L1A overlap bits word
   int getL1AOverlap() const {return L1AOverlap_;} 
 
-            /// Get the  SCA capacitors full condition (bits 8:0) 
-  int getSCACapFull() const {return SCACapFull_;}
-
-            /// Get the  FPGA FIFO full condition (bits 8:0)
-  int getFPGAFIFOFull() const {return FPGAFIFOFull_;}
+            /// Get SCA Full Condition 
+  std::vector<int> getSCAFullCond() const;
 
             /// Get CRC per each time sample
   std::vector<uint16_t> getCRC() const {return CRCWord_;}
@@ -83,8 +77,7 @@ private:
   
   uint16_t cfebnmb_;
   uint16_t L1AOverlap_;
-  uint16_t SCACapFull_;
-  uint16_t FPGAFIFOFull_;
+  uint16_t SCAFullCond_;
   std::vector<uint16_t> CRCWord_;
   std::vector<uint16_t> SCACWord_;
 };
@@ -92,8 +85,10 @@ private:
 #include<iostream>
             /// needed by COBRA
 inline std::ostream & operator<<(std::ostream & o, const CSCCFEBStatusDigi& digi) {
-  o << " " << digi.getCFEBNmb()<<" "<<digi.getL1AOverlap()<<" "
-           << digi.getSCACapFull()<<" "<<digi.getFPGAFIFOFull()<<"\n";
+  o << " " << digi.getCFEBNmb()<<" "<<digi.getL1AOverlap()<<"\n";
+  for (size_t i = 0; i<4; ++i ){
+        o <<" " <<(digi.getSCAFullCond())[i]; }
+  o <<"\n";
   for (size_t i = 0; i<digi.getCRC().size(); ++i ){
     o <<" " <<(digi.getCRC())[i]; }
   o<<"\n";

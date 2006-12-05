@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date:$
- *  $Revision:$
+ *  $Date: 2006/09/06 14:04:49 $
+ *  $Revision: 1.1 $
  *
  * \author N.Terentiev, CMU
  */
@@ -20,7 +20,18 @@ int CSCCFEBStatusDigi::ShiftSel(int nmb,int nshift,int nsel) const {
     tmp=tmp>>nshift;
     return tmp= tmp & nsel;
 }
-
+            /// Get SCA Full Condition
+std::vector<int> CSCCFEBStatusDigi::getSCAFullCond() const {
+    std::vector<int> vec(4,0);
+    vec[0]=ShiftSel(SCAFullCond_,0,15);  // 4-bit FIFO1 word count
+    vec[1]=ShiftSel(SCAFullCond_,4,15);  // 4-bit Block Number if Error Code=1
+                                         // (CFEB: SCA Capacitors Full)
+                                         // 4-bit FIFO3 word count if Error Code=2
+                                         // (CFEB: FPGA FIFO full)
+    vec[2]=ShiftSel(SCAFullCond_,9,7);   // Error Code
+    vec[3]=ShiftSel(SCAFullCond_,12,15); // DDU Code, should be 0xB
+    return vec;
+}
             /// Get TS_FLAG bit from SCA Controller data  per each time slice
 std::vector<int> CSCCFEBStatusDigi::getTS_FLAG() const {
     std::vector<int> vec(SCACWord_.size(),0);
@@ -89,8 +100,10 @@ std::vector<int> CSCCFEBStatusDigi::getTRIG_TIME() const {
 
             /// Debug
 void CSCCFEBStatusDigi::print() const {
-    cout << "CSC CFEB # : " << getCFEBNmb() <<" "<<getL1AOverlap()<<" "
-         << getSCACapFull()<<" "<<getFPGAFIFOFull()<<"\n";
+    cout << "CSC CFEB # : " << getCFEBNmb() <<" "<<getL1AOverlap()<<"\n";
+    for (size_t i = 0; i<4; ++i ){
+        cout <<" " <<(getSCAFullCond())[i]; }
+    cout<<"\n";
     for (size_t i = 0; i<getCRC().size(); ++i ){
         cout <<" " <<(getCRC())[i]; }
     cout<<"\n";
