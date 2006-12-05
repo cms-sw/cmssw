@@ -29,6 +29,12 @@ PixelBlade::PixelBlade(vector<const GeomDet*>& frontDets,
 
   //--------- DEBUG INFO --------------
   LogDebug("TkDetLayers") << "DEBUG INFO for PixelBlade" ;
+  LogDebug("TkDetLayers") << "Blade z, perp, innerRadius, outerR: " 
+			  << this->position().z() << " , "
+			  << this->position().perp() << " , "
+			  << theDiskSector->innerRadius() << " , "
+			  << theDiskSector->outerRadius() ;
+
   for(vector<const GeomDet*>::const_iterator it=theFrontDets.begin(); 
       it!=theFrontDets.end(); it++){
     LogDebug("TkDetLayers") << "frontDet phi,z,r: " 
