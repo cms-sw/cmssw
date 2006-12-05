@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.28 2006/11/16 20:44:44 wmtan Exp $
+ * $Id: AssociationMap.h,v 1.29 2006/11/21 16:06:00 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefVector.h"
@@ -19,7 +19,10 @@
 
 namespace edm {
   template<typename Tag>
-  struct AssociationMap {
+  class AssociationMap {
+    /// insert key type
+    typedef typename Tag::val_type internal_val_type;
+  public:
     /// self type
     typedef AssociationMap<Tag> self;
     /// index type
@@ -35,7 +38,7 @@ namespace edm {
     /// size type
     typedef typename map_type::size_type size_type;
     /// value type
-    typedef typename Tag::value_type value_type;
+    typedef helpers::KeyVal<key_type, internal_val_type> value_type;
     /// result type
     typedef typename value_type::value_type result_type;
     /// transient map type
@@ -78,6 +81,9 @@ namespace edm {
     /// insert an association
     void insert( const key_type & k, const data_type & v ) {
       Tag::insert( ref_, map_, k, v );
+    }
+    void insert( const value_type & kv ) {
+      Tag::insert( ref_, map_, kv.key, kv.val );
     }
     /// first iterator over the map (read only)
     const_iterator begin() const { return const_iterator( this, map_.begin() );  }

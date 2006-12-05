@@ -10,11 +10,11 @@ namespace edm {
   class OneToValue {
     /// reference to "key" collection
     typedef edm::RefProd<CKey> KeyRefProd;
-    /// values reference collection type
-    typedef Val val_type;
     /// internal map associated data
     typedef Val map_assoc;
   public:
+    /// values reference collection type
+    typedef Val val_type;
     /// insert key type
     typedef edm::Ref<CKey> key_type;
     /// insert val type
@@ -23,8 +23,6 @@ namespace edm {
     typedef index index_type;
     /// map type
     typedef std::map<index_type, map_assoc> map_type;
-    /// value type
-    typedef helpers::KeyVal<key_type, val_type> value_type;
     /// reference set type
     typedef helpers::Key<KeyRefProd> ref_type;
     /// insert in the map

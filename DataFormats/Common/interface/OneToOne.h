@@ -12,11 +12,11 @@ namespace edm {
     typedef edm::RefProd<CKey> KeyRefProd;
     /// reference to "value" collection
     typedef edm::RefProd<CVal> ValRefProd;
-    /// values reference collection type
-    typedef edm::Ref<CVal> val_type;
     /// internal map associated data
     typedef index map_assoc;
   public:
+    /// values reference collection type
+    typedef edm::Ref<CVal> val_type;
     /// insert key type
     typedef edm::Ref<CKey> key_type;
     /// insert val type
@@ -25,8 +25,6 @@ namespace edm {
     typedef index index_type;
     /// map type
     typedef std::map<index_type, map_assoc> map_type;
-    /// value type
-    typedef helpers::KeyVal<key_type, val_type> value_type;
     /// reference set type
     typedef helpers::KeyVal<KeyRefProd, ValRefProd> ref_type;
     /// insert in the map

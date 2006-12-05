@@ -1,4 +1,4 @@
-// $Id: testOneToOneAssociation.cc,v 1.12 2006/09/04 09:12:42 llista Exp $
+// $Id: testOneToOneAssociation.cc,v 1.13 2006/09/26 10:37:22 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -34,6 +34,7 @@ void  testOneToOneAssociation::dummy() {
   typedef edm::AssociationMap<edm::OneToOne<CKey, CVal, unsigned char> > Assoc;
   Assoc v;
   v.insert( edm::Ref<CKey>(), edm::Ref<CVal>() );
+  v.insert( Assoc::value_type( edm::Ref<CKey>(), edm::Ref<CVal>() ) );
   Assoc::const_iterator b = v.begin(), e = v.end();
   b++; e++;
   Assoc::const_iterator f = v.find( edm::Ref<CKey>() );

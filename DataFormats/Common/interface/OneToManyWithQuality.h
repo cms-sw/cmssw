@@ -16,12 +16,12 @@ namespace edm {
     typedef edm::RefProd<CKey> KeyRefProd;
     /// reference to "value" collection
     typedef edm::RefProd<CVal> ValRefProd;
-    /// values reference collection type
-    typedef std::vector<std::pair<edm::Ref<CVal>, Q> > val_type;
     /// internal map associated data
     typedef std::vector<std::pair<index, Q> > map_assoc;
 
   public:
+    /// values reference collection type
+    typedef std::vector<std::pair<edm::Ref<CVal>, Q> > val_type;
     /// insert key type
     typedef edm::Ref<CKey> key_type;
     /// insert val type
@@ -30,8 +30,6 @@ namespace edm {
     typedef index index_type;
     /// map type
     typedef std::map<index_type, map_assoc> map_type;
-    /// value type
-    typedef helpers::KeyVal<key_type, val_type> value_type;
     /// reference set type
     typedef helpers::KeyVal<KeyRefProd, ValRefProd> ref_type;
     /// insert in the map
@@ -48,6 +46,10 @@ namespace edm {
       helpers::checkRef( ref.key, k ); helpers::checkRef( ref.val, vref );
       index_type ik = index_type( k.key() ), iv = index_type( vref.key() );
       m[ ik ].push_back( std::make_pair( iv, v.second ) );
+    }
+    static void insert( ref_type & ref, map_type & m, const key_type & k, const val_type & v ) {
+      for( typename val_type::const_iterator i = v.begin(); i != v.end(); ++i )
+      insert( ref, m, k, * i );
     }
     /// return values collection
     static val_type val( const ref_type & ref, const map_assoc & iv ) {
