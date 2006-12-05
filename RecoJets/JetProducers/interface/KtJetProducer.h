@@ -12,7 +12,7 @@
  *
  * \version   1st Version Apr. 22, 2005  
  * \version   F.Ratnikov, Mar. 8, 2006. work from Candidate
- * $Id: KtJetProducer.h,v 1.7 2006/04/08 00:37:07 fedor Exp $
+ * $Id: KtJetProducer.h,v 1.8 2006/08/22 22:11:40 fedor Exp $
  *
  ************************************************************/
 
@@ -38,7 +38,7 @@ namespace cms
     /**Default destructor*/
     virtual ~KtJetProducer() {}
     /** run algorithm itself */
-    virtual bool runAlgorithm (const InputCollection& fInput, OutputCollection* fOutput);
+    virtual bool runAlgorithm (const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput);
 
   private:
     /** Reconstruction algorithm*/

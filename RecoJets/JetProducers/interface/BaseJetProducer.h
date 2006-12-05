@@ -7,7 +7,7 @@
  * It handles generic manipulations of input and output collections
  *
  * \author Fedor Ratnikov (UMd) Aug. 22, 2006
- * $Id: BaseJetProducer.h,v 1.7 2006/04/08 00:37:07 fedor Exp $
+ * $Id: BaseJetProducer.h,v 1.1 2006/08/22 22:11:40 fedor Exp $
  *
  ************************************************************/
 
@@ -18,18 +18,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
-
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
 
 namespace cms
 {
   class BaseJetProducer : public edm::EDProducer
   {
   public:
-
-    typedef std::vector <const reco::Candidate*> InputCollection;
-    typedef std::vector <ProtoJet> OutputCollection;
 
     BaseJetProducer(const edm::ParameterSet& ps);
 
@@ -44,7 +39,7 @@ namespace cms
 
     // abstract method to be set up in actual implementations
     /** run algorithm itself */
-    virtual bool runAlgorithm (const InputCollection& fInput, OutputCollection* fOutput) = 0;
+    virtual bool runAlgorithm (const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput) = 0;
 
   private:
     edm::InputTag src_;

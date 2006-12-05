@@ -3,11 +3,12 @@
 
 // Various simple tools
 // F.Ratnikov, UMd
-// $Id: JetAlgoHelper.h,v 1.2 2006/10/02 22:54:31 fedor Exp $
+// $Id: JetAlgoHelper.h,v 1.3 2006/11/17 16:18:04 tboccali Exp $
 
 #include<limits>
 #include <iostream>
 #include <cmath>
+
 
 template <class T>
 class GreaterByPt {
@@ -16,13 +17,23 @@ class GreaterByPt {
     return
       abs (a1.pt()-a2.pt()) > std::numeric_limits<double>::epsilon() ? a1.pt() > a2.pt() :
       abs (a1.px()-a2.px()) > std::numeric_limits<double>::epsilon() ? a1.px() > a2.px() :
-      abs (a1.py()-a2.py()) > std::numeric_limits<double>::epsilon() ? a1.py() > a2.py() :
       a1.pz() > a2.pz();
   }
   int operator()(const T* a1, const T* a2) {
     if (!a1) return 0;
     if (!a2) return 1;
     return operator () (*a1, *a2);
+  }
+};
+
+template <class T>
+class GreaterByPtRef {
+ public:
+  int operator()(const T& a1, const T& a2) {
+    if (!a1) return 0;
+    if (!a2) return 1;
+    GreaterByPt <typename T::value_type> comp;
+    return comp.operator () (*a1, *a2);
   }
 };
 
@@ -33,7 +44,6 @@ class GreaterByEt {
     return
       abs (a1.et()-a2.et()) > std::numeric_limits<double>::epsilon() ? a1.et() > a2.et() :
       abs (a1.px()-a2.px()) > std::numeric_limits<double>::epsilon() ? a1.px() > a2.px() :
-      abs (a1.py()-a2.py()) > std::numeric_limits<double>::epsilon() ? a1.py() > a2.py() :
       a1.pz() > a2.pz();
   }
   int operator()(const T* a1, const T* a2) {
@@ -42,6 +52,18 @@ class GreaterByEt {
     return operator () (*a1, *a2);
   }
 };
+
+template <class T>
+class GreaterByEtRef {
+ public:
+  int operator()(const T& a1, const T& a2) {
+    if (!a1) return 0;
+    if (!a2) return 1;
+    GreaterByEt <typename T::value_type> comp;
+    return comp.operator () (*a1, *a2);
+  }
+};
+
 
 template <class T> 
 T deltaphi (T phi1, T phi2) { 

@@ -17,22 +17,17 @@
  * \version   2nd Version Apr. 6, 2005  Modifications toward integration in new EDM.
  * \version   3rd Version Oct. 19, 2005 Modified to work with real CaloTowers from Jeremy Mans
  * \version   F.Ratnikov, Mar. 8, 2006. Work from Candidate
- * $Id: CMSMidpointAlgorithm.h,v 1.3 2006/03/08 20:30:29 fedor Exp $
+ * $Id: CMSMidpointAlgorithm.h,v 1.4 2006/05/09 20:32:31 fedor Exp $
  *
  ************************************************************/
 
 
-#include <vector>
-
-#include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
 
 class CMSMidpointAlgorithm 
 {
  public:
-  typedef std::vector <const reco::Candidate*> InputCollection;
   typedef std::vector<ProtoJet*> InternalCollection;
-  typedef std::vector<ProtoJet> OutputCollection;
 
   /// Default constructor which defines the default values of the algorithm parameters
   ///
@@ -87,34 +82,34 @@ class CMSMidpointAlgorithm
 
   /// Runs the algorithm and returns a list of caloJets. 
   /// The user declares the vector and calls this method.
-  void run(const InputCollection& fInput, OutputCollection* fOutput);
+  void run(const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput);
 
 
  private:
   /// Find the list of proto-jets from the seeds.  
   /// Called by run, but public method to allow testing and studies.
-  void findStableConesFromSeeds(const InputCollection& fInput, InternalCollection* fOutput);
+  void findStableConesFromSeeds(const JetReco::InputCollection& fInput, InternalCollection* fOutput);
 
   /// Iterate the proto-jet center until it is stable.  
   /// Called by findStableConesFromSeeds and findStableConesFromMidPoints but public method to allow testing and studies.
-  void iterateCone(const InputCollection& fInput,
+  void iterateCone(const JetReco::InputCollection& fInput,
 		   double startRapidity, double startPhi, double startPt, bool reduceConeSize, 
 		   InternalCollection* fOutput);
 
   /// Add to the list of proto-jets the list of midpoints.
   /// Called by run but public method to allow testing and studies.
-  void findStableConesFromMidPoints(const InputCollection& fInput, InternalCollection* fOutput);
+  void findStableConesFromMidPoints(const JetReco::InputCollection& fInput, InternalCollection* fOutput);
 
   /// Add proto-jets to pairs, triplets, etc, prior to finding their midpoints.
   /// Called by findStableConesFromMidPoints but public method to allow testing and studies.
-  void addClustersToPairs(const InputCollection& fInput,
+  void addClustersToPairs(const JetReco::InputCollection& fInput,
 			  std::vector<int>& testPair, std::vector<std::vector<int> >& pairs,
 			  std::vector<std::vector<bool> >& distanceOK, int maxClustersInPair);
 
   /// Split and merge the proto-jets, assigning each tower in the protojets to one and only one final jet.
   ///  Called by run but public method to allow testing and studies.
-  void splitAndMerge(const InputCollection& fInput,
-		     InternalCollection* fProtoJets, OutputCollection* fFinalJets);
+  void splitAndMerge(const JetReco::InputCollection& fInput,
+		     InternalCollection* fProtoJets, JetReco::OutputCollection* fFinalJets);
 
 
   double theSeedThreshold;

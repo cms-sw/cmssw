@@ -33,8 +33,8 @@ namespace cms
     virtual ~IterativeConeJetProducer() {}
 
     /** run algorithm itself */
-    virtual bool runAlgorithm (const InputCollection& fInput, 
-			       OutputCollection* fOutput);
+    virtual bool runAlgorithm (const JetReco::InputCollection& fInput, 
+			       JetReco::OutputCollection* fOutput);
 
   private:
     CMSIterativeConeAlgorithm alg_;

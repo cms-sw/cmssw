@@ -4,7 +4,7 @@
 // Creation Date:  MFP Apr. 6 2005 Initial version.
 // Revision:  R. Harris,  Oct. 19, 2005 Modified to use real CaloTowers from Jeremy Mans
 // Revisions:  F.Ratnikov, 8-Mar-2006, accommodate Candidate model
-// $Id: MidpointJetProducer.cc,v 1.15 2006/07/21 19:37:27 fedor Exp $
+// $Id: MidpointJetProducer.cc,v 1.16 2006/08/22 22:11:41 fedor Exp $
 //
 //--------------------------------------------
 #include <memory>
@@ -51,8 +51,8 @@ namespace cms
 
 
   // run algorithm itself
-  bool MidpointJetProducer::runAlgorithm (const InputCollection& fInput, 
-		     OutputCollection* fOutput) {
+  bool MidpointJetProducer::runAlgorithm (const JetReco::InputCollection& fInput, 
+		     JetReco::OutputCollection* fOutput) {
     alg_.run (fInput, fOutput);
     return true;
   }

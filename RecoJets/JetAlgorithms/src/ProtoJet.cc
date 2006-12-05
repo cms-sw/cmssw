@@ -24,12 +24,12 @@ namespace {
   };
 
   template <class T>
-   ProtoJet::LorentzVector calculateLorentzVectorRecombination(const ProtoJet::Candidates& fConstituents) {
+   ProtoJet::LorentzVector calculateLorentzVectorRecombination(const ProtoJet::Constituents& fConstituents) {
     T weightMaker;
     ProtoJet::LorentzVector result (0,0,0,0);
     double weights = 0;
-    for(ProtoJet::Candidates::const_iterator i = fConstituents.begin(); i !=  fConstituents.end(); ++i) {
-      const reco::Candidate* c = *i;
+    for(ProtoJet::Constituents::const_iterator i = fConstituents.begin(); i !=  fConstituents.end(); ++i) {
+      const ProtoJet::Constituent c = *i;
       double weight = weightMaker.weight (*c);
       result += c->p4() * weight;
       weights += weight;
@@ -40,21 +40,21 @@ namespace {
 
 }
 
-ProtoJet::ProtoJet(const Candidates& fConstituents) 
+ProtoJet::ProtoJet(const Constituents& fConstituents) 
   : mConstituents (fConstituents)
 {
   calculateLorentzVector(); 
 }//end of constructor
 
-void ProtoJet::putTowers(const Candidates& towers) {
+void ProtoJet::putTowers(const Constituents& towers) {
   mConstituents = towers; 
   calculateLorentzVector();
 }
 
 void ProtoJet::calculateLorentzVectorERecombination() {
   mP4 = LorentzVector (0,0,0,0);
-  for(Candidates::const_iterator i = mConstituents.begin(); i !=  mConstituents.end(); ++i) {
-    const reco::Candidate* c = *i;
+  for(Constituents::const_iterator i = mConstituents.begin(); i !=  mConstituents.end(); ++i) {
+    const Constituent c = *i;
     mP4 += c->p4();
   } //end of loop over the jet constituents
 }

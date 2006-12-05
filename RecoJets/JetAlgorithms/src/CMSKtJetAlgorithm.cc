@@ -8,6 +8,7 @@
 
 using namespace std;
 using namespace reco;
+using namespace JetReco;
 
 /** Implemented by Fernando Varela Rodriguez
 
@@ -83,7 +84,7 @@ void CMSKtJetAlgorithm::run (const InputCollection& fInput, OutputCollection* fO
   std::vector<KtJet::KtLorentzVector> ktInput;
   int index = 0;
   for (; index < (int)fInput.size (); index++) {
-    const Candidate* constituent = fInput [index];
+    InputItem constituent = fInput [index];
     if (constituent->energy() >= theKtJetECut) {
       ktInput.push_back (KtJet::KtLorentzVector (constituent->px (), constituent->py (), 
 						 constituent->pz (), constituent->energy ()));
@@ -115,7 +116,7 @@ void CMSKtJetAlgorithm::run (const InputCollection& fInput, OutputCollection* fO
                                                           itr != jets.end(); 
 							  ++itr){	
     //For each of the jets get its final constituents:
-    std::vector<const Candidate*> protoJetConstituents;
+    std::vector<InputItem> protoJetConstituents;
     const std::vector<const KtJet::KtLorentzVector*>* constituents = &(itr->getConstituents());
     //Loop over all input constituents and try to find them as jet final constituents
     int constit = constituents->size ();

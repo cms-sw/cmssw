@@ -1,13 +1,15 @@
 // Original author: A. Ulyanov
-// $Id$
+// $Id: CMSIterativeConeAlgorithm.cc,v 1.4 2006/06/06 22:08:54 fedor Exp $
+
+#include "RecoJets/JetAlgorithms/interface/CMSIterativeConeAlgorithm.h"
 
 #include <list>
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
-#include "RecoJets/JetAlgorithms/interface/CMSIterativeConeAlgorithm.h"
 using namespace std;
 using namespace reco;
+using namespace JetReco;
 
 
 
@@ -17,15 +19,15 @@ void CMSIterativeConeAlgorithm::run(const InputCollection& fInput, OutputCollect
   if (!fOutput) return;
 
   //make a list of input objects ordered by ET
-  list<const Candidate*> input;
+  list<InputItem> input;
   for (InputCollection::const_iterator towerIter = fInput.begin();
        towerIter != fInput.end(); ++towerIter) {
-    const Candidate* tower = *towerIter; 
+    InputItem tower = *towerIter; 
     if(tower->et() > theTowerThreshold){
       input.push_back(tower);
     }
   }   
-  GreaterByEt <Candidate> compCandidate;
+  GreaterByEtRef <InputItem> compCandidate;
   input.sort(compCandidate);
 
   //find jets
@@ -38,15 +40,15 @@ void CMSIterativeConeAlgorithm::run(const InputCollection& fInput, OutputCollect
     double phi=0;
     double et=0;
     //list of towers in cone
-    list< list<const Candidate*>::iterator> cone;
+    list< list<InputItem>::iterator> cone;
     for(int iteration=0;iteration<100;iteration++){
       cone.clear();
       eta=0;
       phi=0;
       et=0;
-      for(list<const Candidate*>::iterator inp=input.begin();
+      for(list<InputItem>::iterator inp=input.begin();
 	  inp!=input.end();inp++){
-	const Candidate* tower = *inp;	
+	InputItem tower = *inp;	
 	if( deltaR2(eta0,phi0,tower->eta(),tower->phi()) < 
 	    theConeRadius*theConeRadius) {
           cone.push_back(inp);
@@ -69,8 +71,8 @@ void CMSIterativeConeAlgorithm::run(const InputCollection& fInput, OutputCollect
     }
 
     //make a final jet and remove the jet constituents from the input list 
-    vector<const Candidate*> jetConstituents;     
-    list< list<const Candidate*>::iterator>::const_iterator inp;
+    vector<InputItem> jetConstituents;     
+    list< list<InputItem>::iterator>::const_iterator inp;
     for(inp=cone.begin();inp!=cone.end();inp++)  {
       jetConstituents.push_back(**inp);
       input.erase(*inp);

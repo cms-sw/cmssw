@@ -21,21 +21,15 @@
  * \version   1st Version April 22, 2005.
  * \version   R. Harris, October 19, 2005 modified to use real CaloTowers
  * \version   F.Ratnikov, Mar. 8, 2006. Correct bug, work from Candidate
- * $Id$
+ * $Id: CMSKtJetAlgorithm.h,v 1.6 2006/03/08 20:30:29 fedor Exp $
  *
  ************************************************************/
  
-#include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-
-#include <vector>
+#include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
  
 class CMSKtJetAlgorithm
 {
 public:
-  typedef std::vector <const reco::Candidate*> InputCollection;
-  typedef std::vector<ProtoJet> OutputCollection;
-
   /** Default constructor    */
   CMSKtJetAlgorithm();
 
@@ -63,7 +57,7 @@ public:
   \param fInput Input collection of Candidates. Energy threshold cut will be applied.
   \param fOutput Output collection of ProtoJets. 
   */
-  void run (const InputCollection& fInput, OutputCollection* fOutput);
+  void run (const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput);
   
   /** setKtJetAngle: Sets the Angular schema
   \param aKtJetAngle Controls the angular defintions of the variables d_kB and d_kl.

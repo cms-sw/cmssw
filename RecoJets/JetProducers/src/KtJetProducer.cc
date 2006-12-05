@@ -4,7 +4,7 @@
 // Creation Date:  Apr. 22 2005 Initial version.
 // Revisions:  R. Harris, 19-Oct-2005, modified to use real CaloTowers from Jeremy Mans
 // Revisions:  F.Ratnikov, 8-Mar-2006, accommodate Candidate model
-// $Id: KtJetProducer.cc,v 1.16 2006/07/21 19:37:27 fedor Exp $
+// $Id: KtJetProducer.cc,v 1.17 2006/08/22 22:11:41 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -44,8 +44,8 @@ namespace cms
   }
 
   // run algorithm itself
-  bool KtJetProducer::runAlgorithm (const InputCollection& fInput, 
-		     OutputCollection* fOutput) {
+  bool KtJetProducer::runAlgorithm (const JetReco::InputCollection& fInput, 
+		     JetReco::OutputCollection* fOutput) {
     alg_.run (fInput, fOutput);
     return true;
   }

@@ -8,20 +8,16 @@
  * Documented in CMS NOTE-2006/036
  *
  * \author A.Ulyanov, ITEP
- * $Id$
+ * $Id: CMSIterativeConeAlgorithm.h,v 1.3 2006/05/23 01:14:33 fedor Exp $
  ************************************************************/
 
 
 #include <vector>
 
-#include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
 
 class CMSIterativeConeAlgorithm{
  public:
-  typedef std::vector <const reco::Candidate*> InputCollection;
-  typedef std::vector<ProtoJet> OutputCollection;
-
   /** Constructor
   \param seed defines the minimum ET in GeV of a tower that can seed a jet.
   \param radius defines the maximum radius of a jet in eta-phi space.
@@ -34,7 +30,7 @@ class CMSIterativeConeAlgorithm{
     { }
 
   /// Find the ProtoJets from the collection of input Candidates.
-  void run(const InputCollection& fInput, OutputCollection* fOutput);
+  void run(const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput);
 
  private:
 

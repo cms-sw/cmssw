@@ -15,24 +15,26 @@
 *
  ************************************************************/
 
-#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 #include <vector>
 #include <string>
 
 class ProtoJet {
 public:
+  typedef reco::CandidateRef Constituent;
+  typedef std::vector <Constituent> Constituents;
+
   typedef math::XYZTLorentzVector LorentzVector;
-  typedef std::vector <const reco::Candidate*> Candidates;
   /** Default Constructor */
   ProtoJet() {};
 
   //**Constructor. Runs off an array of CaloTower* */
-  ProtoJet(const Candidates& theConstituents);
+  ProtoJet(const Constituents& theConstituents);
 
  //**Full Constructor */
-    ProtoJet(const LorentzVector& fP4, const Candidates& fConstituents) : mP4 (fP4), mConstituents (fConstituents) {}
+    ProtoJet(const LorentzVector& fP4, const Constituents& fConstituents) : mP4 (fP4), mConstituents (fConstituents) {}
 
   /**  Destructor*/
   ~ProtoJet() {}
@@ -74,10 +76,10 @@ public:
   
   
   /** Returns the list of tower in a particular protojet */
-  const Candidates& getTowerList() const {return mConstituents;} 
+  const Constituents& getTowerList() const {return mConstituents;} 
   
   /** Sets the list of towers in a protojet */
-  void putTowers(const Candidates& towers);
+  void putTowers(const Constituents& towers);
 
   /** Make kinematics from constituents */
   void calculateLorentzVector() {calculateLorentzVectorERecombination();}
@@ -91,7 +93,7 @@ private:
   /** Jet kinematics */
   LorentzVector mP4;
   /** Jet constituents */
-  Candidates mConstituents;
+  Constituents mConstituents;
 };
 
 #endif

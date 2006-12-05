@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.12 2006/07/21 19:26:03 fedor Exp $
+/// $Id: JetMaker.cc,v 1.13 2006/11/01 10:33:30 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -154,11 +154,11 @@ BasicJet JetMaker::makeBasicJet (const ProtoJet& fProtojet) const {
 
 CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet) const {
   // construct towerIds
-  const ProtoJet::Candidates* towers = &fProtojet.getTowerList();
+  const ProtoJet::Constituents* towers = &fProtojet.getTowerList();
   std::vector<CaloTowerDetId> towerIds;
   towerIds.reserve (towers->size ());
   const CaloTowerCollection* towerCollection = 0;
-  ProtoJet::Candidates::const_iterator tower = towers->begin ();
+  ProtoJet::Constituents::const_iterator tower = towers->begin ();
   for (; tower != towers->end (); tower++) {
     edm::Ref<CaloTowerCollection> towerRef = (*tower)->get<CaloTowerRef>();
     if (towerRef.isNonnull ()) { // valid
@@ -186,13 +186,13 @@ CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet) const {
 }
 
 GenJet JetMaker::makeGenJet (const ProtoJet& fProtojet) const {
-  const ProtoJet::Candidates* towers = &fProtojet.getTowerList();
+  const ProtoJet::Constituents* towers = &fProtojet.getTowerList();
   // construct MC barcodes
   std::vector<const HepMC::GenParticle*> mcParticles;
   mcParticles.reserve (towers->size ());
   std::vector<int> barcodes;
   barcodes.reserve (towers->size ());
-  ProtoJet::Candidates::const_iterator mcCandidate = towers->begin ();
+  ProtoJet::Constituents::const_iterator mcCandidate = towers->begin ();
   for (; mcCandidate != towers->end (); mcCandidate++) {
    HepMCCandidate::GenParticleRef genParticle = 
     (*mcCandidate)->get<HepMCCandidate::GenParticleRef>();

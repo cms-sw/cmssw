@@ -39,10 +39,11 @@
 
 using namespace std;
 using namespace reco;
+using namespace JetReco;
 
 // helping stuff
 namespace {
-  bool sameTower (const Candidate* c1, const Candidate* c2) {
+  bool sameTower (InputItem c1, InputItem c2) {
     return c1 == c2;
   }
 
@@ -55,12 +56,12 @@ namespace {
   }
 
   
-  std::vector<const Candidate*> towersWithinCone(const CMSMidpointAlgorithm::InputCollection& fInput, double coneEta, double conePhi, double coneRadius, double etThreshold){
-    std::vector<const Candidate*> result;
-    CMSMidpointAlgorithm::InputCollection::const_iterator towerIter = fInput.begin();
-    CMSMidpointAlgorithm::InputCollection::const_iterator towerIterEnd = fInput.end();
+  std::vector<InputItem> towersWithinCone(const InputCollection& fInput, double coneEta, double conePhi, double coneRadius, double etThreshold){
+    std::vector<InputItem> result;
+    InputCollection::const_iterator towerIter = fInput.begin();
+    InputCollection::const_iterator towerIterEnd = fInput.end();
     for (;towerIter != towerIterEnd; ++towerIter) {
-      const Candidate* caloTowerPointer = *towerIter;
+      InputItem caloTowerPointer = *towerIter;
       if(caloTowerPointer->et() > etThreshold){
 	double dR = deltaR (coneEta, conePhi, caloTowerPointer->eta(), caloTowerPointer->phi());
 	if(dR < coneRadius){
@@ -72,17 +73,17 @@ namespace {
   }
   
   // etOrderedCaloTowers returns an Et order list of pointers to CaloTowers with Et>etTreshold
-  std::vector<const Candidate*> etOrderedCaloTowers(const CMSMidpointAlgorithm::InputCollection& fInput, double etThreshold) {
-    std::vector<const Candidate*> result;
-    CMSMidpointAlgorithm::InputCollection::const_iterator towerIter = fInput.begin();
-    CMSMidpointAlgorithm::InputCollection::const_iterator towerIterEnd = fInput.end();
+  std::vector<InputItem> etOrderedCaloTowers(const InputCollection& fInput, double etThreshold) {
+    std::vector<InputItem> result;
+    InputCollection::const_iterator towerIter = fInput.begin();
+    InputCollection::const_iterator towerIterEnd = fInput.end();
     for (;towerIter != towerIterEnd; ++towerIter) {
-      const Candidate* caloTowerPointer = *towerIter;
+      InputItem caloTowerPointer = *towerIter;
       if(caloTowerPointer->et() > etThreshold){
 	result.push_back(caloTowerPointer);
       }
     }   
-    GreaterByEt <Candidate> compCandidate;
+    GreaterByEtRef <InputItem> compCandidate;
     sort (result.begin(), result.end(), compCandidate);
     return result;
   }
@@ -140,10 +141,10 @@ void CMSMidpointAlgorithm::findStableConesFromSeeds(const InputCollection& fInpu
   bool reduceConeSize = true;  
   
   // Get the Seed Towers sorted by Et.  
-  vector<const Candidate*> seedTowers = etOrderedCaloTowers(fInput, theSeedThreshold);  //This gets towers
+  vector<InputItem> seedTowers = etOrderedCaloTowers(fInput, theSeedThreshold);  //This gets towers
 
   // Loop over all Seeds
-  for(vector<const Candidate*>::const_iterator i = seedTowers.begin(); i != seedTowers.end(); ++i) {
+  for(vector<InputItem>::const_iterator i = seedTowers.begin(); i != seedTowers.end(); ++i) {
     double seedEta = (*i)->eta ();
     double seedPhi = (*i)->phi (); 
 
@@ -180,7 +181,7 @@ void CMSMidpointAlgorithm::iterateCone(const InputCollection& fInput,
     if(nIterations == theMaxIterations + 1)iterationtheConeRadius = theConeRadius;
     
     //Add all towers in cone and over threshold to the cluster
-    vector<const Candidate*> towersInSeedCluster 
+    vector<InputItem> towersInSeedCluster 
       = towersWithinCone(fInput, startRapidity, startPhi, iterationtheConeRadius, theTowerThreshold);
     if(theDebugLevel>=2)cout << "[CMSMidpointAlgorithm] iter=" << nIterations << ", towers=" <<towersInSeedCluster.size();    
     
@@ -211,8 +212,8 @@ void CMSMidpointAlgorithm::iterateCone(const InputCollection& fInput,
 	}
       }	
       if(nIterations==theMaxIterations+1) {
-	for(vector<const Candidate*>::const_iterator i = towersInSeedCluster.begin(); i != towersInSeedCluster.end(); ++i) {
-	  const Candidate* t = *i;
+	for(vector<InputItem>::const_iterator i = towersInSeedCluster.begin(); i != towersInSeedCluster.end(); ++i) {
+	  InputItem t = *i;
 	  if(theDebugLevel>=2) cout << "[CMSMidpointAlgorithm] Tower " <<
 				 i-towersInSeedCluster.begin() << ": eta=" << t->eta() << 
 				 ", phi=" << t->phi() << ", ET="  << t->et() << endl;
@@ -331,7 +332,7 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	   << ", y="<< icone->y()
 	   << ", phi="<< icone->phi()  
 	   << ", ntow="<< numTowers << endl;
-      vector<const Candidate*> protojetTowers = icone->getTowerList(); 
+      vector<InputItem> protojetTowers = icone->getTowerList(); 
       for(int j = 0; j < numTowers; ++j){
 	cout << "[CMSMidpointAlgorithm] Tower " << j << ": ET=" << protojetTowers[j]->et() 
 	     << ", eta="<< protojetTowers[j]->eta()
@@ -378,12 +379,12 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	
 	// Calculate overlap of the two cones.
 	bool overlap = false;
-	vector<const Candidate*> overlapTowers;  // Make a list to hold the overlap towers
+	vector<InputItem> overlapTowers;  // Make a list to hold the overlap towers
 	//cout << "1st cone num towers=" << stableCone1->getTowerList().size() << endl;
 	//int numTowers1=0;
 	
 	//Loop over towers in higher Pt cone
-	for(vector<const Candidate*>::const_iterator towerIter1 = stableCone1->getTowerList().begin();
+	for(vector<InputItem>::const_iterator towerIter1 = stableCone1->getTowerList().begin();
 	    towerIter1 != stableCone1->getTowerList().end();
 	    ++towerIter1){
 	  //cout << "1st cone tower " << numTowers1 << endl;
@@ -393,7 +394,7 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	  //int numTowers2=0;
 	  
 	  // Loop over towers in lower Pt cone
-	  for(vector<const Candidate*>::const_iterator towerIter2 = stableCone2->getTowerList().begin();
+	  for(vector<InputItem>::const_iterator towerIter2 = stableCone2->getTowerList().begin();
 	      towerIter2 != stableCone2->getTowerList().end();
 	      ++towerIter2) {
 	    //cout << "2st cone tower " << numTowers2 << endl;
@@ -425,16 +426,16 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	    
 	    // Merge the two cones.
 	    // Get a copy of the list of towers in higher Pt proto-jet 
-	    vector<const Candidate*> stableCone1Towers = stableCone1->getTowerList(); 
+	    vector<InputItem> stableCone1Towers = stableCone1->getTowerList(); 
 	    
 	    //Loop over the list of towers lower Pt jet
-	    for(vector<const Candidate*>::const_iterator towerIter2 = stableCone2->getTowerList().begin();
+	    for(vector<InputItem>::const_iterator towerIter2 = stableCone2->getTowerList().begin();
 		towerIter2 != stableCone2->getTowerList().end();
 		++towerIter2){
 	      bool isInOverlap = false;
 	      
 	      //Check if that tower is in the overlap region
-	      for(vector<const Candidate*>::iterator overlapTowerIter = overlapTowers.begin();
+	      for(vector<InputItem>::iterator overlapTowerIter = overlapTowers.begin();
 		  overlapTowerIter != overlapTowers.end();
 		  ++overlapTowerIter){
 		// Check if towers are the same by checking for unique eta, phi and energy values.
@@ -470,11 +471,11 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	    // Split the two proto-jets.
 	    
 	    // Create lists of towers to remove from each proto-jet
-	    vector<const Candidate*> removeFromCone1,removeFromCone2;
+	    vector<InputItem> removeFromCone1,removeFromCone2;
 	    
 	    // Which tower goes where?
 	    // Loop over the overlap towers
-	    for(vector<const Candidate*>::iterator towerIter = overlapTowers.begin();
+	    for(vector<InputItem>::iterator towerIter = overlapTowers.begin();
 		towerIter != overlapTowers.end();
 		++towerIter){
 	      double dRJet1 = deltaR ((*towerIter)->p4().Rapidity(), (*towerIter)->phi(), 
@@ -495,14 +496,14 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	    // Remove towers in the overlap region from the cones to which they have the larger distance.
 	    
 	    // Remove towers from proto-jet 1.
-	    vector<const Candidate*> towerList1 = stableCone1->getTowerList(); 
+	    vector<InputItem> towerList1 = stableCone1->getTowerList(); 
 	    
 	    // Loop over towers in remove list
-	    for(vector<const Candidate*>::iterator towerIter = removeFromCone1.begin();
+	    for(vector<InputItem>::iterator towerIter = removeFromCone1.begin();
 		towerIter != removeFromCone1.end();
 		++towerIter) {
 	      // Loop over towers in protojet
-	      for(vector<const Candidate*>::iterator towerIter1 = towerList1.begin(); towerIter1 != towerList1.end(); ++towerIter1) {
+	      for(vector<InputItem>::iterator towerIter1 = towerList1.begin(); towerIter1 != towerList1.end(); ++towerIter1) {
 		
 		// Check if they are equal
 		if(sameTower(*towerIter, *towerIter1)) {
@@ -522,14 +523,14 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	    //Put the new reduced list of towers into proto-jet 1.
 	    stableCone1->putTowers(towerList1); 
 	    // Remove towers from cone 2.
-	    vector<const Candidate*> towerList2 = stableCone2->getTowerList(); 
+	    vector<InputItem> towerList2 = stableCone2->getTowerList(); 
 	    
 	    // Loop over towers in remove list
-	    for(vector<const Candidate*>::iterator towerIter = removeFromCone2.begin();
+	    for(vector<InputItem>::iterator towerIter = removeFromCone2.begin();
 		towerIter != removeFromCone2.end();
 		++towerIter) {
 	      // Loop over towers in protojet
-	      for(vector<const Candidate*>::iterator towerIter2 = towerList2.begin(); towerIter2 != towerList2.end(); ++towerIter2){
+	      for(vector<InputItem>::iterator towerIter2 = towerList2.begin(); towerIter2 != towerList2.end(); ++towerIter2){
 		// Check if they are equal
 		if(sameTower(*towerIter, *towerIter2)) {
 		  // Remove the tower

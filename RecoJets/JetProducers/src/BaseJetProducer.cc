@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.3 2006/11/11 14:27:40 oehler Exp $
+// $Id: BaseJetProducer.cc,v 1.4 2006/11/11 14:31:46 oehler Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -16,6 +16,7 @@
 
 using namespace std;
 using namespace reco;
+using namespace JetReco;
 
 namespace {
   const bool debug = false;
@@ -56,13 +57,12 @@ namespace cms
     // get input
     edm::Handle<CandidateCollection> inputs;
     e.getByLabel( src_, inputs );                    
-    vector <const Candidate*> input;
+    InputCollection input;
     vector <ProtoJet> output;
     // fill input
     input.reserve (inputs->size ());
-    CandidateCollection::const_iterator input_object = inputs->begin ();
-    for (; input_object != inputs->end (); input_object++) {
-      input.push_back (&*input_object); 
+    for (unsigned i = 0; i < inputs->size (); i++) {
+      input.push_back (InputItem (inputs, i));
     }
     // run algorithm
     runAlgorithm (input, &output);

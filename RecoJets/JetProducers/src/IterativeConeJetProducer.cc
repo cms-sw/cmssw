@@ -34,8 +34,8 @@ namespace cms {
   }
 
   // run algorithm itself
-  bool IterativeConeJetProducer::runAlgorithm (const InputCollection& fInput, 
-		     OutputCollection* fOutput) {
+  bool IterativeConeJetProducer::runAlgorithm (const JetReco::InputCollection& fInput, 
+		     JetReco::OutputCollection* fOutput) {
     alg_.run (fInput, fOutput);
     return true;
   }
