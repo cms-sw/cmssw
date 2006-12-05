@@ -1,12 +1,10 @@
 // -*-c++-*-
-// $Id: HLTPerformanceInfo.h,v 1.1 2006/11/29 16:12:09 wittich Exp $
+// $Id: HLTPerformanceInfo.h,v 1.2 2006/12/04 15:08:23 wittich Exp $
 #ifndef HLTPERFORMANCEINFO_H
 #define HLTPERFORMANCEINFO_H
 
-//#include <list>
 #include <string>
 #include <vector>
-//#include <iostream>
 
 #include "boost/iterator/transform_iterator.hpp"
 
@@ -23,6 +21,9 @@ class HLTPerformanceInfo
   typedef std::vector<Module> Modules;
   typedef std::vector<size_t> ModulesInPath;
   HLTPerformanceInfo();
+  // need to make a copy constructor due to 
+  HLTPerformanceInfo(const HLTPerformanceInfo & rhs);
+  HLTPerformanceInfo & operator=(const HLTPerformanceInfo & rhs);
   ~HLTPerformanceInfo() {}
 
   ///////////////////////////////////////////////////
@@ -30,6 +31,7 @@ class HLTPerformanceInfo
   private:
     std::string name_; // module instance name
     double dt_;
+    // I am using this even for modules....
     edm::HLTPathStatus status_;
   public:
   Module() 
@@ -49,7 +51,7 @@ class HLTPerformanceInfo
     }
     void clear() {
       dt_ = 0;
-      status_ = edm::hlt::Ready;
+      status_.reset();// = edm::hlt::Ready;
     }
   };
   ///////////////////////////////////////////////////
@@ -118,6 +120,11 @@ class HLTPerformanceInfo
     void addModuleRef( size_t m) {
       moduleView_.push_back(m);
     }
+
+    const_iterator lastModuleByStatus() const;
+    const char* lastModuleByStatusName() const;
+
+    size_t numberOfModules() const { return moduleView_.size(); };
     
   };
   ///////////////////////////////////////////////////
@@ -144,10 +151,10 @@ class HLTPerformanceInfo
   Modules::const_iterator findModule(const char* moduleInstanceName) ;
   PathList::const_iterator findPath(const char* pathName) ;
  
-  size_t numberOfPaths() {
+  size_t numberOfPaths() const {
     return paths_.size();
   }
-  size_t numberOfModules() {
+  size_t numberOfModules() const {
     return modules_.size();
   }
 

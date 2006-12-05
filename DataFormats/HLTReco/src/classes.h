@@ -57,6 +57,6 @@ namespace {
     std::vector<HLTPerformanceInfo::Path> pw10;
     std::vector<HLTPerformanceInfo::Path>::const_iterator pw11;
     HLTPerformanceInfo::Path::Adapter pw12;
-
+    HLTPerformanceInfo::Path::const_iterator pw13;
   }
 }

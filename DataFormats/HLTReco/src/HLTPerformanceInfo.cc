@@ -1,4 +1,4 @@
-// $Id: HLTPerformanceInfo.cc,v 1.1 2006/11/29 16:12:09 wittich Exp $
+// $Id: HLTPerformanceInfo.cc,v 1.2 2006/12/04 15:08:24 wittich Exp $
 #include <functional>
 #include <algorithm>
 #include <numeric>
@@ -46,8 +46,10 @@ HLTPerformanceInfo::HLTPerformanceInfo()
 double HLTPerformanceInfo::Path::time() const
 {
   double t = 0;
-  for ( HLTPerformanceInfo::Path::const_iterator j = this->begin();
-	j != this->end(); ++j ) {
+  // we only want to add those up to the last one run.
+  HLTPerformanceInfo::Path::const_iterator j = this->begin();
+  HLTPerformanceInfo::Path::const_iterator last_run = j + status_.index();
+  for ( ; j != last_run; ++j ) {
     t += j->time();
   }
   return t;
@@ -77,26 +79,12 @@ void HLTPerformanceInfo::addPath(Path & p )
   paths_.push_back(p);
 }
 
-// class ugh {
-//   HLTPerformanceInfo::* s_;
-//   double operator()(double t, HLTPerformanceInfo::Module & a) {
-//     t += (p.*s)();
-//   }
-// }
-
-
 double HLTPerformanceInfo::totalTime() const
 {
   double t = 0;
   t = std::accumulate(beginModules(), endModules(), 0.,
 		      BinaryOpMemFun<HLTPerformanceInfo::Module, double,
 		      std::plus<double> >(&HLTPerformanceInfo::Module::time));
-//   double testt = t;
-//   for ( Modules::const_iterator i = beginModules();
-//         i != endModules(); ++i ) {
-//     t += i->time();
-//   }
-//   assert(std::abs(t-testt)<0.001);
   return t;
 }
 
@@ -112,12 +100,7 @@ HLTPerformanceInfo::findPath(const char* pathName)
 {
   PathList::const_iterator l = std::find(paths_.begin(), paths_.end(),
 					 pathName);
-  if ( l != endPaths() ) {
-    return l;
-  }
-  else {
-    return endPaths();
-  }
+  return l; 
 }
 
 
@@ -137,9 +120,10 @@ double HLTPerformanceInfo::Path::lastModuleTime() const
 double HLTPerformanceInfo::longestModuleTime() const
 {
   double t = -1;
+  // not sure why this does not work - I guess cuz max isn't a functor?
 //   t = std::accumulate(beginModules(), endModules(), -99, 
 // 		      BinaryOpMemFun<HLTPerformanceInfo::Module, double,
-// 		      std::max >(&HLTPerformanceInfo::Module::time));
+// 		      &std::max >(&HLTPerformanceInfo::Module::time));
   for ( Modules::const_iterator i = beginModules();
         i != endModules(); ++i ) {
     t = std::max(i->time(),t);
@@ -159,4 +143,52 @@ const char* HLTPerformanceInfo::longestModuleTimeName() const
     }
   }
   return slowpoke.c_str();
+}
+
+
+HLTPerformanceInfo::Path::const_iterator 
+HLTPerformanceInfo::Path::lastModuleByStatus() const
+{
+  const_iterator a = this->begin();
+  assert(status_.index()<moduleView_.size());
+  a += status_.index();
+  return a;
+  
+}
+
+
+const char*
+HLTPerformanceInfo::Path::lastModuleByStatusName() const
+{
+  const_iterator a = this->begin();
+  assert(status_.index()<moduleView_.size());
+  a += status_.index();
+  return a->name().c_str();
+  
+}
+
+
+// copy constructor. Need this for the pointer from the
+// paths back to the module list.
+HLTPerformanceInfo::HLTPerformanceInfo(const HLTPerformanceInfo & rhs )
+{
+  modules_ = rhs.modules_;
+  paths_ = rhs.paths_;
+
+  for (PathList::iterator a = paths_.begin(); a != paths_.end(); ++a ) {
+    a->setModules_(&modules_);
+  }
+}
+
+// assignment operator. Needed, for same reason as copy constructor.
+HLTPerformanceInfo & HLTPerformanceInfo::operator=(const 
+						   HLTPerformanceInfo & rhs )
+{
+  modules_ = rhs.modules_;
+  paths_ = rhs.paths_;
+
+  for (PathList::iterator a = paths_.begin(); a != paths_.end(); ++a ) {
+    a->setModules_(&modules_);
+  }
+  return *this;
 }

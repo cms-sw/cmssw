@@ -48,10 +48,11 @@
   <class name="std::vector<HLTPerformanceInfo::Module>::const_iterator"/>
 
   <class name="HLTPerformanceInfo::Path"/>
-  <class name="HLTPerformanceInfo::Path::const_iterator"/>
-  <class name="HLTPerformanceInfo::Path::Adapter"/>
   <class name="std::vector<HLTPerformanceInfo::Path>"/>
   <class name="std::vector<HLTPerformanceInfo::Path>::const_iterator"/>
+
+  <class name="HLTPerformanceInfo::Path::Adapter"/>
+  <class name="boost::transform_iterator<HLTPerformanceInfo::Path::Adapter,__gnu_cxx::__normal_iterator<const unsigned int*,std::vector<unsigned int> >,boost::use_default,boost::use_default>" />
 
 
 </lcgdict>
