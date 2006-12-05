@@ -2,12 +2,16 @@
 //
 // include all the concrete ones
 //
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripMatchedRecHit.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
 
 
 TkTransientTrackingRecHitBuilder::TkTransientTrackingRecHitBuilder( const TrackingGeometry* trackingGeometry, 
@@ -30,6 +34,8 @@ TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const
     return ( InvalidTransientRecHit::build( (p->geographicalId().rawId() == 0 ? 0 : 
 					     tGeometry_->idToDet(p->geographicalId())
 					     ) ));  
-  }
-  return TransientTrackingRecHit::RecHitPointer (0);
+  }else if (const ProjectedSiStripRecHit2D* ph = dynamic_cast<const ProjectedSiStripRecHit2D*>(p)) {
+    return ProjectedRecHit2D::build(tGeometry_->idToDet(p->geographicalId()),ph);
+  } 
+  throw cms::Exception("LogicError") << "TrackingRecHit* cannot be casted to a known concrete type"; 
 }
