@@ -10,14 +10,16 @@ using namespace std;
 using namespace reco;
 using namespace reco::modules;
 
-namespace helper {
-  typedef pair<size_t, double> MatchPair;
-
-  struct SortBySecond {
-    bool operator()( const MatchPair & p1, const MatchPair & p2 ) const {
-      return p1.second < p2.second;
-    } 
-  };
+namespace reco {
+  namespace helper {
+    typedef pair<size_t, double> MatchPair;
+    
+    struct SortBySecond {
+      bool operator()( const MatchPair & p1, const MatchPair & p2 ) const {
+	return p1.second < p2.second;
+      } 
+    };
+  }
 }
 
 CandMatcherBase::CandMatcherBase( const ParameterSet & cfg ) :
