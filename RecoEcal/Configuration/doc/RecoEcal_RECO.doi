@@ -1,0 +1,66 @@
+<tr class="colgroup">
+  <td class="colgroup" colspan=5>Ecal cluster collections</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1BasicCluster.html">reco::BasicCluster</a></td>
+  <td><a href="DataFormats_EgammaReco.html">reco::BasicClusterCollection</a></td>
+  <td><a href="#">islandBasicClusters<i> : islandBarrelBasicClusters</i></a></td>
+  <td class="description">Basic clusters reconstructed with island algorithm in barrel</td>
+  <td>S.Rahatlou</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1BasicCluster.html">reco::BasicCluster</a></td>
+  <td><a href="DataFormats_EgammaReco.html">reco::BasicClusterCollection</a></td>
+  <td><a href="#">islandBasicClusters<i> : islandEndcapBasicClusters</i></a></td>
+  <td class="description">Basic clusters reconstructed with island algorithm in endcap</td>
+  <td>S.Rahatlou</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1SuperCluster.html">reco::SuperCluster</a></td>
+  <td><a href="DataFormats_EgammaReco.html">reco::SuperClusterCollection</a></td>
+  <td><a href="#">islandSuperClusters<i> : islandBarrelSuperClusters</i></a></td>
+  <td class="description">Super clusters with island algo. in barrel</td>
+  <td>S.Rahatlou</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1SuperCluster.html">reco::SuperCluster</a></td>
+  <td><a href="DataFormats_EgammaReco.html">reco::SuperClusterCollection</a></td>
+  <td><a href="#">islandSuperClusters<i> : islandEndcapSuperClusters</i></a></td>
+  <td class="description">Super clusters with island algo. in endcap</td>
+  <td>S.Rahatlou</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1SuperCluster.html">reco::SuperCluster</a></td>
+  <td><a href="DataFormats_EgammaReco.html">reco::SuperClusterCollection</a></td>
+  <td><a href="#">hybridSuperClusters</a></td>
+  <td class="description">Super clusters with hybrid algo (barrel only)</td>
+  <td>S.Rahatlou</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1SuperCluster.html">reco::SuperCluster</a></td>
+  <td><a href="DataFormats_EgammaReco.html">reco::SuperClusterCollection</a></td>
+  <td><a href="#">correctedIslandEndcapSuperClusters</a></td>
+  <td class="description">Super clusters with island algo in endcap after energy correction</td>
+  <td>S.Rahatlou</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1SuperCluster.html">reco::SuperCluster</a></td>
+  <td><a href="DataFormats_EgammaReco.html">reco::SuperClusterCollection</a></td>
+  <td><a href="#">correctedHybridSuperClusters</a></td>
+  <td class="description">Super clusters with hybrid algo after energy correction (barrel only)</td>
+  <td>S.Rahatlou</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1PreShowerCluster.html">reco::PreShowerCluster</a></td>
+  <td><a href="DataFormats_EgammaReco.html"></a></td>
+  <td><a href="#">preshowerClusters</a></td>
+  <td class="description">Clusters in preshower</td>
+  <td>S.Rahatlou</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1ClusterPi0Discriminator.html">reco::ClusterPi0Discriminator</a></td>
+  <td><a href="DataFormats_EgammaReco.html"></a></td>
+  <td><a href="#">piZeroDiscriminators</a></td>
+  <td class="description">&pi;<sup>0</sup> discriminators</td>
+  <td>S.Rahatlou</td>
+</tr>
