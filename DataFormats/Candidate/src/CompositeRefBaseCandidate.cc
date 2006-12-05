@@ -1,4 +1,4 @@
-// $Id: CompositeRefBaseCandidate.cc,v 1.1 2006/02/28 10:43:30 llista Exp $
+// $Id: CompositeRefBaseCandidate.cc,v 1.1 2006/07/26 09:37:17 llista Exp $
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -12,19 +12,19 @@ CompositeRefBaseCandidate * CompositeRefBaseCandidate::clone() const {
 }
 
 Candidate::const_iterator CompositeRefBaseCandidate::begin() const { 
-  return const_iterator( new const_iterator_comp( dau.begin() ) ); 
+  return const_iterator( new const_iterator_imp_specific( dau.begin() ) ); 
 }
 
 Candidate::const_iterator CompositeRefBaseCandidate::end() const { 
-  return const_iterator( new const_iterator_comp( dau.end() ) ); 
+  return const_iterator( new const_iterator_imp_specific( dau.end() ) ); 
 }    
 
 Candidate::iterator CompositeRefBaseCandidate::begin() { 
-  return iterator( new iterator_comp( dau.begin() ) ); 
+  return iterator( new iterator_imp_specific ); 
 }
 
 Candidate::iterator CompositeRefBaseCandidate::end() { 
-  return iterator( new iterator_comp( dau.end() ) ); 
+  return iterator( new iterator_imp_specific ); 
 }    
 
 const Candidate & CompositeRefBaseCandidate::daughter( size_type i ) const { 

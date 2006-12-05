@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.5 2006/10/26 14:23:07 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.6 2006/11/29 10:49:05 llista Exp $
  *
  */
 
@@ -47,11 +47,11 @@ namespace reco {
     /// implementation of const_iterator. 
     /// should be private; declared public only 
     /// for ROOT reflex dictionay problems    
-    struct const_iterator_comp : public const_iterator_imp {
+    struct const_iterator_imp_specific : public const_iterator_imp {
       typedef ptrdiff_t difference_type;
-      explicit const_iterator_comp( const daughters::const_iterator & it ) : i ( it ) { }
-      ~const_iterator_comp() { }
-      const_iterator_comp * clone() const { return new const_iterator_comp( i ); }
+      explicit const_iterator_imp_specific( const daughters::const_iterator & it ) : i ( it ) { }
+      ~const_iterator_imp_specific() { }
+      const_iterator_imp_specific * clone() const { return new const_iterator_imp_specific( i ); }
       void increase() { ++i; }
       void decrease() { --i; }
       void increase( difference_type d ) { i += d; }
@@ -63,22 +63,22 @@ namespace reco {
       difference_type difference( const const_iterator_imp * o ) const { return i - dc( o ); }
     private:
       const daughters::const_iterator & dc( const const_iterator_imp * o ) const {
-	return dynamic_cast<const const_iterator_comp *>( o )->i;
+	return dynamic_cast<const const_iterator_imp_specific *>( o )->i;
       }
       daughters::const_iterator & dc( const_iterator_imp * o ) const {
-	return dynamic_cast<const_iterator_comp *>( o )->i;
+	return dynamic_cast<const_iterator_imp_specific *>( o )->i;
       }
       daughters::const_iterator i;
     };
     /// implementation of iterator. 
     /// should be private; declared public only 
     /// for ROOT reflex dictionay problems
-    struct iterator_comp : public iterator_imp  {
+    struct iterator_imp_specific : public iterator_imp  {
       typedef ptrdiff_t difference_type;
-      explicit iterator_comp( const daughters::iterator & it ) : i ( it ) { }
-      ~iterator_comp() { }
-      iterator_comp * clone() const { return new iterator_comp( i ); }
-      const_iterator_comp * const_clone() const { return new const_iterator_comp( i ); }
+      explicit iterator_imp_specific( const daughters::iterator & it ) : i ( it ) { }
+      ~iterator_imp_specific() { }
+      iterator_imp_specific * clone() const { return new iterator_imp_specific( i ); }
+      const_iterator_imp_specific * const_clone() const { return new const_iterator_imp_specific( i ); }
       void increase() { ++i; }
       void decrease() { ++i; }
       void increase( difference_type d ) { i += d; }
@@ -90,10 +90,10 @@ namespace reco {
       difference_type difference( const iterator_imp * o ) const { return i - dc( o ); }
      private:
       const daughters::iterator & dc( const iterator_imp * o ) const {
-	return dynamic_cast<const iterator_comp *>( o )->i;
+	return dynamic_cast<const iterator_imp_specific *>( o )->i;
       }
       daughters::iterator & dc( iterator_imp * o ) const {
-	return dynamic_cast<iterator_comp *>( o )->i;
+	return dynamic_cast<iterator_imp_specific *>( o )->i;
       }
       daughters::iterator i;
     };

@@ -1,4 +1,4 @@
-// $Id: LeafCandidate.cc,v 1.2 2006/05/12 09:59:25 llista Exp $
+// $Id: LeafCandidate.cc,v 1.3 2006/08/28 08:07:25 llista Exp $
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -10,13 +10,13 @@ LeafCandidate * LeafCandidate::clone() const {
   return new LeafCandidate( * this );
 }
 
-Candidate::const_iterator LeafCandidate::begin() const { return const_iterator( new const_iterator_leaf ); }
+Candidate::const_iterator LeafCandidate::begin() const { return const_iterator( new const_iterator_imp_specific ); }
 
-Candidate::const_iterator LeafCandidate::end() const { return  const_iterator( new const_iterator_leaf ); }
+Candidate::const_iterator LeafCandidate::end() const { return  const_iterator( new const_iterator_imp_specific ); }
 
-Candidate::iterator LeafCandidate::begin() { return iterator( new iterator_leaf ); }
+Candidate::iterator LeafCandidate::begin() { return iterator( new iterator_imp_specific ); }
 
-Candidate::iterator LeafCandidate::end() { return iterator( new iterator_leaf ); }
+Candidate::iterator LeafCandidate::end() { return iterator( new iterator_imp_specific ); }
 
 int LeafCandidate::numberOfDaughters() const { return 0; }
 

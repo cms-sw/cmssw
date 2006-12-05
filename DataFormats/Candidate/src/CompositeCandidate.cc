@@ -1,4 +1,4 @@
-// $Id: CompositeCandidate.cc,v 1.7 2006/02/21 10:37:32 llista Exp $
+// $Id: CompositeCandidate.cc,v 1.1 2006/02/28 10:43:30 llista Exp $
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -8,13 +8,13 @@ CompositeCandidate::~CompositeCandidate() { }
 
 CompositeCandidate * CompositeCandidate::clone() const { return new CompositeCandidate( * this ); }
 
-Candidate::const_iterator CompositeCandidate::begin() const { return const_iterator( new const_iterator_comp( dau.begin() ) ); }
+Candidate::const_iterator CompositeCandidate::begin() const { return const_iterator( new const_iterator_imp_specific( dau.begin() ) ); }
 
-Candidate::const_iterator CompositeCandidate::end() const { return const_iterator( new const_iterator_comp( dau.end() ) ); }    
+Candidate::const_iterator CompositeCandidate::end() const { return const_iterator( new const_iterator_imp_specific( dau.end() ) ); }    
 
-Candidate::iterator CompositeCandidate::begin() { return iterator( new iterator_comp( dau.begin() ) ); }
+Candidate::iterator CompositeCandidate::begin() { return iterator( new iterator_imp_specific( dau.begin() ) ); }
 
-Candidate::iterator CompositeCandidate::end() { return iterator( new iterator_comp( dau.end() ) ); }    
+Candidate::iterator CompositeCandidate::end() { return iterator( new iterator_imp_specific( dau.end() ) ); }    
 
 const Candidate & CompositeCandidate::daughter( size_type i ) const { return dau[ i ]; }
 

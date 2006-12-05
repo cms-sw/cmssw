@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: LeafCandidate.h,v 1.2 2006/03/08 12:26:37 llista Exp $
+ * \version $Id: LeafCandidate.h,v 1.3 2006/07/24 06:33:58 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -43,15 +43,14 @@ namespace reco {
     virtual const Candidate & daughter( size_type ) const;
     /// return daughter at a given position (throws an exception)
     virtual Candidate & daughter( size_type );
-
     /// implementation of const_iterator. 
     /// should be private; declared public only 
     /// for ROOT reflex dictionay problems
-    struct const_iterator_leaf : public const_iterator_imp {
+    struct const_iterator_imp_specific : public const_iterator_imp {
       typedef ptrdiff_t difference_type;
-      const_iterator_leaf() { }
-      ~const_iterator_leaf() { }
-      const_iterator_leaf * clone() const { return new const_iterator_leaf; }
+      const_iterator_imp_specific() { }
+      ~const_iterator_imp_specific() { }
+      const_iterator_imp_specific * clone() const { return new const_iterator_imp_specific; }
       void increase() { }
       void decrease() { }
       void increase( difference_type d ) { }
@@ -67,12 +66,12 @@ namespace reco {
     /// implementation of iterator. 
     /// should be private; declared public only 
     /// for ROOT reflex dictionay problems
-     struct iterator_leaf : public iterator_imp {
+     struct iterator_imp_specific : public iterator_imp {
       typedef ptrdiff_t difference_type;
-      iterator_leaf() { }
-      ~iterator_leaf() { }
-      iterator_leaf * clone() const { return new iterator_leaf; }
-      const_iterator_leaf * const_clone() const { return new const_iterator_leaf; }
+      iterator_imp_specific() { }
+      ~iterator_imp_specific() { }
+      iterator_imp_specific * clone() const { return new iterator_imp_specific; }
+      const_iterator_imp_specific * const_clone() const { return new const_iterator_imp_specific; }
       void increase() { }
       void decrease() { }
       void increase( difference_type d ) { }
