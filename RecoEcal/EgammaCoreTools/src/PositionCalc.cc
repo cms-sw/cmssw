@@ -261,9 +261,10 @@ std::map<std::string,double> PositionCalc::Calculate_Covariances(math::XYZPoint 
       }
 
       // Increment covariances
-      covEtaEta += (kEta - pEta)*(kEta - pEta);
-      covEtaPhi += (kEta - pEta)*(kPhi - pPhi);
-      covPhiPhi += (kPhi - pPhi)*(kPhi - pPhi);
+      // Corrected to use proper weighting -TK
+      covEtaEta += weight*(kEta - pEta)*(kEta - pEta);
+      covEtaPhi += weight*(kEta - pEta)*(kPhi - pPhi);
+      covPhiPhi += weight*(kPhi - pPhi)*(kPhi - pPhi);
 
       wTot += weight;
 
