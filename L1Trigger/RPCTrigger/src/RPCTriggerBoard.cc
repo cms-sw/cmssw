@@ -9,11 +9,10 @@
 
 #include<sstream>
 //---------------------------------------------------------------------------
-RPCTriggerBoard::RPCTriggerBoard(RPCTBGhostBuster* tbGhostBuster,
-                RPCTriggerConfiguration* triggerConfig,
-                int tbNum, int tcNum) 
+RPCTriggerBoard::RPCTriggerBoard( RPCTriggerConfiguration* triggerConfig,
+                                 int tbNum, int tcNum) 
 {
-  m_TBGhostBuster = tbGhostBuster;
+  
   m_TriggerConfig = triggerConfig;
   m_TBNumber = tbNum;
 
@@ -44,7 +43,6 @@ RPCTriggerBoard::RPCTriggerBoard(RPCTBGhostBuster* tbGhostBuster,
            
            
 }
-
 //---------------------------------------------------------------------------
 bool RPCTriggerBoard::runCone(const RPCLogCone& cone)  {
 
@@ -92,6 +90,6 @@ L1RpcTBMuonsVec RPCTriggerBoard::runTBGB() { //4 muons or empty vector
   }
 
   m_PacsMuonsVec.clear();
-  return m_TBGhostBuster->run(gbMuons);
+  return m_TBGhostBuster.run(gbMuons);
 }
 

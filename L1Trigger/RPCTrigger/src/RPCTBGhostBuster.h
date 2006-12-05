@@ -12,7 +12,7 @@
 //---------------------------------------------------------------------------
 class RPCTBGhostBuster {
 public:
-  /** Calls gBPhi and gBEta.
+   /** Calls gBPhi and gBEta.
     * @param pacMuonsVec2 pacMuonsVec2[0..3][0..11] (4 Towers x 12 Segments (PACs) ),
     * if pacMuonsVec2[i].size() == 0, means no nonempty muon.
     * @return always 4 muons.*/
@@ -31,8 +31,6 @@ public:
     * Calls RPCTBMuon::setPhiAddr() for each alive muon.
     * @return always 4 muons.*/
   L1RpcTBMuonsVec gBEta(L1RpcTBMuonsVec2 &gbPhiMuonsVec2) const;
-
-private:
 
 };
 #endif

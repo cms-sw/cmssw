@@ -47,7 +47,7 @@ private:
   /** One m_TBGhostBuster, the same for every TB.
     * (In hardware thery is one per each TB.
     * TB are constructed with pointer to this object. */
-  RPCTBGhostBuster m_TBGhostBuster;
+  //RPCTBGhostBuster m_TBGhostBuster;
 
 //---------------------------------------
 

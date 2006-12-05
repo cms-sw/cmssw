@@ -18,9 +18,8 @@
 //---------------------------------------------------------------------------
 class RPCTriggerBoard {
 public:
-  RPCTriggerBoard(RPCTBGhostBuster* tbGhostBuster,
-                    RPCTriggerConfiguration* triggerConfig,
-                    int tbNum, int tcNum);
+  RPCTriggerBoard(RPCTriggerConfiguration* triggerConfig,
+                  int tbNum, int tcNum);
 
   /** Runs RPCPacData::run() for cone. Converts RPCPacMuon to RPCTBMuon
     * and puts it to the m_PacsMuonsVec. @return true if non-empty muon was return
@@ -31,14 +30,13 @@ public:
     * Then runs RPCTBGhostBuster::run().
     * @return 4 muons or empty vector. */
   L1RpcTBMuonsVec runTBGB();
-
 private:
 
   int m_TBNumber; //!< 0...8 , 0 = tbn4, m_tower -16..-13, 4 = tb0
 
   RPCTriggerConfiguration* m_TriggerConfig;
 
-  RPCTBGhostBuster* m_TBGhostBuster;
+  RPCTBGhostBuster m_TBGhostBuster;
 
   L1RpcTBMuonsVec m_PacsMuonsVec;
   

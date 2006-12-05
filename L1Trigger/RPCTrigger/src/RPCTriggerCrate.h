@@ -21,9 +21,8 @@
 class RPCTriggerCrate {
 public:
   RPCTriggerCrate(RPCTCGhostBusterSorter* tcGhostBusterSorter, 
-                    RPCTBGhostBuster* tbGhostBuster,
-                    RPCTriggerConfiguration* triggerConfig,
-                    int tcNum);
+                  RPCTriggerConfiguration* triggerConfig,
+                  int tcNum);
 
   /** Runs RPCTriggerBoard::runCone() for every TB. Cheks, if any non empty muons were found*/
   void runCone(const RPCLogCone& cone);

@@ -4,7 +4,8 @@
 
 //---------------------------------------------------------------------------
 RPCTriggerCrate::RPCTriggerCrate(RPCTCGhostBusterSorter* tcGhostBusterSorter,
-    RPCTBGhostBuster* tbGhostBuster, RPCTriggerConfiguration* triggerConfig, int tcNum) {
+                                 RPCTriggerConfiguration* triggerConfig, 
+                                 int tcNum) {
   m_TCGhostBusterSorter = tcGhostBusterSorter;
   m_TriggerConfig = triggerConfig;
   m_WasMuon = false;
@@ -12,7 +13,7 @@ RPCTriggerCrate::RPCTriggerCrate(RPCTCGhostBusterSorter* tcGhostBusterSorter,
   m_TCNumber = tcNum;
 
   for(int iTB = 0; iTB < triggerConfig->getTBsInTC(); iTB++)
-    m_TBsVec.push_back(RPCTriggerBoard(tbGhostBuster, triggerConfig, iTB, tcNum));
+    m_TBsVec.push_back(RPCTriggerBoard(triggerConfig, iTB, tcNum));
 }
 //----------------------------------------
 L1RpcTBMuonsVec RPCTriggerCrate::runTCGBSorter() {
