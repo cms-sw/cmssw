@@ -161,19 +161,20 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
        -(**bl).specificSurface().bounds().length()/2.,  
        +(**bl).specificSurface().bounds().length()/2.);
   // Third TIB layer: r=41.9599, l=131.628  !!!! Needs to be larger than TIB2
+  // This is so because TIB2 (and TIB1) have tilted modules.
   ++bl;
   const SimpleCylinderBounds  TIB3( 
         (**bl).specificSurface().radius()-0.0150, 
         (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.-0.3,  
-       +(**bl).specificSurface().bounds().length()/2.+0.3);
+       -(**bl).specificSurface().bounds().length()/2.-0.6,  
+       +(**bl).specificSurface().bounds().length()/2.+0.6);
   // Fourth TIB layer: r=49.8924, l=132.78
   ++bl;
   const SimpleCylinderBounds  TIB4( 
         (**bl).specificSurface().radius()-0.0150, 
         (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.,  
-       +(**bl).specificSurface().bounds().length()/2.);
+       -(**bl).specificSurface().bounds().length()/2.-0.1,  
+       +(**bl).specificSurface().bounds().length()/2.+0.1);
 
   // Inner Barrel Cylinder & Ends : Cables and walls
   const SimpleDiskBounds TIBEOut(22.5,50.4,-0.5,0.5);
@@ -199,34 +200,35 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
         (**bl).specificSurface().radius()+0.0150, 
        -(**bl).specificSurface().bounds().length()/2.,  
        +(**bl).specificSurface().bounds().length()/2.);
-  // Third TOB layer: r=78.0686, l=216.576
+  // Third TOB layer: r=78.0686, l=216.576 !!! Needs to be larger than TOB2
+  // This is so because TOB2 (and TOB1) have tilted modules.
   ++bl;
   const SimpleCylinderBounds  TOB3( 
         (**bl).specificSurface().radius()-0.0150, 
         (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.,  
-       +(**bl).specificSurface().bounds().length()/2.);
+       -(**bl).specificSurface().bounds().length()/2.-0.5,  
+       +(**bl).specificSurface().bounds().length()/2.+0.5);
   // Fourth TOB layer: r=86.8618, l=216.576
   ++bl;
   const SimpleCylinderBounds  TOB4( 
         (**bl).specificSurface().radius()-0.0150, 
         (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.,  
-       +(**bl).specificSurface().bounds().length()/2.);
+       -(**bl).specificSurface().bounds().length()/2.-0.5,  
+       +(**bl).specificSurface().bounds().length()/2.+0.5);
   // Fifth TOB layer: r=96.5557, l=216.576
   ++bl;
   const SimpleCylinderBounds  TOB5( 
         (**bl).specificSurface().radius()-0.0150, 
         (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.,  
-       +(**bl).specificSurface().bounds().length()/2.);
+       -(**bl).specificSurface().bounds().length()/2.-0.5,  
+       +(**bl).specificSurface().bounds().length()/2.+0.5);
   // Sixth TOB layer: r=108.05, l=216.576
   ++bl;
   const SimpleCylinderBounds  TOB6( 
         (**bl).specificSurface().radius()-0.0150, 
         (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.,  
-       +(**bl).specificSurface().bounds().length()/2.);
+       -(**bl).specificSurface().bounds().length()/2.-0.5,  
+       +(**bl).specificSurface().bounds().length()/2.+0.5);
 
   const SimpleDiskBounds TOBEOut(55.0,109.5,-0.5,0.5);
   const Surface::PositionType PTOBEOut(0.0,0.0,110.0);
@@ -366,7 +368,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
 
   theCylinder = new BoundCylinder(thePosition,theRotation,PIPE);
   theCylinder->setMediumProperties(_theMPBeamPipe);
-  _theCylinders.push_back(TrackerLayer(theCylinder,false,100));
+  _theCylinders.push_back(TrackerLayer(theCylinder,false));
 
   // Pixels 
 
@@ -376,7 +378,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
 
   theDisk = new BoundDisk(PPIXBOut1,theRotation2,PIXBOut1);
   theDisk->setMediumProperties(_theMPPixelOutside1);
-  _theCylinders.push_back(TrackerLayer(theDisk,true,101));
+  _theCylinders.push_back(TrackerLayer(theDisk,true));
 
   theCylinder = new BoundCylinder(thePosition,theRotation,PIXB2);
   theCylinder->setMediumProperties(_theMPPixelBarrel);
@@ -384,11 +386,11 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
 
   theDisk = new BoundDisk(PPIXBOut2,theRotation2,PIXBOut2);
   theDisk->setMediumProperties(_theMPPixelOutside2);
-  _theCylinders.push_back(TrackerLayer(theDisk,true,102));
+  _theCylinders.push_back(TrackerLayer(theDisk,true));
 
   theDisk = new BoundDisk(PPIXBOut3,theRotation2,PIXBOut3);
   theDisk->setMediumProperties(_theMPPixelOutside3);
-  _theCylinders.push_back(TrackerLayer(theDisk,true,103));
+  _theCylinders.push_back(TrackerLayer(theDisk,true));
 
   theCylinder = new BoundCylinder(thePosition,theRotation,PIXB3);
   theCylinder->setMediumProperties(_theMPPixelBarrel);
@@ -396,11 +398,11 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
 
   theDisk = new BoundDisk(PPIXBOut4,theRotation2,PIXBOut4);
   theDisk->setMediumProperties(_theMPPixelOutside4);
-  _theCylinders.push_back(TrackerLayer(theDisk,true,104));
+  _theCylinders.push_back(TrackerLayer(theDisk,true));
 
   theDisk = new BoundDisk(PPIXBOut,theRotation2,PIXBOut);
   theDisk->setMediumProperties(_theMPPixelOutside);
-  _theCylinders.push_back(TrackerLayer(theDisk,true,105));
+  _theCylinders.push_back(TrackerLayer(theDisk,true));
 
   theDisk = new BoundDisk(PPIXD1,theRotation2,PIXD1);
   theDisk->setMediumProperties(_theMPPixelEndcap);
@@ -412,11 +414,11 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
 
   theCylinder = new BoundCylinder(thePosition,theRotation,PIXBOut5);
   theCylinder->setMediumProperties(_theMPPixelOutside5);
-  _theCylinders.push_back(TrackerLayer(theCylinder,false,106));
+  _theCylinders.push_back(TrackerLayer(theCylinder,false));
 
   theDisk = new BoundDisk(PPIXBOut6,theRotation2,PIXBOut6);
   theDisk->setMediumProperties(_theMPPixelOutside6);
-  _theCylinders.push_back(TrackerLayer(theDisk,true,107));
+  _theCylinders.push_back(TrackerLayer(theDisk,true));
 
 
   // Inner Barrel 
@@ -441,11 +443,11 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
 
   theDisk = new BoundDisk(PTIBEOut,theRotation2,TIBEOut);
   theDisk->setMediumProperties(_theMPTIBEOutside);
-  _theCylinders.push_back(TrackerLayer(theDisk,true,108));
+  _theCylinders.push_back(TrackerLayer(theDisk,true));
 
   theDisk = new BoundDisk(PTIBEOut2,theRotation2,TIBEOut2);
   theDisk->setMediumProperties(_theMPTIBEOutside);
-  _theCylinders.push_back(TrackerLayer(theDisk,true,109));
+  _theCylinders.push_back(TrackerLayer(theDisk,true));
 
   
   // Inner Endcaps
@@ -464,14 +466,14 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
 
   theDisk = new BoundDisk(PTIDEOut,theRotation2,TIDEOut);
   theDisk->setMediumProperties(_theMPTIDEOutside);
-  _theCylinders.push_back(TrackerLayer(theDisk,true,110));
+  _theCylinders.push_back(TrackerLayer(theDisk,true));
 
 
   // Outer Barrel 
 
   theCylinder = new BoundCylinder(thePosition,theRotation,TOBCIn);
   theCylinder->setMediumProperties(_theMPTOBBInside);
-  _theCylinders.push_back(TrackerLayer(theCylinder,false,111));
+  _theCylinders.push_back(TrackerLayer(theCylinder,false));
 
   theCylinder = new BoundCylinder(thePosition,theRotation,TOB1);
   theCylinder->setMediumProperties(_theMPTOB1);
@@ -499,7 +501,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
 
   theDisk = new BoundDisk(PTOBEOut,theRotation2,TOBEOut);
   theDisk->setMediumProperties(_theMPTOBEOutside);
-  _theCylinders.push_back(TrackerLayer(theDisk,true,112));
+  _theCylinders.push_back(TrackerLayer(theDisk,true));
 
 
   // Outer Endcaps
@@ -545,15 +547,15 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
 
   theCylinder = new BoundCylinder(thePosition,theRotation,TBOut);
   theCylinder->setMediumProperties(_theMPBarrelOutside);
-  _theCylinders.push_back(TrackerLayer(theCylinder,false,113));
+  _theCylinders.push_back(TrackerLayer(theCylinder,false));
 
   theDisk = new BoundDisk(PTEOut,theRotation2,TEOut);
   theDisk->setMediumProperties(_theMPEndcapOutside);
-  _theCylinders.push_back(TrackerLayer(theDisk,true,114));
+  _theCylinders.push_back(TrackerLayer(theDisk,true));
 
   theDisk = new BoundDisk(PTEOut2,theRotation2,TEOut2);
   theDisk->setMediumProperties(_theMPEndcapOutside2);
-  _theCylinders.push_back(TrackerLayer(theDisk,true,115));
+  _theCylinders.push_back(TrackerLayer(theDisk,true));
 
   // Check overall compatibility of cylinder dimensions
   // (must be nested cylinders)
