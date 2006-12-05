@@ -63,10 +63,25 @@ ForwardRingDiskBuilderFromDet::computeBounds( const vector<const GeomDet*>& dets
     // in addition to the corners we have to check the middle of the 
     // det +/- length/2, since the min (max) radius for typical fw
     // dets is reached there
-    float rdet = (**idet).surface().position().perp();
-    float len = (**idet).surface().bounds().length();
-    rmin = min( rmin, rdet-len/2.F);
-    rmax = max( rmax, rdet+len/2.F);      
+
+    float rdet  = (**idet).position().perp();
+    float len   = (**idet).surface().bounds().length();
+    float width = (**idet).surface().bounds().width();
+
+    GlobalVector xAxis = (**idet).toGlobal(LocalVector(1,0,0));
+    GlobalVector yAxis = (**idet).toGlobal(LocalVector(0,1,0));
+    GlobalVector perpDir = GlobalVector( (**idet).position() - GlobalPoint(0,0,(**idet).position().z()) );
+
+    double xAxisCos = xAxis.unit().dot(perpDir.unit());
+    double yAxisCos = yAxis.unit().dot(perpDir.unit());
+
+    if( fabs(xAxisCos) > fabs(yAxisCos) ) {
+      rmin = min( rmin, rdet-width/2.F);
+      rmax = max( rmax, rdet+width/2.F);
+    }else{
+      rmin = min( rmin, rdet-len/2.F);
+      rmax = max( rmax, rdet+len/2.F);
+    }
   }
 
   

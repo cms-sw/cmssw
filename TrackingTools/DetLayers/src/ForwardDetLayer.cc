@@ -33,6 +33,7 @@ void ForwardDetLayer::initialize() {
 
 
 BoundDisk* ForwardDetLayer::computeSurface() {
+  LogDebug("DetLayers") << "ForwaLayer::computeSurface callded" ;
   vector<const GeomDet*> comps= basicComponents();
 
   vector<const GeomDet*>::const_iterator ifirst = comps.begin();
@@ -50,6 +51,7 @@ BoundDisk* ForwardDetLayer::computeSurface() {
     for (vector<GlobalPoint>::const_iterator ic = corners.begin();
 	 ic != corners.end(); ic++) {
       float r = ic->perp();
+      LogDebug("DetLayers") << "corner.perp(): " << r ;
       float z = ic->z();
       theRmin = min( theRmin, r);
       theRmax = max( theRmax, r);
@@ -60,10 +62,31 @@ BoundDisk* ForwardDetLayer::computeSurface() {
     // in addition to the corners we have to check the middle of the 
     // det +/- length/2
     // , since the min (max) radius for typical fw dets is reached there
-    float rdet = (**deti).position().perp();
-    float len = (**deti).surface().bounds().length();
-    theRmin = min( theRmin, rdet-len/2.F);
-    theRmax = max( theRmax, rdet+len/2.F);
+
+    float rdet  = (**deti).position().perp();
+    float len   = (**deti).surface().bounds().length();
+    float width = (**deti).surface().bounds().width();
+
+    GlobalVector xAxis = (**deti).toGlobal(LocalVector(1,0,0));
+    GlobalVector yAxis = (**deti).toGlobal(LocalVector(0,1,0));
+    GlobalVector perpDir = GlobalVector( (**deti).position() - GlobalPoint(0,0,(**deti).position().z()) );
+
+    double xAxisCos = xAxis.unit().dot(perpDir.unit());
+    double yAxisCos = yAxis.unit().dot(perpDir.unit());
+
+    LogDebug("DetLayers") << "in ForwardDetLayer::computeSurface(),xAxisCos,yAxisCos: " << xAxisCos << " , " << yAxisCos ;
+    LogDebug("DetLayers") << "det pos.perp,length,width: " 
+			  << rdet << " , " 
+			  << len  << " , "
+			  << width ;
+
+    if( fabs(xAxisCos) > fabs(yAxisCos) ) {
+      theRmin = min( theRmin, rdet-width/2.F);
+      theRmax = max( theRmax, rdet+width/2.F);
+    }else{
+      theRmin = min( theRmin, rdet-len/2.F);
+      theRmax = max( theRmax, rdet+len/2.F);
+    }
   }
 
 
