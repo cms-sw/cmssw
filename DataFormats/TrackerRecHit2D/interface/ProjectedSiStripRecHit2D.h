@@ -7,6 +7,7 @@
 class ProjectedSiStripRecHit2D : public BaseSiTrackerRecHit2DLocalPos {
 public:
 
+  ProjectedSiStripRecHit2D() {};
   ProjectedSiStripRecHit2D( const LocalPoint& pos, const LocalError& err, const DetId& id , 
 			    const SiStripRecHit2D* originalHit) :
     BaseSiTrackerRecHit2DLocalPos(pos, err, id), originalHit_(*originalHit) {}
