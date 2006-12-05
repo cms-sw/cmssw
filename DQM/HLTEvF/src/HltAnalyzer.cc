@@ -14,7 +14,7 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  Thu Nov  9 07:51:28 CST 2006
-// $Id: HltAnalyzer.cc,v 1.2 2006/11/29 16:17:46 wittich Exp $
+// $Id: HltAnalyzer.cc,v 1.3 2006/12/04 14:43:38 wittich Exp $
 //
 //
 
@@ -116,6 +116,7 @@ HltAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for ( TriggerNamesService::Strings::const_iterator i = paths.begin();
 	i != paths.end(); ++i ) {
     HLTPerformanceInfo::Path p(*i);
+    // this sets the status for the path
     unsigned int where = pTrig->find(*i);
     p.setStatus( pTrig->at(where));
     if ( verbose() ) {
@@ -147,15 +148,19 @@ HltAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    perfInfo_.beginModules(); 
 	  i != perfInfo_.endModules(); 
 	  ++i ) {
-      std::cout << i->name() << ": " << i->time() << std::endl;
+      std::cout << i->name() << ": " << i->time() 
+		<< ":  " << i->status().state()
+		<< std::endl;
     }
     std::cout << myName_ << ": dumping path times.... " << std::endl;
     for ( HLTPerformanceInfo::PathList::const_iterator j = 
 	    perfInfo_.beginPaths(); 
 	  j != perfInfo_.endPaths(); ++j ) {
       std::cout << "\t" << j->name() << ": " 
-		<< j->time() 
-		<< j->status().state()
+		<< j->time()  << " " 
+		<< j->status().state() << " "
+		<< j->lastModuleByStatusName() << "\t"
+		<< j->lastModuleByStatus()->time() 
 		<< std::endl;
     }
   }
