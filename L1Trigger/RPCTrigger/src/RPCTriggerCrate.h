@@ -1,10 +1,3 @@
-/*******************************************************************************
-*                                                                              *
-*  Karol Bunkowski                                                             *
-*  Warsaw University 2004                                                      *
-*                                                                              *
-*******************************************************************************/
-
 #ifndef L1RpcTriggerCrateH
 #define L1RpcTriggerCrateH
 //#define LOCALDEBUG

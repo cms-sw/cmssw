@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------
 #ifndef L1RpcBasicTrigConfigH
 #define L1RpcBasicTrigConfigH
 

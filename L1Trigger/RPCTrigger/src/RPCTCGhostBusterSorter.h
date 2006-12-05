@@ -1,9 +1,3 @@
-/*******************************************************************************
-*                                                                              *
-*  Karol Bunkowski                                                             *
-*  Warsaw University 2004                                                      *
-*                                                                              *
-*******************************************************************************/
 #ifndef L1RpcTCGhostBusterSorterH
 #define L1RpcTCGhostBusterSorterH
 /** \class RPCTCGhostBusterSorter

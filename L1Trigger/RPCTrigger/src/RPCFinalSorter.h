@@ -1,5 +1,3 @@
-//---------------------------------------------------------------------------
-
 #ifndef L1RpcFinalSorterH
 #define L1RpcFinalSorterH
 

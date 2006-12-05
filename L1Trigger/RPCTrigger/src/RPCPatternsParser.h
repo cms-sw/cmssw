@@ -1,11 +1,13 @@
+#ifndef L1RpcPatternsParserH
+#define L1RpcPatternsParserH
 /*******************************************************************************
 *                                                                              *
 *  Karol Bunkowski                                                             *
 *  Warsaw University 2005                                                      *
 *                                                                              *
 *******************************************************************************/
-#ifndef L1RpcPatternsParserH
-#define L1RpcPatternsParserH
+
+
 #include <string>
 #include <iostream>
 

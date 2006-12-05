@@ -1,5 +1,3 @@
-//---------------------------------------------------------------------------
-
 #ifndef L1RpcTriggerConfigurationH
 #define L1RpcTriggerConfigurationH
 

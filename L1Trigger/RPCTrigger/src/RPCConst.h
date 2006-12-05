@@ -148,7 +148,7 @@ public:
     
     
     
-    
+    /*
     class RPCMuonGen {
     public:
       int m_RunNum, m_EventNum, m_PtCodeGen;
@@ -156,7 +156,7 @@ public:
       int m_Sign, m_MaxFiredPlanesCnt;
     
       int possibleTrigger;
-    };
+};*/
     
     //hardware consts - fixed by board design
     static const unsigned int m_TOWERS_ON_TB_CNT = 4;      //!< Max number of towers covered by one Trugger Board.
