@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+  <SpecParSection label="regions.xml" eval="true">
+
+ <SpecPar name="fp420_beam_pipe_steel">
+   <PartSelector path="//SBST"/>
+   <PartSelector path="//SBSTs"/>
+      <Parameter name="CMSCutsRegion" value="BeamPipeRegion" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="10000*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="10000*mm"/>
+      <Parameter name="ProdCutsForGamma" value="10000*mm"/>
+ </SpecPar>  
+
+ <SpecPar name="fp420_silicon_station">
+   <PartSelector path="//SISTATION"/>
+   <PartSelector path="//SIPLANE"/>
+   <PartSelector path="//BOUNDDET"/>
+      <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="10000*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="10000*mm"/>
+      <Parameter name="ProdCutsForGamma" value="10000*mm"/>
+ </SpecPar>  
+
+
+<SpecPar name="fp420_silicon_detl">
+   <PartSelector path="//SIDETL"/>
+      <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="1000*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="1000*mm"/>
+      <Parameter name="ProdCutsForGamma" value="1000*mm"/>
+ </SpecPar>  
+ <SpecPar name="fp420_silicon_detr">
+   <PartSelector path="//SIDETR"/>
+      <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="1000*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="1000*mm"/>
+      <Parameter name="ProdCutsForGamma" value="1000*mm"/>
+ </SpecPar>  
+ <SpecPar name="fp420_ceramic">
+   <PartSelector path="//CERAMDET"/>
+      <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="10000*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="10000*mm"/>
+      <Parameter name="ProdCutsForGamma" value="10000*mm"/>
+ </SpecPar>  
+
+
+  </SpecParSection>
+</DDDefinition>
+
+
