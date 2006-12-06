@@ -14,6 +14,7 @@
 #include "FastSimulation/CaloHitMakers/interface/PreshowerHitMaker.h"
 #include "FastSimulation/Utilities/interface/Histos.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
   
 // STL headers 
 #include <vector>
@@ -316,8 +317,91 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
 
 // Simulation of electromagnetic showers in VFCAL
 void CalorimetryManager::reconstructECAL(const FSimTrack& track) {
-  ;
+  if(debug_) {
+    HepLorentzVector moment = track.momentum();
+    cout << "FASTEnergyReconstructor::reconstructECAL - " << endl
+	 << "  eta " << moment.eta() << endl
+         << "  phi " << moment.phi() << endl
+         << "   et " << moment.et()  << endl;
+  }
+  
+  int hit; 
+  
+  bool central=track.onEcal()==1;
+  
+  //Reconstruct only electrons and photons. 
+
+  //deal with different conventions
+  // ParticlePropagator 1 <-> Barrel
+  //                    2 <-> EC
+  // whereas for Artur(this code):
+  //                    0 <-> Barrel
+  //                    1 <-> EC
+  //                    2 <-> VF
+  HepLorentzVector trackPosition;
+  if( track.onEcal() ) {
+    hit=track.onEcal()-1;
+    trackPosition=track.ecalEntrance().vertex();
+  } else {
+    hit=2;
+    trackPosition=track.vfcalEntrance().vertex();
+  }
+  
+  double pathEta   = trackPosition.eta();
+  double pathPhi   = trackPosition.phi();	
+  double EGen      = track.ecalEntrance().e();
+  
+
+  double e=0.;
+  double sigma=0.;
+  // if full simulation and in HF, but without showering anyway...
+  if(hit == 2 && optionHDSim_ == 2 ) { 
+    pair<double,double> response =
+      myHDResponse_->responseHCAL(EGen, pathEta, 0);//0=e/gamma 
+    e     = response.first;
+    sigma = response.second;
+  }
+
+  double emeas = 0.;
+  
+  if(sigma>0.)
+    emeas = random->gaussShoot(e,sigma);
+  
+
+  if(debug_)
+    cout << "FASTEnergyReconstructor::reconstructECAL : " 
+         << "  on-calo  eta, phi  = " << pathEta << " " << pathPhi << endl 
+	 << "  Egen  = " << EGen << endl 
+	 << "  Eres  = " << e << endl 
+	 << " sigma  = " << sigma << endl 
+	 << "  Emeas = " << emeas << endl; 
+
+
+  if(debug_)
+    cout << "FASTEnergyReconstructor::reconstructECAL : " 
+	 << " Track position - " << trackPosition.vect() 
+	 << "   bool central - " << central
+         << "   hit - " << hit   << endl;  
+
+  DetId detid;  
+  if( hit==2 ) 
+      detid = myCalorimeter_->getClosestCell(trackPosition.vect(),false,central);
+  // Check that the detid is HCAL forward
+  HcalDetId hdetid(detid);
+  if(!hdetid.subdetId()!=HcalForward) return;
+
+  if(debug_)
+    cout << "FASTEnergyReconstructor::reconstructECAL : " 
+	 << " CellID - " <<  detid << endl;
+
+  if( hit != 2  || emeas > 0.) 
+    if(!detid.null()) 
+      {
+	updateMap(detid.rawId(),emeas,HMapping_);
+      }
+
 }
+
 
 void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
 {
