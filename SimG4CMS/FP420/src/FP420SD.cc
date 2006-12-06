@@ -28,6 +28,9 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Random/Randomize.h"
+
 
 FP420SD::FP420SD(std::string name, const DDCompactView & cpv,
 		 edm::ParameterSet const & p, const SimTrackManager* manager) :

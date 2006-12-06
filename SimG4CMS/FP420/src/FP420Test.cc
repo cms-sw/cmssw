@@ -60,6 +60,10 @@ FP420Test::FP420Test(const edm::ParameterSet &p){
   //constructor
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("FP420Test");
   verbosity    = m_Anal.getParameter<int>("Verbosity");
+
+  fDataLabel  = m_Anal.getParameter<std::string>("FDataLabel");
+  fOutputFile = m_Anal.getParameter<std::string>("FOutputFile");
+  fRecreateFile = m_Anal.getParameter<std::string>("FRecreateFile");
    
    if (verbosity > 0)
    std::cout<<std::endl;
@@ -90,9 +94,10 @@ FP420Test::FP420Test(const edm::ParameterSet &p){
 
   whichevent = 0;
 
-        fDataLabel      = "defaultData";
-        fOutputFile     = "TheAnlysis.root";
-        fRecreateFile   = "RECREATE";
+  //        fDataLabel      = "defaultData";
+  //       fOutputFile     = "TheAnlysis.root";
+  //       fRecreateFile   = "RECREATE";
+
         TheHistManager = new Fp420AnalysisHistManager(fDataLabel);
 
 }

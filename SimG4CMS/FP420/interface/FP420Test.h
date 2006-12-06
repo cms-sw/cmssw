@@ -210,10 +210,14 @@ private:
   int whichevent;
 
   Fp420AnalysisHistManager* TheHistManager;  //Histogram Manager of the analysis
-  //  TObjString fHistType;
-  TString fDataLabel;             // Data type label
-  TString fOutputFile;            // The output file name
-  TString fRecreateFile;          // Recreate the file flag, default="RECREATE"
+  std::string fDataLabel;             // Data type label
+  std::string fOutputFile;            // The output file name
+  std::string fRecreateFile;          // Recreate the file flag, default="RECREATE"
+
+  //  //  //  //  //  //  TObjString fHistType;
+//   TString fDataLabel;             // Data type label
+//   TString fOutputFile;            // The output file name
+//   TString fRecreateFile;          // Recreate the file flag, default="RECREATE"
 
 };
 
