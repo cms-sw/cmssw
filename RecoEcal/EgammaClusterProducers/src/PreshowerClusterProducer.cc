@@ -37,9 +37,10 @@
 
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerClusterProducer.h"
 
-#include "TFile.h"
 
-///----
+using namespace edm;
+using namespace std;
+
 
 PreshowerClusterProducer::PreshowerClusterProducer(const edm::ParameterSet& ps) {
 
@@ -59,7 +60,8 @@ PreshowerClusterProducer::PreshowerClusterProducer(const edm::ParameterSet& ps) 
   // calibration parameters:
   calib_planeX_ = ps.getParameter<double>("preshCalibPlaneX");
   calib_planeY_ = ps.getParameter<double>("preshCalibPlaneY");
-  miptogev_     = ps.getParameter<double>("preshCalibMIPtoGeV");
+  gamma_        = ps.getParameter<double>("preshCalibGamma");
+  mip_          = ps.getParameter<double>("preshCalibMIP");
 
   assocSClusterCollection_ = ps.getParameter<std::string>("assocSClusterCollection");
 
@@ -68,8 +70,8 @@ PreshowerClusterProducer::PreshowerClusterProducer(const edm::ParameterSet& ps) 
   produces< reco::SuperClusterCollection >(assocSClusterCollection_);
 
   float preshStripECut = ps.getParameter<double>("preshStripEnergyCut");
-  float preshClustECut = ps.getParameter<double>("preshClusterEnergyCut");
     int preshSeededNst = ps.getParameter<int>("preshSeededNstrip");
+  preshClustECut = ps.getParameter<double>("preshClusterEnergyCut");
 
   // The debug level
   std::string debugString = ps.getParameter<std::string>("debugLevel");
@@ -91,9 +93,6 @@ PreshowerClusterProducer::~PreshowerClusterProducer() {
 
 void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
-  if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << "\n .......  Event # " << nEvt_+1 
-                                                         << " is analyzing ....... " << std::endl << std::endl;
-  
   edm::Handle< EcalRecHitCollection >   pRecHits;
   edm::Handle< reco::SuperClusterCollection > pSuperClusters;
 
@@ -127,12 +126,16 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
      //Make the map of DetID, EcalRecHit pairs
      rechits_map.insert(std::make_pair(it->id(), *it));   
   }
+  // The set of used DetID's for a given event:
+  std::set<DetId> used_strips;
+  used_strips.clear();
+
   if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << "PreshowerClusterProducerInfo: ### rechits_map of size " 
                                          << rechits_map.size() <<" was created!" << std::endl;   
 
   reco::PreshowerClusterCollection clusters1, clusters2;   // output collection of corrected PCs
   reco::SuperClusterCollection new_SC; // output collection of corrected SCs
-  reco::BasicClusterRefVector new_BC; // output collection of corrected SCs
+  reco::BasicClusterRefVector new_BC; // output collection of corrected BCs
 
   if ( debugL == PreshowerClusterAlgo::pDEBUG ) std::cout << " Making a cycle over Superclusters ..." << std::endl; 
   //make cycle over super clusters
@@ -147,13 +150,14 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
        if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << " superE = " << it_super->energy() << " superETA = " << it_super->eta() 
        		                                       << " superPHI = " << it_super->phi() << std::endl;
        if ( debugL == PreshowerClusterAlgo::pINFO ) std::cout << " This SC contains " << it_super->clustersSize() << " BCs" << std::endl;
-       reco::BasicClusterRefVector::iterator b_iter = it_super->clustersBegin();
-       for ( ; b_iter !=it_super->clustersEnd(); ++b_iter ) {  
+
+       reco::BasicClusterRefVector::iterator bc_iter = it_super->clustersBegin();
+       for ( ; bc_iter !=it_super->clustersEnd(); ++bc_iter ) {  
 
        // Get strip position at intersection point of the line EE - Vertex:
-         double X = (*b_iter)->x();
-	 double Y = (*b_iter)->y();
-         double Z = (*b_iter)->z();
+         double X = (*bc_iter)->x();
+	 double Y = (*bc_iter)->y();
+         double Z = (*bc_iter)->z();        
 	 const GlobalPoint point(X,Y,Z);         
 
          DetId tmp1 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, 1);
@@ -171,21 +175,25 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
               std::cout << " No intersected strip in plane 1 " << std::endl;
             else if ( strip2 == ESDetId(0) )
               std::cout << " No intersected strip in plane 2 " << std::endl;
-         }
+         }        
 
-         // Get a vector of ES clusters (found by the PreshSeeded algorithm) associated with a given EE basic cluster.         
+         // Get a vector of ES clusters (found by the PreshSeeded algorithm) associated with a given EE basic cluster.           
          for (int i=0; i<preshNclust_; i++) {
-	     reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&rechits_map,b_iter,geometry_p,topology_p);           
-             clusters1.push_back(cl1);
-	     reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&rechits_map,b_iter,geometry_p,topology_p);           
-             clusters2.push_back(cl2);
-	                   
-             e1 += cl1.energy();
-             e2 += cl2.energy();
+	   reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&rechits_map,geometry_p,topology_p);   
+             if ( cl1.energy() > preshClustECut) {
+               clusters1.push_back(cl1);
+               e1 += cl1.energy();       
+             }
+	     reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&rechits_map,geometry_p,topology_p); 
+
+             if ( cl2.energy() > preshClustECut) {
+               clusters2.push_back(cl1);
+               e2 += cl2.energy();
+             }	                               
 
           } // end of cycle over ES clusters
 
-             new_BC.push_back(*b_iter);
+            new_BC.push_back(*bc_iter);
 
          }  // end of cycle over BCs
 
@@ -195,18 +203,24 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
                  << " in Y plane " << " preshower clusters " << std::endl;
 
        // update energy of the SuperCluster    
-       if(e1+e2 > 1.0e-10)
-           deltaE = miptogev_*(calib_planeX_*e1+calib_planeY_*e2);       
+       if(e1+e2 > 1.0e-10) {
+	 // GeV to #MIPs
+	   e1 = e1 / mip_;
+           e2 = e2 / mip_;
+           deltaE = gamma_*(calib_planeX_*e1+calib_planeY_*e2);       
+       }
 
+       //corrected Energy
        float E = it_super->energy() + deltaE;
        
        if ( debugL == PreshowerClusterAlgo::pDEBUG ) std::cout << " Creating corrected SC " << std::endl;
        reco::SuperCluster sc( E, it_super->position(), it_super->seed(), new_BC);
        new_SC.push_back(sc);
-       if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << " SuperClusters energies: old E = " << sc.energy() 
-                                        << " and new E =" << it_super->energy() << std::endl;
+       if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << " SuperClusters energies: new E = " << sc.energy() 
+                                        << " vs. old E =" << it_super->energy() << std::endl;
 
    } // end of cycle over SCs
+  
 
    // create an auto_ptr to a PreshowerClusterCollection, copy the preshower clusters into it and put in the Event:
    std::auto_ptr< reco::PreshowerClusterCollection > clusters_p1(new reco::PreshowerClusterCollection);
@@ -228,3 +242,4 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
 
 }
 
+ 
