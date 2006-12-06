@@ -33,6 +33,7 @@ namespace edm {
         }
      
         node->setName(newName_);
+        node->setCloned(true);
       }
       return result;
     }
