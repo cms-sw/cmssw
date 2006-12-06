@@ -3,10 +3,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 namespace edmtest {
-  OtherThingProducer::OtherThingProducer(edm::ParameterSet const&): alg_() {
+  OtherThingProducer::OtherThingProducer(edm::ParameterSet const& pset): alg_(), thingLabel_() {
     produces<OtherThingCollection>("testUserTag");
+    thingLabel_ = pset.getUntrackedParameter<std::string>("thingLabel", std::string("Thing"));
   }
 
   // Virtual destructor needed.
@@ -20,7 +20,7 @@ namespace edmtest {
     std::auto_ptr<OtherThingCollection> result(new OtherThingCollection);  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
-    alg_.run(e, *result);
+    alg_.run(e, *result, thingLabel_);
 
     // Step D: Put outputs into event
     e.put(result, std::string("testUserTag"));

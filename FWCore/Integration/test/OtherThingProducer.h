@@ -1,6 +1,7 @@
 #ifndef Integration_OtherThingProducer_h
 #define Integration_OtherThingProducer_h
 
+#include <string>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Integration/test/OtherThingAlgorithm.h"
@@ -20,6 +21,7 @@ namespace edmtest {
 
   private:
     OtherThingAlgorithm alg_;
+    std::string thingLabel_;
   };
 }
 
