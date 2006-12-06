@@ -13,6 +13,11 @@ namespace edm {
     }
 
 
+    bool ReplaceNode::isEmbedded() const
+    {
+      return (getParent()->type().substr(0,7) == "include");
+    }
+ 
     void ReplaceNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       value_->print(ost, options);

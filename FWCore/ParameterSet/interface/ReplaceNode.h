@@ -27,6 +27,9 @@ namespace edm {
       /// batch jobs don't want to modify the same variable twice.  OK to do
       /// that interactively, though.
       bool okToRemodify() const {return okToRemodify_;}
+      /// whether its parent is an include node
+      bool isEmbedded() const;
+
       virtual void print(std::ostream& ost, PrintOptions options) const;
       virtual void accept(Visitor& v) const;
       NodePtr value() const {return value_;}
