@@ -243,14 +243,14 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
   // First Pixel disk: Z pos 35.5 radii 5.42078, 16.0756
   const SimpleDiskBounds PIXD1(
 	  (**fl).specificSurface().innerRadius(), 
-	  (**fl).specificSurface().outerRadius(),
+	  (**fl).specificSurface().outerRadius()+0.5,
 	  -0.015,0.015);
   const Surface::PositionType PPIXD1(0.0,0.0,(**fl).surface().position().z()); 
   // Second Pixel disk: Z pos 48.5 radii 5.42078, 16.0756
   ++fl;
   const SimpleDiskBounds PIXD2(
 	  (**fl).specificSurface().innerRadius(), 
-	  (**fl).specificSurface().outerRadius(),
+	  (**fl).specificSurface().outerRadius()+0.5,
 	  -0.015,0.015);
   const Surface::PositionType PPIXD2(0.0,0.0,(**fl).surface().position().z()); 
 
