@@ -39,8 +39,10 @@ PFRootEventManager::PFRootEventManager(const char* file)
     clustersPS_(new vector<reco::PFCluster>) {
   
   options_ = 0;
-  readOptions(file);
+  tree_ = 0;
   iEvent_=0;
+
+  readOptions(file);
 
 
   displayView_.resize(NViews);
@@ -76,11 +78,17 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
 
   cout<<"reading options "<<endl;
 
-  if( !options_ )
-    options_ = new IO(file);
-  else if( refresh) {
-    delete options_;
-    options_ = new IO(file);
+  try {
+    if( !options_ )
+      options_ = new IO(file);
+    else if( refresh) {
+      delete options_;
+      options_ = new IO(file);
+    }
+  }
+  catch( const string& err ) {
+    cout<<err<<endl;
+    return;
   }
 
   clusteringIsOn_ = true;
@@ -432,12 +440,18 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   options_->GetOpt("particle_flow", "resolution_map_HCAL_eta", map_HCAL_eta);
   string map_HCAL_phi;
   options_->GetOpt("particle_flow", "resolution_map_HCAL_phi", map_HCAL_phi);
-  PFBlock::setResMaps(map_ECAL_eta,
-		      map_ECAL_phi, 
-		      map_ECALec_x,
-		      map_ECALec_y,
-		      map_HCAL_eta,
-		      map_HCAL_phi);
+
+  try{
+    PFBlock::setResMaps(map_ECAL_eta,
+			map_ECAL_phi, 
+			map_ECALec_x,
+			map_ECALec_y,
+			map_HCAL_eta,
+			map_HCAL_phi);
+  }
+  catch( const string& err ) {
+    cout<<err<<endl;
+  } 
 
   double chi2_ECAL_HCAL=0;
   options_->GetOpt("particle_flow", "chi2_ECAL_HCAL", chi2_ECAL_HCAL);
