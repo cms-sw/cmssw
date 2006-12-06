@@ -1,7 +1,7 @@
 #ifndef RecoEcal_EgammaClusterAlgos_PreshowerClusterAlgo_h
 #define RecoEcal_EgammaClusterAlgos_PreshowerClusterAlgo_h
 //
-// $Id: PreshowerClusterAlgo.h,v 1.8 2006/07/20 14:51:50 dbanduri Exp $
+// $Id: PreshowerClusterAlgo.h,v 1.9 2006/07/20 18:51:59 rahatlou Exp $
 //
 
 //#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -23,6 +23,7 @@ class CaloSubdetectorTopology;
 
 class PreshowerClusterAlgo {
 
+
  public:
 
    enum DebugLevel { pDEBUG = 0, pINFO = 1, pERROR = 2 }; 
@@ -30,7 +31,7 @@ class PreshowerClusterAlgo {
    typedef math::XYZPoint Point;
 
    typedef std::map<DetId, EcalRecHit> RecHitsMap;
-
+   typedef std::set<DetId> HitsID;
 
    PreshowerClusterAlgo() : 
    preshStripEnergyCut_(0.), preshClusterEnergyCut_(0.), preshSeededNstr_(15), debugLevel_(pINFO)
@@ -42,9 +43,9 @@ class PreshowerClusterAlgo {
 
    ~PreshowerClusterAlgo() {};
 
-   reco::PreshowerCluster makeOneCluster(ESDetId strip, 
-                                         RecHitsMap *rechits_map,
-                                         reco::BasicClusterRefVector::iterator basicClust_ref,
+   reco::PreshowerCluster makeOneCluster(ESDetId strip,
+					 HitsID *used_strips,
+                                         RecHitsMap *rechits_map,					 
                                          const CaloSubdetectorGeometry*& geometry_p,
                                          CaloSubdetectorTopology*& topology_p);
 
@@ -63,8 +64,9 @@ class PreshowerClusterAlgo {
 
    // The map of hits
    RecHitsMap *rechits_map;
+
    // The set of used DetID's
-   std::set<DetId> used_s;
+   HitsID *used_s;
 
 };
 #endif
