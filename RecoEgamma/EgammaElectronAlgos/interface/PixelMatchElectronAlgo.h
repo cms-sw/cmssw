@@ -12,14 +12,12 @@
  *
  ************************************************************/
 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "DataFormats/TrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrackReco/interface/TrackSeedAssociation.h"
+#include "DataFormats/PixelMatchTrackReco/interface/GsfTrackSeedAssociation.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -29,18 +27,17 @@
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+
+class TransientInitialStateEstimator;
 
 class PixelMatchElectronAlgo {
 
@@ -58,10 +55,10 @@ public:
  private:
 
   // create electrons from tracks
-  void process(edm::Handle<reco::TrackCollection> tracksH, const reco::SeedSuperClusterAssociationCollection *sclAss, const reco::TrackSeedAssociationCollection *tsAss,
+  void process(edm::Handle<reco::GsfTrackCollection> tracksH, const reco::SeedSuperClusterAssociationCollection *sclAss, const reco::GsfTrackSeedAssociationCollection *tsAss,
    HBHERecHitMetaCollection *mhbhe, reco::PixelMatchGsfElectronCollection & outEle);
   // preselection method
-  bool preSelection(const reco::SuperCluster& clus, const reco::Track& track,double HoE);
+  bool preSelection(const reco::SuperCluster& clus, const reco::GsfTrack& track,double HoE);
   
   // temporary to get seed corresponding to track
   //  bool equal(edm::Ref<TrajectorySeedCollection> ts, const reco::Track& t);
