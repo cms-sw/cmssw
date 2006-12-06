@@ -58,7 +58,7 @@ TH1F* EffPlateau(Chain* chain,
 
   char cetamax[10];
   sprintf(cetamax,"%f",etamax);
-  string cut = "abs(particles_.eta)<";   
+  string cut = "@particles_.size()==1 && abs(particles_.eta)<";   
   cut += cetamax;
  
   string cutseen = cut;
@@ -78,8 +78,8 @@ TH1F* EffPlateau(Chain* chain,
     break;
   }
 
-  TH1F* h=new TH1F(shname.c_str(), shname.c_str(), 50,0,10);
-  
+  TH1F* h=new TH1F(shname.c_str(), shname.c_str(), 50,0,5);
+
   string nameref = shname;
   nameref += "_ref";
   TH1F* ref = (TH1F*) h->Clone( nameref.c_str() );
