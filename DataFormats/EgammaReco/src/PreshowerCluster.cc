@@ -1,5 +1,5 @@
 //
-// $Id: PreshowerCluster.cc,v 1.6 2006/06/11 17:59:42 rahatlou Exp $
+// $Id: PreshowerCluster.cc,v 1.8 2006/07/20 18:34:56 dbanduri Exp $
 //
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
@@ -9,8 +9,8 @@ using namespace reco;
 PreshowerCluster::~PreshowerCluster() { }
 
 
-PreshowerCluster::PreshowerCluster(const double E, const Point& pos, const EcalRecHitCollection & rhits, BasicClusterRefVector::iterator BC_ref,
-                     const int plane): EcalCluster(E, pos)
+PreshowerCluster::PreshowerCluster(const double E, const Point& pos, 
+const EcalRecHitCollection & rhits, const int plane): EcalCluster(E, pos)
 {
   rhits_ = rhits;
   float X = pos.x();
@@ -33,7 +33,8 @@ PreshowerCluster::PreshowerCluster(const double E, const Point& pos, const EcalR
      eta_ = -999.;
   }
 
-  bc_ref_ = (*BC_ref);
+  // bc_ref_ = *BC_ref;
+
 
 //   std::cout << " PreshowerCluster::PreshowerCluster, E = " << energy() << std::endl;
 //   std::cout << " PreshowerCluster::PreshowerCluster, POS = " << "(" << X <<","<< Y <<","<< Z <<")"<< std::endl;
@@ -54,9 +55,7 @@ PreshowerCluster::PreshowerCluster(const PreshowerCluster &b) : EcalCluster( b.e
   plane_ = b.plane_; 
 }
 
-
 // Comparisons
-
 bool PreshowerCluster::operator==(const PreshowerCluster &b) const {
   double EPS = 0.000001;
   float Tdiff = fabs(b.theta() - theta());
