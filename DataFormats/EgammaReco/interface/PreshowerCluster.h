@@ -5,7 +5,7 @@
  *
  * \authors Dmirty Bandurin (KSU), Ted Kolberg (ND)
  */
-// $Id: PreshowerCluster.h,v 1.10 2006/07/20 18:34:36 dbanduri Exp $
+// $Id: PreshowerCluster.h,v 1.11 2006/07/21 14:02:04 rahatlou Exp $
 //
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
@@ -29,8 +29,7 @@ namespace reco {
 
     // Constructor from EcalRecHits
     PreshowerCluster(const double E, const Point& pos, 
-                     const EcalRecHitCollection & rhits, 
-                     reco::BasicClusterRefVector::iterator BC_ref, 
+                     const EcalRecHitCollection & rhits, 		     		     
                      const int plane);
 
     // Constructor from cluster
@@ -85,7 +84,7 @@ namespace reco {
     bool operator<(const PreshowerCluster&) const;
 
     //Associated basic cluster;
-    BasicClusterRef basicCluster() const {return bc_ref_;}
+    //BasicClusterRef basicCluster() const {return bc_ref_;}
 
     virtual std::vector<DetId> getHitsByDetId() const { return usedHits_; }
 
@@ -102,7 +101,7 @@ namespace reco {
     int plane_;
 
     //Associated basic cluster;
-    BasicClusterRef bc_ref_;
+    //BasicClusterRef bc_ref_;    
 
     //Preshower cluster rec. hits
     EcalRecHitCollection rhits_;
