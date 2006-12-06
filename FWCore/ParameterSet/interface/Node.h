@@ -68,6 +68,11 @@ namespace edm {
 
       virtual void setModified(bool value);
       virtual bool isModified() const {return modified_;}
+
+      /// sometimes it matters whether the node was introduced via cloning
+      virtual void setCloned(bool value) {cloned_ = value;}
+      virtual bool isCloned() const {return cloned_;}
+
       /// throws an exception if they're not the same type
       virtual void replaceWith(const ReplaceNode * replaceNode);
 
@@ -92,6 +97,7 @@ namespace edm {
       int         line_;
       // nodes can only be modified once, so the config files can be order-independent
       bool modified_;
+      bool cloned_;
       Node * parent_;
     };
 

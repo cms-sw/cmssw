@@ -13,6 +13,7 @@ namespace edm {
     : name_(n), 
       line_(li), 
       modified_(false),
+      cloned_(false),
       parent_(0)
     { 
     }
