@@ -7,7 +7,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.23 2006/12/05 23:56:17 paterno Exp $
+$Id: BranchDescription.cc,v 1.24 2006/12/06 00:15:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -188,7 +188,7 @@ namespace edm {
     if (friendlyClassName_.empty())
       throwExceptionWithText("Friendly class name is not allowed to be empty");
 
-    if (!moduleDescriptionID_.isValid())
+    if (produced_ && !moduleDescriptionID_.isValid())
       throwExceptionWithText("Invalid ModuleDescriptionID detected");    
   }
 
