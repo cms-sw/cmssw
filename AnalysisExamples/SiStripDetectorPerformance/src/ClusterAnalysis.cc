@@ -1,6 +1,6 @@
 /*
-* $Date: 2006/11/13 21:13:33 $
-* $Revision: 1.3 $
+* $Date: 2006/11/20 00:33:54 $
+* $Revision: 1.4 $
 *
 * \author: D. Giordano, domenico.giordano@cern.ch
 */
@@ -13,6 +13,16 @@
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "sstream"
+
+#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
+
+#include "TTree.h"
+#include "TBranch.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TH3S.h"
+#include "TCanvas.h"
+#include "TPostScript.h"
 
 static const uint16_t _NUM_SISTRIP_SUBDET_ = 4;
 static TString SubDet[_NUM_SISTRIP_SUBDET_]={"_TIB","_TOB","_TID","_TEC"};
@@ -33,9 +43,13 @@ namespace cms{
     ModulesToBeExcluded_(conf.getParameter< std::vector<uint32_t> >("ModulesToBeExcluded")),
     tracksCollection_in_EventTree(true),
     ltcdigisCollection_in_EventTree(true)
-  {};
+  {}
 
-  ClusterAnalysis::~ClusterAnalysis(){};
+  ClusterAnalysis::~ClusterAnalysis(){
+    std::cout << "Destructing object" << std::endl;
+    //Hlist->Delete();
+    delete Hlist;
+  }
   
   void ClusterAnalysis::beginJob( const edm::EventSetup& es ) {
 
@@ -76,6 +90,27 @@ namespace cms{
 
     //Create histograms
     Hlist = new TObjArray();
+
+    //Display 3D
+    Parameters =  conf_.getParameter<edm::ParameterSet>("TH3ClusterGlobalPos");
+    TH3S * h3=new TH3S("ClusterGlobalPos","ClusterGlobalPos",
+			Parameters.getParameter<int32_t>("Nbinz"),
+			Parameters.getParameter<double>("zmin"),
+			Parameters.getParameter<double>("zmax"),
+			Parameters.getParameter<int32_t>("Nbinx"),
+			Parameters.getParameter<double>("xmin"),
+			Parameters.getParameter<double>("xmax"),
+			Parameters.getParameter<int32_t>("Nbiny"),
+			Parameters.getParameter<double>("ymin"),
+			Parameters.getParameter<double>("ymax")
+		       );
+    h3->SetXTitle("z (cm)");
+    h3->SetYTitle("x (cm)");
+    h3->SetZTitle("y (cm)");
+    Hlist->Add(h3);
+
+    std::cout << "added TH3D " << std::endl;
+    //&&&&&&&&&&&&&&&&&&&&&&&&
 
     fFile->cd();fFile->cd("Trigger");
 
@@ -410,9 +445,13 @@ namespace cms{
     TCanvas Canvas("c","c");//("c","c",600,300);
     for (int ih=0; ih<Hlist->GetEntries();ih++){
       edm::LogInfo("ClusterAnalysis") << "Histos " << ih << " name " << (*Hlist)[ih]->GetName() << " title " <<  (*Hlist)[ih]->GetTitle() << std::endl;
-      if (dynamic_cast<TH1F*>((*Hlist)[ih]) !=NULL)
+      if (dynamic_cast<TH1F*>((*Hlist)[ih]) !=NULL){
 	if (dynamic_cast<TH1F*>((*Hlist)[ih])->GetEntries() != 0)
+	  (*Hlist)[ih]->Draw();
+      }
+      else if (dynamic_cast<TH3S*>((*Hlist)[ih]) !=NULL){
 	(*Hlist)[ih]->Draw();
+      }
       Canvas.Update();
       ps.NewPage();
     }
@@ -662,6 +701,14 @@ namespace cms{
     //GeomDetEnumerators::SubDetector SubDet_enum=_StripGeomDetUnit->specificType().subDetector();
     int SubDet_enum=_StripGeomDetUnit->specificType().subDetector() -2;
 
+    //&&&&&&&&&&&&&&&& GLOBAL POS &&&&&&&&&&&&&&&&&&&&&&&&
+    const StripTopology &topol=(StripTopology&)_StripGeomDetUnit->topology();
+    MeasurementPoint mp(cluster->position(),rnd.Uniform(-0.5,0.5));
+    LocalPoint localPos = topol.localPosition(mp);
+    GlobalPoint globalPos=(_StripGeomDetUnit->surface()).toGlobal(localPos);
+    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+
     //char cdetid[128];
     //sprintf(cdetid,"_%d",detid);
     
@@ -687,7 +734,15 @@ namespace cms{
       << "\n\t\tcluster maxPos "      << cluster->maxPos()       
       << "\n\t\tcluster chargeL "     << cluster->chargeL()      
       << "\n\t\tcluster chargeR "     << cluster->chargeR()      
+      << "\n\t\tcluster LocalPos "     << localPos
+      << "\n\t\tcluster GlobalPos "     << globalPos
       << std::endl;
+
+
+    //Display
+    ((TH3S*) Hlist->FindObject("ClusterGlobalPos"))
+      ->Fill(globalPos.z(),globalPos.x(),globalPos.y());
+    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
     //Cumulative Plots

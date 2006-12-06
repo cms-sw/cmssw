@@ -45,16 +45,11 @@
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "TROOT.h"
 #include "TFile.h"
-#include "TTree.h"
-#include "TBranch.h"
-#include "TH1F.h"
-#include "TH2F.h"
 #include "TString.h"
+#include "TROOT.h"
 #include "TObjArray.h"
-#include "TCanvas.h"
-#include "TPostScript.h"
+#include "TRandom.h"
 
 #include "vector"
 #include <memory>
@@ -128,7 +123,8 @@ namespace cms{
       bool ltcdigisCollection_in_EventTree;
 
       int countOn, countOff, countAll, NClus[4][3];
-      
+
+      TRandom rnd;      
     };
 }
 #endif
