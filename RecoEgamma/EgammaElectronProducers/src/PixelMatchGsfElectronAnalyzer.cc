@@ -1,11 +1,11 @@
 // -*- C++ -*-
 //
-// Package:    ElectronPixelSeed
-// Class:      ElectronPixelSeedProducer
+// Package:    EgammaElectronProducer
+// Class:      PixelMatchGsfElectronAnalyzer
 // 
-/**\class ElectronPixelSeedAnalyzer RecoEgamma/ElectronTrackSeedProducers/src/ElectronPixelSeedAnalyzer.cc
+/**\class PixelMatchGsfElectronAnalyzer RecoEgamma/EgammaElectronProducers/src/PixelMatchGsfElectronAnalyzer.cc
 
- Description: rereading of electron seeds for verification
+ Description: rereading of PixelMatchGsfElectrons for verification
 
  Implementation:
      <Notes on implementation>
@@ -13,19 +13,19 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAnalyzer.cc,v 1.6 2006/10/27 23:08:25 uberthon Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.6 2006/10/27 23:08:25 uberthon Exp $
 //
 //
 
 // user include files
-#include "RecoEgamma/EgammaElectronProducers/interface/PixelMatchElectronAnalyzer.h"
+#include "RecoEgamma/EgammaElectronProducers/interface/PixelMatchGsfElectronAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchElectron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
@@ -38,13 +38,13 @@
 
 using namespace reco;
  
-PixelMatchElectronAnalyzer::PixelMatchElectronAnalyzer(const edm::ParameterSet& iConfig)
+PixelMatchGsfElectronAnalyzer::PixelMatchGsfElectronAnalyzer(const edm::ParameterSet& iConfig)
 {
 
-  histfile_ = new TFile("electronHistos.root","RECREATE");
+  histfile_ = new TFile("gsfElectronHistos.root","RECREATE");
 }  
   
-PixelMatchElectronAnalyzer::~PixelMatchElectronAnalyzer()
+PixelMatchGsfElectronAnalyzer::~PixelMatchGsfElectronAnalyzer()
 {
  
   // do anything here that needs to be done at desctruction time
@@ -53,28 +53,32 @@ PixelMatchElectronAnalyzer::~PixelMatchElectronAnalyzer()
   histfile_->Close();
 }
 
-void PixelMatchElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
+void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
 
   histCharge_= new TH1F("chargeEl","charge, 35 GeV",10, -2.,2.);
   histMass_ = new TH1F("massEl","mass, 35 GeV",20,0.,600.);
   histEn_ = new TH1F("energyEl","energy, 35 GeV",100,0.,100.);
-  histEt_ = new TH1F("etEl","et, 35 GeV",150,0.,15.);
+  //histEt_ = new TH1F("etEl","et, 35 GeV",150,0.,15.);
+histEt_ = new TH1F("etEl","et, 35 GeV",150,0.,50.);
   histEta_ = new TH1F("etaEl","eta, 35 GeV",100,-2.5,2.5);
   histPhi_ = new TH1F("phiEl","phi, 35 GeV",100,-3.5,3.5);
 
   histTrCharge_ = new TH1F("chargeTr","charge of track",10, -2.,2.);
   histTrInP_ = new TH1F("InnerP_Tr","electron track inner p",100,0.,100.);
-  histTrInPt_ = new TH1F("InnerPt_Tr","electron track inner pt",150,0.,15.);
+  //  histTrInPt_ = new TH1F("InnerPt_Tr","electron track inner pt",150,0.,15.);
+  histTrInPt_ = new TH1F("InnerPt_Tr","electron track inner pt",150,0.,50.);
   histTrInEta_ = new TH1F("InEtaTr","electron track inner eta",100,-2.5,2.5);
   histTrInPhi_ = new TH1F("InPhiTr","electron track inner phi",100,-3.5,3.5);
   histTrNrHits_=  new TH1F("NrHits","nr hits of electron track",100,0.,25.);
   histTrNrVHits_= new TH1F("NrVHits","nr valid hits of electron track",100,0.,25.);
   histTrChi2_= new TH1F("Chi2","chi2/ndof of electron track",100,0.,100.);
-  histTrOutPt_ = new TH1F("OuterPt_Tr","electron track outer pt",150,0.,15.);
+  //  histTrOutPt_ = new TH1F("OuterPt_Tr","electron track outer pt",150,0.,15.);
+  histTrOutPt_ = new TH1F("OuterPt_Tr","electron track outer pt",150,0.,50.);
   histTrOutP_ = new TH1F("OuterP_Tr","electron track outer p",100,0.,100.);
  
   histSclEn_ = new TH1F("energySCL","energy, 35 GeV",100,0.,100.);
-  histSclEt_ = new TH1F("etSCL","energy transverse of Supercluster",150,0.,15.);
+  //histSclEt_ = new TH1F("etSCL","energy transverse of Supercluster",150,0.,15.);
+  histSclEt_ = new TH1F("etSCL","energy transverse of Supercluster",150,0.,50.);
   histSclEta_ = new TH1F("etaSCL","eta of Supercluster",100,-2.5,2.5);
   histSclPhi_ = new TH1F("phiSCL","phi of Supercluster",100,-3.5,3.5);
 
@@ -84,16 +88,16 @@ void PixelMatchElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
 }     
 
 void
-PixelMatchElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
+PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
 {
 
   // get electrons
   
-  edm::Handle<PixelMatchElectronCollection> electrons;
+  edm::Handle<PixelMatchGsfElectronCollection> electrons;
   e.getByType(electrons); 
   edm::LogInfo("")<<"\n\n =================> Treating event "<<e.id()<<" Number of electrons "<<electrons.product()->size();
 
-  for( PixelMatchElectronCollection::const_iterator MyS= (*electrons).begin(); MyS != (*electrons).end(); ++MyS) {
+  for( PixelMatchGsfElectronCollection::const_iterator MyS= (*electrons).begin(); MyS != (*electrons).end(); ++MyS) {
     
     //electron quantities
     histCharge_->Fill((*MyS).charge());
@@ -105,7 +109,7 @@ PixelMatchElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
 
     // track informations 
     //    reco::GsfTrackRef tr =(*MyS).track();
-    reco::TrackRef tr =(*MyS).track();
+    reco::GsfTrackRef tr =(*MyS).track();
     histTrCharge_->Fill(tr->charge());
     histTrInP_->Fill((*tr).innerMomentum().R());
     histTrInPt_->Fill((*tr).innerMomentum().Rho());
