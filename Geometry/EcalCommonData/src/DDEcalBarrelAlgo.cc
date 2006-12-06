@@ -99,6 +99,17 @@ DDEcalBarrelAlgo::DDEcalBarrelAlgo() :
   m_ClrMat       (""),
   m_WrapMat      (""),
   m_WallMat      (""),
+
+  m_APDName      (""),
+  m_APDHere      (0),
+  m_APDMat       (""),
+  m_APDSide      (0),
+  m_APDThick     (0),
+  m_APDZ         (0),
+  m_APDX1        (0),
+  m_APDX2        (0),
+
+  m_WebHere      (0),
   m_WebPlName    (""),    
   m_WebClrName   (""),    
   m_WebPlMat     (""),
@@ -106,13 +117,55 @@ DDEcalBarrelAlgo::DDEcalBarrelAlgo() :
   m_vecWebPlTh   (),
   m_vecWebClrTh  (),
   m_vecWebLength (),
+  m_IlyHere      (0),
   m_IlyName      (),
   m_IlyPhiLow    (0),
   m_IlyDelPhi    (0),
   m_vecIlyMat    (),
   m_vecIlyThick  (),
+  m_IlyPipeName      (""),
+  m_IlyPipeHere      (0),
+  m_IlyPipeMat       (""),
+  m_IlyPipeOD        (0),
+  m_IlyPipeID        (0),
+  m_vecIlyPipeLength (),
+  m_vecIlyPipeType   (),
+  m_vecIlyPipePhi    (),
+  m_vecIlyPipeZ      (),
+  m_IlyPTMName        (""),
+  m_IlyPTMHere        (0),
+  m_IlyPTMMat         (""),
+  m_IlyPTMWidth       (0),
+  m_IlyPTMLength      (0),
+  m_IlyPTMHeight      (0),
+  m_vecIlyPTMZ        (),
+  m_vecIlyPTMPhi      (),
+  m_IlyFanOutName  (""),
+  m_IlyFanOutHere  (0),
+  m_IlyFanOutMat   (""),
+  m_IlyFanOutWidth (0),
+  m_IlyFanOutLength(0),
+  m_IlyFanOutHeight(0),
+  m_vecIlyFanOutZ  (),
+  m_vecIlyFanOutPhi(),
+  m_IlyDiffName    (""),
+  m_IlyDiffMat     (""),
+  m_IlyDiffOff     (0),
+  m_IlyDiffLength  (0),
+  m_IlyBndlName    (""),
+  m_IlyBndlMat     (""),
+  m_IlyBndlOff     (0),
+  m_IlyBndlLength  (0),
+  m_IlyFEMName     (""),
+  m_IlyFEMMat      (""),
+  m_IlyFEMWidth    (0),
+  m_IlyFEMLength   (0),
+  m_IlyFEMHeight   (0),
+  m_vecIlyFEMZ     (),
+  m_vecIlyFEMPhi   (),
   m_HawRName     (""),
   m_FawName      (""),
+  m_FawHere      (0),
   m_HawRHBIG     (0),
   m_HawRhsml     (0),
   m_HawRCutY     (0),
@@ -124,12 +177,15 @@ DDEcalBarrelAlgo::DDEcalBarrelAlgo() :
   m_FawDelPhi    (0),
   m_FawPhiRot    (0),
   m_FawRadOff    (0),
+  m_GridHere      (0),
   m_GridName     (""),
   m_GridMat      (""),
   m_GridThick    (0),
   m_BackXOff     (0),
   m_BackYOff     (0),
+  m_BackHere      (0),
   m_BackSideName          (""),
+  m_BackSideHere          (0),
   m_BackSideLength        (0),
   m_BackSideHeight        (0),
   m_BackSideWidth         (0),
@@ -138,24 +194,43 @@ DDEcalBarrelAlgo::DDEcalBarrelAlgo() :
   m_BackSideAngle        (0),
   m_BackSideMat           (""),
   m_BackPlateName    (""),
+  m_BackPlateHere          (0),
   m_BackPlateLength  (0),
   m_BackPlateThick   (0),
   m_BackPlateWidth   (0),
   m_BackPlateMat     (""),
+  m_BackPlate2Name    (""),
+  m_BackPlate2Thick   (0),
+  m_BackPlate2Mat     (""),
   m_GrilleName      (""),
+  m_GrilleHere      (0),
   m_GrilleThick     (0),
   m_GrilleWidth     (0),
   m_GrilleZSpace    (0),
   m_GrilleMat       (""),
   m_vecGrilleHeight (),
   m_vecGrilleZOff   (),
+  m_GrEdgeSlotName     (""),
+  m_GrEdgeSlotMat      (""),
+  m_GrEdgeSlotHere     (0),
+  m_GrEdgeSlotHeight   (0),
+  m_GrEdgeSlotWidth    (0),
+  m_GrMidSlotName      (""),
+  m_GrMidSlotMat       (""),
+  m_GrMidSlotHere      (0),
+  m_GrMidSlotWidth     (0),
+  m_GrMidSlotXOff      (0),
+  m_vecGrMidSlotHeight (),
+  m_BackPipeHere      (0),
   m_BackPipeName    (""),
   m_vecBackPipeDiam (),
-  m_BackPipeThick   (0),
+  m_vecBackPipeThick (),
   m_BackPipeMat     (""),
   m_BackPipeWaterMat (""),
 
   m_vecBackCoolName       (),
+  m_BackCoolHere      (0),
+  m_BackCoolBarHere      (0),
   m_BackCoolBarWidth       (0),
   m_BackCoolBarHeight      (0),
   m_BackCoolMat           (""),
@@ -168,6 +243,7 @@ DDEcalBarrelAlgo::DDEcalBarrelAlgo() :
   m_BackCoolBarWaName     (""),
   m_BackCoolBarWaThick    (0),
   m_BackCoolBarWaMat      (""),
+  m_BackCoolVFEHere      (0),
   m_BackCoolVFEName       (""),
   m_BackCoolVFEMat        (""),
   m_BackVFEName           (""),
@@ -179,42 +255,73 @@ DDEcalBarrelAlgo::DDEcalBarrelAlgo() :
   m_vecBackCoolSecSep     (),
   m_vecBackCoolNPerSec    (),     
 
-  m_vecBackCoolLength(),
+  m_BackMiscHere      (0),
   m_vecBackMiscThick (),
   m_vecBackMiscName  (),
   m_vecBackMiscMat   (),
   m_BackCBStdSep         (0),
+  m_PatchPanelHere      (0),
   m_PatchPanelName   (""),
   m_vecPatchPanelThick (),
   m_vecPatchPanelNames  (),
   m_vecPatchPanelMat   (),
- m_BackCoolTankName    (""),
- m_BackCoolTankWidth   (0),
- m_BackCoolTankThick   (0),
- m_BackCoolTankMat     (""),
- m_BackCoolTankWaName  (""),
- m_BackCoolTankWaWidth (0),
- m_BackCoolTankWaMat   (""),
- m_BackBracketName     (""),
- m_BackBracketHeight   (0),
+  m_BackCoolTankHere      (0),
+  m_BackCoolTankName    (""),
+  m_BackCoolTankWidth   (0),
+  m_BackCoolTankThick   (0),
+  m_BackCoolTankMat     (""),
+  m_BackCoolTankWaName  (""),
+  m_BackCoolTankWaWidth (0),
+  m_BackCoolTankWaMat   (""),
+  m_BackBracketName     (""),
+  m_BackBracketHeight   (0),
   m_BackBracketMat      (""),
 
- m_DryAirTubeName      (""),
- m_DryAirTubeNum       (0),
- m_DryAirTubeInnDiam   (0),
- m_DryAirTubeOutDiam   (0),
- m_DryAirTubeMat       (""),
- m_MBCoolTubeName      (""),
- m_MBCoolTubeInnDiam   (0),
- m_MBCoolTubeOutDiam   (0),
- m_MBCoolTubeMat       (""),
- m_MBManifName         (""),
- m_MBManifInnDiam      (0),
- m_MBManifOutDiam      (0),
- m_MBManifMat          (""),
- m_vecMBLyrThick       (0),
- m_vecMBLyrName        (),
- m_vecMBLyrMat         ()
+  m_DryAirTubeHere      (0),
+  m_DryAirTubeName      (""),
+  m_MBCoolTubeNum       (0),
+  m_DryAirTubeInnDiam   (0),
+  m_DryAirTubeOutDiam   (0),
+  m_DryAirTubeMat       (""),
+  m_MBCoolTubeHere      (0),
+  m_MBCoolTubeName      (""),
+  m_MBCoolTubeInnDiam   (0),
+  m_MBCoolTubeOutDiam   (0),
+  m_MBCoolTubeMat       (""),
+  m_MBManifHere      (0),
+  m_MBManifName         (""),
+  m_MBManifInnDiam      (0),
+  m_MBManifOutDiam      (0),
+  m_MBManifMat          (""),
+  m_MBLyrHere      (0),
+  m_vecMBLyrThick       (0),
+  m_vecMBLyrName        (),
+  m_vecMBLyrMat         (),
+
+
+  m_PincerRodHere      (0),
+  m_PincerRodName      (""),
+  m_PincerRodMat       (""),
+  m_vecPincerRodAzimuth(),
+  m_PincerEnvName      (""),
+  m_PincerEnvMat       (""),
+  m_PincerEnvWidth     (0),
+  m_PincerEnvHeight    (0),
+  m_PincerEnvLength    (0),
+  m_vecPincerEnvZOff   (),
+  m_PincerBlkName      (""),
+  m_PincerBlkMat       (""),
+  m_PincerBlkLength    (0),
+  m_PincerShim1Name    (""),
+  m_PincerShimHeight   (0),
+  m_PincerShim2Name    (""),
+  m_PincerShimMat      (""),
+  m_PincerShim1Width   (0),
+  m_PincerShim2Width   (0),
+  m_PincerCutName      (""),
+  m_PincerCutMat       (""),
+  m_PincerCutWidth    (0),
+  m_PincerCutHeight    (0)
 
 {
    edm::LogInfo("EcalGeom") << "DDEcalBarrelAlgo info: Creating an instance" ;
@@ -317,6 +424,16 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
    m_WrapMat = sArgs["WrapMat"] ; 
    m_WallMat = sArgs["WallMat"] ;
 
+   m_APDName  = sArgs["APDName"] ;
+   m_APDHere  = nArgs["APDHere"] ;
+   m_APDMat   = sArgs["APDMat"] ;
+   m_APDSide  = nArgs["APDSide"] ;
+   m_APDThick = nArgs["APDThick"] ;
+   m_APDZ     = nArgs["APDZ"] ;
+   m_APDX1    = nArgs["APDX1"] ;
+   m_APDX2    = nArgs["APDX2"] ;
+
+   m_WebHere     = nArgs["WebHere"] ;
    m_WebPlName   = sArgs["WebPlName"] ;
    m_WebClrName  = sArgs["WebClrName"] ;
    m_WebPlMat    = sArgs["WebPlMat"] ;
@@ -325,14 +442,59 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
    m_vecWebClrTh = vArgs["WebClrTh"] ;
    m_vecWebLength= vArgs["WebLength"] ;
 
+   m_IlyHere     = nArgs["IlyHere"] ;
    m_IlyName     = sArgs["IlyName"] ;
    m_IlyPhiLow   = nArgs["IlyPhiLow"] ;
    m_IlyDelPhi   = nArgs["IlyDelPhi"] ;
    m_vecIlyMat   = vsArgs["IlyMat"] ;
    m_vecIlyThick = vArgs["IlyThick"] ;
 
+   m_IlyPipeName      = sArgs["IlyPipeName"] ;
+   m_IlyPipeHere      = nArgs["IlyPipeHere"] ;
+   m_IlyPipeMat       = sArgs["IlyPipeMat"] ;
+   m_IlyPipeOD        = nArgs["IlyPipeOD"] ;
+   m_IlyPipeID        = nArgs["IlyPipeID"] ;
+   m_vecIlyPipeLength = vArgs["IlyPipeLength"] ;
+   m_vecIlyPipeType   = vArgs["IlyPipeType"] ;
+   m_vecIlyPipePhi    = vArgs["IlyPipePhi"] ;
+   m_vecIlyPipeZ      = vArgs["IlyPipeZ"] ;
+
+   m_IlyPTMName   = sArgs["IlyPTMName"] ;
+   m_IlyPTMHere   = nArgs["IlyPTMHere"] ;
+   m_IlyPTMMat    = sArgs["IlyPTMMat"] ;
+   m_IlyPTMWidth  = nArgs["IlyPTMWidth"] ;
+   m_IlyPTMLength = nArgs["IlyPTMLength"] ;
+   m_IlyPTMHeight = nArgs["IlyPTMHeight"] ;
+   m_vecIlyPTMZ   = vArgs["IlyPTMZ"] ;
+   m_vecIlyPTMPhi = vArgs["IlyPTMPhi"] ;
+
+   m_IlyFanOutName   = sArgs["IlyFanOutName"] ;
+   m_IlyFanOutHere   = nArgs["IlyFanOutHere"] ;
+   m_IlyFanOutMat    = sArgs["IlyFanOutMat"] ;
+   m_IlyFanOutWidth  = nArgs["IlyFanOutWidth"] ;
+   m_IlyFanOutLength = nArgs["IlyFanOutLength"] ;
+   m_IlyFanOutHeight = nArgs["IlyFanOutHeight"] ;
+   m_vecIlyFanOutZ   = vArgs["IlyFanOutZ"] ;
+   m_vecIlyFanOutPhi = vArgs["IlyFanOutPhi"] ;
+   m_IlyDiffName     = sArgs["IlyDiffName"] ;
+   m_IlyDiffMat      = sArgs["IlyDiffMat"] ;
+   m_IlyDiffOff      = nArgs["IlyDiffOff"] ;
+   m_IlyDiffLength   = nArgs["IlyDiffLength"] ;
+   m_IlyBndlName     = sArgs["IlyBndlName"] ;
+   m_IlyBndlMat      = sArgs["IlyBndlMat"] ;
+   m_IlyBndlOff      = nArgs["IlyBndlOff"] ;
+   m_IlyBndlLength   = nArgs["IlyBndlLength"] ;
+   m_IlyFEMName      = sArgs["IlyFEMName"] ;
+   m_IlyFEMMat       = sArgs["IlyFEMMat"] ;
+   m_IlyFEMWidth     = nArgs["IlyFEMWidth"] ;
+   m_IlyFEMLength    = nArgs["IlyFEMLength"] ;
+   m_IlyFEMHeight    = nArgs["IlyFEMHeight"] ;
+   m_vecIlyFEMZ      = vArgs["IlyFEMZ"] ;
+   m_vecIlyFEMPhi    = vArgs["IlyFEMPhi"] ;
+
    m_HawRName   = sArgs["HawRName"] ;
    m_FawName    = sArgs["FawName"] ;
+   m_FawHere    = nArgs["FawHere"] ;
    m_HawRHBIG   = nArgs["HawRHBIG"] ;
    m_HawRhsml   = nArgs["HawRhsml"] ;
    m_HawRCutY   = nArgs["HawRCutY"] ;
@@ -346,13 +508,16 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
    m_FawPhiRot  = nArgs["FawPhiRot"] ;
    m_FawRadOff  = nArgs["FawRadOff"] ;
 
+   m_GridHere     = nArgs["GridHere"] ;
    m_GridName   = sArgs["GridName"]  ;
    m_GridMat    = sArgs["GridMat"]   ;
    m_GridThick  = nArgs["GridThick"] ;
 
+   m_BackHere         = nArgs["BackHere"] ;
    m_BackXOff         = nArgs["BackXOff"] ;
    m_BackYOff         = nArgs["BackYOff"] ;
    m_BackSideName     = sArgs["BackSideName"] ;
+   m_BackSideHere     = nArgs["BackSideHere"] ;
    m_BackSideLength   = nArgs["BackSideLength"] ;
    m_BackSideHeight   = nArgs["BackSideHeight"] ;
    m_BackSideWidth    = nArgs["BackSideWidth"] ;
@@ -361,25 +526,46 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
    m_BackSideAngle    = nArgs["BackSideAngle"] ;
    m_BackSideMat      = sArgs["BackSideMat"] ;
    m_BackPlateName    = sArgs["BackPlateName"] ;
+   m_BackPlateHere    = nArgs["BackPlateHere"] ;
    m_BackPlateLength  = nArgs["BackPlateLength"] ;
    m_BackPlateThick   = nArgs["BackPlateThick"] ;
    m_BackPlateWidth   = nArgs["BackPlateWidth"] ;
    m_BackPlateMat     = sArgs["BackPlateMat"] ;
+   m_BackPlate2Name    = sArgs["BackPlate2Name"] ;
+   m_BackPlate2Thick   = nArgs["BackPlate2Thick"] ;
+   m_BackPlate2Mat     = sArgs["BackPlate2Mat"] ;
    m_GrilleName       = sArgs["GrilleName"] ;
+   m_GrilleHere       = nArgs["GrilleHere"] ;
    m_GrilleThick      = nArgs["GrilleThick"] ;
    m_GrilleWidth      = nArgs["GrilleWidth"] ;
    m_GrilleZSpace     = nArgs["GrilleZSpace"] ;
    m_GrilleMat        = sArgs["GrilleMat"] ;
    m_vecGrilleHeight  = vArgs["GrilleHeight"] ;
    m_vecGrilleZOff    = vArgs["GrilleZOff"] ;
+
+   m_GrEdgeSlotName     = sArgs["GrEdgeSlotName"] ;
+   m_GrEdgeSlotMat      = sArgs["GrEdgeSlotMat"] ;
+   m_GrEdgeSlotHere     = nArgs["GrEdgeSlotHere"] ;
+   m_GrEdgeSlotHeight   = nArgs["GrEdgeSlotHeight"] ;
+   m_GrEdgeSlotWidth    = nArgs["GrEdgeSlotWidth"] ;
+   m_GrMidSlotName      = sArgs["GrMidSlotName"] ;
+   m_GrMidSlotMat       = sArgs["GrMidSlotMat"] ;
+   m_GrMidSlotHere      = nArgs["GrMidSlotHere"] ;
+   m_GrMidSlotWidth     = nArgs["GrMidSlotWidth"] ;
+   m_GrMidSlotXOff      = nArgs["GrMidSlotXOff"] ;
+   m_vecGrMidSlotHeight = vArgs["GrMidSlotHeight"] ;
+
+   m_BackPipeHere     = nArgs["BackPipeHere"] ;
    m_BackPipeName    = sArgs["BackPipeName"] ;
    m_vecBackPipeDiam = vArgs["BackPipeDiam"] ;
-   m_BackPipeThick   = nArgs["BackPipeThick"] ;
+   m_vecBackPipeThick = vArgs["BackPipeThick"] ;
    m_BackPipeMat     = sArgs["BackPipeMat"] ;
    m_BackPipeWaterMat = sArgs["BackPipeWaterMat"] ;
 
 
+   m_BackCoolHere          = nArgs["BackCoolHere"] ;
    m_vecBackCoolName       = vsArgs["BackCoolName"] ;
+   m_BackCoolBarHere       = nArgs["BackCoolBarHere"] ;
    m_BackCoolBarWidth      = nArgs["BackCoolBarWidth"] ; 
    m_BackCoolBarHeight     = nArgs["BackCoolBarHeight"] ; 
    m_BackCoolMat           = sArgs["BackCoolMat"] ;     
@@ -392,6 +578,7 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
    m_BackCoolBarWaName     = sArgs["BackCoolBarWaName"] ; 
    m_BackCoolBarWaThick    = nArgs["BackCoolBarWaThick"] ;
    m_BackCoolBarWaMat      = sArgs["BackCoolBarWaMat"] ;
+   m_BackCoolVFEHere       = nArgs["BackCoolVFEHere"] ;
    m_BackCoolVFEName       = sArgs["BackCoolVFEName"] ; 
    m_BackCoolVFEMat        = sArgs["BackCoolVFEMat"] ;  
    m_BackVFEName           = sArgs["BackVFEName"] ;   
@@ -404,15 +591,17 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
    m_vecBackCoolNPerSec    = vArgs["BackCoolNPerSec"] ;  
    m_BackCBStdSep          = nArgs["BackCBStdSep"] ;
 
-   m_vecBackCoolLength  = vArgs["BackCoolLength"] ;
+   m_BackMiscHere       = nArgs["BackMiscHere"] ;
    m_vecBackMiscThick   = vArgs["BackMiscThick"] ;
    m_vecBackMiscName    = vsArgs["BackMiscName"] ;
    m_vecBackMiscMat     = vsArgs["BackMiscMat"] ;
+   m_PatchPanelHere     = nArgs["PatchPanelHere"] ;
    m_vecPatchPanelThick = vArgs["PatchPanelThick"] ;
    m_vecPatchPanelNames = vsArgs["PatchPanelNames"] ;
    m_vecPatchPanelMat   = vsArgs["PatchPanelMat"] ;
    m_PatchPanelName     = sArgs["PatchPanelName"] ;
 
+   m_BackCoolTankHere    = nArgs["BackCoolTankHere"] ;
    m_BackCoolTankName    = sArgs["BackCoolTankName"] ;
    m_BackCoolTankWidth   = nArgs["BackCoolTankWidth"] ;
    m_BackCoolTankThick   = nArgs["BackCoolTankThick"] ;
@@ -424,22 +613,51 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
    m_BackBracketHeight   = nArgs["BackBracketHeight"] ;
    m_BackBracketMat      = sArgs["BackBracketMat"] ;
 
+   m_DryAirTubeHere     = nArgs["DryAirTubeHere"] ;
    m_DryAirTubeName     = sArgs["DryAirTubeName"];
-   m_DryAirTubeNum      = static_cast<unsigned int> ( nArgs["DryAirTubeNum"] ) ;
+   m_MBCoolTubeNum      = static_cast<unsigned int> ( nArgs["MBCoolTubeNum"] ) ;
    m_DryAirTubeInnDiam  = nArgs["DryAirTubeInnDiam"];
    m_DryAirTubeOutDiam  = nArgs["DryAirTubeOutDiam"];
    m_DryAirTubeMat      = sArgs["DryAirTubeMat"];
+   m_MBCoolTubeHere     = nArgs["MBCoolTubeHere"] ;
    m_MBCoolTubeName     = sArgs["MBCoolTubeName"];
    m_MBCoolTubeInnDiam  = nArgs["MBCoolTubeInnDiam"];
    m_MBCoolTubeOutDiam  = nArgs["MBCoolTubeOutDiam"];
    m_MBCoolTubeMat      = sArgs["MBCoolTubeMat"];
+   m_MBManifHere        = nArgs["MBManifHere"] ;
    m_MBManifName        = sArgs["MBManifName"];
    m_MBManifInnDiam     = nArgs["MBManifInnDiam"];
    m_MBManifOutDiam     = nArgs["MBManifOutDiam"];
    m_MBManifMat         = sArgs["MBManifMat"];
+   m_MBLyrHere          = nArgs["MBLyrHere"] ;
    m_vecMBLyrThick      = vArgs["MBLyrThick"];
    m_vecMBLyrName       = vsArgs["MBLyrName"];
    m_vecMBLyrMat        = vsArgs["MBLyrMat"];
+
+   m_PincerRodHere      = nArgs["PincerRodHere"];
+   m_PincerRodName      = sArgs["PincerRodName"];
+   m_PincerRodMat       = sArgs["PincerRodMat"];
+   m_vecPincerRodAzimuth= vArgs["PincerRodAzimuth"];
+   m_PincerEnvName      = sArgs["PincerEnvName"];
+   m_PincerEnvMat       = sArgs["PincerEnvMat"];
+   m_PincerEnvWidth     = nArgs["PincerEnvWidth"];
+   m_PincerEnvHeight    = nArgs["PincerEnvHeight"];
+   m_PincerEnvLength    = nArgs["PincerEnvLength"];
+   m_vecPincerEnvZOff   = vArgs["PincerEnvZOff"];
+   m_PincerBlkName      = sArgs["PincerBlkName"];
+   m_PincerBlkMat       = sArgs["PincerBlkMat"];
+   m_PincerBlkLength    = nArgs["PincerBlkLength"];
+   m_PincerShim1Name    = sArgs["PincerShim1Name"];
+   m_PincerShimHeight   = nArgs["PincerShimHeight"];
+   m_PincerShim2Name    = sArgs["PincerShim2Name"];
+   m_PincerShimMat      = sArgs["PincerShimMat"];
+   m_PincerShim1Width   = nArgs["PincerShim1Width"];
+   m_PincerShim2Width   = nArgs["PincerShim2Width"];
+   m_PincerCutName      = sArgs["PincerCutName"];
+   m_PincerCutMat       = sArgs["PincerCutMat"];
+   m_PincerCutWidth     = nArgs["PincerCutWidth"];
+   m_PincerCutHeight    = nArgs["PincerCutHeight"];
+
    
    edm::LogInfo("EcalGeom") << "DDEcalBarrelAlgo info: end initialize" ;
 }
@@ -679,6 +897,89 @@ void DDEcalBarrelAlgo::execute()
 	     Vec3(0,0, ilyLength/2 ),
 	     DDRotation() ) ;
 
+      DDLogicalPart ilyPipeLog[200] ;
+
+      if( 0 != ilyPipeHere() )
+      {
+	 for( unsigned int iPipeType ( 0 ) ; iPipeType != vecIlyPipeLength().size(); ++iPipeType )
+	 {
+	    const DDName pName ( ddname( ilyPipeName() + "_" + 
+					 int_to_string(iPipeType+1) ) ) ;
+	 
+	    DDSolid ilyPipeSolid ( DDSolidFactory::tubs( pName ,
+							 vecIlyPipeLength()[iPipeType]/2.,
+							 0,
+							 ilyPipeOD()/2,
+							 0*deg, 360*deg ) ) ;
+	    ilyPipeLog[iPipeType] = DDLogicalPart( pName, ilyPipeMat(), ilyPipeSolid ) ;
+		  
+	    const DDName pWaName ( ddname( ilyPipeName() + "Wa_" + 
+					   int_to_string(iPipeType+1) ) ) ;
+	    DDSolid ilyPipeWaSolid ( DDSolidFactory::tubs( pWaName ,
+							   vecIlyPipeLength()[iPipeType]/2.,
+							   0, 
+							   ilyPipeID()/2,
+							   0*deg, 360*deg ) ) ;
+	    const DDLogicalPart ilyPipeWaLog ( pWaName, backPipeWaterMat(), ilyPipeWaSolid ) ;
+
+	    DDpos( ilyPipeWaLog,
+		   pName, 
+		   copyOne, 
+		   DDTranslation(0,0,0),
+		   DDRotation() ) ;
+	 }
+      } 
+
+      DDSolid ilyPTMSolid ( DDSolidFactory::box( ilyPTMName(), 
+						 ilyPTMHeight()/2.,
+						 ilyPTMWidth()/2.,  
+						 ilyPTMLength()/2.   ) ) ;
+      const DDLogicalPart ilyPTMLog ( ilyPTMName(),
+				      ilyPTMMat(),
+				      ilyPTMSolid ) ;
+
+      DDSolid ilyFanOutSolid ( DDSolidFactory::box( ilyFanOutName(), 
+						    ilyFanOutHeight()/2.,
+						    ilyFanOutWidth()/2.,  
+						    ilyFanOutLength()/2.   ) ) ;
+      const DDLogicalPart ilyFanOutLog ( ilyFanOutName(),
+					 ilyFanOutMat(),
+					 ilyFanOutSolid ) ;
+
+      DDSolid ilyFEMSolid ( DDSolidFactory::box( ilyFEMName(), 
+						 ilyFEMHeight()/2.,
+						 ilyFEMWidth()/2.,  
+						 ilyFEMLength()/2.   ) ) ;
+      const DDLogicalPart ilyFEMLog ( ilyFEMName(),
+				      ilyFEMMat(),
+				      ilyFEMSolid ) ;
+
+      DDSolid ilyDiffSolid ( DDSolidFactory::box( ilyDiffName(), 
+						  ilyFanOutHeight()/2.,
+						  ilyFanOutWidth()/2.,  
+						  ilyDiffLength()/2.   ) ) ;
+      const DDLogicalPart ilyDiffLog ( ilyDiffName(),
+				       ilyDiffMat(),
+				       ilyDiffSolid ) ;
+
+      DDSolid ilyBndlSolid ( DDSolidFactory::box( ilyBndlName(), 
+						  ilyFanOutHeight()/2.,
+						  ilyFanOutWidth()/2.,  
+						  ilyBndlLength()/2.   ) ) ;
+      const DDLogicalPart ilyBndlLog ( ilyBndlName(),
+				       ilyBndlMat(),
+				       ilyBndlSolid ) ;
+      DDpos( ilyDiffLog,
+	     ilyFanOutName(), 
+	     copyOne, 
+	     Vec3(0,0, -ilyFanOutLength()/2 + ilyDiffLength()/2 + ilyDiffOff() ),
+	     DDRotation() ) ;
+      DDpos( ilyBndlLog,
+	     ilyFanOutName(), 
+	     copyOne, 
+	     Vec3(0,0, -ilyFanOutLength()/2 + ilyBndlLength()/2 + ilyBndlOff() ),
+	     DDRotation() ) ;
+
       for( unsigned int ily ( 0 ) ; ily != vecIlyThick().size() ; ++ily )
       {
 	 const double        ilyRMax     ( ilyRMin + vecIlyThick()[ily] ) ;
@@ -692,17 +993,111 @@ void DDEcalBarrelAlgo::execute()
 
 	 const DDLogicalPart xilyLog     ( xilyName, ddmat(vecIlyMat()[ily]), xilySolid ) ;
 
-	 DDpos( xilyLog,
-		ilyLog, 
-		copyOne, 
-		Vec3(0,0,0),
-		DDRotation() ) ;
+	 if( 0 != ilyHere() )
+	 {
+	    DDpos( xilyLog,
+		   ilyLog, 
+		   copyOne, 
+		   Vec3(0,0,0),
+		   DDRotation() ) ;
 
+	    unsigned int copyNum[] = {20*0} ;
+
+	    if( 10*mm <  vecIlyThick()[ily] &&
+		vecIlyThick().size() != (ily+1) &&
+		0     != ilyPipeHere()         )
+	    {
+	       if( 0 != ilyPTMHere() )
+	       {
+		  unsigned int ptmCopy ( 0 ) ;
+		  for( unsigned int ilyPTM ( 0 ) ; ilyPTM != vecIlyPTMZ().size() ; ++ilyPTM )
+		  {
+		     const double radius ( ilyRMax - 1*mm - ilyPTMHeight()/2. ) ;
+		     const double phi    ( vecIlyPTMPhi()[ilyPTM] ) ;
+		     const double yy     ( radius*sin(phi) ) ;
+		     const double xx     ( radius*cos(phi) ) ;
+		     DDpos( ilyPTMLog,
+			    xilyLog, 
+			    ++ptmCopy, 
+			    Vec3(xx,yy, vecIlyPTMZ()[ilyPTM] -ilyLength/2 ),
+			    myrot( ilyPTMLog.name().name() + "_rot" +
+				   int_to_string( ptmCopy ) , HepRotationZ( phi ) )) ;
+		  }
+	       }
+	       if( 0 != ilyFanOutHere() )
+	       {
+		  unsigned int fanOutCopy ( 0 ) ;
+		  for( unsigned int ilyFO ( 0 ) ; ilyFO != vecIlyFanOutZ().size() ; ++ilyFO )
+		  {
+		     const double radius ( ilyRMax - 1*mm - ilyFanOutHeight()/2. ) ;
+		     const double phi    ( vecIlyFanOutPhi()[ilyFO] ) ;
+		     const double yy     ( radius*sin(phi) ) ;
+		     const double xx     ( radius*cos(phi) ) ;
+		     DDpos( ilyFanOutLog,
+			    xilyLog, 
+			    ++fanOutCopy, 
+			    Vec3(xx,yy, vecIlyFanOutZ()[ilyFO] -ilyLength/2 ),
+			    myrot( ilyFanOutLog.name().name() + "_rot" +
+				   int_to_string( fanOutCopy ) , 
+				   HepRotationZ( phi )*HepRotationY( 180*deg ) )) ;
+		  }
+		  unsigned int femCopy ( 0 ) ;
+		  for( unsigned int ilyFEM ( 0 ) ; ilyFEM != vecIlyFEMZ().size() ; ++ilyFEM )
+		  {
+		     const double radius ( ilyRMax - 1*mm - ilyFEMHeight()/2. ) ;
+		     const double phi    ( vecIlyFEMPhi()[ilyFEM] ) ;
+		     const double yy     ( radius*sin(phi) ) ;
+		     const double xx     ( radius*cos(phi) ) ;
+		     DDpos( ilyFEMLog,
+			    xilyLog, 
+			    ++femCopy, 
+			    Vec3(xx,yy, vecIlyFEMZ()[ilyFEM] -ilyLength/2 ),
+			    myrot( ilyFEMLog.name().name() + "_rot" +
+				   int_to_string( femCopy ) , HepRotationZ( phi ) )) ;
+		  }
+	       }
+	       for( unsigned int iPipe ( 0 ) ; iPipe != vecIlyPipePhi().size(); ++iPipe )
+	       {
+		  const unsigned int type ( static_cast<unsigned int> ( round( vecIlyPipeType()[iPipe] ) ) ) ;
+//		  std::cout<<" iPipe, type= " << iPipe << ", " << type << std::endl ;
+		  const double       zz   ( -ilyLength/2 + vecIlyPipeZ()[iPipe] +
+					    ( 9>type ? vecIlyPipeLength()[type]/2. : 0 ) ) ;
+
+		  for( unsigned int ly ( 0 ) ; ly != 2 ; ++ly )
+		  {
+		     const double radius ( 0 == ly ? ilyRMin + ilyPipeOD()/2. + 1*mm :
+					   ilyRMax - ilyPipeOD()/2. - 1*mm  ) ;
+		     const double phi    ( vecIlyPipePhi()[iPipe] ) ;
+		     const double yy     ( radius*sin(phi) ) ;
+		     const double xx     ( radius*cos(phi) ) ;
+		     DDpos( ilyPipeLog[type],
+			    xilyLog, 
+			    ++copyNum[type],
+			    Vec3(xx,yy,zz),
+			    ( 9 > type ? DDRotation() :
+			      myrot( ilyPipeLog[type].name().name() + "_rot" +
+				     int_to_string( copyNum[type] ) , Rota( Vec3(xx,yy,0), 90*deg) ) ) ) ;
+		  }
+	       }
+	    }
+	 }
 	 ilyRMin = ilyRMax ;
       }      
       // End Inner Layer volumes---------------------------------------------------------
 
-
+      const DDName clyrName ( DDName( "ECLYR" ) ) ;
+      std::vector<double> cri;
+      std::vector<double> cro;
+      std::vector<double> czz;
+      czz.push_back( vecSpmZPts()[1] ) ;
+      cri.push_back( vecSpmRMin()[0] ) ;
+      cro.push_back( vecSpmRMin()[0] + 25*mm ) ;
+      czz.push_back( vecSpmZPts()[2] ) ;
+      cri.push_back( vecSpmRMin()[2] ) ;
+      cro.push_back( vecSpmRMin()[2] + 10*mm ) ;
+      const DDSolid clyrSolid ( DDSolidFactory::polycone( clyrName, -9.5*deg,  19*deg, czz,cri,cro) ) ;
+      const DDLogicalPart clyrLog ( clyrName, ddmat(vecIlyMat()[4]), clyrSolid ) ;
+      DDpos( clyrLog, spmLog, copyOne, Vec3(0,0,0), DDRotation() ) ;
 
       // Begin Alveolar Wedge parent ------------------------------------------------------
 //----------------
@@ -878,12 +1273,13 @@ void DDEcalBarrelAlgo::execute()
 				    0, 
 				    trapFAW.L()/2 )*
 			      RoZ3D( -90*deg + fawPhiRot() ) ) ;
-	 DDpos( fawLog,
-		spmLog, 
-		iPhi, 
-		fawform.getTranslation(),
-		myrot( fawName().name()+"_Rot" + int_to_string(iPhi), 
-		       fawform.getRotation() ) ) ;
+	 if( fawHere() )
+	    DDpos( fawLog,
+		   spmLog, 
+		   iPhi, 
+		   fawform.getTranslation(),
+		   myrot( fawName().name()+"_Rot" + int_to_string(iPhi), 
+			  fawform.getRotation() ) ) ;
       }
 
       // End Alveolar Wedge parent ------------------------------------------------------
@@ -912,12 +1308,13 @@ void DDEcalBarrelAlgo::execute()
       const Tf3D gridForm ( vGrid[4],                   vGrid[5], vGrid[6], // Grid inside HAW
 			    vHAW[5] - Pt3D(0,h_Grid,0),  vHAW[5],  vHAW[6]   ) ;
 
-      DDpos( gridLog,
-	     hawRLog, 
-	     copyOne, 
-	     gridForm.getTranslation(),
-	     myrot( gridName().name()+"R", 
-		    gridForm.getRotation() ) ) ;
+      if( 0 != gridHere() )
+	 DDpos( gridLog,
+		hawRLog, 
+		copyOne, 
+		gridForm.getTranslation(),
+		myrot( gridName().name()+"R", 
+		       gridForm.getRotation() ) ) ;
 
       // End Grid + Tablet insertion
 
@@ -983,6 +1380,34 @@ void DDEcalBarrelAlgo::execute()
 	 const DDName        cryDDName ( cryName() + sType ) ;
 	 const DDSolid       crySolid  ( mytrap( cryDDName.name(), trapCry ) ) ;
 	 const DDLogicalPart cryLog    ( cryDDName, cryMat(), crySolid ) ;
+
+
+//++++++++++++++++++++++++++++++++++  APD ++++++++++++++++++++++++++++++++++
+
+	 const DDName        apdDDName ( apdName().name() + sType ) ;
+
+	 const Trap trapAPD (
+	    apdSide()/2.,    //double aHalfLengthXNegZLoY , // bl1, A/2
+	    apdSide()/2.,    //double aHalfLengthXPosZLoY , // bl2, a/2
+	    apdSide()/2.,    //double aHalfLengthXPosZHiY , // tl2, b/2
+	    apdSide()/2.,    //double aHalfLengthYNegZ    , // h1,  H/2
+	    apdSide()/2.,    //double aHalfLengthYPosZ    , // h2,  h/2
+	    apdThick()/2.,   // dz,  L/2
+	    90*deg,                //double aAngleAD            , // alfa1
+	    0,          //double aCoord15X           , // x15
+	    0           //double aCoord15Y             // y15  
+	    ) ;
+
+//	 DDSolid apdSolid ( DDSolidFactory::box( apdDDName, 
+//						 apdSide()/2.,
+//						 apdSide()/2.,  
+//						 apdThick()/2.   ) ) ;
+	 const DDSolid       apdSolid  ( mytrap( apdDDName.name(), trapAPD ) ) ;
+	 const DDLogicalPart apdLog ( apdDDName, apdMat(), apdSolid ) ;
+	 
+	 unsigned int copyAPD ( 0 ) ;
+//++++++++++++++++++++++++++++++++++ END APD ++++++++++++++++++++++++++++++++++
+
 
 	 const double delta     ( atan( ( HNom - hNom )/LNom ) ) ;
 //unused	 const double cosdelta  ( cos( delta ) ) ;
@@ -1109,6 +1534,24 @@ void DDEcalBarrelAlgo::execute()
 		cryToClr,
 		DDRotation() ) ;
 
+	 if( 0 != apdHere() )
+	 { 
+	    DDpos( apdLog,
+		   clrLog, 
+		   ++copyAPD, 
+		   Vec3( +trapCry.bl1() - apdX1(),
+			 +trapCry.h1()  - apdZ(),
+			 -trapCry.dz()  - apdThick()/2. + (rClr - fClr)/2. ),
+		   DDRotation() ) ;
+	    DDpos( apdLog,
+		   clrLog, 
+		   ++copyAPD, 
+		   Vec3( +trapCry.bl1() - apdX2(),
+			 +trapCry.h1()  - apdZ(),
+			 -trapCry.dz()  - apdThick()/2. + (rClr - fClr)/2.),
+		   DDRotation() ) ;
+	 }
+
 	 const Vec3 clrToWrap ( 0, 0, ( rWrap - fWrap )/2 ) ;
 
 	 DDpos( clrLog,
@@ -1230,6 +1673,9 @@ void DDEcalBarrelAlgo::execute()
 //------------------------------------------------------------------------
 //------------------------------------------------------------------------
 
+      if( 0 != backHere() )
+      {
+
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!     Begin Back Cover Plate     !!!!!!!!!!!!!!!!!!!!!!!
@@ -1240,9 +1686,11 @@ void DDEcalBarrelAlgo::execute()
 				   backYOff(),
 				   backSideLength()/2 ) ;
 
+      const double realBPthick ( backPlateThick() + backPlate2Thick() ) ;
+
       DDSolid backPlateSolid ( DDSolidFactory::box( backPlateName(), 
 						    backPlateWidth()/2.,  
-						    backPlateThick()/2.,
+						    realBPthick/2.,
 						    backPlateLength()/2.   ) ) ;
       const std::vector<double>& backPlateParms ( backPlateSolid.parameters() ) ;
       const DDLogicalPart backPlateLog ( backPlateName(),
@@ -1254,13 +1702,34 @@ void DDEcalBarrelAlgo::execute()
 					 0*mm,
 					 backPlateParms[2] -
 					 backSideLength()/2 ) ;
-      DDpos( backPlateLog,
-	     spmName(), 
-	     copyOne, 
-	     outtra + backPlateTra,
-	     myrot( backPlateName().name()+"Rot5",
-		    HepRotationZ(270*deg)    ) ) ;
 
+      DDSolid backPlate2Solid ( DDSolidFactory::box( backPlate2Name(), 
+						    backPlateWidth()/2.,  
+						    backPlate2Thick()/2.,
+						    backPlateLength()/2.   ) ) ;
+
+      const DDLogicalPart backPlate2Log ( backPlate2Name(),
+					  backPlate2Mat(),
+					  backPlate2Solid ) ;
+      
+      const DDTranslation backPlate2Tra ( 0,
+					  -backPlateParms[1] + backPlate2Thick()/2., 0 ) ;
+      if( 0 != backPlateHere() )
+      {
+	 DDpos( backPlate2Log,
+		backPlateName(), 
+		copyOne, 
+		backPlate2Tra,
+		DDRotation() ) ;
+
+	 DDpos( backPlateLog,
+		spmName(), 
+		copyOne, 
+		outtra + backPlateTra,
+		myrot( backPlateName().name()+"Rot5",
+		       HepRotationZ(270*deg)    ) ) ;
+
+      }
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!     End Back Cover Plate       !!!!!!!!!!!!!!!!!!!!!!!
@@ -1294,23 +1763,25 @@ void DDEcalBarrelAlgo::execute()
       const DDTranslation backSideTra1 ( 0*mm,
 					 backPlateWidth()/2 + backSideYOff1(),
 					 0*mm ) ;
-      DDpos( backSideLog,
-	     spmName(), 
-	     copyOne, 
-	     outtra + backSideTra1,
-	     myrot( backSideName().name()+"Rot8",
-		    HepRotationX(180*deg)*HepRotationZ(90*deg)    ) ) ;
+      if( 0 != backSideHere() )
+      {
+	 DDpos( backSideLog,
+		spmName(), 
+		copyOne, 
+		outtra + backSideTra1,
+		myrot( backSideName().name()+"Rot8",
+		       HepRotationX(180*deg)*HepRotationZ(90*deg)    ) ) ;
 	     
-      const DDTranslation backSideTra2( 0*mm,
-					-backPlateWidth()/2 + backSideYOff2(),
-					0*mm ) ;
-      DDpos( backSideLog,
-	     spmName(), 
-	     copyTwo, 
-	     outtra + backSideTra2,
-	     myrot( backSideName().name()+"Rot9",
-		    HepRotationZ(90*deg)    ) ) ;
-
+	 const DDTranslation backSideTra2( 0*mm,
+					   -backPlateWidth()/2 + backSideYOff2(),
+					   0*mm ) ;
+	 DDpos( backSideLog,
+		spmName(), 
+		copyTwo, 
+		outtra + backSideTra2,
+		myrot( backSideName().name()+"Rot9",
+		       HepRotationZ(90*deg)    ) ) ;
+      }
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!     End Back Side Plates       !!!!!!!!!!!!!!!!!!!!!!!
@@ -1319,8 +1790,6 @@ void DDEcalBarrelAlgo::execute()
 	     
 //=====================
       const double backCoolWidth ( backCoolBarWidth() + 2.*backCoolTankWidth() ) ;
-
-
 
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1363,32 +1832,87 @@ void DDEcalBarrelAlgo::execute()
 //!!!!!!!!!!!!!!     Begin Loop over Grilles & MB Cooling Manifold !!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      DDSolid grEdgeSlotSolid ( DDSolidFactory::box( grEdgeSlotName(), 
+						     grEdgeSlotHeight()/2.,  
+						     grEdgeSlotWidth()/2.,
+						     grilleThick()/2.   ) ) ;
+      const DDLogicalPart grEdgeSlotLog ( grEdgeSlotName(), grEdgeSlotMat(), grEdgeSlotSolid );
+
+      unsigned int edgeSlotCopy ( 0 ) ;
+      unsigned int midSlotCopy ( 0 ) ;
+
+      DDLogicalPart grMidSlotLog[4] ;
 
       for( unsigned int iGr ( 0 ) ; iGr != vecGrilleHeight().size() ; ++iGr )
       {
 	 DDName gName ( ddname( grilleName() + int_to_string( iGr ) ) ) ;
 	 DDSolid grilleSolid ( DDSolidFactory::box( gName, 
 						    vecGrilleHeight()[iGr]/2.,  
-//						    grilleWidth()/2.,
 						    backCoolWidth/2.,
 						    grilleThick()/2.   ) ) ;
 	 const DDLogicalPart grilleLog ( gName,
 					 grilleMat(),
 					 grilleSolid ) ;
 	 
-	 const DDTranslation grilleTra ( -backPlateThick()/2 -
+	 const DDTranslation grilleTra ( -realBPthick/2 -
 					 vecGrilleHeight()[iGr]/2,
 					 0*mm,
 					 vecGrilleZOff()[iGr] +
 					 grilleThick()/2 - backSideLength()/2 ) ;
 	 const DDTranslation gTra ( outtra + backPlateTra + grilleTra ) ;
-	 DDpos( grilleLog,
-		spmName(), 
-		iGr, 
-		gTra,
-		DDRotation() ) ;
 
-	 if( 0 != iGr%2 )
+	 if( 0 != grMidSlotHere() &&
+	     0 != iGr   )
+	 {
+	    if( 0 == (iGr-1)%2      )
+	    {
+	       DDName mName ( ddname( grMidSlotName() + int_to_string( iGr/2 ) ) ) ;
+	       DDSolid grMidSlotSolid ( DDSolidFactory::box(
+					   mName, 
+					   vecGrMidSlotHeight()[(iGr-1)/2]/2.,
+					   grMidSlotWidth()/2.,
+					   grilleThick()/2.   ) ) ;
+	       grMidSlotLog[(iGr-1)/2] = DDLogicalPart( mName, grMidSlotMat(), grMidSlotSolid ) ;
+	    }	       
+	    DDpos( grMidSlotLog[(iGr-1)/2],
+		   gName, 
+		   ++midSlotCopy, 
+		   Vec3( vecGrilleHeight()[iGr]/2. - vecGrMidSlotHeight()[(iGr-1)/2]/2.,
+			 +grMidSlotXOff(),    0 ),
+		   DDRotation() ) ;
+	    DDpos( grMidSlotLog[(iGr-1)/2],
+		   gName, 
+		   ++midSlotCopy, 
+		   Vec3( vecGrilleHeight()[iGr]/2. - vecGrMidSlotHeight()[(iGr-1)/2]/2.,
+			 -grMidSlotXOff(),    0 ),
+		   DDRotation() ) ;
+	 }
+
+	 if( 0 != grEdgeSlotHere() &&
+	     0 != iGr                   )
+	 {
+	    DDpos( grEdgeSlotLog,
+		   gName, 
+		   ++edgeSlotCopy, 
+		   Vec3( vecGrilleHeight()[iGr]/2. - grEdgeSlotHeight()/2.,
+			 backCoolWidth/2           - grEdgeSlotWidth()/2.,    0 ),
+		   DDRotation() ) ;
+	    DDpos( grEdgeSlotLog,
+		   gName, 
+		   ++edgeSlotCopy, 
+		   Vec3( vecGrilleHeight()[iGr]/2. - grEdgeSlotHeight()/2.,
+			 -backCoolWidth/2          + grEdgeSlotWidth()/2.,    0 ),
+		   DDRotation() ) ;
+	 }
+	 if( 0 != grilleHere() )
+	    DDpos( grilleLog,
+		   spmName(), 
+		   iGr, 
+		   gTra,
+		   DDRotation() ) ;
+
+	 if( ( 0 != iGr%2 )         &&
+	     ( 0 != mBManifHere() )     )
 	 {
 	    DDpos( mBManifLog,
 		   spmName(),
@@ -1523,16 +2047,18 @@ void DDEcalBarrelAlgo::execute()
       const DDLogicalPart backCoolVFELog ( backCoolVFEName(),
 					   backCoolVFEMat(),
 					   backCoolVFESolid ) ;
-      DDpos( backCoolBarLog    ,
-	     backCoolVFEName() , 
-	     copyOne           , 
-	     DDTranslation()   ,
-	     DDRotation()       ) ;
-      DDpos( backVFELog        ,
-	     backCoolVFEName() , 
-	     copyOne           , 
-	     DDTranslation( 0,0, backCoolBarThick()/2. + thickVFE/2. )   ,
-	     DDRotation()       ) ;
+      if( 0 != backCoolBarHere() )
+	 DDpos( backCoolBarLog    ,
+		backCoolVFEName() , 
+		copyOne           , 
+		DDTranslation()   ,
+		DDRotation()       ) ;
+      if( 0 != backCoolVFEHere() )
+	 DDpos( backVFELog        ,
+		backCoolVFEName() , 
+		copyOne           , 
+		DDTranslation( 0,0, backCoolBarThick()/2. + thickVFE/2. )   ,
+		DDRotation()       ) ;
       DDpos( backVFELog        ,
 	     backCoolVFEName() , 
 	     copyTwo           , 
@@ -1555,9 +2081,17 @@ void DDEcalBarrelAlgo::execute()
       unsigned int iCVFECopy ( 1 ) ;
       unsigned int iSep ( 0 ) ;
       unsigned int iNSec ( 0 ) ;
-      const unsigned int nMisc ( vecBackMiscThick().size()/vecBackCoolLength().size() ) ;
-      for( unsigned int iMod ( 0 ) ; iMod != vecBackCoolLength().size() ; ++iMod )
+      const unsigned int nMisc ( vecBackMiscThick().size()/4 ) ;
+      for( unsigned int iMod ( 0 ) ; iMod != 4 ; ++iMod )
       {
+	 const double pipeLength ( vecGrilleZOff()[2*iMod+1] -
+				   vecGrilleZOff()[2*iMod  ] -
+				   grilleThick()               ) ;
+
+	 const double pipeZPos ( vecGrilleZOff()[2*iMod+1] - pipeLength/2  ) ;
+
+
+
 	 // accumulate total height of parent volume
 
 	 double backCoolHeight ( backCoolBarHeight() + mBCoolTubeOutDiam() ) ;
@@ -1573,7 +2107,7 @@ void DDEcalBarrelAlgo::execute()
 	 }
 
 	 DDName backCName ( ddname( vecBackCoolName()[iMod] ) ) ;
-	 const double halfZBCool ( vecBackCoolLength()[iMod]/2. ) ;
+	 const double halfZBCool ( ( pipeLength - 2*mBManifOutDiam() - grilleZSpace() )/2 ) ;
 	 DDSolid backCoolSolid ( DDSolidFactory::box( backCName ,
 						      backCoolHeight/2.,  
 						      backCoolWidth/2.,
@@ -1582,7 +2116,7 @@ void DDEcalBarrelAlgo::execute()
 					   spmMat(),
 					   backCoolSolid ) ;
 	 
-	 const DDTranslation bCoolTra ( -backPlateThick()/2 +
+	 const DDTranslation bCoolTra ( -realBPthick/2 +
 					backCoolHeight/2    -
 					vecGrilleHeight()[2*iMod],
 					0*mm,
@@ -1590,38 +2124,42 @@ void DDEcalBarrelAlgo::execute()
 					grilleThick() + grilleZSpace() +
 					halfZBCool - 
 					backSideLength()/2 ) ;
-	 DDpos( backCoolLog,
-		spmName(), 
-		iMod+1, 
-		outtra + backPlateTra + bCoolTra,
-		DDRotation() ) ;
+	 if( 0 != backCoolHere() )
+	    DDpos( backCoolLog,
+		   spmName(), 
+		   iMod+1, 
+		   outtra + backPlateTra + bCoolTra,
+		   DDRotation() ) ;
 
 //===
 	 const double backCoolTankHeight ( backCoolBarHeight() ) ;// - backBracketHeight() ) ;
+
+	 const double halfZTank ( halfZBCool - 5*cm ) ;
 
 	 DDName bTankName ( ddname( backCoolTankName()+int_to_string(iMod+1) ) ) ;
 	 DDSolid backCoolTankSolid ( DDSolidFactory::box( bTankName ,
 							  backCoolTankHeight/2.,  
 							  backCoolTankWidth()/2.,
-							  halfZBCool   ) ) ;
+							  halfZTank  ) ) ;
 	 const DDLogicalPart backCoolTankLog ( bTankName,
 					       backCoolTankMat(),
 					       backCoolTankSolid ) ;
-	 DDpos( backCoolTankLog,
-		backCName, 
-		copyOne, 
-		DDTranslation( -backCoolHeight/2 + 
-			       backCoolTankHeight/2. + 
-			       bottomThick,
-			       backCoolBarWidth()/2. + backCoolTankWidth()/2., 0),
-		DDRotation() ) ;
+	 if( 0 != backCoolTankHere() )
+	    DDpos( backCoolTankLog,
+		   backCName, 
+		   copyOne, 
+		   DDTranslation( -backCoolHeight/2 + 
+				  backCoolTankHeight/2. + 
+				  bottomThick,
+				  backCoolBarWidth()/2. + backCoolTankWidth()/2., 0),
+		   DDRotation() ) ;
 
 	 DDName bTankWaName ( ddname( backCoolTankWaName()+int_to_string(iMod+1) ) ) ;
 	 DDSolid backCoolTankWaSolid ( DDSolidFactory::box( bTankWaName ,
 							    backCoolTankHeight/2. -
 							    backCoolTankThick()/2.,  
 							    backCoolTankWaWidth()/2.,
-							    halfZBCool -
+							    halfZTank -
 							    backCoolTankThick()/2. ) ) ;
 	 const DDLogicalPart backCoolTankWaLog ( bTankWaName,
 						 backCoolTankWaMat(),
@@ -1636,19 +2174,20 @@ void DDEcalBarrelAlgo::execute()
 	 DDSolid backBracketSolid ( DDSolidFactory::box( bBracketName ,
 							 backBracketHeight()/2.,  
 							 backCoolTankWidth()/2.,
-							 halfZBCool   ) ) ;
+							 halfZTank   ) ) ;
 	 const DDLogicalPart backBracketLog ( bBracketName,
 					      backBracketMat(),
 					      backBracketSolid ) ;
-	 DDpos( backBracketLog,
-		backCName, 
-		copyOne, 
-		DDTranslation( backCoolBarHeight() - 
-			       backCoolHeight/2. - 
-			       backBracketHeight()/2. +
-			       bottomThick,
-			       -backCoolBarWidth()/2. - backCoolTankWidth()/2., 0),
-		DDRotation() ) ;
+	 if( 0 != backCoolTankHere() )
+	    DDpos( backBracketLog,
+		   backCName, 
+		   copyOne, 
+		   DDTranslation( backCoolBarHeight() - 
+				  backCoolHeight/2. - 
+				  backBracketHeight()/2. +
+				  bottomThick,
+				  -backCoolBarWidth()/2. - backCoolTankWidth()/2., 0),
+		   DDRotation() ) ;
 
 /*	 DDpos( backBracketLog,
 		backCName, 
@@ -1675,128 +2214,132 @@ void DDEcalBarrelAlgo::execute()
  
 	    const DDTranslation bTra ( vecBackMiscThick()[ iMod*nMisc + j ]/2, 0*mm, 0*mm ) ;
 
-	    DDpos( bLog,
-		   backCName, 
-		   copyOne, 
-		   bSumTra + bTra,
-		   DDRotation() ) ;
+
+	    if( 0 != backMiscHere() )
+	       DDpos( bLog,
+		      backCName, 
+		      copyOne, 
+		      bSumTra + bTra,
+		      DDRotation() ) ;
 
 	    bSumTra += 2*bTra ;
 	 }
 
 	 const double bHalfWidth ( backCoolBarWidth()/2. + backCoolTankWidth() ) ;
 
-	 DDTranslation mTra ( -backCoolHeight/2. + mBCoolTubeOutDiam(), 0, 0 ) ;
-	 for( unsigned int j ( 0 ) ; j != vecMBLyrThick().size() ; ++j ) // loop over MB layers
+	 if( 0 != mBLyrHere() )
 	 {
-	    const DDName mName ( ddname( vecMBLyrName()[j] + "_" + 
-					 int_to_string(iMod+1) ) ) ;
+	    DDTranslation mTra ( -backCoolHeight/2. + mBCoolTubeOutDiam(), 0, 0 ) ;
+	    for( unsigned int j ( 0 ) ; j != vecMBLyrThick().size() ; ++j ) // loop over MB layers
+	    {
+	       const DDName mName ( ddname( vecMBLyrName()[j] + "_" + 
+					    int_to_string(iMod+1) ) ) ;
 
-	    DDSolid mSolid ( DDSolidFactory::box( mName ,
-						  vecMBLyrThick()[j]/2,  
-						  bHalfWidth,
-						  halfZBCool ) ) ;
+	       DDSolid mSolid ( DDSolidFactory::box( mName ,
+						     vecMBLyrThick()[j]/2,  
+						     bHalfWidth,
+						     halfZBCool ) ) ;
 
-	    const DDLogicalPart mLog ( mName, ddmat(vecMBLyrMat()[j]), mSolid ) ;
+	       const DDLogicalPart mLog ( mName, ddmat(vecMBLyrMat()[j]), mSolid ) ;
  
-	    mTra += DDTranslation( vecMBLyrThick()[j]/2.0, 0*mm, 0*mm ) ;
-	    DDpos( mLog,
-		   backCName, 
-		   copyOne, 
-		   mTra,
-		   DDRotation() ) ;
-	    mTra += DDTranslation( vecMBLyrThick()[j]/2.0, 0*mm, 0*mm ) ;
+	       mTra += DDTranslation( vecMBLyrThick()[j]/2.0, 0*mm, 0*mm ) ;
+	       DDpos( mLog,
+		      backCName, 
+		      copyOne, 
+		      mTra,
+		      DDRotation() ) ;
+	       mTra += DDTranslation( vecMBLyrThick()[j]/2.0, 0*mm, 0*mm ) ;
+	    }
 	 }
 
-	 const DDName mBName ( ddname( mBCoolTubeName() + "_" + 
-				       int_to_string(iMod+1) ) ) ;
-
-	 DDSolid mBCoolTubeSolid ( DDSolidFactory::tubs( mBName ,
-							 halfZBCool,
-							 0, 
-							 mBCoolTubeOutDiam()/2,
-							 0*deg, 360*deg ) ) ;
-	 const DDLogicalPart mBLog ( mBName, mBCoolTubeMat(), 
-				     mBCoolTubeSolid ) ;
-
-	 const DDName mBWaName ( ddname( mBCoolTubeName() + "Wa_" + 
-					 int_to_string(iMod+1) ) ) ;
-	 DDSolid mBCoolTubeWaSolid ( DDSolidFactory::tubs( mBWaName ,
-							   halfZBCool,
-							   0, 
-							   mBCoolTubeInnDiam()/2,
-							   0*deg, 360*deg ) ) ;
-	 const DDLogicalPart mBWaLog ( mBWaName, backPipeWaterMat(), 
-				       mBCoolTubeWaSolid ) ;
-	 DDpos( mBWaLog,
-		mBName, 
-		copyOne, 
-		DDTranslation(0,0,0),
-		DDRotation() ) ;
-
-	 for( unsigned int j ( 0 ) ; j != dryAirTubeNum() ; ++j ) // loop over all MB cooling circuits
+	 if( 0 != mBCoolTubeHere() )
 	 {
-	    for( unsigned int k ( 0 ) ; k != 2 ; ++k )
+	    const DDName mBName ( ddname( mBCoolTubeName() + "_" + 
+					  int_to_string(iMod+1) ) ) ;
+	    
+	    DDSolid mBCoolTubeSolid ( DDSolidFactory::tubs( mBName ,
+							    halfZBCool,
+							    0, 
+							    mBCoolTubeOutDiam()/2,
+							    0*deg, 360*deg ) ) ;
+	    const DDLogicalPart mBLog ( mBName, mBCoolTubeMat(), mBCoolTubeSolid ) ;
+
+	    const DDName mBWaName ( ddname( mBCoolTubeName() + "Wa_" + 
+					    int_to_string(iMod+1) ) ) ;
+	    DDSolid mBCoolTubeWaSolid ( DDSolidFactory::tubs( mBWaName ,
+							      halfZBCool,
+							      0, 
+							      mBCoolTubeInnDiam()/2,
+							      0*deg, 360*deg ) ) ;
+	    const DDLogicalPart mBWaLog ( mBWaName, backPipeWaterMat(), 
+					  mBCoolTubeWaSolid ) ;
+	    DDpos( mBWaLog,
+		   mBName, 
+		   copyOne, 
+		   DDTranslation(0,0,0),
+		   DDRotation() ) ;
+
+	    for( unsigned int j ( 0 ) ; j != mBCoolTubeNum() ; ++j ) // loop over all MB cooling circuits
 	    {
 	       DDpos( mBLog,
 		      backCName, 
-		      2*j+k, 
+		      2*j + 1, 
 		      DDTranslation(-backCoolHeight/2.0+mBCoolTubeOutDiam()/2.,
-				    -bHalfWidth + (j+1)*bHalfWidth/5 +
-				    (0==k?1:-1)*mBCoolTubeOutDiam()/2.,0),
+				    -bHalfWidth + (j+1)*bHalfWidth/5, 0),
 		      DDRotation() ) ;
 	    }
 	 }
 
-	 DDName bPipeName ( ddname( backPipeName() + "_" + 
-				    int_to_string( iMod+1 ) ) ) ; 
-	 DDName bInnerName ( ddname( backPipeName() + 
-				     "_H2O_" + int_to_string( iMod+1 ) ) ) ; 
 
-	 const double pipeLength ( vecGrilleZOff()[2*iMod+1] -
-				   vecGrilleZOff()[2*iMod  ] -
-				   grilleThick()               ) ;
-
-	 const double pipeZPos ( vecGrilleZOff()[2*iMod+1] - pipeLength/2  ) ;
-
-	 DDSolid backPipeSolid ( DDSolidFactory::tubs( bPipeName ,
-						       pipeLength/2,
-						       0*mm, 
-						       vecBackPipeDiam()[iMod]/2,
-						       0*deg, 360*deg ) ) ;
-
-	 DDSolid backInnerSolid ( DDSolidFactory::tubs( bInnerName ,
-							pipeLength/2,
-							0*mm, 
-							vecBackPipeDiam()[iMod]/2 -
-							backPipeThick(),
-							0*deg, 360*deg ) ) ;
-
-	 const DDLogicalPart backPipeLog ( bPipeName, 
-					   backPipeMat(), 
-					   backPipeSolid ) ;
-
-	 const DDLogicalPart backInnerLog ( bInnerName, 
-					    backPipeWaterMat(), 
-					    backInnerSolid ) ;
-
-	 const DDTranslation bPipeTra1 ( backXOff() + 
-					 backSideHeight() -
-					 0.7*vecBackPipeDiam()[iMod],
-					 backYOff() +
-					 backPlateWidth()/2 -
-					 backSideWidth() -
-					 0.7*vecBackPipeDiam()[iMod],
-					 pipeZPos ) ;
-
-	 DDpos( backPipeLog,
-		spmName(), 
-		copyOne, 
-		bPipeTra1,
-		DDRotation() ) ;
-
-	 if( 0 != iMod )
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!! Begin Back Water Pipes   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	 if( 0 != backPipeHere() &&
+	     0 != iMod               )
 	 {
+	    DDName bPipeName ( ddname( backPipeName() + "_" + 
+				       int_to_string( iMod+1 ) ) ) ; 
+	    DDName bInnerName ( ddname( backPipeName() + 
+					"_H2O_" + int_to_string( iMod+1 ) ) ) ; 
+	 
+	    DDSolid backPipeSolid ( DDSolidFactory::tubs( bPipeName ,
+							  pipeLength/2,
+							  0*mm, 
+							  vecBackPipeDiam()[iMod]/2,
+							  0*deg, 360*deg ) ) ;
+
+	    DDSolid backInnerSolid ( DDSolidFactory::tubs( bInnerName ,
+							   pipeLength/2,
+							   0*mm, 
+							   vecBackPipeDiam()[iMod]/2 -
+							   vecBackPipeThick()[iMod],
+							   0*deg, 360*deg ) ) ;
+
+	    const DDLogicalPart backPipeLog ( bPipeName, 
+					      backPipeMat(), 
+					      backPipeSolid ) ;
+
+	    const DDLogicalPart backInnerLog ( bInnerName, 
+					       backPipeWaterMat(), 
+					       backInnerSolid ) ;
+
+	    const DDTranslation bPipeTra1 ( backXOff() + 
+					    backSideHeight() -
+					    0.7*vecBackPipeDiam()[iMod],
+					    backYOff() +
+					    backPlateWidth()/2 -
+					    backSideWidth() -
+					    0.7*vecBackPipeDiam()[iMod],
+					    pipeZPos ) ;
+
+	    DDpos( backPipeLog,
+		   spmName(), 
+		   copyOne, 
+		   bPipeTra1,
+		   DDRotation() ) ;
+
 	    const DDTranslation bPipeTra2 ( bPipeTra1.x(),
 					    backYOff() -
 					    backPlateWidth()/2 +
@@ -1809,56 +2352,64 @@ void DDEcalBarrelAlgo::execute()
 		   copyTwo, 
 		   bPipeTra2,
 		   DDRotation() ) ;
-	 }
 
-	 DDpos( backInnerLog,
-		bPipeName, 
-		copyOne, 
-		DDTranslation(),
-		DDRotation() ) ;
+	    DDpos( backInnerLog,
+		   bPipeName, 
+		   copyOne, 
+		   DDTranslation(),
+		   DDRotation() ) ;
+	 }
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!! End Back Water Pipes   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 //=================================================
 
-	 DDName dryAirTubeName_ ( ddname( dryAirTubeName() + int_to_string( iMod+1 ) ) ) ; 
+	 if( 0 != dryAirTubeHere() )
+	 {
+	    DDName dryAirTubName ( ddname( dryAirTubeName() + int_to_string( iMod+1 ) ) ) ; 
 
-	 DDSolid dryAirTubeSolid ( DDSolidFactory::tubs( dryAirTubeName_ ,
-							 pipeLength/2,
-							 dryAirTubeInnDiam()/2, 
-							 dryAirTubeOutDiam()/2,
-							 0*deg, 360*deg ) ) ;
+	    DDSolid dryAirTubeSolid ( DDSolidFactory::tubs( dryAirTubName ,
+							    pipeLength/2,
+							    dryAirTubeInnDiam()/2, 
+							    dryAirTubeOutDiam()/2,
+							    0*deg, 360*deg ) ) ;
 
-	 const DDLogicalPart dryAirTubeLog ( dryAirTubeName_ , 
-					     dryAirTubeMat(), 
-					     dryAirTubeSolid ) ;
+	    const DDLogicalPart dryAirTubeLog ( dryAirTubName , 
+						dryAirTubeMat(), 
+						dryAirTubeSolid ) ;
 
-	 const DDTranslation dryAirTubeTra1 ( backXOff() + 
-					      backSideHeight() -
-					      0.7*dryAirTubeOutDiam(),
-					      backYOff() +
-					      backPlateWidth()/2 -
-					      backSideWidth() -
-					      0.7*dryAirTubeOutDiam(),
-					      pipeZPos ) ;
+	    const DDTranslation dryAirTubeTra1 ( backXOff() + 
+						 backSideHeight() -
+						 0.7*dryAirTubeOutDiam() -
+						 vecBackPipeDiam()[iMod],
+						 backYOff() +
+						 backPlateWidth()/2 -
+						 backSideWidth() -
+						 1.2*dryAirTubeOutDiam(),
+						 pipeZPos ) ;
 
-	 DDpos( dryAirTubeLog,
-		spmName(), 
-		copyOne, 
-		dryAirTubeTra1,
-		DDRotation() ) ;
+	    DDpos( dryAirTubeLog,
+		   spmName(), 
+		   copyOne, 
+		   dryAirTubeTra1,
+		   DDRotation() ) ;
 
-	 const DDTranslation dryAirTubeTra2 ( dryAirTubeTra1.x(),
-					      backYOff() -
-					      backPlateWidth()/2 +
-					      backSideWidth() +
-					      0.7*dryAirTubeOutDiam(),
-					      dryAirTubeTra1.z()  ) ;
+	    const DDTranslation dryAirTubeTra2 ( dryAirTubeTra1.x(),
+						 backYOff() -
+						 backPlateWidth()/2 +
+						 backSideWidth() +
+						 0.7*dryAirTubeOutDiam() ,
+						 dryAirTubeTra1.z()  ) ;
 	 
-	 DDpos( dryAirTubeLog,
-		spmName(), 
-		copyTwo, 
-		dryAirTubeTra2,
-		DDRotation() ) ;
-
+	    DDpos( dryAirTubeLog,
+		   spmName(), 
+		   copyTwo, 
+		   dryAirTubeTra2,
+		   DDRotation() ) ;
+	 }
 	 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
          //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1870,7 +2421,7 @@ void DDEcalBarrelAlgo::execute()
 	 DDTranslation cTra ( backCoolBarHeight()/2. - 
 			      backCoolHeight/2. +
 			      bottomThick, 0 ,
-			      -halfZBCool + halfZCoolVFE ) ;
+			      -halfZTank + halfZCoolVFE ) ;
 	 const unsigned int numSec ( static_cast<unsigned int> (vecBackCoolNSec()[iMod]) ) ; 
 	 for( unsigned int jSec ( 0 ) ; jSec != numSec ; ++jSec )
 	 {
@@ -1929,12 +2480,12 @@ void DDEcalBarrelAlgo::execute()
 				     vecGrilleZOff().back() +
 				     grilleThick() +
 				     patchParms[2] ) ;
-
-      DDpos( patchLog,
-	     spmName(), 
-	     copyOne, 
-	     patchTra,
-	     DDRotation() ) ;
+      if( 0 != patchPanelHere() )
+	 DDpos( patchLog,
+		spmName(), 
+		copyOne, 
+		patchTra,
+		DDRotation() ) ;
 
       DDTranslation pTra (-patchParms[0],0,0) ;
 
@@ -1964,6 +2515,121 @@ void DDEcalBarrelAlgo::execute()
 //!!!!!!!!!!!!!! End Patch Panel     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!! Begin Pincers       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      if( 0 != pincerRodHere() )
+      {
+	 // Make hierarchy of rods, envelopes, blocks, shims, and cutouts
+
+	 DDSolid rodSolid ( DDSolidFactory::box( pincerRodName() ,
+						 pincerEnvWidth()/2.,  
+						 pincerEnvHeight()/2.,
+						 ilyLength/2   ) ) ;
+	 const DDLogicalPart rodLog ( pincerRodName(), pincerRodMat(), rodSolid ) ;
+
+	 DDSolid envSolid ( DDSolidFactory::box( pincerEnvName() ,
+						 pincerEnvWidth()/2.,  
+						 pincerEnvHeight()/2.,
+						 pincerEnvLength()/2   ) ) ;
+	 const DDLogicalPart envLog ( pincerEnvName(), pincerEnvMat(), envSolid ) ;
+	 const std::vector<double>& envParms ( envSolid.parameters() ) ;
+
+	 DDSolid blkSolid ( DDSolidFactory::box( pincerBlkName() ,
+						 pincerEnvWidth()/2.,  
+						 pincerEnvHeight()/2.,
+						 pincerBlkLength()/2   ) ) ;
+	 const DDLogicalPart blkLog ( pincerBlkName(), pincerBlkMat(), blkSolid ) ;
+	 const std::vector<double>& blkParms ( blkSolid.parameters() ) ;
+	 DDpos( blkLog,
+		pincerEnvName(), 
+		copyOne,
+		DDTranslation(0,0, pincerEnvLength()/2 - pincerBlkLength()/2 ),
+		DDRotation() ) ;
+
+	 DDSolid cutSolid ( DDSolidFactory::box( pincerCutName() ,
+						 pincerCutWidth()/2.,  
+						 pincerCutHeight()/2.,
+						 pincerBlkLength()/2   ) ) ;
+	 const DDLogicalPart cutLog ( pincerCutName(), pincerCutMat(), cutSolid ) ;
+	 const std::vector<double>& cutParms ( cutSolid.parameters() ) ;
+	 DDpos( cutLog,
+		pincerBlkName(), 
+		copyOne,
+		DDTranslation( +blkParms[0] - cutParms[0] - pincerShim1Width() + pincerShim2Width(),
+			       -blkParms[1] + cutParms[1],     0  ),
+		DDRotation() ) ;
+
+	 DDSolid shim2Solid ( DDSolidFactory::box( pincerShim2Name() ,
+						   pincerShim2Width()/2.,  
+						   pincerShimHeight()/2.,
+						   pincerBlkLength()/2   ) ) ;
+	 const DDLogicalPart shim2Log ( pincerShim2Name(), pincerShimMat(), shim2Solid ) ;
+	 const std::vector<double>& shim2Parms ( shim2Solid.parameters() ) ;
+	 DDpos( shim2Log,
+		pincerCutName(), 
+		copyOne,
+		DDTranslation( +cutParms[0] - shim2Parms[0],
+			       -cutParms[1] + shim2Parms[1],     0  ),
+		DDRotation() ) ;
+
+	 DDSolid shim1Solid ( DDSolidFactory::box( pincerShim1Name() ,
+						   pincerShim1Width()/2.,  
+						   pincerShimHeight()/2.,
+						   (pincerEnvLength()-
+						    pincerBlkLength())/2   ) ) ;
+
+	 const DDLogicalPart shim1Log ( pincerShim1Name(), pincerShimMat(), shim1Solid ) ;
+	 const std::vector<double>& shim1Parms ( shim1Solid.parameters() ) ;
+	 DDpos( shim1Log,
+		pincerEnvName(), 
+		copyOne,
+		DDTranslation( +envParms[0] - shim1Parms[0],
+			       -envParms[1] + shim1Parms[1],
+			       -envParms[2] + shim1Parms[2] ),
+		DDRotation() ) ;
+
+	 for( unsigned int iEnv ( 0 ) ; iEnv != vecPincerEnvZOff().size() ; ++iEnv )
+	 {
+	    DDpos( envLog,
+		   pincerRodName(), 
+		   1+iEnv, 
+		   DDTranslation(0,0, -ilyLength/2. + vecPincerEnvZOff()[iEnv] - pincerEnvLength()/2. ),
+		   DDRotation() ) ;
+	 }
+
+	 // Place the rods
+//	 const double radius ( fawRadOff() - pincerEnvHeight()/2 -1*mm ) ;
+	 const double radius ( ilyRMin - pincerEnvHeight()/2 - 1*mm ) ;
+
+	 const DDName        xilyName    ( ddname( ilyName() +
+						   int_to_string(vecIlyMat().size()-1) ) ) ;
+
+	 for( unsigned int iRod ( 0 ) ; iRod != vecPincerRodAzimuth().size() ; ++iRod )
+	 {
+	    const DDTranslation rodTra ( radius*cos(vecPincerRodAzimuth()[iRod]) ,
+					 radius*sin(vecPincerRodAzimuth()[iRod]) ,
+					 0 ) ;
+
+	    DDpos( rodLog,
+		   xilyName, 
+		   1+iRod, 
+		   rodTra,
+		   myrot( pincerRodName().name() + int_to_string(iRod),
+			  HepRotationZ( 90*deg + vecPincerRodAzimuth()[iRod] ) ) ) ;
+	 }
+      }
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!! End   Pincers       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      }
    } 
 
    LogDebug("EcalGeom") << "******** DDEcalBarrelAlgo test: end it..." ;
@@ -2087,10 +2753,11 @@ DDEcalBarrelAlgo::web( unsigned int        iWeb,
    const Tf3D tForm ( vWeb[0], vWeb[2], vWeb[3],
 		      wedge1,   wedge2, wedge3    ) ;
    
-   DDpos( webClrLog,
-	  logPar, 
-	  copyOne, 
-	  tForm.getTranslation(),
-	  myrot( webClrLog.name().name() + int_to_string( iWeb ),
-		 tForm.getRotation() ) ) ;
+   if( 0 != webHere() )
+      DDpos( webClrLog,
+	     logPar, 
+	     copyOne, 
+	     tForm.getTranslation(),
+	     myrot( webClrLog.name().name() + int_to_string( iWeb ),
+		    tForm.getRotation() ) ) ;
 }
