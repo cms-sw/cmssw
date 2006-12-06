@@ -1,5 +1,5 @@
 // -*-c++-*-
-// $Id: HLTPerformanceInfo.h,v 1.2 2006/12/04 15:08:23 wittich Exp $
+// $Id: HLTPerformanceInfo.h,v 1.3 2006/12/05 23:48:03 wittich Exp $
 #ifndef HLTPERFORMANCEINFO_H
 #define HLTPERFORMANCEINFO_H
 
@@ -53,6 +53,8 @@ class HLTPerformanceInfo
       dt_ = 0;
       status_.reset();// = edm::hlt::Ready;
     }
+    void setTime(double t) { dt_=t;}
+    void setStatus(edm::HLTPathStatus status) { status_=status;} 
   };
   ///////////////////////////////////////////////////
   class Path {
