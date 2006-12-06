@@ -370,10 +370,13 @@ namespace edm
     PathWorkers tmpworkers;
 
     for(;it!=ie;++it) {
-      bool invert = (*it)[0]=='!';
-      string realname = invert ? string(it->begin()+1, it->end()) : *it;
-      WorkerInPath::FilterAction filterAction =
-	invert ? WorkerInPath::Veto : WorkerInPath::Normal;
+
+      WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
+      if ((*it)[0] == '!')       filterAction = WorkerInPath::Veto;
+      else if ((*it)[0] == '-')  filterAction = WorkerInPath::Ignore;
+
+      std::string realname = *it;
+      if (filterAction != WorkerInPath::Normal) realname.erase(0,1);
 
       ParameterSet modpset;
       try {

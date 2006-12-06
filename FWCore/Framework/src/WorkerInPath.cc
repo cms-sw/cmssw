@@ -37,10 +37,6 @@ namespace edm
     }
     bool rc = true;
 
-    if (filterAction_ == Ignore) {
-	// ++timesPassed_; // should this be incremented or not?
-	return rc;
-    }
     try {
 	// may want to change the return value from the worker to be 
 	// the Worker::FilterAction so conditions in the path will be easier to 
@@ -48,6 +44,7 @@ namespace edm
 	rc = worker_->doWork(ep, es, bat, cpc);
 
 	if (filterAction_ == Veto) rc = !rc;
+        else if (filterAction_ == Ignore) rc = true;
 
 	if (isEvent) {
 	  if(rc) ++timesPassed_; else ++timesFailed_;
