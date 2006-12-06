@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.14 2006/09/01 18:16:42 wmtan Exp $
+$Id: Worker.cc,v 1.15 2006/12/01 03:33:42 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -140,8 +140,12 @@ namespace edm
 	    break;
 	}
 
-	if (isEvent) {
-	  if(rc) ++timesPassed_; else ++timesFailed_;
+	if (rc) {
+	  state_ = Pass;
+	  if (isEvent) ++timesPassed_;
+	} else {
+	  state_ = Fail;
+	  if (isEvent) ++timesFailed_;
 	}
     }
 
