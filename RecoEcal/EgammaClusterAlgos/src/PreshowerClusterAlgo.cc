@@ -6,17 +6,19 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
+#include "TH1.h"
 
 reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
-                                                            RecHitsMap *the_rechitsMap_p,
-							    reco::BasicClusterRefVector::iterator basicClust_ref,
+							    HitsID *used_strips,
+                                                            RecHitsMap *the_rechitsMap_p,	     	   
                                                             const CaloSubdetectorGeometry*& geometry_p,
                                                             CaloSubdetectorTopology*& topology_p)
 {
-  used_s.clear();
   road_2d.clear();
 
   rechits_map = the_rechitsMap_p;
+
+  used_s = used_strips;
 
   int plane = strip.plane();
 
@@ -27,9 +29,9 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
 
   // create null-cluster
   EcalRecHitCollection dummy;
-  Point posi(0,0,0);
-  if ( debugLevel_ == pDEBUG ) std::cout << " Creating null-cluster" << std::endl;
-  reco::PreshowerCluster nullcluster=reco::PreshowerCluster(0.,posi,dummy,basicClust_ref,plane);
+  Point posi(0,0,0);  
+  if ( debugLevel_ <= pINFO ) std::cout << " Creating a null-cluster" << std::endl;
+  reco::PreshowerCluster nullcluster=reco::PreshowerCluster(0.,posi,dummy,plane);
 
   if ( strip == ESDetId(0) ) return nullcluster;   //works in case of no intersected strip found (e.g. in the Barrel)
 
@@ -92,7 +94,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   // First, save the hottest strip
   clusterRecHits.push_back(max_it->second);  
   recHits_pos.insert(std::make_pair(max_it->first, max_it->second));
-  used_s.insert(max_it->first);
+  used_s->insert(max_it->first);
   if ( debugLevel_ <= pINFO ) {
      std::cout << " Central hottest strip " << max_it->first << " is saved " << std::endl;
      std::cout << " with energy E = " <<  E_max << std::endl;    
@@ -103,19 +105,20 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   navigator.setHome(max_it->first);
   ESDetId startES = max_it->first;
 
-  if (plane == 1) {
+   if (plane == 1) {
     // Save two neighbouring strips to the east
     int nadjacents_east = 0;
     while ( (next=navigator.east()) != ESDetId(0) && next != startES && nadjacents_east < 2 ) {
        ++nadjacents_east;
        if ( debugLevel_ == pDEBUG ) std::cout << " Adjacent east #" << nadjacents_east <<": "<< next << std::endl;
        RecHitsMap::iterator strip_it = rechits_map->find(next);
+
        if(!goodStrip(strip_it)) continue;
        // Save strip for clustering if it exists, not already in use, and satisfies an energy threshold
        clusterRecHits.push_back(strip_it->second);       
        // save strip for position calculation
        if ( nadjacents_east==1 ) strip_1 = next;
-       used_s.insert(strip_it->first);
+       used_s->insert(strip_it->first);
        if ( debugLevel_ == pDEBUG ) std::cout << " East adjacent strip # " << nadjacents_east << " is saved with energy E = " 
                                               << strip_it->second.energy() << std::endl;             
     }
@@ -129,7 +132,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
        if(!goodStrip(strip_it)) continue;
        clusterRecHits.push_back(strip_it->second);
        if ( nadjacents_west==1 ) strip_2 = next;
-       used_s.insert(strip_it->first);
+       used_s->insert(strip_it->first);
        if ( debugLevel_ == pDEBUG ) std::cout << " West adjacent strip # " << nadjacents_west << " is saved with energy E = " 
                                              << strip_it->second.energy() << std::endl;           
     }
@@ -141,11 +144,11 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
     while ( (next=navigator.north()) != ESDetId(0) && next != startES && nadjacents_north < 2 ) {
        ++nadjacents_north;
        if ( debugLevel_ == pDEBUG ) std::cout << " Adjacent north #" << nadjacents_north <<": "<< next << std::endl;   
-       RecHitsMap::iterator strip_it = rechits_map->find(next);
+       RecHitsMap::iterator strip_it = rechits_map->find(next); 
        if(!goodStrip(strip_it)) continue;      
        clusterRecHits.push_back(strip_it->second);
        if ( nadjacents_north==1 ) strip_1 = next;
-       used_s.insert(strip_it->first);
+       used_s->insert(strip_it->first);
        if ( debugLevel_ == pDEBUG ) std::cout << " North adjacent strip # " << nadjacents_north << " is saved with energy E = " 
                                              << strip_it->second.energy() << std::endl;     
     }
@@ -155,11 +158,11 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
     while ( (next=navigator.south()) != ESDetId(0) && next != startES && nadjacents_south < 2 ) {
        ++nadjacents_south;
        if ( debugLevel_ == pDEBUG ) std::cout << " Adjacent south #" << nadjacents_south <<": "<< next << std::endl;   
-       RecHitsMap::iterator strip_it = rechits_map->find(next);
+       RecHitsMap::iterator strip_it = rechits_map->find(next);   
        if(!goodStrip(strip_it)) continue;      
        clusterRecHits.push_back(strip_it->second);
        if ( nadjacents_south==1 ) strip_2 = next;
-       used_s.insert(strip_it->first);
+       used_s->insert(strip_it->first);
        if ( debugLevel_ == pDEBUG ) std::cout << " South adjacent strip # " << nadjacents_south << " is saved with energy E = " 
                                              << strip_it->second.energy() << std::endl;     
     }
@@ -183,7 +186,6 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
     recHits_pos.insert(std::make_pair(strip_it2->first, strip_it2->second));  
   }
 
-// (see Dave Barney's email, consult Aris Kyriakis)
   RecHitsMap::iterator cp;
   double energy_pos = 0;
   double x_pos = 0;
@@ -208,12 +210,17 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
 
   EcalRecHitCollection::iterator it;
   double Eclust = 0;
+
+  if ( debugLevel_ == pINFO ) std::cout << "The found ES cluster strips: " << std::endl;  
   for (it=clusterRecHits.begin(); it != clusterRecHits.end(); it++) {
      Eclust += it->energy();
+     if ( debugLevel_ == pINFO ) std::cout << it->id() <<", E = " << it->energy()<<"; ";
   }   
+  if ( debugLevel_ == pINFO ) std::cout << std::endl;
+
 
   // ES cluster is created from vector clusterRecHits
-  reco::PreshowerCluster cluster=reco::PreshowerCluster(Eclust,pos,clusterRecHits,basicClust_ref,plane);
+  reco::PreshowerCluster cluster=reco::PreshowerCluster(Eclust,pos,clusterRecHits,plane);
 
   if ( debugLevel_ <= pINFO ) {
      std::cout << " ES Cluster is created with " << std::endl;
@@ -221,12 +228,11 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
      std::cout << " (eta,phi) = " << "("<<cluster.eta()<<", "<<cluster.phi()<<")"<< std::endl;
      std::cout << " nhits = " << cluster.nhits() << std::endl;
      std::cout << " radius = " << cluster.radius() << std::endl; 
-     std::cout << " (x,y,z) = " << "(" << cluster.x() <<", "<< cluster.y() <<", "<< cluster.z()<<")"<< std::endl;
-     reco::BasicClusterRef bc_ref = cluster.basicCluster();
-     std::cout << " and is caused by BasicCluster with energy = " << bc_ref->energy() <<" and (eta,phi) =("
-	       << bc_ref->eta()<<", "<< bc_ref->phi()<< ")" << std::endl;
+     std::cout << " (x,y,z) = " << "(" << cluster.x() <<", "<< cluster.y() <<", "<< cluster.z()<<")"<< std::endl;     
   }
  
+  used_strips = used_s;
+
   // return the cluster if its energy is greater a threshold
   if( cluster.energy() > preshClusterEnergyCut_ ) 
      return cluster; 
@@ -239,7 +245,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
 bool PreshowerClusterAlgo::goodStrip(RecHitsMap::iterator candidate_it)
 {
   if ( debugLevel_ == pDEBUG ) {
-    if ( used_s.find(candidate_it->first) != used_s.end()) 
+    if ( used_s->find(candidate_it->first) != used_s->end()) 
         std::cout << " This strip is in use " << std::endl;    
     if (candidate_it == rechits_map->end() )
         std::cout << " No such a strip in rechits_map " << std::endl; 
@@ -247,7 +253,7 @@ bool PreshowerClusterAlgo::goodStrip(RecHitsMap::iterator candidate_it)
         std::cout << " Strip energy " << candidate_it->second.energy() <<" is below threshold " << std::endl; 
   }
   // crystal should not be included...
-  if ( (used_s.find(candidate_it->first) != used_s.end())  ||       // ...if it already belongs to a cluster
+  if ( (used_s->find(candidate_it->first) != used_s->end())  ||       // ...if it already belongs to a cluster
        (candidate_it == rechits_map->end() )                    ||       // ...if it corresponds to a hit
        (candidate_it->second.energy() <= preshStripEnergyCut_ ) )   // ...if it has a negative or zero energy
     {
