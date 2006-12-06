@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.13 2006/11/01 10:33:30 fedor Exp $
+/// $Id: JetMaker.cc,v 1.14 2006/12/05 18:37:44 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -16,6 +16,12 @@ using namespace std;
 using namespace reco;
 
 namespace {
+  void setConstituents (Jet* fJet, ProtoJet::Constituents fConstituents) {
+    for (unsigned i = 0; i < fConstituents.size (); i++) {
+      fJet->addDaughter (fConstituents [i]);
+    }
+  }
+
   bool makeSpecific (const CaloTowerCollection& fTowers,
 		     const std::vector<CaloTowerDetId>& fTowerIds,
 		     CaloJet::Specific* fJetSpecific) {
@@ -148,7 +154,9 @@ namespace {
 }
 
 BasicJet JetMaker::makeBasicJet (const ProtoJet& fProtojet) const {
-  return BasicJet (fProtojet.p4(), reco::Particle::Point (0, 0, 0));
+  BasicJet result (fProtojet.p4(), reco::Particle::Point (0, 0, 0));
+  setConstituents (&result, fProtojet.getTowerList());
+  return result;
 }
 
 
@@ -182,7 +190,9 @@ CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet) const {
   CaloJet::Specific specific;
   if (towerCollection) makeSpecific (*towerCollection, towerIds, &specific);
 
-  return CaloJet (fProtojet.p4(), specific, towerIds);
+  CaloJet result (fProtojet.p4(), specific, towerIds);
+  setConstituents (&result, fProtojet.getTowerList());
+  return result;
 }
 
 GenJet JetMaker::makeGenJet (const ProtoJet& fProtojet) const {
@@ -207,6 +217,8 @@ GenJet JetMaker::makeGenJet (const ProtoJet& fProtojet) const {
   GenJet::Specific specific;
   makeSpecific (mcParticles, &specific);
 
-  return GenJet (fProtojet.p4(), specific, barcodes);
+  GenJet result (fProtojet.p4(), specific, barcodes);
+  setConstituents (&result, fProtojet.getTowerList());
+  return result;
 }
 

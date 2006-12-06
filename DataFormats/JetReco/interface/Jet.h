@@ -12,8 +12,9 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.7 2006/07/21 19:23:14 fedor Exp $
+ * \version   $Id: Jet.h,v 1.8 2006/10/20 08:18:28 llista Exp $
  ************************************************************/
+#include <string>
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 
 namespace reco {
@@ -27,6 +28,12 @@ namespace reco {
       mNumberOfConstituents (fNumberOfConstituents) {}
     /// Destructor
     virtual ~Jet () {}
+
+    /// # of constituents
+    virtual int nConstituents () const {return mNumberOfConstituents;}
+
+  /// Print object
+    virtual std::string print () const;
     
   protected:
     void setNConstituents (int fNConstituents) {mNumberOfConstituents = fNConstituents;}

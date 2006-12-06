@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.16 2006/06/27 23:15:06 fedor Exp $
+ * \version   $Id: CaloJet.h,v 1.17 2006/10/20 08:18:28 llista Exp $
  ************************************************************/
 
 
@@ -110,6 +110,10 @@ class CaloJet : public Jet {
   double emEnergyInHF() const {return m_specific.mEmEnergyInHF;};
   /** Returns the number of constituents carrying a 90% of the total Jet energy*/
   int n90() const {return m_specific.mN90;};
+
+  // constituents
+  CaloTowerRef getConstituent (unsigned fIndex) const;
+  std::vector <CaloTowerRef> getConstituents () const;
   
   // block accessors
   
@@ -118,6 +122,9 @@ class CaloJet : public Jet {
 
   /// Polymorphic clone
   virtual CaloJet* clone () const;
+
+  /// Print object
+  virtual std::string print () const;
   
  private:
   /// Polymorphic overlap

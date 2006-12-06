@@ -1,6 +1,8 @@
 // GenJet.cc
 // Fedor Ratnikov, UMd
-// $Id: GenJet.cc,v 1.5 2006/05/24 00:40:44 fedor Exp $
+// $Id: GenJet.cc,v 1.6 2006/06/27 23:15:06 fedor Exp $
+
+#include <sstream>
 
 //Own header file
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -29,4 +31,13 @@ GenJet* GenJet::clone () const {
 
 bool GenJet::overlap( const Candidate & ) const {
   return false;
+}
+
+std::string GenJet::print () const {
+  std::ostringstream out;
+  out << Jet::print () // generic jet info
+      << "    GenJet specific:" << std::endl
+      << "      em/had/invisible/aux  energies: " 
+      << emEnergy() << '/' << hadEnergy()  << '/' << invisibleEnergy() << '/' << auxiliaryEnergy() << std::endl;
+  return out.str ();
 }

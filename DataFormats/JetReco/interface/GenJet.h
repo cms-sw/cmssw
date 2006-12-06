@@ -12,7 +12,7 @@
  * \author Fedor Ratnikov, UMd
  *
  * \version   Original March 31, 2006 by F.R.
- * \version   $Id: GenJet.h,v 1.6 2006/06/27 23:15:06 fedor Exp $
+ * \version   $Id: GenJet.h,v 1.7 2006/10/20 08:18:28 llista Exp $
  ************************************************************/
 
 
@@ -69,6 +69,9 @@ public:
   
   /// Polymorphic clone
   virtual GenJet* clone () const;
+
+  /// Print object
+  virtual std::string print () const;
   
 private:
   /// Polymorphic overlap

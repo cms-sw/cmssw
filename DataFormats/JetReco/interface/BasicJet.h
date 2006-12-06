@@ -11,7 +11,7 @@
  *
  * \author Fedor Ratnikov, UMd
  *
- * \version   $Id: BasicJet.h,v 1.1 2006/07/19 21:41:27 fedor Exp $
+ * \version   $Id: BasicJet.h,v 1.2 2006/10/20 08:18:28 llista Exp $
  ************************************************************/
 
 
@@ -32,6 +32,9 @@ class BasicJet : public Jet {
   
   /// Polymorphic clone
   virtual BasicJet* clone () const;
+
+  /// Print object
+  virtual std::string print () const;
   
  private:
   /// Polymorphic overlap

@@ -1,6 +1,8 @@
 // BasicJet.cc
 // Fedor Ratnikov, UMd
-// $Id: BasicJet.cc,v 1.6 2006/06/27 23:15:06 fedor Exp $
+// $Id: BasicJet.cc,v 1.1 2006/07/19 21:42:05 fedor Exp $
+
+#include <sstream>
 
 //Own header file
 #include "DataFormats/JetReco/interface/BasicJet.h"
@@ -17,4 +19,11 @@ BasicJet* BasicJet::clone () const {
 
 bool BasicJet::overlap( const Candidate & ) const {
   return false;
+}
+
+std::string BasicJet::print () const {
+  std::ostringstream out;
+  out << Jet::print () // generic jet info
+      << "    BasicJet specific: None" << std::endl;
+  return out.str ();
 }
