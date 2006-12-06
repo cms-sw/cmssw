@@ -17,6 +17,13 @@
   <class name="edm::RefProd<std::vector<reco::TrackCountingTagInfo> >" />
   <class name="edm::RefVector<std::vector<reco::TrackCountingTagInfo>, reco::TrackCountingTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TrackCountingTagInfo>, reco::TrackCountingTagInfo> >" />
 
+  <class name="reco::TrackProbabilityTagInfo" />
+  <class name="std::vector<reco::TrackProbabilityTagInfo>" />
+  <class name="edm::Wrapper<std::vector<reco::TrackProbabilityTagInfo> >" />
+  <class name="edm::Ref<std::vector<reco::TrackProbabilityTagInfo>, reco::TrackProbabilityTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TrackProbabilityTagInfo>, reco::TrackProbabilityTagInfo> >" />
+  <class name="edm::RefProd<std::vector<reco::TrackProbabilityTagInfo> >" />
+  <class name="edm::RefVector<std::vector<reco::TrackProbabilityTagInfo>, reco::TrackProbabilityTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TrackProbabilityTagInfo>, reco::TrackProbabilityTagInfo> >" />
+  
   <class name="reco::IsolatedTauTagInfo" />
   <class name="std::vector<reco::IsolatedTauTagInfo>" />
   <class name="edm::Wrapper<std::vector<reco::IsolatedTauTagInfo> >" />
