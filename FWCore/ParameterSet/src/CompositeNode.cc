@@ -86,6 +86,16 @@ namespace edm {
     }
 
 
+    void CompositeNode::setCloned(bool value)
+    {
+      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
+      for(;i!=e;++i)
+      {
+        (*i)->setCloned(value);
+      }
+    }
+
+
     void CompositeNode::setAsChildrensParent()
     {
       NodePtrList::iterator i(nodes_->begin()),e(nodes_->end());

@@ -24,6 +24,9 @@ namespace edm {
       /// if any subnodes are modified, this counts as modified
       virtual bool isModified() const;
 
+      /// sets all children as cloned
+      virtual void setCloned(bool value);
+
       /// also makes all subnodes register their parents
       virtual void setAsChildrensParent();
 
