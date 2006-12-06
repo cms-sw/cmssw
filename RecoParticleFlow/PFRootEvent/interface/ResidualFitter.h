@@ -21,7 +21,8 @@ class ResidualFitter : public TH3D, public TQObject {
 
   ~ResidualFitter();
 
-  void CreateCanvas(int x=700, int y=700);
+  static void SetCanvas(int x, int y) { xCanvas_=x; yCanvas_=y;}
+  void CreateCanvas();
 
   void AddTrue( double x, double y, double z) 
     {true_.push_back( Point(x,y,z) ); }
@@ -70,6 +71,11 @@ class ResidualFitter : public TH3D, public TQObject {
   std::string   fitOptions_;
 
   TCanvas*  canvas_;
+  
+  static int    xCanvas_;
+  static int    yCanvas_;
+  
+
   TCanvas*  canvasFit_;
 
   TH1D*     curBin_;

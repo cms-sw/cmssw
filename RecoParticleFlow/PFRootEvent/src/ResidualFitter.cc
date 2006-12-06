@@ -11,6 +11,9 @@ using namespace std;
 
 // TCanvas* ResidualFitter::canvasFit_ = 0;
 
+int ResidualFitter::xCanvas_ = 600;
+int ResidualFitter::yCanvas_ = 600;
+
 ResidualFitter::ResidualFitter(const char* name, 
 		     const char* title, 
 		     int nbinsx, double xlow, double xup, 
@@ -64,9 +67,9 @@ ResidualFitter::~ResidualFitter() {
   delete nseen_;
 }
 
-void ResidualFitter::CreateCanvas(int x, int y) {
+void ResidualFitter::CreateCanvas() {
   string cname = "ResidualFitterCanvas_"; cname += GetName();
-  canvas_ = new TCanvas(cname.c_str(), cname.c_str(),x, y);
+  canvas_ = new TCanvas(cname.c_str(), cname.c_str(),xCanvas_, yCanvas_);
   
   canvas_ ->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)", "ResidualFitter",
 		    this, "ExecuteEvent(Int_t,Int_t,Int_t,TObject*)");
