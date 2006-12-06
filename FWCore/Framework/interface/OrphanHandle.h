@@ -19,7 +19,7 @@ OrphanHandles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: OrphanHandle.h,v 1.3 2006/08/10 23:24:42 wmtan Exp $
+$Id: OrphanHandle.h,v 1.4 2006/08/31 23:26:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -58,6 +58,8 @@ namespace edm {
 
     ProductID id() const;
 
+    void clear();
+
   private:
     T const* prod_;
     ProductID id_;
@@ -85,7 +87,17 @@ namespace edm {
 
   template <class T>
   OrphanHandle<T>::~OrphanHandle() { 
-    // Nothing to do -- we do not own the things to which we point.
+    // Really nothing to do -- we do not own the things to which we
+    // point.  For help in debugging, we clear the data.
+    clear();
+  }
+
+  template <class T>
+  void
+  OrphanHandle<T>::clear()
+  {
+    prod_ = 0;
+    id_ = ProductID();
   }
 
   template <class T>
