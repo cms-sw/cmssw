@@ -110,7 +110,7 @@ namespace edm {
 
       /// OK if ReplaceNode says it's OK to remodify, or if not already modify
       /// throws if not
-      static void checkOkToModify(const ReplaceNode * replaceNode, NodePtr targetNode);
+      void checkOkToModify(const ReplaceNode * replaceNode, NodePtr targetNode);
 
       /// Nodes which represent top-level PSet blocks
       NodePtrMap blocks_;
