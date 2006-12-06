@@ -35,7 +35,7 @@ TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const
 					     tGeometry_->idToDet(p->geographicalId())
 					     ) ));  
   }else if (const ProjectedSiStripRecHit2D* ph = dynamic_cast<const ProjectedSiStripRecHit2D*>(p)) {
-    return ProjectedRecHit2D::build(tGeometry_->idToDet(p->geographicalId()),ph);
+    return ProjectedRecHit2D::build(tGeometry_->idToDet(p->geographicalId()),ph,stripCPE);
   } 
   throw cms::Exception("LogicError") << "TrackingRecHit* cannot be casted to a known concrete type"; 
 }

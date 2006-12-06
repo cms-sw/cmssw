@@ -1,27 +1,30 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TrackingRecHitProjector.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
 ProjectedRecHit2D::ProjectedRecHit2D( const LocalPoint& pos, const LocalError& err, const GeomDet* det,
-				      const TransientTrackingRecHit& originalHit) :
-  //  TransientTrackingRecHit(det)
+				      const TransientTrackingRecHit& originalTransientHit) :
   GenericTransientTrackingRecHit( det, new ProjectedSiStripRecHit2D( pos, err, det->geographicalId(), 
-								     dynamic_cast<const SiStripRecHit2D*>(originalHit.hit()))), 
-  theOriginalHit( &originalHit)
+								     dynamic_cast<const SiStripRecHit2D*>(originalTransientHit.hit()))) 
 {
-  //const TrackingRecHit& thit = *originalHit.hit();
-  //const SiStripRecHit2D& siHit = dynamic_cast<const SiStripRecHit2D&>(thit);
-  //theHitData = new ProjectedSiStripRecHit2D( pos, err, det->geographicalId(), siHit); 
+  const TSiStripRecHit2DLocalPos* specificOriginalTransientHit = dynamic_cast<const TSiStripRecHit2DLocalPos*>(&originalTransientHit);
+  theCPE = specificOriginalTransientHit->cpe();
 }
 
 ProjectedRecHit2D::RecHitPointer 
 ProjectedRecHit2D::clone( const TrajectoryStateOnSurface& ts) const
 {
   TrackingRecHitProjector<ProjectedRecHit2D> proj;
-  //RecHitPointer updatedOriginalHit = originalHit().clone( ts); //TO FIX
-  //const ProjectedSiStripRecHit2D*  updatedOriginalHit = originalHit()->clone();
+  const SiStripCluster& clust = *(originalHit().cluster());  
 
-  //RecHitPointer hit = proj.project( *updatedOriginalHit, *det(), ts); //TO FIX
-  //return hit;
-  RecHitPointer hit = build(this->det(),dynamic_cast<const ProjectedSiStripRecHit2D*>(this->hit()));
+  StripClusterParameterEstimator::LocalValues lv = 
+    theCPE->localParameters( clust, *detUnit(), ts.localParameters());
+
+  RecHitPointer updatedOriginalHit = 
+    TSiStripRecHit2DLocalPos::build( lv.first, lv.second, det(), 
+				     originalHit().cluster(), theCPE);
+
+  RecHitPointer hit = proj.project( *updatedOriginalHit, *det(), ts); 
   return hit;
 }
