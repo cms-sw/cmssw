@@ -89,8 +89,6 @@ namespace edm {
     // 'Rethrow' is the default default.
     map_[edm::Exception::codeToString(errors::ProductNotFound)]=
       actions::SkipEvent;
-    map_[edm::Exception::codeToString(errors::InsertFailure)]=
-      actions::SkipEvent;
     map_[edm::Exception::codeToString(errors::InvalidReference)]=
       actions::SkipEvent;
     map_[edm::Exception::codeToString(errors::NullPointerError)]=
