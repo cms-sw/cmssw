@@ -2,7 +2,7 @@
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.1 2006/11/30 15:37:07 paterno Exp $
+$Id: Event_t.cpp,v 1.2 2006/12/05 23:56:18 paterno Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -26,12 +26,25 @@ $Id: Event_t.cpp,v 1.1 2006/11/30 15:37:07 paterno Exp $
 using namespace edm;
 using namespace std;
 
+// This is a gross hack, to allow us to test the event
+namespace edm
+{
+  class ProducerWorker
+  {
+  public:
+    static void commitEvent(Event& e) { e.commit_(); }
+    
+  };
+}
+
+
 class testEvent: public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE(testEvent);
   CPPUNIT_TEST(emptyEvent);
   CPPUNIT_TEST(getBySelectorFromEmpty);
   CPPUNIT_TEST(putAnIntProduct);
+  CPPUNIT_TEST(putAndGetAnIntProduct);
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -41,12 +54,13 @@ class testEvent: public CppUnit::TestFixture
   void emptyEvent();
   void getBySelectorFromEmpty();
   void putAnIntProduct();
+  void putAndGetAnIntProduct();
 
  private:
   
   ProductRegistry*   availableProducts_;
   EventPrincipal*    principal_;
-  Event*             emptyEvent_;
+  Event*             currentEvent_;
   ModuleDescription* currentModuleDescription_;
 };
 
@@ -64,7 +78,7 @@ Timestamp make_timestamp() { return Timestamp(1); }
 testEvent::testEvent() :
   availableProducts_(0),
   principal_(0),
-  emptyEvent_(0),
+  currentEvent_(0),
   currentModuleDescription_(0)
 { }
 
@@ -117,13 +131,13 @@ testEvent::setUp()
 				   make_timestamp(),
 				   *availableProducts_);
 
-  emptyEvent_ = new Event(*principal_, *currentModuleDescription_);
+  currentEvent_ = new Event(*principal_, *currentModuleDescription_);
 }
 
 void
 testEvent::tearDown()
 {
-  kill_and_clear(emptyEvent_);
+  kill_and_clear(currentEvent_);
   kill_and_clear(currentModuleDescription_);
   kill_and_clear(principal_);
   kill_and_clear(availableProducts_);  
@@ -132,10 +146,10 @@ testEvent::tearDown()
 void testEvent::emptyEvent()
 
 {
-  CPPUNIT_ASSERT(emptyEvent_);
-  CPPUNIT_ASSERT(emptyEvent_->id() == make_id());
-  CPPUNIT_ASSERT(emptyEvent_->time() == make_timestamp());
-  CPPUNIT_ASSERT(emptyEvent_->size() == 0);  
+  CPPUNIT_ASSERT(currentEvent_);
+  CPPUNIT_ASSERT(currentEvent_->id() == make_id());
+  CPPUNIT_ASSERT(currentEvent_->time() == make_timestamp());
+  CPPUNIT_ASSERT(currentEvent_->size() == 0);  
 }
 
 void testEvent::getBySelectorFromEmpty()
@@ -143,14 +157,31 @@ void testEvent::getBySelectorFromEmpty()
   ModuleLabelSelector byModuleLabel("mod1");
   Handle<int> nonesuch;
   CPPUNIT_ASSERT(!nonesuch.isValid());
-  CPPUNIT_ASSERT_THROW(emptyEvent_->get(byModuleLabel, nonesuch),
+  CPPUNIT_ASSERT_THROW(currentEvent_->get(byModuleLabel, nonesuch),
 		       edm::Exception);
 }
 
 void testEvent::putAnIntProduct()
 {
   auto_ptr<edmtest::IntProduct> three(new edmtest::IntProduct(3));
-  emptyEvent_->put(three);
-  CPPUNIT_ASSERT(emptyEvent_->size() == 1);
+  currentEvent_->put(three);
+  CPPUNIT_ASSERT(currentEvent_->size() == 1);
+  ProducerWorker::commitEvent(*currentEvent_);
+  CPPUNIT_ASSERT(currentEvent_->size() == 1);
+}
+
+void testEvent::putAndGetAnIntProduct()
+{
+  auto_ptr<edmtest::IntProduct> four(new edmtest::IntProduct(4));
+  currentEvent_->put(four);
+  ProducerWorker::commitEvent(*currentEvent_);
+
+  ProcessNameSelector should_match("FUNKY");
+  ProcessNameSelector should_not_match("FUN");
+  Handle<edmtest::IntProduct> h;
+  currentEvent_->get(should_match, h);
+  CPPUNIT_ASSERT(h.isValid());
+  CPPUNIT_ASSERT_THROW(currentEvent_->get(should_not_match, h), edm::Exception);
+  CPPUNIT_ASSERT(!h.isValid());
 }
 

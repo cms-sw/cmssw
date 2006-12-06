@@ -24,7 +24,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jan  7 15:40:43 EST 2006
-// $Id: GenericHandle.h,v 1.5 2006/08/31 23:26:24 wmtan Exp $
+// $Id: GenericHandle.h,v 1.6 2006/10/27 20:56:42 wmtan Exp $
 //
 
 // system include files
@@ -123,6 +123,8 @@ public:
    Provenance const* provenance() const {return prov_;}
    
    ProductID id() const {return id_;}
+
+  void clear() { prov_ = 0; id_ = ProductID(); }
       
 private:
    ROOT::Reflex::Type type_;

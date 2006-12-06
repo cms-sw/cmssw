@@ -74,7 +74,7 @@ been committed (which happens after the EDProducer::produce method has ended)
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.7 2006/11/11 16:50:48 wmtan Exp $
+$Id: DataViewImpl.h,v 1.8 2006/11/30 15:37:06 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -420,6 +420,7 @@ namespace edm {
   void
   DataViewImpl::get(ProductID const& oid, Handle<PROD>& result) const
   {
+    result.clear();
     BasicHandle bh = this->get_(oid);
     gotProductIDs_.push_back(bh.id());
     convert_handle(bh, result);  // throws on conversion error
@@ -430,6 +431,7 @@ namespace edm {
   DataViewImpl::get(SelectorBase const& sel,
 	     Handle<PROD>& result) const
   {
+    result.clear();
     BasicHandle bh = this->get_(TypeID(typeid(PROD)),sel);
     gotProductIDs_.push_back(bh.id());
     convert_handle(bh, result);  // throws on conversion error
@@ -441,6 +443,7 @@ namespace edm {
   DataViewImpl::getByLabel(std::string const& label,
 		    Handle<PROD>& result) const
   {
+    result.clear();
     getByLabel(label, std::string(), result);
   }
 
@@ -448,6 +451,7 @@ namespace edm {
   void
   DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const
   {
+    result.clear();
     if (tag.process().empty()) {
       getByLabel(tag.label(), tag.instance(), result);
     } else {
@@ -463,6 +467,7 @@ namespace edm {
                     const std::string& productInstanceName,
 		    Handle<PROD>& result) const
   {
+    result.clear();
     BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName);
     gotProductIDs_.push_back(bh.id());
     convert_handle(bh, result);  // throws on conversion error
@@ -508,6 +513,7 @@ namespace edm {
   void
   DataViewImpl::getByType(Handle<PROD>& result) const
   {
+    result.clear();
     BasicHandle bh = this->getByType_(TypeID(typeid(PROD)));
     gotProductIDs_.push_back(bh.id());
     convert_handle(bh, result);  // throws on conversion error

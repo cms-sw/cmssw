@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.18 2006/08/10 23:24:42 wmtan Exp $
+$Id: Handle.h,v 1.19 2006/08/31 23:26:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -65,6 +65,8 @@ namespace edm
 
     ProductID id() const;
 
+    void clear();
+
   private:
     T const* prod_;
     Provenance const* prov_;    
@@ -98,7 +100,9 @@ namespace edm
   template <class T>
   Handle<T>::~Handle()
   { 
-    // Nothing to do -- we do not own the things to which we point.
+    // Really nothing to do -- we do not own the things to which we
+    // point.  For help in debugging, we clear the data.
+    clear();
   }
 
   template <class T>
@@ -165,6 +169,14 @@ namespace edm
     return id_;
   }
 
+  template <class T>
+  void
+  Handle<T>::clear()
+  {
+    prod_ = 0;
+    prov_ = 0;
+    id_ = ProductID();
+  }
   //------------------------------------------------------------
   // Non-member functions
   //
