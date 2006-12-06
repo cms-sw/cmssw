@@ -4,7 +4,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-//RC#include "DataFormats/Common/interface/OwnVector.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include <utility>
@@ -15,7 +14,7 @@ class Trajectory;
 namespace edm { class EventSetup;}
 
 /// Computes the trajectory state to be used as a starting state for the track fit
-/// from the vector of hits. The parameters of this stat are close to the final fit parameters.
+/// from the vector of hits. The parameters of this state are close to the final fit parameters.
 /// The error matrix is enlarged in order not to bias the track fit.
 
 class TransientInitialStateEstimator {
@@ -30,8 +29,12 @@ public:
 
 
 private:
-  edm::ESHandle<Propagator>  theReversePropagator;
-  edm::ESHandle<Propagator>  theForwardPropagator;
+  edm::ESHandle<Propagator>  thePropagatorAlong; 
+  edm::ESHandle<Propagator>  thePropagatorOpposite;
+
+  mutable const Propagator*        theForwardPropagator;
+  mutable const Propagator*        theReversePropagator; 
+  
 
 };
 

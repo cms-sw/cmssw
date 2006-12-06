@@ -23,14 +23,25 @@ TransientInitialStateEstimator::TransientInitialStateEstimator( const edm::Event
   std::string propagatorAlongName    = conf.getParameter<std::string>("propagatorAlongTISE");   
   std::string propagatorOppositeName = conf.getParameter<std::string>("propagatorOppositeTISE");   
 
-  es.get<TrackingComponentsRecord>().get(propagatorAlongName,theForwardPropagator);
-  es.get<TrackingComponentsRecord>().get(propagatorOppositeName,theReversePropagator);
+  es.get<TrackingComponentsRecord>().get(propagatorAlongName,thePropagatorAlong);
+  es.get<TrackingComponentsRecord>().get(propagatorOppositeName,thePropagatorOpposite);
 }
 
 
 std::pair<TrajectoryStateOnSurface, const GeomDet*> 
 TransientInitialStateEstimator::innerState( const Trajectory& traj) const
 {
+
+  if (  traj.seed().direction() == alongMomentum) {
+    theForwardPropagator = &(*thePropagatorAlong);
+    theReversePropagator = &(*thePropagatorOpposite);
+  }
+  else {
+    theForwardPropagator = &(*thePropagatorOpposite);
+    theReversePropagator = &(*thePropagatorAlong);
+  }
+
+
   int lastFitted = 4;
   int nhits = traj.foundHits();
   if (nhits < lastFitted+1) lastFitted = nhits-1;
