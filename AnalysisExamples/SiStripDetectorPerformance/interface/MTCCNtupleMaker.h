@@ -95,12 +95,21 @@ class MTCCNtupleMaker : public edm::EDAnalyzer
   double getClusterEta( const std::vector<uint16_t> &roSTRIP_AMPLITUDES,
 			const int		    &rnFIRST_STRIP,
 			const DigisVector	    &roDIGIS) const;
+  double getClusterCrossTalk( const std::vector<uint16_t> &roSTRIP_AMPLITUDES,
+			      const int		          &rnFIRST_STRIP,
+			      const DigisVector	          &roDIGIS) const;
+  // First argument is double to simplify calculations otherwise convertion
+  // to double should be performed each time division is used
+  double calculateClusterCrossTalk( const double &rdADC_STRIPL,
+                                    const int    &rnADC_STRIP,
+				    const int    &rnADC_STRIPR) const;
     
   edm::ParameterSet conf_;
   std::string filename_;
   std::string oSiStripDigisLabel_;
   std::string oSiStripDigisProdInstName_;
   bool bUseLTCDigis_;
+  const double dCROSS_TALK_ERR;
   //SiStripNoiseService m_oSiStripNoiseService; 
   
   std::vector<DetId> Detvector;
@@ -137,6 +146,7 @@ class MTCCNtupleMaker : public edm::EDAnalyzer
   float clustermaxchg;
   float clusterbarycenter;
   float clusterseednoise;
+  float clustercrosstalk;
 
   float angle;
   float stereocorrection;
