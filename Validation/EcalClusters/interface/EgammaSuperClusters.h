@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaSuperClusters.h,v 1.3 2006/11/20 16:25:13 mabalazs Exp $
+// $Id: EgammaSuperClusters.h,v 1.4 2006/11/20 18:58:30 mabalazs Exp $
 //
 #include <string>
 
@@ -43,6 +43,9 @@ class EgammaSuperClusters : public edm::EDAnalyzer
       	edm::InputTag hybridBarrelSuperClusterCollection_;
       	edm::InputTag islandBarrelSuperClusterCollection_;
       	edm::InputTag islandEndcapSuperClusterCollection_;
+      	edm::InputTag hybridBarrelClusterShapeAssociation_;
+      	edm::InputTag islandBarrelClusterShapeAssociation_;
+      	edm::InputTag islandEndcapClusterShapeAssociation_;
 
       	MonitorElement* hist_HybridEB_SC_Size_;
       	MonitorElement* hist_IslandEB_SC_Size_;

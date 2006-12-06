@@ -7,6 +7,8 @@
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 
 #include "Geometry/Vector/interface/Pi.h"
 
@@ -57,6 +59,9 @@ EgammaSuperClusters::EgammaSuperClusters( const edm::ParameterSet& ps )
 	hybridBarrelSuperClusterCollection_ = ps.getParameter<edm::InputTag>("hybridBarrelSuperClusterCollection");
   	islandBarrelSuperClusterCollection_ = ps.getParameter<edm::InputTag>("islandBarrelSuperClusterCollection");
   	islandEndcapSuperClusterCollection_ = ps.getParameter<edm::InputTag>("islandEndcapSuperClusterCollection");
+	hybridBarrelClusterShapeAssociation_ = ps.getParameter<edm::InputTag>("hybridBarrelClusterShapeAssociation");
+	islandBarrelClusterShapeAssociation_ = ps.getParameter<edm::InputTag>("islandBarrelClusterShapeAssociation");
+	islandEndcapClusterShapeAssociation_ = ps.getParameter<edm::InputTag>("islandEndcapClusterShapeAssociation");
 }
 
 EgammaSuperClusters::~EgammaSuperClusters() {}
@@ -180,6 +185,17 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
 			<< hybridBarrelSuperClusterCollection_.label();
   	}
 
+  	edm::Handle<reco::BasicClusterShapeAssociationCollection> pHybridBarrelClusterShapeAssociation;
+ 	try
+	{
+		evt.getByLabel(hybridBarrelClusterShapeAssociation_, pHybridBarrelClusterShapeAssociation);
+  	}
+	catch ( cms::Exception& ex )
+	{
+		edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
+			<< hybridBarrelClusterShapeAssociation_.label();
+  	}
+
   	const reco::SuperClusterCollection* hybridBarrelSuperClusters = pHybridBarrelSuperClusters.product();
   	hist_HybridEB_SC_Size_->Fill(hybridBarrelSuperClusters->size());
 
@@ -190,6 +206,10 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
     		hist_HybridEB_SC_ET_->Fill(aClus->energy()/std::cosh(aClus->position().eta()));
 		hist_HybridEB_SC_Eta_->Fill(aClus->position().eta());
 		hist_HybridEB_SC_Phi_->Fill(aClus->position().phi());
+
+		const reco::ClusterShapeRef& tempClusterShape = pHybridBarrelClusterShapeAssociation->find(aClus->seed())->val;
+		hist_HybridEB_SC_S1toS9_->Fill(tempClusterShape->eMax()/tempClusterShape->e3x3());
+		hist_HybridEB_SC_S25toE_->Fill(tempClusterShape->e5x5()/aClus->energy());
   	}
 
   	edm::Handle<reco::SuperClusterCollection> pIslandBarrelSuperClusters;
@@ -203,6 +223,17 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
 			<< islandBarrelSuperClusterCollection_.label();
   	}
 
+  	edm::Handle<reco::BasicClusterShapeAssociationCollection> pIslandBarrelClusterShapeAssociation;
+ 	try
+	{
+		evt.getByLabel(islandBarrelClusterShapeAssociation_, pIslandBarrelClusterShapeAssociation);
+  	}
+	catch ( cms::Exception& ex )
+	{
+		edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
+			<< islandBarrelClusterShapeAssociation_.label();
+  	}
+
   	const reco::SuperClusterCollection* islandBarrelSuperClusters = pIslandBarrelSuperClusters.product();
  	hist_IslandEB_SC_Size_->Fill(islandBarrelSuperClusters->size());
 
@@ -213,6 +244,10 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
     		hist_IslandEB_SC_ET_->Fill(aClus->energy()/std::cosh(aClus->position().eta()));
 		hist_IslandEB_SC_Eta_->Fill(aClus->position().eta());
 		hist_IslandEB_SC_Phi_->Fill(aClus->position().phi());
+
+		const reco::ClusterShapeRef& tempClusterShape = pIslandBarrelClusterShapeAssociation->find(aClus->seed())->val;
+		hist_IslandEB_SC_S1toS9_->Fill(tempClusterShape->eMax()/tempClusterShape->e3x3());
+		hist_IslandEB_SC_S25toE_->Fill(tempClusterShape->e5x5()/aClus->energy());
   	}
 
   	edm::Handle<reco::SuperClusterCollection> pIslandEndcapSuperClusters;
@@ -226,6 +261,17 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
 			<< islandEndcapSuperClusterCollection_.label();
   	}
 
+  	edm::Handle<reco::BasicClusterShapeAssociationCollection> pIslandEndcapClusterShapeAssociation;
+ 	try
+	{
+		evt.getByLabel(islandEndcapClusterShapeAssociation_, pIslandEndcapClusterShapeAssociation);
+  	}
+	catch ( cms::Exception& ex )
+	{
+		edm::LogError("EgammaSuperClusters") << "Error! can't get collection with label " 
+			<< islandEndcapClusterShapeAssociation_.label();
+  	}
+
   	const reco::SuperClusterCollection* islandEndcapSuperClusters = pIslandEndcapSuperClusters.product();
   	hist_IslandEE_SC_Size_->Fill(islandEndcapSuperClusters->size());
 
@@ -236,6 +282,10 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
     		hist_IslandEE_SC_ET_->Fill(aClus->energy()/std::cosh(aClus->position().eta()));
 		hist_IslandEE_SC_Eta_->Fill(aClus->position().eta());
 		hist_IslandEE_SC_Phi_->Fill(aClus->position().phi());
+
+		const reco::ClusterShapeRef& tempClusterShape = pIslandEndcapClusterShapeAssociation->find(aClus->seed())->val;
+		hist_IslandEE_SC_S1toS9_->Fill(tempClusterShape->eMax()/tempClusterShape->e3x3());
+		hist_IslandEE_SC_S25toE_->Fill(tempClusterShape->e5x5()/aClus->energy());
   	}
 
  	edm::Handle<edm::HepMCProduct> pMCTruth ;

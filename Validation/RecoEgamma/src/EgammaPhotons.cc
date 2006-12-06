@@ -128,10 +128,10 @@ void EgammaPhotons::analyze( const edm::Event& evt, const edm::EventSetup& es )
 		edm::LogError("EgammaPhotons") << "Error! can't get collection with label " << PhotonCollection_.label();
   	}
 
-  	const reco::PhotonCollection* Photons = pPhotons.product();
-  	hist_Photon_Size_->Fill(Photons->size());
+  	const reco::PhotonCollection* photons = pPhotons.product();
+  	hist_Photon_Size_->Fill(photons->size());
 
-  	for(reco::PhotonCollection::const_iterator aClus = Photons->begin(); aClus != Photons->end(); aClus++)
+  	for(reco::PhotonCollection::const_iterator aClus = photons->begin(); aClus != photons->end(); aClus++)
 	{
 		if(std::fabs(aClus->eta()) <= 1.479)
 		{
@@ -173,7 +173,7 @@ void EgammaPhotons::analyze( const edm::Event& evt, const edm::EventSetup& es )
 
 			double closestParticleDistance = 999; 
 		
-	    	for(reco::PhotonCollection::const_iterator aClus = Photons->begin(); aClus != Photons->end(); aClus++)
+	    	for(reco::PhotonCollection::const_iterator aClus = photons->begin(); aClus != photons->end(); aClus++)
 			{
 				etaCurrent = 	aClus->eta();
 				phiCurrent = 	aClus->phi();

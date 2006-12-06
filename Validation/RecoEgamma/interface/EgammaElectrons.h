@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaElectrons.h,v 1.4 2006/11/20 15:59:21 mabalazs Exp $
+// $Id: EgammaElectrons.h,v 1.5 2006/11/20 16:14:08 mabalazs Exp $
 //
 #include <string>
 
@@ -22,15 +22,17 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+
 class EgammaElectrons : public edm::EDAnalyzer
 {	
 	public:
-	explicit EgammaElectrons( const edm::ParameterSet& );
-      	~EgammaElectrons();
+    explicit EgammaElectrons( const edm::ParameterSet& );
+    ~EgammaElectrons();
 
-      	virtual void analyze( const edm::Event&, const edm::EventSetup& );
-      	virtual void beginJob(edm::EventSetup const&);
-      	virtual void endJob();
+    virtual void analyze( const edm::Event&, const edm::EventSetup& );
+    virtual void beginJob(edm::EventSetup const&);
+    virtual void endJob();
 
 	private:
 	std::string outputFile_;
@@ -39,78 +41,89 @@ class EgammaElectrons : public edm::EDAnalyzer
 	bool verboseDBE_;
 	DaqMonitorBEInterface* dbe_;
 
-      	edm::InputTag MCTruthCollection_;
-      	edm::InputTag ElectronCollection_;
+    edm::InputTag MCTruthCollection_;
+    edm::InputTag ElectronCollection_;
  
-      	MonitorElement* hist_Electron_Size_;
+    MonitorElement* hist_Electron_Size_;
 
-      	double hist_min_Size_;
-      	double hist_max_Size_;
-      	int    hist_bins_Size_;
+    double hist_min_Size_;
+    double hist_max_Size_;
+    int    hist_bins_Size_;
 
-      	MonitorElement* hist_Electron_Barrel_ET_;
-      	MonitorElement* hist_Electron_Endcap_ET_;
+    MonitorElement* hist_Electron_Barrel_ET_;
+    MonitorElement* hist_Electron_Endcap_ET_;
 
-      	double hist_min_ET_;
-      	double hist_max_ET_;
-      	int    hist_bins_ET_;
+    double hist_min_ET_;
+    double hist_max_ET_;
+    int    hist_bins_ET_;
 
-      	MonitorElement* hist_Electron_Barrel_Eta_;
-      	MonitorElement* hist_Electron_Endcap_Eta_;
+    MonitorElement* hist_Electron_Barrel_Eta_;
+    MonitorElement* hist_Electron_Endcap_Eta_;
 
-      	double hist_min_Eta_;
-      	double hist_max_Eta_;
-      	int    hist_bins_Eta_;
+    double hist_min_Eta_;
+    double hist_max_Eta_;
+    int    hist_bins_Eta_;
 
-      	MonitorElement* hist_Electron_Barrel_Phi_;
-      	MonitorElement* hist_Electron_Endcap_Phi_;
+    MonitorElement* hist_Electron_Barrel_Phi_;
+    MonitorElement* hist_Electron_Endcap_Phi_;
 
-      	double hist_min_Phi_;
-      	double hist_max_Phi_;
-      	int    hist_bins_Phi_;
+    double hist_min_Phi_;
+    double hist_max_Phi_;
+    int    hist_bins_Phi_;
 
-      	MonitorElement* hist_Electron_Barrel_EoverP_;
-      	MonitorElement* hist_Electron_Endcap_EoverP_;
+    MonitorElement* hist_Electron_Barrel_EoverP_;
+    MonitorElement* hist_Electron_Endcap_EoverP_;
 
-      	double hist_min_EoverP_;
-      	double hist_max_EoverP_;
-      	int    hist_bins_EoverP_;
+    double hist_min_EoverP_;
+    double hist_max_EoverP_;
+    int    hist_bins_EoverP_;
 
-      	MonitorElement* hist_Electron_Barrel_deltaEtaSCtoTrack_;
-      	MonitorElement* hist_Electron_Endcap_deltaEtaSCtoTrack_;
+    MonitorElement* hist_Electron_Barrel_deltaEtaSCtoTrack_;
+    MonitorElement* hist_Electron_Endcap_deltaEtaSCtoTrack_;
 
-      	double hist_min_deltaEtaSCtoTrack_;
-      	double hist_max_deltaEtaSCtoTrack_;
-      	int    hist_bins_deltaEtaSCtoTrack_;
+    double hist_min_deltaEtaSCtoTrack_;
+    double hist_max_deltaEtaSCtoTrack_;
+    int    hist_bins_deltaEtaSCtoTrack_;
 
 
-      	MonitorElement* hist_Electron_Barrel_EToverTruth_;
-      	MonitorElement* hist_Electron_Endcap_EToverTruth_;
+    MonitorElement* hist_Electron_Barrel_EToverTruth_;
+    MonitorElement* hist_Electron_Endcap_EToverTruth_;
 
-      	double hist_min_EToverTruth_;
-      	double hist_max_EToverTruth_;
-      	int    hist_bins_EToverTruth_;
+    double hist_min_EToverTruth_;
+    double hist_max_EToverTruth_;
+    int    hist_bins_EToverTruth_;
 
-      	MonitorElement* hist_Electron_Barrel_deltaEta_;
-      	MonitorElement* hist_Electron_Endcap_deltaEta_;
+    MonitorElement* hist_Electron_Barrel_deltaEta_;
+    MonitorElement* hist_Electron_Endcap_deltaEta_;
 
-      	double hist_min_deltaEta_;
-      	double hist_max_deltaEta_;
-      	int    hist_bins_deltaEta_;
+    double hist_min_deltaEta_;
+    double hist_max_deltaEta_;
+    int    hist_bins_deltaEta_;
 
-      	MonitorElement* hist_Electron_Barrel_deltaPhi_;
-      	MonitorElement* hist_Electron_Endcap_deltaPhi_;
+    MonitorElement* hist_Electron_Barrel_deltaPhi_;
+    MonitorElement* hist_Electron_Endcap_deltaPhi_;
 
-      	double hist_min_deltaPhi_;
-      	double hist_max_deltaPhi_;
-      	int    hist_bins_deltaPhi_;
+    double hist_min_deltaPhi_;
+    double hist_max_deltaPhi_;
+    int    hist_bins_deltaPhi_;
 
-      	MonitorElement* hist_Electron_Barrel_deltaR_;
-      	MonitorElement* hist_Electron_Endcap_deltaR_;
+    MonitorElement* hist_Electron_Barrel_deltaR_;
+    MonitorElement* hist_Electron_Endcap_deltaR_;
 
-      	double hist_min_deltaR_;
-      	double hist_max_deltaR_;
-      	int    hist_bins_deltaR_;
+    double hist_min_deltaR_;
+    double hist_max_deltaR_;
+    int    hist_bins_deltaR_;
+
+    MonitorElement* hist_Electron_All_recoZMass_;
+    MonitorElement* hist_Electron_BarrelOnly_recoZMass_;
+    MonitorElement* hist_Electron_EndcapOnly_recoZMass_;
+    MonitorElement* hist_Electron_Mixed_recoZMass_;
+
+    double hist_min_recoZMass_;
+    double hist_max_recoZMass_;
+    int    hist_bins_recoZMass_;
+
+    void findRecoZMass(reco::PixelMatchGsfElectron eOne, reco::PixelMatchGsfElectron eTwo);
 };
 #endif
 
