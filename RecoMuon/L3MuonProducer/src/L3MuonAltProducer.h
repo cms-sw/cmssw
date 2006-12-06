@@ -1,5 +1,5 @@
-#ifndef RecoMuon_L3MuonIsolationProducer_L3MuonAltProducer_H
-#define RecoMuon_L3MuonIsolationProducer_L3MuonAltProducer_H
+#ifndef RecoMuon_L3MuonProducer_L3MuonAltProducer_H
+#define RecoMuon_L3MuonProducer_L3MuonAltProducer_H
 
 /**  \class L3MuonAltProducer
  * 
