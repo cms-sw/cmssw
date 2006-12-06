@@ -16,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.h,v 1.3 2006/11/07 18:42:42 fwyzard Exp $
+// $Id: SoftLepton.h,v 1.4 2006/11/14 21:12:00 fwyzard Exp $
 //
 
 // system include files
@@ -47,7 +47,6 @@ private:
   const std::string m_jetTracksAssociator;
   const std::string m_primaryVertexProducer;
   const std::string m_leptonProducer;
-  const std::string m_outputInstanceName;
 
   // concrete algorithm
   SoftLeptonAlgorithm m_algo;

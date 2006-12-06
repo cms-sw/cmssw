@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.5 2006/11/14 21:12:01 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.6 2006/11/17 15:04:23 tboccali Exp $
 //
 
 
@@ -51,11 +51,10 @@ SoftLepton::SoftLepton(const edm::ParameterSet& iConfig) :
   m_jetTracksAssociator(   iConfig.getParameter<std::string>( "jetTracks"          ) ),
   m_primaryVertexProducer( iConfig.getParameter<std::string>( "primaryVertex"      ) ),
   m_leptonProducer(        iConfig.getParameter<std::string>( "leptons"            ) ),
-  m_outputInstanceName(    iConfig.getParameter<std::string>( "outputInstanceName" ) ),
   m_algo()
 {
-  produces<reco::JetTagCollection>( m_outputInstanceName );     // several producers - use a label
-  produces<reco::SoftLeptonTagInfoCollection>();                // only one producer
+  produces<reco::JetTagCollection>();
+  produces<reco::SoftLeptonTagInfoCollection>();
 
   reco::Vertex::Point p( 0, 0, 0 );
   reco::Vertex::Error e;
@@ -109,7 +108,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     extCollection->push_back( result.second );
   }
 
-  edm::OrphanHandle<reco::JetTagCollection> handleJetTag = iEvent.put( baseCollection, m_outputInstanceName );
+  edm::OrphanHandle<reco::JetTagCollection> handleJetTag = iEvent.put( baseCollection );
   for (unsigned int i = 0; i < extCollection->size(); i++)
     (*extCollection)[i].setJetTag( reco::JetTagRef( handleJetTag, i ) );
   iEvent.put(extCollection);
