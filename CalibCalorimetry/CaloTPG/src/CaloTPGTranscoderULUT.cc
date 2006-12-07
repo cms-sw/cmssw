@@ -81,6 +81,11 @@ HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTow
   return HcalTriggerPrimitiveSample((*lut)[sample],fineGrain,0,0);
 }
 
+float etValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc){
+  return( hc.compressedEt()*cosh(double(hid.ietaAbs())));
+}
+
+
 EcalTriggerPrimitiveSample CaloTPGTranscoderULUT::ecalCompress(const EcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const {
   throw cms::Exception("Not Implemented") << "CaloTPGTranscoderULUT::ecalCompress";
 }
