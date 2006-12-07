@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.9 $
  *
- * $Id: ObjectSelector.h,v 1.8 2006/12/07 10:28:30 llista Exp $
+ * $Id: ObjectSelector.h,v 1.9 2006/12/07 11:28:31 llista Exp $
  *
  */
 
@@ -66,7 +66,7 @@ namespace reco {
     template<typename C>
     struct NullPostProcessor {
       NullPostProcessor( const edm::ParameterSet & ) { }
-      void init() { }
+      void init( edm::ProductRegistryHelper & ) { }
       void process( edm::OrphanHandle<C>, edm::Event & ) { }
     };
   }
@@ -92,7 +92,7 @@ public:
     bool found = std::find( bools.begin(), bools.end(), filter ) != bools.end();
     if ( found ) filter_ = cfg.template getParameter<bool>( filter );
 
-    postProcessor_.init();
+    postProcessor_.init( * this );
   }
   /// destructor
   virtual ~ObjectSelector() { }
