@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.5 2006/10/27 20:44:26 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.6 2006/12/01 03:35:53 wmtan Exp $
 //
 
 // system include files
@@ -16,6 +16,7 @@
 #include "TTree.h"
 #include "TChain.h"
 #include "TBranch.h"
+#include "TClass.h"
 #include "Reflex/Type.h"
 #include "Reflex/Object.h"
 #include "boost/shared_ptr.hpp"
@@ -107,7 +108,8 @@ namespace edm {
       processNames_(),
       reader_(new FWLiteDelayedReader),
       productMap_(),
-      prov_()
+      prov_(),
+      pointerToBranchBuffer_()
       {
         reader_->set(&reg_);}
       void setTree( TTree* iTree) {
@@ -125,6 +127,7 @@ namespace edm {
       typedef std::map<ProductID, BranchDescription> ProductMap;
       ProductMap productMap_;
       edm::EventProvenance prov_;
+      std::vector<edm::BranchEntryDescription*> pointerToBranchBuffer_;
     };
   }
 }
@@ -192,7 +195,7 @@ TFWLiteSelectorBasic::Init(TTree *iTree) {
 
 Bool_t
 TFWLiteSelectorBasic::Notify() { 
-   std::cout <<"Notify start"<<std::endl;
+   //std::cout <<"Notify start"<<std::endl;
   //we have switched to a new file  
   //get new file from Tree
   if(0==m_->tree_) {
@@ -219,7 +222,7 @@ TFWLiteSelectorBasic::Notify() {
 
 Bool_t
 TFWLiteSelectorBasic::Process(Long64_t iEntry) { 
-   std::cout <<"Process start"<<std::endl;
+   //std::cout <<"Process start"<<std::endl;
    if(everythingOK_) {
       edm::EventAux aux;
       edm::EventAux* pAux= &aux;
@@ -257,6 +260,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 	    std::auto_ptr<Provenance> prov(new Provenance);
 	    prov->event = *pit;
 	    prov->product = m_->productMap_[prov->event.productID_];
+            //std::cout<< "adding group for ID "<<prov->event.productID_<<std::endl;
 	    std::auto_ptr<Group> g(new Group(prov, prov->event.isPresent()));
 	    ep.addGroup(g);
 	 }
@@ -274,7 +278,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 	 std::cout <<"While processing entry "<<iEntry<<" an unknown exception was caught" << std::endl;
       }
    }
-   std::cout <<"Process end"<<std::endl;
+   //std::cout <<"Process end"<<std::endl;
   return kFALSE; 
 }
 
@@ -336,19 +340,25 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   } 
   
   m_->productMap_.erase(m_->productMap_.begin(),m_->productMap_.end());
+  m_->pointerToBranchBuffer_.erase(m_->pointerToBranchBuffer_.begin(),
+                                   m_->pointerToBranchBuffer_.end());
   edm::ProductRegistry::ProductList const& prodList = pReg->productList();
   std::vector<edm::BranchEntryDescription> temp( prodList.size(), edm::BranchEntryDescription() );
   m_->prov_.data_.swap( temp);
   std::vector<edm::BranchEntryDescription>::iterator itB = m_->prov_.data_.begin();
+  m_->pointerToBranchBuffer_.reserve(prodList.size());
   for (edm::ProductRegistry::ProductList::const_iterator it = prodList.begin();
        it != prodList.end(); ++it,++itB) {
     edm::BranchDescription const& prod = it->second;
     prod.init();
     m_->productMap_.insert(std::make_pair(it->second.productID_, it->second));
-    edm::BranchEntryDescription* tmp = & (*itB);
-    m_->metaTree_->SetBranchAddress( prod.branchName().c_str(), &tmp);
+    //std::cout <<"id "<<it->second.productID_<<" branch "<<it->second.branchName()<<std::endl;
+    m_->pointerToBranchBuffer_.push_back( & (*itB));
+    void* tmp = &(m_->pointerToBranchBuffer_.back());
+    //edm::BranchEntryDescription* tmp = & (*itB);
+    m_->metaTree_->SetBranchAddress( prod.branchName().c_str(), tmp);
   }  
-  std::cout <<"Notify end"<<std::endl;
+  //std::cout <<"Notify end"<<std::endl;
   everythingOK_ = true;
 }
 
