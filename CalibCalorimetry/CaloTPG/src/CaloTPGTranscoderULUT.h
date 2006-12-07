@@ -6,8 +6,8 @@
 
 /** \class CaloTPGTranscoderULUT
   *  
-  * $Date: $
-  * $Revision: $
+  * $Date: 2006/09/18 20:31:26 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
 class CaloTPGTranscoderULUT : public CaloTPGTranscoder {
@@ -22,6 +22,9 @@ public:
   virtual void rctJetUncompress(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc,
 				   const EcalTrigTowerDetId& eid, const EcalTriggerPrimitiveSample& ec, 
 				   unsigned int& et) const;
+
+  float etValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc);
+  
 private:
   static const int N_TOWER = 32;
   typedef std::vector<int> LUTType;
