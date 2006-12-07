@@ -2,7 +2,7 @@
 
 # helper classes for sorted and fixed dicts
 
-class sortedKeysDict(dict):
+class SortedKeysDict(dict):
     """a dict preserving order of keys"""
     # specialised __repr__ missing.
     def __init__(self):
@@ -43,10 +43,10 @@ class sortedKeysDict(dict):
     def values(self):
         return [ dict.__getitems__(self, key) for key in self.list]
    
-class sortedAndFixedKeysDict(sortedKeysDict):
+class SortedAndFixedKeysDict(SortedKeysDict):
     """a sorted dictionary with fixed/frozen keys"""
     def _blocked_attribute(obj):
-        raise AttributeError, "A sortedAndFixedKeysDict cannot be modified."
+        raise AttributeError, "A SortedAndFixedKeysDict cannot be modified."
     _blocked_attribute = property(_blocked_attribute)
     __delitem__ = __setitem__ = clear = _blocked_attribute
     pop = popitem = setdefault = update = _blocked_attribute
@@ -57,13 +57,13 @@ class sortedAndFixedKeysDict(sortedKeysDict):
     def __init__(self, *args, **kw):
         pass
     def __repr__(self):
-        return "sortedAndFixedKeysDict(%s)" % sortedKeysDict.__repr__(self)
+        return "SortedAndFixedKeysDict(%s)" % sortedKeysDict.__repr__(self)
 
     
 #helper based on code from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/414283
-class fixed_keys_dict(dict):
+class FixedKeysDict(dict):
     def _blocked_attribute(obj):
-        raise AttributeError, "A fixed_keys_dict cannot be modified."
+        raise AttributeError, "A FixedKeysDict cannot be modified."
     _blocked_attribute = property(_blocked_attribute)
 
     __delitem__ = __setitem__ = clear = _blocked_attribute
@@ -75,7 +75,7 @@ class fixed_keys_dict(dict):
     def __init__(self, *args, **kw):
         pass
     def __repr__(self):
-        return "fixed_keys_dict(%s)" % dict.__repr__(self)
+        return "FixedKeysDict(%s)" % dict.__repr__(self)
 
 def findProcess(module):
     """Look in side the module and find the Processes it contains"""
@@ -99,8 +99,8 @@ class Process(object):
         self.__dict__['_Process__looper'] = None
         self.__dict__['_Process__analyzers'] = {}
         self.__dict__['_Process__outputmodules'] = {}
-        self.__dict__['_Process__paths'] = sortedKeysDict()    # have to keep the order
-        self.__dict__['_Process__endpaths'] = sortedKeysDict() # of definition
+        self.__dict__['_Process__paths'] = SortedKeysDict()    # have to keep the order
+        self.__dict__['_Process__endpaths'] = SortedKeysDict() # of definition
         self.__dict__['_Process__sequences'] = {}
         self.__dict__['_Process__services'] = {}
         self.__dict__['_Process__essources'] = {}
@@ -109,7 +109,7 @@ class Process(object):
         self.__dict__['_Process__vpsets']={}
     def filters_(self):
         """returns a dict of the filters which have been added to the Process"""
-        return fixed_keys_dict(self.__filters)
+        return FixedKeysDict(self.__filters)
     filters = property(filters_, doc="dictionary containing the filters for the process")
     def name_(self):
         return self.__name
@@ -118,7 +118,7 @@ class Process(object):
     process = property(name_,setName_, doc="name of the process")
     def producers_(self):
         """returns a dict of the producers which have been added to the Process"""
-        return fixed_keys_dict(self.__producers)
+        return FixedKeysDict(self.__producers)
     producers = property(producers_,doc="dictionary containing the producers for the process")
     def source_(self):
         """returns the source which has been added to the Process or None if none have been added"""
@@ -134,43 +134,43 @@ class Process(object):
     looper = property(looper_,setLooper_,doc='the main looper or None if not set')
     def analyzers_(self):
         """returns a dict of the filters which have been added to the Process"""
-        return fixed_keys_dict(self.__analyzers)
+        return FixedKeysDict(self.__analyzers)
     analyzers = property(analyzers_,doc="dictionary containing the analyzers for the process")
     def outputModules_(self):
         """returns a dict of the output modules which have been added to the Process"""
-        return fixed_keys_dict(self.__outputmodules)
+        return FixedKeysDict(self.__outputmodules)
     outputModules = property(outputModules_,doc="dictionary containing the output_modules for the process")
     def paths_(self):
         """returns a dict of the paths which have been added to the Process"""
-        return sortedAndFixedKeysDict(self.__paths)
+        return SortedAndFixedKeysDict(self.__paths)
     paths = property(paths_,doc="dictionary containing the paths for the process")
     def endpaths_(self):
         """returns a dict of the endpaths which have been added to the Process"""
-        return sortedAndFixedKeysDict(self.__endpaths)
+        return SortedAndFixedKeysDict(self.__endpaths)
     endpaths = property(endpaths_,doc="dictionary containing the endpaths for the process")
     def sequences_(self):
         """returns a dict of the sequences which have been added to the Process"""
-        return fixed_keys_dict(self.__sequences)
+        return FixedKeysDict(self.__sequences)
     sequences = property(sequences_,doc="dictionary containing the sequences for the process")
     def services_(self):
         """returns a dict of the services which have been added to the Process"""
-        return fixed_keys_dict(self.__services)
+        return FixedKeysDict(self.__services)
     services = property(services_,doc="dictionary containing the services for the process")
     def es_producers_(self):
         """returns a dict of the esproducers which have been added to the Process"""
-        return fixed_keys_dict(self.__esproducers)
+        return FixedKeysDict(self.__esproducers)
     es_producers = property(es_producers_,doc="dictionary containing the es_producers for the process")
     def es_sources_(self):
         """returns a the es_sources which have been added to the Process"""
-        return fixed_keys_dict(self.__essources)
+        return FixedKeysDict(self.__essources)
     es_sources = property(es_sources_,doc="dictionary containing the es_sources for the process")
     def psets_(self):
         """returns a dict of the PSets which have been added to the Process"""
-        return fixed_keys_dict(self.__psets)
+        return FixedKeysDict(self.__psets)
     psets = property(psets_,doc="dictionary containing the PSets for the process")
     def vpsets_(self):
         """returns a dict of the VPSets which have been added to the Process"""
-        return fixed_keys_dict(self.__vpsets)
+        return FixedKeysDict(self.__vpsets)
     vpsets = property(vpsets_,doc="dictionary containing the PSets for the process")
     def __setattr__(self,name,value):
         if not isinstance(value,_ConfigureComponent):
@@ -1184,7 +1184,7 @@ if __name__=="__main__":
             #print deps['a']
         def testFixedKeysDict(self):
             import operator
-            d = fixed_keys_dict({'a':1, 'b':[3]})
+            d = FixedKeysDict({'a':1, 'b':[3]})
             self.assertEqual(d['a'],1)
             self.assertEqual(d['b'],[3])
             self.assertRaises(AttributeError,operator.setitem,*(d,'a',2))
