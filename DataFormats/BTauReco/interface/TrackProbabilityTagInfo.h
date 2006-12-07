@@ -94,12 +94,38 @@ int factorial(int n) const
   }
 
  /**
-  Recompute discriminator using nth track i.p. significance.
+  Recompute discriminator 
   ipType = 0 means 3d impact parameter
   ipType = 1 means transverse impact parameter
  */
   virtual float discriminator(int ipType) const { return jetProbability(ipType); }
-  
+
+  virtual int selectedTracks(int ipType) const
+  {
+   if(ipType == 0) return m_probability3d.size();
+   else return m_probability2d.size();
+  }
+     virtual int trackIndex(size_t n,int ip) const
+   {
+    if(ip == 0)
+    {
+     if(n <m_probability3d.size())
+      return m_trackOrder3d[n];
+    }
+    else
+    {
+     if(n <m_probability2d.size())
+      return m_trackOrder2d[n];
+    }
+    return 0;
+   }
+ 
+  virtual const Track & track(size_t n,int ipType) const
+  {
+
+    return *m_jetTag->tracks()[trackIndex(n,ipType)];
+  }
+ 
   virtual TrackProbabilityTagInfo* clone() const { return new TrackProbabilityTagInfo( * this ); }
   
   void setJetTag(const JetTagRef ref) { 
