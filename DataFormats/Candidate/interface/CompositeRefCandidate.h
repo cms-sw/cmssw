@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidate.h,v 1.5 2006/12/05 15:52:59 llista Exp $
+ * \version $Id: CompositeRefCandidate.h,v 1.6 2006/12/07 18:06:40 llista Exp $
  *
  */
 
@@ -44,6 +44,8 @@ namespace reco {
     virtual Candidate * daughter( size_type );
     /// add a daughter via a reference
     void addDaughter( const CandidateRef & );    
+    /// reference to daughter at given position
+    CandidateRef daughterRef( size_type i ) const { return dau[ i ]; }
     /// implementation of const_iterator. 
     /// should be private; declared public only 
     /// for ROOT reflex dictionay problems    
