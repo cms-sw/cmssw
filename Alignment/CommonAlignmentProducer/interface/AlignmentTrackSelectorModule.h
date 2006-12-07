@@ -19,7 +19,7 @@ struct TrackConfigSelector {
 
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
-  bool empty() const { return selected_.empty(); }
+  size_t size() const { return selected_.size(); }
 
   void select( const edm::Handle<reco::TrackCollection> & c,  const edm::Event & evt) {
     all_.clear();
