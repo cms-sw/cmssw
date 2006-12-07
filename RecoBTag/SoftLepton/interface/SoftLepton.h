@@ -1,5 +1,5 @@
-#ifndef RecoBTag_SoftLepton_SoftLepton
-#define RecoBTag_SoftLepton_SoftLepton
+#ifndef RecoBTag_SoftLepton_SoftLepton_h
+#define RecoBTag_SoftLepton_SoftLepton_h
 
 // -*- C++ -*-
 //
@@ -16,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.h,v 1.4 2006/11/14 21:12:00 fwyzard Exp $
+// $Id: SoftLepton.h,v 1.5 2006/12/06 16:00:15 fwyzard Exp $
 //
 
 // system include files
@@ -44,6 +44,7 @@ private:
 
   // configuration   
   const edm::ParameterSet& m_config;
+  const std::string m_concreteTagger;
   const std::string m_jetTracksAssociator;
   const std::string m_primaryVertexProducer;
   const std::string m_leptonProducer;
@@ -55,4 +56,4 @@ private:
   const reco::Vertex * m_nominalBeamSpot;
 };
 
-#endif // RecoBTag_SoftLepton_SoftLepton
+#endif // RecoBTag_SoftLepton_SoftLepton_h

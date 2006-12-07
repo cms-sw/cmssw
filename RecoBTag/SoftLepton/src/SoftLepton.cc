@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.6 2006/11/17 15:04:23 tboccali Exp $
+// $Id: SoftLepton.cc,v 1.7 2006/12/06 16:00:02 fwyzard Exp $
 //
 
 
@@ -31,23 +31,22 @@ using namespace std;
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 using namespace edm;
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+using namespace reco;
+
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoBTag/BTagTools/interface/SignedImpactParameter3D.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+#include "RecoBTag/Records/interface/SoftLeptonBTagRecord.h"
+#include "RecoBTag/SoftLepton/interface/LeptonTaggerBase.h"
 #include "RecoBTag/SoftLepton/interface/SoftLepton.h"
-
-#include "RecoBTag/SoftLepton/src/LeptonTaggerBase.h"
-#include "RecoBTag/SoftLepton/src/MuonTagger.h"
-#include "RecoBTag/SoftLepton/src/MuonTaggerNoIP.h"
-
-using namespace reco;
 
 reco::Vertex s_nominalBeamSpot(  );
 
 SoftLepton::SoftLepton(const edm::ParameterSet& iConfig) :
   m_config( iConfig ),
+  m_concreteTagger(        iConfig.getParameter<std::string>( "leptonTagger"       ) ), 
   m_jetTracksAssociator(   iConfig.getParameter<std::string>( "jetTracks"          ) ),
   m_primaryVertexProducer( iConfig.getParameter<std::string>( "primaryVertex"      ) ),
   m_leptonProducer(        iConfig.getParameter<std::string>( "leptons"            ) ),
@@ -66,7 +65,6 @@ SoftLepton::SoftLepton(const edm::ParameterSet& iConfig) :
   m_algo.setDeltaRCut( m_config.getParameter<double>("deltaRCut") );
   m_algo.refineJetAxis( m_config.getParameter<unsigned int>("refineJetAxis") );
 }
-
 
 SoftLepton::~SoftLepton() {
   delete m_nominalBeamSpot;
@@ -122,10 +120,10 @@ SoftLepton::beginJob(const edm::EventSetup& iSetup) {
   iSetup.get<TransientTrackRecord>().get( "TransientTrackBuilder", builder );
   m_algo.setTransientTrackBuilder( builder.product() );
 
-  // FIXME: this should become something in the EventSetup, too
-  LeptonTaggerBase * tagger = new MuonTagger();
-  m_algo.setConcreteTagger( tagger );
-  // FIXME: tagger is never deleted, but who cares?
+  // grab the concrete soft lepton b tagger from the Event Setup
+  edm::ESHandle<LeptonTaggerBase> tagger;
+  iSetup.get<SoftLeptonBTagRecord>().get( m_concreteTagger, tagger );
+  m_algo.setConcreteTagger( tagger.product() );
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -133,5 +131,3 @@ void
 SoftLepton::endJob(void) {
 }
 
-// define this as a plug-in
-DEFINE_FWK_MODULE(SoftLepton);

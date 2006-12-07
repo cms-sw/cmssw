@@ -1,4 +1,5 @@
-<use name=Root>
+<use name=root>
+<use name=boost>
 
 <use name=Foundation/PluginManager>
 <use name=FWCore/Framework>
@@ -14,6 +15,7 @@
 <use name=MagneticField/Records>
 <use name=TrackingTools/TransientTrack>
 <use name=RecoBTag/BTagTools>
+<use name=RecoBTag/Records>
 
 <flags SEAL_PLUGIN_NAME="RecoBTagSoftLepton">
 
@@ -33,4 +35,5 @@
    <use name=MagneticField/Records>
    <use name=TrackingTools/TransientTrack>
    <use name=RecoBTag/BTagTools>
+   <use name=RecoBTag/Records>
 </export>

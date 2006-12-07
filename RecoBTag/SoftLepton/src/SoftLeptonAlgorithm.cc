@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLeptonAlgorithm.cc,v 1.4 2006/11/07 20:20:53 fwyzard Exp $
+// $Id: SoftLeptonAlgorithm.cc,v 1.5 2006/11/08 11:12:11 fwyzard Exp $
 //
 
 // STL
@@ -41,7 +41,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "RecoBTag/BTagTools/interface/SignedImpactParameter3D.h"
 #include "RecoBTag/SoftLepton/interface/SoftLeptonAlgorithm.h"
-#include "RecoBTag/SoftLepton/src/LeptonTaggerBase.h"
+#include "RecoBTag/SoftLepton/interface/LeptonTaggerBase.h"
 
 // ROOT TVector3 - used internally
 #include "TVector3.h"

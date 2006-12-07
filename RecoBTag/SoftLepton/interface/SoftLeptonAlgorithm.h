@@ -1,5 +1,5 @@
-#ifndef RecoBTag_SoftLepton_SoftLeptonAlgorithm
-#define RecoBTag_SoftLepton_SoftLeptonAlgorithm
+#ifndef RecoBTag_SoftLepton_SoftLeptonAlgorithm_h
+#define RecoBTag_SoftLepton_SoftLeptonAlgorithm_h
 
 // -*- C++ -*-
 //
@@ -16,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLeptonAlgorithm.h,v 1.2 2006/10/31 02:53:10 fwyzard Exp $
+// $Id: SoftLeptonAlgorithm.h,v 1.3 2006/11/07 18:42:42 fwyzard Exp $
 //
 
 #include <utility>
@@ -29,6 +29,8 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/JetReco/interface/CaloJetfwd.h"
+
+#include "Geometry/Vector/interface/GlobalVector.h"
 
 class TransientTrackBuilder;
 class LeptonTaggerBase;
@@ -107,8 +109,11 @@ public:
       const reco::TrackRef       & excluded = reco::TrackRef()
   );
 
-  static double relativeEta(const TVector3& a, const TVector3& b);
+  static double relativeEta(
+      const TVector3 & a, 
+      const TVector3 & b
+  );
   
 };
 
-#endif // RecoBTag_SoftLepton_SoftLeptonAlgorithm
+#endif // RecoBTag_SoftLepton_SoftLeptonAlgorithm_h
