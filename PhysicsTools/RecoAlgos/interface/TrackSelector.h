@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.13 $
+ * \version $Revision: 1.14 $
  *
- * $Id: TrackSelector.h,v 1.13 2006/11/20 11:22:17 llista Exp $
+ * $Id: TrackSelector.h,v 1.14 2006/12/07 10:28:30 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -19,6 +19,7 @@
 
 namespace helper {
   struct TrackCollectionStoreManager {
+    typedef reco::TrackCollection collection;
     TrackCollectionStoreManager() :
       selTracks_( new reco::TrackCollection ),
       selTrackExtras_( new reco::TrackExtraCollection ),
@@ -46,10 +47,11 @@ namespace helper {
 	}
       }
     }
-    void put( edm::Event & evt ) {
-      evt.put( selTracks_ );
+    edm::OrphanHandle<reco::TrackCollection> put( edm::Event & evt ) {
+      edm::OrphanHandle<reco::TrackCollection> h = evt.put( selTracks_ );
       evt.put( selTrackExtras_ );
       evt.put( selHits_ );
+      return h; 
     }
     size_t size() const { return selTracks_->size(); }
   private:

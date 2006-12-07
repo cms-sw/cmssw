@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
- * $Id: ElectronSelector.h,v 1.6 2006/11/23 14:27:46 llista Exp $
+ * $Id: ElectronSelector.h,v 1.7 2006/12/07 10:28:30 llista Exp $
  *
  */
 
@@ -22,6 +22,7 @@
 
 namespace helper {
   struct ElectronCollectionStoreManager {
+    typedef reco::ElectronCollection collection;
     ElectronCollectionStoreManager() :
       selElectrons_( new reco::ElectronCollection ),
       selSuperClusters_( new reco::SuperClusterCollection ),
@@ -61,12 +62,13 @@ namespace helper {
 	} 
       }
     }
-    void put( edm::Event & evt ) {
-      evt.put( selElectrons_ );
+    edm::OrphanHandle<reco::ElectronCollection> put( edm::Event & evt ) {
+      edm::OrphanHandle<reco::ElectronCollection> h = evt.put( selElectrons_ );
       evt.put( selSuperClusters_ );
       evt.put( selTracks_ );
       evt.put( selTrackExtras_ );
       evt.put( selHits_ );
+      return h;
     }
     size_t size() const { return selElectrons_->size(); }
   private:

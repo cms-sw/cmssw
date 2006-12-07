@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: PhotonSelector.h,v 1.3 2006/11/23 14:27:46 llista Exp $
+ * $Id: PhotonSelector.h,v 1.4 2006/12/07 10:28:30 llista Exp $
  *
  */
 
@@ -19,6 +19,7 @@
 
 namespace helper {
   struct PhotonCollectionStoreManager {
+    typedef reco::PhotonCollection collection;
     PhotonCollectionStoreManager() :
       selPhotons_( new reco::PhotonCollection ),
       selSuperClusters_( new reco::SuperClusterCollection ) {
@@ -36,9 +37,10 @@ namespace helper {
 	selSuperClusters_->push_back( SuperCluster( * ( ele.superCluster() ) ) );
       }
     }
-    void put( edm::Event & evt ) {
-      evt.put( selPhotons_ );
+    edm::OrphanHandle<reco::PhotonCollection> put( edm::Event & evt ) {
+      edm::OrphanHandle<reco::PhotonCollection> h = evt.put( selPhotons_ );
       evt.put( selSuperClusters_ );
+      return h;
     }
     size_t size() const { return selPhotons_->size(); }
   private:

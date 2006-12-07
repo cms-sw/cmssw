@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.8 $
  *
- * $Id: ObjectSelector.h,v 1.7 2006/10/27 08:51:24 llista Exp $
+ * $Id: ObjectSelector.h,v 1.8 2006/12/07 10:28:30 llista Exp $
  *
  */
 
@@ -19,6 +19,7 @@
 #include "DataFormats/Common/interface/CloneTrait.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/RefProd.h"
 #include "PhysicsTools/Utilities/interface/NonNullNumberSelector.h"
 #include <utility>
 #include <vector>
@@ -30,6 +31,7 @@ namespace helper {
   template<typename C, 
 	   typename P = typename edm::clonehelper::CloneTrait<C>::type>
   struct SimpleCollectionStoreManager {
+    typedef C collection;
     SimpleCollectionStoreManager() : selected_( new C ) { 
     }
     template<typename I>
@@ -37,8 +39,8 @@ namespace helper {
       for( I i = begin; i != end; ++ i )
         selected_->push_back( P::clone( * * i ) );
     }
-    void put( edm::Event & evt ) {
-      evt.put( selected_ );
+    edm::OrphanHandle<C> put( edm::Event & evt ) {
+      return evt.put( selected_ );
     }
     size_t size() const { return selected_->size(); }
   private:
@@ -59,8 +61,20 @@ namespace helper {
   };
 }
 
+namespace reco {
+  namespace helpers {
+    template<typename C>
+    struct NullPostProcessor {
+      NullPostProcessor( const edm::ParameterSet & ) { }
+      void init() { }
+      void process( edm::OrphanHandle<C>, edm::Event & ) { }
+    };
+  }
+}
+
 template<typename S, 
 	 typename N = NonNullNumberSelector,
+	 typename P = reco::helpers::NullPostProcessor<typename S::collection>,  
 	 typename M = typename helper::CollectionStoreManager<typename S::collection>::type, 
 	 typename B = typename helper::CollectionStoreManager<typename S::collection>::base>
 class ObjectSelector : public B {
@@ -71,11 +85,14 @@ public:
   src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
   filter_( false ),
   selector_( cfg ),
-  sizeSelector_( cfg ) {
+  sizeSelector_( cfg ),
+  postProcessor_( cfg ) {
     const std::string filter( "filter" );
     std::vector<std::string> bools = cfg.template getParameterNamesForType<bool>();
     bool found = std::find( bools.begin(), bools.end(), filter ) != bools.end();
     if ( found ) filter_ = cfg.template getParameter<bool>( filter );
+
+    postProcessor_.init();
   }
   /// destructor
   virtual ~ObjectSelector() { }
@@ -88,9 +105,10 @@ private:
     M manager;
     selector_.select( source, evt );
     manager.cloneAndStore( selector_.begin(), selector_.end(), evt );
-    if ( filter_ && sizeSelector_( manager.size() ) ) return false;
-    manager.put( evt );
-    return true;
+    bool result = ( filter_ && sizeSelector_( manager.size() ) );
+    edm::OrphanHandle<typename M::collection> filtered = manager.put( evt );
+    postProcessor_.process( filtered, evt );
+    return result;
   }
   /// source collection label
   edm::InputTag src_;
@@ -100,6 +118,8 @@ private:
   S selector_;
   /// selected object collection size selector
   N sizeSelector_;
+  /// post processor
+  P postProcessor_;
 };
 
 #endif
