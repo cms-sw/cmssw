@@ -3,8 +3,6 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-
 class SoftLeptonBTagRecord : public edm::eventsetup::EventSetupRecordImplementation<SoftLeptonBTagRecord> {};
 
-#endif 
-
+#endif // RecoBTag_Records_SoftLeptonBTagRecord_h

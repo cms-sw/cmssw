@@ -1,5 +1,5 @@
 <export>
-   <lib name=BTagRecord>
+   <lib name=RecoBTagRecords>
    <use name=FWCore/Framework>
 </export>
 
