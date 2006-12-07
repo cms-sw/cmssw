@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 //
+#include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/EndOfRun.h"
@@ -14,11 +15,12 @@
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfTrack.h"
-
-#include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
+//#include "SimG4Core/Watcher/interface/SimProducer.h"
 //#include "SimG4Core/Watcher/interface/SimWatcherMaker.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
 
 #include "G4VTouchable.hh"
 #include <map>
@@ -82,6 +84,7 @@ class Fp420AnalysisHistManager : public TNamed {
 
 class FP420NumberingScheme;
 
+class BeginOfJob;
 class BeginOfRun;
 class EndOfRun;
 class BeginOfEvent;
@@ -90,7 +93,7 @@ class BeginOfTrack;
 class EndOfTrack;
 class G4Step;
 
-
+/*
 class ObserveBeginOfRun : private Observer<const BeginOfRun *> 
 {
 public:
@@ -147,13 +150,17 @@ public:
 private:
     void update(const G4Step * step);
 };
-
+*/
+		    //class FP420Test: public SimProducer,
 class FP420Test : public SimWatcher,
-                   public Observer<const BeginOfEvent *>,
-                  public Observer<const BeginOfTrack *>,
-		  public Observer<const G4Step *>,
-                  public Observer<const EndOfTrack *>,
-		  public Observer<const EndOfEvent *>
+  public Observer<const BeginOfJob *>, 
+  public Observer<const BeginOfRun *>,
+  public Observer<const EndOfRun *>,
+  public Observer<const BeginOfEvent *>,
+  public Observer<const BeginOfTrack *>,
+  public Observer<const G4Step *>,
+  public Observer<const EndOfTrack *>,
+  public Observer<const EndOfEvent *>
 {
 public:
   FP420Test(const edm::ParameterSet &p);
@@ -163,6 +170,9 @@ public:
 private:
 
   // observer classes
+  void update(const BeginOfJob * run);
+  void update(const BeginOfRun * run);
+  void update(const EndOfRun * run);
   void update(const BeginOfEvent * evt);
   void update(const BeginOfTrack * trk);
   void update(const G4Step * step);

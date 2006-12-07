@@ -8,8 +8,10 @@
 #define FP420NumberingScheme_h
 
 #include "G4Step.hh"
+#include <boost/cstdint.hpp>
 #include "G4ThreeVector.hh"
 #include <map>
+
 
 
 

@@ -12,12 +12,15 @@
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
  
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // to retreive hits
 #include "SimG4CMS/FP420/interface//FP420NumberingScheme.h"
+#include "SimG4CMS/Calo/interface/CaloG4Hit.h"
+#include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
 #include "SimG4CMS/FP420/interface//FP420G4HitCollection.h"
-#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
+//#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
 #include "SimG4CMS/FP420/interface/FP420Test.h"
 
 //#include "Utilities/GenUtil/interface/CMSexception.h"
@@ -59,21 +62,22 @@ enum ntfp420_elements {
 FP420Test::FP420Test(const edm::ParameterSet &p){
   //constructor
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("FP420Test");
-  verbosity    = m_Anal.getParameter<int>("Verbosity");
+    verbosity    = m_Anal.getParameter<int>("Verbosity");
+  //verbosity    = 1;
 
-  fDataLabel  = m_Anal.getParameter<std::string>("FDataLabel");
-  fOutputFile = m_Anal.getParameter<std::string>("FOutputFile");
-  fRecreateFile = m_Anal.getParameter<std::string>("FRecreateFile");
+    fDataLabel  = m_Anal.getParameter<std::string>("FDataLabel");
+    fOutputFile = m_Anal.getParameter<std::string>("FOutputFile");
+    fRecreateFile = m_Anal.getParameter<std::string>("FRecreateFile");
    
-   if (verbosity > 0)
-   std::cout<<std::endl;
+  if (verbosity > 0) {
    std::cout<<"============================================================================"<<std::endl;
-   std::cout << "FP420Test:: Initialized as observer"<< std::endl;
+   std::cout << "FP420Testconstructor :: Initialized as observer"<< std::endl;
+  }
   // Initialization:
 
   theFP420NumberingScheme = new FP420NumberingScheme();
 
-                          float  zUnit = 8000.; 
+                          float  zUnit = 2700.; 
   // with 1.250 m of half Z-tube Trd1     
     // z1 - right after Ist Station (before 2nd window)
                             z1 = 13.0 ; 
@@ -94,12 +98,15 @@ FP420Test::FP420Test(const edm::ParameterSet &p){
 
   whichevent = 0;
 
-  //        fDataLabel      = "defaultData";
+  //   fDataLabel      = "defaultData";
   //       fOutputFile     = "TheAnlysis.root";
   //       fRecreateFile   = "RECREATE";
 
         TheHistManager = new Fp420AnalysisHistManager(fDataLabel);
 
+  if (verbosity > 0) {
+   std::cout << "FP420Test constructor :: Initialized Fp420AnalysisHistManager"<< std::endl;
+  }
 }
 
 
@@ -122,7 +129,7 @@ FP420Test::~FP420Test() {
         // Write histograms to file
         TheHistManager->WriteToFile(fOutputFile,fRecreateFile);
   if (verbosity > 0) {
-    std::cout << std::endl << "FP420Test Dextructor  -------->  End of FP420Test : "
+    std::cout << std::endl << "FP420Test Destructor  -------->  End of FP420Test : "
       << std::cout << std::endl; 
   }
 
@@ -185,8 +192,9 @@ void Fp420AnalysisHistManager::BookHistos()
     HistInit("VtxY", "Vtx Y",   100, -50., 50. );
     HistInit("VtxZ", "Vtx Z",   100, -50., 50. );
         // Book the histograms and add them to the array
-    HistInit("SumEDep", "This is sum Energy deposited",   120,   -0.3,   0.3);
+    HistInit("SumEDep", "This is sum Energy deposited",   100,   -0.3,   0.3);
     HistInit("TrackL", "This is sum Energy deposited",   100,   0.,   12000.);
+    HistInit("zHits", "z Hits",   100,   -200.,   8300.);
 }
 
 //-----------------------------------------------------------------------------
@@ -305,17 +313,18 @@ void Fp420AnalysisHistManager::StoreWeights()
 // Histoes end :
 
 //================================================================
-/*
 
-ObserveBeginOfRun::ObserveBeginOfRun() { init(); }
+/*
+ObserveBeginOfRun::ObserveBeginOfRun() {  }
 
 void ObserveBeginOfRun::update(const BeginOfRun *) {
+    std::cout <<" BeginOfRun " << std::endl;
   // const G4Run * r = (*run)(); 
   // recover G4 pointer if wanted
   // user monitoring code... 
 }
 
-ObserveEndOfRun::ObserveEndOfRun() { init(); }
+ObserveEndOfRun::ObserveEndOfRun() {  }
 
 void ObserveEndOfRun::update(const EndOfRun *) {
   // const G4Run * r = (*run)();
@@ -323,15 +332,16 @@ void ObserveEndOfRun::update(const EndOfRun *) {
   // user monitoring code...
 }
 
-ObserveBeginOfEvent::ObserveBeginOfEvent() { init(); }
+ObserveBeginOfEvent::ObserveBeginOfEvent() {  }
 
 void ObserveBeginOfEvent::update(const BeginOfEvent * evt) {
+    std::cout <<" BeginOfEvent " << std::endl;
  // const G4Event * e = (*evt)();
  // recover G4 pointer if wanted
   // user monitoring code...
 }
 
-ObserveEndOfEvent::ObserveEndOfEvent() { init(); }
+ObserveEndOfEvent::ObserveEndOfEvent() {  }
 
 void ObserveEndOfEvent::update(const EndOfEvent *) {
   // const G4Event * e = (*evt)(); 
@@ -342,7 +352,7 @@ void ObserveEndOfEvent::update(const EndOfEvent *) {
 
 }
 
-ObserveBeginOfTrack::ObserveBeginOfTrack() { init(); }
+ObserveBeginOfTrack::ObserveBeginOfTrack() {  }
 
 void ObserveBeginOfTrack::update(const BeginOfTrack * trk) {
   // const G4Track * t = (*trk)(); 
@@ -350,7 +360,7 @@ void ObserveBeginOfTrack::update(const BeginOfTrack * trk) {
   // user monitoring code...
 }
 
-ObserveEndOfTrack::ObserveEndOfTrack() { init(); }
+ObserveEndOfTrack::ObserveEndOfTrack() {  }
 
 void ObserveEndOfTrack::update(const EndOfTrack *) {
   // const G4Track * t = (*trk)(); 
@@ -358,7 +368,7 @@ void ObserveEndOfTrack::update(const EndOfTrack *) {
   // user monitoring code... 
 }
 
-ObserveStep::ObserveStep() { init(); }
+ObserveStep::ObserveStep() {  }
 
 void ObserveStep::update(const G4Step *) {
   // user monitoring code... 
@@ -366,10 +376,31 @@ void ObserveStep::update(const G4Step *) {
 */
 // using several observers
 
+//==================================================================== per JOB
+void FP420Test::update(const BeginOfJob * job) {
+  //job
+  std::cout<<"FP420Test:beggining of job"<<std::endl;;
+}
+
+
+//==================================================================== per RUN
+void FP420Test::update(const BeginOfRun * run) {
+  //run
+
+ std::cout << std::endl << "FP420Test:: Begining of Run"<< std::endl; 
+}
+
+
+void FP420Test::update(const EndOfRun * run) {;}
+
+
+
 //=================================================================== per EVENT
 void FP420Test::update(const BeginOfEvent * evt) {
   iev = (*evt)()->GetEventID();
-  std::cout <<" Event number = " << iev << std::endl;
+  if (verbosity > 0) {
+    std::cout <<" Event number = " << iev << std::endl;
+  }
   whichevent++;
 }
 
@@ -1002,6 +1033,7 @@ void FP420Test::update(const EndOfEvent * evt) {
   //   Silicon Hit collection start
     //0) if particle goes into flat beam pipe below detector:
   int varia ;   // = 0 -all; =1 - MI; =2 - noMI
+    varia = 0;
     //                      Select MI or noMI over all 3 stations
     // 1)MI:
   //     if particle goes through window into detector:
@@ -1023,9 +1055,9 @@ void FP420Test::update(const EndOfEvent * evt) {
     varia = 2;
   }   // no MI end:
 
-    //    varia = 0;
-    //    if( varia == 0) {
-    if( varia == 2) {
+        varia = 0;
+        if( varia == 0) {
+  //  if( varia == 2) {
 
 // .............
 // number of hits < 50
@@ -1076,6 +1108,7 @@ void FP420Test::update(const EndOfEvent * evt) {
 //    double   xx    = hitPoint.x();
 //    double   yy    = hitPoint.y();
     double   zz    = hitPoint.z();
+	 TheHistManager->GetHisto("zHits")->Fill(zz);
 //    double   rr    = hitPoint.perp();
     /*
       if(aHit->getTrackID() == 1) {
@@ -1353,8 +1386,9 @@ void FP420Test::update(const EndOfEvent * evt) {
 
 
   // ==========================================================================
-  std::cout << " END OF Event " << (*evt)()->GetEventID() << std::endl;
-
+  if (verbosity > 0) {
+   std::cout << " END OF Event " << (*evt)()->GetEventID() << std::endl;
+  }
 
 }
 

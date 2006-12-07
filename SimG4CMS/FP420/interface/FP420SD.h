@@ -1,13 +1,19 @@
 //
-#ifndef FP420SD_h
-#define FP420SD_h
+#ifndef FP420_FP420SD_h
+#define FP420_FP420SD_h
 //
 
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
+
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
+
+// last
 //#include "SimG4Core/Application/interface/SimTrackManager.h"
+#include "SimG4CMS/Calo/interface/CaloSD.h"
+
+
 //#include "SimG4Core/Notification/interface/TrackWithHistory.h"
 //#include "SimG4Core/Notification/interface/TrackContainer.h"
 
@@ -31,10 +37,11 @@
 
 
 //AZ:
-
 class TrackingSlaveSD;
-
 class SimTrackManager;
+
+
+//-------------------------------------------------------------------
 
 class FP420SD : public SensitiveTkDetector,
 		public Observer<const BeginOfEvent*>,
@@ -45,6 +52,19 @@ class FP420SD : public SensitiveTkDetector,
   	  edm::ParameterSet const &,
   	  const SimTrackManager*
 	  );
+
+//-------------------------------------------------------------------
+/*
+class FP420SD : public CaloSD {
+
+public:    
+  FP420SD(G4String, const DDCompactView &, edm::ParameterSet const &,const SimTrackManager*);
+*/
+//-------------------------------------------------------------------
+
+
+
+
   virtual ~FP420SD();
   
   virtual bool ProcessHits(G4Step *,G4TouchableHistory *);

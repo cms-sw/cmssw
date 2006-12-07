@@ -10,7 +10,7 @@
 #include "globals.hh"
 #include <iostream>
 
-#define debug
+//#define debug
 
 //UserVerbosity FP420NumberingScheme::cout("FP420NumberingScheme","silent","FP420NumberingScheme");
 

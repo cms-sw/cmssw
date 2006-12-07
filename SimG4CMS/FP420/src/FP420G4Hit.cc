@@ -5,8 +5,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/FP420/interface/FP420G4Hit.h"
 #include <iostream.h>
+//#define debug
 
 FP420G4Hit::FP420G4Hit():entry(0) {
+
   entrylp(0);
   exitlp(0);
   elem     = 0.;
@@ -108,7 +110,7 @@ void FP420G4Hit::addEnergyDeposit(const FP420G4Hit& aHit) {
 
 
 void FP420G4Hit::Print() {
-  cout << (*this);
+  std::cout << (*this);
 }
 
 G4ThreeVector   FP420G4Hit::getEntry() const           {return entry;}
