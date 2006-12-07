@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/11/10 17:23:26 $
- *  $Revision: 1.38 $
+ *  $Date: 2006/11/30 04:27:27 $
+ *  $Revision: 1.39 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
@@ -130,13 +131,12 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     float theDTChi2Cut;
     float theCSCChi2Cut;
     float theRPCChi2Cut;
-    std::string theTkTrackLabel;
-    std::string ckfBuilderName;
+    edm::InputTag theTkTrackLabel;
+    std::string theCkfBuilderName;
 
-    bool convert;
-    bool tkTrajsAvailable;
-    bool tkSeedFlag;
-    bool first;
+    bool theTkTrajsAvailableFlag;
+    bool theMakeTkSeedFlag;
+    bool theFirstEvent;
 
     edm::ESHandle<TrackerTrajectoryBuilder> theCkfBuilder;
     edm::Handle<reco::TrackCollection> allTrackerTracks;

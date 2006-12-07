@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/11/28 06:37:31 $
- *  $Revision: 1.59 $
+ *  $Date: 2006/11/30 04:27:28 $
+ *  $Revision: 1.60 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -91,13 +91,10 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
   theRefitter = new MuonTrackReFitter(refitterPSet,theService);
 
-  ParameterSet seedGeneratorPSet = par.getParameter<ParameterSet>("SeedGeneratorParameters");
-  theTkSeedGenerator = new TrackerSeedGenerator(seedGeneratorPSet,theService);
-
   theLayerMeasurements = new MuonDetLayerMeasurements();
-  
-  tkSeedFlag = par.getParameter<bool>("RegionalSeedFlag");
-  theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");  
+
+  theMakeTkSeedFlag = par.getParameter<bool>("RegionalSeedFlag");
+
 
   theTrackConverter = new MuonTrackConverter(par,theService);
   theTrackMatcher = new GlobalMuonTrackMatcher(par,theService);
@@ -114,12 +111,16 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   theVertexPos = GlobalPoint(0.0,0.0,0.0);
   theVertexErr = GlobalError(0.0001,0.0,0.0001,0.0,0.0,28.09);
 
-  convert = true;
-  tkTrajsAvailable = par.getParameter<bool>("TkTrajectoryAvailable");
-  first = true;
+  theTkTrajsAvailableFlag = par.getParameter<bool>("TkTrajectoryAvailable");
+  theFirstEvent = true;
   
-  ckfBuilderName = par.getParameter<std::string>("TkTrackBuilder");
-
+  if(theMakeTkSeedFlag) {
+    theCkfBuilderName = par.getParameter<std::string>("TkTrackBuilder");
+    ParameterSet seedGeneratorPSet = par.getParameter<ParameterSet>("SeedGeneratorParameters");
+    theTkSeedGenerator = new TrackerSeedGenerator(seedGeneratorPSet,theService);
+  } else {
+    theTkTrackLabel = par.getParameter<edm::InputTag>("TkTrackCollectionLabel");  
+  }
 }
 
 
@@ -145,29 +146,30 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   std::string metname = "GLBTrajBuilder::setEvent";
 
   // get tracker TrackCollection from Event
-  if( ! tkSeedFlag ) {
+  edm::Handle<std::vector<Trajectory> > handleTrackerTrajs;
+  if( ! theMakeTkSeedFlag ) {
     event.getByLabel(theTkTrackLabel,allTrackerTracks);
     LogInfo(metname) 
       << "Found " << allTrackerTracks->size() 
-      << " tracker Tracks with label "<< theTkTrackLabel;
-  }  
-  edm::Handle<std::vector<Trajectory> > handleTrackerTrajs;
-  
-  if(tkTrajsAvailable) {
-    event.getByLabel(theTkTrackLabel,handleTrackerTrajs);
-    allTrackerTrajs = &*handleTrackerTrajs;         
-    if( first ) LogInfo(metname) << "Tk Trajectories Found! ";
+      << " tracker Tracks with label "<< theTkTrackLabel;  
+    if( theTkTrajsAvailableFlag ) {
+      event.getByLabel(theTkTrackLabel,handleTrackerTrajs);
+      allTrackerTrajs = &*handleTrackerTrajs;         
+      if( theFirstEvent ) LogInfo(metname) << "Tk Trajectories Found! ";
+    }
   }
   
   theLayerMeasurements->setEvent(event);  
-  theTkSeedGenerator->setEvent(event);
   
-  if( first ) {
-    first = false;
-    LogInfo(metname) << "Constructing a CkfBuilder";
-    theService->eventSetup().get<CkfComponentsRecord>().get(ckfBuilderName,theCkfBuilder);
+  if( theMakeTkSeedFlag ) {   
+    if (theFirstEvent) {
+      theFirstEvent = false;
+      LogInfo(metname) << "Constructing a CkfBuilder";
+      theService->eventSetup().get<CkfComponentsRecord>().get(theCkfBuilderName,theCkfBuilder);
+    }
+    theCkfBuilder->setEvent(event);
+    theTkSeedGenerator->setEvent(event);
   }
-  theCkfBuilder->setEvent(event);
 }
 
 
@@ -201,7 +203,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   // free memory
   if ( staCandIn.first == 0) delete staCand.first;
 
-  if ( !tkTrajsAvailable ) {
+  if ( !theTkTrajsAvailableFlag ) {
     for ( vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
       delete (*is).first;   
     }
@@ -354,7 +356,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
       if ( mom.mag() < 2.5 || mom.perp() < thePtCut ) continue;
       ConstRecHitContainer trackerRecHits = (*it)->trajectory()->recHits();
 
-      if ( tkSeedFlag && theDirection == insideOut ) {
+      if ( theMakeTkSeedFlag && theDirection == insideOut ) {
 	reverse(trackerRecHits.begin(),trackerRecHits.end());
       }
 
@@ -362,7 +364,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	reverse(trackerRecHits.begin(),trackerRecHits.end());
       }
       
-      TrajectoryMeasurement firstTM = ( theDirection == outsideIn || tkSeedFlag ) ? (*it)->trajectory()->firstMeasurement() : (*it)->trajectory()->lastMeasurement();
+      TrajectoryMeasurement firstTM = ( theDirection == outsideIn || theMakeTkSeedFlag ) ? (*it)->trajectory()->firstMeasurement() : (*it)->trajectory()->lastMeasurement();
       
       TrajectoryStateOnSurface firstTsos = firstTM.updatedState();
       firstTsos.rescaleError(100.);
@@ -868,11 +870,11 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
   vector<TrackCand> tkCandColl;
   
   // Tracks not available, make seeds and trajectories
-  if ( tkSeedFlag ) {
+  if ( theMakeTkSeedFlag ) {
     LogDebug(metname) << "Making Seeds";
     std::vector<TrajectorySeed> tkSeeds; 
     TC allTkTrajs;
-    if( tkSeedFlag && staCand.first->isValid() ) {
+    if( theMakeTkSeedFlag && staCand.first->isValid() ) {
       tkSeeds = theTkSeedGenerator->trackerSeeds(*(staCand.first));
       LogDebug(metname) << "Found " << tkSeeds.size() << " tracker seeds";
       allTkTrajs = makeTrajsFromSeeds(tkSeeds);
@@ -888,7 +890,7 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
     for ( unsigned int position = 0; position != allTrackerTracks->size(); ++position ) {
       reco::TrackRef tkTrackRef(allTrackerTracks,position);
       TrackCand tkCand = TrackCand(0,tkTrackRef);
-      if ( tkTrajsAvailable ) {
+      if ( theTkTrajsAvailableFlag ) {
 	std::vector<Trajectory>::const_iterator it = allTrackerTrajs->begin()+position;
 	const Trajectory* trajRef(&*it);
 	if( trajRef->isValid() ) tkCand.first = trajRef;
