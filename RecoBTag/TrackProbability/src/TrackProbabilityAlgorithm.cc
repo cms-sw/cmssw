@@ -121,6 +121,7 @@ if(jetTracks.product()->numberOfAssociations(jetTracks->key)!=0) //if there are 
   
     for(multimap<double,int>::reverse_iterator it = probability3DMap.rbegin();it != probability3DMap.rend(); it++)
     {
+     cout << (*it).first << "  idx: " << (*it).second << endl; 
      probability3D.push_back((*it).first); //probability vector
      trackOrder3D.push_back((*it).second);
     }

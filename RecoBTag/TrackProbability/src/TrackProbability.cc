@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackProbability.cc,v 1.20 2006/10/27 01:35:35 wmtan Exp $
+// $Id: TrackProbability.cc,v 1.1 2006/12/06 14:51:15 arizzi Exp $
 //
 //
 
@@ -58,14 +58,14 @@ using namespace edm;
 TrackProbability::TrackProbability(const edm::ParameterSet& iConfig) : 
   m_config(iConfig), 
   m_algo(iConfig.getParameter<edm::ParameterSet>("AlgorithmPSet") ) {
+   edm::FileInPath f2d("RecoBTag/TrackProbability/data/2DHisto.xml");
+   edm::FileInPath f3d("RecoBTag/TrackProbability/data/3DHisto.xml");
 
   //FIXME: delete the histogram probability estimator !!
-  m_algo.setProbabilityEstimator(new HistogramProbabilityEstimator( new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogram>("3DHisto.xml"),
-new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogram>("2DHisto.xml")) );
+  m_algo.setProbabilityEstimator(new HistogramProbabilityEstimator( new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogram>((f3d.fullPath()).c_str()),
+new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogram>((f2d.fullPath()).c_str())) );
 
-  //outputInstanceName_( iConfig.getParameter<std::string>( "outputInstanceName" ) ) {
-  //produces<reco::JetTagCollection>( outputInstanceName_ );  //Several producer so I put a label
-   produces<reco::JetTagCollection>();  //get rid of this label it is useless if name come  from .cfg
+  produces<reco::JetTagCollection>();  //get rid of this label it is useless if name come  from .cfg
   produces<reco::TrackProbabilityTagInfoCollection>();       //Only one producer
   m_associator = m_config.getParameter<string>("jetTracks");
   m_primaryVertexProducer = m_config.getParameter<string>("primaryVertex");
