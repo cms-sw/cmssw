@@ -14,3 +14,4 @@
 <use name=Utilities/General>
 <use name=DataFormats/SiStripDetId>
  <use name=DataFormats/SiPixelDetId>
+<use name=Geometry/TrackerGeometryBuilder>

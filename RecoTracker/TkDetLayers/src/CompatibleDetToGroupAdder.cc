@@ -42,6 +42,7 @@ bool CompatibleDetToGroupAdder::add( const GeometricSearchDet& det,
 }
 
 #include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
+#include "RecoTracker/TkDetLayers/interface/TkGeomDetCompatibilityChecker.h"
 
 bool CompatibleDetToGroupAdder::add( const GeomDet& det,
 				     const TrajectoryStateOnSurface& tsos, 
@@ -49,7 +50,7 @@ bool CompatibleDetToGroupAdder::add( const GeomDet& det,
 				     const MeasurementEstimator& est,
 				     vector<DetGroup>& result) const
 {
-  GeomDetCompatibilityChecker theCompatibilityChecker;
+  TkGeomDetCompatibilityChecker theCompatibilityChecker;
   pair<bool, TrajectoryStateOnSurface> compat = theCompatibilityChecker.isCompatible( &det,tsos, prop, est);
 
   if (compat.first) {
