@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: ref_t.cppunit.cpp,v 1.4 2006/09/27 11:42:35 dmytro Exp $
+$Id: ref_t.cppunit.cpp,v 1.5 2006/12/06 19:20:42 paterno Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -35,10 +35,10 @@ class testRefInROOT: public CppUnit::TestFixture
   
   CPPUNIT_TEST_SUITE_END();
 public:
-  testRefInROOT() : fWasRun_(false) { }
+  testRefInROOT() { }
   void setUp()
   {
-    if(!fWasRun_) {
+    if(!sWasRun_) {
       gSystem->Load("libFWCoreFWLite.so");
       AutoLibraryLoader::enable();
       
@@ -48,7 +48,7 @@ public:
         std::cerr <<"could not run script needed to make test files\n";
         ::exit(-1);
       }
-      fWasRun_ = true;
+      sWasRun_ = true;
     }
   }
   void tearDown(){}
@@ -61,11 +61,10 @@ public:
   void failDidNotCallGetEntryForEvents();
 
  private:
-  //static bool sWasRun_;
-  bool fWasRun_;
+  static bool sWasRun_;
 };
 
-//bool testRefInROOT::sWasRun_=false;
+bool testRefInROOT::sWasRun_=false;
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testRefInROOT);
