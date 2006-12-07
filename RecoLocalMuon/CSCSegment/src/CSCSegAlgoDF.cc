@@ -5,11 +5,15 @@
  */
  
 #include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoDF.h>
+
+#include <DataFormats/CSCRecHit/interface/CSCSegment.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <Geometry/Vector/interface/GlobalPoint.h>
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 
+
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 #include <algorithm>
 #include <cmath>
@@ -22,11 +26,12 @@
  */
 CSCSegAlgoDF::CSCSegAlgoDF(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoDF") {
 	
-  debug                  = ps.getUntrackedParameter<bool>("CSCDebug");
+  debug                  = ps.getUntrackedParameter<bool>("CSCSegmentDebug");
   minLayersApart         = ps.getUntrackedParameter<int>("minLayersApart");
   nSigmaFromSegment      = ps.getUntrackedParameter<double>("nSigmaFromSegment");
   minHitsPerSegment      = ps.getUntrackedParameter<int>("minHitsPerSegment");
   muonsPerChamberMax     = ps.getUntrackedParameter<int>("CSCSegmentPerChamberMax");      
+  chi2ndfProbMin         = ps.getUntrackedParameter<double>("chi2ndfProbMin");
   chi2Max                = ps.getUntrackedParameter<double>("chi2Max");
 	
 }
@@ -444,19 +449,63 @@ bool CSCSegAlgoDF::isHitNearSegment( const CSCRecHit2D* hit) const {
   double v = lp.y();                     
   double z = lp.z();  
 
-  double sigma_u = sqrt( hit->localPositionError().xx() );
-  double sigma_v = sqrt( hit->localPositionError().yy() );
-  // double sigma_uv = hit->LocalPositionError().xy();
+  LocalError errorMatrix = hit->localPositionError();
+  double cov_uu  = errorMatrix.xx();
+  double cov_vv  = errorMatrix.yy();
+  double cov_uv  = errorMatrix.xy();
+  double sigma_u = sqrt(cov_uu);
+  double sigma_v = sqrt(cov_vv);
 
-  double du = protoIntercept.x() + protoSlope_u * z - u;
-  double dv = protoIntercept.y() + protoSlope_v * z - v;
+  double deltaX = (protoIntercept.x() + protoSlope_u * z) - u;
+  double deltaY = (protoIntercept.y() + protoSlope_v * z) - v;
+
+  // Normalize in terms of sigma_u and sigma_v
+  deltaX /= sigma_u;
+  deltaY /= sigma_v;
+
+  /* Now play with the standard error ellipse:
+   * Find the angle phi of the ellipse as per PDG 2006, section 32
+   *
+   * tan(2*phi) = 2*cov(i,j)/[cov(i,i) - cov(j,j)]       eq. 32.45
+   * 
+   * phi = 0.5 * atan( 2 cov(i,j)/[cov(i,i) - cov(j,j)] )
+   *
+   */
+
+  double phi;
+
+  if (cov_uu > cov_vv) {
+    phi = 0.5 * atan( 2. * cov_uv/(cov_uu - cov_vv) );
+    if (debug) std::cout << "phi = 0.5 * atan ( 2. * " << cov_uv << "/(" << cov_uu << " - " << cov_vv << ") )" << std::endl;
+  } else {
+    phi = 0.5 * atan( 2. * cov_uv/(cov_vv - cov_uu) );
+    if (debug) std::cout << "phi = 0.5 * atan ( 2. * " << cov_uv << "/(" << cov_vv << " - " << cov_uu << ") )" << std::endl;
+  }
+
+  if (debug) std::cout << "error ellipse angle is " << phi << std::endl;
+
+  double myPi = 3.14159267;
+
+  // Now we want to rotate the system such that errors align with the i and j axes.
+  // That way, we'll have a normalized circle of radius r = n * sigma
+
+  // The angle of rotation will be:
+  double rotateAng = myPi/2. - phi;
+  double deltaU, deltaV;
   
-  // For now, ignore correlations so we don't have to play with the 
-  // error ellipse, but can add fix in future if seems necessary.
+  if (cov_uu > cov_vv) {
+    deltaU = deltaX * cos(rotateAng) - deltaY * sin(rotateAng);  // DeltaX is along i axis
+    deltaV = deltaX * sin(rotateAng) + deltaY * cos(rotateAng);  // DeltaY is along j axis
+  } else {
+    deltaU = deltaY * cos(rotateAng) - deltaX * sin(rotateAng);  // DeltaY is along i axis
+    deltaV = deltaY * sin(rotateAng) + deltaX * cos(rotateAng);  // DeltaX is along j axis
+  }
 
-  if (( du < nSigmaFromSegment * sigma_u && du > -nSigmaFromSegment * sigma_u ) &&
-      ( dv < nSigmaFromSegment * sigma_v && dv > -nSigmaFromSegment * sigma_v )) 
-    return true;
+  double r = sqrt(deltaU*deltaU + deltaV*deltaV);
+
+  if (debug) std::cout << "# of sigma is " << r << std::endl;
+
+  if ( r < nSigmaFromSegment ) return true;
 
   return false;
 }
@@ -566,7 +615,9 @@ bool CSCSegAlgoDF::isSegmentGood(const ChamberHitContainer& RecHitsInChamber) co
 
   unsigned int iadd = ( RecHitsInChamber.size() > 20 )? iadd = 1 : 0;  
 
-  if (protoSegment.size() >= minHitsPerSegment+iadd) return true;
+  if ((protoSegment.size() >= minHitsPerSegment+iadd) &&
+      ( ChiSquaredProbability((protoChi2),(double)(2*protoSegment.size()-4)) > chi2ndfProbMin )) 
+      return true;
 
   return false;
 }

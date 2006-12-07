@@ -135,6 +135,7 @@ private:
   int   minHitsPerSegment;
   int   muonsPerChamberMax;
   float chi2Max;
+  float chi2ndfProbMin;
 };
 
 #endif
