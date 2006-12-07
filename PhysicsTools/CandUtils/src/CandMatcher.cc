@@ -35,7 +35,7 @@ CandidateRef CandMatcher::operator()( const Candidate & c ) const {
   }
 
   CandidateRefProd matched = map_.refProd().val; 
-  int nDau = c.numberOfDaughters();
+  unsigned int nDau = c.numberOfDaughters();
   if ( nDau > 0 ) {
     vector<size_t> moms;
     for( Candidate::const_iterator d = c.begin(); d != c.end(); ++ d ) {

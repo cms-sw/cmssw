@@ -29,7 +29,7 @@ void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {
     const GenParticleCandidate * c = 
       dynamic_cast<const GenParticleCandidate *>( & * p );
     assert( c != 0 );
-    if ( c->mother().isNull() ) {
+    if ( c->motherRef().isNull() ) {
       cout << "-- decay: --" << endl;
       printDecay( * c, "" );
     }

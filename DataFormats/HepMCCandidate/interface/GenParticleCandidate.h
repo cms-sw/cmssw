@@ -6,7 +6,7 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidate.h,v 1.8 2006/11/14 08:56:42 llista Exp $
+ * \version $Id: GenParticleCandidate.h,v 1.9 2006/11/30 11:58:49 llista Exp $
  */
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 
@@ -31,10 +31,11 @@ namespace reco {
     /// status code
     int status() const { return status_; }
     /// get candidate mother
-    CandidateRef mother() const { return mother_; }
+    CandidateRef motherRef() const { return mother_; }
     /// set mother reference
-    void setMother( const CandidateRef & ref ) { mother_ = ref; }
-
+    void setMotherRef( const CandidateRef & ref ) { mother_ = ref; }
+    /// mother reference
+    virtual const Candidate * mother() const; 	 
   private:
     /// checp overlap with another candidate
     bool overlap( const Candidate & ) const;
@@ -61,19 +62,12 @@ namespace reco {
   /// get status code component
   GET_CANDIDATE_COMPONENT( GenParticleCandidate, int, status, StatusTag )
 
-  /// get mother reference component
-  GET_CANDIDATE_COMPONENT( GenParticleCandidate, CandidateRef, mother, MotherRefTag )
-
   inline int pdgId( const Candidate & c ) {
     return c.get<int, PdgIdTag>();
   }
 
   inline int status( const Candidate & c ) {
     return c.get<int, StatusTag>();
-  }
-
-  inline CandidateRef mother( const Candidate & c ) {
-    return c.get<CandidateRef, MotherRefTag>();
   }
 
 }
