@@ -16,6 +16,7 @@
 
 // Geometry
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
 // Vectors
 #include "Geometry/Vector/interface/Point3DBase.h"
@@ -34,6 +35,7 @@ public:
   explicit SiPixelGaussianSmearingRecHitConverterAlgorithm(edm::ParameterSet pset,
 							   const PSimHit& simHit,
 							   GeomDetType::SubDetector pixelPart, unsigned int layer,
+							   const PixelGeomDetUnit* detUnit,
 							   std::vector<TH1F*> theAlphaMultiplicityCumulativeProbabilities,
 							   std::vector<TH1F*> theBetaMultiplicityCumulativeProbabilities,
 							   TFile* pixelResolutionFile);
@@ -54,9 +56,11 @@ public:
   
 private:
   //
-  void run( const PSimHit& simHit,
+  void run( const PSimHit& simHit, const PixelGeomDetUnit* detUnit,
 	    std::vector<TH1F*> theAlphaMultiplicityCumulativeProbabilities,
 	    std::vector<TH1F*> theBetaMultiplicityCumulativeProbabilities  );
+  //
+  bool isFlipped(const PixelGeomDetUnit* theDet) const;
   //
   // parameters
   edm::ParameterSet pset_;

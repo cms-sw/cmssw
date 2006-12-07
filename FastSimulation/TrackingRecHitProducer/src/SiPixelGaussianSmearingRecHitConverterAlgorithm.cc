@@ -33,9 +33,12 @@
 // MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+const float PI = 3.141593;
+
 SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitConverterAlgorithm(edm::ParameterSet pset,
 												 const PSimHit& simHit,
 												 GeomDetType::SubDetector pixelPart, unsigned int layer,
+												 const PixelGeomDetUnit* detUnit,
 												 std::vector<TH1F*> theAlphaMultiplicityCumulativeProbabilities,
 												 std::vector<TH1F*> theBetaMultiplicityCumulativeProbabilities,
 												 TFile* pixelResolutionFile) :
@@ -71,33 +74,44 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
   //
   
   // Run Pixel Gaussian Smearing Algorithm
-  run( simHit,
+  run( simHit, detUnit,
        theAlphaMultiplicityCumulativeProbabilities,
        theBetaMultiplicityCumulativeProbabilities );
   //
 }
 
-void SiPixelGaussianSmearingRecHitConverterAlgorithm::run(const PSimHit& simHit,
+void SiPixelGaussianSmearingRecHitConverterAlgorithm::run(const PSimHit& simHit, const PixelGeomDetUnit* detUnit,
 							  std::vector<TH1F*> theAlphaMultiplicityCumulativeProbabilities,
 							  std::vector<TH1F*> theBetaMultiplicityCumulativeProbabilities) {
-  //
   if (theVerboseLevel > 3) {
     LogDebug("SiPixelGaussianSmearingRecHits") << " Pixel smearing in " << thePixelPart << ", Layer is " << theLayer << std::endl;
   }
   //
   // at the beginning the position is the Local Point in the local pixel module reference frame
+  // same code as in PixelCPEBase
+  LocalVector localDir = simHit.momentumAtEntry().unit();
+  float locx = localDir.x();
+  float locy = localDir.y();
+  float locz = localDir.z();
   // alpha: angle with respect to local x axis in local (x,z) plane
-  float alpha = 3.141592654 / 2.
-    - acos( simHit.localDirection().x() / sqrt( simHit.localDirection().x()*simHit.localDirection().x() + simHit.localDirection().z()*simHit.localDirection().z() ) );
+  float alpha = acos(locx/sqrt(locx*locx+locz*locz));
+  if ( isFlipped( detUnit ) ) { // &&& check for FPIX !!!
+    LogDebug("SiPixelGaussianSmearingRecHits") << " isFlipped " << std::endl;
+    alpha = PI - alpha ;
+  }
   // beta: angle with respect to local y axis in local (y,z) plane
-  float beta = fabs( 3.141592654 / 2.
-		     - acos( simHit.localDirection().y() / sqrt( simHit.localDirection().y()*simHit.localDirection().y() + simHit.localDirection().z()*simHit.localDirection().z() ) )
-		     );
+  float beta = acos(locy/sqrt(locy*locy+locz*locz));
+  
+  float alphaToBeUsedForRootFiles = alpha - PI/2.;
+  float betaToBeUsedForRootFiles  = PI/2. - beta;
+  
   //
   if (theVerboseLevel > 3) {
     LogDebug("SiPixelGaussianSmearingRecHits") << " Local Direction " << simHit.localDirection()
 					       << " alpha(x) = " << alpha
 					       << " beta(y) = "  << beta
+					       << " alpha for root files = " << alphaToBeUsedForRootFiles
+					       << " beta  for root files = " << betaToBeUsedForRootFiles
 					       << std::endl;
   }
   // Generate alpha and beta multiplicity
@@ -107,8 +121,8 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::run(const PSimHit& simHit,
   double alphaProbability = RandFlat::shoot();
   double betaProbability  = RandFlat::shoot();
   // search which multiplicity correspond
-  int alphaBin = theAlphaMultiplicityCumulativeProbabilities.front()->GetXaxis()->FindFixBin(alpha);
-  int betaBin  = theBetaMultiplicityCumulativeProbabilities.front()->GetXaxis()->FindFixBin(beta);
+  int alphaBin = theAlphaMultiplicityCumulativeProbabilities.front()->GetXaxis()->FindFixBin(alphaToBeUsedForRootFiles);
+  int betaBin  = theBetaMultiplicityCumulativeProbabilities.front()->GetXaxis()->FindFixBin(betaToBeUsedForRootFiles);
   for(unsigned int iMult = 0; iMult < theAlphaMultiplicityCumulativeProbabilities.size(); iMult++) {
     if(alphaProbability < theAlphaMultiplicityCumulativeProbabilities[iMult]->GetBinContent(alphaBin) ) {
       alphaMultiplicity = iMult+1;
@@ -124,7 +138,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::run(const PSimHit& simHit,
   
   // protection against 0 or max multiplicity
   if( alphaMultiplicity == 0 || alphaMultiplicity > theAlphaMultiplicityCumulativeProbabilities.size() ) alphaMultiplicity = theAlphaMultiplicityCumulativeProbabilities.size();
-  if( betaMultiplicity == 0  || alphaMultiplicity > theBetaMultiplicityCumulativeProbabilities.size()  )  betaMultiplicity  = theBetaMultiplicityCumulativeProbabilities.size();
+  if( betaMultiplicity == 0  || alphaMultiplicity > theBetaMultiplicityCumulativeProbabilities.size()  ) betaMultiplicity  = theBetaMultiplicityCumulativeProbabilities.size();
   // protection against out-of-range (undeflows and overflows)
   if( alphaBin == 0 ) alphaBin = 1;
   if( alphaBin > theAlphaMultiplicityCumulativeProbabilities.front()->GetNbinsX() ) alphaBin = theAlphaMultiplicityCumulativeProbabilities.front()->GetNbinsX();
@@ -153,8 +167,8 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::run(const PSimHit& simHit,
 							  (int)alphaMultiplicity , (int)betaMultiplicity ,
 							  alpha                  , beta                    );
   // define private mebers --> Errors
-  theErrorX = sqrt((double)theErrors.first);  // returns sigma^2
-  theErrorY = sqrt((double)theErrors.second); // returns sigma^2
+  theErrorX = sqrt((double)theErrors.first);  // PixelErrorParametrization returns sigma^2
+  theErrorY = sqrt((double)theErrors.second); // PixelErrorParametrization returns sigma^2
   theErrorZ = 0.0001; // 1 um means zero
   theError = LocalError( theErrorX * theErrorX,
 			 0.,
@@ -170,8 +184,8 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::run(const PSimHit& simHit,
   // 
   // Generate position
   // get resolution histograms
-  int alphaHistBin = (int)( ( alpha - resAlpha_binMin ) / resAlpha_binWidth + 1 );
-  int betaHistBin  = (int)( ( beta - resBeta_binMin ) / resBeta_binWidth + 1 );
+  int alphaHistBin = (int)( ( alphaToBeUsedForRootFiles - resAlpha_binMin ) / resAlpha_binWidth + 1 );
+  int betaHistBin  = (int)( ( betaToBeUsedForRootFiles  - resBeta_binMin )  / resBeta_binWidth + 1 );
   // protection against out-of-range (undeflows and overflows)
   if( alphaHistBin < 1 ) alphaHistBin = 1; 
   if( betaHistBin  < 1 ) betaHistBin  = 1; 
@@ -213,4 +227,26 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::run(const PSimHit& simHit,
   //
   
 }
-  
+ 
+//-----------------------------------------------------------------------------
+// I COPIED FROM THE PixelCPEBase BECAUSE IT'S BETTER THAN REINVENT IT
+// The isFlipped() is a silly way to determine which detectors are inverted.
+// In the barrel for every 2nd ladder the E field direction is in the
+// global r direction (points outside from the z axis), every other
+// ladder has the E field inside. Something similar is in the 
+// forward disks (2 sides of the blade). This has to be recognised
+// because the charge sharing effect is different.
+//
+// The isFliped does it by looking and the relation of the local (z always
+// in the E direction) to global coordinates. There is probably a much 
+// better way.
+//-----------------------------------------------------------------------------
+bool SiPixelGaussianSmearingRecHitConverterAlgorithm::isFlipped(const PixelGeomDetUnit* theDet) const {
+  // Check the relative position of the local +/- z in global coordinates.
+  float tmp1 = theDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
+  float tmp2 = theDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
+  //  std::cout << " 1: " << tmp1 << " 2: " << tmp2 << std::endl;
+  if ( tmp2<tmp1 ) return true;
+  else return false;    
+}
+ 

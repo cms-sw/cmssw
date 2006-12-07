@@ -78,6 +78,8 @@ namespace cms
     double deltaRaysPCut; // GeV/c
     bool trackingPSimHits; // in case it is true make RecHit = replica of PSimHit without errors (1 um)
     //
+    edm::ESHandle<TrackerGeometry> geometry;
+    //
     // Pixel
     std::string thePixelMultiplicityFileName;
     std::string thePixelBarrelResolutionFileName;

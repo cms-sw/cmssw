@@ -336,7 +336,6 @@ namespace cms
     
     std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
     
-    edm::ESHandle<TrackerGeometry> geometry;
     es.get<TrackerDigiGeometryRecord> ().get (geometry);
     
     // Step B: create empty output collection
@@ -457,6 +456,7 @@ namespace cms
 	//
 	SiPixelGaussianSmearingRecHitConverterAlgorithm siPixelAlgorithm(conf_, simHit,
 									 GeomDetEnumerators::PixelBarrel, theLayer,
+									 dynamic_cast<const PixelGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId()) ) ),
 									 theBarrelMultiplicityAlphaCumulativeProbabilities,
 									 theBarrelMultiplicityBetaCumulativeProbabilities,
 									 thePixelBarrelResolutionFile);
@@ -477,6 +477,7 @@ namespace cms
 	//
 	SiPixelGaussianSmearingRecHitConverterAlgorithm siPixelAlgorithm(conf_, simHit,
 									 GeomDetEnumerators::PixelEndcap, theDisk,
+									 dynamic_cast<const PixelGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId()) ) ),
 									 theForwardMultiplicityAlphaCumulativeProbabilities,
 									 theForwardMultiplicityBetaCumulativeProbabilities,
 									 thePixelForwardResolutionFile);
