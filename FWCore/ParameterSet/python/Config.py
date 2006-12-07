@@ -42,6 +42,7 @@ class SortedKeysDict(dict):
 
     def values(self):
         return [ dict.__getitems__(self, key) for key in self.list]
+
    
 class SortedAndFixedKeysDict(SortedKeysDict):
     """a sorted dictionary with fixed/frozen keys"""
@@ -51,13 +52,13 @@ class SortedAndFixedKeysDict(SortedKeysDict):
     __delitem__ = __setitem__ = clear = _blocked_attribute
     pop = popitem = setdefault = update = _blocked_attribute
     def __new__(cls, *args, **kw):
-        new = sortedKeysDict.__new__(cls)
-        sortedKeysDict.__init__(new, *args, **kw)
+        new = SortedKeysDict.__new__(cls)
+        SortedKeysDict.__init__(new, *args, **kw)
         return new
     def __init__(self, *args, **kw):
         pass
     def __repr__(self):
-        return "SortedAndFixedKeysDict(%s)" % sortedKeysDict.__repr__(self)
+        return "SortedAndFixedKeysDict(%s)" % SortedKeysDict.__repr__(self)
 
     
 #helper based on code from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/414283
@@ -88,6 +89,7 @@ def findProcess(module):
     else:        
         raise RuntimeError("no 'process' attribute found in the module, please add one")
     return process
+
 
 class Process(object):
     """Root class for a CMS configuration process"""
@@ -214,8 +216,6 @@ class Process(object):
     def _placeAnalyzer(self,name,mod):
         self.__analyzers[name]=mod
     def _placePath(self,name,mod):
-        #NOTE: NEED TO ALSO RECORD THE ORDER THESE WERE ADDED SINCE
-        # THAT WILL BE THE DEFAULT ORDER OF RUNNING
         self.__paths[name]=mod
     def _placeEndPath(self,name,mod):
         self.__endpaths[name]=mod
