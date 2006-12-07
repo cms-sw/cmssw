@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:31 EDT 2006
-// $Id: BareRootProductGetter.cc,v 1.7 2006/10/19 15:06:09 chrjones Exp $
+// $Id: BareRootProductGetter.cc,v 1.8 2006/12/01 21:54:44 chrjones Exp $
 //
 
 // system include files
@@ -16,6 +16,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TBranch.h"
+#include "TClass.h"
 #include "Reflex/Type.h"
 #include "Reflex/Object.h"
 
@@ -205,7 +206,9 @@ BareRootProductGetter::createNewBuffer(const edm::ProductID& iID) const
        <<"\n Please make sure all the necessary libraries are available.";
     return 0;
   }
-  
+   
+  //We can't use reflex to create the instance since Reflex uses 'malloc' instead of new
+  /*
   //use reflex to create an instance of it
   ROOT::Reflex::Object wrapperObj = classType.Construct();
   if( 0 == wrapperObj.Address() ) {
@@ -216,6 +219,18 @@ BareRootProductGetter::createNewBuffer(const edm::ProductID& iID) const
   ROOT::Reflex::Object edProdObj = wrapperObj.CastObject( ROOT::Reflex::Type::ByName("edm::EDProduct") );
   
   edm::EDProduct* prod = reinterpret_cast<edm::EDProduct*>(edProdObj.Address());
+  */
+  TClass* rootClassType=TClass::GetClass(classType.TypeInfo());
+  if( 0 == rootClassType) {
+    throw cms::Exception("MissingRootDictionary")
+    <<"could not find a ROOT dictionary for type '"<<fullName<<"'"
+    <<"\n Please make sure all the necessary libraries are available.";
+    return 0;
+  }
+  void* address = rootClassType->New();
+  
+  static TClass* edproductTClass = TClass::GetClass( typeid(edm::EDProduct)); 
+  edm::EDProduct* prod = reinterpret_cast<edm::EDProduct*>( rootClassType->DynamicCast(edproductTClass,address,true));
   if(0 == prod) {
      cms::Exception("FailedConversion")
 	<<"failed to convert a '"<<fullName
@@ -224,7 +239,7 @@ BareRootProductGetter::createNewBuffer(const edm::ProductID& iID) const
   }
 
   //connect the instance to the branch
-  void* address  = wrapperObj.Address();
+  //void* address  = wrapperObj.Address();
   Buffer b(prod, branch,address);
   idToBuffers_[iID]=b;
   
