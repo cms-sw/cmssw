@@ -16,14 +16,15 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: LuminosityBlock.h,v 1.3 2006/11/04 18:56:22 wmtan Exp $
+$Id: LuminosityBlock.h,v 1.4 2006/11/04 22:34:47 wmtan Exp $
 
 ----------------------------------------------------------------------*/
+
+#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Common/interface/BranchType.h"
 #include "DataFormats/Common/interface/LuminosityBlockAux.h"
 #include "DataFormats/Common/interface/LuminosityBlockID.h"
-#include "DataFormats/Common/interface/Timestamp.h"
 
 #include "FWCore/Framework/interface/DataViewImpl.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -41,11 +42,10 @@ namespace edm {
   {
   public:
     LuminosityBlock(LuminosityBlockPrincipal& dbk, const ModuleDescription& md);
-    ~LuminosityBlock(){}
+    ~LuminosityBlock() {}
 
     // AUX functions.
     LuminosityBlockID id() const {return aux_.id();}
-    Timestamp time() const {return aux_.time();}
 
     using DataViewImpl::get;
     using DataViewImpl::getAllProvenance;
@@ -56,6 +56,11 @@ namespace edm {
     using DataViewImpl::getProvenance;
     using DataViewImpl::getRefBeforePut;
     using DataViewImpl::put;
+
+    Run const&
+    getRun() const {
+      return *run_;
+    }
 
   private:
     // commit_() is called to complete the transaction represented by
@@ -68,6 +73,7 @@ namespace edm {
     friend class ProducerWorker;
 
     LuminosityBlockAux const& aux_;
+    boost::shared_ptr<Run const> const run_;
   };
 }
 #endif

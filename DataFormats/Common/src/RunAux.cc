@@ -3,7 +3,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: RunAux.cc,v 1.7 2006/10/07 03:50:05 wmtan Exp $
+$Id: RunAux.cc,v 1.1 2006/10/27 20:57:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -12,6 +12,5 @@ namespace edm {
   RunAux::write(std::ostream& os) const {
     os << "Process History ID = " <<  processHistoryID_ << std::endl;
     os << id_ << std::endl;
-    //os << "TimeStamp = " << time_ << std::endl;
   }
 }

@@ -15,13 +15,12 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Run.h,v 1.2 2006/11/04 07:17:38 wmtan Exp $
+$Id: Run.h,v 1.3 2006/11/04 18:56:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/RunAux.h"
 #include "DataFormats/Common/interface/RunID.h"
-#include "DataFormats/Common/interface/Timestamp.h"
 
 #include "FWCore/Framework/interface/DataViewImpl.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -43,7 +42,6 @@ namespace edm {
 
     // AUX functions.
     RunNumber_t id() const {return aux_.id();}
-    Timestamp time() const {return aux_.time();}
 
     using DataViewImpl::get;
     using DataViewImpl::getAllProvenance;

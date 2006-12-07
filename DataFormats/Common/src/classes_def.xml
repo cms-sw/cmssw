@@ -113,9 +113,6 @@
  </class>
 
  <class name="edm::FileFormatVersion"/>
- <class name="edm::LuminosityBlock"/>
- <class name="edm::RunBlock"/>
-
 
  <class name="edm::Hash<0>"/>
  <class name="std::map<edm::Hash<0>, edm::ModuleDescription>"/>

@@ -15,9 +15,11 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.49 2006/11/04 18:56:22 wmtan Exp $
+$Id: Event.h,v 1.50 2006/11/30 15:37:06 paterno Exp $
 
 ----------------------------------------------------------------------*/
+
+#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Common/interface/EventAux.h"
 #include "DataFormats/Common/interface/EventID.h"
@@ -56,6 +58,14 @@ namespace edm {
     using DataViewImpl::put;
     using DataViewImpl::size;
 
+    LuminosityBlock const&
+    getLuminosityBlock() const {
+      return *luminosityBlock_;
+    }
+
+    Run const&
+    getRun() const;
+
   private:
     // commit_() is called to complete the transaction represented by
     // this DataViewImpl. The friendships required seems gross, but any
@@ -67,6 +77,7 @@ namespace edm {
     friend class ProducerWorker;
 
     EventAux const& aux_;
+    boost::shared_ptr<LuminosityBlock const> const luminosityBlock_;
   };
 }
 #endif

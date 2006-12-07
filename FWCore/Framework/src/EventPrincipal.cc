@@ -12,7 +12,8 @@ namespace edm {
 	  aux_(id, time, lbp->id()),
 	  luminosityBlockPrincipal_(lbp),
 	  unscheduledHandler_(),
-	  provenanceFiller_() {}
+	  provenanceFiller_(),
+	  branchActionType_(BranchActionEvent) {}
 
   EventPrincipal::EventPrincipal(EventID const& id,
 	Timestamp const& time,
@@ -22,8 +23,8 @@ namespace edm {
 	  Base(reg, hist, rtrv),
 	  aux_(id, time, 1),
 	  luminosityBlockPrincipal_(),
-	  unscheduledHandler_(),
-	  provenanceFiller_() {}
+	  provenanceFiller_(),
+	  branchActionType_(BranchActionEvent) {}
 
   RunPrincipal const&
   EventPrincipal::runPrincipal() const {

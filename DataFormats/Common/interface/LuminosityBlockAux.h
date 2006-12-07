@@ -17,18 +17,15 @@ namespace edm
     LuminosityBlockAux() :
 	processHistoryID_(),
 	id_(),
-	runID_(),
-	time_() {}
-    LuminosityBlockAux(LuminosityBlockID const& theId, Timestamp const& theTime, RunNumber_t const& theRun = 1UL) :
+	runID_() {}
+    explicit LuminosityBlockAux(LuminosityBlockID const& theId, RunNumber_t const& theRun = 1UL) :
 	processHistoryID_(),
 	id_(theId),
-	runID_(theRun),
-	time_(theTime) {}
+	runID_(theRun) {}
     ~LuminosityBlockAux() {}
     void write(std::ostream& os) const;
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
     LuminosityBlockID const& id() const {return id_;}
-    Timestamp const& time() const {return time_;}
 
     // most recent process that processed this lumi block
     // is the last on the list, this defines what "latest" is
@@ -37,8 +34,6 @@ namespace edm
     LuminosityBlockID id_;
     // Associated run number
     RunNumber_t runID_;
-    // Time from DAQ
-    Timestamp time_;
   };
 
   inline

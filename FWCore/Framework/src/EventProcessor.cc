@@ -782,21 +782,22 @@ namespace edm {
        return evtDesc;
     }
 
-    auto_ptr<EventPrincipal> pep;
+    std::auto_ptr<EventPrincipal> pep;
     CallPrePost holder(*actReg_);
-    pep = input_->readEvent();
-    
-    if(pep.get()==0)
-    {
-       changeState(mInputExhausted);
-       toerror.succeeded();
-       return evtDesc;
-    }
+
+    do {
+      pep = input_->readEvent();
+      if(pep.get()==0) {
+        changeState(mInputExhausted);
+        toerror.succeeded();
+        return evtDesc;
+      }
+    } while (pep->branchActionType() != BranchActionEvent);
 
     IOVSyncValue ts(pep->id(), pep->time());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     
-    schedule_->runOneEvent(*pep.get(),es,BranchActionEvent);
+    schedule_->runOneEvent(*pep.get(), es, BranchActionEvent);
     toerror.succeeded();
     return EventHelperDescription(pep,&es);
   }
@@ -833,7 +834,7 @@ namespace edm {
 
 	++eventcount;
 	FDEBUG(1) << eventcount << std::endl;
-        auto_ptr<EventPrincipal> pep;
+        std::auto_ptr<EventPrincipal> pep;
         {
           CallPrePost holder(*actReg_);
           pep = input_->readEvent();
@@ -849,7 +850,7 @@ namespace edm {
 	IOVSyncValue ts(pep->id(), pep->time());
 	EventSetup const& es = esp_->eventSetupForInstance(ts);
 	
-	schedule_->runOneEvent(*pep.get(),es,BranchActionEvent);
+	schedule_->runOneEvent(*pep.get(), es, pep->branchActionType());
       }
 
     // check once more for shutdown signal
@@ -890,25 +891,24 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
-    auto_ptr<EventPrincipal> pep;
+    std::auto_ptr<EventPrincipal> pep;
     {
       CallPrePost holder(*actReg_);
       pep = input_->readEvent(id);
     }
 
-    if(pep.get()==0)
-      {
+    if(pep.get()==0) {
 	changeState(mInputExhausted);
 	rc = epInputComplete;
-      }
+    }
     else
-      {
+    {
 	IOVSyncValue ts(pep->id(), pep->time());
 	EventSetup const& es = esp_->eventSetupForInstance(ts);
 
-	schedule_->runOneEvent(*pep.get(),es,BranchActionEvent);
+	schedule_->runOneEvent(*pep.get(), es, BranchActionEvent);
 	changeState(mCountComplete);
-      }
+    }
 
     toerror.succeeded();
     changeState(mFinished);
