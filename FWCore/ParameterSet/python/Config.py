@@ -1,5 +1,65 @@
 #!/usr/bin/env python
 
+# helper classes for sorted and fixed dicts
+
+class sortedKeysDict(dict):
+    """a dict preserving order of keys"""
+    # specialised __repr__ missing.
+    def __init__(self):
+        dict.__init__(self)
+        self.list = list()
+
+    def __iter__(self):
+        for key in self.list:
+            yield key
+
+    def __setitem__(self, key, value):
+        dict.__setitem__(self, key, value)
+        if not key in self.list:
+            self.list.append(key)
+
+    def __delitem__(self, key):
+        dict.__delitem__(self, key)
+        self.list.remove(key)
+
+    def items(self):
+        return [ dict.__getitem__(self, key) for key in self.list]
+
+    def iteritems(self):
+        for key in self.list:
+            yield key, dict.__getitem__(self, key)
+
+    def iterkeys(self):
+        for key in self.list:
+            yield key
+           
+    def itervalues(self):
+        for key in self.list:
+            yield dict.__getitem__(self,key)
+
+    def keys(self):
+        return self.list
+
+    def values(self):
+        return [ dict.__getitems__(self, key) for key in self.list]
+   
+class sortedAndFixedKeysDict(sortedKeysDict):
+    """a sorted dictionary with fixed/frozen keys"""
+    def _blocked_attribute(obj):
+        raise AttributeError, "A sortedAndFixedKeysDict cannot be modified."
+    _blocked_attribute = property(_blocked_attribute)
+    __delitem__ = __setitem__ = clear = _blocked_attribute
+    pop = popitem = setdefault = update = _blocked_attribute
+    def __new__(cls, *args, **kw):
+        new = sortedKeysDict.__new__(cls)
+        sortedKeysDict.__init__(new, *args, **kw)
+        return new
+    def __init__(self, *args, **kw):
+        pass
+    def __repr__(self):
+        return "sortedAndFixedKeysDict(%s)" % sortedKeysDict.__repr__(self)
+
+    
 #helper based on code from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/414283
 class fixed_keys_dict(dict):
     def _blocked_attribute(obj):
@@ -39,8 +99,8 @@ class Process(object):
         self.__dict__['_Process__looper'] = None
         self.__dict__['_Process__analyzers'] = {}
         self.__dict__['_Process__outputmodules'] = {}
-        self.__dict__['_Process__paths'] = {}
-        self.__dict__['_Process__endpaths'] = {}
+        self.__dict__['_Process__paths'] = sortedKeysDict()    # have to keep the order
+        self.__dict__['_Process__endpaths'] = sortedKeysDict() # of definition
         self.__dict__['_Process__sequences'] = {}
         self.__dict__['_Process__services'] = {}
         self.__dict__['_Process__essources'] = {}
@@ -80,11 +140,11 @@ class Process(object):
     outputModules = property(outputModules_,doc="dictionary containing the output_modules for the process")
     def paths_(self):
         """returns a dict of the paths which have been added to the Process"""
-        return fixed_keys_dict(self.__paths)
+        return sortedAndFixedKeysDict(self.__paths)
     paths = property(paths_,doc="dictionary containing the paths for the process")
     def endpaths_(self):
         """returns a dict of the endpaths which have been added to the Process"""
-        return fixed_keys_dict(self.__endpaths)
+        return sortedAndFixedKeysDict(self.__endpaths)
     endpaths = property(endpaths_,doc="dictionary containing the endpaths for the process")
     def sequences_(self):
         """returns a dict of the sequences which have been added to the Process"""
