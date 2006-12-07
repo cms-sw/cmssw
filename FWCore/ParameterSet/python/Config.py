@@ -105,6 +105,8 @@ class Process(object):
         self.__dict__['_Process__services'] = {}
         self.__dict__['_Process__essources'] = {}
         self.__dict__['_Process__esproducers'] = {}
+        self.__dict__['_Process__psets']={}
+        self.__dict__['_Process__vpsets']={}
     def filters_(self):
         """returns a dict of the filters which have been added to the Process"""
         return fixed_keys_dict(self.__filters)
@@ -162,9 +164,18 @@ class Process(object):
         """returns a the es_sources which have been added to the Process"""
         return fixed_keys_dict(self.__essources)
     es_sources = property(es_sources_,doc="dictionary containing the es_sources for the process")
+    def psets_(self):
+        """returns a dict of the PSets which have been added to the Process"""
+        return fixed_keys_dict(self.__psets)
+    psets = property(psets_,doc="dictionary containing the PSets for the process")
+    def vpsets_(self):
+        """returns a dict of the VPSets which have been added to the Process"""
+        return fixed_keys_dict(self.__vpsets)
+    vpsets = property(vpsets_,doc="dictionary containing the PSets for the process")
     def __setattr__(self,name,value):
         if not isinstance(value,_ConfigureComponent):
-            raise TypeError("can only assign labels to an object which inherits from '_ConfigureComponent'")
+            raise TypeError("can only assign labels to an object which inherits from '_ConfigureComponent'\n"
+                            +"an instance of "+str(type(value))+" will not work")
         if not isinstance(value,_Labelable) and not isinstance(value,Source) and not isinstance(value,Looper):
             if name == value.type_():
                 self.add_(value)
@@ -214,6 +225,10 @@ class Process(object):
         self.__esproducers[name]=mod
     def _placeESSource(self,name,mod):
         self.__essources[name]=mod
+    def _placePSet(self,name,mod):
+        self.__psets[name]=mod
+    def _placeVPSet(self,name,mod):
+        self.__vpsets[name]=mod
     def _placeSource(self,name,mod):
         """Allow the source to be referenced by 'source' or by type name"""
         if name != 'source':
@@ -273,7 +288,6 @@ class Process(object):
                 name = ' '+name
             returnValue +=indent+typeName+name+' = '+item.dumpConfig(indent,indent)
         return returnValue
-
     def dumpConfig(self):
         """return a string containing the equivalent process defined using the configuration language"""
         config = "process "+self.__name+" = {\n"
@@ -314,6 +328,13 @@ class Process(object):
             self.es_sources_().iteritems(),
             'es_source',
             indent)
+        for name,item in self.psets.iteritems():
+            config +=indent+item.configTypeName()+' '+name+' = '+item.configValue(indent,indent)
+        for name,item in self.vpsets.iteritems():
+            config +=indent+'VPSet '+name+' = '+item.configValue(indent,indent)
+#        config+=self._dumpConfigNamedList(self.vpsets.iteritems(),
+#                                  'VPSet',
+#                                  indent)
         config += "}\n"
         return config
     
@@ -356,6 +377,9 @@ class _Parameterizable(object):
                 self.__dict__[name] =value
             else:
                 param.setValue(value)
+    def __delattr__(self,name):
+        super(_Parameterizable,self).__delattr__(name)
+        self.__parameterNames.remove(name)
 
 class _TypedParameterizable(_Parameterizable):
     """Base class for classes which are Parameterizable and have a 'type' assigned"""
@@ -542,9 +566,17 @@ class bool(_SimpleParameterTypeBase):
         return (isinstance(value,type(False)) or isinstance(value(type(True))))
     @staticmethod
     def _valueFromString(value):
-        if value.lower() == 'true':
+        if (value.lower() == 'true' or
+            value.lower() == 't' or
+            value.lower() == 'on' or
+            value.lower() == 'yes' or
+            value.lower() == '1'):
             return bool(True)
-        if value.lower() == 'false':
+        if (value.lower() == 'false' or
+            value.lower() == 'f' or
+            value.lower() == 'off' or
+            value.lower() == 'no' or
+            value.lower() == '0' ):
             return bool(False)
         raise RuntimeError('can not make bool from string '+value)
         
@@ -561,7 +593,7 @@ class string(_SimpleParameterTypeBase):
     def formatValueForConfig(value):
         if "'" in value:
             return '"'+value+'"'
-        return '"'+value+'"'
+        return "'"+value+"'"
     @staticmethod
     def _valueFromString(value):
         return string(value)
@@ -610,7 +642,7 @@ class FileInPath(_SimpleParameterTypeBase):
     def _valueFromString(value):
         return string(value)
 
-class PSet(_ParameterTypeBase,_Parameterizable):
+class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
     def __init__(self,*arg,**args):
         #need to call the inits separately
         _ParameterTypeBase.__init__(self)
@@ -627,6 +659,13 @@ class PSet(_ParameterTypeBase,_Parameterizable):
             config+=indent+deltaIndent+param.configTypeName()+' '+name+' = '+param.configValue(indent+deltaIndent,deltaIndent)+'\n'
         config += indent+'}\n'
         return config
+    def copy(self):
+        import copy
+        return copy.copy(self)
+    def _place(self,name,proc):
+        proc._placePSet(name,self)
+    def __str__(self):
+        return object.__str__(self)
 
 class _ValidatingListBase(list):
     """Base class for a list which enforces that its entries pass a 'validity' test"""
@@ -659,6 +698,11 @@ class _ValidatingListBase(list):
         if not self._itemIsValid(x):
             raise TypeError("wrong type being inserted to this container")
         super(_ValidatingListBase,self).insert(i,x)
+    def value(self):
+        return list(self)
+    def setValue(self,v):
+        self[:] = []
+        self.extend(v)
     def configValue(self,indent,deltaIndent):
         config = '{\n'
         first = True
@@ -770,7 +814,7 @@ class VInputTag(_ValidatingListBase,_ParameterTypeBase):
     def _valueFromString(value):
         return VInputTag(*_ValidatingListBase._itemsFromStrings(value,InputTag._valueFromString))
 
-class VPSet(_ValidatingListBase,_ParameterTypeBase):
+class VPSet(_ValidatingListBase,_ParameterTypeBase,_ConfigureComponent,_Labelable):
     def __init__(self,*arg,**args):
         _ParameterTypeBase.__init__(self)
         super(VPSet,self).__init__(*arg,**args)
@@ -779,6 +823,11 @@ class VPSet(_ValidatingListBase,_ParameterTypeBase):
         return PSet._isValid(item)
     def configValueForItem(self,item,indent,deltaIndent):
         return PSet.configValue(item,indent+deltaIndent,deltaIndent)
+    def copy(self):
+        import copy
+        return copy.copy(self)
+    def _place(self,name,proc):
+        proc._placeVPSet(name,self)
 
 def untracked(param):
     """used to set a 'param' parameter to be 'untracked'"""
