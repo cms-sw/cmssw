@@ -1,0 +1,25 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+<use name=RecoBTag/BTagTools>
+<use name=RecoBTag/XMLCalibration>
+<use name=DataFormats/VertexReco>
+
+
+<flags SEAL_PLUGIN_NAME="RecoBTagTrackProbability">
+<export>
+   <lib name=RecoBTagTrackProbability>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=MagneticField/Engine>
+   <use name=MagneticField/Records>
+   <use name=RecoBTag/BTagTools>
+   <use name=RecoBTag/XMLCalibration>
+   <use name=DataFormats/VertexReco>
+
+
+</export>
