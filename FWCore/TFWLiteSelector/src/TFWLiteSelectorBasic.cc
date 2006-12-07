@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.6 2006/12/01 03:35:53 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.7 2006/12/07 04:41:56 chrjones Exp $
 //
 
 // system include files
@@ -79,17 +79,32 @@ namespace edm {
         return std::auto_ptr<EDProduct>();
       }
       
+      //We can't use reflex to create the instance since Reflex uses 'malloc' instead of new
+      /*
       //use reflex to create an instance of it
       ROOT::Reflex::Object wrapperObj = classType.Construct();
       if( 0 == wrapperObj.Address() ) {
         throw cms::Exception("FailedToCreate") <<"could not create an instance of '"<<fullName<<"'";
       }
       void* address  = wrapperObj.Address();
+       */
+      TClass* rootClassType=TClass::GetClass(classType.TypeInfo());
+      if( 0 == rootClassType) {
+        throw cms::Exception("MissingRootDictionary")
+        <<"could not find a ROOT dictionary for type '"<<fullName<<"'"
+        <<"\n Please make sure all the necessary libraries are available.";
+        return std::auto_ptr<EDProduct>();
+      }
+      void* address = rootClassType->New();
       branch->SetAddress( &address );
       
+      /*
       ROOT::Reflex::Object edProdObj = wrapperObj.CastObject( ROOT::Reflex::Type::ByName("edm::EDProduct") );
       
       edm::EDProduct* prod = reinterpret_cast<edm::EDProduct*>(edProdObj.Address());
+       */
+      static TClass* edproductTClass = TClass::GetClass( typeid(edm::EDProduct)); 
+      edm::EDProduct* prod = reinterpret_cast<edm::EDProduct*>( rootClassType->DynamicCast(edproductTClass,address,true));
       if(0 == prod) {
         throw cms::Exception("FailedConversion")
 	<<"failed to convert a '"<<fullName
