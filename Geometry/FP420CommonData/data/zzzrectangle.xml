@@ -87,7 +87,7 @@
 <!--  -->
 <!--  -->
 <!-- total unit length in z - distanse between centers of any 2 Stations    2700.*mm  4000.*mm 8000.*mm  -->
- <Constant name="ZUnit"           value="8000.*mm"/>
+ <Constant name="ZUnit"           value="2700.*mm"/>
 <!--  -->
 <!-- area 3): thickness of this tube the same as for 2): RoutThick    -->
 <!-- 2*ZpureTube just tube (OutTubR) to complete space between pockets  -->
