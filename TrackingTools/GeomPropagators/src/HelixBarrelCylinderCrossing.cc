@@ -1,6 +1,7 @@
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
 #include "Geometry/Surface/interface/Cylinder.h"
 #include "TrackingTools/GeomPropagators/src/RealQuadEquation.h"
+#include "TrackingTools/GeomPropagators/interface/StraightLineCylinderCrossing.h"
 #include <iostream>
 #include <cmath>
 
@@ -15,6 +16,25 @@ HelixBarrelCylinderCrossing( const GlobalPoint& startingPos,
 {
   // assumes the cylinder is centered at 0,0
   double R = cyl.radius();
+
+  // protect for zero curvature case
+  const double sraightLineCutoff = 1.e-7;
+  if (fabs(rho)*R < sraightLineCutoff && 
+      fabs(rho)*startingPos.perp()  < sraightLineCutoff) {
+    // switch to straight line case
+    StraightLineCylinderCrossing slc( cyl.toLocal(startingPos), 
+				      cyl.toLocal(startingDir), propDir);
+    std::pair<bool,double> pl = slc.pathLength( cyl);
+    if (pl.first) {
+      theSolExists = true;
+      theS = pl.second;
+      thePos = cyl.toGlobal(slc.position(theS));
+      theDir = startingDir;
+    }
+    else theSolExists = false;
+    return; // all needed data members have been set
+  }
+
   double R2cyl = R*R;
   double pt   = startingDir.perp();
   Point center( startingPos.x()-startingDir.y()/(pt*rho),
