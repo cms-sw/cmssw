@@ -37,6 +37,11 @@ Candidate & ShallowCloneCandidate::daughter( size_type i ) {
   throw cms::Exception("Invalid Reference") << "can't have non-const access to master clone";      
 }
 
+bool ShallowCloneCandidate::hasMasterClone() const {
+  return true;
+}
+
 const CandidateBaseRef & ShallowCloneCandidate::masterClone() const {
   return masterClone_;
 }
+

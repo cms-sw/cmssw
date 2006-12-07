@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.13 2006/08/28 08:31:29 llista Exp $
+ * \version $Id: Candidate.h,v 1.14 2006/09/12 10:29:43 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -27,12 +27,12 @@ namespace reco {
     struct iterator;
 
     /// default constructor
-    Candidate() : Particle(), hasMasterClone_( false ) { }
+    Candidate() : Particle() { }
     /// constructor from a Particle
-    explicit Candidate( const Particle & p ) : Particle( p ), hasMasterClone_( false ) { }
+    explicit Candidate( const Particle & p ) : Particle( p ) { }
     /// constructor from values
     Candidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
-      Particle( q, p4, vtx ), hasMasterClone_( false ) { }
+      Particle( q, p4, vtx ) { }
     /// destructor
     virtual ~Candidate();
     /// returns a clone of the Candidate object
@@ -53,7 +53,7 @@ namespace reco {
     virtual Candidate & daughter( size_type i ) = 0;
     /// returns true if this candidate has a reference to a master clone.
     /// This only happens if the concrete Candidate type is ShallowCloneCandidate
-    bool hasMasterClone() const { return hasMasterClone_; }
+    virtual bool hasMasterClone() const;
     /// returns reference to master clone, if existing.
     /// Throws an exception unless the concrete Candidate type is ShallowCloneCandidate
     virtual const CandidateBaseRef & masterClone() const;
@@ -200,7 +200,6 @@ namespace reco {
   private:
     /// check overlap with another Candidate
     virtual bool overlap( const Candidate & ) const = 0;
-    mutable bool hasMasterClone_;
     template<typename, typename> friend struct component; 
     friend class OverlapChecker;
     friend class ShallowCloneCandidate;

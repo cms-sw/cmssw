@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ShallowCloneCandidate.h,v 1.1 2006/08/25 14:36:12 llista Exp $
+ * \version $Id: ShallowCloneCandidate.h,v 1.2 2006/08/28 08:07:24 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -16,14 +16,14 @@ namespace reco {
   class ShallowCloneCandidate : public Candidate {
   public:
     /// default constructor
-    ShallowCloneCandidate() : Candidate() { hasMasterClone_ = true; }
+    ShallowCloneCandidate() : Candidate() {  }
     /// constructor from Particle
     explicit ShallowCloneCandidate( const CandidateBaseRef & masterClone ) : 
-      Candidate( * masterClone ), masterClone_( masterClone ) { hasMasterClone_ = true; }
+      Candidate( * masterClone ), masterClone_( masterClone ) { }
     /// constructor from values
     ShallowCloneCandidate( const CandidateBaseRef & masterClone, 
 			   Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
-      Candidate( q, p4, vtx ), masterClone_( masterClone ) { hasMasterClone_ = true; }
+      Candidate( q, p4, vtx ), masterClone_( masterClone ) { }
     /// destructor
     virtual ~ShallowCloneCandidate();
     /// returns a clone of the Candidate object
@@ -42,6 +42,8 @@ namespace reco {
     virtual const Candidate & daughter( size_type i ) const;
     /// return daughter at a given position (throws an exception)
     virtual Candidate & daughter( size_type i );
+    /// has master clone
+    virtual bool hasMasterClone() const;
     /// returns reference to master clone
     virtual const CandidateBaseRef & masterClone() const;
 
