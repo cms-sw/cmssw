@@ -2,14 +2,14 @@
 #define RecoBTag_SoftLepton_MuonTaggerNoIP_h
 
 #include "TVector3.h"
-#include "RecoBTag/SoftLepton/src/LeptonTaggerBase.h"
+#include "RecoBTag/SoftLepton/interface/LeptonTaggerBase.h"
 #include "RecoBTag/SoftLepton/src/MuonTaggerNoIPMLP.h"
 
 /**  \class MuonTagger
  *
  *   Implementation of muon b-tagging using a softmax multilayer perceptron neural network
  *
- *   $Date: 2006/10/22 16:30:48 $
+ *   $Date: 2006/10/31 02:53:09 $
  *   $Revision: 1.1 $
  *
  *   \author Andrea 'fwyzard' Bocci, Universita' di Firenze
