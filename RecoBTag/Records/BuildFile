@@ -1,0 +1,8 @@
+<export>
+   <lib name=BTagRecord>
+   <use name=FWCore/Framework>
+</export>
+
+<use name=FWCore/Utilities>
+<use name=FWCore/Framework>
+<use name=boost>
