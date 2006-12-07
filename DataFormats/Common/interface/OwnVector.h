@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.14 2006/10/30 23:07:52 wmtan Exp $
+// $Id: OwnVector.h,v 1.15 2006/10/31 22:47:15 paterno Exp $
 
 #include <algorithm>
 #include <functional>
@@ -19,6 +19,17 @@
 
 namespace edm {
 
+  template<typename T, typename P>
+  class OwnVector;
+
+  namespace helper {
+    template<typename T>
+    struct OwnVectorPostReadback {
+      template<typename P>
+      void fixup( edm::OwnVector<T, P> & ) { }
+    };
+  }
+  
   template <typename T, typename P = ClonePolicy<T> >
   class OwnVector  {
   private:
@@ -152,6 +163,7 @@ namespace edm {
       void operator()( T & t ) { delete & t; }
     };
     base data_;      
+    helper::OwnVectorPostReadback<T> fix_;
   };
   
   template<typename T, typename P>

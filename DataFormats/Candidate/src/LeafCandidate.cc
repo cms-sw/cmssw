@@ -1,6 +1,5 @@
-// $Id: LeafCandidate.cc,v 1.3 2006/08/28 08:07:25 llista Exp $
+// $Id: LeafCandidate.cc,v 1.4 2006/12/05 15:53:00 llista Exp $
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace reco;
 
@@ -18,16 +17,16 @@ Candidate::iterator LeafCandidate::begin() { return iterator( new iterator_imp_s
 
 Candidate::iterator LeafCandidate::end() { return iterator( new iterator_imp_specific ); }
 
-int LeafCandidate::numberOfDaughters() const { return 0; }
+size_t LeafCandidate::numberOfDaughters() const { return 0; }
 
 bool LeafCandidate::overlap( const Candidate & o ) const { 
   return  p4() == o.p4()&&   vertex() == o.vertex() && charge() == o.charge();
 }
 
-const Candidate & LeafCandidate::daughter( size_type ) const {
-  throw cms::Exception( "InvalidReference" ) << "Can't access daughters on a leaf Candidate";
+const Candidate * LeafCandidate::daughter( size_type ) const {
+  return 0;
 }
 
-Candidate & LeafCandidate::daughter( size_type ) {
-  throw cms::Exception( "InvalidReference" ) << "Can't access daughters on a leaf Candidate";
+Candidate * LeafCandidate::daughter( size_type ) {
+  return 0;
 }

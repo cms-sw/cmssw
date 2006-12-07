@@ -56,7 +56,7 @@ void ParticleTreeDrawer::printDecay( const reco::GenParticleCandidate & c, const
 
   bool lastLevel = true;
   for( size_t i = 0; i < ndau; ++ i )
-    if ( c.daughter( i ).numberOfDaughters() != 0 ) {
+    if ( c.daughter( i )->numberOfDaughters() != 0 ) {
       lastLevel = false;
       break;
     }      
@@ -65,7 +65,7 @@ void ParticleTreeDrawer::printDecay( const reco::GenParticleCandidate & c, const
     cout << pre << "+-> ";
     for( size_t i = 0; i < ndau; ++ i ) {
       const GenParticleCandidate * d = 
-	dynamic_cast<const GenParticleCandidate *>( & c.daughter( i ) );
+	dynamic_cast<const GenParticleCandidate *>( c.daughter( i ) );
       assert( d != 0 );
       const DefaultConfig::ParticleData * pd = pdt_->particle( d->pdgId() );  
       assert( pd != 0 );
@@ -80,7 +80,7 @@ void ParticleTreeDrawer::printDecay( const reco::GenParticleCandidate & c, const
 
   for( size_t i = 0; i < ndau; ++i ) {
     const GenParticleCandidate * d =
-      dynamic_cast<const GenParticleCandidate *>( & c.daughter( i ) );
+      dynamic_cast<const GenParticleCandidate *>( c.daughter( i ) );
     cout << pre << "+-> ";
     string prepre( pre );
     if ( i == ndau - 1 ) prepre += "    ";

@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidate.h,v 1.4 2006/07/24 06:33:58 llista Exp $
+ * \version $Id: CompositeRefCandidate.h,v 1.5 2006/12/05 15:52:59 llista Exp $
  *
  */
 
@@ -37,11 +37,11 @@ namespace reco {
     /// last daughter iterator
     virtual iterator end();
     /// number of daughters
-    virtual int numberOfDaughters() const;
+    virtual size_t numberOfDaughters() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
-    virtual const Candidate & daughter( size_type ) const;
+    virtual const Candidate * daughter( size_type ) const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
-    virtual Candidate & daughter( size_type );
+    virtual Candidate * daughter( size_type );
     /// add a daughter via a reference
     void addDaughter( const CandidateRef & );    
     /// implementation of const_iterator. 

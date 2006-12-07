@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.14 2006/09/12 10:29:43 llista Exp $
+ * \version $Id: Candidate.h,v 1.15 2006/12/07 11:50:33 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -46,11 +46,11 @@ namespace reco {
     /// last daughter iterator
     virtual iterator end() = 0;
     /// number of daughters
-    virtual int numberOfDaughters() const = 0;
+    virtual size_t numberOfDaughters() const = 0;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
-    virtual const Candidate & daughter( size_type i ) const = 0;
+    virtual const Candidate * daughter( size_type i ) const = 0;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
-    virtual Candidate & daughter( size_type i ) = 0;
+    virtual Candidate * daughter( size_type i ) = 0;
     /// returns true if this candidate has a reference to a master clone.
     /// This only happens if the concrete Candidate type is ShallowCloneCandidate
     virtual bool hasMasterClone() const;

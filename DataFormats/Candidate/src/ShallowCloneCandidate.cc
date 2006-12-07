@@ -1,5 +1,4 @@
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 using namespace reco;
 
 ShallowCloneCandidate::~ShallowCloneCandidate() { 
@@ -17,24 +16,20 @@ ShallowCloneCandidate::const_iterator ShallowCloneCandidate::end() const {
   return masterClone_->end(); 
 }
 
-ShallowCloneCandidate::iterator ShallowCloneCandidate::begin() { 
-  throw cms::Exception("Invalid Reference") << "can't have non-const access to master clone";      
-}
+Candidate::iterator ShallowCloneCandidate::begin() { return iterator( new iterator_imp_specific ); }
 
-ShallowCloneCandidate::iterator ShallowCloneCandidate::end() { 
-  throw cms::Exception("Invalid Reference") << "can't have non-const access to master clone";      
-}
+Candidate::iterator ShallowCloneCandidate::end() { return iterator( new iterator_imp_specific ); }
 
-int ShallowCloneCandidate::numberOfDaughters() const { 
+size_t ShallowCloneCandidate::numberOfDaughters() const { 
   return masterClone_->numberOfDaughters(); 
 }
 
-const Candidate & ShallowCloneCandidate::daughter( size_type i ) const { 
+const Candidate * ShallowCloneCandidate::daughter( size_type i ) const { 
   return masterClone_->daughter( i ); 
 }
 
-Candidate & ShallowCloneCandidate::daughter( size_type i ) { 
-  throw cms::Exception("Invalid Reference") << "can't have non-const access to master clone";      
+Candidate * ShallowCloneCandidate::daughter( size_type i ) { 
+  return 0;
 }
 
 bool ShallowCloneCandidate::hasMasterClone() const {

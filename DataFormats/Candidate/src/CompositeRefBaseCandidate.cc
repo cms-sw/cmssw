@@ -1,4 +1,4 @@
-// $Id: CompositeRefBaseCandidate.cc,v 1.1 2006/07/26 09:37:17 llista Exp $
+// $Id: CompositeRefBaseCandidate.cc,v 1.2 2006/12/05 15:53:00 llista Exp $
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -27,15 +27,15 @@ Candidate::iterator CompositeRefBaseCandidate::end() {
   return iterator( new iterator_imp_specific ); 
 }    
 
-const Candidate & CompositeRefBaseCandidate::daughter( size_type i ) const { 
-  return * dau[ i ]; 
+const Candidate * CompositeRefBaseCandidate::daughter( size_type i ) const { 
+  return ( i >= 0 && i < numberOfDaughters() ) ? & * dau[ i ] : 0;
 }
 
-Candidate & CompositeRefBaseCandidate::daughter( size_type i ) { 
-  throw cms::Exception( "Error" ) << "can't have non-const access in CompositeRefBaseCanddate";
+Candidate * CompositeRefBaseCandidate::daughter( size_type i ) { 
+  return 0;
 }
 
-int CompositeRefBaseCandidate::numberOfDaughters() const { 
+size_t CompositeRefBaseCandidate::numberOfDaughters() const { 
   return dau.size(); 
 }
 

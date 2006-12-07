@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.6 2006/11/29 10:49:05 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.7 2006/12/05 15:52:59 llista Exp $
  *
  */
 
@@ -36,11 +36,11 @@ namespace reco {
     /// last daughter const_iterator
     virtual iterator end();
     /// number of daughters
-    virtual int numberOfDaughters() const;
+    virtual size_t numberOfDaughters() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
-    virtual const Candidate & daughter( size_type ) const;
+    virtual const Candidate * daughter( size_type ) const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
-    virtual Candidate & daughter( size_type );
+    virtual Candidate * daughter( size_type );
     /// add a clone of the passed candidate as daughter 
     void addDaughter( const Candidate & );
 

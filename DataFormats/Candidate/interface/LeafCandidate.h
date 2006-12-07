@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: LeafCandidate.h,v 1.3 2006/07/24 06:33:58 llista Exp $
+ * \version $Id: LeafCandidate.h,v 1.4 2006/12/05 15:52:59 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -38,11 +38,11 @@ namespace reco {
     /// last daughter iterator
     virtual iterator end();
     /// number of daughters
-    virtual int numberOfDaughters() const;
+    virtual size_t numberOfDaughters() const;
     /// return daughter at a given position (throws an exception)
-    virtual const Candidate & daughter( size_type ) const;
+    virtual const Candidate * daughter( size_type ) const;
     /// return daughter at a given position (throws an exception)
-    virtual Candidate & daughter( size_type );
+    virtual Candidate * daughter( size_type );
     /// implementation of const_iterator. 
     /// should be private; declared public only 
     /// for ROOT reflex dictionay problems
