@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.7 $
  *
- * $Id: ObjectSelector.h,v 1.5 2006/10/25 10:30:03 llista Exp $
+ * $Id: ObjectSelector.h,v 1.7 2006/10/27 08:51:24 llista Exp $
  *
  */
 
@@ -19,6 +19,7 @@
 #include "DataFormats/Common/interface/CloneTrait.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "PhysicsTools/Utilities/interface/NonNullNumberSelector.h"
 #include <utility>
 #include <vector>
 #include <memory>
@@ -39,7 +40,7 @@ namespace helper {
     void put( edm::Event & evt ) {
       evt.put( selected_ );
     }
-    bool empty() const { return selected_->empty(); }
+    size_t size() const { return selected_->size(); }
   private:
     std::auto_ptr<C> selected_;
   };
@@ -59,6 +60,7 @@ namespace helper {
 }
 
 template<typename S, 
+	 typename N = NonNullNumberSelector,
 	 typename M = typename helper::CollectionStoreManager<typename S::collection>::type, 
 	 typename B = typename helper::CollectionStoreManager<typename S::collection>::base>
 class ObjectSelector : public B {
@@ -68,7 +70,8 @@ public:
   B( cfg ),
   src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
   filter_( false ),
-  selector_( cfg ) {
+  selector_( cfg ),
+  sizeSelector_( cfg ) {
     const std::string filter( "filter" );
     std::vector<std::string> bools = cfg.template getParameterNamesForType<bool>();
     bool found = std::find( bools.begin(), bools.end(), filter ) != bools.end();
@@ -85,7 +88,7 @@ private:
     M manager;
     selector_.select( source, evt );
     manager.cloneAndStore( selector_.begin(), selector_.end(), evt );
-    if ( filter_ && manager.empty() ) return false;
+    if ( filter_ && sizeSelector_( manager.size() ) ) return false;
     manager.put( evt );
     return true;
   }
@@ -95,6 +98,8 @@ private:
   bool filter_;
   /// Object collection selector
   S selector_;
+  /// selected object collection size selector
+  N sizeSelector_;
 };
 
 #endif

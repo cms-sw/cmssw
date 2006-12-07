@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.12 $
+ * \version $Revision: 1.13 $
  *
- * $Id: TrackSelector.h,v 1.12 2006/09/22 10:46:43 llista Exp $
+ * $Id: TrackSelector.h,v 1.13 2006/11/20 11:22:17 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -51,7 +51,7 @@ namespace helper {
       evt.put( selTrackExtras_ );
       evt.put( selHits_ );
     }
-    bool empty() const { return selTracks_->empty(); }
+    size_t size() const { return selTracks_->size(); }
   private:
     std::auto_ptr<reco::TrackCollection> selTracks_;
     std::auto_ptr<reco::TrackExtraCollection> selTrackExtras_;

@@ -36,12 +36,13 @@ namespace helper {
 }
 
 template<typename S, 
+	 typename N = NonNullNumberSelector,
 	 typename M = typename helper::CollectionStoreManager<typename S::collection>::type, 
 	 typename B = typename helper::CollectionStoreManager<typename S::collection>::base>
-class ObjectShallowCloneSelector : public ObjectSelector<S, M, B> {
+class ObjectShallowCloneSelector : public ObjectSelector<S, N, M, B> {
 public:
   explicit ObjectShallowCloneSelector( const edm::ParameterSet & cfg ) :
-    ObjectSelector<S, M, B>( cfg ) { }
+    ObjectSelector<S, N, M, B>( cfg ) { }
 };
 
 #endif

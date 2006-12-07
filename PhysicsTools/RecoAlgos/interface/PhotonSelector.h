@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: PhotonSelector.h,v 1.2 2006/09/22 10:46:43 llista Exp $
+ * $Id: PhotonSelector.h,v 1.3 2006/11/23 14:27:46 llista Exp $
  *
  */
 
@@ -40,7 +40,7 @@ namespace helper {
       evt.put( selPhotons_ );
       evt.put( selSuperClusters_ );
     }
-    bool empty() const { return selPhotons_->empty(); }
+    size_t size() const { return selPhotons_->size(); }
   private:
     std::auto_ptr<reco::PhotonCollection> selPhotons_;
     std::auto_ptr<reco::SuperClusterCollection> selSuperClusters_;
