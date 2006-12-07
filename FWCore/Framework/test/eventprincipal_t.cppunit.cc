@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.32 2006/11/17 23:05:01 paterno Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.33 2006/12/05 23:56:18 paterno Exp $
 
 ----------------------------------------------------------------------*/  
 #include <map>
@@ -277,7 +277,7 @@ void testeventprincipal::put_a_product(edm::ProcessConfiguration* config,
   //   edm::EventID col(1L);
   //   edm::Timestamp fakeTime;
   //   edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_);
-  pEvent_->addToProcessHistory(*pProdConfig_);
+  //pEvent_->addToProcessHistory(*pProdConfig_);
   pEvent_->put(product, provenance);
 }
 
