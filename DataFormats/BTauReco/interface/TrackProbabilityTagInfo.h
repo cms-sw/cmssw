@@ -6,11 +6,6 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfoFwd.h"
 
-//FIXME: check what to use
-#define MAX(a, b) (a > b ? a : b)
-#define MIN(a, b) (a < b ? a : b)
-
-//FIXME: fix this
 
 namespace reco {
  
@@ -54,8 +49,9 @@ int factorial(int n) const
    }
 
   virtual float jetProbability(int ip) const
-  {
-   const std::vector<double> * vp;
+{
+
+ const std::vector<double> * vp;
    if(ip==0) vp= &m_probability3d;
    else vp= &m_probability2d;
    const std::vector<double> & v =*vp;
@@ -81,17 +77,17 @@ int factorial(int n) const
     }
     double LogProb=log(Prob);
     ProbJet=
-      MIN(exp(MAX(LogProb+SumJet,-30.)),1.);
+      std::min(exp(std::max(LogProb+SumJet,-30.)),1.);
   }else{
     ProbJet=1.;
   }
   if(ProbJet>1)
    std::cout << "ProbJet too high: "  << ProbJet << std::endl;
 
-  double LogProbJet=-log(ProbJet);
-
-  return LogProbJet;
-  }
+  //double LogProbJet=-log(ProbJet);
+  //return 1.-ProbJet;
+  return -log10(ProbJet)/4.;
+}
 
  /**
   Recompute discriminator 
