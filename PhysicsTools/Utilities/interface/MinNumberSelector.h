@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: MinNumberSelector.h,v 1.1 2006/12/07 10:28:31 llista Exp $
+ * $Id: MinNumberSelector.h,v 1.2 2006/12/07 11:28:32 llista Exp $
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <algorithm>
@@ -14,11 +14,11 @@ struct MinNumberSelector {
     minNumber_( minNumber ) { }
   MinNumberSelector( const edm::ParameterSet & cfg ) : 
     minNumber_( 1 ) { 
-    std::vector<std::string> ints = cfg.template getParameterNamesForType<unsigned int>();
+    std::vector<std::string> ints = cfg.getParameterNamesForType<unsigned int>();
     const std::string minNumber( "minNumber" );
     bool foundMinNumber = std::find( ints.begin(), ints.end(), minNumber ) != ints.end();
     if ( foundMinNumber )
-      minNumber_ = cfg.template getParameter<unsigned int>( minNumber );
+      minNumber_ = cfg.getParameter<unsigned int>( minNumber );
   }
   bool operator()( unsigned int number ) const { return number >= minNumber_; }
 
