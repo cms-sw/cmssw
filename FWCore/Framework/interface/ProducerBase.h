@@ -6,7 +6,7 @@
 EDProducer: The base class of all "modules" that will insert new
 EDProducts into an Event.
 
-$Id: ProducerBase.h,v 1.12 2006/02/20 01:51:57 wmtan Exp $
+$Id: ProducerBase.h,v 1.1 2006/04/20 22:34:04 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
@@ -20,8 +20,9 @@ namespace edm {
   class BranchDescription;
   class ModuleDescription;
   class ProductRegistry;
-  class ProducerBase : public ProductRegistryHelper {
+  class ProducerBase : private ProductRegistryHelper {
   public:
+    typedef ProductRegistryHelper::TypeLabelList TypeLabelList;
     ProducerBase ();
     virtual ~ProducerBase();
  
@@ -32,6 +33,9 @@ namespace edm {
 			ProductRegistry *,
 			ModuleDescription const&,
 			bool throwIfNoProducts);
+
+    using ProductRegistryHelper::produces;
+    using ProductRegistryHelper::typeLabelList;
 
   protected:
     template<class TProducer, class TMethod>

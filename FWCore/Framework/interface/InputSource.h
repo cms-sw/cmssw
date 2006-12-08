@@ -4,7 +4,7 @@
 
 /*----------------------------------------------------------------------
   
-InputSource: Abstract interface for all primary input sources. Input
+InputSource: Abstract interface for all input sources. Input
 sources are responsible for creating an EventPrincipal, using data
 controlled by the source, and external to the EventPrincipal itself.
 
@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.15 2006/11/03 17:57:51 wmtan Exp $
+$Id: InputSource.h,v 1.16 2006/11/09 23:12:59 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -54,8 +54,9 @@ $Id: InputSource.h,v 1.15 2006/11/03 17:57:51 wmtan Exp $
 namespace edm {
   class ParameterSet;
 
-  class InputSource : public ProductRegistryHelper {
+  class InputSource : private ProductRegistryHelper {
   public:
+    typedef ProductRegistryHelper::TypeLabelList TypeLabelList;
     /// Constructor
     explicit InputSource(ParameterSet const&, InputSourceDescription const&);
 
@@ -113,6 +114,9 @@ namespace edm {
 
     /// Called by framework at end of job
     void doEndJob();
+
+    using ProductRegistryHelper::produces;
+    using ProductRegistryHelper::typeLabelList;
 
   private:
 
