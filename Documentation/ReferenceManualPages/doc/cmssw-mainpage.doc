@@ -32,13 +32,6 @@ Definition of the event content.
 </caption>
 <tr valign=top><th class="domain">Domain</th><th>Purpose</th><th class="contact">Contact</th></tr>
 <tr>
-  <td>  \endhtmlonly \ref RawData "RAW Data"  \htmlonly  </td>
-  <td>Raw detector output</td>
-  <td class="contact"> 
-    <a href="mailto:">Emilio Meschi</a>
-  </td>
-</tr>
-<tr>
   <td>  \endhtmlonly \ref RecoData "RECO Data"  \htmlonly  </td>
   <td>Reconstruction output</td>
   <td class="contact"> 
