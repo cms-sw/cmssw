@@ -29,8 +29,6 @@ Framework module for common particle candidate manupulation
 - <b>Example packages</b><br>
  - \ref PhysicsTools_CandExamples "CandExamples": common analysis examples based on particle candidates.<br>
  - \ref PhysicsTools_RecoExamples "RecoExamples": common analysis examples based on \ref RecoPackages "Reco objects".<br>
- - \ref PhysicsTools_RecoQA "RecoQA": utilities and script to perform "standard" quality evaluation, including
-   object count and event size.<br>
  - \ref PhysicsTools_ParallelAnalysis "ParallelAnalysis": examples of interactive analysis based on TSelector
    to be used under Proof, ROOT's parallel processing system accessing EDM data.<br>
 
