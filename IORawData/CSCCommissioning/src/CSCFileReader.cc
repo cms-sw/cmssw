@@ -1,7 +1,6 @@
 #include "CSCFileReader.h"
 #include <errno.h>
 #include <stdlib.h>
-#include <iostream.h>
 #include <string>
 
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
@@ -49,14 +48,14 @@ CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
 		currentL1A[rui] = -1;
 	}
 
-	for(unsigned int fed=FEDNumbering::getCSCFEDIds().first; fed<=FEDNumbering::getCSCFEDIds().second; fed++){
+	for(int fed=FEDNumbering::getCSCFEDIds().first; fed<=FEDNumbering::getCSCFEDIds().second; fed++){
 		std::ostringstream name;
 		name<<"FED"<<fed<<std::ends;
 		std::vector<std::string> rui_list = pset.getUntrackedParameter< std::vector<std::string> >(name.str().c_str());
 		for(std::vector<std::string>::const_iterator rui=rui_list.begin(); rui!=rui_list.end(); rui++)
 			FED[fed].push_back((unsigned int)atoi(rui->c_str()+rui->length()-1));
 	}
-	for(unsigned int fed=FEDNumbering::getCSCTFFEDIds().first; fed<=FEDNumbering::getCSCTFFEDIds().second; fed++){
+	for(int fed=FEDNumbering::getCSCTFFEDIds().first; fed<=FEDNumbering::getCSCTFFEDIds().second; fed++){
 		std::ostringstream name;
 		name<<"FED"<<fed<<std::ends;
 		std::vector<std::string> rui_list = pset.getUntrackedParameter< std::vector<std::string> >(name.str().c_str());
@@ -119,7 +118,7 @@ bool CSCFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRa
 	eID = edm::EventID(runNumber,eventNumber);
 
 	for(std::map<unsigned int,std::list<unsigned int> >::const_iterator fed=FED.begin(); fed!=FED.end(); fed++)
-		if( fed->first<FEDNumbering::getCSCTFFEDIds().first ){
+		if( fed->first<(unsigned int)FEDNumbering::getCSCTFFEDIds().first ){
 			// Now let's pretend that DDU data were wrapped with DCC Header (2 64-bit words) and Trailer (2 64-bit words):
 			unsigned short dccBuf[200000*nRUIs+4*4], *dccCur=dccBuf;
 			dccCur[3] = 0x5000; dccCur[2] = 0x0000; dccCur[1] = 0x0000; dccCur[0] = 0x005F; // Fake DCC Header 1
@@ -151,4 +150,4 @@ bool CSCFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRa
 	return true;
 }
 
-#undefine nRUIs
+#undef nRUIs
