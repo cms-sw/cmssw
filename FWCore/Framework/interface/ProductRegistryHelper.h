@@ -5,7 +5,7 @@
   
 ProductRegistryHelper: 
 
-$Id: ProductRegistryHelper.h,v 1.9 2006/08/30 23:34:01 wmtan Exp $
+$Id: ProductRegistryHelper.h,v 1.10 2006/11/04 00:35:43 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
@@ -25,7 +25,7 @@ namespace edm {
   public:
 
     ProductRegistryHelper() : typeLabelList_() {}
-    virtual ~ProductRegistryHelper();
+    ~ProductRegistryHelper();
  
     struct TypeLabelItem {
       TypeLabelItem (BranchType const& branchType, TypeID const& tid, std::string const& pin) :
