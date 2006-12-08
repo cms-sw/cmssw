@@ -48,6 +48,7 @@ void JetPlotsExample::analyze( const Event& evt, const EventSetup& es ) {
   //Loop over the two leading CaloJets and fill some histograms
   int jetInd = 0;
   for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end() && jetInd<2; ++ cal ) {
+    // std::cout << "CALO JET #" << jetInd << std::endl << cal->print() << std::endl;
     h_ptCal.Fill( cal->pt() );   
     h_etaCal.Fill( cal->eta() );
     h_phiCal.Fill( cal->phi() );
@@ -61,6 +62,7 @@ void JetPlotsExample::analyze( const Event& evt, const EventSetup& es ) {
   //Loop over the two leading GenJets and fill some histograms
   jetInd = 0;
   for( GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end() && jetInd<2; ++ gen ) {
+    // std::cout << "GEN JET #" << jetInd << std::endl << gen->print() << std::endl;
     h_ptGen.Fill( gen->pt() );   
     h_etaGen.Fill( gen->eta() );
     h_phiGen.Fill( gen->phi() );
