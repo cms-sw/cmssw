@@ -10,7 +10,7 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.42 2006/12/01 03:29:52 wmtan Exp $
+$Id: EventPrincipal.h,v 1.43 2006/12/07 23:48:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,7 +18,6 @@ $Id: EventPrincipal.h,v 1.42 2006/12/01 03:29:52 wmtan Exp $
 #include "FWCore/Framework/interface/DataBlockImpl.h"
 #include "FWCore/Framework/interface/EPEventProvenanceFiller.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
-#include "FWCore/Framework/interface/BranchActionType.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -90,14 +89,6 @@ namespace edm {
 
     using Base::setUnscheduledHandler;
 
-    BranchActionType const&
-    branchActionType() const {return branchActionType_;}
-
-    void
-    setBranchActionType(BranchActionType const& bat) {
-      branchActionType_ = bat;
-    }
-
   private:
     virtual void setUnscheduledHandler_(boost::shared_ptr<UnscheduledHandler> iHandler);
 
@@ -111,8 +102,6 @@ namespace edm {
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;
     // Provenance filler for unscheduled modules
     boost::shared_ptr<EPEventProvenanceFiller> provenanceFiller_;
-    // BranchActionType. Does not really belong here, but avoids an interface change, for now.
-    BranchActionType branchActionType_;
   };
 }
 #endif

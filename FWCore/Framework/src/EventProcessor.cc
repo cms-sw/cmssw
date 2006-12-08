@@ -785,14 +785,13 @@ namespace edm {
     std::auto_ptr<EventPrincipal> pep;
     CallPrePost holder(*actReg_);
 
-    do {
-      pep = input_->readEvent();
-      if(pep.get()==0) {
-        changeState(mInputExhausted);
-        toerror.succeeded();
-        return evtDesc;
-      }
-    } while (pep->branchActionType() != BranchActionEvent);
+    pep = input_->readEvent();
+
+    if(pep.get()==0) {
+      changeState(mInputExhausted);
+      toerror.succeeded();
+      return evtDesc;
+    }
 
     IOVSyncValue ts(pep->id(), pep->time());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
@@ -812,53 +811,48 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
 
     bool runforever = numberToProcess==0;
-	bool got_sig = false;
+    bool got_sig = false;
     unsigned int eventcount=0;
     StatusCode rc = epSuccess;
 
-    while(state_==sRunning)
-      {
-	if(shutdown_flag)
-	  {
-	    changeState(mShutdownSignal);
-	    rc = epSignal;
-		got_sig = true;
-	    continue;
-	  }
-
-	if(!runforever && eventcount >= numberToProcess)
-	  {
-	    changeState(mCountComplete);
-	    continue;
-	  }
-
-	++eventcount;
-	FDEBUG(1) << eventcount << std::endl;
-        std::auto_ptr<EventPrincipal> pep;
-        {
-          CallPrePost holder(*actReg_);
-          pep = input_->readEvent();
-        }
-        
-	if(pep.get()==0)
-	  {
-	    changeState(mInputExhausted);
-	    rc = epInputComplete;
-	    continue;
-	  }
-
-	IOVSyncValue ts(pep->id(), pep->time());
-	EventSetup const& es = esp_->eventSetupForInstance(ts);
-	
-	schedule_->runOneEvent(*pep.get(), es, pep->branchActionType());
-      }
-
-    // check once more for shutdown signal
-    if(!got_sig && shutdown_flag)
-      {
+    while(state_ == sRunning) {
+      if(shutdown_flag) {
 	changeState(mShutdownSignal);
 	rc = epSignal;
+	got_sig = true;
+	continue;
       }
+
+      if(!runforever && eventcount >= numberToProcess) {
+	changeState(mCountComplete);
+	continue;
+      }
+
+      ++eventcount;
+      FDEBUG(1) << eventcount << std::endl;
+      std::auto_ptr<EventPrincipal> pep;
+      {
+        CallPrePost holder(*actReg_);
+        pep = input_->readEvent();
+      }
+        
+      if(pep.get()==0) {
+	changeState(mInputExhausted);
+	rc = epInputComplete;
+	continue;
+      }
+
+      IOVSyncValue ts(pep->id(), pep->time());
+      EventSetup const& es = esp_->eventSetupForInstance(ts);
+	
+      schedule_->runOneEvent(*pep.get(), es, BranchActionEvent);
+    }
+
+    // check once more for shutdown signal
+    if(!got_sig && shutdown_flag) {
+      changeState(mShutdownSignal);
+      rc = epSignal;
+    }
 
 
     toerror.succeeded();
