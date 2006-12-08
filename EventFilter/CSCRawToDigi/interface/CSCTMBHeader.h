@@ -220,7 +220,7 @@ private:
 
 
   unsigned buffer_info_0:16;
-  unsigned buffer_info_1:16;
+  unsigned r_buf_nbusy:4; unsigned buffer_info_1:12;
   unsigned buffer_info_2:16;
   unsigned buffer_info_3:16;
   unsigned alct_delay:4,clct_width:4,mpc_tx_delay:4,reserved_21:4;
