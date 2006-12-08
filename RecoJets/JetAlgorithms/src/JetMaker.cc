@@ -1,13 +1,13 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.14 2006/12/05 18:37:44 fedor Exp $
+/// $Id: JetMaker.cc,v 1.15 2006/12/06 22:43:23 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "CLHEP/HepMC/GenEvent.h"
 
 #include "RecoJets/JetAlgorithms/interface/JetMaker.h"
@@ -16,14 +16,7 @@ using namespace std;
 using namespace reco;
 
 namespace {
-  void setConstituents (Jet* fJet, ProtoJet::Constituents fConstituents) {
-    for (unsigned i = 0; i < fConstituents.size (); i++) {
-      fJet->addDaughter (fConstituents [i]);
-    }
-  }
-
-  bool makeSpecific (const CaloTowerCollection& fTowers,
-		     const std::vector<CaloTowerDetId>& fTowerIds,
+  bool makeSpecific (const ProtoJet::Constituents& fTowers,
 		     CaloJet::Specific* fJetSpecific) {
     if (!fJetSpecific) return false;
     
@@ -42,49 +35,60 @@ namespace {
     double eInEB = 0.;
     double eInEE = 0.;
     
-    for(vector<CaloTowerDetId>::const_iterator i = fTowerIds.begin(); i != fTowerIds.end(); ++i) {
-      const CaloTower* aTower =  &*fTowers.find(*i);
-      //Array of energy in EM Towers:
-      eECal_i.push_back(aTower->emEnergy());
-      eInEm += aTower->emEnergy();
-      //Array of energy in HCAL Towers:
-      eHCal_i.push_back(aTower->hadEnergy()); 
-      eInHad += aTower->hadEnergy();
-      
-      eInHO += aTower->outerEnergy();
-
-      //  figure out contributions
-      bool hadIsDone = false;
-      bool emIsDone = false;
-      int icell = aTower->constituentsSize();
-      while (--icell >= 0 && (!hadIsDone || !emIsDone)) {
-	DetId id = aTower->constituent (icell);
-	if (!hadIsDone && id.det () == DetId::Hcal) { // hcal cell
-	  HcalSubdetector subdet = HcalDetId (id).subdet ();
-	  if (subdet == HcalBarrel || subdet == HcalOuter) {
-	    eInHB += aTower->hadEnergy(); 
-	    eInHO += aTower->outerEnergy();
+    for (ProtoJet::Constituents::const_iterator towerCand = fTowers.begin(); towerCand != fTowers.end(); ++towerCand) {
+      const Candidate* candidate = towerCand->get ();
+      if (candidate) {
+	const CaloTower* tower = CaloJet::caloTower (candidate).get ();
+	if (tower) {
+	  //Array of energy in EM Towers:
+	  eECal_i.push_back(tower->emEnergy());
+	  eInEm += tower->emEnergy();
+	  //Array of energy in HCAL Towers:
+	  eHCal_i.push_back(tower->hadEnergy()); 
+	  eInHad += tower->hadEnergy();
+	  
+	  eInHO += tower->outerEnergy();
+	  
+	  //  figure out contributions
+	  bool hadIsDone = false;
+	  bool emIsDone = false;
+	  int icell = tower->constituentsSize(); // extract calo type from cells
+	  while (--icell >= 0 && (!hadIsDone || !emIsDone)) {
+	    DetId id = tower->constituent (icell);
+	    if (!hadIsDone && id.det () == DetId::Hcal) { // hcal cell
+	      HcalSubdetector subdet = HcalDetId (id).subdet ();
+	      if (subdet == HcalBarrel || subdet == HcalOuter) {
+		eInHB += tower->hadEnergy(); 
+		eInHO += tower->outerEnergy();
+	      }
+	      else if (subdet == HcalEndcap) {
+		eInHE += tower->hadEnergy();
+	      }
+	      else if (subdet == HcalForward) {
+		eHadInHF += tower->hadEnergy();
+		eEmInHF += tower->emEnergy();
+		emIsDone = true;
+	      }
+	      hadIsDone = true;
+	    }
+	    else if (!emIsDone && id.det () == DetId::Ecal) { // ecal cell
+	      EcalSubdetector subdet = EcalSubdetector (id.subdetId ());
+	      if (subdet == EcalBarrel) {
+		eInEB += tower->emEnergy();
+	      }
+	      else if (subdet == EcalEndcap) {
+		eInEE += tower->emEnergy();
+	      }
+	      emIsDone = true;
+	    }
 	  }
-	  else if (subdet == HcalEndcap) {
-	    eInHE += aTower->hadEnergy();
-	  }
-	  else if (subdet == HcalForward) {
-	    eHadInHF += aTower->hadEnergy();
-	    eEmInHF += aTower->emEnergy();
-	    emIsDone = true;
-	  }
-	  hadIsDone = true;
 	}
-	else if (!emIsDone && id.det () == DetId::Ecal) { // ecal cell
-	  EcalSubdetector subdet = EcalSubdetector (id.subdetId ());
-	  if (subdet == EcalBarrel) {
-	    eInEB += aTower->emEnergy();
-	  }
-	  else if (subdet == EcalEndcap) {
-	    eInEE += aTower->emEnergy();
-	  }
-	  emIsDone = true;
+	else {
+	  std::cerr << "JetMaker::makeSpecific (CaloJet)-> Referred CaloTower is not available in the event" << std::endl;
 	}
+      }
+      else {
+	std::cerr << "JetMaker::makeSpecific (CaloJet)-> Referred constituent is not available in the event" << std::endl;
       }
     }
     double towerEnergy = eInHad + eInEm;
@@ -105,14 +109,14 @@ namespace {
     sort(eECal_i.begin(), eECal_i.end(), greater<double>());
     sort(eHCal_i.begin(), eHCal_i.end(), greater<double>());
     
-    if (!fTowerIds.empty ()) {  
+    if (!fTowers.empty ()) {  
       //Highest value in the array is the first element of the array
       fJetSpecific->mMaxEInEmTowers = eECal_i.front(); 
       fJetSpecific->mMaxEInHadTowers = eHCal_i.front();
       
       //n90 using the sorted list
       double ediff = (eInHad + eInEm) * 0.9;
-      for (unsigned i = 0; i < fTowerIds.size(); i++) {
+      for (unsigned i = 0; i < fTowers.size(); i++) {
 	ediff = ediff - eECal_i[i] - eHCal_i[i];
 	fJetSpecific->mN90++;
 	if (ediff <= 0) break; 
@@ -121,104 +125,66 @@ namespace {
     return true;
   }
   
-  bool makeSpecific (const std::vector<const HepMC::GenParticle*>& fMcParticles, 
+  bool makeSpecific (const ProtoJet::Constituents& fMcParticles, 
 		     GenJet::Specific* fJetSpecific) {
-    std::vector<const HepMC::GenParticle*>::const_iterator it = fMcParticles.begin ();
-    for (; it != fMcParticles.end (); it++) {
-      const HepMC::GenParticle* genParticle = *it;
-      switch (abs (genParticle->pdg_id ())) {
-      case 22: // photon
-      case 11: // e
-	fJetSpecific->m_EmEnergy += genParticle->momentum().e ();
-	break;
-      case 211: // pi
-      case 321: // K
-      case 130: // KL
-      case 2212: // p
-      case 2112: // n
-	  fJetSpecific->m_HadEnergy += genParticle->momentum().e ();
-	break;
-      case 13: // muon
-      case 12: // nu_e
-      case 14: // nu_mu
-      case 16: // nu_tau
-
-	fJetSpecific->m_InvisibleEnergy += genParticle->momentum().e ();
-	break;
-      default: 
-        fJetSpecific->m_AuxiliaryEnergy += genParticle->momentum().e ();
+    for (ProtoJet::Constituents::const_iterator genCand = fMcParticles.begin(); genCand != fMcParticles.end(); ++genCand) {
+      CandidateBaseRef master = CandidateBaseRef (*genCand); // ref to this
+      if ((*genCand)->hasMasterClone ()) master = (*genCand)->masterClone();
+      const Candidate* candidate = master.get ();
+      if (candidate) {
+	const GenParticleCandidate* genParticle = GenJet::genParticle (candidate);
+	if (genParticle) {
+	  double e = genParticle->energy();
+	  switch (abs (genParticle->pdgId ())) {
+	  case 22: // photon
+	  case 11: // e
+	    fJetSpecific->m_EmEnergy += e;
+	    break;
+	  case 211: // pi
+	  case 321: // K
+	  case 130: // KL
+	  case 2212: // p
+	  case 2112: // n
+	    fJetSpecific->m_HadEnergy += e;
+	    break;
+	  case 13: // muon
+	  case 12: // nu_e
+	  case 14: // nu_mu
+	  case 16: // nu_tau
+	    
+	    fJetSpecific->m_InvisibleEnergy += e;
+	    break;
+	  default: 
+	    fJetSpecific->m_AuxiliaryEnergy += e;
+	  }
+	}
+	else {
+	  std::cerr << "JetMaker::makeSpecific (GenJet)-> Referred  GenParticleCandidate is not available in the event" << std::endl;
+	}
+      }
+      else {
+	std::cerr << "JetMaker::makeSpecific (GenJet)-> Referred constituent is not available in the event" << std::endl;
       }
     }
     return true;
   }
-}
+} // unnamed namespace
 
 BasicJet JetMaker::makeBasicJet (const ProtoJet& fProtojet) const {
-  BasicJet result (fProtojet.p4(), reco::Particle::Point (0, 0, 0));
-  setConstituents (&result, fProtojet.getTowerList());
-  return result;
+  return  BasicJet (fProtojet.p4(), reco::Particle::Point (0, 0, 0), fProtojet.getTowerList());
 }
 
 
 CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet) const {
-  // construct towerIds
-  const ProtoJet::Constituents* towers = &fProtojet.getTowerList();
-  std::vector<CaloTowerDetId> towerIds;
-  towerIds.reserve (towers->size ());
-  const CaloTowerCollection* towerCollection = 0;
-  ProtoJet::Constituents::const_iterator tower = towers->begin ();
-  for (; tower != towers->end (); tower++) {
-    edm::Ref<CaloTowerCollection> towerRef = (*tower)->get<CaloTowerRef>();
-    if (towerRef.isNonnull ()) { // valid
-      const CaloTowerCollection* newproduct = towerRef.product ();
-      if (!newproduct) {
-	cerr << "CaloJetMaker::makeCaloJet (const ProtoJet& fProtojet) ERROR-> "
-	     << "Can not find CaloTowerCollection for contributing CalTower: " <<  newproduct << endl;
-      }
-      if (!towerCollection) towerCollection  = newproduct;
-      else if (towerCollection != newproduct) {
-	cerr << "CaloJetMaker::makeCaloJet (const ProtoJet& fProtojet) ERROR-> "
-	     << "CaloTower collection for tower is not the same. Previous: " <<  towerCollection 
-	     << ", new: " << newproduct << endl;
-      }
-      towerIds.push_back (towerRef->id ());
-    }
-    else {
-      cerr << "CaloJetMaker::makeCaloJet-> Constituent candidate is not compatible with CaloTowerCandidate type" << std::endl;
-    }
-  }
   CaloJet::Specific specific;
-  if (towerCollection) makeSpecific (*towerCollection, towerIds, &specific);
-
-  CaloJet result (fProtojet.p4(), specific, towerIds);
-  setConstituents (&result, fProtojet.getTowerList());
-  return result;
+  makeSpecific (fProtojet.getTowerList(), &specific);
+  return CaloJet (fProtojet.p4(), specific, fProtojet.getTowerList());
 }
 
 GenJet JetMaker::makeGenJet (const ProtoJet& fProtojet) const {
-  const ProtoJet::Constituents* towers = &fProtojet.getTowerList();
-  // construct MC barcodes
-  std::vector<const HepMC::GenParticle*> mcParticles;
-  mcParticles.reserve (towers->size ());
-  std::vector<int> barcodes;
-  barcodes.reserve (towers->size ());
-  ProtoJet::Constituents::const_iterator mcCandidate = towers->begin ();
-  for (; mcCandidate != towers->end (); mcCandidate++) {
-   HepMCCandidate::GenParticleRef genParticle = 
-    (*mcCandidate)->get<HepMCCandidate::GenParticleRef>();
-    if (genParticle.isNonnull()) {
-      mcParticles.push_back (& * genParticle);
-      barcodes.push_back (genParticle->barcode ());
-    }
-    else {
-      std::cerr << "JetMaker::makeGenJet-> Constituent candidate is not compatible with HepMCCandidate type" << std::endl;
-    }
-  }
   GenJet::Specific specific;
-  makeSpecific (mcParticles, &specific);
-
-  GenJet result (fProtojet.p4(), specific, barcodes);
-  setConstituents (&result, fProtojet.getTowerList());
-  return result;
+  makeSpecific (fProtojet.getTowerList(), &specific);
+  return GenJet (fProtojet.p4(), specific, fProtojet.getTowerList());
 }
+
 

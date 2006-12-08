@@ -13,6 +13,6 @@ using namespace reco;
 CaloJet ToyJetCorrection::applyCorrection (const CaloJet& fJet) {
   Jet::LorentzVector newP4 (fJet.px()*mScale, fJet.py()*mScale, 
 			    fJet.pz()*mScale, fJet.energy()*mScale);
-  CaloJet result (newP4, fJet.getSpecific (), fJet.getTowerIndices());
+  CaloJet result (newP4, fJet.getSpecific (), fJet.getGonstituents());
   return result;
 }
