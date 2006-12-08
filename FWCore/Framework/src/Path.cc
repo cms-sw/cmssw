@@ -38,8 +38,11 @@ namespace edm
 	     BranchActionType const& bat)
   {
     bool const isEvent = (bat == BranchActionEvent);
+
+    // A RunStopwatch, but only if we are processing an event.
+    std::auto_ptr<RunStopwatch> stopwatch(isEvent ? new RunStopwatch(stopwatch_) : 0);
+
     if (isEvent) {
-      RunStopwatch stopwatch(stopwatch_);
       ++timesRun_;
     }
     state_ = edm::hlt::Ready;

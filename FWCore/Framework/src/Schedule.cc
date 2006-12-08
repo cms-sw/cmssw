@@ -465,24 +465,27 @@ namespace edm
     state_ = Running;
 
     bool const isEvent = (bat == BranchActionEvent);
+
+    // A RunStopwatch, but only if we are processing an event.
+    std::auto_ptr<RunStopwatch> stopwatch(isEvent ? new RunStopwatch(stopwatch_) : 0);
+
     if (isEvent) {
       ++total_events_;
-      RunStopwatch stopwatch(stopwatch_);
       setupOnDemandSystem(ep, es);
     }
     try {
-	if (isEvent) {
- 	  CallPrePost cpp(act_reg_.get(), &ep, &es);
-	}
+      if (isEvent) {
+ 	CallPrePost cpp(act_reg_.get(), &ep, &es);
+      }
 
-	if (runTriggerPaths(ep, es, bat)) {
-	  if (isEvent) ++total_passed_;
-        }
-	state_ = Latched;
+      if (runTriggerPaths(ep, es, bat)) {
+	if (isEvent) ++total_passed_;
+      }
+      state_ = Latched;
 	
-	if(results_inserter_.get()) results_inserter_->doWork(ep, es, bat, 0);
+      if (results_inserter_.get()) results_inserter_->doWork(ep, es, bat, 0);
 	
-	if (endpathsAreActive_) runEndPaths(ep, es, bat);
+      if (endpathsAreActive_) runEndPaths(ep, es, bat);
     }
     catch(cms::Exception& e) {
       actions::ActionCodes code = act_table_->find(e.rootCause());
