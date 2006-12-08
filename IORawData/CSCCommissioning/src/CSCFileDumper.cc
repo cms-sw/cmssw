@@ -21,18 +21,8 @@
 
 CSCFileDumper::CSCFileDumper(const edm::ParameterSet & pset){
 	output = pset.getUntrackedParameter<std::string>("output");
-	std::string fedIDs = pset.getUntrackedParameter<std::string>("fedIDs");
-
-	if( fedIDs=="DAQ" || fedIDs=="" ){
-		fedID_first = FEDNumbering::getCSCFEDIds().first;
-		fedID_last  = FEDNumbering::getCSCFEDIds().second;
-	} else
-	if( fedIDs=="TF" ){
-		fedID_first = FEDNumbering::getCSCTFFEDIds().first;
-		fedID_last  = FEDNumbering::getCSCTFFEDIds().second;
-	} else
-		throw std::runtime_error(std::string("Set CSCFileDumper::fedIDs to either DAQ or TF"));
-
+	fedID_first = FEDNumbering::getCSCFEDIds().first;
+	fedID_last  = FEDNumbering::getCSCTFFEDIds().second;
 	//std::string cur_pos = type.rfind(","), prev_pos = std::string::npos;
 }
 
