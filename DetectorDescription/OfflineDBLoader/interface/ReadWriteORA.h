@@ -18,7 +18,8 @@ class ReadWriteORA {
   ReadWriteORA ( const std::string& dbConnectString
 		 , const std::string& metaName
 		 , const std::string& userName
-		 , const std::string& password );
+		 , const std::string& password 
+		 , int rotNumSeed = 0 );
   ~ReadWriteORA ();
 
   /// write it out...
@@ -29,5 +30,6 @@ class ReadWriteORA {
   std::string metaName_;
   std::string userName_;
   std::string password_;
+  int rotNumSeed_;
 };
 #endif

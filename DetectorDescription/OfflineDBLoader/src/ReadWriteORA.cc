@@ -37,11 +37,13 @@ using cond::MetaData;
 ReadWriteORA::ReadWriteORA ( const std::string& dbConnectString
 			     , const std::string& metaName 
 			     , const std::string& userName
-			     , const std::string& password )
+			     , const std::string& password
+			     , int rotNumSeed )
   : dbConnectString_(dbConnectString)
-  , metaName_(metaName)
-  , userName_(userName)
-  , password_(password)
+    , metaName_(metaName)
+    , userName_(userName)
+    , password_(password)
+    , rotNumSeed_(rotNumSeed)
 { 
   //FIXME: check DB and xml for existence, nothing more.
 }
@@ -124,7 +126,7 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
 	    for (; cit != cend; ++cit) 
 	      {
 		const DDLogicalPart & ddcurLP = gra.nodeData(cit->first);
-		ppp = DDDToPersFactory::position ( ddLP, ddcurLP, gra.edgeData(cit->second), *pgeom );
+		ppp = DDDToPersFactory::position ( ddLP, ddcurLP, gra.edgeData(cit->second), *pgeom, rotNumSeed_ );
 // 		std::cout << "okay after the factory..." << std::endl;
 		pgeom->pPosParts.push_back( *ppp );
 // 		std::cout << "okay after the push_back" << std::endl;
@@ -193,7 +195,6 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
       isEvaluated.clear();
       delete psp;
     } 
-
     pgeom->pStartNode = DDRootDef::instance().root().toString();
     pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
     pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
@@ -202,8 +203,8 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
     std::string pass = "CORAL_AUTH_PASSWORD="+password_;
     ::putenv(const_cast<char*>(usr.c_str()));
     ::putenv(const_cast<char*>(pass.c_str()));
-//     std::cout << ::getenv("CORAL_AUTH_USER") << std::endl;
-//     std::cout << ::getenv("CORAL_AUTH_PASSWORD") << std::endl;
+    //     std::cout << ::getenv("CORAL_AUTH_USER") << std::endl;
+    //     std::cout << ::getenv("CORAL_AUTH_PASSWORD") << std::endl;
     loader->loadAuthenticationService( cond::Env );
     loader->loadMessageService( cond::Error );
     cond::DBSession* session=new cond::DBSession(dbConnectString_);
@@ -212,6 +213,7 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
     cond::DBWriter pw(*session, "PIdealGeometry");
     cond::DBWriter iovw(*session, "IOV");
     cond::IOV* initiov=new cond::IOV;
+
     session->startUpdateTransaction();
     std::string tok=pw.markWrite<PIdealGeometry>(pgeom);
     unsigned long long myTime=(unsigned long long)edm::IOVSyncValue::endOfTime().eventID().run();
@@ -225,7 +227,6 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
     cond::MetaData metadata_svc(dbConnectString_, *loader);
     metadata_svc.connect(cond::ReadWriteCreate);
     metadata_svc.addMapping(metaName_, iovtok);
-
     metadata_svc.disconnect();
     edm::LogInfo ("DDDReadWriteORA") << "Done with save, token " << tok << " as metaName " << metaName_  << std::endl;
 
