@@ -459,6 +459,14 @@ bool CSCSegAlgoDF::isHitNearSegment( const CSCRecHit2D* hit) const {
   double deltaX = (protoIntercept.x() + protoSlope_u * z) - u;
   double deltaY = (protoIntercept.y() + protoSlope_v * z) - v;
 
+  // Transform in distance of closest approach:
+  double f_u = cos( atan(protoSlope_u) );
+  double f_v = cos( atan(protoSlope_v) );
+  if (f_u < 0.) f_u = -f_u;
+  if (f_v < 0.) f_v = -f_v;
+  deltaX *= f_u;
+  deltaY *= f_v;
+
   // Normalize in terms of sigma_u and sigma_v
   deltaX /= sigma_u;
   deltaY /= sigma_v;
