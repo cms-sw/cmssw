@@ -26,24 +26,19 @@
 // MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-SiStripGaussianSmearingRecHitConverterAlgorithm::SiStripGaussianSmearingRecHitConverterAlgorithm( edm::ParameterSet pset,
-												  const PSimHit& simHit,
-												  HepSymMatrix localPositionResolution ) :
+SiStripGaussianSmearingRecHitConverterAlgorithm::SiStripGaussianSmearingRecHitConverterAlgorithm( 
+  edm::ParameterSet& pset) :
   pset_(pset) {
 
-  // private members
-  thePosition = simHit.localPosition();
-  //
-  
   //--- Algorithm's verbosity
   theVerboseLevel = pset.getUntrackedParameter<int>("VerboseLevel",0);
   //
-
-  run(simHit, localPositionResolution);
 }  
 
 
-void SiStripGaussianSmearingRecHitConverterAlgorithm::run(const PSimHit& simHit, HepSymMatrix localPositionResolution) {
+void SiStripGaussianSmearingRecHitConverterAlgorithm::run(
+  const PSimHit& simHit, 
+  const HepSymMatrix& localPositionResolution) {
   // SiStrip random positioning
   if (theVerboseLevel > 2) {
     LogDebug("SiTrackerGaussianSmearingRecHits") << " start from position " << thePosition << std::endl;

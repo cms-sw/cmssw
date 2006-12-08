@@ -28,18 +28,20 @@
 
 class TFile;
 class TH1F;
+class PixelErrorParametrization;
 
 class SiPixelGaussianSmearingRecHitConverterAlgorithm {
 public:
   //--- Constructor, virtual destructor (just in case)
-  explicit SiPixelGaussianSmearingRecHitConverterAlgorithm(edm::ParameterSet pset,
-							   const PSimHit& simHit,
-							   GeomDetType::SubDetector pixelPart, unsigned int layer,
-							   const PixelGeomDetUnit* detUnit,
-							   std::vector<TH1F*> theAlphaMultiplicityCumulativeProbabilities,
-							   std::vector<TH1F*> theBetaMultiplicityCumulativeProbabilities,
-							   TFile* pixelResolutionFile);
-  virtual ~SiPixelGaussianSmearingRecHitConverterAlgorithm() {};
+  explicit SiPixelGaussianSmearingRecHitConverterAlgorithm(
+   edm::ParameterSet& pset,
+   GeomDetType::SubDetector pixelPart,
+   std::vector<TH1F*>& alphaMultiplicityCumulativeProbabilities,
+   std::vector<TH1F*>& betaMultiplicityCumulativeProbabilities,
+   TFile* pixelResolutionFile);
+
+  // destructor
+  virtual ~SiPixelGaussianSmearingRecHitConverterAlgorithm();
   
   // return results
   Local3DPoint getPosition()  {return thePosition;}
@@ -54,11 +56,10 @@ public:
   unsigned int getPixelMultiplicityBeta()  {return thePixelMultiplicityBeta;}
   //
   
-private:
   //
-  void run( const PSimHit& simHit, const PixelGeomDetUnit* detUnit,
-	    std::vector<TH1F*> theAlphaMultiplicityCumulativeProbabilities,
-	    std::vector<TH1F*> theBetaMultiplicityCumulativeProbabilities  );
+  void run( const PSimHit& simHit, const PixelGeomDetUnit* detUnit);
+
+private:
   //
   bool isFlipped(const PixelGeomDetUnit* theDet) const;
   //
@@ -72,8 +73,10 @@ private:
   unsigned int resBeta_binN;
   //
   // Useful private members
-  TFile* thePixelResolutionFile;
   GeomDetType::SubDetector thePixelPart;
+  std::vector<TH1F*> theAlphaMultiplicityCumulativeProbabilities;
+  std::vector<TH1F*> theBetaMultiplicityCumulativeProbabilities;
+  TFile* thePixelResolutionFile;
   unsigned int theLayer;
   // output
   Local3DPoint thePosition;
@@ -87,6 +90,7 @@ private:
   unsigned int thePixelMultiplicityAlpha;
   unsigned int thePixelMultiplicityBeta;
   //
+  PixelErrorParametrization* pixelError;
   
 };
 

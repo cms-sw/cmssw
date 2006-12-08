@@ -29,25 +29,22 @@ class SiStripGaussianSmearingRecHitConverterAlgorithm {
 
 public:
   //--- Constructor, virtual destructor (just in case)
-  explicit SiStripGaussianSmearingRecHitConverterAlgorithm(edm::ParameterSet pset,
-							   const PSimHit& simHit,
-							   HepSymMatrix localPositionResolution );
+  explicit SiStripGaussianSmearingRecHitConverterAlgorithm(edm::ParameterSet& pset);
   virtual ~SiStripGaussianSmearingRecHitConverterAlgorithm() {};
   
   // return results
-  Local3DPoint getPosition()  {return thePosition;}
-  double       getPositionX() {return thePositionX;}
-  double       getPositionY() {return thePositionY;}
-  double       getPositionZ() {return thePositionZ;}
-  LocalError   getError()     {return theError;}
-  double       getErrorX()    {return theErrorX;}
-  double       getErrorY()    {return theErrorY;}
-  double       getErrorZ()    {return theErrorZ;}
+  const Local3DPoint& getPosition() const {return thePosition;}
+  double             getPositionX() const {return thePositionX;}
+  double             getPositionY() const {return thePositionY;}
+  double             getPositionZ() const {return thePositionZ;}
+  const LocalError&  getError()     const {return theError;}
+  double             getErrorX()    const {return theErrorX;}
+  double             getErrorY()    const {return theErrorY;}
+  double             getErrorZ()    const {return theErrorZ;}
   //
+  void run( const PSimHit& simHit , const HepSymMatrix& localPositionResolution );
   
 private:
-  //
-  void run( const PSimHit& simHit , HepSymMatrix localPositionResolution );
   //
   // parameters
   edm::ParameterSet pset_;

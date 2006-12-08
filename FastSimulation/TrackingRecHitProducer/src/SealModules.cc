@@ -13,6 +13,5 @@
 
 DEFINE_SEAL_MODULE();
 
-using cms::SiTrackerGaussianSmearingRecHitConverter;
 DEFINE_ANOTHER_FWK_MODULE(SiTrackerGaussianSmearingRecHitConverter);
 
