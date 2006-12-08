@@ -13,7 +13,7 @@
 //
 // Original Author:  Alessandro Palma
 //         Created:  Thu Sep 21 11:41:35 CEST 2006
-// $Id: ElectronAnalyzer.cc,v 1.9 2006/11/27 14:06:58 palmale Exp $
+// $Id: ElectronAnalyzer.cc,v 1.10 2006/12/05 14:25:22 palmale Exp $
 //
 //
 
@@ -40,7 +40,7 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/ElectronAnalyzer.h"
 
 #include "TH1.h"
@@ -76,6 +76,10 @@ void
 ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
+
+   typedef reco::PixelMatchGsfElectron myElectron;
+   typedef reco::PixelMatchGsfElectronCollection myElectronCollection;
+
 
    //CLUSTERS - BEGIN
 
@@ -141,16 +145,16 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    
    
    //LOOP OVER ELECTRONS - BEGIN
-   Handle<reco::ElectronCollection> myEle;
+   Handle<myElectronCollection> myEle;
    //   iEvent.getByLabel(electronProducer_.c_str(), myEle); 
    iEvent.getByLabel(electronProducer_, myEle); 
    
-   std::vector<reco::Electron> eleVec;
-   std::vector<reco::Electron> posVec;
+   std::vector<myElectron> eleVec;
+   std::vector<myElectron> posVec;
    
    h1_nEleReco_->Fill(myEle->size());
    
-   for(reco::ElectronCollection::const_iterator eleIt = myEle->begin();
+   for(myElectronCollection::const_iterator eleIt = myEle->begin();
        eleIt != myEle->end(); eleIt++){
 
      // print ele track exp. error - begin
@@ -158,9 +162,9 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      // print ele track exp. error - end
 
      h1_recoEleEnergy_->Fill(eleIt->superCluster()->energy());     
-     h1_recoElePt_->Fill(eleIt->pt());     
-     h1_recoEleEta_->Fill(eleIt->eta());     
-     h1_recoElePhi_->Fill(eleIt->phi());     
+     h1_recoElePt_->Fill(eleIt->track()->pt());
+     h1_recoEleEta_->Fill(eleIt->eta());
+     h1_recoElePhi_->Fill(eleIt->phi());
      
      //     h1_islandEBBC_e3x3_Over_e5x5_->Fill(  eleIt->superCluster()->e3x3() / eleIt->superCluster()->e5x5()  );
      //h1_islandEBBC_e2x2_Over_e3x3_->Fill( eleIt->superCluster()->e2x2() / eleIt->superCluster()->e3x3() );
@@ -174,16 +178,15 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      
    }
    //LOOP OVER ELECTRONS - END
-   
 
    //loop over MC electrons and find the closest MC electron in (eta,phi) phace space - begin   
    double REle(0.);
    double REleMin(1000.);
-   reco::Electron nearestEleToMC;
+   myElectron nearestEleToMC;
    HepMC::GenParticle eleMC;
    
    if(eleVec.size()>=1){
-     for(std::vector<reco::Electron>::const_iterator e_it = eleVec.begin(); e_it !=eleVec.end(); e_it++){
+     for(std::vector<myElectron>::const_iterator e_it = eleVec.begin(); e_it !=eleVec.end(); e_it++){
        for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
 	     p != myGenEvent->particles_end(); ++p ) {
 	 if (  (*p)->pdg_id() == 11  && (*p)->status()==1 ){
@@ -214,11 +217,11 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    //loop over MC positrons and find the closest MC positron in (eta,phi) phace space - begin   
    double RPos(0.);
    double RPosMin(1000.);
-   reco::Electron nearestPosToMC;
+   myElectron nearestPosToMC;
    HepMC::GenParticle posMC;
    
    if(posVec.size()>=1){
-     for(std::vector<reco::Electron>::const_iterator p_it = posVec.begin(); p_it !=posVec.end(); p_it++){
+     for(std::vector<myElectron>::const_iterator p_it = posVec.begin(); p_it !=posVec.end(); p_it++){
        for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
 	     p != myGenEvent->particles_end(); ++p ) {
 	 if ( (*p)->pdg_id() == -11 && (*p)->status()==1 ){
