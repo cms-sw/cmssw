@@ -1,12 +1,12 @@
-#ifndef GctUnpacker_h
-#define GctUnpacker_h
+#ifndef GctRawToDigi_h
+#define GctRawToDigi_h
 
 // -*- C++ -*-
 //
-// Package:    GctUnpacker
-// Class:      GctUnpacker
+// Package:    GctRawToDigi
+// Class:      GctRawToDigi
 // 
-/**\class GctUnpacker GctUnpacker.cc GctRawToDigi/GctUnpacker/src/GctUnpacker.cc
+/**\class GctRawToDigi GctRawToDigi.cc GctRawToDigi/GctRawToDigi/src/GctRawToDigi.cc
 
  Description: <one line class summary>
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id$
+// $Id: GctRawToDigi.h,v 1.1 2006/11/01 11:03:09 jbrooke Exp $
 //
 //
 
@@ -37,10 +37,10 @@
 // class decleration
 //
 
-class GctUnpacker : public edm::EDProducer {
+class GctRawToDigi : public edm::EDProducer {
    public:
-      explicit GctUnpacker(const edm::ParameterSet&);
-      ~GctUnpacker();
+      explicit GctRawToDigi(const edm::ParameterSet&);
+      ~GctRawToDigi();
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
