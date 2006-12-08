@@ -38,13 +38,14 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.16 2006/11/09 23:12:59 wmtan Exp $
+$Id: InputSource.h,v 1.17 2006/12/08 21:17:37 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <memory>
 #include <string>
 
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 #include "DataFormats/Common/interface/EventID.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
@@ -54,7 +55,12 @@ $Id: InputSource.h,v 1.16 2006/11/09 23:12:59 wmtan Exp $
 namespace edm {
   class ParameterSet;
 
+#if GCC_PREREQUISITE(3,4,4)
   class InputSource : private ProductRegistryHelper {
+#else
+  // Bug in gcc3.2.3 compiler forces public inheritance
+  class InputSource : public ProductRegistryHelper {
+#endif
   public:
     typedef ProductRegistryHelper::TypeLabelList TypeLabelList;
     /// Constructor
