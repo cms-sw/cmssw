@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.17 2006/10/20 08:18:28 llista Exp $
+ * \version   $Id: CaloJet.h,v 1.18 2006/12/06 22:43:24 fedor Exp $
  ************************************************************/
 
 
@@ -77,11 +77,11 @@ class CaloJet : public Jet {
   
   /** Constructor from values*/
   CaloJet(const LorentzVector& fP4, const Point& fVertex, const Specific& fSpecific, 
-	  const std::vector<CaloTowerDetId>& fIndices);
+	  const Jet::Constituents& fConstituents);
 
   /** backward compatible, vertex=(0,0,0) */
   CaloJet(const LorentzVector& fP4, const Specific& fSpecific, 
-	  const std::vector<CaloTowerDetId>& fIndices);
+	  const Jet::Constituents& fConstituents);
 
   
   virtual ~CaloJet() {};
@@ -111,8 +111,11 @@ class CaloJet : public Jet {
   /** Returns the number of constituents carrying a 90% of the total Jet energy*/
   int n90() const {return m_specific.mN90;};
 
-  // constituents
+  /// convert generic constituent to specific type
+  static CaloTowerRef caloTower (const reco::Candidate* fConstituent);
+  /// get specific constituent
   CaloTowerRef getConstituent (unsigned fIndex) const;
+  /// get all constituents
   std::vector <CaloTowerRef> getConstituents () const;
   
   // block accessors

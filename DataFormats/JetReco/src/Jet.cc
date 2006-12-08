@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.1 2006/07/19 21:42:05 fedor Exp $
+// $Id: Jet.cc,v 1.1 2006/12/06 22:43:24 fedor Exp $
 
 #include <sstream>
 
@@ -8,6 +8,23 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 
 using namespace reco;
+
+Jet::Jet (const LorentzVector& fP4, 
+	  const Point& fVertex, 
+	  const std::vector<reco::CandidateRef>& fConstituents)
+  :  CompositeRefCandidate (0, fP4, fVertex)
+{
+  for (unsigned i = 0; i < fConstituents.size (); i++) addDaughter (fConstituents [i]);
+}  
+
+Jet::Constituents Jet::getGonstituents () const {
+  Jet::Constituents result;
+  for (unsigned i = 0; i < CompositeRefCandidate::numberOfDaughters(); i++) {
+    result.push_back (CompositeRefCandidate::daughterRef (i));
+  }
+  return result;
+}
+
 
 std::string Jet::print () const {
   std::ostringstream out;

@@ -3,6 +3,7 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/CaloTowers>
 <use name=DataFormats/RecoCandidate>
+<use name=DataFormats/HepMCCandidate>
 <export>
  <lib name=DataFormatsJetReco>
  <use name=clhep>
@@ -10,4 +11,5 @@
  <use name=DataFormats/Common>
  <use name=DataFormats/CaloTowers>
  <use name=DataFormats/RecoCandidate>
+ <use name=DataFormats/HepMCCandidate>
 </export>

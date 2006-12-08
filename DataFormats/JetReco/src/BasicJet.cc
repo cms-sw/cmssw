@@ -1,6 +1,6 @@
 // BasicJet.cc
 // Fedor Ratnikov, UMd
-// $Id: BasicJet.cc,v 1.1 2006/07/19 21:42:05 fedor Exp $
+// $Id: BasicJet.cc,v 1.2 2006/12/06 22:43:24 fedor Exp $
 
 #include <sstream>
 
@@ -9,8 +9,8 @@
 
 using namespace reco;
 
-BasicJet::BasicJet (const LorentzVector& fP4, const Point& fVertex) 
-  : Jet (fP4, fVertex, 0)
+BasicJet::BasicJet (const LorentzVector& fP4, const Point& fVertex, const Jet::Constituents& fConstituents) 
+  : Jet (fP4, fVertex, fConstituents)
 {}
 
 BasicJet* BasicJet::clone () const {

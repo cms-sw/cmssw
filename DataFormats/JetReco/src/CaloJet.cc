@@ -13,19 +13,30 @@ using namespace reco;
 
 CaloJet::CaloJet (const LorentzVector& fP4, const Point& fVertex, 
 		  const Specific& fSpecific, 
-		  const std::vector<CaloTowerDetId>& fIndices) 
-  : Jet (fP4, fVertex, fIndices.size ()),
-    m_towerIdxs (fIndices),
+		  const Jet::Constituents& fConstituents)
+  : Jet (fP4, fVertex, fConstituents),
     m_specific (fSpecific)
 {}
 
 CaloJet::CaloJet (const LorentzVector& fP4, 
 		  const Specific& fSpecific, 
-		  const std::vector<CaloTowerDetId>& fIndices) 
-  : Jet (fP4, Point(0,0,0), fIndices.size ()),
-    m_towerIdxs (fIndices),
+		  const Jet::Constituents& fConstituents)
+  : Jet (fP4, Point(0,0,0), fConstituents),
     m_specific (fSpecific)
 {}
+
+CaloTowerRef CaloJet::caloTower (const reco::Candidate* fConstituent) {
+  if (fConstituent) {
+    const RecoCaloTowerCandidate* towerCandidate = dynamic_cast <const RecoCaloTowerCandidate*> (fConstituent);
+    if (towerCandidate) {
+      return towerCandidate->caloTower ();
+    }
+    else {
+      throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of RecoCandidate type";
+    }
+  }
+  return CaloTowerRef ();
+}
 
 CaloTowerRef CaloJet::getConstituent (unsigned fIndex) const {
   // no direct access, have to iterate for now
@@ -34,15 +45,7 @@ CaloTowerRef CaloJet::getConstituent (unsigned fIndex) const {
   for (; --index >= 0 && daugh != end (); daugh++) {}
   if (daugh != end ()) { // in range
     const Candidate* constituent = &*daugh; // deref
-    if (constituent) {
-      const RecoCaloTowerCandidate* towerCandidate = dynamic_cast <const RecoCaloTowerCandidate*> (constituent);
-      if (towerCandidate) {
-	return (towerCandidate->caloTower ());
-      }
-      else {
-	throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of RecoCaloTowerCandidate type";
-      }
-    }
+    return caloTower (constituent);
   }
   return CaloTowerRef ();
 }
@@ -50,7 +53,7 @@ CaloTowerRef CaloJet::getConstituent (unsigned fIndex) const {
 
 std::vector <CaloTowerRef> CaloJet::getConstituents () const {
   std::vector <CaloTowerRef> result;
-  for (int i = 0;  i <  numberOfDaughters (); i++) result.push_back (getConstituent (i));
+  for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getConstituent (i));
   return result;
 }
 
@@ -77,7 +80,7 @@ std::string CaloJet::print () const {
       out << "      #" << i << " " << *(towers[i]) << std::endl;
     }
     else {
-      out << "      #" << index << " tower is not available in the event"  << std::endl;
+      out << "      #" << i << " tower is not available in the event"  << std::endl;
     }
   }
   return out.str ();

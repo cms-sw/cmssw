@@ -12,7 +12,7 @@
  * \author Fedor Ratnikov, UMd
  *
  * \version   Original March 31, 2006 by F.R.
- * \version   $Id: GenJet.h,v 1.7 2006/10/20 08:18:28 llista Exp $
+ * \version   $Id: GenJet.h,v 1.8 2006/12/06 22:43:24 fedor Exp $
  ************************************************************/
 
 
@@ -21,6 +21,8 @@
 #include "DataFormats/JetReco/interface/GenJetfwd.h"
 
 namespace reco {
+  class GenParticleCandidate;
+
 class GenJet : public Jet {
 public:
   struct Specific {
@@ -45,11 +47,11 @@ public:
 
   /** Constructor from values*/
   GenJet(const LorentzVector& fP4, const Point& fVertex, const Specific& fSpecific, 
-	 const std::vector<int>& fBarcodes);
+	 const Jet::Constituents& fConstituents);
 
   /** backward compatible, vertex=(0,0,0) */
   GenJet(const LorentzVector& fP4, const Specific& fSpecific, 
-	 const std::vector<int>& fBarcodes);
+	 const Jet::Constituents& fConstituents);
 
   virtual ~GenJet() {};
   /** Returns energy of electromagnetic particles*/
@@ -61,9 +63,15 @@ public:
   /** Returns other energy (undecayed Sigmas etc.)*/
   double auxiliaryEnergy() const {return m_specific.m_AuxiliaryEnergy;};
 
+  /// convert generic constituent to specific type
+  static const GenParticleCandidate* genParticle (const reco::Candidate* fConstituent);
+  /// get specific constituent
+  const GenParticleCandidate* getConstituent (unsigned fIndex) const;
+  /// get all constituents
+  std::vector <const GenParticleCandidate*> getConstituents () const;
+  
   // block accessors
 
-  const std::vector<int>& getBarcodes() const {return m_barcodes;};
   const Specific& getSpecific () const {return m_specific;}
 
   
@@ -78,8 +86,6 @@ private:
   virtual bool overlap( const Candidate & ) const;
   
   // Data members
-  /** List of MC particles the Jet consists of*/
-  std::vector<int> m_barcodes;
   //Variables specific to to the GenJet class
   Specific m_specific;
 };
