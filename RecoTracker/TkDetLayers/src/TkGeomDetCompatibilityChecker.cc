@@ -6,9 +6,9 @@ using namespace std;
 
 pair<bool, TrajectoryStateOnSurface>  
 TkGeomDetCompatibilityChecker::isCompatible(const GeomDet* det,
-					  const TrajectoryStateOnSurface& tsos,
-					  const Propagator& prop, 
-					  const MeasurementEstimator& est) const
+					    const TrajectoryStateOnSurface& tsos,
+					    const Propagator& prop, 
+					    const MeasurementEstimator& est) const
 {
   GeomDetCompatibilityChecker checker;
   const GluedGeomDet* glued = dynamic_cast<const GluedGeomDet*>( det);
@@ -19,7 +19,13 @@ TkGeomDetCompatibilityChecker::isCompatible(const GeomDet* det,
     pair<bool, TrajectoryStateOnSurface> stereo = 
       checker.isCompatible(glued->stereoDet(), tsos, prop, est);
     if (mono.first || stereo.first) {
-      return pair<bool, TrajectoryStateOnSurface>( true, prop.propagate( tsos, det->specificSurface()));
+      TrajectoryStateOnSurface gluedDetState = prop.propagate( tsos, det->specificSurface());
+      if (gluedDetState.isValid()) {
+	return pair<bool, TrajectoryStateOnSurface>( true, gluedDetState);
+      }
+      else {
+	return pair<bool, TrajectoryStateOnSurface>( false, gluedDetState);
+      }
     }
     else {
       return pair<bool, TrajectoryStateOnSurface>( false, TrajectoryStateOnSurface());
