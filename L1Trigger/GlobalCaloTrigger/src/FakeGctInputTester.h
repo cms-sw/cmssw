@@ -14,7 +14,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Tue Nov 21 14:49:14 CET 2006
-// $Id: FakeGctInputTester.h,v 1.2 2006/11/28 09:30:53 jbrooke Exp $
+// $Id: FakeGctInputTester.h,v 1.3 2006/11/28 14:24:50 jbrooke Exp $
 //
 //
 
@@ -47,16 +47,16 @@ private:
   // ----------member data ---------------------------
 
   std::string hFileName_;
-//   TFile* hFile_;
+   TFile* hFile_;
 
-//   TH1F* isoEmDEta_;
-//   TH1F* isoEmDPhi_;
+   TH1F* isoEmDEta_;
+   TH1F* isoEmDPhi_;
 
-//   TH1F* nonIsoEmDEta_;
-//   TH1F* nonIsoEmDPhi_;
+   TH1F* nonIsoEmDEta_;
+   TH1F* nonIsoEmDPhi_;
 
-//   TH1F* jetDEta_;
-//   TH1F* jetDPhi_;
+   TH1F* jetDEta_;
+   TH1F* jetDPhi_;
 
 
 };

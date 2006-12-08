@@ -57,7 +57,7 @@ FakeGctInputProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	       iCrt==nCrt && 
 	       iCrd==nCrd && 
 	       iRgn==nRgn ) {
-	  et = 1;
+	  et = 10;
 	} 
 	
 	regions->push_back(L1CaloRegion(et, false, false, false, false, iCrt, iCrd, iRgn));
