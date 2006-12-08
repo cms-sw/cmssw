@@ -212,16 +212,18 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		    ((layer.ring()==1)&&(layer.station()==4)))
 		  {
 		    for (int unsigned i=0; i<alctDigis.size(); ++i) {
-		      int wiregroup = alctDigis[i].getKeyWG();
-		      if (wiregroup <= 16) edm::LogError("CSCDCCUnpacker") <<
-					     "Wire group is out of range!";
-		      else wiregroup = wiregroup - 16; /// adjust by 16
-		      alctDigis[i].setWireGroup(wiregroup);
+		      if (alctDigis[i].isValid()) {
+			int wiregroup = alctDigis[i].getKeyWG();
+			if (wiregroup < 16) edm::LogError("CSCDCCUnpacker")
+			  << "ALCT digi: wire group " << wiregroup
+			  << " is out of range!";
+			else {
+			  wiregroup -= 16; /// adjust by 16
+			  alctDigis[i].setWireGroup(wiregroup);
+			}
+		      }
 		    }
 		  }
-
-		
-
 
 		alctProduct->put(std::make_pair(alctDigis.begin(), alctDigis.end()),layer);
 	      }
@@ -259,11 +261,16 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
                     ((layer.ring()==1)&&(layer.station()==4)))
                   {
                     for (int unsigned i=0; i<correlatedlctDigis.size(); ++i) {
-                      int wiregroup = correlatedlctDigis[i].getKeyWG();
-                      if (wiregroup <= 16) edm::LogError("CSCDCCUnpacker") <<
-                                             "Wire group is out of range!";
-                      else wiregroup = wiregroup - 16; /// adjust by 16
-                      correlatedlctDigis[i].setWireGroup(wiregroup);
+		      if (correlatedlctDigis[i].isValid()) {
+			int wiregroup = correlatedlctDigis[i].getKeyWG();
+			if (wiregroup < 16) edm::LogError("CSCDCCUnpacker")
+			  << "CorrelatedLCT digi: wire group " << wiregroup
+			  << " is out of range!";
+			else {
+			  wiregroup -= 16; /// adjust by 16
+			  correlatedlctDigis[i].setWireGroup(wiregroup);
+			}
+		      }
                     }
                   }
 		corrlctProduct->put(std::make_pair(correlatedlctDigis.begin(), 
@@ -294,10 +301,13 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		{
 		for (int unsigned i=0; i<wireDigis.size(); ++i) {
 		  int wiregroup = wireDigis[i].getWireGroup();
-		  if (wiregroup <= 16) edm::LogError("CSCDCCUnpacker") <<
-					 "Wire group is out of range!";
-		  else wiregroup = wiregroup - 16; /// adjust by 16
-		  wireDigis[i].setWireGroup(wiregroup);
+		  if (wiregroup <= 16) edm::LogError("CSCDCCUnpacker")
+		    << "Wire digi: wire group " << wiregroup
+		    << " is out of range!";
+		  else {
+		    wiregroup -= 16; /// adjust by 16
+		    wireDigis[i].setWireGroup(wiregroup);
+		  }
 		}	
 	      }
 
