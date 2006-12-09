@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: OutputService.cc,v 1.1 2006/11/29 10:10:16 klute Exp $
 
 #include "IOPool/Streamer/interface/OutputService.h"
 #include "IOPool/Streamer/interface/StreamerStatService.h"
@@ -25,7 +25,7 @@ OutputService::OutputService(boost::shared_ptr<FileRecord> file,
   writer_ = shared_ptr<StreamerFileWriter> (new StreamerFileWriter(streamerFileName, indexFileName));
   writeHeader(view);
 
-  file_ -> increaseFileSize(view.size());
+  //file_ -> increaseFileSize(view.size()); //this is duplicated
   file_ -> firstEntry(getTimeStamp());
 }
 
