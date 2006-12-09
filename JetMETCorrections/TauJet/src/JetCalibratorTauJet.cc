@@ -215,7 +215,7 @@ reco::CaloJet JetCalibratorTauJet::applyCorrection( const reco::CaloJet& fJet)
          Jet::LorentzVector common (fJet.px()*mScale, fJet.py()*mScale,
                            fJet.pz()*mScale, fJet.energy()*mScale);
 
-         reco::CaloJet theJet (common, fJet.getSpecific (), fJet.getTowerIndices());
+         reco::CaloJet theJet (common, fJet.getSpecific (), fJet.getConstituents());
 	 cout<<" The new jet is created "<<endl;
 	 		
      return theJet;
