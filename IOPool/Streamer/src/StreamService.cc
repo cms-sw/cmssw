@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.1 2006/11/29 10:10:16 klute Exp $
+// $Id: StreamService.cc,v 1.2 2006/12/09 11:54:39 klute Exp $
 
 #include "IOPool/Streamer/interface/StreamService.h"
 
@@ -51,8 +51,11 @@ bool StreamService::nextEvent(EventMsgView const& view)
 //
 void StreamService::stop()
 {
+  outputMap_.erase(outputMap_.begin(), outputMap_.end());
+  /* This does not work
   for (OutputMapIterator it = outputMap_.begin();  it != outputMap_.end();)
     outputMap_.erase(it);
+  */
 }
 
 
