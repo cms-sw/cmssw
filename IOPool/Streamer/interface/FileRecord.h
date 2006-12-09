@@ -1,7 +1,7 @@
 #ifndef FILERECORD_H
 #define FILERECORD_H
 
-// $Id:$
+// $Id: FileRecord.h,v 1.1 2006/11/29 10:10:15 klute Exp $
 #include <string>
 
 namespace edm {
@@ -21,7 +21,7 @@ namespace edm {
       void   moveFileToClosed();
       void   firstEntry(double d)   { firstEntry_ = d; }
       void   lastEntry(double d)    { lastEntry_  = d; }
-      void   increaseFileSize(int i){ fileSize_   = i; }
+      void   increaseFileSize(int i){ fileSize_   += i; }
       void   increaseEventCount()   { events_++; }
 
       std::string fileName()             { return fileName_; }
