@@ -1,7 +1,11 @@
 #include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include <iostream>
 #include <fstream>
+
+HcalTrigTowerGeometry theTrigTowerGeometry;
 
 CaloTPGTranscoderULUT::CaloTPGTranscoderULUT(const std::string& hcalFile) : 
   hcalITower_(N_TOWER,(const LUTType*)0)
@@ -68,6 +72,28 @@ void CaloTPGTranscoderULUT::loadHCAL(const std::string& filename) {
   }
 }
 
+void CaloTPGTranscoderULUT::loadhcalUncompress(const std::string& filename) {
+  std::ifstream userfile;
+  userfile.open(filename.c_str());
+  static const int etabound = 32;
+  static const int tpgmax = 255;
+  if( userfile ) 
+    {
+     for (int i=0; i<etabound; i++) { 
+      for(int j = 0; j <tpgmax; j++) {
+	  userfile >> hcaluncomp_[i][j];}
+    }
+     //cout<<"test hcal "<<hcaluncomp_[2][14]<<endl;
+    userfile.close();
+
+    }
+  else {
+    throw cms::Exception("Invalid Data") << "Unable to read uncompress file" << filename;
+  }
+}
+
+
+
 HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const {
   int itower=id.ietaAbs();
   const LUTType* lut=hcalITower_[itower-1];
@@ -81,8 +107,20 @@ HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTow
   return HcalTriggerPrimitiveSample((*lut)[sample],fineGrain,0,0);
 }
 
-float etValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc){
-  return( hc.compressedEt()*cosh(double(hid.ietaAbs())));
+//float hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc){
+  // double eta1, eta2;
+  //theTrigTowerGeometry.towerEtaBounds(hid.ieta(), eta1, eta2);
+  //double eta_ave = (eta1+eta2)/2;
+  //return( hc.compressedEt()*cosh(eta_ave));
+//}
+
+float CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& compET){
+  //double eta1, eta2;
+  //theTrigTowerGeometry.towerEtaBounds(ieta, eta1, eta2);
+  //double eta_ave = (eta1+eta2)/2;
+  double etvalue = hcaluncomp_[ieta][compET];//*cos(eta_ave);
+  return(etvalue);
+
 }
 
 
