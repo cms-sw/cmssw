@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: StreamService.cc,v 1.1 2006/11/29 10:10:16 klute Exp $
 
 #include "IOPool/Streamer/interface/StreamService.h"
 
@@ -239,7 +239,7 @@ void StreamService::setStreamParameter()
   maxSize_            = parameterSet_.getParameter<int>    ("maxSize");
   highWaterMark_      = parameterSet_.getParameter<double> ("highWaterMark");
   lumiSectionTimeOut_ = parameterSet_.getParameter<double> ("lumiSectionTimeOut");
-  report(cout, 4);
+  // report(cout, 4);
 }
 
 
@@ -278,8 +278,7 @@ boost::shared_ptr<FileRecord> StreamService::generateFileRecord()
   if ( numberOfFileSystems_ > 0 && numberOfFileSystems_ < 100 )
     fd -> fileSystem(( runNumber_+ outputSummary_.size() ) % numberOfFileSystems_); 
   
-  fd->report(cout, 12);
-
+  // fd->report(cout, 12);
   return fd;
 }
 
