@@ -49,6 +49,7 @@ RegionalPixelSeedGenerator::~RegionalPixelSeedGenerator() { }
 // Functions that gets called by framework every event
 void RegionalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
 {
+  double deltaZVertex =  halflength;
   // get Inputs
   edm::Handle<SiPixelRecHitCollection> pixelHits;
 
@@ -62,7 +63,7 @@ void RegionalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& e
     originz = ci->z();
   }else{
     originz = 0.;
-    halflength=7.0;
+    deltaZVertex = 15.;
   }
 
   //
@@ -96,7 +97,7 @@ void RegionalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& e
 											       GlobalPoint(0,0,originz), 
 											       ptmin,
 											       originradius,
-											       halflength,
+											       deltaZVertex,
 											       deltaEta,
 											       deltaPhi);
 	  
