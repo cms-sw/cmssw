@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: FileRecord.cc,v 1.1 2006/11/29 10:10:16 klute Exp $
 
 #include "IOPool/Streamer/interface/FileRecord.h"
 
@@ -23,7 +23,7 @@ FileRecord::FileRecord(int lumi, string file, string path):
   mailBoxPath_(path+"/mbox"),
   lumiSection_(lumi),
   fileCounter_(0),
-  fileSize_(0)
+  fileSize_(0), events_(0), firstEntry_(0.0), lastEntry_(0.0)
 {
 }
 
@@ -53,7 +53,8 @@ void FileRecord::writeToSummaryCatalog()
 	      << events_      << endl;
   string currentStatString (currentStat.str());
   ofstream of(statFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
-  of << currentStat;
+  //of << currentStat;
+  of << currentStatString;
   of.close();
 }
 
