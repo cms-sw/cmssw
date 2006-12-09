@@ -33,12 +33,43 @@ namespace edm
   {
   }
   
+  namespace {
+    struct PathSignalSentry {
+      PathSignalSentry(const std::string& name,
+                         const int& nwrwue,
+                         const edm::hlt::HLTState& state,
+                         edm::Path::ActivityRegistryPtr areg ):
+      name_(name),
+      nwrwue_(nwrwue),
+      state_(state),
+      areg_(areg) {
+        areg_->preProcessPathSignal_(name_);
+      }
+      ~PathSignalSentry() {
+        HLTPathStatus status(state_, nwrwue_);
+        areg_->postProcessPathSignal_(name_, status);
+      }
+      
+      const std::string& name_;
+      const int& nwrwue_;
+      const edm::hlt::HLTState& state_;
+      edm::Path::ActivityRegistryPtr areg_;
+    };
+  }
   void Path::runOneEvent(EventPrincipal& ep,
 	     EventSetup const& es,
 	     BranchActionType const& bat)
   {
     bool const isEvent = (bat == BranchActionEvent);
 
+    //Create the PathSignalSentry before the RunStopwatch so that
+    // we only record the time spent in the path not from the signal
+    int nwrwue = -1;
+    std::auto_ptr<PathSignalSentry> signaler(isEvent? new PathSignalSentry(name_,
+                                                                           nwrwue,
+                                                                           state_,
+                                                                           act_reg_) : 0 );
+                                                                           
     // A RunStopwatch, but only if we are processing an event.
     std::auto_ptr<RunStopwatch> stopwatch(isEvent ? new RunStopwatch(stopwatch_) : 0);
 
@@ -48,7 +79,6 @@ namespace edm
     state_ = edm::hlt::Ready;
 
     // nwrue =  numWorkersRunWithoutUnhandledException
-    int nwrwue = -1;
     bool should_continue = true;
     CurrentProcessingContext cpc(&name_, bitPosition());
 
@@ -129,7 +159,9 @@ namespace edm
   void
   Path::recordStatus(int nwrwue, bool isEvent)
   {
-    if(isEvent) (*trptr_)[bitpos_]=HLTPathStatus(state_, nwrwue);    
+    if(isEvent) {
+      (*trptr_)[bitpos_]=HLTPathStatus(state_, nwrwue);    
+    }
   }
 
   void
