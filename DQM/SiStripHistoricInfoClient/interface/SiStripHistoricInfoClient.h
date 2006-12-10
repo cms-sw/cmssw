@@ -16,16 +16,17 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:34 CEST 2006
-// $Id$
+// $Id: SiStripHistoricInfoClient.h,v 1.1 2006/08/20 19:40:29 dkcira Exp $
 //
 
 #include "DQMServices/Components/interface/DQMBaseClient.h"
 #include "DQMServices/Components/interface/Updater.h"
 #include "DQMServices/Components/interface/UpdateObserver.h"
-
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
-
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoWebInterface.h"
+
+#include "xoap/SOAPBody.h"
+#include "xoap/SOAPEnvelope.h"
 
 
 class SiStripHistoricInfoClient : public DQMBaseClient,
@@ -58,6 +59,8 @@ public:
 
   // test TStore 
   void tstore_connect();
+  DOMNode *getNodeNamed(xoap::MessageReference msg,const std::string &nodeName) throw (xcept::Exception);
+
 
 private:
   //

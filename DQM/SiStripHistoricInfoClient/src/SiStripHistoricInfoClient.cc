@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:49 CEST 2006
-// $Id: SiStripHistoricInfoClient.cc,v 1.5 2006/12/05 17:46:07 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.cc,v 1.6 2006/12/05 19:41:39 dkcira Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoClient.h"
@@ -17,15 +17,17 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include<sstream>
-
-
+#include <sstream>
 
 #include "xoap/MessageReference.h"
 #include "xoap/MessageFactory.h"
 #include "xoap/Method.h"
+#include "xoap/domutils.h"
 #include "xoap/SOAPEnvelope.h"
-#define TSTORE_NS_URI "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd" //eventually I suppose this will be defined in a header somewhere
+#include "xoap/SOAPBody.h"
+#include "xercesc/dom/DOMNode.hpp"
+
+
 
 
 using namespace std;
@@ -70,6 +72,7 @@ void SiStripHistoricInfoClient::handleWebRequest(xgi::Input * in, xgi::Output * 
 void SiStripHistoricInfoClient::configure()
 {
 
+  tstore_connect();
 }
 
 /*
@@ -83,6 +86,7 @@ void SiStripHistoricInfoClient::newRun()
 //  this obligatory method is called whenever the client enters the "Halted" state:
 void SiStripHistoricInfoClient::endRun()
 {
+/*
   cout<<"SiStripHistoricInfoClient::endRun() : called"<<endl;
   cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
   cout<<"SiStripHistoricInfoClient::endRun ClientPointersToModuleMEs.size()="<<ClientPointersToModuleMEs.size()<<endl;
@@ -99,10 +103,10 @@ void SiStripHistoricInfoClient::endRun()
      }
   }
   cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
-  std::string final_filename = "endRun_SiStripHistoricInfoClient.root"; // run specific filename would be better
-  std::cout<<"Saving all histograms in "<<final_filename<<std::endl;
-  mui_->save(final_filename);
-
+*/
+//  std::string final_filename = "endRun_SiStripHistoricInfoClient.root"; // run specific filename would be better
+//  std::cout<<"Saving all histograms in "<<final_filename<<std::endl;
+//  mui_->save(final_filename);
 //  tstore_connect();
 }
 
@@ -129,8 +133,10 @@ void SiStripHistoricInfoClient::onUpdate() const
   //
   int nr_updates = mui_->getNumUpdates();
   cout<<"SiStripHistoricInfoClient::onUpdate() : nr_updates="<<nr_updates<<" "<<nr_updates-firstUpdate<<endl;
-  if(nr_updates==2){
+  if(nr_updates==4){
+    cout<<"SiStripHistoricInfoClient::onUpdate() : retrieving pointers to histograms"<<std::endl;
     retrievePointersToModuleMEs();
+/*
     cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
     cout<<"SiStripHistoricInfoClient::retrievePointersToModuleMEs ClientPointersToModuleMEs.size()="<<ClientPointersToModuleMEs.size()<<endl;
     for(std::map<uint32_t , vector<MonitorElement *> >::iterator imapmes = ClientPointersToModuleMEs.begin(); imapmes != ClientPointersToModuleMEs.end(); imapmes++){
@@ -148,6 +154,7 @@ void SiStripHistoricInfoClient::onUpdate() const
        }
     }
     cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+*/
   }
 }
 
@@ -203,21 +210,12 @@ void SiStripHistoricInfoClient::retrievePointersToModuleMEs() const{
        }
      }
   }
-//  cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
-  cout<<"SiStripHistoricInfoClient::retrievePointersToModuleMEs ClientPointersToModuleMEs.size()="<<ClientPointersToModuleMEs.size()<<endl;
-//  for(std::map<uint32_t , vector<MonitorElement *> >::iterator imapmes = ClientPointersToModuleMEs.begin(); imapmes != ClientPointersToModuleMEs.end(); imapmes++){
-//     cout<<"      ++++++detid  "<<imapmes->first<<endl;
-//     vector<MonitorElement*> locvec = imapmes->second;
-//     for(vector<MonitorElement*>::const_iterator imep = locvec.begin(); imep != locvec.end() ; imep++){
-//       cout<<"          ++  "<<(*imep)->getName()<<endl;
-//     }
-//  }
-//  cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
 }
 
 
 void SiStripHistoricInfoClient::tstore_connect(){
   cout<<"SiStripHistoricInfoClient::tstore_connect()  called"<<endl;
+  // create message
   xoap::MessageReference msg = xoap::createMessage();
   try {
         xoap::SOAPEnvelope envelope = msg->getSOAPPart().getEnvelope();
@@ -227,8 +225,52 @@ void SiStripHistoricInfoClient::tstore_connect(){
         xoap::SOAPName id = envelope.createName("id", "tstore", "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd");
         connectElement.addAttribute(id, "urn:tstore-view-SQL:MyParameterisedView");
         xoap::SOAPName passwordName = envelope.createName("password", "tstore", "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd");
-        connectElement.addAttribute(passwordName, "grape");
+        connectElement.addAttribute(passwordName, "client4histoplot");
+	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- created envelope"<<std::endl;
   }catch(xoap::exception::Exception& e) {
    //handle exception
+	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- xoap::exception"<<std::endl;
+  }
+
+  // send message to TStore
+  try {
+	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- try to get tstoreDescriptor"<<std::endl;
+	xdaq::ApplicationDescriptor * tstoreDescriptor = getApplicationContext()->getDefaultZone()->getApplicationDescriptor(getApplicationContext()->getContextDescriptor(),120);
+	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- could get tstoreDescriptor"<<std::endl;
+        xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, tstoreDescriptor);
+	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- could get reply"<<std::endl;
+	xoap::SOAPBody body = reply->getSOAPPart().getEnvelope().getBody();
+	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- could get message body"<<std::endl;
+	if (body.hasFault()) {
+		//connection could not be opened
+                std::cout<<"SiStripHistoricInfoClient::tstore_connect -- connection could not be opened"<<std::endl;
+	}
+	else {
+		DOMNode *connectResponse=  SiStripHistoricInfoClient::getNodeNamed(reply,"connectResponse");
+		std::string connectionID=xoap::getNodeAttribute(connectResponse,"connectionID");
+		//store connectionID somewhere so that it can be used for other messages
+                std::cout<<"SiStripHistoricInfoClient::tstore_connect -- connectionID = "<<connectionID<<std::endl;
+	}
+  } 
+  catch (xdaq::exception::Exception& e) {
+	//handle exception
+	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- xdaq::exception"<<std::endl;
   }
 }
+
+DOMNode *SiStripHistoricInfoClient::getNodeNamed(xoap::MessageReference msg,const std::string &nodeName) throw (xcept::Exception) {
+        xoap::SOAPEnvelope envelope = msg->getSOAPPart().getEnvelope();
+        xoap::SOAPBody body = envelope.getBody();
+        DOMNode* node = body.getDOMNode();
+        DOMNodeList* bodyList = node->getChildNodes();
+        for (unsigned int itemIndex = 0; itemIndex < bodyList->getLength(); itemIndex++) {
+                DOMNode* child = bodyList->item(itemIndex);
+                if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
+                        if (xoap::XMLCh2String(child->getLocalName()) == nodeName) {
+                                return child;
+                        }
+                }
+        }
+        XCEPT_RAISE(xcept::Exception,"No node named "+nodeName);
+}
+
