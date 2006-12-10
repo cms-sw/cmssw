@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.2 2006/12/09 11:54:39 klute Exp $
+// $Id: StreamService.cc,v 1.3 2006/12/09 16:45:30 hcheung Exp $
 
 #include "IOPool/Streamer/interface/StreamService.h"
 
@@ -287,13 +287,21 @@ boost::shared_ptr<FileRecord> StreamService::generateFileRecord()
 
 
 //
-// *** get all files in this run
+// *** get all files in this run (including open files)
+// return for each the count, filename, number of events, file size separated by a space
 //
 std::list<std::string> StreamService::getFileList()
 {
   std::list<std::string> files_;
   for (OutputSummaryIterator it = outputSummary_.begin(); it != outputSummary_.end(); it++)
-    files_.push_back((*it)->completeFileName());
+  {
+    std::ostringstream entry;
+    entry << (*it)->fileCounter() << " " 
+          << (*it)->completeFileName() << " " 
+          << (*it)->events() << " "
+          << (*it)->fileSize();
+    files_.push_back(entry.str());
+  }
   return files_;
 }
 
