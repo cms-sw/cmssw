@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.23 2006/10/23 07:51:03 pioppi Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.24 2006/11/10 17:35:03 dkcira Exp $
 //
 //
 
@@ -80,7 +80,7 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
     }else{
       // use SiStripSubStructure for selecting certain regions
       SiStripSubStructure substructure;
-      substructure.getTIBDetectors(activeDets, SelectedDetIds, 1, 1, 1, 0); // this adds rawDetIds to SelectedDetIds
+      substructure.getTIBDetectors(activeDets, SelectedDetIds, 1, 1, 1, 1); // this adds rawDetIds to SelectedDetIds
 //      substructure.getTOBDetectors(activeDets, SelectedDetIds, 1, 2, 0);    // this adds rawDetIds to SelectedDetIds
 //      substructure.getTIDDetectors(activeDets, SelectedDetIds, 1, 1, 0, 0); // this adds rawDetIds to SelectedDetIds
 //      substructure.getTECDetectors(activeDets, SelectedDetIds, 1, 2, 0, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
