@@ -395,7 +395,7 @@ void SiStripActionExecutor::saveMEs(MonitorUserInterface* mui, string fname){
   if (collationDone) {
     mui->save(fname,"Collector/Collated");
   } else {
-     mui->save(fname,"Collector",90);
+     mui->save(fname,"Collector",mui->pwd(),90);
   }
 }
 void SiStripActionExecutor::fillSummaryHistos(MonitorUserInterface* mui) {

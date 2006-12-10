@@ -1,12 +1,28 @@
 #!/bin/sh
+COLLECTORNAME=`/bin/hostname`
+echo "The hostname is = " $COLLECTORNAME
 eval `scramv1 runtime -sh`
+killall DQMCollector
 xterm -T "DQM Collector" -sb -sl 100   -e DQMCollector &
-export PRODUCER_PATH=${CMSSW_BASE}/src/DQM/SiStripMonitorCluster/test
-cd  ${PRODUCER_PATH}
-xterm -T "DQM Producer(Source)"  -sb -sl 30000 -e cmsRun DQM_digicluster.cfg &
+source_type=$1
+echo  $source_type
+if [ "$source_type" == "ped" ]; then
+  export PRODUCER_PATH=${CMSSW_BASE}/src/DQM/SiStripMonitorPedestals/test
+  cd  ${PRODUCER_PATH}
+  export CORAL_AUTH_PATH=/afs/cern.ch/cms/DB/conddb
+  killall cmsRun
+  xterm -T "DQM Producer(Source)"  -sb -sl 30000 -e ./PedsMonWithDB.csh &
+elif [ "$source_type" == "digi_cluster" ]; then
+  export PRODUCER_PATH=${CMSSW_BASE}/src/DQM/SiStripMonitorCluster/test
+  cd  ${PRODUCER_PATH}
+  killall cmsRun
+  perl -pi.bak -e "s#localhost#$COLLECTORNAME#g" OnlyDQM.cfg 
+  xterm -T "DQM Producer(Source)"  -sb -sl 30000 -e cmsRun OnlyDQM.cfg &
+fi
 export CONSUMER_PATH=${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test
 cd ${CONSUMER_PATH}
-setup.sh
-startMonitorClient 
+killall xdaq.exe
+./setup.sh $COLLECTORNAME
+./startMonitorClient 
 
 
