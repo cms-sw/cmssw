@@ -42,7 +42,7 @@ class TrackingRecHitProjector {
     }
     LocalError rotatedError = hitErr.rotate( hitXAxis.x(), hitXAxis.y());
 
-    return ResultingHit::build( projectedHitPos, rotatedError, &det, hit);
+    return ResultingHit::build( projectedHitPos, rotatedError, &det, hit.det(), hit);
   }
 
 };
