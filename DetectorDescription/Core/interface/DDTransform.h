@@ -37,6 +37,10 @@ DDRotation DDrotReflect(const DDName & name,
 			 double thetaZ, double phiZ);
 			 
 
+DDRotation DDrotReflect(const DDName & name,
+			DDRotationMatrix * rot);
+
+
 //! Defines a anonymous rotation or rotation-reflection matrix. 
 /** It can't be addressed by a unique DDName. Once created, it's the
     users responsibility to keep the reference object DDRotation!

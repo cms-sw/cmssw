@@ -47,6 +47,8 @@ class DDSolid : public DDBase<DDName,DDI::Solid*>
 {
   friend std::ostream & operator<<(std::ostream &, const DDSolid &);
   friend class DDSolidFactory;
+  friend class DDDToPersFactory;
+  friend class DDPersToDDDFactory;
   friend class DDStreamer;
     
 public: 
