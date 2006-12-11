@@ -3,6 +3,19 @@
 
 This page lists all subsystems related to Reconstruction within the <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/?cvsroot=CMSSW>CMSSW repository</a>.
 
+<h3>Examples</h3>
+- \ref Configuration_Examples "Examples": manual page about the three standard examples: sim, reco and full chain
+
+<h3>Reconstruction Sequence</h3>
+- \ref Software_StandardSequences "Standard Sequences": manual page about the standard sequences to be used for sim/rec/etc 
+
+
+
+
+<h3>Event Content</h3>
+- \ref Configuration_EventContent "Standard Event Content": manual page about the event content in FEVT, RECO, AOD Tiers.
+
+
 <h3>Reconstruction Subsystems</h3>
 - \ref RecoLocalTracker_Configuration "RecoLocalTracker": local tracker reconstruction
 
