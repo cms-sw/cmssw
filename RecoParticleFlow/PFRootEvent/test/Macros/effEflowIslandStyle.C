@@ -2,7 +2,7 @@
 eflow0->SetStats(0);
 eflow0->SetTitle("");
 
-eflow0->GetYaxis()->SetTitle("#varepsilon");  
+eflow0.GetYaxis()->SetTitle("#varepsilon");  
 eflow0.GetYaxis()->SetTitleSize(0.08);
 eflow0.GetYaxis()->SetTitleOffset(0.5);
 eflow0.GetXaxis()->SetTitleSize(0.05);
@@ -23,8 +23,8 @@ island1->SetTitle("");
 island1->SetLineColor(1);
 island1->SetLineWidth(2);
 
-TLegend leg(0.5,0.4,0.8,0.7);
-leg.AddEntry(eflow0, "Eflow", "l");
+TLegend leg(0.4,0.4,0.89,0.7);
+leg.AddEntry(eflow0, "Eflow, T_{seed}=200 MeV", "l");
 leg.AddEntry(island1, "Island", "l");
 
 bool famos = true;
@@ -52,7 +52,7 @@ if(famos) {
   grb->SetMarkerColor(2);
   grb->Draw("psame");
   
-  leg->AddEntry(grb, "Eflow (FAMOS)", "p");
+  leg->AddEntry(grb, "Eflow, T_{seed}=200 MeV (FAMOS)", "p");
   leg->AddEntry(gra, "Island (FAMOS)", "p");
 }
 leg.Draw();
