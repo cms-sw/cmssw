@@ -1,0 +1,26 @@
+<use name=Foundation/PluginManager>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+<use name=Geometry/CaloEventSetup>
+<use name=SimDataFormats/GlobalDigiValidation>
+<use name=DataFormats/DetId>
+<use name=Geometry/CommonDetUnit>
+<use name=root>
+<use name=clhep>
+
+<flags SEAL_PLUGIN_NAME="ValidationGlobalDigis">
+
+<export>
+ <lib name=ValidationGlobalDigis>
+ <use name=Foundation/PluginManager>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/MessageLogger>
+ <use name=Geometry/CaloEventSetup>
+ <use name=SimDataFormats/GlobalDigiValidation>
+ <use name=DataFormats/DetId>
+ <use name=Geometry/CommonDetUnit>
+ <use name=root>
+ <use name=clhep>
+</export>
