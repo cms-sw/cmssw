@@ -16,6 +16,7 @@
 <use name=MagneticField/VolumeBasedEngine>
 <use name=MagneticField/GeomBuilder>
 <use name=CommonTools/Statistics>
+<use name=FastSimulation/Utilities>
 <use name=root>
 <export>
 <lib name=FastSimulationTrackingRecHitProducer>
@@ -36,5 +37,6 @@
 <use name=RecoLocalTracker/Records>
 <use name=MagneticField/GeomBuilder>
 <use name=CommonTools/Statistics>
+<use name=FastSimulation/Utilities>
 <use name=root>
 </export>

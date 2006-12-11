@@ -17,6 +17,8 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 // CLHEP
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/HistogramGenerator.h"
 #include "CLHEP/Random/RandFlat.h"
 
 // STL
@@ -33,10 +35,10 @@
 // MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-const float PI = 3.141593;
+const double PI = 3.14159265358979323;
 
 SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitConverterAlgorithm(
-  edm::ParameterSet& pset,
+  const edm::ParameterSet& pset,
   GeomDetType::SubDetector pixelPart,
   std::vector<TH1F*>& alphaMultiplicityCumulativeProbabilities,
   std::vector<TH1F*>& betaMultiplicityCumulativeProbabilities, 
@@ -48,8 +50,8 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
   thePixelResolutionFile(pixelResolutionFile)
 {
   
-  //--- Algorithm's verbosity
-  theVerboseLevel = pset_.getUntrackedParameter<int>("VerboseLevel",0);
+  // The random engine
+  random = RandomEngine::instance();
 
   //
   if( thePixelPart == GeomDetEnumerators::PixelBarrel ) {
@@ -72,31 +74,70 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
   }
   // Initialize PixelErrorParametrization (time consuming!)
   pixelError = new PixelErrorParametrization(pset_);
-  
-  // Run Pixel Gaussian Smearing Algorithm
-  //  run( simHit, detUnit,
-  //       theAlphaMultiplicityCumulativeProbabilities,
-  //       theBetaMultiplicityCumulativeProbabilities );
+
+  // Initialize the histos once and for all, and prepare the random generation
+  for ( unsigned alphaHistBin=1; alphaHistBin<=resAlpha_binN; ++alphaHistBin ) {
+    for ( unsigned alphaMultiplicity=1; 
+	  alphaMultiplicity<=theAlphaMultiplicityCumulativeProbabilities.size();
+	  ++alphaMultiplicity ) {
+      unsigned int alphaHistN = (resAlpha_binWidth != 0. ?
+				 100 * alphaHistBin
+				 + 10
+				 + alphaMultiplicity
+				 :
+				 1110
+				 + alphaMultiplicity);    //
+      theAlphaHistos[alphaHistN] = new HistogramGenerator(
+	(TH1F*) thePixelResolutionFile->Get(  Form( "h%u" , alphaHistN ) ) );
+    }
+  }
+
+
   //
+  for ( unsigned betaHistBin=1; betaHistBin<=resBeta_binN; ++betaHistBin ) {
+    for ( unsigned betaMultiplicity=1; 
+	  betaMultiplicity<=theBetaMultiplicityCumulativeProbabilities.size();
+	  ++betaMultiplicity ) {
+      unsigned int betaHistN = (resBeta_binWidth != 0. ?
+				100 * betaHistBin
+				+ betaMultiplicity
+				:
+				1100 + betaMultiplicity);    //
+      theBetaHistos[betaHistN] = new HistogramGenerator(
+	(TH1F*) thePixelResolutionFile->Get(  Form( "h%u" , betaHistN  ) ) );
+    }
+  }
+
+  
 }
 
 SiPixelGaussianSmearingRecHitConverterAlgorithm::~SiPixelGaussianSmearingRecHitConverterAlgorithm()
 {
 
+  // SOme cleaning
   delete pixelError;
+
+  std::map<unsigned,const HistogramGenerator*>::const_iterator it;
+
+  for ( it=theAlphaHistos.begin(); it!=theAlphaHistos.end(); ++it ) 
+    delete it->second;
+
+  for ( it=theBetaHistos.begin(); it!=theBetaHistos.end(); ++it ) 
+    delete it->second;
+
+  theAlphaHistos.clear();
+  theBetaHistos.clear();
 
 }
 
-void SiPixelGaussianSmearingRecHitConverterAlgorithm::run(
+void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   const PSimHit& simHit, 
   const PixelGeomDetUnit* detUnit)
 {
 
-  if (theVerboseLevel > 3) {
-    LogDebug("SiPixelGaussianSmearingRecHits") 
-      << " Pixel smearing in " << thePixelPart 
-      << std::endl;
-  }
+  LogDebug("SiPixelGaussianSmearingRecHits") 
+    << " Pixel smearing in " << thePixelPart 
+    << std::endl;
   //
   // at the beginning the position is the Local Point in the local pixel module reference frame
   // same code as in PixelCPEBase
@@ -104,6 +145,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::run(
   float locx = localDir.x();
   float locy = localDir.y();
   float locz = localDir.z();
+
   // alpha: angle with respect to local x axis in local (x,z) plane
   float alpha = acos(locx/sqrt(locx*locx+locz*locz));
   if ( isFlipped( detUnit ) ) { // &&& check for FPIX !!!
@@ -117,81 +159,87 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::run(
   float betaToBeUsedForRootFiles  = PI/2. - beta;
   
   //
-  if (theVerboseLevel > 3) {
-    LogDebug("SiPixelGaussianSmearingRecHits") 
-      << " Local Direction " << simHit.localDirection()
-      << " alpha(x) = " << alpha
-      << " beta(y) = "  << beta
-      << " alpha for root files = " << alphaToBeUsedForRootFiles
-      << " beta  for root files = " << betaToBeUsedForRootFiles
-      << std::endl;
-  }
+  LogDebug("SiPixelGaussianSmearingRecHits") 
+    << " Local Direction " << simHit.localDirection()
+    << " alpha(x) = " << alpha
+    << " beta(y) = "  << beta
+    << " alpha for root files = " << alphaToBeUsedForRootFiles
+    << " beta  for root files = " << betaToBeUsedForRootFiles
+    << std::endl;
+
   // Generate alpha and beta multiplicity
   unsigned int alphaMultiplicity = 0;
   unsigned int betaMultiplicity  = 0;
   // random multiplicity for alpha and beta
-  double alphaProbability = RandFlat::shoot();
-  double betaProbability  = RandFlat::shoot();
+  double alphaProbability = random->flatShoot();
+  double betaProbability  = random->flatShoot();
+
   // search which multiplicity correspond
-  int alphaBin = theAlphaMultiplicityCumulativeProbabilities.front()->GetXaxis()->FindFixBin(alphaToBeUsedForRootFiles);
-  int betaBin  = theBetaMultiplicityCumulativeProbabilities.front()->GetXaxis()->FindFixBin(betaToBeUsedForRootFiles);
+  int alphaBin = 
+    theAlphaMultiplicityCumulativeProbabilities.front()->GetXaxis()->FindFixBin(alphaToBeUsedForRootFiles);
+  int betaBin = 
+    theBetaMultiplicityCumulativeProbabilities.front()->GetXaxis()->FindFixBin(betaToBeUsedForRootFiles);
+
   for(unsigned int iMult = 0; iMult < theAlphaMultiplicityCumulativeProbabilities.size(); iMult++) {
     if(alphaProbability < theAlphaMultiplicityCumulativeProbabilities[iMult]->GetBinContent(alphaBin) ) {
       alphaMultiplicity = iMult+1;
       break;
     }
   }
+
   for(unsigned int iMult = 0; iMult < theBetaMultiplicityCumulativeProbabilities.size(); iMult++) {
     if(betaProbability < theBetaMultiplicityCumulativeProbabilities[iMult]->GetBinContent(betaBin) ) {
       betaMultiplicity = iMult+1;
       break;
     }
   }
-  
+
   // protection against 0 or max multiplicity
-  if( alphaMultiplicity == 0 || alphaMultiplicity > theAlphaMultiplicityCumulativeProbabilities.size() ) alphaMultiplicity = theAlphaMultiplicityCumulativeProbabilities.size();
-  if( betaMultiplicity == 0  || alphaMultiplicity > theBetaMultiplicityCumulativeProbabilities.size()  ) betaMultiplicity  = theBetaMultiplicityCumulativeProbabilities.size();
+  if( alphaMultiplicity == 0 || alphaMultiplicity > theAlphaMultiplicityCumulativeProbabilities.size() ) 
+    alphaMultiplicity = theAlphaMultiplicityCumulativeProbabilities.size();
+  if( betaMultiplicity == 0  || alphaMultiplicity > theBetaMultiplicityCumulativeProbabilities.size()  ) 
+    betaMultiplicity  = theBetaMultiplicityCumulativeProbabilities.size();
+
   // protection against out-of-range (undeflows and overflows)
   if( alphaBin == 0 ) alphaBin = 1;
-  if( alphaBin > theAlphaMultiplicityCumulativeProbabilities.front()->GetNbinsX() ) alphaBin = theAlphaMultiplicityCumulativeProbabilities.front()->GetNbinsX();
+  if( alphaBin > theAlphaMultiplicityCumulativeProbabilities.front()->GetNbinsX() ) 
+    alphaBin = theAlphaMultiplicityCumulativeProbabilities.front()->GetNbinsX();
   if( betaBin == 0 ) betaBin = 1;
-  if( betaBin > theBetaMultiplicityCumulativeProbabilities.front()->GetNbinsX() )   betaBin = theBetaMultiplicityCumulativeProbabilities.front()->GetNbinsX();
+  if( betaBin > theBetaMultiplicityCumulativeProbabilities.front()->GetNbinsX() )   
+    betaBin = theBetaMultiplicityCumulativeProbabilities.front()->GetNbinsX();
+
   //
   //
-  if (theVerboseLevel > 3) {
-    LogDebug("SiPixelGaussianSmearingRecHits") << " Multiplicity set to"
-					       << "\talpha = " << alphaMultiplicity
-					       << "\tbeta = "  << betaMultiplicity
-					       << "\n"
-					       << "  from random probability"
-					       << "\talpha = " << alphaProbability
-					       << "\tbeta = "  << betaProbability
-					       << "\n"
-					       << "  taken from bin         "
-					       << "\talpha = " << alphaBin
-					       << "\tbeta = "  << betaBin
-					       << std::endl;	
-  }
-  //    
+  LogDebug("SiPixelGaussianSmearingRecHits") << " Multiplicity set to"
+					     << "\talpha = " << alphaMultiplicity
+					     << "\tbeta = "  << betaMultiplicity
+					     << "\n"
+					     << "  from random probability"
+					     << "\talpha = " << alphaProbability
+					     << "\tbeta = "  << betaProbability
+					     << "\n"
+					     << "  taken from bin         "
+					     << "\talpha = " << alphaBin
+					     << "\tbeta = "  << betaBin
+					     << std::endl;	
+
   // Compute pixel errors
   std::pair<float,float> theErrors = pixelError->getError( thePixelPart ,
 							  (int)alphaMultiplicity , (int)betaMultiplicity ,
 							  alpha                  , beta                    );
   // define private mebers --> Errors
-  theErrorX = sqrt((double)theErrors.first);  // PixelErrorParametrization returns sigma^2
-  theErrorY = sqrt((double)theErrors.second); // PixelErrorParametrization returns sigma^2
-  theErrorZ = 0.0001; // 1 um means zero
-  theError = LocalError( theErrorX * theErrorX,
-			 0.,
-			 theErrorY * theErrorY
-			 ); // Local Error is 2D: (xx,xy,yy), square of sigma in first an third position as for resolution matrix
+  theErrorX = theErrors.first;  // PixelErrorParametrization returns sigma^2
+  theErrorY = theErrors.second; // PixelErrorParametrization returns sigma^2
+  theErrorZ = 1e-8; // 1 um means zero
+  theError = LocalError( theErrorX, 0., theErrorY);
+    // Local Error is 2D: (xx,xy,yy), square of sigma in first an third position 
+    // as for resolution matrix
   //
-  if (theVerboseLevel > 3) {
-    LogDebug("SiPixelGaussianSmearingRecHits") << " Pixel Errors "
-					       << "\talpha(x) = " << theErrorX
-					       << "\tbeta(y) = "  << theErrorY
-					       << std::endl;	
-  }
+  LogDebug("SiPixelGaussianSmearingRecHits") << " Pixel Errors "
+					     << "\talpha(x) = " << sqrt(theErrorX)
+					     << "\tbeta(y) = "  << sqrt(theErrorY)
+					     << std::endl;	
+
   // 
   // Generate position
   // get resolution histograms
@@ -203,7 +251,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::run(
   if( alphaHistBin > (int)resAlpha_binN ) alphaHistBin = (int)resAlpha_binN; 
   if( betaHistBin  > (int)resBeta_binN  ) betaHistBin  = (int)resBeta_binN; 
   //  
-  unsigned int alphaHistN = (resAlpha_binWidth != 0 ?
+  unsigned int alphaHistN = (resAlpha_binWidth != 0. ?
 			     100 * alphaHistBin
 			     + 10
 			     + alphaMultiplicity
@@ -211,27 +259,25 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::run(
 			     1110
 			     + alphaMultiplicity);    //
   //
-  unsigned int betaHistN = (resBeta_binWidth != 0 ?
+  unsigned int betaHistN = (resBeta_binWidth != 0. ?
 			    100 * betaHistBin
 			    + betaMultiplicity
 			    :
 			    1100 + betaMultiplicity);    //
   //
-  if (theVerboseLevel > 3) {
-    LogDebug("SiPixelGaussianSmearingRecHits") << " Resolution histograms chosen "
-					       << "\talpha = " << alphaHistN
-					       << "\tbeta = "  << betaHistN
-					       << std::endl;	
-  }
+  LogDebug("SiPixelGaussianSmearingRecHits") 
+    << " Resolution histograms chosen "
+    << "\talpha = " << alphaHistN
+    << "\tbeta = "  << betaHistN
+    << std::endl;	
+
   //
-  TH1F* alphaHist = (TH1F*) thePixelResolutionFile->Get(  Form( "h%u" , alphaHistN ) );
-  TH1F* betaHist  = (TH1F*) thePixelResolutionFile->Get(  Form( "h%u" , betaHistN  ) );
-  //
-  // define private mebers --> Positions
-  thePositionX = alphaHist->GetRandom();
-  thePositionY = betaHist->GetRandom();
+  // Smear the hit Position
+  thePositionX = theAlphaHistos[alphaHistN]->generate();
+  thePositionY = theBetaHistos[betaHistN]->generate();
   thePositionZ = 0.0; // set at the centre of the active area
   thePosition = Local3DPoint( thePositionX , thePositionY , thePositionZ );
+
   // define private mebers --> Multiplicities
   thePixelMultiplicityAlpha = alphaMultiplicity;
   thePixelMultiplicityBeta  = betaMultiplicity;
@@ -250,7 +296,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::run(
 //
 // The isFliped does it by looking and the relation of the local (z always
 // in the E direction) to global coordinates. There is probably a much 
-// better way.
+// better way.(PJ: And faster!)
 //-----------------------------------------------------------------------------
 bool SiPixelGaussianSmearingRecHitConverterAlgorithm::isFlipped(const PixelGeomDetUnit* theDet) const {
   // Check the relative position of the local +/- z in global coordinates.

@@ -21,20 +21,18 @@
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
-
 // Data Formats
-#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/Ref.h"
-//#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-//#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 // Framework
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // Numbering scheme
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
@@ -44,8 +42,8 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
-// CLHEP
-#include "CLHEP/Random/RandFlat.h"
+// Random engine
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 // STL
 #include <memory>
@@ -60,16 +58,30 @@
 // MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConverter(edm::ParameterSet const& conf) : conf_(conf)
+SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConverter(edm::ParameterSet const& conf) 
+  : conf_(conf)
 {
   std::cout << "SiTrackerGaussianSmearingRecHitConverter instantiated" << std::endl;
+
+  // Initialize the random number generator service
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable() ) {
+    throw cms::Exception("Configuration")
+      << "SiTrackerGaussianSmearingRecHitConverter requires the RandomGeneratorService\n"
+         "which is not present in the configuration file.\n"
+         "You must add the service in the configuration file\n"
+         "or remove the module that requires it";
+  }
+
+  random = RandomEngine::instance(&(*rng));
+
   //--- Declare to the EDM what kind of collections we will be making.
   theRecHitsTag = conf.getParameter<std::string>( "RecHits" );
   produces<SiTrackerGSRecHit2DCollection>();
   //    LogDebug("SiTrackerGaussianSmearingRecHits") << "RecHit collection to produce: " << theRecHitsTag << std::endl;
   //--- Algorithm's verbosity
-  theVerboseLevel = 
-    conf.getUntrackedParameter<int>("VerboseLevel",0);
+  //  theVerboseLevel = 
+  //    conf.getUntrackedParameter<int>("VerboseLevel",0);
   //--- PSimHit Containers
   trackerContainers.clear();
   trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
@@ -278,7 +290,7 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
 	thePixelForwardResolutionFile);
   // Initialize the si strip error parametrization
   theSiStripErrorParametrization = 
-    new SiStripGaussianSmearingRecHitConverterAlgorithm(conf_);
+    new SiStripGaussianSmearingRecHitConverterAlgorithm();
 
 }
 
@@ -320,17 +332,21 @@ void SiTrackerGaussianSmearingRecHitConverter::loadPixelData( TFile* pixelDataFi
     }
   }
   // Logger
-  if (theVerboseLevel > 3) {
-    std::cout << " Multiplicity cumulated probability " << histName << std::endl;
-    for(unsigned int iMult = 0; iMult<theMultiplicityCumulativeProbabilities.size(); iMult++) {
-      for(int iBin = 1; iBin<=theMultiplicityCumulativeProbabilities[iMult]->GetNbinsX(); iBin++) {
-	std::cout << " Multiplicity " << iMult+1 << " bin " << iBin << " low edge = " << theMultiplicityCumulativeProbabilities[iMult]->GetBinLowEdge(iBin)
-		  << " prob = " << (theMultiplicityCumulativeProbabilities[iMult])->GetBinContent(iBin) // remember in ROOT bin starts from 1 (0 underflow, nBin+1 overflow)
-		  << std::endl;
-      }
+  LogDebug("SiTrackerGaussianSmearingRecHits")
+    << " Multiplicity cumulated probability " << histName << std::endl;
+  for(unsigned int iMult = 0; iMult<theMultiplicityCumulativeProbabilities.size(); iMult++) {
+    for(int iBin = 1; iBin<=theMultiplicityCumulativeProbabilities[iMult]->GetNbinsX(); iBin++) {
+      LogDebug("SiTrackerGaussianSmearingRecHits")
+	<< " Multiplicity " << iMult+1 
+	<< " bin " << iBin 
+	<< " low edge = " 
+	<< theMultiplicityCumulativeProbabilities[iMult]->GetBinLowEdge(iBin)
+	<< " prob = " 
+	<< (theMultiplicityCumulativeProbabilities[iMult])->GetBinContent(iBin) 
+	// remember in ROOT bin starts from 1 (0 underflow, nBin+1 overflow)
+	<< std::endl;
     }
   }
-  //
 }
 
 // Destructor
@@ -364,8 +380,9 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
   e.getByType(allTrackerHits);
   
   // Step B: create temporary RecHit collection and fill it with Gaussian smeared RecHit's
-  std::map< DetId, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
-  run( &(*allTrackerHits) , temporaryRecHits );
+  //  std::map< DetId, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
+  temporaryRecHits.clear();
+  smearHits( &(*allTrackerHits));
 
   // Step C: from the temporary RecHit collection, create the real one.
   std::auto_ptr<SiTrackerGSRecHit2DCollection> 
@@ -378,12 +395,14 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
 }
 
 
-void SiTrackerGaussianSmearingRecHitConverter::run(const edm::PSimHitContainer* input,
-						   std::map<DetId,edm::OwnVector<SiTrackerGSRecHit2D> >& output) {
-  //						   SiTrackerGSRecHit2DCollection& output) {
+void SiTrackerGaussianSmearingRecHitConverter::smearHits(const edm::PSimHitContainer* input)
+{
+  
   int numberOfPSimHits = 0;
   
   edm::PSimHitContainer::const_iterator isim;
+  Local3DPoint position;
+  LocalError error;
   
   int simHitCounter = -1;
   
@@ -397,35 +416,31 @@ void SiTrackerGaussianSmearingRecHitConverter::run(const edm::PSimHitContainer* 
       //
       numberOfPSimHits++;	
       // gaussian smearing
-      Local3DPoint position;
-      LocalError error;
       unsigned int alphaMult = 0;
       unsigned int betaMult  = 0;
       bool isCreated = gaussianSmearing(*isim, position, error, alphaMult, betaMult);
       //
       if(isCreated) {
 	// create RecHit
-	if (theVerboseLevel > 2) {
-	  LogDebug("SiTrackerGaussianSmearingRecHits") 
-	    << " *** " << std::endl 
-	    << " Created a RecHit with local position " << position 
-	    << " and local error " << error << "\n"
-	    << "   from PSimHit number " << simHitCounter 
-	    << " with local position " << (*isim).localPosition()
-	    << " from track " << (*isim).trackId()
-	    << " with pixel multiplicity alpha(x) = " << alphaMult 
-	    << " beta(y) = " << betaMult
-	    << " in detector " << detid
-	    << std::endl;
-	}
+	LogDebug("SiTrackerGaussianSmearingRecHits") 
+	  << " *** " << std::endl 
+	  << " Created a RecHit with local position " << position 
+	  << " and local error " << error << "\n"
+	  << "   from PSimHit number " << simHitCounter 
+	  << " with local position " << (*isim).localPosition()
+	  << " from track " << (*isim).trackId()
+	  << " with pixel multiplicity alpha(x) = " << alphaMult 
+	  << " beta(y) = " << betaMult
+	  << " in detector " << detid
+	  << std::endl;
 
 	// Fill the temporary RecHit on the current DetId collection
-	output[det].push_back(	new SiTrackerGSRecHit2D(position, error, det, 
-							simHitCounter, (*isim).trackId(), 
-							alphaMult, betaMult) );
+	temporaryRecHits[det].push_back(
+	       new SiTrackerGSRecHit2D(position, error, det, 
+				       simHitCounter, (*isim).trackId(), 
+				       alphaMult, betaMult) );
 
-	if (theVerboseLevel > 2) 
-	  LogDebug("SiTrackerGaussianSmearingRecHits") << " Found one " 
+	LogDebug("SiTrackerGaussianSmearingRecHits") << " Found one " 
 						       << " RecHits on " << detid;	
       } else {
 
@@ -437,22 +452,26 @@ void SiTrackerGaussianSmearingRecHitConverter::run(const edm::PSimHitContainer* 
 	  << std::endl;
       }
     } else {
-      if (theVerboseLevel > 2) 
-	LogDebug("SiTrackerGaussianSmearingRecHits") 
-	  << " PSimHit skipped p = " 
-	  << (*isim).pabs() << " GeV/c on " << detid
-	  << "(momentum cut set to " << deltaRaysPCut << " GeV/c)";		
+      LogDebug("SiTrackerGaussianSmearingRecHits") 
+	<< " PSimHit skipped p = " 
+	<< (*isim).pabs() << " GeV/c on " << detid
+	<< "(momentum cut set to " << deltaRaysPCut << " GeV/c)";		
     }
   }
 
-  if (theVerboseLevel > 2) LogDebug ("SiTrackerGaussianSmearingRecHits") 
+  LogDebug ("SiTrackerGaussianSmearingRecHits") 
     << "SiTrackerGaussianSmearingRecHits converted " << numberOfPSimHits
     << " PSimHit's into SiTrackerGSRecHit2D"; 
   
 }
 
-bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& simHit, Local3DPoint& position , LocalError& error,
-								unsigned int& alphaMult, unsigned int& betaMult) {
+bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& simHit, 
+								Local3DPoint& position , 
+								LocalError& error,
+								unsigned& alphaMult, 
+								unsigned& betaMult) 
+{
+
   unsigned int subdet   = DetId(simHit.detUnitId()).subdetId();
   unsigned int detid    = DetId(simHit.detUnitId()).rawId();
   
@@ -469,20 +488,16 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
     //
     // starting from PSimHit local position
     position = simHit.localPosition();
-    if (theVerboseLevel > 2) {
-      LogDebug("SiTrackerGaussianSmearingRecHits") 
-	<< " Tracking PSimHit position set to  " << position;
-    }
+    LogDebug("SiTrackerGaussianSmearingRecHits") 
+      << " Tracking PSimHit position set to  " << position;
     return true; // RecHit == PSimHit with 100% hit finding efficiency
   }
   //
   
   // hit finding probability --> RecHit will be created if and only if hitFindingProbability <= theHitFindingProbability_###
-  double hitFindingProbability = RandFlat::shoot();
-  if (theVerboseLevel > 2) {
-    LogDebug("SiTrackerGaussianSmearingRecHits") 
-      << " Hit finding probability draw: " << hitFindingProbability << std::endl;;
-  }
+  double hitFindingProbability = random->flatShoot();
+  LogDebug("SiTrackerGaussianSmearingRecHits") 
+    << " Hit finding probability draw: " << hitFindingProbability << std::endl;;
   
   switch (subdet) {
     // Pixel Barrel
@@ -494,7 +509,7 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 	<< "\tPixel Barrel Layer " << theLayer << std::endl;
       if( hitFindingProbability > theHitFindingProbability_PXB ) return false;
       // Hit smearing
-      thePixelBarrelParametrization->run(
+      thePixelBarrelParametrization->smearHit(
                          simHit,
 			 dynamic_cast<const PixelGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId()))));
       position  = thePixelBarrelParametrization->getPosition();
@@ -513,7 +528,7 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 	<< "\tPixel Forward Disk " << theDisk << std::endl;
       if( hitFindingProbability > theHitFindingProbability_PXF ) return false;
       //
-      thePixelEndcapParametrization->run(
+      thePixelEndcapParametrization->smearHit(
                          simHit,
 			 dynamic_cast<const PixelGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId()))));
       position = thePixelEndcapParametrization->getPosition();
@@ -531,35 +546,35 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
       LogDebug ("SiTrackerGaussianSmearingRecHits") 
 	<< "\tTIB Layer " << theLayer << std::endl;
       //
-      HepSymMatrix resolution(3,1); // 3x3 symmetric matrix, second element: set to Identity
-      resolution[2][2] = localPositionResolution_z * localPositionResolution_z;
+      double resolutionX, resolutionY, resolutionZ;
+      resolutionZ = localPositionResolution_z;
       
       switch (theLayer) {
       case 1:
 	{
-	  resolution[0][0] = localPositionResolution_TIB1x * localPositionResolution_TIB1x;
-	  resolution[1][1] = localPositionResolution_TIB1y * localPositionResolution_TIB1y;
+	  resolutionX = localPositionResolution_TIB1x;
+	  resolutionY = localPositionResolution_TIB1y;
 	  if( hitFindingProbability > theHitFindingProbability_TIB1 ) return false;
 	  break;
 	}
       case 2:
 	{
-	  resolution[0][0] = localPositionResolution_TIB2x * localPositionResolution_TIB2x;
-	  resolution[1][1] = localPositionResolution_TIB2y * localPositionResolution_TIB2y;
+	  resolutionX = localPositionResolution_TIB2x;
+	  resolutionY = localPositionResolution_TIB2y;
 	  if( hitFindingProbability > theHitFindingProbability_TIB2 ) return false;
 	  break;
 	}
       case 3:
 	{
-	  resolution[0][0] = localPositionResolution_TIB3x * localPositionResolution_TIB3x;
-	  resolution[1][1] = localPositionResolution_TIB3y * localPositionResolution_TIB3y;
+	  resolutionX = localPositionResolution_TIB3x;
+	  resolutionY = localPositionResolution_TIB3y;
 	  if( hitFindingProbability > theHitFindingProbability_TIB3 ) return false;
 	  break;
 	}
       case 4:
 	{
-	  resolution[0][0] = localPositionResolution_TIB4x * localPositionResolution_TIB4x;
-	  resolution[1][1] = localPositionResolution_TIB4y * localPositionResolution_TIB4y;
+	  resolutionX = localPositionResolution_TIB4x;
+	  resolutionY = localPositionResolution_TIB4y;
 	  if( hitFindingProbability > theHitFindingProbability_TIB4 ) return false;
 	  break;
 	}
@@ -573,7 +588,7 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
       }
 
       // Gaussian smearing
-      theSiStripErrorParametrization->run(simHit, resolution);
+      theSiStripErrorParametrization->smearHit(simHit, resolutionX, resolutionY, resolutionZ);
       position = theSiStripErrorParametrization->getPosition();
       error    = theSiStripErrorParametrization->getError();
       alphaMult = 0;
@@ -589,28 +604,28 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
       unsigned int theRing  = module.ring();
       LogDebug ("SiTrackerGaussianSmearingRecHits") 
 	<< "\tTID Ring " << theRing << std::endl;
-      HepSymMatrix resolution(3,1); // 3x3 symmetric matrix, second element: set to Identity
-      resolution[0][0] = localPositionResolution_z * localPositionResolution_z;
+      double resolutionX, resolutionY, resolutionZ;
+      resolutionZ = localPositionResolution_z;
       
       switch (theRing) {
       case 1:
 	{
-	  resolution[0][0] = localPositionResolution_TID1x * localPositionResolution_TID1x;
-	  resolution[1][1] = localPositionResolution_TID1y * localPositionResolution_TID1y;
+	  resolutionX = localPositionResolution_TID1x;
+	  resolutionY = localPositionResolution_TID1y;
 	  if( hitFindingProbability > theHitFindingProbability_TID1 ) return false;
 	  break;
 	}
       case 2:
 	{
-	  resolution[0][0] = localPositionResolution_TID2x * localPositionResolution_TID2x;
-	  resolution[1][1] = localPositionResolution_TID2y * localPositionResolution_TID2y;
+	  resolutionX = localPositionResolution_TID2x;
+	  resolutionY = localPositionResolution_TID2y;
 	  if( hitFindingProbability > theHitFindingProbability_TID2 ) return false;
 	  break;
 	}
       case 3:
 	{
-	  resolution[0][0] = localPositionResolution_TID3x * localPositionResolution_TID3x;
-	  resolution[1][1] = localPositionResolution_TID3y * localPositionResolution_TID3y;
+	  resolutionX = localPositionResolution_TID3x;
+	  resolutionY = localPositionResolution_TID3y;
 	  if( hitFindingProbability > theHitFindingProbability_TID3 ) return false;
 	  break;
 	}
@@ -622,7 +637,7 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 	  break;
 	}
       }
-      theSiStripErrorParametrization->run(simHit, resolution);
+      theSiStripErrorParametrization->smearHit(simHit, resolutionX, resolutionY, resolutionZ);
       position = theSiStripErrorParametrization->getPosition();
       error    = theSiStripErrorParametrization->getError();
       alphaMult = 0;
@@ -638,49 +653,49 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
       unsigned int theLayer  = module.layer();
       LogDebug ("SiTrackerGaussianSmearingRecHits") 
 	<< "\tTOB Layer " << theLayer << std::endl;
-      HepSymMatrix resolution(3,1); // 3x3 symmetric matrix, second element: set to Identity
-      resolution[0][0] = localPositionResolution_z * localPositionResolution_z;
+      double resolutionX, resolutionY, resolutionZ;
+      resolutionZ = localPositionResolution_z;
       
       switch (theLayer) {
       case 1:
 	{
-	  resolution[0][0] = localPositionResolution_TOB1x * localPositionResolution_TOB1x;
-	  resolution[1][1] = localPositionResolution_TOB1y * localPositionResolution_TOB1y;
+	  resolutionX = localPositionResolution_TOB1x;
+	  resolutionY = localPositionResolution_TOB1y;
 	  if( hitFindingProbability > theHitFindingProbability_TOB1 ) return false;
 	  break;
 	}
       case 2:
 	{
-	  resolution[0][0] = localPositionResolution_TOB2x * localPositionResolution_TOB2x;
-	  resolution[1][1] = localPositionResolution_TOB2y * localPositionResolution_TOB2y;
+	  resolutionX = localPositionResolution_TOB2x;
+	  resolutionY = localPositionResolution_TOB2y;
 	  if( hitFindingProbability > theHitFindingProbability_TOB2 ) return false;
 	  break;
 	}
       case 3:
 	{
-	  resolution[0][0] = localPositionResolution_TOB3x * localPositionResolution_TOB3x;
-	  resolution[1][1] = localPositionResolution_TOB3y * localPositionResolution_TOB3y;
+	  resolutionX = localPositionResolution_TOB3x;
+	  resolutionY = localPositionResolution_TOB3y;
 	  if( hitFindingProbability > theHitFindingProbability_TOB3 ) return false;
 	  break;
 	}
       case 4:
 	{
-	  resolution[0][0] = localPositionResolution_TOB4x * localPositionResolution_TOB4x;
-	  resolution[1][1] = localPositionResolution_TOB4y * localPositionResolution_TOB4y;
+	  resolutionX = localPositionResolution_TOB4x;
+	  resolutionY = localPositionResolution_TOB4y;
 	  if( hitFindingProbability > theHitFindingProbability_TOB4 ) return false;
 	  break;
 	}
       case 5:
 	{
-	  resolution[0][0] = localPositionResolution_TOB5x * localPositionResolution_TOB5x;
-	  resolution[1][1] = localPositionResolution_TOB5y * localPositionResolution_TOB5y;
+	  resolutionX = localPositionResolution_TOB5x;
+	  resolutionY = localPositionResolution_TOB5y;
 	  if( hitFindingProbability > theHitFindingProbability_TOB5 ) return false;
 	  break;
 	}
       case 6:
 	{
-	  resolution[0][0] = localPositionResolution_TOB6x * localPositionResolution_TOB6x;
-	  resolution[1][1] = localPositionResolution_TOB6y * localPositionResolution_TOB6y;
+	  resolutionX = localPositionResolution_TOB6x;
+	  resolutionY = localPositionResolution_TOB6y;
 	  if( hitFindingProbability > theHitFindingProbability_TOB6 ) return false;
 	  break;
 	}
@@ -692,7 +707,7 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 	  break;
 	}
       }
-      theSiStripErrorParametrization->run(simHit, resolution);
+      theSiStripErrorParametrization->smearHit(simHit, resolutionX, resolutionY, resolutionZ);
       position = theSiStripErrorParametrization->getPosition();
       error    = theSiStripErrorParametrization->getError();
       alphaMult = 0;
@@ -708,56 +723,56 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
       unsigned int theRing  = module.ring();
       LogDebug ("SiTrackerGaussianSmearingRecHits") 
 	<< "\tTEC Ring " << theRing << std::endl;
-      HepSymMatrix resolution(3,1); // 3x3 symmetric matrix, second element: set to Identity
-      resolution[0][0] = localPositionResolution_z * localPositionResolution_z;
+      double resolutionX, resolutionY, resolutionZ;
+      resolutionZ = localPositionResolution_z * localPositionResolution_z;
       
       switch (theRing) {
       case 1:
 	{
-	  resolution[0][0] = localPositionResolution_TEC1x * localPositionResolution_TEC1x;
-	  resolution[1][1] = localPositionResolution_TEC1y * localPositionResolution_TEC1y;
+	  resolutionX = localPositionResolution_TEC1x;
+	  resolutionY = localPositionResolution_TEC1y;
 	  if( hitFindingProbability > theHitFindingProbability_TEC1 ) return false;
 	  break;
 	}
       case 2:
 	{
-	  resolution[0][0] = localPositionResolution_TEC2x * localPositionResolution_TEC2x;
-	  resolution[1][1] = localPositionResolution_TEC2y * localPositionResolution_TEC2y;
+	  resolutionX = localPositionResolution_TEC2x;
+	  resolutionY = localPositionResolution_TEC2y;
 	  if( hitFindingProbability > theHitFindingProbability_TEC2 ) return false;
 	  break;
 	}
       case 3:
 	{
-	  resolution[0][0] = localPositionResolution_TEC3x * localPositionResolution_TEC3x;
-	  resolution[1][1] = localPositionResolution_TEC3y * localPositionResolution_TEC3y;
+	  resolutionX = localPositionResolution_TEC3x;
+	  resolutionY = localPositionResolution_TEC3y;
 	  if( hitFindingProbability > theHitFindingProbability_TEC3 ) return false;
 	  break;
 	}
       case 4:
 	{
-	  resolution[0][0] = localPositionResolution_TEC4x * localPositionResolution_TEC4x;
-	  resolution[1][1] = localPositionResolution_TEC4y * localPositionResolution_TEC4y;
+	  resolutionX = localPositionResolution_TEC4x;
+	  resolutionY = localPositionResolution_TEC4y;
 	  if( hitFindingProbability > theHitFindingProbability_TEC4 ) return false;
 	  break;
 	}
       case 5:
 	{
-	  resolution[0][0] = localPositionResolution_TEC5x * localPositionResolution_TEC5x;
-	  resolution[1][1] = localPositionResolution_TEC5y * localPositionResolution_TEC5y;
+	  resolutionX = localPositionResolution_TEC5x;
+	  resolutionY = localPositionResolution_TEC5y;
 	  if( hitFindingProbability > theHitFindingProbability_TEC5 ) return false;
 	  break;
 	}
       case 6:
 	{
-	  resolution[0][0] = localPositionResolution_TEC6x * localPositionResolution_TEC6x;
-	  resolution[1][1] = localPositionResolution_TEC6y * localPositionResolution_TEC6y;
+	  resolutionX = localPositionResolution_TEC6x;
+	  resolutionY = localPositionResolution_TEC6y;
 	  if( hitFindingProbability > theHitFindingProbability_TEC6 ) return false;
 	  break;
 	}
       case 7:
 	{
-	  resolution[0][0] = localPositionResolution_TEC7x * localPositionResolution_TEC7x;
-	  resolution[1][1] = localPositionResolution_TEC7y * localPositionResolution_TEC7y;
+	  resolutionX = localPositionResolution_TEC7x;
+	  resolutionY = localPositionResolution_TEC7y;
 	  if( hitFindingProbability > theHitFindingProbability_TEC7 ) return false;
 	  break;
 	}
@@ -770,7 +785,7 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 	}
       }
 
-      theSiStripErrorParametrization->run(simHit, resolution);
+      theSiStripErrorParametrization->smearHit(simHit, resolutionX, resolutionY, resolutionZ);
       position = theSiStripErrorParametrization->getPosition();
       error    = theSiStripErrorParametrization->getError();
       alphaMult = 0;

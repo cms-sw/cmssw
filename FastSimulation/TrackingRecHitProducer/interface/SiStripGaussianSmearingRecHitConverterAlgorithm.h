@@ -8,9 +8,6 @@
 //!
 //---------------------------------------------------------------------------
 
-// Framework
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 // PSimHit
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
@@ -25,12 +22,14 @@
 #include <vector>
 #include <string>
 
+class RandomEngine;
+
 class SiStripGaussianSmearingRecHitConverterAlgorithm {
 
 public:
   //--- Constructor, virtual destructor (just in case)
-  explicit SiStripGaussianSmearingRecHitConverterAlgorithm(edm::ParameterSet& pset);
-  virtual ~SiStripGaussianSmearingRecHitConverterAlgorithm() {};
+  explicit SiStripGaussianSmearingRecHitConverterAlgorithm();
+  virtual ~SiStripGaussianSmearingRecHitConverterAlgorithm() {;}
   
   // return results
   const Local3DPoint& getPosition() const {return thePosition;}
@@ -42,13 +41,13 @@ public:
   double             getErrorY()    const {return theErrorY;}
   double             getErrorZ()    const {return theErrorZ;}
   //
-  void run( const PSimHit& simHit , const HepSymMatrix& localPositionResolution );
+  void smearHit( const PSimHit& simHit , 
+		 double localPositionResolutionX,
+		 double localPositionResolutionY,
+		 double localPositionResolutionZ);
   
 private:
-  //
-  // parameters
-  edm::ParameterSet pset_;
-  int theVerboseLevel;
+
   // output
   Local3DPoint thePosition;
   double       thePositionX;
@@ -59,6 +58,9 @@ private:
   double       theErrorY;
   double       theErrorZ;
   //
+
+  // The random engine
+  RandomEngine* random;
   
 };
 

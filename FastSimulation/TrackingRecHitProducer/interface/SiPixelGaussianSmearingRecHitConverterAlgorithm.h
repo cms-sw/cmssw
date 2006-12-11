@@ -8,7 +8,8 @@
 //!
 //---------------------------------------------------------------------------
 
-// Framework
+
+//Framework
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // PSimHit
@@ -29,12 +30,14 @@
 class TFile;
 class TH1F;
 class PixelErrorParametrization;
+class RandomEngine;
+class HistogramGenerator;
 
 class SiPixelGaussianSmearingRecHitConverterAlgorithm {
 public:
   //--- Constructor, virtual destructor (just in case)
-  explicit SiPixelGaussianSmearingRecHitConverterAlgorithm(
-   edm::ParameterSet& pset,
+  explicit SiPixelGaussianSmearingRecHitConverterAlgorithm(						   
+   const edm::ParameterSet& pset,							   
    GeomDetType::SubDetector pixelPart,
    std::vector<TH1F*>& alphaMultiplicityCumulativeProbabilities,
    std::vector<TH1F*>& betaMultiplicityCumulativeProbabilities,
@@ -57,26 +60,31 @@ public:
   //
   
   //
-  void run( const PSimHit& simHit, const PixelGeomDetUnit* detUnit);
+  void smearHit( const PSimHit& simHit, const PixelGeomDetUnit* detUnit);
 
 private:
   //
   bool isFlipped(const PixelGeomDetUnit* theDet) const;
   //
-  // parameters
-  edm::ParameterSet pset_;
-  int theVerboseLevel;
+
   // resolution bins
   double resAlpha_binMin , resAlpha_binWidth;
   unsigned int resAlpha_binN;
   double resBeta_binMin  , resBeta_binWidth;
   unsigned int resBeta_binN;
   //
+  edm::ParameterSet pset_;
   // Useful private members
   GeomDetType::SubDetector thePixelPart;
+
   std::vector<TH1F*> theAlphaMultiplicityCumulativeProbabilities;
   std::vector<TH1F*> theBetaMultiplicityCumulativeProbabilities;
+
+  std::map<unsigned,const HistogramGenerator*> theAlphaHistos;
+  std::map<unsigned,const HistogramGenerator*> theBetaHistos;
+
   TFile* thePixelResolutionFile;
+
   unsigned int theLayer;
   // output
   Local3DPoint thePosition;
@@ -91,6 +99,9 @@ private:
   unsigned int thePixelMultiplicityBeta;
   //
   PixelErrorParametrization* pixelError;
+
+  // The random engine
+  RandomEngine* random;
   
 };
 

@@ -18,9 +18,11 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 // PSimHit
-//#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+
+// Data Formats
+#include "DataFormats/DetId/interface/DetId.h"
 
 // Gaussian Smearing
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
@@ -40,6 +42,7 @@ class TH1F;
 class TrackerGeometry;
 class SiPixelGaussianSmearingRecHitConverterAlgorithm;
 class SiStripGaussianSmearingRecHitConverterAlgorithm;
+class RandomEngine;
 
 class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
 {
@@ -60,8 +63,7 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   //    void run(MixCollection<PSimHit>& input,
   //	     SiTrackerGSRecHit2DCollection& output,
   //	     edm::ESHandle<TrackerGeometry>& geom);
-  void run(const edm::PSimHitContainer* input,
-	   std::map<DetId,edm::OwnVector<SiTrackerGSRecHit2D> >& output);
+  void smearHits(const edm::PSimHitContainer* input);
 
   void loadRecHits(std::map<DetId,edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
 		   SiTrackerGSRecHit2DCollection& theRecHitCollection) const;
@@ -69,8 +71,11 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   
  private:
   //
-  bool gaussianSmearing(const PSimHit& simHit, Local3DPoint& position , 
-			LocalError& error, unsigned int& alphaMult, unsigned int& betaMult);
+  bool gaussianSmearing(const PSimHit& simHit, 
+			Local3DPoint& position , 
+			LocalError& error, 
+			unsigned& alphaMult, 
+			unsigned& betaMult);
   //
   void loadPixelData();
   //
@@ -80,7 +85,6 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   //
   // parameters
   edm::ParameterSet conf_;
-  int theVerboseLevel;
   std::string theRecHitsTag;
   std::vector<std::string> trackerContainers;
   double deltaRaysPCut; // GeV/c
@@ -201,6 +205,11 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   // Si Strip Error parametrization (generic)
   SiStripGaussianSmearingRecHitConverterAlgorithm* theSiStripErrorParametrization;
 
+  // Temporary RecHit map
+  std::map< DetId, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
+
+  // The random engine
+  RandomEngine* random;
 
 };
 
