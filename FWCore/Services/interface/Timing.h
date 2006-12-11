@@ -7,7 +7,7 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.h,v 1.2 2006/07/31 21:21:55 evansde Exp $
+// $Id: Timing.h,v 1.3 2006/08/16 13:36:28 chrjones Exp $
 //
 #include "sigc++/signal.h"
 
@@ -38,7 +38,7 @@ namespace edm {
       double curr_job_; // seconds
       double curr_event_time_;  // seconds
       double curr_module_time_; // seconds
-      bool want_summary_;
+      bool summary_only_;
       bool report_summary_;
       
         //
