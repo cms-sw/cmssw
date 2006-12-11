@@ -57,7 +57,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     vector<TH1*> profs;
     Collations::const_iterator ihis = iter->second.begin(); 
     for ( ; ihis != iter->second.end(); ihis++ ) {
-      TProfile* prof = ExtractTObject<TProfile>().extract( mui()->get( *ihis ) );
+      TProfile* prof = ExtractTObject<TProfile>().extract( ihis->second->getMonitorElement() );
       if ( prof ) { profs.push_back(prof); }
     } 
     

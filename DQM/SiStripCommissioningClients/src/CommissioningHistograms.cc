@@ -42,32 +42,30 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
   vector<string>::const_iterator idir;
   for ( idir = contents.begin(); idir != contents.end(); idir++ ) {
     
+    // Ignore directories on client side
+    if ( idir->find("Collector") == string::npos ) { continue; }
+    
     // Extract directory paths
     string collector_dir = idir->substr( 0, idir->find(":") );
     SiStripFecKey::Path path = SiStripHistoNamingScheme::controlPath( collector_dir );
-    string client_dir = SiStripHistoNamingScheme::controlPath( path );
-
     if ( path.fecCrate_ == sistrip::invalid_ ||
 	 path.fecSlot_ == sistrip::invalid_ ||
 	 path.fecRing_ == sistrip::invalid_ ||
 	 path.ccuAddr_ == sistrip::invalid_ ||
 	 path.ccuChan_ == sistrip::invalid_ ) { continue; } 
+    
+    string dir = SiStripHistoNamingScheme::controlPath( path );
+    string client_dir = dir.substr( 0, dir.size()-1 ); 
+    //cout << "DIR: " << dir << " " << client_dir << endl;
 
     // Retrieve MonitorElements from pwd directory
     mui()->setCurrentFolder( collector_dir );
     vector<string> me_list = mui()->getMEs();
 
     // Iterate through MEs and create CMEs
-    CollateMonitorElement* cme = 0;
     vector<string>::iterator ime = me_list.begin(); 
     for ( ; ime != me_list.end(); ime++ ) {
       
-      // Retrieve pointer to monitor element
-      MonitorElement* me = mui()->get( mui()->pwd()+"/"+(*ime) ); // path + name
-      TProfile* prof = ExtractTObject<TProfile>().extract( me );
-      TH1F* his = ExtractTObject<TH1F>().extract( me );
-      if ( prof ) { prof->SetErrorOption("s"); } //@@ is this necessary? (until bug fix applied to dqm)...
-
       // Retrieve granularity from histogram title (necessary?)
       HistoTitle title = SiStripHistoNamingScheme::histoTitle( *ime );
       uint16_t channel = sistrip::invalid_;
@@ -82,73 +80,155 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 	     << title.granularity_;
       }
 
-      // Build FEC key and fill FED-FEC map
-      uint32_t key = SiStripFecKey::key( path.fecCrate_,
-					 path.fecSlot_,
-					 path.fecRing_,
-					 path.ccuAddr_,
-					 path.ccuChan_,
-					 channel );
-      mapping_[title.keyValue_] = key;
+      // Build FEC key
+      uint32_t fec_key = SiStripFecKey::key( path.fecCrate_,
+					     path.fecSlot_,
+					     path.fecRing_,
+					     path.ccuAddr_,
+					     path.ccuChan_,
+					     channel );
+
+      // Fill FED-FEC map
+      mapping_[title.keyValue_] = fec_key;
+
+      if ( 1 ) { 
+
+	// Find CollateME in collations map
+	CollateMonitorElement* cme = 0;
+	CollationsMap::iterator ikey = collations_.find( fec_key );
+	if ( ikey != collations_.end() ) { 
+	  Collations::iterator ihis = ikey->second.begin();
+	  while ( !cme && ihis != ikey->second.end() ) {
+	    if ( (*ime) == ihis->first ) { 
+	      SiStripFecKey::Path path = SiStripFecKey::path(ikey->first);
+	      string dir = SiStripHistoNamingScheme::controlPath(path);
+	      //cout << "CME EXISTS: " << dir+ihis->first << " ptr: " << ihis->second << endl;
+	      cme = ihis->second; 
+	    }
+	    ihis++;
+	  }
+	} else { cme = 0; }
+	
+	// Create CollateME if it doesn't exist
+	if ( !cme ) {
+	  
+	  // Retrieve ME pointer
+	  MonitorElement* me = mui()->get( mui()->pwd()+"/"+(*ime) );
+	  //cout << "SOURCE ME: " << mui()->pwd()+"/"+(*ime) << endl;
+
+	  // Create profile CME
+	  TProfile* prof = ExtractTObject<TProfile>().extract( me );
+	  if ( prof ) { 
+	    cme = mui()->collateProf( (*ime), (*ime), client_dir ); 
+	    if ( cme ) { 
+	      mui()->add( cme, mui()->pwd()+"/"+(*ime) );
+	      collations_[fec_key].push_back( Collation((*ime),cme) );
+	      //MonitorElement* me = cme->getMonitorElement();
+	      //if ( me ) { cout << "CREATED NEW PROF CME: " << client_dir << "/" << me->getName() << endl; }
+	      //MonitorElement* me1 = mui()->get( client_dir+"/"+(*ime) );
+	      //if ( me1 ) { cout << "FOUND NEW PROF CME: " << client_dir << "/" << me1->getName() << endl; }
+	    }
+	  }
+
+	  // Create one-dim CME
+	  TH1F* his = ExtractTObject<TH1F>().extract( me );
+	  if ( prof ) { prof->SetErrorOption("s"); } //@@ necessary?
+	  else if ( his ) { 
+	    cme = mui()->collate1D( (*ime), (*ime), client_dir ); 
+	    if ( cme ) { 
+	      mui()->add( cme, mui()->pwd()+"/"+(*ime) ); 
+	      collations_[fec_key].push_back( Collation((*ime),cme) );
+	      //MonitorElement* me = cme->getMonitorElement();
+	      //if ( me ) { cout << "CREATED NEW 1D CME: " << client_dir << "/" << me->getName() << endl; }
+	      //MonitorElement* me1 = mui()->get( client_dir+"/"+(*ime) );
+	      //if ( me1 ) { cout << "FOUND NEW PROF CME: " << client_dir << "/" << me1->getName() << endl; }
+	    }
+	  }
+
+	}
+	  
+	// Add to CME if found in collations map
+	CollationsMap::iterator jkey = collations_.find( fec_key );
+	if ( jkey != collations_.end() ) { 
+	  Collations::iterator ihis = jkey->second.begin();
+	  while ( ihis != jkey->second.end() ) {
+	    if ( (*ime) == ihis->first ) { 
+	      if ( ihis->second ) {
+		mui()->add( ihis->second, mui()->pwd()+"/"+(*ime) );
+		//cout << "ADDED TO CME: " << mui()->pwd() << "/" << (*ime) << endl;
+	      }
+	    }
+	    ihis++;
+	  } 
+	  
+	}
+
+      } else { // 
+	
+	// Find CollateME in collations map
+	CollateMonitorElement* cme = 0;
+	CollationsMap::iterator ikey = collations_.find( fec_key );
+	if ( ikey != collations_.end() ) { 
+	  Collations::iterator ihis = ikey->second.begin();
+	  while ( !cme && ihis != ikey->second.end() ) {
+	    if ( "Collated_"+(*ime) == ihis->first ) { 
+	      SiStripFecKey::Path path = SiStripFecKey::path(ikey->first);
+	      string dir = SiStripHistoNamingScheme::controlPath(path);
+	      cout << "CME EXISTS: " << dir+ihis->first << " ptr: " << ihis->second << endl;
+	      cme = ihis->second; 
+	    }
+	    ihis++;
+	  }
+	} else { cme = 0; }
       
-      //cout << "Checking for CME..." << endl;
-      // Create collation MEs
-      CollationsMap::iterator iter = collations_.find( key );
-      if ( iter == collations_.end() ) {
-	//cout << "Found new channel (control key)" << endl;
-	if ( prof )     { cme = mui()->collateProf( *ime, *ime, client_dir ); }
-	else if ( his ) { cme = mui()->collate1D( *ime, *ime, client_dir ); }
-	else { 
-	  cme = 0; 
-	  cerr << endl // edm::LogWarning(mlDqmClient_)
-	       << "[CommissioningHistograms::" << __func__ << "]"
-	       << " NULL pointers to histos!"; 
-	}
-	if ( cme ) {
-
-	  //cout << "Booked new CME and adding MEs" << endl;
-	  //cout << " client: ptr/dir/name: " << cme << " " << client_dir << " " << (*ime) << endl;
-	  //cout << " collector: ptr/dir/name: " << cme << " " << collector_dir << " " << (*ime) << endl;
-	  //cout << " pwd: ptr/dir/name: " << cme << " " << mui()->pwd() << " " << (*ime) << endl;
-	  //cout << " coll: " << collector_dir << " cli: " << client_dir << endl;
-
-	  //MonitorElement* cme1 = mui()->get( client_dir + "/" + (*ime) );
-	  //cout << " CME: ptr/dir/name: " << cme1 << " " << client_dir << " " << (*ime) << endl;
-
-	  mui()->add( cme, collector_dir+"/"+(*ime) ); // note search pattern
-	  //mui()->add( cme, "*"+client_dir+(*ime) ); // note search pattern
-	  //cout << "ME added to new CME" << endl;
-	  if ( collations_[key].capacity() != 10 ) { collations_[key].reserve(10); }
-	  collations_[key].push_back( client_dir+(*ime) ); // store "path + name"
-	  //cout << "New CME stored in map" << endl;
-	}
-      } else {
-	//cout << "Found some existing CMEs for this channel" << endl;
-	if ( find( iter->second.begin(), iter->second.end(), client_dir+(*ime) ) == iter->second.end() ) {
-	  //cout << "Did not find CME in existing channel" << endl;
-	  if ( prof )     { cme = mui()->collateProf( *ime, *ime, client_dir ); }
-	  else if ( his ) { cme = mui()->collate1D( *ime, *ime, client_dir ); }
+	// Create CollateME if it doesn't exist
+	if ( !cme ) {
+	  cout << "SOURCE ME: " << mui()->pwd()+"/"+(*ime) << endl;
+	  MonitorElement* me = mui()->get( mui()->pwd()+"/"+(*ime) );
+	  TProfile* prof = ExtractTObject<TProfile>().extract( me );
+	  TH1F* his = ExtractTObject<TH1F>().extract( me );
+	  if ( prof ) { prof->SetErrorOption("s"); } //@@ necessary?
+	  if ( prof ) { cme = mui()->collateProf( "Collated_"+(*ime), "Collated_"+(*ime), client_dir ); }
+	  else if ( his ) { cme = mui()->collate1D( "Collated_"+(*ime), "Collated_"+(*ime), client_dir ); }
 	  else { 
+	    cout << "PROBLEM..." << endl;
 	    cme = 0; 
-	    cerr << endl // edm::LogWarning(mlDqmClient_)
-		 << "[CommissioningHistograms::" << __func__ << "]"
-		 << " NULL pointers to histos!"; 
 	  }
-	  if ( cme ) {
-	    //cout << "Booked new CME in existing channel and adding MEs" << endl;
-	    
-	    mui()->add( cme, collector_dir+"/"+(*ime) ); // note search pattern
-	    //mui()->add( cme, "*"+client_dir+(*ime) ); // note search pattern
-	    //cout << "Added ME to CME in existing channel" << endl;
-	    if ( collations_[key].capacity() != 10 ) { collations_[key].reserve(10); }
-	    collations_[key].push_back( client_dir+(*ime) ); // store "path + name"
-	    //cout << "CME in existing channel stored in map" << endl;
+	  // Record name and pointer in map
+	  if ( cme ) { 
+	    if ( cme->getMonitorElement() ) {
+	      cout << "CREATED NEW CME: " << client_dir << "/" << cme->getMonitorElement()->getName() << endl;
+	    } else {
+	      cout << "NULL PTR TO ME FROM CME: " << client_dir << endl;
+	    }
+	    collations_[fec_key].push_back( Collation("Collated_"+(*ime),cme) );
+	    if ( collations_[fec_key].capacity() < 10 ) { collations_[fec_key].reserve(10); }
+	    MonitorElement* me = mui()->get( client_dir+"/"+"Collated_"+(*ime) );
+	    if ( me ) {
+	      cout << "NEW CME LOCATION: " << client_dir << "/" << me->getName() << endl;
+	    }
 	  }
-	} else {
-	  //cout << "CME already exists" << endl;
 	}
-      }
-      //cout << "End of checking" << endl;
+
+	// Find CollateME in collations map (again)
+	cme = 0;
+	CollationsMap::iterator jkey = collations_.find( fec_key );
+	if ( jkey != collations_.end() ) { 
+	  Collations::iterator ihis = jkey->second.begin();
+	  while ( !cme && ihis != jkey->second.end() ) {
+	    if ( "Collated_"+(*ime) == ihis->first ) { cme = ihis->second; }
+	    ihis++;
+	  }
+	} else { cme = 0; }
+      
+	// "Add" to CollateME if it exists
+	if ( cme ) {
+	  cout << "ADDED TO CME: " << collector_dir << "/" << (*ime) << endl;
+	  mui()->add( cme, collector_dir+"/"+(*ime) ); // note search pattern
+	} 
+     
+      } //
+ 
     }
   }
   

@@ -7,6 +7,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/CollateMonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include <boost/cstdint.hpp>
 #include "TProfile.h"
@@ -17,12 +18,14 @@
 #include <map>
 
 class MonitorUserInterface;
+class CollateMonitorElement;
 
 class CommissioningHistograms {
 
  public:
   
-  typedef std::vector<std::string> Collations;
+  typedef std::pair<std::string,CollateMonitorElement*> Collation;
+  typedef std::vector<Collation> Collations;
   typedef std::map<uint32_t,Collations> CollationsMap;
   typedef std::map<uint32_t,uint32_t> FedToFecMap;
   
