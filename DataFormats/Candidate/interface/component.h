@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: component.h,v 1.5 2006/07/27 07:13:40 llista Exp $
+ * \version $Id: component.h,v 1.6 2006/11/13 15:01:32 llista Exp $
  *
  */
 #include "FWCore/Utilities/interface/Exception.h"
@@ -88,24 +88,24 @@ namespace reco {
   template<> \
   struct  component<TYPE, componenthelper::SingleComponentTag, TAG> { \
     typedef componenthelper::SingleComponent<CAND, TYPE, & CAND::FUN> type; \
-  };
+  }
 
 #define GET_DEFAULT_CANDIDATE_COMPONENT( CAND, TYPE, FUN ) \
   template<> \
   struct  component<TYPE, componenthelper::SingleComponentTag, DefaultComponentTag> { \
     typedef componenthelper::SingleComponent<CAND, TYPE, & CAND::FUN> type; \
-  };
+  }
 
 #define GET_CANDIDATE_MULTIPLECOMPONENTS( CAND, TYPE, FUN, SIZE, TAG ) \
   template<> \
   struct  component<TYPE, componenthelper::MultipleComponentsTag, TAG> { \
     typedef componenthelper::MultipleComponents<CAND, TYPE, & CAND::FUN, & CAND::SIZE> type; \
-  };
+  }
 
 #define GET_DEFAULT_CANDIDATE_MULTIPLECOMPONENTS( CAND, TYPE, FUN, SIZE ) \
   template<> \
   struct  component<TYPE, componenthelper::MultipleComponentsTag, DefaultComponentTag> { \
     typedef componenthelper::MultipleComponents<CAND, TYPE, & CAND::FUN, & CAND::SIZE> type; \
-  };
+  }
 
 #endif

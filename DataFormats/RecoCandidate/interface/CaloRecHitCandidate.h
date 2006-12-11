@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CaloRecHitCandidate.h,v 1.4 2006/10/26 09:14:55 llista Exp $
+ * \version $Id: CaloRecHitCandidate.h,v 1.1 2006/11/14 10:38:06 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -39,7 +39,7 @@ namespace reco {
     CaloRecHitRef caloRecHit_;
   };
     /// get default Track component
-  GET_DEFAULT_CANDIDATE_COMPONENT( CaloRecHitCandidate, edm::RefToBase<CaloRecHit>, caloRecHit )
+  GET_DEFAULT_CANDIDATE_COMPONENT( CaloRecHitCandidate, edm::RefToBase<CaloRecHit>, caloRecHit );
 
 }
 

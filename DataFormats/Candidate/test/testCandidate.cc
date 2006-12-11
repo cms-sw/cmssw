@@ -1,4 +1,4 @@
-// $Id: testCandidate.cc,v 1.3 2006/11/13 15:01:33 llista Exp $
+// $Id: testCandidate.cc,v 1.4 2006/11/20 14:51:25 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -54,8 +54,8 @@ namespace test {
 }
 
 namespace reco {
-  GET_DEFAULT_CANDIDATE_COMPONENT( test::DummyCandidate1, test::DummyComponent, cmp )
-  GET_CANDIDATE_MULTIPLECOMPONENTS( test::DummyCandidate1, test::DummyComponent2, cmp2, cmpSize2, DefaultComponentTag )
+  GET_DEFAULT_CANDIDATE_COMPONENT( test::DummyCandidate1, test::DummyComponent, cmp );
+  GET_CANDIDATE_MULTIPLECOMPONENTS( test::DummyCandidate1, test::DummyComponent2, cmp2, cmpSize2, DefaultComponentTag );
 }
 
 void testCandidate::checkAll() {
