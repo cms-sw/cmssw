@@ -1,4 +1,4 @@
-// $Id: FileRecord.cc,v 1.1 2006/11/29 10:10:16 klute Exp $
+// $Id: FileRecord.cc,v 1.2 2006/12/09 16:39:40 hcheung Exp $
 
 #include "IOPool/Streamer/interface/FileRecord.h"
 
@@ -23,7 +23,10 @@ FileRecord::FileRecord(int lumi, string file, string path):
   mailBoxPath_(path+"/mbox"),
   lumiSection_(lumi),
   fileCounter_(0),
-  fileSize_(0), events_(0), firstEntry_(0.0), lastEntry_(0.0)
+  fileSize_(0), 
+  events_(0), 
+  firstEntry_(0.0), 
+  lastEntry_(0.0)
 {
 }
 

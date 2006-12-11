@@ -1,4 +1,4 @@
-// $Id: StreamerOutSrvcManager.cc,v 1.10 2006/11/29 10:05:22 klute Exp $
+// $Id: StreamerOutSrvcManager.cc,v 1.11 2006/12/10 11:53:37 hcheung Exp $
 
 #include "IOPool/Streamer/interface/StreamerOutSrvcManager.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -71,7 +71,6 @@ std::list<std::string>& StreamerOutSrvcManager::get_filelist()
       std::list<std::string> sub_list = (*it)->getFileList();
       if(sub_list.size() > 0)
 	filelist_.insert(filelist_.end(), sub_list.begin(), sub_list.end() );
-    //  filelist_.assign(sub_list.begin(), sub_list.end() );
     } 
   return filelist_; 
 }
@@ -89,7 +88,6 @@ std::list<std::string>& StreamerOutSrvcManager::get_currfiles()
       std::list<std::string> sub_list = (*it)->getCurrentFileList();
       if(sub_list.size() > 0)
 	filelist_.insert(filelist_.end(), sub_list.begin(), sub_list.end() );
-     // filelist_.assign(sub_list.begin(), sub_list.end() );
     }
   return currfiles_;  
 }
