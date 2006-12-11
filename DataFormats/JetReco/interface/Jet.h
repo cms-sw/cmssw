@@ -12,7 +12,7 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.9 2006/12/06 22:43:24 fedor Exp $
+ * \version   $Id: Jet.h,v 1.10 2006/12/08 21:15:11 fedor Exp $
  ************************************************************/
 #include <string>
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
@@ -32,7 +32,7 @@ namespace reco {
     virtual int nConstituents () const {return numberOfDaughters();}
 
     /// list of constituents
-    Constituents getGonstituents () const;
+    Constituents getJetConstituents () const;
 
   /// Print object
     virtual std::string print () const;

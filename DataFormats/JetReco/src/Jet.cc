@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.1 2006/12/06 22:43:24 fedor Exp $
+// $Id: Jet.cc,v 1.2 2006/12/08 21:15:11 fedor Exp $
 
 #include <sstream>
 
@@ -17,7 +17,7 @@ Jet::Jet (const LorentzVector& fP4,
   for (unsigned i = 0; i < fConstituents.size (); i++) addDaughter (fConstituents [i]);
 }  
 
-Jet::Constituents Jet::getGonstituents () const {
+Jet::Constituents Jet::getJetConstituents () const {
   Jet::Constituents result;
   for (unsigned i = 0; i < CompositeRefCandidate::numberOfDaughters(); i++) {
     result.push_back (CompositeRefCandidate::daughterRef (i));
