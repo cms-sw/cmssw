@@ -4,8 +4,8 @@
 /** \class CosmicMuonSeedGenerator
  *  SeedGenerator for Cosmic Muon
  *
- *  $Date: 2006/08/15 00:36:26 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/11/07 21:36:14 $
+ *  $Revision: 1.7 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -46,7 +46,7 @@ class CosmicMuonSeedGenerator: public edm::EDProducer {
   bool checkQuality(const MuonTransientTrackingRecHit::MuonRecHitPointer&) const;
 
   /// select seed candidates from Segments in Event
-  void selectSegments(MuonTransientTrackingRecHit::MuonRecHitContainer&) const;
+  MuonTransientTrackingRecHit::MuonRecHitContainer  selectSegments(const MuonTransientTrackingRecHit::MuonRecHitContainer&) const;
 
   /// create TrajectorySeed from MuonTransientTrackingRecHit 
   std::vector<TrajectorySeed> createSeed(MuonTransientTrackingRecHit::MuonRecHitPointer,

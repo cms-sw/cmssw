@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2006/11/14 19:13:32 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/11/17 09:04:32 $
+ *  $Revision: 1.16 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -166,18 +166,32 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   allHits.insert(allHits.end(),RHBME12.begin(),RHBME12.end());
   allHits.insert(allHits.end(),RHBME11.begin(),RHBME11.end());
 
-  selectSegments(allHits);
+  LogDebug("CosmicMuonSeedGenerator")<<"all RecHits: "<<allHits.size();
 
-  if ( allHits.empty() )
-    LogDebug("CosmicMuonSeedGenerator")<<"No qualified Segments in Event! ";
-  else {
-    stable_sort(allHits.begin(),allHits.end(),DecreasingGlobalY());
-    createSeeds(seeds,allHits,eSetup);
+  if ( !allHits.empty() ) {
+    MuonRecHitContainer goodhits = selectSegments(allHits);
+    LogDebug("CosmicMuonSeedGenerator")<<"good RecHits: "<<goodhits.size();
+
+    if ( goodhits.empty() ) {
+      LogDebug("CosmicMuonSeedGenerator")<<"No qualified Segments in Event! ";
+      LogDebug("CosmicMuonSeedGenerator")<<"Use 2D RecHit";
+
+      stable_sort(allHits.begin(),allHits.end(),DecreasingGlobalY());
+      createSeeds(seeds,allHits,eSetup);
+
+    } 
+    else {
+      stable_sort(goodhits.begin(),goodhits.end(),DecreasingGlobalY());
+      createSeeds(seeds,goodhits,eSetup);
+    }
+
+    LogDebug("CosmicMuonSeedGenerator")<<"Seeds built: "<<seeds.size();
 
     for(std::vector<TrajectorySeed>::iterator seed = seeds.begin();
         seed != seeds.end(); ++seed)
         output->push_back(*seed);
-  }
+    }
+
   event.put(output);
 }
 
@@ -191,6 +205,7 @@ bool CosmicMuonSeedGenerator::checkQuality(const MuonRecHitPointer& hit) const {
     LogDebug("CosmicMuonSeedGenerator")<<"dim < 4";
     return false;
   }
+
   if (hit->isDT() && ( hit->chi2()> theMaxDTChi2 )) {
     LogDebug("CosmicMuonSeedGenerator")<<"DT chi2 too large";
     return false;
@@ -203,18 +218,21 @@ bool CosmicMuonSeedGenerator::checkQuality(const MuonRecHitPointer& hit) const {
 
 } 
 
-void CosmicMuonSeedGenerator::selectSegments(MuonRecHitContainer& hits) const {
+MuonRecHitContainer CosmicMuonSeedGenerator::selectSegments(const MuonRecHitContainer& hits) const {
+
   MuonRecHitContainer result;
 
   //Only select good quality Segments
   for (MuonRecHitContainer::const_iterator hit = hits.begin(); hit != hits.end(); hit++) {
     if ( checkQuality(*hit) ) result.push_back(*hit);
   }
-  hits.clear();
-  if ( result.empty() ) return;
+
+  if ( result.size() < 2 ) return result;
+
+  MuonRecHitContainer result2;
 
   //avoid selecting Segments with similar direction
-  for (MuonRecHitContainer::iterator hit = result.begin(); hit != result.end()-1; hit++) {
+  for (MuonRecHitContainer::iterator hit = result.begin(); hit != result.end(); hit++) {
     if (*hit == 0) continue;
     if ( !(*hit)->isValid() ) continue;
     bool good = true;
@@ -228,15 +246,18 @@ void CosmicMuonSeedGenerator::selectSegments(MuonRecHitContainer& hits) const {
         GlobalVector dir2 = (*hit2)->globalDirection();
         GlobalPoint pos2 = (*hit2)->globalPosition();
         if ((dir1 - dir2).mag() > 0.1 || (pos1-pos2).mag() > 2.0 ) continue;
+
         if ((*hit)->chi2() > (*hit2)->chi2() ) { 
-           good = false;
+          good = false;
         } else (*hit2) = 0;
     }
-    if ( good ) hits.push_back(*hit);
+
+    if ( good ) result2.push_back(*hit);
   }
 
   result.clear();
-  return;
+
+  return result2;
 
 }
 
@@ -246,7 +267,6 @@ void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results,
 
   if (hits.size() == 0 || results.size() >= theMaxSeeds ) return;
   for (MuonRecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end(); ihit++) {
-    if ( !checkQuality(*ihit)) continue;
     const std::vector<TrajectorySeed>& sds = createSeed((*ihit),eSetup);
     LogDebug("CosmicMuonSeedGenerator")<<"created seeds from rechit "<<sds.size();
     results.insert(results.end(),sds.begin(),sds.end());
