@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/11/30 04:27:27 $
- *  $Revision: 1.39 $
+ *  $Date: 2006/12/07 02:17:41 $
+ *  $Revision: 1.40 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -21,8 +21,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
-
 #include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
 
 class RectangularEtaPhiTrackingRegion;
@@ -39,13 +37,12 @@ class MuonServiceProxy;
 class Trajectory;
 class TrackerSeedGenerator;
 
-//class CkfTrajectoryBuilder;
-
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
   public:
+
     typedef TransientTrackingRecHit::RecHitContainer RecHitContainer;
     typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
     typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
@@ -71,7 +68,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     MuonTrajectoryBuilder::CandidateContainer trajectories(const TrackCand&);
 
     /// dummy implementation, unused in this class
-    MuonTrajectoryBuilder::TrajectoryContainer trajectories(const TrajectorySeed&){ return MuonTrajectoryBuilder::TrajectoryContainer(); }
+    MuonTrajectoryBuilder::TrajectoryContainer trajectories(const TrajectorySeed&) { return MuonTrajectoryBuilder::TrajectoryContainer(); }
 
     /// pass the Event to the algo at each event
     virtual void setEvent(const edm::Event&);
@@ -90,10 +87,13 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
                                                     const std::vector<TrackCand>&) const;
   
     /// check muon RecHits, calculate chamber occupancy and select hits to be used in the final fit
-    void checkMuonHits(const reco::Track&, ConstRecHitContainer&, ConstRecHitContainer&, std::vector<int>&) const;
+    void checkMuonHits(const reco::Track&, ConstRecHitContainer&, 
+                       ConstRecHitContainer&, 
+                       std::vector<int>&) const;
  
     /// select muon hits compatible with trajectory; check hits in chambers with showers
-    ConstRecHitContainer selectMuonHits(const Trajectory&, const std::vector<int>&) const;
+    ConstRecHitContainer selectMuonHits(const Trajectory&, 
+                                        const std::vector<int>&) const;
  
     /// choose final trajectory
     const Trajectory* chooseTrajectory(const std::vector<Trajectory*>&) const;
@@ -141,9 +141,9 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     edm::ESHandle<TrackerTrajectoryBuilder> theCkfBuilder;
     edm::Handle<reco::TrackCollection> allTrackerTracks;
 
-    const std::vector<Trajectory> *allTrackerTrajs;
+    const std::vector<Trajectory>* allTrackerTrajs;
  
-    const MuonServiceProxy *theService;
+    const MuonServiceProxy* theService;
     
 };
 #endif

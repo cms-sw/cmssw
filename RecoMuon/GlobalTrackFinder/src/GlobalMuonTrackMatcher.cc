@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2006/09/27 18:36:33 $
- *  $Revision: 1.32 $
+ *  $Date: 2006/11/08 08:04:53 $
+ *  $Revision: 1.33 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  *  \author Adam Everett - Purdue University
@@ -24,7 +24,8 @@ using namespace edm;
 // constructor
 //
 GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(const edm::ParameterSet& par, 
-                                               const MuonServiceProxy *service): theService(service){
+                                               const MuonServiceProxy* service) : 
+   theService(service) {
   
   ParameterSet updatorPSet = par.getParameter<ParameterSet>("UpdatorParameters");
   theUpdator = new MuonUpdatorAtVertex(updatorPSet,theService);
@@ -32,15 +33,19 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(const edm::ParameterSet& par,
   theMaxChi2 =  par.getParameter<double>("Chi2CutTrackMatcher");
   theMinP = 2.5;
   theMinPt = 1.0;
+
 }
+
 
 //
 //
 //
 GlobalMuonTrackMatcher::~GlobalMuonTrackMatcher() {
 
-  if(theUpdator) delete theUpdator;
+  if (theUpdator) delete theUpdator;
+
 }
+
 
 //
 // choose the tracker Track from a TrackCollection which has smallest chi2 with
@@ -54,7 +59,7 @@ GlobalMuonTrackMatcher::matchOne(const TrackCand& staCand,
   TrackCand result = staCand;
   double minChi2 = theMaxChi2;
   
-  for(vector<TrackCand>::const_iterator is = tkTs.begin(); is != tkTs.end(); ++is) {
+  for (vector<TrackCand>::const_iterator is = tkTs.begin(); is != tkTs.end(); ++is) {
 
     pair<bool,double> check = match(staCand,*is);
     
@@ -68,6 +73,7 @@ GlobalMuonTrackMatcher::matchOne(const TrackCand& staCand,
   }     
 
   return pair<bool, TrackCand>(hasMatchTk, result);
+
 }
 
 
@@ -81,27 +87,27 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
   
   vector<TrackCand> result; 
   if ( tkTs.empty() ) return result;
-  for(vector<TrackCand>::const_iterator is = tkTs.begin(); is != tkTs.end(); ++is) {
+  for (vector<TrackCand>::const_iterator is = tkTs.begin(); is != tkTs.end(); ++is) {
     pair<bool,double> check = match(staCand,*is);    
     if ( check.first ) result.push_back(*is);
   }
 
-  //If there are no matches, return the TkTrack closest to STACandin eta-phi space
-   if( result.empty() ) {
+  //if there are no matches, return the TkTrack closest to STACandin eta-phi space
+   if ( result.empty() ) {
     TrackCand index;
     float deltaR = 1000.0;
     
-    for(vector<TrackCand>::const_iterator is = tkTs.begin(); is != tkTs.end(); ++is) {
+    for (vector<TrackCand>::const_iterator is = tkTs.begin(); is != tkTs.end(); ++is) {
       double Eta1 = staCand.second->eta();
       double Eta2;
-      if((*is).first != 0) {
+      if ((*is).first != 0) {
 	Eta2 = (*is).first->firstMeasurement().updatedState().globalMomentum().eta();
       } else {
 	Eta2 = (*is).second->eta();
       }
       double Phi1 = staCand.second->phi();
       double Phi2;
-      if((*is).first != 0) {
+      if ((*is).first != 0) {
 	Phi2 = (*is).first->firstMeasurement().updatedState().globalMomentum().phi();
       } else {
 	Phi2 = (*is).second->phi();
@@ -110,7 +116,7 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
       double deltaPhi(fabs(Geom::Phi<float>(Phi1)-Geom::Phi<float>(Phi2)));
       double deltaR_tmp = sqrt(pow(deltaEta,2.) + pow(deltaPhi,2.));
       
-      if(deltaR_tmp < deltaR) {
+      if (deltaR_tmp < deltaR) {
 	deltaR = deltaR_tmp;
 	index = *is;
       }
@@ -134,13 +140,13 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
   TrajectoryStateOnSurface outerTkTsos;
   TrajectoryStateTransform tsTransform;
 
-  if(staCand.first == 0) {
+  if (staCand.first == 0) {
     innerMuTsos = tsTransform.innerStateOnSurface(*staCand.second,*theService->trackingGeometry(),&*theService->magneticField());
   } else {
     innerMuTsos = staCand.first->firstMeasurement().updatedState();
   }
   
-  if(tkCand.first == 0) {
+  if (tkCand.first == 0) {
     // make sure the tracker Track has enough momentum to reach muon chambers
     if ( tkCand.second->p() < theMinP || tkCand.second->pt() < theMinPt )
       return pair<bool,double>(false,0);
@@ -198,5 +204,5 @@ GlobalMuonTrackMatcher::match(const TrajectoryStateOnSurface& tsos1,
   bool good = ( goodChi || goodCoords ) ? true : false;
 
   return pair<bool,double>(good,est);
-}
 
+}
