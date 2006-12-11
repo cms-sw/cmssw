@@ -23,7 +23,9 @@ RPCPacBase::RPCPacBase(int m_tower, int logSector, int logSegment) {
  *Constructor. m_ConeCrdnts and  m_CurrConeCrdnts are set.
  *
  */
-RPCPacBase::RPCPacBase(RPCConst::l1RpcConeCrdnts coneCrdnts): m_ConeCrdnts(coneCrdnts), m_CurrConeCrdnts(coneCrdnts) {}
+RPCPacBase::RPCPacBase(RPCConst::l1RpcConeCrdnts coneCrdnts): 
+    m_ConeCrdnts(coneCrdnts), 
+    m_CurrConeCrdnts(coneCrdnts) {}
 
 /**
  *

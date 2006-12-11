@@ -1,5 +1,5 @@
-#ifndef L1Trigger_TEPatternsGroup_h
-#define L1Trigger_TEPatternsGroup_h
+#ifndef L1Trigger_RPCTEPatternsGroup_h
+#define L1Trigger_RPCTEPatternsGroup_h
 #include "L1Trigger/RPCTrigger/src/TPatternsGroup.h"
 
 // -*- C++ -*-

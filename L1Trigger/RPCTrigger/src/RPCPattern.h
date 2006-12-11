@@ -1,5 +1,5 @@
-#ifndef L1RpcPatternH
-#define L1RpcPatternH
+#ifndef L1Trigger_RPCPattern_h
+#define L1Trigger_RPCPattern_h
 //-----------------------------------------------------------------------------
 /** \class RPCPattern
  *
@@ -13,6 +13,7 @@
 
 class RPCPattern  {
 public:
+  
   //needed types
   /** \class RPCLogicalStrip
    * Logical Strip for pattern definition. It may be OR of few Logic m_Strips of LogCone
@@ -28,6 +29,49 @@ public:
     unsigned char m_StripTo;
   };
 
+  ///Default Constructor. Empty pattern, no muon, all planes m_NOT_CONECTED
+    RPCPattern();
+
+    void setStripFrom(int logPlane, int stripFrom);
+  
+    void setStripTo(int logPlane, int stripTo);
+
+  ///First strip in range.
+    int getStripFrom(int logPlane) const;
+
+  ///Next-to-last strip in range.
+    int getStripTo(int logPlane) const;
+
+  ///Returns the stripFrom position w.r.t the first strip in ref plane.
+    int getBendingStripFrom(int logPlane, int m_tower) const;
+
+  ///Returns the stripTo position w.r.t the first strip in ref plane..
+    int getBendingStripTo(int logPlane, int m_tower) const;
+
+    int getCode() const;
+
+    int getSign() const;
+
+    int getNumber() const;
+
+    RPCConst::TPatternType getPatternType() const;
+
+    int getRefGroup() const;
+
+    int getQualityTabNumber() const;
+
+    void setCode(int a);
+  
+    void setSign(int a);
+  
+    void setNumber(int a);
+
+    void setPatternType(RPCConst::TPatternType patternType);
+
+    void setRefGroup(int refGroup);
+
+    void setQualityTabNumber(int qualityTabNumber);
+  
 private:
   ///LogicalStrip for every LogPlane. 
   RPCLogicalStrip m_Strips[RPCConst::m_LOGPLANES_COUNT];
@@ -53,49 +97,6 @@ private:
    * The quality table is defined at the beginig of each patterns file */
   char m_QualityTabNumber;
 
-public:
-  ///Default Constructor. Empty pattern, no muon, all planes m_NOT_CONECTED
-  RPCPattern();
-
-  void setStripFrom(int logPlane, int stripFrom);
-  
-  void setStripTo(int logPlane, int stripTo);
-
-  ///First strip in range.
-  int getStripFrom(int logPlane) const;
-
-  ///Next-to-last strip in range.
-  int getStripTo(int logPlane) const;
-
-  ///Returns the stripFrom position w.r.t the first strip in ref plane.
-  int getBendingStripFrom(int logPlane, int m_tower);
-
-  ///Returns the stripTo position w.r.t the first strip in ref plane..
-  int getBendingStripTo(int logPlane, int m_tower);
-
-  int getCode() const;
-
-  int getSign() const;
-
-  int getNumber() const;
-
-  RPCConst::TPatternType getPatternType() const;
-
-  int getRefGroup() const;
-
-  int getQualityTabNumber() const;
-
-  void setCode(int a);
-  
-  void setSign(int a);
-  
-  void setNumber(int a);
-
-  void setPatternType(RPCConst::TPatternType patternType);
-
-  void setRefGroup(int refGroup);
-
-  void setQualityTabNumber(int qualityTabNumber );
 
 };
 

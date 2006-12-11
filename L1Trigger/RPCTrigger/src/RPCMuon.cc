@@ -19,8 +19,9 @@ RPCMuon::RPCMuon() {
 ///Constructor. All parameters are set.
 //
 //#############################################################################################
-RPCMuon::RPCMuon(const RPCConst::l1RpcConeCrdnts coneCrdnts, int ptCode, int quality, int sign, 
-          int patternNum, unsigned short firedPlanes) 
+RPCMuon::RPCMuon(const RPCConst::l1RpcConeCrdnts coneCrdnts,
+                 int ptCode, int quality, int sign,
+                 int patternNum, unsigned short firedPlanes)
 {
     m_ConeCrdnts = coneCrdnts;
     m_PtCode = ptCode;
@@ -50,7 +51,9 @@ RPCMuon::RPCMuon(int ptCode, int quality, int sign, int patternNum, unsigned sho
 //#############################################################################################
 RPCConst::l1RpcConeCrdnts RPCMuon::getConeCrdnts() const {  return m_ConeCrdnts; }
 
-void RPCMuon::setConeCrdnts(const RPCConst::l1RpcConeCrdnts& coneCrdnts) { m_ConeCrdnts = coneCrdnts; }
+void RPCMuon::setConeCrdnts(const RPCConst::l1RpcConeCrdnts& coneCrdnts) {
+  m_ConeCrdnts = coneCrdnts;
+}
 
 int RPCMuon::getTower() const { return m_ConeCrdnts.m_Tower;}
 
@@ -85,7 +88,8 @@ unsigned short RPCMuon::getFiredPlanes() const { return m_FiredPlanes; }
 void RPCMuon::setRefStripNum(int refStripNum) { m_RefStripNum = refStripNum; }
 
 /** continous number of strip in reference plane, set by	RPCPacData::run
-  * nt refStripNum = getPattern(bestMuon.getPatternNum()).getStripFrom(m_REF_PLANE[abs(m_CurrConeCrdnts.m_Tower)]) +
-  *    m_CurrConeCrdnts.m_LogSector * 96 + m_CurrConeCrdnts.m_LogSegment * 8; 
+  * int refStripNum = 
+  *   getPattern(bestMuon.getPatternNum()).getStripFrom(m_REF_PLANE[abs(m_CurrConeCrdnts.m_Tower)])
+  *   + m_CurrConeCrdnts.m_LogSector * 96 + m_CurrConeCrdnts.m_LogSegment * 8; 
   */
 int RPCMuon::getRefStripNum() const { return m_RefStripNum; }

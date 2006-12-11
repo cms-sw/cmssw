@@ -1,5 +1,5 @@
-#ifndef RPCTrigger_RPCTriggerGeo_h
-#define RPCTrigger_RPCTriggerGeo_h
+#ifndef L1Trigger_RPCTriggerGeo_h
+#define L1Trigger_RPCTriggerGeo_h
 
 /** \class RPCTriggerGeo
  *

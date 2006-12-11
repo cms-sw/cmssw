@@ -1,5 +1,5 @@
-#ifndef L1RpcBasicTrigConfigH
-#define L1RpcBasicTrigConfigH
+#ifndef L1Trigger_RPCBasicTrigConfig_h
+#define L1Trigger_RPCBasicTrigConfig_h
 
 #ifndef _STAND_ALONE
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,35 +18,35 @@ public:
   RPCBasicTrigConfig();
 
   ///returns count of Trigger Crates in system.
-  int getTCsCnt();
+  virtual int getTCsCnt();
 
   ///returns number og Trigger Boards in one Trigger Crate.
-  int getTBsInTC();
+  virtual int getTBsInTC();
 
   /** One TB covers 3 or 4 Towers. The function returns the index of m_tower
     * on TB. */
-  int getTowerNumOnTb(const RPCConst::l1RpcConeCrdnts& coneCrdnts);
+  virtual int getTowerNumOnTb(const RPCConst::l1RpcConeCrdnts& coneCrdnts);
 
   ///Returns pointer to m_PAC that should run given LogCone. The PACs are holded by L1PacManager.
-  const RPCPacData* getPac(const RPCConst::l1RpcConeCrdnts& coneCrdnts) const;
+  virtual const RPCPacData* getPac(const RPCConst::l1RpcConeCrdnts& coneCrdnts) const;
 
   ///Returns the index of TC that should run given LogCone.
-  int getTCNum(const RPCConst::l1RpcConeCrdnts& coneCrdnts);
+  virtual int getTCNum(const RPCConst::l1RpcConeCrdnts& coneCrdnts);
 
   ///Returns the index of TB (in TC) that should run given LogCone.
-  int getTBNum(const RPCConst::l1RpcConeCrdnts& coneCrdnts);
+  virtual int getTBNum(const RPCConst::l1RpcConeCrdnts& coneCrdnts);
 
   ///Returns the count of Towers (3 or 4), that are covered by given TB.
-  int getTowsCntOnTB(int tbNum);
+  virtual int getTowsCntOnTB(int tbNum);
 
   /** Converts TC GB-Sorter input m_tower address <0...35> ("m_tower number natural")
     * to m_tower number <-16...0...16>
     * TC GB-Sorter input m_tower address is 8 bits: [7...2] TB num, [1...0] m_tower num on TB.*/
-  int towAddr2TowNum(int towAddr);
+  virtual int towAddr2TowNum(int towAddr);
 
   /** Converts TC GB-Sorter output m_tower address <0...31> ("m_tower number continous")
     * to m_tower number 2'complement*/
-  int towNum2TowNum2Comp(int towNum);
+  virtual int towNum2TowNum2Comp(int towNum);
 
 private:
   static const int m_TRIGGER_CRATES_CNT;

@@ -1,5 +1,5 @@
-#ifndef L1RpcTBMuonH
-#define L1RpcTBMuonH
+#ifndef L1Trigger_RPCTBMuon_h
+#define L1Trigger_RPCTBMuon_h
 #include "L1Trigger/RPCTrigger/src/RPCMuon.h"
 #include "L1Trigger/RPCTrigger/src/RPCPacMuon.h"
 //---------------------------------------------------------------------------
@@ -26,8 +26,6 @@ public:
   int getCode() const;
 
   void setCode(int code);
-
-
 
   void setPhiAddr(int phiAddr);
 
@@ -57,7 +55,7 @@ public:
 
   std::string getGBDataBitStr() const;
   
-  std::string printDebugInfo(int) const;
+  std::string printDebugInfo(int debugFormat) const;
 
   std::string printExtDebugInfo(int, int, int) const;
 
@@ -93,7 +91,7 @@ public:
 //aaa
   ///Used in sorting.
   struct TMuonMore : public std::less<RPCTBMuon> {
-    bool operator() (const RPCTBMuon& muonL,
+    bool operator()(const RPCTBMuon& muonL,
                      const RPCTBMuon& muonR) const {
       return muonL.getCode() > muonR.getCode();
     }

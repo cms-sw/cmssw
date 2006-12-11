@@ -45,8 +45,8 @@ int RPCLogHit::getStripNumberInCone() const {
   return m_stripNumberInCone;
 }
 
-void  RPCLogHit::setDigiIdx(int _digiIdx) {
-  m_digiIdx = _digiIdx;
+void  RPCLogHit::setDigiIdx(int digiIdx) {
+  m_digiIdx = digiIdx;
 }
 
 int RPCLogHit::getDigiIdx() const {

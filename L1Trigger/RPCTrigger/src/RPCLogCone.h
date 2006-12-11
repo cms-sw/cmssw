@@ -1,5 +1,5 @@
-#ifndef L1RpcLogConeH
-#define L1RpcLogConeH
+#ifndef L1Trigger_RPCLogCone_h
+#define L1Trigger_RPCLogCone_h
 
 /** \class RPCLogCone
  *
@@ -32,24 +32,6 @@ public:
     * of 2 RPC strips with diferent eta (but the same phi). @see RPCLogHit
     */  
   typedef std::map<int, std::vector<int> > TLogPlane;
-private:
-  ///Logic Planes
-  std::vector<TLogPlane> m_LogPlanesVec;
-
-  /** Digis that formed log hits in this LogCone, 
-    * m_DigisIdx[logPlaneNum][i] gets the index in DigisVec stored in L1RpcTrigg
-    */
-  std::vector<std::vector<int> > m_DigisIdx;
-
-  RPCConst::l1RpcConeCrdnts m_ConeCrdnts;
-
-  int m_MuonCode;
-
-  int m_MuonSign;
-
-  ///m_Index in LogConesVec stored by L1RpcTrigg
-  int m_Index; 
-public:
 
   /// Default constructor. No hits, no muon.
   RPCLogCone();
@@ -107,13 +89,32 @@ public:
 
   RPCConst::l1RpcConeCrdnts getConeCrdnts() const;
   
-
   void setIdx(int index);
-	
+  
   int getIdx() const;
   
   std::string toString() const;
   
+
+
+  
+private:
+  ///Logic Planes
+  std::vector<TLogPlane> m_LogPlanesVec;
+
+  /** Digis that formed log hits in this LogCone, 
+    * m_DigisIdx[logPlaneNum][i] gets the index in DigisVec stored in L1RpcTrigg
+    */
+  std::vector<std::vector<int> > m_DigisIdx;
+
+  RPCConst::l1RpcConeCrdnts m_ConeCrdnts;
+
+  int m_MuonCode;
+
+  int m_MuonSign;
+
+  ///m_Index in LogConesVec stored by L1RpcTrigg
+  int m_Index; 
 };
 
 typedef std::vector<RPCLogCone> L1RpcLogConesVec;

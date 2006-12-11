@@ -1,5 +1,5 @@
-#ifndef RPCExceptionH
-#define RPCExceptionH
+#ifndef L1Trigger_RPCException_h
+#define L1Trigger_RPCException_h
 #if (__BCPLUSPLUS__ >= 0x0550)
 #include <string>
 #include "TException.h"

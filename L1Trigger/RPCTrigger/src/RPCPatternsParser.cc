@@ -22,16 +22,16 @@
 using namespace xercesc;
 using namespace std;
 
-string xMLCh2String (const XMLCh* ch) {
+string xMLCh2String(const XMLCh* ch) {
 #ifdef __BORLANDC__
-  if (ch == 0) return "";
+  if(ch == 0) return "";
   WideString wstr(ch);
   AnsiString astr(wstr);
   return astr.c_str();
 #else
-	if (ch == 0) return "";
+	if(ch == 0) return "";
 
-	//auto_ptr<char> v(XMLString::transcode (ch));
+	//auto_ptr<char> v(XMLString::transcode(ch));
   //return string(v.get());
   char* buf = XMLString::transcode(ch);
   string str(buf);
@@ -50,7 +50,7 @@ const L1RpcPatternsVec& RPCPatternsParser::getPatternsVec(const RPCConst::l1RpcC
 }
 
 // ---------------------------------------------------------------------------
-//  This is a simple class that lets us do easy (though not terribly efficient)
+//  This is a simple class that lets us do easy(though not terribly efficient)
 //  trancoding of char* data to XMLCh data.
 // ---------------------------------------------------------------------------
 class XStr
@@ -95,7 +95,7 @@ int RPCPatternsParser::m_InstanceCount = 0;
 
 RPCPatternsParser::RPCPatternsParser()
 {
-   if (m_InstanceCount == 0) { 
+   if(m_InstanceCount == 0) { 
     try {
         XMLPlatformUtils::Initialize();
         //XPathEvaluator::initialize();
@@ -104,7 +104,8 @@ RPCPatternsParser::RPCPatternsParser()
     catch(const XMLException &toCatch)  {
       throw RPCException("Error during Xerces-c Initialization: "
            + xMLCh2String(toCatch.getMessage()));
-      //edm::LogError("RPCTrigger")<< "Error during Xerces-c Initialization: " + xMLCh2String(toCatch.getMessage());
+      //edm::LogError("RPCTrigger")<< "Error during Xerces-c Initialization: " 
+      //           + xMLCh2String(toCatch.getMessage());
     }
   }  
 }
@@ -118,7 +119,7 @@ void RPCPatternsParser::parse(std::string fileName)
 {
   ifstream fin;
   fin.open(fileName.c_str());
-  if (fin.fail()) {
+  if(fin.fail()) {
     throw RPCException("Cannot open the file" + fileName);
     //edm::LogError("RPCTrigger") << "Cannot open the file" + fileName;
   }
@@ -156,7 +157,8 @@ void RPCPatternsParser::startElement(const XMLCh* const uri,
     cone.m_Tower = rpcconst.stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("tower"))));
     cone.m_LogSector = rpcconst.stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("logSector"))));
     cone.m_LogSegment = rpcconst.stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("logSegment"))));
-    pair <TPatternsVecsMap::iterator, bool> res = m_PatternsVecsMap.insert(TPatternsVecsMap::value_type(cone, L1RpcPatternsVec()));
+    pair <TPatternsVecsMap::iterator, bool> res = m_PatternsVecsMap.insert(TPatternsVecsMap::value_type(cone,
+                                                                                                L1RpcPatternsVec()));
     if(res.second == true)
       m_CurPacIt = res.first;
     else
@@ -181,7 +183,7 @@ void RPCPatternsParser::startElement(const XMLCh* const uri,
     m_CurPattern.setCode(rpcconst.stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("code")))));
     m_CurPattern.setNumber(rpcconst.stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("num")))));
   }
-  else if (m_CurrElement == "str") {
+  else if(m_CurrElement == "str") {
     //<logstrip plane="m_LOGPLANE1" from="32" to="32"/>
     int logPlane = rpcconst.stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("Pl"))));
     m_CurPattern.setStripFrom(logPlane, rpcconst.stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("f")))));

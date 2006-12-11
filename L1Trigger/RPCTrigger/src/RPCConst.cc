@@ -1,14 +1,10 @@
-#ifndef M_PI
-#define M_PI 3.14159265358979
-#endif
-
 #include <cmath>
 #include <iostream> 
 #include <sstream> 
 #include "L1Trigger/RPCTrigger/src/RPCConst.h"
 #include "L1Trigger/RPCTrigger/src/RPCException.h"
 
-
+#define m_pi 3.14159265358979
 
 int RPCConst::iptFromPt(const double pt) {
   if(pt == 0.)return 0;
@@ -22,7 +18,7 @@ int RPCConst::iptFromPt(const double pt) {
     return 0;
   }
  int ipt=RPCConst::IPT_MAX;
- while (pt < m_pts[ipt] ) { ipt--; };
+ while (pt < m_pts[ipt]) { ipt--; };
  return ipt;
 
 }
@@ -75,25 +71,25 @@ int RPCConst::towerNumFromEta(const double eta){
 }
 
 double RPCConst::phiFromSegmentNum(const int iseg) {
-  double phi = OFFSET + 2.*M_PI*( iseg )/ (double) RPCConst::NSEG;
-  return (phi <2.*M_PI) ? phi: phi-2.*M_PI;
+  double phi = OFFSET + 2.*m_pi*(iseg)/ (double) RPCConst::NSEG;
+  return (phi <2.*m_pi) ? phi: phi-2.*m_pi;
 }
 
 double RPCConst::phiFromLogSegSec(const int logSegment, const int logSector) {
   int iseg = logSegment*12 + logSector;
-  double phi = OFFSET + 2.*M_PI*( iseg )/ (double) RPCConst::NSEG;
-  return (phi <2.*M_PI) ? phi: phi-2.*M_PI;
+  double phi = OFFSET + 2.*m_pi*(iseg)/ (double) RPCConst::NSEG;
+  return (phi <2.*m_pi) ? phi: phi-2.*m_pi;
 }
 
 int RPCConst::segmentNumFromPhi(const double phi) {
   double iphi;
   if(phi-OFFSET < 0) {
-    iphi = 2*M_PI + phi;
+    iphi = 2*m_pi + phi;
   }    
   else {
     iphi = phi-OFFSET;    
   }    
-  int iseg = (int)(iphi * RPCConst::NSEG/(2. * M_PI));
+  int iseg = (int)(iphi * RPCConst::NSEG/(2.*m_pi));
   return iseg;
 }
 
@@ -134,8 +130,8 @@ double RPCConst::vxMuRate(int ptCode) {
 //i.e for ptCode bin
 double RPCConst::vxIntegMuRate(int ptCode, double etaFrom, double etaTo) {  
   //calkowanie metoda trapezow - nie do konca dobre
-  double rate = 0.5 * (vxMuRate(ptCode) + vxMuRate(ptCode+1) )* 
-               (RPCConst::ptFromIpt(ptCode + 1) - RPCConst::ptFromIpt(ptCode) );
+  double rate = 0.5 * (vxMuRate(ptCode) + vxMuRate(ptCode+1))*
+               (RPCConst::ptFromIpt(ptCode + 1) - RPCConst::ptFromIpt(ptCode));
 
   rate = rate * (etaTo - etaFrom);
 
@@ -170,7 +166,7 @@ const double RPCConst::m_pts[RPCConst::IPT_MAX+1]={
                         5.,   6.,   7.,   8.,  
                         10.,  12., 14.,  16.,  18.,  
                         20.,  25.,  30., 35.,  40.,  45., 
-                        50.,  60.,  70., 80.,  90.,  100., 120., 140. };
+                        50.,  60.,  70., 80.,  90.,  100., 120., 140.};
 
 // m_etas contain approximate lower egges of eta towers
 // 0:ITOW_MAX  +additionaly upper edge  of last m_tower
@@ -245,7 +241,7 @@ const double RPCConst::m_etas[RPCConst::ITOW_MAX+2]=
 
 int RPCConst::stringToInt(std::string str) {
   for(unsigned int i = 0; i < str.size(); i++)
-    if(str[i] < '0' || str[i] > '9' )
+    if(str[i] < '0' || str[i] > '9')
       throw RPCException("Error in stringToInt(): the string cannot be converted to a number");
       //edm::LogError("RPCTrigger")<< "Error in stringToInt(): the string cannot be converted to a number";
   return atoi(str.c_str());
@@ -267,7 +263,7 @@ std::string RPCConst::intToString(int number) {
   return str;
 }
 
- bool RPCConst::l1RpcConeCrdnts::operator < (const l1RpcConeCrdnts& cone) const{
+ bool RPCConst::l1RpcConeCrdnts::operator <(const l1RpcConeCrdnts& cone) const{
   if(m_Tower != cone.m_Tower)
     return (m_Tower < cone.m_Tower);
   if(m_LogSector != cone.m_LogSector)
@@ -278,7 +274,7 @@ std::string RPCConst::intToString(int number) {
   return false;
 }
 
- bool RPCConst::l1RpcConeCrdnts::operator == (const l1RpcConeCrdnts& cone) const{
+ bool RPCConst::l1RpcConeCrdnts::operator ==(const l1RpcConeCrdnts& cone) const{
   if(m_Tower != cone.m_Tower)
     return false;
   if(m_LogSector != cone.m_LogSector)

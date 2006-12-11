@@ -1,5 +1,5 @@
-#ifndef L1RpcTriggerBoardH
-#define L1RpcTriggerBoardH
+#ifndef L1Trigger_RPCTriggerBoard_h
+#define L1Trigger_RPCTriggerBoard_h
 
 /** \class RPCTriggerBoard
   * Class describing the Trigger Board. In hardware on one TB thera are m_PAC

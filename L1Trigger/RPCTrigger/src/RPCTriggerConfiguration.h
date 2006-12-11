@@ -1,5 +1,5 @@
-#ifndef L1RpcTriggerConfigurationH
-#define L1RpcTriggerConfigurationH
+#ifndef L1Trigger_RPCTriggerConfiguration_h
+#define L1Trigger_RPCTriggerConfiguration_h
 
 /** \class RPCTriggerConfiguration
   * Interface for classes storing the configuration of hardware in m_PAC trigger system.
@@ -37,7 +37,7 @@ public:
 
   virtual int towNum2TowNum2Comp(int towNum) = 0;
 
-  int getDebugLevel() {
+  int getDebugLevel() const {
     return m_DebugLevel;
   }
 

@@ -1,5 +1,5 @@
-#ifndef RPCTrigger_TTPatternsGroup_h
-#define RPCTrigger_TTPatternsGroup_h
+#ifndef L1Trigger_TTPatternsGroup_h
+#define L1Trigger_TTPatternsGroup_h
 // -*- C++ -*-
 //
 // Package:     RPCTrigger

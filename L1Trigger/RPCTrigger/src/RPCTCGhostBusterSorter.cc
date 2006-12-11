@@ -1,9 +1,8 @@
-//---------------------------------------------------------------------------
-
 #include "L1Trigger/RPCTrigger/src/RPCTCGhostBusterSorter.h"
-
 //#include <set>
 #include <algorithm>
+
+
 using namespace std;
 
 //---------------------------------------------------------------------------
@@ -16,13 +15,17 @@ L1RpcTBMuonsVec RPCTCGhostBusterSorter::run(L1RpcTBMuonsVec2 &tbMuonsVec2) {
     for(unsigned int iMu = 0; iMu < tbMuonsVec2[iTB].size(); iMu++) {
       if(tbMuonsVec2[iTB][iMu].getPtCode() == 0)
         break; //becouse muons are sorted
-      if(tbMuonsVec2[iTB][iMu].getEtaAddr() == (m_TriggerConfig->getTowsCntOnTB(iTB)-1) ) {  //muon from this TB is on positive edge of TB (last m_tower of this tb)
+      
+      //muon from this TB is on positive edge of TB (last m_tower of this tb):
+      if(tbMuonsVec2[iTB][iMu].getEtaAddr() == (m_TriggerConfig->getTowsCntOnTB(iTB)-1)) {  
         for(unsigned int iMuN = 0; iMuN < tbMuonsVec2[iTB + 1].size(); iMuN++) {
           if(tbMuonsVec2[iTB + 1][iMuN].getPtCode() == 0)
             break; //becouse muons are sorted
-          if(tbMuonsVec2[iTB+1][iMuN].getEtaAddr() == 0) {  //muon from next TB is on negative edge (first m_tower of this TB)
+          
+          //muon from next TB is on negative edge (first m_tower of this TB):
+          if(tbMuonsVec2[iTB+1][iMuN].getEtaAddr() == 0) {  
             if( abs(tbMuonsVec2[iTB][iMu].getPhiAddr() - tbMuonsVec2[iTB+1][iMuN].getPhiAddr()) <= 1)
-              if(tbMuonsVec2[iTB][iMu].getCode() < tbMuonsVec2[iTB+1][iMuN].getCode() )
+              if(tbMuonsVec2[iTB][iMu].getCode() < tbMuonsVec2[iTB+1][iMuN].getCode())
                 tbMuonsVec2[iTB][iMu].kill();
               else
                 tbMuonsVec2[iTB+1][iMuN].kill();
@@ -36,7 +39,7 @@ L1RpcTBMuonsVec RPCTCGhostBusterSorter::run(L1RpcTBMuonsVec2 &tbMuonsVec2) {
 /*  multiset<RPCTBMuon, RPCTBMuon::TMuonMore> liveMuonsSet;
   for(unsigned int iTB = 0; iTB < tbMuonsVec2.size(); iTB++)
   for(unsigned int iMu = 0; iMu < tbMuonsVec2[iTB].size(); iMu++)
-      if(tbMuonsVec2[iTB][iMu].isLive() ) {
+      if(tbMuonsVec2[iTB][iMu].isLive()) {
 
         int etaAddr = tbMuonsVec2[iTB][iMu].getEtaAddr() | (iTB<<2); //m_tower number natural
         etaAddr = m_TriggerConfig->towAddr2TowNum(etaAddr); //m_tower number: -16 : 16
@@ -45,12 +48,12 @@ L1RpcTBMuonsVec RPCTCGhostBusterSorter::run(L1RpcTBMuonsVec2 &tbMuonsVec2) {
 
         liveMuonsSet.insert(tbMuonsVec2[iTB][iMu]);
       }
-  L1RpcTBMuonsVec outputMuons(liveMuonsSet.begin(), liveMuonsSet.end() ); */
+  L1RpcTBMuonsVec outputMuons(liveMuonsSet.begin(), liveMuonsSet.end()); */
 
   L1RpcTBMuonsVec outputMuons;
   for(unsigned int iTB = 0; iTB < tbMuonsVec2.size(); iTB++)
     for(unsigned int iMu = 0; iMu < tbMuonsVec2[iTB].size(); iMu++)
-      if(tbMuonsVec2[iTB][iMu].isLive() ) {
+      if(tbMuonsVec2[iTB][iMu].isLive()) {
         int etaAddr = tbMuonsVec2[iTB][iMu].getEtaAddr() | (iTB<<2); //m_tower number natural <0...35>
         etaAddr = m_TriggerConfig->towAddr2TowNum(etaAddr); //m_tower number: -16 : 16
         etaAddr = etaAddr + 16;                     // m_tower number continous 0 : 32

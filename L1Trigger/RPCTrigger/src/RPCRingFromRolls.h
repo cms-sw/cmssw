@@ -1,5 +1,5 @@
-#ifndef RPCTrigger_RPCRingFromRolls_h
-#define RPCTrigger_RPCRingFromRolls_h
+#ifndef L1Trigger_RPCRingFromRolls_h
+#define L1Trigger_RPCRingFromRolls_h
 
 /** \class RPCRingFromRolls
  *

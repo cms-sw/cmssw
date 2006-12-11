@@ -1,5 +1,5 @@
-#ifndef L1RpcPacH
-#define L1RpcPacH
+#ifndef L1Trigger_RPCPac_h
+#define L1Trigger_RPCPac_h
 
 #include "L1Trigger/RPCTrigger/src/RPCPacBase.h"
 #include "L1Trigger/RPCTrigger/src/RPCPacMuon.h"
@@ -14,7 +14,7 @@
 class RPCPac: public RPCPacBase {
   
   public: 
-    RPCPac(const RPCPacData *, int, int, int);
+    RPCPac(const RPCPacData *, int tower, int logSector, int logSegment);
 
     RPCPacMuon run(const RPCLogCone& cone) const;
     

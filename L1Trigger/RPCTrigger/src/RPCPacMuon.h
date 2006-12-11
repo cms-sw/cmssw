@@ -1,5 +1,5 @@
-#ifndef L1RpcPacMuonH
-#define L1RpcPacMuonH
+#ifndef L1Trigger_RPCPacMuon_h
+#define L1Trigger_RPCPacMuon_h
 /** \class RPCPacMuon
  *
  * Muon candidate found by m_PAC for one LogCone. Containes the compare operators

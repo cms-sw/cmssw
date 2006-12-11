@@ -1,5 +1,5 @@
-#ifndef L1RpcMuonH
-#define L1RpcMuonH
+#ifndef L1Trigger_RPCMuon_h
+#define L1Trigger_RPCMuon_h
 
 /** \class RPCMuon
  * Basic L1RPC muon candidate. Containes coordinates of LogCone, in which the
@@ -18,7 +18,8 @@ public:
   RPCMuon();
 
   ///Constructor. All parameters are set.
-  RPCMuon(const RPCConst::l1RpcConeCrdnts coneCrdnts, int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes);
+  RPCMuon(const RPCConst::l1RpcConeCrdnts coneCrdnts,
+          int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes);
   
   ///Constructor.
   RPCMuon(int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes);
@@ -59,9 +60,11 @@ public:
 
   void setRefStripNum(int refStripNum);
 
-  /** continous number of strip in reference plane, set by	RPCPacData::run
-    * int refStripNum = getPattern(bestMuon.getPatternNum()).getStripFrom(m_REF_PLANE[abs(m_CurrConeCrdnts.m_Tower)]) + m_CurrConeCrdnts.m_LogSector * 96 + m_CurrConeCrdnts.m_LogSegment * 8; 
-    */
+/** continous number of strip in reference plane, set by	RPCPacData::run
+  * int refStripNum =
+  * getPattern(bestMuon.getPatternNum()).getStripFrom(m_REF_PLANE[abs(m_CurrConeCrdnts.m_Tower)])
+  * + m_CurrConeCrdnts.m_LogSector * 96 + m_CurrConeCrdnts.m_LogSegment * 8;
+  */
   int getRefStripNum() const;
     
 protected:

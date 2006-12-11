@@ -16,7 +16,7 @@ RPCHalfSorter::RPCHalfSorter(RPCTriggerConfiguration* triggerConfig) {
   
   m_TrigCnfg = triggerConfig;
   
-  m_GBOutputMuons.assign(2, L1RpcTBMuonsVec() );
+  m_GBOutputMuons.assign(2, L1RpcTBMuonsVec());
   
 }
 /** 
@@ -31,14 +31,14 @@ L1RpcTBMuonsVec2 RPCHalfSorter::runHalf(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
     for(unsigned int iMu = 0; iMu < tcsMuonsVec2[iTC].size(); iMu++) {
       if(tcsMuonsVec2[iTC][iMu].getCode() == 0)
         continue;
-      if(tcsMuonsVec2[iTC][iMu].gBDataKilledLast() ) {
+      if(tcsMuonsVec2[iTC][iMu].gBDataKilledLast()) {
         for(unsigned int iMuN = 0; iMuN < tcsMuonsVec2[iTC+1].size(); iMuN++) {
           if(tcsMuonsVec2[iTC+1][iMuN].getCode() == 0)
             continue;
-          if(tcsMuonsVec2[iTC+1][iMuN].gBDataKilledFirst() ) {
-            if( abs(tcsMuonsVec2[iTC][iMu].getEtaAddr() -
-                    tcsMuonsVec2[iTC+1][iMuN].getEtaAddr() ) <= 1 )
-              if(tcsMuonsVec2[iTC][iMu].getCode() <= tcsMuonsVec2[iTC+1][iMuN].getCode() ) {
+          if(tcsMuonsVec2[iTC+1][iMuN].gBDataKilledFirst()){
+            if(abs(tcsMuonsVec2[iTC][iMu].getEtaAddr() -
+                    tcsMuonsVec2[iTC+1][iMuN].getEtaAddr()) <= 1)
+              if(tcsMuonsVec2[iTC][iMu].getCode() <= tcsMuonsVec2[iTC+1][iMuN].getCode()) {
                 if(tcsMuonsVec2[iTC][iMu].getSegmentAddr() == RPCConst::m_SEGMENTS_IN_SECTOR_CNT-1)
                   tcsMuonsVec2[iTC][iMu].kill();
               }    
@@ -55,8 +55,8 @@ L1RpcTBMuonsVec2 RPCHalfSorter::runHalf(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
   
   for(unsigned int iTC = 1; iTC < tcsMuonsVec2.size()-1; iTC++)
     for(unsigned int iMu = 0; iMu < tcsMuonsVec2[iTC].size(); iMu++)
-      if(tcsMuonsVec2[iTC][iMu].isLive() ) {
-        if(abs(16 - tcsMuonsVec2[iTC][iMu].getEtaAddr()) <=7 )
+      if(tcsMuonsVec2[iTC][iMu].isLive()){
+        if(abs(16 - tcsMuonsVec2[iTC][iMu].getEtaAddr()) <=7)
           outputBarrelMuons.push_back(tcsMuonsVec2[iTC][iMu]);
         else
           outputEndcapMuons.push_back(tcsMuonsVec2[iTC][iMu]);
@@ -75,8 +75,12 @@ L1RpcTBMuonsVec2 RPCHalfSorter::runHalf(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
   while(outputEndcapMuons.size() > RPCConst::m_FINAL_OUT_MUONS_CNT)
     outputEndcapMuons.pop_back();
 
-  m_GBOutputMuons[0].insert(m_GBOutputMuons[0].end(), outputBarrelMuons.begin(), outputBarrelMuons.end());
-  m_GBOutputMuons[1].insert(m_GBOutputMuons[1].end(), outputEndcapMuons.begin(), outputEndcapMuons.end());
+  m_GBOutputMuons[0].insert(m_GBOutputMuons[0].end(),
+                            outputBarrelMuons.begin(),
+                            outputBarrelMuons.end());
+  m_GBOutputMuons[1].insert(m_GBOutputMuons[1].end(),
+                            outputEndcapMuons.begin(),
+                            outputEndcapMuons.end());
   return m_GBOutputMuons;
 }
 /** 
@@ -116,9 +120,12 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
     for (unsigned  int iTC = 0; iTC < m_GBOutputMuons.size(); iTC++){
         for (unsigned  int iTB = 0; iTB < m_GBOutputMuons[iTC].size(); iTB++){
 #ifndef _STAND_ALONE
-            LogDebug("RPCHwDebug")<<"GB 3 "<< m_GBOutputMuons[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel());
+            LogDebug("RPCHwDebug")<<"GB 3 "
+                << m_GBOutputMuons[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel());
 #else
-            std::cout <<"GB 3 "<< m_GBOutputMuons[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel()) << std::endl;
+            std::cout <<"GB 3 "
+                << m_GBOutputMuons[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel())
+                << std::endl;
 #endif 
         }
     }

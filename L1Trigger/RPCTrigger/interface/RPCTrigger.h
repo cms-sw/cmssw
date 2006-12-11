@@ -1,11 +1,11 @@
-#ifndef RPCTrigger_RPCTrigger_h
-#define RPCTrigger_RPCTrigger_h
+#ifndef L1Trigger_RPCTrigger_h
+#define L1Trigger_RPCTrigger_h
 
 /** \class RPCTrigger
  *  \brief Implements RPC trigger emulation
  *
- *  $Date: 2006/11/28 11:23:44 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/11/29 19:33:49 $
+ *  $Revision: 1.8 $
  *  \author Tomasz Fruboes
  *  \todo All the code must be reviewed and cleaned to comply coding rules
  */

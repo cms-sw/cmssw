@@ -1,5 +1,5 @@
-#ifndef L1RpcTBGhostBusterH
-#define L1RpcTBGhostBusterH
+#ifndef L1Trigger_RPCTBGhostBuster_h
+#define L1Trigger_RPCTBGhostBuster_h
 
 /** \class RPCTBGhostBuster
   * Peformes the Trigger Board Ghost Buster and sorter algorithms.

@@ -1,5 +1,5 @@
-#ifndef L1RpcPacDataH
-#define L1RpcPacDataH
+#ifndef L1Trigger_RPCPacData_h
+#define L1Trigger_RPCPacData_h
 /*
 todo
 sprawdzic konwencje znaku mionu !!!!! (takze w L1RpcMuon0)
@@ -52,7 +52,7 @@ public:
 
   RPCPattern getPattern(int patNum) const;
 
-  int getPatternsGroupCount ();
+  int getPatternsGroupCount();
 
   std::string getPatternsGroupDescription(int patternGroupNum);
 

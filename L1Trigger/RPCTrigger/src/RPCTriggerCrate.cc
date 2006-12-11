@@ -22,7 +22,7 @@ L1RpcTBMuonsVec RPCTriggerCrate::runTCGBSorter() {
 
   L1RpcTBMuonsVec2 tbMuonsVec2;
   for(unsigned int iTB = 0; iTB < m_TBsVec.size(); iTB++) {
-    tbMuonsVec2.push_back(m_TBsVec[iTB].runTBGB() );
+    tbMuonsVec2.push_back(m_TBsVec[iTB].runTBGB());
   }
 
   m_WasMuon = false;
@@ -32,7 +32,8 @@ L1RpcTBMuonsVec RPCTriggerCrate::runTCGBSorter() {
     for (unsigned  int iTC = 0; iTC < tbMuonsVec2.size(); iTC++){
         for (unsigned  int iTB = 0; iTB < tbMuonsVec2[iTC].size(); iTB++){
 #ifndef _STAND_ALONE
-            LogDebug("RPCHwDebug") << "GB 1 " <<tbMuonsVec2[iTC][iTB].printDebugInfo(m_TriggerConfig->getDebugLevel());
+            LogDebug("RPCHwDebug") << "GB 1 "
+              <<tbMuonsVec2[iTC][iTB].printDebugInfo(m_TriggerConfig->getDebugLevel());
 #else
 	  std::cout << "GB 1 " 
 		  <<tbMuonsVec2[iTC][iTB].printDebugInfo(m_TriggerConfig->getDebugLevel())
@@ -49,6 +50,6 @@ L1RpcTBMuonsVec RPCTriggerCrate::runTCGBSorter() {
 
 /** Runs RPCTriggerBoard::runCone() for every TB. Cheks, if any non empty muons were found*/
 void RPCTriggerCrate::runCone(const RPCLogCone& cone) {
-  if(m_TBsVec[m_TriggerConfig->getTBNum(cone.getConeCrdnts())].runCone(cone) )
+  if(m_TBsVec[m_TriggerConfig->getTBNum(cone.getConeCrdnts())].runCone(cone))
     m_WasMuon = true;
 }

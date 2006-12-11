@@ -1,5 +1,5 @@
-#ifndef L1RpcPacManagerH
-#define L1RpcPacManagerH
+#ifndef L1Trigger_RPCPacManager_h
+#define L1Trigger_RPCPacManager_h
 /** \class RPCPacManager
  *
  * The singleton object of thise class stores all PACs of L1RPC trigger.
@@ -36,15 +36,6 @@ enum L1RpcPACsCntEnum {
 
 
 template<class TPacType> class RPCPacManager {
-private:
-  std::vector<std::vector<std::vector<TPacType*> > > m_PacTab; //!< m_PacTab[m_tower][logSector][m_LogSegment]
-
-  int m_SectorsCnt; //!< Count of used differnt sectors.
-
-  int m_SegmentCnt; //!< Count of used differnt segments.
-
-  L1RpcPACsCntEnum m_PACsCnt; //Used configuration version.
-
 public:
   ~RPCPacManager() {
     for (unsigned int m_tower = 0; m_tower < m_PacTab.size(); m_tower++)
@@ -81,9 +72,9 @@ public:
     }
 
     for (int m_tower = 0; m_tower < RPCConst::m_TOWER_COUNT; m_tower++) {
-      m_PacTab.push_back(std::vector<std::vector<TPacType*> >() );
+      m_PacTab.push_back(std::vector<std::vector<TPacType*> >());
       for (int logSector = 0; logSector < m_SectorsCnt; logSector++) {
-        m_PacTab[m_tower].push_back(std::vector<TPacType*>() );
+        m_PacTab[m_tower].push_back(std::vector<TPacType*>());
         for (int logSegment = 0; logSegment < m_SegmentCnt; logSegment++) {
           TPacType* pac  = new TPacType(patFilesDirectory, m_tower, logSector, logSegment); 
           m_PacTab[m_tower][logSector].push_back(pac);                   
@@ -99,12 +90,12 @@ public:
     */
   //const
   TPacType* getPac(int m_tower, int logSector, int logSegment) const {
-    if (m_PacTab.size() <= (unsigned int) abs(m_tower) )
+    if (m_PacTab.size() <= (unsigned int) abs(m_tower))
      throw RPCException("RPCPacManager::getPac: given towerNum to big");
      // edm::LogError("RPCTrigger") << "RPCPacManager::getPac: given towerNum to big" << std::endl;
 
-    int curLogSector = logSector;
-    int curlogSegment = logSegment;
+    //int curLogSector = logSector;
+    //int curlogSegment = logSegment;
 
     if(m_PACsCnt == ONE_PAC_PER_TOWER) {
       logSector = 0;
@@ -122,6 +113,15 @@ public:
   TPacType* getPac(const RPCConst::l1RpcConeCrdnts& coneCrdnts) const {
     return getPac(coneCrdnts.m_Tower, coneCrdnts.m_LogSector, coneCrdnts.m_LogSegment);
   }
+  
+  private:
+    std::vector<std::vector<std::vector<TPacType*> > > m_PacTab; //!< m_PacTab[m_tower][logSector][m_LogSegment]
+
+    int m_SectorsCnt; //!< Count of used differnt sectors.
+
+    int m_SegmentCnt; //!< Count of used differnt segments.
+
+    L1RpcPACsCntEnum m_PACsCnt; //Used configuration version.
 };
 
 #endif

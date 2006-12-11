@@ -1,5 +1,5 @@
-#ifndef L1RpcPacTriggerH
-#define L1RpcPacTriggerH
+#ifndef L1Trigger_RPCPacTrigger_h
+#define L1Trigger_RPCPacTrigger_h
 
 /** \class RPCPacTrigger
   * Simulations of Pattern Comparator trigger. For every event runs PACs, ghost-busters and sorters.

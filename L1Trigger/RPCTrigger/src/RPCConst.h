@@ -1,5 +1,5 @@
-#ifndef L1RpcConstH
-#define L1RpcConstH
+#ifndef L1Trigger_RPCConst_h
+#define L1Trigger_RPCConst_h
 
 #ifndef _STAND_ALONE
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -23,6 +23,7 @@
 class RPCConst {
 
 public:
+
   enum {
         ITOW_MIN  = 0,            //!< Minimal number of abs(m_tower_number)
         ITOW_MAX  = 16,           //!< Maximal number of abs(m_tower_number)
@@ -37,7 +38,8 @@ public:
   //static const int m_TOWER_COUNT = 16 + 1; //!< Only half of the detector.
   
 //-----------------import from L1RpcParameters beg------------------    
-  
+
+    //static const double m_pi = 3.14159265358979;
     static const int m_TOWER_COUNT = 16 + 1; //!< Only half of the detector.
     
     static const int m_PT_CODE_MAX = 31; //!< Pt_code range = 0-m_PT_CODE_MAX

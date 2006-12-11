@@ -18,7 +18,7 @@
 RPCLogCone::RPCLogCone(): 
     m_ConeCrdnts() 
 {
-  m_LogPlanesVec.assign(RPCConst::m_LOGPLANES_COUNT, TLogPlane() );
+  m_LogPlanesVec.assign(RPCConst::m_LOGPLANES_COUNT, TLogPlane());
   m_MuonCode = 0;
   m_MuonSign = 0;
 }
@@ -31,7 +31,7 @@ RPCLogCone::RPCLogCone():
 RPCLogCone::RPCLogCone(int m_tower, int logSector, int logSegment):
     m_ConeCrdnts(m_tower, logSector, logSegment) 
 {
-  m_LogPlanesVec.assign(RPCConst::m_LOGPLANES_COUNT, TLogPlane() );
+  m_LogPlanesVec.assign(RPCConst::m_LOGPLANES_COUNT, TLogPlane());
   m_MuonCode = 0;
   m_MuonSign = 0;
 }
@@ -42,7 +42,7 @@ RPCLogCone::RPCLogCone(int m_tower, int logSector, int logSegment):
 */
 RPCLogCone::RPCLogCone(const RPCLogHit &logHit) 
 {
-  m_LogPlanesVec.assign(RPCConst::m_LOGPLANES_COUNT, TLogPlane() );
+  m_LogPlanesVec.assign(RPCConst::m_LOGPLANES_COUNT, TLogPlane());
 
   m_ConeCrdnts = logHit.getConeCrdnts();
 
@@ -55,8 +55,13 @@ RPCLogCone::RPCLogCone(const RPCLogHit &logHit)
 std::string RPCLogCone::toString() const {
   std::ostringstream ostr;
   ostr << "\n       ======================> TOWER = ";
-  ostr<<std::setw(2)<<m_ConeCrdnts.m_Tower<<", m_LogSector = "<<m_ConeCrdnts.m_LogSector<<",  m_LogSegment = "<<m_ConeCrdnts.m_LogSegment;
-  ostr <<" <======================="<< std::endl;
+  ostr<<std::setw(2)
+      <<m_ConeCrdnts.m_Tower
+      <<", m_LogSector = "
+      <<m_ConeCrdnts.m_LogSector
+      <<",  m_LogSegment = "
+      <<m_ConeCrdnts.m_LogSegment
+      <<" <======================="<< std::endl;
 
   std::string spacer;
 
@@ -86,10 +91,13 @@ void RPCLogCone::shift(int pos) {
   int shiftPos;
   for(int logPlane = RPCConst::m_FIRST_PLANE; logPlane <= RPCConst::m_LAST_PLANE; logPlane++) {
     TLogPlane shifted;
-    for(TLogPlane::iterator it = m_LogPlanesVec[logPlane].begin(); it != m_LogPlanesVec[logPlane].end(); it++) {
+    for(TLogPlane::iterator it = m_LogPlanesVec[logPlane].begin();
+        it != m_LogPlanesVec[logPlane].end();
+        it++)
+    {
       shiftPos = it->first + pos;
       if ( shiftPos >= 0 && shiftPos < (int)RPCConst::m_LOGPLANE_SIZE[abs(m_ConeCrdnts.m_Tower)])
-        shifted.insert(TLogPlane::value_type(shiftPos, it->second ));
+        shifted.insert(TLogPlane::value_type(shiftPos, it->second));
     }
     m_LogPlanesVec[logPlane] = shifted;
   }
@@ -100,10 +108,14 @@ void RPCLogCone::shift(int pos) {
 //  Simple getters and setters
 //
 //#############################################################################################
-RPCLogCone::TLogPlane RPCLogCone::getLogPlane(int logPlane) const { return m_LogPlanesVec[logPlane]; }
+RPCLogCone::TLogPlane RPCLogCone::getLogPlane(int logPlane) const { 
+  return m_LogPlanesVec[logPlane]; 
+}
 
 ///Gets fired strips count in given logPlane.
-int RPCLogCone::getHitsCnt(int logPlane) const { return m_LogPlanesVec[logPlane].size(); }
+int RPCLogCone::getHitsCnt(int logPlane) const {
+  return m_LogPlanesVec[logPlane].size();
+}
 
 /// sets pt code of muon that fired the strips */
 void RPCLogCone::setMuonCode(int code) { m_MuonCode = code; }
@@ -129,12 +141,12 @@ int RPCLogCone::getIdx() const { return m_Index; }
   
 void RPCLogCone::setLogStrip(int logPlane, int logStripNum, int m_digiIdx) {
 //m_LogPlanesVec[logPlane].insert(logStripNum);
-//m_LogPlanesVec[logPlane].insert(TLogPlane::value_type(logStripNum, vector<int>() ) );
+//m_LogPlanesVec[logPlane].insert(TLogPlane::value_type(logStripNum, vector<int>()));
   m_LogPlanesVec[logPlane][logStripNum].push_back(m_digiIdx);
 }
 
 void RPCLogCone::setLogStrip(int logPlane, int logStripNum) {
-  m_LogPlanesVec[logPlane].insert(TLogPlane::value_type(logStripNum, std::vector<int>() ) );
+  m_LogPlanesVec[logPlane].insert(TLogPlane::value_type(logStripNum, std::vector<int>()));
 }
 
 
@@ -152,7 +164,7 @@ bool RPCLogCone::addLogHit(const RPCLogHit &logHit) {
   
   if (m_ConeCrdnts.m_Tower == logHit.getTower() &&
       m_ConeCrdnts.m_LogSector == logHit.getLogSector() &&
-      m_ConeCrdnts.m_LogSegment == logHit.getLogSegment()  ) 
+      m_ConeCrdnts.m_LogSegment == logHit.getLogSegment()) 
   {
     setLogStrip(logHit.getlogPlaneNumber()-1, logHit.getStripNumberInCone(), logHit.getDigiIdx());
     return true;
@@ -164,7 +176,7 @@ bool RPCLogCone::addLogHit(const RPCLogHit &logHit) {
 
 std::vector<int> RPCLogCone::getLogStripDigisIdxs(int logPlane, unsigned int logStripNum) const {
   TLogPlane::const_iterator it = m_LogPlanesVec[logPlane].find(logStripNum); 
-  if(it != m_LogPlanesVec[logPlane].end() )
+  if(it != m_LogPlanesVec[logPlane].end())
     return it->second;
   else
     return std::vector<int>();
@@ -180,7 +192,10 @@ bool RPCLogCone::isPlaneFired(int logPlane) const {
 
 int RPCLogCone::getFiredPlanesCnt() const{
   int firedPlanes = 0;
-  for(int logPlane = RPCConst::m_FIRST_PLANE; logPlane < RPCConst::m_USED_PLANES_COUNT[abs(m_ConeCrdnts.m_Tower)]; logPlane++) {
+  for(int logPlane = RPCConst::m_FIRST_PLANE;
+      logPlane < RPCConst::m_USED_PLANES_COUNT[abs(m_ConeCrdnts.m_Tower)];
+      logPlane++)
+  {
     firedPlanes = firedPlanes + isPlaneFired(logPlane);
   }
   return firedPlanes;
@@ -200,7 +215,10 @@ int RPCLogCone::possibleTrigger() const {
   if(firedPlanes >= 3)
     triggerType = 1;
 
-  for( ; logPlane < RPCConst::m_USED_PLANES_COUNT[abs(m_ConeCrdnts.m_Tower)]; logPlane++) {
+  for( ;
+      logPlane < RPCConst::m_USED_PLANES_COUNT[abs(m_ConeCrdnts.m_Tower)];
+      logPlane++)
+  {
     firedPlanes = firedPlanes + isPlaneFired(logPlane);
   }
   if(firedPlanes >= 4)

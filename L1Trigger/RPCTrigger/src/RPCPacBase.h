@@ -1,5 +1,5 @@
-#ifndef L1RpcPacBaseH
-#define L1RpcPacBaseH
+#ifndef L1Trigger_RPCPacBase_h
+#define L1Trigger_RPCPacBase_h
 
 /** \class RPCPacBase
  *
@@ -14,13 +14,6 @@
 #include "L1Trigger/RPCTrigger/src/RPCConst.h"
 //------------------------------------------------------------------------------
 class RPCPacBase {
-protected:
-  ///Coordinates of LogCone. The coordinates, with which m_PAC is created - the same as in pac file name
-  RPCConst::l1RpcConeCrdnts m_ConeCrdnts;
-
-  /** Coordinates of current LogCone. The same m_PAC may be used for several LogCones.
-    * @see RPCPacManager */
-  RPCConst::l1RpcConeCrdnts m_CurrConeCrdnts;
 
 public:
   
@@ -31,7 +24,15 @@ public:
   void setCurrentPosition(int m_tower, int logSector, int logSegment);
     
   void setCurrentPosition(RPCConst::l1RpcConeCrdnts coneCrdnts);
+protected:
+  ///Coordinates of LogCone.The coordinates, with which m_PAC is created - the same as in pac file name
+  RPCConst::l1RpcConeCrdnts m_ConeCrdnts;
 
+  /** Coordinates of current LogCone. The same m_PAC may be used for several LogCones.
+    * @see RPCPacManager */
+  RPCConst::l1RpcConeCrdnts m_CurrConeCrdnts;
+
+  
 };
 #endif
 

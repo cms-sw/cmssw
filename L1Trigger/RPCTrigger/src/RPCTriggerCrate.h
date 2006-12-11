@@ -1,5 +1,5 @@
-#ifndef L1RpcTriggerCrateH
-#define L1RpcTriggerCrateH
+#ifndef L1Trigger_RPCTriggerCrate_h
+#define L1Trigger_RPCTriggerCrate_h
 //#define LOCALDEBUG
 /** \class RPCTriggerCrate
   * Class describing the Trigger Crate. In one Trigger Crate thera are

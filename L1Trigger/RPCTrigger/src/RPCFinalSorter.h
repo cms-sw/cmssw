@@ -1,5 +1,5 @@
-#ifndef L1RpcFinalSorterH
-#define L1RpcFinalSorterH
+#ifndef L1Trigger_RPCFinalSorter_h
+#define L1Trigger_RPCFinalSorter_h
 
 /** \class RPCFinalSorter
   * Emulates FinalSorter 
@@ -24,7 +24,7 @@ public:
   void runFinalSorter(L1RpcTBMuonsVec2 &finalMuons);
 
   //L1RpcTBMuonsVec2 run(L1RpcTBMuonsVec2 &tcsMuonsVec2);
-  L1RpcTBMuonsVec2 run(L1RpcTBMuonsVec2 tcsMuonsVec2);
+  L1RpcTBMuonsVec2 run(L1RpcTBMuonsVec2 &tcsMuonsVec2);
 
 private:
   L1RpcTBMuonsVec2 m_GBOutputMuons;

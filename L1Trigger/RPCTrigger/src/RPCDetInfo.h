@@ -1,5 +1,5 @@
-#ifndef RPCTrigger_RPCDetInfo_h
-#define RPCTrigger_RPCDetInfo_h
+#ifndef L1Trigger_RPCDetInfo_h
+#define L1Trigger_RPCDetInfo_h
 
 
 /** \class RPCDetInfo

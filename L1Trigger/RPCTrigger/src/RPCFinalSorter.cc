@@ -15,7 +15,7 @@ using namespace std;
 RPCFinalSorter::RPCFinalSorter(RPCTriggerConfiguration* triggerConfig) {
   
   m_TrigCnfg = triggerConfig;
-  m_GBOutputMuons.assign(2, L1RpcTBMuonsVec() );
+  m_GBOutputMuons.assign(2, L1RpcTBMuonsVec());
   
 }
 /** 
@@ -24,7 +24,7 @@ RPCFinalSorter::RPCFinalSorter(RPCTriggerConfiguration* triggerConfig) {
  * @return 4 munons from barrel (m_GBOutputMuons[0]),
  * and 4 from endcaps (m_GBOutputMuons[1]).
 */
-L1RpcTBMuonsVec2 RPCFinalSorter::run(L1RpcTBMuonsVec2 tcsMuonsVec2) {
+L1RpcTBMuonsVec2 RPCFinalSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
   
   //m_GBOutputMuons[0].clear();
   //m_GBOutputMuons[1].clear();
@@ -35,9 +35,12 @@ L1RpcTBMuonsVec2 RPCFinalSorter::run(L1RpcTBMuonsVec2 tcsMuonsVec2) {
     for (unsigned  int iTC = 0; iTC < m_GBOutputMuons.size(); iTC++){
         for (unsigned  int iTB = 0; iTB < m_GBOutputMuons[iTC].size(); iTB++){
 #ifndef _STAND_ALONE
-            LogDebug("RPCHwDebug")<<"GB 4 "<< m_GBOutputMuons[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel());
+            LogDebug("RPCHwDebug")<<"GB 4 "
+                << m_GBOutputMuons[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel());
 #else
-            std::cout<<"GB 4 "<< m_GBOutputMuons[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel()) << std::endl;
+            std::cout<<"GB 4 "
+                << m_GBOutputMuons[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel())
+                << std::endl;
 #endif
         }
     }

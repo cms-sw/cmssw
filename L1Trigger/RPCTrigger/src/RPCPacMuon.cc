@@ -26,18 +26,18 @@ void RPCPacMuon::setPatternNum(int patternNum) {
   m_PatternNum = patternNum;
 }
 
-bool RPCPacMuon::operator < (const RPCPacMuon& pacMuon) const {
-  if( this->m_Quality < pacMuon.m_Quality )
+bool RPCPacMuon::operator <(const RPCPacMuon& pacMuon) const {
+  if( this->m_Quality < pacMuon.m_Quality)
     return true;
-  else if( this->m_Quality > pacMuon.m_Quality )
+  else if( this->m_Quality > pacMuon.m_Quality)
     return false;
   else { //==
-    if( this->m_PtCode < pacMuon.m_PtCode )
+    if( this->m_PtCode < pacMuon.m_PtCode)
       return true;
-    else if( this->m_PtCode > pacMuon.m_PtCode )
+    else if( this->m_PtCode > pacMuon.m_PtCode)
       return false;
     else { //==
-      if( this->m_Sign < pacMuon.m_Sign )
+      if( this->m_Sign < pacMuon.m_Sign)
         return true;
       else
         return false;
@@ -45,28 +45,28 @@ bool RPCPacMuon::operator < (const RPCPacMuon& pacMuon) const {
   }
 }
 
-bool RPCPacMuon::operator > (const RPCPacMuon& pacMuon) const {
-  if( this->m_Quality > pacMuon.m_Quality )
+bool RPCPacMuon::operator >(const RPCPacMuon& pacMuon) const {
+  if( this->m_Quality > pacMuon.m_Quality)
     return true;
-  else if( this->m_Quality < pacMuon.m_Quality )
+  else if( this->m_Quality < pacMuon.m_Quality)
     return false;
   else { //==
-    if( this->m_PtCode > pacMuon.m_PtCode )
+    if( this->m_PtCode > pacMuon.m_PtCode)
       return true;
-    else if( this->m_PtCode < pacMuon.m_PtCode )
+    else if( this->m_PtCode < pacMuon.m_PtCode)
       return false;
     else { //==
-      if( this->m_Sign > pacMuon.m_Sign )
+      if( this->m_Sign > pacMuon.m_Sign)
         return true;
       else
         return false;
     }
   }
 }
-bool RPCPacMuon::operator == (const RPCPacMuon& pacMuon) const {
+bool RPCPacMuon::operator ==(const RPCPacMuon& pacMuon) const {
   if( this->m_Quality == pacMuon.m_Quality &&
       this->m_PtCode == pacMuon.m_PtCode &&
-      this->m_Sign == pacMuon.m_Sign          )
+      this->m_Sign == pacMuon.m_Sign)
     return true;
   else
     return false;

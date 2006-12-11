@@ -1,5 +1,5 @@
-#ifndef L1RpcLogHitH
-#define L1RpcLogHitH
+#ifndef L1Trigger_RPCLogHit_h
+#define L1Trigger_RPCLogHit_h
 
 /** \class RPCLogHit
  * 
@@ -46,7 +46,7 @@ public:
 
   int getStripNumberInCone() const;
 
-  void  setDigiIdx(int _digiIdx);
+  void  setDigiIdx(int);
 
   int getDigiIdx() const;
 

@@ -1,5 +1,5 @@
-#ifndef L1RpcTCGhostBusterSorterH
-#define L1RpcTCGhostBusterSorterH
+#ifndef L1Trigger_RPCTCGhostBusterSorter_h
+#define L1Trigger_RPCTCGhostBusterSorter_h
 /** \class RPCTCGhostBusterSorter
   * Peformes the Trigger Crate Ghost Buster and sorter algorithm.
   * Because the class does not keep any data and GB is the same for every TC,

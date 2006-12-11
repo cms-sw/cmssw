@@ -1,5 +1,5 @@
-#ifndef L1RpcPatternsParserH
-#define L1RpcPatternsParserH
+#ifndef L1Trigger_RPCPatternsParser_h
+#define L1Trigger_RPCPatternsParser_h
 /*******************************************************************************
 *                                                                              *
 *  Karol Bunkowski                                                             *
@@ -26,7 +26,9 @@ public:
   //  SAX2PatHandler();
   //  ~SAX2PatHandler();
 
-  //  void startElement(const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname, const Attributes& attrs);
+  //  void startElement(const XMLCh* const uri, const XMLCh* const localname, 
+  //                    const XMLCh* const qname, const Attributes& attrs);
+  
   //  void endElement (const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname);
   //};
 
@@ -34,7 +36,9 @@ public:
   ~RPCPatternsParser();
 
   
-  void startElement(const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname, const Attributes& attrs);
+  void startElement(const XMLCh* const uri, const XMLCh* const localname, 
+                    const XMLCh* const qname, const Attributes& attrs);
+  
   void endElement (const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname);
 
   void parse(std::string fileName);

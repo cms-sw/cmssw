@@ -35,7 +35,9 @@ RPCTriggerBoard::RPCTriggerBoard( RPCTriggerConfiguration* triggerConfig,
       coneCrds.m_LogSegment=logSegment;
       
       const RPCPacData *pacData = m_TriggerConfig->getPac(coneCrds);
-      RPCPac *pac = new RPCPac(pacData, tower, tcNum, logSegment); // one trigger crate covers one logsector
+      
+      // one trigger crate covers one logsector:
+      RPCPac *pac = new RPCPac(pacData, tower, tcNum, logSegment); 
       m_pacs[tower].push_back(pac);
     
     }
@@ -81,7 +83,7 @@ L1RpcTBMuonsVec RPCTriggerBoard::runTBGB() { //4 muons or empty vector
 
   L1RpcTBMuonsVec2 gbMuons(RPCConst::m_TOWERS_ON_TB_CNT, L1RpcTBMuonsVec());
   for(unsigned int iMu = 0; iMu < m_PacsMuonsVec.size(); iMu++) {
-    int tbTower = m_TriggerConfig->getTowerNumOnTb(m_PacsMuonsVec[iMu].getConeCrdnts() );
+    int tbTower = m_TriggerConfig->getTowerNumOnTb(m_PacsMuonsVec[iMu].getConeCrdnts());
 
     if(gbMuons[tbTower].size() == 0)
       gbMuons[tbTower].assign(RPCConst::m_SEGMENTS_IN_SECTOR_CNT, RPCTBMuon());

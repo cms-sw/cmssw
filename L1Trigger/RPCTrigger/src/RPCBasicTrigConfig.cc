@@ -8,7 +8,7 @@ RPCBasicTrigConfig::RPCBasicTrigConfig(RPCPacManager<RPCPacData>* pacManager) {
 
 /// Ctor
 RPCBasicTrigConfig::RPCBasicTrigConfig() {
-  m_PacManager  = NULL;
+  m_PacManager  = 0;
 }
 
 /** Converts TC GB-Sorter output m_tower address <0...31> ("m_tower number continous")
@@ -119,6 +119,8 @@ const int RPCBasicTrigConfig::m_TB_NUM_FOR_TOWER[2 * RPCConst::ITOW_MAX + 1] = {
 };
 
 const int RPCBasicTrigConfig::m_TOW_ADDR_2_TOW_NUM[36] = {
-//0	  1	  2	  3	  4	  5	  6	 7	8	 9 10	11	12	13	14	15	16	17	18	19	20	21	22	23	24	25	26	27	28	29	30	31	32	33	34	35
--16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5, -4, -3, -2,-99, -1,  0,  1,-99,  2,  3,  4,-99,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16
+//0	  1	  2	  3	  4	  5	  6	 7	8	 9 10	11	12	13	14	15	16	17	
+-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5, -4, -3, -2,-99, -1,  0,
+//18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35
+  1,-99,  2,  3,  4,-99,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16
 };

@@ -204,7 +204,9 @@ unsigned int RPCTBMuon::FSBOut::toBits(const RPCTBMuon& muon) {
   //  value = muon.m_PhiAddress;         shift += m_phiBitsCnt;  
   value = value | (ptCode<<shift);          shift += m_ptBitsCnt;
   value = value | (quality<<shift);         shift += m_qualBitsCnt;
-  value = value | (muon.m_EtaAddress<<shift); shift += m_etaBitsCnt + 1; //+1 beacouse H/F bits, unused in RPC
+  
+  //+1 beacouse H/F bits, unused in RPC:
+  value = value | (muon.m_EtaAddress<<shift); shift += m_etaBitsCnt + 1; 
   value = value | (muon.m_Sign<<shift);       shift += m_signBitsCnt;
   
   return value;
@@ -215,7 +217,10 @@ void RPCTBMuon::FSBOut::fromBits(RPCTBMuon& muon, unsigned int value) {
   muon.m_PhiAddress =  value & m_phiBitsMask;                    shift += m_phiBitsCnt;
   muon.m_PtCode     = (value & (m_ptBitsMask<<shift))   >> shift;  shift += m_ptBitsCnt;
   muon.m_Quality    = (value & (m_qualBitsMask<<shift)) >> shift;  shift += m_qualBitsCnt;
-  muon.m_EtaAddress = (value & (m_etaBitsMask<<shift))  >> shift;  shift += m_etaBitsCnt + 1; //+1 beacouse H/F bits, unused in RPC
+  
+  //+1 beacouse H/F bits, unused in RPC:
+  muon.m_EtaAddress = (value & (m_etaBitsMask<<shift))  >> shift;  shift += m_etaBitsCnt + 1; 
+  
   muon.m_Sign       = (value & (m_signBitsMask<<shift)) >> shift;  shift += m_signBitsCnt; 
   
   muon.m_PtCode = (~(muon.m_PtCode)) & m_ptBitsMask;

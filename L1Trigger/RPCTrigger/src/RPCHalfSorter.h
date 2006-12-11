@@ -1,5 +1,5 @@
-#ifndef L1RpcHalfSorterH
-#define L1RpcHalfSorterH
+#ifndef L1Trigger_RPCHalfSorter_h
+#define L1Trigger_RPCHalfSorter_h
 
 /** \class RPCHalfSorter
   * Emulates HalfSorter (currently both of them ;-) )
