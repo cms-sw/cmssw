@@ -10,7 +10,7 @@ RandomEngine::myself=0;
 
 RandomEngine* 
 RandomEngine::instance(edm::RandomNumberGenerator* rng) {
-  if (!myself) myself = new RandomEngine(rng);
+  myself = new RandomEngine(rng);
   return myself;
 }
 

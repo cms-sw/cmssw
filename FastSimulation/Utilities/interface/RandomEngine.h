@@ -17,8 +17,8 @@ public:
 
   edm::RandomNumberGenerator* theRandomNumberGenerator() const {return rng_;}
 
-  static RandomEngine* instance(edm::RandomNumberGenerator* rng) ;
-  static RandomEngine* instance() ;
+  static RandomEngine* instance(edm::RandomNumberGenerator* rng);
+  static RandomEngine* instance();
 
   ~RandomEngine();
 
