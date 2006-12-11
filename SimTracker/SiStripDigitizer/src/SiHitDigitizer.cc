@@ -46,7 +46,7 @@ SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDet
 
   gevperelectron=conf_.getParameter<double>("GevPerElectron");
  
-  theSiInduceChargeOnStrips = new SiTrivialInduceChargeOnStrips(gevperelectron);
+  theSiInduceChargeOnStrips = new SiTrivialInduceChargeOnStrips(conf,gevperelectron);
 }
 
 

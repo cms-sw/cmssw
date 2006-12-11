@@ -21,7 +21,6 @@ class SiHitDigitizer{
  public:
 
   typedef map< int, float, less<int> > hit_map_type;
- 
   SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDetUnit *det);
 
   ~SiHitDigitizer();

@@ -1,5 +1,6 @@
 #ifndef Tracker_SiTrivialInduceChargeOnStrips_H
 #define Tracker_SiTrivialInduceChargeOnStrips_H
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimTracker/SiStripDigitizer/interface/SiInduceChargeOnStrips.h"
 //
@@ -15,13 +16,15 @@
 class SiTrivialInduceChargeOnStrips: public SiInduceChargeOnStrips{
  public:
   
-  SiTrivialInduceChargeOnStrips(double g){clusterWidth=3.; geVperElectron = g;}
+  SiTrivialInduceChargeOnStrips(const edm::ParameterSet& conf,double g);
   virtual ~SiTrivialInduceChargeOnStrips() {}
   SiInduceChargeOnStrips::hit_map_type induce(SiChargeCollectionDrifter::collection_type, const StripGeomDetUnit&);
 
  private:
+  edm::ParameterSet conf_;
   double clusterWidth;
-  vector<float> signalCoupling; 
+  vector<double> signalCoupling; 
+  vector<double> coupling_costant;
   double geVperElectron;
 };
 

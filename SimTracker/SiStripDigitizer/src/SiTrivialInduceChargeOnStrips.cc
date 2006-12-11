@@ -3,27 +3,18 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include <gsl/gsl_sf_erf.h>
 #include<iostream>
-static float default_couplings_from_vitaliano[2] =  {.76,.12};
-// aggiungere dopo (AG):
-// ConfigurableVector<float> 
-// SiTrivialInduceChargeOnStrips::signalCoupling(
-//                                        vector<float>(
-//                                                      default_couplings_from_vitaliano,
-//                                                      default_couplings_from_vitaliano+2),
-//                                        "SiStripDigitizer:SignalCoupling");
 
-
-
-//SiInduceChargeOnStrips::SiInduceChargeOnStrips(double in) : 
-// clusterWidth(3.0),
-// geVperElectron(in)
-//{}
-
+SiTrivialInduceChargeOnStrips::SiTrivialInduceChargeOnStrips(const edm::ParameterSet& conf,double g):conf_(conf)
+{
+  coupling_costant = conf_.getParameter<std::vector<double> >("CouplingCostant");
+  clusterWidth = 3.; 
+  geVperElectron = g;
+}
 
 SiInduceChargeOnStrips::hit_map_type SiTrivialInduceChargeOnStrips::induce(SiChargeCollectionDrifter::collection_type _collection_points, const StripGeomDetUnit& det){
   signalCoupling.clear();
-  signalCoupling.push_back(default_couplings_from_vitaliano[0]);
-  signalCoupling.push_back(default_couplings_from_vitaliano[1]);
+  signalCoupling.push_back(coupling_costant[0]);
+  signalCoupling.push_back(coupling_costant[1]);
 
   //  const StripTopology& t = dynamic_cast<const StripTopology&>(det.topology());
   const StripTopology& t = dynamic_cast<const StripTopology&>(det.specificTopology()); // AG
