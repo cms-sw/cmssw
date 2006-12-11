@@ -187,7 +187,7 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
 	     reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&rechits_map,geometry_p,topology_p); 
 
              if ( cl2.energy() > preshClustECut) {
-               clusters2.push_back(cl1);
+               clusters2.push_back(cl2);
                e2 += cl2.energy();
              }	                               
 
