@@ -25,7 +25,7 @@
   }  // end of ~condbon ()
 
   void condbon::cdbon_write (CSCobject *obj, std::string obj_name, int record,
-                            std::string data_time)
+                            int global_run, std::string data_time)
 {
   int i,j,k;
   std::string tab, tab_map, tab_data;
@@ -61,13 +61,13 @@
   stmt->closeResultSet (rset);
 
   if(record>rec_id){
-   sqlStmt = "INSERT INTO "+tab+" VALUES (:1, :2, :3, :4, :5)";
+   sqlStmt = "INSERT INTO "+tab+" VALUES (:1, :2, :3, :4, :5, null)";
    stmt->setSQL(sqlStmt);
    time(&now);
    curtime=*localtime(&now);
    try{
    stmt->setInt (1, record);
-   stmt->setInt (2, 1);
+   stmt->setInt (2, global_run);
    stmt->setInt (5, 0);
 /* For time as "05/17/2006 16:30:07"
   std::string st=data_time.substr(0,2);
