@@ -6,8 +6,8 @@
 
 /** \class CaloTPGTranscoderULUT
   *  
-  * $Date: 2006/12/11 04:19:59 $
-  * $Revision: 1.3 $
+  * $Date: 2006/12/11 17:26:01 $
+  * $Revision: 1.4 $
   * \author J. Mans - Minnesota
   */
 class CaloTPGTranscoderULUT : public CaloTPGTranscoder {
@@ -32,6 +32,6 @@ public:
   std::vector<const LUTType*> hcalITower_;
   void loadHCAL(const std::string& filename);
   
-  double hcaluncomp_[32][255];
+  double hcaluncomp_[32][256];
 };
 #endif
