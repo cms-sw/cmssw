@@ -52,7 +52,7 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 
   TSOS predTsos(firstPredTsos);
   if(!predTsos.isValid()) {
-    edm::LogError("TrackingTools/TrackFitters") 
+    LogDebug("TrackingTools/TrackFitters") 
       << "KFTrajectoryFitter: predicted tsos of first measurement not valid!\n"
       << "predTsos" << predTsos << "\n";
     return std::vector<Trajectory>();
@@ -139,12 +139,12 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
     predTsos = propagator()->propagate(currTsos,
 				       (**ihit).det()->surface());
     if(!predTsos.isValid()) {
-      edm::LogError("TrackingTools/TrackFitters") 
+      LogDebug("TrackingTools/TrackFitters") 
 	<<" SOMETHING WRONG !"<<"\n"
 	<<"KFTrajectoryFitter: predicted tsos not valid!\n" 
 	<<"current TSOS: "<<currTsos<< "\n";
       if((**ihit).isValid())
-	edm::LogError("TrackingTools/TrackFitters")
+	LogTrace("TrackingTools/TrackFitters")
 	  << "next Surface: "<<(**ihit).det()->surface().position()<< "\n";
       return std::vector<Trajectory>();
     }
