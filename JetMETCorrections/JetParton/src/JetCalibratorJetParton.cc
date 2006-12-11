@@ -213,7 +213,7 @@ reco::CaloJet JetCalibratorJetParton::applyCorrection( const reco::CaloJet& fJet
   Jet::LorentzVector common (fJet.px()*mScale, fJet.py()*mScale,
                            fJet.pz()*mScale, fJet.energy()*mScale);
 
-  reco::CaloJet theJet (common, fJet.getSpecific (), fJet.getConstituents());
+  reco::CaloJet theJet (common, fJet.getSpecific (), fJet.getJetConstituents());
   cout<<" JetParton::The new jet is created "<<endl;
 
   return theJet;
