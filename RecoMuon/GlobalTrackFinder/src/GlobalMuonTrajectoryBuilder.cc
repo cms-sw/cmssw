@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/11/30 04:27:28 $
- *  $Revision: 1.60 $
+ *  $Date: 2006/12/07 02:17:41 $
+ *  $Revision: 1.61 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -85,9 +85,8 @@ using namespace edm;
 
 GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par,
 							 const MuonServiceProxy* service) : 
-  theService(service)
-{
-  std::string metname = "GLBTrajBuilder::constructor";
+  theService(service) {
+
   ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
   theRefitter = new MuonTrackReFitter(refitterPSet,theService);
 
@@ -121,6 +120,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   } else {
     theTkTrackLabel = par.getParameter<edm::InputTag>("TkTrackCollectionLabel");  
   }
+
 }
 
 
@@ -143,19 +143,19 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
 //
 void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 
-  std::string metname = "GLBTrajBuilder::setEvent";
+  const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|setEvent";
 
   // get tracker TrackCollection from Event
   edm::Handle<std::vector<Trajectory> > handleTrackerTrajs;
-  if( ! theMakeTkSeedFlag ) {
+  if( !theMakeTkSeedFlag ) {
     event.getByLabel(theTkTrackLabel,allTrackerTracks);
-    LogInfo(metname) 
+    LogInfo(category) 
       << "Found " << allTrackerTracks->size() 
       << " tracker Tracks with label "<< theTkTrackLabel;  
-    if( theTkTrajsAvailableFlag ) {
+    if ( theTkTrajsAvailableFlag ) {
       event.getByLabel(theTkTrackLabel,handleTrackerTrajs);
       allTrackerTrajs = &*handleTrackerTrajs;         
-      if( theFirstEvent ) LogInfo(metname) << "Tk Trajectories Found! ";
+      if ( theFirstEvent ) LogInfo(category) << "Tk Trajectories Found! ";
     }
   }
   
@@ -164,12 +164,13 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   if( theMakeTkSeedFlag ) {   
     if (theFirstEvent) {
       theFirstEvent = false;
-      LogInfo(metname) << "Constructing a CkfBuilder";
+      LogInfo(category) << "Constructing a CkfBuilder";
       theService->eventSetup().get<CkfComponentsRecord>().get(theCkfBuilderName,theCkfBuilder);
     }
     theCkfBuilder->setEvent(event);
     theTkSeedGenerator->setEvent(event);
   }
+
 }
 
 
@@ -178,27 +179,27 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 //
 MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
   
-  std::string metname = "GLBTrajBuilder::trajectories";
+  const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|trajectories";
   bool timing = false;
-  TimeMe time_GLBBuilder_tot(metname,timing);
+  TimeMe time_GLBBuilder_tot(category,timing);
 
   // cut on muons with low momenta
   if ( (staCandIn).second->pt() < thePtCut || (staCandIn).second->innerMomentum().Rho() < thePtCut || (staCandIn).second->innerMomentum().R() < 2.5 ) return CandidateContainer();
   
   // convert the STA track into a Trajectory if Trajectory not already present
-  TrackCand staCand = TrackCand(staCandIn);
+  TrackCand staCand(staCandIn);
   addTraj(staCand);
   
   vector<TrackCand> regionalTkTracks = makeTkCandCollection(staCand);
-  LogInfo(metname) << "Found " << regionalTkTracks.size() << " tracks within region of interest";  
+  LogInfo(category) << "Found " << regionalTkTracks.size() << " tracks within region of interest";  
   
   // match tracker tracks to muon track
   vector<TrackCand> trackerTracks = theTrackMatcher->match(staCand, regionalTkTracks);
-  LogInfo(metname) << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
+  LogInfo(category) << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
   
   // build a combined tracker-muon MuonCandidate
   CandidateContainer result = build(staCand, trackerTracks);
-  LogInfo(metname) << "Found "<< result.size() << " GLBMuons from one STACand";
+  LogInfo(category) << "Found "<< result.size() << " GLBMuons from one STACand";
   
   // free memory
   if ( staCandIn.first == 0) delete staCand.first;
@@ -236,7 +237,7 @@ GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const TrackCand& staCan
     double deltaPhi(fabs(Geom::Phi<float>(staCand.second->phi())-Geom::Phi<float>(is->second->phi())));
     double deltaR_tmp = sqrt(pow(deltaEta,2.) + pow(deltaPhi,2.));
     
-    if(deltaR_tmp <= deltaR) {
+    if (deltaR_tmp <= deltaR) {
       TrackCand tmpCand = TrackCand(*is);
       addTraj(tmpCand);
       result.push_back(tmpCand);      
@@ -244,6 +245,7 @@ GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const TrackCand& staCan
   }
   
   return result; 
+
 }
 
 
@@ -320,6 +322,8 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
   //                 4 - combined
   //
 
+  const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|build";
+
   if ( tkMatchedTracks.empty() ) return CandidateContainer();
 
   //
@@ -380,7 +384,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
       // full track with all muon hits
       if ( theMuonHitsOption == 1 || theMuonHitsOption == 3 || theMuonHitsOption == 4 ) {
 	rechits.insert(rechits.end(), muonRecHits1.begin(), muonRecHits1.end());
-	LogDebug("GlobalMuonTrajectoryBuilder") << "Number of hits: " << rechits.size();
+	LogDebug(category) << "Number of hits: " << rechits.size();
 	refitted1 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,firstTsos);
 
 	if ( refitted1.size() == 1 ) {
@@ -398,7 +402,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	rechits = trackerRecHits;
   	rechits.insert(rechits.end(), muonRecHits2.begin(), muonRecHits2.end());
 
-	LogDebug("GlobalMuonTrajectoryBuilder")<< "Number of hits: "<<rechits.size();
+	LogDebug(category) << "Number of hits: " << rechits.size();
 	
 	refitted2 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,firstTsos);
 	if ( refitted2.size() == 1 ) {
@@ -418,7 +422,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	rechits = trackerRecHits;
 	rechits.insert(rechits.end(), muonRecHits3.begin(), muonRecHits3.end());
 	
-	LogDebug("GlobalMuonTrajectoryBuilder") << "Number of hits: " << rechits.size();
+	LogDebug(category) << "Number of hits: " << rechits.size();
 	
 	refitted3 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,firstTsos);
 	if ( refitted3.size() == 1 ) {
@@ -482,6 +486,8 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
 						ConstRecHitContainer& first,
 						std::vector<int>& hits) const {
 
+  const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|checkMuonHits";
+
   int dethits[4];
   for ( int i=0; i<4; i++ ) hits[i]=dethits[i]=0;
   
@@ -536,8 +542,8 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
 	for (ConstRecHitContainer::const_iterator ir = all2dRecHits.begin(); ir != all2dRecHits.end(); ir++ ) {
 	  double rhitDistance = ((*ir)->localPosition()-(**imrh).localPosition()).mag();
 	  if ( rhitDistance < coneSize ) detRecHits++;
-	  LogDebug("GlobalMuonTrajectoryBuilder") << " Station "<<station<<" DT "<<(*ir)->dimension()<<" " << (*ir)->localPosition()
-						     <<" Distance: "<< rhitDistance<<" recHits: "<< detRecHits;
+	  LogDebug(category) << " Station " << station << " DT "<<(*ir)->dimension()<<" " << (*ir)->localPosition()
+						      << " Distance: "<< rhitDistance<<" recHits: "<< detRecHits;
 	}// end of for all2dRecHits
       }// end of if DT
       // get station of hit if it is in CSC
@@ -550,7 +556,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
 	for (MuonRecHitContainer::const_iterator ir = dRecHits.begin(); ir != dRecHits.end(); ir++ ) {
 	  double rhitDistance = ((**ir).localPosition()-(**imrh).localPosition()).mag();
 	  if ( rhitDistance < coneSize ) detRecHits++;
-	  LogDebug("GlobalMuonTrajectoryBuilder") << " Station " << station << " CSC "<<(**ir).dimension()<<" "<<(**ir).localPosition()
+	  LogDebug(category) << " Station " << station << " CSC "<<(**ir).dimension()<<" "<<(**ir).localPosition()
                                                   << " Distance: "<< rhitDistance<<" recHits: "<<detRecHits;
 	}
       }
@@ -562,7 +568,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
 	for (MuonRecHitContainer::const_iterator ir = dRecHits.begin(); ir != dRecHits.end(); ir++ ) {
 	  double rhitDistance = ((**ir).localPosition()-(**imrh).localPosition()).mag();
 	  if ( rhitDistance < coneSize ) detRecHits++;
-	  LogDebug("GlobalMuonTrajectoryBuilder")<<" Station "<<station<<" RPC "<<(**ir).dimension()<<" "<< (**ir).localPosition()
+	  LogDebug(category)<<" Station "<<station<<" RPC "<<(**ir).dimension()<<" "<< (**ir).localPosition()
 						     <<" Distance: "<<rhitDistance<<" recHits: "<<detRecHits;
 	}
       }
@@ -580,7 +586,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
   } // end of loop over muon rechits
   if ( theMuonHitsOption == 3 || theMuonHitsOption == 4 )  {
     for ( int i = 0; i < 4; i++ ) {
-      LogDebug("GlobalMuonTrajectoryBuilder")<<"Station "<<i+1<<": "<<hits[i]<<" "<<dethits[i]; 
+      LogDebug(category) <<"Station "<<i+1<<": "<<hits[i]<<" "<<dethits[i]; 
     }
   }     
   
@@ -589,7 +595,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
   //
   if ((*all.begin())->globalPosition().mag() >
       (*(all.end()-1))->globalPosition().mag() ) {
-    LogDebug("GlobalMuonTrajectoryBuilder")<< "reverse order: ";
+    LogDebug(category)<< "reverse order: ";
     sort(all.begin(),all.end(),RecHitLessByDet(alongMomentum));
   }
   
@@ -641,20 +647,20 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
       // 1st hit is in station 1 and second hit is in a different station
       // or an rpc (if station = -999 it could be an rpc hit)
       if ( (station1 != -999) && ((station2 == -999) || (station2 > station1)) ) {
-	LogDebug("GlobalMuonTrajectoryBuilder") << "checkMuonHits:";
-	LogDebug("GlobalMuonTrajectoryBuilder") << " station 1 = "<<station1 
+	LogDebug(category) << "checkMuonHits:";
+	LogDebug(category) << " station 1 = "<<station1 
 						   <<", r = "<< (*ihit)->globalPosition().perp()
 						   <<", z = "<< (*ihit)->globalPosition().z() << ", "; 
 	
-	LogDebug("GlobalMuonTrajectoryBuilder") << " station 2 = " << station2
+	LogDebug(category) << " station 2 = " << station2
 						   <<", r = "<<(*(nexthit))->globalPosition().perp()
 						   <<", z = "<<(*(nexthit))->globalPosition().z() << ", ";
 	return;
       }
     }
     else if ( (nexthit == all.end()) && (station1 != -999) ) {
-      LogDebug("GlobalMuonTrajectoryBuilder") << "checkMuonHits:";
-      LogDebug("GlobalMuonTrajectoryBuilder") << " station 1 = "<< station1
+      LogDebug(category) << "checkMuonHits:";
+      LogDebug(category) << " station 1 = "<< station1
                                               << ", r = " << (*ihit)->globalPosition().perp()
                                               << ", z = " << (*ihit)->globalPosition().z() << ", "; 
       return;
@@ -674,6 +680,7 @@ GlobalMuonTrajectoryBuilder::ConstRecHitContainer
 GlobalMuonTrajectoryBuilder::selectMuonHits(const Trajectory& traj, 
                                             const std::vector<int>& hits) const {
 
+  const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|selectMuonHits";
   ConstRecHitContainer muonRecHits;
   const double globalChi2Cut = 200.0;
 
@@ -726,7 +733,7 @@ GlobalMuonTrajectoryBuilder::selectMuonHits(const Trajectory& traj,
     if ( (keep || ( chi2ndf < chi2Cut )) && ( chi2ndf < globalChi2Cut ) ) {
       muonRecHits.push_back((*im).recHit());
     } else {
-      LogDebug("GlobalMuonTrajectoryBuilder")
+      LogDebug(category)
 	<< "Skip hit: " << id.det() << " " << station << ", " 
 	<< chi2ndf << " (" << chi2Cut << " chi2 threshold) " 
 	<< hits[station-1] << endl;
@@ -749,13 +756,14 @@ GlobalMuonTrajectoryBuilder::selectMuonHits(const Trajectory& traj,
 const Trajectory* GlobalMuonTrajectoryBuilder::chooseTrajectory(const std::vector<Trajectory*>& t) const {
 
   Trajectory* result = 0;
+  const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|chooseTrajectory";
  
   double prob0 = ( t[0] ) ? trackProbability(*t[0]) : 0.0;
   double prob1 = ( t[1] ) ? trackProbability(*t[1]) : 0.0;
   double prob2 = ( t[2] ) ? trackProbability(*t[2]) : 0.0;
   double prob3 = ( t[3] ) ? trackProbability(*t[3]) : 0.0; 
 
-  LogDebug("GlobalMuonTrajectoryBuilder") << "Probabilities: " << prob0 << " " << prob1 << " " << prob2 << " " << prob3 << endl;
+  LogDebug(category) << "Probabilities: " << prob0 << " " << prob1 << " " << prob2 << " " << prob3 << endl;
 
   if ( t[1] ) result = t[1];
   if ( (t[1] == 0) && t[3] ) result = t[3];
@@ -763,7 +771,7 @@ const Trajectory* GlobalMuonTrajectoryBuilder::chooseTrajectory(const std::vecto
   if ( t[1] && t[3] && ( (prob1 - prob3) > 0.05 )  )  result = t[3];
 
   if ( t[0] && t[2] && fabs(prob2 - prob0) > theProbCut ) {
-    LogDebug("GlobalMuonTrajectoryBuilder") << "select Tracker only: -log(prob) = " << prob0 << endl;
+    LogDebug(category) << "select Tracker only: -log(prob) = " << prob0 << endl;
     result = t[0];
     return result;
   }
@@ -816,15 +824,17 @@ double GlobalMuonTrajectoryBuilder::trackProbability(const Trajectory& track) co
 //
 void GlobalMuonTrajectoryBuilder::printHits(const ConstRecHitContainer& hits) const {
   
-  LogInfo("GlobalMuonTrajectoryBuilder") << "Used RecHits: ";
+  const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|printHits";
+
+  LogInfo(category) << "Used RecHits: ";
   for (ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
     if ( !(*ir)->isValid() ) {
-      LogInfo("GlobalMuonTrajectoryBuilder") << "invalid RecHit";
+      LogInfo(category) << "invalid RecHit";
       continue; 
     }
     
     const GlobalPoint& pos = (*ir)->globalPosition();
-    LogInfo("GlobalMuonTrajectoryBuilder") 
+    LogInfo(category) 
       << "r = " << sqrt(pos.x() * pos.x() + pos.y() * pos.y())
       << "  z = " << pos.z()
       << "  dimension = " << (*ir)->dimension()
@@ -840,24 +850,26 @@ void GlobalMuonTrajectoryBuilder::printHits(const ConstRecHitContainer& hits) co
 //
 GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::makeTrajsFromSeeds(const vector<TrajectorySeed>& tkSeeds) const {
 
-  std::string metname = "GLBTrajBuilder::makeTrajsFromSeeds";
+  const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|makeTrajsFromSeeds";
   TC result;
   
-  LogInfo(metname) << "Tracker Seeds from L2/STA Muon: " << tkSeeds.size();
+  LogInfo(category) << "Tracker Seeds from L2/STA Muon: " << tkSeeds.size();
   
   int nseed = 0;
   std::vector<TrajectorySeed>::const_iterator seed;
-  for(seed = tkSeeds.begin(); seed != tkSeeds.end(); ++seed) {
+  for (seed = tkSeeds.begin(); seed != tkSeeds.end(); ++seed) {
     nseed++;
-    LogDebug(metname) << "Building a trajectory from seed " << nseed;
+    LogDebug(category) << "Building a trajectory from seed " << nseed;
         
     TC tkTrajs = theCkfBuilder->trajectories(*seed);
     
-    LogDebug(metname) << "Trajectories from Seed " << tkTrajs.size();
+    LogDebug(category) << "Trajectories from Seed " << tkTrajs.size();
     result.insert(result.end(), tkTrajs.begin(), tkTrajs.end());
   }
-  LogInfo(metname) << "Trajectories from all seeds " << result.size();
+
+  LogInfo(category) << "Trajectories from all seeds " << result.size();
   return result;
+
 }
 
 
@@ -866,24 +878,24 @@ GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::makeTrajsFromSeeds(
 //
 vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) const {
   
-  std::string metname = "GLBTrajBuilder::makeTkCandColl";
+  const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|makeTkCandCollection";
   vector<TrackCand> tkCandColl;
   
   // Tracks not available, make seeds and trajectories
   if ( theMakeTkSeedFlag ) {
-    LogDebug(metname) << "Making Seeds";
+    LogDebug(category) << "Making Seeds";
     std::vector<TrajectorySeed> tkSeeds; 
     TC allTkTrajs;
     if( theMakeTkSeedFlag && staCand.first->isValid() ) {
       tkSeeds = theTkSeedGenerator->trackerSeeds(*(staCand.first));
-      LogDebug(metname) << "Found " << tkSeeds.size() << " tracker seeds";
+      LogDebug(category) << "Found " << tkSeeds.size() << " tracker seeds";
       allTkTrajs = makeTrajsFromSeeds(tkSeeds);
       
       for (TC::const_iterator tt=allTkTrajs.begin();tt!=allTkTrajs.end();++tt){
 	tkCandColl.push_back(TrackCand(new Trajectory(*tt),reco::TrackRef()));
       } 
     }
-    LogDebug(metname) << "Found " << tkCandColl.size() << " tkCands from seeds";
+    LogDebug(category) << "Found " << tkCandColl.size() << " tkCands from seeds";
   } // Tracks are already in edm
   else {
     vector<TrackCand> tkTrackCands;
@@ -901,6 +913,7 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
   }
   
   return tkCandColl;
+
 }
 
 
@@ -909,10 +922,12 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
 //
 void GlobalMuonTrajectoryBuilder::addTraj(TrackCand& candIn) const {
 
-  std::string metname = "GLBTrajBuilder::addTraj";
-  if( candIn.first == 0 ) {
-    LogDebug(metname) << "Making new trajectory from TrackRef";
+  const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|addTraj";
+
+  if ( candIn.first == 0 ) {
+    LogDebug(category) << "Making new trajectory from TrackRef " << (*candIn.second).pt();
     TC staTrajs = theTrackConverter->convert(candIn.second);
     candIn = ( !staTrajs.empty() ) ? TrackCand(new Trajectory(staTrajs.front()),candIn.second) : TrackCand(0,candIn.second);    
   } 
+
 }
