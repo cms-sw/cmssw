@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:49 CEST 2006
-// $Id: SiStripHistoricInfoClient.cc,v 1.6 2006/12/05 19:41:39 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.cc,v 1.7 2006/12/10 08:26:54 dkcira Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoClient.h"
@@ -26,6 +26,9 @@
 #include "xoap/SOAPEnvelope.h"
 #include "xoap/SOAPBody.h"
 #include "xercesc/dom/DOMNode.hpp"
+
+#define TSTORE_NS_URI "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd" //eventually I suppose this will be defined in a header somewhere
+
 
 
 
@@ -215,16 +218,16 @@ void SiStripHistoricInfoClient::retrievePointersToModuleMEs() const{
 
 void SiStripHistoricInfoClient::tstore_connect(){
   cout<<"SiStripHistoricInfoClient::tstore_connect()  called"<<endl;
+
   // create message
   xoap::MessageReference msg = xoap::createMessage();
   try {
         xoap::SOAPEnvelope envelope = msg->getSOAPPart().getEnvelope();
-        xoap::SOAPName msgName = envelope.createName( "connect", "tstore", "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd");
+        xoap::SOAPName msgName = envelope.createName( "connect", "tstore", TSTORE_NS_URI);
         xoap::SOAPElement connectElement = envelope.getBody().addBodyElement ( msgName );
-
-        xoap::SOAPName id = envelope.createName("id", "tstore", "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd");
-        connectElement.addAttribute(id, "urn:tstore-view-SQL:MyParameterisedView");
-        xoap::SOAPName passwordName = envelope.createName("password", "tstore", "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd");
+        xoap::SOAPName id = envelope.createName("id", "tstore", TSTORE_NS_URI);
+        connectElement.addAttribute(id, "urn:tstore-view-Nested:tstore");
+        xoap::SOAPName passwordName = envelope.createName("password", "tstore", TSTORE_NS_URI);
         connectElement.addAttribute(passwordName, "client4histoplot");
 	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- created envelope"<<std::endl;
   }catch(xoap::exception::Exception& e) {
@@ -251,8 +254,7 @@ void SiStripHistoricInfoClient::tstore_connect(){
 		//store connectionID somewhere so that it can be used for other messages
                 std::cout<<"SiStripHistoricInfoClient::tstore_connect -- connectionID = "<<connectionID<<std::endl;
 	}
-  } 
-  catch (xdaq::exception::Exception& e) {
+  } catch (xdaq::exception::Exception& e) {
 	//handle exception
 	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- xdaq::exception"<<std::endl;
   }
