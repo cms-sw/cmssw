@@ -72,9 +72,9 @@ void CaloTPGTranscoderULUT::loadHCAL(const std::string& filename) {
   }
 }
 
-void CaloTPGTranscoderULUT::loadhcalUncompress(const std::string& filename) {
+void CaloTPGTranscoderULUT::loadhcalUncompress() {
   std::ifstream userfile;
-  userfile.open(filename.c_str());
+  userfile.open("CalibCalorimetry/CaloTPG/data/TPGcalcDecompress2.txt");
   static const int etabound = 32;
   static const int tpgmax = 255;
   if( userfile ) 
@@ -83,7 +83,7 @@ void CaloTPGTranscoderULUT::loadhcalUncompress(const std::string& filename) {
       for(int j = 0; j <tpgmax; j++) {
 	  userfile >> hcaluncomp_[i][j];}
     }
-     //cout<<"test hcal "<<hcaluncomp_[2][14]<<endl;
+     cout<<"test hcal "<<hcaluncomp_[2][14]<<endl;
     userfile.close();
 
     }
