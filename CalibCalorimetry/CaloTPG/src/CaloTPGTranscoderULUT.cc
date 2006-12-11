@@ -5,12 +5,15 @@
 #include <iostream>
 #include <fstream>
 
+using namespace std;
+
 HcalTrigTowerGeometry theTrigTowerGeometry;
 
 CaloTPGTranscoderULUT::CaloTPGTranscoderULUT(const std::string& hcalFile) : 
   hcalITower_(N_TOWER,(const LUTType*)0)
 {
   loadHCAL(hcalFile);
+  loadhcalUncompress();
 
 }
 
@@ -83,12 +86,12 @@ void CaloTPGTranscoderULUT::loadhcalUncompress() {
       for(int j = 0; j <tpgmax; j++) {
 	  userfile >> hcaluncomp_[i][j];}
     }
-     cout<<"test hcal "<<hcaluncomp_[2][14]<<endl;
+     //  cout<<"test hcal"<<endl;
     userfile.close();
 
     }
   else {
-    throw cms::Exception("Invalid Data") << "Unable to read uncompress file" << filename;
+    throw cms::Exception("Invalid Data") << "Unable to read uncompress file";
   }
 }
 
@@ -107,20 +110,11 @@ HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTow
   return HcalTriggerPrimitiveSample((*lut)[sample],fineGrain,0,0);
 }
 
-//float hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc){
-  // double eta1, eta2;
-  //theTrigTowerGeometry.towerEtaBounds(hid.ieta(), eta1, eta2);
-  //double eta_ave = (eta1+eta2)/2;
-  //return( hc.compressedEt()*cosh(eta_ave));
-//}
 
-float CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& compET){
-  //double eta1, eta2;
-  //theTrigTowerGeometry.towerEtaBounds(ieta, eta1, eta2);
-  //double eta_ave = (eta1+eta2)/2;
+double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& compET){
+  
   double etvalue = hcaluncomp_[ieta][compET];//*cos(eta_ave);
   return(etvalue);
-
 }
 
 
