@@ -857,6 +857,8 @@ void PFRootEventManager::clustering() {
 
   clusterAlgoECAL.SetNCrystalPosCalcEcal( nCrystalsPosCalcEcal_ );
 
+  // cout<<clusterAlgoECAL<<endl;
+
   for(unsigned i=0; i<rechitsECAL_.size(); i++) {
     rechits.insert( make_pair(rechitsECAL_[i].detId(), &rechitsECAL_[i] ) );
   }
@@ -875,11 +877,11 @@ void PFRootEventManager::clustering() {
 
   PFClusterAlgo clusterAlgoHCAL;
 
-  clusterAlgoHCAL.setThreshEcalBarrel( threshEcalBarrel_ );
-  clusterAlgoHCAL.setThreshSeedEcalBarrel( threshSeedEcalBarrel_ );
+  clusterAlgoHCAL.setThreshHcalBarrel( threshHcalBarrel_ );
+  clusterAlgoHCAL.setThreshSeedHcalBarrel( threshSeedHcalBarrel_ );
   
-  clusterAlgoHCAL.setThreshEcalEndcap( threshEcalEndcap_ );
-  clusterAlgoHCAL.setThreshSeedEcalEndcap( threshSeedEcalEndcap_ );
+  clusterAlgoHCAL.setThreshHcalEndcap( threshHcalEndcap_ );
+  clusterAlgoHCAL.setThreshSeedHcalEndcap( threshSeedHcalEndcap_ );
 
   clusterAlgoHCAL.setNNeighboursEcal( nNeighboursEcal_  );
 
