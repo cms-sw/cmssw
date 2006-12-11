@@ -79,7 +79,7 @@ void CaloTPGTranscoderULUT::loadhcalUncompress() {
   std::ifstream userfile;
   userfile.open("CalibCalorimetry/CaloTPG/data/TPGcalcDecompress2.txt");
   static const int etabound = 32;
-  static const int tpgmax = 255;
+  static const int tpgmax = 256;
   if( userfile ) 
     {
      for (int i=0; i<etabound; i++) { 
