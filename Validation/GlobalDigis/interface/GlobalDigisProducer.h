@@ -41,7 +41,7 @@
 
 class PGlobalDigi;
 
-class GlobalDigisProducer : public emd::Producer
+class GlobalDigisProducer : public edm::EDProducer
 {
 
  public:
@@ -49,7 +49,7 @@ class GlobalDigisProducer : public emd::Producer
   typedef std::vector<float> FloatVector;
 
   explicit GlobalDigisProducer(const edm::ParameterSet&);
-  virtual ~GlobalHitsProducer();
+  virtual ~GlobalDigisProducer();
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();  
   virtual void produce(edm::Event&, const edm::EventSetup&);
