@@ -75,7 +75,9 @@ FP420SD::FP420SD(G4String name, const DDCompactView & cpv,
     //
     std::vector<std::string> lvNames =
       SensitiveDetectorCatalog::instance()->logicalNames(name);
+
     this->Register();
+
     for (std::vector<std::string>::iterator it=lvNames.begin();  
 	 it !=lvNames.end(); it++) {
       this->AssignSD(*it);
@@ -84,7 +86,7 @@ FP420SD::FP420SD(G4String name, const DDCompactView & cpv,
     
     if      (name == "FP420SI") {
       if (verbn > 0) {
-	std::cout <<"name = FP420SI and  new FP420NumberingSchem" << std::endl;
+      edm::LogInfo("FP420Sim") << "name = FP420SI and  new FP420NumberingSchem";
       }
       numberingScheme = new FP420NumberingScheme() ;
     } else {
