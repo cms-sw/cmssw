@@ -8,6 +8,7 @@
 #include <fstream>
 #include <vector>
 #include "string"
+#include <cmath>
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
@@ -253,6 +254,9 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 		gainSlope     = ((NUMBERPLOTTED_ga*sumOfXY) - (sumOfX * sumOfY))/((NUMBERPLOTTED_ga*sumx2) - (sumOfX*sumOfX));//k
 		gainIntercept = ((sumOfY*sumx2)-(sumOfX*sumOfXY))/((NUMBERPLOTTED_ga*sumx2)-(sumOfX*sumOfX));//m
 		
+		if (gainSlope <3.0)  gainSlope = 0.0;
+		if (isnan(gainSlope)) gainSlope = 0.0;
+		
 		for(int ii=0; ii<NUMBERPLOTTED_ga; ii++){
 		  chi2  += (maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))*(maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))/(NUMBERPLOTTED_ga*NUMBERPLOTTED_ga);
 		}
@@ -294,7 +298,7 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
   //send data to DB
   dbon->cdbon_last_record("gains",&record);
   std::cout<<"Last gains record "<<record<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
-  if(debug) dbon->cdbon_write(cn,"gains",11,myTime);
+  if(debug) dbon->cdbon_write(cn,"gains",12,3498,myTime);
   adcCharge.Write();
   calibfile.Write();
   calibfile.Close();
