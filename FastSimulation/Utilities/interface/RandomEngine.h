@@ -22,9 +22,9 @@ public:
 
   ~RandomEngine();
 
-  double flatShoot(double xmin=0., double xmax=1.);
-  double gaussShoot(double mean=0., double sigma=1.);
-  double poissonShoot(double mean);
+  double flatShoot(double xmin=0., double xmax=1.) const;
+  double gaussShoot(double mean=0., double sigma=1.) const;
+  double poissonShoot(double mean) const;
 
 private:
 

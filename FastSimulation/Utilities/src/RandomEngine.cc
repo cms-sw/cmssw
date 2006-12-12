@@ -35,17 +35,17 @@ RandomEngine::~RandomEngine()
 }
 
 double
-RandomEngine::flatShoot(double xmin, double xmax) { 
+RandomEngine::flatShoot(double xmin, double xmax) const{ 
   return xmin + (xmax-xmin)*flatDistribution_->fire();
 }
 
 double
-RandomEngine::gaussShoot(double mean, double sigma) { 
+RandomEngine::gaussShoot(double mean, double sigma) const { 
   return mean + sigma*gaussianDistribution_->fire();
 }
 
 double
-RandomEngine::poissonShoot(double mean) { 
+RandomEngine::poissonShoot(double mean) const { 
   return poissonDistribution_->fire(mean);
 }
 
