@@ -18,7 +18,7 @@ CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui,
 {
   cout << endl // LogTrace(mlDqmClient_)
        << "[CommissioningHistograms::" << __func__ << "]"
-       << " Constructing object...";
+       << " Constructing object..." << endl;
   collations_.clear();
 }
 
@@ -27,7 +27,7 @@ CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui,
 CommissioningHistograms::~CommissioningHistograms() {
   cout << endl // LogTrace(mlDqmClient_)
        << "[CommissioningHistograms::" << __func__ << "]"
-       << " Destructing object...";
+       << " Destructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -35,8 +35,8 @@ CommissioningHistograms::~CommissioningHistograms() {
 void CommissioningHistograms::createCollations( const vector<string>& contents ) {
   cout << endl // LogTrace(mlDqmClient_)
        << "[CommissioningHistograms::" << __func__ << "]"
-       << " Creating CollateMonitorElements...";
-
+       << " Creating CollateMonitorElements..." << endl;
+  
   if ( contents.empty() ) { return; }
   
   vector<string>::const_iterator idir;
@@ -56,7 +56,6 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
     
     string dir = SiStripHistoNamingScheme::controlPath( path );
     string client_dir = dir.substr( 0, dir.size()-1 ); 
-    //cout << "DIR: " << dir << " " << client_dir << endl;
 
     // Retrieve MonitorElements from pwd directory
     mui()->setCurrentFolder( collector_dir );
@@ -91,143 +90,68 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
       // Fill FED-FEC map
       mapping_[title.keyValue_] = fec_key;
 
-      if ( 1 ) { 
-
-	// Find CollateME in collations map
-	CollateMonitorElement* cme = 0;
-	CollationsMap::iterator ikey = collations_.find( fec_key );
-	if ( ikey != collations_.end() ) { 
-	  Collations::iterator ihis = ikey->second.begin();
-	  while ( !cme && ihis != ikey->second.end() ) {
-	    if ( (*ime) == ihis->first ) { 
-	      SiStripFecKey::Path path = SiStripFecKey::path(ikey->first);
-	      string dir = SiStripHistoNamingScheme::controlPath(path);
-	      //cout << "CME EXISTS: " << dir+ihis->first << " ptr: " << ihis->second << endl;
-	      cme = ihis->second; 
-	    }
-	    ihis++;
+      // Find CollateME in collations map
+      CollateMonitorElement* cme = 0;
+      CollationsMap::iterator ikey = collations_.find( fec_key );
+      if ( ikey != collations_.end() ) { 
+	Collations::iterator ihis = ikey->second.begin();
+	while ( !cme && ihis != ikey->second.end() ) {
+	  if ( (*ime) == ihis->first ) { 
+	    SiStripFecKey::Path path = SiStripFecKey::path(ikey->first);
+	    string dir = SiStripHistoNamingScheme::controlPath(path);
+	    cme = ihis->second; 
 	  }
-	} else { cme = 0; }
-	
-	// Create CollateME if it doesn't exist
-	if ( !cme ) {
-	  
-	  // Retrieve ME pointer
-	  MonitorElement* me = mui()->get( mui()->pwd()+"/"+(*ime) );
-	  //cout << "SOURCE ME: " << mui()->pwd()+"/"+(*ime) << endl;
-
-	  // Create profile CME
-	  TProfile* prof = ExtractTObject<TProfile>().extract( me );
-	  if ( prof ) { 
-	    cme = mui()->collateProf( (*ime), (*ime), client_dir ); 
-	    if ( cme ) { 
-	      mui()->add( cme, mui()->pwd()+"/"+(*ime) );
-	      collations_[fec_key].push_back( Collation((*ime),cme) );
-	      //MonitorElement* me = cme->getMonitorElement();
-	      //if ( me ) { cout << "CREATED NEW PROF CME: " << client_dir << "/" << me->getName() << endl; }
-	      //MonitorElement* me1 = mui()->get( client_dir+"/"+(*ime) );
-	      //if ( me1 ) { cout << "FOUND NEW PROF CME: " << client_dir << "/" << me1->getName() << endl; }
-	    }
-	  }
-
-	  // Create one-dim CME
-	  TH1F* his = ExtractTObject<TH1F>().extract( me );
-	  if ( prof ) { prof->SetErrorOption("s"); } //@@ necessary?
-	  else if ( his ) { 
-	    cme = mui()->collate1D( (*ime), (*ime), client_dir ); 
-	    if ( cme ) { 
-	      mui()->add( cme, mui()->pwd()+"/"+(*ime) ); 
-	      collations_[fec_key].push_back( Collation((*ime),cme) );
-	      //MonitorElement* me = cme->getMonitorElement();
-	      //if ( me ) { cout << "CREATED NEW 1D CME: " << client_dir << "/" << me->getName() << endl; }
-	      //MonitorElement* me1 = mui()->get( client_dir+"/"+(*ime) );
-	      //if ( me1 ) { cout << "FOUND NEW PROF CME: " << client_dir << "/" << me1->getName() << endl; }
-	    }
-	  }
-
+	  ihis++;
 	}
-	  
-	// Add to CME if found in collations map
-	CollationsMap::iterator jkey = collations_.find( fec_key );
-	if ( jkey != collations_.end() ) { 
-	  Collations::iterator ihis = jkey->second.begin();
-	  while ( ihis != jkey->second.end() ) {
-	    if ( (*ime) == ihis->first ) { 
-	      if ( ihis->second ) {
-		mui()->add( ihis->second, mui()->pwd()+"/"+(*ime) );
-		//cout << "ADDED TO CME: " << mui()->pwd() << "/" << (*ime) << endl;
-	      }
-	    }
-	    ihis++;
-	  } 
-	  
-	}
-
-      } else { // 
+      } else { cme = 0; }
 	
-	// Find CollateME in collations map
-	CollateMonitorElement* cme = 0;
-	CollationsMap::iterator ikey = collations_.find( fec_key );
-	if ( ikey != collations_.end() ) { 
-	  Collations::iterator ihis = ikey->second.begin();
-	  while ( !cme && ihis != ikey->second.end() ) {
-	    if ( "Collated_"+(*ime) == ihis->first ) { 
-	      SiStripFecKey::Path path = SiStripFecKey::path(ikey->first);
-	      string dir = SiStripHistoNamingScheme::controlPath(path);
-	      cout << "CME EXISTS: " << dir+ihis->first << " ptr: " << ihis->second << endl;
-	      cme = ihis->second; 
-	    }
-	    ihis++;
-	  }
-	} else { cme = 0; }
-      
-	// Create CollateME if it doesn't exist
-	if ( !cme ) {
-	  cout << "SOURCE ME: " << mui()->pwd()+"/"+(*ime) << endl;
-	  MonitorElement* me = mui()->get( mui()->pwd()+"/"+(*ime) );
-	  TProfile* prof = ExtractTObject<TProfile>().extract( me );
-	  TH1F* his = ExtractTObject<TH1F>().extract( me );
-	  if ( prof ) { prof->SetErrorOption("s"); } //@@ necessary?
-	  if ( prof ) { cme = mui()->collateProf( "Collated_"+(*ime), "Collated_"+(*ime), client_dir ); }
-	  else if ( his ) { cme = mui()->collate1D( "Collated_"+(*ime), "Collated_"+(*ime), client_dir ); }
-	  else { 
-	    cout << "PROBLEM..." << endl;
-	    cme = 0; 
-	  }
-	  // Record name and pointer in map
+      // Create CollateME if it doesn't exist
+      if ( !cme ) {
+	  
+	// Retrieve ME pointer
+	MonitorElement* me = mui()->get( mui()->pwd()+"/"+(*ime) );
+
+	// Create profile CME
+	TProfile* prof = ExtractTObject<TProfile>().extract( me );
+	if ( prof ) { 
+	  cme = mui()->collateProf( (*ime), (*ime), client_dir ); 
 	  if ( cme ) { 
-	    if ( cme->getMonitorElement() ) {
-	      cout << "CREATED NEW CME: " << client_dir << "/" << cme->getMonitorElement()->getName() << endl;
-	    } else {
-	      cout << "NULL PTR TO ME FROM CME: " << client_dir << endl;
-	    }
-	    collations_[fec_key].push_back( Collation("Collated_"+(*ime),cme) );
-	    if ( collations_[fec_key].capacity() < 10 ) { collations_[fec_key].reserve(10); }
-	    MonitorElement* me = mui()->get( client_dir+"/"+"Collated_"+(*ime) );
-	    if ( me ) {
-	      cout << "NEW CME LOCATION: " << client_dir << "/" << me->getName() << endl;
-	    }
+	    mui()->add( cme, mui()->pwd()+"/"+(*ime) );
+	    collations_[fec_key].push_back( Collation((*ime),cme) );
 	  }
 	}
 
-	// Find CollateME in collations map (again)
-	cme = 0;
-	CollationsMap::iterator jkey = collations_.find( fec_key );
-	if ( jkey != collations_.end() ) { 
-	  Collations::iterator ihis = jkey->second.begin();
-	  while ( !cme && ihis != jkey->second.end() ) {
-	    if ( "Collated_"+(*ime) == ihis->first ) { cme = ihis->second; }
-	    ihis++;
+	// Create one-dim CME
+	TH1F* his = ExtractTObject<TH1F>().extract( me );
+	if ( prof ) { prof->SetErrorOption("s"); } //@@ necessary?
+	else if ( his ) { 
+	  cme = mui()->collate1D( (*ime), (*ime), client_dir ); 
+	  if ( cme ) { 
+	    mui()->add( cme, mui()->pwd()+"/"+(*ime) ); 
+	    collations_[fec_key].push_back( Collation((*ime),cme) );
+	    MonitorElement* me = cme->getMonitorElement();
+	    if ( me ) { cout << "CREATED NEW PROF CME: " << client_dir << "/" << me->getName() << endl; }
+	    MonitorElement* me1 = mui()->get( client_dir+"/"+(*ime) );
+	    if ( me1 ) { cout << "FOUND NEW PROF CME: " << client_dir << "/" << me1->getName() << endl; }
 	  }
-	} else { cme = 0; }
-      
-	// "Add" to CollateME if it exists
-	if ( cme ) {
-	  cout << "ADDED TO CME: " << collector_dir << "/" << (*ime) << endl;
-	  mui()->add( cme, collector_dir+"/"+(*ime) ); // note search pattern
+	}
+
+      }
+	  
+      // Add to CME if found in collations map
+      CollationsMap::iterator jkey = collations_.find( fec_key );
+      if ( jkey != collations_.end() ) { 
+	Collations::iterator ihis = jkey->second.begin();
+	while ( ihis != jkey->second.end() ) {
+	  if ( (*ime) == ihis->first ) { 
+	    if ( ihis->second ) {
+	      mui()->add( ihis->second, mui()->pwd()+"/"+(*ime) );
+	    }
+	  }
+	  ihis++;
 	} 
-     
-      } //
+	  
+      }
  
     }
   }
@@ -239,7 +163,7 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 void CommissioningHistograms::histoAnalysis( bool debug ) {
   cout << endl // LogTrace(mlDqmClient_)
        << "[CommissioningHistograms::" << __func__ << "]"
-       << " (Derived) implementation to come...";
+       << " (Derived) implementation to come..." << endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -250,7 +174,7 @@ void CommissioningHistograms::createSummaryHisto( const sistrip::SummaryHisto& h
 						  const sistrip::Granularity& gran ) {
   cout << endl // LogTrace(mlDqmClient_)
        << "[CommissioningHistograms::" << __func__ << "]"
-       << " (Derived) implementation to come...";
+       << " (Derived) implementation to come..." << endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -258,7 +182,7 @@ void CommissioningHistograms::createSummaryHisto( const sistrip::SummaryHisto& h
 void CommissioningHistograms::uploadToConfigDb() {
   cout << endl // LogTrace(mlDqmClient_)
        << "[CommissioningHistograms::" << __func__ << "]"
-       << " (Derived) implementation to come..."; 
+       << " (Derived) implementation to come..." << endl; 
 }
 
 // -----------------------------------------------------------------------------
