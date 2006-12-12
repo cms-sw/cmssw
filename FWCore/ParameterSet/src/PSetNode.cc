@@ -23,7 +23,15 @@ namespace edm {
       CompositeNode(n, v, line),
       type_(t),
       tracked_(tracked)
-    {}
+    {
+      // processes shouldn't have minuses in their names
+      if(type() == "process" && n.find("-",0) != std::string::npos)
+      {
+        throw edm::Exception(errors::Configuration,"PSetError")
+           << "Process names should not have minus signs in them.\n"
+           << "It will lead to a ROOT error.";
+      } 
+    }
 
 
     string PSetNode::type() const { return type_; }
