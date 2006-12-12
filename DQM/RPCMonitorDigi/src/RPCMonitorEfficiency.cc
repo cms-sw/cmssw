@@ -2,7 +2,7 @@
  *
  *  implementation of RPCMonitorEfficiency class
  *
- *  $Date: 2006/10/24 05:49:35 $
+ *  $Date: 2006/11/08 17:03:32 $
  *  Revision: 1.5 $
  *
  * \author  Camilo Carrillo
@@ -253,7 +253,32 @@ void RPCMonitorEfficiency::analyze(const edm::Event& iEvent, const edm::EventSet
 	      
 	      RPCDetId  rollId = rollasociated->id();
 	      uint32_t id = rollId.rawId();
-	      
+
+	      RPCDetId otherRollId1,otherRollId2;
+
+	      if(rollId.roll() == 1){
+		RPCDetId tempRollId1(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),2);
+		RPCDetId tempRollId2(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),3);
+		otherRollId1 = tempRollId1;
+		otherRollId2 = tempRollId2;
+	      }
+	      else if(rollId.roll() == 2){
+
+		RPCDetId tempRollId1(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),1);
+		RPCDetId tempRollId2(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),3);
+		otherRollId1 = tempRollId1;
+		otherRollId2 = tempRollId2;
+	      }
+	      else if(rollId.roll() == 3){
+		RPCDetId tempRollId1(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),1);
+		RPCDetId tempRollId2(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),2);
+		otherRollId1 = tempRollId1;
+		otherRollId2 = tempRollId2;
+	      }
+
+	      RPCDigiCollection::Range rpcRangeDigi1=rpcDigis->get(otherRollId1);
+	      RPCDigiCollection::Range rpcRangeDigi2=rpcDigis->get(otherRollId2);
+
 	      _idList.push_back(id);
 	      
 	      char detUnitLabel[128];
@@ -269,6 +294,10 @@ void RPCMonitorEfficiency::analyze(const edm::Event& iEvent, const edm::EventSet
 	      std::map<std::string, MonitorElement*> meMap=meCollection[id];
 	      sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
 	      meMap[meIdDT]->Fill(stripPredicted);
+
+	      sprintf(meIdDT,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
+	      meMap[meIdDT]->Fill(stripPredicted,Y);
+
 	      //std::cout << "\t \t \t One for counterPREDICT"<<std::endl;
 	      totalcounter[0]++;
 	      buff=counter[0];
@@ -281,24 +310,79 @@ void RPCMonitorEfficiency::analyze(const edm::Event& iEvent, const edm::EventSet
 	      bool anycoincidence=false;
 	      int stripDetected = 0;
 	      RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rollasociated->id());
-	      
-	      
+
+	      int stripCounter = 0;
+
 	      for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){//loop over the digis in the event
+		stripCounter++;
 		//std::cout<<"\t \t \t \t Digi "<<*digiIt<<std::endl;//print the digis in the event
 		stripDetected=digiIt->strip();
+
+		float res = (float)(stripDetected) - stripPredicted;
+		sprintf(meIdRPC,"RPCResiduals_%s",detUnitLabel);
+		meMap[meIdRPC]->Fill(res);
+		
+		sprintf(meIdRPC,"RPCResiduals2D_%s",detUnitLabel);
+		meMap[meIdRPC]->Fill(res,Y);
+		
+		if(res > 7)
+		  std::cout<<"STRANGE     "<<"EVENTO NUM = "<<iEvent.id().event()<<"   Residuo = "<<res<<"   Strip Num = "<<stripDetected<<"   Strip totali = "<<stripCounter<<std::endl;
 		//compare the strip Detected with the predicted
-		if(fabs((float)(stripDetected) - stripPredicted)<widestrip){
+		if(fabs((float)(stripDetected) - stripPredicted) < widestrip){
 		  //std::cout <<"\t \t \t \t COINCEDENCE Predict "
 		  //    <<stripPredicted<<" Detect "
 		  //    <<stripDetected<<std::endl;
 		  anycoincidence=true;
-		  break;//funciona solo para hacerlo mas rapido
+		  //break;//funciona solo para hacerlo mas rapido
 		  //We can not divide two diferents things
 		}
 	      }
 	      if (anycoincidence) {
+		sprintf(meIdRPC,"ExpectedOccupancyFromDT_forCrT_%s",detUnitLabel);
+		meMap[meIdRPC]->Fill(stripPredicted);
+		sprintf(meIdRPC,"RealDetectedOccupancy_%s",detUnitLabel);
+		meMap[meIdRPC]->Fill(stripDetected);
+		sprintf(meIdRPC,"YExpectedOccupancyFromDT_%s",detUnitLabel);
+		meMap[meIdRPC]->Fill(Y);
+
+		for (RPCDigiCollection::const_iterator digiIt1 = rpcRangeDigi1.first;digiIt1!=rpcRangeDigi1.second;++digiIt1){
+
+		  if(fabs(stripDetected - digiIt1->strip()) <= 1){
+		    
+		    sprintf(meIdRPC,"XCrossTalk_1_%s",detUnitLabel);
+		    meMap[meIdRPC]->Fill(stripPredicted);
+
+		    sprintf(meIdRPC,"XDetectCrossTalk_1_%s",detUnitLabel);
+		    meMap[meIdRPC]->Fill(stripDetected);
+
+		    sprintf(meIdRPC,"YCrossTalk_1_%s",detUnitLabel);
+		    meMap[meIdRPC]->Fill(Y);
+		    break;
+		  }
+		}
+
+		for (RPCDigiCollection::const_iterator digiIt2 = rpcRangeDigi2.first;digiIt2!=rpcRangeDigi2.second;++digiIt2){
+
+		  if(fabs(stripDetected - digiIt2->strip()) <= 1){
+		    
+		    sprintf(meIdRPC,"XCrossTalk_2_%s",detUnitLabel);
+		    meMap[meIdRPC]->Fill(stripPredicted);
+
+		    sprintf(meIdRPC,"XDetectCrossTalk_2_%s",detUnitLabel);
+		    meMap[meIdRPC]->Fill(stripDetected);
+
+		    sprintf(meIdRPC,"YCrossTalk_2_%s",detUnitLabel);
+		    meMap[meIdRPC]->Fill(Y);
+		    break;
+		  }
+		}
+
 		sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
 		meMap[meIdRPC]->Fill(stripPredicted);
+
+		sprintf(meIdRPC,"RPCDataOccupancy2D_%s",detUnitLabel);
+		meMap[meIdRPC]->Fill(stripPredicted,Y);
+
 		totalcounter[1]++;
 		buff=counter[1];
 		buff[rollId]++;
@@ -527,6 +611,30 @@ void RPCMonitorEfficiency::analyze(const edm::Event& iEvent, const edm::EventSet
 		    RPCDetId  rollId = rollasociated->id();
 		    uint32_t id = rollId.rawId();
 		    
+		    RPCDetId otherRollId1,otherRollId2;
+		    
+		    if(rollId.roll() == 1){
+		      RPCDetId tempRollId1(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),2);
+		      RPCDetId tempRollId2(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),3);
+		      otherRollId1 = tempRollId1;
+		      otherRollId2 = tempRollId2;
+		    }
+		    else if(rollId.roll() == 2){
+		      
+		      RPCDetId tempRollId1(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),1);
+		      RPCDetId tempRollId2(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),3);
+		      otherRollId1 = tempRollId1;
+		      otherRollId2 = tempRollId2;
+		    }
+		    else if(rollId.roll() == 3){
+		      RPCDetId tempRollId1(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),1);
+		      RPCDetId tempRollId2(rollId.region(),rollId.ring(),rollId.station(),rollId.sector(),rollId.layer(),rollId.subsector(),2);
+		      otherRollId1 = tempRollId1;
+		      otherRollId2 = tempRollId2;
+		    }
+		    RPCDigiCollection::Range rpcRangeDigi1=rpcDigis->get(otherRollId1);
+		    RPCDigiCollection::Range rpcRangeDigi2=rpcDigis->get(otherRollId2);
+
 		    _idList.push_back(id);
 		    
 		    char detUnitLabel[128];
@@ -542,6 +650,10 @@ void RPCMonitorEfficiency::analyze(const edm::Event& iEvent, const edm::EventSet
 		    std::map<std::string, MonitorElement*> meMap=meCollection[id];
 		    sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
 		    meMap[meIdDT]->Fill(stripPredicted);
+
+		    sprintf(meIdDT,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
+		    meMap[meIdDT]->Fill(stripPredicted,Y);
+
 		    //std::cout << "\t \t \t \t One for counterPREDICT"<<std::endl;
 		    totalcounter[0]++;
 		    buff=counter[0];
@@ -552,20 +664,78 @@ void RPCMonitorEfficiency::analyze(const edm::Event& iEvent, const edm::EventSet
 		    int stripDetected = 0;
 		    RPCDigiCollection::Range rpcRangeDigi = 
 		      rpcDigis->get(rollasociated->id());
-		    
+		    		   
+		    int stripCounter = 0;
+
 		    //loop over the digis in the event
 		    for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
+		      stripCounter++;
 		      //std::cout<<"\t \t \t \t \t Digi "<<*digiIt<<std::endl;//print the digis in the event
 		      stripDetected=digiIt->strip();
+
+		      stripCounter++;
+		      float res = (float)(stripDetected) - stripPredicted;
+		      sprintf(meIdRPC,"RPCResiduals_%s",detUnitLabel);
+		      meMap[meIdRPC]->Fill(res);
+		
+		      sprintf(meIdRPC,"RPCResiduals2D_%s",detUnitLabel);
+		      meMap[meIdRPC]->Fill(res,Y);
+		      
+		      if(res > 7)
+			std::cout<<"STRANGE     "<<"EVENTO NUM = "<<iEvent.id().event()<<"   Residuo = "<<res<<"   Strip Num = "<<stripDetected<<"   Strip totali = "<<stripCounter<<std::endl;
 		      if(fabs((float)(stripDetected) - stripPredicted)<widestripsRB4){//Detected Vs Predicted
 			//std::cout <<"\t \t \t \t \t COINCEDENCE Predict "<<stripPredicted<<" Detect "<<stripDetected<<std::endl;
 			anycoincidence=true;
-			break;//funciona solo para hacerlo mas rapido
+			//break;//funciona solo para hacerlo mas rapido
 		      }
 		    }
 		    if (anycoincidence){
+
+		      sprintf(meIdRPC,"ExpectedOccupancyFromDT_forCrT_%s",detUnitLabel);
+		      meMap[meIdRPC]->Fill(stripPredicted);
+		      sprintf(meIdRPC,"RealDetectedOccupancy_%s",detUnitLabel);
+		      meMap[meIdRPC]->Fill(stripDetected);
+		      sprintf(meIdRPC,"YExpectedOccupancyFromDT_%s",detUnitLabel);
+		      meMap[meIdRPC]->Fill(Y);
+
+		      for (RPCDigiCollection::const_iterator digiIt1 = rpcRangeDigi1.first;digiIt1!=rpcRangeDigi1.second;++digiIt1){
+
+			if(fabs(stripDetected - digiIt1->strip()) <= 1){
+			  
+			  sprintf(meIdRPC,"XCrossTalk_1_%s",detUnitLabel);
+			  meMap[meIdRPC]->Fill(stripPredicted);
+			  
+			  sprintf(meIdRPC,"XDetectCrossTalk_1_%s",detUnitLabel);
+			  meMap[meIdRPC]->Fill(stripDetected);
+			  
+			  sprintf(meIdRPC,"YCrossTalk_1_%s",detUnitLabel);
+			  meMap[meIdRPC]->Fill(Y);
+			  break;
+			}
+		      }
+
+		      for (RPCDigiCollection::const_iterator digiIt2 = rpcRangeDigi2.first;digiIt2!=rpcRangeDigi2.second;++digiIt2){
+			
+			if(fabs(stripDetected - digiIt2->strip()) <= 1){
+			  
+			  sprintf(meIdRPC,"XCrossTalk_2_%s",detUnitLabel);
+			  meMap[meIdRPC]->Fill(stripPredicted);
+			  
+			  sprintf(meIdRPC,"XDetectCrossTalk_2_%s",detUnitLabel);
+			  meMap[meIdRPC]->Fill(stripDetected);
+			  
+			  sprintf(meIdRPC,"YCrossTalk_2_%s",detUnitLabel);
+			  meMap[meIdRPC]->Fill(Y);
+			  break;
+			}
+		      }
+
 		      sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
 		      meMap[meIdRPC]->Fill(stripPredicted);
+
+		      sprintf(meIdRPC,"RPCDataOccupancy2D_%s",detUnitLabel);
+		      meMap[meIdRPC]->Fill(stripPredicted,Y);
+
 		      totalcounter[1]++;
 		      buff=counter[1];
 		      buff[rollId]++;
@@ -639,12 +809,58 @@ void RPCMonitorEfficiency::endJob(void){
     char detUnitLabel[128];
     char meIdRPC [128];
     char meIdDT [128];
+    char meIdDTCrT [128];
     char effIdRPC [128];
+    char meIdRPCCrT [128];
+
+    char XCrTalkId_1 [128];
+    char XCrTalkId_2 [128];
+    char effXCrTalkId_1 [128];
+    char effXCrTalkId_2 [128];
+
+    char XCrTalkDetId_1 [128];
+    char XCrTalkDetId_2 [128];
+    char effXCrTalkDetId_1 [128];
+    char effXCrTalkDetId_2 [128];
+
+    char YCrTalkId_1 [128];
+    char YCrTalkId_2 [128];
+    char effYCrTalkId_1 [128];
+    char effYCrTalkId_2 [128];
+
+    char YCrTalkDTId [128];
+
+    char meIdRPC_2D [128];
+    char meIdDT_2D [128];
+    char effIdRPC_2D [128];
+
     sprintf(detUnitLabel ,"%d",*meIt);
     sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
     sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
+    sprintf(meIdDTCrT,"ExpectedOccupancyFromDT_forCrT_%s",detUnitLabel);
+    sprintf(YCrTalkDTId,"YExpectedOccupancyFromDT_%s",detUnitLabel);
+    sprintf(meIdRPCCrT,"RealDetectedOccupancy_%s",detUnitLabel);
+
     sprintf(effIdRPC,"EfficienyFromDTExtrapolation_%s",detUnitLabel);
-    
+
+    sprintf(meIdRPC_2D,"RPCDataOccupancy2D_%s",detUnitLabel);
+    sprintf(meIdDT_2D,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
+    sprintf(effIdRPC_2D,"EfficienyFromDT2DExtrapolation_%s",detUnitLabel);
+
+    sprintf(XCrTalkId_1,"XCrossTalk_1_%s",detUnitLabel);
+    sprintf(XCrTalkId_2,"XCrossTalk_2_%s",detUnitLabel);
+    sprintf(YCrTalkId_1,"YCrossTalk_1_%s",detUnitLabel);
+    sprintf(YCrTalkId_2,"YCrossTalk_2_%s",detUnitLabel);
+    sprintf(XCrTalkDetId_1,"XDetectCrossTalk_1_%s",detUnitLabel);
+    sprintf(XCrTalkDetId_2,"XDetectCrossTalk_2_%s",detUnitLabel);
+
+    sprintf(effXCrTalkId_1,"XCrossTalkFromDTExtrapolation_1_%s",detUnitLabel);
+    sprintf(effXCrTalkId_2,"XCrossTalkFromDTExtrapolation_2_%s",detUnitLabel);
+    sprintf(effXCrTalkDetId_1,"XCrossTalkFromDetectedStrip_1_%s",detUnitLabel);
+    sprintf(effXCrTalkDetId_2,"XCrossTalkFromDetectedStrip_2_%s",detUnitLabel);
+    sprintf(effYCrTalkId_1,"YCrossTalkFromDTExtrapolation_1_%s",detUnitLabel);
+    sprintf(effYCrTalkId_2,"YCrossTalkFromDTExtrapolation_2_%s",detUnitLabel);
+
     std::map<std::string, MonitorElement*> meMap=meCollection[*meIt];
 
     for(unsigned int i=1;i<=100;++i){
@@ -656,7 +872,85 @@ void RPCMonitorEfficiency::endJob(void){
 	meMap[effIdRPC]->setBinError(i,erreff*100.);
       }
     }
+    for(unsigned int i=1;i<=100;++i){
+      for(unsigned int j=1;j<=200;++j){
+	if(meMap[meIdDT_2D]->getBinContent(i,j) != 0){
+	  float eff = meMap[meIdRPC_2D]->getBinContent(i,j)/meMap[meIdDT_2D]->getBinContent(i,j);
+	  float erreff = sqrt(eff*(1-eff)/meMap[meIdDT_2D]->getBinContent(i,j));
+	  meMap[effIdRPC_2D]->setBinContent(i,j,eff*100.);
+	  meMap[effIdRPC_2D]->setBinError(i,j,erreff*100.);
+	}
+      }
+    }
+
+    //--------------------  CROSS TALK PLOT ---------------------------------------------------
+
+    //-------------------- With predicted STRIP -----------------------------------------------
+
+    for(unsigned int i=1;i<=100;++i){
+      
+      if(meMap[meIdDTCrT]->getBinContent(i) != 0){
+	float crt = meMap[XCrTalkId_1]->getBinContent(i)/meMap[meIdDTCrT]->getBinContent(i);
+	float errcrt = sqrt(crt*(1-crt)/meMap[meIdDTCrT]->getBinContent(i));
+	meMap[effXCrTalkId_1]->setBinContent(i,crt*100.);
+	meMap[effXCrTalkId_1]->setBinError(i,errcrt*100.);
+      }
+    }
+
+    for(unsigned int i=1;i<=100;++i){
+      
+      if(meMap[meIdDTCrT]->getBinContent(i) != 0){
+	float crt = meMap[XCrTalkId_2]->getBinContent(i)/meMap[meIdDTCrT]->getBinContent(i);
+	float errcrt = sqrt(crt*(1-crt)/meMap[meIdDTCrT]->getBinContent(i));
+	meMap[effXCrTalkId_2]->setBinContent(i,crt*100.);
+	meMap[effXCrTalkId_2]->setBinError(i,errcrt*100.);
+      }
+    }
+
+    //-------------------- With detected STRIP -----------------------------------------------
+
+    for(unsigned int i=1;i<=100;++i){
+      if(meMap[meIdRPCCrT]->getBinContent(i) != 0){
+	float crt = meMap[XCrTalkDetId_1]->getBinContent(i)/meMap[meIdRPCCrT]->getBinContent(i);
+	float errcrt = sqrt(crt*(1-crt)/meMap[meIdRPCCrT]->getBinContent(i));
+	meMap[effXCrTalkDetId_1]->setBinContent(i,crt*100.);
+	meMap[effXCrTalkDetId_1]->setBinError(i,errcrt*100.);
+      }
+    }
+
+    for(unsigned int i=1;i<=100;++i){
+      
+      if(meMap[meIdRPCCrT]->getBinContent(i) != 0){
+	float crt = meMap[XCrTalkDetId_2]->getBinContent(i)/meMap[meIdRPCCrT]->getBinContent(i);
+	float errcrt = sqrt(crt*(1-crt)/meMap[meIdRPCCrT]->getBinContent(i));
+	meMap[effXCrTalkDetId_2]->setBinContent(i,crt*100.);
+	meMap[effXCrTalkDetId_2]->setBinError(i,errcrt*100.);
+      }
+    }
+
+    //-------------------- With Y coordinate -------------------------------------------------
+
+    for(unsigned int i=1;i<=200;++i){
+      
+      if(meMap[YCrTalkDTId]->getBinContent(i) != 0){
+	float crt = meMap[YCrTalkId_1]->getBinContent(i)/meMap[YCrTalkDTId]->getBinContent(i);
+	float errcrt = sqrt(crt*(1-crt)/meMap[YCrTalkDTId]->getBinContent(i));
+	meMap[effYCrTalkId_1]->setBinContent(i,crt*100.);
+	meMap[effYCrTalkId_1]->setBinError(i,errcrt*100.);
+      }
+    }
+
+    for(unsigned int i=1;i<=200;++i){
+      
+      if(meMap[YCrTalkDTId]->getBinContent(i) != 0){
+	float crt = meMap[YCrTalkId_2]->getBinContent(i)/meMap[YCrTalkDTId]->getBinContent(i);
+	float errcrt = sqrt(crt*(1-crt)/meMap[YCrTalkDTId]->getBinContent(i));
+	meMap[effYCrTalkId_2]->setBinContent(i,crt*100.);
+	meMap[effYCrTalkId_2]->setBinError(i,errcrt*100.);
+      }
+    }
   }
+
   if(EffSaveRootFile) dbe->save(EffRootFileName);
   //  theFile->Write();
   //  theile->Close();
