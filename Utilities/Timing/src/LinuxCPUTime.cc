@@ -91,8 +91,6 @@ LinuxElapsedTime::~LinuxElapsedTime() {
 }
 
 
-LCPUTime::OneTick LCPUTime::oneTick; 
-
 namespace {
 
   static LinuxElapsedTime totaltime("Main Thread");
