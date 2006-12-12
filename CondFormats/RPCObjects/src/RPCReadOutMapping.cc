@@ -59,7 +59,7 @@ const LinkBoardSpec*
   const DccSpec *dcc = RPCReadOutMapping::dcc(ele.dccId);
   if (dcc) {
     const TriggerBoardSpec *tb = dcc->triggerBoard(ele.dccInputChannelNum);
-    if (tb) {
+     if (tb) {
       const LinkConnSpec *lc = tb->linkConn( ele.tbLinkInputNum);
       if (lc) {
         const LinkBoardSpec *lb = lc->linkBoard(ele.lbNumInLink);
@@ -111,14 +111,13 @@ std::vector<const LinkBoardSpec*> RPCReadOutMapping::getLBforChamber(const std::
 }
 
 std::pair<ChamberRawDataSpec, int>  
-RPCReadOutMapping::getRAWSpecForCMSChamberSrip(uint32_t  detId, int strip) const{
+RPCReadOutMapping::getRAWSpecForCMSChamberSrip(uint32_t  detId, int strip, int dccInputChannel) const{
 
  ChamberRawDataSpec linkboard;
  linkboard.dccId = 790;
- linkboard.dccInputChannelNum = 1;
+ linkboard.dccInputChannelNum = dccInputChannel;
 
  for(int k=0;k<18;k++){
-   linkboard.dccInputChannelNum = 1;
    linkboard.tbLinkInputNum = k;
    for(int j=0;j<3;j++){
      linkboard.lbNumInLink = j;
@@ -131,7 +130,7 @@ RPCReadOutMapping::getRAWSpecForCMSChamberSrip(uint32_t  detId, int strip) const
 	     int pin = l;
 	     const ChamberStripSpec *aStrip = feb->strip(pin);
 	     if(aStrip && aStrip->cmsStripNumber==strip){
-	       int bitInLink = (i-1)*16+l;
+	       int bitInLink = (i-1)*16+l-1;
 	       std::pair<ChamberRawDataSpec, int> stripInfo(linkboard,bitInLink);
 	       return stripInfo;
 	     }
