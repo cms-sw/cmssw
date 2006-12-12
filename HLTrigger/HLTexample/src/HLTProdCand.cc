@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/18 13:35:34 $
- *  $Revision: 1.23 $
+ *  $Date: 2006/08/18 16:49:59 $
+ *  $Revision: 1.24 $
  *
  *  \author Martin Grunewald
  *
@@ -95,8 +95,8 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (int i=0; i<njets; i++) {
      math::XYZTLorentzVector p4(((*mcjets)[i]).p4());
      CaloJet::Specific specific;
-     vector<CaloTowerDetId> ctdi(0);
-     jets->push_back(CaloJet(p4,specific,ctdi));
+     Jet::Constituents jetconst;
+     jets->push_back(CaloJet(p4,specific,jetconst));
    }
 
    int nmets(-1);
@@ -151,8 +151,8 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 } else if (abs(ipdg)==15 || abs(ipdg)==17) {
 	   // tau+ tau- or 4th generation tau'+ tau'-
 	   CaloJet::Specific specific;
-	   vector<CaloTowerDetId> ctdi(0);
-	   taus->push_back(CaloJet(p4,specific,ctdi));
+	   Jet::Constituents jetconst;
+	   taus->push_back(CaloJet(p4,specific,jetconst));
 	 } else if (abs(ipdg)==22) {
 	   // photon
 	   phot->push_back(    Photon       (0,p4));
@@ -169,8 +169,8 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   if (njets==-1) {
 	     // if no prepared jets, each becomes a jet on its own (crude)!
 	     CaloJet::Specific specific;
-	     vector<CaloTowerDetId> ctdi(0);
-	     jets->push_back(CaloJet(p4,specific,ctdi));
+	     Jet::Constituents jetconst;
+	     jets->push_back(CaloJet(p4,specific,jetconst));
 	   }
 	 }
        }
