@@ -7,12 +7,14 @@
 class TmModule;
 class EventSetup;
 
+using namespace std;
+
 class TrackerMap {
  public:
-  TrackerMap(){TrackerMap(" ");};   //!< default constructor
+  //TrackerMap(){TrackerMap(" ");};   //!< default constructor
   TrackerMap(std::string s=" ",int xsize1=340,int ysize1=200);
   ~TrackerMap();  //!< default destructor
- 
+  
   void build();
   void drawModule(TmModule * mod, int key, int layer, bool total);
   void print(bool print_total=true,float minval=0., float maxval=0.);
@@ -22,13 +24,13 @@ class TrackerMap {
   void fillc(int idmod, int red, int green, int blue);
   void fillc(int layer,int ring, int nmod, int red, int green, int blue);
   void setText(int idmod , std::string s );
-  void setText(int layer, int ring, int nmod , std::string s );
+  void setText(int layer, int ring, int nmod , string s );
   int getxsize(){return xsize;};
   int getysize(){return ysize;};
   int getNumMod(){return number_modules;};
   int ndet; //number of detectors 
   int npart; //number of detectors parts 
-  std::string title;
+  string title;
   double phival(double x, double y){
     double phi;
     double phi1=atan(y/x);
@@ -197,19 +199,19 @@ void defwindow(int num_lay){
     }
     return(ncomponent);
   }
-      static  int layerno(int subdet,int leftright,int layer){
-        if(subdet==6&&leftright==1)return(10-layer);
-        if(subdet==6&&leftright==2)return(layer+21);
-        if(subdet==4&&leftright==1)return(4-layer+9);
-        if(subdet==4&&leftright==2)return(layer+18);
-        if(subdet==2&&leftright==1)return(4-layer+12);
-        if(subdet==2&&leftright==2)return(layer+15);
-        if(subdet==1)return(layer+30);
-        if(subdet==3)return(layer+33);
-        if(subdet==5)return(layer+37);
-         }
-
-  bool isRingStereo(int key){
+  static int layerno(int subdet,int leftright,int layer){
+    if(subdet==6&&leftright==1)return(10-layer);
+    if(subdet==6&&leftright==2)return(layer+21);
+    if(subdet==4&&leftright==1)return(4-layer+9);
+    if(subdet==4&&leftright==2)return(layer+18);
+    if(subdet==2&&leftright==1)return(4-layer+12);
+    if(subdet==2&&leftright==2)return(layer+15);
+    if(subdet==1)return(layer+30);
+    if(subdet==3)return(layer+33);
+    if(subdet==5)return(layer+37);
+  }
+  
+  static bool isRingStereo(int key){
     int layer=key/100000;
     int ring = key - layer*100000;
     ring = ring/1000;
@@ -217,7 +219,7 @@ void defwindow(int num_lay){
     if(layer<13 || (layer>18&&layer<31))
       if(ring==1 || ring==2 || ring==5)return true;
     return false;
-   }
+  }
   int nlayer(int det,int part,int lay){
     if(det==3 && part==1) return lay;
     if(det==2 && part==1) return lay+9;
@@ -228,13 +230,13 @@ void defwindow(int num_lay){
     if(det==1 && part==2) return lay+30;
     if(det==2 && part==2) return lay+33;
     if(det==3 && part==2) return lay+37;
-  return -1; 
+    return -1; 
   }
-
-  std::string layername(int layer){
-    std::string s= " ";
-    std::ostringstream ons;
-     
+  
+  string layername(int layer){
+    string s= " ";
+    ostringstream ons;
+    
     if(layer < 10) ons << "TEC -z Layer " << layer;
     if(layer < 13 && layer > 9) ons << "TID -z Layer " << layer-9;
     if(layer < 16 && layer > 12) ons << "FPIX -z Layer " << layer-12;
@@ -246,16 +248,18 @@ void defwindow(int num_lay){
     if(layer > 37) ons << "TOB Layer " << layer-37;
     s = ons.str(); 
     return s;  
- }
+  }
   int ntotRing[43];
   int firstRing[43];
- 
+  
+ protected:
+  int nlay;
+  double xmin,xmax,ymin,ymax;
+  int xsize,ysize,ix,iy;
+  
  private:
   
   float oldz;
-  int xsize,ysize,ix,iy;
-  int nlay;
-  double xmin,xmax,ymin,ymax;
   bool posrel;
   bool firstcall;
   std::ofstream * svgfile;

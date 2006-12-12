@@ -1,5 +1,9 @@
+<use name=FWCore/Framework>
+<use name=CondFormats/SiStripObjects>
 <use name=qt>
 <export>
 <lib name=CommonToolsTrackerMap>
+<use name=FWCore/Framework>
+<use name=CondFormats/SiStripObjects>
 <use name=qt>
 </export>
