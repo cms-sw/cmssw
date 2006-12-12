@@ -60,7 +60,7 @@ void OptoScanAnalysis::print( stringstream& ss, uint32_t gain ) {
   if ( key() ) {
     ss << "OPTO SCAN monitorables for channel key 0x"
        << hex << setw(8) << setfill('0') << key() << dec 
-       << " and gain" << gain << "\n";
+       << " and gain " << gain << "\n";
   } else {
     ss << "OPTO SCAN monitorables for gain " << gain << "\n";
   }

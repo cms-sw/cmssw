@@ -6,7 +6,8 @@ using namespace std;
 // ----------------------------------------------------------------------------
 // 
 CommissioningAnalysis::CommissioningAnalysis( const uint32_t& key ) 
-  : key_(key) 
+  : key_(key),
+    path_( SiStripFecKey::path(key) )
 {;}
 
 // ----------------------------------------------------------------------------

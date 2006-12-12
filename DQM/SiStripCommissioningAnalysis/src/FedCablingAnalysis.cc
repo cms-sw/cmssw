@@ -173,39 +173,73 @@ void FedCablingAnalysis::analyse() {
 
   // Some initialization
   candidates_.clear();
-  float max = -1.*sistrip::invalid_;
+  float max       = sistrip::invalid_ * -1.;
+  float weight    = sistrip::invalid_ * -1.;
   uint16_t id_val = sistrip::invalid_;
   uint16_t ch_val = sistrip::invalid_;
 
+  /* ORIGINAL ALGORITHM
   // FED id
   for ( uint16_t ifed = 0; ifed < fedid_histo->GetNbinsX(); ifed++ ) {
+  if ( fedid_histo->GetBinEntries(ifed+1) ) {
+  // FED channel
+  for ( uint16_t ichan = 0; ichan < fedch_histo->GetNbinsX(); ichan++ ) {
+  if ( fedch_histo->GetBinEntries(ichan+1) ) {
+  // Build FED key
+  SiStripFedKey::Path path( ifed, ichan );
+  uint32_t key = SiStripFedKey::key( path );
+  // Calc weighted bin contents from FED id and ch histos
+  float weight = 
+  fedid_histo->GetBinContent(ifed+1) * fedid_histo->GetBinEntries(ifed+1) + 
+  fedch_histo->GetBinContent(ichan+1) * fedch_histo->GetBinEntries(ichan+1);
+  weight /= ( fedid_histo->GetBinEntries(ifed+1) + fedch_histo->GetBinEntries(ichan+1) );
+  // Record candidates and "best" candidate
+  candidates_[key] = static_cast<uint16_t>(weight);
+  if ( candidates_[key] > max ) {
+  max = candidates_[key];
+  id_val = ifed;
+  ch_val = ichan;
+  }
+  }
+  }
+  }
+  } 
+  */
+  
+  // FED id
+  max = 0.;
+  for ( uint16_t ifed = 0; ifed < fedid_histo->GetNbinsX(); ifed++ ) {
     if ( fedid_histo->GetBinEntries(ifed+1) ) {
-      // FED channel
-      for ( uint16_t ichan = 0; ichan < fedch_histo->GetNbinsX(); ichan++ ) {
-	if ( fedch_histo->GetBinEntries(ichan+1) ) {
-	  // Build FED key
-	  SiStripFedKey::Path path( ifed, ichan );
-	  uint32_t key = SiStripFedKey::key( path );
-	  // Calc weighted bin contents from FED id and ch histos
-	  float weight = 
-	    fedid_histo->GetBinContent(ifed+1) * fedid_histo->GetBinEntries(ifed+1) + 
-	    fedch_histo->GetBinContent(ichan+1) * fedch_histo->GetBinEntries(ichan+1);
-	  weight /= ( fedid_histo->GetBinEntries(ifed+1) + fedch_histo->GetBinEntries(ichan+1) );
-	  // Record candidates and "best" candidate
-	  candidates_[key] = static_cast<uint16_t>(weight);
-	  if ( candidates_[key] > max ) {
-	    max = candidates_[key];
-	    id_val = ifed;
-	    ch_val = ichan;
-	  }
-	}
+      if ( fedid_histo->GetBinContent(ifed+1) > max &&
+	   fedid_histo->GetBinContent(ifed+1) > 100. ) { 
+	id_val = ifed; 
+	max = fedid_histo->GetBinContent(ifed+1);
       }
     }
-  } 
+  }
+  weight = max;
 
-  // Set "best" candidate
-  fedId_ = id_val;
-  fedCh_ = ch_val;
+  // FED ch
+  max = 0.;
+  for ( uint16_t ichan = 0; ichan < fedch_histo->GetNbinsX(); ichan++ ) {
+    if ( fedch_histo->GetBinEntries(ichan+1) ) {
+      if ( fedch_histo->GetBinContent(ichan+1) > max &&
+	   fedch_histo->GetBinContent(ichan+1) > 100. ) { 
+	ch_val = ichan; 
+	max = fedch_histo->GetBinContent(ichan+1);
+      }
+    }
+  }
+  if ( max > weight ) { weight = max; }
+
+  if  ( id_val != sistrip::invalid_ &&
+	ch_val != sistrip::invalid_ ) {
+    // Set "best" candidate and ADC level
+    uint32_t key = SiStripFedKey::key( id_val, ch_val );
+    candidates_[key] = static_cast<uint16_t>(weight);
+    fedId_ = id_val;
+    fedCh_ = ch_val;
+  }
   
 }
 

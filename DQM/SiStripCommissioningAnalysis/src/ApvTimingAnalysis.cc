@@ -177,8 +177,16 @@ void ApvTimingAnalysis::analyse() {
   float range = max - min;
   float threshold = min + range / 2.;
   if ( range < 50. ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
- 	 << " Signal range (max - min) is too small: " << range << endl;
+    cerr << "[ApvTimingAnalysis::" << __func__ << "]"
+ 	 << " Device with Crate/FEC/Ring/CCU/module/channel "
+	 << path().fecCrate_ << "/"
+	 << path().fecSlot_ << "/"
+	 << path().fecRing_ << "/"
+	 << path().ccuAddr_ << "/"
+	 << path().ccuChan_ << "/"
+	 << path().channel_ 
+	 << " has too small signal range (max-min): " 
+	 << range << endl;
     return; 
   }
   //cout << " ADC samples: max/min/range/threshold: " 
@@ -209,11 +217,18 @@ void ApvTimingAnalysis::analyse() {
   //cout << " Tick mark level: " << tickmark << " Baseline level: " << baseline
   //<< " Range: " << (tickmark-baseline) << endl;
   if ( (tickmark-baseline) < 50. ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
- 	 << " Range b/w tick mark height ("  << tickmark
-	 << ") and baseline ("  << baseline
-	 << ") is too small ("  << (tickmark-baseline)
-	 << ")." << endl;
+    cerr << "[ApvTimingAnalysis::" << __func__ << "]"
+ 	 << " Device with Crate/FEC/Ring/CCU/module/channel "
+	 << path().fecCrate_ << "/"
+	 << path().fecSlot_ << "/"
+	 << path().fecRing_ << "/"
+	 << path().ccuAddr_ << "/"
+	 << path().ccuChan_ << "/"
+	 << path().channel_ 
+	 << " has too small range " << (tickmark-baseline)
+	 << " between tick mark height (" << tickmark
+	 << ") and baseline ("  << baseline << ")." 
+	 << endl;
     return; 
   }
   
