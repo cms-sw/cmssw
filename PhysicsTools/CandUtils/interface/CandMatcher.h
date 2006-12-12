@@ -8,12 +8,20 @@
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include <set>
 
-class CandMatcher {
+class CandMatcherBase {
 public:
   /// constructor
-  explicit CandMatcher( const reco::CandMatchMap & map );
+  explicit CandMatcherBase( const reco::CandMatchMap & map );
+  /// destructor
+  virtual ~CandMatcherBase();
   /// get match from transient reference
   reco::CandidateRef operator()( const reco::Candidate & ) const;
+
+protected:
+  /// get ultimate daughter (can skip status = 3 in MC)
+  virtual std::vector<const reco::Candidate *> getDaughters( const reco::Candidate * ) const = 0;
+  /// init maps
+  void initMaps();
 
 private:
   /// reference to match map, typically taken from the event
@@ -26,6 +34,18 @@ private:
   RefMap matchedRefs_;
   /// mother + n.daughters indices from matched
   std::vector<std::vector<size_t> > matchedMothers_;
+};
+
+class CandMatcher : public CandMatcherBase {
+public:
+  /// constructor
+  explicit CandMatcher( const reco::CandMatchMap & map );
+  /// destructor
+  virtual ~CandMatcher();
+
+protected:
+  /// get ultimate daughter (can skip status = 3 in MC)
+  virtual std::vector<const reco::Candidate *> getDaughters( const reco::Candidate * ) const;
 };
 
 #endif

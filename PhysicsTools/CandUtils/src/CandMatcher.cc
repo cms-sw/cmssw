@@ -1,12 +1,14 @@
 #include "PhysicsTools/CandUtils/interface/CandMatcher.h"
 #include <algorithm>
 #include <iterator>
-#include <iostream>
 using namespace reco;
 using namespace std;
 
-CandMatcher::CandMatcher( const reco::CandMatchMap & map ) : 
+CandMatcherBase::CandMatcherBase( const reco::CandMatchMap & map ) : 
   map_( map ) {
+}
+
+void CandMatcherBase::initMaps() {
   CandidateRefProd cands = map_.refProd().key;
   for( size_t i = 0; i < cands->size(); ++ i )
     candRefs_[ & (*cands)[ i ] ] = CandidateRef( cands, i );
@@ -19,16 +21,23 @@ CandMatcher::CandMatcher( const reco::CandMatchMap & map ) :
   for( size_t i = 0; i < matched->size(); ++ i ) {
     const Candidate & c = (*matched)[ i ];
     for( Candidate::const_iterator d = c.begin(); d != c.end(); ++ d ) {
-      RefMap::const_iterator f = matchedRefs_.find( & * d );
-      if ( f == matchedRefs_.end() ) continue;
-      size_t j = f->second.key();
-      assert( j < matchedMothers_.size() );
-      matchedMothers_[ j ].push_back( i );
+      vector<const Candidate *> daus = getDaughters( & * d );
+      for( size_t j = 0; j < daus.size(); ++ j ) {
+	const Candidate * daughter = daus[ j ];
+	RefMap::const_iterator f = matchedRefs_.find( daughter );
+	if ( f == matchedRefs_.end() ) continue;
+	size_t k = f->second.key();
+	assert( k < matchedMothers_.size() );
+	matchedMothers_[ k ].push_back( i );
+      }
     }
   }
 }
 
-CandidateRef CandMatcher::operator()( const Candidate & c ) const {
+CandMatcherBase::~CandMatcherBase() {
+}
+
+CandidateRef CandMatcherBase::operator()( const Candidate & c ) const {
   if ( c.hasMasterClone() ) {
     CandidateRef m = c.masterClone().castTo<CandidateRef>();
     if ( m.isNonnull() ) return (*this)( * m );
@@ -39,6 +48,7 @@ CandidateRef CandMatcher::operator()( const Candidate & c ) const {
   if ( nDau > 0 ) {
     vector<size_t> moms;
     for( Candidate::const_iterator d = c.begin(); d != c.end(); ++ d ) {
+      // check here generically if status == 3, then descend down to one more level
       CandidateRef m = (*this)( * d );
       if ( m.isNull() ) return CandidateRef();
       size_t mk = m.key();
@@ -73,4 +83,18 @@ CandidateRef CandMatcher::operator()( const Candidate & c ) const {
   }
   
   return CandidateRef();
+}
+
+CandMatcher::CandMatcher( const CandMatchMap & map ) :
+  CandMatcherBase( map ) {
+  initMaps();
+}
+
+CandMatcher::~CandMatcher() {
+}
+
+vector<const Candidate *> CandMatcher::getDaughters( const Candidate * c ) const {
+  vector<const Candidate *> v;
+  v.push_back( c );
+  return v;
 }

@@ -19,9 +19,8 @@ ParticleTreeDrawer::ParticleTreeDrawer( const ParameterSet & cfg ) :
   printStatus_( cfg.getUntrackedParameter<bool>( "printStatus", false ) ) {
 }
 
-void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {
+void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {  
   es.getData( pdt_ );
-
   Handle<CandidateCollection> particles;
   event.getByLabel( src_, particles );
   for( CandidateCollection::const_iterator p = particles->begin();
