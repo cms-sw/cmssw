@@ -84,7 +84,8 @@ void SiStripCommissioningClient::endRun() {
 // -----------------------------------------------------------------------------
 /** Called by the "Updater" following each update. */
 void SiStripCommissioningClient::onUpdate() const {
-  
+
+  // Check that DQM monitor user interface object exists
   if ( !mui_ ) {
     cerr << endl // edm::LogWarning(mlDqmClient_)
 	 << "[SiStripCommissioningClient::" << __func__ << "]"
@@ -114,7 +115,7 @@ void SiStripCommissioningClient::onUpdate() const {
   
   // Create histograms for given commissioning task
   createHistograms( task_ );
- 
+  
   // Create collation histograms based on added contents
   if ( histos_ ) { histos_->createCollations( contents ); }
   

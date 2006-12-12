@@ -51,7 +51,7 @@ void DaqScopeModeHistograms::histoAnalysis( bool debug ) {
     vector<TH1*> histos;
     Collations::const_iterator ihis = iter->second.begin(); 
     for ( ; ihis != iter->second.end(); ihis++ ) {
-      TH1F* his = ExtractTObject<TH1F>().extract( mui()->get( ihis->first ) );
+      TH1F* his = ExtractTObject<TH1F>().extract( ihis->second->getMonitorElement() );
       if ( his ) { histos.push_back(his); }
     } 
     

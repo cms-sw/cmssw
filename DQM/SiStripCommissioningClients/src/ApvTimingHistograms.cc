@@ -116,6 +116,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
        << max.fecRing_ << "/" 
        << max.ccuAddr_ << "/"
        << max.ccuChan_ << "/"
+       << max.channel_ 
        << " has maximum delay (rising edge) [ns]:" << time_max;
   
   SiStripFecKey::Path min = SiStripFecKey::path( device_min );
@@ -127,6 +128,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
        << min.fecRing_ << "/" 
        << min.ccuAddr_ << "/"
        << min.ccuChan_ << "/"
+       << max.channel_ 
        << " has minimum delay (rising edge) [ns]:" << time_min;
   
   // Set maximum time for all analysis objects

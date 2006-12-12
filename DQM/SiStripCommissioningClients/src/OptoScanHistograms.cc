@@ -51,7 +51,7 @@ void OptoScanHistograms::histoAnalysis( bool debug ) {
     vector<TH1*> profs;
     Collations::const_iterator ihis = iter->second.begin(); 
     for ( ; ihis != iter->second.end(); ihis++ ) {
-      TProfile* prof = ExtractTObject<TProfile>().extract( mui()->get( ihis->first ) );
+      TProfile* prof = ExtractTObject<TProfile>().extract( ihis->second->getMonitorElement() );
       if ( prof ) { profs.push_back(prof); }
     } 
     
@@ -62,7 +62,7 @@ void OptoScanHistograms::histoAnalysis( bool debug ) {
     if ( debug ) {
       static uint16_t cntr = 0;
       stringstream ss;
-      anal.print( ss ); 
+      anal.print( ss, anal.gain() ); 
       cout << endl // LogTrace(mlDqmClient_) 
 	   << ss.str();
       cntr++;
