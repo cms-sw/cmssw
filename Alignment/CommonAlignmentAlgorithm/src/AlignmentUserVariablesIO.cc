@@ -1,22 +1,17 @@
+/**
+ * \file AlignmentUserVariablesIO
+ *
+ *  $Revision: 1.5 $
+ *  $Date: 2006/11/30 10:34:05 $
+ *  $Author: flucke $ (at least last update...)
+ */
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // this class's header
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentUserVariablesIO.h"
-
-//-----------------------------------------------------------------------------
-// destructor (deletes read in user variables)
- 
-AlignmentUserVariablesIO::~AlignmentUserVariablesIO()
-{
-  LogDebug("Alignment") <<"@SUB=AlignmentUserVariablesIO::~AlignmentUserVariablesIO";
-  //int i=0;
-  //for (vector<AlignmentUserVariables*>::iterator 
-  //   it=theReadUserVariables.begin(); it!=theReadUserVariables.end(); it++) {
-    //cout <<"now deleting read uservar " << i++ << endl;
-    // delete *it;
-  //}
-
-}
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 
 //-----------------------------------------------------------------------------
 // write many user variables
@@ -52,15 +47,11 @@ AlignmentUserVariablesIO::read(const std::vector<Alignable*>& alivec, int& ierr)
   int icount2=0;
   for(std::vector<Alignable*>::const_iterator it=alivec.begin();
     it!=alivec.end(); it++) {
-    AlignmentUserVariables* ad=readOne(*it, ierr2);
+    AlignmentUserVariables* ad=readOne(*it, ierr2); // should create with new!
     if (ierr2==0) { 
       retvec.push_back(ad); icount++; 
       if (ad!=0) icount2++;
-      //cout <<"read uvar " << icount2 << endl;
     }
-    // for destructor
-    if (ad!=0) theReadUserVariables.push_back(ad);
-
   }
   edm::LogInfo("Alignment") << "@SUB=AlignmentUserVariablesIO::read"
                             << "Read variables all,read,valid: " << alivec.size() <<","
