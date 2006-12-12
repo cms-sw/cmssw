@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -11,10 +12,25 @@
 #include "FastSimulation/CaloRecHitsProducer/interface/EcalBarrelRecHitsMaker.h"
 #include "FastSimulation/CaloRecHitsProducer/interface/EcalEndcapRecHitsMaker.h"
 
+// Random engine
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
+
 #include <iostream>
 
 CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p):HcalRecHitsMaker_(NULL)
 {    
+
+  // Initialize the random number generator service
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable() ) {
+    throw cms::Exception("Configuration")
+      << "CaloRecHitsProducer requires the RandomGeneratorService\n"
+         "which is not present in the configuration file.\n"
+         "You must add the service in the configuration file\n"
+         "or remove the module that requires it";
+  }
+  random = RandomEngine::instance(&(*rng));
+
   edm::ParameterSet RecHitsParameters = p.getParameter<edm::ParameterSet>("RecHitsFactory");
   EBrechitCollection_ = RecHitsParameters.getParameter<std::string>("EBrechitCollection");
   EErechitCollection_ = RecHitsParameters.getParameter<std::string>("EErechitCollection");
@@ -26,9 +42,9 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p):HcalRecHit
   produces<EERecHitCollection>(EErechitCollection_);
   
 
-  HcalRecHitsMaker_ = new HcalRecHitsMaker(RecHitsParameters);
-  EcalBarrelRecHitsMaker_ = new EcalBarrelRecHitsMaker(RecHitsParameters);
-  EcalEndcapRecHitsMaker_ = new EcalEndcapRecHitsMaker(RecHitsParameters);
+  HcalRecHitsMaker_ = new HcalRecHitsMaker(RecHitsParameters,random);
+  EcalBarrelRecHitsMaker_ = new EcalBarrelRecHitsMaker(RecHitsParameters,random);
+  EcalEndcapRecHitsMaker_ = new EcalEndcapRecHitsMaker(RecHitsParameters,random);
 }
 
 CaloRecHitsProducer::~CaloRecHitsProducer() 

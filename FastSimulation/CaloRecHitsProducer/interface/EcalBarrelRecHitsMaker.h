@@ -7,10 +7,12 @@
 #include <map>
 #include <boost/cstdint.hpp>
 
+class RandomEngine;
+
 class EcalBarrelRecHitsMaker
 {
  public:
-  EcalBarrelRecHitsMaker(edm::ParameterSet const & p);
+  EcalBarrelRecHitsMaker(edm::ParameterSet const & p, const RandomEngine* );
   ~EcalBarrelRecHitsMaker();
 
   void loadEcalBarrelRecHits(edm::Event &iEvent, EBRecHitCollection & ecalHits);
@@ -25,6 +27,7 @@ class EcalBarrelRecHitsMaker
   double threshold_;
   double noise_;
   std::map<uint32_t,float> ecalbRecHits_;
+  const RandomEngine* random_;
 };
 
 #endif

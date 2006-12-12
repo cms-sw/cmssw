@@ -21,6 +21,7 @@
 class HcalRecHitsMaker;
 class EcalBarrelRecHitsMaker;
 class EcalEndcapRecHitsMaker;
+class RandomEngine;
 
 class CaloRecHitsProducer : public edm::EDProducer
 {
@@ -40,6 +41,9 @@ class CaloRecHitsProducer : public edm::EDProducer
   EcalEndcapRecHitsMaker * EcalEndcapRecHitsMaker_;
   std::string EBrechitCollection_;
   std::string EErechitCollection_;
+
+   // The random engine
+  RandomEngine* random;
 };
 
 #endif

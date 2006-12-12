@@ -1,8 +1,6 @@
 #include "FastSimulation/CaloRecHitsProducer/interface/HcalRecHitsMaker.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -10,15 +8,16 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
-#include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/GenericFunctions/Erf.hh"
-#include "CLHEP/Random/RandPoissonQ.h"
-#include "CLHEP/Random/RandFlat.h"
+
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include <algorithm>
 #include <iostream>
 
-HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p):initialized_(false)
+class RandomEngine;
+
+HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p,const RandomEngine * myrandom):initialized_(false),random_(myrandom)
 {
   edm::ParameterSet RecHitsParameters = p.getParameter<edm::ParameterSet>("HCAL");
   noise_ = RecHitsParameters.getParameter<double>("Noise");
@@ -158,7 +157,7 @@ void HcalRecHitsMaker::noisifyAndFill(uint32_t id,float energy, std::map<signalH
   bool killed=false;
   // No double counting check. Depending on how the pile-up is implemented , this can be a problem.
 
-  if (noise_>0.) energy +=   RandGaussQ::shoot(0.,noise_);
+  if (noise_>0.) energy +=  random_->gaussShoot(0.,noise_);
 
   // If below the threshold, a hit is nevertheless created, otherwise, there is a risk that a "noisy" hit 
   // is afterwards put in this cell which would not be correct. 
@@ -192,7 +191,7 @@ void HcalRecHitsMaker::noisify()
 void HcalRecHitsMaker::noisifySubdet(std::map<signalHit,float>& theMap, const std::vector<uint32_t>& thecells, unsigned ncells)
 {
   unsigned mean=(unsigned)((double)(ncells-theMap.size())*hcalHotFraction_);
-  unsigned nhcal = (unsigned)(RandPoissonQ::shoot(mean));
+  unsigned nhcal = (unsigned)(random_->poissonShoot(mean));
   
   unsigned ncell=0;
   unsigned cellindex=0;
@@ -201,7 +200,7 @@ void HcalRecHitsMaker::noisifySubdet(std::map<signalHit,float>& theMap, const st
 
   while(ncell < nhcal)
     {
-      cellindex = (unsigned)(RandFlat::shoot()*ncells);
+      cellindex = (unsigned)(random_->flatShoot()*ncells);
       cellnumber = thecells[cellindex];
       itcheck=theMap.find(signalHit(cellnumber));
       if(itcheck==theMap.end()) // new cell

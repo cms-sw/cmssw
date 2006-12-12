@@ -13,11 +13,12 @@
 #include <boost/cstdint.hpp>
 
 class CaloGeometry;
+class RandomEngine;
 
 class HcalRecHitsMaker
 {
  public:
-  HcalRecHitsMaker(edm::ParameterSet const & p);
+  HcalRecHitsMaker(edm::ParameterSet const & p, const RandomEngine* random);
   ~HcalRecHitsMaker();
 
   void loadHcalRecHits(edm::Event &iEvent, HBHERecHitCollection& hbheHits, HORecHitCollection &hoHits,HFRecHitCollection &hfHits);
@@ -71,6 +72,7 @@ class HcalRecHitsMaker
   unsigned nhfcells_;
 
   GaussianTail myGaussianTailGenerator_;
+  const RandomEngine* random_;
 };
 
 #endif

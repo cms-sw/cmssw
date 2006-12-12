@@ -1,13 +1,12 @@
 #include "FastSimulation/CaloRecHitsProducer/interface/EcalBarrelRecHitsMaker.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "CLHEP/Random/RandGaussQ.h"
-
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include <iostream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p)
+EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p,const RandomEngine* myrandom):random_(myrandom)
 {
   edm::ParameterSet RecHitsParameters = p.getParameter<edm::ParameterSet>("ECALBarrel");
   noise_ = RecHitsParameters.getParameter<double>("Noise");
@@ -59,7 +58,7 @@ void EcalBarrelRecHitsMaker::noisifyAndFill(uint32_t id,float energy, std::map<u
 {
 
 
-  if (noise_>0.) energy +=   RandGaussQ::shoot(0.,noise_);
+  if (noise_>0.) energy +=   random_->gaussShoot(0.,noise_);
 
   // If the energy+noise is below the threshold, a hit is nevertheless created, otherwise, there is a risk that a "noisy" hit 
   // is afterwards put in this cell which would not be correct. 

@@ -7,10 +7,12 @@
 #include <map>
 #include <boost/cstdint.hpp>
 
+class RandomEngine;
+
 class EcalEndcapRecHitsMaker
 {
  public:
-  EcalEndcapRecHitsMaker(edm::ParameterSet const & p);
+  EcalEndcapRecHitsMaker(edm::ParameterSet const & p,const RandomEngine* random);
   ~EcalEndcapRecHitsMaker();
 
   void loadEcalEndcapRecHits(edm::Event &iEvent, EERecHitCollection & ecalHits);
@@ -25,6 +27,8 @@ class EcalEndcapRecHitsMaker
   double threshold_;
   double noise_;
   std::map<uint32_t,float> ecaleRecHits_;
+
+  const RandomEngine* random_;
 };
 
 #endif
