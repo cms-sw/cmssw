@@ -7,11 +7,18 @@
 #include <string>
 
 class FitSlicesYTool {
-public:
-  FitSlicesYTool(){}
-  ~FitSlicesYTool(){}
-  void run(TH2F*, MonitorElement*,int kind=2);
-
+ public:
+  FitSlicesYTool(TH2F*);
+  ~FitSlicesYTool();
+  void getFittedMean(MonitorElement*);
+  void getFittedSigma(MonitorElement*);
+  void getFittedMeanWithError(MonitorElement*);
+  void getFittedSigmaWithError(MonitorElement*);
+ private:
+  TH1* h0;
+  TH1* h1;
+  TH1* h2;
+  TH1* h3;
 };
 
 #endif

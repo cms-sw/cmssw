@@ -1,28 +1,56 @@
 #include "Validation/RecoTrack/interface/FitSlicesYTool.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
-
-void FitSlicesYTool::run(TH2F* h2, MonitorElement * me, int kind){
-  h2->Write();
-  h2->FitSlicesY();
-  string name(h2->GetName());
-  string title(h2->GetTitle());
-  string n;//t;
-  if (kind==1) { 
-    n="_1";
-    //t="Mean";
+FitSlicesYTool::FitSlicesYTool(TH2F* h){
+  h->FitSlicesY();
+  string name(h->GetName());
+  h0 = (TH1*)gDirectory->Get((name+"_0").c_str());
+  h1 = (TH1*)gDirectory->Get((name+"_1").c_str());
+  h2 = (TH1*)gDirectory->Get((name+"_2").c_str());
+  h3 = (TH1*)gDirectory->Get((name+"_chi2").c_str());
+}
+FitSlicesYTool::~FitSlicesYTool(){
+  delete h0;  
+  delete h1;  
+  delete h2;  
+  delete h3;  
+}
+void FitSlicesYTool::getFittedMean(MonitorElement * me){
+  if (h1->GetNbinsX()==me->getNbinsX()){
+    for (int bin=0;bin!=h1->GetNbinsX();bin++){
+      me->setBinContent(bin+1,h1->GetBinContent(bin+1));
+    }
   } else {
-    n="_2";
-    //t="Sigma";
+    throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
   }
-  TH1* h1 = (TH1*)gDirectory->Get((name+n).c_str());
-  h1->Write();
-  for (int bin=0;bin!=h1->GetNbinsX();bin++){
-    me->setBinContent(bin+1,h1->GetBinContent(bin+1));
+}
+void FitSlicesYTool::getFittedSigma(MonitorElement * me){
+  if (h2->GetNbinsX()==me->getNbinsX()){
+    for (int bin=0;bin!=h2->GetNbinsX();bin++){
+      me->setBinContent(bin+1,h2->GetBinContent(bin+2));
+    }
+  } else {
+    throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
   }
-  delete gDirectory->Get((name+"_0").c_str());
-  delete gDirectory->Get((name+"_1").c_str());
-  delete gDirectory->Get((name+"_2").c_str());
-  delete gDirectory->Get((name+"_chi2").c_str());
-
+}
+void FitSlicesYTool::getFittedMeanWithError(MonitorElement * me){
+  if (h1->GetNbinsX()==me->getNbinsX()){
+    for (int bin=0;bin!=h1->GetNbinsX();bin++){
+      me->setBinContent(bin+1,h1->GetBinContent(bin+1));
+      me->setBinError(bin+1,h1->GetBinError(bin+1));
+    }
+  } else {
+    throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
+  }
+}
+void FitSlicesYTool::getFittedSigmaWithError(MonitorElement * me){
+  if (h2->GetNbinsX()==me->getNbinsX()){
+    for (int bin=0;bin!=h2->GetNbinsX();bin++){
+      me->setBinContent(bin+1,h2->GetBinContent(bin+2));
+      me->setBinError(bin+1,h2->GetBinError(bin+1));
+    }
+  } else {
+    throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
+  }
 }
