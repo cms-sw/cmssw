@@ -45,12 +45,16 @@ namespace HcalDigiMap{
   template<class Digi>
   inline void fillOccupancy(const Digi& digi, MonitorElement* mapG1, 
 			    MonitorElement* mapG2,MonitorElement* mapG3,
-			    MonitorElement* mapG4,  MonitorElement* mapE, float thr){
+			    MonitorElement* mapG4,  MonitorElement* mapE, 
+			    MonitorElement* mapEta, MonitorElement* mapPhi,
+			    float thr){
     if(digiOccupied(digi,thr)){
       if(digi.id().depth()==1) mapG1->Fill(digi.id().ieta(),digi.id().iphi());
       if(digi.id().depth()==2) mapG2->Fill(digi.id().ieta(),digi.id().iphi());
       if(digi.id().depth()==3) mapG3->Fill(digi.id().ieta(),digi.id().iphi());
       if(digi.id().depth()==4) mapG4->Fill(digi.id().ieta(),digi.id().iphi());
+      mapEta->Fill(digi.id().ieta());
+      mapPhi->Fill(digi.id().iphi());
       mapE->Fill(digi.elecId().readoutVMECrateId(),digi.elecId().htrSlot());
     }
     return;
@@ -99,6 +103,14 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor");        
     meEVT_ = m_dbe->bookInt("Digi Task Event Number");    
     meEVT_->Fill(ievt_);
+    
+    OCC_L1 = m_dbe->book2D("Digi Layer 1 Occupancy Map","Digi Layer 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    OCC_L2 = m_dbe->book2D("Digi Layer 2 Occupancy Map","Digi Layer 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    OCC_L3 = m_dbe->book2D("Digi Layer 3 Occupancy Map","Digi Layer 3 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    OCC_L4 = m_dbe->book2D("Digi Layer 4 Occupancy Map","Digi Layer 4 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    OCC_ETA = m_dbe->book1D("Digi Eta Occupancy Map","Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
+    OCC_PHI = m_dbe->book1D("Digi Phi Occupancy Map","Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
+    OCC_ELEC = m_dbe->book2D("Digi Elec Occupancy Map","Digi Elec Occupancy Map",20,0,20,20,0,20);
 
     m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HBHE");
     hbHists.SHAPE =  m_dbe->book1D("HBHE Digi Shape","HBHE Digi Shape",10,-0.5,9.5);
@@ -115,6 +127,9 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     hbHists.OCC_MAP_GEO2 = m_dbe->book2D("HBHE Digi Layer 2 Occupancy Map","HBHE Digi Layer 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hbHists.OCC_MAP_GEO3 = m_dbe->book2D("HBHE Digi Layer 3 Occupancy Map","HBHE Digi Layer 3 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hbHists.OCC_MAP_GEO4 = m_dbe->book2D("HBHE Digi Layer 4 Occupancy Map","HBHE Digi Layer 4 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    hbHists.OCC_ETA = m_dbe->book1D("HBHE Digi Eta Occupancy Map","HBHE Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
+    hbHists.OCC_PHI = m_dbe->book1D("HBHE Digi Phi Occupancy Map","HBHE Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
+
     hbHists.OCC_MAP_ELEC = m_dbe->book2D("HBHE Digi Elec Occupancy Map","HBHE Digi Elec Occupancy Map",20,0,20,20,0,20);
 
     m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HF");
@@ -132,7 +147,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     hfHists.OCC_MAP_GEO2 = m_dbe->book2D("HF Digi Layer 2 Occupancy Map","HF Digi Layer 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hfHists.OCC_MAP_GEO3 = m_dbe->book2D("HF Digi Layer 3 Occupancy Map","HF Digi Layer 3 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hfHists.OCC_MAP_GEO4 = m_dbe->book2D("HF Digi Layer 4 Occupancy Map","HF Digi Layer 4 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-
+    hfHists.OCC_ETA = m_dbe->book1D("HF Digi Eta Occupancy Map","HF Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
+    hfHists.OCC_PHI = m_dbe->book1D("HF Digi Phi Occupancy Map","HF Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
     hfHists.OCC_MAP_ELEC = m_dbe->book2D("HF Digi Elec Occupancy Map","HF Digi Elec Occupancy Map",20,0,20,20,0,20);
 
     m_dbe->setCurrentFolder("HcalMonitor/DigiMonitor/HO");
@@ -150,7 +166,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     hoHists.OCC_MAP_GEO2 = m_dbe->book2D("HO Digi Layer 2 Occupancy Map","HO Digi Layer 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hoHists.OCC_MAP_GEO3 = m_dbe->book2D("HO Digi Layer 3 Occupancy Map","HO Digi Layer 3 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hoHists.OCC_MAP_GEO4 = m_dbe->book2D("HO Digi Layer 4 Occupancy Map","HO Digi Layer 4 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-
+    hoHists.OCC_ETA = m_dbe->book1D("HO Digi Eta Occupancy Map","HO Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
+    hoHists.OCC_PHI = m_dbe->book1D("HO Digi Phi Occupancy Map","HO Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
     hoHists.OCC_MAP_ELEC = m_dbe->book2D("HO Digi Elec Occupancy Map","HO Digi Elec Occupancy Map",20,0,20,20,0,20);
     
 }
@@ -175,7 +192,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);	
       
       HcalDigiMap::fillErrors<HBHEDataFrame>(digi,hbHists.ERR_MAP_GEO,hbHists.ERR_MAP_ELEC);	  
-      HcalDigiMap::fillOccupancy<HBHEDataFrame>(digi,hbHists.OCC_MAP_GEO1,hbHists.OCC_MAP_GEO2,hbHists.OCC_MAP_GEO3,hbHists.OCC_MAP_GEO4,hbHists.OCC_MAP_ELEC,occThresh_);	  
+      HcalDigiMap::fillOccupancy<HBHEDataFrame>(digi,hbHists.OCC_MAP_GEO1,hbHists.OCC_MAP_GEO2,hbHists.OCC_MAP_GEO3,hbHists.OCC_MAP_GEO4,hbHists.OCC_MAP_ELEC,hbHists.OCC_ETA,hbHists.OCC_PHI,occThresh_);	  
+      HcalDigiMap::fillOccupancy<HBHEDataFrame>(digi,OCC_L1,OCC_L2,OCC_L3,OCC_L4,OCC_ELEC,OCC_ETA,OCC_PHI,0);	  
       hbHists.DIGI_SIZE->Fill(digi.size());
       hbHists.DIGI_PRESAMPLE->Fill(digi.presamples());
       int last = -1;
@@ -204,7 +222,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
       const HODataFrame digi = (const HODataFrame)(*j);	
       HcalDigiMap::fillErrors<HODataFrame>(digi,hoHists.ERR_MAP_GEO,hoHists.ERR_MAP_ELEC);  
-      HcalDigiMap::fillOccupancy<HODataFrame>(digi,hoHists.OCC_MAP_GEO1,hoHists.OCC_MAP_GEO2,hoHists.OCC_MAP_GEO3,hoHists.OCC_MAP_GEO4,hoHists.OCC_MAP_ELEC,occThresh_);	  
+      HcalDigiMap::fillOccupancy<HODataFrame>(digi,hoHists.OCC_MAP_GEO1,hoHists.OCC_MAP_GEO2,hoHists.OCC_MAP_GEO3,hoHists.OCC_MAP_GEO4,hoHists.OCC_MAP_ELEC,hoHists.OCC_ETA,hoHists.OCC_PHI,occThresh_);	  
+      HcalDigiMap::fillOccupancy<HODataFrame>(digi,OCC_L1,OCC_L2,OCC_L3,OCC_L4,OCC_ELEC,OCC_ETA,OCC_PHI,0);	  
       hoHists.DIGI_SIZE->Fill(digi.size());
       hoHists.DIGI_PRESAMPLE->Fill(digi.presamples());
       int last = -1;
@@ -232,7 +251,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
       const HFDataFrame digi = (const HFDataFrame)(*j);	
       HcalDigiMap::fillErrors<HFDataFrame>(digi,hfHists.ERR_MAP_GEO,hfHists.ERR_MAP_ELEC); 
-      HcalDigiMap::fillOccupancy<HFDataFrame>(digi,hfHists.OCC_MAP_GEO1,hfHists.OCC_MAP_GEO2,hfHists.OCC_MAP_GEO3,hfHists.OCC_MAP_GEO4,hfHists.OCC_MAP_ELEC,occThresh_);	  
+      HcalDigiMap::fillOccupancy<HFDataFrame>(digi,hfHists.OCC_MAP_GEO1,hfHists.OCC_MAP_GEO2,hfHists.OCC_MAP_GEO3,hfHists.OCC_MAP_GEO4,hfHists.OCC_MAP_ELEC,hfHists.OCC_ETA,hfHists.OCC_PHI,occThresh_);
+      HcalDigiMap::fillOccupancy<HFDataFrame>(digi,OCC_L1,OCC_L2,OCC_L3,OCC_L4,OCC_ELEC,OCC_ETA,OCC_PHI,0);	  
       hfHists.DIGI_SIZE->Fill(digi.size());
       hfHists.DIGI_PRESAMPLE->Fill(digi.presamples());
       int last = -1;

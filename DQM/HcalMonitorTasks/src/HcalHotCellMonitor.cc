@@ -42,8 +42,6 @@ void HcalHotCellMonitor::clearME(){
     hoHists.meMAX_E = 0;
     hoHists.meMAX_T = 0;
 
-    meOCC_MAP_all_GEO= 0;
-    meEN_MAP_all_GEO= 0;
     meMAX_E_all= 0;
     meMAX_T_all= 0;
     meEVT_= 0;
@@ -80,9 +78,22 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
 
     meMAX_E_all =  m_dbe->book1D("HotCell Energy","HotCell Energy",100,0,400);
     meMAX_T_all =  m_dbe->book1D("HotCell Time","HotCell Time",100,0,200);
-    meOCC_MAP_all_GEO  = m_dbe->book2D("HotCell Geo Occupancy Map","HotCell Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-
-
+    
+    meOCC_MAP_L1= m_dbe->book2D("HotCell Layer 1 Occupancy Map","HotCell Layer 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    meEN_MAP_L1= m_dbe->book2D("HotCell Layer 1 Energy Map","HotCell Layer 1 Energy Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    
+    meOCC_MAP_L2= m_dbe->book2D("HotCell Layer 2 Occupancy Map","HotCell Layer 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    meEN_MAP_L2= m_dbe->book2D("HotCell Layer 2 Energy Map","HotCell Layer 2 Energy Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    
+    meOCC_MAP_L3= m_dbe->book2D("HotCell Layer 3 Occupancy Map","HotCell Layer 3 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    meEN_MAP_L3= m_dbe->book2D("HotCell Layer 3 Energy Map","HotCell Layer 3 Energy Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    
+    meOCC_MAP_L4= m_dbe->book2D("HotCell Layer 4 Occupancy Map","HotCell Layer 4 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    meEN_MAP_L4= m_dbe->book2D("HotCell Layer 4 Energy Map","HotCell Layer 4 Energy Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    
+    meOCC_MAP_all = m_dbe->book2D("HotCell Occupancy Map","HotCell Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    meEN_MAP_all  = m_dbe->book2D("HotCell Energy Map","HotCell Energy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    
     m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor/HB");
     hbHists.meMAX_E =  m_dbe->book1D("HB HotCell Energy","HB HotCell Energy",100,0,400);
     hbHists.meMAX_T =  m_dbe->book1D("HB HotCell Time","HB HotCell Time",100,-100,200);
@@ -128,6 +139,7 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
 
   float enS=0, tS=0, etaS=0, phiS=0, idS=-1;
   float enA=0, tA=0, etaA=0, phiA=0;
+  int layer=0;
   
   if(hbHits.size()>0){
     for (_ib=hbHits.begin(); _ib!=hbHits.end(); _ib++) { // loop over all hits      
@@ -142,6 +154,7 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
 	  etaS = _ib->id().ieta();
 	  phiS = _ib->id().iphi();
 	  idS = etaS+100*phiS+1000*_ib->id().depth();
+	  layer = _ib->id().depth();
 	}
       }
     }
@@ -170,6 +183,7 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
 	  etaS = _ib->id().ieta();
 	  phiS = _ib->id().iphi();
 	  idS = etaS+100*phiS+1000*_ib->id().depth();
+	  layer = _ib->id().depth();
 	}
       }
     }
@@ -200,6 +214,7 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
 	  etaS = _io->id().ieta();
 	  phiS = _io->id().iphi();
 	  idS = etaS+100*phiS+1000*_io->id().depth();
+	  layer = _io->id().depth();
 	}
       }
     }
@@ -229,6 +244,7 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
 	  etaS = _if->id().ieta();
 	  phiS = _if->id().iphi();
 	  idS = etaS+100*phiS+1000*_if->id().depth();
+	  layer = _if->id().depth();
 	}
       }
     }
@@ -249,7 +265,25 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
  if(enA>0){
    meMAX_E_all->Fill(enA);
    meMAX_T_all->Fill(tA);
-   meOCC_MAP_all_GEO->Fill(etaA,phiA);
+   meOCC_MAP_all->Fill(etaA,phiA);
+   meEN_MAP_all->Fill(etaA,phiA,enA);
+
+   if(layer==1){
+     meOCC_MAP_L1->Fill(etaA,phiA);
+     meEN_MAP_L1->Fill(etaA,phiA,enA);
+   }
+   else if(layer==2){
+     meOCC_MAP_L2->Fill(etaA,phiA);
+     meEN_MAP_L2->Fill(etaA,phiA,enA);
+   }
+   else if(layer==3){
+     meOCC_MAP_L3->Fill(etaA,phiA);
+     meEN_MAP_L3->Fill(etaA,phiA,enA);
+   }
+   else if(layer==4){
+     meOCC_MAP_L4->Fill(etaA,phiA);
+     meEN_MAP_L4->Fill(etaA,phiA,enA);
+   }
  }
 
   return;

@@ -54,7 +54,15 @@ void HcalRecHitMonitor::clearME(){
     hoHists.meRECHIT_T_tot = 0;
     hoHists.meRECHIT_E.clear();
     hoHists.meRECHIT_T.clear();
-    meOCC_MAP_all_GEO= 0;
+
+    meOCC_MAP_L1=0;
+    meOCC_MAP_L1_E=0;
+    meOCC_MAP_L2=0;
+    meOCC_MAP_L2_E=0;
+    meOCC_MAP_L3=0;
+    meOCC_MAP_L3_E=0;
+    meOCC_MAP_L4=0;
+    meOCC_MAP_L4_E=0;
     meRECHIT_E_all= 0;
     meEVT_= 0;
 
@@ -145,10 +153,23 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface
 
     m_dbe->setCurrentFolder("HcalMonitor/RecHitMonitor");
     meRECHIT_E_all =  m_dbe->book1D("RecHit Total Energy","RecHit Total Energy",100,0,400);
-    meOCC_MAP_all_GEO  = m_dbe->book2D("RecHit Geo Occupancy Map","RecHit Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 
     meEVT_ = m_dbe->bookInt("RecHit Event Number");    
     meEVT_->Fill(ievt_);
+    meOCC_MAP_L1 = m_dbe->book2D("RecHit Layer 1 Occupancy Map","RecHit Layer 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    meOCC_MAP_L1_E = m_dbe->book2D("RecHit Layer 1 Energy Map","RecHit Layer 1 Energy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+
+    meOCC_MAP_L2 = m_dbe->book2D("RecHit Layer 2 Occupancy Map","RecHit Layer 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    meOCC_MAP_L2_E = m_dbe->book2D("RecHit Layer 2 Energy Map","RecHit Layer 2 Energy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+
+    meOCC_MAP_L3 = m_dbe->book2D("RecHit Layer 3 Occupancy Map","RecHit Layer 3 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    meOCC_MAP_L3_E = m_dbe->book2D("RecHit Layer 3 Energy Map","RecHit Layer 3 Energy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+
+    meOCC_MAP_L4 = m_dbe->book2D("RecHit Layer 4 Occupancy Map","RecHit Layer 4 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    meOCC_MAP_L4_E = m_dbe->book2D("RecHit Layer 4 Energy Map","RecHit Layer 4 Energy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    
+    meOCC_MAP_ETA = m_dbe->book1D("RecHit Eta Occupancy Map","RecHit Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
+    meOCC_MAP_PHI = m_dbe->book1D("RecHit Phi Energy Map","RecHit Phi Energy Map",phiBins_,phiMin_,phiMax_);
 
     m_dbe->setCurrentFolder("HcalMonitor/RecHitMonitor/HB");
     hbHists.meRECHIT_E_tot = m_dbe->book1D("HB RecHit Total Energy","HB RecHit Total Energy",100,0,400);
@@ -203,7 +224,24 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits, const H
 	  tot += _ib->energy();
 	  if(_ib->energy()>occThresh_){
 	    hbHists.meOCC_MAP_GEO->Fill(_ib->id().ieta(),_ib->id().iphi());
-	    meOCC_MAP_all_GEO->Fill(_ib->id().ieta(),_ib->id().iphi());      
+	    meOCC_MAP_ETA->Fill(_ib->id().ieta());
+	    meOCC_MAP_PHI->Fill(_ib->id().iphi());
+	    if(_ib->id().depth()==1){ 
+	      meOCC_MAP_L1->Fill(_ib->id().ieta(),_ib->id().iphi());
+	      meOCC_MAP_L1_E->Fill(_ib->id().ieta(),_ib->id().iphi(), _ib->energy());
+	    }
+	    else if(_ib->id().depth()==2){ 
+	      meOCC_MAP_L2->Fill(_ib->id().ieta(),_ib->id().iphi());
+	      meOCC_MAP_L2_E->Fill(_ib->id().ieta(),_ib->id().iphi(), _ib->energy());
+	    }
+	    else if(_ib->id().depth()==3){ 
+	      meOCC_MAP_L3->Fill(_ib->id().ieta(),_ib->id().iphi());
+	      meOCC_MAP_L3_E->Fill(_ib->id().ieta(),_ib->id().iphi(), _ib->energy());
+	    }
+	    if(_ib->id().depth()==4){ 
+	      meOCC_MAP_L4->Fill(_ib->id().ieta(),_ib->id().iphi());
+	      meOCC_MAP_L4_E->Fill(_ib->id().ieta(),_ib->id().iphi(), _ib->energy());
+	    }
 	    hbHists.meRECHIT_T_tot->Fill(_ib->time());
 	  }      
 	  if(doPerChannel_) HcalRecHitPerChan::perChanHists<HBHERecHit>(0,*_ib,hbHists.meRECHIT_E,hbHists.meRECHIT_T,m_dbe);
@@ -213,9 +251,26 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits, const H
 	  heHists.meRECHIT_E_low->Fill(_ib->energy());
 	  tot2 += _ib->energy();
 	  if(_ib->energy()>occThresh_){
+	    meOCC_MAP_ETA->Fill(_ib->id().ieta());
+	    meOCC_MAP_PHI->Fill(_ib->id().iphi());
 	    heHists.meOCC_MAP_GEO->Fill(_ib->id().ieta(),_ib->id().iphi());
-	    meOCC_MAP_all_GEO->Fill(_ib->id().ieta(),_ib->id().iphi());      
 	    heHists.meRECHIT_T_tot->Fill(_ib->time());
+	    if(_ib->id().depth()==1){ 
+	      meOCC_MAP_L1->Fill(_ib->id().ieta(),_ib->id().iphi());
+	      meOCC_MAP_L1_E->Fill(_ib->id().ieta(),_ib->id().iphi(), _ib->energy());
+	    }
+	    else if(_ib->id().depth()==2){ 
+	      meOCC_MAP_L2->Fill(_ib->id().ieta(),_ib->id().iphi());
+	      meOCC_MAP_L2_E->Fill(_ib->id().ieta(),_ib->id().iphi(), _ib->energy());
+	    }
+	    else if(_ib->id().depth()==3){ 
+	      meOCC_MAP_L3->Fill(_ib->id().ieta(),_ib->id().iphi());
+	      meOCC_MAP_L3_E->Fill(_ib->id().ieta(),_ib->id().iphi(), _ib->energy());
+	    }
+	    if(_ib->id().depth()==4){ 
+	      meOCC_MAP_L4->Fill(_ib->id().ieta(),_ib->id().iphi());
+	      meOCC_MAP_L4_E->Fill(_ib->id().ieta(),_ib->id().iphi(), _ib->energy());
+	    }
 	  }      
 	  if(doPerChannel_) HcalRecHitPerChan::perChanHists<HBHERecHit>(1,*_ib,heHists.meRECHIT_E,heHists.meRECHIT_T,m_dbe);
 	}
@@ -236,9 +291,26 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits, const H
 	hoHists.meRECHIT_E_low->Fill(_io->energy());
 	tot += _io->energy();
 	if(_io->energy()>occThresh_){
+	  meOCC_MAP_ETA->Fill(_io->id().ieta());
+	  meOCC_MAP_PHI->Fill(_io->id().iphi());
 	  hoHists.meOCC_MAP_GEO->Fill(_io->id().ieta(),_io->id().iphi());
-	  meOCC_MAP_all_GEO->Fill(_io->id().ieta(),_io->id().iphi());      
 	  hoHists.meRECHIT_T_tot->Fill(_io->time());
+	  if(_io->id().depth()==1){ 
+	    meOCC_MAP_L1->Fill(_io->id().ieta(),_io->id().iphi());
+	    meOCC_MAP_L1_E->Fill(_io->id().ieta(),_io->id().iphi(), _io->energy());
+	  }
+	  else if(_io->id().depth()==2){ 
+	    meOCC_MAP_L2->Fill(_io->id().ieta(),_io->id().iphi());
+	    meOCC_MAP_L2_E->Fill(_io->id().ieta(),_io->id().iphi(), _io->energy());
+	  }
+	  else if(_io->id().depth()==3){ 
+	    meOCC_MAP_L3->Fill(_io->id().ieta(),_io->id().iphi());
+	    meOCC_MAP_L3_E->Fill(_io->id().ieta(),_io->id().iphi(), _io->energy());
+	  }
+	  if(_io->id().depth()==4){ 
+	    meOCC_MAP_L4->Fill(_io->id().ieta(),_io->id().iphi());
+	    meOCC_MAP_L4_E->Fill(_io->id().ieta(),_io->id().iphi(), _io->energy());
+	  }
 	}
 	if(doPerChannel_) HcalRecHitPerChan::perChanHists<HORecHit>(2,*_io,hoHists.meRECHIT_E,hoHists.meRECHIT_T,m_dbe);
       }
@@ -255,9 +327,26 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits, const H
 	hfHists.meRECHIT_E_low->Fill(_if->energy());
 	tot += _if->energy();
 	if(_if->energy()>occThresh_){
+	  meOCC_MAP_ETA->Fill(_if->id().ieta());
+	  meOCC_MAP_PHI->Fill(_if->id().iphi());
 	  hfHists.meOCC_MAP_GEO->Fill(_if->id().ieta(),_if->id().iphi());
-	  meOCC_MAP_all_GEO->Fill(_if->id().ieta(),_if->id().iphi());      
-	  hfHists.meRECHIT_T_tot->Fill(_if->time());	    
+	  hfHists.meRECHIT_T_tot->Fill(_if->time());
+	  if(_if->id().depth()==1){ 
+	    meOCC_MAP_L1->Fill(_if->id().ieta(),_if->id().iphi());
+	    meOCC_MAP_L1_E->Fill(_if->id().ieta(),_if->id().iphi(), _if->energy());
+	  }
+	  else if(_if->id().depth()==2){ 
+	    meOCC_MAP_L2->Fill(_if->id().ieta(),_if->id().iphi());
+	    meOCC_MAP_L2_E->Fill(_if->id().ieta(),_if->id().iphi(), _if->energy());
+	  }
+	  else if(_if->id().depth()==3){ 
+	    meOCC_MAP_L3->Fill(_if->id().ieta(),_if->id().iphi());
+	    meOCC_MAP_L3_E->Fill(_if->id().ieta(),_if->id().iphi(), _if->energy());
+	  }
+	  if(_if->id().depth()==4){ 
+	    meOCC_MAP_L4->Fill(_if->id().ieta(),_if->id().iphi());
+	    meOCC_MAP_L4_E->Fill(_if->id().ieta(),_if->id().iphi(), _if->energy());
+	  }
 	}
 	if(doPerChannel_) HcalRecHitPerChan::perChanHists<HFRecHit>(3,*_if,hfHists.meRECHIT_E,hfHists.meRECHIT_T,m_dbe);
       }

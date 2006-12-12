@@ -77,32 +77,34 @@ void HcalMTCCMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
 }
 
 void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
-				    const HODigiCollection& ho,
-				    const LTCDigiCollection& ltc,
-				    const HcalDbService& cond){
+				   const HODigiCollection& ho,
+				   const LTCDigiCollection& ltc,
+				   const HcalDbService& cond){
   
   if(!m_dbe) { printf("HcalMTCCMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return; }
   
   ievt_++;
   meEVT_->Fill(ievt_);
-
+  
   // get conditions
   if(!shape_) shape_ = cond.getHcalShape(); // this one is generic  
-
+  
   dumpDigi(hbhe, ho, cond);
 
-  if(ltc.size()<1) return;
-  
   LTCDigi trig; 
-  LTCDigiCollection::const_iterator digiItr = ltc.begin();
+  try{      
+    if(ltc.size()<1) return;        
+  }catch (...) {      
+    printf("HcalMTCCMonitor::processEvent  No LTC Digi.\n"); return;
+  }
+  LTCDigiCollection::const_iterator digiItr = ltc.begin();    
   trig = *digiItr;
-  
+
   if ( m_dbe !=NULL ) {
     
     for(int t = 0; t<6; t++){
       if(trig.HasTriggered(t)) meTrig_->Fill(t);
     }
-    
     try{      
       for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
 	const HBHEDataFrame digi = (const HBHEDataFrame)(*j);	
@@ -161,7 +163,6 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
       printf("HcalMTCCMonitor::processEvent  No HBHE Digis.\n");
     }
     
-    
     try{      
       for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
 	const HODataFrame digi = (const HODataFrame)(*j);	
@@ -192,7 +193,7 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  capid=digi[maxI-1].capid();
 	  m1 = (tool[maxI-1]-calibs_.pedestal(capid))*calibs_.gain(capid);
 	}
-	capid=digi[maxI-1].capid();
+	capid=digi[maxI].capid();
 	z = (tool[maxI]-calibs_.pedestal(capid))*calibs_.gain(capid);
 	
 	if(maxI!=(tool.size()-1)){
@@ -231,7 +232,6 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
       printf("HcalMTCCMonitor::processEvent  No HBHE Digis.\n");
     }
   }//if mdbe
-      
   return;
 }
 

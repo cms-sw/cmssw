@@ -7,8 +7,8 @@
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2006/08/24 23:44:59 $
-  * $Revision: 1.8 $
+  * $Date: 2006/09/01 15:39:27 $
+  * $Revision: 1.1 $
   * \author W. Fisher - FNAL
   */
 class HcalHotCellMonitor: public HcalBaseMonitor {
@@ -36,8 +36,18 @@ private:  ///Monitoring elements
     MonitorElement* meMAX_ID;
   }hbHists,heHists,hfHists,hoHists;
 
-  MonitorElement* meOCC_MAP_all_GEO;
-  MonitorElement* meEN_MAP_all_GEO;
+  MonitorElement* meOCC_MAP_L1;
+  MonitorElement* meEN_MAP_L1;
+  MonitorElement* meOCC_MAP_L2;
+  MonitorElement* meEN_MAP_L2;
+  MonitorElement* meOCC_MAP_L3;
+  MonitorElement* meEN_MAP_L3;
+  MonitorElement* meOCC_MAP_L4;
+  MonitorElement* meEN_MAP_L4;
+
+  MonitorElement* meOCC_MAP_all;
+  MonitorElement* meEN_MAP_all;
+
   MonitorElement* meMAX_E_all;
   MonitorElement* meMAX_T_all;
   MonitorElement* meEVT_;

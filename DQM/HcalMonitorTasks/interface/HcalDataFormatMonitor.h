@@ -16,8 +16,8 @@
 
 /** \class Hcaldataformatmonitor
   *  
-  * $Date: 2006/06/23 16:08:13 $
-  * $Revision: 1.6 $
+  * $Date: 2006/08/24 23:44:59 $
+  * $Revision: 1.7 $
   * \author W. Fisher - FNAL
   */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -42,6 +42,10 @@ private:  ///Monitoring elements
   struct{
     MonitorElement* ERR_MAP;
     MonitorElement* DCC_ERRWD;
+    MonitorElement* FiberMap;
+    MonitorElement* SpigotMap;
+    //    HcalElectronicsId eid(fc,f,spigot,dccid);
+    //    eid.setHTR(htr.readoutVMECrateId(),htr.htrSlot(),htr.htrTopBottom());
   } hbHists, hfHists,hoHists;
 
 };

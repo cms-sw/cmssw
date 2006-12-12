@@ -6,8 +6,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2006/08/24 23:44:59 $
-  * $Revision: 1.9 $
+  * $Date: 2006/09/01 15:39:27 $
+  * $Revision: 1.10 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -32,6 +32,14 @@ private:  ///Monitoring elements
   int etaBins_, phiBins_;
 
   MonitorElement* meEVT_;
+  MonitorElement* OCC_ETA;
+  MonitorElement* OCC_PHI;
+  MonitorElement* OCC_L1;
+  MonitorElement* OCC_L2;
+  MonitorElement* OCC_L3;
+  MonitorElement* OCC_L4;
+  MonitorElement* OCC_ELEC;
+
   
   struct{
     MonitorElement* DIGI_NUM;
@@ -46,6 +54,8 @@ private:  ///Monitoring elements
     MonitorElement* OCC_MAP_GEO2;
     MonitorElement* OCC_MAP_GEO3;
     MonitorElement* OCC_MAP_GEO4;
+    MonitorElement* OCC_ETA;
+    MonitorElement* OCC_PHI;
     MonitorElement* OCC_MAP_ELEC;
     MonitorElement* SHAPE;
     MonitorElement* SHAPE_THR;

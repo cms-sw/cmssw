@@ -17,6 +17,12 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInter
   HcalBaseMonitor::setup(ps,dbe);
   
   ievt_=0;
+  fedUnpackList_ = ps.getParameter<vector<int> >("FEDs");
+  firstFED_ = ps.getParameter<int>("HcalFirstFED");
+  cout << "HcalDataFormatMonitor::setup  Will unpack FEDs ";
+  for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
+    cout << fedUnpackList_[i] << " ";
+  cout << endl;
 
   if ( m_dbe ) {
     m_dbe->setCurrentFolder("HcalMonitor/DataFormatMonitor");    
@@ -26,26 +32,38 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInter
 
     string type = "HBHE Data Format Error Words";
     hbHists.DCC_ERRWD =  m_dbe->book1D(type.c_str(),type.c_str(),12,0,12);
-    type = "HBHE Data Format Error Map";
+    type = "HBHE Data Format Crate Error Map";
     hbHists.ERR_MAP = m_dbe->book2D(type.c_str(),type.c_str(),20,0,20,20,0,20);
-
+    type = "HBHE Data Format Fiber Error Map";
+    hbHists.FiberMap = m_dbe->book2D(type.c_str(),type.c_str(),3,0,2,9,0,8);
+    type = "HBHE Data Format Spigot Error Map";
+    hbHists.SpigotMap = m_dbe->book2D(type.c_str(),type.c_str(),
+				      HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
+				      fedUnpackList_.size(),firstFED_,firstFED_+fedUnpackList_.size());
+    
     type = "HF Data Format Error Words";
     hfHists.DCC_ERRWD =  m_dbe->book1D(type.c_str(),type.c_str(),12,0,12);
-    type = "HF Data Format Error Map";
+    type = "HF Data Format Crate Error Map";
     hfHists.ERR_MAP = m_dbe->book2D(type.c_str(),type.c_str(),20,0,20,20,0,20);
+    type = "HF Data Format Fiber Error Map";
+    hfHists.FiberMap = m_dbe->book2D(type.c_str(),type.c_str(),3,0,2,9,0,8);
+    type = "HF Data Format Spigot Error Map";
+    hfHists.SpigotMap = m_dbe->book2D(type.c_str(),type.c_str(),
+				      HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
+				      fedUnpackList_.size(),firstFED_,firstFED_+fedUnpackList_.size());
 
     type = "HO Data Format Error Words";
     hoHists.DCC_ERRWD =  m_dbe->book1D(type.c_str(),type.c_str(),12,0,12);
-    type = "HO Data Format Error Map";
+    type = "HO Data Format Crate Error Map";
     hoHists.ERR_MAP = m_dbe->book2D(type.c_str(),type.c_str(),20,0,20,20,0,20);
+    type = "HO Data Format Fiber Error Map";
+    hoHists.FiberMap = m_dbe->book2D(type.c_str(),type.c_str(),3,0,2,9,0,8);
+    type = "HO Data Format Spigot Error Map";
+    hoHists.SpigotMap = m_dbe->book2D(type.c_str(),type.c_str(),
+				      HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
+				      fedUnpackList_.size(),firstFED_,firstFED_+fedUnpackList_.size());
 
   }
-  fedUnpackList_ = ps.getParameter<vector<int> >("FEDs");
-  firstFED_ = ps.getParameter<int>("HcalFirstFED");
-  cout << "HcalDataFormatMonitor::setup  Will unpack FEDs ";
-  for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
-    cout << fedUnpackList_[i] << " ";
-  cout << endl;
 
   return;
 }
@@ -82,27 +100,34 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const HcalElectronicsM
     dccHeader->getSpigotData(spigot,htr);
     // check
     if (!htr.check() || htr.isHistogramEvent()) continue;
-
-    MonitorElement* tmpErr = 0; MonitorElement* tmpMap = 0;
+    
+    MonitorElement* tmpErr = 0; 
+    MonitorElement* tmpMapC = 0;
+    MonitorElement* tmpMapS = 0;
+    MonitorElement* tmpMapF = 0;
+    int fchan=0; int fib=0;
     bool valid = false;
-    for(int fc=0; fc<3 && !valid; fc++){
-      for(int f=0; f<9 && !valid; f++){
-	HcalElectronicsId eid(fc,f,spigot,dccid);
+    for(fchan=0; fchan<3 && !valid; fchan++){
+      for(int fib=0; fib<9 && !valid; fib++){
+	HcalElectronicsId eid(fchan,fib,spigot,dccid);
 	eid.setHTR(htr.readoutVMECrateId(),htr.htrSlot(),htr.htrTopBottom());
 	DetId did=emap.lookup(eid);
 	if (!did.null()) {
 	  switch (((HcalSubdetector)did.subdetId())) {
 	  case (HcalBarrel):
 	  case (HcalEndcap): {
-	    tmpErr = hbHists.DCC_ERRWD; tmpMap = hbHists.ERR_MAP; 
+	    tmpErr = hbHists.DCC_ERRWD; tmpMapC = hbHists.ERR_MAP;
+	    tmpMapS = hbHists.SpigotMap; tmpMapF = hbHists.FiberMap;
 	    valid = true;
 	  } break;
 	  case (HcalOuter): {
-	    tmpErr = hoHists.DCC_ERRWD; tmpMap = hoHists.ERR_MAP; 
+	    tmpErr = hoHists.DCC_ERRWD; tmpMapC = hoHists.ERR_MAP; 
+	    tmpMapS = hoHists.SpigotMap; tmpMapF = hoHists.FiberMap;
 	    valid = true;
 	  } break;
 	  case (HcalForward): {
-	    tmpErr = hfHists.DCC_ERRWD; tmpMap = hfHists.ERR_MAP; 
+	    tmpErr = hfHists.DCC_ERRWD; tmpMapC = hfHists.ERR_MAP; 
+	    tmpMapS = hfHists.SpigotMap; tmpMapF = hfHists.FiberMap;
 	    valid = true;
 	  } break;
 	  default: break;
@@ -116,8 +141,10 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const HcalElectronicsM
       for(int i=0; i<12; i++)
 	tmpErr->Fill(i,err&(0x01<<i));    
     }
-    if(err>0 && tmpMap!=NULL){
-      tmpMap->Fill(htr.readoutVMECrateId(),htr.htrSlot());
+    if(err>0 && tmpMapC!=NULL){
+      tmpMapC->Fill(htr.readoutVMECrateId(),htr.htrSlot());
+      tmpMapF->Fill(fchan,fib);
+      tmpMapS->Fill(spigot,dccid);
     }    
   }
   

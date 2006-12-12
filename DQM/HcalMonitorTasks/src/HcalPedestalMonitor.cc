@@ -146,7 +146,7 @@ void HcalPedestalMonitor::done(){
 
 void HcalPedestalMonitor::perChanHists(int id, const HcalDetId detid, const HcalQIESample& qie, map<HcalDetId, map<int, MonitorElement*> > &tool) {
   static const int bins=10;
-  map<int,MonitorElement*> _mei;
+  //  map<int,MonitorElement*> _mei;
   
   string type = "HBHE";
   if(m_dbe) m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HBHE");
@@ -159,26 +159,32 @@ void HcalPedestalMonitor::perChanHists(int id, const HcalDetId detid, const Hcal
     if(m_dbe) m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HF");
   }  
   
-  ///outer iteration
-    _meo = tool.find(detid);
-    if (_meo!=tool.end()){
-      //inner iteration
-      _mei = _meo->second;
-      if(_mei[qie.capid()]==NULL) printf("HcalPedestalAnalysis::perChanHists  This histo is NULL!!??\n");
-      else if (qie.adc()<bins) _mei[qie.capid()]->Fill(qie.adc());
-    }
-    else{
-      if(m_dbe){
-	map<int,MonitorElement*> insert;
-	float hi = 9; float lo = 0;
-	for(int i=0; i<4; i++){
-	  char name[1024];
-	  sprintf(name,"%s Pedestal Value ieta=%d iphi=%d depth=%d CAPID=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);      
-	  getLinearizedADC(*m_shape,m_coder,bins,i,lo,hi);
-	  insert[i] =  m_dbe->book1D(name,name,bins,lo,hi);
-	}
-	insert[qie.capid()]->Fill(qie.adc());
-	tool[detid] = insert;
+  //outer iteration
+  // map<int, MonitorElement*> it = tool[detid];
+  bool gotit=false;
+  if(REG[detid]) gotit=true;
+  //  _meo = tool.find(detid);
+  //  if (_meo!=tool.end()){
+  if(gotit){
+    //inner iteration
+    map<int, MonitorElement*> _mei = tool[detid];
+    //    _mei = _meo->second;
+    if(_mei[qie.capid()]==NULL) printf("HcalPedestalAnalysis::perChanHists  This histo is NULL!!??\n");
+    else if (qie.adc()<bins) _mei[qie.capid()]->Fill(qie.adc());
+  }
+  else{
+    if(m_dbe){
+      map<int,MonitorElement*> insert;
+      float hi = 9; float lo = 0;
+      for(int i=0; i<4; i++){
+	char name[1024];
+	sprintf(name,"%s Pedestal Value ieta=%d iphi=%d depth=%d CAPID=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);      
+	getLinearizedADC(*m_shape,m_coder,bins,i,lo,hi);
+	insert[i] =  m_dbe->book1D(name,name,bins,lo,hi);
       }
+      insert[qie.capid()]->Fill(qie.adc());
+      tool[detid] = insert;
     }
+    REG[detid] = true;
+  }
 }
