@@ -1,7 +1,7 @@
 #ifndef RecoEcal_EgammaClusterAlgos_PreshowerClusterAlgo_h
 #define RecoEcal_EgammaClusterAlgos_PreshowerClusterAlgo_h
 //
-// $Id: PreshowerClusterAlgo.h,v 1.9 2006/07/20 18:51:59 rahatlou Exp $
+// $Id: PreshowerClusterAlgo.h,v 1.10 2006/12/06 16:50:43 dbanduri Exp $
 //
 
 //#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -45,7 +45,8 @@ class PreshowerClusterAlgo {
 
    reco::PreshowerCluster makeOneCluster(ESDetId strip,
 					 HitsID *used_strips,
-                                         RecHitsMap *rechits_map,					 
+                                         RecHitsMap *rechits_map,
+					 reco::BasicClusterRefVector::iterator basicClust_ref,					 
                                          const CaloSubdetectorGeometry*& geometry_p,
                                          CaloSubdetectorTopology*& topology_p);
 
