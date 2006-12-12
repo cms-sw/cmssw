@@ -97,18 +97,18 @@ void OptoScanTask::fill( const SiStripEventSummary& summary,
 	<< "[OptoScanTask::" << __func__ << "]"
 	<< " Unexpected gain value! " << gain;
     }
-    LogTrace(mlDqmSource_) 
-      << "[OptoScanTask::" << __func__ << "]"
-      << " Gain: " << opto.first 
-      << " Bias: " << opto.second;
+//     LogTrace(mlDqmSource_) 
+//       << "[OptoScanTask::" << __func__ << "]"
+//       << " Gain: " << opto.first 
+//       << " Bias: " << opto.second;
     
     // Find digital "0" and digital "1" levels from tick marks within scope mode data
     pair< uint16_t, uint16_t > digital_range;
     locateTicks( digis, digital_range, false );
-    LogTrace(mlDqmSource_)
-      << "[OptoScanTask::" << __func__ << "]"
-      << " Digital \"0\" level: " << digital_range.first 
-      << " Digital \"1\" level: " << digital_range.second;
+//     LogTrace(mlDqmSource_)
+//       << "[OptoScanTask::" << __func__ << "]"
+//       << " Digital \"0\" level: " << digital_range.first 
+//       << " Digital \"1\" level: " << digital_range.second;
     
     // Digital "0"
     if ( digital_range.first <= 1024 ) {

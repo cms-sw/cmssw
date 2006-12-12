@@ -72,7 +72,7 @@ void ApvTimingTask::fill( const SiStripEventSummary& summary,
       << digis.data.size(); 
     return;
   }
-
+  
   pair<uint32_t,uint32_t> skews = const_cast<SiStripEventSummary&>(summary).pll();
   for ( uint16_t coarse = 0; coarse < nBins_/*digis.data.size()*/; coarse++ ) {
     uint16_t fine = (coarse+1)*24 - (skews.second+1);

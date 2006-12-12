@@ -95,8 +95,9 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
   if ( digis.data.size() != peds_[0].vNumOfEntries_.size() ) {
     edm::LogWarning(mlDqmSource_)
       << "[PedestalsTask::" << __func__ << "]"
-      << " Unexpected number of digis! " 
+      << " Unexpected number of digis: " 
       << digis.data.size(); 
+    return;
   }
   
   // Check number of digis
@@ -129,7 +130,7 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
   if ( cm.size() < cm_.size() ) {
     edm::LogWarning(mlDqmSource_)
       << "[PedestalsTask::" << __func__ << "]"
-      << " Fewer CM values than expected!";
+      << " Fewer CM values than expected: " << cm.size();
   }
   
   updateHistoSet( cm_[0], cm[0] );
