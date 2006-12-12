@@ -31,7 +31,7 @@ public:
   const IntervalType & ticks() const  { return it;}
 
   //
-  double seconds() const { return Time::oneTick().one*it; }
+  double seconds() const { return Time::oneTick()*it; }
   
   //
   double microseconds() const { return 1.e6*seconds();}
@@ -81,7 +81,7 @@ public:
   }
 
 
-  static double ticksInSec() { return Time::oneTick.one;}
+  static double ticksInSec() { return Time::oneTick();}
 
 public:
   /// constructor
@@ -141,9 +141,9 @@ struct DummyTime {
     double one;
   };
   
-  static OneTick & oneTick() {
+  static double oneTick() {
     static OneTick local;
-    return local;
+    return local.one;
   };
 
 
