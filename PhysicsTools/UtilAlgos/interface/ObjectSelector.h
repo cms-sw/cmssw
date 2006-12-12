@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.9 $
+ * \version $Revision: 1.10 $
  *
- * $Id: ObjectSelector.h,v 1.9 2006/12/07 11:28:31 llista Exp $
+ * $Id: ObjectSelector.h,v 1.10 2006/12/07 13:05:03 llista Exp $
  *
  */
 
@@ -66,7 +66,7 @@ namespace reco {
     template<typename C>
     struct NullPostProcessor {
       NullPostProcessor( const edm::ParameterSet & ) { }
-      void init( edm::ProductRegistryHelper & ) { }
+      void init( edm::EDFilter & ) { }
       void process( edm::OrphanHandle<C>, edm::Event & ) { }
     };
   }
