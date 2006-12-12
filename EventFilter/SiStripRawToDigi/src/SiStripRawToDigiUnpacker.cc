@@ -286,16 +286,11 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       } else if ( mode == sistrip::VIRGIN_RAW ) {
 
 	edm::DetSet<SiStripRawDigi>& vr = virgin_raw.find_or_insert( key );
+	vector<uint16_t> samples; samples.reserve(256);
 	//@@ FIX FOR S.DUTTA!!!!
 	//@@ FIX FOR S.DUTTA!!!!
 	//@@ FIX FOR S.DUTTA!!!!
-	//@@ FIX FOR S.DUTTA!!!!
-	//@@ FIX FOR S.DUTTA!!!!
-	//@@ FIX FOR S.DUTTA!!!!
-	//@@ FIX FOR S.DUTTA!!!!
-	//@@ FIX FOR S.DUTTA!!!!
-	//@@ FIX FOR S.DUTTA!!!!
-	vector<uint16_t> samples; samples.reserve(256*conn.nApvPairs()); samples.resize(256*conn.nApvPairs(),0); 
+	//vector<uint16_t> samples; samples.reserve(256*conn.nApvPairs()); samples.resize(256*conn.nApvPairs(),0); 
 	try {
 	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
 	} catch(...) { 
