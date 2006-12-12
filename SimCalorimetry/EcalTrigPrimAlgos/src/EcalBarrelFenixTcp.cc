@@ -7,7 +7,7 @@
     adder_= new EcalFenixEtTot();
     maxOf2_=new EcalFenixMaxof2();
     formatter_= new EcalFenixTcpFormat(db);
-    fgvb_= new EcalFenixFgvbEB();
+    fgvb_= new EcalFenixFgvbEB(db);
 
   }
   EcalBarrelFenixTcp::~EcalBarrelFenixTcp() {
@@ -67,9 +67,10 @@ void EcalBarrelFenixTcp:: process(std::vector<std::vector<int> > & tpframetow, s
 
     //call fgvb
     std::vector<int> fgvb_out;
+    this->getFGVB()->setParameters(SM, towerInSM);
     fgvb_out = this->getFGVB()->process(adder_out,maxof2_out);
      //this is a test:
-//     std::cout<< "output of fgvb is a vector of size: "<<fgvb_out.size()<<endl; 
+    //     std::cout<< "output of fgvb is a vector of size: "<<fgvb_out.size()<<std::endl; 
 //     std::cout<< "value : "<<endl;
 //     for (unsigned int i =0; i<fgvb_out.size();i++){
 //       std::cout <<" "<<fgvb_out[i];
