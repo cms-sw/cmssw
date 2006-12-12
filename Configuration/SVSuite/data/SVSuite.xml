@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <ReleaseValidation>
 
+<!--
           <Validate Version="Default-Fast">
 	     <Test Events="5000" Name="SVSuiteRecoEgamma-ElePt10">
 	           RecoEgamma_ele_pt10.cfg
@@ -21,8 +22,9 @@
 	           RecoEgamma_pho_E50.cfg
 	     </Test>
           </Validate>
-
+-->
           <Validate Version="Default-Slow">
+<!--
 	     <Test Events="5000" Name="SVSuiteRecoEGamma-ElePt100">
 	        RecoEgamma_ele_pt100.cfg
 	     </Test>
@@ -38,11 +40,15 @@
 	     <Test Events="10000" Name="SVSuiteRecoEgamma-H120gg">
 	        RecoEgamma_Hgg_120.cfg
 	     </Test>
+-->
 	     <Test Events="1000" Name="SVSuiteRecoJets-Zprime700Dijets">
 	        RecoJets_Zprime700Dijets.cfg
 	     </Test>
 	     <Test Events="1000" Name="SVsuiteRecoMET-ZjetsDimuons">
 	        RecoMET_Zjets_Dimuons_300-380.cfg
+	     </Test>
+	     <Test Events="1000" Name="SVSuiteRecoTau-DiTaus">
+	        RecoTau_DiTaus_pt2_20-420.cfg
 	     </Test>
           </Validate>
 
