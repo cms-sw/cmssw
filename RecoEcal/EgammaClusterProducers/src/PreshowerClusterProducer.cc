@@ -179,12 +179,12 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
 
          // Get a vector of ES clusters (found by the PreshSeeded algorithm) associated with a given EE basic cluster.           
          for (int i=0; i<preshNclust_; i++) {
-	   reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&rechits_map,geometry_p,topology_p);   
+	   reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&rechits_map,bc_iter,geometry_p,topology_p);   
              if ( cl1.energy() > preshClustECut) {
                clusters1.push_back(cl1);
                e1 += cl1.energy();       
              }
-	     reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&rechits_map,geometry_p,topology_p); 
+	     reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&rechits_map,bc_iter,geometry_p,topology_p); 
 
              if ( cl2.energy() > preshClustECut) {
                clusters2.push_back(cl2);
