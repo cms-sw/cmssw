@@ -11,9 +11,12 @@ import java.util.Vector;
 **/
 
 /*
-  $Date: 2006/08/31 15:24:29 $
+  $Date: 2006/10/26 14:27:04 $
   
   $Log: DetIDGenerator.java,v $
+  Revision 1.5  2006/10/26 14:27:04  gbaulieu
+  Add the possibility to export the data in a table of the construction DB to perform tests
+
   Revision 1.4  2006/08/31 15:24:29  gbaulieu
   The TOBCS are directly in the TOB
   Correction on the Stereo flag
@@ -338,53 +341,72 @@ public class DetIDGenerator
 	for(int i=0;i<list.size();i++){
 	    Vector<String> v = list.get(i);
 
-	    query = "select MB.dcuid from cmstrkdb.modvalidation_2_mod_ MV, cmstrkdb.modulbasic_2_mod_ MB "+
-		"where MB.test_id=MV.modulbasic_2_mod_ AND MV.status='reference' AND MV.object_id="+v.get(0);
+	    DetIdConverter det = new DetIdConverter(Integer.parseInt(v.get(1)));
+	    if(det.getSubDetector()==6){//TEC
 
-	    Vector<Vector<String>> res = c.selectQuery(query);
-	    if(res.size()==1 && (res.get(0)).get(0)!=null && !(res.get(0)).get(0).equals("0")){
-		Vector<String> detail = res.get(0);
-		v.setElementAt(detail.get(0), 0);
-	    }
-	    else{
-		query = "select distinct FP.dcu_id from cmstrkdb.hybproducer_1_hyb_ HP, cmstrkdb.object_assembly OA, "+
-		    "cmstrkdb.fhitproduction_1_hyb_ FP where HP.fhitproduction_1_hyb_=FP.test_id AND "+
-		    "OA.object_id=HP.object_id AND OA.object='HYB' AND OA.container_id="+v.get(0);
-		res = c.selectQuery(query);
+		query = "select MB.dcuid from cmstrkdb.modvalidation_2_mod_ MV, cmstrkdb.modulbasic_2_mod_ MB "+
+		    "where MB.test_id=MV.modulbasic_2_mod_ AND MV.status='reference' AND MV.object_id="+v.get(0);
+		
+		Vector<Vector<String>> res = c.selectQuery(query);
 		if(res.size()==1 && (res.get(0)).get(0)!=null && !(res.get(0)).get(0).equals("0")){
 		    Vector<String> detail = res.get(0);
 		    v.setElementAt(detail.get(0), 0);
 		}
 		else{
-		    query = "select distinct FR.dcu_id from cmstrkdb.hybmeasurements_2_hyb_ HM, "+
-			"cmstrkdb.object_assembly OA, "+
-			"cmstrkdb.fhitreception_1_hyb_ FR where HM.fhitreception_1_hyb_=FR.test_id AND "+
-			"OA.object_id=HM.object_id AND OA.object='HYB' AND OA.container_id="+v.get(0);
+		    query = "select distinct FP.dcu_id from cmstrkdb.hybproducer_1_hyb_ HP, cmstrkdb.object_assembly OA, "+
+			"cmstrkdb.fhitproduction_1_hyb_ FP where HP.fhitproduction_1_hyb_=FP.test_id AND "+
+			"OA.object_id=HP.object_id AND OA.object='HYB' AND OA.container_id="+v.get(0);
 		    res = c.selectQuery(query);
 		    if(res.size()==1 && (res.get(0)).get(0)!=null && !(res.get(0)).get(0).equals("0")){
 			Vector<String> detail = res.get(0);
 			v.setElementAt(detail.get(0), 0);
 		    }
 		    else{
-			query = "select distinct FP.dcu_id from cmstrkdb.object_assembly OA, "+
-			    "cmstrkdb.fhitproduction_1_hyb_ FP where "+
-			    "OA.object_id=FP.object_id AND OA.object='HYB' AND OA.container_id="+v.get(0);
+			query = "select distinct FR.dcu_id from cmstrkdb.hybmeasurements_2_hyb_ HM, "+
+			    "cmstrkdb.object_assembly OA, "+
+			    "cmstrkdb.fhitreception_1_hyb_ FR where HM.fhitreception_1_hyb_=FR.test_id AND "+
+			    "OA.object_id=HM.object_id AND OA.object='HYB' AND OA.container_id="+v.get(0);
 			res = c.selectQuery(query);
 			if(res.size()==1 && (res.get(0)).get(0)!=null && !(res.get(0)).get(0).equals("0")){
 			    Vector<String> detail = res.get(0);
 			    v.setElementAt(detail.get(0), 0);
 			}
 			else{
-			    Error("DCU_ID of module "+v.get(0)+" unknown!!");
+			    query = "select distinct FP.dcu_id from cmstrkdb.object_assembly OA, "+
+				"cmstrkdb.fhitproduction_1_hyb_ FP where "+
+				"OA.object_id=FP.object_id AND OA.object='HYB' AND OA.container_id="+v.get(0);
+			    res = c.selectQuery(query);
+			    if(res.size()==1 && (res.get(0)).get(0)!=null && !(res.get(0)).get(0).equals("0")){
+				Vector<String> detail = res.get(0);
+				v.setElementAt(detail.get(0), 0);
+			    }
+			    else{
+				Error("DCU_ID of module "+v.get(0)+" unknown!!");
+			    }
 			}
 		    }
+		}
+	    }
+	    if(det.getSubDetector()==5){//TOB
+		query = "select MB.dcuhardid from cmstrkdb.TOBTESTINGMODULEBASIC_1_MOD_ MB "+
+		    "where MB.status='reference' AND MB.object_id="+v.get(0);
+		
+		Vector<Vector<String>> res = c.selectQuery(query);
+		if(res.size()==1 && (res.get(0)).get(0)!=null && !(res.get(0)).get(0).equals("0")){
+		    Vector<String> detail = res.get(0);
+		    int dcuId = reverseDcuId(Integer.parseInt(detail.get(0)));
+		    v.setElementAt(dcuId+"", 0);
+		}
+		else{
+		    Error("DCU_ID of module "+v.get(0)+" unknown!!");
+		    v.setElementAt("0", 0);
 		}
 	    }
 	    if(DetIDGenerator.verbose)
 		System.out.print(((i*100)/list.size())+" %\r");
 	}
     }
-
+    
     private int reverseDcuId(int dbDcuId){
 	int firstMask = 0xFF0000;
 	int secondMask = 0x00FF00;
@@ -433,6 +455,7 @@ public class DetIDGenerator
 	   
 	    c.beginTransaction();
 	    c.executeQuery("delete tec_detid");
+	    c.executeQuery("delete tob_detid");
 	    
 	    for(Vector<String> record:list){
 		 int dcuID = Integer.parseInt(record.get(0));
@@ -448,7 +471,10 @@ public class DetIDGenerator
 		 if(det.getSubDetector()==5){//TOB
 		     TOBDetIdConverter d = new TOBDetIdConverter(detID);
 		     d.compact();
-		     System.out.println(dcuID+","+detID+",TOB,"+d.getLayer()+","+d.getRod()+","+d.getFrontBack()+","+d.getModNumber()+","+d.getStereo());
+		     String query = "insert into tob_detid (LAYER,ROD,FRONT_BACK,POSITION,STEREO,DCUID,DETID) values ("+d.getLayer()+","+d.getRod()+",'"+(d.getFrontBack()==1?"F":"B")+"',"+d.getModNumber()+",'"+((d.getStereo()==1)?"S":(d.getStereo()==0?"U":"R"))+"',"+dcuID+","+detID+")";
+		     System.out.println(query);
+		     c.executeQuery(query);
+		     //System.out.println(dcuID+","+detID+",TOB,"+d.getLayer()+","+d.getRod()+","+d.getFrontBack()+","+d.getModNumber()+","+d.getStereo());
 		 }
 	    }
 	    c.commit();
@@ -473,6 +499,9 @@ public class DetIDGenerator
 	    configureExportDatabaseConnection();
 	    c.connect();
 	}
+	else{
+	    System.out.print("<?xml version=\"1.0\"?>\n<ROWSET xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation='http://cmsdoc.cern.ch/cms/cmt/System_aspects/FecControl/binaries/misc/conversionSchema.xsd'>\n");
+	}
 	
 	for(int i=0;i<list.size();i++){
 	    Vector<String> v = list.get(i);
@@ -485,27 +514,15 @@ public class DetIDGenerator
 		int res=c.callFunction("PkgDcuInfo.setValues", dcuID, detID, length, apvNumber);
 	    }
 	    else{
-		try{
-		    DetIdConverter det = new DetIdConverter(detID);
-		    if(det.getSubDetector()==6){
-			TECDetIdConverter d = new TECDetIdConverter(detID);
-			d.compact();
-			System.out.println(dcuID+","+detID+","+d);
-		    }
-		    if(det.getSubDetector()==5){
-			TOBDetIdConverter d = new TOBDetIdConverter(detID);
-			d.compact();
-			System.out.println(dcuID+","+detID+","+d);
-		    }
-		}
-		catch(Exception e){
-		    
-		}
+		System.out.println("<DCUINFO dcuHardId=\""+dcuID+"\" detId=\""+detID+"\" fibreLength=\""+length+"\" apvNumber=\""+apvNumber+"\" />");
 	    }
 	    if(DetIDGenerator.verbose)
 		System.out.print(((i*100)/list.size())+" %\r");
 	}
-
+	
+	if(!DetIDGenerator.export){
+	    System.out.println("</ROWSET>");
+	}
     }
 
     /**
