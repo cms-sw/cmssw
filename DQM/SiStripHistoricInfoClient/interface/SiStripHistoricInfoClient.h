@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:34 CEST 2006
-// $Id: SiStripHistoricInfoClient.h,v 1.1 2006/08/20 19:40:29 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.h,v 1.2 2006/12/10 08:26:20 dkcira Exp $
 //
 
 #include "DQMServices/Components/interface/DQMBaseClient.h"
@@ -59,6 +59,7 @@ public:
 
   // test TStore 
   void tstore_connect();
+  void tstore_connect_nestedview();
   DOMNode *getNodeNamed(xoap::MessageReference msg,const std::string &nodeName) throw (xcept::Exception);
 
 

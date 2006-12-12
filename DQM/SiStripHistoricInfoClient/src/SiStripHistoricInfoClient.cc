@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:49 CEST 2006
-// $Id: SiStripHistoricInfoClient.cc,v 1.8 2006/12/11 19:10:36 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.cc,v 1.9 2006/12/12 08:36:40 dkcira Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoClient.h"
@@ -25,6 +25,7 @@
 #include "xdata/String.h"
 #include "xdata/Double.h"
 #include "xdata/exdr/FixedSizeInputStreamBuffer.h"
+#include "xdata/exdr/Serializer.h"
 
 #include "xdaq/ApplicationDescriptor.h"
 #include "xdaq/ApplicationContext.h"
@@ -40,14 +41,12 @@
 
 #define TSTORE_NS_URI "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd" //eventually I suppose this will be defined in a header somewhere
 
-
-
-
-
 using namespace std;
 using namespace cgicc;
 using namespace xcept;
 
+
+//-----------------------------------------------------------------------------------------------
 SiStripHistoricInfoClient::SiStripHistoricInfoClient(xdaq::ApplicationStub *stub) 
   : DQMBaseClient(
 		  stub,       // the application stub - do not change
@@ -61,6 +60,8 @@ SiStripHistoricInfoClient::SiStripHistoricInfoClient(xdaq::ApplicationStub *stub
   xgi::bind(this, &SiStripHistoricInfoClient::handleWebRequest, "Request");
 }
 
+
+//-----------------------------------------------------------------------------------------------
 /*
   implement the method that outputs the page with the widgets (declared in DQMBaseClient):
 */
@@ -71,32 +72,34 @@ void SiStripHistoricInfoClient::general(xgi::Input * in, xgi::Output * out ) thr
 }
 
 
-/*
-  the method called on all HTTP requests of the form ".../Request?RequestID=..."
-*/
+//-----------------------------------------------------------------------------------------------
+/* the method called on all HTTP requests of the form ".../Request?RequestID=..." */
 void SiStripHistoricInfoClient::handleWebRequest(xgi::Input * in, xgi::Output * out)
 {
   // the web interface should know what to do:
   webInterface_p->handleRequest(in, out);
 }
 
-/*
-  this obligatory method is called whenever the client enters the "Configured" state:
-*/
+
+//-----------------------------------------------------------------------------------------------
+/* this obligatory method is called whenever the client enters the "Configured" state: */
 void SiStripHistoricInfoClient::configure()
 {
 
+//  tstore_connect_nestedview();
   tstore_connect();
 }
 
-/*
-  this obligatory method is called whenever the client enters the "Enabled" state:
-*/
+
+//-----------------------------------------------------------------------------------------------
+/* this obligatory method is called whenever the client enters the "Enabled" state: */
 void SiStripHistoricInfoClient::newRun()
 {
   upd_->registerObserver(this);   // upd_ is a pointer to dqm::Updater, protected data member of DQMBaseClient
 }
 
+
+//-----------------------------------------------------------------------------------------------
 //  this obligatory method is called whenever the client enters the "Halted" state:
 void SiStripHistoricInfoClient::endRun()
 {
@@ -124,9 +127,9 @@ void SiStripHistoricInfoClient::endRun()
 //  tstore_connect();
 }
 
-/*
-  this obligatory method is called by the Updater component, whenever there is an update 
-*/
+
+//-----------------------------------------------------------------------------------------------
+/* this obligatory method is called by the Updater component, whenever there is an update */
 void SiStripHistoricInfoClient::onUpdate() const
 {
   //
@@ -172,11 +175,15 @@ void SiStripHistoricInfoClient::onUpdate() const
   }
 }
 
+
+//-----------------------------------------------------------------------------------------------
 void SiStripHistoricInfoClient::fillSummaryObjects() {
 //   map<uint32_t, pair<double, double>> ClusterChargeMeanRMS;
 //   map<uint32_t, pair<double, double>> OccupancyMeanRMS;
 }
 
+
+//-----------------------------------------------------------------------------------------------
 void SiStripHistoricInfoClient::retrievePointersToModuleMEs() const{
 // painful and dangerous string operations to extract list of pointer to MEs and avoid strings with full paths
 // uses the MonitorUserInterface and fills the data member map
@@ -227,7 +234,126 @@ void SiStripHistoricInfoClient::retrievePointersToModuleMEs() const{
 }
 
 
+//-----------------------------------------------------------------------------------------------
 void SiStripHistoricInfoClient::tstore_connect(){
+  cout<<"SiStripHistoricInfoClient::tstore_connect()  called"<<endl;
+
+  // create message
+  xoap::MessageReference msg = xoap::createMessage();
+  std::string connectionID;
+  try {
+        xoap::SOAPEnvelope envelope = msg->getSOAPPart().getEnvelope();
+        xoap::SOAPName msgName = envelope.createName( "connect", "sqltstore", TSTORE_NS_URI);
+        xoap::SOAPElement connectElement = envelope.getBody().addBodyElement ( msgName );
+        xoap::SOAPName id = envelope.createName("id", "sqltstore", TSTORE_NS_URI);
+        connectElement.addAttribute(id, "urn:tstore-view-SQL:sqltstore");
+        xoap::SOAPName passwordName = envelope.createName("password", "sqltstore", TSTORE_NS_URI);
+        connectElement.addAttribute(passwordName, "client4histoplot");
+	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- created envelope"<<std::endl;
+  }catch(xoap::exception::Exception& e) {
+   //handle exception
+	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- xoap::exception"<<std::endl;
+  }
+
+  // send message to TStore
+  try {
+	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- try to get tstoreDescriptor"<<std::endl;
+	xdaq::ApplicationDescriptor * tstoreDescriptor = getApplicationContext()->getDefaultZone()->getApplicationDescriptor(getApplicationContext()->getContextDescriptor(),120);
+	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- could get tstoreDescriptor"<<std::endl;
+        xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, tstoreDescriptor);
+	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- could get reply"<<std::endl;
+	xoap::SOAPBody body = reply->getSOAPPart().getEnvelope().getBody();
+	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- could get message body"<<std::endl;
+	if (body.hasFault()) {
+		//connection could not be opened
+                std::cout<<"SiStripHistoricInfoClient::tstore_connect -- connection could not be opened"<<std::endl;
+	}
+	else {
+		DOMNode *connectResponse=  SiStripHistoricInfoClient::getNodeNamed(reply,"connectResponse");
+		//store connectionID somewhere so that it can be used for other messages
+		connectionID=xoap::getNodeAttribute(connectResponse,"connectionID");
+                std::cout<<"SiStripHistoricInfoClient::tstore_connect -- connectionID = "<<connectionID<<std::endl;
+	}
+  } catch (xdaq::exception::Exception& e) {
+	//handle exception
+	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- xdaq::exception"<<std::endl;
+  }
+
+  // query
+  xoap::MessageReference msg2 = xoap::createMessage();
+  try {
+	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- query start"<<std::endl;
+  	xoap::SOAPEnvelope envelope = msg2->getSOAPPart().getEnvelope();
+  	xoap::SOAPName msgName = envelope.createName( "query", "sqltstore", TSTORE_NS_URI);
+  	xoap::SOAPElement queryElement = envelope.getBody().addBodyElement ( msgName );
+
+  	//connectionID was obtained from a previous connect message
+  	xoap::SOAPName id = envelope.createName("connectionID", "sqltstore", TSTORE_NS_URI);
+  	queryElement.addAttribute(id, connectionID);
+
+	//add the parameters to the message (in this example we are using an SQLView, so use the appropriate namespace)
+	queryElement.addNamespaceDeclaration("sql",  "urn:tstore-view-SQL");
+	xoap::SOAPName property = envelope.createName("name", "sql","urn:tstore-view-SQL");
+	queryElement.addAttribute(property, "myTable");
+  } catch(xoap::exception::Exception& e) {
+	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- query failed"<<std::endl;
+   //handle exception
+  }
+
+  // get data
+  xoap::MessageReference reply;
+  try {
+	xdaq::ApplicationDescriptor * tstoreDescriptor = getApplicationContext()->getDefaultZone()->getApplicationDescriptor(getApplicationContext()->getContextDescriptor(),120);
+    msg2->writeTo(std::cout);
+    reply = getApplicationContext()->postSOAP(msg2, tstoreDescriptor);
+	xoap::SOAPBody body = reply->getSOAPPart().getEnvelope().getBody();
+	if (!body.hasFault()) {
+		//extract the attached table
+	  std::cout<<" SiStripHistoricInfoClient::tstore_connect -- body is ok"<<std::endl;
+	}else{
+	  std::cout<<" SiStripHistoricInfoClient::tstore_connect -- body fault "<<body.getFault().getFaultString()<<std::endl;
+        }
+  } catch (xdaq::exception::Exception& e) {
+	//handle exception
+    std::cout<<" SiStripHistoricInfoClient::tstore_connect -- query exception "<<e.what()<<std::endl;
+  }
+
+  //  extract the data from the attachment in the reply
+  std::list<xoap::AttachmentPart*> attachments = reply->getAttachments();
+  std::cout<<" SiStripHistoricInfoClient::tstore_connect -- attachments.size() "<<attachments.size()<<std::endl;
+  std::list<xoap::AttachmentPart*>::iterator j;
+  for ( j = attachments.begin(); j != attachments.end(); j++ ) {
+	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- next attachment"<<std::endl;
+    if ((*j)->getContentType() == "application/xdata+table") {
+      xdata::exdr::FixedSizeInputStreamBuffer inBuffer((*j)->getContent(),(*j)->getSize());
+      std::string contentEncoding = (*j)->getContentEncoding();
+      std::string contentId = (*j)->getContentId();
+      std::cout<<" SiStripHistoricInfoClient::tstore_connect -- contentEncoding="<<contentEncoding<<std::endl;
+      std::cout<<" SiStripHistoricInfoClient::tstore_connect -- contentId="<<contentId<<std::endl;
+      xdata::Table t;
+      try {
+            xdata::exdr::Serializer serializer;
+            serializer.import(&t, &inBuffer );
+      } catch(xdata::exception::Exception & e ) {
+        std::cout<<" SiStripHistoricInfoClient::tstore_connect -- serializer exception ="<<e.what()<<std::endl;
+      }
+      // print out table again
+      for (xdata::Table::iterator ti = t.begin(); ti != t.end(); ti++) {
+          std::cout<<" SiStripHistoricInfoClient::tstore_connect -- next row"<<std::endl;
+          xdata::UnsignedLong * number = dynamic_cast<xdata::UnsignedLong *>((*ti).getField("IOV_VALUE_ID"));
+          xdata::UnsignedLong * time = dynamic_cast<xdata::UnsignedLong *>((*ti).getField("TILLTIME"));
+          std::cout<<"time pointer "<<time<<std::endl;
+          std::cout<<"number pointer "<<number<<std::endl;
+          std::cout <<" SiStripHistoricInfoClient::tstore_connect -- number / time "<< number->toString() << "\t" << time->toString() << std::endl;
+      }
+    }
+  }
+
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void SiStripHistoricInfoClient::tstore_connect_nestedview(){
   cout<<"SiStripHistoricInfoClient::tstore_connect()  called"<<endl;
 
   // create message
@@ -347,6 +473,7 @@ void SiStripHistoricInfoClient::tstore_connect(){
 }
 
 
+//-----------------------------------------------------------------------------------------------
 DOMNode *SiStripHistoricInfoClient::getNodeNamed(xoap::MessageReference msg,const std::string &nodeName) throw (xcept::Exception) {
         xoap::SOAPEnvelope envelope = msg->getSOAPPart().getEnvelope();
         xoap::SOAPBody body = envelope.getBody();
