@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/10/23 19:31:23 $
- * $Revision: 1.24 $
+ * $Date: 2006/10/26 23:35:37 $
+ * $Revision: 1.25 $
  * \author W Fisher
  *
 */
@@ -272,8 +272,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   if(m_mtccMon != NULL){
     edm::Handle<LTCDigiCollection> ltc;
-    try{e.getByType(ltc);} catch(...){}; 
-    m_mtccMon->processEvent(*hbhe_digi,*ho_digi, *ltc,*m_conditions);
+    try{
+      e.getByType(ltc);
+      m_mtccMon->processEvent(*hbhe_digi,*ho_digi, *ltc,*m_conditions);
+    } catch(...){};         
   }
   if(m_ievt%1000 == 0)
     cout << "HcalMonitorModule: analyzed " << m_ievt << " events" << endl;
