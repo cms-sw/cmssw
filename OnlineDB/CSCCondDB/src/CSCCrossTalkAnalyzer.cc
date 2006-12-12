@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include "string"
+#include <cmath>
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
@@ -189,6 +190,11 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
       
       evt++;  
  
+      // if (evt > 10){
+// 	std::cout<<"Less than 320 events!!!" <<std::endl;
+//         exit(0);
+//       }
+      
       for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) { 
 	
 	///get a reference to chamber data
@@ -319,7 +325,7 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 		arrayOfPeak[iDDU][chamber][layer-1][strip-1] += max1-pedMean1;
 		arrayOfPeakSquare[iDDU][chamber][layer-1][strip-1] += (max1-pedMean1)*(max1-pedMean1);
 		arraySumFive[iDDU][chamber][layer-1][strip-1] = (max2-pedMean1)/(max1-pedMean1);
-		
+	
 	      }//end loop over digis
             }//end cfeb.available loop
           }//end loop over layers
@@ -374,8 +380,8 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   //DB object and map
   CSCobject *cn = new CSCobject();
   CSCobject *cn1 = new CSCobject();
-  //cscmap *map = new cscmap();
-  //condbon *dbon = new condbon();
+  cscmap *map = new cscmap();
+  condbon *dbon = new condbon();
 
   //root ntuple
   TCalibCrossTalkEvt calib_evt;
@@ -449,8 +455,8 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
       int new_crateID = crateID[i];
       int new_dmbID   = dmbID[i];
       std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
-      //map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
-      //std::cout<<"Data is for chamber:: "<< chamber_num<<" in sector:  "<<sector<<std::endl;
+      map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
+      std::cout<<"Data is for chamber:: "<< chamber_num<<" in sector:  "<<sector<<std::endl;
 
       calib_evt.id = chamber_num;
 
@@ -600,6 +606,12 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	    xtalk_slope_right[iii][i][j][k]     = xr_temp_b;
 	    xtalk_chi2_left[iii][i][j][k]       = minl_temp;
 	    xtalk_chi2_right[iii][i][j][k]      = minr_temp;
+	    //in case xtalk isNaN
+	    if (isnan(xtalk_intercept_left[iii][i][j][k])) xtalk_intercept_left[iii][i][j][k] = 0.0;
+	    if (isnan(xtalk_intercept_right[iii][i][j][k])) xtalk_intercept_right[iii][i][j][k] = 0.0;
+	    if (isnan(xtalk_slope_left[iii][i][j][k])) xtalk_slope_left[iii][i][j][k] = 0.0;
+	    if (isnan(xtalk_slope_right[iii][i][j][k])) xtalk_slope_right[iii][i][j][k] = 0.0;
+		
 	    myPeakTime[iii][i][j][k]            = pTime;
 	  }
 	  
@@ -669,7 +681,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  if (meanPedestal>3000.)                        flagNoise = 5; // warning/failure too high pedestal 
 	  if (meanPedestal>200. && meanPedestal<1000.)   flagNoise = 1; // ok
 
-	  std::cout <<"Ch "<<i<<" L "<<j<<" S "<<k<<"  ped "<<meanPedestal<<" RMS "<<theRMS<<" maxADC "<<thePeak<< "minADC of Max" << thePeakMin <<" IntL "<<the_xtalk_left_a<<" SL "<<the_xtalk_left_b<<" IntR "<<the_xtalk_right_a<<" SR "<<the_xtalk_right_b<<" flagRMS "<<flagRMS<<std::endl;
+	  std::cout <<"Ch "<<i<<" L "<<j<<" S "<<k<<"  ped "<<meanPedestal<<" RMS "<<theRMS<<" maxADC "<<thePeak<<" IntL "<<the_xtalk_left_a<<" SL "<<the_xtalk_left_b<<" IntR "<<the_xtalk_right_a<<" SR "<<the_xtalk_right_b<<" flagRMS "<<flagRMS<<std::endl;
 	  calib_evt.xtalk_slope_left  = xtalk_slope_left[iii][i][j][k]; 
 	  calib_evt.xtalk_slope_right = xtalk_slope_right[iii][i][j][k]; 
 	  calib_evt.xtalk_int_left    = xtalk_intercept_left[iii][i][j][k];
@@ -713,12 +725,12 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   }//Nddu
 
 
-  //dbon->cdbon_last_record("pedestals",&record);
-  //std::cout<<"Last pedestal record "<<record<<std::endl;
-  //if(debug) dbon->cdbon_write(cn,"pedestals",11,myTime);
-  //dbon->cdbon_last_record("crosstalk",&record);
-  //if(debug) dbon->cdbon_write(cn1,"crosstalk",11,myTime);
-  //std::cout << "Last crosstalk record " << record << " for run file " << myname <<" saved "<< myTime << std::endl;  
+  dbon->cdbon_last_record("pedestals",&record);
+  std::cout<<"Last pedestal record "<<record<<std::endl;
+  if(debug) dbon->cdbon_write(cn,"pedestals",12,3498,myTime);
+  dbon->cdbon_last_record("crosstalk",&record);
+  if(debug) dbon->cdbon_write(cn1,"crosstalk",12,3498,myTime);
+  std::cout << "Last crosstalk record " << record << " for run file " << myname <<" saved "<< myTime << std::endl;  
   calibfile.Write();
   calibfile.Close();  
 
