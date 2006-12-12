@@ -87,7 +87,7 @@ namespace reco {
     /// cluster type
     int           type() const {return type_;}
 
-    /// cluster layer, see PFClusterLayer.h
+    /// cluster layer, see PFLayer.h in this directory
     int           layer() const {return layer_;}          
 
     /// cluster energy
