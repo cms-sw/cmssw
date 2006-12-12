@@ -1,6 +1,7 @@
 #ifndef DQM_SiStripCommissioningAnalysis_CommissioningAnalysis_H
 #define DQM_SiStripCommissioningAnalysis_CommissioningAnalysis_H
 
+#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include <boost/cstdint.hpp>
 #include <sstream>
 #include <string>
@@ -39,7 +40,8 @@ class CommissioningAnalysis {
  protected:
   
   typedef std::pair<TH1*,std::string> Histo;
-  inline uint32_t key() const;
+  inline const uint32_t& key() const;
+  inline const SiStripFecKey::Path& path() const;
   
  private:
   
@@ -48,10 +50,12 @@ class CommissioningAnalysis {
   virtual void analyse() = 0; 
   
   uint32_t key_;
+  SiStripFecKey::Path path_;
   
 };
 
-uint32_t CommissioningAnalysis::key() const { return key_; }
+const uint32_t& CommissioningAnalysis::key() const { return key_; }
+const SiStripFecKey::Path& CommissioningAnalysis::path() const { return path_; }
 
 #endif // DQM_SiStripCommissioningAnalysis_CommissioningAnalysis_H
 
