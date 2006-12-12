@@ -31,7 +31,7 @@ public:
   const IntervalType & ticks() const  { return it;}
 
   //
-  double seconds() const { return Time::oneTick.one*it; }
+  double seconds() const { return Time::oneTick().one*it; }
   
   //
   double microseconds() const { return 1.e6*seconds();}
@@ -141,7 +141,11 @@ struct DummyTime {
     double one;
   };
   
-  static OneTick oneTick;
+  static OneTick & oneTick() {
+    static OneTick local;
+    return local;
+  };
+
 
   typedef GenTimeInterval<DummyTime> TimeInterval;
   typedef long long int IntervalType;

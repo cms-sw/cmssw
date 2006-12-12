@@ -67,7 +67,11 @@ struct LCPUTime {
     double one;
   };
   
-  static OneTick oneTick;
+  static OneTick & oneTick() {
+    static OneTick local;
+    return local;
+  };
+
 
   typedef GenTimeInterval<LCPUTime> TimeInterval;
   typedef LinuxCPUTime::TimeType IntervalType;

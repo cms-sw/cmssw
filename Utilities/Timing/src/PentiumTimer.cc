@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <iterator>
 
-PentiumTime::OneTick PentiumTime::oneTick;
 
 PentiumTime::OneTick::~OneTick(){}
 

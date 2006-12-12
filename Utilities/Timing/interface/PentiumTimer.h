@@ -30,7 +30,10 @@ struct PentiumTime {
     double one;
   };
   
-  static OneTick oneTick;
+  static OneTick & oneTick() {
+    static OneTick local;
+    return local;
+  };
 
   typedef GenTimeInterval<PentiumTime> TimeInterval;
   typedef PentiumTimeIntervalType IntervalType;
