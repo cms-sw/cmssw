@@ -20,8 +20,19 @@ HcalSimParameterMap::HcalSimParameterMap() :
                 6, 4, false),
   theHFParameters2(1., 13.93,
                  2.09 , -4,
-                6, 4, false)
+                6, 4, false),
+  theSamplingFactors(29),
+  theSamplingFactorHF1(2.84),
+  theSamplingFactorHF2(2.09)
 {
+  for(unsigned i = 0; i <16; ++i)
+  {
+    theSamplingFactors[i] = 117.;
+  }
+  for(unsigned i = 16; i <29; ++i)
+  {
+    theSamplingFactors[i] = 178.;
+  }
 }
 /*
   CaloSimParameters(double photomultiplierGain, double amplifierGain,
@@ -31,41 +42,14 @@ HcalSimParameterMap::HcalSimParameterMap() :
 */
 
 HcalSimParameterMap::HcalSimParameterMap(const edm::ParameterSet & p)
-: theHBParameters(p.getParameter<double>("photomultiplierGainHB"), 
-                  p.getParameter<double>("amplifierGainHB"),
-                  p.getParameter<double>("samplingFactorHB"),
-                  p.getParameter<double>("timePhaseHB"),
-                  p.getParameter<int>("readoutFrameSizeHB"),
-                  p.getParameter<int>("binOfMaximumHB"),
-                  p.getParameter<bool>("doPhotostatisticsHB")),
-  theHEParameters(p.getParameter<double>("photomultiplierGainHE"),
-                  p.getParameter<double>("amplifierGainHE"),
-                  p.getParameter<double>("samplingFactorHE"),
-                  p.getParameter<double>("timePhaseHE"),
-                  p.getParameter<int>("readoutFrameSizeHE"),
-                  p.getParameter<int>("binOfMaximumHE"),
-                  p.getParameter<bool>("doPhotostatisticsHE")),
-  theHOParameters(p.getParameter<double>("photomultiplierGainHO"),
-                  p.getParameter<double>("amplifierGainHO"),
-                  p.getParameter<double>("samplingFactorHO"),
-                  p.getParameter<double>("timePhaseHO"),
-                  p.getParameter<int>("readoutFrameSizeHO"),
-                  p.getParameter<int>("binOfMaximumHO"),
-                  p.getParameter<bool>("doPhotostatisticsHO")),
-  theHFParameters1(p.getParameter<double>("photomultiplierGainHF1"),
-                   p.getParameter<double>("amplifierGainHF1"),
-                   p.getParameter<double>("samplingFactorHF1"),
-                   p.getParameter<double>("timePhaseHF1"),
-                   p.getParameter<int>("readoutFrameSizeHF1"),
-                   p.getParameter<int>("binOfMaximumHF1"),
-                   p.getParameter<bool>("doPhotostatisticsHF1")),
-  theHFParameters2(p.getParameter<double>("photomultiplierGainHF2"),
-                   p.getParameter<double>("amplifierGainHF2"),
-                   p.getParameter<double>("samplingFactorHF2"),
-                   p.getParameter<double>("timePhaseHF2"),
-                   p.getParameter<int>("readoutFrameSizeHF2"),
-                   p.getParameter<int>("binOfMaximumHF2"),
-                   p.getParameter<bool>("doPhotostatisticsHF2"))
+: theHBParameters(  p.getParameter<edm::ParameterSet>("hb") ),
+  theHEParameters(  p.getParameter<edm::ParameterSet>("he") ),
+  theHOParameters(  p.getParameter<edm::ParameterSet>("ho") ),
+  theHFParameters1( p.getParameter<edm::ParameterSet>("hf1") ),
+  theHFParameters2( p.getParameter<edm::ParameterSet>("hf2") ),
+  theSamplingFactors( p.getParameter<std::vector<double> >("samplingFactors") ),
+  theSamplingFactorHF1( p.getParameter<double>("samplingFactorHF1") ),
+  theSamplingFactorHF2( p.getParameter<double>("samplingFactorHF2") )
 {
 }
 
@@ -86,5 +70,20 @@ const CaloSimParameters & HcalSimParameterMap::simParameters(const DetId & detId
       return theHFParameters2;
     }
   }
+}
+
+
+double HcalSimParameterMap::samplingFactor(const HcalDetId & detId) const
+{
+  double result;
+  if(detId.subdet() == HcalForward)
+  {
+    result = (detId.depth() == 1) ? theSamplingFactorHF1 : theSamplingFactorHF2;
+  }
+  else
+  {
+    result = theSamplingFactors[detId.ietaAbs()-1];
+  }
+  return result;
 }
 

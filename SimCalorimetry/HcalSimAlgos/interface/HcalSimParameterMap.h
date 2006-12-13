@@ -4,6 +4,7 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 class HcalSimParameterMap : public CaloVSimParameterMap
 {
@@ -24,12 +25,19 @@ public:
   CaloSimParameters hfParameters1() const  {return theHFParameters1;}
   CaloSimParameters hfParameters2() const  {return theHFParameters2;}
 
+  /// might move out of here eventually
+  double samplingFactor(const HcalDetId & detId) const;
+
 private:
   CaloSimParameters theHBParameters;
   CaloSimParameters theHEParameters;
   CaloSimParameters theHOParameters;
   CaloSimParameters theHFParameters1;
   CaloSimParameters theHFParameters2;
+
+  std::vector<double> theSamplingFactors;
+  double theSamplingFactorHF1;
+  double theSamplingFactorHF2;
 };
 
 
