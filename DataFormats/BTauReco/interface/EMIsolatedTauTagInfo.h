@@ -5,11 +5,15 @@
 //
 
 
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
 #include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfoFwd.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/LorentzVectorFwd.h"
+//Math
+#include "Math/GenVector/VectorUtil.h"
+#include "Math/GenVector/PxPyPzE4D.h"
 
-//
-using namespace std;
 
 namespace reco { 
 
@@ -17,24 +21,28 @@ namespace reco {
 
   public:
     //default constructor
-    EMIsolatedTauTagInfo() {}
+     EMIsolatedTauTagInfo():m_discriminator(0), m_jetCrystalsAssociation() {}
 
 
-    EMIsolatedTauTagInfo(double discriminator, CaloJet jet) 
+    EMIsolatedTauTagInfo(double discriminator, JetCrystalsAssociationRef jetCrystals) 
       {    
-	discriminator_ = discriminator;
-	myJet_ = jet;
+	m_discriminator = discriminator;
+	m_jetCrystalsAssociation  = jetCrystals;
 	
     }
     //destructor
     virtual ~EMIsolatedTauTagInfo() {};
-
+virtual EMIsolatedTauTagInfo* clone() const { return new EMIsolatedTauTagInfo( * this ); }
     //get the jet from the jetTag
-    const CaloJet & jet() const { return myJet_;  }
+    const Jet & jet() const { *m_jetCrystalsAssociation->key;  }
+
+        const edm::RefVector<LorentzVectorCollection> & lorentzVectorRecHits() const { return m_jetCrystalsAssociation->val; } 
+
+    const JetCrystalsAssociationRef& jcaRef() const { return m_jetCrystalsAssociation; }
 
     //default discriminator: returns the value of the discriminator computed with the parameters taken from the cfg file in the EDProducer
-    double discriminator() const { 
-      return discriminator_; 
+  double discriminator() const { 
+    return m_discriminator; 
     }
 
     //Method to recompute the discriminator
@@ -49,12 +57,12 @@ namespace reco {
       }
 
     
-    //get the reference to the jet
-    virtual EMIsolatedTauTagInfo* clone() const { return new EMIsolatedTauTagInfo( *this ); }
+
   
   private:
-    CaloJet myJet_; //Input jets from the constructor
-    double discriminator_; //Default discriminator assigned in the EDProducer 
+
+    double m_discriminator; //Default discriminator assigned in the EDProducer 
+    JetCrystalsAssociationRef m_jetCrystalsAssociation;
   };
 }
 
