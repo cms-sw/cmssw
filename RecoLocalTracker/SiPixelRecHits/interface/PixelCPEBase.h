@@ -25,6 +25,9 @@
 //--- For the configuration:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+//#include "Geometry/Surface/interface/GloballyPositioned.h"
+//#include "Geometry/Surface/interface/Surface.h"
 
 #include <utility>
 #include <vector>
@@ -44,7 +47,8 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   // LocalValues is typedef for pair<LocalPoint,LocalError> 
   //--------------------------------------------------------------------------
   inline LocalValues localParameters( const SiPixelCluster & cl, 
-				      const GeomDetUnit    & det ) const {
+				      const GeomDetUnit    & det ) const 
+  {
     setTheDet( det );
     computeAnglesFromDetPosition(cl, det);
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
@@ -55,7 +59,8 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   //--------------------------------------------------------------------------
   inline LocalValues localParameters( const SiPixelCluster & cl,
 				      const GeomDetUnit    & det, 
-				      const LocalTrajectoryParameters & ltp) const {
+				      const LocalTrajectoryParameters & ltp) const 
+  {
     setTheDet( det );
     computeAnglesFromTrajectory(cl, det, ltp);
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
@@ -66,23 +71,20 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   //--------------------------------------------------------------------------
   inline LocalValues localParameters( const SiPixelCluster & cl,
 				      const GeomDetUnit    & det, 
-				      float alpha, float beta) const {
+				      float alpha, float beta) const 
+  {
     alpha_ = alpha;
     beta_  = beta;
     setTheDet( det );
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
   } 
 
-
   //--------------------------------------------------------------------------
   // This is where the action happens.
   //--------------------------------------------------------------------------
-  virtual LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const;  // = 0, tak out dk 8/06
+  virtual LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const;  // = 0, take out dk 8/06
   virtual LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const = 0;
   
-
-
-
 
  protected:
   //--- All methods and data members are protected to facilitate (for now)
@@ -114,6 +116,11 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   //--- Cluster-level quantities (may need more)
   mutable float alpha_;
   mutable float beta_;
+
+  // G.Giurgiu (12/13/06)-----
+  mutable float cotalpha_;
+  mutable float cotbeta_;
+  //---------------------------
 
   //--- Global quantities
   mutable float theTanLorentzAnglePerTesla;   // tan(Lorentz angle)/Tesla
