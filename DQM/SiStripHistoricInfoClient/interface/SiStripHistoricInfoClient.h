@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:34 CEST 2006
-// $Id: SiStripHistoricInfoClient.h,v 1.3 2006/12/12 12:40:06 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.h,v 1.4 2006/12/13 16:25:49 dkcira Exp $
 //
 
 #include "DQMServices/Components/interface/DQMBaseClient.h"
@@ -60,34 +60,8 @@ public:
 
   // TStore 
   void tstore_sistrip();
-  void tstore_connect();
-  void tstore_connect_nestedview();
   DOMNode *getNodeNamed(xoap::MessageReference msg,const std::string &nodeName) throw (xcept::Exception);
   xdata::Table ExtractTableFromAttachment(xoap::MessageReference reply);
-  void insertRandomRow(xdata::Table &table);
-  xdata::TimeVal * randomDate();
-//  template <class T> T * randomNumber();
-template <class T> T * randomNumber() {
-        switch (rand()%3) {
-                case 0:
-                        return new T(std::numeric_limits<T>::quiet_NaN());
-                case 1:
-                        //std::cout << "To infinity... and beyond!" << std::endl;
-                        return new T(std::numeric_limits<T>::infinity());
-                default:
-                        if (std::numeric_limits<T>::is_integer) {
-                                uint64_t range=(uint64_t)std::numeric_limits<T>::max()-std::numeric_limits<T>::min();
-                                if (range<RAND_MAX) range++; //make sure we can get both endpoints
-                                std::cout << "random with beginning: " << std::numeric_limits<T>::min() << "max: " << std::numeric_limits<T>::max() << " range: " << range << std::endl;
-                                //rand returns 32 bit numbers, so square it to possibly get a 64 bit number
-                                uint64_t r=((uint64_t)rand())*((uint64_t)rand());
-                                return new T(std::numeric_limits<T>::min()+r%range); //this will not generate any 64 bit numbers
-                        } else {
-                                return new T(std::numeric_limits<T>::min()+(rand()-RAND_MAX/2)/100000);
-                        }
-        }
-}
-
 
 private:
   //
