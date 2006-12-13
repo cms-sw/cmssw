@@ -16,7 +16,7 @@ private:
 	std::vector<std::string> fileNames[10];
 	std::vector<std::string>::const_iterator currentFile[10];
 
-	int TFRUI;
+	int firstEvent, nEvents;
 	int expectedNextL1A, currentL1A[10];
 
 	FileReaderDDU RUI[10];

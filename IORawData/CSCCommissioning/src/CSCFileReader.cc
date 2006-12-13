@@ -1,4 +1,7 @@
 #include "CSCFileReader.h"
+
+//#include <iostream.h>
+
 #include <errno.h>
 #include <stdlib.h>
 #include <string>
@@ -63,6 +66,8 @@ CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
 			FED[fed].push_back((unsigned int)atoi(rui->c_str()+rui->length()-1));
 	}
 
+	firstEvent = pset.getUntrackedParameter<int>("firstEvent");
+	nEvents = 0;
 	expectedNextL1A = -1;
 }
 
@@ -82,8 +87,9 @@ int CSCFileReader::readEvent(int rui, const unsigned short* &buf, size_t &length
 					throw cms::Exception("InputFileMissing ")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
 				}
 			} else return -1;
-		}
-	} while( length==0 );
+		} else
+			nEvents++;
+	} while( length==0 || nEvents<firstEvent );
 	return buf[2]|((buf[3]&0xFF)<<16);
 }
 
@@ -109,7 +115,7 @@ bool CSCFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRa
 
 	// Select lowest L1A from all RUIs and don't expect next event from RUIs that currently hold higher L1A
 	for(int rui=0; rui<nRUIs; rui++)
-		if( currentL1A[rui]>0 && eventNumber<currentL1A[rui] ) eventNumber=currentL1A[rui];
+		if( currentL1A[rui]>=0 && (eventNumber>currentL1A[rui] || eventNumber==-1) ) eventNumber=currentL1A[rui];
 	// No readable RUIs => fall out
 	if( eventNumber<0 ) return false;
 	// Expect next event to be incremented by 1 wrt. to the current event
@@ -125,13 +131,14 @@ bool CSCFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRa
 			dccCur[7] = 0xD900; dccCur[6] = 0x0000; dccCur[5] = 0x0000; dccCur[4] = 0x0017; // Fake DCC Header 2
 			dccCur += 8;
 
-			for(std::list<unsigned int>::const_iterator rui=fed->second.begin(); rui!=fed->second.end(); rui++)
+			for(std::list<unsigned int>::const_iterator rui=fed->second.begin(); rui!=fed->second.end(); rui++){
+//cout<<"Event:"<<eventNumber<<"  FED:"<<fed->first<<"  RUI:"<<*(fed->second.begin())<<" currL1A:"<<currentL1A[*rui]<<endl;
 				if( currentL1A[*rui]==eventNumber ){
 					if(dccCur-dccBuf+length[*rui]>=200000*nRUIs+8) throw cms::Exception("OutOfBuffer")<<"CSCFileReader: Event size exceeds maximal size allowed!";
 					memcpy(dccCur,buf[*rui],length[*rui]*sizeof(unsigned short));
 					dccCur += length[*rui];
 				}
-
+			}
 			dccCur[3] = 0xEF00; dccCur[2] = 0x0000; dccCur[1] = 0x0000; dccCur[0] = 0x0000; // Fake DCC Trailer 2
 			dccCur[7] = 0xAF00; dccCur[6] = 0x0000; dccCur[5] = 0x0000; dccCur[4] = 0x0007; // Fake DCC Trailer 2
 			dccCur += 8;
