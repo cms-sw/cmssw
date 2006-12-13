@@ -38,7 +38,8 @@ void CaloHitAnalyzer::fillHits(const PCaloHitContainer & hits) {
   {
     if(hitFilter_ == 0 || hitFilter_->accepts(*hitItr)) {
       int id = hitItr->id();
-      double samplingFactor = simParameterMap_->simParameters(DetId(id)).samplingFactor();
+      //double samplingFactor = simParameterMap_->simParameters(DetId(id)).samplingFactor();
+      double samplingFactor = 1.;
       double energy = hitItr->energy() * samplingFactor;
 
       // add it to the map
