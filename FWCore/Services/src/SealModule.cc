@@ -1,5 +1,3 @@
-#include "PluginManager/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Services/src/SiteLocalConfigService.h"
 #include "FWCore/Services/src/Tracer.h"
 #include "FWCore/Services/src/InitRootHandlers.h"
