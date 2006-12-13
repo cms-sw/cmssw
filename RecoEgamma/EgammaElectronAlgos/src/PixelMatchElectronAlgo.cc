@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.21 2006/11/14 18:50:31 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.22 2006/12/06 16:18:34 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -32,14 +32,14 @@
 
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
+//#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+//#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 
-#include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
+//#include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
@@ -65,17 +65,10 @@ PixelMatchElectronAlgo::PixelMatchElectronAlgo(double maxEOverPBarrel, double ma
                                                double maxDeltaEta, double maxDeltaPhi):  
  maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps), 
  hOverEConeSize_(hOverEConeSize), maxHOverE_(maxHOverE), 
- maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi), 
- theCkfTrajectoryBuilder(0), theTrajectoryCleaner(0),
- theInitialStateEstimator(0), theNavigationSchool(0) {}
+  maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi)
+{}
 
-PixelMatchElectronAlgo::~PixelMatchElectronAlgo() {
-
-  delete theInitialStateEstimator;
-  delete theNavigationSchool;
-  delete theTrajectoryCleaner; 
-    
-}
+PixelMatchElectronAlgo::~PixelMatchElectronAlgo() {}
 
 void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::ParameterSet &conf) {
 
@@ -88,20 +81,6 @@ void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::Param
   
   // get nested parameter set for the TransientInitialStateEstimator
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
-  theInitialStateEstimator       = new TransientInitialStateEstimator( es,tise_params);
-
-  theNavigationSchool   = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
-
-  // set the correct navigation
-  NavigationSetter setter( *theNavigationSchool);
-
-  //  theCkfTrajectoryBuilder = new CkfTrajectoryBuilder(conf,es,theMeasurementTracker);
-  theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
-  std::string trajectoryBuilderName = conf.getParameter<std::string>("TrajectoryBuilder");
-  edm::ESHandle<TrackerTrajectoryBuilder> theTrajectoryBuilderHandle;
-  es.get<CkfComponentsRecord>().get(trajectoryBuilderName,theTrajectoryBuilderHandle);
-  theCkfTrajectoryBuilder = theTrajectoryBuilderHandle.product();    
-
   trackBarrelLabel_ = conf.getParameter<string>("TrackBarrelLabel");
   trackBarrelInstanceName_ = conf.getParameter<string>("TrackBarrelProducer");
   trackEndcapLabel_ = conf.getParameter<string>("TrackEndcapLabel");
@@ -187,7 +166,7 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH, co
 	hcalEnergy += i->energy();
       }
       HoE = hcalEnergy/theClus.energy();
-      LogInfo("") << "H/E : " << HoE;
+      LogDebug("") << "H/E : " << HoE;
     } else HoE=0;
 
     if (preSelection(theClus,t,HoE)) {
@@ -204,7 +183,6 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH, co
       const GlobalPoint pseed=tscp_seed.position();
       const GlobalVector mseed=tscp_seed.momentum();
       PixelMatchGsfElectron ele((*sclAss)[seed],trackRef,pscl,mscl,pseed,mseed,HoE);
-      //      PixelMatchGsfElectron ele((*sclAss)[seed],trackRef,tscp_scl.position(),tscp_scl.momentum(),tscp_seed.position(),tscp_seed.momentum());
       outEle.push_back(ele);
     }
   }  // loop over tracks

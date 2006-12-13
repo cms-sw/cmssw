@@ -24,20 +24,13 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
-class TransientInitialStateEstimator;
 
 class PixelMatchElectronAlgo {
 
@@ -60,10 +53,6 @@ public:
   // preselection method
   bool preSelection(const reco::SuperCluster& clus, const reco::GsfTrack& track,double HoE);
   
-  // temporary to get seed corresponding to track
-  //  bool equal(edm::Ref<TrajectorySeedCollection> ts, const reco::Track& t);
-  //  bool compareHits(const TrackingRecHit& rh1, const TrackingRecHit & rh2) const ;
-
  // preselection parameters
   // maximum E/p where E is the supercluster corrected energy and p the track momentum at innermost state  
   double maxEOverPBarrel_;   
@@ -91,17 +80,10 @@ public:
   std::string assBarrelTrTSInstanceName_;
   std::string assEndcapTrTSLabel_;
   std::string assEndcapTrTSInstanceName_;
-
-  const TrackerTrajectoryBuilder*  theCkfTrajectoryBuilder;
-  TrajectoryCleaner*               theTrajectoryCleaner;
-  TransientInitialStateEstimator*  theInitialStateEstimator;
   
   edm::ESHandle<MagneticField>                theMagField;
   edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
   edm::ESHandle<CaloGeometry>                 theCaloGeom;
-
-  const MeasurementTracker*     theMeasurementTracker;
-  const NavigationSchool*       theNavigationSchool;
 
 };
 
