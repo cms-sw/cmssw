@@ -2,12 +2,12 @@
 #define HcalSimAlgos_HcalAmplifier_h
   
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 class HcalDbService;
+class HcalSimParameterMap;
 
 class HcalAmplifier {
 public:
-  HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise);
+  HcalAmplifier(const HcalSimParameterMap * parameters, bool addNoise);
   /// doesn't delete the pointer
   virtual ~HcalAmplifier(){}
 
@@ -22,7 +22,7 @@ public:
 
 private:
   const HcalDbService * theDbService;
-  const CaloVSimParameterMap * theParameterMap;
+  const HcalSimParameterMap * theParameterMap;
   unsigned theStartingCapId;
   bool addNoise_;
 };

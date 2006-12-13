@@ -1,5 +1,5 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestal.h"
 #include "CondFormats/HcalObjects/interface/HcalGain.h"
@@ -12,7 +12,7 @@
 
 #include<iostream>
 
-HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise) :
+HcalAmplifier::HcalAmplifier(const HcalSimParameterMap * parameters, bool addNoise) :
   theDbService(0), 
   theParameterMap(parameters),
   theStartingCapId(0), 
@@ -38,7 +38,7 @@ void HcalAmplifier::amplify(CaloSamples & frame) const {
   // fC/pe = (GeV/dGeV) / (pe/dGeV) / (GeV/fC)
   // the first two terms are the (GeV/pe)
   const CaloSimParameters & parameters = theParameterMap->simParameters(frame.id());
-  double GeVperPE = parameters.samplingFactor()
+  double GeVperPE = theParameterMap->samplingFactor(hcalDetId)
                   / parameters.simHitToPhotoelectrons();
 
   double gauss [32]; //big enough
