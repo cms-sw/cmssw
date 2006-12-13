@@ -87,9 +87,8 @@ int CSCFileReader::readEvent(int rui, const unsigned short* &buf, size_t &length
 					throw cms::Exception("InputFileMissing ")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
 				}
 			} else return -1;
-		} else
-			nEvents++;
-	} while( length==0 || nEvents<firstEvent );
+		}
+	} while( length==0 );
 	return buf[2]|((buf[3]&0xFF)<<16);
 }
 
@@ -101,25 +100,29 @@ bool CSCFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRa
 	size_t length[nRUIs];
 	bzero(length,sizeof(length));
 
-	// Read next event from RUIs
-	for(int rui=0; rui<nRUIs; rui++){
-		// read event from the RUI only in two cases:
-		//     1) it is readable (currentL1A>0) and we expect next event from the RUI
-		//     2) it is first time (expectedNextL1A<0)
-		if((currentL1A[rui]>0 && currentL1A[rui]<expectedNextL1A) || expectedNextL1A<0 )
-			currentL1A[rui] = readEvent(rui,buf[rui],length[rui]);
-	}
-
 	int runNumber   = 0; // Unknown at the level of EMu local DAQ
 	int eventNumber =-1; // Will determine below
 
-	// Select lowest L1A from all RUIs and don't expect next event from RUIs that currently hold higher L1A
-	for(int rui=0; rui<nRUIs; rui++)
-		if( currentL1A[rui]>=0 && (eventNumber>currentL1A[rui] || eventNumber==-1) ) eventNumber=currentL1A[rui];
-	// No readable RUIs => fall out
-	if( eventNumber<0 ) return false;
-	// Expect next event to be incremented by 1 wrt. to the current event
-	expectedNextL1A = eventNumber+1;
+	do {
+		// Read next event from RUIs
+		for(int rui=0; rui<nRUIs; rui++){
+			// read event from the RUI only in two cases:
+			//     1) it is readable (currentL1A>0) and we expect next event from the RUI
+			//     2) it is first time (expectedNextL1A<0)
+			if((currentL1A[rui]>0 && currentL1A[rui]<expectedNextL1A) || expectedNextL1A<0 )
+				currentL1A[rui] = readEvent(rui,buf[rui],length[rui]);
+		}
+		eventNumber =-1;
+
+		// Select lowest L1A from all RUIs and don't expect next event from RUIs that currently hold higher L1A
+		for(int rui=0; rui<nRUIs; rui++)
+			if( currentL1A[rui]>=0 && (eventNumber>currentL1A[rui] || eventNumber==-1) ) eventNumber=currentL1A[rui];
+		// No readable RUIs => fall out
+		if( eventNumber<0 ) return false;
+		// Expect next event to be incremented by 1 wrt. to the current event
+		expectedNextL1A = eventNumber+1;
+
+	} while(nEvents++<firstEvent);
 
 	eID = edm::EventID(runNumber,eventNumber);
 
