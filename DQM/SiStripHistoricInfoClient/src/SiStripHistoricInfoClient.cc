@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:49 CEST 2006
-// $Id: SiStripHistoricInfoClient.cc,v 1.9 2006/12/12 08:36:40 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.cc,v 1.10 2006/12/12 12:40:21 dkcira Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoClient.h"
@@ -21,10 +21,20 @@
 
 #include "xdata/Table.h"
 #include "xdata/TableIterator.h"
+#include "xdata/Integer.h"
+#include "xdata/UnsignedInteger.h"
+#include "xdata/UnsignedInteger32.h"
+#include "xdata/UnsignedInteger64.h"
+#include "xdata/UnsignedShort.h"
 #include "xdata/UnsignedLong.h"
-#include "xdata/String.h"
+#include "xdata/Float.h"
 #include "xdata/Double.h"
+#include "xdata/Boolean.h"
+#include "xdata/String.h"
+#include "xdata/TimeVal.h"
+
 #include "xdata/exdr/FixedSizeInputStreamBuffer.h"
+#include "xdata/exdr/AutoSizeOutputStreamBuffer.h"
 #include "xdata/exdr/Serializer.h"
 
 #include "xdaq/ApplicationDescriptor.h"
@@ -38,6 +48,10 @@
 #include "xoap/SOAPEnvelope.h"
 #include "xoap/SOAPBody.h"
 #include "xercesc/dom/DOMNode.hpp"
+
+#include "toolbox/net/Utils.h"
+
+#include "tstore/tstore/include/AttachmentUtils.h"
 
 #define TSTORE_NS_URI "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd" //eventually I suppose this will be defined in a header somewhere
 
@@ -87,7 +101,8 @@ void SiStripHistoricInfoClient::configure()
 {
 
 //  tstore_connect_nestedview();
-  tstore_connect();
+//  tstore_connect();
+  tstore_sistrip();
 }
 
 
@@ -235,6 +250,140 @@ void SiStripHistoricInfoClient::retrievePointersToModuleMEs() const{
 
 
 //-----------------------------------------------------------------------------------------------
+void SiStripHistoricInfoClient::tstore_sistrip(){
+  cout<<"SiStripHistoricInfoClient::tstore_sistrip()  called"<<endl;
+
+  // create message
+  xoap::MessageReference msg1 = xoap::createMessage();
+  try {
+        xoap::SOAPEnvelope envelope = msg1->getSOAPPart().getEnvelope();
+        xoap::SOAPName msgName = envelope.createName( "connect", "sistripview", TSTORE_NS_URI);
+        xoap::SOAPElement connectElement = envelope.getBody().addBodyElement ( msgName );
+        xoap::SOAPName id = envelope.createName("id", "sistripview", TSTORE_NS_URI);
+        connectElement.addAttribute(id, "urn:tstore-view-SQL:sistripview");
+        xoap::SOAPName passwordName = envelope.createName("password", "sistripview", TSTORE_NS_URI);
+        connectElement.addAttribute(passwordName, "client4histoplot");
+        std::cout<<" SiStripHistoricInfoClient::tstore_sistrip -- created envelope"<<std::endl;
+  }catch(xoap::exception::Exception& e) {
+   //handle exception
+	std::cout<<" SiStripHistoricInfoClient::tstore_sistrip -- xoap::exception"<<std::endl;
+  }
+
+  // send message to TStore and get back the id of the connection
+  std::string connectionID; // keep this definition out of try-catch since you need it later
+  try {
+    xdaq::ApplicationDescriptor * tstoreDescriptor = getApplicationContext()->getDefaultZone()->getApplicationDescriptor(getApplicationContext()->getContextDescriptor(),120);
+    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg1, tstoreDescriptor);
+    xoap::SOAPBody body = reply->getSOAPPart().getEnvelope().getBody();
+    if (body.hasFault()) {
+      //connection could not be opened
+      std::cout<<"SiStripHistoricInfoClient::tstore_sistrip -- connection could NOT be opened"<<std::endl;
+    } else {
+      DOMNode *connectResponse=  SiStripHistoricInfoClient::getNodeNamed(reply,"connectResponse");
+      //store connectionID somewhere so that it can be used for other messages
+      connectionID=xoap::getNodeAttribute(connectResponse,"connectionID");
+      std::cout<<"SiStripHistoricInfoClient::tstore_sistrip -- connectionID = "<<connectionID<<std::endl;
+    }
+  } catch (xdaq::exception::Exception& e) {
+    std::cout<<" SiStripHistoricInfoClient::tstore_sistrip -- connection exception "<<e.what()<<std::endl;
+  }
+
+  // TStore retrieval of a data table definition
+  xdata::Table sistriptable1;
+  { // just for having separate namespace
+  xoap::MessageReference msg2 = xoap::createMessage();
+    xoap::SOAPEnvelope envelope = msg2->getSOAPPart().getEnvelope();
+    xoap::SOAPName msgName = envelope.createName( "definition", "sistripview", TSTORE_NS_URI);
+    xoap::SOAPElement element=envelope.getBody().addBodyElement ( msgName );
+    //connectionID was obtained from a previous connect message
+    xoap::SOAPName id = envelope.createName("connectionID", "sistripview", TSTORE_NS_URI);
+    element.addAttribute(id, connectionID);
+    //add parameters to the message (for an SQLView, this is just the "name" parameter to specify which insert configuration to use.)
+    element.addNamespaceDeclaration("sql",  "urn:tstore-view-SQL");
+    xoap::SOAPName property = envelope.createName("name", "sql","urn:tstore-view-SQL");
+//    element.addAttribute(property, "siStripHistoricInfoTable");
+    element.addAttribute(property, "SISTRIPHISTORICINFOTABLE");
+    xdaq::ApplicationDescriptor * tstoreDescriptor = getApplicationContext()->getDefaultZone()->getApplicationDescriptor(getApplicationContext()->getContextDescriptor(),120);
+    try{
+    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg2, tstoreDescriptor);
+    xoap::SOAPBody body = reply->getSOAPPart().getEnvelope().getBody();
+      if (!body.hasFault()) {
+         std::cout<<" SiStripHistoricInfoClient::tstore_sistrip -- body is ok"<<std::endl;
+         sistriptable1 = ExtractTableFromAttachment(reply);
+      }else{
+         std::cout<<" SiStripHistoricInfoClient::tstore_sistrip -- body fault "<<body.getFault().getFaultString()<<std::endl;
+      }
+    } catch(xcept::Exception &e) {
+      std::cout<<" SiStripHistoricInfoClient::tstore_sistrip -- definition exception "<<e.what()<<std::endl;
+    }
+  }
+
+  // add rows to table
+//  insertRandomRow(sistriptable1);
+    std::srand (time(NULL));
+//  xdata::TableIterator new_iterator = sistriptable1.append();
+  unsigned int rowIndex=sistriptable1.getRowCount();
+  std::cout<<" SiStripHistoricInfoClient::tstore_sistrip -- rowIndex "<<rowIndex<<std::endl;
+  const std::string columnIterator1 = "IOV_VALUE_ID"; const std::string columnIterator2 = "TILLTIME";
+  std::vector<std::string> columns=sistriptable1.getColumns();
+  for(vector<std::string>::iterator columnIterator = columns.begin(); columnIterator != columns.end(); columnIterator++){
+//     xdata::Serializable * xdataValue=new xdata::UnsignedLong(2021);
+     xdata::Serializable * xdataValue=new xdata::UnsignedLong( (unsigned long)std::rand() );
+     std::string columnType=sistriptable1.getColumnType(*columnIterator);
+     std::cout<<"SiStripHistoricInfoClient::tstore_sistrip -- inserting "<<xdataValue<<" "<<xdataValue->toString()<<" into column "<<*columnIterator<<" of type "<<columnType<<std::endl;
+     sistriptable1.setValueAt(rowIndex,*columnIterator,*xdataValue);
+      delete xdataValue;
+  }
+
+  // insert back in DB
+  {
+    xoap::MessageReference msg3 = xoap::createMessage();
+    xoap::SOAPEnvelope envelope = msg3->getSOAPPart().getEnvelope();
+    xoap::SOAPName msgName = envelope.createName( "insert", "sistripview", TSTORE_NS_URI);
+    xoap::SOAPElement element = envelope.getBody().addBodyElement ( msgName );
+    //connectionID was obtained from a previous connect message
+    xoap::SOAPName id = envelope.createName("connectionID", "sistripview", TSTORE_NS_URI);
+    element.addAttribute(id, connectionID);
+    //add parameters to the message (for an SQLView, this is just the "name" parameter to specify which insert configuration to use.)
+    element.addNamespaceDeclaration("sql",  "urn:tstore-view-SQL");
+    xoap::SOAPName property = envelope.createName("name", "sql","urn:tstore-view-SQL");
+    element.addAttribute(property, "siStripHistoricInfoTable");
+    xdata::exdr::AutoSizeOutputStreamBuffer outBuffer;
+    xdata::exdr::Serializer serializer;
+    serializer.exportAll( &sistriptable1, &outBuffer );
+    xoap::AttachmentPart * attachment = msg3->createAttachmentPart(outBuffer.getBuffer(), outBuffer.tellp(), "application/xdata+table");
+    attachment->setContentEncoding("exdr");
+//    toolbox::net::URL address(getApplicationContext()->getContextDescriptor()->getURL());
+    std::string contentId="siStripHistoricInfoTable";
+    attachment->setContentId(contentId);
+    msg3->addAttachmentPart(attachment);
+    xdaq::ApplicationDescriptor * tstoreDescriptor = getApplicationContext()->getDefaultZone()->getApplicationDescriptor(getApplicationContext()->getContextDescriptor(),120);
+    try {
+      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg3, tstoreDescriptor);
+    } catch (xdaq::exception::Exception& e) {
+      std::cout<<" SiStripHistoricInfoClient::tstore_sistrip -- insertion exception "<<e.what()<<std::endl;
+    }
+  }
+
+  // close connection
+  try {
+    xoap::MessageReference msg4 = xoap::createMessage();
+    xoap::SOAPEnvelope envelope = msg4->getSOAPPart().getEnvelope();
+    xoap::SOAPName msgName = envelope.createName( "disconnect", "sistripview", TSTORE_NS_URI);
+    xoap::SOAPElement queryElement = envelope.getBody().addBodyElement ( msgName );
+    xoap::SOAPName id = envelope.createName("connectionID", "tstore", TSTORE_NS_URI);
+    queryElement.addAttribute(id, connectionID);   
+    xdaq::ApplicationDescriptor * tstoreDescriptor = getApplicationContext()->getDefaultZone()->getApplicationDescriptor(getApplicationContext()->getContextDescriptor(),120);
+    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg4, tstoreDescriptor);
+    std::cout<<" SiStripHistoricInfoClient::tstore_sistrip -- disconnected"<<std::endl;
+  } catch(xoap::exception::Exception& e) {
+    std::cout<<" SiStripHistoricInfoClient::tstore_sistrip -- disconnection exception "<<e.what()<<std::endl;
+  }
+
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void SiStripHistoricInfoClient::tstore_connect(){
   cout<<"SiStripHistoricInfoClient::tstore_connect()  called"<<endl;
 
@@ -266,7 +415,7 @@ void SiStripHistoricInfoClient::tstore_connect(){
 	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- could get message body"<<std::endl;
 	if (body.hasFault()) {
 		//connection could not be opened
-                std::cout<<"SiStripHistoricInfoClient::tstore_connect -- connection could not be opened"<<std::endl;
+                std::cout<<"SiStripHistoricInfoClient::tstore_connect -- connection could NOT be opened"<<std::endl;
 	}
 	else {
 		DOMNode *connectResponse=  SiStripHistoricInfoClient::getNodeNamed(reply,"connectResponse");
@@ -384,7 +533,7 @@ void SiStripHistoricInfoClient::tstore_connect_nestedview(){
 	std::cout<<" SiStripHistoricInfoClient::tstore_connect -- could get message body"<<std::endl;
 	if (body.hasFault()) {
 		//connection could not be opened
-                std::cout<<"SiStripHistoricInfoClient::tstore_connect -- connection could not be opened"<<std::endl;
+                std::cout<<"SiStripHistoricInfoClient::tstore_connect -- connection could NOT be opened"<<std::endl;
 	}
 	else {
 		DOMNode *connectResponse=  SiStripHistoricInfoClient::getNodeNamed(reply,"connectResponse");
@@ -405,7 +554,7 @@ void SiStripHistoricInfoClient::tstore_connect_nestedview(){
   	xoap::SOAPElement queryElement = envelope.getBody().addBodyElement ( msgName );
 
   	//connectionID was obtained from a previous connect message
-  	xoap::SOAPName id = envelope.createName("connectionID", "tstore", "http://xdaq.web.cern.ch/xdaq/xsd/2006/tstore-10.xsd");
+  	xoap::SOAPName id = envelope.createName("connectionID", "tstore", TSTORE_NS_URI);
   	queryElement.addAttribute(id, connectionID);
 
 	//add the parameters to the message (in this example we are using an SQLView, so use the appropriate namespace)
@@ -490,3 +639,104 @@ DOMNode *SiStripHistoricInfoClient::getNodeNamed(xoap::MessageReference msg,cons
         XCEPT_RAISE(xcept::Exception,"No node named "+nodeName);
 }
 
+
+
+//-----------------------------------------------------------------------------------------------
+xdata::Table SiStripHistoricInfoClient::ExtractTableFromAttachment(xoap::MessageReference reply){
+  //  extract the data from the attachment in the reply
+  xdata::Table t;
+  std::list<xoap::AttachmentPart*> attachments = reply->getAttachments();
+  std::cout<<" SiStripHistoricInfoClient::ExtractTableFromAttachment -- attachments.size() "<<attachments.size()<<std::endl;
+  std::list<xoap::AttachmentPart*>::iterator j;
+  for ( j = attachments.begin(); j != attachments.end(); j++ ) {
+        std::cout<<" SiStripHistoricInfoClient::ExtractTableFromAttachment -- next attachment"<<std::endl;
+    if ((*j)->getContentType() == "application/xdata+table") {
+      xdata::exdr::FixedSizeInputStreamBuffer inBuffer((*j)->getContent(),(*j)->getSize());
+      std::string contentEncoding = (*j)->getContentEncoding();
+      std::string contentId = (*j)->getContentId();
+      std::cout<<" SiStripHistoricInfoClient::ExtractTableFromAttachment -- contentEncoding="<<contentEncoding<<std::endl;
+      std::cout<<" SiStripHistoricInfoClient::ExtractTableFromAttachment -- contentId="<<contentId<<std::endl;
+      try {
+            xdata::exdr::Serializer serializer;
+            serializer.import(&t, &inBuffer );
+      } catch(xdata::exception::Exception & e ) {
+        std::cout<<" SiStripHistoricInfoClient::ExtractTableFromAttachment -- serializer exception ="<<e.what()<<std::endl;
+      }
+/*`
+      // print out table again
+      for (xdata::Table::iterator ti = t.begin(); ti != t.end(); ti++) {
+          std::cout<<" SiStripHistoricInfoClient::ExtractTableFromAttachment -- next row"<<std::endl;
+          xdata::UnsignedLong * number = dynamic_cast<xdata::UnsignedLong *>((*ti).getField("IOV_VALUE_ID"));
+          xdata::UnsignedLong * time = dynamic_cast<xdata::UnsignedLong *>((*ti).getField("TILLTIME"));
+          std::cout<<"time pointer "<<time<<std::endl;
+          std::cout<<"number pointer "<<number<<std::endl;
+          std::cout <<" SiStripHistoricInfoClient::ExtractTableFromAttachment -- number / time "<< number->toString() << "\t" << time->toString() << std::endl;
+      }
+*/
+     return t; // return first table found
+    }
+  }
+  return t; // return empty table is nothing was found
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void SiStripHistoricInfoClient::insertRandomRow(xdata::Table &table) {
+	std::vector<std::string> columns=table.getColumns();
+	vector<std::string>::iterator columnIterator;
+	unsigned int rowIndex=table.getRowCount();
+	for(columnIterator=columns.begin(); columnIterator!=columns.end(); columnIterator++) {
+		string columnType=table.getColumnType(*columnIterator);
+		xdata::Serializable *xdataValue=NULL;
+		if (columnType=="string" /*&& (*columnIterator)!="SOMETIME"*/) {
+			char letters[] = "aaaaaaaaabbccddddeeeeeeeeeeeeffggghhiiiiiiiiijklmmnnnnnnooooooooppqrrrrrrssssttttttuuuuvvwwxyyz??";
+			random_shuffle(letters, letters+strlen(letters));
+			xdataValue=new xdata::String(string(letters,7)); //voila, a full rack of English Scrabble tiles.
+		} else if (columnType=="int") {
+			xdataValue=randomNumber<xdata::Integer>();
+		} else if (columnType=="unsigned long") {
+			xdataValue=randomNumber<xdata::UnsignedLong>();
+		} else if (columnType=="float") {
+			xdataValue=randomNumber<xdata::Float>();
+		} else if (columnType=="double") {
+			xdataValue=randomNumber<xdata::Double>();
+		} else if (columnType=="bool") {
+			xdataValue=randomNumber<xdata::Boolean>();
+		} else if (columnType=="unsigned int") {
+			xdataValue=randomNumber<xdata::UnsignedInteger>();
+		} else if (columnType=="unsigned int 32") {
+			xdataValue=randomNumber<xdata::UnsignedInteger32>();
+		} else if (columnType=="unsigned int 64") {
+			xdataValue=randomNumber<xdata::UnsignedInteger64>();
+		} else if (columnType=="unsigned short") {
+			xdataValue=randomNumber<xdata::UnsignedShort>();
+//		} else if (columnType=="time") {
+//			xdataValue=randomDate();
+		} else if (columnType=="table") {
+			std::cout << "creating table for column " << *columnIterator << std::endl;
+			xdata::Table *sampleTable=static_cast<xdata::Table *>(table.getValueAt(0,*columnIterator));
+			xdata::Table *newTable=new xdata::Table(*sampleTable);
+//			insertRandomRowsIntoTable(*newTable);
+			xdataValue=newTable;
+		}
+		if (xdataValue) {
+			std::cout << "inserting " << xdataValue->toString() << " into column " << *columnIterator << std::endl;
+			table.setValueAt(rowIndex,*columnIterator,*xdataValue);
+			delete xdataValue;
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------------------------
+/*
+xdata::TimeVal * SiStripHistoricClient::randomDate() {
+        switch (rand()%3) {
+                case 0:
+                        return new xdata::TimeVal(std::numeric_limits<xdata::TimeVal>::quiet_NaN());
+                //case 1:
+                //      return new xdata::TimeVal(std::numeric_limits<xdata::TimeVal>::infinity());
+                default:
+                        return new xdata::TimeVal(toolbox::TimeVal::gettimeofday());
+        }
+}
+*/
