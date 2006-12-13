@@ -111,7 +111,7 @@ HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTow
 }
 
 
-double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& compET){
+double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& compET) const {
   
   double etvalue = hcaluncomp_[ieta][compET];//*cos(eta_ave);
   return(etvalue);

@@ -6,8 +6,8 @@
 
 /** \class CaloTPGTranscoderULUT
   *  
-  * $Date: 2006/12/11 17:26:01 $
-  * $Revision: 1.4 $
+  * $Date: 2006/12/11 19:06:57 $
+  * $Revision: 1.5 $
   * \author J. Mans - Minnesota
   */
 class CaloTPGTranscoderULUT : public CaloTPGTranscoder {
@@ -23,7 +23,7 @@ public:
 				   const EcalTrigTowerDetId& eid, const EcalTriggerPrimitiveSample& ec, 
 				   unsigned int& et) const;
   void loadhcalUncompress();
-  double hcaletValue(const int& ieta, const int& compET);
+  virtual double hcaletValue(const int& ieta, const int& compET) const;
   
  private:
   static const int N_TOWER = 32;
