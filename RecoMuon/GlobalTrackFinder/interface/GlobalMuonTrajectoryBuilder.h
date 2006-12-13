@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/12/07 02:17:41 $
- *  $Revision: 1.40 $
+ *  $Date: 2006/12/11 00:01:39 $
+ *  $Revision: 1.41 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -36,6 +36,12 @@ class MuonTrackConverter;
 class MuonServiceProxy;
 class Trajectory;
 class TrackerSeedGenerator;
+
+
+class GlobalMuonMonitorInterface;
+
+//class CkfTrajectoryBuilder;
+
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -137,13 +143,18 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     bool theTkTrajsAvailableFlag;
     bool theMakeTkSeedFlag;
     bool theFirstEvent;
+    bool theMIMFlag;
 
     edm::ESHandle<TrackerTrajectoryBuilder> theCkfBuilder;
     edm::Handle<reco::TrackCollection> allTrackerTracks;
 
     const std::vector<Trajectory>* allTrackerTrajs;
  
-    const MuonServiceProxy* theService;
+
+    const MuonServiceProxy *theService;
+
+    GlobalMuonMonitorInterface* dataMonitor;
+
     
 };
 #endif
