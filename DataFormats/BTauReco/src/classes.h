@@ -8,14 +8,15 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+#include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
-#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/CombinedBTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
+#include "DataFormats/BTauReco/interface/TauMassTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackTauImpactParameterAssociation.h"
 #include "DataFormats/BTauReco/interface/JetEisolAssociation.h"
 
@@ -25,7 +26,9 @@ namespace {
     std::pair<unsigned int, unsigned int> pp1;
     std::pair<unsigned int, std::vector<unsigned int> > pair_vec;
     std::map<unsigned long, std::vector<unsigned long> > m1;
-    
+
+
+
     edm::RefProd<reco::CaloJetCollection> rpj1;
     
     reco::JetTagCollection v1;
@@ -40,19 +43,19 @@ namespace {
     edm::RefProd<reco::TrackCountingTagInfoCollection> rp2;
     edm::RefVector<reco::TrackCountingTagInfoCollection> rv2;
 
-    reco::TrackProbabilityTagInfoCollection v2p;
-    edm::Wrapper<reco::TrackProbabilityTagInfoCollection> w2p;
-    edm::Ref<reco::TrackProbabilityTagInfoCollection> r2p;
-    edm::RefProd<reco::TrackProbabilityTagInfoCollection> rp2p;
-    edm::RefVector<reco::TrackProbabilityTagInfoCollection> rv2p;
-
-
     reco::JetTracksAssociationCollection v3;
     edm::Wrapper<reco::JetTracksAssociationCollection> w3;
     reco::JetTracksAssociation ra3;
     reco::JetTracksAssociationRef r3;
     reco::JetTracksAssociationRefProd rp3;
     reco::JetTracksAssociationRefVector rv3;
+
+    reco::JetCrystalsAssociationCollection v11;
+    edm::Wrapper<reco::JetCrystalsAssociationCollection> w11;
+    reco::JetCrystalsAssociation ra11;
+    reco::JetCrystalsAssociationRef r11;
+    reco::JetCrystalsAssociationRefProd rp11;
+    reco::JetCrystalsAssociationRefVector rv11;
 
     reco::TrackTauImpactParameterAssociationCollection c1;
     edm::Wrapper<reco::TrackTauImpactParameterAssociationCollection> wc1;
@@ -109,5 +112,12 @@ namespace {
     reco::JetEisolAssociationRef r8;
     reco::JetEisolAssociationRefProd rp8;
     reco::JetEisolAssociationRefVector rv8;
+
+    reco::TauMassTagInfoCollection v9;
+    edm::Wrapper<reco::TauMassTagInfoCollection> w9;
+    edm::Ref<reco::TauMassTagInfoCollection> r9;
+    edm::RefProd<reco::TauMassTagInfoCollection> rp9;
+    edm::RefVector<reco::TauMassTagInfoCollection> rv9;
+
   }
 }
