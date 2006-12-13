@@ -25,9 +25,7 @@
 #include <string>
 #include <map>
 #include <utility>
-using namespace edm;
 
-//  class CrossingFrame :public BCrossingFrame
   class CrossingFrame 
     { 
 
@@ -76,16 +74,46 @@ using namespace edm;
       void getPileups(const std::string subdet, std::vector<std::vector<PCaloHit> > * &v) { v=&pileupCaloHits_[subdet];} 
       void getPileups(const std::string subdet, std::vector<std::vector<SimTrack> > * &v) { v=&pileupTracks_;}
       void getPileups(const std::string subdet, std::vector<std::vector<SimVertex> > * &v) { v=&pileupVertices_;}
+      // this does not compile....
+/*       template <class T>  void getPileups(const std::string subdet,std::vector<T,std::allocator<T> >*& v,int bcr) const */
+/* 	{if ( bcr<firstCrossing_ || bcr >lastCrossing_ ) { */
+/* 	  edm::LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist!"; */
+/* 	  return; } */
+/* 	else {std::vector<std::vector<T> > vv; */
+/* 	getPileups(subdet,&vv); v=&(*vv)[bcr]; return;} */
+/* 	} */
+	
+      // non-templated getters per bunchcrossing
+/*       std::vector<PSimHit> * getPileupSimHits(const std::string subdet, const int bcr) {if ( bcr<firstCrossing_ || bcr >lastCrossing_ ) { */
+/* 	edm::LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist!"; */
+/*         return 0;} */
+/*       else return &pileupSimHits_[subdet][bcr-firstCrossing_];}  */
+
+/*       std::vector<PCaloHit> *getPileupCaloHits(const std::string subdet, const int bcr) {if ( bcr<firstCrossing_ || bcr >lastCrossing_ ) { */
+/* 	edm::LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist!"; */
+/*         return 0;} */
+/*       else return &pileupCaloHits_[subdet][bcr-firstCrossing_];}  */
+
+      const std::vector<SimTrack> &getPileupTracks(const int bcr) const {if ( bcr<firstCrossing_ || bcr >lastCrossing_ ) {
+	edm::LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist!";
+	std::vector<SimTrack> v;
+        return v;}
+      else return pileupTracks_[bcr-firstCrossing_];} 
+
+/*       std::vector<SimVertex> *getPileupVertices(const int bcr) {if ( bcr<firstCrossing_ || bcr >lastCrossing_ ) { */
+/* 	edm::LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist!"; */
+/* 	return 0;} */
+/*       else return &pileupVertices_[bcr-firstCrossing_];}  */
 
       // getters for nr of objects - mind that objects are stored in vectors from 0 on!
       unsigned int getNrSignalTracks() const { return signalTracks_.size();}
       unsigned int getNrPileupTracks(const int bcr) const {if ( bcr<firstCrossing_ || bcr >lastCrossing_ ) {
-	LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist!";
+	edm::LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist!";
 	return 0;}
       else return pileupTracks_[bcr-firstCrossing_].size();}
       unsigned int getNrSignalVerticess() const { return signalVertices_.size();}
       unsigned int getNrPileupVertices(int bcr) const {if ( bcr<firstCrossing_ || bcr >lastCrossing_ ) {
-	LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist!";
+	edm::LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist!";
 	return 0;}
       else return pileupVertices_[bcr-firstCrossing_].size();}
       
