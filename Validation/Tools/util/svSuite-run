@@ -427,7 +427,7 @@ for spec in specs:
         time.sleep(1)
         for i in range(0, int(spec['NumberOfJobs'])):
             time.sleep(.1)
-            messageService.publish("ResourcesAvailable", "")
+            messageService.publish("RequestInjector:ResourcesAvailable", "")
             messageService.commit()
             
 
