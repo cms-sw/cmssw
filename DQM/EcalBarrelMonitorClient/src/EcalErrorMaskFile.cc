@@ -1,11 +1,11 @@
-// $Id: EcalErrorMaskFile.cc,v 1.4 2006/12/14 17:12:55 benigno Exp $
+// $Id: EcalErrorMaskFile.cc,v 1.5 2006/12/14 17:16:20 dellaric Exp $
 
 /*!
   \file EcalErrorMaskFile.cc
   \brief Error mask from text file
   \author B. Gobbo 
-  \version $Revision: 1.4 $
-  \date $Date: 2006/12/14 17:12:55 $
+  \version $Revision: 1.5 $
+  \date $Date: 2006/12/14 17:16:20 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
@@ -55,6 +55,7 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
     std::istringstream is( line );
     std::string s;
     is >> s;
+    if( s == "" ) continue;
     if( s == "MonCrystalStatusDat" ) {
       int sm; is >> sm;
       if( sm < 1 || sm > 36 ) {
@@ -168,7 +169,7 @@ void EcalErrorMaskFile::clearComments_( char* line ) {
 }
 
 void EcalErrorMaskFile::clearFinalBlanks_( char* line ) {
-  // From end of string, find last ' ' or '\t' (tab) and replece it with '\0'
+  // From end of string, find last ' ' or '\t' (tab) and replace it with '\0'
   int i;
   for( i=strlen(line)-1; i>=0 && (line[i]==' '||line[i]=='\t'); i-- );
   if( line[i+1]  == ' ' || line[i+1] == '\t' ) line[i+1] = '\0';
