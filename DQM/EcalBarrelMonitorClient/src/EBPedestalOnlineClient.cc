@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/12/14 17:12:55 $
- * $Revision: 1.56 $
+ * $Date: 2006/12/14 17:16:20 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -347,7 +347,10 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
             if ( mask.size() != 0 ) {
               map<EcalLogicID, MonCrystalStatusDat>::const_iterator m = mask.find(ecid);
               if ( m != mask.end() ) {
-                if ( (m->second).getStatusG12().getShortDesc() == "PEDESTAL_ONLINE_WRONG" ) {
+                if ( (m->second).getStatusG12().getShortDesc() == "PEDESTAL_MEAN_AMPLITUDE_TOO_HIGH" ||
+                     (m->second).getStatusG12().getShortDesc() == "PEDESTAL_MEAN_AMPLITUDE_TOO_LOW" ||
+                     (m->second).getStatusG12().getShortDesc() == "PEDESTAL_RMS_AMPLITUDE_TOO_HIGH" ||
+                     (m->second).getStatusG12().getShortDesc() == "PEDESTAL_RMS_AMPLITUDE_TOO_LOW" ) {
                   if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
                   val = true;
                 }
@@ -359,31 +362,15 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
           }
         } else {
 
-#if 0
-          // FIX: this should be done when reading the mask from file
-
-          pair<EcalLogicID, MonCrystalStatusDat> d;
-
-          MonCrystalStatusDef b;
-          b.setShortDesc("PEDESTAL_ONLINE_WRONG");
-
-          MonCrystalStatusDat s;
-          s.setStatusG12(b);
-
-          d.first = EcalLogicID("local", 10000*(ism-1) + ((3-1) + 20*(54-1) + 1));
-          d.second = s;
-          mask.insert(d);
-
-          d.first = EcalLogicID("local", 10000*(ism-1) + ((17-1) + 20*(61-1) + 1));
-          d.second = s;
-          mask.insert(d);
-#endif
-          ecid = EcalLogicID("local", 10000*(ism-1) + ((ip-1) + 20*(ie-1) + 1));
+          ecid = EcalLogicID("local", 10000*(ism-1) + ic);
 
           if ( mask.size() != 0 ) {
             map<EcalLogicID, MonCrystalStatusDat>::const_iterator m = mask.find(ecid);
             if ( m != mask.end() ) {
-              if ( (m->second).getStatusG12().getShortDesc() == "PEDESTAL_ONLINE_WRONG" ) {
+              if ( (m->second).getStatusG12().getShortDesc() == "PEDESTAL_MEAN_AMPLITUDE_TOO_HIGH" ||
+                   (m->second).getStatusG12().getShortDesc() == "PEDESTAL_MEAN_AMPLITUDE_TOO_LOW" ||
+                   (m->second).getStatusG12().getShortDesc() == "PEDESTAL_RMS_AMPLITUDE_TOO_HIGH" ||
+                   (m->second).getStatusG12().getShortDesc() == "PEDESTAL_RMS_AMPLITUDE_TOO_LOW" ) {
                 if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
                 val = true;
               }
