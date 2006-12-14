@@ -91,6 +91,7 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   eventSetup.get<HcalDbRecord>().get(conditions);
   theAmplifier->setDbService(conditions.product());
   theCoderFactory->setDbService(conditions.product());
+  theParameterMap->setDbService(conditions.product());
 
   // get the correct geometry
   checkGeometry(eventSetup);
