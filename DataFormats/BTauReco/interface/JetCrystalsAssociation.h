@@ -17,10 +17,10 @@
 #include <vector>
 
 namespace reco {
-  typedef math::PtEtaPhiELorentzVector LorentzVector;
-  typedef math::PtEtaPhiELorentzVectorCollection LorentzVectorCollection;
+  typedef math::PtEtaPhiELorentzVector EMLorentzVector;
+  typedef math::PtEtaPhiELorentzVectorCollection EMLorentzVectorCollection;
 
-  typedef  edm::AssociationMap<edm::OneToMany<CaloJetCollection, LorentzVectorCollection> >
+  typedef  edm::AssociationMap<edm::OneToMany<CaloJetCollection, EMLorentzVectorCollection> >
     JetCrystalsAssociationCollection;
   
   typedef

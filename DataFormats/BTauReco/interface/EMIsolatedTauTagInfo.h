@@ -32,11 +32,11 @@ namespace reco {
     }
     //destructor
     virtual ~EMIsolatedTauTagInfo() {};
-virtual EMIsolatedTauTagInfo* clone() const { return new EMIsolatedTauTagInfo( * this ); }
+    virtual EMIsolatedTauTagInfo* clone() const { return new EMIsolatedTauTagInfo( * this ); }
     //get the jet from the jetTag
-    const Jet & jet() const { *m_jetCrystalsAssociation->key;  }
+    const Jet & jet() const { return *m_jetCrystalsAssociation->key;  }
 
-        const edm::RefVector<LorentzVectorCollection> & lorentzVectorRecHits() const { return m_jetCrystalsAssociation->val; } 
+        const edm::RefVector<EMLorentzVectorCollection> & lorentzVectorRecHits() const { return m_jetCrystalsAssociation->val; } 
 
     const JetCrystalsAssociationRef& jcaRef() const { return m_jetCrystalsAssociation; }
 
@@ -44,11 +44,29 @@ virtual EMIsolatedTauTagInfo* clone() const { return new EMIsolatedTauTagInfo( *
   double discriminator() const { 
     return m_discriminator; 
     }
+  void setDiscriminator(double discriminator) {m_discriminator =discriminator;}  
 
     //Method to recompute the discriminator
     double discriminator(float rMax, float rMin, float pIsolCut)
       {
 	double newDiscriminator_ =0;
+	const  edm::RefVector<EMLorentzVectorCollection>  myRecHits = lorentzVectorRecHits();
+	const Jet & myJet = jet(); 
+	double energyRMax= 0;
+	double energyRMin = 0;
+	
+	edm::RefVector<EMLorentzVectorCollection>::const_iterator mRH =myRecHits.begin();
+	 for(;mRH != myRecHits.end();mRH++)
+	   {
+	     double delta  = ROOT::Math::VectorUtil::DeltaR((myJet).p4().Vect(), (**mRH));
+	     if(delta < rMax) energyRMax =+ (**mRH).pt(); 
+	     if(delta < rMin) energyRMin =+ (**mRH).pt();
+	     
+	   }
+	 double pIsol = energyRMax - energyRMin;
+	 if (pIsol < pIsolCut) newDiscriminator_ =1.;
+				 
+
 	//
 	//Put here your code
 	//
