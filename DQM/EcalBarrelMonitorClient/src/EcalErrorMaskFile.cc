@@ -1,11 +1,11 @@
-// $Id: EcalErrorMaskFile.cc,v 1.1 2006/12/14 12:30:35 benigno Exp $
+// $Id: EcalErrorMaskFile.cc,v 1.2 2006/12/14 14:16:14 dellaric Exp $
 
 /*!
   \file EcalErrorMaskFile.cc
   \brief Error mask from text file
   \author B. Gobbo 
-  \version $Revision: 1.1 $
-  \date $Date: 2006/12/14 12:30:35 $
+  \version $Revision: 1.2 $
+  \date $Date: 2006/12/14 14:16:14 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
@@ -129,7 +129,7 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 
 }
 
-template <class T> void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, T>& fillMap ) throw( std::runtime_error ) {
+template <class T> void EcalErrorMaskFile::fetchData( std::map< EcalLogicID, T>& fillMap ) throw( std::runtime_error ) {
 
   if( !done_ ) {
     throw( std::runtime_error( "Input file not read" ) );

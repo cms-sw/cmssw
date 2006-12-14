@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/12/14 11:10:31 $
- * $Revision: 1.53 $
+ * $Date: 2006/12/14 14:35:02 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -279,12 +279,13 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
 
   if ( econn ) {
     try {
-      econn->fetchDataSet(&mask, moniov); // FIX: need to use run-number
+      econn->fetchDataSet(&mask, moniov);
+      // econn->fetchValidData(&mask, runtag, run);
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   } else {
-    EcalErrorMaskFile::fetchDataSet(mask);
+    EcalErrorMaskFile::fetchData(mask);
   }
 
   const float n_min_tot = 1000.;
