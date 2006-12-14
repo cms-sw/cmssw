@@ -16,6 +16,7 @@ ParticleTreeDrawer::ParticleTreeDrawer( const ParameterSet & cfg ) :
   src_( cfg.getParameter<InputTag>( "src" ) ),
   printP4_( cfg.getUntrackedParameter<bool>( "printP4", false ) ),
   printPtEtaPhi_( cfg.getUntrackedParameter<bool>( "printPtEtaPhi", false ) ),
+  printVertex_( cfg.getUntrackedParameter<bool>( "printVertex", false ) ),
   printStatus_( cfg.getUntrackedParameter<bool>( "printStatus", false ) ) {
 }
 
@@ -38,6 +39,7 @@ void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {
 void ParticleTreeDrawer::printP4( const reco::GenParticleCandidate & c ) const {
   if ( printP4_ ) cout << " (" << c.px() << ", " << c.py() << ", " << c.pz() << "; " << c.energy() << ")"; 
   if ( printPtEtaPhi_ ) cout << " [" << c.pt() << ": " << c.eta() << ", " << c.phi() << "]";
+  if ( printVertex_ ) cout << " {" << c.vx() << ", " << c.vy() << ", " << c.vz() << "}";
   if ( printStatus_ ) cout << "{status: " << status( c ) << "}";
 }
 

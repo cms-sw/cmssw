@@ -6,9 +6,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.9 $
+ * \version $Revision: 1.10 $
  *
- * $Id: Booster.h,v 1.9 2006/06/21 09:36:47 llista Exp $
+ * $Id: Booster.h,v 1.10 2006/07/26 08:48:05 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -18,7 +18,7 @@ struct Booster {
   /// constructor from a boost vector
   Booster( const math::XYZVector & b ) : boost( b ) { }
   /// set up a candidate kinematics according to the boost
-  virtual void set( reco::Candidate& c );
+  void set( reco::Candidate& c );
 private:
   const math::XYZVector boost;
 };

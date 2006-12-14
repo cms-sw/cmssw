@@ -20,7 +20,7 @@ private:
   void printDecay( const reco::GenParticleCandidate &, const std::string & pre ) const;
   edm::ESHandle<DefaultConfig::ParticleDataTable> pdt_;
   /// print parameters
-  bool printP4_, printPtEtaPhi_, printStatus_;
+  bool printP4_, printPtEtaPhi_, printVertex_, printStatus_;
   /// print 4 momenta
   void printP4( const reco::GenParticleCandidate & ) const;
 };
