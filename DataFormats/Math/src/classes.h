@@ -1,10 +1,15 @@
 #define G__DICTIONARY
 #include "DataFormats/Math/interface/LorentzVector.h"
+//#include "DataFormats/Math/interface/LorentzVectorFwd.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefVector.h"
+
 #include <vector>
 
 namespace {
@@ -71,7 +76,8 @@ namespace {
     edm::Wrapper<math::XYZTLorentzVectorD> wld2;
     edm::Wrapper<math::XYZTLorentzVectorF> wlf2;
 
-    edm::Wrapper<std::vector<math::XYZVector> > wvv1;
+
+    edm::Wrapper<std::vector<math::XYZVector> > wvvv1;
     edm::Wrapper<std::vector<math::XYZVectorD> > wvvd1; 
     edm::Wrapper<std::vector<math::XYZVectorF> > wvvf1; 
     edm::Wrapper<std::vector<math::RhoEtaPhiVector> > wvv2;
@@ -89,6 +95,65 @@ namespace {
     edm::Wrapper<std::vector<math::XYZTLorentzVector> > wvl2;
     edm::Wrapper<std::vector<math::XYZTLorentzVectorD> > wvld2;
     edm::Wrapper<std::vector<math::XYZTLorentzVectorF> > wvlf2;
+
+
+    edm::Ref<std::vector<math::XYZVector> > rv1;
+    edm::Ref<std::vector<math::XYZVectorD> > rvd1; 
+    edm::Ref<std::vector<math::XYZVectorF> > rvf1; 
+    edm::Ref<std::vector<math::RhoEtaPhiVector> > rv2;
+    edm::Ref<std::vector<math::RhoEtaPhiVectorD> > rvd2;
+    edm::Ref<std::vector<math::RhoEtaPhiVectorF> > rvf2;
+    edm::Ref<std::vector<math::RThetaPhiVector> > rv3;
+    edm::Ref<std::vector<math::RThetaPhiVectorD> > rvd3;
+    edm::Ref<std::vector<math::RThetaPhiVectorF> > rvf3;
+    edm::Ref<std::vector<math::XYZPoint> > rp1;
+    edm::Ref<std::vector<math::XYZPointD> > rpd1;
+    edm::Ref<std::vector<math::XYZPointF> > rpf1;
+    edm::Ref<std::vector<math::PtEtaPhiELorentzVector> > rl1;
+    edm::Ref<std::vector<math::PtEtaPhiELorentzVectorD> > rld1;
+    edm::Ref<std::vector<math::PtEtaPhiELorentzVectorF> > rlf1;
+    edm::Ref<std::vector<math::XYZTLorentzVector> > rl2;
+    edm::Ref<std::vector<math::XYZTLorentzVectorD> > rld2;
+    edm::Ref<std::vector<math::XYZTLorentzVectorF> > rlf2;
+
+    edm::RefProd<std::vector<math::XYZVector> > rpv1;
+    edm::RefProd<std::vector<math::XYZVectorD> > rpvd1; 
+    edm::RefProd<std::vector<math::XYZVectorF> > rpvf1; 
+    edm::RefProd<std::vector<math::RhoEtaPhiVector> > rpv2;
+    edm::RefProd<std::vector<math::RhoEtaPhiVectorD> > rpvd2;
+    edm::RefProd<std::vector<math::RhoEtaPhiVectorF> > rpvf2;
+    edm::RefProd<std::vector<math::RThetaPhiVector> > rpv3;
+    edm::RefProd<std::vector<math::RThetaPhiVectorD> > rpvd3;
+    edm::RefProd<std::vector<math::RThetaPhiVectorF> > rpvf3;
+    edm::RefProd<std::vector<math::XYZPoint> > rpp1;
+    edm::RefProd<std::vector<math::XYZPointD> > rppd1;
+    edm::RefProd<std::vector<math::XYZPointF> > rppf1;
+    edm::RefProd<std::vector<math::PtEtaPhiELorentzVector> > rpl1;
+    edm::RefProd<std::vector<math::PtEtaPhiELorentzVectorD> > rpld1;
+    edm::RefProd<std::vector<math::PtEtaPhiELorentzVectorF> > rplf1;
+    edm::RefProd<std::vector<math::XYZTLorentzVector> > rpl2;
+    edm::RefProd<std::vector<math::XYZTLorentzVectorD> > rpld2;
+    edm::RefProd<std::vector<math::XYZTLorentzVectorF> > rplf2;
+
+    edm::RefVector<std::vector<math::XYZVector> > rvv1;
+    edm::RefVector<std::vector<math::XYZVectorD> > rvvd1; 
+    edm::RefVector<std::vector<math::XYZVectorF> > rvvf1; 
+    edm::RefVector<std::vector<math::RhoEtaPhiVector> > rvv2;
+    edm::RefVector<std::vector<math::RhoEtaPhiVectorD> > rvvd2;
+    edm::RefVector<std::vector<math::RhoEtaPhiVectorF> > rvvf2;
+    edm::RefVector<std::vector<math::RThetaPhiVector> > rvv3;
+    edm::RefVector<std::vector<math::RThetaPhiVectorD> > rvvd3;
+    edm::RefVector<std::vector<math::RThetaPhiVectorF> > rvvf3;
+    edm::RefVector<std::vector<math::XYZPoint> > rvp1;
+    edm::RefVector<std::vector<math::XYZPointD> > rvpd1;
+    edm::RefVector<std::vector<math::XYZPointF> > rvpf1;
+    edm::RefVector<std::vector<math::PtEtaPhiELorentzVector> > rvl1;
+    edm::RefVector<std::vector<math::PtEtaPhiELorentzVectorD> > rvld1;
+    edm::RefVector<std::vector<math::PtEtaPhiELorentzVectorF> > rvlf1;
+    edm::RefVector<std::vector<math::XYZTLorentzVector> > rvl2;
+    edm::RefVector<std::vector<math::XYZTLorentzVectorD> > rvld2;
+    edm::RefVector<std::vector<math::XYZTLorentzVectorF> > rvlf2;
+
 
     math::Vector<1>::type vV1;
     math::Vector<2>::type vV2;
