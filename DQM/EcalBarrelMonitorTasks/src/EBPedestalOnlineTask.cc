@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2006/07/08 09:28:52 $
- * $Revision: 1.14 $
+ * $Date: 2006/09/22 06:01:40 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -57,6 +57,7 @@ void EBPedestalOnlineTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPOT pedestal SM%02d G12", i+1);
       mePedMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(mePedMapG12_[i], i+1);
     }
 
   }

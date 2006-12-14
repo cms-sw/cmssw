@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/09/13 07:31:40 $
- * $Revision: 1.56 $
+ * $Date: 2006/09/22 06:01:40 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  *
 */
@@ -88,48 +88,64 @@ void EBLaserTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBLT shape SM%02d L1", i+1);
       meShapeMapL1_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(meShapeMapL1_[i], i+1);
       sprintf(histo, "EBLT amplitude SM%02d L1", i+1);
       meAmplMapL1_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplMapL1_[i], i+1);
       sprintf(histo, "EBLT timing SM%02d L1", i+1);
       meTimeMapL1_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meTimeMapL1_[i], i+1);
       sprintf(histo, "EBLT amplitude over PN SM%02d L1", i+1);
       meAmplPNMapL1_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplPNMapL1_[i], i+1);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBLT shape SM%02d L2", i+1);
       meShapeMapL2_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(meShapeMapL2_[i], i+1);
       sprintf(histo, "EBLT amplitude SM%02d L2", i+1);
       meAmplMapL2_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplMapL2_[i], i+1);
       sprintf(histo, "EBLT timing SM%02d L2", i+1);
       meTimeMapL2_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meTimeMapL2_[i], i+1);
       sprintf(histo, "EBLT amplitude over PN SM%02d L2", i+1);
       meAmplPNMapL2_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplPNMapL2_[i], i+1);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser3");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBLT shape SM%02d L3", i+1);
       meShapeMapL3_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(meShapeMapL3_[i], i+1);
       sprintf(histo, "EBLT amplitude SM%02d L3", i+1);
       meAmplMapL3_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplMapL3_[i], i+1);
       sprintf(histo, "EBLT timing SM%02d L3", i+1);
       meTimeMapL3_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meTimeMapL3_[i], i+1);
       sprintf(histo, "EBLT amplitude over PN SM%02d L3", i+1);
       meAmplPNMapL3_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplPNMapL3_[i], i+1);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser4");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBLT shape SM%02d L4", i+1);
       meShapeMapL4_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(meShapeMapL4_[i], i+1);
       sprintf(histo, "EBLT amplitude SM%02d L4", i+1);
       meAmplMapL4_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplMapL4_[i], i+1);
       sprintf(histo, "EBLT timing SM%02d L4", i+1);
       meTimeMapL4_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meTimeMapL4_[i], i+1);
       sprintf(histo, "EBLT amplitude over PN SM%02d L4", i+1);
       meAmplPNMapL4_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplPNMapL4_[i], i+1);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask");
@@ -140,16 +156,20 @@ void EBLaserTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L1", i+1);
       mePnAmplMapG01L1_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnAmplMapG01L1_[i], i+1);
       sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L1", i+1);
       mePnPedMapG01L1_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnPedMapG01L1_[i], i+1);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser1/Gain16");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L1", i+1);
       mePnAmplMapG16L1_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnAmplMapG16L1_[i], i+1);
       sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L1", i+1);
       mePnPedMapG16L1_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnPedMapG16L1_[i], i+1);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser2");
@@ -158,16 +178,20 @@ void EBLaserTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L2", i+1);
       mePnAmplMapG01L2_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnAmplMapG01L2_[i], i+1);
       sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L2", i+1);
       mePnPedMapG01L2_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnPedMapG01L2_[i], i+1);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser2/Gain16");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L2", i+1);
       mePnAmplMapG16L2_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnAmplMapG16L2_[i], i+1);
       sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L2", i+1);
       mePnPedMapG16L2_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnPedMapG16L2_[i], i+1);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser3");
@@ -176,16 +200,20 @@ void EBLaserTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L3", i+1);
       mePnAmplMapG01L3_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnAmplMapG01L3_[i], i+1);
       sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L3", i+1);
       mePnPedMapG01L3_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnPedMapG01L3_[i], i+1);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser3/Gain16");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L3", i+1);
       mePnAmplMapG16L3_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnAmplMapG16L3_[i], i+1);
       sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L3", i+1);
       mePnPedMapG16L3_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnPedMapG16L3_[i], i+1);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser4");
@@ -194,16 +222,20 @@ void EBLaserTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L4", i+1);
       mePnAmplMapG01L4_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnAmplMapG01L4_[i], i+1);
       sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L4", i+1);
       mePnPedMapG01L4_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnPedMapG01L4_[i], i+1);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser4/Gain16");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L4", i+1);
       mePnAmplMapG16L4_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnAmplMapG16L4_[i], i+1);
       sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L4", i+1);
       mePnPedMapG16L4_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnPedMapG16L4_[i], i+1);
     }
 
   }

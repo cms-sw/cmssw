@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/07/08 11:12:05 $
- * $Revision: 1.112 $
+ * $Date: 2006/09/22 06:01:39 $
+ * $Revision: 1.113 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -147,6 +147,7 @@ void EcalBarrelMonitorModule::setup(void){
       for (int i = 0; i < 36; i++) {
         sprintf(histo, "EBMM event SM%02d", i+1);
         meEvent_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+        dbe_->tag(meEvent_[i], i+1);
         if ( meEvent_[i] ) meEvent_[i]->setResetMe(true);
       }
     }

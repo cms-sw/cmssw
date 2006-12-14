@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/08/23 13:30:55 $
- * $Revision: 1.28 $
+ * $Date: 2006/09/22 06:01:40 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
  */
@@ -73,6 +73,7 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT gain SM%02d", i+1);
       meIntegrityGain[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe->tag(meIntegrityGain[i], i+1);
     }
 
     // checking when channel has unexpected or invalid ID
@@ -80,6 +81,7 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT ChId SM%02d", i+1);
       meIntegrityChId[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe->tag(meIntegrityChId[i], i+1);
     }
 
     // checking when channel has unexpected or invalid ID
@@ -87,6 +89,7 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT gain switch SM%02d", i+1);
       meIntegrityGainSwitch[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe->tag(meIntegrityGainSwitch[i], i+1);
     }
 
     // checking when channel has unexpected or invalid ID
@@ -94,6 +97,7 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT gain switch stay SM%02d", i+1);
       meIntegrityGainSwitchStay[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe->tag(meIntegrityGainSwitchStay[i], i+1);
     }
 
     // checking when trigger tower has unexpected or invalid ID
@@ -101,6 +105,7 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT TTId SM%02d", i+1);
       meIntegrityTTId[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      dbe->tag(meIntegrityTTId[i], i+1);
     }
 
     // checking when trigger tower has unexpected or invalid size
@@ -108,6 +113,7 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT TTBlockSize SM%02d", i+1);
       meIntegrityTTBlockSize[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      dbe->tag(meIntegrityTTBlockSize[i], i+1);
     }
 
     // checking when mem channels have unexpected ID
@@ -115,6 +121,7 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT MemChId SM%02d", i+1);
       meIntegrityMemChId[i] = dbe->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      dbe->tag(meIntegrityMemChId[i], i+1);
     }
 
     // checking when mem samples have second bit encoding the gain different from 0
@@ -124,6 +131,7 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT MemGain SM%02d", i+1);
       meIntegrityMemGain[i] = dbe->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      dbe->tag(meIntegrityMemGain[i], i+1);
     }
 
     // checking when mem tower block has unexpected ID
@@ -131,6 +139,7 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT MemTTId SM%02d", i+1);
       meIntegrityMemTTId[i] = dbe->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      dbe->tag(meIntegrityMemTTId[i], i+1);
     }
 
     // checking when mem tower block has invalid size
@@ -138,6 +147,7 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT MemSize SM%02d", i+1);
       meIntegrityMemTTBlockSize[i] = dbe->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      dbe->tag(meIntegrityMemTTBlockSize[i], i+1);
     }
 
   }

@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2006/10/02 09:33:00 $
- * $Revision: 1.21 $
+ * $Date: 2006/10/02 12:57:52 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -62,10 +62,13 @@ void EBTriggerTowerTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBTTT Et map SM%02d", i+1);
       meEtMap_[i] = dbe->bookProfile2D(histo, histo, 17, 0., 17., 4, 0., 4., 128, 0, 512., "s");
+      dbe->tag(meEtMap_[i], i+1);
       sprintf(histo, "EBTTT FineGrainVeto SM%02d", i+1);
       meVeto_[i] = dbe->book3D(histo, histo, 17, 0., 17., 4, 0., 4., 2, 0., 2.);
+      dbe->tag(meVeto_[i], i+1);
       sprintf(histo, "EBTTT Flags SM%02d", i+1);
       meFlags_[i] = dbe->book3D(histo, histo, 17, 0., 17., 4, 0., 4., 8, 0., 8.);
+      dbe->tag(meFlags_[i], i+1);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBTriggerTowerTask/EnergyMaps");
@@ -74,8 +77,10 @@ void EBTriggerTowerTask::setup(void){
       for (int j = 0; j < 68 ; j++) {
         sprintf(histo, "EBTTT Et T SM%02d TT%02d", i+1, j+1);
         meEtMapT_[i][j] = dbe->book1D(histo, histo, 128, 0.0001, 512.);
+        dbe->tag(meEtMapT_[i][j], i+1);
         sprintf(histo, "EBTTT Et R SM%02d TT%02d", i+1, j+1);
         meEtMapR_[i][j] = dbe->book1D(histo, histo, 128, 0.0001, 512.);
+        dbe->tag(meEtMapR_[i][j], i+1);
       }
     }
 

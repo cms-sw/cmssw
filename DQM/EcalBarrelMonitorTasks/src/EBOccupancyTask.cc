@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2006/07/08 17:07:15 $
- * $Revision: 1.11 $
+ * $Date: 2006/09/22 06:01:40 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -58,10 +58,12 @@ void EBOccupancyTask::setup(void){
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBOT occupancy SM%02d", i+1);
       meOccupancy_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe->tag(meOccupancy_[i], i+1);
     }
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBOT MEM occupancy SM%02d", i+1);
       meOccupancyMem_[i] = dbe->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      dbe->tag(meOccupancyMem_[i], i+1);
     }
 
   }
