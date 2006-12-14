@@ -1,4 +1,14 @@
 <lcgdict>
-<class name="Trajectory"/>
-<class name="std::vector<Trajectory>"  persistent = "false"  />
+  <class name="Trajectory"/>
+  <class name="std::vector<Trajectory>"  persistent = "false"  />
+
+  <class name="edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>, std::vector<reco::Track>, unsigned short > >" >
+    <field name="transientMap_" transient="true" />
+  </class>
+  <class pattern="edm::KeyVal<*>" />
+  <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
+  <class pattern="edm::Ref<edm::AssociationMap<*>" />
+  <class pattern="edm::RefProd<edm::AssociationMap<*>" />
+  <class pattern="edm::RefVector<edm::AssociationMap<*>" />
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<Trajectory> >, edm::RefProd<std::vector<reco::Track> > >"/>
 </lcgdict>
