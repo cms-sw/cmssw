@@ -6,6 +6,9 @@
 #include <string>
 #include <vector>
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+
 class L1RCTLookupTables {
  
  public:
@@ -13,6 +16,7 @@ class L1RCTLookupTables {
   // constructor
 
   L1RCTLookupTables(const std::string& filename);
+  L1RCTLookupTables(const std::string& filename, edm::ESHandle<CaloTPGTranscoder> transcoder);
 
   // function needs to output an unsigned long
 
@@ -45,6 +49,9 @@ class L1RCTLookupTables {
   unsigned short calcActivityBit(unsigned short ecal,unsigned short hcal);
   unsigned short calcHEBit(float ecal,float hcal);
   unsigned long convertToInteger(float et, float lsb, int precision);
+
+  bool useTranscoder_;
+  edm::ESHandle<CaloTPGTranscoder> transcoder_;
 
   // We implement LUTs in code -- real lookup tables are large 2^17 (addresses) x 18 phi bins x 18 bits
   // So we only read in conversion constants in float given by TPG developers, and implement LUTs on-the-fly

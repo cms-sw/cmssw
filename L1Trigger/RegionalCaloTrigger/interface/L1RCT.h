@@ -12,14 +12,15 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTCrate.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTNeighborMap.h"
 
-//#include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
-
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 
+class L1CaloEtScale;
 class L1RCTLookupTables;
 
 class L1RCT {
@@ -27,6 +28,7 @@ class L1RCT {
  public:
   
   L1RCT(std::string lutFile);
+  L1RCT(std::string lutFile, edm::ESHandle<CaloTPGTranscoder> transcoder);
 
   void setGctEmScale(const L1CaloEtScale* scale);
 
@@ -100,8 +102,10 @@ class L1RCT {
   
   L1RCT();  // Do not implement this
 
-  //Method called by constructor to set all the neighbors properly.
+  //Helper methods called by constructor
+  //Set all the neighbors properly.
   //Will make use of the internal neighborMap
+  void makeCrates();
   void configureCards();
   void shareNeighbors();
 

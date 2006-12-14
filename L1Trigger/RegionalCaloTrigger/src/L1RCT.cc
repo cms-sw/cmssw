@@ -3,6 +3,9 @@
 #include <fstream>
 #include <string>
 
+//#include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
+
+#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
 //Main method to process a single event, hence the name.
@@ -30,12 +33,22 @@ void L1RCT::processEvent(){
   }
 }
 
-L1RCT::L1RCT(std::string lutFile) : empty(),neighborMap(){
-  lut = new L1RCTLookupTables(lutFile);
+void L1RCT::makeCrates()
+{
   for(int i = 0; i<18; i++){
     L1RCTCrate c(i);
     crates.push_back(c);
   }
+}
+
+L1RCT::L1RCT(std::string lutFile) : empty(),neighborMap(){
+  lut = new L1RCTLookupTables(lutFile);
+  makeCrates();
+}
+
+L1RCT::L1RCT(std::string lutFile, edm::ESHandle<CaloTPGTranscoder> transcoder) : empty(),neighborMap(){
+  lut = new L1RCTLookupTables(lutFile, transcoder);
+  makeCrates();
 }
 
 void L1RCT::setGctEmScale(const L1CaloEtScale* scale){

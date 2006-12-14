@@ -1,11 +1,15 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
-#include <fstream>
-#include <string>
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 using std::cout;
 using std::endl;
+
+#include <fstream>
+#include <string>
+
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
+
+#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 
 // public variable initialization - these are typical values -- they are reset to values stored in the LUTFile
 
@@ -20,6 +24,14 @@ float L1RCTLookupTables::jetMETLSB_ = 0.5;
 L1RCTLookupTables::L1RCTLookupTables(const std::string& filename)
 {
   loadLUTConstants(filename);
+  useTranscoder_ = false;
+}
+
+L1RCTLookupTables::L1RCTLookupTables(const std::string& filename, edm::ESHandle<CaloTPGTranscoder> transcoder)
+{
+  loadLUTConstants(filename);
+  transcoder_ = transcoder;
+  useTranscoder_ = true;
 }
 
 // lookup method for HF
@@ -28,10 +40,12 @@ unsigned short L1RCTLookupTables::lookup(unsigned short hfenergy,
 					 unsigned short crdNo, 
 					 unsigned short twrNo){
   if(hfenergy > 0xFF) throw cms::Exception("Invalid Data") << "HF compressedET should be less than 0xFF, is " << hfenergy;
-  short iEta = L1RCT::calcIEta(crtNo, crdNo, twrNo);
-  unsigned short iAbsEta = abs(iEta);
+  int iEta = L1RCT::calcIEta(crtNo, crdNo, twrNo);
+  int iAbsEta = abs(iEta);
   if(iAbsEta < 29 || iAbsEta > 32) throw cms::Exception("Invalid Data") << "29 <= |iEta| <= 32, is " << iAbsEta;
-  float energy = hcalConversionConstants_[iAbsEta-1][hfenergy];
+  float energy;
+  if(useTranscoder_) energy = transcoder_->hcaletValue(iAbsEta, hfenergy); // hcalConversionConstants_[iAbsEta-1][hfenergy];
+  else energy = hfenergy;           // This is so debugging can happen without the transcoder
   return convertToInteger(energy, jetMETLSB(), 8);
 }
 
@@ -44,14 +58,15 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
   if(ecal > 0xFF) throw cms::Exception("Invalid Data") << "ECAL compressedET should be less than 0xFF, is " << ecal;
   if(hcal > 0xFF) throw cms::Exception("Invalid Data") << "HCAL compressedET should be less than 0xFF, is " << hcal;
   if(fgbit > 1) throw cms::Exception("Invalid Data") << "ECAL finegrain should be a single bit, is " << fgbit;
-  short iEta = L1RCT::calcIEta(crtNo, crdNo, twrNo);
-  unsigned short iAbsEta = abs(iEta);
+  int iEta = L1RCT::calcIEta(crtNo, crdNo, twrNo);
+  int iAbsEta = abs(iEta);
   if(iAbsEta < 1 || iAbsEta > 28) throw cms::Exception("Invalid Data") << "1 <= |IEta| <= 28, is " << iAbsEta;
   float ecalLinear = convertEcal(ecal);
-  float hcalLinear = hcalConversionConstants_[iAbsEta-1][hcal];
+  float hcalLinear;
+  if(useTranscoder_) hcalLinear = transcoder_->hcaletValue(iAbsEta, hcal); // hcalConversionConstants_[iAbsEta-1][hcal];
+  else hcalLinear = hcal;
   float etLinear = ecalLinear + hcalLinear;
-  //  unsigned long HE_FGBit = (calcHEBit(ecalLinear,hcalLinear) || fgbit);
-  unsigned long HE_FGBit = (calcHEBit(ecalLinear,0));  // Temporarily do not use hcal or FG bit
+  unsigned long HE_FGBit = (calcHEBit(ecalLinear,hcalLinear) || fgbit);
   unsigned long etIn7Bits = convertToInteger(ecalLinear, eGammaLSB_, 7);
   unsigned long etIn9Bits = convertToInteger(etLinear, jetMETLSB_, 9);
   unsigned long activityBit = calcActivityBit(ecal,hcal);
