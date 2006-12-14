@@ -23,7 +23,8 @@ class EcalErrorMaskFile {
 
   static void readFile( std::string inFile ) throw( std::runtime_error );
 
-  template <class T> static void fetchData( std::map< EcalLogicID, T>& fillMap ) throw( std::runtime_error );
+  static void fetchDataSet( std::map< EcalLogicID, MonCrystalStatusDat>* fillMap ) throw( std::runtime_error );
+  static void fetchDataSet( std::map< EcalLogicID, MonPNStatusDat>* fillMap ) throw( std::runtime_error );
 
  private:
 

@@ -99,7 +99,7 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 	throw( std::runtime_error( os.str() ) );
 	return;
       }
-      pair<EcalLogicID, MonCrystalStatusDat> pMCSD;
+      std::pair<EcalLogicID, MonCrystalStatusDat> pMCSD;
       MonCrystalStatusDef mcsf;
       mcsf.setShortDesc( shortDesc );
       MonCrystalStatusDat mcsd;
@@ -129,25 +129,26 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 
 }
 
-template <class T> void EcalErrorMaskFile::fetchData( std::map< EcalLogicID, T>& fillMap ) throw( std::runtime_error ) {
+void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, MonCrystalStatusDat>* fillMap ) throw( std::runtime_error ) {
 
   if( !done_ ) {
     throw( std::runtime_error( "Input file not read" ) );
     return;
   }
   fillMap->clear();
-  if( dynamic_cast<MonCrystalStatusDat*>(&(fillMap.second)) ) {
-    *fillMap = EcalErrorMaskFile::mapMCSD_;
-    return;
-  }
-  else if( dynamic_cast<MonPNStatusDat*>(&(fillMap.second)) ) {
-    *fillMap = EcalErrorMaskFile::mapMPSD_;
-    return;
-  }
-  else {
-    throw( std::runtime_error( "Table unknown or not yet implemented." ) );
-  }
+  *fillMap = EcalErrorMaskFile::mapMCSD_;
+  return;
+}
 
+void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, MonPNStatusDat>* fillMap ) throw( std::runtime_error ) {
+
+  if( !done_ ) {
+    throw( std::runtime_error( "Input file not read" ) );
+    return;
+  }
+  fillMap->clear();
+  *fillMap = EcalErrorMaskFile::mapMPSD_;
+  return;
 }
 
 void EcalErrorMaskFile::clearComments_( char* line ) {
