@@ -105,7 +105,8 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
 double CaloHitResponse::analogSignalAmplitude(const PCaloHit & hit, const CaloSimParameters & parameters) const {
   // OK, the "energy" in the hit could be a real energy, deposited energy,
   // or pe count.  This factor converts to photoelectrons
-  double npe = hit.energy() * parameters.simHitToPhotoelectrons();
+  DetId id(hit.id());
+  double npe = hit.energy() * parameters.simHitToPhotoelectrons(id);
   // do we need to doPoisson statistics for the photoelectrons?
   if(parameters.doPhotostatistics()) {
     npe = RandPoisson::shoot(static_cast<int>(npe));
