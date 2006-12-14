@@ -25,4 +25,6 @@
 @insert_defs
 @insert_metadata
 
+@dat_exists_func
+
 @show_db
