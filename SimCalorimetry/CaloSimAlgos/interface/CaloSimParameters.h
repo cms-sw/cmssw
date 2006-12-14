@@ -3,6 +3,7 @@
 
 #include <iosfwd>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/DetId/interface/DetId.h"
 /**
 
    \class CaloSimParameters
@@ -20,12 +21,14 @@ public:
 
   CaloSimParameters(const edm::ParameterSet & p);
 
-  ~CaloSimParameters() {};
+  virtual ~CaloSimParameters() {};
 
   /// the factor which goes from whatever units the SimHit amplitudes
   /// are in (could be deposited GeV, real GeV, or photoelectrons)
   /// and converts to photoelectrons
+  /// probably should make everything virtual, but this is enough for HCAL
   double simHitToPhotoelectrons() const { return simHitToPhotoelectrons_;}
+  virtual double simHitToPhotoelectrons(const DetId &) const { return simHitToPhotoelectrons_;}
 
   /// the factor which goes from photoelectrons to whatever gets read by ADCs
  double photoelectronsToAnalog() const {return photoelectronsToAnalog_;}
