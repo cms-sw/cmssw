@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2006/09/06 14:04:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/12/05 22:47:43 $
+ *  $Revision: 1.2 $
  *
  * \author N.Terentiev, CMU
  */
@@ -21,8 +21,8 @@ int CSCCFEBStatusDigi::ShiftSel(int nmb,int nshift,int nsel) const {
     return tmp= tmp & nsel;
 }
             /// Get SCA Full Condition
-std::vector<int> CSCCFEBStatusDigi::getSCAFullCond() const {
-    std::vector<int> vec(4,0);
+std::vector<uint16_t> CSCCFEBStatusDigi::getSCAFullCond() const {
+  /*    std::vector<int> vec(4,0);
     vec[0]=ShiftSel(SCAFullCond_,0,15);  // 4-bit FIFO1 word count
     vec[1]=ShiftSel(SCAFullCond_,4,15);  // 4-bit Block Number if Error Code=1
                                          // (CFEB: SCA Capacitors Full)
@@ -30,14 +30,15 @@ std::vector<int> CSCCFEBStatusDigi::getSCAFullCond() const {
                                          // (CFEB: FPGA FIFO full)
     vec[2]=ShiftSel(SCAFullCond_,9,7);   // Error Code
     vec[3]=ShiftSel(SCAFullCond_,12,15); // DDU Code, should be 0xB
-    return vec;
+    return vec;*/
+  return bWords_;
 }
             /// Get TS_FLAG bit from SCA Controller data  per each time slice
 std::vector<int> CSCCFEBStatusDigi::getTS_FLAG() const {
-    std::vector<int> vec(SCACWord_.size(),0);
+    std::vector<int> vec(contrWords_.size(),0);
     int nmb;
     for(unsigned int i=0;i<vec.size();i++) {
-      nmb=SCACWord_[i];
+      nmb=contrWords_[i];
       vec[i]=ShiftSel(nmb,15,1);
     }
     return vec;
@@ -45,10 +46,10 @@ std::vector<int> CSCCFEBStatusDigi::getTS_FLAG() const {
 
             /// Get SCA_FULL bit from SCA Controller data  per each time slice
 std::vector<int> CSCCFEBStatusDigi::getSCA_FULL() const {
-    std::vector<int> vec(SCACWord_.size(),0);
+    std::vector<int> vec(contrWords_.size(),0);
     int nmb;
     for(unsigned int i=0;i<vec.size();i++) {
-      nmb=SCACWord_[i];
+      nmb=contrWords_[i];
       vec[i]=ShiftSel(nmb,14,1);
     }
     return vec;
@@ -56,10 +57,10 @@ std::vector<int> CSCCFEBStatusDigi::getSCA_FULL() const {
 
             /// Get LCT_PHASE bit from SCA Controller data  per each time slice
 std::vector<int> CSCCFEBStatusDigi::getLCT_PHASE() const {
-    std::vector<int> vec(SCACWord_.size(),0);
+    std::vector<int> vec(contrWords_.size(),0);
     int nmb;
     for(unsigned int i=0;i<vec.size();i++) {
-      nmb=SCACWord_[i];
+      nmb=contrWords_[i];
       vec[i]=ShiftSel(nmb,13,1);
     }
     return vec;
@@ -67,10 +68,10 @@ std::vector<int> CSCCFEBStatusDigi::getLCT_PHASE() const {
 
             /// Get L1A_PHASE bit from SCA Controller data  per each time slice
 std::vector<int> CSCCFEBStatusDigi::getL1A_PHASE() const {
-    std::vector<int> vec(SCACWord_.size(),0);
+    std::vector<int> vec(contrWords_.size(),0);
     int nmb;
     for(unsigned int i=0;i<vec.size();i++) {
-      nmb=SCACWord_[i];
+      nmb=contrWords_[i];
       vec[i]=ShiftSel(nmb,12,1);
     }
     return vec;
@@ -78,10 +79,10 @@ std::vector<int> CSCCFEBStatusDigi::getL1A_PHASE() const {
  
             /// Get SCA_BLK 4 bit word from SCA Controller data  per each time slice
 std::vector<int> CSCCFEBStatusDigi::getSCA_BLK() const {
-    std::vector<int> vec(SCACWord_.size(),0);
+    std::vector<int> vec(contrWords_.size(),0);
     int nmb;
     for(unsigned int i=0;i<vec.size();i++) {
-      nmb=SCACWord_[i];
+      nmb=contrWords_[i];
       vec[i]=ShiftSel(nmb,8,15);
     }
     return vec;
@@ -89,10 +90,10 @@ std::vector<int> CSCCFEBStatusDigi::getSCA_BLK() const {
 
             /// Get TRIG_TIME 8 bit word from SCA Controller data  per each time  slice
 std::vector<int> CSCCFEBStatusDigi::getTRIG_TIME() const {
-    std::vector<int> vec(SCACWord_.size(),0);
+    std::vector<int> vec(contrWords_.size(),0);
     int nmb;
     for(unsigned int i=0;i<vec.size();i++) {
-      nmb=SCACWord_[i];
+      nmb=contrWords_[i];
       vec[i]=ShiftSel(nmb,0,255);
     }
     return vec;
@@ -100,7 +101,7 @@ std::vector<int> CSCCFEBStatusDigi::getTRIG_TIME() const {
 
             /// Debug
 void CSCCFEBStatusDigi::print() const {
-    cout << "CSC CFEB # : " << getCFEBNmb() <<" "<<getL1AOverlap()<<"\n";
+    cout << "CSC CFEB # : " << getCFEBNmb() <<"\n";
     for (size_t i = 0; i<4; ++i ){
         cout <<" " <<(getSCAFullCond())[i]; }
     cout<<"\n";

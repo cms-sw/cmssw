@@ -71,7 +71,7 @@ class CSCCFEBTimeSlice {
   unsigned sizeInWords() const {return 100;}
 
   /// unpacked from the controller words for each channel in the layer
-  CSCCFEBSCAControllerWord scaControllerWord(int layer);
+  CSCCFEBSCAControllerWord scaControllerWord(int layer) const ;
   
   void setControllerWord(const CSCCFEBSCAControllerWord & controllerWord);
 

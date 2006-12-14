@@ -12,6 +12,7 @@ public:
   bool check() const {return b_==0xb;}
   bool isBad() const {return true;}
   friend std::ostream & operator<<(std::ostream & os, const CSCBadCFEBWord &);
+  unsigned data() const {return (word1_ + (word2_<<4) + (code_<<9) + (b_<<12) );}
 private:
   unsigned short word1_:4;
   unsigned short word2_:4;

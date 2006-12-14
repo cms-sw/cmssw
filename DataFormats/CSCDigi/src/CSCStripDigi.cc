@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2006/04/26 20:30:40 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/05/16 15:08:52 $
+ *  $Revision: 1.10 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -16,11 +16,10 @@ using namespace std;
 
 // Constructors
 CSCStripDigi::CSCStripDigi (int istrip, vector<int> vADCCounts,  vector<uint16_t> vADCOverflow,
-			    vector<uint16_t> vContrData, vector<uint16_t> vOverlap, vector<uint16_t> vErrorstat ){
+			    vector<uint16_t> vOverlap, vector<uint16_t> vErrorstat ){
   strip = istrip;
   ADCCounts = vADCCounts;
   ADCOverflow = vADCOverflow;
-  ControllerData = vContrData;
   OverlappedSample = vOverlap;
   Errorstat = vErrorstat;
 }
@@ -30,7 +29,6 @@ CSCStripDigi::CSCStripDigi (int istrip, vector<int> vADCCounts){
   ADCCounts = vADCCounts;
   vector<uint16_t> ZeroVec(8,0);
   ADCOverflow = ZeroVec;
-  ControllerData = ZeroVec;
   OverlappedSample = ZeroVec;
   Errorstat = ZeroVec;
 }
@@ -42,7 +40,6 @@ CSCStripDigi::CSCStripDigi (){
   strip = 0;
   ADCCounts = ZeroCounts;
   ADCOverflow =  ZeroVec;
-  ControllerData =  ZeroVec;
   OverlappedSample = ZeroVec;
   Errorstat =  ZeroVec;
 }

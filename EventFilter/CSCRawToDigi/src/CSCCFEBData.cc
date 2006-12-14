@@ -4,6 +4,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCBadCFEBTimeSlice.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>
 #include <boost/cstdint.hpp>
@@ -25,6 +26,8 @@ CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf)
       //show that a bad slice starts here
       theSliceStarts.push_back(std::pair<int, bool>(pos, false));
       pos += badSlice->sizeInWords();
+      //store bad word for status digis
+      bWords.push_back(badSlice->word(1).data()); //all 4 words are assumed identical so saving #1 only	
     } else {
       // OK.  Maybe it's good.
 
@@ -134,6 +137,43 @@ unsigned CSCCFEBData::errorstat(unsigned layer, unsigned channel, unsigned timeB
   return result;
 }
 
+
+CSCCFEBStatusDigi CSCCFEBData::statusDigi() const {
+  ///returns one status digi per cfeb 
+  ///contains bWord if slice is bad 
+  ///also contains crc word and controller word
+
+  std::vector<uint16_t> crcWords(nTimeSamples());
+  std::vector<uint16_t> contrWords(nTimeSamples());
+
+  if (nTimeSamples()==0) 
+    {
+      edm::LogError("CSCCFEBData") << "TimeSamples is Zero - CFEB Data Corrupt!";
+    }
+  else
+    {
+      for(unsigned itime = 0; itime < nTimeSamples(); ++itime) {
+	const CSCCFEBTimeSlice * slice = timeSlice(itime);
+	// zero is returned for bad slices
+	if (slice) crcWords[itime] = slice->get_crc();
+
+	if (slice) 
+	  {	
+	    int layer=1; ///here layer=1 bec this word repeats 6 times for each layer
+	    for(unsigned i = 0; i < 16; ++i) {
+	      contrWords[itime] |= slice->timeSample(i*6+layer-1)->controllerData << i;
+	    }
+	  }
+
+      }
+    }
+
+  CSCCFEBStatusDigi result(boardNumber_+1, crcWords, contrWords, bWords);
+  return result;
+}
+
+
+
 std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned idlayer) const {
 
   //  assert(layer>0 && layer <= 6);
@@ -141,7 +181,6 @@ std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned idlayer) const {
   result.reserve(16);
   std::vector<int> sca(nTimeSamples());
   std::vector<uint16_t> overflow(nTimeSamples());
-  std::vector<uint16_t> contrData(nTimeSamples());
   std::vector<uint16_t> overlap(nTimeSamples());
   std::vector<uint16_t> errorfl(nTimeSamples());
 
@@ -156,7 +195,6 @@ std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned idlayer) const {
     for(unsigned itime = 0; itime < nTimeSamples(); ++itime) {
       sca[itime] = adcCounts(layer, ichannel, itime);
       overflow[itime] = adcOverflow(layer, ichannel, itime);
-      contrData[itime] = controllerData(layer, ichannel, itime);
       overlap[itime] = overlappedSampleFlag(layer, ichannel, itime);
       errorfl[itime] = errorstat(layer, ichannel, itime);
     }
@@ -166,7 +204,7 @@ std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned idlayer) const {
     }
     int strip = ichannel + 16*boardNumber_;
     if ( me1a ) strip = strip%64; // reset 65-80 to 1-16
-    CSCStripDigi digi(strip, sca, overflow, contrData, overlap, errorfl); 
+    CSCStripDigi digi(strip, sca, overflow, overlap, errorfl); 
     result.push_back(digi);
   }
   return result;

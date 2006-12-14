@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date: 2006/11/17 15:23:06 $
- * $Revision: 1.13 $
+ * $Date: 2006/12/05 22:48:07 $
+ * $Revision: 1.14 $
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,7 +12,7 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.13 2006/11/17 15:23:06 ptc Exp $";
+static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.14 2006/12/05 22:48:07 teren Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -159,7 +159,7 @@ void testCSCDigis::fillCSCStripDigi(CSCStripDigiCollection & collection){
 
 	   std::vector<uint16_t> someVec(8);
 
-	   CSCStripDigi digi(aStrip, someADCCounts, someVec, someVec, someVec, someVec);
+	   CSCStripDigi digi(aStrip, someADCCounts, someVec, someVec, someVec);
            digivec.push_back(digi);
         }
  
@@ -298,15 +298,12 @@ void testCSCDigis::fillCSCCFEBStatusDigi(CSCCFEBStatusDigiCollection & collectio
        {
            int aCfeb = i;
            CSCCFEBStatusDigi digi(aCfeb);
-           digi.setL1AOverlap(1);
-           digi.setSCAFullCond(0XB221);
            std::vector<uint16_t> crc(8,0); crc[0]=1;crc[7]=8;
            digi.setCRC(crc);
            std::vector<uint16_t> scac(8,0); scac[0]=11;scac[7]=18;
            scac[0]=scac[0]+256+2048+4096+8192+16384+32768;
            scac[7]=scac[7]+256+2048+4096+8192+16384+32768;
            digi.setSCAC(scac);
-
            digivec.push_back(digi);
        }
  
@@ -569,7 +566,7 @@ void testCSCDigis::readCSCCFEBStatusDigi(CSCCFEBStatusDigiCollection & collectio
            range.first; digiIt!=range.second; ++digiIt){
       cfebcount++;
       CPPUNIT_ASSERT((*digiIt).getCFEBNmb()==cfebcount);
-      printf("CSC CFEBStatus - endcap station ring csc cfeb L1Aoverlap: %3d %3d %3d %3d %3d %3d \n",id.endcap(),id.station(),id.ring(),id.chamber(),(*digiIt).getCFEBNmb(),(*digiIt).getL1AOverlap());
+      printf("CSC CFEBStatus - endcap station ring csc cfeb: %3d %3d %3d %3d %3d \n",id.endcap(),id.station(),id.ring(),id.chamber(),(*digiIt).getCFEBNmb());
 
       std::cout<<"CSC CFEBStatus - SCA Full Condition:";
       for(int i=0;i<4;i++) std::cout<<" "<<(*digiIt).getSCAFullCond()[i];

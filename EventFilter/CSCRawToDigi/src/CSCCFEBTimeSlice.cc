@@ -22,7 +22,7 @@ CSCCFEBDataWord * CSCCFEBTimeSlice::timeSample(int layer, int channel) const {
 }
 
 
-CSCCFEBSCAControllerWord CSCCFEBTimeSlice::scaControllerWord(int layer) {
+CSCCFEBSCAControllerWord CSCCFEBTimeSlice::scaControllerWord(int layer) const {
   unsigned int result=0;
   for(unsigned i = 0; i < 16; ++i) {
      result |= timeSample(i*6+layer-1)->controllerData << i;

@@ -3,6 +3,8 @@
 
 class CSCCFEBTimeSlice;
 class CSCStripDigi;
+class CSCCFEBStatusDigi;
+
 #include<vector>
 #include<iosfwd>
 #include<iostream>
@@ -31,6 +33,9 @@ class CSCCFEBData {
   std::vector<CSCStripDigi> digis(unsigned idlayer) const;
   /// deprecated.  Use the above method.
   std::vector<std::vector<CSCStripDigi> > stripDigis() const;
+ 
+  /// returns one status digi per cfeb
+  CSCCFEBStatusDigi statusDigi() const;
 
   unsigned short * data() {return theData;}
   unsigned sizeInWords() const {return theSize;} 
@@ -51,7 +56,7 @@ class CSCCFEBData {
   int theSize;
   unsigned boardNumber_;
   unsigned theNumberOfSamples;
-
+  std::vector<uint16_t> bWords;
 };
 
 #endif
