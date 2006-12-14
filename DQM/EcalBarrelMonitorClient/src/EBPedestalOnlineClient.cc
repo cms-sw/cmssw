@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/11/21 15:03:05 $
- * $Revision: 1.52 $
+ * $Date: 2006/12/14 11:10:31 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -32,6 +32,7 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h>
 
 EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps){
 
@@ -283,7 +284,7 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
       cerr << e.what() << endl;
     }
   } else {
-    // FIX: read the mask from file or cache
+    EcalErrorMaskFile::fetchDataSet(mask);
   }
 
   const float n_min_tot = 1000.;

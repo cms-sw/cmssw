@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/11/21 13:16:52 $
- * $Revision: 1.190 $
+ * $Date: 2006/11/21 15:01:52 $
+ * $Revision: 1.191 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -32,9 +32,9 @@
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
 
-
 #include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h>
 
 EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
@@ -141,6 +141,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     if ( maskFile_.size() != 0 ) {
       cout << " Using maskFile = '" << maskFile_ << "'" << endl;
+      EcalErrorMaskFile::readFile(maskFile_);
     }
 
   }
