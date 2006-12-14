@@ -1,11 +1,11 @@
-// $Id: EcalErrorMaskFile.cc,v 1.2 2006/12/14 14:16:14 dellaric Exp $
+// $Id: EcalErrorMaskFile.cc,v 1.4 2006/12/14 17:12:55 benigno Exp $
 
 /*!
   \file EcalErrorMaskFile.cc
   \brief Error mask from text file
   \author B. Gobbo 
-  \version $Revision: 1.2 $
-  \date $Date: 2006/12/14 14:16:14 $
+  \version $Revision: 1.4 $
+  \date $Date: 2006/12/14 17:12:55 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
@@ -129,7 +129,7 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 
 }
 
-void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, MonCrystalStatusDat>* fillMap ) throw( std::runtime_error ) {
+void EcalErrorMaskFile::fetchData( std::map< EcalLogicID, MonCrystalStatusDat>* fillMap ) throw( std::runtime_error ) {
 
   if( !done_ ) {
     throw( std::runtime_error( "Input file not read" ) );
@@ -140,7 +140,7 @@ void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, MonCrystalStatusDat
   return;
 }
 
-void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, MonPNStatusDat>* fillMap ) throw( std::runtime_error ) {
+void EcalErrorMaskFile::fetchData( std::map< EcalLogicID, MonPNStatusDat>* fillMap ) throw( std::runtime_error ) {
 
   if( !done_ ) {
     throw( std::runtime_error( "Input file not read" ) );

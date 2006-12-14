@@ -1,11 +1,11 @@
-// $Id: EcalErrorMaskFile.h,v 1.2 2006/12/14 14:16:14 dellaric Exp $
+// $Id: EcalErrorMaskFile.h,v 1.4 2006/12/14 17:12:55 benigno Exp $
 
 /*!
   \file EcalErrorMaskFile.h
   \brief Error mask from text file
   \author B. Gobbo 
-  \version $Revision: 1.2 $
-  \date $Date: 2006/12/14 14:16:14 $
+  \version $Revision: 1.4 $
+  \date $Date: 2006/12/14 17:12:55 $
 */
 
 #ifndef EcalErrorMaskFile_H
@@ -23,8 +23,8 @@ class EcalErrorMaskFile {
 
   static void readFile( std::string inFile ) throw( std::runtime_error );
 
-  static void fetchDataSet( std::map< EcalLogicID, MonCrystalStatusDat>* fillMap ) throw( std::runtime_error );
-  static void fetchDataSet( std::map< EcalLogicID, MonPNStatusDat>* fillMap ) throw( std::runtime_error );
+  static void fetchData( std::map< EcalLogicID, MonCrystalStatusDat>* fillMap ) throw( std::runtime_error );
+  static void fetchData( std::map< EcalLogicID, MonPNStatusDat>* fillMap ) throw( std::runtime_error );
 
  private:
 
