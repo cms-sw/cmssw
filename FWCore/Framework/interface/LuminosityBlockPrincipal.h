@@ -10,7 +10,7 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.2 2006/12/01 03:29:52 wmtan Exp $
+$Id: LuminosityBlockPrincipal.h,v 1.3 2006/12/07 23:48:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -26,17 +26,20 @@ namespace edm {
   public:
     LuminosityBlockPrincipal(LuminosityBlockID const& id,
 	ProductRegistry const& reg,
-        boost::shared_ptr<RunPrincipal> rp,
+        boost::shared_ptr<RunPrincipal const> rp,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
-	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
-    LuminosityBlockPrincipal(LuminosityBlockID const& id,
-	ProductRegistry const& reg,
-	ProcessHistoryID const& hist = ProcessHistoryID(),
-	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader)) :
+        Base(reg, hist, rtrv), runPrincipal_(rp), aux_(id) {}
+
     ~LuminosityBlockPrincipal() {}
 
     RunPrincipal const& runPrincipal() const {
       return *runPrincipal_;
+    }
+
+    boost::shared_ptr<RunPrincipal const> const
+    runPrincipalConstSharedPtr() const {
+      return runPrincipal_;
     }
 
     LuminosityBlockID const& id() const {
@@ -74,6 +77,9 @@ namespace edm {
     using Base::store;
 
   private:
+    virtual bool unscheduledFill(Group const&) const {return false;}
+    virtual bool fillAndMatchSelector(Provenance &, SelectorBase const&) const {return false;}
+
     boost::shared_ptr<RunPrincipal const> const runPrincipal_;
     LuminosityBlockAux aux_;
   };

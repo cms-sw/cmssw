@@ -1,10 +1,12 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.3.2.1 2006/07/04 14:03:43 wmtan Exp $
+$Id: RawInputSource.cc,v 1.4 2006/07/06 19:11:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/RawInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 
 namespace edm {
@@ -13,14 +15,27 @@ namespace edm {
     InputSource(pset, desc),
     remainingEvents_(maxEvents()),
     runNumber_(RunNumber_t()),
-    ep_(0)
+    oldRunNumber_(RunNumber_t()),
+    ep_(),
+    luminosityBlockPrincipal_()
   { }
 
   RawInputSource::~RawInputSource() {
   }
 
+  void
+  RawInputSource::setRun(RunNumber_t r) {
+    runNumber_ = r;
+  }
+
   std::auto_ptr<EventPrincipal>
   RawInputSource::read() {
+    if (runNumber_ != oldRunNumber_ || luminosityBlockPrincipal_.get() == 0) {
+      oldRunNumber_ = runNumber_;
+      boost::shared_ptr<RunPrincipal const> runPrincipal(new RunPrincipal(runNumber_, productRegistry()));
+      luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal const>(
+                        new LuminosityBlockPrincipal(1UL, productRegistry(), runPrincipal));
+    }
     if(remainingEvents_ != 0) {
       std::auto_ptr<Event> e(readOneEvent());
       if(e.get() != 0) {
@@ -34,7 +49,10 @@ namespace edm {
   std::auto_ptr<Event>
   RawInputSource::makeEvent(EventID & eventId, Timestamp const& tstamp) {
     eventId = EventID(runNumber_, eventId.event());
-    ep_ = std::auto_ptr<EventPrincipal>(new EventPrincipal(eventId, Timestamp(tstamp), productRegistry()));
+    ep_ = std::auto_ptr<EventPrincipal>(new EventPrincipal(eventId,
+							   Timestamp(tstamp),
+							   productRegistry(),
+							   luminosityBlockPrincipal_));
     std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
     return e;
   }

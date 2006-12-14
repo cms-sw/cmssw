@@ -2,8 +2,10 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.8 2006/10/27 20:45:20 wmtan Exp $
+$Id: ConfigurableInputSource.h,v 1.9 2006/11/03 17:57:51 wmtan Exp $
 ----------------------------------------------------------------------*/
+
+#include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -57,6 +59,8 @@ namespace edm {
     unsigned long const zerothEvent_;
     EventID eventID_;
     EventID origEventID_;
+
+    boost::shared_ptr<LuminosityBlockPrincipal const> luminosityBlockPrincipal_;
   };
 }
 #endif

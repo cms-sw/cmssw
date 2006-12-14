@@ -1,10 +1,12 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.7 2006/08/16 23:39:53 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.8 2006/09/01 00:41:18 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConfigurableInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 
 namespace edm {
@@ -22,7 +24,8 @@ namespace edm {
     numberEventsInThisRun_(0),
     zerothEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1) - 1),
     eventID_(pset.getUntrackedParameter<unsigned int>("firstRun", 1), zerothEvent_),
-    origEventID_(eventID_)
+    origEventID_(eventID_),
+    luminosityBlockPrincipal_()
   { }
 
   ConfigurableInputSource::~ConfigurableInputSource() {
@@ -30,12 +33,21 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   ConfigurableInputSource::read() {
+    RunNumber_t oldRun = eventID_.run();
     setRunAndEventInfo();
+    if (oldRun != eventID_.run() || luminosityBlockPrincipal_.get() == 0) {
+      boost::shared_ptr<RunPrincipal const> runPrincipal(new RunPrincipal(eventID_.run(), productRegistry()));
+      luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal const>(
+			new LuminosityBlockPrincipal(1UL, productRegistry(), runPrincipal));
+    }
     if (eventID_ == EventID()) {
       return std::auto_ptr<EventPrincipal>(0); 
     }
     std::auto_ptr<EventPrincipal> result = 
-      std::auto_ptr<EventPrincipal>(new EventPrincipal(eventID_, Timestamp(presentTime_), productRegistry()));
+      std::auto_ptr<EventPrincipal>(new EventPrincipal(eventID_,
+						       Timestamp(presentTime_),
+						       productRegistry(),
+						       luminosityBlockPrincipal_));
     Event e(*result, moduleDescription());
     if (!produce(e)) {
       return std::auto_ptr<EventPrincipal>(0); 
@@ -43,7 +55,6 @@ namespace edm {
     e.commit_();
     return result;
   }
-
 
   std::auto_ptr<EventPrincipal>
   ConfigurableInputSource::readIt(EventID const& eventID) {

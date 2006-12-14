@@ -10,7 +10,7 @@ such code sees the Run class, which is a proxy for RunPrincipal.
 The major internal component of the RunPrincipal
 is the DataBlock.
 
-$Id: RunPrincipal.h,v 1.2 2006/12/01 03:29:52 wmtan Exp $
+$Id: RunPrincipal.h,v 1.3 2006/12/07 23:48:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -63,6 +63,9 @@ namespace edm {
     using Base::store;
 
   private:
+    virtual bool unscheduledFill(Group const&) const {return false;}
+    virtual bool fillAndMatchSelector(Provenance &, SelectorBase const&) const {return false;}
+
     RunAux aux_;
   };
 }

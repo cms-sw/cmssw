@@ -5,7 +5,7 @@ namespace edm {
   EventPrincipal::EventPrincipal(EventID const& id,
 	Timestamp const& time,
 	ProductRegistry const& reg,
-        boost::shared_ptr<LuminosityBlockPrincipal> lbp,
+        boost::shared_ptr<LuminosityBlockPrincipal const> lbp,
 	ProcessHistoryID const& hist,
 	boost::shared_ptr<DelayedReader> rtrv) :
 	  Base(reg, hist, rtrv),
@@ -30,7 +30,7 @@ namespace edm {
   }
 
   void
-  EventPrincipal::setUnscheduledHandler_(boost::shared_ptr<UnscheduledHandler> iHandler) {
+  EventPrincipal::setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler) {
     unscheduledHandler_ = iHandler;
     provenanceFiller_ = boost::shared_ptr<EPEventProvenanceFiller>(
 	new EPEventProvenanceFiller(unscheduledHandler_, const_cast<EventPrincipal *>(this)));

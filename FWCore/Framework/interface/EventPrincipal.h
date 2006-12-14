@@ -10,7 +10,7 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.43 2006/12/07 23:48:57 wmtan Exp $
+$Id: EventPrincipal.h,v 1.44 2006/12/08 20:29:03 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -33,7 +33,7 @@ namespace edm {
     EventPrincipal(EventID const& id,
 	Timestamp const& time,
 	ProductRegistry const& reg,
-        boost::shared_ptr<LuminosityBlockPrincipal> lbp,
+        boost::shared_ptr<LuminosityBlockPrincipal const> lbp,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
     EventPrincipal(EventID const& id,
@@ -45,6 +45,11 @@ namespace edm {
 
     LuminosityBlockPrincipal const& luminosityBlockPrincipal() const {
       return *luminosityBlockPrincipal_;
+    }
+
+    boost::shared_ptr<LuminosityBlockPrincipal const> const
+    luminosityBlockPrincipalConstSharedPtr() const {
+      return luminosityBlockPrincipal_;
     }
 
     EventID const& id() const {
@@ -87,10 +92,9 @@ namespace edm {
     using Base::size;
     using Base::store;
 
-    using Base::setUnscheduledHandler;
+    void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler);
 
   private:
-    virtual void setUnscheduledHandler_(boost::shared_ptr<UnscheduledHandler> iHandler);
 
     virtual bool unscheduledFill(Group const& group) const;
 

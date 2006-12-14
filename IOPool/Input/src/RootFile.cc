@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.40 2006/12/04 23:51:16 wmtan Exp $
+$Id: RootFile.cc,v 1.41 2006/12/04 23:52:47 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -8,8 +8,9 @@ $Id: RootFile.cc,v 1.40 2006/12/04 23:51:16 wmtan Exp $
 
 #include "DataFormats/Common/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/BranchEntryDescription.h"
-#include "DataFormats/Common/interface/EventAux.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
@@ -38,12 +39,13 @@ namespace edm {
     eventProvenance_(),
     eventProvenancePtrs_(),
     reportToken_(0),
-    eventID_(),
+    eventAux_(),
     entryNumber_(-1),
     entries_(0),
     productRegistry_(new ProductRegistry),
     branches_(new BranchMap),
     productMap_(),
+    luminosityBlockPrincipal_(),
     eventTree_(0),
     eventMetaTree_(0),
     auxBranch_(0),
@@ -206,11 +208,23 @@ namespace edm {
     auxBranch_->SetAddress(&pEvAux);
     auxBranch_->GetEntry(entryNumber());
     eventMetaTree_->GetEntry(entryNumber());
-    eventID_ = evAux.id();
+    bool isNewRun = (evAux.id().run() != eventAux().id().run() || luminosityBlockPrincipal_.get() == 0);
+    bool isNewLumi = isNewRun || (evAux.luminosityBlockID() != eventAux().luminosityBlockID());
+    if (isNewRun) {
+      boost::shared_ptr<RunPrincipal const> runPrincipal(new RunPrincipal(eventID().run(), productRegistry()));
+      luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal const>(
+		new LuminosityBlockPrincipal(evAux.luminosityBlockID(), productRegistry(), runPrincipal));
+    } else if (isNewLumi) {
+      boost::shared_ptr<RunPrincipal const> runPrincipal = luminosityBlockPrincipal_->runPrincipalConstSharedPtr();
+      luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal const>(
+		new LuminosityBlockPrincipal(evAux.luminosityBlockID(), productRegistry(), runPrincipal));
+    }
+    eventAux_ = evAux;
     // We're not done ... so prepare the EventPrincipal
     boost::shared_ptr<DelayedReader> store_(new RootDelayedReader(entryNumber(), branches_, filePtr_));
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
-                eventID_, evAux.time(), pReg,
+                eventID(), evAux.time(), pReg,
+		luminosityBlockPrincipal_,
 		evAux.processHistoryID_, store_));
     // Loop over provenance
     std::vector<BranchEntryDescription>::iterator pit = eventProvenance_.begin();
@@ -237,7 +251,7 @@ namespace edm {
     }
     // report event read from file
     Service<JobReport> reportSvc;
-    reportSvc->eventReadFromFile(reportToken_, eventID_);
+    reportSvc->eventReadFromFile(reportToken_, eventID());
     return thisEvent;
   }
 }

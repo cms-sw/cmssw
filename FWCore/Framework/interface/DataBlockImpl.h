@@ -14,7 +14,7 @@ through shared pointers.
 The DataBlockImpl returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: DataBlockImpl.h,v 1.3 2006/11/30 15:37:06 paterno Exp $
+$Id: DataBlockImpl.h,v 1.4 2006/12/01 03:29:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -134,14 +134,9 @@ namespace edm {
 
     boost::shared_ptr<DelayedReader> store() const {return store_;}
 
-    void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler) {
-      setUnscheduledHandler_(iHandler);
-    }
-
     virtual EDProduct const* getIt(ProductID const& oid) const;
 
   private:
-    virtual void setUnscheduledHandler_(boost::shared_ptr<UnscheduledHandler> iHandler) = 0;
 
     virtual bool unscheduledFill(Group const& group) const = 0;
 
