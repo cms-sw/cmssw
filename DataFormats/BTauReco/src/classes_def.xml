@@ -2,7 +2,7 @@
   <class name="std::pair<unsigned int, std::vector<unsigned int> >" />
 <class name="std::vector<unsigned int>" />
   <class name="edm::RefProd<std::vector<reco::CaloJet> >" />
-  <class name="edm::RefProd<std::vector<reco::LorentzVector> >"/>
+
 
   <class name="reco::JetTag" />
   <class name="std::vector<reco::JetTag>" />
@@ -101,14 +101,16 @@
   <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::CaloJet> > >" />
   <class name="std::map<unsigned int, float>" />
 
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CaloJet> > , edm::RefProd<std::vector<reco::LorentzVector> > >"/> 
+
+<!--
+<class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CaloJet> > , edm::RefProd<std::vector<reco::LorentzVector> > >"/>
   <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::CaloJet>, std::vector<reco::LorentzVector>, unsigned int > >">
-    <field name="transientMap_" transient="true" />
+     <field name="transientMap_" transient="true" />
   </class>
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::CaloJet>, std::vector<reco::LorentzVector>, unsigned int > > >"/>
-    <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::LorentzVector> > >" />
+-->
 
-
+      
 
   <class pattern="edm::Ref<edm::AssociationMap<*>" />
   <class pattern="edm::RefProd<edm::AssociationMap<*>" />
