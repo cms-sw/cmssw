@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2006/11/21 09:47:22 $
- * $Revision: 1.19 $
+ * $Date: 2006/11/21 13:16:52 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -238,20 +238,20 @@ void EBTriggerTowerClient::subscribe(void){
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-    int ism = superModules_[i];
+    unsigned int ism = superModules_[i];
 
     sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EBTTT Et map SM%02d", ism);
-    mui_->subscribe(histo);
+    mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EBTTT FineGrainVeto SM%02d", ism);
-    mui_->subscribe(histo);
+    mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EBTTT Flags SM%02d", ism);
-    mui_->subscribe(histo);
+    mui_->subscribe(histo, ism);
 
     for (int j = 0; j < 68 ; j++) {
       sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et R SM%02d TT%02d", ism, j+1);
-      mui_->subscribe(histo);
+      mui_->subscribe(histo, ism);
       sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et T SM%02d TT%02d", ism, j+1);
-      mui_->subscribe(histo);
+      mui_->subscribe(histo, ism);
     }
 
   }
@@ -305,20 +305,20 @@ void EBTriggerTowerClient::subscribeNew(void){
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-    int ism = superModules_[i];
+    unsigned int ism = superModules_[i];
 
     sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EBTTT Et map SM%02d", ism);
-    mui_->subscribeNew(histo);
+    mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EBTTT FineGrainVeto SM%02d", ism);
-    mui_->subscribeNew(histo);
+    mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EBTTT Flags SM%02d", ism);
-    mui_->subscribeNew(histo);
+    mui_->subscribeNew(histo, ism);
 
     for (int j = 0; j < 68 ; j++) {
       sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et T SM%02d TT%02d", ism, j+1);
-      mui_->subscribeNew(histo);
+      mui_->subscribeNew(histo, ism);
       sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et R SM%02d TT%02d", ism, j+1);
-      mui_->subscribeNew(histo);
+      mui_->subscribeNew(histo, ism);
     }
 
   }
@@ -363,20 +363,20 @@ void EBTriggerTowerClient::unsubscribe(void){
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-    int ism = superModules_[i];
+    unsigned int ism = superModules_[i];
 
     sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EBTTT Et map SM%02d", ism);
-    mui_->unsubscribe(histo);
+    mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EBTTT FineGrainVeto SM%02d", ism);
-    mui_->unsubscribe(histo);
+    mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EBTTT Flags SM%02d", ism);
-    mui_->unsubscribe(histo);
+    mui_->unsubscribe(histo, ism);
 
     for (int j = 0; j < 68 ; j++) {
       sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et T SM%02d TT%02d", ism, j+1);
-      mui_->subscribe(histo);
+      mui_->subscribe(histo, ism);
       sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et R SM%02d TT%02d", ism, j+1);
-      mui_->subscribe(histo);
+      mui_->subscribe(histo, ism);
     }
 
   }

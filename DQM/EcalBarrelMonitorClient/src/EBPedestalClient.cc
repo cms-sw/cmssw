@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/11/21 09:47:22 $
- * $Revision: 1.95 $
+ * $Date: 2006/11/21 13:16:52 $
+ * $Revision: 1.96 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -696,33 +696,33 @@ void EBPedestalClient::subscribe(void){
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-    int ism = superModules_[i];
+    unsigned int ism = superModules_[i];
 
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
-    mui_->subscribe(histo);
+    mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
-    mui_->subscribe(histo);
+    mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-    mui_->subscribe(histo);
+    mui_->subscribe(histo, ism);
 
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
-    mui_->subscribe(histo);
+    mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
-    mui_->subscribe(histo);
+    mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
-    mui_->subscribe(histo);
+    mui_->subscribe(histo, ism);
 
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
-    mui_->subscribe(histo);
+    mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
-    mui_->subscribe(histo);
+    mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
-    mui_->subscribe(histo);
+    mui_->subscribe(histo, ism);
 
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
-    mui_->subscribe(histo);
+    mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
-    mui_->subscribe(histo);
+    mui_->subscribe(histo, ism);
 
   }
 
@@ -832,33 +832,33 @@ void EBPedestalClient::subscribeNew(void){
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-    int ism = superModules_[i];
+    unsigned int ism = superModules_[i];
 
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
-    mui_->subscribeNew(histo);
+    mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
-    mui_->subscribeNew(histo);
+    mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-    mui_->subscribeNew(histo);
+    mui_->subscribeNew(histo, ism);
 
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
-    mui_->subscribeNew(histo);
+    mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
-    mui_->subscribeNew(histo);
+    mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
-    mui_->subscribeNew(histo);
+    mui_->subscribeNew(histo, ism);
 
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
-    mui_->subscribeNew(histo);
+    mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
-    mui_->subscribeNew(histo);
+    mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
-    mui_->subscribeNew(histo);
+    mui_->subscribeNew(histo, ism);
 
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
-    mui_->subscribeNew(histo);
+    mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
-    mui_->subscribeNew(histo);
+    mui_->subscribeNew(histo, ism);
 
   }
 
@@ -903,33 +903,33 @@ void EBPedestalClient::unsubscribe(void){
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-    int ism = superModules_[i];
+    unsigned int ism = superModules_[i];
 
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
-    mui_->unsubscribe(histo);
+    mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
-    mui_->unsubscribe(histo);
+    mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-    mui_->unsubscribe(histo);
+    mui_->unsubscribe(histo, ism);
 
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
-    mui_->unsubscribe(histo);
+    mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
-    mui_->unsubscribe(histo);
+    mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
-    mui_->unsubscribe(histo);
+    mui_->unsubscribe(histo, ism);
 
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
-    mui_->unsubscribe(histo);
+    mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
-    mui_->unsubscribe(histo);
+    mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
-    mui_->unsubscribe(histo);
+    mui_->unsubscribe(histo, ism);
 
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
-    mui_->unsubscribe(histo);
+    mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
-    mui_->unsubscribe(histo);
+    mui_->unsubscribe(histo, ism);
 
   }
 

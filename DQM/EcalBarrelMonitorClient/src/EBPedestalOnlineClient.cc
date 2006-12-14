@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/11/21 15:02:13 $
- * $Revision: 1.51 $
+ * $Date: 2006/11/21 15:03:05 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -420,10 +420,10 @@ void EBPedestalOnlineClient::subscribe(void){
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-    int ism = superModules_[i];
+    unsigned int ism = superModules_[i];
 
     sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
-    mui_->subscribe(histo);
+    mui_->subscribe(histo, ism);
 
   }
 
@@ -471,10 +471,10 @@ void EBPedestalOnlineClient::subscribeNew(void){
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-    int ism = superModules_[i];
+    unsigned int ism = superModules_[i];
 
     sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
-    mui_->subscribeNew(histo);
+    mui_->subscribeNew(histo, ism);
 
   }
 
@@ -506,10 +506,10 @@ void EBPedestalOnlineClient::unsubscribe(void){
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-    int ism = superModules_[i];
+    unsigned int ism = superModules_[i];
 
     sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
-    mui_->unsubscribe(histo);
+    mui_->unsubscribe(histo, ism);
 
   }
 
