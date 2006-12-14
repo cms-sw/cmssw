@@ -1,11 +1,11 @@
-// $Id: EcalErrorMaskFile.cc,v 1.5 2006/12/14 17:16:20 dellaric Exp $
+// $Id: EcalErrorMaskFile.cc,v 1.6 2006/12/14 18:31:26 dellaric Exp $
 
 /*!
   \file EcalErrorMaskFile.cc
   \brief Error mask from text file
   \author B. Gobbo 
-  \version $Revision: 1.5 $
-  \date $Date: 2006/12/14 17:16:20 $
+  \version $Revision: 1.6 $
+  \date $Date: 2006/12/14 18:31:26 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
@@ -71,7 +71,7 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 	throw( std::runtime_error( os.str() ) );
 	return;
       }
-      unsigned char gain;
+      unsigned int gain;
       std::string ga; is >> ga;
       gain = 0;
       if( ga == "*" ) gain = 0x111;
@@ -96,7 +96,7 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
       }
       if( bitmask == 0 ) {
 	std::ostringstream os;
-	os << "line " << linecount << ": This Short Description was not fount in the Dictionary" << std::ends;
+	os << "line " << linecount << ": This Short Description was not found in the Dictionary" << std::ends;
 	throw( std::runtime_error( os.str() ) );
 	return;
       }
