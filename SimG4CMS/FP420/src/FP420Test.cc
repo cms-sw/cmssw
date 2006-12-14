@@ -17,8 +17,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // to retreive hits
 #include "SimG4CMS/FP420/interface//FP420NumberingScheme.h"
-#include "SimG4CMS/Calo/interface/CaloG4Hit.h"
-#include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
+//#include "SimG4CMS/Calo/interface/CaloG4Hit.h"
+//#include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
 #include "SimG4CMS/FP420/interface//FP420G4HitCollection.h"
 //#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
 #include "SimG4CMS/FP420/interface/FP420Test.h"
@@ -32,6 +32,7 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 #include "G4HCofThisEvent.hh"
+#include "G4UserEventAction.hh"
 #include "G4TransportationManager.hh"
 #include "G4ProcessManager.hh"
 //#include "G4EventManager.hh"
@@ -50,6 +51,7 @@
 // the standard header <assert.h> within the std namespace.
 #include <cassert>
 
+using namespace edm;
 using namespace std;
 //================================================================
 
@@ -399,7 +401,7 @@ void FP420Test::update(const EndOfRun * run) {;}
 void FP420Test::update(const BeginOfEvent * evt) {
   iev = (*evt)()->GetEventID();
   if (verbosity > 0) {
-    std::cout <<" Event number = " << iev << std::endl;
+    std::cout <<"FP420Test:update Event number = " << iev << std::endl;
   }
   whichevent++;
 }
@@ -407,7 +409,9 @@ void FP420Test::update(const BeginOfEvent * evt) {
 //=================================================================== per Track
 void FP420Test::update(const BeginOfTrack * trk) {
   itrk = (*trk)()->GetTrackID();
-//    std::cout <<" ====================BeginOfTrack number = " << itrk << std::endl;
+  if (verbosity > 1) {
+    std::cout <<"FP420Test:update BeginOfTrack number = " << itrk << std::endl;
+  }
   if(itrk == 1) {
      SumEnerDeposit = 0.;
      numofpart = 0;
@@ -421,7 +425,9 @@ void FP420Test::update(const BeginOfTrack * trk) {
 //=================================================================== per EndOfTrack
 void FP420Test::update(const EndOfTrack * trk) {
   itrk = (*trk)()->GetTrackID();
-//    std::cout <<" ==========EndOfTrack number = " << itrk << std::endl;
+  if (verbosity > 1) {
+    std::cout <<"FP420Test:update EndOfTrack number = " << itrk << std::endl;
+  }
   if(itrk == 1) {
   G4double tracklength  = (*trk)()->GetTrackLength();    // Accumulated track length
 
@@ -530,6 +536,10 @@ void FP420Test::update(const EndOfTrack * trk) {
 void FP420Test::update(const G4Step * aStep) {
 // ==========================================================================
   
+  if (verbosity > 2) {
+    G4int stepnumber  = aStep->GetTrack()->GetCurrentStepNumber();
+    std::cout <<"FP420Test:update Step number = " << stepnumber << std::endl;
+  }
   // track on aStep:                                                                                         !
   G4Track*     theTrack     = aStep->GetTrack();   
   TrackInformation* trkInfo = dynamic_cast<TrackInformation*> (theTrack->GetUserInformation());
@@ -908,6 +918,10 @@ void FP420Test::detectorLevel(const G4VTouchable* touch, int& level,
 void FP420Test::update(const EndOfEvent * evt) {
   // ==========================================================================
   
+  if (verbosity > 1) {
+  iev = (*evt)()->GetEventID();
+    std::cout <<"FP420Test:update EndOfEvent = " << iev << std::endl;
+  }
   // Fill-in ntuple
   fp420eventarray[ntfp420_evt] = (float)whichevent;
 
@@ -1020,11 +1034,20 @@ void FP420Test::update(const EndOfEvent * evt) {
   map<int,float,less<int> > themapz;
   // access to the G4 hit collections:  -----> this work OK:
 
+//  edm::LogInfo("FP420Test") << "1";
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
+//  edm::LogInfo("FP420Test") << "2";
+  std::cout << "FP420Test:  accessed all HC" << std::endl;;
 
   int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("FP420SI");
+ // edm::LogInfo("FP420Test") << "3";
+  std::cout << " CAFIid = " << CAFIid << std::endl;;
 
   FP420G4HitCollection* theCAFI = (FP420G4HitCollection*) allHC->GetHC(CAFIid);
+  //  CaloG4HitCollection* theCAFI = (CaloG4HitCollection*) allHC->GetHC(CAFIid);
+  std::cout << "FP420Test: theCAFI = " << theCAFI << std::endl;
+  std::cout << "FP420Test: theCAFI->entries = " << theCAFI->entries() << std::endl;
+ // edm::LogInfo("FP420Test") << "theCAFI->entries="<< theCAFI->entries();
 
   // access to the G4 hit collections ----> variant 2: give 0 hits
 //  FP420G4HitCollection *   theCAFI;
@@ -1108,8 +1131,11 @@ void FP420Test::update(const EndOfEvent * evt) {
 //    double   xx    = hitPoint.x();
 //    double   yy    = hitPoint.y();
     double   zz    = hitPoint.z();
-	 TheHistManager->GetHisto("zHits")->Fill(zz);
-//    double   rr    = hitPoint.perp();
+    TheHistManager->GetHisto("zHits")->Fill(zz);
+    if (verbosity > 2) {
+      std::cout << "FP420Test:zHits = " << zz << std::endl;
+    }
+//	 double   rr    = hitPoint.perp();
     /*
       if(aHit->getTrackID() == 1) {
 	  emu += aHit->getEnergyDeposit();} else {

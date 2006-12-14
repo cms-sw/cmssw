@@ -7,6 +7,17 @@
 #include <memory>
 #include <string>
 //
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+// necessary objects:
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+
+//
+//
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
