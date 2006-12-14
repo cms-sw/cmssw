@@ -102,7 +102,6 @@ int main() {
   //crossingFrame.addPileupCaloHits(-3, hitsName, &pileups);
   // -or -
   // crossingFrame.addPileupCaloHits(-3, hitsName, &pileups, 0);
-
   HcalSimParameterMap parameterMap;
   HcalShape hcalShape;
   HFShape hfShape;
@@ -159,6 +158,7 @@ std::cout << "TEST Pedestal " << pedestals.getValue(barrelDetId,  1) << std::end
   HcalCoderFactory coderFactory(HcalCoderFactory::NOMINAL);
   HcalElectronicsSim electronicsSim(&amplifier, &coderFactory);
   amplifier.setDbService(&calibratorHandle);
+  parameterMap.setDbService(&calibratorHandle);
 
   CaloTDigitizer<HBHEDigitizerTraits> hbheDigitizer(&hbheResponse, &electronicsSim, addNoise);
   CaloTDigitizer<HODigitizerTraits> hoDigitizer(&hoResponse, &electronicsSim, addNoise);
