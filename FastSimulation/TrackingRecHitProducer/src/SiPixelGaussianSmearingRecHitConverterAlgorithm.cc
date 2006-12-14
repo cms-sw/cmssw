@@ -32,8 +32,7 @@
 #include <TH1F.h>
 #include <TAxis.h>
 
-// MessageLogger
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+//#define FAMOS_DEBUG
 
 const double PI = 3.14159265358979323;
 
@@ -135,9 +134,10 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   const PixelGeomDetUnit* detUnit)
 {
 
-  LogDebug("SiPixelGaussianSmearingRecHits") 
-    << " Pixel smearing in " << thePixelPart 
-    << std::endl;
+#ifdef FAMOS_DEBUG
+  std::cout << " Pixel smearing in " << thePixelPart 
+	    << std::endl;
+#endif
   //
   // at the beginning the position is the Local Point in the local pixel module reference frame
   // same code as in PixelCPEBase
@@ -149,7 +149,9 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   // alpha: angle with respect to local x axis in local (x,z) plane
   float alpha = acos(locx/sqrt(locx*locx+locz*locz));
   if ( isFlipped( detUnit ) ) { // &&& check for FPIX !!!
-    LogDebug("SiPixelGaussianSmearingRecHits") << " isFlipped " << std::endl;
+#ifdef FAMOS_DEBUG
+    std::cout << " isFlipped " << std::endl;
+#endif
     alpha = PI - alpha ;
   }
   // beta: angle with respect to local y axis in local (y,z) plane
@@ -159,13 +161,14 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   float betaToBeUsedForRootFiles  = PI/2. - beta;
   
   //
-  LogDebug("SiPixelGaussianSmearingRecHits") 
-    << " Local Direction " << simHit.localDirection()
-    << " alpha(x) = " << alpha
-    << " beta(y) = "  << beta
-    << " alpha for root files = " << alphaToBeUsedForRootFiles
-    << " beta  for root files = " << betaToBeUsedForRootFiles
-    << std::endl;
+#ifdef FAMOS_DEBUG
+  std::cout << " Local Direction " << simHit.localDirection()
+	    << " alpha(x) = " << alpha
+	    << " beta(y) = "  << beta
+	    << " alpha for root files = " << alphaToBeUsedForRootFiles
+	    << " beta  for root files = " << betaToBeUsedForRootFiles
+	    << std::endl;
+#endif
 
   // Generate alpha and beta multiplicity
   unsigned int alphaMultiplicity = 0;
@@ -210,19 +213,21 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 
   //
   //
-  LogDebug("SiPixelGaussianSmearingRecHits") << " Multiplicity set to"
-					     << "\talpha = " << alphaMultiplicity
-					     << "\tbeta = "  << betaMultiplicity
-					     << "\n"
-					     << "  from random probability"
-					     << "\talpha = " << alphaProbability
-					     << "\tbeta = "  << betaProbability
-					     << "\n"
-					     << "  taken from bin         "
-					     << "\talpha = " << alphaBin
-					     << "\tbeta = "  << betaBin
-					     << std::endl;	
-
+#ifdef FAMOS_DEBUG
+  std::cout << " Multiplicity set to"
+	    << "\talpha = " << alphaMultiplicity
+	    << "\tbeta = "  << betaMultiplicity
+	    << "\n"
+	    << "  from random probability"
+	    << "\talpha = " << alphaProbability
+	    << "\tbeta = "  << betaProbability
+	    << "\n"
+	    << "  taken from bin         "
+	    << "\talpha = " << alphaBin
+	    << "\tbeta = "  << betaBin
+	    << std::endl;	
+#endif
+  
   // Compute pixel errors
   std::pair<float,float> theErrors = pixelError->getError( thePixelPart ,
 							  (int)alphaMultiplicity , (int)betaMultiplicity ,
@@ -235,11 +240,12 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
     // Local Error is 2D: (xx,xy,yy), square of sigma in first an third position 
     // as for resolution matrix
   //
-  LogDebug("SiPixelGaussianSmearingRecHits") << " Pixel Errors "
-					     << "\talpha(x) = " << sqrt(theErrorX)
-					     << "\tbeta(y) = "  << sqrt(theErrorY)
-					     << std::endl;	
-
+#ifdef FAMOS_DEBUG
+  std::cout << " Pixel Errors "
+	    << "\talpha(x) = " << sqrt(theErrorX)
+	    << "\tbeta(y) = "  << sqrt(theErrorY)
+	    << std::endl;	
+#endif
   // 
   // Generate position
   // get resolution histograms
@@ -265,12 +271,12 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 			    :
 			    1100 + betaMultiplicity);    //
   //
-  LogDebug("SiPixelGaussianSmearingRecHits") 
-    << " Resolution histograms chosen "
-    << "\talpha = " << alphaHistN
-    << "\tbeta = "  << betaHistN
-    << std::endl;	
-
+#ifdef FAMOS_DEBUG
+  std::cout << " Resolution histograms chosen "
+	    << "\talpha = " << alphaHistN
+	    << "\tbeta = "  << betaHistN
+	    << std::endl;	
+#endif
   //
   // Smear the hit Position
   thePositionX = theAlphaHistos[alphaHistN]->generate();

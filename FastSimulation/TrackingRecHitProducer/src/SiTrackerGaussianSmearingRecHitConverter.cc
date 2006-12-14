@@ -55,13 +55,14 @@
 #include <TH1F.h>
 #include <TAxis.h>
 
-// MessageLogger
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+//#define FAMOS_DEBUG
 
 SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConverter(edm::ParameterSet const& conf) 
   : conf_(conf)
 {
+#ifdef FAMOS_DEBUG
   std::cout << "SiTrackerGaussianSmearingRecHitConverter instantiated" << std::endl;
+#endif
 
   // Initialize the random number generator service
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -78,7 +79,7 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   //--- Declare to the EDM what kind of collections we will be making.
   theRecHitsTag = conf.getParameter<std::string>( "RecHits" );
   produces<SiTrackerGSRecHit2DCollection>();
-  //    LogDebug("SiTrackerGaussianSmearingRecHits") << "RecHit collection to produce: " << theRecHitsTag << std::endl;
+  //    std::cout << "RecHit collection to produce: " << theRecHitsTag << std::endl;
   //--- Algorithm's verbosity
   //  theVerboseLevel = 
   //    conf.getUntrackedParameter<int>("VerboseLevel",0);
@@ -87,10 +88,12 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
   //--- delta rays p cut [GeV/c] to filter PSimHits with p>
   deltaRaysPCut = conf.getParameter<double>("DeltaRaysMomentumCut");
-  LogDebug("SiTrackerGaussianSmearingRecHits") << "PSimHit filter delta rays cut in momentum p > " << deltaRaysPCut << " GeV/c" << std::endl;
-  //--- switch to have RecHit == PSimHit
+#ifdef FAMOS_DEBUG
+  std::cout << "PSimHit filter delta rays cut in momentum p > " << deltaRaysPCut << " GeV/c" << std::endl;
+#endif
+//--- switch to have RecHit == PSimHit
   trackingPSimHits = conf.getParameter<bool>("trackingPSimHits");
-  if(trackingPSimHits) LogDebug("SiTrackerGaussianSmearingRecHits") << "### trackingPSimHits chosen " << trackingPSimHits << std::endl;
+  if(trackingPSimHits) std::cout << "### trackingPSimHits chosen " << trackingPSimHits << std::endl;
   //
   // TIB
   localPositionResolution_TIB1x = conf.getParameter<double>("TIB1x");
@@ -142,43 +145,49 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   //
   localPositionResolution_z = 0.0001; // not to be changed, set to minimum (1 um), Kalman Filter will crash if errors are exactly 0, setting 1 um means 0
   //
-  LogDebug("SiTrackerGaussianSmearingRecHits") << "RecHit local position error set to" << "\n"
-					       << "\tTIB1\tx = " << localPositionResolution_TIB1x << " cm\ty = " << localPositionResolution_TIB1y << " cm" << "\n"
-					       << "\tTIB2\tx = " << localPositionResolution_TIB2x << " cm\ty = " << localPositionResolution_TIB2y << " cm" << "\n"
-					       << "\tTIB3\tx = " << localPositionResolution_TIB3x << " cm\ty = " << localPositionResolution_TIB3y << " cm" << "\n"
-					       << "\tTIB4\tx = " << localPositionResolution_TIB4x << " cm\ty = " << localPositionResolution_TIB4y << " cm" << "\n"
-					       << "\tTID1\tx = " << localPositionResolution_TID1x << " cm\ty = " << localPositionResolution_TID1y << " cm" << "\n"
-					       << "\tTID2\tx = " << localPositionResolution_TID2x << " cm\ty = " << localPositionResolution_TID2y << " cm" << "\n"
-					       << "\tTID3\tx = " << localPositionResolution_TID3x << " cm\ty = " << localPositionResolution_TID3y << " cm" << "\n"
-					       << "\tTOB1\tx = " << localPositionResolution_TOB1x << " cm\ty = " << localPositionResolution_TOB1y << " cm" << "\n"
-					       << "\tTOB2\tx = " << localPositionResolution_TOB2x << " cm\ty = " << localPositionResolution_TOB2y << " cm" << "\n"
-					       << "\tTOB3\tx = " << localPositionResolution_TOB3x << " cm\ty = " << localPositionResolution_TOB3y << " cm" << "\n"
-					       << "\tTOB4\tx = " << localPositionResolution_TOB4x << " cm\ty = " << localPositionResolution_TOB4y << " cm" << "\n"
-					       << "\tTOB5\tx = " << localPositionResolution_TOB5x << " cm\ty = " << localPositionResolution_TOB5y << " cm" << "\n"
-					       << "\tTOB6\tx = " << localPositionResolution_TOB6x << " cm\ty = " << localPositionResolution_TOB6y << " cm" << "\n"
-					       << "\tTEC1\tx = " << localPositionResolution_TEC1x << " cm\ty = " << localPositionResolution_TEC1y << " cm" << "\n"
-					       << "\tTEC2\tx = " << localPositionResolution_TEC2x << " cm\ty = " << localPositionResolution_TEC2y << " cm" << "\n"
-					       << "\tTEC3\tx = " << localPositionResolution_TEC3x << " cm\ty = " << localPositionResolution_TEC3y << " cm" << "\n"
-					       << "\tTEC4\tx = " << localPositionResolution_TEC4x << " cm\ty = " << localPositionResolution_TEC4y << " cm" << "\n"
-					       << "\tTEC5\tx = " << localPositionResolution_TEC5x << " cm\ty = " << localPositionResolution_TEC5y << " cm" << "\n"
-					       << "\tTEC6\tx = " << localPositionResolution_TEC6x << " cm\ty = " << localPositionResolution_TEC6y << " cm" << "\n"
-					       << "\tTEC7\tx = " << localPositionResolution_TEC7x << " cm\ty = " << localPositionResolution_TEC7y << " cm" << "\n"
-					       << "\tAll:\tz = " << localPositionResolution_z     << " cm" 
-					       << std::endl;
+#ifdef FAMOS_DEBUG
+  std::cout << "RecHit local position error set to" << "\n"
+	    << "\tTIB1\tx = " << localPositionResolution_TIB1x << " cm\ty = " << localPositionResolution_TIB1y << " cm" << "\n"
+	    << "\tTIB2\tx = " << localPositionResolution_TIB2x << " cm\ty = " << localPositionResolution_TIB2y << " cm" << "\n"
+	    << "\tTIB3\tx = " << localPositionResolution_TIB3x << " cm\ty = " << localPositionResolution_TIB3y << " cm" << "\n"
+	    << "\tTIB4\tx = " << localPositionResolution_TIB4x << " cm\ty = " << localPositionResolution_TIB4y << " cm" << "\n"
+	    << "\tTID1\tx = " << localPositionResolution_TID1x << " cm\ty = " << localPositionResolution_TID1y << " cm" << "\n"
+	    << "\tTID2\tx = " << localPositionResolution_TID2x << " cm\ty = " << localPositionResolution_TID2y << " cm" << "\n"
+	    << "\tTID3\tx = " << localPositionResolution_TID3x << " cm\ty = " << localPositionResolution_TID3y << " cm" << "\n"
+	    << "\tTOB1\tx = " << localPositionResolution_TOB1x << " cm\ty = " << localPositionResolution_TOB1y << " cm" << "\n"
+	    << "\tTOB2\tx = " << localPositionResolution_TOB2x << " cm\ty = " << localPositionResolution_TOB2y << " cm" << "\n"
+	    << "\tTOB3\tx = " << localPositionResolution_TOB3x << " cm\ty = " << localPositionResolution_TOB3y << " cm" << "\n"
+	    << "\tTOB4\tx = " << localPositionResolution_TOB4x << " cm\ty = " << localPositionResolution_TOB4y << " cm" << "\n"
+	    << "\tTOB5\tx = " << localPositionResolution_TOB5x << " cm\ty = " << localPositionResolution_TOB5y << " cm" << "\n"
+	    << "\tTOB6\tx = " << localPositionResolution_TOB6x << " cm\ty = " << localPositionResolution_TOB6y << " cm" << "\n"
+	    << "\tTEC1\tx = " << localPositionResolution_TEC1x << " cm\ty = " << localPositionResolution_TEC1y << " cm" << "\n"
+	    << "\tTEC2\tx = " << localPositionResolution_TEC2x << " cm\ty = " << localPositionResolution_TEC2y << " cm" << "\n"
+	    << "\tTEC3\tx = " << localPositionResolution_TEC3x << " cm\ty = " << localPositionResolution_TEC3y << " cm" << "\n"
+	    << "\tTEC4\tx = " << localPositionResolution_TEC4x << " cm\ty = " << localPositionResolution_TEC4y << " cm" << "\n"
+	    << "\tTEC5\tx = " << localPositionResolution_TEC5x << " cm\ty = " << localPositionResolution_TEC5y << " cm" << "\n"
+	    << "\tTEC6\tx = " << localPositionResolution_TEC6x << " cm\ty = " << localPositionResolution_TEC6y << " cm" << "\n"
+	    << "\tTEC7\tx = " << localPositionResolution_TEC7x << " cm\ty = " << localPositionResolution_TEC7y << " cm" << "\n"
+	    << "\tAll:\tz = " << localPositionResolution_z     << " cm" 
+	    << std::endl;
+#endif
   //    
   // from FAMOS: take into account the angle of the strips in the barrel
   //--- The name of the files with the Pixel information
   thePixelMultiplicityFileName = conf.getParameter<std::string>( "PixelMultiplicityFile" );
-  LogDebug("SiTrackerGaussianSmearingRecHits") << "Pixel multiplicity data are taken from file " << thePixelMultiplicityFileName << std::endl;
+#ifdef FAMOS_DEBUG
+  std::cout << "Pixel multiplicity data are taken from file " << thePixelMultiplicityFileName << std::endl;
+#endif
   //--- Number of histograms for alpha/beta barrel/forward multiplicity
   nAlphaBarrel  = conf.getParameter<int>("AlphaBarrelMultiplicity");
   nBetaBarrel   = conf.getParameter<int>("BetaBarrelMultiplicity");
   nAlphaForward = conf.getParameter<int>("AlphaForwardMultiplicity");
   nBetaForward  = conf.getParameter<int>("BetaForwardMultiplicity");
-  LogDebug("SiTrackerGaussianSmearingRecHits") << "Pixel maximum multiplicity set to " 
-					       << "\nBarrel"  << "\talpha " << nAlphaBarrel  << "\tbeta " << nBetaBarrel
-					       << "\nForward" << "\talpha " << nAlphaForward << "\tbeta " << nBetaForward
-					       << std::endl;
+#ifdef FAMOS_DEBUG
+  std::cout << "Pixel maximum multiplicity set to " 
+	    << "\nBarrel"  << "\talpha " << nAlphaBarrel  << "\tbeta " << nBetaBarrel
+	    << "\nForward" << "\talpha " << nAlphaForward << "\tbeta " << nBetaForward
+	    << std::endl;
+#endif
   // Resolution Barrel    
   thePixelBarrelResolutionFileName = conf.getParameter<std::string>( "PixelBarrelResolutionFile");
   resAlphaBarrel_binMin   = conf.getParameter<double>("AlphaBarrel_BinMin"  );
@@ -187,16 +196,18 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   resBetaBarrel_binMin    = conf.getParameter<double>("BetaBarrel_BinMin"   );
   resBetaBarrel_binWidth  = conf.getParameter<double>("BetaBarrel_BinWidth" );
   resBetaBarrel_binN      = conf.getParameter<int>(   "BetaBarrel_BinN"     );
-  LogDebug("SiTrackerGaussianSmearingRecHits") << "Barrel Pixel resolution data are taken from file " << thePixelBarrelResolutionFileName 
-					       << "\n"
-					       << "Alpha bin min = " << resAlphaBarrel_binMin
-					       << "\twidth = "       << resAlphaBarrel_binWidth
-					       << "\tbins = "        << resAlphaBarrel_binN
-					       << "\n"
-					       << " Beta bin min = " << resBetaBarrel_binMin
-					       << "\twidth = "       << resBetaBarrel_binWidth
-					       << "\tbins = "        << resBetaBarrel_binN
-					       << std::endl;
+#ifdef FAMOS_DEBUG
+  std::cout << "Barrel Pixel resolution data are taken from file " << thePixelBarrelResolutionFileName 
+	    << "\n"
+	    << "Alpha bin min = " << resAlphaBarrel_binMin
+	    << "\twidth = "       << resAlphaBarrel_binWidth
+	    << "\tbins = "        << resAlphaBarrel_binN
+	    << "\n"
+	    << " Beta bin min = " << resBetaBarrel_binMin
+	    << "\twidth = "       << resBetaBarrel_binWidth
+	    << "\tbins = "        << resBetaBarrel_binN
+	    << std::endl;
+#endif
   //
   
   // Resolution Forward
@@ -207,16 +218,18 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   resBetaForward_binMin    = conf.getParameter<double>("BetaForward_BinMin"    );
   resBetaForward_binWidth  = conf.getParameter<double>("BetaForward_BinWidth"  );
   resBetaForward_binN      = conf.getParameter<int>(   "BetaForward_BinN"      );
-  LogDebug("SiTrackerGaussianSmearingRecHits") << "Forward Pixel resolution data are taken from file " << thePixelForwardResolutionFileName 
-					       << "\n"
-					       << "Alpha bin min = " << resAlphaForward_binMin
-					       << "\twidth = "       << resAlphaForward_binWidth
-					       << "\tbins = "        << resAlphaForward_binN
-					       << "\n"
-					       << " Beta bin min = " << resBetaForward_binMin
-					       << "\twidth = "       << resBetaForward_binWidth
-					       << "\tbins = "        << resBetaForward_binN
-					       << std::endl;
+#ifdef FAMOS_DEBUG
+  std::cout << "Forward Pixel resolution data are taken from file " << thePixelForwardResolutionFileName 
+	    << "\n"
+	    << "Alpha bin min = " << resAlphaForward_binMin
+	    << "\twidth = "       << resAlphaForward_binWidth
+	    << "\tbins = "        << resAlphaForward_binN
+	    << "\n"
+	    << " Beta bin min = " << resBetaForward_binMin
+	    << "\twidth = "       << resBetaForward_binWidth
+	    << "\tbins = "        << resBetaForward_binN
+	    << std::endl;
+#endif 
   //
   
   // Hit Finding Probability
@@ -243,30 +256,32 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   theHitFindingProbability_TEC6 = conf.getParameter<double>("HitFindingProbability_TEC6");
   theHitFindingProbability_TEC7 = conf.getParameter<double>("HitFindingProbability_TEC7");
   //
-  LogDebug("SiTrackerGaussianSmearingRecHits") << "RecHit finding probability set to" << "\n"
-					       << "\tPXB  = " << theHitFindingProbability_PXB  << "\n"
-					       << "\tPXF  = " << theHitFindingProbability_PXF  << "\n"
-					       << "\tTIB1 = " << theHitFindingProbability_TIB1 << "\n"
-					       << "\tTIB2 = " << theHitFindingProbability_TIB2 << "\n"
-					       << "\tTIB3 = " << theHitFindingProbability_TIB3 << "\n"
-					       << "\tTIB4 = " << theHitFindingProbability_TIB4 << "\n"
-					       << "\tTID1 = " << theHitFindingProbability_TID1 << "\n"
-					       << "\tTID2 = " << theHitFindingProbability_TID2 << "\n"
-					       << "\tTID3 = " << theHitFindingProbability_TID3 << "\n"
-					       << "\tTOB1 = " << theHitFindingProbability_TOB1 << "\n"
-					       << "\tTOB2 = " << theHitFindingProbability_TOB2 << "\n"
-					       << "\tTOB3 = " << theHitFindingProbability_TOB3 << "\n"
-					       << "\tTOB4 = " << theHitFindingProbability_TOB4 << "\n"
-					       << "\tTOB5 = " << theHitFindingProbability_TOB5 << "\n"
-					       << "\tTOB6 = " << theHitFindingProbability_TOB6 << "\n"
-					       << "\tTEC1 = " << theHitFindingProbability_TEC1 << "\n"
-					       << "\tTEC2 = " << theHitFindingProbability_TEC2 << "\n"
-					       << "\tTEC3 = " << theHitFindingProbability_TEC3 << "\n"
-					       << "\tTEC4 = " << theHitFindingProbability_TEC4 << "\n"
-					       << "\tTEC5 = " << theHitFindingProbability_TEC5 << "\n"
-					       << "\tTEC6 = " << theHitFindingProbability_TEC6 << "\n"
-					       << "\tTEC7 = " << theHitFindingProbability_TEC7 << "\n"
-					       << std::endl;
+#ifdef FAMOS_DEBUG
+  std::cout << "RecHit finding probability set to" << "\n"
+	    << "\tPXB  = " << theHitFindingProbability_PXB  << "\n"
+	    << "\tPXF  = " << theHitFindingProbability_PXF  << "\n"
+	    << "\tTIB1 = " << theHitFindingProbability_TIB1 << "\n"
+	    << "\tTIB2 = " << theHitFindingProbability_TIB2 << "\n"
+	    << "\tTIB3 = " << theHitFindingProbability_TIB3 << "\n"
+	    << "\tTIB4 = " << theHitFindingProbability_TIB4 << "\n"
+	    << "\tTID1 = " << theHitFindingProbability_TID1 << "\n"
+	    << "\tTID2 = " << theHitFindingProbability_TID2 << "\n"
+	    << "\tTID3 = " << theHitFindingProbability_TID3 << "\n"
+	    << "\tTOB1 = " << theHitFindingProbability_TOB1 << "\n"
+	    << "\tTOB2 = " << theHitFindingProbability_TOB2 << "\n"
+	    << "\tTOB3 = " << theHitFindingProbability_TOB3 << "\n"
+	    << "\tTOB4 = " << theHitFindingProbability_TOB4 << "\n"
+	    << "\tTOB5 = " << theHitFindingProbability_TOB5 << "\n"
+	    << "\tTOB6 = " << theHitFindingProbability_TOB6 << "\n"
+	    << "\tTEC1 = " << theHitFindingProbability_TEC1 << "\n"
+	    << "\tTEC2 = " << theHitFindingProbability_TEC2 << "\n"
+	    << "\tTEC3 = " << theHitFindingProbability_TEC3 << "\n"
+	    << "\tTEC4 = " << theHitFindingProbability_TEC4 << "\n"
+	    << "\tTEC5 = " << theHitFindingProbability_TEC5 << "\n"
+	    << "\tTEC6 = " << theHitFindingProbability_TEC6 << "\n"
+	    << "\tTEC7 = " << theHitFindingProbability_TEC7 << "\n"
+	    << std::endl;
+#endif
   //    
   // load pixel data
   loadPixelData();
@@ -332,11 +347,13 @@ void SiTrackerGaussianSmearingRecHitConverter::loadPixelData( TFile* pixelDataFi
     }
   }
   // Logger
-  LogDebug("SiTrackerGaussianSmearingRecHits")
-    << " Multiplicity cumulated probability " << histName << std::endl;
+#ifdef FAMOS_DEBUG
+  std::cout << " Multiplicity cumulated probability " << histName << std::endl;
+#endif
   for(unsigned int iMult = 0; iMult<theMultiplicityCumulativeProbabilities.size(); iMult++) {
     for(int iBin = 1; iBin<=theMultiplicityCumulativeProbabilities[iMult]->GetNbinsX(); iBin++) {
-      LogDebug("SiTrackerGaussianSmearingRecHits")
+#ifdef FAMOS_DEBUG
+      std::cout
 	<< " Multiplicity " << iMult+1 
 	<< " bin " << iBin 
 	<< " low edge = " 
@@ -345,6 +362,7 @@ void SiTrackerGaussianSmearingRecHitConverter::loadPixelData( TFile* pixelDataFi
 	<< (theMultiplicityCumulativeProbabilities[iMult])->GetBinContent(iBin) 
 	// remember in ROOT bin starts from 1 (0 underflow, nBin+1 overflow)
 	<< std::endl;
+#endif
     }
   }
 }
@@ -422,46 +440,50 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(const edm::PSimHitConta
       //
       if(isCreated) {
 	// create RecHit
-	LogDebug("SiTrackerGaussianSmearingRecHits") 
-	  << " *** " << std::endl 
-	  << " Created a RecHit with local position " << position 
-	  << " and local error " << error << "\n"
-	  << "   from PSimHit number " << simHitCounter 
-	  << " with local position " << (*isim).localPosition()
-	  << " from track " << (*isim).trackId()
-	  << " with pixel multiplicity alpha(x) = " << alphaMult 
-	  << " beta(y) = " << betaMult
-	  << " in detector " << detid
-	  << std::endl;
-
+#ifdef FAMOS_DEBUG
+	std::cout << " *** " << std::endl 
+		  << " Created a RecHit with local position " << position 
+		  << " and local error " << error << "\n"
+		  << "   from PSimHit number " << simHitCounter 
+		  << " with local position " << (*isim).localPosition()
+		  << " from track " << (*isim).trackId()
+		  << " with pixel multiplicity alpha(x) = " << alphaMult 
+		  << " beta(y) = " << betaMult
+		  << " in detector " << detid
+		  << std::endl;
+#endif
 	// Fill the temporary RecHit on the current DetId collection
 	temporaryRecHits[det].push_back(
 	       new SiTrackerGSRecHit2D(position, error, det, 
 				       simHitCounter, (*isim).trackId(), 
 				       alphaMult, betaMult) );
 
-	LogDebug("SiTrackerGaussianSmearingRecHits") << " Found one " 
-						       << " RecHits on " << detid;	
+#ifdef FAMOS_DEBUG
+	std::cout << " Found one " 
+		  << " RecHits on " << detid;
+#endif
       } else {
-
-	LogDebug("SiTrackerGaussianSmearingRecHits") 
-	  << " *** " << " RecHit not created due to hit finding in-efficiency " << "\n"
-	  << "   from a PSimHit with local position " << (*isim).localPosition()
-	  << " from track " << (*isim).trackId()
-	  << " in detector " << detid
-	  << std::endl;
+#ifdef FAMOS_DEBUG
+	std::cout << " *** " << " RecHit not created due to hit finding in-efficiency " << "\n"
+		  << "   from a PSimHit with local position " << (*isim).localPosition()
+		  << " from track " << (*isim).trackId()
+		  << " in detector " << detid
+		  << std::endl;
+#endif
       }
     } else {
-      LogDebug("SiTrackerGaussianSmearingRecHits") 
-	<< " PSimHit skipped p = " 
-	<< (*isim).pabs() << " GeV/c on " << detid
-	<< "(momentum cut set to " << deltaRaysPCut << " GeV/c)";		
+#ifdef FAMOS_DEBUG
+      std::cout << " PSimHit skipped p = " 
+		<< (*isim).pabs() << " GeV/c on " << detid
+		<< "(momentum cut set to " << deltaRaysPCut << " GeV/c)";
+#endif
     }
   }
 
-  LogDebug ("SiTrackerGaussianSmearingRecHits") 
-    << "SiTrackerGaussianSmearingRecHits converted " << numberOfPSimHits
-    << " PSimHit's into SiTrackerGSRecHit2D"; 
+#ifdef FAMOS_DEBUG
+  std::cout << "SiTrackerGaussianSmearingRecHits converted " << numberOfPSimHits
+	    << " PSimHit's into SiTrackerGSRecHit2D" << std::endl; 
+#endif
   
 }
 
@@ -475,10 +497,11 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
   unsigned int subdet   = DetId(simHit.detUnitId()).subdetId();
   unsigned int detid    = DetId(simHit.detUnitId()).rawId();
   
-  LogDebug ("SiTrackerGaussianSmearingRecHits") 
-    << "\tSubdetector " << subdet 
-    << " rawid " << detid << std::endl;
-  
+#ifdef FAMOS_DEBUG
+  std::cout << "\tSubdetector " << subdet 
+	    << " rawid " << detid
+	    << std::endl;
+#endif
   if(trackingPSimHits) {
     // z is fixed for all detectors, in case of errors resolution is fixed also for x and y to 1 um (zero)
     // The Matrix is the Covariance Matrix, sigma^2 on diagonal!!!
@@ -488,25 +511,27 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
     //
     // starting from PSimHit local position
     position = simHit.localPosition();
-    LogDebug("SiTrackerGaussianSmearingRecHits") 
-      << " Tracking PSimHit position set to  " << position;
+#ifdef FAMOS_DEBUG
+    std::cout << " Tracking PSimHit position set to  " << position;
+#endif
     return true; // RecHit == PSimHit with 100% hit finding efficiency
   }
   //
   
   // hit finding probability --> RecHit will be created if and only if hitFindingProbability <= theHitFindingProbability_###
   double hitFindingProbability = random->flatShoot();
-  LogDebug("SiTrackerGaussianSmearingRecHits") 
-    << " Hit finding probability draw: " << hitFindingProbability << std::endl;;
-  
+#ifdef FAMOS_DEBUG
+  std::cout << " Hit finding probability draw: " << hitFindingProbability << std::endl;;
+#endif
   switch (subdet) {
     // Pixel Barrel
   case 1:
     {
       PXBDetId module(detid);
       unsigned int theLayer = module.layer();
-      LogDebug ("SiTrackerGaussianSmearingRecHits") 
-	<< "\tPixel Barrel Layer " << theLayer << std::endl;
+#ifdef FAMOS_DEBUG
+      std::cout << "\tPixel Barrel Layer " << theLayer << std::endl;
+#endif
       if( hitFindingProbability > theHitFindingProbability_PXB ) return false;
       // Hit smearing
       thePixelBarrelParametrization->smearHit(
@@ -524,8 +549,9 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
     {
       PXFDetId module(detid);
       unsigned int theDisk = module.disk();
-      LogDebug ("SiTrackerGaussianSmearingRecHits") 
-	<< "\tPixel Forward Disk " << theDisk << std::endl;
+#ifdef FAMOS_DEBUG
+      std::cout << "\tPixel Forward Disk " << theDisk << std::endl;
+#endif
       if( hitFindingProbability > theHitFindingProbability_PXF ) return false;
       //
       thePixelEndcapParametrization->smearHit(
@@ -543,8 +569,9 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
     {
       TIBDetId module(detid);
       unsigned int theLayer  = module.layer();
-      LogDebug ("SiTrackerGaussianSmearingRecHits") 
-	<< "\tTIB Layer " << theLayer << std::endl;
+#ifdef FAMOS_DEBUG
+      std::cout << "\tTIB Layer " << theLayer << std::endl;
+#endif
       //
       double resolutionX, resolutionY, resolutionZ;
       resolutionZ = localPositionResolution_z;
@@ -602,8 +629,9 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
     {
       TIDDetId module(detid);
       unsigned int theRing  = module.ring();
-      LogDebug ("SiTrackerGaussianSmearingRecHits") 
-	<< "\tTID Ring " << theRing << std::endl;
+#ifdef FAMOS_DEBUG
+      std::cout << "\tTID Ring " << theRing << std::endl;
+#endif
       double resolutionX, resolutionY, resolutionZ;
       resolutionZ = localPositionResolution_z;
       
@@ -651,8 +679,9 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
     {
       TOBDetId module(detid);
       unsigned int theLayer  = module.layer();
-      LogDebug ("SiTrackerGaussianSmearingRecHits") 
-	<< "\tTOB Layer " << theLayer << std::endl;
+#ifdef FAMOS_DEBUG
+      std::cout << "\tTOB Layer " << theLayer << std::endl;
+#endif
       double resolutionX, resolutionY, resolutionZ;
       resolutionZ = localPositionResolution_z;
       
@@ -721,8 +750,9 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
     {
       TECDetId module(detid);
       unsigned int theRing  = module.ring();
-      LogDebug ("SiTrackerGaussianSmearingRecHits") 
-	<< "\tTEC Ring " << theRing << std::endl;
+#ifdef FAMOS_DEBUG
+      std::cout << "\tTEC Ring " << theRing << std::endl;
+#endif
       double resolutionX, resolutionY, resolutionZ;
       resolutionZ = localPositionResolution_z * localPositionResolution_z;
       

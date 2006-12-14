@@ -26,8 +26,7 @@
 #include <string>
 #include <iostream>
 
-// MessageLogger
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+//#define FAMOS_DEBUG
 
 SiStripGaussianSmearingRecHitConverterAlgorithm::SiStripGaussianSmearingRecHitConverterAlgorithm() 
 {
