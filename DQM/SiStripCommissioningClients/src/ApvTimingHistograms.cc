@@ -62,30 +62,30 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     } 
     
     // Perform histo analysis
-    ApvTimingAnalysis anal( iter->first );
-    anal.analysis( profs );
+    ApvTimingAnalysis* anal = new ApvTimingAnalysis( iter->first );
+    anal->analysis( profs );
     data_[iter->first] = anal; 
     
     // Check tick height is valid
-    if ( anal.height() < 100. ) { 
+    if ( anal->height() < 100. ) { 
       cerr << endl // edm::LogWarning(mlDqmClient_) 
 	   << "[ApvTimingHistograms::" << __func__ << "]"
-	   << " Tick mark height too small: " << anal.height();
+	   << " Tick mark height too small: " << anal->height();
       continue; 
     }
 
     // Check time of rising edge
-    if ( anal.time() > sistrip::maximum_ ) { continue; }
+    if ( anal->time() > sistrip::maximum_ ) { continue; }
     
     // Find maximum time
-    if ( anal.time() > time_max ) { 
-      time_max = anal.time(); 
+    if ( anal->time() > time_max ) { 
+      time_max = anal->time(); 
       device_max = iter->first;
     }
     
     // Find minimum time
-    if ( anal.time() < time_min ) { 
-      time_min = anal.time(); 
+    if ( anal->time() < time_min ) { 
+      time_min = anal->time(); 
       device_min = iter->first;
     }
     
@@ -132,13 +132,13 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
        << " has minimum delay (rising edge) [ns]:" << time_min;
   
   // Set maximum time for all analysis objects
-  map<uint32_t,ApvTimingAnalysis>::iterator ianal = data_.begin();
+  map<uint32_t,ApvTimingAnalysis*>::iterator ianal = data_.begin();
   for ( ; ianal != data_.end(); ianal++ ) { 
-    ianal->second.maxTime( time_max ); 
+    ianal->second->maxTime( time_max ); 
     static uint16_t cntr = 0;
     if ( debug ) {
       stringstream ss;
-      ianal->second.print( ss ); 
+      ianal->second->print( ss ); 
       cout << endl // LogTrace(mlDqmClient_) 
 	   << ss.str();
       cntr++;
@@ -149,27 +149,26 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void ApvTimingHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo, 
-					      const sistrip::SummaryType& type, 
-					      const string& directory,
+void ApvTimingHistograms::createSummaryHisto( const sistrip::Monitorable& mon, 
+					      const sistrip::Presentation& pres, 
+					      const string& dir,
 					      const sistrip::Granularity& gran ) {
   cout << endl // LogTrace(mlDqmClient_)
        << "[ApvTimingHistograms::" << __func__ << "]";
   
   // Check view 
-  sistrip::View view = SiStripHistoNamingScheme::view(directory);
+  sistrip::View view = SiStripHistoNamingScheme::view(dir);
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
-
+  
   // Analyze histograms
   histoAnalysis( false );
-
+  
   // Extract data to be histogrammed
-  factory_->init( histo, type, view, directory, gran );
-  uint32_t xbins = factory_->extract( data_ );
-
+  uint32_t bins = factory_->init( mon, pres, view, dir, gran, data_ );
+  
   // Create summary histogram (if it doesn't already exist)
-  TH1* summary = histogram( histo, type, view, directory, xbins );
-
+  TH1* summary = histogram( mon, pres, view, dir, bins );
+  
   // Fill histogram with data
   factory_->fill( *summary );
   
