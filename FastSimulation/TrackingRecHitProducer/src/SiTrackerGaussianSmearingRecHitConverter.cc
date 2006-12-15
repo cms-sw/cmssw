@@ -869,7 +869,7 @@ SiTrackerGaussianSmearingRecHitConverter::loadRecHits(
   std::map<DetId,edm::OwnVector<SiTrackerGSRecHit2D> >::const_iterator 
     it = theRecHits.begin();
   std::map<DetId,edm::OwnVector<SiTrackerGSRecHit2D> >::const_iterator 
-    lastRecHit = theRecHits.begin();
+    lastRecHit = theRecHits.end();
 
   for( ; it != lastRecHit ; ++it ) { 
     theRecHitCollection.put(it->first,it->second.begin(),it->second.end());
