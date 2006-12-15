@@ -1,6 +1,6 @@
 /*
-* $Date: 2006/11/20 00:33:54 $
-* $Revision: 1.4 $
+* $Date: 2006/12/06 09:29:33 $
+* $Revision: 1.5 $
 *
 * \author: D. Giordano, domenico.giordano@cern.ch
 */
@@ -648,8 +648,8 @@ namespace cms{
 	if ( clusterInfos(SiStripClusterInfo_, detid,"_All") ){
 	  countAll++;
 
-	//LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"] ClusIter " << &*ClusIter << 
-	//  "\t " << std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter)-vPSiStripCluster.begin() << std::endl;
+	LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"] ClusIter " << &*ClusIter << 
+	  "\t " << std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter)-vPSiStripCluster.begin() << std::endl;
 
 	  if (std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter) == vPSiStripCluster.end()){
 	    if ( clusterInfos(SiStripClusterInfo_,detid,"_offTrack") )
@@ -674,13 +674,18 @@ namespace cms{
 	  )
 	return &(*ClusIter);
     }
+    edm::LogError("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"]\n\t" << "Matching of SiStripCluster and SiStripClusterInfo is failed for cluster on detid "<< detid << "\n\tReturning NULL pointer" <<std::endl;
     return 0;
   }
 
   //------------------------------------------------------------------------
 
   bool ClusterAnalysis::clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag){
-    
+    LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"]" << std::endl;
+
+    if (cluster==0) 
+      return;
+
     const  edm::ParameterSet ps = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
     if  ( ps.getParameter<bool>("On") 
 	 &&
