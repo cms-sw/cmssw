@@ -5,7 +5,7 @@
 bool SiStripApvGain::put(const uint32_t& DetId, Range input) {
   // put in SiStripApvGain of DetId
 
-  RegistryIterator p = std::lower_bound(v_detids.begin(),v_detids.end(),DetId);
+  RegistryIterator p = std::lower_bound(v_detids.begin(),v_detids.end(),static_cast<int32_t>(DetId));
   if (p!=v_detids.end() && *p==(int)DetId){
     edm::LogError("SiStripApvGain") << "[" << __PRETTY_FUNCTION__ << "] SiStripApvGain for DetID " << DetId << " is already stored. Skippig this put" << std::endl;
     return false;
@@ -27,7 +27,7 @@ bool SiStripApvGain::put(const uint32_t& DetId, Range input) {
 const SiStripApvGain::Range SiStripApvGain::getRange(const uint32_t& DetId) const {
   // get SiStripApvGain Range of DetId
   
-  RegistryConstIterator p = std::lower_bound(v_detids.begin(),v_detids.end(),DetId);
+  RegistryConstIterator p = std::lower_bound(v_detids.begin(),v_detids.end(),static_cast<int32_t>(DetId));
   if (p==v_detids.end() || *p!=(int)DetId) 
     return SiStripApvGain::Range(v_gains.end(),v_gains.end()); 
   else{ 
