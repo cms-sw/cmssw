@@ -192,10 +192,110 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
       for (int k=0; k<size[i]; k++){
 	for (int max=0; max<12;max++){
 	  tmp=cam[i].autocorrmat(j,k);
-	  
+
+	  //Use averages of matrix elements per chamber in case of HUGE values from calibratin run
+	  //ME+1/1 crates
+	  if (new_crateID==2 && new_dmbID<4 && tmp[0]>20.0)  tmp[0] =7.86675;
+	  if (new_crateID==2 && new_dmbID<4 && tmp[1]>20.0)  tmp[1] =2.07075;
+	  if (new_crateID==2 && new_dmbID<4 && tmp[2]>20.0)  tmp[2] =6.93875;
+	  if (new_crateID==2 && new_dmbID<4 && tmp[3]>20.0)  tmp[3] =1.42525;
+	  if (new_crateID==2 && new_dmbID<4 && tmp[4]>20.0)  tmp[4] =2.51025;
+	  if (new_crateID==2 && new_dmbID<4 && tmp[5]>20.0)  tmp[5] =7.93975;
+	  if (new_crateID==2 && new_dmbID<4 && tmp[6]>20.0)  tmp[6] =0.94725;
+	  if (new_crateID==2 && new_dmbID<4 && tmp[7]>20.0)  tmp[7] =2.39275;
+	  if (new_crateID==2 && new_dmbID<4 && tmp[8]>20.0)  tmp[8] =6.46475;
+	  if (new_crateID==2 && new_dmbID<4 && tmp[9]>20.0)  tmp[9] =1.86325;
+	  if (new_crateID==2 && new_dmbID<4 && tmp[10]>20.0) tmp[10]=2.08025;
+	  if (new_crateID==2 && new_dmbID<4 && tmp[11]>20.0) tmp[11]=6.67975;
+
+	  //ME+1/2
+	  if (new_crateID==2 && new_dmbID>3 && new_dmbID<8 && tmp[0]>20.0)  tmp[0] =9.118;
+	  if (new_crateID==2 && new_dmbID>3 && new_dmbID<8 && tmp[1]>20.0)  tmp[1] =3.884;
+	  if (new_crateID==2 && new_dmbID>3 && new_dmbID<8 && tmp[2]>20.0)  tmp[2] =7.771;
+	  if (new_crateID==2 && new_dmbID>3 && new_dmbID<8 && tmp[3]>20.0)  tmp[3] =1.8225;
+	  if (new_crateID==2 && new_dmbID>3 && new_dmbID<8 && tmp[4]>20.0)  tmp[4] =3.7505;
+	  if (new_crateID==2 && new_dmbID>3 && new_dmbID<8 && tmp[5]>20.0)  tmp[5] =8.597;
+	  if (new_crateID==2 && new_dmbID>3 && new_dmbID<8 && tmp[6]>20.0)  tmp[6] =1.651;
+	  if (new_crateID==2 && new_dmbID>3 && new_dmbID<8 && tmp[7]>20.0)  tmp[7] =2.5225;
+	  if (new_crateID==2 && new_dmbID>3 && new_dmbID<8 && tmp[8]>20.0)  tmp[8] =6.583;
+	  if (new_crateID==2 && new_dmbID>3 && new_dmbID<8 && tmp[9]>20.0)  tmp[9] =1.5055;
+	  if (new_crateID==2 && new_dmbID>3 && new_dmbID<8 && tmp[10]>20.0) tmp[10]=2.733;
+	  if (new_crateID==2 && new_dmbID>3 && new_dmbID<8 && tmp[11]>20.0) tmp[11]=6.988;
+
+	  //ME+1/3
+	  if (new_crateID==2 && new_dmbID>7 && tmp[0]>20.0)  tmp[0] =9.5245;
+	  if (new_crateID==2 && new_dmbID>7 && tmp[1]>20.0)  tmp[1] =3.2415;
+	  if (new_crateID==2 && new_dmbID>7 && tmp[2]>20.0)  tmp[2] =7.6265;
+	  if (new_crateID==2 && new_dmbID>7 && tmp[3]>20.0)  tmp[3] =1.7225;
+	  if (new_crateID==2 && new_dmbID>7 && tmp[4]>20.0)  tmp[4] =3.6075;
+	  if (new_crateID==2 && new_dmbID>7 && tmp[5]>20.0)  tmp[5] =8.7275;
+	  if (new_crateID==2 && new_dmbID>7 && tmp[6]>20.0)  tmp[6] =1.663;
+	  if (new_crateID==2 && new_dmbID>7 && tmp[7]>20.0)  tmp[7] =2.592;
+	  if (new_crateID==2 && new_dmbID>7 && tmp[8]>20.0)  tmp[8] =7.5685;
+	  if (new_crateID==2 && new_dmbID>7 && tmp[9]>20.0)  tmp[9] =1.7905;
+	  if (new_crateID==2 && new_dmbID>7 && tmp[10]>20.0) tmp[10]=2.409;
+	  if (new_crateID==2 && new_dmbID>7 && tmp[11]>20.0) tmp[11]=7.1495;
+
+	  //ME+2/1
+	  if (new_crateID==1 &&  new_dmbID<4 && !(tmp[0]<12.0 && tmp[0]>-10.0))   tmp[0] =9.06825;
+	  if (new_crateID==1 &&  new_dmbID<4 && !(tmp[1]<7.0 && tmp[1]>-10.0))    tmp[1] =3.32025;
+	  if (new_crateID==1 &&  new_dmbID<4 && !(tmp[2]<12.0 && tmp[2]>-10.0))   tmp[2] =7.52925;
+	  if (new_crateID==1 &&  new_dmbID<4 && !(tmp[3]<8.0 && tmp[3]>-10.0))    tmp[3] =3.66125;
+	  if (new_crateID==1 &&  new_dmbID<4 && !(tmp[4]<8.0 && tmp[4]>-10.0))    tmp[4] =3.39125;
+	  if (new_crateID==1 &&  new_dmbID<4 && !(tmp[5]<14.0 && tmp[5]>-10.0))   tmp[5] =9.97625;
+	  if (new_crateID==1 &&  new_dmbID<4 && !(tmp[6]<5.0 && tmp[6]>-10.0))    tmp[6] =1.32725;
+	  if (new_crateID==1 &&  new_dmbID<4 && !(tmp[7]<7.0 && tmp[7]>-10.0))    tmp[7] =3.99025;
+	  if (new_crateID==1 &&  new_dmbID<4 && !(tmp[8]<12.0 && tmp[8]>-10.0))   tmp[8] =8.10125;
+	  if (new_crateID==1 &&  new_dmbID<4 && !(tmp[9]<6.0 && tmp[9]>-10.0))    tmp[9] =2.56456;
+	  if (new_crateID==1 &&  new_dmbID<4 && !!(tmp[10]<7.0 && tmp[10]>-10.0))   tmp[10]=2.96625;
+	  if (new_crateID==1 &&  new_dmbID<4 && (tmp[11]<11.0 && tmp[11]>-10.0))  tmp[11]=7.30925;
+
+	  //ME+2/2
+	  if (new_crateID==1 &&  new_dmbID>3 && !(tmp[0]<21.0 && tmp[0]>-10.0))   tmp[0] =16.7442;
+	  if (new_crateID==1 &&  new_dmbID>3 && !(tmp[1]<12.0 && tmp[1]>-10.0))   tmp[1] =7.96925;
+	  if (new_crateID==1 &&  new_dmbID>3 && !(tmp[2]<18.0 && tmp[2]>-10.0))   tmp[2] =14.1643;
+	  if (new_crateID==1 &&  new_dmbID>3 && !(tmp[3]<9.0 && tmp[3]>-10.0))   tmp[3] =4.67975;
+	  if (new_crateID==1 &&  new_dmbID>3 && !(tmp[4]<12.0 && tmp[4]>-10.0))   tmp[4] =8.44075;
+	  if (new_crateID==1 &&  new_dmbID>3 && !(tmp[5]<21.0 && tmp[5]>-10.0))   tmp[5] =17.2243;
+	  if (new_crateID==1 &&  new_dmbID>3 && !(tmp[6]<8.0 && tmp[6]>-10.0))    tmp[6] =3.68575;
+	  if (new_crateID==1 &&  new_dmbID>3 && !(tmp[7]<12.0 && tmp[7]>-10.0))   tmp[7] =7.48825;
+	  if (new_crateID==1 &&  new_dmbID>3 && !(tmp[8]<19.0 && tmp[8]>-10.0))   tmp[8] =14.4902;
+	  if (new_crateID==1 &&  new_dmbID>3 && !(tmp[9]<9.0 && tmp[9]>-10.0))    tmp[9] =4.4482;
+	  if (new_crateID==1 &&  new_dmbID>3 && !(tmp[10]<11.0 && tmp[10]>-10.0))  tmp[10]=6.47875;
+	  if (new_crateID==1 &&  new_dmbID>3 && !(tmp[11]<19.0 && tmp[11]>-10.0))  tmp[11]=14.6733;	  
+
+	  //ME+3/1
+	  if (new_crateID==0 &&  new_dmbID<4 && tmp[0]>13.0)   tmp[0] =9.3495;
+	  if (new_crateID==0 &&  new_dmbID<4 && tmp[1]>8.0)    tmp[1] =3.529;
+	  if (new_crateID==0 &&  new_dmbID<4 && tmp[2]>13.0)   tmp[2] =7.8715;
+	  if (new_crateID==0 &&  new_dmbID<4 && tmp[3]>8.0)    tmp[3] =3.8155;
+	  if (new_crateID==0 &&  new_dmbID<4 && tmp[4]>8.0)    tmp[4] =3.858;
+	  if (new_crateID==0 &&  new_dmbID<4 && tmp[5]>15.0)   tmp[5] =10.8205;
+	  if (new_crateID==0 &&  new_dmbID<4 && tmp[6]>6.0)    tmp[6] =1.8585;
+	  if (new_crateID==0 &&  new_dmbID<4 && tmp[7]>8.0)    tmp[7] =4.445;
+	  if (new_crateID==0 &&  new_dmbID<4 && tmp[8]>12.0)   tmp[8] =8.0175;
+	  if (new_crateID==0 &&  new_dmbID<4 && tmp[9]>7.0)    tmp[9] =3.29479;
+	  if (new_crateID==0 &&  new_dmbID<4 && tmp[10]>8.0)   tmp[10]=3.625;
+	  if (new_crateID==0 &&  new_dmbID<4 && tmp[11]>12.0)  tmp[11]=8.3895;
+
+	  //ME+3/2
+	  if (new_crateID==0 &&  new_dmbID>3 && tmp[0]>21.0)   tmp[0] =13.6193;
+	  if (new_crateID==0 &&  new_dmbID>3 && tmp[1]>12.0)   tmp[1] =5.91025;
+	  if (new_crateID==0 &&  new_dmbID>3 && tmp[2]>18.0)   tmp[2] =11.3842;
+	  if (new_crateID==0 &&  new_dmbID>3 && tmp[3]>9.0)    tmp[3] =3.31775;
+	  if (new_crateID==0 &&  new_dmbID>3 && tmp[4]>12.0)   tmp[4] =5.69775;
+	  if (new_crateID==0 &&  new_dmbID>3 && tmp[5]>21.0)   tmp[5] =11.6652;
+	  if (new_crateID==0 &&  new_dmbID>3 && tmp[6]>8.0)    tmp[6] =2.46175;
+	  if (new_crateID==0 &&  new_dmbID>3 && tmp[7]>12.0)   tmp[7] =4.48325;
+	  if (new_crateID==0 &&  new_dmbID>3 && tmp[8]>19.0)   tmp[8] =9.95725;
+	  if (new_crateID==0 &&  new_dmbID>3 && tmp[9]>9.0)    tmp[9] =2.10561;
+	  if (new_crateID==0 &&  new_dmbID>3 && tmp[10]>11.0)  tmp[10]=4.04625;
+	  if (new_crateID==0 &&  new_dmbID>3 && tmp[11]>19.0)  tmp[11]=9.51625;	  
+
+
 	  if (tmp[max]>3.0 && tmp[max]<100.0) flagMatrix = 1; // ok
 	  if (tmp[max]>50.0)                  flagMatrix = 2; // warning too high
-	  if (tmp[max]<3.0)                   flagMatrix = 3; // warning too low
+	  if (tmp[max]<-15.0)                 flagMatrix = 3; // warning too low
 
 	  calib_evt.elem[0] = tmp[0];
 	  calib_evt.elem[1] = tmp[1];
@@ -241,7 +341,7 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
   //send data to DB
   dbon->cdbon_last_record("noisematrix",&record);
   std::cout<<"record "<<record<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
-  if(debug) dbon->cdbon_write(cn,"noisematrix",12,myTime);
+  if(debug) dbon->cdbon_write(cn,"noisematrix",12,3498,myTime);
   std::cout<<"record "<<record<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
   
   calibfile.Write();
