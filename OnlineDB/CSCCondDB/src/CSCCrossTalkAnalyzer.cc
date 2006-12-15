@@ -590,6 +590,15 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	    xtalk_intercept_right[iii][i][j][k] = xl_temp_a;
 	    xtalk_chi2_right[iii][i][j][k]      = minl_temp;
 	    myPeakTime[iii][i][j][k]            = pTime;
+	    //in case xtalk isNaN or isinf
+	    if (isnan(xtalk_intercept_left[iii][i][j][k]))  xtalk_intercept_left[iii][i][j][k]  = 0.0;
+	    if (isnan(xtalk_intercept_right[iii][i][j][k])) xtalk_intercept_right[iii][i][j][k] = 0.0;
+	    if (isnan(xtalk_slope_left[iii][i][j][k]))      xtalk_slope_left[iii][i][j][k]      = 0.0;
+	    if (isnan(xtalk_slope_right[iii][i][j][k]))     xtalk_slope_right[iii][i][j][k]     = 0.0;
+	    if (isinf(xtalk_intercept_left[iii][i][j][k]))  xtalk_intercept_left[iii][i][j][k]  = 0.0;
+	    if (isinf(xtalk_intercept_right[iii][i][j][k])) xtalk_intercept_right[iii][i][j][k] = 0.0;
+	    if (isinf(xtalk_slope_left[iii][i][j][k]))      xtalk_slope_left[iii][i][j][k]      = 0.0;
+	    if (isinf(xtalk_slope_right[iii][i][j][k]))     xtalk_slope_right[iii][i][j][k]     = 0.0;
 	  }else if(k==size[i]-1){
 	    xtalk_intercept_right[iii][i][j][k]  = 0.0;
 	    xtalk_slope_right[iii][i][j][k]      = 0.0;
@@ -599,6 +608,15 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	    xtalk_slope_left[iii][i][j][k]       = xr_temp_b;
 	    xtalk_chi2_left[iii][i][j][k]        = minr_temp;
 	    myPeakTime[iii][i][j][k]             = pTime;
+	    //in case xtalk isNaN or isinf
+	    if (isnan(xtalk_intercept_left[iii][i][j][k]))  xtalk_intercept_left[iii][i][j][k]  = 0.0;
+	    if (isnan(xtalk_intercept_right[iii][i][j][k])) xtalk_intercept_right[iii][i][j][k] = 0.0;
+	    if (isnan(xtalk_slope_left[iii][i][j][k]))      xtalk_slope_left[iii][i][j][k]      = 0.0;
+	    if (isnan(xtalk_slope_right[iii][i][j][k]))     xtalk_slope_right[iii][i][j][k]     = 0.0;
+	    if (isinf(xtalk_intercept_left[iii][i][j][k]))  xtalk_intercept_left[iii][i][j][k]  = 0.0;
+	    if (isinf(xtalk_intercept_right[iii][i][j][k])) xtalk_intercept_right[iii][i][j][k] = 0.0;
+	    if (isinf(xtalk_slope_left[iii][i][j][k]))      xtalk_slope_left[iii][i][j][k]      = 0.0;
+	    if (isinf(xtalk_slope_right[iii][i][j][k]))     xtalk_slope_right[iii][i][j][k]     = 0.0;
 	  }else{
 	    xtalk_intercept_left[iii][i][j][k]  = xl_temp_a;
 	    xtalk_intercept_right[iii][i][j][k] = xr_temp_a;
@@ -606,12 +624,16 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	    xtalk_slope_right[iii][i][j][k]     = xr_temp_b;
 	    xtalk_chi2_left[iii][i][j][k]       = minl_temp;
 	    xtalk_chi2_right[iii][i][j][k]      = minr_temp;
-	    //in case xtalk isNaN
-	    if (isnan(xtalk_intercept_left[iii][i][j][k])) xtalk_intercept_left[iii][i][j][k] = 0.0;
+	    //in case xtalk isNaN or isinf
+	    if (isnan(xtalk_intercept_left[iii][i][j][k]))  xtalk_intercept_left[iii][i][j][k]  = 0.0;
 	    if (isnan(xtalk_intercept_right[iii][i][j][k])) xtalk_intercept_right[iii][i][j][k] = 0.0;
-	    if (isnan(xtalk_slope_left[iii][i][j][k])) xtalk_slope_left[iii][i][j][k] = 0.0;
-	    if (isnan(xtalk_slope_right[iii][i][j][k])) xtalk_slope_right[iii][i][j][k] = 0.0;
-		
+	    if (isnan(xtalk_slope_left[iii][i][j][k]))      xtalk_slope_left[iii][i][j][k]      = 0.0;
+	    if (isnan(xtalk_slope_right[iii][i][j][k]))     xtalk_slope_right[iii][i][j][k]     = 0.0;
+	    if (isinf(xtalk_intercept_left[iii][i][j][k]))  xtalk_intercept_left[iii][i][j][k]  = 0.0;
+	    if (isinf(xtalk_intercept_right[iii][i][j][k])) xtalk_intercept_right[iii][i][j][k] = 0.0;
+	    if (isinf(xtalk_slope_left[iii][i][j][k]))      xtalk_slope_left[iii][i][j][k]      = 0.0;
+	    if (isinf(xtalk_slope_right[iii][i][j][k]))     xtalk_slope_right[iii][i][j][k]     = 0.0;
+
 	    myPeakTime[iii][i][j][k]            = pTime;
 	  }
 	  
@@ -708,6 +730,8 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  calib_evt.MinPeakADC[i]     = newPeakMin[fff];
 
 	  calibtree.Fill();
+
+	  //if (chamber_num== 220111310) std::cout<<"Chamber "<<i<<" Layer "<<j<<" Strip "<<k<<" SL "<<the_xtalk_left_b<<" SR "<<the_xtalk_right_b<<std::endl; 
 	  cn->obj[layer_id][k].resize(2);
 	  cn->obj[layer_id][k][0] = meanPedestal;
 	  cn->obj[layer_id][k][1] = theRMS;
@@ -718,6 +742,8 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  cn1->obj[layer_id][k][3] = the_xtalk_left_b ;
 	  cn1->obj[layer_id][k][4] = the_xtalk_left_a ;
 	  cn1->obj[layer_id][k][5] = the_chi2_left;
+
+	  if (chamber_num== 220111310 && k>31 &&k<49) std::cout<<"Second try: Chamber "<<i<<" Layer "<<j<<" Strip "<<k<<" SL "<<cn1->obj[layer_id][k][3]<<" SR "<<cn1->obj[layer_id][k][0]<<std::endl; 
 	  
 	}//loop over strips
       }//loop over layers
