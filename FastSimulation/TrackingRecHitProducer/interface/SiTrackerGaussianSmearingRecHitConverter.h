@@ -56,14 +56,8 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   // Begin Job
   virtual void beginJob(const edm::EventSetup& c);
   
-  //--- Execute the position estimator algorithm(s).
-  //--- New interface with DetSetVector
-  
-  //    void run(MixCollection<PSimHit>& input,
-  //	     SiTrackerGSRecHit2DCollection& output,
-  //	     edm::ESHandle<TrackerGeometry>& geom);
-  void smearHits(const edm::PSimHitContainer* input);
-  void smearHits(MixCollection<PSimHit>* input);
+  void smearHits(MixCollection<PSimHit>& input,
+		 std::map< DetId, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits);
 
   void loadRecHits(std::map<DetId,edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
 		   SiTrackerGSRecHit2DCollection& theRecHitCollection) const;
@@ -196,7 +190,7 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   // valid for all the detectors
   double localPositionResolution_z; // cm
   //
-  typedef std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > simhit_map;
+  //  typedef std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > simhit_map;
 
   // Pixel Error Parametrization (barrel)
   SiPixelGaussianSmearingRecHitConverterAlgorithm* thePixelBarrelParametrization;
@@ -206,7 +200,7 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   SiStripGaussianSmearingRecHitConverterAlgorithm* theSiStripErrorParametrization;
 
   // Temporary RecHit map
-  std::map< DetId, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
+  //  std::map< DetId, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
 
   // The random engine
   RandomEngine* random;

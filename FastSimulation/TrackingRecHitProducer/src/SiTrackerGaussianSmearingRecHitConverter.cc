@@ -357,7 +357,7 @@ void SiTrackerGaussianSmearingRecHitConverter::loadPixelData(
   theMultiplicityCumulativeProbabilities.clear();
   //
   std::vector<double> mult; // vector with fixed multiplicity
-  for(unsigned int i = 0; i<nMultiplicity; i++) {
+  for(unsigned int i = 0; i<nMultiplicity; ++i) {
     TH1F addHist = *((TH1F*) pixelDataFile->Get( Form( histName_i.c_str() ,i+1 )));
     if(i==0) {
       theMultiplicityCumulativeProbabilities.push_back( new TH1F(addHist) );
@@ -367,13 +367,12 @@ void SiTrackerGaussianSmearingRecHitConverter::loadPixelData(
       theMultiplicityCumulativeProbabilities.push_back( new TH1F(sumHist) );
     }
   }
+
   // Logger
 #ifdef FAMOS_DEBUG
   std::cout << " Multiplicity cumulated probability " << histName << std::endl;
-#endif
-  for(unsigned int iMult = 0; iMult<theMultiplicityCumulativeProbabilities.size(); iMult++) {
-    for(int iBin = 1; iBin<=theMultiplicityCumulativeProbabilities[iMult]->GetNbinsX(); iBin++) {
-#ifdef FAMOS_DEBUG
+  for(unsigned int iMult = 0; iMult<theMultiplicityCumulativeProbabilities.size(); ++iMult) {
+    for(int iBin = 1; iBin<=theMultiplicityCumulativeProbabilities[iMult]->GetNbinsX(); ++iBin) {
       std::cout
 	<< " Multiplicity " << iMult+1 
 	<< " bin " << iBin 
@@ -383,9 +382,10 @@ void SiTrackerGaussianSmearingRecHitConverter::loadPixelData(
 	<< (theMultiplicityCumulativeProbabilities[iMult])->GetBinContent(iBin) 
 	// remember in ROOT bin starts from 1 (0 underflow, nBin+1 overflow)
 	<< std::endl;
-#endif
     }
   }
+#endif
+
 }
 
 // Destructor
@@ -413,21 +413,16 @@ void SiTrackerGaussianSmearingRecHitConverter::beginJob(const edm::EventSetup& e
 
 }
 
-void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es) {
+void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es) 
+{
   // Step A: Get Inputs (PSimHit's)
-  //  edm::Handle<edm::PSimHitContainer> allTrackerHits;
-  //  e.getByType(allTrackerHits);
-  
   edm::Handle<CrossingFrame> cf; 
   e.getByType(cf);
-
-  std::auto_ptr<MixCollection<PSimHit> > 
-    allTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
+  MixCollection<PSimHit> allTrackerHits(cf.product(),trackerContainers);
 
   // Step B: create temporary RecHit collection and fill it with Gaussian smeared RecHit's
-  //  std::map< DetId, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
-  temporaryRecHits.clear();
-  smearHits( &(*allTrackerHits));
+  std::map< DetId, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
+  smearHits( allTrackerHits, temporaryRecHits);
 
   // Step C: from the temporary RecHit collection, create the real one.
   std::auto_ptr<SiTrackerGSRecHit2DCollection> 
@@ -440,28 +435,29 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
 }
 
 
-void SiTrackerGaussianSmearingRecHitConverter::smearHits(MixCollection<PSimHit>* input)
-  //void SiTrackerGaussianSmearingRecHitConverter::smearHits(const edm::PSimHitContainer* input)
+void SiTrackerGaussianSmearingRecHitConverter::smearHits(
+  MixCollection<PSimHit>& input,
+  std::map< DetId, edm::OwnVector<SiTrackerGSRecHit2D> >& temporaryRecHits)
 {
   
   int numberOfPSimHits = 0;
   
   //  edm::PSimHitContainer::const_iterator isim;
-  MixCollection<PSimHit>::iterator isim;
+  MixCollection<PSimHit>::iterator isim = input.begin();
+  MixCollection<PSimHit>::iterator lastSimHit = input.end();
   Local3DPoint position;
   LocalError error;
   
   int simHitCounter = -1;
   
   // loop on PSimHits
-  for (isim=input->begin(); isim!= input->end();isim++) {
-    simHitCounter++;
+  for ( ; isim != lastSimHit; ++isim ) {
+    ++simHitCounter;
     DetId det((*isim).detUnitId());
-    unsigned int detid = det.rawId();
     // filter PSimHit (delta rays momentum cut)
     if( (*isim).pabs() > deltaRaysPCut ) {
       //
-      numberOfPSimHits++;	
+      ++numberOfPSimHits;	
       // gaussian smearing
       unsigned int alphaMult = 0;
       unsigned int betaMult  = 0;
@@ -470,6 +466,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(MixCollection<PSimHit>*
       if(isCreated) {
 	// create RecHit
 #ifdef FAMOS_DEBUG
+	unsigned int detid = det.rawId();
 	std::cout << " *** " << std::endl 
 		  << " Created a RecHit with local position " << position 
 		  << " and local error " << error << "\n"
@@ -556,9 +553,9 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
     // Pixel Barrel
   case 1:
     {
+#ifdef FAMOS_DEBUG
       PXBDetId module(detid);
       unsigned int theLayer = module.layer();
-#ifdef FAMOS_DEBUG
       std::cout << "\tPixel Barrel Layer " << theLayer << std::endl;
 #endif
       if( hitFindingProbability > theHitFindingProbability_PXB ) return false;
@@ -576,9 +573,9 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
     // Pixel Forward
   case 2:
     {
+#ifdef FAMOS_DEBUG
       PXFDetId module(detid);
       unsigned int theDisk = module.disk();
-#ifdef FAMOS_DEBUG
       std::cout << "\tPixel Forward Disk " << theDisk << std::endl;
 #endif
       if( hitFindingProbability > theHitFindingProbability_PXF ) return false;
@@ -869,9 +866,13 @@ SiTrackerGaussianSmearingRecHitConverter::loadRecHits(
      std::map<DetId,edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
      SiTrackerGSRecHit2DCollection& theRecHitCollection) const
 {
-  for(std::map<DetId,edm::OwnVector<SiTrackerGSRecHit2D> >::const_iterator 
-	it = theRecHits.begin();
-        it!= theRecHits.end();it++) { 
+  std::map<DetId,edm::OwnVector<SiTrackerGSRecHit2D> >::const_iterator 
+    it = theRecHits.begin();
+  std::map<DetId,edm::OwnVector<SiTrackerGSRecHit2D> >::const_iterator 
+    lastRecHit = theRecHits.begin();
+
+  for( ; it != lastRecHit ; ++it ) { 
     theRecHitCollection.put(it->first,it->second.begin(),it->second.end());
   }
+
 }
