@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: PathTimerService.cc,v 1.5 2006/07/31 21:21:56 evansde Exp $
+// $Id: PathTimerService.cc,v 1.1 2006/12/15 06:07:56 dlange Exp $
 //
 
 #include "DQM/HLTEvF/interface/PathTimerService.h"
@@ -85,7 +85,6 @@ namespace edm {
 	    HLTPerformanceInfo::Module hltModule(modules[j].c_str(),0);
 	    _perfInfo->addModule(hltModule);
 	    _perfInfo->addModuleToPath(modules[j].c_str(),&hltPath);
-	    std::cout << "added " << modules[j].c_str() << std::endl;
 	  }
 	  else{
 	    
@@ -95,7 +94,6 @@ namespace edm {
       }
       curr_job_ = getTime();
 
-      std::cout << _perfInfo->numberOfPaths() << " " << _perfInfo->numberOfModules() << std::endl;
     }
 
     void PathTimerService::postEndJob() {
@@ -136,7 +134,6 @@ namespace edm {
       double t = getTime() - curr_module_time_;
 
       _moduleTime[desc.moduleLabel()]=t;
-      std::cout << desc.moduleLabel() << " in post module\n";
 
 	HLTPerformanceInfo::Modules::const_iterator iMod=_perfInfo->findModule(desc.moduleLabel().c_str());
 	if ( iMod != _perfInfo->endModules() ) {
@@ -148,7 +145,6 @@ namespace edm {
 
     void PathTimerService::postPathProcessing(const std::string &name, 
 					      const HLTPathStatus &status) {
-      std::cout << "done with path " << name << std::endl;
 
       HLTPerformanceInfo::PathList::const_iterator iPath=_perfInfo->beginPaths();
       while ( iPath != _perfInfo->endPaths() ) {
