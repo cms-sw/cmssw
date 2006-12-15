@@ -42,16 +42,16 @@ class CommissioningHistograms {
   /** */
   virtual void histoAnalysis( bool debug );
   /** */
-  virtual void createSummaryHisto( const sistrip::SummaryHisto&, 
-				   const sistrip::SummaryType&, 
+  virtual void createSummaryHisto( const sistrip::Monitorable&, 
+				   const sistrip::Presentation&, 
 				   const std::string& top_level_dir,
 				   const sistrip::Granularity& );
   /** */
   virtual void uploadToConfigDb();
   
   /** Wraps virtual createSummaryHisto() method for Seal::Callback. */
-  void createSummaryHisto( std::pair<sistrip::SummaryHisto,
-			   sistrip::SummaryType>, 
+  void createSummaryHisto( std::pair<sistrip::Monitorable,
+			   sistrip::Presentation>, 
 			   std::pair<std::string,
 			   sistrip::Granularity> ); 
   
@@ -66,8 +66,8 @@ class CommissioningHistograms {
   /** */
   inline const sistrip::Task& task() const;
   
-  TH1* histogram( const sistrip::SummaryHisto&, 
-		  const sistrip::SummaryType&, 
+  TH1* histogram( const sistrip::Monitorable&, 
+		  const sistrip::Presentation&, 
 		  const sistrip::View&,
 		  const std::string& directory,
 		  const uint32_t& xbins );

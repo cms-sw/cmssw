@@ -20,8 +20,8 @@ class OptoScanHistograms : public CommissioningHistograms {
   void histoAnalysis( bool debug );
 
   /** */
-  void createSummaryHisto( const sistrip::SummaryHisto&,
-			   const sistrip::SummaryType&,
+  void createSummaryHisto( const sistrip::Monitorable&,
+			   const sistrip::Presentation&,
 			   const std::string& top_level_dir,
 			   const sistrip::Granularity& );
 
