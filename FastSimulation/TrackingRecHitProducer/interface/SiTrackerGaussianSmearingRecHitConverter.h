@@ -22,9 +22,8 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 // Data Formats
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
-
-// Gaussian Smearing
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 
 // CLHEP
@@ -64,6 +63,7 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   //	     SiTrackerGSRecHit2DCollection& output,
   //	     edm::ESHandle<TrackerGeometry>& geom);
   void smearHits(const edm::PSimHitContainer* input);
+  void smearHits(MixCollection<PSimHit>* input);
 
   void loadRecHits(std::map<DetId,edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
 		   SiTrackerGSRecHit2DCollection& theRecHitCollection) const;

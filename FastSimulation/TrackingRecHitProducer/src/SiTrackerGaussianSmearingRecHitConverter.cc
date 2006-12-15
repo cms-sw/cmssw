@@ -25,6 +25,7 @@
 
 // Data Formats
 #include "DataFormats/Common/interface/Ref.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h" 	 
 
 // Framework
 #include "FWCore/Framework/interface/Handle.h"
@@ -89,7 +90,8 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   //--- delta rays p cut [GeV/c] to filter PSimHits with p>
   deltaRaysPCut = conf.getParameter<double>("DeltaRaysMomentumCut");
 #ifdef FAMOS_DEBUG
-  std::cout << "PSimHit filter delta rays cut in momentum p > " << deltaRaysPCut << " GeV/c" << std::endl;
+  std::cout << "PSimHit filter delta rays cut in momentum p > " 
+	    << deltaRaysPCut << " GeV/c" << std::endl;
 #endif
 //--- switch to have RecHit == PSimHit
   trackingPSimHits = conf.getParameter<bool>("trackingPSimHits");
@@ -184,8 +186,10 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   nBetaForward  = conf.getParameter<int>("BetaForwardMultiplicity");
 #ifdef FAMOS_DEBUG
   std::cout << "Pixel maximum multiplicity set to " 
-	    << "\nBarrel"  << "\talpha " << nAlphaBarrel  << "\tbeta " << nBetaBarrel
-	    << "\nForward" << "\talpha " << nAlphaForward << "\tbeta " << nBetaForward
+	    << "\nBarrel"  << "\talpha " << nAlphaBarrel  
+	    << "\tbeta " << nBetaBarrel
+	    << "\nForward" << "\talpha " << nAlphaForward 
+	    << "\tbeta " << nBetaForward
 	    << std::endl;
 #endif
   // Resolution Barrel    
@@ -197,8 +201,8 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   resBetaBarrel_binWidth  = conf.getParameter<double>("BetaBarrel_BinWidth" );
   resBetaBarrel_binN      = conf.getParameter<int>(   "BetaBarrel_BinN"     );
 #ifdef FAMOS_DEBUG
-  std::cout << "Barrel Pixel resolution data are taken from file " << thePixelBarrelResolutionFileName 
-	    << "\n"
+  std::cout << "Barrel Pixel resolution data are taken from file " 
+	    << thePixelBarrelResolutionFileName << "\n"
 	    << "Alpha bin min = " << resAlphaBarrel_binMin
 	    << "\twidth = "       << resAlphaBarrel_binWidth
 	    << "\tbins = "        << resAlphaBarrel_binN
@@ -219,8 +223,8 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   resBetaForward_binWidth  = conf.getParameter<double>("BetaForward_BinWidth"  );
   resBetaForward_binN      = conf.getParameter<int>(   "BetaForward_BinN"      );
 #ifdef FAMOS_DEBUG
-  std::cout << "Forward Pixel resolution data are taken from file " << thePixelForwardResolutionFileName 
-	    << "\n"
+  std::cout << "Forward Pixel resolution data are taken from file " 
+	    << thePixelForwardResolutionFileName << "\n"
 	    << "Alpha bin min = " << resAlphaForward_binMin
 	    << "\twidth = "       << resAlphaForward_binWidth
 	    << "\tbins = "        << resAlphaForward_binN
@@ -317,21 +321,38 @@ void SiTrackerGaussianSmearingRecHitConverter::loadPixelData() {
   thePixelForwardResolutionFile = new TFile ( edm::FileInPath( thePixelForwardResolutionFileName ).fullPath().c_str() , "READ" );
   //
   // alpha barrel
-  loadPixelData( thePixelDataFile, nAlphaBarrel  , std::string("hist_alpha_barrel")  , theBarrelMultiplicityAlphaCumulativeProbabilities  );
+  loadPixelData( thePixelDataFile, 
+		 nAlphaBarrel  , 
+		 std::string("hist_alpha_barrel")  , 
+		 theBarrelMultiplicityAlphaCumulativeProbabilities  );
   // 
   // beta barrel
-  loadPixelData( thePixelDataFile, nBetaBarrel   , std::string("hist_beta_barrel")   , theBarrelMultiplicityBetaCumulativeProbabilities   );
+  loadPixelData( thePixelDataFile, 
+		 nBetaBarrel   , 
+		 std::string("hist_beta_barrel")   , 
+		 theBarrelMultiplicityBetaCumulativeProbabilities   );
   // 
   // alpha forward
-  loadPixelData( thePixelDataFile, nAlphaForward , std::string("hist_alpha_forward") , theForwardMultiplicityAlphaCumulativeProbabilities );
+  loadPixelData( thePixelDataFile, 
+		 nAlphaForward , 
+		 std::string("hist_alpha_forward") , 
+		 theForwardMultiplicityAlphaCumulativeProbabilities );
   // 
   // beta forward
-  loadPixelData( thePixelDataFile, nBetaForward  , std::string("hist_beta_forward")  , theForwardMultiplicityBetaCumulativeProbabilities  );
+  loadPixelData( thePixelDataFile, 
+		 nBetaForward  , 
+		 std::string("hist_beta_forward")  , 
+		 theForwardMultiplicityBetaCumulativeProbabilities  );
   // 
 }
 
-void SiTrackerGaussianSmearingRecHitConverter::loadPixelData( TFile* pixelDataFile, unsigned int nMultiplicity, std::string histName,
-							      std::vector<TH1F*>& theMultiplicityCumulativeProbabilities ) {
+void SiTrackerGaussianSmearingRecHitConverter::loadPixelData( 
+  TFile* pixelDataFile, 
+  unsigned int nMultiplicity, 
+  std::string histName,
+  std::vector<TH1F*>& theMultiplicityCumulativeProbabilities ) 
+{
+
   std::string histName_i = histName + "_%u"; // needed to open histograms with a for
   theMultiplicityCumulativeProbabilities.clear();
   //
@@ -394,9 +415,15 @@ void SiTrackerGaussianSmearingRecHitConverter::beginJob(const edm::EventSetup& e
 
 void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es) {
   // Step A: Get Inputs (PSimHit's)
-  edm::Handle<edm::PSimHitContainer> allTrackerHits;
-  e.getByType(allTrackerHits);
+  //  edm::Handle<edm::PSimHitContainer> allTrackerHits;
+  //  e.getByType(allTrackerHits);
   
+  edm::Handle<CrossingFrame> cf; 
+  e.getByType(cf);
+
+  std::auto_ptr<MixCollection<PSimHit> > 
+    allTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
+
   // Step B: create temporary RecHit collection and fill it with Gaussian smeared RecHit's
   //  std::map< DetId, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
   temporaryRecHits.clear();
@@ -413,12 +440,14 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
 }
 
 
-void SiTrackerGaussianSmearingRecHitConverter::smearHits(const edm::PSimHitContainer* input)
+void SiTrackerGaussianSmearingRecHitConverter::smearHits(MixCollection<PSimHit>* input)
+  //void SiTrackerGaussianSmearingRecHitConverter::smearHits(const edm::PSimHitContainer* input)
 {
   
   int numberOfPSimHits = 0;
   
-  edm::PSimHitContainer::const_iterator isim;
+  //  edm::PSimHitContainer::const_iterator isim;
+  MixCollection<PSimHit>::iterator isim;
   Local3DPoint position;
   LocalError error;
   
