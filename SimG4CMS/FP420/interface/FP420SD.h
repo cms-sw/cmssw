@@ -38,7 +38,7 @@
 
 //AZ:
 class TrackingSlaveSD;
-class SimTrackManager;
+//class SimTrackManager;
 
 
 //-------------------------------------------------------------------
