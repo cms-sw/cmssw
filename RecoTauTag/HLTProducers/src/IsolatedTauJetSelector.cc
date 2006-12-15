@@ -56,7 +56,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
       JetTracksAssociationRef     jetTracks = i->jetRef()->jtaRef();
       math::XYZVector jetDir(jetTracks->key->px(),jetTracks->key->py(),jetTracks->key->pz());   
       float discriminator = i->discriminator(jetDir, matching_cone, signal_cone, isolation_cone, pt_min_leadTrack, pt_min_isolation,  n_tracks_isolation_ring,dZ_vertex); 
-      cout <<"Number of selected tracks "<<i->selectedTracks().size()<<endl;
+      //      cout <<"Number of selected tracks "<<i->selectedTracks().size()<<endl;
       if(discriminator > 0) {
 	JetTag pippoTag(discriminator,jetTracks);
 	baseCollectionTmp->push_back(pippoTag);

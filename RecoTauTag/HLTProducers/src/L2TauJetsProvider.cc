@@ -170,6 +170,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
     l1Decision =3;
   }
 
+  cout <<"Tau Trigger internal code "<<l1Decision <<endl;
 
   auto_ptr< vector<int> > myL1BookKeep(new vector<int>);
   myL1BookKeep->push_back(l1Decision);
