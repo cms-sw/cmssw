@@ -80,8 +80,8 @@ void PedestalsHistograms::histoAnalysis( bool debug ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void PedestalsHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo, 
-					      const sistrip::SummaryType& type, 
+void PedestalsHistograms::createSummaryHisto( const sistrip::Monitorable& histo, 
+					      const sistrip::Presentation& type, 
 					      const string& directory,
 					      const sistrip::Granularity& gran ) {
   LogTrace(mlDqmClient_) << "[PedestalsHistograms::" << __func__ << "]";

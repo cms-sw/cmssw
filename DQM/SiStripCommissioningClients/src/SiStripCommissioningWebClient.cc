@@ -10,10 +10,13 @@
 #include "DQMServices/WebComponents/interface/GifDisplay.h"
 #include "DQMServices/WebComponents/interface/Navigator.h"
 #include "DQMServices/WebComponents/interface/Button.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <SealBase/Callback.h>
 #include <iostream>
 
 using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
@@ -62,10 +65,6 @@ void SiStripCommissioningWebClient::defineWidgets() {
   add( "ContentViewer", con );
   add( "GifDisplay", dis );
 
-  // drop down menus for summary histos
-  //vector<sistrip::SummaryHisto> histo_list = client_->getSummaryHistoList();
-  //vector<sistrip::SummaryType>  type_list = client_->getSummaryTypeList();
-
 }
 
 // -----------------------------------------------------------------------------
@@ -78,24 +77,24 @@ void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
   multimap<string,string> requests;
   reader.read_form(requests);
   if ( requests.empty() ) { 
-    cerr << "[SiStripCommissioningClient::" << __func__ << "]"
-	 << " Unable to handle empty request map!" 
-	 << endl;
+    edm::LogWarning(mlDqmClient_)
+      << "[SiStripCommissioningClient::" << __func__ << "]"
+      << " Unable to handle empty request map!";
     return; 
   }
   
   string request = get_from_multimap( requests, "RequestID" );
   if ( request == "" ) { 
-    cerr << "[SiStripCommissioningClient::" << __func__ << "]"
-	 << " Unable to handle empty request!" 
-	 << endl;
+    edm::LogWarning(mlDqmClient_)
+      << "[SiStripCommissioningClient::" << __func__ << "]"
+      << " Unable to handle empty request!";
     return; 
   }
 
   //@@ temporary
   string filename = "";
-  sistrip::SummaryHisto histo = sistrip::APV_TIMING_DELAY;
-  sistrip::SummaryType type = sistrip::SUMMARY_DISTR;
+  sistrip::Monitorable mon = sistrip::APV_TIMING_DELAY;
+  sistrip::Presentation pres = sistrip::SUMMARY_HISTO;
   string dir = "SiStrip/ControlView/FecCrate0/";
   sistrip::Granularity gran = sistrip::MODULE;
   
@@ -111,13 +110,13 @@ void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
   } else if ( request == "HistoAnalysis" ) { 
     if ( client_ ) { client_->histoAnalysis( true ); }
   } else if ( request == "SummaryHisto" ) { 
-    if ( client_ ) { client_->createSummaryHisto( histo, type, dir, gran ); }
+    if ( client_ ) { client_->createSummaryHisto( mon, pres, dir, gran ); }
   } else if ( request == "UploadToDb" ) { 
     if ( client_ ) { client_->uploadToConfigDb(); }
   } else {
-    cerr << "[SiStripCommissioningClient::" << __func__ << "]"
-	 << " Unknown request: " << request 
-	 << endl;
+    edm::LogWarning(mlDqmClient_)
+      << "[SiStripCommissioningClient::" << __func__ << "]"
+      << " Unknown request: " << request;
   }
   
 }

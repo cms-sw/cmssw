@@ -137,8 +137,8 @@ void FedTimingHistograms::histoAnalysis( bool debug ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void FedTimingHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo, 
-					      const sistrip::SummaryType& type, 
+void FedTimingHistograms::createSummaryHisto( const sistrip::Monitorable& histo, 
+					      const sistrip::Presentation& type, 
 					      const string& directory,
 					      const sistrip::Granularity& gran ) {
   cout << "[" << __PRETTY_FUNCTION__ <<"]" << endl;

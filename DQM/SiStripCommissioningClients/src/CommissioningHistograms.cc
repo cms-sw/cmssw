@@ -16,26 +16,26 @@ CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui,
     action_(sistrip::NO_ACTION),
     task_(task)
 {
-  cout << endl // LogTrace(mlDqmClient_)
-       << "[CommissioningHistograms::" << __func__ << "]"
-       << " Constructing object..." << endl;
+  LogTrace(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " Constructing object...";
   collations_.clear();
 }
 
 // -----------------------------------------------------------------------------
 /** */
 CommissioningHistograms::~CommissioningHistograms() {
-  cout << endl // LogTrace(mlDqmClient_)
-       << "[CommissioningHistograms::" << __func__ << "]"
-       << " Destructing object..." << endl;
+  LogTrace(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::createCollations( const vector<string>& contents ) {
-  cout << endl // LogTrace(mlDqmClient_)
-       << "[CommissioningHistograms::" << __func__ << "]"
-       << " Creating CollateMonitorElements..." << endl;
+  LogTrace(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " Creating collated histograms...";
   
   if ( contents.empty() ) { return; }
   
@@ -73,10 +73,10 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
       } else if ( title.granularity_ == sistrip::LLD_CHAN ) {
 	channel = title.channel_;
       } else {
-	cerr << endl // edm::LogWarning(mlDqmClient_)
-	     << "[CommissioningHistograms::" << __func__ << "]"
-	     << " Unexpected histogram granularity: "
-	     << title.granularity_;
+	edm::LogWarning(mlDqmClient_)
+	  << "[CommissioningHistograms::" << __func__ << "]"
+	  << " Unexpected histogram granularity: "
+	  << title.granularity_;
       }
 
       // Build FEC key
@@ -129,10 +129,6 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 	  if ( cme ) { 
 	    mui()->add( cme, mui()->pwd()+"/"+(*ime) ); 
 	    collations_[fec_key].push_back( Collation((*ime),cme) );
-	    MonitorElement* me = cme->getMonitorElement();
-	    if ( me ) { cout << "CREATED NEW PROF CME: " << client_dir << "/" << me->getName() << endl; }
-	    MonitorElement* me1 = mui()->get( client_dir+"/"+(*ime) );
-	    if ( me1 ) { cout << "FOUND NEW PROF CME: " << client_dir << "/" << me1->getName() << endl; }
 	  }
 	}
 
@@ -163,32 +159,32 @@ void CommissioningHistograms::createCollations( const vector<string>& contents )
 void CommissioningHistograms::histoAnalysis( bool debug ) {
   cout << endl // LogTrace(mlDqmClient_)
        << "[CommissioningHistograms::" << __func__ << "]"
-       << " (Derived) implementation to come..." << endl;
+       << " (Derived) implementation to come...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo, 
-						  const sistrip::SummaryType& type, 
+void CommissioningHistograms::createSummaryHisto( const sistrip::Monitorable& histo, 
+						  const sistrip::Presentation& type, 
 						  const string& directory,
 						  const sistrip::Granularity& gran ) {
-  cout << endl // LogTrace(mlDqmClient_)
-       << "[CommissioningHistograms::" << __func__ << "]"
-       << " (Derived) implementation to come..." << endl;
+  LogTrace(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " (Derived) implementation to come...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::uploadToConfigDb() {
-  cout << endl // LogTrace(mlDqmClient_)
-       << "[CommissioningHistograms::" << __func__ << "]"
-       << " (Derived) implementation to come..." << endl; 
+  LogTrace(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " (Derived) implementation to come..."; 
 }
 
 // -----------------------------------------------------------------------------
 /** Wraps other createSummaryHisto() method. */
-void CommissioningHistograms::createSummaryHisto( pair<sistrip::SummaryHisto,
-						  sistrip::SummaryType> summ0, 
+void CommissioningHistograms::createSummaryHisto( pair<sistrip::Monitorable,
+						  sistrip::Presentation> summ0, 
 						  pair<string,
 						  sistrip::Granularity> summ1 ) {
   createSummaryHisto( summ0.first, summ0.second, summ1.first, summ1.second );
@@ -196,28 +192,37 @@ void CommissioningHistograms::createSummaryHisto( pair<sistrip::SummaryHisto,
 
 // -----------------------------------------------------------------------------
 // 
-TH1* CommissioningHistograms::histogram( const sistrip::SummaryHisto& histo, 
-					 const sistrip::SummaryType& type, 
+TH1* CommissioningHistograms::histogram( const sistrip::Monitorable& mon, 
+					 const sistrip::Presentation& pres, 
 					 const sistrip::View& view,
 					 const string& directory,
 					 const uint32_t& xbins ) {
   
-  string name = SummaryGenerator::name( task_, histo, type, view, directory );
+  // Remember pwd 
+  string pwd = mui()->pwd();
   mui()->setCurrentFolder( directory );
+
+  // Book new histogram
+  string name = SummaryGenerator::name( task_, mon, pres, view, directory );
   MonitorElement* me = mui()->get( mui()->pwd() + "/" + name );
   if ( !me ) { 
-    if ( type == sistrip::SUMMARY_DISTR ) { 
+    if ( pres == sistrip::SUMMARY_HISTO ) { 
       me = mui()->getBEInterface()->book1D( name, name, xbins, 0., static_cast<float>(xbins) ); 
-    } else if ( type == sistrip::SUMMARY_1D ) { 
+    } else if ( pres == sistrip::SUMMARY_1D ) { 
       me = mui()->getBEInterface()->book1D( name, name, xbins, 0., static_cast<float>(xbins) ); 
-    } else if ( type == sistrip::SUMMARY_2D ) { 
+    } else if ( pres == sistrip::SUMMARY_2D ) { 
       me = mui()->getBEInterface()->book2D( name, name, xbins, 0., static_cast<float>(xbins), 1025, 0., 1025 ); 
-    } else if ( type == sistrip::SUMMARY_PROF ) { 
+    } else if ( pres == sistrip::SUMMARY_PROF ) { 
       me = mui()->getBEInterface()->bookProfile( name, name, xbins, 0., static_cast<float>(xbins), 1025, 0., 1025 ); 
     } else { me = 0; 
     }
   }
   TH1F* summary = ExtractTObject<TH1F>().extract( me ); 
+  
+  // Return to pwd
+  mui()->setCurrentFolder( pwd );
+  
   return summary;
+  
 }
 

@@ -79,8 +79,8 @@ void VpspScanHistograms::histoAnalysis( bool debug ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void VpspScanHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo, 
-					     const sistrip::SummaryType& type, 
+void VpspScanHistograms::createSummaryHisto( const sistrip::Monitorable& histo, 
+					     const sistrip::Presentation& type, 
 					     const string& directory,
 					     const sistrip::Granularity& gran ) {
   LogTrace(mlDqmClient_) << "[VpspScanHistograms::" << __func__ << "]";

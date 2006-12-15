@@ -92,8 +92,8 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void FedCablingHistograms::createSummaryHisto( const sistrip::SummaryHisto& histo, 
-					       const sistrip::SummaryType& type, 
+void FedCablingHistograms::createSummaryHisto( const sistrip::Monitorable& histo, 
+					       const sistrip::Presentation& type, 
 					       const string& directory,
 					       const sistrip::Granularity& gran ) {
   cout << endl // LogTrace(mlDqmClient_)
