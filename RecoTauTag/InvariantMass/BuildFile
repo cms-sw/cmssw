@@ -1,0 +1,24 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
+<use name=DataFormats/BTauReco>
+<use name=DataFormats/VertexReco>
+<use name=rootrflx>
+<use name=DataFormats/Math>
+<use name=boost>
+<use name=root>
+<use name=RecoBTag/TrackCounting>
+<use name=TrackingTools/TrackAssociator>
+
+<flags SEAL_PLUGIN_NAME="RecoTauTagInvariantMass">
+<export>
+   <lib name=RecoTauTagInvariantMass>
+   <use name=RecoTauTagConeIsolation>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/VertexReco>
+   <use name=DataFormats/BTauReco>
+   <use name=TrackingTools/TrackAssociator>
+</export>
