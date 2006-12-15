@@ -13,13 +13,6 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 // 
-SummaryGeneratorControlView::SummaryGeneratorControlView() {
-  // All histos use square of the weights to calc error   
-  //TH1::SetDefaultSumw2(true);
-}
-
-// -----------------------------------------------------------------------------
-// 
 void SummaryGeneratorControlView::fill( const string& top_level_dir,
 					const sistrip::Granularity& granularity,
 					const uint32_t& device_key, 
@@ -36,9 +29,9 @@ void SummaryGeneratorControlView::fill( const string& top_level_dir,
        granularity != sistrip::CCU_ADDR &&
        granularity != sistrip::CCU_CHAN &&
        granularity != sistrip::LLD_CHAN && 
-       granularity != sistrip::APV) {
+       granularity != sistrip::APV ) {
     string temp = SiStripHistoNamingScheme::granularity( sistrip::LLD_CHAN );
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+    cerr << "[SummaryGeneratorControlView::" << __func__ << "]"
 	 << " Unexpected granularity requested: " << gran
 	 << endl;
     return;
@@ -84,14 +77,6 @@ void SummaryGeneratorControlView::fill( const string& top_level_dir,
     map_[bin.str()].push_back( Data(value,error) );
     entries_++;
 
-//     cout << "[" << __PRETTY_FUNCTION__ << "]"
-//  	 << " Added value +/- error  " << value << " +/- " << error
-//  	 << " to bin with label '" << bin.str()
-// 	 << "', which currently has " << map_[bin.str()].size()
-// 	 << " entries (map has " << entries_
-// 	 << " entries)"
-// 	 << endl;
-    
   }
   
 }
