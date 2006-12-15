@@ -30,12 +30,12 @@ class SiStripHistoNamingScheme {
   static std::string granularity( const sistrip::Granularity& );
   static sistrip::Granularity granularity( const std::string& granularity );
 
-  static std::string summaryHisto( const sistrip::SummaryHisto& );
-  static sistrip::SummaryHisto summaryHisto( const std::string& summary_histo );
-
-  static std::string summaryType( const sistrip::SummaryType& );
-  static sistrip::SummaryType summaryType( const std::string& summary_type );
-
+  static std::string monitorable( const sistrip::Monitorable& );
+  static sistrip::Monitorable monitorable( const std::string& histo_monitorable );
+  
+  static std::string presentation( const sistrip::Presentation& );
+  static sistrip::Presentation presentation( const std::string& histo_presentation );
+  
   static std::string cablingSource( const sistrip::CablingSource& );
   static sistrip::CablingSource cablingSource( const std::string& cabling_source );
 

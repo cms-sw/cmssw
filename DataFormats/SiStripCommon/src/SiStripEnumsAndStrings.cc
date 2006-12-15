@@ -108,9 +108,9 @@ string SiStripHistoNamingScheme::granularity( const sistrip::Granularity& granul
   else if ( granularity == sistrip::CCU_CHAN ) { return sistrip::ccuChan_; }
   // Readout
   else if ( granularity == sistrip::FED ) { return sistrip::fedId_; }
-  else if ( granularity == sistrip::FE_UNIT ) { return sistrip::feUnit_; }
-  else if ( granularity == sistrip::FED_FE_CHAN ) { return sistrip::fedFeChan_; }
   else if ( granularity == sistrip::FED_CHANNEL ) { return sistrip::fedChannel_; }
+  else if ( granularity == sistrip::FE_UNIT ) { return sistrip::feUnit_; }
+  else if ( granularity == sistrip::FE_CHAN ) { return sistrip::feChan_; }
   // Sub-structure
   else if ( granularity == sistrip::LAYER ) { return sistrip::layer_; }
   else if ( granularity == sistrip::ROD ) { return sistrip::rod_; }
@@ -145,9 +145,9 @@ sistrip::Granularity SiStripHistoNamingScheme::granularity( const string& granul
   else if ( granularity.find( sistrip::ccuChan_ ) != string::npos ) { return sistrip::CCU_CHAN; }
   // Readout
   else if ( granularity.find( sistrip::fedId_ ) != string::npos ) { return sistrip::FED; }
-  else if ( granularity.find( sistrip::feUnit_ ) != string::npos ) { return sistrip::FE_UNIT; }
-  else if ( granularity.find( sistrip::fedFeChan_ ) != string::npos ) { return sistrip::FED_FE_CHAN; }
   else if ( granularity.find( sistrip::fedChannel_ ) != string::npos ) { return sistrip::FED_CHANNEL; }
+  else if ( granularity.find( sistrip::feUnit_ ) != string::npos ) { return sistrip::FE_UNIT; }
+  else if ( granularity.find( sistrip::feChan_ ) != string::npos ) { return sistrip::FE_CHAN; }
   // Sub-structure
   else if ( granularity.find( sistrip::layer_ ) != string::npos ) { return sistrip::LAYER; }
   else if ( granularity.find( sistrip::rod_ ) != string::npos ) { return sistrip::ROD; }
@@ -167,149 +167,154 @@ sistrip::Granularity SiStripHistoNamingScheme::granularity( const string& granul
 
 // -----------------------------------------------------------------------------
 // 
-string SiStripHistoNamingScheme::summaryHisto( const sistrip::SummaryHisto& histo ) {
-
+string SiStripHistoNamingScheme::monitorable( const sistrip::Monitorable& mon ) {
+  
   // fed cabling
-  if ( histo == sistrip::FED_CABLING_FED_ID ) { return sistrip::fedCablingFedId_; } 
-  else if ( histo == sistrip::FED_CABLING_FED_CH ) { return sistrip::fedCablingFedCh_; } 
-  else if ( histo == sistrip::FED_CABLING_SIGNAL_LEVEL ) { return sistrip::fedCablingSignalLevel_; }
-
+  if ( mon == sistrip::FED_CABLING_FED_ID ) { return sistrip::fedCablingFedId_; } 
+  else if ( mon == sistrip::FED_CABLING_FED_CH ) { return sistrip::fedCablingFedCh_; } 
+  else if ( mon == sistrip::FED_CABLING_ADC_LEVEL ) { return sistrip::fedCablingAdcLevel_; }
+  
   // apv timing
-  else if ( histo == sistrip::APV_TIMING_TIME ) { return sistrip::apvTimingTime_; } 
-  else if ( histo == sistrip::APV_TIMING_MAX_TIME ) { return sistrip::apvTimingMax_; }
-  else if ( histo == sistrip::APV_TIMING_DELAY ) { return sistrip::apvTimingDelay_; }
-  else if ( histo == sistrip::APV_TIMING_ERROR ) { return sistrip::apvTimingError_; }
-  else if ( histo == sistrip::APV_TIMING_BASE ) { return sistrip::apvTimingBase_; }
-  else if ( histo == sistrip::APV_TIMING_PEAK ) { return sistrip::apvTimingPeak_; }
-  else if ( histo == sistrip::APV_TIMING_HEIGHT ) { return sistrip::apvTimingHeight_; }
+  else if ( mon == sistrip::APV_TIMING_TIME ) { return sistrip::apvTimingTime_; } 
+  else if ( mon == sistrip::APV_TIMING_MAX_TIME ) { return sistrip::apvTimingMax_; }
+  else if ( mon == sistrip::APV_TIMING_DELAY ) { return sistrip::apvTimingDelay_; }
+  else if ( mon == sistrip::APV_TIMING_ERROR ) { return sistrip::apvTimingError_; }
+  else if ( mon == sistrip::APV_TIMING_BASE ) { return sistrip::apvTimingBase_; }
+  else if ( mon == sistrip::APV_TIMING_PEAK ) { return sistrip::apvTimingPeak_; }
+  else if ( mon == sistrip::APV_TIMING_HEIGHT ) { return sistrip::apvTimingHeight_; }
 
   // fed timing
-  else if ( histo == sistrip::FED_TIMING_TIME ) { return sistrip::fedTimingTime_; } 
-  else if ( histo == sistrip::FED_TIMING_MAX_TIME ) { return sistrip::fedTimingMax_; }
-  else if ( histo == sistrip::FED_TIMING_DELAY ) { return sistrip::fedTimingDelay_; }
-  else if ( histo == sistrip::FED_TIMING_ERROR ) { return sistrip::fedTimingError_; }
-  else if ( histo == sistrip::FED_TIMING_BASE ) { return sistrip::fedTimingBase_; }
-  else if ( histo == sistrip::FED_TIMING_PEAK ) { return sistrip::fedTimingPeak_; }
-  else if ( histo == sistrip::FED_TIMING_HEIGHT ) { return sistrip::fedTimingHeight_; }
+  else if ( mon == sistrip::FED_TIMING_TIME ) { return sistrip::fedTimingTime_; } 
+  else if ( mon == sistrip::FED_TIMING_MAX_TIME ) { return sistrip::fedTimingMax_; }
+  else if ( mon == sistrip::FED_TIMING_DELAY ) { return sistrip::fedTimingDelay_; }
+  else if ( mon == sistrip::FED_TIMING_ERROR ) { return sistrip::fedTimingError_; }
+  else if ( mon == sistrip::FED_TIMING_BASE ) { return sistrip::fedTimingBase_; }
+  else if ( mon == sistrip::FED_TIMING_PEAK ) { return sistrip::fedTimingPeak_; }
+  else if ( mon == sistrip::FED_TIMING_HEIGHT ) { return sistrip::fedTimingHeight_; }
 
   // opto scan
-  else if ( histo == sistrip::OPTO_SCAN_LLD_GAIN_SETTING ) { return sistrip::optoScanLldGain_; }
-  else if ( histo == sistrip::OPTO_SCAN_LLD_BIAS_SETTING ) { return sistrip::optoScanLldBias_; }
-  else if ( histo == sistrip::OPTO_SCAN_MEASURED_GAIN ) { return sistrip::optoScanMeasGain_; }
-  else if ( histo == sistrip::OPTO_SCAN_ZERO_LIGHT_LEVEL ) { return sistrip::optoScanZeroLight_; }
-  else if ( histo == sistrip::OPTO_SCAN_LINK_NOISE ) { return sistrip::optoScanLinkNoise_; }
-  else if ( histo == sistrip::OPTO_SCAN_BASELINE_LIFT_OFF ) { return sistrip::optoScanBaseLiftOff_; }
-  else if ( histo == sistrip::OPTO_SCAN_LASER_THRESHOLD ) { return sistrip::optoScanLaserThresh_; }
-  else if ( histo == sistrip::OPTO_SCAN_TICK_HEIGHT ) { return sistrip::optoScanTickHeight_; }
+  else if ( mon == sistrip::OPTO_SCAN_LLD_GAIN_SETTING ) { return sistrip::optoScanLldGain_; }
+  else if ( mon == sistrip::OPTO_SCAN_LLD_BIAS_SETTING ) { return sistrip::optoScanLldBias_; }
+  else if ( mon == sistrip::OPTO_SCAN_MEASURED_GAIN ) { return sistrip::optoScanMeasGain_; }
+  else if ( mon == sistrip::OPTO_SCAN_ZERO_LIGHT_LEVEL ) { return sistrip::optoScanZeroLight_; }
+  else if ( mon == sistrip::OPTO_SCAN_LINK_NOISE ) { return sistrip::optoScanLinkNoise_; }
+  else if ( mon == sistrip::OPTO_SCAN_BASELINE_LIFT_OFF ) { return sistrip::optoScanBaseLiftOff_; }
+  else if ( mon == sistrip::OPTO_SCAN_LASER_THRESHOLD ) { return sistrip::optoScanLaserThresh_; }
+  else if ( mon == sistrip::OPTO_SCAN_TICK_HEIGHT ) { return sistrip::optoScanTickHeight_; }
 
   // vpsp scan
-  else if ( histo == sistrip::VPSP_SCAN_BOTH_APVS ) { return sistrip::vpspScanBothApvs_; }
-  else if ( histo == sistrip::VPSP_SCAN_APV0 ) { return sistrip::vpspScanApv0_; }
-  else if ( histo == sistrip::VPSP_SCAN_APV1 ) { return sistrip::vpspScanApv1_; }
+  else if ( mon == sistrip::VPSP_SCAN_BOTH_APVS ) { return sistrip::vpspScanBothApvs_; }
+  else if ( mon == sistrip::VPSP_SCAN_APV0 ) { return sistrip::vpspScanApv0_; }
+  else if ( mon == sistrip::VPSP_SCAN_APV1 ) { return sistrip::vpspScanApv1_; }
 
   // pedestals / noise
-  else if ( histo == sistrip::PEDESTALS_ALL_STRIPS ) { return sistrip::pedestalsAllStrips_; }
-  else if ( histo == sistrip::PEDESTALS_MEAN ) { return sistrip::pedestalsMean_; }
-  else if ( histo == sistrip::PEDESTALS_SPREAD ) { return sistrip::pedestalsSpread_; }
-  else if ( histo == sistrip::PEDESTALS_MAX ) { return sistrip::pedestalsMax_; }
-  else if ( histo == sistrip::PEDESTALS_MIN ) { return sistrip::pedestalsMin_; }
-  else if ( histo == sistrip::NOISE_ALL_STRIPS ) { return sistrip::noiseAllStrips_; }
-  else if ( histo == sistrip::NOISE_MEAN ) { return sistrip::noiseMean_; }
-  else if ( histo == sistrip::NOISE_SPREAD ) { return sistrip::noiseSpread_; }
-  else if ( histo == sistrip::NOISE_MAX ) { return sistrip::noiseMax_; }
-  else if ( histo == sistrip::NOISE_MIN ) { return sistrip::noiseMin_; }
-  else if ( histo == sistrip::NUM_OF_DEAD ) { return sistrip::numOfDead_; }
-  else if ( histo == sistrip::NUM_OF_NOISY ) { return sistrip::numOfNoisy_; }
+  else if ( mon == sistrip::PEDESTALS_ALL_STRIPS ) { return sistrip::pedestalsAllStrips_; }
+  else if ( mon == sistrip::PEDESTALS_MEAN ) { return sistrip::pedestalsMean_; }
+  else if ( mon == sistrip::PEDESTALS_SPREAD ) { return sistrip::pedestalsSpread_; }
+  else if ( mon == sistrip::PEDESTALS_MAX ) { return sistrip::pedestalsMax_; }
+  else if ( mon == sistrip::PEDESTALS_MIN ) { return sistrip::pedestalsMin_; }
+  else if ( mon == sistrip::NOISE_ALL_STRIPS ) { return sistrip::noiseAllStrips_; }
+  else if ( mon == sistrip::NOISE_MEAN ) { return sistrip::noiseMean_; }
+  else if ( mon == sistrip::NOISE_SPREAD ) { return sistrip::noiseSpread_; }
+  else if ( mon == sistrip::NOISE_MAX ) { return sistrip::noiseMax_; }
+  else if ( mon == sistrip::NOISE_MIN ) { return sistrip::noiseMin_; }
+  else if ( mon == sistrip::NUM_OF_DEAD ) { return sistrip::numOfDead_; }
+  else if ( mon == sistrip::NUM_OF_NOISY ) { return sistrip::numOfNoisy_; }
 
   // scope mode 
-  else if ( histo == sistrip::DAQ_SCOPE_MODE_MEAN_SIGNAL ) { return sistrip::daqScopeModeMeanSignal_; }
+  else if ( mon == sistrip::DAQ_SCOPE_MODE_MEAN_SIGNAL ) { return sistrip::daqScopeModeMeanSignal_; }
 
   // unknown
-  else if ( histo == sistrip::UNDEFINED_SUMMARY_HISTO ) { return sistrip::undefinedSummaryHisto_; }
-  else { return sistrip::unknownSummaryHisto_; }
-
+  else if ( mon == sistrip::UNDEFINED_MONITORABLE ) { return sistrip::undefinedMonitorable_; }
+  else { return sistrip::unknownMonitorable_; }
+  
 }
 
 // -----------------------------------------------------------------------------
 // 
-sistrip::SummaryHisto SiStripHistoNamingScheme::summaryHisto( const string& histo ) {
+sistrip::Monitorable SiStripHistoNamingScheme::monitorable( const string& mon ) {
+
+  // fed cabling
+  if ( mon.find( sistrip::fedCablingFedId_ ) != string::npos ) { return sistrip::FED_CABLING_FED_ID; } 
+  else if ( mon.find( sistrip::fedCablingFedCh_ ) != string::npos ) { return sistrip::FED_CABLING_FED_CH; } 
+  else if ( mon.find( sistrip::fedCablingAdcLevel_ ) != string::npos ) { return sistrip::FED_CABLING_ADC_LEVEL; } 
 
   // apv timing
-  if ( histo.find( sistrip::apvTimingTime_ ) != string::npos ) { return sistrip::APV_TIMING_TIME; } 
-  else if ( histo.find( sistrip::apvTimingMax_ ) != string::npos ) { return sistrip::APV_TIMING_MAX_TIME; }
-  else if ( histo.find( sistrip::apvTimingDelay_ ) != string::npos ) { return sistrip::APV_TIMING_DELAY; }
-  else if ( histo.find( sistrip::apvTimingError_ ) != string::npos ) { return sistrip::APV_TIMING_ERROR; }
-  else if ( histo.find( sistrip::apvTimingBase_ ) != string::npos ) { return sistrip::APV_TIMING_BASE; }
-  else if ( histo.find( sistrip::apvTimingPeak_ ) != string::npos ) { return sistrip::APV_TIMING_PEAK; }
-  else if ( histo.find( sistrip::apvTimingHeight_ ) != string::npos ) { return sistrip::APV_TIMING_HEIGHT; }
+  else if ( mon.find( sistrip::apvTimingTime_ ) != string::npos ) { return sistrip::APV_TIMING_TIME; } 
+  else if ( mon.find( sistrip::apvTimingMax_ ) != string::npos ) { return sistrip::APV_TIMING_MAX_TIME; }
+  else if ( mon.find( sistrip::apvTimingDelay_ ) != string::npos ) { return sistrip::APV_TIMING_DELAY; }
+  else if ( mon.find( sistrip::apvTimingError_ ) != string::npos ) { return sistrip::APV_TIMING_ERROR; }
+  else if ( mon.find( sistrip::apvTimingBase_ ) != string::npos ) { return sistrip::APV_TIMING_BASE; }
+  else if ( mon.find( sistrip::apvTimingPeak_ ) != string::npos ) { return sistrip::APV_TIMING_PEAK; }
+  else if ( mon.find( sistrip::apvTimingHeight_ ) != string::npos ) { return sistrip::APV_TIMING_HEIGHT; }
 
   // fed timing
-  else if ( histo.find( sistrip::fedTimingTime_ ) != string::npos ) { return sistrip::FED_TIMING_TIME; } 
-  else if ( histo.find( sistrip::fedTimingMax_ ) != string::npos ) { return sistrip::FED_TIMING_MAX_TIME; }
-  else if ( histo.find( sistrip::fedTimingDelay_ ) != string::npos ) { return sistrip::FED_TIMING_DELAY; }
-  else if ( histo.find( sistrip::fedTimingError_ ) != string::npos ) { return sistrip::FED_TIMING_ERROR; }
-  else if ( histo.find( sistrip::fedTimingBase_ ) != string::npos ) { return sistrip::FED_TIMING_BASE; }
-  else if ( histo.find( sistrip::fedTimingPeak_ ) != string::npos ) { return sistrip::FED_TIMING_PEAK; }
-  else if ( histo.find( sistrip::fedTimingHeight_ ) != string::npos ) { return sistrip::FED_TIMING_HEIGHT; }
+  else if ( mon.find( sistrip::fedTimingTime_ ) != string::npos ) { return sistrip::FED_TIMING_TIME; } 
+  else if ( mon.find( sistrip::fedTimingMax_ ) != string::npos ) { return sistrip::FED_TIMING_MAX_TIME; }
+  else if ( mon.find( sistrip::fedTimingDelay_ ) != string::npos ) { return sistrip::FED_TIMING_DELAY; }
+  else if ( mon.find( sistrip::fedTimingError_ ) != string::npos ) { return sistrip::FED_TIMING_ERROR; }
+  else if ( mon.find( sistrip::fedTimingBase_ ) != string::npos ) { return sistrip::FED_TIMING_BASE; }
+  else if ( mon.find( sistrip::fedTimingPeak_ ) != string::npos ) { return sistrip::FED_TIMING_PEAK; }
+  else if ( mon.find( sistrip::fedTimingHeight_ ) != string::npos ) { return sistrip::FED_TIMING_HEIGHT; }
 
   // opto scan
-  else if ( histo.find( sistrip::optoScanLldGain_ ) != string::npos ) { return sistrip::OPTO_SCAN_LLD_GAIN_SETTING; }
-  else if ( histo.find( sistrip::optoScanLldBias_ ) != string::npos ) { return sistrip::OPTO_SCAN_LLD_BIAS_SETTING; }
-  else if ( histo.find( sistrip::optoScanMeasGain_ ) != string::npos ) { return sistrip::OPTO_SCAN_MEASURED_GAIN; }
-  else if ( histo.find( sistrip::optoScanZeroLight_ ) != string::npos ) { return sistrip::OPTO_SCAN_ZERO_LIGHT_LEVEL; }
-  else if ( histo.find( sistrip::optoScanLinkNoise_ ) != string::npos ) { return sistrip::OPTO_SCAN_LINK_NOISE; }
-  else if ( histo.find( sistrip::optoScanBaseLiftOff_ ) != string::npos ) { return sistrip::OPTO_SCAN_BASELINE_LIFT_OFF; }
-  else if ( histo.find( sistrip::optoScanLaserThresh_ ) != string::npos ) { return sistrip::OPTO_SCAN_LASER_THRESHOLD; }
-  else if ( histo.find( sistrip::optoScanTickHeight_ ) != string::npos ) { return sistrip::OPTO_SCAN_TICK_HEIGHT; }
+  else if ( mon.find( sistrip::optoScanLldGain_ ) != string::npos ) { return sistrip::OPTO_SCAN_LLD_GAIN_SETTING; }
+  else if ( mon.find( sistrip::optoScanLldBias_ ) != string::npos ) { return sistrip::OPTO_SCAN_LLD_BIAS_SETTING; }
+  else if ( mon.find( sistrip::optoScanMeasGain_ ) != string::npos ) { return sistrip::OPTO_SCAN_MEASURED_GAIN; }
+  else if ( mon.find( sistrip::optoScanZeroLight_ ) != string::npos ) { return sistrip::OPTO_SCAN_ZERO_LIGHT_LEVEL; }
+  else if ( mon.find( sistrip::optoScanLinkNoise_ ) != string::npos ) { return sistrip::OPTO_SCAN_LINK_NOISE; }
+  else if ( mon.find( sistrip::optoScanBaseLiftOff_ ) != string::npos ) { return sistrip::OPTO_SCAN_BASELINE_LIFT_OFF; }
+  else if ( mon.find( sistrip::optoScanLaserThresh_ ) != string::npos ) { return sistrip::OPTO_SCAN_LASER_THRESHOLD; }
+  else if ( mon.find( sistrip::optoScanTickHeight_ ) != string::npos ) { return sistrip::OPTO_SCAN_TICK_HEIGHT; }
 
   // vpsp scan
-  else if ( histo.find( sistrip::vpspScanBothApvs_ ) != string::npos ) { return sistrip::VPSP_SCAN_BOTH_APVS; }
-  else if ( histo.find( sistrip::vpspScanApv0_ ) != string::npos ) { return sistrip::VPSP_SCAN_APV0; }
-  else if ( histo.find( sistrip::vpspScanApv1_ ) != string::npos ) { return sistrip::VPSP_SCAN_APV1; }
+  else if ( mon.find( sistrip::vpspScanBothApvs_ ) != string::npos ) { return sistrip::VPSP_SCAN_BOTH_APVS; }
+  else if ( mon.find( sistrip::vpspScanApv0_ ) != string::npos ) { return sistrip::VPSP_SCAN_APV0; }
+  else if ( mon.find( sistrip::vpspScanApv1_ ) != string::npos ) { return sistrip::VPSP_SCAN_APV1; }
 
   // pedestals / noise
-  else if ( histo.find( sistrip::pedestalsAllStrips_ ) != string::npos ) { return sistrip::PEDESTALS_ALL_STRIPS; }
-  else if ( histo.find( sistrip::pedestalsMean_ ) != string::npos ) { return sistrip::PEDESTALS_MEAN; }
-  else if ( histo.find( sistrip::pedestalsSpread_ ) != string::npos ) { return sistrip::PEDESTALS_SPREAD; }
-  else if ( histo.find( sistrip::pedestalsMax_ ) != string::npos ) { return sistrip::PEDESTALS_MAX; }
-  else if ( histo.find( sistrip::pedestalsMin_ ) != string::npos ) { return sistrip::PEDESTALS_MIN; }
-  else if ( histo.find( sistrip::noiseAllStrips_ ) != string::npos ) { return sistrip::NOISE_ALL_STRIPS; }
-  else if ( histo.find( sistrip::noiseMean_ ) != string::npos ) { return sistrip::NOISE_MEAN; }
-  else if ( histo.find( sistrip::noiseSpread_ ) != string::npos ) { return sistrip::NOISE_SPREAD; }
-  else if ( histo.find( sistrip::noiseMax_ ) != string::npos ) { return sistrip::NOISE_MAX; }
-  else if ( histo.find( sistrip::noiseMin_ ) != string::npos ) { return sistrip::NOISE_MIN; }
-  else if ( histo.find( sistrip::numOfDead_ ) != string::npos ) { return sistrip::NUM_OF_DEAD; }
-  else if ( histo.find( sistrip::numOfNoisy_ ) != string::npos ) { return sistrip::NUM_OF_NOISY; }
+  else if ( mon.find( sistrip::pedestalsAllStrips_ ) != string::npos ) { return sistrip::PEDESTALS_ALL_STRIPS; }
+  else if ( mon.find( sistrip::pedestalsMean_ ) != string::npos ) { return sistrip::PEDESTALS_MEAN; }
+  else if ( mon.find( sistrip::pedestalsSpread_ ) != string::npos ) { return sistrip::PEDESTALS_SPREAD; }
+  else if ( mon.find( sistrip::pedestalsMax_ ) != string::npos ) { return sistrip::PEDESTALS_MAX; }
+  else if ( mon.find( sistrip::pedestalsMin_ ) != string::npos ) { return sistrip::PEDESTALS_MIN; }
+  else if ( mon.find( sistrip::noiseAllStrips_ ) != string::npos ) { return sistrip::NOISE_ALL_STRIPS; }
+  else if ( mon.find( sistrip::noiseMean_ ) != string::npos ) { return sistrip::NOISE_MEAN; }
+  else if ( mon.find( sistrip::noiseSpread_ ) != string::npos ) { return sistrip::NOISE_SPREAD; }
+  else if ( mon.find( sistrip::noiseMax_ ) != string::npos ) { return sistrip::NOISE_MAX; }
+  else if ( mon.find( sistrip::noiseMin_ ) != string::npos ) { return sistrip::NOISE_MIN; }
+  else if ( mon.find( sistrip::numOfDead_ ) != string::npos ) { return sistrip::NUM_OF_DEAD; }
+  else if ( mon.find( sistrip::numOfNoisy_ ) != string::npos ) { return sistrip::NUM_OF_NOISY; }
   
   // scope mode
-  else if ( histo.find( sistrip::daqScopeModeMeanSignal_ ) != string::npos ) { return sistrip::DAQ_SCOPE_MODE_MEAN_SIGNAL; }
+  else if ( mon.find( sistrip::daqScopeModeMeanSignal_ ) != string::npos ) { return sistrip::DAQ_SCOPE_MODE_MEAN_SIGNAL; }
   
   // unknown
-  else if ( histo.find( sistrip::undefinedSummaryHisto_ ) != string::npos ) { return sistrip::UNDEFINED_SUMMARY_HISTO; }
-  else { return sistrip::UNKNOWN_SUMMARY_HISTO; }
+  else if ( mon.find( sistrip::undefinedMonitorable_ ) != string::npos ) { return sistrip::UNDEFINED_MONITORABLE; }
+  else { return sistrip::UNKNOWN_MONITORABLE; }
   
 }  
 
 // -----------------------------------------------------------------------------
 // 
-string SiStripHistoNamingScheme::summaryType( const sistrip::SummaryType& type ) {
-  if ( type == sistrip::SUMMARY_DISTR ) { return sistrip::summaryDistr_; } 
+string SiStripHistoNamingScheme::presentation( const sistrip::Presentation& type ) {
+  if ( type == sistrip::SUMMARY_HISTO ) { return sistrip::summaryHisto_; } 
   else if ( type == sistrip::SUMMARY_1D ) { return sistrip::summary1D_; }
   else if ( type == sistrip::SUMMARY_2D ) { return sistrip::summary2D_; }
   else if ( type == sistrip::SUMMARY_PROF )  { return sistrip::summaryProf_; }
-  else if ( type == sistrip::UNDEFINED_SUMMARY_TYPE ) { return sistrip::undefinedSummaryType_; }
-  else { return sistrip::unknownSummaryType_; }
+  else if ( type == sistrip::UNDEFINED_PRESENTATION ) { return sistrip::undefinedPresentation_; }
+  else { return sistrip::unknownPresentation_; }
 }
 
 // -----------------------------------------------------------------------------
 // 
-sistrip::SummaryType SiStripHistoNamingScheme::summaryType( const string& type ) {
-  if ( type.find( sistrip::summaryDistr_ ) != string::npos ) { return sistrip::SUMMARY_DISTR; } 
+sistrip::Presentation SiStripHistoNamingScheme::presentation( const string& type ) {
+  if ( type.find( sistrip::summaryHisto_ ) != string::npos ) { return sistrip::SUMMARY_HISTO; } 
   else if ( type.find( sistrip::summary1D_ ) != string::npos ) { return sistrip::SUMMARY_1D; }
   else if ( type.find( sistrip::summary2D_ ) != string::npos ) { return sistrip::SUMMARY_2D; }
   else if ( type.find( sistrip::summaryProf_ ) != string::npos ) { return sistrip::SUMMARY_PROF; }
-  else if ( type.find( sistrip::undefinedSummaryType_ ) != string::npos ) { return sistrip::UNDEFINED_SUMMARY_TYPE; }
-  else { return sistrip::UNKNOWN_SUMMARY_TYPE; }
+  else if ( type.find( sistrip::undefinedPresentation_ ) != string::npos ) { return sistrip::UNDEFINED_PRESENTATION; }
+  else { return sistrip::UNKNOWN_PRESENTATION; }
 }
 
 // -----------------------------------------------------------------------------
