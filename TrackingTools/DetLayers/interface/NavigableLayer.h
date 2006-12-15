@@ -2,6 +2,8 @@
 #define DetLayers_NavigableLayer_h
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "TrackingTools/DetLayers/interface/NavigationDirection.h"
+
 #include <vector>
 
 class DetLayer;
@@ -21,7 +23,7 @@ public:
   virtual ~NavigableLayer() {}
 
   virtual std::vector<const DetLayer*> 
-  nextLayers( PropagationDirection timeDirection) const = 0;
+  nextLayers( NavigationDirection direction) const = 0;
 
   virtual std::vector<const DetLayer*> 
   nextLayers( const FreeTrajectoryState& fts, 

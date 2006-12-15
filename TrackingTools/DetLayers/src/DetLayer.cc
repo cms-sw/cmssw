@@ -29,9 +29,9 @@ DetLayer::nextLayers( const FreeTrajectoryState& fts,
 }
 
 vector<const DetLayer*> 
-DetLayer::nextLayers( PropagationDirection timeDirection) const {
+DetLayer::nextLayers( NavigationDirection direction) const {
   return theNavigableLayer
-    ? theNavigableLayer->nextLayers( timeDirection)
+    ? theNavigableLayer->nextLayers( direction)
     : vector<const DetLayer*>();
 }
 

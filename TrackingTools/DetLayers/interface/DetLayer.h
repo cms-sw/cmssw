@@ -6,6 +6,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/DetLayers/interface/NavigableLayer.h"
+#include "TrackingTools/DetLayers/interface/NavigationDirection.h"
 #include <vector>
 
 
@@ -47,9 +48,9 @@ class DetLayer : public GeometricSearchDet {
   virtual void setNavigableLayer( NavigableLayer* nlp);
 
   /// Return the next (closest) layer(s) that can be reached in the specified
-  /// PropagationDirection
+  /// NavigationDirection
   virtual std::vector<const DetLayer*> 
-  nextLayers( PropagationDirection timeDirection) const;
+  nextLayers( NavigationDirection direction) const;
 
   /// Return the next (closest) layer(s) compatible with the specified
   /// FreeTrajectoryState and PropagationDirection
