@@ -44,9 +44,9 @@ DetLayer::compatibleLayers( const FreeTrajectoryState& fts,
 }
 
 vector<const DetLayer*> 
-DetLayer::compatibleLayers( PropagationDirection timeDirection) const {
+DetLayer::compatibleLayers( NavigationDirection direction) const {
   return theNavigableLayer
-    ? theNavigableLayer->compatibleLayers( timeDirection)
+    ? theNavigableLayer->compatibleLayers( direction)
     : vector<const DetLayer*>();
 }
 

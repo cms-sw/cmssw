@@ -30,7 +30,7 @@ public:
 	      PropagationDirection timeDirection) const = 0;
 
   virtual std::vector<const DetLayer*> 
-  compatibleLayers( PropagationDirection timeDirection) const = 0;
+  compatibleLayers( NavigationDirection direction) const = 0;
 
   virtual std::vector<const DetLayer*> 
   compatibleLayers( const FreeTrajectoryState& fts, 

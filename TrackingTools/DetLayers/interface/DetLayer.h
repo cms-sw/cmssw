@@ -61,7 +61,7 @@ class DetLayer : public GeometricSearchDet {
   /// Return all layers that can be reached from this one along the
   /// specified PropagationDirection 
   std::vector<const DetLayer*> 
-  compatibleLayers( PropagationDirection timeDirection ) const;
+  compatibleLayers( NavigationDirection direction ) const;
 
   /// Returns all layers compatible with the specified FreeTrajectoryState
   /// and PropagationDirection  
