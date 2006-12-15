@@ -29,7 +29,7 @@ class SummaryGenerator {
   typedef std::pair<float,float> Data;
   typedef std::vector<Data> BinData;
   typedef std::map<std::string,BinData> HistoData;
-
+  
   /** Creates instance of derived class based on view parameter. */
   static SummaryGenerator* instance( const sistrip::View& );
 
@@ -92,7 +92,8 @@ class SummaryGenerator {
   inline void axisLabel( const std::string& );
   
   /** Retrieve size of map (ie, number of bins). */
-  inline uint32_t size() const;
+  inline uint32_t nBins() const;
+  inline uint32_t size() const { return nBins(); } //@@ TEMPORARY!!!
   
  protected: // ---------- Protected methods and data ----------
   
@@ -114,7 +115,7 @@ class SummaryGenerator {
   
 };
 
-uint32_t SummaryGenerator::size() const { return map_.size(); }
+uint32_t SummaryGenerator::nBins() const { return map_.size(); }
 void SummaryGenerator::axisLabel( const std::string& label ) { label_ = label; }
 
 #endif // DQM_SiStripCommon_SummaryGenerator_H
