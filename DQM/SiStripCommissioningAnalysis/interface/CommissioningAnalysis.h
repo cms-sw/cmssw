@@ -45,9 +45,9 @@ class CommissioningAnalysis {
   
  private:
   
-  virtual void reset() = 0; 
-  virtual void extract( const std::vector<TH1*>& ) = 0; 
-  virtual void analyse() = 0; 
+  virtual void reset() = 0;
+  virtual void extract( const std::vector<TH1*>& ) = 0;
+  virtual void analyse() = 0;
   
   uint32_t key_;
   SiStripFecKey::Path path_;

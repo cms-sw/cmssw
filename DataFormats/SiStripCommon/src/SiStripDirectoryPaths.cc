@@ -40,15 +40,15 @@ SiStripFecKey::Path SiStripHistoNamingScheme::controlPath( const string& directo
   uint32_t curr = 0; // current string position
   uint32_t next = 0; // next string position
   next = directory.find( sistrip::controlView_, curr );
-
+  
   // Extract view 
   curr = next;
   if ( curr != string::npos ) { 
     next = directory.find( sistrip::fecCrate_, curr );
     string control_view( directory, 
 			 curr+sistrip::controlView_.size(), 
-			 (next-sistrip::dir_.size())-curr );
-
+ 			 (next-sistrip::dir_.size())-curr );
+    
     // Extract FEC crate
     curr = next;
     if ( curr != string::npos ) { 
@@ -102,7 +102,9 @@ SiStripFecKey::Path SiStripHistoNamingScheme::controlPath( const string& directo
     stringstream ss;
     ss << "[SiStripHistoNamingScheme::" << __func__ << "]" 
        << " Unexpected view: " 
-       << SiStripHistoNamingScheme::view( directory );
+       << SiStripHistoNamingScheme::view( directory )
+       << " in directory path: "
+       << directory;
     edm::LogWarning(mlDqmCommon_) << ss.str();
   }
   

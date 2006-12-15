@@ -10,10 +10,10 @@
 */
 
 class SummaryGeneratorControlView : public SummaryGenerator {
-
+  
  public:
-
-  SummaryGeneratorControlView();
+  
+  SummaryGeneratorControlView() {;}
   virtual ~SummaryGeneratorControlView() {;}
 
   /** */

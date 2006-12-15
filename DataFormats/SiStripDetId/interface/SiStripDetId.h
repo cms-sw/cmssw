@@ -9,23 +9,30 @@
 class SiStripDetId : public DetId {
   
  public:
+
+  // ---------- "Standard" constructors ----------
   
   /** Construct a null id */
   SiStripDetId();
+
   /** Construct from a raw value */
   SiStripDetId( const uint32_t& raw_id );
+
   /** Construct from generic DetId */
   SiStripDetId( const DetId& );
+
   /** Construct and fill only the det and sub-det fields. */
   SiStripDetId( Detector det, int subdet );
+
+  // ---------- Constructors that set "reserved" field ----------
   
   /** Construct from a raw value and set "reserved" field. */
   SiStripDetId( const uint32_t& raw_id, 
 		const uint16_t& reserved );
+  
   /** Construct from generic DetId and set "reserved" field. */
   SiStripDetId( const DetId& det_id, 
 		const uint16_t& reserved );
-  
   
   /** Returns value of "reserved" field. */
   inline uint16_t reserved() const;
@@ -34,6 +41,7 @@ class SiStripDetId : public DetId {
   
   /** Position of "reserved" bit field. */ 
   static const uint16_t reservedStartBit_ = 20;
+
   /** Mask for "reserved" bit field (3-bits wide). */ 
   static const uint16_t reservedMask_ = 0x7;
   
