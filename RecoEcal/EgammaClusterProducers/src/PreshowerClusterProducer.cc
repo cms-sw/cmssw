@@ -135,7 +135,6 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
 
   reco::PreshowerClusterCollection clusters1, clusters2;   // output collection of corrected PCs
   reco::SuperClusterCollection new_SC; // output collection of corrected SCs
-  reco::BasicClusterRefVector new_BC; // output collection of corrected BCs
 
   if ( debugL == PreshowerClusterAlgo::pDEBUG ) std::cout << " Making a cycle over Superclusters ..." << std::endl; 
   //make cycle over super clusters
@@ -145,6 +144,7 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
        float e1=0;
        float e2=0;
        float deltaE=0;
+       reco::BasicClusterRefVector new_BC; 
        ++isc;
 
        if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << " superE = " << it_super->energy() << " superETA = " << it_super->eta() 
