@@ -1,6 +1,6 @@
 /*
-* $Date: 2006/12/06 09:29:33 $
-* $Revision: 1.5 $
+* $Date: 2006/12/15 09:06:39 $
+* $Revision: 1.6 $
 *
 * \author: D. Giordano, domenico.giordano@cern.ch
 */
@@ -771,20 +771,20 @@ namespace cms{
     ((TH1F*) Hlist->FindObject("cPos" +appString))
       ->Fill(cluster->position());
 
-    if (cluster->rawdigiAmplitudesL().size()!=0 && cluster->rawdigiAmplitudesR().size()!=0){
+    if (cluster->rawdigiAmplitudesL().size()!=0 ||  cluster->rawdigiAmplitudesR().size()!=0){
 	
-      float Ql=0;
-      float Qr=0;
-	
-      for (std::vector<uint16_t>::const_iterator it=cluster->rawdigiAmplitudesL().begin(); it !=cluster->rawdigiAmplitudesL().begin(); it ++)
+      float Ql=cluster->chargeL();
+      float Qr=cluster->chargeR();
+      
+      for (std::vector<int16_t>::const_iterator it=cluster->rawdigiAmplitudesL().begin(); it !=cluster->rawdigiAmplitudesL().end(); it ++)
 	{ Ql += (*it);}
-
-      for (std::vector<uint16_t>::const_iterator it=cluster->rawdigiAmplitudesR().begin(); it !=cluster->rawdigiAmplitudesR().begin(); it ++)
+      
+      for (std::vector<int16_t>::const_iterator it=cluster->rawdigiAmplitudesR().begin(); it !=cluster->rawdigiAmplitudesR().end(); it ++)
 	{ Qr += (*it);}
-	
+      
       ((TH1F*) Hlist->FindObject("cEta"   +appString))
-	->Fill(Ql/(Qr+cluster->maxCharge()));
-	
+	->Fill(Ql/(Ql+Qr+cluster->maxCharge()));
+      
       ((TH2F*) Hlist->FindObject("cEta_scatter"   +appString))
 	->Fill((Ql-Qr)/(cluster->maxCharge()+Ql+Qr),(Ql+Qr)/(cluster->maxCharge()+Ql+Qr));
     }
