@@ -19,6 +19,7 @@ SummaryGenerator::SummaryGenerator() :
   min_(1.*sistrip::invalid_),
   label_("")
 {
+  // TH1::SetDefaultSumw2(true); // use square of weights to calc error   
 }
 
 // -----------------------------------------------------------------------------
@@ -29,8 +30,12 @@ SummaryGenerator* SummaryGenerator::instance( const sistrip::View& view ) {
     generator = new SummaryGeneratorControlView();
   } else if ( view == sistrip::READOUT ) {
     generator = new SummaryGeneratorReadoutView();
-  } else { 
+  } else {
     generator = 0;
+    cerr << "[SummaryGenerator::" << __func__ << "]"
+	 << " Unexpected view: " 
+	 << SiStripHistoNamingScheme::view( view ) 
+	 << endl;
   }  
   return generator;
 }
@@ -63,7 +68,8 @@ string SummaryGenerator::name( const sistrip::Task& task,
 */
 TH1* SummaryGenerator::histogram( const sistrip::Presentation& pres,
 				  const uint32_t& xbins ) {
-  TH1* summary;
+  if ( !xbins ) { return 0; }
+  TH1* summary = 0;
   if ( pres == sistrip::SUMMARY_HISTO ) { 
     summary = new TH1F( "", "", 1024, 0., static_cast<float>(1024) ); 
   } else if ( pres == sistrip::SUMMARY_1D ) { 
@@ -188,7 +194,7 @@ void SummaryGenerator::fill( const string& top_level_dir,
 			     const float& value,
 			     const float& error ) {
   
-  cout << "[" << __PRETTY_FUNCTION__ << "]"
+  cout << "[SummaryGenerator::" << __func__ << "]"
        << " Derived implementation does not exist!..."
        << endl;    
 }
@@ -199,7 +205,7 @@ void SummaryGenerator::summaryHisto( TH1& his ) {
   
   // Check number of entries in map
   if ( map_.empty() ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+    cerr << "[SummaryGenerator::" << __func__ << "]" 
 	 << " No contents in map to histogram!" << endl;
     return; 
   }
@@ -207,7 +213,7 @@ void SummaryGenerator::summaryHisto( TH1& his ) {
   // Retrieve histogram  
   TH1F* histo = dynamic_cast<TH1F*>(&his);
   if ( !histo ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+    cerr << "[SummaryGenerator::" << __func__ << "]"
 	 << " NULL pointer to TH1F histogram!" << endl;
     return;
   }
@@ -255,9 +261,10 @@ void SummaryGenerator::summaryHisto( TH1& his ) {
     }
   }
   
-  cout << "[" << __PRETTY_FUNCTION__ << "]"
+  cout << "[SummaryGenerator::" << __func__ << "]"
        << " Added " << histo->GetEntries()
-       << " entries to 1D histogram, which has " << histo->GetNbinsX()
+       << " entries to 1D histogram, which has " 
+       << histo->GetNbinsX()
        << " bins" << endl;
   
 }
@@ -268,7 +275,7 @@ void SummaryGenerator::summary1D( TH1& his ) {
   
   // Check number of entries in map
   if ( map_.empty() ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+    cerr << "[SummaryGenerator::" << __func__ << "]" 
 	 << " No contents in map to histogram!" << endl;
     return; 
   }
@@ -276,7 +283,7 @@ void SummaryGenerator::summary1D( TH1& his ) {
   // Retrieve histogram  
   TH1F* histo = dynamic_cast<TH1F*>(&his);
   if ( !histo ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+    cerr << "[SummaryGenerator::" << __func__ << "]"
 	 << " NULL pointer to TH1F histogram!" << endl;
     return;
   }
@@ -299,7 +306,7 @@ void SummaryGenerator::summary1D( TH1& his ) {
 // 	   << ii->first << " "
 // 	   << ii->second << endl;
     }
-//     cout << "[" << __PRETTY_FUNCTION__ << "]"
+//     cout << "[SummaryGenerator::" << __func__ << "]"
 // 	 << " Added " << ibin->second.size() 
 // 	 << " contents to bin " << bin
 // 	 << " with bin label '" << ibin->first.c_str()
@@ -314,7 +321,7 @@ void SummaryGenerator::summary2D( TH1& his ) {
 
   // Check number of entries in map
   if ( map_.empty() ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+    cerr << "[SummaryGenerator::" << __func__ << "]" 
 	 << " No contents in map to histogram!" << endl;
     return; 
   }
@@ -322,7 +329,7 @@ void SummaryGenerator::summary2D( TH1& his ) {
   // Retrieve histogram  
   TH2F* histo = dynamic_cast<TH2F*>(&his);
   if ( !histo ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+    cerr << "[SummaryGenerator::" << __func__ << "]"
 	 << " NULL pointer to TH2F histogram!" << endl;
     return;
   }
@@ -345,7 +352,7 @@ void SummaryGenerator::summary2D( TH1& his ) {
       histo->Fill( (Double_t)(bin-.5), (Double_t)ii->first ); //, ii->second ); // x (bin), y (value) and weight (error)
     }
     bins++;
-    /* cout << "[" << __PRETTY_FUNCTION__ << "]"
+    /* cout << "[SummaryGenerator::" << __func__ << "]"
 	 << " Added " << ibin->second.size() 
 	 << " contents to bin " << bin
  	 << " with bin label '" << ibin->first.c_str()
@@ -361,7 +368,7 @@ void SummaryGenerator::summaryProf( TH1& his ) {
   
   // Check number of entries in map
   if ( map_.empty() ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+    cerr << "[SummaryGenerator::" << __func__ << "]" 
 	 << " No contents in map to histogram!" << endl;
     return; 
   }
@@ -369,7 +376,7 @@ void SummaryGenerator::summaryProf( TH1& his ) {
   // Retrieve histogram  
   TProfile* histo = dynamic_cast<TProfile*>(&his);
   if ( !histo ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
+    cerr << "[SummaryGenerator::" << __func__ << "]"
 	 << " NULL pointer to TProfile histogram!" << endl;
     return;
   }
@@ -397,7 +404,7 @@ void SummaryGenerator::summaryProf( TH1& his ) {
       histo->Fill( (Double_t)(bin-.5), (Double_t)ii->first ); //, ii->second ); // x (bin), y (value) and weight (error)
       //histo->Fill( ibin->first.c_str(), ii->first ); //, ii->second ); // x (bin), y (value) and weight (error)
     }
-//     cout << "[" << __PRETTY_FUNCTION__ << "]"
+//     cout << "[SummaryGenerator::" << __func__ << "]"
 // 	 << " Added " << ibin->second.size() 
 // 	 << " contents to bin " << bin
 // 	 << " with bin label '" << ibin->first.c_str()
