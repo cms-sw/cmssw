@@ -77,7 +77,7 @@ void FedCablingAnalysis::print( stringstream& ss, uint32_t not_used ) {
   ss << endl
      << " Connected FED id      : " << fedId_ << endl 
      << " Connected FED channel : " << fedCh_ << endl
-     << " Signal level [adc]    : " << signalLevel() << endl;
+     << " Signal level [adc]    : " << adcLevel() << endl;
 }
 
 // ----------------------------------------------------------------------------
@@ -245,7 +245,7 @@ void FedCablingAnalysis::analyse() {
 
 // -----------------------------------------------------------------------------
 //
-const uint16_t& FedCablingAnalysis::signalLevel() const { 
+const uint16_t& FedCablingAnalysis::adcLevel() const { 
   static uint16_t temp = 0; 
   uint32_t key = SiStripFedKey::key( SiStripFedKey::Path(fedId_,fedCh_) );
   Candidates::const_iterator iter = candidates_.find( key );
