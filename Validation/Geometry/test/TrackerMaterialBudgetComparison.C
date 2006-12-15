@@ -13,6 +13,9 @@ TString theDetectorFileName_old;
 TString theDetectorFileName_new;
 TString theDetector;
 //
+TFile* theDetectorFile_old;
+TFile* theDetectorFile_new;
+//
 
 // histograms
 TProfile* prof_x0_det_total_old;
@@ -98,28 +101,53 @@ TrackerMaterialBudgetComparison(TString detector) {
   //
   
   // open root files
-  TFile* theDetectorFile_old = new TFile(theDetectorFileName_old);
-  TFile* theDetectorFile_new = new TFile(theDetectorFileName_new);
+  theDetectorFile_old = new TFile(theDetectorFileName_old);
+  theDetectorFile_new = new TFile(theDetectorFileName_new);
   //
   
-  // get TProfiles
-  prof_x0_det_total_old = (TProfile*)theDetectorFile_old->Get("10");
-  prof_x0_det_SUP_old   = (TProfile*)theDetectorFile_old->Get("110");
-  prof_x0_det_SEN_old   = (TProfile*)theDetectorFile_old->Get("210");
-  prof_x0_det_CAB_old   = (TProfile*)theDetectorFile_old->Get("310");
-  prof_x0_det_COL_old   = (TProfile*)theDetectorFile_old->Get("410");
-  prof_x0_det_ELE_old   = (TProfile*)theDetectorFile_old->Get("510");
-  prof_x0_det_OTH_old   = (TProfile*)theDetectorFile_old->Get("610");
-  prof_x0_det_AIR_old   = (TProfile*)theDetectorFile_old->Get("710");
+  // plots
+  createPlots("x_vs_eta");
+  createPlots("x_vs_phi");
+  createPlots("x_vs_R");
   //
-  prof_x0_det_total_new = (TProfile*)theDetectorFile_new->Get("10");
-  prof_x0_det_SUP_new   = (TProfile*)theDetectorFile_new->Get("110");
-  prof_x0_det_SEN_new   = (TProfile*)theDetectorFile_new->Get("210");
-  prof_x0_det_CAB_new   = (TProfile*)theDetectorFile_new->Get("310");
-  prof_x0_det_COL_new   = (TProfile*)theDetectorFile_new->Get("410");
-  prof_x0_det_ELE_new   = (TProfile*)theDetectorFile_new->Get("510");
-  prof_x0_det_OTH_new   = (TProfile*)theDetectorFile_new->Get("610");
-  prof_x0_det_AIR_new   = (TProfile*)theDetectorFile_new->Get("710");
+}
+
+// Plots
+void createPlots(TString plot) {
+  unsigned int plotNumber = 0;
+  TString abscissaName = "dummy";
+  if(plot.CompareTo("x_vs_eta") == 0) {
+    plotNumber = 10;
+    abscissaName = TString("#eta");
+  } else if(plot.CompareTo("x_vs_phi") == 0) {
+    plotNumber = 20;
+    abscissaName = TString("#varphi [rad]");
+  } else if(plot.CompareTo("x_vs_R") == 0) {
+    plotNumber = 40;
+    abscissaName = TString("R [cm]");
+  } else {
+    cout << " error: chosen plot name not known " << plot << endl;
+    return;
+  }
+  
+  // get TProfiles
+  prof_x0_det_total_old = (TProfile*)theDetectorFile_old->Get(Form("%u", plotNumber));
+  prof_x0_det_SUP_old   = (TProfile*)theDetectorFile_old->Get(Form("%u", 100 + plotNumber));
+  prof_x0_det_SEN_old   = (TProfile*)theDetectorFile_old->Get(Form("%u", 200 + plotNumber));
+  prof_x0_det_CAB_old   = (TProfile*)theDetectorFile_old->Get(Form("%u", 300 + plotNumber));
+  prof_x0_det_COL_old   = (TProfile*)theDetectorFile_old->Get(Form("%u", 400 + plotNumber));
+  prof_x0_det_ELE_old   = (TProfile*)theDetectorFile_old->Get(Form("%u", 500 + plotNumber));
+  prof_x0_det_OTH_old   = (TProfile*)theDetectorFile_old->Get(Form("%u", 600 + plotNumber));
+  prof_x0_det_AIR_old   = (TProfile*)theDetectorFile_old->Get(Form("%u", 700 + plotNumber));
+  //
+  prof_x0_det_total_new = (TProfile*)theDetectorFile_new->Get(Form("%u", plotNumber));
+  prof_x0_det_SUP_new   = (TProfile*)theDetectorFile_new->Get(Form("%u", 100 + plotNumber));
+  prof_x0_det_SEN_new   = (TProfile*)theDetectorFile_new->Get(Form("%u", 200 + plotNumber));
+  prof_x0_det_CAB_new   = (TProfile*)theDetectorFile_new->Get(Form("%u", 300 + plotNumber));
+  prof_x0_det_COL_new   = (TProfile*)theDetectorFile_new->Get(Form("%u", 400 + plotNumber));
+  prof_x0_det_ELE_new   = (TProfile*)theDetectorFile_new->Get(Form("%u", 500 + plotNumber));
+  prof_x0_det_OTH_new   = (TProfile*)theDetectorFile_new->Get(Form("%u", 600 + plotNumber));
+  prof_x0_det_AIR_new   = (TProfile*)theDetectorFile_new->Get(Form("%u", 700 + plotNumber));
   //
   
   // histos
@@ -191,23 +219,23 @@ TrackerMaterialBudgetComparison(TString detector) {
       cout << " new: " << subDetectorFileName_new << endl;
       cout << "***" << endl;
       // subdetector profiles
-      prof_x0_det_total_old = (TProfile*)subDetectorFile_old->Get("10");
-      prof_x0_det_SUP_old   = (TProfile*)subDetectorFile_old->Get("110");
-      prof_x0_det_SEN_old   = (TProfile*)subDetectorFile_old->Get("210");
-      prof_x0_det_CAB_old   = (TProfile*)subDetectorFile_old->Get("310");
-      prof_x0_det_COL_old   = (TProfile*)subDetectorFile_old->Get("410");
-      prof_x0_det_ELE_old   = (TProfile*)subDetectorFile_old->Get("510");
-      prof_x0_det_OTH_old   = (TProfile*)subDetectorFile_old->Get("610");
-      prof_x0_det_AIR_old   = (TProfile*)subDetectorFile_old->Get("710");
+      prof_x0_det_total_old = (TProfile*)subDetectorFile_old->Get(Form("%u", plotNumber));
+      prof_x0_det_SUP_old   = (TProfile*)subDetectorFile_old->Get(Form("%u", 100 + plotNumber));
+      prof_x0_det_SEN_old   = (TProfile*)subDetectorFile_old->Get(Form("%u", 200 + plotNumber));
+      prof_x0_det_CAB_old   = (TProfile*)subDetectorFile_old->Get(Form("%u", 300 + plotNumber));
+      prof_x0_det_COL_old   = (TProfile*)subDetectorFile_old->Get(Form("%u", 400 + plotNumber));
+      prof_x0_det_ELE_old   = (TProfile*)subDetectorFile_old->Get(Form("%u", 500 + plotNumber));
+      prof_x0_det_OTH_old   = (TProfile*)subDetectorFile_old->Get(Form("%u", 600 + plotNumber));
+      prof_x0_det_AIR_old   = (TProfile*)subDetectorFile_old->Get(Form("%u", 700 + plotNumber));
       //
-      prof_x0_det_total_new = (TProfile*)subDetectorFile_new->Get("10");
-      prof_x0_det_SUP_new   = (TProfile*)subDetectorFile_new->Get("110");
-      prof_x0_det_SEN_new   = (TProfile*)subDetectorFile_new->Get("210");
-      prof_x0_det_CAB_new   = (TProfile*)subDetectorFile_new->Get("310");
-      prof_x0_det_COL_new   = (TProfile*)subDetectorFile_new->Get("410");
-      prof_x0_det_ELE_new   = (TProfile*)subDetectorFile_new->Get("510");
-      prof_x0_det_OTH_new   = (TProfile*)subDetectorFile_new->Get("610");
-      prof_x0_det_AIR_new   = (TProfile*)subDetectorFile_new->Get("710");
+      prof_x0_det_total_new = (TProfile*)subDetectorFile_new->Get(Form("%u", plotNumber));
+      prof_x0_det_SUP_new   = (TProfile*)subDetectorFile_new->Get(Form("%u", 100 + plotNumber));
+      prof_x0_det_SEN_new   = (TProfile*)subDetectorFile_new->Get(Form("%u", 200 + plotNumber));
+      prof_x0_det_CAB_new   = (TProfile*)subDetectorFile_new->Get(Form("%u", 300 + plotNumber));
+      prof_x0_det_COL_new   = (TProfile*)subDetectorFile_new->Get(Form("%u", 400 + plotNumber));
+      prof_x0_det_ELE_new   = (TProfile*)subDetectorFile_new->Get(Form("%u", 500 + plotNumber));
+      prof_x0_det_OTH_new   = (TProfile*)subDetectorFile_new->Get(Form("%u", 600 + plotNumber));
+      prof_x0_det_AIR_new   = (TProfile*)subDetectorFile_new->Get(Form("%u", 700 + plotNumber));
       // add to summary histogram
       hist_x0_total_old->Add( (TH1D*)prof_x0_det_total_old->ProjectionX("B"), +1.000 );
       hist_x0_SUP_old->Add(   (TH1D*)prof_x0_det_SUP_old->ProjectionX("B")  , +1.000 );
@@ -299,7 +327,8 @@ TrackerMaterialBudgetComparison(TString detector) {
     histo_new->SetMarkerStyle(20); // cyrcles
     histo_new->SetMarkerSize(0.3); // 
     histo_old->SetLineColor(4); // blue
-    histo_old->SetFillColor(0); // white
+    histo_old->SetFillStyle(3002); // small points
+    histo_old->SetFillColor(4); // blue
     histo_old->SetLineWidth(1.0); // 
     //
     // Draw
@@ -323,8 +352,8 @@ TrackerMaterialBudgetComparison(TString detector) {
   
   // Store
   can_comparison.Update();
-  can_comparison.SaveAs( Form("%s/%s_Comparison.eps",  theDirName.Data(), theDetector.Data()) );
-  can_comparison.SaveAs( Form("%s/%s_Comparison.gif",  theDirName.Data(), theDetector.Data()) );
+  can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
 }

@@ -41,43 +41,49 @@ echo "...done"
 
 # Run all the Tracker scripts and rename files as 'new'
 echo "Run all the scripts to produce the 'new' files..."
-rm -rf TkStrct.txt
-rm -rf PixBar.txt PixFwdPlus.txt PixFwdMinus.txt
-rm -rf TIB.txt TIDF.txt TIDB.txt TOB.txt TEC.txt
-rm -rf Tracker.txt
-rm -rf BeamPipe.txt
 #
 echo "Running Tracker Structure..."
+rm -rf TkStrct.txt
 cmsRun runP_TkStrct.cfg     > TkStrct.txt
 echo "...done"
 echo "Running Pixel Barrel..."
+rm -rf PixBar.txt
 cmsRun runP_PixBar.cfg      > PixBar.txt
 echo "...done"
 echo "Running Pixel Forward Plus..."
+rm -rf PixFwdPlus.txt
 cmsRun runP_PixFwdPlus.cfg  > PixFwdPlus.txt
 echo "...done"
 echo "Running Pixel Forward Minus..."
+rm -rf  PixFwdMinus.txt
 cmsRun runP_PixFwdMinus.cfg > PixFwdMinus.txt
 echo "...done"
 echo "Running TIB..."
+rm -rf TIB.txt
 cmsRun runP_TIB.cfg         > TIB.txt
 echo "...done"
 echo "Running TID+..."
+rm -rf TIDF.txt
 cmsRun runP_TIDF.cfg        > TIDF.txt
 echo "...done"
 echo "Running TID-..."
+rm -rf TIDB.txt
 cmsRun runP_TIDB.cfg        > TIDB.txt
 echo "...done"
 echo "Running TOB..."
+rm -rf TOB.txt
 cmsRun runP_TOB.cfg         > TOB.txt
 echo "...done"
 echo "Running TEC..."
+rm -rf TEC.txt
 cmsRun runP_TEC.cfg         > TEC.txt
 echo "...done"
 echo "Running Tracker..."
+rm -rf Tracker.txt
 cmsRun runP_Tracker.cfg     > Tracker.txt
 echo "...done"
 echo "Running BeamPipe..."
+rm -rf BeamPipe.txt
 cmsRun runP_BeamPipe.cfg    > BeamPipe.txt
 #
 cp matbdg_TkStrct.root     matbdg_TkStrct_new.root 

@@ -10,8 +10,9 @@ TString theDirName = "Images";
 
 // data files
 TString theDetectorFileName;
-//TString theTkStructFileName;
 TString theDetector;
+//
+TFile* theDetectorFile;
 //
 
 // histograms
@@ -76,18 +77,43 @@ MaterialBudget(TString detector) {
   //
   
   // open root files
-  TFile* theDetectorFile = new TFile(theDetectorFileName);
+  theDetectorFile = new TFile(theDetectorFileName);
   //
   
+  // plots
+  createPlots("x_vs_eta");
+  createPlots("x_vs_phi");
+  createPlots("x_vs_R");
+  //
+}
+
+// Plots
+void createPlots(TString plot) {
+  unsigned int plotNumber = 0;
+  TString abscissaName = "dummy";
+  if(plot.CompareTo("x_vs_eta") == 0) {
+    plotNumber = 10;
+    abscissaName = TString("#eta");
+  } else if(plot.CompareTo("x_vs_phi") == 0) {
+    plotNumber = 20;
+    abscissaName = TString("#varphi [rad]");
+  } else if(plot.CompareTo("x_vs_R") == 0) {
+    plotNumber = 40;
+    abscissaName = TString("R [cm]");
+  } else {
+    cout << " error: chosen plot name not known " << plot << endl;
+    return;
+  }
+  
   // get TProfiles
-  prof_x0_det_total = (TProfile*)theDetectorFile->Get("10");
-  prof_x0_det_SUP   = (TProfile*)theDetectorFile->Get("110");
-  prof_x0_det_SEN   = (TProfile*)theDetectorFile->Get("210");
-  prof_x0_det_CAB   = (TProfile*)theDetectorFile->Get("310");
-  prof_x0_det_COL   = (TProfile*)theDetectorFile->Get("410");
-  prof_x0_det_ELE   = (TProfile*)theDetectorFile->Get("510");
-  prof_x0_det_OTH   = (TProfile*)theDetectorFile->Get("610");
-  prof_x0_det_AIR   = (TProfile*)theDetectorFile->Get("710");
+  prof_x0_det_total = (TProfile*)theDetectorFile->Get(Form("%u", plotNumber));
+  prof_x0_det_SUP   = (TProfile*)theDetectorFile->Get(Form("%u", 100 + plotNumber));
+  prof_x0_det_SEN   = (TProfile*)theDetectorFile->Get(Form("%u", 200 + plotNumber));
+  prof_x0_det_CAB   = (TProfile*)theDetectorFile->Get(Form("%u", 300 + plotNumber));
+  prof_x0_det_COL   = (TProfile*)theDetectorFile->Get(Form("%u", 400 + plotNumber));
+  prof_x0_det_ELE   = (TProfile*)theDetectorFile->Get(Form("%u", 500 + plotNumber));
+  prof_x0_det_OTH   = (TProfile*)theDetectorFile->Get(Form("%u", 600 + plotNumber));
+  prof_x0_det_AIR   = (TProfile*)theDetectorFile->Get(Form("%u", 700 + plotNumber));
   
   // histos
   TH1D* hist_x0_total = (TH1D*)prof_x0_det_total->ProjectionX();
@@ -145,14 +171,14 @@ MaterialBudget(TString detector) {
       cout << subDetectorFileName << endl;
       cout << "***" << endl;
       // subdetector profiles
-      prof_x0_det_total = (TProfile*)subDetectorFile->Get("10");
-      prof_x0_det_SUP   = (TProfile*)subDetectorFile->Get("110");
-      prof_x0_det_SEN   = (TProfile*)subDetectorFile->Get("210");
-      prof_x0_det_CAB   = (TProfile*)subDetectorFile->Get("310");
-      prof_x0_det_COL   = (TProfile*)subDetectorFile->Get("410");
-      prof_x0_det_ELE   = (TProfile*)subDetectorFile->Get("510");
-      prof_x0_det_OTH   = (TProfile*)subDetectorFile->Get("610");
-      prof_x0_det_AIR   = (TProfile*)subDetectorFile->Get("710");
+      prof_x0_det_total = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
+      prof_x0_det_SUP   = (TProfile*)subDetectorFile->Get(Form("%u", 100 + plotNumber));
+      prof_x0_det_SEN   = (TProfile*)subDetectorFile->Get(Form("%u", 200 + plotNumber));
+      prof_x0_det_CAB   = (TProfile*)subDetectorFile->Get(Form("%u", 300 + plotNumber));
+      prof_x0_det_COL   = (TProfile*)subDetectorFile->Get(Form("%u", 400 + plotNumber));
+      prof_x0_det_ELE   = (TProfile*)subDetectorFile->Get(Form("%u", 500 + plotNumber));
+      prof_x0_det_OTH   = (TProfile*)subDetectorFile->Get(Form("%u", 600 + plotNumber));
+      prof_x0_det_AIR   = (TProfile*)subDetectorFile->Get(Form("%u", 700 + plotNumber));
       // add to summary histogram
       hist_x0_total->Add( (TH1D*)prof_x0_det_total->ProjectionX("B"), +1.000 );
       hist_x0_SUP->Add(   (TH1D*)prof_x0_det_SUP->ProjectionX("B")  , +1.000 );
@@ -181,7 +207,7 @@ MaterialBudget(TString detector) {
   //
   
   // stack
-  TString stackTitle = "Material Budget " + theDetector + ";#eta;x/X_{0}";
+  TString stackTitle = "Material Budget " + theDetector + Form( ";%s;x/X_{0}",abscissaName.Data() );
   THStack stack_x0("stack_x0",stackTitle);
   stack_x0.Add(hist_x0_SUP);
   stack_x0.Add(hist_x0_SEN);
@@ -218,8 +244,8 @@ MaterialBudget(TString detector) {
   
   // Store
   can.Update();
-  can.SaveAs( Form("%s/%s_X0.eps",  theDirName.Data(), theDetector.Data()) );
-  can.SaveAs( Form("%s/%s_X0.gif",  theDirName.Data(), theDetector.Data()) );
+  can.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
 }
