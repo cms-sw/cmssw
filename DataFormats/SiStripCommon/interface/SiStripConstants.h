@@ -159,9 +159,9 @@ namespace sistrip {
 
   // readout granularity
   static const std::string fedId_ = "FedId";
-  static const std::string feUnit_ = "FedFeUnit";
-  static const std::string fedFeChan_ = "FedFeChan";
   static const std::string fedChannel_ = "FedChannel";
+  static const std::string feUnit_ = "FedFeUnit";
+  static const std::string feChan_ = "FedFeChan";
 
   // sub-structure granularity
   static const std::string layer_ = "Layer";
@@ -189,31 +189,31 @@ namespace sistrip {
   static const std::string commonMode_ = "CommonMode";
 
   // summary histogram types
-  static const std::string summaryDistr_ = "SummaryDistr";
+  static const std::string summaryHisto_ = "SummaryHisto";
   static const std::string summary1D_ = "Summary1D";
   static const std::string summary2D_ = "Summary2D";
   static const std::string summaryProf_ = "SummaryProfile";
-  static const std::string unknownSummaryType_ = "UnknownSummaryType";
-  static const std::string undefinedSummaryType_ = "UndefinedSummaryType";
+  static const std::string unknownPresentation_ = "UnknownPresentation";
+  static const std::string undefinedPresentation_ = "UndefinedPresentation";
 
   // summary histogram names (general)
-  static const std::string summaryHisto_ = "SummaryHisto";
-  static const std::string unknownSummaryHisto_ = "UnknownSummaryHisto";
-  static const std::string undefinedSummaryHisto_ = "UndefinedSummaryHisto";
+  static const std::string summaryPlot_ = "SummaryPlot";
+  static const std::string unknownMonitorable_ = "UnknownMonitorable";
+  static const std::string undefinedMonitorable_ = "UndefinedMonitorable";
   
   // summary histo names (fed cabling)
-  static const std::string fedCablingFedId_ = "FedCablingFedId";
-  static const std::string fedCablingFedCh_ = "FedCablingFedCh";
-  static const std::string fedCablingSignalLevel_ = "FedCablingSignalLevel";
+  static const std::string fedCablingFedId_ = "FedId";
+  static const std::string fedCablingFedCh_ = "FedCh";
+  static const std::string fedCablingAdcLevel_ = "AdcLevel";
 
   // summary histo names (apv timing)
-  static const std::string apvTimingTime_ = "TimingDelay";
-  static const std::string apvTimingMax_ = "ApvTimingMax";
-  static const std::string apvTimingDelay_ = "ApvTimingDelay";
-  static const std::string apvTimingError_ = "ApvTimingError";
-  static const std::string apvTimingBase_ = "ApvTimingBase";
-  static const std::string apvTimingPeak_ = "ApvTimingPeak";
-  static const std::string apvTimingHeight_ = "ApvTimingHeight";
+  static const std::string apvTimingTime_ = "TimeOfTickMarkEdge";
+  static const std::string apvTimingMax_ = "MaxSamplingPoint";
+  static const std::string apvTimingDelay_ = "RequiredDelayAdjustment";
+  static const std::string apvTimingError_ = "ErrorOnTickMarkEdge";
+  static const std::string apvTimingBase_ = "TickMarkBase";
+  static const std::string apvTimingPeak_ = "TickMarkPeak";
+  static const std::string apvTimingHeight_ = "TickMarkHeight";
 
   // summary histo names (fed timing)
   static const std::string fedTimingTime_ = "FedTimingTime";
@@ -225,14 +225,14 @@ namespace sistrip {
   static const std::string fedTimingHeight_ = "FedTimingHeight";
 
   // summary histo names (opto scan)
-  static const std::string optoScanLldBias_ = "OptoScanLldBias";
-  static const std::string optoScanLldGain_ = "OptoScanLldGain";
-  static const std::string optoScanMeasGain_ = "OptoScanMeasuredGain";
-  static const std::string optoScanZeroLight_ = "OptoScanZeroLight";
-  static const std::string optoScanLinkNoise_ = "OptoScanLinkNoise";
-  static const std::string optoScanBaseLiftOff_ = "OptoScanBaseLiftOff";
-  static const std::string optoScanLaserThresh_ = "OptoScanLaserThresh";
-  static const std::string optoScanTickHeight_ = "OptoScanTickHeight";
+  static const std::string optoScanLldBias_ = "LldBiasSetting";
+  static const std::string optoScanLldGain_ = "LldGainSetting";
+  static const std::string optoScanMeasGain_ = "MeasuredGain";
+  static const std::string optoScanZeroLight_ = "ZeroLightLevel";
+  static const std::string optoScanLinkNoise_ = "LinkNoise";
+  static const std::string optoScanBaseLiftOff_ = "BaselineLiftOff";
+  static const std::string optoScanLaserThresh_ = "LaserThreshold";
+  static const std::string optoScanTickHeight_ = "TickMarkHeight";
 
   // summary histo names (vpsp scan)
   static const std::string vpspScanBothApvs_ = "VpspScanBothApvs";
@@ -240,18 +240,18 @@ namespace sistrip {
   static const std::string vpspScanApv1_ = "VpspScanApv1";
 
   // summary histo names (pedestals)
-  static const std::string pedestalsAllStrips_ = "Pedestals_AllStrips";
-  static const std::string pedestalsMean_ = "Pedestals_Mean";
-  static const std::string pedestalsSpread_ = "Pedestals_Spread";
-  static const std::string pedestalsMax_ = "Pedestals_Max";
-  static const std::string pedestalsMin_ = "Pedestals_Min";
-  static const std::string noiseAllStrips_ = "Noise_AllStrips";
-  static const std::string noiseMean_ = "Noise_Mean";
-  static const std::string noiseSpread_ = "Noise_Spread";
-  static const std::string noiseMax_ = "Noise_Max";
-  static const std::string noiseMin_ = "Noise_Min";
-  static const std::string numOfDead_ = "NumOfDead_Strips";
-  static const std::string numOfNoisy_ = "NumOfNoisy_Strips";
+  static const std::string pedestalsAllStrips_ = "StripPedestals";
+  static const std::string pedestalsMean_ = "PedestalMean";
+  static const std::string pedestalsSpread_ = "PedestalRmsSpread";
+  static const std::string pedestalsMax_ = "PedestalMax";
+  static const std::string pedestalsMin_ = "PedestalMin";
+  static const std::string noiseAllStrips_ = "StripNoise";
+  static const std::string noiseMean_ = "NoiseMean";
+  static const std::string noiseSpread_ = "NoiseRmsSpread";
+  static const std::string noiseMax_ = "NoiseMax";
+  static const std::string noiseMin_ = "NoiseMin";
+  static const std::string numOfDead_ = "NumOfDeadStrips";
+  static const std::string numOfNoisy_ = "NumOfNoisyStrips";
 
   // summary histo names (daq scope mode)
   static const std::string daqScopeModeMeanSignal_ = "DaqScopeMode_MeanSignal";
