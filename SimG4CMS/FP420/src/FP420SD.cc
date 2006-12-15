@@ -106,15 +106,6 @@ FP420SD::~FP420SD() {
   if (numberingScheme)
     delete numberingScheme;
 
-  //
-  // deleting the Ntuple
-  //
-/*
-  if(!theNtuple) return;
-  LogDebug("FP420SD") <<" Deleting the ntuple"<<endl;
-  delete theNtuple;
-  theNtuple=0;
-*/
 }
 
 double FP420SD::getEnergyDeposit(G4Step* aStep) {
@@ -164,23 +155,12 @@ void FP420SD::GetStepInfo(G4Step* aStep) {
   preStepPoint = aStep->GetPreStepPoint(); 
   postStepPoint= aStep->GetPostStepPoint(); 
   theTrack     = aStep->GetTrack();   
-//   theEntryPoint       = SensitiveDetector::InitialStepPosition(aStep,LocalCoordinates);  
-//   theExitPoint        = SensitiveDetector::FinalStepPosition(aStep,LocalCoordinates);
   hitPoint     = preStepPoint->GetPosition();	
   currentPV    = preStepPoint->GetPhysicalVolume();
   hitPointExit = postStepPoint->GetPosition();	
 
   hitPointLocal = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
   hitPointLocalExit = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPointExit);
-// double weight = 1; 
-//  G4String name = currentPV->GetName();
-//  name.assign(name,0,4);
-//  if(name == "bla1" || name == "bla2")
-//   {
-//     weight = LY_curve(name, hitPoint);
-//  }
-//  TrackInformation * trkInfo =
-//  (TrackInformation *)(theTrack->GetUserInformation());
 
 
   G4String particleType = theTrack->GetDefinition()->GetParticleName();
