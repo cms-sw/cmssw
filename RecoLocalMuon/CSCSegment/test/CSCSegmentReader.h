@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses CSCSegment
  *  and plot efficiency of the builder
  *
- *  $Date: 2006/06/01 08:44:02 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/26 16:37:56 $
+ *  $Revision: 1.4 $
  *  \author M. Sani
  */
 
@@ -62,16 +62,24 @@ protected:
 private: 
 
     std::string filename;
-    TH1F* heff, *hchi2, *hpt, *heta, *hx, *hy;
-    TH1I* hrechit, *hsegment;
-    TH1F* hphi[4], *htheta[4];
+    TH1F *heff0, *heff1, *heff2, *heff3, *hchi2, *hpt, *heta, *hx, *hy;
+    TH1I *hrechit, *hsegment;
+    TH1F *hphi[4], *htheta[4];
     
     TFile* file;  
-    std::map<std::string, int> segMap;
-    std::map<std::string, int> chaMap;
-    int minRechitChamber, minRechitSegment;
+    std::map<std::string, int> segMap1;
+    std::map<std::string, int> segMap2;
+    std::map<std::string, int> segMap3;
+    std::map<std::string, int> chaMap1;
+    std::map<std::string, int> chaMap2;
+    std::map<std::string, int> chaMap3;
+    int minLayerWithRechitChamber;
+    int minRechitSegment;
+    int minLayerWithSimhitChamber;
     double maxPhi, maxTheta;
     int simhit;
+    int n6hitSegmentMC[9];
+    int n6hitSegmentReco[9];
     int near_segment;
 };
 
