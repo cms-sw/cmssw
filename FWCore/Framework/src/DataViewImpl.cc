@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.4 2006/11/30 15:37:06 paterno Exp $
+$Id: DataViewImpl.cc,v 1.5 2006/12/05 23:56:18 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -134,22 +134,22 @@ namespace edm {
 
   BranchDescription const&
   DataViewImpl::getBranchDescription(std::string const& friendlyClassName,
-      std::string const& productInstanceName) const {
-    BranchKey const bk(friendlyClassName, md_.moduleLabel(), productInstanceName, md_.processName());
+				     std::string const& productInstanceName) const {
+    BranchKey bk(friendlyClassName, md_.moduleLabel(), productInstanceName, md_.processName());
     ProductRegistry::ProductList const& pl = dbk_.productRegistry().productList();
     ProductRegistry::ProductList::const_iterator it = pl.find(bk);
     if (it == pl.end()) {
-        throw edm::Exception(edm::errors::InsertFailure,"Not Registered")
-          << "put: Problem found while adding product. "
-          << "No product is registered for ("
-          << bk.friendlyClassName_ << ","
-          << bk.moduleLabel_ << ","
-          << bk.productInstanceName_ << ","
-          << bk.processName_
-          << ")\nProductRegistry contains:\n"
-	  << dbk_.productRegistry()
-	  << '\n';
-	  
+      throw edm::Exception(edm::errors::InsertFailure)
+	<< "Illegal attempt to 'put' an unregistered product.\n"
+	<< "No product is registered for\n"
+	<< "  process name:                '" << bk.processName_ << "'\n"
+	<< "  module label:                '" << bk.moduleLabel_ << "'\n"
+	<< "  product friendly class name: '" << bk.friendlyClassName_ << "'\n"
+	<< "  product instance name:       '" << bk.productInstanceName_ << "'\n"
+
+	<< "The ProductRegistry contains:\n"
+	<< dbk_.productRegistry()
+	<< '\n';	  
     }
     if(it->second.branchType() != branchType_) {
         throw edm::Exception(edm::errors::InsertFailure,"Not Registered")
