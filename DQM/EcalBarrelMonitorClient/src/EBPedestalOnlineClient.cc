@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/12/14 22:10:48 $
- * $Revision: 1.58 $
+ * $Date: 2006/12/15 08:03:24 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -241,7 +241,7 @@ void EBPedestalOnlineClient::cleanup(void) {
 
 }
 
-bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
 
   bool status = true;
 
@@ -280,7 +280,7 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
   if ( econn ) {
     try {
       econn->fetchDataSet(&mask, moniov);
-      // econn->fetchValidData(&mask, runtag, run);
+      // econn->fetchValidData(&mask, runiov.getRunTag(), runiov.getRunNumber());
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }

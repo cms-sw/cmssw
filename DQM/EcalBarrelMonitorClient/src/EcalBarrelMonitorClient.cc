@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/12/14 14:35:02 $
- * $Revision: 1.192 $
+ * $Date: 2006/12/15 08:03:24 $
+ * $Revision: 1.193 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -796,7 +796,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
           if ( clientNames_[j] == "Laser" && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) == 0 ) continue;
           written = true; 
           taskl |= 0x1 << j;
-          if ( clients_[j]->writeDb(econn, &moniov_, ism) ) {
+          if ( clients_[j]->writeDb(econn, &runiov_, &moniov_, ism) ) {
             tasko |= 0x1 << j;
           } else {
             tasko |= 0x0 << j;

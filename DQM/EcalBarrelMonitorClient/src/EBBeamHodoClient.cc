@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/11/21 09:47:22 $
- * $Revision: 1.29 $
+ * $Date: 2006/11/21 13:16:52 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -233,7 +233,7 @@ void EBBeamHodoClient::cleanup(void) {
 
 }
 
-bool EBBeamHodoClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+bool EBBeamHodoClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
 
   bool status = true;
 

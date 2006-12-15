@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/11/21 13:16:52 $
- * $Revision: 1.115 $
+ * $Date: 2006/12/14 11:10:31 $
+ * $Revision: 1.116 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -339,7 +339,7 @@ void EBIntegrityClient::cleanup(void) {
 
 }
 
-bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
 
   bool status = true;
 

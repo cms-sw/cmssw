@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2006/11/21 13:16:52 $
- * $Revision: 1.20 $
+ * $Date: 2006/12/14 11:10:31 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -222,7 +222,7 @@ void EBTriggerTowerClient::cleanup(void) {
 
 }
 
-bool EBTriggerTowerClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+bool EBTriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
 
   bool status = true;
 

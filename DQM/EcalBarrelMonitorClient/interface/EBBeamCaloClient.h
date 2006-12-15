@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2006/11/21 09:46:21 $
- * $Revision: 1.16 $
+ * $Date: 2006/11/21 13:16:51 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -77,7 +77,7 @@ void cleanup(void);
 void htmlOutput(int run, string htmlDir, string htmlName);
 
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism);
 
 template<class T> void AdjustRange(T obj);
 

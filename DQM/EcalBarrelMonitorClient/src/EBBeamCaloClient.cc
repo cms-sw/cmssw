@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/11/21 09:47:22 $
- * $Revision: 1.34 $
+ * $Date: 2006/11/21 13:16:52 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -245,7 +245,7 @@ void EBBeamCaloClient::cleanup(void) {
   meEBBCaloRedGreenSteps_ = 0;
 }
 
-bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
+bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
 
   bool status = true;
 
