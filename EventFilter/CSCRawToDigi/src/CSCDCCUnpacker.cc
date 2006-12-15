@@ -33,6 +33,7 @@
 
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCLCTData.h"
@@ -72,6 +73,8 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   produces<CSCCLCTDigiCollection>("MuonCSCCLCTDigi");
   produces<CSCRPCDigiCollection>("MuonCSCRPCDigi");
   produces<CSCCorrelatedLCTDigiCollection>("MuonCSCCorrelatedLCTDigi");
+  produces<CSCCFEBStatusDigiCollection>("MuonCSCCFEBStatusDigi");
+
 
   CSCAnodeData::setDebug(debug);
   CSCALCTHeader::setDebug(debug);
@@ -113,6 +116,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   std::auto_ptr<CSCComparatorDigiCollection> comparatorProduct(new CSCComparatorDigiCollection);
   std::auto_ptr<CSCRPCDigiCollection> rpcProduct(new CSCRPCDigiCollection);
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> corrlctProduct(new CSCCorrelatedLCTDigiCollection);
+  std::auto_ptr<CSCCFEBStatusDigiCollection> cfebStatusProduct(new CSCCFEBStatusDigiCollection);
+
 
 
 
@@ -282,8 +287,11 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    }
 
 
-	    //this loop stores wire strip and comparator digis:
+	    for ( icfeb = 0; icfeb < 5; ++icfeb ) {///loop over status digis
+	      cfebStatusProduct->insertDigi(layer, cscData[iCSC].cfebData(icfeb)->statusDigi());
+	    }
 
+	    //this loop stores wire strip and comparator digis:
 	    for (int ilayer = 1; ilayer <= 6; ilayer++) {
 
 	      if (((vmecrate>=0)&&(vmecrate<=3)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
@@ -325,6 +333,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		  edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";
 		  edm::LogError ("CSCDCCUnpacker") << " using fake CSCDetId!!!! ";
 		}
+		
 
 		std::vector <CSCStripDigi>  stripDigis = 
 		  cscData[iCSC].stripDigis(layer.rawId(), icfeb); // pass the raw cscdetid
@@ -362,6 +371,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   e.put(comparatorProduct,    "MuonCSCComparatorDigi");
   e.put(rpcProduct,           "MuonCSCRPCDigi");
   e.put(corrlctProduct,       "MuonCSCCorrelatedLCTDigi");
+  e.put(cfebStatusProduct,    "MuonCSCCFEBStatusDigi");
 
 }
 
