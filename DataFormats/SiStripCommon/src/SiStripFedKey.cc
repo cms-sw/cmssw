@@ -105,6 +105,85 @@ SiStripFedKey::Path::Path( const uint16_t& fed_id,
 
 // -----------------------------------------------------------------------------
 // 
+bool SiStripFedKey::Path::isEqual( const Path& input ) const {
+  if ( fedId_ == input.fedId_ &&
+       feUnit_ == input.feUnit_ &&
+       feChan_ == input.feChan_ ) { 
+    return true;
+  } else { return false; }
+}
+
+// -----------------------------------------------------------------------------
+// 
+bool SiStripFedKey::Path::isConsistent( const Path& input ) const {
+  if ( isEqual(input) ) { return true; }
+  else if ( ( fedId_ == 0 || input.fedId_ == 0 ) &&
+	    ( feUnit_ == 0 || input.feUnit_ == 0 ) &&
+	    ( feChan_ == 0 || input.feChan_ == 0 ) ) { 
+    return true;
+  } else { return false; }
+}
+
+// // -----------------------------------------------------------------------------
+// //
+// bool SiStripFedKey::Path::isValid() const {
+//   if ( fedId_ == sistrip::invalid_ &&
+//        feUnit_ == sistrip::invalid_ &&
+//        feChan_ == sistrip::invalid_ &&
+//        fedApv_ == sistrip::invalid_  ) {
+//     return true;
+//   } else { return false; }
+// }
+
+// // -----------------------------------------------------------------------------
+// //
+// bool SiStripFedKey::Path::isValid( const sistrip::Granularity& gran ) const {
+//   if ( fedId_ != sistrip::invalid_ ) {
+//     if ( gran == sistrip::FED ) { return true; }
+//     if ( feUnit_ != sistrip::invalid_ ) {
+//       if ( gran == sistrip::FE_UNIT ) { return true; }
+//       if ( feChan_ != sistrip::invalid_ ) {
+// 	if ( gran == sistrip::FE_CHAN ) { return true; }
+// 	if ( fedApv_ != sistrip::invalid_ ) {
+// 	  if ( gran == sistrip::APV ) { return true; }
+// 	}
+//       }
+//     }
+//   }
+//   return false;
+// }
+
+// -----------------------------------------------------------------------------
+//
+bool SiStripFedKey::Path::isInvalid() const {
+  if ( fedId_ == sistrip::invalid_ &&
+       feUnit_ == sistrip::invalid_ &&
+       feChan_ == sistrip::invalid_ &&
+       fedApv_ == sistrip::invalid_  ) {
+    return true;
+  } else { return false; }
+}
+
+// -----------------------------------------------------------------------------
+//
+bool SiStripFedKey::Path::isInvalid( const sistrip::Granularity& gran ) const {
+  if ( fedId_ == sistrip::invalid_ ) {
+    if ( gran == sistrip::FED ) { return true; }
+    if ( feUnit_ == sistrip::invalid_ ) {
+      if ( gran == sistrip::FE_UNIT ) { return true; }
+      if ( feChan_ == sistrip::invalid_ ) {
+	if ( gran == sistrip::FE_CHAN ) { return true; }
+	if ( fedApv_ == sistrip::invalid_ ) {
+	  if ( gran == sistrip::APV ) { return true; }
+	}
+      }
+    }
+  }
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+// 
 uint32_t SiStripFedKey::key( const uint16_t& fed_id,
 			     const uint16_t& fed_ch,
 			     const uint16_t& fed_apv ) {
@@ -182,6 +261,24 @@ SiStripFedKey::Path SiStripFedKey::path( uint32_t key ) {
   }
   
   return tmp;  
+}
+
+// -----------------------------------------------------------------------------
+//
+bool SiStripFedKey::isEqual( const uint32_t& key1, 
+			     const uint32_t& key2 ) {
+  SiStripFedKey::Path path1 = SiStripFedKey::path( key1 ) ;
+  SiStripFedKey::Path path2 = SiStripFedKey::path( key2 ) ;
+  return path1.isEqual( path2 );
+}
+
+// -----------------------------------------------------------------------------
+//
+bool SiStripFedKey::isConsistent( const uint32_t& key1, 
+				  const uint32_t& key2 ) {
+  SiStripFedKey::Path path1 = SiStripFedKey::path( key1 ) ;
+  SiStripFedKey::Path path2 = SiStripFedKey::path( key2 ) ;
+  return path1.isConsistent( path2 );
 }
 
 // -----------------------------------------------------------------------------

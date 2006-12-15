@@ -3,14 +3,103 @@
 
 // -----------------------------------------------------------------------------
 //
+SiStripFecKey::Path::Path() 
+  : fecCrate_(sistrip::invalid_), 
+    fecSlot_(sistrip::invalid_),
+    fecRing_(sistrip::invalid_), 
+    ccuAddr_(sistrip::invalid_),
+    ccuChan_(sistrip::invalid_), 
+    channel_(sistrip::invalid_) {;}
+
+// -----------------------------------------------------------------------------
+//
 /*
-  FEC crate: 3-bits, value=1->4,       0=all, 0x07=invalid
-  FEC slot:  5-bits, value=1->21,      0=all, 0x1F=invalid
-  FEC ring:  4-bits, value=1->8,       0=all, 0x0F=invalid
-  CCU addr:  8-bits, value=1->127,     0=all, 0xFF=invalid
-  CCU chan:  5-bits, value=16->31,     0=all, 0x1F=invalid
-  channel:   7-bits, value=1->3,32-37, 0=all, 0x7F=invalid
+  FEC crate [1-4]:     3-bits, 0=all, 0x07=invalid
+  FEC slot [1-21]:     5-bits, 0=all, 0x1F=invalid
+  FEC ring [1-8]:      4-bits, 0=all, 0x0F=invalid
+  CCU module [1-127]:  8-bits, 0=all, 0xFF=invalid
+  FE module [16-31]:   5-bits, 0=all, 0x1F=invalid
+  LLD/APV [1-3,32-37]: 7-bits, 0=all, 0x7F=invalid
 */
+SiStripFecKey::Path::Path( const uint16_t& fec_crate, 
+			   const uint16_t& fec_slot, 
+			   const uint16_t& fec_ring, 
+			   const uint16_t& ccu_addr, 
+			   const uint16_t& ccu_chan,
+			   const uint16_t& channel ) 
+  : fecCrate_(fec_crate), 
+    fecSlot_(fec_slot),
+    fecRing_(fec_ring), 
+    ccuAddr_(ccu_addr),
+    ccuChan_(ccu_chan), 
+    channel_(channel) {;}
+
+// -----------------------------------------------------------------------------
+// 
+bool SiStripFecKey::Path::isEqual( const Path& input ) const {
+  if ( fecCrate_ == input.fecCrate_ &&
+       fecSlot_ == input.fecSlot_ &&
+       fecRing_ == input.fecRing_ &&
+       ccuAddr_ == input.ccuAddr_ &&
+       ccuChan_ == input.ccuChan_ &&
+       channel_ == input.channel_ ) { 
+    return true;
+  } else { return false; }
+}
+
+// -----------------------------------------------------------------------------
+// 
+bool SiStripFecKey::Path::isConsistent( const Path& input ) const {
+  if ( isEqual(input) ) { return true; }
+  else if ( ( fecCrate_ == 0 || input.fecCrate_ == 0 ) &&
+	    ( fecSlot_ == 0 || input.fecSlot_ == 0 ) &&
+	    ( fecRing_ == 0 || input.fecRing_ == 0 ) &&
+	    ( ccuAddr_ == 0 || input.ccuAddr_ == 0 ) &&
+	    ( channel_ == 0 || input.channel_ == 0 ) ) {
+    return true;
+  } else { return false; }
+}
+
+// -----------------------------------------------------------------------------
+//
+bool SiStripFecKey::Path::isInvalid() const {
+  if ( fecCrate_ == sistrip::invalid_ &&
+       fecSlot_ == sistrip::invalid_ &&
+       fecRing_ == sistrip::invalid_ &&
+       ccuAddr_ == sistrip::invalid_ &&
+       ccuChan_ == sistrip::invalid_ &&
+       channel_ == sistrip::invalid_ ) {
+    return true;
+  } else { return false; }
+}
+
+// -----------------------------------------------------------------------------
+//
+bool SiStripFecKey::Path::isInvalid( const sistrip::Granularity& gran ) const {
+  if ( fecCrate_ == sistrip::invalid_ ) {
+    if ( gran == sistrip::FEC_CRATE ) { return true; }
+    if ( fecSlot_ == sistrip::invalid_ ) {
+      if ( gran == sistrip::FEC_RING ) { return true; }
+      if ( fecRing_ == sistrip::invalid_ ) {
+	if ( gran == sistrip::FEC_RING ) { return true; }
+	if ( ccuAddr_ == sistrip::invalid_ ) {
+	  if ( gran == sistrip::CCU_ADDR ) { return true; }
+	  if ( ccuChan_ == sistrip::invalid_ ) {
+	    if ( gran == sistrip::CCU_CHAN ) { return true; }
+	    if ( channel_ == sistrip::invalid_ ) {
+	      if ( gran == sistrip::LLD_CHAN  || 
+		   gran == sistrip::APV ) { return true; }
+	    }
+	  }
+	}
+      }
+    }
+  }
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
 uint32_t SiStripFecKey::key( uint16_t fec_crate,
 			     uint16_t fec_slot,
 			     uint16_t fec_ring,
@@ -104,6 +193,24 @@ SiStripFecKey::Path SiStripFecKey::path( uint32_t key ) {
   }
 
   return tmp;  
+}
+
+// -----------------------------------------------------------------------------
+//
+bool SiStripFecKey::isEqual( const uint32_t& key1, 
+			     const uint32_t& key2 ) {
+  SiStripFecKey::Path path1 = SiStripFecKey::path( key1 ) ;
+  SiStripFecKey::Path path2 = SiStripFecKey::path( key2 ) ;
+  return path1.isEqual( path2 );
+}
+
+// -----------------------------------------------------------------------------
+//
+bool SiStripFecKey::isConsistent( const uint32_t& key1, 
+				  const uint32_t& key2 ) {
+  SiStripFecKey::Path path1 = SiStripFecKey::path( key1 ) ;
+  SiStripFecKey::Path path2 = SiStripFecKey::path( key2 ) ;
+  return path1.isConsistent( path2 );
 }
 
 // -----------------------------------------------------------------------------

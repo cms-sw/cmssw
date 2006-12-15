@@ -1,6 +1,7 @@
 #ifndef DataFormats_SiStripCommon_SiStripFedKey_H
 #define DataFormats_SiStripCommon_SiStripFedKey_H
 
+#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include <boost/cstdint.hpp>
 #include <ostream>
@@ -9,8 +10,8 @@ class SiStripFedKey {
   
  public:
   
-  /** Simple container class that holds parameters that uniquely
-      identify a FED channel within the readout system. */
+  /** Container class holding parameters that identify a logical
+      position within the readout structure to the level of an APV. */
   class Path { 
   public:
     uint16_t fedCrate_; // FED crate   [1-60]
@@ -28,29 +29,41 @@ class SiStripFedKey {
 	  const uint16_t& fe_unit,
 	  const uint16_t& fe_chan,
 	  const uint16_t& fed_apv );
+    bool isEqual( const Path& ) const;
+    bool isConsistent( const Path& ) const;
+    bool isInvalid() const;
+    bool isInvalid( const sistrip::Granularity& = sistrip::APV ) const;
   };
   
-  /** Returns the parameters that uniquely identify a FED channel
-      within the strip tracker readout system. */
-  static Path path( uint32_t key );
+  // ---------- Returns 32-bit keys based on paths ----------
   
-  /** Creates a 32-bit key that uniquely identifies a FED channel
-      within the strip tracker readout system. */
+  /** Returns 32-bit key based on Path object. */
   static uint32_t key( const Path& );
   
-  /** Creates a 32-bit key that uniquely identifies a FED channel
-      (using FED id and FED channel) within the readout system. */
+  /** Returns 32-bit key based on FED id and channel (and APV). */
   static uint32_t key( const uint16_t& fed_id,
 		       const uint16_t& fed_ch,
 		       const uint16_t& fed_apv = uint16_t(sistrip::invalid_) );
 
-  /** Creates a 32-bit key that uniquely identifies a FED channel
-      (using FED id and FED unit/chan) within the readout system. */
+  /** Returns 32-bit key based on FED id, FE unit and chan and APV. */
   static uint32_t key( const uint16_t& fed_id,
 		       const uint16_t& fe_unit,
 		       const uint16_t& fe_chan,
 		       const uint16_t& fed_apv );
   
+  // ---------- Returns paths based on 32-bit keys ----------
+
+  /** Extracts FED id, unit, channel and APV from 32-bit key. */
+  static Path path( uint32_t fed_key );
+
+  // ---------- Consistency checks between 32-bit keys ----------
+
+  static bool isEqual( const uint32_t& first_key, 
+		       const uint32_t& second_key );
+  
+  static bool isConsistent( const uint32_t& first_key, 
+			    const uint32_t& second_key );
+
  private:
 
   static const uint16_t fedCrateOffset_ = 26;
