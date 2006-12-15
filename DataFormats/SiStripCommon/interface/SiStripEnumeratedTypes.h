@@ -119,7 +119,7 @@ namespace sistrip {
 		     //NO_GRAN = 0,
 		     TRACKER = 1, PARTITION = 2, TIB = 3, TOB = 4, TEC = 5,                  // System
 		     FEC_CRATE = 6, FEC_SLOT = 7, FEC_RING = 8, CCU_ADDR = 9, CCU_CHAN = 10, // Control
-		     FED = 11, FE_UNIT = 12, FED_FE_CHAN = 13, FED_CHANNEL = 14,             // Readout 
+		     FED = 11, FED_CHANNEL = 12, FE_UNIT = 13, FE_CHAN = 14,                 // Readout 
 		     LAYER = 15, ROD = 16, STRING = 17, DISK = 18, PETAL = 19, RING = 20,    // Sub-structures 
 		     MODULE = 21, LLD_CHAN = 22, APV = 23                                    // Module and below
   };
@@ -141,67 +141,67 @@ namespace sistrip {
 
 namespace sistrip { 
   
-  /** Defines the type of summary histogram. */
-  enum SummaryType { UNKNOWN_SUMMARY_TYPE = sistrip::unknown_, 
-		     UNDEFINED_SUMMARY_TYPE = sistrip::invalid_, 
-		     SUMMARY_DISTR = 1,
-		     SUMMARY_1D = 2,
-		     SUMMARY_2D = 3,
-		     SUMMARY_PROF = 4
+  /** Defines the presentation type for the summary histogram. */
+  enum Presentation { UNKNOWN_PRESENTATION = sistrip::unknown_, 
+		      UNDEFINED_PRESENTATION = sistrip::invalid_, 
+		      SUMMARY_HISTO = 1,
+		      SUMMARY_1D = 2,
+		      SUMMARY_2D = 3,
+		      SUMMARY_PROF = 4
   };
   
-  /** Defines the various summary histograms available. */
-  enum SummaryHisto { UNKNOWN_SUMMARY_HISTO = sistrip::unknown_, 
-		      UNDEFINED_SUMMARY_HISTO = sistrip::invalid_, 
-		      // FED CABLING
-		      FED_CABLING_FED_ID = 1301, 
-		      FED_CABLING_FED_CH = 1302, 
-		      FED_CABLING_SIGNAL_LEVEL = 1303, 
-		      // APV TIMING
-		      APV_TIMING_TIME = 501, 
-		      APV_TIMING_MAX_TIME = 502, 
-		      APV_TIMING_DELAY = 503, 
-		      APV_TIMING_ERROR = 504, 
-		      APV_TIMING_BASE = 505, 
-		      APV_TIMING_PEAK = 506, 
-		      APV_TIMING_HEIGHT = 507,
-		      // FED TIMING
-		      FED_TIMING_TIME = 501, 
-		      FED_TIMING_MAX_TIME = 502, 
-		      FED_TIMING_DELAY = 1203, 
-		      FED_TIMING_ERROR = 1204, 
-		      FED_TIMING_BASE = 1205, 
-		      FED_TIMING_PEAK = 1206, 
-		      FED_TIMING_HEIGHT = 1207,
-		      // OPTO SCAN
-		      OPTO_SCAN_LLD_GAIN_SETTING = 401,
-		      OPTO_SCAN_LLD_BIAS_SETTING = 402,
-		      OPTO_SCAN_MEASURED_GAIN = 403, 
-		      OPTO_SCAN_ZERO_LIGHT_LEVEL = 404, 
-		      OPTO_SCAN_LINK_NOISE = 405,
-		      OPTO_SCAN_BASELINE_LIFT_OFF = 406,
-		      OPTO_SCAN_LASER_THRESHOLD = 407,  
-		      OPTO_SCAN_TICK_HEIGHT = 408,
-		      // VPSP SCAN
-		      VPSP_SCAN_BOTH_APVS = 1401, 
-		      VPSP_SCAN_APV0 = 1402, 
-		      VPSP_SCAN_APV1 = 1403, 
-		      // PEDESTALS / NOISE
-		      PEDESTALS_ALL_STRIPS = 201, 
-		      PEDESTALS_MEAN = 202, 
-		      PEDESTALS_SPREAD = 203, 
-		      PEDESTALS_MAX = 204, 
-		      PEDESTALS_MIN = 205, 
-		      NOISE_ALL_STRIPS = 206, 
-		      NOISE_MEAN = 207, 
-		      NOISE_SPREAD = 208, 
-		      NOISE_MAX = 209, 
-		      NOISE_MIN = 210, 
-		      NUM_OF_DEAD = 211, 
-		      NUM_OF_NOISY = 212,
-		      // DAQ SCOPE MODE
-		      DAQ_SCOPE_MODE_MEAN_SIGNAL = 1501
-		      //@@ add other summary histos here... 
+  /** Defines the monitorable for the summary histogram. */
+  enum Monitorable { UNKNOWN_MONITORABLE = sistrip::unknown_, 
+		     UNDEFINED_MONITORABLE = sistrip::invalid_, 
+		     // FED CABLING
+		     FED_CABLING_FED_ID = 1301, 
+		     FED_CABLING_FED_CH = 1302, 
+		     FED_CABLING_ADC_LEVEL = 1303, 
+		     // APV TIMING
+		     APV_TIMING_TIME = 501, 
+		     APV_TIMING_MAX_TIME = 502, 
+		     APV_TIMING_DELAY = 503, 
+		     APV_TIMING_ERROR = 504, 
+		     APV_TIMING_BASE = 505, 
+		     APV_TIMING_PEAK = 506, 
+		     APV_TIMING_HEIGHT = 507,
+		     // FED TIMING
+		     FED_TIMING_TIME = 501, 
+		     FED_TIMING_MAX_TIME = 502, 
+		     FED_TIMING_DELAY = 1203, 
+		     FED_TIMING_ERROR = 1204, 
+		     FED_TIMING_BASE = 1205, 
+		     FED_TIMING_PEAK = 1206, 
+		     FED_TIMING_HEIGHT = 1207,
+		     // OPTO SCAN
+		     OPTO_SCAN_LLD_GAIN_SETTING = 401,
+		     OPTO_SCAN_LLD_BIAS_SETTING = 402,
+		     OPTO_SCAN_MEASURED_GAIN = 403, 
+		     OPTO_SCAN_ZERO_LIGHT_LEVEL = 404, 
+		     OPTO_SCAN_LINK_NOISE = 405,
+		     OPTO_SCAN_BASELINE_LIFT_OFF = 406,
+		     OPTO_SCAN_LASER_THRESHOLD = 407,  
+		     OPTO_SCAN_TICK_HEIGHT = 408,
+		     // VPSP SCAN
+		     VPSP_SCAN_BOTH_APVS = 1401, 
+		     VPSP_SCAN_APV0 = 1402, 
+		     VPSP_SCAN_APV1 = 1403, 
+		     // PEDESTALS / NOISE
+		     PEDESTALS_ALL_STRIPS = 201, 
+		     PEDESTALS_MEAN = 202, 
+		     PEDESTALS_SPREAD = 203, 
+		     PEDESTALS_MAX = 204, 
+		     PEDESTALS_MIN = 205, 
+		     NOISE_ALL_STRIPS = 206, 
+		     NOISE_MEAN = 207, 
+		     NOISE_SPREAD = 208, 
+		     NOISE_MAX = 209, 
+		     NOISE_MIN = 210, 
+		     NUM_OF_DEAD = 211, 
+		     NUM_OF_NOISY = 212,
+		     // DAQ SCOPE MODE
+		     DAQ_SCOPE_MODE_MEAN_SIGNAL = 1501
+		     //@@ add other summary histos here... 
   };
   
 }
