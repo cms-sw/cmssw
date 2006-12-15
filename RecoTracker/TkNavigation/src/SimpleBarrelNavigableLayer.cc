@@ -1,7 +1,5 @@
 #include "RecoTracker/TkNavigation/interface/SimpleBarrelNavigableLayer.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "Geometry/Surface/interface/BoundCylinder.h"
 #include "Geometry/Surface/interface/BoundDisk.h"
 
@@ -11,6 +9,7 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 
 #include "RecoTracker/TkNavigation/interface/TkLayerLess.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <functional>
 #include <algorithm>
@@ -120,14 +119,14 @@ SimpleBarrelNavigableLayer( BarrelDetLayer* detLayer,
 
 
 vector<const DetLayer*> 
-SimpleBarrelNavigableLayer::nextLayers( PropagationDirection dir) const
+SimpleBarrelNavigableLayer::nextLayers( NavigationDirection dir) const
 {
   vector<const DetLayer*> result;
   
   // the order is the one in which layers
   // should be checked for a reasonable trajectory
 
-  if ( dir == alongMomentum) {
+  if ( dir == insideOut) {
     result = theNegOuterLayers;
     for ( DLC::const_iterator i=thePosOuterLayers.begin();
 	  i!=thePosOuterLayers.end(); i++) {
@@ -160,33 +159,42 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
     FreeTrajectoryState( fts.parameters()) :
     fts;
 
+  //establish whether the tracks is crossing the tracker from outer layers to inner ones 
+  //or from inner to outer.
+  bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
 
-  //  const BDLC& blc = barrelLayers(fts,dir);
+  //establish whether inner or outer layers are crossed after propagation, according
+  //to BOTH propagationDirection AND track momentum
+  bool dirOppositeXORisInOutTrack = ( !(dir == oppositeToMomentum) && isInOutTrack) || ((dir == oppositeToMomentum) && !isInOutTrack);
 
-  if ( dir == alongMomentum) {
+  bool signZmomentumXORdir = ( (fts.momentum().z() > 0) && !(dir == alongMomentum) ||
+			      !(fts.momentum().z() > 0) &&  (dir == alongMomentum)    );
 
-    if ( fts.momentum().z() > 0) {
-      wellInside( ftsWithoutErrors, dir, thePosOuterLayers, result);
-    }
-    else {
+
+  if ( dirOppositeXORisInOutTrack ) {
+
+    if ( signZmomentumXORdir   ) {
       wellInside( ftsWithoutErrors, dir, theNegOuterLayers, result);
     }
-  } 
-  else { // oppositeToMomentum
-    if ( fts.momentum().z() > 0) {
-      wellInside( ftsWithoutErrors, dir, thePosInnerLayers, result);
-    }
     else {
+      wellInside( ftsWithoutErrors, dir, thePosOuterLayers, result);
+    }
+  } 
+  else {
+    if ( signZmomentumXORdir ) {
       wellInside( ftsWithoutErrors, dir, theNegInnerLayers, result);
     }
+    else {
+      wellInside( ftsWithoutErrors, dir, thePosInnerLayers, result);
+    }
   } 
-
+  
   return result;
 }
 
 
 vector<const DetLayer*> 
-SimpleBarrelNavigableLayer::compatibleLayers( PropagationDirection dir) const
+SimpleBarrelNavigableLayer::compatibleLayers( NavigationDirection dir) const
 {
   if( !areAllReachableLayersSet ){
     edm::LogError("TkNavigation") << "ERROR: compatibleLayers() method used without all reachableLayers are set" ;
@@ -194,7 +202,7 @@ SimpleBarrelNavigableLayer::compatibleLayers( PropagationDirection dir) const
   }
 
   vector<const DetLayer*> result;
-  if ( dir == alongMomentum) {
+  if ( dir == insideOut) {
     for ( BDLC::const_iterator i=theAllOuterBarrelLayers.begin();
           i!=theAllOuterBarrelLayers.end(); i++) {
           result.push_back(*i);
@@ -245,44 +253,21 @@ SimpleBarrelNavigableLayer::compatibleLayers( const FreeTrajectoryState& fts,
   FreeTrajectoryState ftsWithoutErrors = (fts.hasError()) ?
   FreeTrajectoryState( fts.parameters()) : fts;
 
-  vector<const DetLayer*> temp = compatibleLayers(dir);
+  //establish whether the tracks is crossing the tracker from outer layers to inner ones 
+  //or from inner to outer.
+  bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
+
+  //establish whether inner or outer layers are crossed after propagation, according
+  //to BOTH propagationDirection AND track momentum
+  bool dirOppositeXORisInOutTrack = ( !(dir == oppositeToMomentum) && isInOutTrack) || ((dir == oppositeToMomentum) && !isInOutTrack);
+
+  vector<const DetLayer*> temp = dirOppositeXORisInOutTrack ? compatibleLayers(insideOut) : compatibleLayers(outsideIn);
   wellInside( ftsWithoutErrors, dir, temp, result);
 
   return result;
 
 }
 
-
-const SimpleBarrelNavigableLayer::BDLC&
-SimpleBarrelNavigableLayer::barrelLayers( const FreeTrajectoryState& fts,
-					  PropagationDirection dir) const
-{
-  // does not work for momenta pointing inside
-  if ( dir == alongMomentum) return theOuterBarrelLayers;
-  else                       return theInnerBarrelLayers;
-}
-
-const SimpleBarrelNavigableLayer::FDLC&
-SimpleBarrelNavigableLayer::forwardLayers( const FreeTrajectoryState& fts,
-					   PropagationDirection dir) const
-{
-  if ( dir == alongMomentum) {
-    if ( fts.momentum().z() < 0) {
-      return theOuterLeftForwardLayers;
-    }
-    else {
-      return theOuterRightForwardLayers;
-    }
-  }
-  else {
-    if ( fts.momentum().z() < 0) {
-      return theInnerLeftForwardLayers;
-    }
-    else {
-      return theInnerRightForwardLayers;
-    }
-  }
-}
 
 DetLayer* SimpleBarrelNavigableLayer::detLayer() const { return theDetLayer;}
 

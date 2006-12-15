@@ -30,14 +30,14 @@ public:
 
   // NavigableLayer interface
   virtual std::vector<const DetLayer*> 
-  nextLayers( PropagationDirection timeDirection) const;
+  nextLayers( NavigationDirection direction) const;
 
   virtual std::vector<const DetLayer*> 
   nextLayers( const FreeTrajectoryState& fts, 
 	      PropagationDirection timeDirection) const;
 
   virtual std::vector<const DetLayer*> 
-  compatibleLayers( PropagationDirection timeDirection) const;
+  compatibleLayers( NavigationDirection direction) const;
 
   virtual std::vector<const DetLayer*> 
   compatibleLayers( const FreeTrajectoryState& fts, 

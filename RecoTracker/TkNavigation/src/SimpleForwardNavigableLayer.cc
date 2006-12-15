@@ -1,7 +1,5 @@
 #include "RecoTracker/TkNavigation/interface/SimpleForwardNavigableLayer.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
@@ -10,6 +8,7 @@
 #include "Geometry/Surface/interface/BoundDisk.h"
 
 #include "RecoTracker/TkNavigation/interface/TkLayerLess.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 using namespace std;
@@ -110,14 +109,14 @@ SimpleForwardNavigableLayer( ForwardDetLayer* detLayer,
 
 
 vector<const DetLayer*> 
-SimpleForwardNavigableLayer::nextLayers( PropagationDirection dir) const
+SimpleForwardNavigableLayer::nextLayers( NavigationDirection dir) const
 {
   vector<const DetLayer*> result;
   
   // the order is the one in which layers
   // should be checked for a reasonable trajectory
 
-  if ( dir == alongMomentum ) {
+  if ( dir == insideOut ) {
     return theOuterLayers;
   }
   else {
@@ -140,12 +139,20 @@ SimpleForwardNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   FreeTrajectoryState ftsWithoutErrors = (fts.hasError()) ?
     FreeTrajectoryState(fts.parameters()) : fts;
 
-  if ( dir == alongMomentum ) {
+  //establish whether the tracks is crossing the tracker from outer layers to inner ones 
+  //or from inner to outer
+  bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
+
+  //establish whether inner or outer layers are crossed after propagation, according
+  //to BOTH propagationDirection AND track momentum
+  bool dirOppositeXORisInOutTrack = ( !(dir == oppositeToMomentum) && isInOutTrack) || ( (dir == oppositeToMomentum) && !isInOutTrack);
+
+  if ( dirOppositeXORisInOutTrack ) {
 
     wellInside(ftsWithoutErrors, dir, theOuterLayers, result);
 
   }
-  else { // oppositeToMomentum
+  else { // !dirOppositeXORisInOutTrack
 
     wellInside(ftsWithoutErrors, dir, theInnerLayers, result);
 
@@ -155,7 +162,7 @@ SimpleForwardNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
 
 
 vector<const DetLayer*> 
-SimpleForwardNavigableLayer::compatibleLayers( PropagationDirection dir) const
+SimpleForwardNavigableLayer::compatibleLayers( NavigationDirection dir) const
 {
   if( !areAllReachableLayersSet ){
     edm::LogError("TkNavigation") << "ERROR: compatibleLayers() method used without all reachableLayers are set" ;
@@ -164,7 +171,7 @@ SimpleForwardNavigableLayer::compatibleLayers( PropagationDirection dir) const
 
   vector<const DetLayer*> result;
 
-  if ( dir == alongMomentum ) {
+  if ( dir == insideOut ) {
     return theAllOuterLayers;
   }
   else {
@@ -187,10 +194,18 @@ SimpleForwardNavigableLayer::compatibleLayers( const FreeTrajectoryState& fts,
   FreeTrajectoryState ftsWithoutErrors = (fts.hasError()) ?
     FreeTrajectoryState(fts.parameters()) : fts;
 
-  if ( dir == alongMomentum ) {
+  //establish whether the tracks is crossing the tracker from outer layers to inner ones 
+  //or from inner to outer.
+  bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
+  
+  //establish whether inner or outer layers are crossed after propagation, according
+  //to BOTH propagationDirection AND track momentum
+  bool dirOppositeXORisInOutTrack = ( !(dir == oppositeToMomentum) && isInOutTrack) || ((dir == oppositeToMomentum) && !isInOutTrack);
+
+  if ( dirOppositeXORisInOutTrack ) {
     wellInside(ftsWithoutErrors, dir, theAllOuterLayers, result);
   }
-  else { // oppositeToMomentum
+  else { // !dirOppositeXORisInOutTrack
     wellInside(ftsWithoutErrors, dir, theAllInnerLayers, result);
   }
 

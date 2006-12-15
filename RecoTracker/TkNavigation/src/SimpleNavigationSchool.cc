@@ -358,7 +358,7 @@ void SimpleNavigationSchool::establishInverseRelations() {
 
     for ( BDLI bli = theBarrelLayers.begin();
         bli!=theBarrelLayers.end(); bli++) {
-      DLC reachedLC = (**bli).nextLayers( alongMomentum);
+      DLC reachedLC = (**bli).nextLayers( insideOut);
       for ( DLI i = reachedLC.begin(); i != reachedLC.end(); i++) {
         reachedBarrelLayersMap[*i].push_back( *bli);
       }
@@ -366,7 +366,7 @@ void SimpleNavigationSchool::establishInverseRelations() {
 
     for ( FDLI fli = theForwardLayers.begin();
         fli!=theForwardLayers.end(); fli++) {
-      DLC reachedLC = (**fli).nextLayers( alongMomentum);
+      DLC reachedLC = (**fli).nextLayers( insideOut);
       for ( DLI i = reachedLC.begin(); i != reachedLC.end(); i++) {
         reachedForwardLayersMap[*i].push_back( *fli);
       }

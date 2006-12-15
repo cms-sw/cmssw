@@ -38,23 +38,19 @@ public:
   
   // NavigableLayer interface
   virtual std::vector<const DetLayer*> 
-  nextLayers( PropagationDirection timeDirection) const;
+  nextLayers( NavigationDirection direction) const;
 
   virtual std::vector<const DetLayer*> 
   nextLayers( const FreeTrajectoryState& fts, 
 	      PropagationDirection timeDirection) const;
 
   virtual std::vector<const DetLayer*> 
-  compatibleLayers( PropagationDirection timeDirection) const;
+  compatibleLayers( NavigationDirection direction) const;
 
   virtual std::vector<const DetLayer*> 
   compatibleLayers( const FreeTrajectoryState& fts, 
 		    PropagationDirection timeDirection) const;
 
-
-  // extended interface
-  BDLC nextBarrelLayers()  { return theOuterBarrelLayers;}
-  //  FDLC nextForwardLayers() { return theOuterForwardLayers;}
   
   virtual DetLayer* detLayer() const;
   virtual void   setDetLayer( DetLayer* dl);
@@ -85,11 +81,6 @@ private:
   DLC               theNegInnerLayers;
   DLC               thePosInnerLayers;
 
-  const BDLC& barrelLayers( const FreeTrajectoryState& fts,
-			    PropagationDirection dir) const;
-
-  const FDLC& forwardLayers( const FreeTrajectoryState& fts,
-		       PropagationDirection dir) const;
 };
 
 #endif // SimpleBarrelNavigableLayer_H
