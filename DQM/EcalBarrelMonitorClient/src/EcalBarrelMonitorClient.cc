@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/11/21 15:01:52 $
- * $Revision: 1.191 $
+ * $Date: 2006/12/14 14:35:02 $
+ * $Revision: 1.192 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -141,7 +141,11 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
     if ( maskFile_.size() != 0 ) {
       cout << " Using maskFile = '" << maskFile_ << "'" << endl;
-      EcalErrorMaskFile::readFile(maskFile_);
+      try {
+	EcalErrorMaskFile::readFile(maskFile_);
+      } catch (runtime_error &e) {
+	cerr << e.what() << endl;
+      }
     }
 
   }
