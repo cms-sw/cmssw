@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.4 2006/06/17 19:41:20 wmtan Exp $
+$Id: RefProd.h,v 1.5 2006/10/28 23:50:34 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -41,7 +41,8 @@ $Id: RefProd.h,v 1.4 2006/06/17 19:41:20 wmtan Exp $
 #include "DataFormats/Common/interface/ProductID.h"
 
 namespace edm {
-  template <class T>
+  template <typename T, typename V, typename F> class Ref;
+  template <typename T>
   class RefProd {
   public:
 
@@ -54,17 +55,21 @@ namespace edm {
     // id(), returning a ProductID,
     // product(), returning a T*.
     template <class HandleT>
-      explicit RefProd(HandleT const& handle) :
-      product_(handle.id(), handle.product(), 0) {
+    explicit RefProd(HandleT const& handle) :
+    product_(handle.id(), handle.product(), 0) {
+      checkTypeAtCompileTime(handle.product());
     }
+
+    /// Constructor from Ref.
+    template <typename V, typename F>
+    explicit RefProd(Ref<T, V, F> const& ref);
 
     // Constructor for those users who do not have a product handle,
     // but have a pointer to a product getter (such as the EventPrincipal).
     // prodGetter will ususally be a pointer to the event principal.
     RefProd(ProductID const& productID, EDProductGetter const* prodGetter) :
-        product_(productID, 0, prodGetter) {
+      product_(productID, 0, prodGetter) {
     }
-
 
     /// Destructor
     ~RefProd() {}
@@ -76,8 +81,19 @@ namespace edm {
     T const* operator->() const {return getProduct<T>(product_);} 
 
     /// Returns C++ pointer to the product
+    /// Will attempt to retrieve product
     T const* get() const {
       return isNull() ? 0 : this->operator->();
+    }
+
+    /// Returns C++ pointer to the product
+    /// Will attempt to retrieve product
+    T const* product() const {
+      return isNull() ? 0 : this->operator->();
+    }
+
+    RefCore const& refCore() const {
+      return product_;
     }
 
     /// Checks for null
@@ -95,33 +111,49 @@ namespace edm {
     /// Accessor for product getter.
     EDProductGetter const* productGetter() const {return product_.productGetter();}
 
-    /// Accessor for all data
-    RefCore const& product() const {return product_;}
+    /// Checks if product is in memory.
+    bool hasCache() const {return product_.productPtr() != 0;}
 
   private:
+    // Compile time check that the argument is a T* or T const*
+    // or derived from it.
+    void checkTypeAtCompileTime(T const* ptr) {}
+
     RefCore product_;
   };
+}
 
-  template <class T>
+#include "DataFormats/Common/interface/Ref.h"
+
+namespace edm {
+
+  /// Constructor from Ref.
+  template <typename T>
+  template <typename V, typename F>
+  inline
+  RefProd<T>::RefProd(Ref<T, V, F> const& ref) :
+      product_(ref.id(), ref.hasProductCache() ? ref.product() : 0, ref.productGetter()) {
+  }
+
+  template <typename T>
   inline
   bool
   operator==(RefProd<T> const& lhs, RefProd<T> const& rhs) {
-    return lhs.product() == rhs.product();
+    return lhs.refCore() == rhs.refCore();
   }
 
-  template <class T>
+  template <typename T>
   inline
   bool
   operator!=(RefProd<T> const& lhs, RefProd<T> const& rhs) {
     return !(lhs == rhs);
   }
 
-  template <class T>
+  template <typename T>
   inline
   bool
   operator<(RefProd<T> const& lhs, RefProd<T> const& rhs) {
-    return (lhs.product() < rhs.product());
+    return (lhs.refCore() < rhs.refCore());
   }
 }
-  
 #endif
