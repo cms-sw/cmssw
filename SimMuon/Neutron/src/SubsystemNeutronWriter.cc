@@ -19,11 +19,11 @@ SubsystemNeutronWriter::SubsystemNeutronWriter(edm::ParameterSet const& pset)
 : theInputTag(pset.getParameter<edm::InputTag>("input")),
   theNeutronTimeCut(pset.getParameter<double>("neutronTimeCut")),
   theTimeWindow(pset.getParameter<double>("timeWindow")),
+  theNEvents(0),
   initialized(false)
 {
   string writer = pset.getParameter<string>("writer");
   string output = pset.getParameter<string>("output");
-  int nChamberTypes = pset.getParameter<int>("nChamberTypes");
   if(writer == "ASCII")
   {
     theHitWriter = new AsciiNeutronWriter(output);
@@ -52,13 +52,14 @@ void SubsystemNeutronWriter::printStats() {
   for(map<int,int>::iterator mapItr = theCountPerChamberType.begin();
       mapItr != theCountPerChamberType.end();  ++mapItr) {
      edm::LogInfo("SubsystemNeutronWriter") << "   theEventOccupancy[" << mapItr->first << "] = "
-         << mapItr->second << " / NEV / NCT \n";
+         << mapItr->second << " / " << theNEvents << " / NCT \n";
   }
 }
 
 
 void SubsystemNeutronWriter::analyze(edm::Event const& e, edm::EventSetup const& c)
 {
+  ++theNEvents;
   edm::Handle<edm::PSimHitContainer> hits;
   e.getByLabel(theInputTag, hits);
 
@@ -78,6 +79,14 @@ void SubsystemNeutronWriter::analyze(edm::Event const& e, edm::EventSetup const&
     int chambertype = chamberType(hitsByChamberItr->first);
     writeHits(chambertype, hitsByChamberItr->second);
   }
+}
+
+
+void SubsystemNeutronWriter::initialize(int chamberType)
+{
+  // should instantiate one of every chamber type, just so
+  // ROOT knows what file to associate them with
+  theHitWriter->initialize(chamberType);
 }
 
 
