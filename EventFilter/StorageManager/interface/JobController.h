@@ -2,13 +2,10 @@
 #define HLT_JOB_CNTLER_HPP
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
-#include "FWCore/Framework/interface/EventProcessor.h"
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
-#include "EventFilter/StorageManager/interface/EPRunner.h"
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 
-// added by HWKC for Event Server
 #include "IOPool/Streamer/interface/Messages.h"
 
 #include "boost/shared_ptr.hpp"
@@ -22,8 +19,11 @@ namespace stor
   class JobController
   {
   public:
+    // remove next ctor later
     JobController(const std::string& fu_config,
 		  const std::string& my_config,
+		  FragmentCollector::Deleter);
+    JobController(const std::string& my_config,
 		  FragmentCollector::Deleter);
     JobController(const edm::ProductRegistry& reg,
 		  const std::string& my_config,
@@ -37,24 +37,16 @@ namespace stor
 
     void receiveMessage(FragEntry& entry);
 
-    const edm::ProductRegistry& products() const { return prods_; }
-    edm::ProductRegistry& products() { return prods_; }
-
-    const edm::ProductRegistry& smproducts() const { return ep_runner_->getRegistry(); }
-    
     edm::EventBuffer& getFragmentQueue()
     { return collector_->getFragmentQueue(); }
 
-    // added for Event Server by HWKC so SM can get event from ring buffer
     bool isEmpty() { return collector_->esbuf_isEmpty(); }
     bool isFull() { return collector_->esbuf_isFull(); }
-//HEREHERE
     EventMsgView pop_front() {return collector_->esbuf_pop_front();}
     void push_back(EventMsgView msg) 
       { collector_->esbuf_push_back(msg); }
-//HEREHERE
+
     void set_oneinN(int N) { collector_->set_esbuf_oneinN(N); }
-    edm::ServiceToken getToken() { return ep_runner_->getToken();}
     void setEventServer(boost::shared_ptr<EventServer>& es)
     {
       if (collector_.get() != NULL) collector_->setEventServer(es);
@@ -62,10 +54,6 @@ namespace stor
     }
     boost::shared_ptr<EventServer>& getEventServer() { return eventServer_; }
 
-//HEREHEREHERE
-    // a hack to get hlt and l1 counts into fragColl
-    void set_hlt_bit_count(uint32 count) { collector_->set_hlt_bit_count(count);}
-    void set_l1_bit_count(uint32 count) { collector_->set_l1_bit_count(count);}
     void set_outoption(bool stream_only) { collector_->set_outoption(stream_only);}
     void set_outfile(std::string outfilestart, uint32 runNum, unsigned long maxFileSize,
            double highWaterMark, std::string path, std::string mpath, std::string catalog, int disks) 
@@ -75,13 +63,10 @@ namespace stor
 
   private:
     void init(const std::string& my_config,FragmentCollector::Deleter);
-    void setRegistry(const std::string& fu_config);
     void processCommands();
     static void run(JobController*);
-    edm::ProductRegistry prods_;
 
     boost::shared_ptr<FragmentCollector> collector_;
-    boost::shared_ptr<EPRunner> ep_runner_;
     boost::shared_ptr<EventServer> eventServer_;
 
     boost::shared_ptr<boost::thread> me_;

@@ -1,4 +1,4 @@
-// $Id: GenParticleCandidateProducer.cc,v 1.9 2006/11/07 16:28:38 llista Exp $
+// $Id: GenParticleCandidateProducer.cc,v 1.12 2006/11/13 14:44:40 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/GenParticleCandidateProducer.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
@@ -170,35 +170,40 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
 
   // fill output collection and save association
   auto_ptr<CandidateCollection> cands( new CandidateCollection );
-  CandidateRefProd ref = evt.getRefBeforePut<CandidateCollection>();
+  const CandidateRefProd ref = evt.getRefBeforePut<CandidateCollection>();
   cands->reserve( size );
 
   vector<size_t> indices;
-  vector<GenParticleCandidate *> candidates;
+  vector<pair<GenParticleCandidate *, size_t> > candidates;
   for( size_t i = 0; i < size; ++ i ) {
     const GenParticle * part = particles[ i ];
     GenParticleCandidate * cand = 0;
+    size_t index = 0;
     if ( ! skip[ i ] ) {
       GenParticleCandidate * c = new GenParticleCandidate( part );
       cand = c;
+      index = indices.size();
       cands->push_back( c );
       indices.push_back( i );
     }
-    candidates.push_back( cand );
+    candidates.push_back( make_pair( cand, index ) );
   }
   assert( candidates.size() == size );
   assert( cands->size() == indices.size() );
+
   // fill references to daughters
+  GenParticleCandidate * null = 0;
   for( size_t i = 0; i < cands->size(); ++ i ) {
     int m = mothers[ indices[ i ] ];
-    GenParticleCandidate * mother = 0;
-    while ( mother == 0 && m != -1 ) {
-      if ( ( mother = candidates[ m ] ) == 0 ) {
+    pair<GenParticleCandidate *, size_t> mother = make_pair( null, 0 );
+    while ( mother.first == 0 && m != -1 )
+      if ( ( mother = candidates[ m ] ).first == 0 )
 	m = ( m != -1 ) ? mothers[ m ] : -1;
-      }
-    }
-    if ( mother != 0 ) {
-      mother->addDaughter( CandidateRef( ref, i ) );
+    if ( mother.first != 0 ) {
+      CandidateRef candRef( ref, i );
+      mother.first->addDaughter( candRef );
+      GenParticleCandidate & c = dynamic_cast<GenParticleCandidate &>( (*cands)[ i ] );
+      c.setMother( CandidateRef( ref, mother.second ) );
     }
   }
 

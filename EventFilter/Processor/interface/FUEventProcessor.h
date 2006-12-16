@@ -59,6 +59,11 @@ namespace evf
 	{css_.css(in,out);}
       void moduleWeb
 	(xgi::Input  *in, xgi::Output *out) throw (xgi::exception::Exception);
+      void microState(xgi::Input  *in,
+		      xgi::Output *out) throw (xgi::exception::Exception);
+      void jsGen(xgi::Input  *in,
+		 xgi::Output *out, std::string url) 
+	throw (xgi::exception::Exception);
 
 	  
       xdata::String            offConfig_;

@@ -2,6 +2,7 @@
 #include "DataFormats/Common/interface/EventAux.h"
 #include "DataFormats/Common/interface/EventID.h"
 #include "DataFormats/Common/interface/Timestamp.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 
 #include <iostream>
 #include <string>
@@ -90,12 +91,64 @@ namespace edm {
     return;
   }
 
+//   void showEventsAndEntries(TFile *hdl, const std::string& trname, const long iLow, const long iHigh) {
+
+//     TTree *tree= (TTree*)hdl->Get(trname.c_str());
+    
+//     if ( tree != 0 ) {
+
+//       EventAux* evtAux_=0;
+//       TBranch *evtAuxBr = tree->GetBranch("EventAux");
+//       tree->SetBranchAddress("EventAux",&evtAux_);
+//       long int max= tree->GetEntries();
+//       long int entrycounter = 0;
+//       for (long int i=iLow; i<= iHigh && i< max; i++) {
+// 	evtAuxBr->GetEntry(i);
+// 	if ( evtAux_ != 0 ) {
+// 	  Timestamp time_=evtAux_->time();
+// 	  EventID id_=evtAux_->id();
+// 	  std::cout << id_ << "  time: " << time_.value() << std::endl;
+	  
+// 	  // Now count # of entries in each branch for this event
+// 	  int nB=tree->GetListOfBranches()->GetEntries();
+// 	  std::cout << "No. of branches = " << nB << std::endl;
+	  
+// 	  for ( int j=0; j<nB; j++) {
+// 	    TBranch *br = (TBranch *)tree->GetListOfBranches()->At(j);
+//  	    TString branchName = br->GetName();
+// 	    branchName+="obj.";
+//  	    std::cout << "The branch name is " << branchName << std::endl;
+// 	    // 	    TClass *cp = gROOT->GetClass(br->GetClassName());
+// 	    TClass *cp = gROOT->GetClass(branchName);
+//  	    std::cout << "GotClass " << cp->GetName() << std::endl;	  
+// 	    EDProduct *p = static_cast<EDProduct *>(cp->New());
+// 	    std::cout << "Got EDProduct" << std::endl;
+// 	    br->SetAddress(&p);
+// 	    br->GetEntry(i);
+// 	  }
+// 	}
+// 	else{
+// 	  std::cout << "Event: " << i << " Nonsense EventAux object? " << std::endl;
+// 	}
+//       }
+      
+//     } else {
+//       std::cout << "ERR cannot find a TTree named \"" << trname << "\""
+//                 << std::endl;
+//       return;
+//     }
+    
+//     return;
+//   }
+
+
   void printBranchNames( TTree *tree) {
 
     if ( tree != 0 ) {
       int nB=tree->GetListOfBranches()->GetEntries();
       for ( int i=0; i<nB; i++) {
-    	std::cout << "Branch " << i <<" of " << tree->GetName() <<" tree: " << tree->GetListOfBranches()->At(i)->GetName() << std::endl;
+	TBranch *btemp = (TBranch *)tree->GetListOfBranches()->At(i);
+    	std::cout << "Branch " << i <<" of " << tree->GetName() <<" tree: " << btemp->GetName() << " Total size = " << btemp->GetTotalSize() << std::endl;
       }
     }
     else{
@@ -104,4 +157,87 @@ namespace edm {
 
   }
 
+  void longBranchPrint( TTree *tr) {
+
+    if ( tr != 0 ) {
+      int nB=tr->GetListOfBranches()->GetEntries();
+      for ( int i=0; i<nB; i++) {    
+	tr->GetListOfBranches()->At(i)->Print();
+      }
+    }
+    else{
+      std::cout << "Missing Events tree?\n";
+    }
+    
+  }
+
+  void printUuids( TTree *uuidTree) {
+    char uuidCA[1024];
+      uuidTree->SetBranchAddress("db_string",uuidCA);
+      uuidTree->GetEntry(0);
+
+      // Then pick out relevent piece of this string
+      // 9A440868-8058-DB11-85E3-00304885AB94 from
+      // [NAME=FID][VALUE=9A440868-8058-DB11-85E3-00304885AB94]
+
+      std::string uuidStr(uuidCA);
+      std::string::size_type start=uuidStr.find("VALUE=");
+      if ( start == std::string::npos ) {
+	std::cout << "Seemingly invalid db_string entry in ##Params tree?\n";
+	std::cout << uuidStr << std::endl;
+      }
+      else{
+	std::string::size_type stop=uuidStr.find("]",start);
+	if ( stop == std::string::npos ) {
+	  std::cout << "Seemingly invalid db_string entry in ##Params tree?\n";
+	  std::cout << uuidStr << std::endl;
+	}
+	else{
+	  //Everything is Ok - just proceed...
+	  std::string result=uuidStr.substr(start+6,stop-start-6);
+	  std::cout << "UUID: " << result << std::endl;
+	}
+      }    
+  }
+
+  void printEventLists( std::string remainingEvents, int numevents, TFile *tfl, bool entryoption) {
+    bool keepgoing=true;
+    while ( keepgoing ) {
+      long int iLow(-1),iHigh(-2);
+      // split by commas
+      std::string::size_type pos= remainingEvents.find_first_of(",");
+      std::string evtstr=remainingEvents;
+	
+      if ( pos == std::string::npos ) {
+	keepgoing=false;
+      }
+      else{
+	evtstr=remainingEvents.substr(0,pos);
+	remainingEvents=remainingEvents.substr(pos+1);
+      }
+      
+      pos= evtstr.find_first_of("-");
+      if ( pos == std::string::npos ) {
+	iLow= (int)atof(evtstr.c_str());
+	iHigh= iLow;
+      } else {
+	iLow= (int)atof(evtstr.substr(0,pos).c_str());
+	iHigh= (int)atof(evtstr.substr(pos+1).c_str());
+      }
+      
+      //    edm::showEvents(tfile,"Events",vm["events"].as<std::string>());
+      if ( iLow < 1 ) iLow=1;
+      if ( iHigh > numevents ) iHigh=numevents;
+      
+      // shift by one.. C++ starts at 0
+      iLow--;
+      iHigh--;
+      if(entryoption==false)
+	showEvents(tfl,"Events",iLow,iHigh);
+//       else if(entryoption==true)
+// 	showEventsAndEntries(tfl,"Events",iLow,iHigh);
+    }
+    
+  }
+  
 }

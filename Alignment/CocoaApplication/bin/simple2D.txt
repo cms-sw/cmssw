@@ -37,7 +37,7 @@ output_angle_value_dimension 3//degrees
 
 output_angle_error_dimension 3//millirad
 
-VisWriteVRML 1
+VisWriteVRML 0
 VisWriteIguana 2
 MaxNoFitIterations 5000
 
@@ -93,7 +93,7 @@ sensor2D sens2
 
 MEASUREMENTS
 
-SENSOR2D sens1
+SENSOR2D
 s/laser1 & s/sens1
 H 1.2342595    error_prec_mes_ccd  
 V 1.2342595    error_prec_mes_ccd  
