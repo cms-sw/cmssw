@@ -48,6 +48,7 @@ namespace stor {
     double meanrate();
     double meanlatency();
     unsigned long totalsamples();
+    double totalvolumemb();
     double duration();
 
     protected:

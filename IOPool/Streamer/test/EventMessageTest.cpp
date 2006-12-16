@@ -106,7 +106,7 @@ int main()
 
   // ------ check for sameness
 
-  EventMsgView eview(&buf[0],hltsize,l1bit.size());
+  EventMsgView eview(&buf[0]);
 
   std::vector<bool> l1_out;
   uint8 hlt_out[10];

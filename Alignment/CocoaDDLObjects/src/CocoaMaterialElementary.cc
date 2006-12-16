@@ -6,18 +6,17 @@
 //   Pedro Arce
 #include <map>
 #include <fstream>
-#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "Alignment/CocoaDDLObjects/interface/CocoaMaterialElementary.h"
 
 
-CocoaMaterialElementary::CocoaMaterialElementary( ALIstring name, float density, ALIstring symbol, ALIdouble A, ALIint Z )
+CocoaMaterialElementary::CocoaMaterialElementary( ALIstring name, float density, ALIstring symbol, ALIint A, ALIint Z )
 { 
 
   theName = name;
   theDensity = density;
   theSymbol = symbol;
-  theA = A*(g/mole);
+  theA = A;
   theZ = Z;
 }
 

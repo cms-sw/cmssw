@@ -7,9 +7,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.1 $
-///  $Date: 2006/10/20 13:44:13 $
-///  (last update by $Author: flucke $)
+///  $Revision$
+///  $Date$
+///  (last update by $Author$)
 
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
@@ -75,8 +75,8 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   bool is2D(const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
   const MagneticField* getMagneticField(const edm::EventSetup& setup); //const;
 
-  void recursiveFillLabelHist(Alignable *ali) const; // temporary?
-  bool readFromPede(const std::string &pedeOutFile);
+  void recursiveFillLabelHist(const Alignable *ali) const; // temporary
+
 
   edm::ParameterSet         theConfig;
   AlignmentParameterStore  *theAlignmentParameterStore;
@@ -85,6 +85,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   MillePedeMonitor         *theMonitor;
   Mille                    *theMille;
   PedeSteerer              *thePedeSteer;
+
   int                       theMinNumHits;
 
   std::vector<float>        theFloatBuffer;

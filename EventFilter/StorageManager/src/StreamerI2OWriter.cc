@@ -206,7 +206,7 @@ namespace edm
 
   void StreamerI2OWriter::stop()
   {
-    FDEBUG(10) << "StreamerI2OWriter: sending terminate run" << std::endl;
+    FDEBUG(9) << "StreamerI2OWriter: sending terminate run" << std::endl;
   //  int sz = 0;
     // The special "other" message is hardwired to send a
     // terminate run message (close file)
@@ -427,7 +427,8 @@ namespace edm
     char* buffer = (char*) eventMessage.startAddress();
     unsigned int size = eventMessage.size();
     // don't have hlt and l1 trigger bit counts
-    EventMsgView eventView(eventMessage.startAddress(), 0, 0);
+    //EventMsgView eventView(eventMessage.startAddress(), 0, 0);
+    EventMsgView eventView(eventMessage.startAddress());
     edm::RunNumber_t runid = eventView.run();
     edm::EventNumber_t eventid = eventView.event();
 

@@ -1,8 +1,6 @@
 <lcgdict>
   <class name="reco::HepMCCandidate" />
-  <class name="reco::GenParticleCandidate">
-    <field name="mother_" transient="true" />
-  </class>
+  <class name="reco::GenParticleCandidate" />
   <class name="std::vector<reco::GenParticleCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::GenParticleCandidate> >"/>
 </lcgdict>

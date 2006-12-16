@@ -21,8 +21,8 @@
  * Reimplemented in terms of layer index, and bug fix: Tim.Cox@cern.ch <BR>
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
- *  $Date: 2006/05/17 14:38:12 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/09/26 09:00:16 $
+ *  $Revision: 1.7 $
  *  \author M. Sani
  */
 
@@ -125,6 +125,7 @@ private:
     HepMatrix derivativeMatrix(void) const;
     AlgebraicSymMatrix weightMatrix(void) const;
     AlgebraicSymMatrix calculateError(void) const;
+    void flipErrors(AlgebraicSymMatrix&) const;
 		
     // Member variables
     // ================

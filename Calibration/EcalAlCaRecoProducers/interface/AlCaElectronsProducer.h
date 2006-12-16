@@ -1,3 +1,6 @@
+#ifndef _ALCAELECTRONSPRODUCER_H
+#define _ALCAELECTRONSPRODUCER_H
+
 // -*- C++ -*-
 //
 // Package:    AlCaElectronsProducer
@@ -14,7 +17,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Mon Jul 17 18:07:01 CEST 2006
-// $Id: AlCaElectronsProducer.h,v 1.4 2006/09/25 16:49:22 meridian Exp $
+// $Id: AlCaElectronsProducer.h,v 1.6 2006/09/27 11:41:42 malgeri Exp $
 //
 //
 
@@ -54,3 +57,5 @@ class AlCaElectronsProducer : public edm::EDProducer {
   
 
 };
+
+#endif

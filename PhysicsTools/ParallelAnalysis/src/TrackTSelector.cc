@@ -15,5 +15,18 @@ void TrackTSelector::begin( TList * & ) {
 
 void TrackTSelector::terminate( TList & out ) {
   cout << ">> terminating" << endl;
-  TrackAnalysisAlgorithm::terminate( out );
+  canvas_ = new TCanvas( );
+  draw( out, TrackAnalysisAlgorithm::kPt );
+  draw( out, TrackAnalysisAlgorithm::kEta );
+  delete canvas_;
+}
+
+void TrackTSelector::draw( const TList & out, const char * k ) {
+  TObject * hist = out.FindObject( k );
+  if( 0 != hist ) {
+    hist->Draw();
+    canvas_->SaveAs( ( string( k ) + ".jpg" ).c_str() );
+  } else {
+    cout <<">> no '" << k << "' histogram" << endl;
+  }
 }

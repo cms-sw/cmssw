@@ -1,0 +1,12 @@
+** V00-02-03  [Mon Dec  5 18:33:51 2005]
+Move all xml files to data
+
+** V00-02-02  [Mon Nov 28 09:26:57 2005]
+Introduce CaloTrkProcessing as a SD
+
+** V00-02-00  [Tue Nov  8 18:00:11 2005]
+updated version to V00-02-00
+
+** V00-00-00  [Wed Oct 26 18:08:17 2005]
+Base tag on CMSSW_0_2_0_pre5
+
