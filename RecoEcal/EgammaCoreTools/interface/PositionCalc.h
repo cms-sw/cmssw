@@ -8,7 +8,7 @@
  *
  * \author Ted Kolberg, ND
  * 
- * \version $Id: PositionCalc.h,v 1.6 2006/09/19 19:48:55 mabalazs Exp $
+ * \version $Id: PositionCalc.h,v 1.7 2006/10/29 10:34:52 rahatlou Exp $
  *
  */
 
@@ -38,7 +38,8 @@ class PositionCalc
 
   math::XYZPoint Calculate_Location(std::vector<DetId> passedDetIds,
                                     const EcalRecHitCollection *passedRecHitsMap,
-                                    const CaloSubdetectorGeometry *passedGeometry);
+                                    const CaloSubdetectorGeometry *passedGeometry,
+                                    const CaloSubdetectorGeometry *passedGeometryES=0);
 
   // Calculate_Covariances calculates the variance in eta, variance in phi,
   // and covariance in eta and phi.  It must be given a vector of DetIds
@@ -50,9 +51,11 @@ class PositionCalc
                                                      const CaloSubdetectorGeometry *passedGeometry);
  private:
   bool        param_LogWeighted_;
-  Double32_t  param_X0_;
-  Double32_t  param_T0_;
+  Double32_t  param_T0_barl_;
+  Double32_t  param_T0_endc_;
+  Double32_t  param_T0_endcPresh_;
   Double32_t  param_W0_;
+  Double32_t  param_X0_;
   //const EcalRecHitCollection  *storedRecHitsMap_;
   //const CaloSubdetectorGeometry *storedSubdetectorGeometry_;
 

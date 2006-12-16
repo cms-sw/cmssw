@@ -1,5 +1,5 @@
 
-// $Id: BetafuncEvtVtxGenerator.cc,v 1.0 2006/07/20 14:34:40 yumiceva Exp $
+// $Id: BetafuncEvtVtxGenerator.cc,v 1.1 2006/11/09 00:24:04 yumiceva Exp $
 /*
 ________________________________________________________________________
 
@@ -40,8 +40,8 @@ BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet & p )
   fY0 =        p.getParameter<double>("Y0")*cm;
   fZ0 =        p.getParameter<double>("Z0")*cm;
   fSigmaZ =    p.getParameter<double>("SigmaZ")*cm;
-  fdxdz =      p.getParameter<double>("dxdz")*cm;
-  fdydz =      p.getParameter<double>("dydz")*cm;
+  fdxdz =      p.getParameter<double>("dxdz")*radian;
+  fdydz =      p.getParameter<double>("dydz")*radian;
   fbetastar =  p.getParameter<double>("BetaStar")*cm;
   femmitance = p.getParameter<double>("Emmitance")*cm;
   

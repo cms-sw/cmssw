@@ -41,9 +41,6 @@ public:
     return result;
   }
 
-  virtual LocalVector valueInTesla( const LocalPoint& p) const;
-  virtual LocalVector uncheckedValueInTesla( const LocalPoint& p) const = 0;
-
 protected:
 
   typedef Basic3DVector<float>      BVector;

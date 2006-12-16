@@ -106,7 +106,7 @@ private:
   string process_;
 
   MonitorUserInterface* mui_;
-  HcalElectronicsMap* readoutMap_;
+  const HcalElectronicsMap* readoutMap_;
 
   int etaMin[4]; int etaMax[4];
   int phiMin[4]; int phiMax[4];

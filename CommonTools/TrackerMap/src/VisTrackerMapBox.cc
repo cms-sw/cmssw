@@ -7,6 +7,8 @@
 VisTrackerMapBox::VisTrackerMapBox( QWidget *parent, const char *name )
   : QWidget( parent, name )
 {
+  selectedModule = 0;
+
   setCaption( "TrackerMap" );
   resize( 500, 500 );
   
@@ -32,5 +34,6 @@ void VisTrackerMapBox::update()
 
 void VisTrackerMapBox::emitModSel(int id)
 {
+   selectedModule = id;
    emit moduleSelected(id);
 }

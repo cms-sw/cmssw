@@ -52,8 +52,8 @@ PrimaryVertexAnalyzer::PrimaryVertexAnalyzer(const edm::ParameterSet& iConfig)
   // open output file to store histograms}
   outputFile_  = iConfig.getUntrackedParameter<std::string>("outputFile");
   vtxSample_   = iConfig.getUntrackedParameter<std::string>("vtxSample");
-  rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE"); 
-  simUnit_= 0.1;
+  rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE");
+  simUnit_= 1;
   verbose_= iConfig.getUntrackedParameter<bool>("verbose", false);
 }
 
@@ -74,7 +74,7 @@ PrimaryVertexAnalyzer::~PrimaryVertexAnalyzer()
 void PrimaryVertexAnalyzer::beginJob(edm::EventSetup const&){
   rootFile_->cd();
   // release validation histograms used in DoCompare.C
-  h["nbvtx"]        = new TH1F("nbvtx","nb vertices in event",100,-0.5,99.5);
+  h["nbvtx"]        = new TH1F("nbvtx","nb rec vertices in event",100,-0.5,99.5);
   h["nbtksinvtx"]   = new TH1F("nbtksinvtx","reconstructed tracks in vertex",100,-0.5,99.5); 
   h["resx"]         = new TH1F("resx","residual x",100,-0.04,0.04);
   h["resy"]         = new TH1F("resy","residual y",100,-0.04,0.04);
@@ -91,10 +91,10 @@ void PrimaryVertexAnalyzer::beginJob(edm::EventSetup const&){
   h["nbsimtksinvtx"] = new TH1F("nbsimtksinvtx","simulated tracks in vertex",100,-0.5,99.5); 
   h["xrec"]         = new TH1F("xrec","reconstructed x",100,-0.01,0.01);
   h["yrec"]         = new TH1F("yrec","reconstructed y",100,-0.01,0.01);
-  h["zrec"]         = new TH1F("zrec","reconstructed z",100,-10.,10.);
+  h["zrec"]         = new TH1F("zrec","reconstructed z",100,-20.,20.);
   h["xsim"]         = new TH1F("xsim","simulated x",100,-0.01,0.01); // 0.01cm = 100 um
   h["ysim"]         = new TH1F("ysim","simulated y",100,-0.01,0.01);
-  h["zsim"]         = new TH1F("zsim","simulated z",100,-10.,10.);
+  h["zsim"]         = new TH1F("zsim","simulated z",100,-20.,20.);
   h["nrecvtx"]      = new TH1F("nrecvtx","# of reconstructed vertices", 50, -0.5, 49.5);
   h["nsimvtx"]      = new TH1F("nsimvtx","# of simulated vertices", 50, -0.5, 49.5);
   h["nrectrk"]      = new TH1F("nrectrk","# of reconstructed tracks", 50, -0.5, 49.5);

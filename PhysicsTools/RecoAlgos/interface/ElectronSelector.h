@@ -1,4 +1,4 @@
-#ifndef RecoAlgos_ElectronSelector_h
+#ifndef RecoAlgos_ElectonSelector_h
 #define RecoAlgos_ElectronSelector_h
 /** \class ElectronSelector
  *
@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: ElectronSelector.h,v 1.4 2006/09/22 11:29:27 meridian Exp $
+ * $Id: ElectronSelector.h,v 1.5 2006/10/12 19:17:10 meridian Exp $
  *
  */
 
@@ -80,7 +80,7 @@ namespace helper {
   class ElectronSelectorBase : public edm::EDFilter {
   public:
     ElectronSelectorBase( const edm::ParameterSet & cfg ) {
-      std::string alias( cfg.template getParameter<std::string>( "@module_label" ) );
+      std::string alias( cfg.getParameter<std::string>( "@module_label" ) );
       produces<reco::ElectronCollection>().setBranchAlias( alias + "Electrons" );
       produces<reco::SuperClusterCollection>().setBranchAlias( alias + "SuperClusters" );
       produces<reco::TrackCollection>().setBranchAlias( alias + "Tracks" );
