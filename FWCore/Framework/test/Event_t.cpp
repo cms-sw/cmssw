@@ -2,7 +2,7 @@
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.3 2006/12/06 16:18:24 paterno Exp $
+$Id: Event_t.cpp,v 1.4 2006/12/15 22:53:05 paterno Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -11,6 +11,7 @@ $Id: Event_t.cpp,v 1.3 2006/12/06 16:18:24 paterno Exp $
 #include <map>
 #include <memory>
 #include <typeinfo>
+#include <vector>
 
 #include "DataFormats/Common/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/EventID.h"
@@ -20,11 +21,12 @@ $Id: Event_t.cpp,v 1.3 2006/12/06 16:18:24 paterno Exp $
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/OrphanHandle.h"
 #include "FWCore/Framework/interface/Selector.h"
+#include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 
@@ -52,10 +54,13 @@ class testEvent: public CppUnit::TestFixture
   CPPUNIT_TEST(putAnIntProduct);
   CPPUNIT_TEST(putAndGetAnIntProduct);
   CPPUNIT_TEST(getByProductID);
+  CPPUNIT_TEST(transaction);
+  CPPUNIT_TEST(getByInstanceName);
   CPPUNIT_TEST_SUITE_END();
 
  public:
   testEvent();
+  ~testEvent();
   void setUp();
   void tearDown();
   void emptyEvent();
@@ -63,6 +68,8 @@ class testEvent: public CppUnit::TestFixture
   void putAnIntProduct();
   void putAndGetAnIntProduct();
   void getByProductID();
+  void transaction();
+  void getByInstanceName();
 
  private:
 
@@ -109,12 +116,6 @@ namespace
 
 EventID   make_id() { return EventID(2112, 25, true); }
 Timestamp make_timestamp() { return Timestamp(1); }
-
-testEvent::testEvent() : availableProducts_(0)
-		       , principal_(0)
-		       , currentEvent_(0)
-			 //, currentModuleDescription_(0)
-{ }
 
 template <class T>
 void
@@ -182,21 +183,19 @@ testEvent::addProduct(auto_ptr<T> product,
   return id;
 }
 
-void
-testEvent::setUp()
+testEvent::testEvent() :
+  availableProducts_(new ProductRegistry()),
+  principal_(0),
+  currentEvent_(0),
+  currentModuleDescription_(0),
+  moduleDescriptions_()
 {
-  availableProducts_ = new ProductRegistry();
+  typedef edmtest::IntProduct prod_t;
 
-  registerProduct<edmtest::IntProduct>("nolabel_tag", "modOne", 
-				       "IntProducer", "FUNKY");
-
-  registerProduct<edmtest::IntProduct>("int1_tag", "modMulti", 
-				       "IntProducer", "FUNKY",
-				       "int1");
-
-  registerProduct<edmtest::IntProduct>("int2_tag", "modInt", 
-				       "IntProducer", "FUNKY",
-				       "int2");
+  registerProduct<prod_t>("nolabel_tag", "modOne",   "IntProducer", "FUNKY");
+  registerProduct<prod_t>("int1_tag",    "modMulti", "IntProducer", "FUNKY", "int1");
+  registerProduct<prod_t>("int2_tag",    "modMulti", "IntProducer", "FUNKY", "int2");
+  registerProduct<prod_t>("int3_tag",    "modMulti", "IntProducer", "FUNKY", "int3");
 
   // Fake up the production of a single IntProduct from an IntProducer
   // module, run in the 'CURRENT' process.
@@ -217,7 +216,7 @@ testEvent::setUp()
   process.passID_         = getPassID();
   process.parameterSetID_ = processParams.id();
 
-  TypeID product_type(typeid(edmtest::IntProduct));
+  TypeID product_type(typeid(prod_t));
 
   currentModuleDescription_ = new ModuleDescription();
   currentModuleDescription_ = new ModuleDescription();
@@ -239,11 +238,21 @@ testEvent::setUp()
   // Freeze the product registry before we make the Event.
   availableProducts_->setProductIDs();
   availableProducts_->setFrozen();
-    
+}
+
+testEvent::~testEvent()
+{
+  delete availableProducts_;
+  delete principal_;
+  delete currentEvent_;
+  delete currentModuleDescription_;
+}
+
+void testEvent::setUp() 
+{
   principal_  = new EventPrincipal(make_id(),
 				   make_timestamp(),
 				   *availableProducts_);
-
 
   currentEvent_ = new Event(*principal_, *currentModuleDescription_);
 }
@@ -252,10 +261,7 @@ void
 testEvent::tearDown()
 {
   kill_and_clear(currentEvent_);
-  kill_and_clear(currentModuleDescription_);
   kill_and_clear(principal_);
-  kill_and_clear(availableProducts_);  
-  moduleDescriptions_.clear();
 }
 
 void testEvent::emptyEvent()
@@ -338,3 +344,58 @@ void testEvent::getByProductID()
   CPPUNIT_ASSERT(!h.isValid());
 }
 
+void testEvent::transaction()
+{
+  // Put a product into an Event, and make sure that if we don't
+  // commit, there is no product in the EventPrincipal afterwards.
+  CPPUNIT_ASSERT( principal_->size() == 0 );
+  {
+    typedef edmtest::IntProduct product_t;
+    typedef auto_ptr<product_t> ap_t;
+
+    ap_t three(new product_t(3));
+    currentEvent_->put(three);
+    CPPUNIT_ASSERT( principal_->size() == 0 );
+    CPPUNIT_ASSERT( currentEvent_->size() == 1);
+    // DO NOT COMMIT!
+  }
+
+  // The Event has been destroyed without a commit -- we should not
+  // have any products in the EventPrincipal.
+  CPPUNIT_ASSERT( principal_->size() == 0 );  
+}
+
+void testEvent::getByInstanceName()
+{
+  typedef edmtest::IntProduct product_t;
+  typedef auto_ptr<product_t> ap_t;
+  typedef Handle<product_t> handle_t;
+  typedef vector<handle_t> handle_vec;
+
+  ap_t one(new product_t(1));
+  ap_t two(new product_t(2));
+  ap_t three(new product_t(3));
+  ap_t four(new product_t(4));
+  addProduct(one,   "int1_tag", "int1");
+  addProduct(two,   "int2_tag", "int2");
+  addProduct(three, "int3_tag", "int3");
+  addProduct(four,  "nolabel_tag");
+
+  CPPUNIT_ASSERT(currentEvent_->size() == 4);
+
+  Selector sel(ProductInstanceNameSelector("int2") &&
+	       ModuleLabelSelector("modMulti"));;
+  handle_t h;
+  currentEvent_->get(sel, h);
+  CPPUNIT_ASSERT(h->value == 2);
+
+  handle_vec handles;
+  currentEvent_->getMany(ModuleLabelSelector("modMulti"), handles);
+  CPPUNIT_ASSERT(handles.size() == 3);
+  handles.clear();
+  currentEvent_->getMany(ModuleLabelSelector("nomatch"), handles);
+  CPPUNIT_ASSERT(handles.empty());
+  vector<Handle<int> > nomatches;
+  currentEvent_->getMany(ModuleLabelSelector("modMulti"), nomatches);
+  CPPUNIT_ASSERT(nomatches.empty());
+}
