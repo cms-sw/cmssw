@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2006/08/30 10:12:55 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/09/21 15:48:31 $
+ *  $Revision: 1.9 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -90,44 +90,78 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
 }
 
 //
-// check for ghosts
+// clean CandidateContainer
 //
-void MuonTrajectoryCleaner::checkGhosts(CandidateContainer& candidates){
+void MuonTrajectoryCleaner::clean(CandidateContainer& candC){ 
+  const std::string metname = "Muon|RecoMuon|MuonTrajectoryCleaner";
 
-  if ( candidates.size() < 2 ) return;
+  LogDebug(metname) << "Muon Trajectory Cleaner called" << endl;
+
+  if ( candC.size() < 2 ) return;
+
+  CandidateContainer::iterator iter, jter;
+  Trajectory::DataContainer::const_iterator m1, m2;
 
   const float deltaEta = 0.01;
   const float deltaPhi = 0.01;
   const float deltaPt  = 1.0;
-
-  CandidateContainer::iterator e = candidates.end();
-  CandidateContainer::iterator i1;
-  CandidateContainer::iterator i2; 
-
-  for ( i1 = candidates.begin(); i1 != e; ++i1 ) {
-    if ( *i1 == 0 ) continue;
-    TrajectoryStateOnSurface innerTSOS;
   
-    if ((*i1)->trajectory()->direction() == alongMomentum) {
-      innerTSOS = (*i1)->trajectory()->firstMeasurement().updatedState();
+  LogDebug(metname) << "Number of muon candidates in the container: " <<candC.size()<< endl;
+
+  int i(0), j(0);
+  int match(0);
+  bool directionMatch = false;
+
+  // CAVEAT: vector<bool> is not a vector, its elements are not addressable!
+  // This is fine as long as only operator [] is used as in this case.
+  // cf. par 16.3.11
+  vector<bool> mask(candC.size(),true);
+  
+  CandidateContainer result;
+  
+  for ( iter = candC.begin(); iter != candC.end(); iter++ ) {
+    if ( !mask[i] ) { i++; continue; }
+    const Trajectory::DataContainer& meas1 = (*iter)->trajectory()->measurements();
+    j = i+1;
+    bool skipnext=false;
+
+    TrajectoryStateOnSurface innerTSOS;
+
+    if ((*iter)->trajectory()->direction() == alongMomentum) {
+      innerTSOS = (*iter)->trajectory()->firstMeasurement().updatedState();
     } 
-    else if ((*i1)->trajectory()->direction() == oppositeToMomentum) { 
-      innerTSOS = (*i1)->trajectory()->lastMeasurement().updatedState();
+    else if ((*iter)->trajectory()->direction() == oppositeToMomentum) { 
+      innerTSOS = (*iter)->trajectory()->lastMeasurement().updatedState();
     }
     if ( !(innerTSOS.isValid()) ) continue;
 
     float pt1 = innerTSOS.globalMomentum().perp();
     float eta1 = innerTSOS.globalMomentum().eta();
     float phi1 = innerTSOS.globalMomentum().phi();
-    for ( i2 = i1+1; i2 != e; ++i2 ) {
-      if ( *i2 == 0 || *i1 == 0 ) continue;
-      TrajectoryStateOnSurface innerTSOS2;
 
-      if ((*i2)->trajectory()->direction() == alongMomentum) {
-        innerTSOS2 = (*i2)->trajectory()->firstMeasurement().updatedState();
+    for ( jter = iter+1; jter != candC.end(); jter++ ) {
+      if ( !mask[j] ) { j++; continue; }
+      const Trajectory::DataContainer& meas2 = (*jter)->trajectory()->measurements();
+      match = 0;
+      for ( m1 = meas1.begin(); m1 != meas1.end(); m1++ ) {
+        for ( m2 = meas2.begin(); m2 != meas2.end(); m2++ ) {
+          if ( (*m1).recHit()->isValid() && (*m2).recHit()->isValid() ) 
+	    if ( ( (*m1).recHit()->globalPosition() - (*m2).recHit()->globalPosition()).mag()< 10e-5 ) match++;
+        }
       }
-      else if ((*i2)->trajectory()->direction() == oppositeToMomentum) {
-        innerTSOS2 = (*i2)->trajectory()->lastMeasurement().updatedState();
+      
+      LogDebug(metname) 
+	<< " MuonTrajSelector: candC " << i << " chi2/nRH = " 
+	<< (*iter)->trajectory()->chiSquared() << "/" << (*iter)->trajectory()->foundHits() <<
+	" vs trajC " << j << " chi2/nRH = " << (*jter)->trajectory()->chiSquared() <<
+	"/" << (*jter)->trajectory()->foundHits() << " Shared RecHits: " << match;
+
+      TrajectoryStateOnSurface innerTSOS2;       
+      if ((*jter)->trajectory()->direction() == alongMomentum) {
+        innerTSOS2 = (*jter)->trajectory()->firstMeasurement().updatedState();
+      }
+      else if ((*jter)->trajectory()->direction() == oppositeToMomentum) {
+        innerTSOS2 = (*jter)->trajectory()->lastMeasurement().updatedState();
       }
       if ( !(innerTSOS2.isValid()) ) continue;
 
@@ -139,18 +173,43 @@ void MuonTrajectoryCleaner::checkGhosts(CandidateContainer& candidates){
       float dphi(fabs(Geom::Phi<float>(phi1)-Geom::Phi<float>(phi2)));
       float dpt(abs(pt1-pt2));
       if ( dpt < deltaPt && deta < deltaEta && dphi < deltaPhi ) {
-        CandidateContainer::iterator bad;
-        if ((*i1)->trajectory()->foundHits() == (*i2)->trajectory()->foundHits() ) 
-           bad = ( (*i1)->trajectory()->chiSquared() < (*i2)->trajectory()->chiSquared() ) ? i2 : i1;
-        else bad = ( (*i1)->trajectory()->foundHits() > (*i2)->trajectory()->foundHits() ) ? i2 : i1;
-        delete (*bad);
-        *bad = 0;
-      }
-    }
-  }
+        directionMatch = true;
+        LogDebug(metname)
+        << " MuonTrajSelector: candC " << i<<" and "<<j<< " direction matched: "
+        <<innerTSOS.globalMomentum()<<" and " <<innerTSOS2.globalMomentum();
 
-  candidates.erase(remove(candidates.begin(),
-                          candidates.end(),
-                          static_cast<MuonCandidate*>(0)),
-                   candidates.end());
+      }
+
+      // If there are matches, reject the worst track
+      if ( (match > 0) || directionMatch ) {
+        if (  (*iter)->trajectory()->foundHits() == (*jter)->trajectory()->foundHits() ) {
+          if ( (*iter)->trajectory()->chiSquared() > (*jter)->trajectory()->chiSquared() ) {
+            mask[i] = false;
+            skipnext=true;
+          }
+          else mask[j] = false;
+        }
+        else { // different number of hits
+          if ( (*iter)->trajectory()->foundHits() < (*jter)->trajectory()->foundHits() ) {
+	    mask[i] = false;
+            skipnext=true;
+          }
+          else mask[j] = false;
+	}
+      }
+      if(skipnext) break;
+      j++;
+    }
+    i++;
+    if(skipnext) continue;
+  }
+  
+  i = 0;
+  for ( iter = candC.begin(); iter != candC.end(); iter++ ) {
+    if ( mask[i] ) result.push_back(*iter);
+    i++;
+  }
+  
+  candC.clear();
+  candC = result;
 }

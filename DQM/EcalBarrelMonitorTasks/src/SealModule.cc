@@ -35,6 +35,3 @@ DEFINE_ANOTHER_FWK_MODULE(EBBeamCaloTask);
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTriggerTowerTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBTriggerTowerTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBClusterTask.h>
-DEFINE_ANOTHER_FWK_MODULE(EBClusterTask);
-

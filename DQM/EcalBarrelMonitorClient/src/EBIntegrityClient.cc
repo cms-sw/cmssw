@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/10/18 16:57:52 $
- * $Revision: 1.110 $
+ * $Date: 2006/08/03 19:41:25 $
+ * $Revision: 1.109 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -672,6 +672,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
             val = false;
         }
         c1.setTaskStatus(val);
+        status = status && val;
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -683,8 +684,6 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
             cerr << e.what() << endl;
           }
         }
-
-        status = status && val;
 
       }
 
@@ -755,6 +754,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
             val = false;
         }
         c2.setTaskStatus(val);
+        status = status && val;
 
         int itt = (ipt-1) + 4*(iet-1) + 1;
 
@@ -766,8 +766,6 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
             cerr << e.what() << endl;
           }
         }
-
-        status = status && val;
 
       }
 
@@ -830,6 +828,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
             val = false;
         }
         c3. setTaskStatus(val);
+        status = status && val;
 
         int ic = EBIntegrityClient::chNum[ (ie-1)%5 ][ (ip-1) ] + (ie-1)/5 * 25;
 
@@ -841,8 +840,6 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
             cerr << e.what() << endl;
           }
         }
-
-        status = status && val;
 
       }
 
@@ -912,6 +909,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
           val = false;
       }
       c4.setTaskStatus(val);
+      status = status && val;
 
       int itt = 68 + iet;
 
@@ -923,8 +921,6 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
           cerr << e.what() << endl;
         }
       }
-
-      status = status && val;
 
     }
 
@@ -1602,7 +1598,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   const int csize = 250;
 
-  int pCol3[4] = { 2, 3, 5, 1 };
+  int pCol3[3] = { 2, 3, 5 };
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 30+i;
 
@@ -1720,7 +1716,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       cQual->cd();
       gStyle->SetOptStat(" ");
-      gStyle->SetPalette(4, pCol3);
+      gStyle->SetPalette(3, pCol3);
       obj2f->GetXaxis()->SetNdivisions(17);
       obj2f->GetYaxis()->SetNdivisions(4);
       cQual->SetGridx();
@@ -1850,7 +1846,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       cMeMem->cd();
       gStyle->SetOptStat(" ");
-      gStyle->SetPalette(4, pCol3);
+      gStyle->SetPalette(3, pCol3);
       obj2f->GetXaxis()->SetNdivisions(10);
       obj2f->GetYaxis()->SetNdivisions(5);
       cMeMem->SetGridx();

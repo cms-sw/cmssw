@@ -6,13 +6,15 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <vector>
 
-namespace edm {class ParameterSet;}
+//namespace edm {class ParameterSet;}
 class TransientTrackingRecHitBuilder;
 class TrackerGeometry;
 class MagneticField;
+
 
 class PixelFitterByHelixProjections : public PixelFitter {
 public:
@@ -33,6 +35,8 @@ private:
   double errTip2(float apt, float eta) const;
 
 private:
+  edm::ParameterSet theConfig;
+
   mutable const TrackerGeometry * theTracker;
   mutable const MagneticField * theField;
   mutable const TransientTrackingRecHitBuilder * theTTRecHitBuilder;

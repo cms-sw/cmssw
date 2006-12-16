@@ -34,17 +34,16 @@ namespace stor
   {
   }
 
-  JobController::JobController(const std::string& fu_config,
-			       const std::string& my_config,
+  JobController::JobController(const std::string& my_config,
 			       FragmentCollector::Deleter deleter)
   {
-    // read trigger config
     // change to phony input source
-    string new_config = changeToPhony(fu_config);
-    setRegistry(new_config);
+    //string new_config = changeToPhony(fu_config);
+    //setRegistry(new_config);
     init(my_config,deleter);
   } 
 
+/*  obslete constructor?
   JobController::JobController(const edm::ProductRegistry& reg,
 			       const std::string& my_config,
 			       FragmentCollector::Deleter d):
@@ -52,6 +51,7 @@ namespace stor
   {
     init(my_config,d);
   }
+*/
 
 
   void JobController::init(const std::string& my_config,
@@ -61,19 +61,25 @@ namespace stor
     // so that the fragment collector gets the registry from the 
     // EventProcessor instead of from the filter unit config
 
-    std::auto_ptr<HLTInfo> inf(new HLTInfo(prods_));
+    // here prods_ is empty
+    //std::auto_ptr<HLTInfo> inf(new HLTInfo(prods_));
+    std::auto_ptr<HLTInfo> inf(new HLTInfo());
 
     // ep takes ownership of inf!
-    std::auto_ptr<EPRunner> ep(new EPRunner(my_config,inf));
+    // what happens to ownership of inf with no EP_Runner??
+    //std::auto_ptr<EPRunner> ep(new EPRunner(my_config,inf));
+    //std::auto_ptr<FragmentCollector> 
+    //  coll(new FragmentCollector(*(ep->getInfo()),deleter,
+    //				 my_config));
     std::auto_ptr<FragmentCollector> 
-      coll(new FragmentCollector(*(ep->getInfo()),deleter,
-				 ep->getRegistry(),
+      coll(new FragmentCollector(inf,deleter,
 				 my_config));
 
     collector_.reset(coll.release());
-    ep_runner_.reset(ep.release());
+    //ep_runner_.reset(ep.release());
   }
 
+/*
   void JobController::setRegistry(const std::string& fu_config)
   {
     // generate a temporary event processor just to get out the
@@ -82,6 +88,7 @@ namespace stor
     InputSource& is = tmp_ep.getInputSource();
     prods_ = is.productRegistry();
   }
+*/
 
   void JobController::run(JobController* t)
   {
@@ -94,7 +101,7 @@ namespace stor
 
     me_.reset(new boost::thread(boost::bind(JobController::run,this)));
     collector_->start();
-    ep_runner_->start();
+    //ep_runner_->start();
   }
 
   void JobController::stop()
@@ -103,7 +110,8 @@ namespace stor
     // job controller, which will cause a completion of the 
     // fragment collector and event processor
 
-    edm::EventBuffer::ProducerBuffer cb(ep_runner_->getInfo()->getCommandQueue());
+    //edm::EventBuffer::ProducerBuffer cb(ep_runner_->getInfo()->getCommandQueue());
+    edm::EventBuffer::ProducerBuffer cb(collector_->getCommandQueue());
     MsgCode mc(cb.buffer(),MsgCode::DONE);
     mc.setCode(MsgCode::DONE);
     cb.commit(mc.codeSize());
@@ -124,7 +132,8 @@ namespace stor
     // just wait for command messages now
     while(1)
       {
-	edm::EventBuffer::ConsumerBuffer cb(ep_runner_->getInfo()->getCommandQueue());
+	//edm::EventBuffer::ConsumerBuffer cb(ep_runner_->getInfo()->getCommandQueue());
+	edm::EventBuffer::ConsumerBuffer cb(collector_->getCommandQueue());
 	MsgCode mc(cb.buffer(),cb.size());
 
 	if(mc.getCode()==MsgCode::DONE) break;
@@ -141,6 +150,6 @@ namespace stor
 
     collector_->stop();
     collector_->join();
-    ep_runner_->join();
+    //ep_runner_->join();
   }
 }

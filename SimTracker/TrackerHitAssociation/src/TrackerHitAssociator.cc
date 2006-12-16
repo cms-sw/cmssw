@@ -287,10 +287,7 @@ std::vector<unsigned int>  TrackerHitAssociator::associateSimpleRecHit(const SiS
 	  simchg +=tmpchg[ii];
 	}
 	simfraction = simchg/cluchg;
-	//cut at >50%
-	if(simfraction >0.5){
-	  temp_map.insert(std::pair<float, unsigned int> (simfraction,*i));
-	}
+	temp_map.insert(std::pair<float, unsigned int> (simfraction,*i));
       }
     }	
     //sort the map ordered on the charge fraction 

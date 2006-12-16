@@ -11,7 +11,8 @@ TrackCandidatesToTracks.cfg
 DigisToTrackCandidates.cfg
 RecHitsToTracks_PixelOnlySeeded.cfg  
 RecHitsToTracks_PixelLessSeeded.cfg  
-RecHitsToTracks_MixedSeeded.cfg  
+RecHitsToTracks_MixedSeeded.cfg
+regionalTracking.cfg  
 "
 
 tests=`echo $testsTracking`

@@ -35,7 +35,7 @@ L1GctEmCand::L1GctEmCand(unsigned rank, unsigned eta, unsigned phi, bool iso) :
 L1GctEmCand::L1GctEmCand(L1CaloEmCand& c) :
   m_iso(c.isolated())
 {
-  construct(c.rank(), c.regionId().ieta(), c.regionId().iphi());
+  construct(c.rank(), c.regionId().gctEta(), c.regionId().gctPhi());
 }
 
 // destructor

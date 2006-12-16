@@ -4,4 +4,4 @@
 
 #include <DQM/HcalMonitorClient/interface/HcalMonitorClient.h>
 
-DEFINE_FWK_MODULE(HcalMonitorClient)
+DEFINE_FWK_MODULE(HcalMonitorClient);

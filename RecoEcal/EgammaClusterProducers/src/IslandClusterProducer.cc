@@ -62,10 +62,12 @@ IslandClusterProducer::IslandClusterProducer(const edm::ParameterSet& ps)
 
   // Parameters for the position calculation:
   std::map<std::string,double> providedParameters;
-  providedParameters.insert(std::make_pair("LogWeighted",ps.getParameter<bool>("coretools_logweight")));
-  providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("coretools_x0")));
-  providedParameters.insert(std::make_pair("T0",ps.getParameter<double>("coretools_t0")));
-  providedParameters.insert(std::make_pair("W0",ps.getParameter<double>("coretools_w0")));
+  providedParameters.insert(std::make_pair("LogWeighted",ps.getParameter<bool>("posCalc_logweight")));
+  providedParameters.insert(std::make_pair("T0_barl",ps.getParameter<double>("posCalc_t0_barl")));
+  providedParameters.insert(std::make_pair("T0_endc",ps.getParameter<double>("posCalc_t0_endc")));
+  providedParameters.insert(std::make_pair("T0_endcPresh",ps.getParameter<double>("posCalc_t0_endcPresh")));
+  providedParameters.insert(std::make_pair("W0",ps.getParameter<double>("posCalc_w0")));
+  providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("posCalc_x0")));
   posCalculator_ = PositionCalc(providedParameters);
   shapeAlgo_ = ClusterShapeAlgo(posCalculator_);
 
@@ -157,10 +159,12 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
       topology_p = new EcalEndcapTopology(geoHandle); 
    }
 
+  const CaloSubdetectorGeometry *geometryES_p;
+  geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
   // Run the clusterization algorithm:
   reco::BasicClusterCollection clusters;
-  clusters = island_p->makeClusters(hitCollection_p, geometry_p, topology_p, ecalPart);
+  clusters = island_p->makeClusters(hitCollection_p, geometry_p, topology_p, geometryES_p, ecalPart);
 
   //Create associated ClusterShape objects.
   std::vector <reco::ClusterShape> ClusVec;
