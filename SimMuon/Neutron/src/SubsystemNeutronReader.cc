@@ -15,7 +15,7 @@ SubsystemNeutronReader::SubsystemNeutronReader(const edm::ParameterSet & pset)
   theLuminosity(pset.getParameter<double>("luminosity")), // in units of 10^34
   theStartTime(pset.getParameter<double>("startTime")), 
   theEndTime(pset.getParameter<double>("endTime")),
-  theEventOccupancy(pset.getParameter<vector<double> >("eventOccupancy"))
+  theEventOccupancy(pset.getParameter<vector<double> >("eventOccupancy")) // TODO make map
 {
   // 17.3 collisions per live bx, 79.5% of bx live
   float collisionsPerCrossing = 13.75 * theLuminosity;
@@ -23,11 +23,9 @@ SubsystemNeutronReader::SubsystemNeutronReader(const edm::ParameterSet & pset)
   theEventsInWindow = collisionsPerCrossing * windowSize;
   string reader = pset.getParameter<string>("reader");
   edm::FileInPath input = pset.getParameter<edm::FileInPath>("input");
-  int nChamberTypes = pset.getParameter<int>("nChamberTypes");
-
   if(reader == "ASCII")
   {
-    theHitReader = new AsciiNeutronReader(input.fullPath(), nChamberTypes);
+    theHitReader = new AsciiNeutronReader(input.fullPath());
   }
   else if (reader == "ROOT")
   {
@@ -50,11 +48,11 @@ SubsystemNeutronReader::generateChamberNoise(int chamberType, int chamberIndex,
   if(find(theChambersDone.begin(), theChambersDone.end(), chamberIndex) 
      == theChambersDone.end()) 
   {
-    float meanNumberOfEvents = theEventOccupancy[chamberType] 
+    float meanNumberOfEvents = theEventOccupancy[chamberType-1] 
                              * theEventsInWindow;
     int nEventsToAdd = RandPoisson::shoot(meanNumberOfEvents);
 //    LogDebug("NeutronReader") << "Number of neutron events to add: " 
-std::cout << "Number of neutron events to add: "
+std::cout << "Number of neutron events to add for chamber type " << chamberType << " : " 
  << nEventsToAdd <<  " mean " << meanNumberOfEvents << std::endl;
 //                   << nEventsToAdd <<  " mean " << meanNumberOfEvents;
 
