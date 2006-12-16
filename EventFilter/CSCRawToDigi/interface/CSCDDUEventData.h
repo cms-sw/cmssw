@@ -12,7 +12,8 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUTrailer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCTrailer.h"
-#include <boost/dynamic_bitset.hpp>
+
+class BitVector;
 
 class CSCDDUEventData {
 public:
@@ -52,10 +53,8 @@ public:
   void decodeStatus() const;
   int sizeInWords() const {return theSizeInWords;}
   int size() const {return theSizeInWords*16;} ///Alex check this 16 or 64
-
   /// returns the binary event data
-  boost::dynamic_bitset<> pack();
-
+  BitVector pack();
   
   static bool debug;
   static unsigned int errMask;

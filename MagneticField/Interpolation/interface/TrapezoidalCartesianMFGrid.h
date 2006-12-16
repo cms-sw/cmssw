@@ -12,7 +12,7 @@ public:
   TrapezoidalCartesianMFGrid( binary_ifstream& istr, 
 			      const GloballyPositioned<float>& vol);
 
-  virtual LocalVector uncheckedValueInTesla( const LocalPoint& p) const;
+  virtual LocalVector valueInTesla( const LocalPoint& p) const;
 
   void dump() const;
 

@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.4 2006/10/16 17:33:17 dellaric Exp $
+// $Id: MonitorElementsDb.cc,v 1.1 2006/06/28 10:46:18 benigno Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.4 $
-  \date $Date: 2006/10/16 17:33:17 $
+  \version $Revision: 1.1 $
+  \date $Date: 2006/06/28 10:46:18 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -137,9 +137,6 @@ void MonitorElementsDb::analyze( const edm::Event& e, const edm::EventSetup& c, 
 
       if( MEs_[i] != 0 && ( ievt_ % MEinfo_[i].ncycle ) == 0 ) {
 
-        MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(MEs_[i]) );
-        if( ob ) ob->Reset();
-
 	vars.clear();
 
 	try {
@@ -264,7 +261,7 @@ void MonitorElementsDb::htmlOutput(std::string htmlDir){
 	}
 	else if( dynamic_cast<TH2F*>( ob->operator->()) ) {
 	  TH2F* h = dynamic_cast<TH2F*>( ob->operator->() );
-	  if( h->GetMaximum(histMax) > 1.e4 ) {
+	  if( h->GetMaximum(histMax) > 0. ) {
 	    gPad->SetLogz(1);
 	  } else {
 	    gPad->SetLogz(0);
@@ -273,7 +270,7 @@ void MonitorElementsDb::htmlOutput(std::string htmlDir){
 	}
 	else if( dynamic_cast<TProfile*>( ob->operator->()) ) {
 	  TProfile* h = dynamic_cast<TProfile*>( ob->operator->() );
-	  if( h->GetMaximum(histMax) > 1.e4 ) {
+	  if( h->GetMaximum(histMax) > 0. ) {
 	    gPad->SetLogz(1);
 	  } else {
 	    gPad->SetLogz(0);

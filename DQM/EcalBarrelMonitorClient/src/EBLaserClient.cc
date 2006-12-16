@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/11/11 08:09:15 $
- * $Revision: 1.90 $
+ * $Date: 2006/10/18 16:57:52 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  *
 */
@@ -695,6 +695,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
           val = false;
         }
         apd_bl.setTaskStatus(val);
+        status = status && val;
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -706,8 +707,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
             cerr << e.what() << endl;
           }
         }
-
-        status = status && val;
 
       }
 
@@ -735,6 +734,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
           val = false;
         }
         apd_ir.setTaskStatus(val);
+        status = status && val;
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -746,8 +746,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
             cerr << e.what() << endl;
           }
         }
-
-        status = status && val;
 
       }
 
@@ -775,6 +773,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
           val = false;
         }
         apd_gr.setTaskStatus(val);
+        status = status && val;
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -786,8 +785,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
             cerr << e.what() << endl;
           }
         }
-
-        status = status && val;
 
       }
 
@@ -815,6 +812,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
           val = false;
         }
         apd_rd.setTaskStatus(val);
+        status = status && val;
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -826,8 +824,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
             cerr << e.what() << endl;
           }
         }
-
-        status = status && val;
 
       }
 
@@ -1057,6 +1053,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
         val = false;
       }
       pn_bl.setTaskStatus(val);
+      status = status && val;
 
       if ( econn ) {
         try {
@@ -1066,8 +1063,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
           cerr << e.what() << endl;
         }
       }
-
-      status = status && val;
 
     }
 
@@ -1102,6 +1097,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
         val = false;
       }
       pn_ir.setTaskStatus(val);
+      status = status && val;
 
       if ( econn ) {
         try {
@@ -1111,8 +1107,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
           cerr << e.what() << endl;
         }
       }
-
-      status = status && val;
 
     }
 
@@ -1147,6 +1141,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
         val = false;
       }
       pn_gr.setTaskStatus(val);
+      status = status && val;
 
       if ( econn ) {
         try {
@@ -1156,8 +1151,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
           cerr << e.what() << endl;
         }
       }
-
-      status = status && val;
 
     }
 
@@ -1192,6 +1185,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
         val = false;
       }
       pn_rd.setTaskStatus(val);
+      status = status && val;
 
       if ( econn ) {
         try {
@@ -1201,8 +1195,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int i
           cerr << e.what() << endl;
         }
       }
-
-      status = status && val;
 
     }
 
@@ -2350,7 +2342,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   const double histMax = 1.e15;
 
-  int pCol3[4] = { 2, 3, 5, 1 };
+  int pCol3[3] = { 2, 3, 5 };
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for ( int i = 0; i < 68; i++ ) {
@@ -2423,7 +2415,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cQual->cd();
         gStyle->SetOptStat(" ");
-        gStyle->SetPalette(4, pCol3);
+        gStyle->SetPalette(3, pCol3);
         obj2f->GetXaxis()->SetNdivisions(17);
         obj2f->GetYaxis()->SetNdivisions(4);
         cQual->SetGridx();

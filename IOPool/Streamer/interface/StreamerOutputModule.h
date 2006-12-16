@@ -41,6 +41,7 @@
 #include <vector>
 #include <utility>
 #include <iostream>
+#include <sys/time.h> // test luminosity sections
 
 namespace 
 {
@@ -108,7 +109,8 @@ namespace edm
     std::auto_ptr<EventMsgBuilder> serializeEvent(EventPrincipal const& e); 
 
     void setHltMask(EventPrincipal const& e);
-     
+    void setLumiSection();
+
   private:
     Selections const* selections_;
 
@@ -118,6 +120,10 @@ namespace edm
     int maxEventSize_;
     bool useCompression_;
     int compressionLevel_;
+
+    // test luminosity sections
+    int lumiSectionInterval_;  
+    double timeInSecSinceUTC;
 
     Consumer* c_;
     StreamTranslator* translator_;
@@ -141,6 +147,7 @@ StreamerOutputModule<Consumer>::StreamerOutputModule(edm::ParameterSet const& ps
   maxEventSize_(ps.template getParameter<int>("max_event_size")),
   useCompression_(ps.template getParameter<bool>("use_compression")),
   compressionLevel_(ps.template getParameter<int>("compression_level")),
+  lumiSectionInterval_(ps.template getUntrackedParameter<int>("lumiSection_interval", 0)), 
   c_(new Consumer(ps)),   //Try auto_ptr with this ?
   translator_(new StreamTranslator(selections_)),
   hltsize_(0),
@@ -149,6 +156,13 @@ StreamerOutputModule<Consumer>::StreamerOutputModule(edm::ParameterSet const& ps
   hltbits_(0),
   reserved_(0) // no compression as default value - we need this!
   {
+
+    // test luminosity sections
+    struct timeval now;
+    struct timezone dummyTZ;
+    gettimeofday(&now, &dummyTZ);
+    timeInSecSinceUTC = (double) now.tv_sec + ((double) now.tv_usec / 1000000.0);
+
     if(useCompression_ == true)
     {
       if(compressionLevel_ <= 0) {
@@ -275,6 +289,23 @@ void StreamerOutputModule<Consumer>::setHltMask(EventPrincipal const& e)
 
    }
 
+ 
+// test luminosity sections
+template <class Consumer>
+  void StreamerOutputModule<Consumer>::setLumiSection()
+  {
+    struct timeval now;
+    struct timezone dummyTZ;
+    gettimeofday(&now, &dummyTZ);
+    double timeInSec = (double) now.tv_sec + ((double) now.tv_usec / 1000000.0) - timeInSecSinceUTC;
+    // what about overflows?
+    if(lumiSectionInterval_ > 0) lumi_ = (uint32)(timeInSec/lumiSectionInterval_);
+    
+    std::cout << " \n call StreamerOutputModule<Consumer>::setLumiSection() --- lumi = " << lumi_ << std::endl;
+  }
+
+
+
 template <class Consumer>
 std::auto_ptr<EventMsgBuilder> StreamerOutputModule<Consumer>::serializeEvent(
                                                  EventPrincipal const& e)
@@ -289,6 +320,8 @@ std::auto_ptr<EventMsgBuilder> StreamerOutputModule<Consumer>::serializeEvent(
     //End of dummy data
 
     setHltMask(e);
+
+    setLumiSection();
 
     std::auto_ptr<EventMsgBuilder> msg( 
                            new EventMsgBuilder(&bufs_[0], bufs_.size(),

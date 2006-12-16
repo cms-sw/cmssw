@@ -92,7 +92,8 @@ for(reco::SuperClusterCollection::const_iterator aClus = scEndcapHandle->begin()
 
     const reco::Particle::Point  vtx( 0, 0, 0 );
 
-    math::XYZVector momentum =aClus->position() - vtx;
+    math::XYZVector direction =aClus->position() - vtx;
+    math::XYZVector momentum = direction.unit() * aClus->energy();
     const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy() );
 
     reco::RecoEcalCandidate newCandidate(0, p4, vtx);

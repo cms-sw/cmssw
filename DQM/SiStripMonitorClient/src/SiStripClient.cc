@@ -98,7 +98,7 @@ void SiStripClient::onUpdate() const
   // Creation of TrackerMap
   if (updateFrequencyForTrackerMap_ != -1 && nUpdate > 30) {
     if (nUpdate%updateFrequencyForTrackerMap_ == 1) {
-      webInterface_p->setActionFlag(SiStripWebInterface::TemporaryTkMap);
+      webInterface_p->setActionFlag(SiStripWebInterface::CreateTkMap);
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 				 &SiStripWebInterface::performAction));
       mui_->addCallback(action); 

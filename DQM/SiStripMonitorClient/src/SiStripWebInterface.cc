@@ -86,10 +86,8 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   else if (requestID == "CollateME") {
      theActionFlag = Collate;
   } 
-  else if (requestID == "SelectTkMap") {
-    std::string choice = get_from_multimap(requestMap_, "Argument");
-    if (choice == tkMapOptions_[0]) theActionFlag = PersistantTkMap;
-    else if (choice == tkMapOptions_[1]) theActionFlag = TemporaryTkMap;
+  else if (requestID == "CreateTkMap") {
+     theActionFlag = CreateTkMap;
   } 
   else if (requestID == "OpenTkMap") {
     std::string name = "TkMap";
@@ -128,7 +126,10 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   else if (requestID == "PlotSingleHistogram") {
    theActionFlag = PlotSingleHistogram;
   } 
-  else if (requestID == "UpdatePlot") {
+   else if (requestID == "PlotTkMapHistogram") {
+   theActionFlag = PlotTkMapHistogram;
+  } 
+ else if (requestID == "UpdatePlot") {
    out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
@@ -180,18 +181,11 @@ void SiStripWebInterface::performAction() {
       actionExecutor_->createCollation((*mui_p));
       break;
     }
-  case SiStripWebInterface::PersistantTkMap :
+  case SiStripWebInterface::CreateTkMap :
     {
      if (createTkMap()) {
        tkMapCreated = true;
      }
-      break;
-    }
-  case SiStripWebInterface::TemporaryTkMap :
-    {
-     if (createTkMap()) {
-       tkMapCreated = true;
-      }
       break;
     }
   case SiStripWebInterface::Summary :
@@ -212,6 +206,18 @@ void SiStripWebInterface::performAction() {
     }
   case SiStripWebInterface::PlotSingleModuleHistos :
     {
+      infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);
+      break;
+    }
+  case SiStripWebInterface::PlotTkMapHistogram :
+    {
+      vector<string> mes;
+      int nval = actionExecutor_->getTkMapMENames(mes);
+      if (nval == 0) break;
+      for  (vector<string>::iterator it = mes.begin();
+	    it != mes.end(); it++) {
+	requestMap_.insert(pair<string,string>("histo",(*it)));  
+      }
       infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);
       break;
     }
@@ -240,22 +246,10 @@ void SiStripWebInterface::returnReplyXml(xgi::Output * out, const std::string& n
 
 }
 bool SiStripWebInterface::createTkMap() {
-  if (theActionFlag == SiStripWebInterface::TemporaryTkMap) {
-    system("mkdir -p tkmap_files");
-    system("rm -rf tkmap_files/*.jpg; rm -rf tkmap_files/*.svg");
+  if (theActionFlag == SiStripWebInterface::CreateTkMap) {
     actionExecutor_->createTkMap((*mui_p));
-    system(" mv *.jpg tkmap_files/. ; mv *.svg tkmap_files/.");
-    return true;
-  } else if (theActionFlag == SiStripWebInterface::PersistantTkMap) {
-    system("rm -rf tkmap_files_old/*.jpg; rm -rf  tkmap_files_old/*.svg");
-    system("rm -rf tkmap_files_old");
-    system("mv tkmap_files tkmap_files_old");
-    system("mkdir -p tkmap_files");
-    actionExecutor_->createTkMap((*mui_p));
-    system(" mv *.jpg tkmap_files/. ; mv *.svg tkmap_files/.");
     return true;
   } else {
     return false;
   }
-
 }

@@ -109,7 +109,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
         // Clear proto segment so it can be (re)-filled 
 	protoSegment.clear();
 
-	if ( usedHits[i1-ib] ) continue;   // Hit has been used already
+	if ( usedHits[i2-ib] ) continue;   // Hit has been used already
 
         const CSCRecHit2D* h2 = *i2;	
         int layer2 = layerIndex[i2-ib];
@@ -132,6 +132,10 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
 
           // calculate error matrix
           AlgebraicSymMatrix protoErrors = calculateError();     
+
+          // but reorder components to match what's required by TrackingRecHit interface 
+          // i.e. slopes first, then positions 
+          flipErrors( protoErrors ); 
 
           CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, protoChi2); 
               
@@ -175,7 +179,7 @@ void CSCSegAlgoDF::tryAddingHitsToSegment( const ChamberHitContainer& rechits,
     
     for ( ChamberHitContainerCIt i = ib; i != ie; ++i ) {
       
-      if ( usedHits[i-ib] > 1) continue;   // Don't use hits already part of a segment.
+      if ( usedHits[i-ib] ) continue;   // Don't use hits already part of a segment.
       
       if (pass < 2) if (i == i1 || i == i2 ) continue;  // For first 2 pass, don't try changing endpoints (seeds).
 
@@ -657,4 +661,27 @@ AlgebraicSymMatrix CSCSegAlgoDF::calculateError() const {
   // blithely assuming the inverting never fails...
   return result;
 }
+
+
+void CSCSegAlgoDF::flipErrors( AlgebraicSymMatrix& a ) const { 
+    
+  // The CSCSegment needs the error matrix re-arranged 
+    
+  AlgebraicSymMatrix hold( a ); 
+    
+  // errors on slopes into upper left 
+  a(1,1) = hold(3,3); 
+  a(1,2) = hold(3,4); 
+  a(2,1) = hold(4,3); 
+  a(2,2) = hold(4,4); 
+    
+  // errors on positions into lower right 
+  a(3,3) = hold(1,1); 
+  a(3,4) = hold(1,2); 
+  a(4,3) = hold(2,1); 
+  a(4,4) = hold(2,2); 
+    
+  // off-diagonal elements remain unchanged 
+    
+} 
 
