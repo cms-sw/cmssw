@@ -19,6 +19,8 @@ public:
 
   /// users should use this to create chamberwriters
   /// for each chamber type just after creation
+  virtual void initialize(int detType);
+
   RootChamberWriter & chamberWriter(int chamberType);
 
   virtual void writeEvent(int chamberType, const edm::PSimHitContainer & hits);

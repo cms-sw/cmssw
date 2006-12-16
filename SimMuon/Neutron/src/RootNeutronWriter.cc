@@ -23,6 +23,13 @@ RootNeutronWriter::~RootNeutronWriter()
 }
 
 
+void RootNeutronWriter::initialize(int chamberType)
+{
+    ostringstream treeName;
+    treeName << "ChamberType" << chamberType;
+    theChamberWriters[chamberType] = RootChamberWriter(treeName.str());
+}
+
 RootChamberWriter & RootNeutronWriter::chamberWriter(int chamberType)
 {
   std::map<int, RootChamberWriter>::iterator mapItr = theChamberWriters.find(chamberType);
@@ -32,10 +39,11 @@ RootChamberWriter & RootNeutronWriter::chamberWriter(int chamberType)
   }
   else
   {
+    throw cms::Exception("NeutronWriter") << "It's dangerous to create ROOT chamber "
+      << "writers during processing.  The global file may change";
+      
     // make a new one
-    ostringstream treeName;
-    treeName << "ChamberType" << chamberType;
-    theChamberWriters[chamberType] = RootChamberWriter(treeName.str());
+    initialize(chamberType);
     return theChamberWriters[chamberType];
   }
 }

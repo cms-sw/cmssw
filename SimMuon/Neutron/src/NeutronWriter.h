@@ -15,6 +15,7 @@ class NeutronWriter {
 public:
   ///  makes an "event" from a list of SimHits.  Called by writeEvent
   virtual void writeEvent(int detType, const edm::PSimHitContainer & simHits) = 0;
+  virtual void initialize(int detType) {}
   virtual ~NeutronWriter() {}
 
 };
