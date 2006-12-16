@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-#$Id: runall.sh,v 1.24 2006/08/28 10:24:14 mangano Exp $
+#$Id: runall.sh,v 1.1 2006/11/22 17:40:35 lsexton Exp $
 #
 #Dummy script to run all integration tests
 #
@@ -29,7 +29,11 @@ testsMET="
 RecoMET_Zjets_Dimuons_300-380.cfg
 "
 
-tests=`echo  $testsRecoEgamma $testsRecoJets $testsMET`
+testsTau="
+RecoTau_DiTaus_pt_20-420.cfg
+"
+
+tests=`echo  $testsRecoEgamma $testsRecoJets $testsMET $testsTau`
 
 report=""
 
