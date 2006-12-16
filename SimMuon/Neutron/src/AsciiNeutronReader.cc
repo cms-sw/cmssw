@@ -7,10 +7,10 @@
 
 using namespace std;
 
-AsciiNeutronReader::AsciiNeutronReader(string fileNameBase, int nChamberTypes) :
+AsciiNeutronReader::AsciiNeutronReader(string fileNameBase) :
   theFileNameBase(fileNameBase),
-  theNumberOfChamberTypes(nChamberTypes),
-  theStreamPos(nChamberTypes+1, 0)
+  //theStreamPos(nChamberTypes+1, 0) //TODO WON"T WORK!  replace with a map 
+  theStreamPos(11,0)
 {
 }
 

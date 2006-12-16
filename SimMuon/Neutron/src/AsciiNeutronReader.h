@@ -17,7 +17,7 @@
 class AsciiNeutronReader : public NeutronReader
 {
 public:
-  AsciiNeutronReader(std::string fileNameBase, int nChamberTypes);
+  AsciiNeutronReader(std::string fileNameBase);
 
   virtual void  readNextEvent(int chamberType, edm::PSimHitContainer & result);
 
@@ -27,7 +27,6 @@ private:
   void resetStreampos(std::ifstream & fin, int chamberType);
 
   std::string theFileNameBase;
-  int theNumberOfChamberTypes;
   std::vector<std::streampos> theStreamPos;
 };
 
