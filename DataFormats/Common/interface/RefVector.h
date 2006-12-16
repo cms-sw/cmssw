@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.15 2006/10/30 23:07:52 wmtan Exp $
+$Id: RefVector.h,v 1.16 2006/12/04 19:02:31 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -52,19 +52,19 @@ namespace edm {
     ~RefVector() {}
 
     /// Add a Ref<C, T> to the RefVector
-    void push_back(Ref<C, T, F> const& ref) {refVector_.pushBack(ref.ref().product(), ref.ref().item());}
+    void push_back(Ref<C, T, F> const& ref) {refVector_.pushBack(ref.ref().refCore(), ref.ref().item());}
 
     /// Retrieve an element of the RefVector
     Ref<C, T, F> const operator[](size_type idx) const {
       RefItemType const& item = refVector_.items()[idx];
-      RefCore const& prod = refVector_.product();
+      RefCore const& prod = refVector_.refCore();
       return Ref<C, T, F>(prod, item);
     }
 
     /// Retrieve an element of the RefVector
     Ref<C, T, F> const at(size_type idx) const {
       RefItemType const& item = refVector_.items().at(idx);
-      RefCore const& prod = refVector_.product();
+      RefCore const& prod = refVector_.refCore();
       return Ref<C, T, F>(prod, item);
     }
 
@@ -84,13 +84,13 @@ namespace edm {
     void reserve(size_type n) {refVector_.reserve(n);}
 
     /// Initialize an iterator over the RefVector
-    iterator begin() const {return iterator(refVector_.product(), refVector_.items().begin());}
+    iterator begin() const {return iterator(refVector_.refCore(), refVector_.items().begin());}
 
     /// Termination of iteration
-    iterator end() const {return iterator(refVector_.product(), refVector_.items().end());}
+    iterator end() const {return iterator(refVector_.refCore(), refVector_.items().end());}
 
     /// Accessor for product ID.
-    ProductID id() const {return refVector_.product().id();}
+    ProductID id() const {return refVector_.refCore().id();}
 
     /// Checks for null
     bool isNull() const {return id() == ProductID();}
@@ -104,7 +104,7 @@ namespace edm {
     /// Accessor for product collection
     // Accessor must get the product if necessary
     C const* product() const {
-      return isNull() ? 0 : getProduct<C>(refVector_.product());
+      return isNull() ? 0 : getProduct<C>(refVector_.refCore());
     }
 
     /// Erase an element from the vector.
@@ -161,7 +161,7 @@ namespace edm {
   typename RefVector<C, T, F>::iterator RefVector<C, T, F>::erase(iterator const& pos) {
     typename RefVectorBase<key_type>::RefItems::size_type index = pos - begin();
     typename RefVectorBase<key_type>::RefItems::iterator newPos = refVector_.eraseAtIndex(index);
-    RefCore const& prod = refVector_.product();
+    RefCore const& prod = refVector_.refCore();
     return typename RefVector<C, T, F>::iterator(prod, newPos);
 
   }

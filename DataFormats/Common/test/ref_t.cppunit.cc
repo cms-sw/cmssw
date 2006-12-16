@@ -191,13 +191,13 @@ void testRef::getTest() {
    TestHandle<IntCollection> handle(wptr, pid);
 
    Ref<IntCollection> ref0(handle, 0);
-   ref0.ref().product().setProductGetter(&tester);
-   ref0.ref().product().setProductPtr(0);
+   ref0.ref().refCore().setProductGetter(&tester);
+   ref0.ref().refCore().setProductPtr(0);
    ref0.ref().item().setPtr(0);
    
    Ref<IntCollection> ref1(handle, 1);
-   ref1.ref().product().setProductGetter(&tester);
-   ref1.ref().product().setProductPtr(0);
+   ref1.ref().refCore().setProductGetter(&tester);
+   ref1.ref().refCore().setProductPtr(0);
    ref1.ref().item().setPtr(0);
 
    Ref<IntCollection> ref2(pid, 1, &tester);
@@ -208,8 +208,8 @@ void testRef::getTest() {
    CPPUNIT_ASSERT(1 == (*ref1).value_);
 
    RefProd<IntCollection> refProd0(handle);
-   refProd0.product().setProductGetter(&tester);
-   refProd0.product().setProductPtr(0);
+   refProd0.refCore().setProductGetter(&tester);
+   refProd0.refCore().setProductPtr(0);
 
    RefProd<IntCollection> refProd2(pid, &tester);
 
@@ -220,11 +220,11 @@ void testRef::getTest() {
    //get it via the 'singleton'
    edm::EDProductGetter::Operate operate(&tester);
    Ref<IntCollection> ref0b(handle, 0);
-   ref0b.ref().product().setProductPtr(0);
+   ref0b.ref().refCore().setProductPtr(0);
    ref0b.ref().item().setPtr(0);
    CPPUNIT_ASSERT(0 == ref0b->value_);
 
    RefProd<IntCollection> refProd0b(handle);
-   refProd0b.product().setProductPtr(0);
+   refProd0b.refCore().setProductPtr(0);
    CPPUNIT_ASSERT(1 == (*refProd0b)[1].value_);
 }

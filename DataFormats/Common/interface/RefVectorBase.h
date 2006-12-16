@@ -5,7 +5,7 @@
   
 RefVectorBase: Base class for a vector of interproduct references.
 
-$Id: RefVectorBase.h,v 1.6 2006/06/14 23:26:30 wmtan Exp $
+$Id: RefVectorBase.h,v 1.7 2006/08/10 23:34:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -34,7 +34,7 @@ namespace edm {
     ~RefVectorBase() {}
 
     /// Accessor for product ID and product getter
-    RefCore const& product() const {return product_;}
+    RefCore const& refCore() const {return product_;}
 
     /// Accessor for vector of keys and pointers
     RefItems const& items() const {return items_;}
@@ -82,7 +82,7 @@ namespace edm {
   template<typename T>
   bool
   operator==(RefVectorBase<T> const& lhs, RefVectorBase<T> const& rhs) {
-    return lhs.product() == rhs.product() && lhs.items() == rhs.items();
+    return lhs.refCore() == rhs.refCore() && lhs.items() == rhs.items();
   }
 
   /// Inequality operator

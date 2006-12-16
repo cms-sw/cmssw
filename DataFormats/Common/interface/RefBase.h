@@ -5,7 +5,7 @@
   
 RefBase: Base class for a single interproduct reference.
 
-$Id: RefBase.h,v 1.3 2006/06/14 23:40:33 wmtan Exp $
+$Id: RefBase.h,v 1.4 2006/08/30 23:28:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -24,7 +24,7 @@ namespace edm {
     ~RefBase() {}
 
     /// Accessor for product ID and product getter.
-    RefCore const& product() const { return product_;}
+    RefCore const& refCore() const { return product_;}
 
     /// Accessor for index and pointer
     RefItem<T> const& item() const {return item_;}
@@ -48,7 +48,7 @@ namespace edm {
   template <typename T>
   bool
   operator==(RefBase<T> const& lhs, RefBase<T> const& rhs) {
-    return lhs.product() == rhs.product() && lhs.item() == rhs.item();
+    return lhs.refCore() == rhs.refCore() && lhs.item() == rhs.item();
   }
   
   template <typename T>
@@ -60,7 +60,7 @@ namespace edm {
   template <typename T>
   bool
   operator<(RefBase<T> const& lhs, RefBase<T> const& rhs) {
-    return (lhs.product() == rhs.product() ?  lhs.item() < rhs.item() : lhs.product() < rhs.product());
+    return (lhs.refCore() == rhs.refCore() ?  lhs.item() < rhs.item() : lhs.refCore() < rhs.refCore());
   }
 }
   
