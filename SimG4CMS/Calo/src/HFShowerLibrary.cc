@@ -97,8 +97,11 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
       << "Event information absent\n";
   } 
 
+  xOffCorr = m_HS.getUntrackedParameter<double>("XOffCorr",5.0);
+  yOffCorr = m_HS.getUntrackedParameter<double>("YOffCorr",35.0);
   edm::LogInfo("HFShower") << "HFShowerLibrary: Maximum probability cut off " 
-			   << probMax;
+			   << probMax << " Offset correction along X/Y "
+			   << xOffCorr << "/" << yOffCorr;
   
   G4String attribute = "ReadOutName";
   G4String value     = name;
@@ -158,7 +161,7 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
   G4Track *     track    = aStep->GetTrack();   
   G4ThreeVector hitPoint = preStepPoint->GetPosition();   
   G4String      partType = track->GetDefinition()->GetParticleName();
-  
+
   double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
   double pin    = preStepPoint->GetTotalEnergy();
   double sphi   = sin(hitPoint.phi());
@@ -167,7 +170,12 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
   double stheta = sin(hitPoint.theta());
 
   LogDebug("HFShower") << "HFShowerLibrary: getHits " << partType
-		       << " of energy " << pin/GeV << " GeV";
+		       << " of energy " << pin/GeV << " GeV" 
+		       << " in.Pos x,y,z = " << hitPoint.x() << "," 
+		       << hitPoint.y() << "," << hitPoint.z()
+		       << "   sphi,cphi,stheta,ctheta  =" << sphi << "," 
+		       << cphi << "," << stheta << "," << ctheta ; 
+                       
   if (partType == "pi0" || partType == "eta" || partType == "nu_e" ||
       partType == "nu_mu" || partType == "nu_tau" || partType == "anti_nu_e" ||
       partType == "anti_nu_mu" || partType == "anti_nu_tau" || 
@@ -200,11 +208,25 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
 	(pe[i].z >= 0 || pe[i].z <= -gpar[0])) {
       int depth = 1;
       if (pe[i].z < 0) depth = 2;
+
+      // Updated coordinate transformation from local
+      //  back to global using two Euler angles: phi and theta
+      double pex = pe[i].x;
+      double pey = pe[i].y;
+
+      double xx = pex*ctheta*cphi - pey*sphi + zv*stheta*cphi; 
+      double yy = pex*ctheta*sphi + pey*cphi + zv*stheta*sphi;
+      double zz =-pex*stheta + zv*ctheta;
+
+      // Original transformation
+      /*
       double xx = (pe[i].x)*(ctheta + (1.-ctheta)*sphi*sphi) -
 	(pe[i].y)*sphi*cphi*(1.-ctheta) + zv*cphi*stheta;
       double yy = (pe[i].y)*(ctheta + (1.-ctheta)*cphi*cphi) -
 	(pe[i].x)*sphi*cphi*(1.-ctheta) + zv*sphi*stheta;
       double zz =-(pe[i].x)*cphi*stheta + (pe[i].y)*sphi*stheta +zv*ctheta;
+      */
+
       G4ThreeVector pos = hitPoint + G4ThreeVector(xx,yy,zz);
 
       zv = gpar[1] - zv;
@@ -228,7 +250,15 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
 			   << " attenuation " << r1 <<":" << exp(-p*zv) 
 			   << " r2 " << r2 << " rDfi " << gpar[5] << " zz " 
 			   << zz << " zLim " << gpar[4] << ":" 
-			   << gpar[4]+gpar[1];
+			   << gpar[4]+gpar[1] << "\n"
+			   << "  rInside(r) :" << rInside(r) 
+                           << "  r1 <= exp(-p*zv) :" <<  (r1 <= exp(-p*zv))
+                           << "  r2 <= probMax :" << (r2 <= probMax)
+                           << "  dfir > gpar[5] :" << (dfir > gpar[5])
+                           << "  zz >= gpar[4] :" <<  (zz >= gpar[4])
+			   << "  zz <= gpar[4]+gpar[1] :" 
+			   << (zz <= gpar[4]+gpar[1]);   
+
       if (rInside(r) && r1 <= exp(-p*zv) && r2 <= probMax && dfir > gpar[5] &&
 	  zz >= gpar[4] && zz <= gpar[4]+gpar[1]) {
 	hit[nHit].position = pos;
@@ -238,6 +268,9 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
 			     <<" position " << (hit[nHit].position) <<" Depth "
 			     <<(hit[nHit].depth) <<" Time " <<(hit[nHit].time);
 	nHit++;
+      }
+      else {
+	LogDebug("HFShower") << " REJECTED !!!";
       }
     }
   }
@@ -303,7 +336,7 @@ void HFShowerLibrary::getRecord(TTree* tree, int record) {
     photon.clear(); photon.resize(nPhoton);
     LogDebug("HFShower") << "HFShowerLibrary: Record " << record << " with "
 			 << nPhoton << " photons";
-    int nph, coor[9000], wl[9000], time[9000];
+    int nph, coor[10000], wl[10000], time[10000];
     tree->SetBranchAddress("XYZ", &coor);
     tree->SetBranchAddress("L",   &wl);
     tree->SetBranchAddress("T",   &time);
@@ -518,8 +551,8 @@ void HFShowerLibrary::storePhoton(int j) {
   int ix = (photon[j].xyz)/xMultiplier;
   int iy = (photon[j].xyz)/yMultiplier - ix*yMultiplier;
   int iz = (photon[j].xyz)/zMultiplier - ix*xMultiplier - iy*yMultiplier;
-  pe[npe].x      = (ix/xScale - xOffset)*cm;
-  pe[npe].y      = (iy/yScale - yOffset)*cm;
+  pe[npe].x      = (ix/xScale - xOffset)*cm + xOffCorr; //to account for wrong offset
+  pe[npe].y      = (iy/yScale - yOffset)*cm + yOffCorr; //idem 
   pe[npe].z      = (iz/zScale - zOffset)*cm;
   pe[npe].lambda = (photon[j].lambda);
   pe[npe].time   = (photon[j].time)/100.;
