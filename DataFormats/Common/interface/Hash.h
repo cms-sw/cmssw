@@ -11,7 +11,7 @@
   
 Hash:
 
-$Id: Hash.h,v 1.12 2006/10/19 04:11:29 wmtan Exp $
+$Id: Hash.h,v 1.13 2006/10/19 19:24:29 wmtan Exp $
 
   Note: The call to 'fixup' in every member function is a temporary
   measure for backwards compatibility. It is necessary in every function
@@ -37,7 +37,7 @@ namespace edm {
     explicit Hash(value_type const& v);
 
     Hash(Hash<I> const&);
-    const Hash<I>& operator=(Hash<I> const& iRHS);
+    Hash<I> const& operator=(Hash<I> const& iRHS);
 
     // For now, just check the most basic: a default constructed
     // ParameterSetID is not valid. This is very crude: we are
@@ -116,7 +116,7 @@ namespace edm {
 
   template <int I>
   inline
-  const Hash<I>& 
+  Hash<I> const& 
   Hash<I>::operator=(Hash<I> const& iRHS)
   {
     hash_=iRHS.hash_;
@@ -137,7 +137,7 @@ namespace edm {
   bool
   Hash<I>::operator< (Hash<I> const& other) const
   {
-    return this->compareUsing(other, std::less<std::string >() );
+    return this->compareUsing(other, std::less<std::string >());
   }
 
   template <int I>
@@ -145,7 +145,7 @@ namespace edm {
   bool 
   Hash<I>::operator> (Hash<I> const& other) const 
   {
-    return this->compareUsing(other, std::greater<std::string >() );
+    return this->compareUsing(other, std::greater<std::string >());
   }
 
   template <int I>
@@ -153,7 +153,7 @@ namespace edm {
   bool 
   Hash<I>::operator== (Hash<I> const& other) const 
   {
-    return this->compareUsing(other, std::equal_to<std::string >() );
+    return this->compareUsing(other, std::equal_to<std::string >());
   }
 
   template <int I>
@@ -161,7 +161,7 @@ namespace edm {
   bool 
   Hash<I>::operator!= (Hash<I> const& other) const 
   {
-    return this->compareUsing(other, std::not_equal_to<std::string >() );
+    return this->compareUsing(other, std::not_equal_to<std::string >());
   }
 
   template <int I>
@@ -204,7 +204,7 @@ namespace edm {
   Hash<I>::throwIfIllFormed() const 
   {
     // Fixup not needed here.
-    if ( hash_.size() % 2 == 1 )
+    if (hash_.size() % 2 == 1)
       {
 	throw edm::Exception(edm::errors::LogicError)
 	  << "Ill-formed Hash instance. "
@@ -218,50 +218,23 @@ namespace edm {
   template <int I>
   void 
   Hash<I>::fixup() {
-    switch (hash_.size() ) {
-    case 0:
+    switch (hash_.size()) {
+      case 0:
       {
-	// The next line is correct C++, but fails because of a bug in
-	// Root, in which the constness of a string is cast away.
-	// When the Root bug is fixed, (fixed in 5.13.02),
-	// this should be changed back to the single line below...
-	//
-	//hash_ = edm::detail::InvalidHash();
-	//
-	// Temporary work-around to Root bug follows...
-	hash_.resize(16);
-	hash_[0] = 0xd4;
-	hash_[1] = 0x1d;
-	hash_[2] = 0x8c;
-	hash_[3] = 0xd9;
-	hash_[4] = 0x8f;
-	hash_[5] = 0x00;
-	hash_[6] = 0xb2;
-	hash_[7] = 0x04;
-	hash_[8] = 0xe9;
-	hash_[9] = 0x80;
-	hash_[10] = 0x09;
-	hash_[11] = 0x98;
-	hash_[12] = 0xec;
-	hash_[13] = 0xf8;
-	hash_[14] = 0x42;
-	hash_[15] = 0x7e;
-	break;
+	hash_ = edm::detail::InvalidHash();
       }	
-    case 16: 
+      case 16: 
       {
 	break;
       }
-	
-    case 32:
+      case 32:
       {
 	cms::MD5Result temp;
 	temp.fromHexifiedString(hash_);
 	hash_ = temp.compactForm();
 	break;
       }
-	  
-    default:
+      default:
       {
 	throw edm::Exception(edm::errors::LogicError)
 	  << "edm::Hash<> instance with data in illegal state:\n"
