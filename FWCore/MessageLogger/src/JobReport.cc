@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.11 2006/10/13 17:36:40 evansde Exp $
+// $Id: JobReport.cc,v 1.12 2006/10/21 02:49:01 wmtan Exp $
 //
 
 
@@ -188,7 +188,29 @@ namespace edm
       }
     }
 
-  JobReport::~JobReport() {impl_->flushFiles();}
+  void JobReport::JobReportImpl::addGeneratorInfo(std::string name, 
+						  std::string value){
+    
+    generatorInfo_[name] = value;
+  }
+
+  void JobReport::JobReportImpl::writeGeneratorInfo(void){
+    LogInfo("FwkJob") << "\n<GeneratorInfo>";
+    std::map<std::string, std::string>::iterator pos;
+    for (pos = generatorInfo_.begin(); pos != generatorInfo_.end(); ++pos){
+      LogInfo("FwkJob") << "\n<Data Name=\"" << pos->first
+			<< "\" Value=\"" << pos->second << "\">";
+    }
+    LogInfo("FwkJob") << "\n</GeneratorInfo>";
+    
+  }
+
+
+
+  JobReport::~JobReport() {
+    impl_->writeGeneratorInfo(); 
+    impl_->flushFiles();
+  }
 
     JobReport::JobReport() :
       impl_(new JobReportImpl) {
@@ -436,6 +458,11 @@ namespace edm
 	<<  "</StorageStatistics>\n";
     LogInfo("FwkJob") << msg.str();    
   }
- 
+  void
+  JobReport::reportGeneratorInfo(std::string  name, std::string  value)
+  {
+    
+    impl_->addGeneratorInfo(name, value);
+  }
 
 } //namspace edm
