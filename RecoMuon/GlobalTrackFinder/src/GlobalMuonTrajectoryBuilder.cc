@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/12/13 20:22:41 $
- *  $Revision: 1.63 $
+ *  $Date: 2006/12/18 14:55:05 $
+ *  $Revision: 1.64 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -425,7 +425,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
       //     << firstTsos << endl;
       //<< firstTsos1.globalDirection() <<endl;
       
-      if ( false && theMakeTkSeedFlag ) {
+      if ( theMakeTkSeedFlag ) {
 	TrajectoryMeasurement lastTM = ((*it)->trajectory()->direction() == alongMomentum) ? (*it)->trajectory()->lastMeasurement() : (*it)->trajectory()->firstMeasurement();
 	TrajectoryStateOnSurface lastTsos = lastTM.updatedState();
 	lastTsos.rescaleError(100.);
