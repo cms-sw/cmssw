@@ -18,6 +18,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchGsfElectron.h,v $
+// Revision 1.4  2006/12/04 17:47:18  uberthon
+// make PixelMatchElectron +PixelMatchGsfElectron separate classes
+//
 // Revision 1.3  2006/11/14 18:52:22  uberthon
 // add some missing data (HoE etc)
 //
@@ -35,13 +38,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-//FIXME #include "DataFormats/TrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-//#include "DataFormats/Math/interface/Point3D.h"
-//#include "DataFormats/Math/interface/Vector3D.h"
-//#include "DataFormats/Math/interface/LorentzVector.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/Vector/interface/GlobalVector.h"
 
@@ -60,10 +59,14 @@ class PixelMatchGsfElectron : public LeafCandidate {
  public:
   
   PixelMatchGsfElectron(): LeafCandidate() {;}  //FIXME: defaults
-/*   PixelMatchGsfElectron(const SuperClusterRef scl, const GsfTrackRef gsft, */
-/* 			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom); */
+
   PixelMatchGsfElectron(const SuperClusterRef scl, const GsfTrackRef gsft,
-			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom, double HoE);
+			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, 
+                        const GlobalPoint tsseedPos, const GlobalVector tsseedMom, 
+                        const GlobalPoint innPos, const GlobalVector innMom, 
+                        const GlobalPoint vtxPos, const GlobalVector vtxMom, 
+                        const GlobalPoint outPos, const GlobalVector outMom, 
+                        double HoE);
 
   virtual ~PixelMatchGsfElectron(){};
 
@@ -143,7 +146,6 @@ class PixelMatchGsfElectron : public LeafCandidate {
 
 
  private:
-
 
   // temporary
   float ecalEta(float EtaParticle , float Zvertex, float plane_Radius);

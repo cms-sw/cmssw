@@ -29,16 +29,19 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
-
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
+class MultiTrajectoryStateTransform;
+class GsfPropagatorAdapter;
+ 
 class PixelMatchElectronAlgo {
 
 public:
 
   PixelMatchElectronAlgo(double maxEOverPBarrel, double maxEOverPBarrel, 
                          double hOverEConeSize, double maxHOverE, 
-                         double maxDeltaEta, double maxDeltaPhi);
+                         double maxDeltaEta, double maxDeltaPhi, double ptCut);
 
   ~PixelMatchElectronAlgo();
 
@@ -51,9 +54,14 @@ public:
   void process(edm::Handle<reco::GsfTrackCollection> tracksH, const reco::SeedSuperClusterAssociationCollection *sclAss, const reco::GsfTrackSeedAssociationCollection *tsAss,
    HBHERecHitMetaCollection *mhbhe, reco::PixelMatchGsfElectronCollection & outEle);
   // preselection method
-  bool preSelection(const reco::SuperCluster& clus, const reco::GsfTrack& track,double HoE);
+  //  bool preSelection(const reco::SuperCluster& clus, const reco::GsfTrack& track,double HoE);
+ bool preSelection(const reco::SuperCluster& clus, const GlobalVector&, const GlobalPoint&,double HoE);
   
- // preselection parameters
+
+  //Gsf mode calculations
+  GlobalVector computeMode(const TrajectoryStateOnSurface &tsos);
+
+  // preselection parameters
   // maximum E/p where E is the supercluster corrected energy and p the track momentum at innermost state  
   double maxEOverPBarrel_;   
   double maxEOverPEndcaps_;   
@@ -66,7 +74,9 @@ public:
   // maximum phi difference between the supercluster position and the track position at the closest impact to the supercluster
   // position to the supercluster
   double maxDeltaPhi_;
-  
+
+  double ptCut_;
+ 
   // input configuration
   std::string trackBarrelLabel_;
   std::string trackEndcapLabel_;
@@ -80,11 +90,15 @@ public:
   std::string assBarrelTrTSInstanceName_;
   std::string assEndcapTrTSLabel_;
   std::string assEndcapTrTSInstanceName_;
-  
+
   edm::ESHandle<MagneticField>                theMagField;
   edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
   edm::ESHandle<CaloGeometry>                 theCaloGeom;
+  edm::ESHandle<TrackerGeometry>              trackerHandle_;
 
+  const MultiTrajectoryStateTransform *mtsTransform_;
+  const GsfPropagatorAdapter *geomPropBw_;
+  const GsfPropagatorAdapter *geomPropFw_;
 };
 
 #endif // PixelMatchElectronAlgo_H

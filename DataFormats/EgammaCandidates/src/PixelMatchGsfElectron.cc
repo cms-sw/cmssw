@@ -1,36 +1,37 @@
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cmath>
 
-  const double pi = M_PI, pi2 = 2 * M_PI;
+const double pi = M_PI, pi2 = 2 * M_PI;
  
 using namespace reco;
 
-// 					     const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom) :LeafCandidate(),
 PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const GsfTrackRef gsft,
-					     const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom, const double HoE) :LeafCandidate(),
-//	       const TrajectoryStateClosestToPoint& tssuper, const TrajectoryStateClosestToPoint& tsseed) :LeafCandidate(), 
-               hadOverEm_(HoE), superCluster_(scl), track_(gsft)   
+					     const GlobalPoint tssuperPos, const GlobalVector tssuperMom, 
+                                             const GlobalPoint tsseedPos, const GlobalVector tsseedMom, 
+					     const GlobalPoint innPos, const GlobalVector innMom, 
+					     const GlobalPoint vtxPos, const GlobalVector vtxMom, 
+					     const GlobalPoint outPos, const GlobalVector outMom, 
+					     const double HoE) :
+  LeafCandidate(),hadOverEm_(HoE), superCluster_(scl), track_(gsft)   
 {
   //
   // electron particle quantities
   //
 
   //Initialise to E from cluster + direction from track
-  const math::XYZVector trackMom = track_->momentum();  //FIXME: later on: impactModeMomentum, GsfUtil
-  double scale = superCluster_->energy()/trackMom.R();    
-  math::XYZTLorentzVectorD momentum= math::XYZTLorentzVector(trackMom.x()*scale,
-                          trackMom.y()*scale,
-                          trackMom.z()*scale,
+  double scale = superCluster_->energy()/innMom.mag();    
+  math::XYZTLorentzVectorD momentum= math::XYZTLorentzVector(innMom.x()*scale,
+                          innMom.y()*scale,
+                          innMom.z()*scale,
 			  superCluster_->energy());
   setCharge(track_->charge());
   setP4(momentum);
 
-  math::XYZPoint trackPos= track_->vertex();
-  trackPositionAtVtx_=math::XYZVector(trackPos.x(),trackPos.y(),trackPos.z());
+  //  math::XYZPoint trackPos= track_->vertex();
+  trackPositionAtVtx_=math::XYZVector(vtxPos.x(),vtxPos.y(),vtxPos.z());
   trackPositionAtCalo_=math::XYZVector(tssuperPos.x(),
                                        tssuperPos.y(),
                                        tssuperPos.z());
@@ -41,7 +42,8 @@ PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const Gs
   // supercluster - track at impact match parameters
   //
   eSuperClusterOverP_=-1;
-  if (trackMom.R()!=0) eSuperClusterOverP_= superCluster_->energy()/trackMom.R();
+  //  if (innMom.R()!=0) eSuperClusterOverP_= superCluster_->energy()/innMom.R();
+  if (innMom.mag()!=0) eSuperClusterOverP_= superCluster_->energy()/innMom.mag();
   float trackEta = ecalEta(
 						  track_->innerMomentum().eta(),
                                                   track_->innerPosition().z(),
@@ -68,11 +70,11 @@ PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const Gs
   eSeedClusterOverPout_ = -1;
   //  if (tsseed.globalMomentum().mag() > 0.)
   //    eSeedClusterOverPout_ = seedClus->energy()/tsseed.globalMomentum().mag();
+  //  GlobalPoint tsseedPos=seedTsos.globalPosition();
+  //  GlobalVector tsseedMom=seedTsos.globalMomentum();
   if (tsseedMom.mag() > 0.)
     eSeedClusterOverPout_ = seedClus->energy()/tsseedMom.mag();
 
-  //  deltaEtaSeedClusterAtCalo_ = seedClus->eta() - tsseed.globalPosition().eta();
-  //  dphi                       = seedClus->phi() - tsseed.globalPosition().phi();
   deltaEtaSeedClusterAtCalo_ = seedClus->eta() - tsseedPos.eta();
   dphi                       = seedClus->phi() - tsseedPos.phi();
   if (fabs(dphi)>pi)
@@ -176,6 +178,4 @@ float PixelMatchGsfElectron::ecalPhi(float PtParticle, float EtaParticle, float 
   //---Return the result
   return PHI;
 }
-
-
 

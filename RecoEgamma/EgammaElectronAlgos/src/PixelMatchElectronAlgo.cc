@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.22 2006/12/06 16:18:34 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.23 2006/12/13 18:37:24 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -24,6 +24,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -32,17 +33,21 @@
 
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-//#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-//#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
+#include "TrackingTools/GsfTools/interface/GSUtilities.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "TrackingTools/GsfTools/interface/GsfPropagatorAdapter.h"
 
-//#include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/Vector/interface/GlobalVector.h"
 
@@ -62,23 +67,34 @@ using namespace reco;
 
 PixelMatchElectronAlgo::PixelMatchElectronAlgo(double maxEOverPBarrel, double maxEOverPEndcaps, 
                                                double hOverEConeSize, double maxHOverE, 
-                                               double maxDeltaEta, double maxDeltaPhi):  
- maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps), 
- hOverEConeSize_(hOverEConeSize), maxHOverE_(maxHOverE), 
-  maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi)
-{}
+                                               double maxDeltaEta, double maxDeltaPhi, double ptcut):  
+  maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps), 
+  hOverEConeSize_(hOverEConeSize), maxHOverE_(maxHOverE), 
+  maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi), ptCut_(ptcut)
+{   
+	
+}
 
-PixelMatchElectronAlgo::~PixelMatchElectronAlgo() {}
+PixelMatchElectronAlgo::~PixelMatchElectronAlgo() {
+  delete geomPropBw_;
+  delete geomPropFw_;
+  delete mtsTransform_;
+}
 
 void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::ParameterSet &conf) {
 
   //services
   es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
   es.get<IdealMagneticFieldRecord>().get(theMagField);
+  es.get<TrackerDigiGeometryRecord>().get(trackerHandle_);
 
   // get calo geometry
-   es.get<IdealGeometryRecord>().get(theCaloGeom);
+  es.get<IdealGeometryRecord>().get(theCaloGeom);
   
+  mtsTransform_ = new MultiTrajectoryStateTransform;
+  geomPropBw_ = new GsfPropagatorAdapter(AnalyticalPropagator(theMagField.product(), oppositeToMomentum));
+  geomPropFw_ = new GsfPropagatorAdapter(AnalyticalPropagator(theMagField.product(), alongMomentum));
+
   // get nested parameter set for the TransientInitialStateEstimator
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
   trackBarrelLabel_ = conf.getParameter<string>("TrackBarrelLabel");
@@ -169,68 +185,71 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH, co
       LogDebug("") << "H/E : " << HoE;
     } else HoE=0;
 
-    if (preSelection(theClus,t,HoE)) {
-      LogInfo("")<<"Constructed new electron with energy  "<< (*sclAss)[seed]->energy();
-      TSCPBuilderNoMaterial tscpBuilder;
-      TrajectoryStateTransform tsTransform;
-      FreeTrajectoryState fts_scl = tsTransform.outerFreeState(t,theMagField.product());
-      TrajectoryStateClosestToPoint tscp_scl = tscpBuilder(fts_scl, GlobalPoint(theClus.position().x(),theClus.position().y(),theClus.position().z()));
-      FreeTrajectoryState fts_seed = tsTransform.outerFreeState(t,theMagField.product());
-      TrajectoryStateClosestToPoint tscp_seed = tscpBuilder(fts_seed,GlobalPoint(theClus.seed()->position().x(),theClus.seed()->position().y(),theClus.seed()->position().z()));
-      edm::Ref<GsfTrackCollection> trackRef(tracksH,i);
-      const GlobalPoint pscl=tscp_scl.position();
-      const GlobalVector mscl=tscp_scl.momentum();
-      const GlobalPoint pseed=tscp_seed.position();
-      const GlobalVector mseed=tscp_seed.momentum();
-      PixelMatchGsfElectron ele((*sclAss)[seed],trackRef,pscl,mscl,pseed,mseed,HoE);
+
+    // calculate Trajectory StatesOnSurface....
+    //at innermost point
+    TrajectoryStateOnSurface innTSOS = mtsTransform_->innerStateOnSurface(t, *(trackerHandle_.product()), theMagField.product());
+ 
+    //at vertex
+    // innermost state propagation to the nominal vertex
+    TrajectoryStateOnSurface vtxTSOS =
+      TransverseImpactPointExtrapolator(*geomPropBw_).extrapolate(innTSOS,GlobalPoint(0,0,0));
+    if (!vtxTSOS.isValid()) vtxTSOS=innTSOS;
+
+    //at seed
+    TrajectoryStateOnSurface outTSOS = mtsTransform_->outerStateOnSurface(t, *(trackerHandle_.product()), theMagField.product());
+    TrajectoryStateOnSurface seedTSOS = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(outTSOS,GlobalPoint(theClus.seed()->position().x(),theClus.seed()->position().y(),theClus.seed()->position().z()));
+
+
+    //at scl
+    TrajectoryStateOnSurface sclTSOS = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(outTSOS,GlobalPoint(theClus.x(),theClus.y(),theClus.z()));
+
+    GlobalVector vtxMom=computeMode(vtxTSOS);
+    GlobalPoint  sclPos=sclTSOS.globalPosition();
+    if (preSelection(theClus,vtxMom, sclPos, HoE)) {
+      GlobalVector innMom=computeMode(innTSOS);
+      GlobalPoint innPos=innTSOS.globalPosition();
+      GlobalVector seedMom=computeMode(seedTSOS);
+      GlobalPoint  seedPos=seedTSOS.globalPosition();
+      GlobalVector sclMom=computeMode(sclTSOS);
+      GlobalPoint  vtxPos=vtxTSOS.globalPosition();
+      GlobalVector outMom=computeMode(outTSOS);
+      GlobalPoint  outPos=outTSOS.globalPosition();
+
+      PixelMatchGsfElectron ele((*sclAss)[seed],trackRef,sclPos,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom,outPos,outMom,HoE);
       outEle.push_back(ele);
+      LogInfo("")<<"Constructed new electron with energy  "<< (*sclAss)[seed]->energy();
     }
   }  // loop over tracks
 }
 
-bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const GsfTrack& track, double HoE) 
+bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const GlobalVector& tsosVtxMom, const GlobalPoint& tsosSclPos, double HoE) 
 {
   LogDebug("")<< "========== preSelection ==========";
  
-  // extrapolate track inner momentum to nominal vertex
-  TSCPBuilderNoMaterial tscpBuilder;
-  TrajectoryStateTransform tsTransform;
-  FreeTrajectoryState ftsin = tsTransform.innerFreeState(track,theMagField.product());
-  TrajectoryStateClosestToPoint tscpin = tscpBuilder(ftsin, Global3DPoint(0,0,0) );
-  // extrapolate track inner momentum to supercluster position
-  FreeTrajectoryState ftscalo = tsTransform.innerFreeState(track,theMagField.product());
-  TrajectoryStateClosestToPoint tscpcalo = tscpBuilder(ftscalo, Global3DPoint(clus.x(),clus.y(),clus.z()) );  
-  // E/p criteria
-  LogDebug("") << "E/p : " << clus.energy()/tscpin.momentum().mag();
-  // temporary, exact identification of barrel and endcap case would be better
-  if ((fabs(clus.eta()) < 1.479) && (clus.energy()/tscpin.momentum().mag() > maxEOverPBarrel_)) return false;
-  if ((fabs(clus.eta()) >= 1.479) && (clus.energy()/tscpin.momentum().mag() > maxEOverPEndcaps_)) return false;
+  LogDebug("") << "E/p : " << clus.energy()/tsosVtxMom.mag();
+  if (tsosVtxMom.perp()<ptCut_)   return false;
+  //FIXME: how to get detId from a cluster??
+  std::vector<DetId> vecId=clus.getHitsByDetId();
+  int subdet =vecId[0].subdetId();  //FIXME: is the first one really the biggest??
+  if ((subdet==EcalBarrel) && (clus.energy()/tsosVtxMom.mag() > maxEOverPBarrel_)) return false;
+  if ((subdet==EcalEndcap) && (clus.energy()/tsosVtxMom.mag() > maxEOverPEndcaps_)) return false;
   LogDebug("") << "E/p criteria is satisfied ";
   // delta eta criteria
   double etaclu = clus.eta();
-  double etatrk = tscpcalo.position().eta();
+  double etatrk = tsosSclPos.eta();
   double deta = etaclu-etatrk;
   LogDebug("") << "delta eta : " << deta;
   if (fabs(deta) > maxDeltaEta_) return false;
   LogDebug("") << "Delta eta criteria is satisfied ";
   // delta phi criteria
   double phiclu = clus.phi();
-  double phitrk = tscpcalo.position().phi();
+  double phitrk = tsosSclPos.phi();
   double dphi = phiclu-phitrk;
   LogDebug("") << "delta phi : " << dphi;
   if (fabs(dphi) > maxDeltaPhi_) return false;
   LogDebug("") << "Delta phi criteria is satisfied ";
-  // had/em criteria if hcal rechits available
-//   if (mhbhe) {
-//     //cout << "calo position is eta-phi = " << clus.eta() << " " << clus.phi() << endl;
-//     CaloConeSelector sel(hOverEConeSize_, theCaloGeom.product(), DetId::Hcal);
-//     GlobalPoint pclu(clus.x(),clus.y(),clus.z());
-//     double hcalEnergy = 0.;
-//     std::auto_ptr<CaloRecHitMetaCollectionV> chosen=sel.select(pclu,*mhbhe);
-//     for (CaloRecHitMetaCollectionV::const_iterator i=chosen->begin(); i!=chosen->end(); i++) {
-//       //std::cout << HcalDetId(i->detid()) << " : " << (*i) << std::endl;
-//       hcalEnergy += i->energy();
-//     }
+
   if (HoE > maxHOverE_) return false; //FIXME: passe dans tous les cas?
   LogDebug("") << "H/E criteria is satisfied ";
 
@@ -238,3 +257,67 @@ bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const GsfTra
   LogDebug("") << "=================================================";
   return true;  
 }  
+
+GlobalVector PixelMatchElectronAlgo::computeMode(const TrajectoryStateOnSurface &tsos) {
+  // mode computation	
+  float mode_Px = 0.;
+  float mode_Py = 0.;
+  float mode_Pz = 0.;
+  if ( tsos.isValid() ){
+	  
+    int Count = 0;
+    unsigned int numb = tsos.components().size();
+    float *Wgt   = new float[numb];
+    float *Px    = new float[numb];
+    float *Py    = new float[numb];
+    float *Pz    = new float[numb];
+    float *PxErr = new float[numb];
+    float *PyErr = new float[numb];
+    float *PzErr = new float[numb];
+	  
+    for (unsigned int ii = 0; ii < numb; ii ++){
+      Wgt[ii]   = 0.;
+      Px[ii]    = 0.;
+      Py[ii]    = 0.;
+      Pz[ii]    = 0.;
+      PxErr[ii] = 0.;
+      PyErr[ii] = 0.;
+      PzErr[ii] = 0.;
+    }
+	  
+    std::vector<TrajectoryStateOnSurface> comp = tsos.components();
+    for (std::vector<TrajectoryStateOnSurface>::const_iterator it_comp = comp.begin(); it_comp!= comp.end(); it_comp++){
+      Wgt[Count]    = it_comp->weight();
+      Px[Count]     = it_comp->globalMomentum().x();
+      Py[Count]     = it_comp->globalMomentum().y();
+      Pz[Count]     = it_comp->globalMomentum().z();
+      PxErr[Count]  = sqrt(it_comp->cartesianError().matrix()[3][3]);
+      PyErr[Count]  = sqrt(it_comp->cartesianError().matrix()[4][4]);
+      PzErr[Count]  = sqrt(it_comp->cartesianError().matrix()[5][5]);
+      Count++;
+    }
+	  
+    GSUtilities *myGSUtil_Px = new GSUtilities(numb, Wgt, Px, PxErr);
+    GSUtilities *myGSUtil_Py = new GSUtilities(numb, Wgt, Py, PyErr);
+    GSUtilities *myGSUtil_Pz = new GSUtilities(numb, Wgt, Pz, PzErr);
+	  
+    mode_Px = myGSUtil_Px->mode();
+    mode_Py = myGSUtil_Py->mode();
+    mode_Pz = myGSUtil_Pz->mode();
+	 
+    if ( myGSUtil_Px ) { delete myGSUtil_Px; }
+    if ( myGSUtil_Py ) { delete myGSUtil_Py; }
+    if ( myGSUtil_Pz ) { delete myGSUtil_Pz; }
+	  
+    delete[] Wgt;
+    delete[] Px;
+    delete[] PxErr;
+    delete[] Py;
+    delete[] PyErr;
+    delete[] Pz;
+    delete[] PzErr;
+  } else printf("tsos not valid!!\n");fflush(stdout);
+  return GlobalVector(mode_Px,mode_Py,mode_Pz);	
+
+}
+
