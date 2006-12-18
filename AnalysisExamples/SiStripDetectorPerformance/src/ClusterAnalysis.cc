@@ -1,6 +1,6 @@
 /*
-* $Date: 2006/12/15 09:06:39 $
-* $Revision: 1.6 $
+* $Date: 2006/12/15 17:24:28 $
+* $Revision: 1.7 $
 *
 * \author: D. Giordano, domenico.giordano@cern.ch
 */
@@ -776,10 +776,10 @@ namespace cms{
       float Ql=cluster->chargeL();
       float Qr=cluster->chargeR();
       
-      for (std::vector<int16_t>::const_iterator it=cluster->rawdigiAmplitudesL().begin(); it !=cluster->rawdigiAmplitudesL().end(); it ++)
+      for (std::vector<uint16_t>::const_iterator it=cluster->rawdigiAmplitudesL().begin(); it !=cluster->rawdigiAmplitudesL().end(); it ++)
 	{ Ql += (*it);}
       
-      for (std::vector<int16_t>::const_iterator it=cluster->rawdigiAmplitudesR().begin(); it !=cluster->rawdigiAmplitudesR().end(); it ++)
+      for (std::vector<uint16_t>::const_iterator it=cluster->rawdigiAmplitudesR().begin(); it !=cluster->rawdigiAmplitudesR().end(); it ++)
 	{ Qr += (*it);}
       
       ((TH1F*) Hlist->FindObject("cEta"   +appString))
