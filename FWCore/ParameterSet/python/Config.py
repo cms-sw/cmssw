@@ -5,9 +5,12 @@
 class SortedKeysDict(dict):
     """a dict preserving order of keys"""
     # specialised __repr__ missing.
-    def __init__(self):
-        dict.__init__(self)
+    def __init__(self,*args,**kw):
+        dict.__init__(self,*args,**kw)
         self.list = list()
+        if len(args) == 1:
+            if hasattr(args[0],'iterkeys'):
+                self.list=list(args[0].iterkeys())
 
     def __iter__(self):
         for key in self.list:
@@ -1106,6 +1109,11 @@ if __name__=="__main__":
             self.assertRaises(AttributeError,getattr,p,'b')
             self.assertEqual(p.Full.type_(),"Full")
             self.assertEqual(str(p.c),'a')
+        def testProcessDumpConfig(self):
+            p = Process("test")
+            p.a = EDAnalyzer("MyAnalyzer")
+            p.paths = Path(p.a)
+            p.dumpConfig()
         def testEDAnalyzer(self):
             empty = EDAnalyzer("Empty")
             withParam = EDAnalyzer("Parameterized",foo=untracked(int32(1)), bar = untracked(string("it")))
@@ -1190,5 +1198,28 @@ if __name__=="__main__":
             self.assertRaises(AttributeError,operator.setitem,*(d,'a',2))
             d['b'].append(2)
             self.assertEqual(d['b'],[3,2])
+        def testSortedKeysDict(self):
+            sd = SortedKeysDict()
+            sd['a']=1
+            sd['b']=2
+            sd['c']=3
+            sd['d']=4
+            count =1
+            for key in sd.iterkeys():
+                self.assertEqual(count,sd[key])
+                count +=1
+            sd2 = SortedKeysDict(sd)
+            count =1
+            for key in sd2.iterkeys():
+                self.assertEqual(count,sd2[key])
+                count +=1
+            
+        
+        def testSortedAndFixedKeysDict(self):
+            import operator
+            sd = SortedAndFixedKeysDict({'a':1, 'b':[3]})
+            self.assertEqual(sd['a'],1)
+            self.assertEqual(sd['b'],[3])
+            self.assertRaises(AttributeError,operator.setitem,*(sd,'a',2))
                                
     unittest.main()
