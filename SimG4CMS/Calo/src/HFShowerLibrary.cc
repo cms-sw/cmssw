@@ -97,11 +97,8 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
       << "Event information absent\n";
   } 
 
-  xOffCorr = m_HS.getUntrackedParameter<double>("XOffCorr",5.0);
-  yOffCorr = m_HS.getUntrackedParameter<double>("YOffCorr",35.0);
   edm::LogInfo("HFShower") << "HFShowerLibrary: Maximum probability cut off " 
-			   << probMax << " Offset correction along X/Y "
-			   << xOffCorr << "/" << yOffCorr;
+			   << probMax;
   
   G4String attribute = "ReadOutName";
   G4String value     = name;
@@ -169,12 +166,17 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
   double ctheta = cos(hitPoint.theta());
   double stheta = sin(hitPoint.theta());
 
+  double xint =   hitPoint.x(); 
+  double yint =   hitPoint.y(); 
+  double zint =   hitPoint.z(); 
+
   LogDebug("HFShower") << "HFShowerLibrary: getHits " << partType
 		       << " of energy " << pin/GeV << " GeV" 
-		       << " in.Pos x,y,z = " << hitPoint.x() << "," 
-		       << hitPoint.y() << "," << hitPoint.z()
-		       << "   sphi,cphi,stheta,ctheta  =" << sphi << "," 
-		       << cphi << "," << stheta << "," << ctheta ; 
+                       << " in.Pos x,y,z = " << xint << "," << yint << "," 
+                       << zint << "   sphi,cphi,stheta,ctheta  =" 
+                       << sphi << "," << cphi << ","   
+                       << stheta << "," << ctheta ; 
+    
                        
   if (partType == "pi0" || partType == "eta" || partType == "nu_e" ||
       partType == "nu_mu" || partType == "nu_tau" || partType == "anti_nu_e" ||
@@ -209,6 +211,7 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
       int depth = 1;
       if (pe[i].z < 0) depth = 2;
 
+
       // Updated coordinate transformation from local
       //  back to global using two Euler angles: phi and theta
       double pex = pe[i].x;
@@ -216,7 +219,7 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
 
       double xx = pex*ctheta*cphi - pey*sphi + zv*stheta*cphi; 
       double yy = pex*ctheta*sphi + pey*cphi + zv*stheta*sphi;
-      double zz =-pex*stheta + zv*ctheta;
+      double zz = -pex*stheta + zv*ctheta;
 
       // Original transformation
       /*
@@ -250,8 +253,9 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
 			   << " attenuation " << r1 <<":" << exp(-p*zv) 
 			   << " r2 " << r2 << " rDfi " << gpar[5] << " zz " 
 			   << zz << " zLim " << gpar[4] << ":" 
-			   << gpar[4]+gpar[1] << "\n"
-			   << "  rInside(r) :" << rInside(r) 
+			   << gpar[4]+gpar[1];
+
+      LogDebug("HFShower") << "  rInside(r) :" << rInside(r) 
                            << "  r1 <= exp(-p*zv) :" <<  (r1 <= exp(-p*zv))
                            << "  r2 <= probMax :" << (r2 <= probMax)
                            << "  dfir > gpar[5] :" << (dfir > gpar[5])
@@ -269,9 +273,7 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
 			     <<(hit[nHit].depth) <<" Time " <<(hit[nHit].time);
 	nHit++;
       }
-      else {
-	LogDebug("HFShower") << " REJECTED !!!";
-      }
+      else  LogDebug("HFShower") << " REJECTED !!!";
     }
   }
 
@@ -551,8 +553,8 @@ void HFShowerLibrary::storePhoton(int j) {
   int ix = (photon[j].xyz)/xMultiplier;
   int iy = (photon[j].xyz)/yMultiplier - ix*yMultiplier;
   int iz = (photon[j].xyz)/zMultiplier - ix*xMultiplier - iy*yMultiplier;
-  pe[npe].x      = (ix/xScale - xOffset)*cm + xOffCorr; //to account for wrong offset
-  pe[npe].y      = (iy/yScale - yOffset)*cm + yOffCorr; //idem 
+  pe[npe].x      = (ix/xScale - xOffset)*cm + 5.; //to account for wrong offset
+  pe[npe].y      = (iy/yScale - yOffset)*cm + 35.;//idem 
   pe[npe].z      = (iz/zScale - zOffset)*cm;
   pe[npe].lambda = (photon[j].lambda);
   pe[npe].time   = (photon[j].time)/100.;
