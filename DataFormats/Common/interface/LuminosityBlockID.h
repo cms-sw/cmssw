@@ -3,7 +3,7 @@
 
 namespace edm
 {
-  typedef unsigned long LuminosityBlockID;
+  typedef unsigned int LuminosityBlockID;
 }
 
 #endif

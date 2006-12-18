@@ -23,7 +23,7 @@
 // forward declarations
 namespace edm {
 
-   typedef unsigned long RunNumber_t;
+   typedef unsigned int RunNumber_t;
 
    
 }

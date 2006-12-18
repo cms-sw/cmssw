@@ -7,7 +7,7 @@
 
    \original author Stefano ARGIRO
    \current author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.6 2006/09/28 20:35:10 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.7 2006/12/05 23:56:17 paterno Exp $
    \date 19 Jul 2005
 */
 
@@ -55,9 +55,9 @@ namespace edm {
       return productList_;
     }
 
-    unsigned long nextID() const {return nextID_;}
+    unsigned int nextID() const {return nextID_;}
 
-    void setNextID(unsigned long next) {nextID_ = next;}
+    void setNextID(unsigned int next) {nextID_ = next;}
 
 
     //NOTE: this is not const since we only want items that have non-const access to this class to be 
@@ -81,7 +81,7 @@ namespace edm {
     void throwIfFrozen() const;
 
     ProductList productList_;
-    unsigned long nextID_;
+    unsigned int nextID_;
     mutable bool frozen_;
   };
 

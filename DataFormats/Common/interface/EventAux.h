@@ -25,7 +25,7 @@ namespace edm
 	id_(theId),
 	time_(),
 	luminosityBlockID_() {}
-    EventAux(EventID const& theId, Timestamp const& theTime, LuminosityBlockID lb = 1UL) :
+    EventAux(EventID const& theId, Timestamp const& theTime, LuminosityBlockID lb = 1U) :
 	processHistoryID_(),
 	id_(theId),
 	time_(theTime),

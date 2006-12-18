@@ -31,8 +31,8 @@ static const TimeValue_t kLowMask(0xFFFFFFFF);
 // constructors and destructor
 //
 Timestamp::Timestamp(TimeValue_t iValue) : 
-   timeLow_(static_cast<unsigned long>(kLowMask & iValue)),
-   timeHigh_(static_cast<unsigned long>(iValue >> 32))
+   timeLow_(static_cast<unsigned int>(kLowMask & iValue)),
+   timeHigh_(static_cast<unsigned int>(iValue >> 32))
 {
 }
 

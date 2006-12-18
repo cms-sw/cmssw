@@ -17,7 +17,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Aug  8 15:13:14 EDT 2005
-// $Id: EventID.h,v 1.4 2006/08/24 22:15:44 wmtan Exp $
+// $Id: EventID.h,v 1.5 2006/10/27 20:57:48 wmtan Exp $
 //
 
 // system include files
@@ -30,7 +30,7 @@
 // forward declarations
 namespace edm {
 
-   typedef unsigned long EventNumber_t;
+   typedef unsigned int EventNumber_t;
 
    
 class EventID
@@ -44,7 +44,7 @@ class EventID
 	run_(iRun), event_(iEvent), simulated_(iSim) {}
       
       //FIXME: only used for backwards compatibility
-      EventID(EventNumber_t iEvent) : run_(1UL), event_(iEvent), simulated_(false) {} 
+      EventID(EventNumber_t iEvent) : run_(1U), event_(iEvent), simulated_(false) {} 
       //virtual ~EventID();
 
       // ---------- const member functions ---------------------
@@ -103,7 +103,7 @@ class EventID
       // ---------- static functions ---------------------------
 
       static EventNumber_t maxEventNumber() {
-         return 0xFFFFFFFFUL;
+         return 0xFFFFFFFFU;
       }
    
       static EventID firstValidEvent() {

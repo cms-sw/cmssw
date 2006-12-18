@@ -86,8 +86,8 @@ class Timestamp
       // ---------- member data --------------------------------
       // ROOT does not support ULL
       //TimeValue_t time_;
-      unsigned long timeLow_;
-      unsigned long timeHigh_;
+      unsigned int timeLow_;
+      unsigned int timeHigh_;
 };
 
 }
