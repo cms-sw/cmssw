@@ -161,7 +161,7 @@ float PhotonBasketBorderCorrectionAlgo::zeroCrackCor(float &logeta)
   float corrfac = 1./(a0 + a1*fabs(logeta) + a2*pow(logeta,2) + a3*pow(fabs(logeta),3));
 
   return corrfac/shift;
-};
+}
 
 
 reco::Photon PhotonBasketBorderCorrectionAlgo::applyEndcapCorrection(const reco::Photon&ph,  const reco::BasicClusterShapeAssociationCollection &clshpMap)
@@ -170,5 +170,5 @@ reco::Photon PhotonBasketBorderCorrectionAlgo::applyEndcapCorrection(const reco:
   reco::Photon correctedPhoton(ph.charge(), ph.p4(), ph.vertex());
   correctedPhoton.setSuperCluster(ph.superCluster());
   return correctedPhoton;  
-};
+}
 
