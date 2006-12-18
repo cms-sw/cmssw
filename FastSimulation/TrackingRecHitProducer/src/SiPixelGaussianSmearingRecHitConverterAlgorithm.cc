@@ -157,8 +157,9 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   // beta: angle with respect to local y axis in local (y,z) plane
   float beta = acos(locy/sqrt(locy*locy+locz*locz));
   
-  float alphaToBeUsedForRootFiles = alpha - PI/2.;
-  float betaToBeUsedForRootFiles  = PI/2. - beta;
+  // look old FAMOS: FamosGeneric/FamosTracker/src/FamosPixelErrorParametrization
+  float alphaToBeUsedForRootFiles = PI/2. - alpha;
+  float betaToBeUsedForRootFiles  = fabs( PI/2. - beta );
   
   //
 #ifdef FAMOS_DEBUG
@@ -166,7 +167,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 	    << " alpha(x) = " << alpha
 	    << " beta(y) = "  << beta
 	    << " alpha for root files = " << alphaToBeUsedForRootFiles
-	    << " beta  for root files = " << betaToBeUsedForRootFiles
+	    << " beta for root files = "  << betaToBeUsedForRootFiles
 	    << std::endl;
 #endif
 

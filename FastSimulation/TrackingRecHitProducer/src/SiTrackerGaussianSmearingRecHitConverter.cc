@@ -454,6 +454,9 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
   for ( ; isim != lastSimHit; ++isim ) {
     ++simHitCounter;
     DetId det((*isim).detUnitId());
+#ifdef FAMOS_DEBUG
+    unsigned int detid = det.rawId();
+#endif
     // filter PSimHit (delta rays momentum cut)
     if( (*isim).pabs() > deltaRaysPCut ) {
       //
@@ -466,7 +469,6 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
       if(isCreated) {
 	// create RecHit
 #ifdef FAMOS_DEBUG
-	unsigned int detid = det.rawId();
 	std::cout << " *** " << std::endl 
 		  << " Created a RecHit with local position " << position 
 		  << " and local error " << error << "\n"
@@ -475,8 +477,8 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
 		  << " from track " << (*isim).trackId()
 		  << " with pixel multiplicity alpha(x) = " << alphaMult 
 		  << " beta(y) = " << betaMult
-		  << " in detector " << detid
-		  << std::endl;
+		  << " in detector " << detid << std::endl
+		  << " ******** " << std::endl;
 #endif
 	// Fill the temporary RecHit on the current DetId collection
 	temporaryRecHits[det].push_back(
