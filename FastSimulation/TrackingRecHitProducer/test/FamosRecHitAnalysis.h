@@ -7,11 +7,13 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include <TROOT.h>
 #include <TFile.h>
 #include <TTree.h>
 #include <TH1F.h>
+
+class TrackerGeometry;
 
 class FamosRecHitAnalysis : public edm::EDAnalyzer
 {
@@ -29,6 +31,9 @@ private:
   edm::InputTag theRecHits_;
   
   TFile* theRootFile;
+  
+  const TrackerGeometry* geometry;
+  bool isFlipped(const PixelGeomDetUnit* theDet) const;
   
   void book();
   void bookValues( std::vector<TH1F*>& histos_x , std::vector<TH1F*>& histos_y , std::vector<TH1F*>& histos_z , int nBin , float range , char* det , unsigned int nHist );

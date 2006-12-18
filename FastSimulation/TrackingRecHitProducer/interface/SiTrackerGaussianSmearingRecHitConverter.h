@@ -14,9 +14,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-// Geometry
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
 // PSimHit
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"

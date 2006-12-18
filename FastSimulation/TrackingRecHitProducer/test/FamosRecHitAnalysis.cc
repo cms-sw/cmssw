@@ -9,6 +9,8 @@
 //
 
 // Geometry
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
@@ -50,6 +52,8 @@
 // itself
 #include "FastSimulation/TrackingRecHitProducer/test/FamosRecHitAnalysis.h"
 //
+
+const double PI = 3.14159265358979323;
 
 #define rrDEBUG
 
@@ -94,6 +98,11 @@ FamosRecHitAnalysis::FamosRecHitAnalysis(edm::ParameterSet const& pset) :
 }
 
 void FamosRecHitAnalysis::beginJob(const edm::EventSetup& setup) {
+  // Initialize the Tracker Geometry
+  edm::ESHandle<TrackerGeometry> theGeometry;
+  setup.get<TrackerDigiGeometryRecord> ().get (theGeometry);
+  geometry = &(*theGeometry);
+  //
   // Root File
   std::string rootFileName = _pset.getParameter<std::string>("RootFileName");
   theRootFile = new TFile ( rootFileName.c_str() , "RECREATE" );
@@ -326,8 +335,8 @@ void FamosRecHitAnalysis::bookPixel( std::vector<TH1F*>& histos_alpha , std::vec
     for(int iBin = -1; iBin<resAlpha_binN; iBin++) {
       if(iBin<0) iBin++; // to avoid skip loop if nBins==0
       iHist++;
-      float binMin = ( resAlpha_binWidth!=0 ? resAlpha_binMin+(float)(iBin)*resAlpha_binWidth   : -3.141593 );
-      float binMax = ( resAlpha_binWidth!=0 ? resAlpha_binMin+(float)(iBin+1)*resAlpha_binWidth :  3.141593 );
+      float binMin = ( resAlpha_binWidth!=0 ? resAlpha_binMin+(float)(iBin)*resAlpha_binWidth   : -PI );
+      float binMax = ( resAlpha_binWidth!=0 ? resAlpha_binMin+(float)(iBin+1)*resAlpha_binWidth :  PI );
       histos_alpha.push_back(new TH1F(Form( "hist_%s_%u_%u_res_alpha" , det , iMult+1 , iBin+1 ) ,
 				      Form( "Hit Local Position x^{Rec} [%f<#alpha^{Rec}<%f] %s (multiplicity %u);x [cm];Events/bin" ,
 					    binMin , binMax ,
@@ -468,18 +477,51 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
 	float err_x = sqrt((*iterRecHit).localPositionError().xx());
 	float err_y = sqrt((*iterRecHit).localPositionError().yy());
 	float err_z = 0.0;
-	float alpha = 3.141592654 / 2.
+	
+	// CALCULATE alpha AND beta
+	// at the beginning the position is the Local Point in the local pixel module reference frame
+	// same code as in PixelCPEBase
+	LocalVector localDir = simHit->momentumAtEntry().unit();
+	float locx = localDir.x();
+	float locy = localDir.y();
+	float locz = localDir.z();
+	// alpha: angle with respect to local x axis in local (x,z) plane
+	float alpha = acos(locx/sqrt(locx*locx+locz*locz));
+	int subdetid = ((detid>>25)&0x7);
+	unsigned int detUnitId = simHit->detUnitId();
+	// do it only for Pixels: subdetid = 1 or 2
+	if(subdetid == 1 || subdetid==2) {
+	  if( isFlipped( dynamic_cast<const PixelGeomDetUnit*>
+			 ( geometry->idToDetUnit( DetId( detUnitId ) ) ) ) ) { // &&& check for FPIX !!!
+#ifdef rrDEBUG
+	    std::cout << " isFlipped " << std::endl;
+#endif
+	    alpha = PI - alpha ;
+	  }
+	}
+	// beta: angle with respect to local y axis in local (y,z) plane
+	float beta = acos(locy/sqrt(locy*locy+locz*locz));
+	// TO BE USED TO CHECK ROOTFILES
+	// look old FAMOS: FamosGeneric/FamosTracker/src/FamosPixelErrorParametrization
+	alpha = PI/2. - alpha;
+	beta  = fabs( PI/2. - beta );
+	//
+	
+	/*
+	  float alpha = 3.141592654 / 2.
 	  - acos( simHit->localDirection().x() /
-		  sqrt( simHit->localDirection().x() * simHit->localDirection().x()
-			+ simHit->localDirection().z() * simHit->localDirection().z() ) );
-	float beta = fabs( 3.141592654 / 2.
-			   - acos( simHit->localDirection().y() /
-				   sqrt( simHit->localDirection().y() * simHit->localDirection().y()
-					 + simHit->localDirection().z() * simHit->localDirection().z() ) ) );
+	  sqrt( simHit->localDirection().x() * simHit->localDirection().x()
+	  + simHit->localDirection().z() * simHit->localDirection().z() ) );
+	  float beta = fabs( 3.141592654 / 2.
+	  - acos( simHit->localDirection().y() /
+	  sqrt( simHit->localDirection().y() * simHit->localDirection().y()
+	  + simHit->localDirection().z() * simHit->localDirection().z() ) ) );
+	*/
 	unsigned int mult_alpha = (*iterRecHit).simMultX();
 	unsigned int mult_beta  = (*iterRecHit).simMultY();
 #ifdef rrDEBUG
-	std::cout << "\t" << iRecHit << std::endl;
+	std::cout << "\n\t" << iRecHit << std::endl;
+	std::cout << "\tDet Unit id " << detUnitId << " in subdetector" << (*iDetId).subdetId() << std::endl;
 	std::cout << "\tRecHit"
 		  << "\t\tx = " << xRec << " cm"
 		  << "\t\ty = " << yRec << " cm"
@@ -875,7 +917,7 @@ void FamosRecHitAnalysis::rootMacroStrip( std::vector<TH1F*>& histos_x      , st
     
     // compatibility check for local x axis
     TF1* gaussianResolution = new TF1("gaussianResolution_histos_x","gaus");
-    gaussianResolution->FixParameter( 0 , histos_x[iHist]->GetEntries() / ( sqrt(2*3.141592654) * histos_err_x[iHist]->GetMean()) ); // same normalization
+    gaussianResolution->FixParameter( 0 , histos_x[iHist]->GetEntries() / ( sqrt(2*PI) * histos_err_x[iHist]->GetMean()) ); // same normalization
     gaussianResolution->FixParameter( 1 , 0.0 ); // mean = 0.
     gaussianResolution->FixParameter( 2 , histos_err_x[iHist]->GetMean() ); // sigma set to RecHit error
     histos_nom_x[iHist]->FillRandom(gaussianResolution->GetName(),(int)histos_x[iHist]->GetEntries());
@@ -972,7 +1014,30 @@ void FamosRecHitAnalysis::rootComparison( std::vector<TH1F*> histos_value , std:
   }
   //
 }
+
 //
+//-----------------------------------------------------------------------------
+// I COPIED FROM THE PixelCPEBase BECAUSE IT'S BETTER THAN REINVENT IT
+// The isFlipped() is a silly way to determine which detectors are inverted.
+// In the barrel for every 2nd ladder the E field direction is in the
+// global r direction (points outside from the z axis), every other
+// ladder has the E field inside. Something similar is in the 
+// forward disks (2 sides of the blade). This has to be recognised
+// because the charge sharing effect is different.
+//
+// The isFliped does it by looking and the relation of the local (z always
+// in the E direction) to global coordinates. There is probably a much 
+// better way.(PJ: And faster!)
+//-----------------------------------------------------------------------------
+bool FamosRecHitAnalysis::isFlipped(const PixelGeomDetUnit* theDet) const {
+  // Check the relative position of the local +/- z in global coordinates.
+  float tmp1 = theDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
+  float tmp2 = theDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
+  //  std::cout << " 1: " << tmp1 << " 2: " << tmp2 << std::endl;
+  if ( tmp2<tmp1 ) return true;
+  else return false;    
+}
+// 
 
 //
 DEFINE_SEAL_MODULE();
