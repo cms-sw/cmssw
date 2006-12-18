@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/12/11 00:02:36 $
- *  $Revision: 1.62 $
+ *  $Date: 2006/12/13 20:22:41 $
+ *  $Revision: 1.63 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -80,6 +80,8 @@
 #include "RecoMuon/GlobalMuonProducer/src/GlobalMuonMonitorInterface.h"
 #include "TrackingTools/TrackAssociator/interface/TimerStack.h"
 
+#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
+
 using namespace std;
 using namespace edm;
 
@@ -124,9 +126,8 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
     ParameterSet seedGeneratorPSet = par.getParameter<ParameterSet>("SeedGeneratorParameters");
     theTkSeedGenerator = new TrackerSeedGenerator(seedGeneratorPSet,theService);
   } else {
-    theTkTrackLabel = par.getParameter<edm::InputTag>("TkTrackCollectionLabel");  
+    theTkTrackLabel = par.getParameter<edm::InputTag>("TkTrackCollectionLabel");
   }
-
 
   theMIMFlag = par.getUntrackedParameter<bool>("performMuonIntegrityMonitor",false);
   if(theMIMFlag) {
@@ -134,7 +135,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
     dataMonitor = edm::Service<GlobalMuonMonitorInterface>().operator->(); 
   }
 
-
+  theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();
 
 }
 
@@ -149,7 +150,7 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
   if (theTrackMatcher) delete theTrackMatcher;
   if (theLayerMeasurements) delete theLayerMeasurements;
   if (theTrackConverter) delete theTrackConverter;
-
+  if (theTrajectoryCleaner) delete theTrajectoryCleaner;
 }
 
 
@@ -195,9 +196,10 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
 
 
-  if(theMIMFlag) dataMonitor->book1D("cuts","events passing each cut",10,0.5,10.5);
-  if(theMIMFlag) dataMonitor->fill1("cuts",1);
-
+  if(theMIMFlag) {
+    dataMonitor->book1D("cuts","events passing each cut",10,0.5,10.5);
+    dataMonitor->fill1("cuts",1);
+  }
 
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|trajectories";
   TimerStack timers;
@@ -220,19 +222,25 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   timers.push(timerName);
   vector<TrackCand> regionalTkTracks = makeTkCandCollection(staCand);
   LogInfo(category) << "Found " << regionalTkTracks.size() << " tracks within region of interest";  
-  
+  if(theMIMFlag && regionalTkTracks.size() > 0) dataMonitor->fill1("cuts",6);  
   // match tracker tracks to muon track
   timerName = category + "::trackMatcher";
   timers.pop_and_push(timerName);
   vector<TrackCand> trackerTracks = theTrackMatcher->match(staCand, regionalTkTracks);
   LogInfo(category) << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
-  
+  if(theMIMFlag && trackerTracks.size() > 0) dataMonitor->fill1("cuts",7);
   // build a combined tracker-muon MuonCandidate
   timerName = category + "::build";
   timers.pop_and_push(timerName);
   CandidateContainer result = build(staCand, trackerTracks);
   LogInfo(category) << "Found "<< result.size() << " GLBMuons from one STACand";
-  
+
+  if(theMIMFlag) {
+    dataMonitor->book1D("glb_sta","GLB per STA",101,-0.5,100.5);
+    dataMonitor->fill1("glb_sta",result.size());
+    if(result.size() > 0) dataMonitor->fill1("cuts",8);
+  }
+
   // free memory
   if ( staCandIn.first == 0) delete staCand.first;
 
@@ -358,6 +366,12 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 
   if ( tkMatchedTracks.empty() ) return CandidateContainer();
 
+  if (theMIMFlag) {
+    dataMonitor->book1D("build","Passing each step of Build",11,-0.5,10.5);
+    dataMonitor->fill1("build",1);
+  }
+
+
   //
   // turn tkMatchedTracks into MuonCandidates
   //
@@ -386,14 +400,16 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
   if ( theMuonHitsOption > 0 ) {
 
     for ( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); it++ ) {
-
+      if(theMIMFlag) dataMonitor->fill1("build",2);
       // cut on tracks with low momenta
       const GlobalVector& mom = (*it)->trajectory()->lastMeasurement().updatedState().globalMomentum();
       if ( mom.mag() < 2.5 || mom.perp() < thePtCut ) continue;
       ConstRecHitContainer trackerRecHits = (*it)->trajectory()->recHits();
+      if(theMIMFlag) dataMonitor->fill1("build",3);
 
       if ( theMakeTkSeedFlag && theDirection == insideOut ) {
 	reverse(trackerRecHits.begin(),trackerRecHits.end());
+	//sort(trackerRecHits.begin(),trackerRecHits.end(),RecHitLessByDet(alongMomentum));
       }
 
       if ( theDirection == insideOut ) {
@@ -401,10 +417,33 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
       }
       
       TrajectoryMeasurement firstTM = ( theDirection == outsideIn || theMakeTkSeedFlag ) ? (*it)->trajectory()->firstMeasurement() : (*it)->trajectory()->lastMeasurement();
-      
+            
       TrajectoryStateOnSurface firstTsos = firstTM.updatedState();
       firstTsos.rescaleError(100.);
-
+      
+      //cout << "FirstTSOS Updated " <<endl 
+      //     << firstTsos << endl;
+      //<< firstTsos1.globalDirection() <<endl;
+      
+      if ( false && theMakeTkSeedFlag ) {
+	TrajectoryMeasurement lastTM = ((*it)->trajectory()->direction() == alongMomentum) ? (*it)->trajectory()->lastMeasurement() : (*it)->trajectory()->firstMeasurement();
+	TrajectoryStateOnSurface lastTsos = lastTM.updatedState();
+	lastTsos.rescaleError(100.);
+	
+	//cout << "LastTSOS" << lastTsos << endl;
+	//printHits(trackerRecHits);
+	
+	TrajectoryStateTransform tsTransform;	
+	TrajectoryStateOnSurface firstTsos2;
+	if(trackerRecHits.front()->geographicalId().det() == DetId::Tracker ) {
+	  firstTsos2 = theRefitter->propagator(oppositeToMomentum)->propagate(lastTsos,trackerRecHits.front()->det()->surface());
+	}
+	
+	//if(firstTsos2.isValid()) cout << endl<< "Next TSOS Propagated " <<endl 
+	//		      << firstTsos2 << endl;	
+	firstTsos = firstTsos2;
+      }      
+      
       TC refitted1,refitted2,refitted3;
       vector<Trajectory*> refit(4);
       MuonCandidate* finalTrajectory = 0;
@@ -416,10 +455,12 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
       // full track with all muon hits
       if ( theMuonHitsOption == 1 || theMuonHitsOption == 3 || theMuonHitsOption == 4 ) {
 	rechits.insert(rechits.end(), muonRecHits1.begin(), muonRecHits1.end());
+	if(theMIMFlag) dataMonitor->fill1("build",4);//should equal 3
 	LogDebug(category) << "Number of hits: " << rechits.size();
 	refitted1 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,firstTsos);
 
 	if ( refitted1.size() == 1 ) {
+	  if(theMIMFlag) dataMonitor->fill1("build",5);
 	  refit[1] = &(*refitted1.begin());
 	  if ( theMuonHitsOption == 1 ) {
             finalTrajectory = new MuonCandidate(new Trajectory(*refitted1.begin()), (*it)->muonTrack(), (*it)->trackerTrack());
@@ -433,11 +474,12 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
       if ( theMuonHitsOption == 2 || theMuonHitsOption == 4 ) {
 	rechits = trackerRecHits;
   	rechits.insert(rechits.end(), muonRecHits2.begin(), muonRecHits2.end());
-
+	if(theMIMFlag) dataMonitor->fill1("build",6);
 	LogDebug(category) << "Number of hits: " << rechits.size();
 	
 	refitted2 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,firstTsos);
 	if ( refitted2.size() == 1 ) {
+	  if(theMIMFlag) dataMonitor->fill1("build",7);
 	  refit[2] = &(*refitted2.begin());
 	  if ( theMuonHitsOption == 2 ) {
             finalTrajectory = new MuonCandidate(new Trajectory(*refitted2.begin()), (*it)->muonTrack(), (*it)->trackerTrack());
@@ -455,9 +497,10 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	rechits.insert(rechits.end(), muonRecHits3.begin(), muonRecHits3.end());
 	
 	LogDebug(category) << "Number of hits: " << rechits.size();
-	
+	if(theMIMFlag) dataMonitor->fill1("build",8);
 	refitted3 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,firstTsos);
 	if ( refitted3.size() == 1 ) {
+	  if(theMIMFlag) dataMonitor->fill1("build",9);
 	  refit[3] = &(*refitted3.begin());
 	  if ( theMuonHitsOption == 3 ) {
             finalTrajectory = new MuonCandidate(new Trajectory(*refitted3.begin()), (*it)->muonTrack(), (*it)->trackerTrack());
@@ -474,6 +517,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
       } 
       
       if ( finalTrajectory ) {
+	if(theMIMFlag) dataMonitor->fill1("build",10);
 	refittedResult.push_back(finalTrajectory);
       }
     }
@@ -858,7 +902,7 @@ void GlobalMuonTrajectoryBuilder::printHits(const ConstRecHitContainer& hits) co
   
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|printHits";
 
-  LogInfo(category) << "Used RecHits: ";
+  LogInfo(category) << "Used RecHits: " << hits.size();
   for (ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
     if ( !(*ir)->isValid() ) {
       LogInfo(category) << "invalid RecHit";
@@ -866,12 +910,21 @@ void GlobalMuonTrajectoryBuilder::printHits(const ConstRecHitContainer& hits) co
     }
     
     const GlobalPoint& pos = (*ir)->globalPosition();
+    
     LogInfo(category) 
       << "r = " << sqrt(pos.x() * pos.x() + pos.y() * pos.y())
       << "  z = " << pos.z()
       << "  dimension = " << (*ir)->dimension()
       << "  " << (*ir)->det()->geographicalId().det()
       << "  " << (*ir)->det()->subDetector();
+    /*
+    cout 
+      << "r = " << sqrt(pos.x() * pos.x() + pos.y() * pos.y())
+      << "  z = " << pos.z()
+      << "  dimension = " << (*ir)->dimension()
+      << "  " << (*ir)->det()->geographicalId().det()
+      << "  " << (*ir)->det()->subDetector() << endl;
+    */
   }
 
 }
@@ -888,21 +941,39 @@ GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::makeTrajsFromSeeds(
   LogInfo(category) << "Tracker Seeds from L2/STA Muon: " << tkSeeds.size();
   
   int nseed = 0;
+  vector<Trajectory> rawResult;
   std::vector<TrajectorySeed>::const_iterator seed;
   for (seed = tkSeeds.begin(); seed != tkSeeds.end(); ++seed) {
     nseed++;
     LogDebug(category) << "Building a trajectory from seed " << nseed;
-        
-    TC tkTrajs = theCkfBuilder->trajectories(*seed);
     
+    TC tkTrajs = theCkfBuilder->trajectories(*seed);
     LogDebug(category) << "Trajectories from Seed " << tkTrajs.size();
-    result.insert(result.end(), tkTrajs.begin(), tkTrajs.end());
+    
+    theTrajectoryCleaner->clean(tkTrajs);
+    
+    for(vector<Trajectory>::const_iterator it=tkTrajs.begin();
+	it!=tkTrajs.end(); it++){
+      if( it->isValid() ) {
+	rawResult.push_back(*it);
+      }
+    }
+    LogDebug(category) << "Trajectories from Seed after cleaning " << rawResult.size();
+    
+    //result.insert(result.end(), tkTrajs.begin(), tkTrajs.end());
     if(theMIMFlag) {
-      dataMonitor->book1D("tk_seed","Tracks per seed",20,0.5,20.5);
-      dataMonitor->fill1("tk_seed",tkTrajs.size());
+      dataMonitor->book1D("tk_seed","Tracks per seed",101,-0.5,100.5);
+      dataMonitor->fill1("tk_seed",rawResult.size());
     }
   }
-
+  //vector<Trajectory> unsmoothedResult;
+  theTrajectoryCleaner->clean(rawResult);
+  
+  for (vector<Trajectory>::const_iterator itraw = rawResult.begin();
+       itraw != rawResult.end(); itraw++) {
+    if((*itraw).isValid()) result.push_back( *itraw);
+  }
+  
   LogInfo(category) << "Trajectories from all seeds " << result.size();
   return result;
 
@@ -939,8 +1010,10 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
       tkSeeds = theTkSeedGenerator->trackerSeeds(*(staCand.first));
 
       LogDebug(category) << "Found " << tkSeeds.size() << " tracker seeds";
+
       if(theMIMFlag) {
-	dataMonitor->book1D("seed_sta","Seeds per STA",20,0.5,20.5);
+	if(tkSeeds.size() > 0) dataMonitor->fill1("cuts",3);
+	dataMonitor->book1D("seed_sta","Seeds per STA",101,-0.5,100.5);
 	dataMonitor->fill1("seed_sta",tkSeeds.size());
       }
       timerName = category + "::makeTrajsFromSeed";
@@ -955,8 +1028,9 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
 
     times.pop();
     LogDebug(category) << "Found " << tkCandColl.size() << " tkCands from seeds";
+
     if(theMIMFlag) {
-      dataMonitor->book1D("tk_sta","Tracks per STA",20,0.5,20.5);
+      dataMonitor->book1D("tk_sta","Tracks per STA",101,-0.5,100.5);
       dataMonitor->fill1("tk_sta",tkCandColl.size());
     }
 
@@ -980,9 +1054,11 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
     }
     timerName = category + "::chooseRegionalTrackerTracks";
     times.push(timerName);
+    if(theMIMFlag && tkTrackCands.size() > 0 ) dataMonitor->fill1("cuts",4);
     tkCandColl = chooseRegionalTrackerTracks(staCand,tkTrackCands);
   }
   times.clean_stack();
+  if(theMIMFlag && tkCandColl.size() > 0) dataMonitor->fill1("cuts",5);
   return tkCandColl;
 
 }
