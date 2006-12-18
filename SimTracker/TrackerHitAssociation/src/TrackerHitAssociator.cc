@@ -69,26 +69,31 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  :
 TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::ParameterSet& conf)  : 
   myEvent_(e), 
   doPixel_( conf.getParameter<bool>("associatePixel") ),
-  doStrip_( conf.getParameter<bool>("associateStrip") ) {
-
+  doStrip_( conf.getParameter<bool>("associateStrip") ),
+  doTrackAssoc_( conf.getParameter<bool>("associateRecoTracks") ) {
   
   trackerContainers.clear();
   trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
 
-  // Step A: Get Inputs
-  edm::Handle<CrossingFrame> cf;
-  e.getByType(cf);
-  
-  std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
-  
-  //Loop on PSimHit
-  SimHitMap.clear();
-  
-  MixCollection<PSimHit>::iterator isim;
-  for (isim=allTrackerHits->begin(); isim!= allTrackerHits->end();isim++) {
-    SimHitMap[(*isim).detUnitId()].push_back((*isim));
+  //if track association there is no need to acces the CrossingFrame
+  if(!doTrackAssoc_) {
+
+    // Step A: Get Inputs
+    edm::Handle<CrossingFrame> cf;
+    e.getByType(cf);
+    
+    std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
+    
+    //Loop on PSimHit
+    SimHitMap.clear();
+    
+    MixCollection<PSimHit>::iterator isim;
+    for (isim=allTrackerHits->begin(); isim!= allTrackerHits->end();isim++) {
+      SimHitMap[(*isim).detUnitId()].push_back((*isim));
+    }
+    
   }
-  
+
   if(doStrip_) e.getByLabel("siStripDigis", stripdigisimlink);
   if(doPixel_) e.getByLabel("siPixelDigis", pixeldigisimlink);
   

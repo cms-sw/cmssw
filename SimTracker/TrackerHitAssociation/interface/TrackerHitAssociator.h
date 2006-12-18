@@ -83,7 +83,7 @@ class TrackerHitAssociator {
   //vector with the trackIds
   std::vector<unsigned int> simtrackid; 
   
-  bool doPixel_, doStrip_;
+  bool doPixel_, doStrip_, doTrackAssoc_;
   
 };  
 
