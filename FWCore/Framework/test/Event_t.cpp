@@ -1,12 +1,19 @@
+// NOTE: Process history is not currently being filled in. Thus any
+// testing that expects results to be returned based upon correct
+// handling of processing history will not work.
+
 /*----------------------------------------------------------------------
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.4 2006/12/15 22:53:05 paterno Exp $
+$Id: Event_t.cpp,v 1.5 2006/12/16 07:56:51 paterno Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <algorithm>
+#include <fstream>
+#include <iterator>
 #include <limits>
 #include <map>
 #include <memory>
@@ -16,8 +23,10 @@ $Id: Event_t.cpp,v 1.4 2006/12/15 22:53:05 paterno Exp $
 #include "DataFormats/Common/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/EventID.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Common/interface/ProcessHistory.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/Timestamp.h"
+#include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -56,6 +65,7 @@ class testEvent: public CppUnit::TestFixture
   CPPUNIT_TEST(getByProductID);
   CPPUNIT_TEST(transaction);
   CPPUNIT_TEST(getByInstanceName);
+  CPPUNIT_TEST(getViewBySelector);
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -70,6 +80,7 @@ class testEvent: public CppUnit::TestFixture
   void getByProductID();
   void transaction();
   void getByInstanceName();
+  void getViewBySelector();
 
  private:
 
@@ -191,11 +202,13 @@ testEvent::testEvent() :
   moduleDescriptions_()
 {
   typedef edmtest::IntProduct prod_t;
+  typedef vector<edmtest::Thing> vec_t;
 
-  registerProduct<prod_t>("nolabel_tag", "modOne",   "IntProducer", "FUNKY");
-  registerProduct<prod_t>("int1_tag",    "modMulti", "IntProducer", "FUNKY", "int1");
-  registerProduct<prod_t>("int2_tag",    "modMulti", "IntProducer", "FUNKY", "int2");
-  registerProduct<prod_t>("int3_tag",    "modMulti", "IntProducer", "FUNKY", "int3");
+  registerProduct<prod_t>("nolabel_tag", "modOne",   "IntProducer", "EARLY");
+  registerProduct<prod_t>("int1_tag",    "modMulti", "IntProducer", "EARLY", "int1");
+  registerProduct<prod_t>("int2_tag",    "modMulti", "IntProducer", "EARLY", "int2");
+  registerProduct<prod_t>("int3_tag",    "modMulti", "IntProducer", "EARLY", "int3");
+  registerProduct<vec_t>("thing",        "modthing", "ThingProducer", "LATE");
 
   // Fake up the production of a single IntProduct from an IntProducer
   // module, run in the 'CURRENT' process.
@@ -398,4 +411,13 @@ void testEvent::getByInstanceName()
   vector<Handle<int> > nomatches;
   currentEvent_->getMany(ModuleLabelSelector("modMulti"), nomatches);
   CPPUNIT_ASSERT(nomatches.empty());
+}
+
+void testEvent::getViewBySelector()
+{
+  ProcessHistory const& history = currentEvent_->processHistory();
+  ofstream out("history.log");
+  
+  copy(history.begin(), history.end(),
+       ostream_iterator<ProcessHistory::const_iterator::value_type>(out, "\n"));
 }

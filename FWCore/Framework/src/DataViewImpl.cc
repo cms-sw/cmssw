@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.5 2006/12/05 23:56:18 paterno Exp $
+$Id: DataViewImpl.cc,v 1.6 2006/12/15 22:52:43 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -28,13 +28,13 @@ namespace edm {
   {  }
 
   struct deleter {
-    void operator()(std::pair<EDProduct*, BranchDescription const*> const p) const { delete p.first; }
+    void operator()(pair<EDProduct*, BranchDescription const*> const p) const { delete p.first; }
   };
 
   DataViewImpl::~DataViewImpl() {
     // anything left here must be the result of a failure
     // let's record them as failed attempts in the event principal
-    std::for_each(put_products_.begin(),put_products_.end(),deleter());
+    for_each(put_products_.begin(),put_products_.end(),deleter());
   }
 
   size_t
@@ -127,15 +127,22 @@ namespace edm {
   }
 
   void
-  DataViewImpl::getAllProvenance(std::vector<Provenance const*> & provenances) const
+  DataViewImpl::getAllProvenance(vector<Provenance const*> & provenances) const
   {
     dbk_.getAllProvenance(provenances);
   }
 
+  ProcessHistory const&
+  DataViewImpl::processHistory() const
+  {
+    return dbk_.processHistory();
+  }
+
   BranchDescription const&
-  DataViewImpl::getBranchDescription(std::string const& friendlyClassName,
-				     std::string const& productInstanceName) const {
-    BranchKey bk(friendlyClassName, md_.moduleLabel(), productInstanceName, md_.processName());
+  DataViewImpl::getBranchDescription(TypeID const& type,
+				     string const& productInstanceName) const {
+    string friendlyClassName = type.friendlyClassName();
+        BranchKey bk(friendlyClassName, md_.moduleLabel(), productInstanceName, md_.processName());
     ProductRegistry::ProductList const& pl = dbk_.productRegistry().productList();
     ProductRegistry::ProductList::const_iterator it = pl.find(bk);
     if (it == pl.end()) {

@@ -74,7 +74,7 @@ been committed (which happens after the EDProducer::produce method has ended)
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.8 2006/11/30 15:37:06 paterno Exp $
+$Id: DataViewImpl.h,v 1.9 2006/12/06 16:18:23 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -90,6 +90,7 @@ $Id: DataViewImpl.h,v 1.8 2006/11/30 15:37:06 paterno Exp $
 #include "DataFormats/Common/interface/BranchType.h"
 #include "DataFormats/Common/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Common/interface/ProcessHistory.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/BasicHandle.h"
@@ -175,6 +176,8 @@ namespace edm {
     template <typename PROD>
     RefProd<PROD>
     getRefBeforePut(std::string const& productInstanceName);
+
+    ProcessHistory const& processHistory() const;
     
   private:
 
@@ -188,7 +191,7 @@ namespace edm {
     //
 
     BranchDescription const&
-    getBranchDescription(std::string const& friendlyClassName, std::string const& productInstanceName) const;
+    getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
 
     // commit_ is called to complete the transaction represented by
     // this DataViewImpl. The friendships required seems gross, but any
@@ -382,18 +385,17 @@ namespace edm {
   OrphanHandle<PROD> 
   DataViewImpl::put(std::auto_ptr<PROD> product, std::string const& productInstanceName)
   {
-    PROD* p = product.get();
-    assert (p);                // null pointer is illegal
+    assert (product.get());                // null pointer is illegal
 
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.
     typename boost::mpl::if_c<detail::has_postinsert<PROD>::value, 
                               DoPostInsert<PROD>, 
                               DoNothing<PROD> >::type maybe_inserter;
-    maybe_inserter(p);
+    maybe_inserter(product.get());
 
     BranchDescription const& desc =
-       getBranchDescription(TypeID(*p).friendlyClassName(), productInstanceName);
+      getBranchDescription(TypeID(*product), productInstanceName);
 
     Wrapper<PROD> *wp(new Wrapper<PROD>(product));
 
@@ -410,7 +412,7 @@ namespace edm {
   DataViewImpl::getRefBeforePut(std::string const& productInstanceName) {
     PROD* p = 0;
     BranchDescription const& desc =
-       getBranchDescription(TypeID(*p).friendlyClassName(), productInstanceName);
+       getBranchDescription(TypeID(*p), productInstanceName);
 
     //should keep track of what Ref's have been requested and make sure they are 'put'
     return RefProd<PROD>(desc.productID(), prodGetter());
