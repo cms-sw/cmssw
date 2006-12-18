@@ -48,6 +48,9 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
   RecoToSimPairAssociation compareTracksParam(const reco::TrackCollection&, 
 					      const edm::SimTrackContainer&, 
 					      const edm::SimVertexContainer&) ;
+
+  double associateRecoToSim( reco::TrackCollection::const_iterator,
+			     TrackingParticleCollection::const_iterator) ;
  
   reco::RecoToSimCollection associateRecoToSim (edm::Handle<reco::TrackCollection>&, 
 						edm::Handle<TrackingParticleCollection>&, 
@@ -59,11 +62,11 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
 
   reco::TrackBase::ParameterVector parametersAtClosestApproach2Order (Basic3DVector<double>,// vertex
 								Basic3DVector<double>,// momAtVtx
-								int);// charge
+								float);// charge
 
   reco::TrackBase::ParameterVector parametersAtClosestApproachGeom (Basic3DVector<double>,// vertex
 								    Basic3DVector<double>,// momAtVtx
-								    int);// charge
+								    float);// charge
 
  private:
   edm::ESHandle<MagneticField> theMF;

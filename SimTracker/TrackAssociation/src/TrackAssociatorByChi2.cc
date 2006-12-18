@@ -19,8 +19,7 @@ double TrackAssociatorByChi2::compareTracksParam ( TrackCollection::const_iterat
   Basic3DVector<double> momAtVtx(st->momentum().x(),st->momentum().y(),st->momentum().z());
   Basic3DVector<double> vert = (Basic3DVector<double>) vertexPosition;
       
-  //should use st->charge()
-  TrackBase::ParameterVector sParameters=parametersAtClosestApproachGeom(vert, momAtVtx, rt->charge());
+  TrackBase::ParameterVector sParameters=parametersAtClosestApproachGeom(vert, momAtVtx, st->charge());
   TrackBase::ParameterVector rParameters = rt->parameters();
   
   TrackBase::ParameterVector diffParameters = rParameters - sParameters;
@@ -56,8 +55,7 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
       Basic3DVector<double> momAtVtx(st->momentum().x(),st->momentum().y(),st->momentum().z());
       Basic3DVector<double> vert = (Basic3DVector<double>)  svColl[st->vertIndex()].position();
 
-      //should use st->charge()
-      TrackBase::ParameterVector sParameters=parametersAtClosestApproachGeom(vert, momAtVtx, track->charge());
+      TrackBase::ParameterVector sParameters=parametersAtClosestApproachGeom(vert, momAtVtx, st->charge());
       
       TrackBase::ParameterVector diffParameters = rParameters - sParameters;
       double chi2 = ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters);
@@ -116,7 +114,7 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 	  vind++;   
 	}
 
-	TrackBase::ParameterVector gParameters=parametersAtClosestApproachGeom(vert, momAtVtx, rt->charge());
+	TrackBase::ParameterVector gParameters=parametersAtClosestApproachGeom(vert, momAtVtx, t->charge());
 
 	//sParameters[0] = k;
 	//sParameters[1] = theta;
@@ -186,11 +184,12 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
 	if (vind==t->vertIndex()) vert=Basic3DVector<double>(v->position().x(),v->position().y(),v->position().z());
 	vind++;
       }
+
+      TrackBase::ParameterVector sParameters=parametersAtClosestApproachGeom(vert, momAtVtx, t->charge());
      
       int tindex=0;
       for (TrackCollection::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
 
-	TrackBase::ParameterVector sParameters=parametersAtClosestApproachGeom(vert, momAtVtx, rt->charge());
 	
 	TrackBase::ParameterVector rParameters = rt->parameters();
 	TrackBase::CovarianceMatrix recoTrackCovMatrix = rt->covariance();
@@ -235,10 +234,51 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
 
 }
 
+double TrackAssociatorByChi2::associateRecoToSim( TrackCollection::const_iterator rt, 
+						  TrackingParticleCollection::const_iterator tp ){
+  
+  double chi2;
+  
+  TrackBase::ParameterVector rParameters = rt->parameters();
+  TrackBase::CovarianceMatrix recoTrackCovMatrix = rt->covariance();
+  recoTrackCovMatrix.Invert();
+  
+  for (TrackingParticle::g4t_iterator t=tp->g4Track_begin(); t!=tp->g4Track_end(); ++t) {
+
+    double thetares = t->momentum().theta();
+    double phi0res = t->momentum().phi();
+    GlobalPoint vert;
+    const TrackingVertex * tv = &(*(tp->parentVertex()));
+    int vind=0;
+    for (TrackingVertex::g4v_iterator v=tv->g4Vertices_begin(); v!=tv->g4Vertices_end(); v++){
+      if (vind==t->vertIndex()) vert=GlobalPoint(v->position().x(),v->position().y(),v->position().z());
+      vind++;
+    }
+    double d0res = vert.perp();
+    double dzres = vert.z();
+    GlobalVector magField = theMF->inTesla( vert);
+
+    double kres= -1 * t->charge() * 2.99792458e-3 * magField.mag() / t->momentum().perp();
+    
+    TrackBase::ParameterVector sParameters;
+    sParameters[0] = kres;
+    sParameters[1] = thetares;
+    sParameters[2] = phi0res;
+    sParameters[3] = d0res;
+    sParameters[4] = dzres;
+    
+    TrackBase::ParameterVector diffParameters = rParameters - sParameters;
+    chi2 = ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters);
+    chi2 /= 5;
+    
+  }
+  return chi2;
+
+}
 
 TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproach2Order (Basic3DVector<double> vertex,
 										     Basic3DVector<double> momAtVtx,
-										     int charge) {
+										     float charge) {
   GlobalVector magField = theMF->inTesla( (GlobalPoint) vertex );
   double simTrCurv = -charge*2.99792458e-3 * magField.z()/momAtVtx.perp();
   HelixExtrapolatorToLine2Order estr(vertex, momAtVtx, simTrCurv);
@@ -309,7 +349,7 @@ TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproach2Or
 
 TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproachGeom (Basic3DVector<double> vertex,
 										   Basic3DVector<double> momAtVtx,
-										   int charge) {
+										   float charge) {
   GlobalVector magField = theMF->inTesla( (GlobalPoint) vertex );
   double simTrCurv = -charge*2.99792458e-3 * magField.z()/momAtVtx.perp();
 
