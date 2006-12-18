@@ -86,6 +86,12 @@ namespace edm {
     {
       clear();
       
+      if(nodes_->size() == 0)
+      {
+        throw edm::Exception(errors::Configuration,"ParseTree")
+        << "Configuration is empty";
+      }
+        
       // make sure it has a well-defined top
       if(nodes_->size() > 1)
       {
