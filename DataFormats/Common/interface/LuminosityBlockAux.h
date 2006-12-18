@@ -18,7 +18,7 @@ namespace edm
 	processHistoryID_(),
 	id_(),
 	runID_() {}
-    explicit LuminosityBlockAux(LuminosityBlockID const& theId, RunNumber_t const& theRun = 1UL) :
+    explicit LuminosityBlockAux(LuminosityBlockID const& theId, RunNumber_t const& theRun = 1U) :
 	processHistoryID_(),
 	id_(theId),
 	runID_(theRun) {}
