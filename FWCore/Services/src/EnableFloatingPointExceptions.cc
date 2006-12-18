@@ -9,7 +9,7 @@
 // Original Author:  E. Sexton-Kennedy
 //         Created:  Tue Apr 11 13:43:16 CDT 2006
 //
-// $Id: EnableFloatingPointExceptions.cc,v 1.2 2006/04/13 14:29:43 lsexton Exp $
+// $Id: EnableFloatingPointExceptions.cc,v 1.3 2006/04/13 18:29:15 lsexton Exp $
 //
 
 // system include files
@@ -26,7 +26,14 @@
 #include <assert.h>
 #endif
 
+#ifdef __linux__
+#ifdef __i386__
+#include <fpu_control.h>
+#endif
+#endif
+
 #include <limits> // For testing
+#include <cmath>
 
 // user include files
 #include "FWCore/Services/src/EnableFloatingPointExceptions.h"
@@ -79,10 +86,11 @@ static float generateUnderFlow()
 // constructors and destructor
 //
 EnableFloatingPointExceptions::EnableFloatingPointExceptions(const ParameterSet& iPS, ActivityRegistry&iRegistry):
-enableDivByZeroEx_(iPS.getUntrackedParameter<bool>("enableDivByZeroEx",true)),
-enableInvalidEx_(iPS.getUntrackedParameter<bool>("enableInvalidEx",true)),
-enableOverFlowEx_(iPS.getUntrackedParameter<bool>("enableOverFlowEx",true)),
-enableUnderFlowEx_(iPS.getUntrackedParameter<bool>("enableUnderFlowEx",false))
+enableDivByZeroEx_(iPS.getUntrackedParameter<bool>("enableDivByZeroEx", false)),
+enableInvalidEx_(iPS.getUntrackedParameter<bool>("enableInvalidEx", false)),
+enableOverFlowEx_(iPS.getUntrackedParameter<bool>("enableOverFlowEx", false)),
+enableUnderFlowEx_(iPS.getUntrackedParameter<bool>("enableUnderFlowEx", false)),
+setPrecisionDouble_(iPS.getUntrackedParameter<bool>("setPrecisionDouble", true))
 {
   controlFpe();
   //iRegistry.watchPreModule(this,&EnableFloatingPointExceptions::preModule);
@@ -90,6 +98,36 @@ enableUnderFlowEx_(iPS.getUntrackedParameter<bool>("enableUnderFlowEx",false))
   // Now run tests if requested
   if(iPS.getUntrackedParameter("runTest",false))
   {
+    if (setPrecisionDouble_) {
+
+      // If the FPU is using 64 bit double precision this test should always pass.
+      // It is not clear if it will always fail if the FP processor is not
+      // using 64 bit double precision (for example if it is using
+      // 80 bit extended double precision).  In that case, optimizations
+      // and other things might cause the result to also be 0 anyway (but
+      // they do not on the machine I tested this on ...).
+      // This test may fail if we ever start using a new CPU other than
+      // 32 bit Intel or AMD CPUs and the associated FPU doesn't by default
+      // use 64 bit precision for floating point calculations.
+      double t1 = 1.0;
+      double t2 = pow(2.0, -54.0);
+      double val = (t1 + t2) - t1; // rounding down should cause (t1 + t2) -> t1
+      if (val != 0.0) {
+        throw edm::Exception(edm::errors::LogicError) << "Floating point precision should be"
+          << " rounded to 64 bits, but it is not.\nPlease send email to the framework developers";
+      }
+
+      // Above we checked that the FPU does not use more than 64 bits of precision,
+      // Here we check that the FPU uses at least 64 bits of precision.
+      t1 = 1.0;
+      t2 = pow(2.0, -52.0);
+      val = (t1 + t2) - t1;
+      if (val != pow(2.0, -52.0)) {
+        throw edm::Exception(edm::errors::LogicError) << "Floating point precision should be"
+          << " at least 64 bits, but it is not.\nPlease send email to the framework developers";
+      }
+    }
+
     if(enableDivByZeroEx_)
     {
       float y = divideByZero(0.0);
@@ -213,7 +251,19 @@ EnableFloatingPointExceptions::controlFpe()
 	  (void) fpsetmask( (fpu_exceptions & ~FP_X_UFL) );
 
 #endif  /* SunOS */
+
+#ifdef __linux__
+#ifdef __i386__
+
+        if (setPrecisionDouble_) {
+
+          fpu_control_t cw;
+          _FPU_GETCW(cw);
+
+          cw = (cw & ~_FPU_EXTENDED) | _FPU_DOUBLE;
+          _FPU_SETCW(cw);
+       }
+#endif
+#endif
+
 }
-//
-// const member functions
-//
