@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.30 2006/11/03 17:57:51 wmtan Exp $
+$Id: Frameworkfwd.h,v 1.31 2006/12/01 03:29:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -57,6 +57,7 @@ namespace edm {
   struct TriggerReport;
 
   template <typename T> class Handle;
+  template <typename T> class View;
 }
 
 // The following are trivial enough so that the real headers can be included.
