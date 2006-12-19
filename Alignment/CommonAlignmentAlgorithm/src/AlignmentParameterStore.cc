@@ -672,13 +672,18 @@ attachUserVariables( const Alignables& alivec,
 
 //__________________________________________________________________________________________________
 void AlignmentParameterStore::setAlignmentPositionError( const Alignables& alivec, 
-														 double valshift, double valrot )
+                                                         double valshift, double valrot )
 {
 
   bool first=true;
   for ( Alignables::const_iterator iali = alivec.begin(); 
 		iali != alivec.end(); iali++ ) 
 	{
+          // First reset APE
+          if (valshift>0 || valrot>0) {
+            AlignmentPositionError ape(0,0,0);
+            (*iali)->setAlignmentPositionError(ape);
+          }
 	  if (valshift>0) {
 		AlignmentPositionError ape(valshift,valshift,valshift);
 		(*iali)->addAlignmentPositionError(ape);
