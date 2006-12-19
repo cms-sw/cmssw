@@ -41,9 +41,6 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   // Map of strips for position calculation
   RecHitsMap recHits_pos;
 
-  // Add to the road the central strip
-  road_2d.push_back(strip);
-
   //Make a navigator, and set it to the strip cell.
   EcalPreshowerNavigator navigator(strip, topology_p);
   navigator.setHome(strip);
@@ -272,7 +269,9 @@ void PreshowerClusterAlgo::findRoad(ESDetId strip, EcalPreshowerNavigator theESN
 
    ESDetId next;
    theESNav.setHome(strip);
-
+// First, add a central strip to the road 
+   road_2d.push_back(strip);   
+   
    if ( debugLevel_ <= pINFO ) std::cout << "findRoad starts from strip " << strip << std::endl;  
    if (plane == 1) {
      // east road
