@@ -99,10 +99,10 @@ SimpleForwardNavigableLayer( ForwardDetLayer* detLayer,
 
   // sort the outer layers 
   sort(theOuterLayers.begin(), theOuterLayers.end(), TkLayerLess());
-  sort(theInnerLayers.begin(), theInnerLayers.end(),TkLayerLess(oppositeToMomentum));
+  sort(theInnerLayers.begin(), theInnerLayers.end(),TkLayerLess(outsideIn));
 
   sort(theAllOuterLayers.begin(), theAllOuterLayers.end(), TkLayerLess());
-  sort(theAllInnerLayers.begin(), theAllInnerLayers.end(),TkLayerLess(oppositeToMomentum));
+  sort(theAllInnerLayers.begin(), theAllInnerLayers.end(),TkLayerLess(outsideIn));
 
 }
 
@@ -233,6 +233,6 @@ void SimpleForwardNavigableLayer::setInwardLinks(const BDLC& innerBL,
     theInnerLayers.push_back(*fl);
 
   // sort the inner layers
-  sort(theInnerLayers.begin(), theInnerLayers.end(),TkLayerLess(oppositeToMomentum));
+  sort(theInnerLayers.begin(), theInnerLayers.end(),TkLayerLess(outsideIn));
 
 }

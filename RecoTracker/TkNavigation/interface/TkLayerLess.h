@@ -1,7 +1,7 @@
 #ifndef TkNavigation_TkLayerLess_H
 #define TkNavigation_TkLayerLess_H
 
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "TrackingTools/DetLayers/interface/NavigationDirection.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "Geometry/Surface/interface/BoundCylinder.h"
@@ -16,17 +16,17 @@ class TkLayerLess
   : public std::binary_function< const DetLayer*,const DetLayer*,bool> {
 public:
 
-  TkLayerLess( PropagationDirection dir = alongMomentum) :
+  TkLayerLess( NavigationDirection dir = insideOut) :
     theDir(dir) {}
 
   bool operator()( const DetLayer* a, const DetLayer* b) const {
-    if (theDir == alongMomentum) return insideOutLess( a, b);
+    if (theDir == insideOut) return insideOutLess( a, b);
     else return insideOutLess( b, a);
   }
 
 private:
 
-  PropagationDirection theDir;
+  NavigationDirection theDir;
 
   bool insideOutLess( const DetLayer*,const DetLayer*) const;
 

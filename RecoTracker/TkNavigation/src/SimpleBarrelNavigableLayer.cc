@@ -112,8 +112,8 @@ SimpleBarrelNavigableLayer( BarrelDetLayer* detLayer,
   // sort the outer layers 
   sort( theNegOuterLayers.begin(), theNegOuterLayers.end(), TkLayerLess());
   sort( thePosOuterLayers.begin(), thePosOuterLayers.end(), TkLayerLess());
-  sort( theNegInnerLayers.begin(), theNegInnerLayers.end(), TkLayerLess(oppositeToMomentum));
-  sort( thePosInnerLayers.begin(), thePosInnerLayers.end(), TkLayerLess(oppositeToMomentum));
+  sort( theNegInnerLayers.begin(), theNegInnerLayers.end(), TkLayerLess(outsideIn));
+  sort( thePosInnerLayers.begin(), thePosInnerLayers.end(), TkLayerLess(outsideIn));
 
 }
 
@@ -281,7 +281,7 @@ void SimpleBarrelNavigableLayer::setInwardLinks(const BDLC& theBarrelv,
 {
   theInnerBarrelLayers=theBarrelv;
   // sort the inner layers
-  sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(),TkLayerLess(oppositeToMomentum));
+  sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(),TkLayerLess(outsideIn));
 
 
   ConstFDLI middle = find_if( theForwardv.begin(),theForwardv.end(),
@@ -290,8 +290,8 @@ void SimpleBarrelNavigableLayer::setInwardLinks(const BDLC& theBarrelv,
   theInnerRightForwardLayers=FDLC(middle,theForwardv.end());
 
   // sort the inner layers
-  sort(theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(),TkLayerLess(oppositeToMomentum));
-  sort(theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(),TkLayerLess(oppositeToMomentum));
+  sort(theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(),TkLayerLess(outsideIn));
+  sort(theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(),TkLayerLess(outsideIn));
 
 
 
@@ -309,7 +309,7 @@ void SimpleBarrelNavigableLayer::setInwardLinks(const BDLC& theBarrelv,
     thePosInnerLayers.push_back( *fl);
 
   // sort the inner layers 
-  sort( theNegInnerLayers.begin(), theNegInnerLayers.end(), TkLayerLess(oppositeToMomentum));
-  sort( thePosInnerLayers.begin(), thePosInnerLayers.end(), TkLayerLess(oppositeToMomentum));
+  sort( theNegInnerLayers.begin(), theNegInnerLayers.end(), TkLayerLess(outsideIn));
+  sort( thePosInnerLayers.begin(), thePosInnerLayers.end(), TkLayerLess(outsideIn));
 
 }

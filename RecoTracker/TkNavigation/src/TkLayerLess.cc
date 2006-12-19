@@ -1,6 +1,4 @@
 #include "RecoTracker/TkNavigation/interface/TkLayerLess.h"
-//#include "CommonDet/DetUtilities/interface/DetExceptions.h"
-// temporary solution
 #include "Utilities/General/interface/CMSexception.h"
 
 bool TkLayerLess::insideOutLess( const DetLayer* a, const DetLayer* b) const
