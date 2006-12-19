@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.21 2006/11/17 00:35:26 wmtan Exp $
+$Id: cmsRun.cpp,v 1.22 2006/11/28 20:58:55 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -95,10 +95,11 @@ int main(int argc, char* argv[])
   // 
   // The parameters for these can be overridden from the configuration files.
   std::vector<std::string> defaultServices;
-  defaultServices.reserve(4);
+  defaultServices.reserve(5);
   defaultServices.push_back("AdaptorConfig");
   defaultServices.push_back("InitRootHandlers");
   defaultServices.push_back("MessageLogger");
+  defaultServices.push_back("EnableFloatingPointExceptions");
   defaultServices.push_back("LoadAllDictionaries");
   
   // These cannot be overridden from the configuration files.
