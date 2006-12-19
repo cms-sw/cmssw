@@ -4,9 +4,9 @@
 /** \class ConversionTrackFinder
  **  
  **
- **  $Id: ConversionTrackFinder.h,v 1.2 2006/06/23 14:18:04 nancy Exp $ 
- **  $Date: 2006/06/23 14:18:04 $ 
- **  $Revision: 1.2 $
+ **  $Id: ConversionTrackFinder.h,v 1.3 2006/07/10 17:55:25 nancy Exp $ 
+ **  $Date: 2006/07/10 17:55:25 $ 
+ **  $Revision: 1.3 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -14,9 +14,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+//
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+//#include "DataFormats/TrackCandidate/interface/TrackCandidateSuperClusterAssociation.h"
+//
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
@@ -43,10 +46,15 @@ class ConversionTrackFinder {
     {
     }
 
+
+  //  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds, TrackCandidateCollection &candidates, reco::TrackCandidateSuperClusterAssociationCollection& outAssoc, int iSC ) const =0;
+  
+  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds , TrackCandidateCollection &candidate) const =0;
   
   //virtual std::vector<const Trajectory*> tracks(const TrajectorySeedCollection seeds ) const =0;
-virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds ) const =0;
-
+  //virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds ) const =0;
+  //virtual  TrackCandidateCollection tracks(const TrajectorySeedCollection seeds ) const =0;
+  //  virtual std::auto_ptr<TrackCandidateCollection> tracks(const TrajectorySeedCollection seeds ) const =0;
 
 
  protected: 

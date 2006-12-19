@@ -3,9 +3,9 @@
 /** \class OutInConversionTrackFinder
  **  
  **
- **  $Id: OutInConversionTrackFinder.h,v 1.3 2006/07/10 17:57:18 nancy Exp $ 
- **  $Date: 2006/07/10 17:57:18 $ 
- **  $Revision: 1.3 $
+ **  $Id: OutInConversionTrackFinder.h,v 1.4 2006/11/14 11:56:37 nancy Exp $ 
+ **  $Date: 2006/11/14 11:56:37 $ 
+ **  $Revision: 1.4 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -14,8 +14,11 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+//#include "DataFormats/TrackCandidate/interface/TrackCandidateSuperClusterAssociation.h"
+//
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+//
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackFinder.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
@@ -42,12 +45,16 @@ class OutInConversionTrackFinder : public ConversionTrackFinder {
   
   virtual ~OutInConversionTrackFinder();
    
+  //  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds, TrackCandidateCollection &candidates, reco::TrackCandidateSuperClusterAssociationCollection& outAssoc, int iSC ) const;
   
+ virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds, TrackCandidateCollection &candidates ) const;
   
+
+
   // virtual std::vector<const Trajectory*> tracks(const TrajectorySeedCollection seeds ) const ;
-  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds ) const;
-
-
+  //  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds ) const;
+  // virtual TrackCandidateCollection tracks(const TrajectorySeedCollection seeds ) const;
+  //virtual  std::auto_ptr<TrackCandidateCollection>  tracks(const TrajectorySeedCollection seeds ) const;
 
   
   
@@ -55,6 +62,7 @@ class OutInConversionTrackFinder : public ConversionTrackFinder {
   
 
  private: 
+
 
   edm::ParameterSet                         conf_;
   const TrackerTrajectoryBuilder*  theCkfTrajectoryBuilder_;

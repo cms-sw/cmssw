@@ -3,16 +3,19 @@
 /** \class InOutConversionTrackFinder
  **  
  **
- **  $Id: InOutConversionTrackFinder.h,v 1.3 2006/07/10 17:56:45 nancy Exp $ 
- **  $Date: 2006/07/10 17:56:45 $ 
- **  $Revision: 1.3 $
+ **  $Id: InOutConversionTrackFinder.h,v 1.4 2006/11/14 11:55:11 nancy Exp $ 
+ **  $Date: 2006/11/14 11:55:11 $ 
+ **  $Revision: 1.4 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+//
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+//#include "DataFormats/TrackCandidate/interface/TrackCandidateSuperClusterAssociation.h"
+//
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackFinder.h"
 
@@ -37,7 +40,14 @@ class InOutConversionTrackFinder : public ConversionTrackFinder {
  virtual ~InOutConversionTrackFinder();
   
 
- virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds ) const ;
+ //virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds, TrackCandidateCollection &candidates, reco::TrackCandidateSuperClusterAssociationCollection& outAssoc, int iSC ) const;
+  
+
+  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds, TrackCandidateCollection &candidate ) const ;
+
+ //virtual  std::auto_ptr<TrackCandidateCollection>  tracks(const TrajectorySeedCollection seeds ) const;
+// virtual TrackCandidateCollection tracks(const TrajectorySeedCollection seeds ) const ;
+ // virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds ) const ;
  // virtual std::vector<const Trajectory*> tracks(const TrajectorySeedCollection seeds ) const;
  
  
