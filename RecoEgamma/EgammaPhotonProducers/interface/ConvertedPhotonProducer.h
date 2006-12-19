@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.2 2006/06/27 13:59:28 nancy Exp $ 
- **  $Date: 2006/06/27 13:59:28 $ 
- **  $Revision: 1.2 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.3 2006/07/26 13:11:38 nancy Exp $ 
+ **  $Date: 2006/07/26 13:11:38 $ 
+ **  $Revision: 1.3 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -26,13 +26,8 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 
-
-class OutInConversionSeedFinder;
-class InOutConversionSeedFinder;
-class OutInConversionTrackFinder;
-class InOutConversionTrackFinder;
-
-// ConvertedPhotonProducer inherits from EDProducer, so it can be a module:
+class ConversionTrackPairFinder;
+class ConversionVertexFinder;
 class ConvertedPhotonProducer : public edm::EDProducer {
 
  public:
@@ -47,9 +42,14 @@ class ConvertedPhotonProducer : public edm::EDProducer {
  private:
 
   
+  std::string conversionOITrackProducer_;
+  std::string conversionIOTrackProducer_;
 
-  
+
+  std::string OutInTrackCandidateCollection_;
+  std::string InOutTrackCandidateCollection_;
   std::string ConvertedPhotonCollection_;
+  
   std::string bcProducer_;
   std::string bcBarrelCollection_;
   std::string bcEndcapCollection_;
@@ -65,10 +65,9 @@ class ConvertedPhotonProducer : public edm::EDProducer {
  
   const MeasurementTracker*     theMeasurementTracker_;
   const NavigationSchool*       theNavigationSchool_;
-  OutInConversionSeedFinder*  theOutInSeedFinder_;
-  OutInConversionTrackFinder* theOutInTrackFinder_;
-  InOutConversionSeedFinder*  theInOutSeedFinder_;
-  InOutConversionTrackFinder* theInOutTrackFinder_;
+
+  ConversionTrackPairFinder*    theTrackPairFinder_;
+  ConversionVertexFinder*    theVertexFinder_;
 
   const LayerMeasurements*      theLayerMeasurements_;
  
