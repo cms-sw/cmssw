@@ -22,10 +22,10 @@ PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const Gs
   //
 
   //Initialise to E from cluster + direction from track
-  double scale = superCluster_->energy()/innMom.mag();    
-  math::XYZTLorentzVectorD momentum= math::XYZTLorentzVector(innMom.x()*scale,
-                          innMom.y()*scale,
-                          innMom.z()*scale,
+  double scale = superCluster_->energy()/vtxMom.mag();    
+  math::XYZTLorentzVectorD momentum= math::XYZTLorentzVector(vtxMom.x()*scale,
+                          vtxMom.y()*scale,
+                          vtxMom.z()*scale,
 			  superCluster_->energy());
   setCharge(track_->charge());
   setP4(momentum);
@@ -38,9 +38,13 @@ PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const Gs
   trackMomentumAtCalo_=math::XYZVector(tssuperMom.x(),
                                        tssuperMom.y(),
                                        tssuperMom.z());
+  trackMomentumAtVtx_=math::XYZVector(vtxMom.x(),
+                                      vtxMom.y(),
+                                      vtxMom.z());
   //
   // supercluster - track at impact match parameters
   //
+  superClusterEnergy_=superCluster_->energy();
   eSuperClusterOverP_=-1;
   //  if (innMom.R()!=0) eSuperClusterOverP_= superCluster_->energy()/innMom.R();
   if (innMom.mag()!=0) eSuperClusterOverP_= superCluster_->energy()/innMom.mag();
@@ -84,8 +88,6 @@ PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const Gs
   //
   // other quantities
   //
-
-  //temporary
   momentumFromEpCombination_=false;
   trackMomentumError_=0;
   
@@ -179,3 +181,38 @@ float PixelMatchGsfElectron::ecalPhi(float PtParticle, float EtaParticle, float 
   return PHI;
 }
 
+//void PixelMatchGsfElectron::correctElectronEnergyScale(const PElectronEnergyCorrector *thecorr) {
+void PixelMatchGsfElectron::correctElectronEnergyScale(const float newEnergy) {
+  
+  //   float newEnergy = thecorr->getCorrectedEnergy();
+ 
+  //momentum_*=newEnergy/momentum_.e();
+  math::XYZTLorentzVectorD momentum=p4();
+  momentum*=newEnergy/momentum.e();
+  setP4(momentum);
+  hadOverEm_*=newEnergy/superClusterEnergy_;
+  eSuperClusterOverP_*=newEnergy/superClusterEnergy_;
+  superClusterEnergy_=newEnergy;
+ 
+  energyScaleCorrected_=true;    
+}
+ 
+//void PixelMatchGsfElectron::correctElectronFourMomentum(const PElectronMomentumCorrector *thecorr) {
+void PixelMatchGsfElectron::correctElectronFourMomentum(const math::XYZTLorentzVectorD & momentum,float & enErr, float & tmErr) {
+ 
+  //   momentum_ = thecorr->getBestMomentum();
+  setP4(momentum);
+  //   energyError_ = thecorr->getSCEnergyError();
+  energyError_ = enErr;
+  //   trackMomentumError_ = thecorr->getTrackMomentumError();
+  trackMomentumError_ = tmErr;
+
+  momentumFromEpCombination_=true;
+}
+ 
+//void PixelMatchGsfElectron::classifyElectron(const PElectronClassification *theclassifier) {
+//   electronClass_ = theclassifier->getClass();
+void PixelMatchGsfElectron::classifyElectron(const int myclass)
+{
+  electronClass_ = myclass;
+}

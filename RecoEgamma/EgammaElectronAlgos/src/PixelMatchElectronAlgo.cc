@@ -12,10 +12,13 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.23 2006/12/13 18:37:24 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.24 2006/12/18 16:59:13 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronClassification.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
@@ -199,7 +202,7 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH, co
     //at seed
     TrajectoryStateOnSurface outTSOS = mtsTransform_->outerStateOnSurface(t, *(trackerHandle_.product()), theMagField.product());
     TrajectoryStateOnSurface seedTSOS = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(outTSOS,GlobalPoint(theClus.seed()->position().x(),theClus.seed()->position().y(),theClus.seed()->position().z()));
-
+ 
 
     //at scl
     TrajectoryStateOnSurface sclTSOS = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(outTSOS,GlobalPoint(theClus.x(),theClus.y(),theClus.z()));
@@ -211,12 +214,20 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH, co
       GlobalPoint innPos=innTSOS.globalPosition();
       GlobalVector seedMom=computeMode(seedTSOS);
       GlobalPoint  seedPos=seedTSOS.globalPosition();
-      GlobalVector sclMom=computeMode(sclTSOS);
+      GlobalVector sclMom=computeMode(sclTSOS);    
       GlobalPoint  vtxPos=vtxTSOS.globalPosition();
       GlobalVector outMom=computeMode(outTSOS);
       GlobalPoint  outPos=outTSOS.globalPosition();
 
       PixelMatchGsfElectron ele((*sclAss)[seed],trackRef,sclPos,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom,outPos,outMom,HoE);
+      // set corrections + classification
+      ElectronClassification theClassifier;
+      theClassifier.correct(ele);
+      ElectronEnergyCorrector theEnCorrector;
+      theEnCorrector.correct(ele);
+      ElectronMomentumCorrector theMomCorrector;
+      theMomCorrector.correct(ele,vtxTSOS);
+	//mCorr.getBestMomentum(),mCorr.getSCEnergyError(),mCorr.getTrackMomentumError());
       outEle.push_back(ele);
       LogInfo("")<<"Constructed new electron with energy  "<< (*sclAss)[seed]->energy();
     }
