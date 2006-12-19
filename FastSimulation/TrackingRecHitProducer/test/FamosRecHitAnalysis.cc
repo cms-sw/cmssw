@@ -503,25 +503,20 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
 	float beta = acos(locy/sqrt(locy*locy+locz*locz));
 	// TO BE USED TO CHECK ROOTFILES
 	// look old FAMOS: FamosGeneric/FamosTracker/src/FamosPixelErrorParametrization
-	alpha = PI/2. - alpha;
-	beta  = fabs( PI/2. - beta );
+	if(subdetid == 1 ) { // PXB
+	  alpha = PI/2. - alpha;
+	  beta  = fabs( PI/2. - beta );
+	} else if(subdetid == 2 ) { // PXF
+	  beta  = PI/2. - beta;
+	  alpha = fabs( PI/2. - alpha );
+	}
 	//
 	
-	/*
-	  float alpha = 3.141592654 / 2.
-	  - acos( simHit->localDirection().x() /
-	  sqrt( simHit->localDirection().x() * simHit->localDirection().x()
-	  + simHit->localDirection().z() * simHit->localDirection().z() ) );
-	  float beta = fabs( 3.141592654 / 2.
-	  - acos( simHit->localDirection().y() /
-	  sqrt( simHit->localDirection().y() * simHit->localDirection().y()
-	  + simHit->localDirection().z() * simHit->localDirection().z() ) ) );
-	*/
 	unsigned int mult_alpha = (*iterRecHit).simMultX();
 	unsigned int mult_beta  = (*iterRecHit).simMultY();
 #ifdef rrDEBUG
 	std::cout << "\n\t" << iRecHit << std::endl;
-	std::cout << "\tDet Unit id " << detUnitId << " in subdetector" << (*iDetId).subdetId() << std::endl;
+	std::cout << "\tDet Unit id " << detUnitId << " in subdetector " << (*iDetId).subdetId() << std::endl;
 	std::cout << "\tRecHit"
 		  << "\t\tx = " << xRec << " cm"
 		  << "\t\ty = " << yRec << " cm"
@@ -654,10 +649,10 @@ void FamosRecHitAnalysis::endJob() {
   write(histos_TEC_err_z);
   write(histos_TEC_nom_x);
   //
-  rootComparison( histos_PXB_alpha , histos_PXB_nom_alpha , -1 , 0 );
-  rootComparison( histos_PXB_beta  , histos_PXB_nom_beta  , -1 , 0 );
-  rootComparison( histos_PXF_alpha , histos_PXF_nom_alpha , -1 , 0 );
-  rootComparison( histos_PXF_beta  , histos_PXF_nom_beta  , -1 , 0 );
+  rootComparison( histos_PXB_alpha , histos_PXB_nom_alpha , -1 , 0 , 1.05 );
+  rootComparison( histos_PXB_beta  , histos_PXB_nom_beta  , -1 , 0 , 1.05 );
+  rootComparison( histos_PXF_alpha , histos_PXF_nom_alpha , -1 , 0 , 1.05 );
+  rootComparison( histos_PXF_beta  , histos_PXF_nom_beta  , -1 , 0 , 1.05 );
   rootComparison( histos_PXB_res_alpha , histos_PXB_nom_res_alpha , 20 );
   rootComparison( histos_PXB_res_beta  , histos_PXB_nom_res_beta  , 20 );
   rootComparison( histos_PXF_res_alpha , histos_PXF_nom_res_alpha , 20 );
@@ -708,7 +703,7 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
       if( iAlphaHist==-1 ) {
 	double binMin = resAlphaBarrel_binMin;
 	double binMax = resAlphaBarrel_binMin+(double)(resAlphaBarrel_binN)*resAlphaBarrel_binWidth;
-	if( alpha < binMin)  iAlphaHist = ( (mult_alpha-1)*resAlphaBarrel_binN + 0 ) - 1; // underflow
+	if( alpha < binMin)  iAlphaHist = ( (mult_alpha-1)*resAlphaBarrel_binN + 1 ) - 1; // underflow
 	if( alpha >= binMax) iAlphaHist = ( (mult_alpha-1)*resAlphaBarrel_binN + resAlphaBarrel_binN ) - 1; // overflow
       }
       //
@@ -725,7 +720,7 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
       if( iBetaHist==-1 ) {
 	double binMin = resBetaBarrel_binMin;
 	double binMax = resBetaBarrel_binMin+(double)(resBetaBarrel_binN)*resBetaBarrel_binWidth;
-	if( beta < binMin)  iBetaHist = ( (mult_beta-1)*resBetaBarrel_binN + 0 ) - 1; // underflow
+	if( beta < binMin)  iBetaHist = ( (mult_beta-1)*resBetaBarrel_binN + 1 ) - 1; // underflow
 	if( beta >= binMax) iBetaHist = ( (mult_beta-1)*resBetaBarrel_binN + resBetaBarrel_binN ) - 1; // overflow
       }
       //
@@ -764,7 +759,7 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
       if( iAlphaHist==-1 ) {
 	double binMin = resAlphaForward_binMin;
 	double binMax = resAlphaForward_binMin+(double)(resAlphaForward_binN)*resAlphaForward_binWidth;
-	if( alpha < binMin)  iAlphaHist = ( (mult_alpha-1)*resAlphaForward_binN + 0 ) - 1; // underflow
+	if( alpha < binMin)  iAlphaHist = ( (mult_alpha-1)*resAlphaForward_binN + 1 ) - 1; // underflow
 	if( alpha >= binMax) iAlphaHist = ( (mult_alpha-1)*resAlphaForward_binN + resAlphaForward_binN ) - 1; // overflow
       }
       //
@@ -781,7 +776,7 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
       if( iBetaHist==-1 ) {
 	double binMin = resBetaForward_binMin;
 	double binMax = resBetaForward_binMin+(double)(resBetaForward_binN)*resBetaForward_binWidth;
-	if( beta < binMin)  iBetaHist = ( (mult_beta-1)*resBetaForward_binN + 0 ) - 1; // underflow
+	if( beta < binMin)  iBetaHist = ( (mult_beta-1)*resBetaForward_binN + 1 ) - 1; // underflow
 	if( beta >= binMax) iBetaHist = ( (mult_beta-1)*resBetaForward_binN + resBetaForward_binN ) - 1; // overflow
       }
       //
@@ -962,7 +957,8 @@ void FamosRecHitAnalysis::rootMacroPixel( std::vector<TH1F*>& histos_angle ) {
 //
 
 //
-void FamosRecHitAnalysis::rootComparison( std::vector<TH1F*> histos_value , std::vector<TH1F*> histos_nominal , int binFactor , int yLogScale ) {
+void FamosRecHitAnalysis::rootComparison( std::vector<TH1F*> histos_value , std::vector<TH1F*> histos_nominal ,
+					  int binFactor , int yLogScale , float yMax) {
   //
   for(unsigned int iHist = 0; iHist < histos_value.size(); iHist++) {
     // canvas
@@ -992,6 +988,7 @@ void FamosRecHitAnalysis::rootComparison( std::vector<TH1F*> histos_value , std:
     }
     //
     // Draw
+    if(yMax != -1) histos_nominal[iHist]->SetMaximum(yMax);
     histos_nominal[iHist]->Draw("HIST");
     histos_value[iHist]->Draw("HIST P E1 SAME");
     //

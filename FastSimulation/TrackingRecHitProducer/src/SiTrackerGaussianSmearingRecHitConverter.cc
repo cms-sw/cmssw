@@ -97,6 +97,8 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
 //--- switch to have RecHit == PSimHit
   trackingPSimHits = conf.getParameter<bool>("trackingPSimHits");
   if(trackingPSimHits) std::cout << "### trackingPSimHits chosen " << trackingPSimHits << std::endl;
+  negativeErrorProtection = conf.getParameter<bool>("negativeErrorProtection");
+  if(negativeErrorProtection) std::cout << "### negativeErrorProtection chosen " << negativeErrorProtection << std::endl;
   //
   // TIB
   localPositionResolution_TIB1x = conf.getParameter<double>("TIB1x");

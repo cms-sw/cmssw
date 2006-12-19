@@ -80,6 +80,7 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   std::vector<std::string> trackerContainers;
   double deltaRaysPCut; // GeV/c
   bool trackingPSimHits; // in case it is true make RecHit = replica of PSimHit without errors (1 um)
+  bool negativeErrorProtection; // in case it is true protect against PixelErrorParametrization negative variance
   //
   const TrackerGeometry* geometry;
   //

@@ -64,7 +64,8 @@ private:
 		       std::vector<TH1F*>& histos_err_x  , std::vector<TH1F*>& histos_err_y , std::vector<TH1F*>& histos_err_z ,
 		       std::vector<TH1F*>& histos_nom_x   );
   void rootMacroPixel( std::vector<TH1F*>& histos_angle );
-  void rootComparison( std::vector<TH1F*> histos_value , std::vector<TH1F*> histos_nominal , int binFactor , int yLogScale = 1 );
+  void rootComparison( std::vector<TH1F*> histos_value , std::vector<TH1F*> histos_nominal ,
+		       int binFactor , int yLogScale = 1 , float yMax = -1.);
   //
   
   

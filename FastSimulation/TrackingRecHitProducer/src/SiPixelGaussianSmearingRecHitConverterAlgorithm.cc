@@ -51,7 +51,8 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
   
   // The random engine
   random = RandomEngine::instance();
-
+  //
+  negativeErrorProtection = pset.getParameter<bool>("negativeErrorProtection" );
   //
   if( thePixelPart == GeomDetEnumerators::PixelBarrel ) {
     // Resolution Barrel    
@@ -158,9 +159,15 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   float beta = acos(locy/sqrt(locy*locy+locz*locz));
   
   // look old FAMOS: FamosGeneric/FamosTracker/src/FamosPixelErrorParametrization
-  float alphaToBeUsedForRootFiles = PI/2. - alpha;
-  float betaToBeUsedForRootFiles  = fabs( PI/2. - beta );
-  
+  float alphaToBeUsedForRootFiles = alpha;
+  float betaToBeUsedForRootFiles  = beta;
+  if( thePixelPart == GeomDetEnumerators::PixelBarrel ) { // BARREL
+    alphaToBeUsedForRootFiles = PI/2. - alpha;
+    betaToBeUsedForRootFiles  = fabs( PI/2. - beta );
+  } else { // FORWARD
+    betaToBeUsedForRootFiles = PI/2. - beta;
+    alphaToBeUsedForRootFiles  = fabs( PI/2. - alpha );    
+  }
   //
 #ifdef FAMOS_DEBUG
   std::cout << " Local Direction " << simHit.localDirection()
@@ -184,26 +191,6 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   int betaBin = 
     theBetaMultiplicityCumulativeProbabilities.front()->GetXaxis()->FindFixBin(betaToBeUsedForRootFiles);
 
-  for(unsigned int iMult = 0; iMult < theAlphaMultiplicityCumulativeProbabilities.size(); iMult++) {
-    if(alphaProbability < theAlphaMultiplicityCumulativeProbabilities[iMult]->GetBinContent(alphaBin) ) {
-      alphaMultiplicity = iMult+1;
-      break;
-    }
-  }
-
-  for(unsigned int iMult = 0; iMult < theBetaMultiplicityCumulativeProbabilities.size(); iMult++) {
-    if(betaProbability < theBetaMultiplicityCumulativeProbabilities[iMult]->GetBinContent(betaBin) ) {
-      betaMultiplicity = iMult+1;
-      break;
-    }
-  }
-
-  // protection against 0 or max multiplicity
-  if( alphaMultiplicity == 0 || alphaMultiplicity > theAlphaMultiplicityCumulativeProbabilities.size() ) 
-    alphaMultiplicity = theAlphaMultiplicityCumulativeProbabilities.size();
-  if( betaMultiplicity == 0  || alphaMultiplicity > theBetaMultiplicityCumulativeProbabilities.size()  ) 
-    betaMultiplicity  = theBetaMultiplicityCumulativeProbabilities.size();
-
   // protection against out-of-range (undeflows and overflows)
   if( alphaBin == 0 ) alphaBin = 1;
   if( alphaBin > theAlphaMultiplicityCumulativeProbabilities.front()->GetNbinsX() ) 
@@ -211,9 +198,29 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   if( betaBin == 0 ) betaBin = 1;
   if( betaBin > theBetaMultiplicityCumulativeProbabilities.front()->GetNbinsX() )   
     betaBin = theBetaMultiplicityCumulativeProbabilities.front()->GetNbinsX();
-
+  
+  for(unsigned int iMult = 0; iMult < theAlphaMultiplicityCumulativeProbabilities.size(); iMult++) {
+    if(alphaProbability < theAlphaMultiplicityCumulativeProbabilities[iMult]->GetBinContent(alphaBin) ) {
+      alphaMultiplicity = iMult+1;
+      break;
+    }
+  }
+  
+  for(unsigned int iMult = 0; iMult < theBetaMultiplicityCumulativeProbabilities.size(); iMult++) {
+    if(betaProbability < theBetaMultiplicityCumulativeProbabilities[iMult]->GetBinContent(betaBin) ) {
+      betaMultiplicity = iMult+1;
+      break;
+    }
+  }
+  
+  // protection against 0 or max multiplicity
+  if( alphaMultiplicity == 0 || alphaMultiplicity > theAlphaMultiplicityCumulativeProbabilities.size() ) 
+    alphaMultiplicity = theAlphaMultiplicityCumulativeProbabilities.size();
+  if( betaMultiplicity  == 0 || betaMultiplicity  > theBetaMultiplicityCumulativeProbabilities.size()  ) 
+    betaMultiplicity  = theBetaMultiplicityCumulativeProbabilities.size();
   //
-  //
+  
+//
 #ifdef FAMOS_DEBUG
   std::cout << " Multiplicity set to"
 	    << "\talpha = " << alphaMultiplicity
@@ -238,8 +245,8 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   theErrorY = theErrors.second; // PixelErrorParametrization returns sigma^2
   theErrorZ = 1e-8; // 1 um means zero
   theError = LocalError( theErrorX, 0., theErrorY);
-    // Local Error is 2D: (xx,xy,yy), square of sigma in first an third position 
-    // as for resolution matrix
+  // Local Error is 2D: (xx,xy,yy), square of sigma in first an third position 
+  // as for resolution matrix
   //
 #ifdef FAMOS_DEBUG
   std::cout << " Pixel Errors "
@@ -247,6 +254,27 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 	    << "\tbeta(y) = "  << sqrt(theErrorY)
 	    << std::endl;	
 #endif
+  
+  if(theErrorX < 0) {
+    std::cout << "\t\tNAN:: PixelPart , alpha , sizex , beta , sizey , errorx, errory "
+	      << thePixelPart << " "
+	      << alpha << " " << alphaMultiplicity << " "
+	      << beta  << " " << betaMultiplicity  << " "
+	      << theErrorX << " " << theErrorY
+	      << std::endl;
+    // protect the error against nan's
+    if(negativeErrorProtection) {
+      float reasonableError = 0.0005; // A reasonable error is 5 um for high multiplicity clusters
+      theErrorX = reasonableError * reasonableError;
+      std::cout << "\t\tERROR PROTECTION:: PixelPart , alpha , sizex , beta , sizey , errorx, errory "
+		<< thePixelPart << " "
+		<< alpha << " " << alphaMultiplicity << " "
+		<< beta  << " " << betaMultiplicity  << " "
+		<< theErrorX << " " << theErrorY
+		<< std::endl;
+    }
+  }
+  
   // 
   // Generate position
   // get resolution histograms
@@ -282,9 +310,17 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   // Smear the hit Position
   thePositionX = theAlphaHistos[alphaHistN]->generate();
   thePositionY = theBetaHistos[betaHistN]->generate();
+  //  thePositionX = theAlphaHistos[alphaHistN]->getHisto()->GetRandom();
+  //  thePositionY = theBetaHistos[betaHistN]->getHisto()->GetRandom();
   thePositionZ = 0.0; // set at the centre of the active area
   thePosition = Local3DPoint( thePositionX , thePositionY , thePositionZ );
-
+#ifdef FAMOS_DEBUG
+  std::cout << " Generated local position "
+	    << "\tx = " << thePositionX
+	    << "\ty = " << thePositionY
+	    << std::endl;	
+#endif
+  
   // define private mebers --> Multiplicities
   thePixelMultiplicityAlpha = alphaMultiplicity;
   thePixelMultiplicityBeta  = betaMultiplicity;

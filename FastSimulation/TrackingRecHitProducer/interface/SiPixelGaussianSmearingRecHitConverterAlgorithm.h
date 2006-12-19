@@ -66,7 +66,8 @@ private:
   //
   bool isFlipped(const PixelGeomDetUnit* theDet) const;
   //
-
+  bool negativeErrorProtection; // in case it is true protect against PixelErrorParametrization negative variance
+  //
   // resolution bins
   double resAlpha_binMin , resAlpha_binWidth;
   unsigned int resAlpha_binN;
