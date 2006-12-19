@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.6 2006/10/20 16:36:22 dmytro Exp $
+// $Id: MuonDetIdAssociator.cc,v 1.1 2006/12/19 01:01:01 dmytro Exp $
 //
 //
 
@@ -49,21 +49,36 @@ std::set<DetId> MuonDetIdAssociator::getASetOfValidDetIds(){
    if (geometry_==0) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
    // we need to store only DTChambers as well as CSCChambers
    // Let's get all GeomDet by dets() and select only DTChambers and CSCChambers
-   std::vector<GeomDet*> vectOfGeomDetPtrs = geometry_->dets();
-   LogTrace("MuonDetIdAssociator::getASetOfValidDetIds") << "Number of GeomDet found: " << vectOfGeomDetPtrs.size();
-   for(std::vector<GeomDet*>::const_iterator it = vectOfGeomDetPtrs.begin(); it != vectOfGeomDetPtrs.end(); ++it)
-     {
-	if ((*it)->subDetector() == GeomDetEnumerators::CSC || (*it)->subDetector() == GeomDetEnumerators::DT)
-	  {
-	     if (DTChamber* dt = dynamic_cast< DTChamber*>(*it)) {
-		setOfValidIds.insert(dt->id());
-	     }else{
-		if (CSCChamber* csc = dynamic_cast< CSCChamber*>(*it)) {
-		   setOfValidIds.insert(csc->id());
-		}
-	     }
-	  }
-     }
+
+   // comment this for now, till the fix of GlobalTrackingGeometry is in a release
+   // std::vector<GeomDet*> vectOfGeomDetPtrs = geometry_->dets();
+   // LogTrace("MuonDetIdAssociator::getASetOfValidDetIds") << "Number of GeomDet found: " << vectOfGeomDetPtrs.size();
+   // for(std::vector<GeomDet*>::const_iterator it = vectOfGeomDetPtrs.begin(); it != vectOfGeomDetPtrs.end(); ++it)
+   //  {
+   // 	if ((*it)->subDetector() == GeomDetEnumerators::CSC || (*it)->subDetector() == GeomDetEnumerators::DT)
+   //	  {
+   //	     if (DTChamber* dt = dynamic_cast< DTChamber*>(*it)) {
+   //		setOfValidIds.insert(dt->id());
+   //	     }else{
+   //		if (CSCChamber* csc = dynamic_cast< CSCChamber*>(*it)) {
+   //		   setOfValidIds.insert(csc->id());
+   //		}
+   //	     }
+   //	  }
+   //   }
+   
+   // CSC 
+   if (! geometry_->slaveGeometry(CSCDetId()) ) throw cms::Exception("FatalError") << "Cannnot CSCGeometry\n";
+   std::vector<GeomDet*> geomDetsCSC = geometry_->slaveGeometry(CSCDetId())->dets();
+   for(std::vector<GeomDet*>::const_iterator it = geomDetsCSC.begin(); it != geomDetsCSC.end(); ++it)
+     if (CSCChamber* csc = dynamic_cast< CSCChamber*>(*it)) setOfValidIds.insert(csc->id());
+   
+   // DT
+   if (! geometry_->slaveGeometry(DTChamberId()) ) throw cms::Exception("FatalError") << "Cannnot DTGeometry\n";
+   std::vector<GeomDet*> geomDetsDT = geometry_->slaveGeometry(DTChamberId())->dets();
+   for(std::vector<GeomDet*>::const_iterator it = geomDetsDT.begin(); it != geomDetsDT.end(); ++it)
+     if (DTChamber* dt = dynamic_cast< DTChamber*>(*it)) setOfValidIds.insert(dt->id());
+
    return setOfValidIds;
 }
 
