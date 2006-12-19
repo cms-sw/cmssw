@@ -1,8 +1,16 @@
 #include "EventFilter/GctRawToDigi/src/GctRawToDigi.h"
 
-// Raw data format
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+// system
+#include <vector>
+
+// framework
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+// Raw data collection
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
+// GCT raw data formats
+#include "EventFilter/GctRawToDigi/src/GctBlock.h"
 
 // GCT input data formats
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
@@ -11,15 +19,22 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
 // GCT output data formats
-#include "DataFormats/L1CaloTrigger/interface/L1GctEmCand.h"
-#include "DataFormats/L1CaloTrigger/interface/L1GctJetCand.h"
-#include "DataFormats/L1CaloTrigger/interface/L1GctEtSums.h"
-#include "DataFormats/L1CaloTrigger/interface/L1GctJetCounts.h"
-#include "DataFormats/L1CaloTrigger/interface/L1GctCollections.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
 
+using std::endl;
+using std::vector;
 
-GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) {
+
+GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
+  fedId_(iConfig.getUntrackedParameter<int>("GctFedId",999))
+{
+
+  edm::LogInfo("GCT") << "GctRawToDigi will unpack FED Id " << fedId_ << endl;
 
   //register the products
   produces<L1CaloEmCollection>();
@@ -54,15 +69,12 @@ GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
 
    // get raw data collection (by type?!?)
-   edm::Handle<FEDRawDataCollection> rawdata;
-   e.getByType(rawdata);
+   edm::Handle<FEDRawDataCollection> feds;
+   iEvent.getByType(feds);
+   const FEDRawData& gctRcd = feds->FEDData(fedId_);
+   
+   unpack(gctRcd, iEvent);
 
-
-   //Use the ExampleData to create an ExampleData2 which 
-   // is put into the Event
-   std::auto_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
-   iEvent.put(pOut);
-*/
 
 /* this is an EventSetup example
    //Read SetupData from the SetupRecord in the EventSetup
@@ -70,6 +82,45 @@ GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iSetup.get<SetupRecord>().get(pSetup);
 */
 }
+
+void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
+
+  // do a simple check of the raw data
+  if (d.size()<16) {
+      edm::LogWarning("Invalid Data") << "Empty/invalid GCT raw data, size = " << d.size();
+      return;
+  }
+
+
+  // make collections for storing data
+  std::auto_ptr<L1CaloEmCollection> rctEm(new L1CaloEmCollection()); 
+  std::auto_ptr<L1CaloRegionCollection> rctRgn(new L1CaloRegionCollection()); 
+  
+  std::auto_ptr<L1GctEmCandCollection> gctEm(new L1GctEmCandCollection()); 
+  std::auto_ptr<L1GctJetCandCollection> gctRgn(new L1GctJetCandCollection()); 
+    
+  // unpack process :
+  // 1. read internal header
+  // 2. read following nSamples, and
+  //    2a. if blockId is known, create relevant objects
+  //    2b. otherwise, create block
+  // 3. move to next internal header
+  
+  vector<GctBlock> blocks;
+
+  // read payload into blocks
+  for (unsigned i=8 ; i<(d.size()-8) ; i++) {
+
+    GctBlock block(&(d.data()[i]));
+    i = i+block.length();
+    blocks.push_back(block);
+
+  }
+
+
+  
+}
+
 
 // ------------ method called once each job just before starting event loop  ------------
 void 

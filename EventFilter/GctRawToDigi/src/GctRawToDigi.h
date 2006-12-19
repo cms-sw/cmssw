@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.1 2006/11/01 11:03:09 jbrooke Exp $
+// $Id: GctRawToDigi.h,v 1.1 2006/12/08 09:50:24 jbrooke Exp $
 //
 //
 
@@ -33,21 +33,31 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+
 //
 // class decleration
 //
 
 class GctRawToDigi : public edm::EDProducer {
-   public:
-      explicit GctRawToDigi(const edm::ParameterSet&);
-      ~GctRawToDigi();
+ public:
+  explicit GctRawToDigi(const edm::ParameterSet&);
+  ~GctRawToDigi();
+  
+ private: // methods
+  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
+  
+  void unpack(const FEDRawData& d, edm::Event& e);
 
-   private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      
-      // ----------member data ---------------------------
+ private:  // members
+
+  int fedId_;            // GCT FED ID
+  int nDebugSamples_;    // number of samples per block in debug mode
+  
+  
+
 };
 
 #endif
