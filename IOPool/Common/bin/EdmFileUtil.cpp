@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // EdmFileUtil.cpp
 //
-// $Id: EdmFileUtil.cpp,v 1.2 2006/11/22 06:10:22 dlange Exp $
+// $Id: EdmFileUtil.cpp,v 1.3 2006/11/27 23:53:18 jjhollar Exp $
 //
 // Author: Chih-hsiang Cheng, LLNL
 //         Chih-Hsiang.Cheng@cern.ch
@@ -176,7 +176,7 @@ int main(int argc, char* argv[]) {
       if ( verbose ) std::cout << "ECU:: Found all expected trees\n"; 
       
       // Ok. How many events?
-      long int nevts= edm::numEntries(tfile,"Events");
+      int nevts= edm::numEntries(tfile,"Events");
       std::cout << tfile->GetName() << " ( " << nevts << " events, " 
 		<< tfile->GetSize() << " bytes )" << std::endl;
       

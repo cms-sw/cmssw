@@ -12,9 +12,9 @@ namespace edm {
   TFile* openFileHdl(const std::string& fname) ;
   void printTrees(TFile *hdl);
   void printBranchNames(TTree *tree);
-  long int numEntries(TFile *hdl, const std::string& trname);
-  void showEvents(TFile *hdl, const std::string& trname, const long firstEv, const long lastEv);
-/*   void showEventsAndEntries(TFile *hdl, const std::string& trname, const long firstEv, const long lastEv); */
+  Long64_t numEntries(TFile *hdl, const std::string& trname);
+  void showEvents(TFile *hdl, const std::string& trname, const Long64_t& firstEv, const Long64_t& lastEv);
+/*   void showEventsAndEntries(TFile *hdl, const std::string& trname, const int firstEv, const int lastEv); */
   void longBranchPrint(TTree *tr);
   void printUuids(TTree *uuidTree);
   void printEventLists(std::string remainingEvents, int numevents, TFile *tfl, bool displayEntries);

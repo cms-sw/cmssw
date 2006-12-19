@@ -45,7 +45,7 @@ namespace edm {
   }
 
   // number of entries in a tree
-  long int numEntries(TFile *hdl, const std::string& trname) {
+  Long64_t numEntries(TFile *hdl, const std::string& trname) {
 
     TTree *tree= (TTree*)hdl->Get(trname.c_str());
     if ( tree ) {
@@ -59,7 +59,7 @@ namespace edm {
 
   // show event if for the specified events
   //  void showEvents(TFile *hdl, const std::string& trname, const std::string& evtstr) {
-  void showEvents(TFile *hdl, const std::string& trname, const long iLow, const long iHigh) {
+  void showEvents(TFile *hdl, const std::string& trname, const Long64_t& iLow, const Long64_t& iHigh) {
 
     TTree *tree= (TTree*)hdl->Get(trname.c_str());
     
@@ -69,8 +69,8 @@ namespace edm {
       TBranch *evtAuxBr = tree->GetBranch("EventAux");
 
       tree->SetBranchAddress("EventAux",&evtAux_);
-      long int max= tree->GetEntries();
-      for (long int i=iLow; i<= iHigh && i< max; i++) {
+      Long64_t max= tree->GetEntries();
+      for (Long64_t i=iLow; i<= iHigh && i< max; i++) {
 	evtAuxBr->GetEntry(i);
 	if ( evtAux_ != 0 ) {
 	  Timestamp time_=evtAux_->time();
@@ -91,7 +91,7 @@ namespace edm {
     return;
   }
 
-//   void showEventsAndEntries(TFile *hdl, const std::string& trname, const long iLow, const long iHigh) {
+//   void showEventsAndEntries(TFile *hdl, const std::string& trname, const Long64_t& iLow, const Long64_t& iHigh) {
 
 //     TTree *tree= (TTree*)hdl->Get(trname.c_str());
     
@@ -100,9 +100,9 @@ namespace edm {
 //       EventAux* evtAux_=0;
 //       TBranch *evtAuxBr = tree->GetBranch("EventAux");
 //       tree->SetBranchAddress("EventAux",&evtAux_);
-//       long int max= tree->GetEntries();
-//       long int entrycounter = 0;
-//       for (long int i=iLow; i<= iHigh && i< max; i++) {
+//       Long64_t max= tree->GetEntries();
+//       int entrycounter = 0;
+//       for (Long64_t i=iLow; i<= iHigh && i< max; i++) {
 // 	evtAuxBr->GetEntry(i);
 // 	if ( evtAux_ != 0 ) {
 // 	  Timestamp time_=evtAux_->time();
@@ -110,10 +110,10 @@ namespace edm {
 // 	  std::cout << id_ << "  time: " << time_.value() << std::endl;
 	  
 // 	  // Now count # of entries in each branch for this event
-// 	  int nB=tree->GetListOfBranches()->GetEntries();
+// 	  Long64_t nB=tree->GetListOfBranches()->GetEntries();
 // 	  std::cout << "No. of branches = " << nB << std::endl;
 	  
-// 	  for ( int j=0; j<nB; j++) {
+// 	  for ( Long64_t j=0; j<nB; j++) {
 // 	    TBranch *br = (TBranch *)tree->GetListOfBranches()->At(j);
 //  	    TString branchName = br->GetName();
 // 	    branchName+="obj.";
@@ -145,8 +145,8 @@ namespace edm {
   void printBranchNames( TTree *tree) {
 
     if ( tree != 0 ) {
-      int nB=tree->GetListOfBranches()->GetEntries();
-      for ( int i=0; i<nB; i++) {
+      Long64_t nB=tree->GetListOfBranches()->GetEntries();
+      for ( Long64_t i=0; i<nB; ++i) {
 	TBranch *btemp = (TBranch *)tree->GetListOfBranches()->At(i);
     	std::cout << "Branch " << i <<" of " << tree->GetName() <<" tree: " << btemp->GetName() << " Total size = " << btemp->GetTotalSize() << std::endl;
       }
@@ -160,8 +160,8 @@ namespace edm {
   void longBranchPrint( TTree *tr) {
 
     if ( tr != 0 ) {
-      int nB=tr->GetListOfBranches()->GetEntries();
-      for ( int i=0; i<nB; i++) {    
+      Long64_t nB=tr->GetListOfBranches()->GetEntries();
+      for ( Long64_t i=0; i<nB; ++i) {    
 	tr->GetListOfBranches()->At(i)->Print();
       }
     }
@@ -203,7 +203,7 @@ namespace edm {
   void printEventLists( std::string remainingEvents, int numevents, TFile *tfl, bool entryoption) {
     bool keepgoing=true;
     while ( keepgoing ) {
-      long int iLow(-1),iHigh(-2);
+      int iLow(-1),iHigh(-2);
       // split by commas
       std::string::size_type pos= remainingEvents.find_first_of(",");
       std::string evtstr=remainingEvents;
