@@ -1,23 +1,27 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionTrackFinder.h"
 //
-//#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
-
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
+#include "RecoTracker/CkfPattern/interface/GroupedTrajCandLess.h"
 //
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 //
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "Utilities/General/interface/precomputed_value_sort.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+//
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+//
+#include "Utilities/General/interface/precomputed_value_sort.h"
+
 
 
 OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::EventSetup& es, const edm::ParameterSet& conf, const MagneticField* field,  const MeasurementTracker* theInputMeasurementTracker ) :  ConversionTrackFinder(  field, theInputMeasurementTracker), conf_(conf)
 {
   std::cout << " OutInConversionTrackFinder CTOR  theMeasurementTracker_   " << theMeasurementTracker_<<  std::endl; 
+  
   
   
   seedClean_ = conf_.getParameter<bool>("outInSeedCleaning");
@@ -47,11 +51,18 @@ OutInConversionTrackFinder::~OutInConversionTrackFinder() {
 
 
 
-std::vector<Trajectory>  OutInConversionTrackFinder::tracks(const TrajectorySeedCollection outInSeeds  )const  {
+// std::auto_ptr<TrackCandidateCollection>  OutInConversionTrackFinder::tracks(const TrajectorySeedCollection outInSeeds  )const  {
 
-// TrackCandidateCollection  OutInConversionTrackFinder::tracks(const TrajectorySeedCollection outInSeeds  )const  {
+//std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedCollection outInSeeds, 
+//                                                                TrackCandidateCollection &output_p,   
+//                                                                reco::TrackCandidateSuperClusterAssociationCollection& outAssoc, int iSC )const  {
+
+std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedCollection outInSeeds, 
+							   TrackCandidateCollection &output_p ) const { 
+
   
   std::cout << " OutInConversionTrackFinder::tracks getting " <<  outInSeeds.size() << " Out-In seeds " << endl;
+
 
 
   std::vector<Trajectory> tmpO;
@@ -99,7 +110,7 @@ std::vector<Trajectory>  OutInConversionTrackFinder::tracks(const TrajectorySeed
   
   for (std::vector<Trajectory>::const_iterator itraw = rawResult.begin(); itraw != rawResult.end(); itraw++) {
     if((*itraw).isValid()) {
-      //  unsmoothedResult.push_back( *itraw);
+      //      unsmoothedResult.push_back( *itraw);
       tmpO.push_back( *itraw );
       std::cout << " rawResult num hits " << (*itraw).foundHits() << std::endl;
     }
@@ -114,7 +125,10 @@ std::vector<Trajectory>  OutInConversionTrackFinder::tracks(const TrajectorySeed
   }
   
   precomputed_value_sort( tmpO.begin(), tmpO.end(), ExtractNumOfHits()  ); 
+
+
   
+
   
   std::cout << " OutInConversionTrackFinder  tmpO after sorting " << std::endl; 
   for (std::vector<Trajectory>::const_iterator it =tmpO.begin(); it != tmpO.end(); it++) {
@@ -135,6 +149,7 @@ std::vector<Trajectory>  OutInConversionTrackFinder::tracks(const TrajectorySeed
 
 
 
+ 
   if ( unsmoothedResult.size() ) {
     vector<Trajectory>::iterator it=unsmoothedResult.begin();
 
@@ -143,16 +158,55 @@ std::vector<Trajectory>  OutInConversionTrackFinder::tracks(const TrajectorySeed
     if ( unsmoothedResult.size() > 1) result.push_back(*(++it));
   }
 
-
-
-
   for (std::vector<Trajectory>::const_iterator it =result.begin(); it != result.end(); it++) {
     std::cout << " OutInConversionTrackFinder  Result  num of hits " << (*it).foundHits() << std::endl; 
 
   }
 
 
-  std::cout << "  Returning " << result.size() << " Out In Tracks " << std::endl;
-  return result;
+  //std::cout << "  Returning " << result.size() << " Out In Tracks " << std::endl;
+  std::cout << "  Returning " << unsmoothedResult.size() << " Out In Trajectories  " << std::endl;
+ 
+
+
+  // Convert to TrackCandidates and fill in the output_p
+  for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
+    
+    edm::OwnVector<TrackingRecHit> recHits;
+    Trajectory::RecHitContainer thits = it->recHits();
+    for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin(); hitIt != thits.end(); hitIt++) {
+      recHits.push_back( (**hitIt).hit()->clone());
+    }
+	
+    std::cout << " OutInConversionTrackFinder  Number of hits for the track candidate " << recHits.size() << std::endl;
+
+    std::pair<TrajectoryStateOnSurface, const GeomDet*> initState =  theInitialState_->innerState( *it);
+    //  std::cout << " Initial state parameters " << initState.first << std::endl;    
+
+    // temporary protection againt invalid initial states
+    if (! initState.first.isValid() || initState.second == 0) {
+      cout << "invalid innerState, will not make TrackCandidate" << endl;
+      continue;
+    }
+    
+
+
+    PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( initState.first, initState.second->geographicalId().rawId());
+    
+    output_p.push_back(TrackCandidate(recHits, it->seed(),*state ) );
+    delete state;
+  }
+  
+      
+      
+
+
+
+
+  
+  //  return  unsmoothedResult;
+  return  result;
+  
+
 
 }

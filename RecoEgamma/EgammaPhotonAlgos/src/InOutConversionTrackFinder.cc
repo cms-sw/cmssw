@@ -11,6 +11,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 //
 #include "DataFormats/Common/interface/OwnVector.h"
+//
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
 #include <sstream>
@@ -54,8 +55,17 @@ InOutConversionTrackFinder::~InOutConversionTrackFinder() {
 
 
 
-std::vector<Trajectory>  InOutConversionTrackFinder::tracks(const TrajectorySeedCollection inOutSeeds )const  {
-// TrackCandidateCollection InOutConversionTrackFinder::tracks(const TrajectorySeedCollection seeds )const  {
+//std::auto_ptr<TrackCandidateCollection>  InOutConversionTrackFinder::tracks(const TrajectorySeedCollection inOutSeeds )const  {
+//std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedCollection  inOutSeeds, 
+//                                                          TrackCandidateCollection &output_p,    
+//                                                           reco::TrackCandidateSuperClusterAssociationCollection& outAssoc, int iSC )const  {
+
+
+std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedCollection  inOutSeeds, 
+                                                           TrackCandidateCollection &output_p ) const {
+
+
+
   std::cout << " InOutConversionTrackFinder::tracks getting " <<  inOutSeeds.size() << " In-Out seeds " << endl;
   
   std::vector<Trajectory> tmpO;
@@ -144,10 +154,39 @@ std::vector<Trajectory>  InOutConversionTrackFinder::tracks(const TrajectorySeed
   }
 
 
+  // Convert to TrackCandidates and fill in the output_p
+  for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
+    
+    edm::OwnVector<TrackingRecHit> recHits;
+    Trajectory::RecHitContainer thits = it->recHits();
+    for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin(); hitIt != thits.end(); hitIt++) {
+      recHits.push_back( (**hitIt).hit()->clone());
+    }
+    
+    
+    std::pair<TrajectoryStateOnSurface, const GeomDet*> initState =  theInitialState_->innerState( *it);
+    
+    // temporary protection againt invalid initial states
+    if (! initState.first.isValid() || initState.second == 0) {
+      //cout << "invalid innerState, will not make TrackCandidate" << endl;
+      continue;
+    }
+    
+    PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( initState.first, initState.second->geographicalId().rawId());
+    
+    output_p.push_back(TrackCandidate(recHits, it->seed(),*state ) );
+    delete state;
+  }
+  
+      
+
+
 
   
-  std::cout << "  InOutConversionTrackFinder::track Returning " <<  unsmoothedResult.size() << " In Out Tracks " << std::endl;
+
+  std::cout << "  InOutConversionTrackFinder::track Returning " <<  unsmoothedResult.size() << " In Out Trajectories " << std::endl;
   return  unsmoothedResult;
   
+
   
 }
