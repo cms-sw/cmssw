@@ -95,8 +95,8 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (int i=0; i<njets; i++) {
      math::XYZTLorentzVector p4(((*mcjets)[i]).p4());
      CaloJet::Specific specific;
-     Jet::Constituents jetconst;
-     jets->push_back(CaloJet(p4,specific,jetconst));
+     vector<CaloTowerDetId> ctdi(0);
+     jets->push_back(CaloJet(p4,specific,ctdi));
    }
 
    int nmets(-1);
@@ -113,15 +113,21 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // photons, electrons, muons and taus: generator level
    // tracks: all charged particles; superclusters: electrons and photons
 
-   // get hold of generator records
-   vector<edm::Handle<edm::HepMCProduct> > hepmcs;
+   // get hold of generator record - try "VtxSmeared" first, then "source"
    edm::Handle<edm::HepMCProduct> hepmc;
-   iEvent.getManyByType(hepmcs);
-   LogDebug("") << "Number of HepMC products found: " << hepmcs.size();
+   try{iEvent.getByLabel("VtxSmeared",hepmc);} catch(...) {;}
+   if (hepmc.isValid()) {
+     LogDebug("") << "HepMC product VtxSmeared found! ";
+   } else {
+     try{iEvent.getByLabel("source",hepmc);} catch(...) {;}
+     if (hepmc.isValid()) {
+       LogDebug("") << "HepMC product source found! ";
+     } else {
+       LogDebug("") << "HepMC product: Not Found! ";
+     }
+   }
 
-   // loop over all final-state particles in all generator records
-   for (unsigned int i=0; i!=hepmcs.size(); i++) {
-     hepmc=hepmcs[i];
+   if (hepmc.isValid()) {
      const HepMC::GenEvent* evt = hepmc->GetEvent();
      for (HepMC::GenEvent::particle_const_iterator pitr=evt->particles_begin(); pitr!=evt->particles_end(); pitr++) {
 
@@ -151,8 +157,8 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 } else if (abs(ipdg)==15 || abs(ipdg)==17) {
 	   // tau+ tau- or 4th generation tau'+ tau'-
 	   CaloJet::Specific specific;
-	   Jet::Constituents jetconst;
-	   taus->push_back(CaloJet(p4,specific,jetconst));
+	   vector<CaloTowerDetId> ctdi(0);
+	   taus->push_back(CaloJet(p4,specific,ctdi));
 	 } else if (abs(ipdg)==22) {
 	   // photon
 	   phot->push_back(    Photon       (0,p4));
@@ -169,8 +175,8 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   if (njets==-1) {
 	     // if no prepared jets, each becomes a jet on its own (crude)!
 	     CaloJet::Specific specific;
-	     Jet::Constituents jetconst;
-	     jets->push_back(CaloJet(p4,specific,jetconst));
+	     vector<CaloTowerDetId> ctdi(0);
+	     jets->push_back(CaloJet(p4,specific,ctdi));
 	   }
 	 }
        }
