@@ -2,7 +2,7 @@
 #################################################################
 #
 #  File and Version Information:
-#       $Id$
+#       $Id: classdiagram,v 1.1 2006/11/13 07:59:20 dmytro Exp $
 #  
 #  Environment:
 #        Software developed for the CMS Detector at CERN LHC
@@ -21,13 +21,14 @@ use Getopt::Long;
 ###########################################################
 my $cmssw_base = $ENV{CMSSW_BASE};
 my $cmssw_release_base = $ENV{CMSSW_RELEASE_BASE};
-my ($debug,$className,$fileName,$show,$verbose);
+my ($debug,$className,$fileName,$show,$verbose,$glimpse,@fileNames,@classNames);
 my $outputFile = "diagram.violet";
 my $violet = "/afs/cern.ch/user/d/dmytro/public/files/violet-0.15.jar";
 my $dX = 300;
 my $dY = 200;
 my $X0 = 30;
 my $Y0 = 30;
+my $cmsglimpse = "cmsglimpse";
 
 # structure
 my %classTree = ();
@@ -52,13 +53,45 @@ GetOptions("help|h"      => sub{ help() }
     , "file|f=s" => \$fileName
     , "show|s" => \$show
     , "editor|e=s" => \$violet
+    , "glimpse|g" => \$glimpse
 )
     or help();
 
 ###########################################################
 
-die "Source file name is not provided. Abort" if (!defined $fileName);
 die "Class name is not provided. Abort" if (!defined $className);
+@classNames = split(/\s+/,$className);
+if (!defined $fileName){
+    if (defined $glimpse){
+	print "Searching for class information with glimpse...\n";
+	foreach my $class (@classNames){
+	    my $query = 'class[^a-zA-Z0-9_]*'.($class).'[^\;]';
+	    my $glimpseReport = "";
+	    if (length($query)>30){
+		my $shortQuery = $query; $shortQuery =~ s/$class.*$/$class/;
+		$shortQuery = substr($shortQuery,1,30);
+		$glimpseReport = `$cmsglimpse \'$shortQuery\'|grep -E \'$query\'`;
+	    }else{
+		$glimpseReport = `$cmsglimpse \'$query\'`;
+	    }
+	    print "\n\n$glimpseReport\n\n" if (defined $debug);
+	    my %files = ();
+	    foreach my $line(split(/\n/,$glimpseReport)){
+		if($line =~ /^(\S+):(.*)/){
+		    $files{$1} .= "$2\n";
+		}
+	    }
+	    die "Glimpse failed to find any source file for class $class. Try to specify the file where the class is declared explicitly\n"
+	      if(scalar keys %files == 0);
+	    push @fileNames, keys %files;
+	}
+	print "Done.\n";
+    }else{
+	die "Source file name is not provided. Abort\n";
+    }
+}else{
+    @fileNames = ($fileName);
+}
 
 sub parents{
     my @orderedClasses = @_;
@@ -98,7 +131,7 @@ sub getXmlCompliantText{
     $text =~ s/\</&lt;/g;
     $text =~ s/\>/&gt;/g;
     $text =~ s/\&/&amp;/g;
-    $text =~ s/\=/&eq;/g;
+#    $text =~ s/\=/&eq;/g;
     $text =~ s/\//&slash;/g;
     return $text;
 }
@@ -115,7 +148,7 @@ EOF
     my $y = $Y0;
     
     # sort classes for presentation
-    my @orderedClasses = ([$className]);
+    my @orderedClasses = (\@classNames);
 
     while (scalar parents(@orderedClasses) > 0){
 	my @parents = parents(@orderedClasses);
@@ -179,6 +212,8 @@ sub get_parents{
 	    my $className = $1;
             # strip out templates
 	    $className =~ s/\<.*?\>//g;
+	    # get rid of namespace
+	    $className =~ s/\S+:://;
 	    push @parents,$className;
 	}
 	print "debug: $class\n" if(defined $debug);
@@ -237,7 +272,7 @@ sub get_details{
 		|| ($block =~ /^\s*struct /)
 		|| ($block =~ /^\s*template/)
 		|| ($block =~ /^\s*friend\s+class /)
-		|| ($block =~ /^\s*const /)
+#		|| ($block =~ /^\s*const /)
 		|| ($block =~ /^\s*typedef /)
 	        || ($block =~ /^\s*using /));
 	    $block =~ s/\n/ /g;
@@ -266,10 +301,11 @@ sub find_class{
 	$source =~ s/\/\*.*?\*\///gs;
 	$source =~ s/\/\/.*$//mg;
     	my $full_source = $source;
-	if ($source =~ s/.*?class\s+$className([^\w\s\_\{]|\s*)([^\;\(\)\{]*?)\{//is){
+#	if ($source =~ s/.*?class\s+$className([^\w\s\_\{]|\s*)([^\;\(\)\{]*?)\{//is){
+	if ($source =~ s/.*?class\s+$className([^\w\_\{\;\(\)][^\;\(\)\{]*\{|\s*\{)//is){
 	    print "debug:\n$source\n" if (defined $debug);
-	    my $inheritance = "$1$2";
-	    $inheritance =~ s/.*?://; $inheritance =~ s/\n//g;
+	    my $inheritance = "$1";
+	    $inheritance =~ s/.*?://; $inheritance =~ s/\n//g; $inheritance =~ s/\s*\{//;
 	    @parents = get_parents($inheritance);
 	    if(defined $debug){
 		print "class $className inherits from\n";
@@ -321,8 +357,10 @@ sub find_class{
 
 # name of classes that has to be analyzed
 # along with files that can contain information about these classes
-my @classesToProcess = (); 
-unshift @classesToProcess, [[$fileName],$className];
+my @classesToProcess = ();
+foreach my $class(@classNames){
+    unshift @classesToProcess, [\@fileNames,$class];
+}
 while (scalar @classesToProcess > 0){
     my $classInfo = find_class(@{$classesToProcess[0]});
     print "Cannot find class $classesToProcess[0]->[1]\n" if (! defined $classInfo);
@@ -355,8 +393,7 @@ classdiagram - a tool to analyze inheritance structure of C++ classes in CMSSW e
   
 =head1 SYNOPSYS
 
-classdiagram [-h|--help] [-c|--class <class name>] [-f|--file <interface file>] [-s|--show]
-  [-o|--output <output file>] [-d|--debug] [-e|--editor <jar file>]
+classdiagram [-h|--help] [-c|--class <class name>] [-f|--file <interface file>] [-s|--show] [-o|--output <output file>] [-d|--debug] [-e|--editor <jar file>] [-g||--glimpse]
 
 =head1 OPTIONS
 
@@ -381,6 +418,10 @@ Output file name to store the XML version of the class diagram.
 =item -e, --editor <jar file>
 
 Specify the jar file of Violet editor location
+
+=item -g, --glimpse
+
+Use glimpse to find file where the class is defined. In this case you don't need to provide the file name explicitly.
 
 =item -h, --help
 
