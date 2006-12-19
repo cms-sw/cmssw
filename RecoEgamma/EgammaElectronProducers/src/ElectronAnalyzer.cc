@@ -13,7 +13,7 @@
 //
 // Original Author:  Alessandro Palma
 //         Created:  Thu Sep 21 11:41:35 CEST 2006
-// $Id: ElectronAnalyzer.cc,v 1.10 2006/12/05 14:25:22 palmale Exp $
+// $Id: ElectronAnalyzer.cc,v 1.11 2006/12/08 14:57:03 rahatlou Exp $
 //
 //
 
@@ -133,8 +133,8 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        scIt != mySC->end(); scIt++){
    }
    //SUPERCLUSTERS - END
-   
-   
+
+
    //GET GENERATOR EVENT - BEGIN
 
    Handle< HepMCProduct > hepProd ;
@@ -142,30 +142,29 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    const HepMC::GenEvent * myGenEvent = hepProd->GetEvent();
 
    //GET GENERATOR EVENT - END
-   
-   
+
+
    //LOOP OVER ELECTRONS - BEGIN
-   Handle<myElectronCollection> myEle;
-   //   iEvent.getByLabel(electronProducer_.c_str(), myEle); 
-   iEvent.getByLabel(electronProducer_, myEle); 
-   
+   Handle<myElectronCollection> elColl;
+   iEvent.getByLabel(electronProducer_, elColl);
+
    std::vector<myElectron> eleVec;
    std::vector<myElectron> posVec;
-   
-   h1_nEleReco_->Fill(myEle->size());
-   
-   for(myElectronCollection::const_iterator eleIt = myEle->begin();
-       eleIt != myEle->end(); eleIt++){
+
+   h1_nEleReco_->Fill(elColl->size());
+
+   for(myElectronCollection::const_iterator eleIt = elColl->begin();
+       eleIt != elColl->end(); eleIt++){
 
      // print ele track exp. error - begin
      //std::cout<<eleIt->track()->chi2() / eleIt->track()->ndof()<<std::endl;
      // print ele track exp. error - end
 
-     h1_recoEleEnergy_->Fill(eleIt->superCluster()->energy());     
+     h1_recoEleEnergy_->Fill(eleIt->superCluster()->energy());
      h1_recoElePt_->Fill(eleIt->track()->pt());
-     h1_recoEleEta_->Fill(eleIt->eta());
-     h1_recoElePhi_->Fill(eleIt->phi());
-     
+     h1_recoEleEta_->Fill(eleIt->track()->eta());
+     h1_recoElePhi_->Fill(eleIt->track()->phi());
+
      //     h1_islandEBBC_e3x3_Over_e5x5_->Fill(  eleIt->superCluster()->e3x3() / eleIt->superCluster()->e5x5()  );
      //h1_islandEBBC_e2x2_Over_e3x3_->Fill( eleIt->superCluster()->e2x2() / eleIt->superCluster()->e3x3() );
 
@@ -184,36 +183,40 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    double REleMin(1000.);
    myElectron nearestEleToMC;
    HepMC::GenParticle eleMC;
-   
+
    if(eleVec.size()>=1){
      for(std::vector<myElectron>::const_iterator e_it = eleVec.begin(); e_it !=eleVec.end(); e_it++){
        for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
-	     p != myGenEvent->particles_end(); ++p ) {
-	 if (  (*p)->pdg_id() == 11  && (*p)->status()==1 ){
-	   eleMC=*(*p);
-	   
-	   REle = pow(e_it->p4().eta()-eleMC.momentum().eta(),2) + pow(e_it->p4().phi()-eleMC.momentum().phi(),2);
-	   REle=sqrt(REle);
-	   if(REle<REleMin){
-	     REleMin=REle;
-	     nearestEleToMC=*e_it;
-	   }
-	 }
-       }
+             p != myGenEvent->particles_end(); ++p ) {
+         //if (  (*p)->pdg_id() == 11  && (*p)->status()==1 ){
+         if( (*p)->pdg_id()!=11 || (*p)->status()!=1 ) continue;
+         eleMC=*(*p);
 
-     }
+         REle = pow(e_it->p4().eta()-eleMC.momentum().eta(),2) + pow(e_it->p4().phi()-eleMC.momentum().phi(),2);
+         REle=sqrt(REle);
+         if(REle<REleMin){
+            REleMin=REle;
+            nearestEleToMC=*e_it;
+         }
+         //} // if(electron)
+       } // loop over MC particles
+     } // loop over reco electron
+
        //   std::cout<<"Rmin tra MCpos e reco pos: "<<REleMin<<std::endl;
        h1_RMin_->Fill(REleMin);
-       h1_recoEleDeltaTheta_->Fill( nearestEleToMC.theta() / eleMC.momentum().theta());
-       h1_recoEleDeltaPhi_->Fill( nearestEleToMC.phi() / eleMC.momentum().phi());
-       //h1_eleRecoTrackChi2_->Fill(nearestEleToMC.track()->chi2() / nearestEleToMC.track()->ndof());    
-       if(nearestEleToMC.pt()>=minElePt_) h1_recoElePtRes_->Fill( nearestEleToMC.pt() / eleMC.momentum().perp() );
-       if( REleMin<= REleCut_ )h1_eleERecoOverEtrue_->Fill( nearestEleToMC.superCluster()->energy() / eleMC.momentum().e());
-     
-   }
+       if( REleMin<= REleCut_ ) {
+         h1_recoEleDeltaEta_->Fill( nearestEleToMC.track()->eta() - eleMC.momentum().eta());
+         h1_recoEleDeltaPhi_->Fill( nearestEleToMC.track()->phi() - eleMC.momentum().phi());
+         //h1_eleRecoTrackChi2_->Fill(nearestEleToMC.track()->chi2() / nearestEleToMC.track()->ndof());
+         if(nearestEleToMC.pt()>=minElePt_) h1_recoElePtRes_->Fill( nearestEleToMC.track()->pt() / eleMC.momentum().perp() );
+         h1_eleERecoOverEtrue_->Fill( nearestEleToMC.superCluster()->energy() / eleMC.momentum().e());
+       }
+   } // if(eleVec.size()>=1)
    //loop over MC electrons and find the closest MC electron in (eta,phi) phace space - end
-   
-   
+
+
+/**
+
    //loop over MC positrons and find the closest MC positron in (eta,phi) phace space - begin   
    double RPos(0.);
    double RPosMin(1000.);
@@ -238,9 +241,9 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      } 
        //   std::cout<<"Rmin tra MCpos e reco pos: "<<RPosMin<<std::endl;
        h1_RMin_->Fill(RPosMin);
-       h1_recoEleDeltaTheta_->Fill( nearestPosToMC.theta() / posMC.momentum().theta());
+       h1_recoEleDeltaEta_->Fill( nearestPosToMC.track()->eta() - posMC.momentum().eta());
        //    std::cout<<"theta MC:"<<posMC.momentum().theta()<<" theta track: "<<nearestPosToMC.theta()<<std::endl; 
-       h1_recoEleDeltaPhi_->Fill( nearestPosToMC.phi() / posMC.momentum().phi());
+       h1_recoEleDeltaPhi_->Fill( nearestPosToMC.phi() - posMC.momentum().phi());
        // h1_eleRecoTrackChi2_->Fill(nearestPosToMC.track()->chi2() / nearestPosToMC.track()->ndof());    
        if(nearestPosToMC.pt()>=minElePt_) {
 	 h1_recoElePtRes_->Fill( nearestPosToMC.pt() / posMC.momentum().perp() );
@@ -250,7 +253,9 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        
    }
    //loop over MC positrons and find the closest MC positron in (eta,phi) phace space - end
- 
+
+**/
+
    /*
    
    //OTHER (COMMENTED) ANALYSIS - begin
@@ -320,45 +325,53 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-ElectronAnalyzer::beginJob(const edm::EventSetup&)
-{
+ElectronAnalyzer::beginJob(const edm::EventSetup&) {
 
 // go to *OUR* rootfile and book histograms
 rootFile_->cd();
 
-h1_nEleReco_ = new TH1F("nEleReco","Number of reco electrons",10,-0.5,10.5);
+h1_nEleReco_ = new TH1F("nEleReco","Number of reconstructed electrons",11,-0.5,10.5);
  h1_nEleReco_->SetXTitle("nEleReco");
- h1_nEleReco_->SetYTitle("events");
-h1_recoEleEnergy_ = new TH1F("recoEleEnergy","EleEnergy from SC",400,0.,200.);
+ h1_nEleReco_->SetYTitle("entries");
+
+h1_recoEleEnergy_ = new TH1F("recoEleEnergy","Electron energy from super cluster",400,0.,200.);
  h1_recoEleEnergy_->SetXTitle("eleSCEnergy(GeV)");
- h1_recoEleEnergy_->SetYTitle("events");
-h1_recoElePt_ = new TH1F("recoElePt","p_{T} of reco electrons",200,0.,200.);
+ h1_recoEleEnergy_->SetYTitle("entries/0.5 GeV");
+
+h1_recoElePt_ = new TH1F("recoElePt","p_{T} of reco electrons from track",200,0.,200.);
  h1_recoElePt_->SetXTitle("p_{T}(GeV/c)");
- h1_recoElePt_->SetYTitle("events");
-h1_recoEleEta_ = new TH1F("recoEleEta","Eta of reco electrons",100,-4.,4.);
+ h1_recoElePt_->SetYTitle("entries/1 GeV/c");
+
+h1_recoEleEta_ = new TH1F("recoEleEta","Eta of reco electrons from track",100,-4.,4.);
  h1_recoEleEta_->SetXTitle("#eta");
- h1_recoEleEta_->SetYTitle("events");
-h1_recoElePhi_ = new TH1F("recoElePhi","Phi of reco electrons",100,-4.,4.);
+ h1_recoEleEta_->SetYTitle("entries/0.08");
+
+h1_recoElePhi_ = new TH1F("recoElePhi","Phi of reco electrons from track",100,-4.,4.);
  h1_recoElePhi_->SetXTitle("#phi");
- h1_recoElePhi_->SetYTitle("events");
+ h1_recoElePhi_->SetYTitle("entries/0.08 rad");
+
 h1_RMin_=new TH1F("h1_RMin","Distance of MC electron from nearest RecoElectron",500,0.,10.);
  h1_RMin_->SetXTitle("RMin");
- h1_RMin_->SetYTitle("events");
-h1_eleERecoOverEtrue_= new TH1F("eleERecoOverEtrue","Ereco/Etrue for MC matched Z electrons",250,0.,4.);
+ h1_RMin_->SetYTitle("entries");
+
+h1_eleERecoOverEtrue_= new TH1F("eleERecoOverEtrue","E_{rec}/E_{MC} for MC matched Z electrons",250,0.,4.);
  h1_eleERecoOverEtrue_->SetXTitle("Ereco/Etrue");
- h1_eleERecoOverEtrue_->SetYTitle("events");
+ h1_eleERecoOverEtrue_->SetYTitle("entries");
+
  h1_eleRecoTrackChi2_ = new TH1F("recoEle_TrackChi2","#chi^{2}/ndof for matched electrons tracks",100,0.,5.);
  h1_eleRecoTrackChi2_->SetXTitle("#chi^{2}/ndof");
  h1_eleRecoTrackChi2_->SetYTitle("events");
- h1_recoEleDeltaTheta_ = new TH1F("recoEle_ThetaTrackThetaMC","Theta resolution of matched electrons",200,0.99,1.01);
- h1_recoEleDeltaTheta_->SetXTitle("#theta_{TK} / #theta_{MC}");
- h1_recoEleDeltaTheta_->SetYTitle("events");
+ h1_recoEleDeltaEta_ = new TH1F("recoEle_EtaTrackThetaMC","#eta residual for matched electrons",40,-4.,4.);
+ h1_recoEleDeltaEta_->SetXTitle("#eta_{rec} - #eta_{MC}");
+ h1_recoEleDeltaEta_->SetYTitle("events");
+
  h1_recoElePtRes_ = new TH1F("recoEle_PtTrackPtMC", "Pt resolution of matched electrons", 100, 0.8,1.2);
  h1_recoElePtRes_->SetXTitle("pT_{TK}/pT_{MC}");
- h1_recoElePtRes_->SetYTitle("events");
- h1_recoEleDeltaPhi_ = new TH1F("recoEle_PhiTrackPhiMC","Phi resolution of matched electrons",200,0.99,1.01);
- h1_recoEleDeltaPhi_->SetXTitle("#phi_{TK} / #phi_{MC}");
- h1_recoEleDeltaPhi_->SetYTitle("events");
+ h1_recoElePtRes_->SetYTitle("entries");
+
+ h1_recoEleDeltaPhi_ = new TH1F("recoEle_PhiTrackPhiMC","#Phi for matched electrons",360,-3.,3.);
+ h1_recoEleDeltaPhi_->SetXTitle("#phi_{TK} - #phi_{MC}");
+ h1_recoEleDeltaPhi_->SetYTitle("entries");
 
  h1_islandEBBC_e2x2_Over_e3x3_ = new TH1F("nIslandEBBC_e2x2_Over_e3x3","S4/S9 of ECAL Barrel Basic Cluster",100,0.5,1.2);
  h1_islandEBBC_e2x2_Over_e3x3_->SetXTitle("S4/S9");
@@ -386,7 +399,7 @@ ElectronAnalyzer::endJob() {
   h1_eleERecoOverEtrue_->Write();
   h1_eleRecoTrackChi2_->Write();
   h1_recoElePtRes_->Write();
-  h1_recoEleDeltaTheta_->Write();
+  h1_recoEleDeltaEta_->Write();
   h1_recoEleDeltaPhi_->Write();
 
   h1_islandEBBC_e2x2_Over_e3x3_->Write();

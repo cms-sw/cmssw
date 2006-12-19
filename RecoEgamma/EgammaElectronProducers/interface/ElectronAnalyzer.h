@@ -16,7 +16,7 @@
 //
 // Original Author:  Alessandro Palma
 //         Created:  Thu Sep 21 11:41:35 CEST 2006
-// $Id: ElectronAnalyzer.h,v 1.5 2006/11/27 14:06:59 palmale Exp $
+// $Id: ElectronAnalyzer.h,v 1.6 2006/12/05 14:25:49 palmale Exp $
 //
 //
 
@@ -82,7 +82,7 @@ class ElectronAnalyzer : public edm::EDAnalyzer {
   TH1F* h1_eleERecoOverEtrue_;
   TH1F* h1_eleRecoTrackChi2_;
   TH1F* h1_recoElePtRes_;
-  TH1F* h1_recoEleDeltaTheta_;
+  TH1F* h1_recoEleDeltaEta_;
   TH1F* h1_recoEleDeltaPhi_;
 
   std::string islandBarrelBasicClusterCollection_;
