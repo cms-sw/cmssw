@@ -4,25 +4,32 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
+int TrackDetMatchInfo::numberOfSegments() const {
+   int numSegments = 0;
+   for(std::vector<MuonChamberMatch>::const_iterator chamber=chambers.begin(); chamber!=chambers.end(); chamber++)
+     numSegments += chamber->segments.size();
+   return numSegments;
+}
+
 int TrackDetMatchInfo::numberOfSegmentsInStation(int station) const {
-	int numSegments = 0;
-	for(std::vector<MuonSegmentMatch>::const_iterator segment=segments.begin(); segment!=segments.end(); segment++)
-		if(segment->station()==station) numSegments++;
-	return numSegments;
+   int numSegments = 0;
+   for(std::vector<MuonChamberMatch>::const_iterator chamber=chambers.begin(); chamber!=chambers.end(); chamber++)
+     if(chamber->station()==station) numSegments += chamber->segments.size();
+   return numSegments;
 }
 
 int TrackDetMatchInfo::numberOfSegmentsInStation(int station, int detector) const {
    int numSegments = 0;
-   for(std::vector<MuonSegmentMatch>::const_iterator segment=segments.begin(); segment!=segments.end(); segment++)
-      if(segment->station()==station&&segment->detector()==detector) numSegments++;
+   for(std::vector<MuonChamberMatch>::const_iterator chamber=chambers.begin(); chamber!=chambers.end(); chamber++)
+     if(chamber->station()==station&&chamber->detector()==detector) numSegments += chamber->segments.size();
    return numSegments;
 }
 
 int TrackDetMatchInfo::numberOfSegmentsInDetector(int detector) const {
-	int numSegments = 0;
-	for(std::vector<MuonSegmentMatch>::const_iterator segment=segments.begin(); segment!=segments.end(); segment++)
-		if(segment->detector()==detector) numSegments++;
-	return numSegments;
+   int numSegments = 0;
+   for(std::vector<MuonChamberMatch>::const_iterator chamber=chambers.begin(); chamber!=chambers.end(); chamber++)
+     if(chamber->detector()==detector) numSegments += chamber->segments.size();
+   return numSegments;
 }
 
 double TrackDetMatchInfo::ecalEnergy()

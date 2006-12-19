@@ -5,35 +5,31 @@
 class TimerStack
 {
  public:
-   ~TimerStack()
-     {
-	clean_stack();
-     }
+   enum Type { DetailedMonitoring, FastMonitoring };
+   enum Status { AlwaysActive, Disableable };
    
-   void push(std::string name){
-      if( (*TimingReport::current())["firstcall_"+name].counter == 0)
-	stack.push(new TimeMe("firstcall_"+name));
-      else
-	stack.push(new TimeMe(name));
-   }
-   
-   void pop(){
-      if (!stack.empty()) {
-	 delete stack.top();
-	 stack.pop();
-      }
-   }
+   TimerStack():status_(AlwaysActive){}
+   TimerStack(Status status):status_(status) {}
 
-   void clean_stack(){
-      while(!stack.empty()) pop();
-   }
+   ~TimerStack() { clean_stack(); }
    
-   void pop_and_push(std::string name) {
-      pop();
-      push(name);
-   }
+   // has no effect if status_ is AlwaysActive
+   void disableAllTimers(){ disabled_ = true; }
+   void enableAllTimers(){ disabled_ = false; }
    
+   // measure time to perform a number of floating point multiplications (FLOPs)
+   void benchmark( std::string name, int n = 1000000);
+
+   void push( std::string name, Type type = DetailedMonitoring );
+   void pop();
+   void clean_stack();
+   void pop_and_push(std::string name, Type type = DetailedMonitoring );
+   
+   PentiumTimeType pentiumTime() {return rdtscPentium();}
+	
  private:
    std::stack<TimeMe*> stack;
+   Status status_;
+   static bool disabled_;
 };
 #endif

@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.13 2006/10/09 18:21:46 jribnik Exp $
+// $Id: TrackAssociator.cc,v 1.14 2006/10/20 16:37:44 dmytro Exp $
 //
 //
 
@@ -138,6 +138,7 @@ void TrackAssociator::setPropagator( Propagator* ptr)
    ivProp_ = ptr; 
    caloDetIdAssociator_.setPropagator(ivProp_);
    ecalDetIdAssociator_.setPropagator(ivProp_);
+   muonDetIdAssociator_.setPropagator(ivProp_);
 }
 
 void TrackAssociator::useDefaultPropagator()
@@ -152,6 +153,11 @@ void TrackAssociator::init( const edm::EventSetup& iSetup )
    iSetup.get<IdealGeometryRecord>().get(theCaloGeometry_);
    if (!theCaloGeometry_.isValid()) 
      throw cms::Exception("FatalError") << "Unable to find IdealGeometryRecord in event!\n";
+   
+   // get the tracking Geometry
+   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry_);
+   if (!theTrackingGeometry_.isValid()) 
+     throw cms::Exception("FatalError") << "Unable to find GlobalTrackingGeometryRecord in event!\n";
    
    if (useDefaultPropagator_ && ! defProp_ ) {
       // setup propagator
@@ -185,8 +191,12 @@ TrackDetMatchInfo TrackAssociator::associate( const edm::Event& iEvent,
    if (parameters.useEcal) fillEcal( iEvent, iSetup, info, currentPosition, parameters.dREcal);
    if (parameters.useHcal) fillCaloTowers( iEvent, iSetup, info, currentPosition, parameters.dRHcal);
    if (parameters.useMuon) {
-     fillDTSegments( iEvent, iSetup, info, currentPosition, parameters.dRMuon);
-     fillCSCSegments( iEvent, iSetup, info, currentPosition, parameters.dRMuon);
+      if (parameters.useOldMuonMatching){
+	 fillDTSegments( iEvent, iSetup, info, currentPosition, parameters);
+	 fillCSCSegments( iEvent, iSetup, info, currentPosition, parameters);
+      }else{
+	 fillMuonSegments( iEvent, iSetup, info, currentPosition, parameters);
+      }
    }
 
    return info;
@@ -263,7 +273,7 @@ double TrackAssociator::getHcalEnergy( const edm::Event& iEvent,
 void TrackAssociator::fillEcal( const edm::Event& iEvent,
 				const edm::EventSetup& iSetup,
 				TrackDetMatchInfo& info,
-				const FreeTrajectoryState& trajectoryPoint,
+				FreeTrajectoryState& trajectoryPoint,
 				const double dR)
 {
    TimerStack timers;
@@ -349,7 +359,7 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
 void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 				      const edm::EventSetup& iSetup,
 				      TrackDetMatchInfo& info,
-				      const FreeTrajectoryState& trajectoryPoint,
+				      FreeTrajectoryState& trajectoryPoint,
 				      const double dR)
 {
    // ECAL hits are not used for the CaloTower identification
@@ -422,7 +432,7 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
 				      const edm::EventSetup& iSetup,
 				      TrackDetMatchInfo& info,
 				      const FreeTrajectoryState& trajectoryPoint,
-				      const double dR)
+				      const AssociatorParameters& parameters)
 {
    TimerStack timers;
    timers.push("TrackAssociator::fillDTSegments");
@@ -432,6 +442,7 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
    // Get the DT Geometry
    ESHandle<DTGeometry> dtGeom;
    iSetup.get<MuonGeometryRecord>().get(dtGeom);
+   muonDetIdAssociator_.setGeometry(&*theTrackingGeometry_);
 
    // Get the rechit collection from the event
    timers.push("TrackAssociator::fillDTSegments::access");
@@ -452,97 +463,28 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
       // Get the GeomDet from the setup
       const DTChamber* chamber = dtGeom->chamber(*detUnitIt);
       if (chamber == 0){
-         std::cout<<"Failed to get detector unit"<<std::endl;
+         edm::LogWarning("MuonGeometry")<<"Failed to get detector unit\n";
          continue;
       }
       const Surface& surf = chamber->surface();
 
-      if (debug_){
-         std::cout<<"Will propagate to surface: "<<surf.position()<<" "<<surf.rotation()<<std::endl;
-      }
+      LogTrace("fillDTSegments") <<"Will propagate to surface: "<<surf.position()<<" "<<surf.rotation()<<"\n";
       tSOSDest = ivProp_->Propagator::propagate(trajectoryPoint, surf);
 
       if (! tSOSDest.isValid()) {
-         std::cout << "Failed to propagate track to DTChamber" << std::endl;
+         edm::LogWarning("PropagationProblem") << "Failed to propagate track to DTChamber\n";
          continue;
       }
 
       // Get the range for the corresponding LayerId
       DTRecSegment4DCollection::range  range = dtSegments->get((*detUnitIt));
       // Loop over the rechits of this DetUnit
-      for (DTRecSegment4DCollection::const_iterator recseg = range.first;
-            recseg!=range.second;
-            recseg++){
-	 
-         LogTrace("TrackAssociator::fillDTSegments")
-            << "Segment local position: " << recseg->localPosition() << "\n"
-            << std::hex << recseg->geographicalId().rawId() << "\n";
-
-         GlobalPoint dtSeg = surf.toGlobal(recseg->localPosition());
-
-         LogTrace("TrackAssociator::fillDTSegments")
-            << "Segment global position: " << dtSeg << " \t (R_xy,eta,phi): "
-               << dtSeg.perp() << "," << dtSeg.eta() << "," << dtSeg.phi() << "\n";
-
-         LogTrace("TrackAssociator::fillDTSegments")
-            << "\teta hit: " << dtSeg.eta() << " \tpropagator: " << tSOSDest.freeState()->position().eta() << "\n"
-            << "\tphi hit: " << dtSeg.phi() << " \tpropagator: " << tSOSDest.freeState()->position().phi() << std::endl;
-
-         bool isGood = false;
-         if(recseg->chamberId().station()==4) {
-            isGood = fabs(dtSeg.phi()-tSOSDest.freeState()->position().phi()) < dR;
-            // Be in chamber
-            isGood &= fabs(dtSeg.eta()-tSOSDest.freeState()->position().eta()) < .3;
-         } else isGood = sqrt( pow(dtSeg.eta()-tSOSDest.freeState()->position().eta(),2) + pow(dtSeg.phi()-tSOSDest.freeState()->position().phi(),2)) < dR;
-
-         if(isGood) {
-            MuonSegmentMatch muonSegment;
-            muonSegment.segmentGlobalPosition = getPoint(dtSeg);
-            muonSegment.segmentLocalPosition = getPoint( recseg->localPosition() );
-            muonSegment.segmentLocalDirection = getVector( recseg->localDirection() );
-            muonSegment.segmentLocalErrorXX = recseg->localPositionError().xx();
-            muonSegment.segmentLocalErrorYY = recseg->localPositionError().yy();
-            muonSegment.segmentLocalErrorXY = recseg->localPositionError().xy();
-            muonSegment.segmentLocalErrorDxDz = recseg->localDirectionError().xx();
-            muonSegment.segmentLocalErrorDyDz = recseg->localDirectionError().yy();
-
-            AlgebraicSymMatrix segmentCovMatrix = recseg->parametersError();
-            muonSegment.segmentLocalErrorXDxDz = segmentCovMatrix[2][0];
-            muonSegment.segmentLocalErrorYDyDz = segmentCovMatrix[3][1];
-
-            // muon.segmentPosition_.push_back(getPoint(dtSeg));
-            muonSegment.trajectoryGlobalPosition = getPoint(tSOSDest.freeState()->position()) ;
-            muonSegment.trajectoryLocalPosition = getPoint(surf.toLocal(tSOSDest.freeState()->position()));
-            muonSegment.trajectoryLocalDirection = getVector(surf.toLocal(tSOSDest.freeState()->momentum()));
-            // muon.trajectoryDirection_.push_back(getVector(tSOSDest.freeState()->momentum()));
-            float errXX(-1.), errYY(-1.), errXY(-1.);
-            float err_dXdZ(-1.), err_dYdZ(-1.);
-            float err_XdXdZ(-1.), err_YdYdZ(-1.);
-            if (tSOSDest.freeState()->hasError()){
-	       LocalError err = tSOSDest.localError().positionError();
-               errXX = err.xx();
-               errXY = err.xy();
-               errYY = err.yy();
-
-               AlgebraicSymMatrix trajectoryCovMatrix = tSOSDest.localError().matrix();
-               err_dXdZ = trajectoryCovMatrix[1][1];
-               err_dYdZ = trajectoryCovMatrix[2][2];
-               err_XdXdZ = trajectoryCovMatrix[3][1];
-               err_YdYdZ = trajectoryCovMatrix[4][2];
-
-            }
-            muonSegment.trajectoryLocalErrorXX = errXX;
-            muonSegment.trajectoryLocalErrorXY = errXY;
-            muonSegment.trajectoryLocalErrorYY = errYY;
-            muonSegment.trajectoryLocalErrorDxDz = err_dXdZ;
-            muonSegment.trajectoryLocalErrorDyDz = err_dYdZ;
-            muonSegment.trajectoryLocalErrorXDxDz = err_XdXdZ;
-            muonSegment.trajectoryLocalErrorYDyDz = err_YdYdZ;
-            muonSegment.id = DetId((*detUnitIt).rawId());
-            info.segments.push_back(muonSegment);
-            // Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h
-            // LocalError transform(const GlobalError& ge, const Surface& surf)
-         }
+      for (DTRecSegment4DCollection::const_iterator recseg = range.first; recseg!=range.second; recseg++){
+	 MuonChamberMatch matchedChamber;
+	 matchedChamber.id = recseg->geographicalId();
+	 matchedChamber.tState = tSOSDest;
+	 addMuonSegmentMatch(matchedChamber, &(*recseg), parameters);
+	 info.chambers.push_back(matchedChamber);
       }
    }
 }
@@ -551,7 +493,7 @@ void TrackAssociator::fillCSCSegments( const edm::Event& iEvent,
 				      const edm::EventSetup& iSetup,
 				      TrackDetMatchInfo& info,
 				      const FreeTrajectoryState& trajectoryPoint,
-				      const double dR)
+				      const AssociatorParameters& parameters)
 {
    TimerStack timers;
    timers.push("TrackAssociator::fillCSCSegments");
@@ -561,6 +503,7 @@ void TrackAssociator::fillCSCSegments( const edm::Event& iEvent,
    // Get the CSC Geometry
    ESHandle<CSCGeometry> cscGeom;
    iSetup.get<MuonGeometryRecord>().get(cscGeom);
+   muonDetIdAssociator_.setGeometry(&*theTrackingGeometry_);
 
    // Get the rechit collection from the event
    timers.push("TrackAssociator::fillCSCSegments::access");
@@ -579,18 +522,16 @@ void TrackAssociator::fillCSCSegments( const edm::Event& iEvent,
       // Get the GeomDet from the setup
       const CSCChamber* chamber = cscGeom->chamber(*detUnitIt);
       if (chamber == 0){
-         std::cout<<"Failed to get detector unit"<<std::endl;
+	 edm::LogWarning("MuonGeometry")<<"Failed to get detector unit\n";
          continue;
       }
       const Surface& surf = chamber->surface();
-
-      if (debug_){
-         std::cout<<"Will propagate to surface: "<<surf.position()<<" "<<surf.rotation()<<std::endl;
-      }
+      
+      LogTrace("fillDTSegments") <<"Will propagate to surface: "<<surf.position()<<" "<<surf.rotation()<<"\n";
       tSOSDest = ivProp_->Propagator::propagate(trajectoryPoint, surf);
 
       if (! tSOSDest.isValid()) {
-         std::cout << "Failed to propagate track to CSCChamber" << std::endl;
+	 edm::LogWarning("PropagationProblem") << "Failed to propagate track to DTChamber\n";
          continue;
       }
 
@@ -598,72 +539,11 @@ void TrackAssociator::fillCSCSegments( const edm::Event& iEvent,
       CSCSegmentCollection::range  range = cscSegments->get((*detUnitIt));
       // Loop over the rechits of this DetUnit
       for (CSCSegmentCollection::const_iterator recseg = range.first; recseg!=range.second; recseg++){
-
-         LogDebug("TrackAssociator::fillCSCSegments")
-            << "Segment local position: " << recseg->localPosition() << "\n"
-            << std::hex << recseg->geographicalId().rawId() << "\n";
-
-         GlobalPoint cscSeg = surf.toGlobal(recseg->localPosition());
-
-         LogDebug("TrackAssociator::fillCSCSegments")
-            << "Segment global position: " << cscSeg << " \t (R_xy,eta,phi): "
-               << cscSeg.perp() << "," << cscSeg.eta() << "," << cscSeg.phi() << "\n";
-
-         LogDebug("TrackAssociator::fillCSCSegments")
-            << "\teta hit: " << cscSeg.eta() << " \tpropagator: " << tSOSDest.freeState()->position().eta() << "\n"
-            << "\tphi hit: " << cscSeg.phi() << " \tpropagator: " << tSOSDest.freeState()->position().phi() << std::endl;
-
-         if (sqrt( pow(cscSeg.eta()-tSOSDest.freeState()->position().eta(),2) + 
-                  pow(cscSeg.phi()-tSOSDest.freeState()->position().phi(),2) ) < dR)
-         {
-            MuonSegmentMatch muonSegment;
-            muonSegment.segmentGlobalPosition = getPoint(cscSeg);
-            muonSegment.segmentLocalPosition = getPoint( recseg->localPosition() );
-            muonSegment.segmentLocalDirection = getVector( recseg->localDirection() );
-            muonSegment.segmentLocalErrorXX = recseg->localPositionError().xx();
-            muonSegment.segmentLocalErrorYY = recseg->localPositionError().yy();
-            muonSegment.segmentLocalErrorXY = recseg->localPositionError().xy();
-            muonSegment.segmentLocalErrorDxDz = recseg->localDirectionError().xx();
-            muonSegment.segmentLocalErrorDyDz = recseg->localDirectionError().yy();
-
-            AlgebraicSymMatrix segmentCovMatrix = recseg->parametersError();
-            muonSegment.segmentLocalErrorXDxDz = segmentCovMatrix[2][0];
-            muonSegment.segmentLocalErrorYDyDz = segmentCovMatrix[3][1];
-
-            // muon.segmentPosition_.push_back(getPoint(cscSeg));
-            muonSegment.trajectoryGlobalPosition = getPoint(tSOSDest.freeState()->position()) ;
-            muonSegment.trajectoryLocalPosition = getPoint(surf.toLocal(tSOSDest.freeState()->position()));
-            muonSegment.trajectoryLocalDirection = getVector(surf.toLocal(tSOSDest.freeState()->momentum()));
-            // muon.trajectoryDirection_.push_back(getVector(tSOSDest.freeState()->momentum()));
-            float errXX(-1.), errYY(-1.), errXY(-1.);
-            float err_dXdZ(-1.), err_dYdZ(-1.);
-            float err_XdXdZ(-1.), err_YdYdZ(-1.);
-            if (tSOSDest.freeState()->hasError()){
-               LocalError err = tSOSDest.localError().positionError();
-               errXX = err.xx();
-               errXY = err.xy();
-               errYY = err.yy();
-
-               AlgebraicSymMatrix trajectoryCovMatrix = tSOSDest.localError().matrix();
-               err_dXdZ = trajectoryCovMatrix[1][1];
-               err_dYdZ = trajectoryCovMatrix[2][2];
-               err_XdXdZ = trajectoryCovMatrix[3][1];
-               err_YdYdZ = trajectoryCovMatrix[4][2];
-
-            }
-            muonSegment.trajectoryLocalErrorXX = errXX;
-            muonSegment.trajectoryLocalErrorXY = errXY;
-            muonSegment.trajectoryLocalErrorYY = errYY;
-            muonSegment.trajectoryLocalErrorDxDz = err_dXdZ;
-            muonSegment.trajectoryLocalErrorDyDz = err_dYdZ;
-            muonSegment.trajectoryLocalErrorXDxDz = err_XdXdZ;
-            muonSegment.trajectoryLocalErrorYDyDz = err_YdYdZ; 
-            muonSegment.id = DetId((*detUnitIt).rawId());
-            info.segments.push_back(muonSegment);
-
-            // Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h
-            // LocalError transform(const GlobalError& ge, const Surface& surf)
-         }
+	 MuonChamberMatch matchedChamber;
+	 matchedChamber.id = recseg->geographicalId();
+	 matchedChamber.tState = tSOSDest;
+	 addMuonSegmentMatch(matchedChamber, &(*recseg), parameters);
+	 info.chambers.push_back(matchedChamber);
       }
    }
 }
@@ -713,3 +593,170 @@ FreeTrajectoryState TrackAssociator::getFreeTrajectoryState( const edm::EventSet
    return FreeTrajectoryState(tPars, tCov);
 }
 
+void TrackAssociator::fillMuonSegments( const edm::Event& iEvent,
+					const edm::EventSetup& iSetup,
+					TrackDetMatchInfo& info,
+					FreeTrajectoryState& trajectoryPoint,
+					const AssociatorParameters& parameters)
+{
+   TimerStack timers;
+   timers.push("TrackAssociator::fillMuonSegments");
+   using namespace edm;
+
+   muonDetIdAssociator_.setGeometry(&*theTrackingGeometry_);
+
+   // Get the segments from the event
+   timers.push("TrackAssociator::fillMuonSegments::access");
+   Handle<DTRecSegment4DCollection> dtSegments;
+   if (DTRecSegment4DCollectionLabels.empty())
+     throw cms::Exception("FatalError") << "Module lable is not set for DTRecSegment4DCollection.\n";
+   else
+     iEvent.getByLabel (DTRecSegment4DCollectionLabels[0], DTRecSegment4DCollectionLabels[1], dtSegments);
+   if (! dtSegments.isValid()) 
+     throw cms::Exception("FatalError") << "Unable to find DTRecSegment4DCollection in event!\n";
+   
+   Handle<CSCSegmentCollection> cscSegments;
+   if (CSCSegmentCollectionLabels.empty())
+     throw cms::Exception("FatalError") << "Module lable is not set for CSCSegmentCollection.\n";
+   else
+     iEvent.getByLabel (CSCSegmentCollectionLabels[0], CSCSegmentCollectionLabels[1], cscSegments);
+   if (! cscSegments.isValid()) 
+     throw cms::Exception("FatalError") << "Unable to find CSCSegmentCollection in event!\n";
+
+   ///// get a set of DetId's in a given direction
+   // get the direction first
+   GlobalVector direction = trajectoryPoint.momentum().unit();
+   // and find chamber DetIds
+   LogTrace("TrackAssociator::fillMuonSegments") << "muon direction: " << direction << "\n\t and corresponding point: " <<
+     trajectoryPoint.position() <<"\n";
+   
+   // check the map of available segments
+   // if there is no segments in a given direction at all,
+   // then there is no point to fly there.
+   // 
+   // MISSING
+   // Possible solution: quick search for presence of segments 
+   // for the set of DetIds
+
+   timers.pop_and_push("TrackAssociator::fillMuonSegments::matchChembers");
+   
+   // propagate track through the muon detector
+   // and get a set of matches corresponding to muon chambers
+   std::vector<MuonChamberMatch> matchedChambers = 
+     muonDetIdAssociator_.getTrajectoryInMuonDetector(trajectoryPoint, 
+						      parameters.dRMuonPreselection, 
+						      parameters.muonMaxDistanceX, 
+						      parameters.muonMaxDistanceY);
+   LogTrace("fillMuonSegments") << "Chambers matched: " << matchedChambers.size() << "\n";
+   // Iterate over all chamber matches and fill segment matching 
+   // info if it's available
+   timers.pop_and_push("TrackAssociator::fillMuonSegments::findSemgents");
+   for(std::vector<MuonChamberMatch>::iterator matchedChamber = matchedChambers.begin(); 
+       matchedChamber != matchedChambers.end(); matchedChamber++)
+     {
+	const GeomDet* geomDet = muonDetIdAssociator_.getGeomDet((*matchedChamber).id);
+	// DT chamber
+	if(const DTChamber* chamber = dynamic_cast<const DTChamber*>(geomDet) ) {
+	   // Get the range for the corresponding segments
+	   DTRecSegment4DCollection::range  range = dtSegments->get(chamber->id());
+	   // Loop over the segments of this chamber
+	   for (DTRecSegment4DCollection::const_iterator segment = range.first; segment!=range.second; segment++)
+	     addMuonSegmentMatch(*matchedChamber, &(*segment), parameters);
+	}else{
+	   // CSC Chamber
+	   if(const CSCChamber* chamber = dynamic_cast<const CSCChamber*>(geomDet) ) {
+	      // Get the range for the corresponding segments
+	      CSCSegmentCollection::range  range = cscSegments->get(chamber->id());
+	      // Loop over the segments
+	      for (CSCSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++)
+		 addMuonSegmentMatch(*matchedChamber, &(*segment), parameters);
+	   }else{
+	      throw cms::Exception("FatalError") << "Failed to cast GeomDet object to either DTChamber or CSCChamber. Who is this guy anyway?\n";
+	   }
+	}
+	info.chambers.push_back(*matchedChamber);
+     }
+}
+
+
+void TrackAssociator::addMuonSegmentMatch(MuonChamberMatch& matchedChamber,
+					  const RecSegment* segment,
+					  const AssociatorParameters& parameters)
+{
+   LogTrace("TrackAssociator::addMuonSegment")
+     << "Segment local position: " << segment->localPosition() << "\n"
+     << std::hex << segment->geographicalId().rawId() << "\n";
+   
+   const GeomDet* chamber = muonDetIdAssociator_.getGeomDet(matchedChamber.id);
+   TrajectoryStateOnSurface trajectoryStateOnSurface = matchedChamber.tState;
+   GlobalPoint segmentGlobalPosition = chamber->toGlobal(segment->localPosition());
+
+   LogTrace("TrackAssociator::addMuonSegment")
+     << "Segment global position: " << segmentGlobalPosition << " \t (R_xy,eta,phi): "
+     << segmentGlobalPosition.perp() << "," << segmentGlobalPosition.eta() << "," << segmentGlobalPosition.phi() << "\n";
+
+   LogTrace("TrackAssociator::fillMuonSegments")
+     << "\teta hit: " << segmentGlobalPosition.eta() << " \tpropagator: " << trajectoryStateOnSurface.freeState()->position().eta() << "\n"
+     << "\tphi hit: " << segmentGlobalPosition.phi() << " \tpropagator: " << trajectoryStateOnSurface.freeState()->position().phi() << std::endl;
+
+   bool isGood = false;
+   bool isDTOuterStation = false;
+   if( const DTChamber* chamberDT = dynamic_cast<const DTChamber*>(chamber))
+     if (chamberDT->id().station()==4)
+       isDTOuterStation = true;
+   if( isDTOuterStation )
+     {
+	isGood = fabs(segmentGlobalPosition.phi()-trajectoryStateOnSurface.freeState()->position().phi()) < parameters.dRMuon;
+	// Be in chamber
+	isGood &= fabs(segmentGlobalPosition.eta()-trajectoryStateOnSurface.freeState()->position().eta()) < .3;
+     } else isGood = sqrt( pow(segmentGlobalPosition.eta()-trajectoryStateOnSurface.freeState()->position().eta(),2) + 
+			   pow(segmentGlobalPosition.phi()-trajectoryStateOnSurface.freeState()->position().phi(),2)) < parameters.dRMuon;
+
+   if(isGood) {
+      MuonSegmentMatch muonSegment;
+      muonSegment.segmentGlobalPosition = getPoint(segmentGlobalPosition);
+      muonSegment.segmentLocalPosition = getPoint( segment->localPosition() );
+      muonSegment.segmentLocalDirection = getVector( segment->localDirection() );
+      muonSegment.segmentLocalErrorXX = segment->localPositionError().xx();
+      muonSegment.segmentLocalErrorYY = segment->localPositionError().yy();
+      muonSegment.segmentLocalErrorXY = segment->localPositionError().xy();
+      muonSegment.segmentLocalErrorDxDz = segment->localDirectionError().xx();
+      muonSegment.segmentLocalErrorDyDz = segment->localDirectionError().yy();
+      
+      // DANGEROUS - compiler cannot guaranty parameters ordering
+      AlgebraicSymMatrix segmentCovMatrix = segment->parametersError();
+      muonSegment.segmentLocalErrorXDxDz = segmentCovMatrix[2][0];
+      muonSegment.segmentLocalErrorYDyDz = segmentCovMatrix[3][1];
+
+      // muon.segmentPosition_.push_back(getPoint(segmentGlobalPosition));
+      muonSegment.trajectoryGlobalPosition = getPoint(trajectoryStateOnSurface.freeState()->position()) ;
+      muonSegment.trajectoryLocalPosition = getPoint(chamber->toLocal(trajectoryStateOnSurface.freeState()->position()));
+      muonSegment.trajectoryLocalDirection = getVector(chamber->toLocal(trajectoryStateOnSurface.freeState()->momentum().unit()));
+      // muon.trajectoryDirection_.push_back(getVector(trajectoryStateOnSurface.freeState()->momentum()));
+      float errXX(-1.), errYY(-1.), errXY(-1.);
+      float err_dXdZ(-1.), err_dYdZ(-1.);
+      float err_XdXdZ(-1.), err_YdYdZ(-1.);
+      if (trajectoryStateOnSurface.freeState()->hasError()){
+	 LocalError err = trajectoryStateOnSurface.localError().positionError();
+	 errXX = err.xx();
+	 errXY = err.xy();
+	 errYY = err.yy();
+
+	 // DANGEROUS - compiler cannot guaranty parameters ordering
+	 AlgebraicSymMatrix trajectoryCovMatrix = trajectoryStateOnSurface.localError().matrix();
+	 err_dXdZ = trajectoryCovMatrix[1][1];
+	 err_dYdZ = trajectoryCovMatrix[2][2];
+	 err_XdXdZ = trajectoryCovMatrix[3][1];
+	 err_YdYdZ = trajectoryCovMatrix[4][2];
+      }
+      muonSegment.trajectoryLocalErrorXX = errXX;
+      muonSegment.trajectoryLocalErrorXY = errXY;
+      muonSegment.trajectoryLocalErrorYY = errYY;
+      muonSegment.trajectoryLocalErrorDxDz = err_dXdZ;
+      muonSegment.trajectoryLocalErrorDyDz = err_dYdZ;
+      muonSegment.trajectoryLocalErrorXDxDz = err_XdXdZ;
+      muonSegment.trajectoryLocalErrorYDyDz = err_YdYdZ;
+      matchedChamber.segments.push_back(muonSegment);
+   }
+}
+	

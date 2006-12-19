@@ -5,7 +5,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "TrackingTools/TrackAssociator/interface/MuonSegmentMatch.h"
+#include "TrackingTools/TrackAssociator/interface/MuonChamberMatch.h"
 
 class TrackDetMatchInfo {
  public:
@@ -27,30 +27,10 @@ class TrackDetMatchInfo {
    double ecalTowerEnergy();
    double ecalTowerConeEnergy();
 
-   int numberOfSegments(){ return segments.size(); }
+   int numberOfSegments() const;
    int numberOfSegmentsInStation(int station) const;
    int numberOfSegmentsInStation(int station, int detector) const;
    int numberOfSegmentsInDetector(int detector) const;
-     
-   double dX(int i){ 
-      if (numberOfSegments()<=i) return -999.;
-      return segments[i].segmentLocalPosition.x()-segments[i].trajectoryLocalPosition.x();
-   }
-   
-   double dY(int i){ 
-      if (numberOfSegments()<=i) return -999.;
-      return segments[i].segmentLocalPosition.y()-segments[i].trajectoryLocalPosition.y();
-   }
-   
-   double errXX(int i){ 
-      if (numberOfSegments()<=i) return -999.;
-      return segments[i].trajectoryLocalErrorXX+segments[i].segmentLocalErrorXX;
-   }
-    
-   double errYY(int i){ 
-      if (numberOfSegments()<=i) return -999.;
-      return segments[i].trajectoryLocalErrorYY+segments[i].segmentLocalErrorYY;
-   }
      
    math::XYZPoint trkGlobPosAtEcal;
    std::vector<EcalRecHit> ecalRecHits;
@@ -60,7 +40,7 @@ class TrackDetMatchInfo {
    std::vector<CaloTower> towers;
    std::vector<CaloTower> crossedTowers;
    
-   std::vector<MuonSegmentMatch> segments;
+   std::vector<MuonChamberMatch> chambers;
 
    SimTrackRef simTrackRef_;
    reco::TrackRef trackRef_;

@@ -19,7 +19,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.h,v 1.2 2006/09/21 21:25:48 jribnik Exp $
+// $Id: DetIdAssociator.h,v 1.3 2006/09/30 05:12:27 dmytro Exp $
 //
 //
 
@@ -48,9 +48,9 @@ class DetIdAssociator{
    // get track trajectory for a set of limiting surfaces of given radius and Z.
    // thetaOverlap defines a limit at which a track is propagated to both
    // barrel and endcap if close to the edge between them.
-   virtual std::vector<GlobalPoint> getTrajectory( const FreeTrajectoryState& ftsStart,
-							 const std::vector<GlobalPoint>& surfaces,
-							 const double etaOverlap = 0.1);
+   virtual std::vector<GlobalPoint> getTrajectory( FreeTrajectoryState& ftsStart,
+						   const std::vector<GlobalPoint>& surfaces,
+						   const double etaOverlap = 0.1);
    // find DetIds arround given direction
    // idR is a number of the adjacent bins to retrieve 
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint&, 
@@ -76,7 +76,11 @@ class DetIdAssociator{
    virtual int iEta (const GlobalPoint&);
    virtual int iPhi (const GlobalPoint&);
    virtual void setPropagator(Propagator* ptr){	ivProp_ = ptr; };
- 
+   int nPhiBins(){ return nPhi_;};
+   int nEtaBins(){ return nEta_;};
+   double etaBinSize(){ return etaBinSize_;};
+   virtual void buildMap();
+   
  protected:
    virtual void check_setup()
      {
@@ -86,7 +90,6 @@ class DetIdAssociator{
 	if (etaBinSize_==0) throw cms::Exception("FatalError") << "Eta bin size is not set.\n";
      }
    
-   virtual void buildMap();
    virtual GlobalPoint getPosition(const DetId&) = 0;
    virtual std::set<DetId> getASetOfValidDetIds() = 0;
    virtual std::vector<GlobalPoint> getDetIdPoints(const DetId&) = 0;

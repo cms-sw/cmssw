@@ -6,8 +6,6 @@
 
 class MuonSegmentMatch {
  public:
-   int station() const;
-   int detector() const { return id.subdetId(); }
    double pullX() const;
    double pullY() const;
 
@@ -32,7 +30,5 @@ class MuonSegmentMatch {
    float  trajectoryLocalErrorDyDz;
    float  trajectoryLocalErrorXDxDz;
    float  trajectoryLocalErrorYDyDz;
-
-   DetId id;
 };
 #endif

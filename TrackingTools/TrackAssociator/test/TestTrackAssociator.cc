@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TestTrackAssociator.cc,v 1.2 2006/08/09 14:44:00 dmytro Exp $
+// $Id: TestTrackAssociator.cc,v 1.3 2006/10/26 21:31:17 dmytro Exp $
 //
 //
 
@@ -82,7 +82,9 @@
 class TestTrackAssociator : public edm::EDAnalyzer {
  public:
    explicit TestTrackAssociator(const edm::ParameterSet&);
-   virtual ~TestTrackAssociator(){};
+   virtual ~TestTrackAssociator(){
+      TimingReport::current()->dump(std::cout);
+   }
    
    virtual void analyze (const edm::Event&, const edm::EventSetup&);
 
@@ -91,6 +93,7 @@ class TestTrackAssociator : public edm::EDAnalyzer {
    bool useEcal_;
    bool useHcal_;
    bool useMuon_;
+   bool useOldMuonMatching_;
 };
 
 TestTrackAssociator::TestTrackAssociator(const edm::ParameterSet& iConfig)
@@ -98,6 +101,12 @@ TestTrackAssociator::TestTrackAssociator(const edm::ParameterSet& iConfig)
    useEcal_ = iConfig.getParameter<bool>("useEcal");
    useHcal_ = iConfig.getParameter<bool>("useHcal");
    useMuon_ = iConfig.getParameter<bool>("useMuon");
+   if (iConfig.getParameter<bool>("disableTimers")){
+      TimerStack timers; 
+      timers.disableAllTimers();
+   }
+	
+   useOldMuonMatching_ = iConfig.getParameter<bool>("useOldMuonMatching");
    
    // Fill data labels
    std::vector<std::string> labels = iConfig.getParameter<std::vector<std::string> >("labels");
@@ -135,13 +144,13 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
    if (! simVertices.isValid() ) throw cms::Exception("FatalError") << "No vertices found\n";
    
    // loop over simulated tracks
-   std::cout << "Number of simulated tracks found in the event: " << simTracks->size() << std::endl;
+   LogVerbatim("info") << "Number of simulated tracks found in the event: " << simTracks->size() ;
    for(SimTrackContainer::const_iterator tracksCI = simTracks->begin(); 
        tracksCI != simTracks->end(); tracksCI++){
       
       // skip low Pt tracks
       if (tracksCI->momentum().perp() < 5) {
-	 std::cout << "Skipped low Pt track (Pt: " << tracksCI->momentum().perp() << ")" <<std::endl;
+	 LogVerbatim("info") << "Skipped low Pt track (Pt: " << tracksCI->momentum().perp() << ")" ;
 	 continue;
       }
       
@@ -154,18 +163,19 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
       
       // skip tracks originated away from the IP
       if (vertex.position().rho() > 50) {
-	 std::cout << "Skipped track originated away from IP: " <<vertex.position().rho()<<std::endl;
+	 LogVerbatim("info") << "Skipped track originated away from IP: " <<vertex.position().rho();
 	 continue;
       }
       
-      std::cout << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << tracksCI->momentum().perp() << " , " <<
-	tracksCI->momentum().eta() << " , " << tracksCI->momentum().phi() << std::endl;
+      LogVerbatim("info") << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << tracksCI->momentum().perp() << " , " <<
+	tracksCI->momentum().eta() << " , " << tracksCI->momentum().phi() ;
       
       // Simply get ECAL energy of the crossed crystals
-      std::cout << "ECAL energy of crossed crystals: " << 
+      if (useEcal_)
+	LogVerbatim("info") << "ECAL energy of crossed crystals: " << 
 	trackAssociator_.getEcalEnergy(iEvent, iSetup,
 				       trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex) )
-	  << " GeV" << std::endl;
+	  << " GeV" ;
 				       
       // Get HCAL energy in more generic way
       TrackAssociator::AssociatorParameters parameters;
@@ -175,43 +185,61 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
       parameters.dRHcal = 0.03;
       parameters.dRHcal = 0.07;
       parameters.dRMuon = 0.1;
+//      parameters.dRMuonPreselection = 0.5;
+      parameters.useOldMuonMatching = useOldMuonMatching_;
       
-      std::cout << "Details:\n" <<std::endl;
+      LogVerbatim("info") << "Details:\n" ;
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,
 							  trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex),
 							  parameters);
-      std::cout << "ECAL, number of crossed cells: " << info.crossedEcalRecHits.size() << std::endl;
-      std::cout << "ECAL, energy of crossed cells: " << info.ecalEnergy() << " GeV" << std::endl;
-      std::cout << "ECAL, number of cells in the cone: " << info.ecalRecHits.size() << std::endl;
-      std::cout << "ECAL, energy in the cone: " << info.ecalConeEnergy() << " GeV" << std::endl;
-      std::cout << "ECAL, trajectory point (z,R,eta,phi): " << info.trkGlobPosAtEcal.z() << ", "
+      LogVerbatim("info") << "ECAL, number of crossed cells: " << info.crossedEcalRecHits.size() ;
+      LogVerbatim("info") << "ECAL, energy of crossed cells: " << info.ecalEnergy() << " GeV" ;
+      LogVerbatim("info") << "ECAL, number of cells in the cone: " << info.ecalRecHits.size() ;
+      LogVerbatim("info") << "ECAL, energy in the cone: " << info.ecalConeEnergy() << " GeV" ;
+      LogVerbatim("info") << "ECAL, trajectory point (z,R,eta,phi): " << info.trkGlobPosAtEcal.z() << ", "
 	<< info.trkGlobPosAtEcal.R() << " , "	<< info.trkGlobPosAtEcal.eta() << " , " 
-	<< info.trkGlobPosAtEcal.phi()<< std::endl;
+	<< info.trkGlobPosAtEcal.phi();
       
-      std::cout << "HCAL, number of crossed towers: " << info.crossedTowers.size() << std::endl;
-      std::cout << "HCAL, energy of crossed towers: " << info.hcalEnergy() << " GeV" << std::endl;
-      std::cout << "HCAL, number of towers in the cone: " << info.towers.size() << std::endl;
-      std::cout << "HCAL, energy in the cone: " << info.hcalConeEnergy() << " GeV" << std::endl;
-      std::cout << "HCAL, trajectory point (z,R,eta,phi): " << info.trkGlobPosAtHcal.z() << ", "
+      LogVerbatim("info") << "HCAL, number of crossed towers: " << info.crossedTowers.size() ;
+      LogVerbatim("info") << "HCAL, energy of crossed towers: " << info.hcalEnergy() << " GeV" ;
+      LogVerbatim("info") << "HCAL, number of towers in the cone: " << info.towers.size() ;
+      LogVerbatim("info") << "HCAL, energy in the cone: " << info.hcalConeEnergy() << " GeV" ;
+      LogVerbatim("info") << "HCAL, trajectory point (z,R,eta,phi): " << info.trkGlobPosAtHcal.z() << ", "
 	<< info.trkGlobPosAtHcal.R() << " , "	<< info.trkGlobPosAtHcal.eta() << " , "
-	<< info.trkGlobPosAtHcal.phi()<< std::endl;
+	<< info.trkGlobPosAtHcal.phi();
       
       if (useMuon_) {
-	 std::cout << "Drift Tubes segments: " << std::endl;
-	 for(std::vector<MuonSegmentMatch>::const_iterator segmentItr=info.segments.begin(); 
-	     segmentItr!=info.segments.end(); segmentItr++)
+	 LogVerbatim("info") << "Muon detector matching details: " ;
+	 for(std::vector<MuonChamberMatch>::const_iterator chamber = info.chambers.begin();
+	     chamber!=info.chambers.end(); chamber++)
 	   {
-	      std::cout << "\t DT, trajectory point (z,R,eta,phi): " 
-		<< segmentItr->trajectoryGlobalPosition.z() << ", "
-		<< segmentItr->trajectoryGlobalPosition.R() << ", "
-		<< segmentItr->trajectoryGlobalPosition.eta() << ", "
-		<< segmentItr->trajectoryGlobalPosition.phi() << std::endl;
+	      LogVerbatim("info") << chamber->info() << "\n\t(DetId, station, edgeX, edgeY): "
+		<< chamber->id.rawId() << ", "
+		<< chamber->station() << ", "
+		<< chamber->localDistanceX << ", "
+		<< chamber->localDistanceY << ", ";
+	      for(std::vector<MuonSegmentMatch>::const_iterator segment=chamber->segments.begin(); 
+		  segment!=chamber->segments.end(); segment++)
+		{
+		   LogVerbatim("info") << "\t trajectory global point (z,R,eta,phi): "
+		     << segment->trajectoryGlobalPosition.z() << ", "
+		     << segment->trajectoryGlobalPosition.R() << ", "
+		     << segment->trajectoryGlobalPosition.eta() << ", "
+		     << segment->trajectoryGlobalPosition.phi() ;
+		   LogVerbatim("info") << "\t trajectory local point (x,y): "
+		     << segment->trajectoryLocalPosition.x() << ", "
+		     << segment->trajectoryLocalPosition.y();
 
-	      std::cout << "\t DT,segment position (z,R,eta,phi): " 
-	     << segmentItr->segmentGlobalPosition.z() << ", "
-		<< segmentItr->segmentGlobalPosition.R() << ", "
-		<< segmentItr->segmentGlobalPosition.eta() << ", "
-		<< segmentItr->segmentGlobalPosition.phi() << std::endl;
+		   LogVerbatim("info") << "\t segment position (z,R,eta,phi,DetId): " 
+		     << segment->segmentGlobalPosition.z() << ", "
+		     << segment->segmentGlobalPosition.R() << ", "
+		     << segment->segmentGlobalPosition.eta() << ", "
+		     << segment->segmentGlobalPosition.phi() << ", "
+		     << chamber->id.rawId();
+		   LogVerbatim("info") << "\t segment local position (x,y): "
+		     << segment->segmentLocalPosition.x() << ", "
+		     << segment->segmentLocalPosition.y();
+		}
 	   }
       }
    }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.5 2006/10/09 18:19:22 jribnik Exp $
+// $Id: DetIdAssociator.cc,v 1.6 2006/10/20 16:36:22 dmytro Exp $
 //
 //
 
@@ -23,14 +23,14 @@
 
 
 // surfaces is a vector of GlobalPoint representing outermost point on a cylinder
-std::vector<GlobalPoint> DetIdAssociator::getTrajectory( const FreeTrajectoryState& ftsStart,
+std::vector<GlobalPoint> DetIdAssociator::getTrajectory( FreeTrajectoryState& trajectoryState,
 							 const std::vector<GlobalPoint>& surfaces,
 							 const double etaOverlap)
 {
    check_setup();
    std::vector<GlobalPoint> trajectory;
    TrajectoryStateOnSurface tSOSDest;
-   FreeTrajectoryState ftsCurrent = ftsStart;
+   FreeTrajectoryState ftsCurrent = trajectoryState;
 
    for(std::vector<GlobalPoint>::const_iterator surface_iter = surfaces.begin(); 
        surface_iter != surfaces.end(); surface_iter++) {
@@ -47,25 +47,25 @@ std::vector<GlobalPoint> DetIdAssociator::getTrajectory( const FreeTrajectorySta
 				      Surface::RotationType());
       
       LogTrace("StartingPoint")<< "Propagate from "<< "\n"
-	<< "\tx: " << ftsStart.position().x()<< "\n"
-	<< "\ty: " << ftsStart.position().y()<< "\n"
-	<< "\tz: " << ftsStart.position().z()<< "\n"
-	<< "\tmomentum eta: " << ftsStart.momentum().eta()<< "\n"
-	<< "\tmomentum phi: " << ftsStart.momentum().phi()<< "\n"
-	<< "\tmomentum: " << ftsStart.momentum().mag()<< "\n";
+	<< "\tx: " << trajectoryState.position().x()<< "\n"
+	<< "\ty: " << trajectoryState.position().y()<< "\n"
+	<< "\tz: " << trajectoryState.position().z()<< "\n"
+	<< "\tmomentum eta: " << trajectoryState.momentum().eta()<< "\n"
+	<< "\tmomentum phi: " << trajectoryState.momentum().phi()<< "\n"
+	<< "\tmomentum: " << trajectoryState.momentum().mag()<< "\n";
       
       // First propagate the track to the cylinder if |eta|<1, othewise to the endcap
       // and correct depending on the result
-      if (fabs(ftsCurrent.momentum().eta())<1)
+      if (fabs(trajectoryState.momentum().eta())<1)
 	target = Barrel;
       else {
-	 if(ftsCurrent.momentum().eta()>1)
+	 if(trajectoryState.momentum().eta()>1)
 	   target = ForwardEndcap;
 	 else
 	   target = BackwardEndcap;
       }
       
-      tSOSDest = ivProp_->propagate(ftsCurrent, *map[target]);
+      tSOSDest = ivProp_->propagate(trajectoryState, *map[target]);
       if (! tSOSDest.isValid()) {
          LogTrace("FailedPropagation") << "Failed to propagate the track; moving on\n";
          continue;
@@ -78,7 +78,7 @@ std::vector<GlobalPoint> DetIdAssociator::getTrajectory( const FreeTrajectorySta
 	 if (target != Barrel)
 	   target = Barrel;
 	 else {
-	    if(ftsCurrent.momentum().eta()>0)
+	    if(trajectoryState.momentum().eta()>0)
 	      target = ForwardEndcap;
 	    else
 	      target = BackwardEndcap;
@@ -94,14 +94,14 @@ std::vector<GlobalPoint> DetIdAssociator::getTrajectory( const FreeTrajectorySta
 	   target = BackwardEndcap;
 	 
 	 if(newTarget == target) {
-	    ftsCurrent = *tSOSDest.freeState();
+	    trajectoryState = *tSOSDest.freeState();
 	    trajectory.push_back(point);
 	    continue;
 	 }
 	 target = newTarget;
       }
       
-      tSOSDest = ivProp_->propagate(ftsStart, *map[target]);
+      tSOSDest = ivProp_->propagate(trajectoryState, *map[target]);
       if (! tSOSDest.isValid()) {
          LogTrace("FailedPropagation") << "Failed to propagate the track; moving on\n";
          continue;
@@ -117,11 +117,12 @@ std::vector<GlobalPoint> DetIdAssociator::getTrajectory( const FreeTrajectorySta
       
       trajectory.push_back(point);
    }
+   
    return trajectory;
 }
 
 std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direction,
-						   const int idR)
+							const int idR)
 {
    std::set<DetId> set;
    check_setup();
@@ -162,14 +163,6 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direc
 	   }
       }
    }
- /*  if (debug_)
-     for( std::set<DetId>::const_iterator itr=set.begin();
-	  itr!= set.end(); itr++)
-       {
-	  GlobalPoint point = getPosition(*itr);
-	  std::cout << "\t\tDetId: " <<itr->rawId() <<" \t(eta,phi): " << point.eta() << "," << point.phi() <<std::endl;
-       }
-  */
    return set;
 }
 
@@ -193,6 +186,7 @@ void DetIdAssociator::buildMap()
    int numberOfDetIdsOutsideEtaRange = 0;
    int numberOfDetIdsActive = 0;
    std::set<DetId> validIds = getASetOfValidDetIds();
+   LogTrace("DetIdAssociator")<< "Number of valid DetIds: " <<  validIds.size();
    for (std::set<DetId>::const_iterator id_itr = validIds.begin(); id_itr!=validIds.end(); id_itr++) {
       std::vector<GlobalPoint> points = getDetIdPoints(*id_itr);
       LogTrace("DetIdAssociator")<< "Found " << points.size() << " global points to describe geometry of DetId: " 
@@ -248,35 +242,7 @@ void DetIdAssociator::buildMap()
      nEta_/2*etaBinSize_ << "): " << numberOfDetIdsOutsideEtaRange << "\n";
    LogTrace("DetIdAssociator") << "Number of active DetId's mapped: " << 
      numberOfDetIdsActive << "\n";
-/*   if (debug_){
-      std::cout << "The map:" << std::endl;
-      for (int i=0;i<nEta_;i++)
-	for (int j=0;j<nPhi_;j++)
-	  {
-	     std::cout <<"\t" << i << "," <<j << "\t number of elements:" <<(*theMap_)[i][j].size() <<std::endl;
-	     for( std::set<DetId>::const_iterator itr=(*theMap_)[i][j].begin();
-		  itr!= (*theMap_)[i][j].end(); itr++)
-	       {
-		  GlobalPoint point = getPosition(*itr);
-		  std::cout << "\t\tDetId: " <<itr->rawId() <<" \t(eta,phi): " << point.eta() << "," << point.phi() <<std::endl;
-	       }
-	  }
-        } 
-  */ 
 }
-
-/*
- 	 if (f1() == 0 ) 
-	  {
-	     
-	         string errorMessage = "Input file " + colliFile + "not found";
-	     edm::LogError("CSCGasCollisions") << errorMessage << " in path " << path
-	                 << "\nSet Muon:Endcap:CollisionsFile in .orcarc to the "
-	                " location of the file relative to ORCA_DATA_PATH." ;
-	     throw cms::Exception( " Endcap Muon gas collisions data file not found.");
-	  }
-	
-*/
 
 std::set<DetId> DetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset, 
 					     const std::vector<GlobalPoint>& trajectory,

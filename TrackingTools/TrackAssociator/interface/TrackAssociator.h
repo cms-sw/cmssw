@@ -16,7 +16,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.h,v 1.3 2006/08/16 21:59:27 jribnik Exp $
+// $Id: TrackAssociator.h,v 1.4 2006/09/01 17:22:07 jribnik Exp $
 //
 //
 
@@ -28,15 +28,18 @@
 
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 #include "TrackingTools/TrackAssociator/interface/CaloDetIdAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/EcalDetIdAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/MuonDetIdAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackingRecHit/interface/RecSegment.h"
 
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -54,17 +57,36 @@ class TrackAssociator {
 	 dREcal = 0.03;
 	 dRHcal = 0.07;
 	 dRMuon = 0.1;
+	 dREcalPreselection = dREcal;
+	 dRHcalPreselection = dRHcal;
+	 dRMuonPreselection = dRMuon;
 	 // match all sub-detectors by default
 	 useEcal = true;
 	 useHcal = true;
 	 useMuon = true;
+	 useOldMuonMatching = true;
+	 muonMaxDistanceX = 5;
+	 muonMaxDistanceY = 5;
+	 
       }
       double dREcal;
       double dRHcal;
       double dRMuon;
+      // should be used if it's expected to get a set of DetIds, when the
+      // trajectory is not known yet and only a distant point with direction
+      // is available. By default it is set to the final cuts
+      double dREcalPreselection;
+      double dRHcalPreselection;
+      double dRMuonPreselection;
+      // maximal distance from a muon chamber. Can be consider as a preselection
+      // cut and fancier cuts can be applied in a muon producer, since the
+      // distance from a chamber should be available as output of the TrackAssociation
+      double muonMaxDistanceX;
+      double muonMaxDistanceY;
       bool useEcal;
       bool useHcal;
       bool useMuon;
+      bool useOldMuonMatching;
    };
    
    
@@ -131,26 +153,36 @@ class TrackAssociator {
    void       fillEcal( const edm::Event&,
 			const edm::EventSetup&,
 			TrackDetMatchInfo&, 
-			const FreeTrajectoryState&,
+			FreeTrajectoryState&,
 			const double);
    
    void fillCaloTowers( const edm::Event&,
 			const edm::EventSetup&,
-			TrackDetMatchInfo&, 
-			const FreeTrajectoryState&,
+			TrackDetMatchInfo&,
+			FreeTrajectoryState&,
 			const double);
    
    void fillDTSegments( const edm::Event&,
 			const edm::EventSetup&,
 			TrackDetMatchInfo&,
 			const FreeTrajectoryState&,
-			const double);
+			const AssociatorParameters&);
 
    void fillCSCSegments( const edm::Event&,
 			const edm::EventSetup&,
 			TrackDetMatchInfo&,
 			const FreeTrajectoryState&,
-			const double);
+			const AssociatorParameters&);
+  
+   void fillMuonSegments( const edm::Event&,
+			  const edm::EventSetup&,
+			  TrackDetMatchInfo&,
+			  FreeTrajectoryState&,
+			  const AssociatorParameters&);
+   
+   void addMuonSegmentMatch(MuonChamberMatch&,
+			    const RecSegment*,
+			    const AssociatorParameters&);
   
    void           init( const edm::EventSetup&);
    
@@ -182,8 +214,10 @@ class TrackAssociator {
    
    EcalDetIdAssociator ecalDetIdAssociator_;
    CaloDetIdAssociator caloDetIdAssociator_;
+   MuonDetIdAssociator muonDetIdAssociator_;
    
    edm::ESHandle<CaloGeometry> theCaloGeometry_;
+   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry_;
    
    /// Labels of the detector EDProducts (empty by default)
    /// ECAL
