@@ -14,7 +14,7 @@ through shared pointers.
 The DataBlockImpl returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: DataBlockImpl.h,v 1.4 2006/12/01 03:29:52 wmtan Exp $
+$Id: DataBlockImpl.h,v 1.5 2006/12/14 04:30:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -49,6 +49,7 @@ namespace edm {
     typedef ProcessHistory::const_iterator         ProcessNameConstIterator;
     typedef boost::shared_ptr<const Group>         SharedConstGroupPtr;
     typedef std::vector<BasicHandle>               BasicHandleVec;
+    typedef GroupVec::size_type                    size_type;
 
     DataBlockImpl(ProductRegistry const& reg,
                    ProcessHistoryID const& hist = ProcessHistoryID(),
@@ -64,7 +65,7 @@ namespace edm {
     DataBlockImpl & groupGetter() {return *this;}
 
     // Return the number of EDProducts contained.
-    unsigned long numEDProducts() const;
+    size_type numEDProducts() const;
     
     void put(std::auto_ptr<EDProduct> edp,
 	     std::auto_ptr<Provenance> prov);

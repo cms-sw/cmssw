@@ -2,7 +2,7 @@
 #define ParameterSet_split_h
 
 // ----------------------------------------------------------------------
-// $Id: split.h,v 1.5 2005/09/01 23:30:49 wmtan Exp $
+// $Id: split.h,v 1.6 2006/10/21 02:49:02 wmtan Exp $
 //
 // definition of split() and related templates
 // ----------------------------------------------------------------------
@@ -94,7 +94,7 @@ bool
   str_c_iter  b = s.begin()
            ,  e = s.end();
 
-  if(static_cast<unsigned long>(e - b) < 2u)  return false;
+  if(static_cast<unsigned int>(e - b) < 2u)  return false;
 
   if(*b == first)  ++b;
   else               return false;

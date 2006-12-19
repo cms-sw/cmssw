@@ -43,7 +43,7 @@ stack_t ss_area;
 // --------------------------
 
 void setupTimer();
-unsigned long* setStacktop();
+unsigned int* setStacktop();
 
 SimpleProfiler* SimpleProfiler::inst_ = 0;
 boost::mutex SimpleProfiler::lock_;
@@ -101,7 +101,7 @@ SimpleProfiler::~SimpleProfiler()
 
 void SimpleProfiler::commitFrame(void** first, void** last)
 {
-  unsigned long* cnt_ptr = (unsigned long*)curr_; 
+  unsigned int* cnt_ptr = (unsigned int*)curr_; 
   *cnt_ptr = distance(first,last);
   ++curr_;
   curr_ = copy(first,last,curr_);
@@ -219,7 +219,7 @@ extern "C" {
     SimpleProfiler* prof = SimpleProfiler::instance();
     ucontext_t* ucp = (ucontext_t*)context;
     unsigned char* eip=(unsigned char*)ucp->uc_mcontext.gregs[REG_EIP];
-    unsigned long* stacktop = prof->stackTop();
+    unsigned int* stacktop = prof->stackTop();
     void** arr = prof->tempStack();
 
 #if 0
@@ -249,10 +249,10 @@ extern "C" {
 
 #if 1
     // ----- manual way ------
-    unsigned long* ebp=(unsigned long*)ucp->uc_mcontext.gregs[REG_EBP];
-    unsigned long* esp=(unsigned long*)ucp->uc_mcontext.gregs[REG_ESP];
-    long* fir = (long*)arr;
-    long* cur = fir;
+    unsigned int* ebp=(unsigned int*)ucp->uc_mcontext.gregs[REG_EBP];
+    unsigned int* esp=(unsigned int*)ucp->uc_mcontext.gregs[REG_ESP];
+    int* fir = (int*)arr;
+    int* cur = fir;
     bool done = false;
 
     if(ebp<esp)
@@ -261,15 +261,15 @@ extern "C" {
 	getBP(ebp);
 	if(ebp<esp)
 	  {
-	    *cur++ = ((unsigned long)eip);
-	    *cur++ = ((unsigned long)ebp);
+	    *cur++ = ((unsigned int)eip);
+	    *cur++ = ((unsigned int)ebp);
 	    //cerr << "early completion\n";
 	    done=true;
 	  }
 	else
 	  {
-	    ebp=(unsigned long*)(*ebp);
-	    ebp=(unsigned long*)(*ebp);
+	    ebp=(unsigned int*)(*ebp);
+	    ebp=(unsigned int*)(*ebp);
 	  }
       }
   
@@ -279,12 +279,12 @@ extern "C" {
 	if(eip[0]==0xc3)
 	  {
 	    //cerr << "after the leave but before the ret\n";
-	    *cur++ = ((unsigned long)*esp);
+	    *cur++ = ((unsigned int)*esp);
 	  }
 	else
-	  *cur++ = ((unsigned long)eip);
+	  *cur++ = ((unsigned int)eip);
 
-	if( *esp==(unsigned long)ebp )
+	if( *esp==(unsigned int)ebp )
 	  {
 	    //cerr << "we are after the push, before the mov\n";
 	    ebp = esp;
@@ -292,14 +292,14 @@ extern "C" {
 	else if(eip[0]==0x55 && eip[1]==0x89 && eip[2]==0xe5)
 	  {
 	    //cerr << "before the push, after the call\n";
-	    *cur++ = ((unsigned long)*esp);
+	    *cur++ = ((unsigned int)*esp);
 	  }
       
 	while(ebp<stacktop)
 	  {
 	    //fprintf(stderr,"loop %8.8x %8.8x\n",ebp,*(ebp+1));	  
 	    *cur++ = (*(ebp+1));
-	    ebp=(unsigned long*)(*ebp);
+	    ebp=(unsigned int*)(*ebp);
 	  }
 	//++total_sample_count;
       }
@@ -420,13 +420,13 @@ static AdjustSigs global_adjust;
 
 // -----------------------------------------------
 
-unsigned long* setStacktop()
+unsigned int* setStacktop()
 {
-  unsigned long* top;
-  unsigned long* ebp;
+  unsigned int* top;
+  unsigned int* ebp;
   getBP(ebp);
-  ebp = (unsigned long*)(*ebp);
-  top = (unsigned long*)(*ebp);
+  ebp = (unsigned int*)(*ebp);
+  top = (unsigned int*)(*ebp);
 
   void* sta[30];
   int depth = backtrace(sta,30);
@@ -437,11 +437,11 @@ unsigned long* setStacktop()
   while(depth>3)
     {
       //fprintf(stderr,"depth=%d top=%8.8x\n",depth,top);
-      if(top<(unsigned long*)0x10)
+      if(top<(unsigned int*)0x10)
       {
         fprintf(stderr,"problem\n");
       }
-      top=(unsigned long*)(*top);
+      top=(unsigned int*)(*top);
       --depth;
     }
   //fprintf(stderr,"depth=%d top=%8.8x\n",depth,top);

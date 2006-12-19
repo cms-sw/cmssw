@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.54 2006/12/04 23:17:00 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.55 2006/12/07 23:47:18 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -232,13 +232,13 @@ namespace edm {
 
     if (eventCount_ >= fileSizeCheckEvent_) {
 	unsigned int const oneK = 1024;
-	size_t size = om_->context_.getFileSize(file_)/oneK;
-	unsigned long eventSize = std::max(size/eventCount_, 1UL);
+	unsigned int size = om_->context_.getFileSize(file_)/oneK;
+	unsigned int eventSize = std::max(size/eventCount_, 1U);
 	if (size + 2*eventSize >= om_->maxFileSize_) {
 	  endFile();
 	  return true;
 	} else {
-	  unsigned long increment = (om_->maxFileSize_ - size)/eventSize;
+	  unsigned int increment = (om_->maxFileSize_ - size)/eventSize;
 	  increment -= increment/8;	// Prevents overshoot
 	  fileSizeCheckEvent_ = eventCount_ + increment;
 	}

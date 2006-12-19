@@ -32,7 +32,7 @@ namespace stor
   struct FragEntry
   {
     FragEntry():buffer_object_(),buffer_address_() { }
-    FragEntry(void* bo, void* ba,int sz, int segn, int totseg, uint8 msgcode, unsigned long id):
+    FragEntry(void* bo, void* ba,int sz, int segn, int totseg, uint8 msgcode, unsigned int id):
       buffer_object_(bo),buffer_address_(ba),buffer_size_(sz),
       segNumber_(segn), totalSegs_(totseg), code_(msgcode), id_(id) {}
     void* buffer_object_;
@@ -42,7 +42,7 @@ namespace stor
     int  segNumber_;
     int  totalSegs_;
     uint8 code_;
-    unsigned long id_;
+    unsigned int id_;
   };
 
   class HLTInfo

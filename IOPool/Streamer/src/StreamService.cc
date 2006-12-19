@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.4 2006/12/10 11:51:45 hcheung Exp $
+// $Id: StreamService.cc,v 1.5 2006/12/11 09:00:04 klute Exp $
 
 #include "IOPool/Streamer/interface/StreamService.h"
 
@@ -164,9 +164,9 @@ bool StreamService::checkFileSystem()
       return false;
     }
   
-  unsigned long btotal = 0;
-  unsigned long bfree = 0;
-  unsigned long blksize = 0;
+  unsigned int btotal = 0;
+  unsigned int bfree = 0;
+  unsigned int blksize = 0;
   if(retVal==0)
     {
       blksize = buf.f_bsize;

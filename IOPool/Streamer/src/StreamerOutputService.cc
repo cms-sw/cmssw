@@ -1,4 +1,4 @@
-// $Id: StreamerOutputService.cc,v 1.16 2006/10/14 12:22:07 klute Exp $
+// $Id: StreamerOutputService.cc,v 1.17 2006/11/17 23:05:03 paterno Exp $
 
 #include "IOPool/Streamer/interface/EventStreamOutput.h"
 #include "IOPool/Streamer/interface/StreamerOutputService.h"
@@ -92,7 +92,7 @@ StreamerOutputService::StreamerOutputService():
     saved_initmsg_[0] = '\0';
   }
 
-void StreamerOutputService::init(std::string fileName, unsigned long maxFileSize, double highWaterMark,
+void StreamerOutputService::init(std::string fileName, unsigned int maxFileSize, double highWaterMark,
                                  std::string path, std::string mpath, 
 				 std::string catalog, uint32 disks,
 				 InitMsgView const& view)
@@ -340,9 +340,9 @@ bool StreamerOutputService::wantsEvent(EventMsgView const& eventView)
       std::cout << "StreamerOutputService: " << "Could not stat output filesystem for path " 
                                                << path_ << std::endl;
   
-    unsigned long btotal = 0;
-    unsigned long bfree = 0;
-    unsigned long blksize = 0;
+    unsigned int btotal = 0;
+    unsigned int bfree = 0;
+    unsigned int blksize = 0;
     if(retVal==0)
       {
         blksize = buf.f_bsize;

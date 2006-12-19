@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.20 2006/10/20 15:26:11 chrjones Exp $
+// $Id: Entry.cc,v 1.21 2006/12/05 22:00:52 rpw Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -545,7 +545,8 @@ namespace edm {
 
   bool
   Entry::fromString(std::string::const_iterator const b, std::string::const_iterator const e) {
-    if(static_cast<unsigned long>(e - b) < 4u || b[ 2] != '(' || e[-1] != ')')
+    if(static_cast<unsigned int>(e - b) < 4u || b[ 2] != '(' || e[-1] != ')')
+
       return false;
 
     tracked = b[0];

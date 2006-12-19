@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: ref_t.cppunit.cpp,v 1.5 2006/12/06 19:20:42 paterno Exp $
+$Id: ref_t.cppunit.cpp,v 1.6 2006/12/07 16:05:12 paterno Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -84,7 +84,7 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers,
   
   for( ; itThing != pThings->end(); ++itThing,++itOther) {
     //I'm assuming the following is true
-    CPPUNIT_ASSERT(itOther->ref.key() == static_cast<unsigned long>(itThing - pThings->begin()));
+    CPPUNIT_ASSERT(itOther->ref.key() == static_cast<unsigned int>(itThing - pThings->begin()));
     CPPUNIT_ASSERT( itOther->ref.get()->a == itThing->a);
   }
 }

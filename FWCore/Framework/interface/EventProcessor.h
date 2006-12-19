@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.27 2006/10/13 01:47:34 wmtan Exp $
+$Id: EventProcessor.h,v 1.28 2006/11/17 00:35:27 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -167,7 +167,7 @@ class EDLooperHelper;
     // given a non-zero number, processing continues until either (1)
     // this number of events has been processed, or (2) the input
     // sources are exhausted.
-    StatusCode run(unsigned long numberToProcess);
+    StatusCode run(unsigned int numberToProcess);
 
     // Process until the input source is exhausted.
     StatusCode run();
@@ -178,7 +178,7 @@ class EDLooperHelper;
     // Skip the specified number of events, and then process the next event.
     // If numberToSkip is negative, we will back up.
     // For example, skip(-1) processes the previous event.
-    StatusCode skip(long numberToSkip);
+    StatusCode skip(int numberToSkip);
 
     InputSource& getInputSource();
 
@@ -272,7 +272,7 @@ class EDLooperHelper;
 		std::vector<std::string> const& defaultServices,
 		std::vector<std::string> const& forcedServices);
   
-    StatusCode run_p(unsigned long numberToProcess,
+    StatusCode run_p(unsigned int numberToProcess,
 		     event_processor::Msg m);
     StatusCode doneAsync(event_processor::Msg m);
     EventHelperDescription runOnce();

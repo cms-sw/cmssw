@@ -10,11 +10,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:44:26 EDT 2006
-// $Id: EDLooper.cc,v 1.2 2006/07/28 13:24:34 valya Exp $
+// $Id: EDLooper.cc,v 1.3 2006/10/13 01:47:35 wmtan Exp $
 //
 // Revision history
 //
 // $Log: EDLooper.cc,v $
+// Revision 1.3  2006/10/13 01:47:35  wmtan
+// Remove unnecessary argument from runOnce()
+//
 // Revision 1.2  2006/07/28 13:24:34  valya
 // Modified endOfLoop, now it accepts counter as a second argument. Add EDLooper calls to beginOfJob/endOfJob in EventProcessor
 //
@@ -96,7 +99,7 @@ void EDLooper::endOfJob()
 
 void
 EDLooper::loop(EDLooperHelper& iHelper, 
-              unsigned long numberToProcess) 
+              unsigned int numberToProcess) 
 {
    unsigned int iCounter = 0;
    Status status=kContinue;

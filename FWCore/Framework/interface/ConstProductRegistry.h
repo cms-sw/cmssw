@@ -16,7 +16,7 @@ Usage:
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 22 18:01:21 CEST 2005
-// $Id: ConstProductRegistry.h,v 1.3 2006/01/11 00:21:31 paterno Exp $
+// $Id: ConstProductRegistry.h,v 1.4 2006/07/31 23:42:21 wmtan Exp $
 //
 
 // system include files
@@ -53,7 +53,7 @@ namespace edm {
     // colon-initialization list.
     std::vector<BranchDescription const*> allBranchDescriptions() const;
      
-    unsigned long nextID() const {return reg_->nextID();}
+    unsigned int nextID() const {return reg_->nextID();}
      
     template< class T>
     void watchProductAdditions(const T& iFunc)

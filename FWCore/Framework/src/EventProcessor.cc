@@ -802,7 +802,7 @@ namespace edm {
   }
   
   EventProcessor::StatusCode
-  EventProcessor::run_p(unsigned long numberToProcess, Msg m)
+  EventProcessor::run_p(unsigned int numberToProcess, Msg m)
   {
     changeState(m);
     StateSentry toerror(this);
@@ -860,7 +860,7 @@ namespace edm {
   }
 
   EventProcessor::StatusCode
-  EventProcessor::run(unsigned long numberToProcess)
+  EventProcessor::run(unsigned int numberToProcess)
   {
     beginJob(); //make sure this was called
     StatusCode rc = epInputComplete;
@@ -910,7 +910,7 @@ namespace edm {
   }
 
   EventProcessor::StatusCode
-  EventProcessor::skip(long numberToSkip)
+  EventProcessor::skip(int numberToSkip)
   {
     beginJob(); //make sure this was called
     changeState(mSkip);

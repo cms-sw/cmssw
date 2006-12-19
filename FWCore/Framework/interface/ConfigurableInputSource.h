@@ -2,7 +2,7 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.9 2006/11/03 17:57:51 wmtan Exp $
+$Id: ConfigurableInputSource.h,v 1.10 2006/12/14 04:30:57 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
@@ -19,10 +19,10 @@ namespace edm {
     explicit ConfigurableInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~ConfigurableInputSource();
 
-    unsigned long numberEventsInRun() const {return numberEventsInRun_;} 
+    unsigned int numberEventsInRun() const {return numberEventsInRun_;} 
     TimeValue_t presentTime() const {return presentTime_;}
-    unsigned long timeBetweenEvents() const {return timeBetweenEvents_;}
-    unsigned long numberEventsInThisRun() const {return numberEventsInThisRun_;}
+    unsigned int timeBetweenEvents() const {return timeBetweenEvents_;}
+    unsigned int numberEventsInThisRun() const {return numberEventsInThisRun_;}
     RunNumber_t run() const {return eventID_.run();}
     EventNumber_t event() const {return eventID_.event();}
 
@@ -50,13 +50,13 @@ namespace edm {
        presentTime_ = origTime_;
     }
     
-    unsigned long numberEventsInRun_;
+    unsigned int numberEventsInRun_;
     TimeValue_t presentTime_;
     TimeValue_t origTime_;
-    unsigned long timeBetweenEvents_;
+    unsigned int timeBetweenEvents_;
 
-    unsigned long numberEventsInThisRun_;
-    unsigned long const zerothEvent_;
+    unsigned int numberEventsInThisRun_;
+    unsigned int const zerothEvent_;
     EventID eventID_;
     EventID origEventID_;
 

@@ -1,4 +1,4 @@
-// $Id: GroupSelector.cc,v 1.19 2006/08/24 17:11:52 wmtan Exp $
+// $Id: GroupSelector.cc,v 1.20 2006/08/31 23:26:24 wmtan Exp $
 
 #include <algorithm>
 #include <iterator>
@@ -193,7 +193,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
   {
     // If there is no parameter named 'outputCommands' in the
     // ParameterSet we are given, we use the following default.
-    vector<string> defaultCommands(1UL, string("keep *"));
+    vector<string> defaultCommands(1U, string("keep *"));
 
     vector<string> commands = 
       params.getUntrackedParameter<vector<string> >("outputCommands",

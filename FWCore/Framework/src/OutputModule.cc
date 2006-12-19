@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.25 2006/11/09 21:49:58 paterno Exp $
+$Id: OutputModule.cc,v 1.26 2006/11/17 23:05:01 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -380,7 +380,7 @@ namespace edm
     return groupSelector_.selected(desc);
   }
 
-  unsigned long OutputModule::nextID() const 
+  unsigned int OutputModule::nextID() const 
   {
     return nextID_;
   }

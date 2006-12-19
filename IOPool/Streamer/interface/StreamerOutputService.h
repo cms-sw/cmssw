@@ -1,7 +1,7 @@
 #ifndef _StreamerOutputService_h
 #define _StreamerOutputService_h 
 
-// $Id:$
+// $Id: StreamerOutputService.h,v 1.9 2006/10/11 15:03:52 klute Exp $
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSelector.h"
@@ -28,7 +28,7 @@ namespace edm
     explicit StreamerOutputService();
     ~StreamerOutputService();
 
-    void init(std::string fileName, unsigned long maxFileSize, double highWaterMark,
+    void init(std::string fileName, unsigned int maxFileSize, double highWaterMark,
               std::string path, std::string mpath, 
 	      std::string catalog, uint32 disks, 
 	      InitMsgView const& init_message) ;
@@ -52,12 +52,12 @@ namespace edm
     bool wantsEvent(EventMsgView const& eventView); 
     void initializeSelection(InitMsgView const& initView);
  
-     unsigned long maxFileSize_;
-     unsigned long maxFileEventCount_;
-     unsigned long currentFileSize_;
-     unsigned long totalEventCount_;
-     unsigned long eventsInFile_;
-     unsigned long fileNameCounter_;
+     unsigned int maxFileSize_;
+     unsigned int maxFileEventCount_;
+     unsigned int currentFileSize_;
+     unsigned int totalEventCount_;
+     unsigned int eventsInFile_;
+     unsigned int fileNameCounter_;
 
      void checkFileSystem();
      void writeToMailBox();

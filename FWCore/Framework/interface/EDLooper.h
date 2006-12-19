@@ -16,11 +16,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:42:17 EDT 2006
-// $Id: EDLooper.h,v 1.1 2006/07/23 01:24:33 valya Exp $
+// $Id: EDLooper.h,v 1.2 2006/07/28 13:24:34 valya Exp $
 //
 // Revision history
 //
 // $Log: EDLooper.h,v $
+// Revision 1.2  2006/07/28 13:24:34  valya
+// Modified endOfLoop, now it accepts counter as a second argument. Add EDLooper calls to beginOfJob/endOfJob in EventProcessor
+//
 // Revision 1.1  2006/07/23 01:24:33  valya
 // Add looper support into framework. The base class is EDLooper. All the work done in EventProcessor and EventHelperLooper
 //
@@ -61,7 +64,7 @@ class EDLooper
       virtual Status duringLoop(const edm::Event&, const edm::EventSetup&) = 0; 
       virtual Status endOfLoop(const edm::EventSetup&, unsigned int iCounter) = 0; 
       virtual void endOfJob();
-      void loop(EDLooperHelper& iHelper, unsigned long numberToProcess); 
+      void loop(EDLooperHelper& iHelper, unsigned int numberToProcess); 
       void setLooperName(const std::string& name) {name_=name;};
       void setLooperPassID(const PassID& id) {passID_=id; processID_=passID_; }
       PassID getLooperPassID() {return passID_;}

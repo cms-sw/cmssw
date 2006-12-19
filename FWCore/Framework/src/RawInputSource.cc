@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.4 2006/07/06 19:11:43 wmtan Exp $
+$Id: RawInputSource.cc,v 1.5 2006/12/14 04:30:58 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,7 +34,7 @@ namespace edm {
       oldRunNumber_ = runNumber_;
       boost::shared_ptr<RunPrincipal const> runPrincipal(new RunPrincipal(runNumber_, productRegistry()));
       luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal const>(
-                        new LuminosityBlockPrincipal(1UL, productRegistry(), runPrincipal));
+                        new LuminosityBlockPrincipal(1U, productRegistry(), runPrincipal));
     }
     if(remainingEvents_ != 0) {
       std::auto_ptr<Event> e(readOneEvent());

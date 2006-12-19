@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataBlockImpl.cc,v 1.2 2006/10/31 23:54:01 wmtan Exp $
+$Id: DataBlockImpl.cc,v 1.3 2006/11/04 00:35:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -43,7 +43,7 @@ namespace edm {
   DataBlockImpl::~DataBlockImpl() {
   }
 
-  unsigned long
+  DataBlockImpl::size_type
   DataBlockImpl::numEDProducts() const {
     return groups_.size();
   }
@@ -92,7 +92,7 @@ namespace edm {
     // we do not have any rollback capabilities as products 
     // and the indices are updated
 
-    unsigned long slotNumber = groups.size();
+    size_type slotNumber = groups.size();
     groups.push_back(g);
 
     branchDict[bk] = slotNumber;
@@ -157,7 +157,7 @@ namespace edm {
     if (i == productDict_.end()) {
 	return getInactiveGroup(oid);
     }
-    unsigned long slotNumber = i->second;
+    size_type slotNumber = i->second;
     assert(slotNumber < groups_.size());
 
     SharedConstGroupPtr const& g = groups_[slotNumber];
@@ -173,7 +173,7 @@ namespace edm {
     if (i == inactiveProductDict_.end()) {
 	return SharedConstGroupPtr();
     }
-    unsigned long slotNumber = i->second;
+    size_type slotNumber = i->second;
     assert(slotNumber < inactiveGroups_.size());
 
     SharedConstGroupPtr const& g = inactiveGroups_[slotNumber];
@@ -191,7 +191,7 @@ namespace edm {
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "get by product ID: no product with given id: "<<oid<<"\n";
     }
-    unsigned long slotNumber = i->second;
+    size_type slotNumber = i->second;
     assert(slotNumber < groups_.size());
 
     SharedConstGroupPtr const& g = groups_[slotNumber];
@@ -449,7 +449,7 @@ namespace edm {
 	<< "getProvenance: no product with given id : "<< oid <<"\n";
     }
 
-    unsigned long slotNumber = i->second;
+    size_type slotNumber = i->second;
     assert(slotNumber < groups_.size());
 
     SharedConstGroupPtr const& g = groups_[slotNumber];

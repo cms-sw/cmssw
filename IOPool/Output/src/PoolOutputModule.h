@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.15 2006/12/01 03:38:17 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.16 2006/12/04 23:17:00 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -53,11 +53,11 @@ namespace edm {
 
     mutable OutputFileCatalog catalog_;
     mutable PoolDataSvc context_;
-    unsigned long commitInterval_;
-    unsigned long maxFileSize_;
+    unsigned int commitInterval_;
+    unsigned int maxFileSize_;
     int compressionLevel_;
     std::string const moduleLabel_;
-    unsigned long fileCount_;
+    unsigned int fileCount_;
     boost::shared_ptr<PoolFile> poolFile_;
   };
 
@@ -103,8 +103,8 @@ namespace edm {
     std::string file_;
     std::string lfn_;
     JobReport::Token reportToken_;
-    unsigned long eventCount_;
-    unsigned long fileSizeCheckEvent_;
+    unsigned int eventCount_;
+    unsigned int fileSizeCheckEvent_;
     boost::array<pool::Placement, EndBranchType> auxiliaryPlacement_;
     pool::Placement productDescriptionPlacement_;
     pool::Placement parameterSetPlacement_;

@@ -6,7 +6,7 @@
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.5 2006/12/16 07:56:51 paterno Exp $
+$Id: Event_t.cpp,v 1.6 2006/12/18 06:00:21 paterno Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -352,7 +352,7 @@ void testEvent::getByProductID()
   ProductID invalid;
   CPPUNIT_ASSERT_THROW(currentEvent_->get(invalid, h), edm::Exception);
   CPPUNIT_ASSERT(!h.isValid());
-  ProductID notpresent(std::numeric_limits<unsigned long>::max());
+  ProductID notpresent(std::numeric_limits<unsigned int>::max());
   CPPUNIT_ASSERT_THROW(currentEvent_->get(notpresent, h), edm::Exception);
   CPPUNIT_ASSERT(!h.isValid());
 }

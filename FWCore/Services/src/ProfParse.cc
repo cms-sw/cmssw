@@ -32,8 +32,8 @@ extern "C" {
 using namespace std;
 
 typedef vector<void*> VoidVec;
-typedef vector<unsigned long> ULVec;
-typedef map<unsigned long,int> EdgeMap;
+typedef vector<unsigned int> ULVec;
+typedef map<unsigned int,int> EdgeMap;
 
 struct Sym
 {
@@ -41,19 +41,19 @@ struct Sym
   Sym():id_(),addr_() { }
 
   int id_;
-  unsigned long addr_;
+  unsigned int addr_;
   std::string name_;
   int size_;
 
   static int next_id_;
 
-  bool operator<(unsigned long b) const
+  bool operator<(unsigned int b) const
     { return addr_ < b; }
   bool operator<(const Sym& b) const
     { return addr_ < b.addr_; }
 };
 
-inline bool operator<(unsigned long a, const Sym& b)
+inline bool operator<(unsigned int a, const Sym& b)
 { return a < b.addr_; }
 
 std::ostream& operator<<(std::ostream& ost,const Sym& s)
@@ -71,12 +71,12 @@ struct VertexTracker
     name_(),addr_(),id_(),total_as_leaf_(),total_seen_(),in_path_(),size_(),
     percent_leaf_(),percent_path_()
   { init(); } 
-  explicit VertexTracker(unsigned long id):
+  explicit VertexTracker(unsigned int id):
     name_(),addr_(),id_(id),total_as_leaf_(),total_seen_(),in_path_(),size_(),
     percent_leaf_(),percent_path_()
 
   { init(); } 
-  VertexTracker(unsigned long addr, const string& name):
+  VertexTracker(unsigned int addr, const string& name):
     name_(name),addr_(addr),id_(),total_as_leaf_(),total_seen_(),
     in_path_(),size_(),percent_leaf_(),percent_path_()
   { init(); }
@@ -84,21 +84,21 @@ struct VertexTracker
   explicit VertexTracker(const Sym& e);
 
   bool operator<(const VertexTracker& a) const { return addr_<a.addr_; }
-  bool operator<(unsigned long id) const { return id_<id; }
+  bool operator<(unsigned int id) const { return id_<id; }
 
   void incLeaf() const { ++total_as_leaf_; }
   void incTotal() const { ++total_seen_; }
   void incPath(int by) const { in_path_+=by; }
   void setID() const { id_=next_id_++; }
-  void fillHist(unsigned long addr_within_func) const;
+  void fillHist(unsigned int addr_within_func) const;
   void init();
 
   string name_;
-  unsigned long addr_;
-  mutable unsigned long id_;
-  mutable unsigned long total_as_leaf_;
-  mutable unsigned long total_seen_;
-  mutable unsigned long in_path_;
+  unsigned int addr_;
+  mutable unsigned int id_;
+  mutable unsigned int total_as_leaf_;
+  mutable unsigned int total_seen_;
+  mutable unsigned int in_path_;
   mutable EdgeMap edges_;
   static const int wheresize = 10;
   mutable int where_[wheresize+1];
@@ -106,16 +106,16 @@ struct VertexTracker
   mutable float percent_leaf_;
   mutable float percent_path_;
 
-  static unsigned long next_id_;
+  static unsigned int next_id_;
 
 };
 
-void VertexTracker::fillHist(unsigned long value) const
+void VertexTracker::fillHist(unsigned int value) const
 {
   if(value<addr_ || size_==0) return;
 
-  unsigned long offset = value - addr_;
-  unsigned long index = (offset * wheresize) / size_;
+  unsigned int offset = value - addr_;
+  unsigned int index = (offset * wheresize) / size_;
   /*
   cout << "index:" << index 
        << " size:" << size_
@@ -123,7 +123,7 @@ void VertexTracker::fillHist(unsigned long value) const
        << " wheresize:" << wheresize
        << endl;
   */
-  if(index > (unsigned long)wheresize) return;
+  if(index > (unsigned int)wheresize) return;
   where_[index]+=1;
 }
 
@@ -142,7 +142,7 @@ void VertexTracker::init()
   for(int i=0;i<=wheresize;++i) where_[i]=0;
 }
 
-unsigned long VertexTracker::next_id_ = 0;
+unsigned int VertexTracker::next_id_ = 0;
 
 ostream& operator<<(ostream& ost, const VertexTracker& a)
 {
@@ -180,18 +180,18 @@ struct PathTracker
 {
   PathTracker(): id_(),total_() { }
 
-  mutable unsigned long id_;
-  mutable unsigned long total_;
+  mutable unsigned int id_;
+  mutable unsigned int total_;
   ULVec tree_;
 
   bool operator<(const PathTracker& a) const;
   void setID() const { id_=next_id_++; }
   void incTotal() const { ++total_; }
 
-  static unsigned long next_id_;
+  static unsigned int next_id_;
 };
 
-unsigned long PathTracker::next_id_ = 0;
+unsigned int PathTracker::next_id_ = 0;
 
 bool PathTracker::operator<(const PathTracker& a) const
 {
@@ -202,7 +202,7 @@ ostream& operator<<(ostream& ost, const PathTracker& a)
 {
   ost << a.id_ << " " << a.total_ << " ";
   ULVec::const_iterator i(a.tree_.begin()),e(a.tree_.end());
-  while(i!=e) { ost << (unsigned long)*i << " "; ++i; }
+  while(i!=e) { ost << (unsigned int)*i << " "; ++i; }
   return ost;
 }
 
@@ -238,7 +238,7 @@ static bool idSort(const VertexSet::const_iterator& a,
   return a->id_ < b->id_;
 }
 
-static bool idComp(unsigned long id,
+static bool idComp(unsigned int id,
 		    const VertexSet::const_iterator& b)
 {
   return id < b->id_;
@@ -263,8 +263,8 @@ class Reader
 
 bool Reader::nextSample(VoidVec& vv)
 {
-  unsigned long cnt;
-  int sz = read(fd_,&cnt,sizeof(unsigned long));
+  unsigned int cnt;
+  int sz = read(fd_,&cnt,sizeof(unsigned int));
 
   if(sz<0)
     {
@@ -273,7 +273,7 @@ bool Reader::nextSample(VoidVec& vv)
       return false;
     }
   if(sz==0) return false;
-  if((unsigned)sz<sizeof(unsigned long))
+  if((unsigned)sz<sizeof(unsigned int))
     {
       cerr << "Reader::nextSample: "
 	   << "could not read the correct amount of profile data\n";
@@ -342,7 +342,7 @@ void writeProfileData(int fd, const std::string& prefix)
 
       while(c!=e)
 	{
-	  unsigned long value = reinterpret_cast<unsigned long>(*c);
+	  unsigned int value = reinterpret_cast<unsigned int>(*c);
 
 	  const Sym* entry = 0;
 	  Dl_info look;
@@ -362,7 +362,7 @@ void writeProfileData(int fd, const std::string& prefix)
 
 	      last_good_entry.id_ = 0;
 	      last_good_entry.name_ = nam;
-	      last_good_entry.addr_ = (unsigned long)look.dli_saddr;
+	      last_good_entry.addr_ = (unsigned int)look.dli_saddr;
 	      last_good_entry.size_ = 0;
 	      entry = &last_good_entry;
 	    }

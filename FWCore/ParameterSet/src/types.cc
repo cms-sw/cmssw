@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.cc,v 1.10 2006/10/18 22:15:15 wmtan Exp $
+// $Id: types.cc,v 1.11 2006/12/05 22:02:19 rpw Exp $
 //
 // definition of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -737,8 +737,8 @@ bool
 {
   std::vector<std::string> tokens = edm::pset::tokenize(from, ":");
   assert(tokens.size() == 2);
-  unsigned long run = strtoul(tokens[0].c_str(), 0, 0);
-  unsigned long event = strtoul(tokens[1].c_str(), 0, 0);
+  unsigned int run = strtoul(tokens[0].c_str(), 0, 0);
+  unsigned int event = strtoul(tokens[1].c_str(), 0, 0);
   to = edm::EventID(run, event);
   return true;
 }  // decode to EventID

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.8 2006/09/01 00:41:18 chrjones Exp $
+$Id: ConfigurableInputSource.cc,v 1.9 2006/12/14 04:30:58 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -11,8 +11,8 @@ $Id: ConfigurableInputSource.cc,v 1.8 2006/09/01 00:41:18 chrjones Exp $
 
 namespace edm {
   //used for defaults
-  static const unsigned long kNanoSecPerSec = 1000000000;
-  static const unsigned long kAveEventPerSec = 200;
+  static const unsigned int kNanoSecPerSec = 1000000000U;
+  static const unsigned int kAveEventPerSec = 200U;
   
   ConfigurableInputSource::ConfigurableInputSource(ParameterSet const& pset,
 				       InputSourceDescription const& desc) :
@@ -38,7 +38,7 @@ namespace edm {
     if (oldRun != eventID_.run() || luminosityBlockPrincipal_.get() == 0) {
       boost::shared_ptr<RunPrincipal const> runPrincipal(new RunPrincipal(eventID_.run(), productRegistry()));
       luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal const>(
-			new LuminosityBlockPrincipal(1UL, productRegistry(), runPrincipal));
+			new LuminosityBlockPrincipal(1U, productRegistry(), runPrincipal));
     }
     if (eventID_ == EventID()) {
       return std::auto_ptr<EventPrincipal>(0); 
