@@ -5,15 +5,37 @@
 <use name=DQMServices/CoreROOT>
 <use name=root>
 <use name=DataFormats/METReco>
+<use name=DataFormats/CaloTowers>
+ <use name=DataFormats/HcalRecHit>
+<use name=DataFormats/HcalDetId>
+
+ <use name=DataFormats/EcalDetId>
+ <use name=DataFormats/DetId>
+ <use name=DataFormats/RecoCandidate>
+ <use name=Geometry/CaloTopology>
+ <use name=Geometry/CaloGeometry>
+ <use name=Geometry/CaloEventSetup>
+
 
 <flags SEAL_PLUGIN_NAME="ValidationRecoMET">
 <export>
    <lib name=ValidationRecoMET>
+
     <use name=FWCore/Framework>
     <use name=FWCore/ParameterSet>
     <use name=FWCore/MessageLogger>
     <use name=DataFormats/METReco>
     <use name=Foundation/PluginManager>
     <use name=DQMServices/CoreROOT>
-    <use name=root>	 	
+    <use name=root>
+ <use name=DataFormats/DetId>
+  <use name=DataFormats/HcalDigi>
+  <use name=DataFormats/HcalRecHit>
+  <use name=DataFormats/EcalDetId>
+  <use name=DataFormats/CaloTowers>
+  <use name=DataFormats/RecoCandidate>
+  <use name=Geometry/CaloTopology>
+  <use name=Geometry/CaloGeometry>
+  <use name=Geometry/CaloEventSetup>
+
 </export>
