@@ -23,6 +23,8 @@ CaloCorrelatedNoisifier::CaloCorrelatedNoisifier(const HepSymMatrix & matrix)
   theSize(theMatrix.rank()),
   theNorma(0.,theSize)
 {
+  std::cout << "theSize = " << theSize << std::endl;
+
   computeNormalization(); 
 
   isDiagonal_ = true;
@@ -68,6 +70,10 @@ void CaloCorrelatedNoisifier::noisify(CaloSamples & frame)
 {
 
  // make a vector of random values
+
+  std::cout << "theSize = " << theSize << std::endl;
+  std::cout << "frame   = " << frame.size() << std::endl;
+
   assert(frame.size() == theSize);
   std::valarray<double> uncorrelated(0.,theSize);
   for (int i=0; i<theSize; i++)
@@ -75,7 +81,7 @@ void CaloCorrelatedNoisifier::noisify(CaloSamples & frame)
 
   if ( isDiagonal_ ) {     
     for(int i = 0; i < theSize; ++i)
-      { frame[i] = uncorrelated[i]; }
+      { frame[i] += uncorrelated[i]; }
   }
   
   else {
