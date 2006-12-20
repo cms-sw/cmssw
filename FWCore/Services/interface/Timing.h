@@ -7,15 +7,15 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.h,v 1.3 2006/08/16 13:36:28 chrjones Exp $
+// $Id: Timing.h,v 1.4 2006/12/11 15:56:24 chrjones Exp $
 //
 #include "sigc++/signal.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DataFormats/Common/interface/EventID.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm {
+  struct ActivityRegistry;
   namespace service {
     class Timing
     {
