@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/12/20 15:43:04 $
- * $Revision: 1.99 $
+ * $Date: 2006/12/20 20:06:14 $
+ * $Revision: 1.100 $
  * \author G. Della Ricca
  *
 */
@@ -3545,16 +3545,16 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
           if ( hs04_[ism-1] ) obj1d = hs04_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
         case 5:
-          if ( hs05_[ism-1] ) obj1d = hs05_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( hs05_[ism-1] ) obj1d = hs05_[ism-1]->ProjectionY("_py", 1700, 1700, "e");
           break;
         case 6:
-          if ( hs06_[ism-1] ) obj1d = hs06_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( hs06_[ism-1] ) obj1d = hs06_[ism-1]->ProjectionY("_py", 1700, 1700, "e");
           break;
         case 7:
-          if ( hs07_[ism-1] ) obj1d = hs07_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( hs07_[ism-1] ) obj1d = hs07_[ism-1]->ProjectionY("_py", 1700, 1700, "e");
           break;
         case 8:
-          if ( hs08_[ism-1] ) obj1d = hs08_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( hs08_[ism-1] ) obj1d = hs08_[ism-1]->ProjectionY("_py", 1700, 1700, "e");
           break;
         default:
           break;
