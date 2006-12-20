@@ -1,5 +1,6 @@
 <export>
  <lib name=FWCoreFWLite>
+ <use name=root>
 </export>
 <use name=FWCore/RootAutoLibraryLoader>
 <use name=FWCore/Utilities>
