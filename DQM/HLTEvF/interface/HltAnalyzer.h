@@ -14,7 +14,7 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  Thu Nov  9 07:51:28 CST 2006
-// $Id: HltAnalyzer.h,v 1.1 2006/11/16 22:59:01 wittich Exp $
+// $Id: HltAnalyzer.h,v 1.2 2006/12/04 14:43:38 wittich Exp $
 //
 //
 
@@ -25,6 +25,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <map>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -45,20 +46,19 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 
 
-#include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
-
 
 //
 // class declaration
 //
+
+class TFile;
+class TH1D;
 
 
 class HltAnalyzer : public edm::EDFilter {
 public:
   explicit HltAnalyzer(const edm::ParameterSet&);
   ~HltAnalyzer();
-  void newTimingMeasurement(const edm::ModuleDescription& iMod, 
-			    double diffTime) ;
     
 private:
   virtual void beginJob(const edm::EventSetup&) ;
@@ -67,14 +67,23 @@ private:
 
   
   // ----------member data ---------------------------
-  HLTPerformanceInfo perfInfo_;
   std::string myName_;
+  std::string name() { return myName_; }
   bool verbose_;
   bool verbose() { return verbose_; }
 
-  std::vector<std::string> skipNames_;
 
-  edm::InputTag trigResLabel_;
+  edm::InputTag hltPerfLabel_;
+  // --------------------------------------
+  // count the occurance of a string
+  typedef std::map<std::string, int> ModuleCount_t;
+  typedef std::map<std::string, ModuleCount_t> PathModuleCount_t;
+  ModuleCount_t slowestModule_;
+  PathModuleCount_t rejectionModule_;
+
+  TFile *f_;
+  TH1D *s1_;
+  TH1D *s2_;
 
 };
 
