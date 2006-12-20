@@ -31,7 +31,13 @@
 - \b Mixing includes: three options are given to the user, who has to choose one and only one among:
  - MixingNoPileUp.cff: no pile up at all.
  - MixingLowLumiPileUp.cff: piles up 5.0 events on average (Poisson statistics), in bunches from -5 to +3. 
- - MixingHighLumiPileUp.cff: piles up 25.0 events on average (Poisson statistics), in bunches from -5 to +3. 
+ - MixingHighLumiPileUp.cff: piles up 25.0 events on average (Poisson statistics), in bunches from -5 to +3.
+
+- \c Additional includes (for HLT/OnSel MC production) 
+ - MixingLowLumiPileUp_OnSel.cff: piles up 5.0 events on average (Poisson statistics), IN-TIME PU (for OnSel/HLT studies)
+ - MixingLowLumiPileUp_OnSel.cff: piles up 25.0 events on average (Poisson statistics), IN-TIME PU (for OnSel/HLT studies)
+ - MixingStartUpLumiPileUp_OnSel.cff: piles up 2.0 events on average (Poisson statistics), IN-TIME PU (for OnSel/HLT studies)
+ - StandardFragment_OnSel.cff: Configuration fragment for GEN-SIM i.e. VtxSmeared and GEANT simulation only.
 
 \subsection seq Simulation Sequences
 
@@ -58,7 +64,7 @@ High Level reconstruction. With the caveat as in the previous paragraph, this se
 
 <hr>
 
-Last updated: @DATE@ Tommaso Boccali
+Last updated: @DATE@ Tulika Bose
 
 
 */
