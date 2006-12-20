@@ -554,10 +554,8 @@ namespace edmtest
       thisCount = i;
       if (size != 0)  // should not be writing anything for size = 0!
       {
-        //start = i*maxSizeInBytes;
         start = i*maxEvMsgDataFragSizeInBytes;
         if (i < ((int)numFramesNeeded)-1 || remainder == 0)
-          //thisSize = maxSizeInBytes;
           thisSize = maxEvMsgDataFragSizeInBytes;
         else
           thisSize = remainder;
@@ -668,29 +666,22 @@ namespace edmtest
         if(thisSize != 0)
         {
           for (unsigned int i=0; i<thisSize; i++)
-          {
             msg->dataPtr()[i+headerNeededSize] = *(buffer+headerNeededSize+i + start);
-            //msg->data[i+headerNeededSize] = *(buffer+headerNeededSize+i + start);
-          }
+
           // remake header
           char* dummyBuffer = new char[max_i2o_sm_datasize_];
-          //char dummyBuffer[MAX_I2O_SM_DATASIZE];
-          EventMsg msgFrag(dummyBuffer, thisSize+headerNeededSize, 
-            eventid, runid, thisCount+1, numFramesNeeded);
           for (unsigned int i=0; i<headerNeededSize; i++)
-          {
-            msg->dataPtr()[i] = dummyBuffer[i];
-            //msg->data[i] = dummyBuffer[i];
-          }
-          delete [] dummyBuffer;
+            msg->dataPtr()[i] = dummyBuffer[i];	  
+	  delete [] dummyBuffer;
+
           // should get rid of this later - just used to create a dump for checking
           minlen = 50;
           if(minlen > (int)thisSize) minlen = thisSize;
           std::string temp4print(msg->dataPtr(),minlen);
           FDEBUG(10) << "I2OConsumer::writeI2OData: msg data = " << temp4print << std::endl;
-        } else {
+        } 
+	else
           std::cout << "I2OConsumer::writeI2OData: Error! Sending zero size data!?" << std::endl;
-        }
 
 // need to set the actual buffer size that is being sent
         bufRef->setDataSize(msgSizeInBytes);
