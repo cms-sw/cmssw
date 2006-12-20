@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaPhotons.h,v 1.4 2006/11/20 16:14:08 mabalazs Exp $
+// $Id: EgammaPhotons.h,v 1.5 2006/12/06 16:39:18 mabalazs Exp $
 //
 #include <string>
 
@@ -21,6 +21,8 @@
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
+
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 class EgammaPhotons : public edm::EDAnalyzer
 {
@@ -96,5 +98,17 @@ class EgammaPhotons : public edm::EDAnalyzer
     double hist_min_deltaR_;
     double hist_max_deltaR_;
     int    hist_bins_deltaR_;
+
+    MonitorElement* hist_Photon_All_recoHMass_;
+    MonitorElement* hist_Photon_BarrelOnly_recoHMass_;
+    MonitorElement* hist_Photon_EndcapOnly_recoHMass_;
+    MonitorElement* hist_Photon_Mixed_recoHMass_;
+
+    double hist_min_recoHMass_;
+    double hist_max_recoHMass_;
+    int    hist_bins_recoHMass_;
+
+    void findRecoHMass(reco::Photon pOne, reco::Photon pTwo);
 };
 #endif
+
