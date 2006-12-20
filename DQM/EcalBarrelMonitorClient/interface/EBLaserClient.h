@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2006/11/21 13:16:51 $
- * $Revision: 1.41 $
+ * $Date: 2006/12/15 09:44:49 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  *
 */
@@ -109,15 +109,34 @@ CollateMonitorElement* me_h06_[36];
 CollateMonitorElement* me_h07_[36];
 CollateMonitorElement* me_h08_[36];
 
+CollateMonitorElement* me_h09_[36];
+CollateMonitorElement* me_h10_[36];
+CollateMonitorElement* me_h11_[36];
+CollateMonitorElement* me_h12_[36];
+
+CollateMonitorElement* me_h13_[36];
+CollateMonitorElement* me_h14_[36];
+CollateMonitorElement* me_h15_[36];
+CollateMonitorElement* me_h16_[36];
+CollateMonitorElement* me_h17_[36];
+CollateMonitorElement* me_h18_[36];
+CollateMonitorElement* me_h19_[36];
+CollateMonitorElement* me_h20_[36];
+
+CollateMonitorElement* me_h21_[36];
+CollateMonitorElement* me_h22_[36];
+CollateMonitorElement* me_h23_[36];
+CollateMonitorElement* me_h24_[36];
+
 CollateMonitorElement* me_hs01_[36];
 CollateMonitorElement* me_hs02_[36];
 CollateMonitorElement* me_hs03_[36];
 CollateMonitorElement* me_hs04_[36];
 
-CollateMonitorElement* me_h09_[36];
-CollateMonitorElement* me_h10_[36];
-CollateMonitorElement* me_h11_[36];
-CollateMonitorElement* me_h12_[36];
+CollateMonitorElement* me_hs05_[36];
+CollateMonitorElement* me_hs06_[36];
+CollateMonitorElement* me_hs07_[36];
+CollateMonitorElement* me_hs08_[36];
 
 TProfile2D* h01_[36];
 TProfile2D* h02_[36];
@@ -128,20 +147,39 @@ TProfile2D* h06_[36];
 TProfile2D* h07_[36];
 TProfile2D* h08_[36];
 
-MEContentsProf2DWithinRangeROOT* qth01_[36];
-MEContentsProf2DWithinRangeROOT* qth02_[36];
-MEContentsProf2DWithinRangeROOT* qth03_[36];
-MEContentsProf2DWithinRangeROOT* qth04_[36];
-
 TProfile2D* h09_[36];
 TProfile2D* h10_[36];
 TProfile2D* h11_[36];
 TProfile2D* h12_[36];
 
+TProfile2D* h13_[36];
+TProfile2D* h14_[36];
+TProfile2D* h15_[36];
+TProfile2D* h16_[36];
+TProfile2D* h17_[36];
+TProfile2D* h18_[36];
+TProfile2D* h19_[36];
+TProfile2D* h20_[36];
+ 
+TProfile2D* h21_[36];
+TProfile2D* h22_[36];
+TProfile2D* h23_[36];
+TProfile2D* h24_[36];
+
+MEContentsProf2DWithinRangeROOT* qth01_[36];
+MEContentsProf2DWithinRangeROOT* qth02_[36];
+MEContentsProf2DWithinRangeROOT* qth03_[36];
+MEContentsProf2DWithinRangeROOT* qth04_[36];
+
 TProfile2D* hs01_[36];
 TProfile2D* hs02_[36];
 TProfile2D* hs03_[36];
 TProfile2D* hs04_[36];
+
+TProfile2D* hs05_[36];
+TProfile2D* hs06_[36];
+TProfile2D* hs07_[36];
+TProfile2D* hs08_[36];
 
 MonitorElement* meg01_[36];
 MonitorElement* meg02_[36];
@@ -152,16 +190,28 @@ MonitorElement* mea01_[36];
 MonitorElement* mea02_[36];
 MonitorElement* mea03_[36];
 MonitorElement* mea04_[36];
+MonitorElement* mea05_[36];
+MonitorElement* mea06_[36];
+MonitorElement* mea07_[36];
+MonitorElement* mea08_[36];
 
 MonitorElement* met01_[36];
 MonitorElement* met02_[36];
 MonitorElement* met03_[36];
 MonitorElement* met04_[36];
+MonitorElement* met05_[36];
+MonitorElement* met06_[36];
+MonitorElement* met07_[36];
+MonitorElement* met08_[36];
 
 MonitorElement* meaopn01_[36];
 MonitorElement* meaopn02_[36];
 MonitorElement* meaopn03_[36];
 MonitorElement* meaopn04_[36];
+MonitorElement* meaopn05_[36];
+MonitorElement* meaopn06_[36];
+MonitorElement* meaopn07_[36];
+MonitorElement* meaopn08_[36];
 
 CollateMonitorElement* me_i01_[36];
 CollateMonitorElement* me_i02_[36];

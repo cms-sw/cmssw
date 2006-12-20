@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/09/22 06:01:40 $
- * $Revision: 1.57 $
+ * $Date: 2006/12/14 11:10:34 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  *
 */
@@ -14,35 +14,54 @@ EBLaserTask::EBLaserTask(const ParameterSet& ps){
   init_ = false;
 
   for (int i = 0; i < 36 ; i++) {
-    meShapeMapL1_[i] = 0;
-    meAmplMapL1_[i] = 0;
-    meTimeMapL1_[i] = 0;
-    meAmplPNMapL1_[i] = 0;
+    meShapeMapL1A_[i] = 0;
+    meAmplMapL1A_[i] = 0;
+    meTimeMapL1A_[i] = 0;
+    meAmplPNMapL1A_[i] = 0;
+    meShapeMapL1B_[i] = 0;
+    meAmplMapL1B_[i] = 0;
+    meTimeMapL1B_[i] = 0;
+    meAmplPNMapL1B_[i] = 0;
     mePnAmplMapG01L1_[i] = 0;
     mePnPedMapG01L1_[i] = 0;
     mePnAmplMapG16L1_[i] = 0;
     mePnPedMapG16L1_[i] = 0;
-    meShapeMapL2_[i] = 0;
-    meAmplMapL2_[i] = 0;
-    meTimeMapL2_[i] = 0;
-    meAmplPNMapL2_[i] = 0;
+
+    meShapeMapL2A_[i] = 0;
+    meAmplMapL2A_[i] = 0;
+    meTimeMapL2A_[i] = 0;
+    meAmplPNMapL2A_[i] = 0;
+    meShapeMapL2B_[i] = 0;
+    meAmplMapL2B_[i] = 0;
+    meTimeMapL2B_[i] = 0;
+    meAmplPNMapL2B_[i] = 0;
     mePnAmplMapG01L2_[i] = 0;
     mePnPedMapG01L2_[i] = 0;
     mePnAmplMapG16L2_[i] = 0;
     mePnPedMapG16L2_[i] = 0;
-    meShapeMapL3_[i] = 0;
-    meAmplMapL3_[i] = 0;
-    meTimeMapL3_[i] = 0;
-    meAmplPNMapL3_[i] = 0;
+
+    meShapeMapL3A_[i] = 0;
+    meAmplMapL3A_[i] = 0;
+    meTimeMapL3A_[i] = 0;
+    meAmplPNMapL3A_[i] = 0;
+    meShapeMapL3B_[i] = 0;
+    meAmplMapL3B_[i] = 0;
+    meTimeMapL3B_[i] = 0;
+    meAmplPNMapL3B_[i] = 0;
     mePnAmplMapG01L3_[i] = 0;
     mePnPedMapG01L3_[i] = 0;
     mePnAmplMapG16L3_[i] = 0;
     mePnPedMapG16L3_[i] = 0;
-    meShapeMapL4_[i] = 0;
-    meAmplMapL4_[i] = 0;
-    meTimeMapL4_[i] = 0;
-    meAmplPNMapL4_[i] = 0;
-    mePnAmplMapG01L4_[i] = 0; 
+
+    meShapeMapL4A_[i] = 0;
+    meAmplMapL4A_[i] = 0;
+    meTimeMapL4A_[i] = 0;
+    meAmplPNMapL4A_[i] = 0;
+    meShapeMapL4B_[i] = 0;
+    meAmplMapL4B_[i] = 0;
+    meTimeMapL4B_[i] = 0;
+    meAmplPNMapL4B_[i] = 0;
+    mePnAmplMapG01L4_[i] = 0;
     mePnPedMapG01L4_[i] = 0;
     mePnAmplMapG16L4_[i] = 0;
     mePnPedMapG16L4_[i] = 0;
@@ -86,66 +105,118 @@ void EBLaserTask::setup(void){
 
     dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser1");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBLT shape SM%02d L1", i+1);
-      meShapeMapL1_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe->tag(meShapeMapL1_[i], i+1);
-      sprintf(histo, "EBLT amplitude SM%02d L1", i+1);
-      meAmplMapL1_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(meAmplMapL1_[i], i+1);
-      sprintf(histo, "EBLT timing SM%02d L1", i+1);
-      meTimeMapL1_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(meTimeMapL1_[i], i+1);
-      sprintf(histo, "EBLT amplitude over PN SM%02d L1", i+1);
-      meAmplPNMapL1_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(meAmplPNMapL1_[i], i+1);
+      sprintf(histo, "EBLT shape SM%02d L1A", i+1);
+      meShapeMapL1A_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(meShapeMapL1A_[i], i+1);
+      sprintf(histo, "EBLT amplitude SM%02d L1A", i+1);
+      meAmplMapL1A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplMapL1A_[i], i+1);
+      sprintf(histo, "EBLT timing SM%02d L1A", i+1);
+      meTimeMapL1A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meTimeMapL1A_[i], i+1);
+      sprintf(histo, "EBLT amplitude over PN SM%02d L1A", i+1);
+      meAmplPNMapL1A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplPNMapL1A_[i], i+1);
+
+      sprintf(histo, "EBLT shape SM%02d L1B", i+1);
+      meShapeMapL1B_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(meShapeMapL1B_[i], i+1);
+      sprintf(histo, "EBLT amplitude SM%02d L1B", i+1);
+      meAmplMapL1B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplMapL1B_[i], i+1);
+      sprintf(histo, "EBLT timing SM%02d L1B", i+1);
+      meTimeMapL1B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meTimeMapL1B_[i], i+1);
+      sprintf(histo, "EBLT amplitude over PN SM%02d L1B", i+1);
+      meAmplPNMapL1B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplPNMapL1B_[i], i+1);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBLT shape SM%02d L2", i+1);
-      meShapeMapL2_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe->tag(meShapeMapL2_[i], i+1);
-      sprintf(histo, "EBLT amplitude SM%02d L2", i+1);
-      meAmplMapL2_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(meAmplMapL2_[i], i+1);
-      sprintf(histo, "EBLT timing SM%02d L2", i+1);
-      meTimeMapL2_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(meTimeMapL2_[i], i+1);
-      sprintf(histo, "EBLT amplitude over PN SM%02d L2", i+1);
-      meAmplPNMapL2_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(meAmplPNMapL2_[i], i+1);
+      sprintf(histo, "EBLT shape SM%02d L2A", i+1);
+      meShapeMapL2A_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(meShapeMapL2A_[i], i+1);
+      sprintf(histo, "EBLT amplitude SM%02d L2A", i+1);
+      meAmplMapL2A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplMapL2A_[i], i+1);
+      sprintf(histo, "EBLT timing SM%02d L2A", i+1);
+      meTimeMapL2A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meTimeMapL2A_[i], i+1);
+      sprintf(histo, "EBLT amplitude over PN SM%02d L2A", i+1);
+      meAmplPNMapL2A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplPNMapL2A_[i], i+1);
+
+      sprintf(histo, "EBLT shape SM%02d L2B", i+1);
+      meShapeMapL2B_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(meShapeMapL2B_[i], i+1);
+      sprintf(histo, "EBLT amplitude SM%02d L2B", i+1);
+      meAmplMapL2B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplMapL2B_[i], i+1);
+      sprintf(histo, "EBLT timing SM%02d L2B", i+1);
+      meTimeMapL2B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meTimeMapL2B_[i], i+1);
+      sprintf(histo, "EBLT amplitude over PN SM%02d L2B", i+1);
+      meAmplPNMapL2B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplPNMapL2B_[i], i+1);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser3");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBLT shape SM%02d L3", i+1);
-      meShapeMapL3_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe->tag(meShapeMapL3_[i], i+1);
-      sprintf(histo, "EBLT amplitude SM%02d L3", i+1);
-      meAmplMapL3_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(meAmplMapL3_[i], i+1);
-      sprintf(histo, "EBLT timing SM%02d L3", i+1);
-      meTimeMapL3_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(meTimeMapL3_[i], i+1);
-      sprintf(histo, "EBLT amplitude over PN SM%02d L3", i+1);
-      meAmplPNMapL3_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(meAmplPNMapL3_[i], i+1);
+      sprintf(histo, "EBLT shape SM%02d L3A", i+1);
+      meShapeMapL3A_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(meShapeMapL3A_[i], i+1);
+      sprintf(histo, "EBLT amplitude SM%02d L3A", i+1);
+      meAmplMapL3A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplMapL3A_[i], i+1);
+      sprintf(histo, "EBLT timing SM%02d L3A", i+1);
+      meTimeMapL3A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meTimeMapL3A_[i], i+1);
+      sprintf(histo, "EBLT amplitude over PN SM%02d L3A", i+1);
+      meAmplPNMapL3A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplPNMapL3A_[i], i+1);
+
+      sprintf(histo, "EBLT shape SM%02d L3B", i+1);
+      meShapeMapL3B_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(meShapeMapL3B_[i], i+1);
+      sprintf(histo, "EBLT amplitude SM%02d L3B", i+1);
+      meAmplMapL3B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplMapL3B_[i], i+1);
+      sprintf(histo, "EBLT timing SM%02d L3B", i+1);
+      meTimeMapL3B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meTimeMapL3B_[i], i+1);
+      sprintf(histo, "EBLT amplitude over PN SM%02d L3B", i+1);
+      meAmplPNMapL3B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplPNMapL3B_[i], i+1);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser4");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBLT shape SM%02d L4", i+1);
-      meShapeMapL4_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe->tag(meShapeMapL4_[i], i+1);
-      sprintf(histo, "EBLT amplitude SM%02d L4", i+1);
-      meAmplMapL4_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(meAmplMapL4_[i], i+1);
-      sprintf(histo, "EBLT timing SM%02d L4", i+1);
-      meTimeMapL4_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(meTimeMapL4_[i], i+1);
-      sprintf(histo, "EBLT amplitude over PN SM%02d L4", i+1);
-      meAmplPNMapL4_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(meAmplPNMapL4_[i], i+1);
+      sprintf(histo, "EBLT shape SM%02d L4A", i+1);
+      meShapeMapL4A_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(meShapeMapL4A_[i], i+1);
+      sprintf(histo, "EBLT amplitude SM%02d L4A", i+1);
+      meAmplMapL4A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplMapL4A_[i], i+1);
+      sprintf(histo, "EBLT timing SM%02d L4A", i+1);
+      meTimeMapL4A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meTimeMapL4A_[i], i+1);
+      sprintf(histo, "EBLT amplitude over PN SM%02d L4A", i+1);
+      meAmplPNMapL4A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplPNMapL4A_[i], i+1);
+
+      sprintf(histo, "EBLT shape SM%02d L4B", i+1);
+      meShapeMapL4B_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(meShapeMapL4B_[i], i+1);
+      sprintf(histo, "EBLT amplitude SM%02d L4B", i+1);
+      meAmplMapL4B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplMapL4B_[i], i+1);
+      sprintf(histo, "EBLT timing SM%02d L4B", i+1);
+      meTimeMapL4B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meTimeMapL4B_[i], i+1);
+      sprintf(histo, "EBLT amplitude over PN SM%02d L4B", i+1);
+      meAmplPNMapL4B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe->tag(meAmplPNMapL4B_[i], i+1);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask");
@@ -254,50 +325,86 @@ void EBLaserTask::cleanup(void){
 
     dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser1");
     for (int i = 0; i < 36 ; i++) {
-      if ( meShapeMapL1_[i] )  dbe->removeElement( meShapeMapL1_[i]->getName() );
-      meShapeMapL1_[i] = 0;
-      if ( meAmplMapL1_[i] ) dbe->removeElement( meAmplMapL1_[i]->getName() );
-      meAmplMapL1_[i] = 0;
-      if ( meTimeMapL1_[i] ) dbe->removeElement( meTimeMapL1_[i]->getName() );
-      meTimeMapL1_[i] = 0;
-      if ( meAmplPNMapL1_[i] ) dbe->removeElement( meAmplPNMapL1_[i]->getName() );
-      meAmplPNMapL1_[i] = 0;
+      if ( meShapeMapL1A_[i] )  dbe->removeElement( meShapeMapL1A_[i]->getName() );
+      meShapeMapL1A_[i] = 0;
+      if ( meAmplMapL1A_[i] ) dbe->removeElement( meAmplMapL1A_[i]->getName() );
+      meAmplMapL1A_[i] = 0;
+      if ( meTimeMapL1A_[i] ) dbe->removeElement( meTimeMapL1A_[i]->getName() );
+      meTimeMapL1A_[i] = 0;
+      if ( meAmplPNMapL1A_[i] ) dbe->removeElement( meAmplPNMapL1A_[i]->getName() );
+      meAmplPNMapL1A_[i] = 0;
+
+      if ( meShapeMapL1B_[i] )  dbe->removeElement( meShapeMapL1B_[i]->getName() );
+      meShapeMapL1B_[i] = 0;
+      if ( meAmplMapL1B_[i] ) dbe->removeElement( meAmplMapL1B_[i]->getName() );
+      meAmplMapL1B_[i] = 0;
+      if ( meTimeMapL1B_[i] ) dbe->removeElement( meTimeMapL1B_[i]->getName() );
+      meTimeMapL1B_[i] = 0;
+      if ( meAmplPNMapL1B_[i] ) dbe->removeElement( meAmplPNMapL1B_[i]->getName() );
+      meAmplPNMapL1B_[i] = 0;
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2");
     for (int i = 0; i < 36 ; i++) {
-      if ( meShapeMapL2_[i] )  dbe->removeElement( meShapeMapL2_[i]->getName() );
-      meShapeMapL2_[i] = 0;
-      if ( meAmplMapL2_[i] ) dbe->removeElement( meAmplMapL2_[i]->getName() );
-      meAmplMapL2_[i] = 0;
-      if ( meTimeMapL2_[i] ) dbe->removeElement( meTimeMapL2_[i]->getName() );
-      meTimeMapL2_[i] = 0;
-      if ( meAmplPNMapL2_[i] ) dbe->removeElement( meAmplPNMapL2_[i]->getName() );
-      meAmplPNMapL2_[i] = 0;
+      if ( meShapeMapL2A_[i] )  dbe->removeElement( meShapeMapL2A_[i]->getName() );
+      meShapeMapL2A_[i] = 0;
+      if ( meAmplMapL2A_[i] ) dbe->removeElement( meAmplMapL2A_[i]->getName() );
+      meAmplMapL2A_[i] = 0;
+      if ( meTimeMapL2A_[i] ) dbe->removeElement( meTimeMapL2A_[i]->getName() );
+      meTimeMapL2A_[i] = 0;
+      if ( meAmplPNMapL2A_[i] ) dbe->removeElement( meAmplPNMapL2A_[i]->getName() );
+      meAmplPNMapL2A_[i] = 0;
+
+      if ( meShapeMapL2B_[i] )  dbe->removeElement( meShapeMapL2B_[i]->getName() );
+      meShapeMapL2B_[i] = 0;
+      if ( meAmplMapL2B_[i] ) dbe->removeElement( meAmplMapL2B_[i]->getName() );
+      meAmplMapL2B_[i] = 0;
+      if ( meTimeMapL2B_[i] ) dbe->removeElement( meTimeMapL2B_[i]->getName() );
+      meTimeMapL2B_[i] = 0;
+      if ( meAmplPNMapL2B_[i] ) dbe->removeElement( meAmplPNMapL2B_[i]->getName() );
+      meAmplPNMapL2B_[i] = 0;
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser3");
     for (int i = 0; i < 36 ; i++) {
-      if ( meShapeMapL3_[i] )  dbe->removeElement( meShapeMapL3_[i]->getName() );
-      meShapeMapL3_[i] = 0;
-      if ( meAmplMapL3_[i] ) dbe->removeElement( meAmplMapL3_[i]->getName() );
-      meAmplMapL3_[i] = 0;
-      if ( meTimeMapL3_[i] ) dbe->removeElement( meTimeMapL3_[i]->getName() );
-      meTimeMapL3_[i] = 0;
-      if ( meAmplPNMapL3_[i] ) dbe->removeElement( meAmplPNMapL3_[i]->getName() );
-      meAmplPNMapL3_[i] = 0;
+      if ( meShapeMapL3A_[i] )  dbe->removeElement( meShapeMapL3A_[i]->getName() );
+      meShapeMapL3A_[i] = 0;
+      if ( meAmplMapL3A_[i] ) dbe->removeElement( meAmplMapL3A_[i]->getName() );
+      meAmplMapL3A_[i] = 0;
+      if ( meTimeMapL3A_[i] ) dbe->removeElement( meTimeMapL3A_[i]->getName() );
+      meTimeMapL3A_[i] = 0;
+      if ( meAmplPNMapL3A_[i] ) dbe->removeElement( meAmplPNMapL3A_[i]->getName() );
+      meAmplPNMapL3A_[i] = 0;
+
+      if ( meShapeMapL3B_[i] )  dbe->removeElement( meShapeMapL3B_[i]->getName() );
+      meShapeMapL3B_[i] = 0;
+      if ( meAmplMapL3B_[i] ) dbe->removeElement( meAmplMapL3B_[i]->getName() );
+      meAmplMapL3B_[i] = 0;
+      if ( meTimeMapL3B_[i] ) dbe->removeElement( meTimeMapL3B_[i]->getName() );
+      meTimeMapL3B_[i] = 0;
+      if ( meAmplPNMapL3B_[i] ) dbe->removeElement( meAmplPNMapL3B_[i]->getName() );
+      meAmplPNMapL3B_[i] = 0;
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser4");
     for (int i = 0; i < 36 ; i++) {
-      if ( meShapeMapL4_[i] )  dbe->removeElement( meShapeMapL4_[i]->getName() );
-      meShapeMapL4_[i] = 0;
-      if ( meAmplMapL4_[i] ) dbe->removeElement( meAmplMapL4_[i]->getName() );
-      meAmplMapL4_[i] = 0;
-      if ( meTimeMapL4_[i] ) dbe->removeElement( meTimeMapL4_[i]->getName() );
-      meTimeMapL4_[i] = 0;
-      if ( meAmplPNMapL4_[i] ) dbe->removeElement( meAmplPNMapL4_[i]->getName() );
-      meAmplPNMapL4_[i] = 0;
+      if ( meShapeMapL4A_[i] )  dbe->removeElement( meShapeMapL4A_[i]->getName() );
+      meShapeMapL4A_[i] = 0;
+      if ( meAmplMapL4A_[i] ) dbe->removeElement( meAmplMapL4A_[i]->getName() );
+      meAmplMapL4A_[i] = 0;
+      if ( meTimeMapL4A_[i] ) dbe->removeElement( meTimeMapL4A_[i]->getName() );
+      meTimeMapL4A_[i] = 0;
+      if ( meAmplPNMapL4A_[i] ) dbe->removeElement( meAmplPNMapL4A_[i]->getName() );
+      meAmplPNMapL4A_[i] = 0;
+
+      if ( meShapeMapL4B_[i] )  dbe->removeElement( meShapeMapL4B_[i]->getName() );
+      meShapeMapL4B_[i] = 0;
+      if ( meAmplMapL4B_[i] ) dbe->removeElement( meAmplMapL4B_[i]->getName() );
+      meAmplMapL4B_[i] = 0;
+      if ( meTimeMapL4B_[i] ) dbe->removeElement( meTimeMapL4B_[i]->getName() );
+      meTimeMapL4B_[i] = 0;
+      if ( meAmplPNMapL4B_[i] ) dbe->removeElement( meAmplPNMapL4B_[i]->getName() );
+      meAmplPNMapL4B_[i] = 0;
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask");
@@ -449,10 +556,21 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       if ( sample.gainId() == 2 ) gain = 1./ 6.;
       if ( sample.gainId() == 3 ) gain = 1./ 1.;
 
-      if ( dccMap[ism-1].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1_[ism-1];
-      if ( dccMap[ism-1].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2_[ism-1];
-      if ( dccMap[ism-1].getEventSettings().wavelength == 2 ) meShapeMap = meShapeMapL3_[ism-1];
-      if ( dccMap[ism-1].getEventSettings().wavelength == 3 ) meShapeMap = meShapeMapL4_[ism-1];
+      if ( ic <= 900 ) {
+
+        if ( dccMap[ism-1].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1A_[ism-1];
+        if ( dccMap[ism-1].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2A_[ism-1];
+        if ( dccMap[ism-1].getEventSettings().wavelength == 2 ) meShapeMap = meShapeMapL3A_[ism-1];
+        if ( dccMap[ism-1].getEventSettings().wavelength == 3 ) meShapeMap = meShapeMapL4A_[ism-1];
+
+      } else {
+
+        if ( dccMap[ism-1].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1B_[ism-1];
+        if ( dccMap[ism-1].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2B_[ism-1];
+        if ( dccMap[ism-1].getEventSettings().wavelength == 2 ) meShapeMap = meShapeMapL3B_[ism-1];
+        if ( dccMap[ism-1].getEventSettings().wavelength == 3 ) meShapeMap = meShapeMapL4B_[ism-1];
+
+      }
 
       float xval = float(adc) * gain;
 
@@ -584,25 +702,52 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
     MonitorElement* meTimeMap = 0;
     MonitorElement* meAmplPNMap = 0;
 
-    if ( dccMap[ism-1].getEventSettings().wavelength == 0 ) {
-      meAmplMap = meAmplMapL1_[ism-1];
-      meTimeMap = meTimeMapL1_[ism-1];
-      meAmplPNMap = meAmplPNMapL1_[ism-1];
-    }
-    if ( dccMap[ism-1].getEventSettings().wavelength == 1 ) {
-      meAmplMap = meAmplMapL2_[ism-1];
-      meTimeMap = meTimeMapL2_[ism-1];
-      meAmplPNMap = meAmplPNMapL2_[ism-1];
-    }
-    if ( dccMap[ism-1].getEventSettings().wavelength == 2 ) {
-      meAmplMap = meAmplMapL3_[ism-1];
-      meTimeMap = meTimeMapL3_[ism-1];
-      meAmplPNMap = meAmplPNMapL3_[ism-1];
-    }
-    if ( dccMap[ism-1].getEventSettings().wavelength == 3 ) {
-      meAmplMap = meAmplMapL4_[ism-1];
-      meTimeMap = meTimeMapL4_[ism-1];
-      meAmplPNMap = meAmplPNMapL4_[ism-1];
+    if ( ic <= 900 ) {
+
+      if ( dccMap[ism-1].getEventSettings().wavelength == 0 ) {
+        meAmplMap = meAmplMapL1A_[ism-1];
+        meTimeMap = meTimeMapL1A_[ism-1];
+        meAmplPNMap = meAmplPNMapL1A_[ism-1];
+      }
+      if ( dccMap[ism-1].getEventSettings().wavelength == 1 ) {
+        meAmplMap = meAmplMapL2A_[ism-1];
+        meTimeMap = meTimeMapL2A_[ism-1];
+        meAmplPNMap = meAmplPNMapL2A_[ism-1];
+      }
+      if ( dccMap[ism-1].getEventSettings().wavelength == 2 ) {
+        meAmplMap = meAmplMapL3A_[ism-1];
+        meTimeMap = meTimeMapL3A_[ism-1];
+        meAmplPNMap = meAmplPNMapL3A_[ism-1];
+      }
+      if ( dccMap[ism-1].getEventSettings().wavelength == 3 ) {
+        meAmplMap = meAmplMapL4A_[ism-1];
+        meTimeMap = meTimeMapL4A_[ism-1];
+        meAmplPNMap = meAmplPNMapL4A_[ism-1];
+      }
+
+    } else {
+
+      if ( dccMap[ism-1].getEventSettings().wavelength == 0 ) {
+        meAmplMap = meAmplMapL1B_[ism-1];
+        meTimeMap = meTimeMapL1B_[ism-1];
+        meAmplPNMap = meAmplPNMapL1B_[ism-1];
+      }
+      if ( dccMap[ism-1].getEventSettings().wavelength == 1 ) {
+        meAmplMap = meAmplMapL2B_[ism-1];
+        meTimeMap = meTimeMapL2B_[ism-1];
+        meAmplPNMap = meAmplPNMapL2B_[ism-1];
+      }
+      if ( dccMap[ism-1].getEventSettings().wavelength == 2 ) {
+        meAmplMap = meAmplMapL3B_[ism-1];
+        meTimeMap = meTimeMapL3B_[ism-1];
+        meAmplPNMap = meAmplPNMapL3B_[ism-1];
+      }
+      if ( dccMap[ism-1].getEventSettings().wavelength == 3 ) {
+        meAmplMap = meAmplMapL4B_[ism-1];
+        meTimeMap = meTimeMapL4B_[ism-1];
+        meAmplPNMap = meAmplPNMapL4B_[ism-1];
+      }
+
     }
 
     float xval = hit.amplitude();
