@@ -20,7 +20,7 @@ using namespace  Fed9U;
 
 #include "ICExDecl.hh"
 using namespace  ICUtils;
-ClassImp(TBRU);
+ClassImp(TBRU)
 
 using namespace edm;
 using namespace std;
