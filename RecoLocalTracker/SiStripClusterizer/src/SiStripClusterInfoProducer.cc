@@ -210,7 +210,7 @@ namespace cms
 	}
 	LogTrace("SiStripClusterInfoProducer") << "\n["<<__PRETTY_FUNCTION__<<"] detid " << output_iter->id  << sss.str();
 
-	findNeigh(output_iter,vstrip,vadc,"digi");
+	findNeigh("digi",output_iter,vadc,vstrip);
       }
     }
   }  
@@ -275,18 +275,19 @@ namespace cms
 	    }
 	    
 	  }else{
-	    throw cms::Exception("") <<"[" << __PRETTY_FUNCTION__<<"] SiStripClusterInfoProducer::digi_algorithm] No valid CommonModeNoiseSubtraction Mode selected, possible CMNSubtractionMode: Median or TT6" << std::endl;
+	    throw cms::Exception("") <<"[" << __PRETTY_FUNCTION__<<"] No valid CommonModeNoiseSubtraction Mode selected, possible CMNSubtractionMode: Median or TT6" << std::endl;
 	  }
 	} else {
 	  return;
 	}
 
-       	findNeigh(output_iter,vssRd,vssRd,"raw");	
+	
+       	findNeigh("raw",output_iter,vssRd,vssRd);	
       }
     }
   }
 
-  void SiStripClusterInfoProducer::findNeigh(std::vector< edm::DetSet<SiStripClusterInfo> >::iterator output_iter,std::vector<int16_t>& vstrip,std::vector<int16_t>& vadc,char* mode){
+  void SiStripClusterInfoProducer::findNeigh(char* mode,std::vector< edm::DetSet<SiStripClusterInfo> >::iterator output_iter,std::vector<int16_t>& vadc,std::vector<int16_t>& vstrip){
 
     //Find Digi adiacent to the clusters of this detid
     int16_t lastStrip_previousCluster=-1;
@@ -314,21 +315,30 @@ namespace cms
 	  throw cms::Exception("") << "[" <<__PRETTY_FUNCTION__<<"]\n Expected Digi not found in detid " << output_iter->id << " strip " << firstStrip << std::endl;
       }
       else{ 
-	ptr=vadc.begin()+firstStrip; //For raw mode vstrip==vadc==vector of digis for all strips in the det
+	ptr=vstrip.begin()+firstStrip; //For raw mode vstrip==vadc==vector of digis for all strips in the det
       }
       LogTrace("SiStripClusterInfoProducer") 
-	<< "["<<__PRETTY_FUNCTION__<<"] ptr at " << *ptr 
+	<< "["<<__PRETTY_FUNCTION__<<"] ptr at strip " << ptr-vstrip.begin() << " adc " << *ptr 
 	<< "\nelements above " << ptr-vstrip.begin() << std::endl;
       
       //Looking at digis before firstStrip	  
       for (uint16_t istrip=1;istrip<_NEIGH_STRIP_+1;istrip++){
 	if (istrip>ptr-vstrip.begin()) //avoid underflow
-	  break;
-	if (firstStrip-istrip!=*(ptr-istrip)) //avoid not contiguous digis
-	  break;
+	  {
+	    LogTrace("SiStripClusterInfoProducer") << "Domenico esco per underfloa";
+	    break;
+	  }
+	if (mode=="digi")
+	  if (firstStrip-istrip!=*(ptr-istrip)) //avoid not contiguous digis
+	    {
+	      LogTrace("SiStripClusterInfoProducer") << "Domenico esco per strip non contigue";
+	      break;
+	    }
 	if (firstStrip-istrip==lastStrip_previousCluster) //avoid clusters overlapping 
-	  break;
-	
+	  {
+	    LogTrace("SiStripClusterInfoProducer") << "Domenico esco per strip non nel cluster";
+	      break;
+	  }
 	RawDigiAmplitudesL.push_back(*(vadc.begin()+(ptr-vstrip.begin())-istrip));
       }
       if (RawDigiAmplitudesL.size())
@@ -336,17 +346,27 @@ namespace cms
       
       ptr+=lastStrip-firstStrip;
       LogTrace("SiStripClusterInfoProducer") 
-	<< "["<<__PRETTY_FUNCTION__<<"]\n ptr at " << *ptr 
-	<< "\nelemets below " << vstrip.end()-ptr-1 << std::endl;
+	<< "["<<__PRETTY_FUNCTION__<<"] ptr at strip " << ptr-vstrip.begin() << " adc " << *ptr 
+	<< "\nelements below " << vstrip.end()-ptr-1 << std::endl;
       
       //Looking at digis after LastStrip
       for (uint16_t istrip=1;istrip<_NEIGH_STRIP_+1;istrip++){
 	if (istrip>vstrip.end()-ptr-1) //avoid overflow
-	  break;
-	if (lastStrip+istrip!=*(ptr+istrip)) //avoid not contiguous digis
-	  break;
+	  {
+	    LogTrace("SiStripClusterInfoProducer") << "Domenico esco per strip non contigue";
+	      break;
+	  }
+	if (mode=="digi")
+	  if (lastStrip+istrip!=*(ptr+istrip)) //avoid not contiguous digis
+	  {
+	    LogTrace("SiStripClusterInfoProducer") << "Domenico esco per strip non contigue";
+	      break;
+	  }
 	if (lastStrip+istrip==firstStrip_nextCluster) //avoid clusters overlapping 
-	  break;
+	  {
+	    LogTrace("SiStripClusterInfoProducer") << "Domenico esco per strip non nel cluster";
+	      break;
+	  }
 	
 	RawDigiAmplitudesR.push_back(*(vadc.begin()+(ptr-vstrip.begin())+istrip));
       }
@@ -356,7 +376,7 @@ namespace cms
       if (edm::isDebugEnabled()){
 	std::stringstream ss;
 	cluster_iter->print(ss);
-	LogTrace("SiStripClusterInfoProducer") << "[SiStripClusterInfoProducer::digi_algorithm] Cluster " << ss.str();
+	LogTrace("SiStripClusterInfoProducer") << "["<<__PRETTY_FUNCTION__<<"] Cluster " << ss.str();
       }
     }
   }
