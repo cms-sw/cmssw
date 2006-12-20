@@ -12,8 +12,5 @@
  <use name=DataFormats/Common>
  <use name=boost_python>
  <use name=boost>
- <use name=Foundation/SealZip>
- <use name=boost_filesystem> 
- <use name=boost_regex> 
 </export>
 

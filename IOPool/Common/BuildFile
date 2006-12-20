@@ -1,16 +1,16 @@
 <use name=boost>
 <use name=DataSvc>
 <use name=StorageSvc>
+<use name=PersistencySvc>
 <use name=rootcore>
 <use name=rootcintex>
-<use name=FWCore/MessageLogger>
+<use name=FWCore/Framework>
+<use name=DataFormats/Common>
 <export>
  <lib name=IOPoolCommon>
  <use name=boost>
- <use name=DataSvc>
- <use name=StorageSvc>
  <use name=rootcore>
- <use name=rootcintex>
- <use name=FWCore/MessageLogger>
+ <use name=FWCore/Framework>
+ <use name=FWCore/Utilities>
 </export>
 

@@ -1,13 +1,10 @@
 <export>
  <lib name=FWCoreTFWLiteSelector>
- <use name=boost>
- <use name=FWCore/Framework>
- <use name=rootcintex>
  <use name=root>
- <use name=DataFormats/Common>
 </export>
 <use name=boost>
 <use name=rootcintex>
 <use name=root>
 <use name=FWCore/Framework>
+<use name=FWCore/Utilities>
 <use name=DataFormats/Common>

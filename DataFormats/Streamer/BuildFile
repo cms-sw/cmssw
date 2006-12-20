@@ -1,8 +1,6 @@
 <use name=DataFormats/Common>
-<use name=boost>
 <export>
  <lib name=DataFormatsStreamer>
  <use name=DataFormats/Common>
- <use name=boost>
 </export>
 

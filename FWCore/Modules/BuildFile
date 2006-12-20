@@ -1,9 +1,9 @@
 <flags SEAL_PLUGIN_NAME="FWCoreModules">
 <use name=boost>
 <use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
 <export>
  <lib name=FWCoreModules>
- <use name=boost>
- <use name=FWCore/Framework>
 </export>
 

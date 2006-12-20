@@ -1,16 +1,16 @@
 <flags SEAL_PLUGIN_NAME="FWCoreServices">
-<use name=boost>
+<use name=sigcpp>
 <use name=rootcintex>
 <use name=xerces-c>
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
 <use name=FWCore/MessageLogger>
-
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
 <export>
   <lib name=FWCoreServices>
-  <use name=boost>
-  <use name=FWCore/Framework>
-  <use name=FWCore/Utilities>
-  <use name=FWCore/MessageLogger>
+  <use name=sigcpp>
+  <use name=DataFormats/Common>
 </export>
 

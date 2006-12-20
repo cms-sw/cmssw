@@ -1,14 +1,10 @@
 <export>
  <lib name=FWCoreRootAutoLibraryLoader>
- <use name=boost>
- <use name=Foundation/PluginManager>
- <use name=rootrflx>
- <use name=rootcintex>
- <use name=root>
+ <use name=rootcore>
 </export>
-<use name=boost_regex>
-<use name=boost>
 <use name=Foundation/PluginManager>
 <use name=rootrflx>
 <use name=rootcintex>
-<use name=root>
+<use name=rootcore>
+<use name=boost_regex>
+<use name=boost>

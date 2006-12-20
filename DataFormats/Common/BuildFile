@@ -6,6 +6,4 @@
  <lib name=DataFormatsCommon>
  <use name=FWCore/Utilities>
  <use name=boost>
- <use name=rootrflx>
- <use name=Foundation/SealZip>
 </export>

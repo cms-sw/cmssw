@@ -1,7 +1,6 @@
 <use name=boost>
 <use name=sigcpp>
 <use name=Foundation/PluginManager>
-<use name=Framework/SealKernel>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <export>
@@ -9,8 +8,6 @@
  <use name=boost>
  <use name=sigcpp>
  <use name=Foundation/PluginManager>
- <use name=Framework/SealKernel>
- <use name=FWCore/ParameterSet>
  <use name=FWCore/Utilities>
 </export>
 

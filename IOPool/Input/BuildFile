@@ -1,15 +1,15 @@
 <flags SEAL_PLUGIN_NAME="IOPoolInput">
 <use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/Utilities>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
+<use name=DataFormats/Common>
 <use name=IOPool/Common>
 <use name=boost>
 <use name=rootcore>
 <use name=root>
 <export>
  <lib name=IOPoolInput>
- <use name=FWCore/Framework>
- <use name=IOPool/Common>
- <use name=boost>
- <use name=rootcore>
- <use name=root>
 </export>
 
