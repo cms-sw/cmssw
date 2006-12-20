@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.7 2006/12/07 04:41:56 chrjones Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.8 2006/12/07 05:06:08 chrjones Exp $
 //
 
 // system include files
@@ -35,8 +35,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "DataFormats/Common/interface/EventProvenance.h"
-#include "FWCore/Framework/interface/ModuleDescriptionRegistry.h"
-#include "FWCore/Framework/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Common/interface/ModuleDescriptionRegistry.h"
+#include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 namespace edm {
