@@ -204,7 +204,7 @@ void EgammaElectrons::analyze( const edm::Event& evt, const edm::EventSetup& es 
   for(HepMC::GenEvent::particle_const_iterator currentParticle = genEvent->particles_begin(); 
     currentParticle != genEvent->particles_end(); currentParticle++ )
   {
-    if(abs((*currentParticle)->pdg_id())==22 && (*currentParticle)->status()==1) 
+    if(abs((*currentParticle)->pdg_id())==11 && (*currentParticle)->status()==1) 
     {
       double etaTrue = (*currentParticle)->momentum().eta();
       double phiTrue = (*currentParticle)->momentum().phi();
