@@ -81,6 +81,9 @@ namespace cms{
       const SiStripClusterInfo* MatchClusterInfo(const SiStripCluster* cluster, const uint32_t& detid);	
       std::pair<std::string,uint32_t> GetSubDetAndLayer(const uint32_t& detid);
 
+      void fillTH1(float,TString,bool,float=0);
+      void fillTH2(float,float,TString,bool,float=0);
+
     private:
   
       edm::ParameterSet conf_;
@@ -114,8 +117,9 @@ namespace cms{
       edm::InputTag Track_src_;
       edm::InputTag ClusterInfo_src_;
       edm::InputTag Cluster_src_;
-
       std::vector<uint32_t> ModulesToBeExcluded_;
+      int EtaAlgo_;
+      int NeighStrips_;
  
       bool not_the_first_event;
 
