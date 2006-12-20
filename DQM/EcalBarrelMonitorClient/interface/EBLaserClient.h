@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2006/12/15 09:44:49 $
- * $Revision: 1.42 $
+ * $Date: 2006/12/20 15:43:03 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
 */
@@ -170,6 +170,10 @@ MEContentsProf2DWithinRangeROOT* qth01_[36];
 MEContentsProf2DWithinRangeROOT* qth02_[36];
 MEContentsProf2DWithinRangeROOT* qth03_[36];
 MEContentsProf2DWithinRangeROOT* qth04_[36];
+MEContentsProf2DWithinRangeROOT* qth05_[36];
+MEContentsProf2DWithinRangeROOT* qth06_[36];
+MEContentsProf2DWithinRangeROOT* qth07_[36];
+MEContentsProf2DWithinRangeROOT* qth08_[36];
 
 TProfile2D* hs01_[36];
 TProfile2D* hs02_[36];
