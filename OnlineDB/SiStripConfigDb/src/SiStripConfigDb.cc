@@ -1,6 +1,6 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.24 2006/11/22 10:47:40 bainbrid Exp $
-// Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
+// Last commit: $Id: $
+// Latest tag:  $Name: $
+// Location:    $Source: $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -886,10 +886,12 @@ void SiStripConfigDb::createPartition( const string& partition_name,
       ss << "/tmp/fed_" << dbParams_.partition_ << ".xml";
       Fed9U::Fed9UDeviceFactory* factory = deviceFactory(__func__);
       factory->setOutputFileName( ss.str() );
+      uint16_t major = static_cast<uint16_t>(dbParams_.major_);
+      uint16_t minor = static_cast<uint16_t>(dbParams_.minor_);
       deviceFactory(__func__)->setFed9UDescriptions( feds,
 						     dbParams_.partition_,
-						     &(uint16_t)dbParams_.major_,
-						     &(uint16_t)dbParams_.minor_,
+						     &major,
+						     &minor,
 						     1 ); // new major version
     } catch(...) {
       stringstream ss; 
@@ -899,7 +901,7 @@ void SiStripConfigDb::createPartition( const string& partition_name,
 	 << dbParams_.major_ << "." << dbParams_.minor_;
       handleException( __func__, ss.str() );
     }
-  }    
+  }
 
   // Create and upload FED connections
   const FedConnections& conns = createFedConnections( fec_cabling );
