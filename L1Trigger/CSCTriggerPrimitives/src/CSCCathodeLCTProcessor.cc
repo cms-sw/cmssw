@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/10/09 13:59:49 $
-//   $Revision: 1.9 $
+//   $Date: 2006/11/08 16:35:05 $
+//   $Revision: 1.10 $
 //
 //   Modifications: 
 //
@@ -1859,9 +1859,9 @@ void CSCCathodeLCTProcessor::printPatterns() {
   for (int layer = 0; layer < CSCConstants::NUM_LAYERS; layer++) {
     for (int patternNum = 0; patternNum < CSCConstants::NUM_CLCT_PATTERNS; patternNum++) {
       if (patternNum == 0) std::cout<<"   "<<layer<<"       ";
-      if (layer != CSCConstants::KEY_LAYER-1) {//that old counting from 1 vs 0 thing.
+      if (layer != CSCConstants::KEY_CLCT_LAYER-1) {//that old counting from 1 vs 0 thing.
         int minStrip =0;
-	if (layer < CSCConstants::KEY_LAYER-1) {
+	if (layer < CSCConstants::KEY_CLCT_LAYER-1) {
 	  minStrip = 3*layer;
 	} else {
 	  minStrip = 3*layer - 2;// since on the key layer we only have 1 strip
@@ -1923,12 +1923,12 @@ void CSCCathodeLCTProcessor::testPatterns() {
     if (numLayersHit > 3 || results.size() > 0) {
       std::cout<<"Input "<<possibleHits<<"/"<< 65536 <<" # Found Patterns "<<results.size()<<std::endl<<" ";
       for (int layer = 0; layer < CSCConstants::NUM_LAYERS; layer++) {
-	if (layer != CSCConstants::KEY_LAYER - 1) {
+	if (layer != CSCConstants::KEY_CLCT_LAYER - 1) {
 	  for (int strip = 9; strip < 12; strip++) {
 	    if (stripsHit[layer][strip] !=0) {
 	      if (results.size() > 0) {
 	        int thePatternStrip = strip - (results[0].getKeyStrip() - 2) + 3*layer;
-		if (layer>=CSCConstants::KEY_LAYER) thePatternStrip -= 2;
+		if (layer>=CSCConstants::KEY_CLCT_LAYER) thePatternStrip -= 2;
 	        if (pattern[results[0].getPattern()][thePatternStrip] == layer)
 		{
 		  std::cout<<"X";
@@ -1945,7 +1945,7 @@ void CSCCathodeLCTProcessor::testPatterns() {
 	  std::cout<<"   ";
 	  for (unsigned int output = 0; output < results.size(); output++) {
 	    int minStrip;
-	    if (layer < CSCConstants::KEY_LAYER-1) {
+	    if (layer < CSCConstants::KEY_CLCT_LAYER-1) {
 	      minStrip = 3*layer;
 	    } else {
 	      minStrip = 3*layer - 2;// since on the key layer we only have 1 strip

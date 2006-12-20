@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2006/10/16 13:34:55 $
-//   $Revision: 1.6 $
+//   $Date: 2006/11/30 03:30:49 $
+//   $Revision: 1.7 $
 //
 //   Modifications:
 //
@@ -213,14 +213,14 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
 
   std::vector<CSCTrackStub>::const_iterator itr = result.begin();
   for (; itr != result.end(); itr++) {
-    oc_sorted_lct.insertDigi(itr->getDetId(), *(itr->getDigi()));
+    oc_sorted_lct.insertDigi(CSCDetId(itr->getDetId().rawId()), *(itr->getDigi()));
     LogDebug("L1CSCTrigger")
-      << "MPC " << itr->getDigi() << " found in"
-      << " endcap "    << itr->getDetId().endcap()
-      << " station "   << itr->getDetId().station()
-      << " sector "    << itr->getDetId().triggerSector()
-      << " ring "      << itr->getDetId().ring()
-      << " chamber "   << itr->getDetId().chamber()
-      << " (trig id. " << itr->getDetId().triggerCscId() << ")" << "\n";
+      << "MPC " << *(itr->getDigi()) << " found in"
+      << " endcap "    << itr->endcap()
+      << " station "   << itr->station()
+      << " sector "    << itr->sector()
+      << " ring "      << CSCDetId(itr->getDetId().rawId()).ring()
+      << " chamber "   << CSCDetId(itr->getDetId().rawId()).chamber()
+      << " (trig id. " << itr->cscid() << ")" << "\n";
   }
 }

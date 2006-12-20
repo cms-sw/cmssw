@@ -11,8 +11,8 @@
 //   Author List: Benn Tannenbaum 30 August 1999.
 //                Based on code by Nick Wisniewski.
 //
-//   $Date: 2006/06/27 14:38:48 $
-//   $Revision: 1.2 $
+//   $Date: 2006/11/30 03:30:49 $
+//   $Revision: 1.3 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -21,7 +21,7 @@
 //-----------------------------------------------------------------------------
 
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCConstants.h>
+#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
@@ -38,17 +38,17 @@ void CSCMuonPortCard::loadDigis(const CSCCorrelatedLCTDigiCollection& thedigis)
     CSCCorrelatedLCTDigiCollection::const_iterator Dend = (*Citer).second.second;
 
     for (; Diter != Dend; Diter++) {
-      CSCTrackStub theStub((*Diter), (*Citer).first);
+      csctf::TrackStub theStub((*Diter), (*Citer).first);
       _stubs.push_back(theStub);
     }
   }
 }
 
-std::vector<CSCTrackStub> CSCMuonPortCard::sort(const unsigned endcap, const unsigned station, 
-						const unsigned sector, const unsigned subsector, const int bx)
+std::vector<csctf::TrackStub> CSCMuonPortCard::sort(const unsigned endcap, const unsigned station, 
+						    const unsigned sector, const unsigned subsector, const int bx)
 {
-  std::vector<CSCTrackStub> result;
-  std::vector<CSCTrackStub>::iterator LCT;
+  std::vector<csctf::TrackStub> result;
+  std::vector<csctf::TrackStub>::iterator LCT;
 
   result = _stubs.get(endcap, station, sector, subsector, bx);
 
@@ -59,7 +59,7 @@ std::vector<CSCTrackStub> CSCMuonPortCard::sort(const unsigned endcap, const uns
   }
 
   if (result.size()) {
-    std::sort(result.begin(), result.end(), std::greater<CSCTrackStub>());
+    std::sort(result.begin(), result.end(), std::greater<csctf::TrackStub>());
     // Can only return maxStubs or less LCTs per bunch crossing.
     if (result.size() > CSCConstants::maxStubs)
       result.erase(result.begin() + CSCConstants::maxStubs, result.end());
