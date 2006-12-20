@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 15:43:14 EDT 2006
-// $Id: SiStripElectron.h,v 1.2 2006/07/07 23:16:34 pivarski Exp $
+// $Id: SiStripElectron.h,v 1.3 2006/07/25 22:29:48 pivarski Exp $
 //
 
 // system include files
@@ -30,6 +30,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 
 // forward declarations
 
@@ -41,8 +42,8 @@ namespace reco {
 	 /// constructor from band algorithm
 	 SiStripElectron(const reco::SuperClusterRef& superCluster,
 			 Charge q,
-			 const edm::RefVector<TrackingRecHitCollection>& rphiRecHits,
-			 const edm::RefVector<TrackingRecHitCollection>& stereoRecHits,
+			 const edm::RefVector<SiStripRecHit2DCollection>& rphiRecHits,
+			 const edm::RefVector<SiStripRecHit2DCollection>& stereoRecHits,
 			 double superClusterPhiVsRSlope,
 			 double phiVsRSlope,
 			 double phiAtOrigin,
@@ -99,9 +100,9 @@ namespace reco {
 	 virtual reco::SuperClusterRef superCluster() const;
 
          /// reference to the rphiRecHits identified as belonging to an electron
-         const edm::RefVector<TrackingRecHitCollection>& rphiRecHits() const { return rphiRecHits_; }
+         const edm::RefVector<SiStripRecHit2DCollection>& rphiRecHits() const { return rphiRecHits_; }
          /// reference to the stereoRecHits identified as belonging to an electron
-         const edm::RefVector<TrackingRecHitCollection>& stereoRecHits() const { return stereoRecHits_; }
+         const edm::RefVector<SiStripRecHit2DCollection>& stereoRecHits() const { return stereoRecHits_; }
 
 	 /// returns phi(r) projection from supercluster
 	 double superClusterPhiVsRSlope() const { return superClusterPhiVsRSlope_; }
@@ -134,8 +135,8 @@ namespace reco {
 	 virtual bool overlap( const Candidate & ) const;
 	 /// reference to a SuperCluster
 	 reco::SuperClusterRef superCluster_;
-         edm::RefVector<TrackingRecHitCollection> rphiRecHits_;
-         edm::RefVector<TrackingRecHitCollection> stereoRecHits_;
+         edm::RefVector<SiStripRecHit2DCollection> rphiRecHits_;
+         edm::RefVector<SiStripRecHit2DCollection> stereoRecHits_;
 
 	 double superClusterPhiVsRSlope_;
 	 double phiVsRSlope_;
