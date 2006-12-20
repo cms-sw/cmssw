@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.24 2006/12/18 16:59:13 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.25 2006/12/19 18:40:49 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -205,7 +205,7 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH, co
  
 
     //at scl
-    TrajectoryStateOnSurface sclTSOS = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(outTSOS,GlobalPoint(theClus.x(),theClus.y(),theClus.z()));
+    TrajectoryStateOnSurface sclTSOS = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(innTSOS,GlobalPoint(theClus.x(),theClus.y(),theClus.z()));
 
     GlobalVector vtxMom=computeMode(vtxTSOS);
     GlobalPoint  sclPos=sclTSOS.globalPosition();
