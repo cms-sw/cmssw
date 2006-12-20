@@ -23,6 +23,7 @@ void MaterialBudgetTree::book()
 
   // GENERAL block
   theTree->Branch("MB", &t_MB, "MB/F");
+  theTree->Branch("MB", &t_IL, "IL/F");
   
   // rr
   // PARTICLE Block
@@ -44,6 +45,14 @@ void MaterialBudgetTree::book()
     theTree->Branch("DeltaMB_ELE", t_DeltaMB_ELE, "DeltaMB_ELE[Nsteps]/F");
     theTree->Branch("DeltaMB_OTH", t_DeltaMB_OTH, "DeltaMB_OTH[Nsteps]/F");
     theTree->Branch("DeltaMB_AIR", t_DeltaMB_AIR, "DeltaMB_AIR[Nsteps]/F");
+    theTree->Branch("DeltaIL", t_DeltaIL, "DeltaIL[Nsteps]/F");
+    theTree->Branch("DeltaIL_SUP", t_DeltaIL_SUP, "DeltaIL_SUP[Nsteps]/F");
+    theTree->Branch("DeltaIL_SEN", t_DeltaIL_SEN, "DeltaIL_SEN[Nsteps]/F");
+    theTree->Branch("DeltaIL_CAB", t_DeltaIL_CAB, "DeltaIL_CAB[Nsteps]/F");
+    theTree->Branch("DeltaIL_COL", t_DeltaIL_COL, "DeltaIL_COL[Nsteps]/F");
+    theTree->Branch("DeltaIL_ELE", t_DeltaIL_ELE, "DeltaIL_ELE[Nsteps]/F");
+    theTree->Branch("DeltaIL_OTH", t_DeltaIL_OTH, "DeltaIL_OTH[Nsteps]/F");
+    theTree->Branch("DeltaIL_AIR", t_DeltaIL_AIR, "DeltaIL_AIR[Nsteps]/F");
     // rr
     theTree->Branch("Initial X", t_InitialX, "Initial_X[Nsteps]/D");
     theTree->Branch("Initial Y", t_InitialY, "Initial_Y[Nsteps]/D");
@@ -68,9 +77,10 @@ void MaterialBudgetTree::book()
     theTree->Branch("Volume Z axis 2", t_VolumeZaxis2, "VolumeZaxis2[Nsteps]/F");
     theTree->Branch("Volume Z axis 3", t_VolumeZaxis3, "VolumeZaxis3[Nsteps]/F");
     
-    theTree->Branch("Material ID",   t_MaterialID,   "MaterialID[Nsteps]/I");
-    theTree->Branch("Material Name", t_MaterialName, "MaterialName[Nsteps]/C");
-    theTree->Branch("Material X0",   t_MaterialX0,   "MaterialX0[Nsteps]/F");
+    theTree->Branch("Material ID",      t_MaterialID,   "MaterialID[Nsteps]/I");
+    theTree->Branch("Material Name",    t_MaterialName, "MaterialName[Nsteps]/C");
+    theTree->Branch("Material X0",      t_MaterialX0,   "MaterialX0[Nsteps]/F");
+    theTree->Branch("Material Lambda0", t_MaterialX0,   "MaterialLambda0[Nsteps]/F");
     
     theTree->Branch("Particle Step ID",             t_ParticleStepID,            "Step_ID[Nsteps]/I");
     theTree->Branch("Particle Step Initial Pt",     t_ParticleStepInitialPt,     "Step_Initial_Pt[Nsteps]/F");
@@ -114,6 +124,7 @@ void MaterialBudgetTree::fillPerStep()
 void MaterialBudgetTree::fillEndTrack()
 {
   t_MB  = theData->getTotalMB();
+  t_IL  = theData->getTotalIL();
   //  t_Eta = theData->getEta();
   //  t_Phi = theData->getPhi();
 
@@ -140,6 +151,15 @@ void MaterialBudgetTree::fillEndTrack()
       t_DeltaMB_OTH[ii] = theData->getOtherDmb(ii);
       t_DeltaMB_AIR[ii] = theData->getAirDmb(ii);
       
+      t_DeltaIL[ii] = theData->getStepDil(ii);
+      t_DeltaIL_SUP[ii] = theData->getSupportDil(ii);
+      t_DeltaIL_SEN[ii] = theData->getSensitiveDil(ii);
+      t_DeltaIL_CAB[ii] = theData->getCablesDil(ii);
+      t_DeltaIL_COL[ii] = theData->getCoolingDil(ii);
+      t_DeltaIL_ELE[ii] = theData->getElectronicsDil(ii);
+      t_DeltaIL_OTH[ii] = theData->getOtherDil(ii);
+      t_DeltaIL_AIR[ii] = theData->getAirDil(ii);
+
       t_InitialX[ii] = theData->getStepInitialX(ii);
       t_InitialY[ii] = theData->getStepInitialY(ii);
       t_InitialZ[ii] = theData->getStepInitialZ(ii);
@@ -163,9 +183,10 @@ void MaterialBudgetTree::fillEndTrack()
       t_VolumeZaxis2[ii] = theData->getStepVolumeZaxis(ii).y();
       t_VolumeZaxis3[ii] = theData->getStepVolumeZaxis(ii).z();
       
-      t_MaterialID[ii]   = theData->getStepMaterialID(ii);
-      t_MaterialName[ii] = const_cast<char*> (theData->getStepMaterialName(ii).c_str());
-      t_MaterialX0[ii]   = theData->getStepMaterialX0(ii);
+      t_MaterialID[ii]        = theData->getStepMaterialID(ii);
+      t_MaterialName[ii]      = const_cast<char*> (theData->getStepMaterialName(ii).c_str());
+      t_MaterialX0[ii]        = theData->getStepMaterialX0(ii);
+      t_MaterialLambda0[ii]   = theData->getStepMaterialLambda0(ii);
       
       t_ParticleStepID[ii]            = theData->getStepID(ii);
       t_ParticleStepInitialPt[ii]     = theData->getStepInitialPt(ii);

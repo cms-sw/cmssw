@@ -110,6 +110,9 @@ TrackerMaterialBudgetComparison(TString detector) {
   createPlots("x_vs_eta");
   createPlots("x_vs_phi");
   createPlots("x_vs_R");
+  createPlots("l_vs_eta");
+  createPlots("l_vs_phi");
+  createPlots("l_vs_R");
   //
 }
 
@@ -117,15 +120,31 @@ TrackerMaterialBudgetComparison(TString detector) {
 void createPlots(TString plot) {
   unsigned int plotNumber = 0;
   TString abscissaName = "dummy";
+  TString ordinateName = "dummy";
   if(plot.CompareTo("x_vs_eta") == 0) {
     plotNumber = 10;
     abscissaName = TString("#eta");
+    ordinateName = TString("x/X_{0}");
   } else if(plot.CompareTo("x_vs_phi") == 0) {
     plotNumber = 20;
     abscissaName = TString("#varphi [rad]");
+    ordinateName = TString("x/X_{0}");
   } else if(plot.CompareTo("x_vs_R") == 0) {
     plotNumber = 40;
     abscissaName = TString("R [cm]");
+    ordinateName = TString("x/X_{0}");
+  } else if(plot.CompareTo("l_vs_eta") == 0) {
+    plotNumber = 1010;
+    abscissaName = TString("#eta");
+    ordinateName = TString("#lambda/#lambda_{0}");
+  } else if(plot.CompareTo("l_vs_phi") == 0) {
+    plotNumber = 1020;
+    abscissaName = TString("#varphi [rad]");
+    ordinateName = TString("#lambda/#lambda_{0}");
+  } else if(plot.CompareTo("l_vs_R") == 0) {
+    plotNumber = 1040;
+    abscissaName = TString("R [cm]");
+    ordinateName = TString("#lambda/#lambda_{0}");
   } else {
     cout << " error: chosen plot name not known " << plot << endl;
     return;

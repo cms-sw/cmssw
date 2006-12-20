@@ -32,6 +32,7 @@ private:
 
   static const int MAXSTEPS = 5000;
   float t_MB;
+  float t_IL;
   //  float t_Eta;
   //  float t_Phi;
   // rr
@@ -50,6 +51,14 @@ private:
   float t_DeltaMB_ELE[MAXSTEPS];
   float t_DeltaMB_OTH[MAXSTEPS];
   float t_DeltaMB_AIR[MAXSTEPS];
+  float t_DeltaIL[MAXSTEPS];
+  float t_DeltaIL_SUP[MAXSTEPS];
+  float t_DeltaIL_SEN[MAXSTEPS];
+  float t_DeltaIL_CAB[MAXSTEPS];
+  float t_DeltaIL_COL[MAXSTEPS];
+  float t_DeltaIL_ELE[MAXSTEPS];
+  float t_DeltaIL_OTH[MAXSTEPS];
+  float t_DeltaIL_AIR[MAXSTEPS];
   double t_InitialX[MAXSTEPS];
   double t_InitialY[MAXSTEPS];
   double t_InitialZ[MAXSTEPS];
@@ -75,6 +84,7 @@ private:
   int   t_MaterialID[MAXSTEPS];
   char* t_MaterialName[MAXSTEPS];  
   float t_MaterialX0[MAXSTEPS];  
+  float t_MaterialLambda0[MAXSTEPS];  
   int   t_ParticleStepID[MAXSTEPS];  
   float t_ParticleStepInitialPt[MAXSTEPS];  
   float t_ParticleStepInitialEta[MAXSTEPS];  

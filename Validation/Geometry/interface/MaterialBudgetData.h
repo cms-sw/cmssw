@@ -58,6 +58,22 @@ public:
     return theOtherMB; }
   float getAirMB() const {
     return theAirMB; }
+  float getTotalIL() const {
+    return theTotalIL; }
+  float getSupportIL() const {
+    return theSupportIL; }
+  float getSensitiveIL() const {
+    return theSensitiveIL; }
+  float getCablesIL() const {
+    return theCablesIL; }
+  float getCoolingIL() const {
+    return theCoolingIL; }
+  float getElectronicsIL() const {
+    return theElectronicsIL; }
+  float getOtherIL() const {
+    return theOtherIL; }
+  float getAirIL() const {
+    return theAirIL; }
   // rr
   float getEta() const {
     return theEta; }
@@ -101,6 +117,24 @@ public:
     return theOtherDmb[is]; }
   float getAirDmb( int is ) const {
     return theAirDmb[is]; }
+
+  float getStepDil( int is ) {
+    return theDil[is];
+  }
+  float getSupportDil( int is ) const {
+    return theSupportDil[is]; }
+  float getSensitiveDil( int is ) const {
+    return theSensitiveDil[is]; }
+  float getCablesDil( int is ) const {
+    return theCablesDil[is]; }
+  float getCoolingDil( int is ) const {
+    return theCoolingDil[is]; }
+  float getElectronicsDil( int is ) const {
+    return theElectronicsDil[is]; }
+  float getOtherDil( int is ) const {
+    return theOtherDil[is]; }
+  float getAirDil( int is ) const {
+    return theAirDil[is]; }
   
   double getStepInitialX( int is ) {
     return theInitialX[is];
@@ -217,6 +251,9 @@ public:
   float getStepMaterialX0( int is ) {
     return theMaterialX0[is];
   }
+  float getStepMaterialLambda0( int is ) {
+    return theMaterialLambda0[is];
+  }
   // rr
   
   bool allStepsON() {
@@ -232,12 +269,16 @@ public:
   float theSupportFractionMB, theSensitiveFractionMB, theCablesFractionMB,
     theCoolingFractionMB, theElectronicsFractionMB, theOtherFractionMB, theAirFractionMB;
   float theSupportMB, theSensitiveMB, theCablesMB, theCoolingMB, theElectronicsMB, theOtherMB, theAirMB;
+  float theTotalIL;
+  float theSupportIL, theSensitiveIL, theCablesIL, theCoolingIL, theElectronicsIL, theOtherIL, theAirIL;
   // rr
   int theStepN;
   double *theInitialX, *theInitialY, *theInitialZ;
   double *theFinalX,   *theFinalY,   *theFinalZ;
   float *theDmb;
   float *theSupportDmb, *theSensitiveDmb, *theCablesDmb, *theCoolingDmb, *theElectronicsDmb, *theOtherDmb, *theAirDmb;
+  float *theDil;
+  float *theSupportDil, *theSensitiveDil, *theCablesDil, *theCoolingDil, *theElectronicsDil, *theOtherDil, *theAirDil;
   //  int *theVoluId;
   //  int *theMateId;
   // rr
@@ -259,6 +300,7 @@ public:
   int*         theMaterialID;
   std::string* theMaterialName;
   float*       theMaterialX0;
+  float*       theMaterialLambda0;
   int*   theStepID;
   float* theStepInitialPt;
   float* theStepInitialEta;
@@ -287,6 +329,7 @@ public:
   MaterialBudgetCategorizer* myMaterialBudgetCategorizer;
 
   float theRadLen;
+  float theIntLen;
   int stepN;
   int MAXNUMBERSTEPS;
   bool allStepsToTree;

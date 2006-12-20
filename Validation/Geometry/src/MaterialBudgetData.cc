@@ -25,6 +25,7 @@ void MaterialBudgetData::SetAllStepsToTree()
   MAXNUMBERSTEPS = 0;
   MAXNUMBERSTEPS = 5000; //!!!WARNING: this number is also hardcoded when booking the tree
   theDmb = new float[MAXNUMBERSTEPS];
+  theDil = new float[MAXNUMBERSTEPS];
   // rr
   theSupportDmb     = new float[MAXNUMBERSTEPS];
   theSensitiveDmb   = new float[MAXNUMBERSTEPS];
@@ -33,6 +34,13 @@ void MaterialBudgetData::SetAllStepsToTree()
   theElectronicsDmb = new float[MAXNUMBERSTEPS];
   theOtherDmb       = new float[MAXNUMBERSTEPS];
   theAirDmb         = new float[MAXNUMBERSTEPS];
+  theSupportDil     = new float[MAXNUMBERSTEPS];
+  theSensitiveDil   = new float[MAXNUMBERSTEPS];
+  theCablesDil      = new float[MAXNUMBERSTEPS];
+  theCoolingDil     = new float[MAXNUMBERSTEPS];
+  theElectronicsDil = new float[MAXNUMBERSTEPS];
+  theOtherDil       = new float[MAXNUMBERSTEPS];
+  theAirDil         = new float[MAXNUMBERSTEPS];
   // rr
   theInitialX = new double[MAXNUMBERSTEPS];
   theInitialY = new double[MAXNUMBERSTEPS];
@@ -56,9 +64,10 @@ void MaterialBudgetData::SetAllStepsToTree()
   theVolumeZaxis1 = new float[MAXNUMBERSTEPS];
   theVolumeZaxis2 = new float[MAXNUMBERSTEPS];
   theVolumeZaxis3 = new float[MAXNUMBERSTEPS];
-  theMaterialID   = new int[MAXNUMBERSTEPS];
-  theMaterialName = new std::string[MAXNUMBERSTEPS];
-  theMaterialX0   = new float[MAXNUMBERSTEPS];
+  theMaterialID      = new int[MAXNUMBERSTEPS];
+  theMaterialName    = new std::string[MAXNUMBERSTEPS];
+  theMaterialX0      = new float[MAXNUMBERSTEPS];
+  theMaterialLambda0 = new float[MAXNUMBERSTEPS];
   theStepID             = new int[MAXNUMBERSTEPS];
   theStepInitialPt      = new float[MAXNUMBERSTEPS];
   theStepInitialEta     = new float[MAXNUMBERSTEPS];
@@ -95,6 +104,7 @@ void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
   
   theStepN=0;
   theTotalMB=0;
+  theTotalIL=0;
   theEta=0;
   thePhi=0;
   
@@ -110,6 +120,13 @@ void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
   theElectronicsMB = 0.;
   theOtherMB       = 0.;
   theAirMB         = 0.;
+  theSupportIL     = 0.;
+  theSensitiveIL   = 0.;
+  theCablesIL      = 0.;
+  theCoolingIL     = 0.;
+  theElectronicsIL = 0.;
+  theOtherIL       = 0.;
+  theAirIL         = 0.;
   theSupportFractionMB     = 0.;
   theSensitiveFractionMB   = 0.;
   theCablesFractionMB      = 0.;
@@ -137,7 +154,8 @@ void MaterialBudgetData::dataEndTrack( const G4Track* aTrack )
 {
   //-  std::cout << "[OVAL] MaterialBudget " << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " " << theEta << " " << thePhi << " " << theTotalMB << std::endl;
   // rr
-  std::cout << " MaterialBudget " << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " eta " << theEta << " phi " << thePhi << " total MB " << theTotalMB << " SUP " << theSupportMB << " SEN " << theSensitiveMB << " CAB " << theCablesMB << " COL " << theCoolingMB << " ELE " << theElectronicsMB << " other " << theOtherMB << " Air " << theAirMB << std::endl;
+  std::cout << " Material Budget: Radiation Length   " << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " eta " << theEta << " phi " << thePhi << " total X " << theTotalMB << " SUP " << theSupportMB << " SEN " << theSensitiveMB << " CAB " << theCablesMB << " COL " << theCoolingMB << " ELE " << theElectronicsMB << " other " << theOtherMB << " Air " << theAirMB << std::endl;
+  std::cout << " Material Budget: Interaction Length " << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " eta " << theEta << " phi " << thePhi << " total L " << theTotalIL << " SUP " << theSupportIL << " SEN " << theSensitiveIL << " CAB " << theCablesIL << " COL " << theCoolingIL << " ELE " << theElectronicsIL << " other " << theOtherIL << " Air " << theAirIL << std::endl;
   // rr
 }
 
@@ -156,9 +174,10 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   G4double steplen = aStep->GetStepLength();
 
   G4double radlen;
+  G4double intlen;
 
   radlen = theMaterialPre->GetRadlen();
-  //t    radlen = theMaterialPre->GetNuclearInterLength();
+  intlen = theMaterialPre->GetNuclearInterLength();
 
   G4String name = theMaterialPre->GetName();
   //  std::cout << " steplen " << steplen << " radlen " << radlen << " mb " << steplen/radlen << " mate " << theMaterialPre->GetName() << std::endl;
@@ -192,6 +211,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   // rr  
   
   float dmb = steplen/radlen;
+  float dil = steplen/intlen;
   
   G4VPhysicalVolume*       pv                = aStep->GetPreStepPoint()->GetPhysicalVolume();
   const G4VTouchable*      t                 = aStep->GetPreStepPoint()->GetTouchable();
@@ -212,6 +232,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   if( allStepsToTree ){
     if( stepN > MAXNUMBERSTEPS ) stepN = MAXNUMBERSTEPS;
     theDmb[theStepN] = dmb; 
+    theDil[theStepN] = dil; 
     theSupportDmb[theStepN]     = (dmb * theSupportFractionMB);
     theSensitiveDmb[theStepN]   = (dmb * theSensitiveFractionMB);
     theCablesDmb[theStepN]      = (dmb * theCablesFractionMB);
@@ -219,6 +240,13 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     theElectronicsDmb[theStepN] = (dmb * theElectronicsFractionMB);
     theOtherDmb[theStepN]       = (dmb * theOtherFractionMB);
     theAirDmb[theStepN]         = (dmb * theAirFractionMB);
+    theSupportDil[theStepN]     = (dil * theSupportFractionMB);
+    theSensitiveDil[theStepN]   = (dil * theSensitiveFractionMB);
+    theCablesDil[theStepN]      = (dil * theCablesFractionMB);
+    theCoolingDil[theStepN]     = (dil * theCoolingFractionMB);
+    theElectronicsDil[theStepN] = (dil * theElectronicsFractionMB);
+    theOtherDil[theStepN]       = (dil * theOtherFractionMB);
+    theAirDil[theStepN]         = (dil * theAirFractionMB);
     theInitialX[theStepN] = prePos.x();
     theInitialY[theStepN] = prePos.y();
     theInitialZ[theStepN] = prePos.z();
@@ -240,9 +268,10 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     theVolumeZaxis1[theStepN] = objectRotation->zx();
     theVolumeZaxis2[theStepN] = objectRotation->zy();
     theVolumeZaxis3[theStepN] = objectRotation->zz();
-    theMaterialID[theStepN]   = materialID;
-    theMaterialName[theStepN] = materialName;
-    theMaterialX0[theStepN]   = radlen;
+    theMaterialID[theStepN]      = materialID;
+    theMaterialName[theStepN]    = materialName;
+    theMaterialX0[theStepN]      = radlen;
+    theMaterialLambda0[theStepN] = intlen;
     theStepID[theStepN]             = track->GetDefinition()->GetPDGEncoding();
     theStepInitialPt[theStepN]      = prePoint->GetMomentum().perp();
     theStepInitialEta[theStepN]     = prePoint->GetMomentum().eta();
@@ -275,6 +304,16 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 	      << " Other "       << theOtherDmb[theStepN]
 	      << " Air "         << theAirDmb[theStepN]
 	      << std::endl
+	      << "\tDelta IL = " << theDil[theStepN]
+	      << std::endl
+	      << "\t\tSupport "  << theSupportDil[theStepN]
+	      << " Sensitive "   << theSensitiveDil[theStepN]
+	      << " Cables "      << theCablesDil[theStepN]
+	      << " Cooling "     << theCoolingDil[theStepN]
+	      << " Electronics " << theElectronicsDil[theStepN]
+	      << " Other "       << theOtherDil[theStepN]
+	      << " Air "         << theAirDil[theStepN]
+	      << std::endl
 	      << "\tProcess Pre " << interactionPre->GetProcessName()
 	      << " type " << theStepProcess[theStepN] << " " << interactionPre->GetProcessTypeName(G4ProcessType(theStepProcess[theStepN]))
 	      << std::endl
@@ -301,6 +340,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 	      << " copy number " << theVolumeCopy[theStepN]
 	      << "\tmaterial " << theMaterialID[theStepN] << " " << theMaterialName[theStepN]
 	      << "\tX0 = " << theMaterialX0[theStepN] << " mm"
+	      << "\tLambda0 = " << theMaterialLambda0[theStepN] << " mm"
 	      << std::endl;
     std::cout << "\t\tParticle "  << theStepID[theStepN] 
 	      << " Initial Pt = " << theStepInitialPt[theStepN]     << " MeV/c"
@@ -347,7 +387,9 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   thePVname = pv->GetName();
   thePVcopyNo = pv->GetCopyNo();
   theRadLen = radlen;
+  theIntLen = intlen;
   theTotalMB += dmb;
+  theTotalIL += dil;
   
   // rr
   theSupportMB     += (dmb * theSupportFractionMB);
@@ -357,6 +399,13 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   theElectronicsMB += (dmb * theElectronicsFractionMB);
   theOtherMB       += (dmb * theOtherFractionMB);
   theAirMB         += (dmb * theAirFractionMB);
+  theSupportIL     += (dil * theSupportFractionMB);
+  theSensitiveIL   += (dil * theSensitiveFractionMB);
+  theCablesIL      += (dil * theCablesFractionMB);
+  theCoolingIL     += (dil * theCoolingFractionMB);
+  theElectronicsIL += (dil * theElectronicsFractionMB);
+  theOtherIL       += (dil * theOtherFractionMB);
+  theAirIL         += (dil * theAirFractionMB);
   // rr
   
   theStepN++;
