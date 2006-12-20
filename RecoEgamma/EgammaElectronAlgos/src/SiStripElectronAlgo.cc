@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.12 2006/07/31 22:07:56 pivarski Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.13 2006/09/19 19:28:36 rahatlou Exp $
 //
 
 // system include files
@@ -529,8 +529,11 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   // Copy hits into an OwnVector, which we put in the TrackCandidate
   std::vector<const TrackingRecHit*> outputHits;
   // Reference rphi and stereo hits into RefVectors, which we put in the SiStripElectron
-  edm::RefVector<TrackingRecHitCollection> outputRphiHits;
-  edm::RefVector<TrackingRecHitCollection> outputStereoHits;
+  edm::RefVector<SiStripRecHit2DCollection> outputRphiHits;
+  edm::RefVector<SiStripRecHit2DCollection> outputStereoHits;
+
+  typedef edm::Ref<SiStripRecHit2DCollection> SiStripRecHit2DRef;
+
 
   for (unsigned int i = 0;  i < uselist.size();  i++) {
     if (uselist[i]) {
@@ -548,21 +551,21 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 
 	// Copy this hit for the TrajectorySeed
 	outputHits.push_back(hit);
-	outputStereoHits.push_back(TrackingRecHitRef(*stereoHits_hp_, stereoKey_[hit]));
+	outputStereoHits.push_back(SiStripRecHit2DRef(*stereoHits_hp_, stereoKey_[hit]));
       }
       else if (typelist[i] == 1) {
 	numberOfBarrelRphiHits++;
 
 	// Copy this hit for the TrajectorySeed
 	outputHits.push_back(hit);
-	outputRphiHits.push_back(TrackingRecHitRef(*rphiHits_hp_, rphiKey_[hit]));
+	outputRphiHits.push_back(SiStripRecHit2DRef(*rphiHits_hp_, rphiKey_[hit]));
       }
       else if (typelist[i] == 2) {
 	numberOfEndcapZphiHits++;
 
 	// Copy this hit for the TrajectorySeed
 	outputHits.push_back(hit);
-	outputRphiHits.push_back(TrackingRecHitRef(*rphiHits_hp_, rphiKey_[hit]));
+	outputRphiHits.push_back(SiStripRecHit2DRef(*rphiHits_hp_, rphiKey_[hit]));
       }
     }
   } // end loop over all hits, after having culled the ones with big residuals
