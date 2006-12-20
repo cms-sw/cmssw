@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // EdmFileUtil.cpp
 //
-// $Id: EdmFileUtil.cpp,v 1.3 2006/11/27 23:53:18 jjhollar Exp $
+// $Id: EdmFileUtil.cpp,v 1.4 2006/12/19 00:33:20 wmtan Exp $
 //
 // Author: Chih-hsiang Cheng, LLNL
 //         Chih-Hsiang.Cheng@cern.ch
@@ -17,7 +17,7 @@
 #include <boost/program_options.hpp>
 #include "IOPool/Common/bin/CollUtil.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
-#include "FWCore/FWLite/src/AutoLibraryLoader.h"
+#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/FileCatalog.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
 
   //dl  std::string datafile = vm["file"].as<std::string>(); 
 
-  AutoLibraryLoader::enable();
+  edm::RootAutoLibraryLoader::enable();
 
   int rc = 0;
   try {
