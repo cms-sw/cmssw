@@ -9,6 +9,8 @@ class testView: public CppUnit::TestFixture
   CPPUNIT_TEST(basic);
   CPPUNIT_TEST(createFromArray);
   CPPUNIT_TEST(directAccess);
+  CPPUNIT_TEST(iterateForward);
+  CPPUNIT_TEST(iterateBackward);
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -20,6 +22,8 @@ class testView: public CppUnit::TestFixture
   void basic();
   void createFromArray();
   void directAccess();
+  void iterateForward();
+  void iterateBackward();
 
  private:
   typedef int  value_type;
@@ -77,5 +81,30 @@ void testView::directAccess()
     }  
 }
 
+void testView::iterateForward()
+{
+  value_type vals[] = { 1, 2, 3, 4, 5 };
+  size_t sz = sizeof(vals)/sizeof(value_type);
 
+  view v1;
+  edm::fill_from_range(vals, vals+sz, v1);
 
+  const_iterator i = v1.begin();
+  CPPUNIT_ASSERT( *i == 1 );
+  ++i;
+  CPPUNIT_ASSERT( *i == 2 );
+}
+
+void testView::iterateBackward()
+{
+  value_type vals[] = { 1, 2, 3, 4, 5 };
+  size_t sz = sizeof(vals)/sizeof(value_type);
+
+  view v1;
+  edm::fill_from_range(vals, vals+sz, v1);
+
+  const_reverse_iterator i = v1.rbegin();
+  CPPUNIT_ASSERT( *i == 5 );
+  ++i;
+  CPPUNIT_ASSERT( *i == 4 );  
+}

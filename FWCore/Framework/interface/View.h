@@ -14,12 +14,13 @@ Description: Provide access to any EDProduct that is a sequence.
 //
 // Original Author:  
 //         Created:  Mon Dec 18 09:48:30 CST 2006
-// $Id$
+// $Id: View.h,v 1.1 2006/12/20 22:54:11 paterno Exp $
 //
 
 #include <algorithm>
 #include <vector>
 
+#include "boost/iterator/indirect_iterator.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -38,12 +39,12 @@ namespace edm
 
     typedef T          value_type;
 
-    typedef typename seq_t::const_iterator const_iterator; // FIXME
+    typedef boost::indirect_iterator<typename seq_t::const_iterator> const_iterator;
 
     typedef typename seq_t::size_type size_type;
     typedef typename seq_t::difference_type difference_type;
 
-    typedef typename seq_t::const_reverse_iterator const_reverse_iterator; // FIXME
+    typedef boost::indirect_iterator<typename seq_t::const_reverse_iterator>  const_reverse_iterator;
 
     // Compiler-generated default c'tor, copy, assignment, and d'tor
     // each does the right thing.
