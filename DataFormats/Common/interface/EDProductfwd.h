@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: EDProductfwd.h,v 1.4 2006/07/07 19:42:34 paterno Exp $
+$Id: EDProductfwd.h,v 1.5 2006/12/05 23:56:17 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -20,6 +20,8 @@ namespace edm
   class EDProductGetter;
   class ProductID;
   class RefCore;
+  class Timestamp;
+  class EventID;
 
   struct BranchDescription;
   struct ModuleDescription;
