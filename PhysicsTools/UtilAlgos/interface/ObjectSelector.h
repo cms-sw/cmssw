@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.10 $
+ * \version $Revision: 1.11 $
  *
- * $Id: ObjectSelector.h,v 1.10 2006/12/07 13:05:03 llista Exp $
+ * $Id: ObjectSelector.h,v 1.11 2006/12/12 10:18:15 llista Exp $
  *
  */
 
@@ -105,7 +105,7 @@ private:
     M manager;
     selector_.select( source, evt );
     manager.cloneAndStore( selector_.begin(), selector_.end(), evt );
-    bool result = ( filter_ && sizeSelector_( manager.size() ) );
+    bool result = ( ! filter_ || sizeSelector_( manager.size() ) );
     edm::OrphanHandle<typename M::collection> filtered = manager.put( evt );
     postProcessor_.process( filtered, evt );
     return result;
