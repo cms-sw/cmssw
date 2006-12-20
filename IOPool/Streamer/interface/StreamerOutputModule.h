@@ -1,6 +1,8 @@
 #ifndef StreamerOutputModule_h_
 #define StreamerOutputModule_h_
 
+// $Id:$
+
 #include "IOPool/Streamer/interface/Utilities.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -151,7 +153,7 @@ StreamerOutputModule<Consumer>::StreamerOutputModule(edm::ParameterSet const& ps
   c_(new Consumer(ps)),   //Try auto_ptr with this ?
   translator_(new StreamTranslator(selections_)),
   hltsize_(0),
-  lumi_(2), //a dummy value of 2.
+  lumi_(0), 
   l1bit_(0),
   hltbits_(0),
   reserved_(0) // no compression as default value - we need this!
@@ -300,8 +302,6 @@ template <class Consumer>
     double timeInSec = (double) now.tv_sec + ((double) now.tv_usec / 1000000.0) - timeInSecSinceUTC;
     // what about overflows?
     if(lumiSectionInterval_ > 0) lumi_ = (uint32)(timeInSec/lumiSectionInterval_);
-    
-    std::cout << " \n call StreamerOutputModule<Consumer>::setLumiSection() --- lumi = " << lumi_ << std::endl;
   }
 
 
