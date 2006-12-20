@@ -16,7 +16,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: LuminosityBlock.h,v 1.4 2006/11/04 22:34:47 wmtan Exp $
+$Id: LuminosityBlock.h,v 1.5 2006/12/07 23:48:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -55,6 +55,7 @@ namespace edm {
     using DataViewImpl::getManyByType;
     using DataViewImpl::getProvenance;
     using DataViewImpl::getRefBeforePut;
+    using DataViewImpl::processHistory;
     using DataViewImpl::put;
 
     Run const&
