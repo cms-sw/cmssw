@@ -1,4 +1,4 @@
-#include "InitRootHandlers.h"
+#include "FWCore/Services/src/InitRootHandlers.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
