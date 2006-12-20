@@ -1,5 +1,6 @@
 <use name=boost>
 <use name=sigcpp>
+<use name=rootrflx>
 <use name=DataFormats/Common>
 <use name=FileCatalog>
 <use name=FWCore/ParameterSet>
@@ -10,6 +11,7 @@
  <lib name=FWCoreFramework>
  <use name=boost>
  <use name=sigcpp>
+<use name=rootrflx>
  <use name=DataFormats/Common>
  <use name=FileCatalog>
  <use name=FWCore/ParameterSet>
