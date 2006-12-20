@@ -1,8 +1,8 @@
-#ifndef L1CSCTrackFinder_CSCConstants_h
-#define L1CSCTrackFinder_CSCConstants_h
+#ifndef L1CSCTrackFinder_CSCTFConstants_h
+#define L1CSCTrackFinder_CSCTFConstants_h
 
 /**
- * \class CSCConstants
+ * \class CSCTFConstants
  * \remark Port of ChamberConstants from ORCA
  *
  * Static interface to basic chamber constants.
@@ -10,7 +10,7 @@
 #include <DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h>
 #include <cmath>
 
-class CSCConstants
+class CSCTFConstants
 {
  public:
   enum WG_and_Strip { MAX_NUM_WIRES = 119, MAX_NUM_STRIPS = 80,
@@ -24,7 +24,7 @@ class CSCConstants
 
   enum Digis_Info { MAX_DIGIS_PER_ALCT = 10, MAX_DIGIS_PER_CLCT = 8 };
 
-  enum eta_into { etaBins = 1<<CSCBitWidths::kGlobalEtaBitWidth };
+  enum eta_info { etaBins = 1<<CSCBitWidths::kGlobalEtaBitWidth };
 
   enum MPC_stubs { maxStubs = 3 };
 

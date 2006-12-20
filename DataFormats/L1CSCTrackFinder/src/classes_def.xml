@@ -5,7 +5,7 @@
 
    <class name="csc::L1TrackId"/>
 
-   <class name="CSCTrackStub">
+   <class name="csctf::TrackStub">
      <field name="thePhiBinning" transient="true"/>
      <field name="theEtaBinning" transient="true"/>
    </class>
@@ -13,8 +13,8 @@
    <class name="std::vector<csc::L1Track>"/>
    <class name="std::vector<csc::L1TrackId>"/>
    <class name="std::pair<csc::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> >"/>
-   <class name="std::vector<CSCTrackStub>"/>
-   <class name="CSCTriggerContainer<CSCTrackStub>"/>
+   <class name="std::vector<csctf::TrackStub>"/>
+   <class name="CSCTriggerContainer<csctf::TrackStub>"/>
 
    <class name="std::vector<std::pair<csc::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> > >"/>
 
@@ -24,6 +24,6 @@
    <class name="edm::Wrapper<std::vector<std::pair<csc::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> > > >"
             id="608223FE-4B97-5638-1E14-4B20A252615E"/>
 
-   <class name="edm::Wrapper<CSCTriggerContainer<CSCTrackStub> >" 
-            id="9FE34193-211D-1FF1-B6BB-CE52b2CD210D"/>
+   <class name="edm::Wrapper<CSCTriggerContainer<csctf::TrackStub> >" 
+            id="F2DA545D-C224-2D48-4DEC-598E9C809409"/>
 </lcgdict>

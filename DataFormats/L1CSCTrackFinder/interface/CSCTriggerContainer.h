@@ -43,7 +43,7 @@ class CSCTriggerContainer
 
   void push_back(const T data) { _objs.push_back(data); }
   void push_many(const std::vector<T> data) { _objs.insert(_objs.end(), data.begin(), data.end()); }
-  void push_many(const CSCTriggerContainer<T> data) { _objs.insert(_objs.end(), data.get().begin(), data.get().end()); }
+  void push_many(const CSCTriggerContainer<T> data) { std::vector<T> vec = data.get(); _objs.insert(_objs.end(), vec.begin(), vec.end()); }
   void clear() { _objs.clear(); } 
 
  private:

@@ -4,5 +4,6 @@
 <export>
  <lib name=DataFormatsL1CSCTrackFinder>
  <use name=DataFormats/L1GlobalMuonTrigger>
+ <use name=DataFormats/MuonDetId>
  <use name=DataFormats/CSCDigi>
 </export>
