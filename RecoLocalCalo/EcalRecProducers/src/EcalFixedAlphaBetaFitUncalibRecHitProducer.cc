@@ -108,7 +108,7 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
      //     std::cerr << "Error! can't get the product for EB: " << EBdigiCollection_.c_str() << std::endl;
    }
    try {//Endcap
-     evt.getByLabel( EEdigiCollection_, pEBDigis);
+     evt.getByLabel( EEdigiCollection_, pEEDigis);
      //     evt.getByLabel( digiProducer_, pEEDigis);
      EEdigis = pEEDigis.product(); // get a ptr to the EE product
      edm::LogInfo("EcalUncalibRecHitInfo") << "total # EEdigis: " << EEdigis->size() ;
