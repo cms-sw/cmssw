@@ -7,7 +7,7 @@
 
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCTrackStub.h>
+#include <DataFormats/L1CSCTrackFinder/interface/TrackStub.h>
 
 class CSCTFDTReceiver
 {
@@ -17,10 +17,10 @@ class CSCTFDTReceiver
   ~CSCTFDTReceiver() {}
 
   // Takes input DT Sector Collector stubs and translates them into CSC coordinates.
-  CSCTriggerContainer<CSCTrackStub> process(const L1MuDTChambPhContainer*);
+  CSCTriggerContainer<csctf::TrackStub> process(const L1MuDTChambPhContainer*);
   
 
  private:
-  CSCTriggerContainer<CSCTrackStub> dtstubs;
+  CSCTriggerContainer<csctf::TrackStub> dtstubs;
 
 };

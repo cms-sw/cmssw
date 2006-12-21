@@ -3,10 +3,11 @@
 #include <L1Trigger/DTUtilities/interface/DTConfig.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCConstants.h>
+#include <DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h>
+#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 
-CSCTriggerContainer<CSCTrackStub> CSCTFDTReceiver::process(const L1MuDTChambPhContainer* dttrig)
+CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChambPhContainer* dttrig)
 {
   dtstubs.clear();
 
@@ -21,7 +22,7 @@ CSCTriggerContainer<CSCTrackStub> CSCTFDTReceiver::process(const L1MuDTChambPhCo
 	{
 	  int wheel = (e == 1) ? 2 : -2;
 	  int sector = 2*s - 1;
-	  int csc_bx = bx - dt_centralBX + CSCConstants::TIME_OFFSET;
+	  int csc_bx = bx - dt_centralBX + CSCConstants::TIME_OFFSET +4; // the + 4 is from observation
 	  
 	  // combine two 30 degree DT sectors into a 60 degree CSC
 	  // sector.
@@ -37,22 +38,15 @@ CSCTriggerContainer<CSCTrackStub> CSCTFDTReceiver::process(const L1MuDTChambPhCo
 		  if(dtts[stub])
 		    {
 		      // Convert stubs to CSC format (signed -> unsigned)
-		      // phi was 12 bits (signed) for pi radians = 57.3 deg
-		      // relative to center of 30 degree DT sector
-		      double tmp = static_cast<const double> (dtts[stub]->phi()) /
-			                                      DTConfig::RESOLPSIR * 180./M_PI + 15.;
+		      int phi = dtts[stub]->phi();
+		      phi += 614; // move DTphi lower bound to zero.
+		      if(is > sector) phi += 2218; //make [-30,30] -> [0,60]
+		      phi = ((double)phi) * 3232./3640.; // scale DT binning to CSC binning.
 
-		      int phi = static_cast<int> (tmp/60. * (1<<(CSCBitWidths::kGlobalPhiDataBitWidth)));
-		      if (is>sector) phi = phi + (1<<(CSCBitWidths::kGlobalPhiDataBitWidth - 1));
+		      phi += 491; // match up DT sector boundary inside of CSC sector
 
 		      // DT chambers may lie outside CSC sector boundary
 		      // Eventually we need to extend CSC phi definition
-		      phi = (phi>0) ? phi : 0;
-		      phi = (phi<(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))) ? phi : 
-			(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))-1;
-
-		      // account for slope in DT/CSC comparison
-		      phi = static_cast<int>(phi*(1.-40./4096.)) + 25;
 		      phi = (phi>0) ? phi : 0;
 		      phi = (phi<(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))) ? phi : 
 			(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))-1;
@@ -66,7 +60,7 @@ CSCTriggerContainer<CSCTrackStub> CSCTFDTReceiver::process(const L1MuDTChambPhCo
 		        
 		      CSCCorrelatedLCTDigi dtinfo(stub+1,1, qual, 0, 0, 0, phib, csc_bx, (stub+1) + 2*stub);
 		      DTChamberId dtid(wheel,1,is);
-		      CSCTrackStub tsCSC(dtinfo,dtid, phi, 0);
+		      csctf::TrackStub tsCSC(dtinfo,dtid, phi, 0);
 
 		      dtstubs.push_back(tsCSC);
 		    }

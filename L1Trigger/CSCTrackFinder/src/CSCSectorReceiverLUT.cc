@@ -3,7 +3,8 @@
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeomManager.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCFrontRearLUT.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCBitWidths.h>
+#include <DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h>
+#include <DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
@@ -242,11 +243,11 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
   int cscid = address.cscid;
   unsigned wire_group = address.wire_group;
   unsigned local_phi = address.phi_local;
-  const double sectorOffset = (CSCConstants::SECTOR1_CENT_RAD-CSCConstants::SECTOR_RAD/2.) + (_sector-1)*M_PI/3.;
+  const double sectorOffset = (CSCTFConstants::SECTOR1_CENT_RAD-CSCTFConstants::SECTOR_RAD/2.) + (_sector-1)*M_PI/3.;
   
   //Number of global phi units per radian.
   int    maxPhiG = 1<<CSCBitWidths::kGlobalPhiDataBitWidth;
-  double binPhiG = static_cast<double>(maxPhiG)/CSCConstants::SECTOR_RAD;
+  double binPhiG = static_cast<double>(maxPhiG)/CSCTFConstants::SECTOR_RAD;
 
   // We will use chamberWidth to convert the local phi into radians.
   int maxPhiL = 1<<CSCBitWidths::kLocalPhiDataBitWidth;
@@ -276,8 +277,8 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
       thechamber = thegeom->chamber(_endcap,_station,_sector,_subsector,cscid);
       if(thechamber)
 	{
-	  layergeom = const_cast<CSCLayerGeometry*>(thechamber->layer(4)->geometry());
-	  thelayer = const_cast<CSCLayer*>(thechamber->layer(4));
+	  layergeom = const_cast<CSCLayerGeometry*>(thechamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry());
+	  thelayer = const_cast<CSCLayer*>(thechamber->layer(CSCConstants::KEY_CLCT_LAYER));
 	  const int nStrips = layergeom->numberOfStrips();
 	  // PhiL is the strip number converted into some units between 0 and
 	  // 1023.  When we did the conversion in fillLocalPhiTable(), we did
@@ -541,7 +542,7 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
       const CSCChamber* thechamber = thegeom->chamber(_endcap,_station,_sector,_subsector,cscid);     
       if(thechamber) 
 	{
-	  layerGeom = const_cast<CSCLayerGeometry*>(thechamber->layer(4)->geometry());
+	  layerGeom = const_cast<CSCLayerGeometry*>(thechamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry());
 	  const unsigned nWireGroups = layerGeom->numberOfWireGroups();
 
 	  if(wire_group > nWireGroups) // place a maximum limit on the wire group
@@ -554,7 +555,7 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
 
 	  if(_station != 1 && CSCTriggerNumbering::ringFromTriggerLabels(_station, cscid) != 1)
 	    {
-	      result = thechamber->layer(4)->centerOfWireGroup(wire_group).eta();
+	      result = thechamber->layer(CSCConstants::KEY_CLCT_LAYER)->centerOfWireGroup(wire_group).eta();
 	    }
 	  else
 	    {	      
@@ -596,7 +597,7 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
 		}
 	      
 	      lPoint = layerGeom->stripWireGroupIntersection(correctionStrip, wire_group);
-	      if(thechamber) gPoint = thechamber->layer(4)->surface().toGlobal(lPoint);
+	      if(thechamber) gPoint = thechamber->layer(CSCConstants::KEY_CLCT_LAYER)->surface().toGlobal(lPoint);
 	      
 	      // end calc of eta correction.
 	      result = gPoint.eta();
@@ -618,25 +619,25 @@ gbletadat CSCSectorReceiverLUT::calcGlobalEtaME(const gbletaadd& address) const
   double float_eta = getGlobalEtaValue(address.cscid, address.wire_group, address.phi_local);
   unsigned int_eta = 0;
   unsigned bend_global = 0; // not filled yet... will change when it is.
-  const double etaPerBin = (CSCConstants::maxEta - CSCConstants::minEta)/CSCConstants::etaBins;
+  const double etaPerBin = (CSCTFConstants::maxEta - CSCTFConstants::minEta)/CSCTFConstants::etaBins;
   const unsigned me12EtaCut = 56;
     
-  if ((float_eta < CSCConstants::minEta) || (float_eta >= CSCConstants::maxEta)) 
+  if ((float_eta < CSCTFConstants::minEta) || (float_eta >= CSCTFConstants::maxEta)) 
     {
       
       LogDebug("CSCSectorReceiverLUT:OutOfBounds") << "L1MuCSCSectorReceiverLUT warning: float_eta = " << float_eta
-						   << " minEta = " << CSCConstants::minEta << " maxEta = " << CSCConstants::maxEta
+						   << " minEta = " << CSCTFConstants::minEta << " maxEta = " << CSCTFConstants::maxEta
 						   << "   station " << _station << " sector " << _sector
 						   << " chamber "   << address.cscid << " wire group " << address.wire_group;
       
-      if (float_eta < CSCConstants::minEta) 
+      if (float_eta < CSCTFConstants::minEta) 
 	result.global_eta = 0;
-      else if (float_eta >= CSCConstants::maxEta) 
-	result.global_eta = CSCConstants::etaBins - 1;
+      else if (float_eta >= CSCTFConstants::maxEta) 
+	result.global_eta = CSCTFConstants::etaBins - 1;
     }
   else
     {  
-      float_eta -= CSCConstants::minEta;
+      float_eta -= CSCTFConstants::minEta;
       float_eta = float_eta/etaPerBin;
       int_eta = static_cast<unsigned>(float_eta);
       /* Commented until I find out its use.

@@ -1,6 +1,5 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFSPCoreLogic.h>
 #include <L1Trigger/CSCTrackFinder/src/SPvpp.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCConstants.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 #include <L1Trigger/CSCTrackFinder/src/spbits.h>
@@ -12,7 +11,7 @@ SPvpp CSCTFSPCoreLogic::sp_;
 
 
 // takes a trigger container and loads the first n bx of data into io_ 
-void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<CSCTrackStub>& theStubs, 
+void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<csctf::TrackStub>& theStubs, 
 				const unsigned& endcap, const unsigned& sector, 
 				const int& minBX, const int& maxBX)
 {
@@ -25,18 +24,19 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<CSCTrackStub>& theStub
     {
       for(int st = CSCDetId::minStationId(); st <= CSCDetId::maxStationId(); ++st)
 	{
-	  std::vector<CSCTrackStub> stub_list;
-	  std::vector<CSCTrackStub>::const_iterator stubi;
+	  std::vector<csctf::TrackStub> stub_list;
+	  std::vector<csctf::TrackStub>::const_iterator stubi;
 	  if(st == 1)
 	    {
 	      stub_list = theStubs.get(endcap, st, sector, 1, bx);
-	      std::vector<CSCTrackStub> stub_list2 = theStubs.get(endcap, st, sector, 2, bx);
+	      std::vector<csctf::TrackStub> stub_list2 = theStubs.get(endcap, st, sector, 2, bx);
 	      stub_list.insert(stub_list.end(), stub_list2.begin(), stub_list2.end());
 	    }
 	  else stub_list = theStubs.get(endcap, st, sector, 0, bx);
 	  
 	  for(stubi = stub_list.begin(); stubi != stub_list.end(); stubi++)
 	    {
+	      std::cout << stubi->phiPacked() << std::endl;
 	      runme |= stubi->isValid();
 	      switch(st)
 		{
@@ -222,8 +222,9 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<CSCTrackStub>& theStub
 		      edm::LogWarning("CSCTFSPCoreLogic::loadData()") <<  "SERIOUS ERROR: DT LINK " << stubi->getMPCLink()
 								      << " NOT IN RANGE [1,4]\n";
 		    }
+		  break;
 		default:
-		  edm::LogWarning("CSCTFSPCoreLogic::loadData()") << "SERIOUS ERROR: STATION " << st << " NOT IN RANGE [1,5]\n";
+		  edm::LogWarning("CSCTFSPCoreLogic::loadData()") << "SERIOUS ERROR: STATION  " << st << " NOT IN RANGE [1,5]\n";
 		};
 	    }
 	}

@@ -4,7 +4,7 @@
 #include <vector>
 #include <DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCTrackStub.h>
+#include <DataFormats/L1CSCTrackFinder/interface/TrackStub.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
 #include <L1Trigger/CSCTrackFinder/src/CSCTFDTReceiver.h>
@@ -25,7 +25,7 @@ class CSCTFTrackBuilder
   ~CSCTFTrackBuilder();
 
   void buildTracks(const CSCCorrelatedLCTDigiCollection*, const L1MuDTChambPhContainer*, 
-		   L1CSCTrackCollection*, CSCTriggerContainer<CSCTrackStub>*);
+		   L1CSCTrackCollection*, CSCTriggerContainer<csctf::TrackStub>*);
   
  private:
 

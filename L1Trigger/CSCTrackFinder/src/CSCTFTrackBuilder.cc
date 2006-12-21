@@ -40,10 +40,10 @@ CSCTFTrackBuilder::~CSCTFTrackBuilder()
 }
 
 void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, const L1MuDTChambPhContainer* dttrig,
-				    L1CSCTrackCollection* trkcoll, CSCTriggerContainer<CSCTrackStub>* stubs_to_dt)
+				    L1CSCTrackCollection* trkcoll, CSCTriggerContainer<csctf::TrackStub>* stubs_to_dt)
 {
   std::vector<csc::L1Track> trks;
-  CSCTriggerContainer<CSCTrackStub> stub_list;
+  CSCTriggerContainer<csctf::TrackStub> stub_list;
 
   CSCCorrelatedLCTDigiCollection::DigiRangeIterator Citer;
 
@@ -54,7 +54,7 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
 
       for(; Diter != Dend; Diter++)
 	{
-	  CSCTrackStub theStub((*Diter),(*Citer).first);
+	  csctf::TrackStub theStub((*Diter),(*Citer).first);
 	  stub_list.push_back(theStub);	  
 	}     
     }   
@@ -70,7 +70,7 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
       for(int s = CSCTriggerNumbering::minTriggerSectorId(); 
 	  s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s)
 	{
-	  CSCTriggerContainer<CSCTrackStub> current_e_s = stub_list.get(e, s);
+	  CSCTriggerContainer<csctf::TrackStub> current_e_s = stub_list.get(e, s);
 	  if(my_SPs[e-1][s-1]->run(current_e_s))
 	    {
 	      std::vector<csc::L1Track> theTracks = my_SPs[e-1][s-1]->tracks().get();	      
@@ -89,8 +89,8 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
     {      
       tcitr->first = (*titr);
 
-      std::vector<CSCTrackStub> possible_stubs = stub_list.get(titr->endcap(), titr->sector());
-      std::vector<CSCTrackStub>::const_iterator tkstbs = possible_stubs.begin();
+      std::vector<csctf::TrackStub> possible_stubs = stub_list.get(titr->endcap(), titr->sector());
+      std::vector<csctf::TrackStub>::const_iterator tkstbs = possible_stubs.begin();
 
       int me1ID = titr->me1ID();
       int me2ID = titr->me2ID();
@@ -129,10 +129,12 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
               break;
 	    case 5:
 	      if(tkstbs->getMPCLink() == mb1ID && mb1ID != 0)
-	      /// Hmmm how should I implement this??? Maybe change the L1Track to use stubs not LCTs?
+	      {
+		/// Hmmm how should I implement this??? Maybe change the L1Track to use stubs not LCTs?
+	      }
 	      break;
 	    default:
-	      edm::LogWarning("CSCTFSectorProcessor::run()") << "SERIOUS ERROR: STATION" << tkstbs->station() << "NOT IN RANGE [1,4]\n";
+	      edm::LogWarning("CSCTFTrackBuilder::buildTracks()") << "SERIOUS ERROR: STATION " << tkstbs->station() << " NOT IN RANGE [1,5]\n";
             };
 	}
       tcitr++; // increment to next track in the collection

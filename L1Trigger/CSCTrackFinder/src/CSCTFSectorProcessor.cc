@@ -66,7 +66,7 @@ CSCTFSectorProcessor::~CSCTFSectorProcessor()
   ptLUT_ = NULL;  
 }
 
-bool CSCTFSectorProcessor::run(const CSCTriggerContainer<CSCTrackStub>& stubs)
+bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs)
 {
   l1_tracks.clear();
   dt_stubs.clear();
@@ -79,9 +79,9 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<CSCTrackStub>& stubs)
    *  After this we append the stubs gained from the DT system.
    */
     
-  std::vector<CSCTrackStub> stub_vec = stubs.get();
-  std::vector<CSCTrackStub>::iterator itr = stub_vec.begin();
-  std::vector<CSCTrackStub>::const_iterator end = stub_vec.end();
+  std::vector<csctf::TrackStub> stub_vec = stubs.get();
+  std::vector<csctf::TrackStub>::iterator itr = stub_vec.begin();
+  std::vector<csctf::TrackStub>::const_iterator end = stub_vec.end();
 
   for(; itr != end; itr++)
     {
@@ -101,7 +101,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<CSCTrackStub>& stubs)
 	}
     }
 
-  CSCTriggerContainer<CSCTrackStub> processedStubs(stub_vec);
+  CSCTriggerContainer<csctf::TrackStub> processedStubs(stub_vec);
 
   //Add stubs to be sent to DTTF.
   for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
