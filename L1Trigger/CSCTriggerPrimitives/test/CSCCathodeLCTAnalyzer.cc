@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2006/11/10 15:53:28 $
- * $Revision: 1.3 $
+ * $Date: 2006/11/30 03:30:50 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -15,7 +15,7 @@
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/CSCGeometry/src/RadialStripTopology.h>
 
-#include <DataFormats/L1CSCTrackFinder/interface/CSCConstants.h>
+#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h>
 #include <L1Trigger/CSCTriggerPrimitives/test/CSCCathodeLCTAnalyzer.h>
 
@@ -77,6 +77,7 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
 
   // Parameters defining time window for accepting hits; should come from
   // configuration file eventually.
+  const int fifo_tbins  = 16;
   const int bx_width    = 6;
   const int drift_delay = 2;
 
@@ -136,13 +137,7 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
 
       if ((*digiIt).getComparator() == 0 || (*digiIt).getComparator() == 1) {
 	int bx_time = (*digiIt).getTimeBin();
-	bx_time -= 9; // temp hack
-	if (bx_time >= CSCConstants::MIN_BUNCH &&
-	    bx_time <= CSCConstants::MAX_BUNCH) {
-
-	  // Shift all times of interest by TIME_OFFSET, so that they will
-	  // be non-negative.
-	  bx_time += CSCConstants::TIME_OFFSET;
+	if (bx_time >= 0 && bx_time < fifo_tbins) {
 
 	  // Do not use digis which could not have contributed to a given CLCT.
 	  int latch_bx = clct_bx + drift_delay;
@@ -316,7 +311,7 @@ int CSCCathodeLCTAnalyzer::nearestHS(
 
   vector<CSCCathodeLayerInfo>::const_iterator pli;
   for (pli = allLayerInfo.begin(); pli != allLayerInfo.end(); pli++) {
-    if (pli->getId().layer() == CSCConstants::KEY_LAYER) {
+    if (pli->getId().layer() == CSCConstants::KEY_CLCT_LAYER) {
       vector<PSimHit> thisLayerHits = pli->getSimHits();
       if (thisLayerHits.size() > 0) {
 	// There can be one RecDigi (and therefore only one SimHit)
@@ -324,7 +319,7 @@ int CSCCathodeLCTAnalyzer::nearestHS(
 	if (thisLayerHits.size() != 1) {
 	  edm::LogWarning("nearestWG")
 	    << "+++ Warning: " << thisLayerHits.size()
-	    << " SimHits in key layer " << CSCConstants::KEY_LAYER
+	    << " SimHits in key layer " << CSCConstants::KEY_CLCT_LAYER
 	    << "! +++ \n";
 	  for (unsigned i = 0; i < thisLayerHits.size(); i++) {
 	    edm::LogWarning("nearestWG")
