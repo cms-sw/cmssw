@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/12/20 15:43:05 $
- * $Revision: 1.59 $
+ * $Date: 2006/12/20 17:32:37 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  *
 */
@@ -583,9 +583,13 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
   Handle<EcalPnDiodeDigiCollection> pns;
   e.getByLabel("ecalEBunpacker", pns);
 
-  float adc[36];
+  float adcA[36];
+  float adcB[36];
 
-  for ( int i = 0; i < 36; i++ ) adc[i] = 0.;
+  for ( int i = 0; i < 36; i++ ) {
+    adcA[i] = 0.;
+    adcB[i] = 0.;
+  }
 
   int nep = pns->size();
   LogDebug("EBLaserTask") << "event " << ievt_ << " pns collection size " << nep;
@@ -669,7 +673,8 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
     if ( mePN ) mePN->Fill(0.5, num - 0.5, xvalmax);
 
-    if ( num == 1 ) adc[ism-1] = xvalmax;
+    if ( num == 1 ) adcA[ism-1] = xvalmax;
+    if ( num == 5 ) adcB[ism-1] = xvalmax;
 
   }
 
@@ -763,7 +768,16 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
     if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
 
     float wval = 0.;
-    if ( adc[ism-1] != 0. ) wval = xval / adc[ism-1];
+
+    if ( ie < 10 || ip > 10 ) {
+
+      if ( adcA[ism-1] != 0. ) wval = xval / adcA[ism-1];
+
+    } else {
+
+      if ( adcB[ism-1] != 0. ) wval = xval / adcB[ism-1];
+
+    }
 
     LogDebug("EBLaserTask") << " hit amplitude over PN " << wval;
 
