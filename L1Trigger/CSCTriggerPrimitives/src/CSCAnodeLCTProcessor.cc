@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/11/13 10:56:16 $
-//   $Revision: 1.10 $
+//   $Date: 2006/11/20 11:47:39 $
+//   $Revision: 1.11 $
 //
 //   Modifications: 
 //
@@ -140,18 +140,75 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   static bool config_dumped = false;
 
   // ALCT configuration parameters.
-  fifo_tbins   = conf.getParameter<int>("alctFifoTbins");   // def = 16
-  fifo_pretrig = conf.getParameter<int>("alctFifoPretrig"); // def = 16
-  bx_width     = conf.getParameter<int>("alctBxWidth");     // def = 6
-  drift_delay  = conf.getParameter<int>("alctDriftDelay");  // def = 3
-  nph_thresh   = conf.getParameter<int>("alctNphThresh");   // def = 2
-  nph_pattern  = conf.getParameter<int>("alctNphPattern");  // def = 4
-  trig_mode    = conf.getParameter<int>("alctTrigMode"); // def = 3 (2 for TB)
-  alct_amode   = conf.getParameter<int>("alctMode");        // def = 1
-  l1a_window   = conf.getParameter<int>("alctL1aWindow");   // def = 5
+  static const unsigned int max_fifo_tbins   = 1 << 5;
+  static const unsigned int max_fifo_pretrig = 1 << 5;
+  static const unsigned int max_bx_width     = 1 << 5;
+  static const unsigned int max_drift_delay  = 1 << 2;
+  static const unsigned int max_nph_thresh   = 1 << 3;
+  static const unsigned int max_nph_pattern  = 1 << 3;
+  static const unsigned int max_trig_mode    = 1 << 2;
+  static const unsigned int max_alct_amode   = 1 << 2;
+  static const unsigned int max_l1a_window   = 1 << 4;
+
+  fifo_tbins   = conf.getParameter<unsigned int>("alctFifoTbins");  // def = 16
+  fifo_pretrig = conf.getParameter<unsigned int>("alctFifoPretrig");// def = 16
+  bx_width     = conf.getParameter<unsigned int>("alctBxWidth");    // def = 6
+  drift_delay  = conf.getParameter<unsigned int>("alctDriftDelay"); // def = 3
+  nph_thresh   = conf.getParameter<unsigned int>("alctNphThresh");  // def = 2
+  nph_pattern  = conf.getParameter<unsigned int>("alctNphPattern"); // def = 4
+  trig_mode    = conf.getParameter<unsigned int>("alctTrigMode");   // def = 3
+  alct_amode   = conf.getParameter<unsigned int>("alctMode");       // def = 1
+  l1a_window   = conf.getParameter<unsigned int>("alctL1aWindow");  // def = 5
 
   // Verbosity level, set to 0 (no print) by default.
   infoV        = conf.getUntrackedParameter<int>("verbosity", 0);
+
+  // Make sure that the parameter values are within the allowed range.
+  if (fifo_tbins >= max_fifo_tbins) {
+    throw cms::Exception("CSCAnodeLCTProcessor")
+      << "+++ Value of fifo_tbins, " << fifo_tbins
+      << ", exceeds max allowed, " << max_fifo_tbins-1 << " +++\n";
+  }
+  if (fifo_pretrig >= max_fifo_pretrig) {
+    throw cms::Exception("CSCAnodeLCTProcessor")
+      << "+++ Value of fifo_pretrig, " << fifo_pretrig
+      << ", exceeds max allowed, " << max_fifo_pretrig-1 << " +++\n";
+  }
+  if (bx_width >= max_bx_width) {
+    throw cms::Exception("CSCAnodeLCTProcessor")
+      << "+++ Value of bx_width, " << bx_width
+      << ", exceeds max allowed, " << max_bx_width-1 << " +++\n";
+  }
+  if (drift_delay >= max_drift_delay) {
+    throw cms::Exception("CSCAnodeLCTProcessor")
+      << "+++ Value of drift_delay, " << drift_delay
+      << ", exceeds max allowed, " << max_drift_delay-1 << " +++\n";
+  }
+  if (nph_thresh >= max_nph_thresh) {
+    throw cms::Exception("CSCAnodeLCTProcessor")
+      << "+++ Value of nph_thresh, " << nph_thresh
+      << ", exceeds max allowed, " << max_nph_thresh-1 << " +++\n";
+  }
+  if (nph_pattern >= max_nph_pattern) {
+    throw cms::Exception("CSCAnodeLCTProcessor")
+      << "+++ Value of nph_pattern, " << nph_pattern
+      << ", exceeds max allowed, " << max_nph_pattern-1 << " +++\n";
+  }
+  if (trig_mode >= max_trig_mode) {
+    throw cms::Exception("CSCAnodeLCTProcessor")
+      << "+++ Value of trig_mode, " << trig_mode
+      << ", exceeds max allowed, " << max_trig_mode-1 << " +++\n";
+  }
+  if (alct_amode >= max_alct_amode) {
+    throw cms::Exception("CSCAnodeLCTProcessor")
+      << "+++ Value of alct_amode, " << alct_amode
+      << ", exceeds max allowed, " << max_alct_amode-1 << " +++\n";
+  }
+  if (l1a_window >= max_l1a_window) {
+    throw cms::Exception("CSCAnodeLCTProcessor")
+      << "+++ Value of l1a_window, " << l1a_window
+      << ", exceeds max allowed, " << max_l1a_window-1 << " +++\n";
+  }
 
   // Print configuration parameters.
   if (infoV > 0 && !config_dumped) {
@@ -347,7 +404,7 @@ void CSCAnodeLCTProcessor::readWireDigis(int wire[CSCConstants::NUM_LAYERS][CSCC
       // L1Accept.  If times earlier than L1Accept were recorded, we
       // use them since they can modify the ALCTs found later, via
       // ghost-cancellation logic.
-      if (bx_time >= 0 && bx_time < fifo_tbins) {
+      if (bx_time >= 0 && bx_time < static_cast<int>(fifo_tbins)) {
 	if (infoV > 2) LogDebug("CSCAnodeLCTProcessor")
 	  << "Digi on layer " << i_layer << " wire " << i_wire
 	  << " at time " << bx_time;
@@ -376,7 +433,7 @@ bool CSCAnodeLCTProcessor::pulseExtension(const int wire[CSCConstants::NUM_LAYER
 
   bool chamber_empty = true;
   int i_wire, i_layer, digi_num;
-  static int bits_in_pulse = 8*sizeof(pulse[0][0]);
+  static unsigned int bits_in_pulse = 8*sizeof(pulse[0][0]);
 
   for (i_wire = 0; i_wire < numWireGroups; i_wire++) {
     for (i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
@@ -406,7 +463,7 @@ bool CSCAnodeLCTProcessor::pulseExtension(const int wire[CSCConstants::NUM_LAYER
 	if (chamber_empty) chamber_empty = false;
 
 	// make the pulse
-	for (int bx = wire[i_layer][i_wire];
+	for (unsigned int bx = wire[i_layer][i_wire];
 	     bx < (wire[i_layer][i_wire] + bx_width); bx++)
 	  pulse[i_layer][i_wire] = pulse[i_layer][i_wire] | (1 << bx);
 
@@ -440,13 +497,13 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire) {
      or accelerator patterns for a particular key_wire.  If so, return
      true and the PatternDetection process will start. */
 
-  int layers_hit;
+  unsigned int layers_hit;
   bool hit_layer[CSCConstants::NUM_LAYERS];
   int this_layer, this_wire;
 
   // Loop over bx times, accelerator and collision patterns to 
   // look for pretrigger.
-  for (int bx_time = 0; bx_time < fifo_tbins; bx_time++) {
+  for (unsigned int bx_time = 0; bx_time < fifo_tbins; bx_time++) {
     for (int i_pattern = 0; i_pattern < CSCConstants::NUM_ALCT_PATTERNS; i_pattern++) {
       for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
 	hit_layer[i_layer] = false;
@@ -493,7 +550,8 @@ void CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
      the pattern with the best quality. */
 
   bool hit_layer[CSCConstants::NUM_LAYERS];
-  int this_layer, this_wire, temp_quality;
+  unsigned int temp_quality;
+  int this_layer, this_wire;
   const std::string ptn_label[] = {"Accelerator", "CollisionA", "CollisionB"};
 
   for (int i_pattern = 0; i_pattern < CSCConstants::NUM_ALCT_PATTERNS; i_pattern++){
@@ -539,7 +597,7 @@ void CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
       }
       else {
 	// Only one collision pattern (of the best quality) is reported
-	if (temp_quality > quality[key_wire][1]) {
+	if (static_cast<int>(temp_quality) > quality[key_wire][1]) {
 	  quality[key_wire][1] = temp_quality;
 	  quality[key_wire][2] = i_pattern-1;
 	}

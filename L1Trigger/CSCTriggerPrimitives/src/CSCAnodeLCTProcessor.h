@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2006/10/26 12:54:37 $
- * $Revision: 1.5 $
+ * $Date: 2006/11/30 03:30:49 $
+ * $Revision: 1.6 $
  *
  */
 
@@ -22,7 +22,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCALCTDigi.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCConstants.h>
+#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
 class CSCAnodeLCTProcessor
 {
@@ -95,9 +95,9 @@ class CSCAnodeLCTProcessor
   std::vector<int> theWireHits[CSCConstants::NUM_LAYERS];
 
   /** Configuration parameters. */
-  int fifo_tbins, fifo_pretrig, bx_width, drift_delay;
-  int nph_thresh, nph_pattern;
-  int trig_mode, alct_amode, l1a_window;
+  unsigned int fifo_tbins, fifo_pretrig, bx_width, drift_delay;
+  unsigned int nph_thresh, nph_pattern;
+  unsigned int trig_mode, alct_amode, l1a_window;
 
   /** Clears the quality for a given wire and pattern if it is a ghost. */
   void clear(const int wire, const int pattern);
