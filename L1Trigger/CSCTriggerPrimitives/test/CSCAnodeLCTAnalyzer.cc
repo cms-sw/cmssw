@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004.
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2006/11/10 15:53:28 $
- * $Revision: 1.3 $
+ * $Date: 2006/11/30 03:30:50 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -15,7 +15,7 @@
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 
-#include <DataFormats/L1CSCTrackFinder/interface/CSCConstants.h>
+#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCAnodeLCTProcessor.h>
 #include <L1Trigger/CSCTriggerPrimitives/test/CSCAnodeLCTAnalyzer.h>
 
@@ -255,8 +255,8 @@ int CSCAnodeLCTAnalyzer::nearestWG(
 
   vector<CSCAnodeLayerInfo>::const_iterator pli;
   for (pli = allLayerInfo.begin(); pli != allLayerInfo.end(); pli++) {
-    // For ALCT search, the key layer is always the 3rd one, counting from 1.
-    if (pli->getId().layer() == 3) {
+    // For ALCT search, the key layer is the 3rd one, counting from 1.
+    if (pli->getId().layer() == CSCConstants::KEY_ALCT_LAYER) {
       vector<PSimHit> thisLayerHits = pli->getSimHits();
       if (thisLayerHits.size() > 0) {
 	// There can be only one RecDigi (and therefore only one SimHit)
@@ -264,7 +264,8 @@ int CSCAnodeLCTAnalyzer::nearestWG(
 	if (thisLayerHits.size() != 1) {
 	  edm::LogWarning("nearestWG")
 	    << "+++ Warning: " << thisLayerHits.size()
-	    << " SimHits in key layer 3! +++ \n";
+	    << " SimHits in key layer " << CSCConstants::KEY_ALCT_LAYER
+	    << "! +++ \n";
 	  for (unsigned i = 0; i < thisLayerHits.size(); i++) {
 	    edm::LogWarning("nearestWG")
 	      << " SimHit # " << i << thisLayerHits[i] << "\n";
