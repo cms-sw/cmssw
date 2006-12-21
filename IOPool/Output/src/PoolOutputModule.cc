@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.55 2006/12/07 23:47:18 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.56 2006/12/19 00:29:36 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -372,41 +372,59 @@ namespace edm {
     commitAndFlushTransaction();
     om_->catalog_.commitCatalog();
     context()->session().disconnectAll();
-    setBranchAliases();
+    rootPostProcess();
     // report that file has been closed
     Service<JobReport> reportSvc;
     reportSvc->outputFileClosed(reportToken_);
   }
 
 
-  // For now, we must use root directly to set branch aliases, since there is no way to do this in POOL
+  // For now, we must use root directly to set Tree indices and branch aliases,
+  // since there is no way to do this in POOL
   // We do this after POOL has closed the file.
   void
-  PoolOutputModule::PoolFile::setBranchAliases() const {
+  PoolOutputModule::PoolFile::rootPostProcess() const {
     std::auto_ptr<TFile> pf(TFile::Open(file_.c_str(), "update"));
     TFile &f = *pf;
-    TTree *t = dynamic_cast<TTree *>(f.Get(poolNames::eventTreeName().c_str()));
-    if (t) {
-      t->BuildIndex("id_.run_", "id_.event_");
-      for (Selections::const_iterator i = om_->descVec_[InEvent].begin();
-	i != om_->descVec_[InEvent].end(); ++i) {
+    TTree *tEvent = dynamic_cast<TTree *>(f.Get(poolNames::eventTreeName().c_str()));
+    if (tEvent) {
+      tEvent->BuildIndex("id_.run_", "id_.event_");
+      setBranchAliases(tEvent, om_->descVec_[InEvent]);
+    }
+    TTree *tLumi = dynamic_cast<TTree *>(f.Get(poolNames::luminosityBlockTreeName().c_str()));
+    if (tLumi) {
+      tLumi->BuildIndex("runID_", "id_");
+      setBranchAliases(tLumi, om_->descVec_[InLumi]);
+    }
+    TTree *tRun = dynamic_cast<TTree *>(f.Get(poolNames::runTreeName().c_str()));
+    if (tRun) {
+      tRun->BuildIndex("id_");
+      setBranchAliases(tRun, om_->descVec_[InRun]);
+    }
+    f.Purge();
+    f.Close();
+  }
+  
+  void
+  PoolOutputModule::PoolFile::setBranchAliases(TTree *tree, Selections const& branches) const {
+    if (tree) {
+      for (Selections::const_iterator i = branches.begin();
+	  i != branches.end(); ++i) {
 	BranchDescription const& pd = **i;
 	std::string const& full = pd.branchName() + "obj";
 	if (pd.branchAliases().empty()) {
 	  std::string const& alias =
 	      (pd.productInstanceName().empty() ? pd.moduleLabel() : pd.productInstanceName());
-	  t->SetAlias(alias.c_str(), full.c_str());
+	  tree->SetAlias(alias.c_str(), full.c_str());
 	} else {
 	  std::set<std::string>::const_iterator it = pd.branchAliases().begin();
 	  std::set<std::string>::const_iterator itend = pd.branchAliases().end();
 	  for (; it != itend; ++it) {
-	    t->SetAlias((*it).c_str(), full.c_str());
+	    tree->SetAlias((*it).c_str(), full.c_str());
 	  }
 	}
       }
-      t->Write(t->GetName(), TObject::kWriteDelete);
+      tree->Write(tree->GetName(), TObject::kWriteDelete);
     }
-    f.Purge();
-    f.Close();
   }
 }

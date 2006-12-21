@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.16 2006/12/04 23:17:00 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.17 2006/12/19 00:29:36 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -28,6 +28,8 @@
 namespace pool {
   class IDataSvc;
 }
+
+class TTree;
 
 namespace edm {
   class OutputFileCatalog;
@@ -77,7 +79,8 @@ namespace edm {
     void startTransaction() const;
     void commitTransaction() const;
     void commitAndFlushTransaction() const;
-    void setBranchAliases() const;
+    void rootPostProcess() const;
+    void setBranchAliases(TTree *tree, Selections const& branches) const;
 
   private:
     struct OutputItem {
