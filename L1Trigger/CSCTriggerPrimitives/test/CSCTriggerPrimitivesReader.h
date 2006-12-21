@@ -8,8 +8,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2006/10/09 14:09:34 $
- * $Revision: 1.6 $
+ * $Date: 2006/10/13 13:37:01 $
+ * $Revision: 1.7 $
  *
  */
 
@@ -125,7 +125,12 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   void compareCLCTs(const CSCCLCTDigiCollection* clcts_data,
 		    const CSCCLCTDigiCollection* clcts_emul);
   void compareLCTs(const CSCCorrelatedLCTDigiCollection* lcts_data,
-		   const CSCCorrelatedLCTDigiCollection* lcts_emul);
+		   const CSCCorrelatedLCTDigiCollection* lcts_emul,
+		   const CSCALCTDigiCollection* alcts_data,
+		   const CSCCLCTDigiCollection* clcts_data);
+  int  convertBXofLCT(const int emul_bx, const CSCDetId& detid,
+		      const CSCALCTDigiCollection* alcts_data,
+		      const CSCCLCTDigiCollection* clcts_data);
   void drawCompHistos();
 
   void MCStudies(const edm::Event& ev,

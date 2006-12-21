@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2006/10/13 13:37:01 $
-//   $Revision: 1.7 $
+//   $Date: 2006/10/24 09:46:27 $
+//   $Revision: 1.8 $
 //
 //   Modifications:
 //
@@ -777,12 +777,16 @@ void CSCTriggerPrimitivesReader::compare(const edm::Event& ev) {
   // Comparisons
   compareALCTs(alcts_data.product(), alcts_emul.product());
   compareCLCTs(clcts_data.product(), clcts_emul.product());
-  compareLCTs(lcts_data.product(), lcts_emul.product());
+  compareLCTs(lcts_data.product(), lcts_emul.product(),
+	      alcts_data.product(), clcts_data.product());
 }
 
 void CSCTriggerPrimitivesReader::compareALCTs(
                                  const CSCALCTDigiCollection* alcts_data,
 				 const CSCALCTDigiCollection* alcts_emul) {
+  // (Empirical) offset between 12-bit fullBX and Tbin0 of raw anode hits.
+  const int tbin_anode_offset = 10; // why not 6???
+
   // Loop over all chambers in search for ALCTs.
   CSCALCTDigiCollection::const_iterator digiIt;
   std::vector<CSCALCTDigi>::const_iterator pd, pe;
@@ -822,11 +826,22 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 		    << " (trig id. " << detid.triggerCscId() << "):\n";
 	    strstrm << "  **** " << ndata << " valid data ALCTs found:\n";
 	    for (pd = alctV_data.begin(); pd != alctV_data.end(); pd++) {
-	      strstrm << "     " << (*pd) << "\n";
+	      strstrm << "     " << (*pd)
+		      << " Full BX = " << (*pd).getFullBX() << "\n";
 	    }
 	    strstrm << "  **** " << nemul << " valid emul ALCTs found:\n";
 	    for (pe = alctV_emul.begin(); pe != alctV_emul.end(); pe++) {
-	      strstrm << "     " << (*pe) << "\n";
+	      strstrm << "     " << (*pe);
+	      for (pd = alctV_data.begin(); pd != alctV_data.end(); pd++) {
+		if ((*pd).getTrknmb() == (*pe).getTrknmb()) {
+		  int emul_bx = (*pe).getBX();
+		  int corr_bx =
+		    ((*pd).getFullBX() + emul_bx - tbin_anode_offset) & 0x1f;
+		  strstrm << " Corr BX = " << corr_bx;
+		  break;
+		}
+	      }
+	      strstrm << "\n";
 	    }
 	    LogDebug("CSCTriggerPrimitivesReader") << strstrm.str();
 	  }
@@ -849,14 +864,8 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 	    int data_accel     = (*pd).getAccelerator();
 	    int data_collB     = (*pd).getCollisionB();
 	    int data_wiregroup = (*pd).getKeyWG();
-	    //int data_bx        = (*pd).getBX();
-
-	    // Temporary fix: shift wire group numbers in ME1/3, ME3/1,
-	    // and ME4/1 by 16.
-	    if ((stat == 1 && ring == 3) || (stat == 3 && ring == 1) ||
-		(stat == 4 && ring == 1)) {
-	      data_wiregroup -= 16;
-	    }
+	    int data_bx        = (*pd).getBX();
+	    int fullBX = (*pd).getFullBX(); // full 12-bit BX
 
 	    for (pe = alctV_emul.begin(); pe != alctV_emul.end(); pe++) {
 	      if ((*pe).isValid() == 0) continue;
@@ -865,14 +874,19 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 	      int emul_accel     = (*pe).getAccelerator();
 	      int emul_collB     = (*pe).getCollisionB();
 	      int emul_wiregroup = (*pe).getKeyWG();
-	      //int emul_bx        = (*pe).getBX();
+	      int emul_bx        = (*pe).getBX();
+
 	      if (data_trknmb == emul_trknmb) {
+		// Emulator BX re-calculated using 12-bit full BX number.
+		// Used for comparison with BX in the data.
+		int emul_corr_bx =
+		  (fullBX + emul_bx - tbin_anode_offset) & 0x1f;
 		if (ndata == nemul) hAlctCompTotalCsc[csctype]->Fill(cham);
-		// Leave out bx time for now.
-		if (data_quality   == emul_quality &&
-		    data_accel     == emul_accel &&
-		    data_collB     == emul_collB  &&
-		    data_wiregroup == emul_wiregroup) {
+		if (data_quality   == emul_quality   &&
+		    data_accel     == emul_accel     &&
+		    data_collB     == emul_collB     &&
+		    data_wiregroup == emul_wiregroup &&
+		    data_bx        == emul_corr_bx) {
 		  if (ndata == nemul) hAlctCompMatchCsc[csctype]->Fill(cham);
 		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
 		    << "        Identical ALCTs #" << data_trknmb;
@@ -881,6 +895,7 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
 		    << "        Different ALCTs #" << data_trknmb;
 		}
+		break;
 	      }
 	    }
 	  }
@@ -893,6 +908,9 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 void CSCTriggerPrimitivesReader::compareCLCTs(
                                  const CSCCLCTDigiCollection* clcts_data,
 				 const CSCCLCTDigiCollection* clcts_emul) {
+  // Number of Tbins before pre-trigger for raw cathode hits.
+  const int tbin_cathode_offset = 7;
+
   // Loop over all chambers in search for CLCTs.
   CSCCLCTDigiCollection::const_iterator digiIt;
   std::vector<CSCCLCTDigi>::const_iterator pd, pe;
@@ -932,11 +950,22 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 		    << " (trig id. " << detid.triggerCscId() << "):\n";
 	    strstrm << "  **** " << ndata << " valid data CLCTs found:\n";
 	    for (pd = clctV_data.begin(); pd != clctV_data.end(); pd++) {
-	      strstrm << "     " << (*pd) << "\n";
+	      strstrm << "     " << (*pd)
+		      << " Full BX = " << (*pd).getFullBX() << "\n";
 	    }
 	    strstrm << "  **** " << nemul << " valid emul CLCTs found:\n";
 	    for (pe = clctV_emul.begin(); pe != clctV_emul.end(); pe++) {
-	      strstrm << "     " << (*pe) << "\n";
+	      strstrm << "     " << (*pe);
+	      for (pd = clctV_data.begin(); pd != clctV_data.end(); pd++) {
+		if ((*pd).getTrknmb() == (*pe).getTrknmb()) {
+		  int emul_bx = (*pe).getBX();
+		  int corr_bx =
+		    ((*pd).getFullBX() + emul_bx - tbin_cathode_offset) & 0x03;
+		  strstrm << " Corr BX = " << corr_bx;
+		  break;
+		}
+	      }
+	      strstrm << "\n";
 	    }
 	    LogDebug("CSCTriggerPrimitivesReader") << strstrm.str();
 	  }
@@ -961,7 +990,9 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 	    int data_bend      = (*pd).getBend();
 	    int data_keystrip  = (*pd).getKeyStrip();
 	    int data_cfeb      = (*pd).getCFEB();
-	    //int data_bx        = (*pd).getBX();
+	    int data_bx        = (*pd).getBX();
+	    int fullBX = (*pd).getFullBX(); // 12-bit full BX
+
 	    for (pe = clctV_emul.begin(); pe != clctV_emul.end(); pe++) {
 	      if ((*pe).isValid() == 0) continue;
 	      int emul_trknmb    = (*pe).getTrknmb();
@@ -971,16 +1002,23 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 	      int emul_bend      = (*pe).getBend();
 	      int emul_keystrip  = (*pe).getKeyStrip();
 	      int emul_cfeb      = (*pe).getCFEB();
-	      //int emul_bx        = (*pe).getBX();
+	      int emul_bx        = (*pe).getBX();
+
 	      if (data_trknmb == emul_trknmb) {
+		// Emulator BX re-calculated using 12-bit full BX number.
+		// Used for comparison with BX in the data.
+		int emul_corr_bx =
+		  (fullBX + emul_bx - tbin_cathode_offset) & 0x03;
 		if (ndata == nemul) hClctCompTotalCsc[csctype]->Fill(cham);
-		// Leave out bx time for now.
-		if (data_quality   == emul_quality &&
-		    data_pattern   == emul_pattern &&
+		if (data_quality   == emul_quality   &&
+		    data_pattern   == emul_pattern   &&
 		    data_striptype == emul_striptype &&
-		    data_bend      == emul_bend  &&
-		    data_keystrip  == emul_keystrip &&
-		    data_cfeb      == emul_cfeb) {
+		    data_bend      == emul_bend      &&
+		    data_keystrip  == emul_keystrip  &&
+		    data_cfeb      == emul_cfeb)     // &&
+		  // Exclude bx comparison for the time being.
+		    // data_bx        == emul_corr_bx)
+		    {
 		  if (ndata == nemul) hClctCompMatchCsc[csctype]->Fill(cham);
 		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
 		    << "        Identical CLCTs #" << data_trknmb;
@@ -989,6 +1027,7 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
 		    << "        Different CLCTs #" << data_trknmb;
 		}
+		break;
 	      }
 	    }
 	  }
@@ -1000,7 +1039,11 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 
 void CSCTriggerPrimitivesReader::compareLCTs(
                              const CSCCorrelatedLCTDigiCollection* lcts_data,
-			     const CSCCorrelatedLCTDigiCollection* lcts_emul) {
+			     const CSCCorrelatedLCTDigiCollection* lcts_emul,
+			     const CSCALCTDigiCollection* alcts_data,
+			     const CSCCLCTDigiCollection* clcts_data) {
+  // Need ALCT and CLCT digi collections to convert emulator bx into
+  // hardware bx.
   // Loop over all chambers in search for correlated LCTs.
   CSCCorrelatedLCTDigiCollection::const_iterator digiIt;
   std::vector<CSCCorrelatedLCTDigi>::const_iterator pd, pe;
@@ -1046,7 +1089,12 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 	    }
 	    strstrm << "  **** " << nemul << " valid emul LCTs found:\n";
 	    for (pe = lctV_emul.begin(); pe != lctV_emul.end(); pe++) {
-	      strstrm << "     " << (*pe) << "\n";
+	      strstrm << "     " << (*pe);
+	      strstrm << " Corr BX = "
+		      << convertBXofLCT((*pe).getBX(), detid,
+					alcts_data, clcts_data);
+	      strstrm << "\n";
+
 	    }
 	    LogDebug("CSCTriggerPrimitivesReader") << strstrm.str();
 	  }
@@ -1071,14 +1119,7 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 	    int data_pattern   = (*pd).getCLCTPattern();
 	    int data_striptype = (*pd).getStripType();
 	    int data_bend      = (*pd).getBend();
-	    //int data_bx        = (*pd).getBX();
-
-	    // Temporary fix: shift wire group numbers in ME1/3, ME3/1,
-	    // and ME4/1 by 16.
-	    if ((stat == 1 && ring == 3) || (stat == 3 && ring == 1) ||
-		(stat == 4 && ring == 1)) {
-	      data_wiregroup -= 16;
-	    }
+	    int data_bx        = (*pd).getBX();
 
 	    for (pe = lctV_emul.begin(); pe != lctV_emul.end(); pe++) {
 	      if ((*pe).isValid() == 0) continue;
@@ -1089,16 +1130,20 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 	      int emul_pattern   = (*pe).getCLCTPattern();
 	      int emul_striptype = (*pe).getStripType();
 	      int emul_bend      = (*pe).getBend();
-	      //int emul_bx        = (*pe).getBX();
+	      int emul_bx        = (*pe).getBX();
 	      if (data_trknmb == emul_trknmb) {
+		// Convert emulator BX into hardware BX using full 12-bit
+		// BX words in ALCT and CLCT digi collections.
+		int emul_corr_bx = convertBXofLCT(emul_bx, detid,
+						  alcts_data, clcts_data);
 		if (ndata == nemul) hLctCompTotalCsc[csctype]->Fill(cham);
-		// Leave out bx time for now.
-		if (data_quality   == emul_quality &&
+		if (data_quality   == emul_quality   &&
 		    data_wiregroup == emul_wiregroup &&
-		    data_keystrip  == emul_keystrip &&
-		    data_pattern   == emul_pattern &&
+		    data_keystrip  == emul_keystrip  &&
+		    data_pattern   == emul_pattern   &&
 		    data_striptype == emul_striptype &&
-		    data_bend      == emul_bend) {
+		    data_bend      == emul_bend      &&
+		    data_bx        == emul_corr_bx) {
 		  if (ndata == nemul) hLctCompMatchCsc[csctype]->Fill(cham);
 		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
 		    << "        Identical LCTs #" << data_trknmb;
@@ -1107,6 +1152,7 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
 		    << "        Different LCTs #" << data_trknmb;
 		}
+		break;
 	      }
 	    }
 	  }
@@ -1114,6 +1160,51 @@ void CSCTriggerPrimitivesReader::compareLCTs(
       }
     }
   }
+}
+
+int CSCTriggerPrimitivesReader::convertBXofLCT(
+                             const int emul_bx, const CSCDetId& detid,
+			     const CSCALCTDigiCollection* alcts_data,
+			     const CSCCLCTDigiCollection* clcts_data) {
+  int full_anode_bx = -999, full_cathode_bx = -999, lct_bx = -999;
+  const int tbin_anode_offset = 10; // why not 6???
+
+  // Extract full 12-bit anode BX word from ALCT collections.
+  const CSCALCTDigiCollection::Range& arange = alcts_data->get(detid);
+  for (CSCALCTDigiCollection::const_iterator digiIt = arange.first;
+       digiIt != arange.second; digiIt++) {
+    if ((*digiIt).isValid()) {
+      full_anode_bx = (*digiIt).getFullBX();
+      break;
+    }
+  }
+
+  // Extract full 12-bit cathode BX word from CLCT collections.
+  const CSCCLCTDigiCollection::Range& crange = clcts_data->get(detid);
+  for (CSCCLCTDigiCollection::const_iterator digiIt = crange.first;
+       digiIt != crange.second; digiIt++) {
+    if ((*digiIt).isValid()) {
+      full_cathode_bx = (*digiIt).getFullBX();
+      break;
+    }
+  }
+
+  // Use these 12-bit BX's to convert emulator BX into hardware BX.
+  if (full_anode_bx == -999) {
+    // What to do???
+    edm::LogWarning("CSCTriggerPrimitivesReader")
+      << "+++ Warning in convertBXofLCT(): full anode BX is not available!"
+      << " +++\n";
+  }
+  else {
+    // LCT BX has two bits: the least-significant bit is the LSB of ALCT BX;
+    // the MSB is 1/0 depending on whether the 12-bit full cathode BX is 0
+    // or not.
+    lct_bx = (full_anode_bx + emul_bx - tbin_anode_offset) & 0x01;
+    lct_bx = lct_bx | ((full_cathode_bx == 0) << 1);
+  }
+
+  return lct_bx;
 }
 
 void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
@@ -1196,7 +1287,7 @@ void CSCTriggerPrimitivesReader::calcResolution(
 	  int wiregroup = (*digiIt).getKeyWG();
 
 	  CSCDetId layerId(id.endcap(), id.station(), id.ring(),
-			   id.chamber(), 3);
+			   id.chamber(), CSCConstants::KEY_ALCT_LAYER);
 	  int endc    = id.endcap();
 	  int stat    = id.station();
 	  int csctype = getCSCType(id);
@@ -1252,7 +1343,7 @@ void CSCTriggerPrimitivesReader::calcResolution(
 	  int stripType = (*digiIt).getStripType();
 
 	  CSCDetId layerId(id.endcap(), id.station(), id.ring(),
-			   id.chamber(), CSCConstants::KEY_LAYER);
+			   id.chamber(), CSCConstants::KEY_CLCT_LAYER);
 	  int endc    = id.endcap();
 	  int stat    = id.station();
 	  int csctype = getCSCType(id);
@@ -1806,6 +1897,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   teff.SetTextSize(0.06);
   char eff[25];
 
+  //TPostScript *eps1 = new TPostScript("alcts_comp1.eps", 113);
   ps->NewPage();
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
@@ -1838,7 +1930,9 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
     teff.DrawTextNDC(0.2, 0.5, eff);
   }
   page++;  c1->Update();
+  //eps1->Close();
 
+  //TPostScript *eps2 = new TPostScript("alcts_comp2.eps", 113);
   ps->NewPage();
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
@@ -1871,7 +1965,9 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
     teff.DrawTextNDC(0.2, 0.5, eff);
   }
   page++;  c1->Update();
+  //eps2->Close();
 
+  //TPostScript *eps3 = new TPostScript("clcts_comp1.eps", 113);
   ps->NewPage();
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
@@ -1904,7 +2000,9 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
     teff.DrawTextNDC(0.2, 0.5, eff);
   }
   page++;  c1->Update();
+  //eps3->Close();
 
+  //TPostScript *eps4 = new TPostScript("clcts_comp2.eps", 113);
   ps->NewPage();
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
@@ -1937,6 +2035,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
     teff.DrawTextNDC(0.2, 0.5, eff);
   }
   page++;  c1->Update();
+  //eps4->Close();
 
   ps->NewPage();
   c1->Clear();  c1->cd(0);
