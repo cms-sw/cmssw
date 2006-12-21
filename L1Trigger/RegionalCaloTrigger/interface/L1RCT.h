@@ -129,6 +129,7 @@ class L1RCT {
   // scale for converting electron energy to GCT rank
   const L1CaloEtScale* gctEmScale;
 
+  edm::ESHandle<CaloTPGTranscoder> transcoder_;
   L1RCTLookupTables* lut;
 
 };
