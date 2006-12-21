@@ -26,8 +26,8 @@
 <!--#. NOFLOA - No. of floating strips-->
 <Parameter name="upar" value="0.25"/>
 <!--#. D_ANOD - Anods Step-->
-<Parameter name="upar" value="0.25"/>
-<!--#. D_ACAT "h" - Anode - Cathode spacing-->
+<Parameter name="upar" value="0.35"/>
+<!--#. D_ACAT "h" - Anode - Cathode spacing in cm-->
 <Parameter name="upar" value="2.50"/>
 <!--#. GASGain - gas gain-->
 <Parameter name="upar" value="2800"/>
@@ -173,8 +173,8 @@
 <!--#. NOFLOA - No. of floating strips-->
 <Parameter name="upar" value="0.25"/>
 <!--#. D_ANOD - Anods Step-->
-<Parameter name="upar" value="0.25"/>
-<!--#. D_ACAT "h" - Anode - Cathode spacing-->
+<Parameter name="upar" value="0.35"/>
+<!--#. D_ACAT "h" - Anode - Cathode spacing in cm-->
 <Parameter name="upar" value="6.00"/>
 <!--#. GASGain - gas gain-->
 <Parameter name="upar" value="2800"/>
@@ -797,7 +797,7 @@
 <!--#. NOFLOA - No. of floating strips-->
 <Parameter name="upar" value="0.316108"/>
 <!--#. D_ANOD - Wire spacing-->
-<Parameter name="upar" value="0.476"/>
+<Parameter name="upar" value="0.47625"/>
 <!--#. D_ACAT "h" - Anode - Cathode spacing-->
 <Parameter name="upar" value="1.0"/>
 <!--#. GASGain - gas gain-->
@@ -953,7 +953,7 @@
 <!--#. NOFLOA - No. of floating strips-->
 <Parameter name="upar" value="0.316108"/>
 <!--#. D_ANOD - Wire spacing-->
-<Parameter name="upar" value="0.476"/>
+<Parameter name="upar" value="0.47625"/>
 <!--#. D_ACAT "h" - Anode - Cathode spacing-->
 <Parameter name="upar" value="1.0"/>
 <!--#. GASGain - gas gain-->
