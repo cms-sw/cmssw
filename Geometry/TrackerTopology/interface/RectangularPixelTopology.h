@@ -114,18 +114,16 @@ public:
   } 
 
   // Check whether the pixel is at the edge of the module
-  bool isItEdgePixelInX (int ixbin) 
-  {
+  bool isItEdgePixelInX (int ixbin) const {
     return ( (ixbin == 0) || (ixbin == (m_nrows-1)) );
   } 
-  bool isItEdgePixelInY (int iybin) 
-  {
+  bool isItEdgePixelInY (int iybin) const {
     return ( (iybin == 0) || (iybin == (m_ncols-1)) );
   } 
-  bool isItEdgePixel (int ixbin, int iybin) 
-  {
+  bool isItEdgePixel (int ixbin, int iybin) const {
     return ( isItEdgePixelInX( ixbin ) || isItEdgePixelInY( iybin ) );
   } 
+
   //------------------------------------------------------------------
 
   // Return pitch
