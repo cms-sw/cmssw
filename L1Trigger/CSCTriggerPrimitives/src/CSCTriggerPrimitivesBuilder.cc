@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2006/11/30 03:30:49 $
-//   $Revision: 1.7 $
+//   $Date: 2006/12/20 22:11:26 $
+//   $Revision: 1.8 $
 //
 //   Modifications:
 //
@@ -189,7 +189,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
   // run MPC simulation
   m_muonportcard->loadDigis(oc_lct);
 
-  std::vector<CSCTrackStub> result;
+  std::vector<csctf::TrackStub> result;
   for(int bx = m_minBX; bx <= m_maxBX; ++bx)
     for(int e = min_endcap; e <= max_endcap; ++e)
       for(int st = min_station; st <= max_station; ++st)
@@ -197,7 +197,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
           {
             if(st == 1)
               {
-		std::vector<CSCTrackStub> subs1, subs2;
+		std::vector<csctf::TrackStub> subs1, subs2;
                 subs1 = m_muonportcard->sort(e, st, se, 1, bx);
                 subs2 = m_muonportcard->sort(e, st, se, 2, bx);
                 result.insert(result.end(), subs1.begin(), subs1.end());
@@ -205,13 +205,13 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
               }
             else
               {
-		std::vector<CSCTrackStub> sector;
+		std::vector<csctf::TrackStub> sector;
                 sector = m_muonportcard->sort(e, st, se, 0, bx);
                 result.insert(result.end(), sector.begin(), sector.end());
               }
           }
 
-  std::vector<CSCTrackStub>::const_iterator itr = result.begin();
+  std::vector<csctf::TrackStub>::const_iterator itr = result.begin();
   for (; itr != result.end(); itr++) {
     oc_sorted_lct.insertDigi(CSCDetId(itr->getDetId().rawId()), *(itr->getDigi()));
     LogDebug("L1CSCTrigger")
