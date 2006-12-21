@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.2 2006/10/27 01:35:33 wmtan Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.3 2006/11/13 00:24:34 wsun Exp $
 //
 //
 
@@ -177,6 +177,12 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	 if( !muItr->empty() )
 	 {
 	    double pt = muScales.getPtScale()->getLowEdge( muItr->ptIndex() ) ;
+
+	    // To keep x and y components non-zero.
+	    if( pt == 0. )
+	    {
+	       pt = 1.e-6 ;
+	    }
 
 	    double eta =
 	       muScales.getGMTEtaScale()->getCenter( muItr->etaIndex() ) ;
@@ -426,21 +432,31 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
       Handle< L1GctEtMiss > hwEtMiss ;
       iEvent.getByLabel( etMissSource_, hwEtMiss ) ;
 
-      //      double etSumLSB = jetScale->lsb() ;
-      double etSumLSB = 1. ;
+      double etSumLSB = jetScale->linearLsb() ;
+//       double etSumLSB = 1. ;
 
 //       cout << "HW ET Sums " << endl
 // 	   << "MET: phi " << hwEtMiss->phi() << " et " << hwEtMiss->et()
 // 	   << " EtTot " << hwEtTot->et() << " EtHad " << hwEtHad->et()
 // 	   << endl ;
 
-      double etTot = ( ( double ) hwEtTot->et() + 0.5 ) * etSumLSB ;
-      double etHad = ( ( double ) hwEtHad->et() + 0.5 ) * etSumLSB ;
-      double etMiss = ( ( double ) hwEtMiss->et() + 0.5 ) * etSumLSB ;
+      // 2006-12-20: switch to bin low edge.
+      // double etTot = ( ( double ) hwEtTot->et() + 0.5 ) * etSumLSB ;
+      // double etHad = ( ( double ) hwEtHad->et() + 0.5 ) * etSumLSB ;
+      // double etMiss = ( ( double ) hwEtMiss->et() + 0.5 ) * etSumLSB ;
+      double etTot = ( ( double ) hwEtTot->et() ) * etSumLSB ;
+      double etHad = ( ( double ) hwEtHad->et() ) * etSumLSB ;
+      double etMiss = ( ( double ) hwEtMiss->et() ) * etSumLSB ;
 
       unsigned phiIndex = hwEtMiss->phi() ;
       double phi =
 	 ( ( double ) phiIndex + 0.5 ) * gctEtSumPhiBinWidth_ + gctPhiOffset_ ;
+
+      // To keep x and y components non-zero.
+      if( etMiss == 0. )
+      {
+	 etMiss = 1.e-6 ;
+      }
 
       math::XYZTLorentzVector p4( etMiss * cos( phi ),
 				  etMiss * sin( phi ),
@@ -466,6 +482,13 @@ L1ExtraParticlesProd::gctLorentzVector( const double& et,
 					const L1GctCand& cand,
 					bool central )
 {
+   // To keep x and y components non-zero.
+   double etCorr = et ;
+   if( etCorr == 0. )
+   {
+      etCorr = 1.e-6 ;
+   }
+
    // Central/tau jets and EM have etaIndex = 0-6 for eta = 0-3.
    // Forward jets have etaIndex = 0-3 for eta = 3-5.
    unsigned etaIndex = cand.etaIndex() ;
@@ -489,15 +512,15 @@ L1ExtraParticlesProd::gctLorentzVector( const double& et,
 	gctEtaBinBoundaries_[ etaIndex + 1 ] ) ;
 
    double tanThOver2 = exp( -eta ) ;
-   double ez = et * ( 1. - tanThOver2 * tanThOver2 ) / ( 2. * tanThOver2 ) ;
-   double e  = et * ( 1. + tanThOver2 * tanThOver2 ) / ( 2. * tanThOver2 ) ;
+   double ez = etCorr * ( 1. - tanThOver2 * tanThOver2 ) / ( 2. * tanThOver2 );
+   double e  = etCorr * ( 1. + tanThOver2 * tanThOver2 ) / ( 2. * tanThOver2 );
 
    unsigned phiIndex = cand.phiIndex() ;
    double phi =
       ( ( double ) phiIndex + 0.5 ) * gctEmJetPhiBinWidth_ + gctPhiOffset_ ;
 
-   return math::XYZTLorentzVector( et * cos( phi ),
-				   et * sin( phi ),
+   return math::XYZTLorentzVector( etCorr * cos( phi ),
+				   etCorr * sin( phi ),
 				   ez,
 				   e ) ;
 }     
