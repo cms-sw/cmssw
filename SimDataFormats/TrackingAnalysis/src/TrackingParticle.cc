@@ -1,8 +1,9 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
+typedef std::vector<TrackingVertex>                TrackingVertexCollection;
 typedef edm::Ref<TrackingVertexCollection>         TrackingVertexRef;
 
-TrackingParticle::TrackingParticle( float q, const LorentzVector & p4, const Point & vtx,
+TrackingParticle::TrackingParticle( char q, const LorentzVector & p4, const Point & vtx,
 				    double t, const int pdgId, const EncodedEventId eventId) :
   reco::Particle( q, p4, vtx ), t_( t ), pdgId_( pdgId ), eventId_( eventId ){
 }
@@ -54,10 +55,19 @@ void TrackingParticle::setParentVertex(const TrackingVertexRef &ref) {
   parentVertex_ = ref;
 }  
 
-void TrackingParticle::setDecayVertex(const TrackingVertexRef &ref) {
-  decayVertex_ = ref;
-}  
+//void TrackingParticle::setDecayVertex(const TrackingVertexRef &ref) {
+//  decayVertex_ = ref;
+//}  
+
+void TrackingParticle::addDecayVertex(const TrackingVertexRef &ref){
+  decayVertices_.push_back(ref);
+}
 
 void TrackingParticle::setMatchedHit(const int &hitnumb) {
   matchedHit_ = hitnumb;
+}
+
+void TrackingParticle::setVertex(const Point & vtx, double t){
+  t_ = t;
+  reco::Particle::setVertex(vtx);
 }

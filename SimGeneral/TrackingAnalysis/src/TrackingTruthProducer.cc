@@ -22,7 +22,6 @@
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
-
 #include <map>
 
 using namespace edm;
@@ -56,11 +55,9 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf) {
   edm::LogInfo (MessageCategory) << "Discard Hits from Deltas? "     << discardHitsFromDeltas_;
 
   /* Uncommenting will print out the various hit collections that will be scanned  
-
   for (vector<string>::const_iterator name = hitLabelsVector_.begin(); name != hitLabelsVector_.end(); ++name) {
     edm::LogInfo (MessageCategory) << "Use hits with label(s) "   << *name;
   }  
-
   */
 }
 
@@ -75,7 +72,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       edm::LogInfo (MessageCategory) << "Using HepMC source " << *source;
       break;
     } catch (std::exception &e) {
-      
+      // No error since we have other sources to try
     }    
   }
   
@@ -96,30 +93,27 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   std::auto_ptr<MixCollection<SimTrack> >   trackCollection (new MixCollection<SimTrack>(cf.product()));
   std::auto_ptr<MixCollection<SimVertex> > vertexCollection (new MixCollection<SimVertex>(cf.product()));
   std::auto_ptr<MixCollection<PSimHit> >      hitCollection (new MixCollection<PSimHit>(cf.product(),hitLabelsVector_));
-
-// Create collections of things we will put in event,
-// get references before put so we can cross reference  
   
+// Create collections of things we will put in event,
   auto_ptr<TrackingParticleCollection> tPC(new TrackingParticleCollection);
   auto_ptr<TrackingVertexCollection>   tVC(new TrackingVertexCollection  );  
 
-  edm::RefProd<TrackingParticleCollection> refTPC =
-      event.getRefBeforePut<TrackingParticleCollection>("TrackTruth");
-  edm::RefProd<TrackingVertexCollection>   refTVC =
-      event.getRefBeforePut<TrackingVertexCollection>("VertexTruth");
+// Get references before put so we can cross reference  
+  TrackingParticleRefProd refTPC = event.getRefBeforePut<TrackingParticleCollection>("TrackTruth");
+  TrackingVertexRefProd   refTVC = event.getRefBeforePut<TrackingVertexCollection>("VertexTruth");
   
   map<EncodedTruthId,EncodedTruthId> simTrack_sourceV; // Encoded SimTrack to encoded source vertex
-  map<EncodedTruthId,int> simTrack_tP;                 // Encoded SimTrack to TrackingParticle index
+  map<EncodedTruthId,int>            simTrack_tP;      // Encoded SimTrack to TrackingParticle index
                
   for (MixCollection<SimTrack>::MixItr itP = trackCollection->begin(); 
        itP !=  trackCollection->end(); ++itP){
-    char                      q = (char)itP -> charge(); // Check this
+    int                       q = (int)(itP -> charge()); // Check this
     CLHEP::HepLorentzVector   p = itP -> momentum();
     unsigned int     simtrackId = itP -> trackId();
-    EncodedEventId trackEventId = itP -> eventId(); 
-    EncodedTruthId trackId      = EncodedTruthId(trackEventId,simtrackId);
     int                 genPart = itP -> genpartIndex(); // The HepMC particle number
     int                 genVert = itP -> vertIndex();    // The SimVertex #
+    EncodedEventId trackEventId = itP -> eventId(); 
+    EncodedTruthId      trackId = EncodedTruthId(trackEventId,simtrackId);
     
     bool signalEvent = (trackEventId.event() == 0 && trackEventId.bunchCrossing() == 0);
     const TrackingParticle::LorentzVector theMomentum(p.x(), p.y(), p.z(), p.t());
@@ -136,7 +130,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     math::XYZPoint theVertex;
 
     if (genVert >= 0){ // Add to useful maps
-      EncodedTruthId vertexId = EncodedTruthId(trackEventId,genVert);                    
+      EncodedTruthId vertexId = EncodedTruthId(trackEventId,genVert); 
       simTrack_sourceV.insert(make_pair(trackId,vertexId));
     }
 
@@ -183,42 +177,40 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     }
 
 // Add indices to map and add to collection    
-    
     simTrack_tP.insert(make_pair(trackId,tPC->size()));
     tPC -> push_back(tp);
-  }
+  } // Loop on MixCollection<SimTrack> 
 
 // Find and loop over EmbdSimVertex vertices
     
-  int indexG4V = 0;
-  unsigned int simVertexId = 0;
-  EncodedEventId lastEventID;
-  for (MixCollection<SimVertex>::MixItr itVtx = vertexCollection->begin(); 
-       itVtx != vertexCollection->end(); 
-       ++itVtx,++indexG4V) {
+  int vertexIndex = 0;        // Needed for 
+  int oldTrigger = -1;        // renumbering
+  int oldBX      = -999999;   // of vertices
+  for (MixCollection<SimVertex>::MixItr itV = vertexCollection->begin(); 
+       itV != vertexCollection->end(); ++itV) {
 
-    CLHEP::HepLorentzVector position = itVtx -> position();  // Get position of ESV
+    CLHEP::HepLorentzVector position = itV -> position();  // Get position of ESV
     bool inVolume = (position.perp() < volumeRadius_ && abs(position.z()) < volumeZ_); // In or out of Tracker
     if (!inVolume && discardOutVolume_) { continue; }        // Skip if desired
     
-    EncodedEventId vertEvtId = itVtx -> eventId();     
-    EncodedTruthId vertexId  = EncodedTruthId(vertEvtId,simVertexId);
-
-//    unsigned int     simVertexId = 0; // Would like accessor in SimTrack. Do this kludge instead
-// This may not be correct. May have to detect a bX change or a change from singal to pileup    
-    ++simVertexId;
-    if (lastEventID != vertEvtId) {
-      lastEventID = vertEvtId;
-      simVertexId = 0;
+    EncodedEventId vertEvtId = itV -> eventId(); 
+    
+// Begin renumbering vertices if we move from signal to pileup or change bunch crossings    
+    if (oldTrigger !=  itV.getTrigger() || oldBX !=  vertEvtId.bunchCrossing()) {
+      vertexIndex = 0;
+      oldTrigger =  itV.getTrigger();
+      oldBX =  vertEvtId.bunchCrossing();
     }  
+    EncodedTruthId vertexId  = EncodedTruthId(vertEvtId,vertexIndex);
+
 // Figure out the barcode of the HepMC Vertex if there is one by
 // getting incoming SimTtrack (if any), finding corresponding HepMC track and
-// then decay (HepMC) vertex of that track    
+// then decay (HepMC) vertex of that track.  HepMC data only exists for signal sub-event      
     int vertexBarcode = 0;       
-    unsigned int vtxParent = itVtx -> parentIndex();    
-    if (vtxParent >= 0) {                      
+    unsigned int vtxParent = itV -> parentIndex();    
+    if (vtxParent >= 0 && itV.getTrigger() ) {                      
       for (MixCollection<SimTrack>::MixItr itP = trackCollection->begin(); itP != trackCollection->end(); ++itP){
-	if(vtxParent==itP->trackId() && itP.bunch() == itVtx.bunch()){
+        if (vtxParent==itP->trackId() && itP->eventId() == vertEvtId){
 	  int parentBC = itP->genpartIndex();  
 	  HepMC::GenParticle *parentParticle = genEvent -> barcode_to_particle(parentBC);
 	  if (parentParticle != 0) {
@@ -257,35 +249,40 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
      
 // Add data to closest vertex
     
-    (*nearestVertex).addG4Vertex(*itVtx); // Add G4 vertex
+    (*nearestVertex).addG4Vertex(*itV); // Add G4 vertex
     if (vertexBarcode != 0) {
       (*nearestVertex).addGenVertex(GenVertexRef(hepMC,vertexBarcode)); // Add HepMC vertex
     }
 
-// Identify and add child and parent tracks     
-
+// Identify and add child tracks     
     for (std::map<EncodedTruthId,EncodedTruthId>::iterator mapIndex = simTrack_sourceV.begin(); 
          mapIndex != simTrack_sourceV.end(); ++mapIndex) {
-      if (mapIndex -> second == vertexId) {
-        int indexTP = simTrack_tP[mapIndex -> first];
-        (*nearestVertex).addDaughterTrack(TrackingParticleRef(refTPC,indexTP));
-        (tPC->at(indexTP)).setParentVertex(TrackingVertexRef(refTVC,indexTV));
-        const CLHEP::HepLorentzVector &v = (*nearestVertex).position();
-        math::XYZPoint xyz = math::XYZPoint(v.x(), v.y(), v.z());
-        double t = v.t(); 
-        (tPC->at(indexTP)).setVertex(xyz,t);
+      EncodedTruthId mapTrackId  = mapIndex -> first;
+      EncodedTruthId mapVertexId = mapIndex -> second;
+      if (mapVertexId == vertexId) {
+        if (simTrack_tP.count(mapTrackId)) {
+          int indexTP = simTrack_tP[mapTrackId];
+          (*nearestVertex).addDaughterTrack(TrackingParticleRef(refTPC,indexTP));
+          (tPC->at(indexTP)).setParentVertex(TrackingVertexRef(refTVC,indexTV));
+          const CLHEP::HepLorentzVector &v = (*nearestVertex).position();
+          math::XYZPoint xyz = math::XYZPoint(v.x(), v.y(), v.z());
+          double t = v.t(); 
+          (tPC->at(indexTP)).setVertex(xyz,t);
+        }  
       }
     }
 
+// Identify and add parent tracks     
     if (vtxParent > 0) {
       EncodedTruthId trackId =  EncodedTruthId(vertEvtId,vtxParent);
-      int indexTP = simTrack_tP[trackId];
-      (tPC->at(indexTP)).addDecayVertex(TrackingVertexRef(refTVC,indexTV));
-      if (indexTP > 0) {
-        (*nearestVertex).addParentTrack(TrackingParticleRef(refTPC,indexTP-1));
+      if (simTrack_tP.count(trackId) > 0) {
+        int indexTP = simTrack_tP[trackId];
+        (tPC->at(indexTP)).addDecayVertex(TrackingVertexRef(refTVC,indexTV));
+        (*nearestVertex).addParentTrack(TrackingParticleRef(refTPC,indexTP));
       }  
     }  
-  }
+    ++vertexIndex;
+  } // Loop on MixCollection<SimVertex>
 
   edm::LogInfo(MessageCategory) << "TrackingTruth found "  << tVC -> size() 
                                 << " unique vertices and " << tPC -> size() << " tracks.";

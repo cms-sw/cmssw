@@ -10,7 +10,6 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
@@ -18,17 +17,20 @@ namespace HepMC {
   class GenParticle;
 }
 class TrackingVertex;
+
 class TrackingParticle : public reco::Particle {
 public:
   /// reference to HepMC::GenParticle
   typedef edm::RefVector<edm::HepMCProduct, HepMC::GenParticle > GenParticleRefVector;
   typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle >       GenParticleRef;
   typedef GenParticleRefVector::iterator		         genp_iterator;
-  typedef    std::vector<SimTrack>::const_iterator               g4t_iterator;
+  typedef       std::vector<SimTrack>::const_iterator             g4t_iterator;
 //  typedef TrackPSimHitRefToBaseVector::const_iterator            pSH_iterator;
 
   typedef std::vector<TrackingVertex>                TrackingVertexCollection;
   typedef edm::Ref<TrackingVertexCollection>         TrackingVertexRef;
+  typedef edm::RefVector<TrackingVertexCollection>   TrackingVertexRefVector;
+  typedef TrackingVertexRefVector::iterator   tv_iterator;
 
 //  typedef TrackPSimHitRefVector::iterator 			 pSH_iterator;
 //  typedef std::map<int, TrackPSimHitRefVector> 			 TrackIdPSimHitMap;
@@ -38,7 +40,7 @@ public:
   // destructor
   ~TrackingParticle();
   /// constructor from pointer to generator particle
-  TrackingParticle( float q, const LorentzVector & p4, const Point & vtx,
+  TrackingParticle( char q, const LorentzVector & p4, const Point & vtx,
 		    double t, const int pdgId,  const EncodedEventId eventId);
   
   /// PDG id, signal source, crossing number  
@@ -60,17 +62,21 @@ public:
 
   void addPSimHit(const PSimHit&);
   void setParentVertex(const TrackingVertexRef&);
-  void  setDecayVertex(const TrackingVertexRef&);
+  void  addDecayVertex(const TrackingVertexRef&);
   void setMatchedHit(const int&);
-
+  void setVertex(const Point & vtx, double t);
+  
 // Getters for Embd and Sim Tracks
   GenParticleRefVector	 genParticle() const { return genParticles_; }
   std::vector<SimTrack>     g4Tracks() const { return g4Tracks_ ;    }
   std::vector<PSimHit> trackPSimHit() const { return trackPSimHit_; }
-
   TrackingVertexRef parentVertex() const { return parentVertex_; }
-  TrackingVertexRef  decayVertex() const { return  decayVertex_; }
-  
+
+// Accessors for vector of decay vertices    
+//  TrackingVertexRefVector decayVertices() const { return decayVertices_; }
+  tv_iterator decayVertices_begin()       const { return decayVertices_.begin(); }
+  tv_iterator decayVertices_end()         const { return decayVertices_.end(); }
+
   int matchedHit() const {return matchedHit_;}
 
 private:
@@ -91,8 +97,8 @@ private:
   std::vector<PSimHit> trackPSimHit_;
   
 // Source and decay vertices  
-  TrackingVertexRef parentVertex_;
-  TrackingVertexRef  decayVertex_;
+  TrackingVertexRef       parentVertex_;
+  TrackingVertexRefVector  decayVertices_;
 };
 
 #endif // SimDataFormats_TrackingParticle_H
