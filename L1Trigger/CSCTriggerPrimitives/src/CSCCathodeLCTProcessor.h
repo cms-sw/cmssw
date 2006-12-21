@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2006/11/08 16:35:05 $
- * $Revision: 1.8 $
+ * $Date: 2006/11/30 03:30:49 $
+ * $Revision: 1.9 $
  *
  */
 
@@ -32,7 +32,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCLCTDigi.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCConstants.h>
+#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
 class CSCCathodeLCTProcessor
 {
@@ -127,8 +127,8 @@ class CSCCathodeLCTProcessor
   std::vector<int> theDiStripHits[CSCConstants::NUM_LAYERS];
 
   /** Configuration parameters. */
-  int bx_width, drift_delay, hs_thresh, ds_thresh, nph_pattern;
-  int fifo_tbins, fifo_pretrig; // only for test beam mode.
+  unsigned int bx_width, drift_delay, hs_thresh, ds_thresh, nph_pattern;
+  unsigned int fifo_tbins, fifo_pretrig; // only for test beam mode.
 
   //----------------------- Default ORCA Fcns ---------------------------------
   std::vector<CSCCLCTDigi> findLCTs(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
@@ -151,19 +151,21 @@ class CSCCathodeLCTProcessor
 		  const int stripType, const int nStrips, int& first_bx);
   bool preTrigLookUp(const unsigned long int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 		     const int stripType, const int nStrips,
-		     const int bx_time);
+		     const unsigned int bx_time);
   void latchLCTs(const unsigned long int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
-		 int keyStrip[MAX_CFEBS], int nhits[MAX_CFEBS],
+		 int keyStrip[MAX_CFEBS], unsigned int nhits[MAX_CFEBS],
 		 const int stripType, const int nStrips, const int bx_time);
   void priorityEncode(const int h_keyStrip[MAX_CFEBS],
-		      const int h_nhits[MAX_CFEBS],
+		      const unsigned int h_nhits[MAX_CFEBS],
 		      const int d_keyStrip[MAX_CFEBS],
-		      const int d_nhits[MAX_CFEBS], int keystrip_data[2][7]);
+		      const unsigned int d_nhits[MAX_CFEBS],
+		      int keystrip_data[2][7]);
   void getKeyStripData(const unsigned long int h_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 		       const unsigned long int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 		       int keystrip_data[2][7], const int first_bx);
-  void getPattern(int pattern_num, const int strip_value[NUM_PATTERN_STRIPS],
-		  int& quality, int& bend);
+  void getPattern(unsigned int pattern_num,
+		  const int strip_value[NUM_PATTERN_STRIPS],
+		  unsigned int& quality, unsigned int& bend);
   //-------------------------------------------------------------------------
 
   /** Dump CLCT configuration parameters. */

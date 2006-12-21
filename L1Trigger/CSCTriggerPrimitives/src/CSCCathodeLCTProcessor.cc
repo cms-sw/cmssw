@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/11/08 16:35:05 $
-//   $Revision: 1.10 $
+//   $Date: 2006/12/20 22:11:26 $
+//   $Revision: 1.11 $
 //
 //   Modifications: 
 //
@@ -146,20 +146,65 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   static bool config_dumped = false;
 
   // CLCT configuration parameters.
-  bx_width     = conf.getParameter<int>("clctBxWidth");     // def = 6
-  drift_delay  = conf.getParameter<int>("clctDriftDelay");  // def = 2
-  hs_thresh    = conf.getParameter<int>("clctHsThresh");    // def = 2
-  ds_thresh    = conf.getParameter<int>("clctDsThresh");    // def = 2
-  nph_pattern  = conf.getParameter<int>("clctNphPattern");  // def = 4
+  static const unsigned int max_bx_width     = 1 << 4;
+  static const unsigned int max_drift_delay  = 1 << 2;
+  static const unsigned int max_hs_thresh    = 1 << 3;
+  static const unsigned int max_ds_thresh    = 1 << 3;
+  static const unsigned int max_nph_pattern  = 1 << 3;
+  static const unsigned int max_fifo_tbins   = 1 << 5;
+  static const unsigned int max_fifo_pretrig = 1 << 5;
+
+  bx_width     = conf.getParameter<unsigned int>("clctBxWidth");    // def = 6
+  drift_delay  = conf.getParameter<unsigned int>("clctDriftDelay"); // def = 2
+  hs_thresh    = conf.getParameter<unsigned int>("clctHsThresh");   // def = 2
+  ds_thresh    = conf.getParameter<unsigned int>("clctDsThresh");   // def = 2
+  nph_pattern  = conf.getParameter<unsigned int>("clctNphPattern"); // def = 4
 
   // Currently used only in the test-beam mode.
-  fifo_tbins   = conf.getParameter<int>("clctFifoTbins");   // def = 12
+  fifo_tbins   = conf.getParameter<unsigned int>("clctFifoTbins");  // def = 12
 
   // Not used yet.
-  fifo_pretrig = conf.getParameter<int>("clctFifoPretrig"); // def = 7
+  fifo_pretrig = conf.getParameter<unsigned int>("clctFifoPretrig");// def = 7
 
   // Verbosity level, set to 0 (no print) by default.
   infoV = conf.getUntrackedParameter<int>("verbosity", 0);
+
+  // Make sure that the parameter values are within the allowed range.
+  if (bx_width >= max_bx_width) {
+    throw cms::Exception("CSCCathodeLCTProcessor")
+      << "+++ Value of bx_width, " << bx_width
+      << ", exceeds max allowed, " << max_bx_width-1 << " +++\n";
+  }
+  if (drift_delay >= max_drift_delay) {
+    throw cms::Exception("CSCCathodeLCTProcessor")
+      << "+++ Value of drift_delay, " << drift_delay
+      << ", exceeds max allowed, " << max_drift_delay-1 << " +++\n";
+  }
+  if (hs_thresh >= max_hs_thresh) {
+    throw cms::Exception("CSCCathodeLCTProcessor")
+      << "+++ Value of hs_thresh, " << hs_thresh
+      << ", exceeds max allowed, " << max_hs_thresh-1 << " +++\n";
+  }
+  if (ds_thresh >= max_ds_thresh) {
+    throw cms::Exception("CSCCathodeLCTProcessor")
+      << "+++ Value of ds_thresh, " << ds_thresh
+      << ", exceeds max allowed, " << max_ds_thresh-1 << " +++\n";
+  }
+  if (nph_pattern >= max_nph_pattern) {
+    throw cms::Exception("CSCCathodeLCTProcessor")
+      << "+++ Value of nph_pattern, " << nph_pattern
+      << ", exceeds max allowed, " << max_nph_pattern-1 << " +++\n";
+  }
+  if (fifo_tbins >= max_fifo_tbins) {
+    throw cms::Exception("CSCCathodeLCTProcessor")
+      << "+++ Value of fifo_tbins, " << fifo_tbins
+      << ", exceeds max allowed, " << max_fifo_tbins-1 << " +++\n";
+  }
+  if (fifo_pretrig >= max_fifo_pretrig) {
+    throw cms::Exception("CSCCathodeLCTProcessor")
+      << "+++ Value of fifo_pretrig, " << fifo_pretrig
+      << ", exceeds max allowed, " << max_fifo_pretrig-1 << " +++\n";
+  }
 
   // Print configuration parameters.
   if (infoV > 0 && !config_dumped) {
@@ -247,18 +292,6 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
 
   // clear(); // redundant; called by L1MuCSCMotherboard.
 
-#ifndef TB
-  // Keep large [bxwin_min; bxwin_max] in official ORCA for now and let CSC TF
-  // handle it.
-  int bxwin_min = CSCConstants::MIN_BUNCH;
-  int bxwin_max = CSCConstants::MAX_BUNCH + 1;
-#else
-  // Total number of time bins in DAQ readout is given by fifo_tbins, which
-  // thus determines the maximum length of time interval.
-  int bxwin_min = 0;
-  int bxwin_max = fifo_tbins;
-#endif
-
   // Get the number of wire groups for the given chamber.
   CSCTriggerGeomManager* theGeom = CSCTriggerGeometry::get();
   CSCChamber* theChamber = theGeom->chamber(theEndcap, theStation, theSector,
@@ -339,16 +372,10 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
 
       // Get Bx of this Digi and check that it is within the bounds
       int thisDigiBx = thisDigi.getTimeBin();
-#ifndef TB
-      thisDigiBx -= 9; // temp hack for MC
-#endif
-      //note: MIN_BUNCH = -6, MAX_BUNCH = 6, TOT_BUNCH = 13
-      if (thisDigiBx >= bxwin_min && thisDigiBx < bxwin_max) {
-#ifndef TB
-	// Shift all times of interest by TIME_OFFSET, so that they will
-	// be non-negative, and fill the corresponding arrays
-	thisDigiBx += CSCConstants::TIME_OFFSET;
-#endif
+
+      // Total number of time bins in DAQ readout is given by fifo_tbins,
+      // which thus determines the maximum length of time interval.
+      if (thisDigiBx >= 0 && thisDigiBx < static_cast<int>(fifo_tbins)) {
 
 	// If there is more than one hit in the same strip, pick one
 	// which occurred earlier.
@@ -752,7 +779,6 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
   unsigned long int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS];
   int i_layer, i_strip, this_layer, this_strip;
   int hits, layers_hit;
-  const int bx_min = 0, bx_max = CSCConstants::TOT_BUNCH;
   bool hit_layer[CSCConstants::NUM_LAYERS];
 
   const int pre_trigger_layer_min = (stripType == 1) ? hs_thresh : ds_thresh;
@@ -775,7 +801,7 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
       // If no hit time, no need to add a pulse width.
       if (strip[i_layer][i_strip] >= 0){
 	// Add on bx_width for a pulse time envelope.  See above...
-	for (int bx = strip[i_layer][i_strip];
+	for (unsigned int bx = strip[i_layer][i_strip];
 	     bx < strip[i_layer][i_strip] + bx_width; bx++) {
 	  pulse[i_layer][i_strip] = pulse[i_layer][i_strip] | (1 << bx);
 	}
@@ -784,7 +810,7 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
   }
 
   // Now do a loop over different bunch-crossing times.
-  for (int bx_time = bx_min; bx_time <= bx_max; bx_time++){
+  for (unsigned int bx_time = 0; bx_time < fifo_tbins; bx_time++) {
     // For any given bunch-crossing, start at the lowest keystrip and look for
     // the number of separate layers in the pattern for that keystrip that have
     // pulses at that bunch-crossing time.  Do the same for the next keystrip, 
@@ -939,7 +965,7 @@ bool CSCCathodeLCTProcessor::hitIsGood(int hitTime, int BX) {
   // Find out if hit time is good.  Hit should have occurred no more than
   // bx_width clocks before the latching time.
   int dt = BX - hitTime;
-  if (dt >= 0 && dt <= bx_width) {return true;}
+  if (dt >= 0 && dt <= static_cast<int>(bx_width)) {return true;}
   else {return false;}
 }
 
@@ -957,10 +983,10 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[C
   }
 
   // Test beam version of TMB pretrigger and LCT sorting
-  int h_keyStrip[MAX_CFEBS];  // one key per CFEB
-  int h_nhits[MAX_CFEBS];     // number of hits in envelope for each key
-  int d_keyStrip[MAX_CFEBS];  // one key per CFEB
-  int d_nhits[MAX_CFEBS];     // number of hits in envelope for each key
+  int h_keyStrip[MAX_CFEBS];       // one key per CFEB
+  unsigned int h_nhits[MAX_CFEBS]; // number of hits in envelope for each key
+  int d_keyStrip[MAX_CFEBS];       // one key per CFEB
+  unsigned int d_nhits[MAX_CFEBS]; // number of hits in envelope for each key
   int keystrip_data[2][7];    // 2 possible LCTs per CSC x 7 LCT quantities
   unsigned long int h_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]; // simulate digital one-shot
   unsigned long int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]; // simulate digital one-shot
@@ -1088,7 +1114,7 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
       // if there is a hit, simulate digital one shot persistance starting
       // in the bx of the initial hit.  Fill this into pulse[][].
       if (strip[ilayer][istrip] >= 0) {
-	for (int bx = strip[ilayer][istrip];
+	for (unsigned int bx = strip[ilayer][istrip];
 	     bx < strip[ilayer][istrip] + bx_width; bx++)
 	  pulse[ilayer][istrip] = pulse[ilayer][istrip] | (1 << bx);
       }
@@ -1096,7 +1122,7 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
   }
 
   // Now do a loop over bx times to see (if/when) track goes over threshold
-  for (int bx_time = 0; bx_time < fifo_tbins; bx_time++) {
+  for (unsigned int bx_time = 0; bx_time < fifo_tbins; bx_time++) {
     // For any given bunch-crossing, start at the lowest keystrip and look for
     // the number of separate layers in the pattern for that keystrip that have
     // pulses at that bunch-crossing time.  Do the same for the next keystrip, 
@@ -1116,7 +1142,8 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
 
 bool CSCCathodeLCTProcessor::preTrigLookUp(
 	   const unsigned long int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
-	   const int stripType, const int nStrips, const int bx_time) {
+	   const int stripType, const int nStrips,
+	   const unsigned int bx_time) {
 
   bool hit_layer[CSCConstants::NUM_LAYERS];
   int key_strip, this_layer, this_strip, layers_hit;
@@ -1172,7 +1199,7 @@ bool CSCCathodeLCTProcessor::preTrigLookUp(
 
 void CSCCathodeLCTProcessor::latchLCTs(
 	   const unsigned long int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
-	   int keyStrip[MAX_CFEBS], int nhits[MAX_CFEBS],
+	   int keyStrip[MAX_CFEBS], unsigned int nhits[MAX_CFEBS],
 	   const int stripType, const int nStrips, const int bx_time) {
 
   bool hit_layer[CSCConstants::NUM_LAYERS];
@@ -1231,8 +1258,8 @@ void CSCCathodeLCTProcessor::latchLCTs(
 
 
 void CSCCathodeLCTProcessor::priorityEncode(
-        const int h_keyStrip[MAX_CFEBS], const int h_nhits[MAX_CFEBS],
-	const int d_keyStrip[MAX_CFEBS], const int d_nhits[MAX_CFEBS],
+        const int h_keyStrip[MAX_CFEBS], const unsigned int h_nhits[MAX_CFEBS],
+	const int d_keyStrip[MAX_CFEBS], const unsigned int d_nhits[MAX_CFEBS],
 	int keystrip_data[2][7]) {
 
   int ihits[2]; // hold hits for sorting
@@ -1412,8 +1439,8 @@ void CSCCathodeLCTProcessor::getKeyStripData(
 
   int lct_pattern[NUM_PATTERN_STRIPS];
   int this_layer, this_strip;
-  int quality, bend = 0;
-  int best_quality,best_pattern;
+  unsigned int quality = 0, bend = 0;
+  unsigned int best_quality, best_pattern;
   bool valid[2] = {false,false};
 
   // Time at which TMB latches LCTs.
@@ -1466,8 +1493,8 @@ void CSCCathodeLCTProcessor::getKeyStripData(
     best_quality = 0;
     best_pattern = 0;
 
-    for (int pattern_num = 0; pattern_num < CSCConstants::NUM_CLCT_PATTERNS;
-	 pattern_num++) {
+    for (unsigned int pattern_num = 0;
+	 pattern_num < CSCConstants::NUM_CLCT_PATTERNS; pattern_num++) {
       getPattern(pattern_num, lct_pattern, quality, bend);
       if (infoV > 1) LogDebug("CSCCathodeLCTProcessor")
 	  << "pattern " << pattern_num << " quality " << quality
@@ -1517,16 +1544,16 @@ void CSCCathodeLCTProcessor::getKeyStripData(
 } // getKeyStripData -- test beam version
 
 
-void CSCCathodeLCTProcessor::getPattern(int pattern_num,
+void CSCCathodeLCTProcessor::getPattern(unsigned int pattern_num,
 			 const int strip_value[NUM_PATTERN_STRIPS],
-			 int& quality, int& bend) {
+			 unsigned int& quality, unsigned int& bend) {
 
   // This function takes strip "one-shots" at the correct bx to find out
   // which hits fall within a certain pattern.  Quality and bend are then
   // calculated based on which strip pattern and how many layers were hit
   // within the pattern.
 
-  int layers_hit = 0;
+  unsigned int layers_hit = 0;
   bool hit_layer[CSCConstants::NUM_LAYERS];
 
   // Clear hit_layer array to keep track of number of layers hit.
