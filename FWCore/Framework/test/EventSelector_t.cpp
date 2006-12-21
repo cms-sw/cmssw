@@ -13,8 +13,8 @@ using namespace std;
 using namespace edm;
 
 const int numBits = 5;
-const int numPatterns = 8;
-const int numMasks = 6;
+const int numPatterns = 9;
+const int numMasks = 9;
 const int numAns = numPatterns * numMasks;
 
 typedef bool Answers[numPatterns][numMasks];
@@ -44,28 +44,41 @@ std::ostream& operator<<(std::ostream& ost, const Bools& b)
 void testone(const Strings& paths,
 	     const Strings& pattern,
 	     const Bools& mask,
-	     bool answer)
+	     bool answer,
+             int jmask)
 {
   ParameterSet pset; //, parent;
   pset.addParameter<Strings>("SelectEvents",pattern);
   //parent.addUntrackedParameter<ParameterSet>("SelectEvents",pset);
 
   EventSelector select(pset, paths);
+  EventSelector select1(pattern, paths);
+
   HLTGlobalStatus bm(mask.size());
-  const HLTPathStatus pass=HLTPathStatus(edm::hlt::Pass);
-  const HLTPathStatus fail=HLTPathStatus(edm::hlt::Fail);
+  const HLTPathStatus pass  = HLTPathStatus(edm::hlt::Pass);
+  const HLTPathStatus fail  = HLTPathStatus(edm::hlt::Fail);
+  const HLTPathStatus ex    = HLTPathStatus(edm::hlt::Exception);
+  const HLTPathStatus ready = HLTPathStatus(edm::hlt::Ready);
   for(unsigned int b=0;b<mask.size();++b) bm[b] = (mask[b]? pass : fail);
+
+  if (jmask == 8 && mask.size() > 4) {
+    bm[0] = ready;
+    bm[4] = ex;
+  }
+
   TriggerResults results(bm,paths);
 
   bool a = select.acceptEvent(results);
+  bool a1 = select1.acceptEvent(results);
 
-  if(a!=answer)
+  if (a!=answer || a1 != answer)
     {
       cerr << "failed to compare pattern with mask: "
 	   << "correct=" << answer << " "
 	   << "result=" << a << "\n"
 	   << "pattern=" << pattern << "\n"
-	   << "mask=" << mask << "\n";
+	   << "mask=" << mask << "\n"
+           << "jmask = " << jmask << "\n"; 
       abort();
     }
 }
@@ -79,7 +92,7 @@ void testall(const Strings& paths,
     {
       for(unsigned int j=0;j<masks.size();++j)
 	{
-	  testone(paths,patterns[i],masks[j],answers[i][j]);
+	  testone(paths,patterns[i],masks[j],answers[i][j],j);
 	}
     }
 }
@@ -102,6 +115,7 @@ int main()
   boost::array<char*,2> cw6 = {{ "*","!*" }};
   boost::array<char*,2> cw7 = {{ "*","!a2" }};
   boost::array<char*,2> cw8 = {{ "!*","a2" }};
+  boost::array<char*,3> cw9 = {{ "a1","a2","a5" }};
 
   VStrings patterns(numPatterns);
   patterns[0].insert(patterns[0].end(),cw1.begin(),cw1.end());
@@ -112,6 +126,7 @@ int main()
   patterns[5].insert(patterns[5].end(),cw6.begin(),cw6.end());
   patterns[6].insert(patterns[6].end(),cw7.begin(),cw7.end());
   patterns[7].insert(patterns[7].end(),cw8.begin(),cw8.end());
+  patterns[8].insert(patterns[8].end(),cw9.begin(),cw9.end());
 
   boost::array<bool,numBits> t1 = {{ true,  false, true,  false, true  }};
   boost::array<bool,numBits> t2 = {{ false, true,  true,  false, true  }};
@@ -119,6 +134,12 @@ int main()
   boost::array<bool,numBits> t4 = {{ false, false, true,  false, true  }};
   boost::array<bool,numBits> t5 = {{ false, false, false, false, false }};
   boost::array<bool,numBits> t6 = {{ true,  true,  true,  true,  true  }};
+  boost::array<bool,numBits> t7 = {{ true,  true,  true,  true,  false }};
+  boost::array<bool,numBits> t8 = {{ false, false, false, false, true  }};
+  boost::array<bool,numBits> t9 = {{ false, false, false, false, false }};  // for t9 only, above the
+                                                                            // first is reset to ready
+                                                                            // last is reset to exception
+                                                                              
 
   VBools testmasks(numMasks);
   testmasks[0].insert(testmasks[0].end(),t1.begin(),t1.end());
@@ -127,15 +148,19 @@ int main()
   testmasks[3].insert(testmasks[3].end(),t4.begin(),t4.end());
   testmasks[4].insert(testmasks[4].end(),t5.begin(),t5.end());
   testmasks[5].insert(testmasks[5].end(),t6.begin(),t6.end());
+  testmasks[6].insert(testmasks[6].end(),t7.begin(),t7.end());
+  testmasks[7].insert(testmasks[7].end(),t8.begin(),t8.end());
+  testmasks[8].insert(testmasks[8].end(),t9.begin(),t9.end());
 
-  Answers ans = { {true, true,  true,  false, false, true },
-		  {true, true,  false, true,  true,  false},
-		  {true, false, true,  true,  true,  true },
-		  {true, true,  true,  true,  false, true },
-		  {true, true,  true,  true,  true,  false},
-		  {true, true,  true,  true,  true,  true },
-		  {true, true,  true,  true,  true,  true },
-		  {true, true,  true,  true,  true,  true }
+  Answers ans = { {true, true,  true,  false, false, true,  true,  false, false },
+		  {true, true,  false, true,  true,  false, false, true,  true  },
+		  {true, false, true,  true,  true,  true , true,  true,  true  },
+		  {true, true,  true,  true,  false, true,  true,  true,  true  },
+		  {true, true,  true,  true,  true,  false, true,  true,  true  },
+		  {true, true,  true,  true,  true,  true,  true,  true,  true  },
+		  {true, true,  true,  true,  true,  true,  true,  true,  true  },
+		  {true, true,  true,  true,  true,  true,  true,  true,  true  },
+		  {true, true,  true,  true,  false, true,  true,  true,  true  }
   };
 
   testall(paths, patterns, testmasks, ans);
