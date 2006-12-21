@@ -9,11 +9,12 @@ using namespace std;
 
 HcalTrigTowerGeometry theTrigTowerGeometry;
 
-CaloTPGTranscoderULUT::CaloTPGTranscoderULUT(const std::string& hcalFile) : 
+CaloTPGTranscoderULUT::CaloTPGTranscoderULUT(const std::string& hcalFile1,
+					     const std::string& hcalFile2) : 
   hcalITower_(N_TOWER,(const LUTType*)0)
 {
-  loadHCAL(hcalFile);
-  loadhcalUncompress();
+  loadHCAL(hcalFile1);
+  loadhcalUncompress(hcalFile2);
 
 }
 
@@ -75,9 +76,9 @@ void CaloTPGTranscoderULUT::loadHCAL(const std::string& filename) {
   }
 }
 
-void CaloTPGTranscoderULUT::loadhcalUncompress() {
+void CaloTPGTranscoderULUT::loadhcalUncompress(const std::string& filename) {
   std::ifstream userfile;
-  userfile.open("CalibCalorimetry/CaloTPG/data/TPGcalcDecompress2.txt");
+  userfile.open(filename.c_str());
   static const int etabound = 32;
   static const int tpgmax = 256;
   if( userfile ) 
@@ -91,7 +92,7 @@ void CaloTPGTranscoderULUT::loadhcalUncompress() {
 
     }
   else {
-    throw cms::Exception("Invalid Data") << "Unable to read uncompress file";
+    throw cms::Exception("Invalid Data") << "Unable to read uncompress file" << filename;
   }
 }
 
