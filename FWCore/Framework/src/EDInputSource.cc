@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EDInputSource.cc,v 1.3 2006/04/24 22:35:03 wmtan Exp $
+$Id: EDInputSource.cc,v 1.4 2006/09/18 22:17:18 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,5 +24,12 @@ namespace edm {
       LogWarning("IllegalCall")
         << "EDInputSource::setRun()\n"
         << "Run number cannot be modified for an EDInputSource\n";
+  }
+
+  void
+  EDInputSource::setLumi(LuminosityBlockID) {
+      LogWarning("IllegalCall")
+        << "EDInputSource::setLumi()\n"
+        << "Luminosity Block ID cannot be modified for an EDInputSource\n";
   }
 }

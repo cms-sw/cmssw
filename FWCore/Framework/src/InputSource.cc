@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.16 2006/11/03 17:57:52 wmtan Exp $
+$Id: InputSource.cc,v 1.17 2006/11/09 23:12:59 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -131,6 +131,14 @@ namespace edm {
       throw edm::Exception(edm::errors::LogicError)
         << "InputSource::setRun()\n"
         << "Run number cannot be modified for this type of Input Source\n"
+        << "Contact a Framework Developer\n";
+  }
+
+  void
+  InputSource::setLumi(LuminosityBlockID) {
+      throw edm::Exception(edm::errors::LogicError)
+        << "InputSource::setLumi()\n"
+        << "Luminosity Block ID  cannot be modified for this type of Input Source\n"
         << "Contact a Framework Developer\n";
   }
 

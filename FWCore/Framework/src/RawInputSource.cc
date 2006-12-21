@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.5 2006/12/14 04:30:58 wmtan Exp $
+$Id: RawInputSource.cc,v 1.6 2006/12/19 00:28:56 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,6 +16,8 @@ namespace edm {
     remainingEvents_(maxEvents()),
     runNumber_(RunNumber_t()),
     oldRunNumber_(RunNumber_t()),
+    luminosityBlockID_(LuminosityBlockID()),
+    oldLuminosityBlockID_(LuminosityBlockID()),
     ep_(),
     luminosityBlockPrincipal_()
   { }
@@ -26,17 +28,29 @@ namespace edm {
   void
   RawInputSource::setRun(RunNumber_t r) {
     runNumber_ = r;
+    luminosityBlockID_ = 1;
+  }
+
+  void
+  RawInputSource::setLumi(LuminosityBlockID lb) {
+    luminosityBlockID_ = lb;
   }
 
   std::auto_ptr<EventPrincipal>
   RawInputSource::read() {
-    if (runNumber_ != oldRunNumber_ || luminosityBlockPrincipal_.get() == 0) {
+    if (oldRunNumber_ != runNumber_ || luminosityBlockPrincipal_.get() == 0) {
       oldRunNumber_ = runNumber_;
+      oldLuminosityBlockID_ = luminosityBlockID_;
       boost::shared_ptr<RunPrincipal const> runPrincipal(new RunPrincipal(runNumber_, productRegistry()));
       luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal const>(
-                        new LuminosityBlockPrincipal(1U, productRegistry(), runPrincipal));
+                        new LuminosityBlockPrincipal(luminosityBlockID_, productRegistry(), runPrincipal));
+    } else if (oldLuminosityBlockID_ != luminosityBlockID_) {
+      oldLuminosityBlockID_ = luminosityBlockID_;
+      boost::shared_ptr<RunPrincipal const> runPrincipal = luminosityBlockPrincipal_->runPrincipalConstSharedPtr();
+      luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal const>(
+                        new LuminosityBlockPrincipal(luminosityBlockID_, productRegistry(), runPrincipal));
     }
-    if(remainingEvents_ != 0) {
+    if (remainingEvents_ != 0) {
       std::auto_ptr<Event> e(readOneEvent());
       if(e.get() != 0) {
         --remainingEvents_;

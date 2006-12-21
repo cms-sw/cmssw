@@ -2,7 +2,7 @@
 #define Framework_RawInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: RawInputSource.h,v 1.5 2006/12/01 03:29:52 wmtan Exp $
+$Id: RawInputSource.h,v 1.6 2006/12/14 04:30:57 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -11,6 +11,8 @@ $Id: RawInputSource.h,v 1.5 2006/12/01 03:29:52 wmtan Exp $
 
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/Common/interface/LuminosityBlockID.h"
+#include "DataFormats/Common/interface/RunID.h"
 
 namespace edm {
   class ParameterSet;
@@ -31,10 +33,13 @@ namespace edm {
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const& eventID);
     virtual void skip(int offset);
     virtual void setRun(RunNumber_t r);
+    virtual void setLumi(LuminosityBlockID lb);
     
     int remainingEvents_;
     RunNumber_t runNumber_;
     RunNumber_t oldRunNumber_;
+    LuminosityBlockID luminosityBlockID_;
+    LuminosityBlockID oldLuminosityBlockID_;
     std::auto_ptr<EventPrincipal> ep_;
     boost::shared_ptr<LuminosityBlockPrincipal const> luminosityBlockPrincipal_;
   };

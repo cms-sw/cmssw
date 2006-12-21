@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.9 2006/12/14 04:30:58 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.10 2006/12/19 00:28:56 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,13 +18,17 @@ namespace edm {
 				       InputSourceDescription const& desc) :
     InputSource(pset, desc),
     numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents())),
+    numberEventsInLumi_(pset.getUntrackedParameter<unsigned int>("numberEventsInLuminosityBlock", remainingEvents())),
     presentTime_(pset.getUntrackedParameter<unsigned int>("firstTime", 0)),  //time in ns
     origTime_(presentTime_),
     timeBetweenEvents_(pset.getUntrackedParameter<unsigned int>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)),
     numberEventsInThisRun_(0),
+    numberEventsInThisLumi_(0),
     zerothEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1) - 1),
     eventID_(pset.getUntrackedParameter<unsigned int>("firstRun", 1), zerothEvent_),
     origEventID_(eventID_),
+    luminosityBlockID_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1)),
+    origLuminosityBlockID_(luminosityBlockID_),
     luminosityBlockPrincipal_()
   { }
 
@@ -34,11 +38,16 @@ namespace edm {
   std::auto_ptr<EventPrincipal>
   ConfigurableInputSource::read() {
     RunNumber_t oldRun = eventID_.run();
+    LuminosityBlockID oldLumi = luminosityBlockID_;
     setRunAndEventInfo();
     if (oldRun != eventID_.run() || luminosityBlockPrincipal_.get() == 0) {
       boost::shared_ptr<RunPrincipal const> runPrincipal(new RunPrincipal(eventID_.run(), productRegistry()));
       luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal const>(
-			new LuminosityBlockPrincipal(1U, productRegistry(), runPrincipal));
+			new LuminosityBlockPrincipal(luminosityBlockID_, productRegistry(), runPrincipal));
+    } else if (oldLumi != luminosityBlockID_) {
+      boost::shared_ptr<RunPrincipal const> runPrincipal = luminosityBlockPrincipal_->runPrincipalConstSharedPtr();
+      luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal const>(
+			new LuminosityBlockPrincipal(luminosityBlockID_, productRegistry(), runPrincipal));
     }
     if (eventID_ == EventID()) {
       return std::auto_ptr<EventPrincipal>(0); 
@@ -76,12 +85,24 @@ namespace edm {
   ConfigurableInputSource::setRunAndEventInfo() {
     //NOTE: numberEventsInRun < 0 means go forever in this run
     if (numberEventsInRun_ < 1 || numberEventsInThisRun_ < numberEventsInRun_) {
+      // same run
       ++numberEventsInThisRun_;
       eventID_ = eventID_.next();
+      if (numberEventsInLumi_ < 1 || numberEventsInThisLumi_ < numberEventsInLumi_) {
+	// same lumi
+        ++numberEventsInThisLumi_;
+      } else {
+        // new lumi
+        numberEventsInThisLumi_ = 1;
+        ++luminosityBlockID_;
+      }
     } else {
+      // new run
       eventID_ = eventID_.nextRunFirstEvent();
-      //reset this to one since this event is in the new run
+      luminosityBlockID_ = origLuminosityBlockID_;
+      //reset these to one since this event is in the new run
       numberEventsInThisRun_ = 1;
+      numberEventsInThisLumi_ = 1;
     }
     presentTime_ += timeBetweenEvents_;
   }
