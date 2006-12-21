@@ -178,8 +178,8 @@ void ReadPixelRecHit::endJob(){
 void ReadPixelRecHit::analyze(const edm::Event& e, 
 			      const edm::EventSetup& es) {
   using namespace edm;
-  const bool localPrint = false;
-  //const bool localPrint = true;
+  //const bool localPrint = false;
+  const bool localPrint = true;
 
   // Get event setup (to get global transformation)
   edm::ESHandle<TrackerGeometry> geom;
@@ -368,116 +368,133 @@ void ReadPixelRecHit::analyze(const edm::Event& e,
       int minPixelCol = clust->minPixelCol();
       int minPixelRow = clust->minPixelRow();
       
-      unsigned int geoId = clust->geographicalId();
-      bool edgeHitX = clust->edgeHitX();
-      bool edgeHitY = clust->edgeHitY();
-      if(localPrint) cout<<"Clu: charge "<<ch<<" size "<<size
-		    <<" size x/y "<<sizeX<<" "<<sizeY<<" meas. "
-		    <<xClu<<" "<<yClu<<endl;
+      // unsigned int geoId = clust->geographicalId(); // alsways 0
+
+      // edge method moved to topologu class
+      bool edgeHitX = (topol->isItEdgePixelInX(minPixelRow)) ||
+        (topol->isItEdgePixelInX(maxPixelRow));
+      bool edgeHitY = (topol->isItEdgePixelInY(minPixelCol)) ||
+        (topol->isItEdgePixelInY(maxPixelCol));
+
+      if(localPrint) 
+	cout<<"Clu: charge "<<ch<<" size "<<size<<" size x/y "<<sizeX<<" "
+	    <<sizeY<<" meas. "<<xClu<<" "<<yClu<<" edge "<<edgeHitX<<" "<<edgeHitY<<endl;
       
       // Get the pixels in the Cluster
       const vector<SiPixelCluster::Pixel>& pixelsVec = clust->pixels();
       //if(localPrint) cout<<" Pixels in this cluster "<<endl;
-	bool bigInX=false, bigInY=false;
-	map<unsigned int, float, less<unsigned int> > chanMap;  // Channel map
-	// Look at pixels in this cluster. ADC is calibrated, in electrons 
-	for (int i = 0;  i < pixelsVec.size(); ++i) {
-	  float pixx = pixelsVec[i].x;
-	  float pixy = pixelsVec[i].y;
-	  float adc = ((pixelsVec[i].adc)/1000);
-	  int chan = PixelChannelIdentifier::pixelToChannel(int(pixx),int(pixy));
-	  if(RectangularPixelTopology::isItBigPixelInX(int(pixx))) bigInX=true;
-	  if(RectangularPixelTopology::isItBigPixelInY(int(pixy))) bigInY=true; 
-	  //if(print && sizeX==1 && bigInX) 
-	  //cout<<" single big x "<<xClu<<" "<<pixx<<" "<<endl;
-	  //if(print && sizeY==1 && bigInY) 
-	  //cout<<" single big y "<<yClu<<" "<<pixy<<" "<<endl;
-#ifdef DO_HISTO
-	  if(layer==1) {
-	    hadcCharge1->Fill(adc);
-	    if(bigInX || bigInY) hadcCharge1big->Fill(adc);
-	  } else if(layer==2) {
-	    hadcCharge2->Fill(adc);
-	  } else if(layer==3) {
-	    hadcCharge3->Fill(adc);
-	  } else if(disk==1) {
-	    hadcCharge1F->Fill(adc);
-	  } else if(disk==2) {
-	    hadcCharge2F->Fill(adc);
-	  }
-#endif
-	} // End pixel loop
+      map<unsigned int, float, less<unsigned int> > chanMap;  // Channel map
+      // Look at pixels in this cluster. ADC is calibrated, in electrons 
+      for (int i = 0;  i < pixelsVec.size(); ++i) {
+	float pixx = pixelsVec[i].x;
+	float pixy = pixelsVec[i].y;
+	float adc = ((pixelsVec[i].adc)/1000);
+	int chan = PixelChannelIdentifier::pixelToChannel(int(pixx),int(pixy));
 
+	//if(RectangularPixelTopology::isItBigPixelInX(int(pixx))) bigInX=true;
+	//if(RectangularPixelTopology::isItBigPixelInY(int(pixy))) bigInY=true; 
+	
+	bool bigInX = (RectangularPixelTopology::isItBigPixelInX(int(pixx)));
+	bool bigInY = (RectangularPixelTopology::isItBigPixelInY(int(pixy)));
+	
+	bool edgeInX = topol->isItEdgePixelInX(int(pixx));
+	bool edgeInY = topol->isItEdgePixelInY(int(pixy));
+	  
+	if(localPrint)
+	  cout<<i<<" "<<pixx<<" "<<pixy<<" "<<adc<<" "<<bigInX<<" "<<bigInY
+	      <<" "<<edgeInX<<" "<<edgeInY<<endl;
+	
+
+	//if(print && sizeX==1 && bigInX) 
+	//cout<<" single big x "<<xClu<<" "<<pixx<<" "<<endl;
+	//if(print && sizeY==1 && bigInY) 
+	//cout<<" single big y "<<yClu<<" "<<pixy<<" "<<endl;
 #ifdef DO_HISTO
 	if(layer==1) {
-	  hcharge1->Fill(ch);
-	  hxpos1->Fill(yRecHit);
-	  hypos1->Fill(xRecHit);
-	  hsize1->Fill(float(size));
-	  hsizex1->Fill(float(sizeX));
-	  hsizey1->Fill(float(sizeY));
-	  numOfRecHitsPerDet1++;
-	  numOfRecHitsPerLay1++;
-	} else if(layer==2) {  // layer 2
-	  
-	  hcharge2->Fill(ch);
-	  hxpos2->Fill(yRecHit);
-	  hypos2->Fill(xRecHit);
-	  hsize2->Fill(float(size));
-	  hsizex2->Fill(float(sizeX));
-	  hsizey2->Fill(float(sizeY));
-	  numOfRecHitsPerDet2++;
-	  numOfRecHitsPerLay2++;
-	} else if(layer==3) {  // Layer 3
-	  
-	  hcharge3->Fill(ch);
-	  hxpos3->Fill(yRecHit);
-	  hypos3->Fill(xRecHit);
-	  hsize3->Fill(float(size));
-	  hsizex3->Fill(float(sizeX));
-	  hsizey3->Fill(float(sizeY));
-	  numOfRecHitsPerDet3++;
-	  numOfRecHitsPerLay3++;
+	  hadcCharge1->Fill(adc);
+	  if(bigInX || bigInY) hadcCharge1big->Fill(adc);
+	} else if(layer==2) {
+	  hadcCharge2->Fill(adc);
+	} else if(layer==3) {
+	  hadcCharge3->Fill(adc);
 	} else if(disk==1) {
-	  
- 	  hcharge1F->Fill(ch);
- 	  hxpos1F->Fill(yRecHit);
- 	  hypos1F->Fill(xRecHit);
-	  hsize1F->Fill(float(size));
-	  hsizex1F->Fill(float(sizeX));
-	  hsizey1F->Fill(float(sizeY));
-	  
-	  numOfRecHitsPerDet1F++;
-	  numOfRecHitsPerLay1F++;
-	} else if(disk==2) {  // disk 2
-	  
-	  hcharge2F->Fill(ch);
-	  hxpos2F->Fill(yRecHit);
-	  hypos2F->Fill(xRecHit);
-	  hsize2F->Fill(float(size));
-	  hsizex2F->Fill(float(sizeX));
-	  hsizey2F->Fill(float(sizeY));
-	  numOfRecHitsPerDet2F++;
-	  numOfRecHitsPerLay2F++;
+	  hadcCharge1F->Fill(adc);
+	} else if(disk==2) {
+	  hadcCharge2F->Fill(adc);
 	}
-#endif  
+#endif
+      } // End pixel loop
+      
+#ifdef DO_HISTO
+      if(layer==1) {
+	hcharge1->Fill(ch);
+	hxpos1->Fill(yRecHit);
+	hypos1->Fill(xRecHit);
+	hsize1->Fill(float(size));
+	hsizex1->Fill(float(sizeX));
+	hsizey1->Fill(float(sizeY));
+	numOfRecHitsPerDet1++;
+	numOfRecHitsPerLay1++;
+      } else if(layer==2) {  // layer 2
 	
+	hcharge2->Fill(ch);
+	hxpos2->Fill(yRecHit);
+	hypos2->Fill(xRecHit);
+	hsize2->Fill(float(size));
+	hsizex2->Fill(float(sizeX));
+	hsizey2->Fill(float(sizeY));
+	numOfRecHitsPerDet2++;
+	numOfRecHitsPerLay2++;
+      } else if(layer==3) {  // Layer 3
+	
+	hcharge3->Fill(ch);
+	hxpos3->Fill(yRecHit);
+	hypos3->Fill(xRecHit);
+	hsize3->Fill(float(size));
+	hsizex3->Fill(float(sizeX));
+	hsizey3->Fill(float(sizeY));
+	numOfRecHitsPerDet3++;
+	numOfRecHitsPerLay3++;
+      } else if(disk==1) {
+	
+	hcharge1F->Fill(ch);
+	hxpos1F->Fill(yRecHit);
+	hypos1F->Fill(xRecHit);
+	hsize1F->Fill(float(size));
+	hsizex1F->Fill(float(sizeX));
+	hsizey1F->Fill(float(sizeY));
+	
+	numOfRecHitsPerDet1F++;
+	numOfRecHitsPerLay1F++;
+      } else if(disk==2) {  // disk 2
+	
+	hcharge2F->Fill(ch);
+	hxpos2F->Fill(yRecHit);
+	hypos2F->Fill(xRecHit);
+	hsize2F->Fill(float(size));
+	hsizex2F->Fill(float(sizeX));
+	hsizey2F->Fill(float(sizeY));
+	numOfRecHitsPerDet2F++;
+	numOfRecHitsPerLay2F++;
+      }
+#endif  
+      
     } // End RecHit loop
     
 #ifdef DO_HISTO
-      if(layer==1) 
-	hrecHitsPerDet1->Fill(float(numOfRecHitsPerDet1));
-      else if(layer==2) 
-	hrecHitsPerDet2->Fill(float(numOfRecHitsPerDet2));
-      else if(layer==3) 
-	hrecHitsPerDet3->Fill(float(numOfRecHitsPerDet3));
-      else if(disk==1) 
-	hrecHitsPerDet1F->Fill(float(numOfRecHitsPerDet1F));
-      else if(disk==2) 
-	hrecHitsPerDet2F->Fill(float(numOfRecHitsPerDet2F));
+    if(layer==1) 
+      hrecHitsPerDet1->Fill(float(numOfRecHitsPerDet1));
+    else if(layer==2) 
+      hrecHitsPerDet2->Fill(float(numOfRecHitsPerDet2));
+    else if(layer==3) 
+      hrecHitsPerDet3->Fill(float(numOfRecHitsPerDet3));
+    else if(disk==1) 
+      hrecHitsPerDet1F->Fill(float(numOfRecHitsPerDet1F));
+    else if(disk==2) 
+      hrecHitsPerDet2F->Fill(float(numOfRecHitsPerDet2F));
 #endif  
-
-
+    
+    
   } // End Det loop
 
 #ifdef DO_HISTO

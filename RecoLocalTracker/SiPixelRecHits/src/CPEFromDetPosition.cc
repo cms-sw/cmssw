@@ -158,14 +158,22 @@ CPEFromDetPosition::localError( const SiPixelCluster& cluster,
 
   // Find edge clusters
   //bool edgex = (cluster.edgeHitX()) || (cluster.maxPixelRow()> theNumOfRow);//wrong 
-  //bool edgey = (cluster.edgeHitY()) || (cluster.maxPixelCol() > theNumOfCol); 
+  //bool edgey = (cluster.edgeHitY()) || (cluster.maxPixelCol() > theNumOfCol);  //bool edgex = (cluster.minPixelRow()==0) ||  // use min and max pixels
+  //(cluster.maxPixelRow()==(theNumOfRow-1));
+  //bool edgey = (cluster.minPixelCol()==0) ||
+  //(cluster.maxPixelCol()==(theNumOfCol-1));
 
-  bool edgex = (cluster.minPixelRow()==0) ||  // use min and max pixels
-    (cluster.maxPixelRow()==(theNumOfRow-1));
-  bool edgey = (cluster.minPixelCol()==0) ||
-    (cluster.maxPixelCol()==(theNumOfCol-1));
-
-
+  // Use edge methods from the Toplogy class
+  int maxPixelCol = cluster.maxPixelCol();
+  int maxPixelRow = cluster.maxPixelRow();
+  int minPixelCol = cluster.minPixelCol();
+  int minPixelRow = cluster.minPixelRow();       
+  // edge method moved to topologu class
+  bool edgex = (theTopol->isItEdgePixelInX(minPixelRow)) ||
+    (theTopol->isItEdgePixelInX(maxPixelRow));
+  bool edgey = (theTopol->isItEdgePixelInY(minPixelCol)) ||
+    (theTopol->isItEdgePixelInY(maxPixelCol));
+  
   //&&& testing...
   if (theVerboseLevel > 9) {
     LogDebug("CPEFromDetPosition") <<
