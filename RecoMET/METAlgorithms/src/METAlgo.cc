@@ -37,7 +37,7 @@ METAlgo::~METAlgo() {}
 // since it _may_ be useful for Data Quality Monitering as it should be 
 // symmetrically distributed about the origin.)
 //----------------------------------
-void METAlgo::run(const CandidateCollection *input, CommonMETData *met) 
+void METAlgo::run(const CandidateCollection *input, CommonMETData *met, double globalThreshold) 
 { 
   double sum_et = 0.0;
   double sum_ex = 0.0;
@@ -46,20 +46,22 @@ void METAlgo::run(const CandidateCollection *input, CommonMETData *met)
   // Loop over Candidate Objects and calculate MET and related quantities
   CandidateCollection::const_iterator candidate;
   for( candidate = input->begin(); candidate != input->end(); candidate++ )
-    {
-      double phi   = candidate->phi();
-      double theta = candidate->theta();
-      double e     = candidate->energy();
-      double et    = e*sin(theta);
-      sum_ez += e*cos(theta);
-      sum_et += et;
-      sum_ex += et*cos(phi);
-      sum_ey += et*sin(phi);
-    }
+    if( candidate->et() > globalThreshold )
+      {
+	double phi   = candidate->phi();
+	double theta = candidate->theta();
+	double e     = candidate->energy();
+	double et    = e*sin(theta);
+	sum_ez += e*cos(theta);
+	sum_et += et;
+	sum_ex += et*cos(phi);
+	sum_ey += et*sin(phi);
+      }
   met->mex   = -sum_ex;
   met->mey   = -sum_ey;
   met->mez   = -sum_ez;
   met->met   = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
+  cout << "MET = " << met->met << endl;
   met->sumet = sum_et;
   met->phi   = atan2( -sum_ey, -sum_ex ); // since MET is now a candidate,
 }                                         // this is no longer needed

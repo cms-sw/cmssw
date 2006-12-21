@@ -24,6 +24,9 @@
 #include "RecoMET/METAlgorithms/interface/METAlgo.h" 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Common/interface/OwnVector.h"
 
 namespace cms 
 {
@@ -32,15 +35,20 @@ namespace cms
     public:
       typedef math::XYZTLorentzVector LorentzVector;
       typedef math::XYZPoint Point;
+      typedef edm::OwnVector<reco::Candidate> CandidateCollection;
       explicit METProducer(const edm::ParameterSet&);
       explicit METProducer();
       virtual ~METProducer();
+      const CandidateCollection* convert( const reco::CaloJetCollection* );
       virtual void produce(edm::Event&, const edm::EventSetup&);
     private:
       METAlgo alg_; 
       std::string inputLabel;
+      std::string inputType;
       std::string METtype;
       std::string alias;
+      double globalThreshold;
+      CandidateCollection tempCol;
     };
 }
 

@@ -1,4 +1,4 @@
-// File: METProducer.cc
+// File: METProducer.cc 
 // Description:  see METProducer.h
 // Author: R. Cavanaugh, The University of Florida
 // Creation Date:  20.04.2006.
@@ -9,10 +9,14 @@
 #include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/GenSpecificAlgo.h"
 //#include "DataFormats/METObjects/interface/METCollection.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
@@ -38,8 +42,10 @@ namespace cms
   METProducer::METProducer(const edm::ParameterSet& iConfig) : alg_() 
   {
     inputLabel = iConfig.getParameter<std::string>("src");
+    inputType  = iConfig.getParameter<std::string>("InputType");
     METtype    = iConfig.getParameter<std::string>("METType");
     alias      = iConfig.getParameter<std::string>("alias");
+    globalThreshold = iConfig.getParameter<double>("globalThreshold");
     std::cout << "Create MET Producer of Type = " << METtype;
     std::cout << " with alias = " << alias << std::endl;
 
@@ -68,19 +74,43 @@ namespace cms
   //--------------------------------------------------------------------------
 
   //--------------------------------------------------------------------------
+  // Convert input product to type CandidateCollection
+  //-----------------------------------
+  const CandidateCollection* METProducer::convert( const CaloJetCollection* mycol )
+  {
+    tempCol.clear();
+    tempCol.reserve( mycol->size() );
+    for( int i = 0; i < (int) mycol->size(); i++)
+      {
+	const Jet* jet = (Jet*) &mycol->at(i);
+        tempCol.push_back( new LeafCandidate( 0, Particle::LorentzVector( jet->px(), jet->py(), jet->pz(), jet->energy() ) ) );
+      }//memory leak????  ...unclear...depends how OwnVector.clear() works...
+    return  &tempCol;
+  }
+  //--------------------------------------------------------------------------
+
+  //--------------------------------------------------------------------------
+  // Run Algorithm and put results into event
   //-----------------------------------
   void METProducer::produce(Event& event, const EventSetup& setup) 
   {
     //-----------------------------------
     // Step A: Get Inputs.  Create an empty collection of candidates
-    edm::Handle<CandidateCollection> inputs;
-    event.getByLabel( inputLabel, inputs );
+    edm::Handle<CaloJetCollection>   calojetInputs;
+    edm::Handle<CandidateCollection> candidateInputs;
+    if( inputType == "CaloJetCollection" ) event.getByLabel( inputLabel, calojetInputs );
+    else                                   event.getByLabel( inputLabel, candidateInputs );
     //-----------------------------------
     // Step B: Create an empty MET struct output.
     CommonMETData output;
     //-----------------------------------
-    // Step C: Invoke the MET algorithm, which runs on any candidate input. 
-    alg_.run(inputs.product(), &output);  
+    // Step C: Convert input source to type CandidateCollection
+    const CandidateCollection* inputCol; 
+    if( inputType == "CaloJetCollection" ) inputCol = convert( calojetInputs.product() );
+    else                                   inputCol = candidateInputs.product();
+    //-----------------------------------
+    // Step C2: Invoke the MET algorithm, which runs on any CandidateCollection input. 
+    alg_.run(inputCol, &output, globalThreshold);
     //-----------------------------------
     // Step D: Invoke the specific "afterburner", which adds information
     //         depending on the input type, given via the config parameter.
@@ -91,7 +121,7 @@ namespace cms
       CaloSpecificAlgo calo;
       std::auto_ptr<CaloMETCollection> calometcoll; 
       calometcoll.reset(new CaloMETCollection);
-      calometcoll->push_back( calo.addInfo(inputs.product(), output) );
+      calometcoll->push_back( calo.addInfo(candidateInputs.product(), output) );
       event.put( calometcoll );
     }
     //-----------------------------------
@@ -100,7 +130,7 @@ namespace cms
       GenSpecificAlgo gen;
       std::auto_ptr<GenMETCollection> genmetcoll;
       genmetcoll.reset (new GenMETCollection);
-      genmetcoll->push_back( gen.addInfo(inputs.product(), output) );
+      genmetcoll->push_back( gen.addInfo(candidateInputs.product(), output) );
       event.put( genmetcoll );
     }
     //-----------------------------------
