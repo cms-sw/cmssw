@@ -6,8 +6,8 @@
 
 /** \class CaloTPGTranscoderULUT
   *  
-  * $Date: 2006/12/13 18:10:35 $
-  * $Revision: 1.6 $
+  * $Date: 2006/12/21 03:18:43 $
+  * $Revision: 1.7 $
   * \author J. Mans - Minnesota
   */
 class CaloTPGTranscoderULUT : public CaloTPGTranscoder {
@@ -22,8 +22,14 @@ public:
   virtual void rctJetUncompress(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc,
 				   const EcalTrigTowerDetId& eid, const EcalTriggerPrimitiveSample& ec, 
 				   unsigned int& et) const;
-  virtual double hcaletValue(const int& ieta, const int& compET) const;
+
+  void loadhcalUncompress();
+  virtual double hcaletValue(const int& ieta, const int& compressedValue) const;
+  virtual double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const;
+
   
+
+
  private:
   static const int N_TOWER = 32;
   typedef std::vector<int> LUTType;
@@ -32,6 +38,6 @@ public:
   void loadHCAL(const std::string& filename);
   void loadhcalUncompress(const std::string& filename);
   
-  double hcaluncomp_[32][256];
+  double hcaluncomp_[33][256];
 };
 #endif
