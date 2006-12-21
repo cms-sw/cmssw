@@ -1,6 +1,6 @@
 // File: ReadPixClusters.cc
 // Description: TO test the pixel clusters. 
-// Author: Danek Kotlinskiu 
+// Author: Danek Kotlinski 
 // Creation Date:  Initial version. 3/06
 //
 //--------------------------------------------
@@ -44,6 +44,7 @@ using namespace std;
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 
 // For ROOT
 #include <TROOT.h>
@@ -249,6 +250,9 @@ void ReadPixClusters::analyze(const edm::Event& e,
     int rows = theGeomDet->specificTopology().nrows();
     
 
+    const RectangularPixelTopology * topol =
+       dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+
     // barrel ids
     unsigned int layer=0;
     unsigned int ladder=0;
@@ -307,7 +311,11 @@ void ReadPixClusters::analyze(const edm::Event& e,
       }
     } // end barrel/forward
 
-    if(PRINT) cout<<"List clusters : "<<endl;
+    if(PRINT) {
+      cout<<"List clusters : "<<endl;
+      cout<<"Num Charge Size SizeX SizeY X Y Xmin Xmax Ymin Ymax Edge"
+	  <<endl;
+    }
     numberOfClusters = 0;
 
     edm::DetSet<SiPixelCluster>::const_iterator clustIt;
@@ -317,25 +325,72 @@ void ReadPixClusters::analyze(const edm::Event& e,
       numberOfClusters++;
       float ch = (clustIt->charge())/1000.; // convert ke to electrons
       int size = clustIt->size();
-      int sizeX = clustIt->sizeX();
-      int sizeY = clustIt->sizeY();
-      float x = clustIt->x();
-      float y = clustIt->y();
-      int maxPixelCol = clustIt->maxPixelCol();
+      int sizeX = clustIt->sizeX(); //x=row=rfi, 
+      int sizeY = clustIt->sizeY(); //y=col=z_global
+      float x = clustIt->x(); // cluster position as float
+      float y = clustIt->y(); // analog average
+      // Returns int index of the cluster min/max  
+      int minPixelRow = clustIt->minPixelRow(); //x
       int maxPixelRow = clustIt->maxPixelRow();
-      int minPixelCol = clustIt->minPixelCol();
-      int minPixelRow = clustIt->minPixelRow();
+      int minPixelCol = clustIt->minPixelCol(); //y
+      int maxPixelCol = clustIt->maxPixelCol();
       
-      unsigned int geoId = clustIt->geographicalId();
-      bool edgeHitX = false; // clustIt->edgeHitX(); // edge method moved 
-      bool edgeHitY = false; //clustIt->edgeHitY(); // to topologu class
-      
-      //const vector<Pixel>  = clustIt->pixels();
-      
-      if(PRINT) 
+      //unsigned int geoId = clustIt->geographicalId(); // always 0?!
+      // edge method moved to topologu class
+      bool edgeHitX = (topol->isItEdgePixelInX(minPixelRow)) || 
+	(topol->isItEdgePixelInX(maxPixelRow)); 
+      bool edgeHitY = (topol->isItEdgePixelInY(minPixelCol)) || 
+	(topol->isItEdgePixelInY(maxPixelCol)); 
+
+      bool edgeHitX2 = false; // edge method moved 
+      bool edgeHitY2 = false; // to topologu class
+            
+      if(PRINT) {
 	cout<<numberOfClusters<<" "<<ch<<" "<<size<<" "<<sizeX<<" "<<sizeY<<" "
-	    <<x<<" "<<y<<" "<<geoId<<" "<<edgeHitX<<" "<<edgeHitY<<endl;
+	    <<x<<" "<<y<<" "<<minPixelRow<<" "<<maxPixelRow<<" "<<minPixelCol<<" "
+	    <<maxPixelCol<<" "<<edgeHitX<<" "<<edgeHitY<<endl;
+
+	// Get the pixels in the Cluster
+	//const vector<Pixel>  = clustIt->pixels();
+	const vector<SiPixelCluster::Pixel>& pixelsVec = clustIt->pixels();
+	cout<<" Pixels in this cluster "<<endl;
+        bool bigInX=false, bigInY=false;
+        // Look at pixels in this cluster. ADC is calibrated, in electrons
+	bool edgeInX = false; // edge method moved 
+	bool edgeInY = false; // to topologu class
+	bool cluBigInX = false; // does this clu include a big pixel
+	bool cluBigInY = false; // does this clu include a big pixel
+
+        for (unsigned int i = 0;  i < pixelsVec.size(); ++i) {
+          float pixx = pixelsVec[i].x; // index as float=i+0.5
+          float pixy = pixelsVec[i].y; // same
+          float adc = ((pixelsVec[i].adc)/1000);
+          //int chan = PixelChannelIdentifier::pixelToChannel(int(pixx),int(pixy));
+          bool binInX = (RectangularPixelTopology::isItBigPixelInX(int(pixx)));
+          bool bigInY = (RectangularPixelTopology::isItBigPixelInY(int(pixy)));
+
+	  edgeInX = topol->isItEdgePixelInX(int(pixx));
+	  edgeInY = topol->isItEdgePixelInY(int(pixy));
+
+	  cout<<i<<" "<<pixx<<" "<<pixy<<" "<<adc<<" "<<bigInX<<" "<<bigInY
+	      <<" "<<edgeInX<<" "<<edgeInY<<endl;
+
+	  if(edgeInX) edgeHitX2=true;
+	  if(edgeInY) edgeHitY2=true; 
+	  if(bigInX) cluBigInX=true;
+	  if(bigInY) cluBigInY=true;
+	}
+
+	if(edgeHitX != edgeHitX2) 
+	  cout<<" wrong egdeX "<<edgeHitX<<" "<<edgeHitX2<<endl;
+	if(edgeHitY != edgeHitY2) 
+	  cout<<" wrong egdeY "<<edgeHitY<<" "<<edgeHitY2<<endl;
+
+      } // if PRINT
       
+
+
+
       if (subid==1) {  // barrel
 	if(layer==1) {
 	  hcharge1->Fill(ch);
