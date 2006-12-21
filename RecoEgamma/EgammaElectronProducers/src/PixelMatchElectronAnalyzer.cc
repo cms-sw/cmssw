@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAnalyzer.cc,v 1.6 2006/10/27 23:08:25 uberthon Exp $
+// $Id: PixelMatchElectronAnalyzer.cc,v 1.7 2006/12/06 16:17:19 uberthon Exp $
 //
 //
 
@@ -104,7 +104,6 @@ PixelMatchElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
     histPhi_->Fill((*MyS).phi());
 
     // track informations 
-    //    reco::GsfTrackRef tr =(*MyS).track();
     reco::TrackRef tr =(*MyS).track();
     histTrCharge_->Fill(tr->charge());
     histTrInP_->Fill((*tr).innerMomentum().R());
