@@ -1,5 +1,5 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducerAlgorithm.h"
-
+#include "RecoVertex/PrimaryVertexProducer/interface/VertexHigherPtSquared.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -138,22 +138,6 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
 	cout << "PrimaryVertexProducerAlgorithm::vertices  cluster =" << nclu << "  tracks" << (*iclus).size() << endl;
       }
 
-      
-      /*
-      if((*iclus).size()>1){
-	vector<TransientVertex> pvFromClus = theFinder.vertices(*iclus);
-	//cout << "PrimaryVertexProducerAlgorithm::vertices  finder found "  
-	//     <<pvFromClus.size()
-	//     << endl;
-	//pvCand.reserve(pvCand.size() + pvFromClus.size());
-	//std::copy(pvFromClus.begin(), pvFromClus.end(), pvCand.end());
-
-	for (vector<TransientVertex>::const_iterator ipv = pvFromClus.begin();
-	     ipv != pvFromClus.end(); ipv++) {
-	  pvCand.push_back(*ipv);
-	}
-      }
-      */
 
       if( fUseBeamConstraint &&((*iclus).size()>0) ){
 	if (fVerbose){cout <<  "constrained fit with "<< (*iclus).size() << " tracks"  << endl;}
@@ -182,7 +166,8 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
 
 
       nclu++;
-    }
+    }// end of cluster loop
+
 
     if(fVerbose){
       cout << "PrimaryVertexProducerAlgorithm::vertices  candidates =" << pvCand.size() << endl;
@@ -198,20 +183,11 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
       }
       if (theVertexSelector(*ipv)) pvs.push_back(*ipv);
     }
-       
-    //cout << "PrimaryVertexProducerAlgorithm::vertices  vertices =" << pvs.size() << endl;
 
-    /*
-    // test with vertex fitter
-    if (tracks.size() > 1) {
-      KalmanVertexFitter kvf;
-      TransientVertex tv = kvf.vertex(tracks);
-      pvs.push_back(tv);
-    }
-    */
-  }
-
-  catch (std::exception & err) {
+    // sort vertices by pt**2  vertex (aka signal vertex tagging)
+    sort(pvs.begin(), pvs.end(), VertexHigherPtSquared());
+  
+  }  catch (std::exception & err) {
     edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
       << "Exception while reconstructing tracker PV: " 
       << "\n" << err.what() << "\n";
