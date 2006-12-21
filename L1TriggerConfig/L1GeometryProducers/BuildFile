@@ -1,0 +1,12 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=L1TriggerConfig/L1Geometry>
+<flags SEAL_PLUGIN_NAME="L1TriggerConfigL1GeometryProducers">
+<export>
+   <lib name=L1TriggerConfigL1GeometryProducers>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=L1TriggerConfig/L1Geometry>
+</export>
