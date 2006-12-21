@@ -83,9 +83,9 @@ void CaloTPGTranscoderULUT::loadhcalUncompress(const std::string& filename) {
   static const int tpgmax = 256;
   if( userfile ) 
     {
-     for (int i=0; i<etabound; i++) { 
-      for(int j = 0; j <tpgmax; j++) {
-	  userfile >> hcaluncomp_[i][j];}
+     for (int i=0; i<tpgmax; i++) { 
+      for(int j = 0; j <etabound; j++) {
+	  userfile >> hcaluncomp_[j][i];}
     }
      //  cout<<"test hcal"<<endl;
     userfile.close();
@@ -105,7 +105,8 @@ HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTow
     throw cms::Exception("Invalid Data") << "No LUT available for " << itower;
   } 
   if (sample>=lut->size()) {
-    throw cms::Exception("Out of Range") << "LUT has " << lut->size() << " entries for " << itower << " but " << sample << " was requested.";
+    // throw cms::Exception("Out of Range") << "LUT has " << lut->size() << " entries for " << itower << " but " << sample << " was requested.";
+    sample=lut->size()-1;
   }
   //  std::cout << id << ":" << sample << "-->" << (*lut)[sample] << std::endl;
   return HcalTriggerPrimitiveSample((*lut)[sample],fineGrain,0,0);
@@ -113,7 +114,13 @@ HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTow
 
 
 double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& compET) const {
-  
+  double etvalue = hcaluncomp_[ieta][compET];//*cos(eta_ave);
+  return(etvalue);
+}
+
+double CaloTPGTranscoderULUT::hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const {
+  int ieta = hid.ietaAbs();
+  int compET = hc.compressedEt();
   double etvalue = hcaluncomp_[ieta][compET];//*cos(eta_ave);
   return(etvalue);
 }
