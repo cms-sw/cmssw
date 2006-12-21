@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: EDProductfwd.h,v 1.5 2006/12/05 23:56:17 paterno Exp $
+$Id: EDProductfwd.h,v 1.6 2006/12/20 00:21:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -13,6 +13,8 @@ $Id: EDProductfwd.h,v 1.5 2006/12/05 23:56:17 paterno Exp $
 #include "DataFormats/Common/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/ProcessHistoryID.h"
 #include "DataFormats/Common/interface/ProcessConfigurationID.h"
+#include "DataFormats/Common/interface/LuminosityBlockID.h"
+#include "DataFormats/Common/interface/RunID.h"
 
 namespace edm 
 {
@@ -35,8 +37,5 @@ namespace edm
   template <typename C, typename T, typename F> class RefVectorIterator;
   template <typename T> class Wrapper;
 }
-
-// The following are trivial enough so that the real headers can be included.
-#include "DataFormats/Common/interface/EventID.h"
 
 #endif
