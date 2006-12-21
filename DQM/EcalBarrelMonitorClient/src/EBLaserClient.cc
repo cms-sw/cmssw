@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/12/20 21:41:21 $
- * $Revision: 1.101 $
+ * $Date: 2006/12/21 06:50:44 $
+ * $Revision: 1.102 $
  * \author G. Della Ricca
  *
 */
@@ -3994,45 +3994,79 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
 
     htmlFile << "</tr>" << endl;
-
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
+
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
 
       // skip unused wavelengths
       if ( iCanvas == 2 || iCanvas == 3 ) continue;
 
-      htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-      htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-      htmlFile << "<tr align=\"center\">" << endl;
-
       if ( imgNameMEPnPedG01[iCanvas-1].size() != 0 )
-        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPedG01[iCanvas-1] << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << imgNameMEPnPedG01[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
       if ( imgNameMEPnG01[iCanvas-1].size() != 0 )
-        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnG01[iCanvas-1] << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << imgNameMEPnG01[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
-
-      if ( imgNameMEPnPedG16[iCanvas-1].size() != 0 )
-        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPedG16[iCanvas-1] << "\"></td>" << endl;
-      else
-        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
-
-      if ( imgNameMEPnG16[iCanvas-1].size() != 0 )
-        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnG16[iCanvas-1] << "\"></td>" << endl;
-      else
-        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
-
-      htmlFile << "</tr>" << endl;
-
-      htmlFile << "<tr align=\"center\"><td colspan=\"4\">Gain 1</td><td colspan=\"4\">Gain 16</td></tr>" << endl;
-      htmlFile << "</table>" << endl;
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
     }
+
+    htmlFile << "</tr>" << endl;
+
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+
+      // skip unused wavelengths
+      if ( iCanvas == 2 || iCanvas == 3 ) continue;
+
+      htmlFile << "<td colspan=\"2\">Laser " << iCanvas << " - PN Gain 1</td>" << endl;
+
+    }
+
+    htmlFile << "</tr>" << endl;
+
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+
+      // skip unused wavelengths
+      if ( iCanvas == 2 || iCanvas == 3 ) continue;
+
+      if ( imgNameMEPnPedG16[iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameMEPnPedG16[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+      if ( imgNameMEPnG16[iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameMEPnG16[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+    }
+
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+
+      // skip unused wavelengths
+      if ( iCanvas == 2 || iCanvas == 3 ) continue;
+
+      htmlFile << "<td colspan=\"2\">Laser " << iCanvas << " - PN Gain 16</td>" << endl;
+
+    }
+
+    htmlFile << "</tr>" << endl;
+
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
 
     htmlFile << "<br>" << endl;
 
