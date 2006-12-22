@@ -14,7 +14,7 @@ Description: Provide access to any EDProduct that is a sequence.
 //
 // Original Author:  
 //         Created:  Mon Dec 18 09:48:30 CST 2006
-// $Id: View.h,v 1.1 2006/12/20 22:54:11 paterno Exp $
+// $Id: View.h,v 1.2 2006/12/20 23:19:05 paterno Exp $
 //
 
 #include <algorithm>
@@ -80,23 +80,18 @@ namespace edm
     // not a *const_iterator*.
 
     // The following are for testing.
-    friend void fill_from_range<T>(T* first, T* last, View& output);   
+    static void fill_from_range(T* first, T* last, View& output)
+    {
+      output.data_.resize(std::distance(first,last));
+      for (typename View<T>::size_type i = 0; first != last; ++i, ++first)
+	output.data_[i] = first;
+    }
 
   private:
 
     seq_t  data_;
 
   };
-
-  
-  template <class T>
-  void
-  fill_from_range(T* first, T* last, View<T>& output)
-  {
-    output.data_.resize(std::distance(first,last));
-    for (typename View<T>::size_type i = 0; first != last; ++i, ++first)
-      output.data_[i] = first;
-  }
 
   // Associated free functions (same as for std::vector)
   template <class T> bool operator==(View<T> const&, View<T> const&);
