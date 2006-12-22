@@ -1,21 +1,23 @@
+// $Id:$
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/test/SillyLockService.h"
-#include "IOPool/Streamer/interface/Messages.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "IOPool/Streamer/interface/Messages.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
 #include "IOPool/Streamer/interface/StreamTranslator.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
 
-//#include "IOPool/Streamer/interface/DumpTools.h"
-
 #include "boost/bind.hpp"
 
 #include <algorithm>
 #include <utility>
 #include <cstdlib>
+#include <fstream>
 
 using namespace edm;
 using namespace std;
@@ -25,8 +27,6 @@ static const bool debugme = getenv("FRAG_DEBUG")!=0;
 
 namespace stor
 {
-
-  //FragmentCollector::FragmentCollector(const HLTInfo& h,Deleter d,
   FragmentCollector::FragmentCollector(HLTInfo& h,Deleter d,
                                        const string& config_str):
     cmd_q_(&(h.getCommandQueue())),
@@ -37,10 +37,10 @@ namespace stor
     inserter_(*evtbuf_q_),
     prods_(0),//prods_(&p),
 	info_(&h), 
-    runNumber_(0),maxFileSize_(1073741824), highWaterMark_(0.9),
     writer_(new edm::StreamerOutSrvcManager(config_str)),
     evtsrv_area_(10),
-    oneinN_(10), count_4_oneinN_(0) // added for Event Server by HWKC
+    oneinN_(10), 
+    count_4_oneinN_(0) // added for Event Server by HWKC
   {
     // supposed to have given parameterSet smConfigString to writer_
     // at ctor
@@ -55,10 +55,10 @@ namespace stor
     inserter_(*evtbuf_q_),
     prods_(0),
 	info_(info.get()), 
-    runNumber_(0),maxFileSize_(1073741824), highWaterMark_(0.9),
     writer_(new edm::StreamerOutSrvcManager(config_str)),
     evtsrv_area_(10),
-    oneinN_(10), count_4_oneinN_(0) // added for Event Server by HWKC
+    oneinN_(10), 
+    count_4_oneinN_(0) // added for Event Server by HWKC
   {
     // supposed to have given parameterSet smConfigString to writer_
     // at ctor
@@ -261,16 +261,8 @@ namespace stor
   {
     InitMsgView msg(entry->buffer_address_);
 
-    //if(entry->totalSegs_==1) // should test if these are fragments
-    // currently these are taken from the already combined registry
-    // fragments if any - need to change where the fragments are
-    // queued here and remade here?
-   
-    // open file here as there is only one of these per run
-    FR_DEBUG << "FragmentCollector: streamer file starting with " << filen_ << endl;
     FR_DEBUG << "FragColl: writing INIT size " << entry->buffer_size_ << endl;
-    //dumpInitHeader(&msg);
-    // should be passing smConfigSTring to writer_ at construction
-    writer_->manageInitMsg(filen_, runNumber_, maxFileSize_, highWaterMark_, path_, mpath_, catalog_, disks_, msg);
+
+    writer_->manageInitMsg(catalog_, disks_, msg);
   }
 }

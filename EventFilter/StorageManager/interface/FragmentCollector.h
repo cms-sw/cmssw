@@ -15,15 +15,14 @@
 #include "IOPool/Streamer/interface/HLTInfo.h"
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/Utilities.h"
+#include "IOPool/Streamer/interface/MsgTools.h"
+#include "IOPool/Streamer/interface/StreamerOutSrvcManager.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
+
 #include "DataFormats/Common/interface/ProductRegistry.h"
 
 #include "EventFilter/StorageManager/interface/EvtMsgRingBuffer.h"
 #include "EventFilter/StorageManager/interface/EventServer.h"
-
-#include "IOPool/Streamer/interface/MsgTools.h"
-#include "IOPool/Streamer/interface/StreamerOutSrvcManager.h"
-
-#include "IOPool/Streamer/interface/EventMessage.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
@@ -31,7 +30,6 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <fstream>
 
 namespace stor
 {
@@ -80,31 +78,20 @@ namespace stor
     edm::EventInserter inserter_;
     boost::shared_ptr<boost::thread> me_;
     const edm::ProductRegistry* prods_; // change to shared_ptr ? 
-	//const stor::HLTInfo* info_;
-	stor::HLTInfo* info_;  // cannot be const when using EP_Runner?
+    stor::HLTInfo* info_;  // cannot be const when using EP_Runner?
 
   public:
 
-    void set_outoption(bool stream_only) { streamerOnly_ = stream_only; }
-    void set_outfile(std::string outfilestart, uint32 runNum, unsigned long maxFileSize,
-                     double highWaterMark, std::string path, std::string mpath,
-		     std::string catalog, int disks) 
-                       { filen_ = outfilestart; 
-                         runNumber_ = runNum;
-                         maxFileSize_ = maxFileSize;
-                         highWaterMark_ = highWaterMark;
-                         path_ = path; mpath_ = mpath; 
-		         catalog_ = catalog; disks_ = disks;}
+    void set_outoption(bool stream_only)     { streamerOnly_ = stream_only; }
+    void setNumberOfFileSystems(int disks)   { disks_        = disks; }
+    void setFileCatalog(std::string catalog) { catalog_      = catalog; }
+    void setSourceId(std::string sourceId)   { /* will be used later */ }
+
     std::list<std::string>& get_filelist() { return writer_->get_filelist();  }
     std::list<std::string>& get_currfiles() { return writer_->get_currfiles(); }
   private:
     bool streamerOnly_;
-    std::string filen_;
     uint32 runNumber_;
-    unsigned long maxFileSize_;
-    double highWaterMark_;
-    std::string path_;
-    std::string mpath_;
     std::string catalog_;
     uint32 disks_;
 

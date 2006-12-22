@@ -1,4 +1,4 @@
-// $Id: StreamerOutSrvcManager.cc,v 1.12 2006/12/11 09:00:04 klute Exp $
+// $Id: StreamerOutSrvcManager.cc,v 1.13 2006/12/19 00:30:45 wmtan Exp $
 
 #include "IOPool/Streamer/interface/StreamerOutSrvcManager.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -32,11 +32,7 @@ void StreamerOutSrvcManager::stop()
 }
 
 
-void StreamerOutSrvcManager::manageInitMsg(std::string fileName, uint32 runNum, 
-				  unsigned int maxFileSize, double highWaterMark,
-				  std::string path, std::string mpath, 
-				  std::string catalog, uint32 disks, 
-				  InitMsgView& view)
+void StreamerOutSrvcManager::manageInitMsg(std::string catalog, uint32 disks,InitMsgView& view)
 {
   for(std::vector<ParameterSet>::iterator it = outModPSets_.begin();
       it != outModPSets_.end(); ++it)

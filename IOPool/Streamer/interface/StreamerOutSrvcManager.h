@@ -1,7 +1,7 @@
 #ifndef _STREAMEROUTSRVCMANAGER_H_
 #define _STREAMEROUTSRVCMANAGER_H_
 
-// $Id: StreamerOutSrvcManager.h,v 1.8 2006/11/29 10:05:00 klute Exp $
+// $Id: StreamerOutSrvcManager.h,v 1.9 2006/12/19 00:30:44 wmtan Exp $
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/Framework/interface/EventSelector.h"
@@ -32,9 +32,7 @@ namespace edm
     
     void stop(); 
     
-    void manageInitMsg(std::string fileName, uint32 runNum, unsigned int maxFileSize, double highWaterMark,
-		       std::string path, std::string mpath, std::string catalog, uint32 disks, 
-		       InitMsgView& init_message);
+    void manageInitMsg(std::string catalog, uint32 disks, InitMsgView& init_message);
     
     void manageEventMsg(EventMsgView& msg);
     

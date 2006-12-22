@@ -1,11 +1,12 @@
 #ifndef HLT_JOB_CNTLER_HPP
 #define HLT_JOB_CNTLER_HPP
+// $Id:$
 
-#include "IOPool/Streamer/interface/EventBuffer.h"
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/EventServer.h"
-#include "IOPool/Streamer/interface/EventMessage.h"
 
+#include "IOPool/Streamer/interface/EventBuffer.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/Messages.h"
 
 #include "boost/shared_ptr.hpp"
@@ -54,10 +55,11 @@ namespace stor
     }
     boost::shared_ptr<EventServer>& getEventServer() { return eventServer_; }
 
-    void set_outoption(bool stream_only) { collector_->set_outoption(stream_only);}
-    void set_outfile(std::string outfilestart, uint32 runNum, unsigned long maxFileSize,
-           double highWaterMark, std::string path, std::string mpath, std::string catalog, int disks) 
-           { collector_->set_outfile(outfilestart,runNum, maxFileSize,highWaterMark,path,mpath,catalog,disks);}
+    void set_outoption(bool stream_only)      { collector_->set_outoption(stream_only);}
+    void setNumberOfFileSystems(int disks)    { collector_->setNumberOfFileSystems(disks); }
+    void setFileCatalog(std::string catalog)  { collector_->setFileCatalog(catalog); }
+    void setSourceId(std::string sourceId)    { collector_->setSourceId(sourceId); }
+
     std::list<std::string>& get_filelist() { return collector_->get_filelist(); }
     std::list<std::string>& get_currfiles() { return collector_->get_currfiles(); }
 
