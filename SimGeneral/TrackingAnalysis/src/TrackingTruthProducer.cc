@@ -1,3 +1,13 @@
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
+
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,16 +21,6 @@
 
 #include "SimGeneral/TrackingAnalysis/interface/EncodedTruthId.h"
 #include "SimGeneral/TrackingAnalysis/interface/TrackingTruthProducer.h"
-
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 #include <map>
 
@@ -90,9 +90,9 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     edm::LogWarning (MessageCategory) << "Crossing frame not found.";
     return;
   }    
-  std::auto_ptr<MixCollection<SimTrack> >   trackCollection (new MixCollection<SimTrack>(cf.product()));
-  std::auto_ptr<MixCollection<SimVertex> > vertexCollection (new MixCollection<SimVertex>(cf.product()));
-  std::auto_ptr<MixCollection<PSimHit> >      hitCollection (new MixCollection<PSimHit>(cf.product(),hitLabelsVector_));
+  std::auto_ptr<MixCollection<SimTrack> >   trackCollection(new MixCollection<SimTrack>(cf.product()));
+  std::auto_ptr<MixCollection<SimVertex> > vertexCollection(new MixCollection<SimVertex>(cf.product()));
+  std::auto_ptr<MixCollection<PSimHit> >      hitCollection(new MixCollection<PSimHit>(cf.product(),hitLabelsVector_));
   
 // Create collections of things we will put in event,
   auto_ptr<TrackingParticleCollection> tPC(new TrackingParticleCollection);
@@ -292,8 +292,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   event.put(tVC,"VertexTruth");
 }
 
-int TrackingTruthProducer::LayerFromDetid(const unsigned int& detid )
-{
+int TrackingTruthProducer::LayerFromDetid(const unsigned int& detid ) {
   DetId detId = DetId(detid);
   int layerNumber=0;
   unsigned int subdetId = static_cast<unsigned int>(detId.subdetId()); 
