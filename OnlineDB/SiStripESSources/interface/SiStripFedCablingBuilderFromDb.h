@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.7 2006/10/10 14:36:26 bainbrid Exp $
-// Latest tag:  $Name: TIF_031106 $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.8 2006/11/08 16:09:35 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
@@ -23,7 +23,7 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESSource {
   SiStripFedCablingBuilderFromDb( const edm::ParameterSet& );
   virtual ~SiStripFedCablingBuilderFromDb(); 
   
-  /** Builds FED cabling using information from TK config DB. */
+  /** Builds FED cabling using infor from configuration database. */
   virtual SiStripFedCabling* makeFedCabling();
   
   // ----------------------------------------------------------------------
@@ -89,9 +89,6 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESSource {
   
   /** Access to the configuration DB interface class. */
   SiStripConfigDb* db_;
-  
-  /** Container for DB connection parameters. */
-  SiStripConfigDb::DbParams dbParams_;
   
   /** Defines "source" (conns, devices, detids) of cabling info. */
   sistrip::CablingSource source_;
