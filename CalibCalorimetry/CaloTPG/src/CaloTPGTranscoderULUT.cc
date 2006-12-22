@@ -84,7 +84,7 @@ void CaloTPGTranscoderULUT::loadhcalUncompress(const std::string& filename) {
   if( userfile ) 
     {
      for (int i=0; i<tpgmax; i++) { 
-      for(int j = 0; j <etabound; j++) {
+      for(int j = 1; j <etabound; j++) {
 	  userfile >> hcaluncomp_[j][i];}
     }
      //  cout<<"test hcal"<<endl;
