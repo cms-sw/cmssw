@@ -30,16 +30,9 @@ void SummaryPlotFactoryBase::init( const sistrip::Monitorable& mon,
 				   const string& level, 
 				   const sistrip::Granularity& gran ) {
   
-  // Set parameters
-  mon_ = mon;
-  pres_ = pres;
-  view_ = view;
-  level_ = level;
-  gran_ = gran;
-  
   // Retrieve utility class used to generate summary histograms
-  if ( generator_ ) { 
-    delete generator_;
+  if ( view != view_ && generator_ ) { 
+    delete generator_; 
     generator_ = 0;
   }
   generator_ = SummaryGenerator::instance( view );
@@ -51,8 +44,18 @@ void SummaryPlotFactoryBase::init( const sistrip::Monitorable& mon,
     return;
   }
   
-  // Clear map 
-  generator_->clearMap();
+  // Check if map needs to be cleared
+  if ( mon != mon_ || view != view_ || level != level_ || gran != gran_ ) {
+    generator_->clearMap();
+  }
+  
+  // Set parameters
+  mon_ = mon;
+  pres_ = pres;
+  view_ = view;
+  level_ = level;
+  gran_ = gran;
+
   
 }
 
