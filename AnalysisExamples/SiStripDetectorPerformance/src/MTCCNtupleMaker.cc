@@ -217,7 +217,7 @@ void MTCCNtupleMaker::beginJob(const edm::EventSetup& c){
   
   const TrackerGeometry::DetIdContainer& Id = estracker->detIds();
    
-  TrackerGeometry::DetIdContainer::iterator Iditer;
+  TrackerGeometry::DetIdContainer::const_iterator Iditer;
     
   monodscounter=0;
   monosscounter=0;
@@ -1184,7 +1184,7 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      }
 	  }
 
-	  size	      = oIter->width(); // cluster width
+	  size	      = (int) oIter->width(); // cluster width
 
 	  // ClusterInfo was not processed yet
 	  clusterpos    = oIter->position();

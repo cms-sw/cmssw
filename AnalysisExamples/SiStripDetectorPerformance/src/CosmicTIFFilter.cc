@@ -103,7 +103,7 @@ bool CosmicTIFFilter::Sci_trig(HepLorentzVector vertex,  HepLorentzVector moment
 	  float Sy=S.y();
 	  float Sz=S.z();
 
-	  float ys=Sy;
+	  //float ys=Sy;
 	  float zs=(Sy-y0)*(pz0/py0)+z0;
 	  //	  float xs=((Sy-y0)*(pz0/py0)-z0)*(px0/pz0)+x0;
 	  float xs=(Sy-y0)*(px0/py0)+x0;

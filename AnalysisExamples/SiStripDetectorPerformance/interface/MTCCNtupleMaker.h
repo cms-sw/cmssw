@@ -72,7 +72,7 @@ class MTCCNtupleMaker : public edm::EDAnalyzer
   
  private:
  
-  const TrackerGeometry::DetIdContainer& Id;
+  //  const TrackerGeometry::DetIdContainer& Id;
   
   typedef std::map <int, TProfile*> histomap;
   typedef StripSubdetector::SubDetector SiSubDet;
