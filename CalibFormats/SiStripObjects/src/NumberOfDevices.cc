@@ -31,28 +31,28 @@ void NumberOfDevices::clear() {
 // -----------------------------------------------------------------------------
 //
 void NumberOfDevices::print( stringstream& ss ) const {
-  ss << "  FEC crates: " << nFecCrates_
-     << "  FEC slots: " << nFecSlots_
-     << "  FEC rings: " << nFecRings_
-     << "  CCU addrs: " << nCcuAddrs_
-     << "  CCU chans: " << nCcuChans_ << endl
-     << "  DCU ids: " << nDcuIds_
-     << "  DCUs: " << nDcus_
-     << "  MUXes: " << nMuxes_
-     << "  PLLs: " << nPlls_
-     << "  LLDs: " << nLlds_ << endl
-     << "  DET ids: " << nDetIds_
-     << "  APV pairs: " << nApvPairs_
-     << "  APVs: " << nApvs_
-     << "  FED channels: " << nFedChans_ << endl
-     << "  Mods with nApvPairs=0/1/2/3/other: " 
-     << nApvPairs0_ << "/" 
-     << nApvPairs1_ << "/"
-     << nApvPairs2_ << "/"
-     << nApvPairs3_ << "/"
+  ss << "  FEC crates   : " << nFecCrates_ << endl
+     << "  FEC slots    : " << nFecSlots_ << endl
+     << "  FEC rings    : " << nFecRings_ << endl
+     << "  CCU addrs    : " << nCcuAddrs_ << endl
+     << "  CCU chans    : " << nCcuChans_ << endl
+     << "  DCU ids      : " << nDcuIds_ << endl
+     << "  DCUs         : " << nDcus_ << endl
+     << "  MUXes        : " << nMuxes_ << endl
+     << "  PLLs         : " << nPlls_ << endl
+     << "  LLDs         : " << nLlds_ << endl
+     << "  DET ids      : " << nDetIds_ << endl
+     << "  APV pairs    : " << nApvPairs_ << endl
+     << "  APVs         : " << nApvs_ << endl
+     << "  FED channels : " << nFedChans_ << endl
+     << "  Number of APV pairs per module (0/1/2/3/other)    : " 
+     << nApvPairs0_ << " / " 
+     << nApvPairs1_ << " / "
+     << nApvPairs2_ << " / "
+     << nApvPairs3_ << " / "
      << nApvPairsX_ << endl
-     << "  Total Mods/Chans (nApvPairs<=3): " 
-     << ( nApvPairs0_ + nApvPairs1_ + nApvPairs2_ + nApvPairs3_ ) << "/"
+     << "  Total number of modules / channels (nApvPairs<=3) : " 
+     << ( nApvPairs0_ + nApvPairs1_ + nApvPairs2_ + nApvPairs3_ ) << " / "
      << ( 0*nApvPairs0_ + 1*nApvPairs1_ + 2*nApvPairs2_ + 3*nApvPairs3_ );
 }
   

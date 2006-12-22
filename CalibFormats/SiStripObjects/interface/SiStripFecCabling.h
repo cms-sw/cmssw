@@ -17,55 +17,42 @@ class SiStripFecCabling {
   
  public:
 
-  // ----- Constructors, destructors -----
+  // ---------- Constructors, destructors ----------
   
   /** */
   SiStripFecCabling( const SiStripFedCabling& );
-
   /** */
   SiStripFecCabling() {;}
-  
   /** */
   ~SiStripFecCabling() {;} //@@ needs implementation!!
   
-  /** */
-  void buildFecCabling( const SiStripFedCabling& ); 
-
-  // ----- Getters -----
+  // ---------- Methods to retrieve connection info ----------
   
   /** */
   inline const std::vector<SiStripFecCrate>& crates() const;
-  
-  /** TEMPORARY: to maintain backward compatibility! */
-  inline const std::vector<SiStripFec>& fecs() const;
-  
+  /** */
+  inline const std::vector<SiStripFec>& fecs() const; //@@ TEMPORARY: to maintain backward compatibility!
   /** */
   void connections( std::vector<FedChannelConnection>& ) const;
-  
   /** */
   const SiStripModule& module( const FedChannelConnection& conn ) const;
-
   /** */
   const SiStripModule& module( const uint32_t& dcu_id ) const;
-  
-  // ----- Setters -----
-
-  /** */
-  void addDevices( const FedChannelConnection& conn );
-
-  /** */
-  inline void dcuId( const FedChannelConnection& conn );
-
-  /** */
-  inline void detId( const FedChannelConnection& conn );
-
-  /** */
-  inline void nApvPairs( const FedChannelConnection& conn );
-  
-  // ----- Misc -----
-
   /** */
   const NumberOfDevices& countDevices() const;
+  
+  // ---------- Methods used to build FEC cabling ----------
+
+  /** */
+  void buildFecCabling( const SiStripFedCabling& ); 
+  /** */
+  void addDevices( const FedChannelConnection& conn );
+  /** */
+  inline void dcuId( const FedChannelConnection& conn );
+  /** */
+  inline void detId( const FedChannelConnection& conn );
+  /** */
+  inline void nApvPairs( const FedChannelConnection& conn );
   
  private:
 
@@ -74,7 +61,7 @@ class SiStripFecCabling {
   
 };
 
-// ---------- inline methods ----------
+// ---------- Inline methods ----------
 
 const std::vector<SiStripFecCrate>& SiStripFecCabling::crates() const { return crates_; }
 
