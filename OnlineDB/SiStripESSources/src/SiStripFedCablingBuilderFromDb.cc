@@ -1,8 +1,10 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.27 2006/11/19 19:54:53 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.28 2006/12/01 16:36:39 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
+
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -22,7 +24,6 @@ using namespace sistrip;
 SiStripFedCablingBuilderFromDb::SiStripFedCablingBuilderFromDb( const edm::ParameterSet& pset ) 
   : SiStripFedCablingESSource( pset ),
     db_(0),
-    dbParams_(),
     source_(sistrip::UNDEFINED_CABLING_SOURCE)
 {
   LogTrace(mlCabling_) 
@@ -32,26 +33,12 @@ SiStripFedCablingBuilderFromDb::SiStripFedCablingBuilderFromDb( const edm::Param
   // Defined cabling "source" (connections, devices, detids)
   string source = pset.getUntrackedParameter<string>( "CablingSource", "UNDEFINED" );
   source_ = SiStripHistoNamingScheme::cablingSource( source );
+
   LogTrace(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
-    << " CablingSource: " << SiStripHistoNamingScheme::cablingSource( source_ );
-  
-  // Retrieve DB connection parameters
-  dbParams_.usingDb_ = pset.getUntrackedParameter<bool>("UsingDb",true); 
-  dbParams_.confdb( pset.getUntrackedParameter<string>("ConfDb","") );
-  dbParams_.partition_ = pset.getUntrackedParameter<string>("Partition","");
-  dbParams_.major_ = pset.getUntrackedParameter<unsigned int>("MajorVersion",0);
-  dbParams_.minor_ = pset.getUntrackedParameter<unsigned int>("MinorVersion",0);
-  dbParams_.inputModuleXml_ = pset.getUntrackedParameter<string>("InputModuleXml","");
-  dbParams_.inputDcuInfoXml_ = pset.getUntrackedParameter<string>("InputDcuInfoXml",""); 
-  dbParams_.inputFecXml_ = pset.getUntrackedParameter< vector<string> >( "InputFecXml", vector<string>(1,"") ); 
-  dbParams_.inputFedXml_ = pset.getUntrackedParameter< vector<string> >( "InputFedXml", vector<string>(1,"") ); 
-  dbParams_.inputDcuConvXml_ = pset.getUntrackedParameter<string>( "InputDcuConvXml","" );
-  dbParams_.outputModuleXml_ = pset.getUntrackedParameter<string>("OutputModuleXml","/tmp/module.xml");
-  dbParams_.outputDcuInfoXml_ = pset.getUntrackedParameter<string>("OutputDcuInfoXml","/tmp/dcuinfo.xml");
-  dbParams_.outputFecXml_ = pset.getUntrackedParameter<string>( "OutputFecXml", "/tmp/fec.xml" );
-  dbParams_.outputFedXml_ = pset.getUntrackedParameter<string>( "OutputFedXml", "/tmp/fed.xml" );
-  
+    << " CablingSource configurable set to \"" << source << "\""
+    << ". CablingSource member data set to: \"" 
+    << SiStripHistoNamingScheme::cablingSource( source_ ) << "\"";
 }
 
 // -----------------------------------------------------------------------------
@@ -66,62 +53,49 @@ SiStripFedCablingBuilderFromDb::~SiStripFedCablingBuilderFromDb() {
 /** */
 SiStripFedCabling* SiStripFedCablingBuilderFromDb::makeFedCabling() {
   LogTrace(mlCabling_) 
-    << "[SiStripFedCablingBuilderUsingDbService::" << __func__ << "]"
+    << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Constructing FED cabling...";
    
   // Create FED cabling object 
   SiStripFedCabling* fed_cabling = new SiStripFedCabling();
-
-  // Create SiStripConfigDb object
-  if ( dbParams_.usingDb_ ) {
-    db_ = new SiStripConfigDb( dbParams_.confdb_,
-			       dbParams_.partition_,
-			       dbParams_.major_,
-			       dbParams_.minor_ );
-  } else {
-    db_ = new SiStripConfigDb( dbParams_.inputModuleXml_,
-			       dbParams_.inputDcuInfoXml_,
-			       dbParams_.inputFecXml_,
-			       dbParams_.inputFedXml_,
-			       dbParams_.outputModuleXml_,
-			       dbParams_.outputDcuInfoXml_,
-			       dbParams_.outputFecXml_,
-			       dbParams_.outputFedXml_ );
-  }
   
+  // Build and retrieve SiStripConfigDb object using service
+  db_ = edm::Service<SiStripConfigDb>().operator->(); //@@ NOT GUARANTEED TO BE THREAD SAFE! 
+  
+  // Check if DB connection is made 
   if ( db_ ) { 
 
-    // Establish DB connection
-    db_->openDbConnection(); 
+    if ( db_->deviceFactory() ) { 
 
-    // Build FEC cabling object
-    SiStripFecCabling fec_cabling;
-    SiStripConfigDb::DcuDetIdMap dcu_detid_map;
-    buildFecCabling( db_, fec_cabling, dcu_detid_map, source_ ); 
-  
-    // Populate FED cabling object
-    getFedCabling( fec_cabling, *fed_cabling );
-  
-    // Call virtual method that writes FED cabling object to conditions DB
-    writeFedCablingToCondDb( *fed_cabling );
-  
-    // Prints FED cabling
-    stringstream ss;
-    ss << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]" 
-       << " Printing cabling map..." << endl 
-       << *fed_cabling;
-    LogTrace(mlCabling_) << ss.str();
+      // Build FEC cabling object
+      SiStripFecCabling fec_cabling;
+      SiStripConfigDb::DcuDetIdMap dcu_detid_map;
+      buildFecCabling( db_, fec_cabling, dcu_detid_map, source_ );
 
-    // Close connection
-    db_->closeDbConnection(); 
-    delete db_; 
-    db_ = 0;
-
+      // Populate FED cabling object
+      getFedCabling( fec_cabling, *fed_cabling );
+      
+      // Call virtual method that writes FED cabling object to conditions DB
+      writeFedCablingToCondDb( *fed_cabling );
+      
+      // Prints FED cabling
+      stringstream ss;
+      ss << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]" 
+	 << " Printing cabling map..." << endl 
+	 << *fed_cabling;
+      LogTrace(mlCabling_) << ss.str();
+      
+    } else {
+      edm::LogWarning(mlCabling_)
+	<< "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
+	<< " NULL pointer to DeviceFactory returned by SiStripConfigDb!"
+	<< " Cannot build FED cabling object!";
+    }
   } else {
     edm::LogWarning(mlCabling_)
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
-      << " NULL pointer to SiStripConfigDb!"
-      << " Cannot establist DB connection!";
+      << " NULL pointer to SiStripConfigDb returned by DB \"service\"!"
+      << " Cannot build FED cabling object!";
   }
   
   return fed_cabling;
@@ -136,62 +110,27 @@ void SiStripFedCablingBuilderFromDb::buildFecCabling( SiStripConfigDb* const db,
 						      const sistrip::CablingSource& source ) {
 
   if ( source == sistrip::CABLING_FROM_CONNS ) {
-
-    if ( !db->getFedConnections().empty() ) {
-      buildFecCablingFromFedConnections( db, fec_cabling, new_map ); 
-    } else {
-      edm::LogError(mlCabling_)
-	<< "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
-	<< " Cannot build SiStripFecCabling object!"
-	<< " FedConnections vector is empty!";
-      return;
-    }
-
+    
+    buildFecCablingFromFedConnections( db, fec_cabling, new_map ); 
+    
   } else if ( source == sistrip::CABLING_FROM_DEVICES ) {
-
-    if ( !db->getDeviceDescriptions().empty() ) {
-      buildFecCablingFromDevices( db, fec_cabling, new_map ); 
-    } else {
-      edm::LogError(mlCabling_)
-	<< "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
-	<< " Cannot build SiStripFecCabling object!"
-	<< " DeviceDescriptions vector is empty!";
-      return;
-    }
-
+    
+    buildFecCablingFromDevices( db, fec_cabling, new_map ); 
+    
   } else if ( source == sistrip::CABLING_FROM_DETIDS ) {
-
-    if ( !db->getDcuDetIdMap().empty() ) {
-      buildFecCablingFromDetIds( db, fec_cabling, new_map ); 
-    } else {
-      edm::LogError(mlCabling_)
-	<< "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
-	<< " Cannot build SiStripFecCabling object!"
-	<< " DcuDetIdMap vector is empty!";
-      return;
-    }
+    
+    buildFecCablingFromDetIds( db, fec_cabling, new_map ); 
     
   } else if ( source == sistrip::UNDEFINED_CABLING_SOURCE ) {
-
+    
     LogTrace(mlCabling_)
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
-      << " CablingSource is UNDEFINED!" //<< SiStripHistNamingScheme::cablingSource( source_ )
-      << " Querying DB in order to build cabling from one of connections, devices or DetIds...";
+      << " Unexpected value for CablingSource: \"" 
+      << SiStripHistoNamingScheme::cablingSource( source )
+      << "\" Querying DB in order to build cabling from one of connections, devices or DetIds...";
+    buildFecCabling( db, fec_cabling, new_map );
+    return;
     
-    if ( !db->getFedConnections().empty() ) {
-      buildFecCablingFromFedConnections( db, fec_cabling, new_map ); 
-    } else if ( !db->getDeviceDescriptions().empty() ) {
-      buildFecCablingFromDevices( db, fec_cabling, new_map ); 
-    } else if ( !db->getDcuDetIdMap().empty() ) {
-      buildFecCablingFromDetIds( db, fec_cabling, new_map ); 
-    } else {
-      edm::LogError(mlCabling_)
-	<< "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
-	<< " Cannot build SiStripFecCabling object!"
-	<< " FedConnections, DeviceDescriptions and DcuDetIdMap vectors are all empty!";
-      return;
-    }
-
   } else {
 
     edm::LogError(mlCabling_)
@@ -225,7 +164,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCabling( SiStripConfigDb* const db,
     buildFecCablingFromDevices( db, fec_cabling, new_map ); 
   } else if ( !db->getDcuDetIdMap().empty() ) {
     buildFecCablingFromDetIds( db, fec_cabling, new_map ); 
-  } else {
+  } else { 
     edm::LogError(mlCabling_)
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
       << " Cannot build SiStripFecCabling object!"
@@ -297,6 +236,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
   if ( conns.empty() ) { 
     edm::LogWarning(mlCabling_) 
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
+      << " Unable to build FEC cabling!"
       << " No entries in FedConnections vector!";
     return;
   }
@@ -399,6 +339,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
   if ( apv_desc.empty() ) { 
     edm::LogWarning(mlCabling_) 
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
+      << " Unable to build FEC cabling!"
       << " No APV descriptions found!";
     return;
   }
@@ -565,7 +506,14 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDetIds( SiStripConfigDb*
   // ---------- Retrieve necessary descriptions from database ----------
   
   SiStripConfigDb::DcuDetIdMap cached_map = db->getDcuDetIdMap();
-  
+  if ( cached_map.empty() ) {
+    edm::LogError(mlCabling_)
+      << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
+      << " Unable to build FEC cabling!"
+      << " DcuDetIdMap vector is empty!";
+    return;
+  }
+
   // ---------- Populate FEC cabling object with DCU, DetId and "dummy" control info ----------
 
   uint32_t imodule = 0;
@@ -857,12 +805,3 @@ void SiStripFedCablingBuilderFromDb::getFecCabling( const SiStripFedCabling& fed
 						    SiStripFecCabling& fec_cabling ) {
   fec_cabling.buildFecCabling( fed_cabling );
 }
-
-
-
-
-
-
-
-
-  
