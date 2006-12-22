@@ -27,6 +27,7 @@ namespace sistrip {
   static const std::string mlDqmSource_   = "SiStripDqmSource";
   static const std::string mlDqmClient_   = "SiStripDqmClient";
   static const std::string mlInputSource_ = "SiStripInputSource";
+  static const std::string mlESSources_   = "SiStripESSources";
 
 }
 
