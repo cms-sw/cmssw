@@ -670,6 +670,9 @@ namespace edmtest
 
           // remake header
           char* dummyBuffer = new char[max_i2o_sm_datasize_];
+	  EventMsg msgFrag(dummyBuffer, thisSize+headerNeededSize,
+			    eventid, runid, thisCount+1, numFramesNeeded);
+
           for (unsigned int i=0; i<headerNeededSize; i++)
             msg->dataPtr()[i] = dummyBuffer[i];	  
 	  delete [] dummyBuffer;
