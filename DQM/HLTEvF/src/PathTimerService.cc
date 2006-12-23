@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: PathTimerService.cc,v 1.1 2006/12/15 06:07:56 dlange Exp $
+// $Id: PathTimerService.cc,v 1.2 2006/12/15 06:09:55 dlange Exp $
 //
 
 #include "DQM/HLTEvF/interface/PathTimerService.h"
@@ -71,7 +71,6 @@ namespace edm {
       for ( unsigned int i=0; i<trigPaths.size(); i++) {
 	_pathMapping[i]=trigPaths[i];
 	HLTPerformanceInfo::Path hltPath(trigPaths[i]);
-	_perfInfo->addPath(hltPath);
 
 	_moduleList[trigPaths[i]]="";
 	const std::vector<std::string> modules=tns->getTrigPathModules(trigPaths[i]);
@@ -84,13 +83,10 @@ namespace edm {
 	  if ( iMod == _perfInfo->endModules() ) {
 	    HLTPerformanceInfo::Module hltModule(modules[j].c_str(),0);
 	    _perfInfo->addModule(hltModule);
-	    _perfInfo->addModuleToPath(modules[j].c_str(),&hltPath);
 	  }
-	  else{
-	    
-	  }
-
+	  _perfInfo->addModuleToPath(modules[j].c_str(),&hltPath);
 	}
+	_perfInfo->addPath(hltPath);
       }
       curr_job_ = getTime();
 
@@ -151,6 +147,7 @@ namespace edm {
 	HLTPerformanceInfo::Path *path=const_cast<HLTPerformanceInfo::Path*>(&(*iPath));
 	if ( iPath->name() == name) 
 	  path->setStatus(status);
+
 	iPath++;
       }
     }
