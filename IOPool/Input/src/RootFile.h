@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.13 2006/09/24 17:11:11 wmtan Exp $
+$Id: RootFile.h,v 1.14 2006/12/14 04:30:59 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -13,13 +13,17 @@ $Id: RootFile.h,v 1.13 2006/09/24 17:11:11 wmtan Exp $
 #include <string>
 
 #include "boost/shared_ptr.hpp"
+#include "boost/array.hpp"
 
 #include "IOPool/Input/src/Inputfwd.h"
+#include "IOPool/Input/src/RootTree.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "DataFormats/Common/interface/BranchEntryDescription.h"
 #include "DataFormats/Common/interface/EventAux.h"
+#include "DataFormats/Common/interface/LuminosityBlockAux.h"
+#include "DataFormats/Common/interface/RunAux.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 #include "TBranch.h"
 #include "TFile.h"
 
@@ -30,28 +34,27 @@ namespace edm {
 
   class RootFile {
   public:
-    typedef input::BranchMap BranchMap;
-    typedef input::EntryNumber EntryNumber;
-    typedef std::map<ProductID, BranchDescription> ProductMap;
-    BranchMap const& branches() const {return *branches_;}
+    typedef RootTree::BranchMap BranchMap;
+    typedef RootTree::ProductMap ProductMap;
+    typedef boost::array<RootTree *, EndBranchType> RootTreePtrArray;
     explicit RootFile(std::string const& fileName,
 		      std::string const& catalogName,
 		      std::string const& logicalFileName = std::string());
     ~RootFile();
     void open();
     void close();
-    bool next() {return ++entryNumber_ < entries_;} 
-    bool previous() {return --entryNumber_ >= 0;} 
     std::auto_ptr<EventPrincipal> read(ProductRegistry const& pReg);
     ProductRegistry const& productRegistry() const {return *productRegistry_;}
     boost::shared_ptr<ProductRegistry> productRegistrySharedPtr() const {return productRegistry_;}
-    TBranch *auxBranch() {return auxBranch_;}
     EventAux const& eventAux() {return eventAux_;}
+    LuminosityBlockAux const& luminosityBlockAux() {return lumiAux_;}
+    RunAux const& runAux() {return runAux_;}
     EventID const& eventID() {return eventAux().id();}
-    EntryNumber const& entryNumber() const {return entryNumber_;}
-    EntryNumber const& entries() const {return entries_;}
-    void setEntryNumber(EntryNumber theEntryNumber) {entryNumber_ = theEntryNumber;}
-    EntryNumber getEntryNumber(EventID const& eventID) const;
+    RootTreePtrArray & treePointers() {return treePointers_;}
+    RootTree & eventTree() {return eventTree_;}
+    RootTree & lumiTree() {return lumiTree_;}
+    RootTree & runTree() {return runTree_;}
+    BranchMap const& branches() const {return *branches_;}
 
   private:
     RootFile(RootFile const&); // disable copy construction
@@ -59,26 +62,20 @@ namespace edm {
     std::string const file_;
     std::string const logicalFile_;
     std::string const catalog_;
-    std::vector<std::string> branchNames_;
-    std::vector<BranchEntryDescription> eventProvenance_;
-    std::vector<BranchEntryDescription *> eventProvenancePtrs_;
+    boost::shared_ptr<TFile> filePtr_;
     JobReport::Token reportToken_;
     EventAux eventAux_;
-    EntryNumber entryNumber_;
-    EntryNumber entries_;
+    LuminosityBlockAux lumiAux_;
+    RunAux runAux_;
+    RootTree eventTree_;
+    RootTree lumiTree_;
+    RootTree runTree_;
+    RootTreePtrArray treePointers_;
     boost::shared_ptr<ProductRegistry> productRegistry_;
     boost::shared_ptr<BranchMap> branches_;
-    ProductMap productMap_;
+    ProductMap products_;
     boost::shared_ptr<LuminosityBlockPrincipal const> luminosityBlockPrincipal_;
-// We use bare pointers for pointers to ROOT entities.
-// Root owns them and uses bare pointers internally.
-// Therefore,using shared pointers here will do no good.
-    TTree *eventTree_;
-    TTree *eventMetaTree_;
-    TBranch *auxBranch_;
-    boost::shared_ptr<TFile> filePtr_;
   }; // class RootFile
-
 
 }
 #endif

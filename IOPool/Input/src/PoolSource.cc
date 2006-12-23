@@ -1,9 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.37 2006/09/28 20:35:12 wmtan Exp $
+$Id: PoolSource.cc,v 1.38 2006/10/24 20:29:02 wmtan Exp $
 ----------------------------------------------------------------------*/
-
 #include "IOPool/Input/src/PoolSource.h"
 #include "IOPool/Input/src/RootFile.h"
+#include "IOPool/Input/src/RootTree.h"
 #include "IOPool/Common/interface/ClassFiller.h"
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -13,13 +13,14 @@ $Id: PoolSource.cc,v 1.37 2006/09/28 20:35:12 wmtan Exp $
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "TTree.h"
+
 namespace edm {
   PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :
     VectorInputSource(pset, desc),
     fileIter_(fileCatalogItems().begin()),
     rootFile_(),
     origRootFile_(),
-    origEntryNumber_(),
     matchMode_(BranchDescription::Permissive)
   {
     std::string matchMode = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
@@ -43,30 +44,32 @@ namespace edm {
     if (firstEventID != EventID()) {
       EventID id = EventID(pset.getUntrackedParameter<unsigned int>("firstRun", 1),
 		  pset.getUntrackedParameter<unsigned int>("firstEvent", 1));
-      RootFile::EntryNumber entry = rootFile_->getEntryNumber(id);
+      RootTree::EntryNumber entry = rootFile_->eventTree().getBestEntryNumber(id.run(), id.event());
       while (entry < 0) {
         // Set the entry to the last entry in this file
-        rootFile_->setEntryNumber(rootFile_->entries()-1);
+        rootFile_->eventTree().setEntryNumber(rootFile_->eventTree().entries()-1);
 
         // Advance to the first entry of the next file, if there is a next file.
         if(!next()) {
           throw cms::Exception("MismatchedInput","PoolSource::PoolSource()")
 	    << "Input files have no " << id << "\n";
         }
-        entry = rootFile_->getEntryNumber(id);
+        entry = rootFile_->eventTree().getBestEntryNumber(id.run(), id.event());
       }
-      rootFile_->setEntryNumber(entry - 1);
+      rootFile_->eventTree().setEntryNumber(entry - 1);
     }
     int eventsToSkip = pset.getUntrackedParameter<unsigned int>("skipEvents", 0);
     if (eventsToSkip > 0) {
       skip(eventsToSkip);
     }
     origRootFile_ = rootFile_;
-    origEntryNumber_ = rootFile_->entryNumber();
+    rootFile_->eventTree().setOrigEntryNumber();
+    rootFile_->lumiTree().setOrigEntryNumber();
+    rootFile_->runTree().setOrigEntryNumber();
   }
 
   void PoolSource::init(FileCatalogItem const& file) {
-
+    TTree::SetMaxTreeSize(kMaxLong64);
     rootFile_ = RootFileSharedPtr(new RootFile(file.fileName(), catalog().url(), file.logicalFileName()));
   }
 
@@ -82,7 +85,7 @@ namespace edm {
   }
 
   bool PoolSource::next() {
-    if(rootFile_->next()) return true;
+    if(rootFile_->eventTree().next()) return true;
     ++fileIter_;
     if(fileIter_ == fileCatalogItems().end()) {
       if (primary()) {
@@ -111,7 +114,7 @@ namespace edm {
   }
 
   bool PoolSource::previous() {
-    if(rootFile_->previous()) return true;
+    if(rootFile_->eventTree().previous()) return true;
     if(fileIter_ == fileCatalogItems().begin()) {
       if (primary()) {
 	return false;
@@ -136,7 +139,7 @@ namespace edm {
       throw cms::Exception("MismatchedInput","PoolSource::previous()")
         << mergeInfo;
     }
-    rootFile_->setEntryNumber(rootFile_->entries());
+    rootFile_->eventTree().setEntryNumber(rootFile_->eventTree().entries());
     return previous();
   }
 
@@ -169,9 +172,9 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   PoolSource::readIt(EventID const& id) {
-    RootFile::EntryNumber entry = rootFile_->getEntryNumber(id);
+    RootTree::EntryNumber entry = rootFile_->eventTree().getBestEntryNumber(id.run(), id.event());
     if (entry >= 0) {
-      rootFile_->setEntryNumber(entry - 1);
+      rootFile_->eventTree().setEntryNumber(entry - 1);
       return read();
     } else {
       return std::auto_ptr<EventPrincipal>(0);
@@ -182,7 +185,9 @@ namespace edm {
   void
   PoolSource::rewind_() {
     rootFile_ = origRootFile_;
-    rootFile_->setEntryNumber(origEntryNumber_);
+    rootFile_->eventTree().resetEntryNumber();
+    rootFile_->lumiTree().resetEntryNumber();
+    rootFile_->runTree().resetEntryNumber();
   }
 
   // Advance "offset" events. Entry numbers begin at 0.
@@ -190,16 +195,16 @@ namespace edm {
   // The current entry number may be -1, if none have been read yet.
   void
   PoolSource::skip(int offset) {
-    EntryNumber newEntry = rootFile_->entryNumber() + offset;
-    if (newEntry >= rootFile_->entries()) {
+    EntryNumber newEntry = rootFile_->eventTree().entryNumber() + offset;
+    if (newEntry >= rootFile_->eventTree().entries()) {
 
       // We must go to the next file
       // Calculate how much we will advance in this file,
       // including one for the next() call below
-      int increment = rootFile_->entries() - rootFile_->entryNumber();    
+      int increment = rootFile_->eventTree().entries() - rootFile_->eventTree().entryNumber();    
 
       // Set the entry to the last entry in this file
-      rootFile_->setEntryNumber(rootFile_->entries()-1);
+      rootFile_->eventTree().setEntryNumber(rootFile_->eventTree().entries()-1);
 
       // Advance to the first entry of the next file, if there is a next file.
       if(!next()) return;
@@ -212,10 +217,10 @@ namespace edm {
       // We must go to the previous file
       // Calculate how much we will back up in this file,
       // including one for the previous() call below
-      int decrement = rootFile_->entryNumber() + 1;    
+      int decrement = rootFile_->eventTree().entryNumber() + 1;    
 
       // Set the entry to the first entry in this file
-      rootFile_->setEntryNumber(0);
+      rootFile_->eventTree().setEntryNumber(0);
 
       // Back up to the last entry of the previous file, if there is a previous file.
       if(!previous()) return;
@@ -224,7 +229,7 @@ namespace edm {
       skip(offset + decrement);
     } else {
       // The same file.
-      rootFile_->setEntryNumber(newEntry);
+      rootFile_->eventTree().setEntryNumber(newEntry);
     }
   }
 

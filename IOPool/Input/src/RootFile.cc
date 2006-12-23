@@ -1,24 +1,22 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.41 2006/12/04 23:52:47 wmtan Exp $
+$Id: RootFile.cc,v 1.42 2006/12/14 04:30:59 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
 #include "IOPool/Input/src/RootDelayedReader.h"
-#include "FWCore/Utilities/interface/PersistentNames.h"
 
 #include "DataFormats/Common/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/BranchEntryDescription.h"
+#include "DataFormats/Common/interface/BranchType.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
-#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 //used for friendlyName translation
@@ -32,25 +30,25 @@ namespace edm {
   RootFile::RootFile(std::string const& fileName,
 		     std::string const& catalogName,
 		     std::string const& logicalFileName) :
-    file_(fileName),
-    logicalFile_(logicalFileName),
-    catalog_(catalogName),
-    branchNames_(),
-    eventProvenance_(),
-    eventProvenancePtrs_(),
-    reportToken_(0),
-    eventAux_(),
-    entryNumber_(-1),
-    entries_(0),
-    productRegistry_(new ProductRegistry),
-    branches_(new BranchMap),
-    productMap_(),
-    luminosityBlockPrincipal_(),
-    eventTree_(0),
-    eventMetaTree_(0),
-    auxBranch_(0),
-    filePtr_(TFile::Open(file_.c_str())) {
-    TTree::SetMaxTreeSize(kMaxLong64);
+      file_(fileName),
+      logicalFile_(logicalFileName),
+      catalog_(catalogName),
+      filePtr_(TFile::Open(file_.c_str())),
+      reportToken_(0),
+      eventAux_(),
+      lumiAux_(),
+      runAux_(),
+      eventTree_(*filePtr_, InEvent),
+      lumiTree_(*filePtr_, InLumi),
+      runTree_(*filePtr_, InRun),
+      treePointers_(),
+      productRegistry_(new ProductRegistry),
+      branches_(new BranchMap),
+      products_(),
+      luminosityBlockPrincipal_() {
+    treePointers_[InEvent] = &eventTree_;
+    treePointers_[InLumi]  = &lumiTree_;
+    treePointers_[InRun]   = &runTree_;
 
     open();
 
@@ -113,41 +111,13 @@ namespace edm {
       moduleDescriptionRegistry.insertMapped(k->second);
     } 
 
-    // Read the event and event meta trees.
-    eventTree_ = dynamic_cast<TTree *>(filePtr_->Get(poolNames::eventTreeName().c_str()));
-    assert(eventTree_ != 0);
-    eventMetaTree_ = dynamic_cast<TTree *>(filePtr_->Get(poolNames::eventMetaDataTreeName().c_str()));
-    assert(eventMetaTree_ != 0);
-    entries_ = eventTree_->GetEntries();
-    assert(entries_ == eventMetaTree_->GetEntries());
-
-    auxBranch_ = eventTree_->GetBranch(poolNames::auxiliaryBranchName().c_str());
-
     // Set up information from the product registry.
     ProductRegistry::ProductList const& prodList = productRegistry().productList();
-    eventProvenance_.reserve(prodList.size());
-    eventProvenancePtrs_.reserve(prodList.size());
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
         it != prodList.end(); ++it) {
       BranchDescription const& prod = it->second;
-      prod.init();
-      //use the translated branch name 
-      std::string branchName = newBranchToOldBranch[prod.branchName()];
-      prod.provenancePresent_ = (eventMetaTree_->GetBranch(branchName.c_str()) != 0);
-      TBranch * branch = eventTree_->GetBranch(branchName.c_str());
-      prod.present_ = (branch != 0);
-      if (prod.provenancePresent()) {
-        std::string const &name = prod.className();
-        std::string const className = wrappedClassName(name);
-        if (branch != 0) branches_->insert(std::make_pair(it->first, std::make_pair(className, branch)));
-        productMap_.insert(std::make_pair(it->second.productID(), it->second));
-	//we want the new branch name for the JobReport
-        branchNames_.push_back(prod.branchName());
-        int n = eventProvenance_.size();
-        eventProvenance_.push_back(BranchEntryDescription());
-        eventProvenancePtrs_.push_back(&eventProvenance_[n]);
-        eventMetaTree_->SetBranchAddress(branchName.c_str(),(&eventProvenancePtrs_[n]));
-      }
+      treePointers_[prod.branchType()]->addBranch(it->first, prod, *branches_, products_,
+						 newBranchToOldBranch[prod.branchName()]);
     }
   }
 
@@ -169,7 +139,7 @@ namespace edm {
                catalog_,
                moduleName,
                label,
-               branchNames_); 
+               eventTree().branchNames()); 
   }
 
   void
@@ -178,14 +148,6 @@ namespace edm {
     // The shared pointers will take care of closing and deleting it.
     Service<JobReport> reportSvc;
     reportSvc->inputFileClosed(reportToken_);
-  }
-
-  RootFile::EntryNumber
-  RootFile::getEntryNumber(EventID const& theEventID) const {
-    RootFile::EntryNumber index = eventTree_->GetEntryNumberWithIndex(theEventID.run(), theEventID.event());
-    if (index < 0) index = eventTree_->GetEntryNumberWithBestIndex(theEventID.run(), theEventID.event()) + 1;
-    if (index >= entries_) index = -1;
-    return index;
   }
 
   // read() is responsible for creating, and setting up, the
@@ -205,9 +167,12 @@ namespace edm {
   RootFile::read(ProductRegistry const& pReg) {
     EventAux evAux;
     EventAux *pEvAux = &evAux;
-    auxBranch_->SetAddress(&pEvAux);
-    auxBranch_->GetEntry(entryNumber());
-    eventMetaTree_->GetEntry(entryNumber());
+    TTree * eventMetaTree = eventTree().metaTree();
+    TBranch * auxBranch = eventTree().auxBranch();
+    RootTree::EntryNumber entryNumber = eventTree().entryNumber();
+    auxBranch->SetAddress(&pEvAux);
+    auxBranch->GetEntry(entryNumber);
+    eventMetaTree->GetEntry(entryNumber);
     bool isNewRun = (evAux.id().run() != eventAux().id().run() || luminosityBlockPrincipal_.get() == 0);
     bool isNewLumi = isNewRun || (evAux.luminosityBlockID() != eventAux().luminosityBlockID());
     if (isNewRun) {
@@ -221,14 +186,14 @@ namespace edm {
     }
     eventAux_ = evAux;
     // We're not done ... so prepare the EventPrincipal
-    boost::shared_ptr<DelayedReader> store_(new RootDelayedReader(entryNumber(), branches_, filePtr_));
+    boost::shared_ptr<DelayedReader> store_(new RootDelayedReader(entryNumber, branches_, filePtr_));
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
                 eventID(), evAux.time(), pReg,
 		luminosityBlockPrincipal_,
 		evAux.processHistoryID_, store_));
     // Loop over provenance
-    std::vector<BranchEntryDescription>::iterator pit = eventProvenance_.begin();
-    std::vector<BranchEntryDescription>::iterator pitEnd = eventProvenance_.end();
+    std::vector<BranchEntryDescription>::iterator pit = eventTree().provenance().begin();
+    std::vector<BranchEntryDescription>::iterator pitEnd = eventTree().provenance().end();
     for (; pit != pitEnd; ++pit) {
       // if (pit->creatorStatus() != BranchEntryDescription::Success) continue;
       // BEGIN These lines read all branches
@@ -243,7 +208,7 @@ namespace edm {
       // BEGIN These lines defer reading branches
       std::auto_ptr<Provenance> prov(new Provenance);
       prov->event = *pit;
-      prov->product = productMap_[prov->event.productID_];
+      prov->product = products_[prov->event.productID_];
       bool const isPresent = prov->event.isPresent();
       std::auto_ptr<Group> g(new Group(prov, isPresent));
       // END These lines defer reading branches
