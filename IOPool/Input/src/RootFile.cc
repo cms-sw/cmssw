@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.43 2006/12/23 03:16:12 wmtan Exp $
+$Id: RootFile.cc,v 1.44 2006/12/23 20:55:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -48,10 +48,10 @@ namespace edm {
     open();
 
     // Set up buffers for registries.
-    //CDJ need to read to a temporary registry so we can do a translation of the BranchKeys
+    // Need to read to a temporary registry so we can do a translation of the BranchKeys.
+    // This preserves backward compatibility against friendly class name algorithm changes.
     ProductRegistry tempReg;
     ProductRegistry *ppReg = &tempReg;
-    //ProductRegistry *ppReg = productRegistry_.get();
     typedef std::map<ParameterSetID, ParameterSetBlob> PsetMap;
     PsetMap psetMap;
     ProcessHistoryMap pHistMap;
@@ -70,14 +70,13 @@ namespace edm {
     metaDataTree->SetBranchAddress(poolNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr);
 
     metaDataTree->GetEntry(0);
-    //CDJ freeze our temporary
+    // freeze our temporary product registry
     tempReg.setFrozen();
-    //productRegistry().setFrozen();
 
-    //Do the translation from the persistent registry to the transient one
+    // Do the translation from the old registry to the new one
     std::map<std::string,std::string> newBranchToOldBranch;
     {
-      const ProductRegistry::ProductList& prodList = tempReg.productList();
+      ProductRegistry::ProductList const& prodList = tempReg.productList();
       for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
            it != prodList.end(); ++it) {
         BranchDescription const& prod = it->second;
@@ -88,10 +87,12 @@ namespace edm {
 
         newBD.init();
         productRegistry_->addProduct(newBD);
-	newBranchToOldBranch[newBD.branchName()]=prod.branchName();
+	newBranchToOldBranch[newBD.branchName()] = prod.branchName();
       }
+      // freeze the product registry
       productRegistry().setFrozen();
     }
+
     // Merge into the registries. For now, we do NOT merge the product registry.
     pset::Registry& psetRegistry = *pset::Registry::instance();
     for (PsetMap::const_iterator i = psetMap.begin(); i != psetMap.end(); ++i) {
