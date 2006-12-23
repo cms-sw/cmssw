@@ -1,18 +1,15 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.42 2006/12/14 04:30:59 wmtan Exp $
+$Id: RootFile.cc,v 1.43 2006/12/23 03:16:12 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
-#include "IOPool/Input/src/RootDelayedReader.h"
 
 #include "DataFormats/Common/interface/BranchDescription.h"
-#include "DataFormats/Common/interface/BranchEntryDescription.h"
 #include "DataFormats/Common/interface/BranchType.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
-#include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
 #include "DataFormats/Common/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
@@ -38,13 +35,11 @@ namespace edm {
       eventAux_(),
       lumiAux_(),
       runAux_(),
-      eventTree_(*filePtr_, InEvent),
-      lumiTree_(*filePtr_, InLumi),
-      runTree_(*filePtr_, InRun),
+      eventTree_(filePtr_, InEvent),
+      lumiTree_(filePtr_, InLumi),
+      runTree_(filePtr_, InRun),
       treePointers_(),
       productRegistry_(new ProductRegistry),
-      branches_(new BranchMap),
-      products_(),
       luminosityBlockPrincipal_() {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
@@ -116,7 +111,7 @@ namespace edm {
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
         it != prodList.end(); ++it) {
       BranchDescription const& prod = it->second;
-      treePointers_[prod.branchType()]->addBranch(it->first, prod, *branches_, products_,
+      treePointers_[prod.branchType()]->addBranch(it->first, prod,
 						 newBranchToOldBranch[prod.branchName()]);
     }
   }
@@ -167,12 +162,7 @@ namespace edm {
   RootFile::read(ProductRegistry const& pReg) {
     EventAux evAux;
     EventAux *pEvAux = &evAux;
-    TTree * eventMetaTree = eventTree().metaTree();
-    TBranch * auxBranch = eventTree().auxBranch();
-    RootTree::EntryNumber entryNumber = eventTree().entryNumber();
-    auxBranch->SetAddress(&pEvAux);
-    auxBranch->GetEntry(entryNumber);
-    eventMetaTree->GetEntry(entryNumber);
+    eventTree().fillAux<EventAux>(pEvAux);
     bool isNewRun = (evAux.id().run() != eventAux().id().run() || luminosityBlockPrincipal_.get() == 0);
     bool isNewLumi = isNewRun || (evAux.luminosityBlockID() != eventAux().luminosityBlockID());
     if (isNewRun) {
@@ -186,34 +176,14 @@ namespace edm {
     }
     eventAux_ = evAux;
     // We're not done ... so prepare the EventPrincipal
-    boost::shared_ptr<DelayedReader> store_(new RootDelayedReader(entryNumber, branches_, filePtr_));
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
                 eventID(), evAux.time(), pReg,
 		luminosityBlockPrincipal_,
-		evAux.processHistoryID_, store_));
-    // Loop over provenance
-    std::vector<BranchEntryDescription>::iterator pit = eventTree().provenance().begin();
-    std::vector<BranchEntryDescription>::iterator pitEnd = eventTree().provenance().end();
-    for (; pit != pitEnd; ++pit) {
-      // if (pit->creatorStatus() != BranchEntryDescription::Success) continue;
-      // BEGIN These lines read all branches
-      // TBranch *br = branches_->find(poolNames::keyName(*pit))->second;
-      // br->SetAddress(p);
-      // br->GetEntry(rootFile_->entryNumber());
-      // std::auto_ptr<Provenance> prov(new Provenance(*pit));
-      // prov->product = productMap_[prov.event.productID_];
-      // bool const isPresent = prov->event.isPresent();
-      // std::auto_ptr<Group> g(new Group(std::auto_ptr<EDProduct>(p), prov, isPresent));
-      // END These lines read all branches
-      // BEGIN These lines defer reading branches
-      std::auto_ptr<Provenance> prov(new Provenance);
-      prov->event = *pit;
-      prov->product = products_[prov->event.productID_];
-      bool const isPresent = prov->event.isPresent();
-      std::auto_ptr<Group> g(new Group(prov, isPresent));
-      // END These lines defer reading branches
-      thisEvent->addGroup(g);
-    }
+		evAux.processHistoryID_, eventTree().makeDelayedReader()));
+
+    // Create a group in the event for each product
+    eventTree().fillGroups(thisEvent->groupGetter());
+
     // report event read from file
     Service<JobReport> reportSvc;
     reportSvc->eventReadFromFile(reportToken_, eventID());

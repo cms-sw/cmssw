@@ -11,7 +11,7 @@ namespace edm {
   class RootFile;
   class RootDelayedReader;
   namespace input {
-    typedef std::map<BranchKey, std::pair<std::string, TBranch *> > BranchMap;
+    typedef std::map<BranchKey const, std::pair<std::string const, TBranch *const> > BranchMap;
     typedef Long64_t EntryNumber;
   }
 }

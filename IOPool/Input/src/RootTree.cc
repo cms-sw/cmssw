@@ -1,4 +1,8 @@
 #include "IOPool/Input/src/RootTree.h"
+#include "IOPool/Input/src/RootDelayedReader.h"
+#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Common/interface/BranchEntryDescription.h"
+#include "FWCore/Framework/interface/DataBlockImpl.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -6,16 +10,19 @@
 #include <iostream>
 
 namespace edm {
-  RootTree::RootTree(TFile& file, BranchType const& branchType) :
-  tree_(dynamic_cast<TTree *>(file.Get(BranchTypeToProductTreeName(branchType).c_str()))),
-  metaTree_(dynamic_cast<TTree *>(file.Get(BranchTypeToMetaDataTreeName(branchType).c_str()))),
-  auxBranch_(tree_ ? tree_->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str()): 0),
-  entries_(tree_ ? tree_->GetEntries() : 0),
-  entryNumber_(-1),
-  origEntryNumber_(),
-  branchNames_(),
-  provenance_(),
-  provenancePtrs_()
+  RootTree::RootTree(boost::shared_ptr<TFile> filePtr, BranchType const& branchType) :
+    filePtr_(filePtr),
+    tree_(dynamic_cast<TTree *>(filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()))),
+    metaTree_(dynamic_cast<TTree *>(filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()))),
+    auxBranch_(tree_ ? tree_->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str()): 0),
+    entries_(tree_ ? tree_->GetEntries() : 0),
+    entryNumber_(-1),
+    origEntryNumber_(),
+    branchNames_(),
+    provenance_(),
+    provenancePtrs_(),
+    branches_(new BranchMap),
+    products_()
   {
     provenance_.reserve(1000);
     provenancePtrs_.reserve(1000);
@@ -25,9 +32,6 @@ namespace edm {
     }
     else {
       // For backward compatibility
-      tree_ = 0;
-      metaTree_ = 0;
-      auxBranch_ = 0;
       entries_ = 0;
     }
   }
@@ -35,8 +39,6 @@ namespace edm {
   void
   RootTree::addBranch(BranchKey const& key,
 		      BranchDescription const& prod,
-		      BranchMap & branches,
-		      ProductMap & products,
 		      std::string const& oldBranchName) {
       prod.init();
       //use the translated branch name 
@@ -46,8 +48,8 @@ namespace edm {
       if (prod.provenancePresent()) {
         std::string const &name = prod.className();
         std::string const className = wrappedClassName(name);
-        if (branch != 0) branches.insert(std::make_pair(key, std::make_pair(className, branch)));
-        products.insert(std::make_pair(prod.productID(), prod));
+        if (branch != 0) branches_->insert(std::make_pair(key, std::make_pair(className, branch)));
+        products_.insert(std::make_pair(prod.productID(), prod));
 	//we want the new branch name for the JobReport
 	branchNames_.push_back(prod.branchName());
         int n = provenance_.size();
@@ -55,6 +57,41 @@ namespace edm {
         provenancePtrs_.push_back(&provenance_[n]);
         metaTree_->SetBranchAddress(oldBranchName.c_str(),(&provenancePtrs_[n]));
       }
+  }
+
+  void
+  RootTree::fillGroups(DataBlockImpl& item) {
+    // Loop over provenance
+    metaTree_->GetEntry(entryNumber_);
+    std::vector<BranchEntryDescription>::const_iterator pit = provenance_.begin();
+    std::vector<BranchEntryDescription>::const_iterator pitEnd = provenance_.end();
+    for (; pit != pitEnd; ++pit) {
+      // if (pit->creatorStatus() != BranchEntryDescription::Success) continue;
+      // BEGIN These lines read all branches
+      // TBranch *br = branches_->find(poolNames::keyName(*pit))->second;
+      // br->SetAddress(p);
+      // br->GetEntry(rootFile_->entryNumber());
+      // std::auto_ptr<Provenance> prov(new Provenance);
+      // prov->event = *pit;
+      // prov->product = products_[prov.event.productID_];
+      // bool const isPresent = prov->event.isPresent();
+      // std::auto_ptr<Group> g(new Group(std::auto_ptr<EDProduct>(p), prov, isPresent));
+      // END These lines read all branches
+      // BEGIN These lines defer reading branches
+      std::auto_ptr<Provenance> prov(new Provenance);
+      prov->event = *pit;
+      prov->product = products_[prov->event.productID_];
+      bool const isPresent = prov->event.isPresent();
+      std::auto_ptr<Group> g(new Group(prov, isPresent));
+      // END These lines defer reading branches
+      item.addGroup(g);
+    }
+  }
+
+  boost::shared_ptr<DelayedReader>
+  RootTree::makeDelayedReader() const {
+    boost::shared_ptr<DelayedReader> store(new RootDelayedReader(entryNumber_, branches_, filePtr_));
+    return store;
   }
 
   RootTree::EntryNumber

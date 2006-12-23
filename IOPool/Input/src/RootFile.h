@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.14 2006/12/14 04:30:59 wmtan Exp $
+$Id: RootFile.h,v 1.15 2006/12/23 03:16:12 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -34,8 +34,6 @@ namespace edm {
 
   class RootFile {
   public:
-    typedef RootTree::BranchMap BranchMap;
-    typedef RootTree::ProductMap ProductMap;
     typedef boost::array<RootTree *, EndBranchType> RootTreePtrArray;
     explicit RootFile(std::string const& fileName,
 		      std::string const& catalogName,
@@ -54,7 +52,6 @@ namespace edm {
     RootTree & eventTree() {return eventTree_;}
     RootTree & lumiTree() {return lumiTree_;}
     RootTree & runTree() {return runTree_;}
-    BranchMap const& branches() const {return *branches_;}
 
   private:
     RootFile(RootFile const&); // disable copy construction
@@ -72,8 +69,6 @@ namespace edm {
     RootTree runTree_;
     RootTreePtrArray treePointers_;
     boost::shared_ptr<ProductRegistry> productRegistry_;
-    boost::shared_ptr<BranchMap> branches_;
-    ProductMap products_;
     boost::shared_ptr<LuminosityBlockPrincipal const> luminosityBlockPrincipal_;
   }; // class RootFile
 
