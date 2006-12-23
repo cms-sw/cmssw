@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.15 $
-///  last update: $Date: 2006/11/08 16:38:00 $
-///  by         : $Author: fronga $
+///  Revision   : $Revision: 1.16 $
+///  last update: $Date: 2006/11/30 10:10:44 $
+///  by         : $Author: flucke $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
 
@@ -142,7 +142,10 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
                             << "got " << theAlignables.size() << " alignables";
 
   // create AlignmentParameterStore 
-  theAlignmentParameterStore = new AlignmentParameterStore(theAlignables);
+  edm::ParameterSet aliParamStoreCfg = 
+    theParameterSet.getParameter<edm::ParameterSet>("ParameterStore");
+  theAlignmentParameterStore = new AlignmentParameterStore(theAlignables,
+ 							   aliParamStoreCfg);
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
                             << "AlignmentParameterStore created!";
 
