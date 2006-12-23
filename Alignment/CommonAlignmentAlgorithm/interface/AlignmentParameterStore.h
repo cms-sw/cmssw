@@ -1,6 +1,8 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentParameterStore_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentParameterStore_h
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -9,13 +11,11 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentCorrelationsStore.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 #include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentParameters.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentExtendedCorrelationsStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignableData.h"
-
-//#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-
-#include <map>
 
 /// Basic class for management of alignment parameters and correlations 
 
@@ -30,13 +30,13 @@ public:
   typedef std::vector<unsigned int> DetIds;
 
   /// constructor 
-  AlignmentParameterStore( std::vector <Alignable*> alivec );
+  AlignmentParameterStore( std::vector <Alignable*> alivec, const edm::ParameterSet& config );
 
   /// destructor 
   virtual ~AlignmentParameterStore( void ) {}
 
   /// select parameters 
-  CompositeAlignmentParameters 
+  CompositeAlignmentParameters
   selectParameters( const std::vector <AlignableDet*>& alignabledets ) const;
 
   /// update parameters 
@@ -52,10 +52,10 @@ public:
   int numObjects(void) const { return theAlignables.size(); }
 
   /// get full correlation map 
-  Correlations correlationsMap(void) const { return theCorrelations; }
+  AlignmentCorrelationsStore* correlationsStore( void ) const { return theCorrelationsStore; }
 
   /// get number of correlations between alignables 
-  int numCorrelations(void) const { return theCorrelations.size(); }
+  const unsigned int numCorrelations( void ) const { return theCorrelationsStore->size(); }
 
   /// get Alignable which corresponds to a given GeomDet 
   Alignable* alignableFromGeomDet( const GeomDet* geomDet ) const;
@@ -120,17 +120,12 @@ public:
 
 protected:
 
-  // Methods to manage correlation map 
-  virtual AlgebraicMatrix correlations(Alignable* ap1, Alignable* ap2) const;
-
-  virtual void setCorrelations(Alignable* ap1, Alignable* ap2, const AlgebraicMatrix& mat);
-
-  // correlations 
-  Correlations theCorrelations;
+  // storage for correlations
+  AlignmentCorrelationsStore* theCorrelationsStore;
 
 private:
 
-  // Celper used by constructor to get all DetIds per Alignable
+  // Helper used by constructor to get all DetIds per Alignable
   DetIds findDetIds( Alignable* alignable );
 
   // data members
