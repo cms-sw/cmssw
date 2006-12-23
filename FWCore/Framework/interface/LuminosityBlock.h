@@ -16,7 +16,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: LuminosityBlock.h,v 1.5 2006/12/07 23:48:57 wmtan Exp $
+$Id: LuminosityBlock.h,v 1.6 2006/12/20 13:41:07 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -25,6 +25,7 @@ $Id: LuminosityBlock.h,v 1.5 2006/12/07 23:48:57 wmtan Exp $
 #include "DataFormats/Common/interface/BranchType.h"
 #include "DataFormats/Common/interface/LuminosityBlockAux.h"
 #include "DataFormats/Common/interface/LuminosityBlockID.h"
+#include "DataFormats/Common/interface/RunID.h"
 
 #include "FWCore/Framework/interface/DataViewImpl.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -46,6 +47,8 @@ namespace edm {
 
     // AUX functions.
     LuminosityBlockID id() const {return aux_.id();}
+
+    RunNumber_t runID() const;
 
     using DataViewImpl::get;
     using DataViewImpl::getAllProvenance;

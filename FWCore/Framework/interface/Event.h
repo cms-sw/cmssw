@@ -15,7 +15,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.51 2006/12/07 23:48:57 wmtan Exp $
+$Id: Event.h,v 1.52 2006/12/20 13:41:07 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -23,6 +23,8 @@ $Id: Event.h,v 1.51 2006/12/07 23:48:57 wmtan Exp $
 
 #include "DataFormats/Common/interface/EventAux.h"
 #include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Common/interface/LuminosityBlockID.h"
+#include "DataFormats/Common/interface/RunID.h"
 #include "DataFormats/Common/interface/Timestamp.h"
 
 #include "FWCore/Framework/interface/DataViewImpl.h"
@@ -64,8 +66,14 @@ namespace edm {
       return *luminosityBlock_;
     }
 
+    LuminosityBlockID
+    luminosityBlockID() const;    
+
     Run const&
     getRun() const;
+
+    RunNumber_t
+    runID() const;    
 
   private:
     // commit_() is called to complete the transaction represented by
