@@ -6,7 +6,7 @@
   
 BranchType: The type of a Branch (Event, LuminosityBlock, or Run)
 
-$Id: BranchType.h,v 1.2 2006/11/04 07:16:17 wmtan Exp $
+$Id: BranchType.h,v 1.3 2006/11/07 00:30:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 namespace edm {
@@ -46,5 +46,54 @@ namespace edm {
     return os;
   }
 
+  namespace poolNames {
+    inline
+    std::string containerName(std::string const& tree, std::string const& branch) {
+      return tree + "(" + branch + ")";
+    }
+
+    // MetaData Tree (1 entry per file)
+    inline
+    std::string
+    metaDataTreeName() { return "MetaData"; }
+
+    // Branch on MetaData Tree
+    inline
+    std::string
+    productDescriptionBranchName() {return "ProductRegistry";}
+
+    // Branch on MetaData Tree
+    inline
+    std::string
+    parameterSetMapBranchName() {return "ParameterSetMap";}
+
+    // Branch on MetaData Tree
+    inline
+    std::string
+    moduleDescriptionMapBranchName() {return "ModuleDescriptionMap";}
+
+    // Branch on MetaData Tree
+    inline
+    std::string
+    processHistoryMapBranchName() {return "ProcessHistoryMap";}
+
+    // Branch on MetaData Tree
+    inline
+    std::string
+    processConfigurationMapBranchName() {return "ProcessConfigurationMap";}
+
+    // Branch on MetaData Tree
+    inline
+    std::string
+    fileFormatVersionBranchName() {return "FileFormatVersion";}
+
+    inline
+    std::string
+    eventTreeName() {return BranchTypeToProductTreeName(InEvent);}
+
+    inline
+    std::string
+    eventMetaDataTreeName() {return BranchTypeToMetaDataTreeName(InEvent);}
+  }
 }
 #endif
