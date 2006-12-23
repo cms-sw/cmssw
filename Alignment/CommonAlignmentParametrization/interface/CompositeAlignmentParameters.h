@@ -18,8 +18,8 @@
 /// Concrete class for 'concatenated' alignment parameters and associated
 /// Quantities for a set of Alignables. Provided by AlignmentParameterStore.
 ///
-///  $Date: 2006/10/17 11:02:42 $
-///  $Revision: 1.11 $
+///  $Date: 2006/10/19 14:20:59 $
+///  $Revision: 1.3 $
 /// (last update by $Author: flucke $)
 
 class CompositeAlignmentParameters : public AlignmentParameters 
@@ -43,6 +43,10 @@ public:
 			       const AlgebraicSymMatrix& cov, const Components& comp, 
 			       const AlignableDetToAlignableMap& map, const Aliposmap& aliposmap,
 			       const Alilenmap& alilenmap);
+
+  CompositeAlignmentParameters( const DataContainer& data, const Components& comp, 
+			        const AlignableDetToAlignableMap& map, const Aliposmap& aliposmap,
+			        const Alilenmap& alilenmap);
 
   /// destructor 
   virtual ~CompositeAlignmentParameters();

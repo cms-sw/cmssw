@@ -1,7 +1,7 @@
 /** \file CompositeAlignmentParameters.cc
  *
- *  $Date: 2005/07/26 10:13:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/10/19 14:20:59 $
+ *  $Revision: 1.3 $
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -27,6 +27,20 @@ CompositeAlignmentParameters(const AlgebraicVector& par,
 			     const Aliposmap& aliposmap,
 			     const Alilenmap& alilenmap) :
   AlignmentParameters(0,par,cov) ,
+  theComponents(comp) ,
+  theAlignableDetToAlignableMap(map),
+  theAliposmap(aliposmap),
+  theAlilenmap(alilenmap)
+{}
+
+
+//__________________________________________________________________________________________________
+CompositeAlignmentParameters::
+CompositeAlignmentParameters(const DataContainer& data, const Components& comp, 
+			     const AlignableDetToAlignableMap& map,
+			     const Aliposmap& aliposmap,
+			     const Alilenmap& alilenmap) :
+  AlignmentParameters(0,data) ,
   theComponents(comp) ,
   theAlignableDetToAlignableMap(map),
   theAliposmap(aliposmap),
@@ -309,7 +323,7 @@ CompositeAlignmentParameters::parameterSubset( const std::vector<Alignable*>& ve
 	  Alilenmap::const_iterator ilenmap=theAlilenmap.find( *it );
 	  int pos=(*iposmap).second;
 	  int len=(*ilenmap).second;
-	  AlgebraicVector piece = theParameters.sub(pos,pos+len-1);
+	  AlgebraicVector piece = theData->parameters().sub(pos,pos+len-1);
 	  result.sub( ires, piece );
 	  ires += len;
 	}
@@ -402,7 +416,7 @@ CompositeAlignmentParameters::covarianceSubset( const std::vector<Alignable*>& v
 		  AlgebraicMatrix piece(leni,lenj,0);
 		  for (int ir=0;ir<piece.num_row();++ir)
 			for (int ic=0;ic<piece.num_col();++ic)
-			  piece[ir][ic] = theCovariance[posi+ir-1][posj+ic-1];
+			  piece[ir][ic] = theData->covariance()[posi+ir-1][posj+ic-1];
 		  result.sub(iresi,iresj,piece);
 		  iresj += lenj;
 		}

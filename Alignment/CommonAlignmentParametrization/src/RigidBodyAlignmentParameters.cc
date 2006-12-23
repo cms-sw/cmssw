@@ -1,7 +1,7 @@
 /** \file RigidBodyAlignmentParameters.cc
  *
- *  $Date: 2006/10/19 14:20:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/11/30 09:48:47 $
+ *  $Revision: 1.3 $
  */
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -15,20 +15,8 @@
 
 //__________________________________________________________________________________________________
 RigidBodyAlignmentParameters::RigidBodyAlignmentParameters(Alignable* ali) :
-  AlignmentParameters(ali, AlgebraicVector(N_PARAM), AlgebraicSymMatrix(N_PARAM, 0))
-{
-  AlignmentTransformations trafo; // why does it not work with const?
-  const Alignable::RotationType diffRot    (ali->rotation());// a.transform(b) means a = b * a
-  const Alignable::RotationType globRotOrig(diffRot.transposed().transform(ali->globalRotation()));
-  const AlgebraicVector         globShift  (trafo.algebraicVector(ali->displacement()));
-  const AlgebraicVector         locShift   (trafo.algebraicMatrix(globRotOrig) * globShift);
-  const Alignable::RotationType locRot     (trafo.globalToLocalMatrix(diffRot, globRotOrig));
-  const AlgebraicVector         angles     (trafo.eulerAngles(locRot, 0));
-
-  for (int i = 0; i < N_PARAM; ++i) {
-    theParameters[i] = (i < dalpha ? locShift[i] : angles[i-dalpha]);
-  }
-}
+  AlignmentParameters(ali, displacementFromAlignable(ali), AlgebraicSymMatrix(N_PARAM, 0))
+{}
 
 //__________________________________________________________________________________________________
 RigidBodyAlignmentParameters::RigidBodyAlignmentParameters(Alignable* alignable, 
@@ -127,7 +115,7 @@ RigidBodyAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurfac
 AlgebraicVector RigidBodyAlignmentParameters::translation(void) const
 { 
   AlgebraicVector shift(3);
-  for ( int i=0;i<3;++i ) shift[i]=theParameters[i];
+  for ( int i=0;i<3;++i ) shift[i]=theData->parameters()[i];
 
   return shift;
 }
@@ -137,7 +125,7 @@ AlgebraicVector RigidBodyAlignmentParameters::translation(void) const
 AlgebraicVector RigidBodyAlignmentParameters::rotation(void) const
 {
   AlgebraicVector rot(3);
-  for (int i=0;i<3;++i) rot[i] = theParameters[i+3];
+  for (int i=0;i<3;++i) rot[i] = theData->parameters()[i+3];
 
   return rot;
 }
@@ -178,7 +166,25 @@ void RigidBodyAlignmentParameters::print(void) const
 {
 
   std::cout << "Contents of RigidBodyAlignmentParameters:"
-            << "\nParameters: " << theParameters
-            << "\nCovariance: " << theCovariance << std::endl;
+            << "\nParameters: " << theData->parameters()
+            << "\nCovariance: " << theData->covariance() << std::endl;
 }
 
+
+AlgebraicVector RigidBodyAlignmentParameters::displacementFromAlignable(Alignable* ali) const
+{
+  AlignmentTransformations trafo; // why does it not work with const?
+  const Alignable::RotationType diffRot    (ali->rotation());// a.transform(b) means a = b * a
+  const Alignable::RotationType globRotOrig(diffRot.transposed().transform(ali->globalRotation()));
+  const AlgebraicVector         globShift  (trafo.algebraicVector(ali->displacement()));
+  const AlgebraicVector         locShift   (trafo.algebraicMatrix(globRotOrig) * globShift);
+  const Alignable::RotationType locRot     (trafo.globalToLocalMatrix(diffRot, globRotOrig));
+  const AlgebraicVector         angles     (trafo.eulerAngles(locRot, 0));
+
+  AlgebraicVector displacement(N_PARAM);
+  for (int i = 0; i < N_PARAM; ++i) {
+    displacement[i] = (i < dalpha ? locShift[i] : angles[i-dalpha]);
+  }
+
+  return displacement;
+}

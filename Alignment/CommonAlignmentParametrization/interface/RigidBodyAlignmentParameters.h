@@ -15,8 +15,8 @@
 /// [derived from AlignmentParameters]. The number of parameters
 /// N_PARAM is fixed to 6 (3 translations + 3 rotations)
 ///
-///  $Date: 2006/10/19 14:20:59 $
-///  $Revision: 1.2 $
+///  $Date: 2006/11/30 09:48:11 $
+///  $Revision: 1.3 $
 /// (last update by $Author: flucke $)
 
 class AlignableDetUnit;
@@ -78,6 +78,10 @@ public:
 
   /// print parameters to screen 
   void print(void) const;
+
+protected:
+
+  AlgebraicVector displacementFromAlignable(Alignable* ali) const;
 
 };
 
