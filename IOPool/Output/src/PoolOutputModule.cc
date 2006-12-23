@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.56 2006/12/19 00:29:36 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.57 2006/12/21 19:50:45 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -386,17 +386,17 @@ namespace edm {
   PoolOutputModule::PoolFile::rootPostProcess() const {
     std::auto_ptr<TFile> pf(TFile::Open(file_.c_str(), "update"));
     TFile &f = *pf;
-    TTree *tEvent = dynamic_cast<TTree *>(f.Get(poolNames::eventTreeName().c_str()));
+    TTree *tEvent = dynamic_cast<TTree *>(f.Get(BranchTypeToProductTreeName(InEvent).c_str()));
     if (tEvent) {
       tEvent->BuildIndex("id_.run_", "id_.event_");
       setBranchAliases(tEvent, om_->descVec_[InEvent]);
     }
-    TTree *tLumi = dynamic_cast<TTree *>(f.Get(poolNames::luminosityBlockTreeName().c_str()));
+    TTree *tLumi = dynamic_cast<TTree *>(f.Get(BranchTypeToProductTreeName(InLumi).c_str()));
     if (tLumi) {
       tLumi->BuildIndex("runID_", "id_");
       setBranchAliases(tLumi, om_->descVec_[InLumi]);
     }
-    TTree *tRun = dynamic_cast<TTree *>(f.Get(poolNames::runTreeName().c_str()));
+    TTree *tRun = dynamic_cast<TTree *>(f.Get(BranchTypeToProductTreeName(InRun).c_str()));
     if (tRun) {
       tRun->BuildIndex("id_");
       setBranchAliases(tRun, om_->descVec_[InRun]);

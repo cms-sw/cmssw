@@ -7,8 +7,7 @@
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
-
-#include "FWCore/Utilities/interface/PersistentNames.h"
+#include "DataFormats/Common/interface/BranchType.h"
 
 #include <iostream>
 #include <sstream>

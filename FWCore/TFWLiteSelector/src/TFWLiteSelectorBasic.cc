@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.8 2006/12/07 05:06:08 chrjones Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.9 2006/12/20 23:21:49 paterno Exp $
 //
 
 // system include files
@@ -24,7 +24,7 @@
 // user include files
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
 
-#include "FWCore/Utilities/interface/PersistentNames.h"
+#include "DataFormats/Common/interface/BranchType.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Wrapper.h"
