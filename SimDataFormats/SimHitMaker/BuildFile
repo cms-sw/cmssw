@@ -1,9 +1,10 @@
+<use name=FWCore/MessageLogger>
+<use name=SimDataFormats/CaloHit>
+<use name=SimDataFormats/TrackingHit>
 <export>
- <lib name=SimDataFormatsSimHitMaker>
- <use name=SimDataFormats/TrackingHit>
- <use name=SimDataFormats/CaloHit>
+  <use name=FWCore/MessageLogger>
+  <use name=SimDataFormats/CaloHit>
+  <use name=SimDataFormats/TrackingHit>
+  <lib name=SimDataFormatsSimHitMaker>
 </export>
 
-<use name=SimDataFormats/TrackingHit>
-<use name=SimDataFormats/CaloHit>
-<use name=FWCore/Framework>
