@@ -17,6 +17,20 @@ class HistogramGenerator : public BaseNumericalRandomGenerator
   /// Constructor : initialization of the Random Generator
    HistogramGenerator(TH1 * histo) : BaseNumericalRandomGenerator(histo->GetXaxis()->GetXmin(),histo->GetXaxis()->GetXmax()),myHisto(histo),theXaxis(histo->GetXaxis()),nbins(histo->GetXaxis()->GetNbins())
   {
+
+    //    std::cout << "Old xmin/xmax = " << xmin << " " << xmax << std::endl;
+    // Drop lowest and highest empty bins 
+    double du = (xmax-xmin)/(float)nbins;
+    // Restrict xmin to meaningful values
+    while ( function(xmin) <= 0. ) xmin += du;
+    // Restrict xmax to meaningful values
+    while ( function(xmax) <= 0. ) xmax -= du;
+
+    if ( xmin != histo->GetXaxis()->GetXmin() ) xmin -= du;
+    if ( xmax != histo->GetXaxis()->GetXmax() ) xmax += du;
+
+    //    std::cout << "New xmin/xmax = " << xmin << " " << xmax << std::endl;
+
     //    std::cout <<" Init " << std::endl;
     initialize();
   }
