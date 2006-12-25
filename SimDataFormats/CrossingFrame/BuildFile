@@ -1,20 +1,21 @@
+<use name=DataFormats/Common>
+<use name=DataFormats/HcalDetId>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/Utilities>
+<use name=SimDataFormats/CaloHit>
+<use name=SimDataFormats/EncodedEventId>
+<use name=SimDataFormats/Track>
+<use name=SimDataFormats/TrackingHit>
+<use name=SimDataFormats/Vertex>
+<use name=rootrflx>
 <export>
- <use name=FWCore/MessageLogger>
- <lib name=SimDataFormatsCrossingFrame>
- <use name=DataFormats/Common>
- <use name=SimDataFormats/TrackingHit>
- <use name=SimDataFormats/CaloHit>
- <use name=SimDataFormats/Track>
- <use name=SimDataFormats/Vertex>
- <use name=DataFormats/HcalDetId>
- <use name=clhep>
+  <use name=DataFormats/Common>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/Utilities>
+  <use name=SimDataFormats/CaloHit>
+  <use name=SimDataFormats/Track>
+  <use name=SimDataFormats/TrackingHit>
+  <use name=SimDataFormats/Vertex>
+  <lib name=SimDataFormatsCrossingFrame>
 </export>
 
-<use name=FWCore/MessageLogger>
-<use name=DataFormats/Common>
-<use name=SimDataFormats/TrackingHit>
-<use name=SimDataFormats/CaloHit>
-<use name=SimDataFormats/Track>
-<use name=SimDataFormats/Vertex>
-<use name=DataFormats/HcalDetId>
-<use name=clhep>

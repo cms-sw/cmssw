@@ -1,13 +1,11 @@
+<use name=DataFormats/CaloRecHit>
 <use name=DataFormats/Common>
 <use name=DataFormats/HcalDetId>
-<use name=DataFormats/CaloRecHit>
-<use name=boost>
-
+<use name=rootrflx>
 <export>
-   <lib name=DataFormatsHcalRecHit>
-   <use name=DataFormats/HcalDetId>
-   <use name=DataFormats/CaloRecHit>
-   <use name=DataFormats/Common>
-   <use name=boost>
+  <use name=DataFormats/CaloRecHit>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/HcalDetId>
+  <lib name=DataFormatsHcalRecHit>
 </export>
 
