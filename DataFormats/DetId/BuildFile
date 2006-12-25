@@ -1,7 +1,7 @@
 <use name=boost>
 <use name=rootrflx>
 <export>
-   <lib name=DataFormatsDetId>
-   <use name=boost>
-   <use name=rootrflx>
+  <use name=boost>
+  <lib name=DataFormatsDetId>
 </export>
+

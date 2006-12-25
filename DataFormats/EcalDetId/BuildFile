@@ -1,8 +1,12 @@
-<use name=DataFormats/DetId>
 <use name=DataFormats/Common>
-
+<use name=DataFormats/DetId>
+<use name=FWCore/Utilities>
+<use name=boost>
+<use name=rootrflx>
 <export>
-   <lib name=DataFormatsEcalDetId>
-   <use name=DataFormats/DetId>
-   <use name=DataFormats/Common>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/DetId>
+  <use name=boost>
+  <lib name=DataFormatsEcalDetId>
 </export>
+
