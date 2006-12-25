@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.44 2006/12/23 20:55:25 wmtan Exp $
+$Id: RootFile.cc,v 1.45 2006/12/23 23:01:32 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -187,7 +187,7 @@ namespace edm {
 
     // report event read from file
     Service<JobReport> reportSvc;
-    reportSvc->eventReadFromFile(reportToken_, eventID());
+    reportSvc->eventReadFromFile(reportToken_, eventID().run(), eventID().event());
     return thisEvent;
   }
 }

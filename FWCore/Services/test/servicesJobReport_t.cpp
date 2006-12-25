@@ -4,7 +4,6 @@
 #include <vector>
 
 
-#include "DataFormats/Common/interface/EventID.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Services/src/JobReportService.h"
 
@@ -40,12 +39,12 @@ void work()
   }
 
 
-  jrs.reportSkippedEvent(edm::EventID(10001, 1002));
-  jrs.reportSkippedEvent(edm::EventID(10001, 1003));
-  jrs.reportSkippedEvent(edm::EventID(10001, 1004));
+  jrs.reportSkippedEvent(10001, 1002);
+  jrs.reportSkippedEvent(10001, 1003);
+  jrs.reportSkippedEvent(10001, 1004);
 
   try {
-      jrs.eventReadFromFile(24, edm::EventID());
+      jrs.eventReadFromFile(24, 0, 0);
       assert( "Failed to throw required exception" == 0);
   }
   catch ( edm::Exception & x ) {

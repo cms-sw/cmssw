@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.57 2006/12/21 19:50:45 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.58 2006/12/23 03:13:21 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -228,7 +228,7 @@ namespace edm {
 
     // Report event written 
     Service<JobReport> reportSvc;
-    reportSvc->eventWrittenToFile(reportToken_, e.id());
+    reportSvc->eventWrittenToFile(reportToken_, e.id().run(), e.id().event());
 
     if (eventCount_ >= fileSizeCheckEvent_) {
 	unsigned int const oneK = 1024;

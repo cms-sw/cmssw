@@ -502,7 +502,7 @@ namespace edm
 	  << "an exception occurred and event is being skipped: \n"
 	  << e.what();
 	Service<JobReport> reportSvc;
-	reportSvc->reportSkippedEvent(ep.id());
+	reportSvc->reportSkippedEvent(ep.id().run(), ep.id().event());
 	break;
       }
       default: {
