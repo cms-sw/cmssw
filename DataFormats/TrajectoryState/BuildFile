@@ -1,9 +1,8 @@
 <use name=DataFormats/Common>
-<use name=DataFormats/Common>
-<use name=clhep>
-
+<use name=Geometry/CommonDetAlgo>
+<use name=rootrflx>
 <export>
- <lib name=DataFormatsTrajectoryState>
- <use name=clhep>
+  <use name=Geometry/CommonDetAlgo>
+  <lib name=DataFormatsTrajectoryState>
 </export>
 

@@ -1,10 +1,14 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/DetId>
-<use name=clhep>
-<flags LCGDICT_ARGS="--deep">
+<use name=FWCore/Utilities>
+<use name=Geometry/CommonDetAlgo>
+<use name=Geometry/Surface>
+<use name=rootrflx>
 <export>
- <lib name=DataFormatsTrackingRecHit>
- <use name=DataFormats/Common>
- <use name=DataFormats/DetId>
-<use name=clhep>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/DetId>
+  <use name=Geometry/CommonDetAlgo>
+  <use name=Geometry/Surface>
+  <lib name=DataFormatsTrackingRecHit>
 </export>
+
