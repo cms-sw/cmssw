@@ -1,11 +1,10 @@
-<use name=boost>
-<use name=rootrflx>
 <use name=DataFormats/Common>
 <use name=DataFormats/EcalDetId>
+<use name=boost>
+<use name=rootrflx>
 <export>
-   <lib name=TBDataFormatsEcalTBObjects>
-   <use name=boost>
-   <use name=rootrflx>	
-   <use name=DataFormats/Common>
-   <use name=DataFormats/EcalDetId>
+  <use name=DataFormats/EcalDetId>
+  <use name=boost>
+  <lib name=TBDataFormatsEcalTBObjects>
 </export>
+
