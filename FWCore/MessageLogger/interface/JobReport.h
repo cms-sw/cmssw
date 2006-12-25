@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.9 2006/10/21 02:49:00 wmtan Exp $
+// $Id: JobReport.h,v 1.10 2006/12/18 18:42:51 evansde Exp $
 //
 
 #include <cstddef>
@@ -192,7 +192,7 @@ namespace edm {
 			    std::vector<std::string> const& branchNames);
       /// Report that the event with the given id has been read from
       /// the file identified by the given Token.
-      void eventReadFromFile(Token fileToken, edm::EventID const& id);
+      void eventReadFromFile(Token fileToken, unsigned int run, unsigned int event);
 
       /// Report that the input file identified by the given Token has
       /// been closed. An exception will be thrown if the given Token
@@ -218,7 +218,7 @@ namespace edm {
 
       /// Report that the event with the given id has been written to
       /// the file identified by the given Token.
-      void eventWrittenToFile(Token fileToken, edm::EventID const& id);
+      void eventWrittenToFile(Token fileToken, unsigned int run, unsigned int event);
       
       /// Report that the output file identified by the given Token has
       /// been closed. An exception will be thrown if the given Token
@@ -238,7 +238,7 @@ namespace edm {
       /// closed
       void overrideEventsRead(Token fileToken, const int eventsRead);
 
-      void reportSkippedEvent(edm::EventID const& id);
+      void reportSkippedEvent(unsigned int run, unsigned int event);
 
 
       ///
