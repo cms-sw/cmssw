@@ -1,12 +1,12 @@
-<use name=FWCore/MessageLogger>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/SiStripDetId>
+<use name=FWCore/MessageLogger>
 <use name=boost>
-
+<use name=rootrflx>
 <export>
-  <lib name=DataFormatsSiStripCommon>
-  <use name=FWCore/MessageLogger>
   <use name=DataFormats/FEDRawData>
   <use name=DataFormats/SiStripDetId>
   <use name=boost>
+  <lib name=DataFormatsSiStripCommon>
 </export>
+
