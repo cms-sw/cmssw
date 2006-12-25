@@ -38,9 +38,11 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 
 #include "DataFormats/Common/interface/RefProd.h"
-#include "FWCore/Framework/interface/Event.h"
 
 // forward declarations
+namespace edm {
+    template <typename T> class Handle;
+}
 
 // class interface
 

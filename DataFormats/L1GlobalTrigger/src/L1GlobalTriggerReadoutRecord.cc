@@ -40,7 +40,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Handle.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
