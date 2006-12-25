@@ -1,15 +1,14 @@
-#ifndef RecoCandidate_CandidateWithRef_h
-#define RecoCandidate_CandidateWithRef_h
+#ifndef Candidate_CandidateWithRef_h
+#define Candidate_CandidateWithRef_h
 /** \class reco::CandidateWithRef
  *
  * Reco Candidates with a generic reference as component
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CandidateWithRef.h,v 1.1 2006/11/14 10:38:06 llista Exp $
+ * \version $Id: CandidateWithRef.h,v 1.1 2006/11/20 14:51:25 llista Exp $
  *
  */
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
