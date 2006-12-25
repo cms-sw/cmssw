@@ -1,11 +1,10 @@
-<export>
- <lib name=SimDataFormatsCaloHit>
- <use name=DataFormats/Common>
- <use name=SimDataFormats/EncodedEventId>
- <use name=FWCore/MessageLogger>
- <use name=boost>
-</export>
 <use name=DataFormats/Common>
 <use name=SimDataFormats/EncodedEventId>
-<use name=FWCore/MessageLogger>
 <use name=boost>
+<use name=rootrflx>
+<export>
+  <use name=SimDataFormats/EncodedEventId>
+  <use name=boost>
+  <lib name=SimDataFormatsCaloHit>
+</export>
+
