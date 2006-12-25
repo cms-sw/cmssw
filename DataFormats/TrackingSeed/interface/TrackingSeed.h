@@ -12,14 +12,16 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/02/07 18:07:58 $
-// $Revision: 1.2 $
+// $Author: wmtan $
+// $Date: 2006/03/15 23:39:50 $
+// $Revision: 1.3 $
 //
 
 #include <vector>
-#include "DataFormats/TrackerRecHit2D/interface/BaseSiStripRecHit2DLocalPos.h"
+//#include "DataFormats/TrackerRecHit2D/interface/BaseSiStripRecHit2DLocalPos.h"
 #include "DataFormats/Common/interface/Ref.h"
+
+class BaseSiStripRecHit2DLocalPos;
 
 class TrackingSeed {
 
