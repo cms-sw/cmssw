@@ -1,8 +1,13 @@
-<use name=DataFormats/Math>
+<use name=DataFormats/CaloRecHit>
 <use name=DataFormats/Common>
-<flags LCGDICT_ARGS="--deep">
+<use name=DataFormats/Math>
+<use name=FWCore/Utilities>
+<use name=rootrflx>
 <export>
- <lib name=DataFormatsCandidate>
- <use name=DataFormats/Math>
- <use name=DataFormats/Common>
+  <use name=DataFormats/CaloRecHit>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/Math>
+  <use name=FWCore/Utilities>
+  <lib name=DataFormatsCandidate>
 </export>
+
