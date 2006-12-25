@@ -1,11 +1,11 @@
- <use name=DataFormats/TrackingRecHit>
- <use name=DataFormats/MuonDetId>
- <use name=DataFormats/Common>
- <use name=FWCore/MessageLogger>
+<use name=DataFormats/Common>
+<use name=DataFormats/MuonDetId>
+<use name=DataFormats/TrackingRecHit>
+<use name=rootrflx>
 <export>
- <lib name=DataFormatsCSCRecHit>
- <use name=DataFormats/TrackingRecHit>
- <use name=DataFormats/MuonDetId>
- <use name=DataFormats/Common>
- <use name=FWCore/MessageLogger>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/MuonDetId>
+  <use name=DataFormats/TrackingRecHit>
+  <lib name=DataFormatsCSCRecHit>
 </export>
+

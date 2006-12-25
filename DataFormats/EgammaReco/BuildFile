@@ -1,14 +1,21 @@
-<flags LCGDICT_ARGS="--deep">
-<use name=DataFormats/EcalRecHit>
-<use name=DataFormats/DetId>
-<use name=DataFormats/Math>
 <use name=DataFormats/Common>
+<use name=DataFormats/DetId>
+<use name=DataFormats/EcalRecHit>
+<use name=DataFormats/Math>
+<use name=DataFormats/TrackingRecHit>
+<use name=DataFormats/TrajectorySeed>
+<use name=DataFormats/TrajectoryState>
 <use name=clhep>
+<use name=rootrflx>
 <export>
- <lib name=DataFormatsEgammaReco>
- <use name=DataFormats/EcalRecHit>
- <use name=DataFormats/DetId>
- <use name=DataFormats/Math>
- <use name=DataFormats/Common>
- <use name=clhep>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/DetId>
+  <use name=DataFormats/EcalRecHit>
+  <use name=DataFormats/Math>
+  <use name=DataFormats/TrackingRecHit>
+  <use name=DataFormats/TrajectorySeed>
+  <use name=DataFormats/TrajectoryState>
+  <use name=clhep>
+  <lib name=DataFormatsEgammaReco>
 </export>
+
