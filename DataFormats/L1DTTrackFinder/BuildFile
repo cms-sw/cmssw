@@ -1,8 +1,8 @@
-<export>
- <lib name=DataFormatsL1DTTrackFinder>
- <use name=DataFormats/Common>
- <use name=DataFormats/L1GlobalMuonTrigger>
-</export>
-
 <use name=DataFormats/Common>
 <use name=DataFormats/L1GlobalMuonTrigger>
+<use name=rootrflx>
+<export>
+  <use name=DataFormats/L1GlobalMuonTrigger>
+  <lib name=DataFormatsL1DTTrackFinder>
+</export>
+

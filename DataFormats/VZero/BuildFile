@@ -1,12 +1,12 @@
-<use name=DataFormats/Math>
 <use name=DataFormats/Common>
+<use name=DataFormats/Math>
+<use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
-<use name=FWCore/Utilities>
-<flags LCGDICT_ARGS="--deep">
+<use name=rootrflx>
 <export>
- <lib name=DataFormatsVZero>
- <use name=DataFormats/Math>
- <use name=DataFormats/Common>
- <use name=DataFormats/VertexReco>
- <use name=FWCore/Utilities>
+  <use name=DataFormats/Math>
+  <use name=DataFormats/TrackReco>
+  <use name=DataFormats/VertexReco>
+  <lib name=DataFormatsVZero>
 </export>
+
