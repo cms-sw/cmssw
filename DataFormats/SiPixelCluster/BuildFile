@@ -1,10 +1,8 @@
-<use name=clhep>
-<use name=DataFormats/SiPixelDigi>
 <use name=DataFormats/Common>
-
+<use name=DataFormats/SiPixelDigi>
+<use name=rootrflx>
 <export>
- <lib name=DataFormatsSiPixelCluster>
- <use name=DataFormats/Common>
- <use name=DataFormats/SiPixelDigi>
- <use name=clhep>
+  <use name=DataFormats/Common>
+  <lib name=DataFormatsSiPixelCluster>
 </export>
+

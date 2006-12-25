@@ -1,8 +1,10 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/MuonDetId>
-
+<use name=boost>
+<use name=rootrflx>
 <export>
- <lib name=DataFormatsDTDigi>
- <use name=DataFormats/MuonDetId>
- <use name=DataFormats/Common>	
+  <use name=DataFormats/MuonDetId>
+  <use name=boost>
+  <lib name=DataFormatsDTDigi>
 </export>
+

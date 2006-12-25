@@ -1,5 +1,7 @@
 <use name=DataFormats/Common>
+<use name=rootrflx>
 <export>
- <lib name=DataFormatsMETObjects>
- <use name=DataFormats/Common>
+  <use name=DataFormats/Common>
+  <lib name=DataFormatsMETObjects>
 </export>
+
