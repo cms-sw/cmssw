@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 15:43:14 EDT 2006
-// $Id: SiStripElectron.h,v 1.3 2006/07/25 22:29:48 pivarski Exp $
+// $Id: SiStripElectron.h,v 1.4 2006/12/20 16:29:13 rahatlou Exp $
 //
 
 // system include files
@@ -28,7 +28,6 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 
