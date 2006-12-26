@@ -1,8 +1,7 @@
 <flags GENREFLEX_ARGS="--">
-<use name=rootrflx>
 <use name=FWCore/Framework>
+<use name=rootrflx>
 <export>
-  <use name=rootrflx>
-  <use name=FWCore/Framework>
   <lib name=CondFormatsCalibration>
 </export>
+
