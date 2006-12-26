@@ -1,8 +1,8 @@
 <flags GENREFLEX_ARGS="--">
+<use name=DataFormats/Common>
 <use name=FWCore/Framework>
 <use name=rootrflx>
 <export>
-  <use name=FWCore/Framework>
-  <use name=rootrflx>
   <lib name=CondFormatsOptAlignObjects>
 </export>
+
