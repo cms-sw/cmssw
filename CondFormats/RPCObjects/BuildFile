@@ -3,7 +3,6 @@
 <use name=DataFormats/MuonDetId>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
-#<use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
 <use name=boost>
 <use name=rootrflx>
