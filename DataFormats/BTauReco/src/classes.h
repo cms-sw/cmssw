@@ -13,6 +13,7 @@
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfo.h"
+#include "DataFormats/BTauReco/interface/CombinedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/CombinedBTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
@@ -86,6 +87,12 @@ namespace {
     edm::Ref<reco::EMIsolatedTauTagInfoCollection> r10;
     edm::RefProd<reco::EMIsolatedTauTagInfoCollection> rp10;
     edm::RefVector<reco::EMIsolatedTauTagInfoCollection> rv10;
+
+    reco::CombinedTauTagInfoCollection v12;
+    edm::Wrapper<reco::CombinedTauTagInfoCollection> w12;
+    edm::Ref<reco::CombinedTauTagInfoCollection> r12;
+    edm::RefProd<reco::CombinedTauTagInfoCollection> rp12;
+    edm::RefVector<reco::CombinedTauTagInfoCollection> rv12;
 
     reco::SoftLeptonProperties ext1;
     std::pair<reco::TrackRef, reco::SoftLeptonProperties> ep1;
