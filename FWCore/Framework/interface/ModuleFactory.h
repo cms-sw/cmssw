@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:31 EDT 2005
-// $Id: ModuleFactory.h,v 1.9 2006/10/26 20:38:09 wmtan Exp $
+// $Id: ModuleFactory.h,v 1.10 2006/10/30 23:07:53 wmtan Exp $
 //
 
 // system include files
@@ -25,8 +25,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/ComponentFactory.h"
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 // forward declarations
 namespace edm {
@@ -46,25 +44,12 @@ namespace edm {
    }
 }
 
-#if GCC_PREREQUISITE(3,4,4)
-
 #define DEFINE_FWK_EVENTSETUP_MODULE(type) \
 DEFINE_SEAL_MODULE (); \
 DEFINE_SEAL_PLUGIN (edm::eventsetup::ModuleFactory,edm::eventsetup::ModuleMaker<type>,#type)
 
 #define DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(type) \
 DEFINE_SEAL_PLUGIN (edm::eventsetup::ModuleFactory,edm::eventsetup::ModuleMaker<type>,#type)
-
-#else
-
-#define DEFINE_FWK_EVENTSETUP_MODULE(type) \
-DEFINE_SEAL_MODULE (); \
-DEFINE_SEAL_PLUGIN (edm::eventsetup::ModuleFactory,edm::eventsetup::ModuleMaker<type>,#type);
-
-#define DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(type) \
-DEFINE_SEAL_PLUGIN (edm::eventsetup::ModuleFactory,edm::eventsetup::ModuleMaker<type>,#type);
-
-#endif
 
 #endif
 

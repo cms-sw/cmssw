@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: LooperFactory.h,v 1.2 2006/10/26 20:38:09 wmtan Exp $
+// $Id: LooperFactory.h,v 1.3 2006/10/30 23:07:53 wmtan Exp $
 //
 
 // system include files
@@ -26,8 +26,6 @@
 // user include files
 #include "FWCore/Framework/interface/ComponentFactory.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 // forward declarations
 
@@ -83,24 +81,11 @@ namespace edm {
    }
 }
 
-#if GCC_PREREQUISITE(3,4,4)
-
 #define DEFINE_FWK_LOOPER(type) \
 DEFINE_SEAL_MODULE (); \
 DEFINE_SEAL_PLUGIN (edm::eventsetup::LooperFactory,edm::eventsetup::LooperMaker<type>,#type)
 
 #define DEFINE_ANOTHER_FWK_LOOPER(type) \
 DEFINE_SEAL_PLUGIN (edm::eventsetup::LooperFactory,edm::eventsetup::LooperMaker<type>,#type)
-
-#else
-
-#define DEFINE_FWK_LOOPER(type) \
-DEFINE_SEAL_MODULE (); \
-DEFINE_SEAL_PLUGIN (edm::eventsetup::LooperFactory,edm::eventsetup::LooperMaker<type>,#type);
-
-#define DEFINE_ANOTHER_FWK_LOOPER(type) \
-DEFINE_SEAL_PLUGIN (edm::eventsetup::LooperFactory,edm::eventsetup::LooperMaker<type>,#type);
-
-#endif
 
 #endif

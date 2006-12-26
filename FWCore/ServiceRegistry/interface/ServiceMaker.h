@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServiceMaker.h,v 1.4 2006/10/26 20:38:09 wmtan Exp $
+// $Id: ServiceMaker.h,v 1.5 2006/10/30 23:07:54 wmtan Exp $
 //
 
 // system include files
@@ -27,8 +27,6 @@
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
 #include "FWCore/ServiceRegistry/interface/ServicesManager.h"
 #include "FWCore/ServiceRegistry/interface/ServicePluginFactory.h"
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 // forward declarations
 
@@ -110,8 +108,6 @@ private:
 }
 
 
-#if GCC_PREREQUISITE(3,4,4)
-
 #define DEFINE_FWK_SERVICE(type) \
 DEFINE_SEAL_MODULE (); \
 DEFINE_SEAL_PLUGIN (edm::serviceregistry::ServicePluginFactory,edm::serviceregistry::ServiceMaker<type>,#type)
@@ -127,25 +123,5 @@ DEFINE_SEAL_PLUGIN (edm::serviceregistry::ServicePluginFactory, concrete ## _ ##
 #define DEFINE_ANOTHER_FWK_SERVICE_MAKER(concrete,maker) \
 typedef edm::serviceregistry::ServiceMaker<maker::interface_t,maker> concrete ## _ ##  _t; \
 DEFINE_SEAL_PLUGIN (edm::serviceregistry::ServicePluginFactory, concrete ## _ ## _t ,#concrete)
-
-#else
-
-#define DEFINE_FWK_SERVICE(type) \
-DEFINE_SEAL_MODULE (); \
-DEFINE_SEAL_PLUGIN (edm::serviceregistry::ServicePluginFactory,edm::serviceregistry::ServiceMaker<type>,#type);
-
-#define DEFINE_ANOTHER_FWK_SERVICE(type) \
-DEFINE_SEAL_PLUGIN (edm::serviceregistry::ServicePluginFactory,edm::serviceregistry::ServiceMaker<type>,#type);
-
-#define DEFINE_FWK_SERVICE_MAKER(concrete,maker) \
-DEFINE_SEAL_MODULE (); \
-typedef edm::serviceregistry::ServiceMaker<maker::interface_t,maker> concrete ## _ ## _t; \
-DEFINE_SEAL_PLUGIN (edm::serviceregistry::ServicePluginFactory, concrete ## _ ##  _t ,#concrete);
-
-#define DEFINE_ANOTHER_FWK_SERVICE_MAKER(concrete,maker) \
-typedef edm::serviceregistry::ServiceMaker<maker::interface_t,maker> concrete ## _ ##  _t; \
-DEFINE_SEAL_PLUGIN (edm::serviceregistry::ServicePluginFactory, concrete ## _ ## _t ,#concrete);
-
-#endif
 
 #endif
