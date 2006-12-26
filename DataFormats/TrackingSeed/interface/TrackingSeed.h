@@ -13,12 +13,11 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: wmtan $
-// $Date: 2006/03/15 23:39:50 $
-// $Revision: 1.3 $
+// $Date: 2006/12/25 15:20:30 $
+// $Revision: 1.4 $
 //
 
 #include <vector>
-//#include "DataFormats/TrackerRecHit2D/interface/BaseSiStripRecHit2DLocalPos.h"
 #include "DataFormats/Common/interface/Ref.h"
 
 class BaseSiStripRecHit2DLocalPos;
