@@ -1,10 +1,12 @@
 <flags GENREFLEX_ARGS="--">
-<use name=rootrflx>
+<use name=DataFormats/MuonDetId>
 <use name=FWCore/Framework>
-<use name=DataFormats/MuonDetId>>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=rootrflx>
 <export>
-  <use name=rootrflx>
-  <use name=FWCore/Framework>
-  <use name=DataFormats/MuonDetId>>
+  <use name=DataFormats/MuonDetId>
+  <use name=FWCore/ParameterSet>
   <lib name=CondFormatsCSCObjects>
 </export>
+
