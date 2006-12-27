@@ -239,7 +239,7 @@ void EcalTBDigiProducer::updateGeometry() {
 
   theBarrelDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalBarrel);
 
-  LogInfo("EcalDigi") << "deb geometry: " << "\n" 
+  edm::LogInfo("EcalDigi") << "deb geometry: " << "\n" 
                        << "\t barrel: " << theBarrelDets.size ();
 
   theBarrelDigitizer->setDetIds(theBarrelDets);
