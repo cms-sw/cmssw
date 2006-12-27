@@ -3,11 +3,6 @@
 #include "TrackingTools/TrackFitters/interface/RecHitSplitter.h"
 #include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-//#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-// #include "CommonDet/BasicDet/interface/InvalidRecHit.h"
-// #include "CommonDet/BasicDet/interface/Det.h"
-// #include "CommonDet/BasicDet/interface/DetUnit.h"
-// #include "CommonDet/DetLayout/interface/DetLayer.h"
 
 std::vector<Trajectory> KFSplittingFitter::fit(const Trajectory& aTraj) const {
   
@@ -29,7 +24,7 @@ std::vector<Trajectory> KFSplittingFitter::fit(const Trajectory& aTraj) const {
     else {
       RecHitContainer splitted = RecHitSplitter().split((**ihit).transientHits());
       RecHitContainer sorted = 
-	RecHitSorter().sortHits(splitted, propagator()->propagationDirection());
+	RecHitSorter().sortHits(splitted, aTraj.direction());
       for (RecHitContainer::iterator srt = sorted.begin(); srt != sorted.end(); srt++) {
 	result.push_back(*srt);
 	//      result.insert(result.end(), sorted.begin(), sorted.end());
@@ -43,8 +38,8 @@ std::vector<Trajectory> KFSplittingFitter::fit(const Trajectory& aTraj) const {
 }
 
 std::vector<Trajectory> KFSplittingFitter::fit(const TrajectorySeed& aSeed,
-					  const RecHitContainer& hits, 
-					  const TSOS& firstPredTsos) const {
+					       const RecHitContainer& hits, 
+					       const TSOS& firstPredTsos) const {
 
   RecHitContainer result;
   result.reserve(hits.size());
@@ -55,7 +50,7 @@ std::vector<Trajectory> KFSplittingFitter::fit(const TrajectorySeed& aSeed,
     else {      
       RecHitContainer splitted = RecHitSplitter().split((**ihit).transientHits());
       RecHitContainer sorted = 
-	RecHitSorter().sortHits(splitted, propagator()->propagationDirection());
+	RecHitSorter().sortHits(splitted, aSeed.direction());
       for (RecHitContainer::iterator srt = sorted.begin(); srt != sorted.end(); srt++) {
 	result.push_back(*srt);
 	//      result.insert(result.end(), sorted.begin(), sorted.end());

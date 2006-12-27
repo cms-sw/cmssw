@@ -17,24 +17,27 @@ private:
   
 public:
 
-  KFSplittingFitter(const Propagator& aPropagator,
+  KFSplittingFitter(const Propagator& aPropagatorAlong,
+		    const Propagator& aPropagatorOpposite,
                     const TrajectoryStateUpdator& aUpdator,
                     const MeasurementEstimator& aEstimator) :
-    KFTrajectoryFitter(aPropagator, aUpdator, aEstimator) {}
+    KFTrajectoryFitter(aPropagatorAlong, aPropagatorOpposite, aUpdator, aEstimator) {}
 
-  KFSplittingFitter(const Propagator* aPropagator,
+
+  KFSplittingFitter(const Propagator* aPropagatorAlong,
+		    const Propagator* aPropagatorOpposite,
 		    const TrajectoryStateUpdator* aUpdator,
 		    const MeasurementEstimator* aEstimator) : 
-    KFTrajectoryFitter(aPropagator, aUpdator, aEstimator) {}
+    KFTrajectoryFitter(aPropagatorAlong,aPropagatorOpposite, aUpdator, aEstimator) {}
 
   virtual KFSplittingFitter* clone() const {
-    return new KFSplittingFitter(propagator(),updator(),estimator());
+    return new KFSplittingFitter(propagatorAlongMomentum(),propagatorOppositeToMomentum(),updator(),estimator());
   }
   
   virtual std::vector<Trajectory> fit(const Trajectory& aTraj) const;
   virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				 const RecHitContainer& hits, 
-				 const TSOS& firstPredTsos) const;
+				      const RecHitContainer& hits, 
+				      const TSOS& firstPredTsos) const;
 
 
 };

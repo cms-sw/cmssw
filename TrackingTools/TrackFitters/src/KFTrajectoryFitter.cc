@@ -10,7 +10,8 @@
   
 KFTrajectoryFitter::~KFTrajectoryFitter() {
 
-  delete thePropagator;
+  delete thePropagatorAlongMomentum;
+  delete thePropagatorOppositeToMomentum;
   delete theUpdator;
   delete theEstimator;
 
@@ -28,7 +29,7 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const Trajectory& aTraj) const {
 }
 
 std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
-					   const RecHitContainer& hits) const{
+						const RecHitContainer& hits) const{
 
   throw cms::Exception("TrackingTools/TrackFitters", 
 		       "KFTrajectoryFitter::fit(TrajectorySeed, <TransientTrackingRecHit>) not implemented"); 
@@ -37,17 +38,27 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 }
 
 std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
-					   const RecHitContainer& hits,
-					   const TSOS& firstPredTsos) const {
-
-
+						const RecHitContainer& hits,
+						const TSOS& firstPredTsos) const 
+{
   if(hits.empty()) return std::vector<Trajectory>();
+
+  const Propagator*  theForwardPropagator;
+
+  if (  aSeed.direction() == alongMomentum) {
+    theForwardPropagator = thePropagatorAlongMomentum;
+  }else {
+    theForwardPropagator = thePropagatorOppositeToMomentum;
+  }
+
+
+
   LogDebug("TrackingTools/TrackFitters")
     <<" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
     <<" KFTrajectoryFitter::fit staring with "<<hits.size()<<" HITS \n"
     <<" INITIAL STATE "<<firstPredTsos<<"\n";
   
-  Trajectory myTraj(aSeed, propagator()->propagationDirection());
+  Trajectory myTraj(aSeed, theForwardPropagator->propagationDirection());
 
 
   TSOS predTsos(firstPredTsos);
@@ -136,8 +147,8 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
       }
     }
 
-    predTsos = propagator()->propagate(currTsos,
-				       (**ihit).det()->surface());
+    predTsos = theForwardPropagator->propagate(currTsos,
+	                                       (**ihit).det()->surface());
     if(!predTsos.isValid()) {
       LogDebug("TrackingTools/TrackFitters") 
 	<<" SOMETHING WRONG !"<<"\n"

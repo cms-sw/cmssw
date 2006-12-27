@@ -23,20 +23,25 @@ private:
 
 public:
 
-  KFTrajectorySmoother(const Propagator& aPropagator,
+  KFTrajectorySmoother(const Propagator& aPropagatorAlong,
+		       const Propagator& aPropagatorOpposite,
                        const TrajectoryStateUpdator& aUpdator,
                        const MeasurementEstimator& aEstimator,
 		       float errorRescaling = 100.f) :
-    thePropagator(aPropagator.clone()),
+    thePropagatorAlongMomentum(aPropagatorAlong.clone()),
+    thePropagatorOppositeToMomentum(aPropagatorOpposite.clone()),
     theUpdator(aUpdator.clone()),
     theEstimator(aEstimator.clone()),
     theErrorRescaling(errorRescaling) {}
 
-  KFTrajectorySmoother(const Propagator* aPropagator, 
+
+  KFTrajectorySmoother(const Propagator* aPropagatorAlong,
+		       const Propagator* aPropagatorOpposite, 
 		       const TrajectoryStateUpdator* aUpdator, 
 		       const MeasurementEstimator* aEstimator,
 		       float errorRescaling = 100.f) :
-    thePropagator(aPropagator->clone()),
+    thePropagatorAlongMomentum(aPropagatorAlong->clone()),
+    thePropagatorOppositeToMomentum(aPropagatorOpposite->clone()),
     theUpdator(aUpdator->clone()),
     theEstimator(aEstimator->clone()),
     theErrorRescaling(errorRescaling)  {}
@@ -45,17 +50,21 @@ public:
 
   virtual std::vector<Trajectory> trajectories(const Trajectory& aTraj) const;
 
-  const Propagator* propagator() const {return thePropagator;}
+  const Propagator* propagatorAlongMomentum() const {return thePropagatorAlongMomentum;}
+  const Propagator* propagatorOppositeToMomentum() const {return thePropagatorOppositeToMomentum;}
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
   const MeasurementEstimator* estimator() const {return theEstimator;}
 
   virtual KFTrajectorySmoother* clone() const{
-    return new KFTrajectorySmoother(thePropagator,theUpdator,theEstimator);
+    return new KFTrajectorySmoother(thePropagatorAlongMomentum,
+				    thePropagatorOppositeToMomentum,
+				    theUpdator,theEstimator);
   }
 
 private:
 
-  const Propagator* thePropagator;
+  const Propagator* thePropagatorAlongMomentum;
+  const Propagator* thePropagatorOppositeToMomentum;
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
   float theErrorRescaling;

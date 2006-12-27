@@ -23,17 +23,22 @@ private:
 
 public:
 
-  KFTrajectoryFitter(const Propagator& aPropagator,
-                     const TrajectoryStateUpdator& aUpdator,
-                     const MeasurementEstimator& aEstimator) :
-    thePropagator(aPropagator.clone()),
+
+  KFTrajectoryFitter(const Propagator& aPropagatorAlong,
+  		     const Propagator& aPropagatorOpposite,
+		     const TrajectoryStateUpdator& aUpdator,
+		     const MeasurementEstimator& aEstimator) :
+    thePropagatorAlongMomentum(aPropagatorAlong.clone()),
+    thePropagatorOppositeToMomentum(aPropagatorOpposite.clone()),
     theUpdator(aUpdator.clone()),
     theEstimator(aEstimator.clone()) {}
   
-  KFTrajectoryFitter(const Propagator* aPropagator,
+  KFTrajectoryFitter(const Propagator* aPropagatorAlong,
+		     const Propagator* aPropagatorOpposite,
 		     const TrajectoryStateUpdator* aUpdator,
 		     const MeasurementEstimator* aEstimator) : 
-    thePropagator(aPropagator->clone()),
+    thePropagatorAlongMomentum(aPropagatorAlong->clone()),
+    thePropagatorOppositeToMomentum(aPropagatorOpposite->clone()),
     theUpdator(aUpdator->clone()),
     theEstimator(aEstimator->clone()) {}
 
@@ -46,18 +51,23 @@ public:
 				 const RecHitContainer& hits, 
 				 const TSOS& firstPredTsos) const;
 
-  const Propagator* propagator() const {return thePropagator;}
+  const Propagator* propagatorAlongMomentum() const {return thePropagatorAlongMomentum;}
+  const Propagator* propagatorOppositeToMomentum() const {return thePropagatorOppositeToMomentum;}
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
   const MeasurementEstimator* estimator() const {return theEstimator;}
   
   virtual KFTrajectoryFitter* clone() const
   {
-    return new KFTrajectoryFitter(thePropagator,theUpdator,theEstimator);
+    return new KFTrajectoryFitter(thePropagatorAlongMomentum,
+				  thePropagatorOppositeToMomentum,
+				  theUpdator,theEstimator);
   }
   
 private:
   
-  const Propagator* thePropagator;
+  const Propagator* thePropagatorAlongMomentum;
+  const Propagator* thePropagatorOppositeToMomentum;
+
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
 };

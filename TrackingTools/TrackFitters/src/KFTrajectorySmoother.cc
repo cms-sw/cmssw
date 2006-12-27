@@ -7,7 +7,8 @@
 
 KFTrajectorySmoother::~KFTrajectorySmoother() {
 
-  delete thePropagator;
+  delete thePropagatorAlongMomentum;
+  delete thePropagatorOppositeToMomentum;
   delete theUpdator;
   delete theEstimator;
 
@@ -18,7 +19,18 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 
   if(aTraj.empty()) return std::vector<Trajectory>();
 
-  Trajectory myTraj(aTraj.seed(), propagator()->propagationDirection());
+  const Propagator*  theBackwardPropagator;
+
+  if (  aTraj.direction() == alongMomentum) {
+    theBackwardPropagator = thePropagatorOppositeToMomentum;
+  }
+  else {
+    theBackwardPropagator = thePropagatorAlongMomentum;
+  }
+
+
+
+  Trajectory myTraj(aTraj.seed(), theBackwardPropagator->propagationDirection());
 
   std::vector<TM> avtm = aTraj.measurements();
 
@@ -54,7 +66,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
   for(std::vector<TM>::reverse_iterator itm = avtm.rbegin() + 1; 
       itm != avtm.rend() - 1; itm++) {
 
-    predTsos = propagator()->propagate(currTsos,
+    predTsos = theBackwardPropagator->propagate(currTsos,
 				       (*itm).recHit()->det()->surface());
 
     if(!predTsos.isValid()) {
@@ -115,7 +127,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
   }
   
   //last smoothed tm is last filtered
-  predTsos = propagator()->propagate(currTsos,
+  predTsos = theBackwardPropagator->propagate(currTsos,
 				     avtm.front().recHit()->det()->surface());
   
   if(!predTsos.isValid()) {
