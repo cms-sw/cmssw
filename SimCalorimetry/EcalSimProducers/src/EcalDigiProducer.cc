@@ -290,7 +290,7 @@ void EcalDigiProducer::updateGeometry() {
   theEndcapDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalEndcap);
   theESDets     =  theGeometry->getValidDetIds(DetId::Ecal, EcalPreshower);
 
-  LogInfo("EcalDigi") << "deb geometry: " << "\n" 
+  edm::LogInfo("EcalDigi") << "deb geometry: " << "\n" 
                       << "\t barrel: " << theBarrelDets.size () << "\n"
                       << "\t endcap: " << theEndcapDets.size () << "\n"
                       << "\t preshower: " << theESDets.size();
