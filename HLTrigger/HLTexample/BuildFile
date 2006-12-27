@@ -2,6 +2,7 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=SimGeneral/HepPDTRecord>
 <use name=DataFormats/L1Trigger>
+<use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/JetReco>

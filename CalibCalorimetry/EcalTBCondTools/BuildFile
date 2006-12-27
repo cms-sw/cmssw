@@ -1,24 +1,25 @@
 <Flags CXXFLAGS=-g>
-
 <flags SEAL_PLUGIN_NAME="CalibCalorimetryEcalTBCondTools">
-
-<use name=boost>
-<use name=FWCore/Framework>
-<use name=DataFormats/Common>
+<use name=CalibCalorimetry/EcalTBCondTools>
 <use name=CondCore/DBCommon>
-<use name=CondCore/MetaDataService>
-<use name=CondCore/IOVService>
 <use name=CondCore/DBOutputService>
-<use name=CondFormats/EcalObjects>
+<use name=CondCore/IOVService>
+<use name=CondCore/MetaDataService>
+<use name=CondFormats/Calibration>
 <use name=CondFormats/DataRecord>
+<use name=CondFormats/EcalObjects>
+<use name=DataFormats/EcalDetId>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
+<use name=Foundation/PluginManager>
 <export>
-<lib name=CalibCalorimetryEcalTBCondTools>
-<use name=FWCore/Framework>
-<use name=DataFormats/Common>
-<use name=CondCore/DBCommon>
-<use name=CondCore/MetaDataService>
-<use name=CondCore/IOVService>
-<use name=CondCore/DBOutputService>
-<use name=CondFormats/EcalObjects>
-<use name=CondFormats/DataRecord>
+  <use name=CondCore/DBCommon>
+  <use name=CondCore/IOVService>
+  <use name=CondCore/MetaDataService>
+  <use name=CondFormats/EcalObjects>
+  <use name=DataFormats/EcalDetId>
+  <use name=FWCore/Framework>
+  <lib name=CalibCalorimetryEcalTBCondTools>
 </export>
