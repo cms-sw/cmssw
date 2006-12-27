@@ -10,7 +10,7 @@
 // default constructor allocates default wire and strip digitizers
 RPCDigitizer::RPCDigitizer(const edm::ParameterSet& config) {
   std::string name = config.getParameter<std::string>("digiModel");
-  theRPCSim = RPCSimFactory::get()->create(name,config.getParameter<ParameterSet>("digiModelConfig"));
+  theRPCSim = RPCSimFactory::get()->create(name,config.getParameter<edm::ParameterSet>("digiModelConfig"));
 }
 
 RPCDigitizer::~RPCDigitizer() {
