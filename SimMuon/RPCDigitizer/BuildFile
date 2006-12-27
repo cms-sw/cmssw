@@ -8,6 +8,7 @@
 <use name=SimGeneral/HepPDT>
 <use name=Utilities/Timing>
 <use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
 <use name=DataFormats/RPCDigi>
 <use name=DataFormats/MuonDetId>
 <use name=boost>
