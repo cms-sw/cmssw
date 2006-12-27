@@ -11,7 +11,6 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/EgammaReco>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=JetMETCorrections/Utilities>
 <use name=Geometry/Surface>
 <use name=Geometry/Records>
 <use name=MagneticField/Engine>
@@ -40,7 +39,6 @@
    <use name=Geometry/CaloEventSetup>
    <use name=DataFormats/TrackReco>
    <use name=DataFormats/EgammaReco>
-   <use name=JetMETCorrections/Utilities>
    <use name=Geometry/TrackerGeometryBuilder>
    <use name=Geometry/Surface>
    <use name=Geometry/Records>
