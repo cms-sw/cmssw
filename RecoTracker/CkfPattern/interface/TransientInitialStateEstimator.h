@@ -31,11 +31,7 @@ public:
 private:
   edm::ESHandle<Propagator>  thePropagatorAlong; 
   edm::ESHandle<Propagator>  thePropagatorOpposite;
-
-  mutable const Propagator*        theForwardPropagator;
-  mutable const Propagator*        theReversePropagator; 
-  
-
+ 
 };
 
 #endif

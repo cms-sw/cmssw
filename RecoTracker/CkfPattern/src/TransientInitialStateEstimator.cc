@@ -16,6 +16,7 @@
 #include "TrackingTools/TrackFitters/interface/KFFittingSmoother.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
 TransientInitialStateEstimator::TransientInitialStateEstimator( const edm::EventSetup& es,
 								const edm::ParameterSet& conf)
@@ -31,17 +32,6 @@ TransientInitialStateEstimator::TransientInitialStateEstimator( const edm::Event
 std::pair<TrajectoryStateOnSurface, const GeomDet*> 
 TransientInitialStateEstimator::innerState( const Trajectory& traj) const
 {
-
-  if (  traj.seed().direction() == alongMomentum) {
-    theForwardPropagator = &(*thePropagatorAlong);
-    theReversePropagator = &(*thePropagatorOpposite);
-  }
-  else {
-    theForwardPropagator = &(*thePropagatorOpposite);
-    theReversePropagator = &(*thePropagatorAlong);
-  }
-
-
   int lastFitted = 4;
   int nhits = traj.foundHits();
   if (nhits < lastFitted+1) lastFitted = nhits-1;
@@ -66,14 +56,21 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
 
   TSOS startingState( unscaledState.localParameters(), LocalTrajectoryError(C),
 		      unscaledState.surface(),
-		      theReversePropagator->magneticField());
+		      thePropagatorAlong->magneticField());
 
   // cout << endl << "FitTester starts with state " << startingState << endl;
 
-  KFTrajectoryFitter backFitter( *theReversePropagator, KFUpdator(), 
-				 Chi2MeasurementEstimator( 100., 3));
+  KFTrajectoryFitter backFitter( *thePropagatorAlong,*thePropagatorOpposite,
+				 KFUpdator(), Chi2MeasurementEstimator( 100., 3));
 
-  vector<Trajectory> fitres = backFitter.fit( traj.seed(), firstHits, startingState);
+  PropagationDirection backFitDirection = traj.direction() == alongMomentum ? oppositeToMomentum: alongMomentum;
+
+  // only direction matters in this contest
+  TrajectorySeed fakeSeed = TrajectorySeed(PTrajectoryStateOnDet() , 
+					   edm::OwnVector<TrackingRecHit>(),
+					   backFitDirection);
+
+  vector<Trajectory> fitres = backFitter.fit( fakeSeed, firstHits, startingState);
 
   if (fitres.size() != 1) {
     // cout << "FitTester: first hits fit failed!" << endl;
@@ -88,7 +85,7 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
 
   TSOS initialState( firstState.localParameters(), LocalTrajectoryError(C),
 		     firstState.surface(),
-		     theReversePropagator->magneticField());
+		     thePropagatorAlong->magneticField());
 
   return std::pair<TrajectoryStateOnSurface, const GeomDet*>( initialState, 
 							      firstMeas.recHit()->det());
