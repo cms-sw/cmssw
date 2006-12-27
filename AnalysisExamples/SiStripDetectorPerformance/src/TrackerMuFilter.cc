@@ -87,7 +87,7 @@ bool TrackerMuFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   theStripHits.insert(theStripHits.end(), TECHitsHighTof->begin(), TECHitsHighTof->end());
 
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
+  edm::ESHandle<DTGeometry> dtGeom;
   iSetup.get<MuonGeometryRecord>().get(dtGeom);
 
 //   // Get the digis from the event
@@ -109,7 +109,7 @@ bool TrackerMuFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<edm::PSimHitContainer> muDTHits; 
   iEvent.getByLabel("g4SimHits","MuonDTHits",muDTHits);
   theDTMuonHits.insert(theDTMuonHits.end(), muDTHits->begin(), muDTHits->end());
-  PSimHitContainer::const_iterator iDTSimHit;
+  edm::PSimHitContainer::const_iterator iDTSimHit;
   for (iDTSimHit = muDTHits->begin(); iDTSimHit != muDTHits->end(); iDTSimHit++) {
     //    std::cout << "muDTHits->DetUnit = " << (*iDTSimHit).detUnitId() << std::endl;
     DTWireId wireIdSim( (*iDTSimHit).detUnitId() );
