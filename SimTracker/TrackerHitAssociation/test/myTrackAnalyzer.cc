@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 
-//using namespace edm;
+using namespace edm;
 class TrackerHitAssociator;
 
 myTrackAnalyzer::myTrackAnalyzer(edm::ParameterSet const& conf) : 
@@ -42,8 +42,8 @@ void myTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& se
    std::vector<SimTrack> theSimTracks;
    std::vector<SimVertex> theSimVertexes;
 
-   Handle<SimTrackContainer> SimTk;
-   Handle<SimVertexContainer> SimVtx;
+   edm::Handle<SimTrackContainer> SimTk;
+   edm::Handle<SimVertexContainer> SimVtx;
    event.getByLabel("g4SimHits",SimTk);
    event.getByLabel("g4SimHits",SimVtx);
    theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
