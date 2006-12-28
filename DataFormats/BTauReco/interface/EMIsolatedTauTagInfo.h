@@ -51,18 +51,21 @@ namespace reco {
       {
 	  const  edm::RefVector<EMLorentzVectorCollection>  myRecHits = lorentzVectorRecHits();
 	  const Jet & myJet = jet(); 
-	  double energyRMax= 0;
-	  double energyRMin = 0;
+	  double energyRMax= 0.;
+	  double energyRMin = 0.;
 	  
 	  edm::RefVector<EMLorentzVectorCollection>::const_iterator mRH =myRecHits.begin();
 	  for(;mRH != myRecHits.end();mRH++)
 	      {
 		  double delta  = ROOT::Math::VectorUtil::DeltaR((myJet).p4().Vect(), (**mRH));
-		  if(delta < rMax) energyRMax =+ (**mRH).pt(); 
-		  if(delta < rMin) energyRMin =+ (**mRH).pt();
-		  
+		  if(delta < rMax) {
+		    energyRMax = energyRMax +  (**mRH).pt(); 
+		  }
+		  if(delta < rMin) {
+		    energyRMin = energyRMin +  (**mRH).pt();
+		  }
 	      }
-	  std::cout <<"EnergyMax - EnergyMin" << energyRMax <<" - " << energyRMin<<std::endl;
+	  //	  std::cout <<"EnergyMax - EnergyMin" << energyRMax <<" - " << energyRMin<<std::endl;
 	  double pIsol = energyRMax - energyRMin;
 	  return pIsol;
 
