@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2006/10/06 00:37:31 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/10/19 18:50:57 $
+ *  $Revision: 1.17 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.16 2006/10/06 00:37:31 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.17 2006/10/19 18:50:57 slava77 Exp $
 //
 //
 
@@ -49,9 +49,10 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
   noMaterialMode_ = false;
   noErrorPropagation_ = false;
   applyRadX0Correction_ = false;
-  useMagVolumes_ = true;
+  useMagVolumes_ = false;
   for (int i = 0; i <= MAX_POINTS; i++){
-    svBuf_[i].covLoc = HepSymMatrix(6,0);
+    svBuf_[i].cov = HepSymMatrix(6,0);
+    svBuf_[i].matDCov = HepSymMatrix(6,0);
   }
 }
 
@@ -212,16 +213,10 @@ void SteppingHelixPropagator::getFState(SteppingHelixPropagator::Vector& p3,
   p3 = svCurrent.p3;
   r3 = svCurrent.r3;
   //update Emat only if it's valid
-  if (svCurrent.covLoc.num_row() >=5){
-    Vector xRep(1., 0., 0.);
-    Vector yRep(0., 1., 0.);
-    Vector zRep(0., 0., 1.);
-    const Vector* repI[3] = {&svCurrent.rep.lX, &svCurrent.rep.lY, &svCurrent.rep.lZ};
-    const Vector* repF[3] = {&xRep, &yRep, &zRep};
-    initCovRotation(repI, repF, covRot_);
-    cov = svCurrent.covLoc.similarity(covRot_);
+  if (svCurrent.cov.num_row() >=5){
+    cov = svCurrent.cov;
   } else {
-    cov = svCurrent.covLoc;
+    cov = svCurrent.cov;
   }
 
 }
@@ -399,21 +394,8 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   if (svCurrent.bf.mag() < 1e-6) svCurrent.bf.set(0., 0., 1e-6);
 
   setRep(svCurrent);
-  //  getLocBGrad(ind, 1e-1);
 
-  svCurrent.covLoc.assign(cov);
-
-  
-  //update Emat only if it's valid
-  if (svCurrent.covLoc.num_row() >=5){
-    Vector xRep(1., 0., 0.);
-    Vector yRep(0., 1., 0.);
-    Vector zRep(0., 0., 1.);
-    const Vector* repI[3] = {&xRep, &yRep, &zRep};
-    const Vector* repF[3] = {&svCurrent.rep.lX, &svCurrent.rep.lY, &svCurrent.rep.lZ};
-    initCovRotation(repI, repF, covRot_);
-    svCurrent.covLoc = svCurrent.covLoc.similarity(covRot_);
-  }
+  svCurrent.cov.assign(cov);
 
   if (debug_){
     std::cout<<"Loaded at  path: "<<svCurrent.path<<" radPath: "<<svCurrent.radPath
@@ -424,8 +406,6 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
 	     <<" bField: "<<svCurrent.bf.mag()
 	     <<std::endl;
     std::cout<<"Input Covariance in Global RF "<<cov<<std::endl;
-    std::cout<<"Covariance in Local RF "<<svCurrent.covLoc<<std::endl;
-    std::cout<<"Rotated by "<<covRot_<<std::endl;
   }
 }
 
@@ -469,14 +449,11 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
   
   
   //update Emat only if it's valid
-  if (svPrevious.covLoc.num_row() >=5){
-    const Vector* repI[3] = {&svPrevious.rep.lX, &svPrevious.rep.lY, &svPrevious.rep.lZ};
-    const Vector* repF[3] = {&svNext.rep.lX, &svNext.rep.lY, &svNext.rep.lZ};
-    initCovRotation(repI, repF, covRot_);
-    covRot_ = covRot_*dCovTransform;
-    svNext.covLoc = svPrevious.covLoc.similarity(covRot_);
+  if (svPrevious.cov.num_row() >=5){
+    svNext.cov = svPrevious.cov.similarity(dCovTransform);
+    svNext.cov += svPrevious.matDCov;
   } else {
-    svNext.covLoc.assign(svPrevious.covLoc);
+    svNext.cov.assign(svPrevious.cov);
   }
 
   if (debug_){
@@ -488,28 +465,22 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
 	     <<" dPhi: "<<acos(svNext.p3.unit().dot(svPrevious.p3.unit()))
 	     <<" bField: "<<svNext.bf.mag()
 	     <<std::endl;
-    std::cout<<"Covariance in Local RF "<<svNext.covLoc<<std::endl;
-    std::cout<<"Transformed from prev by "<<covRot_<<std::endl;
-    std::cout<<"dCovTransform "<<dCovTransform<<std::endl;
-
-    Vector xRep(1., 0., 0.);
-    Vector yRep(0., 1., 0.);
-    Vector zRep(0., 0., 1.);
-    const Vector* repF[3] = {&xRep, &yRep, &zRep};
-    const Vector* repI[3] = {&svNext.rep.lX, &svNext.rep.lY, &svNext.rep.lZ};
-    initCovRotation(repI, repF, covRot_);    
-    HepSymMatrix cov = svNext.covLoc.similarity(covRot_);
-    std::cout<<"Covariance in Global RF "<<cov<<std::endl;
-    std::cout<<"Rotated by "<<covRot_<<std::endl;
+    std::cout<<"New Covariance "<<svNext.cov<<std::endl;
+    std::cout<<"Transf by dCovTransform "<<dCovTransform<<std::endl;
   }
 }
 
 void SteppingHelixPropagator::setRep(SteppingHelixPropagator::StateInfo& sv) const{
-  Vector zRep(0., 0., 1.);
   Vector tau = sv.p3/(sv.p3.mag());
-  sv.rep.lX = tau;
-  sv.rep.lY = zRep.cross(tau); sv.rep.lY /= tau.perp();
-  sv.rep.lZ = sv.rep.lX.cross(sv.rep.lY);
+  setRep(sv.rep, tau);
+}
+
+void SteppingHelixPropagator::setRep(SteppingHelixPropagator::Basis& rep, 
+				     const SteppingHelixPropagator::Vector& tau) const{
+  Vector zRep(0., 0., 1.);
+  rep.lX = tau;
+  rep.lY = zRep.cross(tau); rep.lY /= tau.perp();
+  rep.lZ = rep.lX.cross(rep.lY);
 }
 
 bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& svCurrent,
@@ -523,29 +494,27 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 
   double dP = 0;
   Vector tau = svCurrent.p3; tau/=tau.mag();
+  Vector tauNext(tau);
 
   dS = dir == alongMomentum ? fabs(dS) : -fabs(dS);
 
   double p0 = svCurrent.p3.mag();
   double b0 = svCurrent.bf.mag();
-  double kappa0 = 0.0029979*svCurrent.q*b0/p0;
-  if (fabs(kappa0) < 1e-12) kappa0 = 1e-12;
+  double phi = 0.0029979*svCurrent.q*b0/p0*dS;
+  bool phiSmall = fabs(phi) < 3e-8;
 
-  double cosTheta = tau.z();
-  double sinTheta = sin(acos(cosTheta));
-  double cotTheta = fabs(sinTheta) > 1e-21 ? cosTheta/sinTheta : 1e21;
-  double phi = kappa0*dS;
   double cosPhi = cos(phi);
-  double oneLessCosPhi = 1.-cosPhi;
+  double oneLessCosPhi = phiSmall ? 0.5*phi*phi*(1.- phi*phi/12.)  : 1.-cosPhi;
+  double oneLessCosPhiOPhi = phiSmall ? 0.5*phi*(1.- phi*phi/12.)  : oneLessCosPhi/phi;
   double sinPhi = sin(phi);
-  double phiLessSinPhi = phi - sinPhi;
-  double oneLessCpLessPSp = oneLessCosPhi - phi*sinPhi;
-  double pCpLessSp = phi*cosPhi - sinPhi;
+  double sinPhiOPhi = phiSmall ? 1. - phi*phi/6. : sinPhi/phi;
+  double phiLessSinPhiOPhi = phiSmall ? phi*phi/6.*(1. - phi*phi/20.) : (phi - sinPhi)/phi;
+
   Vector bHat = svCurrent.bf; bHat /= bHat.mag();
-  double bx = svCurrent.rep.lX.dot(bHat);
+  double bxC = svCurrent.rep.lX.dot(bHat);
   double by = svCurrent.rep.lY.dot(bHat);
   double bz = svCurrent.rep.lZ.dot(bHat);
-  double oneLessBx2 = (1.-bx*bx);
+  double oneLessBxC2 = (1.-bxC*bxC);
 
   //components in local rf
   double dX =0.;
@@ -555,15 +524,6 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
   double tauY =0.;
   double tauZ =0.;
   
-//   double bfLGL[3];// grad(log(B))
-//   for (int i = 0; i < 3; i++){
-//     if (b0 < 1e-6){
-//       bfLGL[i] = 0.;
-//     } else {
-//       bfLGL[i] = svCurrent.bfGradLoc[i]; bfLGL[i]/=b0;
-//     }
-//   }
-
   double dEdXPrime = 0;
   double radX0 = 1e24;
   double dEdx = getDeDx(svCurrent, dEdXPrime, radX0);
@@ -581,8 +541,6 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
     theta02 = dX0*alphaX0*(1+betaX0*log(x0+1))*(1 + betaX0*log(x0+1) + 2.*betaX0*x0/(x0+1) );
   }
 
-  Vector tmpR3;
-  
   double epsilonP0 = 0;
   double omegaP0 = 0;
 
@@ -590,92 +548,160 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
   case HEL_AS_F:
   case HEL_ALL_F:
     dP = dEdx*dS;
-    tauX = (1.0 - oneLessCosPhi*oneLessBx2);
-    tauY = (oneLessCosPhi*bx*by - sinPhi*bz);
-    tauZ = (oneLessCosPhi*bx*bz + sinPhi*by);
+    tauX = (1.0 - oneLessCosPhi*oneLessBxC2);
+    tauY = (oneLessCosPhi*bxC*by - sinPhi*bz);
+    tauZ = (oneLessCosPhi*bxC*bz + sinPhi*by);
 
-    epsilonP0 = 1.+ dP/p0;
-    omegaP0 = 1.0 + dS*dEdXPrime;
+    tauNext = svCurrent.rep.lX*tauX 
+      + svCurrent.rep.lY*tauY + svCurrent.rep.lZ*tauZ;
 
-    tmpR3 = svCurrent.rep.lX; tmpR3*=tauX;
-    tau = tmpR3;
-    tmpR3 = svCurrent.rep.lY;  tmpR3*=tauY;
-    tau+=tmpR3;
-    tmpR3 = svCurrent.rep.lZ;  tmpR3*=tauZ;
-    tau+=tmpR3;
-    //the stuff above is
+    dX = dS*(1. - phiLessSinPhiOPhi*oneLessBxC2);
+    dY = dS*(bxC*by*phiLessSinPhiOPhi - oneLessCosPhiOPhi*bz);
+    dZ = dS*(bxC*bz*phiLessSinPhiOPhi + oneLessCosPhiOPhi*by);
 
-    dX = dS - phiLessSinPhi/kappa0*oneLessBx2;
-    dY = 1./kappa0*(bx*by*phiLessSinPhi - oneLessCosPhi*bz);
-    dZ = 1./kappa0*(bx*bz*phiLessSinPhi + oneLessCosPhi*by);
+    if (svCurrent.cov.num_row() >=5){
+      epsilonP0 = 1.+ dP/p0;
+      omegaP0 = -dP/p0 + dS*dEdXPrime;      
+      
+      Vector btVec(bHat.cross(tau));
+      Vector bbtVec(bHat.cross(btVec));
+      Vector tbtVec(tau.cross(btVec));
 
-    if (svCurrent.covLoc.num_row() >=5){
+      double dsp = dS/p0;
+
       dCTransform_ = unit66_;
-      //     //yuck
+      //make everything in global
       //case I: no "spatial" derivatives |--> dCtr({1,2,3,4,5,6}{1,2,3}) = 0    
-      dCTransform_(1,4) += -dS/(phi*p0)*pCpLessSp*oneLessBx2;
-      dCTransform_(1,5) += - dY/p0;
-      dCTransform_(1,6) +=   dZ/p0;
+      dCTransform_(1,4) = dsp*(bHat.x()*tbtVec.x() 
+			       + cosPhi*tau.x()*bbtVec.x()
+			       + ((1.-bHat.x()*bHat.x()) + phi*tau.x()*btVec.x())*sinPhiOPhi);
 
-      dCTransform_(2,4) += dS/phi/p0*(bx*by*pCpLessSp - bz*oneLessCpLessPSp);
-      dCTransform_(2,5) +=   dX/p0;
-      dCTransform_(2,6) += - cotTheta*dY/p0;
+      dCTransform_(1,5) = dsp*(bHat.z()*oneLessCosPhiOPhi + bHat.x()*tbtVec.y()
+			       + cosPhi*tau.y()*bbtVec.x() 
+			       + (-bHat.x()*bHat.y() + phi*tau.y()*btVec.x())*sinPhiOPhi);
+      dCTransform_(1,6) = dsp*(-bHat.y()*oneLessCosPhiOPhi + bHat.x()*tbtVec.z()
+			       + cosPhi*tau.z()*bbtVec.x()
+			       + (-bHat.x()*bHat.z() + phi*tau.z()*btVec.x())*sinPhiOPhi);
 
-      //    dCTransform_(3,4) += dS/phi/p0*(bx*by*pCpLessSp + by*oneLessCpLessPSp) - 2.*dZ/p0;
-      dCTransform_(3,4) += dS/phi/p0*(bx*by*pCpLessSp + by*oneLessCpLessPSp) - 3.*dZ/p0;
-      dCTransform_(3,5) += cotTheta*dY/p0;
-      dCTransform_(3,6) += dX/p0;
+      dCTransform_(2,4) = dsp*(-bHat.z()*oneLessCosPhiOPhi + bHat.y()*tbtVec.x()
+			       + cosPhi*tau.x()*bbtVec.y()
+			       + (-bHat.x()*bHat.y() + phi*tau.x()*btVec.y())*sinPhiOPhi);
+      dCTransform_(2,5) = dsp*(bHat.y()*tbtVec.y() 
+			       + cosPhi*tau.y()*bbtVec.y()
+			       + ((1.-bHat.y()*bHat.y()) + phi*tau.y()*btVec.y())*sinPhiOPhi);
+      dCTransform_(2,6) = dsp*(bHat.x()*oneLessCosPhiOPhi + bHat.y()*tbtVec.z()
+			       + cosPhi*tau.z()*bbtVec.y() 
+			       + (-bHat.y()*bHat.z() + phi*tau.z()*btVec.y())*sinPhiOPhi);
+
+      dCTransform_(3,4) = dsp*(bHat.y()*oneLessCosPhiOPhi + bHat.z()*tbtVec.x()
+			       + cosPhi*tau.x()*bbtVec.z() 
+			       + (-bHat.x()*bHat.z() + phi*tau.x()*btVec.z())*sinPhiOPhi);
+      dCTransform_(3,5) = dsp*(-bHat.x()*oneLessCosPhiOPhi + bHat.z()*tbtVec.y()
+			       + cosPhi*tau.y()*bbtVec.z()
+			       + (-bHat.y()*bHat.z() + phi*tau.y()*btVec.z())*sinPhiOPhi);
+      dCTransform_(3,6) = dsp*(bHat.z()*tbtVec.z() 
+			       + cosPhi*tau.z()*bbtVec.z()
+			       + ((1.-bHat.z()*bHat.z()) + phi*tau.z()*btVec.z())*sinPhiOPhi);
 
 
-      dCTransform_(4,4) += tauX*omegaP0 - 1.0 + phi*epsilonP0*oneLessBx2*sinPhi;
-      dCTransform_(4,5) += -tauY*epsilonP0;
-      dCTransform_(4,6) +=  tauZ*epsilonP0;
+      dCTransform_(4,4) = epsilonP0*(1. - oneLessCosPhi*(1.-bHat.x()*bHat.x())
+				     + phi*tau.x()*(cosPhi*btVec.x() - sinPhi*bbtVec.x()))
+	+ omegaP0*tau.x()*tauNext.x();
+      dCTransform_(4,5) = epsilonP0*(bHat.x()*bHat.y()*oneLessCosPhi + bHat.z()*sinPhi
+				     + phi*tau.y()*(cosPhi*btVec.x() - sinPhi*bbtVec.x()))
+	+ omegaP0*tau.y()*tauNext.x();
+      dCTransform_(4,6) = epsilonP0*(bHat.x()*bHat.z()*oneLessCosPhi - bHat.y()*sinPhi
+				     + phi*tau.z()*(cosPhi*btVec.x() - sinPhi*bbtVec.x()))
+	+ omegaP0*tau.z()*tauNext.x();
 
-      dCTransform_(5,4) += tauY*omegaP0 - phi*epsilonP0*(bx*by*sinPhi - bz*cosPhi);
-      dCTransform_(5,5) += tauX*epsilonP0 - 1.; 
-      dCTransform_(5,6) += - cotTheta*tauY*epsilonP0;
+      dCTransform_(5,4) = epsilonP0*(bHat.x()*bHat.y()*oneLessCosPhi - bHat.z()*sinPhi
+				     + phi*tau.x()*(cosPhi*btVec.y() - sinPhi*bbtVec.y()))
+	+ omegaP0*tau.x()*tauNext.y();
+      dCTransform_(5,5) = epsilonP0*(1. - oneLessCosPhi*(1.-bHat.y()*bHat.y())
+				     + phi*tau.y()*(cosPhi*btVec.y() - sinPhi*bbtVec.y()))
+	+ omegaP0*tau.y()*tauNext.y();
+      dCTransform_(5,6) = epsilonP0*(bHat.y()*bHat.z()*oneLessCosPhi + bHat.x()*sinPhi
+				     + phi*tau.z()*(cosPhi*btVec.y() - sinPhi*bbtVec.y()))
+	+ omegaP0*tau.z()*tauNext.y();
     
-      //    dCTransform_(6,4) += tauZ*omegaP0 - phi*epsilonP0*(bx*bz*sinPhi + by*cosPhi) 
-      // - 2.*tauZ*epsilonP0;
-      dCTransform_(6,4) += tauZ*omegaP0 - phi*epsilonP0*(bx*bz*sinPhi + by*cosPhi) - 3.*tauZ*epsilonP0;
-      dCTransform_(6,5) += cotTheta*tauY*epsilonP0;
-      dCTransform_(6,6) += tauX*epsilonP0 - 1.;
+      dCTransform_(6,4) = epsilonP0*(bHat.x()*bHat.z()*oneLessCosPhi + bHat.y()*sinPhi
+				     + phi*tau.x()*(cosPhi*btVec.z() - sinPhi*bbtVec.z()))
+	+ omegaP0*tau.x()*tauNext.z();
+      dCTransform_(6,5) = epsilonP0*(bHat.y()*bHat.z()*oneLessCosPhi - bHat.x()*sinPhi
+				     + phi*tau.y()*(cosPhi*btVec.z() - sinPhi*bbtVec.z()))
+	+ omegaP0*tau.y()*tauNext.z();
+      dCTransform_(6,6) = epsilonP0*(1. - oneLessCosPhi*(1.-bHat.z()*bHat.z())
+				     + phi*tau.z()*(cosPhi*btVec.z() - sinPhi*bbtVec.z()))
+	+ omegaP0*tau.z()*tauNext.z();
     
+
+      Basis rep; setRep(rep, tauNext);
       //mind the sign of dS and dP (dS*dP < 0 allways)
       //covariance should grow no matter which direction you propagate
       //==> take abs values.
-      svCurrent.covLoc(2,2) += theta02*dS*dS/3.;
-      svCurrent.covLoc(3,3) += theta02*dS*dS/3.;
-      svCurrent.covLoc(5,5) += theta02*p0*p0;
-      svCurrent.covLoc(6,6) += theta02*p0*p0;
-      svCurrent.covLoc(2,5) += theta02*fabs(dS)*p0/2.;
-      svCurrent.covLoc(3,6) += theta02*fabs(dS)*p0/2.;
-
-      svCurrent.covLoc(4,4) += dP*dP*1.6/fabs(dS)*(1.0 + p0*1e-3); 
+      svCurrent.matDCov *= 0.;
+      double mulRR = theta02*dS*dS/3.;
+      double mulRP = theta02*fabs(dS)*p0/2.;
+      double mulPP = theta02*p0*p0;
+      double losPP = dP*dP*1.6/fabs(dS)*(1.0 + p0*1e-3);
       //another guess .. makes sense for 1 cm steps 2./dS == 2 [cm] / dS [cm] at low pt
       //double it by 1TeV
       //not gaussian anyways
       // derived from the fact that sigma_p/eLoss ~ 0.08 after ~ 200 steps
+
+      //symmetric RR part
+      svCurrent.matDCov(1,1) = mulRR*(rep.lY.x()*rep.lY.x() + rep.lZ.x()*rep.lZ.x());
+      svCurrent.matDCov(1,2) = mulRR*(rep.lY.x()*rep.lY.y() + rep.lZ.x()*rep.lZ.y());
+      svCurrent.matDCov(1,3) = mulRR*(rep.lY.x()*rep.lY.z() + rep.lZ.x()*rep.lZ.z());
+      svCurrent.matDCov(2,2) = mulRR*(rep.lY.y()*rep.lY.y() + rep.lZ.y()*rep.lZ.y());
+      svCurrent.matDCov(2,3) = mulRR*(rep.lY.y()*rep.lY.z() + rep.lZ.y()*rep.lZ.z());
+      svCurrent.matDCov(3,3) = mulRR*(rep.lY.z()*rep.lY.z() + rep.lZ.z()*rep.lZ.z());
+
+      //symmetric PP part
+      svCurrent.matDCov(4,4) = mulPP*(rep.lY.x()*rep.lY.x() + rep.lZ.x()*rep.lZ.x())
+	+ losPP*rep.lX.x()*rep.lX.x();
+      svCurrent.matDCov(4,5) = mulPP*(rep.lY.x()*rep.lY.y() + rep.lZ.x()*rep.lZ.y())
+	+ losPP*rep.lX.x()*rep.lX.y();
+      svCurrent.matDCov(4,6) = mulPP*(rep.lY.x()*rep.lY.z() + rep.lZ.x()*rep.lZ.z())
+	+ losPP*rep.lX.x()*rep.lX.z();
+      svCurrent.matDCov(5,5) = mulPP*(rep.lY.y()*rep.lY.y() + rep.lZ.y()*rep.lZ.y())
+	+ losPP*rep.lX.y()*rep.lX.y();
+      svCurrent.matDCov(5,6) = mulPP*(rep.lY.y()*rep.lY.z() + rep.lZ.y()*rep.lZ.z())
+	+ losPP*rep.lX.y()*rep.lX.z();
+      svCurrent.matDCov(6,6) = mulPP*(rep.lY.z()*rep.lY.z() + rep.lZ.z()*rep.lZ.z())
+	+ losPP*rep.lX.z()*rep.lX.z();
+
+      //still symmetric but fill 9 elements
+      double mXX = mulRP*(rep.lY.x()*rep.lY.x() + rep.lZ.x()*rep.lZ.x());
+      double mXY = mulRP*(rep.lY.x()*rep.lY.y() + rep.lZ.x()*rep.lZ.y());
+      double mXZ = mulRP*(rep.lY.x()*rep.lY.z() + rep.lZ.x()*rep.lZ.z());
+      double mYY = mulRP*(rep.lY.y()*rep.lY.y() + rep.lZ.y()*rep.lZ.y());
+      double mYZ = mulRP*(rep.lY.y()*rep.lY.z() + rep.lZ.y()*rep.lZ.z());
+      double mZZ = mulRP*(rep.lY.z()*rep.lY.z() + rep.lZ.z()*rep.lZ.z());
+      svCurrent.matDCov(1,4) = mXX;
+      svCurrent.matDCov(1,5) = mXY;
+      svCurrent.matDCov(1,6) = mXZ;
+      svCurrent.matDCov(2,4) = mXY;
+      svCurrent.matDCov(2,5) = mYY;
+      svCurrent.matDCov(2,6) = mYZ;
+      svCurrent.matDCov(3,4) = mXZ;
+      svCurrent.matDCov(3,5) = mYZ;
+      svCurrent.matDCov(3,6) = mZZ;
+      
     }
 
     break;
-  case POL_1_F:
-  case POL_2_F:
-  case POL_M_F:
-    //FIXME: this is still in Bfield rf
-    tau = svCurrent.rep.lX*phi*sinTheta + svCurrent.rep.lY*sinTheta + svCurrent.rep.lZ*cosTheta;
-    dP = dEdx*dS;
-    dX = phi*dS/2.*sinTheta;
-    dY = dS*sinTheta;
-    dZ = dS*cosTheta;    
-    break;
+//   case POL_1_F:
+//   case POL_2_F:
+//   case POL_M_F:
+//     break;
   default:
     break;
   }
 
   if (dir == oppositeToMomentum) dP = -fabs(dP);
   dP = dP > p0 ? p0-1e-5 : dP;
-  getNextState(svCurrent, svNext, dP, tau, dX, dY, dZ, dS, dS/radX0,
+  getNextState(svCurrent, svNext, dP, tauNext, dX, dY, dZ, dS, dS/radX0,
 		 dCTransform_);
   return true;
 }

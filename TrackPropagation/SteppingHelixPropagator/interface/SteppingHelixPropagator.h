@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2006/10/05 23:48:55 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/10/19 18:50:58 $
+ *  $Revision: 1.8 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.7 2006/10/05 23:48:55 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.8 2006/10/19 18:50:58 slava77 Exp $
 //
 //
 
@@ -90,7 +90,8 @@ class SteppingHelixPropagator : public Propagator {
     int q;
     Vector p3;
     Point r3;
-    HepSymMatrix covLoc;
+    HepSymMatrix cov;
+    HepSymMatrix matDCov;
     double path;
     double radPath;
     Basis rep;
@@ -196,6 +197,8 @@ class SteppingHelixPropagator : public Propagator {
   
   /// Set/compute basis vectors for local coordinates at current step (called by incrementState)
   void setRep(SteppingHelixPropagator::StateInfo& sv) const;
+  void setRep(SteppingHelixPropagator::Basis& rep,
+	      const SteppingHelixPropagator::Vector& tau) const;
 
   /// main stepping function: compute next state vector after a step of length dS
   bool makeAtomStep(SteppingHelixPropagator::StateInfo& svCurrent, 
