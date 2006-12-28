@@ -17,7 +17,7 @@ positions of a muon in the detector.
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.6 2006/07/17 22:14:00 slava77 Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.7 2006/10/26 23:35:51 wmtan Exp $
 //
 //
 
@@ -42,7 +42,9 @@ positions of a muon in the detector.
 #include "Geometry/Surface/interface/Cylinder.h"
 #include "Geometry/Surface/interface/Plane.h"
 
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 //#include "Geometry/RPCGeometry/interface/RPCRoll.h"
@@ -95,6 +97,15 @@ class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
   void beginJob(edm::EventSetup const&);
 
  protected:
+  struct GlobalSimHit {
+    const PSimHit* hit;
+    const Surface* surf;
+    DetId id;
+    Hep3Vector r3;
+    Hep3Vector p3;
+  };
+
+
   void loadNtVars(int ind, int eType,  int pStatus, 
 		  int id,//defs offset: 0 for R, 1*3 for Z and, 2*3 for P
 		  const Hep3Vector& p3, const Hep3Vector& r3, 
@@ -107,6 +118,11 @@ class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
   void getFromFTS(const FreeTrajectoryState& fts,
 		  Hep3Vector& p3, Hep3Vector& r3, 
 		  int& charge, HepSymMatrix& cov);
+
+  void addPSimHits(const edm::Event& iEvent,
+		   const std::string instanceName, 
+		   const edm::ESHandle<GlobalTrackingGeometry>& geom,
+		   std::vector<SteppingHelixPropagatorAnalyzer::GlobalSimHit>& hits) const;
 
  private:
 // ----------member data ---------------------------
@@ -139,6 +155,8 @@ class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
   bool convertFromOldDTDetId_;
 
   bool testPCAPropagation_;
+
+  bool ntupleTkHits_;
 };
 
 //
@@ -179,6 +197,8 @@ SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::Para
   convertFromOldDTDetId_ = iConfig.getParameter<bool>("convertFromOldDTDetId");
 
   testPCAPropagation_ = iConfig.getParameter<bool>("testPCAPropagation");
+
+  ntupleTkHits_ = iConfig.getParameter<bool>("ntupleTkHits");
 }
 
 void SteppingHelixPropagatorAnalyzer::beginJob(const edm::EventSetup& es){
@@ -204,27 +224,27 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   iSetup.get<IdealMagneticFieldRecord>().get(bField);
 
   ESHandle<Propagator> shProp;
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagator", shProp);
+  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", shProp);
   ESHandle<Propagator> shPropAny;
   iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", shPropAny);
 
-  ESHandle<DTGeometry> dtGeomESH;
-  iSetup.get<MuonGeometryRecord>().get(dtGeomESH);
+  ESHandle<GlobalTrackingGeometry> geomESH;
+  iSetup.get<GlobalTrackingGeometryRecord>().get(geomESH);
   if (debug_){
-    std::cout<<"Got DTGeometry "<<std::endl;
+    std::cout<<"Got GlobalTrackingGeometry "<<std::endl;
   }
 
-  ESHandle<CSCGeometry> cscGeomESH;
-  iSetup.get<MuonGeometryRecord>().get(cscGeomESH);
-  if (debug_){
-    std::cout<<"Got CSCGeometry "<<std::endl;
-  }
+//   ESHandle<CSCGeometry> cscGeomESH;
+//   iSetup.get<MuonGeometryRecord>().get(cscGeomESH);
+//   if (debug_){
+//     std::cout<<"Got CSCGeometry "<<std::endl;
+//   }
 
-  ESHandle<RPCGeometry> rpcGeomESH;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeomESH);
-  if (debug_){
-    std::cout<<"Got RPCGeometry "<<std::endl;
-  }
+//   ESHandle<RPCGeometry> rpcGeomESH;
+//   iSetup.get<MuonGeometryRecord>().get(rpcGeomESH);
+//   if (debug_){
+//     std::cout<<"Got RPCGeometry "<<std::endl;
+//   }
 
   run_ = (int)iEvent.id().run();
   event_ = (int)iEvent.id().event();
@@ -257,33 +277,19 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   }
 
 
-  Handle<PSimHitContainer> simHitsDT;
-  iEvent.getByLabel("SimG4Object", "MuonDTHits", simHitsDT);
-  if (! simHitsDT.isValid() ){
-    std::cout<<"No hits found"<<std::endl;
-    return;
-  }
-  if (debug_){
-    std::cout<<"Got MuonDTHits of size "<< simHitsDT->size()<<std::endl;
-  }
-  Handle<PSimHitContainer> simHitsCSC;
-  iEvent.getByLabel("SimG4Object", "MuonCSCHits", simHitsCSC);
-  if (! simHitsCSC.isValid() ){
-    std::cout<<"No hits found"<<std::endl;
-    return;
-  }
-  if (debug_){
-    std::cout<<"Got MuonCSCHits of size "<< simHitsCSC->size()<<std::endl;
-  }
-  Handle<PSimHitContainer> simHitsRPC;
-  iEvent.getByLabel("SimG4Object", "MuonRPCHits", simHitsRPC);
-  if (! simHitsRPC.isValid() ){
-    std::cout<<"No hits found"<<std::endl;
-    return;
-  }
-  if (debug_){
-    std::cout<<"Got MuonRPCHits of size "<< simHitsRPC->size()<<std::endl;
-  }
+  std::vector<GlobalSimHit> allSimHits; allSimHits.clear();
+
+  addPSimHits(iEvent, "MuonDTHits", geomESH, allSimHits);
+  addPSimHits(iEvent, "MuonCSCHits", geomESH, allSimHits);
+  addPSimHits(iEvent, "MuonRPCHits", geomESH, allSimHits);
+  addPSimHits(iEvent, "TrackerHitsPixelBarrelLowTof", geomESH, allSimHits);
+  addPSimHits(iEvent, "TrackerHitsPixelEndcapLowTof", geomESH, allSimHits);
+  addPSimHits(iEvent, "TrackerHitsTIBLowTof", geomESH, allSimHits);
+  addPSimHits(iEvent, "TrackerHitsTIDLowTof", geomESH, allSimHits);
+  addPSimHits(iEvent, "TrackerHitsTOBLowTof", geomESH, allSimHits);
+  addPSimHits(iEvent, "TrackerHitsTECLowTof", geomESH, allSimHits);
+
+
 
   SimTrackContainer::const_iterator tracksCI = simTracks->begin();
   for(; tracksCI != simTracks->end(); tracksCI++){
@@ -298,7 +304,6 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     Hep3Vector p3T = tracksCI->momentum().vect();
     if (p3T.mag()< 2.) continue;
 
-    TimeMe tProp("SteppingHelixPropagatorAnalyzer::analyze::propagate");
     int vtxInd = tracksCI->vertIndex();
     uint trkInd = tracksCI->genpartIndex() - trkIndOffset_;
     Hep3Vector r3T(0.,0.,0.);
@@ -312,9 +317,8 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     covT *= 1e-20; // initialize to sigma=1e-10 .. should get overwhelmed by MULS
 
     Hep3Vector p3F,r3F; //propagated state
-    Hep3Vector p3R,r3R; //reference (hit) state
     HepSymMatrix covF(6,0);
-    int charge = trkPDG > 0 ? -1 : 1;
+    int charge = trkPDG > 0 ? -1 : 1; //works for muons
 
     nPoints_ = 0;
     pStatus = 0;
@@ -323,209 +327,85 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     FreeTrajectoryState ftsStart = ftsTrack;
     TrajectoryStateOnSurface tSOSDest;
 
-    if (testPCAPropagation_){
-      FreeTrajectoryState ftsDest;
-      GlobalPoint pDest1(10., 10., 0.);
-      GlobalPoint pDest2(10., 10., 10.);
-      const SteppingHelixPropagator* shPropAnyCPtr = 
-	dynamic_cast<const SteppingHelixPropagator*>(&*shPropAny);
+    std::map<double, const GlobalSimHit*> simHitsByDistance;
+    std::map<double, const GlobalSimHit*> simHitsByTof;
+    for (std::vector<GlobalSimHit>::const_iterator allHitsCI = allSimHits.begin();
+	 allHitsCI != allSimHits.end(); allHitsCI++){
+      if (allHitsCI->hit->trackId() != trkInd ) continue;
+      if (abs(allHitsCI->hit->particleType()) != 13) continue;
+      if (allHitsCI->p3.mag() < 0.5 ) continue;
 
-      ftsDest = shPropAnyCPtr->propagate(ftsStart, pDest1);
-      std::cout<<"----------------------------------------------"<<std::endl;
-      ftsDest = shPropAnyCPtr->propagate(ftsStart, pDest1, pDest2);
-      std::cout<<"----------------------------------------------"<<std::endl;
+      double distance = (allHitsCI->r3 - r3T).mag();
+      double tof = allHitsCI->hit->timeOfFlight();
+      simHitsByDistance[distance] = &*allHitsCI;
+      simHitsByTof[tof] = &*allHitsCI;
     }
 
-    PSimHitContainer::const_iterator muHitsDT_CI = simHitsDT->begin();
-    for (; muHitsDT_CI != simHitsDT->end(); muHitsDT_CI++){
-//       if (abs(muHitsDT_CI->particleType())==13){
-//         std::cout<<abs(muHitsDT_CI->particleType())<<"\t"
-//                  <<muHitsDT_CI->trackId()<<"\t"<<trkInd<<std::endl;
-//       }
-      if (muHitsDT_CI->trackId() != trkInd ) continue;
-      int dtId = muHitsDT_CI->detUnitId();
-      if (convertFromOldDTDetId_){
-	int wh = ( (dtId>>22) & 0x7 );
-	int sec = ( (dtId>>15) & 0xF );
-	int sta = ( (dtId>>19) & 0x7 );
-	int newId = (dtId & ~0x1ff8000) | (wh<<15) | (sec<<18) | (sta<<22);
-	dtId = newId;
-      }
-      DTWireId wId(dtId);
-      const DTLayer* layer = dtGeomESH->layer(wId);
-      if (layer == 0){
-	std::cout<<"Failed to get detector unit"<<std::endl;
-	continue;
-      }
-      const Surface& surf = layer->surface();
-      GlobalPoint r3Hit = surf.toGlobal(muHitsDT_CI->localPosition());
-      r3R.set(r3Hit.x(), r3Hit.y(), r3Hit.z());
-      GlobalVector p3Hit = surf.toGlobal(muHitsDT_CI->momentumAtEntry());
-      p3R.set(p3Hit.x(), p3Hit.y(), p3Hit.z());
+    {//new scope for timing purposes only
+      TimeMe tProp("SteppingHelixPropagatorAnalyzer::analyze::propagate");
+      if (testPCAPropagation_){
+	FreeTrajectoryState ftsDest;
+	GlobalPoint pDest1(10., 10., 0.);
+	GlobalPoint pDest2(10., 10., 10.);
+	const SteppingHelixPropagator* shPropAnyCPtr = 
+	  dynamic_cast<const SteppingHelixPropagator*>(&*shPropAny);
 
-      if (p3Hit.mag() < 0.5 ) continue;
-      if (abs(muHitsDT_CI->particleType()) != 13) continue;
-      if (debug_){
-	std::cout<< wId
-		 <<" r3L:"<<muHitsDT_CI->localPosition()
-		 <<" r3G:"<<r3Hit
-		 <<" p3L:"<<muHitsDT_CI->momentumAtEntry()
-		 <<" p3G:"<<p3Hit
-		 <<" pId:"<<muHitsDT_CI->particleType()
-		 <<" tId:"<<muHitsDT_CI->trackId()
-		 <<std::endl;
+	ftsDest = shPropAnyCPtr->propagate(ftsStart, pDest1);
+	std::cout<<"----------------------------------------------"<<std::endl;
+	ftsDest = shPropAnyCPtr->propagate(ftsStart, pDest1, pDest2);
+	std::cout<<"----------------------------------------------"<<std::endl;
       }
 
-      if (debug_){
-	std::cout<<"Will propagate to surface: "<<surf.position()<<" "<<surf.rotation()<<std::endl;
-      }
-      tSOSDest = shProp->propagate(ftsStart, surf);
-      if (tSOSDest.isValid()){
-	ftsStart = *tSOSDest.freeState();
-	getFromFTS(ftsStart, p3F, r3F, charge, covF);
-	pStatus = 0;
-      } else pStatus = 1;
-      if ( pStatus == 1 || (r3F-r3R).mag() > FPRP_MISMATCH){ 
-	//start from the beginning if failed with previous
-	ftsStart = ftsTrack;
-	pStatus = 1;
-      }
+      //now we are supposed to have a sorted list of hits
+      std::map<double, const GlobalSimHit*>::const_iterator simHitsCI 
+	= simHitsByDistance.begin();
+      for (; simHitsCI != simHitsByDistance.end(); simHitsCI++){
+	const GlobalSimHit* igHit = simHitsCI->second;
+	const PSimHit* iHit = simHitsCI->second->hit;
 
-      if (debug_){
-	std::cout<<"Got to "
-		 <<" r3Prp:"<<r3F
-		 <<" r3Hit:"<<r3R
-		 <<" p3Prp:"<<p3F
-		 <<" p3Hit:"<<p3R
-		 <<std::endl;
-      }
-      loadNtVars(nPoints_, 0, pStatus, muHitsDT_CI->detUnitId(), 
-		 p3F, r3F, p3R, r3R, charge, covF); nPoints_++;
-    }
+	if (debug_){
+	  std::cout<< igHit->id.rawId()
+		   <<" r3L:"<<iHit->localPosition()
+		   <<" r3G:"<<igHit->r3
+		   <<" p3L:"<<iHit->momentumAtEntry()
+		   <<" p3G:"<<igHit->p3
+		   <<" pId:"<<iHit->particleType()
+		   <<" tId:"<<iHit->trackId()
+		   <<std::endl;
+	}
 
+	if (debug_){
+	  std::cout<<"Will propagate to surface: "
+		   <<igHit->surf->position()
+		   <<" "<<igHit->surf->rotation()<<std::endl;
+	}
+	tSOSDest = shProp->propagate(ftsStart, *igHit->surf);
+	if (tSOSDest.isValid()){
+	  ftsStart = *tSOSDest.freeState();
+	  getFromFTS(ftsStart, p3F, r3F, charge, covF);
+	  pStatus = 0;
+	} else pStatus = 1;
+	if ( pStatus == 1 || (r3F- igHit->r3).mag() > FPRP_MISMATCH){ 
+	  //start from the beginning if failed with previous
+	  ftsStart = ftsTrack;
+	  pStatus = 1;
+	}
 
-    PSimHitContainer::const_iterator muHitsRPC_CI = simHitsRPC->begin();
-    for (; muHitsRPC_CI != simHitsRPC->end(); muHitsRPC_CI++){
-      if (muHitsRPC_CI->trackId() != trkInd || 1< 2) continue; 
-      // no use, RPCs are not working yet for me
-      if (debug_){
-	std::cout<<" Doing RPC id "<<muHitsRPC_CI->detUnitId()<<std::endl;
-      }
-      //      RPCDetId wId; wId.buildfromTrIndex(muHitsRPC_CI->detUnitId());
-      RPCDetId wId(muHitsRPC_CI->detUnitId());
-      if (debug_){
-	std::cout<<" Doing RPC id "<<wId<<std::endl;
-      }
-      const GeomDet* roll = rpcGeomESH->idToDet(wId);
-      if (roll == 0){
-	std::cout<<"Failed to get detector unit"<<std::endl;
-	continue;
-      }
-      const Surface& surf = roll->surface();
-      GlobalPoint r3Hit = surf.toGlobal(muHitsRPC_CI->localPosition());
-      r3R.set(r3Hit.x(), r3Hit.y(), r3Hit.z());
-      GlobalVector p3Hit = surf.toGlobal(muHitsRPC_CI->momentumAtEntry());
-      p3R.set(p3Hit.x(), p3Hit.y(), p3Hit.z());
-
-      if (p3Hit.mag() < 0.5 ) continue;
-      if (abs(muHitsRPC_CI->particleType()) != 13) continue;
-      if (debug_){
-	std::cout<< wId
-		 <<" r3L:"<<muHitsRPC_CI->localPosition()
-		 <<" r3G:"<<r3Hit
-		 <<" p3L:"<<muHitsRPC_CI->momentumAtEntry()
-		 <<" p3G:"<<p3Hit
-		 <<" pId:"<<muHitsRPC_CI->particleType()
-		 <<" tId:"<<muHitsRPC_CI->trackId()
-		 <<std::endl;
+	if (debug_){
+	  std::cout<<"Got to "
+		   <<" r3Prp:"<<r3F
+		   <<" r3Hit:"<<igHit->r3
+		   <<" p3Prp:"<<p3F
+		   <<" p3Hit:"<<igHit->p3
+		   <<" pPrp:"<<p3F.mag()
+		   <<" pHit:"<<igHit->p3.mag()
+		   <<std::endl;
+	}
+	loadNtVars(nPoints_, 0, pStatus, igHit->id.rawId(), 
+		   p3F, r3F, igHit->p3, igHit->r3, charge, covF); nPoints_++;
       }
 
-      if (debug_){
-	std::cout<<"Will propagate to surface:"<<surf.position()<<" "<<surf.rotation()<<std::endl;
-      }
-      tSOSDest = shProp->propagate(ftsStart, surf);
-      if (tSOSDest.isValid()){      
-	ftsStart = *tSOSDest.freeState();
-	getFromFTS(ftsStart, p3F, r3F, charge, covF);
-	pStatus = 0;
-      } else pStatus = 1;
-
-      if ( pStatus == 1 || (r3F-r3R).mag() > FPRP_MISMATCH){ 
-	//start from the beginning if failed with previous
-	ftsStart = ftsTrack;
-	pStatus = 1;
-      }
-
-      if (debug_){
-	std::cout<<"Got to "
-		 <<" r3Prp:"<<r3F
-		 <<" r3Hit:"<<r3R
-		 <<" p3Prp:"<<p3F
-		 <<" p3Hit:"<<p3R
-		 <<std::endl;
-      }
-      loadNtVars(nPoints_, 0, pStatus, muHitsRPC_CI->detUnitId(), 
-		 p3F, r3F, p3R, r3R, charge, covF); nPoints_++;
-    }
-
-
-    PSimHitContainer::const_iterator muHitsCSC_CI = simHitsCSC->begin();
-    for (; muHitsCSC_CI != simHitsCSC->end(); muHitsCSC_CI++){
-      if (muHitsCSC_CI->trackId() != trkInd ) continue;
-      CSCDetId wId(muHitsCSC_CI->detUnitId());
-      const GeomDet* layer = cscGeomESH->idToDet(wId);
-      if (layer == 0){
-	std::cout<<"Failed to get CSC detector unit"<<std::endl;
-	continue;
-      }
-      const Surface& surf = layer->surface();
-      GlobalPoint r3Hit = surf.toGlobal(muHitsCSC_CI->localPosition());
-      r3R.set(r3Hit.x(), r3Hit.y(), r3Hit.z());
-      GlobalVector p3Hit = surf.toGlobal(muHitsCSC_CI->momentumAtEntry());
-      p3R.set(p3Hit.x(), p3Hit.y(), p3Hit.z());
-
-      if (p3Hit.mag() < 0.5 ) continue;
-      if (abs(muHitsCSC_CI->particleType()) != 13) continue;
-      if (debug_){
-	std::cout<< wId
-		 <<" r3L:"<<muHitsCSC_CI->localPosition()
-		 <<" r3G:"<<r3Hit
-		 <<" p3L:"<<muHitsCSC_CI->momentumAtEntry()
-		 <<" p3G:"<<p3Hit
-		 <<" pId:"<<muHitsCSC_CI->particleType()
-		 <<" tId:"<<muHitsCSC_CI->trackId()
-		 <<std::endl;
-      }
-
-      if (debug_){
-	std::cout<<"Will propagate to surface: "<<surf.position()<<" "<<surf.rotation()<<std::endl;
-      }
-      tSOSDest = shProp->propagate(ftsStart, surf);
-      if (tSOSDest.isValid()){
-	ftsStart = *tSOSDest.freeState();
-	getFromFTS(ftsStart, p3F, r3F, charge, covF);
-	pStatus = 0;
-      } else pStatus = 1;
-
-      if (pStatus == 1 ||  (r3F-r3R).mag() > FPRP_MISMATCH){ 
-	//start from the beginning if failed with previous
-	ftsStart = ftsTrack;
-	pStatus = 1;
-      }
-
-      if (debug_){
-	std::cout<<"Got to "
-		 <<" r3Prp:"<<r3F
-		 <<" r3Hit:"<<r3R
-		 <<" p3Prp:"<<p3F
-		 <<" p3Hit:"<<p3R
-		 <<std::endl;
-      }
-      loadNtVars(nPoints_, 0, pStatus, muHitsCSC_CI->detUnitId(), 
-		 p3F, r3F, p3R, r3R, charge, covF); nPoints_++;
-
-    }
-
+    }//TimeMe leaves here
     if (tr_) tr_->Fill(); //fill this track prop info
   }
     
@@ -589,6 +469,49 @@ void SteppingHelixPropagatorAnalyzer::getFromFTS(const FreeTrajectoryState& fts,
   charge = fts.charge();
   cov = fts.hasError() ? fts.cartesianError().matrix() : HepSymMatrix(1,0);
 
+}
+
+void SteppingHelixPropagatorAnalyzer
+::addPSimHits(const edm::Event& iEvent,
+	      const std::string instanceName, 
+	      const edm::ESHandle<GlobalTrackingGeometry>& geom,
+	      std::vector<SteppingHelixPropagatorAnalyzer::GlobalSimHit>& hits) const {
+  edm::Handle<edm::PSimHitContainer> handle;
+  iEvent.getByLabel("SimG4Object", instanceName, handle);
+  if (! handle.isValid() ){
+    std::cout<<"No hits found"<<std::endl;
+    return;
+  }
+  if (debug_){
+    std::cout<<"Got "<<instanceName<<" of size "<< handle->size()<<std::endl;
+  }  
+
+  edm::PSimHitContainer::const_iterator pHits_CI = handle->begin();
+  for (; pHits_CI != handle->end(); pHits_CI++){
+    int dtId = pHits_CI->detUnitId(); 
+    DetId wId(dtId);
+    if (wId.det() == DetId::Muon && wId.subdetId() == MuonSubdetId::DT
+	&& convertFromOldDTDetId_){
+      int wh = ( (dtId>>22) & 0x7 );
+      int sec = ( (dtId>>15) & 0xF );
+      int sta = ( (dtId>>19) & 0x7 );
+      int newId = (dtId & ~0x1ff8000) | (wh<<15) | (sec<<18) | (sta<<22);
+      wId = DetId(newId);
+    }
+
+    const GeomDet* layer = geom->idToDet(wId);
+
+    GlobalSimHit gHit;
+    gHit.hit = &*pHits_CI;
+    gHit.surf = &layer->surface();
+    gHit.id = wId;
+
+    GlobalPoint r3Hit = gHit.surf->toGlobal(gHit.hit->localPosition());
+    gHit.r3.set(r3Hit.x(), r3Hit.y(), r3Hit.z());
+    GlobalVector p3Hit = gHit.surf->toGlobal(gHit.hit->momentumAtEntry());
+    gHit.p3.set(p3Hit.x(), p3Hit.y(), p3Hit.z());
+    hits.push_back(gHit);
+  }
 }
 
 
