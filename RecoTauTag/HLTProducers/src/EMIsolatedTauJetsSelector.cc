@@ -49,9 +49,10 @@ void EMIsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetu
 	//	cout <<"Crasha qui?2"<<endl;
 	const CaloJet* pippo = dynamic_cast<const CaloJet*>(&(i->jet()));
 	jetIsolatedCollection->push_back(*pippo );
+      }else{
+	const CaloJet* notPippo = dynamic_cast<const CaloJet*>(&(i->jet()));
+	jetNotIsolatedCollection->push_back(*notPippo );
       }
-      const CaloJet* notPippo = dynamic_cast<const CaloJet*>(&(i->jet()));
-      jetNotIsolatedCollection->push_back(*notPippo );
     }
     
     //All DoubleTau jets are put into the non isolated collection
@@ -67,33 +68,31 @@ void EMIsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetu
   }
   if(l1Deco == 3) {
     //SingleTau NOT fired
-    //    cout <<"Crasha qui?1"<<endl;
     edm::Handle<EMIsolatedTauTagInfoCollection> singleTauJets;
     iEvent.getByLabel( singleTau, singleTauJets );
     EMIsolatedTauTagInfoCollection::const_iterator i = singleTauJets->begin();
     for(;i !=singleTauJets->end(); i++ ) {
       double discriminator = (*i).discriminator();
       if(discriminator > 0) {
-	//	cout <<"Crasha qui?2"<<endl;
 	const CaloJet* pippo = dynamic_cast<const CaloJet*>(&(i->jet()));
 	jetIsolatedCollection->push_back(*pippo );
+      }else{
+	const CaloJet* notPippo = dynamic_cast<const CaloJet*>(&(i->jet()));
+	jetNotIsolatedCollection->push_back(*notPippo );
       }
-      const CaloJet* notPippo = dynamic_cast<const CaloJet*>(&(i->jet()));
-      jetNotIsolatedCollection->push_back(*notPippo );
     }
-    
     edm::Handle<EMIsolatedTauTagInfoCollection> doubleTauJets;
     iEvent.getByLabel( doubleTau, doubleTauJets );
     EMIsolatedTauTagInfoCollection::const_iterator ii = doubleTauJets->begin();
     for(;ii !=doubleTauJets->end(); ii++ ) {
       double discriminator = (*ii).discriminator();
       if(discriminator > 0) {
-	const CaloJet* pippo = dynamic_cast<const CaloJet*>(&(i->jet()));
+	const CaloJet* pippo = dynamic_cast<const CaloJet*>(&(ii->jet()));
 	jetIsolatedCollection->push_back(*pippo );
+      }else{
+	const CaloJet* notPippo = dynamic_cast<const CaloJet*>(&(ii->jet()));
+	jetNotIsolatedCollection->push_back(*notPippo );
       }
-      
-      const CaloJet* notPippo = dynamic_cast<const CaloJet*>(&(ii->jet()));
-      jetNotIsolatedCollection->push_back(*notPippo );
     }
     
   }
