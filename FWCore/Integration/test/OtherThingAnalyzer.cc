@@ -7,12 +7,13 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace edmtest {
   void OtherThingAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
     edm::Handle<OtherThingCollection> otherThings;
     e.getByLabel("OtherThing", "testUserTag", otherThings);
-    std::cout << " --------------- next event ------------ " << std::endl;
+    edm::LogInfo("OtherThingAnalyzer") << " --------------- next event ------------ \n";
     int i = 0;
     for (OtherThingCollection::const_iterator it = (*otherThings).begin(); it != (*otherThings).end(); ++it, ++i) {
       OtherThing const& otc = *it;
@@ -25,7 +26,7 @@ namespace edmtest {
       Thing const & tc = *otc.ref;
       int const & x = otc.ref->a;
       if (tc.a == i && x == i) {
-        std::cout << " ITEM " << i << " dereferenced successfully. " << std::endl;
+        edm::LogInfo("OtherThingAnalyzer") << " ITEM " << i << " dereferenced successfully.\n";
       } else {
         throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "ITEM " << i << " has incorrect value " << tc.a << '\n';
       }
