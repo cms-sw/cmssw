@@ -168,7 +168,8 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 		  double energy = theRecHit->energy();
 		  		  double eta = posi.eta();
 		  double phi = posi.phi();
-		  double theta = posi.eta();
+		  double theta = posi.theta();
+		  if(theta > 3.14159) theta = 2*3.14159 - theta;
 		  double et = energy * sin(theta);
 		  EMLorentzVector p(et, eta, phi, energy);
 		  myLorentzRecHits->push_back(p);
@@ -189,7 +190,6 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 		  double theta = posi.theta();
 		  if(theta > 3.14159) theta = 2*3.14159 - theta;
 		  double et = energy * sin(theta);
-		  cout <<"et "<<et<<endl;
 		  EMLorentzVector p(et, eta, phi, energy);
 		  myLorentzRecHits->push_back(p);
 		}
