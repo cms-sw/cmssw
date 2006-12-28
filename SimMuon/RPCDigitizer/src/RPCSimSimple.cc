@@ -23,7 +23,7 @@ RPCSimSimple::simulate(const RPCRoll* roll,
     const LocalPoint& entr=_hit->entryPoint();
     //    const LocalPoint& exit=_hit->exitPoint();
 
-    strips.insert(topology.channel(entr));  
+    strips.insert(topology.channel(entr)+1);  
     
 
   }
