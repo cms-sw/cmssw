@@ -26,6 +26,7 @@ namespace edm
     void write(std::ostream& os) const;
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
     LuminosityBlockID const& id() const {return id_;}
+    RunNumber_t const& runID() const {return runID_;}
 
     // most recent process that processed this lumi block
     // is the last on the list, this defines what "latest" is
