@@ -2,7 +2,7 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.11 2006/12/19 00:28:17 wmtan Exp $
+$Id: ConfigurableInputSource.h,v 1.12 2006/12/21 00:05:35 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
@@ -40,27 +40,20 @@ namespace edm {
     void setTime(TimeValue_t t) {presentTime_ = t;}
 
   private:
+    void finishRun();
+    void finishLumi();
     virtual void setRunAndEventInfo();
     virtual bool produce(Event & e) = 0;
-    virtual bool beginRun(Run &){return true;}
-    virtual void endRun(Run &){}
-    virtual bool beginLiminosityBlock(LuminosityBlock &){return true;}
-    virtual void endLuminosityBlock(Run &){}
+    virtual void beginRun(Run &) {}
+    virtual void endRun(Run &) {}
+    virtual void beginLuminosityBlock(LuminosityBlock &) {}
+    virtual void endLuminosityBlock(LuminosityBlock &) {}
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const& eventID);
     virtual std::auto_ptr<EventPrincipal> read();
     virtual void skip(int offset);
-    virtual void setRun(RunNumber_t r) {
-      eventID_ = EventID(r, zerothEvent_);
-      luminosityBlockID_ = origLuminosityBlockID_;
-    }
-    virtual void setLumi(LuminosityBlockID lb) {
-      luminosityBlockID_ = lb;
-    }
-    virtual void rewind_() {
-       eventID_ = origEventID_;
-       luminosityBlockID_ = origLuminosityBlockID_;
-       presentTime_ = origTime_;
-    }
+    virtual void setRun(RunNumber_t r);
+    virtual void setLumi(LuminosityBlockID lb);
+    virtual void rewind_();
     
     unsigned int numberEventsInRun_;
     unsigned int numberEventsInLumi_;
@@ -75,6 +68,7 @@ namespace edm {
     EventID origEventID_;
     LuminosityBlockID luminosityBlockID_;
     LuminosityBlockID origLuminosityBlockID_;
+    bool justBegun_;
 
     boost::shared_ptr<LuminosityBlockPrincipal const> luminosityBlockPrincipal_;
   };
