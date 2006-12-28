@@ -10,8 +10,7 @@
   
 KFTrajectoryFitter::~KFTrajectoryFitter() {
 
-  delete thePropagatorAlongMomentum;
-  delete thePropagatorOppositeToMomentum;
+  delete thePropagator;
   delete theUpdator;
   delete theEstimator;
 
@@ -43,12 +42,10 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 {
   if(hits.empty()) return std::vector<Trajectory>();
 
-  const Propagator*  theForwardPropagator;
-
   if (  aSeed.direction() == alongMomentum) {
-    theForwardPropagator = thePropagatorAlongMomentum;
+    thePropagator->setPropagationDirection(alongMomentum);
   }else {
-    theForwardPropagator = thePropagatorOppositeToMomentum;
+    thePropagator->setPropagationDirection(oppositeToMomentum);
   }
 
 
@@ -58,7 +55,7 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
     <<" KFTrajectoryFitter::fit staring with "<<hits.size()<<" HITS \n"
     <<" INITIAL STATE "<<firstPredTsos<<"\n";
   
-  Trajectory myTraj(aSeed, theForwardPropagator->propagationDirection());
+  Trajectory myTraj(aSeed, thePropagator->propagationDirection());
 
 
   TSOS predTsos(firstPredTsos);
@@ -147,8 +144,8 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
       }
     }
 
-    predTsos = theForwardPropagator->propagate(currTsos,
-	                                       (**ihit).det()->surface());
+    predTsos = thePropagator->propagate(currTsos,
+					(**ihit).det()->surface());
     if(!predTsos.isValid()) {
       LogDebug("TrackingTools/TrackFitters") 
 	<<" SOMETHING WRONG !"<<"\n"

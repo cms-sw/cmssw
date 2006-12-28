@@ -24,21 +24,17 @@ private:
 public:
 
 
-  KFTrajectoryFitter(const Propagator& aPropagatorAlong,
-  		     const Propagator& aPropagatorOpposite,
+  KFTrajectoryFitter(const Propagator& aPropagator,
 		     const TrajectoryStateUpdator& aUpdator,
 		     const MeasurementEstimator& aEstimator) :
-    thePropagatorAlongMomentum(aPropagatorAlong.clone()),
-    thePropagatorOppositeToMomentum(aPropagatorOpposite.clone()),
+    thePropagator(aPropagator.clone()),
     theUpdator(aUpdator.clone()),
     theEstimator(aEstimator.clone()) {}
   
-  KFTrajectoryFitter(const Propagator* aPropagatorAlong,
-		     const Propagator* aPropagatorOpposite,
+  KFTrajectoryFitter(const Propagator* aPropagator,
 		     const TrajectoryStateUpdator* aUpdator,
 		     const MeasurementEstimator* aEstimator) : 
-    thePropagatorAlongMomentum(aPropagatorAlong->clone()),
-    thePropagatorOppositeToMomentum(aPropagatorOpposite->clone()),
+    thePropagator(aPropagator->clone()),
     theUpdator(aUpdator->clone()),
     theEstimator(aEstimator->clone()) {}
 
@@ -46,28 +42,24 @@ public:
   
   virtual std::vector<Trajectory> fit(const Trajectory& aTraj) const;
   virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				 const RecHitContainer& hits) const;
-  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				 const RecHitContainer& hits, 
-				 const TSOS& firstPredTsos) const;
+				      const RecHitContainer& hits) const;
 
-  const Propagator* propagatorAlongMomentum() const {return thePropagatorAlongMomentum;}
-  const Propagator* propagatorOppositeToMomentum() const {return thePropagatorOppositeToMomentum;}
+  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
+				      const RecHitContainer& hits, 
+				      const TSOS& firstPredTsos) const;
+
+  const Propagator* propagator() const {return thePropagator;}
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
   const MeasurementEstimator* estimator() const {return theEstimator;}
   
   virtual KFTrajectoryFitter* clone() const
   {
-    return new KFTrajectoryFitter(thePropagatorAlongMomentum,
-				  thePropagatorOppositeToMomentum,
-				  theUpdator,theEstimator);
+    return new KFTrajectoryFitter(thePropagator,theUpdator,theEstimator);
   }
   
 private:
   
-  const Propagator* thePropagatorAlongMomentum;
-  const Propagator* thePropagatorOppositeToMomentum;
-
+  Propagator* thePropagator;
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
 };

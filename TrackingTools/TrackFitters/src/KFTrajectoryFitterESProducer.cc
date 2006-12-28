@@ -28,28 +28,22 @@ KFTrajectoryFitterESProducer::~KFTrajectoryFitterESProducer() {}
 
 boost::shared_ptr<TrajectoryFitter> 
 KFTrajectoryFitterESProducer::produce(const TrackingComponentsRecord & iRecord){ 
-//   if (_updator){
-//     delete _updator;
-//     _updator = 0;
-//   }
-  std::string pAlongName    = pset_.getParameter<std::string>("PropagatorAlongMomentum");
-  std::string pOppositeName = pset_.getParameter<std::string>("PropagatorOppositeToMomentum");
+
+  std::string pname = pset_.getParameter<std::string>("Propagator");
   std::string uname = pset_.getParameter<std::string>("Updator");
   std::string ename = pset_.getParameter<std::string>("Estimator");
 
-  edm::ESHandle<Propagator> propAlong;
-  edm::ESHandle<Propagator> propOpposite;
+  edm::ESHandle<Propagator> prop;
   edm::ESHandle<TrajectoryStateUpdator> upd;
   edm::ESHandle<Chi2MeasurementEstimatorBase> est;
 
-  iRecord.get(pAlongName, propAlong);
-  iRecord.get(pOppositeName, propOpposite);
+  iRecord.get(pname, prop);
   iRecord.get(uname, upd);
   iRecord.get(ename, est);
 
-  _fitter  = boost::shared_ptr<TrajectoryFitter>(new KFTrajectoryFitter(propAlong.product(),
-									propOpposite.product(),
-									upd.product(), est.product()));
+  _fitter  = boost::shared_ptr<TrajectoryFitter>(new KFTrajectoryFitter(prop.product(),
+									upd.product(),
+									est.product()));
   return _fitter;
 }
 

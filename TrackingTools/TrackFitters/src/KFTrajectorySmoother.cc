@@ -7,8 +7,7 @@
 
 KFTrajectorySmoother::~KFTrajectorySmoother() {
 
-  delete thePropagatorAlongMomentum;
-  delete thePropagatorOppositeToMomentum;
+  delete thePropagator;
   delete theUpdator;
   delete theEstimator;
 
@@ -19,18 +18,16 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 
   if(aTraj.empty()) return std::vector<Trajectory>();
 
-  const Propagator*  theBackwardPropagator;
-
   if (  aTraj.direction() == alongMomentum) {
-    theBackwardPropagator = thePropagatorOppositeToMomentum;
+    thePropagator->setPropagationDirection(oppositeToMomentum);
   }
   else {
-    theBackwardPropagator = thePropagatorAlongMomentum;
+    thePropagator->setPropagationDirection(alongMomentum);
   }
 
 
 
-  Trajectory myTraj(aTraj.seed(), theBackwardPropagator->propagationDirection());
+  Trajectory myTraj(aTraj.seed(), thePropagator->propagationDirection());
 
   std::vector<TM> avtm = aTraj.measurements();
 
@@ -66,8 +63,8 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
   for(std::vector<TM>::reverse_iterator itm = avtm.rbegin() + 1; 
       itm != avtm.rend() - 1; itm++) {
 
-    predTsos = theBackwardPropagator->propagate(currTsos,
-				       (*itm).recHit()->det()->surface());
+    predTsos = thePropagator->propagate(currTsos,
+					(*itm).recHit()->det()->surface());
 
     if(!predTsos.isValid()) {
       LogDebug("TrackingTools/TrackFitters") << 
@@ -127,8 +124,8 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
   }
   
   //last smoothed tm is last filtered
-  predTsos = theBackwardPropagator->propagate(currTsos,
-				     avtm.front().recHit()->det()->surface());
+  predTsos = thePropagator->propagate(currTsos,
+				      avtm.front().recHit()->det()->surface());
   
   if(!predTsos.isValid()) {
 	LogDebug("TrackingTools/TrackFitters") << 
