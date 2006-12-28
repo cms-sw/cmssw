@@ -60,8 +60,9 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
 
   // cout << endl << "FitTester starts with state " << startingState << endl;
 
-  KFTrajectoryFitter backFitter( *thePropagatorAlong,*thePropagatorOpposite,
-				 KFUpdator(), Chi2MeasurementEstimator( 100., 3));
+  KFTrajectoryFitter backFitter( *thePropagatorAlong,
+				 KFUpdator(),
+				 Chi2MeasurementEstimator( 100., 3));
 
   PropagationDirection backFitDirection = traj.direction() == alongMomentum ? oppositeToMomentum: alongMomentum;
 
