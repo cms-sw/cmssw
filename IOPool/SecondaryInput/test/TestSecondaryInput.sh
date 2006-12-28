@@ -9,6 +9,7 @@ rm -f ${LOCAL_TMP_DIR}/PreSecondaryInputTest2.cfg ${LOCAL_TMP_DIR}/PreSecondaryI
 cat > ${LOCAL_TMP_DIR}/PreSecondaryInputTest2.cfg << !
 # Configuration file for PreSecondaryInputTest2
 process TEST = {
+        include "FWCore/Framework/test/cmsExceptionsFatal.cff"
 	path p = {Thing, OtherThing}
 	module Thing = ThingProducer {untracked int32 debugLevel = 1}
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
@@ -27,6 +28,7 @@ cmsRun --parameter-set ${LOCAL_TMP_DIR}/PreSecondaryInputTest2.cfg || die 'Failu
 cat > ${LOCAL_TMP_DIR}/PreSecondaryInputTest.cfg << !
 # Configuration file for PreSecondaryInputTest 
 process TEST = {
+        include "FWCore/Framework/test/cmsExceptionsFatal.cff"
 	path p = {Thing, OtherThing}
 	module Thing = ThingProducer {untracked int32 debugLevel = 1}
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
@@ -45,6 +47,7 @@ cmsRun --parameter-set ${LOCAL_TMP_DIR}/PreSecondaryInputTest.cfg || die 'Failur
 cat > ${LOCAL_TMP_DIR}/SecondaryInputTest.cfg << !
 # Configuration file for SecondaryInputTest
 process PROD  = {
+        include "FWCore/Framework/test/cmsExceptionsFatal.cff"
 	source = PoolSource { 
 		untracked int32 maxEvents = 42
 		untracked string catalog = '${LOCAL_TMP_DIR}/SecondaryInputTestCatalog.xml'

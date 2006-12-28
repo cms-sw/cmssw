@@ -19,6 +19,7 @@ rm -f ${LOCAL_TMP_DIR}/PreEdmFastMergeTest_1.cfg          ${LOCAL_TMP_DIR}/PreEd
 cat > ${LOCAL_TMP_DIR}/PreEdmFastMergeTest_1.cfg << !
 # Configuration file for PreEdmFastMergeTest_1
 process TESTPROD = {
+        include "FWCore/Framework/test/cmsExceptionsFatal.cff"
 	path p = {Thing, OtherThing}
 	module Thing = ThingProducer {untracked int32 debugLevel = 0}
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 0}
@@ -46,6 +47,7 @@ cmsRun --parameter-set ${LOCAL_TMP_DIR}/PreEdmFastMergeTest_1.cfg || die 'Failur
 cat > ${LOCAL_TMP_DIR}/PreEdmFastMergeTest_2.cfg << !
 # Configuration file for PreEdmFastMergeTest_2
 process TESTPROD = {
+        include "FWCore/Framework/test/cmsExceptionsFatal.cff"
 	path p = {Thing, OtherThing}
 	module Thing = ThingProducer {untracked int32 debugLevel = 0}
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 0}

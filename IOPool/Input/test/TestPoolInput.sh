@@ -9,6 +9,7 @@ rm -f ${LOCAL_TMP_DIR}/PrePoolInputTest.cfg ${LOCAL_TMP_DIR}/PoolInputTest.cfg
 cat > ${LOCAL_TMP_DIR}/PrePoolInputTest.cfg << !
 # Configuration file for PrePoolInputTest 
 process TESTPROD = {
+	include "FWCore/Framework/test/cmsExceptionsFatal.cff"
 	path p = {Thing}
 	module Thing = ThingProducer {untracked int32 debugLevel = 1}
 	module output = PoolOutputModule {
@@ -28,6 +29,7 @@ cp ${LOCAL_TMP_DIR}/PoolInputTest.root ${LOCAL_TMP_DIR}/PoolInputOther.root
 cat > ${LOCAL_TMP_DIR}/PoolInputTest.cfg << !
 # Configuration file for PoolInputTest
 process TESTRECO = {
+	include "FWCore/Framework/test/cmsExceptionsFatal.cff"
 	path p = {OtherThing, Analysis}
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
 	module Analysis = OtherThingAnalyzer {untracked int32 debugLevel = 1}

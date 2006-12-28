@@ -7,6 +7,7 @@ rm -f ${LOCAL_TMP_DIR}/PoolOutputTest.root ${LOCAL_TMP_DIR}/PoolOutputTestCatalo
 cat > ${LOCAL_TMP_DIR}/PoolOutputTest.cfg << !
 # Configuration file for PoolOutputTest
 process TESTPROD = {
+	include "FWCore/Framework/test/cmsExceptionsFatal.cff"
 	path p = {Thing, OtherThing}
 	module Thing = ThingProducer {untracked int32 debugLevel = 1}
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
