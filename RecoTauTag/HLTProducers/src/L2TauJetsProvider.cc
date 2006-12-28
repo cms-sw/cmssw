@@ -164,6 +164,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
       if(doubleTauSize == 0) l1Decision=2;
       if(singleTauSize == 1 && doubleTauSize ==1) l1Decision =1;
       if(doubleTauSize >1) l1Decision =3;
+      if(singleTauSize > 1 && doubleTauSize >0) l1Decision =1;
     }
   }
   if(!singleTauFired){
