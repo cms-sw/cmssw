@@ -1,0 +1,23 @@
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 cat_A                -w UnitTestClient_A                       2        2
+    2 cat_B                -w UnitTestClient_A                       2        2
+    3 cat_A                -e UnitTestClient_A                       2        2
+    4 cat_B                -e UnitTestClient_A                       2        2
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 cat_A                1/1              1/2              
+    2 cat_B                1/1              1/2              
+    3 cat_A                1/1              1/2              
+    4 cat_B                1/1              1/2              
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Warning                 4                   4
+Error                   4                   4

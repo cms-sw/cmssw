@@ -1,0 +1,21 @@
+
+       =================================================
+
+       Message Log File written by MessageLogger service 
+       
+       =================================================
+       
+LogTrace was used to send this message
+%MSG-! cat_B:  UnitTestClient_H:sendSomeMessages Run: 1 Event: 1 UnitTestClient_H.cc:20
+LogDebug was used to send this other message
+LogVerbatim was used to send this message
+%MSG-i cat_B:  
+       UnitTestClient_H:sendSomeMessages Run: 1 Event: 1
+LogInfo was used to send this other message
+LogTrace was used to send this message
+%MSG-! cat_B:  UnitTestClient_H:sendSomeMessages Run: 1 Event: 2 UnitTestClient_H.cc:20
+LogDebug was used to send this other message
+LogVerbatim was used to send this message
+%MSG-i cat_B:  
+       UnitTestClient_H:sendSomeMessages Run: 1 Event: 2
+LogInfo was used to send this other message

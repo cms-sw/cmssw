@@ -1,0 +1,26 @@
+
+       =================================================
+
+       Message Log File written by MessageLogger service 
+       
+       =================================================
+       
+%MSG-i expect_overall_specific:  UnitTestClient_E:sendSomeMessages 
+       Run: 1 Event: 1
+The following outputs are expected: 
+lim3bydefault    appearing in events 1,2,3,6,9,15,27 
+
+%MSG-i lim3bydefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 3: 1
+%MSG-i lim3bydefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 3: 2
+%MSG-i lim3bydefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 3: 3
+%MSG-i lim3bydefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 3: 6
+%MSG-i lim3bydefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 3: 9
+%MSG-i lim3bydefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 3: 15
+%MSG-i lim3bydefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 3: 27

@@ -1,0 +1,32 @@
+
+       =================================================
+
+       Message Log File written by MessageLogger service 
+       
+       =================================================
+       
+%MSG-i expect_overall_unnamed:  UnitTestClient_F:sendSomeMessages 
+       Run: 1 Event: 1
+The following outputs are expected: 
+unlisted_category    appearing in events 1,6,11,16,21,26,31,36,41,46 
+
+%MSG-i unlisted_category:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with overall default interval of 5: 1
+%MSG-i unlisted_category:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with overall default interval of 5: 6
+%MSG-i unlisted_category:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with overall default interval of 5: 11
+%MSG-i unlisted_category:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with overall default interval of 5: 16
+%MSG-i unlisted_category:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with overall default interval of 5: 21
+%MSG-i unlisted_category:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with overall default interval of 5: 26
+%MSG-i unlisted_category:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with overall default interval of 5: 31
+%MSG-i unlisted_category:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with overall default interval of 5: 36
+%MSG-i unlisted_category:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with overall default interval of 5: 41
+%MSG-i unlisted_category:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
+message with overall default interval of 5: 46

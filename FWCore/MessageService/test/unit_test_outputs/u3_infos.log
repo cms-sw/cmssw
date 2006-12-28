@@ -1,0 +1,49 @@
+
+       =================================================
+
+       Message Log File written by MessageLogger service 
+       
+       =================================================
+       
+%MSG-i FwkReport:  main_input:source BeforeEvents
+Begin processing the 1th record. Run 1, Event 1
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogError was used to send this other message
+%MSG-w cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogWarning was used to send this message
+%MSG-w cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogWarning was used to send this other message
+%MSG-i cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogInfo was used to send this message
+%MSG-i cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+LogInfo was used to send this other message
+%MSG-i FwkReport:  main_input:source Run: 1 Event: 1
+Begin processing the 2th record. Run 1, Event 2
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogError was used to send this other message
+%MSG-w cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogWarning was used to send this message
+%MSG-w cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogWarning was used to send this other message
+%MSG-i cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogInfo was used to send this message
+%MSG-i cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+LogInfo was used to send this other message
+%MSG-i FwkReport:  main_input:source Run: 1 Event: 2
+Begin processing the 3th record. Run 1, Event 3
+%MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
+LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
+%MSG-e cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
+LogError was used to send this other message
+%MSG-w cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
+LogWarning was used to send this message
+%MSG-w cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
+LogWarning was used to send this other message
+%MSG-i cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
+LogInfo was used to send this message
+%MSG-i cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
+LogInfo was used to send this other message

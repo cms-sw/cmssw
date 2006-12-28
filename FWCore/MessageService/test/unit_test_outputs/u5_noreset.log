@@ -1,0 +1,94 @@
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 FwkReport            -i main_input:sourc                       1*       1
+    2 cat_A                -e UnitTestClient_B                       1        1
+    3 cat_B                -e UnitTestClient_B                       1        1
+
+* Some occurrences of this message were suppressed in all logs, due to limits.
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 FwkReport            BeforeEvents                      
+    2 cat_A                1/1                               
+    3 cat_B                1/1                               
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Info                    1                   1
+Error                   2                   2
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 FwkReport            -i main_input:sourc                       2*       2
+    2 cat_A                -e UnitTestClient_B                       3        3
+    3 cat_B                -e UnitTestClient_B                       2        2
+
+* Some occurrences of this message were suppressed in all logs, due to limits.
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 FwkReport            BeforeEvents     1/1              
+    2 cat_A                1/1              1/2              1/2
+    3 cat_B                1/1              1/2              
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Info                    2                   2
+Error                   5                   5
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 FwkReport            -i main_input:sourc                       3*       3
+    2 cat_A                -e UnitTestClient_B                       6        6
+    3 cat_B                -e UnitTestClient_B                       3        3
+
+* Some occurrences of this message were suppressed in all logs, due to limits.
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 FwkReport            BeforeEvents     1/1              1/2
+    2 cat_A                1/1              1/2              1/3
+    3 cat_B                1/1              1/2              1/3
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Info                    3                   3
+Error                   9                   9
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 FwkJob               -i PostSource                             1*       1
+    2 FwkReport            -i main_input:sourc                       3*       3
+    3 cat_A                -e UnitTestClient_B                       6        6
+    4 cat_B                -e UnitTestClient_B                       3        3
+
+* Some occurrences of this message were suppressed in all logs, due to limits.
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 FwkJob               1/3                               
+    2 FwkReport            BeforeEvents     1/1              1/2
+    3 cat_A                1/1              1/2              1/3
+    4 cat_B                1/1              1/2              1/3
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Info                    4                   4
+Error                   9                   9

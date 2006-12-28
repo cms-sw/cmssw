@@ -1,0 +1,26 @@
+
+       =================================================
+
+       Message Log File written by MessageLogger service 
+       
+       =================================================
+       
+%MSG-i expect_non_supercede_common_specific:  UnitTestClient_E:sendSomeMessages 
+       Run: 1 Event: 1
+The following outputs are expected: 
+lim2bycommondefault appearing in events 1,2,4,6,10,18,34 
+
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 1
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 2
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 4
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 6
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 10
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 18
+%MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1
+message with specific overall default limit of 2: 34
