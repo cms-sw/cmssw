@@ -4,9 +4,6 @@
 #include "DataFormats/Common/interface/BranchEntryDescription.h"
 #include "FWCore/Framework/interface/DataBlockImpl.h"
 
-#include "TFile.h"
-#include "TTree.h"
-
 #include <iostream>
 
 namespace edm {
@@ -24,15 +21,10 @@ namespace edm {
     branches_(new BranchMap),
     products_()
   {
-    provenance_.reserve(1000);
-    provenancePtrs_.reserve(1000);
-    if (tree_ != 0 && metaTree_ != 0) {
-      assert(entries_ == metaTree_->GetEntries());
-      assert(auxBranch_ != 0);
-    }
-    else {
-      // For backward compatibility
-      entries_ = 0;
+    int nBranches = (tree_ != 0 ? tree_->GetNbranches() : 0);
+    if (nBranches > 0) {
+      provenance_.reserve(nBranches);
+      provenancePtrs_.reserve(nBranches);
     }
   }
 

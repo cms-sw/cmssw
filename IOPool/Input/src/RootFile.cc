@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.45 2006/12/23 23:01:32 wmtan Exp $
+$Id: RootFile.cc,v 1.46 2006/12/25 04:22:40 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -31,6 +31,7 @@ namespace edm {
       logicalFile_(logicalFileName),
       catalog_(catalogName),
       filePtr_(TFile::Open(file_.c_str())),
+      fileFormatVersion_(),
       reportToken_(0),
       eventAux_(),
       lumiAux_(),
@@ -59,6 +60,7 @@ namespace edm {
     PsetMap *psetMapPtr = &psetMap;
     ProcessHistoryMap *pHistMapPtr = &pHistMap;
     ModuleDescriptionMap *mdMapPtr = &mdMap;
+    FileFormatVersion *fftPtr = &fileFormatVersion_;
 
     // Read the metadata tree.
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
@@ -68,8 +70,17 @@ namespace edm {
     metaDataTree->SetBranchAddress(poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
     metaDataTree->SetBranchAddress(poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
     metaDataTree->SetBranchAddress(poolNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr);
+    metaDataTree->SetBranchAddress(poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
 
     metaDataTree->GetEntry(0);
+
+    assert(fileFormatVersion_.isValid());
+    assert(eventTree().isValid());
+    if (fileFormatVersion_.value_ >= 2) {
+      assert(lumiTree().isValid());
+      assert(runTree().isValid());
+    }
+
     // freeze our temporary product registry
     tempReg.setFrozen();
 
@@ -166,14 +177,8 @@ namespace edm {
     eventTree().fillAux<EventAux>(pEvAux);
     bool isNewRun = (evAux.id().run() != eventAux().id().run() || luminosityBlockPrincipal_.get() == 0);
     bool isNewLumi = isNewRun || (evAux.luminosityBlockID() != eventAux().luminosityBlockID());
-    if (isNewRun) {
-      boost::shared_ptr<RunPrincipal const> runPrincipal(new RunPrincipal(eventID().run(), productRegistry()));
-      luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal const>(
-		new LuminosityBlockPrincipal(evAux.luminosityBlockID(), productRegistry(), runPrincipal));
-    } else if (isNewLumi) {
-      boost::shared_ptr<RunPrincipal const> runPrincipal = luminosityBlockPrincipal_->runPrincipalConstSharedPtr();
-      luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal const>(
-		new LuminosityBlockPrincipal(evAux.luminosityBlockID(), productRegistry(), runPrincipal));
+    if (isNewLumi) {
+      luminosityBlockPrincipal_ = readLumi(pReg, eventID().run(), evAux.luminosityBlockID(), isNewRun);
     }
     eventAux_ = evAux;
     // We're not done ... so prepare the EventPrincipal
@@ -190,4 +195,51 @@ namespace edm {
     reportSvc->eventReadFromFile(reportToken_, eventID().run(), eventID().event());
     return thisEvent;
   }
+
+  boost::shared_ptr<RunPrincipal const>
+  RootFile::readRun(ProductRegistry const& pReg, RunNumber_t const& runNumber) {
+    if (!runTree().isValid()) {
+      return boost::shared_ptr<RunPrincipal const>(new RunPrincipal(runNumber, productRegistry()));
+    }
+    RootTree::EntryNumber entry = runTree().getExactEntryNumber(runNumber, 0);
+    assert(entry >= 0);
+    runTree().setEntryNumber(entry);
+    RunAux runAux;
+    RunAux *pRunAux = &runAux;
+    runTree().fillAux<RunAux>(pRunAux);
+    assert(runNumber == runAux.id());
+    boost::shared_ptr<RunPrincipal> thisRun(new RunPrincipal(runNumber, productRegistry(),
+		runAux.processHistoryID_, runTree().makeDelayedReader()));
+    // Create a group in the run for each product
+    runTree().fillGroups(thisRun->groupGetter());
+    return thisRun;
+  }
+
+  boost::shared_ptr<LuminosityBlockPrincipal const>
+  RootFile::readLumi(ProductRegistry const& pReg, RunNumber_t const& runNumber,
+						  LuminosityBlockID const& lumiID,
+						  bool isNewRun) {
+    boost::shared_ptr<RunPrincipal const> runPrincipal = (isNewRun ?
+	readRun(pReg, eventID().run()) :
+	luminosityBlockPrincipal_->runPrincipalConstSharedPtr());
+    if (!lumiTree().isValid()) {
+      return boost::shared_ptr<LuminosityBlockPrincipal const>(
+	new LuminosityBlockPrincipal(lumiID, productRegistry(), runPrincipal));
+    }
+    RootTree::EntryNumber entry = lumiTree().getExactEntryNumber(runNumber, lumiID);
+    assert(entry >= 0);
+    lumiTree().setEntryNumber(entry);
+    LuminosityBlockAux lumiAux;
+    LuminosityBlockAux *pLumiAux = &lumiAux;
+    lumiTree().fillAux<LuminosityBlockAux>(pLumiAux);
+    assert(lumiID == lumiAux.id());
+    assert(runNumber == lumiAux.runID());
+    boost::shared_ptr<LuminosityBlockPrincipal> thisLumi(
+	new LuminosityBlockPrincipal(lumiID, productRegistry(), runPrincipal,
+		lumiAux.processHistoryID_, lumiTree().makeDelayedReader()));
+    // Create a group in the lumi for each product
+    lumiTree().fillGroups(thisLumi->groupGetter());
+    return thisLumi;
+  }
+
 }

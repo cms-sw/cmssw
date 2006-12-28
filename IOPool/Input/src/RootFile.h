@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.15 2006/12/23 03:16:12 wmtan Exp $
+$Id: RootFile.h,v 1.16 2006/12/23 20:55:25 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -23,6 +23,7 @@ $Id: RootFile.h,v 1.15 2006/12/23 03:16:12 wmtan Exp $
 #include "DataFormats/Common/interface/EventAux.h"
 #include "DataFormats/Common/interface/LuminosityBlockAux.h"
 #include "DataFormats/Common/interface/RunAux.h"
+#include "DataFormats/Common/interface/FileFormatVersion.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "TBranch.h"
 #include "TFile.h"
@@ -54,12 +55,18 @@ namespace edm {
     RootTree & runTree() {return runTree_;}
 
   private:
+    boost::shared_ptr<RunPrincipal const> readRun(ProductRegistry const& pReg, RunNumber_t const& runNumber);
+    boost::shared_ptr<LuminosityBlockPrincipal const> readLumi(ProductRegistry const& pReg,
+								RunNumber_t const& runNumber,
+								LuminosityBlockID const& lumiID,
+								bool isNewRun);
     RootFile(RootFile const&); // disable copy construction
     RootFile & operator=(RootFile const&); // disable assignment
     std::string const file_;
     std::string const logicalFile_;
     std::string const catalog_;
     boost::shared_ptr<TFile> filePtr_;
+    FileFormatVersion fileFormatVersion_;
     JobReport::Token reportToken_;
     EventAux eventAux_;
     LuminosityBlockAux lumiAux_;
