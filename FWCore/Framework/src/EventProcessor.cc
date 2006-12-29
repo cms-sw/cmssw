@@ -801,6 +801,14 @@ namespace edm {
     return EventHelperDescription(pep,&es);
   }
   
+  void
+  EventProcessor::endLumiAndRun(EventPrincipal & ep, bool isNewRun) const {
+    IOVSyncValue ts(ep.id(), ep.time());
+    EventSetup const& es = esp_->eventSetupForInstance(ts);
+    schedule_->runOneEvent(ep, es, BranchActionEndLumi);
+    if (isNewRun) schedule_->runOneEvent(ep, es, BranchActionEndRun);
+  }
+
   EventProcessor::StatusCode
   EventProcessor::run_p(unsigned int numberToProcess, Msg m)
   {
@@ -815,8 +823,11 @@ namespace edm {
     unsigned int eventcount=0;
     StatusCode rc = epSuccess;
 
+    std::auto_ptr<EventPrincipal> previousPep;
+
     while(state_ == sRunning) {
       if(shutdown_flag) {
+	if (previousPep.get() != 0) endLumiAndRun(*previousPep.get());
 	changeState(mShutdownSignal);
 	rc = epSignal;
 	got_sig = true;
@@ -824,6 +835,7 @@ namespace edm {
       }
 
       if(!runforever && eventcount >= numberToProcess) {
+	if (previousPep.get() != 0) endLumiAndRun(*previousPep.get());
 	changeState(mCountComplete);
 	continue;
       }
@@ -836,16 +848,30 @@ namespace edm {
         pep = input_->readEvent();
       }
         
-      if(pep.get()==0) {
+      if (pep.get() == 0) {
+	if (previousPep.get() != 0) endLumiAndRun(*previousPep.get());
 	changeState(mInputExhausted);
 	rc = epInputComplete;
 	continue;
       }
 
+      bool isANewLumi = !isSameLumi(previousPep.get(), pep.get());
+      bool isANewRun = !isSameRun(previousPep.get(), pep.get());
+      if(isANewLumi) {
+      if (previousPep.get() != 0) endLumiAndRun(*previousPep.get(), isANewRun);
+      }
+
       IOVSyncValue ts(pep->id(), pep->time());
       EventSetup const& es = esp_->eventSetupForInstance(ts);
 	
+      if (isANewLumi) {
+        if (isANewRun) {
+	  schedule_->runOneEvent(*pep.get(), es, BranchActionBeginRun);
+        }
+	schedule_->runOneEvent(*pep.get(), es, BranchActionBeginLumi);
+      }
       schedule_->runOneEvent(*pep.get(), es, BranchActionEvent);
+      previousPep = pep;
     }
 
     // check once more for shutdown signal
