@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2006/08/01 15:58:07 $
- *  $Revision: 1.18 $
+ *  $Date: 2006/08/03 13:39:10 $
+ *  $Revision: 1.19 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -249,7 +249,7 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, con
       }
     }
   }
-  else if (mtype == GeomDetEnumerators::RPCBarrel || GeomDetEnumerators::RPCEndcap) {
+  else if ( (mtype == GeomDetEnumerators::RPCBarrel) || (mtype == GeomDetEnumerators::RPCEndcap) ) {
     if(!enableRPCMeasurement) return rhs;
     
     edm::Handle<RPCRecHitCollection> rpcRecHits;
