@@ -67,11 +67,12 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
  bool singleTauFired = singleTauMap.triggerDecision() ;
  bool doubleTauFired = doubleTauMap.triggerDecision() ;
+ /*
  cout <<"Trigger SingleTau "<<singleTauFired<<endl;
  cout <<"Trigger DoubleTau "<<doubleTauFired<<endl;
  cout <<"SingleTau objects: "<<myL1SingleTaus.size()<<endl;
  cout <<"DoubleTau objects: "<<myL1DoubleTaus.size()<<endl;
-
+ */
  //Loop over the jetSrc to split the jets
   
 
