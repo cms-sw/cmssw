@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.58 2006/12/23 03:13:21 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.59 2006/12/25 04:22:41 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -9,6 +9,7 @@
 #include "DataFormats/Common/interface/BranchKey.h"
 #include "DataFormats/Common/interface/FileFormatVersion.h"
 #include "FWCore/Utilities/interface/GetFileFormatVersion.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -191,16 +192,26 @@ namespace edm {
   }
 
   void PoolOutputModule::PoolFile::startTransaction() const {
-    context()->transaction().start(pool::ITransaction::UPDATE);
+   context()->transaction().start(pool::ITransaction::UPDATE);
   }
 
   void PoolOutputModule::PoolFile::commitTransaction() const {
-    context()->transaction().commitAndHold();
+    bool ret = context()->transaction().commitAndHold();
+    if (!ret) {
+      std::string message = "Fatal Pool Error in commitAndHoldTransaction.\n";
+      Exception except(edm::errors::FatalRootError, message);
+      throw except;
+    }
     provenances_.clear();
   }
 
   void PoolOutputModule::PoolFile::commitAndFlushTransaction() const {
-    context()->transaction().commit();
+    bool ret = context()->transaction().commit();
+    if (!ret) {
+      std::string message = "Fatal Pool Error in commitTransaction.\n";
+      Exception except(edm::errors::FatalRootError, message);
+      throw except;
+    }
     provenances_.clear();
   }
 
@@ -222,7 +233,7 @@ namespace edm {
     pool::Ref<EventAux const> ra(context(), &aux);
     ra.markWrite(auxiliaryPlacement_[InEvent]);	
 
-    fillBranches(outputItemList_[InEvent], e.groupGetter());
+    if (!outputItemList_[InEvent].empty()) fillBranches(outputItemList_[InEvent], e.groupGetter());
 
     commitTransaction();
 
@@ -259,7 +270,7 @@ namespace edm {
     aux.id_ = lb.id();
     pool::Ref<LuminosityBlockAux const> ra(context(), &aux);
     ra.markWrite(auxiliaryPlacement_[InLumi]);	
-    fillBranches(outputItemList_[InLumi], lb.groupGetter());
+    if (!outputItemList_[InLumi].empty()) fillBranches(outputItemList_[InLumi], lb.groupGetter());
     commitTransaction();
   }
 
@@ -272,7 +283,7 @@ namespace edm {
     aux.id_ = r.id();
     pool::Ref<RunAux const> ra(context(), &aux);
     ra.markWrite(auxiliaryPlacement_[InRun]);	
-    fillBranches(outputItemList_[InRun], r.groupGetter());
+    if (!outputItemList_[InRun].empty()) fillBranches(outputItemList_[InRun], r.groupGetter());
     commitTransaction();
   }
 
@@ -280,7 +291,7 @@ namespace edm {
   PoolOutputModule::PoolFile::fillBranches(OutputItemList const& items, DataBlockImpl const& dataBlock) const {
 
     // Loop over EDProduct branches, fill the provenance, and write the branch.
-    for (OutputItemList::const_iterator i = outputItemList_[InEvent].begin();
+    for (OutputItemList::const_iterator i = items.begin();
 	 i != outputItemList_[InEvent].end(); ++i) {
       ProductID const& id = i->branchDescription_->productID_;
 
