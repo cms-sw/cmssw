@@ -24,7 +24,7 @@ FSimTrack:: FSimTrack() :
   
 FSimTrack::FSimTrack(const RawParticle* p, int iv, int ig, int id, FBaseSimEvent* mom) :
   SimTrack(p->pid(),*p,iv,ig), mom_(mom), id_(id), endv_(-1),
-  layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), prop(false) {;}
+  layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), prop(false) { setTrackId(id);}
 
 FSimTrack::~FSimTrack() {
   // Clear the maps 
@@ -37,8 +37,8 @@ FSimTrack::particleInfo() const {
   return mom_->theTable()->particle(ParticleID(type()));
 }
 
-float 
-FSimTrack::charge() const { return particleInfo()->charge();}
+//float 
+//FSimTrack::charge() const { return particleInfo()->charge();}
   
 const FSimVertex& 
 FSimTrack::vertex() const { return mom_->vertex(vertIndex()); }
