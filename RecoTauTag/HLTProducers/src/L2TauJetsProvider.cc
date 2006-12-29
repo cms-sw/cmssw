@@ -67,6 +67,8 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
  bool singleTauFired = singleTauMap.triggerDecision() ;
  bool doubleTauFired = doubleTauMap.triggerDecision() ;
+ cout <<"Trigger SingleTau "<<singleTauFired<<endl;
+ cout <<"Trigger DoubleTau "<<doubleTauFired<<endl;
  cout <<"SingleTau objects: "<<myL1SingleTaus.size()<<endl;
  cout <<"DoubleTau objects: "<<myL1DoubleTaus.size()<<endl;
 
@@ -168,7 +170,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
     }
   }
   if(!singleTauFired){
-    l1Decision =3;
+    if(doubleTauFired) l1Decision =3;
   }
 
   cout <<"Tau Trigger internal code "<<l1Decision <<endl;
