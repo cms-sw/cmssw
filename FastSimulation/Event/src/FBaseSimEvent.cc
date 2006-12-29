@@ -178,9 +178,6 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
 
     // Add the vertex (if it does not already exist!)
     if ( myVertices[vertexId] == -1 )
-      // SimVertices were in mm until 110_pre2
-      // myVertices[vertexId] = addSimVertex(vertex.position()/10.,originId); 
-      // SImVertices are now in cm
       myVertices[vertexId] = addSimVertex(vertex.position(),originId); 
 
     // Add the track (with protection for brem'ing electrons)
@@ -209,7 +206,7 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
     const SimVertex& vertex = simVertices[vertexId];
 
     // The mother track 
-    int motherId = vertex.noParent() ? -1 : vertex.parentIndex();
+    int motherId = -1;
     if( !vertex.noParent() ) { // there is a parent to this vertex
 
       // geant id of the mother
@@ -219,14 +216,11 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
       if(association != geantToIndex.end() )
 	motherId = association->second;
     }
+    int originId = motherId == - 1 ? -1 : myTracks[motherId];
 
-    // Add the vertex (if it does not already exist!)
-    if ( motherId != -1 && myVertices[vertexId] == -1 ) 
-      myVertices[vertexId] = 
-      // SimVertices were in mm until 110_pre2
-      // addSimVertex(vertex.position()/10.,myTracks[motherId]);
-      // SImVertices are now in cm
-	addSimVertex(vertex.position(),myTracks[motherId]);
+    // Add the vertex
+    myVertices[vertexId] = 
+      addSimVertex(vertex.position(),originId);
   }
 
   // Finally, propagate all particles to the calorimeters
