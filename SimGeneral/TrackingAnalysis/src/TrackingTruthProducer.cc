@@ -52,7 +52,7 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf) {
   edm::LogInfo (MessageCategory) << "Volume radius set to "       << volumeRadius_ << " mm";
   edm::LogInfo (MessageCategory) << "Volume Z      set to "       << volumeZ_      << " mm";
   edm::LogInfo (MessageCategory) << "Discard out of volume? "     << discardOutVolume_;
-  edm::LogInfo (MessageCategory) << "Discard Hits from Deltas? "     << discardHitsFromDeltas_;
+  edm::LogInfo (MessageCategory) << "Discard Hits from Deltas? "  << discardHitsFromDeltas_;
 
   /* Uncommenting will print out the various hit collections that will be scanned  
   for (vector<string>::const_iterator name = hitLabelsVector_.begin(); name != hitLabelsVector_.end(); ++name) {
@@ -62,7 +62,9 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf) {
 }
 
 void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
-
+//  TimerStack timers;  // Don't need the timers now, left for example
+//  timers.push("TrackingTruth:Producer");
+//  timers.push("TrackingTruth:Setup");
   // Get information out of event record
   edm::Handle<edm::HepMCProduct> hepMC;
   for (vector<string>::const_iterator source = dataLabels_.begin(); 
@@ -104,7 +106,15 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   
   map<EncodedTruthId,EncodedTruthId> simTrack_sourceV; // Encoded SimTrack to encoded source vertex
   map<EncodedTruthId,int>            simTrack_tP;      // Encoded SimTrack to TrackingParticle index
-               
+  multimap<EncodedTruthId,PSimHit>   simTrack_hit;
+  typedef multimap<EncodedTruthId,PSimHit>::const_iterator hitItr;        
+//  timers.pop();
+  for (MixCollection<PSimHit>::MixItr hit = hitCollection -> begin(); 
+       hit != hitCollection -> end(); ++hit) {
+    EncodedTruthId simTrackId = EncodedTruthId(hit->eventId(),hit->trackId()); 
+    simTrack_hit.insert(make_pair(simTrackId,*hit));
+  }
+
   for (MixCollection<SimTrack>::MixItr itP = trackCollection->begin(); 
        itP !=  trackCollection->end(); ++itP){
     int                       q = (int)(itP -> charge()); // Check this
@@ -144,31 +154,30 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     int olddet = 0;
     int newdet = 0;
 
-    for (MixCollection<PSimHit>::MixItr hit = hitCollection -> begin(); 
-         hit != hitCollection -> end(); ++hit) {
-      if (simtrackId == hit->trackId() && trackEventId == hit->eventId() ) {
-	float pratio = hit->pabs()/(itP->momentum().v().mag());
+// Using simTrack_hit map makes this very fast
+    for (hitItr iHit  = simTrack_hit.lower_bound(trackId);
+                iHit != simTrack_hit.upper_bound(trackId); ++iHit) {
+      PSimHit hit = iHit->second;  
+      float pratio = hit.pabs()/(itP->momentum().v().mag());
         
 // Discard hits from delta rays if requested        
 	
-        if (!discardHitsFromDeltas_ || ( discardHitsFromDeltas_ &&  0.5 < pratio && pratio < 2) ) {  
-	  tp.addPSimHit(*hit);
-	  unsigned int detid = hit->detUnitId();      
-	  DetId detId = DetId(detid);
-	  oldlay = newlay;
-	  olddet = newdet;
-	  newlay = LayerFromDetid(detid);
-	  newdet = detId.subdetId();
+      if (!discardHitsFromDeltas_ || ( discardHitsFromDeltas_ &&  0.5 < pratio && pratio < 2) ) {  
+        tp.addPSimHit(hit);
+        unsigned int detid = hit.detUnitId();      
+        DetId detId = DetId(detid);
+        oldlay = newlay;
+        olddet = newdet;
+        newlay = LayerFromDetid(detid);
+        newdet = detId.subdetId();
 
 // Count hits using layers for glued detectors
            
-	  if (oldlay != newlay || (oldlay==newlay && olddet!=newdet) ) {
-	    totsimhit++;
-	  }
-        }
+	if (oldlay != newlay || (oldlay==newlay && olddet!=newdet) ) {
+	  totsimhit++;
+	}
       }
     }
-
     tp.setMatchedHit(totsimhit);
    
     tp.addG4Track(*itP);
@@ -290,6 +299,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 // Put TrackingParticles and TrackingVertices in event
   event.put(tPC,"TrackTruth");
   event.put(tVC,"VertexTruth");
+//  timers.pop();
+//  timers.pop();
 }
 
 int TrackingTruthProducer::LayerFromDetid(const unsigned int& detid ) {
