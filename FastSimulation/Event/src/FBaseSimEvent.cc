@@ -158,20 +158,19 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
   for( unsigned trackId=0; trackId<nTks; ++trackId ) {
 
     // The track
-    SimTrack track = simTracks[trackId];
+    const SimTrack& track = simTracks[trackId];
 
     // The origin vertex
     int vertexId = track.vertIndex();
-    SimVertex vertex = simVertices[vertexId];
+    const SimVertex& vertex = simVertices[vertexId];
 
     // The mother track 
     int motherId = -1;
-    if( vertex.parentIndex() ) { // there is a parent to this vertex
-
+    if( !vertex.noParent() ) { // there is a parent to this vertex
       // geant id of the mother
-      unsigned motherGeandId =   vertex.parentIndex(); 
+      unsigned motherGeantId =   vertex.parentIndex(); 
       map<unsigned, unsigned >::iterator association  
-	= geantToIndex.find( motherGeandId );
+	= geantToIndex.find( motherGeantId );
       if(association != geantToIndex.end() )
 	motherId = association->second;
     }
@@ -207,16 +206,16 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
     if ( myVertices[vertexId] != -1 ) continue;
 
     // The yet unused vertex
-    SimVertex vertex = simVertices[vertexId];
+    const SimVertex& vertex = simVertices[vertexId];
 
     // The mother track 
-    int motherId = !vertex.parentIndex() ? -1 : vertex.parentIndex();
-    if( vertex.parentIndex() ) { // there is a parent to this vertex
+    int motherId = vertex.noParent() ? -1 : vertex.parentIndex();
+    if( !vertex.noParent() ) { // there is a parent to this vertex
 
       // geant id of the mother
-      unsigned motherGeandId =   vertex.parentIndex(); 
+      unsigned motherGeantId =   vertex.parentIndex(); 
       map<unsigned, unsigned >::iterator association  
-	= geantToIndex.find( motherGeandId );
+	= geantToIndex.find( motherGeantId );
       if(association != geantToIndex.end() )
 	motherId = association->second;
     }
@@ -240,7 +239,6 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
 
     FSimTrack& myTrack = track(fsimi);
     mom = myTrack.momentum();
-
     // Special treatment for electrons to account for bremstrahlung photons
     if ( abs(myTrack.type()) == 11 && myTrack.nDaughters() > 0 ) { 
       for ( int idaugh=0; idaugh<myTrack.nDaughters(); ++idaugh ) {
