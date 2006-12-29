@@ -217,13 +217,32 @@ MaterialEffects::radLengths(const TrackerLayer& layer,
   double rad = myTrack.vertex().perp();
   double zed = fabs(myTrack.vertex().z());
 
-  if ( rad > 16. && zed < 28. ) {
+  if ( rad > 16. && zed < 299. ) {
+
+    // Simulate cables out the TEC's
+    if ( zed > 122. && layer.sensitive() ) { 
+
+      if ( zed < 165. ) { 
+	if ( rad < 24. ) radlen *= 3.0;
+      } else {
+	if ( rad < 32.5 ) radlen *= 3.0;
+	else if ( (zed > 220. && rad < 45.0) || 
+		  (zed > 250. && rad < 54.) ) radlen *= 0.3;
+      }
+    }
+
     // Less material on all sensitive layers of the Silicon Tracker
-    if ( rad > 55. && zed < 20. && layer.sensitive() ) radlen *= 0.50;
+    else if ( zed < 20. && layer.sensitive() ) { 
+      if ( rad > 55. ) radlen *= 0.50;
+      else if ( zed < 10 ) radlen *= 0.77;
+    }
     // Much less cables outside the Si Tracker barrel
-    if ( rad > 118. ) radlen *= 0.2;
+    else if ( rad > 118. && zed < 250. ) { 
+      if ( zed < 116 ) radlen *= 0.225 * .75 ;
+      else radlen *= .75;
+    }
     // No cable whatsoever in the Pixel Barrel.
-    if ( rad < 18. && zed < 26. ) radlen *= 0.04;
+    else if ( rad < 18. && zed < 26. ) radlen *= 0.08;
   }
 
   return radlen;

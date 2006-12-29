@@ -51,11 +51,11 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
   // The Beam pipe
   _theMPBeamPipe = new MediumProperties(0.0038,0.0001);  
   // The pixel barrel layers
-  _theMPPixelBarrel = new MediumProperties(0.023,0.0001);  
+  _theMPPixelBarrel = new MediumProperties(0.0222,0.0001);  
   // The pixel endcap disks
-  _theMPPixelEndcap = new MediumProperties(0.040,0.0001);  
+  _theMPPixelEndcap = new MediumProperties(0.044,0.0001);  
   // The various cables thicknesses for each layer / disks
-  _theMPPixelOutside1 = new MediumProperties(0.050,0.0001);  
+  _theMPPixelOutside1 = new MediumProperties(0.100,0.0001);  
   _theMPPixelOutside2 = new MediumProperties(0.040,0.0001);  
   _theMPPixelOutside3 = new MediumProperties(0.030,0.0001);  
   _theMPPixelOutside4 = new MediumProperties(0.040,0.0001);  
@@ -65,8 +65,8 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
   // The tracker inner barrel layers
   _theMPTIB1 = new MediumProperties(0.060,0.0001);  
   _theMPTIB2 = new MediumProperties(0.047,0.0001);  
-  _theMPTIB3 = new MediumProperties(0.032,0.0001);  
-  _theMPTIB4 = new MediumProperties(0.030,0.0001);  
+  _theMPTIB3 = new MediumProperties(0.035,0.0001);  
+  _theMPTIB4 = new MediumProperties(0.033,0.0001);  
   // The tracker outer barrel layers
   _theMPTOB1 = new MediumProperties(0.044,0.0001);  
   _theMPTOB2 = new MediumProperties(0.044,0.0001);  
@@ -79,11 +79,11 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
   // The tracker endcap disks
   _theMPEndcap = new MediumProperties(0.041,0.0001);  
   // Various cable thicknesses 
-  _theMPTOBBInside = new MediumProperties(0.014,0.0001);  
+  _theMPTOBBInside = new MediumProperties(0.017,0.0001);  
   _theMPTIBEOutside = new MediumProperties(0.040,0.0001);  
   _theMPTIDEOutside = new MediumProperties(0.070,0.0001);  
   _theMPTOBEOutside = new MediumProperties(0.090,0.0001);  
-  _theMPBarrelOutside = new MediumProperties(0.088,0.0001);  
+  _theMPBarrelOutside = new MediumProperties(0.100,0.0001);  
   _theMPEndcapOutside = new MediumProperties(0.260,0.0001);  
   _theMPEndcapOutside2 = new MediumProperties(0.080,0.0001);  
 
@@ -92,7 +92,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
   const Surface::RotationType theRotation(1.,0.,0.,0.,1.,0.,0.,0.,1.);
   // Beam Pipe
   //  const SimpleCylinderBounds  PIPE( 0.997,   1.003,  -300., 300.);
-  const SimpleCylinderBounds  PIPE( 2.497,   2.503,  -26.4, 26.4);
+  const SimpleCylinderBounds  PIPE( 2.997,   3.003,  -26.4, 26.4);
 
   // Take the active layer position from the Tracker Reco Geometry
   // Pixel barrel
@@ -100,30 +100,31 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
   double pixelLength = (**bl).specificSurface().bounds().length()/2.;
   // First pixel barrel layer: r=4.41058, l=53.38
   const SimpleCylinderBounds  PIXB1( 
-        (**bl).specificSurface().radius()-0.0150, 
-        (**bl).specificSurface().radius()+0.0150,
+        (**bl).specificSurface().radius()-0.0050, 
+        (**bl).specificSurface().radius()+0.0050,
 	-pixelLength,
   	 pixelLength);
   // "Cables" 
-  const SimpleDiskBounds PIXBOut1(4.0,5.2,-0.5,0.5);
+  double maxRadius = (**bl).specificSurface().radius()+0.01;
+  const SimpleDiskBounds PIXBOut1(3.6,maxRadius,-0.5,0.5);
   const Surface::PositionType PPIXBOut1(0.0,0.0,pixelLength+0.001);
 
   // Second pixel barrel layer: r=7.30732, l=53.38
   ++bl;
   const SimpleCylinderBounds  PIXB2( 
-        (**bl).specificSurface().radius()-0.0150, 
-        (**bl).specificSurface().radius()+0.0150, 
+        (**bl).specificSurface().radius()-0.0050, 
+        (**bl).specificSurface().radius()+0.0050, 
        -pixelLength-0.002,  
        +pixelLength+0.002);
   // "Cables"
-  double maxRadius = (**bl).specificSurface().radius()+0.02;
-  const SimpleDiskBounds PIXBOut2(6.5,maxRadius,-0.5,0.5);
+  maxRadius = (**bl).specificSurface().radius()+0.01;
+  const SimpleDiskBounds PIXBOut2(6.1,maxRadius,-0.5,0.5);
   const Surface::PositionType PPIXBOut2(0.0,0.0,pixelLength+0.003);
 
   // More cables
   ++bl;
-  maxRadius = (**bl).specificSurface().radius()-0.02;
-  const SimpleDiskBounds PIXBOut3(9.0,maxRadius,-0.5,0.5);
+  maxRadius = (**bl).specificSurface().radius()-0.01;
+  const SimpleDiskBounds PIXBOut3(8.5,maxRadius,-0.5,0.5);
   const Surface::PositionType PPIXBOut3(0.0,0.0,pixelLength+0.004);
   // Third pixel barrel layer: r=10.1726, l=53.38
   const SimpleCylinderBounds  PIXB3( 
@@ -133,10 +134,10 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
        +pixelLength+0.005);
 
   // Pixel Barrel Outside walls and cables
-  const SimpleDiskBounds PIXBOut4(12.5,14.9,-0.5,0.5);
+  const SimpleDiskBounds PIXBOut4(11.9,15.5,-0.5,0.5);
   const Surface::PositionType PPIXBOut4(0.0,0.0,27.999);
 
-  const SimpleDiskBounds PIXBOut(3.0,15.0,-0.5,0.5);
+  const SimpleDiskBounds PIXBOut(3.8,16.5,-0.5,0.5);
   const Surface::PositionType PPIXBOut(0.0,0.0,28.0);
 
   const SimpleCylinderBounds  PIXBOut5( 17.0, 17.2, -64.8, 64.8);
@@ -151,36 +152,36 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
   const SimpleCylinderBounds  TIB1( 
         (**bl).specificSurface().radius()-0.0150, 
         (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.,  
-       +(**bl).specificSurface().bounds().length()/2.);
+       -(**bl).specificSurface().bounds().length()/2.-7.0,  
+       +(**bl).specificSurface().bounds().length()/2.+7.0);
   // Second TIB layer: r=34.0341, l=131.999
   ++bl;
   const SimpleCylinderBounds  TIB2( 
         (**bl).specificSurface().radius()-0.0150, 
         (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.,  
-       +(**bl).specificSurface().bounds().length()/2.);
+       -(**bl).specificSurface().bounds().length()/2.-7.0,  
+       +(**bl).specificSurface().bounds().length()/2.+7.0);
   // Third TIB layer: r=41.9599, l=131.628  !!!! Needs to be larger than TIB2
   ++bl;
   const SimpleCylinderBounds  TIB3( 
         (**bl).specificSurface().radius()-0.0150, 
         (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.-0.6,  
-       +(**bl).specificSurface().bounds().length()/2.+0.6);
+       -(**bl).specificSurface().bounds().length()/2.-7.0-0.6,  
+       +(**bl).specificSurface().bounds().length()/2.+7.0+0.6);
   // Fourth TIB layer: r=49.8924, l=132.78
   ++bl;
   const SimpleCylinderBounds  TIB4( 
         (**bl).specificSurface().radius()-0.0150, 
         (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.-0.1,  
-       +(**bl).specificSurface().bounds().length()/2.+0.1);
+       -(**bl).specificSurface().bounds().length()/2.-7.0-0.1,  
+       +(**bl).specificSurface().bounds().length()/2.+7.0+0.1);
 
   // Inner Barrel Cylinder & Ends : Cables and walls
-  const SimpleDiskBounds TIBEOut(22.5,50.4,-0.5,0.5);
-  const Surface::PositionType PTIBEOut(0.0,0.0,71.5);
+  const SimpleDiskBounds TIBEOut(22.5,53.9,-0.05,0.05);
+  const Surface::PositionType PTIBEOut(0.0,0.0,75.001);
 
-  const SimpleDiskBounds TIBEOut2(35.5,50.401,-0.5,0.5);
-  const Surface::PositionType PTIBEOut2(0.0,0.0,71.501);
+  const SimpleDiskBounds TIBEOut2(35.5,53.901,-0.05,0.05);
+  const Surface::PositionType PTIBEOut2(0.0,0.0,75.001);
 
   // Inner Tracker / Outer Barrel Wall
   const SimpleCylinderBounds  TOBCIn ( 54.0, 55.0,-108.2,108.2);
@@ -242,14 +243,14 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
   // Pixel disks 
   // First Pixel disk: Z pos 35.5 radii 5.42078, 16.0756
   const SimpleDiskBounds PIXD1(
-	  (**fl).specificSurface().innerRadius(), 
+	  (**fl).specificSurface().innerRadius()-1.0, 
 	  (**fl).specificSurface().outerRadius()+0.5,
 	  -0.015,0.015);
   const Surface::PositionType PPIXD1(0.0,0.0,(**fl).surface().position().z()); 
   // Second Pixel disk: Z pos 48.5 radii 5.42078, 16.0756
   ++fl;
   const SimpleDiskBounds PIXD2(
-	  (**fl).specificSurface().innerRadius(), 
+	  (**fl).specificSurface().innerRadius()-1.0, 
 	  (**fl).specificSurface().outerRadius()+0.5,
 	  -0.015,0.015);
   const Surface::PositionType PPIXD2(0.0,0.0,(**fl).surface().position().z()); 
@@ -259,21 +260,21 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
   // First TID : Z pos 78.445 radii 23.14, 50.4337
   ++fl;
   const SimpleDiskBounds TID1(
-	  (**fl).specificSurface().innerRadius()-1.0, 
+	  (**fl).specificSurface().innerRadius()-2.0, 
 	  (**fl).specificSurface().outerRadius()+3.5,
 	  -0.015,0.015);
   const Surface::PositionType PTID1(0.,0.,(**fl).surface().position().z()); 
   // Second TID : Z pos 90.445 radii 23.14, 50.4337
   ++fl;
   const SimpleDiskBounds TID2(
-	  (**fl).specificSurface().innerRadius()-1.0, 
+	  (**fl).specificSurface().innerRadius()-2.0, 
 	  (**fl).specificSurface().outerRadius()+3.5,
 	  -0.015,0.015);
   const Surface::PositionType PTID2(0.,0.,(**fl).surface().position().z()); 
   // Third TID : Z pos 105.445 radii 23.14, 50.4337
   ++fl;
   const SimpleDiskBounds TID3(
-	  (**fl).specificSurface().innerRadius()-1.0, 
+	  (**fl).specificSurface().innerRadius()-2.0, 
 	  (**fl).specificSurface().outerRadius()+3.5,
 	  -0.015,0.015);
   const Surface::PositionType PTID3(0.,0.,(**fl).surface().position().z()); 
@@ -289,63 +290,63 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
   // First TEC: Z pos 131.892 radii 23.3749, 99.1967
   ++fl;
   const SimpleDiskBounds TEC1(
-	  (**fl).specificSurface().innerRadius()-2.0, 
+	  (**fl).specificSurface().innerRadius()-1.5, 
 	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC1(0.,0,(**fl).surface().position().z()); 
   // Second TEC: Z pos 145.892 radii 23.3749, 99.1967
   ++fl;
   const SimpleDiskBounds TEC2(
-	  (**fl).specificSurface().innerRadius()-2.0, 
+	  (**fl).specificSurface().innerRadius()-1.5, 
 	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC2(0.,0.,(**fl).surface().position().z());
   // Third TEC: Z pos 159.892 radii 23.3749, 99.1967
   ++fl;
   const SimpleDiskBounds TEC3(
-	  (**fl).specificSurface().innerRadius()-2.0, 
+	  (**fl).specificSurface().innerRadius()-1.5, 
 	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC3(0.,0.,(**fl).surface().position().z());
   // Fourth TEC: Z pos 173.892 radii 32.1263, 99.1967
   ++fl;
   const SimpleDiskBounds TEC4(
-	  (**fl).specificSurface().innerRadius()-2.0, 
+	  (**fl).specificSurface().innerRadius()-2.5, 
 	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC4(0.,0.,(**fl).surface().position().z());
   // Fifth TEC: Z pos 187.892 radii 32.1263, 99.1967
   ++fl;
   const SimpleDiskBounds TEC5(
-	  (**fl).specificSurface().innerRadius()-2.0, 
+	  (**fl).specificSurface().innerRadius()-2.5, 
 	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC5(0.,0.,(**fl).surface().position().z());
   // Sixth TEC: Z pos 205.392 radii 32.1263, 99.1967
   ++fl;
   const SimpleDiskBounds TEC6(
-	  (**fl).specificSurface().innerRadius()-2.0, 
+	  (**fl).specificSurface().innerRadius()-2.5, 
 	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC6(0.,0.,(**fl).surface().position().z());
   // Seventh TEC: Z pos 224.121 radii 44.7432, 99.1967
   ++fl;
   const SimpleDiskBounds TEC7(
-	  (**fl).specificSurface().innerRadius()-2.0, 
+	  (**fl).specificSurface().innerRadius()-2.5-7.0, 
 	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC7(0.,0.,(**fl).surface().position().z());
   // Eighth TEC: Z pos 244.621 radii 44.7432, 99.1967
   ++fl;
   const SimpleDiskBounds TEC8(
-	  (**fl).specificSurface().innerRadius()-2.0, 
+	  (**fl).specificSurface().innerRadius()-2.5-7.0, 
 	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC8(0.,0.,(**fl).surface().position().z());
   // Nineth TEC: Z pos 266.121 radii 56.1781, 99.1967
   ++fl;
   const SimpleDiskBounds TEC9(
-	  (**fl).specificSurface().innerRadius()-2.0, 
+	  (**fl).specificSurface().innerRadius()-2.5-18.0, 
 	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PTEC9(0.,0.,(**fl).surface().position().z());
