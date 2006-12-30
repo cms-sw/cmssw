@@ -74,6 +74,8 @@ class RPCDetInfo{
     int m_station;///< Muon station number (RB1...RB4; RE1...RE4)
     int m_layer;  ///< Inner or outer layer
     int m_roll;   ///< Roll number
+    int m_sector; ///< Sector number
+    int m_subsector; ///< Subsector number
     int m_hwPlane; ///< 1...6 for barell and 1...4 for endcaps
     float m_etaMin;  ///< etaMin and etaMax define to which m_tower(s) chamber contributes
     float m_etaMax;  ///< etaMin and etaMax define to which m_tower(s) chamber contributes
