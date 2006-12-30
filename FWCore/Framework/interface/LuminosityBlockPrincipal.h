@@ -10,7 +10,7 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.3 2006/12/07 23:48:57 wmtan Exp $
+$Id: LuminosityBlockPrincipal.h,v 1.4 2006/12/14 04:30:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -50,6 +50,9 @@ namespace edm {
       return aux_;
     }
 
+    RunNumber_t const& runNumber() const {
+      return aux().runID();
+    }
     using Base::addGroup;
     using Base::addToProcessHistory;
     using Base::begin;
