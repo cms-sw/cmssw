@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.59 2006/12/25 04:22:41 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.60 2006/12/29 20:49:32 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -228,6 +228,7 @@ namespace edm {
     EventAux aux;
     aux.processHistoryID_ = e.processHistoryID();
     aux.id_ = e.id();
+    aux.luminosityBlockID_ = e.luminosityBlockID();
     aux.time_ = e.time();
 
     pool::Ref<EventAux const> ra(context(), &aux);
@@ -268,6 +269,7 @@ namespace edm {
     LuminosityBlockAux aux;
     aux.processHistoryID_ = lb.processHistoryID();
     aux.id_ = lb.id();
+    aux.runID_ = lb.runNumber();
     pool::Ref<LuminosityBlockAux const> ra(context(), &aux);
     ra.markWrite(auxiliaryPlacement_[InLumi]);	
     if (!outputItemList_[InLumi].empty()) fillBranches(outputItemList_[InLumi], lb.groupGetter());

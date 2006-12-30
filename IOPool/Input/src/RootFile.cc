@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.47 2006/12/28 00:24:12 wmtan Exp $
+$Id: RootFile.cc,v 1.48 2006/12/30 01:43:32 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -179,7 +179,7 @@ namespace edm {
     bool isNewLumi = isNewRun || (evAux.luminosityBlockID() != eventAux().luminosityBlockID());
     eventAux_ = evAux;
     if (isNewLumi) {
-      luminosityBlockPrincipal_ = readLumi(pReg, eventID().run(), evAux.luminosityBlockID(), isNewRun);
+      luminosityBlockPrincipal_ = readLumi(pReg, evAux.id().run(), evAux.luminosityBlockID(), isNewRun);
     }
     // We're not done ... so prepare the EventPrincipal
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
@@ -202,7 +202,10 @@ namespace edm {
       return boost::shared_ptr<RunPrincipal const>(new RunPrincipal(runNumber, pReg));
     }
     RootTree::EntryNumber entry = runTree().getExactEntryNumber(runNumber, 0);
-    assert(entry >= 0);
+    if (entry < 0) {
+      throw cms::Exception("NotFound", "RootFile::readRun()")
+        << "Run " << runNumber << " was not found in file " << file_ << "\n";
+    }
     runTree().setEntryNumber(entry);
     RunAux runAux;
     RunAux *pRunAux = &runAux;
@@ -227,7 +230,10 @@ namespace edm {
 	new LuminosityBlockPrincipal(lumiID, pReg, runPrincipal));
     }
     RootTree::EntryNumber entry = lumiTree().getExactEntryNumber(runNumber, lumiID);
-    assert(entry >= 0);
+    if (entry < 0) {
+      throw cms::Exception("NotFound", "RootFile::read()")
+        << "Lumi Block " << lumiID << " in Run " << runNumber << " was not found in file " << file_ << "\n";
+    }
     lumiTree().setEntryNumber(entry);
     LuminosityBlockAux lumiAux;
     LuminosityBlockAux *pLumiAux = &lumiAux;

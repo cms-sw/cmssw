@@ -5,7 +5,7 @@
 
 RootTree.h // used by ROOT input sources
 
-$Id: RootTree.h,v 1.2 2006/12/23 20:55:25 wmtan Exp $
+$Id: RootTree.h,v 1.3 2006/12/28 00:24:12 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -36,9 +36,7 @@ namespace edm {
     RootTree(boost::shared_ptr<TFile> filePtr, BranchType const& branchType);
     ~RootTree() {}
     
-    bool isValid() const {
-      return tree_ != 0 && metaTree_ != 0 && auxBranch_ != 0 && entries_ == metaTree_->GetEntries();
-    }
+    bool isValid() const;
     void addBranch(BranchKey const& key,
 		   BranchDescription const& prod,
 		   std::string const& oldBranchName);

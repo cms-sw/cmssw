@@ -28,6 +28,18 @@ namespace edm {
     }
   }
 
+  bool
+  RootTree::isValid() const {
+    if (metaTree_ == 0) {
+      return tree_ != 0 && auxBranch_ != 0 &&
+	entries_ == 1 &&
+	 tree_->GetNbranches() == 1; 
+    }
+    return tree_ != 0 && auxBranch_ != 0 &&
+	entries_ == metaTree_->GetEntries() &&
+	 tree_->GetNbranches() == metaTree_->GetNbranches() + 1; 
+  }
+
   void
   RootTree::addBranch(BranchKey const& key,
 		      BranchDescription const& prod,
@@ -53,6 +65,7 @@ namespace edm {
 
   void
   RootTree::fillGroups(DataBlockImpl& item) {
+    if (metaTree_ == 0) return;
     // Loop over provenance
     metaTree_->GetEntry(entryNumber_);
     std::vector<BranchEntryDescription>::const_iterator pit = provenance_.begin();
