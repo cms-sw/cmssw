@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2006/09/05 17:31:37 $
- *  \version $Id: RPCDetId.h,v 1.17 2006/09/05 17:31:37 mmaggi Exp $
- *  $Revision: 1.17 $
+ *  $Date: 2006/09/13 09:00:55 $
+ *  \version $Id: RPCDetId.h,v 1.18 2006/09/13 09:00:55 trentad Exp $
+ *  $Revision: 1.18 $
  *  \author Ilaria Segoni
  */
 
@@ -38,6 +38,21 @@ class RPCDetId :public DetId {
 	   int subsector,
 	   int roll);
 	   
+  /// Sort Operator
+  bool operator < (const RPCDetId& r) const{
+    if (r.station() == this->station()){
+      if (this->layer() == r.layer()){
+	return this->rawId()<r.rawId();
+      }
+      else{
+	return (this->layer() < r.layer());
+      }
+    }
+    else {
+      return this->station() < r.station();
+    }
+  }
+
   /// Built from the trigger det Index
   void buildfromTrIndex(int trIndex);
 
