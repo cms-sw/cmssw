@@ -1,7 +1,7 @@
 /** \file RPCDetInfo.cc
  *
- *  $Date: 2006/11/28 11:23:44 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/12/30 16:25:23 $
+ *  $Revision: 1.11 $
  *  \author Tomasz Fruboes
  */
 
@@ -31,6 +31,7 @@ RPCDetInfo::RPCDetInfo(RPCRoll* roll){
   m_roll = detId.roll();
   m_sector = detId.sector();
   m_subsector = detId.subsector();
+
   setHwPlane();
 
   // Determine min and max \eta values
@@ -139,23 +140,23 @@ int RPCDetInfo::getGlobRollNo(){
         hr=-1;
         break;
     }
-
     if (m_ring==0) { // Temp fix for eta problem in barell ring0
-         
-       // std::cout << m_sector << " " << m_subsector << std::endl;
-        if(m_sector ==  1 ||
-           m_sector ==  4 || m_sector ==  5 ||
-           m_sector ==  8 || m_sector ==  9 ||
-           m_sector == 12) 
-          {
-            if (hr==-1)
+  	 
+  	        // std::cout << m_sector << " " << m_subsector << std::endl;
+      if(m_sector ==  1 ||
+         m_sector ==  4 || m_sector ==  5 ||
+         m_sector ==  8 || m_sector ==  9 ||
+         m_sector == 12)
+      {
+          if (hr==-1)
               hr=1;
-            else if (hr==1) 
-              hr=-1;  
-          }  
-    } 
+          else if (hr==1)
+              hr=-1;
+      }
+    }
 
-    if (m_ring >= 0) // 
+
+    if (m_ring >= 0)
       globRoll = m_ring*3-hr;
     else
       globRoll = m_ring*3+hr;
