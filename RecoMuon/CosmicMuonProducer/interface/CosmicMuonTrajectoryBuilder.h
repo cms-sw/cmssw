@@ -2,8 +2,8 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2006/11/03 19:49:37 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/11/06 17:50:15 $
+ *  $Revision: 1.8 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -17,12 +17,17 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class Trajectory;
 class TrajectoryMeasurement;
-class MuonDetLayerMeasurements;
+
+typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
+typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
 
 class CosmicMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
 public:
@@ -45,6 +50,18 @@ public:
 
 private:
 
+  MuonTransientTrackingRecHit::MuonRecHitContainer unusedHits(const DetLayer*, const TrajectoryMeasurement&) const;
+  void print(const MuonTransientTrackingRecHit::MuonRecHitContainer&) const;
+  void print(const TransientTrackingRecHit::ConstRecHitContainer&) const;
+  void explore(Trajectory&, MuonTransientTrackingRecHit::MuonRecHitContainer&);
+  TrajectoryStateOnSurface stepPropagate(const TrajectoryStateOnSurface&,
+                                         const ConstRecHitPointer&) const;
+
+  void selectHits(MuonTransientTrackingRecHit::MuonRecHitContainer&) const;
+  void reverseTrajectory(Trajectory&) const;
+  void updateTrajectory(Trajectory&, const MuonTransientTrackingRecHit::MuonRecHitContainer&);
+
+
   MuonTrajectoryUpdator* theUpdator;
   MuonTrajectoryUpdator* theBKUpdator;
   MuonDetLayerMeasurements* theLayerMeasurements;
@@ -52,6 +69,7 @@ private:
   const MuonServiceProxy *theService;
 
   std::string thePropagatorName;
+  bool theCrossingMuonFlag;
   
 };
 #endif
