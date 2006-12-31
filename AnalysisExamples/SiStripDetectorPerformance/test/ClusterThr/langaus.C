@@ -78,7 +78,7 @@ Double_t langaufun(Double_t *x, Double_t *par) {
 }
 
 
-TF1 *langaufit(TH1F *his, Double_t *fitrange, Double_t *startvalues, Double_t *parlimitslo, Double_t *parlimitshi, Double_t *fitparams, Double_t *fiterrors, Double_t *ChiSqr, Int_t *NDF)
+TF1 *langaufit(TH1F *his, Double_t *fitrange, Double_t *startvalues, Double_t *parlimitslo, Double_t *parlimitshi, Double_t *fitparams, Double_t *fiterrors, Double_t *ChiSqr, Int_t *NDF,char * opts="RB0")
 {
    // Once again, here are the Landau * Gaussian parameters:
    //   par[0]=Width (scale) parameter of Landau density
@@ -113,7 +113,7 @@ TF1 *langaufit(TH1F *his, Double_t *fitrange, Double_t *startvalues, Double_t *p
       ffit->SetParLimits(i, parlimitslo[i], parlimitshi[i]);
    }
 
-   his->Fit(FunName,"RB0");   // fit within specified range, use ParLimits, do not plot
+   his->Fit(FunName,opts);   // fit within specified range, use ParLimits, do not plot
 
    ffit->GetParameters(fitparams);    // obtain fit parameters
    for (i=0; i<4; i++) {
@@ -288,7 +288,7 @@ void langausN( TH1F *poHist,double start=0, double stop=0) {
   poHist->Draw( "pe");
   fitsnr->Draw("lsame");
 }
-void langausN( TH1F *poHist,Double_t& SNRPeak,Double_t& SNRFWHM,double start=0, double stop=0,bool draw=false) {
+void langausN( TH1F *poHist,Double_t& SNRPeak,Double_t& SNRFWHM,double start=0, double stop=0,bool draw=false, char* opts="RB0") {
   // Fill Histogram
   printf("Fitting...\n");
 
@@ -309,7 +309,7 @@ void langausN( TH1F *poHist,Double_t& SNRPeak,Double_t& SNRFWHM,double start=0, 
 
   Double_t chisqr;
   Int_t    ndf;
-  TF1 *fitsnr = langaufit(poHist,fr,sv,pllo,plhi,fp,fpe,&chisqr,&ndf);
+  TF1 *fitsnr = langaufit(poHist,fr,sv,pllo,plhi,fp,fpe,&chisqr,&ndf,opts);
 
   //Double_t SNRPeak, SNRFWHM;
   //langaupro(fp,SNRPeak,SNRFWHM);
