@@ -6,6 +6,7 @@
 <use name=TrackingTools/TrajectoryCleaning>
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/TransientTrackingRecHit>
+<use name=TrackingTools/TrackAssociator>
 <use name=RecoMuon/DetLayers>
 <use name=RecoMuon/Navigation>
 <use name=RecoMuon/TrackingTools>
