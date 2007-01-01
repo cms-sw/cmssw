@@ -5,9 +5,12 @@
   
 
 HcalTBSimParameterMap::HcalTBSimParameterMap() :
-  theHBParameters(2000., 0.3305, 117, 5, 10, 5, true, false),
-  theHEParameters(2000., 0.3305, 178, 5, 10, 5, true, false),
-  theHOParameters(4000., 0.3065, 217, 5, 10, 5, true, false) {}
+  theHBParameters(2000., 0.3305, 117, 5, 10, 5, 
+		  true, false, 1, std::vector<double>(16, 117.)),
+  theHEParameters(2000., 0.3305, 178, 5, 10, 5, 
+		  true, false, 16, std::vector<double>(16, 178.)),
+  theHOParameters(4000., 0.3065, 217, 5, 10, 5, 
+		  true, false, 1, std::vector<double>(16, 217.)) {}
 
 /*
   CaloSimParameters(double photomultiplierGain, double amplifierGain,
@@ -24,7 +27,8 @@ HcalTBSimParameterMap::HcalTBSimParameterMap(const edm::ParameterSet & p) :
 		  p.getUntrackedParameter<int>("readoutFrameSizeTB",10),
 		  p.getUntrackedParameter<int>("binOfMaximumTBHB",5),
 		  p.getUntrackedParameter<bool>("doPhotostatisticsTB",true),
-		  p.getUntrackedParameter<bool>("syncPhaseTB",true)),
+		  p.getUntrackedParameter<bool>("syncPhaseTB",true),
+		  1, std::vector<double>(16, 117.)),
   theHEParameters(p.getUntrackedParameter<double>("photomultiplierGainTBHE",2000.),
 		  p.getUntrackedParameter<double>("amplifierGainTBHE",0.3305),
 		  p.getUntrackedParameter<double>("samplingFactorTBHE",178),
@@ -32,7 +36,8 @@ HcalTBSimParameterMap::HcalTBSimParameterMap(const edm::ParameterSet & p) :
 		  p.getUntrackedParameter<int>("readoutFrameSizeTB",10),
 		  p.getUntrackedParameter<int>("binOfMaximumTBHE",5),
 		  p.getUntrackedParameter<bool>("doPhotostatisticsTB",true),
-		  p.getUntrackedParameter<bool>("syncPhaseTB",true)),
+		  p.getUntrackedParameter<bool>("syncPhaseTB",true),
+		  16, std::vector<double>(16, 178.)),
   theHOParameters(p.getUntrackedParameter<double>("photomultiplierGainTBHE",4000.),
 		  p.getUntrackedParameter<double>("amplifierGainTBHO",.3065),
 		  p.getUntrackedParameter<double>("samplingFactorTBHO",217),
@@ -40,7 +45,8 @@ HcalTBSimParameterMap::HcalTBSimParameterMap(const edm::ParameterSet & p) :
 		  p.getUntrackedParameter<int>("readoutFrameSizeTB",10),
 		  p.getUntrackedParameter<int>("binOfMaximumTBHO",5),
 		  p.getUntrackedParameter<bool>("doPhotostatisticsTB",true),
-		  p.getUntrackedParameter<bool>("syncPhaseTB",true)) {}
+		  p.getUntrackedParameter<bool>("syncPhaseTB",true),
+		  1, std::vector<double>(16, 217.)) {}
 
 
 const CaloSimParameters & HcalTBSimParameterMap::simParameters(const DetId & detId) const {
