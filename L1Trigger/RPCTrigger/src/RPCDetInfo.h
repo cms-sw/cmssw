@@ -83,8 +83,6 @@ class RPCDetInfo{
     float m_phi;    ///< Phi of center of this detId (different than globalPoint.phi() - [0...2PI[)
     float m_phiMin; ///< The lowest phi of strips
     float m_phiMax; ///< The highest phi of strips
-    int m_sector;
-    int m_subsector;   
     int m_towerMin; ///< Lowest tower number to which chamber contributes
     int m_towerMax; ///< Highest tower number to which chamber contributes
     
