@@ -32,6 +32,7 @@ from SVSuite.SVSuiteSpec import loadSpecFile
 
 valid = ['scram-project-dir=',
          'validation-package=', 'packages=', 'version=', 'specs=',
+         'input-dbs=',
          'test-only', ]
 
 usage = \
@@ -40,7 +41,7 @@ Usage: svSuite-run --version=<CMSSW Version>
                    --validation-package=<Path to package>
                    --packages=<Restricted Package List>
                    --specs=<Restricted Spec List>
-
+                   --input-dbs=<DBS/DLS Instance> 
  Options:
    --version is required, it is the version you will be running the jobs with.
     You also need a scram runtime environment setup for this version when
@@ -73,6 +74,12 @@ version = None
 timestamp = int(time.time())
 specList = None
 testMode = False
+inputDBS = None
+
+
+
+
+   
 
 
 for opt, arg in opts:
@@ -84,6 +91,8 @@ for opt, arg in opts:
         scramDir = arg
     if opt == "--test-only":
         testMode = True
+    if opt == '--input-dbs':
+        inputDBS = arg
     if opt == "--packages":
         packages = []
         for pkg in arg.split(","):
@@ -96,6 +105,42 @@ for opt, arg in opts:
             if len(spec.strip()) == 0:
                 continue
             specList.append(spec)
+
+
+
+
+inputDBSDLS = {
+    'DBSAddress': None,
+    'DBSURL' : None,
+    'DLSType' : None,
+    'DLSAddress' : None,
+    }
+
+
+
+if str(inputDBS).lower() not in ("none", "relval", "global"):
+    msg = "Unknown input DBS: %s\n" % inputDBS
+    msg += "Must be one of RelVal or Global if specified"
+    raise RuntimeError, msg
+
+
+if str(inputDBS).lower() == "global":
+    # Global DBS/DLS
+    print "Using Global DBS/DLS for input"
+    inputDBSDLS['DBSAddress'] = "MCGlobal/Writer"
+    inputDBSDLS['DBSURL'] = "http://cmsdbs.cern.ch/cms/prod/comp/DBS/CGIServer/prodquery"
+    inputDBSDLS['DLSType'] = "DLS_TYPE_DLI"
+    inputDBSDLS['DLSAddress'] = "prod-lfc-cms-central.cern.ch/grid/cms/DLS/LFC"
+elif str(inputDBS).lower() == "relval":
+    print "Using RelVal DBS/DLS for input"
+    # RelVal DBS/DLS
+    inputDBSDLS['DBSAddress'] = "RelVal/Writer"
+    inputDBSDLS['DBSURL'] = "http://cmsdbs.cern.ch/cms/prod/comp/DBS/CGIServer/prodquery"
+    inputDBSDLS['DLSType'] = "DLS_TYPE_DLI"
+    inputDBSDLS['DLSAddress'] = "prod-lfc-cms-central.cern.ch/grid/cms/DLS/RelVal"
+
+
+
 
 validationDir = os.path.join(validationPackage, "Validation")
 
@@ -296,7 +341,12 @@ def processSpecInstance(spec):
         workflow.parameters['SplitType'] = splitType
         workflow.parameters['SplitSize'] = splitSize
 
-        
+    if inputDBSDLS['DBSAddress'] != None:
+        workflow.parameters['DBSAddress'] = dbsAddress
+        workflow.parameters['DBSURL'] = dbsUrl
+        workflow.parameters['DLSType'] = dlsType
+        workflow.parameters['DLSAddress'] = dlsAddress
+
 
     cfgFile = os.path.join(validationPackage, spec['Configuration'])
     if not os.path.exists(cfgFile):
@@ -387,6 +437,7 @@ for spec in specs:
             continue
         absPathWorkflow = os.path.join(os.getcwd(), workflow)
         messageService.publish("DatasetInjector:SetWorkflow", absPathWorkflow)
+        messageService.commit()
         messageService.publish("NewWorkflow", absPathWorkflow)
         messageService.commit()
         time.sleep(1)
@@ -414,6 +465,7 @@ for spec in specs:
             continue
         absPathWorkflow = os.path.join(os.getcwd(), workflow)
         messageService.publish("RequestInjector:SetWorkflow", absPathWorkflow)
+        messageService.commit()
         messageService.publish("NewWorkflow", absPathWorkflow)
         messageService.commit()
         time.sleep(1)
