@@ -168,6 +168,14 @@ TrajectoryManager::reconstruct()
 
     }
 
+    // The particle has a pseudo-rapidity (position or momentum direction) 
+    // in excess of 3.0. Just simply go to the last tracker layer
+    // without bothering with all the details of the propagation and 
+    // material effects.
+    if ( PP.vect().cos2Theta() > 0.99 && 
+	 ( cyl == 0 || PP.position().cos2Theta() > 0.99 ) ) 
+      cyliter = _theGeometry->cylinderEnd();
+
     // Loop over the cylinders
     while ( cyliter != _theGeometry->cylinderEnd() &&
 	    loop<100 &&                            // No more than 100 loops
