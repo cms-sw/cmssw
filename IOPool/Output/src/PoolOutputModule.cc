@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.60 2006/12/29 20:49:32 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.61 2006/12/30 16:54:43 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -294,7 +294,7 @@ namespace edm {
 
     // Loop over EDProduct branches, fill the provenance, and write the branch.
     for (OutputItemList::const_iterator i = items.begin();
-	 i != outputItemList_[InEvent].end(); ++i) {
+	 i != items.end(); ++i) {
       ProductID const& id = i->branchDescription_->productID_;
 
       if (id == ProductID()) {
