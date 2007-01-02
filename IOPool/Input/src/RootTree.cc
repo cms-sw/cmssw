@@ -32,12 +32,11 @@ namespace edm {
   RootTree::isValid() const {
     if (metaTree_ == 0) {
       return tree_ != 0 && auxBranch_ != 0 &&
-	entries_ == 1 &&
 	 tree_->GetNbranches() == 1; 
     }
     return tree_ != 0 && auxBranch_ != 0 &&
 	entries_ == metaTree_->GetEntries() &&
-	 tree_->GetNbranches() == metaTree_->GetNbranches() + 1; 
+	 tree_->GetNbranches() <= metaTree_->GetNbranches() + 1; 
   }
 
   void
