@@ -53,13 +53,20 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
   evtCounter=0;
 
   //set parameter defaults 
-  _Monte=false;
+
   _EtaMin=-5.2;
   _EtaMax=5.2;
   _HistName="test.root"; 
-  _PlotRecHits=false; 
-  _PlotDigis=false; 
-  
+
+
+  _Monte=true;
+  _PlotTrigger=false;
+  _PlotRecHits=true;
+  _PlotDigis=true;
+  _PlotDijets=true;
+  _PlotMCParticles=true;
+  _PlotLocalClusters=false;
+
   // If your module takes parameters, here is where you would define
   // their names and types, and access them to initialize internal
   // variables. Example as follows:
@@ -67,7 +74,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
   std::cout << " Beginning JetAnalyzer Analysis " << std::endl;
 
   calojets_   = pSet.getParameter< std::string > ("calojets");
-  genjets_    = pSet.getParameter< std::string > ("genjets");
+  genJets_    = pSet.getParameter< std::string > ("genjets");
   recmet_     = pSet.getParameter< std::string > ("recmet");
   genmet_     = pSet.getParameter< std::string > ("genmet");
   calotowers_ = pSet.getParameter< std::string > ("calotowers");
@@ -88,6 +95,10 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
     else if ( (*iParam) == "HistogramFile" ) _HistName =  myJetParams.getParameter<string>( *iParam );
     else if ( (*iParam) == "PlotRecHits" ) _PlotRecHits =  myJetParams.getParameter<bool>( *iParam );
     else if ( (*iParam) == "PlotDigis" ) _PlotDigis =  myJetParams.getParameter<bool>( *iParam );
+    else if ( (*iParam) == "PlotTrigger" ) _PlotTrigger =  myJetParams.getParameter<bool>( *iParam );
+    else if ( (*iParam) == "PlotDijets" ) _PlotDijets =  myJetParams.getParameter<bool>( *iParam );
+    else if ( (*iParam) == "PlotMCParticles" ) _PlotMCParticles =  myJetParams.getParameter<bool>( *iParam );
+    else if ( (*iParam) == "PlotLocalClusters" ) _PlotLocalClusters =  myJetParams.getParameter<bool>( *iParam );
   }
 
   cout << "---------- Input Parameters ---------------------------" << endl;
@@ -107,7 +118,6 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
   for(int ieta=0;ieta<NETA+1;ieta++){
     cout << " ieta " << ieta << " eta min " << CaloTowerEtaBoundries[ieta] <<endl;
   }
-
 }
 void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) {
 
@@ -145,20 +155,22 @@ void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
 
   // Data objects
 
+  string errMsg("");
+
   evt.getByLabel (calojets_,calojets);
   evt.getByLabel (genmet_,genmet);
   evt.getByLabel (recmet_,recmet);
-  evt.getByLabel (calotowers_,caloTowers);
 
-  bool doRecHits(true);
-  bool doDigis(false);
-  bool doTrigger(false);
-
-
-  string errMsg("");
+  try {
+    evt.getByLabel (calotowers_,caloTowers);
+  } catch (...){
+    errMsg=errMsg + "  -- No CaloTowers";
+  }
 
 
-  if(doRecHits){
+
+
+  if(_PlotRecHits){
     try {
       evt.getByLabel( "ecalRecHit","EcalRecHitsEB", EBRecHits );
     } catch (...) {
@@ -193,7 +205,7 @@ void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
     }
   }
 
-  if(doDigis) {
+  if(_PlotDigis) {
     try {
       //      evt.getByType(HBHEDigis);
       evt.getByLabel( "hcalDigis", HBHEDigis );
@@ -219,7 +231,7 @@ void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
 
   // Trigger Information
   
-  if(doTrigger){
+  if(_PlotTrigger){
     try {
       evt.getByType(trigger);
     } catch (...) {
@@ -227,24 +239,28 @@ void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
     }
   }
 
-  try {
-    evt.getByLabel("VtxSmeared","",genEventHandle);
-    genEvent = genEventHandle->getHepMCData();
+  if(_PlotMCParticles) {
+    try {
+      evt.getByLabel("VtxSmeared","",genEventHandle);
+      genEvent = genEventHandle->getHepMCData();
   
-  } catch (...) {
-    errMsg=errMsg + "  -- No MC truth";
+    } catch (...) {
+      errMsg=errMsg + "  -- No MC truth";
+    }
   }
 
-  try {
-    evt.getByLabel (genjets_,genjets);
-  } catch (...) {
-    errMsg=errMsg + "  -- No GenJets";
-  }
+  if(_Monte) {
+    try {
+      evt.getByLabel (genJets_,genJets);
+    } catch (...) {
+      errMsg=errMsg + "  -- No GenJets";
+    }
 
-  try {
-    evt.getByLabel (genmet_,genmet);
-  } catch (...) {
-    errMsg=errMsg + "  No -- GenMet by Label";
+    try {
+      evt.getByLabel (genmet_,genmet);
+    } catch (...) {
+      errMsg=errMsg + "  No -- GenMet by Label";
+    }
   }
 
   if ((errMsg != "") && (errCnt < errMax())){
@@ -256,18 +272,13 @@ void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
       std::cout << errMsg << std::endl;    
     }
   }
-  // "do stuff"
-  //
 
   //std::cout << " Beginning JetAnalyzer " << std::endl;
+  //  cout <<  " Number of towers " <<  (*caloTowers).size() <<endl;
 
-  (&genjets) ? doGenJets=true : doGenJets=false;
-  (&genmet) ?  doGenMets=true : doGenMets=false;
-  (&genEvent) ? doGenEvent=true : doGenEvent=false;
-  (&trigger) ? doTBTrigger=true : doTBTrigger=false;
+  // Now analyzed the event
 
-  analyze(*calojets,*genjets,*recmet,*genmet,*caloTowers,genEvent,*EBRecHits,*EERecHits,
-	  //	  *HBHERecHits,*HBHEDigis,*HORecHits,*HODigis,*HFRecHits,*HFDigis,*trigger);
+  analyze(*calojets,*genJets,*recmet,*genmet,*caloTowers,genEvent,*EBRecHits,*EERecHits,
   	  *HBHERecHits,*HBHEDigis,*HORecHits,*HODigis,*HFRecHits,*HFDigis,*trigger,*geometry);
 }
 void JetAnalyzer::endJob() {
@@ -319,7 +330,7 @@ void JetAnalyzer::bookHistograms() {
 }
 /** Analyze the hits */
 void JetAnalyzer::analyze( const CaloJetCollection& calojets,
-			   const GenJetCollection& genjets,
+			   const GenJetCollection& genJets,
 			   const CaloMETCollection& recmets,
 			   const GenMETCollection& genmets,
 			   const CaloTowerCollection& caloTowers,
@@ -335,38 +346,38 @@ void JetAnalyzer::analyze( const CaloJetCollection& calojets,
 			   const HcalTBTriggerData& trigger,
   			   const CaloGeometry& caloGeometry){
 
+
+  // count number of events being analyzed 
+
   TString hname="Nevents";
   fillHist1D(hname,1.0);
 
-  //  if (doTBTrigger) fillTBTriggerHists(trigger);
-
-  // Make a copy, so that you can sort
-
-  CaloJetCollection mycalojets=calojets;
-  std::sort(mycalojets.begin(),mycalojets.end(),PtGreater());
-
-  GenJetCollection mygenjets;
-  if (doGenJets) {
-    mygenjets=genjets;
-    std::sort(mygenjets.begin(),mygenjets.end(),PtGreater());
+  if(_PlotTrigger) {
+    if(&trigger) fillTBTriggerHists(trigger);
   }
 
+
   // fill calojet and genjet hists 
-  fillJetHists(mycalojets,"Calo");
-  if (doGenJets)fillJetHists(mygenjets,"Gen");
+  fillJetHists(calojets,"Calo");
+  if (&genJets)fillJetHists(genJets,"Gen");
 
   // fill recmet and genjet hists
   fillMetHists(recmets,"Calo");
-  if (doGenMets)fillMetHists(genmets,"Gen");
 
-  fillCaloTowerHists(caloTowers);
+  if (&genmets) fillMetHists(genmets,"Gen");
 
-  if (doGenJets) CalculateEfficiency(mygenjets,mycalojets);
+  if(&caloTowers) fillCaloTowerHists(caloTowers);
 
-  DiJetBalance(mycalojets,"Calo");
-  if (doGenJets)DiJetBalance(mygenjets,"Gen");
+  if(&genJets) CalculateEfficiency(genJets, calojets);
 
-  if (doGenEvent)fillMCParticles(genEvent);
+  if(_PlotDijets) {
+    DiJetBalance(calojets,"Calo");
+    if (&genJets) DiJetBalance(genJets,"Gen");
+  }
+
+  if(_PlotMCParticles) {
+    if(&genEvent) fillMCParticles(genEvent);
+  }
 
   // Plot RecHits
   if (_PlotRecHits){
@@ -374,119 +385,23 @@ void JetAnalyzer::analyze( const CaloJetCollection& calojets,
     if (&HORecHits) fillRecHits(HORecHits);
     if (&HFRecHits) fillRecHits(HFRecHits);
   }
+
   // Plot Digis
   if (_PlotDigis){
     if (&HBHEDigis) fillDigis(HBHEDigis);
-    if (&HODigis) fillDigis(HODigis);
-    if (&HFDigis) fillDigis(HFDigis);
+    if (&HODigis)   fillDigis(HODigis);
+    if (&HFDigis)   fillDigis(HFDigis);
   }
 
+  // local clustering using caloTowers
 
-
-  std::vector<HepMC::GenParticle> ParentParton;
-  GetParentPartons(genEvent,ParentParton);
-
-  //  int np= ParentParton.size();
-//   for(int i=0;i<np;i++){
-//     cout <<" ParentParton " << ParentParton[i].pdg_id()<<  
-//      " Eta " << ParentParton[i].Momentum().eta()  <<
-//      " Phi " << ParentParton[i].Momentum().phi()  <<
-//      " Pt  " << ParentParton[i].Momentum().perp() << endl;
-//   }
-
-
-  PtSpectrumInSideAJet(genjets,genEvent);
-
-  std::vector<CalCell> CaloTowerList;
-  MakeCaloTowerList(caloGeometry,caloTowers,CaloTowerList);
-
-
-  std::vector<CalCell> EmCalCellList;
-  std::vector<CalCell> HdCalCellList;
-
-  MakeCellListFromCaloTowers(caloGeometry,caloTowers,EBRecHits,EERecHits,HBHERecHits,HORecHits,HFRecHits,EmCalCellList,HdCalCellList);
-
-  std::vector<CalCell> EmCellList;
-  MakeEmCellList(caloGeometry,EBRecHits,EERecHits,EmCellList);
-
-  std::vector<CalCell> HadTowerList;
-  MakeHadCellList(caloTowers,HadTowerList);
-
-  std::vector<CalCell> HadCellList;
-  MakeHadCellList(caloGeometry,HBHERecHits,HORecHits,HFRecHits,HadCellList);
-
-  std::vector<CalCluster> CaloClusterR05List;
-  SimpleConeCluster(ClusterTower,1.0,0.5,0.5,CaloTowerList,CaloClusterR05List);
-
-  std::vector<CalCluster> CaloClusterR03List;
-  SimpleConeCluster(ClusterTower,0.5,0.5,0.3,CaloTowerList,CaloClusterR03List);
-
-  std::vector<CalCluster> CaloClusterR15List;
-  SimpleConeCluster(ClusterTower,0.5,0.5,0.15,CaloTowerList,CaloClusterR15List);
-
-  std::vector<CalCluster> HdClusterR15List;
-  SimpleConeCluster(ClusterHd,0.5,0.5,0.15,HadCellList,HdClusterR15List);
-
-  std::vector<CalCluster> EmClusterR003List;
-  SimpleConeCluster(ClusterEm,0.1,0.1,0.03,EmCellList,EmClusterR003List);
-
-  std::vector<CalCluster> ClusterFromTowerEmCellList;
-  SimpleConeCluster(CaloTowerEm,0.0,0.0,0.5,EmCalCellList,ClusterFromTowerEmCellList);
-
-  std::vector<CalCluster> ClusterFromTowerHdCellList;
-  SimpleConeCluster(CaloTowerHd,0.0,0.0,0.5,HdCalCellList,ClusterFromTowerHdCellList);
-
-  std::vector<CalCluster> EmHdClusterTowerList;
-  MatchEmHadClusters(ClusterFromTowerEmCellList,ClusterFromTowerHdCellList,EmHdClusterTowerList);
-  //  cout <<" Number of clusters " << EmHdClusterList.size() << endl;
-  // cout << " Number of Towers "<< CaloTowerList.size() << " CaloClusters " <<CaloClusterR05List.size() << " Njets " << mycalojets.size() << endl;
-
-  std::vector<CalCluster> EmHdClusterList;
-  MatchEmHadClusters(EmClusterR003List,HdClusterR15List,EmHdClusterList);
-  //  cout <<" Number of clusters " << EmHdClusterList.size() << endl;
-
-  fillSubClusterPlot(CaloClusterR05List,CaloClusterR03List,CaloClusterR15List,HdClusterR15List,
-		     EmClusterR003List,EmHdClusterList);
-
-  double sumEtRecMet(0);
-  double missEtRecMet(0);
-  for (CaloMETCollection::const_iterator met=recmets.begin(); met!=recmets.end(); met++) {
-    missEtRecMet=met->et();
-    sumEtRecMet=met->sumEt();
+  if(_PlotLocalClusters) {
+    if(&genEvent && &genJets){
+      std::vector<HepMC::GenParticle> ParentParton;
+      GetParentPartons(genEvent,ParentParton);
+      PtSpectrumInSideAJet(genJets,genEvent);
+    }
   }
-
-  double sumEtCluster(0.);
-  double missEtCluster(0.);
-
-  double sumEtRecHit(0.);
-  double missEtRecHit(0.);
-
-  CalculateSumEtMET(EmHdClusterTowerList,sumEtCluster,missEtCluster);
-  CalculateSumEtMET(EmHdClusterList,sumEtRecHit,missEtRecHit);
-
-  hname ="dSumEt";  
-  fillHist1D(hname,sumEtRecMet-sumEtCluster);
-
-  hname ="dMet";  
-  fillHist1D(hname,missEtRecMet-missEtCluster);
-
-  hname ="Met2D";  
-  fillHist2D(hname,missEtRecMet,missEtCluster);
-
-  hname ="SumEt2D";  
-  fillHist2D(hname,sumEtRecMet,sumEtCluster);
-
-  hname ="dSumEtR";  
-  fillHist1D(hname,sumEtRecHit-sumEtCluster);
-
-  hname ="dMetR";  
-  fillHist1D(hname,missEtRecHit-missEtCluster);  
-
-  hname ="Met2DR";  
-  fillHist2D(hname,missEtRecHit,missEtCluster);
-
-  hname ="SumEt2DR";  
-  fillHist2D(hname,sumEtRecHit,sumEtCluster);
 }
 
 void JetAnalyzer::bookGeneralHistograms() {
@@ -1085,14 +1000,13 @@ void JetAnalyzer::bookCalculateEfficiency(){
 
 }
 
-
-void JetAnalyzer::CalculateEfficiency(GenJetCollection& genjets, CaloJetCollection& calojets){
+void JetAnalyzer::CalculateEfficiency(const GenJetCollection& genJets,const CaloJetCollection& calojets){
 
   const double GenJetPtCut=10;
   const double GenJetEtaCut=1.0;
   const double RCUT=0.25;
  
-  for(GenJetIter i=genjets.begin();i!=genjets.end(); i++) {
+  for(GenJetIter i=genJets.begin();i!=genJets.end(); i++) {
     Double_t GenJetPt = i->pt();
     Double_t genJetEta = i->eta();
     if(GenJetPt>GenJetPtCut) {
@@ -1232,7 +1146,7 @@ void JetAnalyzer::fillMCParticles(const HepMC::GenEvent genEvent){
     }
   }
 }
-void JetAnalyzer::fillMCParticlesInsideJet(const HepMC::GenEvent genEvent,const GenJetCollection& genjets){
+void JetAnalyzer::fillMCParticlesInsideJet(const HepMC::GenEvent genEvent,const GenJetCollection& genJets){
   
 
   const double GenJetEtaCut=1.0;
@@ -1243,7 +1157,7 @@ void JetAnalyzer::fillMCParticlesInsideJet(const HepMC::GenEvent genEvent,const 
  
 
   int njet=0;
-  for(GenJetIter ijet=genjets.begin();ijet!=genjets.end(); ijet++){
+  for(GenJetIter ijet=genJets.begin();ijet!=genJets.end(); ijet++){
 
       njet++;
       if(njet>10) return;
@@ -2585,8 +2499,118 @@ int  JetAnalyzer::GetPtBin(double GenJetPt){
   }
   return 0;
 }
+void JetAnalyzer::fillTBTriggerHists(const HcalTBTriggerData& trigger){
+
+  cout << " This  method is not implemented yet. " << endl;
+
+}
+
+void JetAnalyzer::MakeLocalClusters(const CaloGeometry& caloGeometry,
+				    const CaloJetCollection& calojets,
+				    const CaloMETCollection& recmets,
+				    const CaloTowerCollection& caloTowers,
+				    const EBRecHitCollection& EBRecHits,
+				    const EERecHitCollection& EERecHits,
+				    const HBHERecHitCollection& HBHERecHits,
+				    const HORecHitCollection& HORecHits,
+				    const HFRecHitCollection& HFRecHits){
+  TString hname; TString htitle;
+
+    std::vector<CalCluster> CaloClusterR05List;
+    std::vector<CalCluster> CaloClusterR03List;
+    std::vector<CalCluster> CaloClusterR15List;
+
+    if (&caloTowers){
+      std::vector<CalCell> CaloTowerList;
+      MakeCaloTowerList(caloGeometry,caloTowers,CaloTowerList);
+      SimpleConeCluster(ClusterTower,1.0,0.5,0.5,CaloTowerList,CaloClusterR05List);
+      SimpleConeCluster(ClusterTower,0.5,0.5,0.3,CaloTowerList,CaloClusterR03List);
+      SimpleConeCluster(ClusterTower,0.5,0.5,0.15,CaloTowerList,CaloClusterR15List);
+    }
+
+  //   do local clustering using rechits
+
+    if ((&caloTowers) && (&EBRecHits) && (&EERecHits) && (&HBHERecHits && (&HORecHits) && (&HFRecHits)) ){
+      std::vector<CalCell> EmCalCellList;
+      std::vector<CalCell> HdCalCellList;
+
+      MakeCellListFromCaloTowers(caloGeometry,caloTowers,EBRecHits,EERecHits,HBHERecHits,HORecHits,HFRecHits,EmCalCellList,HdCalCellList);
+
+      std::vector<CalCell> EmCellList;
+      MakeEmCellList(caloGeometry,EBRecHits,EERecHits,EmCellList);
+
+      std::vector<CalCell> HadTowerList;
+      MakeHadCellList(caloTowers,HadTowerList);
+
+      std::vector<CalCell> HadCellList;
+      MakeHadCellList(caloGeometry,HBHERecHits,HORecHits,HFRecHits,HadCellList);
 
 
+      std::vector<CalCluster> HdClusterR15List;
+      SimpleConeCluster(ClusterHd,0.5,0.5,0.15,HadCellList,HdClusterR15List);
+
+      std::vector<CalCluster> EmClusterR003List;
+      SimpleConeCluster(ClusterEm,0.1,0.1,0.03,EmCellList,EmClusterR003List);
+
+      std::vector<CalCluster> ClusterFromTowerEmCellList;
+      SimpleConeCluster(CaloTowerEm,0.0,0.0,0.5,EmCalCellList,ClusterFromTowerEmCellList);
+
+      std::vector<CalCluster> ClusterFromTowerHdCellList;
+      SimpleConeCluster(CaloTowerHd,0.0,0.0,0.5,HdCalCellList,ClusterFromTowerHdCellList);
+
+      std::vector<CalCluster> EmHdClusterTowerList;
+      MatchEmHadClusters(ClusterFromTowerEmCellList,ClusterFromTowerHdCellList,EmHdClusterTowerList);
+    //  cout <<" Number of clusters " << EmHdClusterList.size() << endl;
+    // cout << " Number of Towers "<< CaloTowerList.size() << " CaloClusters " <<CaloClusterR05List.size() << " Njets " << calojets.size() << endl;
+
+      std::vector<CalCluster> EmHdClusterList;
+      MatchEmHadClusters(EmClusterR003List,HdClusterR15List,EmHdClusterList);
+    //  cout <<" Number of clusters " << EmHdClusterList.size() << endl;
+
+      fillSubClusterPlot(CaloClusterR05List,CaloClusterR03List,CaloClusterR15List,HdClusterR15List,
+		       EmClusterR003List,EmHdClusterList);
 
 
+      double sumEtRecMet(0);
+      double missEtRecMet(0);
+      for (CaloMETCollection::const_iterator met=recmets.begin(); met!=recmets.end(); met++){
+	missEtRecMet=met->et();
+	sumEtRecMet=met->sumEt();
+      }
+
+      double sumEtCluster(0.);
+      double missEtCluster(0.);
+
+      double sumEtRecHit(0.);
+      double missEtRecHit(0.);
+
+      CalculateSumEtMET(EmHdClusterTowerList,sumEtCluster,missEtCluster);
+      CalculateSumEtMET(EmHdClusterList,sumEtRecHit,missEtRecHit);
+
+      hname ="dSumEt";
+      fillHist1D(hname,sumEtRecMet-sumEtCluster);
+
+  hname ="dMet";  
+  fillHist1D(hname,missEtRecMet-missEtCluster);
+
+  hname ="Met2D";  
+  fillHist2D(hname,missEtRecMet,missEtCluster);
+
+  hname ="SumEt2D";  
+  fillHist2D(hname,sumEtRecMet,sumEtCluster);
+
+  hname ="dSumEtR";  
+  fillHist1D(hname,sumEtRecHit-sumEtCluster);
+
+  hname ="dMetR";  
+  fillHist1D(hname,missEtRecHit-missEtCluster);  
+
+  hname ="Met2DR";  
+  fillHist2D(hname,missEtRecHit,missEtCluster);
+
+  hname ="SumEt2DR";  
+  fillHist2D(hname,sumEtRecHit,sumEtCluster);
+  
+    }
+}
 

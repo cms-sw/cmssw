@@ -51,7 +51,7 @@
 
 /** \class JetAnalyzer
   *  
-  * $Date: 2006/09/15 21:36:33 $
+  * $Date: 2006/12/22 16:08:39 $
   * $Revision: 1.2 $
   * \author L. Apanasevich - UIC and Anwar Bhatti
   */
@@ -92,6 +92,17 @@ public:
 	       const HcalTBTriggerData& trigger,
 	       const CaloGeometry& geom);
 
+  void MakeLocalClusters(const CaloGeometry& caloGeometry,
+			 const CaloJetCollection& calojets,
+			 const CaloMETCollection& recmets,
+			 const CaloTowerCollection& caloTowers,
+			 const EBRecHitCollection& EBRecHits,
+			 const EERecHitCollection& EERecHits,
+			 const HBHERecHitCollection& HBHERecHits,
+			 const HORecHitCollection& HORecHits,
+			 const HFRecHitCollection& HFRecHits);
+
+
   void dummyAnalyze(
 	       const CaloGeometry& geom);
   /** Finalization (close files, etc) */
@@ -102,7 +113,7 @@ public:
   void bookGeneralHistograms();
 
   void bookTBTriggerHists();
-  // void fillTBTriggerHists(const HcalTBTriggerData& trigger);
+  void fillTBTriggerHists(const HcalTBTriggerData& trigger);
 
   void bookCaloTowerHists();
   void fillCaloTowerHists(const CaloTowerCollection& caloTowers);
@@ -150,7 +161,7 @@ public:
   template <typename T> void fillDigis(const T& digis);
 
   void bookCalculateEfficiency();
-  void CalculateEfficiency(GenJetCollection& genjets,CaloJetCollection& calojets);
+  void CalculateEfficiency(const GenJetCollection& genJets,const CaloJetCollection& calojets);
 
   void bookDiJetBalance(const TString& prefix);
   template <typename T> void DiJetBalance(const T& jets, const TString& prefix);
@@ -158,7 +169,7 @@ public:
   void bookMCParticles();
   void fillMCParticles(const HepMC::GenEvent mctruth);
   void bookMCParticles(const TString& prefix );
-  void fillMCParticlesInsideJet(const HepMC::GenEvent genEvent,const GenJetCollection& genjets);
+  void fillMCParticlesInsideJet(const HepMC::GenEvent genEvent,const GenJetCollection& genJets);
 
   void GetIntegratedEnergy(GenJetCollection::const_iterator ijet,int nbin,const HepMC::GenEvent genEvent,std::vector<double>& Bins,std::vector<double>& e,std::vector<double>& pt);
 
@@ -197,14 +208,21 @@ public:
 
 private:
 
-  std::string calojets_,genjets_,recmet_,genmet_,calotowers_;
+  std::string calojets_,genJets_,recmet_,genmet_,calotowers_;
   int errCnt;
   const int errMax(){return 100;}
 
-  //  edm::Handle<edm::HepMCProduct> genEventHandle;
+  int evtCounter;
+
   HepMC::GenEvent genEvent;
+
+  //  const CaloTowerCollection caloTowers_;
+
+
+  double _EtaMin,_EtaMax;
+
   edm::Handle<CaloJetCollection> calojets;
-  edm::Handle<GenJetCollection>  genjets;
+  edm::Handle<GenJetCollection>  genJets;
   edm::Handle<CaloMETCollection> recmet;
   edm::Handle<GenMETCollection>  genmet;
   edm::Handle<CaloTowerCollection> caloTowers;
@@ -212,11 +230,13 @@ private:
 
   // input variables
   string _HistName; // Name of histogram file
-  bool _Monte,_PlotRecHits,_PlotDigis;
-  double _EtaMin,_EtaMax;
-
-  int evtCounter;
-  bool doGenJets, doGenMets, doGenEvent, doTBTrigger;
+  bool _Monte;
+  bool _PlotTrigger;
+  bool _PlotRecHits;
+  bool _PlotDigis;
+  bool _PlotDijets;
+  bool _PlotMCParticles;
+  bool _PlotLocalClusters;
 
   const double etaBarrel() {return 1.4;}
 
