@@ -16,14 +16,19 @@ namespace edmtest {
   class ThingProducer : public edm::EDProducer {
   public:
 
-    // The following is not yet used, but will be the primary
-    // constructor when the parameter set system is available.
-    //
     explicit ThingProducer(edm::ParameterSet const& ps);
 
     virtual ~ThingProducer();
 
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
+
+    virtual void beginRun(edm::Run& r, edm::EventSetup const& c);
+
+    virtual void endRun(edm::Run& r, edm::EventSetup const& c);
+
+    virtual void beginLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const& c);
+
+    virtual void endLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const& c);
 
   private:
     ThingAlgorithm alg_;
