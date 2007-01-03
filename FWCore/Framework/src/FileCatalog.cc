@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.cc,v 1.8 2006/10/05 19:36:32 wmtan Exp $
+// $Id: FileCatalog.cc,v 1.9 2006/10/05 22:00:25 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -51,21 +51,8 @@ namespace edm {
         throw edm::Exception(edm::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
 	  << "Empty 'fileNames' parameter specified for input source.\n";
     }
-    if (url().empty()) {
-      // For reading use the catalog specified in the site-local config file
-      url() = Service<edm::SiteLocalConfig>()->dataCatalog();
-      std::cout << "Using the site default catalog: " << url() << std::endl;
-    } else {
-      url() = toPhysical(url());
-    }
-    pool::URIParser parser(url());
-    parser.parse();
-
-    catalog().addReadCatalog(parser.contactstring());
-    catalog().connect();
-
     // Starting the catalog will write a catalog out if it does not exist.
-    // So, do not start the catalog unless it is needed.
+    // So, do not start (or even read) the catalog unless it is needed.
 
     fileCatalogItems_.reserve(fileNames_.size());
     typedef std::vector<std::string>::iterator iter;
@@ -80,6 +67,19 @@ namespace edm {
       } else {
         boost::trim(*lt);
 	if (!active()) {
+	  if (url().empty()) {
+	    // For reading use the catalog specified in the site-local config file
+	    url() = Service<edm::SiteLocalConfig>()->dataCatalog();
+	    std::cout << "Using the site default catalog: " << url() << std::endl;
+	  } else {
+	    url() = toPhysical(url());
+	  }
+	  pool::URIParser parser(url());
+	  parser.parse();
+
+	  catalog().addReadCatalog(parser.contactstring());
+	  catalog().connect();
+
           catalog().start();
 	  setActive();
         }
@@ -108,6 +108,12 @@ namespace edm {
     } else {
       std::string fileType;
       action.lookupBestPFN(fid, pool::FileCatalog::READ, pool::FileCatalog::SEQUENTIAL, pfn, fileType);
+      if (pfn.empty() && !noThrow) {
+        throw cms::Exception("LogicalFileNameNotFound", "FileCatalog::findFile()\n")
+	  << "Logical file name '" << lfn << "' was not found in the file catalog.\n"
+	  << "If you wanted a local file, you forgot the 'file:' prefix\n"
+	  << "before the file name in your configuration file.\n";
+      }
     }
   }
 
