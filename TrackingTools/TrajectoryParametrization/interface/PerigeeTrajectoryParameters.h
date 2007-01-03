@@ -16,10 +16,6 @@ class PerigeeTrajectoryParameters
 {
 
 public:
-  /// parameter dimension
-  enum { dimension = 5 };
-  /// parameter vector
-  typedef math::Vector<dimension>::type ParameterVector;
 
   PerigeeTrajectoryParameters() {}
 
@@ -43,20 +39,6 @@ public:
       theCharge = theCurv>0 ? -1 : 1;
     else
       theCharge = 0;
-  }
-
-  PerigeeTrajectoryParameters(const ParameterVector & perigeePar ) :
-    theCurv(perigeePar(reco::TrackBase::i_transverseCurvature)), theTheta(perigeePar(reco::TrackBase::i_theta)),
-    thePhi(perigeePar(reco::TrackBase::i_phi0)), theTip(perigeePar(reco::TrackBase::i_d0)), 
-    theLip(perigeePar(reco::TrackBase::i_dz)),
-    vectorIsAvailable(false)
-  {
-    theCharge = theCurv>0 ? -1 : 1;
-  }
-
-  operator ParameterVector() const 
-  {
-    return ParameterVector( theCurv, theTheta, thePhi, theTip, theLip );
   }
 
   /**

@@ -18,27 +18,6 @@ TrajectoryStateClosestToPoint(const FTS& originalFTS, const GlobalPoint& referen
 }
 
 
-TrajectoryStateClosestToPoint::
-TrajectoryStateClosestToPoint(const ParameterVector & perigeePar, double pt, 
-			      const GlobalPoint& referencePoint, const MagneticField* field) :
-  theField(field), theFTSavailable(false), theRefPoint(referencePoint),
-  theParameters(perigeePar), thePt( pt ), errorIsAvailable(false)
-{
-//   theParameters = perigeeConversions.helixToPerigeeParameters(helixPar, referencePoint);
-}
-
-
-TrajectoryStateClosestToPoint::
-TrajectoryStateClosestToPoint(const ParameterVector & perigeePar, double pt,
-	const CovarianceMatrix & perigeeCov, const GlobalPoint& referencePoint,
-	const MagneticField* field) :
-  theField(field), theFTSavailable(false), theRefPoint(referencePoint), theParameters(perigeePar),
-  thePt( pt ), thePerigeeError(perigeeCov), errorIsAvailable(true)
-{
-//   theParameters = perigeeConversions.helixToPerigeeParameters(helixPar, referencePoint);
-//   thePerigeeError = perigeeConversions.helixToPerigeeError(helixPar, helixCov);
-}
-
   /**
    * Public constructor, which is used to convert perigee 
    * parameters to a FreeTrajectoryState. For the case where

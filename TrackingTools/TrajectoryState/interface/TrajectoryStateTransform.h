@@ -23,6 +23,8 @@ public:
 
   /// Construct a FreeTrajectoryState from the reco::Track innermost or outermost state, 
   /// does not require access to tracking geometry
+  FreeTrajectoryState initialFreeState( const reco::Track& tk,
+				      const MagneticField* field) const;
   FreeTrajectoryState innerFreeState( const reco::GsfTrack& tk,
 				      const MagneticField* field) const;
   FreeTrajectoryState innerFreeState( const reco::Track& tk,

@@ -24,12 +24,6 @@ class TrajectoryStateClosestToPoint
   typedef TrajectoryStateOnSurface	TSOS;
   typedef FreeTrajectoryState		FTS;
   /// parameter dimension
-  enum { dimension = 5 };
-  /// parameter vector
-  typedef math::Vector<dimension>::type ParameterVector;
-  /// 5 parameter covariance matrix
-  typedef math::Error<dimension>::type CovarianceMatrix;
-
 
 public:
 
@@ -53,15 +47,6 @@ public:
   TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters, double pt,
     const PerigeeTrajectoryError& perigeeError, const GlobalPoint& referencePoint,
     const MagneticField* field);
-
-
-  TrajectoryStateClosestToPoint(const ParameterVector &, double pt,
-	const GlobalPoint& referencePoint, const MagneticField* field);
-
-
-  TrajectoryStateClosestToPoint(const ParameterVector &, double pt,
-	const CovarianceMatrix &, const GlobalPoint& referencePoint,
-	const MagneticField* field);
 
 
   /**

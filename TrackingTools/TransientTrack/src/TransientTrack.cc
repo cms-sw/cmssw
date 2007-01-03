@@ -12,52 +12,66 @@
 using namespace reco;
 
 TransientTrack::TransientTrack() : 
-  //  Track(tk), tk_(&tk), tkr_(0), stateAtVertexAvailable(false) 
-  Track(), tkr_(), theField(0), stateAtVertexAvailable(false) 
+  Track(), tkr_(), theField(0), initialTSOSAvailable(false),
+  initialTSCPAvailable(false)
 {
-  originalTSCP = TrajectoryStateClosestToPoint
-    (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
+//   initialTSCP = TrajectoryStateClosestToPoint
+//     (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
 }
 
 TransientTrack::TransientTrack( const Track & tk , const MagneticField* field) : 
-  //  Track(tk), tk_(&tk), tkr_(0), stateAtVertexAvailable(false) 
-  Track(tk), tkr_(), theField(field), stateAtVertexAvailable(false) 
+  //  Track(tk), tk_(&tk), tkr_(0), initialTSOSAvailable(false) 
+  Track(tk), tkr_(), theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false) 
 {
-  originalTSCP = TrajectoryStateClosestToPoint
-    (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
+  TrajectoryStateTransform theTransform;
+  initialFTS = theTransform.initialFreeState(tk, field);
+//   initialTSCP = TrajectoryStateClosestToPoint
+//     (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
 }
 
 
 TransientTrack::TransientTrack( const TrackRef & tk , const MagneticField* field) : 
-  //  Track(*tk), tk_(&(*tk)), tkr_(&tk), stateAtVertexAvailable(false) 
-  Track(*tk), tkr_(tk), theField(field), stateAtVertexAvailable(false) 
+  //  Track(*tk), tk_(&(*tk)), tkr_(&tk), initialTSOSAvailable(false) 
+  Track(*tk), tkr_(tk), theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false)
 {
-  originalTSCP = TrajectoryStateClosestToPoint
-    (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
+  TrajectoryStateTransform theTransform;
+  initialFTS = theTransform.initialFreeState(*tk, field);
+//   initialTSCP = TrajectoryStateClosestToPoint
+//     (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
 }
 
 TransientTrack::TransientTrack( const Track & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
-  Track(tk), tkr_(), theField(field), stateAtVertexAvailable(false), theTrackingGeometry(tg)
+  Track(tk), tkr_(), theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false), theTrackingGeometry(tg)
 {
-  originalTSCP = TrajectoryStateClosestToPoint
-    (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
+  TrajectoryStateTransform theTransform;
+  initialFTS = theTransform.initialFreeState(tk, field);
+//   initialTSCP = TrajectoryStateClosestToPoint
+//     (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
 }
 
 TransientTrack::TransientTrack( const TrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
-  Track(*tk), tkr_(tk), theField(field), stateAtVertexAvailable(false), theTrackingGeometry(tg)
+  Track(*tk), tkr_(tk), theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false), theTrackingGeometry(tg)
 {
-  originalTSCP = TrajectoryStateClosestToPoint
-    (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
+  TrajectoryStateTransform theTransform;
+  initialFTS = theTransform.initialFreeState(*tk, field);
+//   initialTSCP = TrajectoryStateClosestToPoint
+//     (parameters(), pt(), covariance(), GlobalPoint(0.,0.,0.), theField);
 }
 
 
 TransientTrack::TransientTrack( const TransientTrack & tt ) :
-  Track(tt), tkr_(tt.persistentTrackRef()), theField(tt.field()), stateAtVertexAvailable(false) 
+  Track(tt), tkr_(tt.persistentTrackRef()), theField(tt.field()), 
+  initialFTS(tt.initialFreeState()), initialTSOSAvailable(false),
+  initialTSCPAvailable(false)
 {
 //   std::cout << "construct from TransientTrack" << std::endl;
-  originalTSCP = tt.impactPointTSCP();
-  if (tt.stateAtVertexAvailable) theStateAtVertex= tt.impactPointState();
-//   originalTSCP = TrajectoryStateClosestToPoint
+//   initialTSCP = tt.impactPointTSCP();
+  if (tt.initialTSOSAvailable) initialTSOS= tt.impactPointState();
+//   initialTSCP = TrajectoryStateClosestToPoint
 //     (parameters(), covariance(), GlobalPoint(0.,0.,0.), theField);
 //   std::cout << "construct from TransientTrack OK" << std::endl;
 }
@@ -75,11 +89,12 @@ TransientTrack& TransientTrack::operator=(const TransientTrack & tt) {
   //  tk_ = tt.tk_;
 //   std::cout << "assign ref." << std::endl;
   tkr_ = tt.persistentTrackRef();
-//   std::cout << "done assign ref." << std::endl;
-  originalTSCP = tt.originalTSCP;
-  stateAtVertexAvailable = tt.stateAtVertexAvailable;
-  theStateAtVertex = tt.theStateAtVertex;
+  initialTSOSAvailable =  tt.initialTSOSAvailable;
+  initialTSCPAvailable = tt.initialTSCPAvailable;
+  initialTSCP = tt.initialTSCP;
+  initialTSOS = tt.initialTSOS;
   theField = tt.field();
+  initialFTS = tt.initialFreeState();
 //   std::cout << "assign op. OK" << std::endl;
   
   return *this;
@@ -100,8 +115,17 @@ void TransientTrack::setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeome
 
 TrajectoryStateOnSurface TransientTrack::impactPointState() const
 {
-  if (!stateAtVertexAvailable) calculateStateAtVertex();
-  return theStateAtVertex;
+  if (!initialTSOSAvailable) calculateTSOSAtVertex();
+  return initialTSOS;
+}
+
+TrajectoryStateClosestToPoint TransientTrack::impactPointTSCP() const
+{
+  if (!initialTSCPAvailable) {
+    initialTSCP = builder(initialFTS, initialFTS.position());
+    initialTSCPAvailable = true;
+  }
+  return initialTSCP;
 }
 
 TrajectoryStateOnSurface TransientTrack::outermostMeasurementState() const
@@ -120,17 +144,13 @@ TrajectoryStateOnSurface TransientTrack::innermostMeasurementState() const
 
 }
 
-void TransientTrack::calculateStateAtVertex() const
+void TransientTrack::calculateTSOSAtVertex() const
 {
-  //  edm::LogInfo("TransientTrack") 
-  //    << "initial state validity:" << originalTSCP.theState() << "\n";
   TransverseImpactPointExtrapolator tipe(theField);
-  theStateAtVertex = tipe.extrapolate(
-     originalTSCP.theState(), originalTSCP.position());
+  initialTSOS = tipe.extrapolate(initialFTS, initialFTS.position());
  //   edm::LogInfo("TransientTrack") 
 //      << "extrapolated state validity:" 
-//      << theStateAtVertex.isValid() << "\n";
-  
-  stateAtVertexAvailable = true;
+//      << initialTSOS.isValid() << "\n";
+  initialTSOSAvailable = true;
 }
 

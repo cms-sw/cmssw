@@ -16,17 +16,11 @@ class PerigeeTrajectoryError
 {
 
 public:
-  /// parameter dimension
-  enum { dimension = 5 };
-  /// 5 parameter covariance matrix
-  typedef math::Error<dimension>::type CovarianceMatrix;
 
   PerigeeTrajectoryError() {}
 
   PerigeeTrajectoryError(AlgebraicSymMatrix aPerigeeError):
     thePerigeeError(aPerigeeError), weightIsAvailable(false) {}
-
-  PerigeeTrajectoryError(const CovarianceMatrix & perigeeCov);
 
   /**
    * The covariance matrix
@@ -49,8 +43,31 @@ public:
     }
     return thePerigeeWeight;
   }
+  double transverseCurvatureError() const {return thePerigeeError(1,1);}
 
-  operator CovarianceMatrix() const;
+  /**
+   * The theta angle
+   */
+
+  double thetaError() const {return thePerigeeError(2,2);}
+
+  /**
+   * The phi angle
+   */
+
+  double phiError() const {return thePerigeeError(3,3);}
+
+  /**
+   * The (signed) transverse impact parameter
+   */
+
+  double transverseImpactParameterError() const {return thePerigeeError(4,4);}
+
+  /**
+   * The longitudinal impact parameter
+   */
+
+  double longitudinalImpactParameterError() const {return thePerigeeError(5,5);}
 
 
 private:

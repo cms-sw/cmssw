@@ -49,6 +49,18 @@ TrajectoryStateTransform::transientState( const PTrajectoryStateOnDet& ts,
 
 }
 
+FreeTrajectoryState TrajectoryStateTransform::initialFreeState( const reco::Track& tk,
+							      const MagneticField* field) const
+{
+  Basic3DVector<float> pos( tk.vertex());
+  GlobalPoint gpos( pos);
+  Basic3DVector<float> mom( tk.momentum());
+  GlobalVector gmom( mom);
+  GlobalTrajectoryParameters par( gpos, gmom, tk.charge(), field);
+  CurvilinearTrajectoryError err( tk.covariance());
+  return FreeTrajectoryState( par, err);
+}
+
 FreeTrajectoryState TrajectoryStateTransform::innerFreeState( const reco::Track& tk,
 							      const MagneticField* field) const
 {

@@ -37,19 +37,20 @@ namespace reco {
 
     void setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& );
 
+    FreeTrajectoryState initialFreeState() const {return initialFTS;}
+
     TrajectoryStateOnSurface outermostMeasurementState() const;
 
     TrajectoryStateOnSurface innermostMeasurementState() const;
 
     TrajectoryStateClosestToPoint 
       trajectoryStateClosestToPoint( const GlobalPoint & point ) const
-      {return builder(originalTSCP.theState(), point);}
+      {return builder(initialTSCP.theState(), point);}
 
-    TrajectoryStateClosestToPoint impactPointTSCP() const
-      {return originalTSCP;}
+    TrajectoryStateClosestToPoint impactPointTSCP() const;
 
     TrajectoryStateOnSurface impactPointState() const;
-    bool impactPointStateAvailable() const {return  stateAtVertexAvailable;}
+    bool impactPointStateAvailable() const {return  initialTSOSAvailable;}
 
     // access to original persistent track
     //    const Track & persistentTrack() const { return *tk_; }
@@ -59,21 +60,22 @@ namespace reco {
 
     bool operator== (const TransientTrack & a) const {return (a.persistentTrackRef()==tkr_);}
     bool operator< (const TransientTrack & a) const 
-      {return (originalTSCP.momentum().z()<a.impactPointTSCP().momentum().z());}
+      {return (initialFTS.momentum().z()<a.initialFreeState().momentum().z());}
 
     const MagneticField* field() const {return theField;}
 
 
   private:
 
-    void calculateStateAtVertex() const;
+    void calculateTSOSAtVertex() const;
 
     TrackRef tkr_;
     const MagneticField* theField;
 
-    TrajectoryStateClosestToPoint originalTSCP;
-    mutable bool stateAtVertexAvailable;
-    mutable TrajectoryStateOnSurface theStateAtVertex;
+    FreeTrajectoryState initialFTS;
+    mutable bool initialTSOSAvailable, initialTSCPAvailable;
+    mutable TrajectoryStateOnSurface initialTSOS;
+    mutable TrajectoryStateClosestToPoint initialTSCP;
     TSCPBuilderNoMaterial builder;
     edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
 
