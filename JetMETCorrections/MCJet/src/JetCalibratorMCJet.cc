@@ -35,28 +35,30 @@ double ParametrizationMCJet::value(double e)const{
       double koef = 1.;
       double JetCalibrEt = e;
       double x=e;
+      double etConstantResponse=5.;//Beneath this corrected Et response is held constant
 
-      if ( e<10. ) JetCalibrEt=10.;
+      if ( e<etConstantResponse ) JetCalibrEt=etConstantResponse;  
 
-           for (int ie=0; ie<10; ie++) {
+      for (int ie=0; ie<10; ie++) { //10 iterations garantees convergence
 
-	   if ( JetCalibrEt<10. ) JetCalibrEt=10.; 
+          if ( JetCalibrEt<etConstantResponse ) JetCalibrEt=etConstantResponse; 
 
-	     if (JetCalibrEt < p[1]) {
-	      koef = p[3]*sqrt(JetCalibrEt +p[4]) + p[5];
-	     }
+	  if (JetCalibrEt < p[1]) {
+	    koef = p[3]*sqrt(fabs(JetCalibrEt +p[4])) + p[5];
+	  }
 
-	     else if (JetCalibrEt < p[2]) {
-	      koef = w1 + JetCalibrEt*w2;
-	     }
+	  else if (JetCalibrEt < p[2]) {
+	    koef = w1 + JetCalibrEt*w2;
+	  }
 
-	     else if (JetCalibrEt > p[2]) {
-	      koef = p[6]/(sqrt(fabs(p[7]*JetCalibrEt + p[8]))) + p[9];
-	     }
-	     
-	     JetCalibrEt = x / koef;
+	  else if (JetCalibrEt > p[2]) {
+	    koef = p[6]/(sqrt(fabs(p[7]*JetCalibrEt + p[8]))) + p[9];
+	  }
 
-	     }
+	  if(koef<0.1)koef=0.1;
+	  JetCalibrEt = x / koef;
+
+      }
 
       enew=e/koef;
 
@@ -151,7 +153,7 @@ reco::CaloJet JetCalibratorMCJet::applyCorrection( const reco::CaloJet& fJet)
 
     //if(eta<10) { eta=fabs(fJet.getY()); }
     
-    cout<<" Et and eta of jet "<<et<<" "<<eta<<endl;
+    //cout<<" Et and eta of jet "<<et<<" "<<eta<<endl;
 
     double etnew;
     std::map<double,ParametrizationMCJet*>::const_iterator ip=parametrization.upper_bound(eta);
@@ -170,14 +172,14 @@ reco::CaloJet JetCalibratorMCJet::applyCorrection( const reco::CaloJet& fJet)
           }
 	 //theJet*=etnew/et;
 	 
-	 cout<<" The new energy found "<<etnew<<" "<<et<<endl;
+	 //cout<<" The new energy found "<<etnew<<" "<<et<<endl;
 
          float mScale = etnew/et;
          Jet::LorentzVector common (fJet.px()*mScale, fJet.py()*mScale,
                            fJet.pz()*mScale, fJet.energy()*mScale);
 
-         reco::CaloJet theJet (common, fJet.getSpecific (), fJet.getJetConstituents());
-	 cout<<" The new jet is created "<<endl;
+         reco::CaloJet theJet (common, fJet.getSpecific (), fJet.getTowerIndices());
+	 //cout<<" The new jet is created "<<endl;
 	 		
      return theJet;
 }
