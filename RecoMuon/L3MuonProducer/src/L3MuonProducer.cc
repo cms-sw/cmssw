@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a L2 reonstructed muon.
  *
- *   $Date: $
- *   $Revision: $
+ *   $Date: 2006/11/10 17:24:17 $
+ *   $Revision: 1.1 $
  *   \author  A. Everett - Purdue University
  */
 
@@ -47,6 +47,9 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
   // L2 Muon Collection Label
   theL2CollectionLabel = parameterSet.getParameter<InputTag>("MuonCollectionLabel");
 
+  // L2 semi-persistent flag
+  theL2TrajectoryFlag = parameterSet.getParameter<bool>("MuonTrajectoryAvailable");
+
   // service parameters
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
 
@@ -59,7 +62,7 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
   // instantiate the concrete trajectory builder in the Track Finder
   GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(trajectoryBuilderParameters, theService);
   theTrackFinder = new MuonTrackFinder(gmtb, new MuonTrackLoader(trackLoaderParameters, theService) );
-  
+
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
@@ -86,7 +89,7 @@ L3MuonProducer::~L3MuonProducer() {
 // reconstruct muons
 //
 void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
-  const string metname = "L3MuonProducer";  
+  const string metname = "Muon|RecoMuon|L3MuonProducer";  
   LogDebug(metname)<<endl<<endl<<endl;
   LogDebug(metname)<<"L3 Muon Reconstruction started"<<endl;  
 
@@ -103,13 +106,10 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   Handle<vector<Trajectory> > L2MuonsTraj;
 
-  try {
+  if(theL2TrajectoryFlag) {
     event.getByLabel(theL2CollectionLabel,L2MuonsTraj);      
     LogDebug(metname)<<"Track Reconstruction (tracks, trajs) "<< L2Muons.product()->size() << " " << L2MuonsTraj.product()->size() <<endl;
-      
-  } catch (...) {
-    LogDebug(metname)<<"Track Reconstruction (L2Tracks)"<<endl;
-  }
+  }   
 
   theTrackFinder->reconstruct(L2Muons, L2MuonsTraj, event);      
 

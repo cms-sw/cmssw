@@ -8,8 +8,8 @@
  *   information,<BR>
  *   starting from a L2 reonstructed muon.
  *
- *   $Date: $
- *   $Revision: $
+ *   $Date: 2006/11/10 17:24:17 $
+ *   $Revision: 1.1 $
  *   \author  A. Everett - Purdue University
  */
 
@@ -39,6 +39,8 @@ class L3MuonProducer : public edm::EDProducer {
   /// Seed STA Label
   edm::InputTag theL2CollectionLabel;
   
+  bool theL2TrajectoryFlag;
+
   MuonTrackFinder* theTrackFinder;
     
   /// the event setup proxy, it takes care the services update
