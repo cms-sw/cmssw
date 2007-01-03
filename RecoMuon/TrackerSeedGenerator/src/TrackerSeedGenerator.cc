@@ -3,8 +3,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2006/11/08 08:04:54 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/11/10 17:27:21 $
+ *  $Revision: 1.9 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -54,6 +54,9 @@
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "RecoMuon/GlobalMuonProducer/src/GlobalMuonMonitorInterface.h"
+
 using namespace std;
 using namespace edm;
 
@@ -99,6 +102,11 @@ TrackerSeedGenerator::TrackerSeedGenerator(const edm::ParameterSet& par, const M
   edm::ParameterSet seedPar = par.getParameter<edm::ParameterSet>("SeedGeneratorParameters");
   theSeedGenerator = new CombinatorialSeedGeneratorFromPixel(seedPar);
   */
+
+  theMIMFlag = par.getUntrackedParameter<bool>("performMuonIntegrityMonitor",false);
+  if(theMIMFlag) {
+    dataMonitor = edm::Service<GlobalMuonMonitorInterface>().operator->(); 
+  }
 }
 
 
@@ -124,79 +132,40 @@ void TrackerSeedGenerator::setEvent(const edm::Event &event)
 }
 
 //
-BTSeedCollection TrackerSeedGenerator::trackerSeeds(const Trajectory& muon) {
+BTSeedCollection TrackerSeedGenerator::trackerSeeds(const Trajectory& muon, const RectangularEtaPhiTrackingRegion& rectRegion) {
    theSeeds.clear();
-   findSeeds(muon);
+   findSeeds(muon,rectRegion);
    return BTSeedCollection(theSeeds);
 
 }
 //
-void TrackerSeedGenerator::findSeeds(const Trajectory& muon) {
-  
+void TrackerSeedGenerator::findSeeds(const Trajectory& muon, const RectangularEtaPhiTrackingRegion& rectRegion) {
+
+  if ( !muon.isValid() ) return;
+
   // track at innermost muon station
   TrajectoryStateOnSurface traj = muon.firstMeasurement().updatedState();
   if ( muon.direction() == oppositeToMomentum ) 
     traj = muon.lastMeasurement().updatedState();
-  
+
   //FIXME: the result of STA should contain Trajectory or something more
   if ( !traj.isValid() ) return;
-  
+
   // propagate to the outer tracker surface (r = 123.3cm, halfLength = 293.5cm)
   //MuonUpdatorAtVertex updator;
   MuonVertexMeasurement vm = theUpdator->update(traj);
   TrajectoryStateOnSurface traj_trak = vm.stateAtTracker();
   
   if ( !traj_trak.isValid() ) return;
-  
+
   // rescale errors
   traj_trak.rescaleError(theErrorRescale);
   
   // find list of possible start layers
   //findLayerList(traj_trak);  
-  
-  // define tracker region of interest
-  GlobalVector mom = traj_trak.globalMomentum();
 
-  TrajectoryStateOnSurface traj_vertex = vm.stateAtVertex();
-  if ( traj_vertex.isValid() ) mom = traj_vertex.globalMomentum();
-  float eta1   = mom.eta();
-  float phi1   = mom.phi();
-  float theta1 = mom.theta();
-
-  float eta2 = 0.0;
-  float phi2 = 0.0;
-  float theta2 = 0.0;
-  TransientTrackingRecHit::ConstRecHitContainer recHits = muon.recHits();
-  const TransientTrackingRecHit& r = **(recHits.begin()+1);
-  eta2   = r.globalPosition().eta();
-  phi2   = r.globalPosition().phi();
-  theta2 = r.globalPosition().theta();
-  
-  float deta(fabs(eta1-eta2));
-  float dphi(fabs(Geom::Phi<float>(phi1)-Geom::Phi<float>(phi2)));
-
-  double deltaEta = 0.05;
-  double deltaPhi = 0.07; // 5*ephi;
-  double deltaZ   = min(15.9,3*sqrt(theVertexErr.czz()));
-  double minPt    = max(1.5,mom.perp()*0.6);
-  
-  Geom::Phi<float> phi(phi1);
-  Geom::Theta<float> theta(theta1);
-  if ( deta > 0.06 ) {
-    deltaEta += (deta/2.);
-  } 
-  if ( dphi > 0.07 ) {
-    deltaPhi += 0.15;
-    if ( fabs(eta2) < 1.0 && mom.perp() < 6. ) deltaPhi = dphi;
-  }
-  if ( fabs(eta1) < 1.25 && fabs(eta1) > 0.8 ) deltaEta = max(0.07,deltaEta);
-  if ( fabs(eta1) < 1.3  && fabs(eta1) > 1.0 ) deltaPhi = max(0.3,deltaPhi);
-
-  GlobalVector direction(theta,phi,mom.perp());
-
-  RectangularEtaPhiTrackingRegion rectRegion(direction, theVertexPos,
-                                             minPt, 0.2, deltaZ, deltaEta, deltaPhi);
-
+  double deltaEta = rectRegion.etaRange().max();
+  double deltaPhi = rectRegion.phiMargin().right();
     
   // seed options:
   // 0 = primitive seeds  
@@ -228,7 +197,7 @@ void TrackerSeedGenerator::findSeeds(const Trajectory& muon) {
       */
   }
 
-  
+
 
 }
 
@@ -493,7 +462,29 @@ void TrackerSeedGenerator::pixelSeeds(const Trajectory& muon,
   vector<TrajectorySeed> ss;
   
   RectangularEtaPhiTrackingRegion region = RectangularEtaPhiTrackingRegion(regionOfInterest);
-  
+
+  if(theMIMFlag) {
+    dataMonitor->book2D("region","Center of Tracking Region",50,-2.5,2.5,50,-3.14,3.14);
+    dataMonitor->fill2("region",region.direction().eta(),region.direction().phi());
+    dataMonitor->book2D("pixel","Location of First Pixel",50,-2.5,2.5,50,-3.14,3.14);
+
+    dataMonitor->book2D("regionSize","Size of Region",30,0,3,30,0,3);
+
+    float dEta = region.etaRange().max() - region.etaRange().mean();
+    float dPhi = region.phiMargin().right();
+    dataMonitor->fill2("regionSize",dEta,dPhi);
+
+    dataMonitor->book1D("pixelHits","Number of PixelHits",21,-0.5,20.5);
+    dataMonitor->fill1("pixelHits",(*pixelHits).size());
+    
+    if( (*pixelHits).size() > 0 && (*pixelHits).begin()->isValid()) {
+      DetId ida((*pixelHits).begin()->geographicalId());
+      float eta1 = (theService->trackingGeometry())->idToDet(ida)->surface().toGlobal((*pixelHits).begin()->localPosition()).eta();
+      float phi1 = (theService->trackingGeometry())->idToDet(ida)->surface().toGlobal((*pixelHits).begin()->localPosition()).phi();
+            dataMonitor->fill2("pixel",eta1,phi1);
+    }    
+  }
+
   combinatorialSeedGenerator.init(*pixelHits,theService->eventSetup());
   combinatorialSeedGenerator.run(region,ss,theService->eventSetup());
   
@@ -505,8 +496,8 @@ void TrackerSeedGenerator::pixelSeeds(const Trajectory& muon,
       theSeeds.push_back(*is); 
       nseeds++;
     }
-
   }
+
 
   /*
     int nseeds = theSeeds.size();

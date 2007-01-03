@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/12/18 15:17:34 $
- *  $Revision: 1.65 $
+ *  $Date: 2007/01/03 20:37:45 $
+ *  $Revision: 1.66 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -82,6 +82,10 @@
 #include "TrackingTools/TrackAssociator/interface/TimerStack.h"
 
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
+
+#include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"
+#include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
+#include "TrackingTools/DetLayers/interface/PhiLess.h"
 
 using namespace std;
 using namespace edm;
@@ -263,23 +267,28 @@ GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const TrackCand& staCan
   // define eta-phi region
   RectangularEtaPhiTrackingRegion regionOfInterest = defineRegionOfInterest(staCand.second);
   
+  typedef PixelRecoRange< float > Range;
+  typedef TkTrackingRegionsMargin< float > Margin;
+  
+  //Get region's etaRange and phiMargin
+  Range etaRange = regionOfInterest.etaRange();
+  Margin phiMargin = regionOfInterest.phiMargin();
+  //Range phiRange(Geom::Phi<float>(regionOfInterest.direction().phi()) - fabs(Geom::Phi<float>(phiMargin.left())),Geom::Phi<float>(regionOfInterest.direction().phi()) + fabs(Geom::Phi<float>(phiMargin.right())));
+
   vector<TrackCand> result;
-  
-  float deltaR = 1.0;
-  
-  int iPosition = 0;
+
   vector<TrackCand>::const_iterator is;
   for ( is = tkTs.begin(); is != tkTs.end(); ++is ) {
-    iPosition++;
-    double deltaEta = staCand.second->eta() - is->second->eta();
-    double deltaPhi(fabs(Geom::Phi<float>(staCand.second->phi())-Geom::Phi<float>(is->second->phi())));
-    double deltaR_tmp = sqrt(pow(deltaEta,2.) + pow(deltaPhi,2.));
-    
-    if (deltaR_tmp <= deltaR) {
+    //check if each trackCand is in region of interest
+    bool inEtaRange = etaRange.inside(is->second->eta());
+    bool inPhiRange = (fabs(Geom::Phi<float>(is->second->phi()) - Geom::Phi<float>(regionOfInterest.direction().phi())) < phiMargin.right() ) ? true : false ;
+
+    //for each trackCand in region, add trajectory and add to result
+    if( inEtaRange && inPhiRange ) {
       TrackCand tmpCand = TrackCand(*is);
       addTraj(tmpCand);
-      result.push_back(tmpCand);      
-    }    
+      result.push_back(tmpCand);
+    }
   }
   
   return result; 
@@ -292,54 +301,52 @@ GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const TrackCand& staCan
 //
 RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInterest(const reco::TrackRef& staTrack) const {
 
-  // define tracker region of interest
+ //Get Track direction at vertex
+  GlobalVector dirVector(staTrack->px(),staTrack->py(),staTrack->pz());
+
+  //Get track momentum
   const math::XYZVector& mo = staTrack->innerMomentum();
-  GlobalVector mom(mo.x(),mo.y(),mo.z()); 
-
-  if ( staTrack->p() > 1.0 ) 
+  GlobalVector mom(mo.x(),mo.y(),mo.z());
+  if ( staTrack->p() > 1.0 )
     mom = GlobalVector(staTrack->px(),staTrack->py(),staTrack->pz());
-   
-  float eta1   = mom.eta();
-  float phi1   = mom.phi();
-  float theta1 = mom.theta();
 
-  float eta2 = 0.0;
-  float phi2 = 0.0;
-  float theta2 = 0.0;
-  
-  ConstMuonRecHitContainer recHits = theTrackConverter->getTransientMuonRecHits(*staTrack);
-  ConstMuonRecHitPointer r = *(recHits.begin()+1);
+  //Get innerMu position
+  const math::XYZPoint& po = staTrack->innerPosition();
+  GlobalPoint pos(po.x(),po.y(),po.z());
 
-  eta2   = r->globalPosition().eta();
-  phi2   = r->globalPosition().phi();
-  theta2 = r->globalPosition().theta();
+  //Get dEta and dPhi: (direction at vertex) - (innerMuTsos position)
+  float eta1 = dirVector.eta();
+  float eta2 = pos.eta();
+  float deta(fabs(eta1- eta2));
+  float dphi(fabs(Geom::Phi<float>(dirVector.phi())-Geom::Phi<float>(pos.phi()))
+);
 
-  float deta(fabs(eta1-eta2));
-  float dphi(fabs(Geom::Phi<float>(phi1)-Geom::Phi<float>(phi2)));
+  //deta = 1 * deta;
+  //dphi = 1 * dphi;
 
-  double deltaEta = 0.1;//0.05
-  double deltaPhi = 0.14;//0.07 // 5*ephi;
-  double deltaZ   = min(15.9,3*sqrt(theVertexErr.czz()));
+  //deta = 1 * max(double(deta),0.05);
+  //dphi = 1 * max(double(dphi),0.07);
+
   double minPt    = max(1.5,mom.perp()*0.6);
+  double deltaZ   = min(15.9,3*sqrt(theVertexErr.czz()));
+  double deltaEta = 0.05;
+  double deltaPhi = 0.07;
 
-  Geom::Phi<float> phi(phi1);
-  Geom::Theta<float> theta(theta1);
-  if ( deta > 0.06 ) {
+  if ( deta > 0.05 ) { // 0.06
     deltaEta += deta/2;
-  } 
+  }
   if ( dphi > 0.07 ) {
-    deltaPhi += 0.3; //0.15;
+    deltaPhi += 0.15;
     if ( fabs(eta2) < 1.0 && mom.perp() < 6. ) deltaPhi = dphi;
   }
   if ( fabs(eta1) < 1.25 && fabs(eta1) > 0.8 ) deltaEta = max(0.07,deltaEta);
   if ( fabs(eta1) < 1.3  && fabs(eta1) > 1.0 ) deltaPhi = max(0.3,deltaPhi);
 
-  deltaEta = max(0.3,deltaEta);
-  deltaPhi = max(0.5,deltaPhi);
+  deltaEta = 1 * max(double(2.5 * deta),deltaEta);
+  deltaPhi = 1 * max(double(3.5 * dphi),deltaPhi);
 
-  GlobalVector direction(theta,phi,mom.perp());
-  RectangularEtaPhiTrackingRegion rectRegion(direction, theVertexPos,
-                                             minPt, 0.2, 
+  RectangularEtaPhiTrackingRegion rectRegion(dirVector, theVertexPos,
+                                             minPt, 0.2,
                                              deltaZ, deltaEta, deltaPhi);
 
   return rectRegion;
@@ -1005,7 +1012,8 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
     if( theMakeTkSeedFlag && staCand.first != 0  && staCand.first->isValid() ) {
       timerName = category + "::makeSeeds";
       times.push(timerName);
-      tkSeeds = theTkSeedGenerator->trackerSeeds(*(staCand.first));
+      RectangularEtaPhiTrackingRegion region = defineRegionOfInterest((staCand.second));
+      tkSeeds = theTkSeedGenerator->trackerSeeds(*(staCand.first),region);
 
       LogDebug(category) << "Found " << tkSeeds.size() << " tracker seeds";
 

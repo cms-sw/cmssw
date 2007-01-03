@@ -4,8 +4,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2006/11/08 08:04:54 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/11/10 17:27:21 $
+ *  $Revision: 1.7 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -35,6 +35,8 @@ class SeedGeneratorFromTrackingRegion;
 class MuonServiceProxy;
 class MuonUpdatorAtVertex;
 
+class GlobalMuonMonitorInterface;
+
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 typedef std::vector<TrajectorySeed> BTSeedCollection;
@@ -47,13 +49,13 @@ class TrackerSeedGenerator {
     /// destructor
     virtual ~TrackerSeedGenerator();
 
-    BTSeedCollection trackerSeeds(const Trajectory&);
+    BTSeedCollection trackerSeeds(const Trajectory&, const RectangularEtaPhiTrackingRegion&);
     
     void setEvent(const edm::Event&);
 
   private:
     /// create seeds from muon trajectory
-    void findSeeds(const Trajectory&);  
+    void findSeeds(const Trajectory&, const RectangularEtaPhiTrackingRegion&); 
 
     void findLayerList(const TrajectoryStateOnSurface& traj);
 
@@ -102,6 +104,9 @@ class TrackerSeedGenerator {
     GlobalPoint theVertexPos;
     GlobalError theVertexErr;
     CombinatorialRegionalSeedGeneratorFromPixel  combinatorialSeedGenerator;
+
+    bool theMIMFlag;
+    GlobalMuonMonitorInterface* dataMonitor;
 
 };
 
