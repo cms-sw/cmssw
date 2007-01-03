@@ -21,7 +21,7 @@ namespace edm {
     branches_(new BranchMap),
     products_()
   {
-    int nBranches = (tree_ != 0 ? tree_->GetNbranches() : 0);
+    int nBranches = (metaTree_ != 0 ? metaTree_->GetNbranches() : 0);
     if (nBranches > 0) {
       provenance_.reserve(nBranches);
       provenancePtrs_.reserve(nBranches);
