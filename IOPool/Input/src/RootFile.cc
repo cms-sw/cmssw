@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.48 2006/12/30 01:43:32 wmtan Exp $
+$Id: RootFile.cc,v 1.49 2006/12/30 16:54:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -30,7 +30,7 @@ namespace edm {
       file_(fileName),
       logicalFile_(logicalFileName),
       catalog_(catalogName),
-      filePtr_(TFile::Open(file_.c_str())),
+      filePtr_(file_.empty() ? 0 : TFile::Open(file_.c_str())),
       fileFormatVersion_(),
       reportToken_(0),
       eventAux_(),

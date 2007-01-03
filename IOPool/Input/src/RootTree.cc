@@ -9,8 +9,9 @@
 namespace edm {
   RootTree::RootTree(boost::shared_ptr<TFile> filePtr, BranchType const& branchType) :
     filePtr_(filePtr),
-    tree_(dynamic_cast<TTree *>(filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()))),
-    metaTree_(dynamic_cast<TTree *>(filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()))),
+    tree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()) : 0)),
+    metaTree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()) : 0)),
+
     auxBranch_(tree_ ? tree_->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str()): 0),
     entries_(tree_ ? tree_->GetEntries() : 0),
     entryNumber_(-1),
