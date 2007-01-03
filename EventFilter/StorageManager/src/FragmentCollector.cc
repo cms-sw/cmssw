@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: FragmentCollector.cc,v 1.21 2006/12/22 09:48:18 klute Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/test/SillyLockService.h"
@@ -259,6 +259,12 @@ namespace stor
   }
   void FragmentCollector::processHeader(FragEntry* entry)
   {
+    // This does not yet handle fragmented INIT messages, so one should
+    // probably really test for entry->totalSegs_==1 in case fragments
+    // are passed through. (Should eventually handle fragments as the
+    // fragment queue design was to make it thread-safe. Currently
+    // any fragmented INIT messages are done differently).
+
     InitMsgView msg(entry->buffer_address_);
 
     FR_DEBUG << "FragColl: writing INIT size " << entry->buffer_size_ << endl;
