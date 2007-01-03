@@ -8,8 +8,8 @@
  *   information,<BR>
  *   starting from a L2 reonstructed muon.
  *
- *   $Date: 2006/11/10 17:24:17 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/01/03 16:25:28 $
+ *   $Revision: 1.2 $
  *   \author  A. Everett - Purdue University
  */
 
@@ -38,7 +38,10 @@ class L3MuonProducer : public edm::EDProducer {
     
   /// Seed STA Label
   edm::InputTag theL2CollectionLabel;
-  
+
+  /// Label for L2SeededTracks
+  std::string theL2SeededTkLabel; 
+
   bool theL2TrajectoryFlag;
 
   MuonTrackFinder* theTrackFinder;

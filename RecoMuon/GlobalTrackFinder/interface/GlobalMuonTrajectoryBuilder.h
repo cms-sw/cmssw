@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/12/13 20:22:41 $
- *  $Revision: 1.42 $
+ *  $Date: 2006/12/18 14:55:05 $
+ *  $Revision: 1.43 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -23,6 +23,8 @@
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
 
+namespace edm {class Event;}
+
 class RectangularEtaPhiTrackingRegion;
 class TrajectoryStateOnSurface;
 
@@ -37,6 +39,7 @@ class MuonServiceProxy;
 class Trajectory;
 class TrackerSeedGenerator;
 class TrajectoryCleaner;
+class MuonTrackLoader;
 
 class GlobalMuonMonitorInterface;
 
@@ -65,7 +68,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
   public:
 
     /// constructor with Parameter Set and MuonServiceProxy
-    GlobalMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*);
+    GlobalMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*, MuonTrackLoader*);
           
     /// destructor
     ~GlobalMuonTrajectoryBuilder();
@@ -77,7 +80,8 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     MuonTrajectoryBuilder::TrajectoryContainer trajectories(const TrajectorySeed&) { return MuonTrajectoryBuilder::TrajectoryContainer(); }
 
     /// pass the Event to the algo at each event
-    virtual void setEvent(const edm::Event&);
+    virtual void setL3Event( edm::Event& event) {theEvent = &event; setEvent(event);}
+    virtual void setEvent( const edm::Event& );
 
   private:
     
@@ -140,6 +144,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     float theRPCChi2Cut;
     edm::InputTag theTkTrackLabel;
     std::string theCkfBuilderName;
+    std::string theL2SeededTkLabel;
 
     bool theTkTrajsAvailableFlag;
     bool theMakeTkSeedFlag;
@@ -151,8 +156,10 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
     const std::vector<Trajectory>* allTrackerTrajs;
  
+    edm::Event* theEvent;
 
     const MuonServiceProxy *theService;
+    MuonTrackLoader *theTrackLoader;
 
     GlobalMuonMonitorInterface* dataMonitor;
 

@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a L2 reonstructed muon.
  *
- *   $Date: 2006/11/10 17:24:17 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/01/03 16:25:28 $
+ *   $Revision: 1.2 $
  *   \author  A. Everett - Purdue University
  */
 
@@ -60,8 +60,16 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
   theService = new MuonServiceProxy(serviceParameters);
   
   // instantiate the concrete trajectory builder in the Track Finder
-  GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(trajectoryBuilderParameters, theService);
-  theTrackFinder = new MuonTrackFinder(gmtb, new MuonTrackLoader(trackLoaderParameters, theService) );
+  MuonTrackLoader* mtl = new MuonTrackLoader(trackLoaderParameters,theService);
+  GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(trajectoryBuilderParameters, theService, mtl);
+  theTrackFinder = new MuonTrackFinder(gmtb, mtl);
+
+  theL2SeededTkLabel = parameterSet.getParameter<std::string>("MuonSeededTracksInstance");
+  
+  produces<reco::TrackCollection>(theL2SeededTkLabel);
+  produces<TrackingRecHitCollection>(theL2SeededTkLabel);
+  produces<reco::TrackExtraCollection>(theL2SeededTkLabel);
+  produces<vector<Trajectory> >(theL2SeededTkLabel) ;
 
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();

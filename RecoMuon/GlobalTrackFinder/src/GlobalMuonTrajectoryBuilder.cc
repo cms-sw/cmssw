@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/12/18 14:55:05 $
- *  $Revision: 1.64 $
+ *  $Date: 2006/12/18 15:17:34 $
+ *  $Revision: 1.65 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -71,6 +71,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonTrackConverter.h"
 #include "RecoMuon/TrackerSeedGenerator/src/TrackerSeedGenerator.h"
@@ -90,8 +91,8 @@ using namespace edm;
 //----------------
 
 GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par,
-							 const MuonServiceProxy* service) : 
-  theService(service) {
+							 const MuonServiceProxy* service, MuonTrackLoader* loader) : 
+  theService(service), theTrackLoader(loader) {
 
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|ctor";
 
@@ -122,6 +123,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   theFirstEvent = true;
   
   if(theMakeTkSeedFlag) {
+    theL2SeededTkLabel = par.getParameter<std::string>("MuonSeededTracksInstance");
     theCkfBuilderName = par.getParameter<std::string>("TkTrackBuilder");
     ParameterSet seedGeneratorPSet = par.getParameter<ParameterSet>("SeedGeneratorParameters");
     theTkSeedGenerator = new TrackerSeedGenerator(seedGeneratorPSet,theService);
@@ -205,10 +207,6 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   TimerStack timers;
   string timerName = category + "::Total";
   timers.push(timerName);
-
-  
-
-
 
   // cut on muons with low momenta
   if ( (staCandIn).second->pt() < thePtCut || (staCandIn).second->innerMomentum().Rho() < thePtCut || (staCandIn).second->innerMomentum().R() < 2.5 ) return CandidateContainer();
@@ -433,7 +431,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	//cout << "LastTSOS" << lastTsos << endl;
 	//printHits(trackerRecHits);
 	
-	TrajectoryStateTransform tsTransform;	
+	//TrajectoryStateTransform tsTransform;	
 	TrajectoryStateOnSurface firstTsos2;
 	if(trackerRecHits.front()->geographicalId().det() == DetId::Tracker ) {
 	  firstTsos2 = theRefitter->propagator(oppositeToMomentum)->propagate(lastTsos,trackerRecHits.front()->det()->surface());
@@ -1004,7 +1002,7 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
 
     std::vector<TrajectorySeed> tkSeeds; 
     TC allTkTrajs;
-    if( theMakeTkSeedFlag && staCand.first->isValid() ) {
+    if( theMakeTkSeedFlag && staCand.first != 0  && staCand.first->isValid() ) {
       timerName = category + "::makeSeeds";
       times.push(timerName);
       tkSeeds = theTkSeedGenerator->trackerSeeds(*(staCand.first));
@@ -1020,9 +1018,19 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
       times.pop_and_push(timerName);
 
       allTkTrajs = makeTrajsFromSeeds(tkSeeds);
-      times.pop();      
+      times.pop();
+
+      MuonCandidate::TrajectoryContainer tmpTrajectoryContainer;
+      for(TC::const_iterator iter = allTkTrajs.begin(); iter != allTkTrajs.end(); ++iter) {
+	tmpTrajectoryContainer.push_back(new Trajectory(*iter));
+      }
+      //reco::TrackRefProd trackCollectionRefProd = theEvent->getRefBeforePut<reco::TrackCollection>(theL2SeededTkLabel);
+      //theTrackLoader->loadTracks(tmpTrajectoryContainer,*theEvent,theL2SeededTkLabel);
+      
+      int position = 0;
       for (TC::const_iterator tt=allTkTrajs.begin();tt!=allTkTrajs.end();++tt){
 	tkCandColl.push_back(TrackCand(new Trajectory(*tt),reco::TrackRef()));
+	position++;
       } 
     }
 
