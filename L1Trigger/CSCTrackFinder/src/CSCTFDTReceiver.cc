@@ -39,11 +39,11 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
 		    {
 		      // Convert stubs to CSC format (signed -> unsigned)
 		      int phi = dtts[stub]->phi();
-		      phi += 614; // move DTphi lower bound to zero.
-		      if(is > sector) phi += 2218; //make [-30,30] -> [0,60]
-		      phi = ((double)phi) * 3232./3640.; // scale DT binning to CSC binning.
-
-		      phi += 491; // match up DT sector boundary inside of CSC sector
+		      phi += 614; // move DTphi lower bound to zero. Determined empirically.
+		      if(is > sector) phi += 2048; //make [-30,30] -> [0,60]
+		      phi = ((double)phi) * 31./90. * M_PI; // scale DT binning to CSC binning.
+		                                         // the scale factor is (csc binning)/(dt binning) * pi
+		      phi += 491; // match up DT sector boundary inside of CSC sector. Determined empirically.
 
 		      // DT chambers may lie outside CSC sector boundary
 		      // Eventually we need to extend CSC phi definition
