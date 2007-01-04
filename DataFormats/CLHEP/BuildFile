@@ -1,0 +1,7 @@
+<use name=clhep>
+<use name=rootrflx>
+<export>
+  <use name=clhep>
+  <lib name=DataFormatsCLHEP>
+</export>
+
