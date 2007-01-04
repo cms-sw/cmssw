@@ -35,7 +35,7 @@ private:
 
     /** constructors */
     MixItr():first_(true) {;}
-    MixItr(typename std::vector<T>::iterator it) :    pMixItr_(it),first_(true) {;}
+    MixItr(typename std::vector<T>::const_iterator it) :    pMixItr_(it),first_(true) {;}
     MixItr(MixCollection *shc, int firstcr,int lastcr) :     
       mixCol_(shc),curBunchCrossing_(firstcr),lastBunchCrossing_(lastcr),first_(true),iSignal_(0),iPileup_(0) {;}
 
@@ -56,8 +56,8 @@ private:
 
   private:
 
-    typename std::vector<T>::iterator pMixItr_;
-    typename std::vector<T>::iterator pMixItrEnd_;
+    typename std::vector<T>::const_iterator pMixItr_;
+    typename std::vector<T>::const_iterator pMixItrEnd_;
     MixCollection *mixCol_;
     int curBunchCrossing_;
     int lastBunchCrossing_;
@@ -65,12 +65,12 @@ private:
     int iSignal_, iPileup_;
     bool trigger_;
     
-    typename std::vector<std::vector<T> >::iterator pileupItr_;
+    typename std::vector<std::vector<T> >::const_iterator pileupItr_;
 
     MixItr next();
     void reset() {;}
-    std::vector<T> * getNewSignal();
-    std::vector<std::vector<T> > * getNewPileups();
+    const std::vector<T> * getNewSignal();
+    const std::vector<std::vector<T> > * getNewPileups();
   };
 
   typedef MixItr iterator;
@@ -81,11 +81,11 @@ private:
   void init( const range bunchRange);
   bool testSubdet( const std::string subdet);
   std::vector<T>  *getSignal() {return signals_;}
-  std::vector<T>  *getNewSignal(int signal);
+  const std::vector<T>  *getNewSignal(int signal);
   std::vector<std::vector<T> > *getPileups() {return pileups_;}
-  std::vector<std::vector<T> > *getNewPileups(int pileup);
-  std::vector<T>  *signals_;
-  std::vector<std::vector<T> > *pileups_;
+  const std::vector<std::vector<T> > *getNewPileups(int pileup);
+  const std::vector<T>  *signals_;
+  const std::vector<std::vector<T> > *pileups_;
   CrossingFrame *cf_;
   range bunchRange_;
   bool inRegistry_;
@@ -179,7 +179,7 @@ bool MixCollection<T>::testSubdet( const std::string subdet) {
 
 template <class T>  int  MixCollection<T>::sizePileup() const {
   int s=0; 
-  std::vector<std::vector<T> > *pils=0;
+  const std::vector<std::vector<T> > *pils=0;
   for (int i=0;i<nrDets_;++i) {
     cf_->getPileups(subdets_[i],pils);
     for (unsigned int j=0;j<pils->size();++j) {
@@ -191,7 +191,7 @@ template <class T>  int  MixCollection<T>::sizePileup() const {
 
 template <class T>  int  MixCollection<T>::sizeSignal() const {
   int s=0; 
-  std::vector<T>  *sigs=0;
+  const std::vector<T>  *sigs=0;
   for (int i=0;i<nrDets_;++i) {
     cf_->getSignal(subdets_[i],sigs);
     s+=sigs->size();  
@@ -200,7 +200,7 @@ template <class T>  int  MixCollection<T>::sizeSignal() const {
 }
 
 template <class T>
-std::vector<T> * MixCollection<T>::getNewSignal(int signal) {
+const std::vector<T> * MixCollection<T>::getNewSignal(int signal) {
   // gets signal collection 
   // at the same time we verify that input is coherent
 
@@ -224,10 +224,10 @@ std::vector<T> * MixCollection<T>::getNewSignal(int signal) {
 }
 
 template <class T>
-std::vector<T> *  MixCollection<T>::MixItr::getNewSignal() {
+const std::vector<T> *  MixCollection<T>::MixItr::getNewSignal() {
   // gets the next signal collection with non-zero size
 
-  std::vector<T> *signals;
+  const std::vector<T> *signals;
   while (signals=mixCol_->getNewSignal(iSignal_++)) {
     if (signals->size()) return signals;
   }
@@ -235,7 +235,7 @@ std::vector<T> *  MixCollection<T>::MixItr::getNewSignal() {
 }
 
 template <class T>
-std::vector<std::vector<T> > * MixCollection<T>::getNewPileups(int pileup) {
+const std::vector<std::vector<T> > * MixCollection<T>::getNewPileups(int pileup) {
   // gets the next pileup collection 
   if (pileup>=nrDets_) return NULL;
   cf_->getPileups(subdets_[pileup],pileups_);
@@ -244,9 +244,9 @@ std::vector<std::vector<T> > * MixCollection<T>::getNewPileups(int pileup) {
 }
 
 template <class T>
-std::vector<std::vector<T> > *  MixCollection<T>::MixItr::getNewPileups() {
+const std::vector<std::vector<T> > *  MixCollection<T>::MixItr::getNewPileups() {
   // gets the next pileup collection 
-  std::vector<std::vector<T> > * pileups;
+  const std::vector<std::vector<T> > * pileups;
   while (pileups=mixCol_->getNewPileups(iPileup_)) {
     iPileup_++;
     if (pileups->size()) return pileups;
@@ -267,7 +267,7 @@ typename MixCollection<T>::MixItr MixCollection<T>::MixItr::next() {
 
   // look whether there are more signal collections
   if (trigger_) {
-    std::vector<T> *p =this->getNewSignal();
+    const std::vector<T> *p =this->getNewSignal();
     if (p) {
       pMixItr_=(p->begin());
       pMixItrEnd_=(p->end());
@@ -281,7 +281,7 @@ typename MixCollection<T>::MixItr MixCollection<T>::MixItr::next() {
   unsigned int coll_size=0;
   while (coll_size==0) {
     if (curBunchCrossing_==lastBunchCrossing_) {
-      std::vector<std::vector<T> > *p =this->getNewPileups();
+      const std::vector<std::vector<T> > *p =this->getNewPileups();
       if (!p) return pMixItrEnd_;
       pileupItr_=p->begin();
       curBunchCrossing_=mixCol_->bunchrange().first;
@@ -305,11 +305,11 @@ typename MixCollection<T>::MixItr MixCollection<T>::begin() {
 template <class T>
 typename  MixCollection<T>::MixItr MixCollection<T>::end() {
   if (nrDets_<=0)   return this->begin();
-  std::vector<std::vector<T> > * pil;
+  const std::vector<std::vector<T> > * pil;
   cf_->getPileups(subdets_[nrDets_-1],pil);
-  typename std::vector<std::vector<T> >::iterator it=pil->begin();
+  typename std::vector<std::vector<T> >::const_iterator it=pil->begin();
   for (int i=bunchRange_.first;i<bunchRange_.second;i++) it++;
-  typename std::vector<T>::iterator itend=it->end();
+  typename std::vector<T>::const_iterator itend=it->end();
   return itend;
 }
 

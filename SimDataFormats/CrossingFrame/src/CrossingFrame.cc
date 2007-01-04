@@ -143,8 +143,9 @@ void CrossingFrame::print(int level) const {
   // first, give a summary
   cout<<"\nLoop over all detectors:"<<endl;
   for (map<string,std::vector<PSimHitContainer> >::const_iterator it = pileupSimHits_.begin(); it != pileupSimHits_.end(); ++it) {
-    int sig=0;
-    const std::string sub=(*it).first;
+    //FIXME: to be improved
+    //    int sig=0;
+    // const std::string sub=(*it).first;
     //    PSimHitContainer signals=signalSimHits_[sub];
     //    sig=sig+signals.size();
     //cout<< " Subdetector "<<(*it).first <<", signal size "<<signalSimHits_[(*it).first].size();
