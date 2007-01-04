@@ -1,5 +1,5 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestal.h"
 #include "CondFormats/HcalObjects/interface/HcalGain.h"
@@ -12,7 +12,7 @@
 
 #include<iostream>
 
-HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise) :
+HcalAmplifier::HcalAmplifier(const HcalSimParameterMap * parameters, bool addNoise) :
   theDbService(0), 
   theParameterMap(parameters),
   theStartingCapId(0), 
@@ -46,7 +46,7 @@ void HcalAmplifier::amplify(CaloSamples & frame) const {
       pedestal += noise [tbin];
     }
     frame[tbin] *= fCperPE;
-    frame[tbin] += pedestal;
+    //    frame[tbin] += pedestal;
   }
   LogDebug("HcalAmplifier") << frame;
 }

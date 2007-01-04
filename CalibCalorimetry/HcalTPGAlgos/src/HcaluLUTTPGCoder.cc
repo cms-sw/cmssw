@@ -72,6 +72,8 @@ void HcaluLUTTPGCoder::adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& i
     throw cms::Exception("Missing Data") << "No LUT for " << df.id();
   } else {
     for (int i=0; i<df.size(); i++) {
+      if (df[i].adc() >= LUT_SIZE)
+	throw cms::Exception("ADC overflow for tower:") << i << " adc= " << df[i].adc();
       ics[i]=(*lut)[df[i].adc()];
       //      std::cout << df.id() << '[' << i <<']' << df[i].adc() << "->" << ics[i] << std::endl;
     }
@@ -83,8 +85,11 @@ void HcaluLUTTPGCoder::adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics
   if (lut==0) {
     throw cms::Exception("Missing Data") << "No LUT for " << df.id();
   } else {
-    for (int i=0; i<df.size(); i++)
+    for (int i=0; i<df.size(); i++){
+      if (df[i].adc() >= LUT_SIZE)
+      throw cms::Exception("ADC overflow for HF tower:") << i << " adc= " << df[i].adc();
       ics[i]=(*lut)[df[i].adc()];
+    }
   }
 }
 

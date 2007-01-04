@@ -22,7 +22,7 @@ HcalSimParameters::HcalSimParameters(double simHitToPhotoelectrons, double photo
 
 
 
-
+/*
 HcalSimParameters::HcalSimParameters(const edm::ParameterSet & p)
 :  CaloSimParameters(p),
    theDbService(0),
@@ -30,7 +30,7 @@ HcalSimParameters::HcalSimParameters(const edm::ParameterSet & p)
    theSamplingFactors( p.getParameter<std::vector<double> >("samplingFactors") )
 {
 }
-
+*/
 
 double HcalSimParameters::simHitToPhotoelectrons(const DetId & detId) const 
 {

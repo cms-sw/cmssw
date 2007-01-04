@@ -31,7 +31,7 @@ HcalSimParameterMap::HcalSimParameterMap() :
                  int readoutFrameSize, int binOfMaximum,
                  bool doPhotostatistics)
 */
-
+/*
 HcalSimParameterMap::HcalSimParameterMap(const edm::ParameterSet & p)
 : theHBParameters(  p.getParameter<edm::ParameterSet>("hb") ),
   theHEParameters(  p.getParameter<edm::ParameterSet>("he") ),
@@ -40,8 +40,7 @@ HcalSimParameterMap::HcalSimParameterMap(const edm::ParameterSet & p)
   theHFParameters2( p.getParameter<edm::ParameterSet>("hf2") )
 {
 }
-
-
+*/
 
 const CaloSimParameters & HcalSimParameterMap::simParameters(const DetId & detId) const {
   HcalDetId hcalDetId(detId);
