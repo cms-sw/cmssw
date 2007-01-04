@@ -10,8 +10,6 @@
 
   <class name="RecSegment"/>
   <class name="std::vector<CSCSegment*>"/>
-  <class name="CLHEP::HepSymMatrix"/>
-  <class name="CLHEP::HepGenMatrix"/>
   <class name="CSCSegment"/>
   <class name="edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >"/>
   <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >"/>

@@ -1,5 +1,6 @@
 <flags GENREFLEX_ARGS="--">
 <use name=FWCore/Framework>
+<use name=DataFormats/CLHEP>
 <use name=boost>
 <use name=clhep>
 <use name=rootrflx>

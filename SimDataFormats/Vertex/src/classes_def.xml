@@ -1,6 +1,4 @@
 <lcgdict>
-  <class name="CLHEP::HepLorentzVector"/>
-  <class name="CLHEP::Hep3Vector"/>
   <class name="std::vector<SimVertex>"/>
   <class name="CoreSimVertex"/>
   <class name="SimVertex"/>
