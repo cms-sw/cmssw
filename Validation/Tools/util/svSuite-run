@@ -17,7 +17,7 @@ import time
 
 from MCPayloads.WorkflowSpec import WorkflowSpec
 import MCPayloads.WorkflowTools as WorkflowTools
-
+from MCPayloads.UUID import uuidgen
 
 #  //
 # // Connection to ProdAgent
@@ -256,8 +256,11 @@ def createPSetHash(cfgFile):
         msg += pop.fromchild.read()
         raise RuntimeError, msg
 
+    uuid = uuidgen()
+    hashVal = file(hashFile).read()
+    return "hash=%s;guid=%s;" % (hashVal, uuid)
+
     
-    return file(hashFile).read()
 
 
 def createPythonConfig(cfgFile):
