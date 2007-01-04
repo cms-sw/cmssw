@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/11/13 09:04:33 $
- *  $Revision: 1.34 $
+ *  $Date: 2006/11/17 18:14:50 $
+ *  $Revision: 1.35 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
  */
@@ -90,7 +90,7 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   }
 } 
 
-void StandAloneMuonTrajectoryBuilder::setEvent(const edm::Event& event){
+void StandAloneMuonTrajectoryBuilder::setEvent(edm::Event& event){
   theRefitter->setEvent(event);
    if(doBackwardRefit) theBWFilter->setEvent(event);
 }
