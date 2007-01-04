@@ -20,8 +20,6 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/Common/interface/Ref.h"
 
-#include "CLHEP/Vector/LorentzVector.h"
-
 #include <vector>
 
 namespace reco {
