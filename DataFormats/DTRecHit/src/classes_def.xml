@@ -17,7 +17,6 @@
   <class name="edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTSLRecSegment2D,edm::ClonePolicy<DTSLRecSegment2D> >,edm::ClonePolicy<DTSLRecSegment2D> >"/>
   <class name="edm::Wrapper<edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTSLRecSegment2D,edm::ClonePolicy<DTSLRecSegment2D> >,edm::ClonePolicy<DTSLRecSegment2D> > >"/>
   <class name="DTChamberRecSegment2D"/>
-  <class name="CLHEP::HepMatrix"/>
   <class name="DTRecSegment4D"/>
   <class name="std::vector<DTRecSegment4D*>"/>
   <class name="std::map<DTChamberId,std::pair<unsigned int,unsigned int> >"/>
