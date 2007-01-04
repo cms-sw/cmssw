@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.cc,v 1.15 2006/12/13 18:04:16 uberthon Exp $
+// $Id: TestMix.cc,v 1.16 2007/01/04 15:54:45 uberthon Exp $
 //
 //
 
@@ -206,20 +206,19 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      col23=new MixCollection<PCaloHit>(cf.product(), subdet,std::pair<int,int>(-1,2));
    } catch ( cms::Exception &e ) { std::cout<<" [Testing abnormal conditions case3]bad template type exception ok"<<std::endl; }
 
-<<<<<<< TestMix.cc
    // test getSignal
-    std::cout<<"\n\n=================== Starting signal access  ==================="<<std::endl;
-   const std::vector<SimTrack> *v;
-   cf->getSignal("",v);
-   std::cout<<"There are "<<v->size()<<" SimTracks "<<std::endl;
-=======
-   // test getters per bunchcrossing
+    std::cout<<"\n\n=================== Starting tests of signal and pileup getters  ==================="<<std::endl;
+   const std::vector<SimTrack> *vTracks;
+   cf->getSignal("",vTracks);
+   std::cout<<"There are "<<vTracks->size()<<" SimTracks "<<std::endl;
+
+   // test getPileups
    std::vector<SimTrack> v;
    v=cf->getPileupTracks(999);   
    v=cf->getPileupTracks(0);
    if (v.size()!=cf->getNrPileupTracks(0)) std::cout<<" [Testing result  of getPileups(..,bcr)] bad results: is: "<<v.size()<<" should be  "<<cf->getNrPileupTracks(0)<<std::endl;
    SimTrack t=v[0];
    std::cout<<" track vertex index: "<<t.vertIndex()<<std::endl;
->>>>>>> 1.15
+
 }
 
