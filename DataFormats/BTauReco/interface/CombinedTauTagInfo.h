@@ -4,7 +4,7 @@
 /* class CombinedTauTagInfo
  *  Extended object for the Tau Combination algorithm, 
  *  created: Dec 18 2006,
- *  revised: 
+ *  revised: Jan 04 2007
  *  author: Ludovic Houchu.
  */
 
@@ -17,6 +17,9 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "CLHEP/Vector/LorentzVector.h"
+
+#include <limits>
+#include <math.h>
 
 using namespace edm;
 using namespace std;
@@ -32,23 +35,23 @@ namespace reco {
       thecandidate_needs_LikelihoodRatio_discrimination=false;
       filtered_Tks_.clear();
       signal_Tks_.clear();
-      theleadTk_signedipt_significance=-100.;
-      theleadTk_signedip3D_significance=-100.;
-      thesignedflightpath_significance=-100.;
-      theTksEt_o_JetEt=-100.;
-      theneutralE=-100.;
-      theisolneutralE=-100.;
-      theneutralECALClus_number=-100;
-      theneutralECALClus_radius=-100.;
-      theneutralE_o_TksEneutralE=-100.;
-      theisolneutralE_o_TksEneutralE=-100.;
-      theneutralE_ratio=-100.;
-      thealternatrecJet_HepLV.setPx(0.);
-      thealternatrecJet_HepLV.setPy(0.);
-      thealternatrecJet_HepLV.setPz(0.);
-      thealternatrecJet_HepLV.setE(0.);
-      theECALEt_o_leadTkPt=-100.;
-      theHCALEt_o_leadTkPt=-100.;
+      theleadTk_signedipt_significance=NAN;
+      theleadTk_signedip3D_significance=NAN;
+      thesignedflightpath_significance=NAN;
+      theTksEt_o_JetEt=NAN;
+      theneutralE=NAN;
+      theisolneutralE=NAN;
+      theneutralECALClus_number=numeric_limits<int>::quiet_NaN();
+      theneutralECALClus_radius=NAN;
+      theneutralE_o_TksEneutralE=NAN;
+      theisolneutralE_o_TksEneutralE=NAN;
+      theneutralE_ratio=NAN;
+      thealternatrecJet_HepLV.setPx(NAN);
+      thealternatrecJet_HepLV.setPy(NAN);
+      thealternatrecJet_HepLV.setPz(NAN);
+      thealternatrecJet_HepLV.setE(NAN);
+      theECALEt_o_leadTkPt=NAN;
+      theHCALEt_o_leadTkPt=NAN;
     }
     virtual ~CombinedTauTagInfo() {};
     
@@ -80,7 +83,7 @@ namespace reco {
     // returns 0.        if candidate did not pass tracker selection,
     //         1.        if candidate passed tracker selection and did not contain neutral obj.,
     //         0<=  <=1  if candidate passed tracker selection, contained neutral obj. and goes through the likelihood ratio mechanism, 
-    //         -0.1      the values of the likelihood functions PDFs are 0;  
+    //         NaN       the values of the likelihood functions PDFs are 0 (test the result of discriminator() with bool isnan(.));  
     // truth matched Tau candidate PDFs obtained with evts from ORCA reco. bt04_double_tau_had sample without PU,
     // fake Tau candidate PDFs obtained with evts from ORCA reco. jm03b_qcd30_50, jm03b_qcd50_80, jm03b_qcd80_120 and jm03b_qcd120_170 samples, all without PU.   
     double discriminator() const { 
@@ -102,15 +105,15 @@ namespace reco {
    bool needs_LikelihoodRatio_discrimination()const{return(thecandidate_needs_LikelihoodRatio_discrimination);} // true : passed tracker sel. and neutral activity inside jet;
    void setneeds_LikelihoodRatio_discrimination(bool x){thecandidate_needs_LikelihoodRatio_discrimination=x;}
 
-   double leadTk_signedipt_significance()const{return(theleadTk_signedipt_significance);}  // -100. : failure;
+   double leadTk_signedipt_significance()const{return (theleadTk_signedipt_significance);}  // NaN : failure;
    void setleadTk_signedipt_significance(double x){theleadTk_signedipt_significance=x;}
 
-   double leadTk_signedip3D_significance()const{return(theleadTk_signedip3D_significance);}  // -100. : failure;
+   double leadTk_signedip3D_significance()const{return(theleadTk_signedip3D_significance);}  // NaN : failure;
    void setleadTk_signedip3D_significance(double x){theleadTk_signedip3D_significance=x;}
 
-   double signedflightpath_significance()const{return(thesignedflightpath_significance);}  // -100. : failure;
+   double signedflightpath_significance()const{return (thesignedflightpath_significance);}  // NaN : failure, did not build a SV.;
    void setsignedflightpath_significance(double x){thesignedflightpath_significance=x;}
-
+   
    // Ettks/Etjet;
    double TksEt_o_JetEt()const{return(theTksEt_o_JetEt);} 
    void setTksEt_o_JetEt(double x){theTksEt_o_JetEt=x;}
@@ -122,11 +125,12 @@ namespace reco {
    // Eneutr.clus.,isol.band;
    double isolneutralE()const{return(theisolneutralE);} 
    void setisolneutralE(double x){theisolneutralE=x;}
+
    int neutralECALClus_number()const{return(theneutralECALClus_number);}
    void setneutralECALClus_number(int x){theneutralECALClus_number=x;}
 
    //mean DRneutr.clus.-lead.tk
-   double neutralECALClus_radius()const{return(theneutralECALClus_radius);} // -100. : neutralECALClus_number()=0;
+   double neutralECALClus_radius()const{return(theneutralECALClus_radius);} // NaN : neutralECALClus_number()=0;
    void setneutralECALClus_radius(double x){theneutralECALClus_radius=x;}
 
    // Eneutr.clus. / (Eneutr.clus. + Etks) , Etks built with tks impulsion and charged pi mass hypothesis; 
@@ -138,18 +142,18 @@ namespace reco {
    void setisolneutralE_o_TksEneutralE(double x){theisolneutralE_o_TksEneutralE=x;}
 
    // Eneutr.clus.,isol.band / Eneutr.clus.;
-   double neutralE_ratio()const{return(theneutralE_ratio);} // -100. : Eneutr.clus.=0.;
+   double neutralE_ratio()const{return(theneutralE_ratio);} // NaN : neutralECALClus_number()=0;
    void setneutralE_ratio(double x){theneutralE_ratio=x;}
 
    HepLorentzVector alternatrecJet_HepLV()const{return(thealternatrecJet_HepLV);} // rec. pi+/- candidates + neutral ECAL clus. combined;   
    void setalternatrecJet_HepLV(HepLorentzVector x){thealternatrecJet_HepLV=x;}
 
-   // EtECAL*/Ptlead.tk;
-   double ECALEt_o_leadTkPt()const{return(theECALEt_o_leadTkPt);} // -100. : failure; *using ECAL cell hits inside a DR cone around lead tk ECAL impact point direction; 
+   // EtECAL*/Ptlead.tk        *using ECAL cell hits inside a DR cone around lead tk ECAL impact point direction;
+   double ECALEt_o_leadTkPt()const{return(theECALEt_o_leadTkPt);} // NaN : failure when trying to find the lead. tk contact on ECAL surface point; 
    void setECALEt_o_leadTkPt(double x){theECALEt_o_leadTkPt=x;}
 
-   // EtHCAL**/Ptlead.tk;   
-   double HCALEt_o_leadTkPt()const{return(theHCALEt_o_leadTkPt);} // -100. : failure; **using HCAL tower hits inside a DR cone around lead tk ECAL impact point direction; 
+   // EtHCAL**/Ptlead.tk;      **using HCAL tower hits inside a DR cone around lead tk ECAL impact point direction; 
+   double HCALEt_o_leadTkPt()const{return(theHCALEt_o_leadTkPt);} // NaN : failure when trying to find the lead. tk contact on ECAL surface point; 
    void setHCALEt_o_leadTkPt(double x){theHCALEt_o_leadTkPt=x;}
  private:
    JetTagRef JetTagRef_;
