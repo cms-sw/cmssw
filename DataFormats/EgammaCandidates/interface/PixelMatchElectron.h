@@ -18,6 +18,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchElectron.h,v $
+// Revision 1.1  2006/12/04 17:47:18  uberthon
+// make PixelMatchElectron +PixelMatchGsfElectron separate classes
+//
 // Revision 1.3  2006/11/14 18:52:22  uberthon
 // add some missing data (HoE etc)
 //
@@ -38,8 +41,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 
 #include <vector>

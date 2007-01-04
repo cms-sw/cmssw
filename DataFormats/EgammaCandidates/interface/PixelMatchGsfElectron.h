@@ -18,6 +18,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchGsfElectron.h,v $
+// Revision 1.6  2006/12/19 18:37:28  uberthon
+// add electron classification and corrections
+//
 // Revision 1.5  2006/12/18 16:59:43  uberthon
 // change to gsf mode calculations
 //
@@ -45,8 +48,8 @@
 #include "DataFormats/TrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 
 #include <vector>
