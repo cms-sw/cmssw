@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2006/12/18 14:55:05 $
- *  $Revision: 1.43 $
+ *  $Date: 2007/01/03 20:37:45 $
+ *  $Revision: 1.44 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -80,8 +80,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     MuonTrajectoryBuilder::TrajectoryContainer trajectories(const TrajectorySeed&) { return MuonTrajectoryBuilder::TrajectoryContainer(); }
 
     /// pass the Event to the algo at each event
-    virtual void setL3Event( edm::Event& event) {theEvent = &event; setEvent(event);}
-    virtual void setEvent( const edm::Event& );
+    virtual void setEvent( edm::Event& );
 
   private:
     

@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/01/03 20:37:45 $
- *  $Revision: 1.66 $
+ *  $Date: 2007/01/03 21:59:06 $
+ *  $Revision: 1.67 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -163,9 +163,11 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
 //
 // set Event
 //
-void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
+void GlobalMuonTrajectoryBuilder::setEvent(edm::Event& event) {
 
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|setEvent";
+
+  theEvent = &event;
 
   // get tracker TrackCollection from Event
   edm::Handle<std::vector<Trajectory> > handleTrackerTrajs;
