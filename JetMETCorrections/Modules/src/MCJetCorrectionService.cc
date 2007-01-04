@@ -1,7 +1,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Dec. 28, 2006
-// $Id: HcalDbProducer.h,v 1.9 2006/10/18 23:37:50 fedor Exp $
+// $Id: MCJetCorrectionService.cc,v 1.1 2006/12/29 00:48:40 fedor Exp $
 //
 //
 
@@ -14,7 +14,9 @@
 MCJetCorrectionService::MCJetCorrectionService (const edm::ParameterSet& fParameters) 
   : mCorrector (new MCJetCorrector (fParameters))
 {
-  setWhatProduced(this);
+  std::string label = fParameters.getParameter <std::string> ("label");
+  setWhatProduced(this, label);
+  findingRecord <JetCorrectionsRecord> ();
 }
 
 MCJetCorrectionService::~MCJetCorrectionService () {}
