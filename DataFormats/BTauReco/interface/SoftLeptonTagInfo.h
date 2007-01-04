@@ -43,7 +43,7 @@ public:
   
     virtual SoftLeptonTagInfo* clone(void)  const { return new SoftLeptonTagInfo(*this); }
 
-    unsigned long leptons(void) const { 
+    unsigned int leptons(void) const { 
         return m_leptons.size(); 
     } 
 

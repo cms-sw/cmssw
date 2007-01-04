@@ -100,11 +100,12 @@ double IsolatedTauTagInfo::discriminator(float m_cone, float sig_cone, float iso
   const RefVector<TrackCollection> signalTracks = tracksInCone(trackMomentum, sig_cone, pt_min_tk);
   const RefVector<TrackCollection> isolationTracks = tracksInCone(trackMomentum, iso_cone, pt_min_tk); 
   
-  if (signalTracks.size() > 0 && (long)(isolationTracks.size() - signalTracks.size()) <= nTracksIsoRing)
+  if (signalTracks.size() > 0 && (int)(isolationTracks.size() - signalTracks.size()) <= nTracksIsoRing)
     myDiscriminator=1;
 
   return myDiscriminator;
 }
+
 double IsolatedTauTagInfo::discriminator(math::XYZVector myVector, float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing) const
 {
   double myDiscriminator = 0;
@@ -121,7 +122,7 @@ const  TrackRef leadTk = leadingSignalTrack(myVector, m_cone, pt_min_lt);
   const RefVector<TrackCollection> signalTracks = tracksInCone(trackMomentum, sig_cone, pt_min_tk);
   const RefVector<TrackCollection> isolationTracks = tracksInCone(trackMomentum, iso_cone, pt_min_tk); 
   
-  if (signalTracks.size() > 0 && (long)(isolationTracks.size() - signalTracks.size()) <= nTracksIsoRing)
+  if (signalTracks.size() > 0 && (int)(isolationTracks.size() - signalTracks.size()) <= nTracksIsoRing)
     myDiscriminator=1;
 
   return myDiscriminator;
@@ -144,11 +145,12 @@ const TrackRef leadTk = leadingSignalTrack(m_cone, pt_min_lt);
   const RefVector<TrackCollection> signalTracks = tracksInCone(trackMomentum, sig_cone, pt_min_tk, z_pv, dz_lt);
   const RefVector<TrackCollection> isolationTracks = tracksInCone(trackMomentum, iso_cone, pt_min_tk, z_pv, dz_lt); 
   
-  if (signalTracks.size() > 0 && (long)(isolationTracks.size() - signalTracks.size()) <= nTracksIsoRing)
+  if (signalTracks.size() > 0 && (int)(isolationTracks.size() - signalTracks.size()) <= nTracksIsoRing)
     myDiscriminator=1;
 
   return myDiscriminator;
 }
+
 double IsolatedTauTagInfo::discriminator(math::XYZVector myVector, float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing, float dz_lt) const
 {
   double myDiscriminator = 0;
@@ -161,14 +163,10 @@ const  TrackRef leadTk = leadingSignalTrack(myVector, m_cone, pt_min_lt);
   math::XYZVector trackMomentum = leadTk->momentum() ;
   float z_pv = leadTk->dz();
   const RefVector<TrackCollection> signalTracks = tracksInCone(trackMomentum, sig_cone, pt_min_tk, z_pv, dz_lt);
-  const RefVector<TrackCollection> isolationTracks =tracksInCone(trackMomentum, iso_cone, pt_min_tk, z_pv, dz_lt); 
+  const RefVector<TrackCollection> isolationTracks = tracksInCone(trackMomentum, iso_cone, pt_min_tk, z_pv, dz_lt); 
   
-  if (signalTracks.size() > 0 && (long)(isolationTracks.size() - signalTracks.size()) <= nTracksIsoRing)
+  if (signalTracks.size() > 0 && (int)(isolationTracks.size() - signalTracks.size()) <= nTracksIsoRing)
     myDiscriminator=1;
 
   return myDiscriminator;
-
-
-
-
 }
