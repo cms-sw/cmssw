@@ -2,7 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "CondFormats/RPCObjects/interface/LinkBoardSpec.h"
-#include <iostream>
+#include <sstream>
 
 LinkBoardSpec::LinkBoardSpec(bool m, int l)
     : theMaster(m), theLinkBoardNumInLink(l) { }
@@ -22,16 +22,19 @@ const FebConnectorSpec * LinkBoardSpec::feb(int febInputNum) const
   return 0;
 }
 
-void LinkBoardSpec::print(int depth ) const 
+std::string LinkBoardSpec::print(int depth ) const 
 {
-  if (depth<0) return;
-  depth--;
+  std::ostringstream str;
   std::string type = (theMaster) ? "master" : "slave";
-  std::cout <<" LinkBoardSpec: " << std::endl
+  str <<" LinkBoardSpec: " << std::endl
             <<" --->" <<type<<" linkBoardNumInLink: " << theLinkBoardNumInLink 
             << std::endl;
-  typedef std::vector<FebConnectorSpec>::const_iterator IT;
-  for (IT it=theFebs.begin(); it != theFebs.end(); it++) (*it).print(depth);
+  depth--;
+  if (depth >=0) {
+    typedef std::vector<FebConnectorSpec>::const_iterator IT;
+    for (IT it=theFebs.begin(); it != theFebs.end(); it++) str << (*it).print(depth);
+  }
+  return str.str();
 }
 
 

@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/10/08 12:11:41 $
- *  $Revision: 1.22 $
+ *  $Date: 2006/10/08 12:36:45 $
+ *  $Revision: 1.23 $
  *
  * \author Ilaria Segoni
  */
@@ -27,8 +27,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+
+
 
 #include <vector>
+#include <bitset>
+#include <sstream>
+
+using namespace std;
+using namespace edm;
 
 
 RPCRecordFormatter::RPCRecordFormatter(int fedId, const RPCReadOutMapping *r)
@@ -38,28 +46,96 @@ RPCRecordFormatter::RPCRecordFormatter(int fedId, const RPCReadOutMapping *r)
 RPCRecordFormatter::~RPCRecordFormatter(){
 }
 
+int RPCRecordFormatter::pack( uint32_t rawDetId, const RPCDigi & digi, int trigger_BX,
+                    Record & bxRecord, Record & tbRecord, Record & lbRecord) const
+{
+   LogDebug("pack:") << " detid: " << rawDetId << " digi: "<<digi;
+   int stripInDU = digi.strip();
+
+   // decode digi<->map
+   std::pair< ChamberRawDataSpec, LinkBoardChannelCoding>
+       rawDataFrame = readoutMapping->rawDataFrame(rawDetId, stripInDU);
+   const ChamberRawDataSpec & eleIndex = rawDataFrame.first;
+   const LinkBoardChannelCoding & channelCoding = rawDataFrame.second;
+   if (eleIndex.dccId != currentFED) return 0;           // return 0 if fedId is not correct 
+
+
+   // LB record
+   int current_BX = trigger_BX+digi.bx();
+   this->setBXRecord(bxRecord, current_BX);
+
+   // TB record
+   int tbLinkInputNumber = eleIndex.tbLinkInputNum; 
+   int rmb = eleIndex.dccInputChannelNum; 
+   this->setTBRecord(tbRecord, tbLinkInputNumber, rmb);  
+
+   // LB record
+   RPCLinkBoardData lbData;
+   lbData.setLbNumber(eleIndex.lbNumInLink);
+   lbData.setEod(0);
+   lbData.setHalfP(0);
+   int channel = channelCoding.channel();
+   vector<int> bitsOn; bitsOn.push_back(channel);                         
+   lbData.setPartitionNumber( channel/rpcraw::bits::BITS_PER_PARTITION ); 
+   lbData.setBits(bitsOn);
+   this->setLBRecord(lbRecord, lbData);
+
+   return 1;                                              // return 1 when packing OK 
+}
+
 /// Note that it takes a reference to std::auto_ptr<RPCDigiCollection> because
 /// I don't want to transfer ownership of RPCDigiCollection (I.S.)
+
 void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
 		std::auto_ptr<RPCDigiCollection> & prod, RPCFEDData & rawData, int triggerBX){
     
    enum RPCRecord::recordTypes typeOfRecord = theRecord.type();
    const unsigned int* recordIndexInt= theRecord.buf();
 
+   LogDebug("recordUnpack")<<"==> TYPE OF RECORD: "<<typeOfRecord;
+
    if(typeOfRecord==RPCRecord::StartOfBXData)      {
+      LogTrace("")<<"--> HERE StartOfBXDatarecord! ";
 	currentBX = this->unpackBXRecord(recordIndexInt);
-        rawData.addBXData(currentBX);
+      rawData.addBXData(currentBX);
+
+    LogTrace("")<<"ORIGINAL    BX: " <<reinterpret_cast<const bitset<16>&>(*recordIndexInt);
+    Record myRecord; setBXRecord(myRecord, currentBX); 
+    LogTrace("")<<"CORNSTUCTED BX: " <<reinterpret_cast<const bitset<16>&>(myRecord);
+    bitset<16> b1 = reinterpret_cast<const bitset<16>&>(*recordIndexInt);
+    bitset<16> b2 = reinterpret_cast<const bitset<16>&>(myRecord);
+    bool compare = true; for (int i=0; i<=15;i++) compare &= (b1.test(i)==b2.test(i));  
+    if (!compare) LogTrace("")<<"PROBLEM IN COMPARE";
+
    }	   
     
     if(typeOfRecord==RPCRecord::StartOfTbLinkInputNumberData) {
+      LogTrace("")<<"--> HERE StartOfTbLinkInputNumberData record! ";
     	currentRMB=0;
 	currentTbLinkInputNumber=0;
 	this->unpackTbLinkInputRecord(recordIndexInt);
+      
+      LogTrace("")<<"ORIGINAL    TB: " <<*reinterpret_cast<const bitset<16>*>(recordIndexInt);
+      Record myRecord; setTBRecord(myRecord, currentTbLinkInputNumber, currentRMB);
+      LogTrace("")<<"CORNSTUCTED TB: " <<*reinterpret_cast<const bitset<16>*>(&myRecord);
+    bitset<16> b1 = reinterpret_cast<const bitset<16>&>(*recordIndexInt);
+    bitset<16> b2 = reinterpret_cast<const bitset<16>&>(myRecord);
+    bool compare = true; for (int i=0; i<=15;i++) compare &= (b1.test(i)==b2.test(i));  
+    if (!compare) LogTrace("")<<"PROBLEM IN COMPARE";
     }
    
     /// Unpacking BITS With Hit (uniquely related to strips with hit)
     if(typeOfRecord==RPCRecord::LinkBoardData)	    {
+      LogTrace("")<<"--> HERE LinkBoardData record! ";
 	RPCLinkBoardData lbData=this->unpackLBRecord(recordIndexInt);
+
+      LogTrace("")<<"ORIGINAL    LB: " <<*reinterpret_cast<const bitset<16>*>(recordIndexInt);
+      Record myRecord; setLBRecord(myRecord, lbData); 
+      LogTrace("")<<"CORNSTUCTED LB: " <<*reinterpret_cast<const bitset<16>*>(&myRecord);
+    bitset<16> b1 = reinterpret_cast<const bitset<16>&>(*recordIndexInt);
+    bitset<16> b2 = reinterpret_cast<const bitset<16>&>(myRecord);
+    bool compare = true; for (int i=0; i<=15;i++) compare &= (b1.test(i)==b2.test(i));  
+    if (!compare) LogTrace("")<<"PROBLEM IN COMPARE";
 
       ChamberRawDataSpec eleIndex;
       eleIndex.dccId = currentFED;
@@ -85,11 +161,9 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
 
             // fired strip in LB frame
 		int lbBit = *(pBit);
-
             uint32_t rawDetId;
             int geomStrip;
             try {
-	      //RPCReadOutMapping::StripInDetUnit stripInDetUnit=linkBoard->strip(lbBit);
 	       RPCReadOutMapping::StripInDetUnit stripInDetUnit=readoutMapping->strip(eleIndex,lbBit);
 
                // DetUnit
@@ -109,7 +183,9 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
 		/// Creating RPC digi
 	    RPCDigi digi(geomStrip,currentBX-triggerBX);
 
-		/// Committing digi to the product
+      	/// Committing digi to the product
+            LogTrace("") << " HERE detector: " << rawDetId<<" digi strip: "<<digi.strip()<<" digi bx: "<<digi.bx();
+            LogTrace("") << " ChamberRawDataSpec: " << eleIndex.print(); 
 		 prod->insertDigi(RPCDetId(rawDetId),digi);
           }
 	
@@ -122,8 +198,15 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
 
 
 
+void RPCRecordFormatter::setEmptyRecord( Record& record) 
+{
+ record = (RPCRecord::controlWordFlag << RPCRecord::RECORD_TYPE_SHIFT);
+ record |= (RPCRecord::EmptyOrDCCDiscardedFlag << RPCRecord::CONTROL_TYPE_SHIFT);
+ record |= (RPCRecord::EmptyWordFlag << RPCRecord::EMPTY_OR_DCCDISCARDED_SHIFT);
+}
 
-int RPCRecordFormatter::unpackBXRecord(const unsigned int* recordIndexInt) {
+
+int RPCRecordFormatter::unpackBXRecord( const unsigned int* recordIndexInt) {
     
     int bx= ( *recordIndexInt >> rpcraw::bx::BX_SHIFT )& rpcraw::bx::BX_MASK ;
     edm::LogInfo ("RPCUnpacker")<<"Found BX record, BX= "<<bx;
@@ -131,6 +214,20 @@ int RPCRecordFormatter::unpackBXRecord(const unsigned int* recordIndexInt) {
 
 } 
 
+void RPCRecordFormatter::setBXRecord( Record& record, int bx) 
+{
+  record = (RPCRecord::controlWordFlag << RPCRecord::RECORD_TYPE_SHIFT);
+  record |= (RPCRecord::BXFlag << RPCRecord::BX_TYPE_SHIFT); 
+  record |= (bx << rpcraw::bx::BX_SHIFT);
+}
+
+void RPCRecordFormatter::setTBRecord( Record& record, int tbLinkInputNumber, int rmb)
+{
+  record = (RPCRecord::controlWordFlag << RPCRecord::RECORD_TYPE_SHIFT);
+  record |= (RPCRecord::StartOfLBInputDataFlag << RPCRecord::CONTROL_TYPE_SHIFT);
+  record |= (tbLinkInputNumber << rpcraw::tb_link::TB_LINK_INPUT_NUMBER_SHIFT);
+  record |= (rmb << rpcraw::tb_link::TB_RMB_SHIFT);
+}
 
 void RPCRecordFormatter::unpackTbLinkInputRecord(const unsigned int* recordIndexInt) {
 
@@ -140,6 +237,32 @@ void RPCRecordFormatter::unpackTbLinkInputRecord(const unsigned int* recordIndex
     edm::LogInfo ("RPCUnpacker")<<"Found start of LB Link Data Record, tbLinkInputNumber: "<<currentTbLinkInputNumber<<
  	 " Readout Mother Board: "<<currentRMB;
 } 
+
+
+void RPCRecordFormatter::setLBRecord( Record& record, const RPCLinkBoardData & lbData) {
+  record = 0;
+
+  int eod = lbData.eod();
+  record |= (eod<<rpcraw::lb::EOD_SHIFT );
+
+  int halfP = lbData.halfP();
+  record |= (halfP<<rpcraw::lb::HALFP_SHIFT);
+
+  int partitionNumber = lbData.partitionNumber(); 
+  record |= (partitionNumber<<rpcraw::lb::PARTITION_NUMBER_SHIFT);
+
+  int lbNumber = lbData.lbNumber();
+  record |= (lbNumber<<rpcraw::lb::LB_SHIFT);
+
+  std::vector<int> bitsOn = lbData.bitsOn();
+  int partitionData = 0; 
+  for (vector<int>::const_iterator iv = bitsOn.begin(); iv != bitsOn.end(); iv++ ) {
+    int ibit = (partitionNumber)? (*iv)%(partitionNumber*rpcraw::bits::BITS_PER_PARTITION) : (*iv);
+    partitionData |= (1<<ibit); 
+  }
+  record |= (partitionData<<rpcraw::lb::PARTITION_DATA_SHIFT);
+   
+}
 
 RPCLinkBoardData RPCRecordFormatter::unpackLBRecord(const unsigned int* recordIndexInt) {
     

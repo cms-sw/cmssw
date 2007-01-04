@@ -3,6 +3,7 @@
 
 #include "CondFormats/RPCObjects/interface/LinkBoardSpec.h"
 #include <vector>
+#include <string>
 
 /** \class LinkConnSpec
  * RPC LinkConnection Specification for readout decoding
@@ -19,12 +20,14 @@ public:
 
   /// LB served by this link, identified by its position in link 
   const LinkBoardSpec * linkBoard(int linkBoardNumInLink) const;
+
+  const  std::vector<LinkBoardSpec> & linkBoards() const { return theLBs; }
   
   /// attach LinkBoard to this link
   void add(const LinkBoardSpec & lb);
 
   ///  debud printaout, call its components with depth dectreased by one
-  void print(int depth = 0) const;
+  std::string print(int depth = 0) const;
 
 private:
   int theTriggerBoardInputNumber;

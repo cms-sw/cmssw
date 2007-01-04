@@ -6,6 +6,7 @@
 #include "CondFormats/RPCObjects/interface/ChamberStripSpec.h"
 #include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
 #include "CondFormats/RPCObjects/interface/FebLocationSpec.h"
+#include <string>
 
 /** \class FebConnectorSpec 
  * Specifies the input for LinkBoard. In hardware the data goes through
@@ -30,6 +31,7 @@ public:
 
   /// strip info for input pin
   const ChamberStripSpec * strip(int pinNumber) const;
+  const std::vector<ChamberStripSpec> & strips() const { return theStrips; }
 
   /// DetUnit to which data belongs
   const uint32_t & rawId() const;
@@ -38,7 +40,7 @@ public:
   const FebLocationSpec     & feb()  const { return theFeb; }
 
   /// debug
-  void print(int depth=0) const;
+  std::string print(int depth=0) const;
 
 private:
   int theLinkBoardInputNum;

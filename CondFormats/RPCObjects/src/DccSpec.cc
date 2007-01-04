@@ -1,16 +1,20 @@
 #include "CondFormats/RPCObjects/interface/DccSpec.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
+#include <sstream>
 
 DccSpec::DccSpec(int id) : theId(id) 
 { }
 
-void DccSpec::print(int depth) const
+std::string DccSpec::print(int depth) const
 {
-  std::cout << "DccSpec:id=" << id() << std::endl;
-  typedef std::vector<TriggerBoardSpec>::const_iterator ITTB;
+  std::ostringstream str;
+  str << "DccSpec:id=" << id() << std::endl;
   depth--;
-  for (ITTB it = theTBs.begin(); it != theTBs.end(); it++) it->print(depth);
+  if (depth >= 0) {
+    typedef std::vector<TriggerBoardSpec>::const_iterator ITTB;
+    for (ITTB it = theTBs.begin(); it != theTBs.end(); it++) str << it->print(depth);
+  }
+  return str.str();
 }
 
 const TriggerBoardSpec * DccSpec::triggerBoard(int channelNumber) const

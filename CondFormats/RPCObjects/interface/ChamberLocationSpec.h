@@ -17,6 +17,6 @@ struct ChamberLocationSpec {
   std::string barrelOrEndcap; 
 
   /// debug printout
-  void print( int depth = 0) const;
+  std::string print( int depth = 0) const;
 };
 #endif

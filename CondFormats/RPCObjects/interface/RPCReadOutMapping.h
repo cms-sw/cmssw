@@ -14,6 +14,7 @@
 
 #include "CondFormats/RPCObjects/interface/DccSpec.h"
 #include "CondFormats/RPCObjects/interface/ChamberRawDataSpec.h"
+#include "CondFormats/RPCObjects/interface/LinkBoardChannelCoding.h"
 class LinkBoardSpec;
 
 
@@ -50,11 +51,13 @@ public:
   std::pair<ChamberRawDataSpec, int> getRAWSpecForCMSChamberSrip(uint32_t  detId, int strip,  int dccInputChannel) const;
 
   /// get strip info for given LB channel in given LB location.
-  std::pair<uint32_t,int> strip(const ChamberRawDataSpec & linkboard, int chanelLB) const;
+  StripInDetUnit strip(const ChamberRawDataSpec & linkboard, int chanelLB) const;
 
   /// convert strip location as in raw data to detUnit frame
   StripInDetUnit detUnitFrame(const LinkBoardSpec* location, 
       int febInLB, int stripPinInFeb) const;
+
+  std::pair< ChamberRawDataSpec, LinkBoardChannelCoding> rawDataFrame (uint32_t rawDetId, int stripInDU) const;
   
 
 private:

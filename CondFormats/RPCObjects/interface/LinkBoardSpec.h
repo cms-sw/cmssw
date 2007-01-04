@@ -2,6 +2,7 @@
 #define CondFormatsRPCObjectsLinkBoardSpec_H
 
 #include "CondFormats/RPCObjects/interface/FebConnectorSpec.h"
+#include <string>
 
 /** \class LinkBoardSpec
  * RPC LinkBoard Specification for readout decoding. Provide chamber location specification (as in DB throught FEBs) 
@@ -27,9 +28,10 @@ public:
 
   /// get Feb by its connection number to this board
   const FebConnectorSpec * feb(int febInputNum) const;
+  const  std::vector<FebConnectorSpec> & febs() const { return theFebs; }
 
   /// debud printout
-  void print(int depth=0) const;
+  std::string print(int depth=0) const;
 
 private: 
   bool theMaster;

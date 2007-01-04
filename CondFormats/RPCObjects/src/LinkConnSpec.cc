@@ -1,13 +1,16 @@
 #include "CondFormats/RPCObjects/interface/LinkConnSpec.h"
-#include <iostream>
+#include <sstream>
 
-void LinkConnSpec::print(int depth) const
+std::string LinkConnSpec::print(int depth) const
 {
-  if(depth<0) return;
-  std::cout << "LinkConnSpec number="<<theTriggerBoardInputNumber<<std::endl;
-  typedef std::vector<LinkBoardSpec>::const_iterator ILB;
+  std::ostringstream str;
+  str << "LinkConnSpec number="<<theTriggerBoardInputNumber<<std::endl;
   depth--;
-  for (ILB it = theLBs.begin(); it != theLBs.end(); it++) (*it).print(depth);  
+  if (depth >= 0) {
+    typedef std::vector<LinkBoardSpec>::const_iterator ILB;
+    for (ILB it = theLBs.begin(); it != theLBs.end(); it++) str << (*it).print(depth);  
+  }
+  return str.str();
 }
 
 void LinkConnSpec::add(const LinkBoardSpec & lb) 

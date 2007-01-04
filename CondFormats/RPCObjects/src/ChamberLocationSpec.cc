@@ -1,17 +1,19 @@
 #include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
-#include <iostream>
+#include <sstream>
 
-void ChamberLocationSpec::print( int depth ) const
+std::string ChamberLocationSpec::print( int depth ) const
 {
-  if (depth <0) return;
-  std::cout << " ChamberLocationSpec: " << std::endl
-            << " --->DiskOrWheel: " << diskOrWheel
-            << " Layer: " << layer
-            << " Sector: " << sector
-            << " Subsector: " << subsector
-            << " ChamberLocationName: " << chamberLocationName
-            << " FebZOrnt: " << febZOrnt
-            << " FebZRadOrnt: " << febZRadOrnt
-            << " BarrelOrEndcap: " << barrelOrEndcap
-            << std::endl; 
+  std::ostringstream str;
+  if (depth >=0) {
+    str  << " ChamberLocationSpec: " << std::endl
+         << " --->DiskOrWheel: " << diskOrWheel
+         << " Layer: " << layer
+         << " Sector: " << sector
+         << " Subsector: " << subsector
+         << " ChamberLocationName: " << chamberLocationName
+         << " FebZOrnt: " << febZOrnt
+         << " FebZRadOrnt: " << febZRadOrnt
+         << " BarrelOrEndcap: " << barrelOrEndcap;
+  }
+  return str.str();
 }

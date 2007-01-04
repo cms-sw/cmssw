@@ -1,13 +1,16 @@
 #include "CondFormats/RPCObjects/interface/ChamberStripSpec.h"
-#include <iostream>
+#include <sstream>
 
-void ChamberStripSpec::print( int depth ) const
+std::string ChamberStripSpec::print( int depth ) const
 {
-  if (depth <0) return;
-  std::cout << " ChamberStripSpec: " 
-            << " pin: "<<cablePinNumber
-            << ", chamber: "<<chamberStripNumber
-            << ", CMS strip: "<<cmsStripNumber
-            << std::endl;
+  std::ostringstream str;
+  if (depth >= 0) { 
+    str << " ChamberStripSpec: " 
+        << " pin: "<<cablePinNumber
+        << ", chamber: "<<chamberStripNumber
+        << ", CMS strip: "<<cmsStripNumber
+        << std::endl;
+  }
+  return str.str();
 }
 

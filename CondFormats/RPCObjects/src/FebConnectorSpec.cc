@@ -34,16 +34,18 @@ const uint32_t & FebConnectorSpec::rawId() const
 }
 
 
-void FebConnectorSpec::print(int depth) const
+std::string FebConnectorSpec::print(int depth) const
 {
-  if(depth<0) return;
-  std::cout << "FebConnectorSpec in LinkBoardNum ="<<linkBoardInputNum()<<std::endl;
-  RPCDetId aDet(rawId());
-  std::cout<<aDet;
-  std::cout << std::endl;
+  std::ostringstream str;
+  str << "FebConnectorSpec in LinkBoardNum ="<<linkBoardInputNum()
+      <<" rawId: " << rawId() <<std::endl;
+  //RPCDetId aDet(rawId());
+  //std::cout<<aDet;
+  str << theChamber.print(depth)<< std::endl << theFeb.print(depth) ;
   depth--;
-  theChamber.print(depth);
-  theFeb.print(depth);
-  typedef std::vector<ChamberStripSpec>::const_iterator IT;
-  for (IT it=theStrips.begin(); it != theStrips.end(); it++) (*it).print(depth); 
+  if (depth >=0) {
+    typedef std::vector<ChamberStripSpec>::const_iterator IT;
+    for (IT it=theStrips.begin(); it != theStrips.end(); it++) str << (*it).print(depth); 
+  }
+  return str.str();
 }

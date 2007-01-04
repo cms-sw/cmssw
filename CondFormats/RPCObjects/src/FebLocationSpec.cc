@@ -1,15 +1,14 @@
 #include "CondFormats/RPCObjects/interface/FebLocationSpec.h"
-#include <iostream>
+#include <sstream>
 
-void FebLocationSpec::print(int depth) const
+std::string FebLocationSpec::print(int depth) const
 {
-  if(depth<0) return;
-  std::cout << "FebLocationSpec: " << std::endl
-            <<" local partition: " 
-              <<positionInCmsEtaPartition
-              <<" ("<<localEtaPartition<<")"
-            <<" cms partition: "
-              <<cmsEtaPartition
-              <<" ("<<positionInCmsEtaPartition<<")"
+  std::ostringstream str;
+  if(depth >= 0) {
+  str << "FebLocationSpec: " << std::endl
+            <<" local partition: "<<localEtaPartition<<" ("<<positionInLocalEtaPartition <<")"
+            <<" cms partition: " <<cmsEtaPartition <<" ("<<positionInCmsEtaPartition<<")"
             << std::endl;
+  }
+  return str.str();
 }

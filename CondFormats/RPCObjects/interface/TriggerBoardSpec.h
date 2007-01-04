@@ -3,6 +3,7 @@
 
 #include <boost/cstdint.hpp>
 #include "CondFormats/RPCObjects/interface/LinkConnSpec.h"
+#include <string>
 
 /** \class TriggerBoardSpec
  * RPC Trigger Board specification for readout decoding
@@ -19,11 +20,13 @@ public:
   /// link attached to this TB with given input number
   const LinkConnSpec * linkConn(int tbInputNumber) const;
 
+  const std::vector<LinkConnSpec> linkConns() const { return theLinks; }
+
   ///  attach connection to TB
   void add(const LinkConnSpec & lc);
 
   ///  debud printaout, call its components with depth dectreased by one
-  void print(int depth = 0) const;
+  std::string print(int depth = 0) const;
   
 private:
   int theNum;

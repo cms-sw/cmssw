@@ -76,6 +76,7 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
                <<roll<<" ???" << endl;
   }
 
+/*
   RPCDetId du;
   bool doDebug = false;
   try {
@@ -85,6 +86,7 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
     doDebug = true;
     cout <<" Problem with RPCDetId, got exception!! " <<endl;
   }
+*/
 
   RPCDetId du2;
   if(barrel){   
@@ -114,8 +116,10 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
     du2.buildfromTrIndex(trIndex);
   }
 
+/*
   if (doDebug || du != du2) {
-    ch.print(); 
+    cout << "barrel: " << barrel << endl;
+    cout << ch.print(); 
     cout <<" detId: "<<du2<<", rawId:"<<du2()<<endl;
     cout <<" way (1) "<< endl
          <<" region: "<<region
@@ -137,5 +141,6 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
          << endl; 
     return du2();
   }
-  return du.rawId();
+*/
+  return du2.rawId();
 }

@@ -4,6 +4,7 @@
 /** \class ChamberStripSpec
  * RPC strip specification for readout decoding
  */
+#include <string>
 
 struct ChamberStripSpec {
   int cablePinNumber;
@@ -11,7 +12,7 @@ struct ChamberStripSpec {
   int cmsStripNumber;
   
   /// debug printout
-  void print( int depth = 0) const;
+  std::string print( int depth = 0) const;
 };
 
 #endif

@@ -2,14 +2,15 @@
  *
  *  Implementation of RPCRecord Class
  *
- *  $Date: 2006/05/29 08:38:39 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/10/08 12:11:29 $
+ *  $Revision: 1.9 $
  *  \author Ilaria Segoni
  */
 
 
 #include <EventFilter/RPCRawToDigi/interface/RPCRecord.h>
 #include <EventFilter/RPCRawToDigi/interface/RPCLinkBoardData.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 
@@ -19,13 +20,17 @@ RPCRecord::recordTypes RPCRecord::computeType(){
 wordType = UndefinedType;
     
 /// Link Board Data
+//LogDebug("recordType intiial:") << " record type:  " << wordType; 
 if ( (int)((*word_ >> RECORD_TYPE_SHIFT) & RECORD_TYPE_MASK) <= MaxLBFlag) wordType = LinkBoardData;
  
+//LogDebug("recordType intiial:") << " record type:  " << wordType; 
 /// Control Word
 if ( (int)((*word_ >> RECORD_TYPE_SHIFT) & RECORD_TYPE_MASK) == controlWordFlag){
       
+//LogDebug("recordTypecheck, is control :") << " record type:  " << wordType; 
 	/// StartOfBXData
 	if ( (int)((*word_ >> BX_TYPE_SHIFT) & BX_TYPE_MASK) == BXFlag) wordType = StartOfBXData;
+//LogDebug("recordType check bx:") << " record type:  " << wordType; 
 	/// StartOfTbLinkInputNumberData             
 	if ( (int)((*word_ >> CONTROL_TYPE_SHIFT) & CONTROL_TYPE_MASK) == StartOfLBInputDataFlag) wordType =  StartOfTbLinkInputNumberData;
 	///  RMBDiscarded           
@@ -41,6 +46,7 @@ if ( (int)((*word_ >> RECORD_TYPE_SHIFT) & RECORD_TYPE_MASK) == controlWordFlag)
 	}
 }
 
+//LogDebug("recordType final:") << " record type:  " << wordType; 
 return wordType;
 }
 

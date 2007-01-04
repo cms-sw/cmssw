@@ -1,5 +1,5 @@
 #include "CondFormats/RPCObjects/interface/TriggerBoardSpec.h"
-#include <iostream>
+#include <sstream>
 
 TriggerBoardSpec::TriggerBoardSpec(int num) : theNum(num)
 { }
@@ -14,14 +14,16 @@ const LinkConnSpec * TriggerBoardSpec::linkConn(int tbInputNumber) const
   return 0;
 }
 
-void TriggerBoardSpec::print(int depth) const
+std::string TriggerBoardSpec::print(int depth) const
 {
-  if (depth<0) return;
-  std::cout << "TriggerBoardSpec: num=" << dccInputChannelNum() << std::endl;
+  std::ostringstream str;
+  str << "TriggerBoardSpec: num=" << dccInputChannelNum() << std::endl;
   typedef std::vector<LinkConnSpec>::const_iterator ICON;
   depth--;
-  for (ICON ic = theLinks.begin(); ic != theLinks.end(); ic++) 
-    (*ic).print(depth);
+  if (depth >= 0) {
+    for (ICON ic = theLinks.begin(); ic != theLinks.end(); ic++) str << (*ic).print(depth);
+  }
+  return str.str();
 }
 
 void TriggerBoardSpec::add(const LinkConnSpec & lc)
