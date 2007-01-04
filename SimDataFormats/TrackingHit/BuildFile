@@ -1,8 +1,10 @@
 <use name=DataFormats/Common>
+<use name=DataFormats/GeometryVector>
 <use name=SimDataFormats/EncodedEventId>
 <use name=rootrflx>
 <export>
   <use name=DataFormats/Common>
+  <use name=DataFormats/GeometryVector>
   <use name=SimDataFormats/EncodedEventId>
   <lib name=SimDataFormatsTrackingHit>
 </export>
