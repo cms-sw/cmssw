@@ -17,7 +17,7 @@ positions of a muon in the detector.
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.7 2006/10/26 23:35:51 wmtan Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.8 2006/12/28 03:19:20 slava77 Exp $
 //
 //
 
@@ -75,6 +75,7 @@ positions of a muon in the detector.
 
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -325,6 +326,8 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     loadNtVars(nPoints_, 0, pStatus, 0, p3T, r3T,  p3T, r3T, charge, covT); nPoints_++;
     FreeTrajectoryState ftsTrack = getFromCLHEP(p3T, r3T, charge, covT, &*bField);
     FreeTrajectoryState ftsStart = ftsTrack;
+    SteppingHelixStateInfo siStart(ftsStart);
+    SteppingHelixStateInfo siDest;
     TrajectoryStateOnSurface tSOSDest;
 
     std::map<double, const GlobalSimHit*> simHitsByDistance;
@@ -379,17 +382,35 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 		   <<igHit->surf->position()
 		   <<" "<<igHit->surf->rotation()<<std::endl;
 	}
-	tSOSDest = shProp->propagate(ftsStart, *igHit->surf);
-	if (tSOSDest.isValid()){
-	  ftsStart = *tSOSDest.freeState();
-	  getFromFTS(ftsStart, p3F, r3F, charge, covF);
-	  pStatus = 0;
-	} else pStatus = 1;
-	if ( pStatus == 1 || (r3F- igHit->r3).mag() > FPRP_MISMATCH){ 
-	  //start from the beginning if failed with previous
-	  ftsStart = ftsTrack;
-	  pStatus = 1;
+	if (radX0CorrectionMode_ ){
+	  const SteppingHelixPropagator* shPropCPtr = 
+	    dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
+	  siDest = shPropCPtr->propagate(siStart, *igHit->surf);
+	  if (siDest.isValid()){
+	    siStart = siDest;
+	    ftsStart = *siStart.getStateOnSurface(*igHit->surf).freeState();
+	    getFromFTS(ftsStart, p3F, r3F, charge, covF);
+	    pStatus = 0;
+	  } else pStatus = 1;
+	  if ( pStatus == 1 || (r3F- igHit->r3).mag() > FPRP_MISMATCH){ 
+	    //start from the beginning if failed with previous
+	    siStart = SteppingHelixStateInfo(ftsTrack);
+	    pStatus = 1;
+	  }
+	} else {
+	  tSOSDest = shProp->propagate(ftsStart, *igHit->surf);
+	  if (tSOSDest.isValid()){
+	    ftsStart = *tSOSDest.freeState();
+	    getFromFTS(ftsStart, p3F, r3F, charge, covF);
+	    pStatus = 0;
+	  } else pStatus = 1;
+	  if ( pStatus == 1 || (r3F- igHit->r3).mag() > FPRP_MISMATCH){ 
+	    //start from the beginning if failed with previous
+	    ftsStart = ftsTrack;
+	    pStatus = 1;
+	  }
 	}
+	
 
 	if (debug_){
 	  std::cout<<"Got to "
