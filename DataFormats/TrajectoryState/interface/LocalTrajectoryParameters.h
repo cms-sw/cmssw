@@ -1,8 +1,8 @@
 #ifndef _TRACKER_LOCALTRAJECTORYPARAMETERS_H_
 #define _TRACKER_LOCALTRAJECTORYPARAMETERS_H_
 
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
 
