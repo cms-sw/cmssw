@@ -9,14 +9,14 @@
  * To be used as base class for all 1D positional TrackingRecHits.
  * The coordinate measured is assumend to be the local "x"
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/01/24 14:09:25 $
+ *  $Revision: 1.1 $
  *  \author S. Lacaprara, G. Cerminara
  */
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "Geometry/Surface/interface/LocalError.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 
 class RecHit1D : public TrackingRecHit {

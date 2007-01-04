@@ -4,7 +4,7 @@
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/Surface/interface/LocalError.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
 class TrackingRecHit {

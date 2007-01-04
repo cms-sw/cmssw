@@ -1,5 +1,6 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/DetId>
+<use name=DataFormats/GeometryVector>
 <use name=FWCore/Utilities>
 <use name=Geometry/CommonDetAlgo>
 <use name=Geometry/Surface>
@@ -7,6 +8,7 @@
 <export>
   <use name=DataFormats/Common>
   <use name=DataFormats/DetId>
+  <use name=DataFormats/GeometryVector>
   <use name=Geometry/CommonDetAlgo>
   <use name=Geometry/Surface>
   <lib name=DataFormatsTrackingRecHit>

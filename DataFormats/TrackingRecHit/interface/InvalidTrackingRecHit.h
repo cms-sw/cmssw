@@ -4,7 +4,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "Geometry/Surface/interface/Plane.h"
 #include "Geometry/Surface/interface/LocalError.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 class InvalidTrackingRecHit : public TrackingRecHit {
 public:
