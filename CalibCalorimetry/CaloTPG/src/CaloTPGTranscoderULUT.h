@@ -6,8 +6,8 @@
 
 /** \class CaloTPGTranscoderULUT
   *  
-  * $Date: 2006/12/21 03:18:43 $
-  * $Revision: 1.7 $
+  * $Date: 2006/12/21 22:50:24 $
+  * $Revision: 1.8 $
   * \author J. Mans - Minnesota
   */
 class CaloTPGTranscoderULUT : public CaloTPGTranscoder {
@@ -38,6 +38,6 @@ public:
   void loadHCAL(const std::string& filename);
   void loadhcalUncompress(const std::string& filename);
   
-  double hcaluncomp_[33][256];
+  double hcaluncomp_[33][256] ;
 };
 #endif
