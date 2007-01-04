@@ -3,7 +3,6 @@
   <class name="TrackingRecHit"/>
   <class name="RecHit1D"/>
   <class name="InvalidTrackingRecHit"/>
-  <class name="CLHEP::HepSymMatrix"/>
   <class name="RecHit2DLocalPos"/>
   <class name="std::vector<TrackingRecHit*>"/>
   <class name="edm::OwnVector<TrackingRecHit, edm::ClonePolicy<TrackingRecHit> >"/>
