@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2006/10/19 18:50:58 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/12/28 03:28:05 $
+ *  $Revision: 1.9 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.8 2006/10/19 18:50:58 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.9 2006/12/28 03:28:05 slava77 Exp $
 //
 //
 
@@ -35,6 +35,7 @@
 #include "CLHEP/Vector/ThreeVector.h"
 
 
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 
 class MagneticField;
 class MagVolume;
@@ -44,11 +45,8 @@ class SteppingHelixPropagator : public Propagator {
   typedef Hep3Vector Vector;
   typedef Hep3Vector  Point;
 
-  struct Basis {
-    Vector lX;
-    Vector lY;
-    Vector lZ;
-  };
+  typedef SteppingHelixStateInfo StateInfo;
+  typedef SteppingHelixStateInfo::Basis Basis;
 
   enum Result {
     OK=0,
@@ -84,21 +82,6 @@ class SteppingHelixPropagator : public Propagator {
     POL_1_F, //1st order approximation, straight line
     POL_2_F,//2nd order
     POL_M_F //highest available
-  };
-
-  struct StateInfo {
-    int q;
-    Vector p3;
-    Point r3;
-    HepSymMatrix cov;
-    HepSymMatrix matDCov;
-    double path;
-    double radPath;
-    Basis rep;
-    double dir;
-    Vector bf;
-    Vector bfGradLoc;
-    const MagVolume* magVol;
   };
 
   /// Constructors
@@ -140,9 +123,26 @@ class SteppingHelixPropagator : public Propagator {
   /// Propagate to PCA to a line (given by 2 points) given a starting point 
   virtual std::pair<FreeTrajectoryState, double> 
     propagateWithPath(const FreeTrajectoryState& ftsStart, 
+		      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
+    
+    
+  /// Propagate to Plane given a starting point
+  SteppingHelixStateInfo 
+    propagate(const SteppingHelixStateInfo& ftsStart, const Surface& sDest) const;
+  SteppingHelixStateInfo 
+    propagate(const SteppingHelixStateInfo& ftsStart, const Plane& pDest) const;
+  /// Propagate to Cylinder given a starting point (a Cylinder is assumed to be positioned at 0,0,0)
+  SteppingHelixStateInfo 
+    propagate(const SteppingHelixStateInfo& ftsStart, const Cylinder& cDest) const;
+  /// Propagate to PCA to point given a starting point 
+  SteppingHelixStateInfo 
+    propagate(const SteppingHelixStateInfo& ftsStart, const GlobalPoint& pDest) const;
+  /// Propagate to PCA to a line (given by 2 points) given a starting point 
+  SteppingHelixStateInfo 
+    propagate(const SteppingHelixStateInfo& ftsStart, 
 	      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
-  
 
+  
   /// Switch debug printouts (to cout) .. very verbose
   void setDebug(bool debug){ debug_ = debug;}
 
@@ -164,6 +164,7 @@ class SteppingHelixPropagator : public Propagator {
  protected:
   /// (Internals) Init starting point
   void setIState(const FreeTrajectoryState& ftsStart) const;
+  void setIState(const SteppingHelixStateInfo& sStart) const;
   void setIState(const SteppingHelixPropagator::Vector& p3, 
 		 const SteppingHelixPropagator::Point& r3, 
 		 int charge, const HepSymMatrix& cov, 

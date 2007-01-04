@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2006/10/19 18:50:57 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/12/28 03:28:05 $
+ *  $Revision: 1.18 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.17 2006/10/19 18:50:57 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.18 2006/12/28 03:28:05 slava77 Exp $
 //
 //
 
@@ -26,6 +26,8 @@
 #include "Geometry/Surface/interface/Cylinder.h"
 #include "Geometry/Surface/interface/Plane.h"
 #include "Geometry/Surface/interface/Cone.h"
+
+#include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "CLHEP/Matrix/DiagMatrix.h"
@@ -53,7 +55,10 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
   for (int i = 0; i <= MAX_POINTS; i++){
     svBuf_[i].cov = HepSymMatrix(6,0);
     svBuf_[i].matDCov = HepSymMatrix(6,0);
+    svBuf_[i].isComplete = true;
+    svBuf_[i].isValidInfo = true;
   }
+  
 }
 
 TrajectoryStateOnSurface 
@@ -84,60 +89,35 @@ SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart,
 std::pair<TrajectoryStateOnSurface, double> 
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
 					   const Plane& pDest) const {
-  GlobalPoint rPlane = pDest.toGlobal(LocalPoint(0,0,0));
-  GlobalVector nPlane = pDest.toGlobal(LocalVector(0,0,1.)); nPlane = nPlane.unit();
 
-  double pars[6] = { rPlane.x(), rPlane.y(), rPlane.z(),
-		     nPlane.x(), nPlane.y(), nPlane.z() };
+  setIState(SteppingHelixStateInfo(ftsStart));
 
-  setIState(ftsStart);
+  const StateInfo svCurrent = propagate(svBuf_[0], pDest);
 
-  Result result = propagate(PLANE_DT, pars);
-  if (result != OK ) return TsosPP();
-
-  FreeTrajectoryState ftsDest;
-  getFState(ftsDest); 
-  TrajectoryStateOnSurface tsosDest(ftsDest, pDest);
-  const StateInfo& svCurrent = svBuf_[cIndex_(nPoints_-1)];
-  
-  return TsosPP(tsosDest, svCurrent.path);
+  return TsosPP(svCurrent.getStateOnSurface(pDest), svCurrent.path);
 }
 
 std::pair<TrajectoryStateOnSurface, double> 
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
 					   const Cylinder& cDest) const {
 
-  setIState(ftsStart);
+  setIState(SteppingHelixStateInfo(ftsStart));
 
-  double pars[6];
-  pars[RADIUS_P] = cDest.radius();
+  const StateInfo svCurrent = propagate(svBuf_[0], cDest);
 
-  Result result = propagate(RADIUS_DT, pars);
-  if (result != OK) return TsosPP();
-
-  FreeTrajectoryState ftsDest;
-  getFState(ftsDest); 
-  TrajectoryStateOnSurface tsosDest(ftsDest, cDest);
-  const StateInfo& svCurrent = svBuf_[cIndex_(nPoints_-1)];
-
-  return TsosPP(tsosDest, svCurrent.path);
+  return TsosPP(svCurrent.getStateOnSurface(cDest), svCurrent.path);
 }
 
 
 std::pair<FreeTrajectoryState, double> 
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
 					   const GlobalPoint& pDest) const {
-  setIState(ftsStart);
+  setIState(SteppingHelixStateInfo(ftsStart));
 
-  double pars[6] = {pDest.x(), pDest.y(), pDest.z(), 0, 0, 0};
-
-  Result result = propagate(POINT_PCA_DT, pars);
-  if (result != OK) return FtsPP();
-
+  const StateInfo svCurrent = propagate(svBuf_[0], pDest);
 
   FreeTrajectoryState ftsDest;
-  getFState(ftsDest); 
-  const StateInfo& svCurrent = svBuf_[cIndex_(nPoints_-1)];
+  svCurrent.loadFreeState(ftsDest);
 
   return FtsPP(ftsDest, svCurrent.path);
 }
@@ -147,21 +127,112 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
 					   const GlobalPoint& pDest1, const GlobalPoint& pDest2) const {
 
   if ((pDest1-pDest2).mag() < 1e-10) return FtsPP();
-  setIState(ftsStart);
-
-  double pars[6] = {pDest1.x(), pDest1.y(), pDest1.z(),
-		    pDest2.x(), pDest2.y(), pDest2.z()};
-
-  Result result = propagate(LINE_PCA_DT, pars);
-  if (result != OK) return FtsPP();
-
+  setIState(SteppingHelixStateInfo(ftsStart));
+  
+  const StateInfo svCurrent = propagate(svBuf_[0], pDest1, pDest2);
 
   FreeTrajectoryState ftsDest;
-  getFState(ftsDest); 
-
-  const StateInfo& svCurrent = svBuf_[cIndex_(nPoints_-1)];
+  svCurrent.loadFreeState(ftsDest);
 
   return FtsPP(ftsDest, svCurrent.path);
+}
+
+
+SteppingHelixStateInfo
+SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
+				   const Surface& sDest) const {
+  
+  if (! sStart.isValid()) return SteppingHelixStateInfo();
+
+  const Plane* pDest = dynamic_cast<const Plane*>(&sDest);
+  if (pDest != 0) return propagate(sStart, *pDest);
+
+  const Cylinder* cDest = dynamic_cast<const Cylinder*>(&sDest);
+  if (cDest != 0) return propagate(sStart, *cDest);
+
+  throw PropagationException("The surface is neither Cylinder nor Plane");
+
+}
+
+SteppingHelixStateInfo
+SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
+				   const Plane& pDest) const {
+  
+  if (! sStart.isValid()) return SteppingHelixStateInfo();
+  setIState(sStart);
+  
+  GlobalPoint rPlane = pDest.toGlobal(LocalPoint(0,0,0));
+  GlobalVector nPlane = pDest.toGlobal(LocalVector(0,0,1.)); nPlane = nPlane.unit();
+  double pars[6] = { rPlane.x(), rPlane.y(), rPlane.z(),
+		     nPlane.x(), nPlane.y(), nPlane.z() };
+  
+  
+  
+  Result result = propagate(PLANE_DT, pars);
+  if (result != OK) return SteppingHelixStateInfo();
+  
+  StateInfo& svCurrent = svBuf_[cIndex_(nPoints_-1)];
+  svCurrent.field = field_;
+  
+  return svCurrent;
+}
+
+SteppingHelixStateInfo
+SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
+				   const Cylinder& cDest) const {
+  
+  if (! sStart.isValid()) return SteppingHelixStateInfo();
+  setIState(sStart);
+  
+  double pars[6];
+  pars[RADIUS_P] = cDest.radius();
+
+  
+  Result result = propagate(RADIUS_DT, pars);
+  if (result != OK) return SteppingHelixStateInfo();
+  
+  StateInfo& svCurrent = svBuf_[cIndex_(nPoints_-1)];
+  svCurrent.field = field_;
+  
+  return svCurrent;
+}
+
+SteppingHelixStateInfo
+SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
+				   const GlobalPoint& pDest) const {
+  
+  if (! sStart.isValid()) return SteppingHelixStateInfo();
+  setIState(sStart);
+  
+  double pars[6] = {pDest.x(), pDest.y(), pDest.z(), 0, 0, 0};
+
+  
+  Result result = propagate(POINT_PCA_DT, pars);
+  if (result != OK) return SteppingHelixStateInfo();
+  
+  StateInfo& svCurrent = svBuf_[cIndex_(nPoints_-1)];
+  svCurrent.field = field_;
+  
+  return svCurrent;
+}
+
+SteppingHelixStateInfo
+SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
+				   const GlobalPoint& pDest1, const GlobalPoint& pDest2) const {
+  
+  if ((pDest1-pDest2).mag() < 1e-10 || !sStart.isValid()) return SteppingHelixStateInfo();
+  setIState(sStart);
+  
+  double pars[6] = {pDest1.x(), pDest1.y(), pDest1.z(),
+		    pDest2.x(), pDest2.y(), pDest2.z()};
+  
+  Result result = propagate(LINE_PCA_DT, pars);
+  if (result != OK) return SteppingHelixStateInfo();
+  
+  StateInfo& svCurrent = svBuf_[cIndex_(nPoints_-1)];
+  svCurrent.field = field_;
+  
+  return svCurrent;
 }
 
 
@@ -181,6 +252,18 @@ void SteppingHelixPropagator::setIState(const FreeTrajectoryState& ftsStart) con
   
 }
 
+void SteppingHelixPropagator::setIState(const SteppingHelixStateInfo& sStart) const {
+  nPoints_ = 0;
+  if (sStart.isComplete ) {
+    svBuf_[cIndex_(nPoints_)] = sStart;
+    nPoints_++;
+  } else {
+    setIState(sStart.p3, sStart.r3, sStart.q, 
+	      !noErrorPropagation_ ? sStart.cov : HepSymMatrix(1,0),
+	      propagationDirection());
+  }
+}
+
 void SteppingHelixPropagator::setIState(const SteppingHelixPropagator::Vector& p3, 
 					const SteppingHelixPropagator::Point& r3, int charge, 
 					const HepSymMatrix& cov, PropagationDirection dir) const {
@@ -188,6 +271,7 @@ void SteppingHelixPropagator::setIState(const SteppingHelixPropagator::Vector& p
   loadState(svBuf_[cIndex_(nPoints_)], p3, r3, charge, cov, dir);
   nPoints_++;
 }
+
 
 void SteppingHelixPropagator::getFState(FreeTrajectoryState& ftsDest) const{
   Vector p3F;
@@ -833,7 +917,7 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
     else {dEdx = 0; radX0 = radX0_Air; }//air
   }
   
-  dEdXPrime = dEdx == 0 ? 0 : dEdx/dEdX_mat*(2.4/p0)*1e-3*0.935; //== d(dEdX)/dp
+  dEdXPrime = dEdx == 0 ? 0 : -dEdx/dEdX_mat*(0.96/p0 + 0.033 - 0.022*pow(p0, -0.33))*1e-3; //== d(dEdX)/dp
 
   return dEdx;
 }
