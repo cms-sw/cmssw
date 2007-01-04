@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2006/11/08 16:46:04 $
- * $Revision: 1.6 $
+ * $Date: 2006/11/23 13:51:34 $
+ * $Revision: 1.7 $
  * \author F. Cossutti
  *
 */
@@ -303,7 +303,11 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
   Handle<EEDigiCollection> EcalDigiEE;
   Handle<ESDigiCollection> EcalDigiES;
 
+  
+  bool skipMC = false;
+  try {
   e.getByLabel(HepMCLabel, MCEvt);
+  } catch ( cms::Exception &e ) { skipMC = true; }
   e.getByType(crossingFrame);
 
   const EBDigiCollection* EBdigis =0;
@@ -333,12 +337,18 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
   } catch ( cms::Exception &e ) { isPreshower = false; }
 
   double theGunEnergy = 0.;
-  for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin();
-        p != MCEvt->GetEvent()->particles_end(); ++p ) {
-
-    Hep3Vector hmom = Hep3Vector((*p)->momentum().vect());
-    theGunEnergy = (*p)->momentum().e();
-
+  if ( ! skipMC ) {
+    for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin();
+          p != MCEvt->GetEvent()->particles_end(); ++p ) {
+      
+      Hep3Vector hmom = Hep3Vector((*p)->momentum().vect());
+      theGunEnergy = (*p)->momentum().e();
+      }
+  }
+  // in case no HepMC available, assume an arbitrary average energy for an interesting "gun"
+  else { 
+    edm::LogWarning("DigiInfo") << "No HepMC available, using 30 GeV as giun energy";
+    theGunEnergy = 30.; 
   }
 
   // BARREL

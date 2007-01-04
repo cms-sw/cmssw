@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2006/10/16 13:13:54 $
- * $Revision: 1.17 $
+ * $Date: 2006/10/26 08:30:32 $
+ * $Revision: 1.18 $
  * \author F. Cossutti
  *
 */
@@ -147,11 +147,17 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
   Handle<EBDigiCollection> EcalDigiEB;
   Handle<EEDigiCollection> EcalDigiEE;
   Handle<ESDigiCollection> EcalDigiES;
-
-  e.getByLabel(HepMCLabel, MCEvt);
+  
+  bool skipMC = false;
+  try {
+    e.getByLabel(HepMCLabel, MCEvt);
+  } catch ( cms::Exception &e ) { skipMC = true; }
   e.getByLabel(g4InfoLabel,SimTk);
   e.getByLabel(g4InfoLabel,SimVtx);
-  e.getByType(crossingFrame);
+
+  try { 
+    e.getByType(crossingFrame);
+  } catch ( cms::Exception &e ) { return; }
 
   const EBDigiCollection* EBdigis =0;
   const EEDigiCollection* EEdigis =0;
@@ -182,25 +188,27 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
   theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
   theSimVertexes.insert(theSimVertexes.end(),SimVtx->begin(),SimVtx->end());
 
-  double theGunEnergy = 0.;
-  for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin();
-        p != MCEvt->GetEvent()->particles_end(); ++p ) {
-
-    Hep3Vector hmom = Hep3Vector((*p)->momentum().vect());
-    theGunEnergy = (*p)->momentum().e();
-    double htheta = hmom.theta();
-    double heta = -log(tan(htheta * 0.5));
-    double hphi = hmom.phi();
-    hphi = (hphi>=0) ? hphi : hphi+2*M_PI;
-    hphi = hphi / M_PI * 180.;
-    LogDebug("EventInfo") << "Particle gun type form MC = " << abs((*p)->pdg_id()) << "\n" << "Energy = "<< (*p)->momentum().e() << " Eta = " << heta << " Phi = " << hphi;
-
-    if (meGunEnergy_) meGunEnergy_->Fill(theGunEnergy);
-    if (meGunEta_) meGunEta_->Fill(heta);
-    if (meGunPhi_) meGunPhi_->Fill(hphi);
-
+  if ( ! skipMC ) {
+    double theGunEnergy = 0.;
+    for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin();
+          p != MCEvt->GetEvent()->particles_end(); ++p ) {
+      
+      Hep3Vector hmom = Hep3Vector((*p)->momentum().vect());
+      theGunEnergy = (*p)->momentum().e();
+      double htheta = hmom.theta();
+      double heta = -log(tan(htheta * 0.5));
+      double hphi = hmom.phi();
+      hphi = (hphi>=0) ? hphi : hphi+2*M_PI;
+      hphi = hphi / M_PI * 180.;
+      LogDebug("EventInfo") << "Particle gun type form MC = " << abs((*p)->pdg_id()) << "\n" << "Energy = "<< (*p)->momentum().e() << " Eta = " << heta << " Phi = " << hphi;
+      
+      if (meGunEnergy_) meGunEnergy_->Fill(theGunEnergy);
+      if (meGunEta_) meGunEta_->Fill(heta);
+      if (meGunPhi_) meGunPhi_->Fill(hphi);
+      
+    }
   }
-
+  
   int nvtx = 0;
   for (vector<SimVertex>::iterator isimvtx = theSimVertexes.begin();
        isimvtx != theSimVertexes.end(); ++isimvtx){
