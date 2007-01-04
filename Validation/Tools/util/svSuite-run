@@ -441,7 +441,7 @@ for spec in specs:
         absPathWorkflow = os.path.join(os.getcwd(), workflow)
         messageService.publish("DatasetInjector:SetWorkflow", absPathWorkflow)
         messageService.commit()
-        messageService.publish("NewWorkflow", absPathWorkflow)
+        messageService.publish("NewDataset", absPathWorkflow)
         messageService.commit()
         time.sleep(1)
         messageService.publish("DatasetInjector:SelectWorkflow",
@@ -469,7 +469,7 @@ for spec in specs:
         absPathWorkflow = os.path.join(os.getcwd(), workflow)
         messageService.publish("RequestInjector:SetWorkflow", absPathWorkflow)
         messageService.commit()
-        messageService.publish("NewWorkflow", absPathWorkflow)
+        messageService.publish("NewDataset", absPathWorkflow)
         messageService.commit()
         time.sleep(1)
         messageService.publish("RequestInjector:SelectWorkflow",
