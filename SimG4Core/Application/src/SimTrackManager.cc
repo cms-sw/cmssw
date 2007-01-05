@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.5 2006/09/25 13:24:49 sunanda Exp $
+// $Id: SimTrackManager.cc,v 1.6 2006/11/13 09:03:44 fambrogl Exp $
 //
 
 // system include files
@@ -203,6 +203,12 @@ void SimTrackManager::reallyStoreTracks(G4SimEvent * simEvent)
 int SimTrackManager::getOrCreateVertex(TrackWithHistory * trkH, int iParentID,
 				       G4SimEvent * simEvent){
 
+  TrackContainer::const_iterator tk_itr = std::lower_bound((*m_trksForThisEvent).begin(),(*m_trksForThisEvent).end(),
+							   iParentID,SimTrackManager::StrictWeakOrdering());
+  if (tk_itr==m_trksForThisEvent->end() && (*tk_itr)->trackID()!= uint32_t(iParentID)){
+    iParentID=-1;
+  }
+
   VertexMap::const_iterator iterator = m_vertexMap.find(iParentID);
   if (iterator != m_vertexMap.end()){
     // loop over saved vertices
@@ -211,7 +217,7 @@ int SimTrackManager::getOrCreateVertex(TrackWithHistory * trkH, int iParentID,
 	return (((m_vertexMap[iParentID])[k]).first);
     }
   }
-
+  
   int realParent = iParentID;
   
   simEvent->add(new G4SimVertex(trkH->vertexPosition(),trkH->globalTime(),realParent));
