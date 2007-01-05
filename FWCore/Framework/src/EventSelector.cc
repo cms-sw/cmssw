@@ -15,17 +15,29 @@ namespace edm
 {
   EventSelector::EventSelector(stringvec const& pathspecs,
 			       stringvec const& names):
-    process_name_(),
     accept_all_(false),
-    decision_bits_()
+    decision_bits_(),
+    results_from_current_process_(true),
+    paths_()
   {
     init(pathspecs, names);
+  }
+
+  EventSelector::EventSelector(stringvec const& pathspecs):
+    accept_all_(false),
+    decision_bits_(),
+    results_from_current_process_(false),
+    paths_(pathspecs)
+  {
   }
 
   void
   EventSelector::init(stringvec const& paths,
 		      stringvec const& triggernames)
   {
+    accept_all_ = false;
+    decision_bits_.clear();
+
     if ( paths.empty() )
       {
 	accept_all_ = true;
@@ -84,33 +96,12 @@ namespace edm
     if (not_star_done && star_done) accept_all_ = true;
   }
   
-  EventSelector::EventSelector(ParameterSet const& config,
-			       string const& processname,
-			       stringvec const& triggernames) :
-    process_name_(processname),
-    accept_all_(false),
-    decision_bits_()
-  {
-    stringvec paths; // default is empty...
-
-    if (!config.empty())
-      paths = config.getParameter<stringvec>("SelectEvents");
-
-    init(paths, triggernames);
-  }
-  
-  // If there were a way to just call another c'tor, we'd call:
-  //
-  //       EventSelector(config, "PROD", names) 
-  //
-  // but C++ does not (yet) support this, so we have to do it
-  // ourselves...
-
   EventSelector::EventSelector(edm::ParameterSet const& config,
 			       stringvec const& triggernames):
-    process_name_("PROD"),
     accept_all_(false),
-    decision_bits_()
+    decision_bits_(),
+    results_from_current_process_(true),
+    paths_()
   {
     stringvec paths; // default is empty...
 
@@ -121,8 +112,21 @@ namespace edm
   }
 
 
-  bool EventSelector::acceptEvent(TriggerResults const& tr) const
+  bool EventSelector::acceptEvent(TriggerResults const& tr)
   {
+    // Initializing every event is not the most efficient way to do this,
+    // but it is the best that can be done for now.  Currently the correspondence
+    // between trigger names and bits is stored in every event in the TriggerResults
+    // object (which is also inefficient and probably not the best design). Also
+    // there is no convention for how often that correspondence is allowed to
+    // change.  I expect this change in the future, but for now this at least
+    // works correctly.  Note that this initialization only occurs every event
+    // when selecting from a TriggerResults object from a **previous** process.
+
+    if (!results_from_current_process_) {
+      init(paths_, tr.getTriggerNames());
+    }
+
     Bits::const_iterator i(decision_bits_.begin()),e(decision_bits_.end());
     for(;i!=e;++i)
       {
@@ -136,6 +140,16 @@ namespace edm
 
   bool EventSelector::acceptEvent(unsigned char const* array_of_trigger_results, int number_of_trigger_paths) const
   {
+    // This should never occur unless someone uses this function in
+    // an incorrect way ...
+    if (!results_from_current_process_) {
+      throw edm::Exception(edm::errors::Configuration)
+        << "\nEventSelector.cc::acceptEvent, you are attempting to\n"
+        << "use a bit array for trigger results instead of the\n"
+        << "TriggerResults object for a previous process.  This\n"
+        << "will not work and ought to be impossible\n";
+    }
+
     Bits::const_iterator i(decision_bits_.begin()),e(decision_bits_.end());
     for(;i!=e;++i)
       {

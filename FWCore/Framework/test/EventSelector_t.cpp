@@ -51,8 +51,11 @@ void testone(const Strings& paths,
   pset.addParameter<Strings>("SelectEvents",pattern);
   //parent.addUntrackedParameter<ParameterSet>("SelectEvents",pset);
 
+  // There are 3 different ways to build the EventSelector.  All
+  // should give the same result.  We exercise all 3 here.
   EventSelector select(pset, paths);
   EventSelector select1(pattern, paths);
+  EventSelector select2(pattern);
 
   HLTGlobalStatus bm(mask.size());
   const HLTPathStatus pass  = HLTPathStatus(edm::hlt::Pass);
@@ -70,12 +73,14 @@ void testone(const Strings& paths,
 
   bool a = select.acceptEvent(results);
   bool a1 = select1.acceptEvent(results);
+  bool a2 = select2.acceptEvent(results);
+  bool b2 = select2.acceptEvent(results);
 
-  if (a!=answer || a1 != answer)
+  if (a!=answer || a1 != answer || a2 != answer || b2 != answer)
     {
       cerr << "failed to compare pattern with mask: "
 	   << "correct=" << answer << " "
-	   << "result=" << a << "\n"
+	   << "results=" << a << "  " << a1 << "  " << a2 << "  " << b2 << "\n"
 	   << "pattern=" << pattern << "\n"
 	   << "mask=" << mask << "\n"
            << "jmask = " << jmask << "\n"; 

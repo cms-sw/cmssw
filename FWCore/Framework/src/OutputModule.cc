@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.26 2006/11/17 23:05:01 paterno Exp $
+$Id: OutputModule.cc,v 1.27 2006/12/19 00:28:56 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -145,6 +145,9 @@ namespace edm
     wantAllEvents_(false),
     selectors_()
   {
+    edm::Service<edm::service::TriggerNamesService> tns;
+    process_name_ = tns->getProcessName();
+
     ParameterSet selectevents =
       pset.getUntrackedParameter("SelectEvents", ParameterSet());
 
@@ -176,7 +179,7 @@ namespace edm
     for (size_t i = 0; i < path_specs.size(); ++i)
       parse_path_spec(path_specs[i], parsed_paths[i]);
 
-    selectors_.setup(parsed_paths, getAllTriggerNames());
+    selectors_.setup(parsed_paths, getAllTriggerNames(), process_name_);
   }
 
   void OutputModule::selectProducts() {

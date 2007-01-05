@@ -33,7 +33,8 @@ namespace edm
 
     void
     CachedProducts::setup(vector<parsed_path_spec_t> const& path_specs,
-			  vector<string> const& triggernames)
+			  vector<string> const& triggernames,
+                          const std::string& process_name)
     {
       // paths_for_process maps each PROCESS names to a sequence of
       // PATH names
@@ -44,7 +45,13 @@ namespace edm
  	   i != e;
 	   ++i)
 	{
-	  paths_for_process[i->second].push_back(i->first);
+          // Default to current process if none specified
+          if (i->second == "") {
+            paths_for_process[process_name].push_back(i->first);
+          }
+          else {
+            paths_for_process[i->second].push_back(i->first);
+          }
 	}
       // Now go through all the PROCESS names, and create a
       // NamedEventSelector for each.
@@ -54,9 +61,19 @@ namespace edm
 	   i != e;
 	   ++i)
 	{
-	  selectors_.push_back(NES(i->first, 
+          // For the current process we know the trigger names
+          // from the configuration file
+          if (i->first == process_name) {
+            selectors_.push_back(NES(i->first, 
 				   EventSelector(i->second, 
 						 triggernames)));
+          }
+          // For previous processes we do not know the trigger
+          // names yet.
+          else {
+            selectors_.push_back(NES(i->first, 
+				   EventSelector(i->second)));
+          }
 	}
     }
 
