@@ -39,9 +39,15 @@
  <class name="std::vector<char>"/>
  <class name="std::vector<unsigned char>"/>
  <class name="std::vector<bool>"/>
+ <class name="std::pair<int, int>"/>
  <class name="std::pair<unsigned long, unsigned long>"/>
  <class name="std::pair<unsigned int, unsigned int>"/>
  <class name="std::pair<unsigned short, unsigned short>"/>
+ <class name="std::pair<unsigned int, bool>"/>
+ <class name="std::pair<double,double>"/>
+ <class name="std::multimap<double,double>"/>
+ <class name="std::map<unsigned int, bool>"/>
+ <class name="std::map<int, int>"/>
  <class name="std::map<unsigned long, unsigned long>"/>
  <class name="std::map<unsigned int, unsigned int>"/>
  <class name="std::map<unsigned short, unsigned short>"/>
