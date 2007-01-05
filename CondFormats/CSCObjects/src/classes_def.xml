@@ -24,7 +24,6 @@
   <field name="hw2sw_" transient="true"/>
 </class>
 <class name="CSCReadoutMapping::CSCLabel"/>
-<class name="std::basic_string<char>"/>
 
 <class name="CSCTriggerMapping" id="4D94740A-14CB-EA87-72D2-7C083C473C32">
   <field name="myName_" transient="true"/>

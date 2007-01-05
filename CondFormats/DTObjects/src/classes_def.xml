@@ -25,7 +25,6 @@
   <class name="DTPerformanceId" id="B0D31E0B-C406-DB11-B446-000E0C5CE283"/>
   <class name="DTPerformanceData" id="9E02CF0B-C406-DB11-A68B-000E0C5CE283"/>
   <class name="DTPerformanceCompare" id="6839502A-C406-DB11-8A55-000E0C5CE283"/>
-  <class name="std::basic_string<char>"/>
 
   <class pattern="*map*"/>
   <class pattern="*pair*"/>
