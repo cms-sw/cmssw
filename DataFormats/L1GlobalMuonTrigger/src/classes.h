@@ -3,6 +3,7 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefProd.h"
 
 namespace { namespace {
   // L1MuRegionalTriggers -> GMT
@@ -18,4 +19,6 @@ namespace { namespace {
   edm::Wrapper<L1MuGMTReadoutCollection> dummy5;
 
   edm::Ref<std::vector<L1MuGMTCand> > dummy6;
+
+  edm::RefProd<L1MuGMTReadoutCollection> dummy7;
 }}
