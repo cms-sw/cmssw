@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2006/12/28 03:28:05 $
- *  $Revision: 1.18 $
+ *  $Date: 2007/01/04 19:00:05 $
+ *  $Revision: 1.19 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.18 2006/12/28 03:28:05 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.19 2007/01/04 19:00:05 slava77 Exp $
 //
 //
 
@@ -480,6 +480,8 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   setRep(svCurrent);
 
   svCurrent.cov.assign(cov);
+
+  svCurrent.isComplete = true;
 
   if (debug_){
     std::cout<<"Loaded at  path: "<<svCurrent.path<<" radPath: "<<svCurrent.radPath
