@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.7 2007/01/05 10:54:31 fambrogl Exp $
+// $Id: SimTrackManager.cc,v 1.8 2007/01/05 14:30:57 fambrogl Exp $
 //
 
 // system include files
@@ -225,10 +225,8 @@ int SimTrackManager::getOrCreateVertex(TrackWithHistory * trkH, int iParentID,
     }
   }
   
-  int realParent = parent;
-  
-  simEvent->add(new G4SimVertex(trkH->vertexPosition(),trkH->globalTime(),realParent));
-  m_vertexMap[iParentID].push_back(MapVertexPosition(m_nVertices,trkH->vertexPosition()));
+  simEvent->add(new G4SimVertex(trkH->vertexPosition(),trkH->globalTime(),parent));
+  m_vertexMap[parent].push_back(MapVertexPosition(m_nVertices,trkH->vertexPosition()));
   m_nVertices++;
   return (m_nVertices-1);
 
