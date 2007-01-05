@@ -28,6 +28,4 @@
   <class name="edm::Wrapper<std::vector<reco::BasicJet> >"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::BasicJet>,reco::BasicJet,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicJet>,reco::BasicJet> > >" />
 
-  <class name="edm::reftobase::BaseHolder<reco::Candidate>" />
-
 </lcgdict>

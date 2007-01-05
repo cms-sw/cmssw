@@ -1,7 +1,5 @@
 <lcgdict>
   <class name="HcalTestHistoClass"/>
-  <class name="std::vector<int>"/>
-  <class name="std::vector<float>"/>
   <class name="HcalTestHistoClass::Layer"/>
   <class name="HcalTestHistoClass::Hit"/>
   <class name="HcalTestHistoClass::QIE"/>

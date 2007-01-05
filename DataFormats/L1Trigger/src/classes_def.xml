@@ -38,6 +38,4 @@
 
   <class name="edm::reftobase::Holder<reco::Candidate, edm::RefProd<l1extra::L1EtMissParticle> > "/>
 
-  <class name="edm::reftobase::BaseHolder<reco::Candidate>" />
-
 </lcgdict>

@@ -16,7 +16,6 @@ namespace {
     SiStripMatchedRecHit2D a2;
     SiPixelRecHit b1;
     SiTrackerGSRecHit2D c1;
-    DetId a3;
 
     edm::ClonePolicy<SiStripRecHit2D>  a4;
     edm::ClonePolicy<SiStripMatchedRecHit2D > a5;
@@ -76,17 +75,6 @@ namespace {
       edm::ClonePolicy<SiTrackerGSRecHit2D> >, 
       edm::ClonePolicy<SiTrackerGSRecHit2D> >::id_iterator    itgs2d;
     
-    edm::Ref<edm::DetSetVector<SiPixelCluster>, 
-      SiPixelCluster, 
-      edm::refhelper::FindForDetSetVector<SiPixelCluster> > siPixelClusterReference;
-
-    edm::Ref<edm::DetSetVector<SiStripCluster>, 
-      SiStripCluster, 
-      edm::refhelper::FindForDetSetVector<SiStripCluster> > siStripClusterReference;
-
-    edm::RefBase<std::pair<unsigned int,unsigned int> > p1;
-    edm::RefItem<std::pair<unsigned int,unsigned int> > p2;
-
   }
 }
 

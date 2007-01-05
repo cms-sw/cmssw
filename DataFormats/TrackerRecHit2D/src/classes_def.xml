@@ -1,13 +1,8 @@
 <lcgdict>
-  <class name="TrackingRecHit"/>
-  <class name="DetId"/>
-  <class name="RecHit2DLocalPos"/>
-  <class name="SiStripCluster"/>
   <class name="LocalError"/>
   <class name="BaseSiTrackerRecHit2DLocalPos"/>
   <class name="SiStripRecHit2D"/>
   <class name="SiTrackerGSRecHit2D"/>
-  <class name="std::pair<unsigned int,unsigned int>"/>
   <class name="SiStripMatchedRecHit2D"/>
   <class name="std::vector<SiStripRecHit2D*>"/>
   <class name="std::vector<SiTrackerGSRecHit2D*>"/>
@@ -34,13 +29,11 @@
 
   <class name="ProjectedSiStripRecHit2D" />
   <class name="SiPixelRecHit" />
-  <class name="SiPixelCluster" />
   <class name="std::vector<SiPixelRecHit*>"/>
   <class name="edm::OwnVector<SiPixelRecHit,edm::ClonePolicy<SiPixelRecHit> >"/>
   <class name="edm::OwnVector<SiPixelRecHit,edm::ClonePolicy<SiPixelRecHit> >::const_iterator"/>
   <class name="edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> >"/>
   <class name="edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> >::id_iterator"/>
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> > >" />
-  <class name="edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster, edm::refhelper::FindForDetSetVector<SiPixelCluster> >" />
 
 </lcgdict>

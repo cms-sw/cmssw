@@ -6,8 +6,6 @@
 
 namespace {
   namespace {
-    std::vector<int>                 dumI;
-    std::vector<float>               dumF;
     PHcalTB04Info                    theInfo4;
     edm::Wrapper<PHcalTB04Info>      theTB04Info;
     std::vector<PHcalTB06Info::Vtx>  dummy1;

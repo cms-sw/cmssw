@@ -1,8 +1,4 @@
 <lcgdict>
-
-  <class name="std::vector<bool>"/>
-  <class name="edm::Wrapper<std::vector<bool> >"/>
-
   <class name="L1GtfeWord"/>
   <class name="edm::Wrapper<L1GtfeWord>"/>
 
@@ -20,23 +16,4 @@
   
   <class name="L1GlobalTriggerEvmReadoutRecord"/>
   <class name="edm::Wrapper<L1GlobalTriggerEvmReadoutRecord>"/>
-
- 
-  <class name="L1MuRegionalCand"/>
-  <class name="std::vector<L1MuRegionalCand>"/>
-  <class name="edm::Wrapper<std::vector<L1MuRegionalCand> >"/>
- 
-  <class name="L1MuGMTCand"/>
-  <class name="std::vector<L1MuGMTCand>"/>
-  <class name="edm::Ref<std::vector<L1MuGMTCand>,L1MuGMTCand,edm::refhelper::FindUsingAdvance<std::vector<L1MuGMTCand>,L1MuGMTCand>>"/>
-  <class name="edm::Wrapper<std::vector<L1MuGMTCand> >"/>
- 
-  <class name="L1MuGMTExtendedCand"/>
- 
-  <class name="L1MuGMTReadoutRecord"/>
-
-  <class name="L1MuGMTReadoutCollection"/>
-  <class name="edm::Wrapper<L1MuGMTReadoutCollection>"/>
-  <class name="edm::RefProd<L1MuGMTReadoutCollection>"/>
-  
 </lcgdict>

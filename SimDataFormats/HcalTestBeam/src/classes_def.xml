@@ -2,8 +2,6 @@
   <class name="HcalTB02HistoClass"/>
   <class name="edm::Wrapper<HcalTB02HistoClass>"/>
   <class name="PHcalTB04Info"/>
-  <class name="std::vector<int>"/>
-  <class name="std::vector<float>"/>
   <class name="edm::Wrapper<PHcalTB04Info>"/>
   <class name="PHcalTB06Info"/>
   <class name="PHcalTB06Info::Vtx"/>

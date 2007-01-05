@@ -6,7 +6,6 @@
 // #include "DataFormats/Common/interface/OneToValue.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
@@ -23,13 +22,6 @@
 
 namespace {
   namespace {
-    std::vector<unsigned int> pp8;
-    std::pair<unsigned int, unsigned int> pp1;
-    std::pair<unsigned int, std::vector<unsigned int> > pair_vec;
-    std::map<unsigned int, std::vector<unsigned int> > m1;
-
-    edm::RefProd<reco::CaloJetCollection> rpj1;
-    
     reco::JetTagCollection v1;
     edm::Wrapper<reco::JetTagCollection> w1;
     edm::Ref<reco::JetTagCollection> r1;
@@ -64,8 +56,6 @@ namespace {
     reco::CombinedBTagTrack ct4;
     reco::CombinedBTagVertex cv4;
     reco::MinMeanMax mmm4;
-    reco::TrackRefVector vrvt4;
-    reco::TrackRef tr4;
     Measurement1D m4;
     // std::vector < reco::TrackRef > vrtr4;
     // edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>,reco::CombinedBTagTrack,unsigned short> > mp4;

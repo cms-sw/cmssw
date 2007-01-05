@@ -4,7 +4,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include <vector>
-#include <map>
 
 namespace {
   namespace {

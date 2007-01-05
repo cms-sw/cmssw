@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.13 2006/10/27 15:02:49 uberthon Exp $
+// $Id: classes.h,v 1.14 2006/12/04 17:47:19 uberthon Exp $
 //
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -52,12 +52,10 @@ namespace {
     edm::RefProd<reco::ConvertedPhotonCollection> rp6;
     edm::RefVector<reco::ConvertedPhotonCollection> rv6;
 
-    std::map<unsigned int, float> m66;
     reco::PhotonIsolationMap v66;
     edm::Wrapper<reco::PhotonIsolationMap> w66;
     edm::helpers::Key<edm::RefProd<reco::PhotonCollection > > h66;
 
-    std::map<unsigned int, float> m7;
     reco::ElectronIsolationMap v7;
     edm::Wrapper<reco::ElectronIsolationMap> w7;
     edm::helpers::Key<edm::RefProd<reco::ElectronCollection > > h7;

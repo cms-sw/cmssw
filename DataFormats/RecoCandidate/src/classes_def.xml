@@ -19,7 +19,6 @@
   <class name="edm::RefVector<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate> >"/>
  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> > >" />
-  <class name="edm::reftobase::BaseHolder<reco::Candidate>" />
   <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<ZDCRecHit,edm::StrictWeakOrdering<ZDCRecHit> >,ZDCRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<ZDCRecHit,edm::StrictWeakOrdering<ZDCRecHit> >,ZDCRecHit> > >" />
   <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >,HFRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >,HFRecHit> > >" />
   <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >,HORecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >,HORecHit> > >" />

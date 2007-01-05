@@ -1,9 +1,4 @@
 <lcgdict>
-  <class name="std::pair<unsigned int, std::vector<unsigned int> >" />
-<class name="std::vector<unsigned int>" />
-  <class name="edm::RefProd<std::vector<reco::CaloJet> >" />
-
-
   <class name="reco::JetTag" />
   <class name="std::vector<reco::JetTag>" />
   <class name="edm::Wrapper<std::vector<reco::JetTag> >" />
@@ -44,8 +39,6 @@
   <class name="reco::CombinedBTagVertex" />
   <class name="reco::MinMeanMax" />
   <class name="Measurement1D" />
-  <class name="reco::TrackRefVector" />
-  <class name="reco::TrackRef" />
 
   <class name="std::vector<reco::CombinedBTagInfo>" />
   <class name="edm::Wrapper<std::vector<reco::CombinedBTagInfo> >" />
@@ -92,7 +85,6 @@
   </class>
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::CaloJet>, std::vector<reco::Track>, unsigned int > > >"/>
   
-  <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::Track> > >" />
   <class name="std::map<unsigned int, reco::TauImpactParameterTrackData>"/>
   <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>,reco::TauImpactParameterTrackData,unsigned int> >">
     <field name="transientMap_" transient="true" />
@@ -105,7 +97,6 @@
   </class>
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::CaloJet>, float, unsigned int> > >" />
   <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::CaloJet> > >" />
-  <class name="std::map<unsigned int, float>" />
 
 
 <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CaloJet> > , edm::RefProd<std::vector<reco::EMLorentzVector> > >"/>

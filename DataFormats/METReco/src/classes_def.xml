@@ -36,5 +36,4 @@
 
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::GenMET>,reco::GenMET,edm::refhelper::FindUsingAdvance<std::vector<reco::GenMET>,reco::GenMET> > >" />
 
-  <class name="edm::reftobase::BaseHolder<reco::Candidate>" />
 </lcgdict>

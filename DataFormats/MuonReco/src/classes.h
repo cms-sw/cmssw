@@ -18,7 +18,6 @@ namespace {
     edm::RefVector<std::vector<reco::Muon> > rv1;
     edm::reftobase::Holder<reco::Candidate, reco::MuonRef> rb1;
 
-    std::multimap<double,double> m2;
     std::vector<reco::MuIsoDeposit> v2;
     edm::Wrapper<std::vector<reco::MuIsoDeposit> > c2;
     edm::Ref<std::vector<reco::MuIsoDeposit> > r2;
@@ -32,10 +31,8 @@ namespace {
     edm::RefVector<std::vector<reco::MuonWithMatchInfo> > rv3;
     std::vector<reco::MuonWithMatchInfo::MuonMatch> vmm1;
 
-    std::map<unsigned int, bool> m4;
     reco::MuIsoAssociationMap v4;
     edm::Wrapper<reco::MuIsoAssociationMap> w4;
-    edm::helpers::Key<edm::RefProd<std::vector<reco::Track> > > h4;
 
     std::map<unsigned int, reco::MuIsoDeposit> m5;
     reco::MuIsoDepositAssociationMap v5;

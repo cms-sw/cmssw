@@ -22,8 +22,6 @@
 
  <class name="SiStripDigiCollection"/>
  <class name="edm::Wrapper< SiStripDigiCollection >"/> 
- <class name="FEDRawDataCollection"/>
- <class name="edm::RefProd<FEDRawDataCollection>"/> 
  <class name="std::vector<sistrip::FedReadoutMode>"/>
  <class name="edm::Wrapper< std::vector<sistrip::FedReadoutMode> >"/>
  <class name="std::vector<sistrip::FedReadoutPath>"/>
