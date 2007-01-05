@@ -4,7 +4,7 @@
 /** \class TriggerResults
  *
  *  Original Author: Jim Kowalkowski 13-01-06
- *  $Id: TriggerResults.h,v 1.2 2006/04/19 20:12:04 wmtan Exp $
+ *  $Id: TriggerResults.h,v 1.3 2006/04/20 15:30:51 gruen Exp $
  *
  *  The trigger path results are maintained here as a sequence of
  *  entries, one per trigger path.  They are assigned in the order
@@ -17,8 +17,8 @@
  *  in the file when that option becomes available.  For now, this
  *  object contains the trigger path names as a vector of strings.
  *
- *  $Date: 2006/04/19 20:12:04 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/20 15:30:51 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -52,7 +52,7 @@ namespace edm
     assert (hlt.size()==names.size());
     }
 
-    //
+    const std::vector<std::string>& getTriggerNames() const { return names_; }
 
     const std::string& name(unsigned int i) const {return names_.at(i);}
 
