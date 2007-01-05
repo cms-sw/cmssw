@@ -5,7 +5,7 @@
 #include <map>
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BTauReco/interface/CombinedBTagInfoFwd.h"

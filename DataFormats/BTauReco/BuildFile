@@ -1,5 +1,6 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/EgammaReco>
+<use name=DataFormats/GeometryVector>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/Math>
 <use name=DataFormats/TrackReco>
@@ -10,6 +11,7 @@
 <export>
   <use name=DataFormats/Common>
   <use name=DataFormats/EgammaReco>
+  <use name=DataFormats/GeometryVector>
   <use name=DataFormats/JetReco>
   <use name=DataFormats/Math>
   <use name=DataFormats/TrackReco>
