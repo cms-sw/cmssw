@@ -12,7 +12,6 @@ using namespace reco;
 
 TrackProbabilityAlgorithm::TrackProbabilityAlgorithm() : m_transientTrackBuilder(0),m_probabilityEstimator(0)
 {
-  m_nthTrack         = 3;
   m_ipType           = 1;
   m_cutPixelHits     = 2;
   m_cutTotalHits     = 8;
@@ -22,13 +21,14 @@ TrackProbabilityAlgorithm::TrackProbabilityAlgorithm() : m_transientTrackBuilder
   m_cutMaxChiSquared = 5.;
   m_cutMaxLIP        = 120.;
   m_cutMaxDistToAxis = 0.07;
+  m_cutMinProb =0.005;
 }
 
 TrackProbabilityAlgorithm::TrackProbabilityAlgorithm(const ParameterSet & parameters) : m_transientTrackBuilder(0),m_probabilityEstimator(0)
 
 {
   //FIXME: use unsigned int where needed
-  m_nthTrack         = parameters.getParameter<int>("NthTrack");
+//  m_nthTrack         = parameters.getParameter<int>("NthTrack");
   m_ipType           = parameters.getParameter<int>("ImpactParamterType");
   m_cutPixelHits     = parameters.getParameter<int>("MinimumNumberOfPixelHits"); //FIXME: use or remove
   m_cutTotalHits     = parameters.getParameter<int>("MinimumNumberOfHits"); // used
@@ -38,6 +38,7 @@ TrackProbabilityAlgorithm::TrackProbabilityAlgorithm(const ParameterSet & parame
   m_cutMaxChiSquared = parameters.getParameter<double>("MaximumChiSquared"); //used 
   m_cutMaxLIP        = parameters.getParameter<double>("MaximumLongitudinalImpactParameter"); //used
   m_cutMaxDistToAxis = parameters.getParameter<double>("MaximumDistanceToJetAxis"); //used
+  m_cutMinProb =  parameters.getParameter<double>("MinimumProbability"); //used
 
 }
 
@@ -133,7 +134,7 @@ if(jetTracks.product()->numberOfAssociations(jetTracks->key)!=0) //if there are 
     }
 
 TrackProbabilityTagInfo resultExtended(probability2D,probability3D,trackOrder2D,trackOrder3D);
-JetTag resultBase(resultExtended.discriminator(m_ipType),jetTracks);
+JetTag resultBase(resultExtended.discriminator(m_ipType,m_cutMinProb),jetTracks);
 return pair<JetTag,TrackProbabilityTagInfo> (resultBase,resultExtended); 
 }
 

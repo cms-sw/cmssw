@@ -39,7 +39,7 @@ public:
  const HistogramProbabilityEstimator * m_probabilityEstimator;
  
 //algorithm parameters
-unsigned int  m_nthTrack;
+
 int  m_ipType;
 int  m_cutPixelHits;
 int  m_cutTotalHits;
@@ -49,6 +49,7 @@ double  m_cutMaxDecayLen;
 double  m_cutMaxChiSquared;
 double  m_cutMaxLIP;
 double m_cutMaxDistToAxis;
+double m_cutMinProb;
 };
 
 #endif 

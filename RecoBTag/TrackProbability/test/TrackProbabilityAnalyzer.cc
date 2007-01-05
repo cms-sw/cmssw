@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TrackProbabilityAnalyzer.cc,v 1.1 2006/12/07 08:24:25 arizzi Exp $
+// $Id: TrackProbabilityAnalyzer.cc,v 1.2 2006/12/07 09:59:35 arizzi Exp $
 //
 //
 
@@ -95,7 +95,7 @@ TrackProbabilityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   {
        cout << i << endl;
   //    cout << &(info[i]) << endl;
-     cout << info[i].discriminator(0) << " " << info[i].discriminator(1) << endl;
+     cout << info[i].discriminator(0,0.005) << " " << info[i].discriminator(1,0.005) << endl;
     for(int j = 0 ; j < info[i].selectedTracks(0); j++)
      {
        cout << info[i].track(j,0).pt() << " " << info[i].probability(j,0) << endl; 
