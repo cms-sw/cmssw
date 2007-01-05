@@ -1,12 +1,10 @@
 <lcgdict>
  <class name="Pedestals::Item"/>
  <class name="std::vector<Pedestals::Item>"/>
- <class name="std::vector<unsigned int>"/>
  <class name="Pedestals" id="7E52FD73-8557-DA11-BEF0-0008743F7CC7"/>
  <class name="BlobPedestals" id="24EB66B4-DDA2-DA11-972F-000E0C5CE043"/>
  <class name="BlobNoises" id="D0A5B88E-362D-D909-8860-000347D7BFC3"/>
  <class name="BlobNoises::DetRegistry"/>  
- <class name="std::vector<short>"/>
  <class name="std::vector<BlobNoises::DetRegistry>"/>
  <class name="mySiStripNoises" id="64D1537C-03C0-DA11-A617-0016761581E6"/>
  <class name="mySiStripNoises::SiStripData"/>
