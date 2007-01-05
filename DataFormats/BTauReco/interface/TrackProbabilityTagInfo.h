@@ -48,7 +48,7 @@ int factorial(int n) const
     return -10.; 
    }
 
-  virtual float jetProbability(int ip) const
+  virtual float jetProbability(int ip, float minTrackProb) const
 {
 
  const std::vector<double> * vp;
@@ -60,7 +60,7 @@ int factorial(int n) const
    double SumJet=0.;
 
   for(std::vector<double>::const_iterator q = v.begin(); q != v.end(); q++){
-    SumJet+=(log(*q)>-20.)?log(*q):-20;
+    SumJet+=(*q>minTrackProb)?log(*q):log(minTrackProb);
   }
 
   double ProbJet;
@@ -93,8 +93,11 @@ int factorial(int n) const
   Recompute discriminator 
   ipType = 0 means 3d impact parameter
   ipType = 1 means transverse impact parameter
+  
+  minProb is the minimum probability allowed  for a single track. Tracks with lower probability 
+  are considered with a probability = minProb.
  */
-  virtual float discriminator(int ipType) const { return jetProbability(ipType); }
+  virtual float discriminator(int ipType, float minProb) const { return jetProbability(ipType,minProb); }
 
   virtual int selectedTracks(int ipType) const
   {

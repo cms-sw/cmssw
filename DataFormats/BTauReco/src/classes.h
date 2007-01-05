@@ -10,6 +10,7 @@
 #include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
+#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/CombinedTauTagInfo.h"
@@ -33,6 +34,12 @@ namespace {
     edm::Ref<reco::TrackCountingTagInfoCollection> r2;
     edm::RefProd<reco::TrackCountingTagInfoCollection> rp2;
     edm::RefVector<reco::TrackCountingTagInfoCollection> rv2;
+
+    reco::TrackProbabilityTagInfoCollection v2p;
+    edm::Wrapper<reco::TrackProbabilityTagInfoCollection> w2p;
+    edm::Ref<reco::TrackProbabilityTagInfoCollection> r2p;
+    edm::RefProd<reco::TrackProbabilityTagInfoCollection> rp2p;
+    edm::RefVector<reco::TrackProbabilityTagInfoCollection> rv2p;
 
     reco::JetTracksAssociationCollection v3;
     edm::Wrapper<reco::JetTracksAssociationCollection> w3;
