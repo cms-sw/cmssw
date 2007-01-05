@@ -1,12 +1,15 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: HcalHardcodeCalibrations.h,v 1.5 2006/01/10 19:29:40 fedor Exp $
+// $Id: JetCorrector.cc,v 1.1 2006/12/29 00:48:42 fedor Exp $
 //
 // Generic interface for JetCorrection services
 //
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 double JetCorrector::correction (const reco::Jet& fJet) const {
@@ -22,4 +25,11 @@ double JetCorrector::correction (const reco::Jet& fJet,
     return 0;
   }
   return correction (fJet);
+}
+
+const JetCorrector* JetCorrector::getJetCorrector (const std::string& fName, const edm::EventSetup& fSetup) {
+  const JetCorrectionsRecord& record = fSetup.get <JetCorrectionsRecord> ();
+  edm::ESHandle <JetCorrector> handle;
+  record.get (fName, handle);
+  return &*handle;
 }
