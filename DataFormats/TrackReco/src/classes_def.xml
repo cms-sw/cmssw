@@ -48,8 +48,6 @@
   <class pattern="edm::Ref<edm::AssociationMap<*>" />
   <class pattern="edm::RefProd<edm::AssociationMap<*>" />
   <class pattern="edm::RefVector<edm::AssociationMap<*>" />
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >, edm::RefProd<std::vector<TrajectorySeed> > >"/> 
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::GsfTrack> >, edm::RefProd<std::vector<TrajectorySeed> > >"/> 
 
   <class name="edm::helpers::Key< edm::RefProd < std::vector < reco::Track > > >" />
   <class name="edm::helpers::Key< edm::RefProd < std::vector < reco::GsfTrack > > >" />
@@ -59,13 +57,6 @@
   </class>
   <class name="edm::AssociationMap<edm::OneToValue< std::vector<reco::GsfTrack>, double, unsigned int > >">
     <field name="transientMap_" transient="true" /> 
-  </class>
-
- <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::Track>, std::vector<TrajectorySeed>, unsigned int > >" >
-    <field name="transientMap_" transient="true" />
-  </class>
- <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::GsfTrack>, std::vector<TrajectorySeed>, unsigned int > >" >
-    <field name="transientMap_" transient="true" />
   </class>
 
   </lcgdict>
