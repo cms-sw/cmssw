@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store PedestalWidth values 4xCapId
 $Author: ratnikov
-$Date: 2006/04/13 22:40:41 $
-$Revision: 1.3 $
+$Date: 2006/10/24 23:30:00 $
+$Revision: 1.4 $
 */
 
 class HcalPedestalWidth {
@@ -24,13 +24,13 @@ class HcalPedestalWidth {
   // functions below are not supposed to be used by consumer applications
   HcalPedestalWidth (int fId = 0);
   void setSigma (int fCapId1, int fCapId2, float fSigma);
-  unsigned long rawId () const {return mId;}
+  unsigned int rawId () const {return mId;}
 
   // produces pedestal noise in assumption of near correlations and small variations
   void makeNoise (unsigned fFrames, const double* fGauss, double* fNoise) const;
 
  private:
-  unsigned long mId;
+  unsigned int mId;
   float mSigma00;
   float mSigma10;
   float mSigma11;

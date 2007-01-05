@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store raw Gain values
 $Author: ratnikov
-$Date: 2006/04/13 22:40:41 $
-$Revision: 1.2 $
+$Date: 2006/11/21 03:35:33 $
+$Revision: 1.1 $
 */
 
 class HcalRawGain {
@@ -20,19 +20,19 @@ class HcalRawGain {
   std::string strStatus () const {return getStatus () == GOOD ? "GOOD" : "BAD";}
   
 
-  HcalRawGain (unsigned long fId = 0) : mId (fId), mValue (0), mError (0), mVoltage (0), mStatus (int (BAD)) {}
+  HcalRawGain (unsigned int fId = 0) : mId (fId), mValue (0), mError (0), mVoltage (0), mStatus (int (BAD)) {}
   
-  HcalRawGain (unsigned long fId, float fValue, float fError, float fVoltage, Status fStatus) :
+  HcalRawGain (unsigned int fId, float fValue, float fError, float fVoltage, Status fStatus) :
     mId (fId),
     mValue (fValue),
     mError (fError),
     mVoltage (fVoltage),
     mStatus (int (fStatus)) {}
 
-  unsigned long rawId () const {return mId;}
+  unsigned int rawId () const {return mId;}
 
  private:
-  unsigned long mId;
+  unsigned int mId;
   float mValue;
   float mError;
   float mVoltage;

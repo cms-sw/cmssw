@@ -13,7 +13,7 @@ $Id
 
 class HcalCalibrationQIECoder {
  public:
-  HcalCalibrationQIECoder (unsigned long fId = 0) : mId (fId) {}
+  HcalCalibrationQIECoder (unsigned int fId = 0) : mId (fId) {}
   /// ADC [0..31] -> fC conversion
   float charge (const unsigned fAdc) const;
   /// fC -> ADC conversion
@@ -25,9 +25,9 @@ class HcalCalibrationQIECoder {
   const float* minCharges () const;
   void setMinCharge (unsigned fBin, float fValue);
   void setMinCharges (const float fValue [32]);
-  unsigned long rawId () const {return mId;}
+  unsigned int rawId () const {return mId;}
  private:
-  unsigned long mId;
+  unsigned int mId;
   float bin0;
   float bin1;
   float bin2;

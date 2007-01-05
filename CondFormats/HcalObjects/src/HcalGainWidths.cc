@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store GainWidth values 4xCapId
 $Author: ratnikov
-$Date: 2006/07/29 00:21:33 $
-$Revision: 1.7 $
+$Date: 2006/09/15 19:12:10 $
+$Revision: 1.8 $
 */
 
 #include <iostream>
@@ -21,7 +21,7 @@ namespace {
   };
 
   HcalGainWidths::Container::const_iterator 
-  find (const HcalGainWidths::Container& container, unsigned long id) {
+  find (const HcalGainWidths::Container& container, unsigned int id) {
     HcalGainWidths::Container::const_iterator result = container.begin ();
     for (; result != container.end (); result++) {
       if (result->rawId () == id) break; // found

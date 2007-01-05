@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store map between detector ID, electronics ID and trigger ID
 $Author: ratnikov
-$Date: 2006/07/29 00:21:32 $
-$Revision: 1.8 $
+$Date: 2006/07/31 20:04:58 $
+$Revision: 1.9 $
 */
 
 #include <vector>
@@ -60,19 +60,19 @@ class HcalElectronicsMap {
   class Item { 
   public:
     Item () {mId = mElId = mTrigId = 0;}
-    Item (unsigned long fId, unsigned long fElId, unsigned long fTrigId) 
+    Item (unsigned int fId, unsigned int fElId, unsigned int fTrigId) 
       : mId (fId), mElId (fElId), mTrigId (fTrigId) {}
     class LessById {public: bool operator () (const Item& a, const Item& b) {return a.mId < b.mId;}};
     class LessByElId {public: bool operator () (const Item& a, const Item& b) {return a.mElId < b.mElId;}};
     class LessByTrigId {public: bool operator () (const Item& a, const Item& b) {return a.mTrigId < b.mTrigId;}};
-    unsigned long mId;
-    unsigned long mElId;
-    unsigned long mTrigId;
+    unsigned int mId;
+    unsigned int mElId;
+    unsigned int mTrigId;
   };
  protected:
-  const Item* findById (unsigned long fId, bool fWarning) const;
-  const Item* findByElId (unsigned long fElId, bool fWarning) const;
-  const Item* findByTrigId (unsigned long fTrigId, bool fWarning) const;
+  const Item* findById (unsigned int fId, bool fWarning) const;
+  const Item* findByElId (unsigned int fElId, bool fWarning) const;
+  const Item* findByTrigId (unsigned int fTrigId, bool fWarning) const;
   
   std::vector<Item> mItems;
   bool mSortedById;

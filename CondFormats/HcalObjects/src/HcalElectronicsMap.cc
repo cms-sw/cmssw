@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2006/08/23 20:24:51 $
-$Revision: 1.11 $
+$Date: 2006/09/08 23:24:38 $
+$Revision: 1.12 $
 */
 
 #include <iostream>
@@ -22,7 +22,7 @@ HcalElectronicsMap::HcalElectronicsMap()
 
 HcalElectronicsMap::~HcalElectronicsMap(){}
 
-const HcalElectronicsMap::Item* HcalElectronicsMap::findById (unsigned long fId, bool fWarning) const {
+const HcalElectronicsMap::Item* HcalElectronicsMap::findById (unsigned int fId, bool fWarning) const {
   Item target (fId, 0, 0);
   std::vector<HcalElectronicsMap::Item>::const_iterator item;
   if (mSortedById) {
@@ -41,7 +41,7 @@ const HcalElectronicsMap::Item* HcalElectronicsMap::findById (unsigned long fId,
   return &*item;
 }
 
-const HcalElectronicsMap::Item* HcalElectronicsMap::findByElId (unsigned long fElId, bool fWarning) const {
+const HcalElectronicsMap::Item* HcalElectronicsMap::findByElId (unsigned int fElId, bool fWarning) const {
   Item target (0, fElId, 0);
   std::vector<HcalElectronicsMap::Item>::const_iterator item;
   if (mSortedByElId) {
@@ -59,7 +59,7 @@ const HcalElectronicsMap::Item* HcalElectronicsMap::findByElId (unsigned long fE
   return &*item;
 }
 
-const HcalElectronicsMap::Item* HcalElectronicsMap::findByTrigId (unsigned long fTrigId, bool fWarning) const {
+const HcalElectronicsMap::Item* HcalElectronicsMap::findByTrigId (unsigned int fTrigId, bool fWarning) const {
   Item target (0, 0, fTrigId);
   std::vector<HcalElectronicsMap::Item>::const_iterator item;
   if (mSortedByTrigId) {
@@ -107,20 +107,20 @@ bool HcalElectronicsMap::setMapping (DetId fId, HcalElectronicsId fElectronicsId
 
 std::vector <HcalElectronicsId> HcalElectronicsMap::allElectronicsId () const {
   std::vector <HcalElectronicsId> result;
-  std::set <unsigned long> allIds;
+  std::set <unsigned int> allIds;
   for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++) 
     if (item->mElId) allIds.insert (item->mElId);
-  for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++)
+  for (std::set <unsigned int>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++)
     result.push_back (HcalElectronicsId (*channel));
   return result;
 }
 
 std::vector <DetId> HcalElectronicsMap::allDetectorId () const {
   std::vector <DetId> result;
-  std::set <unsigned long> allIds;
+  std::set <unsigned int> allIds;
   for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++)  
     if (item->mId) allIds.insert (item->mId);
-  for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++) {
+  for (std::set <unsigned int>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++) {
       result.push_back (DetId (DetId (*channel)));
   }
   return result;
@@ -128,10 +128,10 @@ std::vector <DetId> HcalElectronicsMap::allDetectorId () const {
 
 std::vector <HcalCalibDetId> HcalElectronicsMap::allCalibrationId () const {
   std::vector <HcalCalibDetId> result;
-  std::set <unsigned long> allIds;
+  std::set <unsigned int> allIds;
   for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++)  
     if (item->mId) allIds.insert (item->mId);
-  for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++) {
+  for (std::set <unsigned int>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++) {
     if (HcalGenericDetId (*channel).isHcalCalibDetId ()) {
       result.push_back (HcalCalibDetId (*channel));
     }
@@ -141,10 +141,10 @@ std::vector <HcalCalibDetId> HcalElectronicsMap::allCalibrationId () const {
 
 std::vector <HcalDetId> HcalElectronicsMap::allHcalDetectorId () const {
   std::vector <HcalDetId> result;
-  std::set <unsigned long> allIds;
+  std::set <unsigned int> allIds;
   for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++)  
     if (item->mId) allIds.insert (item->mId);
-  for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++) {
+  for (std::set <unsigned int>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++) {
     if (HcalGenericDetId (*channel).isHcalDetId()) {
       result.push_back (HcalDetId (*channel));
     }
@@ -154,10 +154,10 @@ std::vector <HcalDetId> HcalElectronicsMap::allHcalDetectorId () const {
 
 std::vector <HcalTrigTowerDetId> HcalElectronicsMap::allTriggerId () const {
   std::vector <HcalTrigTowerDetId> result;
-  std::set <unsigned long> allIds;
+  std::set <unsigned int> allIds;
   for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++)  
     if (item->mTrigId) allIds.insert (item->mTrigId);
-  for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++)
+  for (std::set <unsigned int>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++)
     result.push_back (HcalTrigTowerDetId (*channel));
   return result;
 }

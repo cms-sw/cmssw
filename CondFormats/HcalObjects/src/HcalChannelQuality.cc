@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2005/12/27 23:50:50 $
-$Revision: 1.3 $
+$Date: 2006/08/10 22:51:50 $
+$Revision: 1.4 $
 */
 
 #include <iostream>
@@ -17,7 +17,7 @@ HcalChannelQuality::HcalChannelQuality()
 
 HcalChannelQuality::~HcalChannelQuality(){}
 
-HcalChannelQuality::Quality HcalChannelQuality::quality (unsigned long fId, bool fWarning) const {
+HcalChannelQuality::Quality HcalChannelQuality::quality (unsigned int fId, bool fWarning) const {
   Item target;
   target.mId = fId;
   std::vector<Item>::const_iterator cell;
@@ -33,15 +33,15 @@ HcalChannelQuality::Quality HcalChannelQuality::quality (unsigned long fId, bool
   return (HcalChannelQuality::Quality) cell->mQuality;
 }
 
-std::vector<unsigned long> HcalChannelQuality::getAllChannels () const {
-  std::vector<unsigned long> result;
+std::vector<unsigned int> HcalChannelQuality::getAllChannels () const {
+  std::vector<unsigned int> result;
   for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++) {
     result.push_back (item->mId);
   }
   return result;
 }
 
-bool HcalChannelQuality::setChannel (unsigned long fId, Quality fQuality) {
+bool HcalChannelQuality::setChannel (unsigned int fId, Quality fQuality) {
   Item item;
   item.mId = fId;
   item.mQuality = unsigned (fQuality);

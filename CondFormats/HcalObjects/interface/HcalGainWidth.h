@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store GainWidth values 4xCapId
 $Author: ratnikov
-$Date: 2005/12/15 23:38:03 $
-$Revision: 1.1 $
+$Date: 2006/04/13 22:40:41 $
+$Revision: 1.2 $
 */
 
 class HcalGainWidth {
@@ -21,17 +21,17 @@ class HcalGainWidth {
 
   HcalGainWidth () : mId (0), mValue0 (0), mValue1 (0), mValue2 (0), mValue3 (0) {}
   
-  HcalGainWidth (unsigned long fId, float fCap0, float fCap1, float fCap2, float fCap3) :
+  HcalGainWidth (unsigned int fId, float fCap0, float fCap1, float fCap2, float fCap3) :
     mId (fId),
     mValue0 (fCap0),
     mValue1 (fCap1),
     mValue2 (fCap2),
     mValue3 (fCap3) {}
 
-  unsigned long rawId () const {return mId;}
+  unsigned int rawId () const {return mId;}
 
  private:
-  unsigned long mId;
+  unsigned int mId;
   float mValue0;
   float mValue1;
   float mValue2;

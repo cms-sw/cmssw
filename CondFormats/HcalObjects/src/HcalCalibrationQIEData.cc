@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2006/07/29 00:21:33 $
-$Revision: 1.2 $
+$Date: 2006/08/10 22:51:50 $
+$Revision: 1.3 $
 */
 
 #include <iostream>
@@ -21,7 +21,7 @@ namespace {
   };
 
   std::vector<HcalCalibrationQIECoder>::const_iterator 
-  find (const std::vector<HcalCalibrationQIECoder>& container, unsigned long id) {
+  find (const std::vector<HcalCalibrationQIECoder>& container, unsigned int id) {
     std::vector<HcalCalibrationQIECoder>::const_iterator result = container.begin ();
     for (; result != container.end (); result++) {
       if (result->rawId () == id) break; // found

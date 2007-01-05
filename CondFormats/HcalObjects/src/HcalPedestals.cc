@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store Pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2006/07/29 00:21:33 $
-$Revision: 1.8 $
+$Date: 2006/08/10 22:51:50 $
+$Revision: 1.9 $
 */
 
 #include <iostream>
@@ -21,7 +21,7 @@ namespace {
   };
 
   HcalPedestals::Container::const_iterator 
-  find (const HcalPedestals::Container& container, unsigned long id) {
+  find (const HcalPedestals::Container& container, unsigned int id) {
     HcalPedestals::Container::const_iterator result = container.begin ();
     for (; result != container.end (); result++) {
       if (result->rawId () == id) break; // found
