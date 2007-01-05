@@ -31,7 +31,9 @@
  <class name="std::vector<double>"/>
  <class name="std::vector<long double>"/>
  <class name="std::vector<long>"/>
+ <class name="std::vector<long long>"/>
  <class name="std::vector<unsigned long>"/>
+ <class name="std::vector<unsigned long long>"/>
  <class name="std::vector<int>"/>
  <class name="std::vector<unsigned int>"/>
  <class name="std::vector<short>"/>
@@ -39,27 +41,32 @@
  <class name="std::vector<char>"/>
  <class name="std::vector<unsigned char>"/>
  <class name="std::vector<bool>"/>
- <class name="std::pair<int, int>"/>
- <class name="std::pair<unsigned long, unsigned long>"/>
- <class name="std::pair<unsigned int, unsigned int>"/>
- <class name="std::pair<unsigned short, unsigned short>"/>
- <class name="std::pair<unsigned int, bool>"/>
+ <class name="std::pair<int,int>"/>
+ <class name="std::pair<unsigned long,unsigned long>"/>
+ <class name="std::pair<unsigned int,unsigned int>"/>
+ <class name="std::pair<unsigned short,unsigned short>"/>
+ <class name="std::pair<unsigned int,float>"/>
+ <class name="std::pair<unsigned int,bool>"/>
  <class name="std::pair<double,double>"/>
+ <class name="std::pair<unsigned long long,std::basic_string<char> >"/>
  <class name="std::multimap<double,double>"/>
- <class name="std::map<unsigned int, bool>"/>
- <class name="std::map<int, int>"/>
- <class name="std::map<unsigned long, unsigned long>"/>
- <class name="std::map<unsigned int, unsigned int>"/>
- <class name="std::map<unsigned short, unsigned short>"/>
- <class name="std::map<unsigned int, float>"/>
- <class name="std::map<unsigned long, std::vector<unsigned long> >"/>
- <class name="std::map<unsigned int, std::vector<unsigned int> >"/>
- <class name="std::map<unsigned short, std::vector<unsigned short> >"/>
+ <class name="std::map<unsigned int,bool>"/>
+ <class name="std::map<int,int>"/>
+ <class name="std::map<unsigned long,unsigned long>"/>
+ <class name="std::map<unsigned int,unsigned int>"/>
+ <class name="std::map<unsigned short,unsigned short>"/>
+ <class name="std::map<unsigned int,float>"/>
+ <class name="std::map<unsigned long,std::vector<unsigned long> >"/>
+ <class name="std::map<unsigned int,std::vector<unsigned int> >"/>
+ <class name="std::map<unsigned short,std::vector<unsigned short> >"/>
+ <class name="std::map<unsigned long long,std::basic_string<char> >"/>
  <class name="std::set<std::basic_string<char> >"/>
  <class name="edm::Wrapper<std::basic_string<char> >"/>
  <class name="edm::Wrapper<float>"/>
  <class name="edm::Wrapper<double>"/>
  <class name="edm::Wrapper<long double>"/>
+ <class name="edm::Wrapper<long long>"/>
+ <class name="edm::Wrapper<unsigned long long>"/>
  <class name="edm::Wrapper<long>"/>
  <class name="edm::Wrapper<unsigned long>"/>
  <class name="edm::Wrapper<int>"/>
@@ -73,29 +80,35 @@
  <class name="edm::Wrapper<std::vector<float> >"/>
  <class name="edm::Wrapper<std::vector<double> >"/>
  <class name="edm::Wrapper<std::vector<long double> >"/>
+ <class name="edm::Wrapper<std::vector<long long> >"/>
+ <class name="edm::Wrapper<std::vector<unsigned long long> >"/>
  <class name="edm::Wrapper<std::vector<int> >"/>
  <class name="edm::Wrapper<std::vector<unsigned int> >"/>
+ <class name="edm::Wrapper<std::vector<short> >"/>
+ <class name="edm::Wrapper<std::vector<unsigned short> >"/>
  <class name="edm::Wrapper<std::vector<char> >"/>
  <class name="edm::Wrapper<std::vector<unsigned char> >"/>
  <class name="edm::Wrapper<std::vector<bool> >"/>
- <class name="edm::Wrapper<std::pair<unsigned long, unsigned long> >"/>
- <class name="edm::Wrapper<std::pair<unsigned int, unsigned int> >"/>
- <class name="edm::Wrapper<std::pair<unsigned short, unsigned short> >"/>
- <class name="edm::Wrapper<std::map<unsigned long, unsigned long> >"/>
- <class name="edm::Wrapper<std::map<unsigned int, unsigned int> >"/>
- <class name="edm::Wrapper<std::map<unsigned short, unsigned short> >"/>
- <class name="edm::Wrapper<std::map<unsigned int, float> >"/>
- <class name="edm::Wrapper<std::map<unsigned long, std::vector<unsigned long> > >"/>
- <class name="edm::Wrapper<std::map<unsigned int, std::vector<unsigned int> > >"/>
- <class name="edm::Wrapper<std::map<unsigned short, std::vector<unsigned short> > >"/>
+ <class name="edm::Wrapper<std::pair<unsigned long,unsigned long> >"/>
+ <class name="edm::Wrapper<std::pair<unsigned int,unsigned int> >"/>
+ <class name="edm::Wrapper<std::pair<unsigned short,unsigned short> >"/>
+ <class name="edm::Wrapper<std::map<int,int> >"/>
+ <class name="edm::Wrapper<std::map<unsigned long,unsigned long> >"/>
+ <class name="edm::Wrapper<std::map<unsigned int,unsigned int> >"/>
+ <class name="edm::Wrapper<std::map<unsigned short,unsigned short> >"/>
+ <class name="edm::Wrapper<std::map<unsigned int,float> >"/>
+ <class name="edm::Wrapper<std::map<unsigned long,std::vector<unsigned long> > >"/>
+ <class name="edm::Wrapper<std::map<unsigned int,std::vector<unsigned int> > >"/>
+ <class name="edm::Wrapper<std::map<unsigned short,std::vector<unsigned short> > >"/>
+ <class name="edm::Wrapper<std::map<unsigned long long,std::basic_string<char> > >"/>
  <class name="edm::EventAux"/>
  <class name="edm::LuminosityBlockAux"/>
  <class name="edm::RunAux"/>
  <class name="edm::ProductRegistry">
    <field name="frozen_" transient="true"/>
  </class>
- <class name="std::map<edm::BranchKey, edm::BranchDescription>"/>
- <class name="std::pair<edm::BranchKey, edm::BranchDescription>"/>
+ <class name="std::map<edm::BranchKey,edm::BranchDescription>"/>
+ <class name="std::pair<edm::BranchKey,edm::BranchDescription>"/>
  <class name="edm::BranchKey"/>
  <class name="std::vector<edm::ProductID>"/>
  <class name="edm::ModuleDescription"/>
@@ -120,15 +133,15 @@
  <class name="edm::FileFormatVersion"/>
 
  <class name="edm::Hash<0>"/>
- <class name="std::map<edm::Hash<0>, edm::ModuleDescription>"/>
- <class name="std::pair<edm::Hash<0>, edm::ModuleDescription>"/>
+ <class name="std::map<edm::Hash<0>,edm::ModuleDescription>"/>
+ <class name="std::pair<edm::Hash<0>,edm::ModuleDescription>"/>
  <class name="edm::Hash<2>"/>
- <class name="std::map<edm::Hash<2>, edm::ProcessHistory>"/>
- <class name="std::pair<edm::Hash<2>, edm::ProcessHistory>"/>
+ <class name="std::map<edm::Hash<2>,edm::ProcessHistory>"/>
+ <class name="std::pair<edm::Hash<2>,edm::ProcessHistory>"/>
  <class name="edm::Hash<1>"/>
  <class name="std::set<edm::Hash<1> >"/>
- <class name="std::map<edm::Hash<1>, edm::ParameterSetBlob>"/>
- <class name="std::pair<edm::Hash<1>, edm::ParameterSetBlob>"/>
+ <class name="std::map<edm::Hash<1>,edm::ParameterSetBlob>"/>
+ <class name="std::pair<edm::Hash<1>,edm::ParameterSetBlob>"/>
  <class name="edm::Hash<3>"/>
  <class name="std::set<edm::Hash<3> >"/>
 
@@ -142,5 +155,3 @@
  <class name="edm::Wrapper<edm::TriggerResults>"/>
 
 </lcgdict>
-
-
