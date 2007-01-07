@@ -1,4 +1,4 @@
-// $Id: FileRecord.cc,v 1.3 2006/12/11 09:00:04 klute Exp $
+// $Id: FileRecord.cc,v 1.4 2007/01/07 18:06:15 klute Exp $
 
 #include "IOPool/Streamer/interface/FileRecord.h"
 
@@ -52,8 +52,8 @@ void FileRecord::writeToSummaryCatalog()
   ostringstream currentStat;
   string ind(":");
   currentStat << workingDir()           << ind
-	      << fileName()             << ind 
-              << fileCounterStr()       << ind
+	      << fileName()  
+	      << fileCounterStr()       << ind
 	      << fileSize()             << ind 
 	      << events()               << ind
               << timeStamp(lastEntry()) << ind
