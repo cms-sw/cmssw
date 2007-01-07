@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.21 2006/12/22 09:48:18 klute Exp $
+// $Id: FragmentCollector.cc,v 1.22 2007/01/03 02:45:11 hcheung Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/test/SillyLockService.h"
@@ -269,6 +269,6 @@ namespace stor
 
     FR_DEBUG << "FragColl: writing INIT size " << entry->buffer_size_ << endl;
 
-    writer_->manageInitMsg(catalog_, disks_, msg);
+    writer_->manageInitMsg(catalog_, disks_, sourceId_, msg);
   }
 }

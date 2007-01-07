@@ -1,7 +1,7 @@
 #ifndef FILERECORD_H
 #define FILERECORD_H
 
-// $Id: FileRecord.h,v 1.1 2006/11/29 10:10:15 klute Exp $
+// $Id: FileRecord.h,v 1.2 2006/12/09 16:35:52 hcheung Exp $
 #include <string>
 
 namespace edm {
@@ -32,6 +32,7 @@ namespace edm {
       std::string fileCounterStr();
       std::string filePath();
       std::string completeFileName();
+      std::string timeStamp(double);
      
       int    lumiSection()          { return lumiSection_; }
       int    fileCounter()          { return fileCounter_; }

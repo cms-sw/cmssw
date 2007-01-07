@@ -85,15 +85,16 @@ namespace stor
     void set_outoption(bool stream_only)     { streamerOnly_ = stream_only; }
     void setNumberOfFileSystems(int disks)   { disks_        = disks; }
     void setFileCatalog(std::string catalog) { catalog_      = catalog; }
-    void setSourceId(std::string sourceId)   { /* will be used later */ }
+    void setSourceId(std::string sourceId)   { sourceId_     = sourceId; }
 
     std::list<std::string>& get_filelist() { return writer_->get_filelist();  }
     std::list<std::string>& get_currfiles() { return writer_->get_currfiles(); }
   private:
     bool streamerOnly_;
     uint32 runNumber_;
-    std::string catalog_;
     uint32 disks_;
+    std::string catalog_;
+    std::string sourceId_;
 
     std::auto_ptr<edm::StreamerOutSrvcManager> writer_;
 

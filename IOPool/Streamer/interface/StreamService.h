@@ -1,7 +1,7 @@
 #ifndef STREAMSERVICE_H
 #define STREAMSERVICE_H
 
-// $Id:$
+// $Id: StreamService.h,v 1.1 2006/11/29 10:10:15 klute Exp $
 
 // - handling output files per stream make the problem 1-dimensional 
 // - allows to use different file handling rules per stream
@@ -47,7 +47,8 @@ namespace edm {
       void   report(std::ostream &os, int indentation) const;
 
       void   setNumberOfFileSystems(int i) { numberOfFileSystems_ = i; } 
-      void   setCatalog(string s) { catalog_ = s; }
+      void   setCatalog(std::string s)     { catalog_  = s; }
+      void   setSourceId(std::string s)    { sourceId_ = s; }
 
       std::list<std::string> getFileList();
       std::list<std::string>getCurrentFileList();
@@ -72,7 +73,7 @@ namespace edm {
       boost::shared_ptr<edm::EventSelector>  eventSelector_;
       OutputMap                              outputMap_;
       OutputSummary                          outputSummary_;
-      string                                 currentLockPath_;
+      std::string                            currentLockPath_;
 
       // set from event message
       int    runNumber_;
@@ -83,14 +84,15 @@ namespace edm {
       
       // should be output module parameter
       int    numberOfFileSystems_;
-      string catalog_;
+      std::string catalog_;
+      std::string sourceId_;
 
       // output module parameter
-      string fileName_;
-      string filePath_;
-      string mailboxPath_;
-      string setupLabel_;
-      string streamLabel_;
+      std::string fileName_;
+      std::string filePath_;
+      std::string mailboxPath_;
+      std::string setupLabel_;
+      std::string streamLabel_;
       int    maxSize_;
       double highWaterMark_;
       double lumiSectionTimeOut_;

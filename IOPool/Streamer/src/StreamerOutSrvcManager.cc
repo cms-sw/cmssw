@@ -1,4 +1,4 @@
-// $Id: StreamerOutSrvcManager.cc,v 1.13 2006/12/19 00:30:45 wmtan Exp $
+// $Id: StreamerOutSrvcManager.cc,v 1.14 2006/12/22 09:48:20 klute Exp $
 
 #include "IOPool/Streamer/interface/StreamerOutSrvcManager.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -32,7 +32,7 @@ void StreamerOutSrvcManager::stop()
 }
 
 
-void StreamerOutSrvcManager::manageInitMsg(std::string catalog, uint32 disks,InitMsgView& view)
+void StreamerOutSrvcManager::manageInitMsg(std::string catalog, uint32 disks, std::string sourceId, InitMsgView& view)
 {
   for(std::vector<ParameterSet>::iterator it = outModPSets_.begin();
       it != outModPSets_.end(); ++it)
@@ -40,7 +40,8 @@ void StreamerOutSrvcManager::manageInitMsg(std::string catalog, uint32 disks,Ini
       shared_ptr<StreamService> stream = shared_ptr<StreamService>(new StreamService((*it),view));
       stream -> setCatalog(catalog);
       stream -> setNumberOfFileSystems(disks);
-      managedOutputs_. push_back( stream );
+      stream -> setSourceId(sourceId);
+      managedOutputs_.push_back(stream);
       stream -> report(cout,3);
     }
 }

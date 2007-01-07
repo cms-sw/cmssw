@@ -1,4 +1,4 @@
-// $Id: FileRecord.cc,v 1.2 2006/12/09 16:39:40 hcheung Exp $
+// $Id: FileRecord.cc,v 1.3 2006/12/11 09:00:04 klute Exp $
 
 #include "IOPool/Streamer/interface/FileRecord.h"
 
@@ -51,12 +51,15 @@ void FileRecord::writeToSummaryCatalog()
 {
   ostringstream currentStat;
   string ind(":");
-  currentStat << fileName_    << ind 
-	      << fileSize_    << ind 
-	      << events_      << endl;
+  currentStat << workingDir()           << ind
+	      << fileName()             << ind 
+              << fileCounterStr()       << ind
+	      << fileSize()             << ind 
+	      << events()               << ind
+              << timeStamp(lastEntry()) << ind
+	      << (int) (lastEntry()-firstEntry()) << endl;
   string currentStatString (currentStat.str());
   ofstream of(statFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
-  //of << currentStat;
   of << currentStatString;
   of.close();
 }
@@ -122,6 +125,23 @@ void FileRecord::moveFileToClosed()
  
 }
 
+
+string FileRecord::timeStamp(double time)
+{
+  time_t rawtime = (time_t) time ;
+  tm * ptm;
+  ptm = localtime ( &rawtime );
+  ostringstream timeStampStr;
+  string colon(":");
+  string slash("/");
+  timeStampStr << setfill('0') << std::setw(2) << ptm->tm_mday      << slash 
+	       << setfill('0') << std::setw(2) << ptm->tm_mon+1     << slash
+	       << setfill('0') << std::setw(4) << ptm->tm_year+1900 << colon
+               << setfill('0') << std::setw(2) << ptm->tm_hour      << slash
+	       << setfill('0') << std::setw(2) << ptm->tm_min       << slash
+	       << setfill('0') << std::setw(2) << ptm->tm_sec;
+  return timeStampStr.str();
+}
 
 //
 // *** report status of FileRecord

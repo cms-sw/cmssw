@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.5 2006/12/11 09:00:04 klute Exp $
+// $Id: StreamService.cc,v 1.6 2006/12/19 00:30:44 wmtan Exp $
 
 #include "IOPool/Streamer/interface/StreamService.h"
 
@@ -238,6 +238,7 @@ void StreamService::setStreamParameter()
   maxSize_            = parameterSet_.getParameter<int>    ("maxSize");
   highWaterMark_      = parameterSet_.getParameter<double> ("highWaterMark");
   lumiSectionTimeOut_ = parameterSet_.getParameter<double> ("lumiSectionTimeOut");
+  sourceId_           = "";
   // report(cout, 4);
 }
 
@@ -260,7 +261,8 @@ boost::shared_ptr<FileRecord> StreamService::generateFileRecord()
 	 << "." << setfill('0') << std::setw(8) << runNumber_ 
 	 << "." << setfill('0') << std::setw(4) << lumiSection_
 	 << "." << streamLabel_ 
-	 << "." << fileName_;
+	 << "." << fileName_
+         << "." << sourceId_;
   string fileName = oss.str();
 
   shared_ptr<FileRecord> fd = shared_ptr<FileRecord>(new FileRecord(lumiSection_, fileName, filePath_));    
@@ -336,6 +338,7 @@ void StreamService::report(ostream &os, int indentation) const
   os << prefix << "------------- StreamService -------------\n";
   os << prefix << "fileName            " << fileName_              << "\n";
   os << prefix << "filePath            " << filePath_              << "\n";
+  os << prefix << "sourceId            " << sourceId_              << "\n";
   os << prefix << "mailboxPath         " << mailboxPath_           << "\n";
   os << prefix << "setupLabel          " << setupLabel_            << "\n";
   os << prefix << "streamLabel         " << streamLabel_           << "\n";
