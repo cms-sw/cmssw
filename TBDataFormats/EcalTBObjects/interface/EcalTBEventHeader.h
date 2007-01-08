@@ -9,7 +9,7 @@
 /** \class EcalTBEventHeader
  *  Container for event ancilllary informations defined in TB raw data formats  
  *
- *  $Id: EcalTBEventHeader.h,v 1.7 2006/10/16 22:03:09 franzoni Exp $
+ *  $Id: EcalTBEventHeader.h,v 1.8 2006/11/01 18:02:02 meridian Exp $
  */
 
 
@@ -116,9 +116,9 @@ class EcalTBEventHeader {
     return EBDetId(nextCrystalInBeam_).ic();
   }
   //! Returns the theta table index
-  ulong thetaTableIndex() const { return thetaTableIndex_; }
+  unsigned int thetaTableIndex() const { return thetaTableIndex_; }
   //! Returns the phi table index
-  ulong phiTableIndex() const { return phiTableIndex_; }
+  unsigned int phiTableIndex() const { return phiTableIndex_; }
   //! Tell if the table is Moving
   bool tableIsMoving() const { return tableIsMoving_;} 
   //! Tell if the table is Moving At the begin of the spill (available in runs only after 1st August 06)
@@ -213,9 +213,9 @@ class EcalTBEventHeader {
 
   void setNextCrystalInBeam(const DetId& crystalInBeam ) { nextCrystalInBeam_=crystalInBeam; }
 
-  void setThetaTableIndex(const ulong& thetaTableIndex ) { thetaTableIndex_=thetaTableIndex; }
+  void setThetaTableIndex(const unsigned int& thetaTableIndex ) { thetaTableIndex_=thetaTableIndex; }
 
-  void setPhiTableIndex(const ulong& phiTableIndex ) { phiTableIndex_=phiTableIndex; }
+  void setPhiTableIndex(const unsigned int& phiTableIndex ) { phiTableIndex_=phiTableIndex; }
 
   void setTableIsMoving(const bool& tableIsMoving ) { tableIsMoving_=tableIsMoving; }
 
@@ -273,8 +273,8 @@ class EcalTBEventHeader {
   DetId    crystalInBeam_;    ///< The current crystal hit by the beam
   DetId    nominalCrystalInBeam_;    ///< The nominal crystal which should be hit by the beam
   DetId    nextCrystalInBeam_;    ///< The nominal next crystal which should be hit by the beam
-  ulong    thetaTableIndex_; ///< Theta table index (X)
-  ulong    phiTableIndex_;   ///< Phi table index (Y)
+  unsigned int    thetaTableIndex_; ///< Theta table index (X)
+  unsigned int    phiTableIndex_;   ///< Phi table index (Y)
 
   bool tableIsMoving_;
 

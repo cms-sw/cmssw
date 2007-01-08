@@ -7,7 +7,7 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.5 2006/02/23 18:58:47 ghezzi Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.6 2006/05/05 09:04:56 meridian Exp $
  */
 
 #include <vector>
@@ -103,7 +103,7 @@ class EcalDCCHeaderBlock
 
   int dccId_;  //to be used as the Key
   int dccErrors_;
-  long orbitNumber_; // do we need it here?
+  int orbitNumber_; // do we need it here?
   short runType_;
 
   short basic_trigger_type_;
