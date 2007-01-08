@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.29 2006/11/21 16:06:00 llista Exp $
+ * $Id: AssociationMap.h,v 1.30 2006/12/05 11:16:52 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefVector.h"
@@ -72,6 +72,8 @@ namespace edm {
 
     /// default constructor
     AssociationMap() { }
+    /// default constructor
+    AssociationMap( const ref_type & ref ) : ref_( ref ) { }
     /// clear map
     void clear() { map_.clear(); transientMap_.clear(); }
     /// map size
