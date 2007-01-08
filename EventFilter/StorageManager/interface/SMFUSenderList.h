@@ -2,56 +2,83 @@
 #define _smfusenderlist_h_
 
 #include <exception>
-#include <vector>
+#include <list>
 
-#include "EventFilter/StorageManager/interface/i2oStorageManagerMsg.h"
-#include "toolbox/mem/Reference.h"
-#include "toolbox/Chrono.h"
+#include "boost/shared_ptr.hpp"
+#include "boost/thread/thread.hpp"
+
+#include "EventFilter/StorageManager/interface/SMFUSenderEntry.h"
 
 namespace stor {
 
-struct SMFUSenderList  // used to store list of FU senders
+class SMFUSenderList  //< list of FU senders with thread-safe access
 {
-  SMFUSenderList(const char* hltURL,
-                 const char* hltClassName,
-                 const unsigned long hltLocalId,
-                 const unsigned long hltInstance,
-                 const unsigned long hltTid,
-                 const unsigned int numFramesToAllocate,
-                 const unsigned long registrySize,
-                 const char* registryData);
+  public:
 
-  char          hltURL_[MAX_I2O_SM_URLCHARS];       // FU+HLT identifiers
-  char          hltClassName_[MAX_I2O_SM_URLCHARS];
-  unsigned long hltLocalId_;
-  unsigned long hltInstance_;
-  unsigned long hltTid_;
-  unsigned long registrySize_;
-  bool          regAllReceived_;  // All Registry fragments are received or not
-  unsigned int  totFrames_;    // number of frames in this fragment
-  unsigned int  currFrames_;   // current frames received
-  std::vector<toolbox::mem::Reference*> frameRefs_; // vector of frame reference pointers
-  char          registryData_[2*1000*1000]; // size should be a parameter and have tests!
-  bool          regCheckedOK_;    // Registry checked to be same as configuration
-  unsigned int  connectStatus_;   // FU+HLT connection status
-  double        lastLatency_;     // Latency of last frame in microseconds
-  unsigned long runNumber_;
-  bool          isLocal_;         // If detected a locally sent frame chain
-  unsigned long framesReceived_;
-  unsigned long eventsReceived_;
-  unsigned long lastEventID_;
-  unsigned long lastRunID_;
-  unsigned long lastFrameNum_;
-  unsigned long lastTotalFrameNum_;
-  unsigned long totalOutOfOrder_;
-  unsigned long totalSizeReceived_;// For data only
-  unsigned long totalBadEvents_;   // Update meaning: include original size check?
-  toolbox::Chrono chrono_;         // Keep latency for connection check
+  SMFUSenderList();
 
-  //public:
-  bool sameURL(const char* hltURL);
-  bool sameClassName(const char* hltClassName);
+  virtual ~SMFUSenderList(){}
 
+  // following method uses the list lock
+
+  /// number of registered FU senders
+  unsigned int size();
+  /// register INIT message frame from FU sender
+  /// Creates an entry or update one for subsequent frames
+  ///  containing additional fragments
+  /// return -1 if problems, 1 if registry is completed, 0 otherwise
+  int registerFUSender(const char* hltURL,
+    const char* hltClassName, const unsigned int hltLocalId,
+    const unsigned int hltInstance, const unsigned int hltTid,
+    const unsigned int frameCount, const unsigned int numFrames,
+    toolbox::mem::Reference *ref);
+  /// Update FU sender information and statistics for each data
+  /// frame received, return true if this frame completes an event
+  /// return -1 if problems, 1 if complete an event, 0 otherwise
+  int updateFUSender4data(const char* hltURL, const char* hltClassName,
+    const unsigned int hltLocalId, const unsigned int hltInstance,
+    const unsigned int hltTid,
+    const unsigned int runNumber, const unsigned int eventNumber,
+    const unsigned int frameNum, const unsigned int totalFrames,
+    const unsigned int origdatasize, const bool isLocal);
+  /// Removed a FU sender from the list when it has ended an run
+  /// returns false if there was a problem finding FU sender in list
+  bool removeFUSender(const char* hltURL,
+    const char* hltClassName, const unsigned int hltLocalId,
+    const unsigned int hltInstance, const unsigned int hltTid);
+  /// set the flag that says the registry has been checked
+  void setRegCheckedOK(const char* hltURL,
+    const char* hltClassName, const unsigned int hltLocalId,
+    const unsigned int hltInstance, const unsigned int hltTid);
+  /// methods for access to FU info and statistics
+  char* getRegistryData(const char* hltURL,
+    const char* hltClassName, const unsigned int hltLocalId,
+    const unsigned int hltInstance, const unsigned int hltTid);
+  unsigned int getRegistrySize(const char* hltURL,
+    const char* hltClassName, const unsigned int hltLocalId,
+    const unsigned int hltInstance, const unsigned int hltTid);
+
+  private:
+
+  // following methods do not use the list lock internally
+
+  boost::shared_ptr<stor::SMFUSenderEntry> findEntry(const char* hltURL, 
+    const char* hltClassName, const unsigned int hltLocalId, 
+    const unsigned int hltInstance, const unsigned int hltTid);
+  boost::shared_ptr<stor::SMFUSenderEntry> addEntry(const char* hltURL,
+    const char* hltClassName, const unsigned int hltLocalId,
+    const unsigned int hltInstance, const unsigned int hltTid,
+    const unsigned int frameCount, const unsigned int numFrames,
+    toolbox::mem::Reference *ref);
+  bool eraseEntry(const char* hltURL, const char* hltClassName, 
+                  const unsigned int hltLocalId,
+                  const unsigned int hltInstance, 
+                  const unsigned int hltTid);
+
+  // for large numbers of FU senders we should change this later to a map
+  std::list<boost::shared_ptr<stor::SMFUSenderEntry> > fulist_;
+  boost::mutex list_lock_;
+  
 };
 }
 #endif
