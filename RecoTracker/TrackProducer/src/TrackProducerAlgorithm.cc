@@ -201,17 +201,22 @@ bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
     TrajectoryStateClosestToPoint tscp = tscpBuilder(*(innertsos.freeState()),
 						     GlobalPoint(0,0,0) );//FIXME Correct?
     
-     PerigeeTrajectoryParameters::ParameterVector param = tscp.perigeeParameters();
- 
-     PerigeeTrajectoryError::CovarianceMatrix covar = tscp.perigeeError();
+    GlobalPoint v = tscp.theState().position();
+    math::XYZPoint  pos( v.x(), v.y(), v.z() );
+    GlobalVector p = tscp.theState().momentum();
+    math::XYZVector mom( p.x(), p.y(), p.z() );
+
+    LogDebug("TrackProducer") <<v<<p<<std::endl;
+//      PerigeeTrajectoryParameters::ParameterVector param = tscp.perigeeParameters();
+//  
+//      PerigeeTrajectoryError::CovarianceMatrix covar = tscp.perigeeError();
 
     theTrack = new reco::Track(theTraj->chiSquared(),
 			       int(ndof),//FIXME fix weight() in TrackingRecHit
 			       //			       theTraj->foundHits(),//FIXME to be fixed in Trajectory.h
 			       //			       0, //FIXME no corresponding method in trajectory.h
 			       //			       theTraj->lostHits(),//FIXME to be fixed in Trajectory.h
-			       param,tscp.pt(),
-			       covar);
+			       pos, mom, tscp.charge(), tscp.theState().curvilinearError());
 
 
     LogDebug("TrackProducer") <<"track done\n";
