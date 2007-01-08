@@ -134,6 +134,13 @@ void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
   theElectronicsFractionMB = 0.;
   theOtherFractionMB       = 0.;
   theAirFractionMB         = 0.;
+  theSupportFractionIL     = 0.;
+  theSensitiveFractionIL   = 0.;
+  theCablesFractionIL      = 0.;
+  theCoolingFractionIL     = 0.;
+  theElectronicsFractionIL = 0.;
+  theOtherFractionIL       = 0.;
+  theAirFractionIL         = 0.;
   // rr
   
   theID = (int)(aTrack->GetDefinition()->GetPDGEncoding());
@@ -206,6 +213,15 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   theAirFractionMB         = myMaterialBudgetCategorizer->x0fraction(lv->GetMaterial()->GetName())[6];
   if(theOtherFractionMB!=0) std::cout << " material found with no category " << lv->GetMaterial()->GetName() 
 				      << " in volume " << lv->GetName() << std::endl;
+  theSupportFractionIL     = myMaterialBudgetCategorizer->l0fraction(lv->GetMaterial()->GetName())[0];
+  theSensitiveFractionIL   = myMaterialBudgetCategorizer->l0fraction(lv->GetMaterial()->GetName())[1];
+  theCablesFractionIL      = myMaterialBudgetCategorizer->l0fraction(lv->GetMaterial()->GetName())[2];
+  theCoolingFractionIL     = myMaterialBudgetCategorizer->l0fraction(lv->GetMaterial()->GetName())[3];
+  theElectronicsFractionIL = myMaterialBudgetCategorizer->l0fraction(lv->GetMaterial()->GetName())[4];
+  theOtherFractionIL       = myMaterialBudgetCategorizer->l0fraction(lv->GetMaterial()->GetName())[5];
+  theAirFractionIL         = myMaterialBudgetCategorizer->l0fraction(lv->GetMaterial()->GetName())[6];
+  if(theOtherFractionIL!=0) std::cout << " material found with no category " << lv->GetMaterial()->GetName() 
+				      << " in volume " << lv->GetName() << std::endl;
   //  if(theOtherFractionMB!=0) LogDebug("MaterialBudgetData") << " material found with no category " << lv->GetMaterial()->GetName() 
   //				 << " in volume " << lv->GetName();
   // rr  
@@ -240,13 +256,13 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     theElectronicsDmb[theStepN] = (dmb * theElectronicsFractionMB);
     theOtherDmb[theStepN]       = (dmb * theOtherFractionMB);
     theAirDmb[theStepN]         = (dmb * theAirFractionMB);
-    theSupportDil[theStepN]     = (dil * theSupportFractionMB);
-    theSensitiveDil[theStepN]   = (dil * theSensitiveFractionMB);
-    theCablesDil[theStepN]      = (dil * theCablesFractionMB);
-    theCoolingDil[theStepN]     = (dil * theCoolingFractionMB);
-    theElectronicsDil[theStepN] = (dil * theElectronicsFractionMB);
-    theOtherDil[theStepN]       = (dil * theOtherFractionMB);
-    theAirDil[theStepN]         = (dil * theAirFractionMB);
+    theSupportDil[theStepN]     = (dil * theSupportFractionIL);
+    theSensitiveDil[theStepN]   = (dil * theSensitiveFractionIL);
+    theCablesDil[theStepN]      = (dil * theCablesFractionIL);
+    theCoolingDil[theStepN]     = (dil * theCoolingFractionIL);
+    theElectronicsDil[theStepN] = (dil * theElectronicsFractionIL);
+    theOtherDil[theStepN]       = (dil * theOtherFractionIL);
+    theAirDil[theStepN]         = (dil * theAirFractionIL);
     theInitialX[theStepN] = prePos.x();
     theInitialY[theStepN] = prePos.y();
     theInitialZ[theStepN] = prePos.z();
@@ -399,13 +415,13 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   theElectronicsMB += (dmb * theElectronicsFractionMB);
   theOtherMB       += (dmb * theOtherFractionMB);
   theAirMB         += (dmb * theAirFractionMB);
-  theSupportIL     += (dil * theSupportFractionMB);
-  theSensitiveIL   += (dil * theSensitiveFractionMB);
-  theCablesIL      += (dil * theCablesFractionMB);
-  theCoolingIL     += (dil * theCoolingFractionMB);
-  theElectronicsIL += (dil * theElectronicsFractionMB);
-  theOtherIL       += (dil * theOtherFractionMB);
-  theAirIL         += (dil * theAirFractionMB);
+  theSupportIL     += (dil * theSupportFractionIL);
+  theSensitiveIL   += (dil * theSensitiveFractionIL);
+  theCablesIL      += (dil * theCablesFractionIL);
+  theCoolingIL     += (dil * theCoolingFractionIL);
+  theElectronicsIL += (dil * theElectronicsFractionIL);
+  theOtherIL       += (dil * theOtherFractionIL);
+  theAirIL         += (dil * theAirFractionIL);
   // rr
   
   theStepN++;

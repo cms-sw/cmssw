@@ -58,6 +58,20 @@ public:
     return theOtherMB; }
   float getAirMB() const {
     return theAirMB; }
+  float getSupportFractionIL() const {
+    return theSupportFractionIL; }
+  float getSensitiveFractionIL() const {
+    return theSensitiveFractionIL; }
+  float getCablesFractionIL() const {
+    return theCablesFractionIL; }
+  float getCoolingFractionIL() const {
+    return theCoolingFractionIL; }
+  float getElectronicsFractionIL() const {
+    return theElectronicsFractionIL; }
+  float getOtherFractionIL() const {
+    return theOtherFractionIL; }
+  float getAirFractionIL() const {
+    return theAirFractionIL; }
   float getTotalIL() const {
     return theTotalIL; }
   float getSupportIL() const {
@@ -268,6 +282,8 @@ public:
   float theEnergy;
   float theSupportFractionMB, theSensitiveFractionMB, theCablesFractionMB,
     theCoolingFractionMB, theElectronicsFractionMB, theOtherFractionMB, theAirFractionMB;
+  float theSupportFractionIL, theSensitiveFractionIL, theCablesFractionIL,
+    theCoolingFractionIL, theElectronicsFractionIL, theOtherFractionIL, theAirFractionIL;
   float theSupportMB, theSensitiveMB, theCablesMB, theCoolingMB, theElectronicsMB, theOtherMB, theAirMB;
   float theTotalIL;
   float theSupportIL, theSensitiveIL, theCablesIL, theCoolingIL, theElectronicsIL, theOtherIL, theAirIL;

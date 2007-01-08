@@ -37,17 +37,14 @@ void MaterialBudgetCategorizer::buildMaps()
   }
   
   // rr
-  //----- Build map material name - x0 contributes
-  ifstream theMaterialFile(edm::FileInPath("Validation/Geometry/data/trackerMaterials.x0").fullPath().c_str());
- // fill everything as "other"
-  float sup,sen,cab,col,ele,oth,air;
-  for( ii = 0; ii < matSize; ii++ ) {
+
+  //----- Build map material name
+  for( int ii = 0; ii < matSize; ii++ ) {
+    float sup,sen,cab,col,ele,oth,air;
     sup=sen=cab=col=ele=0.;
     oth=1.;
     air=0;
     cout << " material " << (*matTable)[ii]->GetName() << " prepared"
-	 << "\t X0 = "      << (*matTable)[ii]->GetRadlen()             << " mm"
-	 << "\t Lambda0 = " << (*matTable)[ii]->GetNuclearInterLength() << " mm"
 	 << endl;
     if((*matTable)[ii]->GetName()=="Air") {
       air=1.000; 
@@ -58,6 +55,7 @@ void MaterialBudgetCategorizer::buildMaps()
       sup=1.000; 
       oth=0.000;
     }
+    // X0
     theX0Map[ (*matTable)[ii]->GetName() ].push_back(sup); // sup
     theX0Map[ (*matTable)[ii]->GetName() ].push_back(sen); // sen
     theX0Map[ (*matTable)[ii]->GetName() ].push_back(cab); // cab
@@ -65,8 +63,68 @@ void MaterialBudgetCategorizer::buildMaps()
     theX0Map[ (*matTable)[ii]->GetName() ].push_back(ele); // ele
     theX0Map[ (*matTable)[ii]->GetName() ].push_back(oth); // oth
     theX0Map[ (*matTable)[ii]->GetName() ].push_back(air); // air
+    // L0
+    theL0Map[ (*matTable)[ii]->GetName() ].push_back(sup); // sup
+    theL0Map[ (*matTable)[ii]->GetName() ].push_back(sen); // sen
+    theL0Map[ (*matTable)[ii]->GetName() ].push_back(cab); // cab
+    theL0Map[ (*matTable)[ii]->GetName() ].push_back(col); // col
+    theL0Map[ (*matTable)[ii]->GetName() ].push_back(ele); // ele
+    theL0Map[ (*matTable)[ii]->GetName() ].push_back(oth); // oth
+    theL0Map[ (*matTable)[ii]->GetName() ].push_back(air); // air
   }
   //
+  
+  //----- Build map material name - X0 contributes
+  cout << endl << endl << "MaterialBudgetCategorizer::Fill X0 Map" << endl;
+  const char* theMaterialX0FileName = edm::FileInPath("Validation/Geometry/data/trackerMaterials.x0").fullPath().c_str();
+  buildCategoryMap(theMaterialX0FileName, theX0Map);
+  //----- Build map material name - L0 contributes
+  cout << endl << endl << "MaterialBudgetCategorizer::Fill L0 Map" << endl;
+  const char* theMaterialL0FileName = edm::FileInPath("Validation/Geometry/data/trackerMaterials.l0").fullPath().c_str();
+  buildCategoryMap(theMaterialL0FileName, theL0Map);
+  // summary of all the materials loaded
+  cout << endl << endl << "MaterialBudgetCategorizer::Material Summary --------" << endl;
+  for( ii = 0; ii < matSize; ii++ ) {
+    //    edm::LogInfo("MaterialBudgetCategorizer")
+    cout << " material " << (*matTable)[ii]->GetName()
+	 << endl
+	 << "\t X0 = "      << (*matTable)[ii]->GetRadlen()             << " mm"
+	 << endl
+	 << " SUP " << theX0Map[ (*matTable)[ii]->GetName() ][0] 
+	 << " SEN " << theX0Map[ (*matTable)[ii]->GetName() ][1]
+	 << " CAB " << theX0Map[ (*matTable)[ii]->GetName() ][2]
+	 << " COL " << theX0Map[ (*matTable)[ii]->GetName() ][3]
+	 << " ELE " << theX0Map[ (*matTable)[ii]->GetName() ][4]
+	 << " OTH " << theX0Map[ (*matTable)[ii]->GetName() ][5]
+	 << " AIR " << theX0Map[ (*matTable)[ii]->GetName() ][6]
+	 << endl
+	 << "\t Lambda0 = " << (*matTable)[ii]->GetNuclearInterLength() << " mm"
+	 << endl
+	 << " SUP " << theL0Map[ (*matTable)[ii]->GetName() ][0] 
+	 << " SEN " << theL0Map[ (*matTable)[ii]->GetName() ][1]
+	 << " CAB " << theL0Map[ (*matTable)[ii]->GetName() ][2]
+	 << " COL " << theL0Map[ (*matTable)[ii]->GetName() ][3]
+	 << " ELE " << theL0Map[ (*matTable)[ii]->GetName() ][4]
+	 << " OTH " << theL0Map[ (*matTable)[ii]->GetName() ][5]
+	 << " AIR " << theL0Map[ (*matTable)[ii]->GetName() ][6]
+	 << endl;
+  }
+  //
+  // rr
+  
+}
+
+void MaterialBudgetCategorizer::buildCategoryMap(const char* theMaterialFileName, std::map<std::string,std::vector<float> >& theMap) {
+  const G4MaterialTable* matTable = G4Material::GetMaterialTable();
+  G4int matSize = matTable->size();
+  
+  ifstream theMaterialFile(theMaterialFileName);
+  
+  // fill everything as "other"
+  float sup,sen,cab,col,ele,oth,air;
+  sup=sen=cab=col=ele=0.;
+  oth=1.;
+  air=0;
   
   //
   std::string materialName;
@@ -75,14 +133,14 @@ void MaterialBudgetCategorizer::buildMaps()
     theMaterialFile >> sup >> sen >> cab >> col >> ele;
     oth = 0.000;
     air = 0.000;
-    theX0Map[materialName].clear();        // clear before re-filling
-    theX0Map[materialName].push_back(sup); // sup
-    theX0Map[materialName].push_back(sen); // sen
-    theX0Map[materialName].push_back(cab); // cab
-    theX0Map[materialName].push_back(col); // col
-    theX0Map[materialName].push_back(ele); // ele
-    theX0Map[materialName].push_back(oth); // oth
-    theX0Map[materialName].push_back(air); // air
+    theMap[materialName].clear();        // clear before re-filling
+    theMap[materialName].push_back(sup); // sup
+    theMap[materialName].push_back(sen); // sen
+    theMap[materialName].push_back(cab); // cab
+    theMap[materialName].push_back(col); // col
+    theMap[materialName].push_back(ele); // ele
+    theMap[materialName].push_back(oth); // oth
+    theMap[materialName].push_back(air); // air
     cout << " material " << materialName << " filled " 
 	 << " SUP " << sup 
 	 << " SEN " << sen 
@@ -93,22 +151,5 @@ void MaterialBudgetCategorizer::buildMaps()
 	 << " AIR " << air 
 	 << endl;
   }
-  
-  // summary of all the materials loaded
-  cout << endl << endl << "MaterialBudgetCategorizer::Material Summary --------" << endl;
-  for( ii = 0; ii < matSize; ii++ ) {
-    //    edm::LogInfo("MaterialBudgetCategorizer")
-    cout << " material " << (*matTable)[ii]->GetName()
-	 << " SUP " << theX0Map[ (*matTable)[ii]->GetName() ][0] 
-	 << " SEN " << theX0Map[ (*matTable)[ii]->GetName() ][1]
-	 << " CAB " << theX0Map[ (*matTable)[ii]->GetName() ][2]
-	 << " COL " << theX0Map[ (*matTable)[ii]->GetName() ][3]
-	 << " ELE " << theX0Map[ (*matTable)[ii]->GetName() ][4]
-	 << " OTH " << theX0Map[ (*matTable)[ii]->GetName() ][5]
-	 << " AIR " << theX0Map[ (*matTable)[ii]->GetName() ][6]
-	 << endl;
-  }
-  //
-  // rr
   
 }
