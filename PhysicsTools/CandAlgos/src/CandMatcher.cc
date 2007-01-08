@@ -38,12 +38,13 @@ void CandMatcherBase::produce( Event& evt, const EventSetup& ) {
   Handle<CandidateCollection> cands;  
   evt.getByLabel( src_, cands ) ;
 
-  auto_ptr<CandMatchMap> matchMap( new CandMatchMap );
+  auto_ptr<CandMatchMap> matchMap( new CandMatchMap( CandMatchMap::ref_type( CandidateRefProd( cands ), 
+									     CandidateRefProd( matched ) ) ) );
   for( size_t c = 0; c != cands->size(); ++ c ) {
     const Candidate & cand = (*cands)[ c ];
     vector<helper::MatchPair> v;
     for( size_t m = 0; m != matched->size(); ++ m ) {
-      const Candidate & match = (*matched)[ m ];
+      const Candidate & match = ( * matched )[ m ];
       if ( select( cand, match ) ) {
 	double dist = matchDistance( cand, match );
 	if ( dist < distMin_ ) v.push_back( make_pair( m, dist ) );

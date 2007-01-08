@@ -22,6 +22,7 @@ void MCTruthCompositeMatcher::produce( edm::Event & evt , const edm::EventSetup 
   evt.getByLabel( src_, cands ) ;
   Handle<CandMatchMap> mcMatchMap;
   evt.getByLabel( matchMap_, mcMatchMap );
+
   MCCandMatcher match( * mcMatchMap );
   auto_ptr<CandMatchMap> matchMap( new CandMatchMap );
 

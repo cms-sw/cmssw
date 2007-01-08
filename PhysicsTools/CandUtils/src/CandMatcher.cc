@@ -12,11 +12,9 @@ void CandMatcherBase::initMaps() {
   CandidateRefProd cands = map_.refProd().key;
   for( size_t i = 0; i < cands->size(); ++ i )
     candRefs_[ & (*cands)[ i ] ] = CandidateRef( cands, i );
-
   CandidateRefProd matched = map_.refProd().val; 
   for( size_t i = 0; i < matched->size(); ++ i )
     matchedRefs_[ & (*matched)[ i ] ] = CandidateRef( matched, i );
-
   matchedMothers_.resize( matched->size() );
   for( size_t i = 0; i < matched->size(); ++ i ) {
     const Candidate & c = (*matched)[ i ];
@@ -32,6 +30,7 @@ void CandMatcherBase::initMaps() {
       }
     }
   }
+  cout << ">>> done" << endl;
 }
 
 CandMatcherBase::~CandMatcherBase() {
