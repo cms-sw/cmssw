@@ -1,6 +1,7 @@
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossingByCircle.h"
 #include "Geometry/Surface/interface/Plane.h"
 #include "TrackingTools/GeomPropagators/src/RealQuadEquation.h"
+#include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 #include <algorithm>
 
 HelixBarrelPlaneCrossingByCircle::
@@ -36,11 +37,23 @@ HelixBarrelPlaneCrossingByCircle::pathLength( const Plane& plane)
 {
   typedef std::pair<bool,double>     ResultType;
 
+
+  // protect for zero curvature case
+  const double sraightLineCutoff = 1.e-7;
+  if (fabs(theRho) < sraightLineCutoff && 
+      fabs(theRho)*theStartingPos.perp()  < sraightLineCutoff) {
+    // switch to straight line case
+    StraightLinePlaneCrossing slc( theStartingPos, 
+				   theStartingDir, thePropDir);
+    return slc.pathLength( plane);
+  }
+  
+
   // plane parameters
   GlobalVector n = plane.normalVector();
   double distToPlane = -plane.localZ( GlobalPoint( theStartingPos));
-//    double distToPlane = (plane.position().x()-theStartingPos.x()) * n.x() +
-//                         (plane.position().y()-theStartingPos.y()) * n.y();
+  //    double distToPlane = (plane.position().x()-theStartingPos.x()) * n.x() +
+  //                         (plane.position().y()-theStartingPos.y()) * n.y();
   double nx = n.x();  // convert to double
   double ny = n.y();  // convert to double
   double distCx = theStartingPos.x() - theXCenter;
