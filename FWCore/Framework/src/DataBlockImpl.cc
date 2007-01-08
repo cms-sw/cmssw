@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataBlockImpl.cc,v 1.3 2006/11/04 00:35:43 wmtan Exp $
+$Id: DataBlockImpl.cc,v 1.4 2006/12/19 00:28:56 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -114,7 +114,7 @@ namespace edm {
       if (processName == it->processName()) {
 	throw edm::Exception(errors::Configuration, "Duplicate Process")
 	  << "The process name " << processName << " was previously used on these products.\n"
-	  << "Please modify the configuration file to use a distinct process name.";
+	  << "Please modify the configuration file to use a distinct process name."<<"\n";
       }
     }
     ph.push_back(processConfiguration);
@@ -235,7 +235,7 @@ namespace edm {
 	// should never happen!!
 	throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
 	  <<  "getBySelector: no products found for\n"
-	  << tid;
+	  << tid<<"\n";
     }
 
     int found_count = 0;
@@ -254,7 +254,7 @@ namespace edm {
 				     "TooManyMatches")
 		  << "getBySelector: too many products found, "
 		  << "expected one, got " << found_count << ", for\n"
-		  << tid;
+		  << tid<<"\n";
 	    }
 	    found_slot = *ib;
 	    this->resolve_(*g);
@@ -266,7 +266,7 @@ namespace edm {
     if (found_count == 0) {
 	throw edm::Exception(edm::errors::ProductNotFound,"TooFewProducts")
 	  << "getBySelector: too few products found (zero) for\n"
-	  << tid;
+	  << tid<<"\n";
     }
 
     return result;
@@ -359,7 +359,7 @@ namespace edm {
 	// should never happen!!
 	throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
 	  <<  "getMany: no products found for\n"
-	  << tid;
+	  << tid<<"\n";
     }
 
     vector<int>::const_iterator ib(vint.begin()), ie(vint.end());
@@ -380,7 +380,7 @@ namespace edm {
 
     if(i==typeDict_.end()) {
       throw edm::Exception(errors::ProductNotFound,"NoMatch")
-        << "getByType: no product found of correct type\n" << tid;
+        << "getByType: no product found of correct type\n" << tid<<"\n";
     }
 
     vector<int> const& vint = i->second;
@@ -389,14 +389,14 @@ namespace edm {
       // should never happen!!
       throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
         <<  "getByType: no product found for\n"
-        << tid;
+        << tid<<"\n";
     }
 
     if(vint.size() > 1) {
       throw edm::Exception(edm::errors::ProductNotFound, "TooManyMatches")
         << "getByType: too many products found, "
         << "expected one, got " << vint.size() << ", for\n"
-        << tid;
+        << tid<<"\n";
     }
 
     SharedConstGroupPtr const& g = groups_[vint[0]];
@@ -425,7 +425,7 @@ namespace edm {
       // should never happen!!
       throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
         <<  "getManyByType: no products found for\n"
-        << tid;
+        << tid<<"\n";
     }
 
     vector<int>::const_iterator ib(vint.begin()), ie(vint.end());
@@ -469,7 +469,7 @@ namespace edm {
     if (!unconditional && !g.isAccessible())
       throw edm::Exception(errors::ProductNotFound,"InaccessibleProduct")
 	<< "resolve_: product is not accessible\n"
-	<< g.provenance();
+	<< g.provenance()<<"\n";
 
     if (g.product()) return; // nothing to do.
 
