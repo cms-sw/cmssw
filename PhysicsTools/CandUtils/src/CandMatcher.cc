@@ -30,7 +30,6 @@ void CandMatcherBase::initMaps() {
       }
     }
   }
-  cout << ">>> done" << endl;
 }
 
 CandMatcherBase::~CandMatcherBase() {
