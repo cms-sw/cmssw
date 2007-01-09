@@ -4,8 +4,8 @@
  *
  *  the validator assumes single muon events
  *
- *  $Date:$
- *  $Revision:$
+ *  $Date: 2006/12/31 19:44:10 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu   -  Purdue University <Chang.Liu@cern.ch>
  */
 
@@ -73,7 +73,11 @@ class CosmicMuonValidator : public edm::EDAnalyzer {
 
       reco::Track bestTrack(const reco::TrackCollection&) const;
 
-      PSimHitContainer matchedHit(const TrajectoryStateOnSurface&, const PSimHitContainer&) const;
+      PSimHitContainer matchedHit(const GlobalPoint&, const PSimHitContainer&) const;
+
+      TrajectoryStateOnSurface updatedState(const TrajectoryStateOnSurface&, const PSimHit&) const;
+
+      edm::ESHandle<Propagator> propagator() const;
 
       edm::InputTag trackLabel_;
       edm::InputTag simTrackLabel_;
@@ -147,6 +151,13 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
 
    nEvent++;
    std::cout << "reading event " << nEvent << std::endl;
+
+   Handle<reco::TrackCollection> muons;
+   iEvent.getByLabel(trackLabel_,muons);
+   cout << "cosmic Muon: " <<muons->size() <<endl;
+
+   if (muons->empty()) return;
+   successR++;
    
    float ptsim = 0; 
    float simC = 0; 
@@ -164,7 +175,7 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
        thetasim = simTrack->momentum().theta();
        phisim = simTrack->momentum().phi();
 
-       simC = simTrack->charge();
+       simC = - simTrack->type()/13.;
        ptsim = simTrack->momentum().perp();
     }
   }
@@ -211,18 +222,13 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
    htotal4D->Fill(n4D);
    if ( n4D < 2 ) nNoSignal++;
 
-   Handle<reco::TrackCollection> muons;
-   iEvent.getByLabel(trackLabel_,muons);
-   cout << "cosmic Muon: " <<muons->size() <<endl;
-
-   if (muons->empty()) return;
-   successR++;
-
    reco::Track muon = bestTrack(*muons);;
 
    cout << "cosmic Muon Track: " 
         << " mom: (" << muon.px() << "," << muon.py() << "," << muon.pz()
         << ")"<<endl;
+
+   if ( fabs(muon.p()) < 1e-5 ) return; //prevent those failed to extrapolation to vertex
 
    math::XYZVector innerMo = muon.innerMomentum();
 
@@ -256,33 +262,27 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   //Now compare innermost state with associated sim hit
 
-  vector<Handle<PSimHitContainer> > simHits;
-  iEvent.getManyByType(simHits);
+  Handle<PSimHitContainer>  dtSimHits;
+  Handle<PSimHitContainer>  cscSimHits;
+  Handle<PSimHitContainer>  rpcSimHits;
 
-  cout<<"simHits collections "<<simHits.size()<<endl;
+  iEvent.getByLabel("g4SimHits","MuonDTHits", dtSimHits);
+  iEvent.getByLabel("g4SimHits","MuonCSCHits", cscSimHits);
+  iEvent.getByLabel("g4SimHits","MuonRPCHits", rpcSimHits);
 
-  PSimHitContainer allSimHits;
+  cout<<"DT simHits collections: "<<dtSimHits->size()<<endl;
+  cout<<"CSC simHits collections: "<<cscSimHits->size()<<endl;
+  cout<<"RPC simHits collections: "<<rpcSimHits->size()<<endl;
 
-  for (vector<Handle<PSimHitContainer> >::const_iterator shs = simHits.begin();
-       shs != simHits.end(); shs++) {
-       for (PSimHitContainer::const_iterator ish = (*shs)->begin();
-            ish != (*shs)->end(); ++ish) {
-            if ( abs(ish->particleType()) == 13 && ish->trackId() == simTracks->front().trackId() ) allSimHits.push_back(*ish);
-       }
-//       allSimHits.insert(allSimHits.end(),(*shs)->begin(), (*shs)->end());
-  }
+  PSimHitContainer allSimHits = *dtSimHits;
+  allSimHits.insert(allSimHits.end(),(cscSimHits)->begin(), (cscSimHits)->end());
+  allSimHits.insert(allSimHits.end(),(rpcSimHits)->begin(), (rpcSimHits)->end());
 
    cout<<"allSimHits "<<allSimHits.size()<<endl;
 
-   TrajectoryStateTransform tsTrans;
-
-   TrajectoryStateOnSurface innerTSOS = tsTrans.innerStateOnSurface(muon,*theService->trackingGeometry(),&*theService->magneticField());
-
-//   TrajectoryStateOnSurface outerTSOS = tsTrans.outerStateOnSurface(muon,*theService->trackingGeometry(),&*theService->magneticField());
-
    if ( allSimHits.empty() ) return;
 
-   PSimHitContainer  msimh = matchedHit(innerTSOS, allSimHits);
+   PSimHitContainer  msimh = matchedHit(ip, allSimHits);
 
    if ( !msimh.empty() ) {
 
@@ -290,14 +290,25 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
 
      GlobalVector simmom = theService->trackingGeometry()->idToDet(idSim)->surface().toGlobal(msimh.front().momentumAtEntry());
 
-     h_pt_rec_sim->Fill( ((double)simmom.perp()) - muon.innerMomentum().Rho());
-     h_phi_rec_sim->Fill( ( (Geom::Phi<float>(simmom.phi())) - Geom::Phi<float>(muon.innerMomentum().Phi())) * 180/acos(-1.));
+     TrajectoryStateTransform tsTrans;
 
-     h_Pres_inv_sim->Fill( (1/muon.innerMomentum().Rho() - 1/((double)simmom.perp())) / (1/((double)simmom.perp())));
+     TrajectoryStateOnSurface innerTSOS = tsTrans.innerStateOnSurface(muon,*theService->trackingGeometry(),&*theService->magneticField());
+  
+     TrajectoryStateOnSurface stateAH = updatedState(innerTSOS,msimh.front());
+     if (!stateAH.isValid()) return;
+     im = stateAH.globalMomentum();
+
+     cout<<"sim Momentum: "<<simmom<<endl;
+     cout<<"track Mom here: "<<im<<endl;
+
+     h_pt_rec_sim->Fill( ((double)simmom.perp()) - im.perp());
+     h_phi_rec_sim->Fill( ( (Geom::Phi<float>(simmom.phi())) - Geom::Phi<float>(im.phi())) * 180/acos(-1.));
+
+     h_Pres_inv_sim->Fill( (1/im.perp() - 1/((double)simmom.perp())) / (1/((double)simmom.perp())));
 
      h_pt_sim->Fill(((double)simmom.perp()));
 
-     h_theta_rec_sim->Fill( ( ((double)simmom.theta())-muon.innerMomentum().Theta()) * 180/acos(-1.));
+     h_theta_rec_sim->Fill( ( ((double)simmom.theta())-im.theta()) * 180/acos(-1.));
 
     }
 }
@@ -328,7 +339,7 @@ void CosmicMuonValidator::beginJob(const edm::EventSetup&)
   h_pt_rec_sim = new TH1F("h_pt_res_sim","diff of P_{T} at SimHit",50,-2.0,2.0);
   h_phi_rec_sim = new TH1F("h_phi_res_sim","diff of #phi at SimHit",50,-2.0,2.0);
   h_theta_rec_sim = new TH1F("h_theta_res_sim","diff of #theta at SimHit",50,-2.0,2.0);
-  h_Pres_inv_sim = new TH1F("h_Pres_inv_sim","resolution of P_{T} at SimHit",50,-2.0,2.0);
+  h_Pres_inv_sim = new TH1F("h_Pres_inv_sim","resolution of P_{T} at SimHit",70,-1.0,1.0);
 
   h_pt_sim = new TH1F("h_pt_sim","distribution of P_{T} at SimHit",100,0.0,100.0);
   h_pt_rec = new TH1F("h_pt_rec","distribution of P_{T} at SimHit",100,0.0,100.0);
@@ -518,6 +529,10 @@ void CosmicMuonValidator::endJob() {
   h_Pres_inv_sim->SetLineColor(2);
   h_Pres_inv_sim->SetLineStyle(1);
   h_Pres_inv_sim->DrawCopy("HE");
+  TF1* g2 = new TF1("g2","gaus",-0.5,0.5);
+  g2->SetLineColor(4);
+  h_Pres_inv_sim->Fit("g2","R");
+
   cRes7->Update();
   cRes7->Write();
 
@@ -613,33 +628,55 @@ CosmicMuonValidator::bestTrack(const reco::TrackCollection& muons) const {
 }
 
 
-PSimHitContainer CosmicMuonValidator::matchedHit(const TrajectoryStateOnSurface& tsos, const PSimHitContainer& simHs) const {
+PSimHitContainer CosmicMuonValidator::matchedHit(const GlobalPoint& tp, const PSimHitContainer& simHs) const {
 
-      float dcut = 15.0;
+      float dcut = 3.0;
       PSimHitContainer result;
       PSimHit rs = simHs.front();
       bool hasMatched = false;
 
       if (simHs.empty()) return result;
 
-      GlobalPoint tp = tsos.globalPosition();
-
       for (PSimHitContainer::const_iterator ish = simHs.begin();
            ish != simHs.end(); ish++ ) {
+
+            if (abs( (*ish).particleType() ) != 13 ) continue;
+
             DetId idsim( (*ish).detUnitId() );
-            GlobalPoint sp = theService->trackingGeometry()->idToDet(idsim)->surface().toGlobal(ish->localPosition());
-            GlobalVector dist = tp - sp;
-            float d = dist.mag();
-            if (d < dcut ) {
+
+            GlobalPoint sp = theService->trackingGeometry()->idToDet(idsim)->surface().toGlobal(ish->entryPoint()); //entryPoint or localPosition??
+            GlobalVector dist = sp - tp;
+            float d = fabs(dist.y());
+            if ( d < dcut ) {
                rs = (*ish);
                dcut = d;
                hasMatched = true;
              }
        }
-      if ( hasMatched ) result.push_back(rs);
+      if ( hasMatched ) { 
+            result.push_back(rs);
+            DetId idsim( rs.detUnitId() );
+            cout<<"selected simhit: "<< theService->trackingGeometry()->idToDet(idsim)->surface().toGlobal(rs.entryPoint())<<endl;
+            cout<<"matched with   : "<< tp <<endl;
+
+      }
       return result;
 
 }
+
+TrajectoryStateOnSurface CosmicMuonValidator::updatedState(const TrajectoryStateOnSurface& tsos,const PSimHit& hit) const{
+
+    DetId idsim( hit.detUnitId() );
+
+    TrajectoryStateOnSurface  result = propagator()->propagate(tsos,theService->trackingGeometry()->idToDet(idsim)->surface());
+
+    return result;
+}
+
+edm::ESHandle<Propagator> CosmicMuonValidator::propagator() const {
+   return theService->propagator("SteppingHelixPropagatorAny");
+}
+
 
 //define this as a plug-in
 DEFINE_SEAL_MODULE();
