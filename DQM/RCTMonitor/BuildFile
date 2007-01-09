@@ -7,6 +7,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/HcalDetId>
+<use name=DataFormats/HepMCCandidate>
 <use name=CalibFormats/CaloTPG>
 <use name=CalibCalorimetry/CaloTPG>
 <use name=L1Trigger/L1Scales>
@@ -25,6 +26,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/HcalDetId>
+<use name=DataFormats/HepMCCandidate>
 <use name=CalibFormats/CaloTPG>
 <use name=CalibCalorimetry/CaloTPG>
 <use name=L1Trigger/L1Scales>
