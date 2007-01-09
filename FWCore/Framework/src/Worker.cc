@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.16 2006/12/06 03:23:12 wmtan Exp $
+$Id: Worker.cc,v 1.17 2006/12/08 20:30:20 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -30,6 +30,30 @@ namespace edm
       Worker::Sigs* s_;
       ModuleDescription* md_;
     };
+
+    class CallPrePostBeginJob
+    {
+public:
+      CallPrePostBeginJob(Worker::Sigs& s, ModuleDescription& md):s_(&s),md_(&md)
+    { (*(s_->preModuleBeginJobSignal))(*md_); }
+      ~CallPrePostBeginJob()
+    { (*(s_->postModuleBeginJobSignal))(*md_); }
+private:
+      Worker::Sigs* s_;
+      ModuleDescription* md_;
+    };
+
+    class CallPrePostEndJob
+    {
+public:
+      CallPrePostEndJob(Worker::Sigs& s, ModuleDescription& md):s_(&s),md_(&md)
+    { (*(s_->preModuleEndJobSignal))(*md_); }
+      ~CallPrePostEndJob()
+    { (*(s_->postModuleEndJobSignal))(*md_); }
+private:
+      Worker::Sigs* s_;
+      ModuleDescription* md_;
+    };
     
     cms::Exception& exceptionContext(const ModuleDescription& iMD, const EventPrincipal& iEp, cms::Exception& iEx) {
       iEx << iMD.moduleName_ << "/" << iMD.moduleLabel_ 
@@ -40,9 +64,18 @@ namespace edm
   
   static ActivityRegistry::PreModule defaultPreModuleSignal;
   static ActivityRegistry::PostModule defaultPostModuleSignal;
+  static ActivityRegistry::PreModuleBeginJob defaultPreModuleBeginJobSignal;
+  static ActivityRegistry::PostModuleBeginJob defaultPostModuleBeginJobSignal;
+  static ActivityRegistry::PreModuleEndJob defaultPreModuleEndJobSignal;
+  static ActivityRegistry::PostModuleEndJob defaultPostModuleEndJobSignal;
   
   Worker::Sigs::Sigs() : preModuleSignal( &defaultPreModuleSignal ),
-  postModuleSignal( &defaultPostModuleSignal ) {}
+    postModuleSignal( &defaultPostModuleSignal ),
+    preModuleBeginJobSignal(&defaultPreModuleBeginJobSignal),
+    postModuleBeginJobSignal(&defaultPostModuleBeginJobSignal),
+    preModuleEndJobSignal(&defaultPreModuleEndJobSignal),
+    postModuleEndJobSignal(&defaultPostModuleEndJobSignal){}
+  
   Worker::Worker(const ModuleDescription& iMD, 
 		 const WorkerParams& iWP):
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
@@ -64,10 +97,18 @@ namespace edm
   }
 
   void Worker::connect(ActivityRegistry::PreModule& pre,
-		       ActivityRegistry::PostModule& post)
+		       ActivityRegistry::PostModule& post,
+                       ActivityRegistry::PreModuleBeginJob& preBJ,
+                       ActivityRegistry::PostModuleBeginJob& postBJ,
+                       ActivityRegistry::PreModuleEndJob& preEJ,
+                       ActivityRegistry::PostModuleEndJob& postEJ)
   {
     sigs_.preModuleSignal= &pre;
     sigs_.postModuleSignal= &post;
+    sigs_.preModuleBeginJobSignal = &preBJ;
+    sigs_.postModuleBeginJobSignal = &postBJ;
+    sigs_.preModuleEndJobSignal = &preEJ;
+    sigs_.postModuleEndJobSignal = &postEJ;
   }
 
   bool Worker::doWork(EventPrincipal& ep, EventSetup const& es,
@@ -258,6 +299,7 @@ namespace edm
     using namespace std;
     
     try {
+        CallPrePostBeginJob cpp(sigs_,md_);
 	implBeginJob(es);
     }
     catch(cms::Exception& e) {
@@ -309,6 +351,7 @@ namespace edm
     using namespace std;
     
     try {
+        CallPrePostEndJob cpp(sigs_,md_);
 	implEndJob();
     }
     catch(cms::Exception& e) {

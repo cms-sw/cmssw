@@ -3,11 +3,11 @@
    Implementation of class WorkerRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.cc,v 1.12 2006/09/01 18:16:42 wmtan Exp $
+   \version $Id: WorkerRegistry.cc,v 1.13 2006/10/18 22:16:13 chrjones Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.12 2006/09/01 18:16:42 wmtan Exp $";
+static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.13 2006/10/18 22:16:13 chrjones Exp $";
 
 
 #include "DataFormats/Common/interface/PassID.h"
@@ -58,7 +58,9 @@ Worker* WorkerRegistry::getWorker(const WorkerParams& p) {
       Factory::get()->makeWorker(p,act_reg_->preModuleConstructionSignal_,
                                  act_reg_->postModuleConstructionSignal_);
     
-    workerPtr->connect(act_reg_->preModuleSignal_,act_reg_->postModuleSignal_);
+    workerPtr->connect(act_reg_->preModuleSignal_,act_reg_->postModuleSignal_,
+                       act_reg_->preModuleBeginJobSignal_,act_reg_->postModuleBeginJobSignal_,
+                       act_reg_->preModuleEndJobSignal_,act_reg_->postModuleEndJobSignal_);
 
     // Transfer ownership of worker to the registry 
     m_workerMap[workerid] = boost::shared_ptr<Worker>(workerPtr.release());
