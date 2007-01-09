@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.28 2006/12/01 16:36:39 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.29 2006/12/22 12:21:55 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
 
@@ -61,6 +61,11 @@ SiStripFedCabling* SiStripFedCablingBuilderFromDb::makeFedCabling() {
   
   // Build and retrieve SiStripConfigDb object using service
   db_ = edm::Service<SiStripConfigDb>().operator->(); //@@ NOT GUARANTEED TO BE THREAD SAFE! 
+  LogWarning(mlCabling_) 
+    << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
+    << " Nota bene: using the SiStripConfigDb API"
+    << " as a \"service\" does not presently guarantee"
+    << " thread-safe behaviour!...";
   
   // Check if DB connection is made 
   if ( db_ ) { 
