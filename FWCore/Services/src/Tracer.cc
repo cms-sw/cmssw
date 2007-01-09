@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:17:58 EDT 2005
-// $Id: Tracer.cc,v 1.10 2006/08/22 05:39:42 wmtan Exp $
+// $Id: Tracer.cc,v 1.11 2006/12/09 03:22:46 chrjones Exp $
 //
 
 // system include files
@@ -52,6 +52,14 @@ depth_(0)
    iRegistry.watchPreProcessPath(this, &Tracer::prePath);
    iRegistry.watchPostProcessPath(this, &Tracer::postPath);
 
+   iRegistry.watchPreModuleConstruction(this, &Tracer::preModuleConstruction);
+   iRegistry.watchPostModuleConstruction(this, &Tracer::postModuleConstruction);
+
+   iRegistry.watchPreModuleBeginJob(this, &Tracer::preModuleBeginJob);
+   iRegistry.watchPostModuleBeginJob(this, &Tracer::postModuleBeginJob);
+
+   iRegistry.watchPreModuleEndJob(this, &Tracer::preModuleEndJob);
+   iRegistry.watchPostModuleEndJob(this, &Tracer::postModuleEndJob);
 }
 
 // Tracer::Tracer(const Tracer& rhs)
@@ -145,6 +153,48 @@ Tracer::postModule(const ModuleDescription& iDescription)
    }
    
    std::cout<<" finished:"<<iDescription.moduleLabel_<<std::endl;
+}
+
+void 
+Tracer::preModuleConstruction(const ModuleDescription& iDescription)
+{
+  std::cout <<indention_;
+  std::cout<<" constructing module:" <<iDescription.moduleLabel_<<std::endl;
+}
+
+void 
+Tracer::postModuleConstruction(const ModuleDescription& iDescription)
+{
+  std::cout <<indention_;
+  std::cout<<" construction finished:"<<iDescription.moduleLabel_<<std::endl;
+}
+
+void 
+Tracer::preModuleBeginJob(const ModuleDescription& iDescription)
+{
+  std::cout <<indention_;
+  std::cout<<" beginJob module:" <<iDescription.moduleLabel_<<std::endl;
+}
+
+void 
+Tracer::postModuleBeginJob(const ModuleDescription& iDescription)
+{
+  std::cout <<indention_;
+  std::cout<<" beginJob finished:"<<iDescription.moduleLabel_<<std::endl;
+}
+
+void 
+Tracer::preModuleEndJob(const ModuleDescription& iDescription)
+{
+  std::cout <<indention_;
+  std::cout<<" endJob module:" <<iDescription.moduleLabel_<<std::endl;
+}
+
+void 
+Tracer::postModuleEndJob(const ModuleDescription& iDescription)
+{
+  std::cout <<indention_;
+  std::cout<<" endJob finished:"<<iDescription.moduleLabel_<<std::endl;
 }
 
 //

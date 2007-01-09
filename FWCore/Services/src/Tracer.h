@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:35:45 EDT 2005
-// $Id: Tracer.h,v 1.6 2006/04/22 03:57:16 wmtan Exp $
+// $Id: Tracer.h,v 1.7 2006/12/09 03:22:46 chrjones Exp $
 //
 
 // system include files
@@ -41,9 +41,18 @@ public:
          void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
          void postEventProcessing(const Event&, const EventSetup&);
          
+         void preModuleConstruction(const ModuleDescription&);
+         void postModuleConstruction(const ModuleDescription&);
+
+         void preModuleBeginJob(const ModuleDescription&);
+         void postModuleBeginJob(const ModuleDescription&);
+
          void preModule(const ModuleDescription&);
          void postModule(const ModuleDescription&);
          
+         void preModuleEndJob(const ModuleDescription&);
+         void postModuleEndJob(const ModuleDescription&);
+
          void preSource();
          void postSource();
          
