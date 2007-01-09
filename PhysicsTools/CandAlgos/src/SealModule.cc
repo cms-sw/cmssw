@@ -9,7 +9,6 @@
 #include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/Merger.h"
 #include "PhysicsTools/CandAlgos/src/CandCombiner.h"
-#include "PhysicsTools/CandAlgos/src/CandShallowCloneCombiner.h"
 #include "PhysicsTools/CandAlgos/src/CandReducer.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
@@ -54,18 +53,21 @@ namespace reco {
            > MassRangeAndChargeCandCombiner;
 
     /// configurable candidate combiner
-    typedef ::CandShallowCloneCombiner<
-              SingleObjectSelector<reco::Candidate>
-            > CandShallowCloneCombiner;
+    typedef ::CandCombiner<
+                SingleObjectSelector<reco::Candidate>,
+                combiner::helpers::ShallowClone
+              > CandShallowCloneCombiner;
 
     /// mass range and charge candidate selector
-    typedef ::CandShallowCloneCombiner<
+    typedef ::CandCombiner<
               AndSelector<
                 ChargeSelector<reco::Candidate>,
                 MassRangeSelector<reco::Candidate>
-              >
+              >,
+              combiner::helpers::ShallowClone
            > MassRangeAndChargeCandShallowCloneCombiner;
 
+    /// produces a collection of shallow clones
     typedef ShallowCloneProducer<
               reco::CandidateCollection
             > CandShallowCloneProducer;

@@ -29,20 +29,20 @@ bool NBodyCombinerBase::preselect( const Candidate & c1, const Candidate & c2 ) 
   return true;
 }
 
-Candidate * NBodyCombinerBase::combine( const Candidate & c1, const Candidate & c2 ) const {
+reco::Candidate * NBodyCombinerBase::combine( const reco::CandidateRef & c1, const reco::CandidateRef & c2 ) const {
   CompositeCandidate * cmp( new CompositeCandidate );
-  cmp->addDaughter( c1 );
-  cmp->addDaughter( c2 );
+  addDaughter( cmp, c1 );
+  addDaughter( cmp, c2 );
   setup( cmp );
   return cmp;
 }
 
 auto_ptr<CandidateCollection> 
-NBodyCombinerBase::combine( const vector<const CandidateCollection * > & src ) const {
+NBodyCombinerBase::combine( const vector<CandidateRefProd> & src ) const {
   auto_ptr<CandidateCollection> comps( new CandidateCollection );
   
   if( src.size() == 2 ) {
-    const CandidateCollection * src1 = src[ 0 ], * src2 = src[ 1 ];
+    CandidateRefProd src1 = src[ 0 ], src2 = src[ 1 ];
     if ( src1 == src2 ) {
       const CandidateCollection & cands = * src1;
       const int n = cands.size();
@@ -51,7 +51,7 @@ NBodyCombinerBase::combine( const vector<const CandidateCollection * > & src ) c
 	for ( int i2 = i1 + 1; i2 < n; ++ i2 ) {
 	  const Candidate & c2 = cands[ i2 ];
 	  if ( preselect( c1, c2 ) ) {
-	    std::auto_ptr<Candidate> c( combine( c1, c2 ) );
+	    std::auto_ptr<Candidate> c( combine( CandidateRef( src1, i1 ), CandidateRef( src2, i2 ) ) );
 	    if ( select( * c ) )
 	      comps->push_back( c.release() );
 	  }
@@ -65,7 +65,7 @@ NBodyCombinerBase::combine( const vector<const CandidateCollection * > & src ) c
 	for ( int i2 = 0; i2 < n2; ++ i2 ) {
 	  const Candidate & c2 = cands2[ i2 ];
 	  if ( preselect( c1, c2 ) ) {
-	    std::auto_ptr<Candidate> c( combine( c1, c2 ) );
+	    std::auto_ptr<Candidate> c( combine( CandidateRef( src1, i1 ), CandidateRef( src2, i2 ) ) );
 	    if ( select( * c ) )
 	      comps->push_back( c.release() );
 	  }
@@ -81,24 +81,27 @@ NBodyCombinerBase::combine( const vector<const CandidateCollection * > & src ) c
 }
 
 void NBodyCombinerBase::combine( size_t collectionIndex, ChargeInfo chkCharge, CandStack & stack,
-			     vector<const CandidateCollection * >::const_iterator collBegin,
-			     vector<const CandidateCollection * >::const_iterator collEnd,
-			     auto_ptr<CandidateCollection> & comps
-			     ) const {
+				 vector<CandidateRefProd>::const_iterator collBegin,
+				 vector<CandidateRefProd>::const_iterator collEnd,
+				 auto_ptr<CandidateCollection> & comps
+				 ) const {
   if( collBegin == collEnd ) {
     CompositeCandidate * cmp( new CompositeCandidate );
-    for( CandStack::const_iterator i = stack.begin(); i != stack.end(); ++ i )
-      cmp->addDaughter( * ( i->first ) );
+    for( CandStack::const_iterator i = stack.begin(); i != stack.end(); ++ i ) {
+      addDaughter( cmp, i->first );
+    }
     setup( cmp );
     if ( select( * cmp ) )
       comps->push_back( cmp );
   } else {
-    const CandidateCollection & src = * * collBegin;
-    CandidateCollection::const_iterator candBegin = src.begin(), candEnd = src.end();
+    const CandidateRefProd srcRef = * collBegin;
+    const CandidateCollection & src = * srcRef;
+    size_t candBegin = 0, candEnd = src.size();
     for( CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i ) 
       if ( * collBegin == * i->second ) 
-	candBegin = i->first + 1;
-    for( CandidateCollection::const_iterator  cand = candBegin; cand != candEnd; ++ cand ) {
+	candBegin = i->first.key() + 1;
+    for( size_t candIndex = candBegin; candIndex != candEnd; ++ candIndex ) {
+      CandidateRef cand( srcRef, candIndex );
       if ( checkCharge_ ) {
 	int q = cand->charge();
 	ChargeInfo ch = chargeInfo( q, dauCharge_[ collectionIndex ] );

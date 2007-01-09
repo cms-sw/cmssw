@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.10 $
+ * \version $Revision: 1.11 $
  *
- * $Id: CandCombiner.h,v 1.10 2006/10/11 10:08:59 llista Exp $
+ * $Id: CandCombiner.h,v 1.11 2006/11/29 14:00:42 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -41,7 +41,7 @@ protected:
   std::vector<cand::parser::ConjInfo> labels_;
 };
 
-template<typename S>
+template<typename S, typename H = combiner::helpers::NormalClone, typename Setup = AddFourMomenta>
 class CandCombiner : public CandCombinerBase {
 public:
   /// constructor from parameter set
@@ -58,15 +58,15 @@ private:
     for( int i = 0; i < n; ++i )
       evt.getByLabel( labels_[ i ].tag_, colls[ i ] );
     
-    std::vector<const reco::CandidateCollection *> cv;
+    std::vector<reco::CandidateRefProd> cv;
     for( std::vector<edm::Handle<reco::CandidateCollection> >::const_iterator c = colls.begin();
 	 c != colls.end(); ++ c )
-      cv.push_back( & * * c );
+      cv.push_back( reco::CandidateRefProd( * c ) );
     
     evt.put( combiner_.combine( cv ) );
   }
   /// combiner utility
-  NBodyCombiner<S> combiner_;
+  NBodyCombiner<S, H, Setup> combiner_;
 };
 
 #endif
