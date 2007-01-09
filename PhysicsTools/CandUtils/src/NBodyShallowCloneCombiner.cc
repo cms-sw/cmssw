@@ -34,7 +34,7 @@ Candidate * NBodyShallowCloneCombinerBase::combine( const CandidateRef & c1, con
   CompositeCandidate * cmp( new CompositeCandidate );
   cmp->addDaughter( ShallowCloneCandidate( CandidateBaseRef( c1 ) ) );
   cmp->addDaughter( ShallowCloneCandidate( CandidateBaseRef( c2 ) ) );
-  addp4_.set( * cmp );
+  setup( cmp );
   return cmp;
 }
 
@@ -90,7 +90,7 @@ void NBodyShallowCloneCombinerBase::combine( size_t collectionIndex, ChargeInfo 
     CompositeCandidate * cmp( new CompositeCandidate );
     for( CandStack::const_iterator i = stack.begin(); i != stack.end(); ++ i )
       cmp->addDaughter( * ( i->first ) );
-    addp4_.set( * cmp );
+    setup( cmp );
     if ( select( * cmp ) )
       comps->push_back( cmp );
   } else {

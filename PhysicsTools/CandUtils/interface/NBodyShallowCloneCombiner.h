@@ -45,6 +45,8 @@ private:
 		) const;
   /// select a candidate
   virtual bool select( const reco::Candidate & ) const = 0;
+  /// set kinematics to reconstructed composite
+  virtual void setup( reco::Candidate * ) const = 0;
   /// flag to specify the checking of electric charge
   bool checkCharge_;
   /// electric charges of the daughters
@@ -55,7 +57,7 @@ private:
   OverlapChecker overlap_;
 };
 
-template<typename S>
+template<typename S, typename Setup = AddFourMomenta>
 class NBodyShallowCloneCombiner : public NBodyShallowCloneCombinerBase {
 public:
   /// constructor from a selector, specifying optionally to check for charge
@@ -75,8 +77,14 @@ private:
   virtual bool select( const reco::Candidate & c ) const {
     return select_( c );
   } 
+  /// set kinematics to reconstructed composite
+  virtual void setup( reco::Candidate * c ) const {
+    setup_.set( * c );
+  }
   /// candidate selector
   S select_; 
+  /// utility to setup composite candidate kinematics from daughters
+  Setup setup_;
 };
 
 #endif
