@@ -7,14 +7,19 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.8 $
  *
- * $Id: AddFourMomenta.h,v 1.7 2006/07/26 08:48:05 llista Exp $
+ * $Id: AddFourMomenta.h,v 1.8 2006/09/19 07:47:15 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 struct AddFourMomenta {
+  /// default constructor
+  AddFourMomenta() { }
+  /// constructor
+  explicit AddFourMomenta( const edm::ParameterSet & ) { }
   /// set up a candidate
   void set( reco::Candidate& c ) const;
 };

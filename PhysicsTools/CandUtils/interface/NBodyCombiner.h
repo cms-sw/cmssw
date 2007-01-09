@@ -44,17 +44,17 @@ private:
 		) const;
   /// select a candidate
   virtual bool select( const reco::Candidate & ) const = 0;
+  /// set kinematics to reconstructed composite
+  virtual void setup( reco::Candidate * ) const = 0;
   /// flag to specify the checking of electric charge
   bool checkCharge_;
   /// electric charges of the daughters
   std::vector<int> dauCharge_;
-  /// utility to setup composite candidate kinematics from daughters
-  AddFourMomenta addp4_;
   /// utility to check candidate daughters overlap
   OverlapChecker overlap_;
 };
 
-template<typename S>
+template<typename S, typename Setup = AddFourMomenta>
 class NBodyCombiner : public NBodyCombinerBase {
 public:
   /// constructor from a selector, specifying optionally to check for charge
@@ -62,20 +62,27 @@ public:
   NBodyCombiner( const B & select,
 		 bool checkCharge, const std::vector <int> & dauCharge ) : 
     NBodyCombinerBase( checkCharge, dauCharge ), 
-    select_( select ) { }
+    select_( select ), setup_() { }
   /// constructor from a selector, specifying optionally to check for charge
   NBodyCombiner( const edm::ParameterSet & cfg,
 		 bool checkCharge, const std::vector <int> & dauCharge ) : 
     NBodyCombinerBase( checkCharge, dauCharge ), 
-    select_( cfg ) { }
+    select_( cfg ), setup_( cfg ) { }
 
 private:
   /// select a candidate
   virtual bool select( const reco::Candidate & c ) const {
     return select_( c );
   } 
+  /// set kinematics to reconstructed composite
+  virtual void setup( reco::Candidate * c ) const {
+    setup_.set( * c );
+  }
+
   /// candidate selector
   S select_; 
+  /// utility to setup composite candidate kinematics from daughters
+  Setup setup_;
 };
 
 #endif

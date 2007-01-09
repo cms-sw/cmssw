@@ -33,7 +33,7 @@ Candidate * NBodyCombinerBase::combine( const Candidate & c1, const Candidate & 
   CompositeCandidate * cmp( new CompositeCandidate );
   cmp->addDaughter( c1 );
   cmp->addDaughter( c2 );
-  addp4_.set( * cmp );
+  setup( cmp );
   return cmp;
 }
 
@@ -89,7 +89,7 @@ void NBodyCombinerBase::combine( size_t collectionIndex, ChargeInfo chkCharge, C
     CompositeCandidate * cmp( new CompositeCandidate );
     for( CandStack::const_iterator i = stack.begin(); i != stack.end(); ++ i )
       cmp->addDaughter( * ( i->first ) );
-    addp4_.set( * cmp );
+    setup( cmp );
     if ( select( * cmp ) )
       comps->push_back( cmp );
   } else {
