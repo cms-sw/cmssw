@@ -6,6 +6,15 @@
   <class name="edm::RefProd<std::vector<reco::JetTag> >" />
   <class name="edm::RefVector<std::vector<reco::JetTag>, reco::JetTag, edm::refhelper::FindUsingAdvance<std::vector<reco::JetTag>, reco::JetTag> >" />
 
+  <class name="std::pair<reco::btag::TaggingVariableName, reco::TaggingValue>" />
+  <class name="std::vector<std::pair<reco::btag::TaggingVariableName, reco::TaggingValue> >" />
+  <class name="reco::TaggingVariableList" />
+  <class name="std::vector<reco::TaggingVariableList>" />
+  <class name="edm::Wrapper<std::vector<reco::TaggingVariableList> >" />
+  <class name="edm::Ref<std::vector<reco::TaggingVariableList>, reco::TaggingVariableList, edm::refhelper::FindUsingAdvance<std::vector<reco::TaggingVariableList>, reco::TaggingVariableList> >" />
+  <class name="edm::RefProd<std::vector<reco::TaggingVariableList> >" />
+  <class name="edm::RefVector<std::vector<reco::TaggingVariableList>, reco::TaggingVariableList, edm::refhelper::FindUsingAdvance<std::vector<reco::TaggingVariableList>, reco::TaggingVariableList> >" />
+  
   <class name="reco::TrackCountingTagInfo" />
   <class name="std::vector<reco::TrackCountingTagInfo>" />
   <class name="edm::Wrapper<std::vector<reco::TrackCountingTagInfo> >" />

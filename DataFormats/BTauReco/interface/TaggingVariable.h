@@ -8,6 +8,8 @@
 #include <boost/pointee.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 
+#include "DataFormats/BTauReco/interface/TaggingVariableFwd.h" 
+
 namespace reco {
 
   namespace btag {
