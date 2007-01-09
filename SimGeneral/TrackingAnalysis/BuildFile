@@ -10,7 +10,6 @@
 <use name=SimDataFormats/TrackingAnalysis>
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/TrackingHit>
-<use name=TrackingTools/TrackAssociator>
 <use name=clhep>
 
 <flags SEAL_PLUGIN_NAME="SimGeneralTrackingAnalysis">
@@ -28,6 +27,5 @@
    <use name=SimDataFormats/TrackingAnalysis>
    <use name=SimDataFormats/Vertex>
    <use name=SimDataFormats/TrackingHit>
-   <use name=TrackingTools/TrackAssociator>
    <use name=clhep>
 </export>

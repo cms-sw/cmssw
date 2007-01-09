@@ -54,11 +54,6 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf) {
   edm::LogInfo (MessageCategory) << "Discard out of volume? "     << discardOutVolume_;
   edm::LogInfo (MessageCategory) << "Discard Hits from Deltas? "  << discardHitsFromDeltas_;
 
-  /* Uncommenting will print out the various hit collections that will be scanned  
-  for (vector<string>::const_iterator name = hitLabelsVector_.begin(); name != hitLabelsVector_.end(); ++name) {
-    edm::LogInfo (MessageCategory) << "Use hits with label(s) "   << *name;
-  }  
-  */
 }
 
 void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
