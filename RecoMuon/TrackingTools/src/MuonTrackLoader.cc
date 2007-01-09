@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/11/17 18:06:40 $
- *  $Revision: 1.34 $
+ *  $Date: 2007/01/04 00:39:11 $
+ *  $Revision: 1.35 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -32,24 +32,18 @@ using namespace edm;
 // constructor
 MuonTrackLoader::MuonTrackLoader(ParameterSet &parameterSet, const MuonServiceProxy *service): 
   theService(service){
-
+  
   // the propagator name for the track loader
   thePropagatorName = parameterSet.getParameter<std::string>("TrackLoaderPropagator");
   
   // Flag to put the trajectory into the event
-  theTrajectoryFlag = parameterSet.getUntrackedParameter<bool>("PutTrajectoryIntoEvent",false);
+  theTrajectoryFlag = parameterSet.getUntrackedParameter<bool>("PutTrajectoryIntoEvent",false);  
 }
 
 
 OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 			    Event& event) {
-  return loadTracks(trajectories,event,std::string());
-}
-
-OrphanHandle<reco::TrackCollection> 
-MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
-			    Event& event, const std::string& instance) {
   
   const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
 
@@ -59,22 +53,22 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   // the track extra collection, it will be loaded in the event  
   std::auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
   // ... and its reference into the event
-  reco::TrackExtraRefProd trackExtraCollectionRefProd = event.getRefBeforePut<reco::TrackExtraCollection>(instance);
+  reco::TrackExtraRefProd trackExtraCollectionRefProd = event.getRefBeforePut<reco::TrackExtraCollection>();
   
   // the rechit collection, it will be loaded in the event  
   std::auto_ptr<TrackingRecHitCollection> recHitCollection(new TrackingRecHitCollection() );
   // ... and its reference into the event
-  TrackingRecHitRefProd recHitCollectionRefProd = event.getRefBeforePut<TrackingRecHitCollection>(instance);
+  TrackingRecHitRefProd recHitCollectionRefProd = event.getRefBeforePut<TrackingRecHitCollection>();
 
   std::auto_ptr<std::vector<Trajectory> > trajectoryCollection(new std::vector<Trajectory>);
 
   // don't waste any time...
   if ( trajectories.empty() ) { 
-    event.put(recHitCollection,instance);
-    event.put(trackExtraCollection,instance);
-    if (theTrajectoryFlag) event.put(trajectoryCollection,instance);
+    event.put(recHitCollection);
+    event.put(trackExtraCollection);
+    if (theTrajectoryFlag) event.put(trajectoryCollection);
 
-    return event.put(trackCollection,instance);
+    return event.put(trackCollection);
   }
   
   LogDebug(metname) << "Create the collection of Tracks";
@@ -85,11 +79,11 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   for(TrajectoryContainer::const_iterator trajectory = trajectories.begin();
       trajectory != trajectories.end(); ++trajectory){
     
-    if (theTrajectoryFlag) trajectoryCollection->push_back(**trajectory);
-
+     if (theTrajectoryFlag) trajectoryCollection->push_back(**trajectory);
+  
     // get the transient rechit from the trajectory
     Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
-
+    
     if ( (*trajectory)->direction() == oppositeToMomentum)
       reverse(transHits.begin(),transHits.end());
 
@@ -101,7 +95,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 
     // get the TrackExtraRef (persitent reference of the track extra)
     reco::TrackExtraRef trackExtraRef(trackExtraCollectionRefProd, trackExtraIndex++ );
-
+    
     // set the persistent track-extra reference to the Track
     track.setExtra(trackExtraRef);
 
@@ -133,12 +127,12 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   // Put the Collections in the event
   LogDebug(metname) << "put the Collections in the event";
   
-  event.put(recHitCollection,instance);
-  event.put(trackExtraCollection,instance);
-  if ( theTrajectoryFlag ) event.put(trajectoryCollection,instance);
+  event.put(recHitCollection);
+  event.put(trackExtraCollection);
+  if ( theTrajectoryFlag ) event.put(trajectoryCollection);
 
   
-  return event.put(trackCollection,instance);
+  return event.put(trackCollection);
 }
 
 OrphanHandle<reco::MuonCollection> 
@@ -232,10 +226,16 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
     LogError(metname)<<"Extrapolation to vertex failed!";
     return reco::Track(); // FIXME: how to report this?
   }
-  PerigeeConversions conv;
-  double pt = 0.0;
-  PerigeeTrajectoryParameters perigeeParameters = conv.ftsToPerigeeParameters(*tscp.freeState(),vtx,pt);
-  PerigeeTrajectoryError perigeeError = conv.ftsToPerigeeError(*tscp.freeState());
+
+  //  PerigeeConversions conv;
+  //  double pt = 0.0;
+  //  PerigeeTrajectoryParameters perigeeParameters = conv.ftsToPerigeeParameters(*tscp.freeState(),vtx,pt);
+  //  PerigeeTrajectoryError perigeeError = conv.ftsToPerigeeError(*tscp.freeState());
+
+  GlobalPoint pca = tscp.globalPosition();
+  math::XYZPoint persistentPCA(pca.x(),pca.y(),pca.z());
+  GlobalVector p = tscp.globalMomentum();
+  math::XYZVector persistentMomentum(p.x(),p.y(),p.z());
 
   const Trajectory::RecHitContainer transRecHits = trajectory.recHits();
   
@@ -249,10 +249,10 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
 
   reco::Track track(trajectory.chiSquared(), 
 		    ndof,
-		    perigeeParameters, 
-		    pt,
-		    perigeeError,
-		    innerTSOS.charge());
+		    persistentPCA,
+		    persistentMomentum,
+		    innerTSOS.charge(),
+		    tscp.curvilinearError());
   return track;
 
 }
