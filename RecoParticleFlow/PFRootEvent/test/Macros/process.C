@@ -9,7 +9,7 @@ gSystem->Load("libCintex.so");
 ROOT::Cintex::Cintex::Enable();
 
 // create a PFRootEventManager
-PFRootEventManagerColin em("/afs/cern.ch/user/c/cbern/scratch0/CMS/CMSSW_1_1_1/src/RecoParticleFlow/PFRootEvent/test/pfRootEvent.opt");
+PFRootEventManagerColin em("pfRootEvent.opt");
 
 if(em.tree_) {
   int n =  em.tree_->GetEntries();

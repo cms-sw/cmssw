@@ -1,35 +1,110 @@
 {
+gROOT->Reset();
 gROOT->Macro("init.C");
 
-Chain chain1("Eff","ScanOut_eb_seed_0.15_0.8/*root");
+gSystem->Load("libChain");
+
+
+// Chain chain1("Eff","ScanOut_nCrystals_PosCalc_Ecal/clustering_nCrystals_PosCalc_Ecal_-1/*.root");
+// Chain chain2("Eff","ScanOut_nCrystals_PosCalc_Ecal/clustering_nCrystals_PosCalc_Ecal_9/*.root");
+// Chain chain3("Eff","ScanOut_nCrystals_PosCalc_Ecal/clustering_nCrystals_PosCalc_Ecal_5/*.root");
+
+Chain chain1("Eff","ScanOut_thresh_Ecal_Barrel/clustering_thresh_Ecal_Barrel_0/*.root");
+Chain chain2("Eff","ScanOut_thresh_Ecal_Barrel/clustering_thresh_Ecal_Barrel_0.04/*.root");
+Chain chain3("Eff","ScanOut_thresh_Ecal_Barrel/clustering_thresh_Ecal_Barrel_0.1/*.root");
+
 
 // Chain chain2("Eff","Out_clustering_thresh_Ecal_Endcap_b_singlegamma_*/*_0.5.root");
 
 
 ResidualFitter::SetCanvas(400,400);
 
-ResidualFitter eri1("eri1","eri1",36,-3,3,100,0,200,100,-0.05,0.05);
-chain1.Draw("clusters_.eta-particles_.eta:particles_.e:particles_.eta>>eri1","@particles_.size()==1","goff");
+ResidualFitter eri1("eri1","eri1",1,-1,1,6,1,7,100,-0.05,0.05);
+chain1.Draw("clusters_.phi-particles_.phi:particles_.e:particles_.eta>>eri1","@particles_.size()==1","goff");
 eri1.SetAutoRange(3);
-eri1.SetFitOptions("W");
+eri1.SetFitOptions("");
 eri1.FitSlicesZ();
-eri1.cd();
-eri1_sigma.Draw("lego2");
+eri1.GetCanvas()->Iconify();
+// eri1.cd();
+// eri1_sigma.Draw("colz");
+
+
+ResidualFitter eri2("eri2","eri2",1,0,1,6,1,7,100,-0.05,0.05);
+chain2.Draw("clusters_.phi-particles_.phi:particles_.e:particles_.eta>>eri2","@particles_.size()==1","goff");
+eri2.SetAutoRange(3);
+eri2.SetFitOptions("");
+eri2.FitSlicesZ();
+eri2.GetCanvas()->Iconify();
+// eri2.cd();
+// eri2_sigma.Draw("colz");
+
+ResidualFitter eri3("eri3","eri3",1,0,1,6,1,7,100,-0.05,0.05);
+chain3.Draw("clusters_.phi-particles_.phi:particles_.e:particles_.eta>>eri3","@particles_.size()==1","goff");
+eri3.SetAutoRange(3);
+eri3.SetFitOptions("");
+eri3.FitSlicesZ();
+eri3.GetCanvas()->Iconify();
+// eri3.cd();
+// eri3_sigma.Draw("colz");
+
+
+ResidualFitter erii("erii","erii",1,0,1,6,1,7,100,-0.05,0.05);
+chain2.Draw("clustersIsland_.phi-particles_.phi:particles_.e:particles_.eta>>erii","@particles_.size()==1","goff");
+erii.SphiutoRange(3);
+erii.SetFitOptions("");
+erii.FitSlicesZ();
+erii.GetCanvas()->Iconify();
+// erii.cd();
+// erii_sigma.Draw("colz");
+
+
 
 
 // ResidualFitter eri2("eri2","eri2",36,-3,3,1,0,10,100,-0.05,0.05);
 // chain2.Draw("clusters_.eta-particles_.eta:particles_.e:particles_.eta>>eri2","@particles_.size()==1","goff");
 // eri2.SetAutoRange(3);
-// eri2.SetFitOptions("W");
+// eri2.SetFitOptions("");
 // eri2.FitSlicesZ();
 // eri2.cd();
 // eri2_sigma.Draw("colz");
 
-// TCanvas c3("ratio","",300,300);
-// TH2D* ratio = (TH2D* ) eri2_sigma->Clone("ratio");
-// ratio->Divide(eri1_sigma);
-// ratio->Draw("box");
+TCanvas c3("c3","",600,600);
 
 
+TH1D* hi = erii_sigma->ProjectionY();
+TH1D* h1 = eri1_sigma->ProjectionY();
+TH1D* h2 = eri2_sigma->ProjectionY();
+TH1D* h3 = eri3_sigma->ProjectionY();
 
+hi->SetStats(0);
+hi->SetTitle(";E_{#gamma} (GeV);#sigma_{#phi}");
+hi->GetYaxis()->SetNdivisions(5);
+hi->GetYaxis()->SetTitleSize(0.07);
+hi->GetXaxis()->SetTitleSize(0.05);
+
+hi->SetLineWidth(2);
+h1->SetLineWidth(2);
+h2->SetLineWidth(2);
+h3->SetLineWidth(2);
+
+hi->SetLineColor(1);
+h1->SetLineColor(2);
+h2->SetLineColor(4);
+h3->SetLineColor(5);
+
+
+hi->Draw();
+h1->Draw("same");
+h2->Draw("same");
+h3->Draw("same");
+
+gPad->SetLeftMargin(0.15);
+gPad->SetBottomMargin(0.12);
+
+TLegend leg(0.66,0.66,0.88,0.88);
+leg.AddEntry(hi, "Island","l");
+leg.AddEntry(h1, "Eflow, 0","l");
+leg.AddEntry(h2, "Eflow, 40 MeV","l");
+leg.AddEntry(h3, "Eflow, 100 MeV","l");
+leg.Draw();
 }

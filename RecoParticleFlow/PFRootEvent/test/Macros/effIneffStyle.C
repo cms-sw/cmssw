@@ -1,4 +1,8 @@
 {
+
+TCanvas c("c","",600,600);
+c.cd();
+
 eflow0->SetStats(0);
 eflow0->SetTitle("");
 
@@ -23,11 +27,11 @@ island1->SetTitle("");
 island1->SetLineColor(1);
 island1->SetLineWidth(2);
 
-TLegend leg(0.5,0.4,0.8,0.7);
-leg.AddEntry(eflow0, "Eflow", "l");
+TLegend leg(0.41,0.16,0.88,0.30);
+leg.AddEntry(eflow0, "Eflow, T_{seed}=200 MeV", "l");
 leg.AddEntry(island1, "Island", "l");
 
-bool famos = true;
+bool famos = false;
 if(famos) {
   gSystem->Load("libTextTree");
   TextTree t("/afs/cern.ch/user/c/cbern/scratch0/Logbook_CMS/Analysis/EFLOW/ECAL_clustering/SinglePhotons/Efficiency_Purity/Barrel/effpur.dat","xxx");
@@ -55,6 +59,9 @@ if(famos) {
   leg->AddEntry(grb, "Eflow (FAMOS)", "p");
   leg->AddEntry(gra, "Island (FAMOS)", "p");
 }
+
+eflow0->Draw();
+island1->Draw("same");
 leg.Draw();
 
 TLine l;

@@ -1,4 +1,8 @@
 {
+
+TCanvas c("c","",600,600);
+c.cd();
+
 eflow0->SetStats(0);
 eflow0->SetTitle("");
 

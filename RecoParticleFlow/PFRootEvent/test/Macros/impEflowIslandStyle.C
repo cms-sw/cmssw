@@ -1,8 +1,14 @@
 {
+gSystem->Load("libChain");
 gROOT->LoadMacro("effIneff.C");
+
 Init("ScanOut_eb_seed_0.2_0.4/out_singlegamma_repf_*.root");
 // Init("ScanOut_eb_seed_0.15_0.8/out_singlegamma_repf_*.root");
 Impurity(0,0.1,1,"impurity");
+
+TCanvas c("c","",600,600);
+c.cd();
+
 
 impurity_island->ProjectionX("impisland",3,-1);
 impurity_island->ProjectionX("refisland");
@@ -20,7 +26,7 @@ impeflow->SetLineWidth(2);
 impisland->SetTitle("");
 impisland->GetYaxis()->SetTitle("Impurity (#DeltaR=0.1)");  
 impisland->GetYaxis()->SetTitleSize(0.05);
-impisland->GetYaxis()->SetTitleOffset(0.95);
+impisland->GetYaxis()->SetTitleOffset(1.2);
 impisland->GetXaxis()->SetTitleSize(0.05);
 impisland->GetXaxis()->SetTitleOffset(0.95);
 impisland->GetXaxis()->SetTitle("E_{#gamma}");  
@@ -35,10 +41,11 @@ impisland->SetMinimum(0.);
 impisland->Draw();
 impeflow->Draw("same");
 
-TLegend leg(0.13,0.69,0.51,0.88);
+TLegend leg(0.16,0.69,0.60,0.88);
 leg.AddEntry(impisland, "Island", "l");
 leg.AddEntry(impeflow, "Eflow, T_{seed}=200 MeV", "l");
 leg.Draw();
 
+gPad->SetLeftMargin(0.13);
 gPad->Modified();
 }
