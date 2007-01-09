@@ -50,6 +50,8 @@ class ResidualFitter : public TH3D, public TQObject {
 
   TH1D* CurBin() {return curBin_;}
   
+  TCanvas* GetCanvas() {return canvas_;}
+
   class Point {
   public:
     Point() : x_(-10), y_(-10), z_(-10) {}

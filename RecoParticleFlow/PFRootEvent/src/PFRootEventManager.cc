@@ -1047,11 +1047,11 @@ void PFRootEventManager::displayView(unsigned viewType) {
       break;
     case EPE:
       displayView_[viewType] = new TCanvas("displayEPE_", "eta/phi view, ECAL",
-					   viewSize_[0]*2, viewSize_[1]);
+					   viewSize_[0], viewSize_[1]);
       break;
     case EPH:
       displayView_[viewType] = new TCanvas("displayEPH_", "eta/phi view, HCAL",
-					   viewSize_[0]*2, viewSize_[1]);
+					   viewSize_[0], viewSize_[1]);
       break;
     }
     displayView_[viewType]->SetGrid(0, 0);

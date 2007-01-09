@@ -73,6 +73,8 @@ void ResidualFitter::CreateCanvas() {
   
   canvas_ ->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)", "ResidualFitter",
 		    this, "ExecuteEvent(Int_t,Int_t,Int_t,TObject*)");
+
+  
 }
 
 
