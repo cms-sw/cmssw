@@ -21,7 +21,7 @@ namespace {
   };
 
   HcalGains::Container::const_iterator 
-  find (const HcalGains::Container& container, unsigned int id) {
+  find (const HcalGains::Container& container, unsigned long id) {
     HcalGains::Container::const_iterator result = container.begin ();
     for (; result != container.end (); result++) {
       if (result->rawId () == id) break; // found

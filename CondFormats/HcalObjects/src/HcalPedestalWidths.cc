@@ -21,7 +21,7 @@ namespace {
   };
 
   std::vector <HcalPedestalWidth>::const_iterator 
-  find (const std::vector <HcalPedestalWidth>& container, unsigned int id) {
+  find (const std::vector <HcalPedestalWidth>& container, unsigned long id) {
     std::vector <HcalPedestalWidth>::const_iterator result = container.begin ();
     for (; result != container.end (); result++) {
       if (result->rawId () == id) break; // found

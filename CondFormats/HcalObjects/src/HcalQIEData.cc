@@ -25,7 +25,7 @@ namespace {
   };
 
   std::vector<HcalQIECoder>::const_iterator 
-  find (const std::vector<HcalQIECoder>& container, unsigned int id) {
+  find (const std::vector<HcalQIECoder>& container, unsigned long id) {
     std::vector<HcalQIECoder>::const_iterator result = container.begin ();
     for (; result != container.end (); result++) {
       if (result->rawId () == id) break; // found

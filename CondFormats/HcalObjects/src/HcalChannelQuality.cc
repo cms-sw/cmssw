@@ -17,7 +17,7 @@ HcalChannelQuality::HcalChannelQuality()
 
 HcalChannelQuality::~HcalChannelQuality(){}
 
-HcalChannelQuality::Quality HcalChannelQuality::quality (unsigned int fId, bool fWarning) const {
+HcalChannelQuality::Quality HcalChannelQuality::quality (unsigned long fId, bool fWarning) const {
   Item target;
   target.mId = fId;
   std::vector<Item>::const_iterator cell;
@@ -33,15 +33,15 @@ HcalChannelQuality::Quality HcalChannelQuality::quality (unsigned int fId, bool 
   return (HcalChannelQuality::Quality) cell->mQuality;
 }
 
-std::vector<unsigned int> HcalChannelQuality::getAllChannels () const {
-  std::vector<unsigned int> result;
+std::vector<unsigned long> HcalChannelQuality::getAllChannels () const {
+  std::vector<unsigned long> result;
   for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++) {
     result.push_back (item->mId);
   }
   return result;
 }
 
-bool HcalChannelQuality::setChannel (unsigned int fId, Quality fQuality) {
+bool HcalChannelQuality::setChannel (unsigned long fId, Quality fQuality) {
   Item item;
   item.mId = fId;
   item.mQuality = unsigned (fQuality);

@@ -12,6 +12,7 @@ $Revision: 1.9 $
 
 #include <vector>
 #include <algorithm>
+#include <boost/cstdint.hpp>
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -60,19 +61,19 @@ class HcalElectronicsMap {
   class Item { 
   public:
     Item () {mId = mElId = mTrigId = 0;}
-    Item (unsigned int fId, unsigned int fElId, unsigned int fTrigId) 
+    Item (uint32_t fId, uint32_t fElId, uint32_t fTrigId) 
       : mId (fId), mElId (fElId), mTrigId (fTrigId) {}
     class LessById {public: bool operator () (const Item& a, const Item& b) {return a.mId < b.mId;}};
     class LessByElId {public: bool operator () (const Item& a, const Item& b) {return a.mElId < b.mElId;}};
     class LessByTrigId {public: bool operator () (const Item& a, const Item& b) {return a.mTrigId < b.mTrigId;}};
-    unsigned int mId;
-    unsigned int mElId;
-    unsigned int mTrigId;
+    uint32_t mId;
+    uint32_t mElId;
+    uint32_t mTrigId;
   };
  protected:
-  const Item* findById (unsigned int fId, bool fWarning) const;
-  const Item* findByElId (unsigned int fElId, bool fWarning) const;
-  const Item* findByTrigId (unsigned int fTrigId, bool fWarning) const;
+  const Item* findById (unsigned long fId, bool fWarning) const;
+  const Item* findByElId (unsigned long fElId, bool fWarning) const;
+  const Item* findByTrigId (unsigned long fTrigId, bool fWarning) const;
   
   std::vector<Item> mItems;
   bool mSortedById;

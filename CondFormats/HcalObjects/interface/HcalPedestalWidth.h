@@ -9,6 +9,7 @@ $Author: ratnikov
 $Date: 2006/10/24 23:30:00 $
 $Revision: 1.4 $
 */
+#include <boost/cstdint.hpp>
 
 class HcalPedestalWidth {
  public:
@@ -24,13 +25,13 @@ class HcalPedestalWidth {
   // functions below are not supposed to be used by consumer applications
   HcalPedestalWidth (int fId = 0);
   void setSigma (int fCapId1, int fCapId2, float fSigma);
-  unsigned int rawId () const {return mId;}
+  uint32_t rawId () const {return mId;}
 
   // produces pedestal noise in assumption of near correlations and small variations
   void makeNoise (unsigned fFrames, const double* fGauss, double* fNoise) const;
 
  private:
-  unsigned int mId;
+  uint32_t mId;
   float mSigma00;
   float mSigma10;
   float mSigma11;

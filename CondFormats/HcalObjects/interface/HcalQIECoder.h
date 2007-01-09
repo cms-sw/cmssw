@@ -9,6 +9,7 @@ $Author: ratnikov
 $Date: 2006/05/06 00:33:29 $
 $Revision: 1.3 $
 */
+#include <boost/cstdint.hpp>
 
 #include <vector>
 #include <algorithm>
@@ -17,7 +18,7 @@ class HcalQIEShape;
 
 class HcalQIECoder {
  public:
-  HcalQIECoder (unsigned int fId = 0) : mId (fId) {}
+  HcalQIECoder (unsigned long fId = 0) : mId (fId) {}
 #ifndef __REFLEX__
   /// ADC [0..127] + capid [0..3] -> fC conversion
   float charge (const HcalQIEShape& fShape, unsigned fAdc, unsigned fCapId) const;
@@ -30,10 +31,10 @@ class HcalQIECoder {
   
   void setOffset (unsigned fCapId, unsigned fRange, float fValue);
   void setSlope (unsigned fCapId, unsigned fRange, float fValue);
-  unsigned int rawId () const {return mId;}
+  uint32_t rawId () const {return mId;}
 #endif
  private:
-  unsigned int mId;
+  uint32_t mId;
   float mOffset00;
   float mOffset01; 
   float mOffset02; 

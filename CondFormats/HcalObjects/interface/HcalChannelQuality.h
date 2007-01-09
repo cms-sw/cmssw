@@ -12,6 +12,7 @@ $Revision: 1.3 $
 
 #include <vector>
 #include <algorithm>
+#include <boost/cstdint.hpp>
 
 // 
 class HcalChannelQuality {
@@ -26,18 +27,18 @@ class HcalChannelQuality {
   };
   HcalChannelQuality();
   ~HcalChannelQuality();
-  Quality quality (unsigned int fId, bool fWarning = true) const;
+  Quality quality (unsigned long fId, bool fWarning = true) const;
   bool sorted () const {return mSorted;}
   // get list of all available channels
-  std::vector<unsigned int> getAllChannels () const;
-  bool setChannel (unsigned int fId, Quality fQuality = UNKNOWN);
+  std::vector<unsigned long> getAllChannels () const;
+  bool setChannel (unsigned long fId, Quality fQuality = UNKNOWN);
   void sort ();
   static const char* str (Quality fQuality);
   class Item {
   public:
     bool operator< (const Item& other) const {return mId < other.mId;}
     bool operator== (const Item& other) const {return mId == other.mId;}
-    unsigned int mId;
+    uint32_t mId;
     unsigned mQuality;
   };
  protected:

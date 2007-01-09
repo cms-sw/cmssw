@@ -21,7 +21,7 @@ namespace {
   };
 
   std::vector<HcalCalibrationQIECoder>::const_iterator 
-  find (const std::vector<HcalCalibrationQIECoder>& container, unsigned int id) {
+  find (const std::vector<HcalCalibrationQIECoder>& container, unsigned long id) {
     std::vector<HcalCalibrationQIECoder>::const_iterator result = container.begin ();
     for (; result != container.end (); result++) {
       if (result->rawId () == id) break; // found
