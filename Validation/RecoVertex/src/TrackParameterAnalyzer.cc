@@ -178,11 +178,19 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	       s1=s0*(1.+ks02/6.+3./40.*ks02*ks02+5./112.*pow(ks02,3));
 	     }
 	     PerigeeTrajectoryParameters::ParameterVector par;
+	     /*
 	     par[reco::TrackBase::i_transverseCurvature] = kappa;
 	     par[reco::TrackBase::i_theta] = p.theta();
 	     par[reco::TrackBase::i_phi0] = p.phi()-asin(kappa*s0);
 	     par[reco::TrackBase::i_d0] = 2.*D0/(1.+q);
 	     par[reco::TrackBase::i_dz] = z0-s1/tan(p.theta()); 
+	     */
+	     // new improved parametrization
+	     par[reco::TrackBase::i_qoverp] = -Q/p.perp();
+	     par[reco::TrackBase::i_lambda] = M_PI/2.-p.theta();
+	     par[reco::TrackBase::i_phi] = p.phi()-asin(kappa*s0);
+	     par[reco::TrackBase::i_dxy] = 2.*D0/(1.+q);
+	     par[reco::TrackBase::i_dsz] = z0-s1/tan(p.theta()); 
 	     tsim.push_back(par);
 	   }
 	 }
