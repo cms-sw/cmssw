@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:53:09 EDT 2005
-// $Id: ActivityRegistry.h,v 1.12 2006/08/08 00:35:56 chrjones Exp $
+// $Id: ActivityRegistry.h,v 1.13 2006/12/09 03:20:27 chrjones Exp $
 //
 
 // system include files
@@ -136,8 +136,40 @@ namespace edm {
          postModuleConstructionSignal_.connect(iSlot);
       }
       AR_WATCH_USING_METHOD_1(watchPostModuleConstruction)
-         
-         /// signal is emitted before the module starts processing the Event
+
+      /// signal is emitted before the module does beginJob
+      typedef sigc::signal<void, const ModuleDescription&> PreModuleBeginJob;
+      PreModuleBeginJob preModuleBeginJobSignal_;
+      void watchPreModuleBeginJob(const PreModuleBeginJob::slot_type& iSlot) {
+        preModuleBeginJobSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_1(watchPreModuleBeginJob)
+        
+      /// signal is emitted after the module had done beginJob
+      typedef sigc::signal<void, const ModuleDescription&> PostModuleBeginJob;
+      PostModuleBeginJob postModuleBeginJobSignal_;
+      void watchPostModuleBeginJob(const PostModuleBeginJob::slot_type& iSlot) {
+        postModuleBeginJobSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_1(watchPostModuleBeginJob)
+        
+      /// signal is emitted before the module does endJob
+      typedef sigc::signal<void, const ModuleDescription&> PreModuleEndJob;
+      PreModuleEndJob preModuleEndJobSignal_;
+      void watchPreModuleEndJob(const PreModuleEndJob::slot_type& iSlot) {
+        preModuleEndJobSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_1(watchPreModuleEndJob)
+        
+      /// signal is emitted after the module had done endJob
+      typedef sigc::signal<void, const ModuleDescription&> PostModuleEndJob;
+      PostModuleEndJob postModuleEndJobSignal_;
+      void watchPostModuleEndJob(const PostModuleEndJob::slot_type& iSlot) {
+        postModuleEndJobSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_1(watchPostModuleEndJob)
+        
+      /// signal is emitted before the module starts processing the Event
       typedef sigc::signal<void, const ModuleDescription&> PreModule;
       PreModule preModuleSignal_;
       void watchPreModule(const PreModule::slot_type& iSlot) {

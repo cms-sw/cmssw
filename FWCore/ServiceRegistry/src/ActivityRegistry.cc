@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep  6 10:26:49 EDT 2005
-// $Id: ActivityRegistry.cc,v 1.9 2006/08/08 00:35:59 chrjones Exp $
+// $Id: ActivityRegistry.cc,v 1.10 2006/12/09 03:20:30 chrjones Exp $
 //
 
 // system include files
@@ -79,6 +79,12 @@ edm::ActivityRegistry::connect(ActivityRegistry& iOther)
    preModuleConstructionSignal_.connect(iOther.preModuleConstructionSignal_);
    postModuleConstructionSignal_.connect(iOther.postModuleConstructionSignal_);
 
+   preModuleBeginJobSignal_.connect(iOther.preModuleBeginJobSignal_);
+   postModuleBeginJobSignal_.connect(iOther.postModuleBeginJobSignal_);
+   
+   preModuleEndJobSignal_.connect(iOther.preModuleEndJobSignal_);
+   postModuleEndJobSignal_.connect(iOther.postModuleEndJobSignal_);
+   
    preSourceConstructionSignal_.connect(iOther.preSourceConstructionSignal_);
    postSourceConstructionSignal_.connect(iOther.postSourceConstructionSignal_);
 
@@ -117,6 +123,12 @@ edm::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
   
   copySlotsToFrom(preModuleConstructionSignal_,iOther.preModuleConstructionSignal_);
   copySlotsToFrom(postModuleConstructionSignal_,iOther.postModuleConstructionSignal_);
+  
+  copySlotsToFrom(preModuleBeginJobSignal_,iOther.preModuleBeginJobSignal_);
+  copySlotsToFrom(postModuleBeginJobSignal_,iOther.postModuleBeginJobSignal_);
+  
+  copySlotsToFrom(preModuleEndJobSignal_,iOther.preModuleEndJobSignal_);
+  copySlotsToFrom(postModuleEndJobSignal_,iOther.postModuleEndJobSignal_);
   
   copySlotsToFrom(preSourceConstructionSignal_,iOther.preSourceConstructionSignal_);
   copySlotsToFrom(postSourceConstructionSignal_,iOther.postSourceConstructionSignal_);
