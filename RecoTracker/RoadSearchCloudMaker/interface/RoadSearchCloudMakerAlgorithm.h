@@ -50,9 +50,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2006/09/05 23:01:36 $
-// $Revision: 1.14 $
+// $Author: burkett $
+// $Date: 2006/10/13 16:20:21 $
+// $Revision: 1.15 $
 //
 
 #include <string>
@@ -153,6 +153,7 @@ class RoadSearchCloudMakerAlgorithm
   unsigned int minNumberOfUsedLayersPerRoad;
   unsigned int maxNumberOfMissedLayersPerRoad;
   unsigned int maxNumberOfConsecutiveMissedLayersPerRoad;
+  double scalefactorRoadSeedWindow;
 
   bool doCleaning_;
   double mergingFraction_;

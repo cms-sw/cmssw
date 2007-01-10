@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2006/10/13 16:20:22 $
-// $Revision: 1.29 $
+// $Author: gutsche $
+// $Date: 2006/11/10 21:36:19 $
+// $Revision: 1.30 $
 //
 
 #include <vector>
@@ -115,7 +115,7 @@ RoadSearchCloudMakerAlgorithm::RoadSearchCloudMakerAlgorithm(const edm::Paramete
   doCleaning_ = conf.getParameter<bool>("DoCloudCleaning");
   mergingFraction_ = conf.getParameter<double>("MergingFraction");
   maxRecHitsInCloud_ = (unsigned int)conf.getParameter<int>("MaxRecHitsInCloud");
-
+  scalefactorRoadSeedWindow = conf.getParameter<double>("scalefactorRoadSeedWindow");
 }
 
 RoadSearchCloudMakerAlgorithm::~RoadSearchCloudMakerAlgorithm() {
@@ -208,7 +208,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
       GlobalPoint outerSeedHitGlobalPosition = tracker->idToDet(outerSeedRingHit->geographicalId())->surface().toGlobal(outerSeedRingHit->localPosition());
 
       // GlobalPoint returns phi in [-pi,pi] but rings are mapped in [0,2pi]
-      const Roads::RoadSeed *roadSeed = roads->getRoadSeed(mono,outerSeedRingHit->geographicalId(),map_phi(innerSeedHitGlobalPosition.phi()),map_phi(outerSeedHitGlobalPosition.phi()));
+      const Roads::RoadSeed *roadSeed = roads->getRoadSeed(mono,outerSeedRingHit->geographicalId(),map_phi(innerSeedHitGlobalPosition.phi()),map_phi(outerSeedHitGlobalPosition.phi()),scalefactorRoadSeedWindow);
       const Roads::type roadType = roads->getRoadType(roadSeed);
 
       // extrapolation parameters, phio: [0,2pi]
