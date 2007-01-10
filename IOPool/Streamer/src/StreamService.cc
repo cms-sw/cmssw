@@ -1,6 +1,7 @@
-// $Id: StreamService.cc,v 1.6 2006/12/19 00:30:44 wmtan Exp $
+// $Id: StreamService.cc,v 1.7 2007/01/07 18:06:15 klute Exp $
 
 #include "IOPool/Streamer/interface/StreamService.h"
+#include "IOPool/Streamer/interface/ProgressMarker.h"
 
 #include <iostream>
 #include <iomanip>
@@ -10,7 +11,7 @@
 using namespace edm;
 using namespace std;
 using boost::shared_ptr;
-
+using stor::ProgressMarker;
 
 //
 // *** construct stream service from 
@@ -30,18 +31,21 @@ StreamService::StreamService(ParameterSet const& pset, InitMsgView const& view):
 //
 bool StreamService::nextEvent(EventMsgView const& view)
 {
+  ProgressMarker::instance()->processing(true);
   if ( ! acceptEvent(view) )
+    {
+      ProgressMarker::instance()->processing(false);
       return false;
-
+    }
   runNumber_   = view.run();
   lumiSection_ = view.lumi();
-
   shared_ptr<OutputService> outputService = getOutputService(view);
+  ProgressMarker::instance()->processing(false);
   
+  ProgressMarker::instance()->writing(true);
   outputService -> writeEvent(view);
-
   closeTimedOutFiles();
-
+  ProgressMarker::instance()->writing(false);
   return true;
 }
 
@@ -238,7 +242,7 @@ void StreamService::setStreamParameter()
   maxSize_            = parameterSet_.getParameter<int>    ("maxSize");
   highWaterMark_      = parameterSet_.getParameter<double> ("highWaterMark");
   lumiSectionTimeOut_ = parameterSet_.getParameter<double> ("lumiSectionTimeOut");
-  sourceId_           = "";
+  sourceId_           = ""; // set by setSourceId
   // report(cout, 4);
 }
 
@@ -279,6 +283,7 @@ boost::shared_ptr<FileRecord> StreamService::generateFileRecord()
   if ( numberOfFileSystems_ > 0 && numberOfFileSystems_ < 100 )
     fd -> fileSystem(( runNumber_+ outputSummary_.size() ) % numberOfFileSystems_); 
   
+  fd -> checkDirectories();
   // fd->report(cout, 12);
   return fd;
 }
