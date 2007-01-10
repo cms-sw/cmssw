@@ -13,8 +13,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/28 22:50:12 $
-// $Revision: 1.3 $
+// $Date: 2006/08/29 14:46:30 $
+// $Revision: 1.4 $
 //
 
 #include <iostream>
@@ -107,7 +107,7 @@ class Ring {
 
   inline int getNumDetIds() const { return detids_.size(); }
   
-  inline bool containsDetId(DetId id, double phi = 999999.) const {
+  inline bool containsDetId(DetId id, double phi = 999999., double dphi_scalefactor=1.5) const {
     // calculate window around given phi (if phi == 999999. set window to [0,2pi]
     // determine phi segmentation from number of detids in ring
     // window is += 1.5 times the phi segmentation
@@ -115,8 +115,8 @@ class Ring {
     double phi_outer = Geom::twoPi();
     double delta_phi = Geom::twoPi() / detids_.size();
     if ( phi != 999999. ) {
-      phi_inner = map_phi(phi - 1.5*delta_phi);
-      phi_outer = map_phi(phi + 1.5*delta_phi);
+      phi_inner = map_phi(phi - dphi_scalefactor*delta_phi);
+      phi_outer = map_phi(phi + dphi_scalefactor*delta_phi);
     }
 
     // check for out of bounds of [0,2pi]

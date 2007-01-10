@@ -13,8 +13,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/28 22:50:12 $
-// $Revision: 1.3 $
+// $Date: 2006/08/29 14:48:14 $
+// $Revision: 1.4 $
 //
 
 #include <iostream>
@@ -272,7 +272,7 @@ void Roads::dumpHeader(std::ofstream &stream) const {
   
 }
 
-const Roads::RoadSeed* Roads::getRoadSeed(DetId InnerSeedRing, DetId OuterSeedRing, double InnerSeedRingPhi,double OuterSeedRingPhi) const {
+const Roads::RoadSeed* Roads::getRoadSeed(DetId InnerSeedRing, DetId OuterSeedRing, double InnerSeedRingPhi,double OuterSeedRingPhi, double dphi_scalefactor) const {
 
   // loop over seed Ring pairs
 
@@ -283,8 +283,8 @@ const Roads::RoadSeed* Roads::getRoadSeed(DetId InnerSeedRing, DetId OuterSeedRi
   for ( const_iterator road = roadMap_.begin(); road != roadMap_.end(); ++road ) {
     if ( road->first.first.getType() == innerSeedRingType &&
 	 road->first.second.getType() == outerSeedRingType ) {
-      if ( road->first.first.containsDetId(InnerSeedRing,InnerSeedRingPhi) &&
-	   road->first.second.containsDetId(OuterSeedRing,OuterSeedRingPhi) ) {
+      if ( road->first.first.containsDetId(InnerSeedRing,InnerSeedRingPhi,dphi_scalefactor) &&
+	   road->first.second.containsDetId(OuterSeedRing,OuterSeedRingPhi,dphi_scalefactor) ) {
 	return &(road->first);
       }
     }
