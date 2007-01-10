@@ -13,6 +13,7 @@ TFileService::TFileService( const ParameterSet & cfg, ActivityRegistry & r ) :
   file_( new TFile( cfg.getParameter<string>( "fileName" ).c_str() , "RECREATE" ) ) {
   r.watchPreModuleConstruction( this, & TFileService::preModuleConstructor ); 
   r.watchPreModule( this, & TFileService::preModule ); 
+  /// pre module begin should be added. Available in CVS head...
 }
 
 TFileService::~TFileService() {
@@ -31,9 +32,11 @@ void TFileService::preModule( const ModuleDescription & desc ) {
   currentModulenName_ = desc.moduleName_;
 }
 
-void TFileService::mkdir() const {
-  TDirectory * dir = file_->mkdir( currentModuleLabel_.c_str(), 
-				   (currentModuleLabel_ + " (" + currentModulenName_ + ") folter" ).c_str() );
+void TFileService::cd() const {
+  TDirectory * dir = file_->GetDirectory( currentModuleLabel_.c_str() );
+  if ( dir == 0 )
+    dir = file_->mkdir( currentModuleLabel_.c_str(), 
+			(currentModuleLabel_ + " (" + currentModulenName_ + ") folter" ).c_str() );
   if ( dir == 0 )   
     throw 
       cms::Exception( "InvalidDirectory" ) 
@@ -43,16 +46,4 @@ void TFileService::mkdir() const {
     throw 
       cms::Exception( "InvalidDirectory" ) 
 	<< "Can't change directory to newly created: " << currentModuleLabel_;
-}
-
-void TFileService::cd() const {
-  bool ok = file_->cd( currentModuleLabel_.c_str() );
-  if ( ! ok ) 
-    throw 
-      cms::Exception( "InvalidDirectory" ) 
-	<< "Can't change directory to: " << currentModuleLabel_ << ".\n"
-	<< "It was probaboy not created. Please, call: \n"
-	<< "   Service<TFileService>()->mkdir();\n"
-	<< "in your module's constructor and book your histograms there.\n"
-	<< "Booking histograms in a modules' beginob(...) is not supported.";
 }
