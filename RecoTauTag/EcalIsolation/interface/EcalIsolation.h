@@ -16,7 +16,7 @@
 //
 // Original Author:  Artur Kalinowski
 //         Created:  Mon Sep 11 12:48:02 CEST 2006
-// $Id$
+// $Id: EcalIsolation.h,v 1.1 2006/11/06 13:49:17 akalinow Exp $
 //
 //
 
@@ -32,6 +32,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 
@@ -51,20 +52,18 @@ class EcalIsolation : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
    private:
 
-      float checkIsolation(const reco::CaloJet * aJet, edm::Event& iEvent);
+
 
       // ----------member data ---------------------------
 
       /// label of tau trigger type analysis
-      std::string mJetForFilter;
+      edm::InputTag mJetForFilter;
       /// label for tower builder module
-      std::string mCaloTowers;
-      /// upper cut on Pisol variable
       double mPisol;
       /// size of the small cone
       double mSmallCone;
       /// size of the big cone
-      double mBigCone;
+      double mBigCone,pIsolCut;
       
 };
 
