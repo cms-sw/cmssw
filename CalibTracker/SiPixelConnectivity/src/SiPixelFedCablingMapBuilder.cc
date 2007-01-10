@@ -23,6 +23,8 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
+#include "CondFormats/SiPixelObjects/interface/FrameConversion.h"
+
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/Vector/interface/GlobalVector.h"
 #include "Geometry/Vector/interface/LocalPoint.h"
@@ -39,20 +41,14 @@ using namespace sipixelobjects;
 SiPixelFedCablingMapBuilder::SiPixelFedCablingMapBuilder(const string & associatorName) : theAssociatorName(associatorName)
 { }
 
-SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
-   const edm::EventSetup& setup)
-{
-   FEDNumbering fednum;
-// TRange<int> fedIds = fednum.getSiPixelFEDIds();
-   TRange<int> fedIds(0,40);
-   edm::LogInfo("SiPixelFedCablingMapBuilder")<<"pixel fedid range: "<<fedIds;
 
-   vector<FedSpec> fedSpecs(fedIds.max()-fedIds.min()+1); 
-   for (int id=fedIds.first; id<=fedIds.second; id++) {
-     FedSpec fs={ id, vector<PixelModuleName* >(), vector<uint32_t>()};
-     int idx = id - fedIds.min();
-     fedSpecs[idx]= fs;
-   }
+SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce( const edm::EventSetup& setup)
+{
+  FEDNumbering fednum;
+//  TRange<int> fedIds = fednum.getSiPixelFEDIds();
+  TRange<int> fedIds(0,40);
+  edm::LogInfo("SiPixelFedCablingMapBuilder")<<"pixel fedid range: "<<fedIds;
+
 
   edm::ESHandle<PixelToFEDAssociate> associator;
   setup.get<TrackerDigiGeometryRecord>().get(theAssociatorName,associator);
@@ -69,6 +65,10 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
 
   typedef TrackerGeometry::DetContainer::const_iterator ITG;
   int npxdets = 0;
+
+  typedef  std::vector<pair<PixelModuleName* , uint32_t> > UNITS;
+  UNITS units;
+
   for (ITG it = pDD->dets().begin(); it != pDD->dets().end(); it++){
     const PixelGeomDetUnit * pxUnit = dynamic_cast<const PixelGeomDetUnit*>(*it);
     if (pxUnit  ==0 ) continue;
@@ -81,14 +81,30 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
       name = new PixelEndcapName(geomid);
 //      cout << " NAME: "<<name->name()<<myprint(pxUnit)<<endl;
     } 
+    units.push_back( std::make_pair( name, geomid.rawId() ) );
+  }
+
+
+  if (theAssociatorName=="PixelToFEDAssociateFromAscii") {
+  cout <<" HERE PixelToLNKAssociateFromAscii"<<endl;
+  vector<FedSpec> fedSpecs(fedIds.max()-fedIds.min()+1); 
+  for (int id=fedIds.first; id<=fedIds.second; id++) {
+    FedSpec fs={ id, vector<PixelModuleName* >(), vector<uint32_t>()};
+    int idx = id - fedIds.min();
+    fedSpecs[idx]= fs;
+  }
+  for (UNITS::iterator iu=units.begin(); iu != units.end(); iu++) {
+    PixelModuleName* name = (*iu).first;
+    uint32_t rawId = (*iu).second;
     int fedId = name2fed( *name);
     if ( fedIds.inside(fedId) ) {
       int idx = fedId - fedIds.min();
-      fedSpecs[idx].rawids.push_back(geomid.rawId());
+      fedSpecs[idx].rawids.push_back(rawId);
       fedSpecs[idx].names.push_back(name);
     } else edm::LogError("SiPixelFedCablingMapBuilder")
           <<"problem with numbering! "<<fedId<<" name: " << name->name();
   }
+
   LogDebug("tracker geometry read")<<"There are: "<< npxdets<<" pixel detetors";
   // construct FEDs
   typedef vector<FedSpec>::iterator FI;
@@ -111,14 +127,36 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
       result->addFed(fed);
     }
   }
+  } else {
+    PixelToFEDAssociate::DetectorRocId detectorRocId;
+    for (UNITS::iterator iu=units.begin(); iu != units.end(); iu++) {
+      PixelModuleName * name =  (*iu).first; 
+      detectorRocId.module = name;
+      for (int rocDetId=0; rocDetId<=16; rocDetId++) {
+        detectorRocId.rocDetId = rocDetId;
+        const PixelToFEDAssociate::CablingRocId * cablingRocId =  name2fed(detectorRocId);
+        if (cablingRocId) {
+          FrameConversion frame(0,0,0,0);
+          if (name->isBarrel() ) {
+            const PixelBarrelName* nameBarrel = dynamic_cast<const PixelBarrelName* >(name);
+            frame = FrameConversion ( *nameBarrel, rocDetId);
+          } else {
+            const PixelEndcapName* nameEndcap = dynamic_cast<const PixelEndcapName* >(name);
+            frame = FrameConversion ( *nameEndcap, rocDetId);
+          }
+          sipixelobjects::PixelROC roc( iu->second, rocDetId, cablingRocId->rocLinkId, frame); 
+          result->addItem(cablingRocId->fedId, cablingRocId->linkId, roc);
+        }
+      }
+    }
+  }
 
   //clear names:
-  for ( FI it = fedSpecs.begin(); it != fedSpecs.end(); it++) {
-    vector<PixelModuleName* > names = it->names;
-    typedef vector<PixelModuleName* >::const_iterator IN;
-    for (IN name = names.begin(); name != names.end(); name++) delete (*name);
-  } 
+  for (UNITS::iterator iu=units.begin(); iu != units.end(); iu++) delete iu->first;
+
+
   return result;
+
 }
 std::string SiPixelFedCablingMapBuilder::myprint(const PixelGeomDetUnit * pxUnit)
 {

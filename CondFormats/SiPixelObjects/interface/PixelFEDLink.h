@@ -43,9 +43,12 @@ public:
 
   std::string print(int depth = 0) const;
 
+  void addItem(const PixelROC & roc);
+
 private:
   int theId;
   ROCs theROCs;
+  std::string printForMap() const;
 };
 
 }

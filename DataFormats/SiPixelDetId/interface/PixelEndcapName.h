@@ -20,13 +20,11 @@ public:
   /// ctor from DetId
   PixelEndcapName(const DetId &);
   
-/*
   /// ctor for defined name
-  PixelEndcapName(int endcap, int disk, int blade, int pannel, int plaquette) 
-    : PixelModuleName(false), theEndCap(endcap), theDisk(disk), 
-      theBlade(blade), thePannel(pannel), thePlaquette(plaquette)
+  PixelEndcapName( HalfCylinder part = mO, int disk =0, int blade =0, int pannel=0, int plaq=0) 
+    : PixelModuleName(false), 
+      thePart(part), theDisk(disk), theBlade(blade), thePannel(pannel), thePlaquette(plaq)
   { }
-*/
 
   virtual ~PixelEndcapName() { }
 
@@ -49,6 +47,9 @@ public:
 
   /// module Type
    virtual PixelModuleName::ModuleType  moduleType() const;
+
+  /// check equality of modules from datamemebers
+  virtual bool operator== (const PixelModuleName &) const;
 
 
 private:

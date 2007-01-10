@@ -1,5 +1,6 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include <sstream>
+#include <iostream>
 
 using namespace std;
 using namespace sipixelobjects;
@@ -22,7 +23,7 @@ string SiPixelFedCablingMap::print(int depth) const
 {
   ostringstream out;
   if ( depth-- >=0 ) {
-    out << "== SiPixelFedCablingMap, version: "<< theVersion << endl;
+    out << theVersion << endl;
     for(IMAP it=theFedCablings.begin(); it != theFedCablings.end(); it++) {
       out << (*it).second.print(depth);
     }
@@ -39,4 +40,11 @@ std::vector<const PixelFEDCabling *> SiPixelFedCablingMap::fedList() const
   }
   return result;
 
+}
+
+void SiPixelFedCablingMap:: addItem(int fedId, int linkId, const PixelROC& roc)
+{
+  PixelFEDCabling & cabling = theFedCablings[fedId];
+  if (cabling.id() != fedId) cabling=PixelFEDCabling(fedId);
+  cabling.addItem(linkId,roc);
 }

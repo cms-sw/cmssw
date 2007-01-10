@@ -50,6 +50,7 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
   edm::LogInfo("SiPixelDigiToRaw") << "[SiPixelDigiToRaw::produce] "
                         << "event number: "
                         << eventCounter_;
+  cout << " -- event:" << eventCounter_ << endl;
 
   edm::Handle< edm::DetSetVector<PixelDigi> > digiCollection;
   ev.getByLabel( src_ , digiCollection);
@@ -62,11 +63,11 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
          int digiCounter = 0; 
   for (DI di=digiCollection->begin(); di != digiCollection->end(); di++) {
     digiCounter += (di->data).size(); 
-    digis[ di->id] = di->data;
+//    digis[ di->id] = di->data;
+    digis.push_back(*di);
   }
   allDigiCounter += digiCounter;
 
-  cout << " -- event:" << eventCounter_ << endl;
   edm::ESHandle<SiPixelFedCablingMap> map;
   es.get<SiPixelFedCablingMapRcd>().get( map );
   cout << map->version() << endl;

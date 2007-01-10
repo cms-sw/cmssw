@@ -32,12 +32,13 @@
  */
 
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+
 #include <boost/cstdint.hpp>
 #include <vector>
 #include <map>
 
 class FEDRawData;
-
 
 class SiPixelFedCablingMap;
 class SiPixelFrameConverter;
@@ -47,7 +48,8 @@ class PixelDataFormatter {
 public:
 
   typedef std::vector<PixelDigi> DetDigis;
-  typedef std::map<uint32_t, DetDigis> Digis;
+//  typedef std::map<uint32_t, DetDigis> Digis;
+  typedef std::vector< edm::DetSet<PixelDigi> > Digis;
   typedef std::pair<DetDigis::const_iterator, DetDigis::const_iterator> Range;
 
   PixelDataFormatter(const SiPixelFedCablingMap * map);
@@ -67,6 +69,8 @@ private:
 
   typedef unsigned int Word32;
   typedef long long Word64;
+//  typedef uint32_t Word32;
+//  typedef uint64_t Word64;
 
   void digi2word( const SiPixelFrameConverter& converter,
                   uint32_t detId, const PixelDigi& digi,

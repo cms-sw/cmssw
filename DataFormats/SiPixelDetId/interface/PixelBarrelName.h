@@ -18,12 +18,11 @@ public:
   /// ctor from DetId
   PixelBarrelName(const DetId &);
 
-/*
-  /// ctor for defined name
-  PixelBarrelName(int layer, int module, int ladder)
+  /// ctor for defined name with dummy parameters
+  PixelBarrelName(Shell shell=mO, int layer=0, int module=0, int ladder=0)
     : PixelModuleName(true), 
-      theLayer(layer), theModule(module), theLadder(ladder) { }
-*/
+      thePart(shell), theLayer(layer), theModule(module), theLadder(ladder) 
+  { }
 
   virtual ~PixelBarrelName() { }
 
@@ -31,8 +30,6 @@ public:
   virtual std::string name() const;
 
   Shell shell() const { return thePart; }
-  
-  int sectorName() const { return theSector; } 
 
   /// layer id 
   int layerName() const { return theLayer; }   
@@ -43,16 +40,21 @@ public:
   /// ladder id (index in phi) 
   int ladderName() const { return theLadder; } 
 
+  /// sector id
+  int sectorName() const;
+
   /// full or half module
-  bool isHalfModule() const { return halfModule; };
+  bool isHalfModule() const;
   
   /// module Type
    virtual PixelModuleName::ModuleType  moduleType() const;
 
+  /// check equality of modules from datamemebers
+  virtual bool operator== (const PixelModuleName &) const;
+
 private:
   Shell thePart;
-  bool halfModule;
-  int theSector, theLayer, theModule, theLadder;
+  int theLayer, theModule, theLadder;
 };
 
 std::ostream & operator<<( std::ostream& out, const PixelBarrelName::Shell& t);

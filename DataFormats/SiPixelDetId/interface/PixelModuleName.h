@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include <boost/cstdint.hpp>
 
 /** \class PixelModuleName
  * Base class to Pixel modules naming, provides a name as in PixelDatabase
@@ -19,11 +20,16 @@ public:
   /// true for barrel modules
   virtual bool isBarrel() const { return barrel; }
 
+  static bool isBarrel(uint32_t rawDetId) { return ( 1==((rawDetId>>25)&0x7)); }
+
   /// associated name 
   virtual std::string name() const = 0;
 
   /// module type
   virtual ModuleType moduleType() const = 0;
+
+  /// check equality of modules
+  virtual  bool operator== (const PixelModuleName &) const = 0;
 
 private:
   bool barrel;

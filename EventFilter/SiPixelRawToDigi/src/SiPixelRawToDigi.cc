@@ -39,7 +39,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   produces< edm::DetSetVector<PixelDigi> >();
 
   rootFile = new TFile("analysis.root", "RECREATE", "my histograms");
-  hCPU = new TH1D ("hCPU","hCPU",50,0.,0.025);
+  hCPU = new TH1D ("hCPU","hCPU",60,0.,0.030);
   hDigi = new TH1D("hDigi","hDigi",50,0.,15000.);
 }
 
@@ -70,17 +70,16 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
   edm::Handle<FEDRawDataCollection> buffers;
   ev.getByLabel(theLabel, buffers);
-//ev.getByType(buffers);
 
 
-  // create product (digis)
+// create product (digis)
   std::auto_ptr< edm::DetSetVector<PixelDigi> > collection( new edm::DetSetVector<PixelDigi> );
   static int ndigis = 0;
   static int nwords = 0;
 
   PixelDataFormatter formatter(map.product());
 {
-  TimeMe t(timer.item(),false);
+  TimeMe t(timer.item(), false);
   FEDNumbering fednum;
   pair<int,int> fedIds = fednum.getSiPixelFEDIds();
   fedIds.first = 1;
@@ -88,22 +87,22 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   
 
   for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
-     PixelDataFormatter::Digis digis;
-     LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
+    LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
+    PixelDataFormatter::Digis digis;
      
-     //get event data for this fed
-     const FEDRawData& fedRawData = buffers->FEDData( fedId );
+    //get event data for this fed
+    const FEDRawData& fedRawData = buffers->FEDData( fedId );
 
-     //convert data to digi
-     formatter.interpretRawData( fedId, fedRawData, digis);
+    //convert data to digi
+    formatter.interpretRawData( fedId, fedRawData, digis);
 
-     //pack digi into collection
-     typedef PixelDataFormatter::Digis::iterator ID;
-     for (ID it = digis.begin(); it != digis.end(); it++) {
-       uint32_t detid = it->first;
-       edm::DetSet<PixelDigi>& detSet = collection->find_or_insert(detid);
-       detSet.data = it->second;
-     } 
+    //pack digi into collection
+    typedef PixelDataFormatter::Digis::iterator ID;
+    for (ID it = digis.begin(); it != digis.end(); it++) {
+      uint32_t detid = it->id;
+      edm::DetSet<PixelDigi>& detSet = collection->find_or_insert(detid);
+      detSet.data = it->data;
+    } 
   }
 }
   cout << "TIMING IS: (real)" << timer.lastMeasurement().real() << endl;

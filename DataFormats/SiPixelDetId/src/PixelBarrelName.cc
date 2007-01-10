@@ -57,57 +57,60 @@ PixelBarrelName::PixelBarrelName(const DetId & id)
   //
   theModule = abs(oldModule);
  
-  //
-  // half or full - this is a question...
-  //
+}
 
-  halfModule = false; 
-  if (theLadder == 1) halfModule = true;
-  if (theLayer == 1 && theLadder == 10) halfModule = true;
-  if (theLayer == 2 && theLadder == 16) halfModule = true;
-  if (theLayer == 3 && theLadder == 22) halfModule = true;
-
-  //
-  // sector
-  //
-  theSector = 0;   // temporary
+int PixelBarrelName::sectorName() const
+{
+  int sector = 0;
   if (theLayer==1) {
     switch (theLadder) {
-    case 1 : case 2: {theSector = 1; break;}
-    case 3 :         {theSector = 2; break;}
-    case 4 :         {theSector = 3; break;}
-    case 5 :         {theSector = 4; break;}
-    case 6 :         {theSector = 5; break;}
-    case 7 :         {theSector = 6; break;}
-    case 8 :         {theSector = 7; break;}
-    case 9 : case 10:{theSector = 8; break;}
+    case 1 : case 2: {sector = 1; break;}
+    case 3 :         {sector = 2; break;}
+    case 4 :         {sector = 3; break;}
+    case 5 :         {sector = 4; break;}
+    case 6 :         {sector = 5; break;}
+    case 7 :         {sector = 6; break;}
+    case 8 :         {sector = 7; break;}
+    case 9 : case 10:{sector = 8; break;}
     default: ;
     };
   } else if (theLayer==2) {
     switch (theLadder) {
-    case  1 : case  2: {theSector = 1; break;}
-    case  3 : case  4: {theSector = 2; break;}
-    case  5 : case  6: {theSector = 3; break;}
-    case  7 : case  8: {theSector = 4; break;}
-    case  9 : case 10: {theSector = 5; break;}
-    case 11 : case 12: {theSector = 6; break;}
-    case 13 : case 14: {theSector = 7; break;}
-    case 15 : case 16: {theSector = 8; break;}
+    case  1 : case  2: {sector = 1; break;}
+    case  3 : case  4: {sector = 2; break;}
+    case  5 : case  6: {sector = 3; break;}
+    case  7 : case  8: {sector = 4; break;}
+    case  9 : case 10: {sector = 5; break;}
+    case 11 : case 12: {sector = 6; break;}
+    case 13 : case 14: {sector = 7; break;}
+    case 15 : case 16: {sector = 8; break;}
     default: ;
     };
   } else if (theLayer==3) {
     switch (theLadder) {
-    case  1 : case  2: case  3: {theSector = 1; break;}
-    case  4 : case  5: case  6: {theSector = 2; break;}
-    case  7 : case  8: case  9: {theSector = 3; break;}
-    case 10 : case 11:          {theSector = 4; break;}
-    case 12 : case 13:          {theSector = 5; break;}
-    case 14 : case 15: case 16: {theSector = 6; break;}
-    case 17 : case 18: case 19: {theSector = 7; break;}
-    case 20 : case 21: case 22: {theSector = 8; break;}
+    case  1 : case  2: case  3: {sector = 1; break;}
+    case  4 : case  5: case  6: {sector = 2; break;}
+    case  7 : case  8: case  9: {sector = 3; break;}
+    case 10 : case 11:          {sector = 4; break;}
+    case 12 : case 13:          {sector = 5; break;}
+    case 14 : case 15: case 16: {sector = 6; break;}
+    case 17 : case 18: case 19: {sector = 7; break;}
+    case 20 : case 21: case 22: {sector = 8; break;}
     default: ;
     };
   }
+  return sector;
+
+}
+
+bool PixelBarrelName::isHalfModule() const 
+{
+  bool halfModule = false;
+  if (theLadder == 1) halfModule = true;
+  if (theLayer == 1 && theLadder == 10) halfModule = true;
+  if (theLayer == 2 && theLadder == 16) halfModule = true;
+  if (theLayer == 3 && theLadder == 22) halfModule = true;
+  return halfModule;
 }
 
 PixelModuleName::ModuleType  PixelBarrelName::moduleType() const 
@@ -115,12 +118,24 @@ PixelModuleName::ModuleType  PixelBarrelName::moduleType() const
   return isHalfModule() ? PixelBarrelName::v1x8 : PixelBarrelName::v2x8;
 }
 
+bool PixelBarrelName::operator==(const PixelModuleName &o) const
+{
+  if ( o.isBarrel() ) { 
+    const PixelBarrelName *other = dynamic_cast<const PixelBarrelName*>(&o);
+    return (    other
+             && thePart   == other->thePart 
+             && theLayer  == other->theLayer 
+             && theModule == other->theModule 
+             && theLadder == other->theLadder);
+  } else return false; 
+}
+
 string PixelBarrelName::name() const 
 {
    std::ostringstream stm;
    
-   stm<<"BPix_B"<<thePart<<"_SEC"<<theSector<<"_LYR"<<theLayer<<"_LDR"<<theLadder;
-   if (halfModule) stm <<"H"; else stm <<"F";
+   stm<<"BPix_B"<<thePart<<"_SEC"<<sectorName()<<"_LYR"<<theLayer<<"_LDR"<<theLadder;
+   if ( isHalfModule() ) stm <<"H"; else stm <<"F";
    stm << "_MOD" << theModule;
 
    return stm.str();

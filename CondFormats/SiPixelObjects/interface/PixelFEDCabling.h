@@ -35,6 +35,7 @@ public:
 
   std::string print(int depth = 0) const;
 
+  void  addItem(int linkId, const PixelROC & roc);
 private:
   /// check link numbering consistency, ie. that link position in vector
   /// is the same as its id. Futhermore it checks numbering consistency for

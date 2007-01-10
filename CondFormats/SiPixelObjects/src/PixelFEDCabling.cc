@@ -18,6 +18,13 @@ void PixelFEDCabling::addLink(const PixelFEDLink & link)
   theLinks.push_back(link);
 }
 
+void PixelFEDCabling::addItem(int linkId, const PixelROC & roc)
+{
+  if ( theLinks.size() < linkId+1 ) theLinks.resize(linkId+1);
+  if ( theLinks[linkId].id() != linkId)  theLinks[linkId] = PixelFEDLink(linkId);
+  theLinks[linkId].addItem(roc);
+}
+
 bool PixelFEDCabling::checkLinkNumbering() const
 {
   bool result = true;
@@ -44,10 +51,10 @@ string PixelFEDCabling::print(int depth) const
   ostringstream out;
   typedef vector<PixelFEDLink>::const_iterator IT; 
   if (depth-- >=0 ) {
-    out <<"==== PixelFED, ID: "<<id()<< endl;
+    out <<"FED: "<<id()<< endl;
     for (IT it=theLinks.begin(); it != theLinks.end(); it++)
          out << (*it).print(depth);
-    out <<"     total number of Links: "<< numberOfLinks() << endl;
+    out <<"# total number of Links: "<< numberOfLinks() << endl;
   }
   out << endl;
   return out.str();

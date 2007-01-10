@@ -16,6 +16,7 @@ public:
   SiPixelFedCablingMapBuilder(const std::string & associatorName);
   SiPixelFedCablingMap * produce(const edm::EventSetup& setup);  
 private:
+
   struct FedSpec {
       int fedId;                             // fed ID
       std::vector<PixelModuleName* > names;  // names of modules

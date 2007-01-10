@@ -50,16 +50,8 @@ void SiPixelFedCablingMapAnalyzer::analyze( const edm::Event& iEvent, const edm:
    iSetup.get<SiPixelFedCablingMapRcd>().get(map);
 
    LogInfo(" got map, version: ") << map->version();
-   LogInfo("PRINT MAP:")<<map->print(10);
+   LogInfo("PRINT MAP:")<<map->print(100);
    LogInfo("PRINT MAP, end:");
-/*
-   PixelFEDLink link = map->link();
-   const PixelROC * roc = 0;
-   roc = link.roc(0);
-   cout << "Link ID: "<< link.id()<<" ROC xx: "<<roc->idInLink()<<endl;
-   roc = link.roc(1);
-   cout << "Link ID: "<< link.id()<<" ROC xx: "<<roc->idInLink()<<endl;
-*/
 
 }
 
