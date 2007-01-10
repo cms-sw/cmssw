@@ -105,7 +105,7 @@ void CalorimetryManager::reconstruct()
 	   if ( myTrack.onEcal() ) 
 	    EMShowerSimulation(myTrack);
 	  else if ( myTrack.onVFcal() )
-	    reconstructECAL(myTrack);
+	    reconstructHCAL(myTrack);
 	   
       } // electron or photon
       // Simulate energy smearing for hadrons (i.e., everything 
@@ -437,13 +437,24 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
     if(debug_)
       LogDebug("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - MUON !!!" << endl;
   }
-  else {
-    e     = myHDResponse_->getHCALEnergyResponse(EGen,hit);
-    sigma = myHDResponse_->getHCALEnergyResolution(EGen, hit);
-  
-    double emeas = 0.;
-    emeas = random->gaussShoot(e,sigma);  
-  }
+  else if( pid == 22 || pid == 11)
+    {
+      
+      pair<double,double> response =
+	myHDResponse_->responseHCAL(EGen,pathEta,0); // 0=e/gamma
+      emeas = response.first;
+      //  cout <<  "CalorimetryManager::reconstructHCAL - e/gamma !!!" << endl;
+      if(debug_)
+	LogDebug("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - e/gamma !!!" << endl;
+    }
+    else {
+      e     = myHDResponse_->getHCALEnergyResponse(EGen,hit);
+      sigma = myHDResponse_->getHCALEnergyResolution(EGen, hit);
+      
+      double emeas = 0.;
+      emeas = random->gaussShoot(e,sigma);  
+    }
+    
 
   if(debug_)
     LogDebug("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - on-calo " << endl  
