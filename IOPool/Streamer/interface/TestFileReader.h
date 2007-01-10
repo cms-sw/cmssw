@@ -1,11 +1,10 @@
-#ifndef STREAMER_TESTEVENTSTREAMFILEREADER_H
-#define STREAMER_TESTEVENTSTREAMFILEREADER_H
+#ifndef Streamer_TestFileReader_h
+#define Streamer_TestFileReader_h
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 
-#include "IOPool/Streamer/interface/StreamTranslator.h"
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"

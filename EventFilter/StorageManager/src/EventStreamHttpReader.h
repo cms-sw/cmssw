@@ -3,6 +3,7 @@
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/Utilities.h"
+#include "IOPool/Streamer/interface/StreamDeserializer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/InputSource.h"
@@ -45,6 +46,7 @@ namespace edmtestp
     double minEventRequestInterval_;
     unsigned int consumerId_;
     struct timeval lastRequestTime_;
+    edm::StreamDeserializer deserializer_;
   };
 
 }

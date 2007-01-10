@@ -1,7 +1,7 @@
 #ifndef StreamerOutputModule_h_
 #define StreamerOutputModule_h_
 
-// $Id: StreamerOutputModule.h,v 1.16 2006/12/20 21:15:06 klute Exp $
+// $Id: StreamerOutputModule.h,v 1.17 2007/01/10 06:41:41 wmtan Exp $
 
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -20,7 +20,7 @@
 
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
-#include "IOPool/Streamer/interface/StreamTranslator.h"
+#include "IOPool/Streamer/interface/StreamSerializer.h"
 
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -127,7 +127,7 @@ namespace edm
     double timeInSecSinceUTC;
 
     Consumer* c_;
-    StreamTranslator* translator_;
+    StreamSerializer serializer_;
 
     //Event variables, made class memebers to avoid re instatiation for each event.
     unsigned int hltsize_;
@@ -150,7 +150,7 @@ StreamerOutputModule<Consumer>::StreamerOutputModule(edm::ParameterSet const& ps
   compressionLevel_(ps.template getParameter<int>("compression_level")),
   lumiSectionInterval_(ps.template getUntrackedParameter<int>("lumiSection_interval", 0)), 
   c_(new Consumer(ps)),   //Try auto_ptr with this ?
-  translator_(new StreamTranslator(selections_)),
+  serializer_(selections_),
   hltsize_(0),
   lumi_(0), 
   l1bit_(0),
@@ -185,7 +185,6 @@ template <class Consumer>
 StreamerOutputModule<Consumer>::~StreamerOutputModule()
   {
     delete c_;
-    delete translator_;
   }
 
 template <class Consumer>
@@ -247,7 +246,7 @@ std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry(
 
     // the translator already has the product registry (selections_),
     // so it just needs to serialize it to the init message.
-    translator_->serializeRegistry(*init_message);
+    serializer_.serializeRegistry(*init_message);
 
     return init_message;
 }
@@ -328,7 +327,7 @@ std::auto_ptr<EventMsgBuilder> StreamerOutputModule<Consumer>::serializeEvent(
                            l1bit_, (uint8*)&hltbits_[0], hltsize_) );
     msg->setReserved(reserved_); // we need this set to zero
 
-    translator_->serializeEvent(e, *msg, useCompression_, compressionLevel_);
+    serializer_.serializeEvent(e, *msg, useCompression_, compressionLevel_);
 
     l1bit_.clear();  //Clear up for the next event to come.
     return msg;

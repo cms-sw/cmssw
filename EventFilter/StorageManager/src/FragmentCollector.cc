@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.24 2007/01/10 06:43:11 wmtan Exp $
+// $Id: FragmentCollector.cc,v 1.25 2007/01/10 18:09:00 klute Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/test/SillyLockService.h"
@@ -7,7 +7,6 @@
 
 #include "IOPool/Streamer/interface/Messages.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
-#include "IOPool/Streamer/interface/StreamTranslator.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"

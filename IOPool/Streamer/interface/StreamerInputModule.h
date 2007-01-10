@@ -17,7 +17,7 @@
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
-#include "IOPool/Streamer/interface/StreamTranslator.h"
+#include "IOPool/Streamer/interface/StreamDeserializer.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 
 #include "DataFormats/Common/interface/ProcessConfiguration.h"
@@ -34,7 +34,7 @@
 namespace edm
 {
   template <class Producer>
-  class StreamerInputModule : public edm::InputSource
+  class StreamerInputModule : public InputSource
   {
   /**
      Requires the Producer class to provide following functions
@@ -42,20 +42,19 @@ namespace edm
            const EventMsgView* getNextEvent();
   */
   public:  
-    explicit StreamerInputModule(edm::ParameterSet const& pset,
-                 edm::InputSourceDescription const& desc);
+    explicit StreamerInputModule(ParameterSet const& pset,
+                 InputSourceDescription const& desc);
     virtual ~StreamerInputModule();
-    virtual std::auto_ptr<edm::EventPrincipal> read();
+    virtual std::auto_ptr<EventPrincipal> read();
 
   private:
-    void mergeWithRegistry(const edm::SendDescs& descs,ProductRegistry&);
-    void declareStreamers(const edm::SendDescs& descs);
-    void buildClassCache(const edm::SendDescs& descs);
+    void mergeWithRegistry(const SendDescs& descs,ProductRegistry&);
+    void declareStreamers(const SendDescs& descs);
+    void buildClassCache(const SendDescs& descs);
 
     //ProductRegistry const* prod_reg_;
     Producer* pr_; 
-    edm::ProcessConfiguration procConfig_;
-    
+    StreamDeserializer deserializer_;
   }; //end-of-class-def
 
 template <class Producer>
@@ -66,26 +65,27 @@ StreamerInputModule<Producer>::~StreamerInputModule()
 
 template <class Producer>
 StreamerInputModule<Producer>::StreamerInputModule(
-                    edm::ParameterSet const& pset,
-                    edm::InputSourceDescription const& desc):
-    edm::InputSource(pset, desc),
+                    ParameterSet const& pset,
+                    InputSourceDescription const& desc):
+    InputSource(pset, desc),
     //prod_reg_(&productRegistry()), 
-    pr_(new Producer(pset))
+    pr_(new Producer(pset)),
+    deserializer_()
     {
       //Get header/init from Producer
       const InitMsgView* header = pr_->getHeader();
-      std::auto_ptr<edm::SendJobHeader> p = StreamTranslator::deserializeRegistry(*header); 
+      std::auto_ptr<SendJobHeader> p = deserializer_.deserializeRegistry(*header); 
       SendDescs & descs = p->descs_;
       mergeWithRegistry(descs, productRegistry());
 
       // jbk - the next line should not be needed
       declareStreamers(descs);
       buildClassCache(descs);
-      edm::loadExtraClasses();
+      loadExtraClasses();
     }
 
 template <class Producer>
-std::auto_ptr<edm::EventPrincipal> StreamerInputModule<Producer>::read()
+std::auto_ptr<EventPrincipal> StreamerInputModule<Producer>::read()
   {
     const EventMsgView* eview = pr_->getNextEvent();
 
@@ -94,7 +94,7 @@ std::auto_ptr<edm::EventPrincipal> StreamerInputModule<Producer>::read()
         // A new file has been opened and we must compare Heraders here !!
         //Get header/init from Producer
         const InitMsgView* header = pr_->getHeader();
-        std::auto_ptr<edm::SendJobHeader> p = StreamTranslator::deserializeRegistry(*header);
+        std::auto_ptr<SendJobHeader> p = deserializer_.deserializeRegistry(*header);
         if (!registryIsSubset(*p, productRegistry()) ) {
             std::cout << "\n\nUn matching Init Message Headers found.\n";
             throw cms::Exception("read","StreamerInputModule")
@@ -103,9 +103,9 @@ std::auto_ptr<edm::EventPrincipal> StreamerInputModule<Producer>::read()
     } 
     if (eview == 0)  
     {
-        return  std::auto_ptr<edm::EventPrincipal>();
+        return  std::auto_ptr<EventPrincipal>();
     }
-    std::auto_ptr<edm::EventPrincipal> pEvent(StreamTranslator::deserializeEvent(*eview, productRegistry()));
+    std::auto_ptr<EventPrincipal> pEvent(deserializer_.deserializeEvent(*eview, productRegistry()));
     return pEvent;
   }
 
@@ -135,10 +135,6 @@ void StreamerInputModule<Producer>::mergeWithRegistry(const SendDescs& descs,Pro
 	      <<"' found in JobHeader. We can only support one.";
 	}
     }
-    procConfig_ = edm::ProcessConfiguration(processName,
-					    edm::ParameterSetID(),
-					    edm::ReleaseVersion(),
-					    edm::PassID());
   }
 
 template <class Producer>
@@ -148,9 +144,9 @@ void StreamerInputModule<Producer>::declareStreamers(const SendDescs& descs)
 
     for(; i != e; ++i) {
         //pi->init();
-        std::string real_name = edm::wrappedClassName(i->className());
+        std::string real_name = wrappedClassName(i->className());
         FDEBUG(6) << "declare: " << real_name << endl;
-        edm::loadCap(real_name);
+        loadCap(real_name);
     }
   }
 
@@ -162,9 +158,9 @@ void StreamerInputModule<Producer>::buildClassCache(const SendDescs& descs)
 
     for(; i != e; ++i) {
         //pi->init();
-        std::string real_name = edm::wrappedClassName(i->className());
+        std::string real_name = wrappedClassName(i->className());
         FDEBUG(6) << "BuildReadData: " << real_name << endl;
-        edm::doBuildRealData(real_name);
+        doBuildRealData(real_name);
     }
   }
 

@@ -24,7 +24,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/Utilities.h"
-#include "IOPool/Streamer/interface/StreamTranslator.h"
+#include "IOPool/Streamer/interface/StreamDeserializer.h"
 #include "IOPool/Streamer/interface/OtherMessage.h"
 #include "IOPool/Streamer/interface/ConsRegMessage.h"
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -73,7 +73,8 @@ namespace edmtestp
     edm::InputSource(ps, desc),
     sourceurl_(ps.getParameter<string>("sourceURL")),
     buf_(1000*1000*7), 
-    events_read_(0)
+    events_read_(0),
+    deserializer_()
   {
     std::string evturl = sourceurl_ + "/geteventdata";
     int stlen = evturl.length();
@@ -244,7 +245,7 @@ namespace edmtestp
       //edm::EventMsg msg(&buf_[0],len);
       //return decoder_.decodeEvent(msg,productRegistry());
       EventMsgView eventView(&buf_[0]);
-      return StreamTranslator::deserializeEvent(eventView,productRegistry());
+      return deserializer_.deserializeEvent(eventView,productRegistry());
     }
   }
 
@@ -325,7 +326,7 @@ namespace edmtestp
     std::auto_ptr<SendJobHeader> p;
     try {
       //p = hdecoder.decodeJobHeader(msg);
-      p = StreamTranslator::deserializeRegistry(initView);
+      p = deserializer_.deserializeRegistry(initView);
     }
     catch (cms::Exception excpt) {
       const unsigned int MAX_DUMP_LENGTH = 1000;
