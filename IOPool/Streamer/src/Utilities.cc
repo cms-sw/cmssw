@@ -205,6 +205,7 @@ namespace edm
 
   // ---------------------------------------
 
+#if 0
   EventDecoder::EventDecoder():
     desc_(getTClassFor<SendEvent>()),
     buf_(TBuffer::kRead)
@@ -299,6 +300,7 @@ namespace edm
 
     return ep;
   }
+#endif
 
   std::auto_ptr<SendJobHeader> readHeaderFromStream(ifstream& ist)
   {
@@ -358,6 +360,7 @@ namespace edm
     return pr;
   }
 
+#if 0
   int EventReader::readMessage(Buf& here)
   {
     int len=0;
@@ -380,6 +383,6 @@ namespace edm
     return decoder_.decodeEvent(msg,prods);
 
   }
-
+#endif
 
 }

@@ -2,7 +2,6 @@
 #include "IOPool/Streamer/interface/BufferArea.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/HLTInfo.h"
-#include "IOPool/Streamer/interface/Utilities.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace 

@@ -2,7 +2,6 @@
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
 #include "IOPool/Streamer/interface/StreamerInputIndexFile.h"
 #include "IOPool/Streamer/interface/StreamerFileIO.h"
-#include "IOPool/Streamer/interface/Utilities.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 

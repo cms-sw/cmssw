@@ -316,7 +316,8 @@ namespace edm
     FDEBUG(5) << "Got event: " << sd->id_ << " " << sd->prods_.size() << endl;
     auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
                                                    sd->time_,
-                                                   productRegistry));
+                                                   productRegistry,
+						   ProcessConfiguration()));
     // no process name list handling
 
     SendProds::iterator spi(sd->prods_.begin()),spe(sd->prods_.end());

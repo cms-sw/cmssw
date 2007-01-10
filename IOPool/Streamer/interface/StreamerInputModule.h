@@ -7,7 +7,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "IOPool/Streamer/interface/StreamerFileIO.h"
@@ -19,6 +18,7 @@
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/StreamTranslator.h"
+#include "IOPool/Streamer/interface/Utilities.h"
 
 #include "DataFormats/Common/interface/ProcessConfiguration.h"
 
@@ -106,11 +106,6 @@ std::auto_ptr<edm::EventPrincipal> StreamerInputModule<Producer>::read()
         return  std::auto_ptr<edm::EventPrincipal>();
     }
     std::auto_ptr<edm::EventPrincipal> pEvent(StreamTranslator::deserializeEvent(*eview, productRegistry()));
-    if(pEvent.get()) {
-       pEvent->addToProcessHistory(procConfig_);
-       //std::cout <<"added process configuration "<<procConfig_.processName()<<std::endl;
-       
-    }
     return pEvent;
   }
 

@@ -48,6 +48,7 @@ namespace edm
     TBuffer buf_;
   };
 
+#if 0
   class EventDecoder
   {
   public:
@@ -63,6 +64,7 @@ namespace edm
     TClass* desc_;
     TBuffer buf_;
   };
+#endif
 
   // ------------------------------------------------------------
   // Below are a few utilities for putting event pointers and job
@@ -101,6 +103,7 @@ namespace edm
 
   // -----------------
 
+#if 0
   class EventInserter
   {
   public:
@@ -131,6 +134,7 @@ namespace edm
     EventBuffer* buf_;
     EventDecoder decoder_;
   };
+#endif
 
   class EventExtractor
   {
@@ -148,6 +152,7 @@ namespace edm
     EventBuffer* buf_;
   };
 
+#if 0
   class EventReader
   {
   public:
@@ -164,6 +169,7 @@ namespace edm
     Buf b_;
     EventDecoder decoder_;
   };
+#endif
 
 }
 

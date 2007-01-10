@@ -1,9 +1,8 @@
 #ifndef StreamerOutputModule_h_
 #define StreamerOutputModule_h_
 
-// $Id:$
+// $Id: StreamerOutputModule.h,v 1.16 2006/12/20 21:15:06 klute Exp $
 
-#include "IOPool/Streamer/interface/Utilities.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"

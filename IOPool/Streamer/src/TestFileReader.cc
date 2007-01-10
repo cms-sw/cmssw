@@ -5,6 +5,7 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
+#include "IOPool/Streamer/interface/Utilities.h"
 
 #include "boost/bind.hpp"
 #include "boost/scoped_array.hpp"
