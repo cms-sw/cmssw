@@ -8,7 +8,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/JetTagProxy.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfoFwd.h"
 
 namespace reco {
@@ -31,7 +31,7 @@ public:
     double tag;                             // discriminant using this track as tagging lepton
 };
 
-class SoftLeptonTagInfo {
+class SoftLeptonTagInfo : public JetTagProxy {
 public:
 
     //typedef edm::AssociationMap< edm::OneToValue< TrackCollection, SoftLeptonProperties, unsigned int > > LeptonMap;
@@ -62,19 +62,8 @@ public:
         m_leptons.push_back( std::pair< TrackRef, SoftLeptonProperties > (lepton, properties) );
     }
 
-    void setJetTag(const JetTagRef & ref) {
-        m_jetTag = ref;
-    }
-
-    // stuff forwarded to JetTag
-    double discriminator(void)                           const { return m_jetTag->discriminator(); }
-    const Jet & jet(void)                                const { return m_jetTag->jet(); }
-    const edm::RefVector<TrackCollection> & tracks(void) const { return m_jetTag->tracks(); }
-    const JetTracksAssociationRef & jtaRef()             const { return m_jetTag->jtaRef(); }
-    
 private:
     LeptonMap m_leptons;
-    edm::Ref<JetTagCollection> m_jetTag;
 
     LeptonMap::const_iterator find_iterator(size_t i) const {
         LeptonMap::const_iterator it = m_leptons.begin();
