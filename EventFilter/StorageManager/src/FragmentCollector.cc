@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.23 2007/01/07 18:06:14 klute Exp $
+// $Id: FragmentCollector.cc,v 1.24 2007/01/10 06:43:11 wmtan Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/test/SillyLockService.h"
@@ -11,6 +11,7 @@
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
+#include "IOPool/Streamer/interface/ProgressMarker.h"
 
 #include "boost/bind.hpp"
 
@@ -151,6 +152,7 @@ namespace stor
 
   void FragmentCollector::processEvent(FragEntry* entry)
   {
+    ProgressMarker::instance()->processing(true);
     if(entry->totalSegs_==1)
       {
 	FR_DEBUG << "FragColl: Got an Event with one segment" << endl;
@@ -256,6 +258,7 @@ namespace stor
 	// remove the entry from the map
 	fragment_area_.erase(rc.first);
       }
+    ProgressMarker::instance()->processing(false);
   }
   void FragmentCollector::processHeader(FragEntry* entry)
   {
