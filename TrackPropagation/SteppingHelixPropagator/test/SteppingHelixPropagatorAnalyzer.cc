@@ -17,7 +17,7 @@ positions of a muon in the detector.
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.8 2006/12/28 03:19:20 slava77 Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.9 2007/01/04 19:02:22 slava77 Exp $
 //
 //
 
@@ -388,7 +388,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 	  siDest = shPropCPtr->propagate(siStart, *igHit->surf);
 	  if (siDest.isValid()){
 	    siStart = siDest;
-	    ftsStart = *siStart.getStateOnSurface(*igHit->surf).freeState();
+	    siStart.getFreeState(ftsStart);
 	    getFromFTS(ftsStart, p3F, r3F, charge, covF);
 	    pStatus = 0;
 	  } else pStatus = 1;
