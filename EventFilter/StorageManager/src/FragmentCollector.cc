@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.22 2007/01/03 02:45:11 hcheung Exp $
+// $Id: FragmentCollector.cc,v 1.23 2007/01/07 18:06:14 klute Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/test/SillyLockService.h"
@@ -34,7 +34,7 @@ namespace stor
     frag_q_(&(h.getFragmentQueue())),
     buffer_deleter_(d),
     event_area_(1000*1000*7),
-    inserter_(*evtbuf_q_),
+    // inserter_(*evtbuf_q_),
     prods_(0),//prods_(&p),
 	info_(&h), 
     writer_(new edm::StreamerOutSrvcManager(config_str)),
@@ -52,7 +52,7 @@ namespace stor
     frag_q_(&(info.get()->getFragmentQueue())),
     buffer_deleter_(d),
     event_area_(1000*1000*7),
-    inserter_(*evtbuf_q_),
+    // inserter_(*evtbuf_q_),
     prods_(0),
 	info_(info.get()), 
     writer_(new edm::StreamerOutSrvcManager(config_str)),

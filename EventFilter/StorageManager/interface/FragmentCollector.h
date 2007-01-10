@@ -75,7 +75,7 @@ namespace stor
     Deleter buffer_deleter_;
     Buffer event_area_;
     Collection fragment_area_;
-    edm::EventInserter inserter_;
+    // edm::EventInserter inserter_;
     boost::shared_ptr<boost::thread> me_;
     const edm::ProductRegistry* prods_; // change to shared_ptr ? 
     stor::HLTInfo* info_;  // cannot be const when using EP_Runner?
