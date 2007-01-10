@@ -1,15 +1,16 @@
-// $Id: FileRecord.cc,v 1.4 2007/01/07 18:06:15 klute Exp $
+// $Id: FileRecord.cc,v 1.5 2007/01/07 18:26:17 klute Exp $
 
 #include "IOPool/Streamer/interface/FileRecord.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <iomanip>
+#include <sys/stat.h>
 
 using namespace edm;
 using namespace std;
-
 
 //
 // *** FileRecord
@@ -142,6 +143,30 @@ string FileRecord::timeStamp(double time)
 	       << setfill('0') << std::setw(2) << ptm->tm_sec;
   return timeStampStr.str();
 }
+
+
+void FileRecord::checkDirectories()
+{
+  checkDirectory(basePath());
+  checkDirectory(fileSystem());
+  checkDirectory(fileSystem()+"/open");
+  checkDirectory(fileSystem()+"/closed");
+  checkDirectory(mailBoxPath_);
+}
+
+
+void FileRecord::checkDirectory(string path)
+{
+  struct stat buf;
+
+  int retVal = stat(path.c_str(), &buf);
+  if(retVal !=0 )
+    {
+      edm::LogError("testStorageManager") << "Directory " << path
+					  << " does not exist. Error=" << errno ;
+    }
+}
+
 
 //
 // *** report status of FileRecord

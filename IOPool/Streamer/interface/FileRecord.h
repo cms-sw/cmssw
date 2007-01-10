@@ -1,7 +1,7 @@
 #ifndef FILERECORD_H
 #define FILERECORD_H
 
-// $Id: FileRecord.h,v 1.2 2006/12/09 16:35:52 hcheung Exp $
+// $Id: FileRecord.h,v 1.3 2007/01/07 18:06:15 klute Exp $
 #include <string>
 
 namespace edm {
@@ -23,6 +23,7 @@ namespace edm {
       void   lastEntry(double d)    { lastEntry_  = d; }
       void   increaseFileSize(int i){ fileSize_   += i; }
       void   increaseEventCount()   { events_++; }
+      void   checkDirectories();
 
       std::string fileName()             { return fileName_; }
       std::string basePath()             { return basePath_; }
@@ -58,6 +59,7 @@ namespace edm {
       double firstEntry_;                            // time when last event was writen
       double lastEntry_;                             // time when last event was writen
  
+      void   checkDirectory(std::string);
    };
 
  
