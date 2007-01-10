@@ -1,15 +1,15 @@
 /** \class SteppingHelixStateInfo
  *  Implementation part of the stepping helix propagator state data structure
  *
- *  $Date: 2006/12/28 03:28:05 $
- *  $Revision: 1.18 $
+ *  $Date: 2007/01/04 18:32:17 $
+ *  $Revision: 1.1 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.cc,v 1.18 2006/12/28 03:28:05 slava77 Exp $
+// $Id: SteppingHelixStateInfo.cc,v 1.1 2007/01/04 18:32:17 slava77 Exp $
 //
 //
 
@@ -35,13 +35,13 @@ SteppingHelixStateInfo::SteppingHelixStateInfo(const FreeTrajectoryState& fts){
 TrajectoryStateOnSurface SteppingHelixStateInfo::getStateOnSurface(const Surface& surf) const {
   if (! isValid()) return TrajectoryStateOnSurface();
   FreeTrajectoryState fts;
-  loadFreeState(fts);
+  getFreeState(fts);
 
   return TrajectoryStateOnSurface(fts, surf);
 }
 
 
-void SteppingHelixStateInfo::loadFreeState(FreeTrajectoryState& fts) const {
+void SteppingHelixStateInfo::getFreeState(FreeTrajectoryState& fts) const {
   if (isValid()){
     GlobalVector p3GV(p3.x(), p3.y(), p3.z());
     GlobalPoint r3GP(r3.x(), r3.y(), r3.z());

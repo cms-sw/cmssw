@@ -6,15 +6,15 @@
 /** \class SteppingHelixStateInfo
  *  Holder of SteppingHelixState information
  *
- *  $Date: 2006/12/28 03:28:05 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/01/04 18:32:18 $
+ *  $Revision: 1.1 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.h,v 1.9 2006/12/28 03:28:05 slava77 Exp $
+// $Id: SteppingHelixStateInfo.h,v 1.1 2007/01/04 18:32:18 slava77 Exp $
 //
 //
 
@@ -50,10 +50,16 @@ class SteppingHelixStateInfo {
 
   TrajectoryStateOnSurface getStateOnSurface(const Surface& surf) const;
 
+  ///convert internal structure into the fts
+  void getFreeState(FreeTrajectoryState& fts) const;
+
+  GlobalPoint position() const {return GlobalPoint(r3.x(), r3.y(), r3.z());}
+  GlobalVector momentum() const {return GlobalVector(p3.x(), p3.y(), p3.z());}
+  int charge() const {return q;}
+
   bool isValid() const {return isValidInfo;}
 
  protected:
-  void loadFreeState(FreeTrajectoryState& fts) const;
 
   int q;
   Vector p3;
