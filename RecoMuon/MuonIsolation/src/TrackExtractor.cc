@@ -31,7 +31,7 @@ void TrackExtractor::fillVetos (const edm::Event & ev, const edm::EventSetup & e
   for (unsigned int i=0; i<theVetoCollection->size(); i++) {
     Track mu = theVetoCollection->at(i);
     LogTrace(metname) << "Track to veto: pt= " << mu.pt() << ", eta= " 
-        << mu.eta() <<", phi= "<<mu.phi0();
+        << mu.eta() <<", phi= "<<mu.phi();
   }
   */
 
@@ -42,7 +42,7 @@ MuIsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & eve
   static std::string metname = "RecoMuon/TrackExtractor";
 
   double vtx_z = muon.vz();
-  Direction muonDir(muon.eta(), muon.phi0());
+  Direction muonDir(muon.eta(), muon.phi());
 
   Handle<TrackCollection> tracksH;
   event.getByLabel(theTrackCollectionLabel, tracksH);
@@ -61,15 +61,15 @@ MuIsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & eve
   TrackCollection::const_iterator tk;
   for (tk = sel_tracks.begin(); tk != sel_tracks.end(); tk++) {
     LogTrace(metname) << "This track has: pt= " << tk->pt() << ", eta= " 
-        << tk->eta() <<", phi= "<<tk->phi0();
+        << tk->eta() <<", phi= "<<tk->phi();
     bool veto_this_track = false;
-    Direction dirTrk(tk->eta(), tk->phi0());
+    Direction dirTrk(tk->eta(), tk->phi());
     LogTrace(metname) << "From direction: eta= " << dirTrk.eta() << ", phi= "<<dirTrk.phi();
     for (unsigned int i=0; i<theVetoCollection->size(); i++) {
             const Track tkveto = theVetoCollection->at(i);
-            Direction vetoDir(tkveto.eta(), tkveto.phi0());
+            Direction vetoDir(tkveto.eta(), tkveto.phi());
             float drveto = dirTrk.deltaR(vetoDir);
-            LogTrace(metname) << "Veto track has: pt= " << tkveto.pt() << ", eta= " << tkveto.eta() <<", phi= "<<tkveto.phi0();
+            LogTrace(metname) << "Veto track has: pt= " << tkveto.pt() << ", eta= " << tkveto.eta() <<", phi= "<<tkveto.phi();
             LogTrace(metname) << "From direction: eta= " << vetoDir.eta() << ", phi= "<<vetoDir.phi();
             LogTrace(metname) << "iveto= " << i <<", drveto= " << drveto;
             if (drveto<theDR_Veto) {

@@ -28,7 +28,7 @@ public:
   virtual reco::MuIsoDeposit deposit (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
 
   /// Extrapolate muons to calorimeter-object positions
-  static GlobalPoint MuonAtCaloPosition(const reco::Track& muon, const GlobalPoint& endpos, bool fixVxy=false, bool fixVz=false);
+  static GlobalPoint MuonAtCaloPosition(const reco::Track& muon, const double bz, const GlobalPoint& endpos, bool fixVxy=false, bool fixVz=false);
   
 private:
   // CaloTower Collection Label

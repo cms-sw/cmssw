@@ -10,6 +10,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -43,6 +44,10 @@ void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& ev
   edm::ESHandle<CaloGeometry> caloGeom;
   eventSetup.get<IdealGeometryRecord>().get(caloGeom);
 
+  edm::ESHandle<MagneticField> bField;
+  eventSetup.get<IdealMagneticFieldRecord>().get(bField);
+  double bz = bField->inInverseGeV(GlobalPoint(0.,0.,0.)).z();
+
   TrackCollection::const_iterator mu;
   CaloTowerCollection::const_iterator cal;
   for ( mu = muons.begin(); mu != muons.end(); ++mu ) {
@@ -58,7 +63,7 @@ void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& ev
 
             DetId calId = cal->id();
             GlobalPoint endpos = caloGeom->getPosition(calId);
-            GlobalPoint muatcal = MuonAtCaloPosition(*mu,endpos, vertexConstraintFlag_XY, vertexConstraintFlag_Z);
+            GlobalPoint muatcal = MuonAtCaloPosition(*mu,bz,endpos, vertexConstraintFlag_XY, vertexConstraintFlag_Z);
             double deltar = deltaR(muatcal,endpos);
 
             if (doEcal) {
@@ -81,6 +86,10 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
   edm::ESHandle<CaloGeometry> caloGeom;
   eventSetup.get<IdealGeometryRecord>().get(caloGeom);
 
+  edm::ESHandle<MagneticField> bField;
+  eventSetup.get<IdealMagneticFieldRecord>().get(bField);
+  double bz = bField->inInverseGeV(GlobalPoint(0.,0.,0.)).z();
+
   CaloTowerCollection::const_iterator cal;
   for ( cal = towers->begin(); cal != towers->end(); ++cal ) {
       double deltar0 = deltaR(muon,*cal);
@@ -94,7 +103,7 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
 
       DetId calId = cal->id();
       GlobalPoint endpos = caloGeom->getPosition(calId);
-      GlobalPoint muatcal = MuonAtCaloPosition(muon,endpos, vertexConstraintFlag_XY, vertexConstraintFlag_Z);
+      GlobalPoint muatcal = MuonAtCaloPosition(muon,bz,endpos,vertexConstraintFlag_XY, vertexConstraintFlag_Z);
       double deltar = deltaR(muatcal,endpos);
 
       if (deltar<theDR_Veto_H) {
@@ -148,10 +157,11 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
 
 }
 
-GlobalPoint CaloExtractor::MuonAtCaloPosition(const Track& muon, const GlobalPoint& endpos, bool fixVxy, bool fixVz) {
-      double cur = -muon.transverseCurvature();
-      double phi0 = muon.phi0();
-      double dca = - muon.d0();
+GlobalPoint CaloExtractor::MuonAtCaloPosition(const Track& muon, const double bz, const GlobalPoint& endpos, bool fixVxy, bool fixVz) {
+      double qoverp= muon.qoverp();
+      double cur = bz*muon.charge()/muon.pt();
+      double phi0 = muon.phi();
+      double dca = muon.dxy();
       double theta = muon.theta();
       double dz = muon.dz();
 
@@ -169,44 +179,44 @@ GlobalPoint CaloExtractor::MuonAtCaloPosition(const Track& muon, const GlobalPoi
       if (fixVxy && fixVz) {
             // Note that here we assume no correlation between XY and Z projections
             // This should be a reasonable approximation for our purposes
-            double errd02 = muon.covariance(muon.i_d0,muon.i_d0);
-            if (pow(muon.d0(),2)<4*errd02) {
-                  phi0  -= muon.d0()*muon.covariance(muon.i_d0,muon.i_phi0)
+            double errd02 = muon.covariance(muon.i_dxy,muon.i_dxy);
+            if (pow(muon.dxy(),2)<4*errd02) {
+                  phi0 -= muon.dxy()*muon.covariance(muon.i_dxy,muon.i_phi)
                                      /errd02;
-                  cur   += muon.d0()*muon.covariance(muon.i_d0,muon.i_transverseCurvature)
-                                     /errd02;
+                  cur -= muon.dxy()*muon.covariance(muon.i_dxy,muon.i_qoverp)
+                                     /errd02 * (cur/qoverp);
                   dca = 0;
             } 
-            double errdz2 = muon.covariance(muon.i_dz,muon.i_dz);
-            if (pow(muon.dz(),2)<4*errdz2) {
-                  theta -= muon.dz()*muon.covariance(muon.i_dz,muon.i_theta)
-                                     /errdz2;
+            double errdsz2 = muon.covariance(muon.i_dsz,muon.i_dsz);
+            if (pow(muon.dsz(),2)<4*errdsz2) {
+                  theta += muon.dsz()*muon.covariance(muon.i_dsz,muon.i_lambda)
+                                     /errdsz2;
                   dz = 0;
             } 
       } else if (fixVxy) {
-            double errd02 = muon.covariance(muon.i_d0,muon.i_d0);
-            if (pow(muon.d0(),2)<4*errd02) {
-                  phi0  -= muon.d0()*muon.covariance(muon.i_d0,muon.i_phi0)
+            double errd02 = muon.covariance(muon.i_dxy,muon.i_dxy);
+            if (pow(muon.dxy(),2)<4*errd02) {
+                  phi0  -= muon.dxy()*muon.covariance(muon.i_dxy,muon.i_phi)
                                      /errd02;
-                  cur   += muon.d0()*muon.covariance(muon.i_d0,muon.i_transverseCurvature)
+                  cur -= muon.dxy()*muon.covariance(muon.i_dxy,muon.i_qoverp)
+                                     /errd02 * (cur/qoverp);
+                  theta += muon.dxy()*muon.covariance(muon.i_dxy,muon.i_lambda)
                                      /errd02;
-                  theta -= muon.d0()*muon.covariance(muon.i_d0,muon.i_theta)
-                                     /errd02;
-                  dz    -= muon.d0()*muon.covariance(muon.i_d0,muon.i_dz)
-                                     /errd02;
+                  dz    -= muon.dxy()*muon.covariance(muon.i_dxy,muon.i_dsz)
+                                     /errd02 * muon.p()/muon.pt();
                   dca = 0;
             } 
       } else if (fixVz) {
-            double errdz2 = muon.covariance(muon.i_dz,muon.i_dz);
-            if (pow(muon.dz(),2)<4*errdz2) {
-                  theta -= muon.dz()*muon.covariance(muon.i_dz,muon.i_theta)
-                                     /errdz2;
-                  phi0  -= muon.dz()*muon.covariance(muon.i_dz,muon.i_phi0)
-                                     /errdz2;
-                  cur   += muon.dz()*muon.covariance(muon.i_dz,muon.i_transverseCurvature)
-                                     /errdz2;
-                  dca   += muon.dz()*muon.covariance(muon.i_dz,muon.i_d0)
-                                     /errdz2;
+            double errdsz2 = muon.covariance(muon.i_dsz,muon.i_dsz);
+            if (pow(muon.dsz(),2)<4*errdsz2) {
+                  theta += muon.dsz()*muon.covariance(muon.i_dsz,muon.i_lambda)
+                                     /errdsz2;
+                  phi0  -= muon.dsz()*muon.covariance(muon.i_dsz,muon.i_phi)
+                                     /errdsz2;
+                  cur -= muon.dsz()*muon.covariance(muon.i_dsz,muon.i_qoverp)
+                                     /errdsz2 * (cur/qoverp);
+                  dca   -= muon.dsz()*muon.covariance(muon.i_dsz,muon.i_dxy)
+                                     /errdsz2;
                   dz = 0;
             } 
       }
