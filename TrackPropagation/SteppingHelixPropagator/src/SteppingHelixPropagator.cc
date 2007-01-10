@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/01/04 19:00:05 $
- *  $Revision: 1.19 $
+ *  $Date: 2007/01/05 23:26:12 $
+ *  $Revision: 1.20 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.19 2007/01/04 19:00:05 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.20 2007/01/05 23:26:12 slava77 Exp $
 //
 //
 
@@ -117,7 +117,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   const StateInfo svCurrent = propagate(svBuf_[0], pDest);
 
   FreeTrajectoryState ftsDest;
-  svCurrent.loadFreeState(ftsDest);
+  svCurrent.getFreeState(ftsDest);
 
   return FtsPP(ftsDest, svCurrent.path);
 }
@@ -132,7 +132,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   const StateInfo svCurrent = propagate(svBuf_[0], pDest1, pDest2);
 
   FreeTrajectoryState ftsDest;
-  svCurrent.loadFreeState(ftsDest);
+  svCurrent.getFreeState(ftsDest);
 
   return FtsPP(ftsDest, svCurrent.path);
 }
@@ -310,13 +310,13 @@ SteppingHelixPropagator::Result
 SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type, 
 				   const double pars[6], double epsilon)  const{
 
-  StateInfo& svCurrent = svBuf_[cIndex_(nPoints_-1)];
+  StateInfo* svCurrent = &svBuf_[cIndex_(nPoints_-1)];
 
   //check if it's going to work at all
   double tanDist = 0;
   double dist = 0;
   PropagationDirection refDirection = anyDirection;
-  Result result = refToDest(type, svCurrent, pars, dist, tanDist, refDirection);
+  Result result = refToDest(type, (*svCurrent), pars, dist, tanDist, refDirection);
 
   if (result != OK ) return result;
 
@@ -333,11 +333,11 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
   
   while (makeNextStep){
     dStep = 1.;
-    svCurrent = svBuf_[cIndex_(nPoints_-1)];
-    double curZ = svCurrent.r3.z();
-    double curR = svCurrent.r3.perp();
+    svCurrent = &svBuf_[cIndex_(nPoints_-1)];
+    double curZ = svCurrent->r3.z();
+    double curR = svCurrent->r3.perp();
     refDirection = propagationDirection();
-    refToDest(type, svCurrent, pars, dist, tanDist, refDirection);
+    refToDest(type, (*svCurrent), pars, dist, tanDist, refDirection);
 
     if (propagationDirection() == anyDirection){
       dir = refDirection;
@@ -345,10 +345,10 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       dir = propagationDirection();
     }
     if (useMagVolumes_){//need to know the general direction
-      refToMagVolume(svCurrent, dir, distMag, tanDistMag);
+      refToMagVolume((*svCurrent), dir, distMag, tanDistMag);
     }
 
-    double rDotP = svCurrent.r3.dot(svCurrent.p3);
+    double rDotP = svCurrent->r3.dot(svCurrent->p3);
     if ((fabs(curZ) > 1.5e3 || curR >800.) 
 	&& ((dir == alongMomentum && rDotP > 0) 
 	    || (dir == oppositeToMomentum && rDotP < 0) )
@@ -363,9 +363,9 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       }
     }
     if (dStep > 1e-10){
-      StateInfo& svNext = svBuf_[cIndex_(nPoints_)];
-      makeAtomStep(svCurrent, svNext, dStep, dir, HEL_AS_F);
-      nPoints_++;    svCurrent = svBuf_[cIndex_(nPoints_-1)];
+      StateInfo* svNext = &svBuf_[cIndex_(nPoints_)];
+      makeAtomStep((*svCurrent), (*svNext), dStep, dir, HEL_AS_F);
+      nPoints_++;    svCurrent = &svBuf_[cIndex_(nPoints_-1)];
     }
     if (oldDir != dir) nOsc++;
     oldDir = dir;
@@ -378,12 +378,12 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       double nextDist = 0;
       double nextTanDist = 0;
       PropagationDirection nextRefDirection = anyDirection;
-      StateInfo& svNext = svBuf_[cIndex_(nPoints_)];
-      makeAtomStep(svCurrent, svNext, 1., dir, HEL_AS_F);
-      nPoints_++;     svCurrent = svBuf_[cIndex_(nPoints_-1)];
-      refToDest(type, svCurrent, pars, nextDist, nextTanDist, nextRefDirection);
+      StateInfo* svNext = &svBuf_[cIndex_(nPoints_)];
+      makeAtomStep((*svCurrent), (*svNext), 1., dir, HEL_AS_F);
+      nPoints_++;     svCurrent = &svBuf_[cIndex_(nPoints_-1)];
+      refToDest(type, (*svCurrent), pars, nextDist, nextTanDist, nextRefDirection);
       if ( fabs(nextDist) > fabs(dist)){
-	nPoints_--;      svCurrent = svBuf_[cIndex_(nPoints_-1)];
+	nPoints_--;      svCurrent = &svBuf_[cIndex_(nPoints_-1)];
 	result = OK;
 	if (debug_){
 	  std::cout<<"Found real local minimum in PCA"<<std::endl;
@@ -399,7 +399,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 
     if (nPoints_ > MAX_STEPS || nOsc > 6) result = FAULT;
 
-    if (svCurrent.p3.mag() < 0.1 ) result = RANGEOUT;
+    if (svCurrent->p3.mag() < 0.1 ) result = RANGEOUT;
 
     if ( curR > 20000 || fabs(curZ) > 20000 ) result = INACC;
 
@@ -441,7 +441,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       std::cout<<"going to NOT IMPLEMENTED"<<std::endl;
       break;
     }
-    std::cout<<"Made "<<nPoints_-1<<" steps and stopped at(cur step) "<<svCurrent.r3<<std::endl;
+    std::cout<<"Made "<<nPoints_-1<<" steps and stopped at(cur step) "<<svCurrent->r3<<std::endl;
   }
   
   return result;
