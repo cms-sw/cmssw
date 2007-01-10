@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.16 2006/12/23 20:55:25 wmtan Exp $
+$Id: RootFile.h,v 1.17 2006/12/28 00:24:12 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -38,6 +38,7 @@ namespace edm {
     typedef boost::array<RootTree *, EndBranchType> RootTreePtrArray;
     explicit RootFile(std::string const& fileName,
 		      std::string const& catalogName,
+		      ProcessConfiguration const& processConfiguration,
 		      std::string const& logicalFileName = std::string());
     ~RootFile();
     void open();
@@ -65,6 +66,7 @@ namespace edm {
     std::string const file_;
     std::string const logicalFile_;
     std::string const catalog_;
+    ProcessConfiguration const& processConfiguration_;
     boost::shared_ptr<TFile> filePtr_;
     FileFormatVersion fileFormatVersion_;
     JobReport::Token reportToken_;

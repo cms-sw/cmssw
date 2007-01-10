@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.38 2006/10/24 20:29:02 wmtan Exp $
+$Id: PoolSource.cc,v 1.39 2006/12/23 03:16:11 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "IOPool/Input/src/PoolSource.h"
 #include "IOPool/Input/src/RootFile.h"
@@ -70,7 +70,8 @@ namespace edm {
 
   void PoolSource::init(FileCatalogItem const& file) {
     TTree::SetMaxTreeSize(kMaxLong64);
-    rootFile_ = RootFileSharedPtr(new RootFile(file.fileName(), catalog().url(), file.logicalFileName()));
+    rootFile_ = RootFileSharedPtr(new RootFile(file.fileName(), catalog().url(),
+	processConfiguration(), file.logicalFileName()));
   }
 
   void PoolSource::updateProductRegistry() const {

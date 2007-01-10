@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.49 2006/12/30 16:54:43 wmtan Exp $
+$Id: RootFile.cc,v 1.50 2007/01/03 16:08:24 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -26,10 +26,12 @@ namespace edm {
 //---------------------------------------------------------------------
   RootFile::RootFile(std::string const& fileName,
 		     std::string const& catalogName,
+		     ProcessConfiguration const& processConfiguration,
 		     std::string const& logicalFileName) :
       file_(fileName),
       logicalFile_(logicalFileName),
       catalog_(catalogName),
+      processConfiguration_(processConfiguration),
       filePtr_(file_.empty() ? 0 : TFile::Open(file_.c_str())),
       fileFormatVersion_(),
       reportToken_(0),
@@ -184,7 +186,7 @@ namespace edm {
     // We're not done ... so prepare the EventPrincipal
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
                 eventID(), evAux.time(), pReg,
-		luminosityBlockPrincipal_,
+		luminosityBlockPrincipal_, processConfiguration_,
 		evAux.processHistoryID_, eventTree().makeDelayedReader()));
 
     // Create a group in the event for each product
@@ -199,7 +201,7 @@ namespace edm {
   boost::shared_ptr<RunPrincipal const>
   RootFile::readRun(ProductRegistry const& pReg, RunNumber_t const& runNumber) {
     if (!runTree().isValid()) {
-      return boost::shared_ptr<RunPrincipal const>(new RunPrincipal(runNumber, pReg));
+      return boost::shared_ptr<RunPrincipal const>(new RunPrincipal(runNumber, pReg, processConfiguration_));
     }
     RootTree::EntryNumber entry = runTree().getExactEntryNumber(runNumber, 0);
     if (entry < 0) {
@@ -211,7 +213,7 @@ namespace edm {
     RunAux *pRunAux = &runAux;
     runTree().fillAux<RunAux>(pRunAux);
     assert(runNumber == runAux.id());
-    boost::shared_ptr<RunPrincipal> thisRun(new RunPrincipal(runNumber, pReg,
+    boost::shared_ptr<RunPrincipal> thisRun(new RunPrincipal(runNumber, pReg, processConfiguration_,
 		runAux.processHistoryID_, runTree().makeDelayedReader()));
     // Create a group in the run for each product
     runTree().fillGroups(thisRun->groupGetter());
@@ -227,7 +229,7 @@ namespace edm {
 	luminosityBlockPrincipal_->runPrincipalConstSharedPtr());
     if (!lumiTree().isValid()) {
       return boost::shared_ptr<LuminosityBlockPrincipal const>(
-	new LuminosityBlockPrincipal(lumiID, pReg, runPrincipal));
+	new LuminosityBlockPrincipal(lumiID, pReg, runPrincipal, processConfiguration_));
     }
     RootTree::EntryNumber entry = lumiTree().getExactEntryNumber(runNumber, lumiID);
     if (entry < 0) {
@@ -241,7 +243,7 @@ namespace edm {
     assert(lumiID == lumiAux.id());
     assert(runNumber == lumiAux.runID());
     boost::shared_ptr<LuminosityBlockPrincipal> thisLumi(
-	new LuminosityBlockPrincipal(lumiID, pReg, runPrincipal,
+	new LuminosityBlockPrincipal(lumiID, pReg, runPrincipal, processConfiguration_,
 		lumiAux.processHistoryID_, lumiTree().makeDelayedReader()));
     // Create a group in the lumi for each product
     lumiTree().fillGroups(thisLumi->groupGetter());
