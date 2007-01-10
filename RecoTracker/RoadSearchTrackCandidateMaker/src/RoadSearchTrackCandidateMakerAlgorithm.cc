@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2006/11/07 16:09:03 $
-// $Revision: 1.21 $
+// $Author: gutsche $
+// $Date: 2006/11/08 14:25:51 $
+// $Revision: 1.22 $
 //
 
 #include <vector>
@@ -77,7 +77,11 @@ RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(c
   theEstimator = new Chi2MeasurementEstimator(theChi2Cut);
   theUpdator = new KFUpdator();
  
-  debug_ = false;
+  NoFieldCosmic_  = conf_.getParameter<bool>("StraightLineNoBeamSpotCloud");
+  MinChunkLength_ = conf_.getParameter<int>("MinimumChunkLength");
+  nFoundMin_      = conf_.getParameter<int>("nFoundMin");
+  
+  debug_ = true;
 
 }
 
@@ -135,9 +139,8 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
   AnalyticalPropagator prop(magField,anyDirection);
   TrajectoryStateTransform transformer;
 
-
   KFTrajectorySmoother theSmoother(*theRevPropagator, *theUpdator, *theEstimator);
-
+  
   LogDebug("RoadSearch") << "Clean Clouds input size: " << input->size();
   if (debug_) std::cout << std::endl << std::endl
 	    << "*** NEW EVENT: Clean Clouds input size: " << input->size() << std::endl;
@@ -248,9 +251,9 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     set<const DetLayer*> prev_layers;
 
     //const int min_chunk_length = 5;
-    const int min_chunk_length = 7;
+    //const int min_chunk_length = 7;
 
-    for (int ilayer0 = 0; ilayer0 <= nlayers-min_chunk_length; ++ilayer0) {
+    for (int ilayer0 = 0; ilayer0 <= nlayers-MinChunkLength_; ++ilayer0) {
 
       vector<Trajectory> ChunkTrajectories;
       vector<Trajectory> CleanChunks;
@@ -296,19 +299,19 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       }
       if (debug_) cout << std::endl;
 
-
-      // consider the best nfound_min layers + other layers with only one hit
+      
+      // consider the best nFoundMin layers + other layers with only one hit
 
       // This has implications, based on the way we locate the hits.  
       // For now, use only the low occupancy layers in the first pass
       //const int nfound_min = min_chunk_length-1;
-      const int nfound_min = 4;
+      //const int nfound_min = 4;
       multimap<int, const DetLayer*>::iterator ilm = layer_map.begin();
       int ngoodlayers = 0;
       while (ilm != layer_map.end()) {
-        //if (ngoodlayers >= nfound_min && ilm->first > 1) break;
+        //if (ngoodlayers >= nFoundMin && ilm->first > 1) break;
         if (ilm->first > 1) break;
-        map<const DetLayer*, int>::iterator ilr = layer_reference.find(ilm->second);
+        //map<const DetLayer*, int>::iterator ilr = layer_reference.find(ilm->second);
 	//std::cout<<"Layer " << ilr->second << " with " << ilm->first << " hits added " << std::endl;
         ++ngoodlayers;
         ++ilm;
@@ -332,7 +335,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
         // only use useful layers
         if (good_layers.find(layers[ilayer]) == good_layers.end()) continue;
         // only use stereo layers
-        if (!lstereo[ilayer]) continue;
+	if (!NoFieldCosmic_ && !lstereo[ilayer]) continue;
         middle_layers[n_middle_layers] = layers[ilayer];
         if (++n_middle_layers >= max_middle_layers) break;
       }
@@ -397,7 +400,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           // hits should be reasonably separated in r
           const double dRmin = 0.1; // cm
           if (outer.perp() - inner.perp() < dRmin) continue;
-          GlobalPoint vertexPos(0,0,0);
+          //GlobalPoint vertexPos(0,0,0);
           const double dr2 = 0.0015*0.0015;
           const double dz2 = 5.3*5.3;
           GlobalError vertexErr(dr2,
@@ -407,8 +410,25 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           //FastHelix helix(outerHit.globalPosition(),
           //              innerHit.globalPosition(),
           //              vtx.position());
-          FastHelix helix(outer, inner, vertexPos, es);
-          if (!helix.isValid()) continue;
+
+	  double x0=0.0,y0=0.0,z0=0.0;
+	  if (NoFieldCosmic_){
+	    double phi0=atan2(outer.y()-inner.y(),outer.x()-inner.x());
+	    double alpha=atan2(inner.y(),inner.x());
+	    double d1=sqrt(inner.x()*inner.x()+inner.y()*inner.y());
+	    double d0=-d1*sin(alpha-phi0); x0=d0*sin(phi0); y0=-d0*cos(phi0);
+	    double l1=0.0,l2=0.0;
+	    if (fabs(cos(phi0))>0.1){
+	      l1=(inner.x()-x0)/cos(phi0);l2=(outer.x()-x0)/cos(phi0);
+	    }else{
+	      l1=(inner.y()-y0)/sin(phi0);l2=(outer.y()-y0)/sin(phi0);
+	    }
+	    z0=(l2*inner.z()-l1*outer.z())/(l2-l1);
+	  }
+          //FastHelix helix(outer, inner, vertexPos, es);
+	  FastHelix helix(outer, inner, GlobalPoint(x0,y0,z0), es);
+	  if (!NoFieldCosmic_ && !helix.isValid()) continue;
+	  
           AlgebraicSymMatrix C(5,1);
           float zErr = vertexErr.czz();
           float transverseErr = vertexErr.cxx(); // assume equal cxx cyy
@@ -562,7 +582,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 		cout<<endl;
 	    }
 	    */
-            if ((int)used_layers.size() < nfound_min) continue;
+            if ((int)used_layers.size() < nFoundMin_) continue;
             int nlostlayers = ngoodlayers - used_layers.size();
             const int nlost_max = 2;
             if (nlostlayers > nlost_max) continue;
