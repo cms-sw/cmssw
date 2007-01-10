@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.9 2006/12/20 23:21:49 paterno Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.10 2006/12/23 03:07:06 wmtan Exp $
 //
 
 // system include files
@@ -30,6 +30,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
+#include "DataFormats/Common/interface/ProcessConfiguration.h"
 #include "DataFormats/Common/interface/ProcessHistory.h"
 #include "DataFormats/Common/interface/EventAux.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -264,7 +265,9 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 
       try {
 	 m_->reader_->setEntry(iEntry);
-	 edm::EventPrincipal ep(aux.id(), aux.time(), m_->reg_, aux.processHistoryID(), m_->reader_);
+	 edm::ProcessConfiguration pc;
+	 edm::EventPrincipal ep(aux.id(), aux.time(), m_->reg_,
+	     pc, aux.processHistoryID(), m_->reader_);
          m_->processNames_ = ep.processHistory();
 
 	 using namespace edm;
