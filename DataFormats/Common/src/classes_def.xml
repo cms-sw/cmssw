@@ -41,6 +41,7 @@
  <class name="std::vector<char>"/>
  <class name="std::vector<unsigned char>"/>
  <class name="std::vector<bool>"/>
+ <class name="std::vector<std::pair<std::basic_string<char>,double> >"/>
  <class name="std::pair<int,int>"/>
  <class name="std::pair<unsigned long,unsigned long>"/>
  <class name="std::pair<unsigned int,unsigned int>"/>
@@ -49,6 +50,9 @@
  <class name="std::pair<unsigned int,bool>"/>
  <class name="std::pair<double,double>"/>
  <class name="std::pair<unsigned long long,std::basic_string<char> >"/>
+ <class name="std::pair<std::basic_string<char>,double>"/>
+ <class name="std::pair<std::basic_string<char>,int>"/>
+ <class name="std::pair<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > >"/>
  <class name="std::multimap<double,double>"/>
  <class name="std::map<unsigned int,bool>"/>
  <class name="std::map<int,int>"/>
@@ -60,6 +64,8 @@
  <class name="std::map<unsigned int,std::vector<unsigned int> >"/>
  <class name="std::map<unsigned short,std::vector<unsigned short> >"/>
  <class name="std::map<unsigned long long,std::basic_string<char> >"/>
+ <class name="std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > >"/>
+ <class name="std::map<std::basic_string<char>,int>"/>
  <class name="std::set<std::basic_string<char> >"/>
  <class name="edm::Wrapper<std::basic_string<char> >"/>
  <class name="edm::Wrapper<float>"/>
