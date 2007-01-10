@@ -1,10 +1,11 @@
-// $Id: GroupSelector.cc,v 1.20 2006/08/31 23:26:24 wmtan Exp $
+// $Id: GroupSelector.cc,v 1.21 2006/12/19 00:28:56 wmtan Exp $
 
 #include <algorithm>
 #include <iterator>
 #include <ostream>
 #include <string>
 #include <vector>
+#include <cctype>
 
 #include "boost/algorithm/string.hpp"
 
@@ -30,20 +31,22 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
     //--------------------------------------------------
     // function partial_match is a helper for Rule. It encodes the
     // matching of strings, and knows about wildcarding rules.
-    // N.B.: an empty rulestring matches *everything*.
     inline
     bool
-    partial_match(string const& rulestring,
-  		string const& branchstring)
+    partial_match(const boost::regex& regularExpression,
+  		  const string& branchstring)
     {
-      return rulestring.empty() ? true : rulestring == branchstring;    
+      if (regularExpression.empty()) {
+        if (branchstring == "") return true;
+        else return false;
+      }
+      return boost::regex_match(branchstring, regularExpression);
     }
-  
   }
   //--------------------------------------------------  
   // Class Rule is used to determine whether or not a given branch
   // (really a Group, as described by the BranchDescription object
-  // that specifes that Group) matches a 'rule' specified by the
+  // that specifies that Group) matches a 'rule' specified by the
   // configuration. Each Rule is configured with a single string from
   // the configuration file.
   //
@@ -56,13 +59,14 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
   //
   //   <product type>_<module label>_<instance name>_<process name>
   //
-  // with the abbreviations allowed branch names (see
-  // FWCore/Framework/src/BranchDescription.cc for details). The
-  // wildcard '*' is used to indicate that all values are to be
-  // matched in the field in which the wildcard appears.  The full
-  // four-field pattern must be specified, except in the special case
-  // of the configuration string '*', which is converted to '*_*_*_*',
-  // which matches everything.
+  // The 3 underscores must always be present.  The four fields can
+  // be empty or composed of alphanumeric characters.  "*" is an
+  // allowed wildcard that will match 0 or more of any characters.
+  // "?" is the other allowed wilcard that will match exactly one
+  // character.  There is one exception to this, the entire '<spec>'
+  // can be one single "*" without any underscores and this is
+  // interpreted as "*_*_*_*".  Anything else will lead to an exception
+  // being thrown.
   //
   // This class has much room for optimization. This should be
   // revisited as soon as profiling data are available.
@@ -74,26 +78,39 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
     instanceName_(),
     processName_()
   {
-    // Configuration strings are of the form:
-    //   'keep|drop  T_M_U_P'     or
-    //   'keep|drop  *'
-    //
     if (s.size() < 6)
       throw edm::Exception(edm::errors::Configuration)
-	<< "Command must specify 'keep' or 'drop',  and supply a pattern"
-	<< "to match\n"
-	<< "invalid output configuration rule: " 
-	<< s;
+        << "Invalid statement in configuration file\n"
+        << "In OutputModule parameter named 'outputCommands'\n"
+        << "Rule must have at least 6 characters because it must\n"
+        << "specify 'keep ' or 'drop ' and also supply a pattern.\n"
+	<< "This is the invalid output configuration rule:\n" 
+	<< "    " << s << "\n"
+        << "Exception thrown from GroupSelector::Rule::Rule\n";
 
     if (s.substr(0,4) == "keep")
       writeflag_ = true;
     else if (s.substr(0,4) == "drop")
       writeflag_ = false;
     else
-      throw edm::Exception(edm::errors::Configuration,
-			   "Command must specify 'keep' or 'drop'")
-	<< "invalid output configuration rule: " 
-	<< s;    
+      throw edm::Exception(edm::errors::Configuration)
+        << "Invalid statement in configuration file\n"
+        << "In OutputModule parameter named 'outputCommands'\n"
+        << "Rule must specify 'keep ' or 'drop ' and also supply a pattern.\n"
+	<< "This is the invalid output configuration rule:\n" 
+	<< "    " << s << "\n"
+        << "Exception thrown from GroupSelector::Rule::Rule\n";
+
+    if ( !std::isspace(s[4]) ) {
+
+      throw edm::Exception(edm::errors::Configuration)
+        << "Invalid statement in configuration file\n"
+        << "In OutputModule parameter named 'outputCommands'\n"
+        << "In each rule, 'keep' or 'drop' must be followed by a space\n"
+	<< "This is the invalid output configuration rule:\n" 
+	<< "    " << s << "\n"
+        << "Exception thrown from GroupSelector::Rule::Rule\n";
+    }
 
     // Now pull apart the string to get at the bits and pieces of the
     // specification...
@@ -106,36 +123,68 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
     boost::trim(spec);
 
     if (spec == "*") // special case for wildcard
-      {
-	return; // we're done: all string data members are empty
-      }
+    {
+      productType_  = ".*";
+      moduleLabel_  = ".*";
+      instanceName_ = ".*";
+      processName_  = ".*";
+      return;
+    }
     else
+    {
+      vector<string> parts;
+      boost::split(parts, spec, boost::is_any_of("_"));
+
+      // The vector must contain at least 4 parts
+      // and none may be empty.
+      bool good = (parts.size() == 4);
+
+      // Require all the strings to contain only alphanumberic
+      // characters or "*" or "?"
+      if (good) 
       {
-	vector<string> parts;
-	boost::split(parts, spec, boost::is_any_of("_"));
+        for (int i = 0; i < 4; ++i) {
+	  std::string& field = parts[i];
+          int size = field.size();
+          for (int j = 0; j < size; ++j) {
+            if ( !(isalnum(field[j]) || field[j] == '*' || field[j] == '?') ) {
+              good = false;
+            }
+          }
 
-	// The vector must contain at least 4 parts
-	// and none may be empty.
-	bool good = (parts.size() == 4);
-	if (good) 
-	  {
-	    for (int i = 0; i < 4; ++i) good &= !parts[i].empty();
-	  }
-
-	if (!good)
-	  {
-	    throw edm::Exception(edm::errors::Configuration)
-	      << "Branch specification must be either '*'\n"
-	      << "or have the four-part form <T>_<M>_<I>_<P>\n"
-	      << "invalid output configuration rule: "
-	      << s;
-	  }
-	
-	if (parts[0] != "*") productType_  = parts[0];
-	if (parts[1] != "*") moduleLabel_  = parts[1];
-	if (parts[2] != "*") instanceName_ = parts[2];
-	if (parts[3] != "*") processName_  = parts[3];
+          // We are using the boost regex library to deal with the wildcards.
+          // The configuration file uses a syntax that accepts "*" and "?"
+          // as wildcards so we need to convert these to the syntax used in
+          // regular expressions.
+          boost::replace_all(parts[i], "*", ".*");
+          boost::replace_all(parts[i], "?", ".");
+        }
       }
+
+      if (!good)
+      {
+      throw edm::Exception(edm::errors::Configuration)
+        << "Invalid statement in configuration file\n"
+        << "In OutputModule parameter named 'outputCommands'\n"
+        << "In each rule, after 'keep ' or 'drop ' there must\n"
+        << "be a branch specification of the form 'type_label_instance_process'\n"
+        << "There must be 4 fields separated by underscores\n"
+        << "The fields can only contain alphanumeric characters and the wildcards * or ?\n"
+        << "Alternately, a single * is also allowed for the branch specification\n"
+	<< "This is the invalid output configuration rule:\n" 
+	<< "    " << s << "\n"
+        << "Exception thrown from GroupSelector::Rule::Rule\n";
+      }
+
+      // Assign the strings to the regex (regular expression) objects
+      // If the string is empty we skip the assignment and leave
+      // the regular expression also empty.
+
+      if (parts[0] != "") productType_  = parts[0];
+      if (parts[1] != "") moduleLabel_  = parts[1];
+      if (parts[2] != "") instanceName_ = parts[2];
+      if (parts[3] != "") processName_  = parts[3];
+    }
   }
 
   void

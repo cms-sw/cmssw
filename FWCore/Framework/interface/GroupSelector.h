@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: GroupSelector.h,v 1.9 2006/01/11 00:21:31 paterno Exp $
+// $Id: GroupSelector.h,v 1.10 2006/04/15 04:45:42 wmtan Exp $
 //
 // Class GroupSelector. Class for user to select specific groups in event.
 //
@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 
+#include <boost/regex.hpp>
 
 namespace edm {
   class BranchDescription;
@@ -83,10 +84,10 @@ namespace edm {
       // writeflag_ carries the value to which we should set the 'write
       // bit' if this rule matches.
       bool   writeflag_;
-      std::string productType_;
-      std::string moduleLabel_;
-      std::string instanceName_;
-      std::string processName_;
+      boost::regex productType_;
+      boost::regex moduleLabel_;
+      boost::regex instanceName_;
+      boost::regex processName_;
     };
 
    void fill_rules(edm::ParameterSet const& params);
