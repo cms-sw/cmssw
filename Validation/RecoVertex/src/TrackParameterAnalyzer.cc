@@ -97,8 +97,8 @@ void TrackParameterAnalyzer::endJob() {
 }
 
 // helper function
-bool TrackParameterAnalyzer::match(const PerigeeTrajectoryParameters::ParameterVector  &a, 
-				   const PerigeeTrajectoryParameters::ParameterVector  &b){
+bool TrackParameterAnalyzer::match(const ParameterVector  &a, 
+				   const ParameterVector  &b){
   double dtheta=a(1)-b(1);
   double dphi  =a(2)-b(2);
   if (dphi>M_PI){ dphi-=M_2_PI; }else if(dphi<-M_PI){dphi+=M_2_PI;}
@@ -133,7 +133,7 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    iEvent.getByLabel( simG4_, simTrks);
    
    if(verbose_){std::cout << "simtrks " << simTrks->size() << std::endl;}
-   std::vector<PerigeeTrajectoryParameters::ParameterVector > tsim;
+   std::vector<ParameterVector > tsim;
    for(edm::SimTrackContainer::const_iterator t=simTrks->begin();
        t!=simTrks->end(); ++t){
      if (t->noVertex()){
@@ -177,7 +177,7 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	       double ks02=(kappa*s0)*(kappa*s0);
 	       s1=s0*(1.+ks02/6.+3./40.*ks02*ks02+5./112.*pow(ks02,3));
 	     }
-	     PerigeeTrajectoryParameters::ParameterVector par;
+	     ParameterVector par;
 	     /*
 	     par[reco::TrackBase::i_transverseCurvature] = kappa;
 	     par[reco::TrackBase::i_theta] = p.theta();
@@ -206,12 +206,13 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
    for(reco::TrackCollection::const_iterator t=recTracks->begin();
        t!=recTracks->end(); ++t){
-     PerigeeTrajectoryParameters::ParameterVector  p = t->parameters();
-     PerigeeTrajectoryError::CovarianceMatrix c = t->covariance();
+     reco::TrackBase::ParameterVector  p = t->parameters();
+     reco::TrackBase::CovarianceMatrix c = t->covariance();
      if(verbose_){
-       std::cout << "z0=" << p(4) << std::endl;
+       std::cout << "reco pars= " << p << std::endl;
+       //std::cout << "z0=" << p(4) << std::endl;
      }
-     for(std::vector<PerigeeTrajectoryParameters::ParameterVector>::const_iterator s=tsim.begin();
+     for(std::vector<ParameterVector>::const_iterator s=tsim.begin();
 	 s!=tsim.end(); ++s){
        if (match(*s,p)){
 	 //if(verbose_){ std::cout << "match found" << std::endl;}

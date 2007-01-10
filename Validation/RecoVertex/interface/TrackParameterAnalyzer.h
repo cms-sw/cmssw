@@ -13,7 +13,7 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: TrackParameterAnalyzer.h,v 1.5 2006/11/28 09:48:07 werdmann Exp $
+// $Id: TrackParameterAnalyzer.h,v 1.6 2007/01/09 13:24:56 werdmann Exp $
 //
 //
 
@@ -63,6 +63,7 @@
 
 // class declaration
 //
+typedef reco::TrackBase::ParameterVector ParameterVector;
 
 class TrackParameterAnalyzer : public edm::EDAnalyzer {
    public:
@@ -74,8 +75,7 @@ class TrackParameterAnalyzer : public edm::EDAnalyzer {
       virtual void endJob();
 
    private:
-       bool match(const PerigeeTrajectoryParameters::ParameterVector  &a, 
-		  const PerigeeTrajectoryParameters::ParameterVector  &b);
+       bool match(const ParameterVector  &a, const ParameterVector &b);
       // ----------member data ---------------------------
       std::string recoTrackProducer_;
       // root file to store histograms
