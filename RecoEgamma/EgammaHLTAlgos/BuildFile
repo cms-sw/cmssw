@@ -8,7 +8,6 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=RecoTracker/MeasurementDet>
-<use name=RecoTracker/RoadSearchHelixMaker>
 <use name=RecoTracker/TkSeedGenerator>
 <use name=RecoTracker/TkDetLayers>
 <use name=RecoTracker/TkNavigation>
@@ -29,7 +28,6 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=RecoTracker/MeasurementDet>
-<use name=RecoTracker/RoadSearchHelixMaker>
 <use name=RecoTracker/TkSeedGenerator>
 <use name=RecoTracker/TkDetLayers>
 <use name=RecoTracker/TkNavigation>
