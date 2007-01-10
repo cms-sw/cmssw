@@ -73,9 +73,7 @@ private:
   /// pointer to opened TFile
   TFile * file_;
   // set current directory according to module name and prepair to create directory
-  void preModuleConstructor( const edm::ModuleDescription & desc );
-  // set current directory according to module name
-  void preModule( const edm::ModuleDescription & desc );
+  void setDirectoryName( const edm::ModuleDescription & desc );
   // current module label
   std::string currentModuleLabel_, currentModulenName_;
   /// change (and possibly create) to current directory

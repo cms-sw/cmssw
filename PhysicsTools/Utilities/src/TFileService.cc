@@ -11,8 +11,8 @@ using namespace edm;
 
 TFileService::TFileService( const ParameterSet & cfg, ActivityRegistry & r ) :
   file_( new TFile( cfg.getParameter<string>( "fileName" ).c_str() , "RECREATE" ) ) {
-  r.watchPreModuleConstruction( this, & TFileService::preModuleConstructor ); 
-  r.watchPreModule( this, & TFileService::preModule ); 
+  r.watchPreModuleConstruction( this, & TFileService::setDirectoryName ); 
+  r.watchPreModule( this, & TFileService::setDirectoryName ); 
   /// pre module begin should be added. Available in CVS head...
 }
 
@@ -22,12 +22,7 @@ TFileService::~TFileService() {
   delete file_;
 }
 
-void TFileService::preModuleConstructor( const ModuleDescription & desc ) {
-  currentModuleLabel_ = desc.moduleLabel_;
-  currentModulenName_ = desc.moduleName_;
-}
-
-void TFileService::preModule( const ModuleDescription & desc ) {
+void TFileService::setDirectoryName( const ModuleDescription & desc ) {
   currentModuleLabel_ = desc.moduleLabel_;
   currentModulenName_ = desc.moduleName_;
 }
