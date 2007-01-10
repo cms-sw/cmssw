@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/10/11 14:14:57 $
- *  $Revision: 1.32 $
+ *  $Date: 2006/10/11 17:24:34 $
+ *  $Revision: 1.33 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -351,10 +351,10 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 						  << "\t at event: " << (*itEventBlock)->getDataField("LV1");
 		    
 		    int  sm = 1; // hardcoded because of test  beam
-		    for (int StripInTower_ =1;  StripInTower_ < 5; StripInTower_++){
-		      for (int  CryInStrip_ =1;  CryInStrip_ < 5; CryInStrip_++){
+		    for (int StripInTower_ =1;  StripInTower_ < 6; StripInTower_++){
+		      for (int  CryInStrip_ =1;  CryInStrip_ < 6; CryInStrip_++){
 			int  ic        = cryIc(tower, StripInTower_,  CryInStrip_) ;
-			EBDetId  idExp(sm, ic,1);
+			EBDetId               idExp(sm, ic,1);
 			chidcollection.push_back(idExp);
 		      }
 		    }
@@ -362,10 +362,11 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		    expCryInTower = cryInTower +1;
 		    continue;
 		    
-		  }
+		  }// end else
 		
-	      }// if zero supression
+	      }// end   if zero supression
 	    
+
 
 	    else {
 	      
@@ -387,6 +388,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		  // report on wrong channel id
 		  chidcollection.push_back(idExp);
 		  
+		  expCryInTower++;
 		  continue;
 		  
 		} // if channel in data does not equal expected channel
