@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.cc,v 1.5.2.1 2006/07/04 14:14:22 wmtan Exp $
+$Id: AsciiOutputModule.cc,v 1.6 2006/07/06 19:16:13 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -43,7 +43,7 @@ namespace edm {
     // Write out non-EDProduct contents...
 
     // ... list of process-names
-    for (ProcessHistory::const_iterator it = e.beginProcess(); it != e.endProcess(); ++it) {
+    for (ProcessHistory::const_iterator it = e.processHistory().begin(); it != e.processHistory().end(); ++it) {
       *pout_ << it->processName() << " ";
     }
 
