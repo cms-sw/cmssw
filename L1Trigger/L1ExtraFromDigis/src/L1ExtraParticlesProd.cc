@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.3 2006/11/13 00:24:34 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.4 2006/12/21 00:15:19 wsun Exp $
 //
 //
 
@@ -53,7 +53,7 @@ Implementation:
 // static data member definitions
 //
 
-double L1ExtraParticlesProd::muonMassGeV_ = 0.1134289264 ; // PDG04
+double L1ExtraParticlesProd::muonMassGeV_ = 0.105658369 ; // PDG06
 
 double L1ExtraParticlesProd::gctPhiOffset_ = 0. ;
 double L1ExtraParticlesProd::gctEmJetPhiBinWidth_ =
