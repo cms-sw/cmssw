@@ -11,16 +11,16 @@ bool TrackingRecHitLessFromGlobalPosition::insideOutLess(  const TrackingRecHit&
 
   //(ida==idb) return false;
 
-  if( (ida.subdetId() == StripSubdetector::TIB || ida.subdetId() == StripSubdetector::TOB || ida.subdetId() == PixelSubdetector::PixelBarrel) &&
-      (idb.subdetId() == StripSubdetector::TIB || idb.subdetId() == StripSubdetector::TOB || idb.subdetId() == PixelSubdetector::PixelBarrel)) {  // barrel with barrel
+  if( (static_cast<unsigned int>(ida.subdetId()) == StripSubdetector::TIB || static_cast<unsigned int>(ida.subdetId()) == StripSubdetector::TOB || static_cast<unsigned int>(ida.subdetId()) == PixelSubdetector::PixelBarrel) &&
+      (static_cast<unsigned int>(idb.subdetId()) == StripSubdetector::TIB || static_cast<unsigned int>(idb.subdetId()) == StripSubdetector::TOB || static_cast<unsigned int>(idb.subdetId()) == PixelSubdetector::PixelBarrel)) {  // barrel with barrel
     float diff = geometry->idToDet(ida)->surface().toGlobal(a.localPosition()).perp() - geometry->idToDet(idb)->surface().toGlobal(b.localPosition()).perp();
     if (std::abs(diff)<1.0e-9) return false;
     else return (diff < 0);    
     //return  geometry->idToDet(ida)->surface().toGlobal(a.localPosition()).perp()< geometry->idToDet(idb)->surface().toGlobal(b.localPosition()).perp();
   }
   
-  if( (ida.subdetId() == StripSubdetector::TEC || ida.subdetId() == StripSubdetector::TID || ida.subdetId() == PixelSubdetector::PixelEndcap) &&
-      (idb.subdetId() == StripSubdetector::TEC || idb.subdetId() == StripSubdetector::TID || idb.subdetId() == PixelSubdetector::PixelEndcap)) {  // fwd with fwd
+  if( (static_cast<unsigned int>(ida.subdetId()) == StripSubdetector::TEC || static_cast<unsigned int>(ida.subdetId()) == StripSubdetector::TID || static_cast<unsigned int>(ida.subdetId()) == PixelSubdetector::PixelEndcap) &&
+      (static_cast<unsigned int>(idb.subdetId()) == StripSubdetector::TEC || static_cast<unsigned int>(idb.subdetId()) == StripSubdetector::TID || static_cast<unsigned int>(idb.subdetId()) == PixelSubdetector::PixelEndcap)) {  // fwd with fwd
     float diff = std::abs( geometry->idToDet(ida)->surface().toGlobal(a.localPosition()).z()) - 
                  std::abs( geometry->idToDet(idb)->surface().toGlobal(b.localPosition()).z());
     if (std::abs(diff)<1.0e-9) return false;
@@ -32,8 +32,8 @@ bool TrackingRecHitLessFromGlobalPosition::insideOutLess(  const TrackingRecHit&
   //  here I have 1 barrel against one forward
   //
   
-  if( (ida.subdetId() == StripSubdetector::TIB || ida.subdetId() == StripSubdetector::TOB || ida.subdetId() == PixelSubdetector::PixelBarrel) &&
-      (idb.subdetId() == StripSubdetector::TEC || idb.subdetId() == StripSubdetector::TID || idb.subdetId() == PixelSubdetector::PixelEndcap)) {  // barrel with barrel
+  if( (static_cast<unsigned int>(ida.subdetId()) == StripSubdetector::TIB || static_cast<unsigned int>(ida.subdetId()) == StripSubdetector::TOB || static_cast<unsigned int>(ida.subdetId()) == PixelSubdetector::PixelBarrel) &&
+      (static_cast<unsigned int>(idb.subdetId()) == StripSubdetector::TEC || static_cast<unsigned int>(idb.subdetId()) == StripSubdetector::TID || static_cast<unsigned int>(idb.subdetId()) == PixelSubdetector::PixelEndcap)) {  // barrel with barrel
     return barrelForwardLess( a, b);
   }else{
     return !barrelForwardLess( b, a);
