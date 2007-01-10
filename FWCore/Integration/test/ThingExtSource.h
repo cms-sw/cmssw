@@ -25,6 +25,14 @@ namespace edmtest {
 
     virtual bool produce(edm::Event& e);
 
+    virtual void beginRun(edm::Run& r);
+
+    virtual void endRun(edm::Run& r);
+
+    virtual void beginLuminosityBlock(edm::LuminosityBlock& lb);
+
+    virtual void endLuminosityBlock(edm::LuminosityBlock& lb);
+
   private:
     ThingAlgorithm alg_;
   };

@@ -14,7 +14,7 @@ through shared pointers.
 The DataBlockImpl returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: DataBlockImpl.h,v 1.5 2006/12/14 04:30:57 wmtan Exp $
+$Id: DataBlockImpl.h,v 1.6 2006/12/19 00:28:17 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -52,6 +52,7 @@ namespace edm {
     typedef GroupVec::size_type                    size_type;
 
     DataBlockImpl(ProductRegistry const& reg,
+		   ProcessConfiguration const& pc,
                    ProcessHistoryID const& hist = ProcessHistoryID(),
                    boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
@@ -105,31 +106,16 @@ namespace edm {
     const_iterator begin() const { return groups_.begin(); }
     const_iterator end() const { return groups_.end(); }
 
-    ProcessNameConstIterator beginProcess() const {
-      return processHistory().begin();
-    }
-
-    ProcessNameConstIterator endProcess() const {
-      return processHistory().end();
-    }
-
     ProcessHistory const& processHistory() const;    
 
     ProcessHistoryID const& processHistoryID() const {
       return processHistoryID_;   
     }
 
-    // ----- manipulation of provenance
-
-
     // ----- Add a new Group
     // *this takes ownership of the Group, which in turn owns its
     // data.
     void addGroup(std::auto_ptr<Group> g);
-
-    // ----- Mark this DataBlockImpl as having been updated in the
-    // given Process.
-    void addToProcessHistory(ProcessConfiguration const& processConfiguration);
 
     ProductRegistry const& productRegistry() const {return *preg_;}
 
@@ -137,7 +123,15 @@ namespace edm {
 
     virtual EDProduct const* getIt(ProductID const& oid) const;
 
+  protected:
+    void setUnscheduled() {unscheduled_ = true;}
+
   private:
+
+    // ----- manipulation of provenance
+    // ----- Mark this DataBlockImpl as having been updated in the
+    // given Process.
+    void addToProcessHistory();
 
     virtual bool unscheduledFill(Group const& group) const = 0;
 
@@ -156,6 +150,10 @@ namespace edm {
     ProcessHistoryID processHistoryID_;
 
     boost::shared_ptr<ProcessHistory> processHistoryPtr_;
+
+    ProcessConfiguration const& processConfiguration_;
+
+    bool processHistoryModified_;
 
     // A vector of active groups.
     GroupVec groups_; // products and provenances are persistent
@@ -208,6 +206,9 @@ namespace edm {
     // Pointer to the 'source' that will be used to obtain EDProducts
     // from the persistent store.
     boost::shared_ptr<DelayedReader> store_;
+
+    // Unscheduled handling supported?
+    bool unscheduled_;
   };
 }
 #endif

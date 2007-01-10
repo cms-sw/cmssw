@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.17 2006/11/09 23:12:59 wmtan Exp $
+$Id: InputSource.cc,v 1.18 2006/12/21 00:05:36 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -48,7 +48,7 @@ namespace edm {
   }
 
   std::auto_ptr<EventPrincipal>
-  InputSource::readEvent_() {
+  InputSource::readEvent() {
 
     std::auto_ptr<EventPrincipal> result(0);
 
@@ -62,22 +62,14 @@ namespace edm {
 	++readCount_;
 	issueReports(result->id());
       }
+    } else {
+      endLumiAndRun();
     }
     return result;
   }
 
   std::auto_ptr<EventPrincipal>
-  InputSource::readEvent() {
-    // Do we need any error handling (e.g. exception translation) here?
-    std::auto_ptr<EventPrincipal> ep(readEvent_());
-    if (ep.get()) {
-	ep->addToProcessHistory(isDesc_.moduleDescription_.processConfiguration());
-    }
-    return ep;
-  }
-
-  std::auto_ptr<EventPrincipal>
-  InputSource::readEvent_(EventID const& eventID) {
+  InputSource::readEvent(EventID const& eventID) {
 
     std::auto_ptr<EventPrincipal> result(0);
 
@@ -93,16 +85,6 @@ namespace edm {
       }
     }
     return result;
-  }
-
-  std::auto_ptr<EventPrincipal>
-  InputSource::readEvent(EventID const& eventID) {
-    // Do we need any error handling (e.g. exception translation) here?
-    std::auto_ptr<EventPrincipal> ep(readEvent_(eventID));
-    if (ep.get()) {
-	ep->addToProcessHistory(isDesc_.moduleDescription_.processConfiguration());
-    }
-    return ep;
   }
 
   void

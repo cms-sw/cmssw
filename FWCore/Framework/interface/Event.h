@@ -15,7 +15,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.52 2006/12/20 13:41:07 wmtan Exp $
+$Id: Event.h,v 1.53 2006/12/23 03:09:23 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -57,6 +57,7 @@ namespace edm {
     using DataViewImpl::getManyByType;
     using DataViewImpl::getProvenance;
     using DataViewImpl::getRefBeforePut;
+    using DataViewImpl::me;
     using DataViewImpl::processHistory;
     using DataViewImpl::put;
     using DataViewImpl::size;

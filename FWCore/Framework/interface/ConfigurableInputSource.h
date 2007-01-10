@@ -2,7 +2,7 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.12 2006/12/21 00:05:35 wmtan Exp $
+$Id: ConfigurableInputSource.h,v 1.13 2006/12/28 23:52:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
@@ -54,6 +54,7 @@ namespace edm {
     virtual void setRun(RunNumber_t r);
     virtual void setLumi(LuminosityBlockID lb);
     virtual void rewind_();
+    virtual void endLumiAndRun();
     
     unsigned int numberEventsInRun_;
     unsigned int numberEventsInLumi_;

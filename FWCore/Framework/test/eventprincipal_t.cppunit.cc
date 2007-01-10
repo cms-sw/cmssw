@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.33 2006/12/05 23:56:18 paterno Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.34 2006/12/07 05:54:47 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <map>
@@ -177,8 +177,6 @@ void testeventprincipal::setUp()
   pProductRegistry_->addProduct(*fake_single_process_branch("rick", "USER2", "rick"));
   pProductRegistry_->setProductIDs();
  
-  edm::Timestamp now(1234567UL);
-  pEvent_  = new edm::EventPrincipal(eventID_, now, *pProductRegistry_);
 
   // Put products we'll look for into the EventPrincipal.
   {
@@ -206,7 +204,8 @@ void testeventprincipal::setUp()
 
     edm::ProcessConfiguration* process = processConfigurations_[tag];
     assert(process);
-    pEvent_->addToProcessHistory(*process);
+    edm::Timestamp now(1234567UL);
+    pEvent_  = new edm::EventPrincipal(eventID_, now, *pProductRegistry_, *process);
     pEvent_->put(product, provenance);
   }
   
@@ -232,19 +231,21 @@ void testeventprincipal::tearDown()
   pProductRegistry_ = 0;
 }
 
-// void 
-// testeventprincipal::put_a_dummy_product(std::string const& tag)
-// {
-//   edm::ProcessConfiguration* config = processConfigurations_[tag];
-//   assert(config);
+#if 0
+void 
+testeventprincipal::put_a_dummy_product(std::string const& tag)
+{
+  edm::ProcessConfiguration* config = processConfigurations_[tag];
+  assert(config);
 
-//   edm::BranchDescription* branch = branchDescriptions_[tag];
-//   assert(branch);
+  edm::BranchDescription* branch = branchDescriptions_[tag];
+  assert(branch);
 
-//   put_a_product<edmtest::DummyProduct>(config,
-// 				       branch->moduleLabel_,
-// 				       branch->productInstanceName_);
-// }
+  put_a_product<edmtest::DummyProduct>(config,
+ 				       branch->moduleLabel_,
+ 				       branch->productInstanceName_);
+}
+#endif
 
 template <class PRODUCT_TYPE>
 void testeventprincipal::put_a_product(edm::ProcessConfiguration* config,
@@ -276,8 +277,7 @@ void testeventprincipal::put_a_product(edm::ProcessConfiguration* config,
 
   //   edm::EventID col(1L);
   //   edm::Timestamp fakeTime;
-  //   edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_);
-  //pEvent_->addToProcessHistory(*pProdConfig_);
+  //   edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_, *pProdConfig_);
   pEvent_->put(product, provenance);
 }
 
@@ -287,7 +287,6 @@ void testeventprincipal::put_a_product(edm::ProcessConfiguration* config,
 
 void testeventprincipal::failgetbyIdTest() 
 {
-  //pEvent_->addToProcessHistory(*pProdConfig_);
   edm::ProductID invalid;
   CPPUNIT_ASSERT_THROW(pEvent_->get(invalid), edm::Exception);
 
@@ -297,8 +296,6 @@ void testeventprincipal::failgetbyIdTest()
 
 void testeventprincipal::failgetbySelectorTest()
 {
-  //pEvent_->addToProcessHistory(*pProdConfig_);
-
   // We don't put EventPrincipals into the EventPrincipal,
   // so that's a type sure not to match any product.
   edm::TypeID tid(*pEvent_); 
@@ -309,7 +306,6 @@ void testeventprincipal::failgetbySelectorTest()
 
 void testeventprincipal::failgetbyLabelTest() 
 {
-  //pEvent_->addToProcessHistory(*pProdConfig_);
   // We don't put EventPrincipals into the EventPrincipal,
   // so that's a type sure not to match any product.
   edm::TypeID tid(*pEvent_);
@@ -322,8 +318,6 @@ void testeventprincipal::failgetbyLabelTest()
 
 void testeventprincipal::failgetManyTest() 
 {
-  //pEvent_->addToProcessHistory(*pProdConfig_);
-
   // We don't put EventPrincipals into the EventPrincipal,
   // so that's a type sure not to match any product.
   edm::TypeID tid(*pEvent_);
@@ -336,16 +330,12 @@ void testeventprincipal::failgetManyTest()
 
 void testeventprincipal::failgetbyTypeTest() 
 {
-  //pEvent_->addToProcessHistory(*pProdConfig_);
-
   edm::TypeID tid(*pEvent_);
   CPPUNIT_ASSERT_THROW(pEvent_->getByType(tid), edm::Exception);
 }
 
 void testeventprincipal::failgetManybyTypeTest() 
 {
-  //pEvent_->addToProcessHistory(*pProdConfig_);
-
   // We don't put EventPrincipals into the EventPrincipal,
   // so that's a type sure not to match any product.
   edm::TypeID tid(*pEvent_);
@@ -369,8 +359,6 @@ void testeventprincipal::failgetbyInvalidIdTest()
 
 void testeventprincipal::failgetProvenanceTest() 
 {
-  //pEvent_->addToProcessHistory(*pProdConfig_);
-
   edm::ProductID id;
   CPPUNIT_ASSERT_THROW(pEvent_->getProvenance(id), edm::Exception);
 }
@@ -520,8 +508,7 @@ void testeventprincipal::getProvenanceTest()
 
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
-  edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_);
-  pEvent_->addToProcessHistory(*pProdConfig_);
+  edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_, *pProdConfig_);
 
   pEvent_->put(pprod, pprov);
 
@@ -562,8 +549,7 @@ void testeventprincipal::getAllProvenanceTest()
 
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
-  edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_);
-  pEvent_->addToProcessHistory(*pProdConfig_);
+  edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_, *pProdConfig_);
 
   pEvent_->put(pprod, pprov);
 

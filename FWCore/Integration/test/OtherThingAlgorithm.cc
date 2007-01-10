@@ -6,11 +6,11 @@
 #include "FWCore/Framework/interface/Handle.h"
 
 namespace edmtest {
-  void OtherThingAlgorithm::run(edm::Event const& e, OtherThingCollection & otherThingCollection,
-	std::string const& thingLabel) {
+  void OtherThingAlgorithm::run(edm::DataViewImpl const& dv, OtherThingCollection & otherThingCollection,
+	std::string const& thingLabel, std::string const& instance) {
     otherThingCollection.reserve(20);
     edm::Handle<ThingCollection> things;
-    e.getByLabel(thingLabel, things);
+    dv.getByLabel(thingLabel, instance, things);
     for (int i = 0; i < 20; ++i) {
       OtherThing tc;
       tc.a = i;

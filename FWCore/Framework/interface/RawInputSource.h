@@ -2,7 +2,7 @@
 #define Framework_RawInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: RawInputSource.h,v 1.7 2006/12/21 00:05:35 wmtan Exp $
+$Id: RawInputSource.h,v 1.8 2006/12/28 23:52:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -40,6 +40,7 @@ namespace edm {
     virtual void skip(int offset);
     virtual void setRun(RunNumber_t r);
     virtual void setLumi(LuminosityBlockID lb);
+    virtual void endLumiAndRun();
     
     int remainingEvents_;
     RunNumber_t runNumber_;

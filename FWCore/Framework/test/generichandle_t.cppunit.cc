@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.13 2006/11/04 00:35:44 wmtan Exp $
+$Id: generichandle_t.cppunit.cc,v 1.14 2006/12/05 23:56:18 paterno Exp $
 
 ----------------------------------------------------------------------*/  
 #include <string>
@@ -58,8 +58,8 @@ void testGenericHandle::failgetbyLabelTest() {
   edm::EventID id;
   edm::Timestamp time;
   edm::ProductRegistry preg;
-  edm::EventPrincipal ep(id, time, preg);
-  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
+  edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
+  edm::EventPrincipal ep(id, time, preg, pc);
   edm::GenericHandle h("edmtest::DummyProduct");
   try {
      edm::ModuleDescription modDesc;
@@ -118,8 +118,8 @@ void testGenericHandle::getbyLabelTest() {
 
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
-  edm::EventPrincipal ep(col, fakeTime, preg);
-  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
+  edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
+  edm::EventPrincipal ep(col, fakeTime, preg, pc);
 
   ep.put(pprod, pprov);
   

@@ -18,6 +18,16 @@ namespace edmtest {
 
     virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
 
+    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& c);
+
+    virtual void endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& c);
+
+    virtual void beginRun(edm::Run const& r, edm::EventSetup const& c);
+
+    virtual void endRun(edm::Run const& r, edm::EventSetup const& c);
+
+    void doit(edm::DataViewImpl const& dv, std::string const& label);
+
   private:
   };
 

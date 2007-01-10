@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: event_getrefbeforeput_t.cppunit.cc,v 1.3 2006/10/04 14:53:21 paterno Exp $
+$Id: event_getrefbeforeput_t.cppunit.cc,v 1.4 2006/12/05 23:56:18 paterno Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -55,17 +55,16 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   preg.setProductIDs();
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
-  edm::EventPrincipal ep(col, fakeTime, preg);
-  ep.addToProcessHistory(edm::ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
-
+  edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
+  edm::EventPrincipal ep(col, fakeTime, preg, pc);
   try {
      edm::ModuleDescription modDesc;
-     modDesc.moduleName_="Blah";
-     modDesc.moduleLabel_="blahs"; 
+     modDesc.moduleName_ = "Blah";
+     modDesc.moduleLabel_ = "blahs"; 
      edm::Event event(ep, modDesc);
      
      std::string label("this does not exist");
-     edm::RefProd<edmtest::DummyProduct> ref= event.getRefBeforePut<edmtest::DummyProduct>(label);
+     edm::RefProd<edmtest::DummyProduct> ref = event.getRefBeforePut<edmtest::DummyProduct>(label);
      CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
   }
   catch (edm::Exception& x) {
@@ -106,15 +105,15 @@ void testEventGetRefBeforePut::getRefTest() {
   preg.setProductIDs();
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
-  edm::EventPrincipal ep(col, fakeTime, preg);
-  ep.addToProcessHistory(edm::ProcessConfiguration(processName, edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
+  edm::ProcessConfiguration pc(processName, edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
+  edm::EventPrincipal ep(col, fakeTime, preg, pc);
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {
     edm::ModuleDescription modDesc;
     modDesc.moduleName_="Blah";
     modDesc.moduleLabel_=label; 
-    modDesc.processConfiguration_.processName_ = processName;
+    modDesc.processConfiguration_ = pc;
 
     edm::Event event(ep, modDesc);
     std::auto_ptr<edmtest::IntProduct> pr(new edmtest::IntProduct);

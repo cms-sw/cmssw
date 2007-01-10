@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataBlockImpl.cc,v 1.4 2006/12/19 00:28:56 wmtan Exp $
+$Id: DataBlockImpl.cc,v 1.5 2007/01/08 23:39:44 chrjones Exp $
 ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -16,11 +16,14 @@ using namespace std;
 namespace edm {
 
   DataBlockImpl::DataBlockImpl(ProductRegistry const& reg,
-				 ProcessHistoryID const& hist,
-				 boost::shared_ptr<DelayedReader> rtrv) :
+				ProcessConfiguration const& pc,
+				ProcessHistoryID const& hist,
+				boost::shared_ptr<DelayedReader> rtrv) :
     EDProductGetter(),
     processHistoryID_(hist),
     processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
+    processConfiguration_(pc),
+    processHistoryModified_(false),
     groups_(),
     branchDict_(),
     productDict_(),
@@ -30,7 +33,8 @@ namespace edm {
     inactiveProductDict_(),
     inactiveTypeDict_(),
     preg_(&reg),
-    store_(rtrv)
+    store_(rtrv),
+    unscheduled_(false)
   {
     if (processHistoryID_ != ProcessHistoryID()) {
       assert(ProcessHistoryRegistry::instance()->size());
@@ -107,9 +111,10 @@ namespace edm {
   }
 
   void
-  DataBlockImpl::addToProcessHistory(ProcessConfiguration const& processConfiguration) {
+  DataBlockImpl::addToProcessHistory() {
+    if (processHistoryModified_) return;
     ProcessHistory& ph = *processHistoryPtr_;
-    std::string const& processName = processConfiguration.processName();
+    std::string const& processName = processConfiguration_.processName();
     for (ProcessHistory::const_iterator it = ph.begin(); it != ph.end(); ++it) {
       if (processName == it->processName()) {
 	throw edm::Exception(errors::Configuration, "Duplicate Process")
@@ -117,7 +122,7 @@ namespace edm {
 	  << "Please modify the configuration file to use a distinct process name."<<"\n";
       }
     }
-    ph.push_back(processConfiguration);
+    ph.push_back(processConfiguration_);
     //OPTIMIZATION NOTE:  As of 0_9_0_pre3
     // For very simple Sources (e.g. EmptySource) this routine takes up nearly 50% of the time per event.
     // 96% of the time for this routine is being spent in computing the
@@ -127,6 +132,7 @@ namespace edm {
     // which persists for longer than one Event
     ProcessHistoryRegistry::instance()->insertMapped(ph);
     processHistoryID_ = ph.id();
+    processHistoryModified_ = true;
   }
 
   ProcessHistory const&
@@ -149,6 +155,7 @@ namespace edm {
     std::auto_ptr<Group> g(new Group(edp, prov));
     g->setID(oid);
     this->addGroup(g);
+    this->addToProcessHistory();
   }
 
   DataBlockImpl::SharedConstGroupPtr const
@@ -247,7 +254,8 @@ namespace edm {
     while(ib!=ie) {
 	SharedGroupPtr const& g = groups_[*ib];
 
-	if (fillAndMatchSelector(g->provenance(), sel)) {
+	bool match = (unscheduled_ ? fillAndMatchSelector(g->provenance(), sel) : sel.match(g->provenance()));
+	if (match) {
 	    ++found_count;
 	    if (found_count > 1) {
 		throw edm::Exception(edm::errors::ProductNotFound,
@@ -286,22 +294,36 @@ namespace edm {
     // correct policy of making the assumed label be ... whatever we
     // set the policy to be. I don't know the answer right now...
 
+    if (unscheduled_ && !processHistoryModified_) {
+      // Unscheduled processing is enabled, and the current process is not
+      // in the ProcessHistory.  We must check the current process first.
+      BranchKey bk(tid.friendlyClassName(), label, productInstanceName, processConfiguration_.processName());
+      BranchDict::const_iterator i = branchDict_.find(bk);
+      if (i != branchDict_.end()) {
+	// We found what we want.
+        assert(i->second >= 0);
+        assert(unsigned(i->second) < groups_.size());
+	SharedConstGroupPtr group = groups_[i->second];
+	this->resolve_(*group);
+	return BasicHandle(group->product(), &group->provenance());    
+      }
+    }
+ 
     ProcessHistory::const_reverse_iterator iproc = processHistory().rbegin();
     ProcessHistory::const_reverse_iterator eproc = processHistory().rend();
     while (iproc != eproc) {
-	string const& processName = iproc->processName();
-	BranchKey bk(tid.friendlyClassName(), label, productInstanceName, processName);
-	BranchDict::const_iterator i = branchDict_.find(bk);
-
-	if (i != branchDict_.end()) {
-	    // We found what we want.
-            assert(i->second >= 0);
-            assert(unsigned(i->second) < groups_.size());
-	    SharedConstGroupPtr group = groups_[i->second];
-	    this->resolve_(*group);
-	    return BasicHandle(group->product(), &group->provenance());    
-	}
-	++iproc;
+      string const& processName = iproc->processName();
+      BranchKey bk(tid.friendlyClassName(), label, productInstanceName, processName);
+      BranchDict::const_iterator i = branchDict_.find(bk);
+      if (i != branchDict_.end()) {
+	// We found what we want.
+        assert(i->second >= 0);
+        assert(unsigned(i->second) < groups_.size());
+	SharedConstGroupPtr group = groups_[i->second];
+	this->resolve_(*group);
+	return BasicHandle(group->product(), &group->provenance());    
+      }
+      ++iproc;
     }
     // We failed to find the product we're looking for, under *any*
     // process name... throw!

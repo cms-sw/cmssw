@@ -3,11 +3,8 @@
 
 #include <string>
 #include "DataFormats/TestObjects/interface/OtherThingCollectionfwd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
-namespace edm {
-  class Event;
-}
-  
 namespace edmtest {
 
   class OtherThingAlgorithm {
@@ -16,7 +13,7 @@ namespace edmtest {
   
     /// Runs the algorithm and returns a list of OtherThings
     /// The user declares the vector and calls this method.
-    void run(const edm::Event & e, OtherThingCollection& otherThingCollection, std::string const& thingLabel = std::string("Thing"));
+    void run(edm::DataViewImpl const& dv, OtherThingCollection& otherThingCollection, std::string const& thingLabel = std::string("Thing"), std::string const& instance = std::string());
   
   private:
     int    theDebugLevel;

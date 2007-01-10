@@ -74,7 +74,7 @@ been committed (which happens after the EDProducer::produce method has ended)
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.9 2006/12/06 16:18:23 paterno Exp $
+$Id: DataViewImpl.h,v 1.10 2006/12/18 06:00:19 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -178,6 +178,8 @@ namespace edm {
     getRefBeforePut(std::string const& productInstanceName);
 
     ProcessHistory const& processHistory() const;
+
+    DataViewImpl const& me() const {return *this;}
     
   private:
 

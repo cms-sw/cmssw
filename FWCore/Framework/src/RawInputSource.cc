@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.7 2006/12/21 00:05:36 wmtan Exp $
+$Id: RawInputSource.cc,v 1.8 2006/12/28 23:52:02 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -48,6 +48,7 @@ namespace edm {
         const_cast<RunPrincipal &>(luminosityBlockPrincipal_->runPrincipal());
     Run run(rp, moduleDescription());
     endRun(run);
+    run.commit_();
   }
 
   void
@@ -56,6 +57,13 @@ namespace edm {
         const_cast<LuminosityBlockPrincipal &>(*luminosityBlockPrincipal_);
     LuminosityBlock lb(lbp, moduleDescription());
     endLuminosityBlock(lb);
+    lb.commit_();
+  }
+
+  void
+  RawInputSource::endLumiAndRun() {
+    finishLumi();
+    finishRun(); 
   }
 
   std::auto_ptr<EventPrincipal>
@@ -75,24 +83,28 @@ namespace edm {
 	finishRun();
       }
     }
+    justBegun_ = false;
     oldLuminosityBlockID_ = luminosityBlockID_;
     oldRunNumber_ = runNumber_;
     if (isNewLumi) {
       if (isNewRun) {
-        boost::shared_ptr<RunPrincipal> runPrincipal(new RunPrincipal(runNumber_, productRegistry()));
+        boost::shared_ptr<RunPrincipal> runPrincipal(
+	    new RunPrincipal(runNumber_, productRegistry(), processConfiguration()));
         Run run(*runPrincipal, moduleDescription());
 	beginRun(run);
+	run.commit_();
         luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal>(
-			new LuminosityBlockPrincipal(luminosityBlockID_, productRegistry(), runPrincipal));
+	    new LuminosityBlockPrincipal(luminosityBlockID_, productRegistry(), runPrincipal, processConfiguration()));
       } else {
         boost::shared_ptr<RunPrincipal const> runPrincipal = luminosityBlockPrincipal_->runPrincipalConstSharedPtr();
         luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal>(
-			new LuminosityBlockPrincipal(luminosityBlockID_, productRegistry(), runPrincipal));
+	    new LuminosityBlockPrincipal(luminosityBlockID_, productRegistry(), runPrincipal, processConfiguration()));
       }
       LuminosityBlockPrincipal & lbp =
          const_cast<LuminosityBlockPrincipal &>(*luminosityBlockPrincipal_);
       LuminosityBlock lb(lbp, moduleDescription());
       beginLuminosityBlock(lb);
+      lb.commit_();
     }
     std::auto_ptr<Event> e(readOneEvent());
     if(e.get() != 0) {
@@ -105,10 +117,9 @@ namespace edm {
   std::auto_ptr<Event>
   RawInputSource::makeEvent(EventID & eventId, Timestamp const& tstamp) {
     eventId = EventID(runNumber_, eventId.event());
-    ep_ = std::auto_ptr<EventPrincipal>(new EventPrincipal(eventId,
-							   Timestamp(tstamp),
-							   productRegistry(),
-							   luminosityBlockPrincipal_));
+    ep_ = std::auto_ptr<EventPrincipal>(
+	new EventPrincipal(eventId, Timestamp(tstamp),
+	productRegistry(), luminosityBlockPrincipal_, processConfiguration()));
     std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
     return e;
   }

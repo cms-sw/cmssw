@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.32 2006/12/18 17:40:50 paterno Exp $
+$Id: Frameworkfwd.h,v 1.33 2006/12/29 20:54:34 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,6 +19,7 @@ namespace edm {
   class CurrentProcessingContext;
   class DelayedReader;
   class DataBlockImpl;
+  class DataViewImpl;
   class EDAnalyzer;
   class EDFilter;
   class EDLooper;
