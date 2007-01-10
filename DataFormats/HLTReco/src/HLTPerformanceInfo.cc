@@ -1,4 +1,4 @@
-// $Id: HLTPerformanceInfo.cc,v 1.2 2006/12/04 15:08:24 wittich Exp $
+// $Id: HLTPerformanceInfo.cc,v 1.3 2006/12/05 23:48:03 wittich Exp $
 #include <functional>
 #include <algorithm>
 #include <numeric>
@@ -47,11 +47,10 @@ double HLTPerformanceInfo::Path::time() const
 {
   double t = 0;
   // we only want to add those up to the last one run.
-  HLTPerformanceInfo::Path::const_iterator j = this->begin();
-  HLTPerformanceInfo::Path::const_iterator last_run = j + status_.index();
-  for ( ; j != last_run; ++j ) {
-    t += j->time();
-  }
+  HLTPerformanceInfo::Path::const_iterator iter ;
+  for (iter=this->begin(); iter!=this->end(); iter++) 
+    t += iter->time(); 
+
   return t;
 }
 
@@ -191,4 +190,18 @@ HLTPerformanceInfo & HLTPerformanceInfo::operator=(const
     a->setModules_(&modules_);
   }
   return *this;
+}
+
+bool HLTPerformanceInfo::uniqueModule(const char *mod) const {
+  int mCtr = 0 ;
+  PathList::const_iterator pIter ;
+  Path::const_iterator mIter ;
+  for (pIter=paths_.begin(); pIter!=paths_.end(); pIter++) {
+    for (mIter=pIter->begin(); mIter!=pIter->end(); mIter++) {
+      if (mIter->name() == mod) mCtr++ ;
+      if (mCtr > 1) return false ;
+    }
+  }
+  if (mCtr == 0) return false ;
+  return true ;
 }
