@@ -12,8 +12,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/09/08 19:26:19 $
-// $Revision: 1.19 $
+// $Date: 2006/11/10 21:54:49 $
+// $Revision: 1.20 $
 //
 
 #include <vector>
@@ -271,9 +271,12 @@ makeSeedsFromInnerHit(TrajectorySeedCollection* outputCollection,
     
     // calculate maximal delta phi in [0,2pi]
     // use z component of magnetic field at inner and outer hit
-    double deltaPhiMax = std::abs( std::asin(unitCorrection * magnet_->inTesla(inner).z() * innerr / theMinPt_) - std::asin(unitCorrection * magnet_->inTesla(outer).z() * outerr / theMinPt_) );
-    if ( deltaPhiMax < 0 ) deltaPhiMax = Geom::twoPi() - deltaPhiMax;
-    
+    double deltaPhiMax = Geom::pi()/2;
+    if(!NoFieldCosmic_) {
+      deltaPhiMax = std::abs( std::asin(unitCorrection * magnet_->inTesla(inner).z() * innerr / theMinPt_) - std::asin(unitCorrection * magnet_->inTesla(outer).z() * outerr / theMinPt_) );
+      if ( deltaPhiMax < 0 ) deltaPhiMax = Geom::twoPi() - deltaPhiMax;
+    }
+
     if ( deltaPhi <= deltaPhiMax ) {
       
       double x0=0.0,y0=0.0,z0=0.0;
