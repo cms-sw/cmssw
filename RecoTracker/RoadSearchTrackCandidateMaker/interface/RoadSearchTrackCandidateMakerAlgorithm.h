@@ -12,9 +12,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2006/11/07 16:09:03 $
-// $Revision: 1.3 $
+// $Author: gutsche $
+// $Date: 2006/11/08 14:25:50 $
+// $Revision: 1.4 $
 //
 
 #include <string>
@@ -70,17 +70,20 @@ class RoadSearchTrackCandidateMakerAlgorithm
 
   unsigned int theNumHitCut;
   double theChi2Cut;
-
+  bool NoFieldCosmic_;
+  int MinChunkLength_;
+  int nFoundMin_;
+  
   bool debug_;
-
-    const MeasurementTracker*  theMeasurementTracker;
-    const TrackerGeometry* geom;
-    const TransientTrackingRecHitBuilder* ttrhBuilder;
-
-    PropagatorWithMaterial* thePropagator;
-    PropagatorWithMaterial* theRevPropagator;
-    TrajectoryStateUpdator* theUpdator;
-    MeasurementEstimator* theEstimator;
+  
+  const MeasurementTracker*  theMeasurementTracker;
+  const TrackerGeometry* geom;
+  const TransientTrackingRecHitBuilder* ttrhBuilder;
+  
+  PropagatorWithMaterial* thePropagator;
+  PropagatorWithMaterial* theRevPropagator;
+  TrajectoryStateUpdator* theUpdator;
+  MeasurementEstimator* theEstimator;
 };
 
 #endif
