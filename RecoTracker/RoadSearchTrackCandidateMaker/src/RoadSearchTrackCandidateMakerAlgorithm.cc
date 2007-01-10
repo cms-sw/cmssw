@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/11/08 14:25:51 $
-// $Revision: 1.22 $
+// $Author: noeding $
+// $Date: 2007/01/10 19:07:42 $
+// $Revision: 1.23 $
 //
 
 #include <vector>
@@ -81,7 +81,7 @@ RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(c
   MinChunkLength_ = conf_.getParameter<int>("MinimumChunkLength");
   nFoundMin_      = conf_.getParameter<int>("nFoundMin");
   
-  debug_ = true;
+  debug_ = false;
 
 }
 
