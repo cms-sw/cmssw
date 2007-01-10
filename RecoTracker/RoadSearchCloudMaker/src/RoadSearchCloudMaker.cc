@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2006/09/20 21:35:41 $
-// $Revision: 1.12 $
+// $Author: gutsche $
+// $Date: 2006/12/11 23:17:16 $
+// $Revision: 1.13 $
 //
 
 #include <memory>
@@ -56,13 +56,30 @@ namespace cms
     edm::InputTag stereoStripRecHitsInputTag  = conf_.getParameter<edm::InputTag>("stereoStripRecHits");
     
     // get Inputs
-    edm::Handle<SiStripMatchedRecHit2DCollection> matchedRecHits;
-    e.getByLabel(matchedStripRecHitsInputTag ,matchedRecHits);
     edm::Handle<SiStripRecHit2DCollection> rphiRecHits;
     e.getByLabel(rphiStripRecHitsInputTag ,rphiRecHits);
     edm::Handle<SiStripRecHit2DCollection> stereoRecHits;
     e.getByLabel(stereoStripRecHitsInputTag ,stereoRecHits);
-    
+
+    // special treatment for getting matched RecHit collection
+    // if collection exists in file, use collection from file
+    // if collection does not exist in file, create empty collection
+    const SiStripMatchedRecHit2DCollection *matchedRecHitCollection = 0;
+    try {
+      edm::Handle<SiStripMatchedRecHit2DCollection> matchedRecHits;
+      e.getByLabel(matchedStripRecHitsInputTag, matchedRecHits);
+      matchedRecHitCollection = matchedRecHits.product();
+    }
+    catch (edm::Exception const& x) {
+      if ( x.categoryCode() == edm::errors::ProductNotFound ) {
+	if ( x.history().size() == 1 ) {
+	  static const SiStripMatchedRecHit2DCollection s_empty;
+	  matchedRecHitCollection = &s_empty;
+	  edm::LogWarning("RoadSearch") << "Collection SiStripMatchedRecHit2DCollection with InputTag " << matchedStripRecHitsInputTag << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without matched RecHits.";
+	}
+      }
+    }
+  
     // retrieve InputTag for pixel rechits
     edm::InputTag pixelRecHitsInputTag  = conf_.getParameter<edm::InputTag>("pixelRecHits");
     
@@ -92,7 +109,7 @@ namespace cms
     roadSearchCloudMakerAlgorithm_.run(seeds,
 				       rphiRecHits.product(),  
 				       stereoRecHits.product(),
-				       matchedRecHits.product(),
+				       matchedRecHitCollection,
 				       pixelRecHitCollection,
 				       es,
 				       *output);
