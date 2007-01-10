@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.8 2006/12/28 23:52:02 wmtan Exp $
+$Id: RawInputSource.cc,v 1.9 2007/01/10 05:58:48 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -107,10 +107,13 @@ namespace edm {
       lb.commit_();
     }
     std::auto_ptr<Event> e(readOneEvent());
-    if(e.get() != 0) {
-      --remainingEvents_;
-      e->commit_();
+    if (e.get() == 0) {
+      finishLumi();
+      finishRun();
+      return std::auto_ptr<EventPrincipal>(0); 
     }
+    --remainingEvents_;
+    e->commit_();
     return ep_;
   }
 
