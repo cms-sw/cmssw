@@ -180,13 +180,13 @@ void CSCSegAlgoDF::tryAddingHitsToSegment( const ChamberHitContainer& rechits,
   ChamberHitContainerCIt ib = rechits.begin();
   ChamberHitContainerCIt ie = rechits.end();
   
-  for ( int pass = 0; pass < 5; pass++) {
+  for ( int pass = 0; pass < 2; pass++) {
     
     for ( ChamberHitContainerCIt i = ib; i != ie; ++i ) {
       
       if ( usedHits[i-ib] ) continue;   // Don't use hits already part of a segment.
       
-      if (pass < 2) if (i == i1 || i == i2 ) continue;  // For first 2 pass, don't try changing endpoints (seeds).
+      if (pass < 1) if (i == i1 || i == i2 ) continue;  // For first pass, don't try changing endpoints (seeds).
 
       const CSCRecHit2D* h = *i;      
       int layer = (*i)->cscDetId().layer();
