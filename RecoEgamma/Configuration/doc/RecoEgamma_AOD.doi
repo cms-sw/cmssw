@@ -3,11 +3,11 @@
 </tr>
 
 <tr>
-  <td><a href="classreco_1_1Electron.html">reco::Electron</a></td>
-  <td><a href="DataFormats_EgammaCandidates.html">reco::ElectronCollection</a></td>
-  <td><a href="RecoElectron_Configuration.html">pixelMatchElectrons</a></td>
-  <td class="description">Pixel-matched electrons</td>
-  <td>S.Rahatlou</td>
+  <td><a href="classreco_1_1Electron.html">reco::PixelMatchGsfElectron</a></td>
+  <td><a href="DataFormats_EgammaCandidates.html">reco::PixelMatchGsfElectronCollection</a></td>
+  <td><a href="RecoElectron_Configuration.html">pixelMatchGsfElectrons</a></td>
+  <td class="description">Pixel-matched electrons with Gsf tracks</td>
+  <td>U.Berthon</td>
 </tr>
 <tr>
   <td><a href="classreco_1_1Electron.html">reco::Electron</a></td>
