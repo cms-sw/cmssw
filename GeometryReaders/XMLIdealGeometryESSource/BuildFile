@@ -3,7 +3,7 @@
 <use name=DetectorDescription/CoreImpl>
 <use name=DetectorDescription/Parser>
 <use name=Geometry/Records>
-<use name=CondFormats/DataRecord>
+<use name=MagneticField/Records>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet> 
 <use name=Utilities/General>
@@ -13,7 +13,7 @@
 <use name=DetectorDescription/CoreImpl>
 <use name=DetectorDescription/Parser>
 <use name=Geometry/Records>
-<use name=CondFormats/DataRecord>
+<use name=MagneticField/Records>
 <use name=xerces-c>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet> 
