@@ -10,7 +10,7 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.5 2006/12/30 16:53:38 wmtan Exp $
+$Id: LuminosityBlockPrincipal.h,v 1.6 2007/01/10 05:58:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -20,7 +20,7 @@ $Id: LuminosityBlockPrincipal.h,v 1.5 2006/12/30 16:53:38 wmtan Exp $
 #include "boost/shared_ptr.hpp"
 
 namespace edm {
-  class RunBlockPrincipal;
+  class RunPrincipal;
   class LuminosityBlockPrincipal : private DataBlockImpl {
   typedef DataBlockImpl Base;
   public:
@@ -31,6 +31,12 @@ namespace edm {
 	ProcessHistoryID const& hist = ProcessHistoryID(),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader)) :
         Base(reg, pc, hist, rtrv), runPrincipal_(rp), aux_(id) {}
+
+    LuminosityBlockPrincipal(LuminosityBlockID const& id,
+	ProductRegistry const& reg,
+        ProcessConfiguration const& pc,
+	ProcessHistoryID const& hist = ProcessHistoryID(),
+	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     ~LuminosityBlockPrincipal() {}
 
