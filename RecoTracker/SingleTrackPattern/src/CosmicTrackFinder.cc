@@ -139,16 +139,26 @@ namespace cms
 	TSCPBuilderNoMaterial tscpBuilder;
 	TrajectoryStateClosestToPoint tscp=tscpBuilder(*(UpState.freeState()),
 						       UpState.globalPosition());
-	PerigeeTrajectoryParameters::ParameterVector param = tscp.perigeeParameters();
+
+// 	PerigeeTrajectoryParameters::ParameterVector param = tscp.perigeeParameters();
 	
-	PerigeeTrajectoryError::CovarianceMatrix covar = tscp.perigeeError();
+// 	PerigeeTrajectoryError::CovarianceMatrix covar = tscp.perigeeError();
+	GlobalPoint vv = tscp.theState().position();
+	math::XYZPoint  pos( vv.x(), vv.y(), vv.z() );
+	GlobalVector pp = tscp.theState().momentum();
+	math::XYZVector mom( pp.x(), pp.y(), pp.z() );
 
 
-	
 	reco::Track theTrack(theTraj.chiSquared(),
 			     int(ndof),
-			     param,tscp.pt(),
-			     covar);
+			     pos, mom, tscp.charge(), tscp.theState().curvilinearError());
+
+
+	
+// 	reco::Track theTrack(theTraj.chiSquared(),
+// 			     int(ndof),
+// 			     param,tscp.pt(),
+// 			     covar);
 
 
 	//Track Extra
