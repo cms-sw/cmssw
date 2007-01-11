@@ -6,11 +6,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.15 2006/11/14 08:54:48 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.16 2006/12/11 10:12:03 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
@@ -34,6 +35,8 @@ namespace reco {
     virtual reco::TrackRef track( size_t ) const;
     /// number of multiple Tracks
     virtual size_t numberOfTracks() const;
+    /// reference to a GsfTrack
+    virtual reco::GsfTrackRef gsfTrack() const;
     /// reference to a stand-alone muon Track
     virtual reco::TrackRef standAloneMuon() const;
     /// reference to a stand-alone muon Track
@@ -63,6 +66,8 @@ namespace reco {
   GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, track );
   /// get multuple tracks
   GET_DEFAULT_CANDIDATE_MULTIPLECOMPONENTS( RecoCandidate, TrackRef, track, numberOfTracks );
+  /// get default GsfTrack component
+  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, GsfTrackRef, gsfTrack );
   /// get stand-alone muon Track component
   GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, standAloneMuon, StandAloneMuonTag );
   /// get combined muon Track component
