@@ -43,30 +43,30 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
 			      edm::SimTrackContainer::const_iterator, 
 			      const HepLorentzVector, 
 			      GlobalVector,
-			      reco::TrackBase::CovarianceMatrix) ;
+			      reco::TrackBase::CovarianceMatrix) const;
 
   RecoToSimPairAssociation compareTracksParam(const reco::TrackCollection&, 
 					      const edm::SimTrackContainer&, 
-					      const edm::SimVertexContainer&) ;
+					      const edm::SimVertexContainer&) const;
 
   double associateRecoToSim( reco::TrackCollection::const_iterator,
-			     TrackingParticleCollection::const_iterator) ;
+			     TrackingParticleCollection::const_iterator) const;
  
   reco::RecoToSimCollection associateRecoToSim (edm::Handle<reco::TrackCollection>&, 
 						edm::Handle<TrackingParticleCollection>&, 
-						const edm::Event * event = 0) ;
+						const edm::Event * event = 0) const;
 
   reco::SimToRecoCollection associateSimToReco (edm::Handle<reco::TrackCollection>&, 
 						edm::Handle<TrackingParticleCollection>& ,
-						const edm::Event * event = 0);
+						const edm::Event * event = 0) const;
 
   reco::TrackBase::ParameterVector parametersAtClosestApproach2Order (Basic3DVector<double>,// vertex
 								Basic3DVector<double>,// momAtVtx
-								float);// charge
+								float) const;// charge
 
   reco::TrackBase::ParameterVector parametersAtClosestApproachGeom (Basic3DVector<double>,// vertex
 								    Basic3DVector<double>,// momAtVtx
-								    float);// charge
+								    float) const;// charge
 
  private:
   edm::ESHandle<MagneticField> theMF;

@@ -56,7 +56,7 @@ TrackAssociatorByHits::~TrackAssociatorByHits()
 RecoToSimCollection  
 TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& trackCollectionH,
 					  edm::Handle<TrackingParticleCollection>&  TPCollectionH,     
-					  const edm::Event * e ){
+					  const edm::Event * e ) const{
 
   const double minHitFraction = theMinHitFraction;
   int nshared =0;
@@ -145,7 +145,7 @@ SimToRecoCollection
 TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& trackCollectionH,
 					  edm::Handle<TrackingParticleCollection>&  
 					  TPCollectionH, 
-					  const edm::Event * e ){
+					  const edm::Event * e ) const{
   
   const double minHitFraction = theMinHitFraction;
   float fraction=0;
@@ -284,7 +284,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
   return outputCollection;
 }
 
-int TrackAssociatorByHits::LayerFromDetid(const DetId& detId )
+int TrackAssociatorByHits::LayerFromDetid(const DetId& detId ) const
 {
   int layerNumber=0;
   unsigned int subdetId = static_cast<unsigned int>(detId.subdetId()); 

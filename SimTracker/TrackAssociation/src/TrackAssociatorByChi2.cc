@@ -14,7 +14,7 @@ double TrackAssociatorByChi2::compareTracksParam ( TrackCollection::const_iterat
 						   const HepLorentzVector vertexPosition, 
 						   GlobalVector magField,
 						   TrackBase::CovarianceMatrix  
-						   invertedCovariance  ) {
+						   invertedCovariance  ) const{
   
   Basic3DVector<double> momAtVtx(st->momentum().x(),st->momentum().y(),st->momentum().z());
   Basic3DVector<double> vert = (Basic3DVector<double>) vertexPosition;
@@ -32,7 +32,7 @@ double TrackAssociatorByChi2::compareTracksParam ( TrackCollection::const_iterat
 TrackAssociatorByChi2::RecoToSimPairAssociation 
 TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
 					  const SimTrackContainer& stColl,
-					  const SimVertexContainer& svColl) {
+					  const SimVertexContainer& svColl) const{
   
   RecoToSimPairAssociation outputVec;
 
@@ -70,7 +70,7 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
 
 RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::TrackCollection>& tCH, 
 							      edm::Handle<TrackingParticleCollection>& tPCH,
-							      const edm::Event * e ){
+							      const edm::Event * e ) const{
 
   RecoToSimCollection  outputCollection;
   double chi2;
@@ -158,7 +158,7 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 
 SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::TrackCollection>& tCH, 
 							      edm::Handle<TrackingParticleCollection>& tPCH,
-							      const edm::Event * e ){
+							      const edm::Event * e ) const {
 
   SimToRecoCollection  outputCollection;
   double chi2;
@@ -235,7 +235,7 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
 }
 
 double TrackAssociatorByChi2::associateRecoToSim( TrackCollection::const_iterator rt, 
-						  TrackingParticleCollection::const_iterator tp ){
+						  TrackingParticleCollection::const_iterator tp ) const{
   
   double chi2;
   
@@ -278,7 +278,7 @@ double TrackAssociatorByChi2::associateRecoToSim( TrackCollection::const_iterato
 
 TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproach2Order (Basic3DVector<double> vertex,
 										     Basic3DVector<double> momAtVtx,
-										     float charge) {
+										     float charge) const{
   GlobalVector magField = theMF->inTesla( (GlobalPoint) vertex );
   double simTrCurv = -charge*2.99792458e-3 * magField.z()/momAtVtx.perp();
   HelixExtrapolatorToLine2Order estr(vertex, momAtVtx, simTrCurv);
@@ -349,7 +349,7 @@ TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproach2Or
 
 TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproachGeom (Basic3DVector<double> vertex,
 										   Basic3DVector<double> momAtVtx,
-										   float charge) {
+										   float charge) const{
   GlobalVector magField = theMF->inTesla( (GlobalPoint) vertex );
   double simTrCurv = -charge*2.99792458e-3 * magField.z()/momAtVtx.perp();
 
