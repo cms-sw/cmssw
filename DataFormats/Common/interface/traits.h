@@ -5,7 +5,7 @@
 
 Definition of traits templates used in the EDM.  
 
-$Id: traits.h,v 1.5 2006/10/25 21:56:29 wmtan Exp $
+$Id: traits.h,v 1.6 2006/10/30 23:07:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -56,6 +56,24 @@ namespace edm
 
   template <class T>
   struct has_postinsert_trait
+  {
+    static bool const value = false;
+  };
+
+  //------------------------------------------------------------
+  //
+  // The trait struct template has_fillView<T> is used to
+  // indicate whether or not the type T has a member function
+  //
+  //      void T::fillView(std::vector<void const*>& ) const
+  //
+  // We assume the 'general case' for T is to not support fillView.
+  // Classes which do support fillView must specialize this trait.
+  //
+  //------------------------------------------------------------
+
+  template <class T>
+  struct has_fillView
   {
     static bool const value = false;
   };

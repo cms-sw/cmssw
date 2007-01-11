@@ -23,32 +23,32 @@ is the default value).  The C++ type of the product plus the two labels uniquely
 We use an event in the examples, but a run or a luminosity block can also hold products.
 
 \code
-  edm::Handle<AppleCollection> apples;
-  event.getByLabel("tree",apples);
+edm::Handle<AppleCollection> apples;
+event.getByLabel("tree",apples);
 \endcode
 
 \code
-  edm::Handle<FruitCollection> fruits;
-  event.getByLabel("market", "apple", fruits);
+edm::Handle<FruitCollection> fruits;
+event.getByLabel("market", "apple", fruits);
 \endcode
 
 
 Putting Data
 
 \code
-  std::auto_ptr<AppleCollection> pApples( new AppleCollection );
+std::auto_ptr<AppleCollection> pApples( new AppleCollection );
   
-  //fill the collection
-  ...
-  event.put(pApples);
+//fill the collection
+...
+event.put(pApples);
 \endcode
 
 \code
-  std::auto_ptr<FruitCollection> pFruits( new FruitCollection );
+std::auto_ptr<FruitCollection> pFruits( new FruitCollection );
 
-  //fill the collection
-  ...
-  event.put("apple", pFruits);
+//fill the collection
+...
+event.put("apple", pFruits);
 \endcode
 
 
@@ -56,29 +56,30 @@ Getting a reference to a product before that product is put into the event/lumiB
 NOTE: The edm::RefProd returned will not work until after the edm::DataViewImpl has 
 been committed (which happens after the EDProducer::produce method has ended)
 \code
-  std::auto_ptr<AppleCollection> pApples( new AppleCollection);
+std::auto_ptr<AppleCollection> pApples( new AppleCollection);
 
-  edm::RefProd<AppleCollection> refApples = event.getRefBeforePut<AppleCollection>();
+edm::RefProd<AppleCollection> refApples = event.getRefBeforePut<AppleCollection>();
 
-  //do loop and fill collection
-  for( unsigned int index = 0; ..... ) {
-    ....
-    apples->push_back( Apple(...) );
+//do loop and fill collection
+for( unsigned int index = 0; ..... ) {
+....
+apples->push_back( Apple(...) );
   
-    //create an edm::Ref to the new object
-    edm::Ref<AppleCollection> ref(refApples, index);
-    ....
-  }
+//create an edm::Ref to the new object
+edm::Ref<AppleCollection> ref(refApples, index);
+....
+}
 \endcode
 
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.10 2006/12/18 06:00:19 paterno Exp $
+$Id: DataViewImpl.h,v 1.11 2007/01/10 05:58:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
 #include <memory>
+#include <typeinfo>
 
 #include "boost/shared_ptr.hpp"
 #include "boost/type_traits.hpp"
@@ -96,9 +97,9 @@ $Id: DataViewImpl.h,v 1.10 2006/12/18 06:00:19 paterno Exp $
 #include "FWCore/Framework/interface/BasicHandle.h"
 #include "FWCore/Framework/interface/OrphanHandle.h"
 
-
 #include "FWCore/Framework/src/Group.h"
 #include "FWCore/Framework/interface/TypeID.h"
+#include "FWCore/Framework/interface/View.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -110,8 +111,8 @@ namespace edm {
   class DataViewImpl {
   public:
     DataViewImpl(DataBlockImpl & dbk,
-        ModuleDescription const& md,
-	BranchType const& branchType);
+		 ModuleDescription const& md,
+		 BranchType const& branchType);
 
     ~DataViewImpl();
 
@@ -131,7 +132,19 @@ namespace edm {
 
     template <typename PROD>
     void 
-    getByLabel(std::string const& label, const std::string& productInstanceName, Handle<PROD>& result) const;
+    getByLabel(std::string const& label,
+	       std::string const& productInstanceName, 
+	       Handle<PROD>& result) const;
+
+    // Partial specialization to deal with Views. Perhaps only this
+    // one needs to be specialized, because the other getByLabel
+    // implementations go through this one.
+    template <typename ELEMENT>
+    void
+    getByLabel(std::string const& label, 
+	       std::string const& productInstanceName,
+	       Handle<View<ELEMENT> >& result) const;
+
 
     /// same as above, but using the InputTag class 	 
     template <typename PROD> 	 
@@ -186,7 +199,7 @@ namespace edm {
     typedef std::vector<ProductID>       ProductIDVec;
     //typedef std::vector<const Group*> GroupPtrVec;
     typedef std::vector<std::pair<EDProduct*, BranchDescription const *> >  ProductPtrVec;
-    typedef std::vector<BasicHandle>  BasicHandleVec;    
+    typedef std::vector<BasicHandle>  BasicHandleVec;
 
     //------------------------------------------------------------
     // Private functions.
@@ -236,7 +249,12 @@ namespace edm {
 
     void 
     getManyByType_(TypeID const& tid, 
-	     BasicHandleVec& results) const;
+		   BasicHandleVec& results) const;
+
+    BasicHandle
+    getMatchingSequence_(std::type_info const& valuetype,
+			 std::string const& label,
+			 std::string const& productInstanceName) const;
 
     // Also isolates the DataViewImpl class
     // from the DataBlockImpl class.
@@ -272,6 +290,9 @@ namespace edm {
 
     // Is this an Event, a LuminosityBlock, or a Run.
     BranchType const branchType_;
+
+    // We own the retrieved Views, and have to destroy them.
+    mutable std::vector<boost::shared_ptr<ViewBase> > gotViews_;
   };
 
 
@@ -310,13 +331,13 @@ namespace edm {
 
   namespace detail 
   {
-  //------------------------------------------------------------
-  // WHEN WE MOVE to a newer compiler version, the following code
-  // should be activated. This code causes compilation failures under
-  // GCC 3.2.3, because of a compiler error in dealing with our
-  // application of SFINAE. GCC 3.4.2 is known to deal with this code
-  // correctly.
-  //------------------------------------------------------------
+    //------------------------------------------------------------
+    // WHEN WE MOVE to a newer compiler version, the following code
+    // should be activated. This code causes compilation failures under
+    // GCC 3.2.3, because of a compiler error in dealing with our
+    // application of SFINAE. GCC 3.4.2 is known to deal with this code
+    // correctly.
+    //------------------------------------------------------------
 #if GCC_PREREQUISITE(3,4,4)
     typedef char (& no_tag )[1]; // type indicating FALSE
     typedef char (& yes_tag)[2]; // type indicating TRUE
@@ -371,7 +392,7 @@ namespace edm {
   };
 
   template <typename T>
-  struct DoNothing
+  struct DoNotPostInsert
   {
     void operator()(T*) const { }
   };
@@ -392,8 +413,8 @@ namespace edm {
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.
     typename boost::mpl::if_c<detail::has_postinsert<PROD>::value, 
-                              DoPostInsert<PROD>, 
-                              DoNothing<PROD> >::type maybe_inserter;
+      DoPostInsert<PROD>, 
+      DoNotPostInsert<PROD> >::type maybe_inserter;
     maybe_inserter(product.get());
 
     BranchDescription const& desc =
@@ -414,7 +435,7 @@ namespace edm {
   DataViewImpl::getRefBeforePut(std::string const& productInstanceName) {
     PROD* p = 0;
     BranchDescription const& desc =
-       getBranchDescription(TypeID(*p), productInstanceName);
+      getBranchDescription(TypeID(*p), productInstanceName);
 
     //should keep track of what Ref's have been requested and make sure they are 'put'
     return RefProd<PROD>(desc.productID(), prodGetter());
@@ -433,7 +454,7 @@ namespace edm {
   template <typename PROD>
   void 
   DataViewImpl::get(SelectorBase const& sel,
-	     Handle<PROD>& result) const
+		    Handle<PROD>& result) const
   {
     result.clear();
     BasicHandle bh = this->get_(TypeID(typeid(PROD)),sel);
@@ -445,7 +466,7 @@ namespace edm {
   inline
   void
   DataViewImpl::getByLabel(std::string const& label,
-		    Handle<PROD>& result) const
+			   Handle<PROD>& result) const
   {
     result.clear();
     getByLabel(label, std::string(), result);
@@ -468,8 +489,8 @@ namespace edm {
   template <typename PROD>
   void
   DataViewImpl::getByLabel(std::string const& label,
-                    const std::string& productInstanceName,
-		    Handle<PROD>& result) const
+			   std::string const& productInstanceName,
+			   Handle<PROD>& result) const
   {
     result.clear();
     BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName);
@@ -477,10 +498,42 @@ namespace edm {
     convert_handle(bh, result);  // throws on conversion error
   }
 
+  template <class T>
+  std::ostream& 
+  operator<<(std::ostream& os, Handle<T> const& h)
+  {
+    os << h.product() << " " << h.provenance() << " " << h.id();
+  }
+
+  template <typename ELEMENT>
+  void
+  DataViewImpl::getByLabel(std::string const& label,
+			   std::string const& productInstanceName,
+			   Handle<View<ELEMENT> >& result) const
+  {
+    result.clear();
+
+    std::type_info const& valuetype = typeid(ELEMENT);
+    BasicHandle bh = 
+      this->getMatchingSequence_(valuetype, label, productInstanceName);
+    assert (bh.isValid());
+
+    std::vector<void const*> pointersToElements;
+    bh.wrapper()->fillView(pointersToElements);
+
+    boost::shared_ptr<View<ELEMENT> > 
+      newview(new View<ELEMENT>(pointersToElements));
+
+    gotProductIDs_.push_back(bh.id());
+    gotViews_.push_back(newview);
+    Handle<View<ELEMENT> > h(&*newview, bh.provenance());
+    result.swap(h);
+  }
+
   template <typename PROD>
   void 
   DataViewImpl::getMany(SelectorBase const& sel,
-		 std::vector<Handle<PROD> >& results) const
+			std::vector<Handle<PROD> >& results) const
   { 
     BasicHandleVec bhv;
     this->getMany_(TypeID(typeid(PROD)), sel, bhv);
@@ -504,11 +557,11 @@ namespace edm {
     BasicHandleVec::const_iterator end = bhv.end();
 
     while (it != end) {
-	gotProductIDs_.push_back((*it).id());
-	Handle<PROD> result;
-	convert_handle(*it, result);  // throws on conversion error
-	products.push_back(result);
-	++it;
+      gotProductIDs_.push_back((*it).id());
+      Handle<PROD> result;
+      convert_handle(*it, result);  // throws on conversion error
+      products.push_back(result);
+      ++it;
     }
     results.swap(products);
   }
@@ -549,11 +602,11 @@ namespace edm {
     BasicHandleVec::const_iterator end = bhv.end();
 
     while (it != end) {
-	gotProductIDs_.push_back((*it).id());
-	Handle<PROD> result;
-	convert_handle(*it, result);  // throws on conversion error
-	products.push_back(result);
-	++it;
+      gotProductIDs_.push_back((*it).id());
+      Handle<PROD> result;
+      convert_handle(*it, result);  // throws on conversion error
+      products.push_back(result);
+      ++it;
     }
     results.swap(products);
   }

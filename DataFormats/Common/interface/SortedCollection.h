@@ -23,7 +23,7 @@ unreliable if such duplicate entries are made.
 
 **************** Much more is needed here! ****************
 
-$Id: SortedCollection.h,v 1.5 2006/10/25 21:56:29 wmtan Exp $
+$Id: SortedCollection.h,v 1.6 2006/10/30 23:07:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -41,7 +41,8 @@ namespace edm {
   //
 
   template <class T> struct StrictWeakOrdering;  
-  template <class T, class SORT = StrictWeakOrdering<T> >  class SortedCollection;
+  template <class T, class SORT = StrictWeakOrdering<T> > 
+    class SortedCollection;
   
 #if ! GCC_PREREQUISITE(3,4,4)
   //------------------------------------------------------------
@@ -55,6 +56,12 @@ namespace edm {
   
   template <class T, class SORT>
   struct has_postinsert_trait<edm::SortedCollection<T,SORT> >
+  {
+    static bool const value = true;
+  };
+
+  template <class T, class SORT>
+  struct has_fillView<edm::SortedCollection<T,SORT> >
   {
     static bool const value = true;
   };
@@ -148,7 +155,10 @@ namespace edm {
     // SortedCollection has been inserted into the Event.
     void post_insert();
 
+    void fillView(std::vector<void const*>& pointers) const;
+
   private:
+
     typedef std::vector<T> collection_type;
     typedef typename collection_type::const_iterator const_inner_iterator;
     typedef typename collection_type::iterator       inner_iterator;
@@ -356,6 +366,15 @@ namespace edm {
   {
     // After insertion, we make sure our contents are sorted.
     sort();
+  }
+
+  template <class T, class SORT>
+  void
+  SortedCollection<T,SORT>::fillView(std::vector<void const*>& pointers) const
+  {
+    pointers.reserve(this->size());
+    for(const_iterator i=begin(), e=end(); i!=e; ++i)
+      pointers.push_back(&(*i));
   }
 
   // Free swap function

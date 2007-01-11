@@ -14,14 +14,16 @@ through shared pointers.
 The DataBlockImpl returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: DataBlockImpl.h,v 1.6 2006/12/19 00:28:17 wmtan Exp $
+$Id: DataBlockImpl.h,v 1.7 2007/01/10 05:58:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
+#include <list>
 #include <map>
 #include <memory>
-#include <string>
-#include <vector>
 #include <stdexcept>
+#include <string>
+#include <typeinfo>
+#include <vector>
 
 #include "boost/shared_ptr.hpp"
 
@@ -50,6 +52,11 @@ namespace edm {
     typedef boost::shared_ptr<const Group>         SharedConstGroupPtr;
     typedef std::vector<BasicHandle>               BasicHandleVec;
     typedef GroupVec::size_type                    size_type;
+
+    typedef boost::shared_ptr<Group> SharedGroupPtr;
+    typedef std::string ProcessName;
+    typedef std::list<SharedConstGroupPtr> MatchingGroups;
+    typedef std::map<ProcessName, MatchingGroups> MatchingGroupLookup;
 
     DataBlockImpl(ProductRegistry const& reg,
 		   ProcessConfiguration const& pc,
@@ -95,6 +102,17 @@ namespace edm {
     void getManyByType(TypeID const& tid, 
 		 BasicHandleVec& results) const;
 
+    // Return a BasicHandle to the product which:
+    //   1. is a sequence,
+    //   2. and has the nested type 'value_type'
+    //   3. and for which valuetype is the same as or a public base of
+    //      this value_type,
+    //   4. and which matches teh given module label and product
+    //      instance name.
+    BasicHandle getMatchingSequence(std::type_info const& valuetype,
+				    std::string const& moduleLabel,
+				    std::string const& productInstanceName) const;
+
     Provenance const&
     getProvenance(ProductID const& oid) const;
 
@@ -137,9 +155,11 @@ namespace edm {
 
     virtual bool fillAndMatchSelector(Provenance& prov, SelectorBase const& selector) const = 0;
 
-    typedef boost::shared_ptr<Group> SharedGroupPtr;
-
     SharedConstGroupPtr const getInactiveGroup(ProductID const& oid) const;
+
+    void getAllMatches_(std::string const& moduleLabel,
+			std::string const& productInstanceName,
+			MatchingGroupLookup& matches) const;
 
     // Make my DelayedReader get the EDProduct for a Group.  The Group is
     // a cache, and so can be modified through the const reference.

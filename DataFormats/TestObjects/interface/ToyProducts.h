@@ -52,6 +52,14 @@ namespace edmtest
     key_type id() const { return key; }
   };
 
+  inline
+  bool
+  operator== (Simple const& a, Simple const& b)
+  {
+    return (a.key==b.key && a.value==b.value);
+  }
+  
+
   struct Sortable
   {
     int data;

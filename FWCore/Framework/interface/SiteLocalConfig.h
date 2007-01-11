@@ -1,22 +1,22 @@
 #ifndef FRAMEWORK_SITE_LOCAL_CONFIG_H
 # define FRAMEWORK_SITE_LOCAL_CONFIG_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
+// INCLUDES
 # include <string>
 # include <list>
 
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
+// PUBLIC DEFINES
+// PUBLIC CONSTANTS
+// PUBLIC TYPES
 namespace edm 
 {
     class ParameterSet;
     class ActivityRegistry;
 }
 
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
+// PUBLIC VARIABLES
+// PUBLIC FUNCTIONS
+// CLASS DECLARATIONS
 
 namespace edm 
 {
@@ -36,7 +36,7 @@ namespace edm
   };
 }
     
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
+// INLINE PUBLIC FUNCTIONS
+// INLINE MEMBER FUNCTIONS
 
 #endif // FRAMEWORK_SITE_LOCAL_CONFIG_H

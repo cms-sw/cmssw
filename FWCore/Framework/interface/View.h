@@ -14,7 +14,7 @@ Description: Provide access to any EDProduct that is a sequence.
 //
 // Original Author:  
 //         Created:  Mon Dec 18 09:48:30 CST 2006
-// $Id: View.h,v 1.2 2006/12/20 23:19:05 paterno Exp $
+// $Id: View.h,v 1.3 2006/12/22 02:26:44 paterno Exp $
 //
 
 #include <algorithm>
@@ -26,15 +26,25 @@ Description: Provide access to any EDProduct that is a sequence.
 
 namespace edm
 {
-  template <class T>
-  class View
+
+  // ViewBase exists only so that we may invoke View<T> destructors
+  // polymorphically.
+
+  class ViewBase
   {
-    typedef std::vector<T*>  seq_t;
   public:
-    typedef T*         pointer;
+    virtual ~ViewBase();
+  };
+
+  template <class T>
+  class View : public ViewBase
+  {
+    typedef std::vector<T const*>  seq_t;
+  public:
+    typedef T const*   pointer;
     typedef T const*   const_pointer;
 
-    typedef T&         reference;
+    typedef T const&   reference;
     typedef T const&   const_reference;
 
     typedef T          value_type;
@@ -46,8 +56,21 @@ namespace edm
 
     typedef boost::indirect_iterator<typename seq_t::const_reverse_iterator>  const_reverse_iterator;
 
-    // Compiler-generated default c'tor, copy, assignment, and d'tor
-    // each does the right thing.
+    // Compiler-generated copy, and assignment each does the right
+    // thing.
+
+    View() : data_() { }
+
+    // This function is dangerous, and should only be called from the
+    // infrastructure code.
+    explicit View(std::vector<void const*> const& pointers) : data_()
+    {
+      data_.reserve(pointers.size());
+      for (std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i)
+	data_.push_back(static_cast<pointer>(pointers[i]));
+    }
+
+    virtual ~View() { }
 
     size_type capacity() const { return data_.capacity(); }
 
@@ -79,7 +102,7 @@ namespace edm
     // No erase, because erase is required to return an *iterator*,
     // not a *const_iterator*.
 
-    // The following are for testing.
+    // The following is for testing only.
     static void fill_from_range(T* first, T* last, View& output)
     {
       output.data_.resize(std::distance(first,last));

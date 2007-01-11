@@ -51,7 +51,8 @@ namespace edmtest {
   //
   class IntProducer : public edm::EDProducer {
   public:
-    explicit IntProducer(edm::ParameterSet const& p) : value_(p.getParameter<int>("ivalue")) {
+    explicit IntProducer(edm::ParameterSet const& p) : 
+      value_(p.getParameter<int>("ivalue")) {
       produces<IntProduct>();
     }
     explicit IntProducer(int i) : value_(i) {
@@ -74,7 +75,8 @@ namespace edmtest {
   //
   class DoubleProducer : public edm::EDProducer {
   public:
-    explicit DoubleProducer(edm::ParameterSet const& p) : value_(p.getParameter<double>("dvalue")) {
+    explicit DoubleProducer(edm::ParameterSet const& p) : 
+      value_(p.getParameter<double>("dvalue")) {
       produces<DoubleProduct>();
     }
     explicit DoubleProducer(double d) : value_(d) {
@@ -281,8 +283,9 @@ namespace edmtest {
       edm::Handle<IntProduct> handle;
       iEvent.getByLabel(moduleLabel_,handle);
       if(handle->value != value_) {
-	throw cms::Exception("ValueMissMatch")<<"The value for \""<<moduleLabel_<<"\" is "
-					      <<handle->value <<" but it was supposed to be "<<value_;
+	throw cms::Exception("ValueMissMatch")
+	  <<"The value for \""<<moduleLabel_<<"\" is "
+	  <<handle->value <<" but it was supposed to be "<<value_;
       }
     }
   private:
@@ -368,7 +371,8 @@ namespace edmtest {
     // manipulate them via an interface different from
     // DetSet, just so that we can make sure the collection
     // is sorted.
-    std::vector<value_type> after( h->begin()->data.begin(), h->begin()->data.end() );
+    std::vector<value_type> after( h->begin()->data.begin(),
+				   h->begin()->data.end() );
     typedef std::vector<value_type>::size_type size_type;
     
 
@@ -396,7 +400,8 @@ namespace edmtest {
     // manipulate them via an interface different from
     // DetSet, just so that we can make sure the collection
     // is not sorted.
-    std::vector<value_type> after( h->begin()->data.begin(), h->begin()->data.end() );
+    std::vector<value_type> after( h->begin()->data.begin(),
+				   h->begin()->data.end() );
     typedef std::vector<value_type>::size_type size_type;
     
 

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.6 2006/12/15 22:52:43 paterno Exp $
+$Id: DataViewImpl.cc,v 1.7 2006/12/18 06:00:21 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -118,6 +118,14 @@ namespace edm {
 		  BasicHandleVec& results) const
   {
     dbk_.getManyByType(tid, results);
+  }
+
+  BasicHandle
+  DataViewImpl::getMatchingSequence_(type_info const& valuetype,
+				     string const& label,
+				     string const& productInstanceName) const
+  {
+    return dbk_.getMatchingSequence(valuetype, label, productInstanceName);
   }
 
   Provenance const&

@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.7 2006/10/30 23:07:52 wmtan Exp $
+$Id: Wrapper.h,v 1.8 2006/10/31 23:45:40 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -23,10 +23,30 @@ $Id: Wrapper.h,v 1.7 2006/10/30 23:07:52 wmtan Exp $
 
 namespace edm {
 
+  // The following function objects are used by Wrapper::do_fillView,
+  // under the control of a metafunction if, to either call the given
+  // object's fillView function (if it has one) or do nothing (if it
+  // does not).
+  // TODO: Maybe we should throw an exception if DoThing is called?
+
+  template <class T>
+  struct DoFillView
+  {
+    void operator()(T const& obj, std::vector<void const*>& pointers) const
+    { obj.fillView(pointers); }
+  };
+
+  template <class T>
+  struct DoNotFillView
+  {
+    void operator()(T const&, std::vector<void const*>&) const { }
+  };
+
   template <class T>
   class Wrapper : public EDProduct {
   public:
     typedef T value_type;
+    typedef T wrapped_type;  // used with Reflex to identify Wrappers
     Wrapper() : EDProduct(), present(false), obj() {}
     explicit Wrapper(std::auto_ptr<T> ptr);
     virtual ~Wrapper() {}
@@ -34,6 +54,13 @@ namespace edm {
     T const * operator->() const {return product();}
   private:
     virtual bool isPresent_() const {return present;}
+    void do_fillView(std::vector<void const*>& pointers) const
+    {
+      typename boost::mpl::if_c<has_fillView<T>::value,
+                                DoFillView<T>,
+                                DoNotFillView<T> >::type maybe_filler;
+      maybe_filler(obj, pointers);
+    }
     // We wish to disallow copy construction and assignment.
     // We make the copy constructor and assignment operator private.
     Wrapper(Wrapper<T> const& rh); // disallow copy construction

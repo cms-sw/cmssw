@@ -1,24 +1,30 @@
 /*----------------------------------------------------------------------
-$Id: DataBlockImpl.cc,v 1.5 2007/01/08 23:39:44 chrjones Exp $
-----------------------------------------------------------------------*/
+  $Id: DataBlockImpl.cc,v 1.6 2007/01/10 05:58:48 wmtan Exp $
+  ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
 
+#include "Reflex/Type.h"
+#include "Reflex/Base.h" // (needed for Type::HasBase to work correctly)
+
 #include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/DataBlockImpl.h"
+#include "FWCore/Framework/src/ReflexTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+
+
 
 using namespace std;
 
 namespace edm {
 
   DataBlockImpl::DataBlockImpl(ProductRegistry const& reg,
-				ProcessConfiguration const& pc,
-				ProcessHistoryID const& hist,
-				boost::shared_ptr<DelayedReader> rtrv) :
+			       ProcessConfiguration const& pc,
+			       ProcessHistoryID const& hist,
+			       boost::shared_ptr<DelayedReader> rtrv) :
     EDProductGetter(),
     processHistoryID_(hist),
     processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
@@ -72,23 +78,23 @@ namespace edm {
 
     BranchDict::iterator itFound = branchDict.find(bk);
     if (itFound != branchDict.end()) {
-       if(!groups[itFound->second]->product()) {
-          // is null, so this new one must be the one generated 'unscheduled'
-          groups[itFound->second]->swapProduct(*g);
-          //NOTE: other API's of DataBlockImpl give out the Provenance* so need to preserve the memory
-          groups[itFound->second]->provenance() = g->provenance();
-          return;
-       } else {
-          // the products are lost at this point!
-          throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
-	    << "addGroup: Problem found while adding product provanence, "
-	    << "product already exists for ("
-	    << bk.friendlyClassName_ << ","
-            << bk.moduleLabel_ << ","
-            << bk.productInstanceName_ << ","
-            << bk.processName_
-	    << ")\n";
-       }
+      if(!groups[itFound->second]->product()) {
+	// is null, so this new one must be the one generated 'unscheduled'
+	groups[itFound->second]->swapProduct(*g);
+	//NOTE: other API's of DataBlockImpl give out the Provenance* so need to preserve the memory
+	groups[itFound->second]->provenance() = g->provenance();
+	return;
+      } else {
+	// the products are lost at this point!
+	throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
+	  << "addGroup: Problem found while adding product provanence, "
+	  << "product already exists for ("
+	  << bk.friendlyClassName_ << ","
+	  << bk.moduleLabel_ << ","
+	  << bk.productInstanceName_ << ","
+	  << bk.processName_
+	  << ")\n";
+      }
     }
 
     // a memory allocation failure in modifying the product
@@ -119,7 +125,7 @@ namespace edm {
       if (processName == it->processName()) {
 	throw edm::Exception(errors::Configuration, "Duplicate Process")
 	  << "The process name " << processName << " was previously used on these products.\n"
-	  << "Please modify the configuration file to use a distinct process name."<<"\n";
+	  << "Please modify the configuration file to use a distinct process name.\n";
       }
     }
     ph.push_back(processConfiguration_);
@@ -142,17 +148,17 @@ namespace edm {
 
   void 
   DataBlockImpl::put(auto_ptr<EDProduct> edp,
-		      auto_ptr<Provenance> prov) {
+		     auto_ptr<Provenance> prov) {
 
     if (prov->productID() == ProductID()) {
-	throw edm::Exception(edm::errors::InsertFailure,"Null Product ID")
-	  << "put: Cannot put product with null Product ID."
-	  << "\n";
+      throw edm::Exception(edm::errors::InsertFailure,"Null Product ID")
+	<< "put: Cannot put product with null Product ID."
+	<< "\n";
     }
     ProductID oid = prov->productID();
 
     // Group assumes ownership
-    std::auto_ptr<Group> g(new Group(edp, prov));
+    auto_ptr<Group> g(new Group(edp, prov));
     g->setID(oid);
     this->addGroup(g);
     this->addToProcessHistory();
@@ -162,7 +168,7 @@ namespace edm {
   DataBlockImpl::getGroup(ProductID const& oid, bool resolve) const {
     ProductDict::const_iterator i = productDict_.find(oid);
     if (i == productDict_.end()) {
-	return getInactiveGroup(oid);
+      return getInactiveGroup(oid);
     }
     size_type slotNumber = i->second;
     assert(slotNumber < groups_.size());
@@ -178,7 +184,7 @@ namespace edm {
   DataBlockImpl::getInactiveGroup(ProductID const& oid) const {
     ProductDict::const_iterator i = inactiveProductDict_.find(oid);
     if (i == inactiveProductDict_.end()) {
-	return SharedConstGroupPtr();
+      return SharedConstGroupPtr();
     }
     size_type slotNumber = i->second;
     assert(slotNumber < inactiveGroups_.size());
@@ -207,42 +213,43 @@ namespace edm {
   }
 
   BasicHandle
-  DataBlockImpl::getBySelector(TypeID const& tid, 
-				SelectorBase const& sel) const {
-    TypeDict::const_iterator i = typeDict_.find(tid.friendlyClassName());
+  DataBlockImpl::getBySelector(TypeID const& productType, 
+			       SelectorBase const& sel) const {
+    TypeDict::const_iterator i 
+      = typeDict_.find(productType.friendlyClassName());
 
     if(i==typeDict_.end()) {
-	// TODO: Perhaps stuff like this should go to some error
-	// logger?  Or do we want huge message inside the exception
-	// that is thrown?
-	edm::Exception err(edm::errors::ProductNotFound,"InvalidType");
-	err << "getBySelector: no products found of correct type\n";
-	err << "No products found of correct type\n";
-	err << "We are looking for: '"
-	     << tid
-	     << "'\n";
-	if (typeDict_.empty()) {
-	    err << "typeDict_ is empty!\n";
-	} else {
-	    err << "We found only the following:\n";
-	    TypeDict::const_iterator j = typeDict_.begin();
-	    TypeDict::const_iterator e = typeDict_.end();
-	    while (j != e) {
-		err << "...\t" << j->first << '\n';
-		++j;
-	    }
+      // TODO: Perhaps stuff like this should go to some error
+      // logger?  Or do we want huge message inside the exception
+      // that is thrown?
+      edm::Exception err(edm::errors::ProductNotFound,"InvalidType");
+      err << "getBySelector: no products found of correct type\n";
+      err << "No products found of correct type\n";
+      err << "We are looking for: '"
+	  << productType
+	  << "'\n";
+      if (typeDict_.empty()) {
+	err << "typeDict_ is empty!\n";
+      } else {
+	err << "We found only the following:\n";
+	TypeDict::const_iterator j = typeDict_.begin();
+	TypeDict::const_iterator e = typeDict_.end();
+	while (j != e) {
+	  err << "...\t" << j->first << '\n';
+	  ++j;
 	}
-	err << ends;
-	throw err;
+      }
+      err << ends;
+      throw err;
     }
 
     vector<int> const& vint = i->second;
 
     if (vint.empty()) {
-	// should never happen!!
-	throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
-	  <<  "getBySelector: no products found for\n"
-	  << tid<<"\n";
+      // should never happen!!
+      throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
+	<<  "getBySelector: no products found for\n"
+	<< productType<<"\n";
     }
 
     int found_count = 0;
@@ -252,29 +259,28 @@ namespace edm {
     BasicHandle result;
 
     while(ib!=ie) {
-	SharedGroupPtr const& g = groups_[*ib];
+      SharedGroupPtr const& g = groups_[*ib];
 
-	bool match = (unscheduled_ ? fillAndMatchSelector(g->provenance(), sel) : sel.match(g->provenance()));
-	if (match) {
-	    ++found_count;
-	    if (found_count > 1) {
-		throw edm::Exception(edm::errors::ProductNotFound,
-				     "TooManyMatches")
-		  << "getBySelector: too many products found, "
-		  << "expected one, got " << found_count << ", for\n"
-		  << tid<<"\n";
-	    }
-	    found_slot = *ib;
-	    this->resolve_(*g);
-	    result = BasicHandle(g->product(), &g->provenance());
+      bool match = (unscheduled_ ? fillAndMatchSelector(g->provenance(), sel) : sel.match(g->provenance()));
+      if (match) {
+	++found_count;
+	if (found_count > 1) {
+	  throw edm::Exception(edm::errors::ProductNotFound,
+			       "TooManyMatches")
+	    << "getBySelector: too many products found for\n"
+	    << productType<<"\n";
 	}
-	++ib;
+	found_slot = *ib;
+	this->resolve_(*g);
+	result = BasicHandle(g->product(), &g->provenance());
+      }
+      ++ib;
     }
 
     if (found_count == 0) {
-	throw edm::Exception(edm::errors::ProductNotFound,"TooFewProducts")
-	  << "getBySelector: too few products found (zero) for\n"
-	  << tid<<"\n";
+      throw edm::Exception(edm::errors::ProductNotFound,"TooFewProducts")
+	<< "getBySelector: too few products found (zero) for\n"
+	  << productType<<"\n";
     }
 
     return result;
@@ -282,9 +288,9 @@ namespace edm {
 
     
   BasicHandle
-  DataBlockImpl::getByLabel(TypeID const& tid, 
-			     string const& label,
-			     string const& productInstanceName) const {
+  DataBlockImpl::getByLabel(TypeID const& productType, 
+			    string const& label,
+			    string const& productInstanceName) const {
     // The following is not the most efficient way of doing this. It
     // is the simplest implementation of the required policy, given
     // the current organization of the DataBlockImpl. This should be
@@ -297,7 +303,7 @@ namespace edm {
     if (unscheduled_ && !processHistoryModified_) {
       // Unscheduled processing is enabled, and the current process is not
       // in the ProcessHistory.  We must check the current process first.
-      BranchKey bk(tid.friendlyClassName(), label, productInstanceName, processConfiguration_.processName());
+      BranchKey bk(productType.friendlyClassName(), label, productInstanceName, processConfiguration_.processName());
       BranchDict::const_iterator i = branchDict_.find(bk);
       if (i != branchDict_.end()) {
 	// We found what we want.
@@ -313,12 +319,13 @@ namespace edm {
     ProcessHistory::const_reverse_iterator eproc = processHistory().rend();
     while (iproc != eproc) {
       string const& processName = iproc->processName();
-      BranchKey bk(tid.friendlyClassName(), label, productInstanceName, processName);
+      BranchKey bk(productType.friendlyClassName(), label, productInstanceName, processName);
       BranchDict::const_iterator i = branchDict_.find(bk);
+
       if (i != branchDict_.end()) {
 	// We found what we want.
-        assert(i->second >= 0);
-        assert(unsigned(i->second) < groups_.size());
+	assert(i->second >= 0);
+        assert(size_t(i->second) < groups_.size());
 	SharedConstGroupPtr group = groups_[i->second];
 	this->resolve_(*group);
 	return BasicHandle(group->product(), &group->provenance());    
@@ -329,25 +336,28 @@ namespace edm {
     // process name... throw!
     throw edm::Exception(errors::ProductNotFound,"NoMatch")
       << "getByLabel: could not find a product with module label \"" << label
-      << "\"\nof type " << tid
-      << " with product instance label \"" << (productInstanceName.empty() ? "" : productInstanceName) << "\"\n";
+      << "\"\nof type " << productType
+      << " with product instance label \"" << productInstanceName << "\"\n";
   }
 
   BasicHandle
-  DataBlockImpl::getByLabel(TypeID const& tid,
-			     string const& label,
-			     string const& productInstanceName,
-			     string const& processName) const
+  DataBlockImpl::getByLabel(TypeID const& productType,
+			    string const& label,
+			    string const& productInstanceName,
+			    string const& processName) const
   {
-    BranchKey bk(tid.friendlyClassName(), label, productInstanceName, processName);
+    BranchKey bk(productType.friendlyClassName(), label, 
+		 productInstanceName, processName);
     BranchDict::const_iterator i = branchDict_.find(bk);
  
     if (i == branchDict_.end()) {
       // We failed to find the product we're looking for
       throw edm::Exception(errors::ProductNotFound,"NoMatch")
-        << "getByLabel: could not find a product with module label \"" << label
-        << "\"\nof type " << tid
-        << " with product instance label \"" << (productInstanceName.empty() ? "" : productInstanceName) << "\""
+        << "getByLabel: could not find a product with module label \"" 
+	<< label
+        << "\"\nof type " << productType
+        << " with product instance label \"" 
+	<< productInstanceName << "\""
         << " and process name " << processName << "\n";
     }
     // We found what we want.
@@ -360,28 +370,28 @@ namespace edm {
  
 
   void 
-  DataBlockImpl::getMany(TypeID const& tid, 
-			  SelectorBase const& sel,
-			  BasicHandleVec& results) const {
+  DataBlockImpl::getMany(TypeID const& productType, 
+			 SelectorBase const& sel,
+			 BasicHandleVec& results) const {
     // We make no promise that the input 'fill_me_up' is unchanged if
     // an exception is thrown. If such a promise is needed, then more
     // care needs to be taken.
-    TypeDict::const_iterator i = typeDict_.find(tid.friendlyClassName());
+    TypeDict::const_iterator i = typeDict_.find(productType.friendlyClassName());
 
     if(i==typeDict_.end()) {
-	return;
-	// it is not an error to return no items
-	// throw edm::Exception(errors::ProductNotFound,"NoMatch")
-	//   << "getMany: no products found of correct type\n" << tid;
+      return;
+      // it is not an error to return no items
+      // throw edm::Exception(errors::ProductNotFound,"NoMatch")
+      //   << "getMany: no products found of correct type\n" << productType;
     }
 
     vector<int> const& vint = i->second;
 
     if(vint.empty()) {
-	// should never happen!!
-	throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
-	  <<  "getMany: no products found for\n"
-	  << tid<<"\n";
+      // should never happen!!
+      throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
+	<<  "getMany: no products found for\n"
+	<< productType << '\n';
     }
 
     vector<int>::const_iterator ib(vint.begin()), ie(vint.end());
@@ -396,13 +406,14 @@ namespace edm {
   }
 
   BasicHandle
-  DataBlockImpl::getByType(TypeID const& tid) const {
+  DataBlockImpl::getByType(TypeID const& productType) const {
 
-    TypeDict::const_iterator i = typeDict_.find(tid.friendlyClassName());
+    TypeDict::const_iterator i = typeDict_.find(productType.friendlyClassName());
 
     if(i==typeDict_.end()) {
       throw edm::Exception(errors::ProductNotFound,"NoMatch")
-        << "getByType: no product found of correct type\n" << tid<<"\n";
+        << "getByType: no product found of correct type\n" << productType
+	<< '\n';
     }
 
     vector<int> const& vint = i->second;
@@ -411,14 +422,14 @@ namespace edm {
       // should never happen!!
       throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
         <<  "getByType: no product found for\n"
-        << tid<<"\n";
+        << productType <<'\n';
     }
 
     if(vint.size() > 1) {
       throw edm::Exception(edm::errors::ProductNotFound, "TooManyMatches")
         << "getByType: too many products found, "
         << "expected one, got " << vint.size() << ", for\n"
-        << tid<<"\n";
+        << productType << '\n';
     }
 
     SharedConstGroupPtr const& g = groups_[vint[0]];
@@ -427,18 +438,18 @@ namespace edm {
   }
 
   void 
-  DataBlockImpl::getManyByType(TypeID const& tid, 
-			  BasicHandleVec& results) const {
+  DataBlockImpl::getManyByType(TypeID const& productType, 
+			       BasicHandleVec& results) const {
     // We make no promise that the input 'fill_me_up' is unchanged if
     // an exception is thrown. If such a promise is needed, then more
     // care needs to be taken.
-    TypeDict::const_iterator i = typeDict_.find(tid.friendlyClassName());
+    TypeDict::const_iterator i = typeDict_.find(productType.friendlyClassName());
 
     if(i==typeDict_.end()) {
-		return;
+      return;
       // it is not an error to find no match
       // throw edm::Exception(errors::ProductNotFound,"NoMatch")
-      //   << "getManyByType: no products found of correct type\n" << tid;
+      //   << "getManyByType: no products found of correct type\n" << productType;
     }
 
     vector<int> const& vint = i->second;
@@ -447,7 +458,7 @@ namespace edm {
       // should never happen!!
       throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
         <<  "getManyByType: no products found for\n"
-        << tid<<"\n";
+        << productType << '\n';
     }
 
     vector<int>::const_iterator ib(vint.begin()), ie(vint.end());
@@ -457,6 +468,123 @@ namespace edm {
       results.push_back(BasicHandle(g->product(), &g->provenance()));
       ++ib;
     }
+  }
+
+  class NeitherSameNorDerivedType
+  {
+  public:
+    typedef DataBlockImpl::MatchingGroups::value_type arg_t;
+
+    explicit NeitherSameNorDerivedType(type_info const& elementType) :
+      typeToMatch_(ROOT::Reflex::Type::ByTypeInfo(elementType)) 
+    { }
+
+    bool operator()(arg_t const& group) const
+    {
+      return !matches(group);
+    }
+  private:
+    ROOT::Reflex::Type typeToMatch_;
+
+    // Return true if the given group contains an EDProduct that is a
+    // sequence, and if the value_type of that sequence is either the
+    // same as our valuetype, or derives from our valuetype.
+    bool matches(arg_t const& group) const
+    {
+      ROOT::Reflex::Type wrapperType = 
+	ROOT::Reflex::Type::ByTypeInfo(typeid(*(group->product())));
+      ROOT::Reflex::Type elementType;
+      bool sequenceFound = is_sequence_wrapper(wrapperType, elementType);
+      bool matchFound;
+      if (sequenceFound)
+	{
+	  if ( elementType == typeToMatch_ || 
+	       elementType.HasBase(typeToMatch_) )
+	    {
+	      matchFound = true;
+	    }
+	  else
+	    {
+	      matchFound = false;
+	    }
+    }
+      return matchFound;
+    }
+
+  };
+
+  BasicHandle
+  DataBlockImpl::getMatchingSequence(type_info const& valuetype,
+				     string const& moduleLabel,
+				     string const& productInstanceName) const
+  {
+    // This code is in need of optimization. This is a prototype hack,
+    // to get something functioning.
+    BasicHandle result;
+
+    // Find the matches for this module label and product instance
+    // name, for *all* processes, grouped by process.
+    MatchingGroupLookup matches;
+    getAllMatches_(moduleLabel, productInstanceName, matches);
+    
+    // Shortcut -- we only have to continue if there is something that
+    // might match.
+    if (!matches.empty()) {
+      
+      // Loop through all processes, in backwards time order.
+      ProcessHistory::const_reverse_iterator iproc = processHistory().rbegin();
+      ProcessHistory::const_reverse_iterator eproc = processHistory().rend();
+      while (iproc != eproc) {
+	MatchingGroupLookup::iterator candidatesForProcess = 
+	  matches.find(iproc->processName());
+
+	if (candidatesForProcess != matches.end()) {
+	  // We have found one or more groups for this process...
+	  MatchingGroups& candidateGroups = candidatesForProcess->second;
+	  assert(!candidateGroups.empty());
+	  
+	  NeitherSameNorDerivedType removalPredicate(valuetype);
+	  candidateGroups.remove_if(removalPredicate);
+	  
+	  if (candidateGroups.size() == 1) {
+	    // We've found what we're looking for, and it is unique.
+	    // We can return the result.
+	    BasicHandle result(candidateGroups.front()->product(),
+			       &(candidateGroups.front()->provenance()));
+	    assert (result.isValid());
+	    return result;
+	  } else if (candidateGroups.size() > 1) {
+	    // We've found more than one match; this is an exceptional
+	    // condition.
+	    throw Exception(errors::ProductNotFound, "TooManyMatches")
+	      << "DataBlockImpl::getMatchingSequence has found "
+	      << candidateGroups.size()
+	      << " matches for\n"
+	      << "  module label: " << moduleLabel
+	      << "  productInstanceName: " << productInstanceName
+	      << "  processName: " << iproc->processName()
+	      << "  value type: " << valuetype.name()
+	      << '\n';
+	  }
+	  // If we're here, no candidate group survived the removal
+	  // predicate. Go to the previous process and try again.
+	}
+	++iproc;
+      }
+    }
+    // If we never find a match, throw an exception.
+    //             TODO: Implement this function.
+    throw edm::Exception(errors::ProductNotFound,"NoMatch")
+      << "DataBlockImpl::getMatchingSequence could not find "
+      << "any product with module label \"" 
+      << moduleLabel
+      << " and product instance name \"" 
+      << productInstanceName
+      << "\"\n";
+
+    // The following never gets executed, but it makes some compilers
+    // happy.
+    return result;
   }
 
   Provenance const&
@@ -479,11 +607,25 @@ namespace edm {
   }
 
   void
-  DataBlockImpl::getAllProvenance(std::vector<Provenance const*> & provenances) const {
+  DataBlockImpl::getAllProvenance(vector<Provenance const*> & provenances) const {
     provenances.clear();
     for (DataBlockImpl::const_iterator i = groups_.begin(); i != groups_.end(); ++i) {
       provenances.push_back(&(*i)->provenance());
     }
+  }
+
+  void 
+  DataBlockImpl::getAllMatches_(string const& moduleLabel,
+				string const& productInstanceName,
+				MatchingGroupLookup& matches) const {
+    for (const_iterator i=groups_.begin(), e=groups_.end(); i != e; ++i) {
+      Group const& currentGroup = **i;
+      if (currentGroup.isAccessible() && 
+	  currentGroup.moduleLabel() == moduleLabel &&
+	  currentGroup.productInstanceName() == productInstanceName) {
+	matches[currentGroup.processName()].push_back(*i);
+      }
+    }    
   }
 
   void
@@ -491,7 +633,7 @@ namespace edm {
     if (!unconditional && !g.isAccessible())
       throw edm::Exception(errors::ProductNotFound,"InaccessibleProduct")
 	<< "resolve_: product is not accessible\n"
-	<< g.provenance()<<"\n";
+	<< g.provenance() << '\n';
 
     if (g.product()) return; // nothing to do.
 
