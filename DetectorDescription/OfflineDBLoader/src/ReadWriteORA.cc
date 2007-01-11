@@ -16,7 +16,7 @@
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
-#include "DetectorDescription/PersistentDDDObjects/interface/PersistentDDDObjects.h"
+#include "CondFormats/IdealGeometryObjects/interface/PersistentDDDObjects.h"
 #include "DetectorDescription/DBReader/interface/DDORAReader.h"
 #include "DetectorDescription/PersistentDDDObjects/interface/DDDToPersFactory.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
