@@ -12,14 +12,12 @@
 
 class InitMsgView;
 class EventMsgView;
-namespace edm
-{
+namespace edm {
 
   class SendJobHeader;
   class EventPrincipal;
   class ProductRegistry;
-  class StreamDeserializer
-  {
+  class StreamDeserializer {
 
   public:
 
@@ -29,12 +27,13 @@ namespace edm
         deserializeRegistry(InitMsgView const& initView);
     std::auto_ptr<EventPrincipal>
         deserializeEvent(EventMsgView const& eventView,
-                         const ProductRegistry& productRegistry);
-
+                         ProductRegistry const& productRegistry);
+    void
+    setProcessConfiguration(ProcessConfiguration pc) {
+      processConfiguration_ = pc;
+    }
   private:
-
     ProcessConfiguration processConfiguration_;
-
   };
 
 }
