@@ -87,7 +87,8 @@ public:
 		 bool checkCharge, const std::vector <int> & dauCharge ) : 
     NBodyCombinerBase( checkCharge, dauCharge ), 
     select_( cfg ), setup_( cfg ) { }
-
+  /// return reference to setup object to allow its initialization
+  Setup & setup() { return setup_; }
 private:
   /// select a candidate
   virtual bool select( const reco::Candidate & c ) const {

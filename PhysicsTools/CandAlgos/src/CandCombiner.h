@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.11 $
+ * \version $Revision: 1.12 $
  *
- * $Id: CandCombiner.h,v 1.11 2006/11/29 14:00:42 llista Exp $
+ * $Id: CandCombiner.h,v 1.12 2007/01/09 10:38:12 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -41,7 +41,17 @@ protected:
   std::vector<cand::parser::ConjInfo> labels_;
 };
 
-template<typename S, typename H = combiner::helpers::NormalClone, typename Setup = AddFourMomenta>
+namespace combiner {
+  namespace helpers {
+    template<typename Setup>
+    struct SetupInit {
+      static void init( Setup & s, const edm::EventSetup& es ) { }
+    };
+  }
+}
+
+template<typename S, typename H = combiner::helpers::NormalClone, typename Setup = AddFourMomenta,
+	 typename Init = combiner::helpers::SetupInit<Setup> >
 class CandCombiner : public CandCombinerBase {
 public:
   /// constructor from parameter set
@@ -52,7 +62,8 @@ public:
   virtual ~CandCombiner() { }
 private:
   /// process an event
-  void produce( edm::Event& evt, const edm::EventSetup& ) {
+  void produce( edm::Event& evt, const edm::EventSetup& es ) {
+    Init::init( combiner_.setup(), es );
     int n = labels_.size();
     std::vector<edm::Handle<reco::CandidateCollection> > colls( n );
     for( int i = 0; i < n; ++i )
@@ -65,6 +76,7 @@ private:
     
     evt.put( combiner_.combine( cv ) );
   }
+
   /// combiner utility
   NBodyCombiner<S, H, Setup> combiner_;
 };
