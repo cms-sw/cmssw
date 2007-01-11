@@ -63,8 +63,6 @@ namespace edm
   StreamDeserializer::deserializeEvent(EventMsgView const& eventView,
                                      const ProductRegistry& productRegistry)
   {
-    if (processConfiguration_.processName().empty()) {
-    }
     if(eventView.code() != Header::EVENT)
       throw cms::Exception("StreamTranslation","Event deserialization error")
         << "received wrong message type: expected EVENT, got "
@@ -102,7 +100,7 @@ namespace edm
             << "mismatch event lengths should be" << origsize << " got "
             << dest_size << "\n";
           // do I need to return here?
-          return (std::auto_ptr<EventPrincipal>)NULL;
+          return std::auto_ptr<EventPrincipal>();
         }
       }
       else
@@ -113,7 +111,7 @@ namespace edm
         throw cms::Exception("StreamTranslation","Deserialization error")
             << "Error code = " << ret << "\n ";
         // do I need to return here?
-        return (std::auto_ptr<EventPrincipal>)NULL;
+        return std::auto_ptr<EventPrincipal>();
       }
     }
     else // not compressed
