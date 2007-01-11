@@ -1,8 +1,9 @@
-// $Id: FileRecord.cc,v 1.5 2007/01/07 18:26:17 klute Exp $
+// $Id: FileRecord.cc,v 1.6 2007/01/10 18:06:09 klute Exp $
 
 #include "IOPool/Streamer/interface/FileRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <errno.h>
 #include <iostream>
 #include <sstream>
 #include <fstream>
