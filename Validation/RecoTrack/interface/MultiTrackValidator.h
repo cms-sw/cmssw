@@ -18,9 +18,8 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "Validation/RecoTrack/interface/TrackEfficiencySelector.h"
+#include "Validation/RecoTrack/interface/RecoTrackSelector.h"
 #include "Validation/RecoTrack/interface/TPEfficiencySelector.h"
-#include "Validation/RecoTrack/interface/TrackFakeRateSelector.h"
 
 #include <iostream>
 #include <string>
@@ -44,9 +43,8 @@ class MultiTrackValidator : public edm::EDAnalyzer {
     minpT(pset.getParameter<double>("minpT")),
     maxpT(pset.getParameter<double>("maxpT")),
     nintpT(pset.getParameter<int>("nintpT")),
-    selectTracks4Efficiency(pset.getParameter<edm::ParameterSet>("TracksEfficCuts")),
+    selectRecoTracks(pset.getParameter<edm::ParameterSet>("RecoTracksCuts")),
     selectTPs4Efficiency(pset.getParameter<edm::ParameterSet>("TPEfficCuts")),
-    selectTracks4FakeRate(pset.getParameter<edm::ParameterSet>("TracksFakeRateCuts")),
     selectTPs4FakeRate(pset.getParameter<edm::ParameterSet>("TPFakeRateCuts"))
     {
       dbe_ = Service<DaqMonitorBEInterface>().operator->();
@@ -89,11 +87,10 @@ class MultiTrackValidator : public edm::EDAnalyzer {
 
   edm::ESHandle<MagneticField> theMF;
 
-  vector<TrackAssociatorBase*> associator;
-  TrackAssociatorByChi2 * associatorForParamAtPca;
-  TrackEfficiencySelector selectTracks4Efficiency;
+  vector<const TrackAssociatorBase*> associator;
+  const TrackAssociatorByChi2 * associatorForParamAtPca;
+  RecoTrackSelector selectRecoTracks;
   TPEfficiencySelector selectTPs4Efficiency;
-  TrackFakeRateSelector   selectTracks4FakeRate;
   TPEfficiencySelector selectTPs4FakeRate;
 };
 

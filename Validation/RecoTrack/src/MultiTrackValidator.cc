@@ -146,12 +146,12 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
   edm::ESHandle<TrackAssociatorBase> theAssociator;
   for (unsigned int w=0;w<associators.size();w++) {
     setup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
-    associator.push_back( (TrackAssociatorBase *) theAssociator.product() );
+    associator.push_back( (const TrackAssociatorBase *) theAssociator.product() );
   }
   
   edm::ESHandle<TrackAssociatorBase> theAssociatorForParamAtPca;
   setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociatorForParamAtPca);
-  associatorForParamAtPca = (TrackAssociatorByChi2 *) theAssociatorForParamAtPca.product();
+  associatorForParamAtPca = (const TrackAssociatorByChi2 *) theAssociatorForParamAtPca.product();
 }
 
 void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup& setup){
@@ -216,7 +216,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    }
 	    if (rt.size()!=0) {
 	      reco::TrackRef t = rt.begin()->first;
- 	      if ( !selectTracks4Efficiency( *t ) ) continue;//FIXME TRY WITH SECOND
+ 	      if ( !selectRecoTracks( *t ) ) continue;//FIXME TRY WITH SECOND
 	      ats++;
 	      totASSeta[w][f]++;
 	      hitseta[w][f]+=t->numberOfValidHits();
@@ -236,7 +236,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
             } catch (cms::Exception e) { }
             if (rt.size()!=0) {
 	      reco::TrackRef t = rt.begin()->first;
-              if ( !selectTracks4Efficiency( *t ) ) continue;//FIXME TRY WITH SECOND
+              if ( !selectRecoTracks( *t ) ) continue;//FIXME TRY WITH SECOND
               totASSpT[w][f]++;
             }
           }
@@ -254,7 +254,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       int rT=0;
       for(reco::TrackCollection::size_type i=0; i<tC.size(); ++i){
 	reco::TrackRef track(trackCollection, i);
-	if ( !selectTracks4FakeRate( *track ) ) continue;
+	if ( !selectRecoTracks( *track ) ) continue;
 	rT++;
 
 	std::vector<std::pair<TrackingParticleRef, double> > tp;

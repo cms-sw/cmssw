@@ -8,12 +8,18 @@ DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(MultiTrackValidator);
 DEFINE_ANOTHER_FWK_MODULE(SiStripTrackingRecHitsValid);
 
+#include "Validation/RecoTrack/interface/RecoTrackSelector.h"
 #include "Validation/RecoTrack/interface/TrackEfficiencySelector.h"
 #include "Validation/RecoTrack/interface/TPEfficiencySelector.h"
 #include "Validation/RecoTrack/interface/TrackFakeRateSelector.h"
 #include "Validation/RecoTrack/interface/TPFakeRateSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
+
+typedef 
+ObjectSelector<SingleElementCollectionSelector<reco::TrackCollection,RecoTrackSelector> > 
+TrackSelector ;
+DEFINE_ANOTHER_FWK_MODULE( TrackSelector );
 
 typedef 
 ObjectSelector<SingleElementCollectionSelector<reco::TrackCollection,TrackEfficiencySelector> > 
@@ -34,4 +40,5 @@ typedef
 ObjectSelector<SingleElementCollectionSelector<TrackingParticleCollection,TPFakeRateSelector> > 
 TPSelectorForFakeRate ;
 DEFINE_ANOTHER_FWK_MODULE( TPSelectorForFakeRate );
+
 
