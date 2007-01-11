@@ -17,10 +17,6 @@
 ///
 /// Concrete class for 'concatenated' alignment parameters and associated
 /// Quantities for a set of Alignables. Provided by AlignmentParameterStore.
-///
-///  $Date: 2006/10/19 14:20:59 $
-///  $Revision: 1.3 $
-/// (last update by $Author: flucke $)
 
 class CompositeAlignmentParameters : public AlignmentParameters 
 {
@@ -36,17 +32,16 @@ public:
 
   /// constructors 
   CompositeAlignmentParameters() {};
-  CompositeAlignmentParameters(const AlgebraicVector& par, 
-			       const AlgebraicSymMatrix& cov, const Components& comp);
+  CompositeAlignmentParameters(const AlgebraicVector& par, const AlgebraicSymMatrix& cov,
+			       const Components& comp);
 
-  CompositeAlignmentParameters(const AlgebraicVector& par, 
-			       const AlgebraicSymMatrix& cov, const Components& comp, 
-			       const AlignableDetToAlignableMap& map, const Aliposmap& aliposmap,
-			       const Alilenmap& alilenmap);
+  CompositeAlignmentParameters(const AlgebraicVector& par, const AlgebraicSymMatrix& cov,
+			       const Components& comp, const AlignableDetToAlignableMap& alimap,
+			       const Aliposmap& aliposmap, const Alilenmap& alilenmap);
 
-  CompositeAlignmentParameters( const DataContainer& data, const Components& comp, 
-			        const AlignableDetToAlignableMap& map, const Aliposmap& aliposmap,
-			        const Alilenmap& alilenmap);
+  CompositeAlignmentParameters( const DataContainer& data,
+				const Components& comp, const AlignableDetToAlignableMap& alimap,
+				const Aliposmap& aliposmap, const Alilenmap& alilenmap);
 
   /// destructor 
   virtual ~CompositeAlignmentParameters();
@@ -61,14 +56,14 @@ public:
 
   /// Clone parameters
   CompositeAlignmentParameters* clone( const AlgebraicVector& par, const AlgebraicSymMatrix& cov, 
-				       const AlignableDetToAlignableMap& map, 
+				       const AlignableDetToAlignableMap& alimap, 
 				       const Aliposmap& aliposmap,
 				       const Alilenmap& alilenmap) const;
 
   /// Clone parameters (same as clone())
   CompositeAlignmentParameters* cloneFromSelected( const AlgebraicVector& par, 
 						   const AlgebraicSymMatrix& cov, 
-						   const AlignableDetToAlignableMap& map,
+						   const AlignableDetToAlignableMap& alimap,
 						   const Aliposmap& aliposmap,
 						   const Alilenmap& alilenmap) const;
 
@@ -101,13 +96,22 @@ public:
 
 
   /// Extract parameters for subset of alignables
-  AlgebraicVector parameterSubset ( const std::vector<Alignable*>& veci ) const;
+  AlgebraicVector parameterSubset ( const std::vector<Alignable*>& vec ) const;
 
-  /// Extract covariance between two subsets of alignables
+  /// Extract covariance matrix for subset of alignables
+  AlgebraicSymMatrix covarianceSubset( const std::vector<Alignable*>& vec ) const;
+
+  /// Extract covariance matrix elements between two subsets of alignables
   AlgebraicMatrix covarianceSubset ( const std::vector<Alignable*>& veci,
-									 const std::vector<Alignable*>& vecj ) const;
+                                     const std::vector<Alignable*>& vecj ) const;
 
 private:
+
+  /// Extract position and length of parameters for a subset of Alignables.
+  bool extractPositionAndLength( const std::vector<Alignable*>& alignables,
+				 std::vector<int>& posvec,
+				 std::vector<int>& lenvec,
+				 int& length ) const;
 
   /// Vector of alignable components 
   Components theComponents;
