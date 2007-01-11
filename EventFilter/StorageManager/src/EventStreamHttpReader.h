@@ -2,11 +2,10 @@
 #define STREAMER_EVENTSTREAMHTTPREADER_H
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
-#include "IOPool/Streamer/interface/Utilities.h"
 #include "IOPool/Streamer/interface/StreamDeserializer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/InputSource.h"
+#include "IOPool/Streamer/interface/StreamerInputSource.h"
 
 #include <vector>
 #include <memory>
@@ -17,7 +16,7 @@ namespace edmtestp
 {
   struct ReadData;
 
-  class EventStreamHttpReader : public edm::InputSource
+  class EventStreamHttpReader : public edm::StreamerInputSource
   {
   public:
     typedef std::vector<char> Buf;
@@ -46,7 +45,6 @@ namespace edmtestp
     double minEventRequestInterval_;
     unsigned int consumerId_;
     struct timeval lastRequestTime_;
-    edm::StreamDeserializer deserializer_;
   };
 
 }

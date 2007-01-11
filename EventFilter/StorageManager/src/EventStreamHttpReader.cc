@@ -23,8 +23,6 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
-#include "IOPool/Streamer/interface/Utilities.h"
-#include "IOPool/Streamer/interface/StreamDeserializer.h"
 #include "IOPool/Streamer/interface/OtherMessage.h"
 #include "IOPool/Streamer/interface/ConsRegMessage.h"
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -70,11 +68,10 @@ namespace edmtestp
 
   EventStreamHttpReader::EventStreamHttpReader(edm::ParameterSet const& ps,
 					       edm::InputSourceDescription const& desc):
-    edm::InputSource(ps, desc),
+    edm::StreamerInputSource(ps, desc),
     sourceurl_(ps.getParameter<string>("sourceURL")),
     buf_(1000*1000*7), 
-    events_read_(0),
-    deserializer_()
+    events_read_(0)
   {
     std::string evturl = sourceurl_ + "/geteventdata";
     int stlen = evturl.length();
@@ -117,12 +114,12 @@ namespace edmtestp
 
     std::auto_ptr<SendJobHeader> p = readHeader();
     SendDescs & descs = p->descs_;
-    edm::mergeWithRegistry(descs, productRegistry());
+    mergeWithRegistry(descs, productRegistry());
 
     // next taken from IOPool/Streamer/EventStreamFileReader
     // jbk - the next line should not be needed
-    edm::declareStreamers(descs);
-    edm::buildClassCache(descs);
+    declareStreamers(descs);
+    buildClassCache(descs);
     loadExtraClasses();
   }
 
@@ -245,7 +242,7 @@ namespace edmtestp
       //edm::EventMsg msg(&buf_[0],len);
       //return decoder_.decodeEvent(msg,productRegistry());
       EventMsgView eventView(&buf_[0]);
-      return deserializer_.deserializeEvent(eventView,productRegistry());
+      return deserializeEvent(eventView,productRegistry());
     }
   }
 
@@ -326,7 +323,7 @@ namespace edmtestp
     std::auto_ptr<SendJobHeader> p;
     try {
       //p = hdecoder.decodeJobHeader(msg);
-      p = deserializer_.deserializeRegistry(initView);
+      p = deserializeRegistry(initView);
     }
     catch (cms::Exception excpt) {
       const unsigned int MAX_DUMP_LENGTH = 1000;
