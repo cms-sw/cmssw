@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/31 13:52:51 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/10/27 01:35:34 $
+ *  $Revision: 1.6 $
  */
 
 #include "MagneticField/GeomBuilder/src/VolumeBasedMagneticFieldESProducer.h"
@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
@@ -34,7 +33,7 @@ VolumeBasedMagneticFieldESProducer::VolumeBasedMagneticFieldESProducer(const edm
 std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const IdealMagneticFieldRecord & iRecord)
 {
   edm::ESHandle<DDCompactView> cpv;
-  iRecord.getRecord<IdealGeometryRecord>().get("magfield",cpv );
+  iRecord.get("magfield",cpv );
   MagGeoBuilderFromDDD builder;
   builder.build(*cpv);
   
