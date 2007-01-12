@@ -518,7 +518,7 @@ void SiStripRecHitsCompare()
  TH1F* restid[5];
  TH1F* chi2tid[5];
  TH1F* matchedtid[8];
- TH1F* matchedchi2tid[5];
+ TH1F* matchedchi2tid[6];
  TH1F* newadctid[5];
  TH1F* newnstptid[5];
  TH1F* newpostid[5];
@@ -526,7 +526,7 @@ void SiStripRecHitsCompare()
  TH1F* newrestid[5];
  TH1F* newchi2tid[5];
  TH1F* newmatchedtid[8];
- TH1F* newmatchedchi2tid[5];
+ TH1F* newmatchedchi2tid[6];
  
  rfile->GetObject("DQMData/TID/Adc_rphi_layer1tid",adctid[0]);
  rfile->GetObject("DQMData/TID/Adc_rphi_layer2tid",adctid[1]);
