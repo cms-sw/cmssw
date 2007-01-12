@@ -139,9 +139,11 @@ bool SMFUSenderEntry::update4Data(const unsigned int runNumber, const unsigned i
         if(frameNum == totalFrames) { //should check totalFrames
           ++eventsReceived_;
           fullEvent = true;          
+          // Note only to increment total size on whole events to
+          // get the correct average event size
+          totalSizeReceived_ = totalSizeReceived_ + origdatasize;
         } 
         lastFrameNum_ = frameNum;
-        totalSizeReceived_ = totalSizeReceived_ + origdatasize;
       } else { // first frame from new event
         // new event (assume run number does not change)
         lastEventID_ = eventNumber;
@@ -152,7 +154,6 @@ bool SMFUSenderEntry::update4Data(const unsigned int runNumber, const unsigned i
         }
         lastFrameNum_ = frameNum;
         lastTotalFrameNum_ = totalFrames;
-        totalSizeReceived_ = totalSizeReceived_ + origdatasize;
       }
    } // totalFrames=1 or not
    if(problemFound) ++totalBadEvents_;
@@ -191,14 +192,24 @@ double SMFUSenderEntry::getStopWTime() //const
    return ((double) chrono_.dusecs());
 }
 
-unsigned int SMFUSenderEntry::gettotFrames() //const
+boost::shared_ptr<std::vector<char> > SMFUSenderEntry::getvhltURL() 
 {
-   return totFrames_;
+  int i = 0;
+  while (hltURL_[i] != '\0') i = i + 1;
+  boost::shared_ptr<std::vector<char> > hltURL(new vector<char>);
+  hltURL->resize(i);
+  copy(hltURL_, hltURL_+i, &(hltURL->at(0)) );
+  return hltURL;
 }
 
-unsigned int SMFUSenderEntry::getcurrFrames() //const
+boost::shared_ptr<std::vector<char> > SMFUSenderEntry::getvhltClassName() 
 {
-   return currFrames_;
+  int i = 0;
+  while (hltClassName_[i] != '\0') i = i + 1;
+  boost::shared_ptr<std::vector<char> > hltClassName(new vector<char>);
+  hltClassName->resize(i);
+  copy(hltClassName_, hltClassName_+i, &(hltClassName->at(0)) );
+  return hltClassName;
 }
 
 bool SMFUSenderEntry::getDataStatus() //const
@@ -208,19 +219,9 @@ bool SMFUSenderEntry::getDataStatus() //const
    else return false;
 }
 
-unsigned int SMFUSenderEntry::getrunNumber() //const
-{
-   return runNumber_;
-}
-
 char* SMFUSenderEntry::getregistryData()
 {
    return registryData_;
-}
-
-unsigned int SMFUSenderEntry::getregistrySize() //const
-{
-   return registrySize_;
 }
 
 bool SMFUSenderEntry::regIsCopied() //const

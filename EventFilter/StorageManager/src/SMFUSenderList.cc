@@ -215,3 +215,41 @@ unsigned int SMFUSenderList::getRegistrySize(const char* hltURL,
      return 0;
   }
 }
+
+std::vector<boost::shared_ptr<SMFUSenderStats> > SMFUSenderList::getFUSenderStats()
+{
+  boost::mutex::scoped_lock sl(list_lock_);
+  std::vector<boost::shared_ptr<SMFUSenderStats> > vstat;
+  if(fulist_.size() == 0) return vstat;
+
+  for(std::list<boost::shared_ptr<stor::SMFUSenderEntry> >::iterator pos = fulist_.begin();
+          pos != fulist_.end(); ++pos)  
+  {
+    boost::shared_ptr<SMFUSenderStats> fustat(new SMFUSenderStats((*pos)->getvhltURL(),
+                                         (*pos)->getvhltClassName(),
+                                         (*pos)->gethltLocalId(),
+                                         (*pos)->gethltInstance(),
+                                         (*pos)->gethltTid(),
+                                         (*pos)->getregistrySize(),
+                                         (*pos)->getregAllReceived(),
+                                         (*pos)->gettotFrames(),
+                                         (*pos)->getcurrFrames(),
+                                         (*pos)->getregCheckedOK(),
+                                         (*pos)->getconnectStatus(),
+                                         (*pos)->getlastLatency(),
+                                         (*pos)->getrunNumber(),
+                                         (*pos)->getisLocal(),
+                                         (*pos)->getframesReceived(),
+                                         (*pos)->geteventsReceived(),
+                                         (*pos)->getlastEventID(),
+                                         (*pos)->getlastRunID(),
+                                         (*pos)->getlastFrameNum(),
+                                         (*pos)->getlastTotalFrameNum(),
+                                         (*pos)->gettotalOutOfOrder(),
+                                         (*pos)->gettotalSizeReceived(),
+                                         (*pos)->gettotalBadEvents(),
+                                         (*pos)->getStopWTime()));
+    vstat.push_back(fustat);
+  }
+  return vstat;
+}

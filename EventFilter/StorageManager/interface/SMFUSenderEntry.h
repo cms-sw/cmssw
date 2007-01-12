@@ -4,6 +4,7 @@
 #include <exception>
 #include <vector>
 
+#include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
 
 #include "EventFilter/StorageManager/interface/i2oStorageManagerMsg.h"
@@ -48,7 +49,7 @@ struct SMFUSenderEntry  // used to store each FU sender
   unsigned int  lastFrameNum_;
   unsigned int  lastTotalFrameNum_;
   unsigned int  totalOutOfOrder_;
-  unsigned int  totalSizeReceived_;// For data only
+  unsigned long long  totalSizeReceived_;// For data only
   unsigned int  totalBadEvents_;   // Update meaning: include original size check?
   toolbox::Chrono chrono_;         // Keep latency for connection check
   boost::mutex entry_lock_;
@@ -75,12 +76,32 @@ struct SMFUSenderEntry  // used to store each FU sender
   
   //double getStopWTime() const;  // more const below (nothings changes inside) didn't work due to mutex
   double getStopWTime();
-  unsigned int gettotFrames();
-  unsigned int getcurrFrames();
+  boost::shared_ptr<std::vector<char> > getvhltURL();
+  boost::shared_ptr<std::vector<char> > getvhltClassName();
+  unsigned int gethltLocalId() const {return hltLocalId_;}
+  unsigned int gethltInstance() const {return hltInstance_;}
+  unsigned int gethltTid() const {return hltTid_;}
+  unsigned int getregistrySize() const {return registrySize_;}
+  bool         getregAllReceived() const {return regAllReceived_;}
+  unsigned int gettotFrames() const {return totFrames_;}
+  unsigned int getcurrFrames() const {return currFrames_;}
+  bool         getregCheckedOK() const {return regCheckedOK_;}
+  unsigned int getconnectStatus() const {return connectStatus_;}
+  double       getlastLatency() const {return lastLatency_;}
+  unsigned int getrunNumber() const {return runNumber_;}
+  bool         getisLocal() const {return isLocal_;}
+  unsigned int getframesReceived() const {return framesReceived_;}
+  unsigned int geteventsReceived() const {return eventsReceived_;}
+  unsigned int getlastEventID() const {return lastEventID_;}
+  unsigned int getlastRunID() const {return lastRunID_;}
+  unsigned int getlastFrameNum() const {return lastFrameNum_;}
+  unsigned int getlastTotalFrameNum() const {return lastTotalFrameNum_;}
+  unsigned int gettotalOutOfOrder() const {return totalOutOfOrder_;}
+  unsigned long long gettotalSizeReceived() const {return totalSizeReceived_;}
+  unsigned int gettotalBadEvents() const {return totalBadEvents_;}
+
   bool getDataStatus();  
-  unsigned int getrunNumber();
   char* getregistryData(); // cannot have const char* here without modifying InitMsgView ctor
-  unsigned int getregistrySize();
   bool match(const char* hltURL, const char* hltClassName, 
                              const unsigned int hltLocalId,
                              const unsigned int hltInstance, 
