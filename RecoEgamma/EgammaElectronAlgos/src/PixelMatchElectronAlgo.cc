@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.25 2006/12/19 18:40:49 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.26 2006/12/20 12:22:03 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -75,16 +75,25 @@ PixelMatchElectronAlgo::PixelMatchElectronAlgo(double maxEOverPBarrel, double ma
   hOverEConeSize_(hOverEConeSize), maxHOverE_(maxHOverE), 
   maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi), ptCut_(ptcut)
 {   
-	
+  printf("Algo Constructor start===================\n");fflush(stdout);
+  geomPropBw_=0;	
+  geomPropFw_=0;	
+  mtsTransform_=0;
+  printf("Algo Constructor end===================\n");fflush(stdout);
 }
 
 PixelMatchElectronAlgo::~PixelMatchElectronAlgo() {
+  printf("Algo Destructor start ===================\n");fflush(stdout);
   delete geomPropBw_;
+  printf("Algo Destructor 1 ===================\n");fflush(stdout);
   delete geomPropFw_;
+  printf("Algo Destructor 2 ===================\n");fflush(stdout);
   delete mtsTransform_;
+  printf("Algo Destructor end ===================\n");fflush(stdout);
 }
 
 void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::ParameterSet &conf) {
+  printf("Algo setupES start ===================\n");fflush(stdout);
 
   //services
   es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
@@ -112,6 +121,7 @@ void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::Param
   assBarrelTrTSInstanceName_ = conf.getParameter<string>("AssocTrTBarrelProducer");
   assEndcapTrTSLabel_ = conf.getParameter<string>("AssocTrTEndcapLabel");
   assEndcapTrTSInstanceName_ = conf.getParameter<string>("AssocTrTEndcapProducer");
+  printf("Algo setupES end ===================\n");fflush(stdout);
 }
 
 void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & outEle) {
