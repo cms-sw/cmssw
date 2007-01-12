@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Tue Mar 29 16:15:11 EST 2005
-// $Id: EventSetupRecordIntervalFinder.h,v 1.7 2005/10/03 23:20:51 chrjones Exp $
+// $Id: EventSetupRecordIntervalFinder.h,v 1.8 2006/08/31 23:26:24 wmtan Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 // user include files
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
 
 // forward declarations
 namespace edm {
@@ -40,15 +41,19 @@ class EventSetupRecordIntervalFinder
       // ---------- const member functions ---------------------
       std::set<eventsetup::EventSetupRecordKey> findingForRecords() const ;
    
+      const eventsetup::ComponentDescription& descriptionForFinder() const { return description_;}
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-   /**returns the 'default constructed' ValidityInterval if no valid interval.
-   If upperbound is not known, it should be set to IOVSyncValue::invalidIOVSyncValue()
-   */
-   const ValidityInterval& findIntervalFor(const eventsetup::EventSetupRecordKey&,
+      /**returns the 'default constructed' ValidityInterval if no valid interval.
+       If upperbound is not known, it should be set to IOVSyncValue::invalidIOVSyncValue()
+      */
+      const ValidityInterval& findIntervalFor(const eventsetup::EventSetupRecordKey&,
                                             const IOVSyncValue&);
    
+      void setDescriptionForFinder(const eventsetup::ComponentDescription& iDescription) {
+        description_ = iDescription;
+      }
    protected:
       virtual void setIntervalFor(const eventsetup::EventSetupRecordKey&,
                                    const IOVSyncValue& , 
@@ -61,7 +66,7 @@ class EventSetupRecordIntervalFinder
       
       void findingRecordWithKey(const eventsetup::EventSetupRecordKey&);
       
-   private:
+private:
       EventSetupRecordIntervalFinder(const EventSetupRecordIntervalFinder&); // stop default
 
       const EventSetupRecordIntervalFinder& operator=(const EventSetupRecordIntervalFinder&); // stop default
@@ -69,7 +74,8 @@ class EventSetupRecordIntervalFinder
       // ---------- member data --------------------------------
       typedef  std::map<eventsetup::EventSetupRecordKey,ValidityInterval> Intervals;
       Intervals intervals_;
-      
+
+      eventsetup::ComponentDescription description_;
 };
 
 }
