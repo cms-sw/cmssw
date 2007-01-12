@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 16:56:05 EDT 2005
-// $Id: ComponentMaker.h,v 1.12 2006/07/23 01:24:33 valya Exp $
+// $Id: ComponentMaker.h,v 1.13 2006/08/16 13:41:21 chrjones Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 // user include files
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
 // forward declarations
 
@@ -75,7 +76,12 @@ template <class T, class TComponent>
       void setDescription(DataProxyProvider* iProv, const ComponentDescription& iDesc) const {
         iProv->setDescription(iDesc);
       }
+      void setDescriptionForFinder(EventSetupRecordIntervalFinder* iFinder, const ComponentDescription& iDesc) const {
+        iFinder->setDescriptionForFinder(iDesc);
+      }
       void setDescription(void*, const ComponentDescription&) const {
+      }
+      void setDescriptionForFinder(void*, const ComponentDescription&) const {
       }
       // ---------- member data --------------------------------
 
@@ -100,7 +106,8 @@ ComponentMaker<T,TComponent>:: addTo(EventSetupProvider& iProvider,
    description.processName_   = iProcessName;
    description.passID_          = iPass;
       
-   setDescription(component.get(),description);
+   this->setDescription(component.get(),description);
+   this->setDescriptionForFinder(component.get(),description);
    T::addTo(iProvider, component);
    return component;
 }
