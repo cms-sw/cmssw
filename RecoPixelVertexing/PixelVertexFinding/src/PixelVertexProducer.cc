@@ -21,7 +21,7 @@ PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf)
   bool wtAverage     = conf.getParameter<bool>("WtAverage"); // true
   double zOffset     = conf.getParameter<double>("ZOffset"); // 5.0 sigma
   double zSeparation = conf.getParameter<double>("ZSeparation"); // 0.05 cm
-  int ntrkMin        = conf.getParameter<int>("NTrkMin"); // 5
+  int ntrkMin        = conf.getParameter<int>("NTrkMin"); // 3
   // Tracking requirements before sending a track to be considered for vtx
   ptMin_ = conf_.getParameter<double>("PtMin"); // 1.0 GeV
 
