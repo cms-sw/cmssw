@@ -10,7 +10,7 @@ such code sees the Run class, which is a proxy for RunPrincipal.
 The major internal component of the RunPrincipal
 is the DataBlock.
 
-$Id: RunPrincipal.h,v 1.4 2006/12/14 04:30:57 wmtan Exp $
+$Id: RunPrincipal.h,v 1.5 2007/01/10 05:58:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -38,6 +38,7 @@ namespace edm {
     }
 
     using Base::addGroup;
+    using Base::addToProcessHistory;
     using Base::begin;
     using Base::end;
     using Base::getAllProvenance;

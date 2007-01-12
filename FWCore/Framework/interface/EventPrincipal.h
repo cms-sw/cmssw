@@ -10,7 +10,7 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.46 2006/12/29 20:55:07 wmtan Exp $
+$Id: EventPrincipal.h,v 1.47 2007/01/10 05:58:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -77,6 +77,7 @@ namespace edm {
     RunPrincipal const& runPrincipal() const;
 
     using Base::addGroup;
+    using Base::addToProcessHistory;
     using Base::begin;
     using Base::end;
     using Base::getAllProvenance;

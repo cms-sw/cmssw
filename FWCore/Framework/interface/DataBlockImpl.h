@@ -14,7 +14,7 @@ through shared pointers.
 The DataBlockImpl returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: DataBlockImpl.h,v 1.7 2007/01/10 05:58:01 wmtan Exp $
+$Id: DataBlockImpl.h,v 1.8 2007/01/11 23:39:19 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <list>
@@ -141,15 +141,16 @@ namespace edm {
 
     virtual EDProduct const* getIt(ProductID const& oid) const;
 
+    // ----- Mark this DataBlockImpl as having been updated in the
+    // current Process.
+    void addToProcessHistory();
+
   protected:
     void setUnscheduled() {unscheduled_ = true;}
 
   private:
 
     // ----- manipulation of provenance
-    // ----- Mark this DataBlockImpl as having been updated in the
-    // given Process.
-    void addToProcessHistory();
 
     virtual bool unscheduledFill(Group const& group) const = 0;
 
