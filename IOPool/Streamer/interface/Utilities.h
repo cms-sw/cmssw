@@ -22,7 +22,6 @@
 namespace edm
 {
   class InitMsg;
-  void mergeIntoRegistry(SendDescs const& descs, ProductRegistry& reg);
   edm::ProductRegistry getRegFromFile(std::string const& filename);
   std::auto_ptr<SendJobHeader> readHeaderFromStream(std::ifstream& ist);
   bool registryIsSubset(SendJobHeader const&, ProductRegistry const& reg);

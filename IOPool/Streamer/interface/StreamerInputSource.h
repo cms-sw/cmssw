@@ -24,6 +24,8 @@ namespace edm {
 
     void mergeWithRegistry(SendDescs const& descs, ProductRegistry&);
 
+    static void mergeIntoRegistry(SendDescs const& descs, ProductRegistry&);
+
   protected:
     void declareStreamers(SendDescs const& descs);
     void buildClassCache(SendDescs const& descs);

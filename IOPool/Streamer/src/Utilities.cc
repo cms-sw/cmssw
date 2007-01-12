@@ -164,25 +164,6 @@ namespace edm
     return rc;
   }
 
-  // ---------------------------------------
-
-  void mergeIntoRegistry(SendDescs const& descs,
-			 ProductRegistry& reg) {
-    SendDescs::const_iterator i(descs.begin()), e(descs.end());
-
-    // the next line seems to be not good.  what if the productdesc is
-    // already there? it looks like I replace it.  maybe that it correct
-
-    FDEBUG(6) << "mergeIntoRegistry: Product List: " << std::endl;
-    for(; i != e; ++i) {
-	reg.copyProduct(*i);
-	FDEBUG(6) << "StreamInput prod = " << i->className() << std::endl;
-    }
-
-    // not needed any more
-    // fillStreamers(*pr_);
-  }
-
   std::auto_ptr<SendJobHeader> readHeaderFromStream(ifstream& ist)
   {
     JobHeaderDecoder decoder;
@@ -237,7 +218,7 @@ namespace edm
       }
 
     std::auto_ptr<SendJobHeader> p = readHeaderFromStream(ist);
-    edm::mergeIntoRegistry(p->descs_,pr);
+    StreamerInputSource::mergeIntoRegistry(p->descs_,pr);
     return pr;
   }
 

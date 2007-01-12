@@ -22,30 +22,48 @@ namespace edm {
 
   StreamerInputSource::~StreamerInputSource() {}
 
+  // ---------------------------------------
+
   void
-  StreamerInputSource::mergeWithRegistry(SendDescs const& descs,ProductRegistry& reg) {
+  StreamerInputSource::mergeIntoRegistry(SendDescs const& descs,
+			 ProductRegistry& reg) {
+    SendDescs::const_iterator i(descs.begin()), e(descs.end());
+
+    // the next line seems to be not good.  what if the productdesc is
+    // already there? it looks like I replace it.  maybe that it correct
+
+    FDEBUG(6) << "mergeIntoRegistry: Product List: " << std::endl;
+    for(; i != e; ++i) {
+	reg.copyProduct(*i);
+	FDEBUG(6) << "StreamInput prod = " << i->className() << std::endl;
+    }
+
+    // not needed any more
+    // fillStreamers(*pr_);
+  }
+
+  void
+  StreamerInputSource::mergeWithRegistry(SendDescs const& descs, ProductRegistry& reg) {
+
+    mergeIntoRegistry(descs, reg);
 
     SendDescs::const_iterator i(descs.begin()), e(descs.end());
 
     // the next line seems to be not good.  what if the productdesc is
     // already there? it looks like I replace it.  maybe that it correct
 
-    FDEBUG(6) << "mergeWithRegistry: Product List: " << std::endl;
     std::string processName;
-    if( i != e ) {
+    if (i != e) {
        processName = i->processName();
     }
-    for(; i != e; ++i) {
-        reg.copyProduct(*i);
-        FDEBUG(6) << "StreamInput prod = " << i->className() << std::endl;
-
+    for (; i != e; ++i) {
 	if(processName != i->processName()) {
 	   throw cms::Exception("MultipleProcessNames")
-	      <<"at least two different process names ('"
-	      <<processName
-	      <<"', '"
-	      <<i->processName()
-	      <<"' found in JobHeader. We can only support one.";
+	      << "at least two different process names ('"
+	      << processName
+	      << "', '"
+	      << i->processName()
+	      << "' found in JobHeader. We can only support one.";
 	}
     }
     deserializer_.setProcessConfiguration(
