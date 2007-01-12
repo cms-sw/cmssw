@@ -1,12 +1,16 @@
 <use name=clhep>
+<use name=fastjet>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/HepMCCandidate>
+<use name=FWCore/Framework>
 <export>
  <lib name=RecoJetsJetAlgorithms>
  <use name=DataFormats/JetReco>
+ <use name=fastjet>
  <use name=DataFormats/RecoCandidate>
  <use name=DataFormats/HepMCCandidate>
  <use name=clhep>
+ <use name=FWCore/Framework>
 </export>
 
