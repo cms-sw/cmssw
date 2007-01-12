@@ -1,5 +1,13 @@
 #! /bin/csh
 setenv RELEASE $CMSSW_VERSION
+if (-e /afs/cern.ch/cms/cpt/Software/html/General/Validation/SVSuite/TrackerBTau/$RELEASE/ ) mkdir /afs/cern.ch/cms/cpt/Software/html/General/Validation/SVSuite/TrackerBTau/$RELEASE/
+
+setenv WWWDIRObj /afs/cern.ch/cms/cpt/Software/html/General/Validation/SVSuite/TrackerBTau/$RELEASE/Digi
+
+if (-e $WWWDIRObj) mkdir $WWWDIRObj
+
+mkdir $WWWDIRObj/Pixel
+
 setenv WWWDIR /afs/cern.ch/cms/cpt/Software/html/General/Validation/SVSuite/TrackerBTau/$RELEASE/Digi/Pixel
 
 mkdir $WWWDIR/eps
