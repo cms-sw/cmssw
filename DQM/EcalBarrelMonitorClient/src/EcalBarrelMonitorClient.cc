@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/12/15 09:44:50 $
- * $Revision: 1.194 $
+ * $Date: 2007/01/12 15:49:03 $
+ * $Revision: 1.195 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -750,7 +750,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
   MonRunTag montag;
 
   montag.setMonVersionDef(monverdef);
-  montag.setGeneralTag("CMSSW120a");
+  montag.setGeneralTag("CMSSW");
 
   Tm startSubRun;
 
