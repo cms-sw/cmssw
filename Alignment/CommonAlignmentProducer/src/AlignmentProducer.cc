@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.16 $
-///  last update: $Date: 2006/11/30 10:10:44 $
-///  by         : $Author: flucke $
+///  Revision   : $Revision: 1.17 $
+///  last update: $Date: 2006/12/23 16:02:58 $
+///  by         : $Author: ewidl $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
 
@@ -34,7 +34,7 @@
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "Alignment/TrackerAlignment/interface/MisalignmentScenarioBuilder.h"
+#include "Alignment/TrackerAlignment/interface/TrackerScenarioBuilder.h"
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentTransformations.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
@@ -155,7 +155,7 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
                               << "applying misalignment scenario ...";
     edm::ParameterSet scenarioConfig 
       = theParameterSet.getParameter<edm::ParameterSet>( "MisalignmentScenario" );
-    MisalignmentScenarioBuilder scenarioBuilder( theAlignableTracker );
+    TrackerScenarioBuilder scenarioBuilder( theAlignableTracker );
     scenarioBuilder.applyScenario( scenarioConfig );
   } else {
     edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 

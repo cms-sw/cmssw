@@ -19,7 +19,7 @@
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/AlignmentSorter.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/TrackerAlignment/interface/MisalignmentScenarioBuilder.h"
+#include "Alignment/TrackerAlignment/interface/TrackerScenarioBuilder.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 
@@ -67,7 +67,7 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   AlignableTracker* theAlignableTracker = new AlignableTracker( &(*gD), &(*theTracker) );
 
   // Create misalignment scenario, apply to geometry
-  MisalignmentScenarioBuilder scenarioBuilder( theAlignableTracker );
+  TrackerScenarioBuilder scenarioBuilder( theAlignableTracker );
   scenarioBuilder.applyScenario( theParameterSet );
   Alignments* alignments =  theAlignableTracker->alignments();
   AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();

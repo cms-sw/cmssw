@@ -31,4 +31,3 @@
    <use name=rootrflx>
 </export>
 <flags SEAL_PLUGIN_NAME="AlignmentCommonAlignmentProducer">
-<flags CXXFLAGS="-g">

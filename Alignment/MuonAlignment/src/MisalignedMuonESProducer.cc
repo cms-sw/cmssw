@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/20 08:59:31 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/10/24 07:29:43 $
+ *  $Revision: 1.8 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -24,7 +24,7 @@
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/AlignmentSorter.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include "Alignment/MuonAlignment/interface/MisalignmentScenarioBuilder.h"
+#include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 #include "Alignment/MuonAlignment/interface/MisalignedMuonESProducer.h"
 
@@ -74,7 +74,7 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
   AlignableMuon* theAlignableMuon = new AlignableMuon( &(*theDTGeometry) , &(*theCSCGeometry) );
 
   // Create misalignment scenario
-  MisalignmentScenarioBuilder scenarioBuilder( theAlignableMuon );
+  MuonScenarioBuilder scenarioBuilder( theAlignableMuon );
   scenarioBuilder.applyScenario( theParameterSet );
 
   // Retrieve muon barrel alignments and errors

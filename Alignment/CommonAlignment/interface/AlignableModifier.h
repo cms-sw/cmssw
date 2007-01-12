@@ -1,14 +1,5 @@
-#ifndef Alignment_MuonAlignment_AlignableMuonModifier_H
-#define Alignment_MuonAlignment_AlignableMuonModifier_H
-
-/** \class AlignableMuonModifier
- *  The alignable muon modifier.
- *
- *  $Date: 2006/8/4 10:00:01 $
- *  $Revision: 1.0 $
- *  \author Andre Sznajder - UERJ(Brazil)
- */
-
+#ifndef Alignment_TrackerAlignment_AlignableModifier_H
+#define Alignment_TrackerAlignment_AlignableModifier_H
 
 #include <iostream>
 #include <vector>
@@ -20,11 +11,11 @@
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
-/// AlignableMuonModifier is a helper class to modify the Alignables.
+/// AlignableModifier is a helper class to modify the Alignables.
 ///
 /// Configuration parameters are defined in this class.
 
-class AlignableMuonModifier 
+class AlignableModifier 
 {
 
 public:
@@ -33,10 +24,10 @@ public:
   typedef TkRotation<float>     RotationType;
 
   /// Constructor
-  AlignableMuonModifier();
+  AlignableModifier();
 
   /// Destructor
-  ~AlignableMuonModifier() {};
+  ~AlignableModifier();
 
   /// Modify given set of alignables according to parameters
   bool modify( Alignable* alignable, const edm::ParameterSet& pSet );
@@ -47,6 +38,10 @@ public:
   /// Move alignable in global space according to parameters
   void moveAlignable( Alignable* alignable, bool random, bool gaussian,
 					  float sigmaX, float sigmaY, float sigmaZ );
+
+  /// Move alignable in local space according to parameters
+  void moveAlignableLocal( Alignable* alignable, bool random, bool gaussian,
+ 						   float sigmaX, float sigmaY, float sigmaZ );
 
   /// Rotate alignable in global space according to parameters
   void rotateAlignable( Alignable* alignable, bool random, bool gaussian,
@@ -59,6 +54,10 @@ public:
   /// Add the AlignmentPositionError (in global frame) to Alignable
   void addAlignmentPositionError( Alignable* alignable, 
 								  float dx, float dy, float dz );
+
+  /// Add the AlignmentPositionError (in local frame) to Alignable
+  void addAlignmentPositionErrorLocal( Alignable* alignable, 
+									   float dx, float dy, float dz );
 
   /// Add alignment position error resulting from rotation in global frame
   void addAlignmentPositionErrorFromRotation( Alignable* alignable, 
@@ -89,28 +88,30 @@ private:
 
   /// Initialisation of all parameters
   void init_(); 
+
   /// Return a vector of random numbers (gaussian distribution)
-  const GlobalVector gaussianRandomVector_( float sigmaX, float sigmaY, float sigmaZ ) const;
+  const std::vector<float> gaussianRandomVector_( float sigmaX, float sigmaY, float sigmaZ ) const;
   /// Return a vector of random numbers (flat distribution)
-  const GlobalVector flatRandomVector_( float sigmaX, float sigmaY, float sigmaZ ) const;
+  const std::vector<float> flatRandomVector_( float sigmaX, float sigmaY, float sigmaZ ) const;
 
   int m_modified; // Indicates if a modification was performed
 
-  // All parameters (see AlignableMuonModifier::init() for definitions)
+  // All parameters (see AlignableModifier::init() for definitions)
   std::string distribution_;
   bool   random_, gaussian_, setError_;
   bool   setRotations_,setTranslations_;
   long   seed_;
   double scaleError_,scale_;
   double phiX_, phiY_, phiZ_;
-  double localX_, localY_, localZ_;
+  double phiXlocal_, phiYlocal_, phiZlocal_;
   double dX_, dY_, dZ_;
+  double dXlocal_, dYlocal_, dZlocal_;
   double twist_, shear_;
 
 };
 
 
-#endif //AlignableMuonModifier_H
+#endif //AlignableModifier_H
 
 
 

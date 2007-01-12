@@ -1,42 +1,40 @@
-#ifndef Alignment_MuonAlignment_MisalignmentScenarioBuilder_h
-#define Alignment_MuonAlignment_MisalignmentScenarioBuilder_h
+#ifndef Alignment_CommonAlignment_MisalignmentScenarioBuilder_h
+#define Alignment_CommonAlignment_MisalignmentScenarioBuilder_h
 
-/** \class MisalignmentScenarioBuilder
- *  The misalignment scenario builder.
- *
- *  $Date: 2006/8/4 10:00:01 $
- *  $Revision: 1.0 $
- *  \author Andre Sznajder - UERJ(Brazil)
- */
-
+/// \class MisalignmentScenarioBuilder
+///
+/// $Date$
+/// $Revision$
+///
+/// $Author$
+/// \author Frederic Ronga - CERN-PH-CMG
 
 #include <vector>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include "Alignment/MuonAlignment/interface/AlignableMuonModifier.h"
+#include "Alignment/CommonAlignment/interface/AlignableModifier.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
-/// Builds a scenario from configuration and applies it to the alignable Muon.
+/// Base class to build a scenario from configuration and apply to either tracker or muon.
 
 class MisalignmentScenarioBuilder
 {
 
 public:
-
-  /// Constructor
-  MisalignmentScenarioBuilder( AlignableMuon* Muon ) : theMuon(Muon) {};
+ 
+  /// Default constructor
+  MisalignmentScenarioBuilder( ) {};
 
   /// Destructor
-  ~MisalignmentScenarioBuilder() {};
+  virtual ~MisalignmentScenarioBuilder() {};
 
-  /// Apply misalignment scenario to the Muon
-  void applyScenario( const edm::ParameterSet& scenario );
+  /// Apply misalignment scenario to the tracker (sub-system specific)
+  virtual void applyScenario( const edm::ParameterSet& scenario ) = 0;
 
-private: // Methods
+protected: // Methods
 
-  
   /// Decode movements defined in given parameter set for given set of alignables
   void decodeMovements_( const edm::ParameterSet& pSet, std::vector<Alignable*> alignables );
   
@@ -65,15 +63,21 @@ private: // Methods
 
   /// Check if given parameter is for a top-level structure
   const bool isTopLevel_( const std::string& parameterSetName ) const; 
+
+  /// Get root name of a parameter set (e.g. 'Rod' in 'Rods' or 'Rod1')
+  const std::string rootName_( const std::string& parameterSetName ) const;
   
 
-private: // Members
+protected: // Members
 
-  AlignableMuon* theMuon;                 ///< Pointer to alignable Muon object
-  edm::ParameterSet theScenario;                ///< Misalignment scenario to apply (from config file)
-  AlignableMuonModifier theMuonModifier;  ///< Helper class for random movements
+  edm::ParameterSet theScenario;           ///< Misalignment scenario to apply (from config file)
+  AlignableModifier theModifier;           ///< Helper class for random movements
+  
+  AlignableObjectId theAlignableObjectId;  ///< Type to name converter
+  
+  int theModifierCounter;                  ///< Counter for applied modification
 
-  std::string indent;                           ///< Depth in hierarchy
+  std::string indent;                      ///< Depth in hierarchy
   
 
 };
