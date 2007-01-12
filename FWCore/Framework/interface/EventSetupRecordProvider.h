@@ -87,6 +87,8 @@ class EventSetupRecordProvider
       ///This will clear the cache's of all the Proxies so that next time they are called they will run
       void resetProxies();
       
+      boost::shared_ptr<EventSetupRecordIntervalFinder> finder() const { return finder_; }
+
    protected:
       virtual void addProxiesToRecord(boost::shared_ptr<DataProxyProvider>,
                                       const DataToPreferredProviderMap& ) = 0;
@@ -102,6 +104,7 @@ class EventSetupRecordProvider
       ValidityInterval validityInterval_;
       boost::shared_ptr<EventSetupRecordIntervalFinder> finder_;
       std::vector< boost::shared_ptr<DataProxyProvider> > providers_;
+      std::auto_ptr< std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> > > multipleFinders_;
 };
    }
 }

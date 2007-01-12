@@ -35,7 +35,8 @@ namespace edm {
 // constructors and destructor
 //
 EventSetupRecordProvider::EventSetupRecordProvider(const EventSetupRecordKey& iKey) : key_(iKey),
-    validityInterval_(), finder_(), providers_()
+    validityInterval_(), finder_(), providers_(),
+     multipleFinders_( new std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >() ) 
 {
 }
 
@@ -77,7 +78,19 @@ EventSetupRecordProvider::add(boost::shared_ptr<DataProxyProvider> iProvider)
 void 
 EventSetupRecordProvider::addFinder(boost::shared_ptr<EventSetupRecordIntervalFinder> iFinder)
 {
+   boost::shared_ptr<EventSetupRecordIntervalFinder> oldFinder = finder_;  
    finder_ = iFinder;
+   if ( 0 != multipleFinders_.get() ){
+     multipleFinders_->push_back(iFinder);
+   } else {
+     //dependent records set there finders after the multipleFinders_ has been released
+     // but they also have never had a finder set
+     if( 0 != oldFinder.get()) {
+       cms::Exception("EventSetupMultipleSources")<<"A second source has been added to the Record "
+       <<key_.name()<<"'\n"
+       <<"after all the es_prefers have been dealt with.  This is a logic error, please send email to the framework group.";
+     }
+   }
 }
 void
 EventSetupRecordProvider::setValidityInterval(const ValidityInterval& iInterval)
@@ -94,6 +107,46 @@ EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap)
 {
    std::for_each(providers_.begin(),providers_.end(), 
                  boost::bind(&EventSetupRecordProvider::addProxiesToRecord,this,_1,iMap));
+  if ( 1 < multipleFinders_->size() ) {
+    //is one of these designated as preferred?
+    typedef EventSetupRecordProvider::DataToPreferredProviderMap PreferredMap;
+    //The DataToPRefferedProviderMap is tailored for this specific Record, therefore
+    // if a finder appears here it is supposed to be used for this Record
+    std::set<ComponentDescription> preferredProviders;
+    for( PreferredMap::const_iterator itPrefered = iMap.begin();
+         itPrefered != iMap.end();
+         ++itPrefered) {
+      preferredProviders.insert( itPrefered->second);
+    }
+    std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> > chosen;
+    std::string chosenList;
+    std::string allFinders;
+    for( std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >::const_iterator itFinder =
+         multipleFinders_->begin();
+         itFinder != multipleFinders_->end();
+         ++itFinder) {
+      allFinders += (*itFinder)->descriptionForFinder().type_+" '"+(*itFinder)->descriptionForFinder().label_+"'\n";
+      
+      if (preferredProviders.find((*itFinder)->descriptionForFinder()) != preferredProviders.end()) {
+        chosen.push_back(*itFinder);
+        chosenList += (*itFinder)->descriptionForFinder().type_+" '"+(*itFinder)->descriptionForFinder().label_+"'\n";
+      }
+    }
+    if ( 0 == chosen.size() ) {
+      throw cms::Exception("EventSetupMultipleSources")<< "the following sources say they can deliver the EventSetup record '"
+      <<key_.name()<<"'\n"
+      <<allFinders
+      <<"Please use an es_prefer statement to choose only one of them as the provider of the record's IOV";
+    }
+    if ( 1 < chosen.size() ) {
+      throw cms::Exception("EventSetupMultipleSources")<<"the following sources have been chosen by es_prefer to deliver the EVentSetup record '"
+      <<key_.name()<<"'\n"
+      <<chosenList
+      <<"Please change the es_prefer statements so that only one is chosen";
+    }
+    finder_ = chosen[0];
+  }
+  multipleFinders_.release();
 }
 
 //
