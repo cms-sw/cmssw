@@ -30,7 +30,7 @@ class  OpticalAlignMeasurementInfo {
   std::vector<std::string> measObjectNames_;
   std::vector<bool> isSimulatedValue_; 
   std::vector<OpticalAlignParam> values_; //names of measurement values (H:, V:, T:, ...)  Dimension of this vector gives dimension of Measurement
-  unsigned long ID_;
+  unsigned int ID_;
 
   void clear() {
     ID_ = 0;
