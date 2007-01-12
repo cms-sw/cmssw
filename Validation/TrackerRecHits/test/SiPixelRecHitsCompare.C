@@ -48,6 +48,7 @@ void SiPixelRecHitsCompare()
 	   myPV->PVCompute(clustYSizeModule_[i], newclustYSizeModule_[i], te);
 	}
 	Pixel->Print("Clust_y_size_by_module.eps");   
+	Pixel->Print("Clust_y_size_by_module.gif");   
    }
 
    if (1) {
@@ -73,6 +74,7 @@ void SiPixelRecHitsCompare()
 	   myPV->PVCompute(clustXSizeLayer_[i], newclustXSizeLayer_[i], te);
 	}
 	Pixel->Print("Clust_x_size_by_layer.eps");   
+	Pixel->Print("Clust_x_size_by_layer.gif");   
    }
 
    if (1) {
@@ -98,6 +100,7 @@ void SiPixelRecHitsCompare()
 	   myPV->PVCompute(clustChargeLayer1Modules_[i], newclustChargeLayer1Modules_[i], te);
 	}
 	Pixel->Print("Clust_charge_layer1_modules.eps");   
+	Pixel->Print("Clust_charge_layer1_modules.gif");   
    }
 
    if (1) {
@@ -123,6 +126,7 @@ void SiPixelRecHitsCompare()
 	   myPV->PVCompute(clustChargeLayer2Modules_[i], newclustChargeLayer2Modules_[i], te);
 	}
 	Pixel->Print("Clust_charge_layer2_modules.eps");   
+	Pixel->Print("Clust_charge_layer2_modules.gif");   
    }
 
    if (1) {
@@ -148,6 +152,7 @@ void SiPixelRecHitsCompare()
 	   myPV->PVCompute(clustChargeLayer3Modules_[i], newclustChargeLayer3Modules_[i], te);
 	}
 	Pixel->Print("Clust_charge_layer3_modules.eps");   
+	Pixel->Print("Clust_charge_layer3_modules.gif");   
    }
 
    ///////////////////////////////////////////
@@ -177,6 +182,7 @@ void SiPixelRecHitsCompare()
 	   myPV->PVCompute(clustXSizeDisk1Plaquettes_[i], newclustXSizeDisk1Plaquettes_[i], te);
 	}
 	Pixel->Print("Clust_xsize_disk1_plaquettes.eps");   
+	Pixel->Print("Clust_xsize_disk1_plaquettes.gif");   
    }
 
    if (1) {
@@ -202,6 +208,7 @@ void SiPixelRecHitsCompare()
 	   myPV->PVCompute(clustXSizeDisk2Plaquettes_[i], newclustXSizeDisk2Plaquettes_[i], te);
 	}
 	Pixel->Print("Clust_xsize_disk2_plaquettes.eps");   
+	Pixel->Print("Clust_xsize_disk2_plaquettes.gif");   
    }
 
 
@@ -228,6 +235,7 @@ void SiPixelRecHitsCompare()
 	   myPV->PVCompute(clustYSizeDisk1Plaquettes_[i], newclustYSizeDisk1Plaquettes_[i], te);
 	}
 	Pixel->Print("Clust_ysize_disk1_plaquettes.eps");   
+	Pixel->Print("Clust_ysize_disk1_plaquettes.gif");   
    }
 
    if (1) {
@@ -253,6 +261,7 @@ void SiPixelRecHitsCompare()
 	   myPV->PVCompute(clustYSizeDisk2Plaquettes_[i], newclustYSizeDisk2Plaquettes_[i], te);
 	}
 	Pixel->Print("Clust_ysize_disk2_plaquettes.eps");   
+	Pixel->Print("Clust_ysize_disk2_plaquettes.gif");   
    }
 
 
@@ -279,6 +288,7 @@ void SiPixelRecHitsCompare()
 	   myPV->PVCompute(clustChargeDisk1Plaquettes_[i], newclustChargeDisk1Plaquettes_[i], te);
 	}
 	Pixel->Print("Clust_charge_disk1_plaquettes.eps");   
+	Pixel->Print("Clust_charge_disk1_plaquettes.gif");   
    }
 
    if (1) {
@@ -304,6 +314,7 @@ void SiPixelRecHitsCompare()
 	   myPV->PVCompute(clustChargeDisk2Plaquettes_[i], newclustChargeDisk2Plaquettes_[i], te);
 	}
 	Pixel->Print("Clust_charge_disk2_plaquettes.eps");   
+	Pixel->Print("Clust_charge_disk2_plaquettes.gif");   
    }
    
    /////////////////////////
@@ -330,6 +341,7 @@ void SiPixelRecHitsCompare()
 	myPV->PVCompute(recHitXFullModules_, newrecHitXFullModules_, te);
 
 	Pixel->Print("RecHit_XDist_FullModules.eps");
+	Pixel->Print("RecHit_XDist_FullModules.gif");
 
 	//RecHit x distribution half modules
 
@@ -350,6 +362,7 @@ void SiPixelRecHitsCompare()
 	myPV->PVCompute(recHitXHalfModules_, newrecHitXHalfModules_, te);
 
 	Pixel->Print("RecHit_XDist_HalfModules.eps");
+	Pixel->Print("RecHit_XDist_HalfModules.gif");
 
 	//RecHit y distribution all modules
 
@@ -370,6 +383,7 @@ void SiPixelRecHitsCompare()
 	myPV->PVCompute(recHitYAllModules_, newrecHitYAllModules_, te);
 
 	Pixel->Print("RecHit_YDist_AllModules.eps");
+	Pixel->Print("RecHit_YDist_AllModules.gif");
    }
 
    if (1) {
@@ -396,6 +410,7 @@ void SiPixelRecHitsCompare()
 	   
 	}
 	Pixel->Print("RecHit_XRes_FlippedLadder_Layers.eps");
+	Pixel->Print("RecHit_XRes_FlippedLadder_Layers.gif");
    }
 
    if (1) {
@@ -422,6 +437,7 @@ void SiPixelRecHitsCompare()
 	   
 	}
 	Pixel->Print("RecHit_XRes_UnFlippedLadder_Layers.eps");
+	Pixel->Print("RecHit_XRes_UnFlippedLadder_Layers.gif");
    }
 
    if (1) {
@@ -448,6 +464,7 @@ void SiPixelRecHitsCompare()
 	   
 	}
 	Pixel->Print("RecHit_YRes_Layer1_Modules.eps");
+	Pixel->Print("RecHit_YRes_Layer1_Modules.gif");
    }
 
    if (1) {
@@ -474,6 +491,7 @@ void SiPixelRecHitsCompare()
 	   
 	}
 	Pixel->Print("RecHit_YRes_Layer2_Modules.eps");
+	Pixel->Print("RecHit_YRes_Layer2_Modules.gif");
    }
 
    if (1) {
@@ -500,6 +518,7 @@ void SiPixelRecHitsCompare()
 	   
 	}
 	Pixel->Print("RecHit_YRes_Layer3_Modules.eps");
+	Pixel->Print("RecHit_YRes_Layer3_Modules.gif");
    }
 
    ////////////////////////////////
@@ -527,6 +546,7 @@ void SiPixelRecHitsCompare()
 	myPV->PVCompute(recHitXPlaquetteXSize1_, newrecHitXPlaquetteXSize1_, te);
 
 	Pixel->Print("RecHit_X_Plaquette_xsize1.eps");
+	Pixel->Print("RecHit_X_Plaquette_xsize1.gif");
 
 	//RecHit x distribution for plaquettes x-size 2
 
@@ -548,6 +568,7 @@ void SiPixelRecHitsCompare()
 	myPV->PVCompute(recHitXPlaquetteXSize2_, newrecHitXPlaquetteXSize2_, te);
 
 	Pixel->Print("RecHit_X_Plaquette_xsize2.eps");
+	Pixel->Print("RecHit_X_Plaquette_xsize2.gif");
 
 	//RecHit y distribution for plaquettes y-size 2
 
@@ -569,6 +590,7 @@ void SiPixelRecHitsCompare()
 	myPV->PVCompute(recHitYPlaquetteYSize2_, newrecHitYPlaquetteYSize2_, te);
 
 	Pixel->Print("RecHit_Y_Plaquette_ysize2.eps");
+	Pixel->Print("RecHit_Y_Plaquette_ysize2.gif");
 
 	//RecHit y distribution for plaquettes y-size 3
 
@@ -590,6 +612,7 @@ void SiPixelRecHitsCompare()
 	myPV->PVCompute(recHitYPlaquetteYSize3_, newrecHitYPlaquetteYSize3_, te);
 
 	Pixel->Print("RecHit_Y_Plaquette_ysize3.eps");
+	Pixel->Print("RecHit_Y_Plaquette_ysize3.gif");
 
 	//RecHit y distribution for plaquettes y-size 4
 
@@ -611,6 +634,7 @@ void SiPixelRecHitsCompare()
 	myPV->PVCompute(recHitYPlaquetteYSize4_, newrecHitYPlaquetteYSize4_, te);
 
 	Pixel->Print("RecHit_Y_Plaquette_ysize4.eps");
+	Pixel->Print("RecHit_Y_Plaquette_ysize4.gif");
 
 	//RecHit y distribution for plaquettes y-size 5
 
@@ -632,6 +656,7 @@ void SiPixelRecHitsCompare()
 	myPV->PVCompute(recHitYPlaquetteYSize5_, newrecHitYPlaquetteYSize5_, te);
 
 	Pixel->Print("RecHit_Y_Plaquette_ysize5.eps");
+	Pixel->Print("RecHit_Y_Plaquette_ysize5.gif");
    }
 
    if (1) {
@@ -658,6 +683,7 @@ void SiPixelRecHitsCompare()
 	   
 	}
 	Pixel->Print("RecHit_XRes_disk1_plaquettes.eps");
+	Pixel->Print("RecHit_XRes_disk1_plaquettes.gif");
    }
 
    if (1) {
@@ -684,6 +710,7 @@ void SiPixelRecHitsCompare()
 	   
 	}
 	Pixel->Print("RecHit_XRes_disk2_plaquettes.eps");
+	Pixel->Print("RecHit_XRes_disk2_plaquettes.gif");
    }
 
    if (1) {
@@ -710,6 +737,7 @@ void SiPixelRecHitsCompare()
 	   
 	}
 	Pixel->Print("RecHit_YRes_disk1_plaquettes.eps");
+	Pixel->Print("RecHit_YRes_disk1_plaquettes.gif");
    }
 
    if (1) {
@@ -736,5 +764,6 @@ void SiPixelRecHitsCompare()
 	   
 	}
 	Pixel->Print("RecHit_YRes_disk2_plaquettes.eps");
+	Pixel->Print("RecHit_YRes_disk2_plaquettes.gif");
    }
 } // end

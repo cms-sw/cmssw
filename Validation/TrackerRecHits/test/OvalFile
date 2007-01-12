@@ -1,2 +1,2 @@
 <config name="run tool" value="oval">
-<executable name="SiPixelRecHitsValid.csh"></executable>
+<executable name="TrackerValidationChain.csh"></executable>

@@ -67,6 +67,7 @@ void SiStripRecHitsCompare()
  }
  
  Strip->Print("AdcTIBCompare.eps");
+ Strip->Print("AdcTIBCompare.gif");
  
  rfile->GetObject("DQMData/TIB/Nstp_rphi_layer1tib",nstptib[0]);
  rfile->GetObject("DQMData/TIB/Nstp_rphi_layer2tib",nstptib[1]);
@@ -94,6 +95,7 @@ void SiStripRecHitsCompare()
  }
  
  Strip->Print("NstpTIBCompare.eps");
+ Strip->Print("NstpTIBCompare.gif");
 
  rfile->GetObject("DQMData/TIB/Posx_rphi_layer1tib",postib[0]);
  rfile->GetObject("DQMData/TIB/Posx_rphi_layer2tib",postib[1]);
@@ -121,6 +123,7 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("PosTIBCompare.eps");
+  Strip->Print("PosTIBCompare.gif");
   
 
  rfile->GetObject("DQMData/TIB/Errx_rphi_layer1tib",errxtib[0]);
@@ -149,6 +152,7 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("ErrxTIBCompare.eps");
+  Strip->Print("ErrxTIBCompare.gif");
   
  
  rfile->GetObject("DQMData/TIB/Res_rphi_layer1tib",restib[0]);
@@ -177,6 +181,7 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("ResTIBCompare.eps");
+  Strip->Print("ResTIBCompare.gif");
 
  rfile->GetObject("DQMData/TIB/Chi2_rphi_layer1tib",chi2tib[0]);
  rfile->GetObject("DQMData/TIB/Chi2_rphi_layer2tib",chi2tib[1]);
@@ -204,6 +209,7 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("Chi2TIBCompare.eps");
+  Strip->Print("Chi2TIBCompare.gif");
 
   
  rfile->GetObject("DQMData/TIB/Posx_matched_layer1tib",matchedtib[0]);
@@ -244,6 +250,7 @@ void SiStripRecHitsCompare()
  }
  
  Strip->Print("MatchedTIBCompare.eps");
+ Strip->Print("MatchedTIBCompare.gif");
 
  
  //======================================================================================================
@@ -294,6 +301,7 @@ void SiStripRecHitsCompare()
  }
  
  Strip->Print("AdcTOBCompare.eps");
+ Strip->Print("AdcTOBCompare.gif");
  
  rfile->GetObject("DQMData/TOB/Nstp_rphi_layer1tob",nstptob[0]);
  rfile->GetObject("DQMData/TOB/Nstp_rphi_layer2tob",nstptob[1]);
@@ -325,6 +333,7 @@ void SiStripRecHitsCompare()
  }
  
  Strip->Print("NstpTOBCompare.eps");
+ Strip->Print("NstpTOBCompare.gif");
 
  rfile->GetObject("DQMData/TOB/Posx_rphi_layer1tob",postob[0]);
  rfile->GetObject("DQMData/TOB/Posx_rphi_layer2tob",postob[1]);
@@ -356,6 +365,7 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("PosTOBCompare.eps");
+  Strip->Print("PosTOBCompare.gif");
   
 
  rfile->GetObject("DQMData/TOB/Errx_rphi_layer1tob",errxtob[0]);
@@ -388,6 +398,7 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("ErrxTOBCompare.eps");
+  Strip->Print("ErrxTOBCompare.gif");
   
  
  rfile->GetObject("DQMData/TOB/Res_rphi_layer1tob",restob[0]);
@@ -420,6 +431,7 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("ResTOBCompare.eps");
+  Strip->Print("ResTOBCompare.gif");
 
 
  rfile->GetObject("DQMData/TOB/Chi2_rphi_layer1tob",chi2tob[0]);
@@ -452,6 +464,7 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("Chi2TOBCompare.eps");
+  Strip->Print("Chi2TOBCompare.gif");
 
   
  rfile->GetObject("DQMData/TOB/Posx_matched_layer1tob",matchedtob[0]);
@@ -492,6 +505,7 @@ void SiStripRecHitsCompare()
  }
  
  Strip->Print("MatchedTOBCompare.eps");
+ Strip->Print("MatchedTOBCompare.gif");
  
 
  //=============================================================== 
@@ -538,6 +552,7 @@ void SiStripRecHitsCompare()
  }
  
  Strip->Print("AdcTIDCompare.eps");
+ Strip->Print("AdcTIDCompare.gif");
  
  rfile->GetObject("DQMData/TID/Nstp_rphi_layer1tid",nstptid[0]);
  rfile->GetObject("DQMData/TID/Nstp_rphi_layer2tid",nstptid[1]);
@@ -563,6 +578,7 @@ void SiStripRecHitsCompare()
  }
  
  Strip->Print("NstpTIDCompare.eps");
+ Strip->Print("NstpTIDCompare.gif");
 
  rfile->GetObject("DQMData/TID/Posx_rphi_layer1tid",postid[0]);
  rfile->GetObject("DQMData/TID/Posx_rphi_layer2tid",postid[1]);
@@ -588,6 +604,7 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("PosTIDCompare.eps");
+  Strip->Print("PosTIDCompare.gif");
   
 
  rfile->GetObject("DQMData/TID/Errx_rphi_layer1tid",errxtid[0]);
@@ -614,6 +631,7 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("ErrxTIDCompare.eps");
+  Strip->Print("ErrxTIDCompare.gif");
   
  
  rfile->GetObject("DQMData/TID/Res_rphi_layer1tid",restid[0]);
@@ -640,6 +658,7 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("ResTIDCompare.eps");
+  Strip->Print("ResTIDCompare.gif");
 
  rfile->GetObject("DQMData/TID/Chi2_rphi_layer1tid",chi2tid[0]);
  rfile->GetObject("DQMData/TID/Chi2_rphi_layer2tid",chi2tid[1]);
@@ -665,6 +684,7 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("Chi2TIDCompare.eps");
+  Strip->Print("Chi2TIDCompare.gif");
   
  rfile->GetObject("DQMData/TID/Posx_matched_layer1tid",matchedtid[0]);
  rfile->GetObject("DQMData/TID/Posy_matched_layer1tid",matchedtid[1]);
@@ -696,6 +716,7 @@ void SiStripRecHitsCompare()
  }
  
  Strip->Print("MatchedTIDCompare.eps");
+ Strip->Print("MatchedTIDCompare.gif");
 
  rfile->GetObject("DQMData/TID/Resx_matched_layer1tid",matchedchi2tid[0]);
  rfile->GetObject("DQMData/TID/Resy_matched_layer1tid",matchedchi2tid[1]);
@@ -723,6 +744,7 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("Chi2MatchedTIDCompare.eps");
+  Strip->Print("Chi2MatchedTIDCompare.gif");
 
  //======================================================================================================
 // TEC
@@ -780,6 +802,7 @@ void SiStripRecHitsCompare()
  }
  
  Strip->Print("AdcTECCompare.eps");
+ Strip->Print("AdcTECCompare.gif");
  
  rfile->GetObject("DQMData/TEC/Nstp_rphi_layer1tec",nstptec[0]);
  rfile->GetObject("DQMData/TEC/Nstp_rphi_layer2tec",nstptec[1]);
@@ -815,6 +838,7 @@ void SiStripRecHitsCompare()
  }
  
  Strip->Print("NstpTECCompare.eps");
+ Strip->Print("NstpTECCompare.gif");
 
  rfile->GetObject("DQMData/TEC/Posx_rphi_layer1tec",postec[0]);
  rfile->GetObject("DQMData/TEC/Posx_rphi_layer2tec",postec[1]);
@@ -850,6 +874,7 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("PosTECCompare.eps");
+  Strip->Print("PosTECCompare.gif");
   
 
  rfile->GetObject("DQMData/TEC/Errx_rphi_layer1tec",errxtec[0]);
@@ -886,6 +911,7 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("ErrxTECCompare.eps");
+  Strip->Print("ErrxTECCompare.gif");
   
  
  rfile->GetObject("DQMData/TEC/Res_rphi_layer1tec",restec[0]);
@@ -922,6 +948,7 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("ResTECCompare.eps");
+  Strip->Print("ResTECCompare.gif");
 
  rfile->GetObject("DQMData/TEC/Chi2_rphi_layer1tec",chi2tec[0]);
  rfile->GetObject("DQMData/TEC/Chi2_rphi_layer2tec",chi2tec[1]);
@@ -957,6 +984,7 @@ void SiStripRecHitsCompare()
   }
   
   Strip->Print("Chi2TECCompare.eps");
+  Strip->Print("Chi2TECCompare.gif");
   
  rfile->GetObject("DQMData/TEC/Posx_matched_layer1tec",matchedtec[0]);
  rfile->GetObject("DQMData/TEC/Posy_matched_layer1tec",matchedtec[1]);
@@ -996,6 +1024,7 @@ void SiStripRecHitsCompare()
  }
  
  Strip->Print("MatchedTECCompare.eps");
+ Strip->Print("MatchedTECCompare.gif");
  
  rfile->GetObject("DQMData/TEC/Resx_matched_layer1tec",matchedrestec[0]);
  rfile->GetObject("DQMData/TEC/Resy_matched_layer1tec",matchedrestec[1]);
@@ -1023,6 +1052,7 @@ void SiStripRecHitsCompare()
  }
  
  Strip->Print("MatchedResTECCompare.eps");
+ Strip->Print("MatchedResTECCompare.gif");
 
  rfile->GetObject("DQMData/TEC/Chi2_matched_layer1tec",matchedchi2tec[0]);
  rfile->GetObject("DQMData/TEC/Chi2_matched_layer2tec",matchedchi2tec[1]);
@@ -1044,6 +1074,7 @@ void SiStripRecHitsCompare()
  }
  
  Strip->Print("MatchedChi2TECCompare.eps");
+ Strip->Print("MatchedChi2TECCompare.gif");
  
 }
 
