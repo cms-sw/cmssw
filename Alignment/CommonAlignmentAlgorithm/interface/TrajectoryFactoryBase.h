@@ -17,8 +17,8 @@ public:
 
   typedef ReferenceTrajectoryBase::ReferenceTrajectoryPtr ReferenceTrajectoryPtr;
   typedef ReferenceTrajectoryBase::MaterialEffects MaterialEffects;
-  typedef AlignmentAlgorithmBase::TrajTrackPair TrajTrackPair;
-  typedef AlignmentAlgorithmBase::TrajTrackPairCollection TrajTrackPairCollection;
+  typedef AlignmentAlgorithmBase::ConstTrajTrackPair ConstTrajTrackPair;
+  typedef AlignmentAlgorithmBase::ConstTrajTrackPairCollection ConstTrajTrackPairCollection;
   typedef std::vector< ReferenceTrajectoryPtr > ReferenceTrajectoryCollection;
   typedef std::pair< TrajectoryStateOnSurface, TransientTrackingRecHit::ConstRecHitContainer > TrajectoryInput;
 
@@ -26,13 +26,13 @@ public:
   virtual ~TrajectoryFactoryBase( void );
 
   virtual const ReferenceTrajectoryCollection trajectories( const edm::EventSetup & setup,
-							    const TrajTrackPairCollection & tracks ) const = 0;
+							    const ConstTrajTrackPairCollection & tracks ) const = 0;
 
   virtual TrajectoryFactoryBase* clone( void ) const = 0;
 
 protected:
 
-  virtual const TrajectoryInput innermostStateAndRecHits( const TrajTrackPair & track ) const;
+  virtual const TrajectoryInput innermostStateAndRecHits( const ConstTrajTrackPair & track ) const;
   virtual const Trajectory::DataContainer orderedTrajectoryMeasurements( const Trajectory & trajectory ) const;
 
   const MaterialEffects materialEffects( const std::string strME ) const;

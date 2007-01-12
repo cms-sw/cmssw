@@ -19,14 +19,14 @@ ReferenceTrajectoryFactory::~ReferenceTrajectoryFactory( void ) {}
 
 const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection
 ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
-					  const TrajTrackPairCollection & tracks ) const
+					  const ConstTrajTrackPairCollection & tracks ) const
 {
   ReferenceTrajectoryCollection trajectories;
 
   edm::ESHandle< MagneticField > magneticField;
   setup.get< IdealMagneticFieldRecord >().get( magneticField );
 
-  TrajTrackPairCollection::const_iterator itTracks = tracks.begin();
+  ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
 
   while ( itTracks != tracks.end() )
   { 

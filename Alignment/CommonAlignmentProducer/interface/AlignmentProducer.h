@@ -7,9 +7,9 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.7 $
-///  last update: $Date: 2006/11/03 11:00:56 $
-///  by         : $Author: fpschill $
+///  Revision   : $Revision: 1.8 $
+///  last update: $Date: 2006/11/07 10:33:46 $
+///  by         : $Author: flucke $
 
 #include <vector>
 
@@ -36,7 +36,10 @@ class AlignmentProducer : public edm::ESProducerLooper
 {
 
  public:
-
+  typedef std::vector<Alignable*> Alignables;
+  typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair; 
+  typedef std::vector<ConstTrajTrackPair>  ConstTrajTrackPairCollection;
+  
   /// Constructor
   AlignmentProducer( const edm::ParameterSet& iConfig );
   
@@ -66,20 +69,20 @@ class AlignmentProducer : public edm::ESProducerLooper
 
  private:
 
-  typedef std::vector<Alignable*> Alignables;
-
   // private member functions
 
+  /// Apply random shifts and rotations to selected alignables, according to configuration
   void simpleMisalignment(const Alignables &alivec, const std::string &selection,
-			  float shift, float rot, bool local);
+                          float shift, float rot, bool local);
+
+  /// Check if a trajectory and a track match
+  const bool trajTrackMatch( const ConstTrajTrackPair& pair ) const;
 
   // private data members
 
   AlignmentAlgorithmBase* theAlignmentAlgo;
   AlignmentParameterBuilder* theAlignmentParameterBuilder;
   AlignmentParameterStore* theAlignmentParameterStore;
-
-
   AlignableTracker* theAlignableTracker;
 
   ReturnType theTracker;

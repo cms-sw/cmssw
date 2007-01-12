@@ -1,13 +1,13 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.17 $
-///  last update: $Date: 2006/12/23 16:02:58 $
-///  by         : $Author: ewidl $
+///  Revision   : $Revision: 1.18 $
+///  last update: $Date: 2007/01/12 09:47:41 $
+///  by         : $Author: fronga $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
 
-#include "TrackingTools/PatternTools/interface/Trajectory.h" // patch for CMSSW_1_0_6
+#include "TrackingTools/PatternTools/interface/Trajectory.h" 
 
 // System include files
 #include <memory>
@@ -78,6 +78,11 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
 AlignmentProducer::~AlignmentProducer()
 {
 
+  delete theAlignmentParameterStore;
+  delete theAlignableTracker;
+  delete theAlignmentParameterBuilder;
+  delete theAlignmentAlgo;
+
 }
 
 
@@ -144,8 +149,7 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   // create AlignmentParameterStore 
   edm::ParameterSet aliParamStoreCfg = 
     theParameterSet.getParameter<edm::ParameterSet>("ParameterStore");
-  theAlignmentParameterStore = new AlignmentParameterStore(theAlignables,
- 							   aliParamStoreCfg);
+  theAlignmentParameterStore = new AlignmentParameterStore(theAlignables, aliParamStoreCfg);
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
                             << "AlignmentParameterStore created!";
 
@@ -256,19 +260,28 @@ AlignmentProducer::duringLoop( const edm::Event& event,
     edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::duringLoop" 
                               << "Events processed: " << nevent;
   }
-  // Run the refitter algorithm
-  AlgoProductCollection m_algoResults = theAlignmentAlgo->refitTracks( event, setup );
+
+  // Retrieve trajectories and tracks from the event
+  edm::InputTag tkTag = theParameterSet.getParameter<edm::InputTag>("tkTag");
+  edm::Handle<reco::TrackCollection> m_TrackCollection;
+  event.getByLabel( tkTag, m_TrackCollection );
+  edm::Handle<std::vector<Trajectory> > m_TrajectoryCollection;
+  event.getByLabel( tkTag, m_TrajectoryCollection );
+
+  // Form pairs of trajectories and tracks
+  ConstTrajTrackPairCollection m_algoResults;
+  reco::TrackCollection::const_iterator   iTrack = m_TrackCollection->begin();
+  std::vector<Trajectory>::const_iterator iTraj  = m_TrajectoryCollection->begin();
+  for ( ; iTrack != m_TrackCollection->end(); ++iTrack, ++iTraj )
+    {
+      ConstTrajTrackPair aPair(  &(*iTraj), &(*iTrack)  );
+      if ( !this->trajTrackMatch( aPair ) )
+        throw cms::Exception("TrajTrackMismatch") << "Couldn't pair trajectory and track";
+      m_algoResults.push_back( aPair );
+    }
 
   // Run the alignment algorithm
   theAlignmentAlgo->run(  setup, m_algoResults );
-
-  // Clean-up
-  for ( AlgoProductCollection::const_iterator it=m_algoResults.begin();
-       it!=m_algoResults.end();it++) {
-    delete (*it).first;
-    delete (*it).second;
-  }
-  m_algoResults.clear();
 
   return kContinue;
 }
@@ -352,5 +365,45 @@ void AlignmentProducer::simpleMisalignment(const Alignables &alivec, const std::
     output << "No simple misalignment added!";
   }
   edm::LogInfo("Alignment")  << "@SUB=AlignmentProducer::simpleMisalignment" << output.str();
+
+}
+
+
+//__________________________________________________________________________________________________
+const bool AlignmentProducer::trajTrackMatch( const ConstTrajTrackPair& pair ) const
+{
+
+
+  // Compare a trajectory and a track
+  // Currently based on rec.hits. comparison
+
+  // 1. - should have same number of hits
+  if ( pair.first->measurements().size() != pair.second->recHitsSize() ) return false;
+
+  // 2. - compare hits
+  Trajectory::ConstRecHitContainer recHits( pair.first->recHits() );
+  trackingRecHit_iterator iTkHit = pair.second->recHitsBegin();
+
+  for ( Trajectory::ConstRecHitContainer::const_iterator iTjHit = recHits.begin();
+        iTjHit != recHits.end(); ++iTjHit, ++iTkHit )
+    {
+
+      if ( (*iTjHit)->isValid() && (*iTkHit)->isValid() ) // Skip invalid hits
+        {
+
+          // Module Id
+          if ( (*iTjHit)->geographicalId() != (*iTkHit)->geographicalId() )
+            return false;
+
+          // Local position
+          if ( fabs((*iTjHit)->localPosition().x() - (*iTkHit)->localPosition().x()) > 1.e-12
+               || fabs((*iTjHit)->localPosition().y() - (*iTkHit)->localPosition().y()) > 1.e-12
+               || fabs((*iTjHit)->localPosition().z() - (*iTkHit)->localPosition().z()) > 1.e-12
+               )
+            return false;
+        }
+    }
+
+  return true;
 
 }

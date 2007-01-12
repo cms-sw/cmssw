@@ -17,7 +17,7 @@ public:
 
   /// Produce the reference trajectories.
   virtual const ReferenceTrajectoryCollection trajectories( const edm::EventSetup & setup,
-							    const TrajTrackPairCollection & tracks ) const;
+							    const ConstTrajTrackPairCollection & tracks ) const;
 
   virtual ReferenceTrajectoryFactory* clone( void ) const { return new ReferenceTrajectoryFactory( *this ); }
 

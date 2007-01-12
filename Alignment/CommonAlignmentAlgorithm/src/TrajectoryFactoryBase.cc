@@ -29,7 +29,7 @@ const TrajectoryFactoryBase::MaterialEffects TrajectoryFactoryBase::materialEffe
 
 
 const TrajectoryFactoryBase::TrajectoryInput
-TrajectoryFactoryBase::innermostStateAndRecHits( const TrajTrackPair & track ) const
+TrajectoryFactoryBase::innermostStateAndRecHits( const ConstTrajTrackPair & track ) const
 {
   TransientTrackingRecHit::ConstRecHitContainer recHits;
   TrajectoryStateOnSurface innermostState;
