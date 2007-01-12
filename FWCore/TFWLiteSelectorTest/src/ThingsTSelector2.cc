@@ -5,7 +5,7 @@
 #include <iostream>
 using namespace std;
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"

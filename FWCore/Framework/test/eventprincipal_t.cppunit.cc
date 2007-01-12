@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.34 2006/12/07 05:54:47 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.35 2007/01/10 05:59:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <map>
@@ -22,7 +22,7 @@ $Id: eventprincipal_t.cppunit.cc,v 1.34 2006/12/07 05:54:47 wmtan Exp $
 #include "DataFormats/Common/interface/Timestamp.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "FWCore/Framework/interface/BasicHandle.h"
+#include "DataFormats/Common/interface/BasicHandle.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Framework/interface/TypeID.h"

@@ -24,7 +24,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jan  7 15:40:43 EST 2006
-// $Id: GenericHandle.h,v 1.6 2006/10/27 20:56:42 wmtan Exp $
+// $Id: GenericHandle.h,v 1.7 2006/12/06 16:18:23 paterno Exp $
 //
 
 // system include files
@@ -33,7 +33,7 @@
 // user include files
 #include "Reflex/Object.h"
 #include "FWCore/Framework/interface/DataViewImpl.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 // forward declarations
 namespace edm {

@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.32 2006/12/01 03:29:52 wmtan Exp $
+$Id: OutputModule.h,v 1.33 2006/12/19 00:28:17 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -25,7 +25,7 @@ $Id: OutputModule.h,v 1.32 2006/12/01 03:29:52 wmtan Exp $
 #include "FWCore/Framework/interface/Selector.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 namespace edm {
 

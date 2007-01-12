@@ -3,7 +3,7 @@
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Integration/test/ViewAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/View.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 

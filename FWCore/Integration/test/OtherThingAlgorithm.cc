@@ -3,7 +3,7 @@
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 namespace edmtest {
   void OtherThingAlgorithm::run(edm::DataViewImpl const& dv, OtherThingCollection & otherThingCollection,

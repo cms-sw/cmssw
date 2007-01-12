@@ -3,14 +3,14 @@
    Test Modules for ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: TestSchedulerModule1.cc,v 1.10 2006/02/13 22:36:36 wmtan Exp $
+   \version $Id: TestSchedulerModule1.cc,v 1.11 2006/10/21 17:18:57 wmtan Exp $
    \date 19 May 2005
 */
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -21,7 +21,7 @@
 
 using namespace edm;
 
-static const char CVSId[] = "$Id: TestSchedulerModule1.cc,v 1.10 2006/02/13 22:36:36 wmtan Exp $";
+static const char CVSId[] = "$Id: TestSchedulerModule1.cc,v 1.11 2006/10/21 17:18:57 wmtan Exp $";
 
 class TestSchedulerModule1 : public EDProducer
 {

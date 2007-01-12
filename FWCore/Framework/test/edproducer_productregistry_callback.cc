@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: edproducer_productregistry_callback.cc,v 1.8 2006/07/06 19:11:44 wmtan Exp $
+   \version $Id: edproducer_productregistry_callback.cc,v 1.9 2006/08/05 18:36:45 chrjones Exp $
    \date 21 July 2005
 */
 
@@ -20,7 +20,7 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"

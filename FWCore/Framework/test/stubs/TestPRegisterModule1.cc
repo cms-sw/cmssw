@@ -3,14 +3,14 @@
    Test Modules for testProductRegistry
 
    \author Stefano ARGIRO
-   \version $Id: TestPRegisterModule1.cc,v 1.4 2006/02/13 22:36:36 wmtan Exp $
+   \version $Id: TestPRegisterModule1.cc,v 1.5 2006/03/06 01:13:36 chrjones Exp $
    \date 19 May 2005
 */
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -22,7 +22,7 @@
 
 using namespace edm;
 
-static const char CVSId[] = "$Id: TestPRegisterModule1.cc,v 1.4 2006/02/13 22:36:36 wmtan Exp $";
+static const char CVSId[] = "$Id: TestPRegisterModule1.cc,v 1.5 2006/03/06 01:13:36 chrjones Exp $";
 
 TestPRegisterModule1::TestPRegisterModule1(edm::ParameterSet const& p):pset_(p){
    produces<edmtest::StringProduct>();

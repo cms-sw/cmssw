@@ -13,7 +13,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/TestObjects/interface/ToyProducts.h"

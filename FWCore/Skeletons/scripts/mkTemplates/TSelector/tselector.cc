@@ -25,7 +25,7 @@
 #include "TCanvas.h"
 // user include files
 #include "skelsubsys/tselname/src/tselname.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 
 @example_track #include "DataFormats/TrackReco/interface/Track.h"

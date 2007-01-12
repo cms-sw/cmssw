@@ -12,7 +12,7 @@ typedef edmtestprod::IntArray WriteThis;
 #endif
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 // #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

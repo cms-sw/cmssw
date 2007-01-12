@@ -6,7 +6,7 @@
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.7 2006/12/19 00:27:33 wmtan Exp $
+$Id: Event_t.cpp,v 1.8 2007/01/10 05:59:30 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -30,8 +30,8 @@ $Id: Event_t.cpp,v 1.7 2006/12/19 00:27:33 wmtan Exp $
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/Framework/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

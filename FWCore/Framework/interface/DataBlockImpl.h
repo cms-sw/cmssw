@@ -14,7 +14,7 @@ through shared pointers.
 The DataBlockImpl returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: DataBlockImpl.h,v 1.8 2007/01/11 23:39:19 paterno Exp $
+$Id: DataBlockImpl.h,v 1.9 2007/01/12 18:02:55 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <list>
@@ -33,7 +33,7 @@ $Id: DataBlockImpl.h,v 1.8 2007/01/11 23:39:19 paterno Exp $
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/ProcessHistory.h"
 #include "DataFormats/Common/interface/ProcessHistoryID.h"
-#include "FWCore/Framework/interface/BasicHandle.h"
+#include "DataFormats/Common/interface/BasicHandle.h"
 #include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/SelectorBase.h"

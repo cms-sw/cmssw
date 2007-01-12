@@ -3,15 +3,15 @@
    Test Module for testProductRegistry
 
    \author Stefano ARGIRO
-   \version $Id: TestPRegisterModule2.cc,v 1.6 2006/07/06 19:11:44 wmtan Exp $
+   \version $Id: TestPRegisterModule2.cc,v 1.7 2006/09/01 18:16:43 wmtan Exp $
    \date 19 May 2005
 */
 
-static const char CVSId[] = "$Id: TestPRegisterModule2.cc,v 1.6 2006/07/06 19:11:44 wmtan Exp $";
+static const char CVSId[] = "$Id: TestPRegisterModule2.cc,v 1.7 2006/09/01 18:16:43 wmtan Exp $";
 
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/test/stubs/TestPRegisterModule2.h"

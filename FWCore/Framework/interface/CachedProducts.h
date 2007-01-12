@@ -7,7 +7,7 @@
 // the TriggerResults objects upon which the decision to write out an
 // event is made.
 //
-// $Id: CachedProducts.h,v 1.1 2006/11/17 23:05:00 paterno Exp $
+// $Id: CachedProducts.h,v 1.2 2007/01/05 18:51:11 wdd Exp $
 // -------------------------------------------------------------------
 #include <string>
 #include <utility>
@@ -16,7 +16,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSelector.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Selector.h"
 
 namespace edm
