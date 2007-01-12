@@ -19,7 +19,7 @@ PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf)
   std::string finder = conf.getParameter<std::string>("Finder"); // DivisiveVertexFinder
   bool useError      = conf.getParameter<bool>("UseError"); // true
   bool wtAverage     = conf.getParameter<bool>("WtAverage"); // true
-  double zOffset     = conf.getParameter<double>("ZOffset"); // 5.0 cm
+  double zOffset     = conf.getParameter<double>("ZOffset"); // 5.0 sigma
   double zSeparation = conf.getParameter<double>("ZSeparation"); // 0.05 cm
   int ntrkMin        = conf.getParameter<int>("NTrkMin"); // 5
   // Tracking requirements before sending a track to be considered for vtx
