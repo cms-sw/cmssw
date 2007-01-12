@@ -90,33 +90,12 @@ private:
   std::map<RPCDetId, std::vector<RPCRecHit> >
   map1DRecHitsPerRpcId(const RPCRecHitCollection* RPCRecHitPairs);
   
-  // Compute SimHit distance from wire (cm)
-  //float simHitDistFromWire(const DTLayer* layer,
-  //			   DTWireId wireId,
-  //			   const PSimHit& hit);
+  // Compute SimHit distance from strip
+  float simHitDistFromStrip(const RPCDetId* rpcId,
+  			   RPCId firstStrip,
+  			   const PSimHit& hit);
   
-  // Find the RecHit closest to the muon SimHit
-  //   const DTRecHit1DPair* 
-  //   findBestRecHit(const DTLayer* layer,
-  // 		 DTWireId wireId,
-  // 		 const std::vector<DTRecHit1DPair>& recHits,
-  // 		 const float simHitDist);
-
-  //template  <typename type>
-  //const type* 
   
-
-  // Return the error on the measured (cm) coordinate
-  //float recHitPositionError(const RPCRecHit1DPair& recHit);
-  //float recHitPositionError(const RPCRecHit1D& recHit);
-
-  // Does the real job
-  //template  <typename type>
-  //void compute(const RPCGeometry *dtGeom,
-  //	       std::map<RPCStripId, std::vector<PSimHit> > simHitsPerStrip,
-  //	       std::map<RPCStripId, std::vector<type> > recHitsPerStrip,
-  //	       int step);
-
 };
 
 
