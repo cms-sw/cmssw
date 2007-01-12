@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu May 26 13:48:03 EDT 2005
-// $Id: LoadableDummyESSource.cc,v 1.2 2005/12/22 20:28:28 chrjones Exp $
+// $Id: LoadableDummyESSource.cc,v 1.3 2006/10/21 17:18:57 wmtan Exp $
 //
 
 // system include files
@@ -29,8 +29,15 @@ class LoadableDummyESSource : public edm::eventsetup::test::DummyProxyProvider, 
 public:
    LoadableDummyESSource(const edm::ParameterSet& iPSet)
    : DummyProxyProvider( edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value",2))){
-      setInterval(edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),
-                                        edm::IOVSyncValue::endOfTime()));
+     unsigned int startRun = iPSet.getUntrackedParameter<unsigned int>("startRunForIOV",0);
+     if ( 0 == startRun ) {
+       setInterval(edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),
+                                         edm::IOVSyncValue::endOfTime()));
+     } else {
+       setInterval(edm::ValidityInterval(edm::IOVSyncValue(startRun,0),
+                                         edm::IOVSyncValue::endOfTime()));
+       
+     }
    }
 };
 
