@@ -50,6 +50,7 @@ if (1) {
     }
    
    Pixel->Print("AdcOfPXBLayer1_compare.eps");
+   Pixel->Print("AdcOfPXBLayer1_compare.gif");
 }
 
 if (1) {
@@ -76,6 +77,7 @@ if (1) {
     }
 
    Pixel->Print("RowOfPXBLayer1_compare.eps");
+   Pixel->Print("RowOfPXBLayer1_compare.gif");
 }
 
 if (1) {
@@ -102,6 +104,7 @@ if (1) {
     }
 
    Pixel->Print("ColOfPXBLayer1_compare.eps");
+   Pixel->Print("ColOfPXBLayer1_compare.gif");
 }
 
 if (1) {
@@ -130,6 +133,7 @@ if (1) {
 
 
    Pixel->Print("DigiMultiPXBLayer1_compare.eps");
+   Pixel->Print("DigiMultiPXBLayer1_compare.gif");
 }
 
 ///2nd Layer
@@ -158,6 +162,7 @@ if (1) {
     }
 
    Pixel->Print("AdcOfPXBLayer2_compare.eps");
+   Pixel->Print("AdcOfPXBLayer2_compare.gif");
 }
 
 if (1) {
@@ -183,6 +188,7 @@ if (1) {
     }
 
    Pixel->Print("RowOfPXBLayer2_compare.eps");
+   Pixel->Print("RowOfPXBLayer2_compare.gif");
 }
 
 if (1) {
@@ -207,6 +213,7 @@ if (1) {
     }
   
    Pixel->Print("ColOfPXBLayer2_compare.eps");
+   Pixel->Print("ColOfPXBLayer2_compare.gif");
 }
 if (1) {
   TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
@@ -234,6 +241,7 @@ if (1) {
 
 
    Pixel->Print("DigiMultiPXBLayer2_compare.eps");
+   Pixel->Print("DigiMultiPXBLayer2_compare.gif");
 }
 
 ///3rd Layer
@@ -262,6 +270,7 @@ if (1) {
     }
 
    Pixel->Print("AdcOfPXBLayer3_compare.eps");
+   Pixel->Print("AdcOfPXBLayer3_compare.gif");
 }
 if (1) {
    TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
@@ -287,6 +296,7 @@ if (1) {
     }
 
    Pixel->Print("RowOfPXBLayer3_compare.eps");
+   Pixel->Print("RowOfPXBLayer3_compare.gif");
 }
 
 if (1) {
@@ -313,6 +323,7 @@ if (1) {
     }
 
    Pixel->Print("ColOfPXBLayer3_compare.eps");
+   Pixel->Print("ColOfPXBLayer3_compare.gif");
 }
 
 /* digi multiplicity per ring */
@@ -342,6 +353,7 @@ if (1) {
 
 
    Pixel->Print("DigiMultiPXBLayer3_compare.eps");
+   Pixel->Print("DigiMultiPXBLayer3_compare.gif");
 }
 
 /* Digi Number versus Ladder Num. */
@@ -369,6 +381,7 @@ if (1) {
     }
 
    Pixel->Print("DigiMultiPXBLadders_compare.eps");
+   Pixel->Print("DigiMultiPXBLadders_compare.gif");
 }
 
 ///////////////////////////////////////////////////
@@ -398,6 +411,7 @@ if (1) {
     }
 
    Pixel->Print("AdcZmDisk1Panel1_compare.eps");
+   Pixel->Print("AdcZmDisk1Panel1_compare.gif");
 }
 if (1) {
    TCanvas * Pixel = new TCanvas("Pixel","Pixel",1000,1000);
@@ -421,6 +435,7 @@ if (1) {
     }
 
    Pixel->Print("RowZmDisk1Panel1_compare.eps");
+   Pixel->Print("RowZmDisk1Panel1_compare.gif");
 }
 
 if (1) {
@@ -447,6 +462,7 @@ if (1) {
     }
 
    Pixel->Print("ColZmDisk1Panel1_compare.eps");
+   Pixel->Print("ColZmDisk1Panel1_compare.gif");
 }
 
 if (1) {
@@ -472,6 +488,7 @@ if (1) {
     }
 
    Pixel->Print("AdcZmDisk1Panel2_compare.eps");
+   Pixel->Print("AdcZmDisk1Panel2_compare.gif");
 }
 
 if (1) {
@@ -497,6 +514,7 @@ if (1) {
     }
 
    Pixel->Print("RowZmDisk1Panel2_compare.eps");
+   Pixel->Print("RowZmDisk1Panel2_compare.gif");
 }
 if (1) {
    TCanvas * Pixel = new TCanvas("Pixel","Pixel",600,1000);
@@ -521,6 +539,7 @@ if (1) {
     }
 
    Pixel->Print("ColZmDisk1Panel2_compare.eps");
+   Pixel->Print("ColZmDisk1Panel2_compare.gif");
 }
 
 /* Z Minus Side Disk 2 */
@@ -547,6 +566,7 @@ if (1) {
     }
 
    Pixel->Print("AdcZmDisk2Panel1_compare.eps");
+   Pixel->Print("AdcZmDisk2Panel1_compare.gif");
 }
 if (1) {
    TCanvas * Pixel = new TCanvas("Pixel","Pixel",1000,1000);
@@ -570,6 +590,7 @@ if (1) {
     }
 
    Pixel->Print("RowZmDisk2Panel1_compare.eps");
+   Pixel->Print("RowZmDisk2Panel1_compare.gif");
 }
 if (1) {
    TCanvas * Pixel = new TCanvas("Pixel","Pixel",1000,1000);
@@ -594,6 +615,7 @@ if (1) {
     }
 
    Pixel->Print("ColZmDisk2Panel1_compare.eps");
+   Pixel->Print("ColZmDisk2Panel1_compare.gif");
 }
 
 if (1) {
@@ -620,6 +642,7 @@ if (1) {
     }
 
    Pixel->Print("AdcZmDisk2Panel2_compare.eps");
+   Pixel->Print("AdcZmDisk2Panel2_compare.gif");
 }
 if (1) {
    TCanvas * Pixel = new TCanvas("Pixel","Pixel",600,1000);
@@ -644,6 +667,7 @@ if (1) {
     }
 
    Pixel->Print("RowZmDisk2Panel2_compare.eps");
+   Pixel->Print("RowZmDisk2Panel2_compare.gif");
 }
 if (1) {
    TCanvas * Pixel = new TCanvas("Pixel","Pixel",600,1000);
@@ -668,6 +692,7 @@ if (1) {
     }
 
    Pixel->Print("ColZmDisk2Panel2_compare.eps");
+   Pixel->Print("ColZmDisk2Panel2_compare.gif");
 }
 
 /*  Z Plus  Side  Disk 1 */
@@ -695,6 +720,7 @@ if (1) {
     }
 
    Pixel->Print("AdcZpDisk1Panel1_compare.eps");
+   Pixel->Print("AdcZpDisk1Panel1_compare.gif");
 }
 
 if (1) {
@@ -721,6 +747,7 @@ if (1) {
     }
 
    Pixel->Print("RowZpDisk1Panel1_compare.eps");
+   Pixel->Print("RowZpDisk1Panel1_compare.gif");
 }
 if (1) {
    TCanvas * Pixel = new TCanvas("Pixel","Pixel",1000,1000);
@@ -745,6 +772,7 @@ if (1) {
     }
 
    Pixel->Print("ColZpDisk1Panel1_compare.eps");
+   Pixel->Print("ColZpDisk1Panel1_compare.gif");
 }
 
 if (1) {
@@ -771,6 +799,7 @@ if (1) {
     }
 
    Pixel->Print("AdcZpDisk1Panel2_compare.eps");
+   Pixel->Print("AdcZpDisk1Panel2_compare.gif");
 }
 if (1) {
    TCanvas * Pixel = new TCanvas("Pixel","Pixel",600,1000);
@@ -796,6 +825,7 @@ if (1) {
     }
 
    Pixel->Print("RowZpDisk1Panel2_compare.eps");
+   Pixel->Print("RowZpDisk1Panel2_compare.gif");
 }
 if (1) {
    TCanvas * Pixel = new TCanvas("Pixel","Pixel",600,1000);
@@ -820,6 +850,7 @@ if (1) {
     }
 
    Pixel->Print("ColZpDisk1Panel2_compare.eps");
+   Pixel->Print("ColZpDisk1Panel2_compare.gif");
 }
 
 /* Z Plus Side  Disk2 */
@@ -847,6 +878,7 @@ if (1) {
     }
 
    Pixel->Print("AdcZpDisk2Panel1_compare.eps");
+   Pixel->Print("AdcZpDisk2Panel1_compare.gif");
 }
 if (1) {
    TCanvas * Pixel = new TCanvas("Pixel","Pixel",1000,1000);
@@ -871,6 +903,7 @@ if (1) {
     }
 
    Pixel->Print("RowZpDisk2Panel1_compare.eps");
+   Pixel->Print("RowZpDisk2Panel1_compare.gif");
 }
 if (1) {
    TCanvas * Pixel = new TCanvas("Pixel","Pixel",1000,1000);
@@ -895,6 +928,7 @@ if (1) {
     }
 
    Pixel->Print("ColZpDisk2Panel1_compare.eps");
+   Pixel->Print("ColZpDisk2Panel1_compare.gif");
 }
 
 
@@ -922,6 +956,7 @@ if (1) {
     }
 
    Pixel->Print("AdcZpDisk2Panel2_compare.eps");
+   Pixel->Print("AdcZpDisk2Panel2_compare.gif");
 }
 
 if (1) {
@@ -947,6 +982,7 @@ if (1) {
     }
 
    Pixel->Print("RowZpDisk2Panel2_compare.eps");
+   Pixel->Print("RowZpDisk2Panel2_compare.gif");
 }
 if (1) {
    TCanvas * Pixel = new TCanvas("Pixel","Pixel",600,1000);
@@ -972,6 +1008,7 @@ if (1) {
     }
 
    Pixel->Print("ColZpDisk2Panel2_compare.eps");
+   Pixel->Print("ColZpDisk2Panel2_compare.gif");
 }
 
 if (1) {
@@ -1027,6 +1064,7 @@ if (1) {
    }
  
    Pixel->Print("DigiMultiOfEndcap_compare.eps");
+   Pixel->Print("DigiMultiOfEndcap_compare.gif");
 }
 
 

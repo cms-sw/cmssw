@@ -47,6 +47,7 @@ void SiStripDigiCompare()
    }
 
    Strip->Print("NdigiTIBCompare_ZM.eps");
+   Strip->Print("NdigiTIBCompare_ZM.gif");
  }
 
  if (1) {
@@ -72,6 +73,7 @@ void SiStripDigiCompare()
    }
 
    Strip->Print("NdigiTIBCompare_ZP.eps");
+   Strip->Print("NdigiTIBCompare_ZP.gif");
  }
 
 //TIB  1st Lyaer ADC of both sides
@@ -146,6 +148,7 @@ void SiStripDigiCompare()
    }
 
  Strip->Print("AdcOfTIBLayer1Compare.eps"); 
+ Strip->Print("AdcOfTIBLayer1Compare.gif"); 
  }
 //TIB  1st Lyaer Strip of both sides
  if (1) {
@@ -219,6 +222,7 @@ void SiStripDigiCompare()
    }
 
  Strip->Print("StripNumOfTIBLayer1Compare.eps");
+ Strip->Print("StripNumOfTIBLayer1Compare.gif");
 
  }
 //ITB  2nd Lyaer
@@ -293,6 +297,7 @@ void SiStripDigiCompare()
    }
 
  Strip->Print("AdcOfTIBLayer2Compare.eps");
+ Strip->Print("AdcOfTIBLayer2Compare.gif");
  }
 
  if (1) {
@@ -366,6 +371,7 @@ void SiStripDigiCompare()
    }
 
  Strip->Print("StripNumOfTIBLayer2Compare.eps");
+ Strip->Print("StripNumOfTIBLayer2Compare.gif");
 
  }
 // TIB  3rd Layer
@@ -440,6 +446,7 @@ void SiStripDigiCompare()
    }
 
  Strip->Print("AdcOfTIBLayer3Compare.eps");
+ Strip->Print("AdcOfTIBLayer3Compare.gif");
  }
 
  if (1) {
@@ -513,6 +520,7 @@ void SiStripDigiCompare()
    }
 
  Strip->Print("StripNumOfTIBLayer3Compare.eps");
+ Strip->Print("StripNumOfTIBLayer3Compare.gif");
  }
 
 
@@ -588,6 +596,7 @@ void SiStripDigiCompare()
    }
 
  Strip->Print("AdcOfTIBLayer4Compare.eps");
+ Strip->Print("AdcOfTIBLayer4Compare.gif");
  }
 
  if (1) {
@@ -661,6 +670,7 @@ void SiStripDigiCompare()
    }
 
  Strip->Print("StripNumOfTIBLayer4Compare.eps");
+ Strip->Print("StripNumOfTIBLayer4Compare.gif");
 
  }
 
@@ -692,6 +702,7 @@ void SiStripDigiCompare()
    }
 
    Strip->Print("NdigiTOBCompare_ZM.eps");
+   Strip->Print("NdigiTOBCompare_ZM.gif");
  }
 
  if (1) {
@@ -718,6 +729,7 @@ void SiStripDigiCompare()
    }
 
    Strip->Print("NdigiTOBCompare_ZP.eps");
+   Strip->Print("NdigiTOBCompare_ZP.gif");
  }
 
 //TOB 1st Layer
@@ -761,6 +773,7 @@ void SiStripDigiCompare()
    }
 
    Strip->Print("AdcOfTOBLayer1Compare.eps");
+   Strip->Print("AdcOfTOBLayer1Compare.gif");
  }
 
  if(1) {
@@ -802,6 +815,7 @@ void SiStripDigiCompare()
    }
 
    Strip->Print("StripNumOfTOBLayer1Compare.eps");
+   Strip->Print("StripNumOfTOBLayer1Compare.gif");
  }
 //TOB  2nd Layer
  if(1) {
@@ -843,6 +857,7 @@ void SiStripDigiCompare()
    }
 
    Strip->Print("AdcOfTOBLayer2Compare.eps");
+   Strip->Print("AdcOfTOBLayer2Compare.gif");
  }
 
  if(1) {
@@ -884,6 +899,7 @@ void SiStripDigiCompare()
    }
 
    Strip->Print("StripNumOfTOBLayer2Compare.eps");
+   Strip->Print("StripNumOfTOBLayer2Compare.gif");
  }
 //TOB  3rd Layer
 
@@ -926,6 +942,7 @@ void SiStripDigiCompare()
    }
 
    Strip->Print("AdcOfTOBLayer3Compare.eps");
+   Strip->Print("AdcOfTOBLayer3Compare.gif");
  }
 
  if(1) {
@@ -967,6 +984,7 @@ void SiStripDigiCompare()
    }
 
    Strip->Print("StripNumOfTOBLayer3Compare.eps");
+   Strip->Print("StripNumOfTOBLayer3Compare.gif");
  }
 //TOB  4th Layer
 
@@ -1009,6 +1027,7 @@ void SiStripDigiCompare()
    }
 
    Strip->Print("AdcOfTOBLayer4Compare.eps");
+   Strip->Print("AdcOfTOBLayer4Compare.gif");
  }
 
  if(1) {
@@ -1050,6 +1069,7 @@ void SiStripDigiCompare()
    }
 
    Strip->Print("StripNumOfTOBLayer4Compare.eps");
+   Strip->Print("StripNumOfTOBLayer4Compare.gif");
  }
 //TOB  5th Layer
  if(1) {
@@ -1091,6 +1111,7 @@ void SiStripDigiCompare()
    }
 
    Strip->Print("AdcOfTOBLayer5Compare.eps");
+   Strip->Print("AdcOfTOBLayer5Compare.gif");
  }
 
  if(1) {
@@ -1132,6 +1153,7 @@ void SiStripDigiCompare()
    }
 
    Strip->Print("StripNumOfTOBLayer5Compare.eps");
+   Strip->Print("StripNumOfTOBLayer5Compare.gif");
  }
 //TOB  6th Layer
 
@@ -1174,6 +1196,7 @@ void SiStripDigiCompare()
    }
 
    Strip->Print("AdcOfTOBLayer6Compare.eps");
+   Strip->Print("AdcOfTOBLayer6Compare.gif");
  }
 
  if(1) {
@@ -1215,6 +1238,7 @@ void SiStripDigiCompare()
    }
 
    Strip->Print("StripNumOfTOBLayer6Compare.eps");
+   Strip->Print("StripNumOfTOBLayer6Compare.gif");
  }
 //TID
 
@@ -1242,6 +1266,7 @@ void SiStripDigiCompare()
    }
 
    Strip->Print("NdigiTIDCompare_ZM.eps");
+   Strip->Print("NdigiTIDCompare_ZM.gif");
  }
 
 if (1) {
@@ -1268,6 +1293,7 @@ if (1) {
    }
 
    Strip->Print("NdigiTIDCompare_ZP.eps");
+   Strip->Print("NdigiTIDCompare_ZP.gif");
  }
 
 // TID  1 st Wheel
@@ -1309,6 +1335,7 @@ if (1) {
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
    }
    Strip->Print("AdcOfTIDWheel1Compare.eps");
+   Strip->Print("AdcOfTIDWheel1Compare.gif");
 }
 
 if (1) {
@@ -1349,6 +1376,7 @@ if (1) {
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
    }
    Strip->Print("StripNumOfTIDWheel1Compare.eps");
+   Strip->Print("StripNumOfTIDWheel1Compare.gif");
 }
 //TID 2nd  Wheel
 if (1) {
@@ -1389,6 +1417,7 @@ if (1) {
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
    }
    Strip->Print("AdcOfTIDWheel2Compare.eps");
+   Strip->Print("AdcOfTIDWheel2Compare.gif");
 }
 
 if (1) {
@@ -1429,6 +1458,7 @@ if (1) {
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
    }
    Strip->Print("StripNumOfTIDWheel2Compare.eps");
+   Strip->Print("StripNumOfTIDWheel2Compare.gif");
 }
 //TID 3rd  Wheel
    if (1) {
@@ -1469,6 +1499,7 @@ if (1) {
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
    }
    Strip->Print("AdcOfTIDWheel3Compare.eps");
+   Strip->Print("AdcOfTIDWheel3Compare.gif");
 }
 
 if (1) {
@@ -1509,6 +1540,7 @@ if (1) {
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
    }
    Strip->Print("StripNumOfTIDWheel3Compare.eps");
+   Strip->Print("StripNumOfTIDWheel3Compare.gif");
 }
 //IEC
 if (1) {
@@ -1535,6 +1567,7 @@ if (1) {
    }
 
    Strip->Print("NdigiTECCompare_ZM.eps");
+   Strip->Print("NdigiTECCompare_ZM.gif");
  }
 if (1) {
   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
@@ -1560,6 +1593,7 @@ if (1) {
    }
 
    Strip->Print("NdigiTECCompare_ZP.eps");
+   Strip->Print("NdigiTECCompare_ZP.gif");
  }
 
 //TEC 1st Wheel in ZMinus Side
@@ -1586,6 +1620,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel1Compare_ZM.eps");
+   Strip->Print("AdcOfTECWheel1Compare_ZM.gif");
 } 
 if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -1610,6 +1645,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel1Compare_ZM.eps");
+   Strip->Print("StripNumOfTECWheel1Compare_ZM.gif");
 }
 //TEC 2nd Wheel in ZMinus Side
 if (1) {
@@ -1635,6 +1671,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel2Compare_ZM.eps");
+   Strip->Print("AdcOfTECWheel2Compare_ZM.gif");
 } 
 if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -1659,6 +1696,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel2Compare_ZM.eps");
+   Strip->Print("StripNumOfTECWheel2Compare_ZM.gif");
 }
 
 //TEC 3rd Wheel in ZMinus Side
@@ -1685,6 +1723,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel3Compare_ZM.eps");
+   Strip->Print("AdcOfTECWheel3Compare_ZM.gif");
 } 
 if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -1709,6 +1748,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel3Compare_ZM.eps");
+   Strip->Print("StripNumOfTECWheel3Compare_ZM.gif");
 }
 
 //TEC 4th Wheel in ZMinus Side
@@ -1735,6 +1775,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel4Compare_ZM.eps");
+   Strip->Print("AdcOfTECWheel4Compare_ZM.gif");
 } 
 if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -1759,6 +1800,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel4Compare_ZM.eps");
+   Strip->Print("StripNumOfTECWheel4Compare_ZM.gif");
 }
 
 //TEC 5th Wheel in ZMinus Side
@@ -1785,6 +1827,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel5Compare_ZM.eps");
+   Strip->Print("AdcOfTECWheel5Compare_ZM.gif");
 } 
 if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -1809,6 +1852,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel5Compare_ZM.eps");
+   Strip->Print("StripNumOfTECWheel5Compare_ZM.gif");
 }
 
 //TEC 6th Wheel in ZMinus Side
@@ -1835,6 +1879,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel6Compare_ZM.eps");
+   Strip->Print("AdcOfTECWheel6Compare_ZM.gif");
 } 
 if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -1859,6 +1904,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel6Compare_ZM.eps");
+   Strip->Print("StripNumOfTECWheel6Compare_ZM.gif");
 }
 
 //TEC 7th Wheel in ZMinus Side
@@ -1885,6 +1931,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel7Compare_ZM.eps");
+   Strip->Print("AdcOfTECWheel7Compare_ZM.gif");
 } 
 if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -1909,6 +1956,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel7Compare_ZM.eps");
+   Strip->Print("StripNumOfTECWheel7Compare_ZM.gif");
 }
 
 //TEC 8th Wheel in ZMinus Side
@@ -1935,6 +1983,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel8Compare_ZM.eps");
+   Strip->Print("AdcOfTECWheel8Compare_ZM.gif");
 } 
 if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -1959,6 +2008,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel8Compare_ZM.eps");
+   Strip->Print("StripNumOfTECWheel8Compare_ZM.gif");
  }
 
 //TEC 9th Wheel in ZMinus Side
@@ -1985,6 +2035,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel9Compare_ZM.eps");
+   Strip->Print("AdcOfTECWheel9Compare_ZM.gif");
    } 
    if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -2009,6 +2060,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel9Compare_ZM.eps");
+   Strip->Print("StripNumOfTECWheel9Compare_ZM.gif");
    }
 
 //TEC 1st Wheel in ZPlus  Side
@@ -2035,6 +2087,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel1Compare_ZP.eps");
+   Strip->Print("AdcOfTECWheel1Compare_ZP.gif");
    } 
    if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -2059,6 +2112,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel1Compare_ZP.eps");
+   Strip->Print("StripNumOfTECWheel1Compare_ZP.gif");
    }
 //TEC 2nd Wheel in ZPlus  Side
    if (1) {
@@ -2084,6 +2138,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel2Compare_ZP.eps");
+   Strip->Print("AdcOfTECWheel2Compare_ZP.gif");
    } 
    if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -2108,6 +2163,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel2Compare_ZP.eps");
+   Strip->Print("StripNumOfTECWheel2Compare_ZP.gif");
    }
 
 //TEC 3rd Wheel in ZPlus  Side
@@ -2134,6 +2190,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel3Compare_ZP.eps");
+   Strip->Print("AdcOfTECWheel3Compare_ZP.gif");
    } 
    if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -2158,6 +2215,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel3Compare_ZP.eps");
+   Strip->Print("StripNumOfTECWheel3Compare_ZP.gif");
    }
 
 //TEC 4th Wheel in ZPlus  Side
@@ -2184,6 +2242,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel4Compare_ZP.eps");
+   Strip->Print("AdcOfTECWheel4Compare_ZP.gif");
    } 
    if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -2208,6 +2267,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel4Compare_ZP.eps");
+   Strip->Print("StripNumOfTECWheel4Compare_ZP.gif");
    }
 
 //TEC 5th Wheel in ZPlus  Side
@@ -2234,6 +2294,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel5Compare_ZP.eps");
+   Strip->Print("AdcOfTECWheel5Compare_ZP.gif");
    } 
    if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -2258,6 +2319,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel5Compare_ZP.eps");
+   Strip->Print("StripNumOfTECWheel5Compare_ZP.gif");
    }
 
 //TEC 6th WPlus in ZMinus Side
@@ -2284,6 +2346,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel6Compare_ZP.eps");
+   Strip->Print("AdcOfTECWheel6Compare_ZP.gif");
    } 
    if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -2308,6 +2371,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel6Compare_ZP.eps");
+   Strip->Print("StripNumOfTECWheel6Compare_ZP.gif");
    }
 
 //TEC 7th Wheel in ZPlus  Side
@@ -2334,6 +2398,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel7Compare_ZP.eps");
+   Strip->Print("AdcOfTECWheel7Compare_ZP.gif");
    } 
    if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -2357,6 +2422,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel7Compare_ZP.eps");
+   Strip->Print("StripNumOfTECWheel7Compare_ZP.gif");
    }
 
 //TEC 8th Wheel in ZPlus  Side
@@ -2383,6 +2449,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel8Compare_ZP.eps");
+   Strip->Print("AdcOfTECWheel8Compare_ZP.gif");
    } 
    if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -2407,6 +2474,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel8Compare_ZP.eps");
+   Strip->Print("StripNumOfTECWheel8Compare_ZP.gif");
    }
 
 //TEC 9th Wheel in ZPLUS  Side
@@ -2433,6 +2501,7 @@ if (1) {
    }
 
    Strip->Print("AdcOfTECWheel9Compare_ZP.eps");
+   Strip->Print("AdcOfTECWheel9Compare_ZP.gif");
    } 
  if (1) {
    TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
@@ -2457,6 +2526,7 @@ if (1) {
    }
 
    Strip->Print("StripNumOfTECWheel9Compare_ZP.eps");
+   Strip->Print("StripNumOfTECWheel9Compare_ZP.gif");
  }
 }
 
