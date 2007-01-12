@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/12/20 17:32:37 $
- * $Revision: 1.60 $
+ * $Date: 2006/12/21 09:20:08 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  *
 */
@@ -556,7 +556,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       if ( sample.gainId() == 2 ) gain = 1./ 6.;
       if ( sample.gainId() == 3 ) gain = 1./ 1.;
 
-      if ( ie < 10 || ip > 10 ) {
+      if ( ie < 6 || ip > 10 ) {
 
         if ( dccMap[ism-1].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1A_[ism-1];
         if ( dccMap[ism-1].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2A_[ism-1];
@@ -707,7 +707,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
     MonitorElement* meTimeMap = 0;
     MonitorElement* meAmplPNMap = 0;
 
-    if ( ie < 10 || ip > 10 ) {
+    if ( ie < 6 || ip > 10 ) {
 
       if ( dccMap[ism-1].getEventSettings().wavelength == 0 ) {
         meAmplMap = meAmplMapL1A_[ism-1];
@@ -769,7 +769,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
     float wval = 0.;
 
-    if ( ie < 10 || ip > 10 ) {
+    if ( ie < 6 || ip > 10 ) {
 
       if ( adcA[ism-1] != 0. ) wval = xval / adcA[ism-1];
 
