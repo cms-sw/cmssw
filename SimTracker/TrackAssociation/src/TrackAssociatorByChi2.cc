@@ -1,7 +1,7 @@
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
-#include "TrackingTools/GeomPropagators/interface/HelixExtrapolatorToLine2Order.h"
+// #include "TrackingTools/GeomPropagators/interface/HelixExtrapolatorToLine2Order.h"
 #include "Geometry/Surface/interface/Line.h"
 #include "Geometry/Vector/interface/Pi.h"
 
@@ -116,9 +116,9 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 
 	TrackBase::ParameterVector gParameters=parametersAtClosestApproachGeom(vert, momAtVtx, t->charge());
 
-	//sParameters[0] = k;
-	//sParameters[1] = theta;
-	//sParameters[2] = phi0;
+	//sParameters[0] = qoverp;
+	//sParameters[1] = lambda;
+	//sParameters[2] = phi;
 	//sParameters[3] = d0;
 	//sParameters[4] = dz;
 	
@@ -129,17 +129,17 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 	chi2 /= 5;
 
 	LogDebug("TrackAssociator") << "====NEW TRACKING PARTICLE WITH PT=" << t->momentum().perp() << "====\n" 
-				    << "k     simG: " << gParameters[0] << "\n" 
-				    << "theta simG: " << gParameters[1] << "\n" 
-				    << "phi0  simG: " << gParameters[2] << "\n" 
-				    << "d0    simG: " << gParameters[3] << "\n" 
-				    << "dz    simG: " << gParameters[4] << "\n" 
+				    << "qoverp simG: " << gParameters[0] << "\n" 
+				    << "lambda simG: " << gParameters[1] << "\n" 
+				    << "phi    simG: " << gParameters[2] << "\n" 
+				    << "d0     simG: " << gParameters[3] << "\n" 
+				    << "dz     simG: " << gParameters[4] << "\n" 
 				    << ": " /*<< */ << "\n" 
-				    << "k     rec: " << rt->transverseCurvature() << "\n" 
-				    << "theta rec: " << rt->theta() << "\n" 
-				    << "phi0  rec: " << rt->phi0() << "\n" 
-				    << "d0    rec: " << rt->d0() << "\n" 
-				    << "dz    rec: " << rt->dz() << "\n" 
+				    << "qoverp rec: " << rt->qoverp() << "\n" 
+				    << "lambda rec: " << rt->lambda() << "\n" 
+				    << "phi    rec: " << rt->phi() << "\n" 
+				    << "d0     rec: " << rt->d0() << "\n" 
+				    << "dz     rec: " << rt->dz() << "\n" 
 				    << ": " /*<< */ << "\n" 
 				    << "chi2: " << chi2 << "\n";
 
@@ -190,7 +190,6 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
       int tindex=0;
       for (TrackCollection::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
 
-	
 	TrackBase::ParameterVector rParameters = rt->parameters();
 	TrackBase::CovarianceMatrix recoTrackCovMatrix = rt->covariance();
 	if (onlyDiagonal) {
@@ -208,17 +207,17 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
 	chi2 = ROOT::Math::Similarity(recoTrackCovMatrix, diffParameters);
 	chi2 /= 5;
 	LogDebug("TrackAssociator") << "====NEW RECO TRACK WITH PT=" << rt->pt() << "====\n" 
-				    << "k     simG: " << sParameters[0] << "\n" 
-				    << "theta simG: " << sParameters[1] << "\n" 
-				    << "phi0  simG: " << sParameters[2] << "\n" 
-				    << "d0    simG: " << sParameters[3] << "\n" 
-				    << "dz    simG: " << sParameters[4] << "\n" 
+				    << "qoverp simG: " << sParameters[0] << "\n" 
+				    << "lambda simG: " << sParameters[1] << "\n" 
+				    << "phi    simG: " << sParameters[2] << "\n" 
+				    << "d0     simG: " << sParameters[3] << "\n" 
+				    << "dz     simG: " << sParameters[4] << "\n" 
 				    << ": " /*<< */ << "\n" 
-				    << "k     rec: " << rt->transverseCurvature() << "\n" 
-				    << "theta rec: " << rt->theta() << "\n" 
-				    << "phi0  rec: " << rt->phi0() << "\n" 
-				    << "d0    rec: " << rt->d0() << "\n" 
-				    << "dz    rec: " << rt->dz() << "\n" 
+				    << "qoverp rec: " << rt->qoverp() << "\n" 
+				    << "lambda rec: " << rt->lambda() << "\n" 
+				    << "phi    rec: " << rt->phi() << "\n" 
+				    << "d0     rec: " << rt->d0() << "\n" 
+				    << "dz     rec: " << rt->dz() << "\n" 
 				    << ": " /*<< */ << "\n" 
 				    << "chi2: " << chi2 << "\n";
 
@@ -245,8 +244,8 @@ double TrackAssociatorByChi2::associateRecoToSim( TrackCollection::const_iterato
   
   for (TrackingParticle::g4t_iterator t=tp->g4Track_begin(); t!=tp->g4Track_end(); ++t) {
 
-    double thetares = t->momentum().theta();
-    double phi0res = t->momentum().phi();
+    double theta = t->momentum().theta();
+    double phi0 = t->momentum().phi();
     GlobalPoint vert;
     const TrackingVertex * tv = &(*(tp->parentVertex()));
     int vind=0;
@@ -254,18 +253,22 @@ double TrackAssociatorByChi2::associateRecoToSim( TrackCollection::const_iterato
       if (vind==t->vertIndex()) vert=GlobalPoint(v->position().x(),v->position().y(),v->position().z());
       vind++;
     }
-    double d0res = vert.perp();
-    double dzres = vert.z();
+    double d0 = vert.perp();
+    double dz = vert.z();
     GlobalVector magField = theMF->inTesla( vert);
 
-    double kres= -1 * t->charge() * 2.99792458e-3 * magField.mag() / t->momentum().perp();
+    //double k= -1 * t->charge() * 2.99792458e-3 * magField.mag() / t->momentum().perp();
+    double qoverp = t->charge() / t->momentum().mag();
+    double lambda = Geom::halfPi() - theta;
     
     TrackBase::ParameterVector sParameters;
-    sParameters[0] = kres;
-    sParameters[1] = thetares;
-    sParameters[2] = phi0res;
-    sParameters[3] = d0res;
-    sParameters[4] = dzres;
+    //sParameters[0] = k;
+    sParameters[0] = qoverp;
+    //sParameters[1] = theta;
+    sParameters[1] = lambda;
+    sParameters[2] = phi0;
+    sParameters[3] = d0;
+    sParameters[4] = dz;
     
     TrackBase::ParameterVector diffParameters = rParameters - sParameters;
     chi2 = ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters);
@@ -275,77 +278,6 @@ double TrackAssociatorByChi2::associateRecoToSim( TrackCollection::const_iterato
   return chi2;
 
 }
-
-TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproach2Order (Basic3DVector<double> vertex,
-										     Basic3DVector<double> momAtVtx,
-										     float charge) const{
-  GlobalVector magField = theMF->inTesla( (GlobalPoint) vertex );
-  double simTrCurv = -charge*2.99792458e-3 * magField.z()/momAtVtx.perp();
-  HelixExtrapolatorToLine2Order estr(vertex, momAtVtx, simTrCurv);
-  
-  GlobalPoint gp(0,0,0);
-  GlobalVector gv(0,0,1);
-  Line beamLine(gp,gv);
-	
-  double path = estr.pathLength(beamLine).second;
-  Basic3DVector<double> pca = estr.positionInDouble(path);
-  Basic3DVector<double> momAtPca = estr.directionInDouble(path);
-  momAtPca*=10;
-	
-  double helixCenterX = 0.5*pca.x()*(vertex.perp2()-pca.perp2())/(vertex.x()*pca.x()+vertex.y()*pca.y()-pca.perp2());
-  double helixCenterY = helixCenterX*pca.y()/pca.x();
-  double centerToPcaX = (helixCenterX-pca.x());
-  double centerToPcaY = (helixCenterY-pca.y());
-
-  double d0simT=pca.perp();
-  if ((helixCenterX*helixCenterX+helixCenterY*helixCenterY) > //should be < ???? 
-      (centerToPcaX*centerToPcaX+centerToPcaY*centerToPcaY) ){
-    d0simT = -d0simT;
-  }
-
-  TrackBase::ParameterVector sParameters;
-  sParameters[0] = -charge*2.99792458e-3 * magField.z()/momAtPca.perp();
-  sParameters[1] = momAtPca.theta();
-  sParameters[2] = momAtPca.phi();
-  sParameters[3] = d0simT;
-  sParameters[4] = pca.z();
-#if 0
-  LogDebug("TrackAssociator") << "+++++++++++++++parametersAtClosestApproach2ORDER++++++++++++++" << "\n"
-			       << "vertex.x(): " << vertex.x() << "\n"
-			       << "vertex.y(): " << vertex.y() << "\n"
-			       << "vertex.z(): " << vertex.z() << "\n"
-			       << "pca.x(): " << pca.x() << "\n"
-			       << "pca.y(): " << pca.y() << "\n"
-			       << "pca.z(): " << pca.z() << "\n"
-			       << "helixCenterX: " << helixCenterX << "\n"
-			       << "helixCenterY: " << helixCenterY << "\n"
-			       << "centerToPcaX: " << centerToPcaX << "\n"
-			       << "centerToPcaY: " << centerToPcaY << "\n"
-			       << "CO^2: " << helixCenterX*helixCenterX+helixCenterY*helixCenterY << "\n"
-			       << "CA^2: " << centerToPcaX*centerToPcaX+centerToPcaY*centerToPcaY << "\n"
-			       << "R: " << sqrt(centerToPcaX*centerToPcaX+centerToPcaY*centerToPcaY) << "\n"
-			       << "1/R: " << 1/sqrt(centerToPcaX*centerToPcaX+centerToPcaY*centerToPcaY) << "\n"
-			       << "path: " << path << "\n"
-			       << "momAtPca.x(): " << momAtPca.x() << "\n"
-			       << "momAtPca.y(): " << momAtPca.y() << "\n"
-			       << "momAtPca.z(): " << momAtPca.z() << "\n"
-			       << "momAtVtx.x(): " << momAtVtx.x() << "\n"
-			       << "momAtVtx.y(): " << momAtVtx.y() << "\n"
-			       << "momAtVtx.z(): " << momAtVtx.z() << "\n"
-			       << "magField.z()   : " << magField.z() << "\n"
-			       << "magField.perp(): " << magField.perp() << "\n"
-			       << " " /*<< */ << "\n"
-			       << "k    : " << sParameters[0] << "\n"
-			       << "theta: " << sParameters[1] << "\n"
-			       << "phi0 : " << sParameters[2] << "\n"
-			       << "d0   : " << sParameters[3] << "\n"
-			       << "dz   : " << sParameters[4] << "\n"
-			       << " " /*<< */ << "\n"
-			       << " " /*<< */ << "\n";
-#endif  
-  return sParameters;
-}
-
 
 TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproachGeom (Basic3DVector<double> vertex,
 										   Basic3DVector<double> momAtVtx,
@@ -357,7 +289,7 @@ TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproachGeo
 
   double phiAtVtx = momAtVtx.phi();
   
-  double d0sim1,s,dzsim1,beta,phi0sim ;
+  double d0sim1,s,dzsim1,beta,phisim ;
 
   d0sim1 = rho-sqrt(rho*rho+vertex.x()*vertex.x()+vertex.y()*vertex.y()
 		    +2*rho*(-sin(phiAtVtx)*vertex.x()+cos(phiAtVtx)*vertex.y()));
@@ -370,30 +302,34 @@ TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproachGeo
   beta = atan2(rho*cos(phiAtVtx)+vertex.y(),
 	       rho*sin(phiAtVtx)-vertex.x() );
   
-  phi0sim = +beta-Geom::halfPi();
+  phisim = +beta-Geom::halfPi();
   
   if (beta<0) {
-    phi0sim = +beta+3*Geom::halfPi();
+    phisim = +beta+3*Geom::halfPi();
   }
   
   //FIXME??
-  phi0sim=-phi0sim;
+  phisim=-phisim;
   
-  if (phi0sim<-Geom::pi()) {
-    phi0sim+=2*Geom::pi();
+  if (phisim<-Geom::pi()) {
+    phisim+=2*Geom::pi();
   }
 
-  GlobalVector pca(d0sim1*sin(phi0sim),d0sim1*cos(phi0sim),dzsim1);
-  GlobalVector momAtPca(momAtVtx.perp()*cos(phi0sim),momAtVtx.perp()*sin(phi0sim),momAtVtx.z());
-  double helixCenterX = (rho-d0sim1)*sin(phi0sim);
-  double helixCenterY = (rho-d0sim1)*cos(phi0sim);
+  GlobalVector pca(d0sim1*sin(phisim),d0sim1*cos(phisim),dzsim1);
+  GlobalVector momAtPca(momAtVtx.perp()*cos(phisim),momAtVtx.perp()*sin(phisim),momAtVtx.z());
+  double helixCenterX = (rho-d0sim1)*sin(phisim);
+  double helixCenterY = (rho-d0sim1)*cos(phisim);
   double centerToPcaX = (helixCenterX-pca.x());
   double centerToPcaY = (helixCenterY-pca.y());
 
+  double qoverp = charge/momAtVtx.mag();
+
   TrackBase::ParameterVector sParameters;
-  sParameters[0] = simTrCurv;
-  sParameters[1] = momAtVtx.theta();
-  sParameters[2] = phi0sim;
+  //  sParameters[0] = simTrCurv;
+  sParameters[0] = qoverp;
+  //  sParameters[1] = momAtVtx.theta();
+  sParameters[1] = Geom::halfPi() - momAtVtx.theta();
+  sParameters[2] = phisim;
   sParameters[3] = d0sim1;
   sParameters[4] = dzsim1;
 
@@ -430,11 +366,11 @@ TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproachGeo
 			      << "magField.z()   : " << magField.z() << "\n"
 			      << "magField.perp(): " << magField.perp() << "\n"
 			      << " " /*<< */ << "\n"
-			      << "k    : " << sParameters[0] << "\n"
-			      << "theta: " << sParameters[1] << "\n"
-			      << "phi0 : " << sParameters[2] << "\n"
-			      << "d0   : " << sParameters[3] << "\n"
-			      << "dz   : " << sParameters[4] << "\n"
+			      << "qoverp: " << sParameters[0] << "\n"
+			      << "lambda: " << sParameters[1] << "\n"
+			      << "phi   : " << sParameters[2] << "\n"
+			      << "d0    : " << sParameters[3] << "\n"
+			      << "dz    : " << sParameters[4] << "\n"
 			      << " " /*<< */ << "\n"
 			      << " " /*<< */ << "\n";
 #endif
