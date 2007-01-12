@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/12/21 06:50:44 $
- * $Revision: 1.102 $
+ * $Date: 2006/12/21 08:42:55 $
+ * $Revision: 1.103 $
  * \author G. Della Ricca
  *
 */
@@ -3091,7 +3091,7 @@ void EBLaserClient::analyze(void){
 
           float val;
 
-          if ( ie < 10 || ip > 10 ) {
+          if ( ie < 6 || ip > 10 ) {
 
             val = 1.;
             if ( fabs(mean01 - meanAmplL1A) > fabs(percentVariation_ * meanAmplL1A) )
@@ -3131,7 +3131,7 @@ void EBLaserClient::analyze(void){
 
           float val;
 
-          if ( ie < 10 || ip > 10 ) {
+          if ( ie < 6 || ip > 10 ) {
 
             val = 1.;
             if ( fabs(mean03 - meanAmplL2A) > fabs(percentVariation_ * meanAmplL2A) )
@@ -3171,7 +3171,7 @@ void EBLaserClient::analyze(void){
 
           float val;
 
-          if ( ie < 10 || ip > 10 ) {
+          if ( ie < 6 || ip > 10 ) {
 
             val = 1.;
             if ( fabs(mean05 - meanAmplL3A) > fabs(percentVariation_ * meanAmplL3A) )
@@ -3211,7 +3211,7 @@ void EBLaserClient::analyze(void){
 
           float val;
 
-          if ( ie < 10 || ip > 10 ) {
+          if ( ie < 6 || ip > 10 ) {
 
             val = 1.;
             if ( fabs(mean07 - meanAmplL4A) > fabs(percentVariation_ * meanAmplL4A) )
@@ -3301,10 +3301,41 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
   htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
   htmlFile << "<hr>" << endl;
-  htmlFile << "<table border=1><tr><td>L1 = blu laser</td>" << endl;
-  htmlFile << "<td>L2 = green laser</td>" << endl;
-  htmlFile << "<td>L3 = red laser</td>" << endl;
-  htmlFile << "<td>L4 = infrared laser</td></table>" << endl;
+  //   htmlFile << "<table border=1><tr><td>L1 = blu laser</td>" << endl;
+  //   htmlFile << "<td>L2 = green laser</td>" << endl;
+  //   htmlFile << "<td>L3 = red laser</td>" << endl;
+  //   htmlFile << "<td>L4 = infrared laser</td></table>" << endl;
+  htmlFile << "<table style=\"width: 600px;\" border=\"0\">" << endl;
+  htmlFile << "<tbody>" << endl;
+  htmlFile << "<tr>" << endl;
+  htmlFile << "<td style=\"text-align: center;\">" << endl;
+  htmlFile << "<div style=\"text-align: center;\"> </div>" << endl;
+  htmlFile << "<table style=\"width: 482px; height: 35px;\" border=\"1\">" << endl;
+  htmlFile << "<tbody>" << endl;
+  htmlFile << "<tr>" << endl;
+  htmlFile << "<td style=\"text-align: center;\">L1 = blue laser </td>" << endl;
+  htmlFile << "<td style=\"vertical-align: top; text-align: center;\">L2 =green laser </td>" << endl;
+  htmlFile << "<td style=\"vertical-align: top; text-align: center;\">L3 =red laser </td>" << endl;
+  htmlFile << "<td style=\"vertical-align: top; text-align: center;\">L4 =infrared laser </td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</tbody>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "</td>" << endl;
+  htmlFile << "<td align=\"center\">" << endl;
+  htmlFile << "<div style=\"text-align: center;\"> </div>" << endl;
+  htmlFile << "<table style=\"width: 255px; height: 35px;\" border=\"1\">" << endl;
+  htmlFile << "<tbody>" << endl;
+  htmlFile << "<tr>" << endl;
+  htmlFile << "<td style=\"text-align: center;\">A=aaaaa </td>" << endl;
+  htmlFile << "<td style=\"vertical-align: top; text-align: center;\">B=bbbbb<br>" << endl;
+  htmlFile << "</td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</tbody>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "</td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</tbody>" << endl;
+  htmlFile << "</table>" << endl;
   htmlFile << "<hr>" << endl;
 
   // Produce the plots to be shown as .png files from existing histograms
