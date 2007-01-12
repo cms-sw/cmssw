@@ -141,6 +141,8 @@ namespace edm
                                                    sd->time_,
                                                    productRegistry,
 						   processConfiguration_));
+    // Add processConfiguration_ to the process history.
+    ep->addToProcessHistory();
     // no process name list handling
 
     SendProds::iterator spi(sd->prods_.begin()),spe(sd->prods_.end());
