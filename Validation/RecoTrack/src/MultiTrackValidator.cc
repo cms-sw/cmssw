@@ -127,7 +127,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       h_pullPhi0.push_back( dbe_->book1D("pullPhi0","pull of phi0 parameter",250,-25,25) );
       h_pullD0.push_back( dbe_->book1D("pullD0","pull of d0 parameter",250,-25,25) );
       h_pullDz.push_back( dbe_->book1D("pullDz","pull of dz parameter",250,-25,25) );
-      h_pullK.push_back( dbe_->book1D("pullK","pull of k parameter",250,-25,25) );
+      h_pullQoverp.push_back( dbe_->book1D("pullQoverp","pull of qoverp parameter",250,-25,25) );
       
       if (associators[ww]=="TrackAssociatorByChi2"){
 	h_assochi2.push_back( dbe_->book1D("assocChi2","track association chi2",1000000,0,100000) );
@@ -326,60 +326,60 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  reco::TrackBase::ParameterVector sParameters=
 	    associatorForParamAtPca->parametersAtClosestApproachGeom(vert, momAtVtx, track->charge());
 
-	  double kSim     = sParameters[0];
-	  double thetaSim = sParameters[1];
-	  double phi0Sim  = sParameters[2];
-	  double d0Sim    = sParameters[3];
-	  double dzSim    = sParameters[4];
+	  double qoverpSim = sParameters[0];
+	  double lambdaSim = sParameters[1];
+	  double phiSim    = sParameters[2];
+	  double d0Sim     = sParameters[3];
+	  double dzSim     = sParameters[4];
 
-	  double kres=(track->transverseCurvature()-kSim)/track->transverseCurvatureError();
-	  double thetares=(track->theta()-thetaSim)/track->thetaError();
-	  double phi0res=(track->phi0()-phi0Sim)/track->phi0Error();
+	  double qoverpres=(track->qoverp()-qoverpSim)/track->qoverpError();
+	  double thetares=(track->lambda()-lambdaSim)/track->thetaError();
+	  double phi0res=(track->phi()-phiSim)/track->phiError();
 	  double d0res=(track->d0()-d0Sim)/track->d0Error();
 	  double dzres=(track->dz()-dzSim)/track->dzError();
 	  if (tp.begin()->second>100){
-	    double contrib_K = ((track->transverseCurvature()-kSim)/track->transverseCurvatureError())*
-	      ((track->transverseCurvature()-kSim)/track->transverseCurvatureError())/5;
+	    double contrib_Qoverp = ((track->qoverp()-qoverpSim)/track->qoverpError())*
+	      ((track->qoverp()-qoverpSim)/track->qoverpError())/5;
 	    double contrib_d0 = ((track->d0()-d0Sim)/track->d0Error())*((track->d0()-d0Sim)/track->d0Error())/5;
 	    double contrib_dz = ((track->dz()-dzSim)/track->dzError())*((track->dz()-dzSim)/track->dzError())/5;
-	    double contrib_theta = ((track->theta()-thetaSim)/track->thetaError())*
-	      ((track->theta()-thetaSim)/track->thetaError())/5;
-	    double contrib_phi0 = ((track->phi0()-phi0Sim)/track->phi0Error())*
-	      ((track->phi0()-phi0Sim)/track->phi0Error())/5;
+	    double contrib_theta = ((track->lambda()-lambdaSim)/track->thetaError())*
+	      ((track->lambda()-lambdaSim)/track->thetaError())/5;
+	    double contrib_phi = ((track->phi()-phiSim)/track->phiError())*
+	      ((track->phi()-phiSim)/track->phiError())/5;
 	    LogTrace("TrackValidatorTEST") << "assocChi2=" << tp.begin()->second << "\n"
 					   << "" <<  "\n"
 					   << "ptREC=" << track->pt() << "\n"
 					   << "etaREC=" << track->eta() << "\n"
-					   << "KREC=" << track->transverseCurvature() << "\n"
+					   << "qoverpREC=" << track->qoverp() << "\n"
 					   << "d0REC=" << track->d0() << "\n"
 					   << "dzREC=" << track->dz() << "\n"
 					   << "thetaREC=" << track->theta() << "\n"
-					   << "phi0REC=" << track->phi0() << "\n"
+					   << "phiREC=" << track->phi() << "\n"
 					   << "" <<  "\n"
-					   << "transverseCurvatureError()=" << track->transverseCurvatureError() << "\n"
+					   << "qoverpError()=" << track->qoverpError() << "\n"
 					   << "d0Error()=" << track->d0Error() << "\n"
 					   << "dzError()=" << track->dzError() << "\n"
 					   << "thetaError()=" << track->thetaError() << "\n"
-					   << "phi0Error()=" << track->phi0Error() << "\n"
+					   << "phiError()=" << track->phiError() << "\n"
 					   << "" <<  "\n"
 					   << "ptSIM=" << assocTrack->momentum().perp() << "\n"
 					   << "etaSIM=" << assocTrack->momentum().pseudoRapidity() << "\n"
-					   << "kSIM=" << kSim << "\n"
+					   << "qoverpSIM=" << qoverpSim << "\n"
 					   << "d0SIM=" << d0Sim << "\n"
 					   << "dzSIM=" << dzSim << "\n"
-					   << "thetaSIM=" << thetaSim << "\n"
-					   << "phi0SIM=" << phi0Sim << "\n"
+					   << "thetaSIM=" << M_PI/2-lambdaSim << "\n"
+					   << "phiSIM=" << phiSim << "\n"
 					   << "" << "\n"
-					   << "contrib_K=" << contrib_K << "\n"
+					   << "contrib_Qoverp=" << contrib_Qoverp << "\n"
 					   << "contrib_d0=" << contrib_d0 << "\n"
 					   << "contrib_dz=" << contrib_dz << "\n"
 					   << "contrib_theta=" << contrib_theta << "\n"
-					   << "contrib_phi0=" << contrib_phi0 << "\n"
+					   << "contrib_phi=" << contrib_phi << "\n"
 					   << "" << "\n"
-					   <<"chi2PULL="<<contrib_K+contrib_d0+contrib_dz+contrib_theta+contrib_phi0<<"\n";
+					   <<"chi2PULL="<<contrib_Qoverp+contrib_d0+contrib_dz+contrib_theta+contrib_phi<<"\n";
 	  }
 	  
-	  h_pullK[w]->Fill(kres);
+	  h_pullQoverp[w]->Fill(qoverpres);
 	  h_pullTheta[w]->Fill(thetares);
 	  h_pullPhi0[w]->Fill(phi0res);
 	  h_pullD0[w]->Fill(d0res);
@@ -387,8 +387,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	  double ptres=track->pt()-assocTrack->momentum().perp(); 
 	  double etares=track->eta()-assocTrack->momentum().pseudoRapidity();
-	
-	  h_pt[w]->Fill(ptres/track->ptError());
+
+	  double ptError = track->p()*track->p()*sin(track->theta())*track->qoverpError()/track->charge()+track->p()*cos(track->theta())*track->thetaError();
+	  h_pt[w]->Fill(ptres/ptError);
 	  h_eta[w]->Fill(etares);
 	  ptres_vs_eta[w]->Fill(track->eta(),ptres);
 	  etares_vs_eta[w]->Fill(track->eta(),etares);

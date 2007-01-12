@@ -72,7 +72,7 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   vector<MonitorElement*> h_tracks, h_fakes, h_nchi2, h_nchi2_prob, h_hits,  h_ptrmsh, h_d0rmsh, h_charge;
   vector<MonitorElement*> h_effic, h_fakerate, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta;
   vector<MonitorElement*> h_recopT, h_assocpT, h_assoc2pT, h_simulpT;
-  vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi0,h_pullD0,h_pullDz,h_pullK;
+  vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi0,h_pullD0,h_pullDz,h_pullQoverp;
   vector<MonitorElement*> chi2_vs_nhits, chi2_vs_eta, nhits_vs_eta, ptres_vs_eta, etares_vs_eta, nrec_vs_nsim;
   vector<MonitorElement*> h_assochi2, h_assochi2_prob, h_hits_eta;
   
