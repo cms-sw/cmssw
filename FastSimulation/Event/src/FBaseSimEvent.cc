@@ -227,16 +227,23 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
   BaseParticlePropagator myPart;
   HepLorentzVector mom;
   HepLorentzVector pos;
+  double enele, enegam;
 
   // Loop over the tracks
   for( int fsimi=0; fsimi < (int)nTracks() ; ++fsimi) {
 
     FSimTrack& myTrack = track(fsimi);
     mom = myTrack.momentum();
+    enele = mom.e();
     // Special treatment for electrons to account for bremstrahlung photons
     if ( abs(myTrack.type()) == 11 && myTrack.nDaughters() > 0 ) { 
       for ( int idaugh=0; idaugh<myTrack.nDaughters(); ++idaugh ) {
-	mom -= myTrack.daughter(idaugh).momentum();
+	// Subtract photon energy
+	enegam = myTrack.daughter(idaugh).momentum().e();
+	enele -= enegam;
+	// Give the proper direction (assuming collinear emission)
+	mom = myTrack.daughter(idaugh).momentum()*enele/enegam;
+	//	mom -= myTrack.daughter(idaugh).momentum();
 	pos =  myTrack.daughter(idaugh).vertex().position();
       }
     } else {
