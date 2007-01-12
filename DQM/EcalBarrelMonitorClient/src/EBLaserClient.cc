@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/12/21 08:42:55 $
- * $Revision: 1.103 $
+ * $Date: 2007/01/12 15:49:03 $
+ * $Revision: 1.104 $
  * \author G. Della Ricca
  *
 */
@@ -3326,8 +3326,8 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table style=\"width: 255px; height: 35px;\" border=\"1\">" << endl;
   htmlFile << "<tbody>" << endl;
   htmlFile << "<tr>" << endl;
-  htmlFile << "<td style=\"text-align: center;\">A=aaaaa </td>" << endl;
-  htmlFile << "<td style=\"vertical-align: top; text-align: center;\">B=bbbbb<br>" << endl;
+  htmlFile << "<td style=\"text-align: center;\">A=L-shaped half</td>" << endl;
+  htmlFile << "<td style=\"vertical-align: top; text-align: center;\">B=notL-shaped half<br>" << endl;
   htmlFile << "</td>" << endl;
   htmlFile << "</tr>" << endl;
   htmlFile << "</tbody>" << endl;
