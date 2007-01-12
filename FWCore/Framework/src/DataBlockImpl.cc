@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: DataBlockImpl.cc,v 1.6 2007/01/10 05:58:48 wmtan Exp $
+  $Id: DataBlockImpl.cc,v 1.7 2007/01/11 23:39:20 paterno Exp $
   ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -470,8 +470,7 @@ namespace edm {
     }
   }
 
-  class NeitherSameNorDerivedType
-  {
+  class NeitherSameNorDerivedType {
   public:
     typedef DataBlockImpl::MatchingGroups::value_type arg_t;
 
@@ -479,8 +478,7 @@ namespace edm {
       typeToMatch_(ROOT::Reflex::Type::ByTypeInfo(elementType)) 
     { }
 
-    bool operator()(arg_t const& group) const
-    {
+    bool operator()(arg_t const& group) const {
       return !matches(group);
     }
   private:
@@ -489,28 +487,21 @@ namespace edm {
     // Return true if the given group contains an EDProduct that is a
     // sequence, and if the value_type of that sequence is either the
     // same as our valuetype, or derives from our valuetype.
-    bool matches(arg_t const& group) const
-    {
+    bool matches(arg_t const& group) const {
       ROOT::Reflex::Type wrapperType = 
 	ROOT::Reflex::Type::ByTypeInfo(typeid(*(group->product())));
       ROOT::Reflex::Type elementType;
       bool sequenceFound = is_sequence_wrapper(wrapperType, elementType);
-      bool matchFound;
-      if (sequenceFound)
-	{
-	  if ( elementType == typeToMatch_ || 
-	       elementType.HasBase(typeToMatch_) )
-	    {
+      bool matchFound = false;
+      if (sequenceFound) {
+	if (elementType == typeToMatch_ || elementType.HasBase(typeToMatch_)) {
 	      matchFound = true;
-	    }
-	  else
-	    {
+	} else {
 	      matchFound = false;
-	    }
-    }
+	}
+      }
       return matchFound;
     }
-
   };
 
   BasicHandle
