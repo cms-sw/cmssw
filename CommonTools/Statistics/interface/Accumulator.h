@@ -17,7 +17,7 @@ public:
 
   double mean() const;
 
-  double RMS() const;
+  double variance() const;
 
   double weightedMean() const;
 

@@ -26,8 +26,8 @@ double Accumulator::mean() const {
 }
 
 
-double Accumulator::RMS() const {
-  double numerator = sumOfSquares_ - sum_*sum_/n_;
+double Accumulator::variance() const {
+  double numerator = sumOfSquares_ - sum_*mean();
   unsigned long denominator = n_-1;
   return std::sqrt(numerator/denominator);
 }
@@ -44,7 +44,7 @@ std::ostream& operator<<(std::ostream & os,const Accumulator & stat) {
      os << "   Mean: " << stat.mean(); 
   }
   if(stat.nEntries() > 1) {      
-		 os << "   RMS: " << stat.RMS();
+		 os << "   Variance: " << stat.variance();
   }
   return os;
 }
