@@ -1,5 +1,5 @@
 // -*-c++-*-
-// $Id: HLTPerformanceInfo.h,v 1.3 2006/12/05 23:48:03 wittich Exp $
+// $Id: HLTPerformanceInfo.h,v 1.4 2006/12/06 14:17:43 dlange Exp $
 #ifndef HLTPERFORMANCEINFO_H
 #define HLTPERFORMANCEINFO_H
 
@@ -25,7 +25,7 @@ class HLTPerformanceInfo
   HLTPerformanceInfo(const HLTPerformanceInfo & rhs);
   HLTPerformanceInfo & operator=(const HLTPerformanceInfo & rhs);
   ~HLTPerformanceInfo() {}
-
+  bool HLTPerformanceInfo::uniqueModule(const char *mod) const;
   ///////////////////////////////////////////////////
   class Module {
   private:
