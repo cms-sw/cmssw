@@ -74,7 +74,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.12 2007/01/11 23:39:19 paterno Exp $
+$Id: DataViewImpl.h,v 1.13 2007/01/12 21:07:58 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -503,6 +503,7 @@ namespace edm {
   operator<<(std::ostream& os, Handle<T> const& h)
   {
     os << h.product() << " " << h.provenance() << " " << h.id();
+    return os;
   }
 
   template <typename ELEMENT>
