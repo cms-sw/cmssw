@@ -1,7 +1,7 @@
 #ifndef DataFormats_SiStripDigi_SiStripDigiCollection_H
 #define DataFormats_SiStripDigi_SiStripDigiCollection_H
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
