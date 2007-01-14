@@ -14,8 +14,23 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+
 #include "RecoPixelVertexing/PixelVertexFinding/interface/PVPositionBuilder.h"
 #include "RecoPixelVertexing/PixelVertexFinding/interface/PVClusterComparer.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "Geometry/Vector/interface/GlobalPoint.h"
 
 #include <iostream>
 #include <vector>
@@ -59,6 +74,12 @@ private:
   double errvz2_[maxvtx_];
   int ntrk2_[maxvtx_];
   double sumpt2_[maxvtx_];
+  double simx_;
+  double simy_;
+  double simz_;
+  double vxkal_[maxvtx_];
+  double vykal_[maxvtx_];
+  double vzkal_[maxvtx_];
 };
 
 PixelVertexTest::PixelVertexTest(const edm::ParameterSet& conf)
@@ -100,6 +121,12 @@ void PixelVertexTest::beginJob(const edm::EventSetup& es) {
   t_->Branch("errz0",errz0_,"errz0[ntrk]/D");
   //  t_->Branch("tanl",tanl_,"tanl[ntrk]/D");
   t_->Branch("theta",theta_,"theta[ntrk]/D");
+  t_->Branch("simx",&simx_,"simx/D");
+  t_->Branch("simy",&simy_,"simy/D");
+  t_->Branch("simz",&simz_,"simz/D");
+  t_->Branch("vxkal",vxkal_,"vxkal[nvtx2]/D");
+  t_->Branch("vykal",vykal_,"vykal[nvtx2]/D");
+  t_->Branch("vzkal",vzkal_,"vzkal[nvtx2]/D");
   gDirectory->cd(cwd);
 }
 
@@ -107,6 +134,20 @@ void PixelVertexTest::analyze(
     const edm::Event& ev, const edm::EventSetup& es)
 {
   cout <<"*** PixelVertexTest, analyze event: " << ev.id() << endl;
+
+  edm::ESHandle<MagneticField> field;
+  es.get<IdealMagneticFieldRecord>().get(field);
+
+  edm::InputTag simG4 = conf_.getParameter<edm::InputTag>( "simG4" );
+  edm::Handle<edm::SimVertexContainer> simVtcs;
+  ev.getByLabel( simG4, simVtcs);
+  if (verbose_ > 0) {
+    cout << "simulated vertices: "<< simVtcs->size() << std::endl;
+  }
+  simx_ = (simVtcs->size() > 0) ? (*simVtcs)[0].position().x()/10 : -9999.0;
+  simy_ = (simVtcs->size() > 0) ? (*simVtcs)[0].position().y()/10 : -9999.0;
+  simz_ = (simVtcs->size() > 0) ? (*simVtcs)[0].position().z()/10 : -9999.0;
+
   edm::Handle<reco::TrackCollection> trackCollection;
   std::string trackCollName = conf_.getParameter<std::string>("TrackCollection");
   ev.getByLabel(trackCollName,trackCollection);
@@ -175,6 +216,25 @@ void PixelVertexTest::analyze(
     trk2avg_[i] = pos.wtAverage(trks).value();
   }
 
+  // Now let's send off our tracks to the Kalman fitter to see what great things happen...
+  if (nvtx2_ > 0) {
+    vector<reco::TransientTrack> t_tks;
+    for (int i=0; i<nvtx2_ && i<maxvtx_; i++) {
+      t_tks.clear();
+      for (reco::track_iterator j=vertexes[i].tracks_begin(); j!=vertexes[i].tracks_end(); ++j) {
+	t_tks.push_back( reco::TransientTrack(**j,field.product()) );
+      }
+      KalmanVertexFitter kvf;
+      //      TransientVertex tv = kvf.vertex(t_tks,GlobalPoint(vertexes[i].x(),vertexes[i].y(),vertexes[i].z()));
+      TransientVertex tv = kvf.vertex(t_tks);
+      if (verbose_>0) std::cout << "Kalman Position: " << reco::Vertex::Point(tv.position()) << std::endl;
+      vxkal_[i] = tv.position().x();
+      vykal_[i] = tv.position().y();
+      vzkal_[i] = tv.position().z();
+    }
+  }
+    
+  
 
   // Finally, fill the tree with the above values
   t_->Fill();
