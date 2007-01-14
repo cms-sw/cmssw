@@ -18,6 +18,7 @@
 #include <TF1.h>
 
 using namespace ROOT::Math;
+using namespace edm;
 
 void MultiTrackValidator::beginJob( const EventSetup & setup) {
 

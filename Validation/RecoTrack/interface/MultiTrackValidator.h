@@ -25,7 +25,6 @@
 #include <string>
 #include <TH1F.h>
 
-using namespace edm;
 using namespace std;
 
 class MultiTrackValidator : public edm::EDAnalyzer {
@@ -47,12 +46,12 @@ class MultiTrackValidator : public edm::EDAnalyzer {
     selectTPs4Efficiency(pset.getParameter<edm::ParameterSet>("TPEfficCuts")),
     selectTPs4FakeRate(pset.getParameter<edm::ParameterSet>("TPFakeRateCuts"))
     {
-      dbe_ = Service<DaqMonitorBEInterface>().operator->();
+      dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
     }
   
   ~MultiTrackValidator(){ }
 
-  void beginJob( const EventSetup &);
+  void beginJob( const edm::EventSetup &);
   virtual void analyze(const edm::Event&, const edm::EventSetup& );
   void endJob();
 

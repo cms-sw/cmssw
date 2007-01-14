@@ -57,7 +57,6 @@
 #include <string>
 
 using namespace std;
-using namespace edm;
 
 class SiStripTrackingRecHitsValid : public edm::EDAnalyzer
 {

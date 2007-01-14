@@ -63,7 +63,6 @@
 #include <string>
 
 using namespace std;
-using namespace edm;
 
 class TTree;
 class TFile;

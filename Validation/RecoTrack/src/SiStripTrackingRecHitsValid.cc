@@ -33,7 +33,7 @@
 #include "Geometry/Vector/interface/GlobalPoint.h"
 
 using namespace std;
-
+using namespace edm;
 
 SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const ParameterSet& ps):dbe_(0)
 {
