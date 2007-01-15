@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/07/14 01:02:22 $
-// $Revision: 1.1 $
+// $Author: tboccali $
+// $Date: 2006/07/24 19:41:20 $
+// $Revision: 1.2 $
 //
 
 #include <memory>
@@ -71,12 +71,6 @@ namespace cms
     // get Inputs 
     edm::Handle<reco::TrackCollection> trackCollection;
     e.getByLabel(trackProducer, trackCollection);
-//    edm::Handle<SiStripRecHit2DCollection> rphirecHits;
-//    e.getByLabel(recHitProducer, "rphiRecHit", rphirecHits);
-//    edm::Handle<SiStripRecHit2DCollection> stereorecHits;
-//    e.getByLabel(recHitProducer, "stereoRecHit", stereorecHits);
-//    edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
-//    e.getByLabel(recHitProducer, "matchedRecHit", matchedrecHits);
 
     const reco::TrackCollection tC = *(trackCollection.product());
 
@@ -101,12 +95,12 @@ namespace cms
 
     if ( 1==tC.size() ){
       for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
-        reco::Track * theTrack = new reco::Track(track->chi2(),(short unsigned)track->ndof(),track->parameters(),track->pt(),track->covariance());    
-//        reco::TrackExtra * theTrackExtra = new reco::TrackExtra(track->outerPosition(), track->outerMomentum(), true);
-        //create a TrackExtraRef
-//        reco::TrackExtraRef  theTrackExtraRef(ohTE,cc);    
-        //use the TrackExtraRef to assign the TrackExtra to the Track
-//        theTrack->setExtra(theTrackExtraRef);    
+        reco::Track * theTrack = new reco::Track(track->chi2(),
+						 (short unsigned)track->ndof(),
+						 track->innerPosition(),
+						 track->innerMomentum(),
+						 track->charge(),
+						 track->innerStateCovariance());    
         //fill the TrackCollection
         reco::TrackExtraRef theTrackExtraRef=track->extra();    
         theTrack->setExtra(theTrackExtraRef);    
@@ -114,14 +108,13 @@ namespace cms
         output->push_back(*theTrack);
         delete theTrack;
       }//end faux loop over tracks
-//      LogDebug("RoadSearchTrackListCleaner") << " output " << output.size() << " tracks.";
       e.put(output);
       return;
     }  
   //
   //  > 1 track - try merging
   //
-    std::vector<int> not_dup; for (int i=0; i<tC.size(); ++i){not_dup.push_back(1);}
+    std::vector<int> not_dup; for (unsigned int i=0; i<tC.size(); ++i){not_dup.push_back(1);}
     int i=-1;
     for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
       i++; std::cout << "Track number "<< i << std::endl ; if (!not_dup[i])continue;
@@ -129,7 +122,6 @@ namespace cms
       for (reco::TrackCollection::const_iterator track2=tC.begin(); track2!=tC.end(); track2++){
         j++;
         if ((j<=i)||(!not_dup[j])||(!not_dup[i]))continue;
-//        if (j<=i)continue;
         int noverlap=0;
         for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
           if ((*it)->isValid()){
@@ -160,12 +152,12 @@ namespace cms
     i=-1;
     for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
       i++;  if (!not_dup[i])continue;
-      reco::Track * theTrack = new reco::Track(track->chi2(),(short unsigned)track->ndof(),track->parameters(),track->pt(),track->covariance());    
-//      reco::TrackExtra * theTrackExtra = new reco::TrackExtra(track->outerPosition(), track->outerMomentum(), true);
-      //create a TrackExtraRef
-//      reco::TrackExtraRef  theTrackExtraRef(ohTE,cc);    
-      //use the TrackExtraRef to assign the TrackExtra to the Track
-//      theTrack->setExtra(theTrackExtraRef);    
+        reco::Track * theTrack = new reco::Track(track->chi2(),
+						 (short unsigned)track->ndof(),
+						 track->innerPosition(),
+						 track->innerMomentum(),
+						 track->charge(),
+						 track->innerStateCovariance());    
       //fill the TrackCollection
       reco::TrackExtraRef theTrackExtraRef=track->extra();    
       theTrack->setExtra(theTrackExtraRef);    
@@ -173,7 +165,6 @@ namespace cms
       output->push_back(*theTrack);
       delete theTrack;
     }//end faux loop over tracks
-//    LogDebug("RoadSearchTrackListCleaner") << " output " << output.size() << " tracks.";
     e.put(output);
     return;
 

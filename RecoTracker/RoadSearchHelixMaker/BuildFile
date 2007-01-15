@@ -13,9 +13,15 @@
 
 <use name=Geometry/Records>
 <use name=Geometry/CommonDetUnit>
+<use name=Geometry/CommonDetAlgo>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=Geometry/CommonTopologies>
 <use name=Geometry/Surface>
+
+<use name=MagneticField/Engine>
+
+<use name=TrackingTools/TrajectoryParametrization>
+<use name=TrackingTools/PatternTools>
 <export>
  <lib name=RecoTrackerRoadSearchHelixMaker>
  <use name=FWCore/Framework>
@@ -32,7 +38,13 @@
 
  <use name=Geometry/Records>
  <use name=Geometry/CommonDetUnit>
+ <use name=Geometry/CommonDetAlgo>
  <use name=Geometry/TrackerGeometryBuilder>
  <use name=Geometry/CommonTopologies>
  <use name=Geometry/Surface>
+
+ <use name=MagneticField/Engine>
+
+ <use name=TrackingTools/TrajectoryParametrization>
+ <use name=TrackingTools/PatternTools>
 </export>

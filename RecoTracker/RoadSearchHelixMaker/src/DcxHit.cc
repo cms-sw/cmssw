@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxHit.cc,v 1.3 2006/03/31 23:28:42 gutsche Exp $
+// 	$Id: DcxHit.cc,v 1.4 2006/04/10 22:06:41 stevew Exp $
 //
 // Description:
 //	Class Implementation for |DcxHit|: drift chamber hit that can compute
@@ -147,7 +147,7 @@ DcxHit::~DcxHit( )
 float 
 DcxHit::d(DcxHel &hel)const 
 {
-  float doca=hel.Doca(*this); // changes hel's internal state...
+  hel.Doca(*this); // changes hel's internal state...
   return d(hel.Doca_Zh(),hel.Doca_Tof(),hel.T0(),
            hel.Doca_Wamb(),hel.Doca_Eang());
 }//endof d

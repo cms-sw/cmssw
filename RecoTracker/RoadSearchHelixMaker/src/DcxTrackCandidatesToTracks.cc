@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.5 2006/06/07 00:51:57 stevew Exp $
+// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.6 2006/07/24 19:41:20 tboccali Exp $
 //
 // Description:
 //	Class Implementation for |DcxTrackCandidatesToTracks|
@@ -22,7 +22,18 @@
 #include "RecoTracker/RoadSearchHelixMaker/interface/DcxHit.hh"
 #include "RecoTracker/RoadSearchHelixMaker/interface/Dcxprobab.hh"
 
+#include "Geometry/Vector/interface/GlobalPoint.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+
+// #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryParameters.h"
+// #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryError.h"
+
+#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToPointBuilder.h"
+
+#include "DataFormats/Math/interface/Vector3D.h"
 
 using std::cout;
 using std::endl;
@@ -36,42 +47,32 @@ DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(){
   edm::LogInfo("RoadSearch") << "DcxTrackCandidatesToTracks null constructor - does nothing" ;}
 
 //points
-DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(std::vector<DcxHit*> &listohits, reco::TrackCollection &output)
+DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(std::vector<DcxHit*> &listohits, reco::TrackCollection &output, const MagneticField *field)
 { 
-//  edm::LogInfo("RoadSearch") << "listohits.size() = " << listohits.size() << " in DcxTrackCandidatesToTracks" ;
   double rmin=1000.0; double phi_try=0.0; int ntrk=0;
   for (unsigned int i=0; i<listohits.size(); ++i) {
     if (!listohits[i]->stereo()){
       double rhit=sqrt(listohits[i]->x()*listohits[i]->x()+listohits[i]->y()*listohits[i]->y());
       if ( (rhit<rmin) ){phi_try=atan2(listohits[i]->y(),listohits[i]->x());rmin=rhit;}
-//      edm::LogInfo("RoadSearch") << "axial strip radius = " << rhit ;
     }
     for (unsigned int j=0; j<listohits.size(); ++j) {
       for (unsigned int k=0; k<listohits.size(); ++k) {
-//	edm::LogInfo("RoadSearch") << "layers " << listohits[i]->Layer() << " " << listohits[j]->Layer() << " " 
-//		 	           << listohits[k]->Layer() ;
         if ( ( ( 1==listohits[i]->Layer())||( 3==listohits[i]->Layer()) ) 
 	     && ( ( 9==listohits[j]->Layer())||(11==listohits[j]->Layer()) )
 	     && ( (17==listohits[k]->Layer())||(19==listohits[k]->Layer()) ) ){
           makecircle(listohits[i]->x(),listohits[i]->y(),listohits[j]->x(),listohits[j]->y(),
 		     listohits[k]->x(),listohits[k]->y());
           double xc=xc_cs; double yc=yc_cs; double rc=rc_cs;
-          double d0=sqrt(xc*xc+yc*yc)-rc; double dmax=sqrt(xc*xc+yc*yc)+rc;
+          double d0=sqrt(xc*xc+yc*yc)-rc; 
+// 	  double dmax=sqrt(xc*xc+yc*yc)+rc; // not used
           double s3=s3_cs;
           if ( (fabs(s3)>0.1) ){
-//           DcxHit* l1ptr=listohits[i]; DcxHit* l2ptr=listohits[j]; DcxHit* l3ptr=listohits[k];
-// 	     edm::LogInfo("RoadSearch") << "Pivot lwlwlw " << l1ptr->Layer() << " " << l1ptr->WireNo()
-// 				        << " " << l2ptr->Layer() << " " << l2ptr->WireNo()
-// 				        << " " << l3ptr->Layer() << " " << l3ptr->WireNo() ;
-//	     edm::LogInfo("RoadSearch") << "trial circ " << xc << " " << yc << " " << rc 
-//				        << " " << d0 << " " << dmax << " " << s3 ;
 	    double d0h=-s3*d0;
 	    double phi0h=atan2(yc,xc)+s3*half_pi;
 	    double omegah=-s3/rc;
 	    DcxHel make_a_circ(d0h,phi0h,omegah,0.0,0.0);// make_a_hel.print();
 	    std::vector<DcxHit*> axlist;
 	    check_axial( listohits, axlist, make_a_circ);
-//	      edm::LogInfo("RoadSearch") << "listohits.size(), axlist.size() " << listohits.size() << " " << axlist.size() ;
 	    int n_axial=axlist.size();
 	    for (unsigned int l=0; l<listohits.size(); ++l) {
 	      for (unsigned int m=0; m<listohits.size(); ++m) {
@@ -81,19 +82,12 @@ DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(std::vector<DcxHit*> &lis
 		  double z2=find_z_at_cyl(make_a_circ,listohits[m]);
 		  double l1=find_l_at_z(z1,make_a_circ,listohits[l]); 
 		  double l2=find_l_at_z(z2,make_a_circ,listohits[m]);
-//		  edm::LogInfo("RoadSearch") << "z1 l1 z2 l2 " << z1 << " " << l1
-//					     << " " << z2 << " " << l2 ;
 		  double tanl=(z1-z2)/(l1-l2); double z0=z1-tanl*l1;
 		  DcxHel make_a_hel(d0h,phi0h,omegah,z0,tanl);// make_a_hel.print();
 		  std::vector<DcxHit*> outlist = axlist;
 		  check_stereo( listohits, outlist, make_a_hel);
 		  int n_stereo=outlist.size()-n_axial;
-//		  edm::LogInfo("RoadSearch") << "listohits.size(), outlist.size() " << listohits.size() << " " << outlist.size() ;
 		  if ((n_stereo>2)&&(n_axial>6)){
-//		    DcxFittedHel try_fit(outlist,make_a_hel,55.6);// try_fit.FitPrint(); try_fit.print();
-//		    DcxHel real_trk = (DcxHel)try_fit;
-//		    DcxFittedHel real_fit(outlist,real_trk);// real_fit.FitPrint();
-//  try without wide fit first to save time
 		    DcxFittedHel real_fit(outlist,make_a_hel);// real_fit.FitPrint();
 		    if (real_fit.Prob()>0.001){
 		      ntrk++;
@@ -102,36 +96,40 @@ DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(std::vector<DcxHit*> &lis
 						 << " " << real_fit.D0() << " " << real_fit.Phi0() << " " << real_fit.Omega() 
 						 << " " << real_fit.Z0() << " " << real_fit.Tanl() ;
 
-		      double para[5];
-		      para[0] = real_fit.Omega();
-		      para[1] = half_pi - atan(real_fit.Tanl());
-		      para[2] = real_fit.Phi0();
-		      para[3] = - real_fit.D0();
-		      para[4] = real_fit.Z0();
-		      // OLI: 060529: changes in reco::Track (perigee parametrization, interface changes)
-		      reco::Track::ParameterVector params;
-		      params[0]=(real_fit.Omega());
-		      params[1]=(half_pi - atan(real_fit.Tanl()));
-		      params[2]=(real_fit.Phi0());
-		      params[3]=(- real_fit.D0());
-		      params[4]=( real_fit.Z0());
-		      reco::Track::CovarianceMatrix cov;
-		      //		      for ( unsigned int i = 0; i < 5; ++i ) {
-		      //		      for ( unsigned int j = i; j < 5; ++j ) {
-		      //			cov[i][j] = 0;
-		      //		      }
-		      
-		      
-//		      output.push_back(reco::Track(real_fit.Prob(),int(real_fit.Prob()/real_fit.Rcs()),outlist.size(),0,listohits.size(),params,cov));
-//		      output.push_back(reco::Track(real_fit.Chisq(),outlist.size()-5,listohits.size(),listohits.size()-outlist.size(),0,params,cov));
-		      output.push_back(reco::Track(real_fit.Chisq(),outlist.size()-5,params,real_fit.Pt(),cov));
 
-//                      real_fit.print(); real_fit.FitPrint(make_a_hel);
+		      AlgebraicVector paraVector(5);
+		      paraVector[0] = real_fit.Omega();
+		      paraVector[1] = half_pi - atan(real_fit.Tanl());
+		      paraVector[2] = real_fit.Phi0();
+		      paraVector[3] = - real_fit.D0();
+		      paraVector[4] = real_fit.Z0();
+
+		      PerigeeTrajectoryParameters params(paraVector);
+
+		      PerigeeTrajectoryError error;
+
+		      GlobalPoint reference(0,0,0);
+
+		      TrajectoryStateClosestToPoint tscp(params, 
+							 real_fit.Pt(),
+							 error, 
+							 reference,
+							 field);
+
+		      GlobalPoint v = tscp.theState().position();
+		      math::XYZPoint  pos( v.x(), v.y(), v.z() );
+		      GlobalVector p = tscp.theState().momentum();
+		      math::XYZVector mom( p.x(), p.y(), p.z() );
+
+		      output.push_back(reco::Track(real_fit.Chisq(),
+						   outlist.size()-5,
+						   pos, 
+						   mom, 
+						   tscp.charge(), 
+						   tscp.theState().curvilinearError()));
+
 		      for (unsigned int n=0; n<outlist.size(); ++n){outlist[n]->SetUsedOnHel(ntrk);}
 		    }else{
-//   		       edm::LogInfo("RoadSearch") << " ntrk xprob pt nax nst = " << ntrk << " " << real_fit.Prob() 
-//					     << " " << real_fit.Pt() << " " << n_axial << " " << n_stereo ; 
-//                     real_fit.print();
 		    }
 		  }
 		}

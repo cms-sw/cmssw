@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxTrackCandidatesToTracks.hh,v 1.3 2006/03/31 23:28:42 gutsche Exp $
+// 	$Id: DcxTrackCandidatesToTracks.hh,v 1.1 2006/04/01 16:11:49 gutsche Exp $
 //
 // Description:
 //	Class Header for |DcxTrackCandidatesToTracks| - a version of
@@ -27,14 +27,17 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
- 
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+
 class DcxHit;
 
 class DcxTrackCandidatesToTracks{
 public:
 //constructors
   DcxTrackCandidatesToTracks();
-  DcxTrackCandidatesToTracks(std::vector<DcxHit*> &listohits, reco::TrackCollection &output);
+  DcxTrackCandidatesToTracks(std::vector<DcxHit*> &listohits, reco::TrackCollection &output,
+			     const MagneticField *field);
 
 //destructor
   virtual ~DcxTrackCandidatesToTracks( );

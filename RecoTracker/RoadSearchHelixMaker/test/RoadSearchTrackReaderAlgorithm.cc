@@ -8,8 +8,8 @@
 // Created:         Wed Mar 29 20:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/06/20 09:09:19 $
-// $Revision: 1.1 $
+// $Date: 2006/11/10 21:52:34 $
+// $Revision: 1.2 $
 //
 
 #include <vector>
@@ -36,9 +36,9 @@ void RoadSearchTrackReaderAlgorithm::run(const reco::TrackCollection* input)
   edm::LogInfo("RoadSearch") << "number of Tracks: " << input->size();
   
   for ( reco::TrackCollection::const_iterator track = input->begin(); track != input->end(); ++track ) {
-    edm::LogInfo("RoadSearch") << "Perigee-Parameter: transverseCurvature: " << track->transverseCurvature();
+    edm::LogInfo("RoadSearch") << "Perigee-Parameter: qoverp: " << track->qoverp();
     edm::LogInfo("RoadSearch") << "Perigee-Parameter: theta: " << track->theta();
-    edm::LogInfo("RoadSearch") << "Perigee-Parameter: phi0: " << track->phi0();
+    edm::LogInfo("RoadSearch") << "Perigee-Parameter: lambda: " << track->lambda();
     edm::LogInfo("RoadSearch") << "Perigee-Parameter: d0: " << track->d0();
     edm::LogInfo("RoadSearch") << "Perigee-Parameter: dz: " << track->dz();
   }
