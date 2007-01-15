@@ -4,16 +4,18 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateProducer.h,v 1.7 2006/11/13 12:43:49 llista Exp $
+ * \version $Id: GenParticleCandidateProducer.h,v 1.9 2006/11/13 14:44:40 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleCandidateFwd.h"
 #include <vector>
+#include <map>
 #include <set>
 
 namespace edm { class ParameterSet; }
-namespace HepMC { class GenParticle; }
+namespace HepMC { class GenParticle; class GenEvent; }
 
 class GenParticleCandidateProducer : public edm::EDProducer {
  public:
@@ -43,6 +45,39 @@ class GenParticleCandidateProducer : public edm::EDProducer {
   bool keepInitialProtons_;
   /// suppress unfragmented partons (status=3) clones
   bool excludeUnfragmentedClones_;
+  /// internal functional decomposition
+  void fillIndices( const HepMC::GenEvent *, 
+	     std::vector<const HepMC::GenParticle *> &, 
+	     std::vector<int> &, std::vector<std::vector<int> > & ) const;
+  /// internal functional decomposition
+  void fillVector( const HepMC::GenEvent *,
+		   std::vector<const HepMC::GenParticle *> &
+		   ) const;
+  /// internal functional decomposition
+  void fillMothers( const std::vector<const HepMC::GenParticle *> &,
+		    std::vector<int> & ) const;
+  /// internal functional decomposition
+  void fillDaughters( const std::vector<int> &, std::vector<std::vector<int> > & ) const;
+  /// internal functional decomposition
+  void fillSkip( const std::vector<const HepMC::GenParticle *> &, 
+		 const std::vector<int> &, std::vector<bool> & ) const;
+  /// internal functional decomposition
+  void fix( const std::vector<const HepMC::GenParticle *> &,
+	    const std::vector<int> &,
+	    const std::vector<std::vector<int> > &,
+	    std::vector<bool> & ) const;
+  /// internal functional decomposition
+  void fillOutput( const std::vector<const HepMC::GenParticle *> &,
+	     const std::vector<bool> &,
+	     reco::CandidateCollection &,
+	     std::vector<std::pair<reco::GenParticleCandidate *, size_t> > &,
+	     std::vector<size_t> & ) const;
+  /// internal functional decomposition
+  void fillRefs( const std::vector<int> &,
+		 const reco::CandidateRefProd,
+		 const std::vector<size_t> &,
+		 const std::vector<std::pair<reco::GenParticleCandidate *, size_t> > &,
+		 reco::CandidateCollection & ) const;
 };
 
 #endif

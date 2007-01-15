@@ -1,4 +1,4 @@
-// $Id: GenParticleCandidateProducer.cc,v 1.13 2006/11/30 12:00:28 llista Exp $
+// $Id: GenParticleCandidateProducer.cc,v 1.14 2006/12/07 18:35:51 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/GenParticleCandidateProducer.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
@@ -10,10 +10,8 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <fstream>
-#include <vector>
-#include <map>
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -49,7 +47,7 @@ void GenParticleCandidateProducer::beginJob( const EventSetup & es ) {
        e != excludeList_.end(); ++ e ) {
     const DefaultConfig::ParticleData * p = pdt->particle( * e );
     if ( p == 0 ) 
-      throw cms::Exception( "ConfigError", "can't find particle" )
+      throw cms::Exception( "ConfigError" )
 	<< "can't find particle: " << * e;
     excludedIds_.insert( abs( p->pid() ) );
   }
@@ -67,67 +65,123 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
       << "HepMC has null pointer to GenEvent" << endl;
   const size_t size = mc->particles_size();
 
-  // copy particle pointers
   vector<const GenParticle *> particles( size );
-  copy( mc->particles_begin(), mc->particles_end(), particles.begin() );
-  // fill mother indices
   vector<int> mothers( size );
+  vector<vector<int> > daughters( size );
+  vector<bool> skip( size );
+  auto_ptr<CandidateCollection> cands( new CandidateCollection );
+  const CandidateRefProd ref = evt.getRefBeforePut<CandidateCollection>();
+  vector<size_t> indices;
+  vector<pair<GenParticleCandidate *, size_t> > candidates;
+
+  /// fill indices
+  fillIndices( mc, particles, mothers, daughters );
+  // fill skip vector
+  fillSkip( particles, mothers, skip );
+  // reverse particle order to avoir recursive calls
+  fix( particles, mothers, daughters, skip );
+  // fill output collection and save association
+  fillOutput( particles, skip, * cands, candidates, indices );
+  // fill references to daughters
+  fillRefs( mothers, ref, indices, candidates, * cands );
+
+  evt.put( cands );
+}
+
+void GenParticleCandidateProducer::fillIndices( const GenEvent * mc,
+						vector<const GenParticle *> & particles, 
+						vector<int> & mothers, 
+						vector<vector<int> > & daughters ) const {
+  // copy particle pointers
+  fillVector( mc, particles );
+  // fill mother indices
+  fillMothers( particles, mothers );
+  // fill daughters indices
+  fillDaughters( mothers, daughters );
+}
+
+void GenParticleCandidateProducer::fillVector( const GenEvent * mc,
+					       vector<const GenParticle *> & particles) const {
+  size_t idx = 0;
+  for( GenEvent::particle_const_iterator p = mc->particles_begin(); 
+       p != mc->particles_end(); ++ p ) {
+    const GenParticle * particle = * p;
+    size_t i = article->barcode() - 1;
+    if( i != idx ++ )
+      throw cms::Exception( "WrongReference" )
+	<< "barcodes is not properly ordered; got: " << i << " expected: " << idx ;
+    particles[ i ] = particle;
+  }
+}
+
+void GenParticleCandidateProducer::fillMothers( const std::vector<const HepMC::GenParticle *> & particles, 
+						std::vector<int> & mothers ) const {
+  const size_t size = particles.size();
   for( size_t i = 0; i < size; ++ i ) {
     const GenParticle * part = particles[ i ];
     if ( part->hasParents() ) {
       const GenParticle * mother = part->mother();
-      vector<const GenParticle *>::const_iterator f = find( particles.begin(), particles.end(), mother );
-      assert( f != particles.end() );
-      mothers[ i ] = f - particles.begin();
+      mothers[ i ] = mother->barcode() - 1;
     } else {
       mothers[ i ] = -1;
     }
   }
-  // fill daughters indices
-  vector<vector<int> > daughters( size );
-  for( size_t i = 0; i < size; ++ i ) {
+}
+
+void  GenParticleCandidateProducer::fillDaughters( const std::vector<int> & mothers, 
+					  std::vector<std::vector<int> > & daughters ) const {
+  for( size_t i = 0; i < mothers.size(); ++ i ) {
     int mother = mothers[ i ];
     if ( mother != -1 )
       daughters[ mother ].push_back( i );
   } 
+}
 
-  // fill skip vector
-  vector<bool> skip( size );
+void GenParticleCandidateProducer::fillSkip( const vector<const GenParticle *> & particles, 
+					     const vector<int> & mothers, 
+					     vector<bool> & skip ) const {
+  const size_t size = particles.size();
   for( size_t i = 0; i < size; ++ i ) {
     const GenParticle * part = particles[ i ];
     const int pdgId = part->pdg_id();
     const int status = part->status();
-    {
-      bool skipped = false;
-      bool pass = false;
-      /// keep initial protons anyway, if keepInitialProtons_ set
-      if ( keepInitialProtons_ ) {
-	bool initialProton = ( mothers[ i ] == -1 && pdgId == protonId );
-	if ( initialProton ) pass = true;
-      }
-      if ( ! pass ) {
-	/// skip unstable particles if stableOnly_ set
-	if ( stableOnly_ && ! status == 1 ) skipped = true;
-	/// skip particles with excluded id's
-	else if ( excludedIds_.find( abs( pdgId ) ) != excludedIds_.end() ) skipped = true;
-	/// apply minimun pt cuts on final state neutrals and charged
-	else if ( status == 1 ) {
+    bool skipped = false;
+    bool pass = false;
+    /// keep initial protons anyway, if keepInitialProtons_ set
+    if ( keepInitialProtons_ ) {
+      bool initialProton = ( mothers[ i ] == -1 && pdgId == protonId );
+      if ( initialProton ) pass = true;
+    }
+    if ( ! pass ) {
+      /// skip unstable particles if stableOnly_ set
+      if ( stableOnly_ && ! status == 1 ) skipped = true;
+      /// skip particles with excluded id's
+      else if ( excludedIds_.find( abs( pdgId ) ) != excludedIds_.end() ) skipped = true;
+      /// apply minimun pt cuts on final state neutrals and charged
+      else if ( status == 1 ) {
+	if ( ptMinNeutral_ > 0 || ptMinCharged_ > 0 ) {
+	  // --> this is slow!
 	  if ( part->particleID().threeCharge() == 0 ) {
 	    if ( part->momentum().perp() < ptMinNeutral_ ) skipped = true;	  
 	  }
 	  else {
 	    if ( part->momentum().perp() < ptMinCharged_ ) skipped = true;
 	  }
-	  /// apply minimum pt cut on gluons
-	} else if ( pdgId == gluonId ) {
-	  if ( part->momentum().perp() < ptMinGluon_ ) skipped = true;
 	}
+	/// apply minimum pt cut on gluons
+      } else if ( pdgId == gluonId ) {
+	if ( part->momentum().perp() < ptMinGluon_ ) skipped = true;
       }
-      skip[ i ] = skipped;
     }
+    skip[ i ] = skipped;
   }
+}
 
-  // reverse particle order to avoir recursive calls
+void GenParticleCandidateProducer::fix( const vector<const GenParticle *> & particles,
+					const vector<int> & mothers,
+					const vector<vector<int> > & daughters,
+					vector<bool> & skip ) const {
+  const size_t size = particles.size();
   for( int i = size - 1; i >= 0; -- i ) {
     const GenParticle * part = particles[ i ];
     const int pdgId = part->pdg_id();
@@ -167,14 +221,17 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
       }
     }
   }
+}
 
-  // fill output collection and save association
-  auto_ptr<CandidateCollection> cands( new CandidateCollection );
-  const CandidateRefProd ref = evt.getRefBeforePut<CandidateCollection>();
-  cands->reserve( size );
-
-  vector<size_t> indices;
-  vector<pair<GenParticleCandidate *, size_t> > candidates;
+void GenParticleCandidateProducer::fillOutput( const std::vector<const GenParticle *> & particles,
+					       const vector<bool> & skip,
+					       CandidateCollection & cands,
+					       vector<pair<GenParticleCandidate *, size_t> > & candidates,
+					       vector<size_t> & indices ) const {
+  const size_t size = particles.size();
+  cands.reserve( size );
+  indices.reserve( size );
+  candidates.reserve( size );
   for( size_t i = 0; i < size; ++ i ) {
     const GenParticle * part = particles[ i ];
     GenParticleCandidate * cand = 0;
@@ -183,17 +240,22 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
       GenParticleCandidate * c = new GenParticleCandidate( part );
       cand = c;
       index = indices.size();
-      cands->push_back( c );
+      cands.push_back( c );
       indices.push_back( i );
     }
     candidates.push_back( make_pair( cand, index ) );
   }
   assert( candidates.size() == size );
-  assert( cands->size() == indices.size() );
+  assert( cands.size() == indices.size() );
+}
 
-  // fill references to daughters
+void GenParticleCandidateProducer::fillRefs( const std::vector<int> & mothers,
+					     const CandidateRefProd ref,
+					     const vector<size_t> & indices,
+					     const vector<pair<GenParticleCandidate *, size_t> > & candidates,
+					     reco::CandidateCollection & cands ) const {
   GenParticleCandidate * null = 0;
-  for( size_t i = 0; i < cands->size(); ++ i ) {
+  for( size_t i = 0; i < cands.size(); ++ i ) {
     int m = mothers[ indices[ i ] ];
     pair<GenParticleCandidate *, size_t> mother = make_pair( null, 0 );
     while ( mother.first == 0 && m != -1 )
@@ -202,12 +264,8 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
     if ( mother.first != 0 ) {
       CandidateRef candRef( ref, i );
       mother.first->addDaughter( candRef );
-      GenParticleCandidate & c = dynamic_cast<GenParticleCandidate &>( (*cands)[ i ] );
+      GenParticleCandidate & c = dynamic_cast<GenParticleCandidate &>( cands[ i ] );
       c.setMotherRef( CandidateRef( ref, mother.second ) );
     }
   }
-
-  evt.put( cands );
 }
-
-
