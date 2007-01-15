@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateProducer.h,v 1.9 2006/11/13 14:44:40 llista Exp $
+ * \version $Id: GenParticleCandidateProducer.h,v 1.11 2007/01/15 12:34:59 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -59,8 +59,8 @@ class GenParticleCandidateProducer : public edm::EDProducer {
   /// internal functional decomposition
   void fillDaughters( const std::vector<int> &, std::vector<std::vector<int> > & ) const;
   /// internal functional decomposition
-  void fillSkip( const std::vector<const HepMC::GenParticle *> &, 
-		 const std::vector<int> &, std::vector<bool> & ) const;
+  size_t fillSkip( const std::vector<const HepMC::GenParticle *> &, 
+		   const std::vector<int> &, std::vector<bool> & ) const;
   /// internal functional decomposition
   void fix( const std::vector<const HepMC::GenParticle *> &,
 	    const std::vector<int> &,

@@ -1,4 +1,4 @@
-// $Id: GenParticleCandidateProducer.cc,v 1.14 2006/12/07 18:35:51 llista Exp $
+// $Id: GenParticleCandidateProducer.cc,v 1.17 2007/01/15 12:34:59 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/GenParticleCandidateProducer.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
@@ -104,9 +104,8 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
   /// fill indices
   fillIndices( mc, particles, mothers, daughters );
   // fill skip vector
-  fillSkip( particles, mothers, skip );
-  // reverse particle order to avoir recursive calls
-  fix( particles, mothers, daughters, skip );
+  if( fillSkip( particles, mothers, skip ) > 0 )
+    fix( particles, mothers, daughters, skip );
   // fill output collection and save association
   fillOutput( particles, skip, * cands, candidates, indices );
   // fill references to daughters
@@ -156,7 +155,7 @@ void GenParticleCandidateProducer::fillMothers( const std::vector<const HepMC::G
 }
 
 void  GenParticleCandidateProducer::fillDaughters( const std::vector<int> & mothers, 
-					  std::vector<std::vector<int> > & daughters ) const {
+						   std::vector<std::vector<int> > & daughters ) const {
   for( size_t i = 0; i < mothers.size(); ++ i ) {
     int mother = mothers[ i ];
     if ( mother != -1 )
@@ -164,9 +163,10 @@ void  GenParticleCandidateProducer::fillDaughters( const std::vector<int> & moth
   } 
 }
 
-void GenParticleCandidateProducer::fillSkip( const vector<const GenParticle *> & particles, 
+size_t GenParticleCandidateProducer::fillSkip( const vector<const GenParticle *> & particles, 
 					     const vector<int> & mothers, 
 					     vector<bool> & skip ) const {
+  size_t tot = 0;
   const size_t size = particles.size();
   for( size_t i = 0; i < size; ++ i ) {
     const GenParticle * part = particles[ i ];
@@ -196,19 +196,21 @@ void GenParticleCandidateProducer::fillSkip( const vector<const GenParticle *> &
 	  }
 	}
 	/// apply minimum pt cut on gluons
-      } else if ( pdgId == gluonId ) {
+      } else if ( ptMinGluon_ > 0 && pdgId == gluonId ) {
 	if ( part->momentum().perp() < ptMinGluon_ ) skipped = true;
       }
     }
     skip[ i ] = skipped;
+    if ( skipped ) ++ tot;
   }
+  return tot;
 }
 
 void GenParticleCandidateProducer::fix( const vector<const GenParticle *> & particles,
 					const vector<int> & mothers,
 					const vector<vector<int> > & daughters,
 					vector<bool> & skip ) const {
-  if ( skip.size() == 0 ) return;
+  cout << ">>> fixing skipped particles" << endl;
   const size_t size = particles.size();
   for( int i = size - 1; i >= 0; -- i ) {
     const GenParticle * part = particles[ i ];
