@@ -11,7 +11,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <fstream>
 #include <algorithm>
-#include <iostream>
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -210,7 +209,6 @@ void GenParticleCandidateProducer::fix( const vector<const GenParticle *> & part
 					const vector<int> & mothers,
 					const vector<vector<int> > & daughters,
 					vector<bool> & skip ) const {
-  cout << ">>> fixing skipped particles" << endl;
   const size_t size = particles.size();
   for( int i = size - 1; i >= 0; -- i ) {
     const GenParticle * part = particles[ i ];
