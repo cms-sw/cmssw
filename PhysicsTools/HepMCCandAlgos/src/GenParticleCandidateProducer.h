@@ -78,6 +78,10 @@ class GenParticleCandidateProducer : public edm::EDProducer {
 		 const std::vector<size_t> &,
 		 const std::vector<std::pair<reco::GenParticleCandidate *, size_t> > &,
 		 reco::CandidateCollection & ) const;
+  /// charge indices
+  std::vector<int> chargeP_, chargeM_;
+  std::map<int, int> chargeMap_;
+  int chargeTimesThree( int ) const;
 };
 
 #endif

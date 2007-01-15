@@ -23,6 +23,7 @@ static const int uId = 1;
 static const int tId = 6;
 static const int stringId = 92;
 static const int clusterId = 92;
+static const int PDGCacheMax = 32768;
 
 GenParticleCandidateProducer::GenParticleCandidateProducer( const ParameterSet & p ) :
   src_( p.getParameter<string>( "src" ) ),
@@ -32,11 +33,22 @@ GenParticleCandidateProducer::GenParticleCandidateProducer( const ParameterSet &
   ptMinCharged_( p.getParameter<double>( "ptMinCharged" ) ),
   ptMinGluon_( p.getParameter<double>( "ptMinGluon" ) ),
   keepInitialProtons_( p.getParameter<bool>( "keepInitialProtons" ) ),
-  excludeUnfragmentedClones_( p.getParameter<bool>( "excludeUnfragmentedClones" ) ) {
+  excludeUnfragmentedClones_( p.getParameter<bool>( "excludeUnfragmentedClones" ) ),
+  chargeP_( PDGCacheMax, 0 ), chargeM_( PDGCacheMax, 0 ) {
   produces<CandidateCollection>();
 }
 
 GenParticleCandidateProducer::~GenParticleCandidateProducer() { 
+}
+
+int GenParticleCandidateProducer::chargeTimesThree( int id ) const {
+  if( id < PDGCacheMax ) 
+    return id > 0 ? chargeP_[ id ] : chargeM_[ - id ];
+  map<int, int>::const_iterator f = chargeMap_.find( id );
+  if ( f == chargeMap_.end() )
+    throw edm::Exception( edm::errors::InvalidReference ) 
+      << "invalid PDG id: " << id << endl;
+  return f->second;
 }
 
 void GenParticleCandidateProducer::beginJob( const EventSetup & es ) {
@@ -50,6 +62,19 @@ void GenParticleCandidateProducer::beginJob( const EventSetup & es ) {
       throw cms::Exception( "ConfigError" )
 	<< "can't find particle: " << * e;
     excludedIds_.insert( abs( p->pid() ) );
+  }
+
+  for( DefaultConfig::ParticleDataTable::const_iterator p = pdt->begin(); p != pdt->end(); ++ p ) {
+    const HepPDT::ParticleID & id = p->first;
+    int pdgId = id.pid(), apdgId = abs( pdgId );
+    int q3 = id.threeCharge();
+    if ( apdgId < PDGCacheMax )
+      if ( pdgId > 0 )
+	chargeP_[ apdgId ] = q3;
+      else
+	chargeM_[ apdgId ] = q3;
+    else
+      chargeMap_[ pdgId ] = q3;
   }
 }
 
@@ -67,12 +92,14 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
 
   vector<const GenParticle *> particles( size );
   vector<int> mothers( size );
+  // need daughters vector since pointers in HepMC 
+  // may be broken in some HepMC version
   vector<vector<int> > daughters( size );
   vector<bool> skip( size );
   auto_ptr<CandidateCollection> cands( new CandidateCollection );
   const CandidateRefProd ref = evt.getRefBeforePut<CandidateCollection>();
   vector<size_t> indices;
-  vector<pair<GenParticleCandidate *, size_t> > candidates;
+  vector<pair<GenParticleCandidate *, size_t> > candidates( size );
 
   /// fill indices
   fillIndices( mc, particles, mothers, daughters );
@@ -160,8 +187,8 @@ void GenParticleCandidateProducer::fillSkip( const vector<const GenParticle *> &
       /// apply minimun pt cuts on final state neutrals and charged
       else if ( status == 1 ) {
 	if ( ptMinNeutral_ > 0 || ptMinCharged_ > 0 ) {
-	  // --> this is slow!
-	  if ( part->particleID().threeCharge() == 0 ) {
+	  // --> this is slow! fix it using
+	  if ( chargeTimesThree( pdgId ) == 0 ) {
 	    if ( part->momentum().perp() < ptMinNeutral_ ) skipped = true;	  
 	  }
 	  else {
@@ -181,6 +208,7 @@ void GenParticleCandidateProducer::fix( const vector<const GenParticle *> & part
 					const vector<int> & mothers,
 					const vector<vector<int> > & daughters,
 					vector<bool> & skip ) const {
+  if ( skip.size() == 0 ) return;
   const size_t size = particles.size();
   for( int i = size - 1; i >= 0; -- i ) {
     const GenParticle * part = particles[ i ];
@@ -231,19 +259,28 @@ void GenParticleCandidateProducer::fillOutput( const std::vector<const GenPartic
   const size_t size = particles.size();
   cands.reserve( size );
   indices.reserve( size );
-  candidates.reserve( size );
   for( size_t i = 0; i < size; ++ i ) {
     const GenParticle * part = particles[ i ];
     GenParticleCandidate * cand = 0;
     size_t index = 0;
     if ( ! skip[ i ] ) {
-      GenParticleCandidate * c = new GenParticleCandidate( part );
+      CLHEP::HepLorentzVector p4 =part->momentum();
+      Candidate::LorentzVector momentum( p4.x(), p4.y(), p4.z(), p4.t() );
+      Candidate::Point vertex( 0, 0, 0 );
+      const HepMC::GenVertex * v = part->production_vertex();
+      if ( v != 0 ) {
+	HepGeom::Point3D<double> vtx = v->point3d();
+	vertex.SetXYZ( vtx.x() / 10. , vtx.y() / 10. , vtx.z() / 10. );
+      }
+      int pdgId = part->pdg_id(), status = part->status();
+      int q = chargeTimesThree( pdgId ) / 3;
+      GenParticleCandidate * c = new GenParticleCandidate( q, momentum, vertex, pdgId, status );
       cand = c;
       index = indices.size();
       cands.push_back( c );
       indices.push_back( i );
     }
-    candidates.push_back( make_pair( cand, index ) );
+    candidates[ i ] = make_pair( cand, index );
   }
   assert( candidates.size() == size );
   assert( cands.size() == indices.size() );
