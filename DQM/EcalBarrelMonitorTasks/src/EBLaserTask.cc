@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/12/21 09:20:08 $
- * $Revision: 1.61 $
+ * $Date: 2007/01/12 15:51:57 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  *
 */
@@ -674,7 +674,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
     if ( mePN ) mePN->Fill(0.5, num - 0.5, xvalmax);
 
     if ( num == 1 ) adcA[ism-1] = xvalmax;
-    if ( num == 5 ) adcB[ism-1] = xvalmax;
+    if ( num == 6 ) adcB[ism-1] = xvalmax;
 
   }
 
