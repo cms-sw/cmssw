@@ -19,14 +19,14 @@ class GctBlock {
   unsigned int bcId() const { return head.bcId(); }
   unsigned char eventId() const { return head.eventId(); }
 
-  std::vector<unsigned char> data() const;
+  std::vector<unsigned char> data() const { return d; }
 
   friend std::ostream& operator<<(std::ostream& os, const GctBlock& b);
 
  private:
   
   GctBlockHeader head;
-  const unsigned char * d;
+  std::vector<unsigned char> d;
 
 };
 

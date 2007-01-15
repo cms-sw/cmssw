@@ -2,6 +2,7 @@
 #ifndef GCTBLOCKHEADER_H
 #define GCTBLOCKHEADER_H
 
+#include <vector>
 #include <ostream>
 
 
@@ -19,18 +20,18 @@ class GctBlockHeader {
   GctBlockHeader(const unsigned char * data);
   ~GctBlockHeader();
   
-  const unsigned char * data() const { return d; }
+  std::vector<unsigned char> data() const { return d; }
 
-  unsigned char id() const { return d[0]; }
-  unsigned char length() const { return d[1]&0xf; }
+  unsigned int id() const { return d[0]; }
+  unsigned int length() const { return d[1]&0xf; }
   unsigned int bcId() const { return ((d[1]&0xf0)>>4) + (d[2]<<4); }
-  unsigned char eventId() const { return d[3]; }
+  unsigned int eventId() const { return d[3]; }
 
   friend std::ostream& operator<<(std::ostream& os, const GctBlockHeader& h);
 
  private:
   
-  const unsigned char * d;
+  std::vector<unsigned char> d;
 
 };
 

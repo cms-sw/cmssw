@@ -6,10 +6,11 @@ using std::endl;
 using std::hex;
 using std::dec;
 
-GctBlockHeader::GctBlockHeader(const unsigned char * data) :
-  d(data)
+GctBlockHeader::GctBlockHeader(const unsigned char * data)
 { 
-
+  for (int i=0; i<4; i++) {
+    d.push_back(data[i]);
+  }
 }
 
 GctBlockHeader::~GctBlockHeader() {
