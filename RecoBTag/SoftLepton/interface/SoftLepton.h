@@ -16,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.h,v 1.5 2006/12/06 16:00:15 fwyzard Exp $
+// $Id: SoftLepton.h,v 1.6 2006/12/07 02:53:40 fwyzard Exp $
 //
 
 // system include files
@@ -53,7 +53,7 @@ private:
   SoftLeptonAlgorithm m_algo;
 
   // nominal beam spot position
-  const reco::Vertex * m_nominalBeamSpot;
+  static const reco::Vertex s_nominalBeamSpot;
 };
 
 #endif // RecoBTag_SoftLepton_SoftLepton_h

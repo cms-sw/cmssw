@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.7 2006/12/06 16:00:02 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.8 2006/12/07 02:51:24 fwyzard Exp $
 //
 
 
@@ -37,12 +37,18 @@ using namespace reco;
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 #include "RecoBTag/BTagTools/interface/SignedImpactParameter3D.h"
 #include "RecoBTag/Records/interface/SoftLeptonBTagRecord.h"
 #include "RecoBTag/SoftLepton/interface/LeptonTaggerBase.h"
 #include "RecoBTag/SoftLepton/interface/SoftLepton.h"
 
-reco::Vertex s_nominalBeamSpot(  );
+const reco::Vertex SoftLepton::s_nominalBeamSpot(
+  reco::Vertex::Point( 0, 0, 0 ),
+  reco::Vertex::Error( ROOT::Math::SVector<double,6>( 0.0015 * 0.0015, //          0.0,        0.0
+                                                                  0.0, 0.0015 * 0.0015, //     0.0  
+                                                                  0.0,             0.0, 15. * 15. ) ),
+  1, 1, 0 );
 
 SoftLepton::SoftLepton(const edm::ParameterSet& iConfig) :
   m_config( iConfig ),
@@ -55,19 +61,11 @@ SoftLepton::SoftLepton(const edm::ParameterSet& iConfig) :
   produces<reco::JetTagCollection>();
   produces<reco::SoftLeptonTagInfoCollection>();
 
-  reco::Vertex::Point p( 0, 0, 0 );
-  reco::Vertex::Error e;
-  e(0,0) = 0.0015 * 0.0015;
-  e(1,1) = 0.0015 * 0.0015;
-  e(2,2) = 15. * 15.;
-  m_nominalBeamSpot = new reco::Vertex( p, e, 1, 1, 0 );
-
   m_algo.setDeltaRCut( m_config.getParameter<double>("deltaRCut") );
   m_algo.refineJetAxis( m_config.getParameter<unsigned int>("refineJetAxis") );
 }
 
 SoftLepton::~SoftLepton() {
-  delete m_nominalBeamSpot;
 }
 
 void
@@ -86,7 +84,13 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<reco::JetTagCollection>            baseCollection( new reco::JetTagCollection() );
   std::auto_ptr<reco::SoftLeptonTagInfoCollection> extCollection(  new reco::SoftLeptonTagInfoCollection() );
 
-  const reco::Vertex * pv = primaryVertex->size() ? &(*primaryVertex->begin()) : m_nominalBeamSpot;
+  reco::Vertex pv;
+  if (primaryVertex->size()) {
+    PrimaryVertexSorter pvs;
+    pv = pvs.sortedList(*(primaryVertex.product())).front();
+  } else {
+    pv = s_nominalBeamSpot;
+  }
 
   #ifdef DEBUG
   std::cerr << std::endl;
@@ -97,7 +101,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
        ++j) {
     unsigned int i = j->key.key();
     reco::JetTracksAssociationRef jetRef( jetTracksAssociation, i );
-    std::pair<reco::JetTag, reco::SoftLeptonTagInfo> result = m_algo.tag( jetRef, *pv, *leptons );
+    std::pair<reco::JetTag, reco::SoftLeptonTagInfo> result = m_algo.tag( jetRef, pv, *leptons );
     #ifdef DEBUG
     std::cerr << "  Jet " << std::setw(2) << i << " has " << std::setw(2) << result.first.tracks().size() << " tracks and " << std::setw(2) << result.second.leptons() << " leptons" << std::endl;
     std::cerr << "  Tagger result: " << result.first.discriminator() << endl;
