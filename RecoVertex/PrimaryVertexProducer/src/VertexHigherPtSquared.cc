@@ -1,5 +1,7 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/VertexHigherPtSquared.h"
 
+using namespace reco;
+
 bool 
 VertexHigherPtSquared::operator() ( const TransientVertex & v1, 
 				    const TransientVertex & v2) const
@@ -7,6 +9,13 @@ VertexHigherPtSquared::operator() ( const TransientVertex & v1,
   std::vector<reco::TransientTrack> tks1 = v1.originalTracks();
   std::vector<reco::TransientTrack> tks2 = v2.originalTracks();
   return (sumPtSquared(tks1) > sumPtSquared(tks2));
+}
+
+bool 
+VertexHigherPtSquared::operator() ( const Vertex & v1, 
+				    const Vertex & v2) const
+{
+  return (sumPtSquared(v1) > sumPtSquared(v1));
 }
 
 
@@ -18,6 +27,17 @@ VertexHigherPtSquared::sumPtSquared(
   for (std::vector<reco::TransientTrack>::const_iterator it = tks.begin(); 
        it != tks.end(); it++) {
     double pT = (*it).impactPointState().globalMomentum().transverse();
+    sum += pT*pT;
+  }
+  return sum;
+}
+
+double VertexHigherPtSquared::sumPtSquared(const Vertex & v) const 
+{
+  double sum = 0.;
+  double pT;
+  for (track_iterator it = v.tracks_begin(); it != v.tracks_end(); it++) {
+    pT = (**it).pt();
     sum += pT*pT;
   }
   return sum;

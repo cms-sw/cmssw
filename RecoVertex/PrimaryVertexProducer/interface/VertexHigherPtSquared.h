@@ -3,6 +3,7 @@
 
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include <vector>
 
 /** \class VertexHigherPtSquared
@@ -14,10 +15,15 @@ struct VertexHigherPtSquared {
   bool operator() ( const TransientVertex & v1, 
 		    const TransientVertex & v2) const;
 
+  bool operator() ( const reco::Vertex & v1, const reco::Vertex & v2) const;
+
 
 private:
 
   double sumPtSquared(const std::vector<reco::TransientTrack> & tks) const;
+  double sumPtSquared(const reco::Vertex & v) const;
+
+
 };
 
 #endif
