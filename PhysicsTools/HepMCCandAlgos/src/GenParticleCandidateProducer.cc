@@ -106,7 +106,7 @@ void GenParticleCandidateProducer::fillVector( const GenEvent * mc,
   for( GenEvent::particle_const_iterator p = mc->particles_begin(); 
        p != mc->particles_end(); ++ p ) {
     const GenParticle * particle = * p;
-    size_t i = article->barcode() - 1;
+    size_t i = particle->barcode() - 1;
     if( i != idx ++ )
       throw cms::Exception( "WrongReference" )
 	<< "barcodes is not properly ordered; got: " << i << " expected: " << idx ;
