@@ -11,6 +11,9 @@
 #include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
 
 #include "RecoJets/JetAlgorithms/interface/FastJetAlgorithmWrapper.h"
+#include "fastjet/PseudoJet.hh"
+#include "fastjet/ClusterSequence.hh"
+#include "fastjet/ClusterSequenceActiveArea.hh"
 #include <string.h>
 
 //  Wrapper around fastjet-package written by Matteo Cacciari and Gavin Salam.
@@ -27,29 +30,49 @@
 using namespace edm;
 using namespace std;
 
+struct FastJetAlgorithmWrapper::JetConfig{
+  fastjet::JetDefinition  theJetDef;
+  fastjet::ActiveAreaSpec theAreaSpec;
+};
+
 FastJetAlgorithmWrapper::FastJetAlgorithmWrapper(){
-  
+  theJetConfig=0;
+}
+
+FastJetAlgorithmWrapper::~FastJetAlgorithmWrapper(){
+  delete theJetConfig;
 }
 
 FastJetAlgorithmWrapper::FastJetAlgorithmWrapper(const edm::ParameterSet& ps){
    //Getting information from the ParameterSet (reading config files):
-  double Rparam=ps.getUntrackedParameter<double>("ktRParam",1.0);
-  thePtMin=ps.getUntrackedParameter<double>("PtMin",10.0);
+  double Rparam=ps.getParameter<double>("FJ_ktRParam");
+  //default ktRParam should be 1
+  thePtMin=ps.getParameter<double>("PtMin");
+  //default PtMin should be 10
   string JetFinder;
-  JetFinder=ps.getUntrackedParameter<string>("JetFinder","kt_algorithm");
+  JetFinder=ps.getParameter<string>("JetFinder");
+  //default JetFinder should be "kt_algorithm"
   string Strategy;
-  Strategy=ps.getUntrackedParameter<string>("Strategy","Best");
-  theDcut=ps.getUntrackedParameter<double>("dcut",-1);
-  theNjets=ps.getUntrackedParameter<int>("njets",-1);
-  theInputMinE=ps.getUntrackedParameter<double>("InputMinE",0);
-  
-  if (ps.getUntrackedParameter<string>("UE_Subtraction","no")=="yes") theDoSubtraction=true;
+  Strategy=ps.getParameter<string>("Strategy");
+  //default Strategy should be "Best"
+  theDcut=ps.getParameter<double>("dcut");
+  //default dcut should be -1 (off)
+  theNjets=ps.getParameter<int>("njets");
+  //default njets should be -1 (off)
+  theInputMinE=ps.getParameter<double>("InputMinE");
+  //default InputMinE should be 0(off)
+  if (ps.getParameter<string>("UE_Subtraction")=="yes") theDoSubtraction=true;
   else theDoSubtraction=false;
-
-  theGhost_EtaMax=ps.getUntrackedParameter<double>("Ghost_EtaMax",6);
-  theActive_Area_Repeats=ps.getUntrackedParameter<int>("Active_Area_Repeats",5);
-  theGhostArea=ps.getUntrackedParameter<double>("GhostArea",0.01);
-  theArea_Spec=fastjet::ActiveAreaSpec(theGhost_EtaMax, theActive_Area_Repeats, theGhostArea);
+  //default UE_Subtraction should be false (off)
+  
+  theGhost_EtaMax=ps.getParameter<double>("Ghost_EtaMax");
+  //default Ghost_EtaMax should be 6
+  theActive_Area_Repeats=ps.getParameter<int>("Active_Area_Repeats");
+  //default Active_Area_Repeats 5
+  theGhostArea=ps.getParameter<double>("GhostArea");
+  //default GhostArea 0.01
+  theJetConfig=new JetConfig;
+  theJetConfig->theAreaSpec=fastjet::ActiveAreaSpec(theGhost_EtaMax, theActive_Area_Repeats, theGhostArea);
   
   //configuring algorithm 
   
@@ -81,26 +104,26 @@ FastJetAlgorithmWrapper::FastJetAlgorithmWrapper(const edm::ParameterSet& ps){
   //The above given numbers of N are for ktRaram=1.0, for other ktRParam the numbers would be 
   //different.
   
-  int mode=0;
+  theMode=0;
   if ((theNjets!=-1)&&(theDcut==-1)){
-    mode=3;
+    theMode=3;
   }
   else if ((theNjets==-1)&&(theDcut!=-1)){
-    mode=2;
+    theMode=2;
   }
   else if ((theNjets!=-1)&&(theDcut!=-1)){
     LogWarning("FastJetDefinition")<<"[FastJetWrapper] `njets` and `dcut` set!=-1! - running inclusive Mode"<<endl;
-    mode=1;
+    theMode=1;
   }
   else {
-    mode=0;     
+    theMode=0;     
   }
 
-  jet_def=fastjet::JetDefinition(jet_finder, Rparam, strategy);
+  theJetConfig->theJetDef=fastjet::JetDefinition(jet_finder, Rparam, strategy);
   LogVerbatim("FastJetDefinition")<<"*******************************************"<<endl;
   LogVerbatim("FastJetDefinition")<<"* Configuration of FastJet                "<<endl;
   if (theDoSubtraction) LogVerbatim("FastJetDefinition")<<"* running with ActiveAreaSubtraction(median)"<<endl;
-  switch (mode){
+  switch (theMode){
   case 0:
     LogVerbatim("FastJetDefinition")<<"* Mode     : inclusive"<<endl;
     LogVerbatim("FastJetDefinition")<<"* PtMin    : "<<thePtMin<<endl;
@@ -134,15 +157,15 @@ void FastJetAlgorithmWrapper::run(const std::vector<FJCand>& fInput,
    int index_=0;
    for (std::vector<FJCand>::const_iterator inputCand=fInput.begin();
 	inputCand!=fInput.end();inputCand++){
+      
       double px=(*inputCand)->px();
       double py=(*inputCand)->py();
       double pz=(*inputCand)->pz();
       double E=(*inputCand)->energy();
       fastjet::PseudoJet PsJet(px,py,pz,E);
       PsJet.set_user_index(index_);
-      input_vectors.push_back(PsJet);
-     //break;  //also for timing measurements - only fill one candidate...
-     index_++;
+      if (E>=theInputMinE) input_vectors.push_back(PsJet);
+      index_++;
    }
    
    // create an object that represents your choice of jet finder and 
@@ -153,7 +176,7 @@ void FastJetAlgorithmWrapper::run(const std::vector<FJCand>& fInput,
 
    if (theDoSubtraction) {
      //with subtraction
-     fastjet::ClusterSequenceActiveArea clust_AAseq(input_vectors,jet_def,theArea_Spec);
+     fastjet::ClusterSequenceActiveArea clust_AAseq(input_vectors,theJetConfig->theJetDef,theJetConfig->theAreaSpec);
    
      //  LogVerbatim("FastJetDefinition") << "***************************"<<endl;
      //  LogVerbatim("FastJetDefinition") << "* Strategy adopted by FastJet for this event was "<<
@@ -163,13 +186,13 @@ void FastJetAlgorithmWrapper::run(const std::vector<FJCand>& fInput,
    
      //select mode:
 
-     if ((theNjets==-1)&&(theDcut==-1)){
+     if (theMode==0){
        theJets=clust_AAseq.inclusive_jets(thePtMin);
      }
-     else if ((theNjets!=-1)&&(theDcut==-1)){
+     else if (theMode==3){
        theJets=clust_AAseq.exclusive_jets(theNjets);
      }
-     else if ((theNjets==-1)&&(theDcut!=-1)){
+     else if (theMode==2){
        theJets=clust_AAseq.exclusive_jets(theDcut);
      }
      else if ((theNjets!=-1)&&(theDcut!=-1)){
@@ -215,8 +238,8 @@ void FastJetAlgorithmWrapper::run(const std::vector<FJCand>& fInput,
 
    // or run without subtraction:
    else {
-     fastjet::ClusterSequence clust_seq(input_vectors, jet_def);
-
+     fastjet::ClusterSequence clust_seq(input_vectors, theJetConfig->theJetDef);
+     
      //select mode:
      if ((theNjets==-1)&&(theDcut==-1)){
        theJets=clust_seq.inclusive_jets(thePtMin);

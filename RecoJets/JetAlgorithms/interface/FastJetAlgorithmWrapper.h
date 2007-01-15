@@ -29,9 +29,6 @@
 
 #include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "fastjet/PseudoJet.hh"
-#include "fastjet/ClusterSequence.hh"
-#include "fastjet/ClusterSequenceActiveArea.hh"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -45,10 +42,13 @@ class FastJetAlgorithmWrapper
  public:
   FastJetAlgorithmWrapper();
   FastJetAlgorithmWrapper(const edm::ParameterSet& ps);
-  ~FastJetAlgorithmWrapper(){};
+  ~FastJetAlgorithmWrapper();
   void run (const std::vector <FJCand>& fInput, std::vector<ProtoJet>* fOutput);
  private:
-  fastjet::JetDefinition jet_def;
+  //fastjet::JetDefinition jet_def;
+  struct JetConfig;
+  int theMode;
+  JetConfig *theJetConfig;
   double thePtMin;
   double theDcut;
   double theInputMinE;
@@ -57,9 +57,10 @@ class FastJetAlgorithmWrapper
   bool theDoSubtraction;
   double theGhost_EtaMax;
   int theActive_Area_Repeats;
-  fastjet::ActiveAreaSpec theArea_Spec;
+  //fastjet::ActiveAreaSpec theArea_Spec;
   double theGhostArea;
   double theMedian_Pt_Per_Area;
 };
+
 
 #endif
