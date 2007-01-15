@@ -6,7 +6,7 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidate.h,v 1.10 2006/12/07 18:35:49 llista Exp $
+ * \version $Id: GenParticleCandidate.h,v 1.11 2006/12/11 10:12:02 llista Exp $
  */
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 
@@ -22,6 +22,9 @@ namespace reco {
     GenParticleCandidate() { }
     /// constroctor from pointer to generator particle
     GenParticleCandidate( const HepMC::GenParticle * );
+    /// constrocturo from values
+    GenParticleCandidate( Charge q, const LorentzVector & p4, const Point & vtx, 
+			  int pdgId, int status );
     /// destructor
     virtual ~GenParticleCandidate();
     /// return a clone

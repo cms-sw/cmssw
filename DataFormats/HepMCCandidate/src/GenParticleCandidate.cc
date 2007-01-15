@@ -1,4 +1,4 @@
-// $Id: GenParticleCandidate.cc,v 1.4 2006/12/07 18:35:50 llista Exp $
+// $Id: GenParticleCandidate.cc,v 1.5 2006/12/14 12:34:22 llista Exp $
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include <CLHEP/HepMC/GenParticle.h>
 #include <CLHEP/HepMC/GenVertex.h>
@@ -20,6 +20,13 @@ GenParticleCandidate::GenParticleCandidate( const HepMC::GenParticle * p ) :
     vertex_.SetXYZ( 0, 0, 0 );
   }
   // don't fill references to daughters at this level
+}
+
+GenParticleCandidate::GenParticleCandidate( Charge q, const LorentzVector & p4, 
+					    const Point & vtx, int pdgId, int status ) : 
+  CompositeRefCandidate( q, p4, vtx ), 
+  pdgId_( pdgId ), 
+  status_( status ) {
 }
 
 GenParticleCandidate::~GenParticleCandidate() { }
