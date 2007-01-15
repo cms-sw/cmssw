@@ -18,7 +18,7 @@ struct VertexHigherPtSquared {
   bool operator() ( const reco::Vertex & v1, const reco::Vertex & v2) const;
 
 
-private:
+public:
 
   double sumPtSquared(const std::vector<reco::TransientTrack> & tks) const;
   double sumPtSquared(const reco::Vertex & v) const;

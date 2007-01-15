@@ -15,7 +15,7 @@ bool
 VertexHigherPtSquared::operator() ( const Vertex & v1, 
 				    const Vertex & v2) const
 {
-  return (sumPtSquared(v1) > sumPtSquared(v1));
+  return (sumPtSquared(v1) > sumPtSquared(v2));
 }
 
 

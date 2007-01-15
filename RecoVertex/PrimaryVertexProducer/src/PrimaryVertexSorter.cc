@@ -3,19 +3,11 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/VertexHigherPtSquared.h"
 
 using namespace reco;
-using namespace std;
 
-vector<reco::Vertex>
-PrimaryVertexSorter::sortedList(VertexCollection unsortedPVColl) const
+VertexCollection
+PrimaryVertexSorter::sortedList(const VertexCollection & unsortedPVColl) const
 {
-  vector<Vertex> pvs;
-  pvs.reserve(unsortedPVColl.size());
-  for (VertexCollection::size_type i = 0; i < unsortedPVColl.size(); ++i) {
-    pvs.push_back(unsortedPVColl[i]);
-  }
-
-    // sort vertices by pt**2  vertex (aka signal vertex tagging)
+  VertexCollection pvs = unsortedPVColl;
   sort(pvs.begin(), pvs.end(), VertexHigherPtSquared());
-
   return pvs;
 }
