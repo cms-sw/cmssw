@@ -1,0 +1,6 @@
+<lcgdict>
+ <class name="std::basic_string<char>"/>
+ <class name="std::pair<const unsigned int,std::basic_string<char> >"/>
+ <class name="std::map<unsigned int,std::basic_string<char> >"/>
+ <class name="testCondObj"/>
+</lcgdict>   
