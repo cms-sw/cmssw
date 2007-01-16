@@ -1,41 +1,33 @@
-<use name=root>
+<flags SEAL_PLUGIN_NAME="RecoBTagSoftLepton">
 <use name=boost>
-
-<use name=Foundation/PluginManager>
+<use name=rootcore>
+<use name=root>
+<use name=DataFormats/BTauReco>
+<use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/MuonReco>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/VertexReco>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=DataFormats/Common>
-<use name=DataFormats/VertexReco>
-<use name=DataFormats/TrackReco>
-<use name=DataFormats/MuonReco>
-<use name=DataFormats/BTauReco>
-<use name=DataFormats/JetReco>
-<use name=DataFormats/EgammaCandidates>
-<use name=MagneticField/Engine>
-<use name=MagneticField/Records>
-<use name=TrackingTools/TransientTrack>
-<use name=RecoVertex/PrimaryVertexProducer>
+<use name=Geometry/Vector>
 <use name=RecoBTag/BTagTools>
 <use name=RecoBTag/Records>
-
-<flags SEAL_PLUGIN_NAME="RecoBTagSoftLepton">
-
+<use name=RecoVertex/PrimaryVertexProducer>
+<use name=TrackingTools/Records>
+<use name=TrackingTools/TransientTrack>
 <export>
-   <lib name=RecoBTagSoftLepton>
-   <use name=Foundation/PluginManager>
-   <use name=FWCore/Framework>
-   <use name=FWCore/ParameterSet>
-   <use name=DataFormats/Common>
-   <use name=DataFormats/VertexReco>
-   <use name=DataFormats/TrackReco>
-   <use name=DataFormats/MuonReco>
-   <use name=DataFormats/BTauReco>
-   <use name=DataFormats/JetReco>
-   <use name=DataFormats/EgammaCandidates>
-   <use name=MagneticField/Engine>
-   <use name=MagneticField/Records>
-   <use name=TrackingTools/TransientTrack>
-   <use name=RecoVertex/PrimaryVertexProducer>
-   <use name=RecoBTag/BTagTools>
-   <use name=RecoBTag/Records>
+  <lib name=RecoBTagSoftLepton>
+  <use name=boost>
+  <use name=rootcore>
+  <use name=DataFormats/BTauReco>
+  <use name=DataFormats/EgammaCandidates>
+  <use name=DataFormats/JetReco>
+  <use name=DataFormats/MuonReco>
+  <use name=DataFormats/TrackReco>
+  <use name=DataFormats/VertexReco>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=Geometry/Vector>
+  <use name=RecoBTag/Records>
 </export>
