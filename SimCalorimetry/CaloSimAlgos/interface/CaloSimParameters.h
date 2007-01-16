@@ -33,6 +33,9 @@ public:
   /// the factor which goes from photoelectrons to whatever gets read by ADCs
  double photoelectronsToAnalog() const {return photoelectronsToAnalog_;}
 
+  ///@@ want to remove this soon
+double samplingFactor() const {return samplingFactor_;}
+
   /// the adjustment you need to apply to get the signal where you want it
   double timePhase() const {return timePhase_;}
 
@@ -51,6 +54,7 @@ public:
 private:
   double simHitToPhotoelectrons_;
   double photoelectronsToAnalog_;
+  double samplingFactor_;
   double timePhase_;
   int readoutFrameSize_;
   int binOfMaximum_;

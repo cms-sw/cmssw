@@ -7,6 +7,7 @@ CaloSimParameters::CaloSimParameters(double simHitToPhotoelectrons, double photo
                  bool doPhotostatistics, bool syncPhase)
 : simHitToPhotoelectrons_(simHitToPhotoelectrons),
   photoelectronsToAnalog_(photoelectronsToAnalog),
+  samplingFactor_(samplingFactor),
   timePhase_(timePhase),
   readoutFrameSize_(readoutFrameSize),
   binOfMaximum_(binOfMaximum),
@@ -20,6 +21,7 @@ CaloSimParameters::CaloSimParameters(double simHitToPhotoelectrons, double photo
 CaloSimParameters::CaloSimParameters(const edm::ParameterSet & p)
 : simHitToPhotoelectrons_( p.getParameter<double>("simHitToPhotoelectrons") ),
   photoelectronsToAnalog_( p.getParameter<double>("photoelectronsToAnalog") ),
+  samplingFactor_(0.), //FIXME
   timePhase_( p.getParameter<double>("timePhase") ),
   readoutFrameSize_( p.getParameter<int>("readoutFrameSize") ),
   binOfMaximum_( p.getParameter<int>("binOfMaximum") ),
