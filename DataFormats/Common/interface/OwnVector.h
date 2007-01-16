@@ -19,17 +19,6 @@
 
 namespace edm {
 
-  template<typename T, typename P>
-  class OwnVector;
-
-  namespace helper {
-    template<typename T>
-    struct OwnVectorPostReadback {
-      template<typename P>
-      void fixup( edm::OwnVector<T, P> & ) { }
-    };
-  }
-  
   template <typename T, typename P = ClonePolicy<T> >
   class OwnVector  {
   private:
@@ -163,7 +152,6 @@ namespace edm {
       void operator()( T & t ) { delete & t; }
     };
     base data_;      
-    helper::OwnVectorPostReadback<T> fix_;
   };
   
   template<typename T, typename P>
