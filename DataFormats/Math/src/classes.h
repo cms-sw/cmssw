@@ -1,6 +1,5 @@
 #define G__DICTIONARY
 #include "DataFormats/Math/interface/LorentzVector.h"
-//#include "DataFormats/Math/interface/LorentzVectorFwd.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector.h"
