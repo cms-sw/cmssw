@@ -8,6 +8,8 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
@@ -23,6 +25,7 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
   produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
   produces<std::vector<Trajectory> >() ;
+  produces<TrajTrackAssociationCollection>();
 
 }
 

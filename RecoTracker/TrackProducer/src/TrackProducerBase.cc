@@ -13,6 +13,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 
@@ -100,20 +101,28 @@ void TrackProducerBase::putInEvt(edm::Event& evt,
 
   TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
   reco::TrackExtraRefProd rTrackExtras = evt.getRefBeforePut<reco::TrackExtraCollection>();
-  reco::TrackRefProd rTracks = evt.getRefBeforePut<reco::TrackCollection>();
 
   edm::Ref<reco::TrackExtraCollection>::key_type idx = 0;
   edm::Ref<reco::TrackExtraCollection>::key_type hidx = 0;
+  edm::Ref<reco::TrackCollection>::key_type iTkRef = 0;
+  edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
+  std::map<unsigned int, unsigned int> tjTkMap;
+
   for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
     Trajectory * theTraj = (*i).first;
-    if(trajectoryInEvent_) selTrajectories->push_back(*theTraj);
+    if(trajectoryInEvent_) {
+      selTrajectories->push_back(*theTraj);
+      iTjRef++;
+    }
     const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
 
     reco::Track * theTrack = (*i).second;
-    
-    //     if( ) {
     reco::Track t = * theTrack;
     selTracks->push_back( t );
+    iTkRef++;
+
+    // Store indices in local map (starts at 0)
+    if(trajectoryInEvent_) tjTkMap[iTjRef-1] = iTkRef-1;
     
     //sets the outermost and innermost TSOSs
     TrajectoryStateOnSurface outertsos;
@@ -160,9 +169,23 @@ void TrackProducerBase::putInEvt(edm::Event& evt,
     delete theTraj;
   }
   
-  evt.put( selTracks );
+  rTracks_ = evt.put( selTracks );
   evt.put( selTrackExtras );
   evt.put( selHits );
-  if(trajectoryInEvent_) evt.put(selTrajectories);
+  
+  if(trajectoryInEvent_) {
+    edm::OrphanHandle<std::vector<Trajectory> > rTrajs = evt.put(selTrajectories);
+
+    // Now Create traj<->tracks association map
+    std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
+    for ( std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); 
+          i != tjTkMap.end(); i++ ) {
+      edm::Ref<std::vector<Trajectory> > trajRef( rTrajs, (*i).first );
+      edm::Ref<reco::TrackCollection>    tkRef( rTracks_, (*i).second );
+      trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, (*i).first ),
+                            edm::Ref<reco::TrackCollection>( rTracks_, (*i).second ) );
+    }
+    evt.put( trajTrackMap );
+  }
 }
 

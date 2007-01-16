@@ -67,9 +67,9 @@ public:
   std::string src_;
   std::string pro_;
   bool trajectoryInEvent_;
+  edm::OrphanHandle<reco::TrackCollection> rTracks_;
  protected:
   std::string alias_;
-
 };
 
 #endif

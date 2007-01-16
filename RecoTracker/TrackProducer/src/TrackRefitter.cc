@@ -7,6 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
@@ -22,6 +23,7 @@ TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
   produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
   produces<std::vector<Trajectory> >() ;
+  produces<TrajTrackAssociationCollection>();
 }
 
 void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
