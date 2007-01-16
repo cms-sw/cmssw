@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.9 2007/01/11 23:39:17 paterno Exp $
+$Id: Wrapper.h,v 1.10 2007/01/13 08:29:06 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -56,13 +56,10 @@ namespace edm {
     virtual bool isPresent_() const {return present;}
     void do_fillView(std::vector<void const*>& pointers) const
     {
-#if GCC_PREREQUISITE(3,4,4)
-#else
       typename boost::mpl::if_c<has_fillView<T>::value,
                                 DoFillView<T>,
                                 DoNotFillView<T> >::type maybe_filler;
       maybe_filler(obj, pointers);
-#endif
     }
     // We wish to disallow copy construction and assignment.
     // We make the copy constructor and assignment operator private.
