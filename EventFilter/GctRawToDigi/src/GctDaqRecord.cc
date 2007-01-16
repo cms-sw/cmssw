@@ -1,5 +1,5 @@
 
-#include "EventFilter/GctRawToDigi/src/GctEvent.h"
+#include "EventFilter/GctRawToDigi/src/GctDaqRecord.h"
 
 using std::vector;
 using std::ostream;
@@ -7,18 +7,18 @@ using std::cout;
 using std::endl;
 
 
-GctEvent::GctEvent() :
+GctDaqRecord::GctDaqRecord() :
   header_(8),
   footer_(8)
 { }
 
 
-GctEvent::GctEvent(const unsigned char * data, const unsigned int size) :
+GctDaqRecord::GctDaqRecord(const unsigned char * data, const unsigned int size) :
   header_(8),
   footer_(8)
  {
 
-   cout << "Constructing a GctEvent. Size=" << size << endl;
+   cout << "Constructing a GctDaqRecord. Size=" << size << endl;
 
 
   // store event header
@@ -43,13 +43,13 @@ GctEvent::GctEvent(const unsigned char * data, const unsigned int size) :
 }
 
 
-GctEvent::~GctEvent() {
+GctDaqRecord::~GctDaqRecord() {
 
   //  blocks_.clear();
 
 }
 
-ostream& operator<<(ostream& os, const GctEvent& e) {
+ostream& operator<<(ostream& os, const GctDaqRecord& e) {
   
   os << "Event ID   " << std::hex << e.id() << endl;
   os << "Event type " << std::hex << e.l1Type() << endl;

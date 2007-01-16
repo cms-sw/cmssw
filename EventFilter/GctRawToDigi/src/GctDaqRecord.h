@@ -1,6 +1,6 @@
 
-#ifndef GCTEVENT_H
-#define GCTEVENT_H
+#ifndef GCTDAQRECORD_H
+#define GCTDAQRECORD_H
 
 #include <vector>
 #include <iostream>
@@ -8,12 +8,12 @@
 #include "EventFilter/GctRawToDigi/src/GctBlock.h"
 
 
-class GctEvent {
+class GctDaqRecord {
 
  public:
-  GctEvent();
-  GctEvent(const unsigned char * data, const unsigned int size);
-  ~GctEvent();
+  GctDaqRecord();
+  GctDaqRecord(const unsigned char * data, const unsigned int size);
+  ~GctDaqRecord();
 
   unsigned id() const { return header_[4] + (header_[5]<<8) + (header_[6]<<16); }
   unsigned l1Type() const { return header_[7]&0xf; }
@@ -22,7 +22,7 @@ class GctEvent {
 
   const std::vector<GctBlock>& blocks() const { return blocks_; }
 
-  friend std::ostream& operator<<(std::ostream& os, const GctEvent& e);
+  friend std::ostream& operator<<(std::ostream& os, const GctDaqRecord& e);
 
  private:
 

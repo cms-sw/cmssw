@@ -10,6 +10,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 // GCT raw data formats
+#include "EventFilter/GctRawToDigi/src/GctDaqRecord.h"
 #include "EventFilter/GctRawToDigi/src/GctBlock.h"
 
 // GCT input data formats
@@ -106,18 +107,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   //    2b. otherwise, create block
   // 3. move to next internal header
   
-  vector<GctBlock> blocks;
-
-  // read payload into blocks
-  for (unsigned i=8 ; i<(d.size()-8) ; i++) {
-
-    GctBlock block(&(d.data()[i]));
-    i = i+block.length();
-    blocks.push_back(block);
-
-  }
-
-
+  GctDaqRecord rcd(d.data(), d.size());
   
 }
 
