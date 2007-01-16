@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: FastGenParticleCandidateProducer.h,v 1.11 2007/01/15 12:34:59 llista Exp $
+ * \version $Id: FastGenParticleCandidateProducer.h,v 1.1 2007/01/15 14:24:49 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -38,11 +38,12 @@ class FastGenParticleCandidateProducer : public edm::EDProducer {
 	     std::vector<const HepMC::GenParticle *> & ) const;
   /// internal functional decomposition
   void fillOutput( const std::vector<const HepMC::GenParticle *> &,
-		   reco::CandidateCollection & ) const;
+		   reco::CandidateCollection &, 
+		   std::vector<reco::GenParticleCandidate *> & ) const;
   /// internal functional decomposition
   void fillRefs( const std::vector<const HepMC::GenParticle *> &,
 		 const reco::CandidateRefProd,
-		 reco::CandidateCollection & ) const;
+		 const std::vector<reco::GenParticleCandidate *> & ) const;
   /// charge indices
   std::vector<int> chargeP_, chargeM_;
   std::map<int, int> chargeMap_;

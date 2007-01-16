@@ -1,4 +1,4 @@
-// $Id: FastGenParticleCandidateProducer.cc,v 1.17 2007/01/15 12:34:59 llista Exp $
+// $Id: FastGenParticleCandidateProducer.cc,v 1.1 2007/01/15 14:24:49 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/FastGenParticleCandidateProducer.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
@@ -77,12 +77,13 @@ void FastGenParticleCandidateProducer::produce( Event& evt, const EventSetup& es
   auto_ptr<CandidateCollection> cands( new CandidateCollection );
   const CandidateRefProd ref = evt.getRefBeforePut<CandidateCollection>();
 
+  vector<GenParticleCandidate *> candVector( size );
   /// fill indices
   fillIndices( mc, particles );
   // fill output collection and save association
-  fillOutput( particles, * cands );
+  fillOutput( particles, * cands, candVector );
   // fill references to daughters
-  fillRefs( particles, ref, * cands );
+  fillRefs( particles, ref, candVector );
 
   evt.put( cands );
 }
@@ -102,7 +103,8 @@ void FastGenParticleCandidateProducer::fillIndices( const GenEvent * mc,
 }
 
 void FastGenParticleCandidateProducer::fillOutput( const std::vector<const GenParticle *> & particles,
-						   CandidateCollection & cands ) const {
+						   CandidateCollection & cands, 
+						   vector<GenParticleCandidate *> & candVector ) const {
   const size_t size = particles.size();
   cands.reserve( size );
   for( size_t i = 0; i < size; ++ i ) {
@@ -118,21 +120,20 @@ void FastGenParticleCandidateProducer::fillOutput( const std::vector<const GenPa
     int pdgId = part->pdg_id(), status = part->status();
     int q = chargeTimesThree( pdgId ) / 3;
     GenParticleCandidate * c = new GenParticleCandidate( q, momentum, vertex, pdgId, status );
+    candVector[ i ] = c;
     cands.push_back( c );
   }
 }
 
 void FastGenParticleCandidateProducer::fillRefs( const std::vector<const GenParticle *> & particles,
 						 const CandidateRefProd ref,
-						 reco::CandidateCollection & cands ) const {
-  for( size_t d = 0; d < cands.size(); ++ d ) {
+						 const vector<GenParticleCandidate *> & candVector ) const {
+  for( size_t d = 0; d < candVector.size(); ++ d ) {
     const GenParticle * part = particles[ d ];
     if ( part->hasParents() ) {
       size_t m = part->mother()->barcode() - 1;
-      GenParticleCandidate & mom = dynamic_cast<GenParticleCandidate &>( cands[ m ] );
-      mom.addDaughter( CandidateRef( ref, d ) );
-      GenParticleCandidate & dau = dynamic_cast<GenParticleCandidate &>( cands[ d ] );
-      dau.setMotherRef( CandidateRef( ref, m ) );
+      candVector[ m ]->addDaughter( CandidateRef( ref, d ) );
+      candVector[ d ]->setMotherRef( CandidateRef( ref, m ) );
     }
   }
 }
