@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/09/20 16:38:09 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/11/07 17:03:37 $
+ *  $Revision: 1.16 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
@@ -19,6 +19,7 @@ class MuonServiceProxy;
 class Trajectory;
 class MuonUpdatorAtVertex;
 
+class GlobalMuonMonitorInterface;
 
 namespace edm {class ParameterSet;}
 
@@ -48,22 +49,39 @@ class GlobalMuonTrackMatcher {
     std::vector<TrackCand> match(const TrackCand&, 
 				 const std::vector<TrackCand>&) const;
     
-    /// check if two TrackRefs match
-    std::pair<bool,double> match(const TrackCand&,
+    /// check if two TrackRefs match at tracker surface
+    std::pair<bool,double> matchChi(const TrackCand&,
                                  const TrackCand&) const;
+
+    bool matchPos(const TrackCand&,
+		  const TrackCand&) const;
     
-    /// check if two TSOS match
-    std::pair<bool,double> match(const TrajectoryStateOnSurface&, 
-                                 const TrajectoryStateOnSurface&) const;
+    /// check if two TSOS match at same surface
+    double matchChiAtSurface(const TrajectoryStateOnSurface&, 
+			     const TrajectoryStateOnSurface&) const;
     
+    /// check if two Tracks match at IP
+    double matchChiAtIP(const TrackCand&,
+			const TrackCand&) const;
+
+    std::pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> convertToTSOS(const TrackCand&, const TrackCand&) const;
+
+    bool matchPosAtSurface(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
+
+    TrackCand matchMomAtIP(const TrackCand&, const std::vector<TrackCand>&) const;
+
   private:
     
     double theMaxChi2;
     double theMinP;
     double theMinPt;
+    bool theMIMFlag;
+    bool matchAtSurface_;
     GlobalPoint theVertexPos;
     GlobalError theVertexErr;
     MuonUpdatorAtVertex* theUpdator;
+
+    GlobalMuonMonitorInterface* dataMonitor;
 
     const MuonServiceProxy *theService;
 };
