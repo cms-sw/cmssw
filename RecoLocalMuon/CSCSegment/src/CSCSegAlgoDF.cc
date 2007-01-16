@@ -623,11 +623,9 @@ bool CSCSegAlgoDF::isSegmentGood(const ChamberHitContainer& RecHitsInChamber) co
 
   unsigned int iadd = ( RecHitsInChamber.size() > 20 )? iadd = 1 : 0;  
 
-  if ((protoSegment.size() >= minHitsPerSegment+iadd) 
-      return true;
+  if (protoSegment.size() >= minHitsPerSegment+iadd) return true;
 
-// &&
-//      ( ChiSquaredProbability((protoChi2),(double)(2*protoSegment.size()-4)) > chi2ndfProbMin )) 
+// &&     ( ChiSquaredProbability((protoChi2),(double)(2*protoSegment.size()-4)) > chi2ndfProbMin )) 
 
   return false;
 }
