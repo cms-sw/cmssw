@@ -1,0 +1,16 @@
+<export>
+ <lib name=RecoVertexMultiVertexFit>
+ <use name=RecoVertex/VertexPrimitives>
+ <use name=RecoVertex/VertexTools>
+ <use name=RecoVertex/LinearizationPointFinders>
+ <use name=RecoVertex/KalmanVertexFit>
+ <use name=RecoVertex/AdaptiveVertexFit>
+ <use name=DataFormats/Math>
+</export>
+
+<use name=RecoVertex/VertexPrimitives>
+<use name=RecoVertex/VertexTools>
+<use name=RecoVertex/LinearizationPointFinders>
+<use name=RecoVertex/KalmanVertexFit>
+<use name=RecoVertex/AdaptiveVertexFit>
+<use name=DataFormats/Math>
