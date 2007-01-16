@@ -1,0 +1,13 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Services>
+<use name=CondCore/PluginSystem>
+<use name=CondCore/DBCommon>
+<use name=CondCore/IOVService>	
+<use name=CondCore/MetaDataService>	
+<use name=DataSvc>
+<flags SEAL_PLUGIN_NAME="CondCoreESSources">
+<export>
+   <lib name=CondCoreESSources>
+</export>
