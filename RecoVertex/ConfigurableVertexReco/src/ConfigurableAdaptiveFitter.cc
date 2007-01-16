@@ -5,6 +5,7 @@
 #include "RecoVertex/LinearizationPointFinders/interface/DefaultLinearizationPointFinder.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h"
+#include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableAnnealing.h"
 
 using namespace std;
 
@@ -12,18 +13,11 @@ namespace {
   edm::ParameterSet mydefaults()
   {
     edm::ParameterSet ret;
+    ret.addParameter<string>("annealing", "geom" );
     ret.addParameter<double>("sigmacut",3.0);
     ret.addParameter<double>("Tini",256.0);
     ret.addParameter<double>("ratio",0.25);
     return ret;
-  }
-    
-  const AnnealingSchedule * schedule ( const edm::ParameterSet & m )
-  {
-    return new GeometricAnnealing(
-        m.getParameter<double>("sigmacut"), 
-        m.getParameter<double>("Tini"),
-        m.getParameter<double>("ratio") );
   }
 }
 
@@ -36,14 +30,13 @@ void ConfigurableAdaptiveFitter::configure(
 {
   edm::ParameterSet m = mydefaults();
   m.augment ( n );
-  const AnnealingSchedule * ann = schedule ( m );
+  ConfigurableAnnealing ann ( m );
   DefaultLinearizationPointFinder linpt;
   KalmanVertexUpdator updator;
   DummyVertexSmoother smoother;
   KalmanVertexTrackCompatibilityEstimator estimator;
 
-  AdaptiveVertexFitter fitter ( *ann, linpt, updator, estimator, smoother );
-  delete ann;
+  AdaptiveVertexFitter fitter ( ann, linpt, updator, estimator, smoother );
 
   if ( theRector ) delete theRector;
   theRector = new ReconstructorFromFitter ( fitter );

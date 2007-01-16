@@ -3,6 +3,25 @@
 
 using namespace std;
 
+namespace {
+  void errorNoReconstructor( const string & finder )
+  {
+    cout << "[ConfigurableVertexReconstructor] got no reconstructor for \""
+         << finder << "\"" << endl;
+    map < string, AbstractConfReconstructor * > valid = 
+      VertexRecoManager::Instance().get();
+    cout << "  Valid reconstructors are:";
+    for ( map < string, AbstractConfReconstructor * >::const_iterator i=valid.begin(); 
+          i!=valid.end() ; ++i )
+    {
+      if ( i->second ) cout << "  " << i->first;
+    }
+    cout << endl;
+    exit(0);
+
+  }
+}
+
 ConfigurableVertexReconstructor::ConfigurableVertexReconstructor ( 
     const edm::ParameterSet & p ) : theRector ( 0 )
 {
@@ -10,9 +29,7 @@ ConfigurableVertexReconstructor::ConfigurableVertexReconstructor (
   theRector = VertexRecoManager::Instance().get ( finder );
   if (!theRector)
   {
-    cout << "[ConfigurableVertexReconstructor] got no reconstructor for \""
-         << finder << "\"" << endl;
-    exit(0);
+    errorNoReconstructor ( finder );
   }
   theRector->configure ( p );
   // theRector = theRector->clone();
