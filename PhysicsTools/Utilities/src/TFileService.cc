@@ -13,7 +13,7 @@ TFileService::TFileService( const ParameterSet & cfg, ActivityRegistry & r ) :
   file_( new TFile( cfg.getParameter<string>( "fileName" ).c_str() , "RECREATE" ) ) {
   r.watchPreModuleConstruction( this, & TFileService::setDirectoryName ); 
   r.watchPreModule( this, & TFileService::setDirectoryName ); 
-  /// r.watchPreModuleBeginJob( this, & TFileService::setDirectoryName ); 
+  r.watchPreModuleBeginJob( this, & TFileService::setDirectoryName ); 
 }
 
 TFileService::~TFileService() {
