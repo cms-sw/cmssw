@@ -108,23 +108,36 @@ namespace edm {
     }
 
 
+    NodePtrListPtr CompositeNode::children() const
+    {
+      NodePtrListPtr result(new NodePtrList);
+      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
+      for(;i!=e;++i)
+      {
+        if((**i).type().substr(0,7) == "include")
+        {
+          CompositeNode * includeNode = dynamic_cast<CompositeNode *>(i->get());
+          NodePtrListPtr includedChildren = includeNode->children();
+          result->insert(result->end(), includedChildren->begin(), includedChildren->end());
+        }
+        else 
+        {
+          result->push_back(*i);
+        }
+      }
+      return result;
+    } 
+
+
     bool CompositeNode::findChild(const string & child, NodePtr & result)
     {
-      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
+      NodePtrListPtr kids = children();
+      NodePtrList::const_iterator i(kids->begin()),e(kids->end());
       for(;i!=e;++i)
       {
          if((*i)->name() == child) {
            result = *i;
            return true;
-         }
-
-         // IncludeNodes are transparent to this
-         if((**i).type() == "include") 
-         {
-           if((*i)->findChild(child, result))
-           {
-             return true;
-           }
          }
       }
 
@@ -255,10 +268,11 @@ namespace edm {
 
     void CompositeNode::validate() const
     {
-      // makesure no node is duplicated
+      // make sure no node is duplicated
       std::vector<std::string> nodeNames;
       nodeNames.reserve(nodes_->size());
-      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
+      NodePtrListPtr kids = children();
+      NodePtrList::const_iterator i(kids->begin()),e(kids->end());
       for(;i!=e;++i)
       {
         // let unnamed node go, because they might be in the process
