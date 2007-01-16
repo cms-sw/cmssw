@@ -30,6 +30,9 @@ namespace edm {
       /// also makes all subnodes register their parents
       virtual void setAsChildrensParent();
 
+      /// finds all first-level subnodes, transparent to includes
+      NodePtrListPtr children() const;
+
       /// finds a first-level subnode with this name
       bool findChild(const std::string & child, NodePtr & result);
 
