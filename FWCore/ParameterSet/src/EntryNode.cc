@@ -32,6 +32,26 @@ namespace edm {
     }
 
 
+    void EntryNode::locate(const std::string & s, std::ostream & out) const
+    {
+      std::string match = "";
+      if( value().find(s,0) != std::string::npos)
+      {
+        match = value();
+      }
+      if( name().find(s,0) != std::string::npos)
+      {
+        match = name();
+      }
+
+      if( match != "" )
+      {
+        out << "Found " << match << "\n";
+        printTrace(out);
+        out << "\n";
+      }
+    }
+
     void EntryNode::accept(Visitor& v) const
     {
       v.visitEntry(*this);

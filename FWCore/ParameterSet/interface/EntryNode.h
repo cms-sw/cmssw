@@ -23,6 +23,8 @@ namespace edm {
       std::string value() const {return value_;}
       bool isTracked() const {return tracked_;}
       virtual void print(std::ostream& ost, PrintOptions options) const;
+      /// prints if a match in the name or the value  
+      virtual void locate(const std::string & s, std::ostream& ost) const;
 
       virtual void accept(Visitor& v) const;
       // keeps the orignal type and tracked-ness

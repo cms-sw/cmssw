@@ -9,6 +9,7 @@
 #include <boost/cstdint.hpp>
 #include <ostream>
 #include <iterator>
+
 using std::string;
 using std::vector;
 
@@ -51,6 +52,33 @@ namespace edm {
         }
       ost << "\n  }\n";
     }
+
+    void VEntryNode::locate(const std::string & s, std::ostream & out) const
+    {
+      // look in the vector for a matching substring
+      std::string match = "";
+      for(StringList::const_iterator i = value_->begin(); i != value_->end(); ++i)
+      {
+        if((*i).find(s,0) != std::string::npos)
+        {
+          match = *i;
+        }
+      }
+
+      // now try the name of the node itself
+      if( name().find(s,0) != std::string::npos)
+      {
+        match = name();
+      }
+
+      if( match != "" )
+      {
+        out << "Found " << match << "\n";
+        printTrace(out);
+        out << "\n";
+      }
+    }
+
 
     void VEntryNode::accept(Visitor& v) const
     {
