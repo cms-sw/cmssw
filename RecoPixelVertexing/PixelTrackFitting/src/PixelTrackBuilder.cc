@@ -69,11 +69,14 @@ reco::Track * PixelTrackBuilder::build(
   TrajectoryStateClosestToPoint tscp = 
       tscpBuilder(*(impactPointState.freeState()), GlobalPoint(0,0,0) );
 
-  int nhits = hits.size();
-  reco::Track * track = new reco::Track( chi2,         // chi2
-                          2*nhits-5,  // dof
-					 tscp.perigeeParameters(),tscp.pt(),
-                   tscp.perigeeError());
+  int ndof = 2*hits.size()-5;
+  GlobalPoint vv = tscp.theState().position();
+  math::XYZPoint  pos( vv.x(), vv.y(), vv.z() );
+  GlobalVector pp = tscp.theState().momentum();
+  math::XYZVector mom( pp.x(), pp.y(), pp.z() );
+
+  reco::Track * track = new reco::Track( chi2, ndof, pos, mom, 
+      tscp.charge(), tscp.theState().curvilinearError());
 
   return track;
 }
