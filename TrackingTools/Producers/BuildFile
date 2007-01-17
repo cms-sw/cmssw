@@ -1,0 +1,13 @@
+<export>
+ <lib name=TrackingToolsProducers>
+ <use name=FWCore/Utilities>
+ <use name=FWCore/Framework>
+ <use name=TrackingTools/GeomPropagators>
+</export>
+
+<use name=FWCore/Utilities>
+<use name=FWCore/Framework>
+<use name=TrackingTools/GeomPropagators>
+
+
+<flags SEAL_PLUGIN_NAME="TrackingToolsProducers">
