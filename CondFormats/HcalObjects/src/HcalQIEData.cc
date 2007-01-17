@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2006/08/10 22:51:50 $
-$Revision: 1.5 $
+$Date: 2007/01/09 22:49:21 $
+$Revision: 1.7 $
 */
 
 #include <iostream>
@@ -90,6 +90,5 @@ void HcalQIEData::sort () {
   if (!mSorted) {
     std::sort (mItems.begin(), mItems.end(), compareItems ());
     mSorted = true;
-    std::cout << "HcalQIEData::sort ()->" << mItems.size () << std::endl; 
   }
 }
