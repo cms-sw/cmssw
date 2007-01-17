@@ -12,7 +12,11 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
-
+//
+// For FAMOS
+//
+#include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"  
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"                         
 
 TkTransientTrackingRecHitBuilder::TkTransientTrackingRecHitBuilder( const TrackingGeometry* trackingGeometry, 
 								    const PixelClusterParameterEstimator * p,
@@ -38,6 +42,10 @@ TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const
     return ProjectedRecHit2D::build(tGeometry_->idToDet(p->geographicalId()),
 				    tGeometry_->idToDet(ph->originalHit().geographicalId()),
 							ph,stripCPE);
+  } else if ( const SiTrackerGSRecHit2D* gh = dynamic_cast<const SiTrackerGSRecHit2D*>(p)) {
+    return ( GenericTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
   } 
+  
   throw cms::Exception("LogicError") << "TrackingRecHit* cannot be casted to a known concrete type"; 
 }
+
