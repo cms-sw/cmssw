@@ -1,9 +1,9 @@
+<use name=DataFormats/CLHEP>
 <use name=DataFormats/Common>
 <use name=DataFormats/GeometryVector>
-<use name=Geometry/CommonDetAlgo>
 <use name=rootrflx>
 <export>
-  <use name=Geometry/CommonDetAlgo>
+  <use name=DataFormats/CLHEP>
   <use name=DataFormats/GeometryVector>
   <lib name=DataFormatsTrajectoryState>
 </export>
