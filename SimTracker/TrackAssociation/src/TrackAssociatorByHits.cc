@@ -61,8 +61,10 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
   const double minHitFraction = theMinHitFraction;
   int nshared =0;
   float fraction=0;
-  std::vector<unsigned int> SimTrackIds;
-  std::vector<unsigned int> matchedIds; 
+  //  std::vector<unsigned int> SimTrackIds;
+  //  std::vector<unsigned int> matchedIds; 
+  std::vector< SimHitIdpr> SimTrackIds;
+  std::vector< SimHitIdpr> matchedIds; 
   RecoToSimCollection  outputCollection;
   
   TrackerHitAssociator * associate = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
@@ -86,7 +88,10 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 	  //save all the id of matched simtracks
 	  if(!SimTrackIds.empty()){
 	    for(size_t j=0; j<SimTrackIds.size(); j++){
-	      // std::cout << " hit # " << ri << " SimId " << SimTrackIds[j] << std::endl; 
+	      std::cout << " hit # " << ri << " SimId " << SimTrackIds[j].first 
+			<< "event id = " << SimTrackIds[j].second.event() 
+			<< " Bunch Xing = " << SimTrackIds[j].second.bunchCrossing() 
+			<< std::endl; 
 	      matchedIds.push_back(SimTrackIds[j]);
 	    }
 	  }
@@ -95,9 +100,10 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 	}
       }
       //save id for the track
-      std::vector<unsigned int> idcachev;
+      //      std::vector<unsigned int> idcachev;
+      std::vector<SimHitIdpr> idcachev;
+      idcachev.clear();
       if(!matchedIds.empty()){
-	idcachev.push_back(9999999);
 	nshared =0;
 	fraction =0;
 	for(size_t j=0; j<matchedIds.size(); j++){
@@ -110,11 +116,14 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 	      {
 		for (TrackingParticle::g4t_iterator g4T = t -> g4Track_begin();
 		     g4T !=  t -> g4Track_end(); ++g4T) {
-		  if((*g4T).trackId() == matchedIds[j]){
-		    // 		    std::cout << " Match ID = " << (*g4T)->trackId() 
-		    // 			      << " Nrh = " << ri << " Nshared = " << n << std::endl;
-		    // 		    std::cout << " G4  Track Momentum " << (*g4T)->momentum() << std::endl;   
-		    // 		    std::cout << " reco Track Momentum " << track->momentum() << std::endl;  
+		  if((*g4T).trackId() == matchedIds[j].first && t->eventId() == matchedIds[j].second){
+		    std::cout << " TP   (ID, Ev, BC) = " << (*g4T).trackId() 
+			      << ", " << t->eventId().event() << ", "<< t->eventId().bunchCrossing() << endl; 
+		    std::cout << " Match(ID, Ev, BC) = " <<  matchedIds[j].first
+			      << ", " << matchedIds[j].second.event() << ", "<< matchedIds[j].second.bunchCrossing() << endl; 
+		    //	    std::cout << " Nrh = " << ri << " Nshared = " << n << std::endl;
+		    std::cout << " G4  Track Momentum " << (*g4T).momentum() << std::endl;   
+		    std::cout << " reco Track Momentum " << track->momentum() << std::endl;  
 		    nshared = std::count(matchedIds.begin(), matchedIds.end(), matchedIds[j]);
 		    if(ri!=0) fraction = (static_cast<double>(nshared)/static_cast<double>(ri));
 		    //for now save the number of shared hits between the reco and sim track
@@ -150,8 +159,10 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
   const double minHitFraction = theMinHitFraction;
   float fraction=0;
   int nshared = 0;
-  std::vector<unsigned int> SimTrackIds;
-  std::vector<unsigned int> matchedIds; 
+  //  std::vector<unsigned int> SimTrackIds;
+  //  std::vector<unsigned int> matchedIds; 
+  std::vector< SimHitIdpr> SimTrackIds;
+  std::vector< SimHitIdpr> matchedIds; 
   SimToRecoCollection  outputCollection;
 
   TrackerHitAssociator * associate = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
@@ -187,9 +198,10 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 	  }
       }
       //save id for the track
-      std::vector<unsigned int> idcachev;
+      //      std::vector<unsigned int> idcachev;
+      std::vector<SimHitIdpr> idcachev;
       if(!matchedIds.empty()){
-	idcachev.push_back(9999999);
+	//	idcachev.push_back(9999999);
 	nshared =0;
 	for(size_t j=0; j<matchedIds.size(); j++){
 	  //replace with a find in vector
@@ -200,8 +212,18 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 	    for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
 	      for (TrackingParticle::g4t_iterator g4T = t -> g4Track_begin();
 		   g4T !=  t -> g4Track_end(); ++g4T) {
-		if((*g4T).trackId() == matchedIds[j]){
+		//		if((*g4T).trackId() == matchedIds[j]){
+		if((*g4T).trackId() == matchedIds[j].first && t->eventId() == matchedIds[j].second){
+		  std::cout << " TP   (ID, Ev, BC) = " << (*g4T).trackId() 
+			    << ", " << t->eventId().event() << ", "<< t->eventId().bunchCrossing() << endl; 
+		  std::cout << " Match(ID, Ev, BC) = " <<  matchedIds[j].first
+			    << ", " << matchedIds[j].second.event() << ", "<< matchedIds[j].second.bunchCrossing() << endl; 
+		  //	    std::cout << " Nrh = " << ri << " Nshared = " << n << std::endl;
+		  std::cout << " G4  Track Momentum " << (*g4T).momentum() << std::endl;   
+		  std::cout << " reco Track Momentum " << track->momentum() << std::endl;  
+		  
 		  nshared = std::count(matchedIds.begin(), matchedIds.end(), matchedIds[j]);
+		  
 		  int nsimhit = t->trackPSimHit().size(); 
 		  
 		  //count the TP simhit, counting only once the hits on glued detectors
@@ -227,37 +249,6 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 		      edm::LogVerbatim("TrackValidator") <<  " hit = " << TPhit->trackId() << " det ID = " << detid 
 							 << " SUBDET = " << detId.subdetId() << "layer = " << LayerFromDetid(detId); 
 		    }
-		    
-// 		    //======counting using glued detector flag =====
-// 		    //
-// 		    if(detId.subdetId() == StripSubdetector::TIB ||
-// 		       detId.subdetId() == StripSubdetector::TOB || 
-// 		       detId.subdetId() == StripSubdetector::TID ||
-// 		       detId.subdetId() == StripSubdetector::TEC) {
-// 		      StripSubdetector stripId = detId;
-// 		      unsigned int glued = stripId.glued();
-// 		      if(glued!=0){
-// 			if(glued != glue_cache) {
-// 			  glue_cache = glued;
-// 			  totsimhit++;
-// 			  //std::cout << " hit = " << TPhit->trackId() << " det ID = " << detid 
-// 			  //<< " SUBDET = " << detId.subdetId() << " glued = " << glued << " tothit = " << totsimhit << std::endl;
-// 			} else {
-// 			  //std::cout << " hit = " << TPhit->trackId() << " det ID = " << detid 
-// 			  //<<  " SUBDET = " << detId.subdetId() << " glued = " << glued << " tothit = " << totsimhit << std::endl;    
-// 			}
-// 		      }else {
-// 			totsimhit++;
-// 			//std::cout << " hit = " << TPhit->trackId() << " det ID = " << detid 
-// 			//<<  " SUBDET = " << detId.subdetId() << " glued = " << glued << " tothit = " << totsimhit << std::endl;
-// 		      }
-// 		    } 
-// 		    else if( detId.subdetId() == PixelSubdetector::PixelBarrel || 
-// 			     detId.subdetId() == PixelSubdetector::PixelEndcap) {
-// 		      totsimhit++;
-// 		      //std::cout << " hit = " << TPhit->trackId() << " det ID = " << detid << " pixel! "  
-// 		      //<< " tothit = " << totsimhit << std::endl;
-// 		    }
 		    
 		  }//loop over TP simhit
 		  

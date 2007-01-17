@@ -44,12 +44,12 @@
 #include <string>
 #include <vector>
 
-
+typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
 
 class TrackerHitAssociator {
   
  public:
-
+  
   // Simple constructor
   TrackerHitAssociator(const edm::Event& e);
   // Constructor with configurables
@@ -58,14 +58,16 @@ class TrackerHitAssociator {
   virtual ~TrackerHitAssociator(){}
   
   std::vector<PSimHit> associateHit(const TrackingRecHit & thit);
-  std::vector<unsigned int> associateHitId(const TrackingRecHit & thit);
-  
-  std::vector<unsigned int> associateSimpleRecHit(const SiStripRecHit2D * simplerechit);
-  std::vector<unsigned int> associateMatchedRecHit(const SiStripMatchedRecHit2D * matchedrechit);
-  std::vector<unsigned int> associatePixelRecHit(const SiPixelRecHit * pixelrechit);
-  
-  //will do next
-  //  vector<const SimHit*> associateMatchedRecHit( const RecHit&) const;
+  /*  std::vector<unsigned int> associateHitId(const TrackingRecHit & thit);
+      std::vector<unsigned int> associateSimpleRecHit(const SiStripRecHit2D * simplerechit);
+      std::vector<unsigned int> associateMatchedRecHit(const SiStripMatchedRecHit2D * matchedrechit);
+      std::vector<unsigned int> associatePixelRecHit(const SiPixelRecHit * pixelrechit);
+  */
+  //for PU events
+  std::vector<SimHitIdpr> associateHitId(const TrackingRecHit & thit);
+  std::vector<SimHitIdpr> associateSimpleRecHit(const SiStripRecHit2D * simplerechit);
+  std::vector<SimHitIdpr> associateMatchedRecHit(const SiStripMatchedRecHit2D * matchedrechit);
+  std::vector<SimHitIdpr> associatePixelRecHit(const SiPixelRecHit * pixelrechit);
   
   std::vector<PSimHit> theStripHits;
   typedef std::map<unsigned int, std::vector<PSimHit> > simhit_map;
@@ -81,7 +83,8 @@ class TrackerHitAssociator {
   edm::Handle< edm::DetSetVector<StripDigiSimLink> >  stripdigisimlink;
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> >  pixeldigisimlink;
   //vector with the trackIds
-  std::vector<unsigned int> simtrackid; 
+  //  std::vector<unsigned int> simtrackid; 
+  std::vector<SimHitIdpr> simtrackid; 
   
   bool doPixel_, doStrip_, doTrackAssoc_;
   
