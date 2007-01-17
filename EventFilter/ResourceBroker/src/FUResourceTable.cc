@@ -9,6 +9,7 @@
 
 #include "EventFilter/ResourceBroker/interface/FUResourceTable.h"
 
+#include "toolbox/include/toolbox/task/WorkLoopFactory.h"
 #include "interface/evb/include/i2oEVBMsgs.h"
 
 
@@ -22,8 +23,11 @@ using namespace std;
 
 //______________________________________________________________________________
 FUResourceTable::FUResourceTable(UInt_t nbResources,UInt_t eventBufferSize,
-				 bool shmMode,log4cplus::Logger logger)
-  : log_(logger)
+				 bool shmMode,BUProxy* bu,log4cplus::Logger logger)
+  : bu_(bu)
+  , log_(logger)
+  , workLoop_(0)
+  , workLoopActionSignature_(0)
   , shmMode_(shmMode)
   , shmBuffer_(0)
   , doCrcCheck_(1)
@@ -45,6 +49,40 @@ FUResourceTable::~FUResourceTable()
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
+
+//______________________________________________________________________________
+FEDRawDataCollection* FUResourceTable::rqstEvent(UInt_t& evtNumber,
+						 UInt_t& buResourceId)
+{
+  FEDRawDataCollection* result = requestResource(evtNumber,buResourceId);
+  sendAllocate();
+  return result;
+}
+
+
+//______________________________________________________________________________
+void FUResourceTable::sendDiscard(UInt_t buResourceId)
+{
+  bu_->sendDiscard(buResourceId);
+  nbDiscarded_++;
+  nbProcessed_++;
+}
+
+
+//______________________________________________________________________________
+void FUResourceTable::sendAllocate()
+{
+  UInt_t nbFreeSlots    = this->nbFreeSlots();
+  UInt_t nbFreeSlotsMax = resources_.size()/2;
+  if (nbFreeSlots>nbFreeSlotsMax) {
+    UIntVec_t fuResourceIds;
+    for (UInt_t i=0;i<nbFreeSlots;i++)
+      fuResourceIds.push_back(allocateResource());
+    bu_->sendAllocate(fuResourceIds);
+    nbAllocSent_++;
+  }
+}
+
 
 //______________________________________________________________________________
 void FUResourceTable::initialize(UInt_t nbResources,UInt_t eventBufferSize)
@@ -83,7 +121,6 @@ void FUResourceTable::clear()
   resources_.clear();
   while (!freeResourceIds_.empty()) freeResourceIds_.pop();
   builtResourceIds_.clear();
-  buIdsToBeDiscarded_.clear();
 }
 
 
@@ -100,7 +137,6 @@ void FUResourceTable::reset()
       freeResourceIds_.push(i);
     }
     builtResourceIds_.clear();
-    buIdsToBeDiscarded_.clear();
     sem_init(&writeSem_,0,resources_.size());
     sem_init(&readSem_, 0,0);
   }
@@ -114,12 +150,66 @@ void FUResourceTable::resetCounters()
   nbAllocated_=0;
   nbPending_  =0;
   nbCompleted_=0;
-  nbRequested_=0;
+  nbDiscarded_=0;
+  nbProcessed_=0;
   nbLost_     =0;
 
   nbErrors_   =0;
   nbCrcErrors_=0;
+  nbAllocSent_=0;
   nbBytes_    =0;
+}
+
+
+//______________________________________________________________________________
+void FUResourceTable::startWorkLoop() throw (evf::Exception)
+{
+  // instantiate work loop
+  string workLoopName = "shm work loop";
+  try {
+    workLoop_ = toolbox::task::getWorkLoopFactory()->getWorkLoop(workLoopName,
+								 "waiting");
+  }
+  catch (xcept::Exception& e) {
+    string msg = "Failed to create work loop '" + workLoopName + "'.";
+    XCEPT_RETHROW(evf::Exception,msg,e);
+  }
+  
+  // activate work loop
+  if (!workLoop_->isActive()) {
+    try {
+      workLoop_->activate();
+    }
+    catch (xcept::Exception& e) {
+      string msg = "Failed to activate work loop '" + workLoopName + "'.";
+      XCEPT_RETHROW(evf::Exception,msg,e);
+    }
+  }
+  
+  // submit work loop action to work loop
+  string workLoopActionName = "shm work loop action";
+  workLoopActionSignature_ = toolbox::task::bind(this,
+						 &FUResourceTable::workLoopAction,
+						 workLoopActionName);
+  try {
+    workLoop_->submit(workLoopActionSignature_);
+  }
+  catch (xcept::Exception& e) {
+    string msg = "Failed to submit action to work loop '" + workLoopName + "'.";
+    XCEPT_RETHROW(evf::Exception,msg,e);
+  }
+  
+}
+
+
+//______________________________________________________________________________
+bool FUResourceTable::workLoopAction(toolbox::task::WorkLoop* /* wl */)
+{
+  UInt_t buResourceId=shmBuffer_->buIdToBeDiscarded();
+  shmBuffer_->postDiscardSem();
+  sendDiscard(buResourceId);
+  sendAllocate();
+  return true; // reschedule
 }
 
 
@@ -131,7 +221,7 @@ UInt_t FUResourceTable::allocateResource()
   // determine fuResourceId for next available resource
   UInt_t fuResourceId;
 
-  // shared memory mode: discard/dump at this stage!
+  // shared memory mode: release resource
   if (shmMode_) {
     shmBuffer_->lock();
     FUShmBufferCell* cell=shmBuffer_->currentWriterCell();
@@ -139,10 +229,8 @@ UInt_t FUResourceTable::allocateResource()
     if (!cell->isEmpty()) {
       if (cell->isProcessed()) {
 	lock();
-	buIdsToBeDiscarded_.push_back(cell->buResourceId());
-	nbRequested_++;
-	unlock();
 	resources_[fuResourceId]->release();
+	unlock();
       }
       else {
 	LOG4CPLUS_DEBUG(log_,"DROP EVENT: evtNumber="<<cell->evtNumber());
@@ -223,7 +311,8 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
       }
       resource->release();
       lock();
-      buIdsToBeDiscarded_.push_back(buResourceId);
+      bu_->sendDiscard(buResourceId);
+      nbDiscarded_++;
       nbLost_++;
       nbPending_--;
       unlock();
@@ -263,7 +352,6 @@ FEDRawDataCollection* FUResourceTable::requestResource(UInt_t& evtNumber,
     resource->release();
     builtResourceIds_.pop_back();
     freeResourceIds_.push(fuResourceId);
-    nbRequested_++;
   }
   
   unlock();

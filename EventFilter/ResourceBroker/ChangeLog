@@ -1,3 +1,22 @@
+2007-01-17  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-01-00
+	* add integer 'buIdToBeDiscarded_' and two binary semaphores to
+	FUShmBuffer. Via the methods 'scheduleForDiscard()' and
+	'buIdToBeDiscarded()', another thread can wait for a buId to be
+	registered, access that number thread-safely, and send a discard
+	to the builder unit.
+	* the above mentioned 'other thread' is implemented as a WorkLoop
+	in FUResourceTable. FUResourceTable is now in charge of all
+	communication with the builder unit. the method 'workLoopAction()'
+	contains the code which (in shm mode only!) discards the last
+	event processed, checks if more events should be requested, and if
+	so, send the request.
+	* the FUResourceTable object of the FUResourceBroker is now
+	attempted to be destroyed in 'haltAction'. This fails if other
+	processes (the ShmReaders) are still attached to the shared memory
+	segments.
+
 2006-11-29  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-00-04

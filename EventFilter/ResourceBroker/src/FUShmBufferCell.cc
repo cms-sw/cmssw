@@ -181,19 +181,9 @@ void FUShmBufferCell::clear()
   fedSizeAddr=(unsigned int*)((unsigned int)this+fedSizeOffset_);
   for (unsigned int i=0;i<nFed();i++) *fedSizeAddr++=0;
 
-  /// unnecessary, isn't it?
-  //unsigned int* fedAddr;
-  //fedAddr=(unsigned int*)((unsigned int)this+fedOffset_);
-  //for (unsigned int i=0;i<nFed();i++) *fedAddr++=0;
-
   unsigned int* superFragSizeAddr;
   superFragSizeAddr=(unsigned int*)((unsigned int)this+superFragSizeOffset_);
   for (unsigned int i=0;i<nSuperFrag();i++) *superFragSizeAddr++=0;
-
-  /// unnecessary, isn't it?
-  //unsigned int* superFragAddr;
-  //superFragAddr=(unsigned int*)((unsigned int)this+superFragOffset_);
-  //for (unsigned int i=0;i<nSuperFrag();i++) *superFragAddr++=0;
 
   bufferPosition_=0;
 }

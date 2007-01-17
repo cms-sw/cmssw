@@ -9,17 +9,6 @@
 
 //______________________________________________________________________________
 inline
-bool evf::FUResourceTable::popBuIdToBeDiscarded(UInt_t& buIdtoBeDiscarded)
-{
-  if (!buIdsToBeDiscarded_.size()) return false;
-  buIdtoBeDiscarded=buIdsToBeDiscarded_.back();
-  buIdsToBeDiscarded_.pop_back();
-  return true;
-}
-
-
-//______________________________________________________________________________
-inline
 evf::UInt_t evf::FUResourceTable::nbFreeSlots() const
 {
   return (shmMode_) ? shmBuffer_->writerSemValue() : freeResourceIds_.size();

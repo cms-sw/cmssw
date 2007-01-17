@@ -43,7 +43,6 @@ using namespace evf;
 //______________________________________________________________________________
 FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   : xdaq::Application(s)
-  , FEDProvider()
   , lock_(BSem::FULL)
   , gui_(0)
   , log_(getApplicationLogger())
@@ -66,6 +65,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , nbAllocatedEvents_(0)
   , nbPendingRequests_(0)
   , nbReceivedEvents_(0)
+  , nbDiscardedEvents_(0)
   , nbProcessedEvents_(0)
   , nbLostEvents_(0)
   , nbDataErrors_(0)
@@ -80,7 +80,6 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , queueSize_(16)
   , nbAllocateSent_(0)
   , nbTakeReceived_(0)
-  , nbTimeExpired_(0)
   , nbMeasurements_(0)
   , nbEventsLast_(0)
 {
@@ -139,7 +138,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
 //______________________________________________________________________________
 FUResourceBroker::~FUResourceBroker()
 {
-  delete resourceTable_;
+
 }
 
 
@@ -147,22 +146,6 @@ FUResourceBroker::~FUResourceBroker()
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
-
-//______________________________________________________________________________
-FEDRawDataCollection* FUResourceBroker::rqstEvent(UInt_t& evtNumber,
-						  UInt_t& buResId)
-{
-  if (!shmMode_) nbPendingRequests_.value_--;
-  
-  FEDRawDataCollection* result=resourceTable_->requestResource(evtNumber,buResId);
-
-  lock_.take();
-  if (itsTimeToAllocate()) sendAllocate();
-  lock_.give();
-  
-  return result;
-}
-
 
 //______________________________________________________________________________
 void FUResourceBroker::timeExpired(toolbox::task::TimerEvent& e)
@@ -174,7 +157,7 @@ void FUResourceBroker::timeExpired(toolbox::task::TimerEvent& e)
   nbMeasurements_++;
  
   // number of events per second measurement
-  nbEvents_      =resourceTable_->nbRequested();
+  nbEvents_      =resourceTable_->nbCompleted();
   nbEventsPerSec_=nbEvents_-nbEventsLast_;
   nbEventsLast_  =nbEvents_;
   if (nbEventsPerSec_.value_>0) {
@@ -193,12 +176,6 @@ void FUResourceBroker::timeExpired(toolbox::task::TimerEvent& e)
   nbMBPerSecAvg_=nbMBTot_/nbMeasurements_;
 
   gui_->unlockInfoSpaces();
-
-  // check if the event queue should be filled up again.
-  if (itsTimeToAllocate()) {
-    sendAllocate();
-    nbTimeExpired_.value_++;
-  }
   
   lock_.give();
 }
@@ -256,10 +233,14 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
     
     if (item=="nbShmClients")      nbShmClients_     =resourceTable_->nbShmClients();
     if (item=="nbAllocatedEvents") nbAllocatedEvents_=resourceTable_->nbAllocated();
+    if (item=="nbPendingRequests") nbPendingRequests_=resourceTable_->nbPending();
     if (item=="nbReceivedEvents")  nbReceivedEvents_ =resourceTable_->nbCompleted();
+    if (item=="nbProcessedEvents") nbProcessedEvents_=resourceTable_->nbProcessed();
+    if (item=="nbDiscardedEvents") nbDiscardedEvents_=resourceTable_->nbDiscarded();
     if (item=="nbLostEvents")      nbLostEvents_     =resourceTable_->nbLost();
     if (item=="nbDataErrors")      nbDataErrors_     =resourceTable_->nbErrors();
     if (item=="nbCrcErrors")       nbCrcErrors_      =resourceTable_->nbCrcErrors();
+    if (item=="nbAllocateSent")    nbAllocateSent_   =resourceTable_->nbAllocSent();
   }
   
   if (e.type()=="ItemChangedEvent") {
@@ -281,9 +262,13 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
 void FUResourceBroker::configureAction(toolbox::Event::Reference e) 
   throw (toolbox::fsm::exception::Exception)
 {
+  // establish connection to builder unit(s)
+  connectToBUs();
+
   // initialize resource table
   if (0==resourceTable_) {
-    resourceTable_=new FUResourceTable(queueSize_,eventBufferSize_,shmMode_,log_);
+    resourceTable_=new FUResourceTable(queueSize_,eventBufferSize_,shmMode_,
+				       bu_[buInstance_],log_);
     resourceTable_->resetCounters();
   }
   else if (resourceTable_->nbResources()!=queueSize_) {
@@ -296,9 +281,6 @@ void FUResourceBroker::configureAction(toolbox::Event::Reference e)
   // reset counters and other variables to 'configured' state
   reset();
   
-  // establish connection to builder unit(s)
-  connectToBUs();
-
   // initialize timer
   initTimer();
   
@@ -311,7 +293,8 @@ void FUResourceBroker::enableAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception)
 {
   // request events from builder unit
-  sendAllocate();
+  if (shmMode_) resourceTable_->startWorkLoop();
+  resourceTable_->sendAllocate();
   
   LOG4CPLUS_INFO(log_,"FUResourceBroker -> ENABLED <-");
 }
@@ -340,6 +323,24 @@ void FUResourceBroker::haltAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception)
 {
   stopTimer();
+  
+  UInt_t count = 0;
+  while (count<10) {
+    if (resourceTable_->nbShmClients()==0) {
+      delete resourceTable_;
+      resourceTable_=0;
+      LOG4CPLUS_WARN(log_,++count<<". try to destroy resource table succeeded.");
+      break;
+    }
+    else {
+      ::sleep(1);
+      count++;
+      LOG4CPLUS_WARN(log_,count<<". try to destroy resource table failed.");
+    }
+  } 
+
+  if (0!=resourceTable_)
+    LOG4CPLUS_ERROR(log_,"Failed to destroy resource table.");
   
   LOG4CPLUS_INFO(log_,"FUResourceBroker -> HALTED <-");
 }
@@ -416,46 +417,6 @@ void FUResourceBroker::connectToBUs()
 
 
 //______________________________________________________________________________
-void FUResourceBroker::sendAllocate()
-{
-  if (bu_.size()<=buInstance_||bu_[buInstance_]==0) return;
-  
-  UInt_t    nbEvents=resourceTable_->nbFreeSlots();
-  UIntVec_t fuResourceIds;
-  for(UInt_t i=0;i<nbEvents;i++)
-    fuResourceIds.push_back(resourceTable_->allocateResource());
-  
-  LOG4CPLUS_DEBUG(log_,"FUResourceBroker: sendAllocate(nbEvents="<<nbEvents<<")");
-  
-  bu_[buInstance_]->sendAllocate(fuResourceIds);
-
-  nbPendingRequests_.value_+=nbEvents;
-  nbAllocateSent_.value_++;
-}
-
-
-//______________________________________________________________________________
-void FUResourceBroker::sendCollect(UInt_t fuResourceId)
-{
-  if (bu_.size()<=buInstance_||bu_[buInstance_]==0) return;
-  
-  bu_[buInstance_]->sendCollect(fuResourceId);
-}
-
-
-//______________________________________________________________________________
-void FUResourceBroker::sendDiscard(UInt_t buResourceId)
-{
-  if (bu_.size()<=buInstance_||bu_[buInstance_]==0) return;
-
-  lock_.take();
-  bu_[buInstance_]->sendDiscard(buResourceId);
-  nbProcessedEvents_.value_++;
-  lock_.give();
-}
-
-
-//______________________________________________________________________________
 void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef)
 {
   //if (fsm_->getCurrentState()!='E') {
@@ -471,27 +432,17 @@ void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef)
   bool eventComplete=resourceTable_->buildResource(bufRef);
 
   if (eventComplete&&doDropEvents_) {
-    UInt_t evtNumber;
-    UInt_t buResourceId;
-    FEDRawDataCollection *fedColl=rqstEvent(evtNumber,buResourceId);
-    if (!shmMode_) {
-      sendDiscard(buResourceId);
-      delete fedColl;
-    }
+      UInt_t evtNumber;
+      UInt_t buResourceId;
+      FEDRawDataCollection *fedColl=
+	resourceTable_->rqstEvent(evtNumber,buResourceId);
+      resourceTable_->sendDiscard(buResourceId);
+      if (!shmMode_) {
+	cout<<"delete fedColl."<<endl;
+	delete fedColl;
+      }
   }
   
-  if (resourceTable_->nbBuIdsToBeDiscarded()>0) {
-    UInt_t buId;
-    while (resourceTable_->popBuIdToBeDiscarded(buId)) {
-      sendDiscard(buId);
-      nbPendingRequests_.value_--;
-    }
-  }
-
-  // check if it is time to ask the BU to fill up the event queue
-  lock_.take();
-  if (itsTimeToAllocate()) sendAllocate();
-  lock_.give();
 }
 
 
@@ -502,16 +453,6 @@ void FUResourceBroker::webPageRequest(xgi::Input *in,xgi::Output *out)
   string name=in->getenv("PATH_INFO");
   if (name.empty()) name="defaultWebPage";
   static_cast<xgi::MethodSignature*>(gui_->getMethod(name))->invoke(in,out);
-}
-
-
-//______________________________________________________________________________
-bool FUResourceBroker::itsTimeToAllocate()
-{
-  UInt_t nbFreeSlots   =resourceTable_->nbFreeSlots();
-  UInt_t nbFreeSlotsMax=queueSize_/2;
-  if (nbFreeSlots>nbFreeSlotsMax) return true;
-  return false;
 }
 
 
@@ -541,6 +482,7 @@ void FUResourceBroker::exportParameters()
   gui_->addMonitorCounter("nbAllocatedEvents",&nbAllocatedEvents_);
   gui_->addMonitorCounter("nbPendingRequests",&nbPendingRequests_);
   gui_->addMonitorCounter("nbReceivedEvents", &nbReceivedEvents_);
+  gui_->addMonitorCounter("nbDiscardedEvents",&nbDiscardedEvents_);
   gui_->addMonitorCounter("nbProcessedEvents",&nbProcessedEvents_);
   gui_->addMonitorCounter("nbLostEvents",     &nbLostEvents_);
   gui_->addMonitorCounter("nbDataErrors",     &nbDataErrors_);
@@ -557,16 +499,19 @@ void FUResourceBroker::exportParameters()
   
   gui_->addDebugCounter("nbAllocateSent",     &nbAllocateSent_);
   gui_->addDebugCounter("nbTakeReceived",     &nbTakeReceived_);
-  gui_->addDebugCounter("nbTimeExpired",      &nbTimeExpired_);
 
   gui_->exportParameters();
 
   gui_->addItemRetrieveListener("nbShmClients",     this);
   gui_->addItemRetrieveListener("nbAllocatedEvents",this);
+  gui_->addItemRetrieveListener("nbPendingRequests",this);
   gui_->addItemRetrieveListener("nbReceivedEvents", this);
+  gui_->addItemRetrieveListener("nbProcessedEvents",this);
+  gui_->addItemRetrieveListener("nbDiscardedEvents",this);
   gui_->addItemRetrieveListener("nbLostEvents",     this);
   gui_->addItemRetrieveListener("nbDataErrors",     this);
   gui_->addItemRetrieveListener("nbCrcErrors",      this);
+  gui_->addItemRetrieveListener("nbAllocateSent",   this);
   
   gui_->addItemChangedListener("doCrcCheck",        this);
   gui_->addItemChangedListener("runNumber",         this);

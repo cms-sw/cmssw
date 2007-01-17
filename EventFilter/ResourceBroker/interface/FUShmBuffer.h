@@ -48,14 +48,22 @@ namespace evf {
     FUShmBufferCell* currentWriterCell();
     FUShmBufferCell* currentReaderCell();
     
+    void             scheduleForDiscard(unsigned int buResourceId);
+    unsigned int     buIdToBeDiscarded();
+
     void             initialize();
 
-    void             lock()          { sem_wait(2); }
-    void             unlock()        { sem_post(2); }
-    void             waitWriterSem() { sem_wait(0); }
-    void             postWriterSem() { sem_post(0); }
-    void             waitReaderSem() { sem_wait(1); }
-    void             postReaderSem() { sem_post(1); }
+    void             lock()             { sem_wait(2); }
+    void             unlock()           { sem_post(2); }
+    void             waitWriterSem()    { sem_wait(0); }
+    void             postWriterSem()    { sem_post(0); }
+    void             waitReaderSem()    { sem_wait(1); }
+    void             postReaderSem()    { sem_post(1); }
+    // semaphores to discard events
+    void             waitDiscardedSem() { sem_wait(3); }
+    void             postDiscardedSem() { sem_post(3); }
+    void             waitDiscardSem()   { sem_wait(4); }
+    void             postDiscardSem()   { sem_post(4); }
 
     int              writerSemValue() const;
     int              readerSemValue() const;
@@ -113,6 +121,7 @@ namespace evf {
     int             semid_;
     unsigned int    writeIndex_;
     unsigned int    readIndex_;
+    unsigned int    buIdToBeDiscarded_;
     unsigned int    nCell_;
     unsigned int    cellBufferSize_;
     unsigned int    nFed_;

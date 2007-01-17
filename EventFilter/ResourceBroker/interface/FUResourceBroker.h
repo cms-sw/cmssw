@@ -4,7 +4,6 @@
 
 #include "EventFilter/ResourceBroker/interface/FUTypes.h"
 #include "EventFilter/ResourceBroker/interface/FUResourceTable.h"
-#include "EventFilter/ResourceBroker/interface/FEDProvider.h"
 
 #include "EventFilter/Utilities/interface/EPStateMachine.h"
 #include "EventFilter/Utilities/interface/WebGUI.h"
@@ -38,7 +37,6 @@ namespace evf {
   class BUProxy;
   
   class FUResourceBroker : public xdaq::Application,
-			   public FEDProvider,
 			   public toolbox::task::TimerListener,
 			   public xdata::ActionListener
   {
@@ -65,10 +63,6 @@ namespace evf {
     //
     // public member functions
     //
-    
-    // FEDProvider interface
-    FEDRawDataCollection* rqstEvent(UInt_t& evtNumber,
-				    UInt_t& buResourceId);
     
     // toolbox::task::TimerListener callback, and init/start/stop the corresp. timer
     void timeExpired(toolbox::task::TimerEvent& e);
@@ -100,11 +94,6 @@ namespace evf {
     //  connection to builder unit bu_
     void connectToBUs();
     
-    // comunicate with builder units
-    void sendAllocate();
-    void sendCollect(UInt_t fuResourceId);
-    void sendDiscard(UInt_t buResourceId);
-    
     // Hyper DAQ web page(s) [see Utilities/WebGUI]
     void webPageRequest(xgi::Input *in,xgi::Output *out)
       throw (xgi::exception::Exception);
@@ -117,7 +106,6 @@ namespace evf {
     //
     // private member functions
     //
-    bool itsTimeToAllocate();
     void exportParameters();
     void reset();
     
@@ -173,6 +161,7 @@ namespace evf {
     xdata::UnsignedInteger32 nbAllocatedEvents_;
     xdata::UnsignedInteger32 nbPendingRequests_;
     xdata::UnsignedInteger32 nbReceivedEvents_;
+    xdata::UnsignedInteger32 nbDiscardedEvents_;
     xdata::UnsignedInteger32 nbProcessedEvents_;
     xdata::UnsignedInteger32 nbLostEvents_;
     xdata::UnsignedInteger32 nbDataErrors_;
@@ -192,7 +181,6 @@ namespace evf {
     // debug parameters
     xdata::UnsignedInteger32 nbAllocateSent_;
     xdata::UnsignedInteger32 nbTakeReceived_;
-    xdata::UnsignedInteger32 nbTimeExpired_;
     
     // internal parameters, not exported
     unsigned int             nbMeasurements_;

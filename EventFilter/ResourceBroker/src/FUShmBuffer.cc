@@ -113,6 +113,23 @@ FUShmBufferCell* FUShmBuffer::currentReaderCell()
 
 
 //______________________________________________________________________________
+void FUShmBuffer::scheduleForDiscard(unsigned int buResourceId)
+{
+  waitDiscardSem();
+  buIdToBeDiscarded_ = buResourceId;
+  postDiscardedSem();
+}
+
+
+//______________________________________________________________________________
+unsigned int FUShmBuffer::buIdToBeDiscarded()
+{
+  waitDiscardedSem();
+  return buIdToBeDiscarded_;
+}
+
+
+//______________________________________________________________________________
 void FUShmBuffer::initialize()
 {
   // this is supposed to be called by the writer prc only, initialize!
@@ -121,9 +138,12 @@ void FUShmBuffer::initialize()
   
   for (unsigned int i=0;i<nCell();i++) cell(i)->clear();
   
+  // setup semaphores
   sem_init(0,nCell()); // writer semaphore
   sem_init(1,0);       // reader semaphore
-  sem_init(2,1);       // mutex
+  sem_init(2,1);       // lock (binary)
+  sem_init(3,0);       // binary semaphore to read  next buID to be discarded
+  sem_init(4,1);       // binary semaphore to write next buID to be discarded
   sem_print();         // print values
 }
 
@@ -149,6 +169,8 @@ void FUShmBuffer::sem_print()
       <<" wsem="<<semctl(semid(),0,GETVAL)
       <<" rsem="<<semctl(semid(),1,GETVAL)
       <<" mutx="<<semctl(semid(),2,GETVAL)
+      <<" dscr="<<semctl(semid(),3,GETVAL)
+      <<" dscw="<<semctl(semid(),4,GETVAL)
       <<endl;
 }
 
@@ -249,7 +271,7 @@ FUShmBuffer* FUShmBuffer::createShmBuffer(unsigned int nCell,
   }
   
   // create semaphore set to control buffer access
-  int semid=sem_create(FUShmBuffer::getSemKey(),3); if (semid<0) return 0;
+  int semid=sem_create(FUShmBuffer::getSemKey(),5); if (semid<0) return 0;
   
   // allocate the shared memory buffer using a 'placement new'
   FUShmBuffer* buffer=new(shmAddr) FUShmBuffer(shmid,semid,
@@ -315,7 +337,7 @@ FUShmBuffer* FUShmBuffer::getShmBuffer()
   }
   
   // get semaphore set to control buffer access
-  int semid=sem_get(FUShmBuffer::getSemKey(),3); if (semid<0) return 0;
+  int semid=sem_get(FUShmBuffer::getSemKey(),5); if (semid<0) return 0;
   
   // allocate the shared memory buffer using a 'placement new'
   FUShmBuffer* buffer=new(shmAddr) FUShmBuffer(shmid,semid,
