@@ -1,5 +1,7 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/DetId>
+<use name=DataFormats/GeometrySurface>
+<use name=DataFormats/GeometryVector>
 <use name=DataFormats/SiPixelCluster>
 <use name=DataFormats/SiStripCluster>
 <use name=DataFormats/TrackingRecHit>
@@ -7,6 +9,8 @@
 <export>
   <use name=DataFormats/Common>
   <use name=DataFormats/DetId>
+  <use name=DataFormats/GeometrySurface>
+  <use name=DataFormats/GeometryVector>
   <use name=DataFormats/SiPixelCluster>
   <use name=DataFormats/SiStripCluster>
   <use name=DataFormats/TrackingRecHit>

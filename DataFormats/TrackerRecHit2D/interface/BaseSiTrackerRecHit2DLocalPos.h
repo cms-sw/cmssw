@@ -2,7 +2,9 @@
 #define BaseSiTrackerRecHit2DLocalPos_H
 
 #include "DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 class BaseSiTrackerRecHit2DLocalPos : public RecHit2DLocalPos {
 public:

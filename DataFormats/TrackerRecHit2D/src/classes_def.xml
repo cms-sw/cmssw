@@ -1,5 +1,4 @@
 <lcgdict>
-  <class name="LocalError"/>
   <class name="BaseSiTrackerRecHit2DLocalPos"/>
   <class name="SiStripRecHit2D"/>
   <class name="SiTrackerGSRecHit2D"/>
