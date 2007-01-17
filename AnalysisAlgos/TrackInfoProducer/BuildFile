@@ -1,0 +1,19 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=AnalysisDataFormats/TrackInfo>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/TrackFitters>
+<use name=rootrflx>
+
+<export>
+   <lib name=AnalysisAlgosTrackInfoProducer>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=AnalysisDataFormats/TrackInfo>
+   <use name=TrackingTools/TrajectoryState>
+   <use name=TrackingTools/TrackFitters>
+   <use name=rootrflx>
+</export>
+<flags SEAL_PLUGIN_NAME="AnalysisAlgosTrackInfoProducer">
