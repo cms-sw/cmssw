@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.61 2006/12/30 16:54:43 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.62 2007/01/02 21:17:46 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -84,6 +84,7 @@ namespace edm {
   }
 
   void PoolOutputModule::write(EventPrincipal const& e) {
+      if (hasNewlyDroppedBranch_[InEvent]) e.addToProcessHistory();
       if (poolFile_->writeOne(e)) {
 	++fileCount_;
 	poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(this));
@@ -91,10 +92,12 @@ namespace edm {
   }
 
   void PoolOutputModule::endLuminosityBlock(LuminosityBlockPrincipal const& lb) {
+      if (hasNewlyDroppedBranch_[InLumi]) lb.addToProcessHistory();
       poolFile_->writeLuminosityBlock(lb);
   }
 
   void PoolOutputModule::endRun(RunPrincipal const& r) {
+      if (hasNewlyDroppedBranch_[InRun]) r.addToProcessHistory();
       poolFile_->writeRun(r);
   }
 
