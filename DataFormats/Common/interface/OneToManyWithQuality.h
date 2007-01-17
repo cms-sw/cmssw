@@ -48,13 +48,15 @@ namespace edm {
       m[ ik ].push_back( std::make_pair( iv, v.second ) );
     }
     static void insert( ref_type & ref, map_type & m, const key_type & k, const val_type & v ) {
-      for( typename val_type::const_iterator i = v.begin(); i != v.end(); ++i )
+      typename val_type::const_iterator vEnd = v.end();
+      for( typename val_type::const_iterator i = v.begin(); i != vEnd; ++i )
       insert( ref, m, k, * i );
     }
     /// return values collection
     static val_type val( const ref_type & ref, const map_assoc & iv ) {
       val_type v;
-      for( typename map_assoc::const_iterator idx = iv.begin(); idx != iv.end(); ++ idx )
+      typename map_assoc::const_iterator ivEnd = iv.end();
+      for( typename map_assoc::const_iterator idx = iv.begin(); idx != ivEnd; ++idx )
 	v.push_back( std::make_pair( edm::Ref<CVal>( ref.val, idx->first ), idx->second ) );
       return v;
     }
@@ -63,7 +65,8 @@ namespace edm {
     /// sort
     static void sort( map_type & m ) { 
       //      using namespace boost::lambda;
-      for( typename map_type::iterator i = m.begin(); i != m.end(); ++ i ) {
+      typename map_type::iterator mEnd = m.end();
+      for( typename map_type::iterator i = m.begin(); i != mEnd; ++i ) {
 	map_assoc & v = i->second;
 	double std::pair<index, Q>:: * quality = & std::pair<index, Q>::second;
 	std::sort( v.begin(), v.end(),  

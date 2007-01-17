@@ -7,7 +7,7 @@
 
    \original author Stefano ARGIRO
    \current author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.7 2006/12/05 23:56:17 paterno Exp $
+   \version $Id: ProductRegistry.h,v 1.8 2006/12/18 19:15:18 wmtan Exp $
    \date 19 Jul 2005
 */
 
@@ -66,8 +66,9 @@ namespace edm {
     void callForEachBranch(const T& iFunc)  {
       //NOTE: If implementation changes from a map, need to check that iterators are still valid
       // after an insert with the new container, else need to copy the container and iterate over the copy
-      for(ProductRegistry::ProductList::const_iterator itEntry=productList_.begin();
-          itEntry!=productList_.end(); ++itEntry){
+      ProductRegistry::ProductList::const_iterator productListEnd = productList_.end();
+      for(ProductRegistry::ProductList::const_iterator itEntry = productList_.begin();
+          itEntry != productListEnd; ++itEntry){
         iFunc(itEntry->second);
       }
     }

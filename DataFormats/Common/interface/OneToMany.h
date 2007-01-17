@@ -44,13 +44,15 @@ namespace edm {
       m[ ik ].push_back( iv );
     }
     static void insert( ref_type & ref, map_type & m, const key_type & k, const val_type & v ) {
-      for( typename val_type::const_iterator i = v.begin(); i != v.end(); ++i )
+      typename val_type::const_iterator vEnd = v.end();
+      for( typename val_type::const_iterator i = v.begin(); i != vEnd; ++i )
       insert( ref, m, k, * i );
     }
     /// return values collection
     static val_type val( const ref_type & ref, const map_assoc & iv ) {
       val_type v;
-      for( typename map_assoc::const_iterator idx = iv.begin(); idx != iv.end(); ++ idx )
+      typename map_assoc::const_iterator ivEnd = iv.end();
+      for( typename map_assoc::const_iterator idx = iv.begin(); idx != ivEnd; ++idx )
 	v.push_back( edm::Ref<CVal>( ref.val, * idx ) );
       return v;
     }

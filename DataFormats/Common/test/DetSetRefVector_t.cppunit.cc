@@ -1,4 +1,4 @@
-// $Id: testDetSetRefVector.cc,v 1.11 2006/02/21 09:59:10 tboccali Exp $
+// $Id: DetSetRefVector_t.cppunit.cc,v 1.1 2006/03/30 20:46:54 chrjones Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/DetSetRefVector.h"
 
@@ -95,11 +95,12 @@ testDetSetRefVector::checkConstruction()
     CPPUNIT_ASSERT(refVector.size() == ids.size());
     
     dsv_type::const_iterator dsvItr = c.begin();
-    for( edm::DetSetRefVector<Value>::const_iterator it = refVector.begin();
-         it != refVector.end();
-         ++it,++dsvItr) {
-      CPPUNIT_ASSERT( it->id == dsvItr->id );
-      CPPUNIT_ASSERT( it->data.size() == dsvItr->data.size());
+    edm::DetSetRefVector<Value>::const_iterator refVectorEnd = refVector.end();
+    for(edm::DetSetRefVector<Value>::const_iterator it = refVector.begin();
+         it != refVectorEnd;
+         ++it, ++dsvItr) {
+      CPPUNIT_ASSERT(it->id == dsvItr->id);
+      CPPUNIT_ASSERT(it->data.size() == dsvItr->data.size());
     }
   }
 
@@ -111,12 +112,13 @@ testDetSetRefVector::checkConstruction()
     CPPUNIT_ASSERT(refVector.size() == ids.size());
     
     edm::DetSetRefVector<Value>::const_iterator itRef = refVector.begin();
-    for( std::vector<edm::det_id_type>::const_iterator itId = ids.begin();
-         itId != ids.end();
-         ++itRef,++itId) {
-      CPPUNIT_ASSERT( itRef->id == *itId);
-      CPPUNIT_ASSERT( itRef->id == c.find(*itId)->id );
-      CPPUNIT_ASSERT( itRef->data.size() == c.find(*itId)->data.size());
+    std::vector<edm::det_id_type>::const_iterator idsEnd = ids.end();
+    for(std::vector<edm::det_id_type>::const_iterator itId = ids.begin();
+         itId != idsEnd;
+         ++itRef, ++itId) {
+      CPPUNIT_ASSERT(itRef->id == *itId);
+      CPPUNIT_ASSERT(itRef->id == c.find(*itId)->id);
+      CPPUNIT_ASSERT(itRef->data.size() == c.find(*itId)->data.size());
     }
   }
 }
@@ -150,8 +152,8 @@ testDetSetRefVector::checkFind()
     
     edm::DetSetRefVector<Value> refVector(pc2, ids);
     
-    CPPUNIT_ASSERT( refVector.find(1)->id == c.find(1)->id);
-    CPPUNIT_ASSERT( refVector.find(3)->id == c.find(3)->id);
-    CPPUNIT_ASSERT( refVector.find(4) == refVector.end());
+    CPPUNIT_ASSERT(refVector.find(1)->id == c.find(1)->id);
+    CPPUNIT_ASSERT(refVector.find(3)->id == c.find(3)->id);
+    CPPUNIT_ASSERT(refVector.find(4) == refVector.end());
   }
 }

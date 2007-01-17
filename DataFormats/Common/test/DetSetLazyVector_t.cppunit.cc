@@ -1,4 +1,4 @@
-// $Id: testDetSetRefVector.cc,v 1.11 2006/02/21 09:59:10 tboccali Exp $
+// $Id: DetSetLazyVector_t.cppunit.cc,v 1.1 2006/03/30 20:46:54 chrjones Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/DetSetLazyVector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -53,7 +53,7 @@ private:
 
     TestGetter(const edm::DetSetVector<Value>& iValue) : values_(iValue) {}
     void fill(edm::DetSet<Value>& oSet) {
-      oSet.data = values_.find( oSet.id )->data;
+      oSet.data = values_.find(oSet.id)->data;
     }
     const edm::DetSetVector< Value >& values_;
   };
@@ -83,7 +83,7 @@ testDetSetLazyVector::checkConstruction()
   c.insert(d1);
   c.post_insert();
 
-  boost::shared_ptr<edm::dslv::LazyGetter<Value> > getter( new TestGetter(c) );
+  boost::shared_ptr<edm::dslv::LazyGetter<Value> > getter(new TestGetter(c));
   {
     std::vector<edm::det_id_type> ids;
     ids.push_back(1);
@@ -93,11 +93,12 @@ testDetSetLazyVector::checkConstruction()
     CPPUNIT_ASSERT(lazyVector.size() == ids.size());
     
     dsv_type::const_iterator dsvItr = c.begin();
-    for( edm::DetSetLazyVector<Value>::const_iterator it = lazyVector.begin();
-         it != lazyVector.end();
+    edm::DetSetLazyVector<Value>::const_iterator lazyVectorEnd = lazyVector.end();
+    for(edm::DetSetLazyVector<Value>::const_iterator it = lazyVector.begin();
+         it != lazyVectorEnd;
          ++it,++dsvItr) {
-      CPPUNIT_ASSERT( it->id == dsvItr->id );
-      CPPUNIT_ASSERT( it->data.size() == dsvItr->data.size());
+      CPPUNIT_ASSERT(it->id == dsvItr->id);
+      CPPUNIT_ASSERT(it->data.size() == dsvItr->data.size());
     }
   }
 
@@ -109,12 +110,13 @@ testDetSetLazyVector::checkConstruction()
     CPPUNIT_ASSERT(lazyVector.size() == ids.size());
     
     edm::DetSetLazyVector<Value>::const_iterator itRef = lazyVector.begin();
-    for( std::vector<edm::det_id_type>::const_iterator itId = ids.begin();
-         itId != ids.end();
+    std::vector<edm::det_id_type>::const_iterator idsEnd = ids.end();
+    for(std::vector<edm::det_id_type>::const_iterator itId = ids.begin();
+         itId != idsEnd;
          ++itRef,++itId) {
-      CPPUNIT_ASSERT( itRef->id == *itId);
-      CPPUNIT_ASSERT( itRef->id == c.find(*itId)->id );
-      CPPUNIT_ASSERT( itRef->data.size() == c.find(*itId)->data.size());
+      CPPUNIT_ASSERT(itRef->id == *itId);
+      CPPUNIT_ASSERT(itRef->id == c.find(*itId)->id);
+      CPPUNIT_ASSERT(itRef->data.size() == c.find(*itId)->data.size());
     }
   }
 }
@@ -139,7 +141,7 @@ testDetSetLazyVector::checkFind()
   c.insert(d1);
   c.post_insert();
   
-  boost::shared_ptr<edm::dslv::LazyGetter<Value> > getter( new TestGetter(c) );
+  boost::shared_ptr<edm::dslv::LazyGetter<Value> > getter(new TestGetter(c));
   
   {
     std::vector<edm::det_id_type> ids;
@@ -148,8 +150,8 @@ testDetSetLazyVector::checkFind()
     
     edm::DetSetLazyVector<Value> lazyVector(getter, ids);
     
-    CPPUNIT_ASSERT( lazyVector.find(1)->id == c.find(1)->id);
-    CPPUNIT_ASSERT( lazyVector.find(3)->id == c.find(3)->id);
-    CPPUNIT_ASSERT( lazyVector.find(4) == lazyVector.end());
+    CPPUNIT_ASSERT(lazyVector.find(1)->id == c.find(1)->id);
+    CPPUNIT_ASSERT(lazyVector.find(3)->id == c.find(3)->id);
+    CPPUNIT_ASSERT(lazyVector.find(4) == lazyVector.end());
   }
 }

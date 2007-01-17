@@ -16,9 +16,9 @@
  *
  * \author Tommaso Boccali, Luca Lista INFN
  *
- * \version $Revision: 1.29 $
+ * \version $Revision: 1.30 $
  *
- * $Id: RangeMap.h,v 1.29 2006/10/25 21:56:29 wmtan Exp $
+ * $Id: RangeMap.h,v 1.30 2006/10/30 23:07:52 wmtan Exp $
  *
  */
 #include <map>
@@ -159,7 +159,8 @@ namespace edm {
     void post_insert() {
       // sorts the container via ID
       C tmp;
-      for (typename mapType::iterator it = map_.begin(); it != map_.end(); it ++) {   
+      typename mapType::iterator mapEnd = map_.end();
+      for (typename mapType::iterator it = map_.begin(); it != mapEnd; it ++) {   
 	range r = get( (*it).first );
 	typename C::size_type begIt = tmp.size();
 	for( const_iterator i = r.first; i != r.second; ++i )

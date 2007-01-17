@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetRefVector.h,v 1.5 2006/10/25 21:56:29 wmtan Exp $
+$Id: DetSetRefVector.h,v 1.6 2006/10/30 23:07:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -120,8 +120,9 @@ namespace edm {
       DetSetRefVector(const THandle& iHandle, const std::vector<det_id_type>& iDets) : sets_() {
         sets_.reserve(iDets.size());
         det_id_type sanityCheck = 0;
+	std::vector<det_id_type>::const_iterator iDetsEnd = iDets.end();
         for(std::vector<det_id_type>::const_iterator itDetId = iDets.begin();
-            itDetId != iDets.end();
+            itDetId != iDetsEnd;
             ++itDetId) {
           assert( sanityCheck <= *itDetId && "vector of det_id_type was not ordered");
           sanityCheck = *itDetId;
