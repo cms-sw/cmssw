@@ -90,19 +90,19 @@ HLTMuonPreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (tk->numberOfValidHits()<min_Nhits_) continue;
 
       //dr cut
-      if (fabs(tk->dxy())>max_Dr_) continue;
+      if (fabs(tk->d0())>max_Dr_) continue;
 
       //dz cut
       if (fabs(tk->dz())>max_Dz_) continue;
 
       // Pt threshold cut
       double pt = tk->pt();
-      double errqoverp = tk->qoverpError();
-      double absqoverp = fabs(tk->qoverp());
+      double err0 = tk->error(0);
+      double abspar0 = fabs(tk->parameter(0));
       double ptLx = pt;
       // convert 50% efficiency threshold to 90% efficiency threshold
       //if (abscur>0 && errcur>0) ptLx += 3.9*errcur/abscur*pt;
-      if (absqoverp>0) ptLx += nsigma_Pt_*errqoverp/absqoverp*pt;
+      if (abspar0>0) ptLx += nsigma_Pt_*err0/abspar0*pt;
       LogDebug("HLTMuonPreFilter") << " ...Muon in loop, pt= "
             << pt << ", ptLx= " << ptLx;
       if (ptLx<min_Pt_) continue;
