@@ -18,6 +18,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchGsfElectron.h,v $
+// Revision 1.7  2007/01/04 06:35:09  wmtan
+// Geometry/Vector moved to DataFormats/GeometryVector
+//
 // Revision 1.6  2006/12/19 18:37:28  uberthon
 // add electron classification and corrections
 //
@@ -146,7 +149,9 @@ class PixelMatchGsfElectron : public LeafCandidate {
   basicCluster_iterator basicClustersBegin() const { return superCluster_->clustersBegin(); }
   basicCluster_iterator basicClustersEnd() const { return superCluster_->clustersEnd(); }
 
-
+  /// PDG identifier
+  virtual int pdgId() const { return - 11 * charge(); }
+  
  private:
 
   // temporary

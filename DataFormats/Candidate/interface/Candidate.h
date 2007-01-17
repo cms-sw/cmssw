@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.16 2006/12/07 18:06:40 llista Exp $
+ * \version $Id: Candidate.h,v 1.17 2006/12/07 18:35:49 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -59,6 +59,8 @@ namespace reco {
     /// returns reference to master clone, if existing.
     /// Throws an exception unless the concrete Candidate type is ShallowCloneCandidate
     virtual const CandidateBaseRef & masterClone() const;
+    /// PDG identifier
+    virtual int pdgId() const { return 0; }
     /// get a component
     template<typename T> T get() const { 
       if ( hasMasterClone() ) return masterClone()->get<T>();

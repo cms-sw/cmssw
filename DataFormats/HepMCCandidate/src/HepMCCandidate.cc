@@ -1,4 +1,4 @@
-// $Id: HepMCCandidate.cc,v 1.5 2006/06/20 14:53:18 llista Exp $
+// $Id: HepMCCandidate.cc,v 1.6 2006/10/29 21:03:28 llista Exp $
 #include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
 #include <CLHEP/HepMC/GenParticle.h>
 #include <CLHEP/HepMC/GenVertex.h>
@@ -34,4 +34,8 @@ bool HepMCCandidate::overlap( const Candidate & c ) const {
 
 HepMCCandidate * HepMCCandidate::clone() const {
   return new HepMCCandidate( * this );
+}
+    /// PDG code
+int HepMCCandidate::pdgId() const {
+  return genParticle_->pdg_id();
 }

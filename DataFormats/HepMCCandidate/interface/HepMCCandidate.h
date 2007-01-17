@@ -6,7 +6,7 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: HepMCCandidate.h,v 1.8 2006/11/14 08:56:42 llista Exp $
+ * \version $Id: HepMCCandidate.h,v 1.9 2006/12/11 10:12:02 llista Exp $
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
@@ -30,6 +30,8 @@ namespace reco {
     GenParticleRef genParticle() const { return genParticle_; }
     /// return a clone
     HepMCCandidate * clone() const;
+    /// PDG code
+    virtual int pdgId() const;
 
   private:
     /// checp overlap with another candidate

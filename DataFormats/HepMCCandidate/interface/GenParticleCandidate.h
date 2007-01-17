@@ -6,7 +6,7 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidate.h,v 1.11 2006/12/11 10:12:02 llista Exp $
+ * \version $Id: GenParticleCandidate.h,v 1.12 2007/01/15 12:33:58 llista Exp $
  */
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 
@@ -30,7 +30,7 @@ namespace reco {
     /// return a clone
     GenParticleCandidate * clone() const;
     /// PDG code
-    int pdgId() const { return pdgId_; }
+    virtual int pdgId() const { return pdgId_; }
     /// status code
     int status() const { return status_; }
     /// get candidate mother
@@ -65,8 +65,10 @@ namespace reco {
   /// get status code component
   GET_CANDIDATE_COMPONENT( GenParticleCandidate, int, status, StatusTag );
 
+  /// left for backward compatibility. Can now be replaced by
+  /// an equivalent member function
   inline int pdgId( const Candidate & c ) {
-    return c.get<int, PdgIdTag>();
+    return c.pdgId();
   }
 
   inline int status( const Candidate & c ) {
