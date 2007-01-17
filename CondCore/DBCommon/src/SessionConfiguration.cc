@@ -5,6 +5,7 @@ void cond::SessionConfiguration::setAuthenticationMethod( cond::AuthenticationMe
   m_authMethod=m;
 }
 void cond::SessionConfiguration::setBlobStreamer( const std::string& name ){
+  m_hasBlobstreamer=true;
   m_blobstreamerName=name;
 }
 void cond::SessionConfiguration::setMessageLevel( cond::MessageLevel l ){

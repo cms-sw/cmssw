@@ -29,6 +29,9 @@ void cond::DBSession::open(){
   if(  m_sessionConfig->hasStandaloneRelationalService() ){
     m_loader->loadRelationalService();
   }
+  if( m_sessionConfig->hasBlobStreamService() ){
+    m_loader->loadBlobStreamingService( m_sessionConfig->blobStreamerName() );
+  }
   m_isActive=true;
 }
 void cond::DBSession::close(){
