@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/12/15 08:03:24 $
- * $Revision: 1.59 $
+ * $Date: 2006/12/15 09:44:50 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -286,7 +286,7 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
     }
   } else {
     try {
-      EcalErrorMaskFile::fetchData(&mask);
+      EcalErrorMaskFile::fetchDataSet(&mask);
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     } 
