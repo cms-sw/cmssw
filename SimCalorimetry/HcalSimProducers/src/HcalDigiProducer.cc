@@ -17,7 +17,7 @@ using namespace std;
 
 
 HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps) 
-: theParameterMap(new HcalSimParameterMap()),
+: theParameterMap(new HcalSimParameterMap(ps)),
   theHcalShape(new HcalShape()),
   theHFShape(new HFShape()),
   theHcalIntegratedShape(new CaloShapeIntegrator(theHcalShape)),
