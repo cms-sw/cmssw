@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.27 2006/12/19 00:28:56 wmtan Exp $
+$Id: OutputModule.cc,v 1.28 2007/01/05 18:51:12 wdd Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -134,6 +134,7 @@ namespace edm
     nextID_(),
     descVec_(),
     droppedVec_(),
+    hasNewlyDroppedBranch_(),
     process_name_(),
     groupSelector_(pset),
     //eventSelectors_(),
@@ -145,6 +146,8 @@ namespace edm
     wantAllEvents_(false),
     selectors_()
   {
+    hasNewlyDroppedBranch_.assign(false);
+
     edm::Service<edm::service::TriggerNamesService> tns;
     process_name_ = tns->getProcessName();
 
@@ -206,7 +209,6 @@ namespace edm
       } else if(desc.transient()) {
 	// else if the class of the branch is marked transient, drop the product branch
 	droppedVec_[desc.branchType()].push_back(&desc);
-	continue;
       } else if(!desc.present() & !desc.produced()) {
 	// else if the branch containing the product has been previously dropped,
 	// and the product has not been produced again, drop the product branch again.
@@ -217,6 +219,8 @@ namespace edm
       } else {
 	// otherwise, drop the product branch.
 	droppedVec_[desc.branchType()].push_back(&desc);
+	// mark the fact that there is a newly dropped branch of this type.
+	hasNewlyDroppedBranch_[desc.branchType()] = true;
       }
     }
   }
