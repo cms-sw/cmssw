@@ -15,4 +15,4 @@
 <use name=TrackingTools/Records>
 <use name=MagneticField/Engine>
 
-<flags SEAL_PLUGIN_NAME="TrackingToolsGeomPropagators">
+
