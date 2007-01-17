@@ -70,7 +70,6 @@ namespace {
     reco::CombinedBTagTrack ct4;
     reco::CombinedBTagVertex cv4;
     reco::MinMeanMax mmm4;
-    Measurement1D m4;
     // std::vector < reco::TrackRef > vrtr4;
     // edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>,reco::CombinedBTagTrack,unsigned short> > mp4;
     edm::Wrapper<reco::CombinedBTagInfoCollection> w4;

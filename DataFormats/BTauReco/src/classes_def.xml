@@ -55,7 +55,6 @@
   <class name="reco::CombinedBTagTrack" />
   <class name="reco::CombinedBTagVertex" />
   <class name="reco::MinMeanMax" />
-  <class name="Measurement1D" />
 
   <class name="std::vector<reco::CombinedBTagInfo>" />
   <class name="edm::Wrapper<std::vector<reco::CombinedBTagInfo> >" />
