@@ -2,7 +2,7 @@
 #define BTauReco_CombinedBTagTrack_h
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
 namespace reco {
   class CombinedBTagTrack {

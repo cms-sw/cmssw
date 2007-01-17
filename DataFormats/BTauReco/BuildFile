@@ -1,25 +1,23 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/EgammaReco>
+<use name=DataFormats/GeometryCommonDetAlgo>
 <use name=DataFormats/GeometryVector>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/Math>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
-<use name=Geometry/CommonDetAlgo>
 <use name=rootmath>
 <use name=rootrflx>
-<use name=boost>
 <export>
   <use name=DataFormats/Common>
   <use name=DataFormats/EgammaReco>
+  <use name=DataFormats/GeometryCommonDetAlgo>
   <use name=DataFormats/GeometryVector>
   <use name=DataFormats/JetReco>
   <use name=DataFormats/Math>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/VertexReco>
-  <use name=Geometry/CommonDetAlgo>
   <use name=rootmath>
-  <use name=boost>
   <lib name=DataFormatsBTauReco>
 </export>
 
