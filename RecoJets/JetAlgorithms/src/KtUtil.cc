@@ -5,7 +5,7 @@
 #include "CLHEP/Vector/LorentzVector.h"
 #include <cmath>
 
-namespace KtJet {
+namespace CmsKtJet {
   /** Put phi in range [-pi,+pi]. No such function in CLHEP 1.7. (But is in 1.8.)
    */
 KtFloat phiAngle(KtFloat testphi) {

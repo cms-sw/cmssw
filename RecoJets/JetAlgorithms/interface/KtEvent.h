@@ -27,7 +27,7 @@
 #endif
 
 
-namespace KtJet {
+namespace CmsKtJet {
 
 class KtLorentzVector;
 

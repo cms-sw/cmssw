@@ -7,7 +7,7 @@
 #endif
 #include "RecoJets/JetAlgorithms/interface/KtUtil.h"
 
-namespace KtJet {
+namespace CmsKtJet {
 /**
  \class KtDistance  
  \brief Interface class to calculate Kt for jets and pairs.  

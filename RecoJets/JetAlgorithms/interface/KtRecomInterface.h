@@ -9,7 +9,7 @@
 
 class HepLorentzVectror;
 
-namespace KtJet {
+namespace CmsKtJet {
   class KtLorentzVector;
 /**
  *  Interface class to combine 4-momenta

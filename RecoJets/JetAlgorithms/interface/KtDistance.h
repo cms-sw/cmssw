@@ -26,7 +26,7 @@
 #include "RecoJets/JetAlgorithms/interface/KtUtil.h"
 #include "RecoJets/JetAlgorithms/interface/KtLorentzVector.h"
 
-namespace KtJet {
+namespace CmsKtJet {
 /**
  *  Function object to calculate Kt for jets and pairs.  
  

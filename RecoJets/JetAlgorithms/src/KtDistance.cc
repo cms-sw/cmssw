@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
-namespace KtJet {
+namespace CmsKtJet {
 
 
 KtDistance* getDistanceScheme(int angle, int collision_type) {

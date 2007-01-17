@@ -25,7 +25,7 @@
 
 #include "RecoJets/JetAlgorithms/interface/KtUtil.h"
 
-namespace KtJet {
+namespace CmsKtJet {
 /**
  \class KtLorentzVector
  \brief

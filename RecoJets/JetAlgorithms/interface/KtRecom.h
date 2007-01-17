@@ -23,7 +23,7 @@
 #include "RecoJets/JetAlgorithms/interface/KtLorentzVector.h"
 #include "RecoJets/JetAlgorithms/interface/KtRecomInterface.h"
 
-namespace KtJet {
+namespace CmsKtJet {
 /**
  *  Function object to combine 4-momenta
  

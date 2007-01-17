@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace KtJet {
+namespace CmsKtJet {
 
 /** Constructor for inclusive method */
 KtEvent::KtEvent(const std::vector<KtLorentzVector> & constituents,

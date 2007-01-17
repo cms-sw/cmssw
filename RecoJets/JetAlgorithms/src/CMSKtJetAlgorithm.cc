@@ -81,12 +81,12 @@ void CMSKtJetAlgorithm::run (const InputCollection& fInput, OutputCollection* fO
     std::cout << "CMSKtJetAlgorithm::run-> " << fInput.size () << "input towers" << std::endl;
   }
   std::vector<int> indexMap;
-  std::vector<KtJet::KtLorentzVector> ktInput;
+  std::vector<CmsKtJet::KtLorentzVector> ktInput;
   int index = 0;
   for (; index < (int)fInput.size (); index++) {
     InputItem constituent = fInput [index];
     if (constituent->energy() >= theKtJetECut) {
-      ktInput.push_back (KtJet::KtLorentzVector (constituent->px (), constituent->py (), 
+      ktInput.push_back (CmsKtJet::KtLorentzVector (constituent->px (), constituent->py (), 
 						 constituent->pz (), constituent->energy ()));
       indexMap.push_back (index);
       if (DEBUG_OUT >= 2) {
@@ -105,19 +105,19 @@ void CMSKtJetAlgorithm::run (const InputCollection& fInput, OutputCollection* fO
   if( ktInput.size() == 0 ) return;
   
   // construct the KtEvent object
-  KtJet::KtEvent ev(ktInput,theKtJetType,theKtJetAngle,theKtJetRecom,theKtJetRParameter);
+  CmsKtJet::KtEvent ev(ktInput,theKtJetType,theKtJetAngle,theKtJetRecom,theKtJetRParameter);
   
   // retrieve the final state jets as an array of KtLorentzVectors from KtEvent sorted by Et
-  std::vector<KtJet::KtLorentzVector> jets = ev.getJetsEt();
+  std::vector<CmsKtJet::KtLorentzVector> jets = ev.getJetsEt();
   
   // fill jets into the result JetCollection
   //For each jet, get the list the list of input constituents the jet consists of:
-  for(std::vector<KtJet::KtLorentzVector>::const_iterator itr = jets.begin(); 
+  for(std::vector<CmsKtJet::KtLorentzVector>::const_iterator itr = jets.begin(); 
                                                           itr != jets.end(); 
 							  ++itr){	
     //For each of the jets get its final constituents:
     std::vector<InputItem> protoJetConstituents;
-    const std::vector<const KtJet::KtLorentzVector*>* constituents = &(itr->getConstituents());
+    const std::vector<const CmsKtJet::KtLorentzVector*>* constituents = &(itr->getConstituents());
     //Loop over all input constituents and try to find them as jet final constituents
     int constit = constituents->size ();
     while (--constit > 0) {

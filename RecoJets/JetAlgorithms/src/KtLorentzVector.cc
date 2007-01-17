@@ -3,7 +3,7 @@
 #include "RecoJets/JetAlgorithms/interface/KtRecomInterface.h"
 #include <iostream>
 #include <climits>
-namespace KtJet {
+namespace CmsKtJet {
 unsigned int KtLorentzVector::m_num = 0;
 
 /*************************************************

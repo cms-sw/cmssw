@@ -3,7 +3,7 @@
 #include "RecoJets/JetAlgorithms/interface/KtRecomInterface.h"
 #include <string>
 
-namespace KtJet {
+namespace CmsKtJet {
 
 KtRecom* getRecomScheme(int recom) {
   if (recom == 1)   return new KtRecomE();

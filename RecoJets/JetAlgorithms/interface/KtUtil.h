@@ -14,7 +14,7 @@
 #define CLHEP_LORENTZVECTOR_H
 #endif
 
-namespace KtJet{
+namespace CmsKtJet{
 
   // always double precision is used (A.Heister 10.07.2003)
   //

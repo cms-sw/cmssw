@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <iostream>
 
-namespace KtJet{
+namespace CmsKtJet{
 
 KtJetTable::KtJetTable(const std::vector<KtLorentzVector> & p, KtDistance *ktdist, KtRecom *recom)
   : m_fKtDist(ktdist), m_ktRecom(recom) {
