@@ -14,6 +14,7 @@
 
 
 \section desc Package which contains EventContent standard definitions
+Package which contains .cff files defining event content for the different data tiers as defined in the TDR.
 
 \subsection files Files
 
@@ -45,12 +46,12 @@
 \endhtmlonly     
 
 \subsection seq Available Blocks
-- \b FEVT:
-- \b RECO:
-- \b AOD :
-- \b FEVTSIM:
-- \b RECOSIM:
-- \b AODSIM :
+- \b FEVT: Full event as defined in the TDR; all reconstruction information are present (but simulation is stripped or, in case of real data, was never present). Some redundant data can be stripped out. RAW data is present, at least partially. No information is lost and reprocessing is possible from this level.
+- \b RECO: A subset of FEVT with much lower space occupancy. It contains enough information to allow selected studies (please see the TDR), which cover a large fraction of the expected use cases. Very low level data is generally missing, unless irrelevant size-wise.
+- \b AOD : An even more stripped subset of FEVT, and a subystem of RECO. Allows selected analysis-like use patterns, but not complete re-reconstruction of the event.
+- \b FEVTSIM: All which is included in FEVT, plus selected Simulation information. This last is enough to rerun reconstruction and reassociate the products.
+- \b RECOSIM: All which is included in RECO, plus selected Simulation information. The subset is enough to correctly associate the reco products with MC truth.
+- \b AODSIM : All which is included in AOD, plus selected Simulation information. The subset is enough to correctly associate the reco products with MC truth.
 
 
 <hr>
