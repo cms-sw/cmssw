@@ -71,6 +71,7 @@ bool FUShmReader::fillRawData(EventID& eID,
     FUShmBufferCell* oldCell=shmBuffer_->cell(fuResourceId_);
     assert(oldCell->isRead());
     oldCell->setStateProcessed();
+    shmBuffer_->scheduleForDiscard(oldCell->buResourceId());
     shmBuffer_->postWriterSem();
   }
 
