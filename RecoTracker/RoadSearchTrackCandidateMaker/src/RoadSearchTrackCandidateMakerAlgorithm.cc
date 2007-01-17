@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: noeding $
-// $Date: 2007/01/10 19:07:42 $
-// $Revision: 1.23 $
+// $Date: 2007/01/10 21:27:25 $
+// $Revision: 1.24 $
 //
 
 #include <vector>
@@ -20,6 +20,7 @@
 
 #include "RecoTracker/RoadSearchTrackCandidateMaker/interface/RoadSearchTrackCandidateMakerAlgorithm.h"
 #include "RecoTracker/RoadSearchTrackCandidateMaker/interface/RoadSearchTrackCandidateMaker.h"
+#include "RecoTracker/RoadSearchTrackCandidateMaker/interface/RoadSearchPairLess.h"
 
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloud.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
@@ -526,7 +527,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 			   << " at r/z=" <<  det->surface().position().perp() 
 			   << "  " <<  det->surface().position().z() 
 			   << ", hit " << ihit-hits.begin()
-			   << "local prediction " << predTsos.localPosition().x() 
+			   << " local prediction " << predTsos.localPosition().x() 
 			   << " +- " << sqrt(predTsos.localError().positionError().xx()) 
 			   << ", hit at " << rhit->localPosition().x() << " +- " << sqrt(rhit->localPositionError().xx())
 			   << std::endl;
@@ -809,10 +810,13 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 			   << ")  in layer " << ilr->second <<std::endl;
 		
 		const TrajectoryStateOnSurface theTSOS = newTrajectory.lastMeasurement().updatedState();
-		std::vector<TrajectoryMeasurement> theGoodHits = FindBestHit(theTSOS,dets,skipped_hits);
-		if (!theGoodHits.empty())
-		  newTrajectory.push(theGoodHits.front(),theGoodHits.front().estimate());
-
+		std::vector<TrajectoryMeasurement> theGoodHits = FindBestHits(theTSOS,dets,skipped_hits);
+		if (!theGoodHits.empty()){
+		  if (debug_) std::cout<<"Found " << theGoodHits.size() << " good hits to add" << std::endl;
+		  for (std::vector<TrajectoryMeasurement>::const_iterator im=theGoodHits.begin();im!=theGoodHits.end();++im){
+		    newTrajectory.push(*im,im->estimate());
+		  }
+		}
 
 	      ++imap;
 	    }
@@ -996,7 +1000,7 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHitsByDet(const TrajectoryStateO
       }
     }
   }
-  //std::cout<< "hits to add: " << dtmmap.size() <<std::endl;
+  //std::cout<< "Hits(Dets) to add: " << dtmmap.size() <<std::endl;
   if (!dtmmap.empty()) {
     for (map<const GeomDet*, TrajectoryMeasurement>::iterator idtm = dtmmap.begin();
 	 idtm != dtmmap.end(); ++idtm) {
@@ -1021,7 +1025,6 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHit(const TrajectoryStateOnSurfa
 
   std::vector<TrajectoryMeasurement> theBestHits;
 
-  bool found_one = false;
   double bestchi = 10000.0;
   // extrapolate to all detectors from the list
   map<const GeomDet*, TrajectoryStateOnSurface> dmmap;
@@ -1052,7 +1055,6 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHit(const TrajectoryStateOnSurfa
     // Take the best hit on any Det
     if (est.first) {
       TrajectoryStateOnSurface currTsos = theUpdator->update(predTsos, *rhit);
-      found_one = true;
       if (est.second < bestchi){
 	if(!theBestHits.empty()){
 	  theBestHits.erase(theBestHits.begin());
@@ -1078,3 +1080,229 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHit(const TrajectoryStateOnSurfa
   
   return theBestHits;
 }
+
+std::vector<TrajectoryMeasurement>
+RoadSearchTrackCandidateMakerAlgorithm::FindBestHits(const TrajectoryStateOnSurface& tsosBefore,
+						     const std::set<const GeomDet*>& theDets,
+						     edm::OwnVector<TrackingRecHit>& theHits)
+//			 edm::OwnVector<TrackingRecHit> *theBestHits)
+{
+
+  std::vector<TrajectoryMeasurement> theBestHits;
+  //TrajectoryMeasurement* theBestTM = 0;
+  TrajectoryMeasurement theBestTM;
+  bool firstTM = true;
+
+  // extrapolate to all detectors from the list
+  map<const GeomDet*, TrajectoryStateOnSurface> dmmap;
+  for (set<const GeomDet*>::iterator idet = theDets.begin();
+       idet != theDets.end(); ++idet) {
+    TrajectoryStateOnSurface predTsos = thePropagator->propagate(tsosBefore, (**idet).surface());
+    if (predTsos.isValid()) {
+      dmmap.insert(make_pair(*idet, predTsos));
+    }
+  }
+  // evaluate hit residuals
+  map<const GeomDet*, TrajectoryMeasurement> dtmmap;
+  for (edm::OwnVector<TrackingRecHit>::const_iterator ih = theHits.begin();
+       ih != theHits.end(); ++ih) {
+    const GeomDet* det = geom->idToDet(ih->geographicalId());
+    //if (*isl != theMeasurementTracker->geometricSearchTracker()->detLayer(ih->geographicalId())) 
+    //  cout <<" You don't know what you're doing !!!!" << endl;
+    
+    map<const GeomDet*, TrajectoryStateOnSurface>::iterator idm = dmmap.find(det);
+    if (idm == dmmap.end()) continue;
+    TrajectoryStateOnSurface predTsos = idm->second;
+    TransientTrackingRecHit::RecHitPointer rhit = ttrhBuilder->build(&(*ih));
+    MeasurementEstimator::HitReturnType est = theEstimator->estimate(predTsos, *rhit);
+    if (debug_) std::cout<< "hit " << ih-theHits.begin() 
+    	     << ": est = " << est.first << " " << est.second  <<std::endl;
+    
+    
+    // Take the best hit on a given Det
+    if (est.first) {
+      TrajectoryMeasurement tm;
+      TrajectoryStateOnSurface currTsos = theUpdator->update(predTsos, *rhit);
+      map<const GeomDet*, TrajectoryMeasurement>::iterator idtm = dtmmap.find(det);
+      if (idtm == dtmmap.end()) {
+	tm = TrajectoryMeasurement (predTsos, currTsos, &(*rhit),est.second,
+				   theMeasurementTracker->geometricSearchTracker()->detLayer(ih->geographicalId()));
+	dtmmap.insert(make_pair(det, tm));
+      } else if (idtm->second.estimate() > est.second) {
+	dtmmap.erase(idtm);
+	tm = TrajectoryMeasurement(predTsos, currTsos, &(*rhit),est.second,
+				   theMeasurementTracker->geometricSearchTracker()->detLayer(ih->geographicalId()));
+	dtmmap.insert(make_pair(det, tm));
+      }
+      if ((firstTM)){
+	theBestTM = tm;	
+	if (debug_) std::cout <<"Initialize best to " << theBestTM.estimate() << std::endl;
+	firstTM = false;
+      }
+      else if (!firstTM) {
+	if (debug_) std::cout << "Current best is " << theBestTM.estimate() << " while this hit is " << est.second;
+	if (est.second < theBestTM.estimate()) {
+	  if (debug_) std::cout << " so replace it " ;
+	  theBestTM = tm;
+	}
+	if (debug_) std::cout << std::endl;
+      }
+    }
+  }
+  if (debug_) std::cout<< "Hits(Dets) to add: " << dtmmap.size() <<std::endl;
+  if (!dtmmap.empty()) {
+
+    std::vector<std::pair<TransientTrackingRecHit::ConstRecHitPointer, TrajectoryMeasurement*> > OverlapHits;
+    for (map<const GeomDet*, TrajectoryMeasurement>::iterator idtm = dtmmap.begin();
+	 idtm != dtmmap.end(); ++idtm) {
+      OverlapHits.push_back(make_pair(idtm->second.recHit(),&idtm->second));
+
+	if (debug_) std::cout<<" Measurement on layer "
+			     << theMeasurementTracker->geometricSearchTracker()->detLayer(idtm->second.recHit()->geographicalId())
+			     << " with estimate " << idtm->second.estimate()<<std::endl ;
+    }
+    if (debug_)
+	std::cout<<" Best  Measurement is on layer "
+		 << theMeasurementTracker->geometricSearchTracker()->detLayer(theBestTM.recHit()->geographicalId())
+		 << " with estimate " << theBestTM.estimate()<<std::endl ;
+    
+
+    if (dtmmap.size()==0) {
+      std::cout << "ERROR: Unexpected size from DTMMAP = " << dtmmap.size() << std::endl;
+      return theBestHits;
+    }
+    if (dtmmap.size()==1){  // only one hit so we can just return that one
+      for (map<const GeomDet*, TrajectoryMeasurement>::iterator idtm = dtmmap.begin();
+	   idtm != dtmmap.end(); ++idtm) {
+	TrajectoryMeasurement itm = idtm->second;
+	if (debug_) std::cout<<" Measurement on layer "
+			     << theMeasurementTracker->geometricSearchTracker()->detLayer(itm.recHit()->geographicalId())
+			     << " with estimate " << itm.estimate()<<std::endl ;
+	//theBestHits.push_back(itm.recHit()->hit()->clone());
+	theBestHits.push_back(itm);
+      }
+    }
+    else if (dtmmap.size()>=2) { // try for the overlaps -- first have to sort inside out
+
+      if (debug_) std::cout<<"Unsorted OverlapHits has size " <<OverlapHits.size() << std::endl;
+      
+      for (std::vector<std::pair<TransientTrackingRecHit::ConstRecHitPointer,TrajectoryMeasurement*> >::iterator irh =OverlapHits.begin();
+	   irh!=OverlapHits.end();++irh){
+	if (debug_) std::cout << "Hit " << irh-OverlapHits.begin()
+			      << " on det " << irh->first->det() 
+			      << " detLayer " 
+			      << theMeasurementTracker->geometricSearchTracker()->detLayer(irh->first->geographicalId())
+			      << ", r/phi/z = "
+			      << irh->first->globalPosition().perp() << " "
+			      << irh->first->globalPosition().phi() << " "
+			      << irh->first->globalPosition().z()
+			      << std::endl;
+      }
+      
+      std::sort( OverlapHits.begin(),OverlapHits.end(),RoadSearchPairLess());
+    if (debug_) std::cout<<"Sorted OverlapHits has size " <<OverlapHits.size() << std::endl;
+    
+    for (std::vector<std::pair<TransientTrackingRecHit::ConstRecHitPointer,TrajectoryMeasurement*> >::iterator irh =OverlapHits.begin();
+	 irh!=OverlapHits.end();++irh){
+      if (debug_) std::cout << "Hit " << irh-OverlapHits.begin()
+			    << " on det " << irh->first->det() 
+			    << " detLayer " 
+			    << theMeasurementTracker->geometricSearchTracker()->detLayer(irh->first->geographicalId())
+			    << ", r/phi/z = "
+			    << irh->first->globalPosition().perp() << " "
+			    << irh->first->globalPosition().phi() << " "
+			    << irh->first->globalPosition().z()
+			    << std::endl;
+    }
+      float workingBestChi2 = 1000000.0;
+      std::vector<TrajectoryMeasurement> workingBestHits;
+
+      std::vector<std::pair<TransientTrackingRecHit::ConstRecHitPointer,TrajectoryMeasurement*> >::iterator irh1;
+      std::vector<std::pair<TransientTrackingRecHit::ConstRecHitPointer,TrajectoryMeasurement*> >::iterator irh2;
+      for (irh1 =OverlapHits.begin(); irh1!=--OverlapHits.end(); ++irh1){
+	theBestHits.clear();
+	float running_chi2=0;
+	if (debug_) std::cout << "Hit " << irh1-OverlapHits.begin()
+			      << " on det " << irh1->first->det() 
+			      << " detLayer " 
+			      << theMeasurementTracker->geometricSearchTracker()->detLayer(irh1->first->geographicalId())
+			      << ", r/phi/z = "
+
+			      << irh1->first->globalPosition().perp() << " "
+			      << irh1->first->globalPosition().phi() << " "
+			      << irh1->first->globalPosition().z()
+			      << std::endl;
+
+	TrajectoryStateOnSurface currTsos = irh1->second->updatedState();
+	TransientTrackingRecHit::ConstRecHitPointer rhit = irh1->first;
+	theBestHits.push_back(*(irh1->second));
+	if (debug_)  std::cout<<"Added first hit with chi2 = " << irh1->second->estimate() << std::endl;
+	running_chi2 += irh1->second->estimate();
+	for (irh2 = irh1; irh2!=OverlapHits.end(); ++irh2){
+	  if (irh2 == irh1) continue;
+	  TransientTrackingRecHit::ConstRecHitPointer rh = irh2->first;
+	  const GeomDet* det = irh2->first->det();
+	  // extrapolate the trajectory to the next hit
+	  TrajectoryStateOnSurface predTsos = thePropagator->propagate(currTsos, det->surface());
+	  // test if matches
+	  if (predTsos.isValid()){
+	    MeasurementEstimator::HitReturnType est = theEstimator->estimate(predTsos, *rh);
+	    if (debug_)  std::cout<<"Added overlap hit with est = " << est.first << "   " << est.second << std::endl;
+	    if (est.first){
+	      TrajectoryMeasurement tm(predTsos, currTsos, &(*rh),est.second,
+				       theMeasurementTracker->geometricSearchTracker()->detLayer(rh->geographicalId()));
+	      theBestHits.push_back(tm);
+	      running_chi2 += est.second ;
+	    }
+	    else { // couldn't add 2nd hit so return best single hit
+	    }
+	  }
+	  
+	}
+	if (theBestHits.size()==dtmmap.size()){ // added the best hit in every layer
+	  if (debug_) std::cout<<"Added all "<<theBestHits.size()<<" hits out of " << dtmmap.size() << std::endl;
+	  break;
+	}
+	// Didn't add hits from every Det
+	if (theBestHits.size() < dtmmap.size()){
+	  if (debug_) std::cout<<"Added only "<<theBestHits.size()<<" hits out of " << dtmmap.size() << std::endl;
+	  // Take the combination with the most hits
+	  if (theBestHits.size() > workingBestHits.size()){
+	  if (debug_) std::cout<<"Current combo has more hits so replace best" << std::endl;
+	    workingBestHits = theBestHits;
+	  }
+	  // has same number of hits as best, so check chi2
+	  else if (theBestHits.size() == workingBestHits.size()){ 
+	    if (running_chi2< workingBestChi2){
+	      if (debug_) std::cout<<"Current combo has same # of hits but lower chi2 so replace best" << std::endl;
+	      workingBestHits = theBestHits;
+	      workingBestChi2 = running_chi2;
+	    }
+	  }
+	}
+      }
+      if (theBestHits.size()<2){
+	if (debug_) std::cout<<"Only one good hit in overlap"<<std::endl;
+	if (debug_) std::cout<<" Added hit on layer on det " 
+			     << theBestTM.recHit()->det() 
+			     << " detLayer " 
+			     << theMeasurementTracker->geometricSearchTracker()->detLayer(theBestTM.recHit()->geographicalId())
+			     << ", r/phi/z = "
+			     << theBestTM.recHit()->globalPosition().perp() << " "
+			     << theBestTM.recHit()->globalPosition().phi() << " "
+			     << theBestTM.recHit()->globalPosition().z()
+			     << " with estimate " << theBestTM.estimate()<<std::endl ;
+	theBestHits.clear();
+	theBestHits.push_back(theBestTM);
+      }
+
+    }
+    else {
+      std::cout << "ERROR: Unexpected size from DTMMAP = " << dtmmap.size() << std::endl;
+      theBestHits.push_back(theBestTM);
+    }
+  }
+  
+  return theBestHits;
+}
+

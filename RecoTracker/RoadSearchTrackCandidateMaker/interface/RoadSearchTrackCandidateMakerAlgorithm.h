@@ -12,9 +12,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/11/08 14:25:50 $
-// $Revision: 1.4 $
+// $Author: noeding $
+// $Date: 2007/01/10 19:09:08 $
+// $Revision: 1.5 $
 //
 
 #include <string>
@@ -34,6 +34,8 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+
+#include "RecoTracker/RoadSearchTrackCandidateMaker/interface/RoadSearchPairLess.h"
 
 class TrajectoryStateUpdator;
 class MeasurementEstimator;
@@ -63,6 +65,12 @@ class RoadSearchTrackCandidateMakerAlgorithm
   std::vector<TrajectoryMeasurement>  FindBestHit(const TrajectoryStateOnSurface& tsosBefore,
 				     const std::set<const GeomDet*>& theDets,
 				     edm::OwnVector<TrackingRecHit>& theHits);
+
+
+  std::vector<TrajectoryMeasurement>  FindBestHits(const TrajectoryStateOnSurface& tsosBefore,
+                                     const std::set<const GeomDet*>& theDets,
+                                     edm::OwnVector<TrackingRecHit>& theHits);
+
 
 
  private:
