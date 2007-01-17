@@ -28,11 +28,13 @@
 
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 
-#include "OnlineDB/EcalCondDB/interface/MonCrystalStatusDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h>
+
+#include <CondTools/Ecal/interface/EcalErrorDictionary.h>
 
 EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps){
 
@@ -275,17 +277,21 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
   MonPedestalsOnlineDat p;
   map<EcalLogicID, MonPedestalsOnlineDat> dataset;
 
-  map<EcalLogicID, MonCrystalStatusDat> mask;
+  map<EcalLogicID, RunCrystalErrorsDat> mask;
 
   if ( econn ) {
     try {
-      econn->fetchDataSet(&mask, moniov);
-      // econn->fetchValidData(&mask, runiov.getRunTag(), runiov.getRunNumber());
+      RunIOV validIOV;
+      RunTag runtag = runiov->getRunTag();
+      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
+      econn->fetchValidDataSet(&mask, &validIOV, &runtag, runiov->getRunNumber());
+      cout << "Attached to run: " << validIOV.getRunNumber() << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   } else {
     try {
+      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
       EcalErrorMaskFile::fetchDataSet(&mask);
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -298,6 +304,12 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
   float num03;
   float mean03;
   float rms03;
+
+  uint64_t bits = 0;
+  bits |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_MEAN_AMPLITUDE_TOO_LOW");
+  bits |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_MEAN_AMPLITUDE_TOO_HIGH");
+  bits |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_RMS_AMPLITUDE_TOO_LOW");
+  bits |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_RMS_AMPLITUDE_TOO_HIGH");
 
   for ( int ie = 1; ie <= 85; ie++ ) {
     for ( int ip = 1; ip <= 20; ip++ ) {
@@ -349,12 +361,9 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
             dataset[ecid] = p;
 
             if ( mask.size() != 0 ) {
-              map<EcalLogicID, MonCrystalStatusDat>::const_iterator m = mask.find(ecid);
+              map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask.find(ecid);
               if ( m != mask.end() ) {
-                if ( (m->second).getStatusG12().getShortDesc() == "PEDESTAL_MEAN_AMPLITUDE_TOO_HIGH" ||
-                     (m->second).getStatusG12().getShortDesc() == "PEDESTAL_MEAN_AMPLITUDE_TOO_LOW" ||
-                     (m->second).getStatusG12().getShortDesc() == "PEDESTAL_RMS_AMPLITUDE_TOO_HIGH" ||
-                     (m->second).getStatusG12().getShortDesc() == "PEDESTAL_RMS_AMPLITUDE_TOO_LOW" ) {
+                if ( (m->second).getErrorBits() & bits ) {
                   if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
                   val = true;
                 }
@@ -369,12 +378,9 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
           ecid = EcalLogicID("local", 10000*(ism-1) + ic);
 
           if ( mask.size() != 0 ) {
-            map<EcalLogicID, MonCrystalStatusDat>::const_iterator m = mask.find(ecid);
+            map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask.find(ecid);
             if ( m != mask.end() ) {
-              if ( (m->second).getStatusG12().getShortDesc() == "PEDESTAL_MEAN_AMPLITUDE_TOO_HIGH" ||
-                   (m->second).getStatusG12().getShortDesc() == "PEDESTAL_MEAN_AMPLITUDE_TOO_LOW" ||
-                   (m->second).getStatusG12().getShortDesc() == "PEDESTAL_RMS_AMPLITUDE_TOO_HIGH" ||
-                   (m->second).getStatusG12().getShortDesc() == "PEDESTAL_RMS_AMPLITUDE_TOO_LOW" ) {
+              if ( (m->second).getErrorBits() & bits ) {
                 if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
                 val = true;
               }
