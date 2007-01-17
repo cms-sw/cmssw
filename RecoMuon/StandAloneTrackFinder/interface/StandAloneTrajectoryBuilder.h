@@ -4,8 +4,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/11/06 17:50:17 $
- *  $Revision: 1.19 $
+ *  $Date: 2007/01/04 00:42:29 $
+ *  $Revision: 1.20 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -51,7 +51,7 @@ class StandAloneMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
   StandAloneMuonSmoother* smoother() const {return theSmoother;}
 
   /// Pass the Event to the algo at each event
-  virtual void setEvent(edm::Event& event);
+  virtual void setEvent(const edm::Event& event);
   
  protected:
 

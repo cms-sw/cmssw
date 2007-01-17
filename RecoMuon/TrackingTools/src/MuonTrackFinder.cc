@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/11/23 02:29:10 $
- *  $Revision: 1.29 $
+ *  $Date: 2007/01/04 00:36:15 $
+ *  $Revision: 1.30 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -49,7 +49,7 @@ MuonTrackFinder::~MuonTrackFinder() {
 }
 
 // percolate the event setup
-void MuonTrackFinder::setEvent(Event& event) {
+void MuonTrackFinder::setEvent(const Event& event) {
   theTrajBuilder->setEvent(event);
 }
 
