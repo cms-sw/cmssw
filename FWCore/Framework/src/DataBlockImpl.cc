@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: DataBlockImpl.cc,v 1.7 2007/01/11 23:39:20 paterno Exp $
+  $Id: DataBlockImpl.cc,v 1.8 2007/01/12 23:17:58 wmtan Exp $
   ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -117,7 +117,7 @@ namespace edm {
   }
 
   void
-  DataBlockImpl::addToProcessHistory() {
+  DataBlockImpl::addToProcessHistory() const {
     if (processHistoryModified_) return;
     ProcessHistory& ph = *processHistoryPtr_;
     std::string const& processName = processConfiguration_.processName();

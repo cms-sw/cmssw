@@ -14,7 +14,7 @@ through shared pointers.
 The DataBlockImpl returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: DataBlockImpl.h,v 1.9 2007/01/12 18:02:55 wmtan Exp $
+$Id: DataBlockImpl.h,v 1.10 2007/01/12 21:07:58 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <list>
@@ -143,7 +143,7 @@ namespace edm {
 
     // ----- Mark this DataBlockImpl as having been updated in the
     // current Process.
-    void addToProcessHistory();
+    void addToProcessHistory() const;
 
   protected:
     void setUnscheduled() {unscheduled_ = true;}
@@ -168,13 +168,13 @@ namespace edm {
     // *this is const.
     void resolve_(Group const& g, bool unconditional = false) const;
 
-    ProcessHistoryID processHistoryID_;
+    mutable ProcessHistoryID processHistoryID_;
 
     boost::shared_ptr<ProcessHistory> processHistoryPtr_;
 
     ProcessConfiguration const& processConfiguration_;
 
-    bool processHistoryModified_;
+    mutable bool processHistoryModified_;
 
     // A vector of active groups.
     GroupVec groups_; // products and provenances are persistent
