@@ -18,8 +18,8 @@
  * 2D means that this segment has information about position and direction in
  * one projection (r-phi or r-theta/zeta).
  *
- * $Date: 2006/11/22 10:02:31 $
- * $Revision: 1.9 $
+ * $Date: 2007/01/04 06:49:52 $
+ * $Revision: 1.10 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -29,7 +29,7 @@
 #include "DataFormats/TrackingRecHit/interface/RecSegment.h"
 
 /* Collaborating Class Declarations */
-#include "Geometry/Surface/interface/LocalError.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 

@@ -1,17 +1,17 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/DTDigi>
+<use name=DataFormats/GeometrySurface>
 <use name=DataFormats/GeometryVector>
 <use name=DataFormats/MuonDetId>
 <use name=DataFormats/TrackingRecHit>
 <use name=FWCore/Utilities>
-<use name=Geometry/Surface>
 <use name=rootrflx>
 <export>
   <use name=DataFormats/Common>
+  <use name=DataFormats/GeometrySurface>
   <use name=DataFormats/GeometryVector>
   <use name=DataFormats/MuonDetId>
   <use name=DataFormats/TrackingRecHit>
-  <use name=Geometry/Surface>
   <lib name=DataFormatsDTRecHit>
 </export>
 

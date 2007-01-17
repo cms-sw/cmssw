@@ -9,12 +9,12 @@
  *  DTRecHit1DPair). The coordiante measured is always the x (in Det frame)
  *
  *
- *  $Date: 2006/04/05 16:40:53 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/29 17:18:27 $
+ *  $Revision: 1.5 $
  *  \author S. Lacaprara, G. Cerminara
  */
 
-//#include "Geometry/Surface/interface/LocalError.h"
+//#include "DataFormats/GeometrySurface/interface/LocalError.h"
 
 #include "DataFormats/TrackingRecHit/interface/RecHit1D.h"
 
