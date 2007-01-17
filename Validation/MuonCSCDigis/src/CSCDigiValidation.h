@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "Validation/MuonCSCDigis/src/CSCStripDigiValidation.h"
 #include "Validation/MuonCSCDigis/src/CSCWireDigiValidation.h"
 #include "Validation/MuonCSCDigis/src/CSCComparatorDigiValidation.h"
