@@ -1,0 +1,15 @@
+<use name=DataFormats/Common>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/TrackingRecHit>
+<use name=DataFormats/TrajectorySeed>
+<use name=DataFormats/TrajectoryState>
+<use name=rootrflx>
+<export>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/TrackReco>
+  <use name=DataFormats/TrackingRecHit>
+  <use name=DataFormats/TrajectorySeed>
+  <use name=DataFormats/TrajectoryState>
+  <lib name=AnalysisDataFormatsTrackInfo>
+</export>
+

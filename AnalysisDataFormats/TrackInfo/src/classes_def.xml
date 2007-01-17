@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="std::map<edm::Ref<edm::OwnVector<TrackingRecHit, edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit>  >, const PTrajectoryStateOnDet >"/>
+  <class name="reco::TrackInfo"/>
+  <class name="std::vector<reco::TrackInfo>"/>
+  <class name="edm::Wrapper<std::vector<reco::TrackInfo> >"/>
+</lcgdict>
