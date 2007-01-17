@@ -23,7 +23,7 @@ unreliable if such duplicate entries are made.
 
 **************** Much more is needed here! ****************
 
-$Id: SortedCollection.h,v 1.6 2006/10/30 23:07:52 wmtan Exp $
+$Id: SortedCollection.h,v 1.7 2007/01/11 23:39:17 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -59,13 +59,14 @@ namespace edm {
   {
     static bool const value = true;
   };
+#endif
 
   template <class T, class SORT>
   struct has_fillView<edm::SortedCollection<T,SORT> >
   {
     static bool const value = true;
   };
-#endif
+
 
   template <class T>
   struct StrictWeakOrdering
@@ -424,6 +425,19 @@ namespace edm {
 	     SortedCollection<T, SORT> const& b)
   {
     return a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin());    
+  }
+
+  //----------------------------------------------------------------------
+  //
+  // Free function template to support creation of Views.
+
+  template <class T, class SORT>
+  inline
+  void
+  fillView(SortedCollection<T,SORT> const& obj,
+	   std::vector<void const*>& pointers)
+  {
+    obj.fillView(pointers);
   }
 
 #if ! GCC_PREREQUISITE(3,4,4)

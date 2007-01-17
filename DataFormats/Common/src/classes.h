@@ -50,6 +50,8 @@ namespace { namespace {
   edm::Wrapper<std::vector<long long> > dummy15;
   edm::Wrapper<std::vector<std::pair<std::basic_string<char>,double> > > dummy16;
 
+  edm::Wrapper<std::list<int> > dummy17;
+
   edm::Wrapper<std::pair<unsigned long, unsigned long> > dymmywp1;
   edm::Wrapper<std::pair<unsigned int, unsigned int> > dymmywp2;
   edm::Wrapper<std::pair<unsigned short, unsigned short> > dymmywp3;

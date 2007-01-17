@@ -5,19 +5,22 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.10 2007/01/13 08:29:06 wmtan Exp $
+$Id: Wrapper.h,v 1.11 2007/01/16 23:03:06 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
-#include <vector>
 #include <memory>
 #include <string>
+#include <typeinfo>
+#include <vector>
 
 #include "boost/mpl/if.hpp"
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/traits.h"
+
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
@@ -33,13 +36,39 @@ namespace edm {
   struct DoFillView
   {
     void operator()(T const& obj, std::vector<void const*>& pointers) const
-    { obj.fillView(pointers); }
+    {
+      fillView(obj, pointers);
+    }
   };
+
+  template <class T, class A>
+  void
+  fillView(std::vector<T,A> const& obj,
+	   std::vector<void const*>& ptrs)
+  {
+    typedef typename std::vector<T,A>::const_iterator iter;
+    for (iter i=obj.begin(), e=obj.end(); i!=e; ++i) ptrs.push_back(&*i);
+  }
+
+  template <class T, class A>
+  void
+  fillView(std::list<T,A> const& obj,
+	   std::vector<void const*>& ptrs)
+  {
+    typedef typename std::list<T,A>::const_iterator iter;
+    for (iter i=obj.begin(), e=obj.end(); i!=e; ++i) ptrs.push_back(&*i);
+  }
 
   template <class T>
   struct DoNotFillView
   {
-    void operator()(T const&, std::vector<void const*>&) const { }
+    void operator()(T const&, std::vector<void const*>&) const 
+    {
+      throw Exception(errors::ProductDoesNotSupportViews)
+	<< "The product type " 
+	<< typeid(T).name()
+	<< "\ndoes not support Views\n";
+    }
   };
 
   template <class T>

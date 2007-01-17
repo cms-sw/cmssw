@@ -1,6 +1,8 @@
 #ifndef Integration_ViewAnalyzer_h
 #define Integration_ViewAnalyzer_h
 
+#include <string>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -15,7 +17,8 @@ namespace edmtest
     virtual void analyze(edm::Event const& e,
 			 edm::EventSetup const& /* unused */ );
   private:
-    // nothing yet
+    template <class P> void testProduct(edm::Event const& e,
+					std::string const& moduleLabel) const;
   };
   
 }

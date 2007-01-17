@@ -32,6 +32,9 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  // Produces no product; every call to FailingProducer::produce
+  // throws an exception.
+  //
   class FailingProducer : public edm::EDProducer {
   public:
     explicit FailingProducer(edm::ParameterSet const& /*p*/) {  }
@@ -48,6 +51,8 @@ namespace edmtest {
   }
 
   //--------------------------------------------------------------------
+  //
+  // Produces an IntProduct instance.
   //
   class IntProducer : public edm::EDProducer {
   public:
@@ -73,6 +78,9 @@ namespace edmtest {
   
   //--------------------------------------------------------------------
   //
+  // Produces an DoubleProduct instance.
+  //
+
   class DoubleProducer : public edm::EDProducer {
   public:
     explicit DoubleProducer(edm::ParameterSet const& p) : 
@@ -114,6 +122,9 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  // Produces an IntProduct instance, using an IntProduct as input.
+  //
+
   class AddIntsProducer : public edm::EDProducer {
   public:
     explicit AddIntsProducer(edm::ParameterSet const& p) : 
@@ -141,6 +152,8 @@ namespace edmtest {
   }
 
   //--------------------------------------------------------------------
+  //
+  // Produces and SCSimpleProduct product instance.
   //
   class SCSimpleProducer : public edm::EDProducer {
   public:
@@ -191,6 +204,10 @@ namespace edmtest {
   }
 
   //--------------------------------------------------------------------
+  //
+  // Produces two products:
+  //    DSVSimpelProduct
+  //    DSVWeirdProduct
   //
   class DSVProducer : public edm::EDProducer 
   {
@@ -261,7 +278,57 @@ namespace edmtest {
     // depending upon the product type.
     e.put(p);
   }
+  //--------------------------------------------------------------------
+  //
+  // Produces an std::vector<int> instance.
+  //
+  class IntVectorProducer : public edm::EDProducer {
+  public:
+    explicit IntVectorProducer(edm::ParameterSet const& p) : 
+      value_(p.getParameter<int>("ivalue")),
+      count_(p.getParameter<int>("count"))
+    {
+      produces<std::vector<int> >();
+    }
+    virtual ~IntVectorProducer() { }
+    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  private:
+    int    value_;
+    size_t count_;
+  };
 
+  void
+  IntVectorProducer::produce(edm::Event& e, const edm::EventSetup&) {
+    // EventSetup is not used.
+    std::auto_ptr<std::vector<int> > p(new std::vector<int>(count_, value_));
+    e.put(p);
+  }
+
+  //--------------------------------------------------------------------
+  //
+  // Produces an std::list<int> instance.
+  //
+  class IntListProducer : public edm::EDProducer {
+  public:
+    explicit IntListProducer(edm::ParameterSet const& p) : 
+      value_(p.getParameter<int>("ivalue")),
+      count_(p.getParameter<int>("count"))
+    {
+      produces<std::list<int> >();
+    }
+    virtual ~IntListProducer() { }
+    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  private:
+    int    value_;
+    size_t count_;
+  };
+
+  void
+  IntListProducer::produce(edm::Event& e, const edm::EventSetup&) {
+    // EventSetup is not used.
+    std::auto_ptr<std::list<int> > p(new std::list<int>(count_, value_));
+    e.put(p);
+  }
 
 
   //--------------------------------------------------------------------
@@ -412,8 +479,6 @@ namespace edmtest {
 	assert( after[i-1].data > after[i].data);
       }
   }
-
-
 }
 
 using edmtest::FailingProducer;
@@ -425,6 +490,8 @@ using edmtest::IntTestAnalyzer;
 using edmtest::SCSimpleAnalyzer;
 using edmtest::DSVAnalyzer;
 using edmtest::AddIntsProducer;
+using edmtest::IntVectorProducer;
+using edmtest::IntListProducer;
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(FailingProducer);
 DEFINE_ANOTHER_FWK_MODULE(IntProducer);
@@ -435,3 +502,5 @@ DEFINE_ANOTHER_FWK_MODULE(IntTestAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(SCSimpleAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(DSVAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(AddIntsProducer);
+DEFINE_ANOTHER_FWK_MODULE(IntVectorProducer);
+DEFINE_ANOTHER_FWK_MODULE(IntListProducer);

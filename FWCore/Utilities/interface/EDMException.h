@@ -15,6 +15,7 @@
  for the first version.
 
  Will ErrorCodes be used as return codes?  Unknown at this time.
+
 **/
 
 #include "FWCore/Utilities/interface/CodedException.h"
@@ -23,6 +24,11 @@
 
 namespace edm {
   namespace errors {
+
+    // If you add a new entry to the set of values, make sure to
+    // update the translation map in EDMException.cc, and also the
+    // actions table in FWCore/Framework/src/Actions.cc
+
     enum ErrorCodes {
        Unknown=0,
        ProductNotFound,
@@ -42,6 +48,8 @@ namespace edm {
 
        FileInPathError,
        FatalRootError,
+
+       ProductDoesNotSupportViews,
 
        NotFound
     };

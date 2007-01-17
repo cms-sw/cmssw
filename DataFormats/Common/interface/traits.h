@@ -5,7 +5,7 @@
 
 Definition of traits templates used in the EDM.  
 
-$Id: traits.h,v 1.7 2007/01/11 23:39:17 paterno Exp $
+$Id: traits.h,v 1.8 2007/01/16 23:03:06 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -153,7 +153,23 @@ namespace edm
     static bool const value = false;
   };
 
+  template <class T, class A>
+  struct has_fillView<std::vector<T,A> >
+  {
+    static bool const value = true;
+  };
 
+  template <class A>
+  struct has_fillView<std::vector<bool,A> >
+  {
+    static bool const value = false;
+  };
+
+  template <class T, class A>
+  struct has_fillView<std::list<T,A> >
+  {
+    static bool const value = true;
+  };
 }
 
 #endif
