@@ -22,7 +22,7 @@ HcalSimParameters::HcalSimParameters(double simHitToPhotoelectrons, double photo
 
 
 
-/*
+
 HcalSimParameters::HcalSimParameters(const edm::ParameterSet & p)
 :  CaloSimParameters(p),
    theDbService(0),
@@ -30,14 +30,19 @@ HcalSimParameters::HcalSimParameters(const edm::ParameterSet & p)
    theSamplingFactors( p.getParameter<std::vector<double> >("samplingFactors") )
 {
 }
-*/
+
 
 double HcalSimParameters::simHitToPhotoelectrons(const DetId & detId) const 
 {
   // the gain is in units of GeV/fC.  We want a constant with pe/dGeV
   // pe/dGeV = (GeV/dGeV) / (GeV/fC) / (fC/pe)
   
-  return samplingFactor(detId) / fCtoGeV(detId) / photoelectronsToAnalog();
+  double result = CaloSimParameters::simHitToPhotoelectrons(detId);
+  if(HcalDetId(detId).subdet() != HcalForward)
+  { 
+    result = samplingFactor(detId) / fCtoGeV(detId) / photoelectronsToAnalog();
+  }
+  return result;
 }
 
 
@@ -60,14 +65,6 @@ double HcalSimParameters::fCtoGeV(const DetId & detId) const
 //  }
   return result;
 }
-
-/*
-double HcalSimParameters::photoelectronsToAnalog(const DetId & detId) const
-{ 
-  // multiply amplification factor by electron charge to get fC
-  return amplification_ * (1.6e-4);
-}
-*/
 
 double HcalSimParameters::samplingFactor(const DetId & detId) const
 {
