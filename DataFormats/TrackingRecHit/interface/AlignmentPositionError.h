@@ -1,7 +1,7 @@
 #ifndef ALIGNMENT_POSITION_ERROR_H
 #define ALIGNMENT_POSITION_ERROR_H
 
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
 /** The position error of a Det due to alignment.
  *  It is summed in quadrature with the RecHit local error.

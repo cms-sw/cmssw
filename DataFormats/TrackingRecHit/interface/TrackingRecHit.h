@@ -1,9 +1,9 @@
 #ifndef TrackingRecHit_h
 #define TrackingRecHit_h
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/Surface/interface/LocalError.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 

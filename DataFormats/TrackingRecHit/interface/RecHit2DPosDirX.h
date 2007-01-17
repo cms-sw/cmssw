@@ -15,7 +15,7 @@
  * The coordinate measured is assumend to be the local "x" and "dx/dz"
  *  
  * $date   20/02/2006 18:11:23 CET $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *
  * Modification:
@@ -26,7 +26,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 /* Collaborating Class Declarations */
-#include "Geometry/Surface/interface/LocalError.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 

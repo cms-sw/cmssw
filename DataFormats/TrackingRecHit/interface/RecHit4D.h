@@ -10,7 +10,7 @@
  * To be used as base class for all 4D TrackingRecHits.
  *
  * $date   16/02/2006 18:05:07 CET $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -19,7 +19,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 /* Collaborating Class Declarations */
-#include "Geometry/Surface/interface/LocalError.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 

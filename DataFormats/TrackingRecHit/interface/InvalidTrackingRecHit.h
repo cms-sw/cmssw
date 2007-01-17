@@ -2,8 +2,8 @@
 #define InvalidTrackingRecHit_H
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "Geometry/Surface/interface/Plane.h"
-#include "Geometry/Surface/interface/LocalError.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 class InvalidTrackingRecHit : public TrackingRecHit {

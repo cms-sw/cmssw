@@ -7,8 +7,8 @@
  *  
  * In addition to RecHit, it has direction, chi2 and other stuff
  *
- * $Date: 2006/07/03 15:11:17 $
- * $Revision: 1.2 $
+ * $Date: 2007/01/04 06:17:58 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -17,7 +17,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 /* Collaborating Class Declarations */
-#include "Geometry/Surface/interface/LocalError.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 /* C++ Headers */
