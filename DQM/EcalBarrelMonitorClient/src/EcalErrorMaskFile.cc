@@ -1,11 +1,11 @@
-// $Id: EcalErrorMaskFile.cc,v 1.7 2006/12/14 22:10:21 dellaric Exp $
+// $Id: EcalErrorMaskFile.cc,v 1.8 2007/01/17 18:02:41 dellaric Exp $
 
 /*!
   \file EcalErrorMaskFile.cc
   \brief Error mask from text file
   \author B. Gobbo 
-  \version $Revision: 1.7 $
-  \date $Date: 2006/12/14 22:10:21 $
+  \version $Revision: 1.8 $
+  \date $Date: 2007/01/17 18:02:41 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
@@ -13,7 +13,7 @@
 #include <fstream>
 #include <sstream>
 #include <regex.h>
-#include <CondFormats/EcalObjects/interface/EcalErrorDictionary.h>
+#include <CondTools/Ecal/interface/EcalErrorDictionary.h>
 
 bool EcalErrorMaskFile::done_ = false;
 std::string EcalErrorMaskFile::inFile_ = "";
@@ -127,6 +127,10 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
   }
 
   return;
+
+}
+
+void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* fillMap ) throw( std::runtime_error ) {
 
 }
 
