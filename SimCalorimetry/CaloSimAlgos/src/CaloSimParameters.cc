@@ -26,7 +26,7 @@ CaloSimParameters::CaloSimParameters(const edm::ParameterSet & p)
   readoutFrameSize_( p.getParameter<int>("readoutFrameSize") ),
   binOfMaximum_( p.getParameter<int>("binOfMaximum") ),
   doPhotostatistics_( p.getParameter<bool>("doPhotoStatistics") ),
-  syncPhase_( p.getParameter<double>("syncPhase") )
+  syncPhase_( p.getParameter<bool>("syncPhase") )
 {
 }
 
