@@ -52,4 +52,4 @@ void IOVPayloadAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& 
 }
 void IOVPayloadAnalyzer::endJob(){ 
 }
-DEFINE_FWK_MODULE(IOVPayloadAnalyzer)
+DEFINE_FWK_MODULE(IOVPayloadAnalyzer);
