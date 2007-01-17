@@ -42,25 +42,37 @@ ALTER TABLE run_h4_table_position_dat ADD CONSTRAINT run_h4_table_position_dat_f
 
 
 -- Tables for channel masking
-CREATE TABLE run_crystal_ch_errors_dat (
+CREATE TABLE run_crystal_errors_dat (
   iov_id		NUMBER(10),
   logic_id		NUMBER(10),
   error_bits		NUMBER(38)
 );
 
-ALTER TABLE run_crystal_ch_errors_dat ADD CONSTRAINT run_crystal_ch_errors_dat_pk PRIMARY KEY (iov_id, logic_id);
-ALTER TABLE run_crystal_ch_errors_dat ADD CONSTRAINT run_crystal_ch_errors_dat_fk FOREIGN KEY (iov_id) REFERENCES run_iov (iov_id);
+ALTER TABLE run_crystal_errors_dat ADD CONSTRAINT run_crystal_errors_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE run_crystal_errors_dat ADD CONSTRAINT run_crystal_errors_dat_fk FOREIGN KEY (iov_id) REFERENCES run_iov (iov_id);
 
 
 
-CREATE TABLE run_pn_ch_errors_dat (
+
+CREATE TABLE run_tt_errors_dat (
   iov_id		NUMBER(10),
   logic_id		NUMBER(10),
   error_bits		NUMBER(38)
 );
 
-ALTER TABLE run_pn_ch_errors_dat ADD CONSTRAINT run_pn_ch_errors_dat_pk PRIMARY KEY (iov_id, logic_id);
-ALTER TABLE run_pn_ch_errors_dat ADD CONSTRAINT run_pn_ch_errors_dat_fk FOREIGN KEY (iov_id) REFERENCES run_iov (iov_id);
+ALTER TABLE run_tt_errors_dat ADD CONSTRAINT run_tt_errors_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE run_tt_errors_dat ADD CONSTRAINT run_tt_errors_dat_fk FOREIGN KEY (iov_id) REFERENCES run_iov (iov_id);
+
+
+
+CREATE TABLE run_pn_errors_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10),
+  error_bits		NUMBER(38)
+);
+
+ALTER TABLE run_pn_errors_dat ADD CONSTRAINT run_pn_errors_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE run_pn_errors_dat ADD CONSTRAINT run_pn_errors_dat_fk FOREIGN KEY (iov_id) REFERENCES run_iov (iov_id);
 
 
 
@@ -75,14 +87,16 @@ ALTER TABLE run_mem_ch_errors_dat ADD CONSTRAINT run_mem_ch_errors_dat_fk FOREIG
 
 
 
-CREATE TABLE run_tt_ch_errors_dat (
+CREATE TABLE run_mem_tt_errors_dat (
   iov_id		NUMBER(10),
   logic_id		NUMBER(10),
   error_bits		NUMBER(38)
 );
 
-ALTER TABLE run_tt_ch_errors_dat ADD CONSTRAINT run_tt_ch_errors_dat_pk PRIMARY KEY (iov_id, logic_id);
-ALTER TABLE run_tt_ch_errors_dat ADD CONSTRAINT run_tt_ch_errors_dat_fk FOREIGN KEY (iov_id) REFERENCES run_iov (iov_id);
+ALTER TABLE run_mem_tt_errors_dat ADD CONSTRAINT run_mem_tt_errors_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE run_mem_tt_errors_dat ADD CONSTRAINT run_mem_tt_errors_dat_fk FOREIGN KEY (iov_id) REFERENCES run_iov (iov_id);
+
+
 
 CREATE TABLE error_dictionary_def (
   def_id		NUMBER(10),

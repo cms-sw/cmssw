@@ -10,6 +10,4 @@ INSERT INTO mon_version_def VALUES (mon_version_def_sq.NextVal, 'test01', 'A tes
 INSERT INTO mon_run_outcome_def VALUES (mon_run_outcome_def_sq.NextVal, 'success', 'complete success');
 
 @insert_location_data
-@insert_crystal_status_def
-@insert_pn_status_def
 @insert_run_type_def

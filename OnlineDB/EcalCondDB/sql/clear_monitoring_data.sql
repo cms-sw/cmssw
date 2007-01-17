@@ -5,16 +5,6 @@
 DROP TABLE mon_run_dat;
 DROP TABLE mon_run_outcome_def;
 DROP SEQUENCE mon_run_outcome_def_sq;
-
-DROP TABLE mon_crystal_status_dat;
-DROP TABLE mon_crystal_status_def;
-DROP SEQUENCE mon_crystal_status_def_sq;
-
-DROP TABLE mon_pn_status_dat;
-DROP TABLE mon_pn_status_def;
-DROP SEQUENCE mon_pn_status_def_sq;
-
-
 DROP TABLE mon_crystal_consistency_dat;
 DROP TABLE mon_tt_consistency_dat;
 DROP TABLE mon_occupancy_dat;
@@ -37,3 +27,5 @@ DROP TABLE mon_laser_blue_dat;
 DROP TABLE mon_laser_green_dat;
 DROP TABLE mon_laser_red_dat;
 DROP TABLE mon_laser_ired_dat;
+DROP TABLE mon_h4_table_position_dat;
+DROP TABLE mon_laser_pulse_dat;

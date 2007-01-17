@@ -32,58 +32,6 @@ ALTER TABLE mon_run_dat ADD CONSTRAINT mon_run_dat_fk2 FOREIGN KEY (run_outcome_
 
 
 
-CREATE TABLE mon_crystal_status_def (
-  def_id		NUMBER(10),
-  short_desc		VARCHAR2(100),
-  long_desc		VARCHAR2(1000)
-);
-
-ALTER TABLE mon_crystal_status_def ADD CONSTRAINT mon_crystal_status_def_pk PRIMARY KEY (def_id);
-ALTER TABLE mon_crystal_status_def ADD CONSTRAINT mon_crystal_status_def_uk UNIQUE (short_desc);
-
-CREATE SEQUENCE mon_crystal_status_def_sq INCREMENT BY 1 START WITH 1;
-
-CREATE TABLE mon_crystal_status_dat (
-  iov_id		NUMBER(10),
-  logic_id		NUMBER(10), -- crystal
-  status_g1		NUMBER(10),
-  status_g6		NUMBER(10),
-  status_g12		NUMBER(10)
-);
-
-ALTER TABLE mon_crystal_status_dat ADD CONSTRAINT mon_crystal_status_dat_pk PRIMARY KEY (iov_id, logic_id);
-ALTER TABLE mon_crystal_status_dat ADD CONSTRAINT mon_crystal_status_dat_fk1 FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
-ALTER TABLE mon_crystal_status_dat ADD CONSTRAINT mon_crystal_status_dat_fk2 FOREIGN KEY (status_g1) REFERENCES mon_crystal_status_def (def_id);
-ALTER TABLE mon_crystal_status_dat ADD CONSTRAINT mon_crystal_status_dat_fk3 FOREIGN KEY (status_g6) REFERENCES mon_crystal_status_def (def_id);
-ALTER TABLE mon_crystal_status_dat ADD CONSTRAINT mon_crystal_status_dat_fk4 FOREIGN KEY (status_g12) REFERENCES mon_crystal_status_def (def_id);
-
-
-
-CREATE TABLE mon_pn_status_def (
-  def_id		NUMBER(10),
-  short_desc		VARCHAR2(100),
-  long_desc		VARCHAR2(1000)
-);
-
-ALTER TABLE mon_pn_status_def ADD CONSTRAINT mon_pn_status_def_pk PRIMARY KEY (def_id);
-ALTER TABLE mon_pn_status_def ADD CONSTRAINT mon_pn_status_def_uk UNIQUE (short_desc);
-
-CREATE SEQUENCE mon_pn_status_def_sq INCREMENT BY 1 START WITH 1;
-
-CREATE TABLE mon_pn_status_dat (
-  iov_id		NUMBER(10),
-  logic_id		NUMBER(10), -- PN diode
-  status_g1		NUMBER(10),
-  status_g16		NUMBER(10)
-);
-
-ALTER TABLE mon_pn_status_dat ADD CONSTRAINT mon_pn_status_dat_pk PRIMARY KEY (iov_id, logic_id);
-ALTER TABLE mon_pn_status_dat ADD CONSTRAINT mon_pn_status_dat_fk1 FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
-ALTER TABLE mon_pn_status_dat ADD CONSTRAINT mon_pn_status_dat_fk2 FOREIGN KEY (status_g1) REFERENCES mon_pn_status_def (def_id);
-ALTER TABLE mon_pn_status_dat ADD CONSTRAINT mon_pn_status_dat_fk3 FOREIGN KEY (status_g16) REFERENCES mon_pn_status_def (def_id);
-
-
-
 CREATE TABLE mon_crystal_consistency_dat (
   iov_id		NUMBER(10),
   logic_id		NUMBER(10), -- cystal
@@ -466,20 +414,6 @@ CREATE TABLE mon_h4_table_position_dat (
 
 ALTER TABLE mon_h4_table_position_dat ADD CONSTRAINT mon_h4_table_position_dat_pk PRIMARY KEY (iov_id, logic_id);
 ALTER TABLE mon_h4_table_position_dat ADD CONSTRAINT mon_h4_table_position_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
-
-
-
-CREATE TABLE mon_laser_status_dat (
-  iov_id		NUMBER(10),
-  logic_id		NUMBER(10), -- SM
-  laser_power		BINARY_FLOAT,
-  laser_filter		BINARY_FLOAT,
-  laser_wavelength	BINARY_FLOAT,
-  laser_fanout		CHAR(1)
-);
-
-ALTER TABLE mon_laser_status_dat ADD CONSTRAINT mon_laser_status_dat_pk PRIMARY KEY (iov_id, logic_id);
-ALTER TABLE mon_laser_status_dat ADD CONSTRAINT mon_laser_status_dat_fk FOREIGN KEY (iov_id) REFERENCES mon_run_iov (iov_id);
 
 
 
