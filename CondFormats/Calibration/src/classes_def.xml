@@ -11,5 +11,4 @@
  <class name="mySiStripNoises::DetRegistry"/>
  <class name="std::vector<mySiStripNoises::DetRegistry>"/>
  <class pattern="*iterator*"/>
- #<class name="std::vector<unsigned int>::iterator"/>
 </lcgdict>   
