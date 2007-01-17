@@ -15,6 +15,8 @@ class MonH4TablePositionDat : public IDataItem {
   ~MonH4TablePositionDat();
 
   // User data methods
+  inline std::string getTable() { return "MON_H4_TABLE_POSITION_DAT"; }
+
   inline void setTableX(float x) { m_tableX = x; }
   inline float getTableX() const { return m_tableX; }
 

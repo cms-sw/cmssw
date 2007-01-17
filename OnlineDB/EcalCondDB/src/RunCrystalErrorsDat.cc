@@ -11,7 +11,6 @@ using namespace oracle::occi;
 
 RunCrystalErrorsDat::RunCrystalErrorsDat()
 {
-  m_table = "RUN_CRYSTAL_ERRORS_DAT";
   m_env = NULL;
   m_conn = NULL;
   m_writeStmt = NULL;

@@ -16,6 +16,8 @@ class LMFLaserBlueRawDat : public IDataItem {
   ~LMFLaserBlueRawDat();
 
   // User data methods
+  inline std::string getTable() { return "LMF_LASER_BLUE_RAW_DAT"; }
+
   inline void setAPDPeak(float peak) { m_apdPeak = peak; }
   inline float getAPDPeak() const { return m_apdPeak; }
 

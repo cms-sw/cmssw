@@ -15,6 +15,8 @@ class MonLaserPulseDat : public IDataItem {
   ~MonLaserPulseDat();
 
   // User data methods
+  inline std::string getTable() { return "MON_LASER_PULSE_DAT"; }
+
   inline void setPulseHeightMean(float p) { m_pulseHeightMean = p; }
   inline float getPulseHeightMean() const { return m_pulseHeightMean; }
   

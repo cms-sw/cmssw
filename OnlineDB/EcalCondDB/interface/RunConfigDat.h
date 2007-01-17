@@ -15,6 +15,8 @@ class RunConfigDat : public IDataItem {
   ~RunConfigDat();
 
   // User data methods
+  inline std::string getTable() { return "RUN_CONFIG_DAT"; }
+
   inline std::string getConfigTag() const { return m_configTag; }
   inline void setConfigTag(std::string tag) { m_configTag = tag; }
 

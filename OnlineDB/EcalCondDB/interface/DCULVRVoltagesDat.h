@@ -16,6 +16,8 @@ class DCULVRVoltagesDat : public IDataItem {
   ~DCULVRVoltagesDat();
 
   // User data methods
+  inline std::string getTable() { return "DCU_LVR_VOLTAGES_DAT"; }
+
   inline void setVFE1_A(float v) { m_vfe1_A = v; }
   inline float getVFE1_A() const { return m_vfe1_A; }
 

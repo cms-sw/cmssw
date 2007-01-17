@@ -16,6 +16,8 @@ class MonOccupancyDat : public IDataItem {
   ~MonOccupancyDat();
 
   // User data methods
+  inline std::string getTable() { return "MON_OCCUPANCY_DAT"; }
+
   void setEventsOverLowThreshold(int events) { m_eventsOverLowThreshold = events; }
   int getEventsOverLowThreshold() const { return m_eventsOverLowThreshold; }
   

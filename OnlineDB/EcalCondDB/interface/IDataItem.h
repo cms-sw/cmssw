@@ -15,11 +15,10 @@
  */
 class IDataItem : public IDBObject {
  public:
-  inline std::string getTable() { return m_table; }
+  virtual std::string getTable() =0;
 
  protected:
   oracle::occi::Statement* m_writeStmt;
-  std::string m_table;
 
   inline void checkPrepare() 
     throw(std::runtime_error) 

@@ -11,7 +11,6 @@ using namespace oracle::occi;
 
 RunTTErrorsDat::RunTTErrorsDat()
 {
-  m_table = "RUN_TT_ERRORS_DAT";
   m_env = NULL;
   m_conn = NULL;
   m_writeStmt = NULL;

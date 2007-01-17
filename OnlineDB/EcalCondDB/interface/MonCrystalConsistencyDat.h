@@ -16,6 +16,8 @@ class MonCrystalConsistencyDat : public IDataItem {
   ~MonCrystalConsistencyDat();
 
   // User data methods
+  inline std::string getTable() { return "MON_CRYSTAL_CONSISTENCY_DAT"; }
+
   inline void setProcessedEvents(int proc) { m_processedEvents = proc; }
   inline int getProcessedEvents() const { return m_processedEvents; }
 

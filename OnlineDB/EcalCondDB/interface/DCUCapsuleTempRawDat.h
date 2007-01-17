@@ -16,6 +16,8 @@ class DCUCapsuleTempRawDat : public IDataItem {
   ~DCUCapsuleTempRawDat();
 
   // User data methods
+  inline std::string getTable() { return "DCU_CAPSULE_TEMP_RAW_DAT"; }
+
   inline void setCapsuleTempADC(float adc) { m_capsuleTempADC = adc; }
   inline float getCapsuleTempADC() const { return m_capsuleTempADC; }
 

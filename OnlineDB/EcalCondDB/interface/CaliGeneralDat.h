@@ -16,6 +16,8 @@ class CaliGeneralDat : public IDataItem {
   ~CaliGeneralDat();
   
   // User data methods
+  inline std::string getTable() { return "CALI_GENERAL_DAT"; }
+
   inline void setNumEvents(int n) { m_numEvents = n; }
   inline int getNumEvents() const { return m_numEvents; }
   

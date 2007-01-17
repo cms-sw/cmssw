@@ -16,6 +16,8 @@ class DCULVRBTempsDat : public IDataItem {
   ~DCULVRBTempsDat();
 
   // User data methods
+  inline std::string getTable() { return "DCU_LVRB_TEMPS_DAT"; }
+
   inline void setT1(float temp) { m_t1 = temp; }
   inline float getT1() const { return m_t1; }
 

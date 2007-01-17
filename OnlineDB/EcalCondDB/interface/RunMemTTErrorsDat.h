@@ -16,6 +16,8 @@ class RunMemTTErrorsDat : public IDataItem {
   ~RunMemTTErrorsDat();
 
   // User data methods
+  inline std::string getTable() { return "RUN_MEM_TT_ERRORS_DAT"; }
+
   inline void setErrorBits(uint64_t bits) { m_errorBits = bits; }
   inline uint64_t getErrorBits() const { return m_errorBits; }
 

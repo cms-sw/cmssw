@@ -16,6 +16,8 @@ class LMFLaserBlueNormDat : public IDataItem {
   ~LMFLaserBlueNormDat();
 
   // User data methods
+  inline std::string getTable() { return "LMF_LASER_BLUE_NORM_DAT"; }
+
   inline void setAPDOverPNAMean(float mean) { m_apdOverPNAMean = mean; }
   inline float getAPDOverPNAMean() const { return m_apdOverPNAMean; }
 

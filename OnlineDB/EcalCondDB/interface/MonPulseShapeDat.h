@@ -17,6 +17,8 @@ class MonPulseShapeDat : public IDataItem {
   ~MonPulseShapeDat();
 
   // User data methods
+  inline std::string getTable() { return "MON_PULSE_SHAPE_DAT"; }
+
   inline void setSamples( std::vector<float> &samples, int gain )
     throw(std::runtime_error)
     { 

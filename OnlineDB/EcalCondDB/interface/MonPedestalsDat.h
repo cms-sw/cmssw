@@ -15,6 +15,8 @@ class MonPedestalsDat : public IDataItem {
   ~MonPedestalsDat();
 
   // User data methods
+  inline std::string getTable() { return "MON_PEDESTALS_DAT"; }
+
   inline void setPedMeanG1(float mean) { m_pedMeanG1 = mean; }
   inline float getPedMeanG1() const { return m_pedMeanG1; }
 

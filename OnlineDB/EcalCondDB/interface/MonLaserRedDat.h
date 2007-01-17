@@ -16,6 +16,8 @@ class MonLaserRedDat : public IDataItem {
   ~MonLaserRedDat();
 
   // User data methods
+  inline std::string getTable() { return "MON_LASER_RED_DAT"; }
+
   inline void setAPDMean(float mean) { m_apdMean = mean; }
   inline float getAPDMean() const { return m_apdMean; }
   

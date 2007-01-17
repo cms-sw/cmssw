@@ -16,6 +16,8 @@ class LMFPNConfigDat : public IDataItem {
   ~LMFPNConfigDat();
 
   // User data methods
+  inline std::string getTable() { return "LMF_PN_CONFIG_DAT"; }
+
   inline void setPNAID(int logic_id) { m_pnAID = logic_id; }
   inline int getPNAID() const { return m_pnAID; }
 

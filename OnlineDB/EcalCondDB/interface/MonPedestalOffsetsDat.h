@@ -16,6 +16,8 @@ class MonPedestalOffsetsDat : public IDataItem {
   ~MonPedestalOffsetsDat();
 
   // User data methods
+  inline std::string getTable() { return "MON_PEDESTAL_OFFSETS_DAT"; }
+
   inline void setDACG1(int dac) { m_dacG1 = dac; }
   inline int getDACG1() const { return m_dacG1; }
 

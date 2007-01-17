@@ -16,6 +16,8 @@ class DCUIDarkPedDat : public IDataItem {
   ~DCUIDarkPedDat();
 
   // User data methods
+  inline std::string getTable() { return "DCU_IDARK_PED_DAT"; }
+
   inline void setPed(float temp) { m_ped = temp; }
   inline float getPed() const { return m_ped; }
   

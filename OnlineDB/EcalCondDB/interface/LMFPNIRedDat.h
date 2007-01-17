@@ -16,6 +16,8 @@ class LMFPNIRedDat : public IDataItem {
   ~LMFPNIRedDat();
 
   // User data methods
+  inline std::string getTable() { return "LMF_PN_IRED_DAT"; }
+
   inline void setPNPeak(float peak) { m_pnPeak = peak; }
   inline float getPNPeak() const { return m_pnPeak; }
 

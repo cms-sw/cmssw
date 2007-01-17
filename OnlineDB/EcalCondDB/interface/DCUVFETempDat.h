@@ -16,6 +16,8 @@ class DCUVFETempDat : public IDataItem {
   ~DCUVFETempDat();
 
   // User data methods
+  inline std::string getTable() { return "DCU_VFE_TEMP_DAT"; }
+
   inline void setVFETemp(float temp) { m_vfeTemp = temp; }
   inline float getVFETemp() const { return m_vfeTemp; }
   

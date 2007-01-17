@@ -16,6 +16,8 @@ class MonShapeQualityDat : public IDataItem {
   ~MonShapeQualityDat();
 
   // User data methods
+  inline std::string getTable() { return "MON_SHAPE_QUALITY_DAT"; }
+
   inline void setAvgChi2(float chi2) { m_avgChi2 = chi2; }
   inline float getAvgChi2() const { return m_avgChi2; }
   

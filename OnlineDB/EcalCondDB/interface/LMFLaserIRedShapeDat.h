@@ -16,6 +16,8 @@ class LMFLaserIRedShapeDat : public IDataItem {
   ~LMFLaserIRedShapeDat();
 
   // User data methods
+  inline std::string getTable() { return "LMF_LASER_IRED_SHAPE_DAT"; }
+
   inline void setAlpha(float alpha) { m_alpha = alpha; }
   inline float getAlpha() const { return m_alpha; }
 

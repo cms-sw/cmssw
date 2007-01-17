@@ -16,6 +16,8 @@ class DCUIDarkDat : public IDataItem {
   ~DCUIDarkDat();
 
   // User data methods
+  inline std::string getTable() { return "DCU_IDARK_DAT"; }
+
   inline void setAPDIDark(float i) { m_apdIDark = i; }
   inline float getAPDIDark() const { return m_apdIDark; }
   

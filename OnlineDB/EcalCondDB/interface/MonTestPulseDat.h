@@ -16,6 +16,8 @@ class MonTestPulseDat : public IDataItem {
   ~MonTestPulseDat();
 
   // User data methods
+  inline std::string getTable() { return "MON_TEST_PULSE_DAT"; }
+
   inline void setADCMeanG1(float mean) { m_adcMeanG1 = mean; }
   inline float getADCMeanG1() const { return m_adcMeanG1; }
 

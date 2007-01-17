@@ -16,6 +16,8 @@ class CaliHVScanRatioDat : public IDataItem {
   ~CaliHVScanRatioDat();
   
   // User data methods
+  inline std::string getTable() { return "CALI_HV_SCAN_RATIO_DAT"; }
+
   inline void setHVRatio(float c) { m_hvratio = c; }
   inline float getHVRatio() const { return m_hvratio; }
 

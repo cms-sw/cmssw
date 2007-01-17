@@ -16,6 +16,8 @@ class MonPNIRedDat : public IDataItem {
   ~MonPNIRedDat();
 
   // User data methods
+  inline std::string getTable() { return "MON_PN_IRED_DAT"; }
+
   inline void setADCMeanG1(float mean) { m_adcMeanG1 = mean; }
   inline float getADCMeanG1() const { return m_adcMeanG1; }
 

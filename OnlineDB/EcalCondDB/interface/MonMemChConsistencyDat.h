@@ -16,6 +16,8 @@ class MonMemChConsistencyDat : public IDataItem {
   ~MonMemChConsistencyDat();
 
   // User data methods
+  inline std::string getTable() { return "MON_MEM_CH_CONSISTENCY_DAT"; }
+
   inline void setProcessedEvents(int proc) { m_processedEvents = proc; }
   inline int getProcessedEvents() const { return m_processedEvents; }
 

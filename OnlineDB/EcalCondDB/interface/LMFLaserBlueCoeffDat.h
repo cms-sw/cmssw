@@ -16,6 +16,8 @@ class LMFLaserBlueCoeffDat : public IDataItem {
   ~LMFLaserBlueCoeffDat();
 
   // User data methods
+  inline std::string getTable() { return "LMF_LASER_BLUE_COEFF_DAT"; }
+
   inline void setXportCoeff(float c) { m_xportCoeff = c; }
   inline float getXportCoeff() const { return m_xportCoeff; }
 

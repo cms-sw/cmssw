@@ -11,7 +11,6 @@ using namespace oracle::occi;
 
 RunMemChErrorsDat::RunMemChErrorsDat()
 {
-  m_table = "RUN_MEM_CH_ERRORS_DAT";
   m_env = NULL;
   m_conn = NULL;
   m_writeStmt = NULL;

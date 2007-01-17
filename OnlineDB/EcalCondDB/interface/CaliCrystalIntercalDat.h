@@ -16,6 +16,8 @@ class CaliCrystalIntercalDat : public IDataItem {
   ~CaliCrystalIntercalDat();
   
   // User data methods
+  inline std::string getTable() { return "CALI_CRYSTAL_INTERCAL_DAT"; }
+
   inline void setCali(float c) { m_cali = c; }
   inline float getCali() const { return m_cali; }
 

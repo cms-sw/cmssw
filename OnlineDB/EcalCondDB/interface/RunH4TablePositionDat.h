@@ -15,6 +15,8 @@ class RunH4TablePositionDat : public IDataItem {
   ~RunH4TablePositionDat();
 
   // User data methods
+  inline std::string getTable() { return "RUN_H4_TABLE_POSITION_DAT"; }
+
   inline void setTableX(int num) { m_table_x = num; }
   inline int getTableX() const { return m_table_x; }
 

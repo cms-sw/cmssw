@@ -16,6 +16,8 @@ class MonDelaysTTDat : public IDataItem {
   ~MonDelaysTTDat();
 
   // User data methods
+  inline std::string getTable() { return "MON_DELAYS_TT_DAT"; }
+
   inline void setDelayMean(float mean) { m_delayMean = mean; }
   inline float getDelayMean() const { return m_delayMean; }
   

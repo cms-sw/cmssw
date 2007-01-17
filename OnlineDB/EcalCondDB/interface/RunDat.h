@@ -15,6 +15,8 @@ class RunDat : public IDataItem {
   ~RunDat();
 
   // User data methods
+  inline std::string getTable() { return "RUN_DAT"; }
+
   inline void setNumEvents(int num) { m_numEvents = num; }
   inline int getNumEvents() const { return m_numEvents; }
 

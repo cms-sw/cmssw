@@ -11,7 +11,6 @@ using namespace oracle::occi;
 
 RunPNErrorsDat::RunPNErrorsDat()
 {
-  m_table = "RUN_PN_ERRORS_DAT";
   m_env = NULL;
   m_conn = NULL;
   m_writeStmt = NULL;

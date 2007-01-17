@@ -16,6 +16,8 @@ class LMFPNTestPulseDat : public IDataItem {
   ~LMFPNTestPulseDat();
 
   // User data methods
+  inline std::string getTable() { return "LMF_PN_TEST_PULSE_DAT"; }
+
   inline void setADCMean(float mean) { m_adcMean = mean; }
   inline float getADCMean() const { return m_adcMean; }
 

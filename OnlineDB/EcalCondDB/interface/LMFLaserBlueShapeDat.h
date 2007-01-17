@@ -16,6 +16,8 @@ class LMFLaserBlueShapeDat : public IDataItem {
   ~LMFLaserBlueShapeDat();
 
   // User data methods
+  inline std::string getTable() { return "LMF_LASER_BLUE_SHAPE_DAT"; }
+
   inline void setAlpha(float alpha) { m_alpha = alpha; }
   inline float getAlpha() const { return m_alpha; }
 
