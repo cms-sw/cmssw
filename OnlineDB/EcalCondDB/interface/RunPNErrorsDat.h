@@ -1,0 +1,36 @@
+#ifndef RUNPNERRORSDAT_H
+#define RUNPNERRORSDAT_H
+
+#include <vector>
+#include <stdexcept>
+#include <boost/cstdint.hpp>
+
+#include "OnlineDB/EcalCondDB/interface/IDataItem.h"
+#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
+
+class RunPNErrorsDat : public IDataItem {
+ public:
+  friend class EcalCondDBInterface;
+  RunPNErrorsDat();
+  ~RunPNErrorsDat();
+
+  // User data methods
+  inline void setErrorBits(uint64_t bits) { m_errorBits = bits; }
+  inline uint64_t getErrorBits() const { return m_errorBits; }
+
+ private:
+  void prepareWrite() 
+    throw(std::runtime_error);
+
+  void writeDB(const EcalLogicID* ecid, const RunPNErrorsDat* item, RunIOV* iov )
+    throw(std::runtime_error);
+
+  void fetchData(std::map< EcalLogicID, RunPNErrorsDat >* fillMap, RunIOV* iov)
+     throw(std::runtime_error);
+
+  // User data
+  uint64_t m_errorBits;
+};
+
+#endif

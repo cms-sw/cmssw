@@ -14,8 +14,12 @@
  *   Abstract interface for data in the conditions DB
  */
 class IDataItem : public IDBObject {
+ public:
+  inline std::string getTable() { return m_table; }
+
  protected:
   oracle::occi::Statement* m_writeStmt;
+  std::string m_table;
 
   inline void checkPrepare() 
     throw(std::runtime_error) 
@@ -28,6 +32,7 @@ class IDataItem : public IDBObject {
   // Prepare a statement for writing operations
   virtual void prepareWrite() 
     throw(std::runtime_error) =0;
+
 };
 
 #endif

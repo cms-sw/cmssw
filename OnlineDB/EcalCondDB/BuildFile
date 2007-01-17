@@ -1,6 +1,7 @@
 <use name=oracle>
-
+<use name=boost>
 <export>
   <lib name=OnlineDBEcalCondDB>
   <use name=oracle>
+  <use name=boost>
 </export>

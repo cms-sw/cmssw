@@ -19,7 +19,6 @@
 #include "OnlineDB/EcalCondDB/interface/MonCrystalConsistencyDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonTTConsistencyDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
-#include "OnlineDB/EcalCondDB/interface/MonCrystalStatusDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserBlueDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserGreenDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserRedDat.h"
@@ -32,9 +31,7 @@
 #include "OnlineDB/EcalCondDB/interface/MonPNIRedDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNMGPADat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNPedDat.h"
-#include "OnlineDB/EcalCondDB/interface/MonPNStatusDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonH4TablePositionDat.h"
-#include "OnlineDB/EcalCondDB/interface/MonLaserStatusDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserPulseDat.h"
 
 #endif

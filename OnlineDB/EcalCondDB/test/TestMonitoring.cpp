@@ -282,14 +282,6 @@ public:
     MonOccupancyDat table12;
     testTable(&table12, &moniov, &logicID);
 
-    MonCrystalStatusDef monCrystalStatusDef;
-    monCrystalStatusDef.setShortDesc("GOOD");
-    MonCrystalStatusDat table13;
-    table13.setStatusG1(monCrystalStatusDef);
-    table13.setStatusG6(monCrystalStatusDef);
-    table13.setStatusG12(monCrystalStatusDef);
-    testTable(&table13, &moniov, &logicID);
-
     MonLaserBlueDat table14;
     testTable(&table14, &moniov, &logicID);
 
@@ -320,13 +312,6 @@ public:
     MonPNPedDat table23;
     testTable(&table23, &moniov, &logicID);
 
-    MonPNStatusDef monPNStatusDef;
-    monPNStatusDef.setShortDesc("GOOD");
-    MonPNStatusDat table24;
-    table24.setStatusG1(monPNStatusDef);
-    table24.setStatusG16(monPNStatusDef);
-    testTable(&table24, &moniov, &logicID);
-
     MonMemChConsistencyDat table25;
     testTable(&table25, &moniov, &logicID);
 
@@ -335,9 +320,6 @@ public:
 
     MonH4TablePositionDat table27;
     testTable(&table27, &moniov, &logicID);
-
-    MonLaserStatusDat table28;
-    testTable(&table28, &moniov, &logicID);
 
     MonLaserPulseDat table29;
     testTable(&table29, &moniov, &logicID);

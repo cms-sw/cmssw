@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.3 2006/06/05 18:36:20 egeland Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.4 2006/07/05 15:47:37 egeland Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -245,7 +245,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    */
   template<class DATT, class IOVT>
   void fetchDataSet(std::map< EcalLogicID, DATT >* fillMap, IOVT* iov)
-    throw(std::runtime_error)
+  throw(std::runtime_error)
   {
     fillMap->clear();
 
@@ -254,6 +254,30 @@ class EcalCondDBInterface : public EcalDBConnection {
 
     datiface.fetchData( fillMap, iov );
   }
+
+
+
+  /*
+   *  Fetch dataset that is valid for the given RunTag and run.
+   *  Also fills the given IOV object with the IOV associated with the data
+   *  run is optional, by default is set to infinity
+   *  Note:  ONLY works for Run*Dat objects
+   *  TODO:  Make this function (or similar) work for all *Dat objects
+   */
+  template<class DATT, class IOVT>
+  void fetchValidDataSet(std::map< EcalLogicID, DATT >* fillMap, 
+			 IOVT* fillIOV, 
+			 RunTag* tag, run_t run = (unsigned int)-1)
+  throw(std::runtime_error)
+  {
+    fillMap->clear();
+    DATT datiface;
+    fillIOV->setConnection(env, conn);
+    fillIOV->setByRecentData(datiface.getTable(), tag, run);
+    datiface.setConnection(env, conn);
+    datiface.fetchData( fillMap, fillIOV );
+  }
+
 
   void dummy();
 
