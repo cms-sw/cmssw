@@ -1,0 +1,47 @@
+
+<export>
+ <lib name=FastSimulationTracking>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/MessageLogger>
+ <use name=DataFormats/Common>
+ <use name=DataFormats/RoadSearchCloud>
+ <use name=DataFormats/TrajectorySeed>
+ <use name=RecoTracker/TransientTrackingRecHit>
+ <use name=Geometry/TrackerGeometryBuilder>
+ <use name=TrackingTools/KalmanUpdators>
+ <use name=MagneticField/Records>
+ <use name=MagneticField/Engine>
+ <use name=RecoTracker/GeometryESProducer>
+ <use name=TrackingTools/MeasurementDet>
+ <use name=RecoTracker/MeasurementDet>
+ <use name=RecoTracker/TkNavigation>
+ <use name=TrackingTools/PatternTools>
+ <use name=TrackingTools/MaterialEffects>
+ <use name=TrackingTools/TrajectoryCleaning>
+ <use name=TrackingTools/TrackFitters>
+  <use name=SimDataFormats/Track>
+</export>
+
+
+<flags SEAL_PLUGIN_NAME="FastSimulationTracking">
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+<use name=DataFormats/Common>
+<use name=DataFormats/TrajectorySeed>
+<use name=DataFormats/TrackCandidate>
+<use name=RecoTracker/TransientTrackingRecHit>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=TrackingTools/KalmanUpdators>
+<use name=MagneticField/Records>
+<use name=MagneticField/Engine>
+<use name=RecoTracker/GeometryESProducer>
+<use name=TrackingTools/MeasurementDet>
+<use name=RecoTracker/MeasurementDet>
+<use name=RecoTracker/TkNavigation>
+<use name=TrackingTools/PatternTools>
+<use name=TrackingTools/MaterialEffects>
+<use name=TrackingTools/TrajectoryCleaning>
+<use name=TrackingTools/TrackFitters>
+ <use name=SimDataFormats/Track>
