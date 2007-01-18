@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PUSource.cc,v 1.1 2006/04/24 17:02:16 pjanot Exp $
+$Id: PUSource.cc,v 1.2 2006/04/26 13:02:07 pjanot Exp $
 ----------------------------------------------------------------------*/
 
 #include "FastSimulation/PileUpProducer/interface/PUSource.h"
@@ -53,7 +53,9 @@ PUSource::init() {
     if (it == rootFiles_.end()) {
       
       // Set the shared_ptr of the RooFile
-      rootFile_ = RootFileSharedPtr(new RootFile(*fileIter, catalog().url()));
+      rootFile_ = RootFileSharedPtr(new RootFile(*fileIter, 
+						 catalog().url(),
+						 processConfiguration()));
 
       // make sure the new product registry is identical to the old one (if any)
       //      if ( pReg && *pReg != rootFile_->productRegistry()) {
@@ -65,7 +67,7 @@ PUSource::init() {
       // Update the map of stored files
       rootFiles_[*fileIter] = rootFile_;
       // Update the total number of event
-      totalNbEvents += rootFile_->entries();
+      totalNbEvents += rootFile_->eventTree().entries();
       std::cout << " Number of events : " << totalNbEvents << std::endl;
       eventsInRootFiles[rootFile_] = totalNbEvents;
       
@@ -112,13 +114,13 @@ PUSource::readIt(int entry) {
  
   // Loop over the files to find the corresponding entry
   while ( entry > it->second ) {
-    localEntry -= rootFile_->entries();
+    localEntry -= rootFile_->eventTree().entries();
     ++it;
     rootFile_ = it->first;
   }
 
   // Set the entry number
-  rootFile_->setEntryNumber(localEntry);
+  rootFile_->eventTree().setEntryNumber(localEntry);
 
   // Return the event
   return read();
