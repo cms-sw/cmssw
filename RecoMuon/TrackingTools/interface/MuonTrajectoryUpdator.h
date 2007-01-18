@@ -10,14 +10,14 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/10/19 13:53:08 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/11/17 18:07:44 $
+ *  $Revision: 1.16 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
+#include "TrackingTools/DetLayers/interface/NavigationDirection.h"
 
 #include <functional>
 
@@ -37,10 +37,10 @@ class MuonTrajectoryUpdator {
 
   /// Constructor from Propagator and Parameter set
   MuonTrajectoryUpdator(const edm::ParameterSet& par,
-			recoMuon::FitDirection fitDirection);
+			NavigationDirection fitDirection);
 
   /// Constructor from Propagator, chi2 and the granularity flag
-  MuonTrajectoryUpdator(recoMuon::FitDirection fitDirection,
+  MuonTrajectoryUpdator(NavigationDirection fitDirection,
 			double chi2, int granularity);
   
   /// Destructor
@@ -61,13 +61,13 @@ class MuonTrajectoryUpdator {
   double maxChi2() const {return theMaxChi2 ;}
   
   /// get the fit direction
-  recoMuon::FitDirection fitDirection() {return theFitDirection;}
+  NavigationDirection fitDirection() {return theFitDirection;}
 
   /// set max chi2
   void setMaxChi2(double chi2) {theMaxChi2 = chi2;}
 
   /// set fit direction
-  void setFitDirection(recoMuon::FitDirection fitDirection) {theFitDirection = fitDirection;}
+  void setFitDirection(NavigationDirection fitDirection) {theFitDirection = fitDirection;}
 
  protected:
   
@@ -142,8 +142,8 @@ class MuonTrajectoryUpdator {
   // The fit direction.This is the global fit direction and it could be (LOCALLY!) different w.r.t. the 
   // propagation direction embeeded in the propagator (i.e. when it is used in the "anyDirection" mode)
   // This data member is not set via parameter set since it must be consistent with the RefitterParameter.
-  recoMuon::FitDirection theFitDirection;
-
+  NavigationDirection theFitDirection;
+  
   // Parameters for the error rescaling
   bool theFirstTSOSFlag;
   bool theRescaleErrorFlag;

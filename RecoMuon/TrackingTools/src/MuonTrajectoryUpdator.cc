@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/09/04 17:13:12 $
- *  $Revision: 1.20 $
+ *  $Date: 2006/11/17 18:07:44 $
+ *  $Revision: 1.21 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -38,7 +38,7 @@ using namespace std;
 
 /// Constructor from Propagator and Parameter set
 MuonTrajectoryUpdator::MuonTrajectoryUpdator(const edm::ParameterSet& par,
-					     recoMuon::FitDirection fitDirection): theFitDirection(fitDirection){
+					     NavigationDirection fitDirection): theFitDirection(fitDirection){
   
   // The max allowed chi2 to accept a rechit in the fit
   theMaxChi2 = par.getParameter<double>("MaxChi2");
@@ -61,7 +61,7 @@ MuonTrajectoryUpdator::MuonTrajectoryUpdator(const edm::ParameterSet& par,
   theFirstTSOSFlag = true;
 }
 
-MuonTrajectoryUpdator::MuonTrajectoryUpdator( recoMuon::FitDirection fitDirection,
+MuonTrajectoryUpdator::MuonTrajectoryUpdator( NavigationDirection fitDirection,
 					      double chi2, int granularity): theMaxChi2(chi2),
 									     theGranularity(granularity),
 									     theFitDirection(fitDirection){
@@ -274,18 +274,18 @@ void MuonTrajectoryUpdator::sort(TransientTrackingRecHit::ConstRecHitContainer& 
 				 const DetLayer* detLayer){
   
   if(detLayer->subDetector()==GeomDetEnumerators::DT){
-    if(fitDirection() == recoMuon::insideOut)
+    if(fitDirection() == insideOut)
       stable_sort(recHitsForFit.begin(),recHitsForFit.end(), RadiusComparatorInOut() );
-    else if(fitDirection() == recoMuon::outsideIn)
+    else if(fitDirection() == outsideIn)
       stable_sort(recHitsForFit.begin(),recHitsForFit.end(),RadiusComparatorOutIn() ); 
     else
       LogError("Muon|RecoMuon|MuonTrajectoryUpdator") <<"MuonTrajectoryUpdator::sort: Wrong propagation direction!!";
   }
 
   else if(detLayer->subDetector()==GeomDetEnumerators::CSC){
-    if(fitDirection() == recoMuon::insideOut)
+    if(fitDirection() == insideOut)
       stable_sort(recHitsForFit.begin(),recHitsForFit.end(), ZedComparatorInOut() );
-    else if(fitDirection() == recoMuon::outsideIn)
+    else if(fitDirection() == outsideIn)
       stable_sort(recHitsForFit.begin(),recHitsForFit.end(), ZedComparatorOutIn() );  
     else
       LogError("Muon|RecoMuon|MuonTrajectoryUpdator") <<"MuonTrajectoryUpdator::sort: Wrong propagation direction!!";

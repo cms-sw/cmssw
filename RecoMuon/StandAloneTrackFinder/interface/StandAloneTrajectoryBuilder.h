@@ -4,8 +4,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2007/01/04 00:42:29 $
- *  $Revision: 1.20 $
+ *  $Date: 2007/01/17 16:18:04 $
+ *  $Revision: 1.21 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -16,6 +16,7 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
+
 
 class TrajectorySeed;
 class StandAloneMuonRefitter;

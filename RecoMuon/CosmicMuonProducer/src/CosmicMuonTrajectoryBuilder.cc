@@ -4,8 +4,8 @@
  *  class to build trajectories of muons from cosmic rays
  *  using DirectMuonNavigation
  *
- *  $Date: 2006/11/30 17:56:52 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/12/31 20:40:37 $
+ *  $Revision: 1.20 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -35,7 +35,6 @@
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
 #include "Geometry/Surface/interface/PlaneBuilder.h"
 
 #include <algorithm>
@@ -70,11 +69,11 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
 
   ParameterSet muonUpdatorPSet = par.getParameter<ParameterSet>("MuonTrajectoryUpdatorParameters");
   
-  theUpdator = new MuonTrajectoryUpdator(muonUpdatorPSet, recoMuon::insideOut);
+  theUpdator = new MuonTrajectoryUpdator(muonUpdatorPSet, insideOut);
 
   ParameterSet muonBackwardUpdatorPSet = par.getParameter<ParameterSet>("BackwardMuonTrajectoryUpdatorParameters");
 
-  theBKUpdator = new MuonTrajectoryUpdator(muonBackwardUpdatorPSet, recoMuon::outsideIn);
+  theBKUpdator = new MuonTrajectoryUpdator(muonBackwardUpdatorPSet, outsideIn);
 
   theCrossingMuonFlag = par.getUntrackedParameter<bool>("BuildCrossingMuon",true);
 
@@ -218,8 +217,8 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
       +lastPos.y() * momDir.y()
       +lastPos.z() * momDir.z() > 0 ){
 //      LogDebug("CosmicMuonTrajectoryBuilder")<<"Fit direction changed to insideOut";
-      theBKUpdator->setFitDirection(recoMuon::insideOut);
-    } else theBKUpdator->setFitDirection(recoMuon::outsideIn);
+      theBKUpdator->setFitDirection(insideOut);
+    } else theBKUpdator->setFitDirection(outsideIn);
 
   navLayerCBack = navigation.compatibleLayers(*(lastTsos.freeState()), oppositeToMomentum);
   LogDebug(metname)<<"Begin backward refitting";
@@ -256,12 +255,12 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
               if ( thisPos.x() * momDir.x() 
                   +thisPos.y() * momDir.y()
                   +thisPos.z() * momDir.z() > 0 ){
-                   theBKUpdator->setFitDirection(recoMuon::insideOut);
-                } else theBKUpdator->setFitDirection(recoMuon::outsideIn);
+                   theBKUpdator->setFitDirection(insideOut);
+                } else theBKUpdator->setFitDirection(outsideIn);
             }
           }
        }
-//       if (theBKUpdator->fitDirection() == recoMuon::insideOut) 
+//       if (theBKUpdator->fitDirection() == insideOut) 
 //          LogDebug("CosmicMuonTrajectoryBuilder")<<"Fit direction insideOut";
 //       else LogDebug("CosmicMuonTrajectoryBuilder")<<"Fit direction outsideIn";
 
@@ -396,7 +395,7 @@ void CosmicMuonTrajectoryBuilder::explore(Trajectory& traj, MuonRecHitContainer&
   bool hitsInsideOut = (hits.front()->globalPosition().perp()
       < hits.back()->globalPosition().perp()); 
 
-  theBKUpdator->setFitDirection(recoMuon::insideOut);
+  theBKUpdator->setFitDirection(insideOut);
 
   if ( trajInsideOut && hitsInsideOut ) {
     LogDebug(metname)<<"inside-out: reverseTrajectory"; 

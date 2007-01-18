@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/01/04 03:59:10 $
- *  $Revision: 1.45 $
+ *  $Date: 2007/01/17 16:18:03 $
+ *  $Revision: 1.46 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -19,7 +19,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
-#include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
+#include "TrackingTools/DetLayers/interface/NavigationDirection.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
 
@@ -134,7 +134,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     TrajectoryCleaner* theTrajectoryCleaner;
     
     int   theMuonHitsOption;
-    ReconstructionDirection theDirection;
+    NavigationDirection theDirection;
     float thePtCut;
     float theProbCut;
     int   theHitThreshold;

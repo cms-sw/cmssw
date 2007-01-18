@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/01/04 03:59:12 $
- *  $Revision: 1.68 $
+ *  $Date: 2007/01/17 16:18:04 $
+ *  $Revision: 1.69 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -112,7 +112,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   theTrackMatcher = new GlobalMuonTrackMatcher(par,theService);
 
   theMuonHitsOption = par.getParameter<int>("MuonHitsOption");
-  theDirection = static_cast<ReconstructionDirection>(par.getParameter<int>("Direction"));
+  theDirection = static_cast<NavigationDirection>(par.getParameter<int>("Direction"));
   thePtCut = par.getParameter<double>("PtCut");
   theProbCut = par.getParameter<double>("Chi2ProbabilityCut");
   theHitThreshold = par.getParameter<int>("HitThreshold");

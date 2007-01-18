@@ -4,15 +4,15 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/10/05 13:19:47 $
- *  $Revision: 1.23 $
+ *  $Date: 2006/10/19 13:54:56 $
+ *  $Revision: 1.24 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/DetLayers/interface/NavigationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
 
@@ -72,7 +72,7 @@ class StandAloneMuonRefitter {
   PropagationDirection propagationDirection() const;
 
   /// Return the fit direction
-  recoMuon::FitDirection fitDirection() const {return theFitDirection;}
+  NavigationDirection fitDirection() const {return theFitDirection;}
   
   /// True if there are only the RPC measurements
   bool onlyRPC() {return theRPCLoneliness;}
@@ -133,7 +133,7 @@ private:
   double theNSigma;
 
   /// the propagation direction
-  recoMuon::FitDirection theFitDirection;
+  NavigationDirection theFitDirection;
 
   /// the det layer used in the reconstruction
   std::vector<const DetLayer*> theDetLayers;

@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/09/05 08:17:53 $
- *  $Revision: 1.30 $
+ *  $Date: 2006/09/13 10:44:28 $
+ *  $Revision: 1.31 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -43,8 +43,8 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par,
   // Fit direction
   string fitDirectionName = par.getParameter<string>("FitDirection");
 
-  if (fitDirectionName == "insideOut" ) theFitDirection = recoMuon::insideOut;
-  else if (fitDirectionName == "outsideIn" ) theFitDirection = recoMuon::outsideIn;
+  if (fitDirectionName == "insideOut" ) theFitDirection = insideOut;
+  else if (fitDirectionName == "outsideIn" ) theFitDirection = outsideIn;
   else 
     throw cms::Exception("StandAloneMuonRefitter constructor") 
       <<"Wrong fit direction chosen in StandAloneMuonRefitter::StandAloneMuonRefitter ParameterSet"
