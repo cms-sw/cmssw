@@ -13,8 +13,8 @@ using std::endl;
 
 // public variable initialization - these are typical values -- they are reset to values stored in the LUTFile
 
-short L1RCTLookupTables::eActivityCut_ = 2;
-short L1RCTLookupTables::hActivityCut_ = 2;
+float L1RCTLookupTables::eActivityCut_ = 3.0;
+float L1RCTLookupTables::hActivityCut_ = 3.0;
 float L1RCTLookupTables::hOeCut_ = 0.05;
 float L1RCTLookupTables::eGammaLSB_ = 0.5;
 float L1RCTLookupTables::jetMETLSB_ = 0.5;
@@ -43,10 +43,10 @@ unsigned short L1RCTLookupTables::lookup(unsigned short hfenergy,
   int iEta = L1RCT::calcIEta(crtNo, crdNo, twrNo);
   int iAbsEta = abs(iEta);
   if(iAbsEta < 29 || iAbsEta > 32) throw cms::Exception("Invalid Data") << "29 <= |iEta| <= 32, is " << iAbsEta;
-  float energy;
-  if(useTranscoder_) energy = transcoder_->hcaletValue(iAbsEta, hfenergy); // hcalConversionConstants_[iAbsEta-1][hfenergy];
-  else energy = hfenergy;           // This is so debugging can happen without the transcoder
-  return convertToInteger(energy, jetMETLSB(), 8);
+  float et;
+  if(useTranscoder_) et = transcoder_->hcaletValue(iAbsEta, hfenergy);
+  else et = hfenergy;           // This is so debugging can happen without the transcoder
+  return convertToInteger(et, jetMETLSB(), 8);
 }
 
 // lookup method for barrel (ecal and hcal)
@@ -63,13 +63,15 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
   if(iAbsEta < 1 || iAbsEta > 28) throw cms::Exception("Invalid Data") << "1 <= |IEta| <= 28, is " << iAbsEta;
   float ecalLinear = convertEcal(ecal);
   float hcalLinear;
-  if(useTranscoder_) hcalLinear = transcoder_->hcaletValue(iAbsEta, hcal); // hcalConversionConstants_[iAbsEta-1][hcal];
+  float hcalELinear;
+  if(useTranscoder_) hcalLinear = transcoder_->hcaletValue(iAbsEta, hcal);
   else hcalLinear = hcal;
+  
   float etLinear = ecalLinear + hcalLinear;
   unsigned long HE_FGBit = (calcHEBit(ecalLinear,hcalLinear) || fgbit);
   unsigned long etIn7Bits = convertToInteger(ecalLinear, eGammaLSB_, 7);
   unsigned long etIn9Bits = convertToInteger(etLinear, jetMETLSB_, 9);
-  unsigned long activityBit = calcActivityBit(ecal,hcal);
+  unsigned long activityBit = calcActivityBit(ecalLinear, hcalLinear);
   unsigned long shiftEtIn9Bits = etIn9Bits<<8;
   unsigned long shiftHE_FGBit = HE_FGBit<<7;
   unsigned long shiftActivityBit = activityBit<<17;
@@ -83,13 +85,16 @@ float L1RCTLookupTables::convertEcal(unsigned short ecal){
 }
 
 // calculates activity bit for each tower - assume that noise is well suppressed
-unsigned short L1RCTLookupTables::calcActivityBit(unsigned short ecal, unsigned short hcal){
+unsigned short L1RCTLookupTables::calcActivityBit(float ecal, float hcal){
   return ((ecal > eActivityCut_) || (hcal > hActivityCut_));
 }
 
 // calculates h-over-e veto bit (true if hcal/ecal energy > 5%)
 unsigned short L1RCTLookupTables::calcHEBit(float ecal, float hcal){
-  return ((ecal > eActivityCut_) && (hcal/ecal)>hOeCut_);
+  if((ecal > eActivityCut_) && (hcal/ecal)>hOeCut_)
+    return true;
+  else
+    return false;
 }
 
 // integerize given an LSB and set maximum value of 2^precision
@@ -108,31 +113,22 @@ void L1RCTLookupTables::loadLUTConstants(const std::string& filename)
   userfile.open(filename.c_str());
   if( userfile )
     {
-      char junk[256];
-      userfile.getline(junk, 256);
-      userfile.getline(junk, 256);
-      userfile.getline(junk, 256);
-      userfile.getline(junk, 256);
-      userfile.getline(junk, 256);
-      userfile >> eActivityCut_;
-      userfile.getline(junk, 256);
-      userfile >> hActivityCut_;
-      userfile.getline(junk, 256);
-      userfile >> eGammaLSB_;
-      userfile.getline(junk, 256);
-      userfile >> jetMETLSB_;
-      userfile.getline(junk, 256);
-      hcalConversionConstants_.resize(N_TOWERS);
-      for(int iAbsEta = 0; iAbsEta < N_TOWERS; iAbsEta++) {
-	hcalConversionConstants_[iAbsEta].resize(N_ET_CONSTS);
-      }
-      for(int hcalETAddress = 0; hcalETAddress < N_ET_CONSTS; hcalETAddress++) {
-	for(int iAbsEta = 1; iAbsEta <= N_TOWERS; iAbsEta++) {
-	  float value;
-	  userfile >> value;
-	  hcalConversionConstants_[iAbsEta-1][hcalETAddress] = value;
-	}
-      }
+      char junk[1024];
+      userfile >> junk >> eActivityCut_;
+      std::cout << "L1RCTLookupTables: Using eActivityCut = " 
+		<< eActivityCut_ << std::endl;
+      userfile >> junk >> hActivityCut_;
+      std::cout << "L1RCTLookupTables: Using hActivityCut = " 
+		<< hActivityCut_ << std::endl;
+      userfile >> junk >> hOeCut_;
+      std::cout << "L1RCTLookupTables: Using hOeCut = " 
+		<< hOeCut_ << std::endl;
+      userfile >> junk >> eGammaLSB_;
+      std::cout << "L1RCTLookupTables: Using eGammaLSB = " 
+		<< eGammaLSB_ << std::endl;
+      userfile >> junk >> jetMETLSB_;
+      std::cout << "L1RCTLookupTables: Using jetMETLSB = " 
+		<< jetMETLSB_ << std::endl;
       userfile.close();
     }
   else 

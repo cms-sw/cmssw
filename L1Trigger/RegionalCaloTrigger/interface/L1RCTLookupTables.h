@@ -46,7 +46,7 @@ class L1RCTLookupTables {
   L1RCTLookupTables();  // Do not implement so one cannot instantiate without input file
 
   float convertEcal(unsigned short ecal);
-  unsigned short calcActivityBit(unsigned short ecal,unsigned short hcal);
+  unsigned short calcActivityBit(float ecal, float hcal);
   unsigned short calcHEBit(float ecal,float hcal);
   unsigned long convertToInteger(float et, float lsb, int precision);
 
@@ -58,11 +58,8 @@ class L1RCTLookupTables {
   // This same code can be used to write out real LUTs and load in the hardware
   // The read in conversion constants should come from the database, but for the moment we use a flat file
   void loadLUTConstants(const std::string& filename);
-  static const int N_TOWERS = 32;     // Number of |eta| towers - reflect to -eta and rotate for all phi
-  static const int N_ET_CONSTS = 256; // Corresponding to 8-bits of ET for ECAL and HCAL
-  std::vector<std::vector<float> > hcalConversionConstants_;
-  static short eActivityCut_;
-  static short hActivityCut_;
+  static float eActivityCut_;
+  static float hActivityCut_;
   static float hOeCut_;
   static float eGammaLSB_;
   static float jetMETLSB_;
