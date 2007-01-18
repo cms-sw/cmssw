@@ -1,7 +1,0 @@
-<use name=boost>
-<use name=CondCore/DBCommon>
-<export>
-  <use name=boost>
-  <use name=CondCore/DBCommon>
-  <lib name=CondToolsUtilities>
-</export>
