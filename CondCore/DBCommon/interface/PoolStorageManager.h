@@ -28,11 +28,16 @@ namespace cond{
     void startTransaction(bool isReadOnly=true);
     void commit();
     void rollback();
+    void copyObjectTo( cond::PoolStorageManager& destDB,
+		       const std::string& className,
+		       const std::string& objectToken );
+    void copyContainerTo( cond::PoolStorageManager& destDB,
+			  const std::string& className,
+			  const std::string& containerName );
     std::string catalogString() const;
     std::string connectionString() const;
     std::vector<std::string> containers();
     pool::IDataSvc& DataSvc();
-   //ContainerIterator* newContainerIterator(const std::string& containername);
   private:
     std::string m_catalogstr;
     std::string m_con;
