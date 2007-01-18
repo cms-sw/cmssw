@@ -33,6 +33,13 @@
 using namespace std;
 using namespace evf;
 
+////////////////////////////////////////////////////////////////////////////////
+// initialize static members
+////////////////////////////////////////////////////////////////////////////////
+
+//______________________________________________________________________________
+bool FUResource::doFedIdCheck_ = true;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
@@ -649,7 +656,7 @@ void FUResource::findFEDs() throw (evf::Exception)
     }
   
     // check that fedid is within valid ranges
-    if (!FEDNumbering::inRange(fedId)) {
+    if (doFedIdCheck_&&!FEDNumbering::inRange(fedId)) {
       LOG4CPLUS_ERROR(log_,"fedid out of valid range."
 		      <<" evtNumber:"<<evtNumber_
 		      <<" fedid:"<<fedId);

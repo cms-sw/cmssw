@@ -74,6 +74,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , eventBufferSize_(4194304) // 4MB
   //, doDumpFragments_(false)
   , doDropEvents_(false)
+  , doFedIdCheck_(true)
   , doCrcCheck_(1)
   , buClassName_("BU")
   , buInstance_(0)
@@ -247,7 +248,8 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
     
     string item=dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
     
-    if (item=="doCrcCheck") resourceTable_->setDoCrcCheck(doCrcCheck_);
+    if (item=="doFedIdCheck") FUResource::doFedIdCheck(doFedIdCheck_);
+    if (item=="doCrcCheck")   resourceTable_->setDoCrcCheck(doCrcCheck_);
     if (item=="runNumber") {
       resourceTable_->reset();
       gui_->resetCounters();
@@ -492,6 +494,7 @@ void FUResourceBroker::exportParameters()
   gui_->addStandardParam("eventBufferSize",   &eventBufferSize_);
   //gui_->addStandardParam("doDumpLostEvents",   &doDumpLostEvents_);
   gui_->addStandardParam("doDropEvents",      &doDropEvents_);
+  gui_->addStandardParam("doFedIdCheck",      &doFedIdCheck_);
   gui_->addStandardParam("doCrcCheck",        &doCrcCheck_);
   gui_->addStandardParam("buClassName",       &buClassName_);
   gui_->addStandardParam("buInstance",        &buInstance_);
@@ -513,6 +516,7 @@ void FUResourceBroker::exportParameters()
   gui_->addItemRetrieveListener("nbCrcErrors",      this);
   gui_->addItemRetrieveListener("nbAllocateSent",   this);
   
+  gui_->addItemChangedListener("doFedIdCheck",      this);
   gui_->addItemChangedListener("doCrcCheck",        this);
   gui_->addItemChangedListener("runNumber",         this);
 }

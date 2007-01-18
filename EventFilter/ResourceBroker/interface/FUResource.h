@@ -44,6 +44,8 @@ namespace evf {
     
     void   releaseSuperFrag();
 
+    static
+    void   doFedIdCheck(bool doFedIdCheck) { doFedIdCheck_ = doFedIdCheck; }
     void   doCrcCheck(bool doCrcCheck) { doCrcCheck_=doCrcCheck; }
 
     bool   fatalError()   const { return fatalError_; }
@@ -60,12 +62,15 @@ namespace evf {
     FEDRawDataCollection* fedData() { return fedData_; }
     
     
+    
   private:
     //
     // member data
     //
     log4cplus::Logger log_;
     
+    static
+    bool      doFedIdCheck_;
     bool      doCrcCheck_;
     bool      fatalError_;
 

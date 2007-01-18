@@ -61,7 +61,7 @@ namespace evf {
     bool   workLoopAction(toolbox::task::WorkLoop* workLoop);
     
     // tell resources wether to check the crc
-    void   setDoCrcCheck(UInt_t doCrcCheck)   { doCrcCheck_  =doCrcCheck; }
+    void   setDoCrcCheck(UInt_t doCrcCheck) { doCrcCheck_=doCrcCheck; }
 
     // returns the fuResourceId of the allocated resource
     UInt_t allocateResource();
