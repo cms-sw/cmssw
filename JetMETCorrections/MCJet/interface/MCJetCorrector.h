@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: HcalHardcodeCalibrations.h,v 1.5 2006/01/10 19:29:40 fedor Exp $
+// $Id: MCJetCorrector.h,v 1.1 2006/12/29 00:48:38 fedor Exp $
 //
 // MC Jet Corrector
 //
@@ -27,7 +27,7 @@ class MCJetCorrector : public JetCorrector {
   virtual ~MCJetCorrector ();
 
   /// apply correction using Jet information only
-  virtual double correction (const reco::Jet& fJet) const;
+  virtual double correction (const LorentzVector& fJet) const;
 
   /// if correction needs event information
   virtual bool eventRequired () const {return false;}

@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: HcalHardcodeCalibrations.h,v 1.5 2006/01/10 19:29:40 fedor Exp $
+// $Id: MCJetCorrector.cc,v 1.1 2006/12/29 00:48:39 fedor Exp $
 //
 // MC Jet Corrector
 //
@@ -132,11 +132,11 @@ MCJetCorrector::~MCJetCorrector () {
   }
 } 
 
-double MCJetCorrector::correction (const reco::Jet& fJet) const {
+double MCJetCorrector::correction (const LorentzVector& fJet) const {
   if (mParametrization.empty()) {return 1;}
   
-  double et=fJet.et();
-  double eta=fabs(fJet.eta());
+  double et=fJet.Et();
+  double eta=fabs(fJet.Eta());
   
   
   cout<<" Et and eta of jet "<<et<<" "<<eta<<endl;

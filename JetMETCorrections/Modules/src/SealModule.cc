@@ -1,14 +1,19 @@
 #include "CondCore/PluginSystem/interface/registration_macros.h"
-#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+DEFINE_SEAL_MODULE();
+
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+REGISTER_PLUGIN (JetCorrectionsRecord, JetCorrector);
 
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
-#include "MCJetCorrectionService.h"
-#include "JetCorrectionProducer.h"
+
 using namespace cms;
-DEFINE_SEAL_MODULE();
-REGISTER_PLUGIN (JetCorrectionsRecord, JetCorrector);
+
+#include "JetCorrectionProducer.h"
 DEFINE_ANOTHER_FWK_MODULE(JetCorrectionProducer);
-DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(MCJetCorrectionService);
+
+#include "JetCorrectionService.icc"
+#include "JetMETCorrections/MCJet/interface/MCJetCorrector.h"
+DEFINE_JET_CORRECTION_SERVICE (MCJetCorrector, MCJetCorrectionService);
