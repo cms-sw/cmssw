@@ -5,8 +5,8 @@
 //   Description: DTTrackFinder parameters for L1MuDTTrackFinder
 //
 //
-//   $Date: 2006/06/01 00:00:00 $
-//   $Revision: 1.1 $
+//   $Date: 2006/10/10 15:24:20 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -71,8 +71,8 @@ void L1MuDTTFConfig::setDefaults() {
   // set min and max bunch crossing
   //  m_BxMin = -9;
   //  m_BxMax =  7;
-  m_BxMin =  0;
-  m_BxMax = 40;
+  m_BxMin = -9;
+  m_BxMax =  7;
 
   // set Filter for Extrapolator
   m_extTSFilter = 1;
@@ -156,8 +156,8 @@ void L1MuDTTFConfig::setDefaults() {
 bool L1MuDTTFConfig::m_debug = false;
 int L1MuDTTFConfig::m_dbgLevel = -1;
 bool L1MuDTTFConfig::m_overlap = true;
-int L1MuDTTFConfig::m_BxMin = 0;
-int L1MuDTTFConfig::m_BxMax = 40;
+int L1MuDTTFConfig::m_BxMin = -9;
+int L1MuDTTFConfig::m_BxMax =  7;
 int L1MuDTTFConfig::m_extTSFilter  = 1;
 bool L1MuDTTFConfig::m_useEX21 = false;
 bool L1MuDTTFConfig::m_etaTF = true;
