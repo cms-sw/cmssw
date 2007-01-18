@@ -59,8 +59,8 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
     std::string s;
     is >> s;
     if( s == "" ) continue;
-/*
-    if( s == "MonCrystalStatusDat" ) {
+
+    if( s == "Crystal" ) {
       int sm; is >> sm;
       if( sm < 1 || sm > 36 ) {
 	std::ostringstream os;
@@ -90,12 +90,10 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
       }
       std::string shortDesc; is >> shortDesc;
       uint64_t bitmask; bitmask = 0;
-      std::string longDesc; longDesc = "";
       
       for( unsigned int i=0; i<errors.size(); i++ ) {
 	if( shortDesc == errors[i].shortDesc ) {
 	  bitmask = errors[i].bitmask;
-	  longDesc = errors[i].longDesc;
 	}
       }
       if( bitmask == 0 ) {
@@ -104,30 +102,33 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 	throw( std::runtime_error( os.str() ) );
 	return;
       }
-      std::pair<EcalLogicID, MonCrystalStatusDat> pMCSD;
-      MonCrystalStatusDef mcsf;
-      mcsf.setShortDesc( shortDesc );
-      MonCrystalStatusDat mcsd;
-      if( gain & 0x001 ) mcsd.setStatusG1( mcsf ); 
-      if( gain & 0x010 ) mcsd.setStatusG6( mcsf ); 
-      if( gain & 0x100 ) mcsd.setStatusG12( mcsf ); 
-      pMCSD.first = EcalLogicID( "local", 10000*(sm-1)+ic );
-      pMCSD.second = mcsd;
-      EcalErrorMaskFile::mapMCSD_.insert( pMCSD );
+      std::pair<EcalLogicID, RunCrystalErrorsDat> pCrystalErrors;
+      RunCrystalErrorsDat error;
+/*
+      if( gain & 0x001 ) error.setStatusG1( mcsf ); 
+      if( gain & 0x010 ) error.setStatusG6( mcsf ); 
+      if( gain & 0x100 ) error.setStatusG12( mcsf ); 
+*/
+      error.setErrorBits(bitmask);
+      pCrystalErrors.first = EcalLogicID( "local", 10000*(sm-1)+ic );
+      pCrystalErrors.second = error;
+      EcalErrorMaskFile::mapCrystalErrors_.insert( pCrystalErrors );
     }
-    else if( s == "MonPNStatusDat" ) {
-      throw( std::runtime_error( "MonPNStatusDat: To be implemented" ) );
+    else if( s == "TT" ) {
+      throw( std::runtime_error( "TT: To be implemented" ) );
     }
-    else if( s == "MonMemChStatusDat" ) {
-      throw( std::runtime_error( "MonMemChStatusDat: To be implemented" ) );
+    else if( s == "PN" ) {
+      throw( std::runtime_error( "PN: To be implemented" ) );
     }
-    else if( s == "MonMemTTStatusDat" ) {
-      throw( std::runtime_error( "MonMemTTStatusDat: To be implemented" ) );
+    else if( s == "MemCh" ) {
+      throw( std::runtime_error( "MemCh: To be implemented" ) );
+    }
+    else if( s == "MemTT" ) {
+      throw( std::runtime_error( "MemTT: To be implemented" ) );
     }
     else {
       throw( std::runtime_error( "Wrong Table Name" ) );
     }
-*/
 
   }
 
