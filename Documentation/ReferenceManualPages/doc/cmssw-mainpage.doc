@@ -23,8 +23,16 @@ This is main page of the CMSSW Reference Manual.
 </script>
 \endhtmlonly
 
+\section config Configuration files
+
+<ul>
+<li> \ref Software_StandardSequences "Standard sequences for configuration files" 
+<li> \ref Configuration_Examples "Example configuration files" 
+<\ul>
+
+
 \section datav Data View
-Definition of the event content.
+Definition of the event content (the packages where the contents are defined are listed \ref Configuration_EventContent "here")
 
 \htmlonly
 <table class="doctable">
