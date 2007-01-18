@@ -10,6 +10,7 @@ namespace reco {
 
 const char* TaggingVariableDescription[] = {
   /* [jetEnergy]      = */  "jet energy",
+  /* [jetPt]          = */  "jet transverse momentum",
   /* [jetEta]         = */  "jet pseudorapidity",
   /* [jetPhi]         = */  "jet polar angle",
   /* [trackMomentum]  = */  "track momentum",
@@ -23,6 +24,12 @@ const char* TaggingVariableDescription[] = {
   /* [trackDeltaR]    = */  "track pseudoangular distance from the jet axis",
   /* [trackPtRatio]   = */  "track transverse momentum, relative to the jet axis, normalized to its energy",
   /* [trackPparRatio] = */  "track parallel momentum, along the jet axis, normalized to its energy",
+  /* [vertexCategory] = */  "category of secondary vertex (Reco, Pseudo, No)",
+  /* [vertexMass]     = */  "mass of secondary vertex",
+  /* [vertexMultiplicity] = */ "track multiplicity at secondary vertex",
+  /* [flightDistance2DSignificance] */ "significance in 2d of distance between primary and secondary vtx",
+  /* [eSVXOverE]      = */ "ratio of energy at secondary vertex over total energy",
+  /* [trackSip2dAbCharm] = */ "track 2D signed impact parameter significance above charm mass",
 
   /* [lastTaggingVariable] = */ ""
 };
