@@ -9,7 +9,7 @@
  *   and stores it into the Data Buffer
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -64,7 +64,7 @@ class L1MuDTSectorReceiver {
     void receiveDTBXData(int bx, const edm::Event& e);
 
     /// receive track segment data from CSC chamber trigger
-    void receiveCSCData(int bx);
+    void receiveCSCData(int bx, const edm::Event& e);
     
     /// find the right sector for a given address
     int address2sector(int adr) const;

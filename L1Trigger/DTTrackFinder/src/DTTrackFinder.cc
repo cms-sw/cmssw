@@ -5,8 +5,8 @@
 //   L1 DT Track Finder EDProducer
 //
 //
-//   $Date: 2006/06/01 00:00:00 $
-//   $Revision: 1.1 $
+//   $Date: 2006/11/20 15:41:03 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   J. Troconiz              UAM Madrid
@@ -33,8 +33,6 @@ using namespace std;
 #include <iostream>
 #include <iomanip>
 
-int ev_=-1;
-
 DTTrackFinder::DTTrackFinder(const ParameterSet & pset) {
 
   string lutdir_ = pset.getUntrackedParameter<string>("lutdir","../parameters/");
@@ -57,8 +55,6 @@ void DTTrackFinder::produce(Event& e, const EventSetup& c) {
 
   cout << endl;
   cout << "**** L1MuonDTTFTrigger processing event  ****" << endl;
-  ev_++;
-  cout << "EVENT   " << ev_ << endl;
 
   L1MuDTTrackFinder* dtbx = setup1->TrackFinder();
   dtbx->clear();

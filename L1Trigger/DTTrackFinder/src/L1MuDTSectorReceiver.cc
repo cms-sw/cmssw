@@ -5,8 +5,8 @@
 //   Description: Sector Receiver 
 //
 //
-//   $Date: 2006/06/01 00:00:00 $
-//   $Revision: 1.1 $
+//   $Date: 2006/07/26 10:31:00 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -39,8 +39,11 @@ using namespace std;
 #include "L1Trigger/DTTrackFinder/src/L1MuDTDataBuffer.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegLoc.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
 
 // --------------------------------
 //       class L1MuDTSectorReceiver
@@ -79,7 +82,7 @@ void L1MuDTSectorReceiver::run(int bx, const edm::Event& e) {
   
   // get track segments from CSC chamber trigger
   if ( L1MuDTTFConfig::overlap() && m_sp.ovl() ) { 
-    receiveCSCData(bx);
+    receiveCSCData(bx, e);
   }
 
 }
@@ -104,7 +107,7 @@ void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e) {
   L1MuDTChambPhDigi* ts=0;
 
   // const int bx_offset = dttrig->correctBX();
-  int bx_offset=0;
+  int bx_offset=16;
   bx = bx + bx_offset;
 
   // get DTBX phi track segments  
@@ -185,84 +188,71 @@ void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e) {
 //
 // receive track segment data from CSC chamber trigger
 //
-void L1MuDTSectorReceiver::receiveCSCData(int bx) {
+void L1MuDTSectorReceiver::receiveCSCData(int bx, const edm::Event& e) {
   
-  return;
-  /*
-  if ( bx < -6 || bx > 6 ) return;
-  
-  L1MuCSCPrimitiveSetup* csc_setup = Singleton<L1MuCSCPrimitiveSetup>::instance();
-  L1MuCSCPrimitiveGenerator* csctrig = csc_setup->PrimitiveGenerator();
+  if ( bx < CSCConstants::MIN_BUNCH || bx > CSCConstants::MAX_BUNCH ) return;
 
-  bool cscTwentyDegree = L1MuCSCSetup::twentyDegree();
-  const int bxCSC = L1MuCSCSetup::currentBx();
+  edm::Handle<CSCTriggerContainer<csctf::TrackStub> > csctrig;
+  e.getByType(csctrig);
+
+  const int bxCSC = CSCConstants::TIME_OFFSET;
   
-  vector<L1MuCSCTrackStub> csc_list;
-  vector<L1MuCSCTrackStub>::const_iterator csc_iter;  
+  vector<csctf::TrackStub> csc_list;
+  vector<csctf::TrackStub>::const_iterator csc_iter;  
   
   int station = 1; // only ME13
   int wheel = m_sp.id().wheel();
   int side = ( wheel == 3 ) ? 1 : 2;
-  int my_sector = m_sp.id().sector();
-  for ( int offset = 0; offset < 3; offset++ ) {
-    int sector = my_sector;
-    if (offset == 1) sector = (my_sector+13)%12; // +1
-    if (offset == 2) sector = (my_sector+11)%12; // -1
-    int csc_sector = ( sector == 0 ) ? 6 : (sector+1)/2;
-    int sub = ( sector%2 == 0 ) ? 2 : 1;
-    int subsector = sub;
-    int sub20from = 1;
-    int sub20to = 1;
-    if ( cscTwentyDegree ) {
-      sub20from = ( subsector == 1 ) ? 1 : 2;
-      sub20to   = ( subsector == 1 ) ? 2 : 3;
-    }
-    for ( int sub20 = sub20from; sub20 <= sub20to; sub20++ ) {
-      if ( cscTwentyDegree ) {
-        csc_list = csctrig->trackStubList(side,station,csc_sector,sub20,bxCSC+bx);
-      } else {
-        csc_list = csctrig->trackStubList(side,station,csc_sector,subsector,bxCSC+bx);
+  int sector = m_sp.id().sector();
+  int csc_sector = ( sector == 0 ) ? 6 : (sector+1)/2;
+
+  for ( int subsector = 1; subsector < 3; subsector++ ) {
+    csc_list = csctrig->get(side,station,csc_sector,subsector,bxCSC+bx);
+    int ncsc = 0;
+    for ( csc_iter = csc_list.begin(); csc_iter != csc_list.end(); csc_iter++ ) {
+      if ( csc_iter->etaPacked() > 17 ) continue;
+      bool etaFlag = ( csc_iter->etaPacked() > 17 ); 
+      int phiCSC = csc_iter->phiPacked();
+      int qualCSC = csc_iter->getQuality();
+           
+      // convert CSC quality code to DTBX quality code
+      unsigned int qual = 7;
+      if ( qualCSC ==  2 ) qual = 0;
+      if ( qualCSC ==  6 ) qual = 1;
+      if ( qualCSC ==  7 ) qual = 2;
+      if ( qualCSC ==  8 ) qual = 2;
+      if ( qualCSC ==  9 ) qual = 3;
+      if ( qualCSC == 10 ) qual = 3;
+      if ( qualCSC == 11 ) qual = 4;
+      if ( qualCSC == 12 ) qual = 5;
+      if ( qualCSC == 13 ) qual = 5;
+      if ( qualCSC == 14 ) qual = 6;
+      if ( qualCSC == 15 ) qual = 6;
+      if ( qual == 7) continue;
+
+      if ( subsector == 1 && phiCSC >= 2048 ) continue;
+      if ( subsector == 2 && phiCSC <  2048 ) continue;
+        
+      // convert CSC phi to DTBX phi
+      double dphi = ((double) phiCSC) - 2048.*16./31.;
+      if ( sector%2 == 0 ) dphi = dphi  - 2048.*30./ 31.;
+      dphi = dphi*62.*M_PI/180.;
+      int phi = static_cast<int>(floor( dphi ));
+      if ( phi < -2048 || phi > 2047) continue; 
+
+      if ( ncsc < 2 ) {
+        int address = 16 + ncsc;
+        bool tag = (ncsc == 1 ) ? true : false;
+        L1MuDTTrackSegPhi tmpts(wheel,sector,station+2,phi,0,
+                                static_cast<L1MuDTTrackSegPhi::TSQuality>(qual),
+                                tag,bx,etaFlag);
+        m_sp.data()->addTSphi(address,tmpts);
+        ncsc++;
       }
-      int ncsc = 0;
-      for ( csc_iter = csc_list.begin(); csc_iter != csc_list.end(); csc_iter++ ) {
-        if ( !(*csc_iter).interestingToBarrel() ) continue;
-        bool etaFlag = (*csc_iter).stubInEndcap(); 
-        unsigned int qualCSC = (*csc_iter).quality();
-        int phi  = (*csc_iter).phi();
-        int phib = (*csc_iter).phiBend();
-          
-        // convert CSC quality code to DTBX quality code
-        unsigned int qual = 7;
-        if ( qualCSC > 2 ) {
-          qual = qualCSC-3;
-        }
-        if ( qualCSC == 10 ) {
-           qual = 6;
-        }
-        
-        if ( sub == 1 && phi >= 2048 ) continue;
-        if ( sub == 2 && phi <  2048 ) continue;
-        
-        // convert CSC phi to DTBX phi
-        double gphi = (*csc_iter).phiValue(); // now 0 - 2pi
-        double phi0 = sector * M_PI/6. ;
-        double dphi = fmod(gphi-phi0 + 3*M_PI, 2*M_PI) - M_PI;
-        phi = static_cast<int> ( dphi*4096. );
-       
-        if ( ncsc < 2 ) {
-          int address = 4 + station*12 + offset*4 + ncsc;
-          bool tag = (ncsc == 1 ) ? true : false;
-          L1MuDTTrackSegPhi tmpts(wheel,sector,station+2,phi,phib,
-                                  static_cast<L1MuDTTrackSegPhi::TSQuality>(qual),
-                                  tag,bx,etaFlag);
-          m_sp.data()->addTSphi(address,tmpts);
-          ncsc++;
-        }
-        else cout << "too many CSC track segments!" << endl;
-      }  
-    }
+      else cout << "too many CSC track segments!" << endl;
+    }  
   }
-  */
+
 }
 
 
