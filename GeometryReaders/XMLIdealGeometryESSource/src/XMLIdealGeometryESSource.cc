@@ -33,7 +33,7 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p):
     if ( !bool(DDLogicalPart( DDName(rootNodeName_) )) ) {
       throw DDException ("XMLIdealGeometryESSource was given a non-existent node name for the root. " + rootNodeName_ );
     }
-
+    std::cout << rootNodeName_ << std::endl;
     if ( rootNodeName_ == "MagneticFieldVolumes:MAGF" ) {
       setWhatProduced(this, &XMLIdealGeometryESSource::produceMagField, 
 		      edm::es::Label(p.getParameter<std::string>("@module_label")));

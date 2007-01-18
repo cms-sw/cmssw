@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: PerfectGeometryAnalyzer.cc,v 1.10 2006/11/11 13:12:15 chrjones Exp $
+// $Id: PerfectGeometryAnalyzer.cc,v 1.11 2006/11/17 01:03:53 case Exp $
 //
 //
 
@@ -37,6 +37,8 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h"
 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include "DataSvc/RefException.h"
 #include "CoralBase/Exception.h"
 
@@ -54,6 +56,7 @@ public:
 private:
   // ----------member data ---------------------------
   std::string label_;
+  bool isMagField_;
   bool dumpHistory_;
   bool dumpPosInfo_;
   bool dumpSpecs_;
@@ -71,11 +74,15 @@ private:
 // constructors and destructor
 //
 PerfectGeometryAnalyzer::PerfectGeometryAnalyzer( const edm::ParameterSet& iConfig ) :
-   label_(iConfig.getUntrackedParameter<std::string>("label",""))
+  label_(iConfig.getUntrackedParameter<std::string>("label","")),
+  isMagField_(iConfig.getUntrackedParameter<bool>("isMagField",false))
 {
   dumpHistory_=iConfig.getUntrackedParameter<bool>("dumpGeoHistory");
   dumpPosInfo_=iConfig.getUntrackedParameter<bool>("dumpPosInfo");
   dumpSpecs_=iConfig.getUntrackedParameter<bool>("dumpSpecs");
+  if ( isMagField_ ) {
+    label_ = "magfield";
+  }
 }
 
 
@@ -97,7 +104,11 @@ PerfectGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetu
 
    std::cout << "Here I am " << std::endl;
    edm::ESHandle<DDCompactView> pDD;
-   iSetup.get<IdealGeometryRecord>().get(label_, pDD );
+   if (!isMagField_) {
+     iSetup.get<IdealGeometryRecord>().get(label_, pDD );
+   } else {
+     iSetup.get<IdealMagneticFieldRecord>().get(label_, pDD );
+   }
    GeometryInfoDump gidump;
    gidump.dumpInfo( dumpHistory_, dumpSpecs_, dumpPosInfo_, *pDD );
    std::cout << "finished" << std::endl;
