@@ -65,12 +65,14 @@ PixelRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
   int closest = theBinFinder.binIndex(startPos.z());
   pair<bool,TrajectoryStateOnSurface> closestCompat = 
     theCompatibilityChecker.isCompatible(theDets[closest],startingState, prop, est);
+
   if ( closestCompat.first) {
     result.push_back( DetWithState( theDets[closest], closestCompat.second));
+  }else{
+    if(!closestCompat.second.isValid()) return result;  // to investigate why this happens
   }
 
   const BoundPlane& closestPlane( theDets[closest]->specificSurface() );
-
 
   Local2DVector maxDistance = 
     est.maximalLocalDisplacement( closestCompat.second, closestPlane);
