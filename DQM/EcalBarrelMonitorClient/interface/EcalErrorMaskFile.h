@@ -1,11 +1,11 @@
-// $Id: EcalErrorMaskFile.h,v 1.8 2007/01/17 18:54:26 dellaric Exp $
+// $Id: EcalErrorMaskFile.h,v 1.9 2007/01/18 07:55:23 dellaric Exp $
 
 /*!
   \file EcalErrorMaskFile.h
   \brief Error mask from text file
   \author B. Gobbo 
-  \version $Revision: 1.8 $
-  \date $Date: 2007/01/17 18:54:26 $
+  \version $Revision: 1.9 $
+  \date $Date: 2007/01/18 07:55:23 $
 */
 
 #ifndef EcalErrorMaskFile_H
@@ -36,10 +36,12 @@ class EcalErrorMaskFile {
 
   static bool done_;
   static std::string inFile_;
-/*
-  static std::map<EcalLogicID, MonCrystalStatusDat> mapMCSD_;
-  static std::map<EcalLogicID, MonPNStatusDat>      mapMPSD_;
-*/
+
+  static std::map<EcalLogicID, RunCrystalErrorsDat> mapCrystalErrors_;
+  static std::map<EcalLogicID, RunTTErrorsDat>      mapTTErrors_;
+  static std::map<EcalLogicID, RunPNErrorsDat>      mapPNErrors_;
+  static std::map<EcalLogicID, RunMemChErrorsDat>   mapMemChErrors_;
+  static std::map<EcalLogicID, RunMemTTErrorsDat>   mapMemTTErrors_;
 
   static void clearComments_( char* line );
   static void clearFinalBlanks_( char* line );

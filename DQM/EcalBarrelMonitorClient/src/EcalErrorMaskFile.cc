@@ -1,11 +1,11 @@
-// $Id: EcalErrorMaskFile.cc,v 1.10 2007/01/17 18:54:27 dellaric Exp $
+// $Id: EcalErrorMaskFile.cc,v 1.11 2007/01/18 07:55:24 dellaric Exp $
 
 /*!
   \file EcalErrorMaskFile.cc
   \brief Error mask from text file
   \author B. Gobbo 
-  \version $Revision: 1.10 $
-  \date $Date: 2007/01/17 18:54:27 $
+  \version $Revision: 1.11 $
+  \date $Date: 2007/01/18 07:55:24 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
@@ -17,10 +17,11 @@
 
 bool EcalErrorMaskFile::done_ = false;
 std::string EcalErrorMaskFile::inFile_ = "";
-/*
-std::map<EcalLogicID, MonCrystalStatusDat> EcalErrorMaskFile::mapMCSD_;
-std::map<EcalLogicID, MonPNStatusDat>      EcalErrorMaskFile::mapMPSD_;
-*/
+std::map<EcalLogicID, RunCrystalErrorsDat> EcalErrorMaskFile::mapCrystalErrors_;
+std::map<EcalLogicID, RunTTErrorsDat>      EcalErrorMaskFile::mapTTErrors_;
+std::map<EcalLogicID, RunPNErrorsDat>      EcalErrorMaskFile::mapPNErrors_;
+std::map<EcalLogicID, RunMemChErrorsDat>   EcalErrorMaskFile::mapMemChErrors_;
+std::map<EcalLogicID, RunMemTTErrorsDat>   EcalErrorMaskFile::mapMemTTErrors_;
 
 void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error ) {
 
@@ -135,43 +136,59 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 }
 
 void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* fillMap ) throw( std::runtime_error ) {
+
+  if( !done_ ) {
+    throw( std::runtime_error( "Input file not read" ) );
+    return;
+  }
+  fillMap->clear();
+  *fillMap = EcalErrorMaskFile::mapCrystalErrors_;
+  return;
 }
 
 void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMap ) throw( std::runtime_error ) {
+
+  if( !done_ ) {
+    throw( std::runtime_error( "Input file not read" ) );
+    return;
+  }
+  fillMap->clear();
+  *fillMap = EcalErrorMaskFile::mapTTErrors_;
+  return;
 }
 
 void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, RunPNErrorsDat>* fillMap ) throw( std::runtime_error ) {
+
+  if( !done_ ) {
+    throw( std::runtime_error( "Input file not read" ) );
+    return;
+  }
+  fillMap->clear();
+  *fillMap = EcalErrorMaskFile::mapPNErrors_;
+  return;
 }
 
 void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, RunMemChErrorsDat>* fillMap ) throw( std::runtime_error ) {
+
+  if( !done_ ) {
+    throw( std::runtime_error( "Input file not read" ) );
+    return;
+  }
+  fillMap->clear();
+  *fillMap = EcalErrorMaskFile::mapMemChErrors_;
+  return;
 }
 
 void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, RunMemTTErrorsDat>* fillMap ) throw( std::runtime_error ) {
-}
-
-/*
-void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, MonCrystalStatusDat>* fillMap ) throw( std::runtime_error ) {
 
   if( !done_ ) {
     throw( std::runtime_error( "Input file not read" ) );
     return;
   }
   fillMap->clear();
-  *fillMap = EcalErrorMaskFile::mapMCSD_;
+  *fillMap = EcalErrorMaskFile::mapMemTTErrors_;
   return;
 }
-
-void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, MonPNStatusDat>* fillMap ) throw( std::runtime_error ) {
-
-  if( !done_ ) {
-    throw( std::runtime_error( "Input file not read" ) );
-    return;
-  }
-  fillMap->clear();
-  *fillMap = EcalErrorMaskFile::mapMPSD_;
-  return;
-}
-*/
 
 void EcalErrorMaskFile::clearComments_( char* line ) {
   // It looks for "#" and replaces it with "\0"...
