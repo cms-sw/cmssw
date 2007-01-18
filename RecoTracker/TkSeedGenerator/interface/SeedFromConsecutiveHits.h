@@ -38,9 +38,10 @@ class SeedFromConsecutiveHits{
 			   const edm::EventSetup& iSetup,
 			   const edm::ParameterSet& p
 			   );
-
+  
   virtual  ~SeedFromConsecutiveHits(){};
 
+  bool isValid() {return isValid_;}
   
   PropagationDirection direction(){
     //as in ORCA
@@ -60,7 +61,7 @@ class SeedFromConsecutiveHits{
   //TrajectoryMeasurement theInnerMeas;
   //TrajectoryMeasurement theOuterMeas;
 
-  void construct( const TrackingRecHit* outerHit,
+  bool construct( const TrackingRecHit* outerHit,
 		  const TrackingRecHit* innerHit,
 		  const GlobalPoint& vertexPos,
 		  const GlobalError& vertexErr,
@@ -79,6 +80,7 @@ class SeedFromConsecutiveHits{
   PropagationDirection _dir;
   boost::shared_ptr<PTrajectoryStateOnDet> PTraj;
   recHitContainer _hits;
+  bool isValid_;
 
 };
 

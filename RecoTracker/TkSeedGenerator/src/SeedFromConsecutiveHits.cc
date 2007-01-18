@@ -14,6 +14,7 @@
 #include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 
 using namespace std;
+
 SeedFromConsecutiveHits::
 SeedFromConsecutiveHits( const TrackingRecHit* outerHit, 
 			 const TrackingRecHit* innerHit, 
@@ -22,12 +23,11 @@ SeedFromConsecutiveHits( const TrackingRecHit* outerHit,
 			 const edm::EventSetup& iSetup,
 			 const edm::ParameterSet& p){
 
- 
-  construct( outerHit,  innerHit, vertexPos, vertexErr,iSetup,p);
+  isValid_ = construct( outerHit,  innerHit, vertexPos, vertexErr,iSetup,p) ;
 }
 
 
-void SeedFromConsecutiveHits::
+bool SeedFromConsecutiveHits::
 construct( const TrackingRecHit* outerHit, 
 	   const TrackingRecHit* innerHit, 
 	   const GlobalPoint& vertexPos,
@@ -69,8 +69,7 @@ construct( const TrackingRecHit* outerHit,
     KFUpdator     theUpdator;
 
     const TSOS innerState = thePropagator->propagate(fts,tracker->idToDet(innerHit->geographicalId())->surface());
-    if ( !innerState.isValid()) 
-      throw PropagationException("SeedFromConsecutiveHits first propagation failed");
+    if ( !innerState.isValid()) return false;
 
 
     //
@@ -91,8 +90,7 @@ construct( const TrackingRecHit* outerHit,
       thePropagator->propagate( innerUpdated,
 				tracker->idToDet(outerHit->geographicalId())->surface());
  
-    if ( !outerState.isValid()) 
-      throw PropagationException("SeedFromConsecutiveHits second propagation failed");
+    if ( !outerState.isValid()) return false;
   
     outrhit=theBuilder.product()->build(outerHit);
     // this could be an option. But it doesn't seem to help much
@@ -111,7 +109,7 @@ construct( const TrackingRecHit* outerHit,
     _hits.push_back(innerHit->clone());
     _hits.push_back(outerHit->clone());
     PTraj = boost::shared_ptr<PTrajectoryStateOnDet>( transformer.persistentState(outerUpdated, outerHit->geographicalId().rawId()) );
-
+    return true;
 }
 
 

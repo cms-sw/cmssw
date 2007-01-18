@@ -32,14 +32,9 @@ SeedGeneratorFromHitPairsConsecutiveHits::seeds(TrajectorySeedCollection &output
 		      0, 0, sqr(region.originZBound()));
   SeedHitPairs::const_iterator ip;
 
-  for (ip = hitPairs.begin(); ip != hitPairs.end(); ip++) {
-    try{            
-      SeedFromConsecutiveHits seedfromhits( ip->outer(), ip->inner(),
-					    region.origin(), vtxerr,iSetup,pSet());
-      output.push_back( seedfromhits.TrajSeed() );
-    }
-    catch( PropagationException& err){
-      //cout << "warning: " << err.what() << endl;
-    }
+  for (ip = hitPairs.begin(); ip != hitPairs.end(); ip++) {                
+    SeedFromConsecutiveHits seedfromhits( ip->outer(), ip->inner(),
+					  region.origin(), vtxerr,iSetup,pSet());
+    if(seedfromhits.isValid()) output.push_back( seedfromhits.TrajSeed() );
   }
 }
