@@ -23,7 +23,7 @@
   <target name="compile" depends="init"
         description="compile the source " >
     <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}" deprecation="on" nowarn="off" optimize="on">
+    <javac srcdir="${src}" destdir="${build}" classpath="./bin/DBConnection.jar" deprecation="on" nowarn="off" optimize="on">
       <compilerarg value="-Xlint"/>
     </javac>
   </target> 

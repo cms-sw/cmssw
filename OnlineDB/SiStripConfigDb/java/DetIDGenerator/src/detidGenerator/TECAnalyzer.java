@@ -1,7 +1,8 @@
 package detidGenerator;
 
-import db.*;
-import java.util.Vector;
+//import db.*;
+import fr.in2p3.ipnl.db.*;
+import java.util.ArrayList;
 
 /**
  * <p>Class used to get the DET IDs of the modules in the TEC</p>
@@ -10,9 +11,12 @@ import java.util.Vector;
  */
 
 /*
-  $Date: 2006/06/13 09:46:52 $
+  $Date: 2006/06/28 11:42:24 $
   
   $Log: TECAnalyzer.java,v $
+  Revision 1.1  2006/06/28 11:42:24  gbaulieu
+  First import of the sources
+
   Revision 1.9  2006/06/13 09:46:52  baulieu
   Correct the shift in the petal numbering for TEC- (ie Sector 8 contains petals F1 & B8)
 
@@ -44,14 +48,14 @@ import java.util.Vector;
 
 public class TECAnalyzer implements IDetIdGenerator{
 
-    private Vector<Vector<String>> detIds;
+    private ArrayList<ArrayList<String>> detIds;
     private CDBConnection c;
 
     /**
        Default constructor
     */
     public TECAnalyzer() throws java.sql.SQLException, java.lang.ClassNotFoundException{
-	detIds = new Vector<Vector<String>>();
+	detIds = new ArrayList<ArrayList<String>>();
 	c = CDBConnection.getConnection();
 	
 	if(!DetIDGenerator.mtcc){//static member of DetIDGenerator : is it for the magnet test?
@@ -60,9 +64,9 @@ public class TECAnalyzer implements IDetIdGenerator{
 	    
 	    // for both TECs
 	    for(int i=0;i<2;i++){
-		Vector<Vector<String>> v = c.selectQuery("select object_id from cmstrkdb.object_assembly where object='TEC' and version='"+tecVersion+"'");
+		ArrayList<ArrayList<String>> v = c.selectQuery("select object_id from cmstrkdb.object_assembly where object='TEC' and version='"+tecVersion+"'");
 		if(v.size()==1){
-		    String tecID = (String)((Vector)v.get(0)).get(0);
+		    String tecID = (String)((ArrayList)v.get(0)).get(0);
 		    getWheels(tecID, detID);
 		}
 		
@@ -86,7 +90,7 @@ public class TECAnalyzer implements IDetIdGenerator{
        @param detID The current detID
     **/
     private void getWheels(String TECID, String detID) throws java.sql.SQLException{
-	Vector<Vector<String>> v = c.selectQuery("select object_id, number_in_container from cmstrkdb.object_assembly "+
+	ArrayList<ArrayList<String>> v = c.selectQuery("select object_id, number_in_container from cmstrkdb.object_assembly "+
 				 "where object='DISK' and container_id='"+
 				 TECID+"' order by number_in_container");
 	// for each DISK in the TEC
@@ -106,7 +110,7 @@ public class TECAnalyzer implements IDetIdGenerator{
        @param forward True for the front petal, false for the back
     **/
     private void getPetals(String DISKID, String detID, boolean forward) throws java.sql.SQLException{
-	Vector<Vector<String>> v = c.selectQuery("select object_id, number_in_container from cmstrkdb.object_assembly "+
+	ArrayList<ArrayList<String>> v = c.selectQuery("select object_id, number_in_container from cmstrkdb.object_assembly "+
 						 "where object='TECCR' and container_id='"+
 						 DISKID+"' order by number_in_container");
 	// for each control ring in the disk
@@ -115,7 +119,7 @@ public class TECAnalyzer implements IDetIdGenerator{
 	    int sector = Integer.parseInt((v.get(i)).get(1));
 	    int tec = Integer.parseInt(detID.substring(4,5));
 
-	    Vector<Vector<String>> v2 = c.selectQuery("select object_id, number_in_container from "+
+	    ArrayList<ArrayList<String>> v2 = c.selectQuery("select object_id, number_in_container from "+
 						      "cmstrkdb.object_assembly "+
 						      "where object='PETAL' and container_id='"+
 						      CRID+"' and number_in_container="+(forward?"1":"2"));
@@ -139,7 +143,7 @@ public class TECAnalyzer implements IDetIdGenerator{
        @param detID The current detID
     **/
     private void getModules(String petalID, String detID) throws java.sql.SQLException{
-	Vector<Vector<String>> v = c.selectQuery("select OA.object_id, OA.number_in_container, OD.type_description "+
+	ArrayList<ArrayList<String>> v = c.selectQuery("select OA.object_id, OA.number_in_container, OD.type_description "+
 						 "from cmstrkdb.object_assembly OA, "+
 						 "cmstrkdb.object_description OD "+
 						 "where OA.object=OD.object AND OA.type=OD.type "+
@@ -199,7 +203,7 @@ public class TECAnalyzer implements IDetIdGenerator{
 	    d+="."+stereo;
 
 	    // the detID is complete -> add it to the list
-	    Vector<String> couple = new Vector<String>();
+	    ArrayList<String> couple = new ArrayList<String>();
 	    couple.add(modID);
 	    couple.add(d);
 	    
@@ -207,7 +211,7 @@ public class TECAnalyzer implements IDetIdGenerator{
 	}
     }
 
-    public Vector<Vector<String>> getDetIds(){
+    public ArrayList<ArrayList<String>> getDetIds(){
 	return detIds;
     }
 

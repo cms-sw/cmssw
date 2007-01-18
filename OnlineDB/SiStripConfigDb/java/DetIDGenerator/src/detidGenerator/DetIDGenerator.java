@@ -1,8 +1,10 @@
 package detidGenerator;
 
-import db.*;
+import fr.in2p3.ipnl.db.*;
+//import db.*;
 import java.io.*;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.sql.*;
 
 /**
  * <p>Get the DetIDs for both TEC and TOB and export them to the online DB</p>
@@ -11,9 +13,12 @@ import java.util.Vector;
 **/
 
 /*
-  $Date: 2006/10/26 14:27:04 $
+  $Date: 2006/12/12 17:09:15 $
   
   $Log: DetIDGenerator.java,v $
+  Revision 1.6  2006/12/12 17:09:15  gbaulieu
+  Allow to store the data in a table of the construction DB (useful for cross-checking)
+
   Revision 1.5  2006/10/26 14:27:04  gbaulieu
   Add the possibility to export the data in a table of the construction DB to perform tests
 
@@ -166,7 +171,7 @@ public class DetIDGenerator
     **/
     public void go(){
 	try{
-	    Vector<Vector<String>> list = new Vector<Vector<String>>();
+	    ArrayList<ArrayList<String>> list = new ArrayList<ArrayList<String>>();
 	    IDetIdGenerator tec = new TECAnalyzer();
 	    IDetIdGenerator tob = new TOBAnalyzer();
 	    
@@ -230,9 +235,9 @@ public class DetIDGenerator
     /**
        Format the 1.6.x.x.x... string into a 32 bits word
     */
-    private void compactDetIds(Vector<Vector<String>> list) throws Exception{
+    private void compactDetIds(ArrayList<ArrayList<String>> list) throws Exception{
 	for(int i=0;i<list.size();i++){
-	    Vector<String> v = list.get(i);
+	    ArrayList<String> v = list.get(i);
 	    
 	    DetIdConverter d = null;
 	    if((v.get(1)).startsWith("1.6.")){
@@ -245,20 +250,20 @@ public class DetIDGenerator
 		    throw new Exception("The Det_ID should start with 1.6 (TEC) or 1.5 (TOB)");
 	    }
 	    
-	    v.setElementAt(d.compact()+"", 1);
+	    v.set(1, d.compact()+"");
 	}
     }
 
-    private void getFiberLength(Vector<Vector<String>> list) throws java.sql.SQLException{
-/*
-	for(int i=0;i<list.size();i++){
-	    Vector<String> v = list.get(i);
-	    v.add("1");
-	}
-*/
+
+    private void getFiberLength(ArrayList<ArrayList<String>> list) throws java.sql.SQLException{
+
+	PreparedStatement modules = c.createPreparedStatement("select OA2.object_id, OA2.number_in_container from cmstrkdb.object_assembly OA, cmstrkdb.object_assembly OA2 WHERE OA2.object='AOH' AND OA2.number_in_container=OA.number_in_container AND OA2.container_id=OA.container_id AND OA.object_id=?");
+	PreparedStatement aoh = c.createPreparedStatement("select G.fiber_length from cmstrkdb.aohgeneral_1_aoh_ G, cmstrkdb.aohcomp_1_aoh_ C where C.aohgeneral_1_aoh_=G.test_id AND C.object_id=?");
+	PreparedStatement length = c.createPreparedStatement("select distinct D.fanout_length from cmstrkdb.manufacture_1_optfanout_ M, cmstrkdb.diamond_1_optfanout_ D, cmstrkdb.object_assembly FANOUT, cmstrkdb.object_assembly AOH, cmstrkdb.object_assembly LASTRANS, cmstrkdb.link L WHERE M.diamond_1_optfanout_=D.test_id AND M.object_id=FANOUT.object_id AND L.object_id_b=FANOUT.object_id AND L.object_id_a=LASTRANS.object_id AND LASTRANS.container_id=AOH.object_id AND AOH.object_id=?");
+	
 	for(int i=0;i<list.size();i++){
 	    try{
-		Vector<String> v = list.get(i);
+		ArrayList<String> v = list.get(i);
 
 		String cDetID = new String(v.get(1));
 
@@ -269,19 +274,16 @@ public class DetIDGenerator
 		int sector = Integer.parseInt(det_id[5]);
 		//System.out.println(tec+" "+disk+" "+front+" "+sector);
 
-		query = "select OA2.object_id, OA2.number_in_container from cmstrkdb.object_assembly OA, cmstrkdb.object_assembly OA2 WHERE OA2.object='AOH' AND OA2.number_in_container=OA.number_in_container AND OA2.container_id=OA.container_id AND OA.object_id="+v.get(0)+" ";
-		Vector<Vector<String>> res = c.selectQuery(query);
+		ArrayList<ArrayList<String>> res = c.preparedSelectQuery(modules, v.get(0));
 		if(res.size()>0){
 		    String aoh_id = (res.get(0)).get(0);
 		    int aoh_position = Integer.parseInt((res.get(0)).get(1));
 		    
-		    query = "select G.fiber_length from cmstrkdb.aohgeneral_1_aoh_ G, cmstrkdb.aohcomp_1_aoh_ C where C.aohgeneral_1_aoh_=G.test_id AND C.object_id="+aoh_id;
-		    Vector<Vector<String>> lengthRes = c.selectQuery(query);
+		    ArrayList<ArrayList<String>> lengthRes = c.preparedSelectQuery(aoh, aoh_id);
 		    if(lengthRes.size()>0){
 			int aoh_length = Integer.parseInt((lengthRes.get(0)).get(0));
 			
-			query = "select distinct D.fanout_length from cmstrkdb.manufacture_1_optfanout_ M, cmstrkdb.diamond_1_optfanout_ D, cmstrkdb.object_assembly FANOUT, cmstrkdb.object_assembly AOH, cmstrkdb.object_assembly LASTRANS, cmstrkdb.link L WHERE M.diamond_1_optfanout_=D.test_id AND M.object_id=FANOUT.object_id AND L.object_id_b=FANOUT.object_id AND L.object_id_a=LASTRANS.object_id AND LASTRANS.container_id=AOH.object_id AND AOH.object_id="+aoh_id;
-			Vector<Vector<String>> lengthRes2 = c.selectQuery(query);
+			ArrayList<ArrayList<String>> lengthRes2 = c.preparedSelectQuery(length, aoh_id);
 			if(lengthRes2.size()==1){
 			    int total_length = aoh_length+Integer.parseInt((lengthRes2.get(0)).get(0));
 			    v.add(total_length+".0");
@@ -314,15 +316,22 @@ public class DetIDGenerator
 		Error(e.getMessage());
 	    }
 	}
+	//Close the statements
+	modules.close();
+	aoh.close();
+	length.close();
     }
 
-    private void getApvNumber(Vector<Vector<String>> list) throws java.sql.SQLException{
+    private void getApvNumber(ArrayList<ArrayList<String>> list) throws java.sql.SQLException{
+	PreparedStatement psType = c.createPreparedStatement("select OD.type_description from "+
+							      "cmstrkdb.object_assembly OA, "+
+							      "cmstrkdb.object_description OD WHERE"+
+							      " OA.object=OD.object AND OA.type=OD.type AND "+
+							      "OA.version=OD.version AND OA.object='HYB' AND "+
+							      "OA.container_id=?");
 	for(int i=0;i<list.size();i++){
-	    Vector<String> v = list.get(i);
-	    query = "select OD.type_description from cmstrkdb.object_assembly OA, cmstrkdb.object_description OD WHERE"+
-		" OA.object=OD.object AND OA.type=OD.type AND OA.version=OD.version AND OA.object='HYB' AND "+
-		"OA.container_id="+v.get(0);
-	    Vector<Vector<String>> res = c.selectQuery(query);
+	    ArrayList<String> v = list.get(i);
+	    ArrayList<ArrayList<String>> res = c.preparedSelectQuery(psType, v.get(0));
 	    if(res.size()>0){
 		String type = (res.get(0)).get(0);
 		type = type.substring(type.indexOf('.')+1, type.length()-1);
@@ -335,50 +344,67 @@ public class DetIDGenerator
 	    if(DetIDGenerator.verbose)
 		System.out.print(((i*100)/list.size())+" %\r");
 	}
+	psType.close();
     }
 
-    private void getDCU(Vector<Vector<String>> list) throws java.sql.SQLException{
+    private void getDCU(ArrayList<ArrayList<String>> list) throws java.sql.SQLException{
+	// 1 method for TOB dcus
+	PreparedStatement tob = c.createPreparedStatement("select MB.dcuhardid from "+
+							  "cmstrkdb.TOBTESTINGMODULEBASIC_1_MOD_ MB "+
+							  "where MB.status='reference' AND MB.object_id=?");
+
+	// 4 different methods for TEC (trye the first, if fails try the second ...)
+	PreparedStatement psTec1 = c.createPreparedStatement("select MB.dcuid from cmstrkdb.modvalidation_2_mod_ MV, "+
+							     "cmstrkdb.modulbasic_2_mod_ MB "+
+							     "where MB.test_id=MV.modulbasic_2_mod_ AND "+
+							     "MV.status='reference' AND MV.object_id=?");
+	PreparedStatement psTec2 = c.createPreparedStatement("select distinct FP.dcu_id from "+
+							     "cmstrkdb.hybproducer_1_hyb_ HP, "+
+							     "cmstrkdb.object_assembly OA, "+
+							     "cmstrkdb.fhitproduction_1_hyb_ FP where "+
+							     "HP.fhitproduction_1_hyb_=FP.test_id AND "+
+							     "OA.object_id=HP.object_id AND OA.object='HYB'"+
+							     " AND OA.container_id=?");
+	PreparedStatement psTec3 = c.createPreparedStatement("select distinct FR.dcu_id from "+
+							     "cmstrkdb.hybmeasurements_2_hyb_ HM, "+
+							     "cmstrkdb.object_assembly OA, "+
+							     "cmstrkdb.fhitreception_1_hyb_ FR where "+
+							     "HM.fhitreception_1_hyb_=FR.test_id AND "+
+							     "OA.object_id=HM.object_id AND OA.object='HYB' "+
+							     "AND OA.container_id=?");
+	PreparedStatement psTec4 = c.createPreparedStatement("select distinct FP.dcu_id from "+
+							     "cmstrkdb.object_assembly OA, "+
+							     "cmstrkdb.fhitproduction_1_hyb_ FP where "+
+							     "OA.object_id=FP.object_id AND OA.object='HYB' "+
+							     "AND OA.container_id=?");
+
 	for(int i=0;i<list.size();i++){
-	    Vector<String> v = list.get(i);
+	    ArrayList<String> v = list.get(i);
 
 	    DetIdConverter det = new DetIdConverter(Integer.parseInt(v.get(1)));
 	    if(det.getSubDetector()==6){//TEC
-
-		query = "select MB.dcuid from cmstrkdb.modvalidation_2_mod_ MV, cmstrkdb.modulbasic_2_mod_ MB "+
-		    "where MB.test_id=MV.modulbasic_2_mod_ AND MV.status='reference' AND MV.object_id="+v.get(0);
-		
-		Vector<Vector<String>> res = c.selectQuery(query);
+		ArrayList<ArrayList<String>> res = c.preparedSelectQuery(psTec1, v.get(0));
 		if(res.size()==1 && (res.get(0)).get(0)!=null && !(res.get(0)).get(0).equals("0")){
-		    Vector<String> detail = res.get(0);
-		    v.setElementAt(detail.get(0), 0);
+		    ArrayList<String> detail = res.get(0);
+		    v.set(0, detail.get(0));
 		}
 		else{
-		    query = "select distinct FP.dcu_id from cmstrkdb.hybproducer_1_hyb_ HP, cmstrkdb.object_assembly OA, "+
-			"cmstrkdb.fhitproduction_1_hyb_ FP where HP.fhitproduction_1_hyb_=FP.test_id AND "+
-			"OA.object_id=HP.object_id AND OA.object='HYB' AND OA.container_id="+v.get(0);
-		    res = c.selectQuery(query);
+		    res = c.preparedSelectQuery(psTec2, v.get(0));
 		    if(res.size()==1 && (res.get(0)).get(0)!=null && !(res.get(0)).get(0).equals("0")){
-			Vector<String> detail = res.get(0);
-			v.setElementAt(detail.get(0), 0);
+			ArrayList<String> detail = res.get(0);
+			v.set(0, detail.get(0));
 		    }
 		    else{
-			query = "select distinct FR.dcu_id from cmstrkdb.hybmeasurements_2_hyb_ HM, "+
-			    "cmstrkdb.object_assembly OA, "+
-			    "cmstrkdb.fhitreception_1_hyb_ FR where HM.fhitreception_1_hyb_=FR.test_id AND "+
-			    "OA.object_id=HM.object_id AND OA.object='HYB' AND OA.container_id="+v.get(0);
-			res = c.selectQuery(query);
+			res = c.preparedSelectQuery(psTec3, v.get(0));
 			if(res.size()==1 && (res.get(0)).get(0)!=null && !(res.get(0)).get(0).equals("0")){
-			    Vector<String> detail = res.get(0);
-			    v.setElementAt(detail.get(0), 0);
+			    ArrayList<String> detail = res.get(0);
+			    v.set(0, detail.get(0));
 			}
 			else{
-			    query = "select distinct FP.dcu_id from cmstrkdb.object_assembly OA, "+
-				"cmstrkdb.fhitproduction_1_hyb_ FP where "+
-				"OA.object_id=FP.object_id AND OA.object='HYB' AND OA.container_id="+v.get(0);
-			    res = c.selectQuery(query);
+			    res = c.preparedSelectQuery(psTec4, v.get(0));
 			    if(res.size()==1 && (res.get(0)).get(0)!=null && !(res.get(0)).get(0).equals("0")){
-				Vector<String> detail = res.get(0);
-				v.setElementAt(detail.get(0), 0);
+				ArrayList<String> detail = res.get(0);
+				v.set(0, detail.get(0));
 			    }
 			    else{
 				Error("DCU_ID of module "+v.get(0)+" unknown!!");
@@ -388,23 +414,25 @@ public class DetIDGenerator
 		}
 	    }
 	    if(det.getSubDetector()==5){//TOB
-		query = "select MB.dcuhardid from cmstrkdb.TOBTESTINGMODULEBASIC_1_MOD_ MB "+
-		    "where MB.status='reference' AND MB.object_id="+v.get(0);
-		
-		Vector<Vector<String>> res = c.selectQuery(query);
+		ArrayList<ArrayList<String>> res = c.preparedSelectQuery(tob, v.get(0));
 		if(res.size()==1 && (res.get(0)).get(0)!=null && !(res.get(0)).get(0).equals("0")){
-		    Vector<String> detail = res.get(0);
+		    ArrayList<String> detail = res.get(0);
 		    int dcuId = reverseDcuId(Integer.parseInt(detail.get(0)));
-		    v.setElementAt(dcuId+"", 0);
+		    v.set(0, dcuId+"");
 		}
 		else{
 		    Error("DCU_ID of module "+v.get(0)+" unknown!!");
-		    v.setElementAt("0", 0);
+		    v.set(0, "0");
 		}
 	    }
 	    if(DetIDGenerator.verbose)
 		System.out.print(((i*100)/list.size())+" %\r");
 	}
+	tob.close();
+	psTec1.close();
+	psTec2.close();
+	psTec3.close();
+	psTec4.close();
     }
     
     private int reverseDcuId(int dbDcuId){
@@ -424,11 +452,11 @@ public class DetIDGenerator
 	return result;
     }
 
-    private void reverseDcuIds(Vector<Vector<String>> list) throws Exception{
+    private void reverseDcuIds(ArrayList<ArrayList<String>> list) throws Exception{
 	for(int i=0;i<list.size();i++){
-	    Vector<String> v = list.get(i);
+	    ArrayList<String> v = list.get(i);
 	    int reversedDcuId = reverseDcuId(Integer.parseInt(v.get(0)));
-	    v.setElementAt(reversedDcuId+"", 0);
+	    v.set(0, reversedDcuId+"");
 	}	
     }
 
@@ -446,7 +474,7 @@ public class DetIDGenerator
 	c.setPassword(password);
     }
 
-    private void updateConstructionDB(Vector<Vector<String>> list) throws java.sql.SQLException, ClassNotSupportedException, java.lang.Exception{
+    private void updateConstructionDB(ArrayList<ArrayList<String>> list) throws java.sql.SQLException, ClassNotSupportedException, java.lang.Exception{
 	if(DetIDGenerator.updateCB){
 	    c.disconnect();
 
@@ -457,7 +485,7 @@ public class DetIDGenerator
 	    c.executeQuery("delete tec_detid");
 	    c.executeQuery("delete tob_detid");
 	    
-	    for(Vector<String> record:list){
+	    for(ArrayList<String> record:list){
 		 int dcuID = Integer.parseInt(record.get(0));
 		 int detID = Integer.parseInt(record.get(1));
 		 DetIdConverter det = new DetIdConverter(detID);
@@ -481,12 +509,12 @@ public class DetIDGenerator
 	}
     }
 
-    private void exportData(Vector<Vector<String>> list) throws java.sql.SQLException, ClassNotSupportedException{
+    private void exportData(ArrayList<ArrayList<String>> list) throws java.sql.SQLException, ClassNotSupportedException{
 	c.disconnect();
 
 	if(DetIDGenerator.mtcc){
 	    for(String[] s : TOBMTCC){
-		Vector<String> n = new Vector<String>();
+		ArrayList<String> n = new ArrayList<String>();
 		n.add(s[0]);
 		n.add(s[1]);
 		n.add(s[2]);
@@ -504,14 +532,14 @@ public class DetIDGenerator
 	}
 	
 	for(int i=0;i<list.size();i++){
-	    Vector<String> v = list.get(i);
+	    ArrayList<String> v = list.get(i);
 	    int dcuID = Integer.parseInt(v.get(0));
 	    int detID = Integer.parseInt(v.get(1));
 	    float length = new java.lang.Float(v.get(2));
 	    int apvNumber = Integer.parseInt(v.get(3));
 	    if(DetIDGenerator.export){
 		System.out.println(v);
-		int res=c.callFunction("PkgDcuInfo.setValues", dcuID, detID, length, apvNumber);
+		int res=((OracleConnection)c).callFunction("PkgDcuInfo.setValues", dcuID, detID, length, apvNumber);
 	    }
 	    else{
 		System.out.println("<DCUINFO dcuHardId=\""+dcuID+"\" detId=\""+detID+"\" fibreLength=\""+length+"\" apvNumber=\""+apvNumber+"\" />");
@@ -531,7 +559,7 @@ public class DetIDGenerator
        @return The det_id corresponding to the dcu_id
     */
     public int getDetId(int dcuId) throws java.sql.SQLException{
-	Vector<Vector<String>> res = c.selectQuery("select detid from dcuInfo where dcuhardid="+dcuId);
+	ArrayList<ArrayList<String>> res = c.selectQuery("select detid from dcuInfo where dcuhardid="+dcuId);
 	if(res.size()==0)
 	    throw new java.sql.SQLException("No detId found for DcuId "+dcuId);
 	else
@@ -544,7 +572,7 @@ public class DetIDGenerator
        @return The output vector
     **/
 
-    private static Vector<Integer> loadFile(String name) throws java.io.FileNotFoundException, java.io.IOException
+    private static ArrayList<Integer> loadFile(String name) throws java.io.FileNotFoundException, java.io.IOException
     {
 	File inputFile;
         FileReader in;
@@ -552,8 +580,8 @@ public class DetIDGenerator
 	String s="";
 	int c;
 	boolean stop;
-	Vector<String> lines = new Vector<String>();
-	Vector<Integer> v = new Vector<Integer>();
+	ArrayList<String> lines = new ArrayList<String>();
+	ArrayList<Integer> v = new ArrayList<Integer>();
         	
 	in = new FileReader(name);
 	stop = false;
@@ -587,8 +615,8 @@ public class DetIDGenerator
     {
 	try{
 	    DetIDGenerator d = new DetIDGenerator();
-	    d.exportData(new Vector<Vector<String>>());// only to connect to the configuration DB...
-	    Vector<Integer> dcuIds = loadFile(args[0]);
+	    d.exportData(new ArrayList<ArrayList<String>>());// only to connect to the configuration DB...
+	    ArrayList<Integer> dcuIds = loadFile(args[0]);
 	    System.out.println(dcuIds.size()+" modules : ");
 	    for(Integer dcuId : dcuIds){
 		try{
