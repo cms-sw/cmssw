@@ -6,6 +6,7 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
+<use name=boost>
 <use name=rootmath>
 <use name=rootrflx>
 <export>
@@ -17,6 +18,7 @@
   <use name=DataFormats/Math>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/VertexReco>
+  <use name=boost>
   <use name=rootmath>
   <lib name=DataFormatsBTauReco>
 </export>

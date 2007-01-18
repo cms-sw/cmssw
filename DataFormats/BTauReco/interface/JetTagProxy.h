@@ -25,7 +25,7 @@ public:
   const edm::RefVector<TrackCollection> & tracks(void) const { return m_jetTag->tracks(); }
   const JetTracksAssociationRef & jtaRef(void)         const { return m_jetTag->jtaRef(); }
   
-potected:
+protected:
   JetTagRef m_jetTag;
 };
 
