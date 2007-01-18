@@ -25,6 +25,20 @@ namespace cond{
     cond::TimeType timeType() const;
     cond::Time_t globalSince() const;
     cond::Time_t globalTill() const;
+    void exportIOV( cond::PoolStorageManager& destDB,
+		    const std::string& iovToken );
+    void exportIOVRange( cond::PoolStorageManager& destDB,
+			 const std::string& iovToken,
+			 cond::Time_t lowValue,
+			 cond::Time_t highValue);
+    void exportIOVWithPayload( cond::PoolStorageManager& destDB,
+			       const std::string& iovToken,
+			       const std::string& payloadObjectName );
+    void exportIOVRangeWithPayload( cond::PoolStorageManager& destDB,
+				    const std::string& iovToken,
+				    cond::Time_t lowValue,
+				    cond::Time_t highValue,
+				    const std::string& payloadObjectName );
   private:
     cond::PoolStorageManager& m_pooldb;
     cond::IOVServiceImpl* m_impl;
