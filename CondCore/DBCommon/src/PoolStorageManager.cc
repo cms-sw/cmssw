@@ -2,16 +2,21 @@
 #include "CondCore/DBCommon/interface/PoolStorageManager.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/ConnectMode.h"
-//#include "FileCatalog/URIParser.h"
-//#include "FileCatalog/FCSystemTools.h"
 #include "FileCatalog/IFileCatalog.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "PersistencySvc/ISession.h"
 #include "PersistencySvc/IDatabase.h"
 #include "PersistencySvc/ITransaction.h"
+#include "PersistencySvc/ITokenIterator.h"
+#include "PersistencySvc/IContainer.h"
+#include "POOLCore/Token.h"
+#include "StorageSvc/DbType.h"
 #include "DataSvc/DataSvcFactory.h"
 #include "DataSvc/IDataSvc.h"
+#include "DataSvc/RefBase.h"
+#include "DataSvc/AnyPtr.h"
 #include "POOLCore/Exception.h"
+
 cond::PoolStorageManager::PoolStorageManager(const std::string& con,
 					     const std::string& catalog): m_catalogstr(catalog),m_con(con),m_cat(new pool::IFileCatalog),m_svc( pool::DataSvcFactory::instance(m_cat)),m_db(0),m_started(false),m_sessionHandle(new cond::DBSession(true)),m_sessionShared(false){  
 }
@@ -60,6 +65,43 @@ void cond::PoolStorageManager::commit(){
 void cond::PoolStorageManager::rollback(){
   m_svc->transaction().rollback();
   m_cat->rollback();
+}
+void 
+cond::PoolStorageManager::copyObjectTo( cond::PoolStorageManager& destDB,
+					const std::string& className,
+					const std::string& objectToken ){
+  const ROOT::Reflex::Type myclassType=ROOT::Reflex::Type::ByName(className);
+  pool::RefBase myobj(m_svc,objectToken,myclassType.TypeInfo() );
+  const pool::AnyPtr myPtr=myobj.object().get();
+  std::string mycontainer=myobj.token()->contID();
+  pool::Placement destPlace;
+  destPlace.setDatabase(destDB.connectionString(), 
+			pool::DatabaseSpecification::PFN );
+  destPlace.setContainerName(mycontainer);
+  destPlace.setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
+  pool::RefBase mycopy(&(destDB.DataSvc()),myPtr,myclassType.TypeInfo());
+  mycopy.markWrite(destPlace);
+}
+void 
+cond::PoolStorageManager::copyContainerTo( cond::PoolStorageManager& destDB,
+					   const std::string& className,
+					   const std::string& containerName ){
+  const ROOT::Reflex::Type myclassType=ROOT::Reflex::Type::ByName(className);
+  pool::Placement destPlace;
+  destPlace.setDatabase(destDB.connectionString(), 
+			pool::DatabaseSpecification::PFN );
+  destPlace.setContainerName(containerName);
+  destPlace.setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
+  pool::ITokenIterator* tokenIt=m_svc->session().databaseHandle(m_con,pool::DatabaseSpecification::PFN)->containerHandle( containerName )->tokens("");
+  pool::Token* myToken=0;
+  while( (myToken=tokenIt->next())!=0 ){
+    pool::RefBase myobj(m_svc,*myToken,myclassType.TypeInfo() );
+    const pool::AnyPtr myPtr=myobj.object().get();
+    pool::RefBase mycopy(&(destDB.DataSvc()),myPtr,myclassType.TypeInfo());
+    mycopy.markWrite(destPlace);
+    myToken->release();
+  }
+  delete tokenIt;//?????what about others?
 }
 std::string cond::PoolStorageManager::catalogString() const{
   return m_catalogstr;
