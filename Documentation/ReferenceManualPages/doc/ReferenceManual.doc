@@ -44,7 +44,7 @@ displays in the following way:
 \htmlonly
 <pre>
  &gt; cd src
- &gt; project cmssw
+ &gt; project CMSSW
  &gt; cvs co Documentation/ReferenceManualPages 
  &gt; cvs co Documentation/ReferenceManualScripts
 </pre>
@@ -52,7 +52,7 @@ displays in the following way:
  - produce the html documentation via doxygen:
 \htmlonly
 <pre>
- &gt; scram b referencemanual
+ &gt; scramv1 b referencemanual
 </pre>
 \endhtmlonly
  - look at the output in your preferred browser:
