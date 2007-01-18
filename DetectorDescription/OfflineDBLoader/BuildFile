@@ -1,5 +1,5 @@
 <use name=DetectorDescription/Core>
-<use name=DetectorDescription/PersistentDDDObjects>
+<use name=CondFormats/IdealGeometryObjects>
 <use name=DetectorDescription/DBReader>
 <use name=CondCore/MetaDataService>
 <use name=CondCore/IOVService>
@@ -14,7 +14,7 @@
  <lib name=DetectorDescriptionOfflineDBLoader>
  <use name=DetectorDescription/Core>
  <use name=DetectorDescription/Parser>
- <use name=DetectorDescription/PersistentDDDObjects>
+ <use name=CondFormats/IdealGeometryObjects>
  <use name=DetectorDescription/DBReader>
  <use name=CondCore/MetaDataService>
  <use name=CondCore/IOVService>
