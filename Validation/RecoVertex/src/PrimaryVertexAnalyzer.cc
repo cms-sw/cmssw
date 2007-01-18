@@ -105,6 +105,8 @@ void PrimaryVertexAnalyzer::beginJob(edm::EventSetup const& iSetup){
   h["vtxprob"]      = new TH1F("vtxprob","chisquared probability",100,0.,1.);
   h["eff"]          = new TH1F("eff","efficiency",2, -0.5, 1.5);
   h["efftag"]       = new TH1F("efftag","efficiency tagged vertex",2, -0.5, 1.5);
+  h["zdistancetag"] = new TH1F("zdistancetag","z-distance between tagged and generated",100, -0.1, 0.1);
+  h["puritytag"]    = new TH1F("puritytag","purity of primary vertex tags",2, -0.5, 1.5);
   h["effvseta"]     = new TProfile("effvseta","efficiency vs eta",20, -2.5, 2.5, 0, 1.);
   h["effvsptsq"]    = new TProfile("effvsptsq","efficiency vs ptsq",20, 0., 10000., 0, 1.);
   h["effvsntrk"]    = new TProfile("effvsntrk","efficiency vs # tracks",50, 0., 50., 0, 1.);
@@ -510,7 +512,13 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
        h["pully"]->Fill( (vsim->recVtx->y()-vsim->y*simUnit_)/vsim->recVtx->yError() );
        h["pullz"]->Fill( (vsim->recVtx->z()-vsim->z*simUnit_)/vsim->recVtx->zError() );
        h["eff"]->Fill( 1.);
-       if((simpv.size()==1)&&(vsim->recVtx==&(*recVtxs->begin()))){ h["efftag"]->Fill( 1.); }
+       if(simpv.size()==1){
+	 if (vsim->recVtx==&(*recVtxs->begin())){
+	   h["efftag"]->Fill( 1.); 
+	 }else{
+	   h["efftag"]->Fill( 0.); 
+	 }
+       }
        h["effvseta"]->Fill(vsim->ptot.rapidity(),1.);
        h["effvsptsq"]->Fill(vsim->ptsq,1.);
        h["effvsntrk"]->Fill(vsim->nGenTrk,1.);
@@ -522,18 +530,31 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
        if(verbose_){std::cout <<"primary not found " << vsim->x << " " << vsim->y << " " << vsim->z << " nGenTrk=" << vsim->nGenTrk << std::endl;}
 
        h["eff"]->Fill( 0.);
-       if((simpv.size()==1)&&(vsim->recVtx==&(*recVtxs->begin()))){ h["efftag"]->Fill( 0.); }
+       if(simpv.size()==1){ h["efftag"]->Fill( 0.); }
        h["effvseta"]->Fill(vsim->ptot.rapidity(),0.);
        h["effvsptsq"]->Fill(vsim->ptsq,0.);
        h["effvsntrk"]->Fill(float(vsim->nGenTrk),0.);
        h["effvsnrectrk"]->Fill(recTrks->size(),0.);
        h["effvsz"]->Fill(vsim->z*simUnit_,0.);
+     } // no recvertex for this simvertex
+   }//found MC event
+   // end of sim/rec matching 
+   
+     
+   // purity of event vertex tags
+   if (recVtxs->size()>0){
+     Double_t dz=(*recVtxs->begin()).z() - (*simpv.begin()).z*simUnit_;
+     h["zdistancetag"]->Fill(dz);
+     if( fabs(dz)<0.0500){
+       h["puritytag"]->Fill(1.);
+     }else{
+       // bad tag: the true primary was more than 500 um away from the tagged primary
+       h["puritytag"]->Fill(0.);
      }
    }
-  }//found MC event
-  // end of sim/rec matching 
 
 
+  }// MC event
 
   // test track links, use reconstructed vertices
 
