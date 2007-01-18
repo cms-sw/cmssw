@@ -1,12 +1,12 @@
 /** \class SmartPropagatorESProducer
  *  ES producer needed to put the SmartPropagator inside the EventSetup
  *
- *  $Date: 2006/11/23 11:48:37 $
+ *  $Date: 2007/01/17 19:28:41 $
  *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
-#include "TrackingTools/GeomPropagators/interface/SmartPropagatorESProducer.h"
+#include "TrackingTools/Producers/interface/SmartPropagatorESProducer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"

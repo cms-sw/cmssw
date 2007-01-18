@@ -1,4 +1,4 @@
-#include "TrackingTools/GeomPropagators/interface/StraightLinePropagatorESProducer.h"
+#include "TrackingTools/Producers/interface/StraightLinePropagatorESProducer.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
