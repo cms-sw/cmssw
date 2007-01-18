@@ -3,8 +3,8 @@
  * Description:
  *  class to print the MuonNavigationSchool
  *
- * $Date: 2006/07/26 08:37:06 $
- * $Revision: 1.6 $
+ * $Date: 2006/10/19 15:04:01 $
+ * $Revision: 1.7 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -88,8 +88,8 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
 
 /// print layer
 void MuonNavigationPrinter::printLayer(DetLayer* layer) const {
-  vector<const DetLayer*> nextLayers = layer->nextLayers(alongMomentum);
-  vector<const DetLayer*> compatibleLayers = layer->compatibleLayers(alongMomentum);
+  vector<const DetLayer*> nextLayers = layer->nextLayers(insideOut);
+  vector<const DetLayer*> compatibleLayers = layer->compatibleLayers(insideOut);
   if (BarrelDetLayer* bdl = dynamic_cast<BarrelDetLayer*>(layer)) {
     edm::LogInfo ("MuonNavigationPrinter") 
          << layer->location() << " " << layer->subDetector() << " layer at R: "
@@ -111,21 +111,21 @@ void MuonNavigationPrinter::printLayer(DetLayer* layer) const {
          << setw(6) << setprecision(2)
          << fdl->specificSurface().outerRadius();
   }
-  edm::LogInfo ("MuonNavigationPrinter") << " has " << nextLayers.size() << " next layers along momentum: ";
+  edm::LogInfo ("MuonNavigationPrinter") << " has " << nextLayers.size() << " next layers in the direction inside-out: ";
   printLayers(nextLayers);
 
   nextLayers.clear();
-  nextLayers = layer->nextLayers(oppositeToMomentum);
+  nextLayers = layer->nextLayers(outsideIn);
 
-   edm::LogInfo ("MuonNavigationPrinter") << " has " << nextLayers.size() << " next layers opposite to momentum: ";
+   edm::LogInfo ("MuonNavigationPrinter") << " has " << nextLayers.size() << " next layers in the direction outside-in: ";
   printLayers(nextLayers);
 
-  edm::LogInfo ("MuonNavigationPrinter") << " has " << compatibleLayers.size() << " compatible layers along momentum: ";
+  edm::LogInfo ("MuonNavigationPrinter") << " has " << compatibleLayers.size() << " compatible layers in the direction inside-out:: ";
   printLayers(compatibleLayers);
   compatibleLayers.clear();
-  compatibleLayers = layer->compatibleLayers(oppositeToMomentum);
-
-   edm::LogInfo ("MuonNavigationPrinter") << " has " << compatibleLayers.size() << " compatible layers opposite to momentum: ";
+  compatibleLayers = layer->compatibleLayers(outsideIn);
+  
+  edm::LogInfo ("MuonNavigationPrinter") << " has " << compatibleLayers.size() << " compatible layers in the direction outside-in: ";
   printLayers(compatibleLayers);
 
 }

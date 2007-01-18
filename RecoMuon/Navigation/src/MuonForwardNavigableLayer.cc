@@ -2,8 +2,8 @@
  *
  *  Navigable layer for Forward Muon
  *
- * $Date: 2006/08/28 19:12:58 $
- * $Revision: 1.6 $
+ * $Date: 2006/08/29 16:06:45 $
+ * $Revision: 1.7 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -25,12 +25,12 @@ using namespace std;
 using namespace edm;
 
 vector<const DetLayer*> 
-MuonForwardNavigableLayer::nextLayers(PropagationDirection dir) const {
+MuonForwardNavigableLayer::nextLayers(NavigationDirection dir) const {
 
   vector<const DetLayer*> result;
   vector<const DetLayer*> barrel;
 
-  if ( dir == alongMomentum ) {
+  if ( dir == insideOut ) {
     pushResult(result, theOuterEndcapLayers);
   }
   else {
@@ -54,6 +54,7 @@ MuonForwardNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
   vector<const DetLayer*> result;
   vector<const DetLayer*> barrel;
 
+  // FIXME! the direction must be consistent w.r.t. the momentum from the fts 
   if ( dir == alongMomentum ) {
     pushResult(result, theOuterEndcapLayers, fts);
   }
@@ -71,12 +72,12 @@ MuonForwardNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
 }
 
 vector<const DetLayer*>
-MuonForwardNavigableLayer::compatibleLayers(PropagationDirection dir) const {
+MuonForwardNavigableLayer::compatibleLayers(NavigationDirection dir) const {
 
   vector<const DetLayer*> result;
   vector<const DetLayer*> barrel;
 
-  if ( dir == alongMomentum ) {
+  if ( dir == insideOut ) {
     pushResult(result, theAllOuterEndcapLayers);
   }
   else {
@@ -96,6 +97,8 @@ MuonForwardNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
                                       PropagationDirection dir) const {
   vector<const DetLayer*> result;
   vector<const DetLayer*> barrel;
+  
+  // FIXME! the direction must be consistent w.r.t. the momentum from the fts 
   if ( dir == alongMomentum ) {
     pushCompatibleResult(result, theAllOuterEndcapLayers, fts);
   }

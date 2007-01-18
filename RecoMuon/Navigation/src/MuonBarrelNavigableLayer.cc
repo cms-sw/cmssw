@@ -2,8 +2,8 @@
  *
  *  Navigable layer for Barrel Muon 
  *
- *  $Date: 2006/08/29 16:06:27 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/10/13 13:28:08 $
+ *  $Revision: 1.8 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -29,11 +29,11 @@
 
 using namespace std;
 std::vector<const DetLayer*> 
-MuonBarrelNavigableLayer::nextLayers(PropagationDirection dir) const {
+MuonBarrelNavigableLayer::nextLayers(NavigationDirection dir) const {
 
   std::vector<const DetLayer*> result;
 
-  if ( dir == alongMomentum ) {
+  if ( dir == insideOut ) {
     pushResult(result, theOuterBarrelLayers);
     pushResult(result, theOuterBackwardLayers);
     pushResult(result, theOuterForwardLayers);
@@ -57,6 +57,7 @@ MuonBarrelNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
 
   std::vector<const DetLayer*> result;
 
+  // FIXME! the direction must be consistent w.r.t. the momentum from the fts 
   if ( dir == alongMomentum ) {
     pushResult(result, theOuterBarrelLayers, fts);
     pushResult(result, theOuterBackwardLayers, fts);
@@ -73,11 +74,11 @@ MuonBarrelNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
 }
 
 std::vector<const DetLayer*>
-MuonBarrelNavigableLayer::compatibleLayers(PropagationDirection dir) const {
+MuonBarrelNavigableLayer::compatibleLayers(NavigationDirection dir) const {
 
   std::vector<const DetLayer*> result;
 
-  if ( dir == alongMomentum ) {
+  if ( dir == insideOut ) {
     pushResult(result, theAllOuterBarrelLayers);
     pushResult(result, theAllOuterBackwardLayers);
     pushResult(result, theAllOuterForwardLayers);
@@ -97,6 +98,8 @@ std::vector<const DetLayer*>
 MuonBarrelNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
                                      PropagationDirection dir) const {
   std::vector<const DetLayer*> result;
+
+  // FIXME! the direction must be consistent w.r.t. the momentum from the fts 
   if ( dir == alongMomentum ) {
     pushCompatibleResult(result, theAllOuterBarrelLayers, fts);
     pushCompatibleResult(result, theAllOuterBackwardLayers, fts);

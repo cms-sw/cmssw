@@ -7,8 +7,8 @@
  *  trackingRange defines an MuonEtaRange for an FTS, 
  *  which is used for search compatible DetLayers.
  *
- * $Date: 2006/06/04 18:27:20 $
- * $Revision: 1.4 $
+ * $Date: 2006/10/13 13:28:07 $
+ * $Revision: 1.5 $
  *
  * \author : Chang Liu - Purdue University <Chang.Liu@cern.ch>
  *
@@ -30,13 +30,13 @@ class MuonNavigableLayer : public NavigableLayer {
   public:
 
     /// NavigableLayer interface
-    virtual std::vector<const DetLayer*> nextLayers(PropagationDirection dir) const=0;
+    virtual std::vector<const DetLayer*> nextLayers(NavigationDirection dir) const=0;
 
     /// NavigableLayer interface
     virtual std::vector<const DetLayer*> nextLayers(const FreeTrajectoryState& fts, 
                                                PropagationDirection dir) const=0;
 
-    virtual std::vector<const DetLayer*> compatibleLayers(PropagationDirection dir) const=0;
+    virtual std::vector<const DetLayer*> compatibleLayers(NavigationDirection dir) const=0;
 
     /// NavigableLayer interface
     virtual std::vector<const DetLayer*> compatibleLayers(const FreeTrajectoryState& fts,
