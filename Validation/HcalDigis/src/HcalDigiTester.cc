@@ -140,7 +140,7 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
     
       edm::Handle<PCaloHitContainer> hcalHits ;
      // iEvent.getByLabel("SimG4Object","HcalHits",hcalHits);
-      iEvent.getByLabel("SimG4Object","HcalHits",hcalHits);
+      iEvent.getByLabel("g4SimHits","HcalHits",hcalHits);
       
       const PCaloHitContainer * simhitResult = hcalHits.product () ;
       
