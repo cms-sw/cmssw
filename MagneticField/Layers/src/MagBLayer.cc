@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/06 15:49:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/09/26 14:47:13 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -14,7 +14,7 @@
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 #include "Geometry/Vector/interface/Phi.h"
 
-//#include "MagneticField/Layers/interface/MagVerbosity.h"
+#include "MagneticField/Layers/interface/MagVerbosity.h"
 
 #include <iostream>
 
@@ -82,23 +82,23 @@ MagVolume* MagBLayer::findVolume(const GlobalPoint & gp, double tolerance) const
   // FIXME assume sectors are sorted in phi!
   int bin= theBinFinder->binIndex(phi);
     // TOFIX
-//   if (verbose.debugOut) cout << "   Trying sector at phi " << theSectors[bin]->minPhi()
-// 		  << " " << phi << endl ;
+  if (verbose::debugOut) cout << "   Trying sector at phi " << theSectors[bin]->minPhi()
+			      << " " << phi << endl ;
   result = theSectors[bin]->findVolume(gp, tolerance);
     // TOFIX
-//   if (verbose.debugOut) cout << "***In guessed bsector"
-// 		  << (result==0? " failed " : " OK ") <<endl;
+  if (verbose::debugOut) cout << "***In guessed bsector"
+			     << (result==0? " failed " : " OK ") <<endl;
 
   if (result==0) { // If fails, can be in previous bin.
     // TOFIX
-//     if (verbose.debugOut) cout << "   Trying sector at phi "
-// 		    << theSectors[theBinFinder->binIndex(bin-1)]->minPhi()
-// 		    << " " << phi << endl ;
+    if (verbose::debugOut) cout << "   Trying sector at phi "
+			       << theSectors[theBinFinder->binIndex(bin-1)]->minPhi()
+			       << " " << phi << endl ;
     
     result = theSectors[theBinFinder->binIndex(bin-1)]->findVolume(gp, tolerance);
     // TOFIX
-//     if (verbose.debugOut) cout << "***In previous bsector"
-// 		    << (result==0? " failed " : " OK ") <<endl;
+    if (verbose::debugOut) cout << "***In previous bsector"
+			       << (result==0? " failed " : " OK ") <<endl;
 
   }
   return result;

@@ -3,15 +3,15 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/06 15:49:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/14 16:03:52 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
 #include "MagneticField/Layers/interface/MagBSector.h"
 #include "MagneticField/Layers/interface/MagBRod.h"
 
-// #include "MagneticField/MagLayers/interface/MagVerbosity.h"
+#include "MagneticField/Layers/interface/MagVerbosity.h"
 
 #include <iostream>
 
@@ -31,14 +31,14 @@ MagBSector::~MagBSector(){
 
 MagVolume * MagBSector::findVolume(const GlobalPoint & gp, double tolerance) const {
   MagVolume * result = 0;
-  //  Geom::Phi<float> phi = gp.phi();
+  Geom::Phi<float> phi = gp.phi();
 
   // FIXME : use a binfinder
   for ( vector<MagBRod*>::const_iterator irod = theRods.begin();
 	irod != theRods.end(); irod++) {
     // TOFIX
-//     if (verbose.debugOut) cout << "     Trying rod at phi " << (*irod)->minPhi()
-// 		    << " " << phi << endl ;
+    if (verbose::debugOut) cout << "     Trying rod at phi " << (*irod)->minPhi()
+				<< " " << phi << endl ;
     result = (*irod)->findVolume(gp, tolerance);
     if (result!=0) return result;
   }

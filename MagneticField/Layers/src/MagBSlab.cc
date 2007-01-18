@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/04/14 17:35:33 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/09/06 15:49:19 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -12,7 +12,7 @@
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 
-// #include "MagneticField/MagLayers/interface/MagVerbosity.h"
+#include "MagneticField/Layers/interface/MagVerbosity.h"
 #include <iostream>
 
 using namespace std;
@@ -35,8 +35,8 @@ MagVolume* MagBSlab::findVolume(const GlobalPoint & gp, double tolerance) const 
 	ivol != theVolumes.end(); ivol++) {
     // FIXME : use a binfinder
     // TOFIX
-//     if (verbose.debugOut) cout << "        Trying volume "
-// 		    << (static_cast<MagVolume6Faces*>(*ivol))->name << endl;
+    if (verbose::debugOut) cout << "        Trying volume "
+			       << (static_cast<MagVolume6Faces*>(*ivol))->name << endl;
     if ( (*ivol)->inside(gp,tolerance) ) return (*ivol);
   }
 

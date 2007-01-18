@@ -3,15 +3,15 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2004/06/22 17:05:14 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/09/06 15:49:19 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
 #include "MagneticField/Layers/interface/MagBRod.h"
 #include "MagneticField/Layers/interface/MagBSlab.h"
 
-// #include "MagneticField/MagLayers/interface/MagVerbosity.h"
+#include "MagneticField/Layers/interface/MagVerbosity.h"
 
 #include <iostream>
 
@@ -31,7 +31,7 @@ MagBRod::MagBRod(vector<MagBSlab*>& slabs, Geom::Phi<float> phiMin) :
     for (vector<MagBSlab *>::const_iterator islab = theSlabs.begin();
 	 islab != theSlabs.end(); islab++) {
   // TOFIX
-//       if (verbose.debugOut) cout << (*islab)->minZ() <<endl;
+      if (verbose::debugOut) cout << (*islab)->minZ() <<endl;
       //FIXME assume layers are already sorted in Z
       zBorders.push_back((*islab)->minZ());
     }
@@ -58,12 +58,12 @@ MagVolume * MagBRod::findVolume(const GlobalPoint & gp, double tolerance) const 
   }
   
   // TOFIX
-//   if (verbose.debugOut) cout << "       Trying slab at Z " << theSlabs[bin]->minZ()
-// 		  << " " << Z << endl ;
+  if (verbose::debugOut) cout << "       Trying slab at Z " << theSlabs[bin]->minZ()
+			      << " " << Z << endl ;
   result = theSlabs[bin]->findVolume(gp, tolerance);
   // TOFIX
-//   if (verbose.debugOut) cout << "***In guessed bslab"
-// 		  << (result==0? " failed " : " OK ") <<endl;  
+  if (verbose::debugOut) cout << "***In guessed bslab"
+			      << (result==0? " failed " : " OK ") <<endl;  
 
   return result;
 }
