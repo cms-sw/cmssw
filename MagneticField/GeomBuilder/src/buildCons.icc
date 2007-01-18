@@ -1,8 +1,8 @@
 /*
  *  Compute parameters for a cone section 
  *
- *  $Date: 2005/09/06 15:48:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/09/27 15:15:52 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -73,9 +73,14 @@ void MagGeoBuilderFromDDD::volumeHandle::buildCons(const DDExpandedView &fv) {
 				  Surface::RotationType(),
 				  cb.vertex(),
 				  cb.openingAngle());
+
+    if (bldVerb::debugOut) cout << "Outer surface: cone, vtx: " <<  cb.vertex()
+				<< " angle " << cb.openingAngle() << endl;
+
+//     cout << (cb.vertex().z()-center_.z()-zhalf) *tan(cb.openingAngle()) << endl;
+//     cout << (cb.vertex().z()-center_.z()+zhalf) *tan(cb.openingAngle()) << endl;
+
   }
-  
-  // FIXME: test cone properties...
 
   // All other surfaces
   buildPhiZSurf(startPhi, deltaPhi, zhalf, rCentr);  
