@@ -22,7 +22,7 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<csctf::TrackStub>& the
 
   for(int bx = minBX; bx <= maxBX; ++bx)
     {
-      for(int st = CSCDetId::minStationId(); st <= CSCDetId::maxStationId(); ++st)
+      for(int st = CSCDetId::minStationId(); st <= CSCDetId::maxStationId() + 1; ++st) // 1 - 5 for DT stubs
 	{
 	  std::vector<csctf::TrackStub> stub_list;
 	  std::vector<csctf::TrackStub>::const_iterator stubi;
@@ -36,7 +36,6 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<csctf::TrackStub>& the
 	  
 	  for(stubi = stub_list.begin(); stubi != stub_list.end(); stubi++)
 	    {
-	      std::cout << stubi->phiPacked() << std::endl;
 	      runme |= stubi->isValid();
 	      switch(st)
 		{

@@ -37,16 +37,24 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
 		                             dttrig->chPhiSegm2(wheel,1,iss,bx);
 		  if(dtts[stub])
 		    {
+
 		      // Convert stubs to CSC format (signed -> unsigned)
-		      int phi = dtts[stub]->phi();
-		      phi += 614; // move DTphi lower bound to zero. Determined empirically.
-		      if(is > sector) phi += 2048; //make [-30,30] -> [0,60]
-		      phi = ((double)phi) * 31./90. * M_PI; // scale DT binning to CSC binning.
-		                                         // the scale factor is (csc binning)/(dt binning) * pi
-		      phi += 491; // match up DT sector boundary inside of CSC sector. Determined empirically.
+		      // phi was 12 bits (signed) for pi radians = 57.3 deg
+		      // relative to center of 30 degree DT sector
+		      double tmp = static_cast<const double> (dtts[stub]->phi()) /
+			DTConfig::RESOLPSIR * 180./M_PI + 15.;
+
+		      int phi = static_cast<int> (tmp/60. * (1<<(CSCBitWidths::kGlobalPhiDataBitWidth)));
+		      if (is>sector) phi = phi + (1<<(CSCBitWidths::kGlobalPhiDataBitWidth - 1));
 
 		      // DT chambers may lie outside CSC sector boundary
 		      // Eventually we need to extend CSC phi definition
+		      phi = (phi>0) ? phi : 0;
+		      phi = (phi<(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))) ? phi : 
+			(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))-1;
+
+		      // account for slope in DT/CSC comparison
+		      phi = static_cast<int>(phi*(1.-40./4096.)) + 25;
 		      phi = (phi>0) ? phi : 0;
 		      phi = (phi<(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))) ? phi : 
 			(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))-1;
@@ -57,8 +65,8 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
 		      // barrel allows quality=0!
 		      /// shift all by one and take mod 8, since DT quality of 7 is a null stub
 		      qual = (qual + 1)%8;
-		        
-		      CSCCorrelatedLCTDigi dtinfo(stub+1,1, qual, 0, 0, 0, phib, csc_bx, (stub+1) + 2*stub);
+
+		      CSCCorrelatedLCTDigi dtinfo(stub+1,1, qual, 0, 0, 0, phib, csc_bx, (stub+1) + 2*((is+1)%2));
 		      DTChamberId dtid(wheel,1,is);
 		      csctf::TrackStub tsCSC(dtinfo,dtid, phi, 0);
 
