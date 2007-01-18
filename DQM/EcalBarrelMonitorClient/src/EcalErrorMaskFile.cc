@@ -1,11 +1,11 @@
-// $Id: EcalErrorMaskFile.cc,v 1.9 2007/01/17 18:31:44 dellaric Exp $
+// $Id: EcalErrorMaskFile.cc,v 1.10 2007/01/17 18:54:27 dellaric Exp $
 
 /*!
   \file EcalErrorMaskFile.cc
   \brief Error mask from text file
   \author B. Gobbo 
-  \version $Revision: 1.9 $
-  \date $Date: 2007/01/17 18:31:44 $
+  \version $Revision: 1.10 $
+  \date $Date: 2007/01/17 18:54:27 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
@@ -135,7 +135,18 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 }
 
 void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* fillMap ) throw( std::runtime_error ) {
+}
 
+void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMap ) throw( std::runtime_error ) {
+}
+
+void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, RunPNErrorsDat>* fillMap ) throw( std::runtime_error ) {
+}
+
+void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, RunMemChErrorsDat>* fillMap ) throw( std::runtime_error ) {
+}
+
+void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, RunMemTTErrorsDat>* fillMap ) throw( std::runtime_error ) {
 }
 
 /*
