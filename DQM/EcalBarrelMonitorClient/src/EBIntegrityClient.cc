@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/12/14 11:10:31 $
- * $Revision: 1.116 $
+ * $Date: 2006/12/15 09:44:50 $
+ * $Revision: 1.117 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -34,6 +34,14 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+
+#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+#include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunMemChErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
 
 EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps){
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/12/14 11:10:31 $
- * $Revision: 1.96 $
+ * $Date: 2006/12/15 09:44:50 $
+ * $Revision: 1.97 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -33,6 +33,11 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+
+#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+#include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 
 EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
 

@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/12 15:49:03 $
- * $Revision: 1.104 $
+ * $Date: 2007/01/12 15:50:54 $
+ * $Revision: 1.105 $
  * \author G. Della Ricca
  *
 */
@@ -37,6 +37,11 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+
+#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+#include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 
 EBLaserClient::EBLaserClient(const ParameterSet& ps){
 
