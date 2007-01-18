@@ -9,8 +9,8 @@
 #include "CommonTools/Clustering1D/interface/OutermostClusterizer1D.h"
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 
-// #define DEBUG
-#ifdef DEBUG
+// #define MVBS_DEBUG
+#ifdef MVBS_DEBUG
 #include <map>
 #include "RecoVertex/MultiVertexFit/interface/DebuggingHarvester.h"
 #endif
@@ -111,7 +111,7 @@ namespace {
 
     GlobalTrajectoryParameters ret ( pos, mom, 0,
         &(trks[0].impactPointState().globalParameters().magneticField()) );
-    #ifdef DEBUG
+    #ifdef MVBS_DEBUG
     DebuggingHarvester("out.txt").save ( ret , "p<sub>tot</sub>" );
     #endif
     return ret;
@@ -138,7 +138,7 @@ namespace {
       pts.push_back ( Cluster1D < reco::TransientTrack > ( ms, trk, w ) );
     }
     /*
-    #ifdef DEBUG
+    #ifdef MVBS_DEBUG
     map < string, harvest::MultiType > attrs;
     attrs["point:mag"]=0.5;
     attrs["point:color"]="khaki";
@@ -210,7 +210,7 @@ vector < TransientVertex > MultiVertexBSeeder::vertices (
   pair < vector < Cluster1D<reco::TransientTrack> >, 
          vector < const reco::TransientTrack * > > res;
   res = finder ( ips );
-  #ifdef DEBUG
+  #ifdef MVBS_DEBUG
   // need to compute jet trajectory again :-(
   GlobalTrajectoryParameters jet = computeJetTrajectory ( trks );
   map < string, harvest::MultiType > attrs;
@@ -229,6 +229,6 @@ vector < TransientVertex > MultiVertexBSeeder::vertices (
   return ret;
 }
 
-#ifdef DEBUG
-#undef DEBUG
+#ifdef MVBS_DEBUG
+#undef MVBS_DEBUG
 #endif
