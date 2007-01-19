@@ -32,6 +32,9 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <map>
 #include <vector>
+#include <list>
+#include <deque>
+#include <set>
 
 namespace { namespace {
   edm::Wrapper<std::vector<unsigned long> > dummy1;
@@ -52,6 +55,10 @@ namespace { namespace {
   edm::Wrapper<std::vector<std::pair<std::basic_string<char>,double> > > dummy16;
 
   edm::Wrapper<std::list<int> > dummy17;
+
+  edm::Wrapper<std::deque<int> > dummy18;
+
+  edm::Wrapper<std::set<int> > dummy19;
 
   edm::Wrapper<std::pair<unsigned long, unsigned long> > dymmywp1;
   edm::Wrapper<std::pair<unsigned int, unsigned int> > dymmywp2;

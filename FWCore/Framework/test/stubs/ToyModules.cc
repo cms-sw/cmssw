@@ -330,6 +330,58 @@ namespace edmtest {
     e.put(p);
   }
 
+  //--------------------------------------------------------------------
+  //
+  // Produces an std::deque<int> instance.
+  //
+  class IntDequeProducer : public edm::EDProducer {
+  public:
+    explicit IntDequeProducer(edm::ParameterSet const& p) : 
+      value_(p.getParameter<int>("ivalue")),
+      count_(p.getParameter<int>("count"))
+    {
+      produces<std::deque<int> >();
+    }
+    virtual ~IntDequeProducer() { }
+    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  private:
+    int    value_;
+    size_t count_;
+  };
+
+  void
+  IntDequeProducer::produce(edm::Event& e, const edm::EventSetup&) {
+    // EventSetup is not used.
+    std::auto_ptr<std::deque<int> > p(new std::deque<int>(count_, value_));
+    e.put(p);
+  }
+
+  //--------------------------------------------------------------------
+  //
+  // Produces an std::set<int> instance.
+  //
+  class IntSetProducer : public edm::EDProducer {
+  public:
+    explicit IntSetProducer(edm::ParameterSet const& p) : 
+      start_(p.getParameter<int>("start")),
+      stop_(p.getParameter<int>("stop"))
+    {
+      produces<std::set<int> >();
+    }
+    virtual ~IntSetProducer() { }
+    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  private:
+    int start_;
+    int stop_;
+  };
+
+  void
+  IntSetProducer::produce(edm::Event& e, const edm::EventSetup&) {
+    // EventSetup is not used.
+    std::auto_ptr<std::set<int> > p(new std::set<int>());
+    for (int i = start_; i < stop_; ++i) p->insert(i);
+    e.put(p);
+  }
 
   //--------------------------------------------------------------------
   //
@@ -492,6 +544,8 @@ using edmtest::DSVAnalyzer;
 using edmtest::AddIntsProducer;
 using edmtest::IntVectorProducer;
 using edmtest::IntListProducer;
+using edmtest::IntDequeProducer;
+using edmtest::IntSetProducer;
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(FailingProducer);
 DEFINE_ANOTHER_FWK_MODULE(IntProducer);
@@ -504,3 +558,5 @@ DEFINE_ANOTHER_FWK_MODULE(DSVAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(AddIntsProducer);
 DEFINE_ANOTHER_FWK_MODULE(IntVectorProducer);
 DEFINE_ANOTHER_FWK_MODULE(IntListProducer);
+DEFINE_ANOTHER_FWK_MODULE(IntDequeProducer);
+DEFINE_ANOTHER_FWK_MODULE(IntSetProducer);

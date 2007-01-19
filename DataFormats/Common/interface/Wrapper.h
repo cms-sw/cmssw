@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.11 2007/01/16 23:03:06 paterno Exp $
+$Id: Wrapper.h,v 1.12 2007/01/17 22:07:58 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,6 +14,9 @@ $Id: Wrapper.h,v 1.11 2007/01/16 23:03:06 paterno Exp $
 #include <string>
 #include <typeinfo>
 #include <vector>
+#include <list>
+#include <deque>
+#include <set>
 
 #include "boost/mpl/if.hpp"
 
@@ -56,6 +59,24 @@ namespace edm {
 	   std::vector<void const*>& ptrs)
   {
     typedef typename std::list<T,A>::const_iterator iter;
+    for (iter i=obj.begin(), e=obj.end(); i!=e; ++i) ptrs.push_back(&*i);
+  }
+
+  template <class T, class A>
+  void
+  fillView(std::deque<T,A> const& obj,
+	   std::vector<void const*>& ptrs)
+  {
+    typedef typename std::deque<T,A>::const_iterator iter;
+    for (iter i=obj.begin(), e=obj.end(); i!=e; ++i) ptrs.push_back(&*i);
+  }
+
+  template <class T, class A>
+  void
+  fillView(std::set<T,A> const& obj,
+	   std::vector<void const*>& ptrs)
+  {
+    typedef typename std::set<T,A>::const_iterator iter;
     for (iter i=obj.begin(), e=obj.end(); i!=e; ++i) ptrs.push_back(&*i);
   }
 

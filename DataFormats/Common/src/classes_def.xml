@@ -43,6 +43,8 @@
  <class name="std::vector<bool>"/>
  <class name="std::vector<std::pair<std::basic_string<char>,double> >"/>
  <class name="std::list<int>"/>
+ <class name="std::deque<int>"/>
+ <class name="std::set<int>"/>
  <class name="std::pair<int,int>"/>
  <class name="std::pair<unsigned long,unsigned long>"/>
  <class name="std::pair<unsigned int,unsigned int>"/>
@@ -97,6 +99,8 @@
  <class name="edm::Wrapper<std::vector<unsigned char> >"/>
  <class name="edm::Wrapper<std::vector<bool> >"/>
  <class name="edm::Wrapper<std::list<int> >"/>
+ <class name="edm::Wrapper<std::deque<int> >"/>
+ <class name="edm::Wrapper<std::set<int> >"/>
  <class name="edm::Wrapper<std::pair<unsigned long,unsigned long> >"/>
  <class name="edm::Wrapper<std::pair<unsigned int,unsigned int> >"/>
  <class name="edm::Wrapper<std::pair<unsigned short,unsigned short> >"/>

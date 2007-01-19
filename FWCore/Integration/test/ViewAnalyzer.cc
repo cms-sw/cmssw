@@ -1,6 +1,9 @@
 #include <algorithm>
 #include <cassert>
 #include <vector>
+#include <list>
+#include <deque>
+#include <set>
 
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Integration/test/ViewAnalyzer.h"
@@ -30,6 +33,8 @@ namespace edmtest
     testProduct<SCSimpleProduct>(e, "simple");
     testProduct<std::vector<int> >(e, "intvec");
     testProduct<std::list<int> >(e, "intlist");
+    testProduct<std::deque<int> >(e, "intdeque");
+    testProduct<std::set<int> >(e, "intset");
   }
 
   template <class P>
