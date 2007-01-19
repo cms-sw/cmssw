@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:19 EDT 2005
-// $Id: ServicesManager.cc,v 1.7 2005/11/11 20:55:46 chrjones Exp $
+// $Id: ServicesManager.cc,v 1.8 2006/08/08 00:37:05 chrjones Exp $
 //
 
 // system include files
@@ -71,16 +71,17 @@ associatedManager_(iToken.manager_)
    //find overlaps between services in iToken and iConfiguration
    typedef std::set< TypeIDBase> TypeSet;
    TypeSet configTypes;
-   for(Type2Maker::iterator itType = type2Maker_->begin();
-       itType != type2Maker_->end();
+   for(Type2Maker::iterator itType = type2Maker_->begin(), itTypeEnd = type2Maker_->end();
+       itType != itTypeEnd;
        ++itType) {
       configTypes.insert(itType->first);
    }
 
    TypeSet tokenTypes;
    if(0 != associatedManager_.get()) {
-      for(Type2Service::iterator itType = associatedManager_->type2Service_.begin();
-          itType != associatedManager_->type2Service_.end();
+      for(Type2Service::iterator itType = associatedManager_->type2Service_.begin(),
+          itTypeEnd = associatedManager_->type2Service_.end();
+          itType != itTypeEnd;
           ++itType) {
          tokenTypes.insert(itType->first);
       }
@@ -107,8 +108,8 @@ associatedManager_(iToken.manager_)
             type2Service_ = associatedManager_->type2Service_;
             
             //remove from type2Maker the overlapping services so we never try to make them
-            for(IntersectionType::iterator itType = intersection.begin();
-                itType != intersection.end();
+            for(IntersectionType::iterator itType = intersection.begin(), itTypeEnd = intersection.end();
+                itType != itTypeEnd;
                 ++itType) {
                type2Maker_->erase(type2Maker_->find(*itType)); 
             }
@@ -118,8 +119,8 @@ associatedManager_(iToken.manager_)
             type2Service_ = associatedManager_->type2Service_;
             
             //now remove the ones we do not want
-            for(IntersectionType::iterator itType = intersection.begin();
-                itType != intersection.end();
+            for(IntersectionType::iterator itType = intersection.begin(), itTypeEnd = intersection.end();
+                itType != itTypeEnd;
                 ++itType) {
                type2Service_.erase(type2Service_.find(*itType)); 
             }
@@ -186,8 +187,9 @@ ServicesManager::copySlotsTo(ActivityRegistry& iOther)
 void
 ServicesManager::fillListOfMakers(const std::vector<edm::ParameterSet>& iConfiguration)
 {
-   for(std::vector<edm::ParameterSet>::const_iterator itParam = iConfiguration.begin();
-        itParam != iConfiguration.end();
+   for(std::vector<edm::ParameterSet>::const_iterator itParam = iConfiguration.begin(),
+	itParamEnd = iConfiguration.end();
+        itParam != itParamEnd;
         ++itParam) {
       boost::shared_ptr<ServiceMakerBase> base(
                                                ServicePluginFactory::get()->create(itParam->getParameter<std::string>("@service_type")));
@@ -237,8 +239,8 @@ ServicesManager::createServices()
    // created, that other service will automatically be made
    
    
-   for(Type2Maker::iterator itMaker = type2Maker_->begin();
-        itMaker != type2Maker_->end();
+   for(Type2Maker::iterator itMaker = type2Maker_->begin(), itMakerEnd = type2Maker_->end();
+        itMaker != itMakerEnd;
         ++itMaker) {
       try{
          itMaker->second.add(*this);

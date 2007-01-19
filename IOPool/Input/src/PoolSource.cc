@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.39 2006/12/23 03:16:11 wmtan Exp $
+$Id: PoolSource.cc,v 1.40 2007/01/10 06:37:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "IOPool/Input/src/PoolSource.h"
 #include "IOPool/Input/src/RootFile.h"
@@ -79,8 +79,8 @@ namespace edm {
       productRegistry().setNextID(rootFile_->productRegistry().nextID());
     }
     ProductRegistry::ProductList const& prodList = rootFile_->productRegistry().productList();
-    for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
-	it != prodList.end(); ++it) {
+    for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
+	it != itEnd; ++it) {
       productRegistry().copyProduct(it->second);
     }
   }

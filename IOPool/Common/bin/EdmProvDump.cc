@@ -35,8 +35,8 @@ static void printHistory( const edm::ProcessHistory& iHist)
 {
   const std::string indentDelta("  ");
   std::string indent = indentDelta;
-   for(edm::ProcessHistory::const_iterator itH = iHist.begin();
-       itH != iHist.end();
+   for(edm::ProcessHistory::const_iterator itH = iHist.begin(), itHEnd = iHist.end();
+       itH != itHEnd;
        ++itH) {
       std::cout << indent <<itH->processName()<<" '"<<itH->passID()<<"' '"<<itH->releaseVersion()<<"' ("<<itH->parameterSetID()<<")"<<std::endl;
      indent += indentDelta;
@@ -47,8 +47,8 @@ static void printHistory( const HistoryNode& iNode, const std::string& iIndent =
 {
   const std::string indentDelta("  ");
   std::string indent = iIndent;
-  for(HistoryNode::const_iterator itH = iNode.begin();
-      itH != iNode.end();
+  for(HistoryNode::const_iterator itH = iNode.begin(), itHEnd = iNode.end();
+      itH != itHEnd;
       ++itH) {
     std::cout << indent <<itH->config_.processName()<<" '"<<itH->config_.passID()<<"' '"<<itH->config_.releaseVersion()
     <<"' ["<<itH->simpleId_<<"] "<<" ("<<itH->config_.parameterSetID()<<")"<<std::endl;
@@ -96,13 +96,13 @@ int main(int argc, char* argv[]) {
 	 printHistory((phm.begin()->second));
       } else {
         bool multipleHistories =false;
-        for(edm::ProcessHistoryMap::const_iterator it = phm.begin();
-            it != phm.end();
+        for(edm::ProcessHistoryMap::const_iterator it = phm.begin(), itEnd = phm.end();
+            it != itEnd;
             ++it) {
           //loop over the history entries looking for matches
           HistoryNode* parent = &historyGraph;
-          for(edm::ProcessHistory::const_iterator itH = it->second.begin();
-              itH != it->second.end();
+          for(edm::ProcessHistory::const_iterator itH = it->second.begin(), itHEnd = it->second.end();
+              itH != itHEnd;
               ++itH) {
             if(parent->children_.size() == 0) {
               unsigned int id = simpleIDs[itH->id()];
@@ -115,8 +115,8 @@ int main(int argc, char* argv[]) {
             } else {
               //see if this is unique
               bool unique = true;
-              for(HistoryNode::iterator itChild = parent->children_.begin();
-                  itChild != parent->children_.end();
+              for(HistoryNode::iterator itChild = parent->children_.begin(), itChildEnd = parent->children_.end();
+                  itChild != itChildEnd;
                   ++itChild) {
                 if( itChild->config_.id() == itH->id() ) {
                   unique = false;
@@ -138,12 +138,13 @@ int main(int argc, char* argv[]) {
    
       std::cout <<"------------------"<<std::endl;
       /*
-      for(std::vector<edm::ProcessHistory>::const_iterator it = uniqueLongHistories.begin();
-	  it != uniqueLongHistories.end();
+      for(std::vector<edm::ProcessHistory>::const_iterator it = uniqueLongHistories.begin(),
+	  itEnd = uniqueLongHistories.end();
+	  it != itEnd;
 	  ++it) {
 	 //ParameterSetMap::const_iterator itpsm = psm.find(psid);
-	 for(edm::ProcessHistory::const_iterator itH = it->begin();
-	     itH != it->end();
+	 for(edm::ProcessHistory::const_iterator itH = it->begin(), itHEnd = it->end();
+	     itH != itHEnd;
 	     ++itH) {
 	    std::cout << edm::ParameterSet(psm[ itH->parameterSetID() ].pset_) <<std::endl;
 	 }
@@ -156,8 +157,8 @@ int main(int argc, char* argv[]) {
       ModuleToIdBranches moduleToIdBranches;
       //IdToBranches idToBranches;
       for( edm::ProductRegistry::ProductList::const_iterator it = 
-	      reg.productList().begin();
-	   it != reg.productList().end();
+	      reg.productList().begin(), itEnd = reg.productList().end();
+	   it != itEnd;
 	   ++it) {
 	 //force it to rebuild the branch name
 	 it->second.init();
@@ -166,8 +167,9 @@ int main(int argc, char* argv[]) {
 	 std::cout << it->second.branchName()
 		   << " id " << it->second.productID() << std::endl;
 	 */
-	 for(std::set<edm::ParameterSetID>::const_iterator itId=it->second.psetIDs().begin();
-	     itId != it->second.psetIDs().end();
+	 for(std::set<edm::ParameterSetID>::const_iterator itId = it->second.psetIDs().begin(),
+	     itIdEnd = it->second.psetIDs().end();
+	     itId != itIdEnd;
 	     ++itId) {
 	 
 	    std::stringstream s;
@@ -176,18 +178,21 @@ int main(int argc, char* argv[]) {
 	    //idToBranches[*itId].push_back(it->second);
 	 }
       }
-      for(ModuleToIdBranches::const_iterator it = moduleToIdBranches.begin();
-	  it != moduleToIdBranches.end();
+      for(ModuleToIdBranches::const_iterator it = moduleToIdBranches.begin(),
+	  itEnd = moduleToIdBranches.end();
+	  it != itEnd;
 	  ++it) {
 	 std::cout <<"Module: "<<it->first.second<<" "<<it->first.first<<std::endl;
 	 const IdToBranches& idToBranches = it->second;
-	 for(IdToBranches::const_iterator itIdBranch = idToBranches.begin();
-     itIdBranch != idToBranches.end();
+	 for(IdToBranches::const_iterator itIdBranch = idToBranches.begin(),
+             itIdBranchEnd = idToBranches.end();
+             itIdBranch != itIdBranchEnd;
 	     ++itIdBranch) {
 	    std::cout <<" PSet id:"<<itIdBranch->first<<std::endl;
 	    std::cout <<" products: {"<<std::endl;
-	    for(std::vector<edm::BranchDescription>::const_iterator itBranch=itIdBranch->second.begin();
-		itBranch != itIdBranch->second.end();
+	    for(std::vector<edm::BranchDescription>::const_iterator itBranch = itIdBranch->second.begin(),
+		itBranchEnd = itIdBranch->second.end();
+		itBranch != itBranchEnd;
 		++itBranch) {
 	       std::cout << "  "<< itBranch->branchName()<<std::endl;
 	    }

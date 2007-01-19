@@ -4,11 +4,11 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.11 2006/12/05 23:56:17 paterno Exp $
+   \version $Id: ProductRegistry.cc,v 1.12 2007/01/17 00:19:11 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.11 2006/12/05 23:56:17 paterno Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.12 2007/01/17 00:19:11 wmtan Exp $";
 
 
 #include "DataFormats/Common/interface/ProductRegistry.h"
@@ -39,11 +39,11 @@ namespace edm {
   void
   ProductRegistry::setProductIDs() {
     throwIfFrozen();
-    ProductList::iterator productListEnd = productList_.end();
-    for (ProductList::iterator it = productList_.begin(); it != productListEnd; ++it) {
-       if (it->second.productID().id_ == 0) {
-          it->second.productID_.id_ = nextID_++;
-       }
+    for (ProductList::iterator it = productList_.begin(), itEnd = productList_.end();
+        it != itEnd; ++it) {
+      if (it->second.productID().id_ == 0) {
+        it->second.productID_.id_ = nextID_++;
+      }
     }
     frozen_ = true;
   }
@@ -52,8 +52,8 @@ namespace edm {
   ProductRegistry::setFrozen() const {
     if (frozen_) return;
 /*
-    ProductList::const_iterator productListEnd = productList_.end();
-    for (ProductList::const_iterator it = productList_.begin(); it != productListEnd; ++it) {
+    for (ProductList::const_iterator it = productList_.begin(), itEnd = productList_.end();
+        it != itEnd; ++it) {
       if (it->second.productID_.id_ == 0) {
        throw cms::Exception("ProductRegistry", "setFrozen")
           << "cannot read the ProductRegistry because it is not yet frozen.";

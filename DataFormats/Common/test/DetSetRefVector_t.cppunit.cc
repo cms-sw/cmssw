@@ -1,4 +1,4 @@
-// $Id: DetSetRefVector_t.cppunit.cc,v 1.1 2006/03/30 20:46:54 chrjones Exp $
+// $Id: DetSetRefVector_t.cppunit.cc,v 1.2 2007/01/17 00:19:12 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/DetSetRefVector.h"
 
@@ -95,9 +95,9 @@ testDetSetRefVector::checkConstruction()
     CPPUNIT_ASSERT(refVector.size() == ids.size());
     
     dsv_type::const_iterator dsvItr = c.begin();
-    edm::DetSetRefVector<Value>::const_iterator refVectorEnd = refVector.end();
-    for(edm::DetSetRefVector<Value>::const_iterator it = refVector.begin();
-         it != refVectorEnd;
+    for(edm::DetSetRefVector<Value>::const_iterator it = refVector.begin(),
+         itEnd = refVector.end();
+         it != itEnd;
          ++it, ++dsvItr) {
       CPPUNIT_ASSERT(it->id == dsvItr->id);
       CPPUNIT_ASSERT(it->data.size() == dsvItr->data.size());
@@ -112,9 +112,9 @@ testDetSetRefVector::checkConstruction()
     CPPUNIT_ASSERT(refVector.size() == ids.size());
     
     edm::DetSetRefVector<Value>::const_iterator itRef = refVector.begin();
-    std::vector<edm::det_id_type>::const_iterator idsEnd = ids.end();
-    for(std::vector<edm::det_id_type>::const_iterator itId = ids.begin();
-         itId != idsEnd;
+    for(std::vector<edm::det_id_type>::const_iterator itId = ids.begin(),
+         itIdEnd = ids.end();
+         itId != itIdEnd;
          ++itRef, ++itId) {
       CPPUNIT_ASSERT(itRef->id == *itId);
       CPPUNIT_ASSERT(itRef->id == c.find(*itId)->id);

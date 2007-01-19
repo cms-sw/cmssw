@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetLazyVector.h,v 1.6 2006/10/30 23:07:52 wmtan Exp $
+$Id: DetSetLazyVector.h,v 1.7 2007/01/17 00:19:11 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -68,7 +68,7 @@ namespace edm {
     class LazyGetter {
 public:
       virtual ~LazyGetter() {}
-      virtual void fill(DetSet<T>& ) = 0;
+      virtual void fill(DetSet<T>&) = 0;
     };
     template<typename T>
       struct LazyAdapter : public std::unary_function<const DetSet<T>&, const DetSet<T>&> {
@@ -76,7 +76,7 @@ public:
         const DetSet<T>& operator()(const DetSet<T>& iUpdate) const {
           if(iUpdate.data.empty() && getter_) {
             //NOTE: because this is 'updating a cache' we need to cast away the const
-	    DetSet<T>& temp = const_cast< DetSet<T>& >( iUpdate );
+	    DetSet<T>& temp = const_cast< DetSet<T>& >(iUpdate);
             getter_->fill(temp);
 	    std::sort(temp.begin(),temp.end());
           }
@@ -92,7 +92,7 @@ private:
     template<typename T>
     struct FindDetSetForDetSetLazyVector : public std::binary_function<const DetSetLazyVector<T>&, edm::det_id_type, const DetSet<T>*> {
       typedef FindDetSetForDetSetLazyVector<T> self;
-      typename self::result_type operator()( typename self::first_argument_type iContainer,  typename self::second_argument_type iIndex) const {
+      typename self::result_type operator()(typename self::first_argument_type iContainer,  typename self::second_argument_type iIndex) const {
         return &(*(iContainer.find(iIndex)));
       }
     };
@@ -130,13 +130,12 @@ private:
     getter_(iGetter) {
         sets_.reserve(iDets.size());
         det_id_type sanityCheck = 0;
-	std::vector<det_id_type>::const_iterator iDetsEnd = iDets.end();
-        for(std::vector<det_id_type>::const_iterator itDetId = iDets.begin();
-            itDetId != iDetsEnd;
+        for(std::vector<det_id_type>::const_iterator itDetId = iDets.begin(), itDetIdEnd = iDets.end();
+            itDetId != itDetIdEnd;
             ++itDetId) {
-          assert( sanityCheck <= *itDetId && "vector of det_id_type was not ordered");
+          assert(sanityCheck <= *itDetId && "vector of det_id_type was not ordered");
           sanityCheck = *itDetId;
-          sets_.push_back( DetSet<T>(*itDetId) );
+          sets_.push_back(DetSet<T>(*itDetId));
         }
       }
 
@@ -215,14 +214,14 @@ private:
     //NOTE: using collection_type::const_iterator and NOT const_iterator. We do this to avoid calling the
     // dereferencing operation on const_iterator which would cause the 'lazy update' to happen
     std::pair<typename collection_type::const_iterator,typename collection_type::const_iterator> p = 
-    std::equal_range(sets_.begin(), sets_.end(), id );
-    if ( p.first == p.second ) {
+    std::equal_range(sets_.begin(), sets_.end(), id);
+    if (p.first == p.second) {
       dslv::LazyAdapter<T> adapter(getter_);
       return boost::make_transform_iterator(sets_.end(),adapter);
     }
     // The range indicated by [p.first, p.second) should be exactly of
     // length 1.
-    assert( std::distance(p.first, p.second) == 1 );
+    assert(std::distance(p.first, p.second) == 1);
     dslv::LazyAdapter<T> adapter(getter_);
     return boost::make_transform_iterator(p.first,adapter);
   }
@@ -235,7 +234,7 @@ private:
     // Find the right DetSet, and return a reference to it.  Throw if
     // there is none.
     const_iterator it = this->find(i);
-    if ( it == this->end() ) dslvdetail::_throw_range(i);
+    if (it == this->end()) dslvdetail::_throw_range(i);
     return *it;
   }
 
@@ -280,7 +279,7 @@ private:
     template<typename T>
     struct FindForDetSetLazyVector : public std::binary_function<const DetSetLazyVector<T>&, std::pair<det_id_type, typename DetSet<T>::collection_type::size_type>, const T*> {
       typedef FindForDetSetLazyVector<T> self;
-      typename self::result_type operator()( typename self::first_argument_type iContainer,  typename self::second_argument_type iIndex) {
+      typename self::result_type operator()(typename self::first_argument_type iContainer,  typename self::second_argument_type iIndex) {
         return &(*(iContainer.find(iIndex.first)->data.begin()+iIndex.second));
       }
     };

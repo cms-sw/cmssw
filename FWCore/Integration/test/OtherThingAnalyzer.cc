@@ -37,7 +37,8 @@ namespace edmtest {
     dv.getByLabel("OtherThing", label, otherThings);
     edm::LogInfo("OtherThingAnalyzer") << " --------------- next event ------------ \n";
     int i = 0;
-    for (OtherThingCollection::const_iterator it = (*otherThings).begin(); it != (*otherThings).end(); ++it, ++i) {
+    for (OtherThingCollection::const_iterator it = (*otherThings).begin(), itEnd = (*otherThings).end();
+        it != itEnd; ++it, ++i) {
       OtherThing const& otc = *it;
       ThingCollection const& tcoll = *otc.refProd;
       ThingCollection::size_type size1 = tcoll.size();
@@ -102,8 +103,8 @@ namespace edmtest {
       if (xv1 != tcv1.a || xv1 != 19-i) {
         throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << "VECTOR ITEM 1 " << i << " has incorrect value " << tcv1.a << '\n';
       }
-      for (edm::RefVector<ThingCollection>::iterator it = otc.refVec.begin();
-          it != otc.refVec.end(); ++it) {
+      for (edm::RefVector<ThingCollection>::iterator it = otc.refVec.begin(), itEnd = otc.refVec.end();
+          it != itEnd; ++it) {
         edm::Ref<ThingCollection> tcol = *it;
         Thing const& ti = **it;
         int const& xi = (*it)->a;

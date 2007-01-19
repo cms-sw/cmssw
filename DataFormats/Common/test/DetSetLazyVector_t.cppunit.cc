@@ -1,4 +1,4 @@
-// $Id: DetSetLazyVector_t.cppunit.cc,v 1.1 2006/03/30 20:46:54 chrjones Exp $
+// $Id: DetSetLazyVector_t.cppunit.cc,v 1.2 2007/01/17 00:19:12 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/DetSetLazyVector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -93,10 +93,10 @@ testDetSetLazyVector::checkConstruction()
     CPPUNIT_ASSERT(lazyVector.size() == ids.size());
     
     dsv_type::const_iterator dsvItr = c.begin();
-    edm::DetSetLazyVector<Value>::const_iterator lazyVectorEnd = lazyVector.end();
-    for(edm::DetSetLazyVector<Value>::const_iterator it = lazyVector.begin();
-         it != lazyVectorEnd;
-         ++it,++dsvItr) {
+    for(edm::DetSetLazyVector<Value>::const_iterator it = lazyVector.begin(),
+         itEnd = lazyVector.end();
+         it != itEnd;
+         ++it, ++dsvItr) {
       CPPUNIT_ASSERT(it->id == dsvItr->id);
       CPPUNIT_ASSERT(it->data.size() == dsvItr->data.size());
     }
@@ -110,9 +110,9 @@ testDetSetLazyVector::checkConstruction()
     CPPUNIT_ASSERT(lazyVector.size() == ids.size());
     
     edm::DetSetLazyVector<Value>::const_iterator itRef = lazyVector.begin();
-    std::vector<edm::det_id_type>::const_iterator idsEnd = ids.end();
-    for(std::vector<edm::det_id_type>::const_iterator itId = ids.begin();
-         itId != idsEnd;
+    for(std::vector<edm::det_id_type>::const_iterator itId = ids.begin(),
+         itIdEnd = ids.end();
+         itId != itIdEnd;
          ++itRef,++itId) {
       CPPUNIT_ASSERT(itRef->id == *itId);
       CPPUNIT_ASSERT(itRef->id == c.find(*itId)->id);

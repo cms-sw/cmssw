@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.62 2007/01/02 21:17:46 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.63 2007/01/17 06:27:55 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -154,7 +154,7 @@ namespace edm {
       
       makePlacement(productTreeName, BranchTypeToAuxiliaryBranchName(branchType),
 		    auxiliaryPlacement_[branchType]);
-      for (Selections::const_iterator it = descVec.begin(); it != descVec.end(); ++it) {
+      for (Selections::const_iterator it = descVec.begin(), itEnd = descVec.end(); it != itEnd; ++it) {
         pool::Placement provenancePlacement;
         pool::Placement productPlacement;
         makePlacement(metaDataTreeName, (*it)->branchName(), provenancePlacement);
@@ -162,7 +162,7 @@ namespace edm {
         outputItemList.push_back(OutputItem(*it, true, provenancePlacement, productPlacement));
         branchNames.push_back((*it)->branchName());
       }
-      for (Selections::const_iterator it = droppedVec.begin(); it != droppedVec.end(); ++it) {
+      for (Selections::const_iterator it = droppedVec.begin(), itEnd = droppedVec.end(); it != itEnd; ++it) {
         pool::Placement provenancePlacement;
         makePlacement(metaDataTreeName, (*it)->branchName(), provenancePlacement);
         outputItemList.push_back(OutputItem(*it, false, provenancePlacement));
@@ -296,8 +296,8 @@ namespace edm {
   PoolOutputModule::PoolFile::fillBranches(OutputItemList const& items, DataBlockImpl const& dataBlock) const {
 
     // Loop over EDProduct branches, fill the provenance, and write the branch.
-    for (OutputItemList::const_iterator i = items.begin();
-	 i != items.end(); ++i) {
+    for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end();
+	 i != iEnd; ++i) {
       ProductID const& id = i->branchDescription_->productID_;
 
       if (id == ProductID()) {
@@ -376,7 +376,7 @@ namespace edm {
     typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
     ParameterSetMap psetMap;
     pset::Registry const* psetRegistry = pset::Registry::instance();    
-    for (pset::Registry::const_iterator it = psetRegistry->begin(); it != psetRegistry->end(); ++it) {
+    for (pset::Registry::const_iterator it = psetRegistry->begin(), itEnd = psetRegistry->end(); it != itEnd; ++it) {
       psetMap.insert(std::make_pair(it->first, ParameterSetBlob(it->second.toStringOfTracked())));
     }
     pool::Ref<ParameterSetMap const> rpparam(om_->context(), &psetMap);
@@ -424,8 +424,8 @@ namespace edm {
   void
   PoolOutputModule::PoolFile::setBranchAliases(TTree *tree, Selections const& branches) const {
     if (tree) {
-      for (Selections::const_iterator i = branches.begin();
-	  i != branches.end(); ++i) {
+      for (Selections::const_iterator i = branches.begin(), iEnd = branches.end();
+	  i != iEnd; ++i) {
 	BranchDescription const& pd = **i;
 	std::string const& full = pd.branchName() + "obj";
 	if (pd.branchAliases().empty()) {
@@ -433,9 +433,8 @@ namespace edm {
 	      (pd.productInstanceName().empty() ? pd.moduleLabel() : pd.productInstanceName());
 	  tree->SetAlias(alias.c_str(), full.c_str());
 	} else {
-	  std::set<std::string>::const_iterator it = pd.branchAliases().begin();
-	  std::set<std::string>::const_iterator itend = pd.branchAliases().end();
-	  for (; it != itend; ++it) {
+	  std::set<std::string>::const_iterator it = pd.branchAliases().begin(), itEnd = pd.branchAliases().end();
+	  for (; it != itEnd; ++it) {
 	    tree->SetAlias((*it).c_str(), full.c_str());
 	  }
 	}

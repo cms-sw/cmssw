@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.50 2007/01/03 16:08:24 wmtan Exp $
+$Id: RootFile.cc,v 1.51 2007/01/10 06:37:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -90,8 +90,8 @@ namespace edm {
     std::map<std::string,std::string> newBranchToOldBranch;
     {
       ProductRegistry::ProductList const& prodList = tempReg.productList();
-      for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
-           it != prodList.end(); ++it) {
+      for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
+           it != itEnd; ++it) {
         BranchDescription const& prod = it->second;
 	//need to call init to cause the branch name to be recalculated
 	prod.init();
@@ -108,22 +108,22 @@ namespace edm {
 
     // Merge into the registries. For now, we do NOT merge the product registry.
     pset::Registry& psetRegistry = *pset::Registry::instance();
-    for (PsetMap::const_iterator i = psetMap.begin(); i != psetMap.end(); ++i) {
+    for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
       psetRegistry.insertMapped(ParameterSet(i->second.pset_));
     } 
     ProcessHistoryRegistry & processNameListRegistry = *ProcessHistoryRegistry::instance();
-    for (ProcessHistoryMap::const_iterator j = pHistMap.begin(); j != pHistMap.end(); ++j) {
+    for (ProcessHistoryMap::const_iterator j = pHistMap.begin(), jEnd = pHistMap.end(); j != jEnd; ++j) {
       processNameListRegistry.insertMapped(j->second);
     } 
     ModuleDescriptionRegistry & moduleDescriptionRegistry = *ModuleDescriptionRegistry::instance();
-    for (ModuleDescriptionMap::const_iterator k = mdMap.begin(); k != mdMap.end(); ++k) {
+    for (ModuleDescriptionMap::const_iterator k = mdMap.begin(), kEnd = mdMap.end(); k != kEnd; ++k) {
       moduleDescriptionRegistry.insertMapped(k->second);
     } 
 
     // Set up information from the product registry.
     ProductRegistry::ProductList const& prodList = productRegistry().productList();
-    for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
-        it != prodList.end(); ++it) {
+    for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
+        it != itEnd; ++it) {
       BranchDescription const& prod = it->second;
       treePointers_[prod.branchType()]->addBranch(it->first, prod,
 						 newBranchToOldBranch[prod.branchName()]);
