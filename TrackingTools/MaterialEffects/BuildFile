@@ -1,11 +1,27 @@
-<use name=boost>
-<use name=CLHEP>
+<use name=DataFormats/TrajectorySeed>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
+<use name=Geometry/CommonDetAlgo>
+<use name=Geometry/Vector>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
 <use name=TrackingTools/GeomPropagators>
-
+<use name=TrackingTools/PatternTools>
+<use name=TrackingTools/Records>
+<use name=TrackingTools/TrajectoryState>
+<use name=boost>
 <export>
- <lib name=TrackingToolsMaterialEffects>
- <use name=TrackingTools/GeomPropagators>
+  <use name=DataFormats/TrajectorySeed>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=Geometry/CommonDetAlgo>
+  <use name=Geometry/Vector>
+  <use name=MagneticField/Engine>
+  <use name=TrackingTools/GeomPropagators>
+  <use name=TrackingTools/Records>
+  <use name=TrackingTools/TrajectoryState>
+  <use name=boost>
+  <lib name=TrackingToolsMaterialEffects>
 </export>
 
-
-<flags SEAL_PLUGIN_NAME="TrackingToolsMaterialEffects">

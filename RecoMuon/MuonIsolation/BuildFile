@@ -9,6 +9,7 @@
 <use name=Geometry/Vector>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
+<use name=Geometry/CaloEventSetup>
 <export>
   <use name=DataFormats/MuonReco>
   <use name=DataFormats/TrackReco>
