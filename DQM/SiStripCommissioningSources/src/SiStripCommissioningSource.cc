@@ -276,7 +276,6 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
   // Iterate through FED ids
   vector<uint16_t>::const_iterator ifed = fedCabling_->feds().begin(); 
   for ( ; ifed != fedCabling_->feds().end(); ifed++ ) {
-    LogTrace(mlDqmSource_) << " FedId: " << *ifed;
 
     // Check if FedId is non-zero
     if ( !(*ifed) ) { continue; }
