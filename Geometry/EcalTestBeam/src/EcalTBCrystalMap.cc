@@ -47,7 +47,7 @@ void EcalTBCrystalMap::findCrystalAngles(const int thisCrysIndex, double & thisE
   
   thisEta = thisPhi = 0.;
 
-  if ( thisCrysIndex <= 1 || thisCrysIndex > NCRYSTAL ) {
+  if ( thisCrysIndex < 1 || thisCrysIndex > NCRYSTAL ) {
     edm::LogError("OutOfBounds") << "Required crystal number " << thisCrysIndex << " outside range";
     return;
   }
