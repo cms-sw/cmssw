@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: ref_t.cppunit.cpp,v 1.6 2006/12/07 16:05:12 paterno Exp $
+$Id: ref_t.cppunit.cpp,v 1.7 2006/12/19 00:37:35 wmtan Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -76,13 +76,13 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers,
                        const edmtest::ThingCollection* pThings)
 {
   CPPUNIT_ASSERT(pOthers != 0);
-  CPPUNIT_ASSERT(pThings !=0);
+  CPPUNIT_ASSERT(pThings != 0);
   CPPUNIT_ASSERT(pOthers->size() == pThings->size());
   
-  edmtest::ThingCollection::const_iterator itThing=pThings->begin();
-  edmtest::OtherThingCollection::const_iterator itOther=pOthers->begin();
+  edmtest::ThingCollection::const_iterator itThing = pThings->begin(), itThingEnd = pThings->end();
+  edmtest::OtherThingCollection::const_iterator itOther = pOthers->begin();
   
-  for( ; itThing != pThings->end(); ++itThing,++itOther) {
+  for( ; itThing != itThingEnd; ++itThing, ++itOther) {
     //I'm assuming the following is true
     CPPUNIT_ASSERT(itOther->ref.key() == static_cast<unsigned int>(itThing - pThings->begin()));
     CPPUNIT_ASSERT( itOther->ref.get()->a == itThing->a);
@@ -97,7 +97,7 @@ static void testTree(TTree* events) {
    TBranch* otherBranch = events->GetBranch("edmtestOtherThings_OtherThing_testUserTag_TEST.obj");
    this does NOT work, must get the wrapper
    */
-  edm::Wrapper<edmtest::OtherThingCollection> *pOthers =0;
+  edm::Wrapper<edmtest::OtherThingCollection> *pOthers = 0;
   TBranch* otherBranch = events->GetBranch("edmtestOtherThings_OtherThing_testUserTag_TEST.");
   
   CPPUNIT_ASSERT( otherBranch != 0);

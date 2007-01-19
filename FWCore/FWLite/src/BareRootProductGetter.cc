@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:31 EDT 2006
-// $Id: BareRootProductGetter.cc,v 1.9 2006/12/07 05:40:08 chrjones Exp $
+// $Id: BareRootProductGetter.cc,v 1.10 2006/12/23 03:06:50 wmtan Exp $
 //
 
 // system include files
@@ -164,8 +164,9 @@ BareRootProductGetter::setupNewFile(TFile* iFile) const
       IdToBuffers temp2;
       idToBuffers_.swap(temp2);
       const edm::ProductRegistry::ProductList& prodList = reg.productList();
-      for(edm::ProductRegistry::ProductList::const_iterator itProd = prodList.begin();
-          itProd != prodList.end();
+      for(edm::ProductRegistry::ProductList::const_iterator itProd = prodList.begin(),
+	  itProdEnd = prodList.end();
+          itProd != itProdEnd;
           ++itProd) {
         //this has to be called since 'branchName' is not stored and the 'init' method is supposed to
         // regenerate it

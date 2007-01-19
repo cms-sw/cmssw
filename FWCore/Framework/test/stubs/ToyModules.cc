@@ -140,9 +140,9 @@ namespace edmtest {
   void
   AddIntsProducer::produce(edm::Event& e, const edm::EventSetup&) {
     // EventSetup is not used.
-    int value =0;
-    for(std::vector<std::string>::iterator itLabel=labels_.begin();
-	itLabel!=labels_.end(); ++itLabel) {
+    int value = 0;
+    for(std::vector<std::string>::iterator itLabel = labels_.begin(), itLabelEnd = labels_.end();
+	itLabel != itLabelEnd; ++itLabel) {
       edm::Handle<IntProduct> anInt;
       e.getByLabel(*itLabel, anInt);
       value +=anInt->value;

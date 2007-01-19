@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.10 2006/12/23 03:07:06 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.11 2007/01/10 06:34:10 wmtan Exp $
 //
 
 // system include files
@@ -257,8 +257,9 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 //NEW      m_->processNames_ = aux.processHistory();
 
 //      std::cout <<"ProcessNames\n";
-//      for(edm::ProcessNameList::const_iterator itName = m_->processNames_.begin();
-//	  itName != m_->processNames_.end();
+//      for(edm::ProcessNameList::const_iterator itName = m_->processNames_.begin(),
+//        itNameEnd = m_->processNames_.end();
+//	  itName != itNameEnd;
 //	  ++itName) {
 //	 std::cout <<"  "<<*itName<< std::endl;
       //     }
@@ -345,15 +346,18 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
 
   // Merge into the registries. For now, we do NOT merge the product registry.
   edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
-  for (PsetMap::const_iterator i = psetMap.begin(); i != psetMap.end(); ++i) {
+  for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end();
+      i != iEnd; ++i) {
     psetRegistry.insertMapped(edm::ParameterSet(i->second.pset_));
   } 
   edm::ProcessHistoryRegistry & processNameListRegistry = *edm::ProcessHistoryRegistry::instance();
-  for (edm::ProcessHistoryMap::const_iterator j = pHistMap.begin(); j != pHistMap.end(); ++j) {
+  for (edm::ProcessHistoryMap::const_iterator j = pHistMap.begin(), jEnd = pHistMap.end();
+      j != jEnd; ++j) {
     processNameListRegistry.insertMapped(j->second);
   } 
   edm::ModuleDescriptionRegistry & moduleDescriptionRegistry = *edm::ModuleDescriptionRegistry::instance();
-  for (edm::ModuleDescriptionMap::const_iterator k = mdMap.begin(); k != mdMap.end(); ++k) {
+  for (edm::ModuleDescriptionMap::const_iterator k = mdMap.begin(), kEnd = mdMap.end();
+      k != kEnd; ++k) {
     moduleDescriptionRegistry.insertMapped(k->second);
   } 
   
@@ -365,8 +369,8 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   m_->prov_.data_.swap( temp);
   std::vector<edm::BranchEntryDescription>::iterator itB = m_->prov_.data_.begin();
   m_->pointerToBranchBuffer_.reserve(prodList.size());
-  for (edm::ProductRegistry::ProductList::const_iterator it = prodList.begin();
-       it != prodList.end(); ++it,++itB) {
+  for (edm::ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
+       it != itEnd; ++it, ++itB) {
     edm::BranchDescription const& prod = it->second;
     prod.init();
     m_->productMap_.insert(std::make_pair(it->second.productID_, it->second));
