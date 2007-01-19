@@ -27,8 +27,9 @@ FedTrackerMap::FedTrackerMap( edm::ESHandle<SiStripFedCabling> tkFed)
           }
 	  apvpair = new TmApvPair(key);
 	  apvpair->mod=imod;
-	  
+          apvpair->mpos=iconn->apvPairNumber();
 	  SvgApvPair::apvMap[key] = apvpair;	
+          ModApvPair::apvModuleMap.insert(make_pair(iconn->detId(),apvpair));
 	}
     }
   }
@@ -168,6 +169,21 @@ void FedTrackerMap::fillc(int fedId,int fedCh, int red, int green, int blue  )
   }
   cout << "*** error in FedTrackerMap fillc method ***";
 }
+
+void FedTrackerMap::fill(int idmod, float qty  )
+{
+  multimap<const int, TmApvPair*>::iterator pos;
+  for (pos = ModApvPair::apvModuleMap.lower_bound(idmod);
+         pos != ModApvPair::apvModuleMap.upper_bound(idmod); ++pos) {
+  TmApvPair* apvpair = pos->second;
+  if(apvpair!=0){
+    apvpair->value=apvpair->value+qty;
+    apvpair->count++;
+  }
+  }
+    return;
+  cout << "*** error in FedTrackerMap fill by module method ***";
+  }
 
 void FedTrackerMap::fill_current_val(int fedId, int fedCh, float current_val )
 {

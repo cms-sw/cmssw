@@ -5,6 +5,10 @@ using namespace std;
 
 map< const int  , TmApvPair *>
 SvgApvPair::apvMap=map<const int  , TmApvPair *>();
+
+multimap< const int  , TmApvPair *>
+ModApvPair::apvModuleMap=multimap<const int  , TmApvPair *>();
+
 map< const int  , int>
 SvgFed::fedMap=map<const int  , int>();
 

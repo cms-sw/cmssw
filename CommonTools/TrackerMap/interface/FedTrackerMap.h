@@ -19,6 +19,7 @@ class FedTrackerMap : public TrackerMap {
   void print(bool print_total=true,float minval=0., float maxval=0.);
   void fill_current_val(int fedId,int fedCh, float current_val );
   void fill(int fedId,int fedCh, float qty );
+  void fill(int modId, float qty );
   void fillc(int fedId,int fedCh, int red, int green, int blue);
   void setText(int fedId,int fedCh , string s );
   void defwindow(int num_lay){
