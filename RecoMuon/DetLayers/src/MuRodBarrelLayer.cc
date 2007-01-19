@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/19 14:42:16 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/01/19 11:29:18 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - CERN
  */
 
@@ -102,7 +102,7 @@ MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
 
   LogTrace(metname) << "     MuRodBarrelLayer::compatibleDets, reached layer at: "
 		    << tsos.globalPosition()
-		    << " R = " << tsos.globalPosition().prerp()
+		    << " R = " << tsos.globalPosition().perp()
 		    << " phi = " << tsos.globalPosition().phi();
 
   int closest = theBinFinder->binIndex(tsos.globalPosition().phi());
