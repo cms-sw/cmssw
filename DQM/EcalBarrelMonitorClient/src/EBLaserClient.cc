@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/18 23:40:30 $
- * $Revision: 1.106 $
+ * $Date: 2007/01/19 10:35:50 $
+ * $Revision: 1.107 $
  * \author G. Della Ricca
  *
 */
@@ -844,6 +844,18 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
   }
 
+  uint64_t bits01 = 0;
+  bits01 |= EcalErrorDictionary::getMask("LASER_LOW_GAIN_MEAN_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("LASER_LOW_GAIN_RMS_WARNING");
+
+  uint64_t bits02 = 0;
+  bits02 |= EcalErrorDictionary::getMask("LASER_MIDDLE_GAIN_MEAN_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("LASER_MIDDLE_GAIN_RMS_WARNING");
+
+  uint64_t bits03 = 0;
+  bits03 |= EcalErrorDictionary::getMask("LASER_HIGH_GAIN_MEAN_WARNING");
+  bits03 |= EcalErrorDictionary::getMask("LASER_HIGH_GAIN_RMS_WARNING");
+
   EcalLogicID ecid;
   MonLaserBlueDat apd_bl;
   map<EcalLogicID, MonLaserBlueDat> dataset1_bl;
@@ -853,6 +865,27 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   map<EcalLogicID, MonLaserIRedDat> dataset1_ir;
   MonLaserRedDat apd_rd;
   map<EcalLogicID, MonLaserRedDat> dataset1_rd;
+
+  map<EcalLogicID, RunCrystalErrorsDat> mask1;
+
+  if ( econn ) {
+    try {
+      RunIOV validIOV;
+      RunTag runtag = runiov->getRunTag();
+      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
+      econn->fetchValidDataSet(&mask1, &validIOV, &runtag, runiov->getRunNumber());
+      cout << "Attached to run: " << validIOV.getRunNumber() << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  } else {
+    try {
+      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
+      EcalErrorMaskFile::fetchDataSet(&mask1);
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
 
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
@@ -1047,8 +1080,28 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           try {
             ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1_bl[ecid] = apd_bl;
+
+            if ( mask1.size() != 0 ) {
+              map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
+              if ( m != mask1.end() ) { 
+                if ( (m->second).getErrorBits() & bits01 ) {
+                  if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 3 );
+                } 
+              }
+            }
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
+          }
+        } else {
+          ecid = EcalLogicID("local", 10000*(ism-1) + ic);
+
+          if ( mask1.size() != 0 ) {
+            map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
+            if ( m != mask1.end() ) {
+              if ( (m->second).getErrorBits() & bits01 ) {
+                if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 3 );
+              }
+            }
           }
         }
 
@@ -1090,8 +1143,28 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           try {
             ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1_ir[ecid] = apd_ir;
+
+            if ( mask1.size() != 0 ) {
+              map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
+              if ( m != mask1.end() ) {
+                if ( (m->second).getErrorBits() & bits01 ) {
+                  if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 3 );
+                }
+              }
+            }
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
+          }
+        } else {
+          ecid = EcalLogicID("local", 10000*(ism-1) + ic);
+
+          if ( mask1.size() != 0 ) {
+            map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
+            if ( m != mask1.end() ) {
+              if ( (m->second).getErrorBits() & bits01 ) {
+                if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 3 );
+              }
+            }
           }
         }
 
@@ -1133,8 +1206,28 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           try {
             ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1_gr[ecid] = apd_gr;
+
+            if ( mask1.size() != 0 ) {
+              map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
+              if ( m != mask1.end() ) { 
+                if ( (m->second).getErrorBits() & bits01 ) {
+                  if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
+                }
+              }
+            }
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
+          }
+        } else {
+          ecid = EcalLogicID("local", 10000*(ism-1) + ic);
+
+          if ( mask1.size() != 0 ) {
+            map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
+            if ( m != mask1.end() ) {
+              if ( (m->second).getErrorBits() & bits01 ) {
+                if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
+              }
+            }
           }
         }
 
@@ -1176,8 +1269,29 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           try {
             ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1_rd[ecid] = apd_rd;
+
+
+            if ( mask1.size() != 0 ) {
+              map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
+              if ( m != mask1.end() ) { 
+                if ( (m->second).getErrorBits() & bits01 ) {
+                  if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ie, ip, 3 );
+                }
+              }
+            }
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
+          }
+        } else {
+          ecid = EcalLogicID("local", 10000*(ism-1) + ic);
+
+          if ( mask1.size() != 0 ) {
+            map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
+            if ( m != mask1.end() ) {
+              if ( (m->second).getErrorBits() & bits01 ) {
+                if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ie, ip, 3 );
+              }
+            }
           }
         }
 
@@ -1213,6 +1327,27 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   map<EcalLogicID, MonPNIRedDat> dataset2_ir;
   MonPNRedDat pn_rd;
   map<EcalLogicID, MonPNRedDat> dataset2_rd;
+
+  map<EcalLogicID, RunPNErrorsDat> mask2;
+
+  if ( econn ) {
+    try {
+      RunIOV validIOV;
+      RunTag runtag = runiov->getRunTag();
+      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
+      econn->fetchValidDataSet(&mask2, &validIOV, &runtag, runiov->getRunNumber());
+      cout << "Attached to run: " << validIOV.getRunNumber() << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  } else {
+    try {
+      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
+      EcalErrorMaskFile::fetchDataSet(&mask2);
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
 
   const float m_min_tot = 1000.;
   const float m_min_bin = 50.;
@@ -1409,26 +1544,52 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_bl.setPedMeanG16(mean13);
       pn_bl.setPedRMSG16(rms13);
 
+      bool val;
+
       if ( mean01 > 200. && mean05 > 200. && mean09 > 200. && mean13 > 200. ) {
         pn_bl.setTaskStatus(true);
+        val = true;
       } else {
         pn_bl.setTaskStatus(false);
+        val = false;
       }
 
       if ( econn ) {
         try {
           ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset2_bl[ecid] = pn_bl;
+
+          if ( mask2.size() != 0 ) {
+            map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
+            if ( m != mask2.end() ) {
+              if ( (m->second).getErrorBits() & bits01 ) {
+                val = true;
+              }
+              if ( (m->second).getErrorBits() & bits03 ) {
+                val = true;
+              }
+            }
+          } 
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
         }
+      } else {
+        ecid = EcalLogicID("local", 100*(ism-1) + i);
+
+        if ( mask2.size() != 0 ) {
+          map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
+          if ( m != mask2.end() ) {
+            if ( (m->second).getErrorBits() & bits01 ) {
+              val = true;
+            }
+            if ( (m->second).getErrorBits() & bits03 ) {
+              val = true;
+            }
+          }
+        }
       }
 
-      if ( mean01 > 200. && mean05 > 200. && mean09 > 200. && mean13 > 200. ) {
-        status = status && true;
-      } else {
-        status = status && false;
-      }
+      status = status && val;
 
     }
 
@@ -1457,26 +1618,52 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_ir.setPedMeanG16(mean14);
       pn_ir.setPedRMSG16(rms14);
 
+      bool val;
+
       if ( mean02 > 200. && mean06 > 200. && mean10 > 200. && mean14 > 200. ) {
         pn_ir.setTaskStatus(true);
+        val = true;
       } else {
         pn_ir.setTaskStatus(false);
+        val = false;
       }
 
       if ( econn ) {
         try {
           ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset2_ir[ecid] = pn_ir;
+
+          if ( mask2.size() != 0 ) {
+            map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
+            if ( m != mask2.end() ) {
+              if ( (m->second).getErrorBits() & bits01 ) {
+                val = true;
+              }
+              if ( (m->second).getErrorBits() & bits03 ) {
+                val = true;
+              }
+            }
+          }
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
         }
+      } else {
+        ecid = EcalLogicID("local", 100*(ism-1) + i);
+
+        if ( mask2.size() != 0 ) {
+          map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
+          if ( m != mask2.end() ) {
+            if ( (m->second).getErrorBits() & bits01 ) {
+              val = true;
+            }
+            if ( (m->second).getErrorBits() & bits03 ) {
+              val = true;
+            }
+          }
+        }
       }
 
-      if ( mean02 > 200. && mean06 > 200. && mean10 > 200. && mean14 > 200. ) {
-        status = status && true;
-      } else {
-        status = status && false;
-      }
+      status = status && val;
 
     }
 
@@ -1505,26 +1692,52 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_gr.setPedMeanG16(mean15);
       pn_gr.setPedRMSG16(rms15);
 
+      bool val;
+
       if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
         pn_gr.setTaskStatus(true);
+        val = true;
       } else {
         pn_gr.setTaskStatus(false);
+        val = false;
       }
 
       if ( econn ) {
         try {
           ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset2_gr[ecid] = pn_gr;
+
+          if ( mask2.size() != 0 ) {
+            map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
+            if ( m != mask2.end() ) {
+              if ( (m->second).getErrorBits() & bits01 ) {
+                val = true;
+              }
+              if ( (m->second).getErrorBits() & bits03 ) {
+                val = true;
+              }
+            }
+          }
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
         }
+      } else { 
+        ecid = EcalLogicID("local", 100*(ism-1) + i);
+
+        if ( mask2.size() != 0 ) {
+          map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
+          if ( m != mask2.end() ) {
+            if ( (m->second).getErrorBits() & bits01 ) {
+              val = true;
+            }
+            if ( (m->second).getErrorBits() & bits03 ) {
+              val = true;
+            }
+          }
+        }
       }
 
-      if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
-        status = status && true;
-      } else {
-        status = status && false;
-      }
+      status = status && val;
 
     }
 
@@ -1553,26 +1766,52 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_rd.setPedMeanG16(mean16);
       pn_rd.setPedRMSG16(rms16);
 
+      bool val;
+
       if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
         pn_rd.setTaskStatus(true);
+        val = true;
       } else {
         pn_rd.setTaskStatus(false);
+        val = false;
       }
 
       if ( econn ) {
         try {
           ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset2_rd[ecid] = pn_rd;
+
+          if ( mask2.size() != 0 ) {
+            map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
+            if ( m != mask2.end() ) {
+              if ( (m->second).getErrorBits() & bits01 ) {
+                val = true;
+              }
+              if ( (m->second).getErrorBits() & bits03 ) {
+                val = true;
+              }
+            }
+          }
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
         }
+      } else { 
+        ecid = EcalLogicID("local", 100*(ism-1) + i);
+
+        if ( mask2.size() != 0 ) {
+          map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
+          if ( m != mask2.end() ) {
+            if ( (m->second).getErrorBits() & bits01 ) {
+              val = true;
+            }
+            if ( (m->second).getErrorBits() & bits03 ) {
+              val = true;
+            }
+          }
+        }
       }
 
-      if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
-        status = status && true;
-      } else {
-        status = status && false;
-      }
+      status = status && val;
 
     }
 

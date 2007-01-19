@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/01/18 23:40:30 $
- * $Revision: 1.98 $
+ * $Date: 2007/01/19 10:35:50 $
+ * $Revision: 1.99 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -401,11 +401,44 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   }
 
+  uint64_t bits01 = 0;
+  bits01 |= EcalErrorDictionary::getMask("TESTPULSE_LOW_GAIN_MEAN_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("TESTPULSE_LOW_GAIN_RMS_WARNING");
+
+  uint64_t bits02 = 0;
+  bits02 |= EcalErrorDictionary::getMask("TESTPULSE_MIDDLE_GAIN_MEAN_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("TESTPULSE_MIDDLE_GAIN_RMS_WARNING");
+
+  uint64_t bits03 = 0;
+  bits03 |= EcalErrorDictionary::getMask("TESTPULSE_HIGH_GAIN_MEAN_WARNING");
+  bits03 |= EcalErrorDictionary::getMask("TESTPULSE_HIGH_GAIN_RMS_WARNING");
+
   EcalLogicID ecid;
   MonTestPulseDat adc;
   map<EcalLogicID, MonTestPulseDat> dataset1;
   MonPulseShapeDat shape;
   map<EcalLogicID, MonPulseShapeDat> dataset2;
+
+  map<EcalLogicID, RunCrystalErrorsDat> mask1;
+
+  if ( econn ) {
+    try {
+      RunIOV validIOV;
+      RunTag runtag = runiov->getRunTag();
+      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
+      econn->fetchValidDataSet(&mask1, &validIOV, &runtag, runiov->getRunNumber());
+      cout << "Attached to run: " << validIOV.getRunNumber() << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  } else {
+    try {
+      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
+      EcalErrorMaskFile::fetchDataSet(&mask1);
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
 
   const float n_min_tot = 1000.;
   const float n_min_bin = 10.;
@@ -543,14 +576,52 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1[ecid] = adc;
             if ( ie == 1 && ip == 1 ) dataset2[ecid] = shape;
+
+            if ( mask1.size() != 0 ) {
+              map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
+              if ( m != mask1.end() ) {
+                if ( (m->second).getErrorBits() & bits01 ) {
+                  if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 3 );
+                }
+                if ( (m->second).getErrorBits() & bits02 ) {
+                  if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 3 );
+                }
+                if ( (m->second).getErrorBits() & bits03 ) {
+                  if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
+                }
+              }
+            }
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
           }
+        } else {
+          ecid = EcalLogicID("local", 10000*(ism-1) + ic);
+
+          if ( mask1.size() != 0 ) {
+            map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
+            if ( m != mask1.end() ) {
+              if ( (m->second).getErrorBits() & bits01 ) {
+                if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 3 );
+              }
+              if ( (m->second).getErrorBits() & bits02 ) {
+                if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 3 );
+              }
+              if ( (m->second).getErrorBits() & bits03 ) {
+                if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
+              }
+            }
+          }
         }
 
-        if ( meg01_[ism-1]->getBinContent( ie, ip ) == 1. &&
-             meg02_[ism-1]->getBinContent( ie, ip ) == 1. &&
-             meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
+        if ( meg01_[ism-1] &&
+             ( meg01_[ism-1]->getBinContent( ie, ip ) == 1. || 
+               meg01_[ism-1]->getBinContent( ie, ip ) == 3. ) &&
+             meg02_[ism-1] &&
+             ( meg02_[ism-1]->getBinContent( ie, ip ) == 1. ||
+               meg02_[ism-1]->getBinContent( ie, ip ) ==  3 ) &&
+             meg03_[ism-1] && 
+             ( meg03_[ism-1]->getBinContent( ie, ip ) == 1. ||
+               meg03_[ism-1]->getBinContent( ie, ip ) == 3. ) ) {
           status = status && true;
         } else {
           status = status && false;
@@ -574,6 +645,27 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   MonPNMGPADat pn;
   map<EcalLogicID, MonPNMGPADat> dataset3;
+
+  map<EcalLogicID, RunPNErrorsDat> mask3;
+  
+  if ( econn ) {
+    try {
+      RunIOV validIOV;
+      RunTag runtag = runiov->getRunTag();
+      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
+      econn->fetchValidDataSet(&mask3, &validIOV, &runtag, runiov->getRunNumber());
+      cout << "Attached to run: " << validIOV.getRunNumber() << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  } else {
+    try {
+      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
+      EcalErrorMaskFile::fetchDataSet(&mask3);
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
 
   const float m_min_tot = 100.;
   const float m_min_bin = 10.;
@@ -654,26 +746,52 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       pn.setPedMeanG16(mean04);
       pn.setPedRMSG16(rms04);
 
-      if ( mean01 > 200. ) {
+      bool val;
+
+      if ( mean01 > 200. || mean02 > 200. ) {
         pn.setTaskStatus(true);
+        val = true;
       } else {
         pn.setTaskStatus(false);
+        val = false;
       }
 
       if ( econn ) {
         try {
           ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset3[ecid] = pn;
+
+          if ( mask3.size() != 0 ) {
+            map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask3.find(ecid);
+            if ( m != mask3.end() ) {
+              if ( (m->second).getErrorBits() & bits01 ) {
+                val = true;
+              }
+              if ( (m->second).getErrorBits() & bits03 ) {
+                val = true;
+              }
+            }
+          }
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
         }
+      } else {
+        ecid = EcalLogicID("local", 100*(ism-1) + i);
+
+        if ( mask3.size() != 0 ) {
+          map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask3.find(ecid);
+          if ( m != mask3.end() ) {
+            if ( (m->second).getErrorBits() & bits01 ) {
+              val = true;
+            }
+            if ( (m->second).getErrorBits() & bits03 ) {
+              val = true;
+            }
+          }
+        }
       }
 
-      if ( mean01 > 200. ) {
-        status = status && true;
-      } else {
-        status = status && false;
-      }
+      status = status && val;
 
     }
 

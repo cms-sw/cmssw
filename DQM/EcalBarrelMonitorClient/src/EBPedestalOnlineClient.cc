@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/01/19 08:59:26 $
- * $Revision: 1.64 $
+ * $Date: 2007/01/19 10:35:50 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -272,6 +272,12 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
   }
 
+  uint64_t bits03 = 0;
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_WARNING");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_WARNING");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR");
+
   EcalLogicID ecid;
   MonPedestalsOnlineDat p;
   map<EcalLogicID, MonPedestalsOnlineDat> dataset;
@@ -303,12 +309,6 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
   float num03;
   float mean03;
   float rms03;
-
-  uint64_t bits03 = 0;
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR");
 
   for ( int ie = 1; ie <= 85; ie++ ) {
     for ( int ip = 1; ip <= 20; ip++ ) {
@@ -364,12 +364,10 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
                 }
               }
             }
-
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
           }
         } else {
-
           ecid = EcalLogicID("local", 10000*(ism-1) + ic);
 
           if ( mask.size() != 0 ) {
@@ -382,7 +380,9 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
           }
         }
 
-        if ( meg03_[ism-1]  && meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
+        if ( meg03_[ism-1] &&
+             ( meg03_[ism-1]->getBinContent( ie, ip ) == 1. ||
+               meg03_[ism-1]->getBinContent( ie, ip ) == 3. ) ) {
           status = status && true;
         } else {
           status = status && false;
