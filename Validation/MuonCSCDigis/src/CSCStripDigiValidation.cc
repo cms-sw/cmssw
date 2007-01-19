@@ -4,9 +4,12 @@
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 
 
-CSCStripDigiValidation::CSCStripDigiValidation(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe)
+CSCStripDigiValidation::CSCStripDigiValidation(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe,
+                                               const PSimHitMap & hitMap)
 : dbe_(dbe),
   theInputTag(ps.getParameter<edm::InputTag>("stripDigiTag")),
+  theSimHitMap(hitMap),
+  theCSCGeometry(0),
   thePedestalSum(0),
   thePedestalCovarianceSum(0),
   thePedestalCount(0),
@@ -20,6 +23,13 @@ CSCStripDigiValidation::CSCStripDigiValidation(const edm::ParameterSet& ps, DaqM
   theNDigisPerChamberPlot(0),
   theNDigisPerEventPlot( dbe_->book1D("CSCStripDigisPerEvent", "Number of CSC Strip Digis per event", 100, 0, 500) )
 {
+   for(int i = 0; i < 10; ++i)
+  {
+    char title1[200];
+    sprintf(title1, "CSCStripDigiResolution%d", i+1);
+    theResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -10, 10);
+  }
+
 }
 
 
@@ -41,7 +51,12 @@ void CSCStripDigiValidation::analyze(const edm::Event& e, const edm::EventSetup&
  for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
     std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+    int nDigis = last-digiItr;
+    nDigisPerEvent += nDigis;
     theNDigisPerLayerPlot->Fill(last-digiItr);
+
+    double maxAmplitude = 0.;
+    int maxStrip = 0;
 
     for( ; digiItr != last; ++digiItr) {
       ++nDigisPerEvent;
@@ -50,6 +65,12 @@ void CSCStripDigiValidation::analyze(const edm::Event& e, const edm::EventSetup&
       thePedestalSum += adcCounts[0];
       thePedestalSum += adcCounts[1];
       thePedestalCount += 2;
+
+      if(adcCounts[4] > maxAmplitude)
+      {
+        maxStrip = digiItr->getStrip();
+        maxAmplitude = adcCounts[4];
+      }
 
       // if we have enough pedestal statistics
       if(thePedestalCount > 100)
@@ -62,6 +83,15 @@ void CSCStripDigiValidation::analyze(const edm::Event& e, const edm::EventSetup&
           fillSignalPlots(*digiItr);
         }
       }
+    }
+    int detId = (*j).first.rawId();
+    edm::PSimHitContainer simHits = theSimHitMap.hits(detId);
+
+    if(simHits.size() == 1)
+    {
+      const CSCLayer * layer = findLayer(detId);
+      int chamberType = layer->chamber()->specs()->chamberType();
+      plotResolution(simHits[0], maxStrip, layer, chamberType);
     }
   } // loop over digis
 
@@ -88,4 +118,18 @@ void CSCStripDigiValidation::fillSignalPlots(const CSCStripDigi & digi)
 }
 
 
+void CSCStripDigiValidation::plotResolution(const PSimHit & hit, int strip,
+                                           const CSCLayer * layer, int chamberType)
+{
+  double hitX = hit.localPosition().x();
+  double hitY = hit.localPosition().y();
+  double digiX = layer->geometry()->xOfStrip(strip, hitY);
+  theResolutionPlots[chamberType-1]->Fill(digiX - hitX);
+}
 
+
+const CSCLayer * CSCStripDigiValidation::findLayer(int detId) const {
+  assert(theCSCGeometry != 0);
+  const GeomDetUnit* detUnit = theCSCGeometry->idToDetUnit(CSCDetId(detId));
+  return dynamic_cast<const CSCLayer *>(detUnit);
+}

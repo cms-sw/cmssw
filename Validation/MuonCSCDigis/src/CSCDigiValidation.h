@@ -11,6 +11,8 @@
 #include "Validation/MuonCSCDigis/src/CSCStripDigiValidation.h"
 #include "Validation/MuonCSCDigis/src/CSCWireDigiValidation.h"
 #include "Validation/MuonCSCDigis/src/CSCComparatorDigiValidation.h"
+#include "Validation/MuonCSCDigis/src/PSimHitMap.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
 
 class CSCDigiValidation : public edm::EDAnalyzer {
@@ -25,6 +27,8 @@ public:
  private:
   DaqMonitorBEInterface* dbe_;
   std::string outputFile_;
+  PSimHitMap theSimHitMap;
+  CSCGeometry * theCSCGeometry;
 
   CSCStripDigiValidation      theStripDigiValidation;
   CSCWireDigiValidation       theWireDigiValidation;
