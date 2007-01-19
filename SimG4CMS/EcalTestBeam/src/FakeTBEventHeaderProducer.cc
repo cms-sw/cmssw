@@ -1,7 +1,7 @@
 /*
  * \file FakeTBEventHeaderProducer.cc
  *
- * $Id: FakeTBEventHeaderProducer.cc,v 1.1 2006/06/19 15:53:35 meridian Exp $
+ * $Id: FakeTBEventHeaderProducer.cc,v 1.2 2006/10/26 08:01:06 fabiocos Exp $
  *
  */
 
@@ -45,6 +45,7 @@ FakeTBEventHeaderProducer::~FakeTBEventHeaderProducer()
     return;
   
   product->setEventNumber(event.id().event());
+  product->setRunNumber(event.id().run());
   product->setBurstNumber(1);
   product->setTriggerMask(0x1);
   product->setCrystalInBeam(EBDetId(1,theEcalTBInfo->nCrystal(),EBDetId::SMCRYSTALMODE));
