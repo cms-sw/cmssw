@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.9 2006/11/13 17:29:45 fabiocos Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.10 2006/11/18 10:00:28 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -35,7 +35,7 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
-#include "CondCore/IOVService/interface/IOV.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 
 // forward declarations
 
