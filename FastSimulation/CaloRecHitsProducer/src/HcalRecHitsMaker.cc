@@ -66,16 +66,16 @@ void HcalRecHitsMaker::loadPSimHits(const edm::Event & iEvent)
       switch(detid.subdet())
 	{
 	case HcalBarrel: 
-	  noisifyAndFill(detid.rawId(),it->energy(),hbheRecHits_);
+	  noisifyAndFill(it->id(),it->energy(),hbheRecHits_);
 	  break;
 	case HcalEndcap: 
-	  noisifyAndFill(detid.rawId(),it->energy(),hbheRecHits_);
+	  noisifyAndFill(it->id(),it->energy(),hbheRecHits_);
 	  break;
 	case HcalOuter: 
-	  noisifyAndFill(detid.rawId(),it->energy(),hoRecHits_);
+	  noisifyAndFill(it->id(),it->energy(),hoRecHits_);
 	  break;		     
 	case HcalForward: 
-	  noisifyAndFill(detid.rawId(),it->energy(),hfRecHits_);
+	  noisifyAndFill(it->id(),it->energy(),hfRecHits_);
 	  break;
 	default:
 	  edm::LogWarning("CaloRecHitsProducer") << "RecHit not registered\n";
@@ -93,8 +93,8 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
   if (noise_>0.) noisify();
 
   // HB-HE
-  std::map<signalHit,float>::const_iterator it=hbheRecHits_.begin();
-  std::map<signalHit,float>::const_iterator itend=hbheRecHits_.end();
+  std::map<SignalHit,float>::const_iterator it=hbheRecHits_.begin();
+  std::map<SignalHit,float>::const_iterator itend=hbheRecHits_.end();
   
   for(;it!=itend;++it)
     {
@@ -152,7 +152,7 @@ unsigned HcalRecHitsMaker::createVectorOfSubdetectorCells(const CaloGeometry& cg
 }
 
 // Takes a hit (from a PSimHit) and fills a map with it after adding the noise. 
-void HcalRecHitsMaker::noisifyAndFill(uint32_t id,float energy, std::map<signalHit,float>& myHits)
+void HcalRecHitsMaker::noisifyAndFill(uint32_t id,float energy, std::map<SignalHit,float>& myHits)
 {
   bool killed=false;
   // No double counting check. Depending on how the pile-up is implemented , this can be a problem.
@@ -167,7 +167,7 @@ void HcalRecHitsMaker::noisifyAndFill(uint32_t id,float energy, std::map<signalH
       killed=true;
     }
   // In principe (without pile-up), the hits have been already ordered, gives a "hint" to the insert
-  myHits.insert(myHits.end(),std::pair<signalHit,float>(signalHit(id,killed),energy));
+  myHits.insert(myHits.end(),std::pair<SignalHit,float>(SignalHit(id,killed),energy));
 }
 
 void HcalRecHitsMaker::noisify()
@@ -188,7 +188,7 @@ void HcalRecHitsMaker::noisify()
     edm::LogWarning("CaloRecHitsProducer") << "All HCAL(HF) cells on ! " << std::endl;
 }
 
-void HcalRecHitsMaker::noisifySubdet(std::map<signalHit,float>& theMap, const std::vector<uint32_t>& thecells, unsigned ncells)
+void HcalRecHitsMaker::noisifySubdet(std::map<SignalHit,float>& theMap, const std::vector<uint32_t>& thecells, unsigned ncells)
 {
   unsigned mean=(unsigned)((double)(ncells-theMap.size())*hcalHotFraction_);
   unsigned nhcal = (unsigned)(random_->poissonShoot(mean));
@@ -196,16 +196,16 @@ void HcalRecHitsMaker::noisifySubdet(std::map<signalHit,float>& theMap, const st
   unsigned ncell=0;
   unsigned cellindex=0;
   uint32_t cellnumber=0;
-  std::map<signalHit,float>::const_iterator itcheck;
+  std::map<SignalHit,float>::const_iterator itcheck;
 
   while(ncell < nhcal)
     {
       cellindex = (unsigned)(random_->flatShoot()*ncells);
       cellnumber = thecells[cellindex];
-      itcheck=theMap.find(signalHit(cellnumber));
+      itcheck=theMap.find(SignalHit(cellnumber));
       if(itcheck==theMap.end()) // new cell
 	{
-	  theMap.insert(std::pair<signalHit,float>(signalHit(cellnumber),myGaussianTailGenerator_.shoot()));
+	  theMap.insert(std::pair<SignalHit,float>(SignalHit(cellnumber),myGaussianTailGenerator_.shoot()));
 	  ++ncell;
 	}
     }

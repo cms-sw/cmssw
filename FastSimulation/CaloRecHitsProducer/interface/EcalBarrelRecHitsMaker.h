@@ -16,6 +16,7 @@ class EcalBarrelRecHitsMaker
   ~EcalBarrelRecHitsMaker();
 
   void loadEcalBarrelRecHits(edm::Event &iEvent, EBRecHitCollection & ecalHits);
+  void init(const edm::EventSetup &es);
 
  private:
   void clean();
@@ -28,6 +29,15 @@ class EcalBarrelRecHitsMaker
   double noise_;
   std::map<uint32_t,float> ecalbRecHits_;
   const RandomEngine* random_;
+  bool noisified_;
+
+  // array (size = 62000) of the energy in the barrel
+  std::vector<float> theCalorimeterHits_;
+  // array of the hashedindices in the previous array of the cells that received a hit
+  std::vector<int> theFiredCells_;
+
+  //array conversion hashedIndex rawId
+  std::vector<uint32_t> barrelRawId_;
 };
 
 #endif

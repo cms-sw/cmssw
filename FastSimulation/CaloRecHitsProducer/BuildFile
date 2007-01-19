@@ -11,6 +11,9 @@
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloEventSetup>
 <use name=FastSimulation/Utilities>
+<use name=SimDataFormats/CrossingFrame>
+<use name=Geometry/EcalBarrelAlgo>
+<use name=Geometry/EcalEndcapAlgo>
 
 <export>
  <lib name=FastSimulationRecHitsProducer>
@@ -18,13 +21,16 @@
  <use name=DataFormats/HcalRecHit>
  <use name=DataFormats/EcalRecHit>
  <use name=DataFormats/Common>
-<use name=DataFormats/EcalDetId>
+ <use name=DataFormats/EcalDetId>
  <use name=SimDataFormats/CaloHit>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/Framework>
  <use name=Geometry/CaloGeometry>
  <use name=Geometry/CaloEventSetup>
  <use name=FastSimulation/Utilities>
+ <use name=SimDataFormats/CrossingFrame>
+ <use name=Geometry/EcalBarrelAlgo>
+ <use name=Geometry/EcalEndcapAlgo>
 </export>
 
 <use name=seal>

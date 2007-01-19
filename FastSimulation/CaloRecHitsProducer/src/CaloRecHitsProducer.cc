@@ -11,6 +11,7 @@
 #include "FastSimulation/CaloRecHitsProducer/interface/HcalRecHitsMaker.h"
 #include "FastSimulation/CaloRecHitsProducer/interface/EcalBarrelRecHitsMaker.h"
 #include "FastSimulation/CaloRecHitsProducer/interface/EcalEndcapRecHitsMaker.h"
+#include "FastSimulation/CaloRecHitsProducer/interface/EcalPreshowerRecHitsMaker.h"
 
 // Random engine
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
@@ -34,29 +35,38 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p):HcalRecHit
   edm::ParameterSet RecHitsParameters = p.getParameter<edm::ParameterSet>("RecHitsFactory");
   EBrechitCollection_ = RecHitsParameters.getParameter<std::string>("EBrechitCollection");
   EErechitCollection_ = RecHitsParameters.getParameter<std::string>("EErechitCollection");
+  ESrechitCollection_ = RecHitsParameters.getParameter<std::string>("ESrechitCollection");
   
   produces<HBHERecHitCollection>();
   produces<HORecHitCollection>();
   produces<HFRecHitCollection>();
   produces<EBRecHitCollection>(EBrechitCollection_);
   produces<EERecHitCollection>(EErechitCollection_);
+  produces<ESRecHitCollection>(ESrechitCollection_);
   
 
   HcalRecHitsMaker_ = new HcalRecHitsMaker(RecHitsParameters,random);
   EcalBarrelRecHitsMaker_ = new EcalBarrelRecHitsMaker(RecHitsParameters,random);
   EcalEndcapRecHitsMaker_ = new EcalEndcapRecHitsMaker(RecHitsParameters,random);
+  EcalPreshowerRecHitsMaker_ = new EcalPreshowerRecHitsMaker(RecHitsParameters,random);
 }
 
 CaloRecHitsProducer::~CaloRecHitsProducer() 
 { 
+  std::cout << " Destructor CaloRecHitsProducer " << std::endl;
   if (EcalBarrelRecHitsMaker_) delete EcalBarrelRecHitsMaker_;
   if (EcalEndcapRecHitsMaker_) delete EcalEndcapRecHitsMaker_;
+  if (EcalPreshowerRecHitsMaker_) delete EcalPreshowerRecHitsMaker_;
   if (HcalRecHitsMaker_) delete HcalRecHitsMaker_; 
+  std::cout << " Done " << std::endl;
 }
 
 void CaloRecHitsProducer::beginJob(const edm::EventSetup & es)
 {
   std::cout << " (Fast)RecHitsProducer initializing " << std::endl;
+  EcalBarrelRecHitsMaker_->init(es);
+  EcalEndcapRecHitsMaker_->init(es);
+  EcalPreshowerRecHitsMaker_->init(es);
   HcalRecHitsMaker_->init(es);
 }
 
@@ -71,6 +81,7 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
   // see RecoLocalCalo/HcalRecProducers/src/HcalSimpleReconstructor.cc
   std::auto_ptr<EBRecHitCollection> receb(new EBRecHitCollection);  // ECAL Barrel
   std::auto_ptr<EERecHitCollection> recee(new EERecHitCollection);  // ECAL Endcap
+  std::auto_ptr<ESRecHitCollection> reces(new ESRecHitCollection);  // ECAL Endcap
 
   std::auto_ptr<HBHERecHitCollection> rec1(new HBHERecHitCollection); // Barrel+Endcap
   std::auto_ptr<HORecHitCollection> rec2(new HORecHitCollection);     // Outer
@@ -80,10 +91,13 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
 
   EcalEndcapRecHitsMaker_->loadEcalEndcapRecHits(iEvent,*recee);
 
+  EcalPreshowerRecHitsMaker_->loadEcalPreshowerRecHits(iEvent,*reces);
+
   HcalRecHitsMaker_->loadHcalRecHits(iEvent,*rec1,*rec2,*rec3);
 
   iEvent.put(receb,EBrechitCollection_);
   iEvent.put(recee,EErechitCollection_);
+  iEvent.put(reces,ESrechitCollection_);
   iEvent.put(rec1);
   iEvent.put(rec2);
   iEvent.put(rec3);

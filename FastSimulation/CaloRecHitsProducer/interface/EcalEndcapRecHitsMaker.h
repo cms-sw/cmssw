@@ -16,6 +16,7 @@ class EcalEndcapRecHitsMaker
   ~EcalEndcapRecHitsMaker();
 
   void loadEcalEndcapRecHits(edm::Event &iEvent, EERecHitCollection & ecalHits);
+  void init(const edm::EventSetup &es);
 
  private:
   void clean();
@@ -29,6 +30,15 @@ class EcalEndcapRecHitsMaker
   std::map<uint32_t,float> ecaleRecHits_;
 
   const RandomEngine* random_;
+  bool noisified_;
+
+  // array (size = 20000) of the energy in the barrel
+  std::vector<float> theCalorimeterHits_;
+  // array of the hashedindices in the previous array of the cells that received a hit
+  std::vector<int> theFiredCells_;
+
+  //array conversion hashedIndex rawId
+  std::vector<uint32_t> endcapRawId_;
 };
 
 #endif
