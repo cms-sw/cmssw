@@ -14,6 +14,7 @@
 #include "DataFormats/Common/interface/LuminosityBlockID.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/ModuleDescriptionID.h"
+#include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
 #include "DataFormats/Common/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/ProcessHistory.h"
