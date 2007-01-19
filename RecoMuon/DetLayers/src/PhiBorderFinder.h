@@ -5,8 +5,8 @@
  *  Find the phi binning of a list of detector according to several 
  *  definitions.
  *
- *  $Date: 2006/06/02 15:19:39 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/13 08:46:03 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -99,6 +99,8 @@ public:
 
   virtual ~PhiBorderFinder(){};
 
+  inline unsigned int nBins() {return theNBins;}
+
   /// Returns true if the Dets are periodic in phi.
   inline bool isPhiPeriodic() const { return isPhiPeriodic_; }
   
@@ -107,14 +109,13 @@ public:
 
   /// The borders, defined for each det as the middle between its lower 
   /// edge and the previous Det's upper edge.
-  inline std::vector<double> phiBorders() const { return thePhiBorders; }
+  inline std::vector<double>& phiBorders() const { return thePhiBorders; }
 
   /// The centers of the Dets.
-  inline std::vector<double> phiBins() const { return thePhiBins; }
+  inline std::vector<double>& phiBins() const { return thePhiBins; }
 
   //  inline std::vector<double> etaBorders() {}
   //  inline std::vector<double> zBorders() {}
-
 
 private:
   unsigned int theNbins;
