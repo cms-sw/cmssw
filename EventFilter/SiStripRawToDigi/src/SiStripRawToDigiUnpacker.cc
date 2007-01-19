@@ -149,7 +149,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 					    RawDigis& virgin_raw,
 					    RawDigis& proc_raw,
 					    Digis& zero_suppr ) {
- 
+
   // Check if FEDs found in cabling map and event data
   if ( cabling.feds().empty() ) {
     edm::LogWarning(mlRawToDigi_)
@@ -231,14 +231,14 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     Fed9U::Fed9UAddress addr;
     for ( uint16_t channel = 0; channel < 96; channel++ ) {
       
-      uint16_t iunit = 0;
-      uint16_t ichan = 0;
-      uint16_t chan = 0;
+      uint16_t iunit = channel / 12;
+      uint16_t ichan = channel % 12;
+      uint16_t chan  = channel;
       try {
 	addr.setFedChannel( static_cast<unsigned char>( channel ) );
 	iunit = addr.getFedFeUnit();
 	ichan = addr.getFeUnitChannel();
-	chan = 12*( addr.getFedFeUnit() ) + addr.getFeUnitChannel();
+	chan  = 12*( addr.getFedFeUnit() ) + addr.getFeUnitChannel();
       } catch(...) { 
 	handleException( __func__, "Problem using Fed9UAddress" ); 
       } 
@@ -266,11 +266,11 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       uint16_t ipair = ( useFedKey_ || mode == sistrip::SCOPE_MODE ) ? 0 : conn.apvPairNumber();
 
       if ( mode == sistrip::SCOPE_MODE ) {
-
+	
 	edm::DetSet<SiStripRawDigi>& sm = scope_mode.find_or_insert( key );
 	vector<uint16_t> samples; samples.reserve( 1024 ); // theoretical maximum for scope mode length
 	try { 
-	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
+   	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
 	} catch(...) { 
 	  stringstream sss;
 	  sss << "Problem accessing SCOPE_MODE data for FedId/FeUnit/FeChan: " 
@@ -287,18 +287,15 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 
 	edm::DetSet<SiStripRawDigi>& vr = virgin_raw.find_or_insert( key );
 	vector<uint16_t> samples; samples.reserve(256);
-	//@@ FIX FOR S.DUTTA!!!!
-	//@@ FIX FOR S.DUTTA!!!!
-	//@@ FIX FOR S.DUTTA!!!!
-	//vector<uint16_t> samples; samples.reserve(256*conn.nApvPairs()); samples.resize(256*conn.nApvPairs(),0); 
 	try {
-	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
+   	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
 	} catch(...) { 
 	  stringstream sss;
 	  sss << "Problem accessing VIRGIN_RAW data for FED id/ch: " 
 	      << *ifed << "/" << ichan;
 	  handleException( __func__, sss.str() ); 
 	} 
+	//@@ NEED FIX BELOW: vr.data.size() should be 256 * conn.nApvPairs()
 	if ( !samples.empty() ) { 
 	  if ( vr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { 
 	    vr.data.reserve( 256*(ipair+1) ); vr.data.resize( 256*(ipair+1) ); 
@@ -318,13 +315,14 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	edm::DetSet<SiStripRawDigi>& pr = proc_raw.find_or_insert( key ) ;
 	vector<uint16_t> samples; samples.reserve(256);
 	try {
-	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
+   	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
 	} catch(...) { 
 	  stringstream sss;
 	  sss << "Problem accessing PROC_RAW data for FED id/ch: " 
 	      << *ifed << "/" << ichan;
 	  handleException( __func__, sss.str() ); 
 	} 
+	//@@ NEED FIX BELOW: pr.data.size() should be 256 * conn.nApvPairs()
 	if ( !samples.empty() ) { 
 	  if ( pr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { 
 	    pr.data.reserve( 256*(ipair+1) ); pr.data.resize( 256*(ipair+1) ); 
@@ -387,11 +385,11 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
 	   << " Unknown FED readout mode (" << mode
 	   << ")! Assuming SCOPE MODE..."; 
-	edm::LogWarning(mlRawToDigi_) << ss.str();
+  	edm::LogWarning(mlRawToDigi_) << ss.str();
 	edm::DetSet<SiStripRawDigi>& sm = scope_mode.find_or_insert( key );
 	vector<uint16_t> samples; samples.reserve( 1024 ); // theoretical maximum
 	try {
-	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
+   	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
 	} catch(...) { 
 	  stringstream sss;
 	  sss << "Problem accessing data (UNKNOWN FED READOUT MODE) for FED id/ch: " 
@@ -399,22 +397,21 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	  handleException( __func__, sss.str() ); 
 	} 
 	if ( samples.empty() ) { 
-	  edm::LogWarning(mlRawToDigi_)
-	    << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	    << " No SM digis found!"; 
+ 	  edm::LogWarning(mlRawToDigi_)
+ 	    << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+ 	    << " No SM digis found!"; 
 	} else {
 	  sm.data.clear(); sm.data.reserve( samples.size() ); sm.data.resize( samples.size() ); 
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
 	    sm.data[i] = SiStripRawDigi( samples[i] ); 
 	  }
-// 	  stringstream ss;
-// 	  ss << "Extracted " << samples.size() 
-// 	     << " SCOPE MODE digis (samples[0] = " << samples[0] 
-// 	     << ") from FED id/ch " 
-// 	     << conn.fedId() << "/" << conn.fedCh();
-// 	  LogTrace(mlRawToDigi_) << ss.str();
+ 	  stringstream ss;
+ 	  ss << "Extracted " << samples.size() 
+ 	     << " SCOPE MODE digis (samples[0] = " << samples[0] 
+ 	     << ") from FED id/ch " 
+ 	     << conn.fedId() << "/" << conn.fedCh();
+ 	  //LogTrace(mlRawToDigi_) << ss.str();
 	}
-
 
       }
 
