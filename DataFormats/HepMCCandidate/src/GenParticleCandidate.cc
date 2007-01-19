@@ -1,4 +1,4 @@
-// $Id: GenParticleCandidate.cc,v 1.5 2006/12/14 12:34:22 llista Exp $
+// $Id: GenParticleCandidate.cc,v 1.6 2007/01/15 12:33:59 llista Exp $
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include <CLHEP/HepMC/GenParticle.h>
 #include <CLHEP/HepMC/GenVertex.h>
@@ -37,8 +37,4 @@ bool GenParticleCandidate::overlap( const Candidate & c ) const {
 
 GenParticleCandidate * GenParticleCandidate::clone() const {
   return new GenParticleCandidate( * this );
-}
-
-const Candidate * GenParticleCandidate::mother() const {
-  return & * mother_;
 }
