@@ -1,13 +1,17 @@
+#include <stdlib.h>
+
 #include <memory>
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <map>
 
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/MTCCNtupleMaker.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -33,6 +37,13 @@
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
+#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerAlgorithm.h"
+#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
+#include "Tutorial/Digis/interface/GetSiStripDigisFwd.h"
+#include "Tutorial/Digis/interface/GetSiStripDigis.h"
+#include "Tutorial/Clusters/interface/GetSiStripClusters.h"
+
+#include <TRandom.h>
 
 using namespace std;
 
@@ -43,6 +54,7 @@ MTCCNtupleMaker::MTCCNtupleMaker(edm::ParameterSet const& conf) :
   filename_(conf.getParameter<std::string>("fileName")),
   oSiStripDigisLabel_( conf.getUntrackedParameter<std::string>( "oSiStripDigisLabel")),
   oSiStripDigisProdInstName_( conf.getUntrackedParameter<std::string>( "oSiStripDigisProdInstName")),
+  dDigiAmplifySigma_( conf.getUntrackedParameter<double>( "dDigiAmplifySigma")),
   bUseLTCDigis_( conf.getUntrackedParameter<bool>( "bUseLTCDigis")),
   dCROSS_TALK_ERR( conf.getUntrackedParameter<double>( "dCrossTalkErr")),
   bTriggerDT( false),
@@ -139,6 +151,19 @@ void MTCCNtupleMaker::beginJob(const edm::EventSetup& c){
   poTrackTree->Branch( "bTriggerRBC2", &bTriggerRBC2, "bTriggerRBC2/O");
   poTrackTree->Branch( "bTriggerRPC",  &bTriggerRPC,  "bTriggerRPC/O");
 
+  // Create TTree and associate internal variables with leafs
+  poClusterTree_ = new TTree( "ClusterTree", "Clusters Basic Values Tree");
+  poClusterTree_->Branch( "nClusterModule", 
+			  &( oCluster_.nModule), "nClusterModule/I");
+  poClusterTree_->Branch( "nClusterPos", 
+			  &( oCluster_.nPosition), "nClusterPos/I");
+  poClusterTree_->Branch( "nClusterWidth", 
+			  &( oCluster_.nWidth), "nClusterWidth/I");
+  poClusterTree_->Branch( "dClusterBarCen", 
+			  &( oCluster_.dBaryCenter), "dClusterBarCen/F");
+  poClusterTree_->Branch( "dClusterEta", 
+			  &( oCluster_.dClusterEta), "dClusterEta/F");
+
   eventcounter = 0;
   trackcounter = 0;
   hitcounter = 0;
@@ -225,7 +250,10 @@ void MTCCNtupleMaker::beginJob(const edm::EventSetup& c){
     
 for(Iditer=Id.begin();Iditer!=Id.end();Iditer++){
   
-  	if((Iditer->subdetId() != PixelSubdetector::PixelBarrel) && (Iditer->subdetId() != PixelSubdetector::PixelEndcap)){
+  	if( static_cast<unsigned int>( Iditer->subdetId()) != 
+	      PixelSubdetector::PixelBarrel && 
+	    static_cast<unsigned int>(Iditer->subdetId()) != 
+	      PixelSubdetector::PixelEndcap) {
 	   
 		StripSubdetector subid(*Iditer);
 		
@@ -753,8 +781,8 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
       // create reference to YZAngles
       TrackLocalAngleNew::HitAngleAssociation &roHitAngleAssocXZ = trackhitsXZ[mapiter->first];
       TrackLocalAngleNew::HitAngleAssociation &roHitAngleAssocYZ = trackhitsYZ[mapiter->first];
-      TrackLocalAngleNew::HitLclDirAssociation &roLclDirAssoc    = oLclDirs[mapiter->first];
-      TrackLocalAngleNew::HitGlbDirAssociation &roGlbDirAssoc    = oGlbDirs[mapiter->first];
+      // TrackLocalAngleNew::HitLclDirAssociation &roLclDirAssoc    = oLclDirs[mapiter->first];
+      // TrackLocalAngleNew::HitGlbDirAssociation &roGlbDirAssoc    = oGlbDirs[mapiter->first];
       
     
     int nHitNum = 0;
@@ -762,8 +790,8 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
 
       TrackLocalAngleNew::HitAngleAssociation::reference hitsrefXZ = roHitAngleAssocXZ[nHitNum];
       TrackLocalAngleNew::HitAngleAssociation::reference hitsrefYZ = roHitAngleAssocYZ[nHitNum];
-      TrackLocalAngleNew::HitLclDirAssociation::reference roLclDir = roLclDirAssoc[nHitNum];
-      TrackLocalAngleNew::HitGlbDirAssociation::reference roGlbDir = roGlbDirAssoc[nHitNum];
+      // TrackLocalAngleNew::HitLclDirAssociation::reference roLclDir = roLclDirAssoc[nHitNum];
+      // TrackLocalAngleNew::HitGlbDirAssociation::reference roGlbDir = roGlbDirAssoc[nHitNum];
       ++nHitNum;
         
       module=-99;
@@ -1222,6 +1250,178 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
 
   if( 0 < oClustersPerLayer[StripSubdetector::TOB][4])
     oDetPlots[StripSubdetector::TOB][1]->Fill( oClustersPerLayer[StripSubdetector::TOB][4]);
+
+
+  // Extract all SiStripDigi's
+  edm::Handle<extra::DSVSiStripDigis> oDSVSiStripDigis;
+  extra::getSiStripDigis( oDSVSiStripDigis,
+			  e,
+			  oSiStripDigisLabel_,
+			  oSiStripDigisProdInstName_);
+
+  struct {
+    SiStripDigi operator()( const SiStripDigi &roDIGI,
+                            const double      &rdSIGMA) {
+      static TRandom oTRandom;
+
+      return SiStripDigi( roDIGI.strip(), 
+                          static_cast<int>( oTRandom.Gaus( roDIGI.adc(),
+                                                           rdSIGMA)));
+    }
+  } amplifyDigi;
+
+  extra::DSVSiStripDigis oNewDSVSiStripDigis;
+    
+  LogDebug( "MTCCNtupleMaker::analyze")
+    << "Start Amplifying Digis";
+  // Amplify all digis
+  // Loop over Digi's collection: keys are DetId's
+  for( extra::DSVSiStripDigis::const_iterator oDSVIter = 
+         oDSVSiStripDigis->begin();
+       oDSVIter != oDSVSiStripDigis->end();
+       ++oDSVIter) {
+
+    // Get vector of Digis that belong to a given DetId
+    const DigisVector &roVDIGIS = oDSVIter->data;
+    DetSet<SiStripDigi> oNewDSDigis( oDSVIter->id);
+
+    // 1. Loop over and perform: Digis -> NewDigis 
+    for( DigisVector::const_iterator oDIGI_ITER = roVDIGIS.begin();
+	 oDIGI_ITER != roVDIGIS.end();
+	 ++oDIGI_ITER) {
+
+      // Amplify digi
+      oNewDSDigis.push_back( amplifyDigi( *oDIGI_ITER,
+                                           dDigiAmplifySigma_));
+    }
+
+    oNewDSVSiStripDigis.insert( oNewDSDigis);
+  }
+  
+  // Print out all New Digis
+  for( extra::DSVSiStripDigis::const_iterator oDSVIter = 
+         oDSVSiStripDigis->begin();
+       oDSVIter != oDSVSiStripDigis->end();
+       ++oDSVIter) {
+
+    std::string oOutStr = "DetModule: ";
+    oOutStr += static_cast<unsigned long int>( oDSVIter->id);
+    oOutStr += "... ";
+
+    // Get vector of Digis that belong to a given DetId
+    const DigisVector &roVDIGIS = oDSVIter->data;
+    typedef std::pair<uint16_t, uint16_t> DigisPair;
+    std::map<uint16_t, DigisPair> oDigisMap;
+
+    // 1. Loop over Original Digis and store them in assotiative array
+    for( DigisVector::const_iterator oDIGI_ITER = roVDIGIS.begin();
+	 oDIGI_ITER != roVDIGIS.end();
+	 ++oDIGI_ITER) {
+
+      // Amplify digi
+      DigisPair &roDPair = oDigisMap[oDIGI_ITER->strip()];
+      roDPair.first = oDIGI_ITER->adc();
+    }
+
+    try {
+      const DigisVector &roVNEW_DIGIS = oNewDSVSiStripDigis[oDSVIter->id].data;
+      // 2. Loop over New Digis and store them in assotiative array
+      for( DigisVector::const_iterator oDIGI_ITER = roVNEW_DIGIS.begin();
+	   oDIGI_ITER != roVNEW_DIGIS.end();
+	   ++oDIGI_ITER) {
+
+	// Amplify digi
+	DigisPair &roDPair = oDigisMap[oDIGI_ITER->strip()];
+	roDPair.second = oDIGI_ITER->adc();
+      }
+    } catch( const edm::Exception &roEx) {
+      // New DSVSiStripDigis do not exist :(
+      oOutStr += "New SiStripDigis do not exist for given DetId";
+      LogDebug( "MTCCNtupleMaker::analyze")
+	<< oOutStr;
+      continue;
+    }
+
+    // 3. Loop over Map and put Digis pairs in string
+    for( std::map<uint16_t, DigisPair>::const_iterator oITER = 
+           oDigisMap.begin();
+	 oITER != oDigisMap.end();
+	 ++oITER) {
+      const DigisPair &roDPAIR = oITER->second;
+      oOutStr += std::string( " ") + 
+                 static_cast<long int>( roDPAIR.first) + 
+		 "->" + 
+		 static_cast<long int>( roDPAIR.second);
+    }
+
+    LogDebug( "MTCCNtupleMaker::analyze")
+      << oOutStr;
+  }
+
+  /*
+  std::vector<edm::DetSet<SiStripCluster> > oNewVDSSiStripClusters;
+  LogDebug( "MTCCNtupleMaker::analyze")
+    << "Create SiStripClusterizerAlgorithm";
+
+  SiStripClusterizerAlgorithm oSiStripClusterizerAlgorithm( conf_);
+
+  LogDebug( "MTCCNtupleMaker::analyze")
+    << "Create SiStripNoiseService";
+  SiStripNoiseService oSiStripNoiseService( conf_);
+  LogDebug( "MTCCNtupleMaker::analyze")
+    << "Configure SiStripClusterizerAlgorithm";
+  oSiStripClusterizerAlgorithm.configure( &oSiStripNoiseService);
+  LogDebug( "MTCCNtupleMaker::analyze")
+    << "oSiTripClusterizerAlgorithm.run(...)";
+  oSiStripClusterizerAlgorithm.run( oNewDSVSiStripDigis,
+                                    oNewVDSSiStripClusters);
+
+
+  LogDebug( "MTCCNtupleMaker::analyze")
+    << "Transform std::vector<edm::DetSet<T> > -> edm::DetSetVector<T>";
+  // Transform std::vector<edm::DetSet<T> > -> edm::DetSetVector<T>
+  extra::DSVSiStripClusters oNewDSVSiStripClusters( oNewVDSSiStripClusters);
+
+  // now:
+  //   oNewDSVSiStripDigis    <- edm::DetSetVector<...> of new Digis
+  //   oNewDSVSiStripClusters <- edm::DetSetVector<...> of new Clusters
+  // have a fun playing with modified objects, Yahk :)
+
+  // Loop over Cluster's collection: keys are DetId's
+  for( extra::DSVSiStripClusters::const_iterator oDSVIter = 
+	  oNewDSVSiStripClusters.begin();
+       oDSVIter != oNewDSVSiStripClusters.end();
+       ++oDSVIter) {
+
+    // Get key that is DetId
+    DetId oDetId( oDSVIter->id);
+
+    // Get vector of Clusters that belong to a given DetId
+    const std::vector<SiStripCluster> &roVCLUSTERS = oDSVIter->data;
+
+    // Loop over Clusters in given DetId
+    for( std::vector<SiStripCluster>::const_iterator oVIter = 
+	    roVCLUSTERS.begin();
+	 oVIter != roVCLUSTERS.end();
+	 ++oVIter) {
+
+      // Fill leafs
+      oCluster_.nModule	    = oDetId.rawId();
+      oCluster_.nPosition   = oVIter->firstStrip();
+      oCluster_.nWidth	    = oVIter->amplitudes().size();
+      oCluster_.dBaryCenter = oVIter->barycenter();
+
+      std::vector<SiStripDigi> oNewDigis = 
+	oNewDSVSiStripDigis[oDSVIter->id].data;
+      oCluster_.dClusterEta = getClusterEta( oVIter->amplitudes(),
+					     oVIter->firstStrip(),
+					     oNewDigis);
+
+      // Fill Tree with leafs combination
+      poClusterTree_->Fill();
+    } // End loop over Clusters in specific DetId
+  } // End loop over Global Clusters collection
+  */
 }
 
 //Makename function
