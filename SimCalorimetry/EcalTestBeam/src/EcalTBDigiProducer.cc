@@ -17,6 +17,10 @@
 EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params) 
 : theGeometry(0)
 {
+  /// output collections names
+
+  EBdigiCollection_ = params.getParameter<std::string>("EBdigiCollection");
+
   produces<EBDigiCollection>();
   produces<EcalTBTDCRawInfo>();
   
@@ -74,8 +78,19 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params)
 
   /// Test Beam specific part
 
-  tdcMin = params.getParameter< std::vector<int> >("tdcMin");
-  tdcMax = params.getParameter< std::vector<int> >("tdcMax");
+  typedef std::vector< edm::ParameterSet > Parameters;
+  Parameters ranges=params.getParameter<Parameters>("tdcRanges");
+  for(Parameters::iterator itRanges = ranges.begin(); itRanges != ranges.end(); ++itRanges) 
+    {
+      EcalTBTDCRecInfoAlgo::EcalTBTDCRanges aRange;
+      aRange.runRanges.first = itRanges->getParameter<int>("startRun");
+      aRange.runRanges.second = itRanges->getParameter<int>("endRun");
+      aRange.tdcMin = itRanges->getParameter< std::vector<double> >("tdcMin");
+      aRange.tdcMax = itRanges->getParameter< std::vector<double> >("tdcMax");
+      tdcRanges.push_back(aRange);
+    }
+
+  use2004OffsetConvention_ = params.getUntrackedParameter< bool >("use2004OffsetConvention",false);
 
   ecalTBInfoLabel = params.getUntrackedParameter<std::string>("EcalTBInfoLabel","SimEcalTBG4Object");
   doReadout = params.getParameter<bool>("doReadout");
@@ -259,6 +274,7 @@ void EcalTBDigiProducer::setPhaseShift(const DetId & detId) {
 
     if ( myDet == 1) {
       double passPhaseShift = thisPhaseShift+tunePhaseShift;
+      if ( use2004OffsetConvention_ ) passPhaseShift = 1.-passPhaseShift;
       theEcalResponse->setPhaseShift(passPhaseShift);
     }
     
@@ -271,7 +287,7 @@ void EcalTBDigiProducer::fillTBTDCRawInfo(EcalTBTDCRawInfo & theTBTDCRawInfo) {
 
   unsigned int thisChannel = 1;
   
-  unsigned int thisCount = (unsigned int)(thisPhaseShift*(tdcMax[0]-tdcMin[0]) + tdcMin[0]);
+  unsigned int thisCount = (unsigned int)(thisPhaseShift*(tdcRanges[0].tdcMax[0]-tdcRanges[0].tdcMin[0]) + tdcRanges[0].tdcMin[0]);
 
   EcalTBTDCSample theTBTDCSample(thisChannel, thisCount);
 

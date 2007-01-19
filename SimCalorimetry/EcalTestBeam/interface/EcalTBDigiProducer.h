@@ -23,6 +23,7 @@
 
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCSample.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCRawInfo.h"
+#include "RecoTBCalo/EcalTBTDCReconstructor/interface/EcalTBTDCRecInfoAlgo.h"
 
 #include <string>
 
@@ -81,10 +82,12 @@ private:
 
   bool doReadout;
 
-  std::vector<int> tdcMin;
-  std::vector<int> tdcMax;
+  std::vector<EcalTBTDCRecInfoAlgo::EcalTBTDCRanges> tdcRanges;
+  bool use2004OffsetConvention_;
 
   double tunePhaseShift;
+
+  std::string EBdigiCollection_;
   
 };
 
