@@ -20,6 +20,7 @@ class CaloTopology;
 class CaloSubdetectorTopology;
 class EcalBarrelGeometry;
 class EcalEndcapGeometry;
+class EcalPreshowerGeometry;
 
 class Calorimeter{
  public:
@@ -50,6 +51,8 @@ class Calorimeter{
   
   inline const EcalEndcapGeometry * getEcalEndcapGeometry() const {return EcalEndcapGeometry_;}
 
+  inline const EcalPreshowerGeometry * getEcalPreshowerGeometry() const {return PreshowerGeometry_;}
+
   const CaloSubdetectorGeometry * getEcalGeometry(int subdetn) const;
 
   const CaloSubdetectorTopology * getEcalTopology(int subdetn) const;
@@ -69,7 +72,7 @@ class Calorimeter{
   const EcalBarrelGeometry* EcalBarrelGeometry_;
   const EcalEndcapGeometry* EcalEndcapGeometry_;
   const CaloSubdetectorGeometry* HcalGeometry_;
-  const CaloSubdetectorGeometry* PreshowerGeometry_;
+  const EcalPreshowerGeometry* PreshowerGeometry_;
 
   // The ECAL topologies 
   const CaloSubdetectorTopology* EcalBarrelTopology_;

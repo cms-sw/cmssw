@@ -4,10 +4,11 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalEndcapAlgo/interface/EcalEndcapGeometry.h"
+#include "Geometry/EcalEndcapAlgo/interface/EcalEndcapGeometry.h"
+#include "Geometry/EcalPreshowerAlgo/interface/EcalPreshowerGeometry.h"
+
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
-
-
 #include "FastSimulation/CalorimeterProperties/interface/Calorimeter.h"
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer1Properties.h"
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer2Properties.h"
@@ -122,7 +123,7 @@ void Calorimeter::setupGeometry(const CaloGeometry& pG)
   EcalEndcapGeometry_ = dynamic_cast<const EcalEndcapGeometry*>(pG.getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
   HcalGeometry_ = pG.getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
   // Takes a lot of time
-  //  PreshowerGeometry_  = pG->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
+  PreshowerGeometry_  = dynamic_cast<const EcalPreshowerGeometry*>(pG.getSubdetectorGeometry(DetId::Ecal,EcalPreshower));
 }
 
 void Calorimeter::setupTopology(const CaloTopology& theTopology)

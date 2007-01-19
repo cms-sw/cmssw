@@ -3,6 +3,7 @@
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/EcalBarrelAlgo>
 <use name=Geometry/EcalEndcapAlgo>
+<use name=Geometry/EcalPreshowerAlgo>
 <use name=DataFormats/EcalDetId>
 <use name=Geometry/HcalTowerAlgo>
 <export>
@@ -13,4 +14,5 @@
  <use name=Geometry/HcalTowerAlgo>
  <use name=Geometry/EcalBarrelAlgo>
  <use name=Geometry/EcalEndcapAlgo> 	
+ <use name=Geometry/EcalPreshowerAlgo>
 </export>
