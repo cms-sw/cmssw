@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/01/17 23:31:55 $
- * $Revision: 1.62 $
+ * $Date: 2007/01/18 23:34:59 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -304,11 +304,11 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
   float mean03;
   float rms03;
 
-  uint64_t bits = 0;
-  bits |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_MEAN_AMPLITUDE_TOO_LOW");
-  bits |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_MEAN_AMPLITUDE_TOO_HIGH");
-  bits |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_RMS_AMPLITUDE_TOO_LOW");
-  bits |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_RMS_AMPLITUDE_TOO_HIGH");
+  uint64_t bits03 = 0;
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_WARNING");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_WARNING");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR");
 
   for ( int ie = 1; ie <= 85; ie++ ) {
     for ( int ip = 1; ip <= 20; ip++ ) {
@@ -362,9 +362,8 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
             if ( mask.size() != 0 ) {
               map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask.find(ecid);
               if ( m != mask.end() ) {
-                if ( (m->second).getErrorBits() & bits ) {
+                if ( (m->second).getErrorBits() & bits03 ) {
                   if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
-                  val = true;
                 }
               }
             }
@@ -379,15 +378,18 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
           if ( mask.size() != 0 ) {
             map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask.find(ecid);
             if ( m != mask.end() ) {
-              if ( (m->second).getErrorBits() & bits ) {
+              if ( (m->second).getErrorBits() & bits03 ) {
                 if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
-                val = true;
               }
             }
           }
         }
 
-        status = status && val;
+        if ( meg03_[ism-1]  && meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
+           status = status & true;
+        } else {
+           status = status & false;
+        }
 
       }
 
@@ -659,8 +661,8 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
   TCanvas* cMean = new TCanvas("cMean", "Temp", csize, csize);
   TCanvas* cRMS = new TCanvas("cRMS", "Temp", csize, csize);
 
-  TH2F* obj2f = 0;
-  TH1F* obj1f = 0;
+  TH2F* obj2f;
+  TH1F* obj1f;
 
   // Loop on barrel supermodules
 
@@ -672,6 +674,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
 
     imgNameQual = "";
 
+    obj2f = 0;
     obj2f = EBMUtilsClient::getHisto<TH2F*>( meg03_[ism-1] );
 
     if ( obj2f ) {
@@ -706,6 +709,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
 
     imgNameMean = "";
 
+    obj1f = 0;
     obj1f = EBMUtilsClient::getHisto<TH1F*>( mep03_[ism-1] );
 
     if ( obj1f ) {
@@ -737,6 +741,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
 
     // RMS distributions
 
+    obj1f = 0;
     obj1f = EBMUtilsClient::getHisto<TH1F*>( mer03_[ism-1] );
 
     imgNameRMS = "";
