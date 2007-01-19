@@ -42,7 +42,7 @@ EventSetupProvider::EventSetupProvider(const PreferredProviderInfo* iInfo) :
 eventSetup_(),
 providers_(),
 mustFinishConfiguration_(true),
-preferredProviderInfo_( (0!=iInfo) ? (new PreferredProviderInfo(*iInfo)): 0)
+preferredProviderInfo_((0!=iInfo) ? (new PreferredProviderInfo(*iInfo)): 0)
 {
 }
 
@@ -86,9 +86,8 @@ EventSetupProvider::add(boost::shared_ptr<DataProxyProvider> iProvider)
    typedef std::set<EventSetupRecordKey> Keys;
    const Keys recordsUsing = iProvider->usingRecords();
 
-   Keys::const_iterator itEnd = recordsUsing.end();
-   for(Keys::const_iterator itKey = recordsUsing.begin();
-       itKey != itEnd;
+   for(Keys::const_iterator itKey = recordsUsing.begin(), itKeyEnd = recordsUsing.end();
+       itKey != itKeyEnd;
        ++itKey) {
       Providers::iterator itFound = providers_.find(*itKey);
       if(providers_.end() == itFound) {
@@ -109,9 +108,8 @@ EventSetupProvider::add(boost::shared_ptr<EventSetupRecordIntervalFinder> iFinde
    typedef std::set<EventSetupRecordKey> Keys;
    const Keys recordsUsing = iFinder->findingForRecords();
    
-   Keys::const_iterator itEnd = recordsUsing.end();
-   for(Keys::const_iterator itKey = recordsUsing.begin();
-       itKey != itEnd;
+   for(Keys::const_iterator itKey = recordsUsing.begin(), itKeyEnd = recordsUsing.end();
+       itKey != itKeyEnd;
        ++itKey) {
       Providers::iterator itFound = providers_.find(*itKey);
       if(providers_.end() == itFound) {
@@ -134,8 +132,8 @@ preferEverything(const ComponentDescription& iComponent,
 {
    //need to get our hands on the actual DataProxyProvider
    bool foundProxyProvider = false;
-   for(Providers::const_iterator itProvider = iProviders.begin();
-       itProvider!= iProviders.end();
+   for(Providers::const_iterator itProvider = iProviders.begin(), itProviderEnd = iProviders.end();
+       itProvider!= itProviderEnd;
        ++itProvider) {
       std::set<ComponentDescription> components = itProvider->second->proxyProviderDescriptions();
       if(components.find(iComponent)!= components.end()) {
@@ -144,17 +142,19 @@ preferEverything(const ComponentDescription& iComponent,
          assert(proxyProv.get());
          
          std::set<EventSetupRecordKey> records = proxyProv->usingRecords();
-         for(std::set<EventSetupRecordKey>::iterator itRecord =records.begin();
-             itRecord != records.end();
+         for(std::set<EventSetupRecordKey>::iterator itRecord = records.begin(),
+             itRecordEnd = records.end();
+             itRecord != itRecordEnd;
              ++itRecord){
             const DataProxyProvider::KeyedProxies& keyedProxies = proxyProv->keyedProxies(*itRecord);
-            if( !keyedProxies.empty()){
+            if(!keyedProxies.empty()){
                //add them to our output
                EventSetupRecordProvider::DataToPreferredProviderMap& dataToProviderMap =
                iReturnValue[*itRecord];
                
-               for(DataProxyProvider::KeyedProxies::const_iterator itProxy = keyedProxies.begin();
-                   itProxy != keyedProxies.end();
+               for(DataProxyProvider::KeyedProxies::const_iterator itProxy = keyedProxies.begin(),
+	           itProxyEnd = keyedProxies.end();
+                   itProxy != itProxyEnd;
                    ++itProxy) {
                   EventSetupRecordProvider::DataToPreferredProviderMap::iterator itFind =
                   dataToProviderMap.find(itProxy->first);
@@ -187,15 +187,17 @@ RecordToPreferred determinePreferred(const EventSetupProvider::PreferredProvider
    using namespace edm::eventsetup;
    RecordToPreferred returnValue;
    if(0 != iInfo){
-      for(EventSetupProvider::PreferredProviderInfo::const_iterator itInfo=iInfo->begin();
-          itInfo != iInfo->end();
+      for(EventSetupProvider::PreferredProviderInfo::const_iterator itInfo = iInfo->begin(),
+          itInfoEnd = iInfo->end();
+          itInfo != itInfoEnd;
           ++itInfo) {
          if(itInfo->second.empty()) {
             //want everything
             preferEverything(itInfo->first, iProviders, returnValue);
          } else {
-            for(EventSetupProvider::RecordToDataMap::const_iterator itRecData = itInfo->second.begin();
-                itRecData != itInfo->second.end();
+            for(EventSetupProvider::RecordToDataMap::const_iterator itRecData = itInfo->second.begin(),
+	        itRecDataEnd = itInfo->second.end();
+                itRecData != itRecDataEnd;
                 ++itRecData) {
                std::string recordName= itRecData->first;
                EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType(recordName));
@@ -230,8 +232,8 @@ RecordToPreferred determinePreferred(const EventSetupProvider::PreferredProvider
                boost::shared_ptr<DataProxyProvider> proxyProv = 
                   itRecordProvider->second->proxyProvider(*itProxyProv);
                const DataProxyProvider::KeyedProxies& keyedProxies = proxyProv->keyedProxies(recordKey);
-               if( std::find_if(keyedProxies.begin(), keyedProxies.end(), 
-                                boost::bind( std::equal_to<DataKey>(), datumKey, boost::bind(&DataProxyProvider::KeyedProxies::value_type::first,_1))) ==
+               if(std::find_if(keyedProxies.begin(), keyedProxies.end(), 
+                                boost::bind(std::equal_to<DataKey>(), datumKey, boost::bind(&DataProxyProvider::KeyedProxies::value_type::first,_1))) ==
                    keyedProxies.end()){
                   throw cms::Exception("ESPreferWrongData")<<"The es_prefer statement for type="<<itInfo->first.type_<<" label=\""<<
                   itInfo->first.label_<<"\" specifies the data item \n"
@@ -242,7 +244,7 @@ RecordToPreferred determinePreferred(const EventSetupProvider::PreferredProvider
                EventSetupRecordProvider::DataToPreferredProviderMap& dataToProviderMap
                   =returnValue[recordKey];
                //has another provider already been specified?
-               if(dataToProviderMap.end()!= dataToProviderMap.find(datumKey)) {
+               if(dataToProviderMap.end() != dataToProviderMap.find(datumKey)) {
                   EventSetupRecordProvider::DataToPreferredProviderMap::iterator itFind =
                   dataToProviderMap.find(datumKey);
                   throw cms::Exception("ESPreferConflict") <<"Two providers have been set to be preferred for\n"
@@ -270,13 +272,12 @@ EventSetupProvider::finishConfiguration()
    //For each Provider, find all the Providers it depends on.  If a dependent Provider
    // can not be found pass in an empty list
    //CHANGE: now allow for missing Providers
-   Providers::iterator itEnd = providers_.end();
-   for(Providers::iterator itProvider = providers_.begin();
-        itProvider != itEnd;
+   for(Providers::iterator itProvider = providers_.begin(), itProviderEnd = providers_.end();
+        itProvider != itProviderEnd;
         ++itProvider) {
       const EventSetupRecordProvider::DataToPreferredProviderMap* preferredInfo = &kEmptyMap;
-      RecordToPreferred::const_iterator itRecordFound = recordToPreferred.find( itProvider->first );
-      if( itRecordFound != recordToPreferred.end()) {
+      RecordToPreferred::const_iterator itRecordFound = recordToPreferred.find(itProvider->first);
+      if(itRecordFound != recordToPreferred.end()) {
          preferredInfo = &(itRecordFound->second);
       }
       //Give it our list of preferred 
@@ -288,10 +289,11 @@ EventSetupProvider::finishConfiguration()
          std::vector<boost::shared_ptr<EventSetupRecordProvider> > depProviders;
          depProviders.reserve(records.size());
          bool foundAllProviders = true;
-         for(std::set<EventSetupRecordKey>::iterator itRecord = records.begin();
-              itRecord != records.end();
+         for(std::set<EventSetupRecordKey>::iterator itRecord = records.begin(),
+              itRecordEnd = records.end();
+              itRecord != itRecordEnd;
               ++itRecord) {
-            Providers::iterator itFound =providers_.find(*itRecord);
+            Providers::iterator itFound = providers_.find(*itRecord);
             if(itFound == providers_.end()) {
                foundAllProviders = false;
                if(missingRecords.size() == 0) {
@@ -331,7 +333,7 @@ findDependents(const EventSetupRecordKey& iKey,
                std::vector<boost::shared_ptr<EventSetupRecordProvider> >& oDependents)
 {
   
-  for(Itr it = itBegin; it != itEnd; ++it ) {
+  for(Itr it = itBegin; it != itEnd; ++it) {
     //does it depend on the record in question?
     const std::set<EventSetupRecordKey>& deps = it->second->dependentRecords();
     if(deps.end() != deps.find(iKey)) {
@@ -346,13 +348,13 @@ void
 EventSetupProvider::resetRecordPlusDependentRecords(const EventSetupRecordKey& iKey)
 {
   Providers::iterator itFind = providers_.find(iKey);
-  if( itFind == providers_.end()) {
+  if(itFind == providers_.end()) {
     return;
   }
 
   
   std::vector<boost::shared_ptr<EventSetupRecordProvider> > dependents;
-  findDependents( iKey, providers_.begin(), providers_.end(), dependents);
+  findDependents(iKey, providers_.begin(), providers_.end(), dependents);
 
   dependents.erase(std::unique(dependents.begin(),dependents.end()), dependents.end());
   
@@ -375,9 +377,8 @@ EventSetupProvider::eventSetupForInstance(const IOVSyncValue& iValue)
       const_cast<EventSetupProvider*>(this)->finishConfiguration();
    }
 
-   Providers::iterator itEnd = providers_.end();
-   for(Providers::iterator itProvider = providers_.begin();
-        itProvider != itEnd;
+   for(Providers::iterator itProvider = providers_.begin(), itProviderEnd = providers_.end();
+        itProvider != itProviderEnd;
         ++itProvider) {
       itProvider->second->addRecordToIfValid(*this, iValue);
    }

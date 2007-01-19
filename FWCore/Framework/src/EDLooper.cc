@@ -10,11 +10,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:44:26 EDT 2006
-// $Id: EDLooper.cc,v 1.3 2006/10/13 01:47:35 wmtan Exp $
+// $Id: EDLooper.cc,v 1.4 2006/12/19 00:28:56 wmtan Exp $
 //
 // Revision history
 //
 // $Log: EDLooper.cc,v $
+// Revision 1.4  2006/12/19 00:28:56  wmtan
+// changed (u)long to (u)int so that data is the same size on 32 and 64 bit machines
+//
 // Revision 1.3  2006/10/13 01:47:35  wmtan
 // Remove unnecessary argument from runOnce()
 //
@@ -105,8 +108,8 @@ EDLooper::loop(EDLooperHelper& iHelper,
    Status status=kContinue;
    /* // show up all available data
    const std::set<eventsetup::EventSetupRecordKey>& recs = modifyingRecords();
-   std::set<eventsetup::EventSetupRecordKey>::const_iterator iter = recs.begin();
-   for(iter; iter!=recs.end(); ++iter) {
+   std::set<eventsetup::EventSetupRecordKey>::const_iterator iter = recs.begin(), iterEnd = recs.end();
+   for(iter; iter != iterEnd; ++iter) {
       std::cout<<iter->name()<<std::endl;
    }
    */

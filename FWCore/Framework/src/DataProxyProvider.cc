@@ -100,10 +100,11 @@ std::set<EventSetupRecordKey>
 DataProxyProvider::usingRecords() const
 {
    std::set<EventSetupRecordKey> returnValue;
-   for(RecordProxies::const_iterator itRecProxies = recordProxies_.begin();
-        itRecProxies != recordProxies_.end();
+   for(RecordProxies::const_iterator itRecProxies = recordProxies_.begin(),
+        itRecProxiesEnd = recordProxies_.end();
+        itRecProxies != itRecProxiesEnd;
         ++itRecProxies) {
-      returnValue.insert(returnValue.end(),  itRecProxies->first);
+      returnValue.insert(returnValue.end(), itRecProxies->first);
    }
    //std::copy(keys_.begin(), keys_.end(), std::inserter(returnValue, returnValue.end()));
    return returnValue;
@@ -120,10 +121,10 @@ DataProxyProvider::keyedProxies(const EventSetupRecordKey& iRecordKey) const
       KeyedProxies& proxies = const_cast<KeyedProxies&>(itFind->second);
       const_cast<DataProxyProvider*>(this)->registerProxies(iRecordKey,
                                                             proxies);
-      for(KeyedProxies::iterator itProxy = proxies.begin();
-          itProxy != proxies.end();
+      for(KeyedProxies::iterator itProxy = proxies.begin(), itProxyEnd = proxies.end();
+          itProxy != itProxyEnd;
           ++itProxy) {
-         itProxy->second->setProviderDescription(&description());
+        itProxy->second->setProviderDescription(&description());
       }
    }
    

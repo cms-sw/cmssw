@@ -3,11 +3,11 @@
    Implementation of class ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleBuilder.cc,v 1.20 2006/07/06 19:11:43 wmtan Exp $
+   \version $Id: ScheduleBuilder.cc,v 1.21 2006/09/01 18:16:42 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.20 2006/07/06 19:11:43 wmtan Exp $";
+static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.21 2006/09/01 18:16:42 wmtan Exp $";
 
 
 #include "FWCore/Framework/interface/ScheduleBuilder.h"
@@ -43,8 +43,8 @@ ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc,
     m_processDesc.getParameter<vector<string> >("@paths");
 
   // loop on paths
-  for (vector<string>::const_iterator pathIt = pathnames.begin(); 
-       pathIt != pathnames.end(); ++pathIt){
+  for (vector<string>::const_iterator pathIt = pathnames.begin(), pathItEnd = pathnames.end(); 
+       pathIt != pathItEnd; ++pathIt) {
   
     const vector<string>& modulenames = 
       m_processDesc.getParameter<vector<string> >(*pathIt);
@@ -53,13 +53,13 @@ ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc,
     
     WorkerList workerList;
     // loop on workers
-    for (vector<string>::const_iterator nameIt=modulenames.begin();
-	 nameIt!=modulenames.end(); 
-	 ++nameIt){
+    for (vector<string>::const_iterator nameIt = modulenames.begin(), nameItEnd = modulenames.end();
+	 nameIt != nameItEnd; 
+	 ++nameIt) {
            
       try{
         m_processDesc.getParameter<ParameterSet>(*nameIt);
-      }catch(const cms::Exception&) {
+      } catch(const cms::Exception&) {
         throw edm::Exception(errors::Configuration,"PathError:")<<"no module with label '"<<*nameIt<<"' is defined in configuration file, but is used in path '"
         <<*pathIt<<"'.\n Please check spelling.";
       }

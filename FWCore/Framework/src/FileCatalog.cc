@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.cc,v 1.9 2006/10/05 22:00:25 wmtan Exp $
+// $Id: FileCatalog.cc,v 1.10 2007/01/03 16:07:19 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -56,7 +56,8 @@ namespace edm {
 
     fileCatalogItems_.reserve(fileNames_.size());
     typedef std::vector<std::string>::iterator iter;
-    for(iter it = fileNames_.begin(), lt = logicalFileNames_.begin(); it != fileNames_.end(); ++it, ++lt) {
+    for(iter it = fileNames_.begin(), lt = logicalFileNames_.begin(), itEnd = fileNames_.end();
+	it != itEnd; ++it, ++lt) {
       boost::trim(*it);
       if (it->empty()) {
         throw edm::Exception(edm::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")

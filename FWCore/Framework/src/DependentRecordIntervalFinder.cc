@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:37:22 EDT 2005
-// $Id: DependentRecordIntervalFinder.cc,v 1.5 2006/06/05 18:12:20 chrjones Exp $
+// $Id: DependentRecordIntervalFinder.cc,v 1.6 2006/09/01 18:16:42 wmtan Exp $
 //
 
 // system include files
@@ -79,8 +79,8 @@ DependentRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey&,
    }
    bool haveAValidDependentRecord = false;
    ValidityInterval newInterval(IOVSyncValue::beginOfTime(), IOVSyncValue::endOfTime());
-   for(Providers::iterator itProvider = providers_.begin();
-       itProvider != providers_.end();
+   for(Providers::iterator itProvider = providers_.begin(), itProviderEnd = providers_.end();
+       itProvider != itProviderEnd;
        ++itProvider) {
       if((*itProvider)->setValidityIntervalFor(iTime)) {
          haveAValidDependentRecord=true;

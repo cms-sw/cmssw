@@ -76,7 +76,7 @@ namespace edm
     transform_into(InputIterator begin, InputIterator end,
 		   ForwardIterator out, Func func)
     {
-      for ( ; begin != end; ++begin, ++out ) func(*begin, *out);
+      for (; begin != end; ++begin, ++out) func(*begin, *out);
     }
     
     // Function template that takes a sequence 'from', a sequence
@@ -170,14 +170,13 @@ namespace edm
 			       const EventSetup& eventSetup) {
       map<string, Worker*>::const_iterator itFound =
         labelToWorkers_.find(prov.moduleLabel());
-      if(itFound != labelToWorkers_.end()) 
-	{
+      if(itFound != labelToWorkers_.end()) {
 	  // Unscheduled reconstruction has no accepted definition
 	  // (yet) of the "current path". We indicate this by passing
 	  // a null pointer as the CurrentProcessingContext.
 	  itFound->second->doWork(event, eventSetup, BranchActionEvent, 0);
 	  return true;
-	}
+      }
       return false;
     }
     map<string, Worker*> labelToWorkers_;
@@ -230,10 +229,10 @@ namespace edm
     bool hasFilter = false;
     int trig_bitpos=0, non_bitpos=0;
     set<string>::const_iterator trig_name_set_end = trig_name_set_.end();
-    for ( vstring::const_iterator i = path_name_list_.begin(),
+    for (vstring::const_iterator i = path_name_list_.begin(),
 	    e = path_name_list_.end();
 	  i != e;
-	  ++i )
+	  ++i)
        {
 	 if (trig_name_set_.find(*i) != trig_name_set_end) 
 	   {
@@ -293,8 +292,8 @@ namespace edm
       // 3) hand list to our delayed reader
       vector<string>  shouldBeUsedLabels;
 	
-      for(vector<string>::iterator itLabel = unusedLabels.begin();
-	  itLabel != unusedLabels.end();
+      for(vector<string>::iterator itLabel = unusedLabels.begin(), itLabelEnd = unusedLabels.end();
+	  itLabel != itLabelEnd;
 	  ++itLabel) {
 	if (allowUnscheduled) {
 	  unscheduledLabels.insert(*itLabel);
@@ -320,8 +319,9 @@ namespace edm
       if(!shouldBeUsedLabels.empty()) {
 	ostringstream unusedStream;
 	unusedStream << "'"<< shouldBeUsedLabels.front() <<"'";
-	for(vector<string>::iterator itLabel = shouldBeUsedLabels.begin()+1;
-	    itLabel != shouldBeUsedLabels.end();
+	for(vector<string>::iterator itLabel = shouldBeUsedLabels.begin() + 1,
+            itLabelEnd = shouldBeUsedLabels.end();
+	    itLabel != itLabelEnd;
 	    ++itLabel) {
 	  unusedStream <<",'" << *itLabel<<"'";
 	}
@@ -334,8 +334,9 @@ namespace edm
     prod_reg_->setProductIDs();
     //Now that these have been set, we can create the list of Groups we need for the 'on demand'
     const ProductRegistry::ProductList& prodsList = prod_reg_->productList();
-    for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin();
-        itProdInfo != prodsList.end();
+    for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
+        itProdInfoEnd = prodsList.end();
+        itProdInfo != itProdInfoEnd;
         ++itProdInfo)
       {
 	if(unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
@@ -381,9 +382,9 @@ namespace edm
       ParameterSet modpset;
       try {
         modpset= pset_.getParameter<ParameterSet>(realname);
-      } catch( cms::Exception& ) {
+      } catch(cms::Exception&) {
         string pathType("endpath");
-        if(find( end_path_name_list_.begin(),end_path_name_list_.end(), name) == end_path_name_list_.end()) {
+        if(find(end_path_name_list_.begin(),end_path_name_list_.end(), name) == end_path_name_list_.end()) {
           pathType = string("path");
         }
         throw edm::Exception(edm::errors::Configuration)<<"The unknown module label \""<<realname<<"\" appears in "<<pathType<<" \""<<name
@@ -413,7 +414,7 @@ namespace edm
 
     // check for any OutputModules
     for(PathWorkers::iterator wi(tmpworkers.begin()),
-	  we(tmpworkers.end());wi!=we;++wi) {
+	  we(tmpworkers.end()); wi != we; ++wi) {
       Worker* tworker = wi->getWorker();
       if(dynamic_cast<OutputWorker*>(tworker)!=0) {
 	LogWarning("path")
@@ -584,9 +585,9 @@ namespace edm
 	 << "Name" << "\n";
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
-    for(;pi!=pe;++pi) {
+    for(; pi != pe; ++pi) {
       cout << "TrigReport "
-	   << right << setw( 5) << (trig_name_set_.find(pi->name())!=trig_name_set_.end())
+	   << right << setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
 	   << right << setw( 5) << pi->bitPosition() << " "
 	   << right << setw(10) << pi->timesRun() << " "
 	   << right << setw(10) << pi->timesPassed() << " "
@@ -606,9 +607,9 @@ namespace edm
 	 << "Name" << "\n";
     pi=end_paths_.begin();
     pe=end_paths_.end();
-    for(;pi!=pe;++pi) {
+    for(; pi != pe; ++pi) {
       cout << "TrigReport "
-	   << right << setw( 5) << (trig_name_set_.find(pi->name())!=trig_name_set_.end())
+	   << right << setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
 	   << right << setw( 5) << pi->bitPosition() << " "
 	   << right << setw(10) << pi->timesRun() << " "
 	   << right << setw(10) << pi->timesPassed() << " "
@@ -632,7 +633,7 @@ namespace edm
 
       for (unsigned int i=0; i<pi->size(); ++i) {
 	cout << "TrigReport "
-	     << right << setw( 5) << (trig_name_set_.find(pi->name())!=trig_name_set_.end())
+	     << right << setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
 	     << right << setw( 5) << pi->bitPosition() << " "
 	     << right << setw(10) << pi->timesVisited(i) << " "
 	     << right << setw(10) << pi->timesPassed(i) << " "
@@ -657,7 +658,7 @@ namespace edm
 
       for (unsigned int i=0; i<pi->size(); ++i) {
 	cout << "TrigReport "
-	     << right << setw( 5) << (trig_name_set_.find(pi->name())!=trig_name_set_.end())
+	     << right << setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
 	     << right << setw( 5) << pi->bitPosition() << " "
 	     << right << setw(10) << pi->timesVisited(i) << " "
 	     << right << setw(10) << pi->timesPassed(i) << " "
@@ -807,9 +808,9 @@ namespace edm
     vector<ModuleDescription const*> result;
     result.reserve(all_workers_.size());
 
-    for ( ; i!=e; ++i) {
+    for (; i!=e; ++i) {
       ModuleDescription const* p = (*i)->descPtr();
-      result.push_back( p );
+      result.push_back(p);
     }
     return result;
   }
@@ -911,15 +912,14 @@ namespace edm
     unscheduled_->setEventSetup(es);
     ep.setUnscheduledHandler(unscheduled_);
     typedef vector<boost::shared_ptr<Group> > groups;
-    for(groups::iterator itGroup = demandGroups_.begin();
-        itGroup != demandGroups_.end();
-        ++itGroup) 
-      {
-	BranchDescription const& bd = (*itGroup)->productDescription();
-	auto_ptr<Provenance> prov(new Provenance(bd));
-	auto_ptr<Group> theGroup(new Group(prov));
-	ep.addGroup(theGroup);
-      }
+    for(groups::iterator itGroup = demandGroups_.begin(), itGroupEnd = demandGroups_.end();
+        itGroup != itGroupEnd;
+        ++itGroup) {
+      BranchDescription const& bd = (*itGroup)->productDescription();
+      auto_ptr<Provenance> prov(new Provenance(bd));
+      auto_ptr<Group> theGroup(new Group(prov));
+      ep.addGroup(theGroup);
+    }
   }
 
   bool
@@ -945,16 +945,14 @@ namespace edm
   //     // Execute all paths, but check only trigger paths for accept.
   //     set<string>::const_iterator trig_name_set_end = trig_name_set_.end();
   //     for (TrigPaths::iterator i = trig_paths_.begin(), e = trig_paths_.end();
-  // 	 i != e;
-  // 	 ++i)
-  //       {
-  // 	i->runOneEvent(ep,es);
-  //  	if (trig_name_set_.find(i->name()) != trig_name_set_end ) 
-  //  	  {
-  //  	    result = result || ((*results_)[which_one]).accept();
-  //  	    ++which_one;
-  //  	  }
-  //       }
+  // 	   i != e;
+  // 	   ++i) {
+  // 	   i->runOneEvent(ep,es);
+  //  	   if (trig_name_set_.find(i->name()) != trig_name_set_end) { 
+  //  	     result = result || ((*results_)[which_one]).accept();
+  //  	     ++which_one;
+  // 	   }
+  //     }
   //     return result;
   //   }
 

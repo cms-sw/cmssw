@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: RootAutoLibraryLoader.cc,v 1.13 2006/10/21 02:48:58 wmtan Exp $
+// $Id: RootAutoLibraryLoader.cc,v 1.1 2006/12/16 13:31:42 wmtan Exp $
 //
 
 // system include files
@@ -123,7 +123,7 @@ static
 void registerTypes() {
   seal::PluginManager                       *db =  seal::PluginManager::get();
   seal::PluginManager::DirectoryIterator    dir;
-  seal::ModuleCache::Iterator               plugin;
+  seal::ModuleCache::Iterator               plugin, pluginEnd;
   seal::ModuleDescriptor                    *cache;
   unsigned                            i;
   const std::string mycat("Capability");
@@ -136,7 +136,7 @@ void registerTypes() {
   classes.reserve(1000);
   
   for (dir = db->beginDirectories(); dir != db->endDirectories(); ++dir) {
-    for (plugin = (*dir)->begin(); plugin != (*dir)->end(); ++plugin) {
+    for (plugin = (*dir)->begin(), pluginEnd = (*dir)->end(); plugin != pluginEnd; ++plugin) {
       for (cache=(*plugin)->cacheRoot(), i=0; i < cache->children(); ++i) {
         //std::cout <<" "<<cache->child(i)->token(0)<<std::endl;
         if (cache->child(i)->token(0) == mycat) {
@@ -153,8 +153,8 @@ void registerTypes() {
     }
   }
   std::sort(classes.begin(), classes.end(), std::greater<std::string>());
-  for(std::vector<std::string>::iterator itClass = classes.begin();
-      itClass != classes.end();
+  for(std::vector<std::string>::iterator itClass = classes.begin(), itClassEnd = classes.end();
+      itClass != itClassEnd;
       ++itClass) {
     
     const std::string& className = *itClass;
@@ -248,14 +248,14 @@ RootAutoLibraryLoader::loadAll()
   
   seal::PluginManager                       *db =  seal::PluginManager::get();
   seal::PluginManager::DirectoryIterator    dir;
-  seal::ModuleCache::Iterator               plugin;
+  seal::ModuleCache::Iterator               plugin, pluginEnd;
   seal::ModuleDescriptor                    *cache;
   unsigned                            i;
   
   const std::string mycat("Capability");
   
   for (dir = db->beginDirectories(); dir != db->endDirectories(); ++dir) {
-    for (plugin = (*dir)->begin(); plugin != (*dir)->end(); ++plugin) {
+    for (plugin = (*dir)->begin(), pluginEnd = (*dir)->end(); plugin != pluginEnd; ++plugin) {
       for (cache=(*plugin)->cacheRoot(), i=0; i < cache->children(); ++i) {
         //std::cout <<" "<<cache->child(i)->token(0)<<std::endl;
         if (cache->child(i)->token(0) == mycat) {

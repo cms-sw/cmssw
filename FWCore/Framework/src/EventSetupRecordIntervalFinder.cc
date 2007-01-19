@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed Mar 30 14:27:26 EST 2005
-// $Id: EventSetupRecordIntervalFinder.cc,v 1.4 2005/08/04 15:04:15 chrjones Exp $
+// $Id: EventSetupRecordIntervalFinder.cc,v 1.5 2005/10/03 23:20:48 chrjones Exp $
 //
 
 // system include files
@@ -82,9 +82,8 @@ EventSetupRecordIntervalFinder::findingForRecords() const
 {
    std::set<EventSetupRecordKey> returnValue;
    
-   Intervals::const_iterator itEnd = intervals_.end();
-   for(Intervals::const_iterator itEntry = intervals_.begin();
-       itEntry != itEnd;
+   for(Intervals::const_iterator itEntry = intervals_.begin(), itEntryEnd = intervals_.end();
+       itEntry != itEntryEnd;
        ++itEntry) {
       returnValue.insert(returnValue.end(), itEntry->first);
    }

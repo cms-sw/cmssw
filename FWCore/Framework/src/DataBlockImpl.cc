@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: DataBlockImpl.cc,v 1.8 2007/01/12 23:17:58 wmtan Exp $
+  $Id: DataBlockImpl.cc,v 1.9 2007/01/17 06:24:02 wmtan Exp $
   ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -121,7 +121,7 @@ namespace edm {
     if (processHistoryModified_) return;
     ProcessHistory& ph = *processHistoryPtr_;
     std::string const& processName = processConfiguration_.processName();
-    for (ProcessHistory::const_iterator it = ph.begin(); it != ph.end(); ++it) {
+    for (ProcessHistory::const_iterator it = ph.begin(), itEnd = ph.end(); it != itEnd; ++it) {
       if (processName == it->processName()) {
 	throw edm::Exception(errors::Configuration, "Duplicate Process")
 	  << "The process name " << processName << " was previously used on these products.\n"
@@ -218,7 +218,7 @@ namespace edm {
     TypeDict::const_iterator i 
       = typeDict_.find(productType.friendlyClassName());
 
-    if(i==typeDict_.end()) {
+    if(i == typeDict_.end()) {
       // TODO: Perhaps stuff like this should go to some error
       // logger?  Or do we want huge message inside the exception
       // that is thrown?
@@ -378,7 +378,7 @@ namespace edm {
     // care needs to be taken.
     TypeDict::const_iterator i = typeDict_.find(productType.friendlyClassName());
 
-    if(i==typeDict_.end()) {
+    if(i == typeDict_.end()) {
       return;
       // it is not an error to return no items
       // throw edm::Exception(errors::ProductNotFound,"NoMatch")
@@ -410,7 +410,7 @@ namespace edm {
 
     TypeDict::const_iterator i = typeDict_.find(productType.friendlyClassName());
 
-    if(i==typeDict_.end()) {
+    if(i == typeDict_.end()) {
       throw edm::Exception(errors::ProductNotFound,"NoMatch")
         << "getByType: no product found of correct type\n" << productType
 	<< '\n';
@@ -445,7 +445,7 @@ namespace edm {
     // care needs to be taken.
     TypeDict::const_iterator i = typeDict_.find(productType.friendlyClassName());
 
-    if(i==typeDict_.end()) {
+    if(i == typeDict_.end()) {
       return;
       // it is not an error to find no match
       // throw edm::Exception(errors::ProductNotFound,"NoMatch")
@@ -600,7 +600,7 @@ namespace edm {
   void
   DataBlockImpl::getAllProvenance(vector<Provenance const*> & provenances) const {
     provenances.clear();
-    for (DataBlockImpl::const_iterator i = groups_.begin(); i != groups_.end(); ++i) {
+    for (DataBlockImpl::const_iterator i = groups_.begin(), iEnd = groups_.end(); i != iEnd; ++i) {
       provenances.push_back(&(*i)->provenance());
     }
   }

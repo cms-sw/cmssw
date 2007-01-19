@@ -231,7 +231,7 @@ namespace edm {
       return rc;
     }
 
-#define MUST_BE_ZERO(fun) if((fun)!=0)					\
+#define MUST_BE_ZERO(fun) if((fun) != 0)					\
       { perror("EventProcessor::setupSignal: sig function failed"); abort(); }
 
     void disableAllSigs(sigset_t* oldset)
@@ -253,11 +253,10 @@ namespace edm {
       memset(&tmpact,0,sizeof(tmpact));
       tmpact.sa_handler = SIG_IGN;
 
-      for(int num=SIGRTMIN;num<SIGRTMAX;++num)
-	{
+      for(int num = SIGRTMIN; num < SIGRTMAX; ++num) {
 	  MUST_BE_ZERO(sigaddset(&myset,num));
 	  MUST_BE_ZERO(sigaction(num,&tmpact,NULL));
-	}
+      }
       
       MUST_BE_ZERO(pthread_sigmask(SIG_BLOCK,&myset,0));
 #endif
@@ -285,11 +284,10 @@ namespace edm {
       // get my signal number
       int mysig = signum;
       
-      if(sigaction(mysig,&act,NULL)!=0)
-	{
+      if(sigaction(mysig,&act,NULL) != 0) {
 	  perror("sigaction failed");
 	  abort();
-	}
+      }
       
       sigset_t newset;
       MUST_BE_ZERO(sigemptyset(&newset));
@@ -332,20 +330,16 @@ namespace edm {
       
       return input;
     } 
-    catch(edm::Exception const& iException) 
-      {
+    catch(edm::Exception const& iException) {
  	if(sourceSpecified == false && 
-	   errors::Configuration == iException.categoryCode()) 
- 	  {
+	   errors::Configuration == iException.categoryCode()) {
  	    throw edm::Exception(errors::Configuration, "FailedInputSource")
 	      << "Configuration of main input source has failed\n"
 	      << iException;
- 	  } 
- 	else
- 	  {
+ 	} else {
  	    throw;
- 	  }
-      }
+ 	}
+    }
     return shared_ptr<InputSource>();
   }
   
@@ -359,7 +353,7 @@ namespace edm {
     vector<string> prefers =
       params.getParameter<vector<string> >("@all_esprefers");
 
-    if(prefers.empty()){
+    if(prefers.empty()) {
       return std::auto_ptr<EventSetupProvider>(new EventSetupProvider());
     }
 
@@ -371,18 +365,19 @@ namespace edm {
     //preferInfo[ComponentDescription("DummyProxyProvider","",false)]=
     //      recordToData;
 
-    for(vector<string>::iterator itName = prefers.begin();
-	itName != prefers.end();
+    for(vector<string>::iterator itName = prefers.begin(), itNameEnd = prefers.end();
+	itName != itNameEnd;
 	++itName) 
       {
         recordToData.clear();
 	ParameterSet preferPSet = params.getParameter<ParameterSet>(*itName);
         std::vector<std::string> recordNames = preferPSet.getParameterNames();
-        for(vector<string>::iterator itRecordName = recordNames.begin();
-            itRecordName != recordNames.end();
+        for(vector<string>::iterator itRecordName = recordNames.begin(),
+	    itRecordNameEnd = recordNames.end();
+            itRecordName != itRecordNameEnd;
             ++itRecordName) {
 
-	  if( (*itRecordName)[0]=='@'){
+	  if((*itRecordName)[0] == '@') {
 	    //this is a 'hidden parameter' so skip it
 	    continue;
 	  }
@@ -399,8 +394,9 @@ namespace edm {
 		<< *itRecordName << " specifies no data items";
 	    }
 	    //FUTURE: 'any' should be a special name
-	    for(std::vector<std::string>::iterator itDatum = dataInfo.begin();
-		itDatum != dataInfo.end();
+	    for(std::vector<std::string>::iterator itDatum = dataInfo.begin(),
+	        itDatumEnd = dataInfo.end();
+		itDatum != itDatumEnd;
 		++itDatum){
 	      std::string datumName(*itDatum, 0, itDatum->find_first_of("/"));
 	      std::string labelName;
@@ -426,7 +422,7 @@ namespace edm {
         preferInfo[ComponentDescription(preferPSet.getParameter<std::string>("@module_type"),
                                         preferPSet.getParameter<std::string>("@module_label"),
                                         false)]
-	  =recordToData;
+	  = recordToData;
       }
     return std::auto_ptr<EventSetupProvider>(new EventSetupProvider(&preferInfo));
   }
@@ -442,8 +438,8 @@ namespace edm {
     vector<string> providers =
       params.getParameter<vector<string> >("@all_esmodules");
 
-    for(vector<string>::iterator itName = providers.begin();
-	itName != providers.end();
+    for(vector<string>::iterator itName = providers.begin(), itNameEnd = providers.end();
+	itName != itNameEnd;
 	++itName) 
       {
 	ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
@@ -457,8 +453,8 @@ namespace edm {
     vector<string> sources = 
       params.getParameter<vector<string> >("@all_essources");
 
-    for(vector<string>::iterator itName = sources.begin();
-	itName != sources.end();
+    for(vector<string>::iterator itName = sources.begin(), itNameEnd = sources.end();
+	itName != itNameEnd;
 	++itName) 
       {
 	ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
@@ -517,11 +513,10 @@ namespace edm {
 			       string const& service)
   {
     typedef std::vector<edm::ParameterSet>::const_iterator Iter;
-    for(Iter it = adjust.begin(); it != adjust.end(); ++it)
-      {
+    for(Iter it = adjust.begin(), itEnd = adjust.end(); it != itEnd; ++it) {
 	string name = it->getParameter<std::string>("@service_type");
 	if (name == service) return;
-      }
+    }
     adjustForService(adjust, service);
   }
 
@@ -539,14 +534,14 @@ namespace edm {
     vector<string> loopers =
       params.getParameter<vector<string> >("@all_loopers");
 
-    if(loopers.size()==0) {
+    if(loopers.size() == 0) {
        return vLooper;
     }
    
-    assert(1==loopers.size());
+    assert(1 == loopers.size());
 
-    for(vector<string>::iterator itName = loopers.begin();
-	itName != loopers.end();
+    for(vector<string>::iterator itName = loopers.begin(), itNameEnd = loopers.end();
+	itName != itNameEnd;
 	++itName) 
       {
 	ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
@@ -641,12 +636,12 @@ namespace edm {
     shared_ptr<vector<ParameterSet> > pServiceSets;
     shared_ptr<ParameterSet> processParamsPtr; // change this name!
     makeParameterSets(config, processParamsPtr, pServiceSets);
-    for(vector<string>::const_iterator i = defaultServices.begin();
-	 i != defaultServices.end(); ++i) {
+    for(vector<string>::const_iterator i = defaultServices.begin(), iEnd = defaultServices.end();
+	 i != iEnd; ++i) {
       adjustForDefaultService(*(pServiceSets.get()), *i);
     }
-    for(vector<string>::const_iterator j = forcedServices.begin();
-	 j != forcedServices.end(); ++j) {
+    for(vector<string>::const_iterator j = forcedServices.begin(), jEnd = forcedServices.end();
+	 j != jEnd; ++j) {
       adjustForService(*(pServiceSets.get()), *j);
     }
 
@@ -663,7 +658,7 @@ namespace edm {
     //add the ProductRegistry as a service ONLY for the construction phase
     typedef serviceregistry::ServiceWrapper<ConstProductRegistry> w_CPR;
     shared_ptr<w_CPR>
-      reg(new w_CPR( std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(preg_))));
+      reg(new w_CPR(std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(preg_))));
     ServiceToken tempToken2(ServiceRegistry::createContaining(reg, 
 							      tempToken, 
 							      kOverlapIsError));
@@ -676,9 +671,9 @@ namespace edm {
     typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
 
     shared_ptr<w_TNS> tnsptr
-      (new w_TNS( std::auto_ptr<TNS>(new TNS(*processParamsPtr))));
+      (new w_TNS(std::auto_ptr<TNS>(new TNS(*processParamsPtr))));
 
-    serviceToken_=ServiceRegistry::createContaining(tnsptr, 
+    serviceToken_ = ServiceRegistry::createContaining(tnsptr, 
 						    tempToken2, 
 						    kOverlapIsError);
 
@@ -759,7 +754,7 @@ namespace edm {
   {
     try {
        // Job should be in sJobReady state, then we send mRunCount message and move job sRunning state
-       if(state_==sJobReady) {
+       if(state_ == sJobReady) {
           changeState(mRunCount);
        }
     } catch(...) {
@@ -767,7 +762,7 @@ namespace edm {
        throw;
     }
     EventHelperDescription evtDesc;
-    if(state_!=sRunning) {
+    if(state_ != sRunning) {
        return evtDesc;
     }
     StateSentry toerror(this);
@@ -787,7 +782,7 @@ namespace edm {
 
     pep = input_->readEvent();
 
-    if(pep.get()==0) {
+    if(pep.get() == 0) {
       changeState(mInputExhausted);
       toerror.succeeded();
       return evtDesc;
@@ -818,9 +813,9 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
-    bool runforever = numberToProcess==0;
+    bool runforever = numberToProcess == 0;
     bool got_sig = false;
-    unsigned int eventcount=0;
+    unsigned int eventcount = 0;
     StatusCode rc = epSuccess;
 
     std::auto_ptr<EventPrincipal> previousPep;
@@ -917,7 +912,7 @@ namespace edm {
       pep = input_->readEvent(id);
     }
 
-    if(pep.get()==0) {
+    if(pep.get() == 0) {
 	changeState(mInputExhausted);
 	rc = epInputComplete;
     }
@@ -960,7 +955,7 @@ namespace edm {
   void
   EventProcessor::beginJob() 
   {
-    if(state_!=sInit) return;
+    if(state_ != sInit) return;
     // can only be run if in the initial state
     changeState(mBeginJob);
 
@@ -982,7 +977,7 @@ namespace edm {
     input_->doBeginJob(es);
     } catch(cms::Exception& e) {
       LogError("BeginJob") << "A cms::Exception happened while processing the beginJob of the 'source'\n";
-      e<<"A cms::Exception happened while processing the beginJob of the 'source'\n";
+      e << "A cms::Exception happened while processing the beginJob of the 'source'\n";
       throw;
     } catch(std::exception& e)
     {
@@ -1144,7 +1139,7 @@ namespace edm {
   {
     boost::mutex::scoped_lock sl(stop_lock_);
 
-    while(stop_count_==0) stopper_.wait(sl);
+    while(stop_count_ == 0) stopper_.wait(sl);
     event_loop_->join();
     event_loop_.reset();
     id_set_ = false;
@@ -1186,10 +1181,9 @@ namespace edm {
     {
       boost::mutex::scoped_lock sl(stop_lock_);
       bool rc = true;
-      while(stop_count_==0 && (rc=stopper_.timed_wait(sl,timeout))==true);
+      while(stop_count_ == 0 && (rc = stopper_.timed_wait(sl,timeout)) == true);
 
-      if(rc==false)
-	{
+      if(rc == false) {
 	  // timeout occurred
 	  // if(id_set_) pthread_kill(event_loop_id_,my_sig_num_);
 	  // this is a temporary hack until we get the input source
@@ -1199,7 +1193,7 @@ namespace edm {
 	  LogWarning("timeout")
 	    << "An asynchronous request was made to shut down the event loop "
 	    << "and the event loop did not shutdown after 2 minutes\n";
-	}
+      }
 
       event_loop_->join();
       event_loop_.reset();
@@ -1217,15 +1211,15 @@ namespace edm {
     State curr = state_;
     int rc;
     // found if (not end of table) and 
-    // (state==table.state && (msg==table.message || msg==any))
-    for(rc=0;
-	table[rc].current!=sInvalid && 
-	  (curr!=table[rc].current || 
-	   ( curr==table[rc].current && 
-	     msg!=table[rc].message && table[rc].message!=mAny ) );
+    // (state == table.state && (msg == table.message || msg == any))
+    for(rc = 0;
+	table[rc].current != sInvalid && 
+	  (curr != table[rc].current || 
+	   (curr == table[rc].current && 
+	     msg != table[rc].message && table[rc].message != mAny));
 	++rc);
 
-    if(table[rc].current==sInvalid)
+    if(table[rc].current == sInvalid)
       throw cms::Exception("BadState")
 	<< "A member function of EventProcessor has been called in an"
 	<< " inappropriate order.\n"
