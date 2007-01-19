@@ -29,7 +29,9 @@ using namespace sistrip;
 //
 SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) :
   rawToDigi_(0),
-  createDigis_( pset.getUntrackedParameter<bool>("CreateDigis",true) )
+  createDigis_( pset.getUntrackedParameter<bool>("CreateDigis",true) ),
+  label_( pset.getUntrackedParameter<string>("ProductLabel","source") ),
+  instance_( pset.getUntrackedParameter<string>("ProductInstance","") )
 {
   LogTrace(mlRawToDigi_)
     << "[SiStripRawToDigiModule::" << __func__ << "]"
@@ -60,7 +62,7 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
 // -----------------------------------------------------------------------------
 /** */
 SiStripRawToDigiModule::~SiStripRawToDigiModule() {
-  if ( rawToDigi_ ) delete rawToDigi_;
+  if ( rawToDigi_ ) { delete rawToDigi_; }
   LogTrace(mlRawToDigi_)
     << "[SiStripRawToDigiModule::" << __func__ << "]"
     << " Destructing object...";
@@ -80,10 +82,9 @@ void SiStripRawToDigiModule::produce( edm::Event& event,
   edm::ESHandle<SiStripFedCabling> cabling;
   setup.get<SiStripFedCablingRcd>().get( cabling );
 
-  // Retrieve FED raw data ("source" label is now fixed by fwk)
+  // Retrieve FED raw data (by label, which is "source" by default)
   edm::Handle<FEDRawDataCollection> buffers;
-  //event.getByType( buffers ); 
-  event.getByLabel( "source", buffers ); 
+  event.getByLabel( label_, instance_, buffers ); 
   
   // Populate SiStripEventSummary object with "trigger FED" info
   auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
