@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.19 2006/10/21 02:49:02 wmtan Exp $
+// $Id: EventContentAnalyzer.cc,v 1.20 2006/10/30 15:28:11 chrjones Exp $
 //
 //
 
@@ -134,7 +134,7 @@ static void printObject(const std::string& iName,
       Type pointedType = iObject.TypeOf().ToType();
       if(ROOT::Reflex::Type::ByName("void") == pointedType ||
          pointedType.IsPointer() ||
-         iObject.Address()==0) {
+         iObject.Address() == 0) {
          return;
       }
       return;
@@ -170,8 +170,8 @@ static void printObject(const std::string& iName,
        ++itMember) {
       //std::cout <<"     debug "<<itMember->Name()<<" "<<itMember->TypeOf().Name()<<"\n";
       try {
-         printObject( itMember->Name(),
-                      itMember->Get( objectToPrint),
+         printObject(itMember->Name(),
+                      itMember->Get(objectToPrint),
                       indent,
                       iIndentDelta);
       }catch(std::exception& iEx) {
@@ -288,10 +288,10 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
              << " with friendlyClassName, moduleLabel and productInstanceName:"
              << std::endl;
 
-   for(Provenances::iterator itProv  = provenances.begin();
-                             itProv != provenances.end();
+   for(Provenances::iterator itProv = provenances.begin(), itProvEnd = provenances.end();
+                             itProv != itProvEnd;
                            ++itProv) {
-     if( (*itProv)->isPresent() ) {
+     if((*itProv)->isPresent()) {
        friendlyName = (*itProv)->friendlyClassName();
        //if(friendlyName.empty())  friendlyName = std::string("||");
        
@@ -305,7 +305,7 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		 << " \"" << modLabel
 		 << "\" \"" << instanceName <<"\"" << std::endl;
        if(verbose_) {
-         if( moduleLabels_.size() ==0 ||
+         if(moduleLabels_.size() == 0 ||
              std::binary_search(moduleLabels_.begin(),moduleLabels_.end(),modLabel)) {
 	   //indent one level before starting to print
 	   std::string startIndent = indentation_+verboseIndentation_;
@@ -335,8 +335,8 @@ EventContentAnalyzer::endJob()
    typedef std::map<std::string,int> nameMap;
 
    std::cout <<"\nSummary for key being the concatenation of friendlyClassName, moduleLabel and productInstanceName" << std::endl;
-   for(nameMap::const_iterator it =cumulates_.begin();
-                               it!=cumulates_.end();
+   for(nameMap::const_iterator it = cumulates_.begin(), itEnd = cumulates_.end();
+                               it != itEnd;
                              ++it) {
       std::cout << std::setw(6) << it->second << " occurrences of key " << it->first << std::endl;
    }

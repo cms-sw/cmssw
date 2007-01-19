@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 15 09:47:48 EDT 2005
-// $Id: LoadAllDictionaries.cc,v 1.3 2005/09/28 04:20:58 wmtan Exp $
+// $Id: LoadAllDictionaries.cc,v 1.4 2006/07/07 16:04:37 wmtan Exp $
 //
 
 // system include files
@@ -42,7 +42,7 @@ edm::service::LoadAllDictionaries::LoadAllDictionaries(const edm::ParameterSet& 
 
       seal::PluginManager                       *db =  seal::PluginManager::get();
       seal::PluginManager::DirectoryIterator    dir;
-      seal::ModuleCache::Iterator               plugin;
+      seal::ModuleCache::Iterator               plugin, pluginEnd;
       seal::ModuleDescriptor                    *cache;
       unsigned                            i;
       
@@ -53,7 +53,7 @@ edm::service::LoadAllDictionaries::LoadAllDictionaries(const edm::ParameterSet& 
       const std::string mystring("edm::Wrapper");
       
       for (dir = db->beginDirectories(); dir != db->endDirectories(); ++dir) {
-         for (plugin = (*dir)->begin(); plugin != (*dir)->end(); ++plugin) {
+         for (plugin = (*dir)->begin(), pluginEnd = (*dir)->end(); plugin != pluginEnd; ++plugin) {
             for (cache=(*plugin)->cacheRoot(), i=0; i < cache->children(); ++i) {
                //std::cout <<" "<<cache->child(i)->token(0)<<std::endl;
                if (cache->child(i)->token(0) == mycat) {

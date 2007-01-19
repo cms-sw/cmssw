@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 28 11:10:24 EDT 2005
-// $Id: EventSetupRecordDataGetter.cc,v 1.4 2006/09/06 19:44:34 chrjones Exp $
+// $Id: EventSetupRecordDataGetter.cc,v 1.5 2006/10/21 18:14:19 wmtan Exp $
 //
 //
 
@@ -78,7 +78,7 @@ EventSetupRecordDataGetter::analyze(const edm::Event& /*iEvent*/, const edm::Eve
       typedef std::vector< ParameterSet > Parameters;
       Parameters toGet = pSet_.getParameter<Parameters>("toGet");
       
-      for(Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet) {
+      for(Parameters::iterator itToGet = toGet.begin(), itToGetEnd = toGet.end(); itToGet != itToGetEnd; ++itToGet) {
          std::string recordName = itToGet->getParameter<std::string>("record");
          
          eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType(recordName));
@@ -90,7 +90,8 @@ EventSetupRecordDataGetter::analyze(const edm::Event& /*iEvent*/, const edm::Eve
          typedef std::vector< std::string > Strings;
          Strings dataNames = itToGet->getParameter< Strings >("data");
          std::vector< eventsetup::DataKey > dataKeys;
-         for(Strings::iterator itDatum = dataNames.begin(); itDatum != dataNames.end(); ++itDatum) {
+         for(Strings::iterator itDatum = dataNames.begin(), itDatumEnd = dataNames.end();
+               itDatum != itDatumEnd; ++itDatum) {
             std::string datumName(*itDatum, 0, itDatum->find_first_of("/"));
             std::string labelName;
             if(itDatum->size() != datumName.size()) {
@@ -115,8 +116,8 @@ EventSetupRecordDataGetter::analyze(const edm::Event& /*iEvent*/, const edm::Eve
 
    //For each requested Record get the requested data only if the Record is in a new IOV
    
-   for(RecordToDataKeys::iterator itRecord = recordToDataKeys_.begin();
-        itRecord != recordToDataKeys_.end();
+   for(RecordToDataKeys::iterator itRecord = recordToDataKeys_.begin(), itRecordEnd = recordToDataKeys_.end();
+        itRecord != itRecordEnd;
         ++itRecord) {
       const EventSetupRecord* pRecord = iSetup.find(itRecord->first);
       
@@ -124,8 +125,8 @@ EventSetupRecordDataGetter::analyze(const edm::Event& /*iEvent*/, const edm::Eve
          recordToCacheIdentifier_[itRecord->first] = pRecord->cacheIdentifier();
          typedef std::vector< DataKey > Keys;
          const Keys& keys = itRecord->second;
-         for(Keys::const_iterator itKey = keys.begin();
-              itKey != keys.end();
+         for(Keys::const_iterator itKey = keys.begin(), itKeyEnd = keys.end();
+              itKey != itKeyEnd;
               ++itKey) {
             if(! pRecord->doGet(*itKey)) {
                std::cout << "No data of type \""<<itKey->type().name() <<"\" with name \""<< itKey->name().value()<<"\" in record "<<itRecord->first.type().name() <<" found "<< std::endl;

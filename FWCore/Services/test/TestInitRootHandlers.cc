@@ -387,8 +387,8 @@ TestInitRootHandlers::analyze(const edm::Event& iEvent, const edm::EventSetup& i
              << " with friendlyClassName, moduleLabel and productInstanceName:"
              << std::endl;
 
-   for(Provenances::iterator itProv  = provenances.begin();
-                             itProv != provenances.end();
+   for(Provenances::iterator itProv = provenances.begin(), itProvEnd = provenances.end();
+                             itProv != itProvEnd;
                            ++itProv) {
       friendlyName = (*itProv)->friendlyClassName();
       //if(friendlyName.empty())  friendlyName = std::string("||");
@@ -436,8 +436,8 @@ TestInitRootHandlers::endJob()
    typedef std::map<std::string,int> nameMap;
 
    std::cout <<"\nSummary for key being the concatenation of friendlyClassName, moduleLabel and productInstanceName" << std::endl;
-   for(nameMap::const_iterator it =cumulates_.begin();
-                               it!=cumulates_.end();
+   for(nameMap::const_iterator it = cumulates_.begin(), itEnd = cumulates_.end();
+                               it != itEnd;
                              ++it) {
       std::cout << std::setw(6) << it->second << " occurrences of key " << it->first << std::endl;
    }

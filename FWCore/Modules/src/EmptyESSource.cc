@@ -13,8 +13,8 @@ EmptyESSource::EmptyESSource(const edm::ParameterSet & pset) :
    iovIsTime_(!pset.getParameter<bool>("iovIsRunNotTime"))
 {
    std::vector<unsigned int> temp(pset.getParameter< std::vector<unsigned int> >("firstValid"));
-   for(std::vector<unsigned int>::iterator itValue = temp.begin();
-        itValue != temp.end();
+   for(std::vector<unsigned int>::iterator itValue = temp.begin(), itValueEnd = temp.end();
+        itValue != itValueEnd;
         ++itValue) {
       if(iovIsTime_) {
          setOfIOV_.insert(IOVSyncValue(Timestamp(*itValue)));
@@ -49,7 +49,7 @@ EmptyESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
       std::set<edm::IOVSyncValue>::iterator > itFound = setOfIOV_.equal_range(iTime);
    
    //we have overshot
-   if(itFound.first==itFound.second){
+   if(itFound.first == itFound.second){
       if(itFound.first == setOfIOV_.begin()){
          //request is before first valid interval, so fail
          return;

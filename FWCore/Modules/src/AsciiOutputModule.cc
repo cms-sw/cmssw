@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.cc,v 1.6 2006/07/06 19:16:13 wmtan Exp $
+$Id: AsciiOutputModule.cc,v 1.7 2007/01/10 05:55:48 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -43,7 +43,8 @@ namespace edm {
     // Write out non-EDProduct contents...
 
     // ... list of process-names
-    for (ProcessHistory::const_iterator it = e.processHistory().begin(); it != e.processHistory().end(); ++it) {
+    for (ProcessHistory::const_iterator it = e.processHistory().begin(), itEnd = e.processHistory().end();
+        it != itEnd; ++it) {
       *pout_ << it->processName() << " ";
     }
 
@@ -52,7 +53,7 @@ namespace edm {
     
     // Loop over groups, and write some output for each...
 
-    for(EventPrincipal::const_iterator i = e.begin(); i != e.end(); ++i) {
+    for(EventPrincipal::const_iterator i = e.begin(), iEnd = e.end(); i != iEnd; ++i) {
       BranchDescription const& desc = (*i)->productDescription();
       if (selected(desc)) {
         *pout_ << *i << '\n';
