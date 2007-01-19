@@ -6,15 +6,15 @@
 /** \class SteppingHelixStateInfo
  *  Holder of SteppingHelixState information
  *
- *  $Date: 2007/01/04 18:32:18 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/01/10 02:03:15 $
+ *  $Revision: 1.2 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.h,v 1.1 2007/01/04 18:32:18 slava77 Exp $
+// $Id: SteppingHelixStateInfo.h,v 1.2 2007/01/10 02:03:15 slava77 Exp $
 //
 //
 
@@ -45,7 +45,7 @@ class SteppingHelixStateInfo {
   };
   
 
-  SteppingHelixStateInfo(): isComplete(0) {}
+  SteppingHelixStateInfo(): isComplete(0), isValidInfo(0) {}
   SteppingHelixStateInfo(const FreeTrajectoryState& fts);
 
   TrajectoryStateOnSurface getStateOnSurface(const Surface& surf) const;
