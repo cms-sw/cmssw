@@ -7,6 +7,7 @@
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/CosmicTIFFilter.h"
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/CosmicGenFilter.h"
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/TrackerMuFilter.h"
+#include "AnalysisExamples/SiStripDetectorPerformance/interface/MTCCAmplifyDigis.h"
 
 using cms::ClusterAnalysis;
 using cms::ClusterAnalysisFilter;
@@ -22,4 +23,4 @@ DEFINE_ANOTHER_FWK_MODULE(MTCCNtupleMaker);
 DEFINE_ANOTHER_FWK_MODULE(CosmicTIFFilter);
 DEFINE_ANOTHER_FWK_MODULE(CosmicGenFilter);
 DEFINE_ANOTHER_FWK_MODULE(TrackerMuFilter);
-
+DEFINE_ANOTHER_FWK_MODULE(MTCCAmplifyDigis);
