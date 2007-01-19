@@ -1,0 +1,19 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=RecoTracker/TrackProducer>
+<use name=DataFormats/TrackReco>
+<use name=Alignment/TrackerAlignment>
+<use name=rootrflx>
+
+<flags SEAL_PLUGIN_NAME="AlignmentTrackHitFilter">
+<export>
+   <lib name=AlignmentTrackHitFilter>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=RecoTracker/TrackProducer>
+   <use name=Alignment/TrackerAlignment>
+   <use name=rootrflx>
+</export>
+<flags CXXFLAGS="-g">
