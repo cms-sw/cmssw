@@ -4,13 +4,10 @@
   <class name="TrajectorySeed" />
   <class name="std::vector<TrajectorySeed>" />
   <class name="edm::Wrapper<std::vector<TrajectorySeed> >" />
-  <class
-name="edm::Ref<std::vector<TrajectorySeed>,TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<TrajectorySeed>,TrajectorySeed>
+  <class name="edm::Ref<std::vector<TrajectorySeed>,TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<TrajectorySeed>,TrajectorySeed>
 >"/>
   <class name="edm::RefProd<std::vector<TrajectorySeed> >"/>
-  <class
-name="edm::RefVectorIterator<std::vector<TrajectorySeed>,TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<TrajectorySeed>,Traje
-ctorySeed> >"/>
+  <class name="edm::RefVector<std::vector<TrajectorySeed>,TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<TrajectorySeed>,TrajectorySeed> >"/>
+  <class name="edm::RefVectorIterator<std::vector<TrajectorySeed>,TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<TrajectorySeed>,TrajectorySeed> >"/>
 </lcgdict>
-
 
