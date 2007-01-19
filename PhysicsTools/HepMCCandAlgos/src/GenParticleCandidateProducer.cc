@@ -1,4 +1,4 @@
-// $Id: GenParticleCandidateProducer.cc,v 1.17 2007/01/15 12:34:59 llista Exp $
+// $Id: GenParticleCandidateProducer.cc,v 1.19 2007/01/15 14:37:02 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/GenParticleCandidateProducer.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
@@ -298,11 +298,7 @@ void GenParticleCandidateProducer::fillRefs( const std::vector<int> & mothers,
     while ( mother.first == 0 && m != -1 )
       if ( ( mother = candidates[ m ] ).first == 0 )
 	m = ( m != -1 ) ? mothers[ m ] : -1;
-    if ( mother.first != 0 ) {
-      CandidateRef candRef( ref, i );
-      mother.first->addDaughter( candRef );
-      GenParticleCandidate & c = dynamic_cast<GenParticleCandidate &>( cands[ i ] );
-      c.setMotherRef( CandidateRef( ref, mother.second ) );
-    }
+    if ( mother.first != 0 ) 
+      mother.first->addDaughter( CandidateRef( ref, i ) );
   }
 }

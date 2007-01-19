@@ -1,4 +1,4 @@
-// $Id: FastGenParticleCandidateProducer.cc,v 1.1 2007/01/15 14:24:49 llista Exp $
+// $Id: FastGenParticleCandidateProducer.cc,v 1.2 2007/01/16 11:23:52 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/FastGenParticleCandidateProducer.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
@@ -133,7 +133,6 @@ void FastGenParticleCandidateProducer::fillRefs( const std::vector<const GenPart
     if ( part->hasParents() ) {
       size_t m = part->mother()->barcode() - 1;
       candVector[ m ]->addDaughter( CandidateRef( ref, d ) );
-      candVector[ d ]->setMotherRef( CandidateRef( ref, m ) );
     }
   }
 }
