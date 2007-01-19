@@ -34,6 +34,44 @@ const char* TaggingVariableDescription[] = {
   /* [lastTaggingVariable] = */ ""
 };
 
+const char* TaggingVariableTokens[] = {
+  /* [jetEnergy]      = */  "jetEnergy",
+  /* [jetPt]          = */  "jetPt",
+  /* [jetEta]         = */  "jetEta",
+  /* [jetPhi]         = */  "jetPhi",
+  /* [trackMomentum]  = */  "trackMomentum",
+  /* [trackEta]       = */  "trackEta",
+  /* [trackPhi]       = */  "trackPhi",
+  /* [trackSip2d]     = */  "trackSip2d",
+  /* [trackSip3d]     = */  "trackSip3d",
+  /* [trackPtRel]     = */  "trackPtRel",
+  /* [trackPpar]      = */  "trackPpar",
+  /* [trackEtaRel]    = */  "trackEtaRel",
+  /* [trackDeltaR]    = */  "trackDeltaR",
+  /* [trackPtRatio]   = */  "trackPtRatio",
+  /* [trackPparRatio] = */  "trackPparRatio",
+  /* [vertexCategory] = */  "vertexCategory",
+  /* [vertexMass]     = */  "vertexMass",
+  /* [vertexMultiplicity] = */ "vertexMultiplicity",
+  /* [flightDistance2DSignificance] */ "flightDistance2DSignificance",
+  /* [eSVXOverE]      = */ "eSVXOverE",
+  /* [trackSip2dAbCharm] = */ "trackSip2dAbCharm",
+
+  /* [lastTaggingVariable] = */ "lastTaggingVariable"
+};
+
+btag::TaggingVariableName getTaggingVariableName ( const std::string & name )
+{
+  for ( int i=0; i<= reco::btag::lastTaggingVariable ; i++ )
+  {
+    if ( name == TaggingVariableTokens[i] ) 
+    {
+      return (reco::btag::TaggingVariableName) (i);
+    }
+  }
+  return btag::lastTaggingVariable;
+}
+
 // check if a tag is present in the TaggingVariableList
 bool TaggingVariableList::checkTag( TaggingVariableName tag ) const {
   return binary_search( m_list.begin(), m_list.end(), tag, TaggingVariableCompare() );

@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <vector>
+#include <string>
 
 #include <boost/static_assert.hpp>
 #include <boost/pointee.hpp>
@@ -46,6 +47,9 @@ namespace reco {
   using btag::TaggingVariableName;
 
   extern const char* TaggingVariableDescription[];
+  extern const char* TaggingVariableTokens[];
+
+  TaggingVariableName getTaggingVariableName ( const std::string & name );
 
   typedef double TaggingValue;
   
@@ -84,7 +88,17 @@ namespace reco {
         insert(*i);
     }
 
+    /**
+     *  STL-like accessors 
+     */
+    typedef std::vector < TaggingVariable >::const_iterator const_iterator;
+    size_t size() const { return m_list.size(); }
+    const_iterator begin() const { return m_list.begin(); }
+    const_iterator end() const { return m_list.end(); }
+    void push_back ( const TaggingVariable & t ) { m_list.push_back ( t ); }
+
     ~TaggingVariableList() { }
+
 
   private:
     std::vector< TaggingVariable > m_list;
@@ -104,7 +118,6 @@ namespace reco {
     }
   };
 
-    
 }
 
 #endif // DataFormats_BTauReco_TaggingVariable_h
