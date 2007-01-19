@@ -1,6 +1,8 @@
 <use name=clhep>
 <use name=FastSimulation/CalorimeterProperties>
 <use name=FastSimulation/CaloGeometryTools>
+<use name=FastSimulation/MaterialEffects>
+<use name=Geometry/EcalPreshowerAlgo>
 <use name=FastSimulation/Utilities>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/HcalDetId>
@@ -8,7 +10,9 @@
  <lib name=FastSimulationCaloHitMakers>
  <use name=FastSimulation/CalorimeterProperties>
  <use name=FastSimulation/CaloGeometryTools>
+ <use name=FastSimulation/MaterialEffects> 
  <use name=FastSimulation/Utilities>
  <use name=DataFormats/EcalDetId>
  <use name=DataFormats/HcalDetId>
+ <use name=Geometry/EcalPreshowerAlgo>
 </export>

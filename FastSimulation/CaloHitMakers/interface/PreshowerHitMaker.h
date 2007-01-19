@@ -24,7 +24,7 @@ class PreshowerHitMaker : public CaloHitMaker
 
   private:
   /// The Landau Fluctuation generator
-  static LandauFluctuationGenerator theGenerator;
+  static LandauFluctuationGenerator  theGenerator;
 
   HepPoint3D psLayer1Entrance_;
   HepVector3D psLayer1Dir_;

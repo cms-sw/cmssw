@@ -1,7 +1,11 @@
 #include "FastSimulation/CaloHitMakers/interface/PreshowerHitMaker.h"
+#
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "Geometry/EcalPreshowerAlgo/interface/EcalPreshowerGeometry.h"
+
+LandauFluctuationGenerator PreshowerHitMaker::theGenerator=LandauFluctuationGenerator();
 
 PreshowerHitMaker::PreshowerHitMaker(CaloGeometryHelper * calo,
 			       const HepPoint3D& layer1entrance, 
@@ -45,11 +49,34 @@ PreshowerHitMaker::PreshowerHitMaker(CaloGeometryHelper * calo,
   invcostheta2x = 1./fabs(dirx.dot(HepVector3D(0,0,1.)));
   invcostheta2y = 1./fabs(diry.dot(HepVector3D(0,0,1.)));
 
-  
+  theGenerator=LandauFluctuationGenerator();
 }
 
 
 bool PreshowerHitMaker::addHit(double r,double phi,unsigned layer)
 {
+  r*=moliereRadius;
+  HepPoint3D point= (layer==1) ? HepPoint3D(x1+r*invcostheta1x*cos(phi),y1+r*invcostheta1y*sin(phi),z1) : HepPoint3D(x2+r*invcostheta2x*cos(phi),y2+r*invcostheta2y*sin(phi),z2);
+  
+  //  std::cout << " Layer " << layer << " " << point << std::endl;
+  DetId strip = myCalorimeter->getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(point.x(),point.y(),point.z()),layer);
+
+  float spote=0.000095+0.000021*theGenerator.landau();
+
+  if(!strip.null())
+    {
+      uint stripNumber=strip.rawId();
+      std::map<uint32_t,float>::iterator cellitr;
+      cellitr = hitMap_.find(stripNumber);
+      if( cellitr==hitMap_.end())
+	{
+	  hitMap_.insert(std::pair<uint32_t,float>(stripNumber,spote));
+	}
+      else
+	{
+	  cellitr->second+=spotEnergy;
+	}  
+      return true;
+    }
   return false;
 }
