@@ -1,11 +1,11 @@
-// $Id: EcalErrorMaskFile.cc,v 1.11 2007/01/18 07:55:24 dellaric Exp $
+// $Id: EcalErrorMaskFile.cc,v 1.13 2007/01/18 08:18:34 dellaric Exp $
 
 /*!
   \file EcalErrorMaskFile.cc
   \brief Error mask from text file
   \author B. Gobbo 
-  \version $Revision: 1.11 $
-  \date $Date: 2007/01/18 07:55:24 $
+  \version $Revision: 1.13 $
+  \date $Date: 2007/01/18 08:18:34 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
@@ -75,19 +75,6 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 	throw( std::runtime_error( os.str() ) );
 	return;
       }
-      unsigned int gain;
-      std::string ga; is >> ga;
-      gain = 0;
-      if( ga == "*" ) gain = 0x111;
-      else if( ga ==  "1" ) gain = 0x001;
-      else if( ga ==  "6" ) gain = 0x010;
-      else if( ga == "12" ) gain = 0x100;
-      else {
-	std::ostringstream os;
-	os << "line " << linecount << ": GAIN must be 1, 6, 12 or *" << std::ends;
-	throw( std::runtime_error( os.str() ) );
-	return;
-      }
       std::string shortDesc; is >> shortDesc;
       uint64_t bitmask; bitmask = 0;
       
@@ -102,17 +89,20 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 	throw( std::runtime_error( os.str() ) );
 	return;
       }
-      std::pair<EcalLogicID, RunCrystalErrorsDat> pCrystalErrors;
-      RunCrystalErrorsDat error;
-/*
-      if( gain & 0x001 ) error.setStatusG1( mcsf ); 
-      if( gain & 0x010 ) error.setStatusG6( mcsf ); 
-      if( gain & 0x100 ) error.setStatusG12( mcsf ); 
-*/
-      error.setErrorBits(bitmask);
-      pCrystalErrors.first = EcalLogicID( "local", 10000*(sm-1)+ic );
-      pCrystalErrors.second = error;
-      EcalErrorMaskFile::mapCrystalErrors_.insert( pCrystalErrors );
+      EcalLogicID id = EcalLogicID( "local", 10000*(sm-1)+ic );
+      std::map<EcalLogicID, RunCrystalErrorsDat>::iterator i = EcalErrorMaskFile::mapCrystalErrors_.find( id );
+      if( i != mapCrystalErrors_.end() ) {
+	//uint64_t oldBitmask = const_cast<RunCrystalErrorsDat*>(&(i->second))getErrorBits();
+	uint64_t oldBitmask = (i->second).getErrorBits();
+	oldBitmask |= bitmask;
+	//const_cast<RunCrystalsErrorDat*>(&(i->second)).setErrorBits( oldBitmask );
+	(i->second).setErrorBits( oldBitmask );
+      }
+      else {
+	RunCrystalErrorsDat error;
+	error.setErrorBits(bitmask);
+	EcalErrorMaskFile::mapCrystalErrors_[ id ] = error;
+      }
     }
     else if( s == "TT" ) {
       throw( std::runtime_error( "TT: To be implemented" ) );
