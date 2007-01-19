@@ -1,7 +1,7 @@
 /*
  * \file EcalTBMCInfoProducer.cc
  *
- * $Id: EcalTBMCInfoProducer.cc,v 1.5 2006/10/25 16:54:14 fabiocos Exp $
+ * $Id: EcalTBMCInfoProducer.cc,v 1.6 2006/10/26 08:01:06 fabiocos Exp $
  *
 */
 
@@ -41,6 +41,20 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) {
       deltaEta = fabs(beamEta - eta);
       deltaPhi = fabs(beamPhi - phi);
       crysNumber = cryIndex;
+    }
+    else if (fabs(beamEta - eta)<deltaEta && fabs(beamPhi - phi)>deltaPhi ) {
+      if ( fabs(beamPhi - phi) < 0.017 ) {
+        deltaEta = fabs(beamEta - eta);
+        deltaPhi = fabs(beamPhi - phi);
+        crysNumber = cryIndex;
+      }
+    }
+    else if (fabs(beamEta - eta)>deltaEta && fabs(beamPhi - phi)<deltaPhi ) {
+      if ( fabs(beamEta - eta) < 0.017 ) {
+        deltaEta = fabs(beamEta - eta);
+        deltaPhi = fabs(beamPhi - phi);
+        crysNumber = cryIndex;
+      }
     }
   }
 
