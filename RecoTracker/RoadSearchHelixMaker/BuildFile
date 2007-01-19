@@ -1,50 +1,37 @@
-<flags SEAL_PLUGIN_NAME="RecoTrackerRoadSearchHelixMaker">
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/MessageLogger>
-
 <use name=DataFormats/Common>
-<use name=DataFormats/TrackReco>
-<use name=DataFormats/TrackCandidate>
-<use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/DetId>
-<use name=DataFormats/SiStripDetId>
+<use name=DataFormats/Math>
 <use name=DataFormats/SiPixelDetId>
-
-<use name=Geometry/Records>
-<use name=Geometry/CommonDetUnit>
+<use name=DataFormats/SiStripDetId>
+<use name=DataFormats/TrackCandidate>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/TrackerRecHit2D>
+<use name=DataFormats/TrackingRecHit>
+<use name=DataFormats/TrajectorySeed>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=Foundation/PluginManager>
 <use name=Geometry/CommonDetAlgo>
-<use name=Geometry/TrackerGeometryBuilder>
+<use name=Geometry/CommonDetUnit>
 <use name=Geometry/CommonTopologies>
-<use name=Geometry/Surface>
-
+<use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=Geometry/Vector>
 <use name=MagneticField/Engine>
-
-<use name=TrackingTools/TrajectoryParametrization>
+<use name=MagneticField/Records>
 <use name=TrackingTools/PatternTools>
+<use name=clhep>
+<flags SEALPLUGIN=1>
 <export>
- <lib name=RecoTrackerRoadSearchHelixMaker>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/MessageLogger>
-
- <use name=DataFormats/Common>
- <use name=DataFormats/TrackReco>
- <use name=DataFormats/TrackCandidate>
- <use name=DataFormats/TrackingRecHit>
- <use name=DataFormats/DetId>
- <use name=DataFormats/SiStripDetId>
- <use name=DataFormats/SiPixelDetId>
-
- <use name=Geometry/Records>
- <use name=Geometry/CommonDetUnit>
- <use name=Geometry/CommonDetAlgo>
- <use name=Geometry/TrackerGeometryBuilder>
- <use name=Geometry/CommonTopologies>
- <use name=Geometry/Surface>
-
- <use name=MagneticField/Engine>
-
- <use name=TrackingTools/TrajectoryParametrization>
- <use name=TrackingTools/PatternTools>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/DetId>
+  <use name=DataFormats/TrackCandidate>
+  <use name=DataFormats/TrackReco>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=MagneticField/Engine>
+  <use name=clhep>
+  <lib name=RecoTrackerRoadSearchHelixMaker>
 </export>
+

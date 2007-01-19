@@ -1,26 +1,19 @@
-<use name=Foundation/PluginManager>
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=DataFormats/Common>
+<use name=DataFormats/CaloTowers>
 <use name=DataFormats/MuonReco>
-<use name=Geometry/CaloEventSetup>
-
-<use name=TrackingTools/GeomPropagators>
-
-<use name=root>
-
-<flags SEAL_PLUGIN_NAME="RecoMuonMuonIsolation">
-
+<use name=DataFormats/TrackReco>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/Records>
+<use name=Geometry/Vector>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
 <export>
-   <lib name=RecoMuonMuonIsolation>
-
-   <use name=Foundation/PluginManager>
-   <use name=FWCore/Framework>
-   <use name=FWCore/ParameterSet>
-   <use name=DataFormats/Common>
-   <use name=DataFormats/MuonReco>
-   <use name=Geometry/CaloEventSetup>
-
-   <use name=root>
-
+  <use name=DataFormats/MuonReco>
+  <use name=DataFormats/TrackReco>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <lib name=RecoMuonMuonIsolation>
 </export>
+

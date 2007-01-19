@@ -1,13 +1,19 @@
+<use name=DataFormats/TrajectorySeed>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+<use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/Records>
+<use name=boost>
 <export>
- <lib name=TrackingToolsProducers>
- <use name=FWCore/Utilities>
- <use name=FWCore/Framework>
- <use name=TrackingTools/GeomPropagators>
+  <use name=DataFormats/TrajectorySeed>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=TrackingTools/GeomPropagators>
+  <use name=TrackingTools/Records>
+  <use name=boost>
+  <lib name=TrackingToolsProducers>
 </export>
 
-<use name=FWCore/Utilities>
-<use name=FWCore/Framework>
-<use name=TrackingTools/GeomPropagators>
-
-
-<flags SEAL_PLUGIN_NAME="TrackingToolsProducers">
