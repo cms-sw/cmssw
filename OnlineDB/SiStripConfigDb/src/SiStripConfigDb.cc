@@ -1,6 +1,6 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.26 2006/12/20 19:20:16 bainbrid Exp $
-// Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
+// Last commit: $Id: $
+// Latest tag:  $Name: $
+// Location:    $Source: $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -413,10 +413,16 @@ void SiStripConfigDb::usingDatabase() {
 	<< " Env. var. TNS_ADMIN is set to 'pwd'!"
 	<< " Setting to '" << env_var << "'...";
       setenv(tns_admin.c_str(),env_var.c_str(),1); 
+    } else if ( tmp != env_var ) { 
+      edm::LogWarning(mlConfigDb_)
+	<< "[SiStripConfigDb::" << __func__ << "]"
+	<< " Env. var. TNS_ADMIN is set to '" << tmp
+	<< "'! Setting to '" << env_var << "'...";
+      setenv(tns_admin.c_str(),env_var.c_str(),1); 
     } else {
       LogTrace(mlConfigDb_)
 	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " Env. var. TNS_ADMIN is set to: " << env_var;
+	<< " Env. var. TNS_ADMIN is set to: " << tmp;
     }
   } else {
     edm::LogWarning(mlConfigDb_)
