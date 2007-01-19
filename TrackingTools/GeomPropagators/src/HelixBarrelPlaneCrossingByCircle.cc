@@ -3,6 +3,7 @@
 #include "TrackingTools/GeomPropagators/src/RealQuadEquation.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 #include <algorithm>
+#include <cfloat>
 
 HelixBarrelPlaneCrossingByCircle::
 HelixBarrelPlaneCrossingByCircle( const PositionType& pos,
@@ -99,6 +100,10 @@ HelixBarrelPlaneCrossingByCircle::pathLength( const Plane& plane)
   bool solved = chooseSolution( Vector2D(dx1, dy1), Vector2D(dx2, dy2));
   if (solved) {
     theDmag = theD.mag();
+    // protect asin (taking some safety margin)
+    double sinAlpha = theDmag*theRho/2.;
+    if ( sinAlpha>(1.-10*DBL_EPSILON) )  sinAlpha = 1.-10*DBL_EPSILON;
+    else if ( sinAlpha<-(1.-10*DBL_EPSILON) )  sinAlpha = -(1.-10*DBL_EPSILON);
     theS = theActualDir*2./(theRho*theSinTheta) * asin( theDmag*theRho / 2.);
     return ResultType( true, theS);
   }
@@ -170,7 +175,10 @@ HelixBarrelPlaneCrossingByCircle::direction( double s) const
   if ( s==theS) {
     double tmp = 0.5*theDmag*theRho;
     if (s < 0) tmp = -tmp;
-    sinPhi = 2.*tmp*sqrt(1.-tmp*tmp);
+    // protect sqrt
+    sinPhi = 1.-tmp*tmp;
+    if ( sinPhi<0 )  sinPhi = 0.;
+    sinPhi = 2.*tmp*sqrt(sinPhi);
     cosPhi = 1.-2.*tmp*tmp;
   }
   else {
