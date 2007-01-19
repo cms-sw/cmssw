@@ -74,16 +74,16 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DaqMonitorBEInterface* dbe,
   sprintf (histo, "HcalDigiTask_Ratio_energy_digis_vs_simhits_%s", sub);
   meRatioDigiSimhit= book1D(histo, ratioPlot);
 
-  sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_%s(profile)", sub);
+  sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_%s_profile", sub);
   meDigiSimhitProfile = bookProfile(histo, simePlot, digiAmpPlot);
 
   sprintf (histo, "HcalDigiTask_number_of_digis_%s", sub);
   menDigis= book1D(histo, ndigisPlot);
 
-  sprintf (histo, "HcalDigiTask_sum_over_digis(fC)_%s", sub);
+  sprintf (histo, "HcalDigiTask_sum_over_digis_fC_%s", sub);
   meSumDigis= book1D(histo, HistLim(100, 0., digiAmpPlot.max));
 
-  sprintf (histo, "HcalDigiTask_sum_over_digis(fC)_noise_%s", sub);
+  sprintf (histo, "HcalDigiTask_sum_over_digis_fC_noise_%s", sub);
   meSumDigis_noise = book1D(histo, HistLim(50, -sumWithNoiseMax, sumWithNoiseMax));
 
   sprintf (histo, "HcalDigiTask_pedestal_%s", sub);
