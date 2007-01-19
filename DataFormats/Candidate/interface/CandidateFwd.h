@@ -1,13 +1,28 @@
 #ifndef Candidate_CandidateFwd_h
 #define Candidate_CandidateFwd_h
 #include "DataFormats/Common/interface/OwnVector.h"
+
+namespace reco {
+  class Candidate;
+}
+
+namespace edm {
+  namespace helpers {
+    template<typename T> struct PostReadFixupTrait;
+    
+    template<>
+    struct PostReadFixupTrait<reco::Candidate> {
+      typedef PostReadFixup type;
+    };
+  }
+}
+
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
-  class Candidate;
   /// collection of Candidate objects
   typedef edm::OwnVector<Candidate> CandidateCollection;
   /// persistent reference to an object in a collection of Candidate objects

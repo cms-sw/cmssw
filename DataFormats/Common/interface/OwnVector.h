@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.15 2006/10/31 22:47:15 paterno Exp $
+// $Id: OwnVector.h,v 1.17 2007/01/16 09:21:56 llista Exp $
 
 #include <algorithm>
 #include <functional>
@@ -18,6 +18,43 @@
 #endif
 
 namespace edm {
+  namespace helpers {
+    struct DoNoPostReadFixup {
+      void touch() { }
+      template<typename C>
+      void operator()( const C & ) const { }
+    };
+
+    struct PostReadFixup {
+      PostReadFixup() : fixed_( false ), fixing_( false ) { }
+      void touch() { 
+	if ( fixing_ )
+	  throw edm::Exception(errors::LogicError)
+	    << "PostReadFixup: touch is not allowed while fixing.\n";
+	fixed_ = false; 
+      }
+      template<typename C>
+      void operator()( const C & c ) const { 
+	  // set infinite recursive infinite loop
+	if ( ! fixing_ ) {
+	  fixing_ = true;
+	  if ( ! fixed_ )
+	    for ( typename C::const_iterator i = c.begin(); i != c.end(); ++ i )
+	      (*i)->fixup();
+	  fixed_ = true;
+	  fixing_ = false;
+	}
+      }
+    private:
+      mutable bool fixed_;
+      mutable bool fixing_;
+    };
+
+    template<typename T>
+    struct PostReadFixupTrait {
+      typedef DoNoPostReadFixup type;
+    };
+  }
 
   template <typename T, typename P = ClonePolicy<T> >
   class OwnVector  {
@@ -152,6 +189,7 @@ namespace edm {
       void operator()( T & t ) { delete & t; }
     };
     base data_;      
+    typename helpers::PostReadFixupTrait<T>::type fixup_;
   };
   
   template<typename T, typename P>
@@ -178,26 +216,31 @@ namespace edm {
   inline OwnVector<T, P> & OwnVector<T, P>::operator=( const OwnVector<T, P> & o ) {
     OwnVector<T,P> temp(o);
     swap(temp);
+    fixup_ = o.fixup_;
     return *this;
   }
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::iterator OwnVector<T, P>::begin() {
+    fixup_( data_ );
     return iterator( data_.begin() );
   }
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::iterator OwnVector<T, P>::end() {
+    fixup_( data_ );
     return iterator( data_.end() );
   }
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_iterator OwnVector<T, P>::begin() const {
+    fixup_( data_ );
     return const_iterator( data_.begin() );
   }
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_iterator OwnVector<T, P>::end() const {
+    fixup_( data_ );
     return const_iterator( data_.end() );
   }
   
@@ -213,13 +256,13 @@ namespace edm {
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::reference OwnVector<T, P>::operator[]( size_type n ) {
-    //return * data_.operator[]( n );
+    fixup_( data_ );
     return *data_[n];
   }
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_reference OwnVector<T, P>::operator[]( size_type n ) const {
-    //return * data_.operator[]( n );
+    fixup_( data_ );
     return *data_[n];
   }
   
@@ -236,6 +279,7 @@ namespace edm {
     // This should be called only for lvalues.
     data_.push_back( d );
     d = 0;
+    fixup_.touch();
   }
 
   template<typename T, typename P>
@@ -247,6 +291,7 @@ namespace edm {
     // does not require an lvalue->rvalue conversion). Thus this
     // signature should only be chosen for rvalues.
     data_.push_back( d );
+    fixup_.touch();
   }
 
 
@@ -254,6 +299,7 @@ namespace edm {
   template<typename D>
   inline void OwnVector<T, P>::push_back( std::auto_ptr<D> d ) {
     data_.push_back( d.release() );
+    fixup_.touch();
   }
 
 
@@ -266,8 +312,7 @@ namespace edm {
   }
 
   template <typename T, typename P>
-  inline bool OwnVector<T, P>::is_back_safe() const
-  {
+  inline bool OwnVector<T, P>::is_back_safe() const {
     return data_.back() != 0;
   }
 
@@ -281,6 +326,7 @@ namespace edm {
 	<< "pointer at the end of the collection is not null before calling back()\n"
 	<< "if you wish to avoid this exception.\n"
 	<< "Consider using OwnVector::is_back_safe()\n";
+    fixup_( data_ );
     return * data_.back();
   }
   
@@ -294,16 +340,19 @@ namespace edm {
 	<< "pointer at the end of the collection is not null before calling back()\n"
 	<< "if you wish to avoid this exception.\n"
 	<< "Consider using OwnVector::is_back_safe()\n";
+    fixup_( data_ );
     return * data_.back();
   }
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::reference OwnVector<T, P>::front() {
+    fixup_( data_ );
     return * data_.front();
   }
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_reference OwnVector<T, P>::front() const {
+    fixup_( data_ );
     return * data_.front();
   }
   
@@ -331,6 +380,7 @@ namespace edm {
   template<typename T, typename P>
   inline void OwnVector<T, P>::swap(OwnVector<T, P>& other) {
     data_.swap(other.data_);
+    std::swap( fixup_, other.fixup_ );
   }
     
   template<typename T, typename P>

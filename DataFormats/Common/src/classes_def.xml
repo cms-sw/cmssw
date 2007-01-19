@@ -161,5 +161,8 @@
  <class name="edm::Wrapper<edm::HLTGlobalStatus>"/>
  <class name="edm::TriggerResults"/>
  <class name="edm::Wrapper<edm::TriggerResults>"/>
-
+ <class name="edm::helpers::DoNoPostReadFixup"/>
+ <class name="edm::helpers::PostReadFixup">
+   <field name="fixed_" transient="true"/>
+ </class>
 </lcgdict>

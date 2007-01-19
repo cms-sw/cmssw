@@ -6,13 +6,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.17 2006/12/07 18:35:49 llista Exp $
+ * \version $Id: Candidate.h,v 1.18 2007/01/17 10:23:28 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/Candidate/interface/component.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include <vector>
 
 namespace reco {
   
@@ -27,12 +26,12 @@ namespace reco {
     struct iterator;
 
     /// default constructor
-    Candidate() : Particle() { }
+    Candidate() : Particle(), mother_( 0 ) { }
     /// constructor from a Particle
-    explicit Candidate( const Particle & p ) : Particle( p ) { }
+    explicit Candidate( const Particle & p ) : Particle( p ), mother_( 0 ) { }
     /// constructor from values
     Candidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
-      Particle( q, p4, vtx ) { }
+      Particle( q, p4, vtx ), mother_( 0 ) { }
     /// destructor
     virtual ~Candidate();
     /// returns a clone of the Candidate object
@@ -52,7 +51,7 @@ namespace reco {
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
     virtual Candidate * daughter( size_type i ) = 0;
     /// return pointer to mother
-    virtual const Candidate * mother() const;
+    const Candidate * mother() const { return mother_; }
     /// returns true if this candidate has a reference to a master clone.
     /// This only happens if the concrete Candidate type is ShallowCloneCandidate
     virtual bool hasMasterClone() const;
@@ -91,6 +90,8 @@ namespace reco {
       if ( hasMasterClone() ) return masterClone()->numberOf<T, Tag>();
       else return reco::numberOf<T, Tag>( * this ); 
     }
+    /// post-read fixup
+    void fixup() const;
 
   protected:
     struct const_iterator_imp {
@@ -207,6 +208,12 @@ namespace reco {
     template<typename, typename> friend struct component; 
     friend class OverlapChecker;
     friend class ShallowCloneCandidate;
+    /// set mother pointer
+    void setMother( const Candidate * mother ) const {
+      mother_ = mother;
+    }
+    /// mother link
+    mutable const Candidate * mother_;
   };
 
 }

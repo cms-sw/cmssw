@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.7 2006/12/05 15:52:59 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.8 2006/12/07 18:06:40 llista Exp $
  *
  */
 
@@ -43,7 +43,6 @@ namespace reco {
     virtual Candidate * daughter( size_type );
     /// add a clone of the passed candidate as daughter 
     void addDaughter( const Candidate & );
-
     /// implementation of const_iterator. 
     /// should be private; declared public only 
     /// for ROOT reflex dictionay problems    
