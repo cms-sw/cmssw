@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/19 10:35:50 $
- * $Revision: 1.107 $
+ * $Date: 2007/01/19 13:27:09 $
+ * $Revision: 1.108 $
  * \author G. Della Ricca
  *
 */
@@ -845,16 +845,10 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   }
 
   uint64_t bits01 = 0;
-  bits01 |= EcalErrorDictionary::getMask("LASER_LOW_GAIN_MEAN_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("LASER_LOW_GAIN_RMS_WARNING");
-
-  uint64_t bits02 = 0;
-  bits02 |= EcalErrorDictionary::getMask("LASER_MIDDLE_GAIN_MEAN_WARNING");
-  bits02 |= EcalErrorDictionary::getMask("LASER_MIDDLE_GAIN_RMS_WARNING");
-
-  uint64_t bits03 = 0;
-  bits03 |= EcalErrorDictionary::getMask("LASER_HIGH_GAIN_MEAN_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("LASER_HIGH_GAIN_RMS_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("LASER_MEAN_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("LASER_RMS_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("LASER_MEAN_OVER_PN_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("LASER_RMS_OVER_PN_WARNING");
 
   EcalLogicID ecid;
   MonLaserBlueDat apd_bl;
@@ -1565,9 +1559,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
               if ( (m->second).getErrorBits() & bits01 ) {
                 val = true;
               }
-              if ( (m->second).getErrorBits() & bits03 ) {
-                val = true;
-              }
             }
           } 
         } catch (runtime_error &e) {
@@ -1580,9 +1571,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
           if ( m != mask2.end() ) {
             if ( (m->second).getErrorBits() & bits01 ) {
-              val = true;
-            }
-            if ( (m->second).getErrorBits() & bits03 ) {
               val = true;
             }
           }
@@ -1639,9 +1627,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
               if ( (m->second).getErrorBits() & bits01 ) {
                 val = true;
               }
-              if ( (m->second).getErrorBits() & bits03 ) {
-                val = true;
-              }
             }
           }
         } catch (runtime_error &e) {
@@ -1654,9 +1639,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
           if ( m != mask2.end() ) {
             if ( (m->second).getErrorBits() & bits01 ) {
-              val = true;
-            }
-            if ( (m->second).getErrorBits() & bits03 ) {
               val = true;
             }
           }
@@ -1713,9 +1695,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
               if ( (m->second).getErrorBits() & bits01 ) {
                 val = true;
               }
-              if ( (m->second).getErrorBits() & bits03 ) {
-                val = true;
-              }
             }
           }
         } catch (runtime_error &e) {
@@ -1728,9 +1707,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
           if ( m != mask2.end() ) {
             if ( (m->second).getErrorBits() & bits01 ) {
-              val = true;
-            }
-            if ( (m->second).getErrorBits() & bits03 ) {
               val = true;
             }
           }
@@ -1787,9 +1763,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
               if ( (m->second).getErrorBits() & bits01 ) {
                 val = true;
               }
-              if ( (m->second).getErrorBits() & bits03 ) {
-                val = true;
-              }
             }
           }
         } catch (runtime_error &e) {
@@ -1802,9 +1775,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
           if ( m != mask2.end() ) {
             if ( (m->second).getErrorBits() & bits01 ) {
-              val = true;
-            }
-            if ( (m->second).getErrorBits() & bits03 ) {
               val = true;
             }
           }
