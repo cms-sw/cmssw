@@ -5,7 +5,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
-#include<vector>
+#include <vector>
 
 ///  Helper class to store position data of an alignable;
 ///  Contents: position vector, rotation matrix, DetId and TypeId;
