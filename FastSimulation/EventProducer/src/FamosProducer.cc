@@ -28,6 +28,7 @@ FamosProducer::FamosProducer(edm::ParameterSet const & p)
     produces<edm::PSimHitContainer>("TrackerHits");
     produces<edm::PCaloHitContainer>("EcalHitsEB");
     produces<edm::PCaloHitContainer>("EcalHitsEE");
+    produces<edm::PCaloHitContainer>("EcalHitsES");
     produces<edm::PCaloHitContainer>("HcalHits");
     famosManager_ = new FamosManager(p);
 
@@ -96,19 +97,18 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    std::auto_ptr<edm::PSimHitContainer> p3(new edm::PSimHitContainer);
    std::auto_ptr<edm::PCaloHitContainer> p4(new edm::PCaloHitContainer);
    std::auto_ptr<edm::PCaloHitContainer> p5(new edm::PCaloHitContainer);
-   // For the preshower (not implemented yet)
-   //   std::auto_ptr<edm::PCaloHitContainer> p6(new edm::PCaloHitContainer); 
+   std::auto_ptr<edm::PCaloHitContainer> p6(new edm::PCaloHitContainer); 
    std::auto_ptr<edm::PCaloHitContainer> p7(new edm::PCaloHitContainer);
 
    fevt->load(*p1);
    fevt->load(*p2);
-
+   //   fevt->print();
    tracker->loadSimHits(*p3);
 
    if ( calo ) {  
      calo->loadFromEcalBarrel(*p4);
      calo->loadFromEcalEndcap(*p5);
-     // calo->loadFromPreshower(*p6);
+     calo->loadFromPreshower(*p6);
      calo->loadFromHcal(*p7);
    }
 
@@ -117,7 +117,7 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    iEvent.put(p3,"TrackerHits");
    iEvent.put(p4,"EcalHitsEB");
    iEvent.put(p5,"EcalHitsEE");
-   // preshower 
+   iEvent.put(p6,"EcalHitsES");
    iEvent.put(p7,"HcalHits");
 
 }
