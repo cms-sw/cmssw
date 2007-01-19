@@ -1,11 +1,11 @@
-// $Id: EcalErrorMaskFile.cc,v 1.13 2007/01/18 08:18:34 dellaric Exp $
+// $Id: EcalErrorMaskFile.cc,v 1.14 2007/01/19 13:13:10 benigno Exp $
 
 /*!
   \file EcalErrorMaskFile.cc
   \brief Error mask from text file
   \author B. Gobbo 
-  \version $Revision: 1.13 $
-  \date $Date: 2007/01/18 08:18:34 $
+  \version $Revision: 1.14 $
+  \date $Date: 2007/01/19 13:13:10 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
@@ -92,10 +92,8 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
       EcalLogicID id = EcalLogicID( "local", 10000*(sm-1)+ic );
       std::map<EcalLogicID, RunCrystalErrorsDat>::iterator i = EcalErrorMaskFile::mapCrystalErrors_.find( id );
       if( i != mapCrystalErrors_.end() ) {
-	//uint64_t oldBitmask = const_cast<RunCrystalErrorsDat*>(&(i->second))getErrorBits();
 	uint64_t oldBitmask = (i->second).getErrorBits();
 	oldBitmask |= bitmask;
-	//const_cast<RunCrystalsErrorDat*>(&(i->second)).setErrorBits( oldBitmask );
 	(i->second).setErrorBits( oldBitmask );
       }
       else {
@@ -105,16 +103,172 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
       }
     }
     else if( s == "TT" ) {
-      throw( std::runtime_error( "TT: To be implemented" ) );
+      int sm; is >> sm;
+      if( sm < 1 || sm > 36 ) {
+	std::ostringstream os;
+	os << "line " << linecount << ": SM must be a number between 1 and 36" << std::ends;
+	throw( std::runtime_error( os.str() ) );
+	return;
+      }
+      int it; is >> it;
+      if( it < 1 || it > 68 ) {
+	std::ostringstream os;
+	os << "line " << linecount << ": IT must be a number between 1 and 68" << std::ends;
+	throw( std::runtime_error( os.str() ) );
+	return;
+      }
+      std::string shortDesc; is >> shortDesc;
+      uint64_t bitmask; bitmask = 0;
+      
+      for( unsigned int i=0; i<errors.size(); i++ ) {
+	if( shortDesc == errors[i].shortDesc ) {
+	  bitmask = errors[i].bitmask;
+	}
+      }
+      if( bitmask == 0 ) {
+	std::ostringstream os;
+	os << "line " << linecount << ": This Short Description was not found in the Dictionary" << std::ends;
+	throw( std::runtime_error( os.str() ) );
+	return;
+      }
+      EcalLogicID id = EcalLogicID( "local", 100*(sm-1)+it );
+      std::map<EcalLogicID, RunTTErrorsDat>::iterator i = EcalErrorMaskFile::mapTTErrors_.find( id );
+      if( i != mapTTErrors_.end() ) {
+	uint64_t oldBitmask = (i->second).getErrorBits();
+	oldBitmask |= bitmask;
+	(i->second).setErrorBits( oldBitmask );
+      }
+      else {
+	RunTTErrorsDat error;
+	error.setErrorBits(bitmask);
+	EcalErrorMaskFile::mapTTErrors_[ id ] = error;
+      }
     }
     else if( s == "PN" ) {
-      throw( std::runtime_error( "PN: To be implemented" ) );
+      int sm; is >> sm;
+      if( sm < 1 || sm > 36 ) {
+	std::ostringstream os;
+	os << "line " << linecount << ": SM must be a number between 1 and 36" << std::ends;
+	throw( std::runtime_error( os.str() ) );
+	return;
+      }
+      int ic; is >> ic;
+      if( ic < 1 || ic > 10 ) {
+	std::ostringstream os;
+	os << "line " << linecount << ": IC must be a number between 1 and 10" << std::ends;
+	throw( std::runtime_error( os.str() ) );
+	return;
+      }
+      std::string shortDesc; is >> shortDesc;
+      uint64_t bitmask; bitmask = 0;
+      
+      for( unsigned int i=0; i<errors.size(); i++ ) {
+	if( shortDesc == errors[i].shortDesc ) {
+	  bitmask = errors[i].bitmask;
+	}
+      }
+      if( bitmask == 0 ) {
+	std::ostringstream os;
+	os << "line " << linecount << ": This Short Description was not found in the Dictionary" << std::ends;
+	throw( std::runtime_error( os.str() ) );
+	return;
+      }
+      EcalLogicID id = EcalLogicID( "local", 100*(sm-1)+ic );
+      std::map<EcalLogicID, RunPNErrorsDat>::iterator i = EcalErrorMaskFile::mapPNErrors_.find( id );
+      if( i != mapPNErrors_.end() ) {
+	uint64_t oldBitmask = (i->second).getErrorBits();
+	oldBitmask |= bitmask;
+	(i->second).setErrorBits( oldBitmask );
+      }
+      else {
+	RunPNErrorsDat error;
+	error.setErrorBits(bitmask);
+	EcalErrorMaskFile::mapPNErrors_[ id ] = error;
+      }
     }
     else if( s == "MemCh" ) {
-      throw( std::runtime_error( "MemCh: To be implemented" ) );
+      int sm; is >> sm;
+      if( sm < 1 || sm > 36 ) {
+	std::ostringstream os;
+	os << "line " << linecount << ": SM must be a number between 1 and 36" << std::ends;
+	throw( std::runtime_error( os.str() ) );
+	return;
+      }
+      int ic; is >> ic;
+      if( ic < 1 || ic > 50 ) {
+	std::ostringstream os;
+	os << "line " << linecount << ": IC must be a number between 1 and 50" << std::ends;
+	throw( std::runtime_error( os.str() ) );
+	return;
+      }
+      std::string shortDesc; is >> shortDesc;
+      uint64_t bitmask; bitmask = 0;
+      
+      for( unsigned int i=0; i<errors.size(); i++ ) {
+	if( shortDesc == errors[i].shortDesc ) {
+	  bitmask = errors[i].bitmask;
+	}
+      }
+      if( bitmask == 0 ) {
+	std::ostringstream os;
+	os << "line " << linecount << ": This Short Description was not found in the Dictionary" << std::ends;
+	throw( std::runtime_error( os.str() ) );
+	return;
+      }
+      EcalLogicID id = EcalLogicID( "local", 100*(sm-1)+ic );
+      std::map<EcalLogicID, RunMemChErrorsDat>::iterator i = EcalErrorMaskFile::mapMemChErrors_.find( id );
+      if( i != mapMemChErrors_.end() ) {
+	uint64_t oldBitmask = (i->second).getErrorBits();
+	oldBitmask |= bitmask;
+	(i->second).setErrorBits( oldBitmask );
+      }
+      else {
+	RunMemChErrorsDat error;
+	error.setErrorBits(bitmask);
+	EcalErrorMaskFile::mapMemChErrors_[ id ] = error;
+      }
     }
     else if( s == "MemTT" ) {
-      throw( std::runtime_error( "MemTT: To be implemented" ) );
+      int sm; is >> sm;
+      if( sm < 1 || sm > 36 ) {
+	std::ostringstream os;
+	os << "line " << linecount << ": SM must be a number between 1 and 36" << std::ends;
+	throw( std::runtime_error( os.str() ) );
+	return;
+      }
+      int it; is >> it;
+      if( it < 1 || it > 2 ) {
+	std::ostringstream os;
+	os << "line " << linecount << ": IT must be 1 or 2" << std::ends;
+	throw( std::runtime_error( os.str() ) );
+	return;
+      }
+      std::string shortDesc; is >> shortDesc;
+      uint64_t bitmask; bitmask = 0;
+      
+      for( unsigned int i=0; i<errors.size(); i++ ) {
+	if( shortDesc == errors[i].shortDesc ) {
+	  bitmask = errors[i].bitmask;
+	}
+      }
+      if( bitmask == 0 ) {
+	std::ostringstream os;
+	os << "line " << linecount << ": This Short Description was not found in the Dictionary" << std::ends;
+	throw( std::runtime_error( os.str() ) );
+	return;
+      }
+      EcalLogicID id = EcalLogicID( "local", 10*(sm-1)+it );
+      std::map<EcalLogicID, RunMemTTErrorsDat>::iterator i = EcalErrorMaskFile::mapMemTTErrors_.find( id );
+      if( i != mapMemTTErrors_.end() ) {
+	uint64_t oldBitmask = (i->second).getErrorBits();
+	oldBitmask |= bitmask;
+	(i->second).setErrorBits( oldBitmask );
+      }
+      else {
+	RunMemTTErrorsDat error;
+	error.setErrorBits(bitmask);
+	EcalErrorMaskFile::mapMemTTErrors_[ id ] = error;
+      }
     }
     else {
       throw( std::runtime_error( "Wrong Table Name" ) );
