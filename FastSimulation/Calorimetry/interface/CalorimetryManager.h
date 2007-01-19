@@ -50,6 +50,7 @@ class CalorimetryManager{
 
   void loadFromHcal(edm::PCaloHitContainer & c) const;
 
+  void loadFromPreshower(edm::PCaloHitContainer & c) const;
 
  private:
   // Simulation of electromagnetic showers in PS, ECAL, HCAL

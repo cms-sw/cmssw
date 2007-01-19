@@ -768,5 +768,15 @@ void CalorimetryManager::loadFromHcal(edm::PCaloHitContainer & c) const
     }
 }
 
-
-
+void CalorimetryManager::loadFromPreshower(edm::PCaloHitContainer & c) const
+{
+  std::map<unsigned,float>::const_iterator cellit;
+  std::map<unsigned,float>::const_iterator preshEnd=ESMapping_.end();
+  
+  for(cellit=ESMapping_.begin();cellit!=preshEnd;++cellit)
+    {
+      // Add the PCaloHit. No time, no track number
+      //      if(DetId(cellit->first).null()) std::cout << " PCaloHit. Ooops null " << std::endl;
+      c.push_back(PCaloHit(cellit->first,cellit->second,0.,0));
+    }
+}
