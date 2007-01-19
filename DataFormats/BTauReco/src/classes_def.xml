@@ -51,16 +51,12 @@
   <class name="edm::RefProd<std::vector<reco::CombinedTauTagInfo> >" />
   <class name="edm::RefVector<std::vector<reco::CombinedTauTagInfo>, reco::CombinedTauTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::CombinedTauTagInfo>, reco::CombinedTauTagInfo> >" />
  
-  <class name="reco::CombinedBTagInfo" />
-  <class name="reco::CombinedBTagTrack" />
-  <class name="reco::CombinedBTagVertex" />
-  <class name="reco::MinMeanMax" />
-
-  <class name="std::vector<reco::CombinedBTagInfo>" />
-  <class name="edm::Wrapper<std::vector<reco::CombinedBTagInfo> >" />
-  <class name="edm::Ref<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo> >" />
-  <class name="edm::RefProd<std::vector<reco::CombinedBTagInfo> >" />
-  <class name="edm::RefVector<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo> >" />
+  <class name="reco::CombinedSVTagInfo" />
+  <class name="std::vector<reco::CombinedSVTagInfo>" />
+  <class name="edm::Wrapper<std::vector<reco::CombinedSVTagInfo> >" />
+  <class name="edm::Ref<std::vector<reco::CombinedSVTagInfo>, reco::CombinedSVTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::CombinedSVTagInfo>, reco::CombinedSVTagInfo> >" />
+  <class name="edm::RefProd<std::vector<reco::CombinedSVTagInfo> >" />
+  <class name="edm::RefVector<std::vector<reco::CombinedSVTagInfo>, reco::CombinedSVTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::CombinedSVTagInfo>, reco::CombinedSVTagInfo> >" />
 
   <class name="reco::SoftLeptonProperties" />
   <class name="std::pair< edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >, reco::SoftLeptonProperties >" />

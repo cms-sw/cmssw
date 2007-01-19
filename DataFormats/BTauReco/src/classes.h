@@ -15,7 +15,8 @@
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/CombinedTauTagInfo.h"
-#include "DataFormats/BTauReco/interface/CombinedBTagInfo.h"
+#include "DataFormats/BTauReco/interface/CombinedSVTagInfo.h"
+#include "DataFormats/BTauReco/interface/CombinedSVTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
 #include "DataFormats/BTauReco/interface/TauMassTagInfo.h"
@@ -65,17 +66,12 @@ namespace {
     reco::TrackTauImpactParameterAssociationCollection c1;
     edm::Wrapper<reco::TrackTauImpactParameterAssociationCollection> wc1;
 
-    reco::CombinedBTagInfoCollection v4;
-    reco::CombinedBTagInfo iv4;
-    reco::CombinedBTagTrack ct4;
-    reco::CombinedBTagVertex cv4;
-    reco::MinMeanMax mmm4;
-    // std::vector < reco::TrackRef > vrtr4;
-    // edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>,reco::CombinedBTagTrack,unsigned short> > mp4;
-    edm::Wrapper<reco::CombinedBTagInfoCollection> w4;
-    edm::Ref<reco::CombinedBTagInfoCollection> r4;
-    edm::RefProd<reco::CombinedBTagInfoCollection> rp4;
-    edm::RefVector<reco::CombinedBTagInfoCollection> rv4;
+    reco::CombinedSVTagInfoCollection v4;
+    reco::CombinedSVTagInfo iv4;
+    edm::Wrapper<reco::CombinedSVTagInfoCollection> w4;
+    edm::Ref<reco::CombinedSVTagInfoCollection> r4;
+    edm::RefProd<reco::CombinedSVTagInfoCollection> rp4;
+    edm::RefVector<reco::CombinedSVTagInfoCollection> rv4;
 
     reco::IsolatedTauTagInfoCollection v5;
     edm::Wrapper<reco::IsolatedTauTagInfoCollection> w5;
