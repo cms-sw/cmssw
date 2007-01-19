@@ -244,14 +244,14 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
   // First Pixel disk: Z pos 35.5 radii 5.42078, 16.0756
   const SimpleDiskBounds PIXD1(
 	  (**fl).specificSurface().innerRadius()-1.0, 
-	  (**fl).specificSurface().outerRadius()+0.5,
+	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PPIXD1(0.0,0.0,(**fl).surface().position().z()); 
   // Second Pixel disk: Z pos 48.5 radii 5.42078, 16.0756
   ++fl;
   const SimpleDiskBounds PIXD2(
 	  (**fl).specificSurface().innerRadius()-1.0, 
-	  (**fl).specificSurface().outerRadius()+0.5,
+	  (**fl).specificSurface().outerRadius()+2.0,
 	  -0.015,0.015);
   const Surface::PositionType PPIXD2(0.0,0.0,(**fl).surface().position().z()); 
 
@@ -595,11 +595,11 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
 	<< " rout/rin = " << rout << " " << rin << endl;
     } else {
       //      cout << " Cylinder number " << nCyl 
-      //	   << " (Active Layer Number = " <<  cyliterOut->layerNumber() 
-      //	   << " Forward ? " <<  cyliterOut->forward() << " ) "
-      //	<< " has dimensions of : " 
-      //	<< " zout = " << zout << "; " 
-      //	<< " rout = " << rout << endl;
+      //      	   << " (Active Layer Number = " <<  cyliterOut->layerNumber() 
+      //      	   << " Forward ? " <<  cyliterOut->forward() << " ) "
+      //	   << " has dimensions of : " 
+      //	   << " zout = " << zout << "; " 
+      //	   << " rout = " << rout << endl;
     }
     // Go to the next cylinder
     cyliterOut++;
