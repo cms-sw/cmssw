@@ -1,18 +1,22 @@
-
-<export>
- <lib name=TrackingToolsGeomPropagators>
- <use name=TrackingTools/TrajectoryState>
- <use name=TrackingTools/AnalyticalJacobians>
- <use name=FWCore/Utilities>
- <use name=FWCore/Framework>
- <use name=TrackingTools/Records>
-</export>
-
-<use name=TrackingTools/TrajectoryState>
-<use name=TrackingTools/AnalyticalJacobians>
-<use name=FWCore/Utilities>
+<use name=DataFormats/TrajectorySeed>
 <use name=FWCore/Framework>
-<use name=TrackingTools/Records>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/Utilities>
+<use name=Geometry/CommonDetAlgo>
+<use name=Geometry/Surface>
+<use name=Geometry/Vector>
 <use name=MagneticField/Engine>
-
+<use name=TrackingTools/AnalyticalJacobians>
+<use name=TrackingTools/DetLayers>
+<use name=TrackingTools/TrajectoryState>
+<export>
+  <use name=DataFormats/TrajectorySeed>
+  <use name=FWCore/Utilities>
+  <use name=Geometry/CommonDetAlgo>
+  <use name=Geometry/Surface>
+  <use name=Geometry/Vector>
+  <use name=MagneticField/Engine>
+  <use name=TrackingTools/TrajectoryState>
+  <lib name=TrackingToolsGeomPropagators>
+</export>
 
