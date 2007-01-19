@@ -1,0 +1,27 @@
+<use name=DataFormats/CSCDigi>
+<use name=SimDataFormats/CrossingFrame>
+<use name=Geometry/Records>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/CSCGeometry>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+<use name=Foundation/PluginManager>
+<use name=DQMServices/CoreROOT>
+<use name=root>
+
+<flags SEAL_PLUGIN_NAME="ValidationMuonCSCDigis">
+<export>
+   <lib name=ValidationMuonCSCDigis>
+    <use name=DataFormats/CSCDigi>
+    <use name=SimDataFormats/CrossingFrame>
+    <use name=Geometry/Records>
+    <use name=Geometry/CommonDetUnit>
+    <use name=Geometry/CSCGeometry>
+    <use name=FWCore/Framework>
+    <use name=FWCore/ParameterSet>
+    <use name=FWCore/MessageLogger>
+    <use name=Foundation/PluginManager>
+    <use name=DQMServices/CoreROOT>
+    <use name=root>	 	
+</export>
