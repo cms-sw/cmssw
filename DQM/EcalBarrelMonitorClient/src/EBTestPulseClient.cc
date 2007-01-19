@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/12/15 09:44:50 $
- * $Revision: 1.97 $
+ * $Date: 2007/01/18 23:40:30 $
+ * $Revision: 1.98 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -478,16 +478,13 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         adc.setADCMeanG12(mean03);
         adc.setADCRMSG12(rms03);
 
-        bool val;
-
         if ( meg01_[ism-1]->getBinContent( ie, ip ) == 1. &&
              meg02_[ism-1]->getBinContent( ie, ip ) == 1. &&
              meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-          val = true;
+          adc.setTaskStatus(true);
         } else {
-          val = false;
+          adc.setTaskStatus(false);
         }
-        adc.setTaskStatus(val);
 
         if ( ie == 1 && ip == 1 ) {
 
@@ -551,7 +548,13 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
         }
 
-        status = status && val;
+        if ( meg01_[ism-1]->getBinContent( ie, ip ) == 1. &&
+             meg02_[ism-1]->getBinContent( ie, ip ) == 1. &&
+             meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
+          status = status && true;
+        } else {
+          status = status && false;
+        }
 
       }
 
@@ -651,14 +654,11 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       pn.setPedMeanG16(mean04);
       pn.setPedRMSG16(rms04);
 
-      bool val;
-
       if ( mean01 > 200. ) {
-        val = true;
+        pn.setTaskStatus(true);
       } else {
-        val = false;
+        pn.setTaskStatus(false);
       }
-      pn.setTaskStatus(val);
 
       if ( econn ) {
         try {
@@ -669,7 +669,11 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         }
       }
 
-      status = status && val;
+      if ( mean01 > 200. ) {
+        status = status && true;
+      } else {
+        status = status && false;
+      }
 
     }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/01/18 23:40:30 $
- * $Revision: 1.99 $
+ * $Date: 2007/01/19 08:59:26 $
+ * $Revision: 1.100 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -599,16 +599,13 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
         p.setPedMeanG12(mean03);
         p.setPedRMSG12(rms03);
 
-        bool val;
-
         if ( meg01_[ism-1] && meg01_[ism-1]->getBinContent( ie, ip ) == 1. &&
              meg02_[ism-1] && meg02_[ism-1]->getBinContent( ie, ip ) == 1. &&
              meg03_[ism-1] && meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-          val = true;
+          p.setTaskStatus(true);
         } else {
-          val = false;
+          p.setTaskStatus(false);
         }
-        p.setTaskStatus(val);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -658,9 +655,9 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
         if ( meg01_[ism-1] && meg01_[ism-1]->getBinContent( ie, ip ) == 1. &&
              meg02_[ism-1] && meg02_[ism-1]->getBinContent( ie, ip ) == 1. &&
              meg03_[ism-1] && meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-          status = status & true;
+          status = status && true;
         } else {
-          status = status & false;
+          status = status && false;
         }
 
       }
@@ -733,14 +730,11 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
       pn.setPedMeanG16(mean02);
       pn.setPedRMSG16(rms02);
 
-      bool val;
-
       if ( mean01 > 200. ) {
-        val = true;
+        pn.setTaskStatus(true);
       } else {
-        val = false;
+        pn.setTaskStatus(false);
       }
-      pn.setTaskStatus(val);
 
       if ( econn ) {
         try {
@@ -751,7 +745,11 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
         }
       }
 
-      status = status && val;
+      if ( mean01 > 200. ) {
+        status = status && true;
+      } else {
+        status = status && false;
+      }
 
     }
 

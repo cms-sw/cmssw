@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/01/18 23:34:59 $
- * $Revision: 1.63 $
+ * $Date: 2007/01/19 08:59:26 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -343,14 +343,11 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
         p.setADCMeanG12(mean03);
         p.setADCRMSG12(rms03);
 
-        bool val;
-
         if ( meg03_[ism-1]  && meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-           val = true;
+           p.setTaskStatus(true);
         } else {
-           val = false;
+           p.setTaskStatus(false);
         }
-        p.setTaskStatus(val);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -386,9 +383,9 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
         }
 
         if ( meg03_[ism-1]  && meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-           status = status & true;
+          status = status && true;
         } else {
-           status = status & false;
+          status = status && false;
         }
 
       }

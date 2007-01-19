@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/12 15:50:54 $
- * $Revision: 1.105 $
+ * $Date: 2007/01/18 23:40:30 $
+ * $Revision: 1.106 $
  * \author G. Della Ricca
  *
 */
@@ -1035,14 +1035,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         apd_bl.setAPDOverPNMean(mean02);
         apd_bl.setAPDOverPNRMS(rms02);
 
-        bool val;
-
         if ( meg01_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-          val = true;
+          apd_bl.setTaskStatus(true);
         } else {
-          val = false;
+          apd_bl.setTaskStatus(false);
         }
-        apd_bl.setTaskStatus(val);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -1055,7 +1052,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           }
         }
 
-        status = status && val;
+        if ( meg01_[ism-1]->getBinContent( ie, ip ) == 1. ) {
+          status = status && true;
+        } else {
+          status = status && false;
+        }
 
       }
 
@@ -1077,14 +1078,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         apd_ir.setAPDOverPNMean(mean04);
         apd_ir.setAPDOverPNRMS(rms04);
 
-        bool val;
-
         if ( meg02_[ism-1]->getBinContent( ie, ip) == 1. ) {
-          val = true;
+          apd_ir.setTaskStatus(true);
         } else {
-          val = false;
+          apd_ir.setTaskStatus(false);
         }
-        apd_ir.setTaskStatus(val);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -1097,7 +1095,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           }
         }
 
-        status = status && val;
+        if ( meg02_[ism-1]->getBinContent( ie, ip) == 1. ) {
+          status = status && true;
+        } else {
+          status = status && false;
+        }
 
       }
 
@@ -1119,14 +1121,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         apd_gr.setAPDOverPNMean(mean06);
         apd_gr.setAPDOverPNRMS(rms06);
 
-        bool val;
-
         if ( meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-          val = true;
+          apd_gr.setTaskStatus(true);
         } else {
-          val = false;
+          apd_gr.setTaskStatus(false);
         }
-        apd_gr.setTaskStatus(val);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -1139,7 +1138,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           }
         }
 
-        status = status && val;
+        if ( meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
+          status = status && true;
+        } else {
+          status = status && false;
+        }
 
       }
 
@@ -1161,14 +1164,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         apd_rd.setAPDOverPNMean(mean08);
         apd_rd.setAPDOverPNRMS(rms08);
 
-        bool val;
-
         if ( meg04_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-          val = true;
+          apd_rd.setTaskStatus(true);
         } else {
-          val = false;
+          apd_rd.setTaskStatus(false);
         }
-        apd_rd.setTaskStatus(val);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -1181,7 +1181,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           }
         }
 
-        status = status && val;
+        if ( meg04_[ism-1]->getBinContent( ie, ip ) == 1. ) {
+          status = status && true;
+        } else {
+          status = status && false;
+        }
 
       }
 
@@ -1405,14 +1409,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_bl.setPedMeanG16(mean13);
       pn_bl.setPedRMSG16(rms13);
 
-      bool val;
-
       if ( mean01 > 200. && mean05 > 200. && mean09 > 200. && mean13 > 200. ) {
-        val =true;
+        pn_bl.setTaskStatus(true);
       } else {
-        val = false;
+        pn_bl.setTaskStatus(false);
       }
-      pn_bl.setTaskStatus(val);
 
       if ( econn ) {
         try {
@@ -1423,7 +1424,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         }
       }
 
-      status = status && val;
+      if ( mean01 > 200. && mean05 > 200. && mean09 > 200. && mean13 > 200. ) {
+        status = status && true;
+      } else {
+        status = status && false;
+      }
 
     }
 
@@ -1452,14 +1457,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_ir.setPedMeanG16(mean14);
       pn_ir.setPedRMSG16(rms14);
 
-      bool val;
-
       if ( mean02 > 200. && mean06 > 200. && mean10 > 200. && mean14 > 200. ) {
-        val = true;
+        pn_ir.setTaskStatus(true);
       } else {
-        val = false;
+        pn_ir.setTaskStatus(false);
       }
-      pn_ir.setTaskStatus(val);
 
       if ( econn ) {
         try {
@@ -1470,7 +1472,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         }
       }
 
-      status = status && val;
+      if ( mean02 > 200. && mean06 > 200. && mean10 > 200. && mean14 > 200. ) {
+        status = status && true;
+      } else {
+        status = status && false;
+      }
 
     }
 
@@ -1499,14 +1505,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_gr.setPedMeanG16(mean15);
       pn_gr.setPedRMSG16(rms15);
 
-      bool val;
-
       if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
-        val = true;
+        pn_gr.setTaskStatus(true);
       } else {
-        val = false;
+        pn_gr.setTaskStatus(false);
       }
-      pn_gr.setTaskStatus(val);
 
       if ( econn ) {
         try {
@@ -1517,7 +1520,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         }
       }
 
-      status = status && val;
+      if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
+        status = status && true;
+      } else {
+        status = status && false;
+      }
 
     }
 
@@ -1546,14 +1553,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_rd.setPedMeanG16(mean16);
       pn_rd.setPedRMSG16(rms16);
 
-      bool val;
-
       if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
-        val = true;
+        pn_rd.setTaskStatus(true);
       } else {
-        val = false;
+        pn_rd.setTaskStatus(false);
       }
-      pn_rd.setTaskStatus(val);
 
       if ( econn ) {
         try {
@@ -1564,7 +1568,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         }
       }
 
-      status = status && val;
+      if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
+        status = status && true;
+      } else {
+        status = status && false;
+      }
 
     }
 
