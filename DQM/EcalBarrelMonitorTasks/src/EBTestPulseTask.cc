@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2006/09/22 06:01:40 $
- * $Revision: 1.54 $
+ * $Date: 2006/12/14 11:10:34 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  *
 */
@@ -290,10 +290,10 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
     int ie = (ic-1)/20 + 1;
     int ip = (ic-1)%20 + 1;
 
+    int ism = id.ism();
+
     float xie = ie - 0.5;
     float xip = ip - 0.5;
-
-    int ism = id.ism();
 
     if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
 
