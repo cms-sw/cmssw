@@ -9,6 +9,7 @@
 /** This class accepts objects which support the [] operator,
  *  such as a digi or a vector,
  *  and calculates the correlation matrix between the components
+ *  \Author Rick Wilkinson, Fedor Ratnikov              
  */
 
 class AutocorrelationAnalyzer
