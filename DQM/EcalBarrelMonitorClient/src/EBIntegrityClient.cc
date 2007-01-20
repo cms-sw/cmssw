@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/12/15 09:44:50 $
- * $Revision: 1.117 $
+ * $Date: 2007/01/18 23:40:30 $
+ * $Revision: 1.118 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -593,6 +593,17 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   }
 
+  uint64_t bits01 = 0;
+  bits01 |= EcalErrorDictionary::getMask("CH_ID_ERROR");
+  bits01 |= EcalErrorDictionary::getMask("CH_GAIN_ZERO_ERROR");
+  bits01 |= EcalErrorDictionary::getMask("CH_GAIN_SWITCH_ERROR");
+
+  uint64_t bits02 = 0;
+  bits02 |= EcalErrorDictionary::getMask("TT_ID_ERROR");
+  bits02 |= EcalErrorDictionary::getMask("TT_SIZE_ERROR");
+  bits02 |= EcalErrorDictionary::getMask("TT_LV1_ERROR");
+  bits02 |= EcalErrorDictionary::getMask("TT_BUNCH_X_ERROR");
+
   EcalLogicID ecid;
   MonCrystalConsistencyDat c1;
   map<EcalLogicID, MonCrystalConsistencyDat> dataset1;
@@ -602,6 +613,39 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   map<EcalLogicID, MonMemChConsistencyDat> dataset3;
   MonMemTTConsistencyDat c4;
   map<EcalLogicID, MonMemTTConsistencyDat> dataset4;
+
+  map<EcalLogicID, RunCrystalErrorsDat> mask1;
+  map<EcalLogicID, RunTTErrorsDat> mask2;
+  map<EcalLogicID, RunPNErrorsDat> mask3;
+  map<EcalLogicID, RunMemChErrorsDat> mask4;
+  map<EcalLogicID, RunMemTTErrorsDat> mask5;
+
+  if ( econn ) {
+    try {
+      RunIOV validIOV;
+      RunTag runtag = runiov->getRunTag(); 
+      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
+      econn->fetchValidDataSet(&mask1, &validIOV, &runtag, runiov->getRunNumber());
+      econn->fetchValidDataSet(&mask2, &validIOV, &runtag, runiov->getRunNumber());
+      econn->fetchValidDataSet(&mask3, &validIOV, &runtag, runiov->getRunNumber());
+      econn->fetchValidDataSet(&mask4, &validIOV, &runtag, runiov->getRunNumber());
+      econn->fetchValidDataSet(&mask5, &validIOV, &runtag, runiov->getRunNumber());
+      cout << "Attached to run: " << validIOV.getRunNumber() << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  } else {
+    try {
+      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
+      EcalErrorMaskFile::fetchDataSet(&mask1);
+      EcalErrorMaskFile::fetchDataSet(&mask2);
+      EcalErrorMaskFile::fetchDataSet(&mask3);
+      EcalErrorMaskFile::fetchDataSet(&mask4);
+      EcalErrorMaskFile::fetchDataSet(&mask5);
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
 
   float num00;
 
@@ -689,8 +733,28 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           try {
             ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1[ecid] = c1;
+
+            if ( mask1.size() != 0 ) {
+              map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
+              if ( m != mask1.end() ) {
+                if ( (m->second).getErrorBits() & bits01 ) {
+                  val = true;
+                }
+              }
+            }
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
+          }
+        } else {
+          ecid = EcalLogicID("local", 10000*(ism-1) + ic);
+
+          if ( mask1.size() != 0 ) {
+            map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
+            if ( m != mask1.end() ) {
+              if ( (m->second).getErrorBits() & bits01 ) {
+                val = true;
+              }
+            }
           }
         }
 
@@ -774,8 +838,28 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           try {
             ecid = econn->getEcalLogicID("EB_trigger_tower", ism, itt);
             dataset2[ecid] = c2;
+
+            if ( mask2.size() != 0 ) {
+              map<EcalLogicID, RunTTErrorsDat>::const_iterator m = mask2.find(ecid);
+              if ( m != mask2.end() ) {
+                if ( (m->second).getErrorBits() & bits01 ) {
+                  val = true;
+                }
+              }
+            }
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
+          }
+        } else {
+          ecid = EcalLogicID("local", 100*(ism-1) + itt);
+
+          if ( mask2.size() != 0 ) {
+            map<EcalLogicID, RunTTErrorsDat>::const_iterator m = mask2.find(ecid);
+            if ( m != mask2.end() ) {
+              if ( (m->second).getErrorBits() & bits02 ) {
+                val = true;
+              }
+            }
           }
         }
 
@@ -851,8 +935,28 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           try {
             ecid = econn->getEcalLogicID("EB_mem_channel", ism, ic);
             dataset3[ecid] = c3;
+
+            if ( mask4.size() != 0 ) {
+              map<EcalLogicID, RunMemChErrorsDat>::const_iterator m = mask4.find(ecid);
+              if ( m != mask4.end() ) {
+                if ( (m->second).getErrorBits() & bits01 ) {
+                  val = true;
+                }
+              }
+            }
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
+          }
+        } else {
+          ecid = EcalLogicID("local", 100*(ism-1) + ic);
+
+          if ( mask4.size() != 0 ) {
+            map<EcalLogicID, RunMemChErrorsDat>::const_iterator m = mask4.find(ecid);
+            if ( m != mask4.end() ) {
+              if ( (m->second).getErrorBits() & bits01 ) {
+                val = true;
+              }
+            }
           }
         }
 
@@ -935,8 +1039,28 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         try {
           ecid = econn->getEcalLogicID("EB_mem_TT", ism, itt);
           dataset4[ecid] = c4;
+
+          if ( mask5.size() != 0 ) {
+            map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m = mask5.find(ecid);
+            if ( m != mask5.end() ) {
+              if ( (m->second).getErrorBits() & bits02 ) {
+                val = true;
+              }
+            }
+          }
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
+        }
+      } else {
+        ecid = EcalLogicID("local", 10*(ism-1) + iet);
+
+        if ( mask5.size() != 0 ) {
+          map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m = mask5.find(ecid);
+          if ( m != mask5.end() ) {
+            if ( (m->second).getErrorBits() & bits02 ) {
+              val = true;
+            } 
+          }
         }
       }
 
