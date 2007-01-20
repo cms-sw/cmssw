@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/01/19 11:29:18 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/01/19 11:57:44 $
+ *  $Revision: 1.12 $
  *  \author N. Amapane - CERN
  */
 
@@ -52,20 +52,13 @@ MuRodBarrelLayer::MuRodBarrelLayer(vector<const DetRod*>& rods) :
 
   // Compute the layer's surface and bounds (from the components())
   BarrelDetLayer::initialize(); 
-
-  if ( edm::isDebugEnabled() ) {
-    LogTrace(metname) << "Constructing MuRodBarrelLayer: "
-		      << basicComponents().size() << " Dets " 
-		      << theRods.size() << " Rods "
-		      << " R: " << specificSurface().radius()
-		      << " Per.: " << bf.isPhiPeriodic()
-		      << " Overl.: " << isOverlapping;
-    
-    for (unsigned int i=0; i < bf.nBins(); i++) {
-      LogTrace(metname) << "  bin " << i << " border " << bf.phiBorders()[i]
-			<< " bin " <<bf.phiBins()[i];
-    }
-  }
+  
+  LogTrace(metname) << "Constructing MuRodBarrelLayer: "
+		    << basicComponents().size() << " Dets " 
+		    << theRods.size() << " Rods "
+		    << " R: " << specificSurface().radius()
+		    << " Per.: " << bf.isPhiPeriodic()
+		    << " Overl.: " << isOverlapping;
 }
 
 

@@ -4,14 +4,15 @@
 /** \class GeneralBinFinderInPhi
  * A phi bin finder for a non-periodic group of detectors.
  *
- *  $Date: 2006/05/16 10:39:03 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/02 15:19:39 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
 #include "Utilities/BinningTools/interface/BaseBinFinder.h"
 #include "PhiBorderFinder.h"
 #include "Geometry/Vector/interface/Pi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 
@@ -47,12 +48,24 @@ public:
   /// Returns an index in the valid range for the bin that contains 
   /// AND is closest to phi
   virtual int binIndex( T phi) const {
+    
+    const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|GeneralBinFinderInPhi";
+
     static T epsilon = 10*std::numeric_limits<T>::epsilon();
     // Assume -pi, pi range in pi (which is the case for Geom::Phi
+
+    LogTrace(metname) << "GeneralBinFinderInPhi::binIndex,"
+		      << " Nbins: "<< theNbins;
+
     for (int i = 0; i< theNbins; i++) {
+
       T cur = theBorders[i];
       T next = theBorders[binIndex(i+1)];
       T phi_ = phi;
+
+      LogTrace(metname) << "bin: " << i 
+			<< " border min " << cur << " border max: " << next << " phi: "<< phi_;
+
       if ( cur > next ) // we are crossing the pi edge: so move the edge to 0!
 	{
 	  cur = positiveRange(cur);
