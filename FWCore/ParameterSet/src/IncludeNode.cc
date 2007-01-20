@@ -129,8 +129,8 @@ namespace edm {
     void IncludeNode::filterNodes()
     {
       NodePtrListPtr newNodes(new NodePtrList);
-      for(NodePtrList::iterator nodeItr = nodes_->begin();
-          nodeItr != nodes_->end(); ++nodeItr)
+      for(NodePtrList::iterator nodeItr = nodes_->begin(), nodeItrEnd = nodes_->end();
+          nodeItr != nodeItrEnd; ++nodeItr)
       {
         if(okToInclude(*nodeItr))
         {

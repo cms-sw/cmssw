@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.21 2006/12/05 22:00:52 rpw Exp $
+// $Id: Entry.cc,v 1.22 2006/12/19 00:37:04 wmtan Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -62,8 +62,8 @@ namespace edm {
 
 
       
-      for(CodeMap::const_iterator itCode = table_.begin();
-           itCode != table_.end();
+      for(CodeMap::const_iterator itCode = table_.begin(), itCodeEnd = table_.end();
+           itCode != itCodeEnd;
            ++itCode) {
          type2Code_[*itCode] = (itCode - table_.begin());
       }
@@ -788,9 +788,9 @@ namespace edm {
            start = between;
          }
          if (whole.size()) {
-           os<<std::endl;
+           os << std::endl;
          }
-         os<<"}";
+         os << "}";
          break;
       } 
       case 'S':
@@ -805,13 +805,13 @@ namespace edm {
         std::string start ="'";
         const std::string between(",'");
         std::vector<std::string> strings = entry.getVString();
-        for(std::vector<std::string>::const_iterator it = strings.begin();
-            it != strings.end();
+        for(std::vector<std::string>::const_iterator it = strings.begin(), itEnd = strings.end();
+            it != itEnd;
             ++it) {
-          os<<start<<*it<<"'";
+          os << start << *it << "'";
           start = between;
         }
-        os <<"}";
+        os << "}";
         break;
       }
       case 'I':
@@ -821,7 +821,7 @@ namespace edm {
       }
       case 'U':
       {
-        os <<entry.getUInt32();
+        os << entry.getUInt32();
         break;
       }
       case 'v':
@@ -829,16 +829,16 @@ namespace edm {
         //VInputTag needs to be treated seperately because it is encode like
         // vector<string> rather than using the individual encodings of each InputTag
         os << "{";
-        std::string start ="";
+        std::string start = "";
         const std::string between(",");
         std::vector<InputTag> tags = entry.getVInputTag();
-        for(std::vector<InputTag>::const_iterator it = tags.begin();
-            it != tags.end();
+        for(std::vector<InputTag>::const_iterator it = tags.begin(), itEnd = tags.end();
+            it != itEnd;
             ++it) {
-          os<<start<<it->encode();
+          os << start << it->encode();
           start = between;
         }
-        os <<"}";
+        os << "}";
         break;
       }
       default:

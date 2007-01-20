@@ -49,8 +49,8 @@ namespace edm {
       DomainPackagePair parsings
         = twoWordsFrom(name);
 
-      for(DomainPackagePair::const_iterator wordPairItr = parsings.begin();
-          wordPairItr != parsings.end(); ++wordPairItr)
+      for(DomainPackagePair::const_iterator wordPairItr = parsings.begin(), wordPairItrEnd = parsings.end();
+          wordPairItr != wordPairItrEnd; ++wordPairItr)
       {
         string path = wordPairItr->first + "/" + wordPairItr->second + "/data/"
                       + moduleLabel + ".cfi";

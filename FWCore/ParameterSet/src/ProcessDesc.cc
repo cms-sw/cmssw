@@ -3,14 +3,14 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.10 2006/09/08 01:15:20 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.11 2006/10/03 18:25:05 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.10 2006/09/08 01:15:20 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.11 2006/10/03 18:25:05 rpw Exp $";
 
 
-#include <FWCore/ParameterSet/interface/ProcessDesc.h>
+#include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/Makers.h"
 #include "FWCore/ParameterSet/interface/ParseTree.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -62,25 +62,25 @@ namespace edm
     SeqMap sequences;
 
     // loop on path fragments
-    ProcessDesc::PathContainer::iterator pathIt; 
     Strs endpaths, triggerpaths;
    
-    for(pathIt= pathFragments_.begin();
-	pathIt!=pathFragments_.end();
-	++pathIt){
+    for(ProcessDesc::PathContainer::iterator pathIt = pathFragments_.begin(),
+					     pathItEnd = pathFragments_.end();
+	pathIt != pathItEnd;
+	++pathIt) {
      
-      if ((*pathIt)->type()=="sequence") {
+      if ((*pathIt)->type() == "sequence") {
 	sequences[(*pathIt)->name()]= (*pathIt);
       }
      
-      if ((*pathIt)->type()=="path") {
+      if ((*pathIt)->type() == "path") {
         //FIXME order-dependent
 	sequenceSubstitution((*pathIt)->wrapped(), sequences);
 	fillPath((*pathIt),triggerpaths);
       }
 
 
-      if ((*pathIt)->type()=="endpath") {
+      if ((*pathIt)->type() == "endpath") {
 	sequenceSubstitution((*pathIt)->wrapped(), sequences);
 	fillPath((*pathIt),endpaths);
       }
@@ -130,7 +130,7 @@ namespace edm
 
   void 
   ProcessDesc::getNames(const edm::pset::Node* n, Strs& out) const {
-    if(n->type()=="operand"){ 
+    if(n->type() == "operand") { 
       out.push_back(n->name());
     } else {	
       const edm::pset::OperatorNode& op = dynamic_cast<const edm::pset::OperatorNode&>(*n);
@@ -153,11 +153,11 @@ namespace edm
 
 
   void ProcessDesc::sequenceSubstitution(NodePtr& node, 
-						SeqMap&  sequences){
+						SeqMap&  sequences) {
   
-    if (node->type()=="operand"){
+    if (node->type() == "operand") {
       SeqMap::iterator seqIt = sequences.find(node->name()); 
-      if (seqIt!= sequences.end()){
+      if (seqIt != sequences.end()) {
         node = seqIt->second->wrapped();
         sequenceSubstitution(node, sequences);
       }
@@ -167,12 +167,12 @@ namespace edm
     
     
       SeqMap::iterator seqIt = sequences.find(onode->left()->name()); 
-      if (seqIt!= sequences.end()) {
+      if (seqIt != sequences.end()) {
         onode->left()= seqIt->second->wrapped();
         onode->left()->setParent(onode);
       }
       seqIt = sequences.find(onode->right()->name()); 
-      if (seqIt!= sequences.end()){
+      if (seqIt != sequences.end()) {
         onode->right()= seqIt->second->wrapped(); 
         onode->right()->setParent(onode);
       }
@@ -184,8 +184,8 @@ namespace edm
   } // sequenceSubstitution
 
 
-  void ProcessDesc::dumpTree(NodePtr& node){
-    if(node->type()=="operand"){ 
+  void ProcessDesc::dumpTree(NodePtr& node) {
+    if(node->type() == "operand") { 
       cout << " Operand " << node->name()<< " p:";
       if (node->getParent()) cout <<  node->getParent()->name();cout<< endl;
     } else{	
@@ -199,7 +199,7 @@ namespace edm
   } // dumpTree
 
 
-  std::string  ProcessDesc::getDependencies(const std::string& modulename){
+  std::string  ProcessDesc::getDependencies(const std::string& modulename) {
     return validator_->dependencies(modulename);
   }
 
@@ -220,13 +220,13 @@ namespace edm
   {
     Strs result;
     bool found = false;
-    ProcessDesc::PathContainer::const_iterator pathIt;
 
-    for(pathIt= pathFragments_.begin();
-        pathIt!=pathFragments_.end(); ++pathIt)
+    for(ProcessDesc::PathContainer::const_iterator pathIt = pathFragments_.begin(),
+						   pathItEnd = pathFragments_.end();
+        pathIt != pathItEnd; ++pathIt)
     {
 
-      if ((*pathIt)->type()=="schedule") 
+      if ((*pathIt)->type() == "schedule") 
       {
         // no duplicates
         if(found)

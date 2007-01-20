@@ -166,8 +166,8 @@ namespace edm {
         if(vpsetNode != 0)
         {
           NodePtrListPtr entries = vpsetNode->nodes_;
-          for(NodePtrList::const_iterator itr = entries->begin();
-              itr != entries->end(); ++itr)
+          for(NodePtrList::const_iterator itr = entries->begin(), itrEnd = entries->end();
+              itr != itrEnd; ++itr)
           {
             nodes_->push_back(*itr);
           }

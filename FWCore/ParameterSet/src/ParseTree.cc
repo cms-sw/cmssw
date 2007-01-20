@@ -57,8 +57,9 @@ namespace edm {
     {
       std::vector<std::string> result;
       result.reserve(modulesAndSources_.size());
-      for(NodePtrMap::const_iterator moduleMapItr = modulesAndSources_.begin();
-          moduleMapItr != modulesAndSources_.end(); ++moduleMapItr)
+      for(NodePtrMap::const_iterator moduleMapItr = modulesAndSources_.begin(),
+          moduleMapItrEnd = modulesAndSources_.end();
+          moduleMapItr != moduleMapItrEnd; ++moduleMapItr)
       {
         result.push_back(moduleMapItr->first);
       }
@@ -69,8 +70,9 @@ namespace edm {
     std::vector<std::string> ParseTree::modulesOfType(const std::string & s) const
     {
       std::vector<std::string> result;
-      for(NodePtrMap::const_iterator moduleMapItr = modulesAndSources_.begin();
-          moduleMapItr != modulesAndSources_.end(); ++moduleMapItr)
+      for(NodePtrMap::const_iterator moduleMapItr = modulesAndSources_.begin(),
+          moduleMapItrEnd = modulesAndSources_.end();
+          moduleMapItr != moduleMapItrEnd; ++moduleMapItr)
       {
         if(moduleMapItr->second->type() == s)
         {
@@ -127,24 +129,23 @@ namespace edm {
         findBlockModifiers(renameNodes_, blockRenameNodes_);
         findBlockModifiers(replaceNodes_, blockReplaceNodes_);
         
-        NodePtrList::iterator nodeItr;
         // do copies
-        for(nodeItr = blockCopyNodes_.begin();
-            nodeItr != blockCopyNodes_.end(); ++nodeItr)
+        for(NodePtrList::iterator nodeItr = blockCopyNodes_.begin(), nodeItrEnd = blockCopyNodes_.end();
+            nodeItr != nodeItrEnd; ++nodeItr)
         {
           processCopyNode(*nodeItr, blocks_);
         }
 
         // do renames before replaces
-        for(nodeItr = blockRenameNodes_.begin();
-            nodeItr != blockRenameNodes_.end(); ++nodeItr)
+        for(NodePtrList::iterator nodeItr = blockRenameNodes_.begin(), nodeItrEnd = blockRenameNodes_.end();
+            nodeItr != nodeItrEnd; ++nodeItr)
         {
           processRenameNode(*nodeItr, blocks_);
         }
 
         // now replace nodes
-        for(nodeItr = blockReplaceNodes_.begin();
-            nodeItr != blockReplaceNodes_.end(); ++nodeItr)
+        for(NodePtrList::iterator nodeItr = blockReplaceNodes_.begin(), nodeItrEnd = blockReplaceNodes_.end();
+            nodeItr != nodeItrEnd; ++nodeItr)
         {
           processReplaceNode(*nodeItr, blocks_);
         }
@@ -155,22 +156,22 @@ namespace edm {
         processUsingBlocks();
 
         // do copies
-        for(nodeItr = copyNodes_.begin();
-            nodeItr != copyNodes_.end(); ++nodeItr)
+        for(NodePtrList::iterator nodeItr = copyNodes_.begin(), nodeItrEnd = copyNodes_.end();
+            nodeItr != nodeItrEnd; ++nodeItr)
         {
           processCopyNode(*nodeItr, modulesAndSources_);
         }
 
         // do renames before replaces
-        for(nodeItr = renameNodes_.begin();
-            nodeItr != renameNodes_.end(); ++nodeItr)
+        for(NodePtrList::iterator nodeItr = renameNodes_.begin(), nodeItrEnd = renameNodes_.end();
+            nodeItr != nodeItrEnd; ++nodeItr)
         {
           processRenameNode(*nodeItr, modulesAndSources_);
         }
 
         // now replace nodes
-        for(nodeItr = replaceNodes_.begin();
-            nodeItr != replaceNodes_.end(); ++nodeItr) 
+        for(NodePtrList::iterator nodeItr = replaceNodes_.begin(), nodeItrEnd = replaceNodes_.end();
+            nodeItr != nodeItrEnd; ++nodeItr)
         {
           processReplaceNode(*nodeItr, modulesAndSources_);
         }
@@ -281,8 +282,8 @@ namespace edm {
       NodePtrList topLevelNodes;
       findTopLevelNodes(*nodes, topLevelNodes);
 
-      for(NodePtrList::const_iterator nodeItr = topLevelNodes.begin();
-          nodeItr != topLevelNodes.end(); ++nodeItr)
+      for(NodePtrList::const_iterator nodeItr = topLevelNodes.begin(),
+          nodeItrEnd = topLevelNodes.end(); nodeItr != nodeItrEnd; ++nodeItr)
       {
         // see what the type is
         string type = (*nodeItr)->type();
@@ -345,22 +346,24 @@ namespace edm {
     void ParseTree::processUsingBlocks()
     {
       // look for blocks-within-blocks first
-      for(NodePtrMap::iterator blockItr = blocks_.begin();
-          blockItr != blocks_.end(); ++blockItr)
+      for(NodePtrMap::iterator blockItr = blocks_.begin(), blockItrEnd = blocks_.end();
+          blockItr != blockItrEnd; ++blockItr)
       {
         blockItr->second->resolveUsingNodes(blocks_);
       }
 
-      for(NodePtrMap::iterator moduleItr = modulesAndSources_.begin();
-          moduleItr != modulesAndSources_.end();  ++moduleItr)
+      for(NodePtrMap::iterator moduleItr = modulesAndSources_.begin(),
+          moduleItrEnd = modulesAndSources_.end();
+          moduleItr != moduleItrEnd; ++moduleItr)
       {
         moduleItr->second->resolveUsingNodes(blocks_);
       }
 
       // maybe there's a using statement inside a replace PSet?
       // You never know.
-      for(NodePtrList::iterator replaceItr = replaceNodes_.begin();
-          replaceItr != replaceNodes_.end();  ++replaceItr)
+      for(NodePtrList::iterator replaceItr = replaceNodes_.begin(),
+          replaceItrEnd = replaceNodes_.end();
+          replaceItr != replaceItrEnd;  ++replaceItr)
       {
         ReplaceNode * replaceNode = dynamic_cast<ReplaceNode *>(replaceItr->get());
         CompositeNode * compositeNode = dynamic_cast<CompositeNode *>(replaceNode->value().get());
@@ -516,8 +519,8 @@ namespace edm {
 
     void ParseTree::findTopLevelNodes(const NodePtrList & input, NodePtrList & output)
     {
-      for(NodePtrList::const_iterator inputNodeItr = input.begin();
-          inputNodeItr  != input.end(); ++inputNodeItr)
+      for(NodePtrList::const_iterator inputNodeItr = input.begin(), inputNodeItrEnd = input.end();
+          inputNodeItr != inputNodeItrEnd; ++inputNodeItr)
       {
         // make IncludeNodes transparent
         if((**inputNodeItr).type().substr(0,7) == "include")
@@ -571,8 +574,9 @@ namespace edm {
    
     void ParseTree::validate() const
     {
-//      for(NodePtrMap::const_iterator moduleMapItr = modulesAndSources_.begin();
-//          moduleMapItr != modulesAndSources_.end(); ++moduleMapItr)
+//      for(NodePtrMap::const_iterator moduleMapItr = modulesAndSources_.begin(),
+//          moduleMapItrEnd = modulesAndSources_.end();
+//          moduleMapItr != moduleMapItrEnd; ++moduleMapItr)
 //      {
 //        CompositeNode * compositeNode
 //          = dynamic_cast<CompositeNode*>(moduleMapItr->second.get());

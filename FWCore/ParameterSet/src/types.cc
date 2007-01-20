@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.cc,v 1.11 2006/12/05 22:02:19 rpw Exp $
+// $Id: types.cc,v 1.12 2006/12/19 00:37:04 wmtan Exp $
 //
 // definition of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -703,8 +703,8 @@ bool
   std::vector<std::string> strings;
   decode(strings, from);
 
-  for(std::vector<std::string>::const_iterator stringItr = strings.begin();
-      stringItr != strings.end(); ++stringItr)
+  for(std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
+      stringItr != stringItrEnd; ++stringItr)
   {
     to.push_back(InputTag(*stringItr));
   }
@@ -717,8 +717,8 @@ bool
   edm::encode(std::string& to, const std::vector<InputTag>& from)
 {
   std::vector<std::string> strings;
-  for(std::vector<InputTag>::const_iterator tagItr = from.begin();
-       tagItr != from.end(); ++tagItr)
+  for(std::vector<InputTag>::const_iterator tagItr = from.begin(), tagItrEnd = from.end();
+       tagItr != tagItrEnd; ++tagItr)
   {
     strings.push_back(tagItr->encode());
   }
@@ -765,8 +765,8 @@ bool
   std::vector<std::string> strings;
   decode(strings, from);
 
-  for(std::vector<std::string>::const_iterator stringItr = strings.begin();
-      stringItr != strings.end(); ++stringItr)
+  for(std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
+      stringItr != stringItrEnd; ++stringItr)
   {
     edm::EventID eventID;
     decode(eventID, *stringItr);
@@ -781,8 +781,8 @@ bool
   edm::encode(std::string& to, const std::vector<edm::EventID>& from)
 {
   std::vector<std::string> strings;
-  for(std::vector<edm::EventID>::const_iterator idItr = from.begin();
-      idItr != from.end(); ++idItr)
+  for(std::vector<edm::EventID>::const_iterator idItr = from.begin(), idItrEnd = from.end();
+      idItr != idItrEnd; ++idItr)
   {
     std::string encodedEventID;
     encode(encodedEventID, *idItr);

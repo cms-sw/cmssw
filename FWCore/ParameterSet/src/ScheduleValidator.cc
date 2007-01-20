@@ -3,11 +3,11 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.12 2006/08/28 19:14:58 rpw Exp $
+   \version $Id: ScheduleValidator.cc,v 1.13 2006/12/06 16:41:55 wdd Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.12 2006/08/28 19:14:58 rpw Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.13 2006/12/06 16:41:55 wdd Exp $";
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -31,9 +31,9 @@ ScheduleValidator::ScheduleValidator(const ScheduleValidator::PathContainer&
  
   vector<string> paths = processPSet.getParameter<vector<string> >("@paths");
 
-  for(vector<string>::const_iterator pathIt= paths.begin();
-      pathIt!=paths.end(); 
-      ++pathIt){
+  for(vector<string>::const_iterator pathIt = paths.begin(), pathItEnd = paths.end();
+      pathIt != pathItEnd; 
+      ++pathIt) {
     NodePtr head = findPathHead(*pathIt);
     gatherLeafNodes(head);
   }//for
@@ -43,12 +43,12 @@ ScheduleValidator::ScheduleValidator(const ScheduleValidator::PathContainer&
 
 NodePtr ScheduleValidator::findPathHead(string pathName){
   // cout << "in findPathHead" << endl;
-  for (PathContainer::iterator pathIt= nodes_.begin();
-       pathIt!=nodes_.end();++pathIt){
+  for (PathContainer::iterator pathIt = nodes_.begin(), pathItEnd = nodes_.end();
+       pathIt != pathItEnd; ++pathIt) {
 //cout << "  looking at " << (*pathIt)->type() << " " << (*pathIt)->name << endl;
-    if ((*pathIt)->type()!="path" &&
-        (*pathIt)->type()!="endpath") continue;
-    if ((*pathIt)->name()==pathName) return ((*pathIt)->wrapped());
+    if ((*pathIt)->type() != "path" &&
+        (*pathIt)->type() != "endpath") continue;
+    if ((*pathIt)->name() == pathName) return ((*pathIt)->wrapped());
 
   }// for
   //cout << "did not find " << pathName << endl;
@@ -63,7 +63,7 @@ void ScheduleValidator::gatherLeafNodes(NodePtr& basenode){
 //cout << "gatherLeafNodes " << basenode.get() << endl;
 //basenode->print(cout);
 
-  if (basenode->type()=="," || basenode->type() =="&"){
+  if (basenode->type() == "," || basenode->type() == "&"){
     OperatorNode* onode = dynamic_cast<OperatorNode*>(basenode.get());
     gatherLeafNodes(onode->left());
     gatherLeafNodes(onode->right());
@@ -90,22 +90,22 @@ void ScheduleValidator::validate(){
   leftName.reserve(100);
 
   // iterate on leaf nodes
-  std::list<NodePtr>::iterator leafIt;
-  for (leafIt=leaves_.begin(); leafIt!=leaves_.end(); ++leafIt){
+  for (std::list<NodePtr>::iterator leafIt = leaves_.begin(), leafItEnd = leaves_.end();
+        leafIt != leafItEnd; ++leafIt) {
     
     DependencyList dep;
 
     // follow the tree up thru parent nodes  
-    Node* p  = (*leafIt)->getParent();
-    Node* son= (*leafIt).get();
+    Node* p = (*leafIt)->getParent();
+    Node* son = (*leafIt).get();
     
     // make sure we don't redescend right of our parent
     
     while  (p){
       // if we got operator '&' continue
-      if (p->type()=="&") {
-	son =p;
-	p= p->getParent(); 
+      if (p->type() == "&") {
+	son = p;
+	p = p->getParent(); 
 	continue;
       }
 
@@ -122,8 +122,8 @@ void ScheduleValidator::validate(){
 
       if (sonName != leftName) findDeps(node->left(), dep);
       
-      son=p;
-      p= p->getParent();
+      son = p;
+      p = p->getParent();
     } // while
         
     dep.sort();   
@@ -135,13 +135,13 @@ void ScheduleValidator::validate(){
     if (leafName.length() > 0 && 
         (leafName[0] == '!' || leafName[0] == '-')) leafName.erase(0,1);
 
-    Dependencies::iterator depIt= dependencies_.find(leafName);
-    if (depIt!= dependencies_.end()){
+    Dependencies::iterator depIt = dependencies_.find(leafName);
+    if (depIt != dependencies_.end()) {
       DependencyList& old_deplist = (*depIt).second;
     
       // if the list is different from an existing one
       // then we have an inconsitency
-      if (old_deplist !=  dep) {
+      if (old_deplist != dep) {
 
 	ostringstream olddepstr,newdepstr;
 	copy(old_deplist.begin(), old_deplist.end(), 
@@ -169,7 +169,7 @@ void ScheduleValidator::validate(){
 void ScheduleValidator::findDeps(NodePtr& node, DependencyList& dep){
 
   // if we have an operand, add it to the list of dependencies
-  if (node->type() =="operand") {
+  if (node->type() == "operand") {
 
     if (node->name().size() > 0 &&
         (node->name()[0] == '!' || node->name()[0] == '-')) {
@@ -196,7 +196,7 @@ ScheduleValidator::dependencies(const std::string& modulename) const{
 
 
   Dependencies::const_iterator depIt = dependencies_.find(modulename);
-  if (depIt== dependencies_.end()){
+  if (depIt == dependencies_.end()){
     ostringstream err;
     throw edm::Exception(errors::Configuration,"ScheduleDependencies")
       << "Error : Dependecies for "

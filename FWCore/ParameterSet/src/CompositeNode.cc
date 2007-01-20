@@ -19,7 +19,7 @@ namespace edm {
       nodes_(new NodePtrList)
     {
       NodePtrList::const_iterator i(n.nodes_->begin()),e(n.nodes_->end());
-      for(;i!=e;++i)
+      for(; i != e; ++i)
       {
          nodes_->push_back( NodePtr((**i).clone()) );
       }
@@ -29,7 +29,7 @@ namespace edm {
     void CompositeNode::acceptForChildren(Visitor& v) const
     {
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
-      for(;i!=e;++i)
+      for(; i != e; ++i)
         {
           (*i)->accept(v);
         }
@@ -40,7 +40,7 @@ namespace edm {
     {
       ost << "{\n";
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
-      for(;i!=e;++i)
+      for(; i != e; ++i)
         {
           (**i).print(ost, options);
           ost << "\n";
@@ -56,7 +56,7 @@ namespace edm {
       Node::locate(s, out);
       // now all the subnodes
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
-      for(;i!=e;++i)
+      for(; i != e; ++i)
       {
         (**i).locate(s, out);
       }
@@ -66,7 +66,7 @@ namespace edm {
     void CompositeNode::setModified(bool value) 
     {
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
-      for(;i!=e;++i)
+      for(; i != e; ++i)
       {
         (*i)->setModified(value);
       }
@@ -89,7 +89,7 @@ namespace edm {
     void CompositeNode::setCloned(bool value)
     {
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
-      for(;i!=e;++i)
+      for(; i != e; ++i)
       {
         (*i)->setCloned(value);
       }
@@ -99,7 +99,7 @@ namespace edm {
     void CompositeNode::setAsChildrensParent()
     {
       NodePtrList::iterator i(nodes_->begin()),e(nodes_->end());
-      for(;i!=e;++i)
+      for(; i != e; ++i)
       {
         (**i).setParent(this);
         // make child register with grandchildren
@@ -112,7 +112,7 @@ namespace edm {
     {
       NodePtrListPtr result(new NodePtrList);
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
-      for(;i!=e;++i)
+      for(; i != e; ++i)
       {
         if((**i).type().substr(0,7) == "include")
         {
@@ -133,7 +133,7 @@ namespace edm {
     {
       NodePtrListPtr kids = children();
       NodePtrList::const_iterator i(kids->begin()),e(kids->end());
-      for(;i!=e;++i)
+      for(; i != e; ++i)
       {
          if((*i)->name() == child) {
            result = *i;
@@ -149,7 +149,7 @@ namespace edm {
     void CompositeNode::removeChild(const std::string & child) 
     {
       NodePtrList::iterator i(nodes_->begin()),e(nodes_->end());
-      for(;i!=e;++i)
+      for(; i != e; ++i)
       {
         if((**i).name() == child)
         {
@@ -169,7 +169,7 @@ namespace edm {
     void CompositeNode::removeChild(const Node* child) 
   {
       NodePtrList::iterator i(nodes_->begin()),e(nodes_->end());
-      for(;i!=e;++i)
+      for(; i != e; ++i)
       {
         if( &(**i) == child)
         {
@@ -182,7 +182,7 @@ namespace edm {
       
       // if we didn't find it
       throw edm::Exception(errors::Configuration,"")
-        << "Cannot find node " <<child->name() << " to erase in " << name();
+        << "Cannot find node " << child->name() << " to erase in " << name();
       
   }
     
@@ -203,7 +203,7 @@ namespace edm {
       // make a copy, in case a node deletes itself
       NodePtrList copyOfNodes = *nodes_;
       NodePtrList::const_iterator i(copyOfNodes.begin()),e(copyOfNodes.end());
-      for(;i!=e;++i)
+      for(; i != e; ++i)
       {
         (**i).resolve(openFiles, thisLevelIncludes);
       }
@@ -213,7 +213,7 @@ namespace edm {
     void CompositeNode::resolveUsingNodes(const NodeMap & blocks)
     {
       NodePtrList::iterator nodeItr(nodes_->begin()),e(nodes_->end());
-      for(;nodeItr!=e;++nodeItr)
+      for(; nodeItr != e; ++nodeItr)
       {
         if((**nodeItr).type() == "using")
         {
@@ -234,8 +234,8 @@ namespace edm {
           //@@ is it safe to delete the UsingNode now?
           nodes_->erase(nodeItr);
 
-          for(NodePtrList::const_iterator paramItr = params->begin();
-              paramItr != params->end(); ++paramItr)
+          for(NodePtrList::const_iterator paramItr = params->begin(), paramItrEnd = params->end();
+              paramItr != paramItrEnd; ++paramItr)
           {
             // Using blocks get inserted at the beginning, just for convenience
             // Make a copy of the node, so it can be modified
@@ -259,7 +259,7 @@ namespace edm {
     void CompositeNode::insertInto(ParameterSet & pset) const
     {
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
-      for(;i!=e;++i)
+      for(; i != e; ++i)
       {
         (**i).insertInto(pset);
       }
@@ -273,7 +273,7 @@ namespace edm {
       nodeNames.reserve(nodes_->size());
       NodePtrListPtr kids = children();
       NodePtrList::const_iterator i(kids->begin()),e(kids->end());
-      for(;i!=e;++i)
+      for(; i != e; ++i)
       {
         // let unnamed node go, because they might be in the process
         if((**i).name() != "" && (**i).name() != "nameless" 

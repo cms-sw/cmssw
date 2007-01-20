@@ -57,7 +57,7 @@ namespace edm {
     {
       // look in the vector for a matching substring
       std::string match = "";
-      for(StringList::const_iterator i = value_->begin(); i != value_->end(); ++i)
+      for(StringList::const_iterator i = value_->begin(), iEnd = value_->end(); i != iEnd; ++i)
       {
         if((*i).find(s,0) != std::string::npos)
         {
@@ -129,8 +129,8 @@ namespace edm {
         if(ventryNode != 0)
         {
           StringListPtr entries = ventryNode->value_;
-          for(StringList::const_iterator itr = entries->begin();
-              itr != entries->end(); ++itr)
+          for(StringList::const_iterator itr = entries->begin(), itrEnd = entries->end();
+              itr != itrEnd; ++itr)
           {
             value_->push_back(*itr);
           }
