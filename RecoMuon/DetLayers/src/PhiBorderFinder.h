@@ -5,8 +5,8 @@
  *  Find the phi binning of a list of detector according to several 
  *  definitions.
  *
- *  $Date: 2007/01/19 11:57:44 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/01/20 18:45:06 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -91,53 +91,26 @@ public:
 
     }
     
-    LogTrace(metname) << "Creates the phi borders";
     for (unsigned int i = 0; i < theNbins; i++) {
-      Geom::Phi<double> br(positiveRange
-		      (positiveRange(phiEdge[binIndex(i-1)].second)
-		       +positiveRange(phiEdge[i].first))/2.);
-      //  thePhiBorders.push_back(br);
+      
+      // Put the two phi values in the [0,2pi] range
+      double firstPhi  = positiveRange(phiEdge[i].first);
+      double secondPhi = positiveRange(phiEdge[binIndex(i-1)].second);
 
-       LogTrace(metname) << "bin: " << i << " binIndex(i-1): " << binIndex(i-1)
-			 << " phiEdge.second: " << phiEdge[binIndex(i-1)].second
-			 << " pos range: " << positiveRange(phiEdge[binIndex(i-1)].second)
-			 << "\n"
-			 << "phiEdge.first: " << phiEdge[i].first
-			 << " pos range: " << positiveRange(phiEdge[i].first)
-			 << " sum: " << positiveRange(phiEdge[binIndex(i-1)].second) + positiveRange(phiEdge[i].first) 
-			 << " final result: " << br;
+      // Reformat them in the [-pi,pi] range
+      Geom::Phi<double> firstEdge(firstPhi);
+      Geom::Phi<double> secondEdge(secondPhi);
 
-       Geom::Phi<double> firstEdge(positiveRange(phiEdge[i].first));
-       Geom::Phi<double> secondEdge(positiveRange(phiEdge[binIndex(i-1)].second));
-       
-       double firstEdge2 = firstEdge.value();
-       double secondEdge2 = secondEdge.value();
-
-       Geom::Phi<double> mean( (firstEdge + secondEdge)/2. );      
-       Geom::Phi<double> mean2( (firstEdge2 + secondEdge2)/2. );
-       
-       //       if ( (phiEdge[i].first * phiEdge[binIndex(i-1)].second < 0)  &&
-       //    ( (fabs(phiEdge[i].first) > Geom::pi() && fabs(phiEdge[binIndex(i-1)].second) < Geom::pi() ) ||
-       //	      (fabs(phiEdge[i].first) < Geom::pi() && fabs(phiEdge[binIndex(i-1)].second) > Geom::pi() ) ))
-       //	 mean2 = Geom::pi() - mean2;
-       
-       if ( phiEdge[i].first * phiEdge[binIndex(i-1)].second < 0 ){
-	 double pos1 = positiveRange(phiEdge[i].first);
-	 double pos2 = positiveRange(phiEdge[binIndex(i-1)].second);
-	 if ( (pos1 > pos2 && (pos1-pos2) < Geom::pi()) ||
-	      (pos2 > pos1 && (pos2-pos2) < Geom::pi()) )
-	   mean2 = Geom::pi() - mean2;
-	   // mean2 = Geom::Phi<double>( (pos1+pos2)/2 );
-       } 
-
-
-       thePhiBorders.push_back(mean2);
-       
-       LogTrace(metname) << "Alternative procedure: "
-			 << " first edge: " << firstEdge << " second edge: " << secondEdge
-			 << " mean (final result): " << mean;
-       LogTrace(metname) << " first edge2: " << firstEdge2 << " second edge2: " << secondEdge2
-			 << " mean2 (final result): " << mean2;
+      // Calculate the mean and format the result in the [-pi,pi] range
+      // Get their value in order to perform the mean in the correct way
+      Geom::Phi<double> mean((firstEdge.value() + secondEdge.value())/2.);
+      
+      // Special case: at +-pi there is a discontinuity
+      if ( phiEdge[i].first * phiEdge[binIndex(i-1)].second < 0 &&
+	   fabs(firstPhi-secondPhi) < Geom::pi() ) 
+	mean = Geom::pi() - mean;
+      
+      thePhiBorders.push_back(mean);
     }
   
     for (unsigned int i = 0; i < theNbins; i++) {
