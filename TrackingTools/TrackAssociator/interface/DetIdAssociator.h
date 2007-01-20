@@ -19,7 +19,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.h,v 1.3 2006/09/30 05:12:27 dmytro Exp $
+// $Id: DetIdAssociator.h,v 1.4 2006/12/19 01:01:00 dmytro Exp $
 //
 //
 
@@ -89,6 +89,9 @@ class DetIdAssociator{
 	if (ivProp_==0) throw cms::Exception("FatalError") << "Track propagator is not defined\n";
 	if (etaBinSize_==0) throw cms::Exception("FatalError") << "Eta bin size is not set.\n";
      }
+   
+   virtual void dumpMapContent( int, int );
+   virtual void dumpMapContent( int, int, int, int );
    
    virtual GlobalPoint getPosition(const DetId&) = 0;
    virtual std::set<DetId> getASetOfValidDetIds() = 0;

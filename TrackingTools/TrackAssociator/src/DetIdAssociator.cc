@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.6 2006/10/20 16:36:22 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.7 2006/12/19 01:01:01 dmytro Exp $
 //
 //
 
@@ -140,7 +140,8 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direc
 	     GlobalPoint point = getPosition(*itr);
 	     LogTrace("MatchPoint") << "\t\tDetId: " <<itr->rawId()<<" \t(eta,phi): " << point.eta() << "," << point.phi() <<std::endl;
 	  }
-       */    
+       */
+      // dumpMapContent(ieta,iphi);
       if (idR>0){
 	  LogTrace("MatchPoint") << "Add neighbors (ieta,iphi): " << ieta << "," << iphi << "\n";
 	 //add neighbors
@@ -156,12 +157,14 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direc
 	 }
 	 LogTrace("MatchPoint") << "\tieta (min,max): " << minIEta << "," << maxIEta<< "\n";
 	 LogTrace("MatchPoint") << "\tiphi (min,max): " << minIPhi << "," << maxIPhi<< "\n";
+	 // dumpMapContent(minIEta,maxIEta,minIPhi,maxIPhi);
 	 for (int i=minIEta;i<=maxIEta;i++)
 	   for (int j=minIPhi;j<=maxIPhi;j++) {
 	      if( i==ieta && j==iphi) continue; // already in the set
 	      set.insert((*theMap_)[i][j%nPhi_].begin(),(*theMap_)[i][j%nPhi_].end());
 	   }
       }
+      
    }
    return set;
 }
@@ -192,9 +195,9 @@ void DetIdAssociator::buildMap()
       LogTrace("DetIdAssociator")<< "Found " << points.size() << " global points to describe geometry of DetId: " 
 	<< id_itr->rawId();
       int etaMax(-1);
-      int etaMin(nEta_);
+      int etaMin(-1);
       int phiMax(-1);
-      int phiMin(nPhi_);
+      int phiMin(-1);
       // this is a bit overkill, but it should be 100% proof (when debugged :)
       for(std::vector<GlobalPoint>::const_iterator iter = points.begin(); iter != points.end(); iter++)
 	{
@@ -212,12 +215,30 @@ void DetIdAssociator::buildMap()
 		  << "," << (*iter).phi() << "\n center: " << getPosition(*id_itr);
 	      continue;
 	   }
-	   if ( iphi >= nPhi_ ) iphi = iphi % nPhi_;
-	   assert (iphi>=0);
-	   if ( etaMin > ieta) etaMin = ieta;
-	   if ( etaMax < ieta) etaMax = ieta;
-	   if ( phiMin > iphi) phiMin = iphi;
-	   if ( phiMax < iphi) phiMax = iphi;
+	   if ( phiMin<0 ) {
+		// first element
+		etaMin = ieta;
+	        etaMax = ieta;
+	        phiMin = iphi;
+	        phiMax = iphi;
+	   }else{
+	      // check for discontinuity in phi
+	      int deltaMin = abs(phiMin -iphi);
+	      int deltaMax = abs(phiMax -iphi);
+	      // assume that no single detector element has more than 3.1416 coverage in phi
+	      if ( deltaMin > nPhi_/2 && phiMin < nPhi_/2 ) phiMin+= nPhi_;
+	      if ( deltaMax > nPhi_/2 ) {
+		 if (phiMax < nPhi_/2 ) 
+		   phiMax+= nPhi_;
+		 else
+		   iphi += nPhi_;
+	      }
+	      assert (iphi>=0);
+	      if ( etaMin > ieta) etaMin = ieta;
+	      if ( etaMax < ieta) etaMax = ieta;
+	      if ( phiMin > iphi) phiMin = iphi;
+	      if ( phiMax < iphi) phiMax = iphi;
+	   }
 	}
       if (etaMax<0||phiMax<0||etaMin>=nEta_||phiMin>=nPhi_) {
 	 LogTrace("DetIdAssociator")<<"Out of range: DetId:" << id_itr->rawId() <<
@@ -228,11 +249,8 @@ void DetIdAssociator::buildMap()
 	 continue;
       }
 	  
-      if (phiMax-phiMin > phiMin+nPhi_-phiMax){
-	 // found discontinuity in phi, make phi continues
-	 phiMin += nPhi_;
-	 std::swap(phiMin,phiMax);
-      }
+      LogTrace("") << "DetId (ieta_min,ieta_max,iphi_min,iphi_max): " << id_itr->rawId() <<
+	", " << etaMin << ", " << etaMax << ", " << phiMin << ", " << phiMax;
       for(int ieta = etaMin; ieta <= etaMax; ieta++)
 	for(int iphi = phiMin; iphi <= phiMax; iphi++)
 	  (*theMap_)[ieta][iphi%nPhi_].insert(*id_itr);
@@ -266,4 +284,32 @@ std::set<DetId> DetIdAssociator::getCrossedDetIds(const std::set<DetId>& inset,
        if (insideElement(*point_iter, *id_iter))  outset.insert(*id_iter);
    return outset;
 }
+
+void DetIdAssociator::dumpMapContent(int ieta, int iphi)
+{
+   if (! (ieta>=0 && ieta<nEta_ && iphi>=0) )
+     {
+	edm::LogWarning("BadRequest") << "ieta or iphi is out of range. Skipped.";
+	return;
+     }
+
+   std::set<DetId> set = (*theMap_)[ieta][iphi%nPhi_];
+   LogTrace("") << "Map content for cell (ieta,iphi): " << ieta << ", " << iphi%nPhi_;
+   for(std::set<DetId>::const_iterator itr = set.begin(); itr!=set.end(); itr++)
+     {
+	LogTrace("") << "\tDetId " << itr->rawId() << ", geometry (x,y,z,rho,eta,phi):";
+	std::vector<GlobalPoint> points = getDetIdPoints(*itr);
+	for(std::vector<GlobalPoint>::const_iterator point = points.begin(); point != points.end(); point++)
+	  LogTrace("") << "\t\t" << point->x() << ", " << point->y() << ", " << point->z() << ", "
+	  << point->perp() << ", " << point->eta() << ", " << point->phi();
+     }
+}
+
+void DetIdAssociator::dumpMapContent(int ieta_min, int ieta_max, int iphi_min, int iphi_max)
+{
+   for(int i=ieta_min;i<=ieta_max;i++)
+     for(int j=iphi_min;j<=iphi_max;j++)
+       dumpMapContent(i,j);
+}
+
 
