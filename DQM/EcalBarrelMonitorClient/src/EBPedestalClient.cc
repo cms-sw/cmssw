@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/01/19 10:35:50 $
- * $Revision: 1.101 $
+ * $Date: 2007/01/19 13:27:09 $
+ * $Revision: 1.102 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -491,48 +491,9 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   }
 
-  uint64_t bits01 = 0;
-  bits01 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_ERROR");
-  bits01 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_ERROR");
-
-  uint64_t bits02 = 0;
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_MEAN_WARNING");
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_RMS_WARNING");
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_MEAN_ERROR");
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_RMS_ERROR");
-
-  uint64_t bits03 = 0;
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
-
   EcalLogicID ecid;
   MonPedestalsDat p;
   map<EcalLogicID, MonPedestalsDat> dataset1;
-
-  map<EcalLogicID, RunCrystalErrorsDat> mask1;
-
-  if ( econn ) {
-    try {
-      RunIOV validIOV;
-      RunTag runtag = runiov->getRunTag();
-      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
-      econn->fetchValidDataSet(&mask1, &validIOV, &runtag, runiov->getRunNumber());
-      cout << "Attached to run: " << validIOV.getRunNumber() << endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  } else {
-    try {
-      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
-      EcalErrorMaskFile::fetchDataSet(&mask1);
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  }
 
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
@@ -600,12 +561,13 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
         p.setPedMeanG12(mean03);
         p.setPedRMSG12(rms03);
 
-        if ( meg01_[ism-1] && meg01_[ism-1]->getBinContent( ie, ip ) == 1. &&
-             meg02_[ism-1] && meg02_[ism-1]->getBinContent( ie, ip ) == 1. &&
-             meg03_[ism-1] && meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
+        if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ie, ip )) % 3== 1. &&
+             meg02_[ism-1] && int(meg02_[ism-1]->getBinContent( ie, ip )) % 3 == 1. &&
+             meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ie, ip )) % 3 == 1. ) {
           p.setTaskStatus(true);
         } else {
           p.setTaskStatus(false);
+          status = status && false;
         }
 
         int ic = (ip-1) + 20*(ie-1) + 1;
@@ -614,55 +576,9 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
           try {
             ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1[ecid] = p;
-
-            if ( mask1.size() != 0 ) {
-              map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
-              if ( m != mask1.end() ) {
-                if ( (m->second).getErrorBits() & bits01 ) {
-                  if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 3 );
-                }
-                if ( (m->second).getErrorBits() & bits02 ) {
-                  if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 3 );
-                }
-                if ( (m->second).getErrorBits() & bits03 ) {
-                  if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
-                }
-              }
-            }
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
           }
-        } else {
-          ecid = EcalLogicID("local", 10000*(ism-1) + ic);
-          
-          if ( mask1.size() != 0 ) {
-            map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
-            if ( m != mask1.end() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 3 );
-              }
-              if ( (m->second).getErrorBits() & bits02 ) {
-                if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 3 );
-              }
-              if ( (m->second).getErrorBits() & bits03 ) {
-                if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
-              }
-            }
-          }
-        }
-
-        if ( meg01_[ism-1] &&
-             ( meg01_[ism-1]->getBinContent( ie, ip ) == 1. ||
-               meg01_[ism-1]->getBinContent( ie, ip ) == 3. ) &&
-             meg02_[ism-1] &&
-             ( meg02_[ism-1]->getBinContent( ie, ip ) == 1. ||
-               meg02_[ism-1]->getBinContent( ie, ip ) ==  3 ) &&
-             meg03_[ism-1] &&
-             ( meg03_[ism-1]->getBinContent( ie, ip ) == 1. ||
-               meg03_[ism-1]->getBinContent( ie, ip ) == 3. ) ) {
-          status = status && true;
-        } else {
-          status = status && false;
         }
 
       }
@@ -682,27 +598,6 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   MonPNPedDat pn;
   map<EcalLogicID, MonPNPedDat> dataset2;
-
-  map<EcalLogicID, RunPNErrorsDat> mask2;
-
-  if ( econn ) {
-    try {
-      RunIOV validIOV;
-      RunTag runtag = runiov->getRunTag();
-      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
-      econn->fetchValidDataSet(&mask2, &validIOV, &runtag, runiov->getRunNumber());
-      cout << "Attached to run: " << validIOV.getRunNumber() << endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  } else {
-    try {
-      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
-      EcalErrorMaskFile::fetchDataSet(&mask2);
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  }
 
   const float m_min_tot = 1000.;
   const float m_min_bin = 50.;
@@ -756,52 +651,21 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
       pn.setPedMeanG16(mean02);
       pn.setPedRMSG16(rms02);
 
-      bool val;
-
       if ( mean01 > 200. || mean02 > 200. ) {
         pn.setTaskStatus(true);
-        val = true;
       } else {
         pn.setTaskStatus(false);
-        val = false;
+//        status = status && false;
       }
 
       if ( econn ) {
         try {
           ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset2[ecid] = pn;
-
-          if ( mask2.size() != 0 ) {
-            map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
-            if ( m != mask2.end() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                val = true;
-              }
-              if ( (m->second).getErrorBits() & bits03 ) {
-                val = true;
-              }
-            }
-          }
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
         }
-      } else {
-        ecid = EcalLogicID("local", 100*(ism-1) + i);
-
-        if ( mask2.size() != 0 ) {
-          map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
-          if ( m != mask2.end() ) {
-            if ( (m->second).getErrorBits() & bits01 ) {
-              val = true;
-            }
-            if ( (m->second).getErrorBits() & bits03 ) {
-              val = true;
-            }
-          }
-        }
       }
-
-      status = status && val;
 
     }
 
@@ -1080,6 +944,30 @@ void EBPedestalClient::analyze(void){
     if ( verbose_ ) cout << "EBPedestalClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
+  uint64_t bits01 = 0;
+  bits01 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_ERROR");
+  bits01 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_ERROR");
+
+  uint64_t bits02 = 0;
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_MEAN_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_RMS_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_MEAN_ERROR");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_RMS_ERROR");
+
+  uint64_t bits03 = 0;
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_WARNING");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_WARNING");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
+
+  map<EcalLogicID, RunCrystalErrorsDat> mask1;
+  map<EcalLogicID, RunPNErrorsDat> mask2;
+
+  EcalErrorMaskFile::fetchDataSet(&mask1);
+  EcalErrorMaskFile::fetchDataSet(&mask2);
+
   Char_t histo[200];
 
   MonitorElement* me;
@@ -1291,6 +1179,40 @@ void EBPedestalClient::analyze(void){
           if ( mep03_[ism-1] ) mep03_[ism-1]->Fill(mean03);
           if ( mer03_[ism-1] ) mer03_[ism-1]->Fill(rms03);
 
+        }
+
+        // masking 
+
+        if ( mask1.size() != 0 ) {
+          map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
+          for (m = mask1.begin(); m != mask1.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            int ic = (ip-1) + 20*(ie-1) + 1;
+
+            if ( ecid.getID1() == ism && ecid.getID2() == ic ) {
+              if ( (m->second).getErrorBits() & bits01 ) {
+                if ( meg01_[ism-1] ) {
+                  float val = meg01_[ism-1]->getBinContent(ie, ip);
+                  meg01_[ism-1]->setBinContent( ie, ip, val+3 );
+                }
+              }
+              if ( (m->second).getErrorBits() & bits02 ) {
+                if ( meg02_[ism-1] ) {
+                  float val = meg02_[ism-1]->getBinContent(ie, ip);
+                  meg02_[ism-1]->setBinContent( ie, ip, val+3 );
+                }
+              }
+              if ( (m->second).getErrorBits() & bits03 ) {
+                if ( meg03_[ism-1] ) {
+                  float val = meg03_[ism-1]->getBinContent(ie, ip);
+                  meg03_[ism-1]->setBinContent( ie, ip, val+3 );
+                }
+              }
+            }
+
+          }
         }
 
       } 
@@ -1510,7 +1432,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   const double histMax = 1.e15;
 
-  int pCol3[4] = { 2, 3, 5, 1 };
+  int pCol3[6] = { 2, 3, 5, 1, 1,1 };
 
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 30+i;
@@ -1580,13 +1502,13 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cQual->cd();
         gStyle->SetOptStat(" ");
-        gStyle->SetPalette(4, pCol3);
+        gStyle->SetPalette(6, pCol3);
         obj2f->GetXaxis()->SetNdivisions(17);
         obj2f->GetYaxis()->SetNdivisions(4);
         cQual->SetGridx();
         cQual->SetGridy();
         obj2f->SetMinimum(-0.00000001);
-        obj2f->SetMaximum(3.0);
+        obj2f->SetMaximum(5.0);
         obj2f->Draw("col");
         dummy.Draw("text,same");
         cQual->Update();

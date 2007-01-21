@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/01/19 10:35:50 $
- * $Revision: 1.65 $
+ * $Date: 2007/01/19 13:27:09 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -272,36 +272,9 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
   }
 
-  uint64_t bits03 = 0;
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR");
-
   EcalLogicID ecid;
   MonPedestalsOnlineDat p;
   map<EcalLogicID, MonPedestalsOnlineDat> dataset;
-
-  map<EcalLogicID, RunCrystalErrorsDat> mask;
-
-  if ( econn ) {
-    try {
-      RunIOV validIOV;
-      RunTag runtag = runiov->getRunTag();
-      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
-      econn->fetchValidDataSet(&mask, &validIOV, &runtag, runiov->getRunNumber());
-      cout << "Attached to run: " << validIOV.getRunNumber() << endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  } else {
-    try {
-      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
-      EcalErrorMaskFile::fetchDataSet(&mask);
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    } 
-  }
 
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
@@ -343,10 +316,11 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
         p.setADCMeanG12(mean03);
         p.setADCRMSG12(rms03);
 
-        if ( meg03_[ism-1]  && meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-           p.setTaskStatus(true);
+        if ( meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ie, ip )) % 3 == 1 ) {
+          p.setTaskStatus(true);
         } else {
-           p.setTaskStatus(false);
+          p.setTaskStatus(false);
+          status = status && false;
         }
 
         int ic = (ip-1) + 20*(ie-1) + 1;
@@ -355,37 +329,9 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
           try {
             ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset[ecid] = p;
-
-            if ( mask.size() != 0 ) {
-              map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask.find(ecid);
-              if ( m != mask.end() ) {
-                if ( (m->second).getErrorBits() & bits03 ) {
-                  if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
-                }
-              }
-            }
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
           }
-        } else {
-          ecid = EcalLogicID("local", 10000*(ism-1) + ic);
-
-          if ( mask.size() != 0 ) {
-            map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask.find(ecid);
-            if ( m != mask.end() ) {
-              if ( (m->second).getErrorBits() & bits03 ) {
-                if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
-              }
-            }
-          }
-        }
-
-        if ( meg03_[ism-1] &&
-             ( meg03_[ism-1]->getBinContent( ie, ip ) == 1. ||
-               meg03_[ism-1]->getBinContent( ie, ip ) == 3. ) ) {
-          status = status && true;
-        } else {
-          status = status && false;
         }
 
       }
@@ -524,6 +470,16 @@ void EBPedestalOnlineClient::analyze(void){
     if ( verbose_ ) cout << "EBPedestalOnlineClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
+  uint64_t bits03 = 0;
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_WARNING");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_WARNING");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR");
+
+  map<EcalLogicID, RunCrystalErrorsDat> mask;
+
+  EcalErrorMaskFile::fetchDataSet(&mask);
+
   Char_t histo[200];
 
   MonitorElement* me;
@@ -588,6 +544,28 @@ void EBPedestalOnlineClient::analyze(void){
 
         }
 
+        // masking
+
+        if ( mask.size() != 0 ) {
+          map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
+          for (m = mask.begin(); m != mask.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            int ic = (ip-1) + 20*(ie-1) + 1;
+
+            if ( ecid.getID1() == ism && ecid.getID2() == ic ) {
+              if ( (m->second).getErrorBits() & bits03 ) {
+                if ( meg03_[ism-1] ) {
+                  float val = meg03_[ism-1]->getBinContent(ie, ip);
+                  meg03_[ism-1]->setBinContent( ie, ip, val+3 );
+                }
+              }
+            }
+
+          }
+        }
+
       }
     }
 
@@ -641,7 +619,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
 
   const double histMax = 1.e15;
 
-  int pCol3[4] = { 2, 3, 5, 1 };
+  int pCol3[6] = { 2, 3, 5, 1, 1, 1 };
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for ( int i = 0; i < 68; i++ ) {
@@ -688,13 +666,13 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
 
       cQual->cd();
       gStyle->SetOptStat(" ");
-      gStyle->SetPalette(4, pCol3);
+      gStyle->SetPalette(6, pCol3);
       obj2f->GetXaxis()->SetNdivisions(17);
       obj2f->GetYaxis()->SetNdivisions(4);
       cQual->SetGridx();
       cQual->SetGridy();
       obj2f->SetMinimum(-0.00000001);
-      obj2f->SetMaximum(3.0);
+      obj2f->SetMaximum(5.0);
       obj2f->Draw("col");
       dummy.Draw("text,same");
       cQual->Update();
