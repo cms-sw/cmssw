@@ -1,11 +1,11 @@
-// $Id: EcalErrorMaskFile.cc,v 1.14 2007/01/19 13:13:10 benigno Exp $
+// $Id: EcalErrorMaskFile.cc,v 1.15 2007/01/19 14:15:34 benigno Exp $
 
 /*!
   \file EcalErrorMaskFile.cc
   \brief Error mask from text file
   \author B. Gobbo 
-  \version $Revision: 1.14 $
-  \date $Date: 2007/01/19 13:13:10 $
+  \version $Revision: 1.15 $
+  \date $Date: 2007/01/19 14:15:34 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
@@ -237,9 +237,9 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 	return;
       }
       int it; is >> it;
-      if( it < 1 || it > 2 ) {
+      if( it < 69 || it > 70 ) {
 	std::ostringstream os;
-	os << "line " << linecount << ": IT must be 1 or 2" << std::ends;
+	os << "line " << linecount << ": IT must be 69 or 70" << std::ends;
 	throw( std::runtime_error( os.str() ) );
 	return;
       }
@@ -257,7 +257,7 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 	throw( std::runtime_error( os.str() ) );
 	return;
       }
-      EcalLogicID id = EcalLogicID( "local", 10*(sm-1)+it );
+      EcalLogicID id = EcalLogicID( "local", 100*(sm-1)+it );
       std::map<EcalLogicID, RunMemTTErrorsDat>::iterator i = EcalErrorMaskFile::mapMemTTErrors_.find( id );
       if( i != mapMemTTErrors_.end() ) {
 	uint64_t oldBitmask = (i->second).getErrorBits();
