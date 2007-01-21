@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/01/18 23:40:30 $
- * $Revision: 1.118 $
+ * $Date: 2007/01/20 18:37:59 $
+ * $Revision: 1.119 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -594,9 +594,9 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   }
 
   uint64_t bits01 = 0;
-  bits01 |= EcalErrorDictionary::getMask("CH_ID_ERROR");
-  bits01 |= EcalErrorDictionary::getMask("CH_GAIN_ZERO_ERROR");
-  bits01 |= EcalErrorDictionary::getMask("CH_GAIN_SWITCH_ERROR");
+  bits01 |= EcalErrorDictionary::getMask("CRYSTAL_ID_ERROR");
+  bits01 |= EcalErrorDictionary::getMask("CRYSTAL_GAIN_ZERO_ERROR");
+  bits01 |= EcalErrorDictionary::getMask("CRYSTAL_GAIN_SWITCH_ERROR");
 
   uint64_t bits02 = 0;
   bits02 |= EcalErrorDictionary::getMask("TT_ID_ERROR");
@@ -729,6 +729,10 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
+        int iet = 1 + ((ie-1)/5);
+        int ipt = 1 + ((ip-1)/5);
+        int itt = (ipt-1) + 4*(iet-1) + 1;
+
         if ( econn ) {
           try {
             ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
@@ -738,6 +742,19 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
               map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
               if ( m != mask1.end() ) {
                 if ( (m->second).getErrorBits() & bits01 ) {
+                  if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 3 );
+                  val = true;
+                }
+              }
+            }
+
+            ecid = econn->getEcalLogicID("EB_trigger_tower", ism, itt);
+
+            if ( mask2.size() != 0 ) {
+              map<EcalLogicID, RunTTErrorsDat>::const_iterator m = mask2.find(ecid);
+              if ( m != mask2.end() ) {
+                if ( (m->second).getErrorBits() & bits02 ) {
+                  if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 3 );
                   val = true;
                 }
               }
@@ -752,6 +769,19 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
             if ( m != mask1.end() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
+                if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 3 );
+                val = true;
+              }
+            }
+          }
+
+          ecid = EcalLogicID("local", 100*(ism-1) + itt);
+
+          if ( mask2.size() != 0 ) {
+            map<EcalLogicID, RunTTErrorsDat>::const_iterator m = mask2.find(ecid);
+            if ( m != mask2.end() ) {
+              if ( (m->second).getErrorBits() & bits02 ) {
+                if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 3 );
                 val = true;
               }
             }
@@ -842,7 +872,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             if ( mask2.size() != 0 ) {
               map<EcalLogicID, RunTTErrorsDat>::const_iterator m = mask2.find(ecid);
               if ( m != mask2.end() ) {
-                if ( (m->second).getErrorBits() & bits01 ) {
+                if ( (m->second).getErrorBits() & bits02 ) {
                   val = true;
                 }
               }
@@ -931,6 +961,9 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         int ic = EBIntegrityClient::chNum[ (ie-1)%5 ][ (ip-1) ] + (ie-1)/5 * 25;
 
+        int iet = 1 + ((ie-1)/5);
+        int itt = 68 + iet;
+
         if ( econn ) {
           try {
             ecid = econn->getEcalLogicID("EB_mem_channel", ism, ic);
@@ -940,6 +973,19 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
               map<EcalLogicID, RunMemChErrorsDat>::const_iterator m = mask4.find(ecid);
               if ( m != mask4.end() ) {
                 if ( (m->second).getErrorBits() & bits01 ) {
+                  if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 3 );
+                  val = true;
+                }
+              }
+            }
+
+            ecid = econn->getEcalLogicID("EB_mem_TT", ism, itt);
+
+            if ( mask5.size() != 0 ) {
+              map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m = mask5.find(ecid);
+              if ( m != mask5.end() ) {
+                if ( (m->second).getErrorBits() & bits02 ) {
+                  if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 3 );
                   val = true;
                 }
               }
@@ -954,6 +1000,19 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             map<EcalLogicID, RunMemChErrorsDat>::const_iterator m = mask4.find(ecid);
             if ( m != mask4.end() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
+                if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 3 );
+                val = true;
+              }
+            }
+          }
+
+          ecid = EcalLogicID("local", 100*(ism-1) + itt);
+
+          if ( mask5.size() != 0 ) {
+            map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m = mask5.find(ecid);
+            if ( m != mask5.end() ) {
+              if ( (m->second).getErrorBits() & bits02 ) {
+                if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 3 );
                 val = true;
               }
             }
@@ -1052,7 +1111,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           cerr << e.what() << endl;
         }
       } else {
-        ecid = EcalLogicID("local", 10*(ism-1) + iet);
+        ecid = EcalLogicID("local", 100*(ism-1) + iet);
 
         if ( mask5.size() != 0 ) {
           map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m = mask5.find(ecid);
@@ -2247,8 +2306,8 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 }
 
 const int  EBIntegrityClient::chNum [5][5] = {
-  {1,2, 3, 4, 5},
-  {10, 9, 8, 7, 6},
+  { 1,  2,  3,  4,  5},
+  {10,  9,  8,  7,  6},
   {11, 12, 13, 14, 15},
   {20, 19, 18, 17, 16},
   {21, 22, 23, 24, 25}
