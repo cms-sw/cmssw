@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/01/21 11:26:55 $
- * $Revision: 1.121 $
+ * $Date: 2007/01/21 11:36:17 $
+ * $Revision: 1.122 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1108,7 +1108,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           cerr << e.what() << endl;
         }
       } else {
-        ecid = EcalLogicID("local", 100*(ism-1) + iet);
+        ecid = EcalLogicID("local", 100*(ism-1) + itt);
 
         if ( mask4.size() != 0 ) {
           map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m = mask4.find(ecid);
