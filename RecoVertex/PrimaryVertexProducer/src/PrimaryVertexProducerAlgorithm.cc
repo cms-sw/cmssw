@@ -41,7 +41,11 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
   fUseBeamConstraint = conf.getParameter<bool>("useBeamConstraint");
   fVerbose           = conf.getUntrackedParameter<bool>("verbose", false);
   std::string fitter = conf.getParameter<std::string>("fitter");
-  if (fitter=="KalmanVertexFitter") {
+  std::string finder = conf.getParameter<std::string>("finder");
+  fapply_finder = false;
+  if (finder == "TrimmedKalmanFinder") {
+    fapply_finder = true;
+  } else if (fitter=="KalmanVertexFitter") {
     theFitter=new KalmanVertexFitter();
   }else if( fitter=="AdaptiveVertexFitter") {
     theFitter=new AdaptiveVertexFitter();
@@ -100,6 +104,10 @@ PrimaryVertexProducerAlgorithm::~PrimaryVertexProducerAlgorithm()
 vector<TransientVertex> 
 PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tracks) const
 {
+  
+  if ( fapply_finder) {
+    return theFinder.vertices( tracks );
+  }
   vector<TransientVertex> pvs;
   try {
     // select tracks

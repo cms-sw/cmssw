@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducerAlgorithm.h,v 1.2 2006/09/12 12:38:23 werdmann Exp $
+// $Id: PrimaryVertexProducerAlgorithm.h,v 1.3 2006/09/29 11:26:57 werdmann Exp $
 //
 //
 
@@ -61,5 +61,6 @@ private:
   bool fVerbose;
   bool fUseBeamConstraint;
   VertexFitter *theFitter;
+  bool fapply_finder;
 
 };
