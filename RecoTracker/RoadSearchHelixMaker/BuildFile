@@ -16,8 +16,8 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/CommonTopologies>
 <use name=Geometry/Records>
+<use name=Geometry/Surface>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=Geometry/Vector>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
 <use name=TrackingTools/PatternTools>
@@ -33,5 +33,6 @@
   <use name=MagneticField/Engine>
   <use name=clhep>
   <lib name=RecoTrackerRoadSearchHelixMaker>
+  <use name=Geometry/Surface>
 </export>
 

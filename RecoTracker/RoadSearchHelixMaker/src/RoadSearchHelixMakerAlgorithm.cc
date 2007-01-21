@@ -8,8 +8,8 @@
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/11/10 21:52:33 $
-// $Revision: 1.7 $
+// $Date: 2007/01/15 22:16:28 $
+// $Revision: 1.8 $
 //
 
 #include <vector>
@@ -27,13 +27,14 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/Surface/interface/Surface.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/Vector/interface/LocalPoint.h"
-
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
@@ -46,6 +47,11 @@
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+
 RoadSearchHelixMakerAlgorithm::RoadSearchHelixMakerAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
 }
 
@@ -57,7 +63,7 @@ void RoadSearchHelixMakerAlgorithm::run(const TrackCandidateCollection* input,
 					reco::TrackCollection &output)
 {
 
-  edm::LogInfo("RoadSearch") << "Input of " << input->size() << " track candidates"; 
+  edm::LogInfo("RoadSearch") << "Input of " << input->size() << " track candidate(s)."; 
 
   //
   //  no track candidates - nothing to try fitting
@@ -103,56 +109,38 @@ void RoadSearchHelixMakerAlgorithm::run(const TrackCandidateCollection* input,
     std::vector<DcxHit*> listohits; 
 
     for ( TrackCandidate::const_iterator recHit = recHitRange.first; recHit != recHitRange.second; ++recHit ) {
-      const TrackingRecHit* temp_hit = &(*recHit);
-      GlobalPoint hit_global_pos = tracker->idToDetUnit(temp_hit->geographicalId())->surface().toGlobal(temp_hit->localPosition());
-      DetId idi = temp_hit->geographicalId();
-      if (isBarrelSensor(idi)){
-	const RectangularStripTopology *topi = 
-	  dynamic_cast<const RectangularStripTopology*>(&(tracker->idToDetUnit(idi)->topology()));
-	double iLength = topi->stripLength();
-	LocalPoint temp_lpos = temp_hit->localPosition();
+      DetId recHitId = recHit->geographicalId();
+      const GeomDet *recHitGeomDet = tracker->idToDet(recHitId);
+      GlobalPoint hit_global_pos = recHitGeomDet->surface().toGlobal(recHit->localPosition());
+      // only for TIB and TOB (for now ... )
+      if ( (unsigned int)recHitId.subdetId() == StripSubdetector::TIB ||
+	   (unsigned int)recHitId.subdetId() == StripSubdetector::TOB ) {
+	const GeomDetUnit *recHitGeomDetUnit;
+	// take rphi sensor in case of matched rechit to determine topology
+	const GluedGeomDet *recHitGluedGeomDet = dynamic_cast<const GluedGeomDet*>(recHitGeomDet);
+	if ( recHitGluedGeomDet != 0 ) {
+	  recHitGeomDetUnit = recHitGluedGeomDet->monoDet();
+	} else {
+	  recHitGeomDetUnit = tracker->idToDetUnit(recHitId);
+	}
+	const RectangularStripTopology *recHitTopology = 
+	  dynamic_cast<const RectangularStripTopology*>(&(recHitGeomDetUnit->topology()));
+	double iLength = recHitTopology->stripLength();
+	LocalPoint temp_lpos = recHit->localPosition();
 	LocalPoint temp_lpos_f(temp_lpos.x(),temp_lpos.y()+iLength/2.0,temp_lpos.z());
 	LocalPoint temp_lpos_b(temp_lpos.x(),temp_lpos.y()-iLength/2.0,temp_lpos.z());
-	GlobalPoint temp_gpos_f = tracker->idToDetUnit(temp_hit->geographicalId())->surface().toGlobal(temp_lpos_f);
-	GlobalPoint temp_gpos_b = tracker->idToDetUnit(temp_hit->geographicalId())->surface().toGlobal(temp_lpos_b);
+	GlobalPoint temp_gpos_f = recHitGeomDet->surface().toGlobal(temp_lpos_f);
+	GlobalPoint temp_gpos_b = recHitGeomDet->surface().toGlobal(temp_lpos_b);
 	GlobalVector fir_uvec((temp_gpos_f.x()-temp_gpos_b.x())/iLength,
 			      (temp_gpos_f.y()-temp_gpos_b.y())/iLength,(temp_gpos_f.z()-temp_gpos_b.z())/iLength);
 	DcxHit* try_me = new DcxHit(hit_global_pos.x(), hit_global_pos.y(), hit_global_pos.z(), 
 				    fir_uvec.x(), fir_uvec.y(), fir_uvec.z());
 	listohits.push_back(try_me);
-      }else{
-	const TrapezoidalStripTopology *topi = 
-	  dynamic_cast<const TrapezoidalStripTopology*>(&(tracker->idToDetUnit(idi)->topology()));
-	double iLength = topi->stripLength();
-	LocalPoint temp_lpos = temp_hit->localPosition();
-	LocalPoint temp_lpos_f(temp_lpos.x(),temp_lpos.y()+iLength/2.0,temp_lpos.z());
-	LocalPoint temp_lpos_b(temp_lpos.x(),temp_lpos.y()-iLength/2.0,temp_lpos.z());
-	GlobalPoint temp_gpos_f = tracker->idToDetUnit(temp_hit->geographicalId())->surface().toGlobal(temp_lpos_f);
-	GlobalPoint temp_gpos_b = tracker->idToDetUnit(temp_hit->geographicalId())->surface().toGlobal(temp_lpos_b);
-	GlobalVector fir_uvec((temp_gpos_f.x()-temp_gpos_b.x())/iLength,
-			      (temp_gpos_f.y()-temp_gpos_b.y())/iLength,(temp_gpos_f.z()-temp_gpos_b.z())/iLength); // not used
-	DcxHit* try_me = new DcxHit(hit_global_pos.x(), hit_global_pos.y(), hit_global_pos.z(), 
-				    fir_uvec.x(), fir_uvec.y(), fir_uvec.z());
-	listohits.push_back(try_me);
-      }//make DcxHit from Barrel or Endcap sensor
+      }
     }
     DcxTrackCandidatesToTracks make_tracks(listohits,output, field);
   }//iterate over all track candidates
 
   edm::LogInfo("RoadSearch") << "Created " << output.size() << " tracks.";
-
-}
-
-bool RoadSearchHelixMakerAlgorithm::isBarrelSensor(DetId id) {
-
-  if ( (unsigned int)id.subdetId() == StripSubdetector::TIB ) {
-    return true;
-  } else if ( (unsigned int)id.subdetId() == StripSubdetector::TOB ) {
-    return true;
-  } else if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelBarrel ) {
-    return true;
-  } else {
-    return false;
-  }
 
 }
