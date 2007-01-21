@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/19 13:27:09 $
- * $Revision: 1.108 $
+ * $Date: 2007/01/19 14:15:40 $
+ * $Revision: 1.109 $
  * \author G. Della Ricca
  *
 */
@@ -1087,7 +1087,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
             cerr << e.what() << endl;
           }
         } else {
-          ecid = EcalLogicID("local", 10000*(ism-1) + ic);
+          ecid = EcalLogicID("local", 10000*ism+ic, ism, ic, 0);
 
           if ( mask1.size() != 0 ) {
             map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
@@ -1150,7 +1150,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
             cerr << e.what() << endl;
           }
         } else {
-          ecid = EcalLogicID("local", 10000*(ism-1) + ic);
+          ecid = EcalLogicID("local", 10000*ism+ic, ism, ic, 0);
 
           if ( mask1.size() != 0 ) {
             map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
@@ -1213,7 +1213,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
             cerr << e.what() << endl;
           }
         } else {
-          ecid = EcalLogicID("local", 10000*(ism-1) + ic);
+          ecid = EcalLogicID("local", 10000*ism+ic, ism, ic, 0);
 
           if ( mask1.size() != 0 ) {
             map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
@@ -1277,7 +1277,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
             cerr << e.what() << endl;
           }
         } else {
-          ecid = EcalLogicID("local", 10000*(ism-1) + ic);
+          ecid = EcalLogicID("local", 10000*ism+ic, ism, ic, 0);
 
           if ( mask1.size() != 0 ) {
             map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
@@ -1565,7 +1565,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           cerr << e.what() << endl;
         }
       } else {
-        ecid = EcalLogicID("local", 100*(ism-1) + i);
+        ecid = EcalLogicID("local", 10000*ism+(i-1), ism, (i-1), 0);
 
         if ( mask2.size() != 0 ) {
           map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
@@ -1633,7 +1633,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           cerr << e.what() << endl;
         }
       } else {
-        ecid = EcalLogicID("local", 100*(ism-1) + i);
+        ecid = EcalLogicID("local", 10000*ism+(i-1), ism, (i-1), 0);
 
         if ( mask2.size() != 0 ) {
           map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
@@ -1701,7 +1701,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           cerr << e.what() << endl;
         }
       } else { 
-        ecid = EcalLogicID("local", 100*(ism-1) + i);
+        ecid = EcalLogicID("local", 10000*ism+(i-1), ism, (i-1), 0);
 
         if ( mask2.size() != 0 ) {
           map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
@@ -1769,7 +1769,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           cerr << e.what() << endl;
         }
       } else { 
-        ecid = EcalLogicID("local", 100*(ism-1) + i);
+        ecid = EcalLogicID("local", 10000*ism+(i-1), ism, (i-1), 0);
 
         if ( mask2.size() != 0 ) {
           map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
