@@ -192,7 +192,7 @@ public:
     {
       for(int i = 0; i < theSize; ++i)
       { 
-        frame[i] += uncorrelated[i]*theNorma[i]; }
+        frame[i] += uncorrelated[i]; }
     }
     else 
     {
@@ -203,26 +203,30 @@ public:
       // stuff 'em in the frame
       for(int i = 0; i < theSize; ++i)
       {
-        frame[i] += (correlated[i]*theNorma[i]);
+        frame[i] += correlated[i];
       }
     }
   }
 
 
 
-  void computeNormalization();
+  void computeDecomposition();
 
   void checkOffDiagonal(bool & isDiagonal_);
 
   // for test purpose
+  const noiseMath::SparseMatrix<double> & covmatrix() {
+    return theCovarianceMatrix;
+  }
+
   const noiseMath::SparseMatrix<double> & matrix() const {
     return theMatrix;
   }
 private:
+  noiseMath::SparseMatrix<double> theCovarianceMatrix;
   noiseMath::SparseMatrix<double> theMatrix;
   mutable RandGaussQ theRandomGaussian;
   int theSize; 
-  std::valarray<double> theNorma;
   bool isDiagonal_;
 
 };
