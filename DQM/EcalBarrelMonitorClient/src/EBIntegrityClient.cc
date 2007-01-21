@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/01/20 18:37:59 $
- * $Revision: 1.119 $
+ * $Date: 2007/01/21 11:04:32 $
+ * $Revision: 1.120 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -594,9 +594,9 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   }
 
   uint64_t bits01 = 0;
-  bits01 |= EcalErrorDictionary::getMask("CRYSTAL_ID_ERROR");
-  bits01 |= EcalErrorDictionary::getMask("CRYSTAL_GAIN_ZERO_ERROR");
-  bits01 |= EcalErrorDictionary::getMask("CRYSTAL_GAIN_SWITCH_ERROR");
+  bits01 |= EcalErrorDictionary::getMask("CH_ID_ERROR");
+  bits01 |= EcalErrorDictionary::getMask("CH_GAIN_ZERO_ERROR");
+  bits01 |= EcalErrorDictionary::getMask("CH_GAIN_SWITCH_ERROR");
 
   uint64_t bits02 = 0;
   bits02 |= EcalErrorDictionary::getMask("TT_ID_ERROR");
