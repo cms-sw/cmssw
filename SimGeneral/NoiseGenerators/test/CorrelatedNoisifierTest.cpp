@@ -1,5 +1,6 @@
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "SimGeneral/NoiseGenerators/interface/NoiseStatistics.h"
+#include "CommonTools/Statistics/interface/AutocorrelationAnalyzer.h"
 
 class BoringSignal
 {
@@ -10,35 +11,48 @@ public:
     }
 
   double & operator[](int i) { return theVector[i]; }
+  const double & operator[](int i) const  { return theVector[i]; }
   int size() const {return theVector.size();}
 private:
   std::vector<double> theVector;
 };
 
 
-int main() {
-  //typedef accumulator_set<double, stats<tag::mean, tag::variance>, int > Stats
-  //Stats stats0, stats1;
+int main()
+{
+ HepSymMatrix input (10);
+  for (int k = 0; k < 10; k++) {
+    for (int kk = k; kk < 10; kk++) {
+      input[k][kk] =
+        kk == k ? 5
+        : kk == k+1 ? -0.2
+        : kk == k+2 ? -0.1
+        : 0.;
+    }
+  }
+  std::cout << std::endl << "Initial correlations:" << std::endl << input;
 
-  HepSymMatrix matrix(2);
-  matrix[0][0] = 16;
-  matrix[0][1] = 4;
-  matrix[1][1] = 9;
+  CorrelatedNoisifier noisifier(input);
 
-  CorrelatedNoisifier noisifier(matrix);
+  AutocorrelationAnalyzer analyzer(10);
 
-  NoiseStatistics stats0("Bin 0", 0., 4.);
-  NoiseStatistics stats1("Bin 1", 0., 3.);
-
-  for(int i = 0; i < 100000; ++i)
-  {
-    BoringSignal signal(2);
-    noisifier.noisify(signal);
-    stats0.addEntry(signal[0]);
-    stats1.addEntry(signal[1]);
+  int nTotal = 4000000;
+  for (int i=0; i<nTotal; i++) {
+    BoringSignal samples(10);
+    noisifier.noisify(samples);
+    analyzer.analyze(samples);
   }
 
-
+  std::cout << analyzer << std::endl;
+  HepSymMatrix input2 (10, 0);
+  for (int k = 0; k < 10; k++) {
+    for (int kk = k; kk < 10; kk++) {
+      for (int ix = 0; ix < 10; ix++) {
+        input2 [k][kk] += input[k][ix]*input[ix][kk];
+      }
+    }
+  }
+  std::cout << std::endl << "SQUARE of initial matrix:" << std::endl << input2;
 }
 
 
