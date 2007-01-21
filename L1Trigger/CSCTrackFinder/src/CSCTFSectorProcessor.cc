@@ -90,7 +90,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
 	  CSCDetId id(itr->getDetId().rawId());
 	  unsigned fpga = (id.station() == 1) ? CSCTriggerNumbering::triggerSubSectorFromLabels(id) - 1 : id.station();
 	  
-	  lclphidat lclPhi = srLUTs_[FPGAs[fpga]]->localPhi(itr->getStrip(), itr->getCLCTPattern(), itr->getQuality(), itr->getBend());
+	  lclphidat lclPhi = srLUTs_[FPGAs[fpga]]->localPhi(itr->getStrip(), itr->getPattern(), itr->getQuality(), itr->getBend());
 	  gblphidat gblPhi = srLUTs_[FPGAs[fpga]]->globalPhiME(lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
 	  gbletadat gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
 	  itr->setEtaPacked(gblEta.global_eta);
