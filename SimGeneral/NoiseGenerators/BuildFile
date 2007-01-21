@@ -1,7 +1,9 @@
 <use name=clhep>
 <use name=gsl>
+<use name=FWCore/Utilities>
 <export>
    <lib name=SimGeneralNoiseGenerators>
+   <use name=FWCore/Utilities>
    <use name=clhep>	
    <use name=gsl>
 </export>
