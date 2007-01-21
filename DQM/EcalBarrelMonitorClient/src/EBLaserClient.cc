@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/19 14:15:40 $
- * $Revision: 1.109 $
+ * $Date: 2007/01/21 17:56:20 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  *
 */
@@ -844,12 +844,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
   }
 
-  uint64_t bits01 = 0;
-  bits01 |= EcalErrorDictionary::getMask("LASER_MEAN_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("LASER_RMS_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("LASER_MEAN_OVER_PN_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("LASER_RMS_OVER_PN_WARNING");
-
   EcalLogicID ecid;
   MonLaserBlueDat apd_bl;
   map<EcalLogicID, MonLaserBlueDat> dataset1_bl;
@@ -859,27 +853,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   map<EcalLogicID, MonLaserIRedDat> dataset1_ir;
   MonLaserRedDat apd_rd;
   map<EcalLogicID, MonLaserRedDat> dataset1_rd;
-
-  map<EcalLogicID, RunCrystalErrorsDat> mask1;
-
-  if ( econn ) {
-    try {
-      RunIOV validIOV;
-      RunTag runtag = runiov->getRunTag();
-      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
-      econn->fetchValidDataSet(&mask1, &validIOV, &runtag, runiov->getRunNumber());
-      cout << "Attached to run: " << validIOV.getRunNumber() << endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  } else {
-    try {
-      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
-      EcalErrorMaskFile::fetchDataSet(&mask1);
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  }
 
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
@@ -1062,10 +1035,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         apd_bl.setAPDOverPNMean(mean02);
         apd_bl.setAPDOverPNRMS(rms02);
 
-        if ( meg01_[ism-1]->getBinContent( ie, ip ) == 1. ) {
+        if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ie, ip )) % 3 == 1. ) {
           apd_bl.setTaskStatus(true);
         } else {
           apd_bl.setTaskStatus(false);
+          status = status && false;
         }
 
         int ic = (ip-1) + 20*(ie-1) + 1;
@@ -1074,35 +1048,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           try {
             ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1_bl[ecid] = apd_bl;
-
-            if ( mask1.size() != 0 ) {
-              map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
-              if ( m != mask1.end() ) { 
-                if ( (m->second).getErrorBits() & bits01 ) {
-                  if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 3 );
-                } 
-              }
-            }
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
           }
-        } else {
-          ecid = EcalLogicID("local", 10000*ism+ic, ism, ic, 0);
-
-          if ( mask1.size() != 0 ) {
-            map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
-            if ( m != mask1.end() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 3 );
-              }
-            }
-          }
-        }
-
-        if ( meg01_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-          status = status && true;
-        } else {
-          status = status && false;
         }
 
       }
@@ -1125,10 +1073,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         apd_ir.setAPDOverPNMean(mean04);
         apd_ir.setAPDOverPNRMS(rms04);
 
-        if ( meg02_[ism-1]->getBinContent( ie, ip) == 1. ) {
+        if ( meg02_[ism-1] && int(meg02_[ism-1]->getBinContent( ie, ip )) % 3 == 1. ) {
           apd_ir.setTaskStatus(true);
         } else {
           apd_ir.setTaskStatus(false);
+          status = status && false;
         }
 
         int ic = (ip-1) + 20*(ie-1) + 1;
@@ -1137,35 +1086,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           try {
             ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1_ir[ecid] = apd_ir;
-
-            if ( mask1.size() != 0 ) {
-              map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
-              if ( m != mask1.end() ) {
-                if ( (m->second).getErrorBits() & bits01 ) {
-                  if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 3 );
-                }
-              }
-            }
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
           }
-        } else {
-          ecid = EcalLogicID("local", 10000*ism+ic, ism, ic, 0);
-
-          if ( mask1.size() != 0 ) {
-            map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
-            if ( m != mask1.end() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 3 );
-              }
-            }
-          }
-        }
-
-        if ( meg02_[ism-1]->getBinContent( ie, ip) == 1. ) {
-          status = status && true;
-        } else {
-          status = status && false;
         }
 
       }
@@ -1188,10 +1111,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         apd_gr.setAPDOverPNMean(mean06);
         apd_gr.setAPDOverPNRMS(rms06);
 
-        if ( meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
+        if ( meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ie, ip )) % 3 == 1. ) {
           apd_gr.setTaskStatus(true);
         } else {
           apd_gr.setTaskStatus(false);
+          status = status && false;
         }
 
         int ic = (ip-1) + 20*(ie-1) + 1;
@@ -1200,35 +1124,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           try {
             ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1_gr[ecid] = apd_gr;
-
-            if ( mask1.size() != 0 ) {
-              map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
-              if ( m != mask1.end() ) { 
-                if ( (m->second).getErrorBits() & bits01 ) {
-                  if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
-                }
-              }
-            }
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
           }
-        } else {
-          ecid = EcalLogicID("local", 10000*ism+ic, ism, ic, 0);
-
-          if ( mask1.size() != 0 ) {
-            map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
-            if ( m != mask1.end() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 3 );
-              }
-            }
-          }
-        }
-
-        if ( meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-          status = status && true;
-        } else {
-          status = status && false;
         }
 
       }
@@ -1251,10 +1149,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         apd_rd.setAPDOverPNMean(mean08);
         apd_rd.setAPDOverPNRMS(rms08);
 
-        if ( meg04_[ism-1]->getBinContent( ie, ip ) == 1. ) {
+        if ( meg04_[ism-1] && int(meg04_[ism-1]->getBinContent( ie, ip )) % 3 == 1. ) {
           apd_rd.setTaskStatus(true);
         } else {
           apd_rd.setTaskStatus(false);
+          status = status && false;
         }
 
         int ic = (ip-1) + 20*(ie-1) + 1;
@@ -1263,36 +1162,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           try {
             ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1_rd[ecid] = apd_rd;
-
-
-            if ( mask1.size() != 0 ) {
-              map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
-              if ( m != mask1.end() ) { 
-                if ( (m->second).getErrorBits() & bits01 ) {
-                  if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ie, ip, 3 );
-                }
-              }
-            }
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
           }
-        } else {
-          ecid = EcalLogicID("local", 10000*ism+ic, ism, ic, 0);
-
-          if ( mask1.size() != 0 ) {
-            map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m = mask1.find(ecid);
-            if ( m != mask1.end() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ie, ip, 3 );
-              }
-            }
-          }
-        }
-
-        if ( meg04_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-          status = status && true;
-        } else {
-          status = status && false;
         }
 
       }
@@ -1321,27 +1193,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   map<EcalLogicID, MonPNIRedDat> dataset2_ir;
   MonPNRedDat pn_rd;
   map<EcalLogicID, MonPNRedDat> dataset2_rd;
-
-  map<EcalLogicID, RunPNErrorsDat> mask2;
-
-  if ( econn ) {
-    try {
-      RunIOV validIOV;
-      RunTag runtag = runiov->getRunTag();
-      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
-      econn->fetchValidDataSet(&mask2, &validIOV, &runtag, runiov->getRunNumber());
-      cout << "Attached to run: " << validIOV.getRunNumber() << endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  } else {
-    try {
-      cout << "Fetching mask for run: " << runiov->getRunNumber() << "..." << endl;
-      EcalErrorMaskFile::fetchDataSet(&mask2);
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  }
 
   const float m_min_tot = 1000.;
   const float m_min_bin = 50.;
@@ -1552,28 +1403,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         try {
           ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset2_bl[ecid] = pn_bl;
-
-          if ( mask2.size() != 0 ) {
-            map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
-            if ( m != mask2.end() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                val = true;
-              }
-            }
-          } 
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
-        }
-      } else {
-        ecid = EcalLogicID("local", 10000*ism+(i-1), ism, (i-1), 0);
-
-        if ( mask2.size() != 0 ) {
-          map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
-          if ( m != mask2.end() ) {
-            if ( (m->second).getErrorBits() & bits01 ) {
-              val = true;
-            }
-          }
         }
       }
 
@@ -1620,28 +1451,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         try {
           ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset2_ir[ecid] = pn_ir;
-
-          if ( mask2.size() != 0 ) {
-            map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
-            if ( m != mask2.end() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                val = true;
-              }
-            }
-          }
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
-        }
-      } else {
-        ecid = EcalLogicID("local", 10000*ism+(i-1), ism, (i-1), 0);
-
-        if ( mask2.size() != 0 ) {
-          map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
-          if ( m != mask2.end() ) {
-            if ( (m->second).getErrorBits() & bits01 ) {
-              val = true;
-            }
-          }
         }
       }
 
@@ -1688,28 +1499,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         try {
           ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset2_gr[ecid] = pn_gr;
-
-          if ( mask2.size() != 0 ) {
-            map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
-            if ( m != mask2.end() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                val = true;
-              }
-            }
-          }
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
-        }
-      } else { 
-        ecid = EcalLogicID("local", 10000*ism+(i-1), ism, (i-1), 0);
-
-        if ( mask2.size() != 0 ) {
-          map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
-          if ( m != mask2.end() ) {
-            if ( (m->second).getErrorBits() & bits01 ) {
-              val = true;
-            }
-          }
         }
       }
 
@@ -1756,28 +1547,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         try {
           ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset2_rd[ecid] = pn_rd;
-
-          if ( mask2.size() != 0 ) {
-            map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
-            if ( m != mask2.end() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                val = true;
-              }
-            }
-          }
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
-        }
-      } else { 
-        ecid = EcalLogicID("local", 10000*ism+(i-1), ism, (i-1), 0);
-
-        if ( mask2.size() != 0 ) {
-          map<EcalLogicID, RunPNErrorsDat>::const_iterator m = mask2.find(ecid);
-          if ( m != mask2.end() ) {
-            if ( (m->second).getErrorBits() & bits01 ) {
-              val = true;
-            }
-          }
         }
       }
 
@@ -2546,6 +2317,18 @@ void EBLaserClient::analyze(void){
   if ( ievt_ % 10 == 0 ) {
     if ( verbose_ ) cout << "EBLaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
+
+  uint64_t bits01 = 0;
+  bits01 |= EcalErrorDictionary::getMask("LASER_MEAN_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("LASER_RMS_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("LASER_MEAN_OVER_PN_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("LASER_RMS_OVER_PN_WARNING");
+
+  map<EcalLogicID, RunCrystalErrorsDat> mask1;
+  map<EcalLogicID, RunPNErrorsDat> mask2;
+
+  EcalErrorMaskFile::fetchDataSet(&mask1);
+  EcalErrorMaskFile::fetchDataSet(&mask2);
 
   Char_t histo[200];
 
@@ -3467,6 +3250,40 @@ void EBLaserClient::analyze(void){
 
           }
 
+        }
+
+        // masking
+
+        if ( mask1.size() != 0 ) {
+          map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
+          for (m = mask1.begin(); m != mask1.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            int ic = (ip-1) + 20*(ie-1) + 1;
+
+            if ( ecid.getID1() == ism && ecid.getID2() == ic ) {
+              if ( (m->second).getErrorBits() & bits01 ) {
+                if ( meg01_[ism-1] ) {
+                  float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
+                  meg01_[ism-1]->setBinContent( ie, ip, val+3 );
+                }
+                if ( meg02_[ism-1] ) {
+                  float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
+                  meg02_[ism-1]->setBinContent( ie, ip, val+3 );
+                }
+                if ( meg03_[ism-1] ) {
+                  float val = int(meg03_[ism-1]->getBinContent(ie, ip)) % 3;
+                  meg03_[ism-1]->setBinContent( ie, ip, val+3 );
+                }
+                if ( meg04_[ism-1] ) {
+                  float val = int(meg04_[ism-1]->getBinContent(ie, ip)) % 3;
+                  meg04_[ism-1]->setBinContent( ie, ip, val+3 );
+                }
+              }
+            }
+
+          }
         }
 
       }
