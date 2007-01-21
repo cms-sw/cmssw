@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TestTrackAssociator.cc,v 1.3 2006/10/26 21:31:17 dmytro Exp $
+// $Id: TestTrackAssociator.cc,v 1.4 2006/12/19 01:01:01 dmytro Exp $
 //
 //
 
@@ -170,17 +170,21 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
       LogVerbatim("info") << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << tracksCI->momentum().perp() << " , " <<
 	tracksCI->momentum().eta() << " , " << tracksCI->momentum().phi() ;
       
-      // Simply get ECAL energy of the crossed crystals
-      if (useEcal_)
-	LogVerbatim("info") << "ECAL energy of crossed crystals: " << 
-	trackAssociator_.getEcalEnergy(iEvent, iSetup,
-				       trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex) )
-	  << " GeV" ;
+	if (1==2){ // it's just an example, and we don't need it for tests
+	   // Simply get ECAL energy of the crossed crystals
+	   if (useEcal_)
+	     LogVerbatim("info") << "ECAL energy of crossed crystals: " << 
+	     trackAssociator_.getEcalEnergy(iEvent, iSetup,
+					    trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex) )
+	       << " GeV" ;
+	}
 				       
       // Get HCAL energy in more generic way
       TrackAssociator::AssociatorParameters parameters;
       parameters.useEcal = useEcal_ ;
       parameters.useHcal = useHcal_ ;
+      parameters.useHO = useHcal_ ;
+      parameters.useCalo = useHcal_ ;
       parameters.useMuon = useMuon_ ;
       parameters.dRHcal = 0.03;
       parameters.dRHcal = 0.07;

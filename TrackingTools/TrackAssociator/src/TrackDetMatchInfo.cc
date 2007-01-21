@@ -172,3 +172,15 @@ double TrackDetMatchInfo::ecalTowerEnergy()
    return energy;
 }
 
+TrackDetMatchInfo::TrackDetMatchInfo():
+       trkGlobPosAtEcal(0,0,0)
+     , trkGlobPosAtHcal(0,0,0)
+     , trkGlobPosAtHO(0,0,0)
+     , isGoodEcal(false)
+     , isGoodHcal(false)
+     , isGoodCalo(false)
+     , isGoodHO(false)
+     , isGoodMuon(false)
+
+{
+}

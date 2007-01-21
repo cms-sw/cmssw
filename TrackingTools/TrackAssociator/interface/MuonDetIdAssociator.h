@@ -15,12 +15,13 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: MuonDetIdAssociator.h,v 1.2 2006/08/25 17:35:40 jribnik Exp $
+// $Id: MuonDetIdAssociator.h,v 1.1 2006/12/19 01:01:00 dmytro Exp $
 //
 //
 
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/MuonChamberMatch.h"
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -33,25 +34,9 @@ class MuonDetIdAssociator: public DetIdAssociator{
    
    virtual void setGeometry(const GlobalTrackingGeometry* ptr){ geometry_ = ptr; }
    
-   std::vector<MuonChamberMatch> getTrajectoryInMuonDetector(const FreeTrajectoryState& initialState,
-							     const float dRMuonPreselection,
-							     const float maxDistanceX,
-							     const float maxDistanceY);
    virtual const GeomDet* getGeomDet( const DetId& id );
 
  protected:
-   
-   virtual void reset_trajectory() { trajectory_.clear(); }
-   
-   // fly through the whole muon detector
-   virtual void propagateAll(const FreeTrajectoryState& initialState);
-   
-   // get fast to a given DetId surface using cached trajectory
-   virtual TrajectoryStateOnSurface propagate(const DetId);
-   
-   // calculate trajectory size 
-   virtual float trajectoryDeltaEta();
-   virtual float trajectoryDeltaPhi();
    
    virtual void check_setup();
    
@@ -64,20 +49,5 @@ class MuonDetIdAssociator: public DetIdAssociator{
    virtual bool insideElement(const GlobalPoint& point, const DetId& id);
 
    const GlobalTrackingGeometry* geometry_;
-   
-   static int sign (float number){
-      if (number ==0) return 0;
-      if (number == fabs(number))
-	return 1;
-      else
-	return -1;
-   }
-   
-   float distance(const Plane* plane, int index) {
-      if (index<0 || trajectory_.empty() || uint(index) >= trajectory_.size()) return 0;
-      return plane->localZ(trajectory_[index].freeState()->position());
-   }
-   
-   std::vector<TrajectoryStateOnSurface> trajectory_;
 };
 #endif

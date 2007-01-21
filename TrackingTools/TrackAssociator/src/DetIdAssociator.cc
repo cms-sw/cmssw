@@ -13,113 +13,13 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.7 2006/12/19 01:01:01 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.8 2007/01/20 17:29:48 dmytro Exp $
 //
 //
 
 
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 #include <map>
-
-
-// surfaces is a vector of GlobalPoint representing outermost point on a cylinder
-std::vector<GlobalPoint> DetIdAssociator::getTrajectory( FreeTrajectoryState& trajectoryState,
-							 const std::vector<GlobalPoint>& surfaces,
-							 const double etaOverlap)
-{
-   check_setup();
-   std::vector<GlobalPoint> trajectory;
-   TrajectoryStateOnSurface tSOSDest;
-   FreeTrajectoryState ftsCurrent = trajectoryState;
-
-   for(std::vector<GlobalPoint>::const_iterator surface_iter = surfaces.begin(); 
-       surface_iter != surfaces.end(); surface_iter++) {
-      PropagationTarget target;
-      // define limiting surfaces using some stuff, which is some
-      // weird pointer owning the object, so no need to delete objects
-      std::map<PropagationTarget, Surface*> map;
-      map[Barrel] = new Cylinder(Surface::PositionType(0,0,0),
-				 Surface::RotationType(), 
-				 double (surface_iter->perp()) );
-      map[ForwardEndcap] = new Plane(Surface::PositionType(0,0,surface_iter->z()),
-				     Surface::RotationType());
-      map[BackwardEndcap] = new Plane(Surface::PositionType(0,0,-surface_iter->z()),
-				      Surface::RotationType());
-      
-      LogTrace("StartingPoint")<< "Propagate from "<< "\n"
-	<< "\tx: " << trajectoryState.position().x()<< "\n"
-	<< "\ty: " << trajectoryState.position().y()<< "\n"
-	<< "\tz: " << trajectoryState.position().z()<< "\n"
-	<< "\tmomentum eta: " << trajectoryState.momentum().eta()<< "\n"
-	<< "\tmomentum phi: " << trajectoryState.momentum().phi()<< "\n"
-	<< "\tmomentum: " << trajectoryState.momentum().mag()<< "\n";
-      
-      // First propagate the track to the cylinder if |eta|<1, othewise to the endcap
-      // and correct depending on the result
-      if (fabs(trajectoryState.momentum().eta())<1)
-	target = Barrel;
-      else {
-	 if(trajectoryState.momentum().eta()>1)
-	   target = ForwardEndcap;
-	 else
-	   target = BackwardEndcap;
-      }
-      
-      tSOSDest = ivProp_->propagate(trajectoryState, *map[target]);
-      if (! tSOSDest.isValid()) {
-         LogTrace("FailedPropagation") << "Failed to propagate the track; moving on\n";
-         continue;
-      }
-      GlobalPoint point = tSOSDest.freeState()->position();
-
-      // if near the edge
-      if ( fabs(fabs(point.eta())-fabs(surface_iter->eta()))<etaOverlap ) {
-	 trajectory.push_back(point);
-	 if (target != Barrel)
-	   target = Barrel;
-	 else {
-	    if(trajectoryState.momentum().eta()>0)
-	      target = ForwardEndcap;
-	    else
-	      target = BackwardEndcap;
-	 }
-      } else {
-	 // If missed the target, propagate to other targets.
-	 PropagationTarget newTarget = target;
-	 if (point.perp() > surface_iter->perp())
-	   newTarget = Barrel; 
-	 if (point.z() > surface_iter->z())
-	   target = ForwardEndcap;
-	 if (point.z() < -surface_iter->z())
-	   target = BackwardEndcap;
-	 
-	 if(newTarget == target) {
-	    trajectoryState = *tSOSDest.freeState();
-	    trajectory.push_back(point);
-	    continue;
-	 }
-	 target = newTarget;
-      }
-      
-      tSOSDest = ivProp_->propagate(trajectoryState, *map[target]);
-      if (! tSOSDest.isValid()) {
-         LogTrace("FailedPropagation") << "Failed to propagate the track; moving on\n";
-         continue;
-      }
-      point = tSOSDest.freeState()->position();
-      
-      LogTrace("SuccessfullPropagation") << "Great, I reached something." << "\n"
-	<< "\tx: " << tSOSDest.freeState()->position().x() << "\n"
-	<< "\ty: " << tSOSDest.freeState()->position().y() << "\n"
-	<< "\tz: " << tSOSDest.freeState()->position().z() << "\n"
-	<< "\teta: " << tSOSDest.freeState()->position().eta() << "\n"
-	<< "\tphi: " << tSOSDest.freeState()->position().phi() << "\n";
-      
-      trajectory.push_back(point);
-   }
-   
-   return trajectory;
-}
 
 std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direction,
 							const int idR)

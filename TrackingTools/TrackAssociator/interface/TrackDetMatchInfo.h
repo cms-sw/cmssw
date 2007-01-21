@@ -3,12 +3,15 @@
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
+#include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "TrackingTools/TrackAssociator/interface/MuonChamberMatch.h"
 
 class TrackDetMatchInfo {
  public:
+   TrackDetMatchInfo();
    /// ECAL energy 
    double ecalEnergy();
    /// HCAL energy 
@@ -33,10 +36,18 @@ class TrackDetMatchInfo {
    int numberOfSegmentsInDetector(int detector) const;
      
    math::XYZPoint trkGlobPosAtEcal;
+   math::XYZPoint trkGlobPosAtHcal;
+   math::XYZPoint trkGlobPosAtHO;
+
    std::vector<EcalRecHit> ecalRecHits;
    std::vector<EcalRecHit> crossedEcalRecHits;
+
+   std::vector<HBHERecHit> hcalRecHits;
+   std::vector<HBHERecHit> crossedHcalRecHits;
    
-   math::XYZPoint trkGlobPosAtHcal;
+   std::vector<HORecHit> hoRecHits;
+   std::vector<HORecHit> crossedHORecHits;
+
    std::vector<CaloTower> towers;
    std::vector<CaloTower> crossedTowers;
    
@@ -47,6 +58,9 @@ class TrackDetMatchInfo {
 
    bool isGoodEcal;
    bool isGoodHcal;
+   bool isGoodCalo;
+   bool isGoodHO;
    bool isGoodMuon;
+   
 };
 #endif

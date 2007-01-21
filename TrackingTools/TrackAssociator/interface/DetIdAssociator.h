@@ -19,7 +19,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.h,v 1.4 2006/12/19 01:01:00 dmytro Exp $
+// $Id: DetIdAssociator.h,v 1.5 2007/01/20 17:29:47 dmytro Exp $
 //
 //
 
@@ -31,6 +31,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 
 #include <set>
 #include <vector>
@@ -45,12 +46,7 @@ class DetIdAssociator{
      :theMap_(0),nPhi_(nPhi),nEta_(nEta),etaBinSize_(etaBinSize),ivProp_(0){};
    
    virtual ~DetIdAssociator(){};
-   // get track trajectory for a set of limiting surfaces of given radius and Z.
-   // thetaOverlap defines a limit at which a track is propagated to both
-   // barrel and endcap if close to the edge between them.
-   virtual std::vector<GlobalPoint> getTrajectory( FreeTrajectoryState& ftsStart,
-						   const std::vector<GlobalPoint>& surfaces,
-						   const double etaOverlap = 0.1);
+   
    // find DetIds arround given direction
    // idR is a number of the adjacent bins to retrieve 
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint&, 
@@ -86,7 +82,7 @@ class DetIdAssociator{
      {
 	if (nEta_==0) throw cms::Exception("FatalError") << "Number of eta bins is not set.\n";
 	if (nPhi_==0) throw cms::Exception("FatalError") << "Number of phi bins is not set.\n";
-	if (ivProp_==0) throw cms::Exception("FatalError") << "Track propagator is not defined\n";
+	// if (ivProp_==0) throw cms::Exception("FatalError") << "Track propagator is not defined\n";
 	if (etaBinSize_==0) throw cms::Exception("FatalError") << "Eta bin size is not set.\n";
      }
    

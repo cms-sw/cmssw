@@ -16,7 +16,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.h,v 1.4 2006/09/01 17:22:07 jribnik Exp $
+// $Id: TrackAssociator.h,v 1.5 2006/12/19 01:01:00 dmytro Exp $
 //
 //
 
@@ -34,7 +34,10 @@
 #include "TrackingTools/TrackAssociator/interface/CaloDetIdAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/EcalDetIdAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/MuonDetIdAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/HcalDetIdAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/HODetIdAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h"
+#include "TrackingTools/TrackAssociator/interface/CachedTrajectory.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -63,6 +66,8 @@ class TrackAssociator {
 	 // match all sub-detectors by default
 	 useEcal = true;
 	 useHcal = true;
+	 useCalo = true;
+	 useHO = true;
 	 useMuon = true;
 	 useOldMuonMatching = true;
 	 muonMaxDistanceX = 5;
@@ -85,6 +90,8 @@ class TrackAssociator {
       double muonMaxDistanceY;
       bool useEcal;
       bool useHcal;
+      bool useHO;
+      bool useCalo;
       bool useMuon;
       bool useOldMuonMatching;
    };
@@ -101,7 +108,7 @@ class TrackAssociator {
    ///     (the cone origin is at (0,0,0))
    TrackDetMatchInfo            associate( const edm::Event&,
 					   const edm::EventSetup&,
-					   const FreeTrajectoryState&,
+					   const SteppingHelixStateInfo&,
 					   const AssociatorParameters& );
 
    /// associate ECAL only and return RecHits
@@ -151,16 +158,20 @@ class TrackAssociator {
    
  private:
    void       fillEcal( const edm::Event&,
-			const edm::EventSetup&,
 			TrackDetMatchInfo&, 
-			FreeTrajectoryState&,
-			const double);
+			const AssociatorParameters&);
    
    void fillCaloTowers( const edm::Event&,
-			const edm::EventSetup&,
 			TrackDetMatchInfo&,
-			FreeTrajectoryState&,
-			const double);
+			const AssociatorParameters&);
+   
+   void       fillHcal( const edm::Event&,
+			TrackDetMatchInfo&,
+			const AssociatorParameters&);
+   
+   void         fillHO( const edm::Event&,
+			TrackDetMatchInfo&,
+			const AssociatorParameters&);
    
    void fillDTSegments( const edm::Event&,
 			const edm::EventSetup&,
@@ -175,14 +186,17 @@ class TrackAssociator {
 			const AssociatorParameters&);
   
    void fillMuonSegments( const edm::Event&,
-			  const edm::EventSetup&,
 			  TrackDetMatchInfo&,
-			  FreeTrajectoryState&,
 			  const AssociatorParameters&);
    
    void addMuonSegmentMatch(MuonChamberMatch&,
 			    const RecSegment*,
 			    const AssociatorParameters&);
+   
+   void getMuonChamberMatches(std::vector<MuonChamberMatch>& matches,
+			      const float dRMuonPreselection,
+			      const float maxDistanceX,
+			      const float maxDistanceY);
   
    void           init( const edm::EventSetup&);
    
@@ -208,11 +222,12 @@ class TrackAssociator {
    
    Propagator* ivProp_;
    Propagator* defProp_;
+   CachedTrajectory cachedTrajectory_;
    bool useDefaultPropagator_;
-   int debug_;
-   std::vector<std::vector<std::set<uint32_t> > >* caloTowerMap_;
    
    EcalDetIdAssociator ecalDetIdAssociator_;
+   HcalDetIdAssociator hcalDetIdAssociator_;
+   HODetIdAssociator   hoDetIdAssociator_;
    CaloDetIdAssociator caloDetIdAssociator_;
    MuonDetIdAssociator muonDetIdAssociator_;
    
@@ -220,12 +235,11 @@ class TrackAssociator {
    edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry_;
    
    /// Labels of the detector EDProducts (empty by default)
-   /// ECAL
    std::vector<std::string> EBRecHitCollectionLabels;
    std::vector<std::string> EERecHitCollectionLabels;
-   /// CaloTowers
    std::vector<std::string> CaloTowerCollectionLabels;
-   /// Muons
+   std::vector<std::string> HBHERecHitCollectionLabels;
+   std::vector<std::string> HORecHitCollectionLabels;
    std::vector<std::string> DTRecSegment4DCollectionLabels;
    std::vector<std::string> CSCSegmentCollectionLabels;
 };
