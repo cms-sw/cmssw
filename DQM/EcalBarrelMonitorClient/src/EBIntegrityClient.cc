@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/01/21 15:29:42 $
- * $Revision: 1.123 $
+ * $Date: 2007/01/21 17:42:46 $
+ * $Revision: 1.124 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1523,7 +1523,7 @@ void EBIntegrityClient::analyze(void){
             if ( ecid.getID1() == ism && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
-                  float val = meg01_[ism-1]->getBinContent(ie, ip);
+                  float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
                   meg01_[ism-1]->setBinContent( ie, ip, val+3 );
                 }
               }
@@ -1545,7 +1545,7 @@ void EBIntegrityClient::analyze(void){
             if ( ecid.getID1() == ism && ecid.getID2() == itt ) {
               if ( (m->second).getErrorBits() & bits02 ) {
                 if ( meg01_[ism-1] ) {
-                  float val = meg01_[ism-1]->getBinContent(ie, ip);
+                  float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
                   meg01_[ism-1]->setBinContent( ie, ip, val+3 );
                 }
               }
@@ -1652,7 +1652,7 @@ void EBIntegrityClient::analyze(void){
             if ( ecid.getID1() == ism && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg02_[ism-1] ) {
-                  float val = meg02_[ism-1]->getBinContent(ie, ip);
+                  float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
                   meg02_[ism-1]->setBinContent( ie, ip, val+3 );
                 }
               }
@@ -1672,7 +1672,7 @@ void EBIntegrityClient::analyze(void){
             if ( ecid.getID1() == ism && ecid.getID2() == itt ) {
               if ( (m->second).getErrorBits() & bits02 ) {
                 if ( meg02_[ism-1] ) {
-                  float val = meg02_[ism-1]->getBinContent(ie, ip);
+                  float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
                   meg02_[ism-1]->setBinContent( ie, ip, val+3 );
                 }
               }

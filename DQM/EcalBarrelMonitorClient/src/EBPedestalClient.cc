@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/01/21 17:42:46 $
- * $Revision: 1.103 $
+ * $Date: 2007/01/21 17:50:51 $
+ * $Revision: 1.104 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1194,19 +1194,19 @@ void EBPedestalClient::analyze(void){
             if ( ecid.getID1() == ism && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
-                  float val = meg01_[ism-1]->getBinContent(ie, ip);
+                  float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
                   meg01_[ism-1]->setBinContent( ie, ip, val+3 );
                 }
               }
               if ( (m->second).getErrorBits() & bits02 ) {
                 if ( meg02_[ism-1] ) {
-                  float val = meg02_[ism-1]->getBinContent(ie, ip);
+                  float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
                   meg02_[ism-1]->setBinContent( ie, ip, val+3 );
                 }
               }
               if ( (m->second).getErrorBits() & bits03 ) {
                 if ( meg03_[ism-1] ) {
-                  float val = meg03_[ism-1]->getBinContent(ie, ip);
+                  float val = int(meg03_[ism-1]->getBinContent(ie, ip)) % 3;
                   meg03_[ism-1]->setBinContent( ie, ip, val+3 );
                 }
               }
