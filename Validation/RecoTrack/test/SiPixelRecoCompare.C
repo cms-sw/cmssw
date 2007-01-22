@@ -4,7 +4,7 @@ void SiPixelRecoCompare()
 
  char* rfilename = "pixeltrackingrechitshist.root";
  char* sfilename = "../data/pixeltrackingrechitshist.root";
-
+ 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename);
 
@@ -674,7 +674,7 @@ if (1)
     newmePullXvsAlphaBarrel->SetLineColor(4);
     newmePullXvsAlphaBarrel->SetLineStyle(2);
     newmePullXvsAlphaBarrel->Draw("Sames"); 
-    myPV->PVCompute(mePullXvsAlphaBarrel, newmePullXvsAlphaBarrel, te );
+    //myPV->PVCompute(mePullXvsAlphaBarrel, newmePullXvsAlphaBarrel, te );
   
     can_PullXvsAlpha->cd(2);
     //gPad->SetLogy();
@@ -683,7 +683,7 @@ if (1)
     newmePullXvsAlphaZmPanel1->SetLineColor(4);
     newmePullXvsAlphaZmPanel1->SetLineStyle(2);
     newmePullXvsAlphaZmPanel1->Draw("same"); 
-    myPV->PVCompute(mePullXvsAlphaZmPanel1, newmePullXvsAlphaZmPanel1, te );
+    //myPV->PVCompute(mePullXvsAlphaZmPanel1, newmePullXvsAlphaZmPanel1, te );
   
     can_PullXvsAlpha->cd(3);
     //gPad->SetLogy();
@@ -692,7 +692,7 @@ if (1)
     newmePullXvsAlphaZmPanel2->SetLineColor(4);
     newmePullXvsAlphaZmPanel2->SetLineStyle(2);
     newmePullXvsAlphaZmPanel2->Draw("same"); 
-    myPV->PVCompute(mePullXvsAlphaZmPanel2, newmePullXvsAlphaZmPanel2, te );
+    //myPV->PVCompute(mePullXvsAlphaZmPanel2, newmePullXvsAlphaZmPanel2, te );
 
     can_PullXvsAlpha->cd(5);
     //gPad->SetLogy();
@@ -701,7 +701,7 @@ if (1)
     newmePullXvsAlphaZpPanel1->SetLineColor(4);
     newmePullXvsAlphaZpPanel1->SetLineStyle(2);
     newmePullXvsAlphaZpPanel1->Draw("same"); 
-    myPV->PVCompute(mePullXvsAlphaZpPanel1, newmePullXvsAlphaZpPanel1, te );
+    //myPV->PVCompute(mePullXvsAlphaZpPanel1, newmePullXvsAlphaZpPanel1, te );
 
     can_PullXvsAlpha->cd(6);
     //gPad->SetLogy();
@@ -710,7 +710,7 @@ if (1)
     newmePullXvsAlphaZpPanel2->SetLineColor(4);
     newmePullXvsAlphaZpPanel2->SetLineStyle(2);
     newmePullXvsAlphaZpPanel2->Draw("same"); 
-    myPV->PVCompute(mePullXvsAlphaZpPanel2, newmePullXvsAlphaZpPanel2, te );
+    //myPV->PVCompute(mePullXvsAlphaZpPanel2, newmePullXvsAlphaZpPanel2, te );
 
     //can_PullXvsAlpha->SaveAs("mePullXvsAlpha_compare.eps");
   }
@@ -751,7 +751,7 @@ if (1)
     newmePullXvsBetaBarrel->SetLineColor(4);
     newmePullXvsBetaBarrel->SetLineStyle(2);
     newmePullXvsBetaBarrel->Draw("Sames"); 
-    myPV->PVCompute(mePullXvsBetaBarrel, newmePullXvsBetaBarrel, te );
+    //myPV->PVCompute(mePullXvsBetaBarrel, newmePullXvsBetaBarrel, te );
   
     can_PullXvsBeta->cd(2);
     //gPad->SetLogy();
@@ -760,7 +760,7 @@ if (1)
     newmePullXvsBetaZmPanel1->SetLineColor(4);
     newmePullXvsBetaZmPanel1->SetLineStyle(2);
     newmePullXvsBetaZmPanel1->Draw("same"); 
-    myPV->PVCompute(mePullXvsBetaZmPanel1, newmePullXvsBetaZmPanel1, te );
+    //myPV->PVCompute(mePullXvsBetaZmPanel1, newmePullXvsBetaZmPanel1, te );
   
     can_PullXvsBeta->cd(3);
     //gPad->SetLogy();
@@ -769,7 +769,7 @@ if (1)
     newmePullXvsBetaZmPanel2->SetLineColor(4);
     newmePullXvsBetaZmPanel2->SetLineStyle(2);
     newmePullXvsBetaZmPanel2->Draw("same"); 
-    myPV->PVCompute(mePullXvsBetaZmPanel2, newmePullXvsBetaZmPanel2, te );
+    //myPV->PVCompute(mePullXvsBetaZmPanel2, newmePullXvsBetaZmPanel2, te );
 
     can_PullXvsBeta->cd(5);
     //gPad->SetLogy();
@@ -778,7 +778,7 @@ if (1)
     newmePullXvsBetaZpPanel1->SetLineColor(4);
     newmePullXvsBetaZpPanel1->SetLineStyle(2);
     newmePullXvsBetaZpPanel1->Draw("same"); 
-    myPV->PVCompute(mePullXvsBetaZpPanel1, newmePullXvsBetaZpPanel1, te );
+    //myPV->PVCompute(mePullXvsBetaZpPanel1, newmePullXvsBetaZpPanel1, te );
 
     can_PullXvsBeta->cd(6);
     //gPad->SetLogy();
@@ -787,7 +787,7 @@ if (1)
     newmePullXvsBetaZpPanel2->SetLineColor(4);
     newmePullXvsBetaZpPanel2->SetLineStyle(2);
     newmePullXvsBetaZpPanel2->Draw("same"); 
-    myPV->PVCompute(mePullXvsBetaZpPanel2, newmePullXvsBetaZpPanel2, te );
+    //myPV->PVCompute(mePullXvsBetaZpPanel2, newmePullXvsBetaZpPanel2, te );
 
     //can_PullXvsBeta->SaveAs("mePullXvsBeta_compare.eps");
   }
@@ -828,7 +828,7 @@ if (1)
     newmePullXvsEtaBarrel->SetLineColor(4);
     newmePullXvsEtaBarrel->SetLineStyle(2);
     newmePullXvsEtaBarrel->Draw("Sames"); 
-    myPV->PVCompute(mePullXvsEtaBarrel, newmePullXvsEtaBarrel, te );
+    //myPV->PVCompute(mePullXvsEtaBarrel, newmePullXvsEtaBarrel, te );
   
     can_PullXvsEta->cd(2);
     //gPad->SetLogy();
@@ -837,7 +837,7 @@ if (1)
     newmePullXvsEtaZmPanel1->SetLineColor(4);
     newmePullXvsEtaZmPanel1->SetLineStyle(2);
     newmePullXvsEtaZmPanel1->Draw("same"); 
-    myPV->PVCompute(mePullXvsEtaZmPanel1, newmePullXvsEtaZmPanel1, te );
+    //myPV->PVCompute(mePullXvsEtaZmPanel1, newmePullXvsEtaZmPanel1, te );
   
     can_PullXvsEta->cd(3);
     //gPad->SetLogy();
@@ -846,7 +846,7 @@ if (1)
     newmePullXvsEtaZmPanel2->SetLineColor(4);
     newmePullXvsEtaZmPanel2->SetLineStyle(2);
     newmePullXvsEtaZmPanel2->Draw("same"); 
-    myPV->PVCompute(mePullXvsEtaZmPanel2, newmePullXvsEtaZmPanel2, te );
+    //myPV->PVCompute(mePullXvsEtaZmPanel2, newmePullXvsEtaZmPanel2, te );
 
     can_PullXvsEta->cd(5);
     //gPad->SetLogy();
@@ -855,7 +855,7 @@ if (1)
     newmePullXvsEtaZpPanel1->SetLineColor(4);
     newmePullXvsEtaZpPanel1->SetLineStyle(2);
     newmePullXvsEtaZpPanel1->Draw("same"); 
-    myPV->PVCompute(mePullXvsEtaZpPanel1, newmePullXvsEtaZpPanel1, te );
+    //myPV->PVCompute(mePullXvsEtaZpPanel1, newmePullXvsEtaZpPanel1, te );
 
     can_PullXvsEta->cd(6);
     //gPad->SetLogy();
@@ -864,7 +864,7 @@ if (1)
     newmePullXvsEtaZpPanel2->SetLineColor(4);
     newmePullXvsEtaZpPanel2->SetLineStyle(2);
     newmePullXvsEtaZpPanel2->Draw("same"); 
-    myPV->PVCompute(mePullXvsEtaZpPanel2, newmePullXvsEtaZpPanel2, te );
+    //myPV->PVCompute(mePullXvsEtaZpPanel2, newmePullXvsEtaZpPanel2, te );
 
     //can_PullXvsEta->SaveAs("mePullXvsEta_compare.eps");
   }
@@ -982,7 +982,7 @@ if (1)
     newmePullYvsAlphaBarrel->SetLineColor(4);
     newmePullYvsAlphaBarrel->SetLineStyle(2);
     newmePullYvsAlphaBarrel->Draw("Sames"); 
-    myPV->PVCompute(mePullYvsAlphaBarrel, newmePullYvsAlphaBarrel, te );
+    //myPV->PVCompute(mePullYvsAlphaBarrel, newmePullYvsAlphaBarrel, te );
   
     can_PullYvsAlpha->cd(2);
     //gPad->SetLogy();
@@ -991,7 +991,7 @@ if (1)
     newmePullYvsAlphaZmPanel1->SetLineColor(4);
     newmePullYvsAlphaZmPanel1->SetLineStyle(2);
     newmePullYvsAlphaZmPanel1->Draw("same"); 
-    myPV->PVCompute(mePullYvsAlphaZmPanel1, newmePullYvsAlphaZmPanel1, te );
+    //myPV->PVCompute(mePullYvsAlphaZmPanel1, newmePullYvsAlphaZmPanel1, te );
   
     can_PullYvsAlpha->cd(3);
     //gPad->SetLogy();
@@ -1000,7 +1000,7 @@ if (1)
     newmePullYvsAlphaZmPanel2->SetLineColor(4);
     newmePullYvsAlphaZmPanel2->SetLineStyle(2);
     newmePullYvsAlphaZmPanel2->Draw("same"); 
-    myPV->PVCompute(mePullYvsAlphaZmPanel2, newmePullYvsAlphaZmPanel2, te );
+    //myPV->PVCompute(mePullYvsAlphaZmPanel2, newmePullYvsAlphaZmPanel2, te );
 
     can_PullYvsAlpha->cd(5);
     //gPad->SetLogy();
@@ -1009,7 +1009,7 @@ if (1)
     newmePullYvsAlphaZpPanel1->SetLineColor(4);
     newmePullYvsAlphaZpPanel1->SetLineStyle(2);
     newmePullYvsAlphaZpPanel1->Draw("same"); 
-    myPV->PVCompute(mePullYvsAlphaZpPanel1, newmePullYvsAlphaZpPanel1, te );
+    //myPV->PVCompute(mePullYvsAlphaZpPanel1, newmePullYvsAlphaZpPanel1, te );
 
     can_PullYvsAlpha->cd(6);
     //gPad->SetLogy();
@@ -1018,7 +1018,7 @@ if (1)
     newmePullYvsAlphaZpPanel2->SetLineColor(4);
     newmePullYvsAlphaZpPanel2->SetLineStyle(2);
     newmePullYvsAlphaZpPanel2->Draw("same"); 
-    myPV->PVCompute(mePullYvsAlphaZpPanel2, newmePullYvsAlphaZpPanel2, te );
+    //myPV->PVCompute(mePullYvsAlphaZpPanel2, newmePullYvsAlphaZpPanel2, te );
 
     //can_PullYvsAlpha->SaveAs("mePullYvsAlpha_compare.eps");
   }
@@ -1059,7 +1059,7 @@ if (1)
     newmePullYvsBetaBarrel->SetLineColor(4);
     newmePullYvsBetaBarrel->SetLineStyle(2);
     newmePullYvsBetaBarrel->Draw("Sames"); 
-    myPV->PVCompute(mePullYvsBetaBarrel, newmePullYvsBetaBarrel, te );
+    //myPV->PVCompute(mePullYvsBetaBarrel, newmePullYvsBetaBarrel, te );
   
     can_PullYvsBeta->cd(2);
     //gPad->SetLogy();
@@ -1068,7 +1068,7 @@ if (1)
     newmePullYvsBetaZmPanel1->SetLineColor(4);
     newmePullYvsBetaZmPanel1->SetLineStyle(2);
     newmePullYvsBetaZmPanel1->Draw("same"); 
-    myPV->PVCompute(mePullYvsBetaZmPanel1, newmePullYvsBetaZmPanel1, te );
+    //myPV->PVCompute(mePullYvsBetaZmPanel1, newmePullYvsBetaZmPanel1, te );
   
     can_PullYvsBeta->cd(3);
     //gPad->SetLogy();
@@ -1077,7 +1077,7 @@ if (1)
     newmePullYvsBetaZmPanel2->SetLineColor(4);
     newmePullYvsBetaZmPanel2->SetLineStyle(2);
     newmePullYvsBetaZmPanel2->Draw("same"); 
-    myPV->PVCompute(mePullYvsBetaZmPanel2, newmePullYvsBetaZmPanel2, te );
+    //myPV->PVCompute(mePullYvsBetaZmPanel2, newmePullYvsBetaZmPanel2, te );
 
     can_PullYvsBeta->cd(5);
     //gPad->SetLogy();
@@ -1086,7 +1086,7 @@ if (1)
     newmePullYvsBetaZpPanel1->SetLineColor(4);
     newmePullYvsBetaZpPanel1->SetLineStyle(2);
     newmePullYvsBetaZpPanel1->Draw("same"); 
-    myPV->PVCompute(mePullYvsBetaZpPanel1, newmePullYvsBetaZpPanel1, te );
+    //myPV->PVCompute(mePullYvsBetaZpPanel1, newmePullYvsBetaZpPanel1, te );
 
     can_PullYvsBeta->cd(6);
     //gPad->SetLogy();
@@ -1095,7 +1095,7 @@ if (1)
     newmePullYvsBetaZpPanel2->SetLineColor(4);
     newmePullYvsBetaZpPanel2->SetLineStyle(2);
     newmePullYvsBetaZpPanel2->Draw("same"); 
-    myPV->PVCompute(mePullYvsBetaZpPanel2, newmePullYvsBetaZpPanel2, te );
+    //myPV->PVCompute(mePullYvsBetaZpPanel2, newmePullYvsBetaZpPanel2, te );
 
     //can_PullYvsBeta->SaveAs("mePullYvsBeta_compare.eps");
   }
@@ -1136,7 +1136,7 @@ if (1)
     newmePullYvsEtaBarrel->SetLineColor(4);
     newmePullYvsEtaBarrel->SetLineStyle(2);
     newmePullYvsEtaBarrel->Draw("Sames"); 
-    myPV->PVCompute(mePullYvsEtaBarrel, newmePullYvsEtaBarrel, te );
+    //myPV->PVCompute(mePullYvsEtaBarrel, newmePullYvsEtaBarrel, te );
   
     can_PullYvsEta->cd(2);
     //gPad->SetLogy();
@@ -1145,7 +1145,7 @@ if (1)
     newmePullYvsEtaZmPanel1->SetLineColor(4);
     newmePullYvsEtaZmPanel1->SetLineStyle(2);
     newmePullYvsEtaZmPanel1->Draw("same"); 
-    myPV->PVCompute(mePullYvsEtaZmPanel1, newmePullYvsEtaZmPanel1, te );
+    //myPV->PVCompute(mePullYvsEtaZmPanel1, newmePullYvsEtaZmPanel1, te );
   
     can_PullYvsEta->cd(3);
     //gPad->SetLogy();
@@ -1154,7 +1154,7 @@ if (1)
     newmePullYvsEtaZmPanel2->SetLineColor(4);
     newmePullYvsEtaZmPanel2->SetLineStyle(2);
     newmePullYvsEtaZmPanel2->Draw("same"); 
-    myPV->PVCompute(mePullYvsEtaZmPanel2, newmePullYvsEtaZmPanel2, te );
+    //myPV->PVCompute(mePullYvsEtaZmPanel2, newmePullYvsEtaZmPanel2, te );
 
     can_PullYvsEta->cd(5);
     //gPad->SetLogy();
@@ -1163,7 +1163,7 @@ if (1)
     newmePullYvsEtaZpPanel1->SetLineColor(4);
     newmePullYvsEtaZpPanel1->SetLineStyle(2);
     newmePullYvsEtaZpPanel1->Draw("same"); 
-    myPV->PVCompute(mePullYvsEtaZpPanel1, newmePullYvsEtaZpPanel1, te );
+    //myPV->PVCompute(mePullYvsEtaZpPanel1, newmePullYvsEtaZpPanel1, te );
 
     can_PullYvsEta->cd(6);
     //gPad->SetLogy();
@@ -1172,7 +1172,7 @@ if (1)
     newmePullYvsEtaZpPanel2->SetLineColor(4);
     newmePullYvsEtaZpPanel2->SetLineStyle(2);
     newmePullYvsEtaZpPanel2->Draw("same"); 
-    myPV->PVCompute(mePullYvsEtaZpPanel2, newmePullYvsEtaZpPanel2, te );
+    //myPV->PVCompute(mePullYvsEtaZpPanel2, newmePullYvsEtaZpPanel2, te );
 
     //can_PullYvsEta->SaveAs("mePullYvsEta_compare.eps");
   }
@@ -1521,7 +1521,7 @@ if (1)
     newmeResXvsBetaBarrel->SetLineColor(4);
     newmeResXvsBetaBarrel->SetLineStyle(2);
     newmeResXvsBetaBarrel->Draw("Sames"); 
-    myPV->PVCompute(meResXvsBetaBarrel, newmeResXvsBetaBarrel, te );
+    //myPV->PVCompute(meResXvsBetaBarrel, newmeResXvsBetaBarrel, te );
   
     can_ResXvsBeta->cd(2);
     //gPad->SetLogy();
@@ -1530,7 +1530,7 @@ if (1)
     newmeResXvsBetaZmPanel1->SetLineColor(4);
     newmeResXvsBetaZmPanel1->SetLineStyle(2);
     newmeResXvsBetaZmPanel1->Draw("same"); 
-    myPV->PVCompute(meResXvsBetaZmPanel1, newmeResXvsBetaZmPanel1, te );
+    //myPV->PVCompute(meResXvsBetaZmPanel1, newmeResXvsBetaZmPanel1, te );
   
     can_ResXvsBeta->cd(3);
     //gPad->SetLogy();
@@ -1539,7 +1539,7 @@ if (1)
     newmeResXvsBetaZmPanel2->SetLineColor(4);
     newmeResXvsBetaZmPanel2->SetLineStyle(2);
     newmeResXvsBetaZmPanel2->Draw("same"); 
-    myPV->PVCompute(meResXvsBetaZmPanel2, newmeResXvsBetaZmPanel2, te );
+    //myPV->PVCompute(meResXvsBetaZmPanel2, newmeResXvsBetaZmPanel2, te );
 
     can_ResXvsBeta->cd(5);
     //gPad->SetLogy();
@@ -1548,7 +1548,7 @@ if (1)
     newmeResXvsBetaZpPanel1->SetLineColor(4);
     newmeResXvsBetaZpPanel1->SetLineStyle(2);
     newmeResXvsBetaZpPanel1->Draw("same"); 
-    myPV->PVCompute(meResXvsBetaZpPanel1, newmeResXvsBetaZpPanel1, te );
+    //myPV->PVCompute(meResXvsBetaZpPanel1, newmeResXvsBetaZpPanel1, te );
 
     can_ResXvsBeta->cd(6);
     //gPad->SetLogy();
@@ -1557,7 +1557,7 @@ if (1)
     newmeResXvsBetaZpPanel2->SetLineColor(4);
     newmeResXvsBetaZpPanel2->SetLineStyle(2);
     newmeResXvsBetaZpPanel2->Draw("same"); 
-    myPV->PVCompute(meResXvsBetaZpPanel2, newmeResXvsBetaZpPanel2, te );
+    //myPV->PVCompute(meResXvsBetaZpPanel2, newmeResXvsBetaZpPanel2, te );
 
     //can_ResXvsBeta->SaveAs("meResXvsBeta_compare.eps");
   }
@@ -1675,7 +1675,7 @@ if (1)
     newmeResYvsBetaBarrel->SetLineColor(4);
     newmeResYvsBetaBarrel->SetLineStyle(2);
     newmeResYvsBetaBarrel->Draw("Sames"); 
-    myPV->PVCompute(meResYvsBetaBarrel, newmeResYvsBetaBarrel, te );
+    //myPV->PVCompute(meResYvsBetaBarrel, newmeResYvsBetaBarrel, te );
   
     can_ResYvsBeta->cd(2);
     //gPad->SetLogy();
@@ -1684,7 +1684,7 @@ if (1)
     newmeResYvsBetaZmPanel1->SetLineColor(4);
     newmeResYvsBetaZmPanel1->SetLineStyle(2);
     newmeResYvsBetaZmPanel1->Draw("same"); 
-    myPV->PVCompute(meResYvsBetaZmPanel1, newmeResYvsBetaZmPanel1, te );
+    //myPV->PVCompute(meResYvsBetaZmPanel1, newmeResYvsBetaZmPanel1, te );
   
     can_ResYvsBeta->cd(3);
     //gPad->SetLogy();
@@ -1693,7 +1693,7 @@ if (1)
     newmeResYvsBetaZmPanel2->SetLineColor(4);
     newmeResYvsBetaZmPanel2->SetLineStyle(2);
     newmeResYvsBetaZmPanel2->Draw("same"); 
-    myPV->PVCompute(meResYvsBetaZmPanel2, newmeResYvsBetaZmPanel2, te );
+    //myPV->PVCompute(meResYvsBetaZmPanel2, newmeResYvsBetaZmPanel2, te );
 
     can_ResYvsBeta->cd(5);
     //gPad->SetLogy();
@@ -1702,7 +1702,7 @@ if (1)
     newmeResYvsBetaZpPanel1->SetLineColor(4);
     newmeResYvsBetaZpPanel1->SetLineStyle(2);
     newmeResYvsBetaZpPanel1->Draw("same"); 
-    myPV->PVCompute(meResYvsBetaZpPanel1, newmeResYvsBetaZpPanel1, te );
+    //myPV->PVCompute(meResYvsBetaZpPanel1, newmeResYvsBetaZpPanel1, te );
 
     can_ResYvsBeta->cd(6);
     //gPad->SetLogy();
@@ -1711,7 +1711,7 @@ if (1)
     newmeResYvsBetaZpPanel2->SetLineColor(4);
     newmeResYvsBetaZpPanel2->SetLineStyle(2);
     newmeResYvsBetaZpPanel2->Draw("same"); 
-    myPV->PVCompute(meResYvsBetaZpPanel2, newmeResYvsBetaZpPanel2, te );
+    //myPV->PVCompute(meResYvsBetaZpPanel2, newmeResYvsBetaZpPanel2, te );
 
     //can_ResYvsBeta->SaveAs("meResYvsBeta_compare.eps");
   }
