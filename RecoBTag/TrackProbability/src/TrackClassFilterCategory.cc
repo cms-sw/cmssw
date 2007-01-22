@@ -37,15 +37,15 @@ void TrackClassFilterCategory::readFromDOM( XERCES_CPP_NAMESPACE::DOMElement * d
  
 void TrackClassFilterCategory::saveToDOM( XERCES_CPP_NAMESPACE::DOMElement * dom)
 {
-   CalibrationXML::writeAttribute(dom,"pmin",filter.pMin());
-   CalibrationXML::writeAttribute(dom,"pmax",filter.pMax());
-   CalibrationXML::writeAttribute(dom,"etamin",filter.etaMin());
-   CalibrationXML::writeAttribute(dom,"etamax",filter.etaMax());
-   CalibrationXML::writeAttribute(dom,"numhitsmin",filter.nHitMin());
-   CalibrationXML::writeAttribute(dom,"numhitsmax",filter.nHitMax());
-   CalibrationXML::writeAttribute(dom,"numpixelmin",filter.nPixelMin());
-   CalibrationXML::writeAttribute(dom,"numpixelmax",filter.nPixelMax());
-   CalibrationXML::writeAttribute(dom,"chimin",filter.chiMin());
-   CalibrationXML::writeAttribute(dom,"chimax",filter.chiMax());
+   CalibrationXML::writeAttribute(dom,"pmin",filter.pMin);
+   CalibrationXML::writeAttribute(dom,"pmax",filter.pMax);
+   CalibrationXML::writeAttribute(dom,"etamin",filter.etaMin);
+   CalibrationXML::writeAttribute(dom,"etamax",filter.etaMax);
+   CalibrationXML::writeAttribute(dom,"numhitsmin",filter.nHitsMin);
+   CalibrationXML::writeAttribute(dom,"numhitsmax",filter.nHitsMax);
+   CalibrationXML::writeAttribute(dom,"numpixelmin",filter.nPixelHitsMin);
+   CalibrationXML::writeAttribute(dom,"numpixelmax",filter.nPixelHitsMax);
+   CalibrationXML::writeAttribute(dom,"chimin",filter.chiMin);
+   CalibrationXML::writeAttribute(dom,"chimax",filter.chiMax);
 }
 

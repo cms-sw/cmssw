@@ -18,6 +18,10 @@ class TrackProbability : public edm::EDProducer {
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
    private:
+    unsigned long long  m_calibrationCacheId2D; 
+    unsigned long long  m_calibrationCacheId3D;
+    bool m_useDB;
+ 
     const edm::ParameterSet& m_config;
     TrackProbabilityAlgorithm m_algo;
     std::string m_associator;

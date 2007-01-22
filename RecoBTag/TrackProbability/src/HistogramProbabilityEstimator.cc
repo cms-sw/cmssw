@@ -3,6 +3,8 @@
 #include "RecoBTag/XMLCalibration/interface/CalibratedHistogram.h"
 
 using namespace reco;
+using namespace std;
+
 pair<bool,double> HistogramProbabilityEstimator::probability(int ipType,float significance, const Track& track, const Jet & jet, const Vertex & vertex) const 
 {
  
@@ -15,8 +17,8 @@ pair<bool,double> HistogramProbabilityEstimator::probability(int ipType,float si
      double absSignificance= fabs(significance);
 //     double sign=(absSignficince!=0) ? significance/absSignificance : 1 ;
   
-      if(ipType == 1) probabilityHistogram = m_calibrationTransverse->fetch(input);
-      if(ipType == 0) probabilityHistogram = m_calibration3D->fetch(input);
+      if(ipType == 1) probabilityHistogram = m_calibrationTransverse->getCalibData(input);
+      if(ipType == 0) probabilityHistogram = m_calibration3D->getCalibData(input);
         
      if(!probabilityHistogram)
        {

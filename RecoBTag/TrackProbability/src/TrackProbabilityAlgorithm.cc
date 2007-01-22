@@ -74,7 +74,7 @@ if(jetTracks.product()->numberOfAssociations(jetTracks->key)!=0) //if there are 
              const TransientTrack * transientTrack = (m_transientTrackBuilder->build(&(**it)));
              float distToAxis = SignedImpactParameter3D::distanceWithJetAxis(*transientTrack,direction,pv).second.value();
              float dLen = SignedDecayLength3D::apply(*transientTrack,direction,pv).second.value(); 
-       cout << "cuts: pt,d0,nhit,LIP,Chi,MaxDistJetAx,MaxDL" << endl;
+     /*  cout << "cuts: pt,d0,nhit,LIP,Chi,MaxDistJetAx,MaxDL" << endl;
             cout << track.pt() << " > " << m_cutMinPt << endl;
               cout << track.d0() << " < " << m_cutMaxTIP << endl;
               cout <<  track.numberOfValidHits() << " " <<  track.found() << " " << track.lost() << " " << track.recHitsSize()<< ">="<< m_cutTotalHits << endl;
@@ -82,7 +82,7 @@ if(jetTracks.product()->numberOfAssociations(jetTracks->key)!=0) //if there are 
               cout << track.normalizedChi2()<< " < " << m_cutMaxChiSquared << endl;
               cout <<  distToAxis << " < " <<  m_cutMaxDistToAxis << endl;
               cout <<    dLen << " < " << m_cutMaxDecayLen << endl;
-            
+       */     
                if( track.pt() > m_cutMinPt  &&  //minimum pt
                  fabs(track.d0()) < m_cutMaxTIP && // max transverse i.p.
                  track.recHitsSize() >= m_cutTotalHits && // min num tracker hits

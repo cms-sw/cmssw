@@ -10,25 +10,27 @@ bool TrackClassFilter::apply(const reco::Track & track, const reco::Jet & jet, c
   double nhit=track.numberOfValidHits();
   double npix=track.hitPattern().numberOfValidPixelHits();
   double chi=track.normalizedChi2();
-  
-  bool chicut=(chi >= chimin        &&       chi < chimax ); 
-  if(chimin<=0.01 && chimax<=0.01) chicut=true;
- 
-  return (        p >  thePMin       &&         p <  thePMax       && 
-           fabs(eta) >  theEtaMin     &&  fabs(eta) <  theEtaMax     &&
+  bool chicut=(chi >= chiMin        &&       chi < chiMax ); 
+  if(chiMin<=0.01 && chiMax<=0.01) chicut=true;
+  bool result=(       p >  pMin       &&         p <  pMax       && 
+           fabs(eta) >  etaMin     &&  fabs(eta) <  etaMax     &&
                nhit >= nHitsMin      &&      nhit <= nHitsMax      &&
 	       npix >= nPixelHitsMin &&      npix <= nPixelHitsMax &&
 	        chicut );
+//  dump();
+//  cout << "TRACK: p " << " eta " <<   eta << " #hit " << nhit << " #pix " << npix << " chi " << chi << "                         matched ?";
+//  cout << result << endl;
+  return result;
 }
 
 void TrackClassFilter::dump() const {
 
   cout<<"TrackClassFilter: "<<endl;
-  cout<< thePMin      <<" < P(GeV) < "                 <<thePMax        <<endl;
-  cout<< theEtaMin    <<" < |eta| < "                  <<theEtaMax      <<endl;
+  cout<< pMin      <<" < P(GeV) < "                 <<pMax        <<endl;
+  cout<< etaMin    <<" < |eta| < "                  <<etaMax      <<endl;
   cout<< nPixelHitsMin<<" =< number of Pixel Hits =< " << nPixelHitsMax <<endl;
   cout<< nHitsMin     <<" =< total number of hits  =< "<< nHitsMax      <<endl;
-  cout<< chimin       <<" =< chiSquare /dof  < "<< chimax      <<endl;
+  cout<< chiMin       <<" =< chiSquare /dof  < "<< chiMax      <<endl;
 
 }
 

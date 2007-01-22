@@ -26,8 +26,8 @@ public:
   ~TrackProbabilityAlgorithm() {}
 
    void setTransientTrackBuilder(const TransientTrackBuilder * builder) { m_transientTrackBuilder = builder; }
-   void setProbabilityEstimator(const HistogramProbabilityEstimator * esti) { m_probabilityEstimator = esti; }
-
+   void setProbabilityEstimator(HistogramProbabilityEstimator * esti) { m_probabilityEstimator = esti; }
+   HistogramProbabilityEstimator * probabilityEstimator() {return m_probabilityEstimator; } 
   std::pair<reco::JetTag,reco::TrackProbabilityTagInfo> tag(const  reco::JetTracksAssociationRef & jetTracks, const reco::Vertex & pv); 
   
 
@@ -36,7 +36,7 @@ public:
  //const  MagneticField * m_magneticField;
 
  const TransientTrackBuilder * m_transientTrackBuilder;
- const HistogramProbabilityEstimator * m_probabilityEstimator;
+ HistogramProbabilityEstimator * m_probabilityEstimator;
  
 //algorithm parameters
 

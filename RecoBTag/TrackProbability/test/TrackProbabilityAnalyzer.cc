@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TrackProbabilityAnalyzer.cc,v 1.2 2006/12/07 09:59:35 arizzi Exp $
+// $Id: TrackProbabilityAnalyzer.cc,v 1.3 2007/01/05 13:19:19 arizzi Exp $
 //
 //
 
@@ -28,7 +28,9 @@ using namespace std;
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -43,6 +45,9 @@ using namespace std;
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
+
+#include "CondFormats/BTagObjects/interface/TrackProbabilityCalibration.h"
+#include "CondFormats/DataRecord/interface/BTagTrackProbabilityRcd.h"
 
 using namespace reco;
 
@@ -74,7 +79,14 @@ TrackProbabilityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 {
   using namespace edm;
   using namespace reco;
-  
+//  using namespace eventsetup;
+  ESHandle<TrackProbabilityCalibration> calib;
+  iSetup.get<BTagTrackProbabilityRcd>().get(calib);
+ 
+  const TrackProbabilityCalibration *  ca= calib.product();
+  cout << "Bin for 0.35 " << ca->data[5].histogram.findBin(0.35) << endl;
+ 
+  return; 
   Handle<JetTagCollection> jetsHandle;
   Handle<TrackProbabilityTagInfoCollection> jetsInfoHandle;
   iEvent.getByLabel("trackProbabilityJetTags", jetsHandle);
