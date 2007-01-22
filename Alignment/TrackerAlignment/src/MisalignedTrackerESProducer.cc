@@ -74,29 +74,29 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   
   // Write alignments to DB: have to sort beforhand!
   if ( theParameterSet.getUntrackedParameter<bool>("saveToDbase", false) )
-	{
+    {
 
-	  // Call service
-	  edm::Service<cond::service::PoolDBOutputService> poolDbService;
-	  if( !poolDbService.isAvailable() ) // Die if not available
-		throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+      // Call service
+      edm::Service<cond::service::PoolDBOutputService> poolDbService;
+      if( !poolDbService.isAvailable() ) // Die if not available
+        throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 	  
 	  // Define callback tokens for the two records
 	  size_t alignmentsToken = poolDbService->callbackToken("Alignments");
 	  size_t alignmentErrorsToken = poolDbService->callbackToken("AlignmentErrors");
 	  
 	  // Store
-	  poolDbService->newValidityForNewPayload<Alignments>( &(*alignments), 
-														   poolDbService->endOfTime(),
-														   alignmentsToken );
+	  poolDbService->newValidityForNewPayload<Alignments>( &(*alignments),
+                                                           poolDbService->endOfTime(), 
+                                                           alignmentsToken );
 	  poolDbService->newValidityForNewPayload<AlignmentErrors>( &(*alignmentErrors), 
-																poolDbService->endOfTime(),
-																alignmentErrorsToken );
-	}
+                                                                poolDbService->endOfTime(), 
+                                                                alignmentErrorsToken );
+    }
   
   // Store result to EventSetup
   GeometryAligner aligner;
-  aligner.applyAlignments<TrackerGeometry>( &(*theTracker), &(*alignments), &(*alignmentErrors) );
+  aligner.applyAlignments<TrackerGeometry>( &(*theTracker), alignments, alignmentErrors );
 
   edm::LogInfo("MisalignedTracker") << "Producer done";
   return theTracker;
