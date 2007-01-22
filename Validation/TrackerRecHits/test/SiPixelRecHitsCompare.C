@@ -8,7 +8,7 @@ void SiPixelRecHitsCompare()
    //char* sfilename = "/uscms/home/ggiurgiu/work/CMSSW_1_2_0_pre4/src/Validation/TrackerRecHits/test/pixelrechitshisto_test56.root";
    
 
-   delete gR OOT->GetListOfFiles()->FindObject(rfilename);
+   delete gROOT->GetListOfFiles()->FindObject(rfilename);
    delete gROOT->GetListOfFiles()->FindObject(sfilename);
 
    TText * te = new TText();
