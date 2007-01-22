@@ -13,12 +13,13 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.8 2007/01/20 17:29:48 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.9 2007/01/21 15:30:36 dmytro Exp $
 //
 //
 
 
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/DetIdInfo.h"
 #include <map>
 
 std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direction,
@@ -103,8 +104,9 @@ void DetIdAssociator::buildMap()
 	{
 	   // FIX ME: this should be a fatal error
 	   if(isnan(iter->mag())||iter->mag()>1e5) { //Detector parts cannot be 1 km away or be NaN
-	      edm::LogWarning("DetIdAssociator") << "Critical error! Bad detector unit geometry:\n\tDetId:" <<
-		id_itr->rawId() << "\t mag(): " << iter->mag() << "\nSkipped the element";
+	      edm::LogWarning("DetIdAssociator") << "Critical error! Bad detector unit geometry:\n\tDetId:" 
+		<< id_itr->rawId() << "\t mag(): " << iter->mag() << "\n" << DetIdInfo::info( *id_itr )
+		  << "\nSkipped the element";
 	      continue;
 	   }
 	   int ieta = iEta(*iter);
@@ -141,7 +143,7 @@ void DetIdAssociator::buildMap()
 	   }
 	}
       if (etaMax<0||phiMax<0||etaMin>=nEta_||phiMin>=nPhi_) {
-	 LogTrace("DetIdAssociator")<<"Out of range: DetId:" << id_itr->rawId() <<
+	 LogTrace("DetIdAssociator")<<"Out of range or no geometry: DetId:" << id_itr->rawId() <<
 	   "\n\teta (min,max): " << etaMin << "," << etaMax <<
 	   "\n\tphi (min,max): " << phiMin << "," << phiMax <<
 	   "\nTower id: " << id_itr->rawId() << "\n";
