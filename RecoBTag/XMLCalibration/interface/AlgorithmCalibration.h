@@ -12,12 +12,16 @@
 #include <iostream>
 
 #include "CalibrationXML.h"
+//#include "CondFormats/BTagObjects/interface/CalibrationInterface.h"
+#include "RecoBTag/TrackProbability/interface/CalibrationInterface.h"
 
 class XERCES_CPP_NAMESPACE::DOMNode;
 
 using namespace std;
 using namespace XERCES_CPP_NAMESPACE;
 
+
+//template <class T,class CO> class   CalibrationInterface;
 /**
 * The AlgorithmCalibration class is the interface between user code and calibration framework 
 * developed for BReco subsytem.
@@ -31,8 +35,9 @@ using namespace XERCES_CPP_NAMESPACE;
 * The class is templated on the Category T and on the CalibratedObject CO
 */
 
-template <class T,class CO> class AlgorithmCalibration
+template <class T,class CO> class AlgorithmCalibration : public CalibrationInterface<T,CO>
 {
+// friend class CalibrationInterface<T,CO>; 
   public:
 
   /**
@@ -43,11 +48,6 @@ template <class T,class CO> class AlgorithmCalibration
     
     ~AlgorithmCalibration();
     
-   /**
-    * Get the calibratedObject that belong to the category that matches the given input
-    */ 
-    const CO* fetch(const typename T::Input & calibrationInput) const ;
-
     /**
      * Prepare for a new calibration run
      */
@@ -66,19 +66,10 @@ template <class T,class CO> class AlgorithmCalibration
 
  protected:
 
-    pair<T *,CO*> searchCategory(const typename T::Input & calibrationInput) const ;
-
     CO* readObject(DOMNode *);
-
     bool readCategories();
     
  protected:
-
-    void addCategory(T * newCategory,CO * newCalibratedObject)
-    {
-       m_categoriesWithObjects.push_back(pair<T*,CO*>(newCategory,newCalibratedObject));
-    }
-
 
     DOMElement * dom() 
     {
@@ -92,7 +83,6 @@ template <class T,class CO> class AlgorithmCalibration
     }
 
   private:
-    vector<pair<T*,CO*> > m_categoriesWithObjects;
     string m_filename;
     CalibrationXML *m_xml;
 };
@@ -107,15 +97,7 @@ AlgorithmCalibration<T,CO>::AlgorithmCalibration(const string & filename) : m_fi
 template <class T,class CO> 
 AlgorithmCalibration<T,CO>::~AlgorithmCalibration()
 {
- std::cout << "Algorithm calibration destructor" <<endl;
-   for(typename vector<pair<T*,CO*> >::iterator it = m_categoriesWithObjects.begin();it!=m_categoriesWithObjects.end();it++)
-   {
-    delete (*it).first;
-    delete (*it).second;
-   }
- 
    if(m_xml) delete m_xml;
-    
 }
     
 template <class T,class CO> 
@@ -130,7 +112,7 @@ bool AlgorithmCalibration<T,CO>::readCategories()
       {
 	  T *cat = new T();
 	  cat->readFromDOM((DOMElement *)n1);
-	  addCategory(cat,readObject(n1->getFirstChild()));  
+	  addEntry(*cat,*readObject(n1->getFirstChild()));  
 
       }
       n1 = n1->getNextSibling();
@@ -155,85 +137,5 @@ CO * AlgorithmCalibration<T,CO>::readObject(DOMNode * dom)
   co->read((DOMElement *)n1);
   return co;
 }
-
-template <class T,class CO> 
-pair<T *,CO*>  AlgorithmCalibration<T,CO>::searchCategory(const typename T::Input & calibrationInput) const
-{
-   pair<T *,CO*> categoryWithObject(0,0);
-   for(typename vector<pair<T *,CO *> >::const_iterator it = m_categoriesWithObjects.begin();it!=m_categoriesWithObjects.end();it++)
-   {
-    
-      if((*it).first->match(calibrationInput))
-      {
-        if(categoryWithObject.first!=0) std::cout << "WARNING: OVERLAP in categories, using latest one" << endl;
-        categoryWithObject=*it;
-      }
-   }
-  return categoryWithObject;
-}
-
-template <class T,class CO> 
-const CO * AlgorithmCalibration<T,CO>::fetch(const typename T::Input & calibrationInput) const
-{
-  return searchCategory(calibrationInput).second; 
-}
-
-template <class T,class CO> 
-void AlgorithmCalibration<T,CO>::startCalibration()
-{
-   for(typename vector<pair<T*,CO*> >::iterator it = m_categoriesWithObjects.begin();it!=m_categoriesWithObjects.end();it++)
-   {
-    if((*it).second==0)  (*it).second=new CO();
-    (*it).second->startCalibration();
-   }
-}
-
-
-template <class T,class CO> 
-template <class CI> 
-void AlgorithmCalibration<T,CO>::updateCalibration(const typename T::Input & calibrationInputForCategory,
-						const CI & inputForCalibration)
-{
-  pair<T *,CO*>categoryWithObject= searchCategory(calibrationInputForCategory); 
-  if(categoryWithObject.first==0) std::cout << "No category found for this input" << endl;
-   else
-  categoryWithObject.second->updateCalibration(inputForCalibration);
-}
-
-template <class T,class CO> 
-void AlgorithmCalibration<T,CO>::updateCalibration(const typename T::Input & calibrationInput)
-{
-  updateCalibration(calibrationInput,calibrationInput);
-}
-
-
-template <class T,class CO> 
-void AlgorithmCalibration<T,CO>::saveCalibration(const std::string & fileName)
-{      
-   DOMNode* n1 = dom()->getFirstChild();
-  while(n1)   
-  { 
-    dom()->removeChild(n1);
-    n1 = dom()->getFirstChild();
-  }
-   n1 = dom();	
-   for(typename vector<pair<T*,CO*> >::iterator it = m_categoriesWithObjects.begin();it!=m_categoriesWithObjects.end();it++) 
-     {
-       DOMElement * categoryDom = CalibrationXML::addChild((DOMElement *)n1,(*it).first->name());	
-       
-       (*it).first->saveToDOM(categoryDom);
-       if((*it).second)
-       {
-        
-          DOMElement * objectDom = CalibrationXML::addChild(categoryDom,(*it).second->name());	
-           (*it).second->finishCalibration();
-           (*it).second->write(objectDom);
-       }
-       
-     }
-  if(m_xml) m_xml->saveFile(fileName); 
-}
-
-
 
 #endif

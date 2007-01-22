@@ -96,7 +96,7 @@ XMLCalibrationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
  // object.
 
 
- const CalibratedHistogram * histo = m_calib->fetch(1.2);
+ const CalibratedHistogram * histo = m_calib->getCalibData(1.2);
 
 
  cout << "Pointer of the histogram: " << histo << endl;
