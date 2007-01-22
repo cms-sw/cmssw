@@ -4,8 +4,8 @@
 /** \class DTCalibDBUtils
  *  Simple interface to PoolDBOutputService to write objects to DB.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/01/22 11:08:04 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -39,14 +39,14 @@ public:
 	    dbOutputSvc->template appendSinceTime<T>(payload,dbOutputSvc->currentTime(),record);
 	  }
 	}catch(const cond::Exception& er){
-	  cout << er.what() << endl;
+	  std::cout << er.what() << std::endl;
 	}catch(const std::exception& er){
-	  cout << "[DTCalibDBUtils] caught std::exception " << er.what() << endl;
+	  std::cout << "[DTCalibDBUtils] caught std::exception " << er.what() << std::endl;
 	}catch(...){
-	  cout << "[DTCalibDBUtils] Funny error" << endl;
+	  std::cout << "[DTCalibDBUtils] Funny error" << std::endl;
 	}
       }else{
-	cout << "Service PoolDBOutputService is unavailable" << endl;
+	std::cout << "Service PoolDBOutputService is unavailable" << std::endl;
       }
     
   }
