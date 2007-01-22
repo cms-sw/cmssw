@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: StreamerStatService.cc,v 1.5 2006/10/11 14:39:32 klute Exp $
 #include "IOPool/Streamer/interface/StreamerStatService.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -24,8 +24,8 @@ bool StreamerStatReadService::next()
   {
      std::string curr_line;
      curr_line.resize(1000);
-     if (statFile_->good() )
-     if (statFile_->getline(&curr_line[0], 1000) )
+     if (statFile_->good())
+     if (statFile_->getline(&curr_line[0], 1000))
         {
           std::vector<std::string> tokens;
           tokenize(curr_line, tokens, ":");
@@ -49,7 +49,7 @@ bool StreamerStatReadService::next()
 
 
 
-StreamerStatWriteService::StreamerStatWriteService( uint32 run, std::string streamer, 
+StreamerStatWriteService::StreamerStatWriteService(uint32 run, std::string streamer, 
                                                     std::string dataFile, std::string indexFile, 
                                                     std::string statFileName):statFileName_(statFileName)
 {
@@ -70,24 +70,24 @@ StreamerStatWriteService::~StreamerStatWriteService()
 
 void StreamerStatWriteService::incrementEventCount()
   {
-     summary_.eventCount_++;
+     ++summary_.eventCount_;
   }
 
 std::string StreamerStatWriteService::getCurrentDate()
   {
    time_t rawtime; 
    tm * ptm; 
-   time ( &rawtime ); 
-   ptm = localtime ( &rawtime ); 
-   return std::string(itoa(ptm->tm_mday)+"/"+itoa(ptm->tm_mon)+"/"+itoa(ptm->tm_year+1900));
+   time (&rawtime); 
+   ptm = localtime (&rawtime); 
+   return std::string(itoa(ptm->tm_mday) + "/" + itoa(ptm->tm_mon) + "/" + itoa(ptm->tm_year+1900));
   }
 
 std::string StreamerStatWriteService::getCurrentTime()
   {
   time_t rawtime;
   tm * ptm;
-  time ( &rawtime );
-  ptm = localtime ( &rawtime );
+  time (&rawtime);
+  ptm = localtime (&rawtime);
   return std::string(itoa(ptm->tm_hour)+"."+itoa(ptm->tm_min)+"."+itoa(ptm->tm_sec));
   }
 
@@ -131,7 +131,7 @@ void StreamerStatWriteService::setRunNumber(uint32 run)
 	       << summary_.endTime_     << endl;
    std::string currentStatString (currentStat.str());
    
-   ofstream *statFile = new ofstream(statFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+   ofstream *statFile = new ofstream(statFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app);
    statFile->write((char*)&currentStatString[0], currentStatString.length());
    statFile->close();
    delete(statFile);

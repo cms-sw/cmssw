@@ -1,4 +1,4 @@
-// $Id: StreamerOutputService.cc,v 1.17 2006/11/17 23:05:03 paterno Exp $
+// $Id: StreamerOutputService.cc,v 1.18 2006/12/19 00:30:45 wmtan Exp $
 
 #include "IOPool/Streamer/interface/EventStreamOutput.h"
 #include "IOPool/Streamer/interface/StreamerOutputService.h"
@@ -42,7 +42,7 @@ StreamerOutputService::StreamerOutputService():
   eventsInFile_(0),
   fileNameCounter_(0),
   files_(),
-  filen_(),  
+  filen_(),
   highWaterMark_(0.9),
   path_(),
   mpath_(),
@@ -73,7 +73,7 @@ StreamerOutputService::StreamerOutputService():
   eventsInFile_(0),
   fileNameCounter_(0),
   files_(),
-  filen_(),  
+  filen_(),
   highWaterMark_(0.9),
   path_(),
   mpath_(),
@@ -93,45 +93,45 @@ StreamerOutputService::StreamerOutputService():
   }
 
 void StreamerOutputService::init(std::string fileName, unsigned int maxFileSize, double highWaterMark,
-                                 std::string path, std::string mpath, 
+                                 std::string path, std::string mpath,
 				 std::string catalog, uint32 disks,
 				 InitMsgView const& view)
-  { 
+  {
    maxFileSize_ = maxFileSize;
    highWaterMark_ = highWaterMark;
    path_ = path;
    mpath_ = mpath;
    filen_ = fileName;
-   nLogicalDisk_   = disks;
+   nLogicalDisk_ = disks;
 
-   // create file names ( can be move to seperate method )
+   // create file names (can be move to seperate method)
    std::ostringstream newFileName;
    newFileName << path_ << "/";
-   catalog_        = newFileName.str() + catalog;
-   lockFileName_   = newFileName.str() + "nolock";
+   catalog_      = newFileName.str() + catalog;
+   lockFileName_ = newFileName.str() + "nolock";
 
-   if (nLogicalDisk_ != 0 )
+   if (nLogicalDisk_ != 0)
      {
-       newFileName  << (fileNameCounter_ % nLogicalDisk_) << "/";
-       lockFileName_   = newFileName.str() + ".lock";
-       ofstream *lockFile = new ofstream(lockFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+       newFileName << (fileNameCounter_ % nLogicalDisk_) << "/";
+       lockFileName_ = newFileName.str() + ".lock";
+       ofstream *lockFile = new ofstream(lockFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app);
        delete(lockFile);
      }
 
    newFileName << filen_ << "." << fileNameCounter_ ;
    fileName_      = newFileName.str() + ".dat";
    indexFileName_ = newFileName.str() + ".ind";
-                                                                                                           
-   statistics_  = boost::shared_ptr<edm::StreamerStatWriteService> 
+
+   statistics_ = boost::shared_ptr<edm::StreamerStatWriteService>
      (new edm::StreamerStatWriteService(0, "-", indexFileName_, fileName_, catalog_));
 
    streamNindex_writer_ = boost::shared_ptr<StreamerFileWriter>(new StreamerFileWriter(fileName_, indexFileName_));
 
-   
+
    //dumpInitHeader(&view);
-   
+
    writeHeader(view);
-    
+
    //INIT msg can be saved as INIT msg itself.
 
    // save the INIT message for when writing to the next file
@@ -139,10 +139,10 @@ void StreamerOutputService::init(std::string fileName, unsigned int maxFileSize,
    char* pos = &saved_initmsg_[0];
    unsigned char* from = view.startAddress();
    unsigned int dsize = view.size();
-   copy(from,from+dsize,pos);
+   copy(from, from + dsize, pos);
 
    // initialize event selector
-   initializeSelection(view); 
+   initializeSelection(view);
 
   }
 
@@ -156,34 +156,33 @@ void StreamerOutputService::initializeSelection(InitMsgView const& initView)
 
   /* ---printout the trigger names in the INIT message*/
   std::cout << ">>>>>>>>>>>Trigger names:" << std::endl;
-  for(unsigned int i=0; i< triggerNameList.size(); ++i)
-    std::cout<< ">>>>>>>>>>>  name = " << triggerNameList[i] << std::endl;
+  for (Strings::const_iterator it = triggerNameList.begin(), itEnd = triggerNameList.end(); it != itEnd; ++it)
+    std::cout << ">>>>>>>>>>>  name = " << *it << std::endl;
   /* */
 
   // create our event selector
-  eventSelector_.reset(new EventSelector(requestParamSet_.getUntrackedParameter("SelectEvents", ParameterSet()),
-                                         triggerNameList));
+    eventSelector_.reset(
+      new EventSelector(requestParamSet_.getUntrackedParameter("SelectEvents", ParameterSet()),
+                        triggerNameList));
   }
 
 StreamerOutputService::~StreamerOutputService()
   {
     // write to summary catalog and mailbox if file has an entry.
-    if ( eventsInFile_ > 0 )
-      {
+    if (eventsInFile_ > 0) {
 	writeToMailBox();
-	statistics_  -> setFileSize((uint32) currentFileSize_ );
-	statistics_  -> setEventCount((uint32) eventsInFile_ ); 
-	statistics_  -> writeStat();
-      }
+	statistics_->setFileSize(static_cast<uint32>(currentFileSize_));
+	statistics_->setEventCount(static_cast<uint32>(eventsInFile_));
+	statistics_->writeStat();
+    }
 
     std::ostringstream newFileName;
     newFileName << path_ << "/";
-    if (nLogicalDisk_ != 0 )
-      {
-	newFileName  << (fileNameCounter_ % nLogicalDisk_) << "/";
-	remove( lockFileName_.c_str() );
-      }
-    
+    if (nLogicalDisk_ != 0) {
+	newFileName << (fileNameCounter_ % nLogicalDisk_) << "/";
+	remove(lockFileName_.c_str());
+    }
+
     std::ostringstream entry;
     entry << fileNameCounter_ << " "
 	  << fileName_
@@ -192,10 +191,12 @@ StreamerOutputService::~StreamerOutputService()
     files_.push_back(entry.str());
     closedFiles_ += ", ";
     closedFiles_ += fileName_;
-    
+
     std::cout << "#    name                             evt        size     " << endl;
-    for(std::list<std::string>::const_iterator it = files_.begin(); it != files_.end(); it++)
+    for(std::list<std::string>::const_iterator it = files_.begin(), itEnd = files_.end();
+	  it != itEnd; ++it) {
       std::cout << *it << endl;
+    }
     std::cout << "Disk Usage = " << diskUsage_ << endl;
     std::cout << "Closed files = " << closedFiles_ << endl;
   }
@@ -216,26 +217,26 @@ void StreamerOutputService::writeHeader(InitMsgView const& init_message)
     currentFileSize_ += init_message.size();
 
   }
-  
+
 bool StreamerOutputService::writeEvent(EventMsgView const& eview, uint32 hltsize)
-  { 
+  {
     bool returnVal = true;
 
     //Check if this event meets the selection criteria, if not skip it.
-    if ( ! wantsEvent(eview) ) 
+    if (!wantsEvent(eview))
       return returnVal;
 
     // since only the file size is checked here, we don't care that one event
     // will be written even though the condition for closing the file
     // is satisfied ... has to change later.
-    if ( currentFileSize_ >= maxFileSize_ )
+    if (currentFileSize_ >= maxFileSize_)
       returnVal = false;
 
     //Write the Event Message to Streamer and index
     streamNindex_writer_->doOutputEvent(eview);
-    
-    eventsInFile_++;
-    totalEventCount_++;
+
+    ++eventsInFile_;
+    ++totalEventCount_;
     currentFileSize_ += eview.size();
 
     return returnVal;
@@ -246,64 +247,63 @@ void StreamerOutputService::closeFile(EventMsgView const& eview)
     checkFileSystem(); // later should take some action
     stop();
     writeToMailBox();
-    
-    statistics_  -> setFileSize((uint32) currentFileSize_ );
-    statistics_  -> setEventCount((uint32) eventsInFile_ ); 
-    statistics_  -> setRunNumber((uint32) eview.run());
-    statistics_  -> writeStat();
-    
-    fileNameCounter_++;
-    
+
+    statistics_->setFileSize(static_cast<uint32>(currentFileSize_));
+    statistics_->setEventCount(static_cast<uint32>(eventsInFile_));
+    statistics_->setRunNumber(static_cast<uint32>(eview.run()));
+    statistics_->writeStat();
+
+    ++fileNameCounter_;
+
     string tobeclosedFile = fileName_;
-    
+
     std::ostringstream newFileName;
     newFileName << path_ << "/";
-    if (nLogicalDisk_ != 0 )
-      {
-	newFileName  << (fileNameCounter_ % nLogicalDisk_) << "/";
-	remove( lockFileName_.c_str() );
-	lockFileName_   = newFileName.str() + ".lock";
+    if (nLogicalDisk_ != 0) {
+	newFileName << (fileNameCounter_ % nLogicalDisk_) << "/";
+	remove(lockFileName_.c_str());
+	lockFileName_ = newFileName.str() + ".lock";
 	ofstream *lockFile =
-	  new ofstream(lockFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+	  new ofstream(lockFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app);
 	delete(lockFile);
-      }
-    
+    }
+
     newFileName << filen_ << "." << fileNameCounter_ ;
     fileName_      = newFileName.str() + ".dat";
     indexFileName_ = newFileName.str() + ".ind";
-    
-    statistics_  = boost::shared_ptr<edm::StreamerStatWriteService> 
+
+    statistics_ = boost::shared_ptr<edm::StreamerStatWriteService>
       (new edm::StreamerStatWriteService(eview.run(), "-", indexFileName_, fileName_, catalog_));
-    
+
     streamNindex_writer_.reset(new StreamerFileWriter(fileName_, indexFileName_));
-    
+
     // write out the summary line for this last file
     std::ostringstream entry;
-    entry << (fileNameCounter_ - 1) << " " 
+    entry << (fileNameCounter_ - 1) << " "
 	  << tobeclosedFile
 	  << " " << eventsInFile_
 	  << "   " << currentFileSize_;
     files_.push_back(entry.str());
     if(fileNameCounter_!=1) closedFiles_ += ", ";
     closedFiles_ += tobeclosedFile;
-    
-    eventsInFile_ = 0; 
+
+    eventsInFile_ = 0;
     currentFileSize_ = 0;
     // write the Header for the newly openned file
     // from the previously saved INIT msg
     InitMsgView myview(&saved_initmsg_[0]);
-    
+
     writeHeader(myview);
   }
 
-bool StreamerOutputService::wantsEvent(EventMsgView const& eventView) 
+bool StreamerOutputService::wantsEvent(EventMsgView const& eventView)
   {
     std::vector<unsigned char> hlt_out;
     hlt_out.resize(1 + (eventView.hltCount()-1)/4);
     eventView.hltTriggerBits(&hlt_out[0]);
     /* --- print the trigger bits from the event header
     std::cout << ">>>>>>>>>>>Trigger bits:" << std::endl;
-    for(int i=0; i< hlt_out.size(); ++i)
+    for(int i = 0; i < hlt_out.size(); ++i)
     {
       unsigned int test = static_cast<unsigned int>(hlt_out[i]);
       std::cout<< hex << ">>>>>>>>>>>  bits = " << test << " " << hlt_out[i] << std::endl;
@@ -330,16 +330,16 @@ bool StreamerOutputService::wantsEvent(EventMsgView const& eventView)
     of << fileName_;
     of.close();
   }
-  
+
   void StreamerOutputService::checkFileSystem()
   {
     struct statfs64 buf;
     int retVal = statfs64(path_.c_str(), &buf);
     if(retVal!=0)
-      //edm::LogWarning("StreamerOutputService") << "Could not stat output filesystem for path " 
-      std::cout << "StreamerOutputService: " << "Could not stat output filesystem for path " 
+      //edm::LogWarning("StreamerOutputService") << "Could not stat output filesystem for path "
+      std::cout << "StreamerOutputService: " << "Could not stat output filesystem for path "
                                                << path_ << std::endl;
-  
+
     unsigned int btotal = 0;
     unsigned int bfree = 0;
     unsigned int blksize = 0;
@@ -347,14 +347,14 @@ bool StreamerOutputService::wantsEvent(EventMsgView const& eventView)
       {
         blksize = buf.f_bsize;
         btotal = buf.f_blocks;
-        bfree  = buf.f_bfree;
+        bfree = buf.f_bfree;
       }
     float dfree = float(bfree)/float(btotal);
     float dusage = 1. - dfree;
     diskUsage_ = dusage;
     if(dusage>highWaterMark_)
-      //edm::LogWarning("StreamerOutputService") << "Output filesystem for path " << path_ 
-      std::cout << "StreamerOutputService: " << "Output filesystem for path " << path_ 
+      //edm::LogWarning("StreamerOutputService") << "Output filesystem for path " << path_
+      std::cout << "StreamerOutputService: " << "Output filesystem for path " << path_
                                  << " is more than " << highWaterMark_*100 << "% full " << std::endl;
   }
 

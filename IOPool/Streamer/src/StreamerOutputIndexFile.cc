@@ -50,7 +50,7 @@
     indexfile_->ost()->write((const char*) &offsetstr, sizeof(uint64) );
     if (indexfile_->events_ == 0) 
        indexfile_->first_event_offset_ = (uint64) offset;
-    indexfile_->events_++; 
+    ++indexfile_->events_; 
     /** Offset of last written event */
     indexfile_->last_event_offset_ = (uint64) offset; 
   }
@@ -70,7 +70,7 @@
     indexfile_->ost()->write((const char*) &offsetstr, sizeof(uint64) );
     if (indexfile_->events_ == 0)
        indexfile_->first_event_offset_ = (uint64) offset;
-    indexfile_->events_++;
+    ++indexfile_->events_;
     /** Offset of last written event */
     indexfile_->last_event_offset_ = (uint64) offset;
   }

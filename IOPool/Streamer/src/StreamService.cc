@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.8 2007/01/10 18:07:19 klute Exp $
+// $Id: StreamService.cc,v 1.9 2007/01/22 08:11:45 klute Exp $
 
 #include "IOPool/Streamer/interface/StreamService.h"
 #include "IOPool/Streamer/interface/ProgressMarker.h"
@@ -32,7 +32,7 @@ StreamService::StreamService(ParameterSet const& pset, InitMsgView const& view):
 bool StreamService::nextEvent(EventMsgView const& view)
 {
   ProgressMarker::instance()->processing(true);
-  if ( ! acceptEvent(view) )
+  if (!acceptEvent(view))
     {
       ProgressMarker::instance()->processing(false);
       return false;
@@ -43,7 +43,7 @@ bool StreamService::nextEvent(EventMsgView const& view)
   ProgressMarker::instance()->processing(false);
   
   ProgressMarker::instance()->writing(true);
-  outputService -> writeEvent(view);
+  outputService->writeEvent(view);
   closeTimedOutFiles();
   ProgressMarker::instance()->writing(false);
   return true;
@@ -67,14 +67,12 @@ void StreamService::closeTimedOutFiles()
 {
   // can be done in a more clever way ... 
   double currentTime = getCurrentTime();
-  for (OutputMapIterator it = outputMap_.begin();  it != outputMap_.end(); it++)
-    {
-      if ( currentTime - it->second->lastEntry() > lumiSectionTimeOut_ )
-	{
+  for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); ++it) {
+      if (currentTime - it->second->lastEntry() > lumiSectionTimeOut_) {
 	  outputMap_.erase(it);
 	  it = outputMap_.begin();
-	}
-    }
+      }
+  }
 }
 
 
@@ -84,19 +82,16 @@ void StreamService::closeTimedOutFiles()
 //
 boost::shared_ptr<OutputService> StreamService::getOutputService(EventMsgView const& view)
 {
-  for (OutputMapIterator it = outputMap_.begin();  it != outputMap_.end(); it++)
-    {
-       if ( it->first->lumiSection() == lumiSection_) 
-	{
+  for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); ++it) {
+       if (it->first->lumiSection() == lumiSection_) {
 	  if (checkEvent(it->first, view))
 	    return it->second;
-	  else
-	    {
+	  else {
 	      outputMap_.erase(it);
 	      break;
-	    }
-	}
-    }
+	  }
+      }
+  }
   return newOutputService();
 }
 
@@ -113,10 +108,10 @@ boost::shared_ptr<OutputService> StreamService::newOutputService()
   boost::shared_ptr<FileRecord> file = generateFileRecord();
   InitMsgView view(&saved_initmsg_[0]);
 
-  shared_ptr<OutputService> outputService (new OutputService(file, view));
+  shared_ptr<OutputService> outputService(new OutputService(file, view));
 
   outputMap_[file] = outputService;
-  outputSummary_ . push_back(file);  
+  outputSummary_.push_back(file);  
 
   handleLock(file); 
   return outputService;
@@ -130,12 +125,12 @@ boost::shared_ptr<OutputService> StreamService::newOutputService()
 void StreamService::handleLock(shared_ptr<FileRecord> file)
 {
   string lockFileName = currentLockPath_ + ".lock";
-  remove( lockFileName.c_str() );
+  remove(lockFileName.c_str());
 
-  currentLockPath_ = file -> filePath();  
+  currentLockPath_ = file->filePath();  
   lockFileName = currentLockPath_ + ".lock";
 
-  ofstream *lockFile  = new ofstream(lockFileName.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+  ofstream *lockFile  = new ofstream(lockFileName.c_str(), ios_base::ate | ios_base::out | ios_base::app);
   delete(lockFile);
 }
 
@@ -146,7 +141,7 @@ void StreamService::handleLock(shared_ptr<FileRecord> file)
 //
 bool StreamService::checkEvent(shared_ptr<FileRecord> file, EventMsgView const& view)
 {
-  if (file -> fileSize() + (int) view.size() > maxSize_ && file -> events() > 0)
+  if (file->fileSize() + static_cast<int>(view.size()) > maxSize_ && file->events() > 0)
     return false;
 
   return true;
@@ -255,8 +250,7 @@ void StreamService::setStreamParameter()
 //     but in any case we have to make sure that file names are
 //     unique. 
 //
-//     Keep a list of file names and check if file name 
-//     was not already used in this run. 
+//     Keep a list of file names and check if file name //     was not already used in this run. 
 //
 boost::shared_ptr<FileRecord> StreamService::generateFileRecord()
 {
@@ -271,20 +265,18 @@ boost::shared_ptr<FileRecord> StreamService::generateFileRecord()
 
   shared_ptr<FileRecord> fd = shared_ptr<FileRecord>(new FileRecord(lumiSection_, fileName, filePath_));    
 
-  for (OutputSummaryReIterator it = outputSummary_.rbegin(); it != outputSummary_.rend(); it++)
-    {
-      if ( (*it)->fileName() == fd->fileName() )
-	{
-	  fd->setFileCounter( (*it)->fileCounter()+1 );
+  for (OutputSummaryReIterator it = outputSummary_.rbegin(), itEnd = outputSummary_.rend(); it != itEnd; ++it) {
+      if ((*it)->fileName() == fd->fileName()) {
+	  fd->setFileCounter((*it)->fileCounter() + 1);
 	  break;
-	}
-    }
+      }
+  }
 
-  if ( numberOfFileSystems_ > 0 && numberOfFileSystems_ < 100 )
-    fd -> fileSystem(( runNumber_+ outputSummary_.size() ) % numberOfFileSystems_); 
+  if (numberOfFileSystems_ > 0 && numberOfFileSystems_ < 100)
+    fd->fileSystem((runNumber_ + outputSummary_.size()) % numberOfFileSystems_); 
   
-  fd -> checkDirectories();
-  fd -> setCatalog(catalog_);
+  fd->checkDirectories();
+  fd->setCatalog(catalog_);
   // fd->report(cout, 12);
   return fd;
 }
@@ -297,8 +289,7 @@ boost::shared_ptr<FileRecord> StreamService::generateFileRecord()
 std::list<std::string> StreamService::getFileList()
 {
   std::list<std::string> files_;
-  for (OutputSummaryIterator it = outputSummary_.begin(); it != outputSummary_.end(); it++)
-  {
+  for (OutputSummaryIterator it = outputSummary_.begin(), itEnd = outputSummary_.end(); it != itEnd; ++it) {
     std::ostringstream entry;
     entry << (*it)->fileCounter() << " " 
           << (*it)->completeFileName() << " " 
@@ -316,9 +307,10 @@ std::list<std::string> StreamService::getFileList()
 std::list<std::string> StreamService::getCurrentFileList()
 {
   std::list<std::string> files_;
-  for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); it++)
+  for (OutputMapIterator it = outputMap_.begin(), itEnd = outputMap_.end(); it != itEnd; ++it) {
     files_.push_back(it->first->completeFileName());
- return files_;
+  }
+  return files_;
 }
 
 
