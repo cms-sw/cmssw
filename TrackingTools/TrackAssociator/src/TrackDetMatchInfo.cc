@@ -32,10 +32,28 @@ int TrackDetMatchInfo::numberOfSegmentsInDetector(int detector) const {
    return numSegments;
 }
 
+///////////////////////////
+
 double TrackDetMatchInfo::ecalEnergy()
 {
    double energy(0);
    for(std::vector<EcalRecHit>::const_iterator hit=crossedEcalRecHits.begin(); hit!=crossedEcalRecHits.end(); hit++)
+     energy += hit->energy();
+   return energy;
+}
+
+double TrackDetMatchInfo::hcalEnergy()
+{
+   double energy(0);
+   for(std::vector<HBHERecHit>::const_iterator hit = crossedHcalRecHits.begin(); hit != crossedHcalRecHits.end(); hit++)
+     energy += hit->energy();
+   return energy;
+}
+
+double TrackDetMatchInfo::hoEnergy()
+{
+   double energy(0);
+   for(std::vector<HORecHit>::const_iterator hit = crossedHORecHits.begin(); hit != crossedHORecHits.end(); hit++)
      energy += hit->energy();
    return energy;
 }
@@ -47,6 +65,74 @@ double TrackDetMatchInfo::ecalConeEnergy()
      energy += hit->energy();
    return energy;
 }
+
+double TrackDetMatchInfo::hcalConeEnergy()
+{
+   double energy(0);
+   for(std::vector<HBHERecHit>::const_iterator hit=hcalRecHits.begin(); hit!=hcalRecHits.end(); hit++)
+     energy += hit->energy();
+   return energy;
+}
+
+double TrackDetMatchInfo::hoConeEnergy()
+{
+   double energy(0);
+   for(std::vector<HORecHit>::const_iterator hit=hoRecHits.begin(); hit!=hoRecHits.end(); hit++)
+     energy += hit->energy();
+   return energy;
+}
+
+double TrackDetMatchInfo::ecalTowerConeEnergy()
+{
+   double energy(0);
+   for(std::vector<CaloTower>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++)
+     energy += hit->emEnergy();
+   return energy;
+}
+
+double TrackDetMatchInfo::hcalTowerConeEnergy()
+{
+   double energy(0);
+   for(std::vector<CaloTower>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++)
+     energy += hit->hadEnergy();
+   return energy;
+}
+
+double TrackDetMatchInfo::hoTowerConeEnergy()
+{
+   double energy(0);
+   for(std::vector<CaloTower>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++)
+     energy += hit->outerEnergy();
+   return energy;
+}
+
+double TrackDetMatchInfo::ecalTowerEnergy()
+{
+   double energy(0);
+   for(std::vector<CaloTower>::const_iterator tower=crossedTowers.begin(); tower!=crossedTowers.end(); tower++)
+     energy += tower->emEnergy();
+   return energy;
+}
+
+double TrackDetMatchInfo::hcalTowerEnergy()
+{
+   double energy(0);
+   for(std::vector<CaloTower>::const_iterator tower=crossedTowers.begin(); tower!=crossedTowers.end(); tower++)
+     energy += tower->hadEnergy();
+   return energy;
+}
+
+double TrackDetMatchInfo::hoTowerEnergy()
+{
+   double energy(0);
+   for(std::vector<CaloTower>::const_iterator tower=crossedTowers.begin(); tower!=crossedTowers.end(); tower++)
+     energy += tower->outerEnergy();
+   return energy;
+}
+
+
+
+//////////////////////////////////////////////////
 
 double TrackDetMatchInfo::ecalNeighborHitEnergy(int gridSize)
 {
@@ -104,22 +190,6 @@ double TrackDetMatchInfo::ecalNeighborTowerEnergy(int gridSize)
    return energy;
 }
 
-double TrackDetMatchInfo::hcalConeEnergy()
-{
-   double energy(0);
-   for(std::vector<CaloTower>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++)
-     energy += hit->hadEnergy();
-   return energy;
-}
-
-double TrackDetMatchInfo::hcalEnergy()
-{
-   double energy(0);
-   for(std::vector<CaloTower>::const_iterator tower=crossedTowers.begin(); tower!=crossedTowers.end(); tower++)
-     energy += tower->hadEnergy();
-   return energy;
-}
-
 double TrackDetMatchInfo::hcalNeighborEnergy(int gridSize)
 {
    double energy(0);
@@ -140,37 +210,6 @@ double TrackDetMatchInfo::hcalNeighborEnergy(int gridSize)
    return energy;
 }
 
-double TrackDetMatchInfo::outerHcalConeEnergy()
-{
-   double energy(0);
-   for(std::vector<CaloTower>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++)
-     energy += hit->outerEnergy();
-   return energy;
-}
-
-double TrackDetMatchInfo::outerHcalEnergy()
-{
-   double energy(0);
-   for(std::vector<CaloTower>::const_iterator tower=crossedTowers.begin(); tower!=crossedTowers.end(); tower++)
-     energy += tower->outerEnergy();
-   return energy;
-}
-
-double TrackDetMatchInfo::ecalTowerConeEnergy()
-{
-   double energy(0);
-   for(std::vector<CaloTower>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++)
-     energy += hit->emEnergy();
-   return energy;
-}
-
-double TrackDetMatchInfo::ecalTowerEnergy()
-{
-   double energy(0);
-   for(std::vector<CaloTower>::const_iterator tower=crossedTowers.begin(); tower!=crossedTowers.end(); tower++)
-     energy += tower->emEnergy();
-   return energy;
-}
 
 TrackDetMatchInfo::TrackDetMatchInfo():
        trkGlobPosAtEcal(0,0,0)

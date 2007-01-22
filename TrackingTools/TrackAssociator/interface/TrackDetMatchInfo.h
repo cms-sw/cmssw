@@ -14,21 +14,28 @@ class TrackDetMatchInfo {
    TrackDetMatchInfo();
    /// ECAL energy 
    double ecalEnergy();
-   /// HCAL energy 
-   double hcalEnergy();
-   
    double ecalConeEnergy();
+   
+   /// HCAL energy (HE+HB)
+   double hcalEnergy();
    double hcalConeEnergy();
+   
+   /// HO energy
+   double hoEnergy();
+   double hoConeEnergy();
+
+   /// Calo tower info
+   double ecalTowerEnergy();
+   double ecalTowerConeEnergy();
+   double hcalTowerEnergy();
+   double hcalTowerConeEnergy();
+   double hoTowerEnergy();
+   double hoTowerConeEnergy();
 
    double ecalNeighborHitEnergy(int gridSize);
    double ecalNeighborTowerEnergy(int gridSize);
    double hcalNeighborEnergy(int gridSize);
    
-   double outerHcalEnergy();
-   double outerHcalConeEnergy();
-
-   double ecalTowerEnergy();
-   double ecalTowerConeEnergy();
 
    int numberOfSegments() const;
    int numberOfSegmentsInStation(int station) const;
