@@ -132,7 +132,7 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     // Note absIeta counts from 1-28 (not 0-27)
     unsigned short absIeta = (unsigned short) abs(ieta);
     unsigned short cal_iphi = (unsigned short) ecalCollection[i].id().iphi(); 
-    unsigned short iphi = (72 + 20 - cal_iphi) % 72; // transform TOWERS (not regions) into local rct (intuitive) phi bins
+    unsigned short iphi = (72 + 18 - cal_iphi) % 72; // transform TOWERS (not regions) into local rct (intuitive) phi bins
 
 //     if (ecalCollection[i].compressedEt()>0) { 
 //    cout << "Energy " << ecalCollection[i].compressedEt()
