@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TestTrackAssociator.cc,v 1.5 2007/01/21 15:30:36 dmytro Exp $
+// $Id: TestTrackAssociator.cc,v 1.6 2007/01/22 08:27:57 dmytro Exp $
 //
 //
 
@@ -76,7 +76,7 @@
 
 #include <boost/regex.hpp>
 
-#include "TrackingTools/TrackAssociator/interface/TrackAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TimerStack.h"
 
 class TestTrackAssociator : public edm::EDAnalyzer {
@@ -89,7 +89,7 @@ class TestTrackAssociator : public edm::EDAnalyzer {
    virtual void analyze (const edm::Event&, const edm::EventSetup&);
 
  private:
-   TrackAssociator trackAssociator_;
+   TrackDetectorAssociator trackAssociator_;
    bool useEcal_;
    bool useHcal_;
    bool useMuon_;
@@ -180,7 +180,7 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	}
 				       
       // Get HCAL energy in more generic way
-      TrackAssociator::AssociatorParameters parameters;
+      TrackDetectorAssociator::AssociatorParameters parameters;
       parameters.useEcal = useEcal_ ;
       parameters.useHcal = useHcal_ ;
       parameters.useHO = useHcal_ ;

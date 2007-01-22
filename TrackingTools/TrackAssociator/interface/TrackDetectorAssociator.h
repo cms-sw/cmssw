@@ -1,10 +1,10 @@
-#ifndef TrackAssociator_TrackAssociator_h
-#define TrackAssociator_TrackAssociator_h 1
+#ifndef TrackAssociator_TrackDetectorAssociator_h
+#define TrackAssociator_TrackDetectorAssociator_h 1
 
 // -*- C++ -*-
 //
 // Package:    TrackAssociator
-// Class:      TrackAssociator
+// Class:      TrackDetectorAssociator
 // 
 /*
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.h,v 1.6 2007/01/21 15:30:35 dmytro Exp $
+// $Id: TrackDetectorAssociator.h,v 1.7 2007/01/22 08:24:51 dmytro Exp $
 //
 //
 
@@ -47,10 +47,10 @@
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 
-class TrackAssociator {
+class TrackDetectorAssociator {
  public:
-   TrackAssociator();
-   ~TrackAssociator();
+   TrackDetectorAssociator();
+   ~TrackDetectorAssociator();
    
    class AssociatorParameters {
     public:

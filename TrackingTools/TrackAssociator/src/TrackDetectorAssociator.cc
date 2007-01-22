@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:    TrackAssociator
-// Class:      TrackAssociator
+// Class:      TrackDetectorAssociator
 // 
 /*
 
@@ -13,11 +13,11 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.16 2007/01/21 15:30:36 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.17 2007/01/22 08:24:50 dmytro Exp $
 //
 //
 
-#include "TrackingTools/TrackAssociator/interface/TrackAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -83,19 +83,19 @@
 
 using namespace reco;
 
-TrackAssociator::TrackAssociator() 
+TrackDetectorAssociator::TrackDetectorAssociator() 
 {
    ivProp_ = 0;
    defProp_ = 0;
    useDefaultPropagator_ = false;
 }
 
-TrackAssociator::~TrackAssociator()
+TrackDetectorAssociator::~TrackDetectorAssociator()
 {
    if (defProp_) delete defProp_;
 }
 
-void TrackAssociator::addDataLabels( const std::string className,
+void TrackDetectorAssociator::addDataLabels( const std::string className,
 				     const std::string moduleLabel,
 				     const std::string productInstanceLabel)
 {
@@ -144,19 +144,19 @@ void TrackAssociator::addDataLabels( const std::string className,
 }
 
 
-void TrackAssociator::setPropagator( Propagator* ptr)
+void TrackDetectorAssociator::setPropagator( Propagator* ptr)
 {
    ivProp_ = ptr;
    cachedTrajectory_.setPropagator(ivProp_);
 }
 
-void TrackAssociator::useDefaultPropagator()
+void TrackDetectorAssociator::useDefaultPropagator()
 {
    useDefaultPropagator_ = true;
 }
 
 
-void TrackAssociator::init( const edm::EventSetup& iSetup )
+void TrackDetectorAssociator::init( const edm::EventSetup& iSetup )
 {
    // access the calorimeter geometry
    iSetup.get<IdealGeometryRecord>().get(theCaloGeometry_);
@@ -184,7 +184,7 @@ void TrackAssociator::init( const edm::EventSetup& iSetup )
 	
 }
 
-TrackDetMatchInfo TrackAssociator::associate( const edm::Event& iEvent,
+TrackDetMatchInfo TrackDetectorAssociator::associate( const edm::Event& iEvent,
 					      const edm::EventSetup& iSetup,
 					      const SteppingHelixStateInfo& trackOrigin,
 					      const AssociatorParameters& parameters )
@@ -195,7 +195,7 @@ TrackDetMatchInfo TrackAssociator::associate( const edm::Event& iEvent,
    init( iSetup );
    
    // get track trajectory
-   // timers.push("TrackAssociator::fillEcal::propagation");
+   // timers.push("TrackDetectorAssociator::fillEcal::propagation");
    // ECAL points (EB+EE)
    // If the phi angle between a track entrance and exit points is more
    // than 2 crystals, it is possible that the track will cross 3 crystals
@@ -231,12 +231,12 @@ TrackDetMatchInfo TrackAssociator::associate( const edm::Event& iEvent,
    return info;
 }
 
-void TrackAssociator::fillEcal( const edm::Event& iEvent,
+void TrackDetectorAssociator::fillEcal( const edm::Event& iEvent,
 				TrackDetMatchInfo& info,
 				const AssociatorParameters& parameters)
 {
    TimerStack timers;
-   timers.push("TrackAssociator::fillEcal");
+   timers.push("TrackDetectorAssociator::fillEcal");
    
    const std::vector<SteppingHelixStateInfo>& trajectoryStates = cachedTrajectory_.getEcalTrajectory();
    std::vector<GlobalPoint> trajectory;
@@ -246,14 +246,14 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
    ecalDetIdAssociator_.setGeometry(&*theCaloGeometry_);
    
    if(trajectory.empty()) {
-      LogTrace("TrackAssociator::fillEcal") << "ECAL track trajectory is empty; moving on\n";
+      LogTrace("TrackDetectorAssociator::fillEcal") << "ECAL track trajectory is empty; moving on\n";
       info.isGoodEcal = 0;
       return;
    }
    info.isGoodEcal = 1;
 
    // Find ECAL crystals
-   timers.pop_and_push("TrackAssociator::fillEcal::access::EcalBarrel");
+   timers.pop_and_push("TrackDetectorAssociator::fillEcal::access::EcalBarrel");
    edm::Handle<EBRecHitCollection> EBRecHits;
    if (EBRecHitCollectionLabels.empty())
      throw cms::Exception("FatalError") << "Module lable is not set for EBRecHitCollection.\n";
@@ -261,7 +261,7 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
      iEvent.getByLabel (EBRecHitCollectionLabels[0], EBRecHitCollectionLabels[1], EBRecHits);
    if (!EBRecHits.isValid()) throw cms::Exception("FatalError") << "Unable to find EBRecHitCollection in event!\n";
 
-   timers.pop_and_push("TrackAssociator::fillEcal::access::EcalEndcaps");
+   timers.pop_and_push("TrackDetectorAssociator::fillEcal::access::EcalEndcaps");
    edm::Handle<EERecHitCollection> EERecHits;
    if (EERecHitCollectionLabels.empty())
      throw cms::Exception("FatalError") << "Module lable is not set for EERecHitCollection.\n";
@@ -269,16 +269,16 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
      iEvent.getByLabel (EERecHitCollectionLabels[0], EERecHitCollectionLabels[1], EERecHits);
    if (!EERecHits.isValid()) throw cms::Exception("FatalError") << "Unable to find EERecHitCollection in event!\n";
 
-   timers.pop_and_push("TrackAssociator::fillEcal::matching");
+   timers.pop_and_push("TrackDetectorAssociator::fillEcal::matching");
    std::set<DetId> ecalIdsInRegion = ecalDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0],parameters.dREcalPreselection);
-   LogTrace("TrackAssociator") << "ECAL hits in the region: " << ecalIdsInRegion.size();
+   LogTrace("TrackDetectorAssociator") << "ECAL hits in the region: " << ecalIdsInRegion.size();
    std::set<DetId> ecalIdsInACone =  ecalDetIdAssociator_.getDetIdsInACone(ecalIdsInRegion, trajectory, parameters.dREcal);
-   LogTrace("TrackAssociator") << "ECAL hits in the cone: " << ecalIdsInACone.size();
+   LogTrace("TrackDetectorAssociator") << "ECAL hits in the cone: " << ecalIdsInACone.size();
    std::set<DetId> crossedEcalIds =  ecalDetIdAssociator_.getCrossedDetIds(ecalIdsInRegion, trajectory);
-   LogTrace("TrackAssociator") << "ECAL crossed hits " << crossedEcalIds.size();
+   LogTrace("TrackDetectorAssociator") << "ECAL crossed hits " << crossedEcalIds.size();
    
    // add EcalRecHits
-   timers.pop_and_push("TrackAssociator::fillEcal::addEcalRecHits");
+   timers.pop_and_push("TrackDetectorAssociator::fillEcal::addEcalRecHits");
    for(std::set<DetId>::const_iterator itr=crossedEcalIds.begin(); itr!=crossedEcalIds.end();itr++)
    {
       std::vector<EcalRecHit>::const_iterator ebHit = (*EBRecHits).find(*itr);
@@ -288,7 +288,7 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
       else if(eeHit != (*EERecHits).end()) 
          info.crossedEcalRecHits.push_back(*eeHit);
       else  
-         LogTrace("TrackAssociator::fillEcal") << "Crossed EcalRecHit is not found for DetId: " << itr->rawId();
+         LogTrace("TrackDetectorAssociator::fillEcal") << "Crossed EcalRecHit is not found for DetId: " << itr->rawId();
    }
    for(std::set<DetId>::const_iterator itr=ecalIdsInACone.begin(); itr!=ecalIdsInACone.end();itr++)
    {
@@ -299,17 +299,17 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
       else if(eeHit != (*EERecHits).end()) 
          info.ecalRecHits.push_back(*eeHit);
       else 
-         LogTrace("TrackAssociator::fillEcal") << "EcalRecHit from the cone is not found for DetId: " << itr->rawId();
+         LogTrace("TrackDetectorAssociator::fillEcal") << "EcalRecHit from the cone is not found for DetId: " << itr->rawId();
    }
 }
 
-void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
+void TrackDetectorAssociator::fillCaloTowers( const edm::Event& iEvent,
 				      TrackDetMatchInfo& info,
 				      const AssociatorParameters& parameters)
 {
    // ECAL hits are not used for the CaloTower identification
    TimerStack timers;
-   timers.push("TrackAssociator::fillCaloTowers");
+   timers.push("TrackDetectorAssociator::fillCaloTowers");
 
    caloDetIdAssociator_.setGeometry(&*theCaloGeometry_);
 
@@ -319,14 +319,14 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
        itr != trajectoryStates.end(); itr++) trajectory.push_back(itr->position());
    
    if(trajectory.empty()) {
-      LogTrace("TrackAssociator::fillCaloTowers") << "HCAL trajectory is empty; moving on\n";
+      LogTrace("TrackDetectorAssociator::fillCaloTowers") << "HCAL trajectory is empty; moving on\n";
       info.isGoodCalo = 0;
       return;
    }
    info.isGoodCalo = 1;
    
    // find crossed CaloTowers
-   timers.pop_and_push("TrackAssociator::fillCaloTowers::access::CaloTowers");
+   timers.pop_and_push("TrackDetectorAssociator::fillCaloTowers::access::CaloTowers");
    edm::Handle<CaloTowerCollection> caloTowers;
 
    if (CaloTowerCollectionLabels.empty())
@@ -336,23 +336,23 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
      iEvent.getByLabel (CaloTowerCollectionLabels[0], CaloTowerCollectionLabels[1], caloTowers);
    if (!caloTowers.isValid())  throw cms::Exception("FatalError") << "Unable to find CaloTowers in event!\n";
    
-   timers.push("TrackAssociator::fillCaloTowers::matching");
+   timers.push("TrackDetectorAssociator::fillCaloTowers::matching");
    std::set<DetId> caloTowerIdsInRegion = caloDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0],parameters.dRHcalPreselection);
-   LogTrace("TrackAssociator") << "Towers in the region: " << caloTowerIdsInRegion.size();
+   LogTrace("TrackDetectorAssociator") << "Towers in the region: " << caloTowerIdsInRegion.size();
    std::set<DetId> caloTowerIdsInACone = caloDetIdAssociator_.getDetIdsInACone(caloTowerIdsInRegion, trajectory, parameters.dRHcal);
-   LogTrace("TrackAssociator") << "Towers in the cone: " << caloTowerIdsInACone.size();
+   LogTrace("TrackDetectorAssociator") << "Towers in the cone: " << caloTowerIdsInACone.size();
    std::set<DetId> crossedCaloTowerIds = caloDetIdAssociator_.getCrossedDetIds(caloTowerIdsInRegion, trajectory);
-   LogTrace("TrackAssociator") << "Towers crossed: " << crossedCaloTowerIds.size();
+   LogTrace("TrackDetectorAssociator") << "Towers crossed: " << crossedCaloTowerIds.size();
    
    // add CaloTowers
-   timers.push("TrackAssociator::fillCaloTowers::addCaloTowers");
+   timers.push("TrackDetectorAssociator::fillCaloTowers::addCaloTowers");
    for(std::set<DetId>::const_iterator itr=crossedCaloTowerIds.begin(); itr!=crossedCaloTowerIds.end();itr++)
      {
 	CaloTowerCollection::const_iterator tower = (*caloTowers).find(*itr);
 	if(tower != (*caloTowers).end()) 
 	  info.crossedTowers.push_back(*tower);
 	else
-	  LogTrace("TrackAssociator::fillCalo") << "Crossed CaloTower is not found for DetId: " << (*itr).rawId();
+	  LogTrace("TrackDetectorAssociator::fillCalo") << "Crossed CaloTower is not found for DetId: " << (*itr).rawId();
      }
 
    for(std::set<DetId>::const_iterator itr=caloTowerIdsInACone.begin(); itr!=caloTowerIdsInACone.end();itr++)
@@ -361,17 +361,17 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 	if(tower != (*caloTowers).end()) 
 	  info.towers.push_back(*tower);
 	else 
-	  LogTrace("TrackAssociator::fillCalo") << "CaloTower from the cone is not found for DetId: " << (*itr).rawId();
+	  LogTrace("TrackDetectorAssociator::fillCalo") << "CaloTower from the cone is not found for DetId: " << (*itr).rawId();
      }
    
 }
 
-void TrackAssociator::fillHcal( const edm::Event& iEvent,
+void TrackDetectorAssociator::fillHcal( const edm::Event& iEvent,
 				TrackDetMatchInfo& info,
 				const AssociatorParameters& parameters)
 {
    TimerStack timers;
-   timers.push("TrackAssociator::fillHcals");
+   timers.push("TrackDetectorAssociator::fillHcals");
 
    hcalDetIdAssociator_.setGeometry(&*theCaloGeometry_);
    
@@ -381,14 +381,14 @@ void TrackAssociator::fillHcal( const edm::Event& iEvent,
        itr != trajectoryStates.end(); itr++) trajectory.push_back(itr->position());
 
    if(trajectory.empty()) {
-      LogTrace("TrackAssociator::fillHcal") << "HCAL trajectory is empty; moving on\n";
+      LogTrace("TrackDetectorAssociator::fillHcal") << "HCAL trajectory is empty; moving on\n";
       info.isGoodHcal = 0;
       return;
    }
    info.isGoodHcal = 1;
    
    // find crossed Hcals
-   timers.pop_and_push("TrackAssociator::fillHcal::access::Hcal");
+   timers.pop_and_push("TrackDetectorAssociator::fillHcal::access::Hcal");
    edm::Handle<HBHERecHitCollection> collection;
 
    if (HBHERecHitCollectionLabels.empty())
@@ -397,23 +397,23 @@ void TrackAssociator::fillHcal( const edm::Event& iEvent,
      iEvent.getByLabel (HBHERecHitCollectionLabels[0], HBHERecHitCollectionLabels[1], collection);
    if ( ! collection.isValid() ) throw cms::Exception("FatalError") << "Unable to find HBHERecHits in event!\n";
    
-   timers.push("TrackAssociator::fillHcal::matching");
+   timers.push("TrackDetectorAssociator::fillHcal::matching");
    std::set<DetId> idsInRegion = hcalDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0],parameters.dRHcalPreselection);
-   LogTrace("TrackAssociator") << "HCAL hits in the region: " << idsInRegion.size() << "\n" << DetIdInfo::info(idsInRegion);
+   LogTrace("TrackDetectorAssociator") << "HCAL hits in the region: " << idsInRegion.size() << "\n" << DetIdInfo::info(idsInRegion);
    std::set<DetId> idsInACone = hcalDetIdAssociator_.getDetIdsInACone(idsInRegion, trajectory, parameters.dRHcal);
-   LogTrace("TrackAssociator") << "HCAL hits in the cone: " << idsInACone.size() << "\n" << DetIdInfo::info(idsInACone);
+   LogTrace("TrackDetectorAssociator") << "HCAL hits in the cone: " << idsInACone.size() << "\n" << DetIdInfo::info(idsInACone);
    std::set<DetId> crossedIds = hcalDetIdAssociator_.getCrossedDetIds(idsInRegion, trajectory);
-   LogTrace("TrackAssociator") << "HCAL hits crossed: " << crossedIds.size() << "\n" << DetIdInfo::info(crossedIds);
+   LogTrace("TrackDetectorAssociator") << "HCAL hits crossed: " << crossedIds.size() << "\n" << DetIdInfo::info(crossedIds);
    
    // add Hcal
-   timers.push("TrackAssociator::fillHcal::addHcal");
+   timers.push("TrackDetectorAssociator::fillHcal::addHcal");
    for(std::set<DetId>::const_iterator itr=crossedIds.begin(); itr!=crossedIds.end();itr++)
      {
 	HBHERecHitCollection::const_iterator hit = (*collection).find(*itr);
 	if( hit != (*collection).end() ) 
 	  info.crossedHcalRecHits.push_back(*hit);
 	else
-	  LogTrace("TrackAssociator::fillHcal") << "Crossed HBHERecHit is not found for DetId: " << itr->rawId();
+	  LogTrace("TrackDetectorAssociator::fillHcal") << "Crossed HBHERecHit is not found for DetId: " << itr->rawId();
      }
 
    for(std::set<DetId>::const_iterator itr=idsInACone.begin(); itr!=idsInACone.end();itr++)
@@ -422,16 +422,16 @@ void TrackAssociator::fillHcal( const edm::Event& iEvent,
 	if( hit != (*collection).end() ) 
 	  info.hcalRecHits.push_back(*hit);
 	else 
-	  LogTrace("TrackAssociator::fillHcal") << "HBHERecHit from the cone is not found for DetId: " << itr->rawId();
+	  LogTrace("TrackDetectorAssociator::fillHcal") << "HBHERecHit from the cone is not found for DetId: " << itr->rawId();
      }
 }
 
-void TrackAssociator::fillHO( const edm::Event& iEvent,
+void TrackDetectorAssociator::fillHO( const edm::Event& iEvent,
 			      TrackDetMatchInfo& info,
 			      const AssociatorParameters& parameters)
 {
    TimerStack timers;
-   timers.push("TrackAssociator::fillHO");
+   timers.push("TrackDetectorAssociator::fillHO");
 
    hoDetIdAssociator_.setGeometry(&*theCaloGeometry_);
    
@@ -441,14 +441,14 @@ void TrackAssociator::fillHO( const edm::Event& iEvent,
        itr != trajectoryStates.end(); itr++) trajectory.push_back(itr->position());
 
    if(trajectory.empty()) {
-      LogTrace("TrackAssociator::fillHO") << "HO trajectory is empty; moving on\n";
+      LogTrace("TrackDetectorAssociator::fillHO") << "HO trajectory is empty; moving on\n";
       info.isGoodHO = 0;
       return;
    }
    info.isGoodHO = 1;
    
    // find crossed HOs
-   timers.pop_and_push("TrackAssociator::fillHO::access::HO");
+   timers.pop_and_push("TrackDetectorAssociator::fillHO::access::HO");
    edm::Handle<HORecHitCollection> collection;
 
    if (HORecHitCollectionLabels.empty())
@@ -457,23 +457,23 @@ void TrackAssociator::fillHO( const edm::Event& iEvent,
      iEvent.getByLabel (HORecHitCollectionLabels[0], HORecHitCollectionLabels[1], collection);
    if ( ! collection.isValid() ) throw cms::Exception("FatalError") << "Unable to find HORecHits in event!\n";
    
-   timers.push("TrackAssociator::fillHO::matching");
+   timers.push("TrackDetectorAssociator::fillHO::matching");
    std::set<DetId> idsInRegion = hoDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0],parameters.dRHcalPreselection);
-   LogTrace("TrackAssociator::fillHO::matching") << "idsInRegion.size(): " << idsInRegion.size();
+   LogTrace("TrackDetectorAssociator::fillHO::matching") << "idsInRegion.size(): " << idsInRegion.size();
    std::set<DetId> idsInACone = hoDetIdAssociator_.getDetIdsInACone(idsInRegion, trajectory, parameters.dRHcal);
-   LogTrace("TrackAssociator::fillHO::matching") << "idsInACone.size(): " << idsInACone.size();
+   LogTrace("TrackDetectorAssociator::fillHO::matching") << "idsInACone.size(): " << idsInACone.size();
    std::set<DetId> crossedIds = hoDetIdAssociator_.getCrossedDetIds(idsInRegion, trajectory);
-   LogTrace("TrackAssociator::fillHO::matching") << "crossedIds.size(): " << crossedIds.size();
+   LogTrace("TrackDetectorAssociator::fillHO::matching") << "crossedIds.size(): " << crossedIds.size();
    
    // add HO
-   timers.push("TrackAssociator::fillHO::addHO");
+   timers.push("TrackDetectorAssociator::fillHO::addHO");
    for(std::set<DetId>::const_iterator itr=crossedIds.begin(); itr!=crossedIds.end();itr++)
      {
 	HORecHitCollection::const_iterator hit = (*collection).find(*itr);
 	if( hit != (*collection).end() ) 
 	  info.crossedHORecHits.push_back(*hit);
 	else
-	  LogTrace("TrackAssociator::fillHO") << "Crossed HORecHit is not found for DetId: " << itr->rawId();
+	  LogTrace("TrackDetectorAssociator::fillHO") << "Crossed HORecHit is not found for DetId: " << itr->rawId();
      }
 
    for(std::set<DetId>::const_iterator itr=idsInACone.begin(); itr!=idsInACone.end();itr++)
@@ -482,18 +482,18 @@ void TrackAssociator::fillHO( const edm::Event& iEvent,
 	if( hit != (*collection).end() ) 
 	  info.hoRecHits.push_back(*hit);
 	else 
-	  LogTrace("TrackAssociator::fillHO") << "HORecHit from the cone is not found for DetId: " << itr->rawId();
+	  LogTrace("TrackDetectorAssociator::fillHO") << "HORecHit from the cone is not found for DetId: " << itr->rawId();
      }
 }
 
-void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
+void TrackDetectorAssociator::fillDTSegments( const edm::Event& iEvent,
 				      const edm::EventSetup& iSetup,
 				      TrackDetMatchInfo& info,
 				      const FreeTrajectoryState& trajectoryPoint,
 				      const AssociatorParameters& parameters)
 {
    TimerStack timers;
-   timers.push("TrackAssociator::fillDTSegments");
+   timers.push("TrackDetectorAssociator::fillDTSegments");
    using namespace edm;
    TrajectoryStateOnSurface tSOSDest;
 
@@ -503,7 +503,7 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
    muonDetIdAssociator_.setGeometry(&*theTrackingGeometry_);
 
    // Get the rechit collection from the event
-   timers.push("TrackAssociator::fillDTSegments::access");
+   timers.push("TrackDetectorAssociator::fillDTSegments::access");
    Handle<DTRecSegment4DCollection> dtSegments;
    if (DTRecSegment4DCollectionLabels.empty())
       // iEvent_->getByType (dtSegments);
@@ -547,14 +547,14 @@ void TrackAssociator::fillDTSegments( const edm::Event& iEvent,
    }
 }
 
-void TrackAssociator::fillCSCSegments( const edm::Event& iEvent,
+void TrackDetectorAssociator::fillCSCSegments( const edm::Event& iEvent,
 				      const edm::EventSetup& iSetup,
 				      TrackDetMatchInfo& info,
 				      const FreeTrajectoryState& trajectoryPoint,
 				      const AssociatorParameters& parameters)
 {
    TimerStack timers;
-   timers.push("TrackAssociator::fillCSCSegments");
+   timers.push("TrackDetectorAssociator::fillCSCSegments");
    using namespace edm;
    TrajectoryStateOnSurface tSOSDest;
 
@@ -564,7 +564,7 @@ void TrackAssociator::fillCSCSegments( const edm::Event& iEvent,
    muonDetIdAssociator_.setGeometry(&*theTrackingGeometry_);
 
    // Get the rechit collection from the event
-   timers.push("TrackAssociator::fillCSCSegments::access");
+   timers.push("TrackDetectorAssociator::fillCSCSegments::access");
    Handle<CSCSegmentCollection> cscSegments;
    if (CSCSegmentCollectionLabels.empty())
       // iEvent_->getByType (cscSegments);
@@ -607,7 +607,7 @@ void TrackAssociator::fillCSCSegments( const edm::Event& iEvent,
 }
 
 
-FreeTrajectoryState TrackAssociator::getFreeTrajectoryState( const edm::EventSetup& iSetup, 
+FreeTrajectoryState TrackDetectorAssociator::getFreeTrajectoryState( const edm::EventSetup& iSetup, 
 							     const SimTrack& track, 
 							     const SimVertex& vertex )
 {
@@ -630,7 +630,7 @@ FreeTrajectoryState TrackAssociator::getFreeTrajectoryState( const edm::EventSet
 }
 
 
-FreeTrajectoryState TrackAssociator::getFreeTrajectoryState( const edm::EventSetup& iSetup,
+FreeTrajectoryState TrackDetectorAssociator::getFreeTrajectoryState( const edm::EventSetup& iSetup,
 							     const reco::Track& track )
 {
    edm::ESHandle<MagneticField> bField;
@@ -651,7 +651,7 @@ FreeTrajectoryState TrackAssociator::getFreeTrajectoryState( const edm::EventSet
    return FreeTrajectoryState(tPars, tCov);
 }
 
-void TrackAssociator::getMuonChamberMatches(std::vector<MuonChamberMatch>& matches,
+void TrackDetectorAssociator::getMuonChamberMatches(std::vector<MuonChamberMatch>& matches,
 					    const float dRMuonPreselection,
 					    const float maxDistanceX,
 					    const float maxDistanceY)
@@ -669,13 +669,13 @@ void TrackAssociator::getMuonChamberMatches(std::vector<MuonChamberMatch>& match
    // get the direction first
    SteppingHelixStateInfo trajectoryPoint = cachedTrajectory_.getStateAtHcal();
    if (! trajectoryPoint.isValid() ) {
-      LogTrace("TrackAssociator::getMuonChamberMatches") << 
+      LogTrace("TrackDetectorAssociator::getMuonChamberMatches") << 
 	"trajectory position at HCAL is not valid. Assume the track cannot reach muon detectors and skip it";
       return;
    }
 
    GlobalVector direction = trajectoryPoint.momentum().unit();
-   LogTrace("TrackAssociator::fillMuonSegments") << "muon direction: " << direction << "\n\t and corresponding point: " <<
+   LogTrace("TrackDetectorAssociator::fillMuonSegments") << "muon direction: " << direction << "\n\t and corresponding point: " <<
      trajectoryPoint.position() <<"\n";
    
    float dEta = cachedTrajectory_.trajectoryDeltaEta();
@@ -721,17 +721,17 @@ void TrackAssociator::getMuonChamberMatches(std::vector<MuonChamberMatch>& match
 }
 
 
-void TrackAssociator::fillMuonSegments( const edm::Event& iEvent,
+void TrackDetectorAssociator::fillMuonSegments( const edm::Event& iEvent,
 					TrackDetMatchInfo& info,
 					const AssociatorParameters& parameters)
 {
    TimerStack timers;
-   timers.push("TrackAssociator::fillMuonSegments");
+   timers.push("TrackDetectorAssociator::fillMuonSegments");
 
    muonDetIdAssociator_.setGeometry(&*theTrackingGeometry_);
 
    // Get the segments from the event
-   timers.push("TrackAssociator::fillMuonSegments::access");
+   timers.push("TrackDetectorAssociator::fillMuonSegments::access");
    edm::Handle<DTRecSegment4DCollection> dtSegments;
    if (DTRecSegment4DCollectionLabels.empty())
      throw cms::Exception("FatalError") << "Module lable is not set for DTRecSegment4DCollection.\n";
@@ -758,7 +758,7 @@ void TrackAssociator::fillMuonSegments( const edm::Event& iEvent,
    // Possible solution: quick search for presence of segments 
    // for the set of DetIds
 
-   timers.pop_and_push("TrackAssociator::fillMuonSegments::matchChembers");
+   timers.pop_and_push("TrackDetectorAssociator::fillMuonSegments::matchChembers");
    
    // get a set of matches corresponding to muon chambers
    std::vector<MuonChamberMatch> matchedChambers;
@@ -767,7 +767,7 @@ void TrackAssociator::fillMuonSegments( const edm::Event& iEvent,
    
    // Iterate over all chamber matches and fill segment matching 
    // info if it's available
-   timers.pop_and_push("TrackAssociator::fillMuonSegments::findSemgents");
+   timers.pop_and_push("TrackDetectorAssociator::fillMuonSegments::findSemgents");
    for(std::vector<MuonChamberMatch>::iterator matchedChamber = matchedChambers.begin(); 
        matchedChamber != matchedChambers.end(); matchedChamber++)
      {
@@ -796,11 +796,11 @@ void TrackAssociator::fillMuonSegments( const edm::Event& iEvent,
 }
 
 
-void TrackAssociator::addMuonSegmentMatch(MuonChamberMatch& matchedChamber,
+void TrackDetectorAssociator::addMuonSegmentMatch(MuonChamberMatch& matchedChamber,
 					  const RecSegment* segment,
 					  const AssociatorParameters& parameters)
 {
-   LogTrace("TrackAssociator::addMuonSegment")
+   LogTrace("TrackDetectorAssociator::addMuonSegment")
      << "Segment local position: " << segment->localPosition() << "\n"
      << std::hex << segment->geographicalId().rawId() << "\n";
    
@@ -808,11 +808,11 @@ void TrackAssociator::addMuonSegmentMatch(MuonChamberMatch& matchedChamber,
    TrajectoryStateOnSurface trajectoryStateOnSurface = matchedChamber.tState;
    GlobalPoint segmentGlobalPosition = chamber->toGlobal(segment->localPosition());
 
-   LogTrace("TrackAssociator::addMuonSegment")
+   LogTrace("TrackDetectorAssociator::addMuonSegment")
      << "Segment global position: " << segmentGlobalPosition << " \t (R_xy,eta,phi): "
      << segmentGlobalPosition.perp() << "," << segmentGlobalPosition.eta() << "," << segmentGlobalPosition.phi() << "\n";
 
-   LogTrace("TrackAssociator::fillMuonSegments")
+   LogTrace("TrackDetectorAssociator::fillMuonSegments")
      << "\teta hit: " << segmentGlobalPosition.eta() << " \tpropagator: " << trajectoryStateOnSurface.freeState()->position().eta() << "\n"
      << "\tphi hit: " << segmentGlobalPosition.phi() << " \tpropagator: " << trajectoryStateOnSurface.freeState()->position().phi() << std::endl;
 
@@ -879,7 +879,7 @@ void TrackAssociator::addMuonSegmentMatch(MuonChamberMatch& matchedChamber,
 
 //********************** NON-CORE CODE ******************************//
 
-std::vector<EcalRecHit> TrackAssociator::associateEcal( const edm::Event& iEvent,
+std::vector<EcalRecHit> TrackDetectorAssociator::associateEcal( const edm::Event& iEvent,
 							const edm::EventSetup& iSetup,
 							const FreeTrajectoryState& trackOrigin,
 							const double dR )
@@ -895,7 +895,7 @@ std::vector<EcalRecHit> TrackAssociator::associateEcal( const edm::Event& iEvent
      return info.crossedEcalRecHits;
 }
 
-double TrackAssociator::getEcalEnergy( const edm::Event& iEvent,
+double TrackDetectorAssociator::getEcalEnergy( const edm::Event& iEvent,
 				       const edm::EventSetup& iSetup,
 				       const FreeTrajectoryState& trackOrigin,
 				       const double dR )
@@ -911,7 +911,7 @@ double TrackAssociator::getEcalEnergy( const edm::Event& iEvent,
      return info.ecalEnergy();
 }
 
-std::vector<CaloTower> TrackAssociator::associateHcal( const edm::Event& iEvent,
+std::vector<CaloTower> TrackDetectorAssociator::associateHcal( const edm::Event& iEvent,
 						       const edm::EventSetup& iSetup,
 						       const FreeTrajectoryState& trackOrigin,
 						       const double dR )
@@ -928,7 +928,7 @@ std::vector<CaloTower> TrackAssociator::associateHcal( const edm::Event& iEvent,
    
 }
 
-double TrackAssociator::getHcalEnergy( const edm::Event& iEvent,
+double TrackDetectorAssociator::getHcalEnergy( const edm::Event& iEvent,
 				       const edm::EventSetup& iSetup,
 				       const FreeTrajectoryState& trackOrigin,
 				       const double dR )
