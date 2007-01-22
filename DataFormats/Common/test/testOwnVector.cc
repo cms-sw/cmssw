@@ -1,4 +1,4 @@
-// $Id: testOwnVector.cc,v 1.4 2006/05/18 06:15:39 llista Exp $
+// $Id: testOwnVector.cc,v 1.5 2006/10/25 21:32:01 paterno Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -19,10 +19,10 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testOwnVector);
 
 namespace test {
   struct Dummy {
-    Dummy( int n, bool * r ) : value( n ), ref( r ) { }
+    Dummy(int n, bool * r) : value(n), ref(r) { }
     ~Dummy() { * ref = true; }
     int value;
-    bool operator<( const test::Dummy & o ) const {
+    bool operator<(const test::Dummy & o) const {
       return value < o.value;
     }
   private:
@@ -30,7 +30,7 @@ namespace test {
   };
 
   struct DummyComp {
-    bool operator()( const Dummy& d1, const Dummy& d2 ) const {
+    bool operator()(const Dummy& d1, const Dummy& d2) const {
       return d1.value < d2.value;
     } 
   };
@@ -51,12 +51,12 @@ namespace test {
 
   class ss {
   public:
-    bool operator() ( const a & a1, const a & a2 ) const { 
+    bool operator() (const a & a1, const a & a2) const { 
       return (a1.f() > a2.f());
     }
   };
   
-  std::ostream& operator<<( std::ostream& os, const a & aa ) {
+  std::ostream& operator<<(std::ostream& os, const a & aa) {
     os << aa.f();
     return os;
   }
@@ -64,29 +64,29 @@ namespace test {
 
 void testOwnVector::checkAll() {
   edm::OwnVector<test::Dummy> v;
-  CPPUNIT_ASSERT( v.size() == 0 );
-  CPPUNIT_ASSERT( v.empty() );
-  bool deleted[ 3 ] = { false, false, false };
-  v.push_back( new test::Dummy( 0, deleted     ) );
-  v.push_back( new test::Dummy( 1, deleted + 1 ) );
-  v.push_back( new test::Dummy( 2, deleted + 2 ) );
-  CPPUNIT_ASSERT( v.size() == 3 );
+  CPPUNIT_ASSERT(v.size() == 0);
+  CPPUNIT_ASSERT(v.empty());
+  bool deleted[3] = { false, false, false };
+  v.push_back(new test::Dummy(0, deleted));
+  v.push_back(new test::Dummy(1, deleted + 1));
+  v.push_back(new test::Dummy(2, deleted + 2));
+  CPPUNIT_ASSERT(v.size() == 3);
   edm::OwnVector<test::Dummy>::iterator i;
   i = v.begin();
   edm::OwnVector<test::Dummy>::const_iterator ci = i;
   * ci;
   v.sort();
-  v.sort( test::DummyComp() );
-  CPPUNIT_ASSERT( ! v.empty() );
-  CPPUNIT_ASSERT( v[ 0 ].value == 0 );
-  CPPUNIT_ASSERT( v[ 1 ].value == 1 );
-  CPPUNIT_ASSERT( v[ 2 ].value == 2 );
+  v.sort(test::DummyComp());
+  CPPUNIT_ASSERT(!v.empty());
+  CPPUNIT_ASSERT(v[0].value == 0);
+  CPPUNIT_ASSERT(v[1].value == 1);
+  CPPUNIT_ASSERT(v[2].value == 2);
   v.clear();
-  CPPUNIT_ASSERT( v.size() == 0 );
-  CPPUNIT_ASSERT( v.empty() );
-  CPPUNIT_ASSERT( deleted[ 0 ] );
-  CPPUNIT_ASSERT( deleted[ 1 ] );
-  CPPUNIT_ASSERT( deleted[ 2 ] );
+  CPPUNIT_ASSERT(v.size() == 0);
+  CPPUNIT_ASSERT(v.empty());
+  CPPUNIT_ASSERT(deleted[0]);
+  CPPUNIT_ASSERT(deleted[1]);
+  CPPUNIT_ASSERT(deleted[2]);
   {
     edm::OwnVector<test::a> v;
     test::a * aa = new test::ClassB(2);
@@ -95,7 +95,7 @@ void testOwnVector::checkAll() {
     v.push_back(aa);
     aa = new test::ClassB(3);
     v.push_back(aa);
-    v.sort( test::ss() );
+    v.sort(test::ss());
     std::copy(v.begin(), 
 	      v.end(), 
 	      std::ostream_iterator<test::a>(std::cout, "\t"));

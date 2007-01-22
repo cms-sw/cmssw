@@ -133,9 +133,9 @@ void testSortedCollection::insertTest()
   Value v2(2.2, 2);
 
   c.push_back(v1);
-  CPPUNIT_ASSERT( c.size() == 1 );
+  CPPUNIT_ASSERT(c.size() == 1);
   c.push_back(v2);
-  CPPUNIT_ASSERT( c.size() == 2 );
+  CPPUNIT_ASSERT(c.size() == 2);
 }
 
 template <class T, class SORT>
@@ -166,30 +166,30 @@ void testSortedCollection::accessTest()
 
   {
     scoll_type::iterator i = c.find(DetId(100)); // does not exist!
-    CPPUNIT_ASSERT( i == c.end() );
+    CPPUNIT_ASSERT(i == c.end());
   }
 
   {
     std::cerr << "Dumping SortedCollection" << std::endl;
-    std::copy ( c.begin(), c.end(), std::ostream_iterator<Value>(std::cerr, "\n"));
+    std::copy (c.begin(), c.end(), std::ostream_iterator<Value>(std::cerr, "\n"));
   }
 
   {
     std::vector<Value>::const_iterator i = vec.begin();
     std::vector<Value>::const_iterator e = vec.end();
     std::cerr << "There are " << vec.size() << " searches to do...\n";
-    while ( i != e )
+    while (i != e)
       {
 	DetId id = i->id();
 	std::cerr << "Looking for id: " << id << "...   ";
-	//scoll_type::iterator loc = c.find( i->id() );
-	scoll_type::iterator loc = c.find( id );
-	if ( loc == c.end() )
+	//scoll_type::iterator loc = c.find(i->id());
+	scoll_type::iterator loc = c.find(id);
+	if (loc == c.end())
 	  std::cerr << "Failed to find this id!\n";
 	else
 	  std::cerr << "Found it, record is: " << *loc << '\n';
-	CPPUNIT_ASSERT( loc != c.end() );
-	CPPUNIT_ASSERT( *loc == *i );
+	CPPUNIT_ASSERT(loc != c.end());
+	CPPUNIT_ASSERT(*loc == *i);
 	++i;
       }
   }
@@ -207,23 +207,23 @@ void testSortedCollection::swapTest()
 
   {
     scoll_type copy(c);
-    CPPUNIT_ASSERT( copy == c );
+    CPPUNIT_ASSERT(copy == c);
     scoll_type empty;
-    CPPUNIT_ASSERT( empty.empty() );
+    CPPUNIT_ASSERT(empty.empty());
 
     empty.swap(copy);
-    CPPUNIT_ASSERT( copy.empty() );
-    CPPUNIT_ASSERT( empty == c );
+    CPPUNIT_ASSERT(copy.empty());
+    CPPUNIT_ASSERT(empty == c);
   }
 
   {
     std::vector<Value> copy(vec);
     scoll_type empty;
-    CPPUNIT_ASSERT( empty.empty() );
+    CPPUNIT_ASSERT(empty.empty());
 
     empty.swap_contents(copy);
-    CPPUNIT_ASSERT( copy.empty() );
-    CPPUNIT_ASSERT( empty == vec );
+    CPPUNIT_ASSERT(copy.empty());
+    CPPUNIT_ASSERT(empty == vec);
   }
 }
 
@@ -239,12 +239,12 @@ void testSortedCollection::frontbackTest()
 
   c.sort();
 
-  CPPUNIT_ASSERT( c.front() == Value(3.5, 1) );
-  CPPUNIT_ASSERT( c.back() == Value(4.5, 1001) );
+  CPPUNIT_ASSERT(c.front() == Value(3.5, 1));
+  CPPUNIT_ASSERT(c.back() == Value(4.5, 1001));
 
   scoll_type const& cr = c;
-  CPPUNIT_ASSERT( cr.front() == Value(3.5, 1) );
-  CPPUNIT_ASSERT( cr.back() == Value(4.5, 1001) );
+  CPPUNIT_ASSERT(cr.front() == Value(3.5, 1));
+  CPPUNIT_ASSERT(cr.back() == Value(4.5, 1001));
 }
 
 void testSortedCollection::squarebracketTest()
@@ -259,18 +259,18 @@ void testSortedCollection::squarebracketTest()
 
   c.sort();
 
-  CPPUNIT_ASSERT( c[0] == Value(3.5, 1) );
-  CPPUNIT_ASSERT( c[1] == Value(5.5, 2) );
-  CPPUNIT_ASSERT( c[2] == Value(1.5, 3) );
-  CPPUNIT_ASSERT( c[3] == Value(2.5, 200) );
-  CPPUNIT_ASSERT( c[4] == Value(4.5, 1001) );
+  CPPUNIT_ASSERT(c[0] == Value(3.5, 1));
+  CPPUNIT_ASSERT(c[1] == Value(5.5, 2));
+  CPPUNIT_ASSERT(c[2] == Value(1.5, 3));
+  CPPUNIT_ASSERT(c[3] == Value(2.5, 200));
+  CPPUNIT_ASSERT(c[4] == Value(4.5, 1001));
 
   scoll_type const& cr = c;
-  CPPUNIT_ASSERT( cr[0] == Value(3.5, 1) );
-  CPPUNIT_ASSERT( cr[1] == Value(5.5, 2) );
-  CPPUNIT_ASSERT( cr[2] == Value(1.5, 3) );
-  CPPUNIT_ASSERT( cr[3] == Value(2.5, 200) );
-  CPPUNIT_ASSERT( cr[4] == Value(4.5, 1001) );
+  CPPUNIT_ASSERT(cr[0] == Value(3.5, 1));
+  CPPUNIT_ASSERT(cr[1] == Value(5.5, 2));
+  CPPUNIT_ASSERT(cr[2] == Value(1.5, 3));
+  CPPUNIT_ASSERT(cr[3] == Value(2.5, 200));
+  CPPUNIT_ASSERT(cr[4] == Value(4.5, 1001));
 }
 
 

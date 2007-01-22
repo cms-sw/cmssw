@@ -1,5 +1,5 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.11 2006/10/25 21:56:29 wmtan Exp $
+ *  $Id: DetSetVector_t.cpp,v 1.12 2006/10/30 23:07:53 wmtan Exp $
  *  CMSSW
  *
  */
@@ -159,13 +159,13 @@ void check_ids(coll_type const& c)
        i !=  e;
        ++i)
     {
-      all_ids.push_back( i->id );
+      all_ids.push_back(i->id);
     }
-  assert( c.size() == all_ids.size() );
+  assert(c.size() == all_ids.size());
 
   std::vector<det_id_type> nice_ids;
   c.getIds(nice_ids);
-  assert( all_ids == nice_ids );
+  assert(all_ids == nice_ids);
 }
 
 
@@ -449,16 +449,16 @@ void work()
 	  }
 	v.push_back(d);
       }
-    assert( v.size() == numDetSets );
+    assert(v.size() == numDetSets);
     coll_type c3(v);
     c3.post_insert();
-    assert( v.size() == 0 );
-    assert( c3.size() == numDetSets );
+    assert(v.size() == 0);
+    assert(c3.size() == numDetSets);
     sanity_check(c3);
 
     coll_type c4;
     c4 = c3;
-    assert( c4.size() == numDetSets );
+    assert(c4.size() == numDetSets);
     sanity_check(c3);
     sanity_check(c4);
 
@@ -481,7 +481,7 @@ int main()
       //std::cerr << "Exception: " << x << '\n';
       rc = 1;
     }
-  catch ( std::exception& x )
+  catch (std::exception& x)
     {
       //std::cerr << "standard exception: " << x.what() << '\n';
       rc = 3;

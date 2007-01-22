@@ -1,4 +1,4 @@
-// $Id: testOneToOneAssociation.cc,v 1.13 2006/09/26 10:37:22 llista Exp $
+// $Id: testOneToOneAssociation.cc,v 1.14 2006/12/05 11:16:53 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -23,8 +23,8 @@ void testOneToOneAssociation::checkAll() {
   typedef std::vector<double> CVal;
   typedef edm::AssociationMap<edm::OneToOne<CKey, CVal, unsigned char> > Assoc;
   Assoc v;
-  CPPUNIT_ASSERT( v.empty() );
-  CPPUNIT_ASSERT( v.size() == 0 );
+  CPPUNIT_ASSERT(v.empty());
+  CPPUNIT_ASSERT(v.size() == 0);
 }
 
 // just check that some stuff compiles
@@ -33,20 +33,20 @@ void  testOneToOneAssociation::dummy() {
   typedef std::vector<double> CVal;
   typedef edm::AssociationMap<edm::OneToOne<CKey, CVal, unsigned char> > Assoc;
   Assoc v;
-  v.insert( edm::Ref<CKey>(), edm::Ref<CVal>() );
-  v.insert( Assoc::value_type( edm::Ref<CKey>(), edm::Ref<CVal>() ) );
+  v.insert(edm::Ref<CKey>(), edm::Ref<CVal>());
+  v.insert(Assoc::value_type(edm::Ref<CKey>(), edm::Ref<CVal>()));
   Assoc::const_iterator b = v.begin(), e = v.end();
-  b++; e++;
-  Assoc::const_iterator f = v.find( edm::Ref<CKey>() );
-  v.numberOfAssociations( edm::Ref<CKey>() );
-  const edm::Ref<CVal> & x = v[ edm::Ref<CKey>() ]; x.id();
-  f++;
-  int n = v.numberOfAssociations( edm::Ref<CKey>() );
-  n++;
+  ++b; ++e;
+  Assoc::const_iterator f = v.find(edm::Ref<CKey>());
+  v.numberOfAssociations(edm::Ref<CKey>());
+  const edm::Ref<CVal> & x = v[edm::Ref<CKey>()]; x.id();
+  ++f;
+  int n = v.numberOfAssociations(edm::Ref<CKey>());
+  ++n;
   edm::Ref<Assoc> r;
-  v[ edm::Ref<CKey>() ];
-  v.erase( edm::Ref<CKey>() );
+  v[edm::Ref<CKey>()];
+  v.erase(edm::Ref<CKey>());
   v.clear();
-  CPPUNIT_ASSERT( v.size() == 0 );
+  CPPUNIT_ASSERT(v.size() == 0);
   v.post_insert();
 }

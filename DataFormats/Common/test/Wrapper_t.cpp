@@ -1,5 +1,5 @@
 /*
- *  $Id: Wrapper_t.cpp,v 1.2 2006/10/25 21:56:29 wmtan Exp $
+ *  $Id: Wrapper_t.cpp,v 1.3 2006/10/30 23:07:53 wmtan Exp $
  *  CMSSW
  *
  */
@@ -17,8 +17,8 @@ class CopyNoSwappy
 {
  public:
   CopyNoSwappy() {}
-  CopyNoSwappy(CopyNoSwappy const& ) { std::cout << "copied\n"; }
-  CopyNoSwappy& operator=(CopyNoSwappy const& ) {std::cout << "assigned\n"; return *this;}
+  CopyNoSwappy(CopyNoSwappy const&) { std::cout << "copied\n"; }
+  CopyNoSwappy& operator=(CopyNoSwappy const&) {std::cout << "assigned\n"; return *this;}
  private:
 #if ! GCC_PREREQUISITE(3,4,4)
   void swap(CopyNoSwappy&); // not implemented
@@ -66,7 +66,7 @@ int main()
   try {
       work();
   }
-  catch ( ... ) {
+  catch (...) {
       rc = 1;
       std::cerr << "Failure: unidentified exception caught\n";
   }

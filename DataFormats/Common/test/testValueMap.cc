@@ -1,4 +1,4 @@
-// $Id: testValueMap.cc,v 1.12 2006/09/26 10:37:22 llista Exp $
+// $Id: testValueMap.cc,v 1.13 2006/12/05 11:16:53 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -23,8 +23,8 @@ void testValueMap::checkAll() {
   typedef double Val;
   typedef edm::AssociationMap<edm::OneToValue<CKey, Val, unsigned char> > Assoc;
   Assoc v;
-  CPPUNIT_ASSERT( v.empty() );
-  CPPUNIT_ASSERT( v.size() == 0 );
+  CPPUNIT_ASSERT(v.empty());
+  CPPUNIT_ASSERT(v.size() == 0);
 }
 
 // just check that some stuff compiles
@@ -33,17 +33,17 @@ void  testValueMap::dummy() {
   typedef double Val;
   typedef edm::AssociationMap<edm::OneToValue<CKey, Val, unsigned char> > Assoc;
   Assoc v;
-  v.insert( edm::Ref<CKey>(), 3.145 );
-  v.insert( Assoc::value_type( edm::Ref<CKey>(), 3.145 ) );  
+  v.insert(edm::Ref<CKey>(), 3.145);
+  v.insert(Assoc::value_type(edm::Ref<CKey>(), 3.145));  
   Assoc::const_iterator b = v.begin(), e = v.end();
-  b++; e++;
-  Assoc::const_iterator f = v.find( edm::Ref<CKey>() );
-  v.numberOfAssociations( edm::Ref<CKey>() );
-  const double & x = v[ edm::Ref<CKey>() ]; double y = x; y++;
-  f++;
+  ++b; ++e;
+  Assoc::const_iterator f = v.find(edm::Ref<CKey>());
+  v.numberOfAssociations(edm::Ref<CKey>());
+  const double & x = v[edm::Ref<CKey>()]; double y = x; ++y;
+  ++f;
   edm::Ref<Assoc> r;
-  v.erase( edm::Ref<CKey>() );
+  v.erase(edm::Ref<CKey>());
   v.clear();
-  CPPUNIT_ASSERT( v.size() == 0 );
+  CPPUNIT_ASSERT(v.size() == 0);
   v.post_insert();
 }
