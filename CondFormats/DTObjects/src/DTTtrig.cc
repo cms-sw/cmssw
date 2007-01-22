@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/19 09:32:10 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/08/22 12:46:52 $
+ *  $Revision: 1.11 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -183,15 +183,17 @@ int DTTtrig::setSLTtrig( int   wheelId,
     DTTtrigData& data = iter->second;
     data.tTrig = tTrig;
     data.tTrms = tTrms;
+    return -1;
   }
   else {
     DTTtrigData data;
     data.tTrig = tTrig;
     data.tTrms = tTrms;
     slData.insert( std::pair<const DTTtrigId,DTTtrigData>( key, data ) );
+    return 0;
   }
 
-  return 0;
+  return 99;
 
 }
 

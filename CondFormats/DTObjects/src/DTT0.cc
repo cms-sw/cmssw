@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/19 09:32:10 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/08/22 12:46:52 $
+ *  $Revision: 1.11 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -199,15 +199,17 @@ int DTT0::setCellT0( int   wheelId,
     DTT0Data& data = iter->second;
     data.t0mean = t0mean;
     data.t0rms  = t0rms;
+    return -1;
   }
   else {
     DTT0Data data;
     data.t0mean = t0mean;
     data.t0rms  = t0rms;
     cellData.insert( std::pair<const DTT0Id,DTT0Data>( key, data ) );
+    return 0;
   }
 
-  return 0;
+  return 99;
 
 }
 

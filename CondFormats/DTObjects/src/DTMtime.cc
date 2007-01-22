@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/19 09:32:10 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/08/22 12:46:52 $
+ *  $Revision: 1.10 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -183,15 +183,17 @@ int DTMtime::setSLMtime( int   wheelId,
     DTMtimeData& data = iter->second;
     data.mTime = mTime;
     data.mTrms = mTrms;
+    return -1;
   }
   else {
     DTMtimeData data;
     data.mTime = mTime;
     data.mTrms = mTrms;
     slData.insert( std::pair<const DTMtimeId,DTMtimeData>( key, data ) );
+    return 0;
   }
 
-  return 0;
+  return 99;
 
 }
 

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/12 13:45:00 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/07/19 09:32:10 $
+ *  $Revision: 1.12 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -254,7 +254,6 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
                                                  int      slId,
                                                  int   layerId,
                                                  int    cellId ) {
-
   DTReadOutGeometryLink link;
   link.    dduId =     dduId;
   link.    rosId =     rosId;
@@ -292,6 +291,7 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
                   (     robId *     1000 ) +
                   (     tdcId *      100 ) +
                     channelId;
+  int grStatus =
   grBuf->insert( cellKey.begin(), cellKey.end(), readoutId );
   std::vector<int> chanKey;
   chanKey.push_back(     dduId );
@@ -305,9 +305,11 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
                    (      slId *      1000 ) +
                    (   layerId *       100 ) +
                         cellId;
+  int rgStatus =
   rgBuf->insert( chanKey.begin(), chanKey.end(), geometryId );
 
-  return 0;
+  if ( grStatus || rgStatus ) return 1;
+  else                        return 0;
 
 }
 

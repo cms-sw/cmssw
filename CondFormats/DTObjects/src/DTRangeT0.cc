@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/19 09:32:10 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/08/22 12:46:52 $
+ *  $Revision: 1.6 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -164,15 +164,17 @@ int DTRangeT0::setSLRangeT0( int   wheelId,
     DTRangeT0Data& data = iter->second;
     data.t0min = t0min;
     data.t0max = t0max;
+    return -1;
   }
   else {
     DTRangeT0Data data;
     data.t0min = t0min;
     data.t0max = t0max;
     slData.insert( std::pair<const DTRangeT0Id,DTRangeT0Data>( key, data ) );
+    return 0;
   }
 
-  return 0;
+  return 99;
 
 }
 

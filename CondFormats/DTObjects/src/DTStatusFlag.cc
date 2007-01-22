@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/19 09:32:10 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/08/22 12:46:52 $
+ *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -202,6 +202,7 @@ int DTStatusFlag::setCellStatus( int   wheelId,
     data. trigMask =  trigMask;
     data. deadFlag =  deadFlag;
     data. nohvFlag =  nohvFlag;
+    return -1;
   }
   else {
     DTStatusFlagData data;
@@ -213,9 +214,10 @@ int DTStatusFlag::setCellStatus( int   wheelId,
     data. nohvFlag =  nohvFlag;
     cellData.insert( std::pair<const DTStatusFlagId,
                                      DTStatusFlagData>( key, data ) );
+    return 0;
   }
 
-  return 0;
+  return 99;
 
 }
 

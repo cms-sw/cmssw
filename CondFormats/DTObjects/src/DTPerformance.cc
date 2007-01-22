@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/19 09:32:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/08/22 12:46:52 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -222,6 +222,7 @@ int DTPerformance::setSLPerformance( int   wheelId,
     data.meanAfterPulse = meanAfterPulse;
     data.meanResolution = meanResolution;
     data.meanEfficiency = meanEfficiency;
+    return -1;
   }
   else {
     DTPerformanceData data;
@@ -230,9 +231,10 @@ int DTPerformance::setSLPerformance( int   wheelId,
     data.meanResolution = meanResolution;
     data.meanEfficiency = meanEfficiency;
     slData.insert( std::pair<const DTPerformanceId,DTPerformanceData>( key, data ) );
+    return 0;
   }
 
-  return 0;
+  return 99;
 
 }
 
