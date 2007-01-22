@@ -34,11 +34,10 @@ void EOFRecordView::hltStats(std::vector<uint32>& put_here)
   put_here.clear();
   put_here.resize(hlt_path_count_);
 
-  for(unsigned int i=0;i<hlt_path_count_;++i) 
-    {
+  for(unsigned int i = 0; i < hlt_path_count_; ++i) {
      uint32 item = convert32(hlt_path_stat_start_ + (i*sizeof(uint32)) );
      put_here[i] = item;
-    }
+  }
 }
 
 

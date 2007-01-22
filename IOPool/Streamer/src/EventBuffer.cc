@@ -12,7 +12,7 @@ namespace edm
   {
     // throw if event size 0 or queue depth 0
 
-    for(char* i=&mem_[0];i<&mem_[mem_.size()];i+=max_event_size)
+    for(char* i = &mem_[0]; i < &mem_[mem_.size()]; i += max_event_size)
       buffer_pool_.push_back(i);
 
   }
@@ -24,10 +24,9 @@ namespace edm
     // get lock
     boost::mutex::scoped_lock sl(pool_lock_);
     // wait for buffer to appear
-    while(pos_ < 0)
-      {
+    while(pos_ < 0) {
 	pool_cond_.wait(sl);
-      }
+    }
     void* v = buffer_pool_[pos_];
     --pos_;
     return Buffer(v,max_event_size_);
@@ -48,10 +47,9 @@ namespace edm
     // get lock
     boost::mutex::scoped_lock sl(queue_lock_);
     // if full, wait for item to be removed
-    while((bpos_+max_queue_depth_)==fpos_)
-      {
+    while((bpos_+max_queue_depth_)==fpos_) {
 	push_cond_.wait(sl);
-      }
+    }
     
     // put buffer into queue
     queue_[fpos_ % max_queue_depth_]=Buffer(v,len);
@@ -66,10 +64,9 @@ namespace edm
     // get lock
     boost::mutex::scoped_lock sl(queue_lock_);
     // if empty, wait for item to appear
-    while(bpos_==fpos_)
-      {
+    while(bpos_==fpos_) {
 	pop_cond_.wait(sl);
-      }
+    }
     // get a buffer from the queue and return it
     Buffer v = queue_[bpos_ % max_queue_depth_];
     ++bpos_;

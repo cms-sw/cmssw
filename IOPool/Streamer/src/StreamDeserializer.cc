@@ -130,11 +130,10 @@ namespace edm
     RootDebug tracer(10,10);
     TClass* tc = getTClass(typeid(SendEvent));
     auto_ptr<SendEvent> sd((SendEvent*)xbuf.ReadObjectAny(tc));
-    if(sd.get()==0)
-      {
+    if(sd.get()==0) {
         throw cms::Exception("StreamTranslation","Event deserialization error")
           << "got a null event from input stream\n";
-      }
+    }
 
     FDEBUG(5) << "Got event: " << sd->id_ << " " << sd->prods_.size() << endl;
     auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
@@ -146,12 +145,11 @@ namespace edm
     // no process name list handling
 
     SendProds::iterator spi(sd->prods_.begin()),spe(sd->prods_.end());
-    for(;spi!=spe;++spi)
-      {
+    for(; spi != spe; ++spi) {
         FDEBUG(10) << "check prodpair" << endl;
-        if(spi->prov()==0)
+        if(spi->prov() == 0)
           throw cms::Exception("StreamTranslation","EmptyProvenance");
-        if(spi->desc()==0)
+        if(spi->desc() == 0)
           throw cms::Exception("StreamTranslation","EmptyDesc");
         FDEBUG(5) << "Prov:"
              << " " << spi->desc()->className()
@@ -160,12 +158,11 @@ namespace edm
              << " " << spi->prov()->productID_
              << endl;
 
-        if(spi->prod()==0)
-          {
+        if(spi->prod()==0) {
             FDEBUG(10) << "Product is null" << endl;
             continue;
             throw cms::Exception("StreamTranslation","EmptyProduct");
-          }
+        }
 
         auto_ptr<EDProduct>
           aprod(const_cast<EDProduct*>(spi->prod()));
@@ -190,7 +187,7 @@ namespace edm
           FDEBUG(10) << "addgroup empty done" << endl;
         }
         spi->clear();
-      }
+    }
 
     FDEBUG(10) << "Size = " << ep->numEDProducts() << endl;
 

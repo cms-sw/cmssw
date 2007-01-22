@@ -40,7 +40,7 @@ namespace edm
 
     FDEBUG(9) << "Product List: " << endl;
 
-    for(;i!=e;++i)  
+    for(; i != e; ++i)  
       {
         sd.descs_.push_back(**i);
         FDEBUG(9) << "StreamOutput got product = " << (*i)->className()

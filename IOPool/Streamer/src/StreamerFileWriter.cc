@@ -72,7 +72,7 @@ void StreamerFileWriter::doOutputHeader(InitMsgView const& init_message)
     hltCount_ = init_message.get_hlt_bit_cnt();
 
     //Initialize the HLT Stat vector with all ZEROs
-    for(uint32 i = 0; i != hltCount_; ++i )
+    for(uint32 i = 0; i != hltCount_; ++i)
        hltStats_.push_back(0);
   }
 
@@ -89,8 +89,8 @@ void StreamerFileWriter::doOutputEvent(EventMsgView const& msg)
     
     //get the HLT Packed bytes
     std::vector<uint8> packedHlt;
-    uint32 hlt_sz=0;
-    if (hltCount_ != 0) hlt_sz = 1+ ((hltCount_-1)/4); 
+    uint32 hlt_sz = 0;
+    if (hltCount_ != 0) hlt_sz = 1 + ((hltCount_-1)/4); 
     packedHlt.resize(hlt_sz);
     msg.hltTriggerBits(&packedHlt[0]);
     updateHLTStats(packedHlt); 
@@ -110,14 +110,13 @@ void StreamerFileWriter::updateHLTStats(std::vector<uint8> const& packedHlt)
    {
     unsigned int packInOneByte = 4;
     unsigned char testAgaint = 0x01;
-    for(unsigned int i=0; i !=hltCount_; ++i)
+    for(unsigned int i = 0; i != hltCount_; ++i)
     {
        unsigned int whichByte = i/packInOneByte;
        unsigned int indxWithinByte = i % packInOneByte;
-       if ( ( testAgaint << (2 * indxWithinByte)) & (packedHlt.at(whichByte)) )
-          {
-           hltStats_[i]++;
-          }
+       if ((testAgaint << (2 * indxWithinByte)) & (packedHlt.at(whichByte))) {
+           ++hltStats_[i];
+       }
        //else  cout <<"Bit "<<i<<" is not set"<<endl;
     }
    }

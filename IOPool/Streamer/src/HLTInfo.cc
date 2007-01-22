@@ -51,10 +51,9 @@ namespace stor
     ProdList plist(prods_.productList());
     ProdList::iterator pi(plist.begin()),pe(plist.end());
     
-    for(;pi!=pe;++pi)
-      {
+    for(; pi != pe; ++pi) {
 	pr.copyProduct(pi->second);
-      }
+    }
   }
 
   void HLTInfo::declareStreamers(const edm::ProductRegistry& reg)
@@ -63,7 +62,7 @@ namespace stor
     ProdList plist(reg.productList());
     ProdList::const_iterator pi(plist.begin()),pe(plist.end());
 
-    for(;pi!=pe;++pi) {
+    for(; pi != pe; ++pi) {
       //pi->second.init();
       std::string real_name = edm::wrappedClassName(pi->second.className());
       //FDEBUG(6) << "declare: " << real_name << std::endl;
@@ -77,7 +76,7 @@ namespace stor
     ProdList plist(reg.productList());
     ProdList::const_iterator pi(plist.begin()),pe(plist.end());
 
-    for(;pi!=pe;++pi) {
+    for(; pi != pe; ++pi) {
       //pi->second.init();
       std::string real_name = edm::wrappedClassName(pi->second.className());
       //FDEBUG(6) << "BuildReadData: " << real_name << std::endl;

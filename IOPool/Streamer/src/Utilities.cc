@@ -95,7 +95,7 @@ namespace edm
     // already there? it looks like I replace it.  maybe that it correct
 
     FDEBUG(6) << "registryIsSubset: Product List: " << endl;
-    for(;i!=e; ++i) {
+    for(;i != e; ++i) {
 	typedef edm::ProductRegistry::ProductList plist;
 	// the new products must be contained in the old registry
 	// form a branchkey from the *i branchdescription,
@@ -127,7 +127,7 @@ namespace edm
     SendDescs::const_iterator i(sd.descs_.begin()),e(sd.descs_.end());
 
     FDEBUG(6) << "registryIsSubset: Product List: " << endl;
-    for(;i!=e; ++i) {
+    for(;i != e; ++i) {
 	// the new products must be contained in the old registry
 	// form a branchkey from the *i branchdescription,
 	// use the productlist from the product registry to locate
@@ -137,7 +137,7 @@ namespace edm
 	FDEBUG(9) << "Looking for " << i->className() << "\n";
         SendDescs::const_iterator iref(ref.descs_.begin()),eref(ref.descs_.end());
         bool found = false;
-        for(;iref!=eref; ++iref) {
+        for(; iref != eref; ++iref) {
 	  FDEBUG(9) << "testing against " << iref->className() << "\n";
           BranchKey refkey(*iref);
           if(key == refkey) {

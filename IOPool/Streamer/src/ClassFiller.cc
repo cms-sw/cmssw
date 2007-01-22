@@ -93,7 +93,7 @@ namespace {
 	if(cc.IsTemplateInstance()) {
 	    FDEBUG(9) << "JBK: Got template instance " << getName(cc) << endl;
 	    int cnt = cc.TemplateArgumentSize();
-	    for(int i=0; i<cnt; ++i) {
+	    for(int i = 0; i < cnt; ++i) {
 		ROOT::Reflex::Type t = cc.TemplateArgumentAt(i);
 		fillChildren(cl, t, rcnt, classes);
 	    }
@@ -101,7 +101,7 @@ namespace {
 
 	FDEBUG(9) << "JBK: declare members " << getName(cc) << endl;
 	int mcnt = cc.MemberSize();
-	for(int i=0; i<mcnt; ++i) {
+	for(int i = 0; i < mcnt; ++i) {
 	    ROOT::Reflex::Member m = cc.MemberAt(i);
 	    if(m.IsTransient() || m.IsStatic()) continue;
 	    if(!m.IsDataMember()) continue;
@@ -141,7 +141,7 @@ namespace {
 	    int cnt = cc.BaseSize();
             if (cnt) {
 	      FDEBUG(9) << "WMT: declare bases " << getName(cc) << endl;
-	      for(int i=0; i<cnt; ++i) {
+	      for(int i = 0; i < cnt; ++i) {
 	        ROOT::Reflex::Base b = cc.BaseAt(i);
 
 	        ROOT::Reflex::Type t = b.ToType();

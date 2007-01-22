@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: EOFRecordBuilder.cc,v 1.6 2006/10/11 14:30:25 klute Exp $
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
 
@@ -18,13 +18,12 @@ EOFRecordBuilder::EOFRecordBuilder(uint32 run, uint32 events,
   convert(events,h->events_);
   pos +=  sizeof(EOFRecordHeader);
 
-  for(unsigned int i=0;i<hltStats.size();++i)
-    {
+  for(unsigned int i = 0; i < hltStats.size(); ++i) {
     char_uint32 v;
     convert(hltStats.at(i),  v);
     memcpy(pos, v, sizeof(char_uint32));
     pos += sizeof(char_uint32); 
-    }
+  }
 
   char_uint64 v;
   convert(first_event_offset, v);

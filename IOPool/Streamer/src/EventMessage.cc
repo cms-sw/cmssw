@@ -60,14 +60,14 @@ void EventMsgView::l1TriggerBits(std::vector<bool>& put_here) const
   put_here.clear();
   put_here.resize(l1_bits_count_);
 
-  for(std::vector<bool>::size_type  i=0 ; i<l1_bits_count_ ; ++i)
+  for(std::vector<bool>::size_type i = 0; i < l1_bits_count_; ++i)
     put_here[i] = (bool)(l1_bits_start_[i/8] & (1<<((i&0x07))));
 }
 
 void EventMsgView::hltTriggerBits(uint8* put_here) const
 {
   uint32 hlt_sz = hlt_bits_count_;
-  if (hlt_sz != 0) hlt_sz = 1+ ((hlt_sz-1)/4);
+  if (hlt_sz != 0) hlt_sz = 1 + ((hlt_sz-1)/4);
 
   if(v2Detected_) hlt_sz=2;
 
