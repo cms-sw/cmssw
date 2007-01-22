@@ -15,8 +15,22 @@ AlignableNavigator::AlignableNavigator( Alignable* alignable )
   recursiveGetId( alignable );
 
   edm::LogInfo("Alignment") <<"[AlignableNavigator] created with map of size "
-    << theMap.size();
+                            << theMap.size();
 }
+
+//_____________________________________________________________________________
+
+AlignableNavigator::AlignableNavigator( Alignable* tracker, Alignable* muon )
+{
+  theMap.clear();
+
+  recursiveGetId( tracker );
+  recursiveGetId( muon );
+
+  edm::LogInfo("Alignment") <<"[AlignableNavigator] created with map of size "
+                            << theMap.size();
+}
+
 
 //_____________________________________________________________________________
 
@@ -116,16 +130,16 @@ AlignableNavigator::alignableDetsFromHits
 (const TransientTrackingRecHit::ConstRecHitContainer &hitVec)
 {
 
-  std::vector<AlignableDet*> alidetvec(hitVec.size());
-
+  std::vector<AlignableDet*> alidetvec;
+  alidetvec.reserve(hitVec.size());
+  
   for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator it
-	 = hitVec.begin(); it != hitVec.end(); ++it) {
+         = hitVec.begin(); it != hitVec.end(); ++it) {
     AlignableDet* aliDet = this->alignableDetFromDetId((*it)->geographicalId());
-    if (aliDet) {
-      alidetvec.push_back(aliDet);
-    } else {
-      throw cms::Exception("BadAssociation") << "[AlignableNavigator::alignableDetsFromHits] find no AlignableDet associated to hit!";
-    }
+    if (aliDet) alidetvec.push_back(aliDet);
+    else 
+      throw cms::Exception("BadAssociation") << "@SUB=AlignableNavigator::alignableDetsFromHits "
+                                             << "Found no AlignableDet associated to hit!";
   }
 
   return alidetvec;
