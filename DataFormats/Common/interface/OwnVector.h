@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.17 2007/01/16 09:21:56 llista Exp $
+// $Id: OwnVector.h,v 1.18 2007/01/19 16:09:52 llista Exp $
 
 #include <algorithm>
 #include <functional>
@@ -26,28 +26,18 @@ namespace edm {
     };
 
     struct PostReadFixup {
-      PostReadFixup() : fixed_( false ), fixing_( false ) { }
-      void touch() { 
-	if ( fixing_ )
-	  throw edm::Exception(errors::LogicError)
-	    << "PostReadFixup: touch is not allowed while fixing.\n";
-	fixed_ = false; 
-      }
+      PostReadFixup() : fixed_( false ) { }
+      void touch() { fixed_ = false; }
       template<typename C>
       void operator()( const C & c ) const { 
-	  // set infinite recursive infinite loop
-	if ( ! fixing_ ) {
-	  fixing_ = true;
-	  if ( ! fixed_ )
-	    for ( typename C::const_iterator i = c.begin(); i != c.end(); ++ i )
-	      (*i)->fixup();
+	if ( ! fixed_ ) {
 	  fixed_ = true;
-	  fixing_ = false;
+	  for ( typename C::const_iterator i = c.begin(); i != c.end(); ++ i )
+	    (*i)->fixup();
 	}
       }
     private:
       mutable bool fixed_;
-      mutable bool fixing_;
     };
 
     template<typename T>
