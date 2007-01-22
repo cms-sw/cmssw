@@ -28,8 +28,10 @@ public:
 	    sqrt(tp.momentum().perp2()) >= ptMin_ && 
 	    fabs(tp.momentum().eta()) >= minRapidity_ && fabs(tp.momentum().eta()) <= maxRapidity_ && 
 	    fabs(tp.parentVertex()->position().perp()) <= tip_ &&
-	    fabs(tp.parentVertex()->position().z()) <= lip_ 
-	    );
+ 	    fabs(tp.parentVertex()->position().z()) <= lip_  &&
+	    //signalonly==true for efficiency
+	    tp.eventId().bunchCrossing()== 0 && tp.eventId().event() == 0
+ 	    );
   }
   
 private:
