@@ -31,7 +31,7 @@
 //! digits of filenum.                                           
 //! \param filenum - an integer NNNN used in the filename template_summary_zpNNNN
 //**************************************************************** 
-void SiPixelTemplate::pushfile(int filenum)
+bool SiPixelTemplate::pushfile(int filenum)
 {
     // Add template stored in external file numbered filenum to theTemplateStore
     
@@ -46,7 +46,10 @@ void SiPixelTemplate::pushfile(int filenum)
 //  Create a filename for this run 
 
  std::ostringstream tout;
- tout << "template_summary_zp" << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
+ // Gavril: read the template file from ../data
+ //tout << "template_summary_zp" << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
+ tout << "../data/template_summary_zp" << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
+
  std::string tempf = tout.str();
  tempfile = tempf.c_str();
 	
@@ -74,7 +77,9 @@ void SiPixelTemplate::pushfile(int filenum)
     in_file >> theCurrentTemp.head.ID >> theCurrentTemp.head.NBy >> theCurrentTemp.head.NBx
 	        >> theCurrentTemp.head.NFy >> theCurrentTemp.head.NFx >> theCurrentTemp.head.vbias >> theCurrentTemp.head.temperature 
 		    >> theCurrentTemp.head.fluence >> theCurrentTemp.head.s50;
-    
+			
+	if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
+	
     std::cout << "Template ID = " << theCurrentTemp.head.ID << ", NBy = " << theCurrentTemp.head.NBy << ", NBx = " << theCurrentTemp.head.NBx << ", NFy = "
 	     << theCurrentTemp.head.NFy << ", NFx = " << theCurrentTemp.head.NFx << ", bias voltage " << theCurrentTemp.head.vbias << ", temperature "
 		 << theCurrentTemp.head.temperature << ", fluence " << theCurrentTemp.head.fluence << ", 1/2 threshold " << theCurrentTemp.head.s50 << std::endl; 
@@ -85,6 +90,8 @@ void SiPixelTemplate::pushfile(int filenum)
     
        in_file >> theCurrentTemp.entby[i].runnum >> theCurrentTemp.entby[i].costrk[0] 
 	           >> theCurrentTemp.entby[i].costrk[1] >> theCurrentTemp.entby[i].costrk[2]; 
+			
+	   if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
 // Calculate the alpha, beta, and cot(beta) for this entry 
 
@@ -98,14 +105,20 @@ void SiPixelTemplate::pushfile(int filenum)
     
        in_file >> theCurrentTemp.entby[i].qavg >> theCurrentTemp.entby[i].symax >> theCurrentTemp.entby[i].dyone
 	           >> theCurrentTemp.entby[i].syone >> theCurrentTemp.entby[i].sxmax >> theCurrentTemp.entby[i].dxone >> theCurrentTemp.entby[i].sxone;
+			
+       if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
     
        in_file >> theCurrentTemp.entby[i].dytwo >> theCurrentTemp.entby[i].sytwo >> theCurrentTemp.entby[i].dxtwo 
 	           >> theCurrentTemp.entby[i].sxtwo;
+			
+       if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
 	   for (j=0; j<2; ++j) {
     
           in_file >> theCurrentTemp.entby[i].ypar[j][0] >> theCurrentTemp.entby[i].ypar[j][1] 
 	              >> theCurrentTemp.entby[i].ypar[j][2] >> theCurrentTemp.entby[i].ypar[j][3] >> theCurrentTemp.entby[i].ypar[j][4];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
 	   }
 			  
@@ -118,12 +131,16 @@ void SiPixelTemplate::pushfile(int filenum)
 	              >> theCurrentTemp.entby[i].ytemp[j][12] >> theCurrentTemp.entby[i].ytemp[j][13] >> theCurrentTemp.entby[i].ytemp[j][14]
 	              >> theCurrentTemp.entby[i].ytemp[j][15] >> theCurrentTemp.entby[i].ytemp[j][16] >> theCurrentTemp.entby[i].ytemp[j][17]
 	              >> theCurrentTemp.entby[i].ytemp[j][18] >> theCurrentTemp.entby[i].ytemp[j][19] >> theCurrentTemp.entby[i].ytemp[j][20];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
    			  
 	   for (j=0; j<2; ++j) {
     
 		  in_file >> theCurrentTemp.entby[i].xpar[j][0] >> theCurrentTemp.entby[i].xpar[j][1] 
 	              >> theCurrentTemp.entby[i].xpar[j][2] >> theCurrentTemp.entby[i].xpar[j][3] >> theCurrentTemp.entby[i].xpar[j][4];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
 	   }
 			  
@@ -132,36 +149,50 @@ void SiPixelTemplate::pushfile(int filenum)
           in_file >> theCurrentTemp.entby[i].xtemp[j][0] >> theCurrentTemp.entby[i].xtemp[j][1] >> theCurrentTemp.entby[i].xtemp[j][2]
 	              >> theCurrentTemp.entby[i].xtemp[j][3] >> theCurrentTemp.entby[i].xtemp[j][4] >> theCurrentTemp.entby[i].xtemp[j][5]
 	              >> theCurrentTemp.entby[i].xtemp[j][6];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entby[i].yavg[j] >> theCurrentTemp.entby[i].yrms[j] >> theCurrentTemp.entby[i].ygx0[j] >> theCurrentTemp.entby[i].ygsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entby[i].yeavg[j] >> theCurrentTemp.entby[i].yerms[j] >> theCurrentTemp.entby[i].yegx0[j] >> theCurrentTemp.entby[i].yegsig[j];
-	   }
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
+  	   }
 	   
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entby[i].yoavg[j] >> theCurrentTemp.entby[i].yorms[j] >> theCurrentTemp.entby[i].yogx0[j] >> theCurrentTemp.entby[i].yogsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entby[i].xavg[j] >> theCurrentTemp.entby[i].xrms[j] >> theCurrentTemp.entby[i].xgx0[j] >> theCurrentTemp.entby[i].xgsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entby[i].xeavg[j] >> theCurrentTemp.entby[i].xerms[j] >> theCurrentTemp.entby[i].xegx0[j] >> theCurrentTemp.entby[i].xegsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entby[i].xoavg[j] >> theCurrentTemp.entby[i].xorms[j] >> theCurrentTemp.entby[i].xogx0[j] >> theCurrentTemp.entby[i].xogsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
     	   
 	}
@@ -172,6 +203,8 @@ void SiPixelTemplate::pushfile(int filenum)
         
        in_file >> theCurrentTemp.entbx[i].runnum >> theCurrentTemp.entbx[i].costrk[0] 
 	           >> theCurrentTemp.entbx[i].costrk[1] >> theCurrentTemp.entbx[i].costrk[2]; 
+			
+       if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
 // Calculate the alpha, beta, and cot(beta) for this entry 
 
@@ -185,15 +218,20 @@ void SiPixelTemplate::pushfile(int filenum)
     
        in_file >> theCurrentTemp.entbx[i].qavg >> theCurrentTemp.entbx[i].symax >> theCurrentTemp.entbx[i].dyone
 	           >> theCurrentTemp.entbx[i].syone >> theCurrentTemp.entbx[i].sxmax >> theCurrentTemp.entbx[i].dxone >> theCurrentTemp.entbx[i].sxone;
+			
+       if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
     
        in_file >> theCurrentTemp.entbx[i].dytwo >> theCurrentTemp.entbx[i].sytwo >> theCurrentTemp.entbx[i].dxtwo 
 	           >> theCurrentTemp.entbx[i].sxtwo;
+			
+       if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
 	   for (j=0; j<2; ++j) {
     
           in_file >> theCurrentTemp.entbx[i].ypar[j][0] >> theCurrentTemp.entbx[i].ypar[j][1] 
 	              >> theCurrentTemp.entbx[i].ypar[j][2] >> theCurrentTemp.entbx[i].ypar[j][3] >> theCurrentTemp.entbx[i].ypar[j][4];
-			  
+			  			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<9; ++j) {
@@ -205,6 +243,8 @@ void SiPixelTemplate::pushfile(int filenum)
 	              >> theCurrentTemp.entbx[i].ytemp[j][12] >> theCurrentTemp.entbx[i].ytemp[j][13] >> theCurrentTemp.entbx[i].ytemp[j][14]
 	              >> theCurrentTemp.entbx[i].ytemp[j][15] >> theCurrentTemp.entbx[i].ytemp[j][16] >> theCurrentTemp.entbx[i].ytemp[j][17]
 	              >> theCurrentTemp.entbx[i].ytemp[j][18] >> theCurrentTemp.entbx[i].ytemp[j][19] >> theCurrentTemp.entbx[i].ytemp[j][20];
+			
+		  if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
    			  
 	   for (j=0; j<2; ++j) {
@@ -212,6 +252,8 @@ void SiPixelTemplate::pushfile(int filenum)
 		  in_file >> theCurrentTemp.entbx[i].xpar[j][0] >> theCurrentTemp.entbx[i].xpar[j][1] 
 	              >> theCurrentTemp.entbx[i].xpar[j][2] >> theCurrentTemp.entbx[i].xpar[j][3] >> theCurrentTemp.entbx[i].xpar[j][4];
 			  
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<9; ++j) {
@@ -219,36 +261,50 @@ void SiPixelTemplate::pushfile(int filenum)
           in_file >> theCurrentTemp.entbx[i].xtemp[j][0] >> theCurrentTemp.entbx[i].xtemp[j][1] >> theCurrentTemp.entbx[i].xtemp[j][2]
 	              >> theCurrentTemp.entbx[i].xtemp[j][3] >> theCurrentTemp.entbx[i].xtemp[j][4] >> theCurrentTemp.entbx[i].xtemp[j][5]
 	              >> theCurrentTemp.entbx[i].xtemp[j][6];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entbx[i].yavg[j] >> theCurrentTemp.entbx[i].yrms[j] >> theCurrentTemp.entbx[i].ygx0[j] >> theCurrentTemp.entbx[i].ygsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entbx[i].yeavg[j] >> theCurrentTemp.entbx[i].yerms[j] >> theCurrentTemp.entbx[i].yegx0[j] >> theCurrentTemp.entbx[i].yegsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entbx[i].yoavg[j] >> theCurrentTemp.entbx[i].yorms[j] >> theCurrentTemp.entbx[i].yogx0[j] >> theCurrentTemp.entbx[i].yogsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entbx[i].xavg[j] >> theCurrentTemp.entbx[i].xrms[j] >> theCurrentTemp.entbx[i].xgx0[j] >> theCurrentTemp.entbx[i].xgsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entbx[i].xeavg[j] >> theCurrentTemp.entbx[i].xerms[j] >> theCurrentTemp.entbx[i].xegx0[j] >> theCurrentTemp.entbx[i].xegsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entbx[i].xoavg[j] >> theCurrentTemp.entbx[i].xorms[j] >> theCurrentTemp.entbx[i].xogx0[j] >> theCurrentTemp.entbx[i].xogsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
     	   
 	}
@@ -259,6 +315,8 @@ void SiPixelTemplate::pushfile(int filenum)
     
        in_file >> theCurrentTemp.entfy[i].runnum >> theCurrentTemp.entfy[i].costrk[0] 
 	           >> theCurrentTemp.entfy[i].costrk[1] >> theCurrentTemp.entfy[i].costrk[2]; 
+			
+       if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
 // Calculate the alpha, beta, and cot(beta) for this entry 
 
@@ -272,14 +330,20 @@ void SiPixelTemplate::pushfile(int filenum)
     
        in_file >> theCurrentTemp.entfy[i].qavg >> theCurrentTemp.entfy[i].symax >> theCurrentTemp.entfy[i].dyone
 	           >> theCurrentTemp.entfy[i].syone >> theCurrentTemp.entfy[i].sxmax >> theCurrentTemp.entfy[i].dxone >> theCurrentTemp.entfy[i].sxone;
-    
+    			
+       if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
+	   
        in_file >> theCurrentTemp.entfy[i].dytwo >> theCurrentTemp.entfy[i].sytwo >> theCurrentTemp.entfy[i].dxtwo 
 	           >> theCurrentTemp.entfy[i].sxtwo;
+			
+       if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
 	   for (j=0; j<2; ++j) {
     
           in_file >> theCurrentTemp.entfy[i].ypar[j][0] >> theCurrentTemp.entfy[i].ypar[j][1] 
 	              >> theCurrentTemp.entfy[i].ypar[j][2] >> theCurrentTemp.entfy[i].ypar[j][3] >> theCurrentTemp.entfy[i].ypar[j][4];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
 	   }
 			  
@@ -292,6 +356,8 @@ void SiPixelTemplate::pushfile(int filenum)
 	              >> theCurrentTemp.entfy[i].ytemp[j][12] >> theCurrentTemp.entfy[i].ytemp[j][13] >> theCurrentTemp.entfy[i].ytemp[j][14]
 	              >> theCurrentTemp.entfy[i].ytemp[j][15] >> theCurrentTemp.entfy[i].ytemp[j][16] >> theCurrentTemp.entfy[i].ytemp[j][17]
 	              >> theCurrentTemp.entfy[i].ytemp[j][18] >> theCurrentTemp.entfy[i].ytemp[j][19] >> theCurrentTemp.entfy[i].ytemp[j][20];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
    			  
 	   for (j=0; j<2; ++j) {
@@ -299,6 +365,8 @@ void SiPixelTemplate::pushfile(int filenum)
 		  in_file >> theCurrentTemp.entfy[i].xpar[j][0] >> theCurrentTemp.entfy[i].xpar[j][1] 
 	              >> theCurrentTemp.entfy[i].xpar[j][2] >> theCurrentTemp.entfy[i].xpar[j][3] >> theCurrentTemp.entfy[i].xpar[j][4];
 			  
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<9; ++j) {
@@ -306,36 +374,50 @@ void SiPixelTemplate::pushfile(int filenum)
           in_file >> theCurrentTemp.entfy[i].xtemp[j][0] >> theCurrentTemp.entfy[i].xtemp[j][1] >> theCurrentTemp.entfy[i].xtemp[j][2]
 	              >> theCurrentTemp.entfy[i].xtemp[j][3] >> theCurrentTemp.entfy[i].xtemp[j][4] >> theCurrentTemp.entfy[i].xtemp[j][5]
 	              >> theCurrentTemp.entfy[i].xtemp[j][6];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfy[i].yavg[j] >> theCurrentTemp.entfy[i].yrms[j] >> theCurrentTemp.entfy[i].ygx0[j] >> theCurrentTemp.entfy[i].ygsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfy[i].yeavg[j] >> theCurrentTemp.entfy[i].yerms[j] >> theCurrentTemp.entfy[i].yegx0[j] >> theCurrentTemp.entfy[i].yegsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfy[i].yoavg[j] >> theCurrentTemp.entfy[i].yorms[j] >> theCurrentTemp.entfy[i].yogx0[j] >> theCurrentTemp.entfy[i].yogsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfy[i].xavg[j] >> theCurrentTemp.entfy[i].xrms[j] >> theCurrentTemp.entfy[i].xgx0[j] >> theCurrentTemp.entfy[i].xgsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfy[i].xeavg[j] >> theCurrentTemp.entfy[i].xerms[j] >> theCurrentTemp.entfy[i].xegx0[j] >> theCurrentTemp.entfy[i].xegsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfy[i].xoavg[j] >> theCurrentTemp.entfy[i].xorms[j] >> theCurrentTemp.entfy[i].xogx0[j] >> theCurrentTemp.entfy[i].xogsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
     	   
 	}
@@ -346,6 +428,8 @@ void SiPixelTemplate::pushfile(int filenum)
     
        in_file >> theCurrentTemp.entfx[i].runnum >> theCurrentTemp.entfx[i].costrk[0] 
 	           >> theCurrentTemp.entfx[i].costrk[1] >> theCurrentTemp.entfx[i].costrk[2]; 
+			
+       if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
 // Calculate the alpha, beta, and cot(beta) for this entry 
 
@@ -359,14 +443,20 @@ void SiPixelTemplate::pushfile(int filenum)
     
        in_file >> theCurrentTemp.entfx[i].qavg >> theCurrentTemp.entfx[i].symax >> theCurrentTemp.entfx[i].dyone
 	           >> theCurrentTemp.entfx[i].syone >> theCurrentTemp.entfx[i].sxmax >> theCurrentTemp.entfx[i].dxone >> theCurrentTemp.entfx[i].sxone;
+			
+       if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
     
        in_file >> theCurrentTemp.entfx[i].dytwo >> theCurrentTemp.entfx[i].sytwo >> theCurrentTemp.entfx[i].dxtwo 
 	           >> theCurrentTemp.entfx[i].sxtwo;
+			
+       if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
 	   for (j=0; j<2; ++j) {
     
           in_file >> theCurrentTemp.entfx[i].ypar[j][0] >> theCurrentTemp.entfx[i].ypar[j][1] 
 	              >> theCurrentTemp.entfx[i].ypar[j][2] >> theCurrentTemp.entfx[i].ypar[j][3] >> theCurrentTemp.entfx[i].ypar[j][4];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
 	   }
 			  
@@ -379,6 +469,8 @@ void SiPixelTemplate::pushfile(int filenum)
 	              >> theCurrentTemp.entfx[i].ytemp[j][12] >> theCurrentTemp.entfx[i].ytemp[j][13] >> theCurrentTemp.entfx[i].ytemp[j][14]
 	              >> theCurrentTemp.entfx[i].ytemp[j][15] >> theCurrentTemp.entfx[i].ytemp[j][16] >> theCurrentTemp.entfx[i].ytemp[j][17]
 	              >> theCurrentTemp.entfx[i].ytemp[j][18] >> theCurrentTemp.entfx[i].ytemp[j][19] >> theCurrentTemp.entfx[i].ytemp[j][20];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
    			  
 	   for (j=0; j<2; ++j) {
@@ -386,6 +478,8 @@ void SiPixelTemplate::pushfile(int filenum)
 		  in_file >> theCurrentTemp.entfx[i].xpar[j][0] >> theCurrentTemp.entfx[i].xpar[j][1] 
 	              >> theCurrentTemp.entfx[i].xpar[j][2] >> theCurrentTemp.entfx[i].xpar[j][3] >> theCurrentTemp.entfx[i].xpar[j][4];
 			  
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<9; ++j) {
@@ -393,36 +487,50 @@ void SiPixelTemplate::pushfile(int filenum)
           in_file >> theCurrentTemp.entfx[i].xtemp[j][0] >> theCurrentTemp.entfx[i].xtemp[j][1] >> theCurrentTemp.entfx[i].xtemp[j][2]
 	              >> theCurrentTemp.entfx[i].xtemp[j][3] >> theCurrentTemp.entfx[i].xtemp[j][4] >> theCurrentTemp.entfx[i].xtemp[j][5]
 	              >> theCurrentTemp.entfx[i].xtemp[j][6];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfx[i].yavg[j] >> theCurrentTemp.entfx[i].yrms[j] >> theCurrentTemp.entfx[i].ygx0[j] >> theCurrentTemp.entfx[i].ygsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfx[i].yeavg[j] >> theCurrentTemp.entfx[i].yerms[j] >> theCurrentTemp.entfx[i].yegx0[j] >> theCurrentTemp.entfx[i].yegsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfx[i].yoavg[j] >> theCurrentTemp.entfx[i].yorms[j] >> theCurrentTemp.entfx[i].yogx0[j] >> theCurrentTemp.entfx[i].yogsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfx[i].xavg[j] >> theCurrentTemp.entfx[i].xrms[j] >> theCurrentTemp.entfx[i].xgx0[j] >> theCurrentTemp.entfx[i].xgsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfx[i].xeavg[j] >> theCurrentTemp.entfx[i].xerms[j] >> theCurrentTemp.entfx[i].xegx0[j] >> theCurrentTemp.entfx[i].xegsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfx[i].xoavg[j] >> theCurrentTemp.entfx[i].xorms[j] >> theCurrentTemp.entfx[i].xogx0[j] >> theCurrentTemp.entfx[i].xogsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
     	   
 	}
@@ -433,15 +541,17 @@ void SiPixelTemplate::pushfile(int filenum)
 	
 	thePixelTemp.push_back(theCurrentTemp);
 	
+	return true;
+	
  } else {
  
  // If file didn't open, report this
  
     std::cout << "Error opening File" << tempfile << std::endl;
+	return false;
 	
  }
 	
-	return;
 } // TempInit 
 
 
@@ -526,7 +636,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 		
 	   } else {
 
-          for (i=0; i<Ny-2; ++i) { 
+          for (i=0; i<Ny-1; ++i) { 
     
              if( thePixelTemp[index_id].entfy[i].cotbeta <= cotbeta && cotbeta < thePixelTemp[index_id].entfy[i+1].cotbeta) {
 		  
@@ -638,7 +748,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 		
 	   } else {
 
-          for (i=0; i<Nx-2; ++i) { 
+          for (i=0; i<Nx-1; ++i) { 
     
              if( thePixelTemp[index_id].entfx[i].cotalpha <= cotalpha && cotalpha < thePixelTemp[index_id].entfx[i+1].cotalpha) {
 		  
@@ -768,7 +878,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 		
 	   } else {
 
-          for (i=0; i<Ny-2; ++i) { 
+          for (i=0; i<Ny-1; ++i) { 
     
              if( thePixelTemp[index_id].entby[i].cotbeta <= cotbeta && cotbeta < thePixelTemp[index_id].entby[i+1].cotbeta) {
 		  
@@ -880,7 +990,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 		
 	   } else {
 
-          for (i=0; i<Nx-2; ++i) { 
+          for (i=0; i<Nx-1; ++i) { 
     
              if( thePixelTemp[index_id].entbx[i].cotalpha <= cotalpha && cotalpha < thePixelTemp[index_id].entbx[i+1].cotalpha) {
 		  
