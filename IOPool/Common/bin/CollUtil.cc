@@ -70,7 +70,7 @@ namespace edm {
 
       tree->SetBranchAddress("EventAux",&evtAux_);
       Long64_t max= tree->GetEntries();
-      for (Long64_t i=iLow; i<= iHigh && i< max; i++) {
+      for (Long64_t i = iLow; i <= iHigh && i < max; ++i) {
 	evtAuxBr->GetEntry(i);
 	if ( evtAux_ != 0 ) {
 	  Timestamp time_=evtAux_->time();
@@ -102,7 +102,7 @@ namespace edm {
 //       tree->SetBranchAddress("EventAux",&evtAux_);
 //       Long64_t max= tree->GetEntries();
 //       int entrycounter = 0;
-//       for (Long64_t i=iLow; i<= iHigh && i< max; i++) {
+//       for (Long64_t i=iLow; i <= iHigh && i < max; ++i) {
 // 	evtAuxBr->GetEntry(i);
 // 	if ( evtAux_ != 0 ) {
 // 	  Timestamp time_=evtAux_->time();
@@ -113,7 +113,7 @@ namespace edm {
 // 	  Long64_t nB=tree->GetListOfBranches()->GetEntries();
 // 	  std::cout << "No. of branches = " << nB << std::endl;
 	  
-// 	  for ( Long64_t j=0; j<nB; j++) {
+// 	  for ( Long64_t j = 0; j < nB; ++j) {
 // 	    TBranch *br = (TBranch *)tree->GetListOfBranches()->At(j);
 //  	    TString branchName = br->GetName();
 // 	    branchName+="obj.";

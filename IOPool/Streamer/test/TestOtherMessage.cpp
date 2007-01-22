@@ -11,7 +11,7 @@ int main()
    char mybuf[20];
 
    cout<<"Filling the local buffer with 0xee"<<endl;
-   for (unsigned int idx = 0; idx < sizeof(mybuf); idx++) {
+   for (unsigned int idx = 0; idx < sizeof(mybuf); ++idx) {
      mybuf[idx] = 0xee;
    }
    cout<<endl;
@@ -25,7 +25,7 @@ int main()
    cout<<endl;
    cout<<"Local buffer contents with the Other Message (hex):"<<endl;
    cout<<hex;
-   for (unsigned int idx = 0; idx < sizeof(mybuf); idx++) {
+   for (unsigned int idx = 0; idx < sizeof(mybuf); ++idx) {
      cout<<" "<<(0xff&((int)mybuf[idx]));
    }
    cout<<dec<<endl;
@@ -51,7 +51,7 @@ int main()
    cout<<endl;
    cout<<"Local buffer contents with the second Other Message (hex):"<<endl;
    cout<<hex;
-   for (unsigned int idx = 0; idx < sizeof(mybuf); idx++) {
+   for (unsigned int idx = 0; idx < sizeof(mybuf); ++idx) {
      cout<<" "<<(0xff&((int)mybuf[idx]));
    }
    cout<<dec<<endl;

@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // EdmFileUtil.cpp
 //
-// $Id: EdmFileUtil.cpp,v 1.4 2006/12/19 00:33:20 wmtan Exp $
+// $Id: EdmFileUtil.cpp,v 1.5 2006/12/20 00:00:59 wmtan Exp $
 //
 // Author: Chih-hsiang Cheng, LLNL
 //         Chih-Hsiang.Cheng@cern.ch
@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
     std::vector<std::string> const& filesIn = catalog.fileNames();
 
     // Allow user to input multiple files
-    for(unsigned int j = 0;j < in.size();j++) {
+    for(unsigned int j = 0; j < in.size(); ++j) {
       
       // We _only_ want the LFN->PFN conversion. No need to open the file, 
       // just check the catalog and move on
@@ -161,8 +161,8 @@ int main(int argc, char* argv[]) {
       }
       
       // Ok. Do we have the expected trees?
-      for ( unsigned int i=0; i<expectedTrees.size(); i++) {
-	TTree *t= (TTree*) tfile->Get(expectedTrees[i].c_str());
+      for ( unsigned int i = 0; i < expectedTrees.size(); ++i) {
+	TTree *t = (TTree*) tfile->Get(expectedTrees[i].c_str());
 	if ( t==0 ) {
 	  std::cout << "Tree " << expectedTrees[i] << " appears to be missing. Not a valid collection\n";
 	  std::cout << "Exiting\n";
