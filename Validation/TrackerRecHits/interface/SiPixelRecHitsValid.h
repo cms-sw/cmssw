@@ -113,6 +113,26 @@ class SiPixelRecHitsValid : public edm::EDAnalyzer {
 	MonitorElement* recHitYResDisk1Plaquettes[7];
 	MonitorElement* recHitYResDisk2Plaquettes[7];
 
+	// Pull distributions
+	//RecHits BPIX
+	MonitorElement* recHitXPullAllB;
+	MonitorElement* recHitYPullAllB;
+
+	MonitorElement* recHitXPullFlippedLadderLayers[3];
+	MonitorElement* recHitXPullNonFlippedLadderLayers[3];
+	MonitorElement* recHitYPullLayer1Modules[8];
+	MonitorElement* recHitYPullLayer2Modules[8];
+	MonitorElement* recHitYPullLayer3Modules[8];
+
+	//RecHits FPIX
+	MonitorElement* recHitXPullAllF;
+	MonitorElement* recHitYPullAllF;
+
+	MonitorElement* recHitXPullDisk1Plaquettes[7];
+	MonitorElement* recHitXPullDisk2Plaquettes[7];
+	MonitorElement* recHitYPullDisk1Plaquettes[7];
+	MonitorElement* recHitYPullDisk2Plaquettes[7];
+
         edm::InputTag src_;
 };
 
