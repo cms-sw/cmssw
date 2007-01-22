@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.3 2007/01/22 13:09:46 benigno Exp $
+// $Id: EcalErrorMask.cc,v 1.4 2007/01/22 15:06:07 benigno Exp $
 
 /*!
-  \file EcalErrorMas.cc
+  \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.3 $
-  \date $Date: 2007/01/22 13:09:46 $
+  \version $Revision: 1.4 $
+  \date $Date: 2007/01/22 15:06:07 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
