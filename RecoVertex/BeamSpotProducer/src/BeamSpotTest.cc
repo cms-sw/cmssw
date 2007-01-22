@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSTrkParameters.h,v 1.0 2006/09/19 17:13:31 yumiceva Exp $
+ version $Id: BeamSpotTest.cc,v 1.1 2006/12/15 20:00:37 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -14,6 +14,7 @@ ________________________________________________________________**/
 // C++ standard
 #include <string>
 // CMS
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamSpotTest.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
 
@@ -21,8 +22,6 @@ ________________________________________________________________**/
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/RoadSearchCloud/interface/RoadSearchCloud.h"
-#include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -60,21 +59,12 @@ BeamSpotTest::BeamSpotTest(const edm::ParameterSet& iConfig)
   ftree_->Branch("nTECHit",&fnTECHit,"fnTECHit/i");
   ftree_->Branch("nPXBHit",&fnPXBHit,"fnPXBHit/i");
   ftree_->Branch("nPXFHit",&fnPXFHit,"fnPXFHit/i");
-    
-  
-  //ftree_->Branch("vx",&fvx,"fvx/D");
-  //ftree_->Branch("vx",&fvx,"fvx/D");
-  
-  fBSvector.erase(fBSvector.begin(),fBSvector.end());
+   
+  fBSvector.clear();
 
   
   // get parameter
-  rsSeedProducerLabel_ = iConfig.getUntrackedParameter<std::string>("rsSeedProducerLabel");
-  rsRawCloudProducerLabel_ = iConfig.getUntrackedParameter<std::string>("rsRawCloudProducerLabel");
-  rsCleanCloudProducerLabel_ = iConfig.getUntrackedParameter<std::string>("rsCleanCloudProducerLabel");
-  rsTrackCandidateProducerLabel_ = iConfig.getUntrackedParameter<std::string>("rsTrackCandidateProducerLabel");
-  rsTrackProducerLabel_ = iConfig.getUntrackedParameter<std::string>("rsTrackProducerLabel");
-
+ 
   ckfSeedProducerLabel_ = iConfig.getUntrackedParameter<std::string>("ckfSeedProducerLabel");
   ckfTrackCandidateProducerLabel_ = iConfig.getUntrackedParameter<std::string>("ckfTrackCandidateProducerLabel");
   ckfTrackProducerLabel_ = iConfig.getUntrackedParameter<std::string>("ckfTrackProducerLabel");
@@ -123,33 +113,10 @@ BeamSpotTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
   
 	// get collections
-	edm::Handle<TrajectorySeedCollection> rsSeedCollectionHandle;
-	iEvent.getByLabel(rsSeedProducerLabel_,rsSeedCollectionHandle);
-	const TrajectorySeedCollection *rsSeedCollection = rsSeedCollectionHandle.product();
-
-	edm::Handle<RoadSearchCloudCollection> rsRawCloudCollectionHandle;
-	iEvent.getByLabel(rsRawCloudProducerLabel_,rsRawCloudCollectionHandle);
-	const RoadSearchCloudCollection *rsRawCloudCollection = rsRawCloudCollectionHandle.product();
-
-	edm::Handle<RoadSearchCloudCollection> rsCleanCloudCollectionHandle;
-	iEvent.getByLabel(rsCleanCloudProducerLabel_,rsCleanCloudCollectionHandle);
-	const RoadSearchCloudCollection *rsCleanCloudCollection = rsCleanCloudCollectionHandle.product();
-
-	edm::Handle<TrackCandidateCollection> rsTrackCandidateCollectionHandle;
-	iEvent.getByLabel(rsTrackCandidateProducerLabel_,rsTrackCandidateCollectionHandle);
-	const TrackCandidateCollection *rsTrackCandidateCollection = rsTrackCandidateCollectionHandle.product();
 	
-	edm::Handle<reco::TrackCollection> rsTrackCollectionHandle;
-	iEvent.getByLabel(rsTrackProducerLabel_,rsTrackCollectionHandle);
-	const reco::TrackCollection *rsTrackCollection = rsTrackCollectionHandle.product();
-
-	edm::Handle<TrajectorySeedCollection> ckfSeedCollectionHandle;
-	iEvent.getByLabel(ckfSeedProducerLabel_,ckfSeedCollectionHandle);
-	const TrajectorySeedCollection *ckfSeedCollection = ckfSeedCollectionHandle.product();
-
-	edm::Handle<TrackCandidateCollection> ckfTrackCandidateCollectionHandle;
-	iEvent.getByLabel(ckfTrackCandidateProducerLabel_,ckfTrackCandidateCollectionHandle);
-	const TrackCandidateCollection *ckfTrackCandidateCollection = ckfTrackCandidateCollectionHandle.product();
+	//edm::Handle<TrackCandidateCollection> ckfTrackCandidateCollectionHandle;
+	//iEvent.getByLabel(ckfTrackCandidateProducerLabel_,ckfTrackCandidateCollectionHandle);
+	//const TrackCandidateCollection *ckfTrackCandidateCollection = ckfTrackCandidateCollectionHandle.product();
 
 	edm::Handle<reco::TrackCollection> ckfTrackCollectionHandle;
 	iEvent.getByLabel(ckfTrackProducerLabel_,ckfTrackCollectionHandle);
@@ -158,7 +125,7 @@ BeamSpotTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   // Ckf tracks
-  //ckf_numTracks->Fill(ckfTrackCollection->size());
+  
   for ( reco::TrackCollection::const_iterator track = ckfTrackCollection->begin();
 	track != ckfTrackCollection->end();
 	++track ) {
@@ -224,7 +191,7 @@ BeamSpotTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  
     
   }
-  //std::cout << fBSvector.size() << " tracks read in.\n";
+  
 
 }
 
@@ -238,43 +205,53 @@ BeamSpotTest::beginJob(const edm::EventSetup&)
 void 
 BeamSpotTest::endJob() {
 
+	std::cout << "\n-------------------------------------\n\n" << std::endl;
 	std::cout << " calculating beam spot..." << std::endl;
 	std::cout << " we will use " << fBSvector.size() << " tracks." << std::endl;
-		
+
+	// default fit to extract beam spot info
 	BSFitter *myalgo = new BSFitter( fBSvector );
+	reco::BeamSpot beam_default = myalgo->Fit();
+	std::cout << " DEFAULT:" << std::endl;
+	std::cout << beam_default << std::endl;
+
+	std::cout << "\n Now run tests of the different fits\n";
+	// from here are just tests
 	std::string fit_type = "chi2";
 	myalgo->SetFitVariable(std::string("z"));
 	myalgo->SetFitType(std::string("chi2"));
-	BeamSpot beam_fit_z_chi2 = myalgo->Fit();
-	beam_fit_z_chi2.Print(std::string("z chi2"));
+	reco::BeamSpot beam_fit_z_chi2 = myalgo->Fit();
+	std::cout << " z Chi2 Fit ONLY:" << std::endl;
+	std::cout << beam_fit_z_chi2 << std::endl;
 	
-	//std::cout << " z chi2 fit done." << std::endl;
-
+	
 	fit_type = "combined";
 	myalgo->SetFitVariable("z");
 	myalgo->SetFitType("combined");
-	BeamSpot beam_fit_z_lh = myalgo->Fit();
-	beam_fit_z_lh.Print(std::string("z likelihood"));
+	reco::BeamSpot beam_fit_z_lh = myalgo->Fit();
+	std::cout << " z Log-Likelihood Fit ONLY:" << std::endl;
+	std::cout << beam_fit_z_lh << std::endl;
 
-	//std::cout << " z combined chi2-likelihood fit done." << std::endl;
-
+	
 	myalgo->SetFitVariable("d");
 	myalgo->SetFitType("d0phi");
-	BeamSpot beam_fit_dphi = myalgo->Fit();
-	beam_fit_dphi.Print(std::string("d0-phi"));
+	reco::BeamSpot beam_fit_dphi = myalgo->Fit();
+	std::cout << " d0-phi0 Fit: ONLY" << std::endl;
+	std::cout << beam_fit_dphi << std::endl;
 
-	//std::cout << " d0-phi fit done." << std::endl;
+		
+	myalgo->SetFitVariable(std::string("d*z"));
+	myalgo->SetFitType(std::string("likelihood"));
+	reco::BeamSpot beam_fit_dz_lh = myalgo->Fit();
+	std::cout << " Log-Likelihood Fit:" << std::endl;
+	std::cout << beam_fit_dz_lh << std::endl;
 
 	
 	myalgo->SetFitVariable(std::string("d*z"));
-	myalgo->SetFitType(std::string("likelihood"));
-	BeamSpot beam_fit_dz_lh = myalgo->Fit();
-	beam_fit_dphi.Print(std::string("likelihood"));
-
-	myalgo->SetFitVariable(std::string("d*z"));
 	myalgo->SetFitType(std::string("resolution"));
-	BeamSpot beam_fit_dresz_lh = myalgo->Fit();
-	beam_fit_dphi.Print(std::string("resolution"));
+	reco::BeamSpot beam_fit_dresz_lh = myalgo->Fit();
+	std::cout << " IP Resolution Fit" << std::endl;
+	std::cout << beam_fit_dresz_lh << std::endl;
 
 	std::cout << "c0 = " << myalgo->GetResPar0() << " +- " << std::endl;
 	std::cout << "c1 = " << myalgo->GetResPar1() << " +- " << std::endl;

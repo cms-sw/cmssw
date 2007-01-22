@@ -1,6 +1,7 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=DataFormats/BeamSpot>
 <use name=DataFormats/TrajectorySeed>
 <use name=DataFormats/RoadSearchCloud>
 <use name=DataFormats/TrackCandidate>
@@ -19,6 +20,7 @@
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
+   <use name=DataFormats/BeamSpot>
    <use name=DataFormats/TrajectorySeed>
    <use name=DataFormats/RoadSearchCloud>
    <use name=DataFormats/TrackCandidate>

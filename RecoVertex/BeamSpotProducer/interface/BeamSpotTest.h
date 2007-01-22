@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotTest.h,v 1.0 2006/09/19 17:13:31 yumiceva Exp $
+ version $Id: BeamSpotTest.h,v 1.1 2006/12/15 20:00:37 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -63,12 +63,6 @@ class BeamSpotTest : public edm::EDAnalyzer {
   
   std::vector< BSTrkParameters > fBSvector;
   
-  std::string rsSeedProducerLabel_;
-  std::string rsRawCloudProducerLabel_;
-  std::string rsCleanCloudProducerLabel_;
-  std::string rsTrackCandidateProducerLabel_;
-  std::string rsTrackProducerLabel_;
-
   std::string ckfSeedProducerLabel_;
   std::string ckfTrackCandidateProducerLabel_;
   std::string ckfTrackProducerLabel_;

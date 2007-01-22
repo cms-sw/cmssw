@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.h,v 1.0 2006/09/19 17:13:31 yumiceva Exp $
+ version $Id: BSFitter.h,v 1.1 2006/12/15 20:00:37 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -17,7 +17,7 @@ ________________________________________________________________**/
 // CMS
 #include "RecoVertex/BeamSpotProducer/interface/BSpdfsFcn.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
-#include "RecoVertex/BeamSpotProducer/interface/BeamSpot.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 // ROT
 #include "TMath.h"
@@ -47,26 +47,22 @@ class BSFitter {
 		ffit_variable = name;
 	}
 
-	BeamSpot Fit();
+	reco::BeamSpot Fit();
 	
-	BeamSpot Fit(double *inipar);
-	
-	// gaussian function
-	//Double_t Gauss_z(Double_t z, Double_t sigma, Double_t *parms);
-	// log function of gaussian		
-	//void z_fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *params, Int_t iflag);
-    // Fit Z distribution with a gaussian
-	BeamSpot Fit_z(std::string type, double *inipar);
+	reco::BeamSpot Fit(double *inipar);
+		
+	// Fit Z distribution with a gaussian
+	reco::BeamSpot Fit_z(std::string type, double *inipar);
 
-	BeamSpot Fit_z_chi2(double *inipar);
-	BeamSpot Fit_z_likelihood(double *inipar);
+	reco::BeamSpot Fit_z_chi2(double *inipar);
+	reco::BeamSpot Fit_z_likelihood(double *inipar);
 	
 	// Fit only d0-phi distribution with a chi2
-	BeamSpot Fit_d0phi();
+	reco::BeamSpot Fit_d0phi();
 
-	BeamSpot Fit_d_likelihood(double *inipar);
-	BeamSpot Fit_d_z_likelihood(double *inipar);
-	BeamSpot Fit_dres_z_likelihood(double *inipar);
+	reco::BeamSpot Fit_d_likelihood(double *inipar);
+	reco::BeamSpot Fit_d_z_likelihood(double *inipar);
+	reco::BeamSpot Fit_dres_z_likelihood(double *inipar);
 	
 	double GetMinimum() {
 		return ff_minimum;
@@ -77,8 +73,14 @@ class BSFitter {
 	double GetResPar1() {
 		return fresolution_c1;
 	}
+	double GetResPar0Err() {
+		return fres_c0_err;
+	}
+	double GetResPar1Err() {
+		return fres_c1_err;
+	}
 
-	BeamSpot::ResCovMatrix GetResMatrix() {
+	reco::BeamSpot::ResCovMatrix GetResMatrix() {
 		return fres_matrix;
 	}
 			
@@ -104,7 +106,9 @@ class BSFitter {
 	
 	double fresolution_c0;
 	double fresolution_c1;
-	BeamSpot::ResCovMatrix fres_matrix;
+	double fres_c0_err;
+	double fres_c1_err;
+	reco::BeamSpot::ResCovMatrix fres_matrix;
 	
 };
 

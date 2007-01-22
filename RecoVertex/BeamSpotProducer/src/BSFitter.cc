@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.cc,v 1.0 2006/09/19 17:13:31 yumiceva Exp $
+ version $Id: BSFitter.cc,v 1.1 2006/12/15 20:00:37 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -43,7 +43,8 @@ BSFitter::BSFitter() {
 //_____________________________________________________________________
 BSFitter::BSFitter( std:: vector< BSTrkParameters > BSvector ) {
 
-	//if (fBSvector != 0) fBSvector.erase(fBSvector.begin(),fBSvector.end());
+	ffit_type = "default";
+	ffit_variable = "default";
 	
 	fBSvector = std::vector<BSTrkParameters> (BSvector);
 
@@ -83,14 +84,14 @@ BSFitter::~BSFitter()
 
 
 //______________________________________________________________________
-BeamSpot BSFitter::Fit() {
+reco::BeamSpot BSFitter::Fit() {
 
 	return this->Fit(0);
 	
 }
 
 //______________________________________________________________________
-BeamSpot BSFitter::Fit(double *inipar = 0) {
+reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 
 	if ( ffit_variable == "z" ) {
 		
@@ -104,7 +105,7 @@ BeamSpot BSFitter::Fit(double *inipar = 0) {
 			
 		} else if ( ffit_type == "combined" ) {
 
-			BeamSpot tmp_beamspot = Fit_z_chi2(inipar);
+			reco::BeamSpot tmp_beamspot = Fit_z_chi2(inipar);
 			double tmp_par[2] = {tmp_beamspot.z0(), tmp_beamspot.sigmaZ()};
 			return Fit_z_likelihood(tmp_par);
 			
@@ -127,7 +128,7 @@ BeamSpot BSFitter::Fit(double *inipar = 0) {
 			
 		} else if ( ffit_type == "combined" ) {
 
-			BeamSpot tmp_beamspot = Fit_d0phi();
+			reco::BeamSpot tmp_beamspot = Fit_d0phi();
 			double tmp_par[4] = {tmp_beamspot.x0(), tmp_beamspot.y0(), tmp_beamspot.dxdz(), tmp_beamspot.dydz()};
 			return Fit_d_likelihood(tmp_par);
 			
@@ -136,40 +137,77 @@ BeamSpot BSFitter::Fit(double *inipar = 0) {
 				<< "Error in BeamSpotProducer/BSFitter: "
 				<< "Illegal fit type, options are d0phi, likelihood or combined";
 		}
-	} else if ( ffit_variable == "d*z" ) {
+	} else if ( ffit_variable == "d*z" || ffit_variable == "default" ) {
 
-		if ( ffit_type == "likelihood" ) {
+		if ( ffit_type == "likelihood" || ffit_type == "default" ) {
 
-			BeamSpot tmp_z = Fit_z_chi2(inipar);
+			reco::BeamSpot::CovarianceMatrix matrix;
+			// first fit z distribution using a chi2 fit
+			reco::BeamSpot tmp_z = Fit_z_chi2(inipar);
+			for (int j = 2 ; j < 4 ; ++j) {
+				for(int k = j ; k < 4 ; ++k) {
+					matrix(j,k) = tmp_z.covariance()(j,k);
+				}
+			}
+		
+			// use d0-phi algorithm to extract transverse position
+			reco::BeamSpot tmp_d0phi= Fit_d0phi();
+			for (int j = 0 ; j < 2 ; ++j) {
+				for(int k = j ; k < 2 ; ++k) {
+					matrix(j,k) = tmp_d0phi.covariance()(j,k);
+				}
+			}
+		
+			// put everything into one object
+			reco::BeamSpot spot(reco::BeamSpot::Point(tmp_d0phi.x0(), tmp_d0phi.y0(), tmp_z.z0()),
+								tmp_z.sigmaZ(),
+								tmp_d0phi.dxdz(),
+								tmp_d0phi.dydz(),
+								0.,
+								matrix);
+
+
 			
-			BeamSpot tmp_d0phi = Fit_d0phi();
+			//reco::BeamSpot tmp_z = Fit_z_chi2(inipar);
 			
+			//reco::BeamSpot tmp_d0phi = Fit_d0phi();
+			// log-likelihood fit
 			double tmp_par[6] = {tmp_d0phi.x0(), tmp_d0phi.y0(), tmp_z.z0(),
 								 tmp_z.sigmaZ(), tmp_d0phi.dxdz(), tmp_d0phi.dydz()};
-			BeamSpot tmp_lh = Fit_d_z_likelihood(tmp_par);
+			reco::BeamSpot tmp_lh = Fit_d_z_likelihood(tmp_par);
 
 			if ( isnan(ff_minimum) || isinf(ff_minimum) ) {
 
-				std::cout << "BSFitter: Result is non physical. Log-Likelihood fit did not converge." << std::endl;
+				if (ffit_type == "likelihood" ) {
+					std::cout << "BSFitter: Result is non physical. Log-Likelihood fit did not converge." << std::endl;
+					return tmp_lh;
+				}
+				
 			}
-			return tmp_lh;
+
+			if (ffit_type == "likelihood") {
+				return tmp_lh;
+			} else {
+				return spot;
+			}
+			
 			
 		} else if ( ffit_type == "resolution" ) {
 
-			BeamSpot tmp_z = Fit_z_chi2(inipar);
+			reco::BeamSpot tmp_z = Fit_z_chi2(inipar);
 			
-			BeamSpot tmp_d0phi = Fit_d0phi();
+			reco::BeamSpot tmp_d0phi = Fit_d0phi();
 			
 			double tmp_par[6] = {tmp_d0phi.x0(), tmp_d0phi.y0(), tmp_z.z0(),
 								 tmp_z.sigmaZ(), tmp_d0phi.dxdz(), tmp_d0phi.dydz()};
 
-			BeamSpot tmp_beam = Fit_d_z_likelihood(tmp_par);
+			reco::BeamSpot tmp_beam = Fit_d_z_likelihood(tmp_par);
 
 			double tmp_par2[7] = {tmp_beam.x0(), tmp_beam.y0(), tmp_beam.z0(),
 								 tmp_beam.sigmaZ(), tmp_beam.dxdz(), tmp_beam.dydz(),
 								 tmp_beam.BeamWidth()};
 			
-			BeamSpot tmp_lh = Fit_dres_z_likelihood(tmp_par2);
+			reco::BeamSpot tmp_lh = Fit_dres_z_likelihood(tmp_par2);
 
 			if ( isnan(ff_minimum) || isinf(ff_minimum) ) {
 			
@@ -194,7 +232,7 @@ BeamSpot BSFitter::Fit(double *inipar = 0) {
 }
 
 //______________________________________________________________________
-BeamSpot BSFitter::Fit_z_likelihood(double *inipar) {
+reco::BeamSpot BSFitter::Fit_z_likelihood(double *inipar) {
 
 	//std::cout << "Fit_z(double *) called" << std::endl;
 	//std::cout << "inipar[0]= " << inipar[0] << std::endl;
@@ -243,7 +281,7 @@ BeamSpot BSFitter::Fit_z_likelihood(double *inipar) {
 	}
 	gmMinuit->Migrad();
 	*/
-	BeamSpot::CovarianceMatrix matrix;
+	reco::BeamSpot::CovarianceMatrix matrix;
 
 	for (int j = 2 ; j < 4 ; ++j) {
 		for(int k = j ; k < 4 ; ++k) {
@@ -251,7 +289,7 @@ BeamSpot BSFitter::Fit_z_likelihood(double *inipar) {
 		}
 	}
 		
-	return BeamSpot( BeamSpot::Point(0.,
+	return reco::BeamSpot( reco::BeamSpot::Point(0.,
 									 0.,
 									 fmin.Parameters().Vec()(2)),
 					 fmin.Parameters().Vec()(3),
@@ -262,7 +300,7 @@ BeamSpot BSFitter::Fit_z_likelihood(double *inipar) {
 }
 
 //______________________________________________________________________
-BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
+reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 
 	//std::cout << "Fit_z_chi2() called" << std::endl;
 
@@ -282,14 +320,14 @@ BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 	//std::cout << "got function" << std::endl;
 	double fpar[2] = {fgaus->GetParameter(1), fgaus->GetParameter(2) };
 
-	BeamSpot::CovarianceMatrix matrix;
+	reco::BeamSpot::CovarianceMatrix matrix;
 	// add matrix values.
 	matrix(2,2) = fgaus->GetParError(1);
 	matrix(3,3) = fgaus->GetParError(2);
 	
 	delete h1z;
 
-	return BeamSpot( BeamSpot::Point(0.,
+	return reco::BeamSpot( reco::BeamSpot::Point(0.,
 												 0.,
 												 fpar[0]),
 						   fpar[1],
@@ -302,7 +340,7 @@ BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 }
 
 //______________________________________________________________________
-BeamSpot BSFitter::Fit_d0phi() {
+reco::BeamSpot BSFitter::Fit_d0phi() {
 
 	//LogDebug ("BSFitter") << " we will use " << fBSvector.size() << " tracks.";
 	
@@ -366,7 +404,7 @@ BeamSpot BSFitter::Fit_d0phi() {
 	//LogDebug ("BSFitter") << " d0-phi fit done.";
 	//std::cout<< " d0-phi fit done." << std::endl;
 	
-	BeamSpot::CovarianceMatrix matrix;
+	reco::BeamSpot::CovarianceMatrix matrix;
 	// first two parameters
 	for (int j = 0 ; j < 2 ; ++j) {
 		for(int k = j ; k < 2 ; ++k) {
@@ -380,7 +418,7 @@ BeamSpot BSFitter::Fit_d0phi() {
 		}
 	}
 	
-	return BeamSpot( BeamSpot::Point(x_result(0,0),
+	return reco::BeamSpot( reco::BeamSpot::Point(x_result(0,0),
 												 x_result(1,0),
 												 0.0),
 						   0.,
@@ -393,7 +431,7 @@ BeamSpot BSFitter::Fit_d0phi() {
 
 
 //______________________________________________________________________
-BeamSpot BSFitter::Fit_d_likelihood(double *inipar) {
+reco::BeamSpot BSFitter::Fit_d_likelihood(double *inipar) {
 	
 
 	thePDF->SetPDFs("PDFGauss_d");
@@ -413,14 +451,14 @@ BeamSpot BSFitter::Fit_d_likelihood(double *inipar) {
 	FunctionMinimum fmin = migrad();
 	ff_minimum = fmin.Fval();
 
-	BeamSpot::CovarianceMatrix matrix;
+	reco::BeamSpot::CovarianceMatrix matrix;
 	for (int j = 0 ; j < 6 ; ++j) {
 		for(int k = j ; k < 6 ; ++k) {
 			matrix(j,k) = fmin.Error().Matrix()(j,k);
 		}
 	}
 	
-	return BeamSpot( BeamSpot::Point(fmin.Parameters().Vec()(0),
+	return reco::BeamSpot( reco::BeamSpot::Point(fmin.Parameters().Vec()(0),
 									 fmin.Parameters().Vec()(1),
 									 0.),
 					 0.,
@@ -431,7 +469,7 @@ BeamSpot BSFitter::Fit_d_likelihood(double *inipar) {
 }
 
 //______________________________________________________________________
-BeamSpot BSFitter::Fit_d_z_likelihood(double *inipar) {
+reco::BeamSpot BSFitter::Fit_d_z_likelihood(double *inipar) {
 
 	//for ( int i =0; i<6; i++ ) {
 	//	std::cout << inipar[i] << std::endl;
@@ -458,7 +496,7 @@ BeamSpot BSFitter::Fit_d_z_likelihood(double *inipar) {
 	std::cout << " eval= " << ff_minimum
 			  << "/n params[0]= " << fmin.Parameters().Vec()(0) << std::endl;
 	
-	BeamSpot::CovarianceMatrix matrix;
+	reco::BeamSpot::CovarianceMatrix matrix;
 
 	for (int j = 0 ; j < 7 ; ++j) {
 		for(int k = j ; k < 7 ; ++k) {
@@ -467,7 +505,7 @@ BeamSpot BSFitter::Fit_d_z_likelihood(double *inipar) {
 	}
 			
 	
-	return BeamSpot( BeamSpot::Point(fmin.Parameters().Vec()(0),
+	return reco::BeamSpot( reco::BeamSpot::Point(fmin.Parameters().Vec()(0),
 									 fmin.Parameters().Vec()(1),
 									 fmin.Parameters().Vec()(2)),
 					 fmin.Parameters().Vec()(3),
@@ -479,7 +517,7 @@ BeamSpot BSFitter::Fit_d_z_likelihood(double *inipar) {
 
 
 //______________________________________________________________________
-BeamSpot BSFitter::Fit_dres_z_likelihood(double *inipar) {
+reco::BeamSpot BSFitter::Fit_dres_z_likelihood(double *inipar) {
 	
 	
 	thePDF->SetPDFs("PDFGauss_d_resolution*PDFGauss_z");
@@ -498,13 +536,14 @@ BeamSpot BSFitter::Fit_dres_z_likelihood(double *inipar) {
 
 	// fix beam width
 	upar.Fix("BeamWidth");
+	// number of parameters in fit are 9-1 = 8
 	
 	MnMigrad migrad(*thePDF, upar);
 		
 	FunctionMinimum fmin = migrad();
 	ff_minimum = fmin.Fval();
 	
-	BeamSpot::CovarianceMatrix matrix;
+	reco::BeamSpot::CovarianceMatrix matrix;
 
 	for (int j = 0 ; j < 6 ; ++j) {
 		for(int k = j ; k < 6 ; ++k) {
@@ -519,6 +558,8 @@ BeamSpot BSFitter::Fit_dres_z_likelihood(double *inipar) {
 	
 	fresolution_c0 = fmin.Parameters().Vec()(6);
 	fresolution_c1 = fmin.Parameters().Vec()(7);
+	fres_c0_err = sqrt( fmin.Error().Matrix()(6,6) );
+	fres_c1_err = sqrt( fmin.Error().Matrix()(7,7) );
 	
 	for (int j = 6 ; j < 8 ; ++j) {
 		for(int k = 6 ; k < 8 ; ++k) {
@@ -526,13 +567,13 @@ BeamSpot BSFitter::Fit_dres_z_likelihood(double *inipar) {
 		}
 	}
 	
-	return BeamSpot( BeamSpot::Point(fmin.Parameters().Vec()(0),
+	return reco::BeamSpot( reco::BeamSpot::Point(fmin.Parameters().Vec()(0),
 									 fmin.Parameters().Vec()(1),
 									 fmin.Parameters().Vec()(2)),
 					 fmin.Parameters().Vec()(3),
 					 fmin.Parameters().Vec()(4),
 					 fmin.Parameters().Vec()(5),
-					 fmin.Parameters().Vec()(6),
+					 inipar[6],
 					 matrix );
 }
 
