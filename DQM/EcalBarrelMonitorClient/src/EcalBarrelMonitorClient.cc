@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/01/21 22:58:45 $
- * $Revision: 1.197 $
+ * $Date: 2007/01/22 10:24:07 $
+ * $Revision: 1.198 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -710,7 +710,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   if ( econn ) {
     try {
       cout << "Fetching masked channels ... " << flush;
-//      EcalErrorMask::readDb(econn, runiov_);
+      EcalErrorMask::readDB(econn, &runiov_);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -718,7 +718,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   } else {
     try {
       cout << "Fetching masked channels ... " << flush;
-      EcalErrorMask::readFile(maskFile_);
+      EcalErrorMask::readFile(maskFile_, verbose_);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
