@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.4 2007/01/22 15:06:07 benigno Exp $
+// $Id: EcalErrorMask.cc,v 1.5 2007/01/22 15:19:59 benigno Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.4 $
-  \date $Date: 2007/01/22 15:06:07 $
+  \version $Revision: 1.5 $
+  \date $Date: 2007/01/22 15:19:59 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
@@ -300,8 +300,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
   for( std::map<EcalLogicID, RunCrystalErrorsDat>::iterator i = EcalErrorMask::mapCrystalErrors_.begin();
        i != EcalErrorMask::mapCrystalErrors_.end(); i++ ) {
     string type = "Crystal";
-    int sm = ((i->first).getLogicID())/10000;
-    int ic = ((i->first).getLogicID())%10000;
+    int sm = (i->first).getID1();
+    int ic = (i->first).getID2();
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
@@ -313,8 +313,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
   for( std::map<EcalLogicID, RunTTErrorsDat>::iterator i = EcalErrorMask::mapTTErrors_.begin();
        i != EcalErrorMask::mapTTErrors_.end(); i++ ) {
     string type = "TT";
-    int sm = ((i->first).getLogicID())/10000;
-    int it = ((i->first).getLogicID())%10000;
+    int sm = (i->first).getID1();
+    int it = (i->first).getID2();
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
@@ -326,8 +326,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
   for( std::map<EcalLogicID, RunPNErrorsDat>::iterator i = EcalErrorMask::mapPNErrors_.begin();
        i != EcalErrorMask::mapPNErrors_.end(); i++ ) {
     string type = "PN";
-    int sm = ((i->first).getLogicID())/10000;
-    int ic = ((i->first).getLogicID())%10000;
+    int sm = (i->first).getID1();
+    int ic = (i->first).getID2();
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
@@ -339,8 +339,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
   for( std::map<EcalLogicID, RunMemChErrorsDat>::iterator i = EcalErrorMask::mapMemChErrors_.begin();
        i != EcalErrorMask::mapMemChErrors_.end(); i++ ) {
     string type = "MemCh";
-    int sm = ((i->first).getLogicID())/10000;
-    int ic = ((i->first).getLogicID())%10000;
+    int sm = (i->first).getID1();
+    int ic = (i->first).getID2();
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
@@ -352,8 +352,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
   for( std::map<EcalLogicID, RunMemTTErrorsDat>::iterator i = EcalErrorMask::mapMemTTErrors_.begin();
        i != EcalErrorMask::mapMemTTErrors_.end(); i++ ) {
     string type = "Crystal ";
-    int sm = ((i->first).getLogicID())/10000;
-    int it = ((i->first).getLogicID())%10000;
+    int sm = (i->first).getID1();
+    int it = (i->first).getID2();
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
