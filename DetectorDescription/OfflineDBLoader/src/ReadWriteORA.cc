@@ -4,12 +4,16 @@
 
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/ServiceLoader.h"
+#include "CondCore/DBCommon/src/ServiceLoader.h"
 #include "CondCore/DBCommon/interface/ConnectMode.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/DBCommon/interface/DBWriter.h"
-#include "CondCore/IOVService/interface/IOV.h"
+//#include "CondCore/DBCommon/interface/DBWriter.h"
+#include "CondCore/IOVService/src/IOV.h"
+#include "CondCore/IOVService/interface/IOVService.h"
+#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
+#include "CondCore/DBCommon/interface/PoolStorageManager.h"
+#include "CondCore/DBCommon/interface/Ref.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -198,38 +202,58 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
     pgeom->pStartNode = DDRootDef::instance().root().toString();
     pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
     pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
+
     cond::ServiceLoader* loader=new cond::ServiceLoader;
     std::string usr = "CORAL_AUTH_USER="+userName_;
     std::string pass = "CORAL_AUTH_PASSWORD="+password_;
     ::putenv(const_cast<char*>(usr.c_str()));
     ::putenv(const_cast<char*>(pass.c_str()));
-    //     std::cout << ::getenv("CORAL_AUTH_USER") << std::endl;
-    //     std::cout << ::getenv("CORAL_AUTH_PASSWORD") << std::endl;
+
     loader->loadAuthenticationService( cond::Env );
     loader->loadMessageService( cond::Error );
-    cond::DBSession* session=new cond::DBSession(dbConnectString_);
-    session->setCatalog("file:PoolFileCatalog.xml");
-    session->connect(cond::ReadWriteCreate);
-    cond::DBWriter pw(*session, "PIdealGeometry");
-    cond::DBWriter iovw(*session, "IOV");
-    cond::IOV* initiov=new cond::IOV;
+    cond::DBSession* session=new cond::DBSession();
+    //    session->setCatalog("file:PoolFileCatalog.xml");
+    //    session->connect(cond::ReadWriteCreate);
+    session->open();
 
-    session->startUpdateTransaction();
-    std::string tok=pw.markWrite<PIdealGeometry>(pgeom);
+    cond::PoolStorageManager psm(dbConnectString_, "file:PoolFileCatalog.xml", session);
+    cond::IOVService itsIOV(psm);
+
+    //    session->startUpdateTransaction();
+    //    std::string tok=pw.markWrite<PIdealGeometry>(pgeom);
+    psm.connect();
+    psm.startTransaction(false);
+    cond::Ref<PIdealGeometry> geom(psm, pgeom);
+    psm.commit();
+
+//     cond::IOVIterator* iovit = itsIOV.newIOVIterator( aToken );
+//     std::string plT = iovit->payloadToken();
+    geom.markWrite("IdealGeometry01");
+    std::string tok = geom.token();
+
     unsigned long long myTime=(unsigned long long)edm::IOVSyncValue::endOfTime().eventID().run();
-    //    std::cout << "The end-of-time is " << myTime << std::endl;
-    initiov->iov.insert(std::make_pair(myTime,tok));
-    std::string iovtok = iovw.markWrite<cond::IOV>(initiov);
-    session->commit();
-    session->disconnect();
-    delete session;
+//     //    std::cout << "The end-of-time is " << myTime << std::endl;
+//     initiov->iov.insert(std::make_pair(myTime,tok));
+//     std::string iovtok = iovw.markWrite<cond::IOV>(initiov);
+//     session->commit();
+//    session->disconnect();
+//    delete session;
+    psm.disconnect();
 
-    cond::MetaData metadata_svc(dbConnectString_, *loader);
-    metadata_svc.connect(cond::ReadWriteCreate);
-    metadata_svc.addMapping(metaName_, iovtok);
-    metadata_svc.disconnect();
+    cond::RelationalStorageManager rsm(dbConnectString_, session);
+    coral::ISessionProxy* ts = rsm.connect( cond::ReadWriteCreate );
+    rsm.startTransaction( false ); // true == readOnly
+//     cond::DBWriter pw(*session, "PIdealGeometry");
+//     cond::DBWriter iovw(*session, "IOV");
+    cond::IOV* initiov=new cond::IOV;
+    cond::MetaData metadata_svc(rsm); //dbConnectString_, *loader);
+    //    metadata_svc.connect(cond::ReadWriteCreate);
+    metadata_svc.addMapping(metaName_, tok);
+    rsm.commit();
+    rsm.disconnect();
+    //    metadata_svc.disconnect();
     edm::LogInfo ("DDDReadWriteORA") << "Done with save, token " << tok << " as metaName " << metaName_  << std::endl;
-
+    delete session;
     delete loader;
 
   } catch (DDException& e) {
