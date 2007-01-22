@@ -23,6 +23,9 @@ public:
   /// Constructor from Alignbable
   AlignableNavigator( Alignable* alignable );
 
+  /// Constructor from two Alignables
+  AlignableNavigator( Alignable* tracker, Alignable* muon );
+
   /// Constructor from list of Alignbable
   AlignableNavigator( std::vector<Alignable*> alignable );
 
