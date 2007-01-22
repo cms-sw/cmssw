@@ -48,13 +48,13 @@ This package contains standard configuration fragments (*.cff) for most common u
 
 - \b reconstruction : this is the only default for CMSSW Reconstruction. Changes with time and is defined looking at the various needs wrt algorithms, space on disk, time available for reconstruction. At the moment, the standard \b reconstruction sequence is composed of (please note that at least the distinction between global/highlevel reconstruction does not really reflect functional aspects)
 
- \subsubsection \b  localreco =  {trackerlocalreco, muonlocalreco, calolocalreco}
+ \subsubsection  lr  localreco =  {trackerlocalreco, muonlocalreco, calolocalreco}
  Local reconstruction simulation-compatible (no frontier, no oracle) for all the subdetectors. It includes Tracker Strip, Tracker Pixels, Muon DT, Muon CSC, Muon RPC, ECAL Barrel and EndCap, HCAL HO, HE, HB.
 
-\subsubsection \b globalreco = {ckftracks, muonreco, ecalClusters, caloTowersRec, recoJets, recoGenJets, metreco}
+\subsubsection gr  globalreco = {ckftracks, muonreco, ecalClusters, caloTowersRec, recoJets, recoGenJets, metreco}
 Global reconstruction is the reconstruction within only one subdetector. The standard sequence include only CKF Global Tracking, Muon Reconstruction (STA Muons and Mu+Tk Muons), ECAL Clusterization (Island+Hybrid), Calorimetric Towers, Reconstructed Jets (MidPoint+KT) and Missing ET.
 
-\subsubsection \b highlevelreco = {recopixelvertexing, vertexreco, jetTracksAssociator, btagging, coneIsolationTauJetTags}
+\subsubsection hlr  highlevelreco = {recopixelvertexing, vertexreco, jetTracksAssociator, btagging, coneIsolationTauJetTags}
 High Level reconstruction. With the caveat as in the previous paragraph, this sequence considers modules which need information from more than a subdetector. The current sequence includes tracking and vertexing with only pixels, vertexing with full tracking, b tagging with track counting, and tau tagging with cone isolation.
 
 - \b reconstruction_plusRS : the same as the default, with Road Search global tracking activated.
