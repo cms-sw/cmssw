@@ -117,7 +117,7 @@ struct SiPixelTemplateStore { //!< template storage structure
 class SiPixelTemplate {
  public:
   SiPixelTemplate() {id_current = -1; index_id = -1; cota_current = 0.; cotb_current = 0.; fpix_current=false;} //!< Default constructor
-  void pushfile(int filenum);     // load the private store with info from the 
+  bool pushfile(int filenum);     // load the private store with info from the 
   // file with the index (int) filenum
   
   // Interpolate input alpha and beta angles to produce a working template for each individual hit. 
