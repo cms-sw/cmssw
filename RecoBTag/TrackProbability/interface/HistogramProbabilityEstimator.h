@@ -7,7 +7,8 @@
 
 #include "CondFormats/BTagObjects/interface/CalibratedHistogram.h"
 #include "RecoBTag/XMLCalibration/interface/CalibratedHistogramXML.h"
-#include "RecoBTag/TrackProbability/interface/CalibrationInterface.h"
+//#include "RecoBTag/TrackProbability/interface/CalibrationInterface.h"
+#include "RecoBTag/XMLCalibration/interface/CalibrationInterface.h"
 #include "RecoBTag/TrackProbability/interface/TrackClassFilterCategory.h"
 
 
