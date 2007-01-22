@@ -21,52 +21,52 @@ class ParamSetWalker {
       ProcessDesc  pdesc(config.c_str()); 
       
       boost::shared_ptr<ParameterSet> procPset = pdesc.getProcessPSet();
-      cout<<"Process PSet:"<<procPset->toString()<<endl;           
+      std::cout<< "Process PSet:" << procPset->toString() << std::endl;           
       
       //cout << "Module Label: " << procPset->getParameter<string>("@module_label")
       //     << std::endl;
       
      edm::ParameterSet allTrigPaths = procPset->getUntrackedParameter<edm::ParameterSet>("@trigger_paths");
-     std::cout <<"Found  Trig Path :"<<allTrigPaths.toString()<<endl; 
+     std::cout << "Found  Trig Path :" << allTrigPaths.toString() << std::endl; 
      
      if (allTrigPaths.empty())
          throw cms::Exception("ParamSetWalker","ParamSetWalker") 
-               << "No Trigger or End Path Found in the Config File" <<endl;
+               << "No Trigger or End Path Found in the Config File" << std::endl;
      
      std::vector<std::string> allEndPaths = allTrigPaths.getParameter<std::vector<std::string> >("@end_paths");
 
      if (allEndPaths.empty())
          throw cms::Exception("ParamSetWalker","ParamSetWalker") 
-               << "No End Path Found in the Config File" <<endl;
+               << "No End Path Found in the Config File" << std::endl;
 
-     for(std::vector<std::string>::iterator it = allEndPaths.begin();
-          it != allEndPaths.end();
+     for(std::vector<std::string>::iterator it = allEndPaths.begin(), itEnd = allEndPaths.end();
+          it != itEnd;
           ++it)
         {
-          std::cout <<"Found an end Path :"<<(*it)<<std::endl;
+          std::cout << "Found an end Path :" << (*it) << std::endl;
           //Lets try to get this PSet from the Process PSet
           vector<std::string> anEndPath = procPset->getParameter<vector<std::string> >((*it));
-          for(std::vector<std::string>::iterator it = anEndPath.begin();
-          it != anEndPath.end(); ++it) {  
-              std::cout <<"Found a end Path PSet :"<<(*it)<<endl;
+          for(std::vector<std::string>::iterator it = anEndPath.begin(), itEnd = anEndPath.end();
+          it != itEnd; ++it) {  
+              std::cout << "Found a end Path PSet :" << (*it) << std::endl;
               //Lets Check this Module if its a EventStreamFileWriter type
               edm::ParameterSet aModInEndPathPset = procPset->getParameter<edm::ParameterSet>((*it));
               if (aModInEndPathPset.empty())
                     throw cms::Exception("ParamSetWalker","ParamSetWalker") 
-                          << "Empty End Path Found in the Config File" <<endl;
-              std::cout <<"This Module PSet is: "<<aModInEndPathPset.toString()<<endl;
+                          << "Empty End Path Found in the Config File" << std::endl;
+              std::cout << "This Module PSet is: " << aModInEndPathPset.toString() << std::endl;
               std::string mod_type = aModInEndPathPset.getParameter<string> ("@module_type");
-              std::cout <<"Type of This Module is: "<<mod_type<<endl;
+              std::cout << "Type of This Module is: " << mod_type << std::endl;
               if (mod_type == "EventStreamFileWriter") {
-                 cout<<"FOUND WHAT WAS LOOKING FOR:::"<<endl;
+                 std::cout << "FOUND WHAT WAS LOOKING FOR:::" << std::endl;
                  std::string fileName = aModInEndPathPset.getParameter<string> ("fileName");
-                 std::cout <<"Streamer File Name:"<<fileName<<endl; 
+                 std::cout << "Streamer File Name:" << fileName << std::endl; 
                  std::string indexFileName = aModInEndPathPset.getParameter<string> ("indexFileName");
-                 std::cout <<"Index File Name:"<<indexFileName<<endl;
+                 std::cout << "Index File Name:" << indexFileName << std::endl;
 
                  edm::ParameterSet selectEventsPSet = aModInEndPathPset.getUntrackedParameter<edm::ParameterSet>("SelectEvents");
-                 if ( !selectEventsPSet.empty() ) {
-                    std::cout <<"SelectEvents: "<<selectEventsPSet.toString()<<endl;
+                 if (!selectEventsPSet.empty()) {
+                    std::cout << "SelectEvents: " << selectEventsPSet.toString() << std::endl;
                  }
               }
           }

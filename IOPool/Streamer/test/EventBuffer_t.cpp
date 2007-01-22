@@ -45,16 +45,15 @@ struct Producer
 
 void Producer::operator()()
 {
-  for(int i=0;i<total_;++i)
-    {
+  for(int i = 0; i < total_; ++i) {
       //boost::thread::yield();
-      for(int j=0;j<(1<<17);++j);
+      for(int j = 0; j<(1<<17); ++j);
       EventBuffer::ProducerBuffer ib(*b_);
       int* v = (int*)ib.buffer();
       *v = i;
       //cout << "P" << i << endl;
       ib.commit(sizeof(int));
-    }
+  }
 
   EventBuffer::ProducerBuffer ib(*b_);
   ib.commit(0);

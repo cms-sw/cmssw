@@ -29,13 +29,12 @@ namespace edmtest_thing
     inst_count_(ps.getParameter<int>("instance_count")),
     start_count_(ps.getUntrackedParameter<int>("start_count",0))
   {
-    for(int i=0;i<inst_count_;++i)
-      {
+    for(int i=0;i<inst_count_;++i) {
 	ostringstream ost;
 	ost << (i+start_count_);
 	names_.push_back(ost.str());
 	produces<WriteThis>(ost.str());
-      }
+    }
 
     // produces<TestDbl>();
     //produces<StreamTestSimple>();
@@ -49,11 +48,10 @@ namespace edmtest_thing
   // Functions that gets called by framework every event
   void StreamThingProducer::produce(edm::Event& e, edm::EventSetup const&)
   {
-    for(int i=0;i<inst_count_;++i)
-      {
+    for(int i = 0; i < inst_count_; ++i) {
 	std::auto_ptr<WriteThis> result(new WriteThis(size_));
 	e.put(result,names_[i]);
-      }
+    }
 
     //std::auto_ptr<TestDbl> d(new TestDbl);
     //e.put(d);

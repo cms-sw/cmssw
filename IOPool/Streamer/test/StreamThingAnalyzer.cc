@@ -56,20 +56,18 @@ namespace edmtest_thing
     ProdList prod;
     e.getMany(all, prod);
     ProdList::iterator i(prod.begin()),end(prod.end());
-    for(;i!=end;++i)
+    for(; i != end; ++i)
       total_ = accumulate((*i)->data_.begin(),(*i)->data_.end(),total_);
     //cout << tot << endl;
 
 #if 0
-    for(i=prod.begin();i!=end;++i)
-	{
+    for(i = prod.begin();i != end; ++i) {
 	  vector<int>::const_iterator ii((*i)->data_.begin()),
 	     ib((*i)->data_.end());
-	  for(;ii!=ib;++ii)
-	  {
-         out_ << cnt_ << " " << i->id() << " " << *ii << "\n" ;
+	  for(; ii != ib; ++ii) {
+             out_ << cnt_ << " " << i->id() << " " << *ii << "\n" ;
 	  }
-	}
+    }
 #endif
 
     ++cnt_;
