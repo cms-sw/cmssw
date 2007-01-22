@@ -3,37 +3,58 @@
 </tr>
 
 <tr>
-  <td><a href="classreco_1_1Electron.html">reco::PixelMatchGsfElectron</a></td>
+  <td><a href="classreco_1_1PixelMatchGsfElectron.html">reco::PixelMatchGsfElectron</a></td>
   <td><a href="DataFormats_EgammaCandidates.html">reco::PixelMatchGsfElectronCollection</a></td>
-  <td><a href="RecoElectron_Configuration.html">pixelMatchGsfElectrons</a></td>
+  <td><a href="RecoEgamma_Configuration.html">pixelMatchGsfElectrons</a></td>
   <td class="description">Pixel-matched electrons with Gsf tracks</td>
   <td>U.Berthon</td>
 </tr>
 <tr>
-  <td><a href="classreco_1_1Electron.html">reco::Electron</a></td>
-  <td><a href="DataFormats_EgammaCandidates.html">reco::ElectronCollection</a></td>
-  <td><a href="RecoElectron_Configuration.html">siStripElectronToTrackAssociator</a></td>
-  <td class="description">Strip-matched electrons</td>
-  <td>S.Rahatlou</td>
+  <td><a href="classreco_1_1ElectronPixelSeed.html">reco::ElectronPixelSeed</a></td>
+  <td><a href="DataFormats_EgammaReco.html">reco::ElectronPixelSeedCollection</a></td>
+  <td><a href="RecoEgamma_Configuration.html">electronPixelSeeds</a></td>
+  <td class="description">Trajectory seeds from electron pixel-matching</td>
+  <td>U.Berthon</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1SeedSuperClusterAssociation.html">reco::SeedSuperClusterAssociation</a></td>
+  <td><a href="DataFormats_EgammaReco.html">reco::SeedSuperClusterAssociationCollection</a></td>
+  <td><a href="RecoEgamma_Configuration.html">electronPixelSeeds</a><i> : correctedHybridSuperClusters</i></td>
+  <td class="description">Association map between ElectronPixelSeeds and SuperClusters (barrel)</td>
+  <td>U.Berthon</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1SeedSuperClusterAssociation.html">reco::SeedSuperClusterAssociation</a></td>
+  <td><a href="DataFormats_EgammaReco.html">reco::SeedSuperClusterAssociationCollection</a></td>
+  <td><a href="RecoEgamma_Configuration.html">electronPixelSeeds</a><i> : correctedEndcapSuperClustersWithPreshower</i></td>
+  <td class="description">Association map between ElectronPixelSeeds and SuperClusters (endcap)</td>
+  <td>U.Berthon</td>
 </tr>
 <tr>
   <td><a href="classreco_1_1Electron.html">reco::SiStripElectron</a></td>
   <td><a href="DataFormats_EgammaCandidates.html">reco::SiStripElectronCollection</a></td>
-  <td><a href="RecoElectron_Configuration.html">siStripElectrons</a></td>
-  <td class="description">Strip-matched electrons</td>
+  <td><a href="RecoEgamma_Configuration.html">siStripElectrons</a></td>
+  <td class="description">Electrons with tracks seeded in Si strip tracker layers</td>
   <td>S.Rahatlou</td>
 </tr>
 <tr>
   <td><a href="classreco_1_1Photon.html">reco::Photon</a></td>
   <td><a href="DataFormats_EgammaCandidates.html">reco::PhotonCollection</a></td>
-  <td><a href="RecoElectron_Configuration.html">photons</a></td>
+  <td><a href="RecoEgamma_Configuration.html">photons</a></td>
   <td class="description">Uncorrected photon</td>
   <td>S.Rahatlou</td>
 </tr>
 <tr>
   <td><a href="classreco_1_1Photon.html">reco::Photon</a></td>
   <td><a href="DataFormats_EgammaCandidates.html">reco::PhotonCollection</a></td>
-  <td><a href="RecoElectron_Configuration.html">correctedPhotons</a></td>
+  <td><a href="RecoEgamma_Configuration.html">correctedPhotons</a></td>
   <td class="description">Corrected photon</td>
   <td>S.Rahatlou</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1ConvertedPhoton.html">reco::ConvertedPhoton</a></td>
+  <td><a href="DataFormats_EgammaCandidates.html">reco::ConvertedPhotonCollection</a></td>
+  <td><a href="RecoEgamma_Configuration.html">convertedPhotons</a></td>
+  <td class="description">Convered photon</td>
+  <td>N.Marinelli</td>
 </tr>
