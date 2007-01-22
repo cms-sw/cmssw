@@ -1,7 +1,7 @@
 #ifndef FILERECORD_H
 #define FILERECORD_H
 
-// $Id: FileRecord.h,v 1.3 2007/01/07 18:06:15 klute Exp $
+// $Id: FileRecord.h,v 1.4 2007/01/10 18:06:09 klute Exp $
 #include <string>
 
 namespace edm {
@@ -24,6 +24,7 @@ namespace edm {
       void   increaseFileSize(int i){ fileSize_   += i; }
       void   increaseEventCount()   { events_++; }
       void   checkDirectories();
+      void   setCatalog(std::string s)   { statFileName_ = s; }
 
       std::string fileName()             { return fileName_; }
       std::string basePath()             { return basePath_; }

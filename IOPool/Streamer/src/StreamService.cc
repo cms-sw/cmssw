@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.7 2007/01/07 18:06:15 klute Exp $
+// $Id: StreamService.cc,v 1.8 2007/01/10 18:07:19 klute Exp $
 
 #include "IOPool/Streamer/interface/StreamService.h"
 #include "IOPool/Streamer/interface/ProgressMarker.h"
@@ -284,6 +284,7 @@ boost::shared_ptr<FileRecord> StreamService::generateFileRecord()
     fd -> fileSystem(( runNumber_+ outputSummary_.size() ) % numberOfFileSystems_); 
   
   fd -> checkDirectories();
+  fd -> setCatalog(catalog_);
   // fd->report(cout, 12);
   return fd;
 }
