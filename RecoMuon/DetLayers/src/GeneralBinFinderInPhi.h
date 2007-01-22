@@ -4,8 +4,8 @@
 /** \class GeneralBinFinderInPhi
  * A phi bin finder for a non-periodic group of detectors.
  *
- *  $Date: 2006/06/02 15:19:39 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/01/20 18:43:00 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -79,7 +79,7 @@ public:
   
   /// Returns an index in the valid range, modulo Nbins
   virtual int binIndex( int i) const {
-    int ind = i % theNbins;
+    int ind = i % (int)theNbins;
     return (ind < 0) ? ind+theNbins : ind;
   }
 

@@ -5,8 +5,8 @@
  *  Find the phi binning of a list of detector according to several 
  *  definitions.
  *
- *  $Date: 2007/01/20 18:45:06 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/01/20 19:34:48 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -73,22 +73,13 @@ public:
 //	float z = pt->z();
 	if (phi < phimin) phimin = phi;
 	if (phi > phimax) phimax = phi;
-
-	LogTrace(metname) << "Plane corner "<< *pt
-			  << " phi: " << phi << " phi min: " << phimin << " phi max: " << phimax; 
-
       }
       if (phimin*phimax < 0. &&           //Handle pi border:
 	  phimax - phimin > Geom::pi()) { //Assume that the Det is on
                                           //the shortest side 
-	LogTrace(metname) << "Swapping...";
-
 	std::swap(phimin,phimax);
       }
       phiEdge.push_back(std::pair<double,double>(phimin,phimax));
-
-      LogTrace(metname) << "Final phi edges: " << phimin << " " << phimax;
-
     }
     
     for (unsigned int i = 0; i < theNbins; i++) {
@@ -109,7 +100,7 @@ public:
       if ( phiEdge[i].first * phiEdge[binIndex(i-1)].second < 0 &&
 	   fabs(firstPhi-secondPhi) < Geom::pi() ) 
 	mean = Geom::pi() - mean;
-      
+     
       thePhiBorders.push_back(mean);
     }
   
@@ -166,7 +157,7 @@ private:
   }
 
   int binIndex( int i) const {
-    int ind = i % theNbins;
+    int ind = i % (int)theNbins;
     return (ind < 0) ? ind+theNbins : ind;
   }
 
