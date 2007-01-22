@@ -6,7 +6,7 @@ using namespace std;
 
 void printCharBits(unsigned char c){
  
-        for (int i=7; i>=0; i--) {
+        for (int i=7; i>= 0; --i) {
             int bit = ((c >> i) & 1);
             cout << " "<<bit;
         }
@@ -23,8 +23,7 @@ cout << "sizeOfPackage: "<<sizeOfPackage<<endl;
 package.resize(sizeOfPackage);
 memset(&package[0], 0x00, sizeOfPackage);
 
-for (unsigned int i=0; i != source.size() ; ++i)
-   {
+  for (unsigned int i = 0; i != source.size() ; ++i) {
       cout <<"i: "<<i<<endl;
       unsigned int whichByte = i/packInOneByte;   
       cout<<"whichByte: "<<whichByte<<endl;
@@ -42,7 +41,7 @@ for (unsigned int i=0; i != source.size() ; ++i)
       cout << "package["<<whichByte<<"] After: ";
       printCharBits(package[whichByte]);cout<<endl;
       cout<<"\n\n\n************"<<endl;
-   }
+  }
   cout<<"Packaged Bits"<<endl;
   for (unsigned int i=0; i !=package.size() ; ++i)
      printCharBits(package[i]);
