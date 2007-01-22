@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/01/21 17:50:51 $
- * $Revision: 1.104 $
+ * $Date: 2007/01/21 22:07:21 $
+ * $Revision: 1.105 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -33,7 +33,7 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
-#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
@@ -965,8 +965,8 @@ void EBPedestalClient::analyze(void){
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunPNErrorsDat> mask2;
 
-  EcalErrorMaskFile::fetchDataSet(&mask1);
-  EcalErrorMaskFile::fetchDataSet(&mask2);
+  EcalErrorMask::fetchDataSet(&mask1);
+  EcalErrorMask::fetchDataSet(&mask2);
 
   Char_t histo[200];
 

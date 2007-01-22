@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/21 17:56:20 $
- * $Revision: 1.110 $
+ * $Date: 2007/01/21 22:20:33 $
+ * $Revision: 1.111 $
  * \author G. Della Ricca
  *
 */
@@ -38,7 +38,7 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
-#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
@@ -2327,8 +2327,8 @@ void EBLaserClient::analyze(void){
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunPNErrorsDat> mask2;
 
-  EcalErrorMaskFile::fetchDataSet(&mask1);
-  EcalErrorMaskFile::fetchDataSet(&mask2);
+  EcalErrorMask::fetchDataSet(&mask1);
+  EcalErrorMask::fetchDataSet(&mask2);
 
   Char_t histo[200];
 

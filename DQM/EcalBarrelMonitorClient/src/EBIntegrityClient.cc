@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/01/21 17:42:46 $
- * $Revision: 1.124 $
+ * $Date: 2007/01/21 22:07:21 $
+ * $Revision: 1.125 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -35,7 +35,7 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
-#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
@@ -1297,10 +1297,10 @@ void EBIntegrityClient::analyze(void){
   map<EcalLogicID, RunMemChErrorsDat> mask3;
   map<EcalLogicID, RunMemTTErrorsDat> mask4;
 
-  EcalErrorMaskFile::fetchDataSet(&mask1);
-  EcalErrorMaskFile::fetchDataSet(&mask2);
-  EcalErrorMaskFile::fetchDataSet(&mask3);
-  EcalErrorMaskFile::fetchDataSet(&mask4);
+  EcalErrorMask::fetchDataSet(&mask1);
+  EcalErrorMask::fetchDataSet(&mask2);
+  EcalErrorMask::fetchDataSet(&mask3);
+  EcalErrorMask::fetchDataSet(&mask4);
 
   Char_t histo[200];
 

@@ -1,29 +1,29 @@
-// $Id: EcalErrorMaskFile.cc,v 1.17 2007/01/21 17:40:53 dellaric Exp $
+// $Id: $
 
 /*!
-  \file EcalErrorMaskFile.cc
-  \brief Error mask from text file
+  \file EcalErrorMas.cc
+  \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.17 $
-  \date $Date: 2007/01/21 17:40:53 $
+  \version $Revision: $
+  \date $Date: $
 */
 
-#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <regex.h>
 #include <CondTools/Ecal/interface/EcalErrorDictionary.h>
 
-bool EcalErrorMaskFile::done_ = false;
-std::string EcalErrorMaskFile::inFile_ = "";
-std::map<EcalLogicID, RunCrystalErrorsDat> EcalErrorMaskFile::mapCrystalErrors_;
-std::map<EcalLogicID, RunTTErrorsDat>      EcalErrorMaskFile::mapTTErrors_;
-std::map<EcalLogicID, RunPNErrorsDat>      EcalErrorMaskFile::mapPNErrors_;
-std::map<EcalLogicID, RunMemChErrorsDat>   EcalErrorMaskFile::mapMemChErrors_;
-std::map<EcalLogicID, RunMemTTErrorsDat>   EcalErrorMaskFile::mapMemTTErrors_;
+bool EcalErrorMask::done_ = false;
+std::string EcalErrorMask::inFile_ = "";
+std::map<EcalLogicID, RunCrystalErrorsDat> EcalErrorMask::mapCrystalErrors_;
+std::map<EcalLogicID, RunTTErrorsDat>      EcalErrorMask::mapTTErrors_;
+std::map<EcalLogicID, RunPNErrorsDat>      EcalErrorMask::mapPNErrors_;
+std::map<EcalLogicID, RunMemChErrorsDat>   EcalErrorMask::mapMemChErrors_;
+std::map<EcalLogicID, RunMemTTErrorsDat>   EcalErrorMask::mapMemTTErrors_;
 
-void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error ) {
+void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::runtime_error ) {
 
   if( done_ ) {
       throw( std::runtime_error( "Input File already read." ) );
@@ -52,13 +52,15 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 
     linecount++;
 
-    EcalErrorMaskFile::clearComments_( line );
-    EcalErrorMaskFile::clearFinalBlanks_( line );
+    EcalErrorMask::clearComments_( line );
+    EcalErrorMask::clearFinalBlanks_( line );
   
     std::istringstream is( line );
     std::string s;
     is >> s;
     if( s == "" ) continue;
+
+    if( verbose ) std::cout << s << " " << is.str() << std::endl;
 
     int sm; is >> sm;
     if( sm < 1 || sm > 36 ) {
@@ -91,7 +93,7 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 	return;
       }
       EcalLogicID id = EcalLogicID( "local", 10000*sm+ic, sm, ic, 0 );
-      std::map<EcalLogicID, RunCrystalErrorsDat>::iterator i = EcalErrorMaskFile::mapCrystalErrors_.find( id );
+      std::map<EcalLogicID, RunCrystalErrorsDat>::iterator i = EcalErrorMask::mapCrystalErrors_.find( id );
       if( i != mapCrystalErrors_.end() ) {
 	uint64_t oldBitmask = (i->second).getErrorBits();
 	oldBitmask |= bitmask;
@@ -100,7 +102,7 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
       else {
 	RunCrystalErrorsDat error;
 	error.setErrorBits(bitmask);
-	EcalErrorMaskFile::mapCrystalErrors_[ id ] = error;
+	EcalErrorMask::mapCrystalErrors_[ id ] = error;
       }
     }
     else if( s == "TT" ) {
@@ -126,7 +128,7 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 	return;
       }
       EcalLogicID id = EcalLogicID( "local", 10000*sm+it, sm, it, 0 );
-      std::map<EcalLogicID, RunTTErrorsDat>::iterator i = EcalErrorMaskFile::mapTTErrors_.find( id );
+      std::map<EcalLogicID, RunTTErrorsDat>::iterator i = EcalErrorMask::mapTTErrors_.find( id );
       if( i != mapTTErrors_.end() ) {
 	uint64_t oldBitmask = (i->second).getErrorBits();
 	oldBitmask |= bitmask;
@@ -135,7 +137,7 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
       else {
 	RunTTErrorsDat error;
 	error.setErrorBits(bitmask);
-	EcalErrorMaskFile::mapTTErrors_[ id ] = error;
+	EcalErrorMask::mapTTErrors_[ id ] = error;
       }
     }
     else if( s == "PN" ) {
@@ -161,7 +163,7 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 	return;
       }
       EcalLogicID id = EcalLogicID( "local", 10000*sm+ic, sm, ic, 0 );
-      std::map<EcalLogicID, RunPNErrorsDat>::iterator i = EcalErrorMaskFile::mapPNErrors_.find( id );
+      std::map<EcalLogicID, RunPNErrorsDat>::iterator i = EcalErrorMask::mapPNErrors_.find( id );
       if( i != mapPNErrors_.end() ) {
 	uint64_t oldBitmask = (i->second).getErrorBits();
 	oldBitmask |= bitmask;
@@ -170,7 +172,7 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
       else {
 	RunPNErrorsDat error;
 	error.setErrorBits(bitmask);
-	EcalErrorMaskFile::mapPNErrors_[ id ] = error;
+	EcalErrorMask::mapPNErrors_[ id ] = error;
       }
     }
     else if( s == "MemCh" ) {
@@ -196,7 +198,7 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 	return;
       }
       EcalLogicID id = EcalLogicID( "local", 10000*sm+ic, sm, ic, 0 );
-      std::map<EcalLogicID, RunMemChErrorsDat>::iterator i = EcalErrorMaskFile::mapMemChErrors_.find( id );
+      std::map<EcalLogicID, RunMemChErrorsDat>::iterator i = EcalErrorMask::mapMemChErrors_.find( id );
       if( i != mapMemChErrors_.end() ) {
 	uint64_t oldBitmask = (i->second).getErrorBits();
 	oldBitmask |= bitmask;
@@ -205,7 +207,7 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
       else {
 	RunMemChErrorsDat error;
 	error.setErrorBits(bitmask);
-	EcalErrorMaskFile::mapMemChErrors_[ id ] = error;
+	EcalErrorMask::mapMemChErrors_[ id ] = error;
       }
     }
     else if( s == "MemTT" ) {
@@ -231,7 +233,7 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 	return;
       }
       EcalLogicID id = EcalLogicID( "local", 10000*sm+it, sm, it, 0 );
-      std::map<EcalLogicID, RunMemTTErrorsDat>::iterator i = EcalErrorMaskFile::mapMemTTErrors_.find( id );
+      std::map<EcalLogicID, RunMemTTErrorsDat>::iterator i = EcalErrorMask::mapMemTTErrors_.find( id );
       if( i != mapMemTTErrors_.end() ) {
 	uint64_t oldBitmask = (i->second).getErrorBits();
 	oldBitmask |= bitmask;
@@ -240,7 +242,7 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
       else {
 	RunMemTTErrorsDat error;
 	error.setErrorBits(bitmask);
-	EcalErrorMaskFile::mapMemTTErrors_[ id ] = error;
+	EcalErrorMask::mapMemTTErrors_[ id ] = error;
       }
     }
     else {
@@ -253,62 +255,82 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
 
 }
 
-void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* fillMap ) throw( std::runtime_error ) {
+void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( std::runtime_error ) {
+
+  if( eConn ) {
+
+    try {
+      RunIOV validIOV;
+      RunTag runTag = runIOV->getRunTag();
+      eConn->fetchValidDataSet( &EcalErrorMask::mapCrystalErrors_, &validIOV, &runTag, runIOV->getRunNumber() );
+      eConn->fetchValidDataSet( &EcalErrorMask::mapTTErrors_,      &validIOV, &runTag, runIOV->getRunNumber() );
+      eConn->fetchValidDataSet( &EcalErrorMask::mapPNErrors_,      &validIOV, &runTag, runIOV->getRunNumber() );
+      eConn->fetchValidDataSet( &EcalErrorMask::mapMemChErrors_,   &validIOV, &runTag, runIOV->getRunNumber() );
+      eConn->fetchValidDataSet( &EcalErrorMask::mapMemTTErrors_,   &validIOV, &runTag, runIOV->getRunNumber() );
+    } catch ( std::runtime_error & e ) {
+      throw( std::runtime_error( e.what() ) );
+    }
+
+  }
+
+}
+
+void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* fillMap ) throw( std::runtime_error ) {
 
   if( !done_ ) {
     throw( std::runtime_error( "Input file not read" ) );
     return;
   }
   fillMap->clear();
-  *fillMap = EcalErrorMaskFile::mapCrystalErrors_;
+  *fillMap = EcalErrorMask::mapCrystalErrors_;
   return;
 }
 
-void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMap ) throw( std::runtime_error ) {
+void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMap ) throw( std::runtime_error ) {
 
   if( !done_ ) {
     throw( std::runtime_error( "Input file not read" ) );
     return;
   }
   fillMap->clear();
-  *fillMap = EcalErrorMaskFile::mapTTErrors_;
+  *fillMap = EcalErrorMask::mapTTErrors_;
   return;
 }
 
-void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, RunPNErrorsDat>* fillMap ) throw( std::runtime_error ) {
+void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunPNErrorsDat>* fillMap ) throw( std::runtime_error ) {
 
   if( !done_ ) {
     throw( std::runtime_error( "Input file not read" ) );
     return;
   }
   fillMap->clear();
-  *fillMap = EcalErrorMaskFile::mapPNErrors_;
+  *fillMap = EcalErrorMask::mapPNErrors_;
   return;
 }
 
-void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, RunMemChErrorsDat>* fillMap ) throw( std::runtime_error ) {
+void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemChErrorsDat>* fillMap ) throw( std::runtime_error ) {
 
   if( !done_ ) {
     throw( std::runtime_error( "Input file not read" ) );
     return;
   }
   fillMap->clear();
-  *fillMap = EcalErrorMaskFile::mapMemChErrors_;
+  *fillMap = EcalErrorMask::mapMemChErrors_;
   return;
 }
 
-void EcalErrorMaskFile::fetchDataSet( std::map< EcalLogicID, RunMemTTErrorsDat>* fillMap ) throw( std::runtime_error ) {
+void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemTTErrorsDat>* fillMap ) throw( std::runtime_error ) {
 
   if( !done_ ) {
     throw( std::runtime_error( "Input file not read" ) );
     return;
   }
   fillMap->clear();
-  *fillMap = EcalErrorMaskFile::mapMemTTErrors_;
+  *fillMap = EcalErrorMask::mapMemTTErrors_;
   return;
 }
 
-void EcalErrorMaskFile::clearComments_( char* line ) {
+void EcalErrorMask::clearComments_( char* line ) {
   // It looks for "#" and replaces it with "\0"...
   regex_t rec;
   regmatch_t pmc;
@@ -324,7 +346,7 @@ void EcalErrorMaskFile::clearComments_( char* line ) {
   regfree( &rec );
 }
 
-void EcalErrorMaskFile::clearFinalBlanks_( char* line ) {
+void EcalErrorMask::clearFinalBlanks_( char* line ) {
   // From end of string, find last ' ' or '\t' (tab) and replace it with '\0'
   int i;
   for( i=strlen(line)-1; i>=0 && (line[i]==' '||line[i]=='\t'); i-- );

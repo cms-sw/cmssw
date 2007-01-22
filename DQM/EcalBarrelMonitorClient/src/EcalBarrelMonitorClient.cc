@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/01/12 19:26:00 $
- * $Revision: 1.196 $
+ * $Date: 2007/01/21 22:58:45 $
+ * $Revision: 1.197 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,7 +34,7 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h>
 
 EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
@@ -710,7 +710,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   if ( econn ) {
     try {
       cout << "Fetching masked channels ... " << flush;
-//      EcalErrorMaskFile::readDb(econn, runiov_);
+//      EcalErrorMask::readDb(econn, runiov_);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -718,7 +718,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   } else {
     try {
       cout << "Fetching masked channels ... " << flush;
-      EcalErrorMaskFile::readFile(maskFile_);
+      EcalErrorMask::readFile(maskFile_);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
