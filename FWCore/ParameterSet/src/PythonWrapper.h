@@ -5,19 +5,14 @@
 #include <string>
 #include <boost/python.hpp>
 
-// bad form?
-using namespace boost::python;
-
 namespace edm {
 //  boost::python::list toPythonList(const std::vector<std::string> & v);
   // utility to translate from an STL vector of strings to
   // a Python list
-  template<class T>
-  boost::python::list toPythonList(const std::vector<T> & v)
-  {
+  template<typename T>
+  boost::python::list toPythonList(const std::vector<T> & v) {
     boost::python::list result;
-    for(unsigned i = 0; i < v.size(); ++i)
-    {
+    for(unsigned i = 0; i < v.size(); ++i) {
        result.append(v[i]);
     }
     return result;
@@ -26,26 +21,23 @@ namespace edm {
 
 
   // and back.  Destroys the input via pop()s
-  template<class T>
+  template<typename T>
   std::vector<T> toVector(boost::python::list & l)
   {
     std::vector<T> result;
-    try
-    {
-      object iter_obj = object( handle<>( PyObject_GetIter( l.ptr() ) ));
+    try {
+      boost::python::object iter_obj = boost::python::object(boost::python::handle<>(PyObject_GetIter(l.ptr())));
 
-      while( 1 )
-	    {
-	      object obj = extract<object>( iter_obj.attr( "next" )() );
-	      result.push_back(extract<T>( obj )); 
-	    }
+      while(1) {
+	boost::python::object obj = boost::python::extract<boost::python::object>(iter_obj.attr("next")());
+	result.push_back(boost::python::extract<T>(obj)); 
+      }
     }
-    catch( error_already_set )
-    {
+    catch(boost::python::error_already_set) {
       PyErr_Clear(); 
     }
 
-  return result;
+    return result;
   }
 
 }
