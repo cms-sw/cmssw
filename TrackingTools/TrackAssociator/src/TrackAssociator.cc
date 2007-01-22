@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.15 2006/12/19 01:01:01 dmytro Exp $
+// $Id: TrackAssociator.cc,v 1.16 2007/01/21 15:30:36 dmytro Exp $
 //
 //
 
@@ -271,11 +271,11 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
 
    timers.pop_and_push("TrackAssociator::fillEcal::matching");
    std::set<DetId> ecalIdsInRegion = ecalDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0],parameters.dREcalPreselection);
-   LogTrace("TrackAssociator::fillEcal::matching") << "ecalIdsInRegion.size(): " << ecalIdsInRegion.size();
+   LogTrace("TrackAssociator") << "ECAL hits in the region: " << ecalIdsInRegion.size();
    std::set<DetId> ecalIdsInACone =  ecalDetIdAssociator_.getDetIdsInACone(ecalIdsInRegion, trajectory, parameters.dREcal);
-   LogTrace("TrackAssociator::fillEcal::matching") << "ecalIdsInACone.size(): " << ecalIdsInACone.size();
+   LogTrace("TrackAssociator") << "ECAL hits in the cone: " << ecalIdsInACone.size();
    std::set<DetId> crossedEcalIds =  ecalDetIdAssociator_.getCrossedDetIds(ecalIdsInRegion, trajectory);
-   LogTrace("TrackAssociator::fillEcal::matching") << "crossedEcalIds.size(): " << crossedEcalIds.size();
+   LogTrace("TrackAssociator") << "ECAL crossed hits " << crossedEcalIds.size();
    
    // add EcalRecHits
    timers.pop_and_push("TrackAssociator::fillEcal::addEcalRecHits");
@@ -338,11 +338,11 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
    
    timers.push("TrackAssociator::fillCaloTowers::matching");
    std::set<DetId> caloTowerIdsInRegion = caloDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0],parameters.dRHcalPreselection);
-   LogTrace("TrackAssociator::fillHcal::matching") << "caloTowerIdsInRegion.size(): " << caloTowerIdsInRegion.size();
+   LogTrace("TrackAssociator") << "Towers in the region: " << caloTowerIdsInRegion.size();
    std::set<DetId> caloTowerIdsInACone = caloDetIdAssociator_.getDetIdsInACone(caloTowerIdsInRegion, trajectory, parameters.dRHcal);
-   LogTrace("TrackAssociator::fillHcal::matching") << "caloTowerIdsInACone.size(): " << caloTowerIdsInACone.size();
+   LogTrace("TrackAssociator") << "Towers in the cone: " << caloTowerIdsInACone.size();
    std::set<DetId> crossedCaloTowerIds = caloDetIdAssociator_.getCrossedDetIds(caloTowerIdsInRegion, trajectory);
-   LogTrace("TrackAssociator::fillHcal::matching") << "crossedCaloTowerIds.size(): " << crossedCaloTowerIds.size();
+   LogTrace("TrackAssociator") << "Towers crossed: " << crossedCaloTowerIds.size();
    
    // add CaloTowers
    timers.push("TrackAssociator::fillCaloTowers::addCaloTowers");
@@ -399,11 +399,11 @@ void TrackAssociator::fillHcal( const edm::Event& iEvent,
    
    timers.push("TrackAssociator::fillHcal::matching");
    std::set<DetId> idsInRegion = hcalDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0],parameters.dRHcalPreselection);
-   LogTrace("TrackAssociator::fillHcal::matching") << "idsInRegion.size(): " << idsInRegion.size();
+   LogTrace("TrackAssociator") << "HCAL hits in the region: " << idsInRegion.size() << "\n" << DetIdInfo::info(idsInRegion);
    std::set<DetId> idsInACone = hcalDetIdAssociator_.getDetIdsInACone(idsInRegion, trajectory, parameters.dRHcal);
-   LogTrace("TrackAssociator::fillHcal::matching") << "idsInACone.size(): " << idsInACone.size();
+   LogTrace("TrackAssociator") << "HCAL hits in the cone: " << idsInACone.size() << "\n" << DetIdInfo::info(idsInACone);
    std::set<DetId> crossedIds = hcalDetIdAssociator_.getCrossedDetIds(idsInRegion, trajectory);
-   LogTrace("TrackAssociator::fillHcal::matching") << "crossedIds.size(): " << crossedIds.size();
+   LogTrace("TrackAssociator") << "HCAL hits crossed: " << crossedIds.size() << "\n" << DetIdInfo::info(crossedIds);
    
    // add Hcal
    timers.push("TrackAssociator::fillHcal::addHcal");

@@ -16,7 +16,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.h,v 1.5 2006/12/19 01:01:00 dmytro Exp $
+// $Id: TrackAssociator.h,v 1.6 2007/01/21 15:30:35 dmytro Exp $
 //
 //
 
@@ -58,7 +58,7 @@ class TrackAssociator {
 	 // default parameters
 	 // define match cones, dR=sqrt(dEta^2+dPhi^2)
 	 dREcal = 0.03;
-	 dRHcal = 0.07;
+	 dRHcal = 0.2;
 	 dRMuon = 0.1;
 	 dREcalPreselection = dREcal;
 	 dRHcalPreselection = dRHcal;
