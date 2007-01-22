@@ -51,11 +51,10 @@ uint8* InitMsgBuilder::fillNames(const Strings& names, uint8* pos)
   pos = len_pos + sizeof(char_uint32); // area for full string of names
   bool first = true;
 
-  for(Strings::const_iterator beg=names.begin();beg!=names.end();++beg)
-    {
-      if(first) first=false; else *pos++ = ' ';
+  for(Strings::const_iterator beg = names.begin(), begEnd = names.end(); beg != begEnd; ++beg) {
+      if(first) first = false; else *pos++ = ' ';
       pos = std::copy(beg->begin(),beg->end(),pos);
-    }
+  }
   convert((uint32)(pos-len_pos-sizeof(char_uint32)),len_pos);
   return pos;
 }

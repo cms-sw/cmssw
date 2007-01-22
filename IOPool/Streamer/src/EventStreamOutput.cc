@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.22 2006/08/02 16:29:57 afaq Exp $
+// $Id: EventStreamOutput.cc,v 1.23 2006/10/03 19:11:54 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
@@ -52,13 +52,13 @@ namespace edm
     cout << "Got event: " << sd->id_ << endl;
 
     SendProds::iterator spi(sd->prods_.begin()),spe(sd->prods_.end());
-    for(;spi!=spe;++spi)
+    for(; spi != spe; ++spi)
       {
-	if(spi->prov()==0)
+	if(spi->prov() == 0)
 	  throw cms::Exception("NoData","EmptyProvenance");
-	if(spi->prod()==0)
+	if(spi->prod() == 0)
 	  throw cms::Exception("NoData","EmptyProduct");
-	if(spi->desc()==0)
+	if(spi->desc() == 0)
 	  throw cms::Exception("NoData","EmptyDesc");
 
 	FDEBUG(2) << "Prov:"
@@ -102,12 +102,11 @@ namespace edm
     Selections::const_iterator i(prods.begin()),e(prods.end());
 
     FDEBUG(9) << "Product List: " << endl;
-    for(;i!=e;++i) 
-      {
+    for(; i != e; ++i) {
 	sd.descs_.push_back(**i);
 	FDEBUG(9) << "StreamOutput got product = " << (*i)->className()
 		  << endl;
-      }
+    }
 
     InitMsg im(&prod_reg_buf_[0],prod_reg_buf_.size(),true);
     TBuffer rootbuf(TBuffer::kWrite,im.getDataSize(),im.data(),kFALSE);
@@ -183,7 +182,7 @@ namespace edm
 
 #if 0
     FDEBUG(11) << "-----Dump start" << endl;
-    for(SendProds::iterator pii=se.prods_.begin();pii!=se.prods_.end();++pii)
+    for(SendProds::iterator pii = se.prods_.begin(), piiEnd = se.prods_.end(); pii != piiEnd; ++pii)
       cout << "Prov:"
 	   << " " << pii->desc()->className()
 	   << " " << pii->desc()->productID()
