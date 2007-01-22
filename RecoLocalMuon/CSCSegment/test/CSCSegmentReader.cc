@@ -1,7 +1,7 @@
 /** \file CSCSegmentReader.cc
  *
- *  $Date: 2006/10/26 11:53:42 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/12/15 03:34:52 $
+ *  $Revision: 1.9 $
  *  \author M. Sani
  *
  *  Modified by D. Fortin - UC Riverside
@@ -157,10 +157,6 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
     
   hsegment->Fill(cscSegments->end() - cscSegments->begin());
 
-  for (CSCSegmentCollection::const_iterator it=cscSegments->begin(); it != cscSegments->end(); it++) {
-      hrechit->Fill((*it).nRecHits());        
-  }        
-
 
   std::vector<CSCDetId> cscChambers;
   for (PSimHitContainer::const_iterator simIt = simHits->begin(); simIt != simHits->end(); simIt++) {
@@ -231,6 +227,8 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
             (simId.chamber() == id.chamber())) {              
 
           satisfied1 = true;
+
+          hrechit->Fill((*segIt).nRecHits());        
 
           if ( (*segIt).nRecHits() >= minRechitSegment ) {
             hchi2->Fill(((*segIt).chi2()/(2*(*segIt).nRecHits()-4)));
