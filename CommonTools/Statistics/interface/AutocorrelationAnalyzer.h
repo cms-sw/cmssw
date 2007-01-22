@@ -25,9 +25,9 @@ public:
   template<class T>
   void analyze(const T & t)
   {
-    for (int ii = 0; ii < 10; ii++) {
+    for (int ii = 0; ii < theSize; ii++) {
       theMeans[ii] += t[ii];
-      for (int ij = ii; ij < 10; ij++) {
+      for (int ij = ii; ij < theSize; ij++) {
         theCovariances[ii][ij] += t[ii] * t[ij];
       }
     }
