@@ -5,8 +5,8 @@
  *  Fit the rising edge of the time box with the integral
  *  of a gaussian returning the mean value and the sigma.
  *
- *  $Date: 2006/03/13 12:17:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/21 12:26:31 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -34,6 +34,7 @@ public:
   void getFitSeeds(TH1F *hTBox, double& mean, double& sigma, double& tBoxMax, double& xFitMin,
 		   double& xFitMax);
 
+  /// Ask the user to provide the seeds
   void getInteractiveFitSeeds(TH1F *hTBox, double& mean, double& sigma, double& tBoxMax,
 			      double& xFitMin, double& xFitMax);
 
@@ -43,9 +44,11 @@ public:
     theVerbosityLevel = lvl;
   }
 
+  /// Switch to interactive fit
   void setInteractiveFit(bool isInteractive) {
     interactiveFit = isInteractive;
   }
+
 protected:
 
 private:

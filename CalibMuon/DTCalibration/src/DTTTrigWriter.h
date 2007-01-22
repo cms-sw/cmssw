@@ -4,16 +4,13 @@
 /* Program to evaluate ttrig and sigma ttrig from TB histograms
  *  and write the results to a file for each SL
  
- *  $Date: 2006/09/07 15:30:25 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/09/12 07:56:52 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
+// #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 
 #include <string>
 
@@ -25,7 +22,9 @@ namespace edm {
 
 class TFile;
 class DTTimeBoxFitter;
+class DTSuperLayerId;
 class DTTtrig;
+
 
 class DTTTrigWriter : public edm::EDAnalyzer {
 public:
@@ -37,10 +36,10 @@ public:
 
   // Operations
 
-  // Compute the ttrig by fiting the TB rising edge
+  /// Compute the ttrig by fiting the TB rising edge
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-  //Write ttrig in the DB
+  /// Write ttrig in the DB
   void endJob();
 
  
@@ -62,7 +61,7 @@ private:
   // The fitter
   DTTimeBoxFitter *theFitter;
 
- // The object to be written to DB
+  // The object to be written to DB
   DTTtrig* tTrig; 
 
 };

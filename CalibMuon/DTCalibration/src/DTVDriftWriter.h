@@ -1,18 +1,18 @@
 #ifndef DTVDriftWriter_H
 #define DTVDriftWriter_H
 
-/* Program to evaluate v_drift and t0 from TMax histograms
+/*  Program to evaluate v_drift and t0 from TMax histograms
  *  and write the results to a file for each SL
  
- *  $Date: 2006/09/12 08:10:03 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/11/28 14:26:02 $
+ *  $Revision: 1.3 $
  *  \author M. Giunta - e-mail:marina.giunta@cern.ch
  */
 
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/MuonDetId/interface/DTWireId.h"
+
 
 #include <string>
 #include <vector> 
@@ -27,6 +27,7 @@ namespace edm {
 class TFile;
 class DTMeanTimerFitter;
 class DTMtime;
+
 
 class DTVDriftWriter : public edm::EDAnalyzer {
 public:
@@ -56,14 +57,14 @@ private:
   // The name of the output text file
   std::string theVDriftOutputFile;
 
-  //parameter set for DTCalibrationMap constructor
+  // parameter set for DTCalibrationMap constructor
   edm::ParameterSet theCalibFilePar;
   
   // the granularity to be used for calib consts evaluation
   std::string theGranularity;
 
   // The fitter
-   DTMeanTimerFitter *theFitter;
+  DTMeanTimerFitter *theFitter;
 
   // The object to be written to DB
   DTMtime* theMTime;

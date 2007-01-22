@@ -6,8 +6,8 @@
  *  The tmax histograms can be fitted using exactly the same code that is
  *  used by the calibration application.
  *
- *  $Date: 2006/11/27 12:26:32 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/11/28 14:31:44 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -32,16 +32,19 @@ public:
   // Operations
 
   /// Plot the time box of a given superlayer.
-  /// Options: "same" -> histo drawn in the active canvas, 
-  ///          "SingleDeltaT0" or "SingleFormula" -> fit and draw each TMax histo separately (in the same canvas) 
-  ///          "fit" -> draw and fit the histos
+  /// Options: <br> 
+  /// "same" -> histo drawn in the active canvas, <br>
+  /// "SingleDeltaT0" or "SingleFormula" -> fit and draw each TMax histo separately (in the same canvas) <br>
+  /// "fit" -> draw and fit the histos <br>
   void plotMeanTimer(int wheel, int station, int sector, int sl,
 		    const TString& drawOptions = "");
  
    /// Set the verbosity of the output: 0 = silent, 1 = info, 2 = debug
   void setVerbosity(unsigned int lvl);
+
   /// Set rebin number
   void setRebinning(unsigned int rebin);
+
   /// Reset the counter for histos color
   void resetColor();
 

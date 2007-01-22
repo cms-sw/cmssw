@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/11/27 12:26:32 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/11/28 14:10:31 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -172,7 +172,9 @@ vector<float> DTMeanTimerFitter::evaluateVDriftAndReso (TString N) {
   }
   return vDriftAndReso;
 }
- 
+
+
+
 TF1* DTMeanTimerFitter::fitTMax(TH1F* histo){
  // Find distribution peak and fit range
       Double_t peak = (((((histo->GetXaxis())->GetXmax())-((histo->GetXaxis())->GetXmin()))/histo->GetNbinsX())*
