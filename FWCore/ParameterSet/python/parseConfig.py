@@ -1,5 +1,5 @@
 #import cmsconfigure as cms
-import pyparsing as pp
+import FWCore.ParameterSet.parsecf.pyparsing as pp
 import FWCore.ParameterSet.Config as cms
 
 # Questions
@@ -67,14 +67,15 @@ class _IncludeFile(file):
 _fileFactory = _IncludeFile
 
 def _findAndHandleParameterIncludes(values):
-        return _findAndHandleParameterIncludesRecursive(values,set())
-def _findAndHandleParameterIncludesRecursive(values,otherFiles):
+        return _findAndHandleParameterIncludesRecursive(values,set(),set())
+def _findAndHandleParameterIncludesRecursive(values,otherFiles,recurseFiles):
     newValues = []
     for l,v in values:
         if isinstance(v,_IncludeNode):
             #newValues.extend(_handleParameterInclude(v.filename,otherFiles))
             newValues.extend(_handleInclude(v.filename,
                                             otherFiles,
+                                            recurseFiles,
                                             onlyParameters.parseFile,
                                             _validateLabelledList,
                                             _findAndHandleParameterIncludesRecursive))
@@ -83,14 +84,15 @@ def _findAndHandleParameterIncludesRecursive(values,otherFiles):
     return newValues
 
 def _findAndHandleProcessBlockIncludes(values):
-        return _findAndHandleProcessBlockIncludesRecursive(values,set())
-def _findAndHandleProcessBlockIncludesRecursive(values,otherFiles):
+        return _findAndHandleProcessBlockIncludesRecursive(values,set(),set())
+def _findAndHandleProcessBlockIncludesRecursive(values,otherFiles,recurseFiles):
     newValues = []
     for l,v in values:
         if isinstance(v,_IncludeNode):
             #newValues.extend(_handleParameterInclude(v.filename,otherFiles))
             newValues.extend(_handleInclude(v.filename,
                                             otherFiles,
+                                            recurseFiles,
                                             onlyProcessBody.parseFile,
                                             _validateLabelledList,
                                             _findAndHandleProcessBlockIncludesRecursive))
@@ -98,25 +100,33 @@ def _findAndHandleProcessBlockIncludesRecursive(values,otherFiles):
             newValues.append((l,v))
     return newValues
 
-def _handleInclude(fileName, otherFiles,parser,validator,recursor):
+def _handleInclude(fileName,otherFiles,recurseFiles,parser,validator,recursor):
     """reads in the file with name 'fileName' making sure it does not recursively include itself
     by looking in 'otherFiles' then applies the 'parser' to the contents of the file,
     runs the validator and then applies the recursor to see if other files must now be included"""
-    if fileName in otherFiles:
+    if fileName in recurseFiles:
         raise RuntimeError('the file '+fileName+' eventually includes itself')
+    if fileName in otherFiles:
+        return list()
+    newRecurseFiles = recurseFiles.copy()
+    newRecurseFiles.add(fileName)
     otherFiles.add(fileName)
     factory = _fileFactory
     f = factory(fileName)
-    values = parser(f)
     try:
+        values = parser(f)
         values = validator(values)
+        values =recursor(values,otherFiles,newRecurseFiles)
     except RuntimeError, e:
         raise RuntimeError('include file '+fileName+' had the error \n'+str(e))
-    values =recursor(values,otherFiles)
+    except pp.ParseException, e:
+        raise RuntimeError('include file '+fileName+' had the parsing error \n'+str(e))
     try:
         values = validator(values)
     except RuntimeError, e:
         raise RuntimeError('after including all other files, include file '+fileName+' had the error \n'+str(e))
+    except pp.ParseException, e:
+        raise RuntimeError('after including all other files,include file '+fileName+' had the parsing error \n'+str(e))
     return values
 
 def _handleUsing(using,otherUsings,process,allUsingLabels):
@@ -181,7 +191,7 @@ def _findAndHandleProcessUsingBlock(values):
                 _findAndHandleUsingBlocksRecursive(label,pset,d,allUsingLabels)
     return allUsingLabels
 
-def badLabel(s,loc,expr,err):
+def _badLabel(s,loc,expr,err):
     """a mal formed label was detected"""
     raise pp.ParseFatalException(s,loc,"inappropriate label name")
 
@@ -329,20 +339,20 @@ simpleParameterType = pp.Keyword("bool")|pp.Keyword("int32")|pp.Keyword("uint32"
 vSimpleParameterType = pp.Keyword("vint32")^pp.Keyword("vuint32")^pp.Keyword("vint64")^pp.Keyword("vuint64")^pp.Keyword("vdouble")
 any = parameterValue | letterstart
 
-scopeBegin = pp.Suppress('{')
-scopeEnd = pp.Suppress('}')
+_scopeBegin = pp.Suppress('{')
+_scopeEnd = pp.Suppress('}')
 label = letterstart.copy()
-label.setFailAction(badLabel)
+label.setFailAction(_badLabel)
 untracked = pp.Optional('untracked')
 #use the setFailAction to catch cases where internal to a label is an unsupported character ' bad$la = ' 
-equalTo = pp.Suppress('=').setFailAction(badLabel)
+_equalTo = pp.Suppress('=').setFailAction(_badLabel)
 
 simpleParameter = pp.Group(untracked+simpleParameterType+label
-                           +equalTo+any).setParseAction(_makeParameter)
-vsimpleParameter = pp.Group(untracked+vSimpleParameterType+label+equalTo
-                            +scopeBegin
+                           +_equalTo+any).setParseAction(_makeParameter)
+vsimpleParameter = pp.Group(untracked+vSimpleParameterType+label+_equalTo
+                            +_scopeBegin
                               +pp.Group(pp.Optional(pp.delimitedList(any)))
-                            +scopeEnd
+                            +_scopeEnd
                             ).setParseAction(_makeParameter)
 
 def _handleString(s,loc,toks):
@@ -350,25 +360,25 @@ def _handleString(s,loc,toks):
     return eval(toks[0])
 quotedString = pp.quotedString.copy().setParseAction(_handleString)
 #quotedString = pp.quotedString.copy().setParseAction(pp.removeQuotes)
-stringParameter = pp.Group(untracked+pp.Keyword('string')+label+equalTo+
+stringParameter = pp.Group(untracked+pp.Keyword('string')+label+_equalTo+
                            quotedString).setParseAction(_makeParameter)
-vstringParameter =pp.Group(untracked+pp.Keyword("vstring")+label+equalTo
-                           +scopeBegin
+vstringParameter =pp.Group(untracked+pp.Keyword("vstring")+label+_equalTo
+                           +_scopeBegin
                              +pp.Group(pp.Optional(pp.delimitedList(quotedString)))
-                           +scopeEnd
+                           +_scopeEnd
                           ).setParseAction(_makeParameter)
 
-fileInPathParameter = pp.Group(untracked+pp.Keyword('FileInPath')+label+equalTo+
+fileInPathParameter = pp.Group(untracked+pp.Keyword('FileInPath')+label+_equalTo+
                            quotedString).setParseAction(_makeParameter)
 
 inputTagFormat = pp.Group(letterstart+pp.Optional(pp.Suppress(':')+pp.Optional(pp.Word(pp.alphanums))))
-inputTagParameter = pp.Group(untracked+pp.Keyword('InputTag')+label+equalTo+
+inputTagParameter = pp.Group(untracked+pp.Keyword('InputTag')+label+_equalTo+
                              inputTagFormat
                              ).setParseAction(_makeLabeledInputTag)
-vinputTagParameter =pp.Group(untracked+pp.Keyword("VInputTag")+label+equalTo
-                             +scopeBegin
+vinputTagParameter =pp.Group(untracked+pp.Keyword("VInputTag")+label+_equalTo
+                             +_scopeBegin
                                +pp.Group(pp.Optional(pp.delimitedList(inputTagFormat)))
-                             +scopeEnd
+                             +_scopeEnd
                           ).setParseAction(_makeLabeledVInputTag)
 
 #since PSet and VPSets can contain themselves, we must declare them as 'Forward'
@@ -379,15 +389,15 @@ parameter = simpleParameter|stringParameter|vsimpleParameter|fileInPathParameter
 using = pp.Group(pp.Keyword("using")+letterstart).setParseAction(_makeUsing)
 include = pp.Group(pp.Keyword("include").suppress()+quotedString).setParseAction(_makeInclude)
 
-scopedParameters = scopeBegin+pp.Group(pp.ZeroOrMore(parameter|using|include))+scopeEnd
+scopedParameters = _scopeBegin+pp.Group(pp.ZeroOrMore(parameter|using|include))+_scopeEnd
 
 #now we can actually say what PSet and VPSet are
-PSetParameter << pp.Group(untracked+pp.Keyword("PSet")+label+equalTo+scopedParameters
+PSetParameter << pp.Group(untracked+pp.Keyword("PSet")+label+_equalTo+scopedParameters
                           ).setParseAction(_makeLabeledPSet)
-VPSetParameter << pp.Group(untracked+pp.Keyword("VPSet")+label+equalTo
-                           +scopeBegin
+VPSetParameter << pp.Group(untracked+pp.Keyword("VPSet")+label+_equalTo
+                           +_scopeBegin
                                +pp.Group(pp.Optional(pp.delimitedList(scopedParameters)))
-                           +scopeEnd
+                           +_scopeEnd
                           ).setParseAction(_makeLabeledVPSet)
 
 parameters = pp.OneOrMore(parameter)
@@ -399,7 +409,7 @@ parameters.ignore(pp.pythonStyleComment)
 # Plugins
 #==================================================================
 
-class MakePlugin(object):
+class _MakePlugin(object):
     def __init__(self,plugin):
         self.__plugin = plugin
     def __call__(self,s,loc,toks):
@@ -413,54 +423,72 @@ class MakePlugin(object):
             raise pp.ParseFatalException(s,loc,type+" contains the error "+str(e))
         d = dict(values)
         return self.__plugin(*[type],**d)
+class _MakeFrom(object):
+    def __init__(self,plugin):
+        self.__plugin = plugin
+    def __call__(self,s,loc,toks):
+        label = toks[0][0]
+        inc = toks[0][1]
+        try:
+            values = _findAndHandleProcessBlockIncludes((inc,))
+        except RuntimeError, e:
+            raise pp.ParseFatalException(s,loc,label+" contains the error "+str(e))
+        d = dict(values)
+        if label not in d:
+            raise pp.ParseFatalException(s,loc,"the file "+inc.fileName+" does not contain a "+label)
+        return d[label]
 
-def replaceKeywordWithType(s,loc,toks):
+def _replaceKeywordWithType(s,loc,toks):
     type = toks[0][1].type_()
     return (type,toks[0][1])
 
 typeWithParameters = pp.Group(letterstart+scopedParameters)
-source = pp.Group(pp.Keyword("source")+equalTo
-                  +typeWithParameters.copy().setParseAction(MakePlugin(cms.Source))
+source = pp.Group(pp.Keyword("source")+_equalTo
+                  +typeWithParameters.copy().setParseAction(_MakePlugin(cms.Source))
                  )
-looper = pp.Group(pp.Keyword("looper")+equalTo
-                  +typeWithParameters.copy().setParseAction(MakePlugin(cms.Looper))
+looper = pp.Group(pp.Keyword("looper")+_equalTo
+                  +typeWithParameters.copy().setParseAction(_MakePlugin(cms.Looper))
                  )
 
-service = pp.Group(pp.Keyword("service")+equalTo
-                   +typeWithParameters.copy().setParseAction(MakePlugin(cms.Service))
-                  ).setParseAction(replaceKeywordWithType)
+service = pp.Group(pp.Keyword("service")+_equalTo
+                   +typeWithParameters.copy().setParseAction(_MakePlugin(cms.Service))
+                  ).setParseAction(_replaceKeywordWithType)
 #for now, pretend all modules are filters since filters can function like
 # EDProducer's or EDAnalyzers
-module = pp.Group(pp.Suppress(pp.Keyword("module"))+label+equalTo
-                  +typeWithParameters.copy().setParseAction(MakePlugin(cms.EDFilter))
-                 )
+module = pp.Group(pp.Suppress(pp.Keyword("module"))+label+_equalTo
+                  +typeWithParameters.copy().setParseAction(_MakePlugin(cms.EDFilter))|
+                  pp.Suppress(pp.Keyword("module"))+label+_equalTo
+                  +pp.Group(label+pp.Group(pp.Keyword("from").suppress()+quotedString).setParseAction(_makeInclude)).setParseAction(_MakeFrom(cms.EDFilter)))
+
 def _guessTypeFromClassName(regexp,type):
-    return pp.Group(pp.Suppress(pp.Keyword('module'))+label+equalTo
+    return pp.Group(pp.Suppress(pp.Keyword('module'))+label+_equalTo
                              +pp.Group(pp.Regex(regexp)
                                        +scopedParameters
-                                      ).setParseAction(MakePlugin(type))
+                                      ).setParseAction(_MakePlugin(type))
                              )
 outputModuleGuess = _guessTypeFromClassName(r"[a-zA-Z]\w*OutputModule",cms.OutputModule)
 producerGuess = _guessTypeFromClassName(r"[a-zA-Z]\w*Prod(?:ucer)?",cms.EDProducer)
 analyzerGuess = _guessTypeFromClassName(r"[a-zA-Z]\w*Analyzer",cms.EDAnalyzer)
 
-def _labelOptional(label,type):
+def _labelOptional(alabel,type):
     def useTypeIfNoLabel(s,loc,toks):
         if len(toks[0])==2:
-            label = toks[0][0]
+            alabel = toks[0][0]
             del toks[0][0]
         else:
-            label = toks[0][0].type_()
-        return (label,toks[0][0])
+            alabel = toks[0][0].type_()
+        return (alabel,toks[0][0])
     #NOTE: must use letterstart instead of label else get exception when no label
-    return pp.Group(pp.Suppress(pp.Keyword(label))+pp.Optional(letterstart)+equalTo
-                              +typeWithParameters.copy().setParseAction(MakePlugin(type))
+    return pp.Group(pp.Suppress(pp.Keyword(alabel))+pp.Optional(letterstart)+_equalTo
+                              +typeWithParameters.copy().setParseAction(_MakePlugin(type))|
+                              pp.Keyword(alabel).suppress()+pp.Optional(letterstart)+_equalTo+pp.Group(label+pp.Group(pp.Keyword("from").suppress()+quotedString).setParseAction(_makeInclude)).setParseAction(_MakeFrom(type))
                              ).setParseAction(useTypeIfNoLabel)
 
 es_module = _labelOptional("es_module",cms.ESProducer)
 es_source = _labelOptional("es_source",cms.ESSource)
+es_prefer = _labelOptional("es_prefer",cms.ESPrefer)
 
-plugin = source|looper|service|outputModuleGuess|producerGuess|analyzerGuess|module|es_module|es_source
+plugin = source|looper|service|outputModuleGuess|producerGuess|analyzerGuess|module|es_module|es_source|es_prefer
 plugin.ignore(pp.cppStyleComment)
 plugin.ignore(pp.pythonStyleComment)
 
@@ -566,13 +594,29 @@ class _MakeSeries(object):
         return (toks[0][0],self.factory(toks[0][1],s,loc,toks))
 
 pathtoken = letterstart|pp.Regex(r"![a-zA-Z][a-zA-Z0-9_\-]")|'&'|','|'('|')'
-pathbody = pp.Group(letterstart+equalTo
-                    +scopeBegin
+pathbody = pp.Group(letterstart+_equalTo
+                    +_scopeBegin
                     +pp.Group(pp.OneOrMore(pathtoken)).setParseAction(_parsePathInReverse)
-                    +scopeEnd)
+                    +_scopeEnd)
 path = pp.Keyword('path').suppress()+pathbody.copy().setParseAction(_MakeSeries(_Path))
 endpath = pp.Keyword('endpath').suppress()+pathbody.copy().setParseAction(_MakeSeries(_EndPath))
 sequence = pp.Keyword('sequence').suppress()+pathbody.copy().setParseAction(_MakeSeries(_Sequence))
+
+
+def _Schedule(object):
+    def __init__(self,labels):
+        self.labels = labels
+def _makeSchedule(s,loc,toks):
+    """create the appropriate parameter object from the tokens"""
+    values = list(iter(toks[0][0]))
+    p = _Schedule(values)
+    return p
+    
+schedule = pp.Keyword('schedule').suppress()+_equalTo+pp.Group(
+                           _scopeBegin
+                             +pp.Group(pp.Optional(pp.delimitedList(label)))
+                           +_scopeEnd
+                          ).setParseAction(_makeSchedule)
 
 #==================================================================
 # Other top level items
@@ -583,7 +627,7 @@ def _makeLabeledBlock(s,loc,toks):
     p=cms.untracked(p)
     return (toks[0][1],p)
 
-block = pp.Group(untracked+pp.Keyword("block")+label+equalTo+scopedParameters
+block = pp.Group(untracked+pp.Keyword("block")+label+_equalTo+scopedParameters
                 ).setParseAction(_makeLabeledBlock)
 
 class _ReplaceNode(object):
@@ -683,38 +727,76 @@ def _makeReplace(s,loc,toks):
                                 +"' had the error \n"
                                 +str(e))
 
-_replaceValue = (pp.Group(scopeBegin+scopeEnd
+_replaceValue = (pp.Group(_scopeBegin+_scopeEnd
                          ).setParseAction(_MakeSetter(_ReplaceSetter))|
                     (scopedParameters.copy()
                     ).setParseAction(_MakeSetter(_PSetReplaceSetter))|
-                    (scopeBegin+pp.Group(pp.delimitedList(scopedParameters))
-                     +scopeEnd).setParseAction(_MakeSetter(_VPSetReplaceSetter))|
+                    (_scopeBegin+pp.Group(pp.delimitedList(scopedParameters))
+                     +_scopeEnd).setParseAction(_MakeSetter(_VPSetReplaceSetter))|
                     (quotedString|
-                     (scopeBegin+pp.Group(pp.delimitedList(quotedString))+scopeEnd)|
-                     (scopeBegin+pp.Group(pp.Optional(pp.delimitedList(any)))+scopeEnd)|
+                     (_scopeBegin+pp.Group(pp.delimitedList(quotedString))+_scopeEnd)|
+                     (_scopeBegin+pp.Group(pp.Optional(pp.delimitedList(any)))+_scopeEnd)|
                     any).setParseAction(_MakeSetter(_ReplaceSetter)))
 _replaceExtendValue = (
                      scopedParameters.copy().setParseAction(_MakeSetter(_VPSetAppendSetter)) |
-                     (scopeBegin+pp.Group(pp.delimitedList(scopedParameters))
-                      +scopeEnd).setParseAction(_MakeSetter(_VPSetExtendSetter))|
-                     ((scopeBegin+pp.Group(pp.delimitedList(quotedString))+scopeEnd)|
-                      (scopeBegin+pp.Group(pp.Optional(pp.delimitedList(any)))+scopeEnd)
+                     (_scopeBegin+pp.Group(pp.delimitedList(scopedParameters))
+                      +_scopeEnd).setParseAction(_MakeSetter(_VPSetExtendSetter))|
+                     ((_scopeBegin+pp.Group(pp.delimitedList(quotedString))+_scopeEnd)|
+                      (_scopeBegin+pp.Group(pp.Optional(pp.delimitedList(any)))+_scopeEnd)
                      ).setParseAction(_MakeSetter(_SimpleListTypeExtendSetter)) |
                      ((quotedString|any).setParseAction(_MakeSetter(_SimpleListTypeAppendSetter)))
                   )
-plusEqualTo = pp.Suppress('+=')
-#NOTE: can't use 'equalTo' since it checks for a 'valid' label and gets confused
+_plusEqualTo = pp.Suppress('+=')
+#NOTE: can't use '_equalTo' since it checks for a 'valid' label and gets confused
 # when += appears
-eqTo = pp.Suppress("=")
+_eqTo = pp.Suppress("=")
 replace = pp.Group(pp.Keyword('replace').suppress()+
                    pp.Group(letterstart+
                             pp.OneOrMore(pp.Literal('.').suppress()+letterstart)
                             )+
-                   ((plusEqualTo+_replaceExtendValue
+                   ((_plusEqualTo+_replaceExtendValue
                     ) | (
-                    eqTo+_replaceValue))
+                    _eqTo+_replaceValue))
                   ).setParseAction(_makeReplace) 
 
+def _finalizeProcessFragment(values,usingLabels):
+    try:
+        values = _validateLabelledList(values)
+        values = _findAndHandleProcessBlockIncludes(values)
+        values = _validateLabelledList(values)
+    except RuntimeError, e:
+        raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))
+    #now deal with series
+    d = dict(values)
+    series=[] #order matters for a series
+    replaces=[]
+    for label,item in values:
+        if isinstance(item,_ModuleSeries):
+            series.append((label,item))
+            del d[label]
+        elif isinstance(item,_ReplaceNode):
+            replaces.append(item)
+            del d[label]
+    try:
+        #pset replaces must be done first since PSets can be used in a 'using'
+        # statement so we want their changes to be reflected
+        global _allUsingLabels
+        class DictAdapter(object):
+            def __init__(self,d):
+                self.d = d
+            def __getattr__(self,name):
+                return self.d[name]
+        adapted = DictAdapter(d)
+        for replace in replaces:
+            if replace.path[0] in _allUsingLabels:
+                print 'found '+replace.path[0]
+                replace.do(adapted)
+        _findAndHandleProcessUsingBlock(values)
+        for replace in replaces:
+            replace.do(adapted)
+    except RuntimeError, e:
+        raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))    
+    return d
 #==================================================================
 # Process
 #==================================================================
@@ -776,7 +858,7 @@ def _makeProcess(s,loc,toks):
     return p
 
 
-processNode = plugin|PSetParameter|VPSetParameter|block|include|path|endpath|sequence|replace
+processNode = plugin|PSetParameter|VPSetParameter|block|include|path|endpath|sequence|schedule|replace
 processBody = pp.OneOrMore(processNode)
 processBody.ignore(pp.cppStyleComment)
 processBody.ignore(pp.pythonStyleComment)
@@ -786,16 +868,25 @@ processBody.ignore(pp.pythonStyleComment)
 onlyPlugin = plugin+pp.StringEnd()
 #.cff
 onlyProcessBody = processBody+pp.StringEnd()
+onlyProcessBody.ignore(pp.cppStyleComment)
+onlyProcessBody.ignore(pp.pythonStyleComment)
 onlyParameters = parameters+pp.StringEnd()
 #.cfg
-process = pp.Group(pp.Suppress('process')+label+equalTo+scopeBegin+pp.Group(processBody)+scopeEnd).setParseAction(_makeProcess)+pp.StringEnd()
+process = pp.Group(pp.Suppress('process')+label+_equalTo+_scopeBegin+pp.Group(processBody)+_scopeEnd).setParseAction(_makeProcess)+pp.StringEnd()
 process.ignore(pp.cppStyleComment)
 process.ignore(pp.pythonStyleComment)
 
 def parseCfgFile(fileName):
     """Read a .cfg file and create a Process object"""
     return process.parseFile(fileName)[0]
-    
+def parseCffFile(fileName):
+    """Read a .cff file and return a dictionary"""
+    t=plugin.parseFile("source = PoolSource { }")
+    d=dict(iter(t))
+
+def importConfig(fileName):
+    """Use the file extension to decide how to parse the file"""
+
 if __name__=="__main__":
     import unittest
     import StringIO
@@ -973,6 +1064,24 @@ PSet blah = {
                 t=onlyProcessBody.parseString("include 'Sub/Pack/data/foo.cfi'")
                 d=dict(iter(t))
                 self.assertEqual(d['Sub/Pack/data/foo.cfi'].filename, 'Sub/Pack/data/foo.cfi')
+                t = _findAndHandleProcessBlockIncludes(t)
+                d=dict(iter(t))
+                self.assertEqual(type(d['foo']),cms.EDProducer)
+                #test ending with a comment
+                _fileFactory = TestFactory('Sub/Pack/data/foo.cfi', """module c = CProd {}
+#""")
+                t=onlyProcessBody.parseString("""module b = BProd {}
+                                              include 'Sub/Pack/data/foo.cfi'""")
+                d=dict(iter(t))
+                self.assertEqual(d['Sub/Pack/data/foo.cfi'].filename, 'Sub/Pack/data/foo.cfi')
+                t = _findAndHandleProcessBlockIncludes(t)
+
+                _fileFactory = TestFactory('Sub/Pack/data/foo.cfi', "include 'Sub/Pack/data/foo.cfi'")
+                t=onlyProcessBody.parseString("include 'Sub/Pack/data/foo.cfi'")
+                d=dict(iter(t))
+                self.assertEqual(d['Sub/Pack/data/foo.cfi'].filename, 'Sub/Pack/data/foo.cfi')
+                self.assertRaises(RuntimeError,_findAndHandleProcessBlockIncludes,t)
+                #t = _findAndHandleProcessBlockIncludes(t)
             finally:
                 _fileFactory = oldFactory
         def testPlugin(self):
@@ -1020,6 +1129,25 @@ PSet blah = {
             d=dict(iter(t))
             self.assertEqual(type(d['foo']),cms.ESProducer)
             self.assertEqual(d['foo'].type_(),"WithLabel")
+            
+            global _fileFactory
+            oldFactory = _fileFactory
+            try:
+                _fileFactory = TestFactory('Sub/Pack/data/foo.cfi', 'module foo = TestProd {}')
+                t=plugin.parseString("module bar = foo from 'Sub/Pack/data/foo.cfi'")
+                d=dict(iter(t))
+                self.assertEqual(type(d['bar']),cms.EDProducer)
+                self.assertEqual(d['bar'].type_(),"TestProd")
+                
+                
+                _fileFactory = TestFactory('Sub/Pack/data/foo.cfi', 'es_module foo = TestProd {}')
+                t=plugin.parseString("es_module bar = foo from 'Sub/Pack/data/foo.cfi'")
+                d=dict(iter(t))
+                self.assertEqual(type(d['bar']),cms.ESProducer)
+                self.assertEqual(d['bar'].type_(),"TestProd")
+            finally:
+                _fileFactory = oldFactory
+
         def testProcess(self):
             t=process.parseString(
 """
