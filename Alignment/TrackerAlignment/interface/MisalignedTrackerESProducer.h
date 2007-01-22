@@ -31,6 +31,8 @@ public:
 private:
 
   edm::ParameterSet theParameterSet;
+
+  std::string theAlignRecordName, theErrorRecordName;
   
   boost::shared_ptr<TrackerGeometry> theTracker;
 

@@ -36,7 +36,9 @@
 
 //__________________________________________________________________________________________________
 MisalignedTrackerESProducer::MisalignedTrackerESProducer(const edm::ParameterSet& p) :
-  theParameterSet( p )
+  theParameterSet( p ),
+  theAlignRecordName( "Alignments" ),
+  theErrorRecordName( "AlignmentErrors" )
 {
   
   setWhatProduced(this);
@@ -81,17 +83,21 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
       if( !poolDbService.isAvailable() ) // Die if not available
         throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 	  
-	  // Define callback tokens for the two records
-	  size_t alignmentsToken = poolDbService->callbackToken("Alignments");
-	  size_t alignmentErrorsToken = poolDbService->callbackToken("AlignmentErrors");
-	  
 	  // Store
-	  poolDbService->newValidityForNewPayload<Alignments>( &(*alignments),
-                                                           poolDbService->endOfTime(), 
-                                                           alignmentsToken );
-	  poolDbService->newValidityForNewPayload<AlignmentErrors>( &(*alignmentErrors), 
-                                                                poolDbService->endOfTime(), 
-                                                                alignmentErrorsToken );
+      if ( poolDbService->isNewTagRequest(theAlignRecordName) )
+        poolDbService->createNewIOV<Alignments>( &(*alignments), poolDbService->endOfTime(), 
+                                                 theAlignRecordName );
+      else
+        poolDbService->appendSinceTime<Alignments>( &(*alignments), poolDbService->currentTime(), 
+                                                   theAlignRecordName );
+      if ( poolDbService->isNewTagRequest(theErrorRecordName) )
+        poolDbService->createNewIOV<AlignmentErrors>( &(*alignmentErrors),
+                                                      poolDbService->endOfTime(), 
+                                                      theErrorRecordName );
+      else
+        poolDbService->appendSinceTime<AlignmentErrors>( &(*alignmentErrors),
+                                                         poolDbService->currentTime(), 
+                                                         theErrorRecordName );
     }
   
   // Store result to EventSetup
