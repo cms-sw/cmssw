@@ -13,16 +13,16 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
 
   const int dt_minBX = L1MuDTTFConfig::getBxMin();
   const int dt_maxBX = L1MuDTTFConfig::getBxMax();
-  const int dt_centralBX = (dt_minBX + dt_maxBX)/2;
+  const int dt_toffs = fabs(dt_maxBX - dt_minBX);
 
   // consider all BX
-  for(int bx = dt_minBX; bx <= dt_maxBX; ++bx)
+  for(int bx = dt_minBX + dt_toffs; bx <= dt_maxBX + dt_toffs; ++bx)
     for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
       for(int s = CSCTriggerNumbering::minTriggerSectorId(); s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s)
 	{
 	  int wheel = (e == 1) ? 2 : -2;
 	  int sector = 2*s - 1;
-	  int csc_bx = bx - dt_centralBX + CSCConstants::TIME_OFFSET +4; // the + 4 is from observation
+	  int csc_bx = bx - 16 + CSCConstants::TIME_OFFSET;
 	  
 	  // combine two 30 degree DT sectors into a 60 degree CSC
 	  // sector.
@@ -37,7 +37,6 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
 		                             dttrig->chPhiSegm2(wheel,1,iss,bx);
 		  if(dtts[stub])
 		    {
-
 		      // Convert stubs to CSC format (signed -> unsigned)
 		      // phi was 12 bits (signed) for pi radians = 57.3 deg
 		      // relative to center of 30 degree DT sector
