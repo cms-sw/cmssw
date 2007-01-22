@@ -1,5 +1,5 @@
-#ifndef checkTPGs_h
-#define checkTPGs_h
+#ifndef checkRCTRegions_h
+#define checkRCTRegions_h
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -10,10 +10,10 @@
 class TFile;
 class TNtuple;
 
-class checkTPGs : public edm::EDAnalyzer {
+class checkRCTRegions : public edm::EDAnalyzer {
 public:
-  explicit checkTPGs(const edm::ParameterSet&);
-  ~checkTPGs();
+  explicit checkRCTRegions(const edm::ParameterSet&);
+  ~checkRCTRegions();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 private:
   // ----------member data ---------------------------

@@ -1,4 +1,4 @@
-#include "DQM/RCTMonitor/src/checkTPGs.h"
+#include "DQM/RCTMonitor/src/checkRCTRegions.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -9,10 +9,12 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 using namespace reco;
 
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
+
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
 #include <iostream>
 using std::cerr;
@@ -31,15 +33,17 @@ const float etaLUT[] = {0.0000, 0.0435, 0.1305, 0.2175, 0.3045, 0.3915, 0.4785, 
 			1.6965, 1.7850, 1.8800, 1.9865, 2.1075, 2.2470, 2.4110, 2.5750, 2.8250, 3.3250, 
 			3.8250, 4.3250, 4.825};
 
-checkTPGs::checkTPGs(const edm::ParameterSet& iConfig)
+const float rctEtaLUT[] = {0.174, 0.522, 0.870, 1.218, 1.566, 1.930, 2.500, 3.325, 3.825, 4.325, 4.825};
+
+checkRCTRegions::checkRCTRegions(const edm::ParameterSet& iConfig)
 {
-  file = new TFile("checkTPGs.root", "RECREATE", "TPG Information");
+  file = new TFile("checkRCTRegions.root", "RECREATE", "TPG Information");
   file->cd();
-  nTuple = new TNtuple("TPGInfo", "TPG Info nTuple", 
-			     "nEcalDigi:ecalSum:ecalMax:nHcalDigi:hbSum:hbMax:heSum:heMax:hfSum:hfMax:etSum:id:st:pt:eta:phi:towerEtSum:hcalTowerEtSum");
+  nTuple = new TNtuple("RCTInfo", "RCT Regions nTuple", 
+			     "nEcalDigi:ecalSum:ecalMax:nHcalDigi:hbSum:hbMax:heSum:heMax:hfSum:hfMax:etSum:id:st:pt:eta:phi:towerEtSum:hcalTowerEtSum:regionEtSum:regionEta:regionPhi:regionTauVeto:regionMIPBit:regionQuietBit");
 }
 
-checkTPGs::~checkTPGs()
+checkRCTRegions::~checkRCTRegions()
 {
   file->cd();
   nTuple->Write();
@@ -47,8 +51,11 @@ checkTPGs::~checkTPGs()
 }
 
 
-void checkTPGs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void checkRCTRegions::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  edm::Handle<CandidateCollection> genParticlesHandle;
+  iEvent.getByLabel( "genParticleCandidates", genParticlesHandle);
+  CandidateCollection genParticles = *genParticlesHandle;
   edm::ESHandle<CaloTPGTranscoder> transcoder;
   iSetup.get<CaloTPGRecord>().get(transcoder);
   edm::Handle<EcalTrigPrimDigiCollection> ecal;
@@ -57,6 +64,8 @@ void checkTPGs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel("hcalTriggerPrimitiveDigis",hcal);
   EcalTrigPrimDigiCollection ecalCollection = *ecal;
   HcalTrigPrimDigiCollection hcalCollection = *hcal;
+  edm::Handle<L1CaloRegionCollection> rctRegions;
+  iEvent.getByType(rctRegions);
   int nEcalDigi = ecalCollection.size();
   if (nEcalDigi>4032) {nEcalDigi=4032;}
   float ecalSum = 0;
@@ -96,9 +105,6 @@ void checkTPGs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(et > hfMax) hfMax = et;
     }
   }
-  edm::Handle<CandidateCollection> genParticlesHandle;
-  iEvent.getByLabel( "genParticleCandidates", genParticlesHandle);
-  CandidateCollection genParticles = *genParticlesHandle;
   int id = 0;
   int st = 0;
   float pt = 0;
@@ -106,6 +112,12 @@ void checkTPGs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   float eta = 0;
   float towerEtSum = 0;
   float hcalTowerEtSum = 0.;
+  float regionEtSum = 0;
+  float regionEtaEtSum = 0;
+  float regionPhiEtSum = 0;
+  bool regionTauVeto = false;
+  bool regionMIPBit = true;
+  bool regionQuietBit = true;
   for(size_t i = 0; i < genParticles.size(); ++ i ) {
     const Candidate & p = genParticles[ i ];
     // For maximum PT stable particle in the detector
@@ -133,6 +145,11 @@ void checkTPGs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    {
 	      towerEtSum += towerEt;
 	    }
+	  if(energy > 5)
+	    {
+	      cout << "ECAL TPG: (Et,iEta,iPhi)=(" << float(energy)/2. << "," 
+		   << ieta << "," << cal_iphi << ")" << endl;
+	    }
 	}
 	hcalTowerEtSum = 0.;
 	for (int i = 0; i < nHcalDigi; i++){
@@ -151,6 +168,51 @@ void checkTPGs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    {
 	      towerEtSum += towerEt;
 	      hcalTowerEtSum += towerEt;
+	    }
+	  if(towerEt > 5)
+	    {
+	      cout << "HCAL TPG: (Et,iEta,iPhi)=(" << towerEt << "," 
+		   << ieta << "," << cal_iphi << ")" << endl;
+	    }
+	}
+	int nRCTRegions = (*rctRegions).size();
+	L1CaloRegionCollection::const_iterator region;
+	for (region=rctRegions->begin(); region!=rctRegions->end(); region++){
+	  unsigned regionEt = region->et();
+	  unsigned rctCrate = region->rctCrate();
+	  float regionEta = 999.;
+	  if(rctCrate < 9) regionEta = -rctEtaLUT[region->rctEta()];
+	  else regionEta = rctEtaLUT[region->rctEta()];
+	  float deltaEta = eta - regionEta;
+	  unsigned rctIPhi;
+	  if(rctCrate < 9) rctIPhi = rctCrate * 2 + region->rctPhi();
+	  else rctIPhi = (rctCrate - 9) * 2 + region->rctPhi();
+	  float regionPhi = (3.1415927 / 2.) + 2 * 0.087 - float(rctIPhi) * 2. * 3.1415927 / 18.;
+	  if(regionPhi < -3.1415927) regionPhi += (2 * 3.1415927);
+	  float deltaPhi = phi - regionPhi;
+	  if(deltaPhi > (2 * 3.1415827)) deltaPhi -= (2 * 3.1415927);
+	  float deltaRSq = deltaEta * deltaEta + deltaPhi * deltaPhi;
+	  if(deltaRSq < 0.5 * 0.5) 
+	    {
+	      regionEtSum += regionEt;
+	      if(region->tauVeto()) regionTauVeto = true;
+	      if(!region->mip()) regionMIPBit = false;
+	      if(!region->quiet()) regionQuietBit = false;
+	      regionEtaEtSum += regionEta * regionEt;
+	      regionPhiEtSum += regionPhi * regionEt;
+	    }
+	  if(regionEt > 20)   // More than 10 GeV at the 0.5 GeV LSB default
+	    {
+	      cout << "(RCT Region Dump)\n" << (*region) << endl;
+	      cout << "\nregion(Et,Eta,Phi)=(" 
+		   << regionEt << ","
+		   << regionEta << ","
+		   << regionPhi << ")" 
+		   << "\tDelta(Et,Eta,Phi)=(" 
+		   << (pt - regionEt) << ","
+		   << (eta - regionEta) << ","
+		   << deltaPhi << ")" 
+		   << endl;
 	    }
 	}
       }
@@ -174,5 +236,11 @@ void checkTPGs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   result.push_back(phi);
   result.push_back(towerEtSum);
   result.push_back(hcalTowerEtSum);
+  result.push_back(regionEtSum);
+  result.push_back(regionEtaEtSum/regionEtSum);
+  result.push_back(regionPhiEtSum/regionEtSum);
+  result.push_back(regionTauVeto);
+  result.push_back(regionMIPBit);
+  result.push_back(regionQuietBit);
   nTuple->Fill(&result[0]);  // Assumes vector is implemented internally as an array
 }
