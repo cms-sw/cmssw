@@ -43,12 +43,15 @@ class PixelCPETemplateReco : public PixelCPEBase
   ~PixelCPETemplateReco();
 
   // We only need to implement measurementPosition, since localPosition() from
-  // PixelCPEBase will call it and do the transformation.
-  MeasurementPoint measurementPosition( const SiPixelCluster&, 
-					const GeomDetUnit & det) const ;
-
+  // PixelCPEBase will call it and do the transformation
+  // Gavril : put it back
+  LocalPoint localPosition (const SiPixelCluster& cluster, const GeomDetUnit & det) const; 
+  
   // However, we do need to implement localError().
-  LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const ;
+  LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const;
+  
+  MeasurementPoint measurementPosition ( const SiPixelCluster&, const GeomDetUnit & det) const;
+
 
  private:
   //--------------------------------------------------------------------
@@ -62,10 +65,10 @@ class PixelCPETemplateReco : public PixelCPEBase
   // Quantities needed to calculate xpos() and ypos()
   float chargeWidthX() const;
   float chargeWidthY() const;
-
+  
  private:
   // Template stuff in here &&&
-
+  
   mutable SiPixelTemplate templ_ ;
   
   // The result
