@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/03 15:09:40 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/07/05 09:14:26 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -23,8 +23,7 @@
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 
 using namespace edm;
 using namespace std;
@@ -42,7 +41,8 @@ DumpFileToDB::~DumpFileToDB(){}
 
 
 void DumpFileToDB::endJob() {
-  if(dbToDump == "TTrigDB") {
+  if(dbToDump == "TTrigDB") { // Write the TTrig
+
     // Create the object to be written to DB
     DTTtrig* tTrig = new DTTtrig();
 
@@ -60,25 +60,10 @@ void DumpFileToDB::endJob() {
     }
 
     cout << "[DumpFileToDB]Writing ttrig object to DB!" << endl;
+    string record = "DTTtrigRcd";
+    DTCalibDBUtils::writeToDB<DTTtrig>(record, tTrig);
 
-    // Write the ttrig object to DB
-    edm::Service<cond::service::PoolDBOutputService> dbOutputSvc;
-    size_t callbackToken = dbOutputSvc->callbackToken("DTDBObject");
-    if( dbOutputSvc.isAvailable() ){
-      try{
-	dbOutputSvc->newValidityForNewPayload<DTTtrig>(tTrig, dbOutputSvc->endOfTime(), callbackToken);
-      }catch(const cond::Exception& er){
-	cout << er.what() << endl;
-      }catch(const std::exception& er){
-	cout << "[DumpFileToDB] caught std::exception " << er.what() << endl;
-      }catch(...){
-	cout << "[DumpFileToDB] Funny error" << endl;
-      }
-    }else{
-      cout << "Service PoolDBOutputService is unavailable" << endl;
-    }
-
-  } else if(dbToDump == "TZeroDB") {
+  } else if(dbToDump == "TZeroDB") { // Write the T0
 
     // Create the object to be written to DB
     DTT0* tZeroMap = new DTT0();
@@ -99,28 +84,13 @@ void DumpFileToDB::endJob() {
     }
 
     cout << "[DumpFileToDB]Writing tZero object to DB!" << endl;
+    string record = "DTT0Rcd";
+    DTCalibDBUtils::writeToDB<DTT0>(record, tZeroMap);
 
-    // Write the ttrig object to DB
-    edm::Service<cond::service::PoolDBOutputService> dbOutputSvc;
-    size_t callbackToken = dbOutputSvc->callbackToken("DTDBObject");
-    if( dbOutputSvc.isAvailable() ){
-      try{
-	dbOutputSvc->newValidityForNewPayload<DTT0>(tZeroMap, dbOutputSvc->endOfTime(), callbackToken);
-      }catch(const cond::Exception& er){
-	cout << er.what() << endl;
-      }catch(const std::exception& er){
-	cout << "[DumpFileToDB] caught std::exception " << er.what() << endl;
-      }catch(...){
-	cout << "[DumpFileToDB] Funny error" << endl;
-      }
-    }else{
-      cout << "Service PoolDBOutputService is unavailable" << endl;
-    }
-
-  } else if(dbToDump == "NoiseDB") {
+  } else if(dbToDump == "NoiseDB") { // Write the Noise
     DTStatusFlag *statusMap = new DTStatusFlag();
     
-  // Loop over file entries
+    // Loop over file entries
     for(DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
 	keyAndCalibs != theCalibFile->keyAndConsts_end();
 	++keyAndCalibs) {
@@ -131,25 +101,8 @@ void DumpFileToDB::endJob() {
     }
 
     cout << "[DumpFileToDB]Writing Noise Map object to DB!" << endl;
-
-    // Write the ttrig object to DB
-    edm::Service<cond::service::PoolDBOutputService> dbOutputSvc;
-    size_t callbackToken = dbOutputSvc->callbackToken("DTDBObject");
-    if( dbOutputSvc.isAvailable() ){
-      try{
-	dbOutputSvc->newValidityForNewPayload<DTStatusFlag>(statusMap,
-							    dbOutputSvc->endOfTime(),
-							    callbackToken);
-      }catch(const cond::Exception& er){
-	cout << er.what() << endl;
-      }catch(const std::exception& er){
-	cout << "[DumpFileToDB] caught std::exception " << er.what() << endl;
-      }catch(...){
-	cout << "[DumpFileToDB] Funny error" << endl;
-      }
-    }else{
-      cout << "Service PoolDBOutputService is unavailable" << endl;
-    }
+    string record = "DTStatusFlagRcd";
+    DTCalibDBUtils::writeToDB<DTStatusFlag>(record, statusMap);
   }
 }
 

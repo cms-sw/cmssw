@@ -1,11 +1,12 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/15 13:47:33 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/08/04 09:31:24 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/src/DTT0Calibration.h"
+#include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -23,8 +24,6 @@
 #include "CondFormats/DTObjects/interface/DTT0.h"
 
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 
 
@@ -209,27 +208,16 @@ void DTT0Calibration::endJob() {
   if(debug) 
    cout << "[DTT0Calibration]Writing ttrig object to DB!" << endl;
 
-  // Write the t0 map to DB
-  edm::Service<cond::service::PoolDBOutputService> dbOutputSvc;
-  if( dbOutputSvc.isAvailable() ){
-    size_t callbackToken = dbOutputSvc->callbackToken("DTDBObject");
-    try{
-      dbOutputSvc->newValidityForNewPayload<DTT0>(t0s,dbOutputSvc->endOfTime(),callbackToken);
-    }catch(const cond::Exception& er){
-      cout << er.what() << endl;
-    }catch(const std::exception& er){
-      cout << "[DTT0Calibration] caught std::exception " << er.what()<<endl;
-    }catch(...){
-      cout << "[DTT0Calibration] Funny error" << endl;
-    }
-  }else{
-    cout << "Service PoolDBOutputService is unavailable" << endl;
-  }
+  // FIXME: to be read from cfg?
+  string t0Record = "DTT0Rcd";
 
+  // Write the t0 map to DB
+  DTCalibDBUtils::writeToDB(t0Record, t0s);
 }
 
 
 
+   
 
 string DTT0Calibration::getHistoName(const DTLayerId& lId) const {
   string histoName;

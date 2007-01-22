@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/09/12 08:10:07 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/11/28 14:25:53 $
+ *  $Revision: 1.4 $
  *  \author M. Giunta
  */
 
@@ -11,17 +11,14 @@
 #include "CalibMuon/DTCalibration/interface/DTMeanTimerFitter.h"
 #include "CalibMuon/DTCalibration/src/vDriftHistos.h"
 #include "CalibMuon/DTCalibration/src/DTCalibrationMap.h"
-#include "RecoLocalMuon/DTSegment/test/DTRecSegment4DReader.h"
+#include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "CondFormats/DTObjects/interface/DTMtime.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
-#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 /* C++ Headers */
 #include <map>
@@ -38,6 +35,7 @@
 using namespace std;
 using namespace edm;
 //using namespace dttmaxenums;
+
 
 
 DTVDriftWriter::DTVDriftWriter(const ParameterSet& pset) {
@@ -69,12 +67,13 @@ DTVDriftWriter::DTVDriftWriter(const ParameterSet& pset) {
     cout << "[DTVDriftWriter]Constructor called!" << endl;
 }
 
+
+
+
 DTVDriftWriter::~DTVDriftWriter(){
   if(debug)
     cout << "[DTVDriftWriter]Destructor called!" << endl;
-}
-
-void DTVDriftWriter::analyze(const Event & event, const EventSetup& eventSetup) {
+}void DTVDriftWriter::analyze(const Event & event, const EventSetup& eventSetup) {
   if(debug)
     cout << "[DTVDriftWriter]Analyzer called!" << endl;
 
@@ -166,28 +165,16 @@ void DTVDriftWriter::analyze(const Event & event, const EventSetup& eventSetup) 
   calibValuesFile.writeConsts(theVDriftOutputFile);
 }
 
+
+
 void DTVDriftWriter::endJob() {
 
-if(debug) 
-   cout << "[DTVDriftWriter]Writing vdrift object to DB!" << endl;
+  if(debug) 
+    cout << "[DTVDriftWriter]Writing vdrift object to DB!" << endl;
 
   // Write the ttrig object to DB
-  edm::Service<cond::service::PoolDBOutputService> dbOutputSvc;
-  if( dbOutputSvc.isAvailable() ){
-    size_t callbackToken = dbOutputSvc->callbackToken("DTDBObject");
-    try{
-      dbOutputSvc->newValidityForNewPayload<DTMtime>(theMTime, dbOutputSvc->endOfTime(), callbackToken);
-    }catch(const cond::Exception& er){
-      cout << er.what() << endl;
-    }catch(const std::exception& er){
-      cout << "[DTVDriftWriter] caught std::exception " << er.what() << endl;
-    }catch(...){
-      cout << "[DTVDriftWriter] Funny error" << endl;
-    }
-  }else{
-    cout << "Service PoolDBOutputService is unavailable" << endl;
-  }
-
+  string record = "DTMtimeRcd";
+  DTCalibDBUtils::writeToDB<DTMtime>(record, theMTime);
 }
 
 

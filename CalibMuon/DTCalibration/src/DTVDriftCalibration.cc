@@ -2,24 +2,27 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/09/12 08:01:54 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/11/28 14:24:22 $
+ *  $Revision: 1.7 $
  *  \author M. Giunta
  */
 
 #include "CalibMuon/DTCalibration/src/DTVDriftCalibration.h"
 #include "CalibMuon/DTCalibration/interface/DTMeanTimerFitter.h"
-#include "RecoLocalMuon/DTSegment/test/DTRecSegment4DReader.h"
+#include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 #include "RecoLocalMuon/DTRecHit/interface/DTTTrigSyncFactory.h"
 #include "RecoLocalMuon/DTRecHit/interface/DTTTrigBaseSync.h"
+
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
@@ -61,7 +64,7 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
   h4DSegmAllCh = new h4DSegm("AllCh");
   bookHistos();
 
-  findVDriftAndT0 = pset.getUntrackedParameter<bool>("findVDriftAndT0", "false");
+  findVDriftAndT0 = pset.getUntrackedParameter<bool>("fitAndWrite", "false");
 
   // Chamber/s to calibrate
   theCalibChamber =  pset.getUntrackedParameter<string>("calibChamber", "All");
@@ -417,22 +420,10 @@ void DTVDriftCalibration::endJob() {
   if(debug) 
    cout << "[DTVDriftCalibration]Writing vdrift object to DB!" << endl;
 
-  // Write the ttrig object to DB
-  edm::Service<cond::service::PoolDBOutputService> dbOutputSvc;
-  if( dbOutputSvc.isAvailable() ){
-    size_t callbackToken = dbOutputSvc->callbackToken("DTDBObject");
-    try{
-      dbOutputSvc->newValidityForNewPayload<DTMtime>(mTime, dbOutputSvc->endOfTime(), callbackToken);
-    }catch(const cond::Exception& er){
-      cout << er.what() << endl;
-    }catch(const std::exception& er){
-      cout << "[DTVDriftCalibration] caught std::exception " << er.what() << endl;
-    }catch(...){
-      cout << "[DTVDriftCalibration] Funny error" << endl;
-    }
-  }else{
-    cout << "Service PoolDBOutputService is unavailable" << endl;
-  }
+  // Write the vdrift object to DB
+  string record = "DTMtimeRcd";
+  DTCalibDBUtils::writeToDB<DTMtime>(record, mTime);
+
 }
 
 

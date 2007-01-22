@@ -1,13 +1,16 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/09/07 15:30:32 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/09/12 07:57:14 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi
  */
 
 #include "CalibMuon/DTCalibration/src/DTTTrigWriter.h"
 #include "CalibMuon/DTCalibration/interface/DTTimeBoxFitter.h"
+#include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
+
+
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,8 +21,6 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
@@ -36,6 +37,7 @@ using namespace std;
 using namespace edm;
 
 
+// Constructor
 DTTTrigWriter::DTTTrigWriter(const ParameterSet& pset) {
   // get selected debug option
   debug = pset.getUntrackedParameter<bool>("debug", "false");
@@ -48,7 +50,7 @@ DTTTrigWriter::DTTTrigWriter(const ParameterSet& pset) {
   if(debug)
     theFitter->setVerbosity(1);
 
- // Create the object to be written to DB
+  // Create the object to be written to DB
   string tag = pset.getUntrackedParameter<string>("tTrigTag", "ttrig_test");
   tTrig = new DTTtrig(tag);
   
@@ -56,11 +58,17 @@ DTTTrigWriter::DTTTrigWriter(const ParameterSet& pset) {
     cout << "[DTTTrigWriter]Constructor called!" << endl;
 }
 
+
+
+// Destructor
 DTTTrigWriter::~DTTTrigWriter(){
   if(debug)
     cout << "[DTTTrigWriter]Destructor called!" << endl;
 }
 
+
+
+// Do the job
 void DTTTrigWriter::analyze(const Event & event, const EventSetup& eventSetup) {
   if(debug)
     cout << "[DTTTrigWriter]Analyzer called!" << endl;
@@ -76,48 +84,45 @@ void DTTTrigWriter::analyze(const Event & event, const EventSetup& eventSetup) {
   for(vector<DTSuperLayer*>::const_iterator  sl = superLayers.begin();
       sl != superLayers.end(); sl++) {
       
-    //Get the histo from file
+    // Get the histo from file
     DTSuperLayerId slId = (*sl)->id();
-    //Compute mean and sigma of the rising edge
-    pair<double, double> meanAndSigma = theFitter->fitTimeBox((TH1F*)theFile->Get((getTBoxName(slId)).c_str()));
+    TH1F* histo = (TH1F*)theFile->Get((getTBoxName(slId)).c_str());
+    if(histo) { // Check that the histo exists
+      // Compute mean and sigma of the rising edge
+      pair<double, double> meanAndSigma = theFitter->fitTimeBox(histo);
 
-    //Write them in DB object
-    tTrig->setSLTtrig(slId,
-		      meanAndSigma.first,
-		      meanAndSigma.second,
-		      DTTimeUnits::ns);
-    if(debug) {
-      cout << " SL: " << slId
-	   << " mean = " << meanAndSigma.first
-	   << " sigma = " << meanAndSigma.second << endl;
+      // Write them in DB object
+      tTrig->setSLTtrig(slId,
+			meanAndSigma.first,
+			meanAndSigma.second,
+			DTTimeUnits::ns);
+      if(debug) {
+	cout << " SL: " << slId
+	     << " mean = " << meanAndSigma.first
+	     << " sigma = " << meanAndSigma.second << endl;
+      }
     }
   }
 }
 
+
+
+// Write objects to DB
 void DTTTrigWriter::endJob() {
-  
   if(debug) 
 	cout << "[DTTTrigWriter]Writing ttrig object to DB!" << endl;
- 
-  // Write the ttrig object to DB
-  edm::Service<cond::service::PoolDBOutputService> dbOutputSvc;
-  if( dbOutputSvc.isAvailable() ){
-    //size_t callbackToken = dbOutputSvc->callbackToken("DTTtrig");
-    size_t callbackToken = dbOutputSvc->callbackToken("DTDBObject");
-    try{
-      dbOutputSvc->newValidityForNewPayload<DTTtrig>(tTrig, dbOutputSvc->endOfTime(), callbackToken);
-    }catch(const cond::Exception& er){
-      cout << er.what() << endl;
-    }catch(const std::exception& er){
-      cout << "[DTTTrigWriter] caught std::exception " << er.what() << endl;
-    }catch(...){
-      cout << "[DTTTrigWriter] Funny error" << endl;
-    }
-  }else{
-    cout << "Service PoolDBOutputService is unavailable" << endl;
-  }
+
+  // FIXME: to be read from cfg?
+  string tTrigRecord = "DTTtrigRcd";
+  
+  // Write the object to DB
+  DTCalibDBUtils::writeToDB(tTrigRecord, tTrig);
+
 }  
 
+
+
+// Compute the name of the time box histo
 string DTTTrigWriter::getTBoxName(const DTSuperLayerId& slId) const {
   string histoName;
   stringstream theStream;

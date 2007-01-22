@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/08/22 14:41:10 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/09/12 07:53:26 $
+ *  $Revision: 1.17 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
@@ -22,8 +22,8 @@
 
 #include "Geometry/Vector/interface/GlobalPoint.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
+
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
@@ -50,7 +50,7 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   digiLabel = pset.getUntrackedParameter<string>("digiLabel");
 
   // Switch on/off the DB writing
-  findTMeanAndSigma = pset.getUntrackedParameter<bool>("findTMeanAndSigma", "false");
+  findTMeanAndSigma = pset.getUntrackedParameter<bool>("fitAndWrite", "false");
 
   // The TDC time-window (ns)
   maxTDCCounts = 5000 * pset.getUntrackedParameter<int>("tdcRescale", 1);
@@ -210,8 +210,7 @@ void DTTTrigCalibration::endJob() {
     (*slHisto).second->Write();
   }
 
-  if(findTMeanAndSigma)
-    {
+  if(findTMeanAndSigma) {
       // Create the object to be written to DB
       DTTtrig* tTrig = new DTTtrig(theTag);
 
@@ -241,23 +240,12 @@ void DTTTrigCalibration::endJob() {
       if(debug) 
 	cout << "[DTTTrigCalibration]Writing ttrig object to DB!" << endl;
 
-      // Write the ttrig object to DB
-      edm::Service<cond::service::PoolDBOutputService> dbOutputSvc;
-      if( dbOutputSvc.isAvailable() ){
-	//size_t callbackToken = dbOutputSvc->callbackToken("DTTtrig");
-	size_t callbackToken = dbOutputSvc->callbackToken("DTDBObject");
-	try{
-	  dbOutputSvc->newValidityForNewPayload<DTTtrig>(tTrig, dbOutputSvc->endOfTime(), callbackToken);
-	}catch(const cond::Exception& er){
-	  cout << er.what() << endl;
-	}catch(const std::exception& er){
-	  cout << "[DTTTrigCalibration] caught std::exception " << er.what() << endl;
-	}catch(...){
-	  cout << "[DTTTrigCalibration] Funny error" << endl;
-	}
-      }else{
-	cout << "Service PoolDBOutputService is unavailable" << endl;
-      }
+
+      // FIXME: to be read from cfg?
+      string tTrigRecord = "DTTtrigRcd";
+      
+      // Write the object to DB
+      DTCalibDBUtils::writeToDB(tTrigRecord, tTrig);
     }  
 
 
