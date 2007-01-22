@@ -1,11 +1,11 @@
-// $Id: EcalErrorMaskFile.cc,v 1.16 2007/01/21 11:03:46 dellaric Exp $
+// $Id: EcalErrorMaskFile.cc,v 1.17 2007/01/21 17:40:53 dellaric Exp $
 
 /*!
   \file EcalErrorMaskFile.cc
   \brief Error mask from text file
   \author B. Gobbo 
-  \version $Revision: 1.16 $
-  \date $Date: 2007/01/21 11:03:46 $
+  \version $Revision: 1.17 $
+  \date $Date: 2007/01/21 17:40:53 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMaskFile.h"
@@ -60,14 +60,15 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
     is >> s;
     if( s == "" ) continue;
 
+    int sm; is >> sm;
+    if( sm < 1 || sm > 36 ) {
+      std::ostringstream os;
+      os << "line " << linecount << ": SM must be a number between 1 and 36" << std::ends;
+      throw( std::runtime_error( os.str() ) );
+      return;
+    }
+    
     if( s == "Crystal" ) {
-      int sm; is >> sm;
-      if( sm < 1 || sm > 36 ) {
-	std::ostringstream os;
-	os << "line " << linecount << ": SM must be a number between 1 and 36" << std::ends;
-	throw( std::runtime_error( os.str() ) );
-	return;
-      }
       int ic; is >> ic;
       if( ic < 1 || ic > 1700 ) {
 	std::ostringstream os;
@@ -103,13 +104,6 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
       }
     }
     else if( s == "TT" ) {
-      int sm; is >> sm;
-      if( sm < 1 || sm > 36 ) {
-	std::ostringstream os;
-	os << "line " << linecount << ": SM must be a number between 1 and 36" << std::ends;
-	throw( std::runtime_error( os.str() ) );
-	return;
-      }
       int it; is >> it;
       if( it < 1 || it > 68 ) {
 	std::ostringstream os;
@@ -145,13 +139,6 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
       }
     }
     else if( s == "PN" ) {
-      int sm; is >> sm;
-      if( sm < 1 || sm > 36 ) {
-	std::ostringstream os;
-	os << "line " << linecount << ": SM must be a number between 1 and 36" << std::ends;
-	throw( std::runtime_error( os.str() ) );
-	return;
-      }
       int ic; is >> ic;
       if( ic < 1 || ic > 10 ) {
 	std::ostringstream os;
@@ -187,13 +174,6 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
       }
     }
     else if( s == "MemCh" ) {
-      int sm; is >> sm;
-      if( sm < 1 || sm > 36 ) {
-	std::ostringstream os;
-	os << "line " << linecount << ": SM must be a number between 1 and 36" << std::ends;
-	throw( std::runtime_error( os.str() ) );
-	return;
-      }
       int ic; is >> ic;
       if( ic < 1 || ic > 50 ) {
 	std::ostringstream os;
@@ -229,13 +209,6 @@ void EcalErrorMaskFile::readFile( std::string inFile ) throw( std::runtime_error
       }
     }
     else if( s == "MemTT" ) {
-      int sm; is >> sm;
-      if( sm < 1 || sm > 36 ) {
-	std::ostringstream os;
-	os << "line " << linecount << ": SM must be a number between 1 and 36" << std::ends;
-	throw( std::runtime_error( os.str() ) );
-	return;
-      }
       int it; is >> it;
       if( it < 69 || it > 70 ) {
 	std::ostringstream os;
