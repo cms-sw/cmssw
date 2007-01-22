@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2006/12/14 11:10:34 $
- * $Revision: 1.55 $
+ * $Date: 2007/01/19 16:24:17 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -307,6 +307,10 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
     if ( dccMap[ism-1].getMgpaGain() == 1 ) meAmplMap = meAmplMapG12_[ism-1];
 
     float xval = hit.amplitude();
+
+    if ( dccMap[ism-1].getMgpaGain() == 3 ) xval = xval * 1./12.;
+    if ( dccMap[ism-1].getMgpaGain() == 2 ) xval = xval * 1./ 2.;
+    if ( dccMap[ism-1].getMgpaGain() == 1 ) xval = xval * 1./ 1.;
 
     LogDebug("EBTestPulseTask") << " hit amplitude " << xval;
 
