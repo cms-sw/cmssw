@@ -32,6 +32,8 @@ CSCSegAlgoDF::CSCSegAlgoDF(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
   minHitsPerSegment      = ps.getUntrackedParameter<int>("minHitsPerSegment");
   muonsPerChamberMax     = ps.getUntrackedParameter<int>("CSCSegmentPerChamberMax");      
   chi2ndfProbMin         = ps.getUntrackedParameter<double>("chi2ndfProbMin");
+  dRPhiFineMax           = ps.getUntrackedParameter<double>("dRPhiFineMax");
+  dPhiFineMax            = ps.getUntrackedParameter<double>("dPhiFineMax");
   chi2Max                = ps.getUntrackedParameter<double>("chi2Max");
 	
 }
@@ -441,79 +443,46 @@ void CSCSegAlgoDF::fillLocalDirection() {
  */
 bool CSCSegAlgoDF::isHitNearSegment( const CSCRecHit2D* hit) const {
 
-  const CSCLayer* layer  = theChamber->layer(hit->cscDetId().layer());
-  GlobalPoint gp         = layer->toGlobal(hit->localPosition());
-  LocalPoint lp          = theChamber->toLocal(gp);
+  const CSCLayer* layer = theChamber->layer(hit->cscDetId().layer());
+  GlobalPoint Hgp = layer->toGlobal(hit->localPosition());
+  double Hphi = Hgp.phi(); // hit phi position in global coordinates
+  if (Hphi < 0.) Hphi += 2.*M_PI;
+  LocalPoint Hlp = theChamber->toLocal(Hgp);
 
-  double u = lp.x();
-  double v = lp.y();                     
-  double z = lp.z();  
+  double u = Hlp.x();
+  double v = Hlp.y();                     
+  double z = Hlp.z();  
 
   LocalError errorMatrix = hit->localPositionError();
   double cov_uu  = errorMatrix.xx();
   double cov_vv  = errorMatrix.yy();
-  double cov_uv  = errorMatrix.xy();
   double sigma_u = sqrt(cov_uu);
   double sigma_v = sqrt(cov_vv);
 
-  double deltaX = (protoIntercept.x() + protoSlope_u * z) - u;
-  double deltaY = (protoIntercept.y() + protoSlope_v * z) - v;
+  double LocalX = protoIntercept.x() + protoSlope_u * z;
+  double LocalY = protoIntercept.y() + protoSlope_v * z;
+  LocalPoint Slp(LocalX, LocalY, z);
+  GlobalPoint Sgp = theChamber->toGlobal(Slp); 
+  double Sphi = Sgp.phi();
+  if (Sphi < 0.) Sphi += 2.*M_PI;
+  double R = sqrt(Sgp.x()*Sgp.x() + Sgp.y()*Sgp.y());
+  
+  double deltaPhi = Sphi - Hphi;
+  if (deltaPhi >  2.*M_PI) deltaPhi -= 2.*M_PI;
+  if (deltaPhi < -2.*M_PI) deltaPhi += 2.*M_PI;
+ 
+  double RdeltaPhi = R * deltaPhi;
+  
 
-  // Transform in distance of closest approach:
-  double f_u = cos( atan(protoSlope_u) );
-  double f_v = cos( atan(protoSlope_v) );
-  if (f_u < 0.) f_u = -f_u;
-  if (f_v < 0.) f_v = -f_v;
-  deltaX *= f_u;
-  deltaY *= f_v;
+  double deltaX = LocalX - u;
+  double deltaY = LocalY - v;
 
   // Normalize in terms of sigma_u and sigma_v
   deltaX /= sigma_u;
   deltaY /= sigma_v;
 
-  /* Now play with the standard error ellipse:
-   * Find the angle phi of the ellipse as per PDG 2006, section 32
-   *
-   * tan(2*phi) = 2*cov(i,j)/[cov(i,i) - cov(j,j)]       eq. 32.45
-   * 
-   * phi = 0.5 * atan( 2 cov(i,j)/[cov(i,i) - cov(j,j)] )
-   *
-   */
-
-  double phi;
-
-  if (cov_uu > cov_vv) {
-    phi = 0.5 * atan( 2. * cov_uv/(cov_uu - cov_vv) );
-    if (debug) std::cout << "phi = 0.5 * atan ( 2. * " << cov_uv << "/(" << cov_uu << " - " << cov_vv << ") )" << std::endl;
-  } else {
-    phi = 0.5 * atan( 2. * cov_uv/(cov_vv - cov_uu) );
-    if (debug) std::cout << "phi = 0.5 * atan ( 2. * " << cov_uv << "/(" << cov_vv << " - " << cov_uu << ") )" << std::endl;
-  }
-
-  if (debug) std::cout << "error ellipse angle is " << phi << std::endl;
-
-  double myPi = 3.14159267;
-
-  // Now we want to rotate the system such that errors align with the i and j axes.
-  // That way, we'll have a normalized circle of radius r = n * sigma
-
-  // The angle of rotation will be:
-  double rotateAng = myPi/2. - phi;
-  double deltaU, deltaV;
-  
-  if (cov_uu > cov_vv) {
-    deltaU = deltaX * cos(rotateAng) - deltaY * sin(rotateAng);  // DeltaX is along i axis
-    deltaV = deltaX * sin(rotateAng) + deltaY * cos(rotateAng);  // DeltaY is along j axis
-  } else {
-    deltaU = deltaY * cos(rotateAng) - deltaX * sin(rotateAng);  // DeltaY is along i axis
-    deltaV = deltaY * sin(rotateAng) + deltaX * cos(rotateAng);  // DeltaX is along j axis
-  }
-
-  double r = sqrt(deltaU*deltaU + deltaV*deltaV);
-
-  if (debug) std::cout << "# of sigma is " << r << std::endl;
-
-  if ( r < nSigmaFromSegment ) return true;
+  if ((RdeltaPhi < dRPhiFineMax && deltaPhi < dPhiFineMax ) ||
+      (deltaX < nSigmaFromSegment && deltaY < nSigmaFromSegment)) return true;
 
   return false;
 }

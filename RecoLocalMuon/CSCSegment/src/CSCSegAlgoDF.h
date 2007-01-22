@@ -129,13 +129,16 @@ private:
   LocalVector protoDirection;
 
   // input from .cfi file
-  bool  debug;
-  int   minLayersApart;
-  float nSigmaFromSegment;
-  int   minHitsPerSegment;
-  int   muonsPerChamberMax;
-  float chi2Max;
-  float chi2ndfProbMin;
+  bool   debug;
+  int    minLayersApart;
+  float  nSigmaFromSegment;
+  int    minHitsPerSegment;
+  int    muonsPerChamberMax;
+  double dRPhiFineMax;
+  double dPhiFineMax;
+  double chi2ndfProbMin;
+  float  chi2Max;
+
 };
 
 #endif
