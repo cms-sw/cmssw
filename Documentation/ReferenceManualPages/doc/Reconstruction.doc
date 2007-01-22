@@ -17,10 +17,33 @@ This page lists all subsystems related to Reconstruction within the <a href=http
 
 
 <h3>Reconstruction Subsystems</h3>
-- \ref RecoLocalTracker_Configuration "RecoLocalTracker": local tracker reconstruction
+- Tracker:
+ - \ref RecoLocalTracker_Configuration "RecoLocalTracker": packager for local tracker reconstruction (clusters, rechits).
+ - \ref TrackingTools_Configuration "TrackingTools": mathematics and base classes for Tracking (also for Muons).
+ - \ref RecoTracker_Configuration "RecoTracker": tracker specific track reconstruction. Contains implementation for KF, RS and GSF.
+- Muon:
+ - \ref RecoLocalMuon_Configuration "RecoLocalMuon": package for local muon reconstruction (rechits, segments).	
+ - \ref RecoMuon_Configuration "RecoMuon": packager for Muon Recontruction (and matching with Tracker tracks).
+- Calorimetry:
+  - \ref RecoCalorimetry_Configuration "RecoCalorimetry": package for local reconstruction in calorimeters (both HCAL and ECAL) - up to rechit level and towers.
+- ECAL:	
+ - \ref RecoEcal_Configuration "RecoEcal": package which contains code for ECAL clustering.
+- Jets/MET:
+ - \ref RecoJets_Configuration "RecoJets": package which contains code which builds jets out of various input components: towers, rechits, MC truth.
+ - \ref RecoMET_Configuration "RecoMET": package which contains code which builds jets out of various input components: towers, rechits, MC truth.
+- Egamma:
+ - \ref Egamma_Configuration "Egamma": package with high level egamma reconstruction (photons, electrons).
+- B/Tau tagging
+ - \ref RecoBTau_Configuration "RecoBTau": package with tools and algos common between B and Tau tagging.
+ - \ref RecoBTag_Configuration "RecoBTag": package with algorithms for B tagging.
+ - \ref RecoTauTag_Configuration "RecoTauTag": package with algorithms for Tau tagging.
+- Vertexing:
+ - \ref RecoVertex_Configuration "RecoVertex": package with algorithms primary and secondary vertex finding.
+ - \ref RecoPixelVertexing_Configuration "RecoPixelVertexing": package with algorithms for pixel primary vertex finding.
+ - \ref RecoPixelVZero_Configuration "RecoPixelVZero": package with algorithms V0 finding.
 
 \section contact Contact persons
-- Tommaso Boccali
+- Tommaso Boccali and Shahram Rahatlou
 
 <hr>
 Last updated: @DATE@ N. Amapane
