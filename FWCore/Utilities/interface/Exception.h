@@ -87,20 +87,17 @@ namespace cms {
     // member template needed to support streaming output to an object
     // of type cms::Exception, or a subclass of cms::Exception.
 
-    template <class T, bool b> struct Desired;
-    template <class T> struct Desired<T, true> { typedef T type; };
+    template <typename T, bool b> struct Desired;
+    template <typename T> struct Desired<T, true> { typedef T type; };
 
 
     // The following struct template is a metafunction which combines
     // two of the boost type_traits metafunctions.
 
-    using namespace boost;
-    
-
-    template <class BASE, class DERIVED>
+    template <typename BASE, typename DERIVED>
     struct is_derived_or_same {
       static bool const value = 
-	is_base_and_derived<BASE,DERIVED>::value || is_same<BASE,DERIVED>::value;
+	boost::is_base_and_derived<BASE,DERIVED>::value || boost::is_same<BASE,DERIVED>::value;
     };
 
   }
@@ -154,33 +151,33 @@ namespace cms {
     // stream operators to write into a nominally 'const' Exception
     // object is a real danger.
 
-    template <class E, class T>
+    template <typename E, typename T>
     friend
     typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
     operator<<(E& e, T const& stuff);
 
-    template <class E, class T>
+    template <typename E, typename T>
     friend
     typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
     operator<<(E const& e, T const& stuff);
 
-    template <class E>
+    template <typename E>
     friend
     typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
     operator<<(E& e, std::ostream&(*f)(std::ostream&));
 
-    template <class E>
+    template <typename E>
     friend
     typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
     operator<<(E const& e, std::ostream&(*f)(std::ostream&));
 
   
-    template <class E>
+    template <typename E>
     friend
     typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
     operator<<(E& e, std::ios_base&(*f)(std::ios_base&));
 
-    template <class E>
+    template <typename E>
     friend
     typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
     operator<<(E const& e, std::ios_base&(*f)(std::ios_base&));
@@ -190,13 +187,13 @@ namespace cms {
     // GCC 3.2.3 crashes with an internal compiler error when
     // instantiating these functions.
 
-    //     template <class E>
+    //     template <typename E>
     //     friend
     //     typename detail::Desired<E, (boost::is_base_and_derived<Exception,E>::value ||
     // 				 boost::is_same<Exception,E>::value)>::type &
     //     operator<<(E& e, const char*);
   
-    //    template <class E>
+    //    template <typename E>
     //    friend
     //    typename detail::Desired<E, (boost::is_base_and_derived<Exception,E>::value ||
     //  			       boost::is_same<Exception,E>::value)>::type &
@@ -224,7 +221,7 @@ namespace cms {
 
   // -------- implementation ---------
 
-  template <class E, class T>
+  template <typename E, typename T>
   inline
   typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
   operator<<(E& e, T const& stuff)
@@ -233,7 +230,7 @@ namespace cms {
     return e;
   }
 
-  template <class E, class T>
+  template <typename E, typename T>
   inline
   typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
   operator<<(E const& e, T const& stuff)
@@ -243,7 +240,7 @@ namespace cms {
     return e;
   }
 
-  template <class E>
+  template <typename E>
   inline 
   typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
   operator<<(E& e, std::ostream&(*f)(std::ostream&))
@@ -252,7 +249,7 @@ namespace cms {
     return e;
   }
 
-  template <class E>
+  template <typename E>
   inline 
   typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
   operator<<(E const& e, std::ostream&(*f)(std::ostream&))
@@ -262,7 +259,7 @@ namespace cms {
     return e;
   }
   
-  template <class E>
+  template <typename E>
   inline
   typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type & 
   operator<<(E& e, std::ios_base&(*f)(std::ios_base&))
@@ -272,7 +269,7 @@ namespace cms {
   }
 
 
-  template <class E>
+  template <typename E>
   inline
   typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const& 
   operator<<(E const& e, std::ios_base&(*f)(std::ios_base&))
@@ -287,7 +284,7 @@ namespace cms {
   // GCC 3.2.3 crashes with an internal compiler error when
   // instantiating these functions.
 
-  // template <class E>
+  // template <typename E>
   // inline 
   // typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type & 
   // operator<<(E& e, char const* c)
@@ -296,7 +293,7 @@ namespace cms {
   //   return e;
   // }
 
-  // template <class E>
+  // template <typename E>
   // inline 
   // typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const& 
   // operator<<(E const& e, char const* c)
@@ -306,7 +303,7 @@ namespace cms {
   //   return e;
   // }
 
-  //  template <class E>
+  //  template <typename E>
   //  inline 
   //  typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type & 
   //  operator<<(E& e, char* c)
@@ -315,7 +312,7 @@ namespace cms {
   //    return e;
   //  }
 
-  //  template <class E>
+  //  template <typename E>
   //  inline 
   //  typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const& 
   //  operator<<(E const& e, char* c)
