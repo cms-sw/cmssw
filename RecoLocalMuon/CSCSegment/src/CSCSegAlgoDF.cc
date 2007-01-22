@@ -96,59 +96,54 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
   ChamberHitContainerCIt ib = rechits.begin();
   ChamberHitContainerCIt ie = rechits.end();
 
-      
-  // Allow to have at maximum muonsPerChamberMax muons tracks in a given chamber...
-  for ( int pass = 0; pass < muonsPerChamberMax; pass++) {    
-   
     
-    // Now Loop over hits within the chamber to find 1st seed for segment building
-    for ( ChamberHitContainerCIt i1 = ib; i1 < ie; ++i1 ) {
-      if ( usedHits[i1-ib] ) continue;
+  // Now Loop over hits within the chamber to find 1st seed for segment building
+  for ( ChamberHitContainerCIt i1 = ib; i1 < ie; ++i1 ) {
+    if ( usedHits[i1-ib] ) continue;
 
-      bool segok = false;
+    bool segok = false;
       
-      const CSCRecHit2D* h1 = *i1;
-      int layer1 = layerIndex[i1-ib];
+    const CSCRecHit2D* h1 = *i1;
+    int layer1 = layerIndex[i1-ib];
            
-      // Loop over hits backward to find 2nd seed for segment building
-      for ( ChamberHitContainerCIt i2 = ie-1; i2 > ib; --i2 ) {	
+    // Loop over hits backward to find 2nd seed for segment building
+    for ( ChamberHitContainerCIt i2 = ie-1; i2 > ib; --i2 ) {	
 
-        // Clear proto segment so it can be (re)-filled 
-	protoSegment.clear();
+      // Clear proto segment so it can be (re)-filled 
+      protoSegment.clear();
 
-	if ( usedHits[i2-ib] ) continue;   // Hit has been used already
+      if ( usedHits[i2-ib] ) continue;   // Hit has been used already
 
-        const CSCRecHit2D* h2 = *i2;	
-        int layer2 = layerIndex[i2-ib];
+      const CSCRecHit2D* h2 = *i2;	
+      int layer2 = layerIndex[i2-ib];
 	
-	if ( (layer2 - layer1) < minLayersApart ) continue;
+      if ( (layer2 - layer1) < minLayersApart ) continue;
 	
-	if ( !addHit(h1, layer1) ) continue;
-	if ( !addHit(h2, layer2) ) continue;
+      if ( !addHit(h1, layer1) ) continue;
+      if ( !addHit(h2, layer2) ) continue;
 	
-	// Try adding hits to proto segment
-	tryAddingHitsToSegment(rechits, i1, i2); 
+      // Try adding hits to proto segment
+      tryAddingHitsToSegment(rechits, i1, i2); 
 	
-	// Check no. of hits on segment, and if enough flag them as used
-	segok = isSegmentGood(rechits);
-	if ( segok ) {
-          if ( debug ) std::cout << "Found a segment !!!" << std::endl;
+      // Check no. of hits on segment, and if enough flag them as used
+      segok = isSegmentGood(rechits);
+      if ( segok ) {
+        if ( debug ) std::cout << "Found a segment !!!" << std::endl;
 
-          // Flag used hits
-	  flagHitsAsUsed(rechits);
+        // Flag used hits
+       flagHitsAsUsed(rechits);
 
-          // calculate error matrix
-          AlgebraicSymMatrix protoErrors = calculateError();     
+        // calculate error matrix
+        AlgebraicSymMatrix protoErrors = calculateError();     
 
-          // but reorder components to match what's required by TrackingRecHit interface 
-          // i.e. slopes first, then positions 
-          flipErrors( protoErrors ); 
+        // but reorder components to match what's required by TrackingRecHit interface 
+        // i.e. slopes first, then positions 
+        flipErrors( protoErrors ); 
 
-          CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, protoChi2); 
+        CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, protoChi2); 
               
-          segmentInChamber.push_back(temp); 
-	  protoSegment.clear();
-        }
+        segmentInChamber.push_back(temp); 
+        protoSegment.clear();
       } 
     } 
   }
