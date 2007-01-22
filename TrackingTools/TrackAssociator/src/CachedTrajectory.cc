@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.2 2006/12/19 06:39:33 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.1 2007/01/21 15:30:36 dmytro Exp $
 //
 //
 
@@ -231,9 +231,9 @@ void CachedTrajectory::getTrajectory(std::vector<SteppingHelixStateInfo>& trajec
    //   2) propagate from the closest point outside the region with the 
    //      requested step ignoring stored trajectory points.
    for(uint i=0; i<fullTrajectory_.size(); i++) {
-      LogTrace("") << "Trajectory info (i,perp,r1,r2,z,z1,z2): " << i << ", " << fullTrajectory_[i].position().perp() <<
-	", " << r1 << ", " << r2 << ", " << fullTrajectory_[i].position().z() << ", " << z1 << ", " << z2 <<
-	", " << closestPointOnLeft;
+      // LogTrace("") << "Trajectory info (i,perp,r1,r2,z,z1,z2): " << i << ", " << fullTrajectory_[i].position().perp() <<
+      //	", " << r1 << ", " << r2 << ", " << fullTrajectory_[i].position().z() << ", " << z1 << ", " << z2 <<
+      //	", " << closestPointOnLeft;
       if ( fullTrajectory_[i].position().perp()-r1>0  || fabs(fullTrajectory_[i].position().z()) - z1 >0 )
 	{
 	   if (i>0) 
