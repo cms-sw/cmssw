@@ -6,6 +6,7 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
 using namespace edm;
+using namespace std;
 
 StreamerInputFile::~StreamerInputFile()
 {
@@ -107,18 +108,15 @@ StreamerInputFile::StreamerInputFile(const std::vector<std::string>& names):
  newHeader_(false)
 {
   ist_ =new ifstream(names.at(0).c_str(), ios_base::binary | ios_base::in);
-  if (ist_->is_open())
-     {
-      currentFile_++;
+  if (ist_->is_open()) {
+      ++currentFile_;
       readStartMessage();
       currRun_ = startMsg_->run();
       currProto_ = startMsg_->protocolVersion();
-      }
-  else
-     {
+  } else {
       throw cms::Exception("StreamerInputFile","StreamerInputFile")
               << "Error Opening Input File: "<< names.at(0) << "\n";
-     }
+  }
 }
 
 const StreamerInputIndexFile* StreamerInputFile::index() {
@@ -129,7 +127,7 @@ void StreamerInputFile::readStartMessage()
 {
   ist_->read(&headerBuf_[0], sizeof(HeaderView));
 
-  if (ist_->eof() || (unsigned int)ist_->gcount() < sizeof(HeaderView)  ) 
+  if (ist_->eof() || (unsigned int)ist_->gcount() < sizeof(HeaderView)) 
   {
         throw cms::Exception("readStartMessage","StreamerInputFile")
               << "No file exists or Empty file encountered:\n";
@@ -161,23 +159,22 @@ bool StreamerInputFile::next()
   if (useIndex_) {
      /** Read the offset of next event from Event Index */
 
-     if ( indexIter_b != indexIter_e ) 
-        {
+     if (indexIter_b != indexIter_e) {
         EventIndexRecord* iview = *(indexIter_b);
         //ist_->clear();
         // Bring the fptr to start of event 
-        ist_->seekg( (iview->getOffset()) - 1, ios::beg);
-        indexIter_b++;
-      }  
+        ist_->seekg((iview->getOffset()) - 1, ios::beg);
+        ++indexIter_b;
+     }  
   }
-  if ( this->readEventMessage() ) {
+  if (this->readEventMessage()) {
        return true;
   }
 
   if (multiStreams_) {
      //Try opening next file
-     if (openNextFile() ) {
-        if ( this->readEventMessage() ) {
+     if (openNextFile()) {
+        if (this->readEventMessage()) {
            return true;
         }
      }
@@ -193,7 +190,7 @@ bool StreamerInputFile::openNextFile() {
 
      FDEBUG(10) << "Opening file "<< streamerNames_.at(currentFile_).c_str() << std::endl;
  
-     if (ist_ != NULL ) {
+     if (ist_ != NULL) {
        ist_->clear();
        ist_->close();
        delete ist_;
@@ -209,14 +206,14 @@ bool StreamerInputFile::openNextFile() {
      }
 
      //if start message was already there, lets see if the new one is similar
-     if (startMsg_ != NULL ) {  //There was a previous file opened, must compare headers
+     if (startMsg_ != NULL) {  //There was a previous file opened, must compare headers
         FDEBUG(10) << "Comparing Header"<<endl;
-        if ( !compareHeader() )
+        if (!compareHeader())
         {
             return false;
         }
      }
-     currentFile_++;
+     ++currentFile_;
      return true;
    }
    return false;
@@ -228,8 +225,8 @@ bool StreamerInputFile::compareHeader() {
   readStartMessage();
   
   //Values from new Header should match up
-  if ( currRun_ != startMsg_->run() ||
-       currProto_ != startMsg_->protocolVersion() )
+  if (currRun_ != startMsg_->run() ||
+       currProto_ != startMsg_->protocolVersion())
      {
       throw cms::Exception("MismatchedInput","StreamerInputFile::compareHeader")
         << "File " << streamerNames_.at(currentFile_).c_str() 
@@ -247,7 +244,7 @@ int StreamerInputFile::readEventMessage()
 {  
   int last_pos = ist_->tellg();
   ist_->read(&eventBuf_[0], sizeof(HeaderView));
-  if (ist_->eof() || (unsigned int)ist_->gcount() < sizeof(HeaderView)  )
+  if (ist_->eof() || (unsigned int)ist_->gcount() < sizeof(HeaderView))
         return 0;
 
   HeaderView head(&eventBuf_[0]);
@@ -260,7 +257,7 @@ int StreamerInputFile::readEventMessage()
   
   ist_->seekg(last_pos, ios::beg);
   ist_->read(&eventBuf_[0], eventSize);
-  if (ist_->eof() || (unsigned int)ist_->gcount() < sizeof(eventSize)  ) //Probably an unfinished file
+  if (ist_->eof() || (unsigned int)ist_->gcount() < sizeof(eventSize)) //Probably an unfinished file
      return 0;
 
   if (currentEvMsg_ != NULL) {

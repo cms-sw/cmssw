@@ -10,8 +10,6 @@
 #include <cassert>
 #include <cstdlib>
 
-using namespace std;
-
 // could just use the c99 names here from stdint.h
 typedef unsigned char uint8;
 typedef unsigned short uint16; 

@@ -27,7 +27,7 @@
     void readStartMessage(); /** Reads in Start Message */
     int  readEventMessage(); /** Reads in next EventIndex Record */
 
-    ifstream* ist_;
+    std::ifstream* ist_;
 
     StartIndexRecord* startMsg_;
 

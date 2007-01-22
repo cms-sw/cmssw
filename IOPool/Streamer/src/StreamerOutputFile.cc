@@ -6,7 +6,7 @@
   OutputFile::OutputFile(const std::string& name):
   current_offset_(1), 
   events_(0),
-  ost_(new ofstream(name.c_str(), ios_base::binary | ios_base::out)),
+  ost_(new std::ofstream(name.c_str(), std::ios_base::binary | std::ios_base::out)),
   filename_(name)
   {
    if(!ost_->is_open()) {
@@ -42,15 +42,14 @@
 
     writeEventHeader(ineview);
     streamerfile_->ost()->write((const char*) ineview.eventAddr(), 
-                              ineview.size() - ineview.headerSize() );
+                              ineview.size() - ineview.headerSize());
     streamerfile_->current_offset_ += (uint64)
                                      (ineview.size() 
                                       - ineview.headerSize()) ;
-    streamerfile_->events_++;
-    if ( ! (streamerfile_->events_ % 100) )
-        {
+    ++streamerfile_->events_;
+    if (!(streamerfile_->events_ % 100)) {
 	streamerfile_->ost()->flush();
-        }
+    }
     return offset_to_return;
   }
 
@@ -64,12 +63,12 @@
 
     writeEventHeader(ineview);
     streamerfile_->ost()->write((const char*) ineview.eventData(),
-                              ineview.size() - ineview.headerSize() );
+                              ineview.size() - ineview.headerSize());
     streamerfile_->current_offset_ += (uint64)
                                      (ineview.size()
                                       - ineview.headerSize()) ;
-    streamerfile_->events_++;
-    if ( ! (streamerfile_->events_ % 100) )
+    ++streamerfile_->events_;
+    if (!(streamerfile_->events_ % 100))
         {
         streamerfile_->ost()->flush();
         }
@@ -80,7 +79,7 @@
   {
     streamerfile_->ost()->write((const char*) 
                                 ineview.startAddress(), 
-                                ineview.headerSize() ) ;
+                                ineview.headerSize()) ;
     streamerfile_->current_offset_ += (uint64) ineview.headerSize(); 
   }
 
@@ -88,7 +87,7 @@
   {
     streamerfile_->ost()->write((const char*)
                                 ineview.startAddress(),
-                                ineview.headerSize() ) ;
+                                ineview.headerSize()) ;
     streamerfile_->current_offset_ += (uint64) ineview.headerSize();
   }
 
@@ -96,9 +95,9 @@
   {
     writeStart(inview);
     streamerfile_->ost()->write((const char*) inview.dataAddress(), 
-                              inview.size() - inview.headerSize() );
+                              inview.size() - inview.headerSize());
     streamerfile_->current_offset_ += (uint64)(inview.size() 
-                                              - inview.headerSize() );
+                                              - inview.headerSize());
 
     /** Offset of first event to be written */
     streamerfile_->first_event_offset_ = streamerfile_->current_offset_; 
@@ -108,9 +107,9 @@
   {
     writeStart(inview);
     streamerfile_->ost()->write((const char*) inview.descData(),
-                              inview.size() - inview.headerSize() );
+                              inview.size() - inview.headerSize());
     streamerfile_->current_offset_ += (uint64)(inview.size()
-                                              - inview.headerSize() );
+                                              - inview.headerSize());
 
     /** Offset of first event to be written */
     streamerfile_->first_event_offset_ = streamerfile_->current_offset_;
@@ -120,7 +119,7 @@
   {
     streamerfile_->ost()->write((const char*) 
                                 inview.startAddress(), 
-                                inview.headerSize() ) ;
+                                inview.headerSize()) ;
     streamerfile_->current_offset_ += (uint64) inview.headerSize();
     streamerfile_->run_ = inview.run();
   }
@@ -129,7 +128,7 @@
   {
     streamerfile_->ost()->write((const char*)
                                 inview.startAddress(),
-                                inview.headerSize() ) ;
+                                inview.headerSize()) ;
     streamerfile_->current_offset_ += (uint64) inview.headerSize();
     streamerfile_->run_ = inview.run(); 
   } 
@@ -147,7 +146,7 @@
 
     streamerfile_->ost()->write((const char*) 
                                eof.recAddress(), 
-                               eof.size() );  
+                               eof.size());  
     return eof.size();  
   }
 

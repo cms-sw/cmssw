@@ -26,7 +26,7 @@ Class representing Output (Streamer/Index) file.
      */
      ~OutputFile();
 
-      ofstream* ost() {return ost_;}
+      std::ofstream* ost() {return ost_;}
       std::string fileName() const {return filename_;}
 
       uint64 current_offset_;  /** Location of current ioptr */
@@ -36,7 +36,7 @@ Class representing Output (Streamer/Index) file.
       uint32 run_;
 
    private:
-     ofstream* ost_;
+     std::ofstream* ost_;
      std::string filename_; 
   };
 

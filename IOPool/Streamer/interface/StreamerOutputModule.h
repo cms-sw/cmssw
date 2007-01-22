@@ -1,7 +1,7 @@
 #ifndef StreamerOutputModule_h_
 #define StreamerOutputModule_h_
 
-// $Id: StreamerOutputModule.h,v 1.18 2007/01/10 22:51:00 wmtan Exp $
+// $Id: StreamerOutputModule.h,v 1.19 2007/01/12 21:16:50 wmtan Exp $
 
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -50,9 +50,9 @@ namespace
    // packInOneByte as the numeber of bytes that are packed from source to dest.
    void printBits(unsigned char c){
  
-        for (int i=7; i>=0; i--) {
+        for (int i = 7; i >= 0; --i) {
             int bit = ((c >> i) & 1);
-            cout << " "<<bit; 
+            std::cout << " " << bit; 
         } 
    }   
     
@@ -73,7 +73,7 @@ namespace
    }
   //for (unsigned int i=0; i !=package.size() ; ++i)
   //   printBits(package[i]);
-  // cout<<endl;
+  // std::cout << std::endl;
 
    }
 
@@ -162,7 +162,7 @@ StreamerOutputModule<Consumer>::StreamerOutputModule(edm::ParameterSet const& ps
     struct timeval now;
     struct timezone dummyTZ;
     gettimeofday(&now, &dummyTZ);
-    timeInSecSinceUTC = (double) now.tv_sec + ((double) now.tv_usec / 1000000.0);
+    timeInSecSinceUTC = static_cast<double>(now.tv_sec) + (static_cast<double>(now.tv_usec)/1000000.0);
 
     if(useCompression_ == true)
     {
@@ -226,7 +226,7 @@ std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry(
     //  cms::Digest dig(toplevel.compactForm());
     //  cms::MD5Result r1 = dig.digest();
     //  std::string hexy = r1.toString();
-    //  cout <<"HEX Representation of Process PSetID: "<<hexy<<endl;  
+    //  std::cout << "HEX Representation of Process PSetID: " << hexy << std::endl;  
 
     //Setting protocol version III
     Version v(3,(uint8*)toplevel.compactForm().c_str());
@@ -281,11 +281,11 @@ void StreamerOutputModule<Consumer>::setHltMask(EventPrincipal const& e)
     packIntoString(vHltState, hltbits_);
 
     //This is Just a printing code.
-    //cout <<"Size of hltbits:"<<hltbits_.size()<<endl;
+    //std::cout << "Size of hltbits:" << hltbits_.size() << std::endl;
     //for(unsigned int i=0; i != hltbits_.size() ; ++i) {
     //  printBits(hltbits_[i]);
     //}
-    //cout<<"\n";
+    //std::cout << "\n";
 
    }
 
@@ -297,9 +297,9 @@ template <class Consumer>
     struct timeval now;
     struct timezone dummyTZ;
     gettimeofday(&now, &dummyTZ);
-    double timeInSec = (double) now.tv_sec + ((double) now.tv_usec / 1000000.0) - timeInSecSinceUTC;
+    double timeInSec = static_cast<double>(now.tv_sec) + (static_cast<double>(now.tv_usec)/1000000.0) - timeInSecSinceUTC;
     // what about overflows?
-    if(lumiSectionInterval_ > 0) lumi_ = (uint32)(timeInSec/lumiSectionInterval_);
+    if(lumiSectionInterval_ > 0) lumi_ = static_cast<uint32>(timeInSec/lumiSectionInterval_);
   }
 
 

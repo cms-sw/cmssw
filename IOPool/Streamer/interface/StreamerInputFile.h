@@ -53,7 +53,7 @@ class StreamerInputIndexFile;
                Returns false in case of miss match */
     bool compareHeader();
 
-    ifstream* ist_;
+    std::ifstream* ist_;
 
     bool useIndex_;
     StreamerInputIndexFile* index_;

@@ -3,17 +3,14 @@
 InitMsgView::InitMsgView(void* buf):
   buf_((uint8*)buf),head_(buf)
 {
-  if (protocolVersion() == 2) 
-     {
-      std::cout<<"Protocol Version 2 encountered"<<endl; 
+  if (protocolVersion() == 2) {
+      std::cout << "Protocol Version 2 encountered" << std::endl; 
       release_start_ = buf_ + sizeof(InitHeader) - (sizeof(uint32)*2);
       // Minus the size for Init and Event Header size fileds
       // in the InitHeader
-     }
-  else 
-     { //For version 3 
+  } else { //For version 3 
       release_start_ = buf_ + sizeof(InitHeader);
-     }
+  }
   release_len_ = *release_start_;
   release_start_ += sizeof(uint8);
 
@@ -35,25 +32,25 @@ InitMsgView::InitMsgView(void* buf):
 
 uint32 InitMsgView::run() const
 {
-  InitHeader* h = (InitHeader*)buf_;
+  InitHeader* h = reinterpret_cast<InitHeader*>(buf_);
   return convert32(h->run_);
 }
 
 uint32 InitMsgView::protocolVersion() const
 {
-  InitHeader* h = (InitHeader*)buf_;
+  InitHeader* h = reinterpret_cast<InitHeader*>(buf_);
   return h->version_.protocol_;
 }
 
 void InitMsgView::pset(uint8* put_here) const
 {
-  InitHeader* h = (InitHeader*)buf_;
+  InitHeader* h = reinterpret_cast<InitHeader*>(buf_);
   memcpy(put_here,h->version_.pset_id_,sizeof(h->version_.pset_id_));
 }
 
 std::string InitMsgView::releaseTag() const
 {
-  return std::string((char*)release_start_,release_len_);
+  return std::string(reinterpret_cast<char *>(release_start_),release_len_);
 }
 
 void InitMsgView::hltTriggerNames(Strings& save_here) const
@@ -69,15 +66,14 @@ void InitMsgView::l1TriggerNames(Strings& save_here) const
 void InitMsgView::getNames(uint8* from, uint32 from_len, Strings& to) const
 {
   // not the most efficient way to do this
-  std::istringstream ist(std::string((char*)from,from_len));
+  std::istringstream ist(std::string(reinterpret_cast<char *>(from),from_len));
   typedef std::istream_iterator<std::string> Iter;
   std::copy(Iter(ist),Iter(),std::back_inserter(to));
 }
 
 uint32 InitMsgView::eventHeaderSize() const
 {
-  if (protocolVersion() == 2) 
-     {
+  if (protocolVersion() == 2) {
        /** This is estimated size of event header for Protocol Version 2. */
 
        uint32 hlt_sz = get_hlt_bit_cnt();
@@ -86,17 +82,17 @@ uint32 InitMsgView::eventHeaderSize() const
        uint32 l1_sz = get_l1_bit_cnt();
        if (l1_sz != 0) l1_sz = 1 + ((l1_sz-1)/8);
 
-       return 1+(4*8)+hlt_sz+l1_sz; 
-     }
+       return 1 + (4*8) + hlt_sz+l1_sz; 
+   }
 
-   InitHeader* h = (InitHeader*)buf_;
+   InitHeader* h = reinterpret_cast<InitHeader*>(buf_);
    return convert32(h->event_header_size_);
 }
 
 /***
 uint32 InitMsgView::initHeaderSize() const
 {
-  InitHeader* h = (InitHeader*)buf_;
+  InitHeader* h = reinterpret_cast<InitHeader*>(buf_);
   return convert32(h->init_header_size_);
 } **/
 

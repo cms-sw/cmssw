@@ -5,6 +5,8 @@
 #include "IOPool/Streamer/interface/DumpTools.h"
 #include "FWCore/Utilities/interface/Digest.h"
 
+using namespace std;
+
 void dumpInitHeader(const InitMsgView* view)
 {
   cout
@@ -69,7 +71,7 @@ void dumpInit(uint8* buf)
 
 void printBits(unsigned char c){
 
-        for (int i=7; i>=0; i--) {
+        for (int i = 7; i >= 0; --i) {
             int bit = ((c >> i) & 1);
             cout << " "<<bit;
         }

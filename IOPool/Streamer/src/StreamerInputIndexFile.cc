@@ -2,9 +2,11 @@
 #include "IOPool/Streamer/interface/StreamerInputIndexFile.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
-using namespace edm;
-
 #include<fstream>
+
+using namespace edm;
+using namespace std;
+
 
 StreamerInputIndexFile::~StreamerInputIndexFile()
 {
@@ -12,11 +14,9 @@ StreamerInputIndexFile::~StreamerInputIndexFile()
     delete startMsg_; 
   }
 
-  indexRecIter it;
-  for(it = this->begin(); it != this->end(); ++it)
-     {
+  for(indexRecIter it = this->begin(), itEnd = this->end(); it != itEnd; ++it) {
           delete (*it);
-     }
+  }
 }
 
 StreamerInputIndexFile::StreamerInputIndexFile(const std::string& name):
@@ -31,11 +31,10 @@ StreamerInputIndexFile::StreamerInputIndexFile(const std::string& name):
 {
 
   FDEBUG(10) <<"Opening Index file"<<endl;
-  if (!ist_->is_open()) 
-     {
+  if (!ist_->is_open()) {
        throw cms::Exception ("StreamerInputIndexFile","StreamerInputIndexFile")
           << "Error Opening Input File: "<< name<< "\n";
-     } 
+  } 
   readStartMessage();
   while (readEventMessage()) {
       ;
@@ -77,13 +76,12 @@ void StreamerInputIndexFile::readStartMessage() {
   //Read magic+reserved fileds at the start of file 
   //ist_->clear();
   ist_->read((char*)&headerBuf_[0], sizeof(StartIndexRecordHeader));
-  if (ist_->eof() || static_cast<unsigned int>(ist_->gcount()) < sizeof(StartIndexRecordHeader) )
-     {
+  if (ist_->eof() || static_cast<unsigned int>(ist_->gcount()) < sizeof(StartIndexRecordHeader)) {
         return;
-     }  
+   }  
   //Read Header from the start of init message to find the size
   ist_->read((char*)&headerBuf_[sizeof(StartIndexRecordHeader)], sizeof(HeaderView));
-  if (ist_->eof() || static_cast<unsigned int>(ist_->gcount()) < sizeof(HeaderView)  )
+  if (ist_->eof() || static_cast<unsigned int>(ist_->gcount()) < sizeof(HeaderView))
   {
         throw cms::Exception("readStartMessage","StreamerInputFile")
               << "Empty file encountered\n";
@@ -133,7 +131,7 @@ int StreamerInputIndexFile::readEventMessage()  {
   //ist_->clear();
   ist_->read((char*)&eventBuf_[bufPtr], sizeof(HeaderView));
 
-  if (ist_->eof() || static_cast<unsigned int>(ist_->gcount()) < sizeof(HeaderView)  )
+  if (ist_->eof() || static_cast<unsigned int>(ist_->gcount()) < sizeof(HeaderView))
   {      
 	eof_ = true;
 	return 0;
@@ -183,7 +181,7 @@ bool header_event_sorter(EventIndexRecord* first, EventIndexRecord* second) {
     //uint32 event_first = first.eview->event(); 
     //uint32 event_second = second.eview->event();
      
-    if( ((first->getEventView())->event()) > ((second->getEventView())->event()) ) 
+    if(((first->getEventView())->event()) > ((second->getEventView())->event())) 
 	return true;
     return false;
 }
@@ -192,15 +190,15 @@ bool header_run_sorter(EventIndexRecord* first, EventIndexRecord* second) {
     //uint32 run_first = first.eview->run();
     //uint32 run_second = second.eview->run();
      
-    if( ((first->getEventView())->run()) > ((second->getEventView())->run()) )
+    if(((first->getEventView())->run()) > ((second->getEventView())->run()))
         return true;
     return false;
 }
 
 indexRecIter StreamerInputIndexFile::sort() {
   //Run sorting is required ?? 
-  std::sort( this->begin(), this->end(), header_run_sorter);
-  std::sort( this->begin(), this->end(), header_event_sorter);
+  std::sort(this->begin(), this->end(), header_run_sorter);
+  std::sort(this->begin(), this->end(), header_event_sorter);
   return this->begin();
 }
 

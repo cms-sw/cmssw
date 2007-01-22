@@ -23,7 +23,7 @@ namespace edm
   public:
 
     explicit StreamerFileWriter(edm::ParameterSet const& ps);
-    explicit StreamerFileWriter(string const& fileName, string const& indexFileName);
+    explicit StreamerFileWriter(std::string const& fileName, std::string const& indexFileName);
     ~StreamerFileWriter();
 
     //void doOutputHeader(std::auto_ptr<InitMsgBuilder> init_message);    
