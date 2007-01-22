@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/24 07:29:43 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/01/12 09:47:42 $
+ *  $Revision: 1.9 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -76,31 +76,24 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
   // Create misalignment scenario
   MuonScenarioBuilder scenarioBuilder( theAlignableMuon );
   scenarioBuilder.applyScenario( theParameterSet );
-
-  // Retrieve muon barrel alignments and errors
-  dtAlignments      = theAlignableMuon->DTBarrel().front()->alignments();
-  dtAlignmentErrors = theAlignableMuon->DTBarrel().front()->alignmentErrors();
-
-  // Retrieve muon endcaps alignments and errors
-  Alignments* cscEndCap1    = theAlignableMuon->CSCEndcaps().front()->alignments();
-  Alignments* cscEndCap2    = theAlignableMuon->CSCEndcaps().back()->alignments();
-  cscAlignments = new Alignments();
-  std::copy( cscEndCap1->m_align.begin(), cscEndCap1->m_align.end(), back_inserter( cscAlignments->m_align ) );
-  std::copy( cscEndCap2->m_align.begin(), cscEndCap2->m_align.end(), back_inserter( cscAlignments->m_align ) );
-
-  AlignmentErrors* cscEndCap1Errors = theAlignableMuon->CSCEndcaps().front()->alignmentErrors();
-  AlignmentErrors* cscEndCap2Errors = theAlignableMuon->CSCEndcaps().back()->alignmentErrors();
-  cscAlignmentErrors    = new AlignmentErrors();
-  std::copy(cscEndCap1Errors->m_alignError.begin(), cscEndCap1Errors->m_alignError.end(), back_inserter(cscAlignmentErrors->m_alignError) );
-  std::copy(cscEndCap2Errors->m_alignError.begin(), cscEndCap2Errors->m_alignError.end(), back_inserter(cscAlignmentErrors->m_alignError) );
   
+  // Get alignments and errors
+  Alignments*      dt_Alignments = theAlignableMuon->dtAlignments() ;
+  AlignmentErrors* dt_AlignmentErrors = theAlignableMuon->dtAlignmentErrors();
+  Alignments*      csc_Alignments = theAlignableMuon->cscAlignments();
+  AlignmentErrors* csc_AlignmentErrors = theAlignableMuon->cscAlignmentErrors();
+
+ 
   // Misalign the EventSetup geometry
   GeometryAligner aligner;
+
   aligner.applyAlignments<DTGeometry>( &(*theDTGeometry),
-                                         &(*dtAlignments), &(*dtAlignmentErrors) );
-  aligner.applyAlignments<CSCGeometry>( &(*theCSCGeometry),
-                                         &(*cscAlignments), &(*cscAlignmentErrors) );
-  
+                                       &(*dt_Alignments), 
+				       &(*dt_AlignmentErrors) );
+  aligner.applyAlignments<CSCGeometry>( &(*theCSCGeometry ),
+                                        &(*csc_Alignments ),
+					&(*csc_AlignmentErrors) );  
+
   // Write alignments to DB
   if ( theParameterSet.getUntrackedParameter<bool>("saveToDbase", false) ) saveToDB();
 
@@ -128,11 +121,11 @@ void MisalignedMuonESProducer::saveToDB( void )
   size_t cscAlignmentErrorsToken = poolDbService->callbackToken("cscAlignmentErrors");
 
   // Store in the database
-  poolDbService->newValidityForNewPayload<Alignments>( dtAlignments, poolDbService->endOfTime(), dtAlignmentsToken );
-  poolDbService->newValidityForNewPayload<AlignmentErrors>( dtAlignmentErrors, poolDbService->endOfTime(), dtAlignmentErrorsToken );
+  poolDbService->newValidityForNewPayload<Alignments>( dt_Alignments, poolDbService->endOfTime(), dtAlignmentsToken );
+  poolDbService->newValidityForNewPayload<AlignmentErrors>( dt_AlignmentErrors, poolDbService->endOfTime(), dtAlignmentErrorsToken );
 
-  poolDbService->newValidityForNewPayload<Alignments>( cscAlignments, poolDbService->endOfTime(), cscAlignmentsToken );
-  poolDbService->newValidityForNewPayload<AlignmentErrors>( cscAlignmentErrors, poolDbService->endOfTime(), cscAlignmentErrorsToken );
+  poolDbService->newValidityForNewPayload<Alignments>( csc_Alignments, poolDbService->endOfTime(), cscAlignmentsToken );
+  poolDbService->newValidityForNewPayload<AlignmentErrors>( csc_AlignmentErrors, poolDbService->endOfTime(), cscAlignmentErrorsToken );
   
 
 }

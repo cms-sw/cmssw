@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/04 20:18:51 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/10/16 14:39:31 $
+ *  $Revision: 1.13 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -343,4 +343,51 @@ AlignmentErrors* AlignableMuon::alignmentErrors( void ) const
   return m_alignmentErrors;
 
 }
+//__________________________________________________________________________________________________
+Alignments* AlignableMuon::dtAlignments( void )
+{
+  // Retrieve muon barrel alignments
+  Alignments* tmpAlignments = this->DTBarrel().front()->alignments();
+  
+  return tmpAlignments;
 
+}
+//__________________________________________________________________________________________________
+AlignmentErrors* AlignableMuon::dtAlignmentErrors( void )
+{
+  // Retrieve muon barrel alignment errors
+  AlignmentErrors* tmpAlignmentErrors = this->DTBarrel().front()->alignmentErrors();
+
+  return tmpAlignmentErrors;
+  
+}
+//__________________________________________________________________________________________________
+Alignments* AlignableMuon::cscAlignments( void )
+{
+
+  // Retrieve muon endcaps alignments
+  Alignments* cscEndCap1    = this->CSCEndcaps().front()->alignments();
+  Alignments* cscEndCap2    = this->CSCEndcaps().back()->alignments();
+  Alignments* tmpAlignments = new Alignments();
+
+  std::copy( cscEndCap1->m_align.begin(), cscEndCap1->m_align.end(), back_inserter( tmpAlignments->m_align ) );
+  std::copy( cscEndCap2->m_align.begin(), cscEndCap2->m_align.end(), back_inserter( tmpAlignments->m_align ) );
+  
+  return tmpAlignments;
+
+}
+//__________________________________________________________________________________________________
+AlignmentErrors* AlignableMuon::cscAlignmentErrors( void )
+{
+
+  // Retrieve muon endcaps alignment errors
+   AlignmentErrors* cscEndCap1Errors = this->CSCEndcaps().front()->alignmentErrors();
+   AlignmentErrors* cscEndCap2Errors = this->CSCEndcaps().back()->alignmentErrors();
+   AlignmentErrors* tmpAlignmentErrors    = new AlignmentErrors();
+
+  std::copy(cscEndCap1Errors->m_alignError.begin(), cscEndCap1Errors->m_alignError.end(), back_inserter(tmpAlignmentErrors->m_alignError) );
+  std::copy(cscEndCap2Errors->m_alignError.begin(), cscEndCap2Errors->m_alignError.end(), back_inserter(tmpAlignmentErrors->m_alignError) );
+  
+  return tmpAlignmentErrors;
+  
+}

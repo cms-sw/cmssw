@@ -4,8 +4,8 @@
 /** \class AlignableMuon
  *  The alignable muon.
  *
- *  $Date: 2006/08/04 20:18:50 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/10/16 14:39:30 $
+ *  $Revision: 1.11 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -82,6 +82,18 @@ public:
   std::vector<Alignable*> CSCStations();
   std::vector<Alignable*> CSCEndcaps();
 
+
+  // Get DT alignments sorted by DetId
+  Alignments* dtAlignments();
+
+  // Get DT alignment errors sorted by DetId
+  AlignmentErrors* dtAlignmentErrors();
+
+  // Get CSC alignments sorted by DetId
+  Alignments* cscAlignments();
+
+  // Get CSC alignment errors sorted by DetId
+  AlignmentErrors* cscAlignmentErrors();
 
 
 
