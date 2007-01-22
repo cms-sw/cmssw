@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.2 2007/01/22 10:27:08 benigno Exp $
+// $Id: EcalErrorMask.cc,v 1.3 2007/01/22 13:09:46 benigno Exp $
 
 /*!
   \file EcalErrorMas.cc
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.2 $
-  \date $Date: 2007/01/22 10:27:08 $
+  \version $Revision: 1.3 $
+  \date $Date: 2007/01/22 13:09:46 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
@@ -16,12 +16,14 @@
 #include <CondTools/Ecal/interface/EcalErrorDictionary.h>
 
 bool EcalErrorMask::done_ = false;
-std::string EcalErrorMask::inFile_ = "";
+int  EcalErrorMask::runNb_ = -1;
 std::map<EcalLogicID, RunCrystalErrorsDat> EcalErrorMask::mapCrystalErrors_;
 std::map<EcalLogicID, RunTTErrorsDat>      EcalErrorMask::mapTTErrors_;
 std::map<EcalLogicID, RunPNErrorsDat>      EcalErrorMask::mapPNErrors_;
 std::map<EcalLogicID, RunMemChErrorsDat>   EcalErrorMask::mapMemChErrors_;
 std::map<EcalLogicID, RunMemTTErrorsDat>   EcalErrorMask::mapMemTTErrors_;
+
+//---------------------------------------------------------------------------------------------
 
 void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::runtime_error ) {
 
@@ -276,6 +278,8 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 
 }
 
+//---------------------------------------------------------------------------------------------
+
 void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error ) {
 
   std::fstream f( outFile.c_str(), std::ios::out );
@@ -283,6 +287,13 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::string s = "Error accessing output file " + outFile;
     throw( std::runtime_error( s ) );
     return;
+  }
+
+  if( EcalErrorMask::runNb_ == -1 ) {
+    f << "# -------------- Run Number Unknown --------------" << std::endl;
+  }
+  else {
+    f << "# -------------- Run Number " << EcalErrorMask::runNb_ << " --------------" << std::endl;
   }
 
   f << "# Errors on Crystals masks" << std::endl;
@@ -353,6 +364,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
   f.close();
 }
 
+//---------------------------------------------------------------------------------------------
+
 void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( std::runtime_error ) {
 
   if( eConn ) {
@@ -365,6 +378,7 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
       eConn->fetchValidDataSet( &EcalErrorMask::mapPNErrors_,      &validIOV, &runTag, runIOV->getRunNumber() );
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemChErrors_,   &validIOV, &runTag, runIOV->getRunNumber() );
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemTTErrors_,   &validIOV, &runTag, runIOV->getRunNumber() );
+      EcalErrorMask::runNb_ = validIOV.getRunNumber();
     } catch ( std::runtime_error & e ) {
       throw( std::runtime_error( e.what() ) );
     }
@@ -372,6 +386,28 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
   }
 
 }
+
+//---------------------------------------------------------------------------------------------
+
+void EcalErrorMask::writeDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( std::runtime_error ) {
+
+  if( eConn ) {
+
+    try {
+      eConn->insertDataSet( &EcalErrorMask::mapCrystalErrors_, runIOV );
+      eConn->insertDataSet( &EcalErrorMask::mapTTErrors_,      runIOV );
+      eConn->insertDataSet( &EcalErrorMask::mapPNErrors_,      runIOV );
+      eConn->insertDataSet( &EcalErrorMask::mapMemChErrors_,   runIOV );
+      eConn->insertDataSet( &EcalErrorMask::mapMemTTErrors_,   runIOV );
+    } catch ( std::runtime_error & e ) {
+      throw( std::runtime_error( e.what() ) );
+    }
+
+  }
+
+}
+
+//---------------------------------------------------------------------------------------------
 
 void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* fillMap ) throw( std::runtime_error ) {
 
@@ -384,6 +420,8 @@ void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* f
   return;
 }
 
+//---------------------------------------------------------------------------------------------
+
 void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMap ) throw( std::runtime_error ) {
 
   if( !done_ ) {
@@ -394,6 +432,8 @@ void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMa
   *fillMap = EcalErrorMask::mapTTErrors_;
   return;
 }
+
+//---------------------------------------------------------------------------------------------
 
 void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunPNErrorsDat>* fillMap ) throw( std::runtime_error ) {
 
@@ -406,6 +446,8 @@ void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunPNErrorsDat>* fillMa
   return;
 }
 
+//---------------------------------------------------------------------------------------------
+
 void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemChErrorsDat>* fillMap ) throw( std::runtime_error ) {
 
   if( !done_ ) {
@@ -417,6 +459,8 @@ void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemChErrorsDat>* fil
   return;
 }
 
+//---------------------------------------------------------------------------------------------
+
 void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemTTErrorsDat>* fillMap ) throw( std::runtime_error ) {
 
   if( !done_ ) {
@@ -427,6 +471,8 @@ void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemTTErrorsDat>* fil
   *fillMap = EcalErrorMask::mapMemTTErrors_;
   return;
 }
+
+//---------------------------------------------------------------------------------------------
 
 void EcalErrorMask::clearComments_( char* line ) {
   // It looks for "#" and replaces it with "\0"...
@@ -443,6 +489,8 @@ void EcalErrorMask::clearComments_( char* line ) {
 
   regfree( &rec );
 }
+
+//---------------------------------------------------------------------------------------------
 
 void EcalErrorMask::clearFinalBlanks_( char* line ) {
   // From end of string, find last ' ' or '\t' (tab) and replace it with '\0'
