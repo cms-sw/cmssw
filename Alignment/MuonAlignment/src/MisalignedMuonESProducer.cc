@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/01/12 09:47:42 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/01/22 15:29:18 $
+ *  $Revision: 1.10 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -78,10 +78,10 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
   scenarioBuilder.applyScenario( theParameterSet );
   
   // Get alignments and errors
-  Alignments*      dt_Alignments = theAlignableMuon->dtAlignments() ;
-  AlignmentErrors* dt_AlignmentErrors = theAlignableMuon->dtAlignmentErrors();
-  Alignments*      csc_Alignments = theAlignableMuon->cscAlignments();
-  AlignmentErrors* csc_AlignmentErrors = theAlignableMuon->cscAlignmentErrors();
+  dt_Alignments = theAlignableMuon->dtAlignments() ;
+  dt_AlignmentErrors = theAlignableMuon->dtAlignmentErrors();
+  csc_Alignments = theAlignableMuon->cscAlignments();
+  csc_AlignmentErrors = theAlignableMuon->cscAlignmentErrors();
 
  
   // Misalign the EventSetup geometry
