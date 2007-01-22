@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.1 2007/01/22 10:24:07 benigno Exp $
+// $Id: EcalErrorMask.cc,v 1.2 2007/01/22 10:27:08 benigno Exp $
 
 /*!
   \file EcalErrorMas.cc
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.1 $
-  \date $Date: 2007/01/22 10:24:07 $
+  \version $Revision: 1.2 $
+  \date $Date: 2007/01/22 10:27:08 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
@@ -48,6 +48,10 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
   std::vector<EcalErrorDictionary::errorDef_t> errors;
   EcalErrorDictionary::getDictionary( errors );
 
+  if( verbose ) std::cout << std::endl
+			  << "--------- Input Mask File Dump ----------" 
+			  << std::endl;
+
   while( f.getline( line, lineSize ) ) {
 
     linecount++;
@@ -60,10 +64,11 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
     is >> s;
     if( s == "" ) continue;
 
-    if( verbose ) std::cout << s << " " << is.str() << std::endl;
+    if( verbose ) std::cout << is.str() << std::endl;
 
     int sm; is >> sm;
     if( sm < 1 || sm > 36 ) {
+      f.close();
       std::ostringstream os;
       os << "line " << linecount << ": SM must be a number between 1 and 36" << std::ends;
       throw( std::runtime_error( os.str() ) );
@@ -73,6 +78,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
     if( s == "Crystal" ) {
       int ic; is >> ic;
       if( ic < 1 || ic > 1700 ) {
+	f.close();
 	std::ostringstream os;
 	os << "line " << linecount << ": IC must be a number between 1 and 1700" << std::ends;
 	throw( std::runtime_error( os.str() ) );
@@ -87,6 +93,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 	}
       }
       if( bitmask == 0 ) {
+	f.close();
 	std::ostringstream os;
 	os << "line " << linecount << ": This Short Description was not found in the Dictionary" << std::ends;
 	throw( std::runtime_error( os.str() ) );
@@ -108,6 +115,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
     else if( s == "TT" ) {
       int it; is >> it;
       if( it < 1 || it > 68 ) {
+	f.close();
 	std::ostringstream os;
 	os << "line " << linecount << ": IT must be a number between 1 and 68" << std::ends;
 	throw( std::runtime_error( os.str() ) );
@@ -122,6 +130,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 	}
       }
       if( bitmask == 0 ) {
+	f.close();
 	std::ostringstream os;
 	os << "line " << linecount << ": This Short Description was not found in the Dictionary" << std::ends;
 	throw( std::runtime_error( os.str() ) );
@@ -143,6 +152,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
     else if( s == "PN" ) {
       int ic; is >> ic;
       if( ic < 1 || ic > 10 ) {
+	f.close();
 	std::ostringstream os;
 	os << "line " << linecount << ": IC must be a number between 1 and 10" << std::ends;
 	throw( std::runtime_error( os.str() ) );
@@ -157,6 +167,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 	}
       }
       if( bitmask == 0 ) {
+	f.close();
 	std::ostringstream os;
 	os << "line " << linecount << ": This Short Description was not found in the Dictionary" << std::ends;
 	throw( std::runtime_error( os.str() ) );
@@ -178,6 +189,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
     else if( s == "MemCh" ) {
       int ic; is >> ic;
       if( ic < 1 || ic > 50 ) {
+	f.close();
 	std::ostringstream os;
 	os << "line " << linecount << ": IC must be a number between 1 and 50" << std::ends;
 	throw( std::runtime_error( os.str() ) );
@@ -192,6 +204,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 	}
       }
       if( bitmask == 0 ) {
+	f.close();
 	std::ostringstream os;
 	os << "line " << linecount << ": This Short Description was not found in the Dictionary" << std::ends;
 	throw( std::runtime_error( os.str() ) );
@@ -213,6 +226,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
     else if( s == "MemTT" ) {
       int it; is >> it;
       if( it < 69 || it > 70 ) {
+	f.close();
 	std::ostringstream os;
 	os << "line " << linecount << ": IT must be 69 or 70" << std::ends;
 	throw( std::runtime_error( os.str() ) );
@@ -227,6 +241,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 	}
       }
       if( bitmask == 0 ) {
+	f.close();
 	std::ostringstream os;
 	os << "line " << linecount << ": This Short Description was not found in the Dictionary" << std::ends;
 	throw( std::runtime_error( os.str() ) );
@@ -246,16 +261,96 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
       }
     }
     else {
+      f.close();
       throw( std::runtime_error( "Wrong Table Name" ) );
+      return;
     }
 
   }
 
+  if( verbose ) std::cout << "------- End Input Mask File Dump --------" 
+			  << std::endl;
+
+  f.close();
   return;
 
 }
 
 void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error ) {
+
+  std::fstream f( outFile.c_str(), std::ios::out );
+  if( f.fail() ) {
+    std::string s = "Error accessing output file " + outFile;
+    throw( std::runtime_error( s ) );
+    return;
+  }
+
+  f << "# Errors on Crystals masks" << std::endl;
+  for( std::map<EcalLogicID, RunCrystalErrorsDat>::iterator i = EcalErrorMask::mapCrystalErrors_.begin();
+       i != EcalErrorMask::mapCrystalErrors_.end(); i++ ) {
+    string type = "Crystal";
+    int sm = ((i->first).getLogicID())/10000;
+    int ic = ((i->first).getLogicID())%10000;
+    std::vector<EcalErrorDictionary::errorDef_t> errors;
+    EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
+    for( unsigned int j=0; j<errors.size(); j++ ) {
+      f << type << " " << sm << " " << ic << " " << errors[j].shortDesc << std::endl;
+    }
+  }
+
+  f << "# Errors on Trigger Towers masks" << std::endl;
+  for( std::map<EcalLogicID, RunTTErrorsDat>::iterator i = EcalErrorMask::mapTTErrors_.begin();
+       i != EcalErrorMask::mapTTErrors_.end(); i++ ) {
+    string type = "TT";
+    int sm = ((i->first).getLogicID())/10000;
+    int it = ((i->first).getLogicID())%10000;
+    std::vector<EcalErrorDictionary::errorDef_t> errors;
+    EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
+    for( unsigned int j=0; j<errors.size(); j++ ) {
+      f << type << " " << sm << " " << it << " " << errors[j].shortDesc << std::endl;
+    }
+  }
+
+  f << "# Errors on PN masks" << std::endl;
+  for( std::map<EcalLogicID, RunPNErrorsDat>::iterator i = EcalErrorMask::mapPNErrors_.begin();
+       i != EcalErrorMask::mapPNErrors_.end(); i++ ) {
+    string type = "PN";
+    int sm = ((i->first).getLogicID())/10000;
+    int ic = ((i->first).getLogicID())%10000;
+    std::vector<EcalErrorDictionary::errorDef_t> errors;
+    EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
+    for( unsigned int j=0; j<errors.size(); j++ ) {
+      f << type << " " << sm << " " << ic << " " << errors[j].shortDesc << std::endl;
+    }
+  }
+
+  f << "# Errors on MemCh masks" << std::endl;
+  for( std::map<EcalLogicID, RunMemChErrorsDat>::iterator i = EcalErrorMask::mapMemChErrors_.begin();
+       i != EcalErrorMask::mapMemChErrors_.end(); i++ ) {
+    string type = "MemCh";
+    int sm = ((i->first).getLogicID())/10000;
+    int ic = ((i->first).getLogicID())%10000;
+    std::vector<EcalErrorDictionary::errorDef_t> errors;
+    EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
+    for( unsigned int j=0; j<errors.size(); j++ ) {
+      f << type << " " << sm << " " << ic << " " << errors[j].shortDesc << std::endl;
+    }
+  }
+
+  f << "# Errors on MemTT masks" << std::endl;
+  for( std::map<EcalLogicID, RunMemTTErrorsDat>::iterator i = EcalErrorMask::mapMemTTErrors_.begin();
+       i != EcalErrorMask::mapMemTTErrors_.end(); i++ ) {
+    string type = "Crystal ";
+    int sm = ((i->first).getLogicID())/10000;
+    int it = ((i->first).getLogicID())%10000;
+    std::vector<EcalErrorDictionary::errorDef_t> errors;
+    EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
+    for( unsigned int j=0; j<errors.size(); j++ ) {
+      f << type << " " << sm << " " << it << " " << errors[j].shortDesc << std::endl;
+    }
+  }
+
+  f.close();
 }
 
 void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( std::runtime_error ) {
