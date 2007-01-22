@@ -1,11 +1,11 @@
-// $Id: $
+// $Id: EcalErrorMask.cc,v 1.1 2007/01/22 10:24:07 benigno Exp $
 
 /*!
   \file EcalErrorMas.cc
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: $
-  \date $Date: $
+  \version $Revision: 1.1 $
+  \date $Date: 2007/01/22 10:24:07 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
@@ -253,6 +253,9 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 
   return;
 
+}
+
+void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error ) {
 }
 
 void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( std::runtime_error ) {
