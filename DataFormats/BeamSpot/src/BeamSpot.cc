@@ -7,11 +7,14 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpot.cc,v 1.1 2006/12/15 20:00:37 yumiceva Exp $
+ version $Id: BeamSpot.cc,v 1.1 2007/01/21 18:25:23 yumiceva Exp $
 
  ________________________________________________________________**/
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+#include <iostream>
+
 
 namespace reco {
 
@@ -38,4 +41,26 @@ namespace reco {
 
   }
 
+  void BeamSpot::print(std::stringstream& ss) const {
+
+    ss << "-----------------------------------------------------\n"
+       << "            Calculated Beam Spot\n\n"
+       << "   X0 = " << x0() << " +/- " << x0Error() << " [cm]\n"
+       << "   Y0 = " << y0() << " +/- " << y0Error() << " [cm]\n"
+       << "   Z0 = " << z0() << " +/- " << z0Error() << " [cm]\n"
+       << " Sigma Z0 = " << sigmaZ() << " +/- " << sigmaZ0Error() << " [cm]\n"
+       << " dxdz = " << dxdz() << " +/- " << dxdzError() << " [radians]\n"
+       << " dydz = " << dydz() << " +/- " << dydzError() << " [radians]\n"
+       << " Beam Width = " << BeamWidth() << " +/- " << BeamWidthError() << " [cm]\n"
+       << "-----------------------------------------------------\n\n";
+
+  }
+
+  //
+  std::ostream& operator<< ( std::ostream& os, BeamSpot beam ) {
+    std::stringstream ss;
+    beam.print(ss);
+    os << ss.str();
+    return os;
+  }
 }

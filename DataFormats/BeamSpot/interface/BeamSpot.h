@@ -7,15 +7,16 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BeamSpot.h,v 1.21 2006/09/19 17:13:31 llista Exp $
+ * \version $Id: BeamSpot.h,v 1.1 2007/01/21 18:25:22 yumiceva Exp $
  *
  */
 
 #include <Rtypes.h>
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Point3D.h"
-#include <iostream>
 #include <string>
+#include <sstream>
+
 
 namespace reco {
 
@@ -100,20 +101,7 @@ namespace reco {
     };
 
     /// print information
-	void Print(std::string message="") {
-	  
-	  std:: cout << "DataFormats/BeamSpot:" << std::endl;
-		std::cout << "---------------------------------------------------\n"
-				  << "     Beam Spot: " << message << " Fitter\n\n"
-				  << "   X0 = " << x0() << " +/- " << x0Error() << " [cm]\n"
-				  << "   Y0 = " << y0() << " +/- " << y0Error() << " [cm]\n"
-				  << "   Z0 = " << z0() << " +/- " << z0Error() << " [cm]\n"
-				  << " Sigma Z0 = " << sigmaZ() << " +/- " << sigmaZ0Error() << " [cm]\n" 
-				  << " dxdz = " << dxdz() << " +/- " << dxdzError() << " [radians]\n"
-				  << " dydz = " << dydz() << " +/- " << dydzError() << " [radians]\n"
-			          << " Beam Width = " << BeamWidth() << " +/- " << BeamWidthError() << " [cm]\n"
-				  << "---------------------------------------------------\n\n";
-	};
+    void print( std::stringstream& ss ) const;
 
   private:
 	/// position
@@ -128,7 +116,9 @@ namespace reco {
 	
 	
   };
-  
+  ///
+  std::ostream& operator<< ( std::ostream&, BeamSpot beam );
+
 }
 
 #endif
