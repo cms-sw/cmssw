@@ -110,6 +110,7 @@ class Process(object):
         self.__dict__['_Process__services'] = {}
         self.__dict__['_Process__essources'] = {}
         self.__dict__['_Process__esproducers'] = {}
+        self.__dict__['_Process__esprefers'] = {}
         self.__dict__['_Process__psets']={}
         self.__dict__['_Process__vpsets']={}
     def filters_(self):
@@ -169,6 +170,10 @@ class Process(object):
         """returns a the es_sources which have been added to the Process"""
         return FixedKeysDict(self.__essources)
     es_sources = property(es_sources_,doc="dictionary containing the es_sources for the process")
+    def es_prefers_(self):
+        """returns a dict of the es_prefers which have been added to the Process"""
+        return FixedKeysDict(self.__esprefers)
+    es_prefers = property(es_prefers_,doc="dictionary containing the es_prefers for the process")
     def psets_(self):
         """returns a dict of the PSets which have been added to the Process"""
         return FixedKeysDict(self.__psets)
@@ -226,6 +231,8 @@ class Process(object):
         self.__sequences[name]=mod
     def _placeESProducer(self,name,mod):
         self.__esproducers[name]=mod
+    def _placeESPrefer(self,name,mod):
+        self.__esprefers[name]=mod
     def _placeESSource(self,name,mod):
         self.__essources[name]=mod
     def _placePSet(self,name,mod):
@@ -701,6 +708,11 @@ class _ValidatingListBase(list):
         if not self._itemIsValid(x):
             raise TypeError("wrong type being inserted to this container")
         super(_ValidatingListBase,self).insert(i,x)
+
+class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
+    def __init__(self,*arg,**args):
+        _ParameterTypeBase.__init__(self)
+        super(_ValidatingParameterListBase,self).__init__(*arg,**args)
     def value(self):
         return list(self)
     def setValue(self,v):
@@ -722,11 +734,9 @@ class _ValidatingListBase(list):
     @staticmethod
     def _itemsFromStrings(strings,converter):
         return (converter(x).value() for x in strings)
-        
 
-class vint32(_ValidatingListBase,_ParameterTypeBase):
+class vint32(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
-        _ParameterTypeBase.__init__(self)
         super(vint32,self).__init__(*arg,**args)
         
     @staticmethod
@@ -734,66 +744,60 @@ class vint32(_ValidatingListBase,_ParameterTypeBase):
         return int32._isValid(item)
     @staticmethod
     def _valueFromString(value):
-        return vint32(*_ValidatingListBase._itemsFromStrings(value,int32._valueFromString))
+        return vint32(*_ValidatingParameterListBase._itemsFromStrings(value,int32._valueFromString))
 
-class vuint32(_ValidatingListBase,_ParameterTypeBase):
+class vuint32(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
-        _ParameterTypeBase.__init__(self)
         super(vuint32,self).__init__(*arg,**args)
     @staticmethod
     def _itemIsValid(item):
         return uint32._isValid(item)
     @staticmethod
     def _valueFromString(value):
-        return vuint32(*_ValidatingListBase._itemsFromStrings(value,uint32._valueFromString))
+        return vuint32(*_ValidatingParameterListBase._itemsFromStrings(value,uint32._valueFromString))
     
-class vint64(_ValidatingListBase,_ParameterTypeBase):
+class vint64(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
-        _ParameterTypeBase.__init__(self)
         super(vint64,self).__init__(*arg,**args)
     @staticmethod
     def _itemIsValid(item):
         return int64._isValid(item)
     @staticmethod
     def _valueFromString(value):
-        return vint64(*_ValidatingListBase._itemsFromStrings(value,int64._valueFromString))
+        return vint64(*_ValidatingParameterListBase._itemsFromStrings(value,int64._valueFromString))
 
-class vuint64(_ValidatingListBase,_ParameterTypeBase):
+class vuint64(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
-        _ParameterTypeBase.__init__(self)
         super(vuint64,self).__init__(*arg,**args)
     @staticmethod
     def _itemIsValid(item):
         return uint64._isValid(item)
     @staticmethod
     def _valueFromString(value):
-        return vuint64(*_ValidatingListBase._itemsFromStrings(value,vuint64._valueFromString))
+        return vuint64(*_ValidatingParameterListBase._itemsFromStrings(value,vuint64._valueFromString))
     
-class vdouble(_ValidatingListBase,_ParameterTypeBase):
+class vdouble(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
-        _ParameterTypeBase.__init__(self)
         super(vdouble,self).__init__(*arg,**args)
     @staticmethod
     def _itemIsValid(item):
         return double._isValid(item)
     @staticmethod
     def _valueFromString(value):
-        return vdouble(*_ValidatingListBase._itemsFromStrings(value,double._valueFromString))
+        return vdouble(*_ValidatingParameterListBase._itemsFromStrings(value,double._valueFromString))
 
-class vbool(_ValidatingListBase,_ParameterTypeBase):
+class vbool(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
-        _ParameterTypeBase.__init__(self)
         super(vbool,self).__init__(*arg,**args)
     @staticmethod
     def _itemIsValid(item):
         return bool._isValid(item)
     @staticmethod
     def _valueFromString(value):
-        return vbool(*_ValidatingListBase._itemsFromStrings(value,bool._valueFromString))
+        return vbool(*_ValidatingParameterListBase._itemsFromStrings(value,bool._valueFromString))
 
-class vstring(_ValidatingListBase,_ParameterTypeBase):
+class vstring(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
-        _ParameterTypeBase.__init__(self)
         super(vstring,self).__init__(*arg,**args)
     @staticmethod
     def _itemIsValid(item):
@@ -802,11 +806,10 @@ class vstring(_ValidatingListBase,_ParameterTypeBase):
         return string.formatValueForConfig(item)
     @staticmethod
     def _valueFromString(value):
-        return vstring(*_ValidatingListBase._itemsFromStrings(value,string._valueFromString))
+        return vstring(*_ValidatingParameterListBase._itemsFromStrings(value,string._valueFromString))
 
-class VInputTag(_ValidatingListBase,_ParameterTypeBase):
+class VInputTag(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
-        _ParameterTypeBase.__init__(self)
         super(VInputTag,self).__init__(*arg,**args)
     @staticmethod
     def _itemIsValid(item):
@@ -815,11 +818,10 @@ class VInputTag(_ValidatingListBase,_ParameterTypeBase):
         return InputTag.formatValueForConfig(item)
     @staticmethod
     def _valueFromString(value):
-        return VInputTag(*_ValidatingListBase._itemsFromStrings(value,InputTag._valueFromString))
+        return VInputTag(*_ValidatingParameterListBase._itemsFromStrings(value,InputTag._valueFromString))
 
-class VPSet(_ValidatingListBase,_ParameterTypeBase,_ConfigureComponent,_Labelable):
+class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
     def __init__(self,*arg,**args):
-        _ParameterTypeBase.__init__(self)
         super(VPSet,self).__init__(*arg,**args)
     @staticmethod
     def _itemIsValid(item):
@@ -865,6 +867,14 @@ class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelab
         if name == '':
             name=self.type_()
         proc._placeESProducer(name,self)
+
+class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
+    def __init__(self,type,*arg,**kargs):
+        super(ESPrefer,self).__init__(type,*arg,**kargs)
+    def _placeImpl(self,name,proc):
+        if name == '':
+            name=self.type_()
+        proc._placeESPrefer(name,self)
 
 class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable):
     """base class for classes which denote framework event based 'modules'"""
@@ -999,7 +1009,14 @@ class Sequence(_ModuleSequenceType,_Sequenceable):
         super(Sequence,self).__init__(first)
     def _placeImpl(self,name,proc):
         proc._placeSequence(name,self)
-        
+
+class Schedule(_ValidatingListBase,_ConfigureComponent,_Unlabelable):
+    def __init__(self,*arg,**argv):
+        super(Schedule,self).__init__(*arg,**argv)
+    @staticmethod
+    def _itemIsValid(item):
+        return isinstance(item,Path) or isinstance(item,EndPath)
+
 if __name__=="__main__":
     import unittest
     class TestModuleCommand(unittest.TestCase):
@@ -1157,6 +1174,16 @@ if __name__=="__main__":
             self.assertEqual(str(path),'(a+(b*c))')
             path = Path(p.a*(p.b+p.c))
             self.assertEqual(str(path),'(a*(b+c))')
+        def testSchedule(self):
+            p = Process("test")
+            p.a = EDAnalyzer("MyAnalyzer")
+            p.b = EDAnalyzer("YourAnalyzer")
+            p.c = EDAnalyzer("OurAnalyzer")
+            path1 = Path(p.a)
+            path2 = Path(p.b)
+            s = Schedule(path1,path2)
+            self.assertEqual(s[0],path1)
+            self.assertEqual(s[1],path2)
         def testExamples(self):
             p = Process("Test")
             p.source = Source("PoolSource",fileNames = untracked(string("file:reco.root")))
