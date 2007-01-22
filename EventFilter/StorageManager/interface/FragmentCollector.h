@@ -48,9 +48,9 @@ namespace stor
 
     //FragmentCollector(const HLTInfo& h, Deleter d,
     FragmentCollector(HLTInfo& h, Deleter d,
-                      const string& config_str="");
+                      const std::string& config_str="");
     FragmentCollector(std::auto_ptr<HLTInfo>, Deleter d,
-                      const string& config_str="");
+                      const std::string& config_str="");
     ~FragmentCollector();
 
     void start();
