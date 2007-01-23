@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/22 10:24:07 $
- * $Revision: 1.112 $
+ * $Date: 2007/01/23 12:36:23 $
+ * $Revision: 1.113 $
  * \author G. Della Ricca
  *
 */
@@ -1389,8 +1389,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_bl.setPedMeanG16(mean13);
       pn_bl.setPedRMSG16(rms13);
 
-      bool val;
-
       if ( mean01 > 200. && mean05 > 200. && mean09 > 200. && mean13 > 200. ) {
         pn_bl.setTaskStatus(true);
       } else {
@@ -1433,8 +1431,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
       pn_ir.setPedMeanG16(mean14);
       pn_ir.setPedRMSG16(rms14);
-
-      bool val;
 
       if ( mean02 > 200. && mean06 > 200. && mean10 > 200. && mean14 > 200. ) {
         pn_ir.setTaskStatus(true);
@@ -1479,8 +1475,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_gr.setPedMeanG16(mean15);
       pn_gr.setPedRMSG16(rms15);
 
-      bool val;
-
       if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
         pn_gr.setTaskStatus(true);
       } else {
@@ -1523,8 +1517,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
       pn_rd.setPedMeanG16(mean16);
       pn_rd.setPedRMSG16(rms16);
-
-      bool val;
 
       if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
         pn_rd.setTaskStatus(true);
