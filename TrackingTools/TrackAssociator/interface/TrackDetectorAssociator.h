@@ -16,7 +16,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.h,v 1.7 2007/01/22 08:24:51 dmytro Exp $
+// $Id: TrackDetectorAssociator.h,v 1.1 2007/01/22 08:56:26 dmytro Exp $
 //
 //
 
@@ -155,6 +155,14 @@ class TrackDetectorAssociator {
    FreeTrajectoryState getFreeTrajectoryState( const edm::EventSetup&, 
 					       const SimTrack&, 
 					       const SimVertex& );
+   /// Labels of the detector EDProducts 
+   edm::InputTag theEBRecHitCollectionLabel;
+   edm::InputTag theEERecHitCollectionLabel;
+   edm::InputTag theCaloTowerCollectionLabel;
+   edm::InputTag theHBHERecHitCollectionLabel;
+   edm::InputTag theHORecHitCollectionLabel;
+   edm::InputTag theDTRecSegment4DCollectionLabel;
+   edm::InputTag theCSCSegmentCollectionLabel;
    
  private:
    void       fillEcal( const edm::Event&,
@@ -233,14 +241,5 @@ class TrackDetectorAssociator {
    
    edm::ESHandle<CaloGeometry> theCaloGeometry_;
    edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry_;
-   
-   /// Labels of the detector EDProducts (empty by default)
-   std::vector<std::string> EBRecHitCollectionLabels;
-   std::vector<std::string> EERecHitCollectionLabels;
-   std::vector<std::string> CaloTowerCollectionLabels;
-   std::vector<std::string> HBHERecHitCollectionLabels;
-   std::vector<std::string> HORecHitCollectionLabels;
-   std::vector<std::string> DTRecSegment4DCollectionLabels;
-   std::vector<std::string> CSCSegmentCollectionLabels;
 };
 #endif

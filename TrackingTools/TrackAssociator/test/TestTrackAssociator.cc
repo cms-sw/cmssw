@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TestTrackAssociator.cc,v 1.6 2007/01/22 08:27:57 dmytro Exp $
+// $Id: TestTrackAssociator.cc,v 1.7 2007/01/22 08:56:27 dmytro Exp $
 //
 //
 
@@ -109,25 +109,14 @@ TestTrackAssociator::TestTrackAssociator(const edm::ParameterSet& iConfig)
    useOldMuonMatching_ = iConfig.getParameter<bool>("useOldMuonMatching");
    
    // Fill data labels
-   std::vector<std::string> labels = iConfig.getParameter<std::vector<std::string> >("labels");
-   boost::regex regExp1 ("([^\\s,]+)[\\s,]+([^\\s,]+)$");
-   boost::regex regExp2 ("([^\\s,]+)[\\s,]+([^\\s,]+)[\\s,]+([^\\s,]+)$");
-   boost::smatch matches;
-	
+   trackAssociator_.theEBRecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
+   trackAssociator_.theEERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EERecHitCollectionLabel");
+   trackAssociator_.theCaloTowerCollectionLabel = iConfig.getParameter<edm::InputTag>("CaloTowerCollectionLabel");
+   trackAssociator_.theHBHERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HBHERecHitCollectionLabel");
+   trackAssociator_.theHORecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
+   trackAssociator_.theDTRecSegment4DCollectionLabel = iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel");
+   trackAssociator_.theCSCSegmentCollectionLabel = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
 
-   for(std::vector<std::string>::const_iterator label = labels.begin(); label != labels.end(); label++) {
-      if (boost::regex_match(*label,matches,regExp1))
-	trackAssociator_.addDataLabels(matches[1],matches[2]);
-      else if (boost::regex_match(*label,matches,regExp2))
-	trackAssociator_.addDataLabels(matches[1],matches[2],matches[3]);
-      else
-	edm::LogError("ConfigurationError") << "Failed to parse label:\n" << *label << "Skipped.\n";
-   }
-   
-   // trackAssociator_.addDataLabels("EBRecHitCollection","ecalrechit","EcalRecHitsEB");
-   // trackAssociator_.addDataLabels("CaloTowerCollection","towermaker");
-   // trackAssociator_.addDataLabels("DTRecSegment4DCollection","recseg4dbuilder");
-   
    trackAssociator_.useDefaultPropagator();
 }
 

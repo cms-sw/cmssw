@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.17 2007/01/22 08:24:50 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.1 2007/01/22 08:56:26 dmytro Exp $
 //
 //
 
@@ -94,55 +94,6 @@ TrackDetectorAssociator::~TrackDetectorAssociator()
 {
    if (defProp_) delete defProp_;
 }
-
-void TrackDetectorAssociator::addDataLabels( const std::string className,
-				     const std::string moduleLabel,
-				     const std::string productInstanceLabel)
-{
-   if (className == "EBRecHitCollection")
-     {
-	EBRecHitCollectionLabels.clear();
-	EBRecHitCollectionLabels.push_back(moduleLabel);
-	EBRecHitCollectionLabels.push_back(productInstanceLabel);
-     }
-   if (className == "EERecHitCollection")
-     {
-	EERecHitCollectionLabels.clear();
-	EERecHitCollectionLabels.push_back(moduleLabel);
-	EERecHitCollectionLabels.push_back(productInstanceLabel);
-     }
-   if (className == "HBHERecHitCollection")
-     {
-	HBHERecHitCollectionLabels.clear();
-	HBHERecHitCollectionLabels.push_back(moduleLabel);
-	HBHERecHitCollectionLabels.push_back(productInstanceLabel);
-     }
-   if (className == "HORecHitCollection")
-     {
-	HORecHitCollectionLabels.clear();
-	HORecHitCollectionLabels.push_back(moduleLabel);
-	HORecHitCollectionLabels.push_back(productInstanceLabel);
-     }
-   if (className == "CaloTowerCollection")
-     {
-	CaloTowerCollectionLabels.clear();
-	CaloTowerCollectionLabels.push_back(moduleLabel);
-	CaloTowerCollectionLabels.push_back(productInstanceLabel);
-     }
-   if (className == "DTRecSegment4DCollection")
-     {
-	DTRecSegment4DCollectionLabels.clear();
-	DTRecSegment4DCollectionLabels.push_back(moduleLabel);
-	DTRecSegment4DCollectionLabels.push_back(productInstanceLabel);
-     }
-   if (className == "CSCSegmentCollection")
-     {
-	CSCSegmentCollectionLabels.clear();
-	CSCSegmentCollectionLabels.push_back(moduleLabel);
-	CSCSegmentCollectionLabels.push_back(productInstanceLabel);
-     }
-}
-
 
 void TrackDetectorAssociator::setPropagator( Propagator* ptr)
 {
@@ -255,18 +206,12 @@ void TrackDetectorAssociator::fillEcal( const edm::Event& iEvent,
    // Find ECAL crystals
    timers.pop_and_push("TrackDetectorAssociator::fillEcal::access::EcalBarrel");
    edm::Handle<EBRecHitCollection> EBRecHits;
-   if (EBRecHitCollectionLabels.empty())
-     throw cms::Exception("FatalError") << "Module lable is not set for EBRecHitCollection.\n";
-   else
-     iEvent.getByLabel (EBRecHitCollectionLabels[0], EBRecHitCollectionLabels[1], EBRecHits);
-   if (!EBRecHits.isValid()) throw cms::Exception("FatalError") << "Unable to find EBRecHitCollection in event!\n";
+   iEvent.getByLabel (theEBRecHitCollectionLabel, EBRecHits);
+   if (!EBRecHits.isValid()) throw cms::Exception("FatalError") << "Unable to find EBRecHitCollection in the event!\n";
 
    timers.pop_and_push("TrackDetectorAssociator::fillEcal::access::EcalEndcaps");
    edm::Handle<EERecHitCollection> EERecHits;
-   if (EERecHitCollectionLabels.empty())
-     throw cms::Exception("FatalError") << "Module lable is not set for EERecHitCollection.\n";
-   else
-     iEvent.getByLabel (EERecHitCollectionLabels[0], EERecHitCollectionLabels[1], EERecHits);
+   iEvent.getByLabel (theEERecHitCollectionLabel, EERecHits);
    if (!EERecHits.isValid()) throw cms::Exception("FatalError") << "Unable to find EERecHitCollection in event!\n";
 
    timers.pop_and_push("TrackDetectorAssociator::fillEcal::matching");
@@ -329,11 +274,7 @@ void TrackDetectorAssociator::fillCaloTowers( const edm::Event& iEvent,
    timers.pop_and_push("TrackDetectorAssociator::fillCaloTowers::access::CaloTowers");
    edm::Handle<CaloTowerCollection> caloTowers;
 
-   if (CaloTowerCollectionLabels.empty())
-     // iEvent_->getByType (caloTowers);
-     throw cms::Exception("FatalError") << "Module lable is not set for CaloTowers.\n";
-   else
-     iEvent.getByLabel (CaloTowerCollectionLabels[0], CaloTowerCollectionLabels[1], caloTowers);
+   iEvent.getByLabel (theCaloTowerCollectionLabel, caloTowers);
    if (!caloTowers.isValid())  throw cms::Exception("FatalError") << "Unable to find CaloTowers in event!\n";
    
    timers.push("TrackDetectorAssociator::fillCaloTowers::matching");
@@ -391,10 +332,7 @@ void TrackDetectorAssociator::fillHcal( const edm::Event& iEvent,
    timers.pop_and_push("TrackDetectorAssociator::fillHcal::access::Hcal");
    edm::Handle<HBHERecHitCollection> collection;
 
-   if (HBHERecHitCollectionLabels.empty())
-     throw cms::Exception("FatalError") << "Module lable is not set for HBHERecHitCollection.\n";
-   else
-     iEvent.getByLabel (HBHERecHitCollectionLabels[0], HBHERecHitCollectionLabels[1], collection);
+   iEvent.getByLabel (theHBHERecHitCollectionLabel, collection);
    if ( ! collection.isValid() ) throw cms::Exception("FatalError") << "Unable to find HBHERecHits in event!\n";
    
    timers.push("TrackDetectorAssociator::fillHcal::matching");
@@ -451,10 +389,7 @@ void TrackDetectorAssociator::fillHO( const edm::Event& iEvent,
    timers.pop_and_push("TrackDetectorAssociator::fillHO::access::HO");
    edm::Handle<HORecHitCollection> collection;
 
-   if (HORecHitCollectionLabels.empty())
-     throw cms::Exception("FatalError") << "Module lable is not set for HORecHitCollection.\n";
-   else
-     iEvent.getByLabel (HORecHitCollectionLabels[0], HORecHitCollectionLabels[1], collection);
+   iEvent.getByLabel (theHORecHitCollectionLabel, collection);
    if ( ! collection.isValid() ) throw cms::Exception("FatalError") << "Unable to find HORecHits in event!\n";
    
    timers.push("TrackDetectorAssociator::fillHO::matching");
@@ -505,11 +440,7 @@ void TrackDetectorAssociator::fillDTSegments( const edm::Event& iEvent,
    // Get the rechit collection from the event
    timers.push("TrackDetectorAssociator::fillDTSegments::access");
    Handle<DTRecSegment4DCollection> dtSegments;
-   if (DTRecSegment4DCollectionLabels.empty())
-      // iEvent_->getByType (dtSegments);
-      throw cms::Exception("FatalError") << "Module lable is not set for DTRecSegment4DCollection.\n";
-   else
-      iEvent.getByLabel (DTRecSegment4DCollectionLabels[0], DTRecSegment4DCollectionLabels[1], dtSegments);
+   iEvent.getByLabel (theDTRecSegment4DCollectionLabel, dtSegments);
    if (! dtSegments.isValid()) 
       throw cms::Exception("FatalError") << "Unable to find DTRecSegment4DCollection in event!\n";
 
@@ -566,11 +497,7 @@ void TrackDetectorAssociator::fillCSCSegments( const edm::Event& iEvent,
    // Get the rechit collection from the event
    timers.push("TrackDetectorAssociator::fillCSCSegments::access");
    Handle<CSCSegmentCollection> cscSegments;
-   if (CSCSegmentCollectionLabels.empty())
-      // iEvent_->getByType (cscSegments);
-      throw cms::Exception("FatalError") << "Module lable is not set for CSCSegmentCollection.\n";
-   else
-      iEvent.getByLabel (CSCSegmentCollectionLabels[0], CSCSegmentCollectionLabels[1], cscSegments);
+   iEvent.getByLabel (theCSCSegmentCollectionLabel, cscSegments);
    if (! cscSegments.isValid()) 
       throw cms::Exception("FatalError") << "Unable to find CSCSegmentCollection in event!\n";
 
@@ -733,18 +660,12 @@ void TrackDetectorAssociator::fillMuonSegments( const edm::Event& iEvent,
    // Get the segments from the event
    timers.push("TrackDetectorAssociator::fillMuonSegments::access");
    edm::Handle<DTRecSegment4DCollection> dtSegments;
-   if (DTRecSegment4DCollectionLabels.empty())
-     throw cms::Exception("FatalError") << "Module lable is not set for DTRecSegment4DCollection.\n";
-   else
-     iEvent.getByLabel (DTRecSegment4DCollectionLabels[0], DTRecSegment4DCollectionLabels[1], dtSegments);
+   iEvent.getByLabel (theDTRecSegment4DCollectionLabel, dtSegments);
    if (! dtSegments.isValid()) 
      throw cms::Exception("FatalError") << "Unable to find DTRecSegment4DCollection in event!\n";
    
    edm::Handle<CSCSegmentCollection> cscSegments;
-   if (CSCSegmentCollectionLabels.empty())
-     throw cms::Exception("FatalError") << "Module lable is not set for CSCSegmentCollection.\n";
-   else
-     iEvent.getByLabel (CSCSegmentCollectionLabels[0], CSCSegmentCollectionLabels[1], cscSegments);
+   iEvent.getByLabel (theCSCSegmentCollectionLabel, cscSegments);
    if (! cscSegments.isValid()) 
      throw cms::Exception("FatalError") << "Unable to find CSCSegmentCollection in event!\n";
 
