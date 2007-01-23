@@ -101,6 +101,8 @@ MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,std::vector<int> rings, in
 					   vector<int>& rolls,
 					   const RPCGeometry& geo) {
 
+  const std::string metname = "Muon|RPC|RecoMuon|RecoMuonDetLayers|MuonRPCDetLayerGeometryBuilder";
+
   MuRingForwardLayer* result=0;
 
   vector<const ForwardDetRing*> muDetRings;
@@ -115,10 +117,10 @@ MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,std::vector<int> rings, in
 	  if (geomDet) {
 	    
 	    geomDets.push_back(geomDet);
-	    LogTrace("Muon|RPC|RecoMuon|RecoMuonDetLayers") << "get RPC chamber "
-						   <<  RPCDetId(endcap,*ring, station,sector,layer,subsector, (*roll))
-						   << " at R=" << geomDet->position().perp()
-						   << ", phi=" << geomDet->position().phi();
+	    LogTrace(metname) << "get RPC chamber "
+			      <<  RPCDetId(endcap,*ring, station,sector,layer,subsector, (*roll))
+			      << " at R=" << geomDet->position().perp()
+			      << ", phi=" << geomDet->position().phi();
 	    
 	  }
 	}
@@ -126,27 +128,26 @@ MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,std::vector<int> rings, in
       if (geomDets.size()!=0) {
 	precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetPhi());
 	muDetRings.push_back(new MuDetRing(geomDets));
-	LogTrace("Muon|RPC|RecoMuon|RecoMuonDetLayers") << "New ring with " << geomDets.size()
-					       << " chambers at z="<< muDetRings.back()->position().z();
+	LogTrace(metname) << "New ring with " << geomDets.size()
+			  << " chambers at z="<< muDetRings.back()->position().z();
       }
     }
   }
   
-  //std::cout <<"Number of Det Rings "<<muDetRings.size()<<std::endl;
-  
   if (muDetRings.size()!=0) {
     result = new MuRingForwardLayer(muDetRings);  
-    LogTrace("Muon|RPC|RecoMuon|RecoMuonDetLayers") << "New layer with " << muDetRings.size() 
-                                           << " rolls, at Z " << result->position().z();
+    LogTrace(metname) << "New layer with " << muDetRings.size() 
+		      << " rolls, at Z " << result->position().z();
   }
-
+  
   return result;
 }
 
 
 vector<DetLayer*> 
 MuonRPCDetLayerGeometryBuilder::buildBarrelLayers(const RPCGeometry& geo) {
-        
+  const std::string metname = "Muon|RPC|RecoMuon|RecoMuonDetLayers|MuonRPCDetLayerGeometryBuilder";
+
   vector<DetLayer*> detlayers;
   vector<MuRodBarrelLayer*> result;
   int region =0;
@@ -157,82 +158,94 @@ MuonRPCDetLayerGeometryBuilder::buildBarrelLayers(const RPCGeometry& geo) {
       vector<const DetRod*> muDetRods;
       for(int sector = RPCDetId::minSectorId; sector <= RPCDetId::maxSectorId; sector++) {
 	vector<const GeomDet*> geomDets;
+	int nSubSectors = 0;
+	int lastSubSector = -1; 
 	for(int subsector = RPCDetId::minSubSectorId; subsector <= RPCDetId::maxSubSectorId; subsector++) {
 	  for(int wheel = RPCDetId::minRingBarrelId; wheel <= RPCDetId::maxRingBarrelId; wheel++) {
 	    for(int roll=RPCDetId::minRollId+1; roll <= RPCDetId::maxRollId; roll++){         
 	      const GeomDet* geomDet = geo.idToDet(RPCDetId(region,wheel,station,sector,layer,subsector,roll));
 	      if (geomDet) {
+		if (lastSubSector!=subsector) {
+		  lastSubSector=subsector;
+		  nSubSectors++;
+		}
 		geomDets.push_back(geomDet);
-		LogTrace("Muon|RPC|RecoMuon|RecoMuonDetLayers") << "get RPC roll " <<  RPCDetId(region,wheel,station,sector,layer,subsector,roll)
-						       << " at R=" << geomDet->position().perp()
-						       << ", phi=" << geomDet->position().phi() ;
+		LogTrace(metname) << "get RPC roll " <<  RPCDetId(region,wheel,station,sector,layer,subsector,roll)
+				  << " at R=" << geomDet->position().perp()
+				  << ", phi=" << geomDet->position().phi() ;
 	      }
 	    }
 	  }
 	}
-
+	
 	// ------>
 	//FIXME: find subsectors. As for 130, DetId number for subsectors is inconsistent.
-
-	//Sort in phi
-	precomputed_value_sort(geomDets.begin(), geomDets.end(),geomsort::DetPhi());
-
-	// Clusterize in phi - phi0
-
-	const Geom::Phi<float> resolution(0.01); // rad
-	Geom::Phi<float> phi0 = geomDets.front()->position().phi();
-	float phiMin = - float(resolution);
-	float phiMax = geomDets.back()->position().phi() - phi0 + float(resolution);
 	
+	if (geomDets.size()==0) continue;
 
-	ClusterizingHistogram hisPhi( int((phiMax-phiMin)/resolution) + 1,
-				      phiMin, phiMax);
+	if (nSubSectors == 1) {
+	  muDetRods.push_back(new MuDetRod(geomDets));
+	  LogTrace(metname) << "  New MuDetRod with " << geomDets.size()
+			    << " rolls at R=" << geomDets.front()->position().perp()
+			    << ", phi=" << geomDets.front()->position().phi();
+	} else {
+	  //Sort in phi
+	  precomputed_value_sort(geomDets.begin(), geomDets.end(),geomsort::DetPhi());
+	  
+	  // Clusterize in phi - phi0
+	  float resolution(0.01); // rad
+	  float phi0 = float(geomDets.front()->position().phi());
+	  float phiMin = - float(resolution);
+	  float phiMax = float(geomDets.back()->position().phi()) - phi0 + resolution;
+
+	  ClusterizingHistogram hisPhi( int((phiMax-phiMin)/resolution) + 1,
+					phiMin, phiMax);
+
+	  vector<const GeomDet*>::iterator first = geomDets.begin();
+	  vector<const GeomDet*>::iterator last = geomDets.end();
+
+	  for (vector<const GeomDet*>::iterator i=first; i!=last; i++){
+	    hisPhi.fill(float((*i)->position().phi())-phi0);
+	    LogTrace(metname) << "C " << float((*i)->position().phi())-phi0;
+	  }
+	  vector<float> phiClust = hisPhi.clusterize(resolution);
+
+	  // LogTrace(metname) << "     Found " << phiClust.size() << " clusters in Phi, ";
 	
-	vector<const GeomDet*>::iterator first = geomDets.begin();
-	vector<const GeomDet*>::iterator last = geomDets.end();
-
-	for (vector<const GeomDet*>::iterator i=first; i!=last; i++){
-	  hisPhi.fill((*i)->position().phi()-phi0);
-	}
-	vector<float> phiClust = hisPhi.clusterize(resolution);
-
-	LogTrace("Muon|RPC|RecoMuon|RecoMuonDetLayers") << "     Found " << phiClust.size() << " clusters in Phi, ";
-	
-	vector<const GeomDet*>::iterator rodStart = first;
-	vector<const GeomDet*>::iterator separ = first;
+	  vector<const GeomDet*>::iterator rodStart = first;
+	  vector<const GeomDet*>::iterator separ = first;
     
-	for (unsigned int i=0; i<phiClust.size(); i++) {
-	  float phiSepar;
-	  if (i<phiClust.size()-1) {
-	    phiSepar = (phiClust[i] + phiClust[i+1])/2.f;
-	  } else {
-	    phiSepar = phiMax;
-	  }
+	  for (unsigned int i=0; i<phiClust.size(); i++) {
+	    float phiSepar;
+	    if (i<phiClust.size()-1) {
+	      phiSepar = (phiClust[i] + phiClust[i+1])/2.f;
+	    } else {
+	      phiSepar = phiMax;
+	    }
 
-	  LogTrace("Muon|RPC|RecoMuon|RecoMuonDetLayers") << "       cluster " << i
-						 << " phisepar " << phiSepar <<endl;
-	  while (separ < last && (*separ)->position().phi()-phi0 < phiSepar ) {
-	    LogTrace("Muon|RPC|RecoMuon|RecoMuonDetLayers") << "         roll at dphi:  " 
-						   << (*separ)->position().phi()-phi0;
-	    separ++;
-	  }
+	    // LogTrace(metname) << "       cluster " << i
+	    // << " phisepar " << phiSepar <<endl;
+	    while (separ < last && float((*separ)->position().phi())-phi0 < phiSepar ) {
+	      // LogTrace(metname) << "         roll at dphi:  " << float((*separ)->position().phi())-phi0;
+	      separ++;
+	    }
 
-	  if (int(separ-rodStart) > 0) {
-	    muDetRods.push_back(new MuDetRod(rodStart,separ));
-	    LogTrace("Muon|RPC|RecoMuon|RecoMuonDetLayers") << "  New MuDetRod with " << int(separ-rodStart)
-						   << " rolls at R=" << (*rodStart)->position().perp()
-						   << ", phi=" << (*rodStart)->position().phi();
+	    if (int(separ-rodStart) > 0) {
+	      muDetRods.push_back(new MuDetRod(rodStart,separ));
+	      LogTrace(metname) << "  New MuDetRod with " << int(separ-rodStart)
+				<< " rolls at R=" << (*rodStart)->position().perp()
+				<< ", phi=" << float((*rodStart)->position().phi());
+	    }
+	    rodStart = separ; 
 	  }
-	  rodStart = separ; 
 	}
-
 	/// <------------
 
       }
       if (muDetRods.size()!=0) {
 	result.push_back(new MuRodBarrelLayer(muDetRods));  
-	LogTrace("Muon|RPC|RecoMuon|RecoMuonDetLayers") << "    New MuRodBarrelLayer with " << muDetRods.size()
-					       << " rods, at R " << result.back()->specificSurface().radius();
+	LogTrace(metname) << "    New MuRodBarrelLayer with " << muDetRods.size()
+			  << " rods, at R " << result.back()->specificSurface().radius();
       }
     }
   }
