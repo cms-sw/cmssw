@@ -125,6 +125,7 @@ void printCanvasesPS(TString name){
   TCanvas *c;
   while( (c = (TCanvas *)iter()) )
     {
+      c->cd();
       cout << "Printing " << c->GetName() << endl;
       ps->NewPage();
       c->Draw();
@@ -149,6 +150,7 @@ void printCanvases(TString type="eps"){
   TIter iter(gROOT->GetListOfCanvases());
   TCanvas *c;
   while( (c = (TCanvas *)iter()) ) {
+    c->cd();
     c->Print(0,type);
   }
 }
