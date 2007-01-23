@@ -7,9 +7,9 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.8 $
-///  last update: $Date: 2006/11/07 10:33:46 $
-///  by         : $Author: flucke $
+///  Revision   : $Revision: 1.9 $
+///  last update: $Date: 2007/01/12 18:05:55 $
+///  by         : $Author: fronga $
 
 #include <vector>
 
@@ -26,6 +26,7 @@
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterBuilder.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
@@ -46,11 +47,12 @@ class AlignmentProducer : public edm::ESProducerLooper
   /// Destructor
   ~AlignmentProducer();
 
-  // Define return type
-  typedef boost::shared_ptr<TrackerGeometry> ReturnType;
-
-  /// Produce the geometry
-  virtual ReturnType produce( const TrackerDigiGeometryRecord& iRecord );
+  /// Produce the tracker geometry
+  virtual boost::shared_ptr<TrackerGeometry> produceTracker( const TrackerDigiGeometryRecord& iRecord );
+  /// Produce the muon DT geometry
+  virtual boost::shared_ptr<DTGeometry>      produceDT( const MuonGeometryRecord& iRecord );
+  /// Produce the muon CSC geometry
+  virtual boost::shared_ptr<CSCGeometry>     produceCSC( const MuonGeometryRecord& iRecord );
 
   /// Called at beginning of job
   virtual void beginOfJob(const edm::EventSetup&);
@@ -72,21 +74,30 @@ class AlignmentProducer : public edm::ESProducerLooper
   // private member functions
 
   /// Apply random shifts and rotations to selected alignables, according to configuration
-  void simpleMisalignment(const Alignables &alivec, const std::string &selection,
+  void simpleMisalignment_(const Alignables &alivec, const std::string &selection,
                           float shift, float rot, bool local);
 
+  /// Create tracker and muon geometries
+  void createGeometries_( const edm::EventSetup& );
+
   /// Check if a trajectory and a track match
-  const bool trajTrackMatch( const ConstTrajTrackPair& pair ) const;
+  const bool trajTrackMatch_( const ConstTrajTrackPair& pair ) const;
 
   // private data members
 
   AlignmentAlgorithmBase* theAlignmentAlgo;
   AlignmentParameterBuilder* theAlignmentParameterBuilder;
   AlignmentParameterStore* theAlignmentParameterStore;
-  AlignableTracker* theAlignableTracker;
 
-  ReturnType theTracker;
-  int nevent;
+  AlignableTracker* theAlignableTracker;
+  AlignableMuon* theAlignableMuon;
+  edm::ESHandle<GeometricDet> theGeometricDet; // Needed for AlignableTracker 
+
+  boost::shared_ptr<TrackerGeometry> theTracker;
+  boost::shared_ptr<DTGeometry> theMuonDT;
+  boost::shared_ptr<CSCGeometry> theMuonCSC;
+
+  int nevent_;
 
   edm::ParameterSet theParameterSet;
 
@@ -94,9 +105,10 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   unsigned int theMaxLoops;     // Number of loops to loop
 
-  int stNFixAlignables;
-  double stRandomShift,stRandomRotation;
-  bool applyDbAlignment_,doMisalignmentScenario,saveToDB;
+  int stNFixAlignables_;
+  double stRandomShift_,stRandomRotation_;
+  bool applyDbAlignment_,doMisalignmentScenario_,saveToDB_;
+  bool doTracker_,doMuon_;
 
 };
 
