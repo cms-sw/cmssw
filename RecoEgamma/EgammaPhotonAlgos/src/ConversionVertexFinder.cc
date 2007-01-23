@@ -17,44 +17,93 @@
 
 
 
-ConversionVertexFinder::ConversionVertexFinder( ){ 
 
-  std::cout << "ConversionVertexFinder CTOR  " <<  std::endl;  
+ConversionVertexFinder::ConversionVertexFinder( ){ 
+  
+  LogDebug("ConversionVertexFinder") << "ConversionVertexFinder CTOR  " <<  "\n";  
 
 }
 
 ConversionVertexFinder::~ConversionVertexFinder() {
 
-  std::cout << "ConversionVertexFinder DTOR " <<  std::endl;  
+  LogDebug("ConversionVertexFinder") << "ConversionVertexFinder DTOR " <<  "\n";  
     
 }
 
- reco::Vertex*  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair) {
-  std::cout << "ConversionVertexFinder run pair size " << pair.size() <<  std::endl;  
-
+// reco::Vertex*  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair) {
+CachingVertex  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair) {
+  LogDebug("ConversionVertexFinder") << "ConversionVertexFinder run pair size " << pair.size() <<  "\n";  
+  
   for ( std::vector<reco::TransientTrack>::const_iterator iTk=pair.begin(); iTk!=pair.end(); ++iTk) {
-    std::cout << "  ConversionVertexFinder  Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << std::endl;  
+    LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder  Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
   }
+  
+  
+  /*
+    TransientVertex* theVertex;
+    try {
+    
+    KalmanVertexFitter myFitter(true);
+    CachingVertex* cv;
 
-  /*  
+    cv = new CachingVertex ( myFitter.vertex( pair)  );
+
+    
+    
+    theVertex= new TransientVertex ( *cv ) ;
+
+    
+    
+    } catch (std::exception & err) {
+    
+    LogDebug("ConversionVertexFinder")  << " ConversionVertexFinder Exception during event number: " << "\n";
+    
+    }
+    
+    
+    
+  if ( theVertex->isValid() ) {
+  LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder VALID " << "\n";
+  } else {
+  LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder NOT VALID " << "\n";
+  }
+  
+  if ( theVertex->isValid() ) {
+  LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder vertex position " << theVertex->position() << "\n";
+  return theVertex;
+  
+  } else {
+  
+  
+  return 0;
+  }
+  
+  */
+  
+  
+  
   
   KalmanVertexFitter fitter;
-  TransientVertex theVertex = fitter.vertex(pair); 
+  LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder ciao 1 " << "\n";
+  CachingVertex theVertex = fitter.vertex(pair); 
+  //  TransientVertex  theVertex = fitter.vertex(pair); 
+  LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder ciao 2 " << "\n";
+  
   if ( theVertex.isValid() ) {
-    std::cout << "  ConversionVertexFinder VALID " << std::endl;
-  }
-
-  if ( theVertex.isValid() ) {
-    std::cout << "  ConversionVertexFinder vertex position " << theVertex.position() << std::endl;
-    return &theVertex;
-
+    LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder VALID " << "\n";
   } else {
-     
-    return &theVertex;
+    LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder NOT VALID " << "\n";
   }
-
-  */
-
-
- }
+  
+  if ( theVertex.isValid() ) {
+    LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder vertex position " << theVertex.position() << "\n";
+    return theVertex;
+    
+  }
+  
+  
+  
+  
+  
+}
 
