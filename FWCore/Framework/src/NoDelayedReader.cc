@@ -1,11 +1,12 @@
 /*----------------------------------------------------------------------
-$Id: NoDelayedReader.cc,v 1.3 2006/01/06 00:29:32 wmtan Exp $
+$Id: NoDelayedReader.cc,v 1.4 2006/11/10 20:51:10 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace edm {
   NoDelayedReader::~NoDelayedReader() {}
