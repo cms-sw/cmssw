@@ -27,7 +27,7 @@ namespace {
 
          //cout << "HEX: "<< "0123456789ABCDEF"[((c >> 4) & 0xF)] <<endl;
 
-        for (int i=7; i>=0; i--) {
+        for (int i = 7; i >= 0; --i) {
             int bit = ((c >> i) & 1);
             cout << " "<<bit;
         }

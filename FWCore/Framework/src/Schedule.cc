@@ -264,7 +264,7 @@ namespace edm
 
     // fill normal endpaths
     vstring::iterator eib(end_path_name_list_.begin()),eie(end_path_name_list_.end());
-    for(int bitpos=0;eib!=eie;++eib,++bitpos) fillEndPath(bitpos,*eib);
+    for(int bitpos = 0; eib != eie; ++eib, ++bitpos) fillEndPath(bitpos, *eib);
 
     // handle additional endpath containing wrongly placed modules
     handleWronglyPlacedModules();
@@ -370,7 +370,7 @@ namespace edm
     vstring::iterator it(modnames.begin()),ie(modnames.end());
     PathWorkers tmpworkers;
 
-    for(;it!=ie;++it) {
+    for(; it != ie; ++it) {
 
       WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
       if ((*it)[0] == '!')       filterAction = WorkerInPath::Veto;
@@ -531,7 +531,7 @@ namespace edm
     bool failure = false;
     cms::Exception accumulated("endJob");
     AllWorkers::iterator ai(workersBegin()),ae(workersEnd());
-    for(;ai!=ae;++ai) {
+    for(; ai != ae; ++ai) {
       try {
 	(*ai)->endJob();
       }
@@ -620,7 +620,7 @@ namespace edm
 
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
-    for(;pi!=pe;++pi) {
+    for(; pi != pe; ++pi) {
       cout << endl;
       cout << "TrigReport " << "---------- Modules in Path: " << pi->name() << " ------------\n";
       cout << "TrigReport "
@@ -631,7 +631,7 @@ namespace edm
 	   << right << setw(10) << "Error" << " "
 	   << "Name" << "\n";
 
-      for (unsigned int i=0; i<pi->size(); ++i) {
+      for (unsigned int i = 0; i < pi->size(); ++i) {
 	cout << "TrigReport "
 	     << right << setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
 	     << right << setw( 5) << pi->bitPosition() << " "
@@ -645,7 +645,7 @@ namespace edm
 
     pi=end_paths_.begin();
     pe=end_paths_.end();
-    for(;pi!=pe;++pi) {
+    for(; pi != pe; ++pi) {
       cout << endl;
       cout << "TrigReport " << "------ Modules in End-Path: " << pi->name() << " ------------\n";
       cout << "TrigReport "
@@ -656,7 +656,7 @@ namespace edm
 	   << right << setw(10) << "Error" << " "
 	   << "Name" << "\n";
 
-      for (unsigned int i=0; i<pi->size(); ++i) {
+      for (unsigned int i = 0; i < pi->size(); ++i) {
 	cout << "TrigReport "
 	     << right << setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
 	     << right << setw( 5) << pi->bitPosition() << " "
@@ -679,7 +679,7 @@ namespace edm
 	 << "Name" << "\n";
     ai=workersBegin();
     ae=workersEnd();
-    for(;ai!=ae;++ai) {
+    for(; ai != ae; ++ai) {
       cout << "TrigReport "
 	   << right << setw(10) << (*ai)->timesVisited() << " "
 	   << right << setw(10) << (*ai)->timesRun() << " "
@@ -708,7 +708,7 @@ namespace edm
 	 << "Name" << "\n";
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
-    for(;pi!=pe;++pi) {
+    for(; pi != pe; ++pi) {
       cout << "TimeReport "
 	   << right << setw(10) << pi->timeCpuReal().first/max(1,pi->timesRun()) << " "
 	   << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
@@ -723,7 +723,7 @@ namespace edm
 	 << "Name" << "\n";
     pi=end_paths_.begin();
     pe=end_paths_.end();
-    for(;pi!=pe;++pi) {
+    for(; pi != pe; ++pi) {
       cout << "TimeReport "
 	   << right << setw(10) << pi->timeCpuReal().first/max(1,pi->timesRun()) << " "
 	   << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
@@ -732,14 +732,14 @@ namespace edm
 
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
-    for(;pi!=pe;++pi) {
+    for(; pi != pe; ++pi) {
       cout << endl;
       cout << "TimeReport " << "---------- Modules in Path: " << pi->name() << " ---[sec]----\n";
       cout << "TimeReport "
 	   << right << setw(10) << "CPU/event" << " "
 	   << right << setw(10) << "Real/event" << " "
 	   << "Name" << "\n";
-      for (unsigned int i=0; i<pi->size(); ++i) {
+      for (unsigned int i = 0; i < pi->size(); ++i) {
 	cout << "TimeReport "
 	     << right << setw(10) << pi->timeCpuReal(i).first/max(1,pi->timesVisited(i)) << " "
 	     << right << setw(10) << pi->timeCpuReal(i).second/max(1,pi->timesVisited(i)) << " "
@@ -749,14 +749,14 @@ namespace edm
 
     pi=end_paths_.begin();
     pe=end_paths_.end();
-    for(;pi!=pe;++pi) {
+    for(; pi != pe; ++pi) {
       cout << endl;
       cout << "TimeReport " << "------ Modules in End-Path: " << pi->name() << " ---[sec]----\n";
       cout << "TimeReport "
 	   << right << setw(10) << "CPU/event" << " "
 	   << right << setw(10) << "Real/event" << " "
 	   << "Name" << "\n";
-      for (unsigned int i=0; i<pi->size(); ++i) {
+      for (unsigned int i = 0; i < pi->size(); ++i) {
 	cout << "TimeReport "
 	     << right << setw(10) << pi->timeCpuReal(i).first/max(1,pi->timesVisited(i)) << " "
 	     << right << setw(10) << pi->timeCpuReal(i).second/max(1,pi->timesVisited(i)) << " "
@@ -777,7 +777,7 @@ namespace edm
 	 << right << setw(22) << "per run event " << "\n";
     ai=workersBegin();
     ae=workersEnd();
-    for(;ai!=ae;++ai) {
+    for(; ai != ae; ++ai) {
       cout << "TimeReport "
 	   << right << setw(10) << (*ai)->timeCpuReal().first/max(1,(*ai)->timesVisited()) << " "
 	   << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesVisited()) << " "
@@ -794,7 +794,7 @@ namespace edm
   void Schedule::beginJob(EventSetup const& es)
   {
     AllWorkers::iterator i(workersBegin()),e(workersEnd());
-    for(;i!=e;++i) { (*i)->beginJob(es); }
+    for(; i != e; ++i) { (*i)->beginJob(es); }
 
   }
 

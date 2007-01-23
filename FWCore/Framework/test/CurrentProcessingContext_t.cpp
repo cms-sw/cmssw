@@ -32,7 +32,7 @@ namespace
   
   void setup_ctx(edm::CurrentProcessingContext& ctx)
   {
-    assert( p_moduleA );
+    assert(p_moduleA);
     edm::CurrentProcessingContext temp(p_pathName, pathNumber);
     temp.activate(slotInPath, p_moduleA);
     ctx = temp;
@@ -44,23 +44,23 @@ namespace
 void test_default_ctor()
 {
   edm::CurrentProcessingContext ctx;
-  assert( ctx.moduleLabel() == 0 );
-  assert( ctx.moduleDescription() == 0 );
-  assert( ctx.slotInPath() == -1 );
-  assert( ctx.pathInSchedule() == -1 );  
+  assert(ctx.moduleLabel() == 0);
+  assert(ctx.moduleDescription() == 0);
+  assert(ctx.slotInPath() == -1);
+  assert(ctx.pathInSchedule() == -1);  
 }
 
 void test_activate()
 {
   edm::CurrentProcessingContext ctx(p_pathName, pathNumber);
-  ctx.activate( slotInPath, p_moduleA);
+  ctx.activate(slotInPath, p_moduleA);
   {
     edm::CurrentProcessingContext const& r_ctx = ctx;
-    assert( r_ctx.moduleDescription() == p_moduleA );
-    assert( r_ctx.moduleLabel() );
-    assert( *r_ctx.moduleLabel() == "aaa" );
-    assert( r_ctx.slotInPath() == 13 );
-    assert( r_ctx.pathInSchedule() == 21 );
+    assert(r_ctx.moduleDescription() == p_moduleA);
+    assert(r_ctx.moduleLabel());
+    assert(*r_ctx.moduleLabel() == "aaa");
+    assert(r_ctx.slotInPath() == 13);
+    assert(r_ctx.pathInSchedule() == 21);
   }  
 }
 
@@ -69,8 +69,8 @@ void test_deactivate()
   edm::CurrentProcessingContext ctx;
   setup_ctx(ctx);
   ctx.deactivate();
-  assert( ctx.moduleLabel() == 0 );
-  assert( ctx.moduleDescription() == 0 );  
+  assert(ctx.moduleLabel() == 0);
+  assert(ctx.moduleDescription() == 0);  
 }
 
 
@@ -85,22 +85,19 @@ int main()
 {
   int rc = -1;
   try { rc = work(); }
-  catch ( cms::Exception& x )
-    {
+  catch (cms::Exception& x) {
       std::cerr << "cms::Exception caught\n";
       std::cerr << x.what() << '\n';
       rc = -2;
-    }
-  catch ( std::exception& x )
-    {
+  }
+  catch (std::exception& x) {
       std::cerr << "std::exception caught\n";
       std::cerr << x.what() << '\n';
       rc = -3;
-    }
-  catch ( ... )
-    {
+  }
+  catch (...) {
       std::cerr << "Unknown exception caught\n";
       rc = -4;
-    }
+  }
   return rc;      
 }

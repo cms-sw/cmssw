@@ -6,7 +6,7 @@
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.8 2007/01/10 05:59:30 wmtan Exp $
+$Id: Event_t.cpp,v 1.9 2007/01/12 21:07:59 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -122,7 +122,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEvent);
 
 namespace
 {
-  template <class T> void kill_and_clear(T*& p) { delete p; p=0; }
+  template <class T> void kill_and_clear(T*& p) { delete p; p = 0; }
 }
 
 EventID   make_id() { return EventID(2112, 25, true); }
@@ -337,7 +337,7 @@ void testEvent::getByProductID()
     ap_t two(new product_t(2));
     ProductID id2 = addProduct(two, "int2_tag", "int2");
     CPPUNIT_ASSERT(id2 != ProductID());
-    CPPUNIT_ASSERT(id2 != id1 );
+    CPPUNIT_ASSERT(id2 != id1);
     
     ProducerWorker::commitEvent(*currentEvent_);
     CPPUNIT_ASSERT(currentEvent_->size() == 2);
@@ -361,21 +361,21 @@ void testEvent::transaction()
 {
   // Put a product into an Event, and make sure that if we don't
   // commit, there is no product in the EventPrincipal afterwards.
-  CPPUNIT_ASSERT( principal_->size() == 0 );
+  CPPUNIT_ASSERT(principal_->size() == 0);
   {
     typedef edmtest::IntProduct product_t;
     typedef auto_ptr<product_t> ap_t;
 
     ap_t three(new product_t(3));
     currentEvent_->put(three);
-    CPPUNIT_ASSERT( principal_->size() == 0 );
-    CPPUNIT_ASSERT( currentEvent_->size() == 1);
+    CPPUNIT_ASSERT(principal_->size() == 0);
+    CPPUNIT_ASSERT(currentEvent_->size() == 1);
     // DO NOT COMMIT!
   }
 
   // The Event has been destroyed without a commit -- we should not
   // have any products in the EventPrincipal.
-  CPPUNIT_ASSERT( principal_->size() == 0 );  
+  CPPUNIT_ASSERT(principal_->size() == 0);  
 }
 
 void testEvent::getByInstanceName()
