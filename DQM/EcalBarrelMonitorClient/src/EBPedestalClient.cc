@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/01/23 13:42:45 $
- * $Revision: 1.108 $
+ * $Date: 2007/01/23 13:47:46 $
+ * $Revision: 1.109 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -606,16 +606,10 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   bits01 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_ERROR");
 
   uint64_t bits02 = 0;
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_MEAN_WARNING");
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_RMS_WARNING");
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_MEAN_ERROR");
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_RMS_ERROR");
-
-  uint64_t bits03 = 0;
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
 
   map<EcalLogicID, RunPNErrorsDat> mask;
 
@@ -684,8 +678,15 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
             EcalLogicID ecid = m->first;
 
             if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
-              if ( ! ((m->second).getErrorBits() & ( bits01 | bits03 )) ) {
-                status = status && false;
+              if ( mean01 > 200. ) {
+                if ( ! ((m->second).getErrorBits() & bits01) ) {
+                  status = status && false;
+                }
+              }
+              if ( mean02 > 200. ) {
+                if ( ! ((m->second).getErrorBits() & bits02) ) {
+                  status = status && false;
+                }
               }
             }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/01/23 13:42:45 $
- * $Revision: 1.106 $
+ * $Date: 2007/01/23 13:47:46 $
+ * $Revision: 1.107 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -573,12 +573,8 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   bits01 |= EcalErrorDictionary::getMask("TESTPULSE_LOW_GAIN_RMS_WARNING");
 
   uint64_t bits02 = 0;
-  bits02 |= EcalErrorDictionary::getMask("TESTPULSE_MIDDLE_GAIN_MEAN_WARNING");
-  bits02 |= EcalErrorDictionary::getMask("TESTPULSE_MIDDLE_GAIN_RMS_WARNING");
-
-  uint64_t bits03 = 0;
-  bits03 |= EcalErrorDictionary::getMask("TESTPULSE_HIGH_GAIN_MEAN_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("TESTPULSE_HIGH_GAIN_RMS_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("TESTPULSE_HIGH_GAIN_MEAN_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("TESTPULSE_HIGH_GAIN_RMS_WARNING");
 
   map<EcalLogicID, RunPNErrorsDat> mask;
 
@@ -674,8 +670,15 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             EcalLogicID ecid = m->first;
 
             if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
-              if ( ! ((m->second).getErrorBits() & ( bits01 | bits03 )) ) {
-                status = status && false;
+              if ( mean01 > 200. ) {
+                if ( ! ((m->second).getErrorBits() & bits01) ) {
+                  status = status && false;
+                }
+              }
+              if ( mean02 > 200. ) {
+                if ( ! ((m->second).getErrorBits() & bits02) ) {
+                  status = status && false;
+                }
               }
             }
 
