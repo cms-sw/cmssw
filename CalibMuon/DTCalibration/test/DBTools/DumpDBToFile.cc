@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/08/04 09:42:52 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/01/23 13:55:12 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -20,8 +20,6 @@
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DataRecord/interface/DTT0Rcd.h"
-#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
-#include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
@@ -34,7 +32,7 @@ DumpDBToFile::DumpDBToFile(const ParameterSet& pset) {
 
   dbToDump = pset.getUntrackedParameter<string>("dbToDump", "TTrigDB");
 
-  if(dbToDump != "TTrigDB" && dbToDump != "TZeroDB" && dbToDump != "NoiseDB" && dbToDump != "ChannelsDB")
+  if(dbToDump != "TTrigDB" && dbToDump != "TZeroDB" && dbToDump != "NoiseDB")
     cout << "[DumpDBToFile] *** Error: parameter dbToDump is not valid, check the cfg file" << endl;
 
 }
@@ -58,10 +56,6 @@ void DumpDBToFile::beginJob(const EventSetup& setup) {
     ESHandle<DTStatusFlag> status;
     setup.get<DTStatusFlagRcd>().get(status);
     statusMap = &*status;
-  } else if (dbToDump == "ChannelsDB") {
-    ESHandle<DTReadOutMapping> channels;
-    setup.get<DTReadOutMappingRcd>().get(channels);
-    channelsMap = &*channels;
   }
 }
 
@@ -135,23 +129,6 @@ void DumpDBToFile::endJob() {
 
       theCalibFile->addCell(wireId, consts);
     }
-  } else if (dbToDump == "ChannelsDB"){
-    for(DTReadOutMapping::const_iterator roLink = channelsMap->begin();
-	roLink != channelsMap->end(); roLink++) {
-      
-
-      cout << "ddu " << channelMap[0] << " "
-	   << "ros " << channelMap[1] << " "
-	   << "rob " << channelMap[2] << " "
-	   << "tdc " << channelMap[3] << " "
-	   << "channel " << channelMap[4] << " "
-	   << "wheel " << channelMap[5] << " "
-	   << "station " << channelMap[6] << " "
-	   << "sector " << channelMap[7] << " "
-	   << "superlayer " << channelMap[8] << " "
-	   << "layer " << channelMap[9] << " "
-	   << "wire " << channelMap[10] << " " << "  -> ";                
-  
   }
 
   theCalibFile->writeConsts(theOutputFileName);
