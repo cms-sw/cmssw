@@ -2,8 +2,8 @@
  *
  *  Navigable layer for Barrel Muon 
  *
- *  $Date: 2006/10/13 13:28:08 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/01/18 13:28:37 $
+ *  $Revision: 1.9 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -57,8 +57,7 @@ MuonBarrelNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
 
   std::vector<const DetLayer*> result;
 
-  // FIXME! the direction must be consistent w.r.t. the momentum from the fts 
-  if ( dir == alongMomentum ) {
+  if ( (insideOut(fts) && dir == alongMomentum) || ( !insideOut(fts) && dir == oppositeToMomentum)) {
     pushResult(result, theOuterBarrelLayers, fts);
     pushResult(result, theOuterBackwardLayers, fts);
     pushResult(result, theOuterForwardLayers, fts);
@@ -99,8 +98,7 @@ MuonBarrelNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
                                      PropagationDirection dir) const {
   std::vector<const DetLayer*> result;
 
-  // FIXME! the direction must be consistent w.r.t. the momentum from the fts 
-  if ( dir == alongMomentum ) {
+  if ( (insideOut(fts) && dir == alongMomentum) || ( !insideOut(fts) && dir == oppositeToMomentum)) {
     pushCompatibleResult(result, theAllOuterBarrelLayers, fts);
     pushCompatibleResult(result, theAllOuterBackwardLayers, fts);
     pushCompatibleResult(result, theAllOuterForwardLayers, fts);
