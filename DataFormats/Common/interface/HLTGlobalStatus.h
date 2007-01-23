@@ -10,8 +10,8 @@
  *  If the user wants map-like indexing of HLT triggers through their
  *  names as key, s/he must use the TriggerNamesService.
  *
- *  $Date: 2006/07/25 18:10:25 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/08/22 05:50:16 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -43,7 +43,7 @@ namespace edm
 
     void reset() {
       const unsigned int n(size());
-      for (unsigned int i=0; i!=n; i++) paths_[i].reset();
+      for (unsigned int i = 0; i != n; ++i) paths_[i].reset();
     }
 
     // global "state" variables calculated on the fly!
@@ -73,7 +73,7 @@ namespace edm
     bool State(unsigned int icase) const {
       bool flags[3] = {false, false, false};
       const unsigned int n(size());
-      for (unsigned int i=0; i!=n; i++) {
+      for (unsigned int i = 0; i != n; ++i) {
         const hlt::HLTState s(state(i));
         if (s!=hlt::Ready) {
 	  flags[0]=true;       // at least one trigger was run
@@ -92,7 +92,7 @@ namespace edm
   inline std::ostream& operator <<(std::ostream& ost, const HLTGlobalStatus& hlt) {
     std::vector<std::string> text(4); text[0]="n"; text[1]="1"; text[2]="0"; text[3]="e";
     const unsigned int n(hlt.size());
-    for (unsigned int i=0; i!=n; i++) ost << text.at(hlt.state(i));
+    for (unsigned int i = 0; i != n; ++i) ost << text.at(hlt.state(i));
     return ost;
   }
 

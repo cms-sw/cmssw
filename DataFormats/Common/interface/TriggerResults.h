@@ -4,7 +4,7 @@
 /** \class TriggerResults
  *
  *  Original Author: Jim Kowalkowski 13-01-06
- *  $Id: TriggerResults.h,v 1.3 2006/04/20 15:30:51 gruen Exp $
+ *  $Id: TriggerResults.h,v 1.4 2007/01/05 18:41:04 wdd Exp $
  *
  *  The trigger path results are maintained here as a sequence of
  *  entries, one per trigger path.  They are assigned in the order
@@ -17,8 +17,8 @@
  *  in the file when that option becomes available.  For now, this
  *  object contains the trigger path names as a vector of strings.
  *
- *  $Date: 2006/04/20 15:30:51 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/01/05 18:41:04 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -58,7 +58,7 @@ namespace edm
 
     unsigned int find (const std::string& name) const {
       const unsigned int n(size());
-      for (unsigned int i=0; i!=n; i++) if (names_[i]==name) return i;
+      for (unsigned int i = 0; i != n; ++i) if (names_[i] == name) return i;
       return n;
     }
 
