@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: July 2006$
- *  $Revision: 1.0 $
+ *  $Date: 2006/08/04 10:36:23 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -209,7 +209,7 @@ void DTSegment4DQuality::analyze(const Event & event, const EventSetup& eventSet
 	// Check the dimension
 	if((*segment4D).dimension() != 4) {
 	  cout << "[DTSegment4DQuality]***Error: This is not 4D segment!!!" << endl;
-	  abort();
+	  continue;
 	}
 	// Segment Local Direction and position (in Chamber RF)
 	LocalVector recSegDirection = (*segment4D).localDirection();
