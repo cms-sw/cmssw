@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/01/23 12:36:24 $
- * $Revision: 1.104 $
+ * $Date: 2007/01/23 13:42:45 $
+ * $Revision: 1.106 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -674,7 +674,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             EcalLogicID ecid = m->first;
 
             if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
-              if ( ! (m->second).getErrorBits() & ( bits01 | bits03 ) ) {
+              if ( ! ((m->second).getErrorBits() & ( bits01 | bits03 )) ) {
                 status = status && false;
               }
             }

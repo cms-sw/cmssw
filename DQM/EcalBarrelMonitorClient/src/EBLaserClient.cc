@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/23 12:39:41 $
- * $Revision: 1.114 $
+ * $Date: 2007/01/23 13:42:44 $
+ * $Revision: 1.116 $
  * \author G. Della Ricca
  *
 */
@@ -1410,7 +1410,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
             EcalLogicID ecid = m->first;
 
             if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
-              if ( ! (m->second).getErrorBits() & bits01 ) {
+              if ( ! ((m->second).getErrorBits() & bits01) ) {
                 status = status && false;
               }
             }
@@ -1466,7 +1466,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
             EcalLogicID ecid = m->first;
 
             if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
-              if ( ! (m->second).getErrorBits() & bits01 ) {
+              if ( ! ((m->second).getErrorBits() & bits01) ) {
                 status = status && false;
               }
             }
@@ -1522,7 +1522,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
             EcalLogicID ecid = m->first;
 
             if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
-              if ( ! (m->second).getErrorBits() & bits01 ) {
+              if ( ! ((m->second).getErrorBits() & bits01) ) {
                 status = status && false;
               }
             }
@@ -1578,7 +1578,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
             EcalLogicID ecid = m->first;
 
             if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
-              if ( ! (m->second).getErrorBits() & bits01 ) {
+              if ( ! ((m->second).getErrorBits() & bits01) ) {
                 status = status && false;
               }
             }
