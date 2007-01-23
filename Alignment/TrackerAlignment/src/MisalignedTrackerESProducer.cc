@@ -37,8 +37,8 @@
 //__________________________________________________________________________________________________
 MisalignedTrackerESProducer::MisalignedTrackerESProducer(const edm::ParameterSet& p) :
   theParameterSet( p ),
-  theAlignRecordName( "Alignments" ),
-  theErrorRecordName( "AlignmentErrors" )
+  theAlignRecordName( "TrackerAlignmentRcd" ),
+  theErrorRecordName( "TrackerAlignmentErrorRcd" )
 {
   
   setWhatProduced(this);
@@ -74,6 +74,10 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   Alignments* alignments =  theAlignableTracker->alignments();
   AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
   
+  // Store result to EventSetup
+  GeometryAligner aligner;
+  aligner.applyAlignments<TrackerGeometry>( &(*theTracker), alignments, alignmentErrors );
+
   // Write alignments to DB: have to sort beforhand!
   if ( theParameterSet.getUntrackedParameter<bool>("saveToDbase", false) )
     {
@@ -85,24 +89,21 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 	  
 	  // Store
       if ( poolDbService->isNewTagRequest(theAlignRecordName) )
-        poolDbService->createNewIOV<Alignments>( &(*alignments), poolDbService->endOfTime(), 
+        poolDbService->createNewIOV<Alignments>( alignments, poolDbService->endOfTime(), 
                                                  theAlignRecordName );
       else
-        poolDbService->appendSinceTime<Alignments>( &(*alignments), poolDbService->currentTime(), 
+        poolDbService->appendSinceTime<Alignments>( alignments, poolDbService->currentTime(), 
                                                    theAlignRecordName );
       if ( poolDbService->isNewTagRequest(theErrorRecordName) )
-        poolDbService->createNewIOV<AlignmentErrors>( &(*alignmentErrors),
+        poolDbService->createNewIOV<AlignmentErrors>( alignmentErrors,
                                                       poolDbService->endOfTime(), 
                                                       theErrorRecordName );
       else
-        poolDbService->appendSinceTime<AlignmentErrors>( &(*alignmentErrors),
+        poolDbService->appendSinceTime<AlignmentErrors>( alignmentErrors,
                                                          poolDbService->currentTime(), 
                                                          theErrorRecordName );
     }
   
-  // Store result to EventSetup
-  GeometryAligner aligner;
-  aligner.applyAlignments<TrackerGeometry>( &(*theTracker), alignments, alignmentErrors );
 
   edm::LogInfo("MisalignedTracker") << "Producer done";
   return theTracker;
