@@ -12,4 +12,7 @@
 <use name=Geometry/CSCGeometry>
 <use name=Geometry/RPCGeometry>
 
+#needed for patch of MuonRPCDetLayerGeometryBuilder
+<use name=Utilities/BinningTools> 
+
 <flags SEAL_PLUGIN_NAME="RecoMuonDetLayers">
