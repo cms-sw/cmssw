@@ -17,6 +17,7 @@ PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const Gs
 					     const double HoE) :
   LeafCandidate(),hadOverEm_(HoE), superCluster_(scl), track_(gsft)   
 {
+    energyScaleCorrected_=false;
   //
   // electron particle quantities
   //
