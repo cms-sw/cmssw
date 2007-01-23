@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/01/21 22:07:21 $
- * $Revision: 1.105 $
+ * $Date: 2007/01/22 10:24:07 $
+ * $Revision: 1.106 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -599,6 +599,28 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   MonPNPedDat pn;
   map<EcalLogicID, MonPNPedDat> dataset2;
 
+  uint64_t bits01 = 0;
+  bits01 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_ERROR");
+  bits01 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_ERROR");
+
+  uint64_t bits02 = 0;
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_MEAN_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_RMS_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_MEAN_ERROR");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_RMS_ERROR");
+
+  uint64_t bits03 = 0;
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_WARNING");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_WARNING");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
+
+  map<EcalLogicID, RunPNErrorsDat> mask;
+
+  EcalErrorMask::fetchDataSet(&mask);
+
   const float m_min_tot = 1000.;
   const float m_min_bin = 50.;
 
@@ -651,11 +673,24 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
       pn.setPedMeanG16(mean02);
       pn.setPedRMSG16(rms02);
 
-      if ( mean01 > 200. || mean02 > 200. ) {
+      if ( mean01 > 200. && mean02 > 200. ) {
         pn.setTaskStatus(true);
       } else {
         pn.setTaskStatus(false);
-//        status = status && false;
+        if ( mask.size() != 0 ) {
+          map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
+          for (m = mask.begin(); m != mask.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            if ( ecid.getID1() == ism && ecid.getID2() == i ) {
+              if ( ! (m->second).getErrorBits() & ( bits01 | bits03 ) ) {
+                status = status && false;
+              }
+            }
+
+          }
+        }
       }
 
       if ( econn ) {

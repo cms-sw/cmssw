@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/23 12:36:23 $
- * $Revision: 1.113 $
+ * $Date: 2007/01/23 12:39:41 $
+ * $Revision: 1.114 $
  * \author G. Della Ricca
  *
 */
@@ -1194,6 +1194,16 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   MonPNRedDat pn_rd;
   map<EcalLogicID, MonPNRedDat> dataset2_rd;
 
+  uint64_t bits01 = 0;
+  bits01 |= EcalErrorDictionary::getMask("LASER_MEAN_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("LASER_RMS_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("LASER_MEAN_OVER_PN_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("LASER_RMS_OVER_PN_WARNING");
+
+  map<EcalLogicID, RunPNErrorsDat> mask;
+
+  EcalErrorMask::fetchDataSet(&mask);
+
   const float m_min_tot = 1000.;
   const float m_min_bin = 50.;
 
@@ -1393,7 +1403,20 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         pn_bl.setTaskStatus(true);
       } else {
         pn_bl.setTaskStatus(false);
-//        status = status && false;
+        if ( mask.size() != 0 ) {
+          map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
+          for (m = mask.begin(); m != mask.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            if ( ecid.getID1() == ism && ecid.getID2() == i ) {
+              if ( ! (m->second).getErrorBits() & bits01 ) {
+                status = status && false;
+              }
+            }
+
+          }
+        }
       }
 
       if ( econn ) {
@@ -1436,7 +1459,20 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         pn_ir.setTaskStatus(true);
       } else {
         pn_ir.setTaskStatus(false);
-//        status = status && false;
+        if ( mask.size() != 0 ) {
+          map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
+          for (m = mask.begin(); m != mask.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            if ( ecid.getID1() == ism && ecid.getID2() == i ) {
+              if ( ! (m->second).getErrorBits() & bits01 ) {
+                status = status && false;
+              }
+            }
+
+          }
+        }
       }
 
       if ( econn ) {
@@ -1479,7 +1515,20 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         pn_gr.setTaskStatus(true);
       } else {
         pn_gr.setTaskStatus(false);
-//        status = status && false;
+        if ( mask.size() != 0 ) {
+          map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
+          for (m = mask.begin(); m != mask.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            if ( ecid.getID1() == ism && ecid.getID2() == i ) {
+              if ( ! (m->second).getErrorBits() & bits01 ) {
+                status = status && false;
+              }
+            }
+
+          }
+        }
       }
 
       if ( econn ) {
@@ -1522,7 +1571,20 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         pn_rd.setTaskStatus(true);
       } else {
         pn_rd.setTaskStatus(false);
-//        status = status && false;
+        if ( mask.size() != 0 ) {
+          map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
+          for (m = mask.begin(); m != mask.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            if ( ecid.getID1() == ism && ecid.getID2() == i ) {
+              if ( ! (m->second).getErrorBits() & bits01 ) {
+                status = status && false;
+              }
+            }
+
+          }
+        }
       }
 
       if ( econn ) {

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/01/22 10:24:07 $
- * $Revision: 1.103 $
+ * $Date: 2007/01/23 12:36:24 $
+ * $Revision: 1.104 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -568,6 +568,22 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   MonPNMGPADat pn;
   map<EcalLogicID, MonPNMGPADat> dataset3;
 
+  uint64_t bits01 = 0;
+  bits01 |= EcalErrorDictionary::getMask("TESTPULSE_LOW_GAIN_MEAN_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("TESTPULSE_LOW_GAIN_RMS_WARNING");
+
+  uint64_t bits02 = 0;
+  bits02 |= EcalErrorDictionary::getMask("TESTPULSE_MIDDLE_GAIN_MEAN_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("TESTPULSE_MIDDLE_GAIN_RMS_WARNING");
+
+  uint64_t bits03 = 0;
+  bits03 |= EcalErrorDictionary::getMask("TESTPULSE_HIGH_GAIN_MEAN_WARNING");
+  bits03 |= EcalErrorDictionary::getMask("TESTPULSE_HIGH_GAIN_RMS_WARNING");
+
+  map<EcalLogicID, RunPNErrorsDat> mask;
+
+  EcalErrorMask::fetchDataSet(&mask);
+
   const float m_min_tot = 100.;
   const float m_min_bin = 10.;
 
@@ -647,11 +663,24 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       pn.setPedMeanG16(mean04);
       pn.setPedRMSG16(rms04);
 
-      if ( mean01 > 200. || mean02 > 200. ) {
+      if ( mean01 > 200. && mean02 > 200. ) {
         pn.setTaskStatus(true);
       } else {
         pn.setTaskStatus(false);
-//        status = status && false;
+        if ( mask.size() != 0 ) {
+          map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
+          for (m = mask.begin(); m != mask.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            if ( ecid.getID1() == ism && ecid.getID2() == i ) {
+              if ( ! (m->second).getErrorBits() & ( bits01 | bits03 ) ) {
+                status = status && false;
+              }
+            }
+
+          }
+        }
       }
 
       if ( econn ) {
