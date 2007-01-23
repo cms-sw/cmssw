@@ -176,7 +176,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     
     // Retrieve FED raw data for given FED 
     const FEDRawData& input = buffers.FEDData( static_cast<int>(*ifed) );
-
+    
     // Dump of FEDRawData to stdout
     if ( fedBufferDumpFreq_ && !(event_%fedBufferDumpFreq_) ) {
       stringstream ss;
@@ -199,15 +199,15 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	<< " NULL pointer to FEDRawData for FED id " << *ifed;
       continue;
     }	
-
+    
     // Check on FEDRawData size
     if ( !size_u32 ) {
       edm::LogWarning(mlRawToDigi_)
 	<< "[SiStripRawToDigiUnpacker::" << __func__ << "]"
 	<< " FEDRawData has zero size for FED id " << *ifed;
       continue;
-    }	
-
+    }
+    
     // Initialise Fed9UEvent using present FED buffer
     try {
       fedEvent_->Init( data_u32, 0, size_u32 ); 
@@ -242,7 +242,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       } catch(...) { 
 	handleException( __func__, "Problem using Fed9UAddress" ); 
       } 
-
+      
       // Retrieve cabling map information and define "FED key" for Digis
       const FedChannelConnection& conn = cabling.connection( *ifed, chan );
 
@@ -286,7 +286,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       } else if ( mode == sistrip::VIRGIN_RAW ) {
 
 	edm::DetSet<SiStripRawDigi>& vr = virgin_raw.find_or_insert( key );
-	vector<uint16_t> samples; samples.reserve(256);
+	vector<uint16_t> samples; samples.reserve(256); 
 	try {
    	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
 	} catch(...) { 
@@ -309,7 +309,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	    vr.data[ipair*256+i] = SiStripRawDigi( samples[readout] ); 
 	  }
 	}
-
+	
       } else if ( mode == sistrip::PROC_RAW ) {
 
 	edm::DetSet<SiStripRawDigi>& pr = proc_raw.find_or_insert( key ) ;
