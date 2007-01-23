@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.19 2007/01/22 10:30:40 llista Exp $
+// $Id: OwnVector.h,v 1.20 2007/01/23 00:25:52 wmtan Exp $
 
 #include <algorithm>
 #include <functional>
@@ -30,9 +30,9 @@ namespace edm {
       void touch() { fixed_ = false; }
       template<typename C>
       void operator()(const C & c) const { 
-	if (! fixed_) {
+	if (!fixed_) {
 	  fixed_ = true;
-	  for (typename C::const_iterator i = c.begin(); i != c.end(); ++ i)
+	  for (typename C::const_iterator i = c.begin(), e = c.end(); i != e; ++i)
 	    (*i)->fixup();
 	}
       }
@@ -61,7 +61,7 @@ namespace edm {
     typedef T * pointer;
     typedef T & reference;
     typedef const T & const_reference;
-    typedef P   policy_type;
+    typedef P policy_type;
       
     class iterator;
     class const_iterator {
