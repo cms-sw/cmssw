@@ -4,6 +4,15 @@
 #include "boost/shared_ptr.hpp"
 
 namespace edm {
+
+  LuminosityBlockPrincipal::LuminosityBlockPrincipal(LuminosityBlockID const& id,
+	ProductRegistry const& reg,
+        boost::shared_ptr<RunPrincipal const> rp,
+        ProcessConfiguration const& pc,
+	ProcessHistoryID const& hist,
+	boost::shared_ptr<DelayedReader> rtrv) :
+        Base(reg, pc, hist, rtrv), runPrincipal_(rp), aux_(id, rp->id()) {}
+
   LuminosityBlockPrincipal::LuminosityBlockPrincipal(LuminosityBlockID const& id,
 	ProductRegistry const& reg,
         ProcessConfiguration const& pc,
@@ -11,3 +20,4 @@ namespace edm {
 	boost::shared_ptr<DelayedReader> rtrv) :
         Base(reg, pc, hist, rtrv), runPrincipal_(new RunPrincipal(1, reg, pc)), aux_(id) {}
 }
+

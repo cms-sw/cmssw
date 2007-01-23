@@ -10,7 +10,7 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.7 2007/01/11 22:43:55 wmtan Exp $
+$Id: LuminosityBlockPrincipal.h,v 1.8 2007/01/12 18:02:55 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -29,8 +29,7 @@ namespace edm {
         boost::shared_ptr<RunPrincipal const> rp,
         ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
-	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader)) :
-        Base(reg, pc, hist, rtrv), runPrincipal_(rp), aux_(id) {}
+	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     LuminosityBlockPrincipal(LuminosityBlockID const& id,
 	ProductRegistry const& reg,
