@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.8 2007/01/05 14:30:57 fambrogl Exp $
+// $Id: SimTrackManager.cc,v 1.9 2007/01/05 15:13:20 fambrogl Exp $
 //
 
 // system include files
@@ -39,10 +39,6 @@ SimTrackManager::SimTrackManager(bool iCollapsePrimaryVertices) :
 {
 }
 
-// SimTrackManager::SimTrackManager(const SimTrackManager& rhs)
-// {
-//    // do actual copying here;
-// }
 
 SimTrackManager::~SimTrackManager()
 {
@@ -195,8 +191,13 @@ void SimTrackManager::reallyStoreTracks(G4SimEvent * simEvent)
 	  }
         ig = trkH->genParticleID();
         ivertex = getOrCreateVertex(trkH,iParentID,simEvent);
+	std::map<uint32_t,std::pair<Hep3Vector,HepLorentzVector> >::const_iterator it = mapTkCaloStateInfo.find(trkH->trackID());
+	std::pair<Hep3Vector,HepLorentzVector> tcinfo;
+	if (it !=  mapTkCaloStateInfo.end()){
+	  tcinfo =  it->second;
+	}
 	simEvent->add(new G4SimTrack(trkH->trackID(),trkH->particleID(),
-				     trkH->momentum(),trkH->totalEnergy(),ivertex,ig,pm));
+				     trkH->momentum(),trkH->totalEnergy(),ivertex,ig,pm,tcinfo.first,tcinfo.second));
     }
 }
 
@@ -231,6 +232,7 @@ int SimTrackManager::getOrCreateVertex(TrackWithHistory * trkH, int iParentID,
   return (m_nVertices-1);
 
 }
- 
 
 void SimTrackManager::cleanVertexMap() { m_vertexMap.clear(); m_nVertices=0; }
+
+void SimTrackManager::cleanTkCaloStateInfoMap() { mapTkCaloStateInfo.clear(); }

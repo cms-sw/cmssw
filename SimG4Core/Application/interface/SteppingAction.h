@@ -6,10 +6,12 @@
 
 #include "G4UserSteppingAction.hh"
 
+class EventAction;
+
 class SteppingAction: public G4UserSteppingAction
 {
 public:
-    SteppingAction(const edm::ParameterSet & ps);
+    SteppingAction(EventAction * ea,const edm::ParameterSet & ps);
     ~SteppingAction();
     void UserSteppingAction(const G4Step * aStep);
 
@@ -17,7 +19,9 @@ public:
 private:
     void catchLowEnergyInVacuumHere(const G4Step * aStep);
     void catchLowEnergyInVacuumNext(const G4Step * aStep);
+    void storeTkCaloStateInfo(const G4Step * aStep);
 private:
+    EventAction * eventAction_;
     bool   killBeamPipe;
     double theCriticalEnergyForVacuum;
     double theCriticalDensity;

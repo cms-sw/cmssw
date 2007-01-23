@@ -11,6 +11,9 @@
 
 #include "G4UserEventAction.hh"
 
+#include "CLHEP/Vector/LorentzVector.h"
+#include "CLHEP/Vector/ThreeVector.h"
+
 #include <vector>
 #include <map>
  
@@ -21,9 +24,6 @@ class EndOfEvent;
 class EventAction: public G4UserEventAction
 {
 public:
-    ///For backwards compatibility
-    enum SpecialNumbers {InvalidID = 65535};
-public:
     //EventAction(const edm::ParameterSet & ps);
     EventAction(const edm::ParameterSet & ps,
 		SimTrackManager*);
@@ -31,21 +31,11 @@ public:
     void BeginOfEventAction(const G4Event * evt);
     void EndOfEventAction(const G4Event * evt);
 
-
-    /*
-    ///For backwards compatibility
-    unsigned int g4ToSim(unsigned int iG4) const {
-      return m_trackManager->g4ToSim(iG4);
-    }
-    unsigned int simToG4(unsigned int iSim) const {
-      return m_trackManager->simToG4(iSim);
-    }
-    */
-
     const TrackContainer * trackContainer() const { 
       return m_trackManager->trackContainer();
     }
     void addTrack(TrackWithHistory* iTrack);
+    void addTkCaloStateInfo(uint32_t t,std::pair<Hep3Vector,HepLorentzVector> p); 
 
     SimActivityRegistry::BeginOfEventSignal m_beginOfEventSignal;
     SimActivityRegistry::EndOfEventSignal m_endOfEventSignal;

@@ -14,6 +14,8 @@ public:
     /// index of parent vertex in final vector
     /// index of corresponding gen part in final vector)
     SimTrack(int ipart, const HepLorentzVector & p, int iv, int ig);
+    SimTrack(int ipart, const HepLorentzVector & p, int iv, int ig, 
+	     const Hep3Vector & tkp, const HepLorentzVector & tkm);
     /// constructor from transient
     SimTrack(const CoreSimTrack & t, int iv, int ig);
     /// index of the vertex in the Event container (-1 if no vertex)
@@ -22,9 +24,14 @@ public:
     /// index of the corresponding Generator particle in the Event container (-1 if no Genpart)
     int genpartIndex() const { return igenpart;}
     bool  noGenpart() const { return igenpart==-1;}
+    //
+    Hep3Vector trackerSurfacePosition() const { return tkposition; }
+    HepLorentzVector trackerSurfaceMomentum() const { return tkmomentum; }
 private: 
     int ivert;
     int igenpart;
+    Hep3Vector tkposition;
+    HepLorentzVector tkmomentum;
 };
 
 #include <iosfwd>

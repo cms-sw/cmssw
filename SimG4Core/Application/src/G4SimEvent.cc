@@ -45,8 +45,7 @@ G4SimEvent::~G4SimEvent()
       delete g4vertices[i] ;
       g4vertices[i] = 0 ;
    }
-   g4vertices.clear() ;
-
+   g4vertices.clear();
 }
 
 void G4SimEvent::load(edm::SimTrackContainer & c) const
@@ -59,11 +58,13 @@ void G4SimEvent::load(edm::SimTrackContainer & c) const
 	int iv              = trk->ivert();
 	int ig              = trk->igenpart();
 	int id              = trk->id();
+	Hep3Vector tkpos    = trk->trackerSurfacePosition();
+	HepLorentzVector tkmom  = trk->trackerSurfaceMomentum();
 	// ip = particle ID as PDG
 	// pp = 4-momentum
 	// iv = corresponding G4SimVertex index
 	// ig = corresponding GenParticle index
-	SimTrack t = SimTrack(ip,p,iv,ig);
+	SimTrack t = SimTrack(ip,p,iv,ig,tkpos,tkmom);
 	t.setTrackId(id);
 	t.setEventId(EncodedEventId(0));
 	c.push_back(t);
@@ -92,3 +93,4 @@ void G4SimEvent::load(edm::SimVertexContainer & c) const
 	c.push_back(v);
     }
 }
+

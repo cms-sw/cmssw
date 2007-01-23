@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:36:41 EST 2005
-// $Id: SimTrackManager.h,v 1.3 2006/09/11 10:03:48 fambrogl Exp $
+// $Id: SimTrackManager.h,v 1.4 2006/11/13 09:03:56 fambrogl Exp $
 //
 
 // system include files
@@ -59,11 +59,18 @@ class SimTrackManager
 
       void reset();
       void deleteTracks();
+      void cleanTkCaloStateInfoMap();
 
       void addTrack(TrackWithHistory* iTrack) {
 	m_trksForThisEvent->push_back(iTrack);
       }
 
+      void addTkCaloStateInfo(uint32_t t,std::pair<Hep3Vector,HepLorentzVector> p){
+	std::map<uint32_t,std::pair<Hep3Vector,HepLorentzVector> >::const_iterator it = mapTkCaloStateInfo.find(t);
+	if (it ==  mapTkCaloStateInfo.end())
+	  mapTkCaloStateInfo.insert(std::pair<uint32_t,std::pair<Hep3Vector,HepLorentzVector> >(t,p));
+
+      }
       void setCollapsePrimaryVertices(bool iSet) {
 	m_collapsePrimaryVertices=iSet;
       }
@@ -83,6 +90,7 @@ class SimTrackManager
       MotherParticleToVertexMap m_vertexMap;
       int m_nVertices;
       bool m_collapsePrimaryVertices;
+      std::map<uint32_t,std::pair<Hep3Vector,HepLorentzVector > > mapTkCaloStateInfo;
 };
 
 

@@ -20,8 +20,6 @@ TrackingAction::~TrackingAction() {}
 
 void TrackingAction::PreUserTrackingAction(const G4Track * aTrack)
 {
-    TrackInformationExtractor extractor; // check if user info is already set
-    const TrackInformation & tkInfo(extractor(aTrack));
     CurrentG4Track::setTrack(aTrack);
     if (currentTrack_ != 0) 
 	throw SimG4Exception("TrackingAction: currentTrack is a mess...");

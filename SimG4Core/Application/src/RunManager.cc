@@ -352,7 +352,7 @@ void RunManager::initializeUserActions()
 	userTrackingAction->m_endOfTrackSignal.connect(m_registry.endOfTrackSignal_);
 	eventManager->SetUserAction(userTrackingAction);
 	
-	SteppingAction* userSteppingAction = new SteppingAction(m_pSteppingAction); 
+	SteppingAction* userSteppingAction = new SteppingAction(userEventAction,m_pSteppingAction); 
 	userSteppingAction->m_g4StepSignal.connect(m_registry.g4StepSignal_);
         eventManager->SetUserAction(userSteppingAction);
         if (m_Override)

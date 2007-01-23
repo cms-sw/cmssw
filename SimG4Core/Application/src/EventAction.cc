@@ -56,9 +56,16 @@ void EventAction::EndOfEventAction(const G4Event * anEvent)
     m_endOfEventSignal(&e);
 
     m_trackManager->deleteTracks();
+    m_trackManager->cleanTkCaloStateInfoMap();
+
 }
 
 void EventAction::addTrack(TrackWithHistory* iTrack)
 {
   m_trackManager->addTrack(iTrack);
+}
+
+void EventAction::addTkCaloStateInfo(uint32_t t,std::pair<Hep3Vector,HepLorentzVector> p)
+{
+  m_trackManager->addTkCaloStateInfo(t,p);
 }
