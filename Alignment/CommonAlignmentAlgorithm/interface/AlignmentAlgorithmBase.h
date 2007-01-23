@@ -16,6 +16,7 @@
 
 // Alignment
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 
 class Trajectory;
@@ -36,7 +37,8 @@ public:
 
   /// Call at beginning of job (must be implemented in derived class)
   virtual void initialize( const edm::EventSetup& setup, 
-						   AlignableTracker* tracker, 
+						   AlignableTracker* tracker,
+                           AlignableMuon* muon,
 						   AlignmentParameterStore* store ) = 0;
 
   /// Call at end of job (must be implemented in derived class)

@@ -1,8 +1,9 @@
 /** \file AlignableParameterBuilder.cc
  *
- *  $Date: 2006/11/08 16:36:22 $
- *  $Revision: 1.11 $
- */
+ *  $Date: 2006/11/30 10:08:26 $
+ *  $Revision: 1.12 $
+
+*/
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -14,8 +15,6 @@
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 #include "Alignment/CommonAlignmentParametrization/interface/CompositeRigidBodyAlignmentParameters.h"
 
-//#include "Alignment/TrackerAlignment/interface/AlignableTracker.h" not needed since only forwarded
-
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/SelectionUserVariables.h"
 
@@ -26,48 +25,67 @@
 
 //__________________________________________________________________________________________________
 AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignableTracker) :
-  theAlignables(), theAlignableTracker(alignableTracker)
+  theAlignables(), theAlignableTracker(alignableTracker), theAlignableMuon(0)
 {
 }
 
 //__________________________________________________________________________________________________
+AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignableTracker, 
+                                                     AlignableMuon* alignableMuon) :
+  theAlignables(), theAlignableTracker(alignableTracker), theAlignableMuon(alignableMuon)
+{
+}
+
+
+//__________________________________________________________________________________________________
 AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignableTracker,
-						     const edm::ParameterSet &pSet) :
-  theAlignables(), theAlignableTracker(alignableTracker)
+                                                     const edm::ParameterSet &pSet) :
+  theAlignables(), theAlignableTracker(alignableTracker), theAlignableMuon(0)
 {
   this->addSelections(pSet.getParameter<edm::ParameterSet>("Selector"));
 }
+
+
+//__________________________________________________________________________________________________
+AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignableTracker,
+                                                     AlignableMuon* alignableMuon,
+                                                     const edm::ParameterSet &pSet) :
+  theAlignables(), theAlignableTracker(alignableTracker), theAlignableMuon(alignableMuon)
+{
+  this->addSelections(pSet.getParameter<edm::ParameterSet>("Selector"));
+}
+
 
 //__________________________________________________________________________________________________
 unsigned int AlignmentParameterBuilder::addSelections(const edm::ParameterSet &pSet)
 {
 
-   AlignmentParameterSelector selector(theAlignableTracker);
-   const unsigned int addedSets = selector.addSelections(pSet);
+  AlignmentParameterSelector selector( theAlignableTracker, theAlignableMuon );
+  const unsigned int addedSets = selector.addSelections(pSet);
 
-   const std::vector<Alignable*> &alignables = selector.selectedAlignables();
-   const std::vector<std::vector<char> > &paramSels = selector.selectedParameters();
+  const std::vector<Alignable*> &alignables = selector.selectedAlignables();
+  const std::vector<std::vector<char> > &paramSels = selector.selectedParameters();
 
-   std::vector<Alignable*>::const_iterator iAli = alignables.begin();
-   std::vector<std::vector<char> >::const_iterator iParamSel = paramSels.begin();
-   unsigned int nHigherLevel = 0;
+  std::vector<Alignable*>::const_iterator iAli = alignables.begin();
+  std::vector<std::vector<char> >::const_iterator iParamSel = paramSels.begin();
+  unsigned int nHigherLevel = 0;
 
-   while (iAli != alignables.end() && iParamSel != paramSels.end()) {
-     std::vector<bool> boolParSel;
-     bool charSelIsGeneral = this->decodeParamSel(*iParamSel, boolParSel);
-     if (this->add(*iAli, boolParSel)) ++nHigherLevel;
-     if (charSelIsGeneral) this->addFullParamSel((*iAli)->alignmentParameters(), *iParamSel);
+  while (iAli != alignables.end() && iParamSel != paramSels.end()) {
+    std::vector<bool> boolParSel;
+    bool charSelIsGeneral = this->decodeParamSel(*iParamSel, boolParSel);
+    if (this->add(*iAli, boolParSel)) ++nHigherLevel;
+    if (charSelIsGeneral) this->addFullParamSel((*iAli)->alignmentParameters(), *iParamSel);
 
-     ++iAli;
-     ++iParamSel;
-   }
+    ++iAli;
+    ++iParamSel;
+  }
 
-   edm::LogInfo("Alignment") << "@SUB=AlignmentParameterBuilder::addSelections"
-                             << " Added " << addedSets << " set(s) of alignables with "
-                             << theAlignables.size() << " alignables in total,"
-                             << " of which " << nHigherLevel << " are higher level.";
+  edm::LogInfo("Alignment") << "@SUB=AlignmentParameterBuilder::addSelections"
+                            << " Added " << addedSets << " set(s) of alignables with "
+                            << theAlignables.size() << " alignables in total,"
+                            << " of which " << nHigherLevel << " are higher level.";
    
-   return addedSets;
+  return addedSets;
 }
 
 //__________________________________________________________________________________________________

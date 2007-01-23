@@ -7,8 +7,8 @@
 ///  \author F. Ronga - CERN
 ///
 
-#include <PluginManager/PluginFactory.h>
-#include <Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h>
+#include "PluginManager/PluginFactory.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
 // Forward declaration
 namespace edm { class ParameterSet; }

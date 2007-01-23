@@ -1,15 +1,16 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2006/11/08 16:36:22 $
- *  $Revision: 1.3 $
- *  (last update by $Author: fronga $)
+ *  $Date: 2006/11/30 10:03:04 $
+ *  $Revision: 1.4 $
+ *  (last update by $Author: flucke $)
  */
 
 #include <cctype>
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" // for enums TID/TIB/etc.
@@ -22,7 +23,15 @@
 
 //________________________________________________________________________________
 AlignmentParameterSelector::AlignmentParameterSelector(AlignableTracker *aliTracker) :
-  theTracker(aliTracker), theSelectedAlignables(), 
+  theTracker(aliTracker), theMuon(0), theSelectedAlignables(), 
+  theRangesEta(), theRangesPhi(), theRangesR(), theRangesZ()
+{
+  this->setSpecials(""); // init theOnlyDS, theOnlySS, theSelLayers, theMinLayer, theMaxLayer
+}
+
+//________________________________________________________________________________
+AlignmentParameterSelector::AlignmentParameterSelector(AlignableTracker *aliTracker, AlignableMuon* aliMuon) :
+  theTracker(aliTracker), theMuon(aliMuon), theSelectedAlignables(), 
   theRangesEta(), theRangesPhi(), theRangesR(), theRangesZ()
 {
   this->setSpecials(""); // init theOnlyDS, theOnlySS, theSelLayers, theMinLayer, theMaxLayer
@@ -77,38 +86,6 @@ unsigned int AlignmentParameterSelector::addSelections(const edm::ParameterSet &
     std::vector<std::string> decompSel(this->decompose(selections[iSel], ','));
     if (decompSel.empty()) continue; // edm::LogError or even cms::Exception??
 
-//      // special scenarios have to be given in configuration
-//      const std::string geoSelSpecial(decompSel.size() > 1 ? "," + decompSel[1] : "");
-//      if (decompSel[0] == "ScenarioA") {
-//        selections.push_back(std::string("PixelHalfBarrelDets,111000") += geoSelSpecial);
-//        selections.push_back(std::string("BarrelDSRods,111000") += geoSelSpecial);
-//        selections.push_back(std::string("BarrelSSRods,101000") += geoSelSpecial);
-//        continue;
-//      } else if (decompSel[0] == "ScenarioB") {
-//        selections.push_back(std::string("PixelHalfBarrelLadders,111000") += geoSelSpecial);
-//        selections.push_back(std::string("BarrelDSLayers,111000") += geoSelSpecial);
-//        selections.push_back(std::string("BarrelSSLayers,101000") += geoSelSpecial);
-//        continue;
-//      } else if (decompSel[0] == "CustomStripLayers") {
-//        selections.push_back(std::string("BarrelDSLayers,111000") += geoSelSpecial);
-//        selections.push_back(std::string("BarrelSSLayers,110000") += geoSelSpecial);
-//        selections.push_back(std::string("TIDLayers,111000") += geoSelSpecial);
-//        selections.push_back(std::string("TECLayers,110000") += geoSelSpecial);
-//        continue;
-//      } else if (decompSel[0] == "CustomStripRods") {
-//        selections.push_back(std::string("BarrelDSRods,111000") += geoSelSpecial);
-//        selections.push_back(std::string("BarrelSSRods,101000") += geoSelSpecial);
-//        selections.push_back(std::string("TIDRings,111000") += geoSelSpecial);
-//        selections.push_back(std::string("TECPetals,110000") += geoSelSpecial);
-//        continue;
-//      } else if (decompSel[0] == "CSA06Selection") {
-//        selections.push_back(std::string("TOBDSRods,111111") += geoSelSpecial);
-//        selections.push_back(std::string("TOBSSRods15,100111") += geoSelSpecial);
-//        selections.push_back(std::string("TIBDSDets,111111") += geoSelSpecial);
-//        selections.push_back(std::string("TIBSSDets,100111") += geoSelSpecial);
-//        continue;
-//      }
-
     if (decompSel.size() < 2) {
       throw cms::Exception("BadConfig") << "@SUB=AlignmentParameterSelector::addSelections"
                                         << selections[iSel]<<" from alignableParamSelector: "
@@ -154,6 +131,13 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
   const std::string name(this->setSpecials(nameInput)); // possibly changing name
 
   unsigned int numAli = 0;
+
+  // Check if name contains muon and react if alignable muon not initialized
+  // /!\ There is no corresponding check for the tracker!
+  if ( name.find("Muon") != std::string::npos && !theMuon )
+    throw cms::Exception("BadConfig") << "@SUB=TrackerAlignmentSelector::addSelection"
+                                      << "Configuration requires access to AlignableMuon,"
+                                      << " which is not initialized";
 
   if      (name == "AllDets")       numAli += this->addAllDets(paramSel);
   else if (name == "AllRods")       numAli += this->addAllRods(paramSel);
@@ -241,6 +225,36 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
     numAli += this->add(theTracker->barrelLayers(), paramSel);
     numAli += this->add(theTracker->TIDLayers(), paramSel);
     numAli += this->add(theTracker->endcapLayers(), paramSel);
+  }
+  //
+  // Muon selection
+  //
+  else if (name == "MuonDTChambers")  add(theMuon->DTChambers(), paramSel);
+  else if (name == "MuonDTStations")  add(theMuon->DTStations(), paramSel);
+  else if (name == "MuonDTWheels")    add(theMuon->DTWheels(), paramSel);
+  else if (name == "MuonBarrel")      add(theMuon->DTBarrel(), paramSel);
+  else if (name == "MuonCSCChambers") add(theMuon->CSCChambers(), paramSel);
+  else if (name == "MuonCSCStations") add(theMuon->CSCStations(), paramSel);
+  else if (name == "MuonEndcaps")     add(theMuon->CSCEndcaps(), paramSel);
+
+  else if (name == "AllMuonChambers") {
+     add(theMuon->DTChambers(), paramSel);
+     add(theMuon->CSCChambers(), paramSel);
+  }
+  else if (name == "AllMuonStations") {
+     add(theMuon->DTStations(), paramSel);
+     add(theMuon->CSCStations(), paramSel);
+  }
+  else if (name == "AllMuonComponents") {
+     add(theMuon->components(), paramSel);
+  }
+  //
+  // ALL tracker dets + muon chambers
+  //
+  else if (name == "AllTrackerAndMuon") {
+     addAllDets(paramSel);
+     add(theMuon->DTChambers(), paramSel);
+     add(theMuon->CSCChambers(), paramSel);
   }
   //
   // not found!

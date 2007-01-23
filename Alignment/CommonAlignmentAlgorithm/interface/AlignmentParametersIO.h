@@ -2,14 +2,14 @@
 #define Alignment_CommonAlignmentAlgorithm_AlignmentParametersIO_h
 
 
-#include<vector>
+#include <vector>
 
 /// \class AlignmentParametersIO
 ///
 /// abstract base class for I/O of AlignmentParameters 
 ///
-///  $Date: 2006/10/19 14:20:59 $
-///  $Revision: 1.2 $
+///  $Date: 2006/11/30 09:56:03 $
+///  $Revision: 1.3 $
 /// (last update by $Author: flucke $)
 
 class Alignable;

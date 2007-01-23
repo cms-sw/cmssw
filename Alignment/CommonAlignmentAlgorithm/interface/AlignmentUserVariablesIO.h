@@ -1,14 +1,14 @@
 #ifndef AlignmentUserVariablesIO_H
 #define AlignmentUserVariablesIO_H
 
-#include<vector>
+#include <vector>
 
 /// \class AlignmentUserVariablesIO
 ///
 /// Abstract base class for I/O of AlignmentUserVariables.
 /// Note that it is the caller's responsibility to delete objects created during reading.
 ///
-///  $Date: 2006/11/30 09:56:03 $
+///  $Date: 2006/12/12 08:55:44 $
 ///  $Revision: 1.3 $
 ///  $Author: flucke $ (at least last update...)
 

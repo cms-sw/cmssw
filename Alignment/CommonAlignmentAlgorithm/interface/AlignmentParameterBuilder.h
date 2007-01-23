@@ -8,8 +8,8 @@
  *
  *  Build Alignment Parameter Structure 
  *
- *  $Date: 2006/11/07 10:22:56 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/11/30 10:08:26 $
+ *  $Revision: 1.6 $
  *  (last update by $Author: flucke $)
  */
 
@@ -17,6 +17,7 @@ namespace edm {
   class ParameterSet;
 }
 class AlignableTracker;
+class AlignableMuon;
 class Alignable;
 class AlignmentParameters;
 
@@ -24,11 +25,20 @@ class AlignmentParameterBuilder
 {
 public:
 
-  /// Constructor
-  explicit AlignmentParameterBuilder(AlignableTracker *alignableTracker);
+  /// Constructor from tracker only
+  explicit AlignmentParameterBuilder( AlignableTracker *alignableTracker );
+
+  /// Constructor from tracker and muon
+  AlignmentParameterBuilder( AlignableTracker *alignableTracker, AlignableMuon *alignableMuon );
+
   /// Constructor adding selections by passing the ParameterSet named 'AlignmentParameterSelector'
   /// (expected in pSet) to addSelections(..)
-  AlignmentParameterBuilder(AlignableTracker *alignableTracker, const edm::ParameterSet &pSet);
+  AlignmentParameterBuilder( AlignableTracker *alignableTracker, const edm::ParameterSet &pSet );
+
+  /// Constructor from tracker and muon, plus selection
+  AlignmentParameterBuilder( AlignableTracker *alignableTracker, AlignableMuon *alignableMuon, 
+                             const edm::ParameterSet &pSet);
+
 
   /// destructor 
   virtual ~AlignmentParameterBuilder() {};
@@ -67,6 +77,9 @@ private:
 
   /// Alignable tracker   
   AlignableTracker* theAlignableTracker;
+
+  /// Alignable muon
+  AlignableMuon* theAlignableMuon;
 
 };
 
