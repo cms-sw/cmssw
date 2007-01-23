@@ -56,3 +56,24 @@ cond::Time_t
 cond::IOVService::globalTill() const{
   return m_impl->globalTill();
 }
+std::string 
+cond::IOVService::exportIOVWithPayload( cond::PoolStorageManager& destDB,
+					const std::string& iovToken,
+					const std::string& payloadObjectName ){
+  return m_impl->exportIOVWithPayload( destDB,
+				       iovToken,
+				payloadObjectName); 
+}
+std::string
+cond::IOVService::exportIOVRangeWithPayload( cond::PoolStorageManager& destDB,
+					     const std::string& iovToken,
+					     cond::Time_t since,
+					     cond::Time_t till,
+					     const std::string& payloadObjectName ){
+  return  m_impl->exportIOVRangeWithPayload( destDB,
+					     iovToken,
+					     since,
+					     till,
+					     payloadObjectName); 
+}
+

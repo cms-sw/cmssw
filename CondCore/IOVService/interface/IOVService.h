@@ -19,26 +19,41 @@ namespace cond{
       validity( const std::string& iovToken, cond::Time_t currenttime );
     std::string payloadContainerName( const std::string& iovtoken );
     void deleteAll();
+    /**
+    create an iterator to on the iov selected by the token
+    user aquires the ownership of the pointer. Need explicit delete after usage
+    */
     IOVIterator* newIOVIterator( const std::string& iovToken );
+    /**
+    create an editor to the iov selected by the token
+    user aquires the ownership of the pointer. Need explicit delete after usage
+    */
     IOVEditor* newIOVEditor( const std::string& token );
+    /**
+    create an editor to a brand new iov
+    user aquires the ownership of the pointer. Need explicit delete after usage
+    */
     IOVEditor* newIOVEditor();
     cond::TimeType timeType() const;
     cond::Time_t globalSince() const;
     cond::Time_t globalTill() const;
-    void exportIOV( cond::PoolStorageManager& destDB,
-		    const std::string& iovToken );
-    void exportIOVRange( cond::PoolStorageManager& destDB,
-			 const std::string& iovToken,
-			 cond::Time_t lowValue,
-			 cond::Time_t highValue);
-    void exportIOVWithPayload( cond::PoolStorageManager& destDB,
-			       const std::string& iovToken,
-			       const std::string& payloadObjectName );
-    void exportIOVRangeWithPayload( cond::PoolStorageManager& destDB,
-				    const std::string& iovToken,
-				    cond::Time_t lowValue,
-				    cond::Time_t highValue,
-				    const std::string& payloadObjectName );
+    /**
+       export IOV selected by token and associated payload to another database
+       return new iov token string 
+    */
+    std::string exportIOVWithPayload( cond::PoolStorageManager& destDB,
+				      const std::string& iovToken,
+				      const std::string& payloadObjectName );
+    /**
+       export IOV selected by token within selected range and associated 
+       payload to another database
+       return new iov token string 
+    */
+    std::string exportIOVRangeWithPayload( cond::PoolStorageManager& destDB,
+					   const std::string& iovToken,
+					   cond::Time_t since,
+					   cond::Time_t till,
+					   const std::string& payloadObjectName );
   private:
     cond::PoolStorageManager& m_pooldb;
     cond::IOVServiceImpl* m_impl;
