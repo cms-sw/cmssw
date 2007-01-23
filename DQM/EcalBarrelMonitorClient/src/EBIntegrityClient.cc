@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/01/21 22:07:21 $
- * $Revision: 1.125 $
+ * $Date: 2007/01/22 10:24:07 $
+ * $Revision: 1.126 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1282,11 +1282,18 @@ void EBIntegrityClient::analyze(void){
   }
 
   uint64_t bits01 = 0;
+  bits01 |= EcalErrorDictionary::getMask("CH_ID_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("CH_GAIN_ZERO_WARNING");
+  bits01 |= EcalErrorDictionary::getMask("CH_GAIN_SWITCH_WARNING");
   bits01 |= EcalErrorDictionary::getMask("CH_ID_ERROR");
   bits01 |= EcalErrorDictionary::getMask("CH_GAIN_ZERO_ERROR");
   bits01 |= EcalErrorDictionary::getMask("CH_GAIN_SWITCH_ERROR");
 
   uint64_t bits02 = 0;
+  bits02 |= EcalErrorDictionary::getMask("TT_ID_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("TT_SIZE_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("TT_LV1_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("TT_BUNCH_X_WARNING");
   bits02 |= EcalErrorDictionary::getMask("TT_ID_ERROR");
   bits02 |= EcalErrorDictionary::getMask("TT_SIZE_ERROR");
   bits02 |= EcalErrorDictionary::getMask("TT_LV1_ERROR");
