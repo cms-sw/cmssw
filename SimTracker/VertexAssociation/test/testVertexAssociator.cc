@@ -84,8 +84,8 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
   cout << "                      ****************** Reco To Sim ****************** " << endl;
   cout << "-- Associator by hits --" << endl;  
   reco::RecoToSimCollection p = 
-//    associatorByHits->associateRecoToSim (trackCollectionH,TPCollectionH,&event );
-    associatorByChi2->associateRecoToSim (trackCollectionH,TPCollectionH,&event );
+    associatorByHits->associateRecoToSim (trackCollectionH,TPCollectionH,&event );
+//    associatorByChi2->associateRecoToSim (trackCollectionH,TPCollectionH,&event );
   reco::VertexRecoToSimCollection vR2S = associatorByTracks ->
       associateRecoToSim(primaryVertexH,TVCollectionH,event,p);
   
