@@ -66,7 +66,7 @@ void cond::PoolStorageManager::rollback(){
   m_svc->transaction().rollback();
   m_cat->rollback();
 }
-void 
+std::string
 cond::PoolStorageManager::copyObjectTo( cond::PoolStorageManager& destDB,
 					const std::string& className,
 					const std::string& objectToken ){
@@ -81,6 +81,8 @@ cond::PoolStorageManager::copyObjectTo( cond::PoolStorageManager& destDB,
   destPlace.setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
   pool::RefBase mycopy(&(destDB.DataSvc()),myPtr,myclassType.TypeInfo());
   mycopy.markWrite(destPlace);
+  //return token string of the copy
+  return mycopy.toString();
 }
 void 
 cond::PoolStorageManager::copyContainerTo( cond::PoolStorageManager& destDB,

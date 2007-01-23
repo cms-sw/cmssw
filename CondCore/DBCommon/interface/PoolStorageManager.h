@@ -28,7 +28,8 @@ namespace cond{
     void startTransaction(bool isReadOnly=true);
     void commit();
     void rollback();
-    void copyObjectTo( cond::PoolStorageManager& destDB,
+    //all copy operations do not follow external links
+    std::string copyObjectTo( cond::PoolStorageManager& destDB,
 		       const std::string& className,
 		       const std::string& objectToken );
     void copyContainerTo( cond::PoolStorageManager& destDB,
