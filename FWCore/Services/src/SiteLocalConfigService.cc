@@ -53,7 +53,7 @@ inline std::string _toParenString(const DOMNode &nodeToConvert)
     DOMNodeList *childList = nodeToConvert.getChildNodes();
 
     unsigned int numNodes = childList->getLength ();
-    for (unsigned int i=0; i < numNodes; i++)
+    for (unsigned int i = 0; i < numNodes; ++i)
     {
 	DOMNode *childNode = childList->item(i);
 	if (childNode->getNodeType() != DOMNode::ELEMENT_NODE)
@@ -62,7 +62,7 @@ inline std::string _toParenString(const DOMNode &nodeToConvert)
 
 	DOMNamedNodeMap *attributes = child->getAttributes();
 	unsigned int numAttributes = attributes->getLength ();
-	for (unsigned int j=0; j < numAttributes; j++)
+	for (unsigned int j = 0; j < numAttributes; ++j)
 	{
 	    DOMNode *attributeNode = attributes->item(j);
 	    if (attributeNode->getNodeType() != DOMNode::ATTRIBUTE_NODE)
@@ -195,9 +195,9 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
     
 	DOMNodeList *sites = doc->getElementsByTagName (_toDOMS ("site"));
 	unsigned int numSites = sites->getLength ();
-	for (unsigned int i=0;
+	for (unsigned int i = 0;
 	     i < numSites; 
-	     i++)
+	     ++i)
 	{	
 	    DOMElement *site = static_cast <DOMElement *> (sites->item (i));
 	
