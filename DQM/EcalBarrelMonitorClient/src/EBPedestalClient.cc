@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/01/22 10:24:07 $
- * $Revision: 1.106 $
+ * $Date: 2007/01/23 13:38:54 $
+ * $Revision: 1.107 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -683,7 +683,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
             EcalLogicID ecid = m->first;
 
-            if ( ecid.getID1() == ism && ecid.getID2() == i ) {
+            if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
               if ( ! (m->second).getErrorBits() & ( bits01 | bits03 ) ) {
                 status = status && false;
               }

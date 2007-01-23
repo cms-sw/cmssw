@@ -673,7 +673,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
             EcalLogicID ecid = m->first;
 
-            if ( ecid.getID1() == ism && ecid.getID2() == i ) {
+            if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
               if ( ! (m->second).getErrorBits() & ( bits01 | bits03 ) ) {
                 status = status && false;
               }
