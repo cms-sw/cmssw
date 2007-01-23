@@ -13,7 +13,7 @@ class HRes2DHit;
 class HRes4DHit;
 
 void plotHitReso();
-void plotWWWHitReso();
+void plotWWWHitReso(int dimSwitch = 1, TString nameDir = "");
 void draw(bool do1DRecHit, bool do2DRecHit, bool do4DRecHit, bool ThreeIn1, int form);
 void plot1DResiduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1);
 void plot2DResiduals(HRess2DHit * h1);
@@ -85,7 +85,7 @@ void plotHitReso(){
 
 }
 
-void plotWWWHitReso() {
+void plotWWWHitReso(int dimSwitch, TString nameDir) {
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
   gROOT->LoadMacro("../src/Histograms.h"); // Load definition of histograms
@@ -94,10 +94,26 @@ void plotWWWHitReso() {
   TStyle * style = getStyle();
 
   //Main switches
-  bool do1DRecHit = true; 
+  bool do1DRecHit = false; 
   bool do2DRecHit = false; 
   bool do2DSLPhiRecHit = false; 
   bool do4DRecHit = false; 
+
+  if(dimSwitch == 1) {
+    do1DRecHit = true;
+  } else if(dimSwitch == 2) {
+    do2DRecHit = true;
+  } else if(dimSwitch == 3) {
+    do2DSLPhiRecHit = true;
+  } else if(dimSwitch == 4) {
+    do4DRecHit = true;
+  } else {
+    cout << "Not a valid option!" << endl;
+    return;
+  }
+
+
+
   bool ThreeIn1 = false;  // Plot the 3 steps in a single canvas (where appl.)
 
   int form = 2;          // Form factor of the canvases (where applicable)
@@ -122,15 +138,21 @@ void plotWWWHitReso() {
 
 
   draw(do1DRecHit, do2DRecHit, do4DRecHit, ThreeIn1, form);
-  cout << "Set the name of the www directory: " << endl;
   TString nameS;
-  cin >> nameS;
+  if(nameDir == "") {
+    cout << "Set the name of the www directory: " << endl;
+    cin >> nameS;
+  } else {
+    nameS = nameDir;
+  }
+  TString pwd = gSystem->WorkingDirectory();
+  gSystem->MakeDirectory("/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/DT/DTLocalRecoQualityTest/"+nameS);
+  gSystem->ChangeDirectory("/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/DT/DTLocalRecoQualityTest/"+nameS);
 
-  gSystem->MakeDirectory("/afs/cern.ch/user/c/cerminar/www/DTLocalRecoQualityTest/"+nameS);
-  gSystem->ChangeDirectory("/afs/cern.ch/user/c/cerminar/www/DTLocalRecoQualityTest/"+nameS);
 
+  printCanvases(".gif");
+  gSystem->ChangeDirectory(pwd.Data());
 
-  printCanvases("gif");
 }
 
 
