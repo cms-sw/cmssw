@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.5 2007/01/22 15:19:59 benigno Exp $
+// $Id: EcalErrorMask.cc,v 1.6 2007/01/22 22:02:08 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.5 $
-  \date $Date: 2007/01/22 15:19:59 $
+  \version $Revision: 1.6 $
+  \date $Date: 2007/01/22 22:02:08 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
@@ -101,7 +101,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 	throw( std::runtime_error( os.str() ) );
 	return;
       }
-      EcalLogicID id = EcalLogicID( "local", 10000*sm+ic, sm, ic, 0 );
+      EcalLogicID id = EcalLogicID( "EB_crystal_number", 1011000000+10000*sm+ic, sm, ic, 0 );
       std::map<EcalLogicID, RunCrystalErrorsDat>::iterator i = EcalErrorMask::mapCrystalErrors_.find( id );
       if( i != mapCrystalErrors_.end() ) {
 	uint64_t oldBitmask = (i->second).getErrorBits();
@@ -138,7 +138,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 	throw( std::runtime_error( os.str() ) );
 	return;
       }
-      EcalLogicID id = EcalLogicID( "local", 10000*sm+it, sm, it, 0 );
+      EcalLogicID id = EcalLogicID( "EB_trigger_tower", 1021000000+10000*sm+it, sm, it, 0 );
       std::map<EcalLogicID, RunTTErrorsDat>::iterator i = EcalErrorMask::mapTTErrors_.find( id );
       if( i != mapTTErrors_.end() ) {
 	uint64_t oldBitmask = (i->second).getErrorBits();
@@ -175,7 +175,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 	throw( std::runtime_error( os.str() ) );
 	return;
       }
-      EcalLogicID id = EcalLogicID( "local", 10000*sm+ic, sm, ic, 0 );
+      EcalLogicID id = EcalLogicID( "EB_LM_PN", 1131000000+10000*sm+ic, sm, ic, 0 );
       std::map<EcalLogicID, RunPNErrorsDat>::iterator i = EcalErrorMask::mapPNErrors_.find( id );
       if( i != mapPNErrors_.end() ) {
 	uint64_t oldBitmask = (i->second).getErrorBits();
@@ -212,7 +212,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 	throw( std::runtime_error( os.str() ) );
 	return;
       }
-      EcalLogicID id = EcalLogicID( "local", 10000*sm+ic, sm, ic, 0 );
+      EcalLogicID id = EcalLogicID( "EB_mem_channel", 1191000000+10000*sm+ic, sm, ic, 0 );
       std::map<EcalLogicID, RunMemChErrorsDat>::iterator i = EcalErrorMask::mapMemChErrors_.find( id );
       if( i != mapMemChErrors_.end() ) {
 	uint64_t oldBitmask = (i->second).getErrorBits();
@@ -249,7 +249,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 	throw( std::runtime_error( os.str() ) );
 	return;
       }
-      EcalLogicID id = EcalLogicID( "local", 10000*sm+it, sm, it, 0 );
+      EcalLogicID id = EcalLogicID( "EB_mem_TT", 1181000000+10000*sm+it, sm, it, 0 );
       std::map<EcalLogicID, RunMemTTErrorsDat>::iterator i = EcalErrorMask::mapMemTTErrors_.find( id );
       if( i != mapMemTTErrors_.end() ) {
 	uint64_t oldBitmask = (i->second).getErrorBits();
