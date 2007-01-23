@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2006/11/21 13:16:51 $
- * $Revision: 1.43 $
+ * $Date: 2006/12/15 09:44:49 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -160,6 +160,10 @@ TProfile2D* i02_[36];
 float expectedMean_[3];
 float discrepancyMean_[3];
 float RMSThreshold_[3];
+
+// Quality check on PNs
+
+float meanThresholdPN_;
 
 };
 

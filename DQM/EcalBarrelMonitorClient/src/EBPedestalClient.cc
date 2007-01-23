@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/01/23 13:47:46 $
- * $Revision: 1.109 $
+ * $Date: 2007/01/23 14:00:50 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -125,6 +125,8 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
   RMSThreshold_[0] = 1.0;
   RMSThreshold_[1] = 1.2;
   RMSThreshold_[2] = 2.0;
+
+  meanThresholdPN_ = 200.;
 
 }
 
@@ -667,7 +669,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
       pn.setPedMeanG16(mean02);
       pn.setPedRMSG16(rms02);
 
-      if ( mean01 > 200. && mean02 > 200. ) {
+      if ( mean01 > meanThresholdPN_ && mean02 > meanThresholdPN_ ) {
         pn.setTaskStatus(true);
       } else {
         pn.setTaskStatus(false);
@@ -678,12 +680,12 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
             EcalLogicID ecid = m->first;
 
             if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
-              if ( mean01 > 200. ) {
+              if ( mean01 > meanThresholdPN_ ) {
                 if ( ! ((m->second).getErrorBits() & bits01) ) {
                   status = status && false;
                 }
               }
-              if ( mean02 > 200. ) {
+              if ( mean02 > meanThresholdPN_ ) {
                 if ( ! ((m->second).getErrorBits() & bits02) ) {
                   status = status && false;
                 }
