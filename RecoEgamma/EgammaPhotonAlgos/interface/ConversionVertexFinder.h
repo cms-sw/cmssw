@@ -32,7 +32,10 @@ public:
   ~ConversionVertexFinder();
 
 
- reco::Vertex* run (std::vector<reco::TransientTrack> pair);
+  //reco::Vertex* run (std::vector<reco::TransientTrack> pair);
+  // reco::Vertex run (std::vector<reco::TransientTrack> pair);
+  //  TransientVertex run (std::vector<reco::TransientTrack> pair);
+  CachingVertex run (std::vector<reco::TransientTrack> pair);
 
 
 
