@@ -14,6 +14,8 @@
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <Utilities/General/interface/precomputed_value_sort.h>
+#include "DataFormats/GeometrySurface/interface/GeometricSorting.h"
 
 #include "GeneralBinFinderInPhi.h"
 #include "PhiBorderFinder.h"
@@ -25,10 +27,14 @@ using namespace std;
 
 MuRodBarrelLayer::MuRodBarrelLayer(vector<const DetRod*>& rods) :
   theRods(rods),
-  theComponents(theRods.begin(),theRods.end()),
   theBinFinder(0),
   isOverlapping(false)
 {
+  // Sort rods in phi
+  precomputed_value_sort(theRods.begin(),theRods.end(), geomsort::ExtractPhi<DetRod,float>());
+
+  theComponents.reserve(theRods.size());
+  std::copy(theRods.begin(),theRods.end(),back_inserter(theComponents));
 
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRodBarrelLayer";
 
@@ -105,7 +111,7 @@ MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
   LogTrace(metname) << "     MuRodBarrelLayer::compatibleDets, closestRod: " << closest
                     << " phi : " << closestRod->surface().position().phi()
                     << " FTS phi: " << tsos.globalPosition().phi();
-
+  
   result = closestRod->compatibleDets(tsos, prop, est);
 
   int nclosest = result.size(); // Debug counter
