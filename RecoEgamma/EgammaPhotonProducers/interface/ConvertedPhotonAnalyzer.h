@@ -10,6 +10,7 @@
 // forward declarations
 class TFile;
 class TH1F;
+class TH2F;
 class TTree;
 class SimVertex;
 class SimTrack;
@@ -38,6 +39,8 @@ class ConvertedPhotonAnalyzer : public edm::EDAnalyzer
      TFile*      fOutputFile_ ;
 
      TTree *tree_;
+
+     int nEvt_;
 
      std::string HepMCLabel;
      std::string SimTkLabel;
@@ -70,17 +73,28 @@ class ConvertedPhotonAnalyzer : public edm::EDAnalyzer
      TH1F *h_MCConvPt_;
      TH1F *h_MCConvEta_;
      TH1F *h_MCConvR_;
+     TH2F* h_MCConvRvsZ_;
 
      // SC from reco photons
      TH1F* h_scE_;
      TH1F* h_scEta_;
      TH1F* h_scPhi_;
+     //
+     TH1F* h_phoE_;
+     TH1F* h_phoEta_;
+     TH1F* h_phoPhi_;
+     //
      // Out In Reco Tracks
      TH1F* h_OItk_inPt_;
      TH1F* h_OItk_nHits_;
      // In Out  Reco Tracks
      TH1F* h_IOtk_inPt_;
      TH1F* h_IOtk_nHits_;
+     // All Reco Tracks
+     TH1F* h_tk_inPt_[2];
+     TH1F* h_tk_nHits_[2];
+     // Reco conversion vertex position
+     TH2F* h_convVtxRvsZ_;
 
      float mcPhoEnergy[10];
      float mcPhoEt[10];
