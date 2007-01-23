@@ -192,7 +192,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     }
   }
   m_con=connect;
-  std::cout<<m_con<<std::endl;
+  //std::cout<<m_con<<std::endl;
   m_pooldb=new cond::PoolStorageManager(m_con,mycatalog,m_session);
   m_session->open();
   if(m_timetype=="timestamp"){
