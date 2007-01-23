@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.6 2007/01/22 22:02:08 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.7 2007/01/23 08:06:34 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.6 $
-  \date $Date: 2007/01/22 22:02:08 $
+  \version $Revision: 1.7 $
+  \date $Date: 2007/01/23 08:06:34 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
@@ -175,7 +175,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 	throw( std::runtime_error( os.str() ) );
 	return;
       }
-      EcalLogicID id = EcalLogicID( "EB_LM_PN", 1131000000+10000*sm+ic, sm, ic, 0 );
+      EcalLogicID id = EcalLogicID( "EB_LM_PN", 1131000000+10000*sm+(ic-1), sm, (ic-1), 0 );
       std::map<EcalLogicID, RunPNErrorsDat>::iterator i = EcalErrorMask::mapPNErrors_.find( id );
       if( i != mapPNErrors_.end() ) {
 	uint64_t oldBitmask = (i->second).getErrorBits();
@@ -327,7 +327,7 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
        i != EcalErrorMask::mapPNErrors_.end(); i++ ) {
     string type = "PN";
     int sm = (i->first).getID1();
-    int ic = (i->first).getID2();
+    int ic = 1+(i->first).getID2();
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
