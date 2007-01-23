@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.51 2007/01/10 06:37:25 wmtan Exp $
+$Id: RootFile.cc,v 1.52 2007/01/19 04:33:29 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -177,6 +177,11 @@ namespace edm {
     EventAux evAux;
     EventAux *pEvAux = &evAux;
     eventTree().fillAux<EventAux>(pEvAux);
+    if (fileFormatVersion_.value_ <= 1) {
+      // for backward compatibility.
+      evAux.luminosityBlockID_ = 1;
+    }
+
     bool isNewRun = (evAux.id().run() != eventAux().id().run() || luminosityBlockPrincipal_.get() == 0);
     bool isNewLumi = isNewRun || (evAux.luminosityBlockID() != eventAux().luminosityBlockID());
     eventAux_ = evAux;
