@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/19 11:02:18 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/10/19 13:36:32 $
+ *  $Revision: 1.17 $
  *  \author N. Amapane - CERN
  */
 
@@ -14,7 +14,7 @@
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 
 #include <Utilities/General/interface/precomputed_value_sort.h>
-#include <Geometry/Surface/interface/GeometricSorting.h>
+#include <DataFormats/GeometrySurface/interface/GeometricSorting.h>
 
 #include <algorithm>
 
