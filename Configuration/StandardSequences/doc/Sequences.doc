@@ -44,7 +44,7 @@ This package contains standard configuration fragments (*.cff) for most common u
 
 (to be filled)
 
-\subsection seq Reconstruction Sequences
+\subsection seq1 Reconstruction Sequences
 
 - \b reconstruction : this is the only default for CMSSW Reconstruction. Changes with time and is defined looking at the various needs wrt algorithms, space on disk, time available for reconstruction. At the moment, the standard \b reconstruction sequence is composed of (please note that at least the distinction between global/highlevel reconstruction does not really reflect functional aspects)
 
