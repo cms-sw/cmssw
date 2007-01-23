@@ -1,5 +1,8 @@
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelErrorParametrization.h"
 
+// G. Giurgiu (ggiurgiu@pha.jhu.edu): 01/23/07 - replaced #ifdef DEBUG statements with LogDebug("...")
+//                                             - vector<float>& ybarrel_1D = (ybarrel_3D[i_size])[i_alpha];
+
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelErrorParametrization.h"
 
 //#include "Utilities/GenUtil/interface/ioutils.h"
 //#include "CommonDet/DetUtilities/interface/DetExceptions.h"
@@ -9,7 +12,6 @@
 
 // MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 
 #include <string>
 #include <iostream>
@@ -21,8 +23,6 @@
 #include <cmath>
 
 using namespace std;
-
-//#define TPDEBUG
 
 //-----------------------------------------------------------------------------
 //  
@@ -147,10 +147,10 @@ PixelErrorParametrization::getError(GeomDetType::SubDetector pixelPart,
     //  &&& Should throw an exception here!
     assert(0);
   }
-  //#ifdef TPDEBUG
-  //  cout << " ErrorMatrix gives error: " << element.first << " , " 
-  //       <<element.second << endl;
-  //#endif
+
+  LogDebug("We are in getError") << " ErrorMatrix gives error: " 
+				 << element.first << " , " << element.second;
+  
   return element;
 }
 
@@ -162,10 +162,8 @@ PixelErrorParametrization::getError(GeomDetType::SubDetector pixelPart,
 //-----------------------------------------------------------------------------
 float PixelErrorParametrization::error_XB(int sizex, float alpha, float beta)
 {
-#ifdef DEBUG 
-  cout << "I'M AT THE BEGIN IN ERROR XB METHOD" << endl;
-#endif
-   bool barrelPart = true;
+  LogDebug("I'M AT THE BEGIN IN ERROR XB METHOD");
+  bool barrelPart = true;
  // find size index
   int i_size = min(sizex-1,2);
 
@@ -184,9 +182,8 @@ float PixelErrorParametrization::error_XB(int sizex, float alpha, float beta)
 //-----------------------------------------------------------------------------
 float PixelErrorParametrization::error_XF(int sizex, float alpha, float beta)
 {
-#ifdef DEBUG 
-  cout << "I'M AT THE BEGIN IN ERROR XF METHOD" << endl;
-#endif
+  LogDebug("I'M AT THE BEGIN IN ERROR XF METHOD");
+
   bool barrelPart = false;
   //symmetrization w.r.t. orthogonal direction
   float alpha_prime = fabs(3.14159/2.-alpha);
@@ -196,11 +193,10 @@ float PixelErrorParametrization::error_XF(int sizex, float alpha, float beta)
   int i_beta = 0;
   // find beta index
   // int i_beta = betaIndex(i_size, bbins_xf, beta);
-#ifdef DEBUG 
-  cout << "size index = " << i_size << endl;
-  cout << "no beta index " << endl;
-  cout << " alphaprime = " << alpha_prime << endl;
-#endif
+  LogDebug("Still in error_XF") << "size index = " << i_size
+				<< "no beta index, "
+				<< " alphaprime = " << alpha_prime;
+
   return linParametrize(barrelPart, i_size, i_beta, alpha_prime);
 }
 
@@ -211,59 +207,67 @@ float PixelErrorParametrization::error_XF(int sizex, float alpha, float beta)
 //-----------------------------------------------------------------------------
 float PixelErrorParametrization::error_YB(int sizey, float alpha, float beta)
 {  
-#ifdef DEBUG
-  cout << "I'M AT THE BEGIN IN ERROR YB METHOD" << endl;
-#endif
+  LogDebug("I'M AT THE BEGIN IN ERROR YB METHOD");
+  
   int i_alpha;
   int i_size = min(sizey-1,5);
-#ifdef DEBUG
-  cout << "I found size index = " << i_size << endl;
-#endif
-  if (sizey < 4) {      // 3 alpha bins
-    if (alpha <= a_min + a_bin) { 
-      i_alpha = 0;
-    } else if (alpha < a_max-a_bin) {
-      i_alpha = 1;
-    }else {
-      i_alpha = 2; 
+  
+  LogDebug("I found size index = ") << i_size;
+  
+  if (sizey < 4) 
+    {      // 3 alpha bins
+      if (alpha <= a_min + a_bin) 
+	{ 
+	  i_alpha = 0;
+	} 
+      else if (alpha < a_max-a_bin) 
+	{
+	  i_alpha = 1;
+	}
+      else 
+	{
+	  i_alpha = 2; 
+	}
     }
-  }else{                // 1 alpha bin 
-    i_alpha = 0;
-  }
-#ifdef DEBUG  
-  cout << "I found alpha index = " << i_alpha << endl;
-#endif
+  else
+    { // 1 alpha bin 
+      i_alpha = 0;
+    }
+  
+  LogDebug("I found alpha index = ") << i_alpha;
+  
   // vector of beta parametrization
-  vector<float> ybarrel_1D = (ybarrel_3D[i_size])[i_alpha];
-
-#ifdef DEBUG  
-  cout << "beta vec has dimensions = " << ybarrel_1D.size()<< endl;
-  cout << "beta = " << beta << " beta max = " << brange_yb[i_size].second 
-       << " beta min = " << brange_yb[i_size].first << endl;
-#endif
+  //vector<float> ybarrel_1D = (ybarrel_3D[i_size])[i_alpha];
+  vector<float>& ybarrel_1D = (ybarrel_3D[i_size])[i_alpha]; // suggestion to speed up the code by Patrick/Vincenzo
+  
+  LogDebug("beta vec has dimensions = ") << ybarrel_1D.size()
+					 << "  beta = " << beta 
+					 << "  beta max = " << brange_yb[i_size].second 
+					 << "  beta min = " << brange_yb[i_size].first;
 
   // beta --> abs(pi/2-beta) to be symmetric w.r.t. pi/2 axis
   float beta_prime = fabs(3.14159/2.-beta);
-  if (beta_prime <= brange_yb[i_size].first){ 
-    return ybarrel_1D[0];
-  }else if (beta_prime >= brange_yb[i_size].second){
-    return ybarrel_1D[ybarrel_1D.size()-1];
-  } else {
-    return interpolation(ybarrel_1D, beta_prime, brange_yb[i_size] );
-  }  
+  if ( beta_prime <= brange_yb[i_size].first )
+    { 
+      return ybarrel_1D[0];
+    }
+  else if ( beta_prime >= brange_yb[i_size].second )
+    {
+      return ybarrel_1D[ybarrel_1D.size()-1];
+    } 
+  else 
+    {
+      return interpolation(ybarrel_1D, beta_prime, brange_yb[i_size] );
+    }  
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 //  
 //-----------------------------------------------------------------------------
 float PixelErrorParametrization::error_YF(int sizey, float alpha, float beta)
 {
-#ifdef DEBUG 
-  cout << "I'M AT THE BEGIN IN ERROR YF METHOD" << endl;
-#endif
+  LogDebug("I'M AT THE BEGIN IN ERROR YF METHOD");
+
   // find y size index
   int i_size = min(sizey-1,1);
   // no parametrization in alpha
@@ -273,7 +277,7 @@ float PixelErrorParametrization::error_YF(int sizey, float alpha, float beta)
   if (beta_prime < brange_yf.first) beta_prime = brange_yf.first;
   if (beta_prime > brange_yf.second) beta_prime = brange_yf.second;
   float err_par = 0;
-  for(int ii=0; ii < ( (yforward_3D[i_size])[i_alpha] ).size(); ii++){
+  for(int ii=0; ii < (int)( (yforward_3D[i_size])[i_alpha] ).size(); ii++){
     err_par += ( (yforward_3D[i_size])[i_alpha] )[ii] * pow(beta_prime,ii);
   }
   return err_par; 
@@ -295,7 +299,7 @@ float PixelErrorParametrization::interpolation(vector<float>& vector_1D,
   float bin = (range.second-range.first)/float(vector_1D.size());
   float curr = range.first;
   int i_bin = -1;
-  for(int i = 0; i< vector_1D.size(); i++){
+  for(int i = 0; i< (int)vector_1D.size(); i++){
     //cout<< "index = "<< i << endl;
     curr += bin;
     if (angle <= curr){
@@ -314,7 +318,7 @@ float PixelErrorParametrization::interpolation(vector<float>& vector_1D,
     x2 = x1 + bin;
     y1 = vector_1D[0];
     y2 = vector_1D[1];
-  }else if ( i_bin == (vector_1D.size()-1) || i_bin == -1){
+  }else if ( i_bin == (int)(vector_1D.size()-1) || i_bin == -1){
     x2 = range.second - bin/2;
     x1 = x2 - bin;
     y2 = vector_1D[(vector_1D.size()-1)]; 
@@ -332,12 +336,10 @@ float PixelErrorParametrization::interpolation(vector<float>& vector_1D,
   }
   float y = ((y2-y1)*angle + (y1*x2-y2*x1))/(x2-x1);
   //end test1
-#ifdef DEBUG
-  cout << "INTERPOLATION GIVES" << endl;
-  cout << "(x1,y1) = " << x1 << " , " << y1 <<endl;
-  cout << "(x2,y2) = " << x2 << " , " << y2 <<endl;
-  cout << "(angle,y) = " << angle << " , " << y <<endl;
-#endif
+
+  LogDebug("INTERPOLATION GIVES") << "  (x1,y1) = " << x1    << " , " << y1
+				  << "  (x2,y2) = " << x2    << " , " << y2
+				  << "(angle,y) = " << angle << " , " << y;
   
   return y;
 }
@@ -353,7 +355,7 @@ int PixelErrorParametrization::betaIndex(int& i_size, vector<float>& betabins,
   int i_beta = -1;
   // beta --> abs(pi/2-beta) to be symmetric w.r.t. pi/2 axis
   float beta_prime = fabs(3.14159/2.-beta);
-  for(int i = 0; i < betabins.size(); i++){
+  for(int i = 0; i < (int)betabins.size(); i++){
     if (beta_prime < betabins[i]) {
       i_beta = i;
       break;
@@ -373,13 +375,11 @@ int PixelErrorParametrization::betaIndex(int& i_size, vector<float>& betabins,
 float PixelErrorParametrization::linParametrize(bool& barrelPart, int& i_size, 
 						int& i_angle1, float& angle2)
 {
-#ifdef DEBUG
-  cout << "we are in linParametrize metod" <<endl;
-  cout << "barrel? " << barrelPart << endl;
-  cout << "size index = " << i_size << endl;
-  cout << "angle index = " << i_angle1 << endl;
-  cout << "angle variable = " << angle2 << endl;
-#endif
+  LogDebug("We are in linParametrize metod") << "barrel? " << barrelPart
+					     << "size index = " << i_size
+					     << "angle index = " << i_angle1
+					     << "angle variable = " << angle2;
+
   float par0 = 0;
   float par1 = 0;
   if (barrelPart) {
@@ -389,12 +389,12 @@ float PixelErrorParametrization::linParametrize(bool& barrelPart, int& i_size,
     par0 = ((xforward_3D[i_size])[i_angle1])[0]; 
     par1 = ((xforward_3D[i_size])[i_angle1])[1]; 
   }
-#ifdef DEBUG
-  cout << "PAR0 = " << par0 << endl;
-  cout << "PAR1 = " << par1 << endl;
-  cout << "PAR1 = " << angle2 << endl;
-  cout << "X error = " << (par0 + par1*angle2) << endl;
-#endif
+
+  LogDebug("Still in linParametrize metod") << "PAR0 = " << par0
+					    << "PAR1 = " << par1
+					    << "PAR1 = " << angle2
+					    << "X error = " << (par0 + par1*angle2);
+  
   return par0 + par1*angle2;
 }
 
@@ -408,13 +408,11 @@ float PixelErrorParametrization::linParametrize(bool& barrelPart, int& i_size,
 float PixelErrorParametrization::quadParametrize(bool& barrelPart, int& i_size, 
 						 int& i_angle1, float& angle2)
 {
-#ifdef DEBUG
-  cout << "we are in quadParametrize metod" <<endl;
-  cout << "barrel? " << barrelPart << endl;
-  cout << "size index = " << i_size << endl;
-  cout << "angle index = " << i_angle1 << endl;
-  cout << "angle variable = " << angle2 << endl;
-#endif
+  LogDebug("We are in quadParametrize metod") << "barrel? " << barrelPart
+					      << "size index = " << i_size
+					      << "angle index = " << i_angle1
+					      << "angle variable = " << angle2;
+
   float par0 = 0;
   float par1 = 0;
   float par2 = 0;
@@ -427,13 +425,13 @@ float PixelErrorParametrization::quadParametrize(bool& barrelPart, int& i_size,
     par1 = ((xforward_3D[i_size])[i_angle1])[1]; 
     par2 = ((xforward_3D[i_size])[i_angle1])[2]; 
   }
-#ifdef DEBUG
-  cout << "PAR0 = " << par0 << endl;
-  cout << "PAR1 = " << par1 << endl;
-  cout << "PAR2 = " << par1 << endl;
-  cout << "ANGLE = " << angle2 << endl;
-  cout << "X error = " << (par0 + par1*angle2 + par2*angle2*angle2) << endl;
-#endif
+
+  LogDebug("Still in quadParametrize metod") << "PAR0 = " << par0
+					     << "PAR1 = " << par1
+					     << "PAR2 = " << par1
+					     << "ANGLE = " << angle2
+					     << "X error = " << (par0 + par1*angle2 + par2*angle2*angle2);
+
   return par0 + par1*angle2 + par2*angle2*angle2;
 }
 
