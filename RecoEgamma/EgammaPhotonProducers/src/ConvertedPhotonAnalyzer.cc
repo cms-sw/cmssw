@@ -23,6 +23,7 @@
 // 
 #include "TFile.h"
 #include "TH1.h"
+#include "TH2.h"
 #include "TTree.h"
 // 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -51,6 +52,9 @@ ConvertedPhotonAnalyzer::ConvertedPhotonAnalyzer( const edm::ParameterSet& pset 
 
 void ConvertedPhotonAnalyzer::beginJob( const edm::EventSetup& )
 {
+
+
+  nEvt_=0;
  
   fOutputFile_   = new TFile( fOutputFileName_.c_str(), "RECREATE" ) ;
   
@@ -64,17 +68,31 @@ void ConvertedPhotonAnalyzer::beginJob( const edm::EventSetup& )
   h_MCConvPt_ = new TH1F("MCConvPt","MC converted photon pt",100,0.,100.);
   h_MCConvEta_ = new TH1F("MCConvEta","MC convrted photon eta",100,-2.5,2.5);
   h_MCConvR_ = new TH1F("MCConvR","Conversion radius",100,0.,120.);
+  h_MCConvRvsZ_ = new TH2F("MCConvRvsZ","Conversion R vs Z",200, -280., 280.,200,-120., 120.);
 
   //// Reconstructed Converted photons
-  h_scE_ = new TH1F("scE","Uncorrected photons : SC Energy ",100,0., 50.);
-  h_scEta_ = new TH1F("scEta","Uncorrected photons:  SC Eta ",40,-3., 3.);
-  h_scPhi_ = new TH1F("scPhi","Uncorrected photons: SC Phi ",40,0., 6.28);
-  //// Reconstructed OutIn Tracks
-  h_OItk_inPt_ = new TH1F("OItkinPt","OutIn Tracks Pt ",100,0., 50.);
+  h_scE_ = new TH1F("scE","Uncorrected converted photons : SC Energy ",100,0., 50.);
+  h_scEta_ = new TH1F("scEta","Uncorrected converted photons:  SC Eta ",40,-3., 3.);
+  h_scPhi_ = new TH1F("scPhi","Uncorrected converted photons: SC Phi ",40,0., 6.28);
+  //
+  h_phoE_ = new TH1F("phoE","Uncorrected converted photons :  Energy ",100,0., 50.);
+  h_phoEta_ = new TH1F("phoEta","Uncorrected converted photons:   Eta ",40,-3., 3.);
+  h_phoPhi_ = new TH1F("phoPhi","Uncorrected converted photons:  Phi ",40,0., 6.28);
+  
+   //// Reconstructed OutIn Tracks
+  h_OItk_inPt_ = new TH1F("OItkinPt","OutIn Tracks Pt ",100,0., 100.);
   h_OItk_nHits_ = new TH1F("OItknHits","OutIn Tracks Hits ",20,0.5, 19.5);
   //// Reconstructed InOut Tracks
-  h_IOtk_inPt_ = new TH1F("IOtkinPt","InOut Tracks Pt ",100,0., 50.);
+  h_IOtk_inPt_ = new TH1F("IOtkinPt","InOut Tracks Pt ",100,0., 100.);
   h_IOtk_nHits_ = new TH1F("IOtknHits","InOut Tracks Hits ",20,0.5, 19.5);
+  // Recontructed tracks
+  h_tk_inPt_[0] = new TH1F("tkInPtBarrel","Tracks inner Pt: Barrel ",100,0., 100.);
+  h_tk_nHits_[0] = new TH1F("tknHitsBarrel","Tracks Hits: Barrel ",20,0.5, 19.5);
+  h_tk_inPt_[1] = new TH1F("tkInPtEndcap","Tracks inner Pt: Endcap ",100,0., 100.);
+  h_tk_nHits_[1] = new TH1F("tknHitsEndcap","Tracks Hits: Endcap ",20,0.5, 19.5);
+  // Reco conversion vertex position
+  h_convVtxRvsZ_ = new TH2F("convVtxRvsZ"," Reco conversion vtx radius ",200, -280., 280.,200,-120., 120.);
+
   
   tree_ = new TTree("MCConvertedPhotons","MC converted photon");
   tree_->Branch("mcPhoEnergy",mcPhoEnergy,"mcPhoEnergy[10]/F");
@@ -110,9 +128,11 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
   
   
   using namespace edm;
-  
-  edm::LogInfo("ConvertedPhotonAnalyzer") << "Analyzing event number: " << e.id() << "\n";
-  std::cout << "ConvertedPhotonAnalyzer" << "Analyzing event number: " << e.id() << std::endl;
+
+  nEvt_++;  
+  LogInfo("ConvertedPhotonAnalyzer") << "Analyzing event number: " << e.id() << " Global Counter " << nEvt_ <<"\n";
+  LogDebug("ConvertedPhotonAnalyzer") << "Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
+ 
   
   // Local variables  
   const int SINGLE=1;
@@ -140,7 +160,7 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
     edm::LogError("ConvertedPhotonAnalyzer") << "Error! can't get collection with label " << convertedPhotonCollection_.c_str() ;
   }
   const reco::ConvertedPhotonCollection phoCollection = *(convertedPhotonHandle.product());
-  std::cout << " ConvertedPhotonAnalyze converted photon collection size " << phoCollection.size() << std::endl;
+  LogDebug("ConvertedPhotonAnalyzer") << " Converted photon collection size " << phoCollection.size() << "\n";
 
 
   //// Get the candidate tracks from conversions
@@ -151,7 +171,7 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
     edm::LogError("ConvertedPhotonAnalyzer") << "Error! can't get collection with label " <<  outInTrackCandidateCollection_.c_str() ;
   }
 
-  std::cout << " ConvertedPhotonAnalyzer outInTrackCandidate collection size " << (*outInTrkCandidateHandle).size() << std::endl;
+  LogDebug("ConvertedPhotonAnalyzer") << " outInTrackCandidate collection size " << (*outInTrkCandidateHandle).size() <<"\n";
 
   Handle<TrackCandidateCollection> inOutTrkCandidateHandle;
   try {
@@ -160,7 +180,7 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
     edm::LogError("ConvertedPhotonAnalyzer") << "Error! can't get collection with label " <<  inOutTrackCandidateCollection_.c_str() ;
   }
 
-  std::cout << " ConvertedPhotonAnalyzer inOutTrackCandidate collection size " << (*inOutTrkCandidateHandle).size() << std::endl;
+  LogDebug("ConvertedPhotonAnalyzer")  << " inOutTrackCandidate collection size " << (*inOutTrkCandidateHandle).size() << "\n";
 
 
   //// Get the CKF tracks from conversions
@@ -171,15 +191,16 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
     edm::LogError("ConvertedPhotonAnalyzer") << "Error! can't get collection with label " <<  outInTrackCollection_.c_str() ;
   }
 
-  std::cout << " ConvertedPhotonAnalyzer outInTrack collection size " << (*outInTrkHandle).size() << std::endl;
+  LogDebug("ConvertedPhotonAnalyzer")  << "outInTrack collection size " << (*outInTrkHandle).size() << "\n";
+
  // Loop over Out In Tracks
   for( reco::TrackCollection::const_iterator  iTk =  (*outInTrkHandle).begin(); iTk !=  (*outInTrkHandle).end(); iTk++) {
-    std::cout << "  ConvertedPhotonAnalyzer Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << std::endl;  
-
+    LogDebug("ConvertedPhotonAnalyzer") << "  Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << sqrt( iTk->innerMomentum().Mag2() ) << "\n";  
+    
     h_OItk_inPt_->Fill ( sqrt(iTk->innerMomentum().Mag2()) );
     h_OItk_nHits_->Fill ( iTk->recHitsSize() );
-   
-    std::cout << "  ConvertedPhotonAnalyzer Out In Track Extra inner momentum  " << iTk->extra()->outerMomentum() << std::endl;  
+    
+    LogDebug("ConvertedPhotonAnalyzer") << " Out In Track Extra inner momentum  " << iTk->extra()->outerMomentum() << "\n";  
    
   }
 
@@ -192,40 +213,61 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
     edm::LogError("ConvertedPhotonAnalyzer") << "Error! can't get collection with label " <<  inOutTrackCollection_.c_str() ;
   }
 
-  std::cout << " ConvertedPhotonAnalyzer inOutTrack collection size " << (*inOutTrkHandle).size() << std::endl;
+  LogDebug("ConvertedPhotonAnalyzer") << " inOutTrack collection size " << (*inOutTrkHandle).size() << "\n";
 
 
 
  // Loop over In Out Tracks
   for( reco::TrackCollection::const_iterator  iTk =  (*inOutTrkHandle).begin(); iTk !=  (*inOutTrkHandle).end(); iTk++) {
-    std::cout << "  ConvertedPhotonAnalyzer In Out Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << std::endl;  
+      LogDebug("ConvertedPhotonAnalyzer") << " In Out Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << sqrt( iTk->innerMomentum().Mag2())  << "\n";  
 
     h_IOtk_inPt_->Fill  ( sqrt (iTk->innerMomentum().Mag2() ) );
     h_IOtk_nHits_->Fill ( iTk->recHitsSize() );
    
-    std::cout << "  ConvertedPhotonAnalyzer In Out  Track Extra inner momentum  " << iTk->extra()->outerMomentum() << std::endl;  
+    LogDebug("ConvertedPhotonAnalyzer")  << " In Out  Track Extra inner momentum  " << iTk->extra()->outerMomentum() << "\n"; 
 
   }
 
-  std::cout << "  ConvertedPhotonAnalyzer Starting loop over photon candidates " << std::endl;
+  LogDebug("ConvertedPhotonAnalyzer")  << " Starting loop over photon candidates " << "\n";
   // Loop over ConvertedPhoton candidates 
+ 
+  int iDet=0;
   for( reco::ConvertedPhotonCollection::const_iterator  iPho = phoCollection.begin(); iPho != phoCollection.end(); iPho++) {
-    std::cout << "  ConvertedPhotonAnalyzer SC energy " << (*iPho).superCluster()->energy() <<  std::endl;
+     LogDebug("ConvertedPhotonAnalyzer") << " SC energy " << (*iPho).superCluster()->energy() <<  "\n";
+     LogDebug("ConvertedPhotonAnalyzer") << " converted photon energy " << (*iPho).energy() <<  "\n";
+    if (  fabs((*iPho).eta() ) > 1.556 &  fabs((*iPho).eta() ) < 2.5 ) iDet=1;
+
     h_scE_->Fill( (*iPho).superCluster()->energy() );
     h_scEta_->Fill( (*iPho).superCluster()->position().eta() );
     h_scPhi_->Fill( (*iPho).superCluster()->position().phi() );
-    
+
+    h_phoE_->Fill( (*iPho).energy() );
+    h_phoEta_->Fill( (*iPho).eta() );
+    h_phoPhi_->Fill( (*iPho).phi() );
+
+     LogDebug("ConvertedPhotonAnalyzer") << " conversion vtx position " << (*iPho).convVertexPosition() <<  "\n";
+     LogDebug("ConvertedPhotonAnalyzer") << " tracks size " <<  (*iPho).tracks().size() << "\n"; 
+
+    // need to check that the vertex is valid
+    float sign= (*iPho).convVertexPosition().y()/fabs((*iPho).convVertexPosition().y() );
+    h_convVtxRvsZ_->Fill( (*iPho).convVertexPosition().z(),  sign*((*iPho).convVertexPosition().r()) ) ;
+
+    for (unsigned int i=0; i<(*iPho).tracks().size(); i++) {
+       LogDebug("ConvertedPhotonAnalyzer") << " Track charge " <<  (*iPho).tracks()[i]->charge() << "  Num of RecHits " << (*iPho).tracks()[i]->recHitsSize() << " inner momentum " <<  sqrt (  (*iPho).tracks()[i]->innerMomentum().Mag2() )  <<  "\n"; 
+      
+      h_tk_inPt_[iDet]->Fill  ( sqrt( (*iPho).tracks()[i]->innerMomentum().Mag2() ) );
+      h_tk_nHits_[iDet]->Fill (   (*iPho).tracks()[i]->recHitsSize() );
+
+ 
+
+    }
+
+
   }
 
  
   //////////////////// Get the MC truth   
-  std::cout << " ConvertedPhotonAnalyzer Looking for MC truth " << std::endl;
-  edm::Handle<edm::HepMCProduct> HepMCEvt;
-  //e.getByLabel("VtxSmeared", "", HepMCEvt);
-  e.getByLabel("source", "", HepMCEvt);
-  
-  //   const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
-  
+   LogDebug("ConvertedPhotonAnalyzer") << " Looking for MC truth " << "\n";
   
    //get simtrack info
    std::vector<SimTrack> theSimTracks;
@@ -241,9 +283,9 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
 
    fill(theSimTracks,  theSimVertices);
    
-   cout << " ConvertedPhotonAnalyzer::analyze This Event has " <<  theSimTracks.size() << " sim tracks " << endl;
-   cout << " ConvertedPhotonAnalyzer::analyze This Event has " <<  theSimVertices.size() << " sim vertices " << endl;
-   if (  ! theSimTracks.size() ) cout << " ConvertedPhotonAnalyzer::analyze Event number " << e.id() << " has NO sim tracks " << endl;
+    LogDebug("ConvertedPhotonAnalyzer")<< " This Event has " <<  theSimTracks.size() << " sim tracks " << endl;
+    LogDebug("ConvertedPhotonAnalyzer")<< " This Event has " <<  theSimVertices.size() << " sim vertices " << endl;
+   if (  ! theSimTracks.size() )  LogDebug("ConvertedPhotonAnalyzer")<< " Event number " << e.id() << " has NO sim tracks " << endl;
 
    int iPV=-1;   
    int partType1=0;
@@ -258,9 +300,9 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
      
      
      partType1 = (*iFirstSimTk).type();
-     cout <<  "ConvertedPhotonAnalyzer::analyze Primary vertex id " << iPV << " first track type " << (*iFirstSimTk).type() << endl;  
+      LogDebug("ConvertedPhotonAnalyzer")<<  " Primary vertex id " << iPV << " first track type " << (*iFirstSimTk).type() << endl;  
    } else {
-     cout << " ConvertedPhotonAnalyzer::analyze First track has no vertex " << endl;
+      LogDebug("ConvertedPhotonAnalyzer")<< " First track has no vertex " << endl;
    
    }
 
@@ -270,14 +312,14 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
      
      if (  (*iFirstSimTk).vertIndex() == iPV) {
        partType2 = (*iFirstSimTk).type();  
-       cout <<  "ConvertedPhotonAnalyzer::analyze second track type " << (*iFirstSimTk).type() << " vertex " <<  (*iFirstSimTk).vertIndex() << endl;  
+        LogDebug("ConvertedPhotonAnalyzer")<<  " second track type " << (*iFirstSimTk).type() << " vertex " <<  (*iFirstSimTk).vertIndex() << endl;  
     
      } else {
-       cout << "ConvertedPhotonAnalyzer::analyze Only one kine track from Primary Vertex " << endl;
+        LogDebug("ConvertedPhotonAnalyzer")<< " Only one kine track from Primary Vertex " << endl;
      }
    }
 
-   cout << " Loop over all particles " << endl;
+    LogDebug("ConvertedPhotonAnalyzer")<< " Loop over all particles " << endl;
 
    int npv=0;
    int iPho=0;
@@ -285,11 +327,11 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
    //   theSimTracks.reset();
    for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
      if (  (*iSimTk).noVertex() ) continue;
-     cout << " Particle type " <<  (*iSimTk).type() << " Sim Track ID " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  endl;  
+      LogDebug("ConvertedPhotonAnalyzer")<< " Particle type " <<  (*iSimTk).type() << " Sim Track ID " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  endl;  
      if ( (*iSimTk).vertIndex() == iPV ) {
        npv++;
        if ( (*iSimTk).type() == 22) {
-	 cout << " Found a primary photon with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  endl; 
+	  LogDebug("ConvertedPhotonAnalyzer")<< " Found a primary photon with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  endl; 
 	 convInd.push_back(0);
         
          photonTracks.push_back( &(*iSimTk) );
@@ -314,12 +356,12 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
 	 iPho++;
 
        } else if ( (*iSimTk).type() == 11 || (*iSimTk).type()==-11 ) {
-	 cout << " Found a primary electron with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  endl;
+	  LogDebug("ConvertedPhotonAnalyzer")<< " Found a primary electron with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  endl;
 
 
 
        } else if ( (*iSimTk).type() == 111 ) {
-	 cout << " Found a primary pi0 with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  endl;	 
+	  LogDebug("ConvertedPhotonAnalyzer")<< " Found a primary pi0 with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  endl;	 
 
 
          pizeroTracks.push_back( &(*iSimTk) );
@@ -349,7 +391,7 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
 
    } 
 
-   cout << "ConvertedPhotonAnalyzer::analyze There are " << npv << " particles originating in the PV " << endl;
+    LogDebug("ConvertedPhotonAnalyzer")<< " There are " << npv << " particles originating in the PV " << endl;
      
    if(npv > 4) {
      ievtype = PYTHIA;
@@ -375,13 +417,13 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
 
    if(ievflav == PHOTON_FLAV) {
 
-     cout << " It's a primary PHOTON event with " << photonTracks.size() << endl;
+      LogDebug("ConvertedPhotonAnalyzer")<< " It's a primary PHOTON event with " << photonTracks.size() << " photons " << endl;
 
      int nConv=0;
      int iConv=0;
      iPho=0;
      for (std::vector<SimTrack*>::iterator iPhoTk = photonTracks.begin(); iPhoTk != photonTracks.end(); ++iPhoTk){
-       cout << "ConvertedPhotonAnalyzer::analyze Looping on the primary gamma looking for conversions " << (*iPhoTk)->momentum() << " photon track ID " << (*iPhoTk)->trackId() << endl;
+        LogDebug("ConvertedPhotonAnalyzer")<< " Looping on the primary gamma looking for conversions " << (*iPhoTk)->momentum() << " photon track ID " << (*iPhoTk)->trackId() << endl;
 
        for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
 	 if (  (*iSimTk).noVertex() )                    continue;
@@ -393,7 +435,7 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
          int motherId=-1;
 	
 
-         cout << " Secondary from photons particle type " << (*iSimTk).type() << " trackId " <<  (*iSimTk).trackId() << " vertex ID " << vertexId << endl;
+          LogDebug("ConvertedPhotonAnalyzer")<< " Secondary from photons particle type " << (*iSimTk).type() << " trackId " <<  (*iSimTk).trackId() << " vertex ID " << vertexId << endl;
          if ( vertex.parentIndex()  ) {
 
 	   unsigned  motherGeantId = vertex.parentIndex(); 
@@ -404,10 +446,10 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
 	   
 	   int motherType = motherId == -1 ? 0 : theSimTracks[motherId].type();
 	   
-	   cout << " Parent to this vertex   motherId " << motherId << " mother type " <<  motherType << " Sim track ID " <<  theSimTracks[motherId].trackId() << endl;
+	    LogDebug("ConvertedPhotonAnalyzer")<< " Parent to this vertex   motherId " << motherId << " mother type " <<  motherType << " Sim track ID " <<  theSimTracks[motherId].trackId() << endl;
            
 	   if ( theSimTracks[motherId].trackId() == (*iPhoTk)->trackId() ) {
-	     cout << " Found the Mother Photon " << endl;
+	      LogDebug("ConvertedPhotonAnalyzer")<< " Found the Mother Photon " << endl;
              /// store this electron since it's from a converted photon
 	     trkFromConversion.push_back(&(*iSimTk ) );
 	   }
@@ -416,14 +458,14 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
 
 
 	 } else {
-	   cout << " This vertex has no parent tracks " <<  endl;
+	    LogDebug("ConvertedPhotonAnalyzer")<< " This vertex has no parent tracks " <<  endl;
 	 }
 	 
 	 
        } // End of loop over the SimTracks      
        
        if ( trkFromConversion.size() > 0 ) {
-      
+	  LogDebug("ConvertedPhotonAnalyzer") << " CONVERTED photon " <<   "\n";    
 	 nConv++;
 	 convInd[iPho]=nConv;         
 
@@ -435,12 +477,19 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
 	 h_MCConvPt_->Fill(  momentum.perp());
 	 h_MCConvEta_->Fill( momentum.pseudoRapidity());
 	 h_MCConvE_->Fill( momentum.rho());
-	 h_MCConvR_->Fill ( vtxPosition.perp()/10. ) ;
+	 h_MCConvR_->Fill ( vtxPosition.perp() ) ;
+
+	 float sign= vtxPosition.y()/fabs(vtxPosition.y() );
+
+	 h_MCConvRvsZ_->Fill( vtxPosition.z(),  sign*(vtxPosition.perp()) ) ;
+
+
 
          if ( nConv <= 10) {         
 	   
-	   mcConvR[iConv]=vtxPosition.perp()/10. ;
-	   mcConvZ[iConv]=vtxPosition.z()/10. ;
+	   mcConvR[iConv]=vtxPosition.perp() ;
+	   mcConvZ[iConv]=vtxPosition.z() ;
+	    LogDebug("ConvertedPhotonAnalyzer") << " MC conversion vertex R " << vtxPosition.perp() << " R " << vtxPosition.z() << "\n";
 	   
 	   if ( trkFromConversion.size() > 1) {
 	     idTrk1[iConv]= trkFromConversion[0]->trackId();
@@ -454,6 +503,8 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
 	 }
 	 
          iConv++;
+       } else {
+	  LogDebug("ConvertedPhotonAnalyzer") << " UNCONVERTED photon " <<   "\n";    
        }
        
        iPho++;       
@@ -465,11 +516,11 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
 
 
    if(ievflav == PIZERO_FLAV) {
-     cout << " It's a primary Pi0 event with " << pizeroTracks.size() << endl;
+      LogDebug("ConvertedPhotonAnalyzer")<< " It's a primary Pi0 event with " << pizeroTracks.size() << endl;
 
      iPho=0;     
      for (std::vector<SimTrack*>::iterator iPizTk = pizeroTracks.begin(); iPizTk != pizeroTracks.end(); ++iPizTk){
-       cout << "ConvertedPhotonAnalyzer::analyze Looping on the primary Pi0 looking for decay products " << (*iPizTk)->momentum() << " Pi0 track ID " << (*iPizTk)->trackId() << endl;
+        LogDebug("ConvertedPhotonAnalyzer")<< " Looping on the primary Pi0 looking for decay products " << (*iPizTk)->momentum() << " Pi0 track ID " << (*iPizTk)->trackId() << endl;
        
        for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
 	 if ( (*iSimTk).noVertex()     )                    continue;
@@ -478,7 +529,7 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
 	 int vertexId = (*iSimTk).vertIndex();
 	 SimVertex vertex = theSimVertices[vertexId];
 	 HepLorentzVector vtxshift = vertex.position() - primVtx.position();
-	 if  ( vtxshift.vect().mag()/10. < 0.1 && vtxshift.t() < 1.e-9 ) {
+	 if  ( vtxshift.vect().mag() < 0.1 && vtxshift.t() < 1.e-9 ) {
 	   ////  Photons or direct Dalitz from pizero
 	   CLHEP::HepLorentzVector momentum = (*iSimTk).momentum();
 
@@ -533,10 +584,16 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
 
 void ConvertedPhotonAnalyzer::endJob()
 {
+
+
+
        
    fOutputFile_->Write() ;
    fOutputFile_->Close() ;
-   cout << " ConvertedPhotonAnalyzer::endJob " << endl;
+  
+   edm::LogInfo("ConvertedPhotonAnalyzer") << "Analyzed " << nEvt_  << "\n";
+    LogDebug("ConvertedPhotonAnalyzer") << "::endJob Analyzed " << nEvt_ << " events " << "\n";
+ 
    
    return ;
 }
@@ -556,7 +613,7 @@ void  ConvertedPhotonAnalyzer::fill(const std::vector<SimTrack>& simTracks, cons
   // event SimTrack vector
   for( unsigned it=0; it<nTks; ++it ) {
     geantToIndex_[ simTracks[it].trackId() ] = it;
-    cout << " ConvertedPhotonAnalyzer::fill it " << it << " simTracks[it].trackId() " <<  simTracks[it].trackId() << endl;
+     LogDebug("ConvertedPhotonAnalyzer")<< "::fill it " << it << " simTracks[it].trackId() " <<  simTracks[it].trackId() << endl;
  
   }  
 
