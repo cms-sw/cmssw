@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 15:21:05 EDT 2005
-// $Id: ComponentFactory.h,v 1.14 2006/08/31 23:26:24 wmtan Exp $
+// $Id: ComponentFactory.h,v 1.15 2006/10/10 02:07:23 chrjones Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@ namespace edm {
    namespace eventsetup {
       class EventSetupProvider;
       
-template< class T>
+template<typename T>
 class ComponentFactory : public seal::PluginFactory<ComponentMakerBase<T>* ()>
 {
 
@@ -55,8 +55,7 @@ class ComponentFactory : public seal::PluginFactory<ComponentMakerBase<T>* ()>
                   ReleaseVersion const& iVersion,
                   PassID const& iPass) const
       {
-         using namespace std;
-         string modtype = iConfiguration.template getParameter<string>("@module_type");
+         std::string modtype = iConfiguration.template getParameter<std::string>("@module_type");
          //cerr << "Factory: module_type = " << modtype << endl;
          typename MakerMap::iterator it = makers_.find(modtype);
          
@@ -75,8 +74,8 @@ class ComponentFactory : public seal::PluginFactory<ComponentMakerBase<T>* ()>
             
             //cerr << "Factory: created the worker" << endl;
             
-            pair<typename MakerMap::iterator,bool> ret =
-               makers_.insert(make_pair<string,boost::shared_ptr<Maker> >(modtype,wm));
+            std::pair<typename MakerMap::iterator,bool> ret =
+               makers_.insert(std::make_pair<std::string,boost::shared_ptr<Maker> >(modtype,wm));
             
             if(ret.second==false)
 	      throw edm::Exception(errors::Configuration,"Maker Factory map insert failed");

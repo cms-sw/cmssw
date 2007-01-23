@@ -66,7 +66,7 @@ Example: two algorithms each creating only one objects
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:08:14 CDT 2005
-// $Id: ESProducer.h,v 1.14 2005/10/03 23:10:43 chrjones Exp $
+// $Id: ESProducer.h,v 1.15 2006/10/21 02:48:59 wmtan Exp $
 //
 
 // system include files
@@ -114,27 +114,23 @@ class ESProducer : public ESProxyFactoryProducer
          */
       template<typename T>
          void setWhatProduced(T* iThis, const es::Label& iLabel = es::Label()) {
-            using namespace boost;
             //BOOST_STATIC_ASSERT((typename boost::is_base_and_derived<ED, T>::type));
             setWhatProduced(iThis , &T::produce, iLabel);
          }
 
       template<typename T>
          void setWhatProduced(T* iThis, const char* iLabel) {
-            using namespace boost;
             //BOOST_STATIC_ASSERT((typename boost::is_base_and_derived<ED, T>::type));
             setWhatProduced(iThis , es::Label(iLabel));
          }
       template<typename T>
          void setWhatProduced(T* iThis, const std::string& iLabel) {
-            using namespace boost;
             //BOOST_STATIC_ASSERT((typename boost::is_base_and_derived<ED, T>::type));
             setWhatProduced(iThis , es::Label(iLabel));
          }
       
       template<typename T, typename TDecorator >
          void setWhatProduced(T* iThis, const TDecorator& iDec, const es::Label& iLabel = es::Label()) {
-            using namespace boost;
             //BOOST_STATIC_ASSERT((typename boost::is_base_and_derived<ED, T>::type));
             setWhatProduced(iThis , &T::produce, iDec, iLabel);
          }
@@ -160,7 +156,6 @@ class ESProducer : public ESProxyFactoryProducer
                               TReturn (T ::* iMethod)(const TRecord&),
                               const TArg& iDec,
                               const es::Label& iLabel = es::Label()) {
-            using namespace boost;
             boost::shared_ptr<eventsetup::Callback<T,TReturn,TRecord, typename eventsetup::DecoratorFromArg<T, TRecord, TArg>::Decorator_t > >
             callback(new eventsetup::Callback<T,
                                           TReturn,
@@ -181,7 +176,6 @@ class ESProducer : public ESProxyFactoryProducer
       /*
       template<typename T, typename TReturn, typename TArg>
          void setWhatProduced(T* iThis, TReturn (T ::* iMethod)(const TArg&)) {
-            using namespace boost;
             registerProducts(iThis, static_cast<const typename produce::product_traits<TReturn>::type *>(0));
             registerGet(iThis, static_cast<const TArg*>(0));
             //BOOST_STATIC_ASSERT((boost::is_base_and_derived<ED, T>::type));
@@ -195,7 +189,6 @@ class ESProducer : public ESProxyFactoryProducer
       /*
       template<typename T, typename TProduct>
          void registerGet(T* i, const TProduct* iProd) {
-            using namespace produce;
             std::cout <<"registered 'get' for product type "
             << test::name(iProd) <<
             std::endl;

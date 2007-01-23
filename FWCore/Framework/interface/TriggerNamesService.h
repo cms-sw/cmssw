@@ -6,7 +6,7 @@
 
  Original Author:  Jim Kowalkowski 26-01-06
 
- $Id: TriggerNamesService.h,v 1.4 2006/04/10 22:35:43 jbk Exp $
+ $Id: TriggerNamesService.h,v 1.5 2006/04/19 20:13:01 wmtan Exp $
 
  This service makes the trigger bit assignments for the current process
  available to all modules.  This of particular use in the output modules.
@@ -28,7 +28,6 @@
 
 namespace edm {
   namespace service {
-    using std::string;
     class TriggerNamesService
     {
     public:
@@ -36,52 +35,52 @@ namespace edm {
       typedef std::vector<bool> Bools;
       typedef std::map<std::string, unsigned int> PosMap;
 
-      TriggerNamesService(const ParameterSet& proc_pset);
+      TriggerNamesService(ParameterSet const& proc_pset);
       ~TriggerNamesService();
 
       // trigger path information after all configuration options are applied
-      Bools getBitMask(const Strings& interesting_names) const;
+      Bools getBitMask(Strings const& interesting_names) const;
 
       // info from configuration script
       std::string getProcessName() const { return process_name_; }
 
-      const Strings& getEndPaths() const { return end_names_; }
-      const string&  getEndPath(const unsigned int i) const { return end_names_.at(i);}
-      unsigned int  findEndPath(const string& name) const { return find(end_pos_,name);}
+      Strings const& getEndPaths() const { return end_names_; }
+      std::string const&  getEndPath(unsigned int const i) const { return end_names_.at(i);}
+      unsigned int  findEndPath(std::string const& name) const { return find(end_pos_,name);}
 
-      const Strings& getPaths() const { return pathnames_; }
-      const string&  getPath(const unsigned int i) const { return pathnames_.at(i);}
-      unsigned int  findPath(const string& name) const { return find(pathpos_,name);}
+      Strings const& getPaths() const { return pathnames_; }
+      std::string const&  getPath(unsigned int const i) const { return pathnames_.at(i);}
+      unsigned int  findPath(std::string const& name) const { return find(pathpos_,name);}
 
-      const Strings& getTrigPaths() const { return trignames_; }
-      const string&  getTrigPath(const unsigned int i) const { return trignames_.at(i);}
-      unsigned int  findTrigPath(const string& name) const { return find(trigpos_,name);}
+      Strings const& getTrigPaths() const { return trignames_; }
+      std::string const&  getTrigPath(unsigned int const i) const { return trignames_.at(i);}
+      unsigned int  findTrigPath(std::string const& name) const { return find(trigpos_,name);}
 
-      const Strings& getTrigPathModules(const string& name) const {
+      Strings const& getTrigPathModules(std::string const& name) const {
 	return modulenames_.at(find(trigpos_,name));
       }
-      const Strings& getTrigPathModules(const unsigned int i) const {
+      Strings const& getTrigPathModules(unsigned int const i) const {
 	return modulenames_.at(i);
       }
-      const string&  getTrigPathModule (const string& name, const unsigned int j) const {
+      std::string const&  getTrigPathModule (std::string const& name, unsigned int const j) const {
 	return (modulenames_.at(find(trigpos_,name))).at(j);
       }
-      const string&  getTrigPathModule (const unsigned int i, const unsigned int j) const {
+      std::string const&  getTrigPathModule (unsigned int const i, unsigned int const j) const {
 	return (modulenames_.at(i)).at(j);
       }
 
-      unsigned int find (const PosMap& posmap, const string& name) const {
-	const PosMap::const_iterator pos(posmap.find(name));
-        if (pos==posmap.end()) {
+      unsigned int find (PosMap const& posmap, std::string const& name) const {
+	PosMap::const_iterator const pos(posmap.find(name));
+        if (pos == posmap.end()) {
 	  return posmap.size();
 	} else {
           return pos->second;
 	}
       }
 
-      void loadPosMap(PosMap& posmap, const Strings& names) {
-        const unsigned int n(names.size());
-	for (unsigned int i=0; i!=n; i++) {
+      void loadPosMap(PosMap& posmap, Strings const& names) {
+        unsigned int const n(names.size());
+	for (unsigned int i = 0; i != n; ++i) {
 	  posmap[names[i]] = i;
 	}
       }

@@ -61,7 +61,7 @@ std::auto_ptr<AppleCollection> pApples( new AppleCollection);
 edm::RefProd<AppleCollection> refApples = event.getRefBeforePut<AppleCollection>();
 
 //do loop and fill collection
-for( unsigned int index = 0; ..... ) {
+for(unsigned int index = 0; ..... ) {
 ....
 apples->push_back( Apple(...) );
   
@@ -74,7 +74,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.13 2007/01/12 21:07:58 wmtan Exp $
+$Id: DataViewImpl.h,v 1.14 2007/01/13 08:27:36 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>

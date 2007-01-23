@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 29 10:03:54 EDT 2005
-// $Id: DependentRecordImplementation.h,v 1.4 2005/09/01 05:40:58 wmtan Exp $
+// $Id: DependentRecordImplementation.h,v 1.5 2005/09/01 23:30:48 wmtan Exp $
 //
 
 // system include files
@@ -45,7 +45,6 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
       // ---------- const member functions ---------------------
       template<class DepRecordT>
          const DepRecordT& getRecord() const {
-            //using namespace boost;
             //Make sure that DepRecordT is a type in ListT
             typedef typename boost::mpl::end< ListT >::type EndItrT;
             typedef typename boost::mpl::find< ListT, DepRecordT>::type FoundItrT; 
