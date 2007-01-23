@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.19 $
-///  last update: $Date: 2007/01/12 18:05:56 $
+///  Revision   : $Revision: 1.20 $
+///  last update: $Date: 2007/01/23 16:08:15 $
 ///  by         : $Author: fronga $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
@@ -257,21 +257,28 @@ void AlignmentProducer::endOfJob()
     // Call service
     edm::Service<cond::service::PoolDBOutputService> poolDbService;
     if( !poolDbService.isAvailable() ) // Die if not available
-	throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
-
+      throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+    
     // Get alignments+errors
     Alignments* alignments = theAlignableTracker->alignments();
     AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
 
-    // Define callback tokens for the two records
-    size_t alignmentsToken = poolDbService->callbackToken("Alignments");
-    size_t alignmentErrorsToken = poolDbService->callbackToken("AlignmentErrors");
-
     // Store
-    poolDbService->newValidityForNewPayload<Alignments>(alignments, 
-      poolDbService->endOfTime(), alignmentsToken);
-    poolDbService->newValidityForNewPayload<AlignmentErrors>(alignmentErrors, 
-      poolDbService->endOfTime(), alignmentErrorsToken);
+    std::string alignRecordName( "TrackerAlignmentRcd" );
+    std::string errorRecordName( "TrackerAlignmentErrorRcd" );
+
+    if ( poolDbService->isNewTagRequest(alignRecordName) )
+      poolDbService->createNewIOV<Alignments>( alignments, poolDbService->endOfTime(), 
+                                               alignRecordName );
+    else
+      poolDbService->appendSinceTime<Alignments>( alignments, poolDbService->currentTime(), 
+                                                  alignRecordName );
+    if ( poolDbService->isNewTagRequest(errorRecordName) )
+      poolDbService->createNewIOV<AlignmentErrors>( alignmentErrors, poolDbService->endOfTime(), 
+                                                    errorRecordName );
+    else
+      poolDbService->appendSinceTime<AlignmentErrors>( alignmentErrors, poolDbService->currentTime(), 
+                                                       errorRecordName );
   }
 
 
