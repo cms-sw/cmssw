@@ -205,53 +205,52 @@ void L1MuDTSectorReceiver::receiveCSCData(int bx, const edm::Event& e) {
   int side = ( wheel == 3 ) ? 1 : 2;
   int sector = m_sp.id().sector();
   int csc_sector = ( sector == 0 ) ? 6 : (sector+1)/2;
+  int subsector = ( sector%2 == 0 ) ? 2 : 1;
 
-  for ( int subsector = 1; subsector < 3; subsector++ ) {
-    csc_list = csctrig->get(side,station,csc_sector,subsector,bxCSC+bx);
-    int ncsc = 0;
-    for ( csc_iter = csc_list.begin(); csc_iter != csc_list.end(); csc_iter++ ) {
-      if ( csc_iter->etaPacked() > 17 ) continue;
-      bool etaFlag = ( csc_iter->etaPacked() > 17 ); 
-      int phiCSC = csc_iter->phiPacked();
-      int qualCSC = csc_iter->getQuality();
+  csc_list = csctrig->get(side,station,csc_sector,subsector,bxCSC+bx);
+  int ncsc = 0;
+  for ( csc_iter = csc_list.begin(); csc_iter != csc_list.end(); csc_iter++ ) {
+    if ( csc_iter->etaPacked() > 17 ) continue;
+    bool etaFlag = ( csc_iter->etaPacked() > 17 ); 
+    int phiCSC = csc_iter->phiPacked();
+    int qualCSC = csc_iter->getQuality();
            
-      // convert CSC quality code to DTBX quality code
-      unsigned int qual = 7;
-      if ( qualCSC ==  2 ) qual = 0;
-      if ( qualCSC ==  6 ) qual = 1;
-      if ( qualCSC ==  7 ) qual = 2;
-      if ( qualCSC ==  8 ) qual = 2;
-      if ( qualCSC ==  9 ) qual = 3;
-      if ( qualCSC == 10 ) qual = 3;
-      if ( qualCSC == 11 ) qual = 4;
-      if ( qualCSC == 12 ) qual = 5;
-      if ( qualCSC == 13 ) qual = 5;
-      if ( qualCSC == 14 ) qual = 6;
-      if ( qualCSC == 15 ) qual = 6;
-      if ( qual == 7) continue;
+    // convert CSC quality code to DTBX quality code
+    unsigned int qual = 7;
+    if ( qualCSC ==  2 ) qual = 0;
+    if ( qualCSC ==  6 ) qual = 1;
+    if ( qualCSC ==  7 ) qual = 2;
+    if ( qualCSC ==  8 ) qual = 2;
+    if ( qualCSC ==  9 ) qual = 3;
+    if ( qualCSC == 10 ) qual = 3;
+    if ( qualCSC == 11 ) qual = 4;
+    if ( qualCSC == 12 ) qual = 5;
+    if ( qualCSC == 13 ) qual = 5;
+    if ( qualCSC == 14 ) qual = 6;
+    if ( qualCSC == 15 ) qual = 6;
+    if ( qual == 7 ) continue;
 
-      if ( subsector == 1 && phiCSC >= 2048 ) continue;
-      if ( subsector == 2 && phiCSC <  2048 ) continue;
+    if ( subsector == 1 && phiCSC >= 2048 ) continue;
+    if ( subsector == 2 && phiCSC <  2048 ) continue;
         
-      // convert CSC phi to DTBX phi
-      double dphi = ((double) phiCSC) - 2048.*16./31.;
-      if ( sector%2 == 0 ) dphi = dphi  - 2048.*30./ 31.;
-      dphi = dphi*62.*M_PI/180.;
-      int phi = static_cast<int>(floor( dphi ));
-      if ( phi < -2048 || phi > 2047) continue; 
+    // convert CSC phi to DTBX phi
+    double dphi = ((double) phiCSC) - 2048.*16./31.;
+    if ( sector%2 == 0 ) dphi = dphi  - 2048.*30./ 31.;
+    dphi = dphi*62.*M_PI/180.;
+    int phi = static_cast<int>(floor( dphi ));
+    if ( phi < -2048 || phi > 2047 ) continue; 
 
-      if ( ncsc < 2 ) {
-        int address = 16 + ncsc;
-        bool tag = (ncsc == 1 ) ? true : false;
-        L1MuDTTrackSegPhi tmpts(wheel,sector,station+2,phi,0,
-                                static_cast<L1MuDTTrackSegPhi::TSQuality>(qual),
-                                tag,bx,etaFlag);
-        m_sp.data()->addTSphi(address,tmpts);
-        ncsc++;
-      }
-      else cout << "too many CSC track segments!" << endl;
-    }  
-  }
+    if ( ncsc < 2 ) {
+      int address = 16 + ncsc;
+      bool tag = (ncsc == 1 ) ? true : false;
+      L1MuDTTrackSegPhi tmpts(wheel,sector,station+2,phi,0,
+                              static_cast<L1MuDTTrackSegPhi::TSQuality>(qual),
+                              tag,bx,etaFlag);
+      m_sp.data()->addTSphi(address,tmpts);
+      ncsc++;
+    }
+    else cout << "too many CSC track segments!" << endl;
+  }  
 
 }
 
