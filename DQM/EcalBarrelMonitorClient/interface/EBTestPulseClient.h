@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2006/11/21 13:16:51 $
- * $Revision: 1.38 $
+ * $Date: 2006/12/15 09:44:49 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -149,11 +149,16 @@ TProfile2D* i02_[36];
 TProfile2D* i03_[36];
 TProfile2D* i04_[36];
 
-// Quality check on crystals, one per each gain
+// Quality check on crystals
 
 float amplitudeThreshold_;
 float RMSThreshold_;
 float threshold_on_AmplitudeErrorsNumber_;
+
+// Quality check on PNs
+
+float meanThresholdPN_;
+float amplitudeThresholdPN_;
 
 };
 

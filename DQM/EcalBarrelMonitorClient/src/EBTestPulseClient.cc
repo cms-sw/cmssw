@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/01/23 13:47:46 $
- * $Revision: 1.107 $
+ * $Date: 2007/01/23 14:00:50 $
+ * $Revision: 1.108 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -108,6 +108,9 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
   amplitudeThreshold_ = 400.0;
   RMSThreshold_ = 300.0;
   threshold_on_AmplitudeErrorsNumber_ = 0.02;
+
+  meanThresholdPN_ = 200.;
+  amplitudeThresholdPN_ = 200.;
 
 }
 
@@ -576,6 +579,18 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   bits02 |= EcalErrorDictionary::getMask("TESTPULSE_HIGH_GAIN_MEAN_WARNING");
   bits02 |= EcalErrorDictionary::getMask("TESTPULSE_HIGH_GAIN_RMS_WARNING");
 
+  uint64_t bits03 = 0;
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_WARNING");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_WARNING");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_ERROR");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_ERROR");
+
+  uint64_t bits04 = 0;
+  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_WARNING");
+  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_WARNING");
+  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
+  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
+
   map<EcalLogicID, RunPNErrorsDat> mask;
 
   EcalErrorMask::fetchDataSet(&mask);
@@ -659,7 +674,8 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       pn.setPedMeanG16(mean04);
       pn.setPedRMSG16(rms04);
 
-      if ( mean01 > 200. && mean02 > 200. ) {
+      if ( mean01 > amplitudeThresholdPN_ && mean03 > meanThresholdPN_ &&
+           mean02 > amplitudeThresholdPN_ && mean04 > meanThresholdPN_ ) {
         pn.setTaskStatus(true);
       } else {
         pn.setTaskStatus(false);
@@ -670,13 +686,23 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             EcalLogicID ecid = m->first;
 
             if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
-              if ( mean01 > 200. ) {
+              if ( mean01 > amplitudeThresholdPN_ ) {
                 if ( ! ((m->second).getErrorBits() & bits01) ) {
                   status = status && false;
                 }
               }
-              if ( mean02 > 200. ) {
+              if ( mean03 > meanThresholdPN_ ) {
+                if ( ! ((m->second).getErrorBits() & bits03) ) {
+                  status = status && false;
+                }
+              }
+              if ( mean02 > amplitudeThresholdPN_ ) {
                 if ( ! ((m->second).getErrorBits() & bits02) ) {
+                  status = status && false;
+                }
+              }
+              if ( mean04 > meanThresholdPN_ ) {
+                if ( ! ((m->second).getErrorBits() & bits04) ) {
                   status = status && false;
                 }
               }

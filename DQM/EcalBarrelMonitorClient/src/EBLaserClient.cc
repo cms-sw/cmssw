@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/23 13:42:44 $
- * $Revision: 1.116 $
+ * $Date: 2007/01/23 13:47:46 $
+ * $Revision: 1.117 $
  * \author G. Della Ricca
  *
 */
@@ -178,6 +178,9 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
   }
 
   percentVariation_ = 0.4;
+
+  meanThresholdPN_ = 200.;
+  amplitudeThresholdPN_ = 200.;
 
 }
 
@@ -1200,6 +1203,18 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   bits01 |= EcalErrorDictionary::getMask("LASER_MEAN_OVER_PN_WARNING");
   bits01 |= EcalErrorDictionary::getMask("LASER_RMS_OVER_PN_WARNING");
 
+  uint64_t bits02 = 0;
+/*
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_ERROR");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_ERROR");
+*/
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
+
   map<EcalLogicID, RunPNErrorsDat> mask;
 
   EcalErrorMask::fetchDataSet(&mask);
@@ -1399,7 +1414,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_bl.setPedMeanG16(mean13);
       pn_bl.setPedRMSG16(rms13);
 
-      if ( mean01 > 200. && mean05 > 200. && mean09 > 200. && mean13 > 200. ) {
+      if ( mean01 > amplitudeThresholdPN_ && mean05 > meanThresholdPN_ &&
+           mean09 > amplitudeThresholdPN_ && mean13 > meanThresholdPN_ ) {
         pn_bl.setTaskStatus(true);
       } else {
         pn_bl.setTaskStatus(false);
@@ -1410,8 +1426,15 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
             EcalLogicID ecid = m->first;
 
             if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
-              if ( ! ((m->second).getErrorBits() & bits01) ) {
-                status = status && false;
+              if ( mean01 > amplitudeThresholdPN_ || mean09 > amplitudeThresholdPN_ ) {
+                if ( ! ((m->second).getErrorBits() & bits01) ) {
+                  status = status && false;
+                }
+              }
+              if ( mean05 > meanThresholdPN_ || mean13 > meanThresholdPN_ ) {
+                if ( ! ((m->second).getErrorBits() & bits02) ) {
+                  status = status && false;
+                }
               }
             }
 
@@ -1455,7 +1478,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_ir.setPedMeanG16(mean14);
       pn_ir.setPedRMSG16(rms14);
 
-      if ( mean02 > 200. && mean06 > 200. && mean10 > 200. && mean14 > 200. ) {
+      if ( mean02 > amplitudeThresholdPN_ && mean06 > meanThresholdPN_ &&
+           mean10 > amplitudeThresholdPN_ && mean14 > meanThresholdPN_ ) {
         pn_ir.setTaskStatus(true);
       } else {
         pn_ir.setTaskStatus(false);
@@ -1466,8 +1490,15 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
             EcalLogicID ecid = m->first;
 
             if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
-              if ( ! ((m->second).getErrorBits() & bits01) ) {
-                status = status && false;
+              if ( mean02 > amplitudeThresholdPN_ || mean10 > amplitudeThresholdPN_ ) {
+                if ( ! ((m->second).getErrorBits() & bits01) ) {
+                  status = status && false;
+                }
+              }
+              if ( mean06 > meanThresholdPN_ || mean14 > meanThresholdPN_ ) {
+                if ( ! ((m->second).getErrorBits() & bits02) ) {
+                  status = status && false;
+                }
               }
             }
 
@@ -1511,7 +1542,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_gr.setPedMeanG16(mean15);
       pn_gr.setPedRMSG16(rms15);
 
-      if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
+      if ( mean03 > amplitudeThresholdPN_ && mean07 > meanThresholdPN_ &&
+           mean11 > amplitudeThresholdPN_ && mean15 > meanThresholdPN_ ) {
         pn_gr.setTaskStatus(true);
       } else {
         pn_gr.setTaskStatus(false);
@@ -1522,8 +1554,15 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
             EcalLogicID ecid = m->first;
 
             if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
-              if ( ! ((m->second).getErrorBits() & bits01) ) {
-                status = status && false;
+              if ( mean03 > amplitudeThresholdPN_ || mean11 > amplitudeThresholdPN_ ) {
+                if ( ! ((m->second).getErrorBits() & bits01) ) {
+                  status = status && false;
+                }
+              }
+              if ( mean07 > meanThresholdPN_ || mean15 > meanThresholdPN_ ) {
+                if ( ! ((m->second).getErrorBits() & bits02) ) {
+                  status = status && false;
+                }
               }
             }
 
@@ -1567,7 +1606,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_rd.setPedMeanG16(mean16);
       pn_rd.setPedRMSG16(rms16);
 
-      if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
+      if ( mean04 > amplitudeThresholdPN_ && mean08 > meanThresholdPN_ &&
+           mean12 > amplitudeThresholdPN_ && mean16 > meanThresholdPN_ ) {
         pn_rd.setTaskStatus(true);
       } else {
         pn_rd.setTaskStatus(false);
@@ -1578,8 +1618,15 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
             EcalLogicID ecid = m->first;
 
             if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
-              if ( ! ((m->second).getErrorBits() & bits01) ) {
-                status = status && false;
+              if ( mean04 > amplitudeThresholdPN_ || mean12 > amplitudeThresholdPN_ ) {
+                if ( ! ((m->second).getErrorBits() & bits01) ) {
+                  status = status && false;
+                }
+              }
+              if ( mean08 > meanThresholdPN_ || mean16 > meanThresholdPN_ ) {
+                if ( ! ((m->second).getErrorBits() & bits02) ) {
+                  status = status && false;
+                }
               }
             }
 
