@@ -41,6 +41,9 @@ PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const Gs
   trackMomentumAtVtx_=math::XYZVector(vtxMom.x(),
                                       vtxMom.y(),
                                       vtxMom.z());
+  trackMomentumOut_=math::XYZVector(tsseedMom.x(),
+                                        tsseedMom.y(),
+                                        tsseedMom.z());
   //
   // supercluster - track at impact match parameters
   //

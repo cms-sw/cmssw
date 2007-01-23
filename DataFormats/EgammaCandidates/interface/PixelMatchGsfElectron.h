@@ -18,6 +18,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchGsfElectron.h,v $
+// Revision 1.8  2007/01/17 10:23:29  llista
+// added virtual member function pdgId()
+//
 // Revision 1.7  2007/01/04 06:35:09  wmtan
 // Geometry/Vector moved to DataFormats/GeometryVector
 //
@@ -99,6 +102,8 @@ class PixelMatchGsfElectron : public LeafCandidate {
   math::XYZVector TrackPositionAtVtx() const {return trackPositionAtVtx_;}
   //! the track momentum extrapolated at the supercluster position
   math::XYZVector trackMomentumAtCalo() const {return trackMomentumAtCalo_;}
+  //! the track momentum extrapolated from outermost position at the seed cluster position
+   math::XYZVector trackMomentumOut() const {return trackMomentumOut_;}
   //! the track extrapolated position at min distance to the supercluster position
   math::XYZVector TrackPositionAtCalo() const {return trackPositionAtCalo_;}
   //! the supercluster energy / track momentum at impact point
@@ -162,6 +167,7 @@ class PixelMatchGsfElectron : public LeafCandidate {
   math::XYZVector trackPositionAtVtx_;
   math::XYZVector trackMomentumAtCalo_;
   math::XYZVector trackPositionAtCalo_;
+  math::XYZVector trackMomentumOut_; 
 
   float energyError_;
   float trackMomentumError_;
