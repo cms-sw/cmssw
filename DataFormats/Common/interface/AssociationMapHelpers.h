@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.22 2006/08/28 10:03:47 llista Exp $
+ * $Id: AssociationMapHelpers.h,v 1.1 2006/09/15 07:30:50 llista Exp $
  *
  */
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -18,7 +18,7 @@ namespace edm {
       typedef K key_type;
       typedef V value_type;
       KeyVal() { }
-      KeyVal( const K & k, const V & v ) : key( k ), val( v ) { }
+      KeyVal(const K & k, const V & v) : key(k), val(v) { }
       K key;
       V val;
     };
@@ -27,15 +27,15 @@ namespace edm {
     struct Key {
       typedef K key_type;
       Key() { }
-      Key( const K & k ) : key( k ) { }
+      Key(const K & k) : key(k) { }
       K key;
     };
     
     /// throw if r hasn't the same id as rp
     template<typename RP, typename R>
-    void checkRef( const RP & rp, const R & r ) {
-      if ( rp.id() != r.id() )
-	throw edm::Exception( edm::errors::InvalidReference, "invalid reference" );
+    void checkRef(const RP & rp, const R & r) {
+      if (rp.id() != r.id())
+	throw edm::Exception(edm::errors::InvalidReference, "invalid reference");
     }
   }
 }

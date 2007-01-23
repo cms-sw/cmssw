@@ -30,34 +30,34 @@ namespace edm {
     /// reference set type
     typedef helpers::KeyVal<KeyRefProd, ValRefProd> ref_type;
     /// insert in the map
-    static void insert( ref_type & ref, map_type & m,
-			const key_type & k, const data_type & v ) {
-      if ( k.isNull() || v.isNull() )
-	throw edm::Exception( edm::errors::InvalidReference )
+    static void insert(ref_type & ref, map_type & m,
+			const key_type & k, const data_type & v) {
+      if (k.isNull() || v.isNull())
+	throw edm::Exception(edm::errors::InvalidReference)
 	  << "can't insert null references in AssociationMap";
-      if ( ref.key.isNull() ) {
-	ref.key = KeyRefProd( k );
-	ref.val = ValRefProd( v );
+      if (ref.key.isNull()) {
+	ref.key = KeyRefProd(k);
+	ref.val = ValRefProd(v);
       }
-      helpers::checkRef( ref.key, k ); helpers::checkRef( ref.val, v );
-      index_type ik = index_type( k.key() ), iv = index_type( v.key() );
-      m[ ik ].push_back( iv );
+      helpers::checkRef(ref.key, k); helpers::checkRef(ref.val, v);
+      index_type ik = index_type(k.key()), iv = index_type(v.key());
+      m[ ik ].push_back(iv);
     }
-    static void insert( ref_type & ref, map_type & m, const key_type & k, const val_type & v ) {
-      for( typename val_type::const_iterator i = v.begin(), iEnd = v.end(); i != iEnd; ++i )
-      insert( ref, m, k, * i );
+    static void insert(ref_type & ref, map_type & m, const key_type & k, const val_type & v) {
+      for(typename val_type::const_iterator i = v.begin(), iEnd = v.end(); i != iEnd; ++i)
+      insert(ref, m, k, *i);
     }
     /// return values collection
-    static val_type val( const ref_type & ref, const map_assoc & iv ) {
+    static val_type val(const ref_type & ref, const map_assoc & iv) {
       val_type v;
-      for( typename map_assoc::const_iterator idx = iv.begin(), idxEnd = iv.end(); idx != idxEnd; ++idx )
-	v.push_back( edm::Ref<CVal>( ref.val, * idx ) );
+      for(typename map_assoc::const_iterator idx = iv.begin(), idxEnd = iv.end(); idx != idxEnd; ++idx)
+	v.push_back(edm::Ref<CVal>(ref.val, *idx));
       return v;
     }
     /// size of data_type
-    static typename map_type::size_type size( const map_assoc & v ) { return v.size(); }
+    static typename map_type::size_type size(const map_assoc & v) { return v.size(); }
     /// sort
-    static void sort( map_type & ) { }
+    static void sort(map_type &) { }
   };
 }
 

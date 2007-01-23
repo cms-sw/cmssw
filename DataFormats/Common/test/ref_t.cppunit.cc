@@ -18,16 +18,16 @@ using namespace edm;
 
 class testRef: public CppUnit::TestFixture {
    CPPUNIT_TEST_SUITE(testRef);
-   
+
    CPPUNIT_TEST(constructTest);
    CPPUNIT_TEST(comparisonTest);
    CPPUNIT_TEST(getTest);
-   
+
    CPPUNIT_TEST_SUITE_END();
 public:
       void setUp(){}
    void tearDown(){}
-   
+
    void constructTest();
    void comparisonTest();
    void getTest();
@@ -37,10 +37,10 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(testRef);
 
 namespace {
-  struct Dummy { 
-    Dummy() {} 
+  struct Dummy {
+    Dummy() {}
     ~Dummy() {}
-    bool operator==(Dummy const& iRHS) const {return this == &iRHS;} 
+    bool operator==(Dummy const& iRHS) const {return this == &iRHS;}
     void const* address() const {return this;}
   };
 
@@ -52,14 +52,14 @@ void testRef::constructTest() {
    CPPUNIT_ASSERT(!nulled);
    CPPUNIT_ASSERT(nulled.isNull());
    CPPUNIT_ASSERT(!nulled.isNonnull());
-   
+
    Ref<DummyCollection> nulledP;
    CPPUNIT_ASSERT(!nulledP);
    CPPUNIT_ASSERT(nulledP.isNull());
    CPPUNIT_ASSERT(!nulledP.isNonnull());
-   
+
    ProductID const pid(1);
-   
+
    unsigned int const key = 2;
    Dummy const dummy;
    DummyCollection dummyCollection;
@@ -69,7 +69,7 @@ void testRef::constructTest() {
    TestHandle<DummyCollection> handle(&dummyCollection, pid);
    Ref<DummyCollection> dummyRef(handle,key);
    RefProd<DummyCollection> dummyRefProd(handle);
-   
+
    CPPUNIT_ASSERT(dummyRef.id() == pid);
    CPPUNIT_ASSERT(dummyRefProd.id() == pid);
    CPPUNIT_ASSERT(dummyRef.ref().item().key() == key);
@@ -84,10 +84,10 @@ void testRef::constructTest() {
 }
 
 void testRef::comparisonTest() {
-   
+
  {
    ProductID const pid(1);
-   
+
    unsigned int const key = 2;
    Dummy const dummy;
    DummyCollection dummyCollection;
@@ -118,7 +118,7 @@ void testRef::comparisonTest() {
    CPPUNIT_ASSERT(dummyRef1 != dummyRefNewKey);
    CPPUNIT_ASSERT(dummyRef1 < dummyRefNewKey);
    CPPUNIT_ASSERT(!(dummyRefNewKey < dummyRef1));
-   
+
    ProductID const pidOther(4);
    TestHandle<DummyCollection> handleNewPID(&dummyCollection, pidOther);
    Ref<DummyCollection> dummyRefNewPID(handleNewPID, key);
@@ -142,7 +142,7 @@ void testRef::comparisonTest() {
    CPPUNIT_ASSERT(dummyRef21 != dummyRef22);
    CPPUNIT_ASSERT(dummyRef21 < dummyRef22);
    CPPUNIT_ASSERT(!(dummyRef22 < dummyRef21));
-   
+
    typedef std::map<int, double, std::greater<int> > DummyCollection3;
    ProductID const pid3(3);
    DummyCollection3 dummyCollection3;
@@ -166,7 +166,7 @@ namespace {
 
       TestGetter() : hold_(0) {}
    };
-   
+
    struct IntValue {
       int value_;
       IntValue(int iValue): value_(iValue) {}
@@ -179,7 +179,7 @@ void testRef::getTest() {
 
    ptr->push_back(0);
    ptr->push_back(1);
-   
+
    edm::Wrapper<IntCollection> wrapper(ptr);
    TestGetter tester;
    tester.hold_ = &wrapper;
@@ -194,7 +194,7 @@ void testRef::getTest() {
    ref0.ref().refCore().setProductGetter(&tester);
    ref0.ref().refCore().setProductPtr(0);
    ref0.ref().item().setPtr(0);
-   
+
    Ref<IntCollection> ref1(handle, 1);
    ref1.ref().refCore().setProductGetter(&tester);
    ref1.ref().refCore().setProductPtr(0);

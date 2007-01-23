@@ -8,7 +8,7 @@ associated with a common DetId with a DetId instance, holding the
 common DetId value. The collected objects may or may not contain their
 own copy of the common DetId.
 
-$Id: DetSet.h,v 1.5 2006/10/25 21:56:29 wmtan Exp $
+$Id: DetSet.h,v 1.6 2006/10/30 23:07:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -45,10 +45,10 @@ namespace edm {
     const_iterator end() const { return data.end(); }
     size_type size() const { return data.size(); }
     bool empty() const { return data.empty(); }
-    reference operator[]( size_type i ) { return data[ i ]; }
-    const_reference operator[]( size_type i ) const { return data[ i ]; }
-    void reserve( size_t s ) { data.reserve( s ); }
-    void push_back( const T & t ) { data.push_back( t ); }
+    reference operator[](size_type i) { return data[ i ]; }
+    const_reference operator[](size_type i) const { return data[ i ]; }
+    void reserve(size_t s) { data.reserve(s); }
+    void push_back(const T & t) { data.push_back(t); }
     void clear() { data.clear(); }
     void swap(DetSet<T> & other);
 
@@ -67,28 +67,28 @@ namespace edm {
   template <class T>
   inline
   bool
-  operator< ( DetSet<T> const& x, DetSet<T> const& y ) {
+  operator< (DetSet<T> const& x, DetSet<T> const& y) {
     return x.detId() < y.detId();
   }
 
   template <class T>
   inline
   bool
-  operator< ( DetSet<T> const& x, det_id_type y ) {
+  operator< (DetSet<T> const& x, det_id_type y) {
     return x.detId() < y;
   }
 
   template <class T>
   inline
   bool
-  operator< ( det_id_type x, DetSet<T> const& y ) {
+  operator< (det_id_type x, DetSet<T> const& y) {
     return x < y.detId();
   }
 
   template <class T>
   inline
   void
-  DetSet<T>::swap( DetSet<T> & other ) {
+  DetSet<T>::swap(DetSet<T> & other) {
     data.swap(other.data);
     std::swap(id, other.id);
   }
@@ -96,7 +96,7 @@ namespace edm {
   template <class T>
   inline
   void
-  swap( DetSet<T> & a, DetSet<T> & b ) {
+  swap(DetSet<T> & a, DetSet<T> & b) {
     a.swap(b);
   }
 

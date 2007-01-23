@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.31 2007/01/08 13:04:28 llista Exp $
+ * $Id: AssociationMap.h,v 1.32 2007/01/08 21:07:23 wmtan Exp $
  *
  */
 #include "DataFormats/Common/interface/RefVector.h"
@@ -52,19 +52,19 @@ namespace edm {
       typedef value_type & reference;
       typedef typename map_type::const_iterator::iterator_category iterator_category;
       const_iterator() { }
-      const_iterator( const self * map, typename map_type::const_iterator mi ) :
-	map_( map ), i( mi ) { }
-      const_iterator & operator=( const const_iterator & it ) {
+      const_iterator(const self * map, typename map_type::const_iterator mi) :
+	map_(map), i(mi) { }
+      const_iterator & operator=(const const_iterator & it) {
 	map_ = it.map_; i = it.i; return *this;
       }
       const_iterator& operator++() { ++i; return *this; }
-      const_iterator operator++( int ) { const_iterator ci = *this; ++i; return ci; }
+      const_iterator operator++(int) { const_iterator ci = *this; ++i; return ci; }
       const_iterator& operator--() { --i; return *this; }
-      const_iterator operator--( int ) { const_iterator ci = *this; --i; return ci; }
-      bool operator==( const const_iterator& ci ) const { return i == ci.i; }
-      bool operator!=( const const_iterator& ci ) const { return i != ci.i; }
+      const_iterator operator--(int) { const_iterator ci = *this; --i; return ci; }
+      bool operator==(const const_iterator& ci) const { return i == ci.i; }
+      bool operator!=(const const_iterator& ci) const { return i != ci.i; }
       const value_type & operator *() const { return (*map_)[ i->first ]; }
-      const value_type * operator->() const { return & operator *(); }
+      const value_type * operator->() const { return &operator *(); }
     private:
       const self * map_;
       typename map_type::const_iterator i;
@@ -74,7 +74,7 @@ namespace edm {
     AssociationMap() { }
     /// default constructor
     explicit
-    AssociationMap( const ref_type & ref ) : ref_( ref ) { }
+    AssociationMap(const ref_type & ref) : ref_(ref) { }
     /// clear map
     void clear() { map_.clear(); transientMap_.clear(); }
     /// map size
@@ -82,43 +82,43 @@ namespace edm {
     /// return true if empty
     bool empty() const { return map_.empty(); }
     /// insert an association
-    void insert( const key_type & k, const data_type & v ) {
-      Tag::insert( ref_, map_, k, v );
+    void insert(const key_type & k, const data_type & v) {
+      Tag::insert(ref_, map_, k, v);
     }
-    void insert( const value_type & kv ) {
-      Tag::insert( ref_, map_, kv.key, kv.val );
+    void insert(const value_type & kv) {
+      Tag::insert(ref_, map_, kv.key, kv.val);
     }
     /// first iterator over the map (read only)
-    const_iterator begin() const { return const_iterator( this, map_.begin() );  }
+    const_iterator begin() const { return const_iterator(this, map_.begin());  }
     /// last iterator over the map (read only)
-    const_iterator end() const { return const_iterator( this, map_.end() );  }
+    const_iterator end() const { return const_iterator(this, map_.end());  }
     /// find element with specified reference key
-    const_iterator find( const key_type & k ) const {
-      if ( ref_.key.id() != k.id() ) return end();
-      return find( k.key() );
+    const_iterator find(const key_type & k) const {
+      if (ref_.key.id() != k.id()) return end();
+      return find(k.key());
     }
     /// erase the element whose key is k
-    size_type erase( const key_type& k ) {
+    size_type erase(const key_type& k) {
       index_type i = k.key();
-      transientMap_.erase( i );
-      return map_.erase( i );
+      transientMap_.erase(i);
+      return map_.erase(i);
     }
     /// find element with specified reference key
-    const result_type & operator[]( const key_type & k ) const {
-      helpers::checkRef( ref_.key, k );
-      return operator[]( k.key() ).val;
+    const result_type & operator[](const key_type & k) const {
+      helpers::checkRef(ref_.key, k);
+      return operator[](k.key()).val;
     }
     /// number of associations to a key
-    size_type numberOfAssociations( const key_type & k ) const {
-      if ( ref_.key.id() != k.id() ) return 0;
-      typename map_type::const_iterator f = map_.find( k.key() );
-      if ( f == map_.end() ) return 0;
-      return Tag::size( f->second );
+    size_type numberOfAssociations(const key_type & k) const {
+      if (ref_.key.id() != k.id()) return 0;
+      typename map_type::const_iterator f = map_.find(k.key());
+      if (f == map_.end()) return 0;
+      return Tag::size(f->second);
     }
     /// return ref-prod structure
     const ref_type & refProd() const { return ref_; }
     /// post insert action
-    void post_insert() { Tag::sort( map_ ); }
+    void post_insert() { Tag::sort(map_); }
 
     // Find should be private!  However, generated reflex dictionaries do not compile
     //  with gcc 3.4.5 if Find is private.  Reflex should fix this!!
@@ -126,9 +126,9 @@ namespace edm {
     struct Find :
       public std::binary_function<const self&, size_type, const value_type *> {
       typedef Find self;
-      const value_type * operator()( typename self::first_argument_type c,
-				     typename self::second_argument_type i ) {
-	return & ( * c.find( i ) );
+      const value_type * operator()(typename self::first_argument_type c,
+				     typename self::second_argument_type i) {
+	return &(*c.find(i));
       }
     };
   private:
@@ -139,22 +139,22 @@ namespace edm {
     /// transient reference map
     mutable transient_map_type transientMap_;
     /// find element with index i
-    const_iterator find( size_type i ) const {
-      typename map_type::const_iterator f = map_.find( i );
-      if ( f == map_.end() ) return end();
-      return const_iterator( this, f );
+    const_iterator find(size_type i) const {
+      typename map_type::const_iterator f = map_.find(i);
+      if (f == map_.end()) return end();
+      return const_iterator(this, f);
     }
     /// return value_typeelement with key i
-    const value_type & operator[]( size_type i ) const {
-      typename transient_map_type::const_iterator tf = transientMap_.find( i );
-      if ( tf == transientMap_.end() ) {
-	typename map_type::const_iterator f = map_.find( i );
-	if ( f == map_.end() )
-	  throw edm::Exception( edm::errors::InvalidReference )
+    const value_type & operator[](size_type i) const {
+      typename transient_map_type::const_iterator tf = transientMap_.find(i);
+      if (tf == transientMap_.end()) {
+	typename map_type::const_iterator f = map_.find(i);
+	if (f == map_.end())
+	  throw edm::Exception(edm::errors::InvalidReference)
 	    << "can't find reference in AssociationMap at position " << i;
-	value_type v( key_type( ref_.key, i ), Tag::val( ref_, f->second ) );
+	value_type v(key_type(ref_.key, i), Tag::val(ref_, f->second));
 	std::pair<typename transient_map_type::const_iterator, bool> ins =
-	  transientMap_.insert( std::make_pair( i, v ) );
+	  transientMap_.insert(std::make_pair(i, v));
 	return ins.first->second;
       } else {
 	return tf->second;

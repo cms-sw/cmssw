@@ -11,7 +11,7 @@ namespace edm {
   ProcessHistoryID
   ProcessHistory::id() const
   {
-    if(id_.isValid() ) {
+    if(id_.isValid()) {
       return id_;
     }
     // This implementation is ripe for optimization.
@@ -27,7 +27,7 @@ namespace edm {
     seal::MD5Digest md5alg;
     md5alg.update(stringrep.data(), stringrep.size());
     ProcessHistoryID tmp(md5alg.format());
-    id_.swap( tmp );
+    id_.swap(tmp);
     return id_;
   }
 

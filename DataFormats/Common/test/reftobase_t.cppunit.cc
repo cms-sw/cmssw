@@ -1,4 +1,4 @@
-// $Id: reftobase_t.cppunit.cc,v 1.3 2006/06/21 17:56:27 chrjones Exp $
+// $Id: reftobase_t.cppunit.cc,v 1.4 2006/08/03 13:07:01 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -50,34 +50,34 @@ testRefToBase::check()
   std::vector<Inherit1> v1(2,Inherit1());
   std::vector<Inherit2> v2(2,Inherit2());
   
-  TestHandle<std::vector<Inherit1> > h1( ProductID(1), &v1);
-  Ref<std::vector<Inherit1> > r1( h1, 1 );
-  RefToBase<Base> b1( r1 );
-  CPPUNIT_ASSERT( &(*b1) == static_cast<Base*>(&(v1[1])));
-  CPPUNIT_ASSERT( b1.operator->() == b1.get() );
-  CPPUNIT_ASSERT( b1.get() == static_cast<Base*>(&(v1[1])));
+  TestHandle<std::vector<Inherit1> > h1(ProductID(1), &v1);
+  Ref<std::vector<Inherit1> > r1(h1, 1);
+  RefToBase<Base> b1(r1);
+  CPPUNIT_ASSERT(&(*b1) == static_cast<Base*>(&(v1[1])));
+  CPPUNIT_ASSERT(b1.operator->() == b1.get());
+  CPPUNIT_ASSERT(b1.get() == static_cast<Base*>(&(v1[1])));
   CPPUNIT_ASSERT(b1.id() == ProductID(1));
   
   //copy constructor
-  RefToBase<Base> b2( b1 );
-  CPPUNIT_ASSERT( &(*b2) == static_cast<Base*>(&(v1[1])));
-  CPPUNIT_ASSERT( b2.id() == b1.id() );
+  RefToBase<Base> b2(b1);
+  CPPUNIT_ASSERT(&(*b2) == static_cast<Base*>(&(v1[1])));
+  CPPUNIT_ASSERT(b2.id() == b1.id());
 
   //operator=
   RefToBase<Base> b3;
-  CPPUNIT_ASSERT( b3.isNull());
+  CPPUNIT_ASSERT(b3.isNull());
   CPPUNIT_ASSERT(!(b3.isNonnull()));
   CPPUNIT_ASSERT(!b3);
   b3 = b1;
-  CPPUNIT_ASSERT( &(*b3) == static_cast<Base*>(&(v1[1])));
+  CPPUNIT_ASSERT(&(*b3) == static_cast<Base*>(&(v1[1])));
   CPPUNIT_ASSERT(b3.id() == b1.id());
-  CPPUNIT_ASSERT( !(b3.isNull()));
+  CPPUNIT_ASSERT(!(b3.isNull()));
   CPPUNIT_ASSERT(b3.isNonnull());
-  CPPUNIT_ASSERT( !(!b3) );
+  CPPUNIT_ASSERT(!(!b3));
 
-  CPPUNIT_ASSERT( b1.castTo<Ref<std::vector<Inherit1> > >() == r1 );
+  CPPUNIT_ASSERT(b1.castTo<Ref<std::vector<Inherit1> > >() == r1);
   bool throwed = false;
   try { b1.castTo<Ref<std::vector<Inherit2> > >(); } 
-  catch ( edm::Exception e ) { throwed = true; }
-  CPPUNIT_ASSERT( throwed );
+  catch (edm::Exception e) { throwed = true; }
+  CPPUNIT_ASSERT(throwed);
 }

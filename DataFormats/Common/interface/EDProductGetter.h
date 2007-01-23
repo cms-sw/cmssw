@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov  1 15:06:31 EST 2005
-// $Id: EDProductGetter.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
+// $Id: EDProductGetter.h,v 1.2 2006/02/08 00:44:23 wmtan Exp $
 //
 
 // system include files
@@ -63,7 +63,7 @@ private:
 
       /**This does not take ownership of the argument, so it is up to the caller to be
          sure that the object lifetime is greater than the time for which it is set*/
-      static EDProductGetter const* set(EDProductGetter const* );
+      static EDProductGetter const* set(EDProductGetter const*);
       // ---------- member data --------------------------------
       
    };

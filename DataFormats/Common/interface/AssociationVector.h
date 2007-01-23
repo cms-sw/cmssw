@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  */
 
 #include "DataFormats/Common/interface/traits.h"
@@ -31,9 +31,9 @@ namespace edm {
     typedef typename CVal::iterator iterator;
     typedef typename CVal::const_iterator const_iterator;
     AssociationVector();
-    AssociationVector( KeyRefProd ref );
-    AssociationVector( KeyRefProd ref, size_type );
-    AssociationVector( const AssociationVector & );
+    AssociationVector(KeyRefProd ref);
+    AssociationVector(KeyRefProd ref, size_type);
+    AssociationVector(const AssociationVector &);
     ~AssociationVector();
     
     iterator begin();
@@ -42,17 +42,17 @@ namespace edm {
     const_iterator end() const;
     size_type size() const;
     bool empty() const;
-    reference operator[]( size_type );
-    const_reference operator[]( size_type ) const;
+    reference operator[](size_type);
+    const_reference operator[](size_type) const;
     
-    AssociationVector<CKey, CVal> & operator=( const AssociationVector<CKey, CVal> & );
+    AssociationVector<CKey, CVal> & operator=(const AssociationVector<CKey, CVal> &);
     
-    void reserve( size_type );
-    void push_back( const value_type & );  
+    void reserve(size_type);
+    void push_back(const value_type &);  
     void clear();
     void swap(AssociationVector<CKey, CVal> & other);
     const KeyRefProd & keyProduct() const { return ref_; }
-    KeyRef key( typename CKey::size_type i ) const { return KeyRef( ref_, i ); }
+    KeyRef key(typename CKey::size_type i) const { return KeyRef(ref_, i); }
   private:
     CVal data_;
     KeyRefProd ref_;
@@ -63,23 +63,23 @@ namespace edm {
     data_(), ref_() { }
   
   template<typename CKey, typename CVal>
-  inline AssociationVector<CKey, CVal>::AssociationVector( KeyRefProd ref ) : 
-    data_(), ref_( ref ) { }
+  inline AssociationVector<CKey, CVal>::AssociationVector(KeyRefProd ref) : 
+    data_(), ref_(ref) { }
   
   template<typename CKey, typename CVal>
-  inline AssociationVector<CKey, CVal>::AssociationVector( KeyRefProd ref, size_type n ) : 
-    data_( n ), ref_( ref ) { }
+  inline AssociationVector<CKey, CVal>::AssociationVector(KeyRefProd ref, size_type n) : 
+    data_(n), ref_(ref) { }
   
   template<typename CKey, typename CVal>
-  inline AssociationVector<CKey, CVal>::AssociationVector( const AssociationVector<CKey, CVal> & o ) : 
-    data_( o.data_ ), ref_( o.ref_ ) { }
+  inline AssociationVector<CKey, CVal>::AssociationVector(const AssociationVector<CKey, CVal> & o) : 
+    data_(o.data_), ref_(o.ref_) { }
   
   template<typename CKey, typename CVal>
   inline AssociationVector<CKey, CVal>::~AssociationVector() { }
   
   template<typename CKey, typename CVal>
   inline AssociationVector<CKey, CVal> & 
-  AssociationVector<CKey, CVal>::operator=( const AssociationVector<CKey, CVal> & o ) {
+  AssociationVector<CKey, CVal>::operator=(const AssociationVector<CKey, CVal> & o) {
     data_ = o.data_;
     ref_ = o.ref_;
     return * this;
@@ -116,23 +116,23 @@ namespace edm {
   }
   
   template<typename CKey, typename CVal>
-  inline typename AssociationVector<CKey, CVal>::reference AssociationVector<CKey, CVal>::operator[]( size_type n ) {
+  inline typename AssociationVector<CKey, CVal>::reference AssociationVector<CKey, CVal>::operator[](size_type n) {
     return data_[ n ];
   }
   
   template<typename CKey, typename CVal>
-  inline typename AssociationVector<CKey, CVal>::const_reference AssociationVector<CKey, CVal>::operator[]( size_type n ) const {
+  inline typename AssociationVector<CKey, CVal>::const_reference AssociationVector<CKey, CVal>::operator[](size_type n) const {
     return data_[ n ];
   }
   
   template<typename CKey, typename CVal>
-  inline void AssociationVector<CKey, CVal>::reserve( size_type n ) {
-    data_.reserve( n );
+  inline void AssociationVector<CKey, CVal>::reserve(size_type n) {
+    data_.reserve(n);
   }
   
   template<typename CKey, typename CVal>
-  inline void AssociationVector<CKey, CVal>::push_back( const value_type & t ) {
-    data_.push_back( t );
+  inline void AssociationVector<CKey, CVal>::push_back(const value_type & t) {
+    data_.push_back(t);
   }
   
   template<typename CKey, typename CVal>
@@ -142,14 +142,14 @@ namespace edm {
   }
 
   template<typename CKey, typename CVal>
-  inline void AssociationVector<CKey, CVal>::swap( AssociationVector<CKey, CVal> & other ) {
-    data_.swap( other.data_ );
-    std::swap( ref_, other.ref_ );
+  inline void AssociationVector<CKey, CVal>::swap(AssociationVector<CKey, CVal> & other) {
+    data_.swap(other.data_);
+    std::swap(ref_, other.ref_);
   }
 
   template<typename CKey, typename CVal>
-  inline void swap( AssociationVector<CKey, CVal> & a, AssociationVector<CKey, CVal> & b ) {
-    a.swap( b );
+  inline void swap(AssociationVector<CKey, CVal> & a, AssociationVector<CKey, CVal> & b) {
+    a.swap(b);
   }
 
 #if ! GCC_PREREQUISITE(3,4,4)

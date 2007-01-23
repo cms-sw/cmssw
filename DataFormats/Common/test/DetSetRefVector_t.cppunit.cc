@@ -1,4 +1,4 @@
-// $Id: DetSetRefVector_t.cppunit.cc,v 1.2 2007/01/17 00:19:12 wmtan Exp $
+// $Id: DetSetRefVector_t.cppunit.cc,v 1.3 2007/01/19 04:29:07 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/DetSetRefVector.h"
 
@@ -11,7 +11,7 @@ class testDetSetRefVector : public CppUnit::TestFixture {
 public:
   void setUp() {}
   void tearDown() {}
-  void checkConstruction(); 
+  void checkConstruction();
   void checkFind();
 };
 
@@ -22,32 +22,32 @@ namespace testdetsetrefvector {
 public:
     // VALUES must be default constructible
     Value() : d_(0.0) { }
-    
+
     // This constructor is used for testing; it is not required by the
     // concept VALUE.
     explicit Value(double d) : d_(d) { }
-    
+
     // The compiler-generated copy c'tor seems to do the wrong thing!
     Value(Value const& other) : d_(other.d_) { }
-    
+
     // This access function is used for testing; it is not required by
     // the concept VALUE.
     double val() const { return d_; }
-    
-    // VALUES must be destructible 
+
+    // VALUES must be destructible
     ~Value() {}
-    
-    
+
+
     // VALUES must be LessThanComparable
-    bool operator< (Value const& other) const 
-  { return d_ < other.d_; }  
-    
+    bool operator< (Value const& other) const
+  { return d_ < other.d_; }
+
     // The private stuff below is all implementation detail, and not
     // required by the concept VALUE.
 private:
     double        d_;
-  };  
-  
+  };
+
   template<class T>
     struct MyHandle {
       typedef T element_type;
@@ -57,7 +57,7 @@ private:
       const T* prod_;
       const T* operator->() const {return prod_;}
     };
-  
+
 }
 
 using namespace testdetsetrefvector;
@@ -90,10 +90,10 @@ testDetSetRefVector::checkConstruction()
     std::vector<edm::det_id_type> ids;
     ids.push_back(1);
     ids.push_back(3);
-    
+
     edm::DetSetRefVector<Value> refVector(pc2, ids);
     CPPUNIT_ASSERT(refVector.size() == ids.size());
-    
+
     dsv_type::const_iterator dsvItr = c.begin();
     for(edm::DetSetRefVector<Value>::const_iterator it = refVector.begin(),
          itEnd = refVector.end();
@@ -107,10 +107,10 @@ testDetSetRefVector::checkConstruction()
   {
     std::vector<edm::det_id_type> ids;
     ids.push_back(3);
-    
+
     edm::DetSetRefVector<Value> refVector(pc2, ids);
     CPPUNIT_ASSERT(refVector.size() == ids.size());
-    
+
     edm::DetSetRefVector<Value>::const_iterator itRef = refVector.begin();
     for(std::vector<edm::det_id_type>::const_iterator itId = ids.begin(),
          itIdEnd = ids.end();
@@ -142,16 +142,16 @@ testDetSetRefVector::checkFind()
   d1.data.push_back(v2a);
   c.insert(d1);
   c.post_insert();
-  
+
   MyHandle<dsv_type> pc2(&c);
-  
+
   {
     std::vector<edm::det_id_type> ids;
     ids.push_back(1);
     ids.push_back(3);
-    
+
     edm::DetSetRefVector<Value> refVector(pc2, ids);
-    
+
     CPPUNIT_ASSERT(refVector.find(1)->id == c.find(1)->id);
     CPPUNIT_ASSERT(refVector.find(3)->id == c.find(3)->id);
     CPPUNIT_ASSERT(refVector.find(4) == refVector.end());

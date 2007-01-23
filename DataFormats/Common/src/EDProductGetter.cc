@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov  1 15:06:41 EST 2005
-// $Id: EDProductGetter.cc,v 1.1 2006/02/07 07:01:51 wmtan Exp $
+// $Id: EDProductGetter.cc,v 1.2 2006/10/21 02:48:58 wmtan Exp $
 //
 
 // system include files
@@ -69,10 +69,10 @@ EDProductGetter::~EDProductGetter()
 namespace {
    struct Holder {
       Holder(): held_(0) {}
-      edm::EDProductGetter const * held_;
+      edm::EDProductGetter const* held_;
    };
 }
-EDProductGetter const * 
+EDProductGetter const* 
 EDProductGetter::set(EDProductGetter const* iGetter)
 {
    //NOTE: I use a Holder so that when s_registry goes away it will not delete the last EDProductGetter it saw
@@ -80,7 +80,7 @@ EDProductGetter::set(EDProductGetter const* iGetter)
    if(0 == s_registry.get()){
       s_registry.reset(new Holder);
    }
-   EDProductGetter const * previous = s_registry->held_;
+   EDProductGetter const* previous = s_registry->held_;
    s_registry->held_= iGetter;
    return previous;
 }

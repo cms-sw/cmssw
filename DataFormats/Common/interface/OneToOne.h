@@ -28,27 +28,27 @@ namespace edm {
     /// reference set type
     typedef helpers::KeyVal<KeyRefProd, ValRefProd> ref_type;
     /// insert in the map
-    static void insert(  ref_type & ref, map_type & m,
-			const key_type & k, const data_type & v ) {
-      if ( k.isNull() || v.isNull() )
-	throw edm::Exception( edm::errors::InvalidReference )
+    static void insert(ref_type & ref, map_type & m,
+			const key_type & k, const data_type & v) {
+      if (k.isNull() || v.isNull())
+	throw edm::Exception(edm::errors::InvalidReference)
 	  << "can't insert null references in AssociationMap";
-      if ( ref.key.isNull() ) {
-	ref.key = KeyRefProd( k );
-	ref.val = ValRefProd( v );
+      if (ref.key.isNull()) {
+	ref.key = KeyRefProd(k);
+	ref.val = ValRefProd(v);
       }
-      helpers::checkRef( ref.key, k ); helpers::checkRef( ref.val, v );
-      index_type ik = index_type( k.key() ), iv = index_type( v.key() );
-      m[ ik ] = iv;
+      helpers::checkRef(ref.key, k); helpers::checkRef(ref.val, v);
+      index_type ik = index_type(k.key()), iv = index_type(v.key());
+      m[ik] = iv;
     }
     /// return values collection
-    static val_type val( const ref_type & ref, map_assoc iv ) {
-      return val_type( ref.val, iv );
+    static val_type val(const ref_type & ref, map_assoc iv) {
+      return val_type(ref.val, iv);
     }
     /// size of data_type
-    static typename map_type::size_type size( const map_assoc & v ) { return 1; }
+    static typename map_type::size_type size(const map_assoc & v) { return 1; }
     /// sort
-    static void sort( map_type & ) { }
+    static void sort(map_type &) { }
   };
 }
 

@@ -1,5 +1,5 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.12 2006/10/30 23:07:53 wmtan Exp $
+ *  $Id: DetSetVector_t.cpp,v 1.13 2007/01/22 23:56:59 wmtan Exp $
  *  CMSSW
  *
  */
@@ -45,12 +45,12 @@ class ValueT : public BASE
   // the concept VALUE.
   double val() const {return d_;}
 
-  // VALUES must be destructible 
+  // VALUES must be destructible
   ~ValueT() {}
 
-  
+
   // VALUES must be LessThanComparable
-  bool operator< (ValueT const& other) const {return d_ < other.d_;}  
+  bool operator< (ValueT const& other) const {return d_ < other.d_;}
 
   // The private stuff below is all implementation detail, and not
   // required by the concept VALUE.
@@ -72,8 +72,8 @@ typedef ValueT<Empty> Value;
 //typedef ValueT<DNS> Value; // NoSort;
 
 
-//------------------------------------------------------ 
-// The stream insertion operator is not required; it is used here 
+//------------------------------------------------------
+// The stream insertion operator is not required; it is used here
 // for diagnostic output.
 //
 // It is inline to avoid multiple definition problems. Note that this
@@ -91,11 +91,11 @@ operator<< (std::ostream& os, ValueT<BASE> const& v)
   return os;
 }
 
-  
+
 typedef edm::DetSetVector<Value> coll_type;
 typedef coll_type::detset        detset;
 
-void check_outer_collection_order(coll_type const& c) 
+void check_outer_collection_order(coll_type const& c)
 {
   if (c.size() < 2) return;
   coll_type::const_iterator i = c.begin();
@@ -103,7 +103,7 @@ void check_outer_collection_order(coll_type const& c)
   // Invariant: sequence from prev to i is correctly ordered
   coll_type::const_iterator prev(i);
   ++i;
-  for (; i != e; ++i, ++prev) 
+  for (; i != e; ++i, ++prev)
     {
       // We don't use CPPUNIT_ASSERT because it gives us grossly
       // insufficient context if a failure occurs.
@@ -119,7 +119,7 @@ void check_inner_collection_order(detset const& d)
   // Invariant: sequence from prev to i is correctly ordered
   detset::const_iterator prev(i);
   ++i;
-  for (; i != e; ++i, ++prev) 
+  for (; i != e; ++i, ++prev)
     {
       // We don't use CPPUNIT_ASSERT because it gives us grossly
       // insufficient context if a failure occurs.
@@ -130,7 +130,7 @@ void check_inner_collection_order(detset const& d)
     }
 }
 
-void printDetSet(detset const& ds, std::ostream& os) 
+void printDetSet(detset const& ds, std::ostream& os)
 {
   os << "size: " << ds.data.size() << '\n'
      << "values: ";
@@ -139,7 +139,7 @@ void printDetSet(detset const& ds, std::ostream& os)
 }
 
 
-void sanity_check(coll_type const& c) 
+void sanity_check(coll_type const& c)
 {
   check_outer_collection_order(c);
   for (coll_type::const_iterator i = c.begin(), e = c.end(); i!=e; ++i)
@@ -169,7 +169,7 @@ void check_ids(coll_type const& c)
 }
 
 
-void detsetTest() 
+void detsetTest()
 {
   //std::cerr << "\nStart DetSetVector_t detsetTest()\n";
   detset d;
@@ -179,32 +179,32 @@ void detsetTest()
   d.data.push_back(v1);
   d.data.push_back(v2);
   std::sort(d.data.begin(), d.data.end());
-  check_inner_collection_order(d);  
+  check_inner_collection_order(d);
   //std::cerr << "\nEnd DetSetVector_t detsetTest()\n";
 }
 
 #if ! GCC_PREREQUISITE(3,4,4)
-void traitsTest() 
+void traitsTest()
 {
   //std::cerr << "\nStart DetSetVector_t traitsTest()\n";
   assert(edm::has_postinsert_trait<int>::value == false);
   assert(edm::has_postinsert_trait<coll_type>::value == true);
-  //std::cerr << "\nEnd DetSetVector_t traitsTest()\n";  
+  //std::cerr << "\nEnd DetSetVector_t traitsTest()\n";
 }
 #endif
 
-namespace 
+namespace
 {
   template<class T>
-  struct DSVGetter : edm::EDProductGetter 
+  struct DSVGetter : edm::EDProductGetter
   {
     DSVGetter() : edm::EDProductGetter(), prod_(0) {}
-    virtual EDProduct const* 
+    virtual EDProduct const*
     getIt(ProductID const&) const { return prod_; }
     edm::Wrapper<T> const* prod_;
   };
   template<class T>
-  struct MyHandle 
+  struct MyHandle
   {
     typedef T element_type;
     MyHandle(const T* iProd) : prod_(iProd) { }
@@ -215,7 +215,7 @@ namespace
   };
 }
 
-void refTest() 
+void refTest()
 {
   coll_type c;
   detset d3;
@@ -238,7 +238,7 @@ void refTest()
   edm::Wrapper<coll_type> wrapper(pC);
   DSVGetter<coll_type> theGetter;
   theGetter.prod_ = &wrapper;
-   
+
   typedef edm::Ref<coll_type,detset> RefDetSet;
   typedef edm::Ref<coll_type,Value> RefDet;
 
@@ -254,7 +254,7 @@ void refTest()
     RefDet refDet(edm::ProductID(1),RefDet::key_type(3,0),&theGetter);
     assert(!(v1<*refDet)&&!(*refDet < v1));
   }
-   
+
   {
     MyHandle<coll_type> pc2(&c);
     RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(3),c[3].data.begin());
@@ -265,7 +265,7 @@ void refTest()
     //bad detid
     MyHandle<coll_type> pc2(&c);
     RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(12),c[3].data.begin());
-    
+
     assert("Failed to throw required exception" == 0);
   }
   catch (edm::Exception const& x) {
@@ -278,7 +278,7 @@ void refTest()
     //bad iterator
     MyHandle<coll_type> pc2(&c);
     RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(1),c[3].data.begin());
-    
+
     assert("Failed to throw required exception" == 0);
   }
   catch (edm::Exception const& x) {
@@ -286,10 +286,10 @@ void refTest()
     // Test we have the right exception category
     assert(x.categoryCode() == edm::errors::InvalidReference);
   }
-  
+
 }
 
-void work() 
+void work()
 {
   detsetTest();
 #if ! GCC_PREREQUISITE(3,4,4)
@@ -362,7 +362,7 @@ void work()
     coll_type::iterator i = c.find(edm::det_id_type(11));
     assert(i == c.end());
 
-    coll_type::const_iterator ci = 
+    coll_type::const_iterator ci =
       static_cast<coll_type const&>(c).find(edm::det_id_type(11));
     assert(ci == c.end());
   }
@@ -471,26 +471,22 @@ void work()
 int main()
 {
   int rc = -1;
-  try
-    { 
-      work(); 
+  try {
+      work();
       rc = 0;
-    }
-  catch (edm::Exception const& x) 
-    {
+  }
+  catch (edm::Exception const& x) {
       //std::cerr << "Exception: " << x << '\n';
       rc = 1;
-    }
-  catch (std::exception& x)
-    {
+  }
+  catch (std::exception& x) {
       //std::cerr << "standard exception: " << x.what() << '\n';
       rc = 3;
-    }
-  catch (...) 
-    {
+  }
+  catch (...) {
       //std::cerr << "Unknown exception\n";
       rc = 2;
-    }
+  }
   return rc;
 }
 

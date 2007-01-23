@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.12 2007/01/17 22:07:58 paterno Exp $
+$Id: Wrapper.h,v 1.13 2007/01/19 23:28:23 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -50,7 +50,7 @@ namespace edm {
 	   std::vector<void const*>& ptrs)
   {
     typedef typename std::vector<T,A>::const_iterator iter;
-    for (iter i=obj.begin(), e=obj.end(); i!=e; ++i) ptrs.push_back(&*i);
+    for (iter i = obj.begin(), e = obj.end(); i != e; ++i) ptrs.push_back(&*i);
   }
 
   template <class T, class A>
@@ -59,7 +59,7 @@ namespace edm {
 	   std::vector<void const*>& ptrs)
   {
     typedef typename std::list<T,A>::const_iterator iter;
-    for (iter i=obj.begin(), e=obj.end(); i!=e; ++i) ptrs.push_back(&*i);
+    for (iter i = obj.begin(), e = obj.end(); i != e; ++i) ptrs.push_back(&*i);
   }
 
   template <class T, class A>
@@ -68,7 +68,7 @@ namespace edm {
 	   std::vector<void const*>& ptrs)
   {
     typedef typename std::deque<T,A>::const_iterator iter;
-    for (iter i=obj.begin(), e=obj.end(); i!=e; ++i) ptrs.push_back(&*i);
+    for (iter i = obj.begin(), e = obj.end(); i != e; ++i) ptrs.push_back(&*i);
   }
 
   template <class T, class A>
@@ -77,7 +77,7 @@ namespace edm {
 	   std::vector<void const*>& ptrs)
   {
     typedef typename std::set<T,A>::const_iterator iter;
-    for (iter i=obj.begin(), e=obj.end(); i!=e; ++i) ptrs.push_back(&*i);
+    for (iter i = obj.begin(), e = obj.end(); i != e; ++i) ptrs.push_back(&*i);
   }
 
   template <class T>
@@ -153,7 +153,7 @@ namespace edm {
   // application of SFINAE. GCC 3.4.2 is known to deal with this code
   // correctly.
   //------------------------------------------------------------
-    typedef char (& no_tag )[1]; // type indicating FALSE
+    typedef char (& no_tag)[1]; // type indicating FALSE
     typedef char (& yes_tag)[2]; // type indicating TRUE
 
     // Definitions for the following struct and function templates are

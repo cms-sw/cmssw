@@ -4,7 +4,7 @@
 namespace edm {
   template<typename T>
   struct CopyPolicy{
-    static const T & clone( const T & t ) {
+    static const T & clone(const T & t) {
       return t;
     }
   };

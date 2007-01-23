@@ -5,7 +5,7 @@
 
 Definition of traits templates used in the EDM.  
 
-$Id: traits.h,v 1.9 2007/01/17 22:07:58 paterno Exp $
+$Id: traits.h,v 1.10 2007/01/19 23:28:23 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -140,7 +140,7 @@ namespace edm
   // The trait struct template has_fillView<T> is used to
   // indicate whether or not the type T has a member function
   //
-  //      void T::fillView(std::vector<void const*>& ) const
+  //      void T::fillView(std::vector<void const*>&) const
   //
   // We assume the 'general case' for T is to not support fillView.
   // Classes which do support fillView must specialize this trait.

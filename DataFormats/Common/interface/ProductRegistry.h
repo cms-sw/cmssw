@@ -7,7 +7,7 @@
 
    \original author Stefano ARGIRO
    \current author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.9 2007/01/17 00:19:11 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.10 2007/01/19 04:31:17 wmtan Exp $
    \date 19 Jul 2005
 */
 
@@ -68,7 +68,7 @@ namespace edm {
       // after an insert with the new container, else need to copy the container and iterate over the copy
       for(ProductRegistry::ProductList::const_iterator itEntry = productList_.begin(),
           itEntryEnd = productList_.end();
-          itEntry != itEntryEnd; ++itEntry){
+          itEntry != itEntryEnd; ++itEntry) {
         iFunc(itEntry->second);
       }
     }

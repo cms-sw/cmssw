@@ -4,8 +4,8 @@
 namespace edm {
   template<typename T>
   struct NewPolicy{
-    static T * clone( const T & t ) {
-      return new T( t );
+    static T * clone(const T & t) {
+      return new T(t);
     }
   };
 }

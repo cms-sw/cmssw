@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:43:29 EDT 2006
-// $Id: CloningPtr.h,v 1.1 2006/04/04 01:54:51 chrjones Exp $
+// $Id: CloningPtr.h,v 1.2 2006/08/10 23:34:53 wmtan Exp $
 //
 
 // system include files
@@ -31,9 +31,9 @@ namespace edm {
   class CloningPtr {
 public:
     CloningPtr(): ptr_(0) {}
-    CloningPtr(const T& iPtr) : ptr_( P::clone(iPtr) ) {}
+    CloningPtr(const T& iPtr) : ptr_(P::clone(iPtr)) {}
     CloningPtr(std::auto_ptr<T> iPtr) : ptr_(iPtr.release()) {}
-    CloningPtr(const CloningPtr<T,P>& iPtr) : ptr_(P::clone( *(iPtr.ptr_)) ) {}
+    CloningPtr(const CloningPtr<T,P>& iPtr) : ptr_(P::clone(*(iPtr.ptr_))) {}
     
     const CloningPtr<T,P>& operator=(const CloningPtr<T,P>& iRHS) {
       CloningPtr<T,P> temp(iRHS);
@@ -41,7 +41,7 @@ public:
       return *this;
     }
     
-    void swap( CloningPtr<T,P>& iPtr ) {
+    void swap(CloningPtr<T,P>& iPtr) {
       std::swap(ptr_, iPtr.ptr_);
     }
     

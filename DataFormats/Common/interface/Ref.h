@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.16 2006/10/30 23:07:52 wmtan Exp $
+$Id: Ref.h,v 1.17 2006/12/16 03:45:47 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -19,7 +19,7 @@ $Id: Ref.h,v 1.16 2006/10/30 23:07:52 wmtan Exp $
   The edm::Ref<> works just like a pointer
   \code
      edm::Ref<Foo> fooPtr = ... //set the value
-     functionTakingConstFoo( *fooPtr ); //get the Foo object
+     functionTakingConstFoo(*fooPtr); //get the Foo object
      fooPtr->bar();  //call a method of the held Foo object
   \endcode
 
@@ -41,7 +41,7 @@ $Id: Ref.h,v 1.16 2006/10/30 23:07:52 wmtan Exp $
      std::binary_function<const C&, typename IndexT, const T*>
  
      and define the function
-     result_type operator()( first_argument_type iContainer, second_argument_type iIndex)
+     result_type operator()(first_argument_type iContainer, second_argument_type iIndex)
  
      where result_type, first_argument_type and second_argument_type are typedefs inherited from std::binary_function<>
  

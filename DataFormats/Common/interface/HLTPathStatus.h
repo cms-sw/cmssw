@@ -21,8 +21,8 @@
  *
  *  Note that n is limited, due to packing, to at most 2^(16-2)=16384.
  *
- *  $Date: 2006/07/13 15:12:07 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/08/26 15:46:08 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -55,7 +55,7 @@ namespace edm
     void reset() {status_=0;}
 
     bool wasrun() const {return (state() != hlt::Ready);}
-    bool accept() const {return (state() == hlt::Pass );}
+    bool accept() const {return (state() == hlt::Pass);}
     bool error()  const {return (state() == hlt::Exception);}
 
   };

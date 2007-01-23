@@ -28,7 +28,7 @@ within the edm::Event where those objects are only related by a base class, T.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.9 2006/11/15 10:11:04 llista Exp $
+// $Id: RefToBase.h,v 1.10 2006/11/15 10:17:28 llista Exp $
 //
 
 // system include files
@@ -48,7 +48,7 @@ namespace edm {
       virtual BaseHolder<T>* clone() const = 0;
       virtual const T* getPtr() const = 0;
       virtual ProductID id() const = 0;
-      virtual bool isEqualTo( const BaseHolder<T> & rhs ) const = 0;
+      virtual bool isEqualTo(const BaseHolder<T> & rhs) const = 0;
     };
 
     template <class T, class TRef>
@@ -61,9 +61,9 @@ namespace edm {
       virtual const T* getPtr() const { return ref_.operator->(); }
       virtual ProductID id() const { return ref_.id(); }
       const TRef & getRef() const { return ref_; }
-      bool isEqualTo( const BaseHolder<T> & rhs ) const {
-	const Holder<T, TRef> * h = dynamic_cast<const Holder<T, TRef> *>( & rhs );
-	if ( h == 0 ) return false;
+      bool isEqualTo(const BaseHolder<T> & rhs) const {
+	const Holder<T, TRef> * h = dynamic_cast<const Holder<T, TRef> *>(& rhs);
+	if (h == 0) return false;
 	return getRef() == h->getRef();
       }
     private:
@@ -121,16 +121,16 @@ namespace edm {
     /// Checks for null
     bool operator!() const { return isNull(); }
     
-    bool operator==( const RefToBase<T> & rhs ) const {
-      return holder_->isEqualTo( * rhs.holder_ );
+    bool operator==(const RefToBase<T> & rhs) const {
+      return holder_->isEqualTo(*rhs.holder_);
     }
     
-    bool operator!=( const RefToBase<T> & rhs ) const {
-      return !( * this == rhs );
+    bool operator!=(const RefToBase<T> & rhs) const {
+      return !(*this == rhs);
     }
     
     // ---------- member functions ---------------------------
-    void swap( RefToBase<T> & iOther ) {
+    void swap(RefToBase<T> & iOther) {
       std::swap(holder_, iOther.holder_);
     }
     

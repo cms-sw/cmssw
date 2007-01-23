@@ -154,7 +154,7 @@ void take_an_lvalue()
   Base* p = new Derived(100);
   v1.push_back(p);
 
-  assert( p==0 );
+  assert(p == 0);
 }
 
 void take_an_auto_ptr()
@@ -162,7 +162,7 @@ void take_an_auto_ptr()
   edm::OwnVector<Base> v1;
   std::auto_ptr<Base> p(new Derived(100));
   v1.push_back(p);
-  assert( p.get() == 0 );
+  assert(p.get() == 0);
 }
 
 int main()

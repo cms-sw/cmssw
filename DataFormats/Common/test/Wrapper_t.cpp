@@ -1,5 +1,5 @@
 /*
- *  $Id: Wrapper_t.cpp,v 1.3 2006/10/30 23:07:53 wmtan Exp $
+ *  $Id: Wrapper_t.cpp,v 1.4 2007/01/22 23:56:59 wmtan Exp $
  *  CMSSW
  *
  */
@@ -51,7 +51,7 @@ void work()
   edm::Wrapper<SwappyNoCopy> wrap2(thing2);
 
 
-  std::auto_ptr<std::vector<double> > 
+  std::auto_ptr<std::vector<double> >
     thing3(new std::vector<double>(10,2.2));
   assert(thing3->size() == 10);
 
