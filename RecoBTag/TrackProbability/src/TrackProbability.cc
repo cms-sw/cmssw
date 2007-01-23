@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackProbability.cc,v 1.2 2006/12/07 08:24:24 arizzi Exp $
+// $Id: TrackProbability.cc,v 1.3 2007/01/22 16:46:01 arizzi Exp $
 //
 //
 
@@ -47,7 +47,8 @@
 #include "RecoBTag/XMLCalibration/interface/AlgorithmCalibration.h"
 
 #include "CondFormats/BTagObjects/interface/TrackProbabilityCalibration.h"
-#include "RecoBTag/TrackProbability/interface/CalibrationInterface.h"
+//#include "RecoBTag/TrackProbability/interface/CalibrationInterface.h"
+#include "RecoBTag/XMLCalibration/interface/CalibrationInterface.h"
 #include "CondFormats/DataRecord/interface/BTagTrackProbability2DRcd.h"
 #include "CondFormats/DataRecord/interface/BTagTrackProbability3DRcd.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
@@ -67,7 +68,7 @@ using namespace edm::eventsetup;
 TrackProbability::TrackProbability(const edm::ParameterSet& iConfig) : 
   m_config(iConfig), 
   m_algo(iConfig.getParameter<edm::ParameterSet>("AlgorithmPSet") ) {
-  m_useDB=true;
+  m_useDB=iConfig.getParameter<bool>("UseDB");
   if(!m_useDB)
   {
    edm::FileInPath f2d("RecoBTag/TrackProbability/data/2DHisto.xml");

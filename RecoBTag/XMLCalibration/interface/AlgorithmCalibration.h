@@ -13,7 +13,8 @@
 
 #include "CalibrationXML.h"
 //#include "CondFormats/BTagObjects/interface/CalibrationInterface.h"
-#include "RecoBTag/TrackProbability/interface/CalibrationInterface.h"
+//#include "RecoBTag/TrackProbability/interface/CalibrationInterface.h"
+#include "RecoBTag/XMLCalibration/interface/CalibrationInterface.h"
 
 class XERCES_CPP_NAMESPACE::DOMNode;
 

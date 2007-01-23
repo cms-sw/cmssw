@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TrackProbabilityAnalyzer.cc,v 1.3 2007/01/05 13:19:19 arizzi Exp $
+// $Id: TrackProbabilityAnalyzer.cc,v 1.4 2007/01/22 16:46:01 arizzi Exp $
 //
 //
 
@@ -47,7 +47,7 @@ using namespace std;
 #include "Math/GenVector/PxPyPzE4D.h"
 
 #include "CondFormats/BTagObjects/interface/TrackProbabilityCalibration.h"
-#include "CondFormats/DataRecord/interface/BTagTrackProbabilityRcd.h"
+//#include "CondFormats/DataRecord/interface/BTagTrackProbabilityRcd.h"
 
 using namespace reco;
 
@@ -77,17 +77,19 @@ TrackProbabilityAnalyzer::TrackProbabilityAnalyzer(const edm::ParameterSet& iCon
 void
 TrackProbabilityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  static int above =0;
+  static int tot =0;
   using namespace edm;
   using namespace reco;
 //  using namespace eventsetup;
-  ESHandle<TrackProbabilityCalibration> calib;
+/*  ESHandle<TrackProbabilityCalibration> calib;
   iSetup.get<BTagTrackProbabilityRcd>().get(calib);
  
   const TrackProbabilityCalibration *  ca= calib.product();
   cout << "Bin for 0.35 " << ca->data[5].histogram.findBin(0.35) << endl;
  
   return; 
-  Handle<JetTagCollection> jetsHandle;
+  */Handle<JetTagCollection> jetsHandle;
   Handle<TrackProbabilityTagInfoCollection> jetsInfoHandle;
   iEvent.getByLabel("trackProbabilityJetTags", jetsHandle);
   iEvent.getByLabel("trackProbabilityJetTags", jetsInfoHandle);
@@ -107,7 +109,10 @@ TrackProbabilityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   {
        cout << i << endl;
   //    cout << &(info[i]) << endl;
-     cout << info[i].discriminator(0,0.005) << " " << info[i].discriminator(1,0.005) << endl;
+    cout << info[i].discriminator(0,0.005) << " " << info[i].discriminator(1,0.005) << endl;
+    if(info[i].discriminator(0,0.005) > 90) above++;
+    tot++;
+    cout << above << " " << tot << endl;
     for(int j = 0 ; j < info[i].selectedTracks(0); j++)
      {
        cout << info[i].track(j,0).pt() << " " << info[i].probability(j,0) << endl; 
