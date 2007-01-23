@@ -18,7 +18,13 @@ process TESTPROD = {
 		untracked string logicalFileName = 'PoolTest.root'
 		untracked int32 maxSize = 100000
 	}
-	source = EmptySource {untracked int32 maxEvents = 2}
+	source = EmptySource {
+		untracked int32 maxEvents = 11
+		untracked uint32 firstRun = 561
+		untracked uint32 firstLuminosityBlock = 6
+		untracked uint32 numberEventsInLuminosityBlock = 3
+		untracked uint32 numberEventsInRun = 7
+	}
         endpath ep = {output}
 }
 !
