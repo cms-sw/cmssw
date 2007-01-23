@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/01/21 22:07:21 $
- * $Revision: 1.102 $
+ * $Date: 2007/01/22 10:24:07 $
+ * $Revision: 1.103 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -651,7 +651,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         pn.setTaskStatus(true);
       } else {
         pn.setTaskStatus(false);
-        status = status && false;
+//        status = status && false;
       }
 
       if ( econn ) {

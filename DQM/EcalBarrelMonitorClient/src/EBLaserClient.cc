@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/21 22:20:33 $
- * $Revision: 1.111 $
+ * $Date: 2007/01/22 10:24:07 $
+ * $Revision: 1.112 $
  * \author G. Della Ricca
  *
 */
@@ -1393,10 +1393,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
       if ( mean01 > 200. && mean05 > 200. && mean09 > 200. && mean13 > 200. ) {
         pn_bl.setTaskStatus(true);
-        val = true;
       } else {
         pn_bl.setTaskStatus(false);
-        val = false;
+//        status = status && false;
       }
 
       if ( econn ) {
@@ -1407,8 +1406,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           cerr << e.what() << endl;
         }
       }
-
-      status = status && val;
 
     }
 
@@ -1441,10 +1438,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
       if ( mean02 > 200. && mean06 > 200. && mean10 > 200. && mean14 > 200. ) {
         pn_ir.setTaskStatus(true);
-        val = true;
       } else {
         pn_ir.setTaskStatus(false);
-        val = false;
+//        status = status && false;
       }
 
       if ( econn ) {
@@ -1455,8 +1451,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           cerr << e.what() << endl;
         }
       }
-
-      status = status && val;
 
     }
 
@@ -1489,10 +1483,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
       if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
         pn_gr.setTaskStatus(true);
-        val = true;
       } else {
         pn_gr.setTaskStatus(false);
-        val = false;
+//        status = status && false;
       }
 
       if ( econn ) {
@@ -1503,8 +1496,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           cerr << e.what() << endl;
         }
       }
-
-      status = status && val;
 
     }
 
@@ -1537,10 +1528,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
       if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
         pn_rd.setTaskStatus(true);
-        val = true;
       } else {
         pn_rd.setTaskStatus(false);
-        val = false;
+//        status = status && false;
       }
 
       if ( econn ) {
@@ -1551,8 +1541,6 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           cerr << e.what() << endl;
         }
       }
-
-      status = status && val;
 
     }
 
