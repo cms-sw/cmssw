@@ -4,8 +4,8 @@
  *  trackingRange defines an MuonEtaRange for an FTS, 
  *  which is used for searching compatible DetLayers.
  *
- * $Date: 2006/07/08 18:54:50 $
- * $Revision: 1.6 $
+ * $Date: 2006/10/13 13:28:08 $
+ * $Revision: 1.7 $
  *
  * \author : Chang Liu - Purdue University <Chang.Liu@cern.ch>
  * with contributions from: R. Bellan - INFN Torino
@@ -69,5 +69,24 @@ MuonEtaRange MuonNavigableLayer::trackingRange(const FreeTrajectoryState& fts) c
   if ( eta < -1.0 && eta > -1.1 ) range = MuonEtaRange(eta+spread,eta-3.0*spread);
 
   return range;
+}
+
+bool MuonNavigableLayer::insideOut(const FreeTrajectoryState& fts) const {
+
+  float x0 = fts.position().x();
+  float y0 = fts.position().y();
+  float r0 = fts.position().perp();
+
+  float xm = fts.momentum().x();
+  float ym = fts.momentum().y();
+
+  float delta = 0.01;
+
+  float x1 = x0 + xm * delta;
+  float y1 = y0 + ym * delta;
+
+  float r1 = sqrt(x1*x1+y1*y1);
+
+  return (r1 >= r0);
 }
 
