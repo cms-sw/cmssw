@@ -5,6 +5,8 @@
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 #include "RecoTracker/CkfPattern/interface/GroupedTrajCandLess.h"
 //
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+//
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -20,9 +22,13 @@
 
 OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::EventSetup& es, const edm::ParameterSet& conf, const MagneticField* field,  const MeasurementTracker* theInputMeasurementTracker ) :  ConversionTrackFinder(  field, theInputMeasurementTracker), conf_(conf)
 {
-  std::cout << " OutInConversionTrackFinder CTOR  theMeasurementTracker_   " << theMeasurementTracker_<<  std::endl; 
+
+
+  
+  LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder CTOR  theMeasurementTracker_   " << theMeasurementTracker_<<  "\n"; 
   
   
+
   
   seedClean_ = conf_.getParameter<bool>("outInSeedCleaning");
   // get nested parameter set for the TransientInitialStateEstimator
@@ -61,7 +67,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 							   TrackCandidateCollection &output_p ) const { 
 
   
-  std::cout << " OutInConversionTrackFinder::tracks getting " <<  outInSeeds.size() << " Out-In seeds " << endl;
+  LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder::tracks getting " <<  outInSeeds.size() << " Out-In seeds " << endl;
 
 
 
@@ -79,9 +85,9 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   for(TrajectorySeedCollection::const_iterator iSeed=outInSeeds.begin(); iSeed!=outInSeeds.end();iSeed++){
 
     /*    
-    std::cout << " OutInConversionTrackFinder::tracks hits in the seed " << iSeed->nHits() << std::endl;
-    std::cout << " OutInConversionTrackFinder::tracks seed starting state position  " << iSeed->startingState().parameters().position() << " momentum " <<  iSeed->startingState().parameters().momentum() << " charge " << iSeed->startingState().parameters().charge() << std::endl;
-    std::cout << " OutInConversionTrackFinder::tracks seed  starting state para, vector  " << iSeed->startingState().parameters().vector() << std::endl;
+    LogDebug("OutInConversionTrackFinder") << " OutInConversionTrackFinder::tracks hits in the seed " << iSeed->nHits() << "\n";
+    LogDebug("OutInConversionTrackFinder") << " OutInConversionTrackFinder::tracks seed starting state position  " << iSeed->startingState().parameters().position() << " momentum " <<  iSeed->startingState().parameters().momentum() << " charge " << iSeed->startingState().parameters().charge() << "\n";
+    LogDebug("OutInConversionTrackFinder") << " OutInConversionTrackFinder::tracks seed  starting state para, vector  " << iSeed->startingState().parameters().vector() << "\n";
     
     */
     
@@ -89,7 +95,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 
     theTmpTrajectories = theCkfTrajectoryBuilder_->trajectories(*iSeed);
     
-    std:: cout << " OutInConversionTrackFinder::track returned " << theTmpTrajectories.size() << " trajectories" << std::endl;
+    std::cout << "OutInConversionTrackFinder::track returned " << theTmpTrajectories.size() << " trajectories" << "\n";
     
     theTrajectoryCleaner_->clean(theTmpTrajectories);
     
@@ -99,7 +105,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 	rawResult.push_back(*it);
       }
     }
-    std::cout << " OutInConversionTrackFinder::track rawResult size after cleaning " << rawResult.size() << std::endl;
+    LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder::track rawResult size after cleaning " << rawResult.size() << "\n";
 
   }
   
@@ -112,15 +118,15 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
     if((*itraw).isValid()) {
       //      unsmoothedResult.push_back( *itraw);
       tmpO.push_back( *itraw );
-      std::cout << " rawResult num hits " << (*itraw).foundHits() << std::endl;
+      LogDebug("OutInConversionTrackFinder") << " rawResult num hits " << (*itraw).foundHits() << "\n";
     }
   }
   
     
   
-  std::cout << " OutInConversionTrackFinder  tmpO size " << tmpO.size() << " before sorting " << std::endl; 
+  LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  tmpO size " << tmpO.size() << " before sorting " << "\n"; 
   for (std::vector<Trajectory>::const_iterator it =tmpO.begin(); it != tmpO.end(); it++) {
-    std::cout << " OutInConversionTrackFinder  tmpO num of hits " << (*it).foundHits() << " before ordering " << std::endl; 
+    LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  tmpO num of hits " << (*it).foundHits() << " before ordering " << "\n"; 
     
   }
   
@@ -130,9 +136,9 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   
 
   
-  std::cout << " OutInConversionTrackFinder  tmpO after sorting " << std::endl; 
+  LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  tmpO after sorting " << "\n"; 
   for (std::vector<Trajectory>::const_iterator it =tmpO.begin(); it != tmpO.end(); it++) {
-    std::cout << " OutInConversionTrackFinder  tmpO  num of hits " << (*it).foundHits() << std::endl; 
+    LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  tmpO  num of hits " << (*it).foundHits() << "\n"; 
 
 
   }
@@ -140,10 +146,10 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   for (int i=tmpO.size()-1; i>=0; i--) {
     unsmoothedResult.push_back(  tmpO[i] );  
   }
-  std::cout << " OutInConversionTrackFinder  unsmoothedResult size  " <<  unsmoothedResult.size() << std::endl;   
+  LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  unsmoothedResult size  " <<  unsmoothedResult.size() << "\n";   
 
   for (std::vector<Trajectory>::const_iterator it =  unsmoothedResult.begin(); it !=  unsmoothedResult.end(); it++) {
-    std::cout << " OutInConversionTrackFinder  unsmoothedResult  after reordering " <<(*it).foundHits() <<  std::endl; 
+    LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  unsmoothedResult  after reordering " <<(*it).foundHits() <<  "\n"; 
 
   }
 
@@ -159,13 +165,13 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   }
 
   for (std::vector<Trajectory>::const_iterator it =result.begin(); it != result.end(); it++) {
-    std::cout << " OutInConversionTrackFinder  Result  num of hits " << (*it).foundHits() << std::endl; 
+    LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  Result  num of hits " << (*it).foundHits() << "\n"; 
 
   }
 
 
-  //std::cout << "  Returning " << result.size() << " Out In Tracks " << std::endl;
-  std::cout << "  Returning " << unsmoothedResult.size() << " Out In Trajectories  " << std::endl;
+  //LogDebug("OutInConversionTrackFinder") << "  Returning " << result.size() << "Out In Tracks " << "\n";
+  LogDebug("OutInConversionTrackFinder") << "  Returning " << unsmoothedResult.size() << "Out In Trajectories  " << "\n";
  
 
 
@@ -178,10 +184,10 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
       recHits.push_back( (**hitIt).hit()->clone());
     }
 	
-    std::cout << " OutInConversionTrackFinder  Number of hits for the track candidate " << recHits.size() << std::endl;
+    LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  Number of hits for the track candidate " << recHits.size() << "\n";
 
     std::pair<TrajectoryStateOnSurface, const GeomDet*> initState =  theInitialState_->innerState( *it);
-    //  std::cout << " Initial state parameters " << initState.first << std::endl;    
+    //  LogDebug("OutInConversionTrackFinder") << " Initial state parameters " << initState.first << "\n";    
 
     // temporary protection againt invalid initial states
     if (! initState.first.isValid() || initState.second == 0) {

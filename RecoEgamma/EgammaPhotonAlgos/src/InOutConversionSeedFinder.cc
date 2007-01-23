@@ -3,6 +3,7 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionForwardEstimator.h"
 
 #include "RecoEgamma/EgammaPhotonAlgos/interface/FastHelix.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Field
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -25,8 +26,11 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Geometry/Point3D.h"
 
-InOutConversionSeedFinder::InOutConversionSeedFinder(  const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker) : ConversionSeedFinder( field, theInputMeasurementTracker )  {
-  std::cout << "  InOutConversionSeedFinder CTOR " << std::endl;      
+InOutConversionSeedFinder::InOutConversionSeedFinder(  const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker ) :  ConversionSeedFinder( field, theInputMeasurementTracker )  {
+
+  
+  
+  LogDebug(" InOutConversionSeedFinder") << " InOutConversionSeedFinder CTOR " << "\n";      
   theLayerMeasurements_ =  new LayerMeasurements(theInputMeasurementTracker );
 
   the2ndHitdphi_ = 0.008; 
@@ -39,7 +43,7 @@ InOutConversionSeedFinder::InOutConversionSeedFinder(  const MagneticField* fiel
 
 
 InOutConversionSeedFinder::~InOutConversionSeedFinder() {
-  std::cout << " InOutConversionSeedFinder DTOR " << std::endl;
+  LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder DTOR " << "\n";
   delete theLayerMeasurements_;
 }
 
@@ -47,9 +51,9 @@ InOutConversionSeedFinder::~InOutConversionSeedFinder() {
 
 void InOutConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& allBC )  const  {
 
-  std::cout << "  InOutConversionSeedFinder::makeSeeds() " << std::endl;
+  LogDebug("InOutConversionSeedFinder") << "  InOutConversionSeedFinder::makeSeeds() " << "\n";
   theSeeds_.clear();
-  std::cout << " Check Basic cluster collection size " << allBC.size() << std::endl;  
+  LogDebug("InOutConversionSeedFinder") << " Check Basic cluster collection size " << allBC.size() << "\n";  
   theSCPosition_= GlobalPoint ( theSC_->x(), theSC_->y(), theSC_->z() );
   bcCollection_= allBC;
 
@@ -58,7 +62,7 @@ void InOutConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& a
 
 
   fillClusterSeeds();
-  std::cout << "Built vector of seeds of size  " << theSeeds_.size() <<  std::endl ;
+  LogDebug("InOutConversionSeedFinder") << "Built vector of seeds of size  " << theSeeds_.size() <<  "\n" ;
  
   
 
@@ -71,12 +75,12 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 
   vector<Trajectory>::const_iterator outInTrackItr;
  
-  std::cout << "  InOutConversionSeedFinder::fillClusterSeeds outInTracks_.size " << theOutInTracks_.size() << std::endl;
+  LogDebug("InOutConversionSeedFinder") << "  InOutConversionSeedFinder::fillClusterSeeds outInTracks_.size " << theOutInTracks_.size() << "\n";
   //Start looking for seeds for both of the 2 best tracks from the inward tracking
 
 
   for(outInTrackItr = theOutInTracks_.begin(); outInTrackItr != theOutInTracks_.end();  ++outInTrackItr) {
-    std::cout << " InOutConversionSeedFinder::fillClusterSeeds out in input track hits " << (*outInTrackItr).foundHits() << std::endl;
+    LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds out in input track hits " << (*outInTrackItr).foundHits() << "\n";
     
     //Find the first valid hit of the track
     // Measurements are ordered according to the direction in which the trajectories were built
@@ -85,9 +89,9 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
     
     vector<TrajectoryMeasurement>::iterator measurementItr;
     vector<const DetLayer*> allLayers=layerList();
-    std::cout << "  InOutConversionSeedFinder::fillClusterSeed allLayers.size " <<  allLayers.size() << std::endl;
+    LogDebug("InOutConversionSeedFinder") << "  InOutConversionSeedFinder::fillClusterSeed allLayers.size " <<  allLayers.size() << "\n";
     for(unsigned int i = 0; i < allLayers.size(); ++i) {
-      std::cout <<  " allLayers " << allLayers[i] << std::endl; 
+      LogDebug("InOutConversionSeedFinder") <<  " allLayers " << allLayers[i] << "\n"; 
       printLayer(i);
     }
 
@@ -98,7 +102,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
     
     vector<TrajectoryMeasurement*> myItr;
     TrajectoryMeasurement* myPointer=0;
-    std::cout << "  InOutConversionSeedFinder::fillClusterSeeds measurements.size " << measurements.size() <<std::endl;
+    LogDebug("InOutConversionSeedFinder") << "  InOutConversionSeedFinder::fillClusterSeeds measurements.size " << measurements.size() <<"\n";
  
  
  
@@ -106,7 +110,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
  
       if( (*measurementItr).recHit()->isValid()) {
 	
-	std::cout << "  InOutConversionSeedFinder::fillClusterSeeds measurement on  layer  " << measurementItr->layer() <<   " " <<&(*measurementItr) <<  " postion " << measurementItr->recHit()->globalPosition() <<   " R " << sqrt( measurementItr->recHit()->globalPosition().x()*measurementItr->recHit()->globalPosition().x() + measurementItr->recHit()->globalPosition().y()*measurementItr->recHit()->globalPosition().y() ) << std::endl;
+	LogDebug("InOutConversionSeedFinder") << "  InOutConversionSeedFinder::fillClusterSeeds measurement on  layer  " << measurementItr->layer() <<   " " <<&(*measurementItr) <<  " postion " << measurementItr->recHit()->globalPosition() <<   " R " << sqrt( measurementItr->recHit()->globalPosition().x()*measurementItr->recHit()->globalPosition().x() + measurementItr->recHit()->globalPosition().y()*measurementItr->recHit()->globalPosition().y() ) << "\n";
 	
 	        
 	myLayers.push_back( measurementItr->layer() ) ; 
@@ -118,32 +122,32 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
     
     
 
-    std::cout << " InOutConversionSeedFinder::fillClusterSeed myLayers.size " <<  myLayers.size() << std::endl;
+    LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeed myLayers.size " <<  myLayers.size() << "\n";
     for( unsigned int i = 0; i < myLayers.size(); ++i) {
-      std::cout <<  " myLayers " << myLayers[i] << " myItr " << myItr[i] << std::endl; 
+      LogDebug("InOutConversionSeedFinder") <<  " myLayers " << myLayers[i] << " myItr " << myItr[i] << "\n"; 
     }
 
 
-    if ( myItr.size()==0 )  std::cout << "HORRENDOUS ERROR!  No meas on track!" << std::endl;
+    if ( myItr.size()==0 )  LogDebug(" InOutConversionSeedFinder") << "HORRENDOUS ERROR!  No meas on track!" << "\n";
     
     unsigned int ilayer;
     for(ilayer = 0; ilayer < allLayers.size(); ++ilayer) {
-      std::cout <<  " allLayers in the search loop  " << allLayers[ilayer] <<  " " << myLayers[0] <<  std::endl; 
+      LogDebug("InOutConversionSeedFinder") <<  " allLayers in the search loop  " << allLayers[ilayer] <<  " " << myLayers[0] <<  "\n"; 
       if ( allLayers[ilayer] == myLayers[0]) {
 
         myPointer=myItr[0];
 
-	std::cout <<  " allLayers in the search loop   allLayers[ilayer] == myLayers[0])  " << allLayers[ilayer] <<  " " << myLayers[0] <<  " myPointer " << myPointer << std::endl; 
+	LogDebug("InOutConversionSeedFinder") <<  " allLayers in the search loop   allLayers[ilayer] == myLayers[0])  " << allLayers[ilayer] <<  " " << myLayers[0] <<  " myPointer " << myPointer << "\n"; 
 
-	std::cout << "Layer " << ilayer << "  contains the first valid measurement " << std::endl; 	
+	LogDebug("InOutConversionSeedFinder") << "Layer " << ilayer << "  contains the first valid measurement " << "\n"; 	
 	printLayer(ilayer);	
 
 	if ( (myLayers[0])->location() == GeomDetEnumerators::barrel ) {
 	  const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(myLayers[0]);
-	  std::cout << " InOutConversionSeedFinder::fillClusterSeeds  **** firstHit found in Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  endl;
+	  LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds  **** firstHit found in Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  endl;
 	} else {
 	  const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(myLayers[0]);
-	  std::cout << " InOutwardConversionSeedFinder::fillClusterSeeds  **** firstHit found in Forw on layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() <<  std::endl;
+	  LogDebug("InOutConversionSeedFinder") << " InOutwardConversionSeedFinder::fillClusterSeeds  **** firstHit found in Forw on layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() <<  "\n";
 	}
 	
 	
@@ -152,15 +156,15 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
       } else if ( allLayers[ilayer] == myLayers[1] )  {
         myPointer=myItr[1];
 
-	std::cout <<  " allLayers in the search loop   allLayers[ilayer] == myLayers[1])  " << allLayers[ilayer] <<  " " << myLayers[1] <<  " myPointer " << myPointer << std::endl; 
+	LogDebug("InOutConversionSeedFinder") <<  " allLayers in the search loop   allLayers[ilayer] == myLayers[1])  " << allLayers[ilayer] <<  " " << myLayers[1] <<  " myPointer " << myPointer << "\n"; 
 
-	std::cout << "Layer " << ilayer << "  contains the first valid measurement " << std::endl; 	
+	LogDebug("InOutConversionSeedFinder") << "Layer " << ilayer << "  contains the first valid measurement " << "\n"; 	
 	if ( (myLayers[1])->location() == GeomDetEnumerators::barrel ) {
 	  const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(myLayers[1]);
-	  std::cout << " InOutConversionSeedFinder::fillClusterSeeds  **** 2ndHit found in Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  endl;
+	  LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds  **** 2ndHit found in Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  endl;
 	} else {
 	  const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(myLayers[1]);
-	  std::cout << " InOutwardConversionSeedFinder::fillClusterSeeds  ****  2ndHitfound on forw layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() <<  std::endl;
+	  LogDebug("InOutConversionSeedFinder") << " InOutwardConversionSeedFinder::fillClusterSeeds  ****  2ndHitfound on forw layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() <<  "\n";
 	}
 
 
@@ -173,54 +177,54 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 
 
     if(ilayer == allLayers.size()) {
-      cout << "InOutConversionSeedFinder::fillClusterSeeds ERROR could not find layer on list" << endl;
+       LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::fillClusterSeeds ERROR could not find layer on list" << endl;
       return;
     }
     
     PropagatorWithMaterial reversePropagator(oppositeToMomentum, 0.000511, theMF_);
     //thePropagatorWithMaterial_.setPropagationDirection(oppositeToMomentum);
     FreeTrajectoryState * fts = myPointer->updatedState().freeTrajectoryState();
-    std::cout << " InOutConversionSeedFinder::fillClusterSeeds First FTS charge " << fts->charge() << " Position " << fts->position() << " momentum " << fts->momentum() << " R " << sqrt(fts->position().x()*fts->position().x() + fts->position().y()* fts->position().y() ) <<  std::endl;
+    LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds First FTS charge " << fts->charge() << " Position " << fts->position() << " momentum " << fts->momentum() << " R " << sqrt(fts->position().x()*fts->position().x() + fts->position().y()* fts->position().y() ) <<  "\n";
 
 
     while (ilayer > 0) {
       
-      std::cout << " InOutConversionSeedFinder::fillClusterSeeds looking for 2nd seed from layer " << ilayer << std::endl;
+      LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds looking for 2nd seed from layer " << ilayer << "\n";
       
       if ( (allLayers[ilayer])->location() == GeomDetEnumerators::barrel ) {const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(allLayers[ilayer]);
-      std::cout <<  " InOutConversionSeedFinder::fillClusterSeeds  ****  Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  std::endl;     
+      LogDebug("InOutConversionSeedFinder") <<  " InOutConversionSeedFinder::fillClusterSeeds  ****  Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  "\n";     
       } else {
 	const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(allLayers[ilayer]);
-	std::cout <<  " InOutConversionSeedFinder::fillClusterSeeds  ****  Forw on layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() << std::endl;
+	LogDebug("InOutConversionSeedFinder") <<  " InOutConversionSeedFinder::fillClusterSeeds  ****  Forw on layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() << "\n";
       }
       
       
       const DetLayer * previousLayer = allLayers[ilayer];
-      std::cout << " InOutConversionSeedFinder::fillClusterSeeds previousLayer->surface() position before  " <<allLayers[ilayer] << " " <<  previousLayer->surface().position() << " layer location " << previousLayer->location() << std::endl;   
+      LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds previousLayer->surface() position before  " <<allLayers[ilayer] << " " <<  previousLayer->surface().position() << " layer location " << previousLayer->location() << "\n";   
       // Propagate to the previous layer
       // The present layer is actually included in the loop so that a partner can be searched for
       // Applying the propagator to the same layer does not do any harm. It simply does nothing
       
       //      const Propagator& newProp=  thePropagatorWithMaterial_;
       const Propagator& newProp=reversePropagator;
-      std::cout << " InOutConversionSeedFinder::fillClusterSeeds reversepropagator direction " << newProp.propagationDirection()  << std::endl;
+      LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds reversepropagator direction " << newProp.propagationDirection()  << "\n";
       TrajectoryStateOnSurface  stateAtPreviousLayer= newProp.propagate(*fts, previousLayer->surface() );
-      std::cout << " InOutConversionSeedFinder::fillClusterSeeds previousLayer->surface() position after " << previousLayer->surface().position() << " layer location " << previousLayer->location() << std::endl;
+      LogDebug(" InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds previousLayer->surface() position after " << previousLayer->surface().position() << " layer location " << previousLayer->location() << "\n";
 
       
       if ( stateAtPreviousLayer.isValid() ) {
-	std::cout << "InOutConversionSeedFinder::fillClusterSeeds  Propagate back to layer "  << ilayer << std::endl;
-	//std::cout << "  InOutConversionSeedFinder::fillClusterSeeds stateAtPreviousLayer " << stateAtPreviousLayer << std::endl;
-	//std:: cout << "  InOutConversionSeedFinder::fillClusterSeeds stateAtPreviousLayer.globalDirection " << stateAtPreviousLayer.globalDirection()  << std::endl;
+	LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::fillClusterSeeds  Propagate back to layer "  << ilayer << "\n";
+	//LogDebug(" InOutConversionSeedFinder") << "  InOutConversionSeedFinder::fillClusterSeeds stateAtPreviousLayer " << stateAtPreviousLayer << "\n";
+	//std:: cout << "  InOutConversionSeedFinder::fillClusterSeeds stateAtPreviousLayer.globalDirection " << stateAtPreviousLayer.globalDirection()  << "\n";
 	
       }
       
       if(!stateAtPreviousLayer.isValid()) {
-	std::cout << "InOutConversionSeedFinder::fillClusterSeeds ERROR:could not propagate back to layer "  << ilayer << std::endl;
-	//std::cout << "  InOutConversionSeedFinder::fillClusterSeeds stateAtPreviousLayer " << stateAtPreviousLayer <<std:: endl;
+	LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::fillClusterSeeds ERROR:could not propagate back to layer "  << ilayer << "\n";
+	//LogDebug(" InOutConversionSeedFinder") << "  InOutConversionSeedFinder::fillClusterSeeds stateAtPreviousLayer " << stateAtPreviousLayer <<std:: endl;
       } else {
-	//std::cout << "stateAtPreviousLayer position" << 
-	//         stateAtPreviousLayer.globalPosition() << std::endl;
+	//LogDebug(" InOutConversionSeedFinder") << "stateAtPreviousLayer position" << 
+	//         stateAtPreviousLayer.globalPosition() << "\n";
 	
 	
 	startSeed(fts,  stateAtPreviousLayer, -1, ilayer ); 
@@ -245,24 +249,24 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 
   void InOutConversionSeedFinder::startSeed( FreeTrajectoryState * fts, const TrajectoryStateOnSurface & stateAtPreviousLayer, int charge, int ilayer  )  const {
 
-          std::cout << " InOutConversionSeedFinder::startSeed " << std::endl;
+          LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::startSeed " << "\n";
 	  // Get a list of basic clusters that are consistent with a track 
           // starting at the assumed conversion point with opp. charge to the 
           // inward track.  Loop over these basic clusters.
 	  track2Charge_ = charge*fts->charge();
 	  std::vector<const reco::BasicCluster*> bcVec;
-          std::cout << " InOutConversionSeedFinder charge assumed for the in-out track  " << track2Charge_ <<  std::endl;
+          LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder charge assumed for the in-out track  " << track2Charge_ <<  "\n";
 
 	  bcVec = getSecondBasicClusters(stateAtPreviousLayer.globalPosition(),track2Charge_);
 	  
 	  std::vector<const reco::BasicCluster*>::iterator bcItr;
-	  std::cout << " InOutConversionSeedFinder::fillClusterSeeds bcVec.size " << bcVec.size() << std::endl;
+	  LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::fillClusterSeeds bcVec.size " << bcVec.size() << "\n";
 
 	  // debug
 	  for(bcItr = bcVec.begin(); bcItr != bcVec.end(); ++bcItr) {
 
 	    //	    theSecondBC_ = *bcItr;
-	    // std::cout << " InOutConversionSeedFinder::fillClusterSeeds bc eta " << theSecondBC_->position().eta() << " phi " <<  theSecondBC_->position().phi() << " x = " << 130.*cos(theSecondBC_->position().phi() )  << " y= " << 130.*sin(theSecondBC_->position().phi() ) << std::endl;
+	    // LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::fillClusterSeeds bc eta " << theSecondBC_->position().eta() << " phi " <<  theSecondBC_->position().phi() << " x = " << 130.*cos(theSecondBC_->position().phi() )  << " y= " << 130.*sin(theSecondBC_->position().phi() ) << "\n";
 	  }
 	  //
 
@@ -274,7 +278,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 			      (theSecondBC_.position()).y(),
                               (theSecondBC_.position()).z());
 
-	    //	    std::cout << " InOutConversionSeedFinder::fillClusterSeed bc position x " << bcPos.x() << " y " <<  bcPos.y() << " z  " <<  bcPos.z() << " eta " <<  bcPos.eta() << " phi " <<  bcPos.phi() << std::endl;
+	    //	    LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::fillClusterSeed bc position x " << bcPos.x() << " y " <<  bcPos.y() << " z  " <<  bcPos.z() << " eta " <<  bcPos.eta() << " phi " <<  bcPos.phi() << "\n";
 	    GlobalVector dir = stateAtPreviousLayer.globalDirection();
 	    GlobalPoint back1mm = stateAtPreviousLayer.globalPosition();
 	   
@@ -300,7 +304,7 @@ std::vector<const reco::BasicCluster*> InOutConversionSeedFinder::getSecondBasic
 
   std::vector<const reco::BasicCluster*> result;
 
-  std::cout << " InOutConversionSeedFinder::getSecondBasicClusters" << endl;
+  LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::getSecondBasicClusters" << endl;
 
   Geom::Phi<float> theConvPhi(conversionPosition.phi() );
  
@@ -309,7 +313,7 @@ std::vector<const reco::BasicCluster*> InOutConversionSeedFinder::getSecondBasic
 
   for( reco::BasicClusterCollection::const_iterator bcItr = bcCollection_.begin(); bcItr != bcCollection_.end(); bcItr++) {
     Geom::Phi<float> theBcPhi(bcItr->position().phi());
-    std::cout << "InOutConversionSeedFinder::getSecondBasicClusters  Basic cluster phi " << theBcPhi << std::endl;
+    LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::getSecondBasicClusters  Basic cluster phi " << theBcPhi << "\n";
     // Require phi of cluster to be consistent with the conversion 
     // position and the track charge
     
@@ -317,7 +321,7 @@ std::vector<const reco::BasicCluster*> InOutConversionSeedFinder::getSecondBasic
     if (fabs(theBcPhi-theConvPhi ) < .5 &&
         ((charge<0 && theBcPhi-theConvPhi >-.1) || 
          (charge>0 && theBcPhi-theConvPhi <.1))){
-      // std::cout << " InOutConversionSeedFinder::getSecondBasicClusters  Adding bc pointer " << &(*bcItr) << "  to vector:" << std::endl;
+      // LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::getSecondBasicClusters  Adding bc pointer " << &(*bcItr) << "  to vector:" << "\n";
    
       result.push_back(&(*bcItr));
     }
@@ -342,7 +346,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
  
 
   vector<const DetLayer*> allLayers=layerList();
-  std::cout << " InOutConversionSeedFinder::findSeeds starting forward propagation from  startingLayer " << startingLayer << endl;
+  LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::findSeeds starting forward propagation from  startingLayer " << startingLayer << endl;
 
 
   // create error matrix
@@ -356,8 +360,8 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 						     double(transverseCurvature), 0, theMF_),
 			                             CurvilinearTrajectoryError(m));
   
-  std::cout << "  InOutConversionSeedFinder::findSeeds Initial FTS parameters " << fts << endl;
-  std::cout << "  InOutConversionSeedFinder::findSeeds Initial FTS charge " << fts.charge() << endl;
+  LogDebug("InOutConversionSeedFinder") << "  InOutConversionSeedFinder::findSeeds Initial FTS parameters " << fts << endl;
+  LogDebug("InOutConversionSeedFinder") << "  InOutConversionSeedFinder::findSeeds Initial FTS charge " << fts.charge() << endl;
 
   thePropagatorWithMaterial_.setPropagationDirection(alongMomentum);
 
@@ -370,21 +374,21 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
     
     ///// debug
     if ( layer->location() == GeomDetEnumerators::barrel ) {const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(layer);
-    std::cout << " InOutConversionSeedFinder::findSeeds  ****  Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  std::endl;     
+    LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::findSeeds  ****  Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<  "\n";     
     } else {
       const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(layer);
-      std::cout << " InOutConversionSeedFinder::findSeeds  ****  Forw on layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() << std:: endl;
+      LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::findSeeds  ****  Forw on layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() << std:: endl;
     }
     //// end debug
 
 
     MeasurementEstimator * newEstimator=0;
     if (layer->location() == GeomDetEnumerators::barrel ) {
-      //      cout << " InOutConversionSeedFinder::findSeeds Barrel ilayer " << ilayer << endl;
+      //      cout << "InOutConversionSeedFinder::findSeeds Barrel ilayer " << ilayer << endl;
       newEstimator = new ConversionBarrelEstimator(-dphi, dphi, -zrange, zrange);
     }
     else {
-        std::cout << " InOutConversionSeedFinder::findSeeds Forward  ilayer " << ilayer << endl;
+        LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::findSeeds Forward  ilayer " << ilayer << endl;
         newEstimator = new ConversionForwardEstimator(-dphi, dphi, 15.);
     }
     
@@ -393,11 +397,11 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
     // Get measurements compatible with the FTS and Estimator
     TSOS tsos(fts, layer->surface() );
 
-    std::cout << " InOutConversionSeedFinder::findSeed propagationDirection " << int(thePropagatorWithMaterial_.propagationDirection() ) << std::endl;               
+    LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::findSeed propagationDirection " << int(thePropagatorWithMaterial_.propagationDirection() ) << "\n";               
     theFirstMeasurements_ = theLayerMeasurements_->measurements( *layer, tsos, thePropagatorWithMaterial_, *newEstimator);
 
     delete newEstimator;
-    std::cout <<  "InOutConversionSeedFinder::findSeeds  Found " << theFirstMeasurements_.size() << " first hits" << std::endl;
+    LogDebug("InOutConversionSeedFinder") <<  "InOutConversionSeedFinder::findSeeds  Found " << theFirstMeasurements_.size() << " first hits" << "\n";
 
     //Loop over compatible hits
     int mea=0;
@@ -408,7 +412,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
       if (tmItr->recHit()->isValid() ) {
 	// Make a new helix as in fillClusterSeeds() but using the hit position
 
-        std::cout << " InOutConversionSeedFinder::findSeeds 1st hit position " << tmItr->recHit()->globalPosition() << " R " << sqrt(tmItr->recHit()->globalPosition().x()*tmItr->recHit()->globalPosition().x() + tmItr->recHit()->globalPosition().y()*tmItr->recHit()->globalPosition().y()   ) <<std::endl;
+        LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::findSeeds 1st hit position " << tmItr->recHit()->globalPosition() << " R " << sqrt(tmItr->recHit()->globalPosition().x()*tmItr->recHit()->globalPosition().x() + tmItr->recHit()->globalPosition().y()*tmItr->recHit()->globalPosition().y()   ) <<"\n";
 	GlobalPoint bcPos((theSecondBC_.position()).x(),(theSecondBC_.position()).y(),(theSecondBC_.position()).z());
 	GlobalVector dir = startingState.globalDirection();
 	GlobalPoint back1mm = tmItr->recHit()->globalPosition();
@@ -416,7 +420,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 	FastHelix helix(bcPos,  tmItr->recHit()->globalPosition(), back1mm, theMF_);
 
         track2InitialMomentum_= helix.stateAtVertex().momentum();
-	std::cout << "InOutConversionSeedFinder::findSeeds Updated estimatedPt = " << helix.stateAtVertex().momentum().perp()  << std::endl;
+	LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::findSeeds Updated estimatedPt = " << helix.stateAtVertex().momentum().perp()  << "\n";
         //     << ", bcet = " << theBc->Et() 
         //     << ", estimatedPt/bcet = " << estimatedPt/theBc->Et() << endl;
 
@@ -426,7 +430,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 							      helix.stateAtVertex().transverseCurvature(), 0, theMF_), 
 				   CurvilinearTrajectoryError(m));
 
-	std::cout <<  " InOutConversionSeedFinder::findSeeds  new FTS charge " << newfts.charge() << std::endl;
+	LogDebug("InOutConversionSeedFinder") <<  "InOutConversionSeedFinder::findSeeds  new FTS charge " << newfts.charge() << "\n";
 
 	/*
         // Soome diagnostic output
@@ -472,7 +476,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 void InOutConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
 FreeTrajectoryState & fts, const Propagator* propagator, int ilayer) const {
 
-  std::cout <<  " InOutConversionSeedFinder::completeSeed ilayer " << ilayer <<  std::endl;
+  LogDebug("InOutConversionSeedFinder") <<  "InOutConversionSeedFinder::completeSeed ilayer " << ilayer <<  "\n";
  // A seed is made from 2 Trajectory Measuremennts.  The 1st is the input
   // argument m1.  This routine looks for the 2nd measurement in layer ilayer
   // Begin by making a new much stricter MeasurementEstimator based on the
@@ -500,10 +504,10 @@ FreeTrajectoryState & fts, const Propagator* propagator, int ilayer) const {
 
 
   TSOS tsos(fts, layer->surface() );
-  std::cout << " InOutConversionSeedFinder::completeSeed propagationDirection  " << int(propagator->propagationDirection() ) << std::endl;               
-  std::cout << " InOutConversionSeedFinder::completeSeed pointer to estimator " << newEstimator << std::endl;
+  LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::completeSeed propagationDirection  " << int(propagator->propagationDirection() ) << "\n";               
+  LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::completeSeed pointer to estimator " << newEstimator << "\n";
   vector<TrajectoryMeasurement> measurements = theLayerMeasurements_->measurements( *layer, tsos, *propagator, *newEstimator);
-  std::cout << " InOutConversionSeedFinder::completeSeed Found " << measurements.size() << " second hits " << endl;
+  LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::completeSeed Found " << measurements.size() << " second hits " << endl;
   delete newEstimator;
   
   for(unsigned int i = 0; i < measurements.size(); ++i) {
@@ -523,7 +527,7 @@ FreeTrajectoryState & fts, const Propagator* propagator, int ilayer) const {
 
 void InOutConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,  const TrajectoryMeasurement & m2) const {
 
-  std::cout << " InOutConversionSeedFinder::createSeed " << std::endl;
+  LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::createSeed " << "\n";
 
   GlobalTrajectoryParameters newgtp(  m1.recHit()->globalPosition(), track2InitialMomentum_, track2Charge_, theMF_ );
   CurvilinearTrajectoryError errors = m1.predictedState().curvilinearError();
@@ -531,10 +535,10 @@ void InOutConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,  co
   TrajectoryStateOnSurface state1 = thePropagatorWithMaterial_.propagate(fts,  m1.recHit()->det()->surface());
 
   /*
-  std::cout << "hit surface " <<  m1.recHit()->det()->surface().position() << std::endl;
-  std::cout << "prop to " << typeid( m1.recHit()->det()->surface() ).name() <<std::endl;
-  std::cout << "prop to first hit " << state1 << std::endl; 
-  std::cout << "update to " <<  m1.recHit()->globalPosition() << std::endl;
+  LogDebug("InOutConversionSeedFinder") << "hit surface " <<  m1.recHit()->det()->surface().position() << "\n";
+  LogDebug("InOutConversionSeedFinder") << "prop to " << typeid( m1.recHit()->det()->surface() ).name() <<"\n";
+  LogDebug("InOutConversionSeedFinder") << "prop to first hit " << state1 << "\n"; 
+  LogDebug("InOutConversionSeedFinder") << "update to " <<  m1.recHit()->globalPosition() << "\n";
   */
 
 
@@ -558,14 +562,14 @@ void InOutConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,  co
 	myHits.push_back(meas1.recHit()->hit()->clone());
 	myHits.push_back(meas2.recHit()->hit()->clone());
 	
-	std::cout << " InOutConversionSeedFinder::createSeed new seed " << std::endl;
+	LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::createSeed new seed " << "\n";
 	
 	TrajectoryStateTransform tsTransform;
 	PTrajectoryStateOnDet* ptsod= tsTransform.persistentState(state2, meas2.recHit()->hit()->geographicalId().rawId()  );
-	std::cout << "  InOutConversionSeedFinder::createSeed New seed parameters " << state2 << std::endl;
+	LogDebug("InOutConversionSeedFinder") << "  InOutConversionSeedFinder::createSeed New seed parameters " << state2 << "\n";
 	theSeeds_.push_back(TrajectorySeed( *ptsod, myHits, alongMomentum )); 
-	std::cout << " InOutConversionSeedFinder::createSeed New seed hit 1 position " << m1.recHit()->globalPosition() << std::endl;
-	std::cout << " InOutConversionSeedFinder::createSeed New seed hit 2 position " << m2.recHit()->globalPosition() << std::endl;
+	LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::createSeed New seed hit 1 position " << m1.recHit()->globalPosition() << "\n";
+	LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::createSeed New seed hit 2 position " << m2.recHit()->globalPosition() << "\n";
 
 
 	

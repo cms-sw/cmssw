@@ -1,5 +1,5 @@
 #include "CLHEP/Units/PhysicalConstants.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionForwardEstimator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -10,10 +10,12 @@
 #include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeZPhi.h"
 
 
+
+
   // zero value indicates incompatible ts - hit pair
 pair<bool,double> ConversionForwardEstimator::estimate( const TrajectoryStateOnSurface& ts, 
 							const TransientTrackingRecHit& hit) const {
-  std::cout << " ConversionForwardEstimator::estimate( const TrajectoryStateOnSurface& ts ...) " << std::endl;
+   LogDebug("ConversionForwardEstimator") << "::estimate( const TrajectoryStateOnSurface& ts ...) " << "\n";
   
   pair<bool,double> result;
   
@@ -37,9 +39,9 @@ pair<bool,double> ConversionForwardEstimator::estimate( const TrajectoryStateOnS
   if (phiDiff > pi) phiDiff -= twopi;
   if (phiDiff < -pi) phiDiff += twopi; 
 
-  std::cout << "  ForwardEstimator: RecHit at " << gp << std::endl;
-  std::cout << "                    rMin = " << rMin << ", rMax = " << rMax << ", rHit = " << rhR << std::endl;
-  std::cout << "                    thePhiRangeMin = " << thePhiRangeMin << ", thePhiRangeMax = " << thePhiRangeMax << ", phiDiff = " << phiDiff << std::endl;
+   LogDebug("ConversionForwardEstimator") << " ForwardEstimator: RecHit at " << gp << "\n";
+   LogDebug("ConversionForwardEstimator") << "                   rMin = " << rMin << ", rMax = " << rMax << ", rHit = " << rhR << "\n";
+   LogDebug("ConversionForwardEstimator") << "                   thePhiRangeMin = " << thePhiRangeMin << ", thePhiRangeMax = " << thePhiRangeMax << ", phiDiff = " << phiDiff << "\n";
 
     /*
     if(ptype > 1) {
@@ -75,7 +77,7 @@ pair<bool,double> ConversionForwardEstimator::estimate( const TrajectoryStateOnS
 bool ConversionForwardEstimator::estimate( const TrajectoryStateOnSurface& ts, 
 			   const BoundPlane& plane) const {
 
-  std::cout << " ConversionForwardEstimator::estimate( const TrajectoryStateOnSurface& ts, const BoundPlane& plane) " << std::endl;  
+   LogDebug("ConversionForwardEstimator") << "::estimate( const TrajectoryStateOnSurface& ts, const BoundPlane& plane) " << "\n";  
   // this method should return one if a detector ring is close enough
   //     to the hit, zero otherwise.
   //     Now time is wasted looking for hits in the rings which are anyhow
@@ -91,12 +93,12 @@ ConversionForwardEstimator::maximalLocalDisplacement( const TrajectoryStateOnSur
                                                         const BoundPlane& plane) const
 {
   
-  std::cout << "  ConversionForwardEstimator::maximalLocalDisplacement  " << std::endl;
+   LogDebug("ConversionForwardEstimator") << "::maximalLocalDisplacement  " << "\n";
   
   
   if ( ts.hasError() ) {
     LocalError le = ts.localError().positionError();
-    std::cout << "  ConversionForwardEstimator::maximalLocalDisplacent local error " << le.xx() << " " << le.yy() << std::endl;
+    LogDebug("ConversionForwardEstimator") << "::maximalLocalDisplacent local error " << le.xx() << " " << le.yy() << "\n";
     //return Local2DVector( sqrt(le.xx())*nSigmaCut(), sqrt(le.yy())*nSigmaCut());
     return Local2DVector( sqrt(le.xx()), sqrt(le.yy()) );
   }

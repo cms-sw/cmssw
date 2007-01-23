@@ -22,20 +22,21 @@
 
 ConversionTrackPairFinder::ConversionTrackPairFinder( ){ 
 
-  std::cout << "ConversionTrackPairFinder CTOR  " <<  std::endl;  
+    LogDebug("ConversionTrackPairFinder") << " CTOR  " <<  "\n";  
 
 }
 
 ConversionTrackPairFinder::~ConversionTrackPairFinder() {
 
-  std::cout << "ConversionTrackPairFinder DTOR " <<  std::endl;  
+    LogDebug("ConversionTrackPairFinder") << " DTOR " <<  "\n";  
     
 }
 
 
 std::vector<std::vector<reco::TransientTrack> >  ConversionTrackPairFinder::run(std::vector<reco::TransientTrack> outInTrk,  std::vector<reco::TransientTrack> inOutTrk  ) {
+
   
-  std::cout << "ConversionTrackPairFinder::run " <<  std::endl;  
+    LogDebug("ConversionTrackPairFinder") << "::run " <<  "\n";  
 
   std::vector<reco::TransientTrack>  selectedOutInTk;
   std::vector<reco::TransientTrack> selectedInOutTk;
@@ -48,7 +49,7 @@ std::vector<std::vector<reco::TransientTrack> >  ConversionTrackPairFinder::run(
 
 
   for( std::vector<reco::TransientTrack>::const_iterator  iTk =  outInTrk.begin(); iTk !=  outInTrk.end(); iTk++) {
-    std::cout << " Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << std::endl;  
+      LogDebug("ConversionTrackPairFinder") << " Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
    
     if ( iTk->numberOfValidHits() <3 ||   iTk->normalizedChi2() <0 ) continue; 
       selectedOutInTk.push_back(*iTk);
@@ -58,7 +59,7 @@ std::vector<std::vector<reco::TransientTrack> >  ConversionTrackPairFinder::run(
   }
 
   for(  std::vector<reco::TransientTrack>::const_iterator  iTk =  inOutTrk.begin(); iTk !=  inOutTrk.end(); iTk++) {
-    std::cout << "  In Out Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << std::endl;  
+      LogDebug("ConversionTrackPairFinder") << " In Out Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
    
     if ( iTk->numberOfValidHits() <3 ||   iTk->normalizedChi2() <0 ) continue; 
     selectedInOutTk.push_back(*iTk);
@@ -77,10 +78,10 @@ std::vector<std::vector<reco::TransientTrack> >  ConversionTrackPairFinder::run(
 
 
   for(  std::vector<reco::TransientTrack>::const_iterator  iTk =  selectedOutInTk.begin(); iTk !=  selectedOutInTk.end(); iTk++) {
-    std::cout << " Selected Out In  Tracks charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << std::endl;  
+      LogDebug("ConversionTrackPairFinder") << " Selected Out In  Tracks charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
   }
   for(  std::vector<reco::TransientTrack>::const_iterator  iTk =  selectedInOutTk.begin(); iTk !=  selectedInOutTk.end(); iTk++) {
-    std::cout << " Selected In Out Tracks charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << std::endl;  
+      LogDebug("ConversionTrackPairFinder") << " Selected In Out Tracks charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
   }
   
   
@@ -130,7 +131,7 @@ std::vector<std::vector<reco::TransientTrack> >  ConversionTrackPairFinder::run(
     iTk1 =  allSelectedTk.begin();
     thePair.push_back( (*iTk1) );
     allPairs.push_back ( thePair );
-    std::cout << "  WARNING ConversionTrackPairFinder::tracks The candidate has just one leg. Need to find another way to evaltuate the vertex !!! "   << std::endl;
+      LogDebug("ConversionTrackPairFinder") << "  WARNING ConversionTrackPairFinder::tracks The candidate has just one leg. Need to find another way to evaltuate the vertex !!! "   << "\n";
   }
   
   if ( noTrack) 
@@ -148,9 +149,9 @@ std::vector<std::vector<reco::Track> >  ConversionTrackPairFinder::run(const edm
   reco::TrackCollection selectedInOutTk;
   reco::TrackCollection allSelectedTk;
 
-  std::cout << "ConversionTrackPairFinder::run " <<  std::endl;  
+    LogDebug("ConversionTrackPairFinder") << "::run " <<  "\n";  
   for( reco::TrackCollection::const_iterator  iTk =  (*outInTrk).begin(); iTk !=  (*outInTrk).end(); iTk++) {
-    std::cout << " Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << std::endl;  
+      LogDebug("ConversionTrackPairFinder") << " Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
    
     if ( iTk->numberOfValidHits() <3 ||   iTk->normalizedChi2() <0 ) continue; 
       selectedOutInTk.push_back(*iTk);
@@ -160,7 +161,7 @@ std::vector<std::vector<reco::Track> >  ConversionTrackPairFinder::run(const edm
   }
 
   for( reco::TrackCollection::const_iterator  iTk =  (*inOutTrk).begin(); iTk !=  (*inOutTrk).end(); iTk++) {
-    std::cout << "  In Out Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << std::endl;  
+      LogDebug("ConversionTrackPairFinder") << "  In Out Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
    
     if ( iTk->numberOfValidHits() <3 ||   iTk->normalizedChi2() <0 ) continue; 
     selectedInOutTk.push_back(*iTk);
@@ -181,10 +182,10 @@ std::vector<std::vector<reco::Track> >  ConversionTrackPairFinder::run(const edm
 
 
   for( reco::TrackCollection::const_iterator  iTk =  selectedOutInTk.begin(); iTk !=  selectedOutInTk.end(); iTk++) {
-    std::cout << " Selected Out In  Tracks charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << std::endl;  
+      LogDebug("ConversionTrackPairFinder") << " Selected Out In  Tracks charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
   }
   for( reco::TrackCollection::const_iterator  iTk =  selectedInOutTk.begin(); iTk !=  selectedInOutTk.end(); iTk++) {
-    std::cout << " Selected In Out Tracks charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << std::endl;  
+      LogDebug("ConversionTrackPairFinder") << " Selected In Out Tracks charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
   }
 
 

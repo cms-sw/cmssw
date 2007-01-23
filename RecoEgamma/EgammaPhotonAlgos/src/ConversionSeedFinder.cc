@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
 // Field
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -20,15 +21,15 @@ ConversionSeedFinder::ConversionSeedFinder( const MagneticField* field, const Me
  
 {
 
-  std::cout << " ConversionSeedFinder CTOR " << std::endl;
+    LogDebug("ConversionSeedFinder")  << " CTOR " << "\n";
       
-}
+};
 
 
 
 void ConversionSeedFinder::findLayers() const {
 
-  std::cout << "  OutInConversionSeedFinder::findLayers() " << std::endl; 
+    LogDebug("ConversionSeedFinder")  << "::findLayers() " << "\n"; 
   int charge;
   //List the DetLayers crossed by a straight line from the centre of the 
   //detector to the supercluster position
@@ -45,7 +46,7 @@ FreeTrajectoryState ConversionSeedFinder::trackStateFromClusters( int charge, co
 								       PropagationDirection dir, float scaleFactor) const {
 
 
-  std::cout << "  ConversionSeedFinder::trackStateFromClusters " << std::endl; 
+    LogDebug("ConversionSeedFinder")  << "::trackStateFromClusters " << "\n"; 
   double caloEnergy = theSC_->energy() * scaleFactor ;
 
   GlobalVector radiusCalo = theSCPosition_ - theOrigin ;
@@ -110,12 +111,12 @@ void ConversionSeedFinder::printLayer(int i) const {
   if (layer->location() == GeomDetEnumerators::barrel ) {
     const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(layer);
     float r = barrelLayer->specificSurface().radius();
-    std::cout <<  "barrel layer radius " << r << " " << barrelLayer->specificSurface().bounds().length()/2. << std::endl;
+      LogDebug("ConversionSeedFinder")  <<  " barrel layer radius " << r << " " << barrelLayer->specificSurface().bounds().length()/2. << "\n";
 
   } else {
     const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(layer);
     float z =  fabs(forwardLayer->surface().position().z());
-    std::cout << " forward layer position " << z << " " << forwardLayer->specificSurface().innerRadius() << " " << forwardLayer->specificSurface().outerRadius() << std::endl;
+      LogDebug("ConversionSeedFinder")  << " forward layer position " << z << " " << forwardLayer->specificSurface().innerRadius() << " " << forwardLayer->specificSurface().outerRadius() << "\n";
   }
 }
 
