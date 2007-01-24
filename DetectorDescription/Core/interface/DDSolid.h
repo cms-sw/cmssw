@@ -15,10 +15,6 @@
 namespace DDI { class Solid; }
 namespace DDI { class Reflection; }
 namespace DDI { class BooleanSolid; }
-//using DDI::Solid;
-using DDI::Reflection;
-using DDI::BooleanSolid;
-
 
 
 //class DDSolidImpl;
@@ -215,7 +211,7 @@ public:
   DDSolid unreflected() const;
 private:
   DDReflectionSolid(); 
-  Reflection * reflected_; 
+  DDI::Reflection * reflected_; 
 }; 
 
 

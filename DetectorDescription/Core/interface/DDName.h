@@ -1,7 +1,6 @@
 #ifndef DDName_h
 #define DDName_h
 
-//namespace DDI{} using namespace DDI;
 #include <utility>
 #include <string>
 #include <iostream>

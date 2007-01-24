@@ -8,7 +8,6 @@
 #include "DetectorDescription/Core/interface/DDBase.h"
 namespace DDI { class Material; }
 
-//using DDI::Material;
 class DDMaterial;
 
 
