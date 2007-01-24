@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.3 2006/09/27 12:06:04 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.4 2006/10/26 21:34:41 dmytro Exp $
 //
 //
 
@@ -36,7 +36,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonWithMatchInfo.h"
 
-#include "TrackingTools/TrackAssociator/interface/TrackAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TimerStack.h"
 
 #include <boost/regex.hpp>
@@ -47,48 +47,38 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
    outputCollectionName_ = iConfig.getParameter<std::string>("outputCollection");
    produces<reco::MuonWithMatchInfoCollection>(outputCollectionName_);
 
-   useEcal_ = iConfig.getParameter<bool>("useEcal");
-   useHcal_ = iConfig.getParameter<bool>("useHcal");
-   useMuon_ = iConfig.getParameter<bool>("useMuon");
+   useEcal_ = true;
+   useMuon_ = true;
+   useHcalRecHits_ = iConfig.getParameter<bool>("useHcalRecHits");
+   
+   useOldMuonMatching_ = iConfig.getParameter<bool>("useOldMuonMatching");
+   
    minPt_ = iConfig.getParameter<double>("minPt");
-   maxRfromIP_ = iConfig.getParameter<double>("maxDistanceFromIP");
+   minP_ = iConfig.getParameter<double>("minP");
+   maxAbsEta_ = iConfig.getParameter<double>("maxAbsEta");
+   minNumberOfMatches_ = iConfig.getParameter<int>("minNumberOfMatches");
+   maxAbsDx_ = iConfig.getParameter<double>("maxAbsDx");
+   maxAbsPullX_ = iConfig.getParameter<double>("maxAbsPullX");
+   maxAbsDy_ = iConfig.getParameter<double>("maxAbsDy");
+   maxAbsPullY_ = iConfig.getParameter<double>("maxAbsPullY");
+   ecalPreselectionCone_ = iConfig.getParameter<double>("ecalPreselectionCone");
+   // ecalSelectionCone_ = iConfig.getParameter<double>("ecalSelectionCone");
+   hcalPreselectionCone_ = iConfig.getParameter<double>("hcalPreselectionCone");
+   // hcalSelectionCone_ = iConfig.getParameter<double>("hcalSelectionCone");
+   muonPreselectionCone_ = iConfig.getParameter<double>("muonPreselectionCone");
+   // muonSelectionCone_ = iConfig.getParameter<double>("muonSelectionCone");
    
    // Fill data labels
-   std::vector<std::string> labels = iConfig.getParameter<std::vector<std::string> >("labels");
-   boost::regex regExp1 ("([^\\s,]+)[\\s,]+([^\\s,]+)$");
-   boost::regex regExp2 ("([^\\s,]+)[\\s,]+([^\\s,]+)[\\s,]+([^\\s,]+)$");
-   boost::smatch matches;
-	
-   for(std::vector<std::string>::const_iterator label = labels.begin(); label != labels.end(); label++) {
-      if (boost::regex_match(*label,matches,regExp1))
-	trackAssociator_.addDataLabels(matches[1],matches[2]);
-      else if (boost::regex_match(*label,matches,regExp2))
-	trackAssociator_.addDataLabels(matches[1],matches[2],matches[3]);
-      else
-	edm::LogError("ConfigurationError") << "Failed to parse label:\n" << *label << "Skipped.\n";
-   }
+   trackAssociator_.theEBRecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
+   trackAssociator_.theEERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EERecHitCollectionLabel");
+   trackAssociator_.theCaloTowerCollectionLabel = iConfig.getParameter<edm::InputTag>("CaloTowerCollectionLabel");
+   trackAssociator_.theHBHERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HBHERecHitCollectionLabel");
+   trackAssociator_.theHORecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
+   trackAssociator_.theDTRecSegment4DCollectionLabel = iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel");
+   trackAssociator_.theCSCSegmentCollectionLabel = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
+
+   inputCollectionLabel_ = iConfig.getParameter<edm::InputTag>("inputCollectionLabel");
    
-   // Determine input collection
-   std::string inputCollection = iConfig.getParameter<std::string>("inputCollection");
-   if (boost::regex_match(inputCollection,matches,regExp1))
-     {
-	inputCollectionType_ = matches[1];
-	inputCollectionLabels_ = std::pair<std::string,std::string>(matches[2],"");
-     }
-   else if (boost::regex_match(inputCollection,matches,regExp2))
-     {
-	inputCollectionType_ = matches[1];
-	inputCollectionLabels_ = std::pair<std::string,std::string>(matches[2],matches[3]);
-     }
-   else
-     throw cms::Exception("FatalError") << "Failed to parse inputCollection:\n" << inputCollection << "\n";
-   
-   if (inputCollectionType_ == "TrackCollection")
-     mode_ = TrackCollection;
-   else if (inputCollectionType_ == "MuonCollection")
-     mode_ = MuonCollection;
-   else 
-     throw cms::Exception("FatalError") << "Unkown input type: " << inputCollectionType_ << "\n";
    trackAssociator_.useDefaultPropagator();
 }
 
@@ -100,22 +90,20 @@ MuonIdProducer::~MuonIdProducer()
 
 void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   switch (mode_) {
-    case TrackCollection:
-      iEvent.getByLabel(inputCollectionLabels_.first, inputCollectionLabels_.second, trackCollectionHandle_);
-      if (! trackCollectionHandle_.isValid()) throw cms::Exception("FatalError") << 
-	"Cannot find input list in Event: " << inputCollectionType_ << " " << 
-	inputCollectionLabels_.first << " " << inputCollectionLabels_.second << "\n";
+   // figure out the type of input collection and initialize the iterator
+   iEvent.getByLabel(inputCollectionLabel_, trackCollectionHandle_);
+   if (! trackCollectionHandle_.isValid()) {
+      iEvent.getByLabel(inputCollectionLabel_, muonCollectionHandle_);
+      if (! muonCollectionHandle_.isValid()) throw cms::Exception("FatalError") <<
+	"Cannot find input list in Event: " << inputCollectionLabel_;
+      else {
+	 mode_ = MuonCollection;
+	 muonCollectionIter_ = muonCollectionHandle_->begin();
+      }
+   }else{
+      mode_ = TrackCollection;
       trackCollectionIter_ = trackCollectionHandle_->begin();
       index_ = 0;
-      break;
-    case MuonCollection:
-      iEvent.getByLabel(inputCollectionLabels_.first, inputCollectionLabels_.second, muonCollectionHandle_);
-      if (! muonCollectionHandle_.isValid()) throw cms::Exception("FatalError") << 
-	"Cannot find input list in Event: " << inputCollectionType_ << " " << 
-	inputCollectionLabels_.first << " " << inputCollectionLabels_.second << "\n";
-      muonCollectionIter_ = muonCollectionHandle_->begin();
-      break;
    }
 }
 
@@ -155,27 +143,47 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    timers.push("MuonIdProducer::produce::init");
    init(iEvent, iSetup);
    timers.clean_stack();
-   
-
 
    // loop over input collection
    while(reco::MuonWithMatchInfo* aMuon = getNewMuon(iEvent, iSetup))
      {
-	LogTrace("MuonIdProducer::produce") << "-----------------" << "\n";
-	LogTrace("MuonIdProducer::produce") << "(Pt: " << aMuon->track().get()->pt() << " GeV" <<"\n";
-	LogTrace("MuonIdProducer::produce") << "Distance from IP: " << 
-	  aMuon->track().get()->vertex().rho() << " cm" <<"\n";
-
-	if (aMuon->track().get()->pt() < minPt_)
-	  { LogTrace("MuonIdProducer::produce") << "Skipped low Pt track (Pt: " << aMuon->track().get()->pt() << " GeV)\n";}
-	else if (aMuon->track().get()->vertex().rho() > maxRfromIP_)
-	  {LogTrace("MuonIdProducer::produce") << "Skipped track originated away from IP: " << 
-	       aMuon->track().get()->vertex().rho() << " cm\n";
-	  }
-	else {
-	   fillMuonId(iEvent, iSetup, *aMuon);
-	   outputMuons->push_back(*aMuon);
+	if ( ! aMuon || ! aMuon->track().get() ) {
+	   edm::LogError("MuonIdProducer") << "failed to make a valid MuonWithMatchInfo object. Skip event";
+	   break;
 	}
+	LogTrace("MuonIdProducer::produce") << "---------------------------------------------";
+	LogTrace("MuonIdProducer::produce") << "track Pt: " << aMuon->track().get()->pt() << " GeV";
+	LogTrace("MuonIdProducer::produce") << "Distance from IP: " <<  aMuon->track().get()->vertex().rho() << " cm";
+	
+	bool goodMuonCandidate = true;
+	
+	// Pt requirement
+	if (aMuon->track().get()->pt() < minPt_){ 
+	   LogTrace("MuonIdProducer::produce") << "Skipped low Pt track (Pt: " << aMuon->track().get()->pt() << " GeV)";
+	   goodMuonCandidate = false;
+	}
+	
+	// Absolute momentum requirement
+	if (aMuon->track().get()->p() < minP_){
+	   LogTrace("MuonIdProducer::produce") << "Skipped low P track (P: " << aMuon->track().get()->p() << " GeV)";
+	   goodMuonCandidate = false;
+	}
+	
+	// Eta requirement
+	if ( fabs(aMuon->track().get()->eta()) > maxAbsEta_ ){
+	   LogTrace("MuonIdProducer::produce") << "Skipped track with large pseudo rapidity (Eta: " << aMuon->track().get()->eta() << " )";
+	   goodMuonCandidate = false;
+	}
+	
+	if ( goodMuonCandidate ){
+	   fillMuonId(iEvent, iSetup, *aMuon);
+	   
+	   // loop over matches
+	   
+	}
+
+	if (goodMuonCandidate ) outputMuons->push_back(*aMuon);
+	
 	delete aMuon;
      }
    iEvent.put(outputMuons,outputCollectionName_);
@@ -184,53 +192,74 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetup,
 				reco::MuonWithMatchInfo& aMuon)
 {
-   TrackAssociator::AssociatorParameters parameters;
+   TrackDetectorAssociator::AssociatorParameters parameters;
    parameters.useEcal = useEcal_ ;
-   parameters.useHcal = useHcal_ ;
+   parameters.useHcal = useHcalRecHits_ ;
+   parameters.useHO   = useHcalRecHits_ ;
+   parameters.useCalo = ! useHcalRecHits_ ;
    parameters.useMuon = useMuon_ ;
-   parameters.dRHcal = 0.4;
-   parameters.dRHcal = 0.4;
+   
+   parameters.dREcalPreselection = ecalPreselectionCone_;
+   parameters.dREcal = ecalSelectionCone_;
+   parameters.dRHcalPreselection = hcalPreselectionCone_;
+   parameters.dRHcal = hcalSelectionCone_;
+   parameters.dRMuonPreselection = muonPreselectionCone_;
+   parameters.dRMuon = muonSelectionCone_;
 
    TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, 
 						       trackAssociator_.getFreeTrajectoryState(iSetup, *(aMuon.track().get()) ),
 						       parameters);
    reco::MuonWithMatchInfo::MuonEnergy muonEnergy;
-   muonEnergy.had = info.hcalEnergy();
    muonEnergy.em = info.ecalEnergy();
-   muonEnergy.ho = info.outerHcalEnergy();
+   if (useHcalRecHits_){
+      muonEnergy.had = info.hcalEnergy();
+      muonEnergy.ho = info.hoEnergy();
+   }else{
+      muonEnergy.had = info.hcalTowerEnergy();
+      muonEnergy.ho = info.hoTowerEnergy();
+   }
+      
    aMuon.setCalEnergy( muonEnergy );
       
-   /* reco::MuonWithMatchInfo::MuonIsolation muonIsolation;
-   muonIsolation.hCalEt01 = 0;
-   muonIsolation.eCalEt01 = 0;
-   muonIsolation.hCalEt04 = info.hcalConeEnergy();
-   muonIsolation.eCalEt04 = info.ecalConeEnergy();
-   muonIsolation.hCalEt07 = 0;
-   muonIsolation.eCalEt07 = 0;
-   muonIsolation.trackSumPt01 = 0;
-   muonIsolation.trackSumPt04 = 0;
-   muonIsolation.trackSumPt07 = 0;
-   aMuon.setIsolation( muonIsolation );*/
-      
-   std::vector<reco::MuonWithMatchInfo::MuonMatch> muonMatches;
-   for( std::vector<MuonSegmentMatch>::const_iterator segment=info.segments.begin();
-	segment!=info.segments.end(); segment++ )
+   std::vector<reco::MuonWithMatchInfo::MuonChamberMatch> muonChamberMatches;
+   for( std::vector<MuonChamberMatch>::const_iterator chamber=info.chambers.begin();
+	chamber!=info.chambers.end(); chamber++ )
      {
-	reco::MuonWithMatchInfo::MuonMatch aMatch;
-	aMatch.dX = segment->segmentLocalPosition.x()-segment->trajectoryLocalPosition.x();
-	aMatch.dY = segment->segmentLocalPosition.y()-segment->trajectoryLocalPosition.y();
-	aMatch.dXErr = sqrt(segment->trajectoryLocalErrorXX+segment->segmentLocalErrorXX);
-	aMatch.dYErr = sqrt(segment->trajectoryLocalErrorYY+segment->segmentLocalErrorYY);
-	aMatch.dXdZ = 0;
-	aMatch.dYdZ = 0;
-	aMatch.dXdZErr = 0;
-	aMatch.dYdZErr = 0;
-	muonMatches.push_back(aMatch);
-	LogTrace("MuonIdProducer::fillMuonId")<< "Muon match (dX,dY,dXErr,dYErr): " << aMatch.dX << " \t" << aMatch.dY 
-	  << " \t" << aMatch.dXErr << " \t" << aMatch.dYErr << "\n";
+	reco::MuonWithMatchInfo::MuonChamberMatch aMatch;
+	
+	LocalError localError = chamber->tState.localError().positionError();
+	aMatch.x = chamber->tState.localPosition().x();
+	aMatch.y = chamber->tState.localPosition().y();
+	aMatch.xErr = sqrt( localError.xx() );
+	aMatch.yErr = sqrt( localError.yy() );
+	                                                                                                                                                    
+	// DANGEROUS - compiler cannot guaranty parameters ordering
+	AlgebraicSymMatrix trajectoryCovMatrix = chamber->tState.localError().matrix();
+	aMatch.dXdZErr = trajectoryCovMatrix[1][1];
+	aMatch.dYdZErr = trajectoryCovMatrix[2][2];
+	
+	aMatch.edgeX = chamber->localDistanceX;
+	aMatch.edgeY = chamber->localDistanceY;
+	
+	aMatch.id = chamber->id;
+	
+	// fill segments
+	for( std::vector<MuonSegmentMatch>::const_iterator segment = chamber->segments.begin();
+	     segment != chamber->segments.end(); segment++ ) 
+	  {
+	     reco::MuonWithMatchInfo::MuonSegmentMatch aSegment;
+	     aSegment.x = segment->segmentLocalPosition.x();
+	     aSegment.y = segment->segmentLocalPosition.y();
+	     aSegment.dXdZ = segment->segmentLocalDirection.x()/segment->segmentLocalDirection.z();
+	     aSegment.dYdZ = segment->segmentLocalDirection.y()/segment->segmentLocalDirection.z(); 
+	     
+	     aMatch.segmentMatches.push_back(aSegment);
+	  }
+	muonChamberMatches.push_back(aMatch);
      }
-   aMuon.setMatches(muonMatches);
-   LogTrace("MuonIdProducer::fillMuonId") << "number of muon matches: " << aMuon.matches().size() << "\n";
+   aMuon.setMatches(muonChamberMatches);
+   LogTrace("MuonIdProducer::fillMuonId") << "number of muon chambers: " << aMuon.matches().size() << "\n" 
+     << "number of muon matches: " << aMuon.numberOfMatches();
 }
 
 //define this as a plug-in

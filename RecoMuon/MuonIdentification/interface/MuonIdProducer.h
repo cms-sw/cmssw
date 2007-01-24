@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.2 2006/09/18 13:03:45 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.3 2006/09/27 12:06:03 dmytro Exp $
 //
 //
 
@@ -33,7 +33,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonWithMatchInfo.h"
 
-#include "TrackingTools/TrackAssociator/interface/TrackAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TimerStack.h"
 
 class MuonIdProducer : public edm::EDProducer {
@@ -52,16 +52,33 @@ class MuonIdProducer : public edm::EDProducer {
    reco::MuonWithMatchInfo*      getNewMuon(edm::Event& iEvent, 
 				 const edm::EventSetup& iSetup);
 
-   TrackAssociator trackAssociator_;
+   TrackDetectorAssociator trackAssociator_;
    bool useEcal_;
-   bool useHcal_;
    bool useMuon_;
-   std::string inputCollectionType_;
-   std::string outputCollectionName_;
-   std::pair<std::string,std::string> inputCollectionLabels_;
+   
+   bool useOldMuonMatching_;
+
+   bool useHcalRecHits_;
+   
+   edm::InputTag inputCollectionLabel_;
+   std::string outputCollectionName_;   
    InputMode mode_;
+
    double minPt_;
-   double maxRfromIP_;
+   double minP_;
+   double maxAbsEta_;
+   int minNumberOfMatches_;
+   double maxAbsDx_;
+   double maxAbsPullX_;
+   double maxAbsDy_;
+   double maxAbsPullY_;
+   double ecalPreselectionCone_;
+   double ecalSelectionCone_;
+   double hcalPreselectionCone_;
+   double hcalSelectionCone_;
+   double muonPreselectionCone_;
+   double muonSelectionCone_;
+   
    edm::Handle<reco::TrackCollection> trackCollectionHandle_;
    reco::TrackCollection::const_iterator trackCollectionIter_;
    edm::Handle<reco::MuonCollection> muonCollectionHandle_;
