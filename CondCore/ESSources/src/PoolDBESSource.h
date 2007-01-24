@@ -44,7 +44,8 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,public edm::Eve
   cond::IOVService* m_iovservice;
   cond::PoolStorageManager* m_pooldb;
   //bool m_tagTranslated;
-  //std::string m_catalog;
+  //std::string m_catalog; 
+  bool m_connected;
  private:
   void tagToToken(const std::vector< std::pair < std::string, std::string> >& recordToTag);
   //void initIOV();

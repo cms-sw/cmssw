@@ -91,7 +91,8 @@ fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
 //
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_timetype(iConfig.getParameter<std::string>("timetype") ),
-  m_session( 0 )
+  m_session( 0 ), 
+  m_connected( false )
 {		
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   /*parameter set parsing and pool environment setting
@@ -305,7 +306,10 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
       }
     }
   }
-  m_pooldb->connect();
+  if( !m_connected ){
+    m_pooldb->connect();
+    m_connected=true;
+  }
 }
 
 void 
