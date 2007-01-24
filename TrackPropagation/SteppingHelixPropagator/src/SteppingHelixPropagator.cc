@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/01/10 02:04:12 $
- *  $Revision: 1.21 $
+ *  $Date: 2007/01/24 01:06:40 $
+ *  $Revision: 1.22 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.21 2007/01/10 02:04:12 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.22 2007/01/24 01:06:40 slava77 Exp $
 //
 //
 
@@ -299,7 +299,12 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
   PropagationDirection refDirection = anyDirection;
   Result result = refToDest(type, (*svCurrent), pars, dist, tanDist, refDirection);
 
-  if (result != SteppingHelixStateInfo::OK ) return result;
+  if (result != SteppingHelixStateInfo::OK ){
+    svCurrent->status_ = result;
+    svCurrent->isValidInfo = result == SteppingHelixStateInfo::OK;
+    svCurrent->field = field_;
+    return result;
+  }
 
   result = SteppingHelixStateInfo::UNDEFINED;
   bool makeNextStep = true;
