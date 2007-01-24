@@ -53,13 +53,12 @@ void CSCStripDigiValidation::analyze(const edm::Event& e, const edm::EventSetup&
     std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
     int nDigis = last-digiItr;
     nDigisPerEvent += nDigis;
-    theNDigisPerLayerPlot->Fill(last-digiItr);
+    theNDigisPerLayerPlot->Fill(nDigis);
 
     double maxAmplitude = 0.;
     int maxStrip = 0;
 
     for( ; digiItr != last; ++digiItr) {
-      ++nDigisPerEvent;
       // average up the pedestals
       std::vector<int> adcCounts = digiItr->getADCCounts();
       thePedestalSum += adcCounts[0];
