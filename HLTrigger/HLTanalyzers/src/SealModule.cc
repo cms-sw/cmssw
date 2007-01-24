@@ -4,7 +4,7 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "HLTrigger/HLTAnalyzers/interface/HLTAnalyzer.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTAnalyzer.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(HLTAnalyzer);

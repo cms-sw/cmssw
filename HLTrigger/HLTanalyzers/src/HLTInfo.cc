@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "HLTrigger/HLTAnalyzers/interface/HLTInfo.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTInfo.h"
 
 HLTInfo::HLTInfo() {
 

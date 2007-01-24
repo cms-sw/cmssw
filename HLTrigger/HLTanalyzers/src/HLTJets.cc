@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "HLTrigger/HLTAnalyzers/interface/HLTJets.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTJets.h"
 
 HLTJets::HLTJets() {
   evtCounter=0;

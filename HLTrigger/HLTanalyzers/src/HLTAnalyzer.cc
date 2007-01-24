@@ -2,7 +2,7 @@
 // Description:  Example of Analysis driver originally from Jeremy Mans,
 // Date:  13-October-2006
 
-#include "HLTrigger/HLTAnalyzers/interface/HLTAnalyzer.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTAnalyzer.h"
 
 // Boiler-plate constructor definition of an analyzer module:
 HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {

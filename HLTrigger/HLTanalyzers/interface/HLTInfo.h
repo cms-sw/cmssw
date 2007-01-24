@@ -20,7 +20,7 @@
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-#include "HLTrigger/HLTAnalyzers/interface/JetUtil.h"
+#include "HLTrigger/HLTanalyzers/interface/JetUtil.h"
 
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 

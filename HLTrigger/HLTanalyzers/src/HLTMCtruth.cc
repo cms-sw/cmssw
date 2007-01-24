@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "HLTrigger/HLTAnalyzers/interface/HLTMCtruth.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTMCtruth.h"
 
 HLTMCtruth::HLTMCtruth() {
 

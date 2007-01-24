@@ -16,8 +16,8 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
-#include "HLTrigger/HLTAnalyzers/interface/JetUtil.h"
-#include "HLTrigger/HLTAnalyzers/interface/CaloTowerBoundries.h"
+#include "HLTrigger/HLTanalyzers/interface/JetUtil.h"
+#include "HLTrigger/HLTanalyzers/interface/CaloTowerBoundries.h"
 
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 

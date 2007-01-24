@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "HLTrigger/HLTAnalyzers/interface/HLTEgamma.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTEgamma.h"
 
 HLTEgamma::HLTEgamma() {
   evtCounter=0;

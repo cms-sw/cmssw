@@ -1,10 +1,10 @@
 #include <iostream>
 
-#include "HLTrigger/HLTAnalyzers/interface/HLTEgamma.h"
-#include "HLTrigger/HLTAnalyzers/interface/HLTInfo.h"
-#include "HLTrigger/HLTAnalyzers/interface/HLTJets.h"
-#include "HLTrigger/HLTAnalyzers/interface/HLTMCtruth.h"
-#include "HLTrigger/HLTAnalyzers/interface/HLTMuon.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTEgamma.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTInfo.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTJets.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTMCtruth.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTMuon.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

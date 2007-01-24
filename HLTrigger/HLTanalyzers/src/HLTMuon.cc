@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "HLTrigger/HLTAnalyzers/interface/HLTMuon.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTMuon.h"
 
 HLTMuon::HLTMuon() {
   evtCounter=0;
