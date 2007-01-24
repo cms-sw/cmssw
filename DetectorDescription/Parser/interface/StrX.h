@@ -16,8 +16,6 @@
 #include <string>
 #include <iostream>
 
-namespace xercesc_2_7 { } using namespace xercesc_2_7;
-
 /** @class StrX
  * @author Apache Xerces C++ Example
  *
@@ -33,6 +31,7 @@ namespace xercesc_2_7 { } using namespace xercesc_2_7;
 class StrX
 {
   public :
+    typedef xercesc_2_7::XMLString XMLString;
     // -----------------------------------------------------------------------
     //  Constructors and Destructor
     // -----------------------------------------------------------------------

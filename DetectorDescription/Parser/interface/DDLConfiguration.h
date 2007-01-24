@@ -32,6 +32,7 @@ class DDLConfiguration : public DDLDocumentProvider {
   //  friend DDLParser;
 
  public:
+  typedef xercesc_2_7::SAX2XMLReader SAX2XMLReader;
 
   explicit DDLConfiguration(DDLParser *);
   DDLConfiguration();

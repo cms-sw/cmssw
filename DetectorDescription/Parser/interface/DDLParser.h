@@ -65,6 +65,7 @@ class DDLParser
 
 {
  public:
+  typedef xercesc_2_7::SAX2XMLReader SAX2XMLReader;
 
   typedef std::map< int, std::pair<std::string, std::string> > FileNameHolder;
   static DDLParser* instance();

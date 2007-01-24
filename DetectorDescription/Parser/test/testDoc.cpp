@@ -93,6 +93,7 @@ class DDLTestDoc : public DDLDocumentProvider {
 
 
 namespace std{} using namespace std;
+namespace xercesc_2_7{} using namespace xercesc_2_7;
 
 //--------------------------------------------------------------------------
 //  DDLTestDoc:  Default constructor and destructor.

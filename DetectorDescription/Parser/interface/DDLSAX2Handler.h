@@ -14,8 +14,6 @@
 #include <iostream>
 
 
-namespace xercesc_2_7{} using namespace xercesc_2_7;
-
 ///  DDLSAX2Handler inherits from Xerces C++ DefaultHandler.
 /** @class DDLSAX2Handler
  * @author Michael Case
@@ -34,10 +32,12 @@ namespace xercesc_2_7{} using namespace xercesc_2_7;
  *  startElement and endElement events.
  *
  */
-class DDLSAX2Handler : public DefaultHandler
+class DDLSAX2Handler : public xercesc_2_7::DefaultHandler
 {
 
  public:
+  typedef xercesc_2_7::Attributes Attributes;
+  typedef xercesc_2_7::SAXParseException SAXParseException;
 
   // -----------------------------------------------------------------------
   //  Constructor and Destructor

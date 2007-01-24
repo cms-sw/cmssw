@@ -8,10 +8,6 @@
 #include <map>
 #include <iostream>
 
-using std::string;
-using std::map;
-using std::ostream;
-
 class AnotherDummy {};
 
   typedef TagName NodeName;
@@ -21,6 +17,6 @@ class AnotherDummy {};
   typedef graph<NodeName, AttList> TinyDom;
   typedef graphwalker<NodeName, AttList> TinyDomWalker;
   
-  void TinyDomPrettyPrint(ostream &, const TinyDom &);
+  void TinyDomPrettyPrint(std::ostream &, const TinyDom &);
 
 #endif

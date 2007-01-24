@@ -4,7 +4,6 @@
 
 #include "DetectorDescription/RegressionTest/src/TinyDom.h"
 #include <vector>
-using std::vector;
 
 /** some tests for TinyDom and TinyDomWalker */
 class TinyDomTest
@@ -12,7 +11,7 @@ class TinyDomTest
 public:
   explicit TinyDomTest(const TinyDom &);
   
-  unsigned int allNodes(const NodeName &, vector<const AttList*> &);
+  unsigned int allNodes(const NodeName &, std::vector<const AttList*> &);
   
 private:
    const TinyDom & dom_;

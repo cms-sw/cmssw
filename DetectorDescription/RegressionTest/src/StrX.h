@@ -4,8 +4,6 @@
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/parsers/SAXParser.hpp>
 
-using namespace std;
-
 // ---------------------------------------------------------------------------
 //  This is a simple class that lets us do easy (though not terribly efficient)
 //  trancoding of XMLCh data to local code page for display.
@@ -13,6 +11,7 @@ using namespace std;
 class StrX
 {
 public :
+    typedef xercesc_2_7::XMLString XMLString;
     // -----------------------------------------------------------------------
     //  Constructors and Destructor
     // -----------------------------------------------------------------------

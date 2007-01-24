@@ -11,11 +11,10 @@
 #include <map>
 #include <string>
 
-namespace boost { namespace spirit {} } using namespace boost::spirit;
 // Boost parser, spirit, for parsing the std::vector elements.
 #include "boost/spirit/core.hpp"
 
-class Mapper : public grammar<Mapper> {
+class Mapper : public boost::spirit::grammar<Mapper> {
  public:
   Mapper() { };
   ~Mapper() { };

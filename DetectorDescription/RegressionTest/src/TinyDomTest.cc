@@ -5,7 +5,7 @@ TinyDomTest::TinyDomTest(const TinyDom & d)
  : dom_(d) 
  { }
  
-unsigned int TinyDomTest::allNodes(const NodeName & tagName, vector<const AttList *> & result)
+unsigned int TinyDomTest::allNodes(const NodeName & tagName, std::vector<const AttList *> & result)
 {
    result.clear();
    TinyDom::const_adj_iterator it = dom_.begin();  

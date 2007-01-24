@@ -6,20 +6,13 @@
 #include <iostream>
 #include <map>
 
-using std::pair;
-using std::string;
-using std::cout;
-using std::endl;
-using std::map;
-using std::pair;
-
 class TagName 
 {
 public:
   
   TagName() {}
   
-  explicit TagName(const string & name) 
+  explicit TagName(const std::string & name) 
     : name_(regName(name)), id_(count()) 
     { };
   
@@ -42,12 +35,12 @@ private:
   Registry::iterator name_;
   count_type id_; // identification for equality checks
   
-  static Registry::iterator regName(const string & s) {
+  static Registry::iterator regName(const std::string & s) {
     static Registry reg;
     Registry::size_type sz = reg.size();
     Registry::value_type val(s, sz);
     /*
-    pair<Registry::iterator, bool> insert = reg.insert(val);
+    std::pair<Registry::iterator, bool> insert = reg.insert(val);
     if (!insert.second) {  
       sz = insert.first->second;
     }  

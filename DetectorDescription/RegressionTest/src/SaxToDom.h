@@ -10,14 +10,12 @@
 #include <string>
 #include <map>
 #include <vector>
-namespace xercesc_2_7 {} using namespace xercesc_2_7;
 
-class AttributeList;
-
-class SaxToDom : public DefaultHandler
+class SaxToDom : public xercesc_2_7::DefaultHandler
 {
-
 public:
+  typedef xercesc_2_7::Attributes Attributes;
+  typedef xercesc_2_7::SAXParseException SAXParseException;
   SaxToDom();
   ~SaxToDom();
   void startElement(const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname, const Attributes& attrs);
