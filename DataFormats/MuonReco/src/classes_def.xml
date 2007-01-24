@@ -14,8 +14,10 @@
   <class name="edm::RefProd<std::vector<reco::MuonWithMatchInfo> >"/>
   <class name="edm::RefVector<std::vector<reco::MuonWithMatchInfo>,reco::MuonWithMatchInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonWithMatchInfo>,reco::MuonWithMatchInfo> >"/>
   <class name="reco::MuonWithMatchInfo::MuonEnergy"/>
-  <class name="reco::MuonWithMatchInfo::MuonMatch"/>
-  <class name="std::vector<reco::MuonWithMatchInfo::MuonMatch>"/>
+  <class name="reco::MuonWithMatchInfo::MuonChamberMatch"/>
+  <class name="reco::MuonWithMatchInfo::MuonSegmentMatch"/>
+  <class name="std::vector<reco::MuonWithMatchInfo::MuonChamberMatch>"/>
+  <class name="std::vector<reco::MuonWithMatchInfo::MuonSegmentMatch>"/>
 
   <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, bool, unsigned int > >">
       <field name="transientMap_" transient="true" />

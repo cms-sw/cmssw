@@ -29,7 +29,8 @@ namespace {
     edm::Ref<std::vector<reco::MuonWithMatchInfo> > r3;
     edm::RefProd<std::vector<reco::MuonWithMatchInfo> > rp3;
     edm::RefVector<std::vector<reco::MuonWithMatchInfo> > rv3;
-    std::vector<reco::MuonWithMatchInfo::MuonMatch> vmm1;
+    std::vector<reco::MuonWithMatchInfo::MuonChamberMatch> vmm1;
+    std::vector<reco::MuonWithMatchInfo::MuonSegmentMatch> vmm2;
 
     reco::MuIsoAssociationMap v4;
     edm::Wrapper<reco::MuIsoAssociationMap> w4;

@@ -14,7 +14,7 @@
  *
  * \author Dmytro Kovalskyi, UCSB
  *
- * \version $Id: MuonWithMatchInfo.h,v 1.1 2006/09/21 07:21:53 llista Exp $
+ * \version $Id: MuonWithMatchInfo.h,v 1.1 2006/09/27 12:04:04 dmytro Exp $
  *
  */
 
@@ -26,51 +26,66 @@ namespace reco {
       MuonWithMatchInfo(  Charge, const LorentzVector &, const Point & = Point( 0, 0, 0 ) );
       /// energy deposition
       struct MuonEnergy {
-	 double had;   // energy deposited in HCAL
-	 double em;    // energy deposited in ECAL
-	 double ho;    // energy deposited in HO
+	 float had;   // energy deposited in HCAL
+	 float em;    // energy deposited in ECAL
+	 float ho;    // energy deposited in HO
       };
       /// muon segment matching information in local coordinates
-      struct MuonMatch {
-	 double dX;      // X matching between track and segment
-	 double dY;      // Y matching between track and segment
-	 double dXErr;   // error in X matching
-	 double dYErr;   // error in Y matching
-	 double dXdZ;    // dX/dZ matching between track and segment
-	 double dYdZ;    // dY/dZ matching between track and segment
-	 double dXdZErr; // error in dX/dZ matching
-	 double dYdZErr; // error in dY/dZ matching
-	 DetId stationId;    // station ID
+      struct MuonSegmentMatch {
+	 float x;         // X position of the matched segment
+	 float y;         // Y position of the matched segment
+	 float xErr;      // uncertainty in X
+	 float yErr;      // uncertainty in Y
+	 float dXdZ;      // dX/dZ of the matched segment
+	 float dYdZ;      // dY/dZ of the matched segment
+	 float dXdZErr;   // uncertainty in dX/dZ
+	 float dYdZErr;   // uncertainty in dY/dZ
+      };
+      /// muon chamber matching information
+      struct MuonChamberMatch {
+	 std::vector<MuonSegmentMatch> segmentMatches;  // segments matching propagated track trajectory
+	 float edgeX;      // distance to closest edge in X (negative - inside, positive - outside)
+	 float edgeY;      // distance to closest edge in Y (negative - inside, positive - outside)
+	 float x;          // X position of the track
+	 float y;          // Y position of the track
+	 float xErr;       // propagation uncertainty in X
+	 float yErr;       // propagation uncertainty in Y
+	 float dXdZ;       // dX/dZ of the track
+	 float dYdZ;       // dY/dZ of the track
+	 float dXdZErr;    // propagation uncertainty in dX/dZ
+	 float dYdZErr;    // propagation uncertainty in dY/dZ
+	 DetId id;          // chamber ID
       };
       /// get energy deposition information
       MuonEnergy calEnergy() const { return calEnergy_; }
       /// set energy deposition information
       void setCalEnergy( const MuonEnergy& calEnergy ) { calEnergy_ = calEnergy; }
-      /// get muon segment matching information
-      std::vector<MuonMatch> matches() const { return muMatches_;}
-      /// set muon segment matching information
-      void setMatches( const std::vector<MuonMatch>& matches ) { muMatches_ = matches; }
-      /// get number of matched muon segments
-      int numberOfMatches() const { return muMatches_.size(); }
-      /// X-residual for i-th matched segment
-      double dX(int i) const { return muMatches_[i].dX; }
-      /// Y-residual for i-th matched segment
-      double dY(int i) const { return muMatches_[i].dY; }
-      /// error on X for i-th matched segment
-      double dXErr(int i) const { return muMatches_[i].dXErr; }
-      /// error on Y for i-th matched segment
-      double dYErr(int i) const { return muMatches_[i].dYErr; }
+      /// get muon matching information
+      const std::vector<MuonChamberMatch>& matches() { return muMatches_;}
+      /// set muon matching information
+      void setMatches( const std::vector<MuonChamberMatch>& matches ) { muMatches_ = matches; }
+      /// number of chambers
+      int numberOfChambers() const { return muMatches_.size(); }
+      /// get number of chambers with matched segments
+      int numberOfMatches() const;
+      /// X-residual of the first matched segment i-th matched chamber
+      /// Note: It is expected that either segment matches are sorted by some
+      /// best match criteria or an arbitration is performed to select only match.
+      /// If no segment is found dX = 999999.
+      float dX(uint i) const;
+      /// Y-residual of the first matched segment i-th matched chamber 
+      float dY(uint i) const;
+      /// propagation uncertainty on X for i-th matched chamber
+      float dXErr(uint i) const;
+      /// propagation uncertainty on Y for i-th matched chamber
+      float dYErr(uint i) const;
       // const CaloTowerRefs& traversedTowers() {return traversedTowers_;}
       
     private:
       /// energy deposition 
       MuonEnergy calEnergy_;
       /// Information on matching between tracks and segments
-      std::vector<MuonMatch> muMatches_;
-      // Vector of station IDs crossed by the track
-      // (This is somewhat redundant with mu_Matches_ but allows
-      // to see what segments were "missed".
-      // std::vector<DetId> crossedStationID_;
+      std::vector<MuonChamberMatch> muMatches_;
       // vector of references to traversed towers. Could be useful for
       // correcting the missing transverse energy.  This assumes that
       // the CaloTowers will be kept in the AOD.  If not, we need something else.
