@@ -1,5 +1,5 @@
-#ifndef HCALDIGITESTER_H
-#define HCALDIGITESTER_H
+#ifndef CSCDigiValidation_H
+#define CSCDigiValidation_H
 
 // user include files
 
