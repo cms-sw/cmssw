@@ -6,8 +6,8 @@
  *  a txt file of the same format of ORCA MuBarDigiParameters
  *  (see DTCalibrationMap for details)
  *
- *  $Date: 2006/07/03 15:09:40 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/05 09:14:26 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -16,10 +16,12 @@
 
 #include <string>
 
+class DTMtime;
 class DTTtrig;
 class DTT0;
 class DTStatusFlag;
 class DTCalibrationMap;
+class DTReadOutMapping;
 
 class DumpDBToFile : public edm::EDAnalyzer {
 public:
@@ -40,9 +42,11 @@ public:
 protected:
 
 private:
+  const DTMtime *mTimeMap;
   const DTTtrig *tTrigMap;
   const DTT0 *tZeroMap;
   const DTStatusFlag *statusMap;
+  const DTReadOutMapping *channelsMap;
 
   DTCalibrationMap *theCalibFile;
 

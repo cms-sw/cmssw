@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/05 09:14:26 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/01/22 11:10:50 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -16,12 +16,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
-#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
-#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
-#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+#include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 
@@ -30,18 +29,42 @@ using namespace std;
 
 DumpFileToDB::DumpFileToDB(const ParameterSet& pset) {
   theCalibFile = new DTCalibrationMap(pset.getUntrackedParameter<ParameterSet>("calibFileConfig"));
+  mapFileName = pset.getUntrackedParameter<string>("channelsMapFileName", "map.txt");
 
   dbToDump = pset.getUntrackedParameter<string>("dbToDump", "TTrigDB");
 
-  if(dbToDump != "TTrigDB" && dbToDump != "TZeroDB" && dbToDump != "NoiseDB")
+  if(dbToDump != "VDriftDB" && dbToDump != "TTrigDB" && dbToDump != "TZeroDB" && 
+     dbToDump != "NoiseDB" && dbToDump != "ChannelsDB")
     cout << "[DumpFileToDB] *** Error: parameter dbToDump is not valid, check the cfg file" << endl;
 }
-
+ 
 DumpFileToDB::~DumpFileToDB(){}
 
 
 void DumpFileToDB::endJob() {
-  if(dbToDump == "TTrigDB") { // Write the TTrig
+  if(dbToDump == "VDriftDB") { // Write the TTrig
+
+    // Create the object to be written to DB
+    DTMtime* mtime = new DTMtime();
+
+    // Loop over file entries
+    for(DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
+	keyAndCalibs != theCalibFile->keyAndConsts_end();
+	++keyAndCalibs) {
+      cout << "key: " << (*keyAndCalibs).first
+	   << " vdrift (cm/ns): " << theCalibFile->meanVDrift((*keyAndCalibs).first)
+	   << " hit reso (cm): " << theCalibFile->sigma_meanVDrift((*keyAndCalibs).first) << endl;
+      mtime->setSLMtime((*keyAndCalibs).first.superlayerId(),
+			theCalibFile->meanVDrift((*keyAndCalibs).first), 
+			theCalibFile->sigma_meanVDrift((*keyAndCalibs).first),
+			DTTimeUnits::ns);
+    }
+
+    cout << "[DumpFileToDB]Writing mtime object to DB!" << endl;
+    string record = "DTMtimeRcd";
+    DTCalibDBUtils::writeToDB<DTMtime>(record, mtime);
+
+  } else if(dbToDump == "TTrigDB") { // Write the TTrig
 
     // Create the object to be written to DB
     DTTtrig* tTrig = new DTTtrig();
@@ -103,8 +126,87 @@ void DumpFileToDB::endJob() {
     cout << "[DumpFileToDB]Writing Noise Map object to DB!" << endl;
     string record = "DTStatusFlagRcd";
     DTCalibDBUtils::writeToDB<DTStatusFlag>(record, statusMap);
+  
+  } else if (dbToDump == "ChannelsDB") { //Write channels map
+    
+    DTReadOutMapping* ro_map = new DTReadOutMapping( "cmssw_ROB",
+                                                     "cmssw_ROS" );
+    //Loop over file entries
+    string line;
+    ifstream file(mapFileName.c_str());
+    while (getline(file,line)) {
+      if( line == "" || line[0] == '#' ) continue; // Skip comments and empty lines
+      stringstream linestr;
+      linestr << line;
+      vector <int> channelMap = readChannelsMap(linestr);
+      int status = ro_map->insertReadOutGeometryLink(channelMap[0],
+						     channelMap[1],
+						     channelMap[2],
+						     channelMap[3],
+						     channelMap[4],
+						     channelMap[5],
+						     channelMap[6],
+						     channelMap[7],
+						     channelMap[8],
+						     channelMap[9],
+						     channelMap[10]);
+      cout << "ddu " << channelMap[0] << " "
+	   << "ros " << channelMap[1] << " "
+	   << "rob " << channelMap[2] << " "
+	   << "tdc " << channelMap[3] << " "
+	   << "channel " << channelMap[4] << " "
+	   << "wheel " << channelMap[5] << " "
+	   << "station " << channelMap[6] << " "
+	   << "sector " << channelMap[7] << " "
+	   << "superlayer " << channelMap[8] << " "
+	   << "layer " << channelMap[9] << " "
+	   << "wire " << channelMap[10] << " " << "  -> ";                
+      cout << "insert status: " << status << std::endl;
+    }
+    string record = "DTReadOutMappingRcd";
+    DTCalibDBUtils::writeToDB<DTReadOutMapping>(record, ro_map);
   }
 }
 
+  
+vector <int> DumpFileToDB::readChannelsMap (stringstream &linestr){
+  //The hardware channel
+  int ddu_id = 0;
+  int ros_id = 0;
+  int rob_id = 0;
+  int tdc_id = 0;
+  int channel_id = 0;
+  //The software channel
+  int wheel_id = 0;
+  int station_id = 0;
+  int sector_id = 0;
+  int superlayer_id = 0;
+  int layer_id = 0;
+  int wire_id = 0;
 
-
+  linestr  >> ddu_id
+	   >> ros_id
+	   >> rob_id
+	   >> tdc_id
+	   >> channel_id
+	   >> wheel_id
+	   >> station_id
+	   >> sector_id
+	   >> superlayer_id
+	   >> layer_id
+	   >> wire_id;
+    
+  vector<int> channelMap;
+  channelMap.push_back(ddu_id);
+  channelMap.push_back(ros_id);
+  channelMap.push_back(rob_id);
+  channelMap.push_back(tdc_id);
+  channelMap.push_back(channel_id);
+  channelMap.push_back(wheel_id);
+  channelMap.push_back(station_id);
+  channelMap.push_back(sector_id);
+  channelMap.push_back(superlayer_id);
+  channelMap.push_back(layer_id);
+  channelMap.push_back(wire_id);
+  return channelMap;
+}
