@@ -21,7 +21,7 @@ namespace reco {
   typedef edm::RefVector<PFClusterCollection> PFClusterRefVector;
 
   /// iterator over a vector of references to PFCluster objects
-  typedef PFClusterRefVector::iterator basicCluster_iterator;
+  typedef PFClusterRefVector::iterator PFCluster_iterator;
 }
 
 #endif
