@@ -5,8 +5,8 @@
  * \class Histograms
  *  Collection of histograms for RPC RecHit
  *
- *  $Date: 2007/01/11 10:36:46 $
- *  $Revision: 1.0 $
+ *  $Date: 2007/01/12 12:34:03 $
+ *  $Revision: 1.1 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -19,7 +19,6 @@
 #include <string>
 #include <iostream>
 using namespace std;
-
 
 
 
