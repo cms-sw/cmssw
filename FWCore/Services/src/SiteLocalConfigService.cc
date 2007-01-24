@@ -128,7 +128,7 @@ edm::service::SiteLocalConfigService::calibCatalog (void) const
 }
 
 const std::string
-edm::service::SiteLocalConfigService::frontierConnect (void) const
+edm::service::SiteLocalConfigService::frontierConnect (const std::string& servlet) const
 {
     if (! m_connected)
 	throw cms::Exception ("Incomplete configuration") 
@@ -140,21 +140,51 @@ edm::service::SiteLocalConfigService::frontierConnect (void) const
 	    << "Did not find frontier-connect in calib-data section in " << m_url ;
     }
 
-    return m_frontierConnect;
+    if (servlet == "")
+	return m_frontierConnect;
+
+    // Replace the last component of every "serverurl=" piece (up to the
+    //   next close-paren) with the servlet
+    std::string::size_type nextparen = 0;
+    std::string::size_type serverurl, lastslash;
+    std::string complexstr = "";
+    while ((serverurl = m_frontierConnect.find("(serverurl=", nextparen)) != std::string::npos)
+    {
+	complexstr.append(m_frontierConnect, nextparen, serverurl - nextparen);
+	nextparen = m_frontierConnect.find(')', serverurl);
+	lastslash = m_frontierConnect.rfind('/', nextparen);
+	complexstr.append(m_frontierConnect, serverurl, lastslash - serverurl + 1);
+	complexstr.append(servlet);
+    }
+    complexstr.append(m_frontierConnect, nextparen, m_frontierConnect.length()-nextparen);
+
+    return complexstr;
 }
 
 const std::string
 edm::service::SiteLocalConfigService::lookupCalibConnect (const std::string& input) const
 {
-    static const std::string logical_frontier = "frontier://cms_conditions_data";
-    if (input.substr(0,logical_frontier.length()) == logical_frontier)
+    static const std::string proto = "frontier://";
+
+    if ((input.substr(0,proto.length()) == proto) && (input[proto.length()] != '('))
     {
-	// Replace the logical name "cms_conditions_data" with the complex
-	//  parenthesized string returned from frontierConnect().  Also
-	//  add a keyword defining the logical server name.  This allows
-	//  the pool catalog file to also use the shorter name.
+	// Replace the part after the protocol and before the last slash 
+	//  (that is, the servlet name) with the complex parenthesized string
+	//  returned from frontierConnect() which contains all the information
+	//  needed to connect to frontier.  Also add a keyword to the complex
+	//  string defining the logical server name as "cms_conditions_data".
+	//  This allows the pool catalog file to use that shorter name which
+	//  doesn't change.
+	std::string::size_type lastslash = input.rfind('/', input.length());
+	std::string schema = input.substr(lastslash);
+	std::string::size_type protolen = proto.length();
+	std::string servlet = input.substr(protolen, lastslash - protolen);
+	if (servlet == "cms_conditions_data")
+	    // use the default servlet from site-local-config.xml
+	    servlet = "";
+
 	return "frontier://(logicalserverurl=http://cms_conditions_data)" +
-		frontierConnect() + input.substr(logical_frontier.length());
+		frontierConnect(servlet) + schema;
     }
     return input;
 }
