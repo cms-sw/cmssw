@@ -2,7 +2,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/16 12:22:38 $
+ *  $Date: 2006/07/03 15:06:12 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -39,7 +39,7 @@ DTCalibrationMap::DTCalibrationMap(const ParameterSet& pset) {
   } else {
     theGranularity = byChamber;
     if(!(calibConstGranularity == "byChamber")) {
-      cout << "[MuBarDigiParameters]###Warning: Check parameter calibConstGranularity: "
+      cout << "[DTCalibrationMap]###Warning: Check parameter calibConstGranularity: "
 	   << calibConstGranularity << " options not available!" << endl;
     }
   }
