@@ -1,6 +1,8 @@
 
 #include "RecoBTag/TrackProbability/interface/HistogramProbabilityEstimator.h"
-#include "RecoBTag/XMLCalibration/interface/CalibratedHistogram.h"
+#include "CondFormats/BTagObjects/interface/CalibratedHistogram.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace reco;
 using namespace std;
@@ -13,18 +15,15 @@ pair<bool,double> HistogramProbabilityEstimator::probability(int ipType,float si
   double trackProbability=0;
   const CalibratedHistogram * probabilityHistogram  = 0;
  
-//     cout << "Significance: " <<  significance << " tr " << aRecTrack.momentumAtVertex().mag() <<  endl;   
      double absSignificance= fabs(significance);
-//     double sign=(absSignficince!=0) ? significance/absSignificance : 1 ;
   
       if(ipType == 1) probabilityHistogram = m_calibrationTransverse->getCalibData(input);
       if(ipType == 0) probabilityHistogram = m_calibration3D->getCalibData(input);
         
      if(!probabilityHistogram)
        {
-          cout << "Histogram not found !! "<< endl;
+	  edm::LogWarning ("TrackProbability|HistogramMissing") << " PDF Histogram not found for this track" ;
        } else {
-//          cout << "H:"<< probabilityHistogram << " " << probabilityHistogram->binContent(2) << endl;
           trackProbability = 1. - probabilityHistogram->normalizedIntegral(absSignificance);
        } 	     
       if(absSignificance!=0)  

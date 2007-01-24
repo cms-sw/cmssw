@@ -5,6 +5,9 @@
 #include "RecoBTag/BTagTools/interface/SignedDecayLength3D.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
 using namespace std;
 using namespace edm;
 using namespace reco;
@@ -27,11 +30,9 @@ TrackProbabilityAlgorithm::TrackProbabilityAlgorithm() : m_transientTrackBuilder
 TrackProbabilityAlgorithm::TrackProbabilityAlgorithm(const ParameterSet & parameters) : m_transientTrackBuilder(0),m_probabilityEstimator(0)
 
 {
-  //FIXME: use unsigned int where needed
-//  m_nthTrack         = parameters.getParameter<int>("NthTrack");
   m_ipType           = parameters.getParameter<int>("ImpactParamterType");
-  m_cutPixelHits     = parameters.getParameter<int>("MinimumNumberOfPixelHits"); //FIXME: use or remove
-  m_cutTotalHits     = parameters.getParameter<int>("MinimumNumberOfHits"); // used
+  m_cutPixelHits     = parameters.getParameter<unsigned int>("MinimumNumberOfPixelHits"); //FIXME: use or remove
+  m_cutTotalHits     = parameters.getParameter<unsigned int>("MinimumNumberOfHits"); // used
   m_cutMaxTIP        = parameters.getParameter<double>("MaximumTransverseImpactParameter"); // used
   m_cutMinPt         = parameters.getParameter<double>("MinimumTransverseMomentum"); // used
   m_cutMaxDecayLen   = parameters.getParameter<double>("MaximumDecayLength"); //used
@@ -47,12 +48,12 @@ pair<JetTag,TrackProbabilityTagInfo> TrackProbabilityAlgorithm::tag(const  JetTr
 
  if(m_probabilityEstimator == 0) 
   {
-    cout << "Probability estimator is 0. abort!" << endl;
+  edm::LogError ("TrackProbability|BadSetup")    << "Probability estimator is 0. abort!" ;
      abort(); //FIXME: trow an exception here 
   }
  if(m_transientTrackBuilder == 0) 
   {
-    cout << "Transient track builder is 0. abort!" << endl;
+  edm::LogError ("TrackProbability|BadSetup")     << "Transient track builder is 0. abort!" ;
      abort(); //FIXME: trow an exception here 
   }
 

@@ -1,4 +1,5 @@
 #include "RecoBTag/TrackProbability/interface/TrackClassFilter.h" 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 using namespace std;
@@ -25,12 +26,11 @@ bool TrackClassFilter::apply(const reco::Track & track, const reco::Jet & jet, c
 
 void TrackClassFilter::dump() const {
 
-  cout<<"TrackClassFilter: "<<endl;
-  cout<< pMin      <<" < P(GeV) < "                 <<pMax        <<endl;
-  cout<< etaMin    <<" < |eta| < "                  <<etaMax      <<endl;
-  cout<< nPixelHitsMin<<" =< number of Pixel Hits =< " << nPixelHitsMax <<endl;
-  cout<< nHitsMin     <<" =< total number of hits  =< "<< nHitsMax      <<endl;
-  cout<< chiMin       <<" =< chiSquare /dof  < "<< chiMax      <<endl;
-
+ LogTrace    ("TrackFilterDump") << "TrackClassFilter: "<<endl
+  << pMin      <<" < P(GeV) < "                 <<pMax        <<endl
+  << etaMin    <<" < |eta| < "                  <<etaMax      <<endl
+  << nPixelHitsMin<<" =< number of Pixel Hits =< " << nPixelHitsMax <<endl
+  << nHitsMin     <<" =< total number of hits  =< "<< nHitsMax      <<endl
+  << chiMin       <<" =< chiSquare /dof  < "<< chiMax      <<endl;
 }
 

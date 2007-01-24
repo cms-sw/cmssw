@@ -41,8 +41,8 @@ public:
 //algorithm parameters
 
 int  m_ipType;
-int  m_cutPixelHits;
-int  m_cutTotalHits;
+unsigned int  m_cutPixelHits;
+unsigned int  m_cutTotalHits;
 double  m_cutMaxTIP;
 double  m_cutMinPt;
 double  m_cutMaxDecayLen;
