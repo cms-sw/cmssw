@@ -118,6 +118,8 @@ class MTCCNtupleMaker : public edm::EDAnalyzer
   std::string filename_;
   std::string oSiStripDigisLabel_;
   std::string oSiStripDigisProdInstName_;
+  std::string oSiStripClusterInfoLabel_;
+  std::string oSiStripClusterInfoProdInstName_;
   float dDigiAmplifySigma_;
   bool bUseLTCDigis_;
   const double dCROSS_TALK_ERR;
@@ -160,6 +162,18 @@ class MTCCNtupleMaker : public edm::EDAnalyzer
   float clusterbarycenter;
   float clusterseednoise;
   float clustercrosstalk;
+
+  float newclusterpos;
+  float newclustereta;
+  float newclusterchg;
+  float newclusterchgl;
+  float newclusterchgr;
+  float newclusternoise;
+  float newclustermaxchg;
+  float newclusterbarycenter;
+  float newclusterseednoise;
+  float newclustercrosstalk;
+  float newclusterwidth;
 
   float angle;
   float stereocorrection;
