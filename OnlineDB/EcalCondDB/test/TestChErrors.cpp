@@ -131,9 +131,9 @@ public:
 
     uint64_t bits = 0;
     bits = 0;
-    bits |= EcalErrorDictionary::getMask("PEDESTAL_MEAN_AMPLITUDE_TOO_LOW");
-    bits |= EcalErrorDictionary::getMask("CRYSTAL_CONSISTENCY_ID");
-    bits |= EcalErrorDictionary::getMask("LASER_MEAN_AMPLITUDE_TOO_HIGH");
+    bits |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_ERROR");
+    bits |= EcalErrorDictionary::getMask("CH_ID_ERROR");
+    bits |= EcalErrorDictionary::getMask("LASER_MEAN_WARNING");
     cryerr.setErrorBits(bits);
 
     // Fill the dataset
