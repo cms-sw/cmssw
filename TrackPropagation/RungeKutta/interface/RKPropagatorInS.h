@@ -11,6 +11,7 @@
 
 
 class GlobalTrajectoryParameters;
+class GlobalParametersWithPath;
 class MagVolume;
 class RKLocalFieldProvider;
 class CartesianStateAdaptor;
@@ -54,7 +55,7 @@ public:
 
 private:
 
-  typedef std::pair<TrajectoryStateOnSurface,double> TsosWP;
+  typedef std::pair<TrajectoryStateOnSurface,double>     TsosWP;
 
   const MagVolume* theVolume;
   double           theTolerance;
@@ -74,6 +75,11 @@ private:
   Basic3DVector<double> rkMomentum( const GlobalVector& mom) const;
   GlobalPoint           globalPosition( const Basic3DVector<double>& pos) const;
   GlobalVector          globalMomentum( const Basic3DVector<double>& mom) const;
+
+  GlobalParametersWithPath propagateParametersOnPlane( const FreeTrajectoryState& ts, 
+						       const Plane& plane) const;
+  GlobalParametersWithPath propagateParametersOnCylinder( const FreeTrajectoryState& ts, 
+							  const Cylinder& cyl) const;
 
 };
 
