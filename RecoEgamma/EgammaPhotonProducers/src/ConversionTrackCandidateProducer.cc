@@ -114,7 +114,7 @@ void  ConversionTrackCandidateProducer::beginJob (edm::EventSetup const & theEve
   
   // get the In Out Seed Finder  
   edm::LogInfo("ConversionTrackCandidateProducer") << " get the InOutSeedFinder" << "\n";
-  theInOutSeedFinder_ = new InOutConversionSeedFinder (  &(*theMF_) ,  theMeasurementTracker_ , conf_ );
+  theInOutSeedFinder_ = new InOutConversionSeedFinder (  &(*theMF_) ,  theMeasurementTracker_ );
   
   
   
