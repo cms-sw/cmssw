@@ -13,7 +13,7 @@ CSCStripDigiValidation::CSCStripDigiValidation(const edm::ParameterSet& ps, DaqM
   thePedestalSum(0),
   thePedestalCovarianceSum(0),
   thePedestalCount(0),
-  thePedestalPlot( dbe_->book1D("CSCPedestal", "CSC Pedestal ", 400, 400, 800) ),
+  thePedestalPlot( dbe_->book1D("CSCPedestal", "CSC Pedestal ", 400, 550, 650) ),
   thePedestalTimeCorrelationPlot(0),
   thePedestalNeighborCorrelationPlot(0),
   theAmplitudePlot( dbe_->book1D("CSCStripAmplitude", "CSC Strip Amplitude", 200, 0, 2000) ),
@@ -27,7 +27,7 @@ CSCStripDigiValidation::CSCStripDigiValidation(const edm::ParameterSet& ps, DaqM
   {
     char title1[200];
     sprintf(title1, "CSCStripDigiResolution%d", i+1);
-    theResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -10, 10);
+    theResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -5, 5);
   }
 
 }
