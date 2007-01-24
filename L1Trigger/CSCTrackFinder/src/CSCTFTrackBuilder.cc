@@ -73,10 +73,11 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
 	  CSCTriggerContainer<csctf::TrackStub> current_e_s = stub_list.get(e, s);
 	  if(my_SPs[e-1][s-1]->run(current_e_s))
 	    {
-	      std::vector<csc::L1Track> theTracks = my_SPs[e-1][s-1]->tracks().get();	      
-	      stubs_to_dt->push_many(my_SPs[e-1][s-1]->dtStubs());
+	      std::vector<csc::L1Track> theTracks = my_SPs[e-1][s-1]->tracks().get();
 	      trks.insert(trks.end(), theTracks.begin(), theTracks.end());
+	      
 	    }
+	  stubs_to_dt->push_many(my_SPs[e-1][s-1]->dtStubs()); // send stubs whether or not we find a track!!!
 	}
     }
 
