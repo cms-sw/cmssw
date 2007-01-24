@@ -37,7 +37,7 @@ namespace edm
 	    // implicit destructor
 	private:
 	    void parse (const std::string &url);
-	    const std::string frontierConnect (void) const;
+	    const std::string frontierConnect (const std::string &servlet) const;
 	    std::string 	m_url;	    
 	    std::string 	m_dataCatalog;
 	    mutable std::string m_calibCatalog;
