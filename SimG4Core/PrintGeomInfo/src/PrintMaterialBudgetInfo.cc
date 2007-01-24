@@ -39,8 +39,11 @@ PrintMaterialBudgetInfo::PrintMaterialBudgetInfo(const edm::ParameterSet& p) {
   weightOutputFile.open( weightFileName.c_str() );
   std::string elementFileName = name+".element";
   elementOutputFile.open( elementFileName.c_str() );
+  std::string texFileName = name+"_table.tex";
+  texOutputFile.open( texFileName.c_str() );
   std::cout << "PrintMaterialBudget output file " << weightFileName  << std::endl;
   std::cout << "PrintMaterialBudget output file " << elementFileName << std::endl;
+  std::cout << "PrintMaterialBudget output file " << texFileName     << std::endl;
   elementNames.clear();
   elementTotalWeight.clear();
   elementWeightFraction.clear();
@@ -66,8 +69,10 @@ void PrintMaterialBudgetInfo::update(const BeginOfRun* run) {
     }
   }
   dumpHeader(weightOutputFile);
-  dumpHierarchyLeaf(theTopPV, lv, leafDepth, weightOutputFile);
+  dumpLaTeXHeader(texOutputFile);
+  dumpHierarchyLeaf(theTopPV, lv, leafDepth, weightOutputFile, texOutputFile);
   dumpElementMassFraction(elementOutputFile);
+  dumpLaTeXFooter(texOutputFile);
   //
 }
 
@@ -90,12 +95,47 @@ void PrintMaterialBudgetInfo::dumpHeader(std::ostream& out ) {
       << std::endl;
 }
 
+void PrintMaterialBudgetInfo::dumpLaTeXHeader(std::ostream& out ) {
+  out << "\\begin{table}[h!]"                                     << std::endl
+      << "  \\caption{\\textsf {" << name << "} volume list.}"               << std::endl
+      << "  \\label{tab: " << name << "}"                         << std::endl
+      << "  \\begin{center}"                                      << std::endl
+      << "    \\begin{tabular}{ccccccc}"                          << std::endl
+      << "      \\hline"                                          << std::endl;
+  out << "      Geom."      << "\t & "
+      << "      Volume"     << "\t & "
+      << "      Copy"       << "\t & "
+      << "      Solid"      << "\t & "
+      << "      Material"   << "\t & "
+      << "      Density"    << "\t & "
+      << "      Mass"       << "\t \\\\ "
+      << std::endl;
+  out << "      Level"      << "\t & "
+      << "      Name"       << "\t & "
+      << "      Number"     << "\t & "
+      << "      Name"       << "\t & "
+      << "      Name"       << "\t & "
+      << "                " << "\t & "
+      << "                " << "\t \\\\ "
+      << std::endl
+      << "      \\hline\\hline"
+      << std::endl;
+}
+
+void PrintMaterialBudgetInfo::dumpLaTeXFooter(std::ostream& out ) {
+  out << "      \\hline"      << std::endl
+      << "    \\end{tabular}" << std::endl
+      << "  \\end{center}"    << std::endl
+      << "\\end{table}"       << std::endl;
+}
+
 void PrintMaterialBudgetInfo::dumpHierarchyLeaf(G4VPhysicalVolume* pv, G4LogicalVolume* lv,
 						uint leafDepth,
-						std::ostream& weightOut = std::cout) {
+						std::ostream& weightOut,
+						std::ostream& texOut ) {
   
   if( volumeFound && ( leafDepth <= levelFound ) ) return; 
-  if( volumeFound && ( leafDepth >  levelFound ) ) printInfo(pv, lv, leafDepth, weightOut);
+  if( volumeFound && ( leafDepth >  levelFound ) ) printInfo(pv, lv, leafDepth, weightOut, texOut);
   
   // choose mother volume
   std::string lvname = lv->GetName();
@@ -103,7 +143,8 @@ void PrintMaterialBudgetInfo::dumpHierarchyLeaf(G4VPhysicalVolume* pv, G4Logical
   if (lvname == name) {
     volumeFound = true;
     levelFound  = leafDepth;
-    printInfo(pv, lv, leafDepth, weightOut);
+    printInfo(pv, lv, leafDepth, weightOut, texOut);
+    texOut << "      \\hline" << std::endl;
   }
   
   //----- Get LV daughters from list of PV daughters
@@ -125,13 +166,13 @@ void PrintMaterialBudgetInfo::dumpHierarchyLeaf(G4VPhysicalVolume* pv, G4Logical
     std::pair< mmlvpv::iterator, mmlvpv::iterator > mmER = lvpvDaughters.equal_range(*scite);    
     //----- Dump daughters PV of this LV
     for (mmcite = mmER.first ; mmcite != mmER.second; mmcite++) 
-      dumpHierarchyLeaf((*mmcite).second, *scite, leafDepth+1, weightOut );
+      dumpHierarchyLeaf((*mmcite).second, *scite, leafDepth+1, weightOut, texOut );
   }
   
 }
 
 void PrintMaterialBudgetInfo::printInfo(G4VPhysicalVolume* pv, G4LogicalVolume* lv, uint leafDepth,
-					std::ostream& weightOut = std::cout) {
+					std::ostream& weightOut, std::ostream& texOut ) {
   
   double density = lv->GetMaterial()->GetDensity();
   double weight  = lv->GetMass(false,false);
@@ -154,6 +195,17 @@ void PrintMaterialBudgetInfo::printInfo(G4VPhysicalVolume* pv, G4LogicalVolume* 
 	    << G4BestUnit(density,"Volumic Mass")                   << "\t"
 	    << G4BestUnit(weight,"Mass")                            << "\t"
 	    << std::endl;
+  //
+  texOut << "\t" 
+	 << leafDepth                                                  << "\t & "
+	 << stringLaTeXUnderscore(volumeName)                          << "\t & "
+	 << pv->GetCopyNo()                                            << "\t & "
+	 << stringLaTeXUnderscore(solidName)                           << "\t & "
+	 << stringLaTeXUnderscore(materialName)                        << "\t & "
+	 << stringLaTeXSuperscript(G4BestUnit(density,"Volumic Mass")) << "\t & "
+	 << stringLaTeXSuperscript(G4BestUnit(weight,"Mass"))          << "\t \\\\ "
+	 << std::endl;
+  //  
   for(unsigned int iElement = 0; iElement<(unsigned int)lv->GetMaterial()->GetNumberOfElements(); iElement++) {
     // exclude Air in element weight fraction computation
     if(materialName.find("Air")) {
@@ -167,7 +219,7 @@ void PrintMaterialBudgetInfo::printInfo(G4VPhysicalVolume* pv, G4LogicalVolume* 
   }
 }
 
-void PrintMaterialBudgetInfo::dumpElementMassFraction(std::ostream& elementOut = std::cout ) {
+void PrintMaterialBudgetInfo::dumpElementMassFraction(std::ostream& elementOut ) {
   // calculate mass fraction
   double totalWeight   = 0.0;
   double totalFraction = 0.0;
@@ -199,4 +251,36 @@ void PrintMaterialBudgetInfo::dumpElementMassFraction(std::ostream& elementOut =
   elementOut << "\n\t\tTotal Weight without Air " << G4BestUnit(totalWeight,"Mass")
 	     << "\tTotal Fraction "   << totalFraction
 	     << std::endl;
+}
+
+std::string PrintMaterialBudgetInfo::stringLaTeXUnderscore(std::string stringname) {
+  // To replace '\' with '\_' to compile LaTeX output
+  std::string stringoutput;
+  
+  for (unsigned int  i=0; i<stringname.length() ; i++) {
+    if (stringname.substr(i,1) == "_") {
+      stringoutput += "\\_";
+    } else {
+      stringoutput += stringname.substr(i,1);
+    }
+  }
+  
+  return stringoutput;
+  
+}
+
+std::string PrintMaterialBudgetInfo::stringLaTeXSuperscript(std::string stringname) {
+  // To replace 'm3' with 'm$^3$' to compile LaTeX output
+  std::string stringoutput = stringname.substr(0,1);
+  
+  for (unsigned int  i=1; i<stringname.length() ; i++) {
+    if (stringname.substr(i-1,1) == "m" && stringname.substr(i,1) == "3") {
+      stringoutput += "$^3$";
+    } else {
+      stringoutput += stringname.substr(i,1);
+    }
+  }
+    
+  return stringoutput;
+  
 }

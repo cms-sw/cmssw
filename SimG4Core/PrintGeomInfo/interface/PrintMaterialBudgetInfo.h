@@ -32,11 +32,13 @@ private:
   void update(const BeginOfJob* job) {};
   void update(const BeginOfRun* run);
   void dumpHeader(std::ostream& out = std::cout);
-  void dumpHierarchyLeaf(G4VPhysicalVolume* pv, G4LogicalVolume* lv,
-			 uint leafDepth, std::ostream& weightOut);
-  void printInfo(G4VPhysicalVolume* pv, G4LogicalVolume* lv,
-		 uint leafDepth, std::ostream& weightOut);
-  void dumpElementMassFraction(std::ostream& elementOut);
+  void dumpLaTeXHeader(std::ostream& out = std::cout);
+  void dumpHierarchyLeaf(G4VPhysicalVolume* pv, G4LogicalVolume* lv, uint leafDepth,
+			 std::ostream& weightOut = std::cout, std::ostream& texOut = std::cout);
+  void printInfo(G4VPhysicalVolume* pv, G4LogicalVolume* lv, uint leafDepth,
+		 std::ostream& weightOut = std::cout, std::ostream& texOut = std::cout);
+  void dumpElementMassFraction(std::ostream& elementOut = std::cout);
+  void dumpLaTeXFooter(std::ostream& out = std::cout);
   
 private:
   std::string              name;
@@ -48,9 +50,13 @@ private:
   unsigned int             levelFound;
   std::ofstream            weightOutputFile;
   std::ofstream            elementOutputFile;
+  std::ofstream            texOutputFile;
   std::vector<std::string> elementNames;
   std::vector<double>      elementTotalWeight;
   std::vector<double>      elementWeightFraction;
+  //
+  std::string stringLaTeXUnderscore(std::string stringname);
+  std::string stringLaTeXSuperscript(std::string stringname);
 };
 
 #endif
