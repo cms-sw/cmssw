@@ -144,9 +144,20 @@ void PixelVertexTest::analyze(
   if (verbose_ > 0) {
     cout << "simulated vertices: "<< simVtcs->size() << std::endl;
   }
-  simx_ = (simVtcs->size() > 0) ? (*simVtcs)[0].position().x()/10 : -9999.0;
-  simy_ = (simVtcs->size() > 0) ? (*simVtcs)[0].position().y()/10 : -9999.0;
-  simz_ = (simVtcs->size() > 0) ? (*simVtcs)[0].position().z()/10 : -9999.0;
+//  simx_ = (simVtcs->size() > 0) ? (*simVtcs)[0].position().x()/10 : -9999.0;
+//  simy_ = (simVtcs->size() > 0) ? (*simVtcs)[0].position().y()/10 : -9999.0;
+//  simz_ = (simVtcs->size() > 0) ? (*simVtcs)[0].position().z()/10 : -9999.0;
+// No longer need to convert from mm as of version 1_2_0
+  simx_ = (simVtcs->size() > 0) ? (*simVtcs)[0].position().x() : -9999.0;
+  simy_ = (simVtcs->size() > 0) ? (*simVtcs)[0].position().y() : -9999.0;
+  simz_ = (simVtcs->size() > 0) ? (*simVtcs)[0].position().z() : -9999.0;
+  if (verbose_ > 1) {
+    for (int i=0; i<simVtcs->size(); i++) {
+      std::cout << (*simVtcs)[i].parentIndex() << ": " << (*simVtcs)[i].position().x() << ", " << (*simVtcs)[i].position().y() << ", " << (*simVtcs)[i].position().z() << ";  ";
+    }
+    std::cout << "\n" << std::endl;
+  }
+
 
   edm::Handle<reco::TrackCollection> trackCollection;
   std::string trackCollName = conf_.getParameter<std::string>("TrackCollection");
