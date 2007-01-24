@@ -850,14 +850,18 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
       std::vector<SiStripDigi> oDigis = 
 	oDSVDigis->operator[]( cluster->geographicalId()).data;
 
-      size=(cluster->amplitudes()).size();
+      // size = ( cluster->amplitudes()).size();
 
+      /*
       clustereta = getClusterEta( cluster->amplitudes(),
 				  cluster->firstStrip(),
 				  oDigis);
+      */
+      /*
       clustercrosstalk = getClusterCrossTalk( cluster->amplitudes(),
 				              cluster->firstStrip(),
 				              oDigis);
+      */
 
       std::vector<SiStripClusterInfo> oClusterInfos = 
 	oDSVClusterInfos->operator[]( cluster->geographicalId()).data;
@@ -869,6 +873,7 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
 	
 	if( oIter->firstStrip() == cluster->firstStrip()) {
 	  // ClusterInfo matched given cluster
+	  size          = oIter->width();
 	  clusterpos    = oIter->position();
 	  clusterchg	= oIter->charge();
 	  clusterchgl   = oIter->chargeL();
@@ -877,6 +882,12 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  clusterbarycenter = cluster->barycenter();
 	  clusterseednoise = oIter->stripNoises().operator[]( ( int) cluster->barycenter() - cluster->firstStrip());
 	  clustermaxchg = oIter->maxCharge();
+	  clustereta    = getClusterEta( oIter->stripAmplitudes(), 
+					 oIter->firstStrip(),
+					 oDigis);
+          clustercrosstalk = getClusterCrossTalk( oIter->stripAmplitudes(),
+				                  oIter->firstStrip(),
+				                  oDigis);
 	  bTrack = true;
 
 	  poClusterChargeTH1F->Fill( clusterchg);
