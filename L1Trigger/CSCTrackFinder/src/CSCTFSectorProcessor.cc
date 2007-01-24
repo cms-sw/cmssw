@@ -95,6 +95,8 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
 	  gbletadat gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
 	  itr->setEtaPacked(gblEta.global_eta);
 	  itr->setPhiPacked(gblPhi.global_phi);
+
+	  if(itr->station() == 1) dt_stubs.push_back(*itr); // send stubs to DT
 	  
 	  LogDebug("CSCTFSectorProcessor:run()") << "LCT found, processed by FPGA: " << FPGAs[fpga] << std::endl
 						 << " LCT now has (eta, phi) of: (" << itr->etaValue() << "," << itr->phiValue() <<")\n";
@@ -102,15 +104,6 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
     }
 
   CSCTriggerContainer<csctf::TrackStub> processedStubs(stub_vec);
-
-  //Add stubs to be sent to DTTF.
-  for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
-    for(int s = CSCTriggerNumbering::minTriggerSectorId(); s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s)
-      for(int ss = CSCTriggerNumbering::minTriggerSubSectorId(); 
-	  ss <= CSCTriggerNumbering::maxTriggerSubSectorId(); ++ss)
-	for(int bx = m_minBX; bx <= m_maxBX; ++bx)
-	  dt_stubs.push_many(processedStubs.get(e,1,s,ss,bx));    
-
 
   /** STEP TWO
    *  We take the stubs filled by the SR LUTs and load them
