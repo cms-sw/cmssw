@@ -1,4 +1,4 @@
-// $Id: FastGenParticleCandidateProducer.cc,v 1.2 2007/01/16 11:23:52 llista Exp $
+// $Id: FastGenParticleCandidateProducer.cc,v 1.3 2007/01/19 16:13:34 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/FastGenParticleCandidateProducer.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
@@ -35,7 +35,7 @@ FastGenParticleCandidateProducer::~FastGenParticleCandidateProducer() {
 }
 
 int FastGenParticleCandidateProducer::chargeTimesThree( int id ) const {
-  if( id < PDGCacheMax ) 
+  if( abs( id ) < PDGCacheMax ) 
     return id > 0 ? chargeP_[ id ] : chargeM_[ - id ];
   map<int, int>::const_iterator f = chargeMap_.find( id );
   if ( f == chargeMap_.end() )
