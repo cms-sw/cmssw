@@ -1,0 +1,6 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<library name="PerfToolsCallgrindAnalyzer" file=CallgrindAnalyzer.cc>
+<use name=valgrind>
+</library>
