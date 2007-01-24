@@ -1,4 +1,4 @@
-#include "DQM/RCTMonitor/src/checkRCTRegions.h"
+#include "DQM/RCTMonitor/src/checkRCT.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -35,15 +35,16 @@ const float etaLUT[] = {0.0000, 0.0435, 0.1305, 0.2175, 0.3045, 0.3915, 0.4785, 
 
 const float rctEtaLUT[] = {0.174, 0.522, 0.870, 1.218, 1.566, 1.930, 2.500, 3.325, 3.825, 4.325, 4.825};
 
-checkRCTRegions::checkRCTRegions(const edm::ParameterSet& iConfig)
+checkRCT::checkRCT(const edm::ParameterSet& iConfig) : 
+  outputFileName(iConfig.getParameter<std::string>("outputFileName"))
 {
-  file = new TFile("checkRCTRegions.root", "RECREATE", "TPG Information");
+  file = new TFile(outputFileName.c_str(), "RECREATE", "RCT Information");
   file->cd();
-  nTuple = new TNtuple("RCTInfo", "RCT Regions nTuple", 
-			     "nEcalDigi:ecalSum:ecalMax:nHcalDigi:hbSum:hbMax:heSum:heMax:hfSum:hfMax:etSum:id:st:pt:eta:phi:towerEtSum:hcalTowerEtSum:regionEtSum:regionEta:regionPhi:regionTauVeto:regionMIPBit:regionQuietBit");
+  nTuple = new TNtuple("RCTInfo", "RCT Information nTuple", 
+		       "iParticle:id:status:pt:eta:phi:towerEtSum:hcalTowerEtSum:regionEtSum:regionEta:regionPhi:regionTauVeto:regionMIPBit:regionQuietBit:emCandEt:emCandEta:emCandPhi:emCandIsolation");
 }
 
-checkRCTRegions::~checkRCTRegions()
+checkRCT::~checkRCT()
 {
   file->cd();
   nTuple->Write();
@@ -51,7 +52,7 @@ checkRCTRegions::~checkRCTRegions()
 }
 
 
-void checkRCTRegions::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<CandidateCollection> genParticlesHandle;
   iEvent.getByLabel( "genParticleCandidates", genParticlesHandle);
@@ -66,45 +67,16 @@ void checkRCTRegions::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   HcalTrigPrimDigiCollection hcalCollection = *hcal;
   edm::Handle<L1CaloRegionCollection> rctRegions;
   iEvent.getByType(rctRegions);
+  edm::Handle<L1CaloEmCollection> rctEMCands;
+  iEvent.getByType(rctEMCands);
   int nEcalDigi = ecalCollection.size();
   if (nEcalDigi>4032) {nEcalDigi=4032;}
-  float ecalSum = 0;
-  float ecalMax = 0;
-  for (int i = 0; i < nEcalDigi; i++){
-    unsigned short energy = ecalCollection[i].compressedEt();
-    float et = float(energy)/2.;  // Temporarily ET is hardcoded to be in 0.5 GeV steps in linear scale
-    if(energy > 3) ecalSum += et;    // Make sure that there is a 3*LSB cut
-    if(et > ecalMax) ecalMax = et;
-  }
-  float hbSum = 0;
-  float heSum = 0;
-  float hfSum = 0;
-  float hbMax = 0;
-  float heMax = 0;
-  float hfMax = 0;
   int nHcalDigi = hcalCollection.size();
-  if (nHcalDigi != 4176){ cerr << "There are " << nHcalDigi << " instead of 4176!" << endl;}
+  if (nHcalDigi != 4176)
+    { 
+      cerr << "There are " << nHcalDigi << " instead of 4176!" << endl;
+    }
   // incl HF 4032 + 144 = 4176
-  for (int i = 0; i < nHcalDigi; i++){
-    short ieta = (short) hcalCollection[i].id().ieta(); 
-    unsigned short absIeta = (unsigned short) abs(ieta);
-    unsigned short energy = hcalCollection[i].SOI_compressedEt();     // access only sample of interest
-    float et = transcoder->hcaletValue(absIeta, energy);
-    if (absIeta <= 28){
-      if(absIeta <= 21) {
-	if(energy > 3) hbSum += et;   // Make sure that there is a 3*LSB cut
-	if(et > hbMax) hbMax = et;
-      }
-      if(absIeta > 21) {
-	if(energy > 3) heSum += et;   // Make sure that there is a 3*LSB cut
-	if(et > heMax) heMax = et;
-      }
-    }
-    else if ((absIeta >= 29) && (absIeta <= 32)){
-      if(energy > 3) hfSum += et;   // Make sure that there is a 3*LSB cut
-      if(et > hfMax) hfMax = et;
-    }
-  }
   int id = 0;
   int st = 0;
   float pt = 0;
@@ -118,11 +90,17 @@ void checkRCTRegions::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   bool regionTauVeto = false;
   bool regionMIPBit = true;
   bool regionQuietBit = true;
+  float emCandEt = 0;
+  float emCandEta = 0;
+  float emCandPhi = 0;
+  bool emCandIsolation = false;
+  int iPart = 0;
   for(size_t i = 0; i < genParticles.size(); ++ i ) {
     const Candidate & p = genParticles[ i ];
-    // For maximum PT stable particle in the detector
-    if((status(p) == 1) && (pt < p.pt()) && (p.eta() > -5) && (p.eta() < 5))
+    // Store informatin for stable particles with PT>10 GeV within acceptance
+    if((status(p) == 1) && (p.pt() > 10.) && (p.eta() > -5) && (p.eta() < 5))
       {
+	iPart++;
 	id = pdgId( p );
 	st = status( p );
 	pt = p.pt();
@@ -131,51 +109,41 @@ void checkRCTRegions::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	towerEtSum = 0;
 	for (int i = 0; i < nEcalDigi; i++){
 	  unsigned short energy = ecalCollection[i].compressedEt();
-	  float towerEt = float(energy)/2.;  // Temporarily ET is hardcoded to be in 0.5 GeV steps in linear scale
+	  // Temporarily ET is hardcoded to be in 0.5 GeV steps in linear scale
+	  float towerEt = float(energy)/2.;
 	  short ieta = (short) ecalCollection[i].id().ieta(); 
-	  unsigned short absIeta = (unsigned short) abs(ieta);    // absIeta runs 1-32
-	  float towerEta = (ieta / absIeta) * etaLUT[absIeta];    // Lookup bin centers
+	  unsigned short absIeta = (unsigned short) abs(ieta);
+	  float towerEta = (ieta / absIeta) * etaLUT[absIeta];
 	  short cal_iphi = ecalCollection[i].id().iphi();
 	  float towerPhi = float(cal_iphi) * 3.1415927 / 36.;
 	  if(towerPhi > 3.1415927) towerPhi -= (2 * 3.1415927);
 	  float deltaPhi = phi - towerPhi;
 	  if(deltaPhi > (2 * 3.1415827)) deltaPhi -= (2 * 3.1415927);
 	  float deltaRSq = (eta - towerEta) * (eta - towerEta) + deltaPhi * deltaPhi;
-	  if(deltaRSq < 0.5 * 0.5)
+	  if(deltaRSq < 0.35 * 0.35)
 	    {
 	      towerEtSum += towerEt;
-	    }
-	  if(energy > 5)
-	    {
-	      cout << "ECAL TPG: (Et,iEta,iPhi)=(" << float(energy)/2. << "," 
-		   << ieta << "," << cal_iphi << ")" << endl;
 	    }
 	}
 	hcalTowerEtSum = 0.;
 	for (int i = 0; i < nHcalDigi; i++){
-	  unsigned short energy = hcalCollection[i].SOI_compressedEt();     // access only sample of interest
+	  unsigned short energy = hcalCollection[i].SOI_compressedEt();
 	  short ieta = (short) hcalCollection[i].id().ieta(); 
 	  unsigned short absIeta = (unsigned short) abs(ieta);
 	  float towerEt = transcoder->hcaletValue(absIeta, energy);
-	  float towerEta = (ieta / absIeta) * etaLUT[absIeta];    // Lookup bin centers
+	  float towerEta = (ieta / absIeta) * etaLUT[absIeta];
 	  short cal_iphi = hcalCollection[i].id().iphi();
 	  float towerPhi = float(cal_iphi) * 3.1415927 / 36.;
 	  if(towerPhi > 3.1415927) towerPhi -= (2 * 3.1415927);
 	  float deltaPhi = phi - towerPhi;
 	  if(deltaPhi > (2 * 3.1415827)) deltaPhi -= (2 * 3.1415927);
 	  float deltaRSq = (eta - towerEta) * (eta - towerEta) + deltaPhi * deltaPhi;
-	  if(deltaRSq < 0.5 * 0.5)
+	  if(deltaRSq < 0.35 * 0.35)
 	    {
 	      towerEtSum += towerEt;
 	      hcalTowerEtSum += towerEt;
 	    }
-	  if(towerEt > 5)
-	    {
-	      cout << "HCAL TPG: (Et,iEta,iPhi)=(" << towerEt << "," 
-		   << ieta << "," << cal_iphi << ")" << endl;
-	    }
 	}
-	int nRCTRegions = (*rctRegions).size();
 	L1CaloRegionCollection::const_iterator region;
 	for (region=rctRegions->begin(); region!=rctRegions->end(); region++){
 	  unsigned regionEt = region->et();
@@ -187,60 +155,66 @@ void checkRCTRegions::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  unsigned rctIPhi;
 	  if(rctCrate < 9) rctIPhi = rctCrate * 2 + region->rctPhi();
 	  else rctIPhi = (rctCrate - 9) * 2 + region->rctPhi();
-	  float regionPhi = (3.1415927 / 2.) + 2 * 0.087 - float(rctIPhi) * 2. * 3.1415927 / 18.;
+	  float regionPhi = (3.1415927 / 2.) - 2. * 0.87 - float(rctIPhi) * 2. * 3.1415927 / 18.;
 	  if(regionPhi < -3.1415927) regionPhi += (2 * 3.1415927);
 	  float deltaPhi = phi - regionPhi;
 	  if(deltaPhi > (2 * 3.1415827)) deltaPhi -= (2 * 3.1415927);
 	  float deltaRSq = deltaEta * deltaEta + deltaPhi * deltaPhi;
-	  if(deltaRSq < 0.5 * 0.5) 
+	  if(deltaRSq < 0.35 * 0.35) 
 	    {
-	      regionEtSum += regionEt;
+	      regionEtSum += float(regionEt)/2.;
 	      if(region->tauVeto()) regionTauVeto = true;
 	      if(!region->mip()) regionMIPBit = false;
 	      if(!region->quiet()) regionQuietBit = false;
-	      regionEtaEtSum += regionEta * regionEt;
-	      regionPhiEtSum += regionPhi * regionEt;
-	    }
-	  if(regionEt > 20)   // More than 10 GeV at the 0.5 GeV LSB default
-	    {
-	      cout << "(RCT Region Dump)\n" << (*region) << endl;
-	      cout << "\nregion(Et,Eta,Phi)=(" 
-		   << regionEt << ","
-		   << regionEta << ","
-		   << regionPhi << ")" 
-		   << "\tDelta(Et,Eta,Phi)=(" 
-		   << (pt - regionEt) << ","
-		   << (eta - regionEta) << ","
-		   << deltaPhi << ")" 
-		   << endl;
+	      regionEtaEtSum += regionEta * float(regionEt)/2.;
+	      regionPhiEtSum += regionPhi * float(regionEt)/2.;
 	    }
 	}
+	L1CaloEmCollection::const_iterator emCand;
+	for (emCand=rctEMCands->begin(); emCand!=rctEMCands->end(); emCand++){
+	  unsigned emCandRank = emCand->rank();
+	  unsigned rctCrate = emCand->rctCrate();
+	  float thisEMCandEta = 999.;
+	  if(rctCrate < 9) thisEMCandEta = -rctEtaLUT[emCand->regionId().rctEta()];
+	  else thisEMCandEta = rctEtaLUT[emCand->regionId().rctEta()];
+	  float deltaEta = eta - thisEMCandEta;
+	  unsigned rctIPhi;
+	  if(rctCrate < 9) rctIPhi = rctCrate * 2 + emCand->regionId().rctPhi();
+	  else rctIPhi = (rctCrate - 9) * 2 + emCand->regionId().rctPhi();
+	  float thisEMCandPhi = (3.1415927 / 2.) - 2 * 0.087 - float(rctIPhi) * 2. * 3.1415927 / 18.;
+	  if(thisEMCandPhi < -3.1415927) thisEMCandPhi += (2 * 3.1415927);
+	  float deltaPhi = phi - thisEMCandPhi;
+	  if(deltaPhi > (2 * 3.1415827)) deltaPhi -= (2 * 3.1415927);
+	  if(deltaPhi < -(2 * 3.1415827)) deltaPhi += (2 * 3.1415927);
+	  float deltaRSq = deltaEta * deltaEta + deltaPhi * deltaPhi;
+	  if(deltaRSq < 0.35 * 0.35) 
+	    {
+	      emCandEt = float(emCandRank);
+	      emCandEta = thisEMCandEta;
+	      emCandPhi = thisEMCandPhi;
+	      if(emCand->isolated()) emCandIsolation = true;
+	    }
+	}
+	std::vector<float> result;
+	result.push_back(iPart);
+	result.push_back(id);
+	result.push_back(st);
+	result.push_back(pt);
+	result.push_back(eta);
+	result.push_back(phi);
+	result.push_back(towerEtSum);
+	result.push_back(hcalTowerEtSum);
+	result.push_back(regionEtSum);
+	result.push_back(regionEtaEtSum/regionEtSum);
+	result.push_back(regionPhiEtSum/regionEtSum);
+	result.push_back(regionTauVeto);
+	result.push_back(regionMIPBit);
+	result.push_back(regionQuietBit);
+	result.push_back(emCandEt);
+	result.push_back(emCandEta);
+	result.push_back(emCandPhi);
+	result.push_back(emCandIsolation);
+	nTuple->Fill(&result[0]);  // Assumes vector is implemented internally as an array
       }
   }
-  std::vector<float> result;
-  result.push_back(nEcalDigi);
-  result.push_back(ecalSum);
-  result.push_back(ecalMax);
-  result.push_back(nHcalDigi);
-  result.push_back(hbSum);
-  result.push_back(hbMax);
-  result.push_back(heSum);
-  result.push_back(heMax);
-  result.push_back(hfSum);
-  result.push_back(hfMax);
-  result.push_back(ecalSum+hbSum+heSum+hfSum);
-  result.push_back(id);
-  result.push_back(st);
-  result.push_back(pt);
-  result.push_back(eta);
-  result.push_back(phi);
-  result.push_back(towerEtSum);
-  result.push_back(hcalTowerEtSum);
-  result.push_back(regionEtSum);
-  result.push_back(regionEtaEtSum/regionEtSum);
-  result.push_back(regionPhiEtSum/regionEtSum);
-  result.push_back(regionTauVeto);
-  result.push_back(regionMIPBit);
-  result.push_back(regionQuietBit);
-  nTuple->Fill(&result[0]);  // Assumes vector is implemented internally as an array
 }
