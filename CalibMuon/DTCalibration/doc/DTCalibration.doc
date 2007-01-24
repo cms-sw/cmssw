@@ -20,10 +20,10 @@ This package contains the code for the DT calibration.
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- DTDBWriterInterface: utility class to write DT objects into DB.
+- DTCalibDBUtils: class for write in a DB through the PoolDBESource interface
 - DTTimeBoxFitter: class for the fit of the rising edge of the time box with the integral of a gaussian.
 This class is designed also for ROOT interactive usage throught the <i>stubs</i> library provided with the package.
-
+- DTMeanTimerFitter: class for the fit of the meantimer histograms with a gaussian.
 
 
 \subsection modules Modules
@@ -31,71 +31,48 @@ This class is designed also for ROOT interactive usage throught the <i>stubs</i>
 
 \subsubsection  sync TDC Time Synchronization
 - DTTTrigCalibration: EDAnalyzer for the computation of the ttrig from the time box fit.
-It writes the results into DB.
-
-An example of configuration parameters for this module is:
-\verbatim
-	module ttrigcalib = DTTTrigCalibration {
-		# Switch on/off the verbosity
-		untracked bool debug = true
-		# Label to retrieve DT digis from the event
-		string digiLabel = "muondtdigi"
-		# Name of the ROOT file which will contain the time boxes
-		untracked string rootFileName = "DTTimeBoxes.root"
-		# Switch on/off the subtraction of t0 from pulses
-		bool doSubtractT0 = false
-		# Module for t0 subtraction
-#		string tTrigMode = 'DTTTrigSyncT0Only'
-		# Parameter set for t0 subtraction module
-#		PSet tTrigModeConfig = {
-#			untracked bool debug = true
-#		}
-		# The tag for ttrig DB objects
-		string tTrigTag = "ttrig_test"
-		# Parameter set for the DB Writer
-		PSet dtDBWriterConfig = {
-			untracked bool debug = true
-			# The env variables CORAL_AUTH_USER and CORAL_AUTH_PASSWORD
-			untracked string coralUser = ""
-			untracked string coralPasswd = ""
-			# The authenticatio method: 0 = env, 1 = xml
-			untracked int32 authMethod = 0
-			# The DB message level 0 = Error, 1 = Warning, 2 = Info, 3 = Debug
-			untracked int32 messageLevel = 0
-			# DB Name
-			string dbName = "sqlite_file:./dtttrig_test.db"
-			# Catalog
-			string dbCatalog = "file:dtttrig_test.xml"
-			# Tag to be used for the payload object
-			string tag = "ttrig_test"
-			untracked string containerName = "DTDBObject"
-		}
-	}	
-\endverbatim
-
+It can write the results into DB or simply write the time box histograms in a root file.
+- DTTTrigWriter: EDAnalyzer for the computation of the ttrig from the time box fit, it needs a root file
+of time box histograms as input and it writes the results into DB.
+ 
+\subsubsection  meantimer Drift velocity calibration
+- DTVDriftCalibration: EDAnalyzer for the computation of the drift velocity and hit resolution from the meantimer fit 
+(the meantimers are computed from 4D segments with different formulas for different pattern).
+It can write the results into DB or simply write the meantimer histograms in a root file.
+- DTVDriftWriter: EDAnalyzer for the computation of the drift velocity and hit resolution from the meantimer fit, 
+it needs a root file of meantimer histograms as input.
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
 
 Examples of configuration files for the ttrig computation from the fit of
 the rising edge of the time box are:
-
 - <b>DTTTrigCalibration.cfg</b>: ttrig computation from simulated digis.
-The output is written in a sqlite DB.
 - <b>DTTTrigCalibration_fromData.cfg</b>: ttrig computation from real data.
 
-A stubs library is available with the package for interactive plot and fit of the time boxes.
+Examples of configuration files for the vdrift and hit resolution computation from the fit of the 
+meantimer histograms
+- <b>DTVDriftCalibration.cfg</b>: vdrift and hit resolution computation from simulated digis.
+- <b>DTTTrigCalibration_fromData.cfg</b>: vdrift and hit resolution computation from real data.
+
+A stubs library is available with the package for interactive plot and fit of the time boxes and the meantimer histograms.
 It provides the following classes:
 - DTTimeBoxPlotter: for interactive plot of time boxes
 - DTTimeBoxFitter: for the fit of the time box rising edge using exactly the same code used by DTTTrigCalibration module.
+- DTMeanTimerPlotter: for interactive plot of meantimer histograms
+- DTMeanTimerBoxFitter: for the fit of the meantimer histograms using exactly the same code used by DTVDriftCalibration module.
+
+Some utilities are available to write DB in a textual file and viceversa
+- DumpDBToFile and DumpFileToDB can manage channels map, noise, t0, ttrig and vdrift databases. 
+They use the DTCalibrationMap class to manage calibration constants with different <br>
+granularity (by wire, by SL, by chamber)
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
 
-- The DB objects are going to change and the calibration code will change accordigly...stay tuned!
-- The code for Vdrift calibration using TMaxes will be ported soon.
+- The calibration of the k factor will be added
 
 <hr>
 Last updated:
-27-APR-2006 G. Cerminara
+JANUARY-2007 S. Bolognesi
 */
