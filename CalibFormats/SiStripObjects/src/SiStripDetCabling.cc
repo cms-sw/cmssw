@@ -2,22 +2,15 @@
 //
 // Package:     SiStripObjects
 // Class  :     SiStripDetCabling
-// 
 // Implementation:
 //     <Notes on implementation>
-//
-// Original Author:  
+// Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.2 2006/05/12 10:37:48 dkcira Exp $
-//
+// $Id: SiStripDetCabling.cc,v 1.3 2006/05/15 08:51:23 dkcira Exp $
 
-// system include files
-
-// user include files
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 
 using namespace std;
 
@@ -35,8 +28,10 @@ SiStripDetCabling::~SiStripDetCabling()
 }
 
 
-SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : detCabling_()
-{ // create detCabling_, loop over vector of FedChannelConnection, either make new element of map, or add to appropriate vector of existing map element
+SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : connected_(), detected_(), undetected_()
+{
+ // --- CONNECTED
+ // create connected_, loop over vector of FedChannelConnection, either make new element of map, or add to appropriate vector of existing map element
   // get feds list (vector) from fedcabling object - these are the active FEDs
   const vector<uint16_t>& feds = fedcabling.feds();
   vector<uint16_t>::const_iterator ifed;
@@ -44,51 +39,82 @@ SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : detC
     const vector<FedChannelConnection>& conns = fedcabling.connections( *ifed );
     vector<FedChannelConnection>::const_iterator iconn;
     for ( iconn = conns.begin(); iconn != conns.end(); iconn++ ) { // loop over FedChannelConnection objects
-      addDevices(*iconn); // leave separate method, in case you will need to add devices also after constructing
+      addDevices(*iconn, connected_); // leave separate method, in case you will need to add devices also after constructing
     }
   }
+ // --- DETECTED
+ const std::vector<FedChannelConnection>& detected_fed_connections = fedcabling.detected();
+ for(std::vector<FedChannelConnection>::const_iterator idtct = detected_fed_connections.begin(); idtct != detected_fed_connections.end(); idtct++){
+      addDevices(*idtct, detected_);
+ }
+ // --- UNDETECTED
+ const std::vector<FedChannelConnection>& undetected_fed_connections = fedcabling.undetected();
+ for(std::vector<FedChannelConnection>::const_iterator iudtct = undetected_fed_connections.begin(); iudtct != undetected_fed_connections.end(); iudtct++){
+      addDevices(*iudtct, undetected_);
+ }
 }
 
-void SiStripDetCabling::addDevices(const FedChannelConnection & conn){ // could also return an integer value/flag to tell whether device was already present
+void SiStripDetCabling::addDevices(const FedChannelConnection & conn, std::map< uint32_t, std::vector<FedChannelConnection> >& chosen_connections_ ){ // add to certain connections
 // separate method in case need to add devices/cabling after object already constructed
   const uint32_t& fedchannelconnection_detid = conn.detId(); // detId of FedChannelConnection that is looped over
   // is this detid already in the map?
-  map< uint32_t, vector<FedChannelConnection> >::iterator detcabl_it = detCabling_.find(fedchannelconnection_detid);
-  if( ! (detcabl_it==detCabling_.end()) ){      // is already in map -- DKwarn : add constistency checks here for example agreement with already existing dcuId?
+  map< uint32_t, vector<FedChannelConnection> >::iterator detcabl_it = chosen_connections_.find(fedchannelconnection_detid);
+  if( ! (detcabl_it==chosen_connections_.end()) ){      // is already in map -- DKwarn : add constistency checks here for example agreement with already existing dcuId?
     ( detcabl_it->second ).push_back(conn); // add one FedChannelConnection to vector mapped to this detid
   }else{                                      // is not in map, create vector with 1 element and put into map
     vector<FedChannelConnection> local_fedchannelconnection; local_fedchannelconnection.push_back(conn);
-    detCabling_[fedchannelconnection_detid] = local_fedchannelconnection;
+    chosen_connections_[fedchannelconnection_detid] = local_fedchannelconnection;
   }
 }
 
-const std::vector<uint32_t> & SiStripDetCabling::getActiveDetectorsRawIds() const{
- static vector<uint32_t> local_active;
- for(map< uint32_t, vector<FedChannelConnection> >::const_iterator detcabl_it = detCabling_.begin(); detcabl_it!=detCabling_.end(); detcabl_it++){
-   local_active.push_back(detcabl_it->first);
- }
- return local_active; // is empty if no elements in detCabling_
+
+void SiStripDetCabling::addDevices(const FedChannelConnection & conn){ // by default add to connected_ connections - special case of above class
+ addDevices(conn, connected_ ); // add to connected_
 }
 
-void SiStripDetCabling::addActiveDetectorsRawIds(std::vector<uint32_t> & return_container ) const{ // replace getActiveDetectorRawIds method - avoid use of static
- for(map< uint32_t, vector<FedChannelConnection> >::const_iterator detcabl_it = detCabling_.begin(); detcabl_it!=detCabling_.end(); detcabl_it++){
-   return_container.push_back(detcabl_it->first);
+void SiStripDetCabling::addActiveDetectorsRawIds(std::vector<uint32_t> & vector_to_fill_with_detids ) const{ // replace getActiveDetectorRawIds method - avoid use of static
+ for(map< uint32_t, vector<FedChannelConnection> >::const_iterator detcabl_it = connected_.begin(); detcabl_it!=connected_.end(); detcabl_it++){
+   vector_to_fill_with_detids.push_back(detcabl_it->first);
  }
- // return_container is empty if no elements in detCabling_
+ // vector_to_fill_with_detids is empty if no elements in connected_
 }
 
+
+void SiStripDetCabling::addConnectedDetectorsRawIds(std::vector<uint32_t> & vector_to_fill_with_detids) const{ // wrapper around addActiveDetectorsRawIds
+  addActiveDetectorsRawIds(vector_to_fill_with_detids);
+}
+
+
+void SiStripDetCabling::addDetectedDetectorsRawIds(std::vector<uint32_t> & vector_to_fill_with_detids ) const{
+ for(map< uint32_t, vector<FedChannelConnection> >::const_iterator detcabl_it = detected_.begin(); detcabl_it!=detected_.end(); detcabl_it++){
+   vector_to_fill_with_detids.push_back(detcabl_it->first);
+ }
+}
+
+void SiStripDetCabling::addUnDetectedDetectorsRawIds(std::vector<uint32_t> & vector_to_fill_with_detids ) const{
+ for(map< uint32_t, vector<FedChannelConnection> >::const_iterator detcabl_it = undetected_.begin(); detcabl_it!=undetected_.end(); detcabl_it++){
+   vector_to_fill_with_detids.push_back(detcabl_it->first);
+ }
+}
 
 
 const vector<FedChannelConnection>& SiStripDetCabling::getConnections(uint32_t det_id ) const{ // return all connections corresponding to one det_id
-  map< uint32_t, vector<FedChannelConnection> >::const_iterator detcabl_it = detCabling_.find(det_id); // has to be const_iterator because this function cannot change data members
-  if( ! (detcabl_it==detCabling_.end()) ){      // found detid in map
-    return ( detcabl_it->second );
+  map< uint32_t, vector<FedChannelConnection> >::const_iterator detcabl_it1 = connected_.find(det_id); // has to be const_iterator because this function cannot change data members
+  map< uint32_t, vector<FedChannelConnection> >::const_iterator detcabl_it2 = detected_.find(det_id);
+  map< uint32_t, vector<FedChannelConnection> >::const_iterator detcabl_it3 = undetected_.find(det_id);
+  if( ! (detcabl_it1==connected_.end()) ){  // found detid in connected_
+    return ( detcabl_it1->second );
+  }
+  if( ! (detcabl_it2==detected_.end()) ){   // found detid in detected_
+    return ( detcabl_it2->second );
+  }
+  if( ! (detcabl_it3==undetected_.end()) ){ // found detid in detected_
+    return ( detcabl_it3->second );
   }else{ // DKwarn : is there need for output message here telling det_id does not exist?
     static vector<FedChannelConnection> default_empty_fedchannelconnection;
     return default_empty_fedchannelconnection;
   }
 }
-
 
 
 const FedChannelConnection& SiStripDetCabling::getConnection( uint32_t det_id, unsigned short apv_pair ) const{
