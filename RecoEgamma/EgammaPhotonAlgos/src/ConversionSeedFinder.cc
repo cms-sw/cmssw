@@ -23,7 +23,7 @@ ConversionSeedFinder::ConversionSeedFinder( const MagneticField* field, const Me
 
     LogDebug("ConversionSeedFinder")  << " CTOR " << "\n";
       
-};
+}
 
 
 
