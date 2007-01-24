@@ -51,13 +51,37 @@ int main(){
     std::string iovtoken=ioveditor->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
     pooldb.commit();
-    pooldb.disconnect();
+    //pooldb.disconnect();
     delete ioveditor;
+ 
+    //
+    ///I write different pedestals in another record
+    //
+    cond::IOVEditor* anotherioveditor=iovmanager.newIOVEditor();
+    pooldb.startTransaction(false);
+    for(unsigned int i=0; i<2; ++i){ //inserting 2 payloads to another Rcd
+      Pedestals* myped=new Pedestals;
+      for(int ichannel=1; ichannel<=3; ++ichannel){
+	Pedestals::Item item;
+        item.m_mean=1.11*ichannel+i;
+        item.m_variance=1.12*ichannel+i*2;
+        myped->m_pedestals.push_back(item);
+      }
+      cond::Ref<Pedestals> myref(pooldb,myped);
+      myref.markWrite("anotherPedestalsRcd");
+      std::string payloadToken=myref.token();
+      anotherioveditor->insert(cond::Time_t(2+2*i),payloadToken);
+    }
+    std::string anotheriovtoken=anotherioveditor->token();
+    pooldb.commit();
+    pooldb.disconnect();
+    delete anotherioveditor;
     cond::RelationalStorageManager coraldb("sqlite_file:test.db",session);
+    cond::MetaData metadata(coraldb);
     coraldb.connect(cond::ReadWriteCreate);
     coraldb.startTransaction(false);
-    cond::MetaData metadata(coraldb);
     metadata.addMapping("mytest",iovtoken);
+    metadata.addMapping("anothermytest",anotheriovtoken);
     coraldb.commit();
     coraldb.disconnect();
     session->close();
