@@ -9,8 +9,8 @@ void  CalibratedHistogramXML::read (XERCES_CPP_NAMESPACE::DOMElement * dom)
     m_binValues.clear();
     m_binULimits.clear();
     int size=  CalibrationXML::readAttribute<int>(dom,"size");
-    cout << "size " << size << endl; 
-     DOMNode * n1 = dom->getFirstChild();
+    
+    DOMNode * n1 = dom->getFirstChild();
     int bin;
     for(bin=0; bin < size; bin ++)
     {

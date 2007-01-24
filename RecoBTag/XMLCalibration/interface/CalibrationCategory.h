@@ -45,7 +45,7 @@ class CalibrationCategory
 */
     virtual void saveToDOM(DOMElement * dom)=0;  //Not implemented
 
-    virtual void dump() {cout << "NO INFO"; }
+    virtual void dump() { }
 
     
 };

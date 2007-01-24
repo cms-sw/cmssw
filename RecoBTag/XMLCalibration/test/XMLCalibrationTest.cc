@@ -14,7 +14,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoBTag/XMLCalibration/interface/AlgorithmCalibration.h"
-#include "RecoBTag/XMLCalibration/interface/CalibratedHistogram.h"
+#include "RecoBTag/XMLCalibration/interface/CalibratedHistogramXML.h"
 #include "RecoBTag/XMLCalibration/interface/CalibrationCategory.h"
 
 #include <iostream>
@@ -35,7 +35,7 @@ class XMLCalibrationTest : public edm::EDAnalyzer {
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
    private:
       // ----------member data ---------------------------
-    AlgorithmCalibration<TestCategory,CalibratedHistogram> * m_calib;
+    AlgorithmCalibration<TestCategory,CalibratedHistogramXML> * m_calib;
 };
 
 
@@ -76,7 +76,7 @@ protected:
 
 XMLCalibrationTest::XMLCalibrationTest( const edm::ParameterSet& iConfig )
 {
- m_calib =new AlgorithmCalibration<TestCategory,CalibratedHistogram>("test.xml");
+ m_calib =new AlgorithmCalibration<TestCategory,CalibratedHistogramXML>("test.xml");
 }
 
 
@@ -96,7 +96,7 @@ XMLCalibrationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
  // object.
 
 
- const CalibratedHistogram * histo = m_calib->getCalibData(1.2);
+ const CalibratedHistogram * histo = m_calib->getCalibData((float)1.2);
 
 
  cout << "Pointer of the histogram: " << histo << endl;

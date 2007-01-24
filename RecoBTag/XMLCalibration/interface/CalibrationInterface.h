@@ -1,6 +1,6 @@
 #ifndef CALIBRATION_INTERFACE_H
 #define CALIBRATION_INTERFACE_H
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 #include <utility>
 #include <iostream>
@@ -44,7 +44,6 @@ CalibrationInterface<CategoryT,CalibDataT>::CalibrationInterface()
 template <class CategoryT,class CalibDataT> 
 CalibrationInterface<CategoryT,CalibDataT>::~CalibrationInterface()
 {
- std::cout << "Algorithm calibration destructor" <<std::endl;
 }
     
 template <class CategoryT,class CalibDataT> 
@@ -57,21 +56,23 @@ int  CalibrationInterface<CategoryT,CalibDataT>::getIndex(const typename Categor
     
       if((*it).first.match(calibrationInput))
       {
-        if(found >=0 ) std::cout << "WARNING: OVERLAP in categories, using latest one" << std::endl;
-//        else std::cout <<  "Found!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" <<  std::endl;
+        if(found >=0 ) 
+          {
+           edm::LogWarning("BTagCalibration") << "WARNING: OVERLAP in categories, using latest one" ;
+          }
         
         found=i;
       }
    i++;
   }
-  //      std::cout <<  "return " << found <<  std::endl;
   return found;
 }
 
 template <class CategoryT,class CalibDataT> 
 const CalibDataT * CalibrationInterface<CategoryT,CalibDataT>::getCalibData(int i) const
 {
- if(i>=0 && i < m_categoriesWithData.size() )
+ size_t ii=i;
+ if(i>=0 && ii < m_categoriesWithData.size() )
   return &m_categoriesWithData[i].second;
  else
   return 0;
