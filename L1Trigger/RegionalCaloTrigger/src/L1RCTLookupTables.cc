@@ -63,12 +63,11 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
   if(iAbsEta < 1 || iAbsEta > 28) throw cms::Exception("Invalid Data") << "1 <= |IEta| <= 28, is " << iAbsEta;
   float ecalLinear = convertEcal(ecal);
   float hcalLinear;
-  float hcalELinear;
   if(useTranscoder_) hcalLinear = transcoder_->hcaletValue(iAbsEta, hcal);
   else hcalLinear = hcal;
   
   float etLinear = ecalLinear + hcalLinear;
-  unsigned long HE_FGBit = (calcHEBit(ecalLinear,hcalLinear) || fgbit);
+  unsigned long HE_FGBit = (calcHEBit(ecalLinear,hcalLinear) || (!fgbit));
   unsigned long etIn7Bits = convertToInteger(ecalLinear, eGammaLSB_, 7);
   unsigned long etIn9Bits = convertToInteger(etLinear, jetMETLSB_, 9);
   unsigned long activityBit = calcActivityBit(ecalLinear, hcalLinear);

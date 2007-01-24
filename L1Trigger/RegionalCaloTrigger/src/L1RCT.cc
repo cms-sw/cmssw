@@ -119,31 +119,12 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
 //  cout << "\t\t\t\t\tCrate\tCard\tTower\tInput" << endl;
   int nEcalDigi = ecalCollection.size();
   if (nEcalDigi>4032) {nEcalDigi=4032;}
-  float ecalSum = 0;
-  float hbSum = 0;
-  float heSum = 0;
-  float hfSum = 0;
-  float ecalMax = 0;
-  float hbMax = 0;
-  float heMax = 0;
-  float hfMax = 0;
   for (int i = 0; i < nEcalDigi; i++){
     short ieta = (short) ecalCollection[i].id().ieta(); 
     // Note absIeta counts from 1-28 (not 0-27)
     unsigned short absIeta = (unsigned short) abs(ieta);
     unsigned short cal_iphi = (unsigned short) ecalCollection[i].id().iphi(); 
     unsigned short iphi = (72 + 18 - cal_iphi) % 72; // transform TOWERS (not regions) into local rct (intuitive) phi bins
-
-//     if (ecalCollection[i].compressedEt()>0) { 
-//    cout << "Energy " << ecalCollection[i].compressedEt()
-//	   <<" eta " << ieta; 
-//     }
-//     if (ecalCollection[i].compressedEt()>0) { 
-//    cout << " raw phi " << iphi ; 
-//     }
-//     if (ecalCollection[i].compressedEt()>0) { 
-//    cout << " rct phi " << iphi << "  "; 
-//     }
 
     //map digis to crates, cards, and towers
     unsigned short crate = 999, card = 999, tower = 999;
@@ -152,9 +133,6 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     tower = calcTower(iphi, absIeta);
 
     unsigned short energy = ecalCollection[i].compressedEt();
-    float et = float(energy)/2.;  // Temporarily ET is hardcoded to be in 0.5 GeV steps in linear scale
-    if(et > 1) ecalSum += et;
-    if(et > ecalMax) ecalMax = et;
     unsigned short fineGrain = (unsigned short) ecalCollection[i].fineGrain();  // 0 or 1
     unsigned short ecalInput = energy*2 + fineGrain;
 
@@ -184,21 +162,10 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     // Use local iphi to work out the region and crate (for HB/HE and HF)
 
 
-//    if (hcalCollection[i].SOI_compressedEt()>0) { 
-//      cout << "Energy " << hcalCollection[i].SOI_compressedEt()
-// 	 << " eta " << ieta; 
-//    }
-//     if (hcalCollection[i].SOI_compressedEt()>0) { 
-//    cout << " raw phi " << cal_iphi; 
-//     }
-
     // HF regions need to have local iphi 0-17
     if (absIeta >= 29) {
       iphi = iphi/4;
     }
-//     if (hcalCollection[i].SOI_compressedEt()>0) { 
-//    cout << " rct phi " << iphi << "  "; 
-//     }
 
     //map digis to crates, cards, and towers
     unsigned short crate = 999, card = 999, tower = 999;
@@ -211,23 +178,12 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     unsigned short energy = hcalCollection[i].SOI_compressedEt();     // access only sample of interest
     unsigned short fineGrain = (unsigned short) hcalCollection[i].SOI_fineGrain();
     unsigned short hcalInput = energy*2 + fineGrain;
-    float et = transcoder_->hcaletValue(absIeta, energy);
-
     if (absIeta <= 28){
       // put input into correct crate/card/tower of barrel
       if ((crate<18) && (card<7) && ((tower - 1)<32)) {               // changed 64 to 32 Sept. 19 J. Leonard
         barrel.at(crate).at(card).at(tower - 1 + 32) = hcalInput;  // hcal towers are ecal + 32 see RC.cc
       }
       else { cout << "out of range!"; }
-      //      cout << "Hcal:\t" << crate << "\t" << card << "\t" << tower + 32 << "\t" << hcalInput << endl;
-      if(absIeta < 24) {
-	hbSum += et;
-	if(et > hbMax) hbMax = et;
-      }
-      if(absIeta > 24) {
-	heSum += et;
-	if(et > heMax) heMax = et;
-      }
     }
     else if ((absIeta >= 29) && (absIeta <= 32)){
       // put input into correct crate/region of HF
@@ -235,102 +191,8 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
         hf.at(crate).at(tower) = hcalInput;
       }
       else { cout << "out of range!"; }
-      //      cout << "HF: crate " << crate << "\tregion " << tower << "\tinput " << hcalInput << endl;
-      hfSum += et;
-      if(et > hfMax) hfMax = et;
     }
   }
-
-  cout << "\n ecalSum = " << ecalSum << "\thbSum = " << hbSum << "\theSum = " << heSum << "\thfSum = " << hfSum << endl;
-  cout << "\n ecalMax = " << ecalMax << "\thbMax = " << hbMax << "\theMax = " << heMax << "\thfMax = " << hfMax << endl;
-
-  /*  Why do we need to write a file always -- this should be optional -- In any case we should reuse "barrel" and "hf"
-
-  vector<vector<unsigned short> > ecalBarrel(72,vector<unsigned short>(56));
-  vector<vector<unsigned short> > hcalBarrel(72,vector<unsigned short>(56));
-
-    // for file diagram of digi inputs
-    if (ieta > 0){
-      ecalBarrel.at(iphi).at(ieta - 1) = ecalInput;
-      //cout << "Ecal\tiphi: " << iphi << "\tieta: " << ieta;
-    }
-    else {
-      ecalBarrel.at(iphi).at(56 + ieta) = ecalInput;
-      //cout << "Ecal\tiphi: " << iphi << "\tieta: " << ieta << "\tieta+56: " << (ieta+56);
-    }
-
-    if (absIeta <= 28){
-
-      // for file diagram of digi inputs
-      if (ieta > 0){
-	hcalBarrel.at(iphi).at(ieta - 1) = hcalInput;
-      }
-      else {
-	hcalBarrel.at(iphi).at(56 + ieta) = hcalInput;
-      }
-    }
-
-  std::ofstream file_out("rct_towers.txt", std::ios::app);
-  if (!file_out){
-    std::cerr << "Tower input file did not open!" << endl;
-    return;
-  }
-
-  file_out << "iphi goes from 1-72 down rows, ieta goes from -28 to 28 across columns." << endl << endl;
-  file_out << "ECAL:" << endl;
-  for (int i = 0; i < 72; i++){
-    for (int j = 0; j < 28; j++){
-      file_out.width(3);
-      file_out << ecalBarrel.at(i).at(28+j);
-    }
-    for (int j = 0; j < 28; j++){
-      file_out.width(3);
-      file_out << ecalBarrel.at(i).at(j);
-    }
-    file_out << endl;
-  }
-  file_out << "\n\n\n\n\n" << endl;
-  file_out << "HCAL:" << endl;
-  for (int i = 0; i < 72; i++){
-    for (int j = 0; j < 28; j++){
-      file_out.width(3);
-      file_out << hcalBarrel.at(i).at(28+j);
-    }
-    for (int j = 0; j < 28; j++){
-      file_out.width(3);
-      file_out << hcalBarrel.at(i).at(j);
-    }
-    file_out << endl;
-  }
-  file_out << "\n\n\n\n\n" << endl;
-
-  file_out << "HF:" << endl;
-  for (int i = 0; i < 9; i++){
-    for (int j = 3; j >= 0; j--){
-      file_out.width(3);
-      file_out << hf.at(i).at(j);
-    }
-    file_out << "\t\t\t";
-    for (int j = 0; j <= 3; j++){
-      file_out.width(3);
-      file_out << hf.at(i+9).at(j);
-    }
-    file_out << endl;
-    for (int j = 7; j >= 4; j--){
-      file_out.width(3);
-      file_out << hf.at(i).at(j);
-    }
-    file_out << "\t\t\t";
-    for (int j = 4; j <= 7; j++){
-      file_out.width(3);
-      file_out << hf.at(i+9).at(j);
-    }
-    file_out << endl;
-  }
-  file_out << "\n\n\n\n\n" << endl;
-  file_out.close();
-  */
-
   input(barrel,hf);
 
   return;
