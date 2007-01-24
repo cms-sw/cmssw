@@ -8,12 +8,12 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "Validation/MuonCSCDigis/src/CSCStripDigiValidation.h"
-#include "Validation/MuonCSCDigis/src/CSCWireDigiValidation.h"
-#include "Validation/MuonCSCDigis/src/CSCComparatorDigiValidation.h"
 #include "Validation/MuonCSCDigis/src/PSimHitMap.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
+class CSCStripDigiValidation;
+class CSCWireDigiValidation;
+class CSCComparatorDigiValidation;
 
 class CSCDigiValidation : public edm::EDAnalyzer {
 public:
@@ -30,9 +30,9 @@ public:
   PSimHitMap theSimHitMap;
   CSCGeometry * theCSCGeometry;
 
-  CSCStripDigiValidation      theStripDigiValidation;
-  CSCWireDigiValidation       theWireDigiValidation;
-  CSCComparatorDigiValidation theComparatorDigiValidation;
+  CSCStripDigiValidation      * theStripDigiValidation;
+  CSCWireDigiValidation       * theWireDigiValidation;
+  CSCComparatorDigiValidation * theComparatorDigiValidation;
 
 };
 
