@@ -58,9 +58,9 @@ MTCCNtupleMaker::MTCCNtupleMaker(edm::ParameterSet const& conf) :
   filename_(conf.getParameter<std::string>("fileName")),
   oSiStripDigisLabel_( conf.getUntrackedParameter<std::string>( "oSiStripDigisLabel")),
   oSiStripDigisProdInstName_( conf.getUntrackedParameter<std::string>( "oSiStripDigisProdInstName")),
-  oSiStripClsuterInfoLabel_( 
+  oSiStripClusterInfoLabel_( 
     conf.getUntrackedParameter<std::string>( "oSiStripClusterInfoLabel")),
-  oSiStripClsuterInfoProdInstName_( 
+  oSiStripClusterInfoProdInstName_( 
     conf.getUntrackedParameter<std::string>( "oSiStripClusterInfoProdInstName")),
   dDigiAmplifySigma_( conf.getUntrackedParameter<double>( "dDigiAmplifySigma")),
   bUseLTCDigis_( conf.getUntrackedParameter<bool>( "bUseLTCDigis")),
@@ -752,18 +752,18 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
   }
 
   // Get SiStripClusterInfos
-  edm::Handle<DSVSiStripClusterInfos> oDSVClusterInfos;
-  getSiStripClusterInfos( oDSVClusterInfos,
-                          e,
-			  oSiStripClusterInfoLabel_,
-		          oSiStripClsuterInfoProdInstName_);
+  edm::Handle<extra::DSVSiStripClusterInfos> oDSVClusterInfos;
+  extra::getSiStripClusterInfos( oDSVClusterInfos,
+                                 e,
+			         oSiStripClusterInfoLabel_,
+		                 oSiStripClusterInfoProdInstName_);
 
   // Get SiStripDigis
-  edm::Handle<DSVSiStripDigis> oDSVDigis;
-  getSiStripDigis( oDSVDigis,
-                   e,
-		   oSiStripDigisLabel_,
-		   oSiStripDigisProdInstName_);
+  edm::Handle<extra::DSVSiStripDigis> oDSVDigis;
+  extra::getSiStripDigis( oDSVDigis,
+                          e,
+		          oSiStripDigisLabel_,
+		          oSiStripDigisProdInstName_);
 
   std::map<uint32_t, int> oProcessedClusters;
 
