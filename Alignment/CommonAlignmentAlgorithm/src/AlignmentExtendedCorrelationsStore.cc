@@ -19,6 +19,9 @@ void AlignmentExtendedCorrelationsStore::correlations( Alignable* ap1, Alignable
   static Alignable* previousAlignable = 0;
   static ExtendedCorrelationsTable* previousCorrelations;
 
+  // Needed by 'resetCorrelations()' to reset the static pointer:
+  if ( ap1 == 0 ) { previousAlignable = 0; return; }
+
   bool transpose = ( ap2 > ap1 );
   if ( transpose ) std::swap( ap1, ap2 ); 
 
@@ -60,6 +63,9 @@ void AlignmentExtendedCorrelationsStore::setCorrelations( Alignable* ap1, Aligna
 {
   static Alignable* previousAlignable = 0;
   static ExtendedCorrelationsTable* previousCorrelations;
+
+  // Needed by 'resetCorrelations()' to reset the static pointer:
+  if ( ap1 == 0 ) { previousAlignable = 0; return; }
 
   bool transpose = ( ap2 > ap1 );
   if ( transpose ) std::swap( ap1, ap2 );
@@ -136,6 +142,11 @@ void AlignmentExtendedCorrelationsStore::resetCorrelations( void )
   ExtendedCorrelations::iterator itC;
   for ( itC = theCorrelations.begin(); itC != theCorrelations.end(); ++itC ) delete (*itC).second;
   theCorrelations.erase( theCorrelations.begin(), theCorrelations.end() );
+
+  // Reset the static pointers to the 'previous alignables'
+  AlgebraicSymMatrix dummy;
+  correlations( 0, 0, dummy, 0, 0 );
+  setCorrelations( 0, 0, dummy, 0, 0 );
 }
 
 
