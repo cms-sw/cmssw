@@ -6,15 +6,15 @@
 /** \class SteppingHelixStateInfo
  *  Holder of SteppingHelixState information
  *
- *  $Date: 2007/01/10 02:03:15 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/01/19 17:26:20 $
+ *  $Revision: 1.3 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.h,v 1.2 2007/01/10 02:03:15 slava77 Exp $
+// $Id: SteppingHelixStateInfo.h,v 1.3 2007/01/19 17:26:20 slava77 Exp $
 //
 //
 
@@ -44,8 +44,17 @@ class SteppingHelixStateInfo {
     Vector lZ;
   };
   
+  enum Result {
+    OK=0,
+    FAULT,
+    APPROX,
+    RANGEOUT,
+    INACC,
+    NOT_IMPLEMENTED,
+    UNDEFINED
+  };
 
-  SteppingHelixStateInfo(): isComplete(0), isValidInfo(0) {}
+  SteppingHelixStateInfo(): isComplete(0), isValidInfo(0), status_(UNDEFINED) {}
   SteppingHelixStateInfo(const FreeTrajectoryState& fts);
 
   TrajectoryStateOnSurface getStateOnSurface(const Surface& surf) const;
@@ -58,6 +67,8 @@ class SteppingHelixStateInfo {
   int charge() const {return q;}
 
   bool isValid() const {return isValidInfo;}
+
+  Result status() const {return status_;}
 
  protected:
 
@@ -77,5 +88,6 @@ class SteppingHelixStateInfo {
 
   bool isComplete;
   bool isValidInfo;
+  Result status_;
 };
 #endif
