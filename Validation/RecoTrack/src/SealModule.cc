@@ -3,10 +3,12 @@
 
 #include "Validation/RecoTrack/interface/MultiTrackValidator.h"
 #include "Validation/RecoTrack/interface/SiStripTrackingRecHitsValid.h"
+#include "Validation/RecoTrack/interface/SiPixelTrackingRecHitsValid.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(MultiTrackValidator);
 DEFINE_ANOTHER_FWK_MODULE(SiStripTrackingRecHitsValid);
+DEFINE_ANOTHER_FWK_MODULE(SiPixelTrackingRecHitsValid);
 
 #include "Validation/RecoTrack/interface/RecoTrackSelector.h"
 #include "Validation/RecoTrack/interface/TrackEfficiencySelector.h"
