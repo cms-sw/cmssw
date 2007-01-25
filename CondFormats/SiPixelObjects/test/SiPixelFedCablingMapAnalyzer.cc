@@ -26,18 +26,11 @@ using namespace sipixelobjects;
 // class declaration
 class SiPixelFedCablingMapAnalyzer : public edm::EDAnalyzer {
    public:
-      explicit SiPixelFedCablingMapAnalyzer( const edm::ParameterSet& );
+      explicit SiPixelFedCablingMapAnalyzer( const edm::ParameterSet& ) {}
       ~SiPixelFedCablingMapAnalyzer();
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
    private:
 };
-
-
-SiPixelFedCablingMapAnalyzer::SiPixelFedCablingMapAnalyzer( const edm::ParameterSet& iConfig )
-{
-  ::putenv("CORAL_AUTH_USER konec");
-  ::putenv("CORAL_AUTH_PASSWORD konecPass");
-}
 
 
 SiPixelFedCablingMapAnalyzer::~SiPixelFedCablingMapAnalyzer(){}
