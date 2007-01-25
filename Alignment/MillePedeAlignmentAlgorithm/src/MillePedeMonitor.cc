@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.11 $
- *  $Date$
- *  (last update by $Author$)
+ *  $Revision: 1.1 $
+ *  $Date: 2006/10/20 13:57:03 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeMonitor.h"
@@ -20,12 +20,17 @@
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableDet.h"
+#include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
+
 #include <TH1.h>
 #include <TH2.h>
 #include <TProfile2D.h>
 #include <TFile.h>
 #include <TDirectory.h>
-#include <TArrayF.h>
+
+typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
 
 //__________________________________________________________________
 MillePedeMonitor::MillePedeMonitor(const char *rootFileName)
@@ -181,12 +186,97 @@ bool MillePedeMonitor::init(TDirectory *directory)
   myTrajectoryHists2D.push_back
     (new TH2F("derivativesLog", "|derivative|;parameter;|#partial(x/y)_{local}/#partial(param)|",
 	      10, 0., 10., logBins.GetSize()-1, logBins.GetArray()));
+  myTrajectoryHists2D.push_back
+    (new TH2F("derivativesVsPhi", 
+              "derivatives vs. #phi;#phi(geomDet);#partial(x/y)_{local}/#partial(param)",
+	      50, -TMath::Pi(), TMath::Pi(), 101, -300., 300.));
+  //  myTrajectoryHists2D.back()->SetBit(TH1::kCanRebin);
 
+
+  TDirectory *dirMille = directory->mkdir("milleHists", "derivatives etc.");
+  if (dirMille) dirMille->cd();
+  myMilleHists2D.push_back
+    (new TH2F("localDerivsPar","local derivatives vs. paramater;parameter;#partial/#partial(param)",
+              6, 0., 6., 101, -200., 200.));
+  myMilleHists2D.push_back
+    (new TH2F("localDerivsPhi","local derivatives vs. #phi(det);#phi(det);#partial/#partial(param)",
+              51, -TMath::Pi(), TMath::Pi(), 101, -150., 150.));
+  this->equidistLogBins(logBins.GetArray(), logBins.GetSize()-1, 1.E-13, 150.);
+  myMilleHists2D.push_back
+    (new TH2F("localDerivsParLog",
+              "local derivatives (#neq 0) vs. parameter;parameter;|#partial/#partial(param)|",
+              6, 0., 6., logBins.GetSize()-1, logBins.GetArray()));
+  myMilleHists2D.push_back
+    (new TH2F("localDerivsPhiLog",
+              "local derivatives (#neq 0) vs. #phi(det);#phi(det);|#partial/#partial(param)|",
+              51, -TMath::Pi(), TMath::Pi(), logBins.GetSize()-1, logBins.GetArray()));
+  myMilleHists2D.push_back
+    (new TH2F("globalDerivsPar",
+              "global derivatives vs. paramater;parameter;#partial/#partial(param)",
+              6, 0., 6., 101, -.01, .01));
+  myMilleHists2D.push_back
+    (new TH2F("globalDerivsPhi",
+              "global derivatives vs. #phi(det);#phi(det);#partial/#partial(param)",
+              51, -TMath::Pi(), TMath::Pi(), 101, -0.01, 0.01));
+  this->equidistLogBins(logBins.GetArray(), logBins.GetSize()-1, 1.E-36, 0.04);
+  myMilleHists2D.push_back
+    (new TH2F("globalDerivsParLog",
+              "global derivatives (#neq 0) vs. parameter;parameter;|#partial/#partial(param)|",
+              6, 0., 6., logBins.GetSize()-1, logBins.GetArray()));
+  myMilleHists2D.push_back
+    (new TH2F("globalDerivsPhiLog",
+              "global derivatives (#neq 0) vs. #phi(det);#phi(det);|#partial/#partial(param)|",
+              51, -TMath::Pi(), TMath::Pi(), logBins.GetSize()-1, logBins.GetArray()));
+//   this->equidistLogBins(logBins.GetArray(), logBins.GetSize()-1, 1.e-40, 1.E-35);
+//   myMilleHists2D.push_back
+//     (new TH2F("globalDerivsPhiLog2",
+//               "global derivatives (#neq 0) vs. #phi(det);#phi(det);|#partial/#partial(param)|",
+//               51, -TMath::Pi(), TMath::Pi(), logBins.GetSize()-1, logBins.GetArray()));
+
+  myMilleHists2D.push_back(new TH2F("residPhi","residuum vs. #phi(det);#phi(det);residuum[cm]",
+                                    51, -TMath::Pi(), TMath::Pi(), 101, -.5, .5));
+  myMilleHists2D.push_back(new TH2F("sigmaPhi","#sigma vs. #phi(det);#phi(det);#sigma[cm]",
+                                    51, -TMath::Pi(), TMath::Pi(), 101, .0, .1));
+  myMilleHists2D.push_back(new TH2F("reduResidPhi",
+                                    "residuum/#sigma vs. #phi(det);#phi(det);residuum/#sigma",
+                                    51, -TMath::Pi(), TMath::Pi(), 101, -14., 14.));
   directory->cd();
 
-  myDetLabelBitHist = new TH1F("globalDetLabelBits", "bits of detId", 32,0.,32.);
-  myDetLabelHist = new TH1F("globalDetLabels", "detLabels", 1000, 0., 1.);
-  myDetLabelHist->SetBit(TH1::kCanRebin);
+  TDirectory *dirF2f = directory->mkdir("frame2FrameHists", "derivatives etc.");
+  if (dirF2f) dirF2f->cd();
+  myFrame2FrameHists2D.push_back(new TProfile2D("frame2frame",
+                                                "mean frame to frame derivatives;col;row",
+                                                6, 0., 6., 6, 0., 6.));
+  myFrame2FrameHists2D.push_back(new TProfile2D("frame2frameAbs",
+                                                "mean |frame to frame derivatives|, #neq0;col;row",
+                                                6, 0., 6., 6, 0., 6.));
+
+  this->equidistLogBins(logBins.GetArray(), logBins.GetSize()-1, 1.E-36, 100.);
+  for (unsigned int i = 0; i < 6; ++i) {
+    for (unsigned int j = 0; j < 6; ++j) {
+      myFrame2FrameHists2D.push_back
+        (new TH2F(Form("frame2framePhi%d%d", i, j),
+                  Form("frame to frame derivatives, %d%d;#phi(aliDet);deriv",i,j),
+                  51, -TMath::Pi(), TMath::Pi(), 10, 0., 1.));
+      myFrame2FrameHists2D.back()->SetBit(TH1::kCanRebin);
+      myFrame2FrameHists2D.push_back
+        (new TH2F(Form("frame2frameR%d%d", i, j),
+                  Form("frame to frame derivatives, %d%d;r(aliDet);deriv",i,j),
+                  51, 0., 110., 10, 0., 1.));
+      myFrame2FrameHists2D.back()->SetBit(TH1::kCanRebin);
+
+      myFrame2FrameHists2D.push_back
+        (new TH2F(Form("frame2framePhiLog%d%d", i, j),
+                  Form("frame to frame |derivatives|, %d%d, #neq0;#phi(aliDet);deriv",i,j),
+                  51, -TMath::Pi(), TMath::Pi(), logBins.GetSize()-1, logBins.GetArray()));
+      myFrame2FrameHists2D.push_back
+        (new TH2F(Form("frame2frameRLog%d%d", i, j),
+                  Form("frame to frame |derivatives|, %d%d, #neq0;r(aliDet);deriv",i,j),
+                  51, 0., 110., logBins.GetSize()-1, logBins.GetArray()));
+    }
+  }
+
+  directory->cd();
 
   oldDir->cd();
   return true;
@@ -389,7 +479,7 @@ void MillePedeMonitor::fillRefTrajectory(const ReferenceTrajectoryBase::Referenc
 	static const int iHitCorOffBlkLg = this->GetIndex(myTrajectoryHists2D,"hitCorrOffBlockLog");
 	myTrajectoryHists2D[iHitCorOffBlkLg]->Fill(nHitRow, TMath::Abs(rho));
       }
-    } // end loop on columns of covarianvce
+    } // end loop on columns of covariance
     
     // derivatives
     for (int iCol = 0; iCol < derivatives.num_col(); ++iCol) {
@@ -399,23 +489,96 @@ void MillePedeMonitor::fillRefTrajectory(const ReferenceTrajectoryBase::Referenc
       myTrajectoryHists2D[iDerivatives]->Fill(iCol, derivatives[iRow][iCol]);
       static const int iDerivativesLog = this->GetIndex(myTrajectoryHists2D, "derivativesLog");
       myTrajectoryHists2D[iDerivativesLog]->Fill(iCol, TMath::Abs(derivatives[iRow][iCol]));
+      static const int iDerivativesPhi = this->GetIndex(myTrajectoryHists2D, "derivativesVsPhi");
+      myTrajectoryHists2D[iDerivativesPhi]->Fill(recHits[iRow/2]->det()->position().phi(),
+                                                 derivatives[iRow][iCol]);
     }
   } // end loop on rows of covarianvce
 
 }
 
 //____________________________________________________________________
-void MillePedeMonitor::fillDetLabel(unsigned int globalDetLabel)
+void MillePedeMonitor::fillMille(const ConstRecHitPointer &recHit,
+                                 const std::vector<float> &localDerivs,
+                                 const std::vector<float> &globalDerivs,
+                                 float residuum, float sigma)
 {
+  const double phi = recHit->det()->position().phi();
 
-  for (unsigned int i = 0; i < 32; ++i) {
-    if (globalDetLabel & (1 << i)) myDetLabelBitHist->Fill(i);
+  static const int iLocPar = this->GetIndex(myMilleHists2D, "localDerivsPar");
+  static const int iLocPhi = this->GetIndex(myMilleHists2D, "localDerivsPhi");
+  static const int iLocParLog = this->GetIndex(myMilleHists2D, "localDerivsParLog");
+  static const int iLocPhiLog = this->GetIndex(myMilleHists2D, "localDerivsPhiLog");
+  for (unsigned int i = 0; i < localDerivs.size(); ++i) {
+    myMilleHists2D[iLocPar]->Fill(i, localDerivs[i]);
+    myMilleHists2D[iLocPhi]->Fill(phi, localDerivs[i]);
+    if (localDerivs[i]) {
+      myMilleHists2D[iLocParLog]->Fill(i, TMath::Abs(localDerivs[i]));
+      myMilleHists2D[iLocPhiLog]->Fill(phi, TMath::Abs(localDerivs[i]));
+    }
   }
 
-  myDetLabelHist->Fill(globalDetLabel);
+  static const int iGlobPar = this->GetIndex(myMilleHists2D, "globalDerivsPar");
+  static const int iGlobPhi = this->GetIndex(myMilleHists2D, "globalDerivsPhi");
+  static const int iGlobParLog = this->GetIndex(myMilleHists2D, "globalDerivsParLog");
+  static const int iGlobPhiLog = this->GetIndex(myMilleHists2D, "globalDerivsPhiLog");
+//   static const int iGlobPhiLog2 = this->GetIndex(myMilleHists2D, "globalDerivsPhiLog2");
+  for (unsigned int i = 0; i < globalDerivs.size(); ++i) {
+    myMilleHists2D[iGlobPar]->Fill(i, globalDerivs[i]);
+    myMilleHists2D[iGlobPhi]->Fill(phi, globalDerivs[i]);
+    if (globalDerivs[i]) {
+      myMilleHists2D[iGlobParLog]->Fill(i, TMath::Abs(globalDerivs[i]));
+      myMilleHists2D[iGlobPhiLog]->Fill(phi, TMath::Abs(globalDerivs[i]));
+//       myMilleHists2D[iGlobPhiLog2]->Fill(phi, TMath::Abs(globalDerivs[i]));
+    }
+  }
 
-
+  static const int iResPhi = this->GetIndex(myMilleHists2D, "residPhi");
+  static const int iSigPhi = this->GetIndex(myMilleHists2D, "sigmaPhi");
+  static const int iReduResPhi = this->GetIndex(myMilleHists2D, "reduResidPhi");
+  myMilleHists2D[iResPhi]->Fill(phi, residuum);
+  myMilleHists2D[iSigPhi]->Fill(phi, sigma);
+  if (sigma) myMilleHists2D[iReduResPhi]->Fill(phi, residuum/sigma);
 }
 
+//____________________________________________________________________
+void MillePedeMonitor::fillFrameToFrame(AlignableDet *aliDet, Alignable *ali)
+{
+  // get derivative of higher level structure w.r.t. det
+  FrameToFrameDerivative ftfd;
+  const AlgebraicMatrix frameDeriv = ftfd.frameToFrameDerivative(aliDet, ali);
+  //const AlgebraicMatrix frameDeriv = ftfd.frameToFrameDerivativeAtOrgRot(aliDet, ali);
+
+  static const int iF2f = this->GetIndex(myFrame2FrameHists2D, "frame2frame");
+  static const int iF2fAbs = this->GetIndex(myFrame2FrameHists2D, "frame2frameAbs");
+  static int iF2fIjPhi[6][6], iF2fIjPhiLog[6][6], iF2fIjR[6][6], iF2fIjRLog[6][6];
+  static bool first = true;
+  if (first) {
+    for (unsigned int i = 0; i < 6; ++i) {
+      for (unsigned int j = 0; j < 6; ++j) {
+        iF2fIjPhi[i][j] = this->GetIndex(myFrame2FrameHists2D, Form("frame2framePhi%d%d", i, j));
+        iF2fIjPhiLog[i][j]=this->GetIndex(myFrame2FrameHists2D, Form("frame2framePhiLog%d%d",i,j));
+        iF2fIjR[i][j] = this->GetIndex(myFrame2FrameHists2D, Form("frame2frameR%d%d", i, j));
+        iF2fIjRLog[i][j]=this->GetIndex(myFrame2FrameHists2D, Form("frame2frameRLog%d%d",i,j));
+      }
+    }
+    first = false;
+  }
+  
+  const double phi = aliDet->globalPosition().phi(); // after misalignment...
+  const double r = aliDet->globalPosition().perp(); // after misalignment...
+  for (unsigned int i = 0; i < 6; ++i) {
+    for (unsigned int j = 0; j < 6; ++j) {
+      myFrame2FrameHists2D[iF2f]->Fill(i, j, frameDeriv[i][j]);
+      myFrame2FrameHists2D[iF2fIjPhi[i][j]]->Fill(phi, frameDeriv[i][j]);
+      myFrame2FrameHists2D[iF2fIjR[i][j]]->Fill(r, frameDeriv[i][j]);
+      if (frameDeriv[i][j]) {
+        myFrame2FrameHists2D[iF2fAbs]->Fill(i, j, TMath::Abs(frameDeriv[i][j]));
+        myFrame2FrameHists2D[iF2fIjPhiLog[i][j]]->Fill(phi, TMath::Abs(frameDeriv[i][j]));
+        myFrame2FrameHists2D[iF2fIjRLog[i][j]]->Fill(r, TMath::Abs(frameDeriv[i][j]));
+      }
+    }
+  }
+}
 
 
