@@ -169,13 +169,13 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
 
       cout<<" "<<endl;
       cout<<"  Pi0 candidates #: "<<npi0<<endl;
+      vector<EBDetId> scXtals;
+      scXtals.clear();
       for(Int_t i=0 ; i<npi0 ; i++)
 	{
 	  cout<<"     Pi0 i,Bc1, Bc2 "<<i<<" "<<BC1[i]<<" "<<BC2[i]<<endl; 
 
 	  int intbc=0;
-	  vector<EBDetId> scXtals;
-	  scXtals.clear();
 
 	  for(reco::BasicClusterCollection::const_iterator aClus = islandBarrelBasicClusters->begin();
 	      aClus != islandBarrelBasicClusters->end(); aClus++) {
