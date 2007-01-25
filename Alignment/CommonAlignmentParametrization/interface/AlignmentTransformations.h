@@ -1,15 +1,22 @@
 #ifndef Alignment_CommonAlignmentParametrization_AlignmentTranformations_h
 #define Alignment_CommonAlignmentParametrization_AlignmentTranformations_h
 
+/// \class AlignmentTransformations
+///
+/// Helper class for Alignment Transformations:
+///  * between different matrix/vector implementations
+///  * Euler angles and rotation matrices
+///  * between local and global frame
+///
+///  $Date: 2006/11/30 09:48:11 $
+///  $Revision: 1.3 $
+///  $Author: flucke $ did last update.
 
-#include <stdlib.h>
-#include <math.h>
 
 #include "Geometry/Surface/interface/Surface.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 
-/// Helper class for Alignment Transformations
 
 class AlignmentTransformations
 {
@@ -17,41 +24,41 @@ class AlignmentTransformations
 public:
 
   /// converts Surface::RotationType to AlgebraicMatrix 
-  AlgebraicMatrix algebraicMatrix( Surface::RotationType rot ) const;
+  AlgebraicMatrix algebraicMatrix(const Surface::RotationType &rot) const;
 
   /// converts Surface::RotationType to AlgebraicVector 
-  AlgebraicVector algebraicVector( Surface::RotationType rot ) const;
+  AlgebraicVector algebraicVector(const Surface::RotationType &rot) const;
 
   /// converts AlgebraicMatrix to Surface::RotationType 
-  Surface::RotationType rotationType( AlgebraicMatrix algM ) const;
+  Surface::RotationType rotationType(const AlgebraicMatrix &algM) const;
 
   /// converts GlobalVector to AlgebraicVector 
-  AlgebraicVector algebraicVector( GlobalVector globalVector ) const;
+  AlgebraicVector algebraicVector(const GlobalVector &globalVector) const;
 
   /// gets Euler Angles from RotationType 
-  AlgebraicVector eulerAngles( Surface::RotationType rot, int flag ) const;
+  AlgebraicVector eulerAngles(const Surface::RotationType &rot, int flag) const;
 
   /// transforms Rotation to local Det Frame 
-  Surface::RotationType globalToLocalMatrix( Surface::RotationType rot,
-											 Surface::RotationType detrot ) const;
+  Surface::RotationType globalToLocalMatrix(const Surface::RotationType &rot,
+					    const Surface::RotationType &detrot) const;
  
   /// transforms Rotation to global Frame 
-  Surface::RotationType localToGlobalMatrix( Surface::RotationType aliDetRot,
-											 Surface::RotationType detRot ) const;
+  Surface::RotationType localToGlobalMatrix(const Surface::RotationType &aliDetRot,
+					    const Surface::RotationType &detRot) const;
 
   /// builds rotation matrix from Euler Angles 
-  AlgebraicMatrix rotMatrix3( AlgebraicVector a ) const;
+  AlgebraicMatrix rotMatrix3(const AlgebraicVector &a) const;
 
   /// transforms euler angles to local frame 
-  AlgebraicVector globalToLocalEulerAngles( AlgebraicVector a, 
-											Surface::RotationType rot ) const;
+  AlgebraicVector globalToLocalEulerAngles(const AlgebraicVector &a, 
+					   const Surface::RotationType &rot) const;
 
   /// transforms euler angles to global frame 
-  AlgebraicVector localToGlobalEulerAngles( AlgebraicVector a, 
-											Surface::RotationType rot ) const;
+  AlgebraicVector localToGlobalEulerAngles(const AlgebraicVector &a, 
+					   const Surface::RotationType &rot) const;
 
   /// repair rotation matrix for rounding errors 
-  Surface::RotationType rectify( Surface::RotationType rot ) const;
+  Surface::RotationType rectify(const Surface::RotationType &rot) const;
 
 };
 
