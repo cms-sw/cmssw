@@ -194,9 +194,11 @@ void Fp420AnalysisHistManager::BookHistos()
     HistInit("VtxY", "Vtx Y",   100, -50., 50. );
     HistInit("VtxZ", "Vtx Z",   100, -50., 50. );
         // Book the histograms and add them to the array
-    HistInit("SumEDep", "This is sum Energy deposited",   100,   -0.3,   0.3);
-    HistInit("TrackL", "This is sum Energy deposited",   100,   0.,   12000.);
-    HistInit("zHits", "z Hits",   100,   -200.,   8300.);
+    HistInit("SumEDep", "This is sum Energy deposited",   100,   -1,   199.);
+    HistInit("TrackL", "This is TrackL",   100,   0.,   12000.);
+    HistInit("zHits", "z Hits all events",                20,   -200.,   8300.);
+    HistInit("zHitsnoMI", "z Hits no MI",                 20,   -200.,   8300.);
+    HistInit("zHitsTrLoLe", "z Hits TrLength bigger 8300",20,   -200.,   8300.);
 }
 
 //-----------------------------------------------------------------------------
@@ -417,6 +419,7 @@ void FP420Test::update(const BeginOfTrack * trk) {
      numofpart = 0;
      SumStepl = 0.;
      SumStepc = 0.;
+     tracklength0 = 0.;
   }
 }
 
@@ -1037,16 +1040,19 @@ void FP420Test::update(const EndOfEvent * evt) {
 //  edm::LogInfo("FP420Test") << "1";
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
 //  edm::LogInfo("FP420Test") << "2";
-  std::cout << "FP420Test:  accessed all HC" << std::endl;;
-
+    if (verbosity > 0) {
+      std::cout << "FP420Test:  accessed all HC" << std::endl;;
+    }
   int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("FP420SI");
  // edm::LogInfo("FP420Test") << "3";
-  std::cout << " CAFIid = " << CAFIid << std::endl;;
+ // std::cout << " CAFIid = " << CAFIid << std::endl;;
 
   FP420G4HitCollection* theCAFI = (FP420G4HitCollection*) allHC->GetHC(CAFIid);
   //  CaloG4HitCollection* theCAFI = (CaloG4HitCollection*) allHC->GetHC(CAFIid);
-  std::cout << "FP420Test: theCAFI = " << theCAFI << std::endl;
-  std::cout << "FP420Test: theCAFI->entries = " << theCAFI->entries() << std::endl;
+    if (verbosity > 0) {
+      //std::cout << "FP420Test: theCAFI = " << theCAFI << std::endl;
+      std::cout << "FP420Test: theCAFI->entries = " << theCAFI->entries() << std::endl;
+    }
  // edm::LogInfo("FP420Test") << "theCAFI->entries="<< theCAFI->entries();
 
   // access to the G4 hit collections ----> variant 2: give 0 hits
@@ -1065,7 +1071,8 @@ void FP420Test::update(const EndOfEvent * evt) {
   // for all except zzzmarta.xml
 //    if(  lastpo.z()<z4  ||  abs(lastpo.x())> 5. || lastpo.y()< 10.2 || lastpo.y()>30.2   ) {
 // for zzzmarta.xml
-    if(  lastpo.z()<z4  ||  abs(lastpo.x())> 10. || lastpo.y()< 3.2 || lastpo.y()>43.2   ) {
+    //   if(  lastpo.z()<z4  ||  abs(lastpo.x())> 10. || lastpo.y()< 3.2 || lastpo.y()>43.2   ) {
+    if(  lastpo.z()< z4) {
 //  if(  lastpo.z()<z4 && lastpo.perp()< 100. ) {
 //  if(lastpo.z()<z4  || lastpo.perp()> 45.) {
     //UserNtuples->fillg66(theCAFI->entries(),1.);
@@ -1078,9 +1085,16 @@ void FP420Test::update(const EndOfEvent * evt) {
     varia = 2;
   }   // no MI end:
 
-        varia = 0;
-        if( varia == 0) {
-  //  if( varia == 2) {
+   for (int j=0; j<theCAFI->entries(); j++) {
+    FP420G4Hit* aHit = (*theCAFI)[j];
+    Hep3Vector hitPoint = aHit->getEntry();
+    double   zz    = hitPoint.z();
+    TheHistManager->GetHisto("zHits")->Fill(zz);
+    if(tracklength0>8300.) TheHistManager->GetHisto("zHitsTrLoLe")->Fill(zz);
+   }
+   // varia = 0;
+   //     if( varia == 0) {
+   if( varia == 2) {
 
 // .............
 // number of hits < 50
@@ -1131,7 +1145,9 @@ void FP420Test::update(const EndOfEvent * evt) {
 //    double   xx    = hitPoint.x();
 //    double   yy    = hitPoint.y();
     double   zz    = hitPoint.z();
-    TheHistManager->GetHisto("zHits")->Fill(zz);
+
+    TheHistManager->GetHisto("zHitsnoMI")->Fill(zz);
+
     if (verbosity > 2) {
       std::cout << "FP420Test:zHits = " << zz << std::endl;
     }
