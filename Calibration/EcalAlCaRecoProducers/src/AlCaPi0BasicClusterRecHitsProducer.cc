@@ -243,6 +243,7 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
 			      {
 				aHit = recHitsEB_map->find(det);
 				pi0EBRecHitCollection->push_back(aHit->second);
+				scXtals.push_back(det);
 
 				EBDetId sel_rh = aHit->second.detid();
 				cout << "       RecHit Ok 20x20 matrix outside cluster # "<<intbc<<" : z,ieta,iphi "<<sel_rh.zside()<<" "<<sel_rh.ieta()<<" "<<sel_rh.iphi()<<endl;    
