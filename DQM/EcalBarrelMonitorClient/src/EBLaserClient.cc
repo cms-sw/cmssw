@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/23 15:57:26 $
- * $Revision: 1.118 $
+ * $Date: 2007/01/23 17:56:33 $
+ * $Revision: 1.119 $
  * \author G. Della Ricca
  *
 */
@@ -179,8 +179,8 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
 
   percentVariation_ = 0.4;
 
+  amplitudeThresholdPN_ = 50.;
   meanThresholdPN_ = 200.;
-  amplitudeThresholdPN_ = 200.;
 
 }
 
