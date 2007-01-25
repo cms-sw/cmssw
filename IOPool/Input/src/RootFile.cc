@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.52 2007/01/19 04:33:29 wmtan Exp $
+$Id: RootFile.cc,v 1.53 2007/01/23 23:30:10 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -76,7 +76,9 @@ namespace edm {
 
     metaDataTree->GetEntry(0);
 
-    assert(fileFormatVersion_.isValid());
+    if (!fileFormatVersion_.isValid()) {
+      fileFormatVersion_.value_ = 0;
+    }
     assert(eventTree().isValid());
     if (fileFormatVersion_.value_ >= 2) {
       assert(lumiTree().isValid());
