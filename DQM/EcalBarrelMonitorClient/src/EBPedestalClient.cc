@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/01/23 15:29:25 $
- * $Revision: 1.111 $
+ * $Date: 2007/01/25 18:30:22 $
+ * $Revision: 1.112 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -291,9 +291,9 @@ void EBPedestalClient::setup(void) {
 
     int ism = superModules_[i];
 
-    EBMUtilsClient::resetHisto( met01_[ism-1] );
-    EBMUtilsClient::resetHisto( met02_[ism-1] );
-    EBMUtilsClient::resetHisto( met03_[ism-1] );
+    EBMUtilsClient::resetHisto( meg01_[ism-1] );
+    EBMUtilsClient::resetHisto( meg02_[ism-1] );
+    EBMUtilsClient::resetHisto( meg03_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
