@@ -13,9 +13,9 @@
   <SpecPar name="BeamPipeNotBeryllium">
     <PartSelector path="//BEAM" />
     <Parameter name="CMSCutsRegion" value="BeamPipeInternal" eval="false"/>
-    <Parameter name="ProdCutsForElectrons" value="100*mm"/>
-    <Parameter name="ProdCutsForPositrons" value="100*mm"/>
-    <Parameter name="ProdCutsForGamma" value="100*mm"/>
+    <Parameter name="ProdCutsForElectrons" value="10000*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="10000*mm"/>
+    <Parameter name="ProdCutsForGamma" value="10000*mm"/>
   </SpecPar>
 
 </SpecParSection>
