@@ -1,3 +1,9 @@
+//  \file AlignableNavigator.cc
+//
+//   $Revision: 1.5 $
+//   $Date: 2006/11/30 10:34:05 $
+//   (last update by $Author: flucke $)
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -14,7 +20,7 @@ AlignableNavigator::AlignableNavigator( Alignable* alignable )
 
   recursiveGetId( alignable );
 
-  edm::LogInfo("Alignment") <<"[AlignableNavigator] created with map of size "
+  edm::LogInfo("Alignment") <<"@SUB=AlignableNavigator" << "created with map of size "
                             << theMap.size();
 }
 
@@ -27,7 +33,7 @@ AlignableNavigator::AlignableNavigator( Alignable* tracker, Alignable* muon )
   recursiveGetId( tracker );
   recursiveGetId( muon );
 
-  edm::LogInfo("Alignment") <<"[AlignableNavigator] created with map of size "
+  edm::LogInfo("Alignment") <<"@SUB=AlignableNavigator" << "created with map of size "
                             << theMap.size();
 }
 
@@ -38,12 +44,11 @@ AlignableNavigator::AlignableNavigator( std::vector<Alignable*> alignables )
 {
   theMap.clear();
 
-  for ( std::vector<Alignable*>::iterator it = alignables.begin();
-	it != alignables.end(); it++ )
+  for ( std::vector<Alignable*>::iterator it = alignables.begin(); it != alignables.end(); ++it )
     recursiveGetId( *it );
 
-  edm::LogInfo("Alignment") <<"[AlignableNavigator] created with map of size "
-    << theMap.size();
+  edm::LogInfo("Alignment") <<"@SUB=AlignableNavigator" << "created with map of size "
+                            << theMap.size();
 }
 
 //_____________________________________________________________________________
@@ -60,7 +65,8 @@ Alignable* AlignableNavigator::alignableFromDetId( const DetId& detid )
   MapType::iterator position = theMap.find( detid );
   if ( position != theMap.end() ) return position->second;
 
-  throw cms::Exception("BadLogic") << "[AlignableNavigator::alignableFromDetId] DetId " << detid.rawId() << " not found";
+  throw cms::Exception("BadLogic") 
+    << "[AlignableNavigator::alignableFromDetId] DetId " << detid.rawId() << " not found";
 }
 
 //_____________________________________________________________________________
@@ -80,10 +86,12 @@ AlignableDet* AlignableNavigator::alignableDetFromDetId( const DetId& detid )
   if (!aliDet) {
     Alignable* mother = ali->mother();
     if (mother) aliDet=dynamic_cast<AlignableDet*>(mother);
-    else throw cms::Exception("BadLogic") << "[AlignableNavigator::alignableDetFromDetId] Not AlignableDet but also no mother...  ";
+    else throw cms::Exception("BadLogic") 
+      << "[AlignableNavigator::alignableDetFromDetId] Not AlignableDet but also no mother...  ";
   }
   if ( aliDet ) return aliDet;
-  else throw cms::Exception("BadAssociation") << "[AlignableNavigator::alignableDetsFromDetId] cannot find AlignableDet associated to DetId!";
+  else {throw cms::Exception("BadAssociation") 
+      << "[AlignableNavigator::alignableDetsFromDetId] cannot find AlignableDet associated to DetId!";
 }
 
 //_____________________________________________________________________________
@@ -97,10 +105,11 @@ void AlignableNavigator::recursiveGetId( Alignable* alignable )
 	theMap.insert( PairType( alignable->geomDetId(), alignable ) );
   std::vector<Alignable*> comp = alignable->components();
   if ( alignable->alignableObjectId() != AlignableObjectId::AlignableDet
-       || comp.size() > 1 ) // Non-glued AlignableDets contain themselves
-    for ( std::vector<Alignable*>::iterator it = comp.begin(); 
-      it != comp.end(); it++ )
+       || comp.size() > 1 ) { // Non-glued AlignableDets contain themselves
+    for ( std::vector<Alignable*>::iterator it = comp.begin(); it != comp.end(); ++it ) {
       this->recursiveGetId( *it );
+    }
+  }
 }
 
 //_____________________________________________________________________________
@@ -111,7 +120,7 @@ AlignableNavigator::alignableDetsFromHits( const std::vector<const TransientTrac
   std::vector<AlignableDet*> alidetvec;
 
   for(std::vector<const TransientTrackingRecHit*>::const_iterator ih=
-    hitvec.begin(); ih!=hitvec.end(); ih++ ) {
+        hitvec.begin(); ih!=hitvec.end(); ++ih ) {
     AlignableDet* aliDet = alignableDetFromDetId((*ih)->geographicalId());
     if ( aliDet )
       alidetvec.push_back( aliDet );
