@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/01/23 14:00:50 $
- * $Revision: 1.110 $
+ * $Date: 2007/01/23 15:29:25 $
+ * $Revision: 1.111 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -91,6 +91,9 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
     meg01_[ism-1] = 0;
     meg02_[ism-1] = 0;
     meg03_[ism-1] = 0;
+
+    meg04_[ism-1] = 0;
+    meg05_[ism-1] = 0;
 
     mep01_[ism-1] = 0;
     mep02_[ism-1] = 0;
@@ -235,6 +238,13 @@ void EBPedestalClient::setup(void) {
     sprintf(histo, "EBPT pedestal quality G12 SM%02d", ism);
     meg03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
+    if ( meg04_[ism-1] ) bei->removeElement( meg04_[ism-1]->getName() );
+    sprintf(histo, "EBPT pedestal quality PN G01 SM%02d", ism);
+    meg04_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    if ( meg05_[ism-1] ) bei->removeElement( meg05_[ism-1]->getName() );
+    sprintf(histo, "EBPT pedestal quality PN G16 SM%02d", ism);
+    meg05_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+
     if ( mep01_[ism-1] ) bei->removeElement( mep01_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal mean G01 SM%02d", ism);
     mep01_[ism-1] = bei->book1D(histo, histo, 100, 150., 250.);
@@ -293,6 +303,13 @@ void EBPedestalClient::setup(void) {
         meg03_[ism-1]->setBinContent( ie, ip, 2. );
 
       }
+    }
+
+    for ( int i = 1; i <= 10; i++ ) {
+
+        meg04_[ism-1]->setBinContent( i, 1, 2. );
+        meg05_[ism-1]->setBinContent( i, 1, 2. );
+
     }
 
     EBMUtilsClient::resetHisto( mep01_[ism-1] );
@@ -382,6 +399,11 @@ void EBPedestalClient::cleanup(void) {
     meg02_[ism-1] = 0;
     if ( meg03_[ism-1] ) bei->removeElement( meg03_[ism-1]->getName() );
     meg03_[ism-1] = 0;
+
+    if ( meg04_[ism-1] ) bei->removeElement( meg04_[ism-1]->getName() );
+    meg04_[ism-1] = 0;
+    if ( meg05_[ism-1] ) bei->removeElement( meg05_[ism-1]->getName() );
+    meg05_[ism-1] = 0;
 
     if ( mep01_[ism-1] ) bei->removeElement( mep01_[ism-1]->getName() );
     mep01_[ism-1] = 0;
@@ -601,22 +623,6 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   MonPNPedDat pn;
   map<EcalLogicID, MonPNPedDat> dataset2;
 
-  uint64_t bits01 = 0;
-  bits01 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_ERROR");
-  bits01 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_ERROR");
-
-  uint64_t bits02 = 0;
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_WARNING");
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_WARNING");
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
-
-  map<EcalLogicID, RunPNErrorsDat> mask;
-
-  EcalErrorMask::fetchDataSet(&mask);
-
   const float m_min_tot = 1000.;
   const float m_min_bin = 50.;
 
@@ -669,31 +675,12 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
       pn.setPedMeanG16(mean02);
       pn.setPedRMSG16(rms02);
 
-      if ( mean01 > meanThresholdPN_ && mean02 > meanThresholdPN_ ) {
+      if ( meg04_[ism-1] && int(meg04_[ism-1]->getBinContent( i, 1 )) % 3 == 1. &&
+           meg05_[ism-1] && int(meg05_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
         pn.setTaskStatus(true);
       } else {
         pn.setTaskStatus(false);
-        if ( mask.size() != 0 ) {
-          map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
-          for (m = mask.begin(); m != mask.end(); m++) {
-
-            EcalLogicID ecid = m->first;
-
-            if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
-              if ( mean01 > meanThresholdPN_ ) {
-                if ( ! ((m->second).getErrorBits() & bits01) ) {
-                  status = status && false;
-                }
-              }
-              if ( mean02 > meanThresholdPN_ ) {
-                if ( ! ((m->second).getErrorBits() & bits02) ) {
-                  status = status && false;
-                }
-              }
-            }
-
-          }
-        }
+        status = status && false;
       }
 
       if ( econn ) {
@@ -1113,6 +1100,9 @@ void EBPedestalClient::analyze(void){
     EBMUtilsClient::resetHisto( meg02_[ism-1] );
     EBMUtilsClient::resetHisto( meg03_[ism-1] );
 
+    EBMUtilsClient::resetHisto( meg04_[ism-1] );
+    EBMUtilsClient::resetHisto( meg05_[ism-1] );
+
     EBMUtilsClient::resetHisto( mep01_[ism-1] );
     EBMUtilsClient::resetHisto( mep02_[ism-1] );
     EBMUtilsClient::resetHisto( mep03_[ism-1] );
@@ -1254,6 +1244,93 @@ void EBPedestalClient::analyze(void){
         }
 
       } 
+    }
+
+    const float m_min_tot = 1000.;
+    const float m_min_bin = 50.;
+
+//    float num01, num02;
+//    float mean01, mean02;
+//    float rms01, rms02;
+
+    for ( int i = 1; i <= 10; i++ ) {
+
+      num01 = num02 = -1;
+      mean01 = mean02 = -1;
+      rms01 = rms02 = -1;
+
+      if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( i, 1, 2. );
+      if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent( i, 1, 2. );
+
+      bool update_channel1 = false;
+      bool update_channel2 = false;
+
+      if ( i01_[ism-1] && i01_[ism-1]->GetEntries() >= m_min_tot ) {
+        num01 = i01_[ism-1]->GetBinEntries(i01_[ism-1]->GetBin(1, i));
+        if ( num01 >= m_min_bin ) {
+          mean01 = i01_[ism-1]->GetBinContent(i01_[ism-1]->GetBin(1, i));
+          rms01 = i01_[ism-1]->GetBinError(i01_[ism-1]->GetBin(1, i));
+          update_channel1 = true;
+        }
+      }
+
+      if ( i02_[ism-1] && i02_[ism-1]->GetEntries() >= m_min_tot ) {
+        num02 = i02_[ism-1]->GetBinEntries(i02_[ism-1]->GetBin(1, i));
+        if ( num02 >= m_min_bin ) {
+          mean02 = i02_[ism-1]->GetBinContent(i02_[ism-1]->GetBin(1, i));
+          rms02 = i02_[ism-1]->GetBinError(i02_[ism-1]->GetBin(1, i));
+          update_channel2 = true;
+        }
+      }
+
+      if ( update_channel1 ) {
+
+        float val;
+
+        val = 1.;
+        if ( mean01 < meanThresholdPN_ )
+          val = 0.;
+        if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent(i, 1, val);
+
+      }
+
+      if ( update_channel2 ) {
+
+        float val;
+
+        val = 1.;
+        if ( mean02 < meanThresholdPN_ ) 
+          val = 0.;
+        if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(i, 1, val);
+
+      }
+
+      // masking
+
+      if ( mask2.size() != 0 ) {
+        map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
+        for (m = mask2.begin(); m != mask2.end(); m++) {
+
+          EcalLogicID ecid = m->first;
+
+          if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
+            if ( (m->second).getErrorBits() & bits01 ) {
+              if ( meg04_[ism-1] ) {
+                float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;
+                meg04_[ism-1]->setBinContent( i, 1, val+3 );
+              }
+            }
+            if ( (m->second).getErrorBits() & bits03 ) {
+              if ( meg05_[ism-1] ) {
+                float val = int(meg05_[ism-1]->getBinContent(i, 1)) % 3;
+                meg05_[ism-1]->setBinContent( i, 1, val+3 );
+              }
+            }
+          }
+
+        }
+      }
+
     }
 
     vector<dqm::me_util::Channel> badChannels;
@@ -1484,7 +1561,16 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   dummy.SetMarkerSize(2);
   dummy.SetMinimum(0.1);
 
-  string imgNameQual[3], imgNameMean[3], imgNameRMS[3], imgName3Sum[3], imgName5Sum[3], imgNameMEPnPed[2], imgName, meName;
+  TH2C dummy1( "dummy1", "dummy1 for sm mem", 10, 0, 10, 5, 0, 5 );
+  for ( short i=0; i<2; i++ ) {
+    int a = 2 + i*5;
+    int b = 2;
+    dummy1.Fill( a, b, i+1+68 );
+  }
+  dummy1.SetMarkerSize(2);
+  dummy1.SetMinimum(0.1);
+
+  string imgNameQual[3], imgNameMean[3], imgNameRMS[3], imgName3Sum[3], imgName5Sum[3], imgNameMEPnQual[2], imgNameMEPnPed[2], imgName, meName;
 
   TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
   TCanvas* cMean = new TCanvas("cMean", "Temp", csize, csize);
@@ -1749,6 +1835,48 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       // Monitoring elements plots
 
+      imgNameMEPnQual[iCanvas-1] = "";
+
+      obj2f = 0;
+      switch ( iCanvas ) {
+      case 1:
+        obj2f = EBMUtilsClient::getHisto<TH2F*>( meg04_[ism-1] );
+        break;
+      case 2:
+        obj2f = EBMUtilsClient::getHisto<TH2F*>( meg05_[ism-1] );
+        break;
+      default:
+        break;
+      }
+
+      if ( obj2f ) {
+
+        meName = obj2f->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1, "_");
+          }
+        }
+        imgNameMEPnQual[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnQual[iCanvas-1];
+
+        cQual->cd();
+        gStyle->SetOptStat(" ");
+        gStyle->SetPalette(6, pCol3);
+        obj2f->GetXaxis()->SetNdivisions(10);
+        obj2f->GetYaxis()->SetNdivisions(5);
+        cQual->SetGridx();
+        cQual->SetGridy(0);
+        obj2f->SetMinimum(-0.00000001);
+        obj2f->SetMaximum(5.0);
+        obj2f->Draw("col");
+        dummy1.Draw("text,same");
+        cQual->Update();
+        cQual->SaveAs(imgName.c_str());
+
+      }
+
       imgNameMEPnPed[iCanvas-1] = "";
 
       obj1d = 0;
@@ -1866,6 +1994,23 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "</tr>" << endl;
 
     htmlFile << "<tr align=\"center\"><td>Gain 1</td><td>Gain 6</td><td>Gain 12</td></tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
+
+      if ( imgNameMEPnQual[iCanvas-1].size() != 0 )
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnQual[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+
+    }
+
+    htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
 

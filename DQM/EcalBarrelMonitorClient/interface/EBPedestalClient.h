@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2006/12/15 09:44:49 $
- * $Revision: 1.44 $
+ * $Date: 2007/01/23 15:29:25 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -132,6 +132,9 @@ TProfile2D* k03_[36];
 MonitorElement* meg01_[36];
 MonitorElement* meg02_[36];
 MonitorElement* meg03_[36];
+
+MonitorElement* meg04_[36];
+MonitorElement* meg05_[36];
 
 MonitorElement* mep01_[36];
 MonitorElement* mep02_[36];
