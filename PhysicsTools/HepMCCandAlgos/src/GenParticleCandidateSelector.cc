@@ -1,4 +1,4 @@
-// $Id: GenParticleCandidateSelector.cc,v 1.1 2006/11/07 12:54:02 llista Exp $
+// $Id: GenParticleCandidateSelector.cc,v 1.2 2006/11/13 12:43:49 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/GenParticleCandidateSelector.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
@@ -18,9 +18,44 @@ using namespace std;
 GenParticleCandidateSelector::GenParticleCandidateSelector( const ParameterSet & p ) :
   src_( p.getParameter<string>( "src" ) ),
   stableOnly_( p.getParameter<bool>( "stableOnly" ) ),
-  excludeList_( p.getParameter<vstring>( "excludeList" ) ),
+  bInclude_(0),
   verbose_( p.getUntrackedParameter<bool>( "verbose" ) ) {
+
   produces<CandidateCollection>();
+
+  //check optional parameters includeList and excludeList
+  const std::string excludeString("excludeList");
+  const std::string includeString("includeList");
+  vstring includeList, excludeList;
+
+  std::vector<std::string> vstringParams = 
+    p.getParameterNamesForType<vstring>();
+  // check for include list
+  bool found = std::find( vstringParams.begin(), vstringParams.end(), 
+    includeString) != vstringParams.end();
+  if ( found ) includeList = p.getParameter<vstring>( includeString );
+  // check for exclude list
+  found = std::find( vstringParams.begin(), vstringParams.end(), 
+    excludeString) != vstringParams.end();
+  if ( found ) excludeList = p.getParameter<vstring>( excludeString );
+
+  // checking configuration cases
+  bool bExclude(0);
+  if ( includeList.size() > 0 ) bInclude_ = 1;
+  if ( excludeList.size() > 0 ) bExclude = 1;
+
+  if ( bInclude_ && bExclude ) {
+    throw cms::Exception( "ConfigError", "not allowed to use both includeList and excludeList at the same time\n");
+  }
+  else if ( bInclude_ ) {
+    caseString_ = "Including";
+    pNameList_ = includeList;
+  }
+  else {
+    caseString_ = "Excluding";
+    pNameList_ = excludeList;
+  }
+
 }
 
 GenParticleCandidateSelector::~GenParticleCandidateSelector() { 
@@ -33,15 +68,15 @@ void GenParticleCandidateSelector::beginJob( const EventSetup & es ) {
   
   if ( verbose_ && stableOnly_ )
     LogInfo ( "INFO" ) << "Excluding unstable particles";
-  for( vstring::const_iterator e = excludeList_.begin(); 
-       e != excludeList_.end(); ++ e ) {
-    const DefaultConfig::ParticleData * p = pdt->particle( * e );
+  for( vstring::const_iterator name = pNameList_.begin(); 
+       name != pNameList_.end(); ++ name ) {
+    const DefaultConfig::ParticleData * p = pdt->particle( * name );
     if ( p == 0 ) 
       throw cms::Exception( "ConfigError", "can't find particle" )
-	<< "can't find particle: " << * e;
+	<< "can't find particle: " << * name;
     if ( verbose_ )
-      LogInfo ( "INFO" ) << "Excluding particle " << *e << ", id: " << p->pid();
-    excludedIds_.insert( abs( p->pid() ) );
+      LogInfo ( "INFO" ) << caseString_ <<" particle " << *name << ", id: " << p->pid();
+    pIds_.insert( abs( p->pid() ) );
   }
 }
 
@@ -56,7 +91,9 @@ void GenParticleCandidateSelector::produce( Event& evt, const EventSetup& ) {
     int status = reco::status( * p );
     if ( ! stableOnly_ || status == 1 ) {
       int id = abs( reco::pdgId( * p ) );
-      if ( excludedIds_.find( id ) == excludedIds_.end() ) {
+      // id not in list + exclude= keep, in list + include = keep, otherwise drop
+      // -> XOR operation: end XOR bInclude; 
+      if ( pIds_.find( id ) == pIds_.end() ^ bInclude_) { 
 	if ( verbose_ )
 	  LogInfo( "INFO" ) << "Adding candidate for particle with id: " 
 			    << id << ", status: " << status;

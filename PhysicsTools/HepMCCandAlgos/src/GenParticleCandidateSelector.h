@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateSelector.h,v 1.5 2006/10/06 12:06:59 llista Exp $
+ * \version $Id: GenParticleCandidateSelector.h,v 1.1 2006/11/07 12:54:02 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -30,10 +30,14 @@ class GenParticleCandidateSelector : public edm::EDProducer {
   std::string src_;
   // selects only stable particles (HEPEVT status = 1)
   bool stableOnly_;
-  /// exclude list
-  vstring excludeList_;
+  /// name of particles in include or exclude list
+  vstring pNameList_;
+  /// using include list?
+  bool bInclude_;
+  /// output string for debug
+  std::string caseString_;
   /// set of excluded particle id's
-  std::set<int> excludedIds_;
+  std::set<int> pIds_;
   /// verbose flag
   bool verbose_;
 };
