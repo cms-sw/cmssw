@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.5 $
- *  $Date: 2006/11/15 14:26:44 $
+ *  $Revision: 1.6 $
+ *  $Date: 2006/11/30 10:34:05 $
  *  (last update by $Author: flucke $)
  */
 
@@ -185,8 +185,9 @@ Alignable* PedeSteerer::alignableFromLabel(unsigned int label) const
 }
 
 //_________________________________________________________________________
-float PedeSteerer::cmsToPedeFactor(unsigned int parNum) const
+double PedeSteerer::cmsToPedeFactor(unsigned int parNum) const
 {
+
   switch (parNum) {
   case RigidBodyAlignmentParameters::dx:
   case RigidBodyAlignmentParameters::dy:
@@ -277,7 +278,7 @@ int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector
   int result = 0;
   float fixAt = 0.;
   if (selector == 'c') {
-    fixAt = RigidBodyAlignmentParameters(ali).parameters()[iParam];//this->origParam(ali, iParam);
+    fixAt = RigidBodyAlignmentParameters(ali).parameters()[iParam];
     result = -1;
   } else if (selector == 'f') {
     result = 1;
@@ -289,7 +290,8 @@ int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector
 
   if (result) {
     const unsigned int aliLabel = this->alignableLabel(ali);
-    mySteerFile << this->parameterLabel(aliLabel, iParam) << "  " << fixAt << " -1.0";
+    mySteerFile << this->parameterLabel(aliLabel, iParam) << "  " 
+                << fixAt * this->cmsToPedeFactor(iParam) << " -1.0";
     if (0) { // debug
       const GlobalPoint position(ali->globalPosition());
       mySteerFile << " eta " << position.eta() << ", z " << position.z()
@@ -319,13 +321,13 @@ std::string PedeSteerer::pedeOutFile() const
 }
 
 //_________________________________________________________________________
-bool PedeSteerer::runPede(const std::string &binaryFile) const
+bool PedeSteerer::runPede(const std::string &binaryFiles) const
 {
   std::string command(myConfig.getUntrackedParameter<std::string>("pedeCommand"));
   command += "n ";
   command += this->directory() += myConfig.getParameter<std::string>("steerFile");
   command += " ";
-  command += binaryFile;
+  command += binaryFiles;
   const std::string dump(myConfig.getUntrackedParameter<std::string>("pedeDump"));
   if (!dump.empty()) {
     command += " > ";

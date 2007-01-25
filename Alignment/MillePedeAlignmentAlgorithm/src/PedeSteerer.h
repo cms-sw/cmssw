@@ -8,8 +8,8 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2006/11/15 14:26:44 $
- * $Revision: 1.4 $
+ * $Date: 2006/11/30 10:34:05 $
+ * $Revision: 1.5 $
  * (last update by $Author: flucke $)
  */
 
@@ -46,9 +46,9 @@ class PedeSteerer
   /// alignable from alignable or parameter label
   Alignable* alignableFromLabel(unsigned int label) const;
 
-  bool runPede(const std::string &binaryFile) const;
+  bool runPede(const std::string &binaryFiles) const;
   std::string pedeOutFile() const;
-  float cmsToPedeFactor(unsigned int parNum) const;
+  double cmsToPedeFactor(unsigned int parNum) const;
 
  private:
   typedef std::map <Alignable*, unsigned int> AlignableToIdMap;
@@ -65,8 +65,8 @@ class PedeSteerer
   std::string directory() const;
 
   edm::ParameterSet myConfig;
-  std::ofstream     mySteerFile; // text file
-  AlignableToIdMap  myAlignableToIdMap; /// providing unique ID for alignable with space for params
+  std::ofstream     mySteerFile; /// text steering file
+  AlignableToIdMap  myAlignableToIdMap; /// providing unique ID for alignable, space for param IDs
   IdToAlignableMap  myIdToAlignableMap; /// reverse map
 
   static const unsigned int theMaxNumParam;
