@@ -4,5 +4,5 @@
 #include "CalibTracker/SiStripLorentzAngle/interface/SiStripLorentzAngle.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiStripLorentzAngle)
+DEFINE_ANOTHER_FWK_MODULE(SiStripLorentzAngle);
 

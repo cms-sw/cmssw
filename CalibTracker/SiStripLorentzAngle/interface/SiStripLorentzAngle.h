@@ -28,13 +28,17 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibTracker/SiStripLorentzAngle/interface/TrackLocalAngle.h"
+
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 
 #include <TROOT.h>
 #include <TTree.h>
 #include <TFile.h>
 #include <TH1F.h>
+#include <TH2F.h>
+#include <TH1.h>
 #include <TF1.h>
 #include <TProfile.h>
 #include <TFolder.h>
@@ -56,14 +60,7 @@ class SiStripLorentzAngle : public edm::EDAnalyzer
   virtual void endJob(); 
   
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  
-  void findtrackangle(const TrajectorySeed& seed,
-		      const TrackingRecHitCollection &hits,
-		      const edm::Event& e, 
-		      const edm::EventSetup& es);
-  
-  TrajectoryStateOnSurface startingTSOS(const TrajectorySeed& seed)const;
-  
+    
   const char* makename(DetId detid);
   
   const char* makedescription(DetId detid);
@@ -75,25 +72,31 @@ class SiStripLorentzAngle : public edm::EDAnalyzer
   typedef std::map <int, TProfile*> histomap;
   histomap histos;
   
-  typedef struct {double chi2; int ndf; double p0; double p1; double p2; double errp0; double errp1; double errp2; double min;} histofit ;
+  typedef struct {double chi2; int ndf; double p0; double p1; double p2; double errp0; double errp1; double errp2;} histofit ;
   typedef std::map <int, histofit*> fitmap;
   fitmap fits;
   
   typedef std::vector<std::pair<const TrackingRecHit *,float> > hitanglevector;  
   typedef std::map <const reco::Track *, hitanglevector> trackhitmap;
+  
+  typedef struct {float thickness; float pitch;} detparameters;
+  typedef std::map <int, detparameters*> detparmap;
+  detparmap detmap;
+  
+  typedef unsigned short uint16_t;
     
   edm::ParameterSet conf_;
   std::string filename_;
   
   std::vector<DetId> Detvector;
   
-  TrackLocalAngle *anglefinder_;
-  
   int mtcctibcorr, mtcctobcorr;
   
   int monodscounter;
   int monosscounter;
   int stereocounter;
+  int eventcounter, trackcounter, hitcounter, runcounter;
+  int runvector[1000];
   
   int run;
   int event;
@@ -105,51 +108,59 @@ class SiStripLorentzAngle : public edm::EDAnalyzer
   int bwfw;
   int wheel;
   int type;
-  int layer;
-  int sign;
-  int charge;
-  float angle;
-  float stereocorrection;
+  int layer, TIBlayer2, TIBlayer3, TOBlayer1, TOBlayer5, TECwheel1;
+  int ParticleCharge;
+  float TrackLocalAngle;
+  float trackproj;
+  float signprojcorrection;
   float localmagfield;
+  float tangent;
   int monostereo;
-  float momentum, pt;
+  float momentum, pt, chi2, chi2norm;
+  float ndof;
+  int hitscharge;
+  float ThetaTrack;
+  float PhiTrack;
+  int SeedType;
+  int SeedSize;
+  int SeedLayer;
+  int TOB_YtoGlobalSign;
   
-  int eventcounter, trackcounter, hitcounter;
+  int hitspertrack;
+  int trackcollsize;
+  int trajsize;
+  int MONOhitsTIBL2collection;
+  int STEREOhitsTIBL2collection;
+  int hitsTIBL3collection;
+  int hitsTOBL1collection;
+  int hitsTOBL5collection;
+  int hitsTOBcoll;
+  int MONOhitsTECcollection;
+  int STEREOhitsTECcollection;
+  int hitcharge;
+  int HitSize;
+  
+  int MONOhitschargeTIBL2[1000];
+  int STEREOhitschargeTIBL2[1000];
+  int hitschargeTIBL3[1000];
+  int hitschargeTOBL1[1000];
+  int hitschargeTOBL5[1000];
+  int MONOhitschargeTEC[1000];
+  int STEREOhitschargeTEC[1000];  
+  
+  int TOB_YtoGlobalSignColl[1000];
+ 
   LocalVector localmagdir;
-  
-  
-  
-    
+      
   TF1* fitfunc;
   TFile* hFile;
   TTree* SiStripLorentzAngleTree;
-   
-  TH1F  *hphi, *hnhit;
-  TH1F  *htaTIBL1mono;
-  TH1F  *htaTIBL1stereo;
-  TH1F  *htaTIBL2mono;
-  TH1F  *htaTIBL2stereo;
-  TH1F  *htaTIBL3;
-  TH1F  *htaTIBL4;
-  TH1F  *htaTOBL1mono;
-  TH1F  *htaTOBL1stereo;
-  TH1F  *htaTOBL2mono;
-  TH1F  *htaTOBL2stereo;
-  TH1F  *htaTOBL3;
-  TH1F  *htaTOBL4;
-  TH1F  *htaTOBL5;
-  TH1F  *htaTOBL6;
-  TProfile *hwvst;
-      
-  bool seed_plus;
-  PropagatorWithMaterial  *thePropagator;
-  PropagatorWithMaterial  *thePropagatorOp;
-  KFUpdator *theUpdator;
-  Chi2MeasurementEstimator *theEstimator;
+  TTree* TrackHitTree;
+  
+  TH1F *CollHitSizeTOBL1, *CollHitSizeTOBL5, *CollHitSizeTIBL2mono, *CollHitSizeTIBL2stereo, *CollHitSizeTIBL3;
+  TH1F *TrackHitSizeTOBL1, *TrackHitSizeTOBL5, *TrackHitSizeTIBL2mono, *TrackHitSizeTIBL2stereo, *TrackHitSizeTIBL3;
   
   const TransientTrackingRecHitBuilder *RHBuilder;
-  const KFTrajectorySmoother * theSmoother;
-  const KFTrajectoryFitter * theFitter;
   const TrackerGeometry * tracker;
   const MagneticField * magfield;
   TrajectoryStateTransform tsTransform;
@@ -157,7 +168,8 @@ class SiStripLorentzAngle : public edm::EDAnalyzer
   //Directory hierarchy  
   
   TDirectory *histograms;
-  TDirectory *summary;  
+  TDirectory *summary; 
+  TDirectory *sizesummary; 
   
   //TIB-TID-TOB-TEC    
   
