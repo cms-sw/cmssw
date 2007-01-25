@@ -20,9 +20,9 @@
 <use name=TBDataFormats/HcalTBObjects>
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/L1Trigger>
-<flags SEAL_PLUGIN_NAME="HLTriggerHLTAnalyzers">
+<flags SEAL_PLUGIN_NAME="HLTriggerHLTanalyzers">
 <export>
-  <lib name=HLTriggerHLTAnalyzers>
+  <lib name=HLTriggerHLTanalyzers>
   <use name=FWCore/Framework>
   <use name=Foundation/PluginManager>
   <use name=FWCore/ParameterSet>
