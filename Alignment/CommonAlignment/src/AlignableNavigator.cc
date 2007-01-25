@@ -1,7 +1,7 @@
 //  \file AlignableNavigator.cc
 //
-//   $Revision: 1.5 $
-//   $Date: 2006/11/30 10:34:05 $
+//   $Revision: 1.8 $
+//   $Date: 2007/01/25 09:01:47 $
 //   (last update by $Author: flucke $)
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -90,8 +90,8 @@ AlignableDet* AlignableNavigator::alignableDetFromDetId( const DetId& detid )
       << "[AlignableNavigator::alignableDetFromDetId] Not AlignableDet but also no mother...  ";
   }
   if ( aliDet ) return aliDet;
-  else {throw cms::Exception("BadAssociation") 
-      << "[AlignableNavigator::alignableDetsFromDetId] cannot find AlignableDet associated to DetId!";
+  else throw cms::Exception("BadAssociation") 
+    << "[AlignableNavigator::alignableDetsFromDetId] cannot find AlignableDet associated to DetId!";
 }
 
 //_____________________________________________________________________________
