@@ -5,6 +5,7 @@
  <class name="edmtest::StringProduct"/>
  <class name="edmtest::Simple"/>
  <class name="edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> >"/>
+ <class name="edm::OwnVector<edmtest::Simple, edm::ClonePolicy<edmtest::Simple> >"/>
  <class name="edm::DetSetVector<edmtest::Sortable>"/>
  <class name="edm::DetSetVector<edmtest::Unsortable>"/>
  <class name="edm::Wrapper<edmtest::DummyProduct>"/>
@@ -12,6 +13,7 @@
  <class name="edm::Wrapper<edmtest::DoubleProduct>"/>
  <class name="edm::Wrapper<edmtest::StringProduct>"/>
  <class name="edm::Wrapper<edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> > >"/>
+ <class name="edm::Wrapper<edm::OwnVector<edmtest::Simple, edm::ClonePolicy<edmtest::Simple> > >"/>
  <class name="edm::Wrapper<edm::DetSetVector<edmtest::Sortable> >"/>
  <class name="edm::Wrapper<edm::DetSetVector<edmtest::Unsortable> >"/>
  <class name="edmtest::Thing"/>

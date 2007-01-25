@@ -205,6 +205,51 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  // Produces and OVSimpleProduct product instance.
+  //
+  class OVSimpleProducer : public edm::EDProducer {
+  public:
+    explicit OVSimpleProducer(edm::ParameterSet const& p) : 
+      size_(p.getParameter<int>("size")) 
+    {
+      produces<OVSimpleProduct>();
+      assert ( size_ > 1 );
+    }
+
+    explicit OVSimpleProducer(int i) : size_(i) 
+    {
+      produces<OVSimpleProduct>();
+      assert ( size_ > 1 );
+    }
+
+    virtual ~OVSimpleProducer() { }
+    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    
+  private:
+    int size_;  // number of Simples to put in the collection
+  };
+
+  void
+  OVSimpleProducer::produce(edm::Event& e, 
+			    const edm::EventSetup& /* unused */) 
+  {
+    // Fill up a collection
+    std::auto_ptr<OVSimpleProduct> p(new OVSimpleProduct());
+
+    for (int i = 0; i < size_; ++i)
+      {
+	std::auto_ptr<Simple> simple(new Simple()); 
+	simple->key = size_ - i;
+	simple->value = 1.5 * i;
+        p->push_back(simple);
+      }
+    
+    // Put the product into the Event
+    e.put(p);
+  }
+
+  //--------------------------------------------------------------------
+  //
   // Produces two products:
   //    DSVSimpelProduct
   //    DSVWeirdProduct
@@ -537,6 +582,7 @@ using edmtest::FailingProducer;
 using edmtest::IntProducer;
 using edmtest::DoubleProducer;
 using edmtest::SCSimpleProducer;
+using edmtest::OVSimpleProducer;
 using edmtest::DSVProducer;
 using edmtest::IntTestAnalyzer;
 using edmtest::SCSimpleAnalyzer;
@@ -551,6 +597,7 @@ DEFINE_ANOTHER_FWK_MODULE(FailingProducer);
 DEFINE_ANOTHER_FWK_MODULE(IntProducer);
 DEFINE_ANOTHER_FWK_MODULE(DoubleProducer);
 DEFINE_ANOTHER_FWK_MODULE(SCSimpleProducer);
+DEFINE_ANOTHER_FWK_MODULE(OVSimpleProducer);
 DEFINE_ANOTHER_FWK_MODULE(DSVProducer);
 DEFINE_ANOTHER_FWK_MODULE(IntTestAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(SCSimpleAnalyzer);

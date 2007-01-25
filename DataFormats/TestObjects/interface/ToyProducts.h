@@ -11,6 +11,7 @@ Toy EDProducts for testing purposes only.
 #include <string>
 
 #include "DataFormats/Common/interface/SortedCollection.h"
+#include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 namespace edmtest
@@ -46,10 +47,13 @@ namespace edmtest
 
   struct Simple
   {
+    Simple() : key(0), value(0.0) { }
+    Simple(const Simple& in) : key(in.key), value(in.value) { }
     typedef int key_type;
     key_type    key;
     double      value;
     key_type id() const { return key; }
+    Simple* clone() const { return new Simple(*this); }
   };
 
   inline
@@ -59,6 +63,11 @@ namespace edmtest
     return (a.key==b.key && a.value==b.value);
   }
   
+  inline
+  bool operator< (Simple const& a, Simple const& b)
+  {
+    return a.key < b.key;
+  }
 
   struct Sortable
   {
@@ -90,6 +99,7 @@ namespace edmtest
     
 
   typedef edm::SortedCollection<Simple> SCSimpleProduct;
+  typedef edm::OwnVector<Simple>        OVSimpleProduct;
   typedef edm::DetSetVector<Sortable>   DSVSimpleProduct;
   typedef edm::DetSetVector<Unsortable> DSVWeirdProduct;
 

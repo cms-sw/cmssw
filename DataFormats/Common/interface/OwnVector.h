@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.20 2007/01/23 00:25:52 wmtan Exp $
+// $Id: OwnVector.h,v 1.21 2007/01/23 00:50:00 wmtan Exp $
 
 #include <algorithm>
 #include <functional>
@@ -159,7 +159,9 @@ namespace edm {
     void sort();
 
     void swap(OwnVector<T, P> & other);
-      
+
+    void fillView(std::vector<void const*>& pointers) const;
+
   private:
     void destroy();
     template<typename O>
@@ -372,11 +374,46 @@ namespace edm {
     data_.swap(other.data_);
     std::swap(fixup_, other.fixup_);
   }
-    
+
+  template<typename T, typename P>
+  void OwnVector<T, P>::fillView(std::vector<void const*>& pointers) const
+  {
+    pointers.reserve(this->size());
+    for(typename base::const_iterator i=data_.begin(), e=data_.end(); i!=e; ++i) {
+
+      if (*i == 0) {
+        throw edm::Exception(errors::NullPointerError)
+	  << "In OwnVector::fillView() we have intercepted an attempt to put a null pointer\n"
+	  << "into a View and that is not allowed.  It is probably an error that the null\n"
+	  << "pointer was in the OwnVector in the first place.\n";
+      }
+      else pointers.push_back(*i);
+    }
+  }
+
   template<typename T, typename P>
   inline void swap(OwnVector<T, P>& a, OwnVector<T, P>& b) {
     a.swap(b);
   }
+
+  //----------------------------------------------------------------------
+  //
+  // Free function template to support creation of Views.
+
+  template <typename T, typename P>
+  inline
+  void
+  fillView(OwnVector<T,P> const& obj,
+	   std::vector<void const*>& pointers)
+  {
+    obj.fillView(pointers);
+  }
+
+  template <typename T, typename P>
+  struct has_fillView<edm::OwnVector<T, P> >
+  {
+    static bool const value = true;
+  };
 
 #if ! GCC_PREREQUISITE(3,4,4)
   /// has swap function

@@ -31,6 +31,7 @@ namespace edmtest
   {
     assert(e.size() > 0);
     testProduct<SCSimpleProduct>(e, "simple");
+    testProduct<OVSimpleProduct>(e, "ovsimple");
     testProduct<std::vector<int> >(e, "intvec");
     testProduct<std::list<int> >(e, "intlist");
     testProduct<std::deque<int> >(e, "intdeque");
