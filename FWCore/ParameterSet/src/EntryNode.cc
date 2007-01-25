@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/types.h"
 #include <boost/cstdint.hpp>
 
+#include <iostream>
 using std::string;
 
 namespace edm {
@@ -73,6 +74,8 @@ namespace edm {
 
     Entry EntryNode::makeEntry() const
     {
+      // for checks of strtowhatever
+      char * end;
       if(type()=="string")
        {
          string usethis(withoutQuotes(value_));
@@ -97,27 +100,32 @@ namespace edm {
        }
      else if(type()=="double")
        {
-         double d = strtod(value_.c_str(),0);
+         double d = strtod(value_.c_str(),&end);
+         checkParse(value_, end);
          return Entry(name(), d, !tracked_);
        }
      else if(type()=="int32")
        {
-         int d = strtol(value_.c_str(),0,0);
+         int d = strtol(value_.c_str(),&end,0);
+         checkParse(value_, end);
          return Entry(name(), d, !tracked_);
        }
      else if(type()=="uint32")
        {
-         unsigned int d = strtoul(value_.c_str(),0,0);
+         unsigned int d = strtoul(value_.c_str(),&end,0);
+         checkParse(value_, end);
          return Entry(name(), d, !tracked_);
        }
      else if(type()=="int64")
        {
-         boost::int64_t d = strtol(value_.c_str(),0,0);
+         boost::int64_t d = strtol(value_.c_str(),&end,0);
+         checkParse(value_, end);
          return Entry(name(), d, !tracked_);
        }
      else if(type()=="uint64")
        {
-         boost::int64_t d = strtoul(value_.c_str(),0,0);
+         boost::int64_t d = strtoul(value_.c_str(),&end,0);
+         checkParse(value_, end);
          return Entry(name(), d, !tracked_);
        }
      else if(type()=="bool")
@@ -136,6 +144,22 @@ namespace edm {
        }
 
      }
+
+     void EntryNode::checkParse(const std::string & s, char * end) const
+     {
+       if(*end != 0)
+       {
+         std::ostringstream os, os2;
+         os <<  "Cannot parse value from " << s;
+         printTrace(os2);
+         if(!os2.str().empty())
+         {
+           os << os2.str();
+         }
+         throw cms::Exception("Configuration") << os.str();
+       }
+     }
+        
 
   }
 }

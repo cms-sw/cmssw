@@ -33,6 +33,7 @@ namespace edm {
       virtual edm::Entry makeEntry() const;
 
     private:
+      void checkParse(const std::string & s, char * end) const;
       std::string type_;
       std::string value_;
       bool tracked_;
