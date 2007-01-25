@@ -36,5 +36,6 @@
   <class name="reco::PFParticle"/>
   <class name="std::vector<reco::PFParticle>"/>
   <class name="edm::Wrapper<std::vector<reco::PFParticle> >"/>
+  <class name="reco::PFResolutionMap"/>
 </lcgdict>
 

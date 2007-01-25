@@ -4,6 +4,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFParticle.h"
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
+#include "DataFormats/ParticleFlowReco/interface/PFResolutionMap.h"
 
 namespace { 
   namespace {

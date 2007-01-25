@@ -14,41 +14,42 @@
 /// \todo extrapolation
 /// \date January 2006
 
-class PFResolutionMap : public TH2D {
+namespace reco {
   
- private:
+  class PFResolutionMap : public TH2D {
+  
+  private:
 
- public:
-  static const unsigned lineSize_;
+  public:
+    static const unsigned lineSize_;
 
-  /// default constructor
-  PFResolutionMap() : TH2D() {}
+    /// default constructor
+    PFResolutionMap() : TH2D() {}
 
-  /// create a map from text file mapfile
-  PFResolutionMap(const char* name, const char* mapfile) throw(std::string) ;
+    /// create a map from text file mapfile
+    PFResolutionMap(const char* name, const char* mapfile) throw(std::string) ;
 
-  /// create an empty map and initialize it 
-  PFResolutionMap(const char* name, 
-		  unsigned nbinseta, double mineta, double maxeta,
-		  unsigned nbinse, double mine, double maxe, double value=-1);
+    /// create an empty map and initialize it 
+    PFResolutionMap(const char* name, 
+		    unsigned nbinseta, double mineta, double maxeta,
+		    unsigned nbinse, double mine, double maxe, double value=-1);
 
-  /// create a map from a 2d histogram
-  PFResolutionMap(const TH2D& h) : TH2D(h) {}
+    /// create a map from a 2d histogram
+    PFResolutionMap(const TH2D& h) : TH2D(h) {}
  
 
-  /// read text file
-  bool ReadMapFile(const char* mapfile);
+    /// read text file
+    bool ReadMapFile(const char* mapfile);
 
-  /// write text file
-  bool WriteMapFile(const char* mapfile) const;
+    /// write text file
+    bool WriteMapFile(const char* mapfile) const;
 
-  ///  extrapolation requires overloading of this function
-  int  FindBin(double eta, double e);
+    ///  extrapolation requires overloading of this function
+    int  FindBin(double eta, double e);
 
-  /// print this map
-  friend std::ostream& operator<<(std::ostream& out, const PFResolutionMap& rm);
+    /// print this map
+    friend std::ostream& operator<<(std::ostream& out, const PFResolutionMap& rm);
   
-  //  ClassDef(PFResolutionMap,0)
-};
-
+  };
+}
 #endif

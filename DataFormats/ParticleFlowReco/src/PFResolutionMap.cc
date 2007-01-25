@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFAlgo/interface/PFResolutionMap.h"
+#include "DataFormats/ParticleFlowReco/interface/PFResolutionMap.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -6,6 +6,8 @@
 #include <functional>
 
 using namespace std;
+using namespace reco;
+
 
 const unsigned PFResolutionMap::lineSize_ = 10000;
 
@@ -248,7 +250,7 @@ int PFResolutionMap::FindBin(double eta, double e) {
 
 
 
-ostream& operator<<(ostream& outf, const PFResolutionMap& rm) {
+ostream& reco::operator<<(ostream& outf, const PFResolutionMap& rm) {
 
   if(!outf.good() ) return outf;
 
