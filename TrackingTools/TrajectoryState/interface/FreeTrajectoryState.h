@@ -26,7 +26,9 @@ public:
 // construst
 //default constructor - needed for Persistency
 
-  FreeTrajectoryState() {};
+  FreeTrajectoryState():
+    theCartesianErrorValid(false),
+    theCurvilinearErrorValid(false) {};
 
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters) :
     theGlobalParameters(aGlobalParameters),
