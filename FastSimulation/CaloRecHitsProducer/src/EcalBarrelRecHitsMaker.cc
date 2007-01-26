@@ -46,7 +46,7 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
 {
 
   clean();
-  loadPSimHits(iEvent);
+  loadPCaloHits(iEvent);
   
   unsigned nhit=theFiredCells_.size();
   //  std::cout << " loadEcalBarrelRecHits " << nhit << std::endl;
@@ -72,7 +72,7 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
   noisified_ = true;
 }
 
-void EcalBarrelRecHitsMaker::loadPSimHits(const edm::Event & iEvent)
+void EcalBarrelRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 {
 
   edm::Handle<CrossingFrame> cf;
@@ -83,7 +83,7 @@ void EcalBarrelRecHitsMaker::loadPSimHits(const edm::Event & iEvent)
   theFiredCells_.reserve(colcalo->size());
 //  unsigned sizesignal=colcalo->sizeSignal();
 //  unsigned sizepileup=colcalo->sizePileup();
-//  std::cout << " loadPSimHits " << colcalo->size() << " / " << sizesignal << 
+//  std::cout << " loadPCaloHits " << colcalo->size() << " / " << sizesignal << 
 //    " " << sizepileup << std::endl;
 
   MixCollection<PCaloHit>::iterator cficalo;

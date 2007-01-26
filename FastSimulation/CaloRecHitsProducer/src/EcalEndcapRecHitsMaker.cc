@@ -50,7 +50,7 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
 
   clean();
 
-  loadPSimHits(iEvent);
+  loadPCaloHits(iEvent);
 
   unsigned nhit=theFiredCells_.size();
 
@@ -69,7 +69,7 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
 
 }
 
-void EcalEndcapRecHitsMaker::loadPSimHits(const edm::Event & iEvent)
+void EcalEndcapRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 {
 
   edm::Handle<CrossingFrame> cf;

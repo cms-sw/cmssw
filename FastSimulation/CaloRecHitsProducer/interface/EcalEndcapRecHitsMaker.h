@@ -20,7 +20,7 @@ class EcalEndcapRecHitsMaker
 
  private:
   void clean();
-  void loadPSimHits(const edm::Event & iEvent);
+  void loadPCaloHits(const edm::Event & iEvent);
   void noisifyAndFill(uint32_t id,float energy, std::map<uint32_t,float>& myHits);
     
  private:
