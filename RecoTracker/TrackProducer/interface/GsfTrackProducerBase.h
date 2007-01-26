@@ -10,7 +10,8 @@
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "RecoTracker/TrackProducer/interface/GsfTrackProducerAlgorithm.h"
-#include "DataFormats/TrackReco/interface/GsfComponent5D.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfComponent5D.h"
 
 class Propagator;
 class TrajectoryStateUpdator;
@@ -38,6 +39,7 @@ public:
   virtual void putInEvt(edm::Event&,
 			std::auto_ptr<TrackingRecHitCollection>&,
 			std::auto_ptr<reco::GsfTrackCollection>&,
+			std::auto_ptr<reco::TrackExtraCollection>&,
 			std::auto_ptr<reco::GsfTrackExtraCollection>&,
 			std::auto_ptr<std::vector<Trajectory> >&,
 			AlgoProductCollection&);

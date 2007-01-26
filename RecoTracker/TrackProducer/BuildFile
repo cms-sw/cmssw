@@ -4,6 +4,7 @@
 <use name=TrackingTools/TrackFitters>
 <use name=TrackingTools/PatternTools>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/GsfTrackReco>
 <use name=DataFormats/Math>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
@@ -21,6 +22,7 @@
    <use name=TrackingTools/TrackFitters>
    <use name=TrackingTools/PatternTools>
    <use name=DataFormats/TrackReco>
+   <use name=DataFormats/GsfTrackReco>
    <use name=DataFormats/Math>
    <use name=MagneticField/Engine>
    <use name=MagneticField/Records>

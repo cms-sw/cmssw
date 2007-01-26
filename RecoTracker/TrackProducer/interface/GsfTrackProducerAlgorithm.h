@@ -8,14 +8,15 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Thu Mar  9 17:29:31 CET 2006
-// $Id: GsfTrackProducerAlgorithm.h,v 1.8 2006/07/28 15:17:29 cerati Exp $
+// $Id: GsfTrackProducerAlgorithm.h,v 1.1 2006/10/06 12:12:26 adamwo Exp $
 //
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/GsfTrack.h"
-#include "DataFormats/TrackReco/interface/GsfTrackExtra.h"
+// #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class MagneticField;

@@ -21,6 +21,7 @@ GsfTrackProducer::GsfTrackProducer(const edm::ParameterSet& iConfig):
 //   a.erase(a.size()-6,a.size());
   //register your products
   produces<reco::GsfTrackCollection>().setBranchAlias( alias_ + "GsfTracks" );
+  produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
   produces<reco::GsfTrackExtraCollection>().setBranchAlias( alias_ + "GsfTrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
   produces<std::vector<Trajectory> >() ;
@@ -36,7 +37,8 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   //
   std::auto_ptr<TrackingRecHitCollection> outputRHColl (new TrackingRecHitCollection);
   std::auto_ptr<reco::GsfTrackCollection> outputTColl(new reco::GsfTrackCollection);
-  std::auto_ptr<reco::GsfTrackExtraCollection> outputTEColl(new reco::GsfTrackExtraCollection);
+  std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
+  std::auto_ptr<reco::GsfTrackExtraCollection> outputGsfTEColl(new reco::GsfTrackExtraCollection);
   std::auto_ptr<std::vector<Trajectory> >    outputTrajectoryColl(new std::vector<Trajectory>);
   //
   //declare and get stuff to be retrieved from ES
@@ -65,7 +67,8 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   } catch (cms::Exception &e){ edm::LogInfo("GsfTrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
   //
   //put everything in the event
-  putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
+  putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputGsfTEColl,
+	   outputTrajectoryColl, algoResults);
   LogDebug("GsfTrackProducer") << "end" << "\n";
 }
 
