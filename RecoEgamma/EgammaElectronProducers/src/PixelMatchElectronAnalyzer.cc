@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAnalyzer.cc,v 1.7 2006/12/06 16:17:19 uberthon Exp $
+// $Id: PixelMatchElectronAnalyzer.cc,v 1.8 2006/12/21 16:12:54 uberthon Exp $
 //
 //
 
@@ -38,10 +38,12 @@
 
 using namespace reco;
  
-PixelMatchElectronAnalyzer::PixelMatchElectronAnalyzer(const edm::ParameterSet& iConfig)
+PixelMatchElectronAnalyzer::PixelMatchElectronAnalyzer(const edm::ParameterSet& conf)
 {
 
   histfile_ = new TFile("electronHistos.root","RECREATE");
+  electronProducer_=conf.getParameter<std::string>("ElectronProducer");
+  electronLabel_=conf.getParameter<std::string>("ElectronLabel");
 }  
   
 PixelMatchElectronAnalyzer::~PixelMatchElectronAnalyzer()
@@ -90,7 +92,7 @@ PixelMatchElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
   // get electrons
   
   edm::Handle<PixelMatchElectronCollection> electrons;
-  e.getByType(electrons); 
+  e.getByLabel(electronProducer_,electronLabel_,electrons); 
   edm::LogInfo("")<<"\n\n =================> Treating event "<<e.id()<<" Number of electrons "<<electrons.product()->size();
 
   for( PixelMatchElectronCollection::const_iterator MyS= (*electrons).begin(); MyS != (*electrons).end(); ++MyS) {

@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronAnalyzer.h,v 1.4 2006/10/27 15:04:04 uberthon Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.h,v 1.1 2006/12/06 16:17:18 uberthon Exp $
 //
 //
   
@@ -82,6 +82,9 @@ class PixelMatchGsfElectronAnalyzer : public edm::EDAnalyzer
   TH1F *histESclOPTr_ ;
   TH1F *histDeltaEta_ ;
   TH1F *histDeltaPhi_ ;
+
+  std::string electronProducer_;
+  std::string electronLabel_;
  };
   
 #endif

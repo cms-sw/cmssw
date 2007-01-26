@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedAnalyzer.h,v 1.2 2006/06/08 16:54:41 uberthon Exp $
+// $Id: ElectronPixelSeedAnalyzer.h,v 1.3 2006/07/03 09:45:42 uberthon Exp $
 //
 //
   
@@ -70,6 +70,10 @@ class ElectronPixelSeedAnalyzer : public edm::EDAnalyzer
   TH1I *histnrseeds_;
   TH1I *histnbseeds_;
   TH1I *histnbclus_;
+
+  std::string seedProducer_;
+  std::string seedLabel_;
+
  };
   
 #endif

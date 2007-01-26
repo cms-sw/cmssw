@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.6 2006/10/27 23:08:25 uberthon Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.1 2006/12/06 16:17:19 uberthon Exp $
 //
 //
 
@@ -38,10 +38,12 @@
 
 using namespace reco;
  
-PixelMatchGsfElectronAnalyzer::PixelMatchGsfElectronAnalyzer(const edm::ParameterSet& iConfig)
+PixelMatchGsfElectronAnalyzer::PixelMatchGsfElectronAnalyzer(const edm::ParameterSet& conf)
 {
 
   histfile_ = new TFile("gsfElectronHistos.root","RECREATE");
+  electronProducer_=conf.getParameter<std::string>("ElectronProducer");
+  electronLabel_=conf.getParameter<std::string>("ElectronLabel");
 }  
   
 PixelMatchGsfElectronAnalyzer::~PixelMatchGsfElectronAnalyzer()
@@ -59,7 +61,7 @@ void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   histMass_ = new TH1F("massEl","mass, 35 GeV",20,0.,600.);
   histEn_ = new TH1F("energyEl","energy, 35 GeV",100,0.,100.);
   //histEt_ = new TH1F("etEl","et, 35 GeV",150,0.,15.);
-histEt_ = new TH1F("etEl","et, 35 GeV",150,0.,50.);
+  histEt_ = new TH1F("etEl","et, 35 GeV",150,0.,50.);
   histEta_ = new TH1F("etaEl","eta, 35 GeV",100,-2.5,2.5);
   histPhi_ = new TH1F("phiEl","phi, 35 GeV",100,-3.5,3.5);
 
@@ -94,7 +96,7 @@ PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetu
   // get electrons
   
   edm::Handle<PixelMatchGsfElectronCollection> electrons;
-  e.getByType(electrons); 
+  e.getByLabel(electronProducer_,electronLabel_,electrons); 
   edm::LogInfo("")<<"\n\n =================> Treating event "<<e.id()<<" Number of electrons "<<electrons.product()->size();
 
   for( PixelMatchGsfElectronCollection::const_iterator MyS= (*electrons).begin(); MyS != (*electrons).end(); ++MyS) {

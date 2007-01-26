@@ -27,6 +27,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -102,6 +103,8 @@ void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::Param
 
   // get nested parameter set for the TransientInitialStateEstimator
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
+  hbheLabel_ = conf.getParameter<string>("hbheModule");
+  hbheInstanceName_ = conf.getParameter<string>("hbheInstance");
   trackBarrelLabel_ = conf.getParameter<string>("TrackBarrelLabel");
   trackBarrelInstanceName_ = conf.getParameter<string>("TrackBarrelProducer");
   trackEndcapLabel_ = conf.getParameter<string>("TrackEndcapLabel");
@@ -125,7 +128,7 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
   edm::Handle<HBHERecHitCollection> hbhe;
   HBHERecHitMetaCollection *mhbhe=0;
   if (hOverEConeSize_ > 0.) {
-    e.getByType(hbhe);  
+    e.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
     mhbhe=  &HBHERecHitMetaCollection(*hbhe);  //FIXME, generates warning
   }
   e.getByLabel(trackBarrelLabel_,trackBarrelInstanceName_,tracksBarrelH);

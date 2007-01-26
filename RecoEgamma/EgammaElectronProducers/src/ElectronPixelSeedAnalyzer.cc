@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedAnalyzer.cc,v 1.5 2006/10/03 12:10:17 uberthon Exp $
+// $Id: ElectronPixelSeedAnalyzer.cc,v 1.7 2006/10/13 16:01:45 uberthon Exp $
 //
 //
 
@@ -52,11 +52,15 @@
 #include "TH1I.h"
 #include "TTree.h"
 
+using namespace std;
 using namespace reco;
  
-ElectronPixelSeedAnalyzer::ElectronPixelSeedAnalyzer(const edm::ParameterSet& iConfig)
+ElectronPixelSeedAnalyzer::ElectronPixelSeedAnalyzer(const edm::ParameterSet& conf)
 {
   histfile_ = new TFile("electronpixelseeds.root","RECREATE");
+  
+  seedProducer_=conf.getParameter<string>("SeedProducer");
+  seedLabel_=conf.getParameter<string>("SeedLabel");
 }  
   
 ElectronPixelSeedAnalyzer::~ElectronPixelSeedAnalyzer()
@@ -117,7 +121,7 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
   // get seeds
   
   edm::Handle<ElectronPixelSeedCollection> elSeeds;
-  e.getByType(elSeeds); 
+  e.getByLabel(seedProducer_,seedLabel_,elSeeds); 
   edm::LogInfo("")<<"\n\n =================> Treating event "<<e.id()<<" Number of seeds "<<elSeeds.product()->size();
   int is=0;
 
