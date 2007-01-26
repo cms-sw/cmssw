@@ -93,7 +93,7 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (cand1=mucands->begin(); cand1!=mucands->end(); cand1++) {
       TrackRef tk1 = cand1->get<TrackRef>();
       // eta cut
-      LogDebug("HLTMuonDimuonFilter") << " Muon in loop, eta= "
+      LogDebug("HLTMuonDimuonFilter") << " 1st muon in loop, eta= "
             << tk1->eta() << ", hits= " << tk1->numberOfValidHits();
       if (fabs(tk1->eta())>max_Eta_) continue;
 
@@ -114,15 +114,18 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       // convert 50% efficiency threshold to 90% efficiency threshold
       //if (abscur>0 && errcur>0) ptLx += 3.9*errcur/abscur*pt;
       if (abspar1>0) ptLx1 += nsigma_Pt_*err1/abspar1*pt1;
-      LogDebug("HLTMuonDimuonFilter") << " ...Muon in loop, pt1= "
+      LogDebug("HLTMuonDimuonFilter") << " ... 1st muon in loop, pt1= "
             << pt1 << ", ptLx1= " << ptLx1;
 
-      for (cand2=cand1++; cand2!=mucands->end(); cand2++) {
+      cand2 = cand1; cand2++;
+      for (; cand2!=mucands->end(); cand2++) {
             TrackRef tk2 = cand2->get<TrackRef>();
 
             // eta cut
-            LogDebug("HLTMuonDimuonFilter") << " Muon in loop, eta= "
+            LogDebug("HLTMuonDimuonFilter") << " 2nd muon in loop, eta= "
                   << tk2->eta() << ", hits= " << tk2->numberOfValidHits();
+            LogDebug("HLTMuonDimuonFilter") << " 2nd muon in loop, pt= "
+                  << tk2->pt() << ", d0= " << tk2->d0();
             if (fabs(tk2->eta())>max_Eta_) continue;
 
             // cut on number of hits
@@ -142,7 +145,7 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             // convert 50% efficiency threshold to 90% efficiency threshold
             //if (abscur>0 && errcur>0) ptLx += 3.9*errcur/abscur*pt;
             if (abspar2>0) ptLx2 += nsigma_Pt_*err2/abspar2*pt2;
-            LogDebug("HLTMuonDimuonFilter") << " ...Muon in loop, pt2= "
+            LogDebug("HLTMuonDimuonFilter") << " ... 2nd muon in loop, pt2= "
                   << pt2 << ", ptLx2= " << ptLx2;
 
             if (ptLx1>ptLx2) {
@@ -162,12 +165,14 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             double acop = fabs(tk1->phi()-tk2->phi());
             if (acop>M_PI) acop = 2*M_PI - acop;
             acop = M_PI - acop;
+            LogDebug("HLTMuonDimuonFilter") << " ... 1-2 acop= " << acop;
             if (acop<min_Acop_) continue;
             if (acop>max_Acop_) continue;
 
             double px12 = tk1->px() + tk2->px();
             double py12 = tk1->py() + tk2->py();
             double pt12 = sqrt(px12*px12+py12*py12);
+            LogDebug("HLTMuonDimuonFilter") << " ... 1-2 pt12= " << pt12;
             if (pt12<min_PtPair_) continue;
 
             double e1 = sqrt(tk1->p()*tk1->p()+0.106*0.106);
@@ -176,6 +181,7 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             double pz12 = tk1->pz() + tk2->pz();
             double invmass = e12*e12 - pt12*pt12 - pz12*pz12;
             if (invmass>0) invmass = sqrt(invmass); else invmass = 0;
+            LogDebug("HLTMuonDimuonFilter") << " ... 1-2 invmass= " << invmass;
             if (invmass<min_InvMass_) continue;
             if (invmass>max_InvMass_) continue;
 
@@ -183,7 +189,7 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             n++;
             LogDebug("HLTMuonDimuonFilter") << " Track1 passing filter: eta= " << tk1->eta() << ", pt: " << tk1->pt();
             LogDebug("HLTMuonDimuonFilter") << " Track2 passing filter: eta= " << tk2->eta() << ", pt: " << tk2->pt();
-            LogDebug("HLTMuonDimuonFilter") << " Invmass= " << sqrt(invmass);
+            LogDebug("HLTMuonDimuonFilter") << " Invmass= " << invmass;
 
             bool i1done = false;
             bool i2done = false;
