@@ -3,7 +3,6 @@
 
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/GsfTrack.h"
 
 class TrajectoryStateOnSurface;
 class FreeTrajectoryState;
@@ -24,14 +23,11 @@ public:
   /// Construct a FreeTrajectoryState from the reco::Track innermost or outermost state, 
   /// does not require access to tracking geometry
   FreeTrajectoryState initialFreeState( const reco::Track& tk,
-				      const MagneticField* field) const;
-  FreeTrajectoryState innerFreeState( const reco::GsfTrack& tk,
-				      const MagneticField* field) const;
+					const MagneticField* field) const;
+
   FreeTrajectoryState innerFreeState( const reco::Track& tk,
 				      const MagneticField* field) const;
   FreeTrajectoryState outerFreeState( const reco::Track& tk,
-				      const MagneticField* field) const;
-  FreeTrajectoryState outerFreeState( const reco::GsfTrack& tk,
 				      const MagneticField* field) const;
 
   /// Construct a TrajectoryStateOnSurface from the reco::Track innermost or outermost state, 
