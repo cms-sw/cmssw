@@ -26,23 +26,6 @@
   <class name="edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >"/>
 
-  <class name="reco::GsfComponent5D"/>
-  <class name="std::vector<reco::GsfComponent5D>"/>
-
-  <class name="reco::GsfTrackExtra"/>
-  <class name="std::vector<reco::GsfTrackExtra>"/>
-  <class name="edm::Wrapper<std::vector<reco::GsfTrackExtra> >"/>
-  <class name="edm::RefProd<std::vector<reco::GsfTrackExtra> >"/>
-  <class name="edm::Ref<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra> >"/>
-  <class name="edm::RefVector<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra> >"/>
-
-  <class name="reco::GsfTrack"/>
-  <class name="std::vector<reco::GsfTrack>"/>
-  <class name="edm::Wrapper<std::vector<reco::GsfTrack> >"/>
-  <class name="edm::RefProd<std::vector<reco::GsfTrack> >"/>
-  <class name="edm::Ref<std::vector<reco::GsfTrack>,reco::GsfTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrack>,reco::GsfTrack> >"/>
-  <class name="edm::RefVector<std::vector<reco::GsfTrack>,reco::GsfTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrack>,reco::GsfTrack> >"/>
-
   <class pattern="edm::KeyVal<*>" />
   <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
   <class pattern="edm::Ref<edm::AssociationMap<*>" />
@@ -50,12 +33,8 @@
   <class pattern="edm::RefVector<edm::AssociationMap<*>" />
 
   <class name="edm::helpers::Key< edm::RefProd < std::vector < reco::Track > > >" />
-  <class name="edm::helpers::Key< edm::RefProd < std::vector < reco::GsfTrack > > >" />
 
   <class name="edm::AssociationMap<edm::OneToValue< std::vector<reco::Track>, double, unsigned int > >">
-    <field name="transientMap_" transient="true" /> 
-  </class>
-  <class name="edm::AssociationMap<edm::OneToValue< std::vector<reco::GsfTrack>, double, unsigned int > >">
     <field name="transientMap_" transient="true" /> 
   </class>
 
