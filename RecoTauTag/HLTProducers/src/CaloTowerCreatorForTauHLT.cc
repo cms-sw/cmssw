@@ -25,7 +25,7 @@ CaloTowerCreatorForTauHLT::CaloTowerCreatorForTauHLT( const ParameterSet & p )
   mtowers (p.getParameter<string> ("towers")),
   mCone (p.getParameter<double> ("UseTowersInCone")),
   mTauTrigger (p.getParameter<InputTag> ("TauTrigger")),
-  ml1seeds (p.getParameter<InputTag> ("l1seeds")),
+//  ml1seeds (p.getParameter<InputTag> ("l1seeds")),
   mEtThreshold (p.getParameter<double> ("minimumEt")),
   mEThreshold (p.getParameter<double> ("minimumE")),
   mTauId (p.getParameter<int> ("TauId"))
