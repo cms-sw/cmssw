@@ -12,6 +12,7 @@ L2TauJetsProvider::L2TauJetsProvider(const edm::ParameterSet& iConfig)
 {
   jetSrc = iConfig.getParameter<vtag>("JetSrc");
   l1ParticleMap = iConfig.getParameter<InputTag>("L1ParticleMap");
+  l1Particles = iConfig.getParameter<InputTag>("L1Particles");
   mEt_ExtraTau = iConfig.getParameter<double>("EtExtraTau");
   mEt_ExtraTau = iConfig.getParameter<double>("EtLeptonTau");
   
@@ -35,8 +36,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
  //Getting all the L1Seeds
  Handle< L1JetParticleCollection > tauColl ; 
  // InputTag tauJetInputTag( l1ParticleMap.label(), "Tau" ) ;
- InputTag tauJetInputTag( "l1extraParticles:Tau" );
- iEvent.getByLabel( tauJetInputTag, tauColl );
+ iEvent.getByLabel( l1Particles, tauColl );
  const L1JetParticleCollection & myL1Tau  = *(tauColl.product()); 
 
  //Getting the Collections of L2ReconstructedJets from L1Seeds
@@ -68,12 +68,12 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
  bool singleTauFired = singleTauMap.triggerDecision() ;
  bool doubleTauFired = doubleTauMap.triggerDecision() ;
- 
+ /*
  cout <<"Trigger SingleTau "<<singleTauFired<<endl;
  cout <<"Trigger DoubleTau "<<doubleTauFired<<endl;
  cout <<"SingleTau objects: "<<myL1SingleTaus.size()<<endl;
  cout <<"DoubleTau objects: "<<myL1DoubleTaus.size()<<endl;
- 
+ */
  //Loop over the jetSrc to split the jets
   
 
@@ -141,11 +141,11 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   auto_ptr<CaloJetCollection> singleTaujets(singleTauTmp);
   auto_ptr<CaloJetCollection> doubleTaujets(doubleTauTmp);
   auto_ptr<CaloJetCollection> leptonTaujets(leptonTauTmp);
-
+  /*
   cout <<"Size of SingleTau "<<singleTauTmp->size()<<endl;
   cout <<"Size of DoubleTau "<<doubleTauTmp->size()<<endl;
   cout <<"Size of LeptonTau "<<leptonTauTmp->size()<<endl;
-
+  */
   int l1Decision =0;
   int singleTauSize = singleTauTmp->size();
   int doubleTauSize = doubleTauTmp->size();
@@ -175,7 +175,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
     if(doubleTauFired) l1Decision =3;
   }
 
-  cout <<"Tau Trigger internal code "<<l1Decision <<endl;
+  //  cout <<"Tau Trigger internal code "<<l1Decision <<endl;
 
   auto_ptr< vector<int> > myL1BookKeep(new vector<int>);
   myL1BookKeep->push_back(l1Decision);
