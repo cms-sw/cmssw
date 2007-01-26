@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: DataBlockImpl.cc,v 1.9 2007/01/17 06:24:02 wmtan Exp $
+  $Id: DataBlockImpl.cc,v 1.10 2007/01/19 05:25:11 wmtan Exp $
   ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -533,7 +533,19 @@ namespace edm {
 	  // We have found one or more groups for this process...
 	  MatchingGroups& candidateGroups = candidatesForProcess->second;
 	  assert(!candidateGroups.empty());
-	  
+
+
+	  // Resolve all candidates -- we can't look at the dynamic
+	  // types until we have the product instances in memory.
+	  for (MatchingGroups::iterator
+		 i = candidateGroups.begin(),
+		 e = candidateGroups.end();
+	       i != e;
+	       ++i)
+	    {
+	      this->resolve_(**i);
+	    }
+
 	  NeitherSameNorDerivedType removalPredicate(valuetype);
 	  candidateGroups.remove_if(removalPredicate);
 	  
