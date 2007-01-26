@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.20 $
-///  last update: $Date: 2007/01/23 16:08:15 $
-///  by         : $Author: fronga $
+///  Revision   : $Revision: 1.20.2.2 $
+///  last update: $Date: 2007/01/26 17:03:25 $
+///  by         : $Author: flucke $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
 
@@ -66,8 +66,8 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   applyDbAlignment_( iConfig.getUntrackedParameter<bool>("applyDbAlignment",false) ),
   doMisalignmentScenario_(iConfig.getParameter<bool>("doMisalignmentScenario")),
   saveToDB_(iConfig.getParameter<bool>("saveToDB")),
-  doTracker_( iConfig.getUntrackedParameter<bool>("doTracker_",true) ),
-  doMuon_( iConfig.getUntrackedParameter<bool>("doTracker_",false) )
+  doTracker_( iConfig.getUntrackedParameter<bool>("doTracker") ),
+  doMuon_( iConfig.getUntrackedParameter<bool>("doMuon") )
 {
 
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::AlignmentProducer";
@@ -197,21 +197,27 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
                             << "AlignmentParameterStore created!";
 
-  // Apply misalignment scenario to alignable tracker if requested
+  // Apply misalignment scenario to alignable tracker and muon if requested
   // WARNING: this assumes scenarioConfig can be passed to both muon and tracker
-  if (doMisalignmentScenario_) {
+  if (doMisalignmentScenario_ && (doTracker_ || doMuon_)) {
     edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
-                              << "applying misalignment scenario ...";
+                              << "Applying misalignment scenario to "
+                              << (doTracker_ ? "tracker" : "")
+                              << (doMuon_    ? (doTracker_ ? " and muon" : "muon") : ".");
     edm::ParameterSet scenarioConfig 
       = theParameterSet.getParameter<edm::ParameterSet>( "MisalignmentScenario" );
-    TrackerScenarioBuilder scenarioBuilder( theAlignableTracker );
-    scenarioBuilder.applyScenario( scenarioConfig );
-
-    MuonScenarioBuilder muonScenarioBuilder( theAlignableMuon );
-    muonScenarioBuilder.applyScenario( scenarioConfig );
-  } else
+    if (doTracker_) {
+      TrackerScenarioBuilder scenarioBuilder( theAlignableTracker );
+      scenarioBuilder.applyScenario( scenarioConfig );
+    }
+    if (doMuon_) {
+      MuonScenarioBuilder muonScenarioBuilder( theAlignableMuon );
+      muonScenarioBuilder.applyScenario( scenarioConfig );
+    }
+  } else {
     edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
                               << "NOT applying misalignment scenario!";
+  }
 
   // Apply simple misalignment
   const std::string sParSel(theParameterSet.getParameter<std::string>("parameterSelectorSimple"));
