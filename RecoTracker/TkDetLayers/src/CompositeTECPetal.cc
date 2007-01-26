@@ -90,14 +90,9 @@ CompositeTECPetal::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
 {
   vector<DetGroup> closestResult;
   SubLayerCrossings  crossings; 
-  try{
-    crossings = computeCrossings( tsos, prop.propagationDirection());  
-  }
-  catch(DetLayerException& err){
-    //edm::LogInfo(TkDetLayers) << "Aie, got a DetLayerException in CompositeTECPetal::groupedCompatibleDets:" 
-    // << err.what() ;
-    return closestResult;
-  } 
+  crossings = computeCrossings( tsos, prop.propagationDirection());
+  if(! crossings.isValid()) return closestResult;
+
   addClosest( tsos, prop, est, crossings.closest(), closestResult); 
   LogDebug("TkDetLayers") << "in TECPetal, closestResult.size(): "<< closestResult.size();
 
@@ -144,10 +139,7 @@ CompositeTECPetal::computeCrossings(const TrajectoryStateOnSurface& startingStat
   HelixForwardPlaneCrossing crossing(startPos,startDir,rho,propDir);
   pair<bool,double> frontPath = crossing.pathLength( *theFrontSector);
 
-  if (!frontPath.first) {
-    //edm::LogInfo(TkDetLayers) << "ERROR in TkPetal: frontSector not crossed by track" ;
-    throw DetLayerException("TkPetal: frontSector not crossed by track");
-  }
+  if (!frontPath.first) return SubLayerCrossings();
 
   GlobalPoint gFrontPoint(crossing.position(frontPath.second));
   LogDebug("TkDetLayers") 
@@ -165,10 +157,7 @@ CompositeTECPetal::computeCrossings(const TrajectoryStateOnSurface& startingStat
 
   pair<bool,double> backPath = crossing.pathLength( *theBackSector);
 
-  if (!backPath.first) {
-    //edm::LogInfo(TkDetLayers) << "ERROR in TkPetal: backSector not crossed by track" ;
-    throw DetLayerException("TkPetal: backSector not crossed by track");
-  }
+  if (!backPath.first) return SubLayerCrossings();
   
 
   GlobalPoint gBackPoint( crossing.position(backPath.second));

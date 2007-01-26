@@ -119,12 +119,9 @@ TOBRod::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
   
   vector<DetGroup> closestResult;
   SubLayerCrossings  crossings; 
-  try{
-    crossings = computeCrossings( tsos, prop.propagationDirection());  
-  }
-  catch(DetLayerException& err){ 
-    return closestResult;
-  }    
+  crossings = computeCrossings( tsos, prop.propagationDirection());
+  if(! crossings.isValid()) return closestResult;
+
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
 
   if (closestResult.empty()){
@@ -168,18 +165,16 @@ TOBRod::computeCrossings( const TrajectoryStateOnSurface& startingState,
   HelixBarrelPlaneCrossingByCircle crossing( startPos, startDir, rho, propDir);
 
   pair<bool,double> innerPath = crossing.pathLength( *theInnerPlane);
-  if (!innerPath.first) {
-    throw DetLayerException("DetRodTwoR: inner subRod not crossed by track");
-  }
+  if (!innerPath.first) return SubLayerCrossings();
+
   GlobalPoint gInnerPoint( crossing.position(innerPath.second));
   int innerIndex = theInnerBinFinder.binIndex(gInnerPoint.z());
   float innerDist = fabs( theInnerBinFinder.binPosition(innerIndex) - gInnerPoint.z());
   SubLayerCrossing innerSLC( 0, innerIndex, gInnerPoint);
 
   pair<bool,double> outerPath = crossing.pathLength( *theOuterPlane);
-  if (!outerPath.first) {
-    throw DetLayerException("DetRodTwoR: outer subRod not crossed by track");
-  }
+  if (!outerPath.first) return SubLayerCrossings();
+
   GlobalPoint gOuterPoint( crossing.position(outerPath.second));
   int outerIndex = theOuterBinFinder.binIndex(gOuterPoint.z());
   float outerDist = fabs( theOuterBinFinder.binPosition(outerIndex) - gOuterPoint.z());

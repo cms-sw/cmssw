@@ -116,14 +116,9 @@ TECLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
 {
   vector<DetGroup> closestResult;
   SubLayerCrossings  crossings; 
-  try{
-    crossings = computeCrossings( tsos, prop.propagationDirection());  
-  }
-  catch(DetLayerException& err){
-    //edm::LogInfo(TkDetLayers) << "Aie, got a DetLayerException in TECLayer::groupedCompatibleDets:" 
-    // << err.what() ;
-    return closestResult;
-  }    
+  crossings = computeCrossings( tsos, prop.propagationDirection());
+  if(! crossings.isValid()) return closestResult;
+
   addClosest( tsos, prop, est, crossings.closest(), closestResult); 
   LogDebug("TkDetLayers") << "in TECLayer, closestResult.size(): " << closestResult.size();
 
@@ -167,10 +162,8 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
   HelixForwardPlaneCrossing crossing(startPos,startDir,rho,propDir);
 
   pair<bool,double> frontPath = crossing.pathLength( *theFrontDisk);
-  if (!frontPath.first) {
-    //edm::LogInfo(TkDetLayers) << "ERROR in TECLayer: front disk not crossed by track" ;
-    throw DetLayerException("TECLayer: front disk not crossed by track");
-  }
+  if (!frontPath.first) SubLayerCrossings();
+
 
   GlobalPoint gFrontPoint(crossing.position(frontPath.second));
   LogDebug("TkDetLayers") 
@@ -187,10 +180,7 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
 
 
   pair<bool,double> backPath = crossing.pathLength( *theBackDisk);
-  if (!backPath.first) {
-    //edm::LogInfo(TkDetLayers) << "ERROR in TECLayer: back disk not crossed by track" ;
-    throw DetLayerException("TECLayer: back disk not crossed by track");
-  }
+  if (!backPath.first) SubLayerCrossings();
 
 
   GlobalPoint gBackPoint( crossing.position(backPath.second));

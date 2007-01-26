@@ -21,16 +21,17 @@ private:
 
 class SubLayerCrossings {
 public:
-  SubLayerCrossings(){}
+  SubLayerCrossings(): isValid_(false){}
   SubLayerCrossings( const SubLayerCrossing& c, const SubLayerCrossing& o, int ci) :
-    closest_(c), other_(o), closestIndex_(ci) {}
+    isValid_(true),closest_(c), other_(o), closestIndex_(ci) {}
 
+  bool isValid() {return isValid_ ;}
   const SubLayerCrossing& closest() const {return closest_;}
   const SubLayerCrossing& other() const {return other_;}
   int closestIndex() const {return closestIndex_;}
 
 private:
-
+  bool isValid_;
   SubLayerCrossing closest_;
   SubLayerCrossing other_;
   int closestIndex_;

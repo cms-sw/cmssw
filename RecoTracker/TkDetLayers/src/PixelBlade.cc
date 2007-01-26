@@ -99,14 +99,9 @@ PixelBlade::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
 {
   vector<DetGroup> closestResult;
   SubLayerCrossings  crossings; 
-  try{
-    crossings = computeCrossings( tsos, prop.propagationDirection());  
-  }
-  catch(DetLayerException& err){ //In ORCA, it was a DetLogicError exception
-    //edm::LogInfo(TkDetLayers) << "Aie, got an exception in PixelBlade::groupedCompatibleDets:" 
-    //	 << err.what() ;
-    return closestResult;
-  }    
+  crossings = computeCrossings( tsos, prop.propagationDirection());
+  if(! crossings.isValid()) return closestResult;
+
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
 
   if (closestResult.empty()){
@@ -150,10 +145,8 @@ PixelBlade::computeCrossings( const TrajectoryStateOnSurface& startingState,
   HelixArbitraryPlaneCrossing crossing( startPos, startDir, rho, propDir);
 
   pair<bool,double> innerPath = crossing.pathLength( *theFrontDiskSector);
-  if (!innerPath.first) {
-    //edm::LogInfo(TkDetLayers) << "ERROR in PixelBlade: inner subBlade not crossed by track" ;
-    throw DetLayerException("PixelBlade: inner subBlade not crossed by track");
-  }
+  if (!innerPath.first) return SubLayerCrossings();
+
   GlobalPoint gInnerPoint( crossing.position(innerPath.second));
   //Code for use of binfinder
   //int innerIndex = theInnerBinFinder.binIndex(gInnerPoint.perp());  
@@ -163,10 +156,8 @@ PixelBlade::computeCrossings( const TrajectoryStateOnSurface& startingState,
   SubLayerCrossing innerSLC( 0, innerIndex, gInnerPoint);
 
   pair<bool,double> outerPath = crossing.pathLength( *theBackDiskSector);
-  if (!outerPath.first) {
-    //edm::LogInfo(TkDetLayers) << "ERROR in PixelBlade: outer subBlade not crossed by track" ;
-    throw DetLayerException("PixelBlade: outer subBlade not crossed by track");
-  }
+  if (!outerPath.first) return SubLayerCrossings();
+
   GlobalPoint gOuterPoint( crossing.position(outerPath.second));
   //Code for use of binfinder
   //int outerIndex = theOuterBinFinder.binIndex(gOuterPoint.perp());

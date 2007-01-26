@@ -104,15 +104,9 @@ CompositeTECWedge::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
 					  const MeasurementEstimator& est) const{
   vector<DetGroup> closestResult;
   SubLayerCrossings  crossings; 
-  try{
-    crossings = computeCrossings( tsos, prop.propagationDirection());  
-  }
-  //catch(DetLogicError& err){
-  catch(DetLayerException& err){
-    //edm::LogInfo(TkDetLayers) << "Aie, got a DetLogicError in CompositeTkPetalWedge::groupedCompatibleDets:" 
-    // << err.what() ;
-    return closestResult;
-  }
+  crossings = computeCrossings( tsos, prop.propagationDirection());
+  if(! crossings.isValid()) return closestResult;
+
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
   LogDebug("TkDetLayers") 
     << "in CompositeTECWedge::groupedCompatibleDets,closestResult.size(): "
@@ -153,10 +147,8 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
   HelixForwardPlaneCrossing crossing( startPos, startDir, rho, propDir);
 
   pair<bool,double> frontPath = crossing.pathLength( *theFrontSector);
-  if (!frontPath.first) {
-    //edm::LogInfo(TkDetLayers) << "ERROR in CompositeTECWedge: front sector not crossed by track" ;
-    throw DetLayerException("CompositeTECWedge: front sector not crossed by track");
-  }
+  if (!frontPath.first) return SubLayerCrossings();
+
   GlobalPoint gFrontPoint( crossing.position(frontPath.second));
   LogDebug("TkDetLayers") << "in TECWedge,front crossing r,z,phi: (" 
        << gFrontPoint.perp() << ","
@@ -169,10 +161,8 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
   SubLayerCrossing frontSLC( 0, frontIndex, gFrontPoint);
 
   pair<bool,double> backPath = crossing.pathLength( *theBackSector);
-  if (!backPath.first) {
-    //edm::LogInfo(TkDetLayers) << "ERROR in CompositeTECWedge: back sector not crossed by track" ;
-    throw DetLayerException("CompositeTECWedge: back sector not crossed by track");
-  }
+  if (!backPath.first) return SubLayerCrossings();
+
   GlobalPoint gBackPoint( crossing.position(backPath.second));
   LogDebug("TkDetLayers") 
     << "in TECWedge,back crossing r,z,phi: (" 

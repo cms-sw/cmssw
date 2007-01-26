@@ -107,15 +107,8 @@ TOBLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
 {
   vector<DetGroup> closestResult;
   SubLayerCrossings crossings;
-  try{
-    crossings = computeCrossings( tsos, prop.propagationDirection());
-  }
-  catch(DetLayerException& err){
-    //edm::LogInfo(TkDetLayers) << "Aie, got a DetLayerException in TOBLayer::groupedCompatibleDets:" 
-    //	 << err.what() ;
-    return closestResult;
-  }
-
+  crossings = computeCrossings( tsos, prop.propagationDirection());
+  if(! crossings.isValid()) return closestResult;
 
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
   if (closestResult.empty()){
@@ -153,10 +146,7 @@ SubLayerCrossings TOBLayer::computeCrossings( const TrajectoryStateOnSurface& st
 
   HelixBarrelCylinderCrossing innerCrossing( startPos, startDir, rho,
 					     propDir,*theInnerCylinder);
-  if (!innerCrossing.hasSolution()) {
-    //edm::LogInfo(TkDetLayers) << "ERROR in TOBLayer: inner cylinder not crossed by track" ;
-    throw DetLayerException("TkRodBarrelLayer: inner subRod not crossed by track");
-  }
+  if (!innerCrossing.hasSolution()) return SubLayerCrossings();
 
   GlobalPoint gInnerPoint( innerCrossing.position());
   int innerIndex = theInnerBinFinder.binIndex(gInnerPoint.phi());
@@ -165,9 +155,7 @@ SubLayerCrossings TOBLayer::computeCrossings( const TrajectoryStateOnSurface& st
 
   HelixBarrelCylinderCrossing outerCrossing( startPos, startDir, rho,
 					     propDir,*theOuterCylinder);
-  if (!outerCrossing.hasSolution()) {
-    throw DetLayerException("TOBLayer: inner subRod not crossed by track");
-  }
+  if (!outerCrossing.hasSolution()) return SubLayerCrossings();
 
   GlobalPoint gOuterPoint( outerCrossing.position());
   int outerIndex = theOuterBinFinder.binIndex(gOuterPoint.phi());

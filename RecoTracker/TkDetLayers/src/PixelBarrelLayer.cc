@@ -106,13 +106,8 @@ PixelBarrelLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
 {
   vector<DetGroup> closestResult;
   SubLayerCrossings  crossings;
-  try{
-    crossings = computeCrossings( tsos, prop.propagationDirection());
-  }
-  catch(DetLayerException& err){
-    return closestResult;
-  }
-
+  crossings = computeCrossings( tsos, prop.propagationDirection());
+  if(! crossings.isValid()) return closestResult;  
 
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
   if (closestResult.empty()){
@@ -149,10 +144,12 @@ SubLayerCrossings PixelBarrelLayer::computeCrossings( const TrajectoryStateOnSur
 
   HelixBarrelCylinderCrossing innerCrossing( startPos, startDir, rho,
 					     propDir,*theInnerCylinder);
-  if (!innerCrossing.hasSolution()) {
-    //edm::LogInfo(TkDetLayers) << "ERROR in PixelBarrelLayer: inner cylinder not crossed by track" ;
-    throw DetLayerException("TkRodBarrelLayer: inner subRod not crossed by track");
-  }
+
+  if (!innerCrossing.hasSolution()) return SubLayerCrossings();
+  //{
+  //edm::LogInfo(TkDetLayers) << "ERROR in PixelBarrelLayer: inner cylinder not crossed by track" ;
+  //throw DetLayerException("TkRodBarrelLayer: inner subRod not crossed by track");
+  //}
 
   GlobalPoint gInnerPoint( innerCrossing.position());
   int innerIndex = theInnerBinFinder.binIndex(gInnerPoint.phi());
@@ -161,9 +158,11 @@ SubLayerCrossings PixelBarrelLayer::computeCrossings( const TrajectoryStateOnSur
 
   HelixBarrelCylinderCrossing outerCrossing( startPos, startDir, rho,
 					     propDir,*theOuterCylinder);
-  if (!outerCrossing.hasSolution()) {
-    throw DetLayerException("PixelBarrelLayer: inner cylinder not crossed by track");
-  }
+
+  if (!outerCrossing.hasSolution()) return SubLayerCrossings();
+  //if (!outerCrossing.hasSolution()) {
+  //  throw DetLayerException("PixelBarrelLayer: inner cylinder not crossed by track");
+  //}
 
   GlobalPoint gOuterPoint( outerCrossing.position());
   int outerIndex = theOuterBinFinder.binIndex(gOuterPoint.phi());

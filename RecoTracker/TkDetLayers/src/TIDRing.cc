@@ -115,14 +115,8 @@ TIDRing::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
 {
   vector<DetGroup> closestResult;
   SubLayerCrossings  crossings; 
-  try{
-    crossings = computeCrossings( tsos, prop.propagationDirection());  
-  }
-  catch(DetLayerException& err){
-    //edm::LogInfo(TkDetLayers) << "Aie, got a DetLayerException in TIDRing::groupedCompatibleDets:" 
-    // << err.what() ;
-    return closestResult;
-  }
+  crossings = computeCrossings( tsos, prop.propagationDirection());
+  if(! crossings.isValid()) return closestResult;
 
   addClosest( tsos, prop, est, crossings.closest(), closestResult); 
   if (closestResult.empty())     return closestResult;
@@ -155,10 +149,7 @@ TIDRing::computeCrossings(const TrajectoryStateOnSurface& startingState,
   HelixForwardPlaneCrossing crossing(startPos,startDir,rho,propDir);
 
   pair<bool,double> frontPath = crossing.pathLength( *theFrontDisk);
-  if (!frontPath.first) {
-    //edm::LogInfo(TkDetLayers) << "ERROR in TIDRing: front disk not crossed by track" ;
-    throw DetLayerException("TIDRing: front disk not crossed by track");
-  }
+  if (!frontPath.first) return SubLayerCrossings();
 
   GlobalPoint gFrontPoint(crossing.position(frontPath.second));
 
@@ -169,11 +160,7 @@ TIDRing::computeCrossings(const TrajectoryStateOnSurface& startingState,
 
 
   pair<bool,double> backPath = crossing.pathLength( *theBackDisk);
-  if (!backPath.first) {
-    //edm::LogInfo(TkDetLayers) << "ERROR in TIDRing: back disk not crossed by track" ;
-    throw DetLayerException("TIDRing: back disk not crossed by track");
-  }
-
+  if (!backPath.first) return SubLayerCrossings();
 
   GlobalPoint gBackPoint( crossing.position(backPath.second));
   int backIndex = theBackBinFinder.binIndex(gBackPoint.phi());

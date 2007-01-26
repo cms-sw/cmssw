@@ -57,10 +57,11 @@ class TIBRing : public GeometricSearchDet{
 
   // methods for groupedCompatibleDets implementation
   struct SubRingCrossings {
-    SubRingCrossings(){};
+    SubRingCrossings():isValid_(false){};
     SubRingCrossings( int ci, int ni, float nd) : 
-      closestIndex(ci), nextIndex(ni), nextDistance(nd) {}
+      isValid_(true),closestIndex(ci), nextIndex(ni), nextDistance(nd) {}
     
+    bool  isValid_;
     int   closestIndex;
     int   nextIndex;
     float nextDistance;

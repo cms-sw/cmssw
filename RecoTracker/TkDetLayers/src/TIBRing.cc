@@ -158,14 +158,9 @@ TIBRing::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
   vector<DetGroup> result;  //to clean out
   vector<DetGroup> closestResult;
   SubRingCrossings  crossings; 
-  try{
-    crossings = computeCrossings( tsos, prop.propagationDirection());
-  }
-  catch(DetLayerException& err){
-    //edm::LogInfo(TkDetLayers) << "Aie, got a DetLayerException in TIBRing::groupedCompatibleDets:" 
-    // << err.what() ;
-    return closestResult;
-  }
+  crossings = computeCrossings( tsos, prop.propagationDirection());
+  if(! crossings.isValid_) return closestResult;
+
   CompatibleDetToGroupAdder adder;
   adder.add( *theDets[theBinFinder.binIndex(crossings.closestIndex)], 
 	     tsos, prop, est, closestResult);
@@ -256,10 +251,8 @@ TIBRing::computeCrossings( const TrajectoryStateOnSurface& startingState,
 
   HelixBarrelCylinderCrossing cylCrossing( startPos, startDir, rho,
 					   propDir,specificSurface());
-  if (!cylCrossing.hasSolution()) {
-    //edm::LogInfo(TkDetLayers) << "ERROR in TIBRing: cylinder not crossed by track" ;
-    throw DetLayerException("TIBRing: inner subRod not crossed by track");
-  }
+
+  if (!cylCrossing.hasSolution()) return SubRingCrossings();
 
   GlobalPoint  cylPoint( cylCrossing.position());
   GlobalVector cylDir( cylCrossing.direction());
