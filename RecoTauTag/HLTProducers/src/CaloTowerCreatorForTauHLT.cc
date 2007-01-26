@@ -1,6 +1,7 @@
 // makes CaloTowerCandidates from CaloTowers
 // original author: L.Lista INFN, modifyed by: F.Ratnikov UMd 
 // Author for regionality A. Nikitenko
+// Modified by S. Gennai
 #include <cmath>
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -9,10 +10,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTauTag/HLTProducers/interface/CaloTowerCreatorForTauHLT.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-//#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 // Math
 #include "Math/GenVector/VectorUtil.h"
-//#include "Math/GenVector/PxPyPzE4D.h"
 #include <cmath>
 
 using namespace edm;
@@ -25,7 +24,7 @@ CaloTowerCreatorForTauHLT::CaloTowerCreatorForTauHLT( const ParameterSet & p )
   mVerbose (p.getUntrackedParameter<int> ("verbose", 0)),
   mtowers (p.getParameter<string> ("towers")),
   mCone (p.getParameter<double> ("UseTowersInCone")),
-  mTauTrigger (p.getParameter<string> ("TauTrigger")),
+  mTauTrigger (p.getParameter<InputTag> ("TauTrigger")),
   ml1seeds (p.getParameter<InputTag> ("l1seeds")),
   mEtThreshold (p.getParameter<double> ("minimumEt")),
   mEThreshold (p.getParameter<double> ("minimumE")),
@@ -42,10 +41,8 @@ void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
   evt.getByLabel( mtowers, caloTowers );
 
   // imitate L1 seeds
-  InputTag tauJetInputTag( ml1seeds.label(), mTauTrigger ) ;
   Handle<L1JetParticleCollection> jetsgen;
-  evt.getByLabel(tauJetInputTag, jetsgen);
-  //   cout <<"Size of the jetgen "<<jetsgen->size()<<endl;  
+  evt.getByLabel(mTauTrigger, jetsgen);
   auto_ptr<CandidateCollection> cands( new CandidateCollection );
   cands->reserve( caloTowers->size() );
   

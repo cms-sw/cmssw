@@ -34,7 +34,8 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
  //Getting all the L1Seeds
  Handle< L1JetParticleCollection > tauColl ; 
- InputTag tauJetInputTag( l1ParticleMap.label(), "Tau" ) ;
+ // InputTag tauJetInputTag( l1ParticleMap.label(), "Tau" ) ;
+ InputTag tauJetInputTag( "l1extraParticles:Tau" );
  iEvent.getByLabel( tauJetInputTag, tauColl );
  const L1JetParticleCollection & myL1Tau  = *(tauColl.product()); 
 
@@ -67,12 +68,12 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
  bool singleTauFired = singleTauMap.triggerDecision() ;
  bool doubleTauFired = doubleTauMap.triggerDecision() ;
- /*
+ 
  cout <<"Trigger SingleTau "<<singleTauFired<<endl;
  cout <<"Trigger DoubleTau "<<doubleTauFired<<endl;
  cout <<"SingleTau objects: "<<myL1SingleTaus.size()<<endl;
  cout <<"DoubleTau objects: "<<myL1DoubleTaus.size()<<endl;
- */
+ 
  //Loop over the jetSrc to split the jets
   
 
