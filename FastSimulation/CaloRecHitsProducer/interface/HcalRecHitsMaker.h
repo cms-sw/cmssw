@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FastSimulation/Utilities/interface/GaussianTail.h"
-#include "FastSimulation/CaloRecHitsProducer/interface/SignalHit.h"
 
 #include <map>
 #include <vector>
@@ -28,10 +27,12 @@ class HcalRecHitsMaker
  private:
   unsigned createVectorsOfCells(const edm::EventSetup &es);
   unsigned createVectorOfSubdetectorCells( const CaloGeometry&,int subdetn,std::vector<uint32_t>&);
-  void noisifySubdet(std::map<SignalHit,float>& theMap, const std::vector<uint32_t>& thecells, unsigned ncells); 
+  void noisifySubdet(std::map<uint32_t,std::pair<float,bool> >& theMap, const std::vector<uint32_t>& thecells, unsigned ncells); 
+  // Not currently used. Will probably be removed soon.
+  //  void noisifySignal(std::map<uint32_t,std::pair<float,bool> >& theMap); 
   void noisify();
-  void noisifyAndFill(uint32_t id,float energy, std::map<SignalHit,float>& myHits);
-  void loadPSimHits(const edm::Event & iEvent);
+  void Fill(uint32_t id,float energy, std::map<uint32_t,std::pair<float,bool> >& myHits,bool signal);
+  void loadPCaloHits(const edm::Event & iEvent);
   
   void clean();
 
@@ -41,10 +42,12 @@ class HcalRecHitsMaker
   double hcalHotFraction_; 
 
   //  edm::ESHandle<CaloTowerConstituentsMap> calotowerMap_;
+  
   bool initialized_;
-  std::map<SignalHit,float> hbheRecHits_;
-  std::map<SignalHit,float> hoRecHits_;
-  std::map<SignalHit,float> hfRecHits_;
+  //the bool means killed ! 
+  std::map<uint32_t,std::pair<float,bool> > hbheRecHits_;
+  std::map<uint32_t,std::pair<float,bool> > hoRecHits_;
+  std::map<uint32_t,std::pair<float,bool> > hfRecHits_;
 
   std::vector<uint32_t> hbhecells_;
   std::vector<uint32_t> hocells_;

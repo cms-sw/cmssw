@@ -2,6 +2,8 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h" 	 
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -44,34 +46,37 @@ void EcalPreshowerRecHitsMaker::clean()
 void EcalPreshowerRecHitsMaker::loadEcalPreshowerRecHits(edm::Event &iEvent,ESRecHitCollection & ecalHits)
 {
 
-  loadPSimHits(iEvent);
-  if(noise_>0.) noisifySubdet(ecalsRecHits_,escells_,ncells_);
+  loadPCaloHits(iEvent);
+  if(noise_>0.) noisify();
 
-  std::map<SignalHit,float>::const_iterator it=ecalsRecHits_.begin();
-  std::map<SignalHit,float>::const_iterator itend=ecalsRecHits_.end();
+  std::map<uint32_t,std::pair<float,bool> >::const_iterator it=ecalsRecHits_.begin();
+  std::map<uint32_t,std::pair<float,bool> >::const_iterator itend=ecalsRecHits_.end();
 
   for(;it!=itend;++it)
     {
-      
-      if(it->first.killed()) continue;
-      ESDetId detid(it->first.id());
-      ecalHits.push_back(EcalRecHit(detid,it->second,0.)); 
+      // check if the hit has been killed 
+      if(it->second.second) continue;
+      // check if it is above the threshold
+      if(it->second.first<threshold_) continue;
+      ESDetId detid(it->first);
+      ecalHits.push_back(EcalRecHit(detid,it->second.first,0.)); 
     }
 }
 
-void EcalPreshowerRecHitsMaker::loadPSimHits(const edm::Event & iEvent)
+void EcalPreshowerRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 {
 
   clean();
 
-  edm::Handle<edm::PCaloHitContainer> pcalohits;
-  iEvent.getByLabel("Famos","EcalHitsES",pcalohits);
+  edm::Handle<CrossingFrame> cf;
+  iEvent.getByType(cf);
+  std::auto_ptr<MixCollection<PCaloHit> > colcalo(new MixCollection<PCaloHit>(cf.product(),"EcalHitsES",std::pair<int,int>(0,0) ));
 
-  edm::PCaloHitContainer::const_iterator it=pcalohits.product()->begin();
-  edm::PCaloHitContainer::const_iterator itend=pcalohits.product()->end();
+  MixCollection<PCaloHit>::iterator it=colcalo->begin();
+  MixCollection<PCaloHit>::iterator itend=colcalo->end();
   for(;it!=itend;++it)
     {
-      noisifyAndFill(it->id(),it->energy(),ecalsRecHits_);
+      Fill(it->id(),it->energy(),ecalsRecHits_,it.getTrigger());
     }
 }
 
@@ -101,26 +106,20 @@ unsigned EcalPreshowerRecHitsMaker::createVectorsOfCells(const edm::EventSetup &
     return escells_.size();
 }
 
-void EcalPreshowerRecHitsMaker::noisifyAndFill(uint32_t id,float energy, std::map<SignalHit,float>& myHits)
+void EcalPreshowerRecHitsMaker::noisify()
 {
-  bool killed=false;
-  // No double counting check. Depending on how the pile-up is implemented , this can be a problem.
-
-  if (noise_>0.) energy +=  random_->gaussShoot(0.,noise_);
-
-  // If below the threshold, a hit is nevertheless created, otherwise, there is a risk that a "noisy" hit 
-  // is afterwards put in this cell which would not be correct. 
-  if ( energy <threshold_ ) 
+  if(ecalsRecHits_.size()<ncells_) 
     {
-      energy=0.;
-      killed=true;
+      // Not needed anymore, the noise is added when loading the PCaloHits
+      // noisifySignal(ecalsRecHits_);
+      noisifySubdet(ecalsRecHits_,escells_,ncells_);
     }
-  // In principe (without pile-up), the hits have been already ordered, gives a "hint" to the insert
-  myHits.insert(myHits.end(),std::pair<SignalHit,float>(SignalHit(id,killed),energy));
+  else
+    edm::LogWarning("CaloRecHitsProducer") << "All HCAL(HB-HE) cells on ! " << std::endl;
 }
 
 
-void EcalPreshowerRecHitsMaker::noisifySubdet(std::map<SignalHit,float>& theMap, const std::vector<uint32_t>& thecells, unsigned ncells)
+void EcalPreshowerRecHitsMaker::noisifySubdet(std::map<uint32_t,std::pair<float,bool> >& theMap, const std::vector<uint32_t>& thecells, unsigned ncells)
 {
   // noise won't be injected in cells that contain signal
   unsigned mean=(unsigned)((double)(ncells-theMap.size())*preshowerHotFraction_);
@@ -129,18 +128,67 @@ void EcalPreshowerRecHitsMaker::noisifySubdet(std::map<SignalHit,float>& theMap,
   unsigned ncell=0;
   unsigned cellindex=0;
   uint32_t cellnumber=0;
-  std::map<SignalHit,float>::const_iterator itcheck;
+  std::map<uint32_t,std::pair<float,bool> >::const_iterator itcheck;
 
   while(ncell < nps)
     {
       cellindex = (unsigned)(random_->flatShoot()*ncells);
       cellnumber = thecells[cellindex];
-      itcheck=theMap.find(SignalHit(cellnumber));
+      itcheck=theMap.find(cellnumber);
       if(itcheck==theMap.end()) // inject only in empty cells
 	{
-	  theMap.insert(std::pair<SignalHit,float>(SignalHit(cellnumber),myGaussianTailGenerator_.shoot()));
+	  std::pair <float,bool> noisehit(myGaussianTailGenerator_.shoot(),false);
+	  theMap.insert(std::pair<uint32_t,std::pair<float,bool> >(cellnumber,noisehit));
 	  ++ncell;
 	}
     }
   //  edm::LogInfo("CaloRecHitsProducer") << "CaloRecHitsProducer : added noise in "<<  ncell << " HCAL cells "  << std::endl;
 }
+
+
+// Takes a hit (from a PSimHit) and fills a map 
+void EcalPreshowerRecHitsMaker::Fill(uint32_t id,float energy, std::map<uint32_t,std::pair<float,bool> >& myHits,bool signal)
+{
+  // The signal hits are singletons (no need to look into a map)
+  if(signal)
+    {
+      // a new hit is created
+      // we can give a hint for the insert
+      // Add the noise at this point. We are sure that it won't be added several times
+      energy += random_->gaussShoot(0.,noise_);
+      std::pair<float,bool> hit(energy,false); 
+      // if it is signal, it is already ordered, so we can give a hint for the 
+      // insert
+      if(signal)
+	myHits.insert(myHits.end(),std::pair<uint32_t,std::pair<float,bool> >(id,hit));
+    }
+  else       // In this case,there is a risk of duplication. Need to look into the map
+    {
+      std::map<uint32_t,std::pair<float,bool> >::iterator itcheck=myHits.find(id);
+      if(itcheck==myHits.end())
+	{
+	  std::pair<float,bool> hit(energy,false); 
+	  myHits.insert(std::pair<uint32_t,std::pair<float,bool> >(id,hit));
+	}
+      else
+	{
+	  itcheck->second.first += energy;
+	}
+    }  
+}
+/*
+void EcalPreshowerRecHitsMaker::noisifySignal(std::map<uint32_t,std::pair<float,bool> >& theMap)
+{
+  std::map<uint32_t,std::pair<float,bool> >::iterator it=theMap.begin();
+  std::map<uint32_t,std::pair<float,bool> >::iterator itend=theMap.end();
+  for(;it!=itend;++it)
+    {
+      it->second.first+= random_->gaussShoot(0.,noise_);
+      if(it->second.first < threshold_)
+	{
+	  it->second.second=true;
+	  it->second.first = 0.;
+	}
+    }
+}
+*/

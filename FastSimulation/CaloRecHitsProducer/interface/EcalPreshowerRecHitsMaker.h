@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FastSimulation/Utilities/interface/GaussianTail.h"
-#include "FastSimulation/CaloRecHitsProducer/interface/SignalHit.h"
 
 #include <map>
 #include <vector>
@@ -28,13 +27,15 @@ class EcalPreshowerRecHitsMaker
 
 
  private:
-  void loadPSimHits(const edm::Event & iEvent);
+  void loadPCaloHits(const edm::Event & iEvent);
   
   void clean();
 
   unsigned createVectorsOfCells(const edm::EventSetup &es);
-  void noisifySubdet(std::map<SignalHit,float>& theMap, const std::vector<uint32_t>& thecells, unsigned ncells);
-  void noisifyAndFill(uint32_t id,float energy, std::map<SignalHit,float>& myHits);
+  void noisifySubdet(std::map<uint32_t, std::pair<float,bool> >& theMap, const std::vector<uint32_t>& thecells, unsigned ncells);
+  void noisifySignal(std::map<uint32_t,std::pair<float,bool> >& theMap); 
+  void noisify();
+  void Fill(uint32_t id,float energy, std::map<uint32_t,std::pair<float,bool> >& myHits,bool signal);
 
  private:
   double threshold_;
@@ -42,7 +43,7 @@ class EcalPreshowerRecHitsMaker
   double preshowerHotFraction_;
   bool initialized_;
   unsigned ncells_;
-  std::map<SignalHit,float> ecalsRecHits_;
+  std::map<uint32_t,std::pair<float,bool> > ecalsRecHits_;
   std::vector<uint32_t> escells_;
   GaussianTail myGaussianTailGenerator_;
   const RandomEngine* random_;
