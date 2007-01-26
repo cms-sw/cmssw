@@ -1,9 +1,16 @@
 #ifndef PixelMatchGsfElectron_h
 #define PixelMatchGsfElectron_h
-//**********************************************************
-// For the moment, this is just the interface definition
-// Implementation to come
-//**********************************************************
+/** \class reco::Electron 
+ *
+ * An Electron with GsfTrack seeded from an ElectronPixelSeed
+ * adapted from the TRecElectron class in ORCA
+ *
+ * \author U.Berthon, ClaudeCharlot,LLR
+ *
+ * \version $Id: PixelMatchGsfElectron.h,v 1.4 2007/01/17 10:23:29 llista Exp $
+ *
+ */
+
 //-------------------------------------------------------------------
 //
 // Package EgammaCandidates
@@ -18,6 +25,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchGsfElectron.h,v $
+// Revision 1.9  2007/01/23 12:46:58  uberthon
+// add outer track momentum
+//
 // Revision 1.8  2007/01/17 10:23:29  llista
 // added virtual member function pdgId()
 //
