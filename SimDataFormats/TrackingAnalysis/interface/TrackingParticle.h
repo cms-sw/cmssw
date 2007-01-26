@@ -74,9 +74,9 @@ public:
 
 // Accessors for vector of decay vertices    
 //  TrackingVertexRefVector decayVertices() const { return decayVertices_; }
-  tv_iterator decayVertices_begin()       const { return decayVertices_.begin(); }
-  tv_iterator decayVertices_end()         const { return decayVertices_.end(); }
-
+//  tv_iterator decayVertices_begin()       const { return decayVertices_.begin(); }
+ // tv_iterator decayVertices_end()         const { return decayVertices_.end(); }
+  TrackingVertexRef decayVertex() const { return decayVertex_; } // Remove in 1.4
   int matchedHit() const {return matchedHit_;}
 
 private:
@@ -98,7 +98,8 @@ private:
   
 // Source and decay vertices  
   TrackingVertexRef       parentVertex_;
-  TrackingVertexRefVector  decayVertices_;
+//  TrackingVertexRefVector  decayVertices_; // Re-instate in 1.4.0
+  TrackingVertexRef  decayVertex_;
 };
 
 #endif // SimDataFormats_TrackingParticle_H
