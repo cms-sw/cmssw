@@ -156,7 +156,7 @@ void SiStripLorentzAngle::beginJob(const edm::EventSetup& c){
   
   const TrackerGeometry::DetIdContainer& Id = estracker->detIds();
    
-  TrackerGeometry::DetIdContainer::iterator Iditer;
+  TrackerGeometry::DetIdContainer::const_iterator Iditer;
        
 for(Iditer=Id.begin();Iditer!=Id.end();Iditer++){
   

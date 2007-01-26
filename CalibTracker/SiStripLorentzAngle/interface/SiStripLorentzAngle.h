@@ -10,7 +10,6 @@
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/Vector/interface/GlobalVector.h"
 #include "Geometry/Vector/interface/LocalVector.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -60,14 +59,14 @@ class SiStripLorentzAngle : public edm::EDAnalyzer
   virtual void endJob(); 
   
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-    
+  
   const char* makename(DetId detid);
   
   const char* makedescription(DetId detid);
   
  private:
  
-  const TrackerGeometry::DetIdContainer& Id;
+  // const TrackerGeometry::DetIdContainer& Id;
   
   typedef std::map <int, TProfile*> histomap;
   histomap histos;
@@ -98,7 +97,7 @@ class SiStripLorentzAngle : public edm::EDAnalyzer
   int eventcounter, trackcounter, hitcounter, runcounter;
   int runvector[1000];
   
-  int run;
+  unsigned int run;
   int event;
   int size;
   int module;
@@ -164,7 +163,7 @@ class SiStripLorentzAngle : public edm::EDAnalyzer
   const TrackerGeometry * tracker;
   const MagneticField * magfield;
   TrajectoryStateTransform tsTransform;
-    
+  
   //Directory hierarchy  
   
   TDirectory *histograms;
