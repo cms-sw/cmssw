@@ -99,8 +99,11 @@ void
 cond::service::PoolDBOutputService::postEndJob()
 {
   if(!m_dbstarted) return;
+  if(m_inTransaction){
+    m_pooldb->commit();
+    m_inTransaction=false;
+  }
   m_pooldb->disconnect();
-  m_session->close();
   cond::MetaData metadata(*m_coraldb);
   m_coraldb->connect(cond::ReadWriteCreate);
   m_coraldb->startTransaction(false); 
@@ -110,6 +113,7 @@ cond::service::PoolDBOutputService::postEndJob()
   }
   m_coraldb->commit();
   m_coraldb->disconnect();
+  m_session->close();
   m_dbstarted=false;
 }
 void 
@@ -131,11 +135,6 @@ cond::service::PoolDBOutputService::preModule(const edm::ModuleDescription& desc
 void
 cond::service::PoolDBOutputService::postModule(const edm::ModuleDescription& desc){
   //std::cout<<"postModule"<<std::endl;
-  if(!m_dbstarted) return;
-  if(m_inTransaction){
-    m_pooldb->commit();
-    m_inTransaction=false;
-  }
 }
 cond::service::PoolDBOutputService::~PoolDBOutputService(){
   for(std::map<size_t,cond::service::serviceCallbackRecord>::iterator it=m_callbacks.begin(); it!=m_callbacks.end(); ++it){

@@ -35,13 +35,15 @@ void IOVPayloadAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& 
       myped->m_pedestals.push_back(item);
     }
     if( mydbservice->isNewTagRequest(m_record) ){
-      //create mode
+      //create 
       cond::Time_t firstTillTime=mydbservice->endOfTime();
       std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
       mydbservice->createNewIOV<Pedestals>(myped,firstTillTime,m_record);
     }else{
-      //append mode
-      //mydbservice->appendSinceTime<Pedestals>(myped,mydbservice->currentTime(),m_record);
+      //append 
+      if(mydbservice->currentTime()%5==0){
+	mydbservice->appendSinceTime<Pedestals>(myped,mydbservice->currentTime(),m_record);
+      }
     }
     std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
   }catch(const cond::Exception& er){
@@ -53,5 +55,6 @@ void IOVPayloadAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& 
   }
 }
 void IOVPayloadAnalyzer::endJob(){ 
+  
 }
 DEFINE_FWK_MODULE(IOVPayloadAnalyzer);
