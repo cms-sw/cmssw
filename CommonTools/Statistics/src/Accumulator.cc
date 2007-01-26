@@ -29,7 +29,7 @@ double Accumulator::mean() const {
 double Accumulator::variance() const {
   double numerator = sumOfSquares_ - sum_*mean();
   unsigned long denominator = n_-1;
-  return std::sqrt(numerator/denominator);
+  return numerator/denominator;
 }
 
  

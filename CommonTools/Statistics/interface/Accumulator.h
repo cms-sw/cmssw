@@ -7,6 +7,7 @@
   \Author Rick Wilkinson
 */
 #include <iosfwd>
+#include<cmath>
 
 class Accumulator
 {
@@ -18,6 +19,8 @@ public:
   double mean() const;
 
   double variance() const;
+
+  double sigma() const {return std::sqrt(variance());}
 
   double weightedMean() const;
 
