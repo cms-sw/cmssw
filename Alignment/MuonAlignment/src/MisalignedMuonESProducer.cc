@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/01/22 15:44:23 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/01/26 19:39:42 $
+ *  $Revision: 1.12 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -92,11 +92,11 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
   GeometryAligner aligner;
 
   aligner.applyAlignments<DTGeometry>( &(*theDTGeometry),
-                                       &(*dt_Alignments), 
-				       &(*dt_AlignmentErrors) );
+                                       dt_Alignments, 
+				       dt_AlignmentErrors );
   aligner.applyAlignments<CSCGeometry>( &(*theCSCGeometry ),
-                                        &(*csc_Alignments ),
-					&(*csc_AlignmentErrors) );  
+                                        csc_Alignments,
+					csc_AlignmentErrors);  
 
   // Write alignments to DB
   if ( theParameterSet.getUntrackedParameter<bool>("saveToDbase", false) ) saveToDB();
