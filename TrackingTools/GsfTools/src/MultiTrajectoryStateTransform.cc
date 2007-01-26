@@ -1,5 +1,6 @@
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
-#include "DataFormats/TrackReco/interface/GsfTrackExtraFwd.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtraFwd.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GsfTools/interface/BasicMultiTrajectoryState.h"
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
@@ -15,7 +16,7 @@ MultiTrajectoryStateTransform::outerStateOnSurface( const reco::GsfTrack& tk,
 {
   const Surface& surface = geom.idToDet( DetId( tk.extra()->outerDetId()))->surface();
 
-  const reco::GsfTrackExtraRef& extra(tk.extra());
+  const reco::GsfTrackExtraRef& extra(tk.gsfExtra());
   return stateOnSurface(extra->outerStateWeights(),
 			extra->outerStateLocalParameters(),
 			extra->outerStateCovariances(),
@@ -30,7 +31,7 @@ MultiTrajectoryStateTransform::innerStateOnSurface( const reco::GsfTrack& tk,
 {
   const Surface& surface = geom.idToDet( DetId( tk.extra()->innerDetId()))->surface();
 
-  const reco::GsfTrackExtraRef& extra(tk.extra());
+  const reco::GsfTrackExtraRef& extra(tk.gsfExtra());
   return stateOnSurface(extra->innerStateWeights(),
 			extra->innerStateLocalParameters(),
 			extra->innerStateCovariances(),

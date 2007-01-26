@@ -4,8 +4,8 @@
 /** Extracts innermost and  outermost states from a GsfTrack
  *  in form of a TrajectoryStateOnSurface */
 
-#include "DataFormats/TrackReco/interface/GsfTrack.h"
-#include "DataFormats/TrackReco/interface/GsfTrackExtra.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
 
 class TrajectoryStateOnSurface;
 class TrackingGeometry;
