@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.5 $
- *  $Date: 2006/11/30 10:34:05 $
+ *  $Revision: 1.6 $
+ *  $Date: 2007/01/25 11:04:59 $
  *  (last update by $Author: flucke $)
  */
 
@@ -22,15 +22,17 @@
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeMonitor.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
+#include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariablesIORoot.h"
 #include "Mille.h"       // 'unpublished' interface located in src
 #include "PedeSteerer.h" // dito
 #include "PedeReader.h" // dito
+
 #include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectory.h"
-
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
-#include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariablesIORoot.h"
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h" // Algebraic matrices
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+
+#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h" // Algebraic matrices FIXME: change!
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 
@@ -73,8 +75,14 @@ MillePedeAlignmentAlgorithm::~MillePedeAlignmentAlgorithm()
 // Call at beginning of job ---------------------------------------------------
 //____________________________________________________
 void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup, 
-  AlignableTracker* tracker, AlignmentParameterStore* store)
+                                             AlignableTracker *tracker, AlignableMuon *muon,
+                                             AlignmentParameterStore *store)
 {
+  if (muon) {
+    edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+                               << "Ignoring AlignabeMuon != 0";
+  }
+
   theAlignableNavigator = new AlignableNavigator(tracker);
   theAlignmentParameterStore = store;
   theAlignables = theAlignmentParameterStore->alignables();
@@ -156,7 +164,7 @@ void MillePedeAlignmentAlgorithm::terminate()
 // Run the algorithm on trajectories and tracks -------------------------------
 //____________________________________________________
 void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
-				      const TrajTrackPairCollection &tracks) 
+				      const ConstTrajTrackPairCollection &tracks) 
 {
   if (!this->isMode(myMilleBit)) return; // no theMille created...
 
@@ -164,9 +172,9 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
 
   std::vector<TrajectoryStateOnSurface> trackTsos;
   // loop over tracks  
-  for (TrajTrackPairCollection::const_iterator it = tracks.begin(); it != tracks.end(); ++it) {
-    Trajectory *traj = (*it).first;
-    reco::Track *track = (*it).second;
+  for (ConstTrajTrackPairCollection::const_iterator it = tracks.begin(); it != tracks.end(); ++it) {
+    const Trajectory *traj = (*it).first;
+    const reco::Track *track = (*it).second;
     if (theMonitor) theMonitor->fillTrack(track, traj);
     this->orderedTsos(traj, trackTsos);
 
@@ -352,20 +360,12 @@ bool MillePedeAlignmentAlgorithm::is2D(const ConstRecHitPointer &recHit) const
 
 //____________________________________________________
 const MagneticField*
-MillePedeAlignmentAlgorithm::getMagneticField(const edm::EventSetup &setup) //const
+MillePedeAlignmentAlgorithm::getMagneticField(const edm::EventSetup &setup) const
 {
-  
-  edm::ESHandle<TrackerGeometry>                geometryHandle;
-  edm::ESHandle<MagneticField>                  magneticFieldHandle;
-  edm::ESHandle<TrajectoryFitter>               trajectoryFitterHandle;
-  edm::ESHandle<Propagator>                     propagatorHandle;
-  edm::ESHandle<TransientTrackingRecHitBuilder> recHitBuilderHandle;
-  // F. Ronga told that this access to EventSetup is optimised,
-  // so I can use it here accessing several things without performance loss
-  this->getFromES(setup, geometryHandle, magneticFieldHandle, trajectoryFitterHandle, 
-		  propagatorHandle, recHitBuilderHandle);
+  edm::ESHandle<MagneticField> fieldHandle;
+  setup.get<IdealMagneticFieldRecord>().get(fieldHandle); 
 
-  return magneticFieldHandle.product();
+  return fieldHandle.product();
 }
 
 

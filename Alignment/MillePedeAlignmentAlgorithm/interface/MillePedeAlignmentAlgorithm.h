@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.3 $
-///  $Date: 2006/11/30 10:34:04 $
+///  $Revision: 1.4 $
+///  $Date: 2007/01/25 11:04:58 $
 ///  (last update by $Author: flucke $)
 
 
@@ -19,15 +19,19 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectoryBase.h"
 
 
 #include <vector>
 #include <string>
 
+class AlignableTracker;
+class AlignableMuon;
+
 class MagneticField;
+
 class AlignmentParameters;
+
 class MillePedeMonitor;
 class PedeSteerer;
 class Mille;
@@ -42,14 +46,14 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   virtual ~MillePedeAlignmentAlgorithm();
 
   /// Call at beginning of job
-  virtual void initialize(const edm::EventSetup &setup, AlignableTracker *tracker, 
-		  AlignmentParameterStore *store);
+  virtual void initialize(const edm::EventSetup &setup, AlignableTracker *tracker,
+			  AlignableMuon *muon, AlignmentParameterStore *store);
 
   /// Call at end of job
   virtual void terminate();
 
   /// Run the algorithm on trajectories and tracks
-  virtual void run(const edm::EventSetup &setup, const TrajTrackPairCollection &tracks);
+  virtual void run(const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks);
 
  private:
   enum MeasurementDirection {kLocalX = 0, kLocalY};
@@ -75,7 +79,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 		 const std::vector<float> &globalDerivatives, const std::vector<int> &globalLabels);
   /// true if hit belongs to 2D detector (currently tracker specific)
   bool is2D(const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
-  const MagneticField* getMagneticField(const edm::EventSetup& setup); //const;
+  const MagneticField* getMagneticField(const edm::EventSetup& setup) const;
 
   bool readFromPede(const std::string &pedeOutFile);
   bool areEmptyParams(const std::vector<Alignable*> &alignables) const;
