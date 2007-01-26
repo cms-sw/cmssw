@@ -24,7 +24,12 @@
 
 //____________________________________________________________________________________
 //
-MuonAlignment::MuonAlignment(const edm::EventSetup& setup  ){
+MuonAlignment::MuonAlignment(const edm::EventSetup& setup  ):
+  theDTAlignRecordName( "DTAlignments" ),
+  theDTErrorRecordName( "DTAlignmentErrors" ),
+  theCSCAlignRecordName( "CSCAlignments" ),
+  theCSCErrorRecordName( "CSCAlignmentErrors" )
+{
 
   // 1. Retrieve geometry from Event setup and create alignable muon
   edm::ESHandle<DTGeometry> dtGeometry;
@@ -90,45 +95,56 @@ void MuonAlignment::saveToDB( void ){
   if( !poolDbService.isAvailable() ) // Die if not available
 	throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
-  // Retrieve muon barrel alignments and errors
-  Alignments*      dtAlignments       = theAlignableMuon->DTBarrel().front()->alignments();
-  AlignmentErrors* dtAlignmentErrors = theAlignableMuon->DTBarrel().front()->alignmentErrors();
+  // Get alignments and errors
+  Alignments*      dt_Alignments       = theAlignableMuon->dtAlignments() ;
+  AlignmentErrors* dt_AlignmentErrors  = theAlignableMuon->dtAlignmentErrors();
+  Alignments*      csc_Alignments      = theAlignableMuon->cscAlignments();
+  AlignmentErrors* csc_AlignmentErrors = theAlignableMuon->cscAlignmentErrors();
 
-  // Retrieve muon endcaps alignments and errors (there are two endcaps...)
-  Alignments* cscEndCap1    = theAlignableMuon->CSCEndcaps().front()->alignments();
-  Alignments* cscEndCap2    = theAlignableMuon->CSCEndcaps().back()->alignments();
-  Alignments* cscAlignments = new Alignments();
-  std::copy( cscEndCap1->m_align.begin(), cscEndCap1->m_align.end(), back_inserter( cscAlignments->m_align ) );
-  std::copy( cscEndCap2->m_align.begin(), cscEndCap2->m_align.end(), back_inserter( cscAlignments->m_align ) );
+  // Store DT alignments and errors
+  if ( poolDbService->isNewTagRequest(theDTAlignRecordName) ){
+   poolDbService->createNewIOV<Alignments>( &(*dt_Alignments), 
+	                                    poolDbService->endOfTime(), 
+                                            theDTAlignRecordName );
+  } else {
+    poolDbService->appendSinceTime<Alignments>( &(*dt_Alignments),
+                                                poolDbService->currentTime(), 
+                                                theDTAlignRecordName );
+  }
+      
+  if ( poolDbService->isNewTagRequest(theDTErrorRecordName) ){
+   poolDbService->createNewIOV<AlignmentErrors>( &(*dt_AlignmentErrors),
+                                                 poolDbService->endOfTime(), 
+                                                 theDTErrorRecordName );
+  } else {
+   poolDbService->appendSinceTime<AlignmentErrors>( &(*dt_AlignmentErrors),
+                                                    poolDbService->currentTime(),
+                                                    theDTErrorRecordName );
+  }							  
 
-  AlignmentErrors* cscEndCap1Errors = theAlignableMuon->CSCEndcaps().front()->alignmentErrors();
-  AlignmentErrors* cscEndCap2Errors = theAlignableMuon->CSCEndcaps().back()->alignmentErrors();
-  AlignmentErrors* cscAlignmentErrors    = new AlignmentErrors();
-  std::copy(cscEndCap1Errors->m_alignError.begin(), cscEndCap1Errors->m_alignError.end(), 
-             back_inserter(cscAlignmentErrors->m_alignError) );
-  std::copy(cscEndCap2Errors->m_alignError.begin(), cscEndCap2Errors->m_alignError.end(),
-             back_inserter(cscAlignmentErrors->m_alignError) );
 
-  // Sort by DetID
-  std::sort( dtAlignments->m_align.begin(),  dtAlignments->m_align.end(),  lessAlignmentDetId<AlignTransform>() );
-  std::sort( dtAlignmentErrors->m_alignError.begin(),  dtAlignmentErrors->m_alignError.end(),  lessAlignmentDetId<AlignTransformError>() );
+  // Store CSC alignments and errors
+  if ( poolDbService->isNewTagRequest(theCSCAlignRecordName) ){
+   poolDbService->createNewIOV<Alignments>( &(*csc_Alignments), 
+	                                    poolDbService->endOfTime(), 
+                                            theCSCAlignRecordName );
+  } else {
+    poolDbService->appendSinceTime<Alignments>( &(*csc_Alignments),
+                                                poolDbService->currentTime(), 
+                                                theCSCAlignRecordName );
+  }
+      
+  if ( poolDbService->isNewTagRequest(theCSCErrorRecordName) ){
+   poolDbService->createNewIOV<AlignmentErrors>( &(*csc_AlignmentErrors),
+                                                 poolDbService->endOfTime(), 
+                                                 theCSCErrorRecordName );
+  } else {
+   poolDbService->appendSinceTime<AlignmentErrors>( &(*csc_AlignmentErrors),
+                                                    poolDbService->currentTime(),
+                                                    theCSCErrorRecordName );
+  }							  
 
-  std::sort( cscAlignments->m_align.begin(), cscAlignments->m_align.end(), lessAlignmentDetId<AlignTransform>() );
-  std::sort( cscAlignmentErrors->m_alignError.begin(), cscAlignmentErrors->m_alignError.end(), lessAlignmentDetId<AlignTransformError>() );
 
-  // Define callback tokens for the records 
-  size_t dtAlignmentsToken = poolDbService->callbackToken("dtAlignments");
-  size_t dtAlignmentErrorsToken  = poolDbService->callbackToken("dtAlignmentErrors");
-
-  size_t cscAlignmentsToken = poolDbService->callbackToken("cscAlignments");
-  size_t cscAlignmentErrorsToken = poolDbService->callbackToken("cscAlignmentErrors");
-
-  // Store in the database
-  poolDbService->newValidityForNewPayload<Alignments>( dtAlignments, poolDbService->endOfTime(), dtAlignmentsToken );
-  poolDbService->newValidityForNewPayload<AlignmentErrors>( dtAlignmentErrors, poolDbService->endOfTime(), dtAlignmentErrorsToken );
-
-  poolDbService->newValidityForNewPayload<Alignments>( cscAlignments, poolDbService->endOfTime(), cscAlignmentsToken );
-  poolDbService->newValidityForNewPayload<AlignmentErrors>( cscAlignmentErrors, poolDbService->endOfTime(), cscAlignmentErrorsToken );
 
 }
 
