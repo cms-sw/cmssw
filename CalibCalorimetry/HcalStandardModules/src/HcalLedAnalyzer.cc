@@ -6,7 +6,7 @@
 #include <CalibCalorimetry/HcalStandardModules/interface/HcalLedAnalyzer.h>
 #include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-#include "CondTools/Hcal/interface/HcalDbTool.h"
+//#include "CondTools/Hcal/interface/HcalDbTool.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 
 #include <iostream>
@@ -41,8 +41,10 @@ namespace {
     }
     else if (dbFile (fDb)) {
       std::cout << "HcalLedAnalyzer-> USE INPUT: Pool " << fDb << std::endl;
-      HcalDbTool poolDb (fDb);
-      return poolDb.getObject (fObject, fTag, fRun);
+      std::cout << "HcalPedestalAnalyzer-> Pool interface is not supportet since 1.3.0" << fDb << std::endl;
+      return false;
+//       HcalDbTool poolDb (fDb);
+//       return poolDb.getObject (fObject, fTag, fRun);
     }
     else {
       std::cerr << "HcalLedAnalyzer-> Unknown input type " << fDb << std::endl;

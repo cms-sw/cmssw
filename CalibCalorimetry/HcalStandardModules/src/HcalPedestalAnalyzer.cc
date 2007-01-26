@@ -7,7 +7,7 @@
 #include <CalibCalorimetry/HcalStandardModules/interface/HcalPedestalAnalyzer.h>
 #include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-#include "CondTools/Hcal/interface/HcalDbTool.h"
+//#include "CondTools/Hcal/interface/HcalDbTool.h"
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
 #include "CondTools/Hcal/interface/HcalDbXml.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
@@ -19,8 +19,8 @@
 /*
  * \file HcalPedestalAnalyzer.cc
  * 
- * $Date: 2006/10/04 22:59:51 $
- * $Revision: 1.6 $
+ * $Date: 2006/10/26 23:35:32 $
+ * $Revision: 1.7 $
  * \author S Stoynev / W Fisher
  *
 */
@@ -58,8 +58,10 @@ namespace {
     }
     else if (dbFile (fDb)) {
       std::cout << "HcalPedestalAnalyzer-> USE INPUT: Pool " << fDb << std::endl;
-      HcalDbTool poolDb (fDb);
-      return poolDb.getObject (fObject, fTag, fRun);
+      std::cout << "HcalPedestalAnalyzer-> Pool interface is not supportet since 1.3.0" << fDb << std::endl;
+      return false;
+//       HcalDbTool poolDb (fDb);
+//       return poolDb.getObject (fObject, fTag, fRun);
     }
     else if (masterDb (fDb)) {
       std::cout << "HcalPedestalAnalyzer-> USE INPUT: MasterDB " << fDb << std::endl;
@@ -92,10 +94,12 @@ namespace {
     }
     else if (dbFile (fDb)) {
       std::cout << "HcalPedestalAnalyzer-> USE OUTPUT: Pool " << fDb << std::endl;
-      HcalDbTool poolDb (fDb);
-      bool result = poolDb.putObject (*fObject, fTag, fRun);
-      if (result) *fObject = 0; // owned by POOL
-      return result;
+      std::cout << "HcalPedestalAnalyzer-> Pool interface is not supportet since 1.3.0" << fDb << std::endl;
+      return false;
+//       HcalDbTool poolDb (fDb);
+//       bool result = poolDb.putObject (*fObject, fTag, fRun);
+//       if (result) *fObject = 0; // owned by POOL
+//       return result;
     }
     else {
       std::cerr << "HcalPedestalAnalyzer-> Unknown output type " << fDb << std::endl;
