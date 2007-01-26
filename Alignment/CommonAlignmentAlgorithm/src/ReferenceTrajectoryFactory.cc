@@ -1,11 +1,9 @@
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectoryFactory.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
-
-#include <iostream>
-
 
 ReferenceTrajectoryFactory::ReferenceTrajectoryFactory( const edm::ParameterSet & config ) :
   TrajectoryFactoryBase( config )
