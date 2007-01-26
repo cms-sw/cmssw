@@ -11,6 +11,8 @@
 //#include "CondCore/DBCommon/interface/DBWriter.h"
 #include "CondCore/IOVService/src/IOV.h"
 #include "CondCore/IOVService/interface/IOVService.h"
+#include "CondCore/IOVService/interface/IOVEditor.h"
+#include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/RelationalStorageManager.h"
 #include "CondCore/DBCommon/interface/PoolStorageManager.h"
 #include "CondCore/DBCommon/interface/Ref.h"
@@ -200,6 +202,7 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
       delete psp;
     } 
     pgeom->pStartNode = DDRootDef::instance().root().toString();
+
     pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
     pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
 
@@ -217,27 +220,36 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
     session->open();
 
     cond::PoolStorageManager psm(dbConnectString_, "file:PoolFileCatalog.xml", session);
-    cond::IOVService itsIOV(psm);
 
     //    session->startUpdateTransaction();
     //    std::string tok=pw.markWrite<PIdealGeometry>(pgeom);
     psm.connect();
     psm.startTransaction(false);
     cond::Ref<PIdealGeometry> geom(psm, pgeom);
+    geom.markWrite("PIdealGeometry");
+    std::string tok=geom.token();
+
+    cond::Time_t myTime=(unsigned long long)edm::IOVSyncValue::endOfTime().eventID().run();
+    cond::IOVService itsIOV(psm);//, myTime);
+    cond::IOVEditor* myeditor = itsIOV.newIOVEditor();
+    myeditor->insert( myTime, tok );
+    tok = myeditor->token(); // replace the payload token with the IOV token for the metadata later.
     psm.commit();
+
 
 //     cond::IOVIterator* iovit = itsIOV.newIOVIterator( aToken );
 //     std::string plT = iovit->payloadToken();
-    geom.markWrite("IdealGeometry01");
-    std::string tok = geom.token();
 
-    unsigned long long myTime=(unsigned long long)edm::IOVSyncValue::endOfTime().eventID().run();
+    //    std::string tok = geom.token();
+
 //     //    std::cout << "The end-of-time is " << myTime << std::endl;
 //     initiov->iov.insert(std::make_pair(myTime,tok));
 //     std::string iovtok = iovw.markWrite<cond::IOV>(initiov);
 //     session->commit();
 //    session->disconnect();
 //    delete session;
+
+
     psm.disconnect();
 
     cond::RelationalStorageManager rsm(dbConnectString_, session);
@@ -253,6 +265,14 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
     rsm.disconnect();
     //    metadata_svc.disconnect();
     edm::LogInfo ("DDDReadWriteORA") << "Done with save, token " << tok << " as metaName " << metaName_  << std::endl;
+
+//   if( timetype=="timestamp" ){
+//     m_iovservice=new cond::IOVService(*m_pooldb,cond::timestamp);
+//   }else{
+//     m_iovservice=new cond::IOVService(*m_pooldb,cond::runnumber);
+//   }
+
+
     delete session;
     delete loader;
 
