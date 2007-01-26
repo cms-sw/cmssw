@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2006/10/24 09:46:27 $
-//   $Revision: 1.8 $
+//   $Date: 2006/12/21 13:53:08 $
+//   $Revision: 1.9 $
 //
 //   Modifications:
 //
@@ -825,19 +825,21 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 		    << " chamber " << detid.chamber()
 		    << " (trig id. " << detid.triggerCscId() << "):\n";
 	    strstrm << "  **** " << ndata << " valid data ALCTs found:\n";
-	    for (pd = alctV_data.begin(); pd != alctV_data.end(); pd++) {
-	      strstrm << "     " << (*pd)
-		      << " Full BX = " << (*pd).getFullBX() << "\n";
-	    }
+	    // For 1_4_0
+	    //for (pd = alctV_data.begin(); pd != alctV_data.end(); pd++) {
+	    //  strstrm << "     " << (*pd)
+	    //	      << " Full BX = " << (*pd).getFullBX() << "\n";
+	    //}
 	    strstrm << "  **** " << nemul << " valid emul ALCTs found:\n";
 	    for (pe = alctV_emul.begin(); pe != alctV_emul.end(); pe++) {
 	      strstrm << "     " << (*pe);
 	      for (pd = alctV_data.begin(); pd != alctV_data.end(); pd++) {
 		if ((*pd).getTrknmb() == (*pe).getTrknmb()) {
 		  int emul_bx = (*pe).getBX();
-		  int corr_bx =
-		    ((*pd).getFullBX() + emul_bx - tbin_anode_offset) & 0x1f;
-		  strstrm << " Corr BX = " << corr_bx;
+		  // For 1_4_0
+		  //int corr_bx =
+		  //((*pd).getFullBX() + emul_bx - tbin_anode_offset) & 0x1f;
+		  //strstrm << " Corr BX = " << corr_bx;
 		  break;
 		}
 	      }
@@ -865,7 +867,9 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 	    int data_collB     = (*pd).getCollisionB();
 	    int data_wiregroup = (*pd).getKeyWG();
 	    int data_bx        = (*pd).getBX();
-	    int fullBX = (*pd).getFullBX(); // full 12-bit BX
+	    // For 1_4_0
+	    //int fullBX = (*pd).getFullBX(); // full 12-bit BX
+	    int fullBX = 0; // full 12-bit BX
 
 	    for (pe = alctV_emul.begin(); pe != alctV_emul.end(); pe++) {
 	      if ((*pe).isValid() == 0) continue;
@@ -949,19 +953,21 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 		    << " chamber " << detid.chamber()
 		    << " (trig id. " << detid.triggerCscId() << "):\n";
 	    strstrm << "  **** " << ndata << " valid data CLCTs found:\n";
-	    for (pd = clctV_data.begin(); pd != clctV_data.end(); pd++) {
-	      strstrm << "     " << (*pd)
-		      << " Full BX = " << (*pd).getFullBX() << "\n";
-	    }
+	    // For 1_4_0
+	    //for (pd = clctV_data.begin(); pd != clctV_data.end(); pd++) {
+	    //  strstrm << "     " << (*pd)
+	    //      << " Full BX = " << (*pd).getFullBX() << "\n";
+	    //}
 	    strstrm << "  **** " << nemul << " valid emul CLCTs found:\n";
 	    for (pe = clctV_emul.begin(); pe != clctV_emul.end(); pe++) {
 	      strstrm << "     " << (*pe);
 	      for (pd = clctV_data.begin(); pd != clctV_data.end(); pd++) {
 		if ((*pd).getTrknmb() == (*pe).getTrknmb()) {
 		  int emul_bx = (*pe).getBX();
-		  int corr_bx =
-		    ((*pd).getFullBX() + emul_bx - tbin_cathode_offset) & 0x03;
-		  strstrm << " Corr BX = " << corr_bx;
+		  // For 1_4_0
+		  //int corr_bx =
+		  // ((*pd).getFullBX() + emul_bx - tbin_cathode_offset) & 0x03;
+		  //strstrm << " Corr BX = " << corr_bx;
 		  break;
 		}
 	      }
@@ -991,7 +997,9 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 	    int data_keystrip  = (*pd).getKeyStrip();
 	    int data_cfeb      = (*pd).getCFEB();
 	    int data_bx        = (*pd).getBX();
-	    int fullBX = (*pd).getFullBX(); // 12-bit full BX
+	    // For 1_4_0
+	    //int fullBX = (*pd).getFullBX(); // 12-bit full BX
+	    int fullBX = 0; // 12-bit full BX
 
 	    for (pe = clctV_emul.begin(); pe != clctV_emul.end(); pe++) {
 	      if ((*pe).isValid() == 0) continue;
@@ -1174,7 +1182,9 @@ int CSCTriggerPrimitivesReader::convertBXofLCT(
   for (CSCALCTDigiCollection::const_iterator digiIt = arange.first;
        digiIt != arange.second; digiIt++) {
     if ((*digiIt).isValid()) {
-      full_anode_bx = (*digiIt).getFullBX();
+      // For 1_4_0
+      // full_anode_bx = (*digiIt).getFullBX();
+      full_anode_bx = 0;
       break;
     }
   }
@@ -1184,7 +1194,9 @@ int CSCTriggerPrimitivesReader::convertBXofLCT(
   for (CSCCLCTDigiCollection::const_iterator digiIt = crange.first;
        digiIt != crange.second; digiIt++) {
     if ((*digiIt).isValid()) {
-      full_cathode_bx = (*digiIt).getFullBX();
+      // For 1_4_0
+      //full_cathode_bx = (*digiIt).getFullBX();
+      full_cathode_bx = 0;
       break;
     }
   }

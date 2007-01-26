@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2006/11/30 03:30:50 $
- * $Revision: 1.4 $
+ * $Date: 2006/12/21 13:38:59 $
+ * $Revision: 1.5 $
  *
  */
 
@@ -137,7 +137,19 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
 
       if ((*digiIt).getComparator() == 0 || (*digiIt).getComparator() == 1) {
 	int bx_time = (*digiIt).getTimeBin();
-	if (bx_time >= 0 && bx_time < fifo_tbins) {
+
+	/* Obsolete; should be removed in 1_4_0 */
+	bx_time -= 9; // temp hack
+	if (bx_time >= CSCConstants::MIN_BUNCH &&
+	    bx_time <= CSCConstants::MAX_BUNCH) {
+
+	  // Shift all times of interest by TIME_OFFSET, so that they will
+	  // be non-negative.
+	  bx_time += CSCConstants::TIME_OFFSET;
+	  /* End of obsolete */
+
+	  /* New line; should replace obsolete part above */
+	  // if (bx_time >= 0 && bx_time < fifo_tbins) {
 
 	  // Do not use digis which could not have contributed to a given CLCT.
 	  int latch_bx = clct_bx + drift_delay;

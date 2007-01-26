@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/12/20 22:11:26 $
-//   $Revision: 1.11 $
+//   $Date: 2006/12/21 13:29:46 $
+//   $Revision: 1.12 $
 //
 //   Modifications: 
 //
@@ -292,6 +292,20 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
 
   // clear(); // redundant; called by L1MuCSCMotherboard.
 
+  /* Obsolete; should be removed for 1_4_0 */
+#ifndef TB
+  // Keep large [bxwin_min; bxwin_max] in official ORCA for now and let CSC TF
+  // handle it.
+  int bxwin_min = CSCConstants::MIN_BUNCH;
+  int bxwin_max = CSCConstants::MAX_BUNCH + 1;
+#else
+  // Total number of time bins in DAQ readout is given by fifo_tbins, which
+  // thus determines the maximum length of time interval.
+  int bxwin_min = 0;
+  int bxwin_max = fifo_tbins;
+#endif
+  /* End of obsolete */
+
   // Get the number of wire groups for the given chamber.
   CSCTriggerGeomManager* theGeom = CSCTriggerGeometry::get();
   CSCChamber* theChamber = theGeom->chamber(theEndcap, theStation, theSector,
@@ -373,9 +387,24 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
       // Get Bx of this Digi and check that it is within the bounds
       int thisDigiBx = thisDigi.getTimeBin();
 
-      // Total number of time bins in DAQ readout is given by fifo_tbins,
-      // which thus determines the maximum length of time interval.
-      if (thisDigiBx >= 0 && thisDigiBx < static_cast<int>(fifo_tbins)) {
+      /* Obsolete; should be removed for 1_4_0 */
+#ifndef TB
+      thisDigiBx -= 9; // temp hack for MC
+#endif
+      //note: MIN_BUNCH = -6, MAX_BUNCH = 6, TOT_BUNCH = 13
+      if (thisDigiBx >= bxwin_min && thisDigiBx < bxwin_max) {
+#ifndef TB
+	// Shift all times of interest by TIME_OFFSET, so that they will
+	// be non-negative, and fill the corresponding arrays
+	thisDigiBx += CSCConstants::TIME_OFFSET;
+#endif
+	/* End of obsolete */
+
+	/* New code; should be used in 1_4_0 */
+	// Total number of time bins in DAQ readout is given by fifo_tbins,
+	// which thus determines the maximum length of time interval.
+	//if (thisDigiBx >= 0 && thisDigiBx < static_cast<int>(fifo_tbins)) {
+	/* End of new code */
 
 	// If there is more than one hit in the same strip, pick one
 	// which occurred earlier.
@@ -779,6 +808,8 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
   unsigned long int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS];
   int i_layer, i_strip, this_layer, this_strip;
   int hits, layers_hit;
+  /* Next line is obsolete and should be removed for 1_4_0 */
+  const int bx_min = 0, bx_max = CSCConstants::TOT_BUNCH;
   bool hit_layer[CSCConstants::NUM_LAYERS];
 
   const int pre_trigger_layer_min = (stripType == 1) ? hs_thresh : ds_thresh;
@@ -810,7 +841,9 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
   }
 
   // Now do a loop over different bunch-crossing times.
-  for (unsigned int bx_time = 0; bx_time < fifo_tbins; bx_time++) {
+  /* Obsolete line; should be replaced by the line below in 1_4_0 */
+  for (int bx_time = bx_min; bx_time <= bx_max; bx_time++){
+    // for (unsigned int bx_time = 0; bx_time < fifo_tbins; bx_time++) {
     // For any given bunch-crossing, start at the lowest keystrip and look for
     // the number of separate layers in the pattern for that keystrip that have
     // pulses at that bunch-crossing time.  Do the same for the next keystrip, 
