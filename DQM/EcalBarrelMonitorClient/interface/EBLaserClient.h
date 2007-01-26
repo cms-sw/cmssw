@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2006/12/20 20:06:13 $
- * $Revision: 1.44 $
+ * $Date: 2007/01/23 15:57:25 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
@@ -189,6 +189,11 @@ MonitorElement* meg01_[36];
 MonitorElement* meg02_[36];
 MonitorElement* meg03_[36];
 MonitorElement* meg04_[36];
+
+MonitorElement* meg05_[36];
+MonitorElement* meg06_[36];
+MonitorElement* meg07_[36];
+MonitorElement* meg08_[36];
 
 MonitorElement* mea01_[36];
 MonitorElement* mea02_[36];
