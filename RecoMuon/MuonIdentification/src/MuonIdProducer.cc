@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.4 2006/10/26 21:34:41 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.5 2007/01/24 09:20:33 dmytro Exp $
 //
 //
 
@@ -198,13 +198,17 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    parameters.useHO   = useHcalRecHits_ ;
    parameters.useCalo = ! useHcalRecHits_ ;
    parameters.useMuon = useMuon_ ;
+   parameters.useOldMuonMatching = useOldMuonMatching_ ;
    
    parameters.dREcalPreselection = ecalPreselectionCone_;
-   parameters.dREcal = ecalSelectionCone_;
+   // parameters.dREcal = ecalSelectionCone_;  TEMPORARY
+   parameters.dREcal = ecalPreselectionCone_;
    parameters.dRHcalPreselection = hcalPreselectionCone_;
    parameters.dRHcal = hcalSelectionCone_;
+   // parameters.dRHcal = hcalSelectionCone_;  TEMPORARY
    parameters.dRMuonPreselection = muonPreselectionCone_;
-   parameters.dRMuon = muonSelectionCone_;
+   // parameters.dRMuon = muonSelectionCone_;
+   parameters.dRMuon = muonPreselectionCone_;
 
    TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, 
 						       trackAssociator_.getFreeTrajectoryState(iSetup, *(aMuon.track().get()) ),
