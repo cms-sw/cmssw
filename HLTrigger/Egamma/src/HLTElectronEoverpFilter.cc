@@ -2,11 +2,11 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
- * $Id: HLTElectronEoverpFilter.cc,v 1.1 2006/11/09 22:48:20 monicava Exp $
+ * $Id: HLTElectronEoverpFilter.cc,v 1.1 2007/01/26 10:37:17 monicava Exp $
  *
  */
 
-#include "HLTrigger/HLTstaging/interface/HLTElectronEoverpFilter.h"
+#include "HLTrigger/Egamma/interface/HLTElectronEoverpFilter.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 

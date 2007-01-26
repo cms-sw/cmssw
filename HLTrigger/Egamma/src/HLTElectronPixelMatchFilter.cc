@@ -1,12 +1,12 @@
 /** \class HLTElectronPixelMatchFilter
  *
- * $Id: HLTElectronPixelMatchFilter.cc,v 1.2 2006/10/27 11:46:03 monicava Exp $
+ * $Id: HLTElectronPixelMatchFilter.cc,v 1.1 2007/01/26 10:37:17 monicava Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
  */
 
-#include "HLTrigger/HLTstaging/interface/HLTElectronPixelMatchFilter.h"
+#include "HLTrigger/Egamma/interface/HLTElectronPixelMatchFilter.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 

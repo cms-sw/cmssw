@@ -1,12 +1,12 @@
 /** \class HLTPhotonTrackIsolFilter
  *
- * $Id: HLTPhotonTrackIsolFilter.cc,v 1.2 2006/10/27 11:46:03 monicava Exp $
+ * $Id: HLTPhotonTrackIsolFilter.cc,v 1.1 2007/01/26 10:37:17 monicava Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
  */
 
-#include "HLTrigger/HLTstaging/interface/HLTPhotonTrackIsolFilter.h"
+#include "HLTrigger/Egamma/interface/HLTPhotonTrackIsolFilter.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 
