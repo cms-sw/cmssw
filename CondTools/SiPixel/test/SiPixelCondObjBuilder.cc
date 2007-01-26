@@ -29,6 +29,8 @@ SiPixelCondObjBuilder::SiPixelCondObjBuilder(const edm::ParameterSet& iConfig) :
       fromFile_(conf_.getParameter<bool>("fromFile")),
       fileName_(conf_.getParameter<std::string>("fileName"))
 {
+  ::putenv("CORAL_AUTH_USER=me");
+  ::putenv("CORAL_AUTH_PASSWORD=test"); 
 }
 
 void
@@ -41,9 +43,9 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    int mycol = 415;
    int myrow = 159;
 
-
    edm::LogInfo("SiPixelCondObjBuilder") << "... creating dummy SiPixelGainCalibration Data for Run " << run << "\n " << std::endl;
-   SiPixelGainCalibration* SiPixelGainCalibration_ = new SiPixelGainCalibration();
+   SiPixelGainCalibration_ = new SiPixelGainCalibration();
+
 
    edm::ESHandle<TrackerGeometry> pDD;
    iSetup.get<TrackerDigiGeometryRecord>().get( pDD );     
@@ -64,7 +66,7 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
        int ncols = topol.ncolumns();   // cols in y
        std::cout << " ---> PIXEL DETID " << detid << " Cols " << ncols << " Rows " << nrows << std::endl;
 
-       pIndexConverter_ = new PixelIndices( ncols , nrows );
+       PixelIndices pIndexConverter( ncols , nrows );
 
        std::vector<char> theSiPixelGainCalibration;
 
@@ -80,7 +82,7 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	     // Use calibration from a file
 	     int chipIndex=0, colROC=0, rowROC=0;
 	     
-	     pIndexConverter_->transformToROC( i , j ,chipIndex,colROC,rowROC);
+	     pIndexConverter.transformToROC( i , j ,chipIndex,colROC,rowROC);
 	     int chanROC = PixelIndices::pixelToChannelROC(rowROC,colROC); // use ROC coordinates
 	     float pp0=0, pp1=0;
 	     std::map<int,CalParameters,std::less<int> >::const_iterator it=calmap_.find(chanROC);
@@ -106,8 +108,6 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	 }
        }
 
-       delete pIndexConverter_;
-
        SiPixelGainCalibration::Range range(theSiPixelGainCalibration.begin(),theSiPixelGainCalibration.end());
        if( !SiPixelGainCalibration_->put(detid,range,ncols) )
 	 edm::LogError("SiPixelCondObjBuilder")<<"[SiPixelCondObjBuilder::analyze] detid already exists"<<std::endl;
@@ -129,11 +129,15 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 //        //std::cout<<" PEDESTAL "<< mypedestal<<" GAIN "<<mygain<<std::endl; 
 //      }
 //    }
-
    // Write into DB
+   edm::LogInfo(" --- writeing to DB!");
    edm::Service<cond::service::PoolDBOutputService> mydbservice;
-   if( mydbservice.isAvailable() ){
-     try{
+   if(!mydbservice.isAvailable() ){
+     edm::LogError("db service unavailable");
+     return;
+   } else { edm::LogInfo("DB service OK"); }
+
+   try{
 //     size_t callbackToken = mydbservice->callbackToken("SiPixelGainCalibration");
 //     edm::LogInfo("SiPixelCondObjBuilder")<<"CallbackToken SiPixelGainCalibration "
 //         <<callbackToken<<std::endl;
@@ -147,26 +151,24 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 //     mydbservice->newValidityForNewPayload<SiPixelGainCalibration>(
 //           SiPixelGainCalibration_, tillTime , callbackToken);
 
-       if( mydbservice->isNewTagRequest(recordName_) ){
+     if( mydbservice->isNewTagRequest(recordName_) ){
          mydbservice->createNewIOV<SiPixelGainCalibration>(
              SiPixelGainCalibration_, mydbservice->endOfTime(),recordName_);
-       } else {
+     } else {
          mydbservice->appendSinceTime<SiPixelGainCalibration>(
             SiPixelGainCalibration_, mydbservice->currentTime(),recordName_);
-       }
-
-     }catch(const cond::Exception& er){
-       edm::LogError("SiPixelCondObjBuilder")<<er.what()<<std::endl;
-     }catch(const std::exception& er){
-       edm::LogError("SiPixelCondObjBuilder")<<"caught std::exception "<<er.what()<<std::endl;
-     }catch(...){
-       edm::LogError("SiPixelCondObjBuilder")<<"Funny error"<<std::endl;
      }
-    }else{
-      edm::LogError("SiPixelCondObjBuilder")<<"Service is unavailable"<<std::endl;
-    }    
-   
-
+     edm::LogInfo(" --- all OK");
+   } 
+   catch(const cond::Exception& er){
+        edm::LogError("SiPixelCondObjBuilder")<<er.what()<<std::endl;
+   } 
+   catch(const std::exception& er){
+        edm::LogError("SiPixelCondObjBuilder")<<"caught std::exception "<<er.what()<<std::endl;
+   }
+   catch(...){
+        edm::LogError("SiPixelCondObjBuilder")<<"Funny error"<<std::endl;
+   }
 }
 
 
@@ -187,6 +189,7 @@ SiPixelCondObjBuilder::beginJob(const edm::EventSetup&) {
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 SiPixelCondObjBuilder::endJob() {
+   
 }
 
 bool SiPixelCondObjBuilder::loadFromFile() {
