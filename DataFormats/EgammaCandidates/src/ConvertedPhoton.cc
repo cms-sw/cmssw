@@ -13,9 +13,18 @@ reco::SuperClusterRef ConvertedPhoton::superCluster() const {
   return superCluster_;
 }
 
- reco::TrackRefVector  ConvertedPhoton::tracks() const { 
+
+// reco::TrackRefVector  ConvertedPhoton::tracks() const { 
+//  return tracks_;
+//}
+
+
+
+std::vector<reco::TrackRef>  ConvertedPhoton::tracks() const { 
    return tracks_;
 }
+
+
 
 bool ConvertedPhoton::overlap( const Candidate & c ) const {
   const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );

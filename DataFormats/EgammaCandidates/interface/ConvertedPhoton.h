@@ -20,10 +20,8 @@ namespace reco {
     /// default constructor
     ConvertedPhoton() : RecoCandidate() { }
 
+   ConvertedPhoton( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ), const Point & convVtx = Point( 0, 0, 0 ) ):  RecoCandidate( q, p4, vtx ), theConversionVertex_(convVtx) { }
 
-   ConvertedPhoton( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ), const Point & convVtx = Point( 0, 0, 0 )  ):  theConversionVertex_(convVtx) { }
-
-   
     /// destructor
     virtual ~ConvertedPhoton();
     /// returns a clone of the candidate
@@ -32,11 +30,19 @@ namespace reco {
     reco::SuperClusterRef superCluster() const ;
     /// set refrence to ConvertedPhoton component
     void setSuperCluster( const reco::SuperClusterRef & r ) { superCluster_ = r; }
+
+
     // set reference to a pair of Tracks
-    void setTrackPairRef( const reco::TrackRefVector & pair ) { tracks_ = pair; }
+    //    void setTrackPairRef( const reco::TrackRefVector & pair ) { tracks_ = pair; }
+    void setTrackPairRef( const  std::vector<reco::TrackRef>  & pair ) { tracks_ = pair; }
     // reference to a vector of tracks
-    reco::TrackRefVector tracks() const ;  
+    // reco::TrackRefVector tracks() const ;  
+    std::vector<reco::TrackRef> tracks() const ; 
     // returns the position of the conversion vertex
+
+
+
+
     const Point & convVertexPosition() const { return theConversionVertex_ ; }
 
   private:
@@ -46,7 +52,8 @@ namespace reco {
 
     /// reference to a SuperCluster
     reco::SuperClusterRef superCluster_;
-    reco::TrackRefVector  tracks_;
+    //    reco::TrackRefVector  tracks_;
+    std::vector<reco::TrackRef>  tracks_;
     reco::Particle::Point theConversionVertex_;
 
   };
