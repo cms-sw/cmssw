@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjBuilder.h,v 1.3 2006/10/23 15:27:37 chiochia Exp $
+// $Id: SiPixelCondObjBuilder.h,v 1.4 2006/10/25 13:49:25 chiochia Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -46,6 +46,7 @@ private:
   edm::ParameterSet conf_;
   bool appendMode_;
   SiPixelGainCalibration* SiPixelGainCalibration_;
+  std::string recordName_;
 
   double meanPed_;
   double rmsPed_;

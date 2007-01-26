@@ -19,6 +19,8 @@ namespace cms{
 SiPixelCondObjBuilder::SiPixelCondObjBuilder(const edm::ParameterSet& iConfig) :
       conf_(iConfig),
       appendMode_(conf_.getUntrackedParameter<bool>("appendMode",true)),
+      SiPixelGainCalibration_(0),
+      recordName_(iConfig.getParameter<std::string>("record")),
       meanPed_(conf_.getParameter<double>("meanPed")),
       rmsPed_(conf_.getParameter<double>("rmsPed")),
       meanGain_(conf_.getParameter<double>("meanGain")),
@@ -130,22 +132,29 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
    // Write into DB
    edm::Service<cond::service::PoolDBOutputService> mydbservice;
-
    if( mydbservice.isAvailable() ){
      try{
-       size_t callbackToken = mydbservice->callbackToken("SiPixelGainCalibration");
-       edm::LogInfo("SiPixelCondObjBuilder")<<"CallbackToken SiPixelGainCalibration "<<callbackToken<<std::endl;
+//     size_t callbackToken = mydbservice->callbackToken("SiPixelGainCalibration");
+//     edm::LogInfo("SiPixelCondObjBuilder")<<"CallbackToken SiPixelGainCalibration "
+//         <<callbackToken<<std::endl;
+//       unsigned long long tillTime;
+//     if ( appendMode_)
+//	 tillTime = mydbservice->currentTime();
+//       else
+//	 tillTime = mydbservice->endOfTime();
+//     edm::LogInfo("SiPixelCondObjBuilder")<<"[SiPixelCondObjBuilder::analyze] tillTime = "
+//         <<tillTime<<std::endl;
+//     mydbservice->newValidityForNewPayload<SiPixelGainCalibration>(
+//           SiPixelGainCalibration_, tillTime , callbackToken);
 
-       unsigned long long tillTime;
+       if( mydbservice->isNewTagRequest(recordName_) ){
+         mydbservice->createNewIOV<SiPixelGainCalibration>(
+             SiPixelGainCalibration_, mydbservice->endOfTime(),recordName_);
+       } else {
+         mydbservice->appendSinceTime<SiPixelGainCalibration>(
+            SiPixelGainCalibration_, mydbservice->currentTime(),recordName_);
+       }
 
-       if ( appendMode_)
-	 tillTime = mydbservice->currentTime();
-       else
-	 tillTime = mydbservice->endOfTime();
-       
-       edm::LogInfo("SiPixelCondObjBuilder")<<"[SiPixelCondObjBuilder::analyze] tillTime = "<<tillTime<<std::endl;
-
-       mydbservice->newValidityForNewPayload<SiPixelGainCalibration>(SiPixelGainCalibration_, tillTime , callbackToken);
      }catch(const cond::Exception& er){
        edm::LogError("SiPixelCondObjBuilder")<<er.what()<<std::endl;
      }catch(const std::exception& er){
