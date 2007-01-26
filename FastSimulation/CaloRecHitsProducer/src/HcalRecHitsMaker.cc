@@ -73,15 +73,19 @@ void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 	{
 	case HcalBarrel: 
 	  Fill(it->id(),it->energy(),hbheRecHits_,it.getTrigger());
+	  //	  Fill(it->id(),it->energy(),hbheRecHits_);
 	  break;
 	case HcalEndcap: 
 	  Fill(it->id(),it->energy(),hbheRecHits_,it.getTrigger());
+	  //	  Fill(it->id(),it->energy(),hbheRecHits_);
 	  break;
 	case HcalOuter: 
 	  Fill(it->id(),it->energy(),hoRecHits_,it.getTrigger());
+	  //	  Fill(it->id(),it->energy(),hoRecHits_);
 	  break;		     
 	case HcalForward: 
 	  Fill(it->id(),it->energy(),hfRecHits_,it.getTrigger());
+	  //	  Fill(it->id(),it->energy(),hfRecHits_);
 	  break;
 	default:
 	  edm::LogWarning("CaloRecHitsProducer") << "RecHit not registered\n";
@@ -183,6 +187,7 @@ void HcalRecHitsMaker::Fill(uint32_t id,float energy, std::map<uint32_t,std::pai
       std::map<uint32_t,std::pair<float,bool> >::iterator itcheck=myHits.find(id);
       if(itcheck==myHits.end())
 	{
+	  energy += random_->gaussShoot(0.,noise_);
 	  std::pair<float,bool> hit(energy,false); 
 	  myHits.insert(std::pair<uint32_t,std::pair<float,bool> >(id,hit));
 	}

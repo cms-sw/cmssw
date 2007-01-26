@@ -31,7 +31,7 @@ class HcalRecHitsMaker
   // Not currently used. Will probably be removed soon.
   //  void noisifySignal(std::map<uint32_t,std::pair<float,bool> >& theMap); 
   void noisify();
-  void Fill(uint32_t id,float energy, std::map<uint32_t,std::pair<float,bool> >& myHits,bool signal);
+  void Fill(uint32_t id,float energy, std::map<uint32_t,std::pair<float,bool> >& myHits,bool signal=true);
   void loadPCaloHits(const edm::Event & iEvent);
   
   void clean();

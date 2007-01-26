@@ -35,7 +35,7 @@ class EcalPreshowerRecHitsMaker
   void noisifySubdet(std::map<uint32_t, std::pair<float,bool> >& theMap, const std::vector<uint32_t>& thecells, unsigned ncells);
   void noisifySignal(std::map<uint32_t,std::pair<float,bool> >& theMap); 
   void noisify();
-  void Fill(uint32_t id,float energy, std::map<uint32_t,std::pair<float,bool> >& myHits,bool signal);
+  void Fill(uint32_t id,float energy, std::map<uint32_t,std::pair<float,bool> >& myHits,bool signal=true);
 
  private:
   double threshold_;

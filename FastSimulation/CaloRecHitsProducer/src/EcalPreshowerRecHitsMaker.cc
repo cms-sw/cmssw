@@ -77,6 +77,7 @@ void EcalPreshowerRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
   for(;it!=itend;++it)
     {
       Fill(it->id(),it->energy(),ecalsRecHits_,it.getTrigger());
+      //      Fill(it->id(),it->energy(),ecalsRecHits_);
     }
 }
 
@@ -167,7 +168,8 @@ void EcalPreshowerRecHitsMaker::Fill(uint32_t id,float energy, std::map<uint32_t
       std::map<uint32_t,std::pair<float,bool> >::iterator itcheck=myHits.find(id);
       if(itcheck==myHits.end())
 	{
-	  std::pair<float,bool> hit(energy,false); 
+	  energy += random_->gaussShoot(0.,noise_);
+	  std::pair<float,bool> hit(energy,false); 	  
 	  myHits.insert(std::pair<uint32_t,std::pair<float,bool> >(id,hit));
 	}
       else
