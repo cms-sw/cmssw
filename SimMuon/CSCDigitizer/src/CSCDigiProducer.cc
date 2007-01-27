@@ -8,15 +8,35 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimMuon/CSCDigitizer/src/CSCConfigurableStripConditions.h"
+#include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h"
 
 
 
 CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps) 
-:  theDigitizer(ps)
+:  theDigitizer(ps),
+   theStripConditions(0)
 {
   produces<CSCWireDigiCollection>("MuonCSCWireDigi");
   produces<CSCStripDigiCollection>("MuonCSCStripDigi");
   produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");
+
+  std::string stripConditions( ps.getParameter<std::string>("stripConditions") );
+  if( stripConditions == "Configurable" )
+  {
+    theStripConditions = new CSCConfigurableStripConditions(ps);
+  }
+  else if ( stripConditions == "Database" )
+  {
+    theStripConditions = new CSCDbStripConditions();
+  }
+  else
+  {
+    throw cms::Exception("CSCDigiProducer") 
+      << "Bad option for strip conditions: "
+      << stripConditions;
+  }
+  theDigitizer.setStripConditions(theStripConditions);
 }
 
 
