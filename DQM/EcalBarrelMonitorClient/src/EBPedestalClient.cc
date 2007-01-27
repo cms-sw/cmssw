@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/01/27 11:03:38 $
- * $Revision: 1.114 $
+ * $Date: 2007/01/27 11:07:07 $
+ * $Revision: 1.115 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -2001,7 +2001,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameMEPnPed[iCanvas-1];
 
         cPed->cd();
-        gStyle->SetOptStat("euomr");
+        gStyle->SetOptStat("euo");
         obj1d->SetStats(kTRUE);
 //        if ( obj1d->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);

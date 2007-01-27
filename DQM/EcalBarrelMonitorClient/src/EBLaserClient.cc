@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/27 13:29:11 $
- * $Revision: 1.123 $
+ * $Date: 2007/01/27 19:43:32 $
+ * $Revision: 1.127 $
  * \author G. Della Ricca
  *
 */
@@ -4617,7 +4617,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameAmp[iCanvas-1];
 
         cAmp->cd();
-        gStyle->SetOptStat("euomr");
+        gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
         if ( obj1f->GetMaximum(histMax) > 0. ) {
           gPad->SetLogy(1);
@@ -4678,7 +4678,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameTim[iCanvas-1];
 
         cTim->cd();
-        gStyle->SetOptStat("euomr");
+        gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
         obj1f->SetMinimum(0.0);
         obj1f->SetMaximum(10.0);
@@ -4735,7 +4735,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameShape[iCanvas-1];
 
         cShape->cd();
-        gStyle->SetOptStat("euomr");
+        gStyle->SetOptStat("euo");
         obj1d->SetStats(kTRUE);
 //        if ( obj1d->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
@@ -4798,7 +4798,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameAmpoPN[iCanvas-1];
 
         cAmpoPN->cd();
-        gStyle->SetOptStat("euomr");
+        gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
@@ -4961,7 +4961,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameMEPnG01[iCanvas-1];
 
         cAmp->cd();
-        gStyle->SetOptStat("euomr");
+        gStyle->SetOptStat("euo");
         obj1d->SetStats(kTRUE);
 //        if ( obj1d->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
@@ -5017,7 +5017,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameMEPnG16[iCanvas-1];
 
         cAmp->cd();
-        gStyle->SetOptStat("euomr");
+        gStyle->SetOptStat("euo");
         obj1d->SetStats(kTRUE);
 //        if ( obj1d->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
@@ -5075,7 +5075,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameMEPnPedG01[iCanvas-1];
 
         cPed->cd();
-        gStyle->SetOptStat("euomr");
+        gStyle->SetOptStat("euo");
         obj1d->SetStats(kTRUE);
 //        if ( obj1d->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
@@ -5131,7 +5131,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameMEPnPedG16[iCanvas-1];
 
         cPed->cd();
-        gStyle->SetOptStat("euomr");
+        gStyle->SetOptStat("euo");
         obj1d->SetStats(kTRUE);
 //        if ( obj1d->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);

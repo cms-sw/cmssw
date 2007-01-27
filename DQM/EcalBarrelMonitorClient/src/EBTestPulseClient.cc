@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/01/27 12:50:33 $
- * $Revision: 1.113 $
+ * $Date: 2007/01/27 18:09:51 $
+ * $Revision: 1.114 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1785,7 +1785,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameAmp[iCanvas-1];
 
         cAmp->cd();
-        gStyle->SetOptStat("euomr");
+        gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
         if ( obj1f->GetMaximum(histMax) > 0. ) {
           gPad->SetLogy(1);
@@ -1832,7 +1832,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameShape[iCanvas-1];
 
         cShape->cd();
-        gStyle->SetOptStat("euomr");
+        gStyle->SetOptStat("euo");
         obj1d->SetStats(kTRUE);
 //        if ( obj1d->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
@@ -1925,7 +1925,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameMEPn[iCanvas-1];
 
         cAmp->cd();
-        gStyle->SetOptStat("euomr");
+        gStyle->SetOptStat("euo");
         obj1d->SetStats(kTRUE);
 //        if ( obj1d->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
@@ -1971,7 +1971,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameMEPnPed[iCanvas-1];
 
         cPed->cd();
-        gStyle->SetOptStat("euomr");
+        gStyle->SetOptStat("euo");
         obj1d->SetStats(kTRUE);
 //        if ( obj1d->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
