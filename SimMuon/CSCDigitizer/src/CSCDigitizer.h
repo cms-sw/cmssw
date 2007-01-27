@@ -27,6 +27,7 @@ class CSCWireElectronicsSim;
 class CSCStripElectronicsSim;
 class CSCLayer;
 class CSCNeutronReader;
+class CSCStripConditions;
 
 class CSCDigitizer : public boost::noncopyable
 {
@@ -48,6 +49,8 @@ public:
 
   /// sets the magnetic field
   void setMagneticField(const MagneticField * field);
+
+  void setStripConditions(CSCStripConditions * cond);
 
   /// finds the layer in the geometry associated with this det ID
   const CSCLayer * findLayer(int detId) const;

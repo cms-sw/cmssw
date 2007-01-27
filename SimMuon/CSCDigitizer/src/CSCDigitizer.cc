@@ -100,6 +100,12 @@ void CSCDigitizer::setMagneticField(const MagneticField * field) {
 }
 
 
+void CSCDigitizer::setStripConditions(CSCStripConditions * cond)
+{
+  theStripElectronicsSim->setStripConditions(cond);
+}
+
+
 const CSCLayer * CSCDigitizer::findLayer(int detId) const {
   assert(theCSCGeometry != 0);
   const GeomDetUnit* detUnit = theCSCGeometry->idToDetUnit(CSCDetId(detId));
