@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/01/25 18:45:03 $
- * $Revision: 1.113 $
+ * $Date: 2007/01/27 11:03:38 $
+ * $Revision: 1.114 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1644,7 +1644,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   const double histMax = 1.e15;
 
-  int pCol3[6] = { 2, 3, 5, 1, 1,1 };
+  int pCol3[6] = { 2, 3, 5, 1, 1, 1 };
 
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 30+i;
