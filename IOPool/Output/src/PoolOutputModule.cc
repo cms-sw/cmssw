@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.64 2007/01/19 04:34:13 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.65 2007/01/27 00:10:10 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -314,7 +314,6 @@ namespace edm {
           BranchEntryDescription provenance;
 	  provenance.moduleDescriptionID_ = i->branchDescription_->moduleDescriptionID_;
 	  provenance.productID_ = id;
-	  std::cerr << "PID NO GROUP: " << id << std::endl;
 	  provenance.status_ = BranchEntryDescription::CreatorNotRun;
 	  provenance.isPresent_ = false;
 	  provenance.cid_ = 0;
@@ -332,15 +331,12 @@ namespace edm {
 	bool present = i->selected_ && g->product() && g->product()->isPresent();
 	if (present == g->provenance().event.isPresent()) {
 	  // The provenance can be written out as is, saving a copy. 
-	  std::cerr << "PID NOCOPY: " << (present ? "PRESENT" : " NOT PRESENT ") << g->provenance().event.productID_ << std::endl;
           pool::Ref<BranchEntryDescription const> refp(context(), &g->provenance().event);
           refp.markWrite(i->provenancePlacement_);
 	} else {
 	  // We need to make a private copy of the provenance so we can set isPresent_ correctly.
-	  std::cerr << "PID COPY PRE: " << (present ? "PRESENT" : " NOT PRESENT ") << g->provenance().event.productID_ << std::endl;
 	  provenances_.push_front(g->provenance().event);
 	  provenances_.begin()->isPresent_ = present;
-	  std::cerr << "PID COPY POST: " << (present ? "PRESENT" : " NOT PRESENT ") << provenances_.begin()->productID_ << std::endl;
           pool::Ref<BranchEntryDescription const> refp(context(), &*provenances_.begin());
           refp.markWrite(i->provenancePlacement_);
 	}
