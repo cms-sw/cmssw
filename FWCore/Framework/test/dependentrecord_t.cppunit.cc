@@ -21,8 +21,10 @@
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
+#include "FWCore/Framework/interface/DataProxyProvider.h"
 
 #include <cppunit/extensions/HelperMacros.h>
+
 
 using namespace edm::eventsetup;
 
@@ -71,8 +73,6 @@ protected:
    }
    
 };
-
-#include "FWCore/Framework/interface/DataProxyProvider.h"
 
 class DepRecordProxyProvider : public edm::eventsetup::DataProxyProvider {
 public:

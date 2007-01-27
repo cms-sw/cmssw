@@ -13,6 +13,14 @@
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h"
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryTemplate.h"
 
+#include "FWCore/Framework/interface/HCMethods.icc"
+#include "FWCore/Framework/interface/HCTypeTagTemplate.icc"
+
+#include "FWCore/Framework/interface/DataProxyTemplate.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/recordGetImplementation.icc"
+
 using namespace edm;
 using namespace edm::eventsetup;
 namespace eventsetuprecord_t {
@@ -22,8 +30,6 @@ class DummyRecord : public edm::eventsetup::EventSetupRecordImplementation<Dummy
    }
 };
 }
-#include "FWCore/Framework/interface/HCMethods.icc"
-#include "FWCore/Framework/interface/HCTypeTagTemplate.icc"
 //HCMethods<T, T, EventSetup, EventSetupRecordKey, EventSetupRecordKey::IdTag >
 template<>
 const char*
@@ -91,7 +97,6 @@ edm::eventsetup::heterocontainer::HCTypeTagTemplate<Dummy, edm::eventsetup::Data
    return "Dummy";
 }
 
-#include "FWCore/Framework/interface/DataProxyTemplate.h"
 
 class FailingDummyProxy : public eventsetup::DataProxyTemplate<DummyRecord, Dummy> {
 protected:
@@ -164,9 +169,6 @@ void testEventsetupRecord::proxyTest()
    CPPUNIT_ASSERT(0 == dummyRecord.find(dummyFredDataKey));
 
 }
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/recordGetImplementation.icc"
 
 void testEventsetupRecord::getTest()
 {

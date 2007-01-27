@@ -6,8 +6,8 @@
  */
 
 #include "FWCore/Framework/test/DummyData.h"
-using edm::eventsetup::test::DummyData;
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
+using edm::eventsetup::test::DummyData;
 EVENTSETUP_DATA_REG(DummyData);

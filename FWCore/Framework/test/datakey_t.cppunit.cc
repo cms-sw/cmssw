@@ -9,6 +9,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cstring>
 #include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/HCTypeTagTemplate.icc"
 
 using namespace edm;
 using namespace edm::eventsetup;
@@ -86,7 +87,6 @@ namespace datakey_t {
 using datakey_t::Dummy;
 using datakey_t::Dummy2;
 
-#include "FWCore/Framework/interface/HCTypeTagTemplate.icc"
 template<>
 const char*
 edm::eventsetup::heterocontainer::HCTypeTagTemplate<Dummy, edm::eventsetup::DataKey>::className() {

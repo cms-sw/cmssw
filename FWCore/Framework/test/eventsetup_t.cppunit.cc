@@ -40,6 +40,12 @@ edm::eventsetup::heterocontainer::HCTypeTagTemplate<DummyRecord, edm::eventsetup
 
 #include "DataFormats/Common/interface/Provenance.h"
 
+#include "FWCore/Framework/interface/EventSetupRecordProviderTemplate.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/EventSetupRecordProviderFactoryTemplate.h"
+#include "FWCore/Framework/test/DummyEventSetupRecordRetriever.h"
+
 using namespace edm;
 using namespace std;
 
@@ -122,7 +128,6 @@ void testEventsetup::getExcTest()
    //CPPUNIT_ASSERT_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
 }
 
-#include "FWCore/Framework/interface/EventSetupRecordProviderTemplate.h"
 
 class DummyEventSetupProvider : public edm::eventsetup::EventSetupProvider {
 public:
@@ -150,7 +155,6 @@ void testEventsetup::recordProviderTest()
    CPPUNIT_ASSERT(0 != &gottenRecord);
 }
 
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
 class DummyFinder : public EventSetupRecordIntervalFinder {
 public:
@@ -231,7 +235,6 @@ void testEventsetup::recordValidityExcTest()
    }
 
 }
-#include "FWCore/Framework/interface/DataProxyProvider.h"
 
 class DummyProxyProvider : public eventsetup::DataProxyProvider {
 public:
@@ -248,7 +251,6 @@ protected:
 
 };
 
-#include "FWCore/Framework/interface/EventSetupRecordProviderFactoryTemplate.h"
 //create an instance of the factory
 static eventsetup::EventSetupRecordProviderFactoryTemplate<DummyRecord> s_factory;
 
@@ -302,7 +304,6 @@ void testEventsetup::sourceConflictTest()
    
 }
 //#define TEST_EXCLUDE_DEF
-#include "FWCore/Framework/test/DummyEventSetupRecordRetriever.h"
 
 void testEventsetup::twoSourceTest()
 {
