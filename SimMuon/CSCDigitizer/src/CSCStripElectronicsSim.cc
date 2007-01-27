@@ -405,7 +405,6 @@ CSCStripDigi CSCStripElectronicsSim::createDigi(int channel, float startTime)
 
   addLinks(channelIndex(channel));
   //LogDebug("CSCStripElectronicsSim") << newDigi;
-newDigi.print();
 
   return newDigi;
 }
