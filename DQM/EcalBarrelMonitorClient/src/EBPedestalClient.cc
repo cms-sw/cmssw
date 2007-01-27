@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/01/25 18:30:22 $
- * $Revision: 1.112 $
+ * $Date: 2007/01/25 18:45:03 $
+ * $Revision: 1.113 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -115,6 +115,9 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
     qth02_[ism-1] = 0;
     qth03_[ism-1] = 0;
 
+    qth04_[ism-1] = 0;
+    qth05_[ism-1] = 0;
+
   }
 
   expectedMean_[0] = 200.0;
@@ -162,22 +165,40 @@ void EBPedestalClient::beginJob(MonitorUserInterface* mui){
 
       sprintf(qtname, "EBPT quality SM%02d G12", ism);
       qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
-  
+ 
+      sprintf(qtname, "EBPT pedestal quality PNs SM%02d G01", ism);
+      qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBPT pedestal quality PNs SM%02d G16", ism);
+      qth05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+ 
       qth01_[ism-1]->setMeanRange(expectedMean_[0] - discrepancyMean_[0], expectedMean_[0] + discrepancyMean_[0]);
       qth02_[ism-1]->setMeanRange(expectedMean_[1] - discrepancyMean_[1], expectedMean_[1] + discrepancyMean_[1]);
       qth03_[ism-1]->setMeanRange(expectedMean_[2] - discrepancyMean_[2], expectedMean_[2] + discrepancyMean_[2]);
+
+      qth04_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
+      qth05_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
 
       qth01_[ism-1]->setRMSRange(0.0, RMSThreshold_[0]);
       qth02_[ism-1]->setRMSRange(0.0, RMSThreshold_[1]);
       qth03_[ism-1]->setRMSRange(0.0, RMSThreshold_[2]);
 
+      qth04_[ism-1]->setRMSRange(0.0, 4096.0);
+      qth05_[ism-1]->setRMSRange(0.0, 4096.0);
+
       qth01_[ism-1]->setMinimumEntries(10*1700);
       qth02_[ism-1]->setMinimumEntries(10*1700);
       qth03_[ism-1]->setMinimumEntries(10*1700);
 
+      qth04_[ism-1]->setMinimumEntries(10*10);
+      qth05_[ism-1]->setMinimumEntries(10*10);
+
       qth01_[ism-1]->setErrorProb(1.00);
       qth02_[ism-1]->setErrorProb(1.00);
       qth03_[ism-1]->setErrorProb(1.00);
+
+      qth04_[ism-1]->setErrorProb(1.00);
+      qth05_[ism-1]->setErrorProb(1.00);
 
     }
 
@@ -239,10 +260,10 @@ void EBPedestalClient::setup(void) {
     meg03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( meg04_[ism-1] ) bei->removeElement( meg04_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal quality PN G01 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal quality PNs G01 SM%02d", ism);
     meg04_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg05_[ism-1] ) bei->removeElement( meg05_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal quality PN G16 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal quality PNs G16 SM%02d", ism);
     meg05_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
     if ( mep01_[ism-1] ) bei->removeElement( mep01_[ism-1]->getName() );
@@ -504,6 +525,54 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   
     cout << endl;
     for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {  
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << " +- " << it->getRMS()
+           << endl;
+    }
+    cout << endl;
+
+  }
+
+  if ( qth04_[ism-1] ) badChannels = qth04_[ism-1]->getBadChannels();
+ 
+  if ( ! badChannels.empty() ) {
+ 
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth04_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth04_[ism-1]->getAlgoName()
+         << ")" << endl;
+ 
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << " +- " << it->getRMS()
+           << endl;
+    }
+    cout << endl;
+
+  }
+
+  if ( qth05_[ism-1] ) badChannels = qth05_[ism-1]->getBadChannels();
+ 
+  if ( ! badChannels.empty() ) {
+ 
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth05_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth05_[ism-1]->getAlgoName()
+         << ")" << endl;
+ 
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
       cout << " (" << it->getBinX()
            << ", " << it->getBinY()
            << ", " << it->getBinZ()
@@ -826,6 +895,10 @@ void EBPedestalClient::subscribe(void){
       if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
       if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+      if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+      if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
         sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
@@ -834,6 +907,10 @@ void EBPedestalClient::subscribe(void){
         if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
         if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+        if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+        if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName()); 
@@ -841,6 +918,10 @@ void EBPedestalClient::subscribe(void){
         if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName()); 
         sprintf(histo, "EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
         if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName()); 
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+        if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+        if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
       }
     }
 
@@ -1356,6 +1437,22 @@ void EBPedestalClient::analyze(void){
 //    if ( ! badChannels.empty() ) {
 //      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
 //        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
+//      }
+//    }
+
+    if ( qth04_[ism-1] ) badChannels = qth04_[ism-1]->getBadChannels();
+
+//    if ( ! badChannels.empty() ) {
+//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+//        if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
+//      }
+//    }
+
+    if ( qth05_[ism-1] ) badChannels = qth05_[ism-1]->getBadChannels();
+
+//    if ( ! badChannels.empty() ) {
+//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+//        if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
 //      }
 //    }
 

@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2007/01/23 15:57:25 $
- * $Revision: 1.40 $
+ * $Date: 2007/01/26 20:26:04 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -122,6 +122,11 @@ TProfile2D* ha03_[36];
 MEContentsProf2DWithinRangeROOT* qtha01_[36];
 MEContentsProf2DWithinRangeROOT* qtha02_[36];
 MEContentsProf2DWithinRangeROOT* qtha03_[36];
+
+MEContentsProf2DWithinRangeROOT* qtha04_[36];
+MEContentsProf2DWithinRangeROOT* qtha05_[36];
+MEContentsProf2DWithinRangeROOT* qtha06_[36];
+MEContentsProf2DWithinRangeROOT* qtha07_[36];
 
 TProfile2D* hs01_[36];
 TProfile2D* hs02_[36];

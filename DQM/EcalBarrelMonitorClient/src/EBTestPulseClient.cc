@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/01/23 15:57:26 $
- * $Revision: 1.109 $
+ * $Date: 2007/01/25 22:27:23 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -106,6 +106,11 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
     qtha02_[ism-1] = 0;
     qtha03_[ism-1] = 0;
 
+    qtha04_[ism-1] = 0;
+    qtha05_[ism-1] = 0;
+    qtha06_[ism-1] = 0;
+    qtha07_[ism-1] = 0;
+
   }
 
   amplitudeThreshold_ = 400.0;
@@ -146,22 +151,54 @@ void EBTestPulseClient::beginJob(MonitorUserInterface* mui){
 
       sprintf(qtname, "EBTPT quality SM%02d G12", ism);
       qtha03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBTPT amplitude quality PNs SM%02d G01", ism);
+      qtha04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBTPT amplitude quality PNs SM%02d G16", ism);
+      qtha05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
  
-      qtha01_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.);
-      qtha02_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.);
-      qtha03_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.);
+      sprintf(qtname, "EBTPT pedestal quality PNs SM%02d G01", ism);
+      qtha06_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBTPT pedestal quality PNs SM%02d G16", ism);
+      qtha07_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+ 
+      qtha01_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0);
+      qtha02_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0);
+      qtha03_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0);
+
+      qtha04_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
+      qtha05_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
+      qtha06_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
+      qtha07_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
 
       qtha01_[ism-1]->setRMSRange(0.0, RMSThreshold_);
       qtha02_[ism-1]->setRMSRange(0.0, RMSThreshold_);
       qtha03_[ism-1]->setRMSRange(0.0, RMSThreshold_);
 
+      qtha04_[ism-1]->setRMSRange(0.0, 4096.0);
+      qtha05_[ism-1]->setRMSRange(0.0, 4096.0);
+      qtha06_[ism-1]->setRMSRange(0.0, 4096.0);
+      qtha07_[ism-1]->setRMSRange(0.0, 4096.0);
+
       qtha01_[ism-1]->setMinimumEntries(10*1700);
       qtha02_[ism-1]->setMinimumEntries(10*1700);
       qtha03_[ism-1]->setMinimumEntries(10*1700);
 
+      qtha04_[ism-1]->setMinimumEntries(10*10);
+      qtha05_[ism-1]->setMinimumEntries(10*10);
+      qtha06_[ism-1]->setMinimumEntries(10*10);
+      qtha07_[ism-1]->setMinimumEntries(10*10);
+
       qtha01_[ism-1]->setErrorProb(1.00);
       qtha02_[ism-1]->setErrorProb(1.00);
       qtha03_[ism-1]->setErrorProb(1.00);
+
+      qtha04_[ism-1]->setErrorProb(1.00);
+      qtha05_[ism-1]->setErrorProb(1.00);
+      qtha06_[ism-1]->setErrorProb(1.00);
+      qtha07_[ism-1]->setErrorProb(1.00);
 
     }
 
@@ -223,10 +260,10 @@ void EBTestPulseClient::setup(void) {
     meg03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( meg04_[ism-1] ) bei->removeElement( meg04_[ism-1]->getName() );
-    sprintf(histo, "EBTPT test pulse quality PN G01 SM%02d", ism);
+    sprintf(histo, "EBTPT test pulse quality PNs G01 SM%02d", ism);
     meg04_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg05_[ism-1] ) bei->removeElement( meg05_[ism-1]->getName() );
-    sprintf(histo, "EBTPT test pulse quality PN G06 SM%02d", ism);
+    sprintf(histo, "EBTPT test pulse quality PNs G06 SM%02d", ism);
     meg05_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
     if ( mea01_[ism-1] ) bei->removeElement( mea01_[ism-1]->getName() );
@@ -414,6 +451,102 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
          << qtha03_[ism-1]->getName() << "\" "
          << "(Algorithm: "
          << qtha03_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << " +- " << it->getRMS()
+           << endl;
+    }
+    cout << endl;
+
+  }
+
+  if ( qtha04_[ism-1] ) badChannels = qtha04_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qtha04_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qtha04_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << " +- " << it->getRMS()
+           << endl;
+    }
+    cout << endl;
+
+  }
+
+  if ( qtha05_[ism-1] ) badChannels = qtha05_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qtha05_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qtha05_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << " +- " << it->getRMS()
+           << endl;
+    }
+    cout << endl;
+
+  }
+
+  if ( qtha06_[ism-1] ) badChannels = qtha06_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qtha06_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qtha06_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << " +- " << it->getRMS()
+           << endl;
+    }
+    cout << endl;
+
+  }
+
+  if ( qtha07_[ism-1] ) badChannels = qtha07_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qtha07_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qtha07_[ism-1]->getAlgoName()
          << ")" << endl;
 
     cout << endl;
@@ -838,6 +971,14 @@ void EBTestPulseClient::subscribe(void){
       if ( qtha02_[ism-1] ) mui_->useQTest(histo, qtha02_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
       if ( qtha03_[ism-1] ) mui_->useQTest(histo, qtha03_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain01/EBPDT PNs amplitude SM%02d G01", ism);
+      if ( qtha04_[ism-1] ) mui_->useQTest(histo, qtha04_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain16/EBPDT PNs amplitude SM%02d G16", ism);
+      if ( qtha05_[ism-1] ) mui_->useQTest(histo, qtha05_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+      if ( qtha06_[ism-1] ) mui_->useQTest(histo, qtha06_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+      if ( qtha07_[ism-1] ) mui_->useQTest(histo, qtha07_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
         sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
@@ -846,6 +987,14 @@ void EBTestPulseClient::subscribe(void){
         if ( qtha02_[ism-1] ) mui_->useQTest(histo, qtha02_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
         if ( qtha03_[ism-1] ) mui_->useQTest(histo, qtha03_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs amplitude SM%02d G01", ism);
+        if ( qtha04_[ism-1] ) mui_->useQTest(histo, qtha04_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs amplitude SM%02d G16", ism);
+        if ( qtha05_[ism-1] ) mui_->useQTest(histo, qtha05_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+        if ( qtha06_[ism-1] ) mui_->useQTest(histo, qtha06_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+        if ( qtha07_[ism-1] ) mui_->useQTest(histo, qtha07_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
         if ( qtha01_[ism-1] ) mui_->useQTest(histo, qtha01_[ism-1]->getName());
@@ -853,6 +1002,14 @@ void EBTestPulseClient::subscribe(void){
         if ( qtha02_[ism-1] ) mui_->useQTest(histo, qtha02_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
         if ( qtha03_[ism-1] ) mui_->useQTest(histo, qtha03_[ism-1]->getName());
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs amplitude SM%02d G01", ism);
+        if ( qtha04_[ism-1] ) mui_->useQTest(histo, qtha04_[ism-1]->getName());
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs amplitude SM%02d G16", ism);
+        if ( qtha05_[ism-1] ) mui_->useQTest(histo, qtha05_[ism-1]->getName());
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+        if ( qtha06_[ism-1] ) mui_->useQTest(histo, qtha06_[ism-1]->getName());
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+        if ( qtha07_[ism-1] ) mui_->useQTest(histo, qtha07_[ism-1]->getName());
       }
     }
 
@@ -1418,6 +1575,38 @@ void EBTestPulseClient::analyze(void){
 //      }
 //    }
 
+    if ( qtha04_[ism-1] ) badChannels = qtha04_[ism-1]->getBadChannels();
+
+//    if ( ! badChannels.empty() ) {
+//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+//        if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
+//      }
+//    }
+
+    if ( qtha05_[ism-1] ) badChannels = qtha05_[ism-1]->getBadChannels();
+
+//    if ( ! badChannels.empty() ) {
+//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+//        if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
+//      }
+//    }
+
+    if ( qtha06_[ism-1] ) badChannels = qtha06_[ism-1]->getBadChannels();
+
+//    if ( ! badChannels.empty() ) {
+//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+//        if ( meg06_[ism-1] ) meg06_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
+//      }
+//    }
+
+    if ( qtha07_[ism-1] ) badChannels = qtha07_[ism-1]->getBadChannels();
+
+//    if ( ! badChannels.empty() ) {
+//      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+//        if ( meg07_[ism-1] ) meg07_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
+//      }
+//    }
+
   }
 
 }
@@ -1458,7 +1647,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   const double histMax = 1.e15;
 
-  int pCol3[4] = { 2, 3, 5, 1 };
+  int pCol3[4] = { 2, 3, 5, 1, 1, 1 };
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for ( int i = 0; i < 68; i++ ) {
@@ -1532,13 +1721,13 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cQual->cd();
         gStyle->SetOptStat(" ");
-        gStyle->SetPalette(4, pCol3);
+        gStyle->SetPalette(6, pCol3);
         obj2f->GetXaxis()->SetNdivisions(17);
         obj2f->GetYaxis()->SetNdivisions(4);
         cQual->SetGridx();
         cQual->SetGridy();
         obj2f->SetMinimum(-0.00000001);
-        obj2f->SetMaximum(3.0);
+        obj2f->SetMaximum(5.0);
         obj2f->Draw("col");
         dummy.Draw("text,same");
         cQual->Update();
