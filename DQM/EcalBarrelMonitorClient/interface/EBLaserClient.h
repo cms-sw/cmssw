@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2007/01/26 20:26:04 $
- * $Revision: 1.46 $
+ * $Date: 2007/01/27 13:06:16 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -183,6 +183,14 @@ MEContentsProf2DWithinRangeROOT* qth13_[36];
 MEContentsProf2DWithinRangeROOT* qth14_[36];
 MEContentsProf2DWithinRangeROOT* qth15_[36];
 MEContentsProf2DWithinRangeROOT* qth16_[36];
+MEContentsProf2DWithinRangeROOT* qth17_[36];
+MEContentsProf2DWithinRangeROOT* qth18_[36];
+MEContentsProf2DWithinRangeROOT* qth19_[36];
+MEContentsProf2DWithinRangeROOT* qth20_[36];
+MEContentsProf2DWithinRangeROOT* qth21_[36];
+MEContentsProf2DWithinRangeROOT* qth22_[36];
+MEContentsProf2DWithinRangeROOT* qth23_[36];
+MEContentsProf2DWithinRangeROOT* qth24_[36];
 
 TProfile2D* hs01_[36];
 TProfile2D* hs02_[36];
@@ -203,6 +211,10 @@ MonitorElement* meg05_[36];
 MonitorElement* meg06_[36];
 MonitorElement* meg07_[36];
 MonitorElement* meg08_[36];
+MonitorElement* meg09_[36];
+MonitorElement* meg10_[36];
+MonitorElement* meg11_[36];
+MonitorElement* meg12_[36];
 
 MonitorElement* mea01_[36];
 MonitorElement* mea02_[36];

@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/27 18:00:06 $
- * $Revision: 1.125 $
+ * $Date: 2007/01/27 13:29:11 $
+ * $Revision: 1.123 $
  * \author G. Della Ricca
  *
 */
@@ -143,6 +143,10 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
     meg06_[ism-1] = 0;
     meg07_[ism-1] = 0;
     meg08_[ism-1] = 0;
+    meg09_[ism-1] = 0;
+    meg10_[ism-1] = 0;
+    meg11_[ism-1] = 0;
+    meg12_[ism-1] = 0;
 
     mea01_[ism-1] = 0;
     mea02_[ism-1] = 0;
@@ -188,6 +192,14 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
     qth14_[ism-1] = 0;
     qth15_[ism-1] = 0;
     qth16_[ism-1] = 0;
+    qth17_[ism-1] = 0;
+    qth18_[ism-1] = 0;
+    qth19_[ism-1] = 0;
+    qth20_[ism-1] = 0;
+    qth21_[ism-1] = 0;
+    qth22_[ism-1] = 0;
+    qth23_[ism-1] = 0;
+    qth24_[ism-1] = 0;
 
   }
 
@@ -243,29 +255,53 @@ void EBLaserClient::beginJob(MonitorUserInterface* mui){
       sprintf(qtname, "EBLT laser quality SM%02d L4B", ism);
       qth08_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L1 G16", ism);
+      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L1 G01", ism);
       qth09_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L2 G16", ism);
+      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L2 G10", ism);
       qth10_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L3 G16", ism);
+      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L3 G01", ism);
       qth11_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L4 G16", ism);
+      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L4 G01", ism);
       qth12_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L1 G16", ism);
+      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L1 G01", ism);
       qth13_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L2 G16", ism);
+      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L2 G01", ism);
       qth14_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L3 G16", ism);
+      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L3 G01", ism);
       qth15_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L4 G16", ism);
+      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L4 G01", ism);
       qth16_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L1 G16", ism);
+      qth17_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L2 G16", ism);
+      qth18_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L3 G16", ism);
+      qth19_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L4 G16", ism);
+      qth20_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L1 G16", ism);
+      qth21_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L2 G16", ism);
+      qth22_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L3 G16", ism);
+      qth23_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L4 G16", ism);
+      qth24_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       qth01_[ism-1]->setMeanRange(100.0, 4096.0);
       qth02_[ism-1]->setMeanRange(100.0, 4096.0);
@@ -284,6 +320,14 @@ void EBLaserClient::beginJob(MonitorUserInterface* mui){
       qth14_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
       qth15_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
       qth16_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
+      qth17_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
+      qth18_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
+      qth19_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
+      qth20_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
+      qth21_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
+      qth22_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
+      qth23_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
+      qth24_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
 
       qth01_[ism-1]->setMeanTolerance(percentVariation_);
       qth02_[ism-1]->setMeanTolerance(percentVariation_);
@@ -302,6 +346,14 @@ void EBLaserClient::beginJob(MonitorUserInterface* mui){
       qth14_[ism-1]->setRMSRange(0.0, 4096.0);
       qth15_[ism-1]->setRMSRange(0.0, 4096.0);
       qth16_[ism-1]->setRMSRange(0.0, 4096.0);
+      qth17_[ism-1]->setRMSRange(0.0, 4096.0);
+      qth18_[ism-1]->setRMSRange(0.0, 4096.0);
+      qth19_[ism-1]->setRMSRange(0.0, 4096.0);
+      qth20_[ism-1]->setRMSRange(0.0, 4096.0);
+      qth21_[ism-1]->setRMSRange(0.0, 4096.0);
+      qth22_[ism-1]->setRMSRange(0.0, 4096.0);
+      qth23_[ism-1]->setRMSRange(0.0, 4096.0);
+      qth24_[ism-1]->setRMSRange(0.0, 4096.0);
 
       qth01_[ism-1]->setMinimumEntries(10*1700);
       qth02_[ism-1]->setMinimumEntries(10*1700);
@@ -320,6 +372,14 @@ void EBLaserClient::beginJob(MonitorUserInterface* mui){
       qth14_[ism-1]->setMinimumEntries(10*10);
       qth15_[ism-1]->setMinimumEntries(10*10);
       qth16_[ism-1]->setMinimumEntries(10*10);
+      qth17_[ism-1]->setMinimumEntries(10*10);
+      qth18_[ism-1]->setMinimumEntries(10*10);
+      qth19_[ism-1]->setMinimumEntries(10*10);
+      qth20_[ism-1]->setMinimumEntries(10*10);
+      qth21_[ism-1]->setMinimumEntries(10*10);
+      qth22_[ism-1]->setMinimumEntries(10*10);
+      qth23_[ism-1]->setMinimumEntries(10*10);
+      qth24_[ism-1]->setMinimumEntries(10*10);
 
       qth01_[ism-1]->setErrorProb(1.00);
       qth02_[ism-1]->setErrorProb(1.00);
@@ -338,6 +398,14 @@ void EBLaserClient::beginJob(MonitorUserInterface* mui){
       qth14_[ism-1]->setErrorProb(1.00);
       qth15_[ism-1]->setErrorProb(1.00);
       qth16_[ism-1]->setErrorProb(1.00);
+      qth17_[ism-1]->setErrorProb(1.00);
+      qth18_[ism-1]->setErrorProb(1.00);
+      qth19_[ism-1]->setErrorProb(1.00);
+      qth20_[ism-1]->setErrorProb(1.00);
+      qth21_[ism-1]->setErrorProb(1.00);
+      qth22_[ism-1]->setErrorProb(1.00);
+      qth23_[ism-1]->setErrorProb(1.00);
+      qth24_[ism-1]->setErrorProb(1.00);
 
     }
 
@@ -403,17 +471,29 @@ void EBLaserClient::setup(void) {
     meg04_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( meg05_[ism-1] ) bei->removeElement( meg05_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L1 PNs SM%02d G16", ism);
+    sprintf(histo, "EBLT laser quality L1 PNs SM%02d G01", ism);
     meg05_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg06_[ism-1] ) bei->removeElement( meg06_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L2 PNs SM%02d G16", ism);
+    sprintf(histo, "EBLT laser quality L2 PNs SM%02d G01", ism);
     meg06_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg07_[ism-1] ) bei->removeElement( meg07_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L3 PNs SM%02d G16", ism);
+    sprintf(histo, "EBLT laser quality L3 PNs SM%02d G01", ism);
     meg07_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg08_[ism-1] ) bei->removeElement( meg08_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L4 PNs SM%02d G16", ism);
+    sprintf(histo, "EBLT laser quality L4 PNs SM%02d G01", ism);
     meg08_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    if ( meg09_[ism-1] ) bei->removeElement( meg09_[ism-1]->getName() );
+    sprintf(histo, "EBLT laser quality L1 PNs SM%02d G16", ism);
+    meg09_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    if ( meg10_[ism-1] ) bei->removeElement( meg10_[ism-1]->getName() );
+    sprintf(histo, "EBLT laser quality L2 PNs SM%02d G16", ism);
+    meg10_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    if ( meg11_[ism-1] ) bei->removeElement( meg11_[ism-1]->getName() );
+    sprintf(histo, "EBLT laser quality L3 PNs SM%02d G16", ism);
+    meg11_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    if ( meg12_[ism-1] ) bei->removeElement( meg12_[ism-1]->getName() );
+    sprintf(histo, "EBLT laser quality L4 PNs SM%02d G16", ism);
+    meg12_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
     if ( mea01_[ism-1] ) bei->removeElement( mea01_[ism-1]->getName() );;
     sprintf(histo, "EBLT amplitude L1A SM%02d", ism);
@@ -505,6 +585,10 @@ void EBLaserClient::setup(void) {
     EBMUtilsClient::resetHisto( meg06_[ism-1] );
     EBMUtilsClient::resetHisto( meg07_[ism-1] );
     EBMUtilsClient::resetHisto( meg08_[ism-1] );
+    EBMUtilsClient::resetHisto( meg09_[ism-1] );
+    EBMUtilsClient::resetHisto( meg10_[ism-1] );
+    EBMUtilsClient::resetHisto( meg11_[ism-1] );
+    EBMUtilsClient::resetHisto( meg12_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -523,6 +607,10 @@ void EBLaserClient::setup(void) {
         meg06_[ism-1]->setBinContent( i, 1, 2. );
         meg07_[ism-1]->setBinContent( i, 1, 2. );
         meg08_[ism-1]->setBinContent( i, 1, 2. );
+        meg09_[ism-1]->setBinContent( i, 1, 2. );
+        meg10_[ism-1]->setBinContent( i, 1, 2. );
+        meg11_[ism-1]->setBinContent( i, 1, 2. );
+        meg12_[ism-1]->setBinContent( i, 1, 2. );
 
     }
  
@@ -703,6 +791,14 @@ void EBLaserClient::cleanup(void) {
     meg07_[ism-1] = 0;
     if ( meg08_[ism-1] ) bei->removeElement( meg08_[ism-1]->getName() );
     meg08_[ism-1] = 0;
+    if ( meg09_[ism-1] ) bei->removeElement( meg09_[ism-1]->getName() );
+    meg09_[ism-1] = 0;
+    if ( meg10_[ism-1] ) bei->removeElement( meg10_[ism-1]->getName() );
+    meg10_[ism-1] = 0;
+    if ( meg11_[ism-1] ) bei->removeElement( meg11_[ism-1]->getName() );
+    meg11_[ism-1] = 0;
+    if ( meg12_[ism-1] ) bei->removeElement( meg12_[ism-1]->getName() );
+    meg12_[ism-1] = 0;
 
     if ( mea01_[ism-1] ) bei->removeElement( mea01_[ism-1]->getName() );
     mea01_[ism-1] = 0;
@@ -1147,6 +1243,198 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     }
     cout << endl;
 
+  }
+
+  if ( qth17_[ism-1] ) badChannels = qth17_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth17_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth17_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << " +- " << it->getRMS()
+           << endl;
+    }
+    cout << endl;
+    
+  }
+
+  if ( qth18_[ism-1] ) badChannels = qth18_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth18_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth18_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << " +- " << it->getRMS()
+           << endl;
+    }
+    cout << endl;
+    
+  }
+
+  if ( qth19_[ism-1] ) badChannels = qth19_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth19_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth19_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << " +- " << it->getRMS()
+           << endl;
+    }
+    cout << endl;
+    
+  }
+
+  if ( qth20_[ism-1] ) badChannels = qth20_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth20_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth20_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << " +- " << it->getRMS()
+           << endl;
+    }
+    cout << endl;
+    
+  }
+
+  if ( qth21_[ism-1] ) badChannels = qth21_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth21_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth21_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << " +- " << it->getRMS()
+           << endl;
+    }
+    cout << endl;
+    
+  }
+
+  if ( qth22_[ism-1] ) badChannels = qth22_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth22_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth22_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << " +- " << it->getRMS()
+           << endl;
+    }
+    cout << endl;
+    
+  }
+
+  if ( qth23_[ism-1] ) badChannels = qth23_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth23_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth23_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << " +- " << it->getRMS()
+           << endl;
+    }
+    cout << endl;
+    
+  }
+
+  if ( qth24_[ism-1] ) badChannels = qth24_[ism-1]->getBadChannels();
+
+  if ( ! badChannels.empty() ) {
+
+    cout << endl;
+    cout << " Channels that failed \""
+         << qth24_[ism-1]->getName() << "\" "
+         << "(Algorithm: "
+         << qth24_[ism-1]->getAlgoName()
+         << ")" << endl;
+
+    cout << endl;
+    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+      cout << " (" << it->getBinX()
+           << ", " << it->getBinY()
+           << ", " << it->getBinZ()
+           << ") = " << it->getContents()
+           << " +- " << it->getRMS()
+           << endl;
+    }
+    cout << endl;
+    
   }
 
   EcalLogicID ecid;
@@ -1692,7 +1980,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_bl.setPedMeanG16(mean13);
       pn_bl.setPedRMSG16(rms13);
 
-      if ( meg05_[ism-1] && int(meg05_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
+      if ( meg05_[ism-1] && int(meg05_[ism-1]->getBinContent( i, 1 )) % 3 == 1. &&
+           meg09_[ism-1] && int(meg09_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
         pn_bl.setTaskStatus(true);
       } else {
         pn_bl.setTaskStatus(false);
@@ -1735,7 +2024,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_ir.setPedMeanG16(mean14);
       pn_ir.setPedRMSG16(rms14);
 
-      if ( meg06_[ism-1] && int(meg06_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
+      if ( meg06_[ism-1] && int(meg06_[ism-1]->getBinContent( i, 1 )) % 3 == 1. &&
+           meg10_[ism-1] && int(meg10_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
         pn_ir.setTaskStatus(true);
       } else {
         pn_ir.setTaskStatus(false);
@@ -1778,7 +2068,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_gr.setPedMeanG16(mean15);
       pn_gr.setPedRMSG16(rms15);
 
-      if ( meg07_[ism-1] && int(meg07_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
+      if ( meg07_[ism-1] && int(meg07_[ism-1]->getBinContent( i, 1 )) % 3 == 1. &&
+           meg11_[ism-1] && int(meg11_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
         pn_gr.setTaskStatus(true);
       } else {
         pn_gr.setTaskStatus(false);
@@ -1821,7 +2112,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_rd.setPedMeanG16(mean16);
       pn_rd.setPedRMSG16(rms16);
 
-      if ( meg08_[ism-1] && int(meg08_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
+      if ( meg08_[ism-1] && int(meg08_[ism-1]->getBinContent( i, 1 )) % 3 == 1. &&
+           meg12_[ism-1] && int(meg12_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
         pn_rd.setTaskStatus(true);
       } else {
         pn_rd.setTaskStatus(false);
@@ -2245,22 +2537,38 @@ void EBLaserClient::subscribe(void){
       if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude SM%02d L4B", ism);
       if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
       if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
       if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
       if ( qth11_[ism-1] ) mui_->useQTest(histo, qth11_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
       if ( qth12_[ism-1] ) mui_->useQTest(histo, qth12_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
       if ( qth13_[ism-1] ) mui_->useQTest(histo, qth13_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
       if ( qth14_[ism-1] ) mui_->useQTest(histo, qth14_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
       if ( qth15_[ism-1] ) mui_->useQTest(histo, qth15_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
       if ( qth16_[ism-1] ) mui_->useQTest(histo, qth16_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+      if ( qth17_[ism-1] ) mui_->useQTest(histo, qth17_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+      if ( qth18_[ism-1] ) mui_->useQTest(histo, qth18_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+      if ( qth19_[ism-1] ) mui_->useQTest(histo, qth19_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+      if ( qth20_[ism-1] ) mui_->useQTest(histo, qth20_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+      if ( qth21_[ism-1] ) mui_->useQTest(histo, qth21_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+      if ( qth22_[ism-1] ) mui_->useQTest(histo, qth22_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+      if ( qth23_[ism-1] ) mui_->useQTest(histo, qth23_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+      if ( qth24_[ism-1] ) mui_->useQTest(histo, qth24_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
         sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1A", ism);
@@ -2279,22 +2587,38 @@ void EBLaserClient::subscribe(void){
         if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4B", ism);
         if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
         if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
         if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
         if ( qth11_[ism-1] ) mui_->useQTest(histo, qth11_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
         if ( qth12_[ism-1] ) mui_->useQTest(histo, qth12_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
         if ( qth13_[ism-1] ) mui_->useQTest(histo, qth13_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
         if ( qth14_[ism-1] ) mui_->useQTest(histo, qth14_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
         if ( qth15_[ism-1] ) mui_->useQTest(histo, qth15_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
         if ( qth16_[ism-1] ) mui_->useQTest(histo, qth16_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+        if ( qth17_[ism-1] ) mui_->useQTest(histo, qth17_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+        if ( qth18_[ism-1] ) mui_->useQTest(histo, qth18_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+        if ( qth19_[ism-1] ) mui_->useQTest(histo, qth19_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+        if ( qth20_[ism-1] ) mui_->useQTest(histo, qth20_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+        if ( qth21_[ism-1] ) mui_->useQTest(histo, qth21_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+        if ( qth22_[ism-1] ) mui_->useQTest(histo, qth22_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+        if ( qth23_[ism-1] ) mui_->useQTest(histo, qth23_[ism-1]->getName());
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+        if ( qth24_[ism-1] ) mui_->useQTest(histo, qth24_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1A", ism);
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
@@ -2312,22 +2636,38 @@ void EBLaserClient::subscribe(void){
         if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4B", ism);
         if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
         if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
         if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
         if ( qth11_[ism-1] ) mui_->useQTest(histo, qth11_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
         if ( qth12_[ism-1] ) mui_->useQTest(histo, qth12_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
         if ( qth13_[ism-1] ) mui_->useQTest(histo, qth13_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
         if ( qth14_[ism-1] ) mui_->useQTest(histo, qth14_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
         if ( qth15_[ism-1] ) mui_->useQTest(histo, qth15_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
         if ( qth16_[ism-1] ) mui_->useQTest(histo, qth16_[ism-1]->getName());
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+        if ( qth17_[ism-1] ) mui_->useQTest(histo, qth17_[ism-1]->getName());
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+        if ( qth18_[ism-1] ) mui_->useQTest(histo, qth18_[ism-1]->getName());
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+        if ( qth19_[ism-1] ) mui_->useQTest(histo, qth19_[ism-1]->getName());
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+        if ( qth20_[ism-1] ) mui_->useQTest(histo, qth20_[ism-1]->getName());
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+        if ( qth21_[ism-1] ) mui_->useQTest(histo, qth21_[ism-1]->getName());
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+        if ( qth22_[ism-1] ) mui_->useQTest(histo, qth22_[ism-1]->getName());
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+        if ( qth23_[ism-1] ) mui_->useQTest(histo, qth23_[ism-1]->getName());
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+        if ( qth24_[ism-1] ) mui_->useQTest(histo, qth24_[ism-1]->getName());
       }
     }
 
@@ -2656,10 +2996,22 @@ void EBLaserClient::analyze(void){
   bits01 |= EcalErrorDictionary::getMask("LASER_RMS_OVER_PN_WARNING");
 
   uint64_t bits02 = 0;
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_WARNING");
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_WARNING");
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_WARNING");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_ERROR");
+  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_ERROR");
+
+  uint64_t bits03 = 0;
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_MEAN_WARNING");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_RMS_WARNING");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_MEAN_ERROR");
+  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_RMS_ERROR");
+
+  uint64_t bits04 = 0;
+  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_WARNING");
+  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_WARNING");
+  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
+  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
 
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunPNErrorsDat> mask2;
@@ -3078,6 +3430,10 @@ void EBLaserClient::analyze(void){
     EBMUtilsClient::resetHisto( meg06_[ism-1] );
     EBMUtilsClient::resetHisto( meg07_[ism-1] );
     EBMUtilsClient::resetHisto( meg08_[ism-1] );
+    EBMUtilsClient::resetHisto( meg09_[ism-1] );
+    EBMUtilsClient::resetHisto( meg10_[ism-1] );
+    EBMUtilsClient::resetHisto( meg11_[ism-1] );
+    EBMUtilsClient::resetHisto( meg12_[ism-1] );
 
     EBMUtilsClient::resetHisto( mea01_[ism-1] );
     EBMUtilsClient::resetHisto( mea02_[ism-1] );
@@ -3657,11 +4013,19 @@ void EBLaserClient::analyze(void){
       if ( meg06_[ism-1] ) meg06_[ism-1]->setBinContent( i, 1, 2. );
       if ( meg07_[ism-1] ) meg07_[ism-1]->setBinContent( i, 1, 2. );
       if ( meg08_[ism-1] ) meg08_[ism-1]->setBinContent( i, 1, 2. );
+      if ( meg09_[ism-1] ) meg09_[ism-1]->setBinContent( i, 1, 2. );
+      if ( meg10_[ism-1] ) meg10_[ism-1]->setBinContent( i, 1, 2. );
+      if ( meg11_[ism-1] ) meg11_[ism-1]->setBinContent( i, 1, 2. );
+      if ( meg12_[ism-1] ) meg12_[ism-1]->setBinContent( i, 1, 2. );
 
       bool update_channel1 = false;
       bool update_channel2 = false;
       bool update_channel3 = false;
       bool update_channel4 = false;
+      bool update_channel5 = false;
+      bool update_channel6 = false;
+      bool update_channel7 = false;
+      bool update_channel8 = false;
 
       if ( i01_[ism-1] && i01_[ism-1]->GetEntries() >= m_min_tot ) {
         num01 = i01_[ism-1]->GetBinEntries(i01_[ism-1]->GetBin(1, i));
@@ -3740,7 +4104,7 @@ void EBLaserClient::analyze(void){
         if ( num09 >= m_min_bin ) {
           mean09 = j01_[ism-1]->GetBinContent(j01_[ism-1]->GetBin(1, i));
           rms09  = j01_[ism-1]->GetBinError(j01_[ism-1]->GetBin(1, i));
-          update_channel1 = true;
+          update_channel5 = true;
         }
       }
 
@@ -3749,7 +4113,7 @@ void EBLaserClient::analyze(void){
         if ( num10 >= m_min_bin ) {
           mean10 = j02_[ism-1]->GetBinContent(j02_[ism-1]->GetBin(1, i));
           rms10  = j02_[ism-1]->GetBinError(j02_[ism-1]->GetBin(1, i));
-          update_channel2 = true;
+          update_channel6 = true;
         }
       }
 
@@ -3758,7 +4122,7 @@ void EBLaserClient::analyze(void){
         if ( num11 >= m_min_bin ) {
           mean11 = j03_[ism-1]->GetBinContent(j03_[ism-1]->GetBin(1, i));
           rms11  = j03_[ism-1]->GetBinError(j03_[ism-1]->GetBin(1, i));
-          update_channel3 = true;
+          update_channel7 = true;
         }
       }
 
@@ -3767,7 +4131,7 @@ void EBLaserClient::analyze(void){
         if ( num12 >= m_min_bin ) {
           mean12 = j04_[ism-1]->GetBinContent(j04_[ism-1]->GetBin(1, i));
           rms12  = j04_[ism-1]->GetBinError(j04_[ism-1]->GetBin(1, i));
-          update_channel4 = true;
+          update_channel8 = true;
         }
       }
 
@@ -3776,7 +4140,7 @@ void EBLaserClient::analyze(void){
         if ( num13 >= m_min_bin ) {
           mean13 = j05_[ism-1]->GetBinContent(j05_[ism-1]->GetBin(1, i));
           rms13  = j05_[ism-1]->GetBinError(j05_[ism-1]->GetBin(1, i));
-          update_channel1 = true;
+          update_channel5 = true;
         }
       }
 
@@ -3785,7 +4149,7 @@ void EBLaserClient::analyze(void){
         if ( num14 >= m_min_bin ) {
           mean14 = j06_[ism-1]->GetBinContent(j06_[ism-1]->GetBin(1, i));
           rms14  = j06_[ism-1]->GetBinError(j06_[ism-1]->GetBin(1, i));
-          update_channel2 = true;
+          update_channel6 = true;
         }
       }
 
@@ -3794,7 +4158,7 @@ void EBLaserClient::analyze(void){
         if ( num15 >= m_min_bin ) {
           mean15 = j07_[ism-1]->GetBinContent(j07_[ism-1]->GetBin(1, i));
           rms15  = j07_[ism-1]->GetBinError(j07_[ism-1]->GetBin(1, i));
-          update_channel3 = true;
+          update_channel7 = true;
         }
       }
 
@@ -3803,7 +4167,7 @@ void EBLaserClient::analyze(void){
         if ( num16 >= m_min_bin ) {
           mean16 = j08_[ism-1]->GetBinContent(j08_[ism-1]->GetBin(1, i));
           rms16  = j08_[ism-1]->GetBinError(j08_[ism-1]->GetBin(1, i));
-          update_channel4 = true;
+          update_channel8 = true;
         }
       }
 
@@ -3818,13 +4182,6 @@ void EBLaserClient::analyze(void){
           val = 0.;
         if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(i, 1, val);
 
-        val = 1.;
-        if ( mean09 < amplitudeThresholdPN_ )
-          val = 0.;
-        if ( mean13 < meanThresholdPN_ )
-          val = 0.;
-        if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(i, 1, val); 
-
       }
 
       if ( update_channel2 ) {
@@ -3835,13 +4192,6 @@ void EBLaserClient::analyze(void){
         if ( mean02 < amplitudeThresholdPN_ )
           val = 0.;
         if ( mean06 < meanThresholdPN_ )
-          val = 0.;
-        if ( meg06_[ism-1] ) meg06_[ism-1]->setBinContent(i, 1, val); 
-
-        val = 1.;
-        if ( mean10 < amplitudeThresholdPN_ )
-          val = 0.;
-        if ( mean14 < meanThresholdPN_ )
           val = 0.;
         if ( meg06_[ism-1] ) meg06_[ism-1]->setBinContent(i, 1, val); 
 
@@ -3858,13 +4208,6 @@ void EBLaserClient::analyze(void){
           val = 0.;
         if ( meg07_[ism-1] ) meg07_[ism-1]->setBinContent(i, 1, val);
 
-        val = 1.;
-        if ( mean11 < amplitudeThresholdPN_ )
-          val = 0.;
-        if ( mean15 < meanThresholdPN_ )
-          val = 0.;
-        if ( meg07_[ism-1] ) meg07_[ism-1]->setBinContent(i, 1, val);
-
       }
 
       if ( update_channel4 ) {
@@ -3878,12 +4221,57 @@ void EBLaserClient::analyze(void){
           val = 0.;
         if ( meg08_[ism-1] ) meg08_[ism-1]->setBinContent(i, 1, val);
 
+      }
+
+      if ( update_channel5 ) {
+
+        float val;
+
+        val = 1.;
+        if ( mean09 < amplitudeThresholdPN_ )
+          val = 0.;
+        if ( mean13 < meanThresholdPN_ )
+          val = 0.;
+        if ( meg09_[ism-1] ) meg09_[ism-1]->setBinContent(i, 1, val); 
+
+      }
+
+      if ( update_channel6 ) {
+
+        float val;
+
+        val = 1.;
+        if ( mean10 < amplitudeThresholdPN_ )
+          val = 0.;
+        if ( mean14 < meanThresholdPN_ )
+          val = 0.;
+        if ( meg10_[ism-1] ) meg10_[ism-1]->setBinContent(i, 1, val); 
+
+      }
+
+      if ( update_channel7 ) {
+
+        float val;
+
+        val = 1.;
+        if ( mean11 < amplitudeThresholdPN_ )
+          val = 0.;
+        if ( mean15 < meanThresholdPN_ )
+          val = 0.;
+        if ( meg11_[ism-1] ) meg11_[ism-1]->setBinContent(i, 1, val);
+
+      }
+
+      if ( update_channel8 ) {
+
+        float val;
+
         val = 1.;
         if ( mean12 < amplitudeThresholdPN_ )
           val = 0.;
         if ( mean16 < meanThresholdPN_ )
           val = 0.;
-        if ( meg08_[ism-1] ) meg08_[ism-1]->setBinContent(i, 1, val);
+        if ( meg12_[ism-1] ) meg12_[ism-1]->setBinContent(i, 1, val);
 
       }
 
@@ -3920,6 +4308,30 @@ void EBLaserClient::analyze(void){
                 meg08_[ism-1]->setBinContent( i, 1, val+3 );
               }
             }
+            if ( (m->second).getErrorBits() & (bits01|bits04) ) {
+              if ( meg09_[ism-1] ) {
+                float val = int(meg09_[ism-1]->getBinContent(i, 1)) % 3;
+                meg09_[ism-1]->setBinContent( i, 1, val+3 );
+              }
+            }
+            if ( (m->second).getErrorBits() & (bits01|bits04) ) {
+              if ( meg10_[ism-1] ) {
+                float val = int(meg10_[ism-1]->getBinContent(i, 1)) % 3;
+                meg10_[ism-1]->setBinContent( i, 1, val+3 );
+              }
+            }
+            if ( (m->second).getErrorBits() & (bits01|bits04) ) {
+              if ( meg11_[ism-1] ) {
+                float val = int(meg11_[ism-1]->getBinContent(i, 1)) % 3;
+                meg11_[ism-1]->setBinContent( i, 1, val+3 );
+              }
+            }
+            if ( (m->second).getErrorBits() & (bits01|bits04) ) {
+              if ( meg12_[ism-1] ) {
+                float val = int(meg12_[ism-1]->getBinContent(i, 1)) % 3;
+                meg12_[ism-1]->setBinContent( i, 1, val+3 );
+              }
+            }
           }
 
         }
@@ -3953,6 +4365,14 @@ void EBLaserClient::analyze(void){
     vector<dqm::me_util::Channel> badChannels14;
     vector<dqm::me_util::Channel> badChannels15;
     vector<dqm::me_util::Channel> badChannels16;
+    vector<dqm::me_util::Channel> badChannels17;
+    vector<dqm::me_util::Channel> badChannels18;
+    vector<dqm::me_util::Channel> badChannels19;
+    vector<dqm::me_util::Channel> badChannels20;
+    vector<dqm::me_util::Channel> badChannels21;
+    vector<dqm::me_util::Channel> badChannels22;
+    vector<dqm::me_util::Channel> badChannels23;
+    vector<dqm::me_util::Channel> badChannels24;
 
     if ( qth09_[ism-1] ) badChannels09 = qth09_[ism-1]->getBadChannels();
     if ( qth10_[ism-1] ) badChannels10 = qth10_[ism-1]->getBadChannels();
@@ -3962,6 +4382,14 @@ void EBLaserClient::analyze(void){
     if ( qth14_[ism-1] ) badChannels14 = qth14_[ism-1]->getBadChannels();
     if ( qth15_[ism-1] ) badChannels15 = qth15_[ism-1]->getBadChannels();
     if ( qth16_[ism-1] ) badChannels16 = qth16_[ism-1]->getBadChannels();
+    if ( qth17_[ism-1] ) badChannels09 = qth17_[ism-1]->getBadChannels();
+    if ( qth18_[ism-1] ) badChannels10 = qth18_[ism-1]->getBadChannels();
+    if ( qth19_[ism-1] ) badChannels11 = qth19_[ism-1]->getBadChannels();
+    if ( qth20_[ism-1] ) badChannels12 = qth20_[ism-1]->getBadChannels();
+    if ( qth21_[ism-1] ) badChannels13 = qth21_[ism-1]->getBadChannels();
+    if ( qth22_[ism-1] ) badChannels14 = qth22_[ism-1]->getBadChannels();
+    if ( qth23_[ism-1] ) badChannels15 = qth23_[ism-1]->getBadChannels();
+    if ( qth24_[ism-1] ) badChannels16 = qth24_[ism-1]->getBadChannels();
 
   }
 
@@ -4059,7 +4487,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   dummy1.SetMarkerSize(2);
   dummy1.SetMinimum(0.1);
 
-  string imgNameQual[8], imgNameAmp[8], imgNameTim[8], imgNameShape[8], imgNameAmpoPN[8], imgNameMEPnQual[8], imgNameMEPnG01[8], imgNameMEPnPedG01[8], imgNameMEPnG16[8], imgNameMEPnPedG16[8], imgName, meName;
+  string imgNameQual[8], imgNameAmp[8], imgNameTim[8], imgNameShape[8], imgNameAmpoPN[8], imgNameMEPnQualG01[8], imgNameMEPnG01[8], imgNameMEPnPedG01[8], imgNameMEPnQualG16[8], imgNameMEPnG16[8], imgNameMEPnPedG16[8], imgName, meName;
 
   TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
   TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
@@ -4386,7 +4814,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       // Monitoring elements plots
 
-      imgNameMEPnQual[iCanvas-1] = "";
+      imgNameMEPnQualG01[iCanvas-1] = "";
 
       obj2f = 0;
       switch ( iCanvas ) {
@@ -4421,8 +4849,62 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
             meName.replace(i, 1, "_");
           }
         }
-        imgNameMEPnQual[iCanvas-1] = meName + ".png";
-        imgName = htmlDir + imgNameMEPnQual[iCanvas-1];
+        imgNameMEPnQualG01[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnQualG01[iCanvas-1];
+
+        cQual->cd();
+        gStyle->SetOptStat(" ");
+        gStyle->SetPalette(6, pCol3);
+        obj2f->GetXaxis()->SetNdivisions(10);
+        obj2f->GetYaxis()->SetNdivisions(5);
+        cQual->SetGridx();
+        cQual->SetGridy(0);
+        obj2f->SetMinimum(-0.00000001);
+        obj2f->SetMaximum(5.0);
+        obj2f->Draw("col");
+        dummy1.Draw("text,same");
+        cQual->Update();
+        cQual->SaveAs(imgName.c_str());
+
+      }
+
+      imgNameMEPnQualG16[iCanvas-1] = "";
+
+      obj2f = 0;
+      switch ( iCanvas ) {
+      case 1:
+        obj2f = EBMUtilsClient::getHisto<TH2F*>( meg09_[ism-1] );
+        break;
+      case 2:
+        obj2f = EBMUtilsClient::getHisto<TH2F*>( meg10_[ism-1] );
+        break;
+      case 3:
+        obj2f = EBMUtilsClient::getHisto<TH2F*>( meg11_[ism-1] );
+        break;
+      case 4:
+        obj2f = EBMUtilsClient::getHisto<TH2F*>( meg12_[ism-1] );
+        break;
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+          obj2f = 0;
+          break;
+      default:
+        break;
+      }
+
+      if ( obj2f ) {
+
+        meName = obj2f->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1, "_");
+          }
+        }
+        imgNameMEPnQualG16[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnQualG16[iCanvas-1];
 
         cQual->cd();
         gStyle->SetOptStat(" ");
@@ -4795,8 +5277,8 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       // skip unused wavelengths
       if ( iCanvas == 2 || iCanvas == 3 ) continue;
 
-      if ( imgNameMEPnQual[iCanvas-1].size() != 0 )
-        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnQual[iCanvas-1] << "\"></td>" << endl;
+      if ( imgNameMEPnQualG01[iCanvas-1].size() != 0 )
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnQualG01[iCanvas-1] << "\"></td>" << endl;
       else 
         htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
@@ -4833,6 +5315,22 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       if ( iCanvas == 2 || iCanvas == 3 ) continue;
 
       htmlFile << "<td colspan=\"2\">Laser " << iCanvas << " - PN Gain 1</td>" << endl;
+
+    }
+
+    htmlFile << "</tr>" << endl;
+
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+
+      // skip unused wavelengths
+      if ( iCanvas == 2 || iCanvas == 3 ) continue;
+
+      if ( imgNameMEPnQualG16[iCanvas-1].size() != 0 )
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnQualG16[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
     }
 
