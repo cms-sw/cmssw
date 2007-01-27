@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: ref_t.cppunit.cpp,v 1.7 2006/12/19 00:37:35 wmtan Exp $
+$Id: ref_t.cppunit.cpp,v 1.8 2007/01/19 04:53:28 wmtan Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -68,9 +68,6 @@ bool testRefInROOT::sWasRun_=false;
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testRefInROOT);
-
-using std::cout;
-using std::endl;
 
 static void checkMatch(const edmtest::OtherThingCollection* pOthers,
                        const edmtest::ThingCollection* pThings)

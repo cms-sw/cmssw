@@ -109,9 +109,9 @@ testServiceRegistry::externalServiceTest()
    }
 
    {
-      using edm::serviceregistry::ServiceWrapper;
       std::auto_ptr<DummyService> dummyPtr(new DummyService);
-      boost::shared_ptr<ServiceWrapper<DummyService> > wrapper(new ServiceWrapper<DummyService>(dummyPtr));
+      boost::shared_ptr<edm::serviceregistry::ServiceWrapper<DummyService> >
+	  wrapper(new edm::serviceregistry::ServiceWrapper<DummyService>(dummyPtr));
       edm::ServiceToken token(edm::ServiceRegistry::createContaining(wrapper));
 
       wrapper->get().value_ = 2;

@@ -7,12 +7,12 @@
 #include "FWCore/ParameterSet/interface/Nodes.h"
 #include "FWCore/ParameterSet/interface/parse.h"
 
+#include <iostream>
+#include <iterator>
+
 using std::string;
 using std::vector;
 using std::map;
-
-#include <iostream>
-#include<iterator>
 
 namespace edm {
   namespace pset {

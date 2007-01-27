@@ -19,6 +19,7 @@
 
 #include "FWCore/ServiceRegistry/test/stubs/DummyService.h"
 #include "FWCore/ServiceRegistry/test/stubs/DependsOnDummyService.h"
+#include "FWCore/Utilities/interface/ProblemTracker.h"
 #include <iostream>
 
 class testServicesManager: public CppUnit::TestFixture
@@ -87,7 +88,6 @@ testServicesManager::putGetTest()
    CPPUNIT_ASSERT(!sm.put(ptrWrapper));
 }
 
-#include "FWCore/Utilities/interface/ProblemTracker.h"
 
 void
 testServicesManager::loadTest()

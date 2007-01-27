@@ -3,13 +3,13 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <iostream>
-using namespace std;
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 
+using namespace std;
 using namespace tfwliteselectortest;
 
 static const char* kA = "a";

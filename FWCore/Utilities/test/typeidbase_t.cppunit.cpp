@@ -3,7 +3,7 @@
 Test program for edm::TypeIDBase class.
 Changed by Viji on 29-06-2005
 
-$Id: typeidbase_t.cppunit.cc,v 1.1 2005/11/11 18:59:24 chrjones Exp $
+$Id: typeidbase_t.cppunit.cpp,v 1.1 2006/03/24 22:56:25 wmtan Exp $
  ----------------------------------------------------------------------*/
 
 #include <cassert>
@@ -34,9 +34,6 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testTypeIDBase);
 namespace edmtest {
   struct empty { };
 }
-
-using std::cerr;
-using std::endl;
 
 void testTypeIDBase::equalityTest()
 

@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.cc,v 1.5 2006/02/08 00:44:27 wmtan Exp $
+// $Id: Memory.cc,v 1.6 2006/08/09 23:02:44 wmtan Exp $
 //
 
 #include "FWCore/Services/src/Memory.h"
@@ -19,8 +19,6 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
-
-using namespace std;
 
 #ifdef __linux__
 #define LINUX 1

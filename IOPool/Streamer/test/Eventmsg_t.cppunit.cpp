@@ -4,8 +4,9 @@
 
 #include <iostream>
 
-using namespace std;
-using namespace edm;
+typedef edm::MsgCode MsgCode;
+typedef edm::InitMsg InitMsg;
+typedef edm::EventMsg EventMsg;
 
 // ----------------------------------------------
 class testeventmsg: public CppUnit::TestFixture
@@ -38,8 +39,8 @@ void testeventmsg::encodeDecode()
 {
   unsigned int x = 42450876;
   DecodeStruct d;
-  encodeInt(x,d.data);
-  unsigned int y = decodeInt(d.data);
+  edm::encodeInt(x,d.data);
+  unsigned int y = edm::decodeInt(d.data);
 
   CPPUNIT_ASSERT( x==y );
 }
