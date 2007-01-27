@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/27 17:56:46 $
- * $Revision: 1.124 $
+ * $Date: 2007/01/27 18:00:06 $
+ * $Revision: 1.125 $
  * \author G. Della Ricca
  *
 */
@@ -403,16 +403,16 @@ void EBLaserClient::setup(void) {
     meg04_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( meg05_[ism-1] ) bei->removeElement( meg05_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L1 PNs SM%02d", ism);
+    sprintf(histo, "EBLT laser quality L1 PNs SM%02d G16", ism);
     meg05_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg06_[ism-1] ) bei->removeElement( meg06_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L2 PNs SM%02d", ism);
+    sprintf(histo, "EBLT laser quality L2 PNs SM%02d G16", ism);
     meg06_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg07_[ism-1] ) bei->removeElement( meg07_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L3 PNs SM%02d", ism);
+    sprintf(histo, "EBLT laser quality L3 PNs SM%02d G16", ism);
     meg07_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg08_[ism-1] ) bei->removeElement( meg08_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L4 PNs SM%02d", ism);
+    sprintf(histo, "EBLT laser quality L4 PNs SM%02d G16", ism);
     meg08_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
     if ( mea01_[ism-1] ) bei->removeElement( mea01_[ism-1]->getName() );;
