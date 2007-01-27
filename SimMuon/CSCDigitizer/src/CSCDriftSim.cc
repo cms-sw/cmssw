@@ -142,7 +142,7 @@ double CSCDriftSim::avalancheCharge() {
 
   // now extrapolate between values
   if( i ==  isiz-1 ) {
-    edm::LogInfo("CSCDriftSim") << "Funky integral in CSCDriftSim ";
+    //edm::LogInfo("CSCDriftSim") << "Funky integral in CSCDriftSim " << x;
     returnVal = STEP_SIZE * double(i) * dNdEIntegral[i];
   }
   else {
