@@ -1,4 +1,3 @@
-using namespace std;
 #include <iostream>
 #include <cstdlib>
 #include <vector>
@@ -23,6 +22,7 @@ SEE LINES 93ff
 
 ***********/
 using namespace DDI;
+using namespace std;
 
 // Helper class
 class PSCreator : public Specific

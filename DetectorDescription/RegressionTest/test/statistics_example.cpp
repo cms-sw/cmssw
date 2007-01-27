@@ -1,4 +1,3 @@
-using namespace std;
 #include <iostream>
 #include <fstream>
 
@@ -13,6 +12,7 @@ using namespace std;
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/RegressionTest/src/ddstats.h"
 
+using namespace std;
 int main(int argc, char *argv[])
 {
   //DDAlgoInit();

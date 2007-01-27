@@ -11,7 +11,7 @@
  *                                                                         *
  ***************************************************************************/
 
-namespace std{} using namespace std;
+
 
 // Parser parts
 #include "DetectorDescription/Parser/interface/DDLAlgorithm.h"

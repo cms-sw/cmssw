@@ -11,7 +11,7 @@
  *                                                                         *
  ***************************************************************************/
 
-namespace std{} using namespace std;
+
 
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/interface/DDLDivision.h"

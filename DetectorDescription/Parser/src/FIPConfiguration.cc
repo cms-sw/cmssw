@@ -39,8 +39,8 @@
 #include <iostream>
 #include <map>
 
-namespace std{} using namespace std;
-namespace xercesc_2_7{} using namespace xercesc_2_7;
+
+using namespace xercesc_2_7;
 
 //--------------------------------------------------------------------------
 //  FIPConfiguration:  Default constructor and destructor.

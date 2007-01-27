@@ -1,6 +1,3 @@
-namespace std{} 
-using namespace std;
-
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 // initialize the singleton

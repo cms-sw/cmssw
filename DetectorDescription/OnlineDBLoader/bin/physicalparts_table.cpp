@@ -1,4 +1,3 @@
-using namespace std;
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -19,6 +18,9 @@ using namespace std;
 
 #include "Utilities/Timing/interface/TimingReport.h"
 //#include "Utilities/Timing/interface/TimerProxy.h"
+
+using namespace std;
+
 int main(int argc, char *argv[])
 {
   //   static TimerProxy timer_("main()");

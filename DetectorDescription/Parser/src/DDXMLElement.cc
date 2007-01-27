@@ -5,7 +5,7 @@
     email                : case@ucdhep.ucdavis.edu
  ***************************************************************************/
 
-namespace std{} using namespace std;
+
 
 // -------------------------------------------------------------------------
 // Includes
@@ -254,13 +254,13 @@ const std::string DDXMLElement::getText(size_t tindex) const
    return false;
  }
 
-ostream & operator<<(ostream & os, const DDXMLElement & element)
+std::ostream & operator<<(std::ostream & os, const DDXMLElement & element)
 {
   element.stream(os);
   return os;
 }
 
-void DDXMLElement::stream(ostream & os) const
+void DDXMLElement::stream(std::ostream & os) const
 {
   os << "Output of current element attributes:" << std::endl;
   for (std::vector<DDXMLAttribute>::const_iterator itv = attributes_.begin();

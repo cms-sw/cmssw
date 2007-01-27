@@ -1,7 +1,6 @@
-namespace std{} 
-using namespace std;
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/ExprAlgo/interface/AlgoCheck.h"
+#include <cstdio>
 
 bool AlgoCheck::check(parS_type & ps, parE_type & pe, std::string & err)
 {
@@ -137,7 +136,6 @@ bool AlgoCheck::checkBounds(parE_type::iterator pit,
 }
 
 
-#include <cstdio>
 std::string AlgoCheck::d2s(double x)
 {
   char buffer [25]; 

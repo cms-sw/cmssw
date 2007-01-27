@@ -1,5 +1,3 @@
-namespace std {} using namespace std;
-namespace seal {} using namespace seal;
 #include <iostream>
 #include <string>
 #include "PluginManager/PluginManager.h"

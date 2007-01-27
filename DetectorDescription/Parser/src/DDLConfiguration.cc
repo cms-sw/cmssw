@@ -33,9 +33,9 @@
 #include <iostream>
 #include <map>
 
-namespace xercesc_2_7{} using namespace xercesc_2_7;
+using namespace xercesc_2_7;
 
-namespace std{} using namespace std;
+
 
 //--------------------------------------------------------------------------
 //  DDLConfiguration:  Default constructor and destructor.

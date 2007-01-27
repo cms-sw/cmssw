@@ -11,7 +11,7 @@
  *                                                                         *
  ***************************************************************************/
 
-namespace std{} using namespace std;
+
 
 // Parser parts
 #include "DetectorDescription/Parser/interface/DDLSpecPar.h"
@@ -99,7 +99,7 @@ void DDLSpecPar::processElement (const std::string& type, const std::string& nms
 
   // boolean flag to indicate whether the std::vector<DDValuePair> has been evaluated 
   // using the Evaluator
-  typedef map <std::string, pair<bool,std::vector<DDValuePair> > > vvvpType;
+  typedef std::map<std::string, std::pair<bool,std::vector<DDValuePair> > > vvvpType;
 
   vvvpType vvvp;
 

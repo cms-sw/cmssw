@@ -11,7 +11,7 @@
  *                                                                         *
  ***************************************************************************/
 
-namespace std{} using namespace std;
+
 
 // DDL Parser components
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"

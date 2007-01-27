@@ -1,5 +1,3 @@
-namespace std{} 
-using namespace std;
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalInterface.h"
 
 

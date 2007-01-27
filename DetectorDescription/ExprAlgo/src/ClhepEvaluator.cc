@@ -1,7 +1,3 @@
-namespace std{} 
-using namespace std;
-namespace CLHEP{}
-using namespace CLHEP;
 
 #include <iostream>
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"

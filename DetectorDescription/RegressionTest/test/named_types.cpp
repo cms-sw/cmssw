@@ -1,9 +1,10 @@
-namespace std{} using namespace std;
 #include <iostream>
 #include "DetectorDescription/Core/interface/DDNumeric.h"
 #include "DetectorDescription/Core/interface/DDString.h"
 #include "DetectorDescription/Core/interface/DDVector.h"
 #include "DetectorDescription/Core/interface/DDMap.h"
+
+using namespace std;
 
 double get_value(const DDMap & m, const string & k)
 {

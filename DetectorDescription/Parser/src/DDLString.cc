@@ -6,7 +6,7 @@
  ***************************************************************************/
 
 
-namespace std{} using namespace std;
+
 
 // Parser parts
 #include "DetectorDescription/Parser/interface/DDLString.h"

@@ -6,8 +6,6 @@
  ***************************************************************************/
 
 
-namespace std{} using namespace std;
-namespace boost { namespace spirit {} } using namespace boost::spirit;
 
 // Boost parser, spirit, for parsing the std::vector elements.
 #include "boost/spirit/core.hpp"
@@ -25,6 +23,8 @@ namespace boost { namespace spirit {} } using namespace boost::spirit;
 
 #include <map>
 #include <string>
+
+using namespace boost::spirit;
 
 //  The "real" DDLMap members.
 DDLMap::DDLMap()
@@ -129,7 +129,7 @@ void DDLMap::processElement (const std::string& name, const std::string& nmspace
   else if (parent() == "ConstantsSection" || parent() == "DDDefinition") 
     {
       dd_map_type * tMap = new dd_map_type;
-      for (map<std::string, double>::const_iterator it = pMap.begin(); it != pMap.end(); it++)
+      for (std::map<std::string, double>::const_iterator it = pMap.begin(); it != pMap.end(); it++)
 	{
 	  (*tMap)[it->first] = it->second;
 	}

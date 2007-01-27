@@ -27,8 +27,6 @@
 #include <vector>
 #include <string>
 
-using namespace std;
-
 // ---------------------------------------------------------------------------
 //  DDLSAX2Handler: Constructors and Destructor
 // ---------------------------------------------------------------------------

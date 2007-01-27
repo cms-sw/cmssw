@@ -11,7 +11,7 @@
  *                                                                         *
  ***************************************************************************/
 
-namespace std{} using namespace std;
+
 
 // Parser parts needed by PolyGenerator.
 #include "DetectorDescription/Parser/interface/DDLPolyGenerator.h"

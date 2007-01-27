@@ -46,8 +46,8 @@
 
 #include "SealUtil/SealTimer.h"
 
-namespace std{} using namespace std;
-namespace xercesc_2_7{} using namespace xercesc_2_7;
+using namespace std;
+using namespace xercesc_2_7;
 
 //--------------------------------------------------------------------------
 //  DDLParser:  Default constructor and destructor.

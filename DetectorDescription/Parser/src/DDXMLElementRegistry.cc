@@ -11,7 +11,7 @@
  *                                                                         *
  ***************************************************************************/
 
-namespace std{} using namespace std;
+
 
 // -------------------------------------------------------------------------
 // Includes
@@ -98,13 +98,13 @@ std::string DDXMLElementRegistry::getElementName(DDXMLElement* theElementBase)
 //    return registry_->end();
 //  }
 
-ostream & operator<<(ostream & os, const DDXMLElementRegistry & element)
+std::ostream & operator<<(std::ostream & os, const DDXMLElementRegistry & element)
 {
   element.stream(os);
   return os;
 }
 
-void DDXMLElementRegistry::stream(ostream & os) const
+void DDXMLElementRegistry::stream(std::ostream & os) const
 {
   os << "Output of current Element Registry:" << std::endl;
   for (RegistryMap::const_iterator it=registry_->begin(); it != registry_->end(); it++)

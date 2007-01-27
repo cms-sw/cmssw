@@ -6,8 +6,6 @@
  ***************************************************************************/
 
 
-namespace std{} using namespace std;
-namespace boost { namespace spirit {} } using namespace boost::spirit;
 
 // Parser parts
 #include "DetectorDescription/Parser/interface/DDLVector.h"
@@ -28,6 +26,8 @@ namespace boost { namespace spirit {} } using namespace boost::spirit;
 
 // Boost parser, spirit, for parsing the std::vector elements.
 #include "boost/spirit/core.hpp"
+
+using namespace boost::spirit;
 
 struct VectorMakeDouble
 {

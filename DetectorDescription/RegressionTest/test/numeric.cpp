@@ -1,8 +1,9 @@
-using namespace std;
 #include<limits>
 #include<iostream>
 #include<vector>
 #include<fstream>
+
+using namespace std;
 
 void print(double d)
 {

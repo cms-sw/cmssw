@@ -1,7 +1,7 @@
-using namespace std;
 #include "DetectorDescription/Core/interface/DDConstant.h"
 #include <iostream>
 
+using namespace std;
 
 int main () {
   DDName n("martin");
