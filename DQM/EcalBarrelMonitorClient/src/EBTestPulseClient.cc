@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/01/27 11:06:27 $
- * $Revision: 1.112 $
+ * $Date: 2007/01/27 12:50:33 $
+ * $Revision: 1.113 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -263,7 +263,7 @@ void EBTestPulseClient::setup(void) {
     sprintf(histo, "EBTPT test pulse quality PNs G01 SM%02d", ism);
     meg04_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg05_[ism-1] ) bei->removeElement( meg05_[ism-1]->getName() );
-    sprintf(histo, "EBTPT test pulse quality PNs G06 SM%02d", ism);
+    sprintf(histo, "EBTPT test pulse quality PNs G16 SM%02d", ism);
     meg05_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
     if ( mea01_[ism-1] ) bei->removeElement( mea01_[ism-1]->getName() );
