@@ -15,6 +15,7 @@ class CSCDetectorHit;
 class CSCComparatorDigi;
 class CSCCrosstalkGenerator;
 class CSCScaNoiseGenerator;
+class CSCStripConditions;
 #include <vector>
 #include <string>
 
@@ -28,6 +29,8 @@ public:
 
   void fillDigis(CSCStripDigiCollection & digis,
                  CSCComparatorDigiCollection & comparators);
+
+  void setStripConditions(CSCStripConditions * cond) {theStripConditions = cond;}
 
 private:
   /// initialization for each layer
@@ -84,6 +87,7 @@ private:
   int nScaBins_;
   bool doSuppression_;
   bool doCrosstalk_;
+  CSCStripConditions * theStripConditions;
   CSCCrosstalkGenerator * theCrosstalkGenerator;
   CSCScaNoiseGenerator  * theScaNoiseGenerator;
 
