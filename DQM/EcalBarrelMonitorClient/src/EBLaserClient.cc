@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/26 20:26:04 $
- * $Revision: 1.121 $
+ * $Date: 2007/01/27 13:06:17 $
+ * $Revision: 1.122 $
  * \author G. Della Ricca
  *
 */
@@ -3816,7 +3816,7 @@ void EBLaserClient::analyze(void){
           val = 0.;
         if ( mean05 < meanThresholdPN_ )
           val = 0.;
-        if ( meg05_[ism-1] ) meg04_[ism-1]->setBinContent(i, 1, val);
+        if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(i, 1, val);
 
         val = 1.;
         if ( mean09 < amplitudeThresholdPN_ )
