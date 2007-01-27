@@ -44,7 +44,7 @@ std::ostream& operator<<(std::ostream & os,const Accumulator & stat) {
      os << "   Mean: " << stat.mean(); 
   }
   if(stat.nEntries() > 1) {      
-		 os << "   Variance: " << stat.variance();
+		 os << "   Sigma: " << stat.sigma();
   }
   return os;
 }
