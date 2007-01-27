@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/27 13:06:17 $
- * $Revision: 1.122 $
+ * $Date: 2007/01/27 13:29:11 $
+ * $Revision: 1.123 $
  * \author G. Della Ricca
  *
 */
@@ -4059,7 +4059,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   dummy1.SetMarkerSize(2);
   dummy1.SetMinimum(0.1);
 
-  string imgNameQual[8], imgNameAmp[8], imgNameTim[8], imgNameShape[8], imgNameAmpoPN[8], imgNameMEPnQualG01[8], imgNameMEPnG01[8], imgNameMEPnPedG01[8], imgNameMEPnQualG16[8], imgNameMEPnG16[8], imgNameMEPnPedG16[8], imgName, meName;
+  string imgNameQual[8], imgNameAmp[8], imgNameTim[8], imgNameShape[8], imgNameAmpoPN[8], imgNameMEPnQual[8], imgNameMEPnG01[8], imgNameMEPnPedG01[8], imgNameMEPnG16[8], imgNameMEPnPedG16[8], imgName, meName;
 
   TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
   TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
@@ -4386,7 +4386,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       // Monitoring elements plots
 
-      imgNameMEPnQualG01[iCanvas-1] = "";
+      imgNameMEPnQual[iCanvas-1] = "";
 
       obj2f = 0;
       switch ( iCanvas ) {
@@ -4421,8 +4421,8 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
             meName.replace(i, 1, "_");
           }
         }
-        imgNameMEPnQualG01[iCanvas-1] = meName + ".png";
-        imgName = htmlDir + imgNameMEPnQualG01[iCanvas-1];
+        imgNameMEPnQual[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnQual[iCanvas-1];
 
         cQual->cd();
         gStyle->SetOptStat(" ");
@@ -4849,8 +4849,8 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       // skip unused wavelengths
       if ( iCanvas == 2 || iCanvas == 3 ) continue;
 
-      if ( imgNameMEPnQualG01[iCanvas-1].size() != 0 )
-        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnQualG01[iCanvas-1] << "\"></td>" << endl;
+      if ( imgNameMEPnQual[iCanvas-1].size() != 0 )
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnQual[iCanvas-1] << "\"></td>" << endl;
       else 
         htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
@@ -4887,22 +4887,6 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       if ( iCanvas == 2 || iCanvas == 3 ) continue;
 
       htmlFile << "<td colspan=\"2\">Laser " << iCanvas << " - PN Gain 1</td>" << endl;
-
-    }
-
-    htmlFile << "</tr>" << endl;
-
-    htmlFile << "<tr align=\"center\">" << endl;
-
-    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
-
-      // skip unused wavelengths
-      if ( iCanvas == 2 || iCanvas == 3 ) continue;
-
-      if ( imgNameMEPnQualG16[iCanvas-1].size() != 0 )
-        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnQualG16[iCanvas-1] << "\"></td>" << endl;
-      else
-        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
     }
 
