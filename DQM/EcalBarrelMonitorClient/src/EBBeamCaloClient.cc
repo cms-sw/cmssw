@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/11/21 13:16:52 $
- * $Revision: 1.35 $
+ * $Date: 2006/12/15 09:44:50 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -844,7 +844,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   const int csize = 250;
   //  const double histMax = 1.e15;
 
-  int pCol3[4] = { 2, 3, 5, 1 };
+  int pCol3[6] = { 2, 3, 5, 1, 1, 1 };
   
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for ( int i = 0; i < 68; i++ ) {
@@ -909,13 +909,13 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       
     can->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(4, pCol3);
+    gStyle->SetPalette(6, pCol3);
     obj2f->GetXaxis()->SetNdivisions(17);
     obj2f->GetYaxis()->SetNdivisions(4);
     can->SetGridx();
     can->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(3.0);
+    obj2f->SetMaximum(5.0);
     obj2f->Draw("col");
     dummy.Draw("text,same");
     can->Update();
@@ -944,11 +944,11 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       
     can->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(4, pCol3);
+    gStyle->SetPalette(6, pCol3);
     obj2f->GetXaxis()->SetNdivisions(0);
     obj2f->GetYaxis()->SetNdivisions(0);
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(3.0);
+    obj2f->SetMaximum(5.0);
     obj2f->Draw("col");
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -983,14 +983,14 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       
     can->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(4, pCol3);
+    gStyle->SetPalette(6, pCol3);
     obj2f->GetXaxis()->SetNdivisions(86);
     obj2f->GetYaxis()->SetNdivisions(0);
     //obj2f->SetTitle("");
     can->SetGridx();
     //can->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(3.0);
+    obj2f->SetMaximum(5.0);
     obj2f->GetXaxis()->SetTitle("step in the scan");
     obj2f->GetXaxis()->SetTitleColor(1);
     obj2f->Draw("col");

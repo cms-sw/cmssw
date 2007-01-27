@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2006/12/14 11:10:31 $
- * $Revision: 1.21 $
+ * $Date: 2006/12/15 09:44:50 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -502,7 +502,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   //const double histMax = 1.e15;
 
-  //int pCol3[4] = { 2, 3, 5, 1 };
+  //int pCol3[6] = { 2, 3, 5, 1, 1, 1 };
 
   TH2C dummy( "dummy", "dummy for sm", 17, 0., 17., 4, 0., 4. );
   for ( int i = 0; i < 68; i++ ) {
@@ -542,13 +542,13 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 //       imgFullName = htmlDir + imgName;
 //       rectangle->cd();
 //       gStyle->SetOptStat(" ");
-//       gStyle->SetPalette(4, pCol3);
+//       gStyle->SetPalette(6, pCol3);
 //       obj2f->GetXaxis()->SetNdivisions(17);
 //       obj2f->GetYaxis()->SetNdivisions(4);
 //       rectangle->SetGridx();
 //       rectangle->SetGridy();
 //       obj2f->SetMinimum(-0.00000001);
-//       obj2f->SetMaximum(3.0);
+//       obj2f->SetMaximum(5.0);
 //       obj2f->Draw("col");
 //       dummy.Draw("text,same");
 //       rectangle->Update();
