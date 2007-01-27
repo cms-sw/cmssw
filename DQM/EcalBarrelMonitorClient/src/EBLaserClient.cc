@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/27 19:43:32 $
- * $Revision: 1.127 $
+ * $Date: 2007/01/27 19:54:50 $
+ * $Revision: 1.128 $
  * \author G. Della Ricca
  *
 */
@@ -1980,7 +1980,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_bl.setPedMeanG16(mean13);
       pn_bl.setPedRMSG16(rms13);
 
-      if ( meg05_[ism-1] && int(meg05_[ism-1]->getBinContent( i, 1 )) % 3 == 1. &&
+      if ( meg05_[ism-1] && int(meg05_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ||
            meg09_[ism-1] && int(meg09_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
         pn_bl.setTaskStatus(true);
       } else {
@@ -2024,7 +2024,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_ir.setPedMeanG16(mean14);
       pn_ir.setPedRMSG16(rms14);
 
-      if ( meg06_[ism-1] && int(meg06_[ism-1]->getBinContent( i, 1 )) % 3 == 1. &&
+      if ( meg06_[ism-1] && int(meg06_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ||
            meg10_[ism-1] && int(meg10_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
         pn_ir.setTaskStatus(true);
       } else {
@@ -2068,7 +2068,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_gr.setPedMeanG16(mean15);
       pn_gr.setPedRMSG16(rms15);
 
-      if ( meg07_[ism-1] && int(meg07_[ism-1]->getBinContent( i, 1 )) % 3 == 1. &&
+      if ( meg07_[ism-1] && int(meg07_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ||
            meg11_[ism-1] && int(meg11_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
         pn_gr.setTaskStatus(true);
       } else {
@@ -2112,7 +2112,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       pn_rd.setPedMeanG16(mean16);
       pn_rd.setPedRMSG16(rms16);
 
-      if ( meg08_[ism-1] && int(meg08_[ism-1]->getBinContent( i, 1 )) % 3 == 1. &&
+      if ( meg08_[ism-1] && int(meg08_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ||
            meg12_[ism-1] && int(meg12_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
         pn_rd.setTaskStatus(true);
       } else {
