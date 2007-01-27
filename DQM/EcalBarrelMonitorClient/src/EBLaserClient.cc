@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/27 13:29:11 $
- * $Revision: 1.123 $
+ * $Date: 2007/01/27 17:56:46 $
+ * $Revision: 1.124 $
  * \author G. Della Ricca
  *
 */
@@ -4423,60 +4423,6 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         imgNameMEPnQual[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnQual[iCanvas-1];
-
-        cQual->cd();
-        gStyle->SetOptStat(" ");
-        gStyle->SetPalette(6, pCol3);
-        obj2f->GetXaxis()->SetNdivisions(10);
-        obj2f->GetYaxis()->SetNdivisions(5);
-        cQual->SetGridx();
-        cQual->SetGridy(0);
-        obj2f->SetMinimum(-0.00000001);
-        obj2f->SetMaximum(5.0);
-        obj2f->Draw("col");
-        dummy1.Draw("text,same");
-        cQual->Update();
-        cQual->SaveAs(imgName.c_str());
-
-      }
-
-      imgNameMEPnQualG16[iCanvas-1] = "";
-
-      obj2f = 0;
-      switch ( iCanvas ) {
-      case 1:
-        obj2f = EBMUtilsClient::getHisto<TH2F*>( meg05_[ism-1] );
-        break;
-      case 2:
-        obj2f = EBMUtilsClient::getHisto<TH2F*>( meg06_[ism-1] );
-        break;
-      case 3:
-        obj2f = EBMUtilsClient::getHisto<TH2F*>( meg07_[ism-1] );
-        break;
-      case 4:
-        obj2f = EBMUtilsClient::getHisto<TH2F*>( meg08_[ism-1] );
-        break;
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-          obj2f = 0;
-          break;
-      default:
-        break;
-      }
-
-      if ( obj2f ) {
-
-        meName = obj2f->GetName();
-
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1, "_");
-          }
-        }
-        imgNameMEPnQualG16[iCanvas-1] = meName + ".png";
-        imgName = htmlDir + imgNameMEPnQualG16[iCanvas-1];
 
         cQual->cd();
         gStyle->SetOptStat(" ");
