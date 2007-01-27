@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/01/27 11:03:02 $
- * $Revision: 1.111 $
+ * $Date: 2007/01/27 11:06:27 $
+ * $Revision: 1.112 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1156,6 +1156,24 @@ void EBTestPulseClient::analyze(void){
   bits03 |= EcalErrorDictionary::getMask("TESTPULSE_HIGH_GAIN_MEAN_WARNING");
   bits03 |= EcalErrorDictionary::getMask("TESTPULSE_HIGH_GAIN_RMS_WARNING");
 
+  uint64_t bits04 = 0;
+  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_WARNING");
+  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_WARNING");
+  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_ERROR");
+  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_ERROR");
+
+  uint64_t bits05 = 0;
+  bits05 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_MEAN_WARNING");
+  bits05 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_RMS_WARNING");
+  bits05 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_MEAN_ERROR");
+  bits05 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_RMS_ERROR");
+
+  uint64_t bits06 = 0;
+  bits06 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_WARNING");
+  bits06 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_WARNING");
+  bits06 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
+  bits06 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
+
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunPNErrorsDat> mask2;
 
@@ -1530,13 +1548,13 @@ void EBTestPulseClient::analyze(void){
           EcalLogicID ecid = m->first;
 
           if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
-            if ( (m->second).getErrorBits() & bits01 ) {
+            if ( (m->second).getErrorBits() & (bits01|bits04) ) {
               if ( meg04_[ism-1] ) {
                 float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;
                 meg04_[ism-1]->setBinContent( i, 1, val+3 );
               }
             }
-            if ( (m->second).getErrorBits() & bits03 ) {
+            if ( (m->second).getErrorBits() & (bits03|bits06) ) {
               if ( meg05_[ism-1] ) {
                 float val = int(meg05_[ism-1]->getBinContent(i, 1)) % 3;
                 meg05_[ism-1]->setBinContent( i, 1, val+3 );
