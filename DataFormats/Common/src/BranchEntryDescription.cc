@@ -4,7 +4,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchEntryDescription.cc,v 1.4 2006/07/20 23:43:34 wmtan Exp $
+$Id: BranchEntryDescription.cc,v 1.5 2006/08/24 22:15:44 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,6 +14,17 @@ namespace edm {
     parents_(),
     cid_(),
     status_(Success),
+    isPresent_(false),
+    moduleDescriptionID_(),
+    moduleDescriptionPtr_()
+  { }
+
+  BranchEntryDescription::BranchEntryDescription(ProductID const& pid,
+	 BranchEntryDescription::CreatorStatus const& status) :
+    productID_(pid),
+    parents_(),
+    cid_(),
+    status_(status),
     isPresent_(false),
     moduleDescriptionID_(),
     moduleDescriptionPtr_()

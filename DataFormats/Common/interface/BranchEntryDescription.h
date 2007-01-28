@@ -6,7 +6,7 @@
 BranchEntryDescription: The event dependent portion of the description of a product
 and how it came into existence.
 
-$Id: BranchEntryDescription.h,v 1.4 2006/08/22 05:49:31 wmtan Exp $
+$Id: BranchEntryDescription.h,v 1.5 2006/08/24 22:15:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <vector>
@@ -34,7 +34,8 @@ namespace edm {
 			 InfrastructureFailure,
 			 CreatorNotRun };
 
-    BranchEntryDescription ();
+    BranchEntryDescription();
+    BranchEntryDescription(ProductID const& pid, CreatorStatus const& status);
 
     ~BranchEntryDescription() {}
 
