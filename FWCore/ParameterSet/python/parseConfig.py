@@ -857,7 +857,7 @@ def _finalizeProcessFragment(values,usingLabels):
 #==================================================================
 def _makeProcess(s,loc,toks):
     """create a Process from the tokens"""
-    print toks
+    #print toks
     label = toks[0][0]
     p=cms.Process(label)
     values = list(iter(toks[0][1]))
@@ -873,6 +873,27 @@ def _makeProcess(s,loc,toks):
     series=[] #order matters for a series
     replaces=[]
     schedule = None
+
+
+    #sequences must be added before path or endpaths
+    #sequences may contain other sequences so we need to do recursive construction
+    class ProcessAdapter(object):
+        def __init__(self,seqs,process):
+            self.__dict__['_seqs'] = seqs
+            self.__dict__['_process'] = process
+        def seqs(self):
+            return self.__dict__['_seqs']
+        def process(self):
+            return self.__dict__['_process']
+        def __getattr__(self,name):
+            if hasattr(self.process(), name):
+                return getattr(self.process(),name)
+            setattr(self.process(),name,self.seqs()[name].make(self))
+            return getattr(self.process(),name)
+        def __setattr__(self,name,value):
+            if hasattr(self.process(),name):
+                return
+            setattr(self.process(),name,value)
     try:
         for label,item in values:
             if isinstance(item,_Sequence):
@@ -904,12 +925,13 @@ def _makeProcess(s,loc,toks):
                 #print 'found '+replace.path[0]
                 replace.do(adapted)
         _findAndHandleProcessUsingBlock(values)
+
         
         for label,obj in d.iteritems():
             setattr(p,label,obj)
-        #sequences must be added before path or endpaths
+        pa = ProcessAdapter(sequences,p)
         for label,obj in sequences.iteritems():
-            setattr(p,label,obj.make(p))
+            setattr(pa,label,obj.make(pa))
         for label,obj in series:
             setattr(p,label,obj.make(p))
         for replace in replaces:
@@ -1398,9 +1420,11 @@ process USER =
         sequence s0c = { A&B}
         sequence s1 = { A,B&C,(D,E)&F }
         sequence s2 = { C&(A,B), m1,m2,s1 }
+        sequence s3 = {s0a}
 
         path t1 = { (A,B&C,D),s0a,filter }
         path t2 = { A,B,C,D }
+        path t3 = {s3&F}
         endpath te = { A&B }
         
         schedule = {t1,t2}
