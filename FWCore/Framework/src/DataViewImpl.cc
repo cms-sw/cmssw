@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.7 2006/12/18 06:00:21 paterno Exp $
+$Id: DataViewImpl.cc,v 1.8 2007/01/11 23:39:20 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -53,11 +53,10 @@ namespace edm {
 	// note: ownership has been passed - so clear the pointer!
 	pit->first = 0;
 
-	auto_ptr<Provenance> pv(new Provenance(*pit->second));
+	auto_ptr<Provenance> pv(new Provenance(*pit->second, BranchEntryDescription::Success));
 
 	// set parts of provenance
 	pv->event.cid_ = 0; // TODO: what is this supposed to be?
-	pv->event.status_ = BranchEntryDescription::Success;
 	pv->event.isPresent_ = true;
 	pv->event.parents_ = gotProductIDs_;
 	pv->event.moduleDescriptionID_ = pit->second->moduleDescriptionID_;
