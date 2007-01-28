@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: DataBlockImpl.cc,v 1.10 2007/01/19 05:25:11 wmtan Exp $
+  $Id: DataBlockImpl.cc,v 1.11 2007/01/26 21:24:46 paterno Exp $
   ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -70,7 +70,7 @@ namespace edm {
     //cerr << "addGroup DEBUG 2---> " << bk.friendlyClassName_ << endl;
     //cerr << "addGroup DEBUG 3---> " << bk << endl;
 
-    bool accessible = g->isAccessible();
+    bool accessible = g->productAvailable();
     BranchDict & branchDict = (accessible ? branchDict_ : inactiveBranchDict_ );
     ProductDict & productDict = (accessible ? productDict_ : inactiveProductDict_ );
     TypeDict & typeDict = (accessible ? typeDict_ : inactiveTypeDict_ );
@@ -78,11 +78,12 @@ namespace edm {
 
     BranchDict::iterator itFound = branchDict.find(bk);
     if (itFound != branchDict.end()) {
-      if(!groups[itFound->second]->product()) {
-	// is null, so this new one must be the one generated 'unscheduled'
-	groups[itFound->second]->swapProduct(*g);
-	//NOTE: other API's of DataBlockImpl give out the Provenance* so need to preserve the memory
-	groups[itFound->second]->provenance() = g->provenance();
+      if(groups[itFound->second]->onDemand()) {
+        // The old one is a "placeholder" group for unscheduled processing.
+	// This new one is the one generated 'unscheduled'.
+	groups[itFound->second]->swap(*g);
+	//NOTE: other API's of DataBlockImpl do NOT give out the Provenance*
+	// to "onDemand" groups, so need to preserve the old Provenance.
 	return;
       } else {
 	// the products are lost at this point!
@@ -155,11 +156,8 @@ namespace edm {
 	<< "put: Cannot put product with null Product ID."
 	<< "\n";
     }
-    ProductID oid = prov->productID();
-
     // Group assumes ownership
     auto_ptr<Group> g(new Group(edp, prov));
-    g->setID(oid);
     this->addGroup(g);
     this->addToProcessHistory();
   }
@@ -606,6 +604,10 @@ namespace edm {
     assert(slotNumber < groups_.size());
 
     SharedConstGroupPtr const& g = groups_[slotNumber];
+    if (!g->provenanceAvailable()) {
+      throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+	<< "getProvenance: no product with given id: "<< oid <<"\n";
+    }
     return g->provenance();
   }
 
@@ -613,7 +615,7 @@ namespace edm {
   DataBlockImpl::getAllProvenance(vector<Provenance const*> & provenances) const {
     provenances.clear();
     for (DataBlockImpl::const_iterator i = groups_.begin(), iEnd = groups_.end(); i != iEnd; ++i) {
-      provenances.push_back(&(*i)->provenance());
+      if ((*i)->provenanceAvailable()) provenances.push_back(&(*i)->provenance());
     }
   }
 
@@ -623,7 +625,7 @@ namespace edm {
 				MatchingGroupLookup& matches) const {
     for (const_iterator i=groups_.begin(), e=groups_.end(); i != e; ++i) {
       Group const& currentGroup = **i;
-      if (currentGroup.isAccessible() && 
+      if (currentGroup.productAvailable() && 
 	  currentGroup.moduleLabel() == moduleLabel &&
 	  currentGroup.productInstanceName() == productInstanceName) {
 	matches[currentGroup.processName()].push_back(*i);
@@ -633,7 +635,7 @@ namespace edm {
 
   void
   DataBlockImpl::resolve_(Group const& g, bool unconditional) const {
-    if (!unconditional && !g.isAccessible())
+    if (!unconditional && !g.productAvailable())
       throw edm::Exception(errors::ProductNotFound,"InaccessibleProduct")
 	<< "resolve_: product is not accessible\n"
 	<< g.provenance() << '\n';

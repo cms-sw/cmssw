@@ -340,8 +340,8 @@ namespace edm
         ++itProdInfo)
       {
 	if(unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
-          auto_ptr<Provenance> prov(new Provenance(itProdInfo->second));
-          boost::shared_ptr<Group> theGroup(new Group(prov));
+          auto_ptr<Provenance> prov(new Provenance(itProdInfo->second, BranchEntryDescription::CreatorNotRun));
+          boost::shared_ptr<Group> theGroup(new Group(prov, true, true));
           demandGroups_.push_back(theGroup);
 	}
       }
@@ -915,9 +915,8 @@ namespace edm
     for(groups::iterator itGroup = demandGroups_.begin(), itGroupEnd = demandGroups_.end();
         itGroup != itGroupEnd;
         ++itGroup) {
-      BranchDescription const& bd = (*itGroup)->productDescription();
-      auto_ptr<Provenance> prov(new Provenance(bd));
-      auto_ptr<Group> theGroup(new Group(prov));
+      auto_ptr<Provenance> prov(new Provenance((*itGroup)->provenance()));
+      auto_ptr<Group> theGroup(new Group(prov, true, true));
       ep.addGroup(theGroup);
     }
   }

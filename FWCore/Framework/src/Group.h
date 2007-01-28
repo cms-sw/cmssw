@@ -6,7 +6,7 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.14 2006/08/10 23:24:42 wmtan Exp $
+$Id: Group.h,v 1.15 2007/01/11 23:39:20 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,16 +19,16 @@ namespace edm {
   class Group {
   public:
     explicit Group(std::auto_ptr<Provenance> prov,
- 	  bool acc=true);
+ 	  bool acc = true, bool onDemand = false);
 
     Group(std::auto_ptr<EDProduct> edp,
 	  std::auto_ptr<Provenance> prov,
-	  bool acc=true);
+	  bool acc = true);
 
     ~Group();
 
     void swap(Group& other);
-    void swapProduct(Group& other);
+
     Provenance& provenance() { return *provenance_; }
     
     // drop (hide) on input: means hide, but provenance is available
@@ -37,7 +37,12 @@ namespace edm {
     //   the provenance
 
     // these and not hidden and data will be populated if retrieved
-    bool isAccessible() const;
+    bool productAvailable() const;
+
+    // provenance is currently available
+    bool provenanceAvailable() const;
+
+    bool onDemand() const { return onDemand_; }
 
     EDProduct const* product() const { return product_; }
 
@@ -54,8 +59,6 @@ namespace edm {
     std::string const& processName() const
     { return provenance_->processName(); }
 
-    void setID(ProductID const& id);
-
     // The following is const because we can add an EDProduct to the
     // cache after creation of the Group, without changing the meaning
     // of the Group.
@@ -68,16 +71,16 @@ namespace edm {
     Group(const Group&);
     void operator=(const Group&);
 
-    mutable EDProduct*   product_;
-    Provenance*          provenance_;
-    bool                 accessible_;
+    mutable EDProduct* product_;
+    Provenance*        provenance_;
+    bool               accessible_;
+    bool               onDemand_;
   };
 
   // Free swap function
   inline
   void
-  swap(Group& a, Group& b) 
-  {
+  swap(Group& a, Group& b) {
     a.swap(b);
   }
 

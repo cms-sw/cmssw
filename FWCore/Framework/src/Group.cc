@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.12 2006/07/06 19:11:43 wmtan Exp $
+$Id: Group.cc,v 1.13 2006/08/24 22:03:12 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <string>
@@ -8,10 +8,11 @@ $Id: Group.cc,v 1.12 2006/07/06 19:11:43 wmtan Exp $
 namespace edm
 {
   Group::Group(std::auto_ptr<Provenance> prov,
-	       bool acc) :
+	       bool acc, bool onDemand) :
     product_(),
     provenance_(prov.release()),
-    accessible_(acc) {
+    accessible_(acc),
+    onDemand_(onDemand) {
   }
 
   Group::Group(std::auto_ptr<EDProduct> edp,
@@ -19,7 +20,8 @@ namespace edm
 	       bool acc) :
     product_(edp.release()),
     provenance_(prov.release()),
-    accessible_(acc) {
+    accessible_(acc),
+    onDemand_(false) {
   }
 
   Group::~Group() {
@@ -28,15 +30,15 @@ namespace edm
   }
 
   bool 
-  Group::isAccessible() const { 
+  Group::productAvailable() const { 
       return 
 	accessible_ and
-	(provenance_->creatorStatus() == BranchEntryDescription::Success);
+	((provenance_->creatorStatus() == BranchEntryDescription::Success) or onDemand_);
   }
 
-  void 
-  Group::setID(ProductID const& id) {
-      provenance_->event.productID_ = id;
+  bool 
+  Group::provenanceAvailable() const { 
+      return accessible_ and not onDemand_;
   }
 
   void 
@@ -47,15 +49,12 @@ namespace edm
   
   void  
   Group::swap(Group& other) {
-    std::swap(accessible_, other.accessible_);
     std::swap(product_,other.product_);
     std::swap(provenance_,other.provenance_);
+    std::swap(accessible_, other.accessible_);
+    std::swap(onDemand_, other.onDemand_);
   }
-   void  
-   Group::swapProduct(Group& other) {
-      std::swap(product_,other.product_);
-   }
-   
+
   void
   Group::write(std::ostream& os) const {
     // This is grossly inadequate. It is also not critical for the
