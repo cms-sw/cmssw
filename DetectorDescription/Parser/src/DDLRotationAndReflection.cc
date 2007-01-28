@@ -36,6 +36,8 @@
 #include <string>
 #include <cmath>
 
+using namespace std;
+
 // Default constructor
 DDLRotationAndReflection::DDLRotationAndReflection() 
 {
