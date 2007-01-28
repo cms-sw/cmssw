@@ -3,19 +3,19 @@
 
 /*----------------------------------------------------------------------
 
-$Id: Provenance.cc,v 1.1 2006/02/08 00:44:23 wmtan Exp $
+$Id: Provenance.cc,v 1.2 2006/08/24 22:15:44 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 namespace edm {
-  Provenance::Provenance() :
-    product(),
-    event()
+  Provenance::Provenance(BranchDescription const& p, BranchEntryDescription::CreatorStatus const& status) :
+    product(p),
+    event(p.productID(), status)
   { }
 
-  Provenance::Provenance(BranchDescription const& p) :
+  Provenance::Provenance(BranchDescription const& p, BranchEntryDescription const& e) :
     product(p),
-    event()
+    event(e)
   { }
 
   void

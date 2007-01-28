@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.14 2006/12/05 23:56:18 paterno Exp $
+$Id: generichandle_t.cppunit.cc,v 1.15 2007/01/10 05:59:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <string>
@@ -87,7 +87,6 @@ void testGenericHandle::getbyLabelTest() {
   typedef edm::Wrapper<DP> WDP;
   std::auto_ptr<DP> pr(new DP);
   std::auto_ptr<edm::EDProduct> pprod(new WDP(pr));
-  std::auto_ptr<edm::Provenance> pprov(new edm::Provenance);
   std::string label("fred");
   std::string productInstanceName("Rick");
 
@@ -95,32 +94,35 @@ void testGenericHandle::getbyLabelTest() {
   edm::TypeID dummytype(dp);
   std::string className = dummytype.friendlyClassName();
 
-  pprov->product.fullClassName_ = dummytype.userClassName();
-  pprov->product.friendlyClassName_ = className;
+  edm::BranchDescription product;
+
+  product.fullClassName_ = dummytype.userClassName();
+  product.friendlyClassName_ = className;
 
   edm::ModuleDescription modDesc;
   modDesc.moduleName_ = "Blah";
 
-  pprov->product.moduleLabel_ = label;
-  pprov->product.productInstanceName_ = productInstanceName;
-  pprov->product.processName_ = processName;
-  pprov->product.moduleDescriptionID_ = modDesc.id();
-  pprov->product.init();
+  product.moduleLabel_ = label;
+  product.productInstanceName_ = productInstanceName;
+  product.processName_ = processName;
+  product.moduleDescriptionID_ = modDesc.id();
+  product.init();
 
   edm::ProductRegistry preg;
-  preg.addProduct(pprov->product);
+  preg.addProduct(product);
   preg.setProductIDs();
 
   edm::ProductRegistry::ProductList const& pl = preg.productList();
-  edm::BranchKey const bk(pprov->product);
+  edm::BranchKey const bk(product);
   edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
-  pprov->product.productID_ = it->second.productID_;
+  product.productID_ = it->second.productID_;
 
   edm::EventID col(1L);
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   edm::EventPrincipal ep(col, fakeTime, preg, pc);
 
+  std::auto_ptr<edm::Provenance> pprov(new edm::Provenance(product, edm::BranchEntryDescription::Success));
   ep.put(pprod, pprov);
   
   edm::GenericHandle h("edmtest::DummyProduct");

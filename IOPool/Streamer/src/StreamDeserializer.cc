@@ -171,9 +171,7 @@ namespace edm
         auto_ptr<BranchDescription>
           adesc(const_cast<BranchDescription*>(spi->desc()));
 
-        auto_ptr<Provenance> aprov(new Provenance);
-        aprov->event   = *(aedesc.get());
-        aprov->product = *(adesc.get());
+        auto_ptr<Provenance> aprov(new Provenance(*(adesc.get()), *(aedesc.get())));
         if(aprov->isPresent()) {
           FDEBUG(10) << "addgroup next " << aprov->productID() << endl;
           FDEBUG(10) << "addgroup next " << aprov->event.productID_ << endl;

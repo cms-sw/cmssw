@@ -76,16 +76,14 @@ namespace edm {
       // TBranch *br = branches_->find(poolNames::keyName(*pit))->second;
       // br->SetAddress(p);
       // br->GetEntry(rootFile_->entryNumber());
-      // std::auto_ptr<Provenance> prov(new Provenance);
-      // prov->event = *pit;
-      // prov->product = products_[prov.event.productID_];
+      // BranchDescription const& product = products_[pit->productID_];
+      // std::auto_ptr<Provenance> prov(new Provenance(product, *pit));
       // bool const isPresent = prov->event.isPresent();
       // std::auto_ptr<Group> g(new Group(std::auto_ptr<EDProduct>(p), prov, isPresent));
       // END These lines read all branches
       // BEGIN These lines defer reading branches
-      std::auto_ptr<Provenance> prov(new Provenance);
-      prov->event = *pit;
-      prov->product = products_[prov->event.productID_];
+      BranchDescription const& product = products_[pit->productID_];
+      std::auto_ptr<Provenance> prov(new Provenance(product, *pit));
       bool const isPresent = prov->event.isPresent();
       std::auto_ptr<Group> g(new Group(prov, isPresent));
       // END These lines defer reading branches
