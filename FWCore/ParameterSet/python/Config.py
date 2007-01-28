@@ -102,6 +102,7 @@ class Process(object):
         self.__dict__['_Process__producers'] = {}
         self.__dict__['_Process__source'] = None
         self.__dict__['_Process__looper'] = None
+        self.__dict__['_Process__schedule'] = None
         self.__dict__['_Process__analyzers'] = {}
         self.__dict__['_Process__outputmodules'] = {}
         self.__dict__['_Process__paths'] = SortedKeysDict()    # have to keep the order
@@ -158,6 +159,12 @@ class Process(object):
         """returns a dict of the sequences which have been added to the Process"""
         return FixedKeysDict(self.__sequences)
     sequences = property(sequences_,doc="dictionary containing the sequences for the process")
+    def schedule_(self):
+        """returns the schedule which has been added to the Process or None if none have been added"""
+        return self.__schedule
+    def setSchedule_(self,sch):
+        self.__dict__['_Process__schedule'] = sch
+    schedule = property(schedule_,setSchedule_,doc='the schedule or None if not set')
     def services_(self):
         """returns a dict of the services which have been added to the Process"""
         return FixedKeysDict(self.__services)
@@ -186,7 +193,7 @@ class Process(object):
         if not isinstance(value,_ConfigureComponent):
             raise TypeError("can only assign labels to an object which inherits from '_ConfigureComponent'\n"
                             +"an instance of "+str(type(value))+" will not work")
-        if not isinstance(value,_Labelable) and not isinstance(value,Source) and not isinstance(value,Looper):
+        if not isinstance(value,_Labelable) and not isinstance(value,Source) and not isinstance(value,Looper) and not isinstance(value,Schedule):
             if name == value.type_():
                 self.add_(value)
                 return
@@ -338,10 +345,18 @@ class Process(object):
             self.es_sources_().iteritems(),
             'es_source',
             indent)
+        config+=self._dumpConfigOptionallyNamedList(
+            self.es_prefers_().iteritems(),
+            'es_prefer',
+            indent)
         for name,item in self.psets.iteritems():
             config +=indent+item.configTypeName()+' '+name+' = '+item.configValue(indent,indent)
         for name,item in self.vpsets.iteritems():
             config +=indent+'VPSet '+name+' = '+item.configValue(indent,indent)
+        if self.schedule:
+            pathNames = [p.label() for p in self.schedule]
+            config +=indent+'schedule = {'+','.join(pathNames)+'}\n'
+            
 #        config+=self._dumpConfigNamedList(self.vpsets.iteritems(),
 #                                  'VPSet',
 #                                  indent)
@@ -1016,6 +1031,11 @@ class Schedule(_ValidatingListBase,_ConfigureComponent,_Unlabelable):
     @staticmethod
     def _itemIsValid(item):
         return isinstance(item,Path) or isinstance(item,EndPath)
+    def copy(self):
+        import copy
+        return copy.copy(self)
+    def _place(self,label,process):
+        process.setSchedule_(self)
 
 if __name__=="__main__":
     import unittest
@@ -1179,11 +1199,13 @@ if __name__=="__main__":
             p.a = EDAnalyzer("MyAnalyzer")
             p.b = EDAnalyzer("YourAnalyzer")
             p.c = EDAnalyzer("OurAnalyzer")
-            path1 = Path(p.a)
-            path2 = Path(p.b)
-            s = Schedule(path1,path2)
-            self.assertEqual(s[0],path1)
-            self.assertEqual(s[1],path2)
+            p.path1 = Path(p.a)
+            p.path2 = Path(p.b)
+            
+            s = Schedule(p.path1,p.path2)
+            self.assertEqual(s[0],p.path1)
+            self.assertEqual(s[1],p.path2)
+            p.schedule = s
         def testExamples(self):
             p = Process("Test")
             p.source = Source("PoolSource",fileNames = untracked(string("file:reco.root")))
