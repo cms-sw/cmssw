@@ -14,6 +14,7 @@ import FWCore.ParameterSet.Config as cms
 #    Answer: no and the second block wins
 #    NOTE: two of 'any' type with the same label is presently allowed!
 #    UPDATE: labels are not enforced to be unique in the C++ parser
+#    UPDATE of UPDATE: this has been fixed
 
 #Processing order
 #  1) check for multiple inclusion of the same block can be done once the block is 'closed'
@@ -30,10 +31,12 @@ def _validateLabelledList(params):
     toRemove = []
     for item in l:
         if previous and item[0]==previous:
-            if type(item[1]) != _IncludeNode:
-                raise RuntimeError("multiple items found with label:"+item[0])
-            else:
+            if type(item[1]) == _IncludeNode:
                 toRemove.append(item[0])
+            elif hasattr(item[1],'multiplesAllowed') and item[1].multiplesAllowed:
+                continue
+            else:
+                raise RuntimeError("multiple items found with label:"+item[0])
         previous = item[0]
     for remove in toRemove:
         for index,item in enumerate(params):
@@ -117,16 +120,16 @@ def _handleInclude(fileName,otherFiles,recurseFiles,parser,validator,recursor):
         values = parser(f)
         values = validator(values)
         values =recursor(values,otherFiles,newRecurseFiles)
-    except RuntimeError, e:
-        raise RuntimeError('include file '+fileName+' had the error \n'+str(e))
     except pp.ParseException, e:
         raise RuntimeError('include file '+fileName+' had the parsing error \n'+str(e))
+    except Exception, e:
+        raise RuntimeError('include file '+fileName+' had the error \n'+str(e))
     try:
         values = validator(values)
-    except RuntimeError, e:
-        raise RuntimeError('after including all other files, include file '+fileName+' had the error \n'+str(e))
     except pp.ParseException, e:
         raise RuntimeError('after including all other files,include file '+fileName+' had the parsing error \n'+str(e))
+    except Exception, e:
+        raise RuntimeError('after including all other files, include file '+fileName+' had the error \n'+str(e))
     return values
 
 def _handleUsing(using,otherUsings,process,allUsingLabels):
@@ -253,7 +256,7 @@ def _makePSet(s,loc,toks):
     values = list(iter(toks[0]))
     try:
         return _makePSetFromList(values)
-    except RuntimeError, e:
+    except Exception, e:
         raise pp.ParseFatalException(s,loc,"PSet contains the error \n"+str(e))
         
 
@@ -283,7 +286,7 @@ def _makeVPSet(s,loc,toks):
     try:
         p = _makeVPSetFromList(values)
         return _ObjectHolder(p)
-    except RuntimeError, e:
+    except Exception, e:
         raise pp.ParseFatalException(s,loc,"VPSet contains the error \n"+str(e))
 
 def _makeLabeledVPSet(s,loc,toks):
@@ -419,7 +422,7 @@ class _MakePlugin(object):
             values = _validateLabelledList(values)
             values = _findAndHandleParameterIncludes(values)
             values = _validateLabelledList(values)
-        except RuntimeError, e:
+        except Exception, e:
             raise pp.ParseFatalException(s,loc,type+" contains the error "+str(e))
         d = dict(values)
         return self.__plugin(*[type],**d)
@@ -431,7 +434,7 @@ class _MakeFrom(object):
         inc = toks[0][1]
         try:
             values = _findAndHandleProcessBlockIncludes((inc,))
-        except RuntimeError, e:
+        except Exception, e:
             raise pp.ParseFatalException(s,loc,label+" contains the error "+str(e))
         d = dict(values)
         if label not in d:
@@ -561,12 +564,12 @@ class _ModuleSeries(object):
         try:
             nodes = self.topNode.make(process)
             return self.factory()(nodes)
-        except RuntimeError, e:
-            raise pp.ParseFatalException(s,loc,self.type()+" '"+self.forErrorMessage[2][0][0]+"' contains the error "+str(e))
         except AttributeError, e:
             raise pp.ParseFatalException(self.forErrorMessage[0],
                                          self.forErrorMessage[1],
                                          self.type()+" '"+self.forErrorMessage[2][0][0]+"' contains the error "+str(e))
+        except Exception, e:
+            raise pp.ParseFatalException(s,loc,self.type()+" '"+self.forErrorMessage[2][0][0]+"' contains the error "+str(e))
     def __str__(self):
         return str(self.topNode)
 
@@ -603,16 +606,19 @@ endpath = pp.Keyword('endpath').suppress()+pathbody.copy().setParseAction(_MakeS
 sequence = pp.Keyword('sequence').suppress()+pathbody.copy().setParseAction(_MakeSeries(_Sequence))
 
 
-def _Schedule(object):
+class _Schedule(object):
+    """Stand-in for a Schedule since we can't build the real Schedule
+    till the Paths have been created"""
     def __init__(self,labels):
         self.labels = labels
+
 def _makeSchedule(s,loc,toks):
     """create the appropriate parameter object from the tokens"""
     values = list(iter(toks[0][0]))
     p = _Schedule(values)
-    return p
+    return ('schedule',p)
     
-schedule = pp.Keyword('schedule').suppress()+_equalTo+pp.Group(
+schedule = pp.Group(pp.Keyword('schedule').suppress()+_equalTo+
                            _scopeBegin
                              +pp.Group(pp.Optional(pp.delimitedList(label)))
                            +_scopeEnd
@@ -636,14 +642,17 @@ class _ReplaceNode(object):
         self.path = path
         self.setter = setter
         self.forErrorMessage =(s,loc)
+        self.multiplesAllowed = setter.multiplesAllowed
     def getValue(self):
         return self.setter.value
     value = property(fget = getValue,
                      doc='returns the value of the replace command (for testing)')
     def do(self,process):
+        if hasattr(self.setter, 'setProcess'):
+            self.setter.setProcess(process)
         try:
             self._recurse(self.path,process)
-        except RuntimeError,e:
+        except Exception,e:
             raise pp.ParseException(self.forErrorMessage[0],
                                     self.forErrorMessage[1],
                                     "The replace statement '"+'.'.join(self.path)
@@ -660,6 +669,8 @@ class _ReplaceSetter(object):
     """Used to 'set' an unknown type of value from a Replace node"""
     def __init__(self,value):
         self.value = value
+        #one one replace of this type is allowed per configuration
+        self.multiplesAllowed = False
     def setValue(self,obj,attr):
         theAt = getattr(obj,attr)
         #want to change the value, not the actual parameter
@@ -684,27 +695,69 @@ class _PSetReplaceSetter(_ParameterReplaceSetter):
 
 class _SimpleListTypeExtendSetter(_ReplaceSetter):
     """replace command to extends a list"""
+    def __init__(self,value):
+        super(type(self),self).__init__(value)
+        self.multiplesAllowed = True
     def setValue(self,obj,attr):
         theAt=getattr(obj,attr)
         theAt.extend(theAt._valueFromString(self.value))
 
 class _SimpleListTypeAppendSetter(_ReplaceSetter):
     """replace command to append to a list"""
+    def __init__(self,value):
+        super(type(self),self).__init__(value)
+        self.multiplesAllowed = True
     def setValue(self,obj,attr):
         theAt=getattr(obj,attr)
         theAt.append(theAt._valueFromString([self.value])[0])
 
 class _VPSetExtendSetter(_VPSetReplaceSetter):
     """replace command to extend a VPSet"""
+    def __init__(self,value):
+        super(type(self),self).__init__(value)
+        self.multiplesAllowed = True
     def setValue(self,obj,attr):
         theAt=getattr(obj,attr)
         theAt.extend(self.value)
 
 class _VPSetAppendSetter(_PSetReplaceSetter):
     """replace command to append a PSet to a VPSet"""
+    def __init__(self,value):
+        super(type(self),self).__init__(value)
+        self.multiplesAllowed = True
     def setValue(self,obj,attr):
         theAt=getattr(obj,attr)
         theAt.append(self.value)
+
+class _IncrementFromVariableSetter(_ReplaceSetter):
+    """replace command which gets its value from another parameter"""
+    def __init__(self,value):
+        self.valuePath = value
+        super(type(self),self).__init__('.'.join(value))
+        self.multiplesAllowed = True
+        self.oldValue = None
+    def setProcess(self,process):
+        if self.oldValue is None:
+            self.oldValue = self.value
+            attr=None
+            path = self.valuePath
+            attr = process
+            while path:
+                attr = getattr(attr,path[0])
+                path = path[1:]
+            self.value = attr
+    def setValue(self,obj,attr):
+        theAt = getattr(obj,attr)
+        #determine if the types are compatible
+        try:
+            if type(theAt) is type(self.value):
+                theAt.extend(self.value)
+            #see if theAt is a container and self.value can be added to it 
+            else:
+                theAt.append(self.value.value())
+        except Exception, e:
+            raise RuntimeError("replacing with "+self.oldValue+" failed because\n"+str(e))
+        
 
 class _MakeSetter(object):
     """Uses a 'factory' to create the proper Replace setter"""
@@ -721,7 +774,7 @@ def _makeReplace(s,loc,toks):
         path = toks[0][0]
         setter = toks[0][1]
         return ('.'.join(path),_ReplaceNode(list(path),setter,s,loc))
-    except RuntimeError, e:
+    except Exception, e:
         raise pp.ParseException(s,loc,"replace statement '"
                                 +'.'.join(list(path))
                                 +"' had the error \n"
@@ -744,7 +797,9 @@ _replaceExtendValue = (
                      ((_scopeBegin+pp.Group(pp.delimitedList(quotedString))+_scopeEnd)|
                       (_scopeBegin+pp.Group(pp.Optional(pp.delimitedList(any)))+_scopeEnd)
                      ).setParseAction(_MakeSetter(_SimpleListTypeExtendSetter)) |
-                     ((quotedString|any).setParseAction(_MakeSetter(_SimpleListTypeAppendSetter)))
+                     (pp.Group(letterstart+pp.OneOrMore(pp.Literal('.').suppress()+letterstart)).setParseAction(
+                        _MakeSetter(_IncrementFromVariableSetter))) |
+                     ((quotedString|any).setParseAction(_MakeSetter(_SimpleListTypeAppendSetter))) 
                   )
 _plusEqualTo = pp.Suppress('+=')
 #NOTE: can't use '_equalTo' since it checks for a 'valid' label and gets confused
@@ -764,7 +819,7 @@ def _finalizeProcessFragment(values,usingLabels):
         values = _validateLabelledList(values)
         values = _findAndHandleProcessBlockIncludes(values)
         values = _validateLabelledList(values)
-    except RuntimeError, e:
+    except Exception, e:
         raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))
     #now deal with series
     d = dict(values)
@@ -789,12 +844,12 @@ def _finalizeProcessFragment(values,usingLabels):
         adapted = DictAdapter(d)
         for replace in replaces:
             if replace.path[0] in _allUsingLabels:
-                print 'found '+replace.path[0]
+                #print 'found '+replace.path[0]
                 replace.do(adapted)
         _findAndHandleProcessUsingBlock(values)
         for replace in replaces:
             replace.do(adapted)
-    except RuntimeError, e:
+    except Exception, e:
         raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))    
     return d
 #==================================================================
@@ -802,7 +857,7 @@ def _finalizeProcessFragment(values,usingLabels):
 #==================================================================
 def _makeProcess(s,loc,toks):
     """create a Process from the tokens"""
-    #print toks
+    print toks
     label = toks[0][0]
     p=cms.Process(label)
     values = list(iter(toks[0][1]))
@@ -810,24 +865,31 @@ def _makeProcess(s,loc,toks):
         values = _validateLabelledList(values)
         values = _findAndHandleProcessBlockIncludes(values)
         values = _validateLabelledList(values)
-    except RuntimeError, e:
+    except Exception, e:
         raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))
     #now deal with series
     d = dict(values)
     sequences={}
     series=[] #order matters for a series
     replaces=[]
-    for label,item in values:
-        if isinstance(item,_Sequence):
-            sequences[label]=item
-            del d[label]
-        elif isinstance(item,_ModuleSeries):
-            series.append((label,item))
-            del d[label]
-        elif isinstance(item,_ReplaceNode):
-            replaces.append(item)
-            del d[label]
+    schedule = None
     try:
+        for label,item in values:
+            if isinstance(item,_Sequence):
+                sequences[label]=item
+                del d[label]
+            elif isinstance(item,_ModuleSeries):
+                series.append((label,item))
+                del d[label]
+            elif isinstance(item,_ReplaceNode):
+                replaces.append(item)
+                if label in d: del d[label]
+            elif isinstance(item,_Schedule):
+                if schedule is None:
+                    schedule = item
+                    del d[label]
+                else:
+                    raise RuntimeError("multiple 'schedule's are present, only one is allowed")
         #pset replaces must be done first since PSets can be used in a 'using'
         # statement so we want their changes to be reflected
         global _allUsingLabels
@@ -839,7 +901,7 @@ def _makeProcess(s,loc,toks):
         adapted = DictAdapter(d)
         for replace in replaces:
             if replace.path[0] in _allUsingLabels:
-                print 'found '+replace.path[0]
+                #print 'found '+replace.path[0]
                 replace.do(adapted)
         _findAndHandleProcessUsingBlock(values)
         
@@ -852,7 +914,12 @@ def _makeProcess(s,loc,toks):
             setattr(p,label,obj.make(p))
         for replace in replaces:
             replace.do(p)
-    except RuntimeError, e:
+        if schedule is not None:
+            pathlist = []
+            for label in schedule.labels:
+                pathlist.append( getattr(p,label))
+            p.schedule = cms.Schedule(*pathlist)
+    except Exception, e:
         raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))    
 #    p = cms.PSet(*[],**d)
     return p
@@ -902,7 +969,7 @@ if __name__=="__main__":
     class TestModuleCommand(unittest.TestCase):
         def setUp(self):
             """Nothing to do """
-            print 'testing'
+            #print 'testing'
         def testLetterstart(self):
             t = letterstart.parseString("abcd")
             self.assertEqual(len(t),1)
@@ -1215,17 +1282,31 @@ process RECO = {
                 print e
             t=process.parseString("""
 process RECO = {
+   block outputStuff = {
+      vstring outputCommands = {"drop *"}
+   }
+   block toKeep = {
+      vstring outputCommands = {"keep blah_*_*_*"}
+   }
+   replace outputStuff.outputCommands += toKeep.outputCommands
+   
    source = PoolSource {
      untracked vstring fileNames = {"file:foo.root"}
+     untracked vint32 foos = {1}
    }
    module out = PoolOutputModule {
+     using outputStuff
      untracked string fileName = "blah.root"
    }
    replace PoolSource.fileNames = {"file:bar.root"}
    replace out.fileName = 'blih.root'
+   replace PoolSource.foos += 2
+   replace PoolSource.foos += 3
 }""")
             self.assertEqual(t[0].source.fileNames,["file:bar.root"])
             self.assertEqual(t[0].out.fileName.value(),"blih.root")
+            self.assertEqual(t[0].source.foos,[1,2,3])
+            self.assertEqual(t[0].out.outputCommands,["drop *","keep blah_*_*_*"])
             t=process.parseString("""
 process RECO = {
     module foo = FooProd {using b}
@@ -1321,6 +1402,8 @@ process USER =
         path t1 = { (A,B&C,D),s0a,filter }
         path t2 = { A,B,C,D }
         endpath te = { A&B }
+        
+        schedule = {t1,t2}
 
 }
 """)
@@ -1542,6 +1625,23 @@ process USER =
             t[0][1].do(process)
             self.assertEqual(len(process.a.b),2)
             self.assertEqual(process.a.b[1].i.value(),1)
+
+            process.a = cms.EDProducer('FooProd', b=cms.vuint32(2), c=cms.vuint32(1))
+            t=replace.parseString('replace a.b += a.c')
+            self.assertEqual(t[0][0],'a.b')
+            self.assertEqual(t[0][1].path, ['a','b'])
+            self.assertEqual(t[0][1].value,'a.c')
+            t[0][1].do(process)
+            self.assertEqual(list(process.a.b),[2,1])
+            
+            process.a = cms.EDProducer('FooProd', b=cms.vuint32(2), c=cms.uint32(1))
+            t=replace.parseString('replace a.b += a.c')
+            self.assertEqual(t[0][0],'a.b')
+            self.assertEqual(t[0][1].path, ['a','b'])
+            self.assertEqual(t[0][1].value,'a.c')
+            t[0][1].do(process)
+            self.assertEqual(list(process.a.b),[2,1])
+            
     unittest.main()
 #try:
     #onlyParameters.setDebug()
