@@ -1,5 +1,5 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h>
+#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <fstream>
 
@@ -121,8 +121,8 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
          
       if(pt_method == 1) // param method
 	{
-	  dphi12R = (static_cast<float>(absPhi12<<1)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
-	  dphi23R = (static_cast<float>(absPhi23<<4)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
+	  dphi12R = (static_cast<float>(absPhi12<<1)) / (static_cast<float>(1<<12)) * CSCConstants::SECTOR_RAD;
+	  dphi23R = (static_cast<float>(absPhi23<<4)) / (static_cast<float>(1<<12)) * CSCConstants::SECTOR_RAD;
 	  if(charge12 * charge23 < 0) dphi23R = -dphi23R;
 	  
 	  ptR_front = ptMethods.Pt3Stn(type, etaR, dphi12R, dphi23R, 1);
@@ -177,7 +177,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	{
 	  if(pt_method == 1 || type == 5)
 	    {
-	      dphi12R = (static_cast<float>(absPhi12)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
+	      dphi12R = (static_cast<float>(absPhi12)) / (static_cast<float>(1<<12)) * CSCConstants::SECTOR_RAD;
 	      
 	      ptR_front = ptMethods.Pt2Stn(type, etaR, dphi12R, 1);
 	      ptR_rear  = ptMethods.Pt2Stn(type, etaR, dphi12R, 0);
@@ -213,7 +213,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	}
       if(absPhi12 < (1<<9))
 	{
-	  dphi12R = (static_cast<float>(absPhi12)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
+	  dphi12R = (static_cast<float>(absPhi12)) / (static_cast<float>(1<<12)) * CSCConstants::SECTOR_RAD;
 	  ptR_front = ptMethods.Pt2Stn(type, etaR, dphi12R, 1);
 	  ptR_rear  = ptMethods.Pt2Stn(type, etaR, dphi12R, 0);
 	}
@@ -235,7 +235,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	}
       if(absPhi12 < (1<<9))
 	{
-	  dphi12R = (static_cast<float>(absPhi12)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
+	  dphi12R = (static_cast<float>(absPhi12)) / (static_cast<float>(1<<12)) * CSCConstants::SECTOR_RAD;
 	  ptR_front = ptMethods.Pt2Stn(type, etaR, dphi12R, 1);
 	  ptR_rear  = ptMethods.Pt2Stn(type, etaR, dphi12R, 0);
 	}

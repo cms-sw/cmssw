@@ -1,5 +1,5 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFPtMethods.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h>
+#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
 #include <cmath>
 
@@ -733,7 +733,7 @@ float CSCTFPtMethods::Pt2StnChiSq(int type, float eta, int dphi, int fr)
   // hybrid approach:
   if (bCallOldMethod)
     {
-      float dphiR = static_cast<float>(dphicopy) / static_cast<float>(1<<12) * CSCTFConstants::SECTOR_RAD;
+      float dphiR = static_cast<float>(dphicopy) / static_cast<float>(1<<12) * CSCConstants::SECTOR_RAD;
       // must change type definition, just add one
       mypt =  Pt2Stn(type+1, eta, dphiR, fr);
     }
@@ -959,8 +959,8 @@ float CSCTFPtMethods::Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int
     
   if (bCallOldMethod) 
     {
-      float dphi12R = (static_cast<float>(dphi1copy)) / static_cast<float>(1<<12) * CSCTFConstants::SECTOR_RAD;
-      float dphi23R = (static_cast<float>(dphi2copy)) / static_cast<float>(1<<12) * CSCTFConstants::SECTOR_RAD;
+      float dphi12R = (static_cast<float>(dphi1copy)) / static_cast<float>(1<<12) * CSCConstants::SECTOR_RAD;
+      float dphi23R = (static_cast<float>(dphi2copy)) / static_cast<float>(1<<12) * CSCConstants::SECTOR_RAD;
       // change defintion of track type to old method
       mypt =  Pt3Stn(type-3, eta, dphi12R, dphi23R, fr);
     }
@@ -975,7 +975,7 @@ float CSCTFPtMethods::Pt2StnHybrid(int type, float eta, int dphi, int fr)
   mypt = Pt2StnChiSq(type, eta, dphi, fr);
   if(mypt >= 8.0)
     {
-      float dphiR = static_cast<float>(dphi) / static_cast<float>(1<<12) * CSCTFConstants::SECTOR_RAD;
+      float dphiR = static_cast<float>(dphi) / static_cast<float>(1<<12) * CSCConstants::SECTOR_RAD;
       mypt = Pt2Stn(type+1, eta, dphiR, fr);
     }
 
@@ -989,8 +989,8 @@ float CSCTFPtMethods::Pt3StnHybrid(int type, float eta, int dphi1, int dphi2, in
   mypt = Pt3StnChiSq(type, eta, dphi1, dphi2, fr);
   if(mypt >= 8.0)
     {
-      float dphi12R = (static_cast<float>(dphi1)) / static_cast<float>(1<<12) * CSCTFConstants::SECTOR_RAD;
-      float dphi23R = (static_cast<float>(dphi2)) / static_cast<float>(1<<12) * CSCTFConstants::SECTOR_RAD;
+      float dphi12R = (static_cast<float>(dphi1)) / static_cast<float>(1<<12) * CSCConstants::SECTOR_RAD;
+      float dphi23R = (static_cast<float>(dphi2)) / static_cast<float>(1<<12) * CSCConstants::SECTOR_RAD;
       // change defintion of track type to old method
       mypt =  Pt3Stn(type-3, eta, dphi12R, dphi23R, fr);      
     }

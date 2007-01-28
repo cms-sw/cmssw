@@ -4,15 +4,12 @@
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-#include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
 
-#include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
+#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerContainer.h>
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFSectorProcessor.h>
 
 CSCTFTrackBuilder::CSCTFTrackBuilder(const edm::ParameterSet& pset)
 {
-  my_dtrc = new CSCTFDTReceiver();
-
   for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
     {
       for(int s = CSCTriggerNumbering::minTriggerSectorId(); 
@@ -25,9 +22,6 @@ CSCTFTrackBuilder::CSCTFTrackBuilder(const edm::ParameterSet& pset)
 
 CSCTFTrackBuilder::~CSCTFTrackBuilder()
 {
-  delete my_dtrc;
-  my_dtrc = NULL;
-
   for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
     {
       for(int s = CSCTriggerNumbering::minTriggerSectorId(); 
@@ -40,10 +34,10 @@ CSCTFTrackBuilder::~CSCTFTrackBuilder()
 }
 
 void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, const L1MuDTChambPhContainer* dttrig,
-				    L1CSCTrackCollection* trkcoll, CSCTriggerContainer<csctf::TrackStub>* stubs_to_dt)
+				    L1CSCTrackCollection* trkcoll)
 {
   std::vector<csc::L1Track> trks;
-  CSCTriggerContainer<csctf::TrackStub> stub_list;
+  CSCTriggerContainer<CSCTrackStub> stub_list;
 
   CSCCorrelatedLCTDigiCollection::DigiRangeIterator Citer;
 
@@ -54,15 +48,10 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
 
       for(; Diter != Dend; Diter++)
 	{
-	  csctf::TrackStub theStub((*Diter),(*Citer).first);
+	  CSCTrackStub theStub((*Diter),(*Citer).first);
 	  stub_list.push_back(theStub);	  
 	}     
     }   
-
-  // Now we append the track stubs the the DT Sector Collector
-  // after processing from the DT Receiver.
-  stub_list.push_many(my_dtrc->process(dttrig));
-
 
   // run each sector processor in the TF
   for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
@@ -70,14 +59,13 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
       for(int s = CSCTriggerNumbering::minTriggerSectorId(); 
 	  s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s)
 	{
-	  CSCTriggerContainer<csctf::TrackStub> current_e_s = stub_list.get(e, s);
+	  CSCTriggerContainer<CSCTrackStub> current_e_s = stub_list.get(e, s);
 	  if(my_SPs[e-1][s-1]->run(current_e_s))
 	    {
 	      std::vector<csc::L1Track> theTracks = my_SPs[e-1][s-1]->tracks().get();
 	      trks.insert(trks.end(), theTracks.begin(), theTracks.end());
 	      
 	    }
-	  stubs_to_dt->push_many(my_SPs[e-1][s-1]->dtStubs()); // send stubs whether or not we find a track!!!
 	}
     }
 
@@ -90,8 +78,8 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
     {      
       tcitr->first = (*titr);
 
-      std::vector<csctf::TrackStub> possible_stubs = stub_list.get(titr->endcap(), titr->sector());
-      std::vector<csctf::TrackStub>::const_iterator tkstbs = possible_stubs.begin();
+      std::vector<CSCTrackStub> possible_stubs = stub_list.get(titr->endcap(), titr->sector());
+      std::vector<CSCTrackStub>::const_iterator tkstbs = possible_stubs.begin();
 
       int me1ID = titr->me1ID();
       int me2ID = titr->me2ID();
@@ -107,25 +95,25 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
               if((tkstbs->getMPCLink()
                   +(3*(CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(tkstbs->getDetId().rawId())) - 1))) == me1ID && me1ID != 0)
                 {
-                  tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), *(tkstbs->getDigi()));
+                  tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), tkstbs->getDigi());
                 }
               break;
 	    case 2:
               if(tkstbs->getMPCLink() == me2ID && me2ID != 0)
                 {
-                  tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), *(tkstbs->getDigi()));
+                  tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), tkstbs->getDigi());
                 }
               break;
             case 3:
               if(tkstbs->getMPCLink() == me3ID && me3ID != 0)
                 {
-                  tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), *(tkstbs->getDigi()));
+                  tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), tkstbs->getDigi());
                 }
               break;
             case 4:
               if(tkstbs->getMPCLink() == me4ID && me4ID != 0)
                 {
-                  tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), *(tkstbs->getDigi()));
+                  tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), tkstbs->getDigi());
                 }
               break;
 	    case 5:

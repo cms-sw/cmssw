@@ -66,10 +66,9 @@ CSCTFSectorProcessor::~CSCTFSectorProcessor()
   ptLUT_ = NULL;  
 }
 
-bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs)
+bool CSCTFSectorProcessor::run(const CSCTriggerContainer<CSCTrackStub>& stubs)
 {
   l1_tracks.clear();
-  dt_stubs.clear();
   
   /** STEP ONE
    *  We take stubs from the MPC and assign their eta and phi
@@ -79,9 +78,9 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
    *  After this we append the stubs gained from the DT system.
    */
     
-  std::vector<csctf::TrackStub> stub_vec = stubs.get();
-  std::vector<csctf::TrackStub>::iterator itr = stub_vec.begin();
-  std::vector<csctf::TrackStub>::const_iterator end = stub_vec.end();
+  std::vector<CSCTrackStub> stub_vec = stubs.get();
+  std::vector<CSCTrackStub>::iterator itr = stub_vec.begin();
+  std::vector<CSCTrackStub>::const_iterator end = stub_vec.end();
 
   for(; itr != end; itr++)
     {
@@ -95,15 +94,13 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
 	  gbletadat gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
 	  itr->setEtaPacked(gblEta.global_eta);
 	  itr->setPhiPacked(gblPhi.global_phi);
-
-	  if(itr->station() == 1) dt_stubs.push_back(*itr); // send stubs to DT
 	  
 	  LogDebug("CSCTFSectorProcessor:run()") << "LCT found, processed by FPGA: " << FPGAs[fpga] << std::endl
 						 << " LCT now has (eta, phi) of: (" << itr->etaValue() << "," << itr->phiValue() <<")\n";
 	}
     }
 
-  CSCTriggerContainer<csctf::TrackStub> processedStubs(stub_vec);
+  CSCTriggerContainer<CSCTrackStub> processedStubs(stub_vec);
 
   /** STEP TWO
    *  We take the stubs filled by the SR LUTs and load them

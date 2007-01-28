@@ -12,8 +12,8 @@
 #include <map>
 #include <string>
 #include <DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h>
-#include <DataFormats/L1CSCTrackFinder/interface/TrackStub.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
+#include <L1Trigger/CSCCommonTrigger/interface/CSCTrackStub.h>
+#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerContainer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h>
@@ -27,11 +27,9 @@ class CSCTFSectorProcessor
   
   ~CSCTFSectorProcessor();
 
-  bool run(const CSCTriggerContainer<csctf::TrackStub>&);
+  bool run(const CSCTriggerContainer<CSCTrackStub>&);
 
   CSCTriggerContainer<csc::L1Track> tracks() const { return l1_tracks; }
-
-  CSCTriggerContainer<csctf::TrackStub> dtStubs() const { return dt_stubs; }
 
   int minBX() const { return m_minBX; }
   int maxBX() const { return m_maxBX; }
@@ -49,7 +47,6 @@ class CSCTFSectorProcessor
   unsigned m_etawin[6];
   
   CSCTriggerContainer<csc::L1Track> l1_tracks; // fully defined L1Tracks
-  CSCTriggerContainer<csctf::TrackStub> dt_stubs; // Track Stubs to be sent to the DTTF
 
   static const std::string FPGAs[5];
 
