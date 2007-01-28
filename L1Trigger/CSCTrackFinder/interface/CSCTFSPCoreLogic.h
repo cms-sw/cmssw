@@ -2,8 +2,8 @@
 #define CSCTrackFinder_CSCTFSPCoreLogic_h
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerContainer.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTrackStub.h>
+#include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
+#include <DataFormats/L1CSCTrackFinder/interface/TrackStub.h>
 #include <DataFormats/L1CSCTrackFinder/interface/L1Track.h>
 
 class SPvpp;
@@ -55,7 +55,7 @@ class CSCTFSPCoreLogic
 
   CSCTFSPCoreLogic() : runme(false) {}
 
-  void loadData(const CSCTriggerContainer<CSCTrackStub>&,
+  void loadData(const CSCTriggerContainer<csctf::TrackStub>&,
 		const unsigned& endcap, const unsigned& sector, 
 		const int& minBX, const int& maxBX);
 

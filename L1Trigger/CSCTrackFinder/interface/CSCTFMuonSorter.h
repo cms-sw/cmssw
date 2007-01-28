@@ -2,7 +2,7 @@
 #define CSCTrackFinder_CSCTFMuonSorter_h
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerContainer.h>
+#include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
 #include <DataFormats/L1CSCTrackFinder/interface/L1Track.h>
 #include <DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h>
 
