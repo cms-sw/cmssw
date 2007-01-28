@@ -1,19 +1,22 @@
-// $Id: EBMUtilsClient.h,v 1.14 2006/07/03 07:16:40 dellaric Exp $
+// $Id: EBMUtilsClient.h,v 1.15 2006/07/17 21:39:10 dellaric Exp $
 
 /*!
   \file EBMUtilsClient.h
   \brief Ecal Barrel Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.14 $
-  \date $Date: 2006/07/03 07:16:40 $
+  \version $Revision: 1.15 $
+  \date $Date: 2006/07/17 21:39:10 $
 */
 
 #ifndef EBMUtilsClient_H
 #define EBMUtilsClient_H
 
+#include <vector>
 #include <string>
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorElementT.h"
+#include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TROOT.h"
 
@@ -33,7 +36,7 @@ class EBMUtilsClient {
    */
   template<class T> static T getHisto( const MonitorElement* me, bool clone = false, T ret = 0 ) {
     if( me ) {
-      // cout << "Found '" << me->getName() <<"'"; 
+      // std::cout << "Found '" << me->getName() <<"'" << std::endl;
       MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
       if( ob ) { 
         if( clone ) {
@@ -69,6 +72,29 @@ class EBMUtilsClient {
       if( ob ) { 
 	ob->Reset();
       }
+    }
+  }
+
+  template<class T> static void printBadChannels( const T* qth ) {
+    std::vector<dqm::me_util::Channel> badChannels;
+    if ( qth ) badChannels = qth->getBadChannels();
+    if ( ! badChannels.empty() ) {
+      std::cout << std::endl;
+      std::cout << " Channels that failed \""
+                << qth->getName() << "\" "
+                << "(Algorithm: "
+                << (const_cast<T*>(qth))->getAlgoName()
+                << ")" << std::endl;
+      std::cout << std::endl;
+      for ( std::vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
+        std::cout << " (" << it->getBinX()
+                  << ", " << it->getBinY()
+                  << ", " << it->getBinZ()
+                  << ") = " << it->getContents()
+                  << " +- " << it->getRMS()
+                  << std::endl;
+      }
+      std::cout << std::endl;
     }
   }
 

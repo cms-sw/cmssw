@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/01/27 11:07:07 $
- * $Revision: 1.115 $
+ * $Date: 2007/01/27 19:54:50 $
+ * $Revision: 1.116 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -462,127 +462,12 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   bool status = true;
 
-  vector<dqm::me_util::Channel> badChannels;
+  EBMUtilsClient::printBadChannels(qth01_[ism-1]);
+  EBMUtilsClient::printBadChannels(qth02_[ism-1]);
+  EBMUtilsClient::printBadChannels(qth03_[ism-1]);
 
-  if ( qth01_[ism-1] ) badChannels = qth01_[ism-1]->getBadChannels();
-
-  if ( ! badChannels.empty() ) {
-
-    cout << endl;
-    cout << " Channels that failed \""
-         << qth01_[ism-1]->getName() << "\" "
-         << "(Algorithm: "
-         << qth01_[ism-1]->getAlgoName()
-         << ")" << endl;
-
-    cout << endl;
-    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-      cout << " (" << it->getBinX()
-           << ", " << it->getBinY()
-           << ", " << it->getBinZ()
-           << ") = " << it->getContents()
-           << " +- " << it->getRMS()
-           << endl;
-    }
-    cout << endl;
-
-  }
-
-  if ( qth02_[ism-1] ) badChannels = qth02_[ism-1]->getBadChannels();
-  
-  if ( ! badChannels.empty() ) {
-  
-    cout << endl;
-    cout << " Channels that failed \""
-         << qth02_[ism-1]->getName() << "\" "
-         << "(Algorithm: "
-         << qth02_[ism-1]->getAlgoName()
-         << ")" << endl;
-  
-    cout << endl;
-    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {  
-      cout << " (" << it->getBinX()
-           << ", " << it->getBinY()
-           << ", " << it->getBinZ()
-           << ") = " << it->getContents()
-           << " +- " << it->getRMS()
-           << endl;
-    }
-    cout << endl;
-
-  }
-
-  if ( qth03_[ism-1] ) badChannels = qth03_[ism-1]->getBadChannels();
-  
-  if ( ! badChannels.empty() ) {
-  
-    cout << endl;
-    cout << " Channels that failed \""
-         << qth03_[ism-1]->getName() << "\" "
-         << "(Algorithm: "
-         << qth03_[ism-1]->getAlgoName()
-         << ")" << endl;
-  
-    cout << endl;
-    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {  
-      cout << " (" << it->getBinX()
-           << ", " << it->getBinY()
-           << ", " << it->getBinZ()
-           << ") = " << it->getContents()
-           << " +- " << it->getRMS()
-           << endl;
-    }
-    cout << endl;
-
-  }
-
-  if ( qth04_[ism-1] ) badChannels = qth04_[ism-1]->getBadChannels();
- 
-  if ( ! badChannels.empty() ) {
- 
-    cout << endl;
-    cout << " Channels that failed \""
-         << qth04_[ism-1]->getName() << "\" "
-         << "(Algorithm: "
-         << qth04_[ism-1]->getAlgoName()
-         << ")" << endl;
- 
-    cout << endl;
-    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-      cout << " (" << it->getBinX()
-           << ", " << it->getBinY()
-           << ", " << it->getBinZ()
-           << ") = " << it->getContents()
-           << " +- " << it->getRMS()
-           << endl;
-    }
-    cout << endl;
-
-  }
-
-  if ( qth05_[ism-1] ) badChannels = qth05_[ism-1]->getBadChannels();
- 
-  if ( ! badChannels.empty() ) {
- 
-    cout << endl;
-    cout << " Channels that failed \""
-         << qth05_[ism-1]->getName() << "\" "
-         << "(Algorithm: "
-         << qth05_[ism-1]->getAlgoName()
-         << ")" << endl;
- 
-    cout << endl;
-    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-      cout << " (" << it->getBinX()
-           << ", " << it->getBinY()
-           << ", " << it->getBinZ()
-           << ") = " << it->getContents()
-           << " +- " << it->getRMS()
-           << endl;
-    }
-    cout << endl;
-
-  }
+  EBMUtilsClient::printBadChannels(qth04_[ism-1]);
+  EBMUtilsClient::printBadChannels(qth05_[ism-1]);
 
   EcalLogicID ecid;
   MonPedestalsDat p;

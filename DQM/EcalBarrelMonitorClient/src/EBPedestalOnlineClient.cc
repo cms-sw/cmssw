@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/01/21 22:07:21 $
- * $Revision: 1.68 $
+ * $Date: 2007/01/22 10:24:07 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -246,31 +246,7 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
   bool status = true;
 
-  vector<dqm::me_util::Channel> badChannels;
-
-  if ( qth03_[ism-1] ) badChannels = qth03_[ism-1]->getBadChannels();
-
-  if ( ! badChannels.empty() ) {
-
-    cout << endl;
-    cout << " Channels that failed \""
-         << qth03_[ism-1]->getName() << "\" "
-         << "(Algorithm: "
-         << qth03_[ism-1]->getAlgoName()
-         << ")" << endl;
-
-    cout << endl;
-    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-      cout << " (" << it->getBinX()
-           << ", " << it->getBinY()
-           << ", " << it->getBinZ()
-           << ") = " << it->getContents()
-           << " +- " << it->getRMS()
-           << endl;
-    }
-    cout << endl;
-
-  }
+  EBMUtilsClient::printBadChannels(qth03_[ism-1]);
 
   EcalLogicID ecid;
   MonPedestalsOnlineDat p;

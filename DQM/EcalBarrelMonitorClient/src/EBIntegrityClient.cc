@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/01/22 10:24:07 $
- * $Revision: 1.126 $
+ * $Date: 2007/01/23 18:10:59 $
+ * $Revision: 1.127 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -351,247 +351,17 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   bool status = true;
 
-  vector<dqm::me_util::Channel> badChannels;
+  EBMUtilsClient::printBadChannels(qth01_[ism-1]);
+  EBMUtilsClient::printBadChannels(qth02_[ism-1]);
+  EBMUtilsClient::printBadChannels(qth03_[ism-1]);
+  EBMUtilsClient::printBadChannels(qth04_[ism-1]);
+  EBMUtilsClient::printBadChannels(qth05_[ism-1]);
+  EBMUtilsClient::printBadChannels(qth06_[ism-1]);
 
-  if ( qth01_[ism-1] ) badChannels = qth01_[ism-1]->getBadChannels();
-
-  if ( ! badChannels.empty() ) {
-
-    cout << endl;
-    cout << " Channels that failed \""
-         << qth01_[ism-1]->getName() << "\" "
-         << "(Algorithm: "
-         << qth01_[ism-1]->getAlgoName()
-         << ")" << endl;
-
-    cout << endl;
-    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-      cout << " (" << it->getBinX()
-           << ", " << it->getBinY()
-           << ", " << it->getBinZ()
-           << ") = " << it->getContents()
-           << " +- " << it->getRMS()
-           << endl;
-    }
-    cout << endl;
-
-  }
-
-  if ( qth02_[ism-1] ) badChannels = qth02_[ism-1]->getBadChannels();
-
-  if ( ! badChannels.empty() ) {
-
-    cout << endl;
-    cout << " Channels that failed \""
-         << qth02_[ism-1]->getName() << "\" "
-         << "(Algorithm: "
-         << qth02_[ism-1]->getAlgoName()
-         << ")" << endl;
-
-    cout << endl;
-    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-      cout << " (" << it->getBinX()
-           << ", " << it->getBinY()
-           << ", " << it->getBinZ()
-           << ") = " << it->getContents()
-           << " +- " << it->getRMS()
-           << endl;
-    }
-    cout << endl;
-
-  }
-
-  if ( qth03_[ism-1] ) badChannels = qth03_[ism-1]->getBadChannels();
-
-  if ( ! badChannels.empty() ) {
-
-    cout << endl;
-    cout << " Channels that failed \""
-         << qth03_[ism-1]->getName() << "\" "
-         << "(Algorithm: "
-         << qth03_[ism-1]->getAlgoName()
-         << ")" << endl;
-
-    cout << endl; 
-    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-      cout << " (" << it->getBinX()
-           << ", " << it->getBinY()
-           << ", " << it->getBinZ()
-           << ") = " << it->getContents()
-           << " +- " << it->getRMS()
-           << endl;
-    }
-    cout << endl;
-
-  }
-  
-  if ( qth04_[ism-1] ) badChannels = qth04_[ism-1]->getBadChannels();
-
-  if ( ! badChannels.empty() ) {
-
-    cout << endl;
-    cout << " Channels that failed \""
-         << qth04_[ism-1]->getName() << "\" "
-         << "(Algorithm: "
-         << qth04_[ism-1]->getAlgoName()
-         << ")" << endl;
-
-    cout << endl; 
-    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-      cout << " (" << it->getBinX()
-           << ", " << it->getBinY()
-           << ", " << it->getBinZ()
-           << ") = " << it->getContents()
-           << " +- " << it->getRMS()
-           << endl;
-    }
-    cout << endl;
-
-  }
-  
-  if ( qth05_[ism-1] ) badChannels = qth05_[ism-1]->getBadChannels();
-
-  if ( ! badChannels.empty() ) {
-
-    cout << endl;
-    cout << " Channels that failed \""
-         << qth05_[ism-1]->getName() << "\" "
-         << "(Algorithm: "
-         << qth05_[ism-1]->getAlgoName()
-         << ")" << endl;
-
-    cout << endl; 
-    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-      cout << " (" << it->getBinX()
-           << ", " << it->getBinY()
-           << ", " << it->getBinZ()
-           << ") = " << it->getContents()
-           << " +- " << it->getRMS()
-           << endl;
-    }
-    cout << endl;
-
-  }
-  
-  if ( qth06_[ism-1] ) badChannels = qth06_[ism-1]->getBadChannels();
-
-  if ( ! badChannels.empty() ) {
-
-    cout << endl;
-    cout << " Channels that failed \""
-         << qth06_[ism-1]->getName() << "\" "
-         << "(Algorithm: "
-         << qth06_[ism-1]->getAlgoName()
-         << ")" << endl;
-
-    cout << endl; 
-    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-      cout << " (" << it->getBinX()
-           << ", " << it->getBinY()
-           << ", " << it->getBinZ()
-           << ") = " << it->getContents()
-           << " +- " << it->getRMS()
-           << endl;
-    }
-    cout << endl;
-
-  }
-  
-  if ( qth07_[ism-1] ) badChannels = qth07_[ism-1]->getBadChannels();
-
-  if ( ! badChannels.empty() ) {
-
-    cout << endl;
-    cout << " Channels that failed \""
-         << qth07_[ism-1]->getName() << "\" "
-         << "(Algorithm: "
-         << qth07_[ism-1]->getAlgoName()
-         << ")" << endl;
-
-    cout << endl; 
-    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-      cout << " (" << it->getBinX()
-           << ", " << it->getBinY()
-           << ", " << it->getBinZ()
-           << ") = " << it->getContents()
-           << " +- " << it->getRMS()
-           << endl;
-    }
-    cout << endl;
-
-  }
-  
-  if ( qth08_[ism-1] ) badChannels = qth08_[ism-1]->getBadChannels();
-
-  if ( ! badChannels.empty() ) {
-
-    cout << endl;
-    cout << " Channels that failed \""
-         << qth08_[ism-1]->getName() << "\" "
-         << "(Algorithm: "
-         << qth08_[ism-1]->getAlgoName()
-         << ")" << endl;
-
-    cout << endl; 
-    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-      cout << " (" << it->getBinX()
-           << ", " << it->getBinY()
-           << ", " << it->getBinZ()
-           << ") = " << it->getContents()
-           << " +- " << it->getRMS()
-           << endl;
-    }
-    cout << endl;
-
-  }
-  
-  if ( qth09_[ism-1] ) badChannels = qth09_[ism-1]->getBadChannels();
-
-  if ( ! badChannels.empty() ) {
-
-    cout << endl;
-    cout << " Channels that failed \""
-         << qth09_[ism-1]->getName() << "\" "
-         << "(Algorithm: "
-         << qth09_[ism-1]->getAlgoName()
-         << ")" << endl;
-
-    cout << endl; 
-    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-      cout << " (" << it->getBinX()
-           << ", " << it->getBinY()
-           << ", " << it->getBinZ()
-           << ") = " << it->getContents()
-           << " +- " << it->getRMS()
-           << endl;
-    }
-    cout << endl;
-
-  }
-  
-  if ( qth10_[ism-1] ) badChannels = qth10_[ism-1]->getBadChannels();
-
-  if ( ! badChannels.empty() ) {
-
-    cout << endl;
-    cout << " Channels that failed \""
-         << qth10_[ism-1]->getName() << "\" "
-         << "(Algorithm: "
-         << qth10_[ism-1]->getAlgoName()
-         << ")" << endl;
-
-    cout << endl; 
-    for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-      cout << " (" << it->getBinX()
-           << ", " << it->getBinY()
-           << ", " << it->getBinZ()
-           << ") = " << it->getContents()
-           << " +- " << it->getRMS()
-           << endl;
-    }
-    cout << endl;
-
-  }
+  EBMUtilsClient::printBadChannels(qth07_[ism-1]);
+  EBMUtilsClient::printBadChannels(qth08_[ism-1]);
+  EBMUtilsClient::printBadChannels(qth09_[ism-1]);
+  EBMUtilsClient::printBadChannels(qth10_[ism-1]);
 
   EcalLogicID ecid;
   MonCrystalConsistencyDat c1;
@@ -1572,11 +1342,11 @@ void EBIntegrityClient::analyze(void){
     vector<dqm::me_util::Channel> badChannels06;
 
     if ( qth01_[ism-1] ) badChannels01 = qth01_[ism-1]->getBadChannels();
-    if ( qth02_[ism-1] ) badChannels02 = qth01_[ism-1]->getBadChannels();
-    if ( qth03_[ism-1] ) badChannels03 = qth01_[ism-1]->getBadChannels();
-    if ( qth04_[ism-1] ) badChannels04 = qth01_[ism-1]->getBadChannels();
-    if ( qth05_[ism-1] ) badChannels05 = qth01_[ism-1]->getBadChannels();
-    if ( qth06_[ism-1] ) badChannels06 = qth01_[ism-1]->getBadChannels();
+    if ( qth02_[ism-1] ) badChannels02 = qth02_[ism-1]->getBadChannels();
+    if ( qth03_[ism-1] ) badChannels03 = qth03_[ism-1]->getBadChannels();
+    if ( qth04_[ism-1] ) badChannels04 = qth04_[ism-1]->getBadChannels();
+    if ( qth05_[ism-1] ) badChannels05 = qth05_[ism-1]->getBadChannels();
+    if ( qth06_[ism-1] ) badChannels06 = qth06_[ism-1]->getBadChannels();
 
     // summaries for mem channels
     float num07, num08, num09, num10;
