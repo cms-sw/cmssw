@@ -64,7 +64,7 @@ class EBMUtilsClient {
 
   /*! \fn static void resetHisto( const MonitorElement* me )
       \brief Reset the ROOT object contained by the monitoring element
-      \param me input Monitor Element
+      \param me input Monitor Element.
    */
   static void resetHisto( const MonitorElement* me ) {
     if( me ) {
@@ -77,7 +77,7 @@ class EBMUtilsClient {
 
   /*! \fn template<class T> static void printBadChannels( const T* qth )
       \brief Print the bad channels associated to the quality test
-      \param me input QCriterionRoot
+      \param qth input QCriterionRoot.
    */
   template<class T> static void printBadChannels( const T* qth ) {
     std::vector<dqm::me_util::Channel> badChannels;
@@ -102,10 +102,42 @@ class EBMUtilsClient {
     }
   }
 
-  /*! \fn static bool getBinStats( const T* h, const int ix, const int iy, float& num, float& mean, flost& rms )
+  /*! \fn template<class T> static bool getBinStats( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms )
+      \brief Returns true if the bin contains good statistical data
+      \param histo input ROOT histogram.
+      \param input histogram's bin.
+      \param num bin's entries.
+      \param mean bins' mean.
+      \param rms bin's rms.
    */
-  template<class T> static bool getBinStats( const T* h, const int ix, const int iy, float& num, float& mean, flost& rms ) {
+  template<class T> static bool getBinStats( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms ) {
 
+    num  = -1.;
+    mean = -1.;
+    rms  = -1.;
+
+    const float percent = 0.9;
+    const float n_min_bin = 10.;
+
+    if ( histo ) {
+
+      const float n_min_tot = percent *
+                              n_min_bin *
+                              histo->GetNbinsX() *
+                              histo->GetNbinsY();
+
+      if ( histo->GetEntries() >= n_min_tot ) {
+        num = histo->GetBinEntries(histo->GetBin(ix, iy));
+        if ( num >= n_min_bin ) {
+          mean = histo->GetBinContent(histo->GetBin(ix, iy));
+          rms  = histo->GetBinError(histo->GetBin(ix, iy));
+          return true;
+        }
+      }
+
+    }
+
+    return false;
   }
 
  protected:
