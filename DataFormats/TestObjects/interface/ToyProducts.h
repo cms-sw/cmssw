@@ -9,9 +9,11 @@ Toy EDProducts for testing purposes only.
 
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 namespace edmtest
@@ -77,6 +79,13 @@ namespace edmtest
   };
 
   inline
+  bool
+  operator== (Sortable const& a, Sortable const& b)
+  {
+    return (a.data == b.data);
+  }
+
+  inline
   bool operator< (Sortable const& a, Sortable const& b)
   {
     return a.data < b.data;
@@ -100,6 +109,7 @@ namespace edmtest
 
   typedef edm::SortedCollection<Simple> SCSimpleProduct;
   typedef edm::OwnVector<Simple>        OVSimpleProduct;
+  typedef edm::AssociationVector<std::vector<Simple>, std::vector<Simple> > AVSimpleProduct;
   typedef edm::DetSetVector<Sortable>   DSVSimpleProduct;
   typedef edm::DetSetVector<Unsortable> DSVWeirdProduct;
 

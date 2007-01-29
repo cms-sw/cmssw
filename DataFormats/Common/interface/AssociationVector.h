@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  */
 
 #include "DataFormats/Common/interface/traits.h"
@@ -53,6 +53,8 @@ namespace edm {
     void swap(AssociationVector<CKey, CVal> & other);
     const KeyRefProd & keyProduct() const { return ref_; }
     KeyRef key(typename CKey::size_type i) const { return KeyRef(ref_, i); }
+    void fillView(std::vector<void const*>& pointers) const;
+
   private:
     CVal data_;
     KeyRefProd ref_;
@@ -148,9 +150,36 @@ namespace edm {
   }
 
   template<typename CKey, typename CVal>
+  void AssociationVector<CKey, CVal>::fillView(std::vector<void const*>& pointers) const
+  {
+    pointers.reserve(this->size());
+    for(const_iterator i=begin(), e=end(); i!=e; ++i)
+      pointers.push_back(&(*i));
+  }
+
+  template<typename CKey, typename CVal>
   inline void swap(AssociationVector<CKey, CVal> & a, AssociationVector<CKey, CVal> & b) {
     a.swap(b);
   }
+
+  //----------------------------------------------------------------------
+  //
+  // Free function template to support creation of Views.
+
+  template <typename CKey, typename CVal>
+  inline
+  void
+  fillView(AssociationVector<CKey,CVal> const& obj,
+	   std::vector<void const*>& pointers)
+  {
+    obj.fillView(pointers);
+  }
+
+  template <typename CKey, typename CVal>
+  struct has_fillView<edm::AssociationVector<CKey, CVal> >
+  {
+    static bool const value = true;
+  };
 
 #if ! GCC_PREREQUISITE(3,4,4)
   // has swap function

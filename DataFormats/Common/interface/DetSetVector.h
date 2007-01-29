@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.11 2006/10/30 23:07:52 wmtan Exp $
+$Id: DetSetVector.h,v 1.12 2007/01/23 00:25:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -169,6 +169,8 @@ namespace edm {
     /// This function will be called by the edm::Event after the
     /// DetSetVector has been inserted into the Event.
     void post_insert();
+
+    void fillView(std::vector<void const*>& pointers) const;
 
   private:
     collection_type   _sets;
@@ -364,6 +366,34 @@ namespace edm {
   DetSetVector<T>::_sort() {
     std::sort(_sets.begin(), _sets.end());
   }
+
+  template<class T>
+  void DetSetVector<T>::fillView(std::vector<void const*>& pointers) const
+  {
+    pointers.reserve(this->size());
+    for(const_iterator i=begin(), e=end(); i!=e; ++i)
+      pointers.push_back(&(*i));
+  }
+
+  //----------------------------------------------------------------------
+  //
+  // Free function template to support creation of Views.
+
+  template <class T>
+  inline
+  void
+  fillView(DetSetVector<T> const& obj,
+	   std::vector<void const*>& pointers)
+  {
+    obj.fillView(pointers);
+  }
+
+  template <class T>
+  struct has_fillView<edm::DetSetVector<T> >
+  {
+    static bool const value = true;
+  };
+
 
   // Free swap function
   template <class T>

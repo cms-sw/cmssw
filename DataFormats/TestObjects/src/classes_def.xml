@@ -4,8 +4,14 @@
  <class name="edmtest::DoubleProduct"/>
  <class name="edmtest::StringProduct"/>
  <class name="edmtest::Simple"/>
+ <class name="edmtest::Sortable"/>
+ <class name="edmtest::Unsortable"/>
  <class name="edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> >"/>
  <class name="edm::OwnVector<edmtest::Simple, edm::ClonePolicy<edmtest::Simple> >"/>
+ <class name="std::vector<edmtest::Simple>"/>
+ <class name="edm::AssociationVector<std::vector<edmtest::Simple>, std::vector<edmtest::Simple> >"/>
+ <class name="edm::DetSet<edmtest::Sortable>"/>
+ <class name="edm::DetSet<edmtest::Unsortable>"/>
  <class name="edm::DetSetVector<edmtest::Sortable>"/>
  <class name="edm::DetSetVector<edmtest::Unsortable>"/>
  <class name="edm::Wrapper<edmtest::DummyProduct>"/>
@@ -14,6 +20,7 @@
  <class name="edm::Wrapper<edmtest::StringProduct>"/>
  <class name="edm::Wrapper<edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> > >"/>
  <class name="edm::Wrapper<edm::OwnVector<edmtest::Simple, edm::ClonePolicy<edmtest::Simple> > >"/>
+ <class name="edm::Wrapper<edm::AssociationVector<std::vector<edmtest::Simple>, std::vector<edmtest::Simple> > >"/>
  <class name="edm::Wrapper<edm::DetSetVector<edmtest::Sortable> >"/>
  <class name="edm::Wrapper<edm::DetSetVector<edmtest::Unsortable> >"/>
  <class name="edmtest::Thing"/>

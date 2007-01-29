@@ -250,6 +250,52 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  // Produces AssociationVector<vector<Simple>, vector<Simple> > object
+  // This is used to test a View of an AssociationVector
+  //
+  class AVSimpleProducer : public edm::EDProducer {
+  public:
+
+    explicit AVSimpleProducer(edm::ParameterSet const& p) : 
+      size_(p.getParameter<int>("size")) 
+    {
+      produces<AVSimpleProduct>();
+      assert ( size_ > 1 );
+    }
+
+    explicit AVSimpleProducer(int i) : size_(i) 
+    {
+      produces<AVSimpleProduct>();
+      assert ( size_ > 1 );
+    }
+
+    virtual ~AVSimpleProducer() { }
+    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    
+  private:
+    int size_;  // number of Simple objects to put in the collection
+  };
+
+  void
+  AVSimpleProducer::produce(edm::Event& e, 
+                            const edm::EventSetup& /* unused */) 
+  {
+    // Fill up a collection
+    std::auto_ptr<AVSimpleProduct> p(new AVSimpleProduct());
+
+    for (int i = 0; i < size_; ++i)
+      {
+        edmtest::Simple simple;
+        simple.key = 100 + i;  // just some arbitrary number for testing
+        p->push_back(simple);
+      }
+
+    // Put the product into the Event
+    e.put(p);
+  }
+
+  //--------------------------------------------------------------------
+  //
   // Produces two products:
   //    DSVSimpelProduct
   //    DSVWeirdProduct
@@ -583,6 +629,7 @@ using edmtest::IntProducer;
 using edmtest::DoubleProducer;
 using edmtest::SCSimpleProducer;
 using edmtest::OVSimpleProducer;
+using edmtest::AVSimpleProducer;
 using edmtest::DSVProducer;
 using edmtest::IntTestAnalyzer;
 using edmtest::SCSimpleAnalyzer;
@@ -598,6 +645,7 @@ DEFINE_ANOTHER_FWK_MODULE(IntProducer);
 DEFINE_ANOTHER_FWK_MODULE(DoubleProducer);
 DEFINE_ANOTHER_FWK_MODULE(SCSimpleProducer);
 DEFINE_ANOTHER_FWK_MODULE(OVSimpleProducer);
+DEFINE_ANOTHER_FWK_MODULE(AVSimpleProducer);
 DEFINE_ANOTHER_FWK_MODULE(DSVProducer);
 DEFINE_ANOTHER_FWK_MODULE(IntTestAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(SCSimpleAnalyzer);

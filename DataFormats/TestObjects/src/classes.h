@@ -1,5 +1,6 @@
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
@@ -17,8 +18,9 @@ namespace { namespace {
   edm::Wrapper<edmtest::StringProduct> dummyw15;
   edm::Wrapper<edmtest::SCSimpleProduct> dummyw16;
   edm::Wrapper<edmtest::OVSimpleProduct> dummyw17;
-  edm::Wrapper<edmtest::DSVSimpleProduct> dummyw18;
-  edm::Wrapper<edmtest::DSVWeirdProduct> dummyw19;
+  edm::Wrapper<edmtest::AVSimpleProduct> dummyw18;
+  edm::Wrapper<edmtest::DSVSimpleProduct> dummyw19;
+  edm::Wrapper<edmtest::DSVWeirdProduct> dummyw20;
 
   edmtest::ThingCollection dummy1;
   edmtest::OtherThingCollection dummy2;
