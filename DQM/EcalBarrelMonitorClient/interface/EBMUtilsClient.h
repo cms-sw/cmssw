@@ -1,11 +1,11 @@
-// $Id: EBMUtilsClient.h,v 1.15 2006/07/17 21:39:10 dellaric Exp $
+// $Id: EBMUtilsClient.h,v 1.16 2007/01/28 10:21:29 dellaric Exp $
 
 /*!
   \file EBMUtilsClient.h
   \brief Ecal Barrel Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.15 $
-  \date $Date: 2006/07/17 21:39:10 $
+  \version $Revision: 1.16 $
+  \date $Date: 2007/01/28 10:21:29 $
 */
 
 #ifndef EBMUtilsClient_H
@@ -62,7 +62,7 @@ class EBMUtilsClient {
     return ret;
   }
 
-  /*! \fn static void resetHisto( const MonitorElement* me ) {
+  /*! \fn static void resetHisto( const MonitorElement* me )
       \brief Reset the ROOT object contained by the monitoring element
       \param me input Monitor Element
    */
@@ -75,6 +75,10 @@ class EBMUtilsClient {
     }
   }
 
+  /*! \fn static void printBadChannels( const T* qth )
+      \brief Print the bad channels associated to the quality test
+      \param me input QCriterionRoot
+   */
   template<class T> static void printBadChannels( const T* qth ) {
     std::vector<dqm::me_util::Channel> badChannels;
     if ( qth ) badChannels = qth->getBadChannels();
