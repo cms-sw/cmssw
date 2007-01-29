@@ -21,117 +21,113 @@
 #include "PhysicsTools/Utilities/interface/MinSelector.h"
 #include "PhysicsTools/CandAlgos/interface/ObjectShallowCloneSelector.h"
 
-namespace reco {
-  namespace modules {
+ extern const std::string massParamPrefix( "mass" );
 
-    extern const std::string massParamPrefix( "mass" );
+ /// select all tracks (just for test)
+ typedef ObjectSelector<
+           SingleElementCollectionSelector<
+             reco::TrackCollection, 
+             AnySelector<reco::Track> 
+           > 
+         > AnyTrackSelector;
 
-    /// select all tracks (just for test)
-    typedef ObjectSelector<
-              SingleElementCollectionSelector<
-                reco::TrackCollection, 
-                AnySelector<reco::Track> 
-              > 
-            > AnyTrackSelector;
+ /// select tracks above a give pt
+ typedef ObjectSelector<
+           SingleElementCollectionSelector<
+             reco::TrackCollection,
+             PtMinSelector<reco::Track>
+           >
+         > PtMinTrackSelector;
 
-    /// select tracks above a give pt
-    typedef ObjectSelector<
-              SingleElementCollectionSelector<
-                reco::TrackCollection,
-                PtMinSelector<reco::Track>
-              >
-            > PtMinTrackSelector;
+ /// select electrons above a give pt
+ typedef ObjectSelector<
+           SingleElementCollectionSelector<
+             reco::ElectronCollection,
+             PtMinSelector<reco::Electron> 
+           >
+         > PtMinElectronSelector;
 
-    /// select electrons above a give pt
-    typedef ObjectSelector<
-              SingleElementCollectionSelector<
-                reco::ElectronCollection,
-                PtMinSelector<reco::Electron> 
-              >
-            > PtMinElectronSelector;
+ /// select photons above a give Et
+ typedef ObjectSelector<
+           SingleElementCollectionSelector<
+             reco::PhotonCollection,
+             EtMinSelector<reco::Photon>
+           >
+         > EtMinPhotonSelector;
 
-    /// select photons above a give Et
-    typedef ObjectSelector<
-              SingleElementCollectionSelector<
-                reco::PhotonCollection,
-                EtMinSelector<reco::Photon>
-              >
-            > EtMinPhotonSelector;
+ /// select calo jets above a give Et
+ typedef ObjectSelector<
+           SingleElementCollectionSelector<
+             reco::CaloJetCollection,
+             EtMinSelector<reco::CaloJet>
+           >
+         > EtMinCaloJetSelector;
 
-    /// select calo jets above a give Et
-    typedef ObjectSelector<
-              SingleElementCollectionSelector<
-                reco::CaloJetCollection,
-                EtMinSelector<reco::CaloJet>
-              >
-            > EtMinCaloJetSelector;
+ /// select calo jets above a give Et 
+ /// storing a polymorphic collection of 
+ /// shallow clone candidates
+ typedef ObjectShallowCloneSelector<
+           SingleElementCollectionSelector<
+             reco::CaloJetCollection,
+             EtMinSelector<reco::CaloJet>,
+             edm::RefVector<reco::CaloJetCollection>
+           >
+         > EtMinCaloJetShallowCloneSelector;
 
-    /// select calo jets above a give Et 
-    /// storing a polymorphic collection of 
-    /// shallow clone candidates
-    typedef ObjectShallowCloneSelector<
-              SingleElementCollectionSelector<
-                reco::CaloJetCollection,
-                EtMinSelector<reco::CaloJet>,
-                edm::RefVector<reco::CaloJetCollection>
-              >
-            > EtMinCaloJetShallowCloneSelector;
-
-     /// select electrons above a give pt
-    typedef ObjectSelector<
-              SingleElementCollectionSelector<
-                reco::ElectronCollection,
+  /// select electrons above a give pt
+ typedef ObjectSelector<
+           SingleElementCollectionSelector<
+             reco::ElectronCollection,
 		AndSelector<
-  		  EtaRangeSelector<reco::Electron>,
-                  PtMinSelector<reco::Electron> 
-                >
-              >
-            > EtaPtMinElectronSelector;
+		  EtaRangeSelector<reco::Electron>,
+               PtMinSelector<reco::Electron> 
+             >
+           >
+         > EtaPtMinElectronSelector;
 
-    /// configurable single track selector
-    typedef ObjectSelector<
-              SingleElementCollectionSelector<
-                reco::TrackCollection, 
-                SingleObjectSelector<reco::Track> 
-              >
-            > ConfigTrackSelector;
+ /// configurable single track selector
+ typedef ObjectSelector<
+           SingleElementCollectionSelector<
+             reco::TrackCollection, 
+             SingleObjectSelector<reco::Track> 
+           >
+         > ConfigTrackSelector;
 
-    /// select the N tracks with highest pt
-    typedef ObjectSelector<
-              SortCollectionSelector<
-                reco::TrackCollection, 
+ /// select the N tracks with highest pt
+ typedef ObjectSelector<
+           SortCollectionSelector<
+             reco::TrackCollection, 
 		PtInverseComparator<reco::Track> 
-              > 
-            > LargestPtTrackSelector;
+           > 
+         > LargestPtTrackSelector;
 
-    /// select the N calo jets with highest Et
-    typedef ObjectSelector<
-              SortCollectionSelector<
-                reco::CaloJetCollection, 
+ /// select the N calo jets with highest Et
+ typedef ObjectSelector<
+           SortCollectionSelector<
+             reco::CaloJetCollection, 
 		EtInverseComparator<reco::CaloJet> 
-              > 
-            > LargestEtCaloJetSelector;
+           > 
+         > LargestEtCaloJetSelector;
 
-    /// select the N calo jets with highest Et
-    typedef ObjectShallowCloneSelector<
-              SortCollectionSelector<
-                reco::CaloJetCollection, 
-                EtInverseComparator<reco::CaloJet>,
-                edm::RefVector<reco::CaloJetCollection>
-              > 
-            > LargestEtCaloJetShallowCloneSelector;
+ /// select the N calo jets with highest Et
+ typedef ObjectShallowCloneSelector<
+           SortCollectionSelector<
+             reco::CaloJetCollection, 
+             EtInverseComparator<reco::CaloJet>,
+             edm::RefVector<reco::CaloJetCollection>
+           > 
+         > LargestEtCaloJetShallowCloneSelector;
 
-    /// select track pairs within a given mass window
-    typedef ObjectSelector<
-              ObjectPairCollectionSelector<
-                reco::TrackCollection, 
-                RangeObjectPairSelector<
-                  reco::Track,
-                  MasslessInvariantMass<reco::Track>,
-                  massParamPrefix
-                >
-              >
-            > MassWindowTrackSelector;
-  }
-}
+ /// select track pairs within a given mass window
+ typedef ObjectSelector<
+           ObjectPairCollectionSelector<
+             reco::TrackCollection, 
+             RangeObjectPairSelector<
+               reco::Track,
+               MasslessInvariantMass<reco::Track>,
+               massParamPrefix
+             >
+           >
+         > MassWindowTrackSelector;
+
 #endif

@@ -7,17 +7,14 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.22 2006/10/06 12:24:39 walten Exp $
+ * \version $Id: Vertex.h,v 1.20 2006/09/17 13:25:11 vanlaer Exp $
  *
  */
 #include <Rtypes.h>
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
-// #include "DataFormats/Common/interface/OneToValue.h"
 #include <iostream>
 
 namespace reco {
@@ -43,15 +40,13 @@ namespace reco {
     /// constructor from values
     Vertex( const Point &, const Error &, double chi2, double ndof, size_t size );
     /// add a reference to a Track
-    void add( const TrackRef & r, double w=1.0 );
-    void removeTracks();
-    double trackWeight ( const TrackRef & r ) const;
+    void add( const TrackRef & r ) { tracks_.push_back( r ); }
     /// first iterator over tracks
-    track_iterator tracks_begin() const;
+    track_iterator tracks_begin() const { return tracks_.begin(); }
     /// last iterator over tracks
-    track_iterator tracks_end() const;
+    track_iterator tracks_end() const { return tracks_.end(); }
     /// number of tracks
-    size_t tracksSize() const;
+    size_t tracksSize() const { return tracks_.size(); }
     /// chi-squares
     double chi2() const { return chi2_; }
     /** Number of degrees of freedom
@@ -83,6 +78,17 @@ namespace reco {
 		<< std::endl;
       return covariance_[ idx( i, j ) ]; 
     }
+    /// (i, j)-th element of error matrix, i, j = 0, ... 2
+    double & error( int i, int j ) { 
+      std::cout << "reco::Vertex::error(i, j) & NON-CONST, use covariance(i, j)"
+		<< std::endl;
+      return covariance_[ idx( i, j ) ]; 
+    }
+    /// (i, j)-th element of error matrix, i, j = 0, ... 2
+    double & covariance( int i, int j ) {
+      std::cout << "reco::Vertex::covariance(i, j) & NON-CONST, use covariance(i, j)" << std::endl;
+      return covariance_[ idx( i, j ) ];
+    }
     double covariance( int i, int j ) const { 
       return covariance_[ idx( i, j ) ]; 
     }
@@ -94,9 +100,6 @@ namespace reco {
     void fill( CovarianceMatrix & v ) const;
 
   private:
-    void createTracks() const;
-
-  private:
     /// chi-sqared
     Double32_t chi2_;
     /// number of degrees of freedom
@@ -106,8 +109,7 @@ namespace reco {
     /// covariance matrix (3x3) as vector
     Double32_t covariance_[ size ];
     /// reference to tracks
-    mutable TrackRefVector tracks_;
-    edm::AssociationMap< edm::OneToValue<reco::TrackCollection, double> > weights_;
+    TrackRefVector tracks_;
     /// position index
     index idx( index i, index j ) const {
       int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );

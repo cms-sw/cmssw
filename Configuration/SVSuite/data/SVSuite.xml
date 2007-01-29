@@ -21,7 +21,7 @@
 	           RecoEgamma_pho_E50.cfg
 	     </Test>
           </Validate>
-
+	  
           <Validate Version="Default-Slow">
 	     <Test Events="5000" Name="SVSuiteRecoEGamma-ElePt100">
 	        RecoEgamma_ele_pt100.cfg
@@ -43,6 +43,9 @@
 	     </Test>
 	     <Test Events="1000" Name="SVsuiteRecoMET-ZjetsDimuons">
 	        RecoMET_Zjets_Dimuons_300-380.cfg
+	     </Test>
+	     <Test Events="1000" Name="SVSuiteRecoTau-DiTaus">
+	        RecoTau_DiTaus_pt_20-420.cfg
 	     </Test>
           </Validate>
 

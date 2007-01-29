@@ -28,11 +28,6 @@ class EventMsgView
 {
 public:
 
-  //Don't use THIS CTOR any more, its here for backward compatability only.
-  EventMsgView(void* buf, uint32 hlt_bit_cnt, uint32 l1_bit_cnt);
-
-
-  //Only THIS CTOR is supposed to be used.
   EventMsgView(void* buf);
 
   uint32 code() const { return head_.code(); }

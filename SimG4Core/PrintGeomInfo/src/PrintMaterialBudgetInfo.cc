@@ -35,9 +35,15 @@ PrintMaterialBudgetInfo::PrintMaterialBudgetInfo(const edm::ParameterSet& p) {
   name.assign(name,0,nchar);
   std::cout << "PrintMaterialBudget selected volume " << name << std::endl;
   volumeFound = false;
-  std::string fileName = name+".weight";
-  outputFile.open( fileName.c_str() );
-  std::cout << "PrintMaterialBudget output file " << fileName << std::endl;
+  std::string weightFileName = name+".weight";
+  weightOutputFile.open( weightFileName.c_str() );
+  std::string elementFileName = name+".element";
+  elementOutputFile.open( elementFileName.c_str() );
+  std::cout << "PrintMaterialBudget output file " << weightFileName  << std::endl;
+  std::cout << "PrintMaterialBudget output file " << elementFileName << std::endl;
+  elementNames.clear();
+  elementTotalWeight.clear();
+  elementWeightFraction.clear();
 }
 
 PrintMaterialBudgetInfo::~PrintMaterialBudgetInfo() {}
@@ -49,9 +55,19 @@ void PrintMaterialBudgetInfo::update(const BeginOfRun* run) {
   // Logical Volume
   G4LogicalVolume*  lv = theTopPV->GetLogicalVolume();
   uint leafDepth = 0;
-  //
-  dumpHeader(outputFile);
-  dumpHierarchyLeaf(theTopPV, lv, leafDepth, outputFile);
+  // the first time fill the vectors of elements
+  if( elementNames.size()==0 && elementTotalWeight.size()==0 && elementWeightFraction.size()==0) {
+    for(unsigned int iElement = 0;
+	iElement < lv->GetMaterial()->GetElement(iElement)->GetElementTable()->size();
+	iElement++) { // first element in table is 0
+      elementNames.push_back("rr");
+      elementTotalWeight.push_back(0);
+      elementWeightFraction.push_back(0);
+    }
+  }
+  dumpHeader(weightOutputFile);
+  dumpHierarchyLeaf(theTopPV, lv, leafDepth, weightOutputFile);
+  dumpElementMassFraction(elementOutputFile);
   //
 }
 
@@ -75,10 +91,11 @@ void PrintMaterialBudgetInfo::dumpHeader(std::ostream& out ) {
 }
 
 void PrintMaterialBudgetInfo::dumpHierarchyLeaf(G4VPhysicalVolume* pv, G4LogicalVolume* lv,
-						uint leafDepth, std::ostream& out           ) {
+						uint leafDepth,
+						std::ostream& weightOut = std::cout) {
   
   if( volumeFound && ( leafDepth <= levelFound ) ) return; 
-  if( volumeFound && ( leafDepth >  levelFound ) ) printInfo(pv, lv, leafDepth, out);
+  if( volumeFound && ( leafDepth >  levelFound ) ) printInfo(pv, lv, leafDepth, weightOut);
   
   // choose mother volume
   std::string lvname = lv->GetName();
@@ -86,7 +103,7 @@ void PrintMaterialBudgetInfo::dumpHierarchyLeaf(G4VPhysicalVolume* pv, G4Logical
   if (lvname == name) {
     volumeFound = true;
     levelFound  = leafDepth;
-    printInfo(pv, lv, leafDepth, out);
+    printInfo(pv, lv, leafDepth, weightOut);
   }
   
   //----- Get LV daughters from list of PV daughters
@@ -108,15 +125,16 @@ void PrintMaterialBudgetInfo::dumpHierarchyLeaf(G4VPhysicalVolume* pv, G4Logical
     std::pair< mmlvpv::iterator, mmlvpv::iterator > mmER = lvpvDaughters.equal_range(*scite);    
     //----- Dump daughters PV of this LV
     for (mmcite = mmER.first ; mmcite != mmER.second; mmcite++) 
-      dumpHierarchyLeaf((*mmcite).second, *scite, leafDepth+1, out );
+      dumpHierarchyLeaf((*mmcite).second, *scite, leafDepth+1, weightOut );
   }
   
 }
 
-void PrintMaterialBudgetInfo::printInfo(G4VPhysicalVolume* pv, G4LogicalVolume* lv, uint leafDepth, std::ostream & out) {
+void PrintMaterialBudgetInfo::printInfo(G4VPhysicalVolume* pv, G4LogicalVolume* lv, uint leafDepth,
+					std::ostream& weightOut = std::cout) {
   
   double density = lv->GetMaterial()->GetDensity();
-  double weight  = lv->GetMass();
+  double weight  = lv->GetMass(false,false);
   
   std::string volumeName = lv->GetName();
   if(volumeName.size()<8) volumeName.append("\t");
@@ -128,12 +146,57 @@ void PrintMaterialBudgetInfo::printInfo(G4VPhysicalVolume* pv, G4LogicalVolume* 
   if(materialName.size()<8) materialName.append("\t");
   
   //----- dump info 
-  out << leafDepth                                            << "\t"
-      << volumeName                                           << "\t"
-      << pv->GetCopyNo()                                      << "\t"
-      << solidName                                            << "\t"
-      << materialName                                         << "\t"
-      << G4BestUnit(density,"Volumic Mass")                   << "\t"
-      << G4BestUnit(weight,"Mass")                            << "\t"
-      << std::endl;
+  weightOut << leafDepth                                            << "\t"
+	    << volumeName                                           << "\t"
+	    << pv->GetCopyNo()                                      << "\t"
+	    << solidName                                            << "\t"
+	    << materialName                                         << "\t"
+	    << G4BestUnit(density,"Volumic Mass")                   << "\t"
+	    << G4BestUnit(weight,"Mass")                            << "\t"
+	    << std::endl;
+  for(unsigned int iElement = 0; iElement<(unsigned int)lv->GetMaterial()->GetNumberOfElements(); iElement++) {
+    // exclude Air in element weight fraction computation
+    if(materialName.find("Air")) {
+      std::string elementName = lv->GetMaterial()->GetElement(iElement)->GetName();
+      double elementMassFraction = lv->GetMaterial()->GetFractionVector()[iElement];
+      double elementWeight = weight*elementMassFraction;
+      unsigned int elementIndex = (unsigned int)lv->GetMaterial()->GetElement(iElement)->GetIndex();
+      elementNames[elementIndex]        = elementName;
+      elementTotalWeight[elementIndex] += elementWeight;
+    }
+  }
+}
+
+void PrintMaterialBudgetInfo::dumpElementMassFraction(std::ostream& elementOut = std::cout ) {
+  // calculate mass fraction
+  double totalWeight   = 0.0;
+  double totalFraction = 0.0;
+  for(unsigned int iElement = 0; iElement<(unsigned int)elementTotalWeight.size(); iElement++) {
+    totalWeight+=elementTotalWeight[iElement];
+  }
+  // calculate element mass fractions
+  for(unsigned int iElement = 0; iElement<(unsigned int)elementTotalWeight.size(); iElement++) {
+    elementWeightFraction[iElement] = elementTotalWeight[iElement]/totalWeight;
+    totalFraction+=elementWeightFraction[iElement];
+  }
+  // header
+  elementOut << "Element"        << "\t\t"
+	     << "Index"          << "\t"
+	     << "Total Mass"     << "\t"
+	     << "Mass Fraction " << "\t"
+	     << std::endl;
+  // dump
+  for(unsigned int iElement = 0; iElement<(unsigned int)elementTotalWeight.size(); iElement++) {
+    if(elementNames[iElement]!="rr") {
+      if(elementNames[iElement].size()<8) elementNames[iElement].append("\t");
+      elementOut << elementNames[iElement]                          << "\t"
+		 << iElement                                        << "\t"
+		 << G4BestUnit(elementTotalWeight[iElement],"Mass") << "\t"
+		 << elementWeightFraction[iElement]
+		 << std::endl;
+    }
+  }
+  elementOut << "\n\t\tTotal Weight without Air " << G4BestUnit(totalWeight,"Mass")
+	     << "\tTotal Fraction "   << totalFraction
+	     << std::endl;
 }

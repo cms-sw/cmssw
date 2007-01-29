@@ -179,6 +179,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
         }
       }
     }
+
+    tp.setMatchedHit(totsimhit);
    
     tp.addG4Track(*itP);
     if (genPart >= 0) {

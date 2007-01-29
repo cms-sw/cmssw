@@ -15,9 +15,6 @@
 #include "CLHEP/Matrix/SymMatrix.h"
 //#include "CLHEP/Matrix/Matrix.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecAbsAlgo.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include <vector>
 #include <string>
 
@@ -204,10 +201,9 @@ template<class C> float EcalUncalibRecHitFixedAlphaBetaAlgo<C>::PerformAnalyticF
   if (num_fit_min<0) num_fit_min = 0 ; 
   //if (num_fit_max>=fNsamples-1) num_fit_max = fNsamples-2 ;
   if (num_fit_max>= C::MAXSAMPLES ) {num_fit_max = C::MAXSAMPLES-1 ;}
-
+  //
   if(fAmp_max_ < 8.) {
-    LogDebug("EcalUncalibRecHitFixedAlphaBetaAlgo")<<"amplitude less than 8 ADC counts, no fit performed"; return -1;
-    return -1;
+    std::cout<<"amplitude less than 8 ADC counts, no fit performed"<<std::endl; return -1;
   }
 
   double func,delta ;

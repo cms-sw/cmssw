@@ -11,8 +11,6 @@
 #include <vector>
 #include <string>
 
-class StripTopology;
-
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 
@@ -27,12 +25,10 @@ class RPCRollSpecs : public GeomDetType {
 
   const Topology& topology() const;
 
-  const StripTopology& specificTopology() const;
-
   const std::string& detName() const;
 
  private:
-  StripTopology* _top;
+  Topology* _top;
   std::vector<float> _p;
   std::string _n;
 

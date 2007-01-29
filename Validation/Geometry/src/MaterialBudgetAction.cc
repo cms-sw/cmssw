@@ -90,22 +90,21 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
     saveToTxt = false;
   }
   
+  //---- Compute all the steps even if not stored on file
+  bool allSteps = m_Anal.getParameter<bool>("AllStepsToTree");  
+  std::cout << "TestGeometry: all steps are computed " << allSteps << std::endl;
+  if( allSteps ) theData->SetAllStepsToTree();
+  
   //---- Save tree to ROOT file
   std::string saveToTreeFile = m_Anal.getParameter<std::string>("TreeFile");
   //  std::string saveToTreeFile = ""; 
   if( saveToTreeFile != "None" ) {
     saveToTree = true;
-    std::cout << "TestGeometry: saving ROOT TREE to " << saveToTreeFile << std::endl;
-    
-    bool allSteps = m_Anal.getParameter<bool>("AllStepsToTree");  
-    std::cout << "TestGeometry: all steps to ROOT TREE " << allSteps << std::endl;
-    if( allSteps ) theData->SetAllStepsToTree();
-    
     theTree = new MaterialBudgetTree( theData, saveToTreeFile );
-    
   } else {
     saveToTree = false;
   }
+  std::cout << "TestGeometry: saving ROOT TREE to " << saveToTreeFile << std::endl;
   
 }
 
