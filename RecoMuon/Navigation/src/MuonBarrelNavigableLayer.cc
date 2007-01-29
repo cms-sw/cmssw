@@ -2,8 +2,8 @@
  *
  *  Navigable layer for Barrel Muon 
  *
- *  $Date: 2007/01/18 13:28:37 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/01/23 18:18:36 $
+ *  $Revision: 1.10 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -14,7 +14,7 @@
  * which returns ALL DetLayers that are compatible with a given DetLayer.
  *  
  */
- 
+
 #include "RecoMuon/Navigation/interface/MuonBarrelNavigableLayer.h"
 
 /* Collaborating Class Header */
@@ -30,9 +30,9 @@
 using namespace std;
 std::vector<const DetLayer*> 
 MuonBarrelNavigableLayer::nextLayers(NavigationDirection dir) const {
-
+  
   std::vector<const DetLayer*> result;
-
+  
   if ( dir == insideOut ) {
     pushResult(result, theOuterBarrelLayers);
     pushResult(result, theOuterBackwardLayers);
@@ -44,7 +44,7 @@ MuonBarrelNavigableLayer::nextLayers(NavigationDirection dir) const {
     pushResult(result, theInnerBackwardLayers);
     pushResult(result, theInnerForwardLayers);
   }
-
+  
   result.reserve(result.size());
   return result;
 
@@ -57,7 +57,7 @@ MuonBarrelNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
 
   std::vector<const DetLayer*> result;
 
-  if ( (insideOut(fts) && dir == alongMomentum) || ( !insideOut(fts) && dir == oppositeToMomentum)) {
+  if ( (isInsideOut(fts) && dir == alongMomentum) || ( !isInsideOut(fts) && dir == oppositeToMomentum)) {
     pushResult(result, theOuterBarrelLayers, fts);
     pushResult(result, theOuterBackwardLayers, fts);
     pushResult(result, theOuterForwardLayers, fts);
@@ -98,7 +98,7 @@ MuonBarrelNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
                                      PropagationDirection dir) const {
   std::vector<const DetLayer*> result;
 
-  if ( (insideOut(fts) && dir == alongMomentum) || ( !insideOut(fts) && dir == oppositeToMomentum)) {
+  if ( (isInsideOut(fts) && dir == alongMomentum) || ( !isInsideOut(fts) && dir == oppositeToMomentum)) {
     pushCompatibleResult(result, theAllOuterBarrelLayers, fts);
     pushCompatibleResult(result, theAllOuterBackwardLayers, fts);
     pushCompatibleResult(result, theAllOuterForwardLayers, fts);

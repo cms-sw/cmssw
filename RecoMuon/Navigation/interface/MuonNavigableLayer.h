@@ -7,8 +7,8 @@
  *  trackingRange defines an MuonEtaRange for an FTS, 
  *  which is used for search compatible DetLayers.
  *
- * $Date: 2007/01/18 13:28:36 $
- * $Revision: 1.6 $
+ * $Date: 2007/01/23 18:09:02 $
+ * $Revision: 1.7 $
  *
  * \author : Chang Liu - Purdue University <Chang.Liu@cern.ch>
  *
@@ -50,7 +50,7 @@ class MuonNavigableLayer : public NavigableLayer {
 
     MuonEtaRange trackingRange(const FreeTrajectoryState& fts) const;
 
-    bool insideOut(const FreeTrajectoryState& fts) const;
+    bool isInsideOut(const FreeTrajectoryState& fts) const;
 
 };
 #endif

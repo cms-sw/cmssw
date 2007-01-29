@@ -2,8 +2,8 @@
  *
  *  Navigable layer for Forward Muon
  *
- * $Date: 2007/01/18 13:28:37 $
- * $Revision: 1.8 $
+ * $Date: 2007/01/23 18:18:41 $
+ * $Revision: 1.9 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -54,7 +54,7 @@ MuonForwardNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
   vector<const DetLayer*> result;
   vector<const DetLayer*> barrel;
 
-  if ( (insideOut(fts) && dir == alongMomentum) || ( !insideOut(fts) && dir == oppositeToMomentum)) {
+  if ( (isInsideOut(fts) && dir == alongMomentum) || ( !isInsideOut(fts) && dir == oppositeToMomentum)) {
     pushResult(result, theOuterEndcapLayers, fts);
   }
   else {
@@ -97,7 +97,7 @@ MuonForwardNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
   vector<const DetLayer*> result;
   vector<const DetLayer*> barrel;
   
-  if ( (insideOut(fts) && dir == alongMomentum) || ( !insideOut(fts) && dir == oppositeToMomentum)) {
+  if ( (isInsideOut(fts) && dir == alongMomentum) || ( !isInsideOut(fts) && dir == oppositeToMomentum)) {
     pushCompatibleResult(result, theAllOuterEndcapLayers, fts);
   }
   else {
