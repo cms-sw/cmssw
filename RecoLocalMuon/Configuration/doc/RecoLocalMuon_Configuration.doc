@@ -22,9 +22,11 @@
 
 \subsection seq Sequences
 
-- \b dtlocalreco : sequence to perform DT local reconstruction. 
+- \b dtlocalreco : sequence to perform DT local reconstruction. This sequence is used in the standard reconstruction chain. The reconstruction of the 2D segments are not required for the 4D segments reconstruction, they are used only for debuging purpose and for specific studies.
+- \b dtlocalreco_with_2DSegments : sequence to perform DT local reconstruction and the 2D segments reconstruction.
 - \b csclocalreco : sequence to perform CSC local reconstruction. 
-- \b muonlocalreco : sequence to perform DT, CSC and RPC local reconstruction. 
+- \b muonlocalreco_with_2DSegments : sequence to perform DT, CSC and RPC local reconstruction (debuging purpose and specific studies).
+- \b muonlocalreco : sequence to perform DT, CSC and RPC local reconstruction (sequence to be used for the standard reconstruction chain).
 
 The RPC local reconstruction doesn't need a sequence. To perform only the RPC reconstruction just use rpcRecHits in
 the execution's path.
