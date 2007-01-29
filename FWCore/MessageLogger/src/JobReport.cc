@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.13 2006/12/18 18:42:50 evansde Exp $
+// $Id: JobReport.cc,v 1.15 2007/01/29 02:07:24 elmer Exp $
 //
 
 
@@ -269,11 +269,11 @@ namespace edm
     }
   
     void
-    JobReport::eventReadFromFile(JobReport::Token fileToken, edm::EventID const& id)
+    JobReport::eventReadFromFile(JobReport::Token fileToken, unsigned int run, unsigned int)
     {
       JobReport::InputFile& f = impl_->getInputFileForToken(fileToken);
       f.numEventsRead++;
-      f.runsSeen.insert(id.run());
+      f.runsSeen.insert(run);
     }
 
     void
@@ -336,11 +336,11 @@ namespace edm
     }
 
     void
-    JobReport::eventWrittenToFile(JobReport::Token fileToken, edm::EventID const& id)
+    JobReport::eventWrittenToFile(JobReport::Token fileToken, unsigned int run, unsigned int)
     {
       JobReport::OutputFile& f = impl_->getOutputFileForToken(fileToken);
       f.numEventsWritten++;
-      f.runsSeen.insert(id.run());
+      f.runsSeen.insert(run);
     }
 
 
@@ -388,11 +388,11 @@ namespace edm
     }
 
     void 
-    JobReport::reportSkippedEvent(edm::EventID const& id)
+    JobReport::reportSkippedEvent(unsigned int run, unsigned int event)
     {
       std::ostringstream msg;
-      msg << "<SkippedEvent Run=\"" << id.run() << "\"";
-      msg << " Event=\"" << id.event() << "\" />\n";
+      msg << "<SkippedEvent Run=\"" << run << "\"";
+      msg << " Event=\"" << event << "\" />\n";
       LogInfo("FwkJob") << msg.str();
     }
 
