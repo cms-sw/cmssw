@@ -19,6 +19,8 @@ public:
   typedef std::pair<const_iterator,const_iterator> range;
   
   BasicTrajectorySeed() { }
+
+  virtual BasicTrajectorySeed* clone () const = 0;
   
   // returns the recHits
   
