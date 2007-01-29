@@ -1,0 +1,7 @@
+  ##   Script to compare two .root files with histograms
+ 
+  ## Define file (REFFILE) where histos to be divided are
+  setenv REFFILE ./DTDigiPlots.root
+
+  root -b -p -q DoCompareandDivide.C
+
