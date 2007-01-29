@@ -1,11 +1,11 @@
-// $Id: EBMUtilsClient.h,v 1.16 2007/01/28 10:21:29 dellaric Exp $
+// $Id: EBMUtilsClient.h,v 1.17 2007/01/29 06:45:25 dellaric Exp $
 
 /*!
   \file EBMUtilsClient.h
   \brief Ecal Barrel Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.16 $
-  \date $Date: 2007/01/28 10:21:29 $
+  \version $Revision: 1.17 $
+  \date $Date: 2007/01/29 06:45:25 $
 */
 
 #ifndef EBMUtilsClient_H
@@ -75,7 +75,7 @@ class EBMUtilsClient {
     }
   }
 
-  /*! \fn static void printBadChannels( const T* qth )
+  /*! \fn template<class T> static void printBadChannels( const T* qth )
       \brief Print the bad channels associated to the quality test
       \param me input QCriterionRoot
    */
@@ -100,6 +100,12 @@ class EBMUtilsClient {
       }
       std::cout << std::endl;
     }
+  }
+
+  /*! \fn static bool getBinStats( const T* h, const int ix, const int iy, float& num, float& mean, flost& rms )
+   */
+  template<class T> static bool getBinStats( const T* h, const int ix, const int iy, float& num, float& mean, flost& rms ) {
+
   }
 
  protected:
