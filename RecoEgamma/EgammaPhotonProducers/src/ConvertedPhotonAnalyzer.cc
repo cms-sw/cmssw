@@ -73,11 +73,11 @@ void ConvertedPhotonAnalyzer::beginJob( const edm::EventSetup& )
   //// Reconstructed Converted photons
   h_scE_ = new TH1F("scE","Uncorrected converted photons : SC Energy ",100,0., 200.);
   h_scEta_ = new TH1F("scEta","Uncorrected converted photons:  SC Eta ",40,-3., 3.);
-  h_scPhi_ = new TH1F("scPhi","Uncorrected converted photons: SC Phi ",40,0., 6.28);
+  h_scPhi_ = new TH1F("scPhi","Uncorrected converted photons: SC Phi ",40, -3.14, 3.14);
   //
   h_phoE_ = new TH1F("phoE","Uncorrected converted photons :  Energy ",100,0., 200.);
   h_phoEta_ = new TH1F("phoEta","Uncorrected converted photons:   Eta ",40,-3., 3.);
-  h_phoPhi_ = new TH1F("phoPhi","Uncorrected converted photons:  Phi ",40,0., 6.28);
+  h_phoPhi_ = new TH1F("phoPhi","Uncorrected converted photons:  Phi ",40,  -3.14, 3.14);
   
    //// Reconstructed OutIn Tracks
   h_OItk_inPt_ = new TH1F("OItkinPt","OutIn Tracks Pt ",100,0., 100.);
