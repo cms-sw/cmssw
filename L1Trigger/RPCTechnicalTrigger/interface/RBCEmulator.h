@@ -11,5 +11,8 @@ class RBCEmulator{
   RBCOutputSignalContainer triggers();
  private:
   RBCLogic* l;
+
 };
+
 #endif
+
