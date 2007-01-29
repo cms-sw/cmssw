@@ -6,7 +6,7 @@
 //     <Notes on implementation>
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.4 2007/01/24 14:45:01 dkcira Exp $
+// $Id: SiStripDetCabling.cc,v 1.5 2007/01/29 15:24:35 dkcira Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -167,8 +167,6 @@ const uint16_t SiStripDetCabling::nApvPairs(uint32_t det_id) const{
 }
 
 
-
-
 void SiStripDetCabling::addConnected ( std::map<uint32_t, std::vector<int> > & map_to_add_to) const{ // map of detector to list of APVs for APVs seen from FECs and FEDs
   addFromSpecificConnection(map_to_add_to, connected_);
 }
@@ -196,6 +194,7 @@ void SiStripDetCabling::addFromSpecificConnection( std::map<uint32_t, std::vecto
     vector<int> new_apv_vector = conn_it->second;
     std::map<uint32_t, std::vector<int> >::iterator it = map_to_add_to.find(new_detid);
     if( it == map_to_add_to.end() ){ // detid does not exist in map, add new entry
+         std::sort(new_apv_vector.begin(),new_apv_vector.end()); // not very efficient sort, time consuming?
          map_to_add_to.insert(std::make_pair(new_detid,new_apv_vector));
     }else{                    // detid exists already, add to its vector - if its not there already . . .
       vector<int> existing_apv_vector = it->second;
@@ -209,6 +208,7 @@ void SiStripDetCabling::addFromSpecificConnection( std::map<uint32_t, std::vecto
         }
         if( ! there_already ){
           existing_apv_vector.push_back(*inew);   
+          std::sort(existing_apv_vector.begin(),existing_apv_vector.end()); // not very efficient sort, time consuming?
         }else{
           edm::LogWarning("Logical") << "apv "<<*inew<<" already exists in the detector module "<<new_detid;
         }
