@@ -1,10 +1,10 @@
-#include "L1Trigger/RBCEmulator/interface/RBCEmulator.h"
-#include "L1Trigger/RBCEmulator/interface/RBCOutputSignalContainer.h"
-#include "L1Trigger/RBCEmulator/interface/RBCOutputSignal.h"
-#include "L1Trigger/RBCEmulator/interface/RBCPolicy.h"
-#include "L1Trigger/RBCEmulator/src/RBCLogic.h"
-#include "L1Trigger/RBCEmulator/src/RBCPatternLogic.h"
-#include "L1Trigger/RBCEmulator/src/RBCChamberORLogic.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCEmulator.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCOutputSignalContainer.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCOutputSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCPolicy.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/RBCLogic.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/RBCPatternLogic.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/RBCChamberORLogic.h"
 
 
 RBCEmulator::
