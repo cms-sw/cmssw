@@ -1,5 +1,4 @@
 #include <iostream>
-using namespace std;
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
