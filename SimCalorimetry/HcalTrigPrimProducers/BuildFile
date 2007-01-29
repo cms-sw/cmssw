@@ -1,0 +1,18 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=SimCalorimetry/HcalTrigPrimAlgos>
+<use name=SimDataFormats/CrossingFrame>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/HcalTowerAlgo>
+<flags SEAL_PLUGIN_NAME="SimCalorimetryHcalTrigPrimProducers">
+<export>
+   <lib name=SimCalorimetryHcalTrigPrimProducers>
+   <use name=SimCalorimetry/HcalTrigPrimAlgos>
+   <use name=SimDataFormats/CrossingFrame>
+   <use name=Geometry/CaloEventSetup>
+   <use name=Geometry/HcalTowerAlgo>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+</export>
