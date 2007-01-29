@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/27 21:01:39 $
- * $Revision: 1.129 $
+ * $Date: 2007/01/28 10:21:30 $
+ * $Revision: 1.130 $
  * \author G. Della Ricca
  *
 */
@@ -119,14 +119,14 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
     i07_[ism-1] = 0;
     i08_[ism-1] = 0;
 
-    j01_[ism-1] = 0;
-    j02_[ism-1] = 0;
-    j03_[ism-1] = 0;
-    j04_[ism-1] = 0;
-    j05_[ism-1] = 0;
-    j06_[ism-1] = 0;
-    j07_[ism-1] = 0;
-    j08_[ism-1] = 0;
+    i09_[ism-1] = 0;
+    i10_[ism-1] = 0;
+    i11_[ism-1] = 0;
+    i12_[ism-1] = 0;
+    i13_[ism-1] = 0;
+    i14_[ism-1] = 0;
+    i15_[ism-1] = 0;
+    i16_[ism-1] = 0;
 
   }
 
@@ -699,14 +699,14 @@ void EBLaserClient::cleanup(void) {
       if ( i07_[ism-1] ) delete i07_[ism-1];
       if ( i08_[ism-1] ) delete i08_[ism-1];
 
-      if ( j01_[ism-1] ) delete j01_[ism-1];
-      if ( j02_[ism-1] ) delete j02_[ism-1];
-      if ( j03_[ism-1] ) delete j03_[ism-1];
-      if ( j04_[ism-1] ) delete j04_[ism-1];
-      if ( j05_[ism-1] ) delete j05_[ism-1];
-      if ( j06_[ism-1] ) delete j06_[ism-1];
-      if ( j07_[ism-1] ) delete j07_[ism-1];
-      if ( j08_[ism-1] ) delete j08_[ism-1];
+      if ( i09_[ism-1] ) delete i09_[ism-1];
+      if ( i10_[ism-1] ) delete i10_[ism-1];
+      if ( i11_[ism-1] ) delete i11_[ism-1];
+      if ( i12_[ism-1] ) delete i12_[ism-1];
+      if ( i13_[ism-1] ) delete i13_[ism-1];
+      if ( i14_[ism-1] ) delete i14_[ism-1];
+      if ( i15_[ism-1] ) delete i15_[ism-1];
+      if ( i16_[ism-1] ) delete i16_[ism-1];
     }
 
     h01_[ism-1] = 0;
@@ -756,14 +756,14 @@ void EBLaserClient::cleanup(void) {
     i07_[ism-1] = 0;
     i08_[ism-1] = 0;
 
-    j01_[ism-1] = 0;
-    j02_[ism-1] = 0;
-    j03_[ism-1] = 0;
-    j04_[ism-1] = 0;
-    j05_[ism-1] = 0;
-    j06_[ism-1] = 0;
-    j07_[ism-1] = 0;
-    j08_[ism-1] = 0;
+    i09_[ism-1] = 0;
+    i10_[ism-1] = 0;
+    i11_[ism-1] = 0;
+    i12_[ism-1] = 0;
+    i13_[ism-1] = 0;
+    i14_[ism-1] = 0;
+    i15_[ism-1] = 0;
+    i16_[ism-1] = 0;
 
   }
 
@@ -895,170 +895,49 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   MonLaserRedDat apd_rd;
   map<EcalLogicID, MonLaserRedDat> dataset1_rd;
 
-  const float n_min_tot = 1000.;
-  const float n_min_bin = 50.;
-
-  float num01, num02, num03, num04, num05, num06, num07, num08;
-  float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
-  float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
-
   for ( int ie = 1; ie <= 85; ie++ ) {
     for ( int ip = 1; ip <= 20; ip++ ) {
 
-      num01  = num02  = num03  = num04  = num05  = num06  = num07  = num08  = -1.;
-      mean01 = mean02 = mean03 = mean04 = mean05 = mean06 = mean07 = mean08 = -1.;
-      rms01  = rms02  = rms03  = rms04  = rms05  = rms06  = rms07  = rms08  = -1.;
+      bool update01;
+      bool update02;
+      bool update03;
+      bool update04;
+      bool update05;
+      bool update06;
+      bool update07;
+      bool update08;
 
-      bool update_channel1 = false;
-      bool update_channel2 = false;
-      bool update_channel3 = false;
-      bool update_channel4 = false;
+      float num01, num02, num03, num04, num05, num06, num07, num08;
+      float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
+      float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
 
-      if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
-        num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
-        if ( num01 >= n_min_bin ) {
-          mean01 = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-          rms01  = h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie, ip));
-          update_channel1 = true;
-        }
-      }
+      update01 = EBMUtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+      update02 = EBMUtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
+      update03 = EBMUtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+      update04 = EBMUtilsClient::getBinStats(h04_[ism-1], ie, ip, num04, mean04, rms04);
+      update05 = EBMUtilsClient::getBinStats(h05_[ism-1], ie, ip, num05, mean05, rms05);
+      update06 = EBMUtilsClient::getBinStats(h06_[ism-1], ie, ip, num06, mean06, rms06);
+      update07 = EBMUtilsClient::getBinStats(h07_[ism-1], ie, ip, num07, mean07, rms07);
+      update08 = EBMUtilsClient::getBinStats(h08_[ism-1], ie, ip, num08, mean08, rms08);
 
-      if ( h02_[ism-1] && h02_[ism-1]->GetEntries() >= n_min_tot ) {
-        num02 = h02_[ism-1]->GetBinEntries(h02_[ism-1]->GetBin(ie, ip));
-        if ( num02 >= n_min_bin ) {
-          mean02 = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
-          rms02  = h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie, ip));
-          update_channel1 = true;
-        }
-      }
+      if ( ! update01 )
+        update01 = EBMUtilsClient::getBinStats(h13_[ism-1], ie, ip, num01, mean01, rms01);
+      if ( ! update02 )
+        update02 = EBMUtilsClient::getBinStats(h14_[ism-1], ie, ip, num02, mean02, rms02);
+      if ( ! update03 )
+        update03 = EBMUtilsClient::getBinStats(h15_[ism-1], ie, ip, num03, mean03, rms03);
+      if ( ! update04 )
+        update04 = EBMUtilsClient::getBinStats(h16_[ism-1], ie, ip, num04, mean04, rms04);
+      if ( ! update05 )
+        update05 = EBMUtilsClient::getBinStats(h17_[ism-1], ie, ip, num05, mean05, rms05);
+      if ( ! update06 )
+        update06 = EBMUtilsClient::getBinStats(h18_[ism-1], ie, ip, num06, mean06, rms06);
+      if ( ! update07 )
+        update07 = EBMUtilsClient::getBinStats(h19_[ism-1], ie, ip, num07, mean07, rms07);
+      if ( ! update08 )
+        update08 = EBMUtilsClient::getBinStats(h20_[ism-1], ie, ip, num08, mean08, rms08);
 
-      if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
-        num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(ie, ip));
-        if ( num03 >= n_min_bin ) {
-          mean03 = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
-          rms03  = h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie, ip));
-          update_channel2 = true;
-        }
-      }
-
-      if ( h04_[ism-1] && h04_[ism-1]->GetEntries() >= n_min_tot ) {
-        num04 = h04_[ism-1]->GetBinEntries(h04_[ism-1]->GetBin(ie, ip));
-        if ( num04 >= n_min_bin ) {
-          mean04 = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
-          rms04  = h04_[ism-1]->GetBinError(h04_[ism-1]->GetBin(ie, ip));
-          update_channel2 = true;
-        }
-      }
-
-      if ( h05_[ism-1] && h05_[ism-1]->GetEntries() >= n_min_tot ) {
-        num05 = h05_[ism-1]->GetBinEntries(h05_[ism-1]->GetBin(ie, ip));
-        if ( num05 >= n_min_bin ) {
-          mean05 = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(ie, ip));
-          rms05  = h05_[ism-1]->GetBinError(h05_[ism-1]->GetBin(ie, ip));
-          update_channel3 = true;
-        }
-      }
-
-      if ( h06_[ism-1] && h06_[ism-1]->GetEntries() >= n_min_tot ) {
-        num06 = h06_[ism-1]->GetBinEntries(h06_[ism-1]->GetBin(ie, ip));
-        if ( num06 >= n_min_bin ) {
-          mean06 = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(ie, ip));
-          rms06  = h06_[ism-1]->GetBinError(h06_[ism-1]->GetBin(ie, ip));
-          update_channel3 = true;
-        }
-      }
-
-      if ( h07_[ism-1] && h07_[ism-1]->GetEntries() >= n_min_tot ) {
-        num07 = h07_[ism-1]->GetBinEntries(h07_[ism-1]->GetBin(ie, ip));
-        if ( num07 >= n_min_bin ) {
-          mean07 = h07_[ism-1]->GetBinContent(h07_[ism-1]->GetBin(ie, ip));
-          rms07  = h07_[ism-1]->GetBinError(h07_[ism-1]->GetBin(ie, ip));
-          update_channel4 = true;
-        }
-      }
-
-      if ( h08_[ism-1] && h08_[ism-1]->GetEntries() >= n_min_tot ) {
-        num08 = h08_[ism-1]->GetBinEntries(h08_[ism-1]->GetBin(ie, ip));
-        if ( num08 >= n_min_bin ) {
-          mean08 = h08_[ism-1]->GetBinContent(h08_[ism-1]->GetBin(ie, ip));
-          rms08  = h08_[ism-1]->GetBinError(h08_[ism-1]->GetBin(ie, ip));
-          update_channel4 = true;
-        }
-      }
-
-      if ( h13_[ism-1] && h13_[ism-1]->GetEntries() >= n_min_tot ) {
-        num01 = h13_[ism-1]->GetBinEntries(h13_[ism-1]->GetBin(ie, ip));
-        if ( num01 >= n_min_bin ) {
-          mean01 = h13_[ism-1]->GetBinContent(h13_[ism-1]->GetBin(ie, ip));
-          rms01  = h13_[ism-1]->GetBinError(h13_[ism-1]->GetBin(ie, ip));
-          update_channel1 = true;
-        }
-      }
-
-      if ( h14_[ism-1] && h14_[ism-1]->GetEntries() >= n_min_tot ) {
-        num02 = h14_[ism-1]->GetBinEntries(h14_[ism-1]->GetBin(ie, ip));
-        if ( num02 >= n_min_bin ) {
-          mean02 = h14_[ism-1]->GetBinContent(h14_[ism-1]->GetBin(ie, ip));
-          rms02  = h14_[ism-1]->GetBinError(h14_[ism-1]->GetBin(ie, ip));
-          update_channel1 = true;
-        }
-      }
-
-      if ( h15_[ism-1] && h15_[ism-1]->GetEntries() >= n_min_tot ) {
-        num03 = h15_[ism-1]->GetBinEntries(h15_[ism-1]->GetBin(ie, ip));
-        if ( num03 >= n_min_bin ) {
-          mean03 = h15_[ism-1]->GetBinContent(h15_[ism-1]->GetBin(ie, ip));
-          rms03  = h15_[ism-1]->GetBinError(h15_[ism-1]->GetBin(ie, ip));
-          update_channel2 = true;
-        }
-      }
-
-      if ( h16_[ism-1] && h16_[ism-1]->GetEntries() >= n_min_tot ) {
-        num04 = h16_[ism-1]->GetBinEntries(h16_[ism-1]->GetBin(ie, ip));
-        if ( num04 >= n_min_bin ) {
-          mean04 = h16_[ism-1]->GetBinContent(h16_[ism-1]->GetBin(ie, ip));
-          rms04  = h16_[ism-1]->GetBinError(h16_[ism-1]->GetBin(ie, ip));
-          update_channel2 = true;
-        }
-      }
-
-      if ( h17_[ism-1] && h05_[ism-1]->GetEntries() >= n_min_tot ) {
-        num05 = h17_[ism-1]->GetBinEntries(h17_[ism-1]->GetBin(ie, ip));
-        if ( num05 >= n_min_bin ) {
-          mean05 = h17_[ism-1]->GetBinContent(h17_[ism-1]->GetBin(ie, ip));
-          rms05  = h17_[ism-1]->GetBinError(h17_[ism-1]->GetBin(ie, ip));
-          update_channel3 = true;
-        }
-      }
-
-      if ( h18_[ism-1] && h18_[ism-1]->GetEntries() >= n_min_tot ) {
-        num06 = h18_[ism-1]->GetBinEntries(h18_[ism-1]->GetBin(ie, ip));
-        if ( num06 >= n_min_bin ) {
-          mean06 = h18_[ism-1]->GetBinContent(h18_[ism-1]->GetBin(ie, ip));
-          rms06  = h18_[ism-1]->GetBinError(h18_[ism-1]->GetBin(ie, ip));
-          update_channel3 = true;
-        }
-      }
-
-      if ( h19_[ism-1] && h19_[ism-1]->GetEntries() >= n_min_tot ) {
-        num07 = h19_[ism-1]->GetBinEntries(h19_[ism-1]->GetBin(ie, ip));
-        if ( num07 >= n_min_bin ) {
-          mean07 = h19_[ism-1]->GetBinContent(h19_[ism-1]->GetBin(ie, ip));
-          rms07  = h19_[ism-1]->GetBinError(h19_[ism-1]->GetBin(ie, ip));
-          update_channel4 = true;
-        }
-      }
-
-      if ( h20_[ism-1] && h20_[ism-1]->GetEntries() >= n_min_tot ) {
-        num08 = h20_[ism-1]->GetBinEntries(h20_[ism-1]->GetBin(ie, ip));
-        if ( num08 >= n_min_bin ) {
-          mean08 = h20_[ism-1]->GetBinContent(h20_[ism-1]->GetBin(ie, ip));
-          rms08  = h20_[ism-1]->GetBinError(h20_[ism-1]->GetBin(ie, ip));
-          update_channel4 = true;
-        }
-      }
-
-      if ( update_channel1 ) {
+      if ( update01 || update02 ) {
 
         if ( ie == 1 && ip == 1 ) {
 
@@ -1096,7 +975,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
       }
 
-      if ( update_channel2 ) {
+      if ( update03 || update04 ) {
 
         if ( ie == 1 && ip == 1 ) {
 
@@ -1134,7 +1013,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
       }
 
-      if ( update_channel3 ) {
+      if ( update05 || update06 ) {
 
         if ( ie == 1 && ip == 1 ) {
 
@@ -1172,7 +1051,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
       }
 
-      if ( update_channel4 ) {
+      if ( update07 || update08 ) {
 
         if ( ie == 1 && ip == 1 ) {
 
@@ -1235,175 +1114,50 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   MonPNRedDat pn_rd;
   map<EcalLogicID, MonPNRedDat> dataset2_rd;
 
-  const float m_min_tot = 1000.;
-  const float m_min_bin = 50.;
-
-//  float num01, num02, num03, num04, num05, num06, num07, num08;
-  float num09, num10, num11, num12, num13, num14, num15, num16;
-//  float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
-  float mean09, mean10, mean11, mean12, mean13, mean14, mean15, mean16;
-//  float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
-  float rms09, rms10, rms11, rms12, rms13, rms14, rms15, rms16;
-
   for ( int i = 1; i <= 10; i++ ) {
 
-    num01  = num02  = num03  = num04  = num05  = num06  = num07  = num08  = -1.;
-    num09  = num10  = num11  = num12  = num13  = num14  = num15  = num16  = -1.;
-    mean01 = mean02 = mean03 = mean04 = mean05 = mean06 = mean07 = mean08 = -1.;
-    mean09 = mean10 = mean11 = mean12 = mean13 = mean14 = mean15 = mean16 = -1.;
-    rms01  = rms02  = rms03  = rms04  = rms05  = rms06  = rms07  = rms08  = -1.;
-    rms09  = rms10  = rms11  = rms12  = rms13  = rms14  = rms15  = rms16  = -1.;
+    bool update01;
+    bool update02;
+    bool update03;
+    bool update04;
+    bool update05;
+    bool update06;
+    bool update07;
+    bool update08;
+    bool update09;
+    bool update10;
+    bool update11;
+    bool update12;
+    bool update13;
+    bool update14;
+    bool update15;
+    bool update16;
 
-    bool update_channel1 = false;
-    bool update_channel2 = false;
-    bool update_channel3 = false;
-    bool update_channel4 = false;
+    float num01, num02, num03, num04, num05, num06, num07, num08;
+    float num09, num10, num11, num12, num13, num14, num15, num16;
+    float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
+    float mean09, mean10, mean11, mean12, mean13, mean14, mean15, mean16;
+    float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
+    float rms09, rms10, rms11, rms12, rms13, rms14, rms15, rms16;
 
-    if ( i01_[ism-1] && i01_[ism-1]->GetEntries() >= m_min_tot ) {
-      num01 = i01_[ism-1]->GetBinEntries(i01_[ism-1]->GetBin(1, i));
-      if ( num01 >= m_min_bin ) {
-        mean01 = i01_[ism-1]->GetBinContent(i01_[ism-1]->GetBin(1, i));
-        rms01  = i01_[ism-1]->GetBinError(i01_[ism-1]->GetBin(1, i));
-        update_channel1 = true;
-      }
-    }
+    update01 = EBMUtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+    update02 = EBMUtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
+    update03 = EBMUtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
+    update04 = EBMUtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
+    update05 = EBMUtilsClient::getBinStats(i05_[ism-1], 1, i, num05, mean05, rms05);
+    update06 = EBMUtilsClient::getBinStats(i06_[ism-1], 1, i, num06, mean06, rms06);
+    update07 = EBMUtilsClient::getBinStats(i07_[ism-1], 1, i, num07, mean07, rms07);
+    update08 = EBMUtilsClient::getBinStats(i08_[ism-1], 1, i, num08, mean08, rms08);
+    update09 = EBMUtilsClient::getBinStats(i09_[ism-1], 1, i, num09, mean09, rms09);
+    update10 = EBMUtilsClient::getBinStats(i10_[ism-1], 1, i, num10, mean10, rms10);
+    update11 = EBMUtilsClient::getBinStats(i11_[ism-1], 1, i, num11, mean11, rms11);
+    update12 = EBMUtilsClient::getBinStats(i12_[ism-1], 1, i, num12, mean12, rms12);
+    update13 = EBMUtilsClient::getBinStats(i13_[ism-1], 1, i, num13, mean13, rms13);
+    update14 = EBMUtilsClient::getBinStats(i14_[ism-1], 1, i, num14, mean14, rms14);
+    update15 = EBMUtilsClient::getBinStats(i15_[ism-1], 1, i, num15, mean15, rms15);
+    update16 = EBMUtilsClient::getBinStats(i16_[ism-1], 1, i, num16, mean16, rms16);
 
-    if ( i02_[ism-1] && i02_[ism-1]->GetEntries() >= m_min_tot ) {
-      num02 = i02_[ism-1]->GetBinEntries(i02_[ism-1]->GetBin(1, i));
-      if ( num02 >= m_min_bin ) {
-        mean02 = i02_[ism-1]->GetBinContent(i02_[ism-1]->GetBin(1, i));
-        rms02  = i02_[ism-1]->GetBinError(i02_[ism-1]->GetBin(1, i));
-        update_channel2 = true;
-      }
-    }
-
-    if ( i03_[ism-1] && i03_[ism-1]->GetEntries() >= m_min_tot ) {
-      num03 = i03_[ism-1]->GetBinEntries(i03_[ism-1]->GetBin(i));
-      if ( num03 >= m_min_bin ) {
-        mean03 = i03_[ism-1]->GetBinContent(i03_[ism-1]->GetBin(1, i));
-        rms03  = i03_[ism-1]->GetBinError(i03_[ism-1]->GetBin(1, i));
-        update_channel3 = true;
-      }
-    }
-
-    if ( i04_[ism-1] && i04_[ism-1]->GetEntries() >= m_min_tot ) {
-      num04 = i04_[ism-1]->GetBinEntries(i04_[ism-1]->GetBin(1, i));
-      if ( num04 >= m_min_bin ) {
-        mean04 = i04_[ism-1]->GetBinContent(i04_[ism-1]->GetBin(1, i));
-        rms04  = i04_[ism-1]->GetBinError(i04_[ism-1]->GetBin(1, i));
-        update_channel4 = true;
-      }
-    }
-
-    if ( i05_[ism-1] && i05_[ism-1]->GetEntries() >= m_min_tot ) {
-      num05 = i05_[ism-1]->GetBinEntries(i05_[ism-1]->GetBin(1, i));
-      if ( num05 >= m_min_bin ) {
-        mean05 = i05_[ism-1]->GetBinContent(i05_[ism-1]->GetBin(1, i));
-        rms05  = i05_[ism-1]->GetBinError(i05_[ism-1]->GetBin(1, i));
-        update_channel1 = true;
-      }
-    }
-
-    if ( i06_[ism-1] && i06_[ism-1]->GetEntries() >= m_min_tot ) {
-      num06 = i06_[ism-1]->GetBinEntries(i06_[ism-1]->GetBin(1, i));
-      if ( num06 >= m_min_bin ) {
-        mean06 = i06_[ism-1]->GetBinContent(i06_[ism-1]->GetBin(1, i));
-        rms06  = i06_[ism-1]->GetBinError(i06_[ism-1]->GetBin(1, i));
-        update_channel2 = true;
-      }
-    }
-
-    if ( i07_[ism-1] && i07_[ism-1]->GetEntries() >= m_min_tot ) {
-      num07 = i07_[ism-1]->GetBinEntries(i07_[ism-1]->GetBin(1, i));
-      if ( num07 >= m_min_bin ) {
-        mean07 = i07_[ism-1]->GetBinContent(i07_[ism-1]->GetBin(1, i));
-        rms07  = i07_[ism-1]->GetBinError(i07_[ism-1]->GetBin(1, i));
-        update_channel3 = true;
-      }
-    }
-
-    if ( i08_[ism-1] && i08_[ism-1]->GetEntries() >= m_min_tot ) {
-      num08 = i08_[ism-1]->GetBinEntries(i08_[ism-1]->GetBin(1, i));
-      if ( num08 >= m_min_bin ) {
-        mean08 = i08_[ism-1]->GetBinContent(i08_[ism-1]->GetBin(1, i));
-        rms08  = i08_[ism-1]->GetBinError(i08_[ism-1]->GetBin(1, i));
-        update_channel4 = true;
-      }
-    }
-
-    if ( j01_[ism-1] && j01_[ism-1]->GetEntries() >= m_min_tot ) {
-      num09 = j01_[ism-1]->GetBinEntries(j01_[ism-1]->GetBin(1, i));
-      if ( num09 >= m_min_bin ) {
-        mean09 = j01_[ism-1]->GetBinContent(j01_[ism-1]->GetBin(1, i));
-        rms09  = j01_[ism-1]->GetBinError(j01_[ism-1]->GetBin(1, i));
-        update_channel1 = true;
-      }
-    }
-
-    if ( j02_[ism-1] && j02_[ism-1]->GetEntries() >= m_min_tot ) {
-      num10 = j02_[ism-1]->GetBinEntries(j02_[ism-1]->GetBin(1, i));
-      if ( num10 >= m_min_bin ) {
-        mean10 = j02_[ism-1]->GetBinContent(j02_[ism-1]->GetBin(1, i));
-        rms10  = j02_[ism-1]->GetBinError(j02_[ism-1]->GetBin(1, i));
-        update_channel2 = true;
-      }
-    }
-
-    if ( j03_[ism-1] && j03_[ism-1]->GetEntries() >= m_min_tot ) {
-      num11 = j03_[ism-1]->GetBinEntries(j03_[ism-1]->GetBin(i));
-      if ( num11 >= m_min_bin ) {
-        mean11 = j03_[ism-1]->GetBinContent(j03_[ism-1]->GetBin(1, i));
-        rms11  = j03_[ism-1]->GetBinError(j03_[ism-1]->GetBin(1, i));
-        update_channel3 = true;
-      }
-    }
-
-    if ( j04_[ism-1] && j04_[ism-1]->GetEntries() >= m_min_tot ) {
-      num12 = j04_[ism-1]->GetBinEntries(j04_[ism-1]->GetBin(1, i));
-      if ( num12 >= m_min_bin ) {
-        mean12 = j04_[ism-1]->GetBinContent(j04_[ism-1]->GetBin(1, i));
-        rms12  = j04_[ism-1]->GetBinError(j04_[ism-1]->GetBin(1, i));
-        update_channel4 = true;
-      }
-    }
-
-    if ( j05_[ism-1] && j05_[ism-1]->GetEntries() >= m_min_tot ) {
-      num13 = j05_[ism-1]->GetBinEntries(j05_[ism-1]->GetBin(1, i));
-      if ( num13 >= m_min_bin ) {
-        mean13 = j05_[ism-1]->GetBinContent(j05_[ism-1]->GetBin(1, i));
-        rms13  = j05_[ism-1]->GetBinError(j05_[ism-1]->GetBin(1, i));
-        update_channel1 = true;
-      }
-    }
-
-    if ( j06_[ism-1] && j06_[ism-1]->GetEntries() >= m_min_tot ) {
-      num14 = j06_[ism-1]->GetBinEntries(j06_[ism-1]->GetBin(1, i));
-      if ( num14 >= m_min_bin ) {
-        mean14 = j06_[ism-1]->GetBinContent(j06_[ism-1]->GetBin(1, i));
-        rms14  = j06_[ism-1]->GetBinError(j06_[ism-1]->GetBin(1, i));
-        update_channel2 = true;
-      }
-    }
-
-    if ( j07_[ism-1] && j07_[ism-1]->GetEntries() >= m_min_tot ) {
-      num15 = j07_[ism-1]->GetBinEntries(j07_[ism-1]->GetBin(1, i));
-      if ( num15 >= m_min_bin ) {
-        mean15 = j07_[ism-1]->GetBinContent(j07_[ism-1]->GetBin(1, i));
-        rms15  = j07_[ism-1]->GetBinError(j07_[ism-1]->GetBin(1, i));
-        update_channel3 = true;
-      }
-    }
-
-    if ( j08_[ism-1] && j08_[ism-1]->GetEntries() >= m_min_tot ) {
-      num16 = j08_[ism-1]->GetBinEntries(j08_[ism-1]->GetBin(1, i));
-      if ( num16 >= m_min_bin ) {
-        mean16 = j08_[ism-1]->GetBinContent(j08_[ism-1]->GetBin(1, i));
-        rms16  = j08_[ism-1]->GetBinError(j08_[ism-1]->GetBin(1, i));
-        update_channel4 = true;
-      }
-    }
-
-    if ( update_channel1 ) {
+    if ( update01 || update05 || update09 || update13 ) {
 
       if ( i == 1 ) {
 
@@ -1447,7 +1201,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
     }
 
-    if ( update_channel2 ) {
+    if ( update02 || update06 || update10 || update14 ) {
 
       if ( i == 1 ) {
 
@@ -1491,7 +1245,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
     }
 
-    if ( update_channel3 ) {
+    if ( update03 || update07 || update11 || update15 ) {
 
       if ( i == 1 ) {
 
@@ -1535,7 +1289,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
     }
 
-    if ( update_channel4 ) {
+    if ( update04 || update08 || update12 || update16 ) {
 
       if ( i == 1 ) {
 
@@ -1921,44 +1675,44 @@ void EBLaserClient::subscribe(void){
       mui_->add(me_i08_[ism-1], histo);
 
       sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L1", ism);
-      me_j01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16");
+      me_i09_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16");
       sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
-      mui_->add(me_j01_[ism-1], histo);
+      mui_->add(me_i09_[ism-1], histo);
 
       sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L2", ism);
-      me_j02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16");
+      me_i10_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16");
       sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
-      mui_->add(me_j02_[ism-1], histo);
+      mui_->add(me_i10_[ism-1], histo);
 
       sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L3", ism);
-      me_j03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16");
+      me_i11_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16");
       sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
-      mui_->add(me_j03_[ism-1], histo);
+      mui_->add(me_i11_[ism-1], histo);
 
       sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L4", ism);
-      me_j04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16");
+      me_i12_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16");
       sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
-      mui_->add(me_j04_[ism-1], histo);
+      mui_->add(me_i12_[ism-1], histo);
 
       sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L1", ism);
-      me_j05_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16");
+      me_i13_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16");
       sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
-      mui_->add(me_j05_[ism-1], histo);
+      mui_->add(me_i13_[ism-1], histo);
 
       sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L2", ism);
-      me_j06_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16");
+      me_i14_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16");
       sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
-      mui_->add(me_j06_[ism-1], histo);
+      mui_->add(me_i14_[ism-1], histo);
 
       sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L3", ism);
-      me_j07_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16");
+      me_i15_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16");
       sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
-      mui_->add(me_j07_[ism-1], histo);
+      mui_->add(me_i15_[ism-1], histo);
 
       sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L4", ism);
-      me_j08_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16");
+      me_i16_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16");
       sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
-      mui_->add(me_j08_[ism-1], histo);
+      mui_->add(me_i16_[ism-1], histo);
 
     }
 
@@ -2298,14 +2052,14 @@ void EBLaserClient::unsubscribe(void){
         mui_->removeCollate(me_i07_[ism-1]);
         mui_->removeCollate(me_i08_[ism-1]);
 
-        mui_->removeCollate(me_j01_[ism-1]);
-        mui_->removeCollate(me_j02_[ism-1]);
-        mui_->removeCollate(me_j03_[ism-1]);
-        mui_->removeCollate(me_j04_[ism-1]);
-        mui_->removeCollate(me_j05_[ism-1]);
-        mui_->removeCollate(me_j06_[ism-1]);
-        mui_->removeCollate(me_j07_[ism-1]);
-        mui_->removeCollate(me_j08_[ism-1]);
+        mui_->removeCollate(me_i09_[ism-1]);
+        mui_->removeCollate(me_i10_[ism-1]);
+        mui_->removeCollate(me_i11_[ism-1]);
+        mui_->removeCollate(me_i12_[ism-1]);
+        mui_->removeCollate(me_i13_[ism-1]);
+        mui_->removeCollate(me_i14_[ism-1]);
+        mui_->removeCollate(me_i15_[ism-1]);
+        mui_->removeCollate(me_i16_[ism-1]);
 
       }
 
@@ -2801,7 +2555,7 @@ void EBLaserClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1").c_str(), ism);
     }
     me = mui_->get(histo);
-    j01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j01_[ism-1] );
+    i09_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i09_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
@@ -2809,7 +2563,7 @@ void EBLaserClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2").c_str(), ism);
     }
     me = mui_->get(histo);
-    j02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j02_[ism-1] );
+    i10_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i10_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
@@ -2817,7 +2571,7 @@ void EBLaserClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3").c_str(), ism);
     }
     me = mui_->get(histo);
-    j03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j03_[ism-1] );
+    i11_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i11_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
@@ -2825,7 +2579,7 @@ void EBLaserClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4").c_str(), ism);
     }
     me = mui_->get(histo);
-    j04_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j04_[ism-1] );
+    i12_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i12_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
@@ -2833,7 +2587,7 @@ void EBLaserClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1").c_str(), ism);
     }
     me = mui_->get(histo);
-    j05_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j05_[ism-1] );
+    i13_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i13_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
@@ -2841,7 +2595,7 @@ void EBLaserClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2").c_str(), ism);
     }
     me = mui_->get(histo);
-    j06_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j06_[ism-1] );
+    i14_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i14_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
@@ -2849,7 +2603,7 @@ void EBLaserClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3").c_str(), ism);
     }
     me = mui_->get(histo);
-    j07_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j07_[ism-1] );
+    i15_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i15_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
@@ -2857,17 +2611,7 @@ void EBLaserClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4").c_str(), ism);
     }
     me = mui_->get(histo);
-    j08_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j08_[ism-1] );
-
-    const float n_min_tot = 1000.;
-    const float n_min_bin = 50.;
-
-    float num01, num02, num03, num04, num05, num06, num07, num08;
-    float num09, num10, num11, num12;
-    float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
-    float mean09, mean10, mean11, mean12;
-    float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
-    float rms09, rms10, rms11, rms12;
+    i16_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i16_[ism-1] );
 
     EBMUtilsClient::resetHisto( meg01_[ism-1] );
     EBMUtilsClient::resetHisto( meg02_[ism-1] );
@@ -2912,82 +2656,79 @@ void EBLaserClient::analyze(void){
 
     float meanAmplL1A, meanAmplL2A, meanAmplL3A, meanAmplL4A;
     float meanAmplL1B, meanAmplL2B, meanAmplL3B, meanAmplL4B;
+
     int nCryL1A, nCryL2A, nCryL3A, nCryL4A;
     int nCryL1B, nCryL2B, nCryL3B, nCryL4B;
-    meanAmplL1A = meanAmplL2A = meanAmplL3A = meanAmplL4A = -1.;
-    meanAmplL1B = meanAmplL2B = meanAmplL3B = meanAmplL4B = -1.;
+
+    meanAmplL1A = meanAmplL2A = meanAmplL3A = meanAmplL4A = 0.;
+    meanAmplL1B = meanAmplL2B = meanAmplL3B = meanAmplL4B = 0.;
+
     nCryL1A = nCryL2A = nCryL3A = nCryL4A = 0;
     nCryL1B = nCryL2B = nCryL3B = nCryL4B = 0;
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        num01 = num03 = num05 = num07 = -1;
+        bool update01;
+        bool update02;
+        bool update03;
+        bool update04;
+        bool update05;
+        bool update06;
+        bool update07;
+        bool update08;
 
-        if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
-          num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
-          if ( num01 >= n_min_bin ) {
-            meanAmplL1A += h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-            nCryL1A++;
-          }
+        float num01, num02, num03, num04, num05, num06, num07, num08;
+        float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
+        float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
+
+        update01 = EBMUtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        update02 = EBMUtilsClient::getBinStats(h03_[ism-1], ie, ip, num02, mean02, rms02);
+        update03 = EBMUtilsClient::getBinStats(h05_[ism-1], ie, ip, num03, mean03, rms03);
+        update04 = EBMUtilsClient::getBinStats(h07_[ism-1], ie, ip, num04, mean04, rms04);
+        update05 = EBMUtilsClient::getBinStats(h13_[ism-1], ie, ip, num05, mean05, rms05);
+        update06 = EBMUtilsClient::getBinStats(h15_[ism-1], ie, ip, num06, mean06, rms06);
+        update07 = EBMUtilsClient::getBinStats(h17_[ism-1], ie, ip, num07, mean07, rms07);
+        update08 = EBMUtilsClient::getBinStats(h19_[ism-1], ie, ip, num08, mean08, rms08);
+
+        if ( update01 ) {
+          meanAmplL1A += mean01;
+          nCryL1A++;
         }
 
-        if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
-          num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(ie, ip));
-          if ( num03 >= n_min_bin ) {
-            meanAmplL2A += h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
-            nCryL2A++;
-          }
+        if ( update02 ) {
+          meanAmplL2A += mean02;
+          nCryL2A++;
         }
 
-        if ( h05_[ism-1] && h05_[ism-1]->GetEntries() >= n_min_tot ) {
-          num05 = h05_[ism-1]->GetBinEntries(h05_[ism-1]->GetBin(ie, ip));
-          if ( num05 >= n_min_bin ) {
-            meanAmplL3A += h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(ie, ip));
-            nCryL3A++;
-          }
+        if ( update03 ) {
+          meanAmplL3A += mean03;
+          nCryL3A++;
         }
 
-        if ( h07_[ism-1] && h07_[ism-1]->GetEntries() >= n_min_tot ) {
-          num07 = h07_[ism-1]->GetBinEntries(h07_[ism-1]->GetBin(ie, ip));
-          if ( num07 >= n_min_bin ) {
-            meanAmplL4A += h07_[ism-1]->GetBinContent(h07_[ism-1]->GetBin(ie, ip));
-            nCryL4A++;
-          }
+        if ( update04 ) {
+          meanAmplL4A += mean04;
+          nCryL4A++;
         }
 
-        num01 = num03 = num05 = num07 = -1;
-
-        if ( h13_[ism-1] && h13_[ism-1]->GetEntries() >= n_min_tot ) {
-          num01 = h13_[ism-1]->GetBinEntries(h13_[ism-1]->GetBin(ie, ip));
-          if ( num01 >= n_min_bin ) {
-            meanAmplL1B += h13_[ism-1]->GetBinContent(h13_[ism-1]->GetBin(ie, ip));
-            nCryL1B++;
-          }
+        if ( update05 ) {
+          meanAmplL1B += mean05;
+          nCryL1B++;
         }
 
-        if ( h15_[ism-1] && h15_[ism-1]->GetEntries() >= n_min_tot ) {
-          num03 = h15_[ism-1]->GetBinEntries(h15_[ism-1]->GetBin(ie, ip));
-          if ( num03 >= n_min_bin ) {
-            meanAmplL2B += h15_[ism-1]->GetBinContent(h15_[ism-1]->GetBin(ie, ip));
-            nCryL2B++;
-          }
+        if ( update06 ) {
+          meanAmplL2B += mean06;
+          nCryL2B++;
         }
-    
-        if ( h17_[ism-1] && h17_[ism-1]->GetEntries() >= n_min_tot ) {
-          num05 = h17_[ism-1]->GetBinEntries(h17_[ism-1]->GetBin(ie, ip));
-          if ( num05 >= n_min_bin ) {
-            meanAmplL3B += h17_[ism-1]->GetBinContent(h17_[ism-1]->GetBin(ie, ip));
-            nCryL3B++;
-          }
+
+        if ( update07 ) {
+          meanAmplL3B += mean07;
+          nCryL3B++;
         }
-    
-        if ( h19_[ism-1] && h19_[ism-1]->GetEntries() >= n_min_tot ) {
-          num07 = h19_[ism-1]->GetBinEntries(h19_[ism-1]->GetBin(ie, ip));
-          if ( num07 >= n_min_bin ) {
-            meanAmplL4B += h19_[ism-1]->GetBinContent(h19_[ism-1]->GetBin(ie, ip));
-            nCryL4B++;
-          }
+
+        if ( update08 ) {
+          meanAmplL4B += mean08;
+          nCryL4B++;
         }
 
       }
@@ -3005,240 +2746,70 @@ void EBLaserClient::analyze(void){
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        num01  = num02  = num03  = num04  = num05  = num06  = num07  = num08  = -1.;
-        num09  = num10  = num11  = num12  = -1.;
-        mean01 = mean02 = mean03 = mean04 = mean05 = mean06 = mean07 = mean08 = -1.;
-        mean09 = mean10 = mean11 = mean12 = -1.;
-        rms01  = rms02  = rms03  = rms04  = rms05  = rms06  = rms07  = rms08  = -1.;
-        rms09  = rms10  = rms11  = rms12  = -1.;
-
         if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 2.);
         if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 2.);
         if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 2.);
         if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ie, ip, 2.);
 
-        bool update_channel1 = false;
-        bool update_channel2 = false;
-        bool update_channel3 = false;
-        bool update_channel4 = false;
+        bool update01;
+        bool update02;
+        bool update03;
+        bool update04;
+        bool update05;
+        bool update06;
+        bool update07;
+        bool update08;
+        bool update09;
+        bool update10;
+        bool update11;
+        bool update12;
 
-        if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
-          num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
-          if ( num01 >= n_min_bin ) {
-            mean01 = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-            rms01  = h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie, ip));
-            update_channel1 = true;
-          }
-        }
+        float num01, num02, num03, num04, num05, num06, num07, num08;
+        float num09, num10, num11, num12;
+        float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
+        float mean09, mean10, mean11, mean12;
+        float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
+        float rms09, rms10, rms11, rms12;
 
-        if ( h02_[ism-1] && h02_[ism-1]->GetEntries() >= n_min_tot ) {
-          num02 = h02_[ism-1]->GetBinEntries(h02_[ism-1]->GetBin(ie, ip));
-          if ( num02 >= n_min_bin ) {
-            mean02 = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
-            rms02  = h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie, ip));
-            update_channel1 = true;
-          }
-        }
+        update01 = EBMUtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        update02 = EBMUtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
+        update03 = EBMUtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+        update04 = EBMUtilsClient::getBinStats(h04_[ism-1], ie, ip, num04, mean04, rms04);
+        update05 = EBMUtilsClient::getBinStats(h05_[ism-1], ie, ip, num05, mean05, rms05);
+        update06 = EBMUtilsClient::getBinStats(h06_[ism-1], ie, ip, num06, mean06, rms06);
+        update07 = EBMUtilsClient::getBinStats(h07_[ism-1], ie, ip, num07, mean07, rms07);
+        update08 = EBMUtilsClient::getBinStats(h08_[ism-1], ie, ip, num08, mean08, rms08);
+        update09 = EBMUtilsClient::getBinStats(h09_[ism-1], ie, ip, num09, mean09, rms09);
+        update10 = EBMUtilsClient::getBinStats(h10_[ism-1], ie, ip, num10, mean10, rms10);
+        update11 = EBMUtilsClient::getBinStats(h11_[ism-1], ie, ip, num11, mean11, rms11);
+        update12 = EBMUtilsClient::getBinStats(h12_[ism-1], ie, ip, num12, mean12, rms12);
 
-        if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
-          num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(ie, ip));
-          if ( num03 >= n_min_bin ) {
-            mean03 = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
-            rms03  = h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie, ip));
-            update_channel2 = true;
-          }
-        }
+        if ( ! update01 )
+          update01 = EBMUtilsClient::getBinStats(h13_[ism-1], ie, ip, num01, mean01, rms01);
+        if ( ! update02 )
+          update02 = EBMUtilsClient::getBinStats(h14_[ism-1], ie, ip, num02, mean02, rms02);
+        if ( ! update03 )
+          update03 = EBMUtilsClient::getBinStats(h15_[ism-1], ie, ip, num03, mean03, rms03);
+        if ( ! update04 )
+          update04 = EBMUtilsClient::getBinStats(h16_[ism-1], ie, ip, num04, mean04, rms04);
+        if ( ! update05 )
+          update05 = EBMUtilsClient::getBinStats(h17_[ism-1], ie, ip, num05, mean05, rms05);
+        if ( ! update06 )
+          update06 = EBMUtilsClient::getBinStats(h18_[ism-1], ie, ip, num06, mean06, rms06);
+        if ( ! update07 )
+          update07 = EBMUtilsClient::getBinStats(h19_[ism-1], ie, ip, num07, mean07, rms07);
+        if ( ! update08 )
+          update08 = EBMUtilsClient::getBinStats(h20_[ism-1], ie, ip, num08, mean08, rms08);
+        if ( ! update09 )
+          update09 = EBMUtilsClient::getBinStats(h21_[ism-1], ie, ip, num09, mean09, rms09);
+        if ( ! update10 )
+          update10 = EBMUtilsClient::getBinStats(h22_[ism-1], ie, ip, num10, mean10, rms10);
+        if ( ! update11 )
+          update11 = EBMUtilsClient::getBinStats(h23_[ism-1], ie, ip, num11, mean11, rms11);
+        if ( ! update12 )
+          update12 = EBMUtilsClient::getBinStats(h24_[ism-1], ie, ip, num12, mean12, rms12);
 
-        if ( h04_[ism-1] && h04_[ism-1]->GetEntries() >= n_min_tot ) {
-          num04 = h04_[ism-1]->GetBinEntries(h04_[ism-1]->GetBin(ie, ip));
-          if ( num04 >= n_min_bin ) {
-            mean04 = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
-            rms04  = h04_[ism-1]->GetBinError(h04_[ism-1]->GetBin(ie, ip));
-            update_channel2 = true;
-          }
-        }
-
-        if ( h05_[ism-1] && h05_[ism-1]->GetEntries() >= n_min_tot ) {
-          num05 = h05_[ism-1]->GetBinEntries(h05_[ism-1]->GetBin(ie, ip));
-          if ( num05 >= n_min_bin ) {
-            mean05 = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(ie, ip));
-            rms05  = h05_[ism-1]->GetBinError(h05_[ism-1]->GetBin(ie, ip));
-            update_channel3 = true;
-          }
-        }
-
-        if ( h06_[ism-1] && h06_[ism-1]->GetEntries() >= n_min_tot ) {
-          num06 = h06_[ism-1]->GetBinEntries(h06_[ism-1]->GetBin(ie, ip));
-          if ( num06 >= n_min_bin ) {
-            mean06 = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(ie, ip));
-            rms06  = h06_[ism-1]->GetBinError(h06_[ism-1]->GetBin(ie, ip));
-            update_channel3 = true;
-          }
-        }
-
-        if ( h07_[ism-1] && h07_[ism-1]->GetEntries() >= n_min_tot ) {
-          num07 = h07_[ism-1]->GetBinEntries(h07_[ism-1]->GetBin(ie, ip));
-          if ( num07 >= n_min_bin ) {
-            mean07 = h07_[ism-1]->GetBinContent(h07_[ism-1]->GetBin(ie, ip));
-            rms07  = h07_[ism-1]->GetBinError(h07_[ism-1]->GetBin(ie, ip));
-            update_channel4 = true;
-          }
-        }
-
-        if ( h08_[ism-1] && h08_[ism-1]->GetEntries() >= n_min_tot ) {
-          num08 = h08_[ism-1]->GetBinEntries(h08_[ism-1]->GetBin(ie, ip));
-          if ( num08 >= n_min_bin ) {
-            mean08 = h08_[ism-1]->GetBinContent(h08_[ism-1]->GetBin(ie, ip));
-            rms08  = h08_[ism-1]->GetBinError(h08_[ism-1]->GetBin(ie, ip));
-            update_channel4 = true;
-          }
-        }
-
-        if ( h09_[ism-1] && h09_[ism-1]->GetEntries() >= n_min_tot ) {
-          num09 = h09_[ism-1]->GetBinEntries(h09_[ism-1]->GetBin(ie, ip));
-          if ( num09 >= n_min_bin ) {
-            mean09 = h09_[ism-1]->GetBinContent(h09_[ism-1]->GetBin(ie, ip));
-            rms09  = h09_[ism-1]->GetBinError(h09_[ism-1]->GetBin(ie, ip));
-            update_channel1 = true;
-          }
-        }
-
-        if ( h10_[ism-1] && h10_[ism-1]->GetEntries() >= n_min_tot ) {
-          num10 = h10_[ism-1]->GetBinEntries(h10_[ism-1]->GetBin(ie, ip));
-          if ( num10 >= n_min_bin ) {
-            mean10 = h10_[ism-1]->GetBinContent(h10_[ism-1]->GetBin(ie, ip));
-            rms10  = h10_[ism-1]->GetBinError(h10_[ism-1]->GetBin(ie, ip));
-            update_channel2 = true;
-          }
-        }
-
-        if ( h11_[ism-1] && h11_[ism-1]->GetEntries() >= n_min_tot ) {
-          num11 = h11_[ism-1]->GetBinEntries(h11_[ism-1]->GetBin(ie, ip));
-          if ( num11 >= n_min_bin ) {
-            mean11 = h11_[ism-1]->GetBinContent(h11_[ism-1]->GetBin(ie, ip));
-            rms11  = h11_[ism-1]->GetBinError(h11_[ism-1]->GetBin(ie, ip));
-            update_channel3 = true;
-          }
-        }
-
-        if ( h12_[ism-1] && h12_[ism-1]->GetEntries() >= n_min_tot ) {
-          num12 = h12_[ism-1]->GetBinEntries(h12_[ism-1]->GetBin(ie, ip));
-          if ( num12 >= n_min_bin ) {
-            mean12 = h12_[ism-1]->GetBinContent(h12_[ism-1]->GetBin(ie, ip));
-            rms12  = h12_[ism-1]->GetBinError(h12_[ism-1]->GetBin(ie, ip));
-            update_channel4 = true;
-          }
-        }
-
-        if ( h13_[ism-1] && h13_[ism-1]->GetEntries() >= n_min_tot ) {
-          num01 = h13_[ism-1]->GetBinEntries(h13_[ism-1]->GetBin(ie, ip));
-          if ( num01 >= n_min_bin ) {
-            mean01 = h13_[ism-1]->GetBinContent(h13_[ism-1]->GetBin(ie, ip));
-            rms01  = h13_[ism-1]->GetBinError(h13_[ism-1]->GetBin(ie, ip));
-            update_channel1 = true;
-          }
-        }
-
-        if ( h14_[ism-1] && h14_[ism-1]->GetEntries() >= n_min_tot ) {
-          num02 = h14_[ism-1]->GetBinEntries(h14_[ism-1]->GetBin(ie, ip));
-          if ( num02 >= n_min_bin ) {
-            mean02 = h14_[ism-1]->GetBinContent(h14_[ism-1]->GetBin(ie, ip));
-            rms02  = h14_[ism-1]->GetBinError(h14_[ism-1]->GetBin(ie, ip));
-            update_channel1 = true;
-          }
-        }
-
-        if ( h15_[ism-1] && h15_[ism-1]->GetEntries() >= n_min_tot ) {
-          num03 = h15_[ism-1]->GetBinEntries(h15_[ism-1]->GetBin(ie, ip));
-          if ( num03 >= n_min_bin ) {
-            mean03 = h15_[ism-1]->GetBinContent(h15_[ism-1]->GetBin(ie, ip));
-            rms03  = h15_[ism-1]->GetBinError(h15_[ism-1]->GetBin(ie, ip));
-            update_channel2 = true;
-          }
-        }
-
-        if ( h16_[ism-1] && h16_[ism-1]->GetEntries() >= n_min_tot ) {
-          num04 = h16_[ism-1]->GetBinEntries(h16_[ism-1]->GetBin(ie, ip));
-          if ( num04 >= n_min_bin ) {
-            mean04 = h16_[ism-1]->GetBinContent(h16_[ism-1]->GetBin(ie, ip));
-            rms04  = h16_[ism-1]->GetBinError(h16_[ism-1]->GetBin(ie, ip));
-            update_channel2 = true;
-          }
-        }
-
-        if ( h17_[ism-1] && h17_[ism-1]->GetEntries() >= n_min_tot ) {
-          num05 = h17_[ism-1]->GetBinEntries(h17_[ism-1]->GetBin(ie, ip));
-          if ( num05 >= n_min_bin ) {
-            mean05 = h17_[ism-1]->GetBinContent(h17_[ism-1]->GetBin(ie, ip));
-            rms05  = h17_[ism-1]->GetBinError(h17_[ism-1]->GetBin(ie, ip));
-            update_channel3 = true;
-          }
-        }
-
-        if ( h18_[ism-1] && h18_[ism-1]->GetEntries() >= n_min_tot ) {
-          num06 = h18_[ism-1]->GetBinEntries(h18_[ism-1]->GetBin(ie, ip));
-          if ( num06 >= n_min_bin ) {
-            mean06 = h18_[ism-1]->GetBinContent(h18_[ism-1]->GetBin(ie, ip));
-            rms06  = h18_[ism-1]->GetBinError(h18_[ism-1]->GetBin(ie, ip));
-            update_channel3 = true;
-          }
-        }
-
-        if ( h19_[ism-1] && h19_[ism-1]->GetEntries() >= n_min_tot ) {
-          num07 = h19_[ism-1]->GetBinEntries(h19_[ism-1]->GetBin(ie, ip));
-          if ( num07 >= n_min_bin ) {
-            mean07 = h19_[ism-1]->GetBinContent(h19_[ism-1]->GetBin(ie, ip));
-            rms07  = h19_[ism-1]->GetBinError(h19_[ism-1]->GetBin(ie, ip));
-            update_channel4 = true;
-          }
-        }
-
-        if ( h20_[ism-1] && h20_[ism-1]->GetEntries() >= n_min_tot ) {
-          num08 = h20_[ism-1]->GetBinEntries(h20_[ism-1]->GetBin(ie, ip));
-          if ( num08 >= n_min_bin ) {
-            mean08 = h20_[ism-1]->GetBinContent(h20_[ism-1]->GetBin(ie, ip));
-            rms08  = h20_[ism-1]->GetBinError(h20_[ism-1]->GetBin(ie, ip));
-            update_channel4 = true;
-          }
-        }
-
-        if ( h21_[ism-1] && h21_[ism-1]->GetEntries() >= n_min_tot ) {
-          num09 = h21_[ism-1]->GetBinEntries(h21_[ism-1]->GetBin(ie, ip));
-          if ( num09 >= n_min_bin ) {
-            mean09 = h21_[ism-1]->GetBinContent(h21_[ism-1]->GetBin(ie, ip));
-            rms09  = h21_[ism-1]->GetBinError(h21_[ism-1]->GetBin(ie, ip));
-            update_channel1 = true;
-          }
-        }
-
-        if ( h22_[ism-1] && h22_[ism-1]->GetEntries() >= n_min_tot ) {
-          num10 = h22_[ism-1]->GetBinEntries(h22_[ism-1]->GetBin(ie, ip));
-          if ( num10 >= n_min_bin ) {
-            mean10 = h22_[ism-1]->GetBinContent(h22_[ism-1]->GetBin(ie, ip));
-            rms10  = h22_[ism-1]->GetBinError(h22_[ism-1]->GetBin(ie, ip));
-            update_channel2 = true;
-          }
-        }
-
-        if ( h23_[ism-1] && h23_[ism-1]->GetEntries() >= n_min_tot ) {
-          num11 = h23_[ism-1]->GetBinEntries(h23_[ism-1]->GetBin(ie, ip));
-          if ( num11 >= n_min_bin ) {
-            mean11 = h23_[ism-1]->GetBinContent(h23_[ism-1]->GetBin(ie, ip));
-            rms11  = h23_[ism-1]->GetBinError(h23_[ism-1]->GetBin(ie, ip));
-            update_channel3 = true;
-          }
-        }
-
-        if ( h24_[ism-1] && h24_[ism-1]->GetEntries() >= n_min_tot ) {
-          num12 = h24_[ism-1]->GetBinEntries(h24_[ism-1]->GetBin(ie, ip));
-          if ( num12 >= n_min_bin ) {
-            mean12 = h24_[ism-1]->GetBinContent(h24_[ism-1]->GetBin(ie, ip));
-            rms12  = h24_[ism-1]->GetBinError(h24_[ism-1]->GetBin(ie, ip));
-            update_channel4 = true;
-          }
-        }
-
-        if ( update_channel1 ) {
+        if ( update01 && update02 && update09 ) {
 
           float val;
 
@@ -3278,7 +2849,7 @@ void EBLaserClient::analyze(void){
 
         }
 
-        if ( update_channel2 ) {
+        if ( update03 && update04 && update10 ) {
 
           float val;
 
@@ -3318,7 +2889,7 @@ void EBLaserClient::analyze(void){
 
         }
 
-        if ( update_channel3 ) {
+        if ( update05 && update06 && update11 ) {
 
           float val;
 
@@ -3358,7 +2929,7 @@ void EBLaserClient::analyze(void){
 
         }
 
-        if ( update_channel4 ) {
+        if ( update07 && update08 && update12 ) {
 
           float val;
 
@@ -3435,27 +3006,7 @@ void EBLaserClient::analyze(void){
       }
     }
 
-    const float m_min_tot = 1000.;
-    const float m_min_bin = 50.;
-
-//    float num01, num02, num03, num04, num05, num06, num07, num08;
-//    float num09, num10, num11, num12;
-    float num13, num14, num15, num16;
-//    float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
-//    float mean09, mean10, mean11, mean12;
-    float mean13, mean14, mean15, mean16;
-//    float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
-//    float rms09, rms10, rms11, rms12;
-    float rms13, rms14, rms15, rms16;
-
     for ( int i = 1; i <= 10; i++ ) {
-  
-      num01  = num02  = num03  = num04  = num05  = num06  = num07  = num08  = -1.;
-      num09  = num10  = num11  = num12  = num13  = num14  = num15  = num16  = -1.;
-      mean01 = mean02 = mean03 = mean04 = mean05 = mean06 = mean07 = mean08 = -1.;
-      mean09 = mean10 = mean11 = mean12 = mean13 = mean14 = mean15 = mean16 = -1.;
-      rms01  = rms02  = rms03  = rms04  = rms05  = rms06  = rms07  = rms08  = -1.;
-      rms09  = rms10  = rms11  = rms12  = rms13  = rms14  = rms15  = rms16  = -1.;
 
       if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent( i, 1, 2. );
       if ( meg06_[ism-1] ) meg06_[ism-1]->setBinContent( i, 1, 2. );
@@ -3466,160 +3017,48 @@ void EBLaserClient::analyze(void){
       if ( meg11_[ism-1] ) meg11_[ism-1]->setBinContent( i, 1, 2. );
       if ( meg12_[ism-1] ) meg12_[ism-1]->setBinContent( i, 1, 2. );
 
-      bool update_channel1 = false;
-      bool update_channel2 = false;
-      bool update_channel3 = false;
-      bool update_channel4 = false;
-      bool update_channel5 = false;
-      bool update_channel6 = false;
-      bool update_channel7 = false;
-      bool update_channel8 = false;
+      bool update01;
+      bool update02;
+      bool update03;
+      bool update04;
+      bool update05;
+      bool update06;
+      bool update07;
+      bool update08;
+      bool update09;
+      bool update10;
+      bool update11;
+      bool update12;
+      bool update13;
+      bool update14;
+      bool update15;
+      bool update16;
 
-      if ( i01_[ism-1] && i01_[ism-1]->GetEntries() >= m_min_tot ) {
-        num01 = i01_[ism-1]->GetBinEntries(i01_[ism-1]->GetBin(1, i));
-        if ( num01 >= m_min_bin ) {
-          mean01 = i01_[ism-1]->GetBinContent(i01_[ism-1]->GetBin(1, i));
-          rms01  = i01_[ism-1]->GetBinError(i01_[ism-1]->GetBin(1, i));
-          update_channel1 = true;
-        }
-      }
+      float num01, num02, num03, num04, num05, num06, num07, num08;
+      float num09, num10, num11, num12, num13, num14, num15, num16;
+      float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
+      float mean09, mean10, mean11, mean12, mean13, mean14, mean15, mean16;
+      float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
+      float rms09, rms10, rms11, rms12, rms13, rms14, rms15, rms16;
 
-      if ( i02_[ism-1] && i02_[ism-1]->GetEntries() >= m_min_tot ) {
-        num02 = i02_[ism-1]->GetBinEntries(i02_[ism-1]->GetBin(1, i));
-        if ( num02 >= m_min_bin ) {
-          mean02 = i02_[ism-1]->GetBinContent(i02_[ism-1]->GetBin(1, i));
-          rms02  = i02_[ism-1]->GetBinError(i02_[ism-1]->GetBin(1, i));
-          update_channel2 = true;
-        }
-      }
+      update01 = EBMUtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+      update02 = EBMUtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
+      update03 = EBMUtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
+      update04 = EBMUtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
+      update05 = EBMUtilsClient::getBinStats(i05_[ism-1], 1, i, num05, mean05, rms05);
+      update06 = EBMUtilsClient::getBinStats(i06_[ism-1], 1, i, num06, mean06, rms06);
+      update07 = EBMUtilsClient::getBinStats(i07_[ism-1], 1, i, num07, mean07, rms07);
+      update08 = EBMUtilsClient::getBinStats(i08_[ism-1], 1, i, num08, mean08, rms08);
+      update09 = EBMUtilsClient::getBinStats(i09_[ism-1], 1, i, num09, mean09, rms09);
+      update10 = EBMUtilsClient::getBinStats(i10_[ism-1], 1, i, num10, mean10, rms10);
+      update11 = EBMUtilsClient::getBinStats(i11_[ism-1], 1, i, num11, mean11, rms11);
+      update12 = EBMUtilsClient::getBinStats(i12_[ism-1], 1, i, num12, mean12, rms12);
+      update13 = EBMUtilsClient::getBinStats(i13_[ism-1], 1, i, num13, mean13, rms13);
+      update14 = EBMUtilsClient::getBinStats(i14_[ism-1], 1, i, num14, mean14, rms14);
+      update15 = EBMUtilsClient::getBinStats(i15_[ism-1], 1, i, num15, mean15, rms15);
+      update16 = EBMUtilsClient::getBinStats(i16_[ism-1], 1, i, num16, mean16, rms16);
 
-      if ( i03_[ism-1] && i03_[ism-1]->GetEntries() >= m_min_tot ) {
-        num03 = i03_[ism-1]->GetBinEntries(i03_[ism-1]->GetBin(i));
-        if ( num03 >= m_min_bin ) {
-          mean03 = i03_[ism-1]->GetBinContent(i03_[ism-1]->GetBin(1, i));
-          rms03  = i03_[ism-1]->GetBinError(i03_[ism-1]->GetBin(1, i));
-          update_channel3 = true;
-        }
-      }
-
-      if ( i04_[ism-1] && i04_[ism-1]->GetEntries() >= m_min_tot ) {
-        num04 = i04_[ism-1]->GetBinEntries(i04_[ism-1]->GetBin(1, i));
-        if ( num04 >= m_min_bin ) {
-          mean04 = i04_[ism-1]->GetBinContent(i04_[ism-1]->GetBin(1, i));
-          rms04  = i04_[ism-1]->GetBinError(i04_[ism-1]->GetBin(1, i));
-          update_channel4 = true;
-        }
-      }
-
-      if ( i05_[ism-1] && i05_[ism-1]->GetEntries() >= m_min_tot ) {
-        num05 = i05_[ism-1]->GetBinEntries(i05_[ism-1]->GetBin(1, i));
-        if ( num05 >= m_min_bin ) {
-          mean05 = i05_[ism-1]->GetBinContent(i05_[ism-1]->GetBin(1, i));
-          rms05  = i05_[ism-1]->GetBinError(i05_[ism-1]->GetBin(1, i));
-          update_channel1 = true;
-        }
-      }
-
-      if ( i06_[ism-1] && i06_[ism-1]->GetEntries() >= m_min_tot ) {
-        num06 = i06_[ism-1]->GetBinEntries(i06_[ism-1]->GetBin(1, i));
-        if ( num06 >= m_min_bin ) {
-          mean06 = i06_[ism-1]->GetBinContent(i06_[ism-1]->GetBin(1, i));
-          rms06  = i06_[ism-1]->GetBinError(i06_[ism-1]->GetBin(1, i));
-          update_channel2 = true;
-        }
-      }
-
-      if ( i07_[ism-1] && i07_[ism-1]->GetEntries() >= m_min_tot ) {
-        num07 = i07_[ism-1]->GetBinEntries(i07_[ism-1]->GetBin(1, i));
-        if ( num07 >= m_min_bin ) {
-          mean07 = i07_[ism-1]->GetBinContent(i07_[ism-1]->GetBin(1, i));
-          rms07  = i07_[ism-1]->GetBinError(i07_[ism-1]->GetBin(1, i));
-          update_channel3 = true;
-        }
-      }
-
-      if ( i08_[ism-1] && i08_[ism-1]->GetEntries() >= m_min_tot ) {
-        num08 = i08_[ism-1]->GetBinEntries(i08_[ism-1]->GetBin(1, i));
-        if ( num08 >= m_min_bin ) {
-          mean08 = i08_[ism-1]->GetBinContent(i08_[ism-1]->GetBin(1, i));
-          rms08  = i08_[ism-1]->GetBinError(i08_[ism-1]->GetBin(1, i));
-          update_channel4 = true;
-        }
-      }
-
-      if ( j01_[ism-1] && j01_[ism-1]->GetEntries() >= m_min_tot ) {
-        num09 = j01_[ism-1]->GetBinEntries(j01_[ism-1]->GetBin(1, i));
-        if ( num09 >= m_min_bin ) {
-          mean09 = j01_[ism-1]->GetBinContent(j01_[ism-1]->GetBin(1, i));
-          rms09  = j01_[ism-1]->GetBinError(j01_[ism-1]->GetBin(1, i));
-          update_channel5 = true;
-        }
-      }
-
-      if ( j02_[ism-1] && j02_[ism-1]->GetEntries() >= m_min_tot ) {
-        num10 = j02_[ism-1]->GetBinEntries(j02_[ism-1]->GetBin(1, i));
-        if ( num10 >= m_min_bin ) {
-          mean10 = j02_[ism-1]->GetBinContent(j02_[ism-1]->GetBin(1, i));
-          rms10  = j02_[ism-1]->GetBinError(j02_[ism-1]->GetBin(1, i));
-          update_channel6 = true;
-        }
-      }
-
-      if ( j03_[ism-1] && j03_[ism-1]->GetEntries() >= m_min_tot ) {
-        num11 = j03_[ism-1]->GetBinEntries(j03_[ism-1]->GetBin(i));
-        if ( num11 >= m_min_bin ) {
-          mean11 = j03_[ism-1]->GetBinContent(j03_[ism-1]->GetBin(1, i));
-          rms11  = j03_[ism-1]->GetBinError(j03_[ism-1]->GetBin(1, i));
-          update_channel7 = true;
-        }
-      }
-
-      if ( j04_[ism-1] && j04_[ism-1]->GetEntries() >= m_min_tot ) {
-        num12 = j04_[ism-1]->GetBinEntries(j04_[ism-1]->GetBin(1, i));
-        if ( num12 >= m_min_bin ) {
-          mean12 = j04_[ism-1]->GetBinContent(j04_[ism-1]->GetBin(1, i));
-          rms12  = j04_[ism-1]->GetBinError(j04_[ism-1]->GetBin(1, i));
-          update_channel8 = true;
-        }
-      }
-
-      if ( j05_[ism-1] && j05_[ism-1]->GetEntries() >= m_min_tot ) {
-        num13 = j05_[ism-1]->GetBinEntries(j05_[ism-1]->GetBin(1, i));
-        if ( num13 >= m_min_bin ) {
-          mean13 = j05_[ism-1]->GetBinContent(j05_[ism-1]->GetBin(1, i));
-          rms13  = j05_[ism-1]->GetBinError(j05_[ism-1]->GetBin(1, i));
-          update_channel5 = true;
-        }
-      }
-
-      if ( j06_[ism-1] && j06_[ism-1]->GetEntries() >= m_min_tot ) {
-        num14 = j06_[ism-1]->GetBinEntries(j06_[ism-1]->GetBin(1, i));
-        if ( num14 >= m_min_bin ) {
-          mean14 = j06_[ism-1]->GetBinContent(j06_[ism-1]->GetBin(1, i));
-          rms14  = j06_[ism-1]->GetBinError(j06_[ism-1]->GetBin(1, i));
-          update_channel6 = true;
-        }
-      }
-
-      if ( j07_[ism-1] && j07_[ism-1]->GetEntries() >= m_min_tot ) {
-      num15 = j07_[ism-1]->GetBinEntries(j07_[ism-1]->GetBin(1, i));
-        if ( num15 >= m_min_bin ) {
-          mean15 = j07_[ism-1]->GetBinContent(j07_[ism-1]->GetBin(1, i));
-          rms15  = j07_[ism-1]->GetBinError(j07_[ism-1]->GetBin(1, i));
-          update_channel7 = true;
-        }
-      }
-
-      if ( j08_[ism-1] && j08_[ism-1]->GetEntries() >= m_min_tot ) {
-        num16 = j08_[ism-1]->GetBinEntries(j08_[ism-1]->GetBin(1, i));
-        if ( num16 >= m_min_bin ) {
-          mean16 = j08_[ism-1]->GetBinContent(j08_[ism-1]->GetBin(1, i));
-          rms16  = j08_[ism-1]->GetBinError(j08_[ism-1]->GetBin(1, i));
-          update_channel8 = true;
-        }
-      }
-
-      if ( update_channel1 ) {
+      if ( update01 && update05 ) {
 
         float val;
 
@@ -3632,7 +3071,7 @@ void EBLaserClient::analyze(void){
 
       }
 
-      if ( update_channel2 ) {
+      if ( update02 && update06 ) {
 
         float val; 
 
@@ -3645,7 +3084,7 @@ void EBLaserClient::analyze(void){
 
       }
 
-      if ( update_channel3 ) {
+      if ( update03 && update07 ) {
 
         float val;
 
@@ -3658,7 +3097,7 @@ void EBLaserClient::analyze(void){
 
       }
 
-      if ( update_channel4 ) {
+      if ( update04 && update08 ) {
 
         float val;
 
@@ -3671,7 +3110,7 @@ void EBLaserClient::analyze(void){
 
       }
 
-      if ( update_channel5 ) {
+      if ( update09 && update13 ) {
 
         float val;
 
@@ -3684,7 +3123,7 @@ void EBLaserClient::analyze(void){
 
       }
 
-      if ( update_channel6 ) {
+      if ( update10 && update14 ) {
 
         float val;
 
@@ -3697,7 +3136,7 @@ void EBLaserClient::analyze(void){
 
       }
 
-      if ( update_channel7 ) {
+      if ( update11 && update15 ) {
 
         float val;
 
@@ -3710,7 +3149,7 @@ void EBLaserClient::analyze(void){
 
       }
 
-      if ( update_channel8 ) {
+      if ( update12 && update16 ) {
 
         float val;
 
@@ -4431,16 +3870,16 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1d = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( j01_[ism-1] ) obj1d = j01_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i09_[ism-1] ) obj1d = i09_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
         case 2:
-          if ( j02_[ism-1] ) obj1d = j02_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i10_[ism-1] ) obj1d = i10_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
         case 3:
-          if ( j03_[ism-1] ) obj1d = j03_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i11_[ism-1] ) obj1d = i11_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
         case 4:
-          if ( j04_[ism-1] ) obj1d = j04_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i12_[ism-1] ) obj1d = i12_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
         case 5:
         case 6:
@@ -4545,16 +3984,16 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1d = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( j05_[ism-1] ) obj1d = j05_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i13_[ism-1] ) obj1d = i13_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
         case 2:
-          if ( j06_[ism-1] ) obj1d = j06_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i14_[ism-1] ) obj1d = i14_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
         case 3:
-          if ( j07_[ism-1] ) obj1d = j07_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i15_[ism-1] ) obj1d = i15_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
         case 4:
-          if ( j08_[ism-1] ) obj1d = j08_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          if ( i16_[ism-1] ) obj1d = i16_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
         case 5:
         case 6:

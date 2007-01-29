@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2007/01/27 13:06:16 $
- * $Revision: 1.47 $
+ * $Date: 2007/01/27 19:43:32 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  *
 */
@@ -251,6 +251,14 @@ CollateMonitorElement* me_i05_[36];
 CollateMonitorElement* me_i06_[36];
 CollateMonitorElement* me_i07_[36];
 CollateMonitorElement* me_i08_[36];
+CollateMonitorElement* me_i09_[36];
+CollateMonitorElement* me_i10_[36];
+CollateMonitorElement* me_i11_[36];
+CollateMonitorElement* me_i12_[36];
+CollateMonitorElement* me_i13_[36];
+CollateMonitorElement* me_i14_[36];
+CollateMonitorElement* me_i15_[36];
+CollateMonitorElement* me_i16_[36];
 
 TProfile2D* i01_[36];
 TProfile2D* i02_[36];
@@ -260,24 +268,14 @@ TProfile2D* i05_[36];
 TProfile2D* i06_[36];
 TProfile2D* i07_[36];
 TProfile2D* i08_[36];
-
-CollateMonitorElement* me_j01_[36];
-CollateMonitorElement* me_j02_[36];
-CollateMonitorElement* me_j03_[36];
-CollateMonitorElement* me_j04_[36];
-CollateMonitorElement* me_j05_[36];
-CollateMonitorElement* me_j06_[36];
-CollateMonitorElement* me_j07_[36];
-CollateMonitorElement* me_j08_[36];
-
-TProfile2D* j01_[36];
-TProfile2D* j02_[36];
-TProfile2D* j03_[36];
-TProfile2D* j04_[36];
-TProfile2D* j05_[36];
-TProfile2D* j06_[36];
-TProfile2D* j07_[36];
-TProfile2D* j08_[36];
+TProfile2D* i09_[36];
+TProfile2D* i10_[36];
+TProfile2D* i11_[36];
+TProfile2D* i12_[36];
+TProfile2D* i13_[36];
+TProfile2D* i14_[36];
+TProfile2D* i15_[36];
+TProfile2D* i16_[36];
 
 // Quality check on crystals
 

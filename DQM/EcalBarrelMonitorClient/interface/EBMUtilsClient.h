@@ -1,11 +1,11 @@
-// $Id: EBMUtilsClient.h,v 1.17 2007/01/29 06:45:25 dellaric Exp $
+// $Id: EBMUtilsClient.h,v 1.19 2007/01/29 08:05:27 dellaric Exp $
 
 /*!
   \file EBMUtilsClient.h
   \brief Ecal Barrel Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.17 $
-  \date $Date: 2007/01/29 06:45:25 $
+  \version $Revision: 1.19 $
+  \date $Date: 2007/01/29 08:05:27 $
 */
 
 #ifndef EBMUtilsClient_H
@@ -116,15 +116,14 @@ class EBMUtilsClient {
     mean = -1.;
     rms  = -1.;
 
-    const float percent = 0.9;
-    const float n_min_bin = 10.;
+    float percent = 0.9;
+    float n_min_bin = 10.;
 
     if ( histo ) {
 
-      const float n_min_tot = percent *
-                              n_min_bin *
-                              histo->GetNbinsX() *
-                              histo->GetNbinsY();
+      float n_min_tot = percent * n_min_bin *
+                                  histo->GetNbinsX() *
+                                  histo->GetNbinsY();
 
       if ( histo->GetEntries() >= n_min_tot ) {
         num = histo->GetBinEntries(histo->GetBin(ix, iy));

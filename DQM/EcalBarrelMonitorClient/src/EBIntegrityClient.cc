@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/01/23 18:10:59 $
- * $Revision: 1.127 $
+ * $Date: 2007/01/28 10:21:30 $
+ * $Revision: 1.128 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -377,11 +377,11 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   num00 = 0.;
 
-  bool update_channel = false;
+  bool update0 = false;
 
   if ( h00_ ) {
     num00  = h00_->GetBinContent(h00_->GetBin(ism));
-    if ( num00 > 0 ) update_channel = true;
+    if ( num00 > 0 ) update0 = true;
   }
 
   float num01, num02, num03, num04;
@@ -391,33 +391,33 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
       num01 = num02 = num03 = num04 = 0.;
 
-      bool update_channel1 = false;
+      bool update1 = false;
 
       float numTot = -1.;
 
-     if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(h_[ism-1]->GetBin(ie, ip));
+      if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(h_[ism-1]->GetBin(ie, ip));
 
       if ( h01_[ism-1] ) {
         num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-        if ( num01 > 0 ) update_channel1 = true;
+        if ( num01 > 0 ) update1 = true;
       }
 
       if ( h02_[ism-1] ) {
         num02  = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
-        if ( num02 > 0 ) update_channel1 = true;
+        if ( num02 > 0 ) update1 = true;
       }
 
       if ( h03_[ism-1] ) {
         num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
-        if ( num03 > 0 ) update_channel1 = true;
+        if ( num03 > 0 ) update1 = true;
       }
 
       if ( h04_[ism-1] ) {
         num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
-        if ( num04 > 0 ) update_channel1 = true;
+        if ( num04 > 0 ) update1 = true;
       }
 
-      if ( update_channel || update_channel1 ) {
+      if ( update0 || update1 ) {
 
         if ( ie == 1 && ip == 1 ) {
 
@@ -478,7 +478,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
       num05 = num06 = 0.;
 
-      bool update_channel1 = false;
+      bool update1 = false;
 
       float numTot = -1.;
 
@@ -493,15 +493,15 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
       if ( h05_[ism-1] ) {
         num05  = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(iet, ipt));
-        if ( num05 > 0 ) update_channel1 = true;
+        if ( num05 > 0 ) update1 = true;
       }
 
       if ( h06_[ism-1] ) {
         num06  = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(iet, ipt));
-        if ( num06 > 0 ) update_channel1 = true;
+        if ( num06 > 0 ) update1 = true;
       }
 
-      if ( update_channel || update_channel1 ) {
+      if ( update0 || update1 ) {
 
         if ( iet == 1 && ipt == 1 ) {
 
@@ -563,7 +563,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
       num07 = num08 = 0.;
 
-      bool update_channel1 = false;
+      bool update1 = false;
 
       float numTot = -1.;
 
@@ -571,15 +571,15 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
       if ( h07_[ism-1] ) {
         num07  = h07_[ism-1]->GetBinContent(h07_[ism-1]->GetBin(ie, ip));
-        if ( num07 > 0 ) update_channel1 = true;
+        if ( num07 > 0 ) update1 = true;
       }
 
       if ( h08_[ism-1] ) {
         num08  = h08_[ism-1]->GetBinContent(h08_[ism-1]->GetBin(ie, ip));
-        if ( num08 > 0 ) update_channel1 = true;
+        if ( num08 > 0 ) update1 = true;
       }
 
-      if ( update_channel || update_channel1 ) {
+      if ( update0 || update1 ) {
 
         if ( ie == 1 && ip == 1 ) {
 
@@ -639,7 +639,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     num09 = num10 = 0.;
 
-    bool update_channel1 = false;
+    bool update1 = false;
 
     float numTot = -1.;
 
@@ -654,15 +654,15 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     if ( h09_[ism-1] ) {
       num09  = h09_[ism-1]->GetBinContent(h09_[ism-1]->GetBin(iet, 1));
-      if ( num09 > 0 ) update_channel1 = true;
+      if ( num09 > 0 ) update1 = true;
     }
 
     if ( h10_[ism-1] ) {
       num10  = h10_[ism-1]->GetBinContent(h10_[ism-1]->GetBin(iet, 1));
-      if ( num10 > 0 ) update_channel1 = true;
+      if ( num10 > 0 ) update1 = true;
     }
 
-    if ( update_channel || update_channel1 ) {
+    if ( update0 || update1 ) {
 
       if ( iet == 1 ) {
 
@@ -1199,12 +1199,12 @@ void EBIntegrityClient::analyze(void){
 
     num00 = 0.;
 
-    bool update_channel = false;
+    bool update0 = false;
 
     // dcc size errors
     if ( h00_ ) {
       num00  = h00_->GetBinContent(h00_->GetBin(ism));
-      update_channel = true;
+      update0 = true;
     }
 
     float num01, num02, num03, num04, num05, num06;
@@ -1216,8 +1216,8 @@ void EBIntegrityClient::analyze(void){
 
         if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 2. );
 
-        bool update_channel1 = false;
-        bool update_channel2 = false;
+        bool update1 = false;
+        bool update2 = false;
 
         float numTot = -1.;
 
@@ -1225,22 +1225,22 @@ void EBIntegrityClient::analyze(void){
 
         if ( h01_[ism-1] ) {
           num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-          update_channel1 = true;
+          update1 = true;
         }
 
         if ( h02_[ism-1] ) {
           num02  = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
-          update_channel1 = true;
+          update1 = true;
         }
 
         if ( h03_[ism-1] ) {
           num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
-          update_channel1 = true;
+          update1 = true;
         }
 
         if ( h04_[ism-1] ) {
           num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
-          update_channel1 = true;
+          update1 = true;
         }
 
         int iet = 1 + ((ie-1)/5);
@@ -1248,15 +1248,15 @@ void EBIntegrityClient::analyze(void){
 
         if ( h05_[ism-1] ) {
           num05  = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(iet, ipt));
-          update_channel2 = true;
+          update2 = true;
         }
 
         if ( h06_[ism-1] ) {
           num06  = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(iet, ipt));
-          update_channel2 = true;
+          update2 = true;
         }
 
-        if ( update_channel || update_channel1 || update_channel2 ) {
+        if ( update0 || update1 || update2 ) {
 
           float val;
 
@@ -1359,8 +1359,8 @@ void EBIntegrityClient::analyze(void){
         // initialize summary histo for mem
         if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 2. );
 
-        bool update_channel1 = false;
-        bool update_channel2 = false;
+        bool update1 = false;
+        bool update2 = false;
 
         float numTotmem = -1.;
 
@@ -1368,12 +1368,12 @@ void EBIntegrityClient::analyze(void){
 
         if ( h07_[ism-1] ) {
           num07  = h07_[ism-1]->GetBinContent(h07_[ism-1]->GetBin(ie, ip));
-          update_channel1 = true;
+          update1 = true;
         }
 
         if ( h08_[ism-1] ) {
           num08  = h08_[ism-1]->GetBinContent(h08_[ism-1]->GetBin(ie, ip));
-          update_channel1 = true;
+          update1 = true;
         }
 
         int iet = 1 + ((ie-1)/5);
@@ -1381,16 +1381,16 @@ void EBIntegrityClient::analyze(void){
 
         if ( h09_[ism-1] ) {
           num09  = h09_[ism-1]->GetBinContent(h09_[ism-1]->GetBin(iet, ipt));
-          update_channel2 = true;
+          update2 = true;
         }
 
         if ( h10_[ism-1] ) {
           num10  = h10_[ism-1]->GetBinContent(h10_[ism-1]->GetBin(iet, ipt));
-          update_channel2 = true;
+          update2 = true;
         }
 
 
-        if ( update_channel || update_channel1 || update_channel2 ) {
+        if ( update0 || update1 || update2 ) {
 
           float val;
 

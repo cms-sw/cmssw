@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/01/27 19:54:51 $
- * $Revision: 1.115 $
+ * $Date: 2007/01/28 10:21:30 $
+ * $Revision: 1.116 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -407,56 +407,22 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   MonPulseShapeDat shape;
   map<EcalLogicID, MonPulseShapeDat> dataset2;
 
-  const float n_min_tot = 1000.;
-  const float n_min_bin = 10.;
-
-  float num01, num02, num03;
-  float mean01, mean02, mean03;
-  float rms01, rms02, rms03;
-
-  vector<float> sample01, sample02, sample03;
-
   for ( int ie = 1; ie <= 85; ie++ ) {
     for ( int ip = 1; ip <= 20; ip++ ) {
 
-      num01  = num02  = num03  = -1.;
-      mean01 = mean02 = mean03 = -1.;
-      rms01  = rms02  = rms03  = -1.;
+      bool update01;
+      bool update02;
+      bool update03;
 
-      sample01.clear();
-      sample02.clear();
-      sample03.clear();
+      float num01, num02, num03;
+      float mean01, mean02, mean03;
+      float rms01, rms02, rms03;
 
-      bool update_channel = false;
+      update01 = EBMUtilsClient::getBinStats(ha01_[ism-1], ie, ip, num01, mean01, rms01);
+      update02 = EBMUtilsClient::getBinStats(ha02_[ism-1], ie, ip, num02, mean02, rms02);
+      update03 = EBMUtilsClient::getBinStats(ha03_[ism-1], ie, ip, num03, mean03, rms03);
 
-      if ( ha01_[ism-1] && ha01_[ism-1]->GetEntries() >= n_min_tot ) {
-        num01 = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ie, ip));
-        if ( num01 >= n_min_bin ) {
-          mean01 = ha01_[ism-1]->GetBinContent(ha01_[ism-1]->GetBin(ie, ip));
-          rms01  = ha01_[ism-1]->GetBinError(ha01_[ism-1]->GetBin(ie, ip));
-          update_channel = true;
-        }
-      }
-
-      if ( ha02_[ism-1] && ha02_[ism-1]->GetEntries() >= n_min_tot ) {
-        num02 = ha02_[ism-1]->GetBinEntries(ha02_[ism-1]->GetBin(ie, ip));
-        if ( num02 >= n_min_bin ) {
-          mean02 = ha02_[ism-1]->GetBinContent(ha02_[ism-1]->GetBin(ie, ip));
-          rms02  = ha02_[ism-1]->GetBinError(ha02_[ism-1]->GetBin(ie, ip));
-          update_channel = true;
-        }
-      }
-
-      if ( ha03_[ism-1] && ha03_[ism-1]->GetEntries() >= n_min_tot ) {
-        num03 = ha03_[ism-1]->GetBinEntries(ha03_[ism-1]->GetBin(ie, ip));
-        if ( num03 >= n_min_bin ) {
-          mean03 = ha03_[ism-1]->GetBinContent(ha03_[ism-1]->GetBin(ie, ip));
-          rms03  = ha03_[ism-1]->GetBinError(ha03_[ism-1]->GetBin(ie, ip));
-          update_channel = true;
-        }
-      }
-
-      if ( update_channel ) {
+      if ( update01 || update02 || update03 ) {
 
         if ( ie == 1 && ip == 1 ) {
 
@@ -488,6 +454,14 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         }
 
         if ( ie == 1 && ip == 1 ) {
+
+          vector<float> sample01, sample02, sample03;
+
+          sample01.clear();
+          sample02.clear();
+          sample03.clear();
+
+          const float n_min_tot = 1000.;
 
           if ( hs01_[ism-1] && hs01_[ism-1]->GetEntries() >= n_min_tot ) {
             for ( int i = 1; i <= 10; i++ ) {
@@ -568,61 +542,23 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   MonPNMGPADat pn;
   map<EcalLogicID, MonPNMGPADat> dataset3;
 
-  const float m_min_tot = 100.;
-  const float m_min_bin = 10.;
-
-//  float num01, num02, num03;
-  float num04;
-//  float mean01, mean02, mean03;
-  float mean04;
-//  float rms01, rms02, rms03;
-  float rms04;
-
   for ( int i = 1; i <= 10; i++ ) {
 
-    num01  = num02  = num03  = num04  = -1.;
-    mean01 = mean02 = mean03 = mean04 = -1.;
-    rms01  = rms02  = rms03  = rms04  = -1.;
+    bool update01;
+    bool update02;
+    bool update03;
+    bool update04;
 
-    bool update_channel = false;
+    float num01, num02, num03, num04;
+    float mean01, mean02, mean03, mean04;
+    float rms01, rms02, rms03, rms04;
 
-    if ( i01_[ism-1] && i01_[ism-1]->GetEntries() >= m_min_tot ) {
-      num01 = i01_[ism-1]->GetBinEntries(i01_[ism-1]->GetBin(1, i));
-      if ( num01 >= m_min_bin ) {
-        mean01 = i01_[ism-1]->GetBinContent(i01_[ism-1]->GetBin(1, i));
-        rms01  = i01_[ism-1]->GetBinError(i01_[ism-1]->GetBin(1, i));
-        update_channel = true;
-      }
-    }
+    update01 = EBMUtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+    update02 = EBMUtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
+    update03 = EBMUtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
+    update04 = EBMUtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
 
-    if ( i02_[ism-1] && i02_[ism-1]->GetEntries() >= m_min_tot ) {
-      num02 = i02_[ism-1]->GetBinEntries(i02_[ism-1]->GetBin(1, i));
-      if ( num02 >= m_min_bin ) {
-        mean02 = i02_[ism-1]->GetBinContent(i02_[ism-1]->GetBin(1, i));
-        rms02  = i02_[ism-1]->GetBinError(i02_[ism-1]->GetBin(1, i));
-        update_channel = true;
-      }
-    }
-
-    if ( i03_[ism-1] && i03_[ism-1]->GetEntries() >= m_min_tot ) {
-      num03 = i03_[ism-1]->GetBinEntries(i03_[ism-1]->GetBin(1, i));
-      if ( num03 >= m_min_bin ) {
-        mean03 = i03_[ism-1]->GetBinContent(i03_[ism-1]->GetBin(1, i));
-        rms03  = i03_[ism-1]->GetBinError(i03_[ism-1]->GetBin(1, i));
-        update_channel = true;
-      }
-    }
-
-    if ( i04_[ism-1] && i04_[ism-1]->GetEntries() >= m_min_tot ) {
-      num04 = i04_[ism-1]->GetBinEntries(i04_[ism-1]->GetBin(1, i));
-      if ( num04 >= m_min_bin ) {
-        mean04 = i04_[ism-1]->GetBinContent(i04_[ism-1]->GetBin(1, i));
-        rms04  = i04_[ism-1]->GetBinError(i04_[ism-1]->GetBin(1, i));
-        update_channel = true;
-      }
-    }
-
-    if ( update_channel ) {
+    if ( update01 || update02 || update03 || update04 ) {
 
       if ( i == 1 ) {
 
@@ -1131,13 +1067,6 @@ void EBTestPulseClient::analyze(void){
     me = mui_->get(histo);
     i04_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_[ism-1] );
 
-    const float n_min_tot = 1000.;
-    const float n_min_bin = 10.;
-
-    float num01, num02, num03;
-    float mean01, mean02, mean03;
-    float rms01, rms02, rms03;
-
     EBMUtilsClient::resetHisto( meg01_[ism-1] );
     EBMUtilsClient::resetHisto( meg02_[ism-1] );
     EBMUtilsClient::resetHisto( meg03_[ism-1] );
@@ -1152,17 +1081,9 @@ void EBTestPulseClient::analyze(void){
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        num01  = num02  = num03  = -1.;
-        mean01 = mean02 = mean03 = -1.;
-        rms01  = rms02  = rms03  = -1.;
-
         if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 2. );
         if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 2. );
         if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 2. );
-
-        bool update_channel1 = false;
-        bool update_channel2 = false;
-        bool update_channel3 = false;
 
         float numEventsinCry[3] = {0., 0., 0.};
 
@@ -1170,34 +1091,19 @@ void EBTestPulseClient::analyze(void){
         if ( ha02_[ism-1] ) numEventsinCry[1] = ha02_[ism-1]->GetBinEntries(ha02_[ism-1]->GetBin(ie, ip));
         if ( ha03_[ism-1] ) numEventsinCry[2] = ha03_[ism-1]->GetBinEntries(ha03_[ism-1]->GetBin(ie, ip));
 
-        if ( ha01_[ism-1] && ha01_[ism-1]->GetEntries() >= n_min_tot ) {
-          num01 = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ie, ip));
-          if ( num01 >= n_min_bin ) {
-            mean01 = ha01_[ism-1]->GetBinContent(ha01_[ism-1]->GetBin(ie, ip));
-            rms01  = ha01_[ism-1]->GetBinError(ha01_[ism-1]->GetBin(ie, ip));
-            update_channel1 = true;
-          }
-        }
+        bool update01;
+        bool update02;
+        bool update03;
 
-        if ( ha02_[ism-1] && ha02_[ism-1]->GetEntries() >= n_min_tot ) {
-          num02 = ha02_[ism-1]->GetBinEntries(ha02_[ism-1]->GetBin(ie, ip));
-          if ( num02 >= n_min_bin ) {
-            mean02 = ha02_[ism-1]->GetBinContent(ha02_[ism-1]->GetBin(ie, ip));
-            rms02  = ha02_[ism-1]->GetBinError(ha02_[ism-1]->GetBin(ie, ip));
-            update_channel2 = true;
-          }
-        }
+        float num01, num02, num03;
+        float mean01, mean02, mean03;
+        float rms01, rms02, rms03;
 
-        if ( ha03_[ism-1] && ha03_[ism-1]->GetEntries() >= n_min_tot ) {
-          num03 = ha03_[ism-1]->GetBinEntries(ha03_[ism-1]->GetBin(ie, ip));
-          if ( num03 >= n_min_bin ) {
-            mean03 = ha03_[ism-1]->GetBinContent(ha03_[ism-1]->GetBin(ie, ip));
-            rms03  = ha03_[ism-1]->GetBinError(ha03_[ism-1]->GetBin(ie, ip));
-            update_channel3 = true;
-          }
-        }
+        update01 = EBMUtilsClient::getBinStats(ha01_[ism-1], ie, ip, num01, mean01, rms01);
+        update02 = EBMUtilsClient::getBinStats(ha02_[ism-1], ie, ip, num02, mean02, rms02);
+        update03 = EBMUtilsClient::getBinStats(ha03_[ism-1], ie, ip, num03, mean03, rms03);
 
-        if ( update_channel1 ) {
+        if ( update01 ) {
 
           float val;
 
@@ -1217,7 +1123,7 @@ void EBTestPulseClient::analyze(void){
 
         }
 
-        if ( update_channel2 ) {
+        if ( update02 ) {
 
           float val;
 
@@ -1237,7 +1143,7 @@ void EBTestPulseClient::analyze(void){
 
         }
 
-        if ( update_channel3 ) {
+        if ( update03 ) {
 
           float val;
 
@@ -1294,65 +1200,26 @@ void EBTestPulseClient::analyze(void){
       }
     }
 
-    const float m_min_tot = 100.;
-    const float m_min_bin = 10.;
-
-//    float num01, num02, num03;
-    float num04;
-//    float mean01, mean02, mean03;
-    float mean04;
-//    float rms01, rms02, rms03;
-    float rms04;
-
     for ( int i = 1; i <= 10; i++ ) {
-
-      num01  = num02  = num03  = num04  = -1.;
-      mean01 = mean02 = mean03 = mean04 = -1.;
-      rms01  = rms02  = rms03  = rms04  = -1.;
 
       if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( i, 1, 2. );
       if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent( i, 1, 2. );
 
-      bool update_channel1 = false;
-      bool update_channel2 = false;
+      bool update01;
+      bool update02;
+      bool update03;
+      bool update04;
 
-      if ( i01_[ism-1] && i01_[ism-1]->GetEntries() >= m_min_tot ) {
-        num01 = i01_[ism-1]->GetBinEntries(i01_[ism-1]->GetBin(1, i));
-        if ( num01 >= m_min_bin ) {
-          mean01 = i01_[ism-1]->GetBinContent(i01_[ism-1]->GetBin(1, i));
-          rms01  = i01_[ism-1]->GetBinError(i01_[ism-1]->GetBin(1, i));
-          update_channel1 = true;
-        }
-      }
+      float num01, num02, num03, num04;
+      float mean01, mean02, mean03, mean04;
+      float rms01, rms02, rms03, rms04;
 
-      if ( i02_[ism-1] && i02_[ism-1]->GetEntries() >= m_min_tot ) {
-        num02 = i02_[ism-1]->GetBinEntries(i02_[ism-1]->GetBin(1, i));
-        if ( num02 >= m_min_bin ) {
-          mean02 = i02_[ism-1]->GetBinContent(i02_[ism-1]->GetBin(1, i));
-          rms02  = i02_[ism-1]->GetBinError(i02_[ism-1]->GetBin(1, i));
-          update_channel2 = true;
-        }
-      }
+      update01 = EBMUtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+      update02 = EBMUtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
+      update03 = EBMUtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
+      update04 = EBMUtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
 
-      if ( i03_[ism-1] && i03_[ism-1]->GetEntries() >= m_min_tot ) {
-        num03 = i03_[ism-1]->GetBinEntries(i03_[ism-1]->GetBin(1, i));
-        if ( num03 >= m_min_bin ) {
-          mean03 = i03_[ism-1]->GetBinContent(i03_[ism-1]->GetBin(1, i));
-          rms03  = i03_[ism-1]->GetBinError(i03_[ism-1]->GetBin(1, i));
-          update_channel1 = true;
-        }
-      }
-
-      if ( i04_[ism-1] && i04_[ism-1]->GetEntries() >= m_min_tot ) {
-        num04 = i04_[ism-1]->GetBinEntries(i04_[ism-1]->GetBin(1, i));
-        if ( num04 >= m_min_bin ) {
-          mean04 = i04_[ism-1]->GetBinContent(i04_[ism-1]->GetBin(1, i));
-          rms04  = i04_[ism-1]->GetBinError(i04_[ism-1]->GetBin(1, i));
-          update_channel2 = true;
-        }
-      }
-
-      if ( update_channel1 ) {
+      if ( update01 && update03 ) {
 
         float val;
 
@@ -1365,7 +1232,7 @@ void EBTestPulseClient::analyze(void){
 
       }
 
-      if ( update_channel2 ) {
+      if ( update02 && update04 ) {
 
         float val;
 

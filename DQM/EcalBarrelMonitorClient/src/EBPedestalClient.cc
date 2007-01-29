@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/01/27 19:54:50 $
- * $Revision: 1.116 $
+ * $Date: 2007/01/28 10:21:30 $
+ * $Revision: 1.117 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -473,50 +473,22 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   MonPedestalsDat p;
   map<EcalLogicID, MonPedestalsDat> dataset1;
 
-  const float n_min_tot = 1000.;
-  const float n_min_bin = 50.;
-
-  float num01, num02, num03;
-  float mean01, mean02, mean03;
-  float rms01, rms02, rms03;
-
   for ( int ie = 1; ie <= 85; ie++ ) {
     for ( int ip = 1; ip <= 20; ip++ ) {
 
-      num01  = num02  = num03  = -1.;
-      mean01 = mean02 = mean03 = -1.;
-      rms01  = rms02  = rms03  = -1.;
+      bool update01;
+      bool update02;
+      bool update03;
 
-      bool update_channel = false;
+      float num01, num02, num03;
+      float mean01, mean02, mean03;
+      float rms01, rms02, rms03;
 
-      if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
-        num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
-        if ( num01 >= n_min_bin ) {
-          mean01 = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-          rms01  = h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie, ip));
-          update_channel = true;
-        }
-      }
+      update01 = EBMUtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+      update02 = EBMUtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
+      update03 = EBMUtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
 
-      if ( h02_[ism-1] && h02_[ism-1]->GetEntries() >= n_min_tot ) {
-        num02 = h02_[ism-1]->GetBinEntries(h02_[ism-1]->GetBin(ie, ip));
-        if ( num02 >= n_min_bin ) {
-          mean02 = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
-          rms02  = h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie, ip));
-          update_channel = true;
-        }
-      }
-
-      if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
-        num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(ie, ip));
-        if ( num03 >= n_min_bin ) {
-          mean03 = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
-          rms03  = h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie, ip));
-          update_channel = true;
-        }
-      }
-
-      if ( update_channel ) {
+      if ( update01 || update02 || update03 ) {
 
         if ( ie == 1 && ip == 1 ) {
 
@@ -577,40 +549,19 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   MonPNPedDat pn;
   map<EcalLogicID, MonPNPedDat> dataset2;
 
-  const float m_min_tot = 1000.;
-  const float m_min_bin = 50.;
-
-//  float num01, num02;
-//  float mean01, mean02;
-//  float rms01, rms02;
-
   for ( int i = 1; i <= 10; i++ ) {
 
-    num01  = num02  = -1.;
-    mean01 = mean02 = -1.;
-    rms01  = rms02  = -1.;
+    bool update01;
+    bool update02;
 
-    bool update_channel = false;
+    float num01, num02;
+    float mean01, mean02;
+    float rms01, rms02;
 
-    if ( i01_[ism-1] && i01_[ism-1]->GetEntries() >= m_min_tot ) {
-      num01 = i01_[ism-1]->GetBinEntries(i01_[ism-1]->GetBin(1, i));
-      if ( num01 >= m_min_bin ) {
-        mean01 = i01_[ism-1]->GetBinContent(i01_[ism-1]->GetBin(1, i));
-        rms01  = i01_[ism-1]->GetBinError(i01_[ism-1]->GetBin(1, i));
-        update_channel = true;
-      }
-    }
+    update01 = EBMUtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+    update02 = EBMUtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
 
-    if ( i02_[ism-1] && i02_[ism-1]->GetEntries() >= m_min_tot ) {
-      num02 = i02_[ism-1]->GetBinEntries(i02_[ism-1]->GetBin(1, i));
-      if ( num02 >= m_min_bin ) {
-        mean02 = i02_[ism-1]->GetBinContent(i02_[ism-1]->GetBin(1, i));
-        rms02  = i02_[ism-1]->GetBinError(i02_[ism-1]->GetBin(1, i));
-        update_channel = true;
-      }
-    }
-
-    if ( update_channel ) {
+    if ( update01 || update02 ) {
 
       if ( i == 1 ) {
 
@@ -1055,13 +1006,6 @@ void EBPedestalClient::analyze(void){
     me = mui_->get(histo);
     i02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
 
-    const float n_min_tot = 1000.;
-    const float n_min_bin = 50.;
-
-    float num01, num02, num03;
-    float mean01, mean02, mean03;
-    float rms01, rms02, rms03;
-
     EBMUtilsClient::resetHisto( meg01_[ism-1] );
     EBMUtilsClient::resetHisto( meg02_[ism-1] );
     EBMUtilsClient::resetHisto( meg03_[ism-1] );
@@ -1088,46 +1032,23 @@ void EBPedestalClient::analyze(void){
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        num01  = num02  = num03  = -1.;
-        mean01 = mean02 = mean03 = -1.;
-        rms01  = rms02  = rms03  = -1.;
-
         if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ie, ip, 2.);
         if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(ie, ip, 2.);
         if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ie, ip, 2.);
 
-        bool update_channel1 = false;
-        bool update_channel2 = false;
-        bool update_channel3 = false;
+        bool update01;
+        bool update02;
+        bool update03;
 
-        if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
-          num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
-          if ( num01 >= n_min_bin ) {
-            mean01 = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-            rms01  = h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie, ip));
-            update_channel1 = true;
-          }
-        }
+        float num01, num02, num03;
+        float mean01, mean02, mean03;
+        float rms01, rms02, rms03;
 
-        if ( h02_[ism-1] && h02_[ism-1]->GetEntries() >= n_min_tot ) {
-          num02 = h02_[ism-1]->GetBinEntries(h02_[ism-1]->GetBin(ie, ip));
-          if ( num02 >= n_min_bin ) {
-            mean02 = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
-            rms02  = h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie, ip));
-            update_channel2 = true;
-          }
-        }
+        update01 = EBMUtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        update02 = EBMUtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
+        update03 = EBMUtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
 
-        if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
-          num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(ie, ip));
-          if ( num03 >= n_min_bin ) {
-            mean03 = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
-            rms03  = h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie, ip));
-            update_channel3 = true;
-          }
-        }
-
-        if ( update_channel1 ) {
+        if ( update01 ) {
 
           float val;
 
@@ -1143,7 +1064,7 @@ void EBPedestalClient::analyze(void){
 
         }
 
-        if ( update_channel2 ) {
+        if ( update02 ) {
 
           float val;
 
@@ -1159,7 +1080,7 @@ void EBPedestalClient::analyze(void){
 
         }
 
-        if ( update_channel3 ) {
+        if ( update03 ) {
 
           float val;
 
@@ -1212,44 +1133,22 @@ void EBPedestalClient::analyze(void){
       } 
     }
 
-    const float m_min_tot = 1000.;
-    const float m_min_bin = 50.;
-
-//    float num01, num02;
-//    float mean01, mean02;
-//    float rms01, rms02;
-
     for ( int i = 1; i <= 10; i++ ) {
-
-      num01 = num02 = -1;
-      mean01 = mean02 = -1;
-      rms01 = rms02 = -1;
 
       if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( i, 1, 2. );
       if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent( i, 1, 2. );
 
-      bool update_channel1 = false;
-      bool update_channel2 = false;
+      bool update01;
+      bool update02;
 
-      if ( i01_[ism-1] && i01_[ism-1]->GetEntries() >= m_min_tot ) {
-        num01 = i01_[ism-1]->GetBinEntries(i01_[ism-1]->GetBin(1, i));
-        if ( num01 >= m_min_bin ) {
-          mean01 = i01_[ism-1]->GetBinContent(i01_[ism-1]->GetBin(1, i));
-          rms01 = i01_[ism-1]->GetBinError(i01_[ism-1]->GetBin(1, i));
-          update_channel1 = true;
-        }
-      }
+      float num01, num02;
+      float mean01, mean02;
+      float rms01, rms02;
 
-      if ( i02_[ism-1] && i02_[ism-1]->GetEntries() >= m_min_tot ) {
-        num02 = i02_[ism-1]->GetBinEntries(i02_[ism-1]->GetBin(1, i));
-        if ( num02 >= m_min_bin ) {
-          mean02 = i02_[ism-1]->GetBinContent(i02_[ism-1]->GetBin(1, i));
-          rms02 = i02_[ism-1]->GetBinError(i02_[ism-1]->GetBin(1, i));
-          update_channel2 = true;
-        }
-      }
+      update01 = EBMUtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+      update02 = EBMUtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
 
-      if ( update_channel1 ) {
+      if ( update01 ) {
 
         float val;
 
@@ -1260,7 +1159,7 @@ void EBPedestalClient::analyze(void){
 
       }
 
-      if ( update_channel2 ) {
+      if ( update02 ) {
 
         float val;
 
