@@ -28,18 +28,24 @@ void IOVPayloadEndOfJob::endJob(){
   try{
     std::string tag=mydbservice->tag(m_record);
     Pedestals* myped=new Pedestals;
-    for(int ichannel=1; ichannel<=5; ++ichannel){
-      Pedestals::Item item;
-      item.m_mean=1.11*ichannel;
-      item.m_variance=1.12*ichannel;
-      myped->m_pedestals.push_back(item);
-    }
     if( mydbservice->isNewTagRequest(m_record) ){
+      for(int ichannel=1; ichannel<=5; ++ichannel){
+	Pedestals::Item item;
+	item.m_mean=1.11*ichannel;
+	item.m_variance=1.12*ichannel;
+	myped->m_pedestals.push_back(item);
+      }
       //create 
       cond::Time_t firstTillTime=mydbservice->endOfTime();
       mydbservice->createNewIOV<Pedestals>(myped,firstTillTime,m_record);
     }else{
       //append 
+      for(int ichannel=1; ichannel<=5; ++ichannel){
+	Pedestals::Item item;
+	item.m_mean=0.15*ichannel;
+	item.m_variance=0.32*ichannel;
+	myped->m_pedestals.push_back(item);
+      }
       cond::Time_t thisPayload_valid_since=5;
       mydbservice->appendSinceTime<Pedestals>(myped,thisPayload_valid_since,m_record);
     }
