@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: DataBlockImpl.cc,v 1.11 2007/01/26 21:24:46 paterno Exp $
+  $Id: DataBlockImpl.cc,v 1.12 2007/01/28 05:40:57 wmtan Exp $
   ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -474,7 +474,16 @@ namespace edm {
 
     explicit NeitherSameNorDerivedType(type_info const& elementType) :
       typeToMatch_(ROOT::Reflex::Type::ByTypeInfo(elementType)) 
-    { }
+    {
+      if (typeToMatch_ == ROOT::Reflex::Type()) {
+        throw edm::Exception(errors::LogicError)
+          << "DataBlockImpl::NeitherSameNorDerivedType constructor\n"
+          << "Input type is not known by ROOT::Reflex\n"
+          << "The mangled name of this type is \"" << elementType.name() << "\"\n"
+          << "Probably the dictionary for this class needs to be defined\n"
+          << "or maybe there is an error in the type passed as a template argument to a View\n\n";
+      }
+    }
 
     bool operator()(arg_t const& group) const {
       return !matches(group);
