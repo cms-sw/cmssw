@@ -1,0 +1,4 @@
+#
+# Ecal fake calibrations
+#
+ include "CalibCalorimetry/EcalTrivialCondModules/data/EcalTrivialCondRetriever.cfi"
