@@ -1,6 +1,6 @@
 /** \class HLTEgammaEtFilter
  *
- * $Id: HLTEgammaEtFilter.cc,v 1.1 2007/01/26 10:37:17 monicava Exp $
+ * $Id: HLTEgammaEtFilter.cc,v 1.2 2007/01/26 18:40:21 monicava Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -42,13 +42,25 @@ HLTEgammaEtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Ref to Candidate object to be recorded in filter object
   edm::RefToBase<reco::Candidate> ref;
   
-  // get hold of recoEcalCandidates
-  edm::Handle<reco::RecoEcalCandidateCollection> recoecalcands;
+  // get hold of filtered candidates
+  edm::Handle<reco::HLTFilterObjectWithRefs> recoecalcands;
   iEvent.getByLabel (inputTag_,recoecalcands);
   
   // look at all candidates,  check cuts and add to filter object
   int n(0);
-  
+
+  for (unsigned int i=0; i<recoecalcands->size(); i++) {
+    
+    ref = recoecalcands->getParticleRef(i);
+
+    if ( (recoecalcands->getParticleRef(i).get()->et() ) >= etcut_) {
+      n++;
+      filterproduct->putParticle(ref);
+    }
+  }
+
+
+  /*
   for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoecalcands->begin(); recoecalcand!=recoecalcands->end(); recoecalcand++) {
     
     if ( (recoecalcand->et()) >= etcut_) {
@@ -57,6 +69,7 @@ HLTEgammaEtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       filterproduct->putParticle(ref);
     }
   }
+  */
   
   // filter decision
   bool accept(n>=ncandcut_);
