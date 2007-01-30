@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.5 2007/01/24 09:20:33 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.6 2007/01/26 02:15:35 dmytro Exp $
 //
 //
 
@@ -41,6 +41,7 @@
 
 #include <boost/regex.hpp>
 #include "RecoMuon/MuonIdentification/interface/MuonIdProducer.h"
+#include "RecoMuon/MuonIdentification/interface/MuonIdTruthInfo.h"
 
 MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
 {
@@ -78,7 +79,12 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
    trackAssociator_.theCSCSegmentCollectionLabel = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
 
    inputCollectionLabel_ = iConfig.getParameter<edm::InputTag>("inputCollectionLabel");
-   
+
+   debugWithTruthMatching_ = iConfig.getParameter<bool>("debugWithTruthMatching");
+   if (debugWithTruthMatching_) edm::LogWarning("MuonIdentification") 
+     << "========================================================================\n" 
+     << "Debugging mode with truth matching is turned on!!! Make sure you understand what you are doing!\n"
+     << "========================================================================\n";
    trackAssociator_.useDefaultPropagator();
 }
 
@@ -148,30 +154,30 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    while(reco::MuonWithMatchInfo* aMuon = getNewMuon(iEvent, iSetup))
      {
 	if ( ! aMuon || ! aMuon->track().get() ) {
-	   edm::LogError("MuonIdProducer") << "failed to make a valid MuonWithMatchInfo object. Skip event";
+	   edm::LogError("MuonIdentification") << "failed to make a valid MuonWithMatchInfo object. Skip event";
 	   break;
 	}
-	LogTrace("MuonIdProducer::produce") << "---------------------------------------------";
-	LogTrace("MuonIdProducer::produce") << "track Pt: " << aMuon->track().get()->pt() << " GeV";
-	LogTrace("MuonIdProducer::produce") << "Distance from IP: " <<  aMuon->track().get()->vertex().rho() << " cm";
+	LogTrace("MuonIdentification") << "---------------------------------------------";
+	LogTrace("MuonIdentification") << "track Pt: " << aMuon->track().get()->pt() << " GeV";
+	LogTrace("MuonIdentification") << "Distance from IP: " <<  aMuon->track().get()->vertex().rho() << " cm";
 	
 	bool goodMuonCandidate = true;
 	
 	// Pt requirement
 	if (aMuon->track().get()->pt() < minPt_){ 
-	   LogTrace("MuonIdProducer::produce") << "Skipped low Pt track (Pt: " << aMuon->track().get()->pt() << " GeV)";
+	   LogTrace("MuonIdentification") << "Skipped low Pt track (Pt: " << aMuon->track().get()->pt() << " GeV)";
 	   goodMuonCandidate = false;
 	}
 	
 	// Absolute momentum requirement
 	if (aMuon->track().get()->p() < minP_){
-	   LogTrace("MuonIdProducer::produce") << "Skipped low P track (P: " << aMuon->track().get()->p() << " GeV)";
+	   LogTrace("MuonIdentification") << "Skipped low P track (P: " << aMuon->track().get()->p() << " GeV)";
 	   goodMuonCandidate = false;
 	}
 	
 	// Eta requirement
 	if ( fabs(aMuon->track().get()->eta()) > maxAbsEta_ ){
-	   LogTrace("MuonIdProducer::produce") << "Skipped track with large pseudo rapidity (Eta: " << aMuon->track().get()->eta() << " )";
+	   LogTrace("MuonIdentification") << "Skipped track with large pseudo rapidity (Eta: " << aMuon->track().get()->eta() << " )";
 	   goodMuonCandidate = false;
 	}
 	
@@ -181,7 +187,15 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   // loop over matches
 	   
 	}
-
+	
+	if ( goodMuonCandidate && debugWithTruthMatching_ ) {
+	   // add MC hits to a list of matched segments. The only
+	   // way to differentiate hits is the error on the local
+	   // hit position. It's -9999 for a MC hit.
+	   // Since it's debugging mode - code is slow
+	   MuonIdTruthInfo::truthMatchMuon(iEvent, iSetup, *aMuon);
+	}
+	
 	if (goodMuonCandidate ) outputMuons->push_back(*aMuon);
 	
 	delete aMuon;
@@ -255,14 +269,19 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	     aSegment.x = segment->segmentLocalPosition.x();
 	     aSegment.y = segment->segmentLocalPosition.y();
 	     aSegment.dXdZ = segment->segmentLocalDirection.x()/segment->segmentLocalDirection.z();
-	     aSegment.dYdZ = segment->segmentLocalDirection.y()/segment->segmentLocalDirection.z(); 
+	     aSegment.dYdZ = segment->segmentLocalDirection.y()/segment->segmentLocalDirection.z();
+	     aSegment.xErr = 0;
+	     aSegment.yErr = 0;
+	     aSegment.dXdZErr = 0;
+	     aSegment.dYdZErr = 0;
+
 	     
 	     aMatch.segmentMatches.push_back(aSegment);
 	  }
 	muonChamberMatches.push_back(aMatch);
      }
    aMuon.setMatches(muonChamberMatches);
-   LogTrace("MuonIdProducer::fillMuonId") << "number of muon chambers: " << aMuon.matches().size() << "\n" 
+   LogTrace("MuonIdentification") << "number of muon chambers: " << aMuon.matches().size() << "\n" 
      << "number of muon matches: " << aMuon.numberOfMatches();
 }
 

@@ -1,3 +1,6 @@
+#ifndef MuonIdentification_MuonIdProducer_h
+#define MuonIdentification_MuonIdProducer_h 1
+
 // -*- C++ -*-
 //
 // Package:    MuonIdentification
@@ -13,7 +16,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.3 2006/09/27 12:06:03 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.4 2007/01/24 09:20:32 dmytro Exp $
 //
 //
 
@@ -78,6 +81,7 @@ class MuonIdProducer : public edm::EDProducer {
    double hcalSelectionCone_;
    double muonPreselectionCone_;
    double muonSelectionCone_;
+   bool debugWithTruthMatching_;
    
    edm::Handle<reco::TrackCollection> trackCollectionHandle_;
    reco::TrackCollection::const_iterator trackCollectionIter_;
@@ -85,3 +89,4 @@ class MuonIdProducer : public edm::EDProducer {
    reco::MuonCollection::const_iterator muonCollectionIter_;
    int index_;
 };
+#endif
