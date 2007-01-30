@@ -12,6 +12,7 @@
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=RecoTracker/TransientTrackingRecHit> 
 <use name=TrackingTools/TransientTrack> 
+<use name=DataFormats/Common>
 <use name=rootrflx>
 
 <export>
@@ -26,6 +27,7 @@
    <use name=DataFormats/Math>
    <use name=MagneticField/Engine>
    <use name=MagneticField/Records>
+   <use name=DataFormats/Common>
    <use name=rootrflx>
 </export>
 <flags SEAL_PLUGIN_NAME="RecoTrackerTrackProducer">
