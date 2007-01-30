@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2006/09/21 15:48:31 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/11/23 02:27:44 $
+ *  $Revision: 1.10 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -141,6 +141,7 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
 
     for ( jter = iter+1; jter != candC.end(); jter++ ) {
       if ( !mask[j] ) { j++; continue; }
+      directionMatch = false;
       const Trajectory::DataContainer& meas2 = (*jter)->trajectory()->measurements();
       match = 0;
       for ( m1 = meas1.begin(); m1 != meas1.end(); m1++ ) {
@@ -179,10 +180,12 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
         <<innerTSOS.globalMomentum()<<" and " <<innerTSOS2.globalMomentum();
 
       }
-
+      
       // If there are matches, reject the worst track
+      bool hitsMatch = ((match > 0) && (match/((*iter)->trajectory()->foundHits()) > 0.25) || (match/((*jter)->trajectory()->foundHits()) > 0.25)) ? true : false;
+      
       if ( (match > 0) || directionMatch ) {
-        if (  (*iter)->trajectory()->foundHits() == (*jter)->trajectory()->foundHits() ) {
+	if (  (*iter)->trajectory()->foundHits() == (*jter)->trajectory()->foundHits() ) {
           if ( (*iter)->trajectory()->chiSquared() > (*jter)->trajectory()->chiSquared() ) {
             mask[i] = false;
             skipnext=true;

@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/01/17 16:18:04 $
- *  $Revision: 1.69 $
+ *  $Date: 2007/01/18 13:31:53 $
+ *  $Revision: 1.70 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -533,31 +533,39 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
   else {
     refittedResult = tkTrajs;
   }
-  //    int nRefitted = refittedResult.size();
   
-  //FIXME: IMPLEMENT ME  
-  //
-  // muon trajectory cleaner
-  //
-  //    TrajectoryCleaner* mcleaner = new L3MuonTrajectoryCleaner();
-  //    mcleaner->clean(refittedResult);
-  //   delete mcleaner;
-  
-  //    if ( cout.testOut ) {
-  //    cout.testOut << "seeds    : " << setw(3) << nSeeds << endl; 
-  //      cout.testOut << "raw      : " << setw(3) << nRaw << endl;
-  //    cout.testOut << "smoothed : " << setw(3) << nSmoothed << endl;
-  //      cout.testOut << "cleaned  : " << setw(3) << nCleaned << endl;
-  //      cout.testOut << "refitted : " << setw(3) << nRefitted << endl;
-  //  }
-  
-  //
-  //Perform a ghost suppression on all candidates, not only on those coming
-  //from the same seed (RecMuon)
-  //FIXME: IMPLEMENT ME
+  //return refittedResult;
 
-  return refittedResult;
+  // Choose the best global fit for this Standalone Muon based on the
+  // track probability
+  
+  CandidateContainer selectedResult;
+  MuonCandidate* tmpCand = *(refittedResult.begin());
+  double minProb = 9999;
+  for(CandidateContainer::const_iterator iter=refittedResult.begin(); iter != refittedResult.end(); iter++) {
+    double prob = trackProbability(*(*iter)->trajectory());
+    LogDebug("GlobalMuonTrajectoryBuilder") 
+      << "Track Chi2: " << (*iter)->trajectory()->chiSquared() 
+      << " Chi2/DoF " << (*iter)->trajectory()->chiSquared() / (*iter)->trajectory()->foundHits() 
+      << " Prob " << prob
+      << " Tracker pt " <<(*iter)->trackerTrack()->pt();
+    
+    if(prob < minProb) {
+      minProb = prob;
+      tmpCand = (*iter);
+    }
+  }
 
+  selectedResult.push_back(new MuonCandidate(new Trajectory(*(tmpCand->trajectory())), tmpCand->muonTrack(), tmpCand->trackerTrack()));
+
+  for( CandidateContainer::const_iterator it = refittedResult.begin(); it != refittedResult.end(); ++it) {
+    if ( (*it)->trajectory() ) delete (*it)->trajectory();
+    if ( *it ) delete (*it);
+  }
+  refittedResult.clear();
+
+  return selectedResult;
+  
 }
 
 
