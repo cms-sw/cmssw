@@ -117,13 +117,13 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     unsigned int     simtrackId = itP -> trackId();
     int                 genPart = itP -> genpartIndex(); // The HepMC particle number
     int                 genVert = itP -> vertIndex();    // The SimVertex #
+    int                   pdgId = itP -> type();
     EncodedEventId trackEventId = itP -> eventId(); 
     EncodedTruthId      trackId = EncodedTruthId(trackEventId,simtrackId);
     
     bool signalEvent = (trackEventId.event() == 0 && trackEventId.bunchCrossing() == 0);
     const TrackingParticle::LorentzVector theMomentum(p.x(), p.y(), p.z(), p.t());
     double  time = 0; 
-    int    pdgId = 0;
 
     const HepMC::GenParticle *gp = 0;       
 
