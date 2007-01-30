@@ -14,7 +14,7 @@
  *
  * \author Dmytro Kovalskyi, UCSB
  *
- * \version $Id: MuonWithMatchInfo.h,v 1.1 2006/09/27 12:04:04 dmytro Exp $
+ * \version $Id: MuonWithMatchInfo.h,v 1.2 2007/01/24 09:25:27 dmytro Exp $
  *
  */
 
@@ -61,7 +61,7 @@ namespace reco {
       /// set energy deposition information
       void setCalEnergy( const MuonEnergy& calEnergy ) { calEnergy_ = calEnergy; }
       /// get muon matching information
-      const std::vector<MuonChamberMatch>& matches() { return muMatches_;}
+      std::vector<MuonChamberMatch>& matches() { return muMatches_;}
       /// set muon matching information
       void setMatches( const std::vector<MuonChamberMatch>& matches ) { muMatches_ = matches; }
       /// number of chambers
