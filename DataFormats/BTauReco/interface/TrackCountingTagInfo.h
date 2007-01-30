@@ -66,7 +66,7 @@ class TrackCountingTagInfo
   ipType = 0 means 3d impact parameter
   ipType = 1 means transverse impact parameter
  */
-  virtual float discriminator(size_t nth,int ipType) const { return significance(nth,ipType); }
+  virtual float discriminator(size_t nth,int ipType) const { return significance(nth-1,ipType); }
  
   virtual int selectedTracks(int ipType)
   {

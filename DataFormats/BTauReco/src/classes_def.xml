@@ -116,8 +116,21 @@
      <field name="transientMap_" transient="true" />
   </class>
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::CaloJet>, std::vector<reco::EMLorentzVector>, unsigned int > > >"/>
-
-      
+     
+     <class name="edm::helpers::Key<reco::JetTracksAssociationRef>"/>  
+     <class name="reco::TracksInJetData"/>       
+     <class name="reco::TrackIPData"/>     
+     <class name="std::vector<reco::TrackIPData>" />
+     <class name="edm::AssociationMap<edm::OneToValue<reco::JetTracksAssociationCollection, reco::TracksInJetData,unsigned int> >">     
+      <field name="transientMap_" transient="true" />
+     </class> 
+     <class name="edm::Wrapper<reco::JetTracksIPDataAssociationCollection>"/>     
+     <class name="reco::JetTracksIPDataAssociation"/>     
+     <class name="reco::JetTracksIPDataAssociationRef"/>     
+     <class name="reco::JetTracksIPDataAssociationRefProd"/>     
+     <class name="reco::JetTracksIPDataAssociationRefVector"/>     
+    
+     <class name="edm::helpers::Key<edm::RefProd<reco::JetTracksAssociationCollection> >"/>
 
   <class pattern="edm::Ref<edm::AssociationMap<*>" />
   <class pattern="edm::RefProd<edm::AssociationMap<*>" />

@@ -22,7 +22,8 @@
 #include "DataFormats/BTauReco/interface/TauMassTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackTauImpactParameterAssociation.h"
 #include "DataFormats/BTauReco/interface/JetEisolAssociation.h"
-
+#include "DataFormats/BTauReco/interface/TrackIPData.h"
+ 
 namespace {
   namespace {
     reco::JetTagCollection v1;
@@ -49,12 +50,27 @@ namespace {
     edm::RefProd<reco::TrackProbabilityTagInfoCollection> rp2p;
     edm::RefVector<reco::TrackProbabilityTagInfoCollection> rv2p;
 
+
     reco::JetTracksAssociationCollection v3;
     edm::Wrapper<reco::JetTracksAssociationCollection> w3;
     reco::JetTracksAssociation ra3;
     reco::JetTracksAssociationRef r3;
     reco::JetTracksAssociationRefProd rp3;
     reco::JetTracksAssociationRefVector rv3;
+    
+    edm::helpers::Key<reco::JetTracksAssociationRef> keyforjta;
+    reco::TracksInJetData tijd; 
+    reco::TrackIPData tipd; 
+    std::vector<reco::TrackIPData> vipdata; 
+//    reco::JetTracksIPDataAssociationCollection vip3;
+    edm::AssociationMap<edm::OneToValue<reco::JetTracksAssociationCollection, reco::TracksInJetData,unsigned int> > vippp333;
+//edm::AssociationMap<edm::OneToValue<edm::AssociationMap<edm::OneToMany<vector<reco::CaloJet>,vector<reco::Track>,unsigned int> >,reco::TracksInJetData,unsigned int> > vip3333;
+     edm::Wrapper<reco::JetTracksIPDataAssociationCollection> wip3;
+    reco::JetTracksIPDataAssociation raip3;
+    reco::JetTracksIPDataAssociationRef rip3;
+    reco::JetTracksIPDataAssociationRefProd rp3ip;
+    reco::JetTracksIPDataAssociationRefVector rvip3;
+    edm::helpers::Key<edm::RefProd<reco::JetTracksAssociationCollection> > helper1;
 
     reco::JetCrystalsAssociationCollection v11;
     edm::Wrapper<reco::JetCrystalsAssociationCollection> w11;
