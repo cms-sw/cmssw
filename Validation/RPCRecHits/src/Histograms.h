@@ -22,5 +22,18 @@ using namespace std;
 
 
 
+//---------------------------------------------------------------------------------------
+// A set of histograms of residuals and pulls for RecHits
+
+  
+    TH1F* Residuals  = new TH1F ("Residuals", "RecHit residual", 300, -10, 10);
+
+    TH1F* Rechisto   = new TH1F ("RecHits", "RPC RecHits", 300, -150, 150);
+   
+    TH1F* Simhisto   = new TH1F ("SimHits", "Simulated Hits", 300, -150, 150);
+
+    TH1F* Pulls      = new TH1F ("Pulls", "Pulls", 100, -5,5);
+
+   
 #endif
 
