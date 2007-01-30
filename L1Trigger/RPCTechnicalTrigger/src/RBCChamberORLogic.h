@@ -1,6 +1,6 @@
 #ifndef RBCEmulator_RBCChamberORLogic_h
 #define RBCEmulator_RBCChamberORLogic_h
-#include "L1Trigger/RBCTechnicalTrigger/src/RBCLogic.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/RBCLogic.h"
 #include <iostream>
 
 class RBCChamberORLogic : public RBCLogic{

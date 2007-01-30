@@ -1,4 +1,4 @@
-#include "L1Trigger/RBCTechnicalTrigger/interface/RBCId.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCId.h"
 
 RBCId::RBCId() : w(-9),s(0)
 {}

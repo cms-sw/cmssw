@@ -1,5 +1,5 @@
-#include "L1Trigger/RBCEmulator/src/RBCLinkSignal.h"
-#include "L1Trigger/RBCEmulator/interface/RBCId.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/RBCLinkSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCId.h"
 
 RBCLinkSignal::RBCLinkSignal(const RBCId& id, int layer, int bx) :
   rid(id),l(layer),x(bx)

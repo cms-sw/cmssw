@@ -1,7 +1,7 @@
-#include "L1Trigger/RBCEmulator/interface/RBCPolicy.h"
-#include "L1Trigger/RBCEmulator/src/RBCLogic.h"
-#include "L1Trigger/RBCEmulator/src/RBCPatternLogic.h"
-#include "L1Trigger/RBCEmulator/src/RBCChamberORLogic.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/RBCPolicy.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/RBCLogic.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/RBCPatternLogic.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/RBCChamberORLogic.h"
 
 
 RBCPolicy::RBCPolicy(RBCPolicy::Policy p) : pol(p), l(0)    
