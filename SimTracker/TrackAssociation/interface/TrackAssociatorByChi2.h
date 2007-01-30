@@ -13,6 +13,9 @@
 
 #include<map>
 
+//Note that the Association Map is filled with -ch2 and not chi2 because it is ordered using std::greater:
+//the track with the lower association chi2 will be the first in the output map.
+
 class TrackAssociatorByChi2 : public TrackAssociatorBase {
 
  public:

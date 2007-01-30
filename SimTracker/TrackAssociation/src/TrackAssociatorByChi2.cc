@@ -145,7 +145,8 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 
 	if (chi2<chi2cut) {
 	  outputCollection.insert(reco::TrackRef(tCH,tindex), 
-				  std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),chi2));
+				  std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
+						 -chi2));//-chi2 because the Association Map is ordered using std::greater
 	}
       }
     }
@@ -223,7 +224,8 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
 
 	if (chi2<chi2cut) {
 	  outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
-				  std::make_pair(reco::TrackRef(tCH,tindex),chi2));
+				  std::make_pair(reco::TrackRef(tCH,tindex),
+						 -chi2));//-chi2 because the Association Map is ordered using std::greater
 	}
       }
     }
