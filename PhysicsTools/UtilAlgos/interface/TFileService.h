@@ -1,5 +1,5 @@
-#ifndef Utilities_TFileService_h
-#define Utilities_TFileService_h
+#ifndef UtilAlgos_TFileService_h
+#define UtilAlgos_TFileService_h
 /* \class TFileService
  *
  * \author Luca Lista, INFN

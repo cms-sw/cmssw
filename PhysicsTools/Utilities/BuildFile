@@ -1,16 +1,7 @@
-<flags SEAL_PLUGIN_NAME="PhysicsToolsUtilities">
-<use name=FWCore/ParameterSet>
-<use name=FWCore/ServiceRegistry>
-<use name=FWCore/Utilities>
-<use name=DataFormats/Common>
-<use name=boost>
-<use name=root>
 <export>
   <lib name=PhysicsToolsUtilities>
   <use name=FWCore/ParameterSet>
-  <use name=FWCore/ServiceRegistry>
   <use name=FWCore/Utilities>
   <use name=DataFormats/Common>
   <use name=boost>
-  <use name=root>
 </export>

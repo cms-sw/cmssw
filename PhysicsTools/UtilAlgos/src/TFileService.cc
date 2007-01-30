@@ -1,4 +1,4 @@
-#include "PhysicsTools/Utilities/interface/TFileService.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
