@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.14 2006/12/20 17:17:58 rahatlou Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.16 2007/01/30 17:46:11 rahatlou Exp $
 //
 
 // system include files
@@ -21,10 +21,10 @@
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "RecoTracker/RoadSearchHelixMaker/interface/DcxHel.hh"
-#include "RecoTracker/RoadSearchHelixMaker/interface/DcxFittedHel.hh"
-#include "RecoTracker/RoadSearchHelixMaker/interface/DcxHit.hh"
-#include "RecoTracker/RoadSearchHelixMaker/interface/DcxTrackCandidatesToTracks.hh"
+//#include "RecoTracker/RoadSearchHelixMaker/interface/DcxHel.hh"
+//#include "RecoTracker/RoadSearchHelixMaker/interface/DcxFittedHel.hh"
+//#include "RecoTracker/RoadSearchHelixMaker/interface/DcxHit.hh"
+//#include "RecoTracker/RoadSearchHelixMaker/interface/DcxTrackCandidatesToTracks.hh"
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
