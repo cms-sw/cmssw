@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.1 2007/01/21 15:30:36 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.2 2007/01/22 08:19:01 dmytro Exp $
 //
 //
 
@@ -54,7 +54,7 @@ void CachedTrajectory::propagateForward(SteppingHelixStateInfo& state, float dis
      }
    
 
-   // LogTrace("CachedTrajectory") << "\ttrajectory point (z,mag,eta,phi): " << state.position().z() << ", "
+   // LogTrace("TrackAssociator")
    // << state.position().mag() << " , "   << state.position().eta() << " , "
    // << state.position().phi();
 }
@@ -63,7 +63,7 @@ void CachedTrajectory::propagateForward(SteppingHelixStateInfo& state, float dis
 void CachedTrajectory::propagateAll(const SteppingHelixStateInfo& initialState)
 {
    if ( fullTrajectoryFilled_ ) {
-      edm::LogWarning("") << "Reseting all trajectories. Please call reset_trajectory() explicitely to avoid this message";
+      edm::LogWarning("TrackAssociator") << "Reseting all trajectories. Please call reset_trajectory() explicitely to avoid this message";
       reset_trajectory();
    }
 	
@@ -76,12 +76,12 @@ void CachedTrajectory::propagateAll(const SteppingHelixStateInfo& initialState)
    while (currentState.position().perp()<maxRho_ && fabs(currentState.position().z())<maxZ_ ){
       propagateForward(currentState,step_);
       if (! currentState.isValid() ) {
-	 LogTrace("FailedPropagation") << "Failed to propagate the track; moving on\n";
+	 LogTrace("TrackAssociator") << "Failed to propagate the track; moving on\n";
 	 break;
       }
       fullTrajectory_.push_back(currentState);
    }
-   LogTrace("") << "Done with the track propagation in the detector. Number of steps: " << fullTrajectory_.size();
+   LogTrace("TrackAssociator") << "Done with the track propagation in the detector. Number of steps: " << fullTrajectory_.size();
    fullTrajectoryFilled_ = true;
 }
 
@@ -105,7 +105,7 @@ TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
    
    // check whether the trajectory crossed the plane (signs should be different)
    if ( sign( distance(plane, leftIndex) ) * sign( distance(plane, rightIndex) ) != -1 ) {
-      LogTrace("") << "Track didn't cross the plane:\n\tleft distance: "<<distance(plane, leftIndex)
+      LogTrace("TrackAssociator") << "Track didn't cross the plane:\n\tleft distance: "<<distance(plane, leftIndex)
 	<<"\n\tright distance: " << distance(plane, rightIndex);
      return TrajectoryStateOnSurface();
    }
@@ -114,7 +114,7 @@ TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
       closestPointOnLeft = int((leftIndex+rightIndex)/2);
       float dist = distance(plane,closestPointOnLeft);
       /*
-      LogTrace("") << "Closest point on left: " << closestPointOnLeft << "\n"
+      LogTrace("TrackAssociator") << "Closest point on left: " << closestPointOnLeft << "\n"
 	<< "Distance to the plane: " << dist; */
       if (fabs(dist)<matchingDistance) {
 	 // found close match, verify that we are on the left side
@@ -129,13 +129,13 @@ TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
       else
 	leftIndex = closestPointOnLeft;
       /*
-      LogTrace("") << "Distance on left: " << distance(plane, leftIndex) << "\n"
+      LogTrace("TrackAssociator") << "Distance on left: " << distance(plane, leftIndex) << "\n"
 	<< "Distance to closest point: " <<  distance(plane, closestPointOnLeft) << "\n"
 	<< "Left index: " << leftIndex << "\n"
 	<< "Right index: " << rightIndex;
        */
    }
-   //   LogTrace("") << "closestPointOnLeft: " << closestPointOnLeft 
+   //   LogTrace("TrackAssociator") << "closestPointOnLeft: " << closestPointOnLeft 
    //     << "\n\ttrajectory point (z,R,eta,phi): " 
    //     << fullTrajectory_[closestPointOnLeft].freeState()->position().z() << ", "
    //     << fullTrajectory_[closestPointOnLeft].freeState()->position().perp() << " , "	
@@ -207,7 +207,7 @@ void CachedTrajectory::getTrajectory(std::vector<SteppingHelixStateInfo>& trajec
    if ( ! fullTrajectoryFilled_ ) throw cms::Exception("FatalError") << "trajectory is not defined yet. Please use propagateAll first.";
 	
    if (r1>r2 || z1>z2) {
-      LogTrace("CachedTrajectory") << "no trajectory is expected to be found since either R1>R2 or L1>L2";
+      LogTrace("TrackAssociator") << "no trajectory is expected to be found since either R1>R2 or L1>L2";
       return;
    }
    
@@ -218,7 +218,7 @@ void CachedTrajectory::getTrajectory(std::vector<SteppingHelixStateInfo>& trajec
 	( ( fullTrajectory_.front().position().perp()<r2 && fabs(fullTrajectory_.front().position().z()) <z2 ) &&
 	  ( fullTrajectory_.back().position().perp()>r1  || fabs(fullTrajectory_.back().position().z())  >z1 ) ))
      {
-	LogTrace("") << "Track didn't cross the region (R1,R2,L1,L2): " << r1 << ", " << r2 << ", " << z1 << ", " <<z2;
+	LogTrace("TrackAssociator") << "Track didn't cross the region (R1,R2,L1,L2): " << r1 << ", " << r2 << ", " << z1 << ", " <<z2;
 	return;
      }
    
@@ -231,7 +231,7 @@ void CachedTrajectory::getTrajectory(std::vector<SteppingHelixStateInfo>& trajec
    //   2) propagate from the closest point outside the region with the 
    //      requested step ignoring stored trajectory points.
    for(uint i=0; i<fullTrajectory_.size(); i++) {
-      // LogTrace("") << "Trajectory info (i,perp,r1,r2,z,z1,z2): " << i << ", " << fullTrajectory_[i].position().perp() <<
+      // LogTrace("TrackAssociator") << "Trajectory info (i,perp,r1,r2,z,z1,z2): " << i << ", " << fullTrajectory_[i].position().perp() <<
       //	", " << r1 << ", " << r2 << ", " << fullTrajectory_[i].position().z() << ", " << z1 << ", " << z2 <<
       //	", " << closestPointOnLeft;
       if ( fullTrajectory_[i].position().perp()-r1>0  || fabs(fullTrajectory_[i].position().z()) - z1 >0 )
@@ -250,7 +250,7 @@ void CachedTrajectory::getTrajectory(std::vector<SteppingHelixStateInfo>& trajec
      {
 	propagateForward(currentState,step);
 	if (! currentState.isValid() ) {
-	   LogTrace("FailedPropagation") << "Failed to propagate the track; moving on\n";
+	   LogTrace("TrackAssociator") << "Failed to propagate the track; moving on\n";
 	   break;
 	}
 	if ( ( currentState.position().perp()<r2 && fabs(currentState.position().z()) < z2 ) &&
@@ -274,9 +274,9 @@ void CachedTrajectory::reset_trajectory() {
 const std::vector<SteppingHelixStateInfo>& CachedTrajectory::getEcalTrajectory() {
    if ( ! ecalTrajectoryFilled_ )
      {
-	LogTrace("") << "getting trajectory in ECAL";
+	LogTrace("TrackAssociator") << "getting trajectory in ECAL";
 	getTrajectory(ecalTrajectory_, 130.,150.,315.,335,10 );
-	LogTrace("") << "# of points in ECAL trajectory:" << ecalTrajectory_.size();
+	LogTrace("TrackAssociator") << "# of points in ECAL trajectory:" << ecalTrajectory_.size();
 	ecalTrajectoryFilled_ = true;
      }
    return ecalTrajectory_;
@@ -285,9 +285,9 @@ const std::vector<SteppingHelixStateInfo>& CachedTrajectory::getEcalTrajectory()
 const std::vector<SteppingHelixStateInfo>& CachedTrajectory::getHcalTrajectory() {
    if ( ! hcalTrajectoryFilled_ ) 
      {
-	LogTrace("") << "getting trajectory in HCAL";
+	LogTrace("TrackAssociator") << "getting trajectory in HCAL";
 	getTrajectory(hcalTrajectory_, 190., 240., 400., 550, 50 );
-	LogTrace("") << "# of points in HCAL trajectory:" << hcalTrajectory_.size();
+	LogTrace("TrackAssociator") << "# of points in HCAL trajectory:" << hcalTrajectory_.size();
 	hcalTrajectoryFilled_ = true;
      }
    return hcalTrajectory_;
@@ -296,9 +296,9 @@ const std::vector<SteppingHelixStateInfo>& CachedTrajectory::getHcalTrajectory()
 const std::vector<SteppingHelixStateInfo>& CachedTrajectory::getHOTrajectory() {
    if ( ! hoTrajectoryFilled_ ) 
      { 
-	LogTrace("") << "getting trajectory in HO";
+	LogTrace("TrackAssociator") << "getting trajectory in HO";
 	getTrajectory(hoTrajectory_, 380,420.,625.,625.,10 );
-	LogTrace("") << "# of points in HO trajectory:" << hoTrajectory_.size();
+	LogTrace("TrackAssociator") << "# of points in HO trajectory:" << hoTrajectory_.size();
 	hoTrajectoryFilled_ = true;
      }
    return hoTrajectory_;

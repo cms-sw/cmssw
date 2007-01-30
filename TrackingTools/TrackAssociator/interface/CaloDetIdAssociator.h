@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CaloDetIdAssociator.h,v 1.2 2006/08/25 17:35:40 jribnik Exp $
+// $Id: CaloDetIdAssociator.h,v 1.3 2007/01/22 08:15:06 dmytro Exp $
 //
 //
 
@@ -56,10 +56,10 @@ class CaloDetIdAssociator: public DetIdAssociator{
    
    virtual std::vector<GlobalPoint> getDetIdPoints(const DetId& id){
       if(! geometry_->getSubdetectorGeometry(id)){
-         LogDebug("CaloDetIdAssociator") << "Cannot find sub-detector geometry for " << id.rawId() <<"\n";
+         LogDebug("TrackAssociator") << "Cannot find sub-detector geometry for " << id.rawId() <<"\n";
       } else {
          if(! geometry_->getSubdetectorGeometry(id)->getGeometry(id)) {
-            LogDebug("CaloDetIdAssociator") << "Cannot find CaloCell geometry for " << id.rawId() <<"\n";
+            LogDebug("TrackAssociator") << "Cannot find CaloCell geometry for " << id.rawId() <<"\n";
          } else {
             const std::vector<GlobalPoint>& points( geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getCorners() );
 	    for(std::vector<GlobalPoint>::const_iterator itr=points.begin();itr!=points.end();itr++)
@@ -67,7 +67,7 @@ class CaloDetIdAssociator: public DetIdAssociator{
 		 //FIX ME
 		 // the following is a protection from the NaN bug in CaloGeometry
 		 if(isnan(itr->mag())||itr->mag()>1e5) { //Detector parts cannot be 1 km away or be NaN
-		    edm::LogWarning("DetIdAssociator") << "Critical error! Bad calo detector unit geometry:\n\tDetId:" 
+		    edm::LogWarning("TrackAssociator") << "Critical error! Bad calo detector unit geometry:\n\tDetId:" 
 		      << id.rawId() << "\t mag(): " << itr->mag() << "\n" << DetIdInfo::info( id )
 			<< "\nSkipped the element";
 		    return std::vector<GlobalPoint>();

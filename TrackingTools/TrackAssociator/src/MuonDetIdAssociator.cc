@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: MuonDetIdAssociator.cc,v 1.2 2006/12/19 06:39:33 dmytro Exp $
+// $Id: MuonDetIdAssociator.cc,v 1.3 2007/01/21 15:30:36 dmytro Exp $
 //
 //
 
@@ -53,7 +53,7 @@ std::set<DetId> MuonDetIdAssociator::getASetOfValidDetIds(){
 
    // comment this for now, till the fix of GlobalTrackingGeometry is in a release
    // std::vector<GeomDet*> vectOfGeomDetPtrs = geometry_->dets();
-   // LogTrace("MuonDetIdAssociator::getASetOfValidDetIds") << "Number of GeomDet found: " << vectOfGeomDetPtrs.size();
+   // LogTrace("TrackAssociator") << "Number of GeomDet found: " << vectOfGeomDetPtrs.size();
    // for(std::vector<GeomDet*>::const_iterator it = vectOfGeomDetPtrs.begin(); it != vectOfGeomDetPtrs.end(); ++it)
    //  {
    // 	if ((*it)->subDetector() == GeomDetEnumerators::CSC || (*it)->subDetector() == GeomDetEnumerators::DT)

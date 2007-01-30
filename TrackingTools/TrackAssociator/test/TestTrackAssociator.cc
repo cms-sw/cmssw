@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TestTrackAssociator.cc,v 1.7 2007/01/22 08:56:27 dmytro Exp $
+// $Id: TestTrackAssociator.cc,v 1.8 2007/01/23 20:05:50 dmytro Exp $
 //
 //
 
@@ -133,13 +133,13 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
    if (! simVertices.isValid() ) throw cms::Exception("FatalError") << "No vertices found\n";
    
    // loop over simulated tracks
-   LogVerbatim("info") << "Number of simulated tracks found in the event: " << simTracks->size() ;
+   LogVerbatim("TrackAssociator") << "Number of simulated tracks found in the event: " << simTracks->size() ;
    for(SimTrackContainer::const_iterator tracksCI = simTracks->begin(); 
        tracksCI != simTracks->end(); tracksCI++){
       
       // skip low Pt tracks
       if (tracksCI->momentum().perp() < 5) {
-	 LogVerbatim("info") << "Skipped low Pt track (Pt: " << tracksCI->momentum().perp() << ")" ;
+	 LogVerbatim("TrackAssociator") << "Skipped low Pt track (Pt: " << tracksCI->momentum().perp() << ")" ;
 	 continue;
       }
       
@@ -152,17 +152,17 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
       
       // skip tracks originated away from the IP
       if (vertex.position().rho() > 50) {
-	 LogVerbatim("info") << "Skipped track originated away from IP: " <<vertex.position().rho();
+	 LogVerbatim("TrackAssociator") << "Skipped track originated away from IP: " <<vertex.position().rho();
 	 continue;
       }
       
-      LogVerbatim("info") << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << tracksCI->momentum().perp() << " , " <<
+      LogVerbatim("TrackAssociator") << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << tracksCI->momentum().perp() << " , " <<
 	tracksCI->momentum().eta() << " , " << tracksCI->momentum().phi() ;
       
 	if (1==2){ // it's just an example, and we don't need it for tests
 	   // Simply get ECAL energy of the crossed crystals
 	   if (useEcal_)
-	     LogVerbatim("info") << "ECAL energy of crossed crystals: " << 
+	     LogVerbatim("TrackAssociator") << "ECAL energy of crossed crystals: " << 
 	     trackAssociator_.getEcalEnergy(iEvent, iSetup,
 					    trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex) )
 	       << " GeV" ;
@@ -181,44 +181,44 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 //      parameters.dRMuonPreselection = 0.5;
       parameters.useOldMuonMatching = useOldMuonMatching_;
       
-      LogVerbatim("info") << "===========================================================================\nDetails:\n" ;
+      LogVerbatim("TrackAssociator") << "===========================================================================\nDetails:\n" ;
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,
 							  trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex),
 							  parameters);
-      LogVerbatim("info") << "ECAL, number of crossed cells: " << info.crossedEcalRecHits.size() ;
-      LogVerbatim("info") << "ECAL, energy of crossed cells: " << info.ecalEnergy() << " GeV" ;
-      LogVerbatim("info") << "ECAL, number of cells in the cone: " << info.ecalRecHits.size() ;
-      LogVerbatim("info") << "ECAL, energy in the cone: " << info.ecalConeEnergy() << " GeV" ;
-      LogVerbatim("info") << "ECAL, trajectory point (z,R,eta,phi): " << info.trkGlobPosAtEcal.z() << ", "
+      LogVerbatim("TrackAssociator") << "ECAL, number of crossed cells: " << info.crossedEcalRecHits.size() ;
+      LogVerbatim("TrackAssociator") << "ECAL, energy of crossed cells: " << info.ecalEnergy() << " GeV" ;
+      LogVerbatim("TrackAssociator") << "ECAL, number of cells in the cone: " << info.ecalRecHits.size() ;
+      LogVerbatim("TrackAssociator") << "ECAL, energy in the cone: " << info.ecalConeEnergy() << " GeV" ;
+      LogVerbatim("TrackAssociator") << "ECAL, trajectory point (z,R,eta,phi): " << info.trkGlobPosAtEcal.z() << ", "
 	<< info.trkGlobPosAtEcal.R() << " , "	<< info.trkGlobPosAtEcal.eta() << " , " 
 	<< info.trkGlobPosAtEcal.phi();
       
-      LogVerbatim("info") << "HCAL, number of crossed elements (towers): " << info.crossedTowers.size() ;
-      LogVerbatim("info") << "HCAL, energy of crossed elements (towers): " << info.hcalTowerEnergy() << " GeV" ;
-      LogVerbatim("info") << "HCAL, number of crossed elements (hits): "   << info.crossedHcalRecHits.size() ;
-      LogVerbatim("info") << "HCAL, energy of crossed elements (hits): "   << info.hcalEnergy() << " GeV" ;
-      LogVerbatim("info") << "HCAL, number of elements in the cone (towers): " << info.towers.size() ;
-      LogVerbatim("info") << "HCAL, energy in the cone (towers): "             << info.hcalTowerConeEnergy() << " GeV" ;
-      LogVerbatim("info") << "HCAL, number of elements in the cone (hits): "   << info.hcalRecHits.size() ;
-      LogVerbatim("info") << "HCAL, energy in the cone (hits): "               << info.hcalConeEnergy() << " GeV" ;
-      LogVerbatim("info") << "HCAL, trajectory point (z,R,eta,phi): " << info.trkGlobPosAtHcal.z() << ", "
+      LogVerbatim("TrackAssociator") << "HCAL, number of crossed elements (towers): " << info.crossedTowers.size() ;
+      LogVerbatim("TrackAssociator") << "HCAL, energy of crossed elements (towers): " << info.hcalTowerEnergy() << " GeV" ;
+      LogVerbatim("TrackAssociator") << "HCAL, number of crossed elements (hits): "   << info.crossedHcalRecHits.size() ;
+      LogVerbatim("TrackAssociator") << "HCAL, energy of crossed elements (hits): "   << info.hcalEnergy() << " GeV" ;
+      LogVerbatim("TrackAssociator") << "HCAL, number of elements in the cone (towers): " << info.towers.size() ;
+      LogVerbatim("TrackAssociator") << "HCAL, energy in the cone (towers): "             << info.hcalTowerConeEnergy() << " GeV" ;
+      LogVerbatim("TrackAssociator") << "HCAL, number of elements in the cone (hits): "   << info.hcalRecHits.size() ;
+      LogVerbatim("TrackAssociator") << "HCAL, energy in the cone (hits): "               << info.hcalConeEnergy() << " GeV" ;
+      LogVerbatim("TrackAssociator") << "HCAL, trajectory point (z,R,eta,phi): " << info.trkGlobPosAtHcal.z() << ", "
 	<< info.trkGlobPosAtHcal.R() << " , "	<< info.trkGlobPosAtHcal.eta() << " , "
 	<< info.trkGlobPosAtHcal.phi();
       
-      LogVerbatim("info") << "HO, number of crossed elements (hits): " << info.crossedHORecHits.size() ;
-      LogVerbatim("info") << "HO, energy of crossed elements (hits): " << info.hoEnergy() << " GeV" ;
-      LogVerbatim("info") << "HO, number of elements in the cone: " << info.hoRecHits.size() ;
-      LogVerbatim("info") << "HO, energy in the cone: " << info.hoConeEnergy() << " GeV" ;
-      LogVerbatim("info") << "HCAL, trajectory point (z,R,eta,phi): " << info.trkGlobPosAtHO.z() << ", "
+      LogVerbatim("TrackAssociator") << "HO, number of crossed elements (hits): " << info.crossedHORecHits.size() ;
+      LogVerbatim("TrackAssociator") << "HO, energy of crossed elements (hits): " << info.hoEnergy() << " GeV" ;
+      LogVerbatim("TrackAssociator") << "HO, number of elements in the cone: " << info.hoRecHits.size() ;
+      LogVerbatim("TrackAssociator") << "HO, energy in the cone: " << info.hoConeEnergy() << " GeV" ;
+      LogVerbatim("TrackAssociator") << "HCAL, trajectory point (z,R,eta,phi): " << info.trkGlobPosAtHO.z() << ", "
 	<< info.trkGlobPosAtHO.R() << " , "	<< info.trkGlobPosAtHO.eta() << " , "
 	<< info.trkGlobPosAtHO.phi();
 
       if (useMuon_) {
-	 LogVerbatim("info") << "Muon detector matching details: " ;
+	 LogVerbatim("TrackAssociator") << "Muon detector matching details: " ;
 	 for(std::vector<MuonChamberMatch>::const_iterator chamber = info.chambers.begin();
 	     chamber!=info.chambers.end(); chamber++)
 	   {
-	      LogVerbatim("info") << chamber->info() << "\n\t(DetId, station, edgeX, edgeY): "
+	      LogVerbatim("TrackAssociator") << chamber->info() << "\n\t(DetId, station, edgeX, edgeY): "
 		<< chamber->id.rawId() << ", "
 		<< chamber->station() << ", "
 		<< chamber->localDistanceX << ", "
@@ -226,22 +226,22 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	      for(std::vector<MuonSegmentMatch>::const_iterator segment=chamber->segments.begin(); 
 		  segment!=chamber->segments.end(); segment++)
 		{
-		   LogVerbatim("info") << "\t trajectory global point (z,R,eta,phi): "
+		   LogVerbatim("TrackAssociator") << "\t trajectory global point (z,R,eta,phi): "
 		     << segment->trajectoryGlobalPosition.z() << ", "
 		     << segment->trajectoryGlobalPosition.R() << ", "
 		     << segment->trajectoryGlobalPosition.eta() << ", "
 		     << segment->trajectoryGlobalPosition.phi() ;
-		   LogVerbatim("info") << "\t trajectory local point (x,y): "
+		   LogVerbatim("TrackAssociator") << "\t trajectory local point (x,y): "
 		     << segment->trajectoryLocalPosition.x() << ", "
 		     << segment->trajectoryLocalPosition.y();
 
-		   LogVerbatim("info") << "\t segment position (z,R,eta,phi,DetId): " 
+		   LogVerbatim("TrackAssociator") << "\t segment position (z,R,eta,phi,DetId): " 
 		     << segment->segmentGlobalPosition.z() << ", "
 		     << segment->segmentGlobalPosition.R() << ", "
 		     << segment->segmentGlobalPosition.eta() << ", "
 		     << segment->segmentGlobalPosition.phi() << ", "
 		     << chamber->id.rawId();
-		   LogVerbatim("info") << "\t segment local position (x,y): "
+		   LogVerbatim("TrackAssociator") << "\t segment local position (x,y): "
 		     << segment->segmentLocalPosition.x() << ", "
 		     << segment->segmentLocalPosition.y();
 		}
