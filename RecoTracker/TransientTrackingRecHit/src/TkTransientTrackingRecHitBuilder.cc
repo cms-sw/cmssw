@@ -35,9 +35,11 @@ TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const
   } else if ( const SiPixelRecHit* ph = dynamic_cast<const SiPixelRecHit*>(p)) {
     return ( TSiPixelRecHit::build( tGeometry_->idToDet(p->geographicalId()), ph, pixelCPE) ); 
   }else if (dynamic_cast<const InvalidTrackingRecHit*>(p)){
-    return ( InvalidTransientRecHit::build( (p->geographicalId().rawId() == 0 ? 0 : 
-					     tGeometry_->idToDet(p->geographicalId())
-					     ) ));  
+    return ( InvalidTransientRecHit::build((p->geographicalId().rawId() == 0 ? 0 : 
+					    tGeometry_->idToDet(p->geographicalId())),
+					   p->getType()
+					   ) );
+    
   }else if (const ProjectedSiStripRecHit2D* ph = dynamic_cast<const ProjectedSiStripRecHit2D*>(p)) {
     return ProjectedRecHit2D::build(tGeometry_->idToDet(p->geographicalId()),
 				    tGeometry_->idToDet(ph->originalHit().geographicalId()),
