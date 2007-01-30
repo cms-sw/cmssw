@@ -112,7 +112,7 @@ public:
   
   void addInvalidMeas( std::vector<TrajectoryMeasurement>& result, 
 		       const TrajectoryStateOnSurface& ts, const GeomDet* det) const {
-    result.push_back( TM( ts, InvalidTransientRecHit::build(det), 0.F,0));
+    result.push_back( TM( ts, InvalidTransientRecHit::build(det, TrackingRecHit::missing), 0.F,0));
   }
   
 
@@ -143,10 +143,13 @@ GeometricSearchDetMeasurements::get( const GeometricSearchDet& layer,
       std::vector<TM> tmp = mdet->fastMeasurements( i->second, ts, prop, est);
       if ( !tmp.empty()) {
 	// only collect valid RecHits
-	std::vector<TM>::iterator end = (tmp.back().recHit()->isValid() ? tmp.end() : tmp.end()-1);
+	std::vector<TM>::iterator end = (tmp.back().recHit()->getType() != TrackingRecHit::missing ? tmp.end() : tmp.end()-1);
 	result.insert( result.end(), tmp.begin(), end);
       }
     }
+    // WARNING: we might end up with more than one invalid hit of type 'inactive' in result
+    // to be fixed in order to avoid usless double traj candidates.
+
     // sort the final result
     if ( result.size() > 1) {
       sort( result.begin(), result.end(), TrajMeasLessEstim());

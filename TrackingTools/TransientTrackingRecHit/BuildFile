@@ -14,6 +14,7 @@
 <export>
 <lib name=TrackingToolsTransientTrackingRecHit>
   <use name=FWCore/Framework>
+  <use name=DataFormats/TrackingRecHit>
 </export>
 
 #<flags SEAL_PLUGIN_NAME="TrackingToolsTransientTrackingRecHit">

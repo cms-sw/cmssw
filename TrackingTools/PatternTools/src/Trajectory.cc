@@ -5,8 +5,7 @@
 void Trajectory::pop() {
   if (!empty()) {
     if (theData.back().recHit()->isValid())             theNumberOfFoundHits--;
-    //else if (!inactive(theData.back().recHit().det())) theNumberOfLostHits--; 
-    else if(theData.back().recHit()->geographicalId().rawId()) theNumberOfLostHits--;
+    else if(lost(* (theData.back().recHit()) )) theNumberOfLostHits--;
     theData.pop_back();
   }
 }
@@ -102,9 +101,7 @@ bool Trajectory::lost( const TransientTrackingRecHit& hit)
   
     if(hit.geographicalId().rawId() == 0) {return false;}
     else{
-      //       if (inactive(hit.det())) return false;
-      //       else return true;
-      return true;
+      return hit.getType() == TrackingRecHit::missing;
     }
   }
 }

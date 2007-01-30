@@ -3,8 +3,8 @@
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-InvalidTransientRecHit::InvalidTransientRecHit( const GeomDet* geom) :
-  GenericTransientTrackingRecHit( geom, InvalidTrackingRecHit( geom == 0 ? DetId(0) : geom->geographicalId()))
+InvalidTransientRecHit::InvalidTransientRecHit( const GeomDet* geom, Type type ) :
+  GenericTransientTrackingRecHit( geom, InvalidTrackingRecHit( geom == 0 ? DetId(0) : geom->geographicalId(), type))
 {
 }
 

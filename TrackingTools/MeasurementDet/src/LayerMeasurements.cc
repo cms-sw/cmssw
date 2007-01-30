@@ -26,7 +26,7 @@ LayerMeasurements::measurements( const DetLayer& layer,
 
     if ( compat.first) {
       result.push_back( TrajectoryMeasurement( compat.second, 
-					       InvalidTransientRecHit::build(0), 0.F,
+					       InvalidTransientRecHit::build(0, TrackingRecHit::missing), 0.F,
 					       &layer));
     }
     return result;
@@ -89,7 +89,7 @@ LayerMeasurements::groupedMeasurements( const DetLayer& layer,
   if (result.empty()) {
     pair<bool, TrajectoryStateOnSurface> compat = layer.compatible( startingState, prop, est);
     if ( compat.first) {
-      TrajectoryMeasurement inval( compat.second, InvalidTransientRecHit::build(0), 0.F,&layer);
+      TrajectoryMeasurement inval( compat.second, InvalidTransientRecHit::build(0, TrackingRecHit::missing), 0.F,&layer);
       vector<TrajectoryMeasurement> tmVec(1,inval);
       result.push_back( TrajectoryMeasurementGroup( tmVec, DetGroup()));
     }
@@ -104,12 +104,12 @@ void LayerMeasurements::addInvalidMeas( vector<TrajectoryMeasurement>& measVec,
   if (!measVec.empty()) {
     // invalidMeas on Det of most compatible hit
     measVec.push_back( TrajectoryMeasurement( measVec.front().predictedState(), 
-					      InvalidTransientRecHit::build(measVec.front().recHit()->det()),
+					      InvalidTransientRecHit::build(measVec.front().recHit()->det(), TrackingRecHit::missing),
 					      0.,&layer));
   }
   else if (!group.empty()) {
     // invalid state on first compatible Det
     measVec.push_back( TrajectoryMeasurement( group.front().trajectoryState(), 
-					      InvalidTransientRecHit::build(group.front().det()), 0.,&layer));
+					      InvalidTransientRecHit::build(group.front().det(), TrackingRecHit::missing), 0.,&layer));
   }
 }

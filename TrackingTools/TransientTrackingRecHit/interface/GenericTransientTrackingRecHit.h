@@ -5,6 +5,7 @@
 
 class GenericTransientTrackingRecHit: public TransientTrackingRecHit{
 public:
+  typedef TrackingRecHit::Type Type;
 
   virtual ~GenericTransientTrackingRecHit() {delete trackingRecHit_;}
 
@@ -24,6 +25,7 @@ public:
   virtual const TrackingRecHit * hit() const {return trackingRecHit_;};
   
   virtual bool isValid() const{return trackingRecHit_->isValid();}
+  virtual Type getType() const{return trackingRecHit_->getType();}
 
   virtual std::vector<const TrackingRecHit*> recHits() const {
     return ((const TrackingRecHit *)(trackingRecHit_))->recHits();
