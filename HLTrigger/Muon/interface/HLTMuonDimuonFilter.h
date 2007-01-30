@@ -23,6 +23,7 @@ class HLTMuonDimuonFilter : public HLTFilter {
    private:
       edm::InputTag candTag_;  // input tag identifying product contains muons
       
+      bool   fast_Accept_;      // flag to save time: stop processing after identification of the first valid pair
       double max_Eta_;          // Eta cut
       int    min_Nhits_;        // threshold on number of hits on muon
       double max_Dr_;           // impact parameter cut

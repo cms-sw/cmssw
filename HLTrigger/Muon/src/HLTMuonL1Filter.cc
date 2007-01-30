@@ -75,14 +75,10 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int n = 0;
    for (unsigned int i=0; i<mucands->size(); i++) {
       RefToBase<Candidate> cand = mucands->getParticleRef(i);
-      //if (typeid(*cand)!=typeid(L1MuonParticle)) continue;
-      L1MuonParticleRef muon;
-      try {
-            muon = cand.castTo<L1MuonParticleRef>();
-      } catch(...) {
-            continue;
-      }
+      if (typeid(*cand)!=typeid(L1MuonParticle)) continue;
+      L1MuonParticleRef muon = cand.castTo<L1MuonParticleRef>();
       if (muon.isNull()) continue;
+
       LogDebug("HLTMuonL1Filter") 
             << " Muon in loop, eta= " << muon->eta() 
             << ", pt= " << muon->pt();
@@ -92,7 +88,7 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (pt<min_Pt_) continue;
 
       int quality =  999;
-      if ( muon->gmtMuonCand().empty() ) {
+      if ( !muon->gmtMuonCand().empty() ) {
             quality = muon->gmtMuonCand().quality();
       }
       LogDebug("HLTMuonL1Filter") 

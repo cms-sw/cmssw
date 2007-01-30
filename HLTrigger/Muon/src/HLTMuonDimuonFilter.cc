@@ -22,14 +22,15 @@
 //
 HLTMuonDimuonFilter::HLTMuonDimuonFilter(const edm::ParameterSet& iConfig) :
    candTag_     (iConfig.getParameter< edm::InputTag > ("CandTag")),
+   fast_Accept_ (iConfig.getParameter<bool> ("FastAccept")),
    max_Eta_     (iConfig.getParameter<double> ("MaxEta")),
    min_Nhits_   (iConfig.getParameter<int> ("MinNhits")),
    max_Dr_      (iConfig.getParameter<double> ("MaxDr")),
    max_Dz_      (iConfig.getParameter<double> ("MaxDz")),
-   chargeOpt_     (iConfig.getParameter<int> ("ChargeOpt")),
-   min_PtPair_     (iConfig.getParameter<double> ("MinPtPair")),
-   min_PtMax_     (iConfig.getParameter<double> ("MinPtMax")),
-   min_PtMin_     (iConfig.getParameter<double> ("MinPtMin")),
+   chargeOpt_   (iConfig.getParameter<int> ("ChargeOpt")),
+   min_PtPair_  (iConfig.getParameter<double> ("MinPtPair")),
+   min_PtMax_   (iConfig.getParameter<double> ("MinPtMax")),
+   min_PtMin_   (iConfig.getParameter<double> ("MinPtMin")),
    min_InvMass_ (iConfig.getParameter<double> ("MinInvMass")),
    max_InvMass_ (iConfig.getParameter<double> ("MaxInvMass")),
    min_Acop_    (iConfig.getParameter<double> ("MinAcop")),
@@ -40,6 +41,7 @@ HLTMuonDimuonFilter::HLTMuonDimuonFilter(const edm::ParameterSet& iConfig) :
    LogDebug("HLTMuonDimuonFilter")
       << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/MinAcop/MaxAcop/NSigmaPt : " 
       << candTag_.encode()
+      << " " << fast_Accept_
       << " " << max_Eta_
       << " " << min_Nhits_
       << " " << max_Dr_
@@ -70,6 +72,9 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    using namespace reco;
 
+   double const MuMass = 0.106;
+   double const MuMass2 = MuMass*MuMass;
+
    // All HLT filters must create and fill an HLT filter object,
    // recording any reconstructed physics objects satisfying (or not)
    // this HLT filter, and place it in the Event.
@@ -88,6 +93,9 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // look at all mucands,  check cuts and add to filter object
    int n = 0;
+   double e1,e2;
+   Particle::LorentzVector p,p1,p2;
+
    RecoChargedCandidateCollection::const_iterator cand1;
    RecoChargedCandidateCollection::const_iterator cand2;
    for (cand1=mucands->begin(); cand1!=mucands->end(); cand1++) {
@@ -169,18 +177,18 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if (acop<min_Acop_) continue;
             if (acop>max_Acop_) continue;
 
-            double px12 = tk1->px() + tk2->px();
-            double py12 = tk1->py() + tk2->py();
-            double pt12 = sqrt(px12*px12+py12*py12);
+            e1 = sqrt(tk1->momentum().Mag2()+MuMass2);
+            e2 = sqrt(tk2->momentum().Mag2()+MuMass2);
+            p1 = Particle::LorentzVector(tk1->px(),tk1->py(),tk1->pz(),e1);
+            p2 = Particle::LorentzVector(tk2->px(),tk2->py(),tk2->pz(),e2);
+            p = p1+p2;
+
+            double pt12 = p.pt();
             LogDebug("HLTMuonDimuonFilter") << " ... 1-2 pt12= " << pt12;
             if (pt12<min_PtPair_) continue;
 
-            double e1 = sqrt(tk1->p()*tk1->p()+0.106*0.106);
-            double e2 = sqrt(tk2->p()*tk2->p()+0.106*0.106);
-            double e12 = e1 + e2;
-            double pz12 = tk1->pz() + tk2->pz();
-            double invmass = e12*e12 - pt12*pt12 - pz12*pz12;
-            if (invmass>0) invmass = sqrt(invmass); else invmass = 0;
+            double invmass = abs(p.mass());
+         // if (invmass>0) invmass = sqrt(invmass); else invmass = 0;
             LogDebug("HLTMuonDimuonFilter") << " ... 1-2 invmass= " << invmass;
             if (invmass<min_InvMass_) continue;
             if (invmass>max_InvMass_) continue;
@@ -215,6 +223,7 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                   filterproduct->putParticle(ref2);
             }
 
+            if (fast_Accept_) break;
       }
 
    }
