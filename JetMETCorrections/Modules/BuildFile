@@ -5,6 +5,10 @@
 <use name=DataFormats/JetReco>
 <use name=JetMETCorrections/Objects>
 <use name=JetMETCorrections/MCJet>
+<use name=JetMETCorrections/GammaJet>
+<use name=JetMETCorrections/JetParton>
+<use name=JetMETCorrections/JetPlusTrack>
+<use name=JetMETCorrections/TauJet>
 <flags SEAL_PLUGIN_NAME="JetMETCorrectionsModules">
 <export>
    <lib name=JetMETCorrectionsModules>

@@ -4,6 +4,7 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/JetReco>
+<use name=JetMETCorrections/Objects>
 <use name=rootrflx>
 <flags SEAL_PLUGIN_NAME="JetMETCorrectionsTauJet">
 <export>
@@ -13,6 +14,7 @@
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/JetReco>
    <use name=DataFormats/Common>
+   <use name=JetMETCorrections/Objects>
    <use name=rootrflx>
    <use name=clhep>
 </export>
