@@ -51,6 +51,18 @@
     }
   file2->Close();
 
+ // Load 2D SuperPhi Segments histos
+  TFile *file3 = new TFile("DTSeg2DSLPhiQualityPlots.root");
+  plotWWWHitReso(3, nameDir);
+  // Close all open canvases  
+  TIter iter(gROOT->GetListOfCanvases());
+  TCanvas *c;
+  while( (c = (TCanvas *)iter()) ) {
+      cout << "Closing " << c->GetName() << endl;
+      c->Close();
+    }
+  file3->Close();
+
 
   // Load 4D Segments histos
   TFile *file4 = new TFile("DTSeg4DQualityPlots.root");

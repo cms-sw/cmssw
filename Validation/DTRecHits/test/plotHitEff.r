@@ -18,7 +18,7 @@ void plot1DEffVsEta(HEff1DHit *hS1, HEff1DHit *hS2, HEff1DHit *hS3, bool ThreeIn
 void plot1DEffVsPhi(HEff1DHit *hS1, HEff1DHit *hS2, HEff1DHit *hS3, bool ThreeIn1);
 void plotHisto(TH1F *h1, TH1F *h2, bool ThreeIn1);
 
-bool setPreferences(bool& do1DRecHit, bool& do2DRecHit, bool& do4DRecHit, bool& ThreeIn1);
+bool setPreferences(bool& do1DRecHit, bool& do2DRecHit, bool& do2DSLPhiRecHit, bool& do4DRecHit, bool& ThreeIn1);
 // 
 void plotHitEff(){
   // Load needed macros and files
@@ -31,6 +31,7 @@ void plotHitEff(){
   //Main switches
   bool do1DRecHit = false; 
   bool do2DRecHit = false; 
+  bool do2DSLPhiRecHit = false; 
   bool do4DRecHit = false; 
   bool ThreeIn1 = false;  // Plot the 3 steps in a single canvas (where appl.)
 
@@ -38,9 +39,10 @@ void plotHitEff(){
   //-------------------- Set your preferences here ---------------------------------------
 
   // What plots should be produced:
-  while(!setPreferences(do1DRecHit, do2DRecHit, do4DRecHit, ThreeIn1));
+  while(!setPreferences(do1DRecHit, do2DRecHit, do2DSLPhiRecHit, do4DRecHit, ThreeIn1));
   //   do1DRecHit = true; 
   //   do2DRecHit = true; 
+  //   do2DSLPhiRecHit = true; 
   //   do4DRecHit = true; 
 
 
@@ -58,14 +60,14 @@ void plotHitEff(){
   //--------------------------------------------------------------------------------------
 
   // Check the choice
-  if(!do1DRecHit && !do2DRecHit && !do4DRecHit) {
-    cout << "[plotHitEff]***Error: Nothing to do! Set do1DRecHit, do2DRecHit, do4DRecHit correctly!"
+  if(!do1DRecHit && !do2DRecHit && !do2DSLPhiRecHit && !do4DRecHit) {
+    cout << "[plotHitEff]***Error: Nothing to do! Set do1DRecHit, do2DRecHit, do2DSLPhiRecHit, do4DRecHit correctly!"
 	 << endl;
     return;
   }
   style->cd();                      // Apply style 
 
-  draw(do1DRecHit, do2DRecHit, do4DRecHit, ThreeIn1, form);
+  draw(do1DRecHit, do2DRecHit, do2DSLPhiRecHit, do4DRecHit, ThreeIn1, form);
 }
 
 
@@ -98,14 +100,14 @@ void plotWWWHitEff() {
 
   // Check the choice
   if(!do1DRecHit && !do2DRecHit && !do2DSLPhiRecHit && !do4DRecHit) {
-    cout << "[plotHitReso]***Error: Nothing to do! Set do1DRecHit, do2DRecHit, do4DRecHit correctly!"
+    cout << "[plotHitReso]***Error: Nothing to do! Set do1DRecHit, do2DRecHit, do2DSLPhiRecHit, do4DRecHit correctly!"
 	 << endl;
     return;
   }
   style->cd();                      // Apply style 
 
 
-  draw(do1DRecHit, do2DRecHit, do4DRecHit, ThreeIn1, form);
+  draw(do1DRecHit, do2DRecHit, do2DSLPhiRecHit, do4DRecHit, ThreeIn1, form);
   cout << "Set the name of the www directory: " << endl;
   TString nameS;
   cin >> nameS;
@@ -119,7 +121,7 @@ void plotWWWHitEff() {
 
 
 
-void draw(bool do1DRecHit, bool do2DRecHit, bool do4DRecHit, bool ThreeIn1, int form) {
+void draw(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHit, bool ThreeIn1, int form) {
   
   // Retrieve histogram sets
   TFile *f = gROOT->GetListOfFiles()->Last();
@@ -149,18 +151,22 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do4DRecHit, bool ThreeIn1, int 
   }
 
   if(do2DRecHit) {
-    hEff2DHit *h2DHitEff_RPhi = new hEff2DHit("RPhi", f);
-    hEff2DHit *h2DHitEff_RZ = new hEff2DHit("RZ", f);
-    hEff2DHit *h2DHitEff_RZ_W0 = new hEff2DHit("RZ_W0", f);
-    hEff2DHit *h2DHitEff_RZ_W1 = new hEff2DHit("RZ_W1", f);
-    hEff2DHit *h2DHitEff_RZ_W2 = new hEff2DHit("RZ_W2", f);
+    HEff2DHit *h2DHitEff_RPhi = new HEff2DHit("RPhi", f);
+    HEff2DHit *h2DHitEff_RZ = new HEff2DHit("RZ", f);
+    HEff2DHit *h2DHitEff_RZ_W0 = new HEff2DHit("RZ_W0", f);
+    HEff2DHit *h2DHitEff_RZ_W1 = new HEff2DHit("RZ_W1", f);
+    HEff2DHit *h2DHitEff_RZ_W2 = new HEff2DHit("RZ_W2", f);
+  }
+
+  if(do2DSLPhiRecHit) {
+    HEff2DHit *h2DSLPhiHitEff = new HEff2DHit("SuperPhi", f);
   }
 
   if(do4DRecHit) {
-    hEff4DHit *hEff_All = new hEff4DHit("All", f);
-    hEff4DHit *hEff_W0 = new  hEff4DHit("W0", f);
-    hEff4DHit *hEff_W1 = new  hEff4DHit("W1", f);
-    hEff4DHit *hEff_W2 = new  hEff4DHit("W2", f);
+    HEff4DHit *hEff_All = new HEff4DHit("All", f);
+    HEff4DHit *hEff_W0 = new  HEff4DHit("W0", f);
+    HEff4DHit *hEff_W1 = new  HEff4DHit("W1", f);
+    HEff4DHit *hEff_W2 = new  HEff4DHit("W2", f);
   }
 
 
@@ -209,6 +215,12 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do4DRecHit, bool ThreeIn1, int 
     plotHisto(h2DHitEff_RZ_W2->hEffVsPos, h2DHitEff_RZ_W2->hEffVsAngle, ThreeIn1);
 
   }
+
+  if(do2DSLPhiRecHit) {
+    ThreeIn1 = false;
+    plotHisto(h2DSLPhiHitEff->hEffVsEta, h2DSLPhiHitEff->hEffVsPhi, ThreeIn1);
+    plotHisto(h2DSLPhiHitEff->hEffVsPos, h2DSLPhiHitEff->hEffVsAngle, ThreeIn1);
+ }
 
   if(do4DRecHit) {
     ThreeIn1 = false;
@@ -324,7 +336,7 @@ void plotHisto(TH1F *h1, TH1F *h2, bool ThreeIn1) {
 
 
 
-bool setPreferences(bool& do1DRecHit, bool& do2DRecHit, bool& do4DRecHit, bool& ThreeIn1) {
+bool setPreferences(bool& do1DRecHit, bool& do2DRecHit, bool& do2DSLPhiRecHit, bool& do4DRecHit, bool& ThreeIn1) {
 
 
 
@@ -335,7 +347,8 @@ bool setPreferences(bool& do1DRecHit, bool& do2DRecHit, bool& do4DRecHit, bool& 
   cout << "Chose the plot you want to produce:" << endl;
   cout << "1 - 1D RecHit Plots" << endl;
   cout << "2 - 2D RecHit Plots" << endl;
-  cout << "3 - 4D RecHit Plots" << endl;
+  cout << "3 - 2D RecHit Plots (only SLPhi from 4D RecHit)" << endl;
+  cout << "4 - 4D RecHit Plots" << endl;
   cout << "-->";
   cin >> dimension;
 
@@ -352,6 +365,11 @@ bool setPreferences(bool& do1DRecHit, bool& do2DRecHit, bool& do4DRecHit, bool& 
 	break;
       }
     case 3:
+      {
+	do2DSLPhiRecHit = true;
+	break;
+      }
+    case 4:
       {
 	do4DRecHit = true;
 	break;
