@@ -1,4 +1,3 @@
-<flags SEAL_PLUGIN_NAME="PhysicsToolsCandAlgos">
 <use name=PhysicsTools/CandUtils>
 <use name=PhysicsTools/UtilAlgos>
 <use name=PhysicsTools/Utilities>

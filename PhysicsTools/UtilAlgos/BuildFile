@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="PhysicsToolsUtilAlgos">
+<use name=FWCore/ServiceRegistry>
 <use name=FWCore/Framework>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/ParameterSet>
@@ -7,6 +7,7 @@
 <use name=root>
 <export>
   <lib name=PhysicsToolsUtilAlgos>
+  <use name=FWCore/ServiceRegistry>
   <use name=FWCore/Framework>
   <use name=FWCore/ServiceRegistry>
   <use name=FWCore/ParameterSet>
