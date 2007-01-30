@@ -99,8 +99,7 @@ namespace edm
       modulesWithSecSources_(),
       triggerPaths_(),
       endPaths_(),
-      processingVPSet_(false),
-      nVPSetChildren_(0)
+      processingVPSet_(false)
     {
       list<string> emptylist;
       modules_.insert(make_pair(string("es_module"), emptylist));
@@ -218,10 +217,8 @@ namespace edm
       }
       else 
       {
- 
-        if(processingVPSet_ && nVPSetChildren_++) {
-          //if this is actually a PSet embedded in a VPSet then we will need
-          // to comma separate the children
+        if(processingVPSet_ && needsCommaForVPSet(n))
+        {
           moduleStack_.top()+= ",";
         }
          
@@ -229,6 +226,22 @@ namespace edm
         writeCommaSeparated(n);
         moduleStack_.top() += "}";
       } 
+    }
+
+    bool PythonFormWriter::needsCommaForVPSet(const CompositeNode &n) const
+    {
+      bool result = false;
+      // I hope nobody does VPSET a = { include "" }
+      if(n.getParent()->type() == "VPSet")
+      {
+        VPSetNode * parent = dynamic_cast<VPSetNode *>(n.getParent());
+        Node * first = parent->nodes()->front().get();
+        if(first != &n) 
+        {
+          result = true; 
+        }
+      }
+      return result;
     }
 
     void
@@ -294,7 +307,6 @@ namespace edm
             moduleStack_.push(string());
           }
 	  moduleStack_.top() += out.str();
-
 	  writeCompositeNode(n);
 
 	  // And finish up
@@ -326,20 +338,15 @@ namespace edm
       write_trackedness(out, n.isTracked());
       out << ", [";
       moduleStack_.top() += out.str();
-
       
       //moduleStack_.top() += "\n#start acceptForChildren in VPSetNode\n";
       bool previouslyprocessingVPSet = processingVPSet_;
-      bool previousnVPSetChildren = nVPSetChildren_;
 
       // start fresh for this level of VPSets-in-VPSets
       processingVPSet_ = true;
-      nVPSetChildren_=0;
-
       n.acceptForChildren(*this);
 
       processingVPSet_ = previouslyprocessingVPSet;
-      nVPSetChildren_ = previousnVPSetChildren;
 
       //moduleStack_.top() += "\n#end acceptForChildren in VPSetNode\n";
 
