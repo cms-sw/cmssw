@@ -20,6 +20,8 @@ class CalibratedHistogramXML:public CalibratedHistogram, CalibratedObject
 public:
   CalibratedHistogramXML() {} 
   CalibratedHistogramXML(const CalibratedHistogram &h):CalibratedHistogram(h) {} 
+  CalibratedHistogramXML( const std::vector < float > & ulimits ) :
+   CalibratedHistogram ( ulimits) {}
   virtual ~CalibratedHistogramXML() {} 
 
    
