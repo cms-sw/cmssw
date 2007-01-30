@@ -669,7 +669,7 @@ class InputTag(_ParameterTypeBase):
 
 class FileInPath(_SimpleParameterTypeBase):
     def __init__(self,value):
-        super(InputTag,self).__init__(value)
+        super(FileInPath,self).__init__(value)
     @staticmethod
     def _isValid(value):
         return True
@@ -680,7 +680,7 @@ class FileInPath(_SimpleParameterTypeBase):
         return string.formatValueForConfig(value)
     @staticmethod
     def _valueFromString(value):
-        return string(value)
+        return FileInPath(value)
 
 class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
     def __init__(self,*arg,**args):
