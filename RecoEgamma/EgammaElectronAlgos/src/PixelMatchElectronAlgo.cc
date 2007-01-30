@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.28 2007/01/13 09:06:31 rahatlou Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.31 2007/01/30 17:46:11 rahatlou Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -202,7 +202,7 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH, co
     // calculate Trajectory StatesOnSurface....
     //at innermost point
     TrajectoryStateOnSurface innTSOS = mtsTransform_->innerStateOnSurface(t, *(trackerHandle_.product()), theMagField.product());
- 
+    if (!innTSOS.isValid()) continue;
     //at vertex
     // innermost state propagation to the nominal vertex
     TrajectoryStateOnSurface vtxTSOS =
@@ -211,11 +211,14 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH, co
 
     //at seed
     TrajectoryStateOnSurface outTSOS = mtsTransform_->outerStateOnSurface(t, *(trackerHandle_.product()), theMagField.product());
+    if (!outTSOS.isValid()) continue;
+    
     TrajectoryStateOnSurface seedTSOS = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(outTSOS,GlobalPoint(theClus.seed()->position().x(),theClus.seed()->position().y(),theClus.seed()->position().z()));
- 
+    if (!seedTSOS.isValid()) seedTSOS=outTSOS;
 
     //at scl
     TrajectoryStateOnSurface sclTSOS = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(innTSOS,GlobalPoint(theClus.x(),theClus.y(),theClus.z()));
+    if (!sclTSOS.isValid()) sclTSOS=outTSOS;
 
     GlobalVector vtxMom=computeMode(vtxTSOS);
     GlobalPoint  sclPos=sclTSOS.globalPosition();
