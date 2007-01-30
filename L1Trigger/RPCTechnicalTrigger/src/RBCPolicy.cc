@@ -33,7 +33,6 @@ RBCPolicy::message()
 
 
 RBCLogic* 
-
 RBCPolicy::instance()
 {
   if (l)
