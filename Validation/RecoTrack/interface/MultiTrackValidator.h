@@ -20,6 +20,7 @@
 
 #include "Validation/RecoTrack/interface/RecoTrackSelector.h"
 #include "Validation/RecoTrack/interface/TPEfficiencySelector.h"
+#include "Validation/RecoTrack/interface/TPFakeRateSelector.h"
 
 #include <iostream>
 #include <string>
@@ -90,7 +91,7 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   const TrackAssociatorByChi2 * associatorForParamAtPca;
   RecoTrackSelector selectRecoTracks;
   TPEfficiencySelector selectTPs4Efficiency;
-  TPEfficiencySelector selectTPs4FakeRate;
+  TPFakeRateSelector selectTPs4FakeRate;
 };
 
 

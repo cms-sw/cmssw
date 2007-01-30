@@ -289,6 +289,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
             } catch (cms::Exception e) { }
             if (tp.size()!=0) {
               if (!selectTPs4FakeRate( *tp.begin()->first )) continue;//FIXME TRY WITH SECOND
+	      at++;
               totASS2pT[w][f]++;
             }
           }
@@ -298,14 +299,12 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
  	try{
 	  if (tp.size()==0) continue;
 	
-	  at++;
-
 	  TrackingParticleRef tpr = tp.begin()->first;
 	  const SimTrack * assocTrack = &(*tpr->g4Track_begin());
 	
 	  if (associators[ww]=="TrackAssociatorByChi2"){
 	    //association chi2
-	    double assocChi2 = tp.begin()->second;
+	    double assocChi2 = -tp.begin()->second;//in association map is stored -chi2
 	    h_assochi2[www]->Fill(assocChi2);
 	    h_assochi2_prob[www]->Fill(chisquared_prob((assocChi2)*5,5));
 	  }
