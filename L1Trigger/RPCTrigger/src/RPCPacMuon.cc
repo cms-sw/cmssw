@@ -4,7 +4,7 @@
 *  Warsaw University 2002                                                      *
 *                                                                              *
 *******************************************************************************/
-#include "L1Trigger/RPCTrigger/src/RPCPacMuon.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPacMuon.h"
 
 ///Default constructor. No muon.
 RPCPacMuon::RPCPacMuon(): RPCMuon() {}

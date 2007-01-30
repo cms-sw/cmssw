@@ -8,7 +8,7 @@
   * \author Karol Bunkowski (Warsaw)
   */
 
-#include "L1Trigger/RPCTrigger/src/RPCTBMuon.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTBMuon.h"
 //---------------------------------------------------------------------------
 class RPCTBGhostBuster {
 public:

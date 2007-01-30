@@ -7,9 +7,9 @@
  * \author Karol Bunkowski (Warsaw)
  */
 
-#include "L1Trigger/RPCTrigger/src/RPCConst.h"
-#include "L1Trigger/RPCTrigger/src/RPCMuon.h"
-#include "L1Trigger/RPCTrigger/src/RPCPattern.h"
+#include "L1Trigger/RPCTrigger/interface/RPCConst.h"
+#include "L1Trigger/RPCTrigger/interface/RPCMuon.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPattern.h"
 //------------------------------------------------------------------------------
 
 class RPCPacMuon: public RPCMuon {

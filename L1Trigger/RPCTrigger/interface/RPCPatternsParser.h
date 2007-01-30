@@ -14,9 +14,9 @@
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/sax2/DefaultHandler.hpp>
 
-#include "L1Trigger/RPCTrigger/src/RPCConst.h"
-#include "L1Trigger/RPCTrigger/src/RPCPattern.h"
-//#include "L1Trigger/RPCTrigger/src/RPCException.h"
+#include "L1Trigger/RPCTrigger/interface/RPCConst.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPattern.h"
+//#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 
 XERCES_CPP_NAMESPACE_USE
 class RPCPatternsParser : public DefaultHandler  {

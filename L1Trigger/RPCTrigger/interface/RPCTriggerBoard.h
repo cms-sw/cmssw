@@ -12,9 +12,9 @@
 
 #include <vector>
 #include <string>
-#include "L1Trigger/RPCTrigger/src/RPCTBGhostBuster.h"
-#include "L1Trigger/RPCTrigger/src/RPCTriggerConfiguration.h"
-#include "L1Trigger/RPCTrigger/src/RPCPac.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTBGhostBuster.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTriggerConfiguration.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPac.h"
 //---------------------------------------------------------------------------
 class RPCTriggerBoard {
 public:

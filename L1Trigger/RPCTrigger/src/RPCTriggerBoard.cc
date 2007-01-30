@@ -4,8 +4,8 @@
 *  Warsaw University 2004                                                      *
 *                                                                              *
 *******************************************************************************/
-#include "L1Trigger/RPCTrigger/src/RPCTriggerBoard.h"
-#include "L1Trigger/RPCTrigger/src/RPCException.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTriggerBoard.h"
+#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 
 #include<sstream>
 //---------------------------------------------------------------------------

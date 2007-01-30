@@ -1,10 +1,10 @@
 //---------------------------------------------------------------------------
-#include "L1Trigger/RPCTrigger/src/RPCTBMuon.h"
-//#include "L1Trigger/RPCTrigger/src/RPCException.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTBMuon.h"
+//#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 #ifndef _STAND_ALONE
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #endif // _STAND_ALONE
-#include "L1Trigger/RPCTrigger/src/RPCException.h"
+#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 
 #include <sstream>
 #include <iomanip>

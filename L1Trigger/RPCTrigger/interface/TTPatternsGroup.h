@@ -12,7 +12,7 @@
  \author Tomasz Fruboes (Warsaw) - porting to CMSSW
 
 */
-#include "L1Trigger/RPCTrigger/src/TPatternsGroup.h"
+#include "L1Trigger/RPCTrigger/interface/TPatternsGroup.h"
  
 class TTPatternsGroup: public TPatternsGroup {
     friend class RPCPacData;

@@ -4,7 +4,7 @@
 *  Warsaw University 2002                                                      *
 *                                                                              *
 *******************************************************************************/
-#include "L1Trigger/RPCTrigger/src/RPCPacBase.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPacBase.h"
 /**
  *
  * Constructor. m_ConeCrdnts and  m_CurrConeCrdnts are set.

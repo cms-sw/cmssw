@@ -1,12 +1,12 @@
 /** \file RPCRingFromRolls.cc
  *
- *  $Date: 2006/11/28 11:23:44 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/12/05 09:25:26 $
+ *  $Revision: 1.6 $
  *  \author Tomasz Fruboes
  */
-#include "L1Trigger/RPCTrigger/src/RPCRingFromRolls.h"
-#include "L1Trigger/RPCTrigger/src/RPCDetInfo.h"
-#include "L1Trigger/RPCTrigger/src/RPCException.h"
+#include "L1Trigger/RPCTrigger/interface/RPCRingFromRolls.h"
+#include "L1Trigger/RPCTrigger/interface/RPCDetInfo.h"
+#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 #include <cmath>
 #include <algorithm>
 //#############################################################################

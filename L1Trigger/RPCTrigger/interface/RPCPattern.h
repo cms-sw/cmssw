@@ -8,7 +8,7 @@
  * \author Karol Bunkowski (Warsaw)
  */
 #include <vector>
-#include "L1Trigger/RPCTrigger/src/RPCConst.h"
+#include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 //-----------------------------------------------------------------------------
 
 class RPCPattern  {

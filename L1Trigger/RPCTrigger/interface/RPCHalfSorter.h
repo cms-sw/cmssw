@@ -6,8 +6,8 @@
   * \author Tomasz Fruboes (based on code by Karol Bunkowski) 
   */
 
-#include "L1Trigger/RPCTrigger/src/RPCTBMuon.h"
-#include "L1Trigger/RPCTrigger/src/RPCTriggerConfiguration.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTBMuon.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTriggerConfiguration.h"
 //---------------------------------------------------------------------------
 
 class RPCHalfSorter {

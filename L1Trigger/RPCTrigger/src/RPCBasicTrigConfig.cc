@@ -1,5 +1,5 @@
-#include "L1Trigger/RPCTrigger/src/RPCBasicTrigConfig.h"
-#include "L1Trigger/RPCTrigger/src/RPCException.h"
+#include "L1Trigger/RPCTrigger/interface/RPCBasicTrigConfig.h"
+#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 
 /// Ctor
 RPCBasicTrigConfig::RPCBasicTrigConfig(RPCPacManager<RPCPacData>* pacManager) {

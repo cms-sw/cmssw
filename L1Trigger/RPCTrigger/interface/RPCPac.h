@@ -1,11 +1,11 @@
 #ifndef L1Trigger_RPCPac_h
 #define L1Trigger_RPCPac_h
 
-#include "L1Trigger/RPCTrigger/src/RPCPacBase.h"
-#include "L1Trigger/RPCTrigger/src/RPCPacMuon.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPacBase.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPacMuon.h"
 
-#include "L1Trigger/RPCTrigger/src/RPCLogCone.h"
-#include "L1Trigger/RPCTrigger/src/RPCPacData.h"
+#include "L1Trigger/RPCTrigger/interface/RPCLogCone.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPacData.h"
 
 //class RPCLogCone;
 //class RPCPacData;

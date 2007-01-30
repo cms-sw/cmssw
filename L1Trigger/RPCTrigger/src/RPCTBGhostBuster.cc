@@ -5,7 +5,7 @@
 *                                                                              *
 *******************************************************************************/
 
-#include "L1Trigger/RPCTrigger/src/RPCTBGhostBuster.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTBGhostBuster.h"
 //#include <set>
 #include <algorithm>
 

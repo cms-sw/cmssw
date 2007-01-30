@@ -13,9 +13,9 @@
 
 #include <vector>
 
-#include "L1Trigger/RPCTrigger/src/RPCTBMuon.h"
-#include "L1Trigger/RPCTrigger/src/RPCTriggerBoard.h"
-#include "L1Trigger/RPCTrigger/src/RPCTCGhostBusterSorter.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTBMuon.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTriggerBoard.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTCGhostBusterSorter.h"
 
 //---------------------------------------------------------------------------
 class RPCTriggerCrate {

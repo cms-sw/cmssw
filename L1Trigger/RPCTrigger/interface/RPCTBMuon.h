@@ -1,7 +1,7 @@
 #ifndef L1Trigger_RPCTBMuon_h
 #define L1Trigger_RPCTBMuon_h
-#include "L1Trigger/RPCTrigger/src/RPCMuon.h"
-#include "L1Trigger/RPCTrigger/src/RPCPacMuon.h"
+#include "L1Trigger/RPCTrigger/interface/RPCMuon.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPacMuon.h"
 //---------------------------------------------------------------------------
 //output of the Pac (one LogCone),
 //used in m_TBGhostBuster

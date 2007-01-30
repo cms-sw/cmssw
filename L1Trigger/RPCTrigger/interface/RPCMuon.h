@@ -9,7 +9,7 @@
  *
  */
 
-#include "L1Trigger/RPCTrigger/src/RPCConst.h"
+#include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 #include <vector>
 //---------------------------------------------------------------------------
 class RPCMuon {

@@ -1,4 +1,4 @@
-#include "L1Trigger/RPCTrigger/src/TEPatternsGroup.h"
+#include "L1Trigger/RPCTrigger/interface/TEPatternsGroup.h"
 
 /**
  *

@@ -6,4 +6,4 @@
 *******************************************************************************/
 
 //Remove this file
-#include "L1Trigger/RPCTrigger/src/RPCPacManager.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPacManager.h"

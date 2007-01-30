@@ -7,14 +7,14 @@
 #ifndef _STAND_ALONE
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #endif // _STAND_ALONE
-#include "L1Trigger/RPCTrigger/src/RPCPatternsParser.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPatternsParser.h"
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 #include <sstream>
 #include <fstream> 
 #include <iostream>
-#include "L1Trigger/RPCTrigger/src/RPCException.h"
+#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 //#ifndef __BORLANDC__
 //#include "xoap.h"
 //#endif

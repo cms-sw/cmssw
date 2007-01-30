@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
-#include "L1Trigger/RPCTrigger/src/RPCHalfSorter.h"
+#include "L1Trigger/RPCTrigger/interface/RPCHalfSorter.h"
 
-#include "L1Trigger/RPCTrigger/src/RPCConst.h"
+#include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 #include <algorithm>
 //---------------------------------------------------------------------------
 #include <set>

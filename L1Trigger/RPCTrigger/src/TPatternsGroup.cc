@@ -1,4 +1,4 @@
-#include "L1Trigger/RPCTrigger/src/TPatternsGroup.h"
+#include "L1Trigger/RPCTrigger/interface/TPatternsGroup.h"
 
 //called by addPattern
 void TPatternsGroup::updateShape(const L1RpcPatternsVec::const_iterator& pattern) {

@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 
-#include "L1Trigger/RPCTrigger/src/RPCTriggerCrate.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTriggerCrate.h"
 
 //---------------------------------------------------------------------------
 RPCTriggerCrate::RPCTriggerCrate(RPCTriggerConfiguration* triggerConfig, int tcNum):

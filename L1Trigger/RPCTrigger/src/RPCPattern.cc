@@ -4,7 +4,7 @@
 *  Warsaw University 2002                                                      *
 *                                                                              *
 *******************************************************************************/
-#include "L1Trigger/RPCTrigger/src/RPCPattern.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPattern.h"
 
 RPCPattern::RPCPattern() {
   m_Number = -1; //empty pattern

@@ -7,10 +7,10 @@
 *******************************************************************************/
 #include <cmath>
 #include <bitset>
-#include "L1Trigger/RPCTrigger/src/RPCPacData.h"
-#include "L1Trigger/RPCTrigger/src/RPCConst.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPacData.h"
+#include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 
-#include "L1Trigger/RPCTrigger/src/RPCException.h"
+#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 
 #include <iostream>
 

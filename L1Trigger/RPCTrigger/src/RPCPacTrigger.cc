@@ -4,7 +4,7 @@
 *  Warsaw University 2004                                                      *
 *                                                                              *
 *******************************************************************************/
-#include "L1Trigger/RPCTrigger/src/RPCPacTrigger.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPacTrigger.h"
 #ifdef _GRAB_MUONS
 #include "PactAnalysis/L1RpcMuonsGrabber.h"
 #endif

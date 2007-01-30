@@ -18,10 +18,10 @@
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
-#include "L1Trigger/RPCTrigger/src/RPCDetInfo.h"
-#include "L1Trigger/RPCTrigger/src/RPCRingFromRolls.h"
+#include "L1Trigger/RPCTrigger/interface/RPCDetInfo.h"
+#include "L1Trigger/RPCTrigger/interface/RPCRingFromRolls.h"
 
-#include "L1Trigger/RPCTrigger/src/RPCLogCone.h" 
+#include "L1Trigger/RPCTrigger/interface/RPCLogCone.h" 
 #include <set>
 #include <vector>
 

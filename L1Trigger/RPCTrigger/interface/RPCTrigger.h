@@ -4,8 +4,8 @@
 /** \class RPCTrigger
  *  \brief Implements RPC trigger emulation
  *
- *  $Date: 2006/11/29 19:33:49 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/12/11 11:27:23 $
+ *  $Revision: 1.9 $
  *  \author Tomasz Fruboes
  *  \todo All the code must be reviewed and cleaned to comply coding rules
  */
@@ -31,14 +31,14 @@
 
 
 // L1RpcTrigger specific includes
-#include "L1Trigger/RPCTrigger/src/RPCTriggerGeo.h"
-#include "L1Trigger/RPCTrigger/src/RPCPacManager.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTriggerGeo.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPacManager.h"
 
-#include "L1Trigger/RPCTrigger/src/RPCPacTrigger.h"
-#include "L1Trigger/RPCTrigger/src/RPCBasicTrigConfig.h"
-#include "L1Trigger/RPCTrigger/src/RPCPacData.h"
-#include "L1Trigger/RPCTrigger/src/RPCConst.h"
-#include "L1Trigger/RPCTrigger/src/RPCPacManager.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPacTrigger.h"
+#include "L1Trigger/RPCTrigger/interface/RPCBasicTrigConfig.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPacData.h"
+#include "L1Trigger/RPCTrigger/interface/RPCConst.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPacManager.h"
 
 #include <memory>
 #include <vector>

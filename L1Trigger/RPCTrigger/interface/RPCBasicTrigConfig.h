@@ -5,11 +5,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #endif //_STAND_ALONE
 
-#include "L1Trigger/RPCTrigger/src/RPCTriggerConfiguration.h"
-#include "L1Trigger/RPCTrigger/src/RPCPacManager.h"
-#include "L1Trigger/RPCTrigger/src/RPCConst.h"
-#include "L1Trigger/RPCTrigger/src/RPCConst.h"
-//#include "L1Trigger/RPCTrigger/src/RPCException.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTriggerConfiguration.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPacManager.h"
+#include "L1Trigger/RPCTrigger/interface/RPCConst.h"
+#include "L1Trigger/RPCTrigger/interface/RPCConst.h"
+//#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 //---------------------------------------------------------------------------
 class RPCBasicTrigConfig: public RPCTriggerConfiguration {
 public:

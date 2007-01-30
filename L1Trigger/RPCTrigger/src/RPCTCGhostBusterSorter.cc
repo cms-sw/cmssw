@@ -1,4 +1,4 @@
-#include "L1Trigger/RPCTrigger/src/RPCTCGhostBusterSorter.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTCGhostBusterSorter.h"
 //#include <set>
 #include <algorithm>
 

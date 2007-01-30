@@ -12,7 +12,7 @@
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "L1Trigger/RPCTrigger/src/RPCDetInfo.h"
+#include "L1Trigger/RPCTrigger/interface/RPCDetInfo.h"
 
 
 class RPCRingFromRolls {

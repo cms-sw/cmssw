@@ -1,5 +1,5 @@
-#include "L1Trigger/RPCTrigger/src/RPCPac.h"
-//#include "L1Trigger/RPCTrigger/src/TEPatternsGroup.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPac.h"
+//#include "L1Trigger/RPCTrigger/interface/TEPatternsGroup.h"
 
 RPCPac::RPCPac(const RPCPacData * pacData, int tower, int logSector,
                 int logSegment):

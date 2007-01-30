@@ -13,8 +13,8 @@
     <usage>
 
 */
-#include "L1Trigger/RPCTrigger/src/RPCPattern.h"
-#include "L1Trigger/RPCTrigger/src/RPCLogCone.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPattern.h"
+#include "L1Trigger/RPCTrigger/interface/RPCLogCone.h"
   /** \class TPatternsGroup
  * Basic class for storing grouped patterns inside Pac.
  * In group (object of class TPatternsGroup) the patterns belonging to given

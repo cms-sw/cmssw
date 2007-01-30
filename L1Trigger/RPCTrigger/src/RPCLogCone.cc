@@ -4,7 +4,7 @@
 *  Warsaw University 2002                                                      *
 *                                                                              *
 *******************************************************************************/
-#include "L1Trigger/RPCTrigger/src/RPCLogCone.h" 
+#include "L1Trigger/RPCTrigger/interface/RPCLogCone.h" 
 
 #include <iostream>
 #include <iomanip>

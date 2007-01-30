@@ -20,15 +20,15 @@ sprawdzic konwencje znaku mionu !!!!! (takze w L1RpcMuon0)
 #include <map>
 #include <list>
 #include <iostream>
-#include "L1Trigger/RPCTrigger/src/RPCLogCone.h"
-#include "L1Trigger/RPCTrigger/src/RPCPacMuon.h"
-//#include "Trigger/L1RpcTrigger/src/RPCException.h"
-#include "L1Trigger/RPCTrigger/src/RPCPattern.h"
-#include "L1Trigger/RPCTrigger/src/RPCPacBase.h"
-#include "L1Trigger/RPCTrigger/src/RPCPatternsParser.h"
-#include "L1Trigger/RPCTrigger/src/TPatternsGroup.h"
-#include "L1Trigger/RPCTrigger/src/TEPatternsGroup.h"
-#include "L1Trigger/RPCTrigger/src/TTPatternsGroup.h"
+#include "L1Trigger/RPCTrigger/interface/RPCLogCone.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPacMuon.h"
+//#include "Trigger/L1RpcTrigger/interface/RPCException.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPattern.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPacBase.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPatternsParser.h"
+#include "L1Trigger/RPCTrigger/interface/TPatternsGroup.h"
+#include "L1Trigger/RPCTrigger/interface/TEPatternsGroup.h"
+#include "L1Trigger/RPCTrigger/interface/TTPatternsGroup.h"
 
 //------------------------------------------------------------------------------
 

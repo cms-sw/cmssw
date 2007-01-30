@@ -1,13 +1,13 @@
 /** \file RPCDetInfo.cc
  *
- *  $Date: 2006/12/30 16:25:23 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/12/31 13:03:17 $
+ *  $Revision: 1.12 $
  *  \author Tomasz Fruboes
  */
 
 #include <cmath>
 #include <algorithm>
-#include "L1Trigger/RPCTrigger/src/RPCDetInfo.h"
+#include "L1Trigger/RPCTrigger/interface/RPCDetInfo.h"
 
 
 

@@ -1,4 +1,4 @@
-#include "L1Trigger/RPCTrigger/src/RPCLogHit.h"
+#include "L1Trigger/RPCTrigger/interface/RPCLogHit.h"
 
 
 /**

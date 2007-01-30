@@ -6,7 +6,7 @@
   * \author Karol Bunkowski (Warsaw)
   */
 
-#include "L1Trigger/RPCTrigger/src/RPCPacData.h"
+#include "L1Trigger/RPCTrigger/interface/RPCPacData.h"
 
 //interface class for storing the geometry of trigger
 //f.e. which pac, or TB or TC should run given LogCone

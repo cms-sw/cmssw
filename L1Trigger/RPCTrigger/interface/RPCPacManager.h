@@ -18,8 +18,8 @@
 //------------------------------------------------------------------------------
 #include <string>
 #include <vector>
-#include "L1Trigger/RPCTrigger/src/RPCConst.h"
-#include "L1Trigger/RPCTrigger/src/RPCException.h"
+#include "L1Trigger/RPCTrigger/interface/RPCConst.h"
+#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 #include <xercesc/util/PlatformUtils.hpp>
 #include <cstdlib>
 #ifndef _STAND_ALONE

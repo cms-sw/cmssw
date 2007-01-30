@@ -1,8 +1,8 @@
 #include <cmath>
 #include <iostream> 
 #include <sstream> 
-#include "L1Trigger/RPCTrigger/src/RPCConst.h"
-#include "L1Trigger/RPCTrigger/src/RPCException.h"
+#include "L1Trigger/RPCTrigger/interface/RPCConst.h"
+#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 
 #define m_pi 3.14159265358979
 

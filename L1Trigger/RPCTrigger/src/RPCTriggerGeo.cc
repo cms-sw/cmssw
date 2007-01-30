@@ -1,15 +1,15 @@
 /** \file RPCTriggerGeo.cc
  *
- *  $Date: 2006/11/28 11:23:44 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/12/05 09:25:26 $
+ *  $Revision: 1.17 $
  *  \author Tomasz Fruboes
  */
 
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-#include "L1Trigger/RPCTrigger/src/RPCTriggerGeo.h"
-#include "L1Trigger/RPCTrigger/src/RPCException.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTriggerGeo.h"
+#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
 #include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
 

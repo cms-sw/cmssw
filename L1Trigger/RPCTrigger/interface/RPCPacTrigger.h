@@ -6,11 +6,11 @@
   * Contains the structure of hardware: Trigger Crates, Final Sorters, etc.
   * \author Karol Bunkowski (Warsaw) */
 
-#include "L1Trigger/RPCTrigger/src/RPCLogCone.h"
-#include "L1Trigger/RPCTrigger/src/RPCTriggerCrate.h"
-#include "L1Trigger/RPCTrigger/src/RPCFinalSorter.h"
-#include "L1Trigger/RPCTrigger/src/RPCHalfSorter.h"
-#include "L1Trigger/RPCTrigger/src/RPCTriggerConfiguration.h"
+#include "L1Trigger/RPCTrigger/interface/RPCLogCone.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTriggerCrate.h"
+#include "L1Trigger/RPCTrigger/interface/RPCFinalSorter.h"
+#include "L1Trigger/RPCTrigger/interface/RPCHalfSorter.h"
+#include "L1Trigger/RPCTrigger/interface/RPCTriggerConfiguration.h"
 
 class RPCPacTrigger {
 public:
