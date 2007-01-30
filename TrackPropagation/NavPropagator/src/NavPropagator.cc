@@ -11,14 +11,13 @@ NavPropagator::NavPropagator( const MagneticField* field,
   Propagator(dir)
 {
   theField = dynamic_cast<const VolumeBasedMagneticField*>(field);
-  if (theField == 0) throw PropagationException("NavPropagator field is not VolumeBased");
 }
 
-  NavPropagator::~NavPropagator() {
+NavPropagator::~NavPropagator() {
     for (MagVolumeMap::iterator i = theNavVolumeMap.begin(); i != theNavVolumeMap.end(); ++i) {
       delete i->second;
     }
-  }
+}
 
 const MagneticField*  NavPropagator::magneticField() const {return theField;}
 

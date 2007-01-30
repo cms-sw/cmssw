@@ -74,13 +74,17 @@ void TrackerToMuonTest::propagateToMuon( const MagneticField* field) const
 
       PlaneBuilder::ReturnType trackerPlane = pb.plane( startingPosition, rot);
 
+      AlgebraicSymMatrix C(5,1);
+      C *= 0.01;
+      CurvilinearTrajectoryError err(C);
+
       TSOS startingStateP( GlobalTrajectoryParameters(startingPosition, 
 						      startingMomentum, 1, field), 
-			   *trackerPlane);
+			   err, *trackerPlane);
 
       TSOS startingStateM( GlobalTrajectoryParameters(startingPosition, 
 						      startingMomentum, -1, field), 
-			   *trackerPlane);
+			   err, *trackerPlane);
 
       float propDistance = 700; // 10 meters in [cm]
       GlobalPoint targetPos( (propDistance*startingMomentum.unit()).basicVector());
