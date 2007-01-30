@@ -12,6 +12,10 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/VolumeGeometry/interface/MagneticFieldProvider.h"
+///
+#include  "TrackPropagation/RungeKutta/interface/RKPropagatorInS.h"
+///
 #include <vector>
 
 using namespace std;
@@ -22,8 +26,22 @@ class MyMagneticField : public MagneticField
   virtual GlobalVector inTesla ( const GlobalPoint& ) const {return GlobalVector(0,0,4);}
 };
 
+class ConstantMagneticFieldProvider4T : public MagneticFieldProvider<float> {
+public:
+  virtual LocalVectorType valueInTesla( const LocalPointType& p) const {return LocalVectorType(0,0,4.);}
+};
 
+class ConstantMagVolume4T : public MagVolume {
+public:
+  ConstantMagVolume4T( const PositionType& pos, const RotationType& rot, 
+		       DDSolidShape shape, const MagneticFieldProvider<float> * mfp) :
+    MagVolume( pos, rot, shape, mfp) {}
+ 
+  virtual bool inside( const GlobalPoint& gp, double tolerance=0.) const {return true;}
 
+  /// Access to volume faces
+  virtual std::vector<VolumeSide> faces() const {return std::vector<VolumeSide>();}
+};
 
 
 NavPlane* navPlane( RandomPlaneGenerator::PlanePtr p) {
@@ -111,16 +129,27 @@ int main()
     }
     
     try {
+
+        ConstantMagneticFieldProvider4T theProvider;
+	ConstantMagVolume4T theMagVolume( MagVolume::PositionType(0,0,0), MagVolume::RotationType(),
+				    ddshapeless, &theProvider);
 	NavVolume6Faces vol( volumePos, volumeRot, ddshapeless, MyNavVolumeSides, 0);
 	
 	UniformMomentumGenerator momentumGenerator;
 	//MM: Added MyTestField needed for Analytical Propagator
 	// and added MyTestField to AnalyticalPropagator and GlobalTrajectoryParameters initialisers
 	MyMagneticField  MyTestField;
-	AnalyticalPropagator propagator ( &MyTestField, alongMomentum );
+	AlgebraicSymMatrix C(5,1);
+	C *= 0.01;
+	CurvilinearTrajectoryError err(C);
+
+	// AnalyticalPropagator propagator ( &MyTestField, alongMomentum );
+	RKPropagatorInS propagator ( theMagVolume, alongMomentum ); 
+
 
 	for (int i=0; i<10; i++) {
 	    GlobalVector gStartMomentum( momentumGenerator());
+	    cout << "Start momentum is " << gStartMomentum << endl;
 	    GlobalTrajectoryParameters gtp( GlobalPoint(xPos, yPos, zPos),
 					    gStartMomentum, -1, &MyTestField );
  
@@ -128,7 +157,8 @@ int main()
 									   gtp.momentum());
 	    const BoundPlane& sp(*startingPlane);
 	    FreeTrajectoryState fts(gtp);
-	    TSOS startingState( fts, sp);
+	    ///	    TSOS startingState( fts, err, sp);
+	    TSOS startingState( gtp, err, sp);
 
 	    NavVolume::Container nsc = vol.nextSurface( vol.toLocal( gtp.position()), 
 							vol.toLocal( gtp.momentum()), -1);
@@ -143,6 +173,7 @@ int main()
 		}
 		if (isur->bounds().inside(state.localPosition())) {
 		    cout << "Surface containing destination point found at try " << itry << endl;
+		    cout << "TSOS at final destination : " << state << endl;
 		    break;
 		}
 		else {

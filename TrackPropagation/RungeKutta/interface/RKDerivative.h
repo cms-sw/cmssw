@@ -3,6 +3,8 @@
 
 #include "TrackPropagation/RungeKutta/interface/RKSmallVector.h"
 
+/// Base class for derivative calculation. 
+
 template <typename T, int N>
 class RKDerivative {
 public:

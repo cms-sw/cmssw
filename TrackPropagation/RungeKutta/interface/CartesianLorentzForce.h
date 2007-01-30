@@ -4,6 +4,8 @@
 #include "TrackPropagation/RungeKutta/interface/RKDerivative.h"
 #include "TrackPropagation/RungeKutta/interface/RKLocalFieldProvider.h"
 
+/// Derivative calculation for the 6D cartesian case.
+
 class CartesianLorentzForce : public RKDerivative<double,6> {
 public:
 

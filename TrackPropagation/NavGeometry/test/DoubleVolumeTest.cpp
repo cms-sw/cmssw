@@ -201,6 +201,10 @@ int main()
 	//MM: Added MyTestField needed for Analytical Propagator
 	// and added MyTestField to AnalyticalPropagator and GlobalTrajectoryParameters initialisers
 	MyMagneticField  MyTestField;
+	AlgebraicSymMatrix C(5,1);
+	C *= 0.01;
+	CurvilinearTrajectoryError err(C);
+
 	AnalyticalPropagator propagator ( &MyTestField, alongMomentum );
 
 	// Propagator* oldPropagator = new RKPropagatorInS( theMagVolume, alongMomentum);
@@ -208,11 +212,11 @@ int main()
 
 
 
-	for (int i=0; i<50000; i++) {
+	for (int i=0; i<30; i++) {
 	    GlobalVector gStartMomentum( momentumGenerator());
 
 	    cout << "************* NEXT TEST 'EVENT' *****" << endl;
-	    //	    cout << "Start momentum is " << gStartMomentum << endl;;
+	    //	    	    cout << "Start momentum is " << gStartMomentum << endl;;
 
 	    GlobalTrajectoryParameters gtp( GlobalPoint(xPos, yPos, zPos),
 					    gStartMomentum, -1, &MyTestField );
@@ -221,7 +225,7 @@ int main()
 									   gtp.momentum());
 	    const BoundPlane& sp(*startingPlane);
 	    FreeTrajectoryState fts(gtp);
-	    TSOS startingState( fts, sp);
+	    TSOS startingState( gtp, err, sp);
 
 	    TSOS CurrentRKState = startingState;
 	    TSOS FinalAnalyticalState = startingState;
@@ -242,8 +246,10 @@ int main()
 
 	    
 	    CurrentRKState = VolumeCrossResult.tsos();
+	    cout << "Current RK State is " << CurrentRKState << endl;
+	    
 	    double TotalPathLength = VolumeCrossResult.path();
-	    cout << "Oh pathlenght was : " << TotalPathLength << endl;
+	    //cout << "Oh pathlenght was : " << TotalPathLength << endl;
 	    //	    if (TotalPathLength > 20) 
 	    //  HistXY->Fill(CurrentRKState.globalPosition().x(),CurrentRKState.globalPosition().y());
 
@@ -253,15 +259,17 @@ int main()
 	      HistXY->Fill(CurrentRKState.globalPosition().x(),CurrentRKState.globalPosition().y());
 	    
 	    if (VolumeCrossResult.volume() != 0) {
-	      cout << "YES !!! Found next volume with position: " << VolumeCrossResult.volume()->position() << endl;
+	      //cout << "YES !!! Found next volume with position: " << VolumeCrossResult.volume()->position() << endl;
 	      cout << "Do a second Iteration step !" << endl;
 
 	      VolumeCrossReturnType VolumeCrossResult2 = VolumeCrossResult.volume()->crossToNextVolume(VolumeCrossResult.tsos(), RKprop);
 	      if (VolumeCrossResult2.volume() != 0) {
-		cout << "crossToNextVolume: Succeeded to find THIRD volume with pos, mom, " << 
-		  VolumeCrossResult2.tsos().globalPosition() << ", " << VolumeCrossResult2.tsos().globalMomentum() << endl;
+		//		cout << "crossToNextVolume: Succeeded to find THIRD volume with pos, mom, " << 
+		//  VolumeCrossResult2.tsos().globalPosition() << ", " << VolumeCrossResult2.tsos().globalMomentum() << endl;
+		cout << "crossToNextVolume: Succeeded to find THIRD volume with state " << 
+		  VolumeCrossResult2.tsos().globalPosition() << endl;
 	      } else {
-		cout << "crossToNextVolume: Failed to find THIRD volume " << endl;
+		//cout << "crossToNextVolume: Failed to find THIRD volume " << endl;
 	      }
 	      CurrentRKState = VolumeCrossResult2.tsos();	      
 	      TotalPathLength += VolumeCrossResult2.path();
@@ -270,7 +278,7 @@ int main()
 	      else
 		HistXY->Fill(CurrentRKState.globalPosition().x(),CurrentRKState.globalPosition().y());
 	    } else {
-	      cout << "crossToNextVolume: NO !!!!!!!! Nothing on other side" << endl;
+	      //cout << "crossToNextVolume: NO !!!!!!!! Nothing on other side" << endl;
 	    }
 	    
 	    cout << " - - - - - - That was crossToNextVolume, now compare to conventional result: " << endl;
@@ -298,10 +306,10 @@ int main()
 		    continue;
 		}
 		if (isur->bounds().inside(state.localPosition())) {
-		    cout << "Surface containing destination point found at try " << itry << endl;
+		  //		    cout << "Surface containing destination point found at try " << itry << endl;
 		    nextVol = isur->surface().nextVolume(state.localPosition(),oppositeSide(isur->side()));
 
-		    cout << "Looking for next Volume on other side of surface with center " << isur->surface().surface().position() << endl;
+		    //cout << "Looking for next Volume on other side of surface with center " << isur->surface().surface().position() << endl;
 		    startingState = state;
 		    FinalAnalyticalState = state;
 		    exitSurface = &( isur->surface().surface() );
@@ -313,8 +321,10 @@ int main()
 	    }
 	    
 
+	    cout << "And here analytical State is " << FinalAnalyticalState << endl;
+
 	    if (nextVol != 0) {
-	      cout << "YES !!! Found next volume with position: " << nextVol->position() << endl;
+	      //cout << "YES !!! Found next volume with position: " << nextVol->position() << endl;
 	      cout << "Do a second Iteration step !" << endl;
 		
 	      //	      NavVolume::Container nsc2 = nextVol->nextSurface( nextVol->toLocal( startingState.globalPosition()+0.01*startingState.globalMomentum()), 
@@ -330,13 +340,13 @@ int main()
 		  continue;
 		}
 		if (isur->bounds().inside(state.localPosition())) {
-		  cout << "** SECOND ** Surface containing destination point found at try " << itry << endl;
-		  cout << "Position and momentum after first step: " << startingState.globalPosition() << ", " << startingState.globalMomentum() << endl;	
-		  cout << "Position and momentum after second step: " << state.globalPosition() << ", " << state.globalMomentum() << endl;
+		  //  cout << "** SECOND ** Surface containing destination point found at try " << itry << endl;
+		  //cout << "Position and momentum after first step: " << startingState.globalPosition() << ", " << startingState.globalMomentum() << endl;	
+		  //cout << "Position and momentum after second step: " << state.globalPosition() << ", " << state.globalMomentum() << endl;
 
 		  nextVol = isur->surface().nextVolume(state.localPosition(),oppositeSide(isur->side()));
 		  
-		  cout << "Looking for ** NEXT ** next Volume on other side of surface with center " << isur->surface().surface().position() << endl;
+		  // cout << "Looking for ** NEXT ** next Volume on other side of surface with center " << isur->surface().surface().position() << endl;
 		  FinalAnalyticalState = state;
 		  break;
 		}
@@ -345,12 +355,13 @@ int main()
 		}
 	      }
 	      if (nextVol != 0) {
-		cout << "Succeeded to find THIRD volume with pos, mom, " << startingState.globalPosition() << ", " << startingState.globalMomentum() << endl;
+		//		cout << "Succeeded to find THIRD volume with pos, mom, " << startingState.globalPosition() << ", " << startingState.globalMomentum() << endl;
+		cout << "Succeeded to find THIRD volume with state " << startingState << endl;
 	      } else {
-		cout << "Failed to find THIRD volume " << endl;
+		//cout << "Failed to find THIRD volume " << endl;
 	      }
 	    } else {
-	      cout << "NO !!!!!!!! Nothing on other side" << endl;
+	      //cout << "NO !!!!!!!! Nothing on other side" << endl;
 
 	      
 	    }

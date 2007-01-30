@@ -13,6 +13,8 @@ AnalyticalErrorPropagation::operator()( const FreeTrajectoryState& startingState
     //
     // compute jacobian
     //
+
+    // FIXME: Compute mean B field between startingState and destParameters and pass it to analyticalJacobian
     AnalyticalCurvilinearJacobian analyticalJacobian(startingState.parameters(), 
 						     destParameters.position(), 
 						     destParameters.momentum(), s);

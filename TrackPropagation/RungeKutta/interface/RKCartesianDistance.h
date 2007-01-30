@@ -7,6 +7,8 @@
 
 #include <cmath>
 
+/// Estimator of the distance between two state vectors, e.g. for convergence test
+
 class RKCartesianDistance : public RKDistance<double,6> {
 public:
  
