@@ -125,4 +125,20 @@ namespace { namespace {
   std::pair<edm::Hash<0>, edm::ModuleDescription> dummyPairMod;
   std::pair<edm::Hash<2>, edm::ProcessHistory> dummyPairProc;
   std::pair<edm::Hash<1>, edm::ParameterSetBlob> dummyPairParam;
+
+  std::vector<char>::iterator itc;
+  std::vector<short>::iterator its;
+  std::vector<unsigned short>::iterator itus;
+  std::vector<int>::iterator iti;
+  std::vector<unsigned int>::iterator itui;
+  std::vector<long>::iterator itl;
+  std::vector<unsigned long>::iterator itul;
+  std::vector<long long>::iterator itll;
+  std::vector<unsigned long long>::iterator itull;
+  std::vector<float>::iterator itf;
+  std::vector<double>::iterator itd;
+  std::vector<long double>::iterator itld;
+  std::vector<std::string>::iterator itstring;
+  std::vector<void *>::iterator itvp;
+
 }}
