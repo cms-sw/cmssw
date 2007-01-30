@@ -4,19 +4,20 @@
 *  Warsaw University 2002                                                      *
 *                                                                              *
 *******************************************************************************/
-#include "L1Trigger/RPCTrigger/interface/RPCLogCone.h" 
+#include "L1Trigger/RPCTrigger/interface/RPCLogCone.h"
+#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 
-/** 
+/**
  *
  * Default constructor. No hits, no muon.
  *
 */
-RPCLogCone::RPCLogCone(): 
-    m_ConeCrdnts() 
+RPCLogCone::RPCLogCone():
+    m_ConeCrdnts()
 {
   m_LogPlanesVec.assign(RPCConst::m_LOGPLANES_COUNT, TLogPlane());
   m_MuonCode = 0;
@@ -28,8 +29,8 @@ RPCLogCone::RPCLogCone():
  *
 */
 
-RPCLogCone::RPCLogCone(int m_tower, int logSector, int logSegment):
-    m_ConeCrdnts(m_tower, logSector, logSegment) 
+RPCLogCone::RPCLogCone(int tower, int logSector, int logSegment):
+    m_ConeCrdnts(tower, logSector, logSegment)
 {
   m_LogPlanesVec.assign(RPCConst::m_LOGPLANES_COUNT, TLogPlane());
   m_MuonCode = 0;
@@ -40,7 +41,7 @@ RPCLogCone::RPCLogCone(int m_tower, int logSector, int logSegment):
  * Copying Constructor
  *
 */
-RPCLogCone::RPCLogCone(const RPCLogHit &logHit) 
+RPCLogCone::RPCLogCone(const RPCLogHit &logHit)
 {
   m_LogPlanesVec.assign(RPCConst::m_LOGPLANES_COUNT, TLogPlane());
 
@@ -51,6 +52,60 @@ RPCLogCone::RPCLogCone(const RPCLogHit &logHit)
 
   setLogStrip(logHit.getlogPlaneNumber() -1, logHit.getStripNumberInCone(), logHit.getDigiIdx());
 }
+
+RPCLogCone::RPCLogCone(const unsigned long long &pat, int tower, int logSector, int logSegment):
+      m_ConeCrdnts(tower, logSector, logSegment)
+{
+  m_LogPlanesVec.assign(RPCConst::m_LOGPLANES_COUNT, TLogPlane());
+  m_MuonCode = 0;
+  m_MuonSign = 0;
+
+  unsigned long long int mask = 255; // (first 8 bits)
+  int shift = 0;
+
+  //std::cout << "Decompressing pattern: " << pat << std::endl;
+  for (int logplane = RPCConst::m_FIRST_PLANE;
+           logplane != RPCConst::m_USED_PLANES_COUNT[std::abs(getTower())];
+         ++logplane  )
+  {
+      unsigned int strip = (pat & (mask<<shift) ) >> shift;
+      //std::cout << logplane << " " << strip << std::endl;
+      shift += 8;
+      // We should prob. use m_NOT_CONNECTED value
+      if (strip != RPCConst::m_LOGPLANE_SIZE[std::abs(getTower())][logplane])
+        setLogStrip(logplane,strip);
+  }
+}
+
+unsigned long long RPCLogCone::getCompressedCone(){
+
+    unsigned long long int pattern = 0;
+    int shift = 0;
+
+    for (int logplane = RPCConst::m_FIRST_PLANE;
+             logplane != RPCConst::m_USED_PLANES_COUNT[std::abs(getTower())];
+             logplane++  )
+     {
+       unsigned long long int strip;
+       if (getHitsCnt(logplane)==0) {
+          // We need to mark somehow, that plane is empty (strip 0 is not fired)
+          strip = RPCConst::m_LOGPLANE_SIZE[std::abs(getTower())][logplane];
+       }
+       else if (getHitsCnt(logplane)==1) {
+          RPCLogCone::TLogPlane lp = getLogPlane(logplane);
+          strip = lp.begin()->first;
+       }
+       else {
+          throw RPCException("To many hits in logcone");
+       }
+          pattern = pattern | (strip << shift);
+          shift += 8;
+     }
+
+   //std::cout << " Compressed cone: "   << pattern << std::endl;
+   return pattern;
+}
+
 
 std::string RPCLogCone::toString() const {
   std::ostringstream ostr;

@@ -38,9 +38,15 @@ public:
 
   ///Constructor. Cone coordinates are set.
   RPCLogCone(int m_tower, int logSector, int logSegment);
-  
+
   ///Constructor. One hit is added, cone coordinates are set from logHit.
   RPCLogCone(const RPCLogHit &logHit);
+
+  ///Constructor. The cone is built from unsigned long long
+  RPCLogCone(const unsigned long long &pat, int tower, int logSector, int logSegment);
+
+  /// Compresses cone. Throws exception, if there is more than one hit in any logplane
+  unsigned long long getCompressedCone();
 
   ///Adds next logHit .
   bool addLogHit(const RPCLogHit &logHit);
