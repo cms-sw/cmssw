@@ -21,10 +21,10 @@
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-//#include "RecoTracker/RoadSearchHelixMaker/interface/DcxHel.hh"
-//#include "RecoTracker/RoadSearchHelixMaker/interface/DcxFittedHel.hh"
-//#include "RecoTracker/RoadSearchHelixMaker/interface/DcxHit.hh"
-//#include "RecoTracker/RoadSearchHelixMaker/interface/DcxTrackCandidatesToTracks.hh"
+#include "RecoTracker/RoadSearchHelixMaker/interface/DcxHel.hh"
+#include "RecoTracker/RoadSearchHelixMaker/interface/DcxFittedHel.hh"
+#include "RecoTracker/RoadSearchHelixMaker/interface/DcxHit.hh"
+#include "RecoTracker/RoadSearchHelixMaker/interface/DcxTrackCandidatesToTracks.hh"
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"

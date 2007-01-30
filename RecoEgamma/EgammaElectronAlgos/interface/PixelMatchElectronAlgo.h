@@ -78,8 +78,6 @@ public:
   double ptCut_;
  
   // input configuration
-  std::string hbheLabel_;
-  std::string hbheInstanceName_;
   std::string trackBarrelLabel_;
   std::string trackEndcapLabel_;
   std::string trackBarrelInstanceName_;
