@@ -1029,6 +1029,10 @@ if __name__=="__main__":
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.string)
             self.assertEqual(d['blah'].value(),'a string')
+            t=onlyParameters.parseString('string blah = "\\0"')
+            d=dict(iter(t))
+            self.assertEqual(type(d['blah']),cms.string)
+            self.assertEqual(d['blah'].value(),'\0')
 
             t=onlyParameters.parseString("vstring blah = {}")
             d=dict(iter(t))
