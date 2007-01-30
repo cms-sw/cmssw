@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
-# helper classes for sorted and fixed dicts
+#used to convert a string
+import codecs
+_string_escape_encoder = codecs.getencoder('string_escape')
 
+# helper classes for sorted and fixed dicts
 class SortedKeysDict(dict):
     """a dict preserving order of keys"""
     # specialised __repr__ missing.
@@ -82,8 +85,15 @@ class FixedKeysDict(dict):
         return "FixedKeysDict(%s)" % dict.__repr__(self)
 
 def findProcess(module):
-    """Look in side the module and find the Processes it contains"""
+    """Look inside the module and find the Processes it contains"""
+    class Temp(object):
+        pass
     process = None
+    if isinstance(module,dict):
+        if 'process' in module:
+            p = module['process']
+            module = Temp()
+            module.process = p
     if hasattr(module,'process'):
         if isinstance(module.process,Process):
             process = module.process
@@ -616,6 +626,11 @@ class string(_SimpleParameterTypeBase):
         return self.formatValueForConfig(self.value())
     @staticmethod
     def formatValueForConfig(value):
+        l = len(value)
+        value,newL = _string_escape_encoder(value)
+        if l != newL:
+            #get rid of the hex encoding
+            value=value.replace('\\x0','\\')
         if "'" in value:
             return '"'+value+'"'
         return "'"+value+"'"
@@ -1100,7 +1115,12 @@ if __name__=="__main__":
             self.assertEqual(len(v),4)
             self.assertEqual([1,5,4,2],list(v))
             self.assertRaises(TypeError,v.append,('blah'))
-            
+        def testString(self):
+            s=string('this is a test')
+            self.assertEqual(s.value(),'this is a test')
+            s=string('\0')
+            self.assertEqual(s.value(),'\0')
+            self.assertEqual(s.configValue('',''),"'\\0'")
         def testUntracked(self):
             p=untracked(int32(1))
             self.assertRaises(TypeError,untracked,(1),{})
