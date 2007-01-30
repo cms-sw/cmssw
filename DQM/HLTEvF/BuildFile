@@ -2,6 +2,7 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/HLTReco>
+<use name=root>
 <flags SEAL_PLUGIN_NAME="DQMHLTEvF">
 <export>
    <lib name=DQMHLTEvF>
@@ -9,4 +10,5 @@
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/HLTReco>
+   <use name=root>
 </export>

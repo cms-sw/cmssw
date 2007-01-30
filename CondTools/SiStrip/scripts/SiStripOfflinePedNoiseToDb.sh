@@ -1,5 +1,5 @@
   #!/bin/sh
-
+    
 function usage () {
     echo -e "\n[usage]\n SiStripOfflinePedNoiseToDb.sh [options]"
     echo -e " -InputFilePath=<path>"
@@ -20,7 +20,12 @@ function usage () {
 
     echo -e "\nEXAMPLES:"
     echo -e "\n\tSingle Local File access"
-    echo -e "\n\t\t./SiStripOfflinePedNoiseToDb.sh -tagPN=SiStripOffPedNoi_v1 -tagCab=SiStripCabling_v1 -doPedNoiseTransfer -CondDb=devdb10 -geometry=TAC -InputFilePath=/storage/TIB/run/RU0000518_000.root  -StartIOV=100"
+    echo -e "\n\t\t./SiStripOfflinePedNoiseToDb.sh -tagPN=SiStripOffPedNoi_v1 -tagCab=SiStripCabling_v1 -doPedNoiseTransfer -CondDb=devdb10 -geometry=TAC -InputFilePath=/storage/TIB/run/RU0000518_000.root  -StartIOV=100 -firstUpload"
+
+    echo -e "\n\t\t ./SiStripOfflinePedNoiseToDb.sh -tagPN=SiStripOffPedNoi_v1 -tagCab=SiStripCabling_v1 -doPedNoiseTransfer -geometry=TAC -InputFilePath=/storage/TIB/run/RU0000516_000.root -StartIOV=516 -sqliteDb=/tmp/giordano/o2o/dummy_1.db -sqliteCatalog=/tmp/giordano/o2o/dummy_1.xml -firstUpload"
+
+    echo -e "\n\t\t ./SiStripOfflinePedNoiseToDb.sh -tagPN=SiStripOffPedNoi_v1 -tagCab=SiStripCabling_v1 -doPedNoiseTransfer -geometry=TAC -InputFilePath=/storage/TIB/run/RU0000516_000.root -StartIOV=600 -sqliteDb=/tmp/giordano/o2o/dummy_1.db -sqliteCatalog=/tmp/giordano/o2o/dummy_1.xml "
+
 
     echo -e "\n\tMultiple Local Files access"
     echo -e "\n\t\t./SiStripOfflinePedNoiseToDb.sh -tagPN=SiStripOffPedNoi_v1 -tagCab=SiStripCabling_v1 -doPedNoiseTransfer -CondDb=devdb10 -geometry=TAC -InputFilePath=/storage/TIB/run/RU000052[0-4]\*  -StartIOV=100" 

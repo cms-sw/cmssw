@@ -33,7 +33,8 @@ CSCTFTrackBuilder::~CSCTFTrackBuilder()
     }
 }
 
-void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, L1CSCTrackCollection* trkcoll)
+void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, const L1MuDTChambPhContainer* dttrig,
+				    L1CSCTrackCollection* trkcoll)
 {
   std::vector<csc::L1Track> trks;
   CSCTriggerContainer<CSCTrackStub> stub_list;
@@ -51,7 +52,8 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
 	  stub_list.push_back(theStub);	  
 	}     
     }   
-      
+
+  // run each sector processor in the TF
   for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
     {
       for(int s = CSCTriggerNumbering::minTriggerSectorId(); 
@@ -60,8 +62,9 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
 	  CSCTriggerContainer<CSCTrackStub> current_e_s = stub_list.get(e, s);
 	  if(my_SPs[e-1][s-1]->run(current_e_s))
 	    {
-	      std::vector<csc::L1Track> theTracks = my_SPs[e-1][s-1]->tracks().get();	      
+	      std::vector<csc::L1Track> theTracks = my_SPs[e-1][s-1]->tracks().get();
 	      trks.insert(trks.end(), theTracks.begin(), theTracks.end());
+	      
 	    }
 	}
     }
@@ -78,10 +81,11 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
       std::vector<CSCTrackStub> possible_stubs = stub_list.get(titr->endcap(), titr->sector());
       std::vector<CSCTrackStub>::const_iterator tkstbs = possible_stubs.begin();
 
-      unsigned me1ID = titr->me1ID();
-      unsigned me2ID = titr->me2ID();
-      unsigned me3ID = titr->me3ID();
-      unsigned me4ID = titr->me4ID();
+      int me1ID = titr->me1ID();
+      int me2ID = titr->me2ID();
+      int me3ID = titr->me3ID();
+      int me4ID = titr->me4ID();
+      int mb1ID = titr->mb1ID();
 
       for(; tkstbs != possible_stubs.end(); tkstbs++)
         {
@@ -89,31 +93,37 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
             {
             case 1:
               if((tkstbs->getMPCLink()
-                  +(3*(CSCTriggerNumbering::triggerSubSectorFromLabels(tkstbs->getDetId()) - 1))) == me1ID && me1ID != 0)
+                  +(3*(CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(tkstbs->getDetId().rawId())) - 1))) == me1ID && me1ID != 0)
                 {
-                  tcitr->second.insertDigi(tkstbs->getDetId(), tkstbs->getDigi());
+                  tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), tkstbs->getDigi());
                 }
               break;
 	    case 2:
               if(tkstbs->getMPCLink() == me2ID && me2ID != 0)
                 {
-                  tcitr->second.insertDigi(tkstbs->getDetId(), tkstbs->getDigi());
+                  tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), tkstbs->getDigi());
                 }
               break;
             case 3:
               if(tkstbs->getMPCLink() == me3ID && me3ID != 0)
                 {
-                  tcitr->second.insertDigi(tkstbs->getDetId(), tkstbs->getDigi());
+                  tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), tkstbs->getDigi());
                 }
               break;
             case 4:
               if(tkstbs->getMPCLink() == me4ID && me4ID != 0)
                 {
-                  tcitr->second.insertDigi(tkstbs->getDetId(), tkstbs->getDigi());
+                  tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), tkstbs->getDigi());
                 }
               break;
+	    case 5:
+	      if(tkstbs->getMPCLink() == mb1ID && mb1ID != 0)
+	      {
+		/// Hmmm how should I implement this??? Maybe change the L1Track to use stubs not LCTs?
+	      }
+	      break;
 	    default:
-	      edm::LogWarning("CSCTFSectorProcessor::run()") << "SERIOUS ERROR: STATION" << tkstbs->station() << "NOT IN RANGE [1,4]\n";
+	      edm::LogWarning("CSCTFTrackBuilder::buildTracks()") << "SERIOUS ERROR: STATION " << tkstbs->station() << " NOT IN RANGE [1,5]\n";
             };
 	}
       tcitr++; // increment to next track in the collection

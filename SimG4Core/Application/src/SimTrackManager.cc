@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.5 2006/09/25 13:24:49 sunanda Exp $
+// $Id: SimTrackManager.cc,v 1.8 2007/01/05 14:30:57 fambrogl Exp $
 //
 
 // system include files
@@ -203,19 +203,30 @@ void SimTrackManager::reallyStoreTracks(G4SimEvent * simEvent)
 int SimTrackManager::getOrCreateVertex(TrackWithHistory * trkH, int iParentID,
 				       G4SimEvent * simEvent){
 
-  VertexMap::const_iterator iterator = m_vertexMap.find(iParentID);
-  if (iterator != m_vertexMap.end()){
-    // loop over saved vertices
-    for (unsigned int k=0; k<m_vertexMap[iParentID].size(); k++){
-      if ((trkH->vertexPosition()-(((m_vertexMap[iParentID])[k]).second)).mag()<0.001)
-	return (((m_vertexMap[iParentID])[k]).first);
+  int parent = iParentID;
+  int check = -1;
+
+  for( std::vector<TrackWithHistory*>::const_iterator it = (*m_trksForThisEvent).begin(); 
+       it!= (*m_trksForThisEvent).end();it++){
+    if ((*it)->trackID() == uint32_t(parent)){
+      check = 0;
+      break;
     }
   }
 
-  int realParent = iParentID;
+  if(check==-1) parent = -1;
+
+  VertexMap::const_iterator iterator = m_vertexMap.find(parent);
+  if (iterator != m_vertexMap.end()){
+    // loop over saved vertices
+    for (unsigned int k=0; k<m_vertexMap[parent].size(); k++){
+      if ((trkH->vertexPosition()-(((m_vertexMap[parent])[k]).second)).mag()<0.001)
+	return (((m_vertexMap[parent])[k]).first);
+    }
+  }
   
-  simEvent->add(new G4SimVertex(trkH->vertexPosition(),trkH->globalTime(),realParent));
-  m_vertexMap[iParentID].push_back(MapVertexPosition(m_nVertices,trkH->vertexPosition()));
+  simEvent->add(new G4SimVertex(trkH->vertexPosition(),trkH->globalTime(),parent));
+  m_vertexMap[parent].push_back(MapVertexPosition(m_nVertices,trkH->vertexPosition()));
   m_nVertices++;
   return (m_nVertices-1);
 

@@ -49,6 +49,7 @@ RegionalPixelSeedGenerator::~RegionalPixelSeedGenerator() { }
 // Functions that gets called by framework every event
 void RegionalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
 {
+  double deltaZVertex =  halflength;
   // get Inputs
   edm::Handle<SiPixelRecHitCollection> pixelHits;
 
@@ -58,10 +59,12 @@ void RegionalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& e
   e.getByLabel(vertexSrc,vertices);
   const reco::VertexCollection vertCollection = *(vertices.product());
   reco::VertexCollection::const_iterator ci = vertCollection.begin();
-  if(vertCollection.size() == 0) return;
-  originz = ci->z();
-
-
+  if(vertCollection.size() > 0) {
+    originz = ci->z();
+  }else{
+    originz = 0.;
+    deltaZVertex = 15.;
+  }
 
   //
   // get the pixel Hits
@@ -94,7 +97,7 @@ void RegionalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& e
 											       GlobalPoint(0,0,originz), 
 											       ptmin,
 											       originradius,
-											       halflength,
+											       deltaZVertex,
 											       deltaEta,
 											       deltaPhi);
 	  

@@ -10,14 +10,32 @@ The Data Format is defined in the following package sets:
  - \ref CommonData "Common data format packagess" 
 
 \section Event Content
+AOD will be a subset of \ref RecoData "RECO" data, still to be defined.
 
-AOD contains a subset of \ref RecoData "RECO" data.
+\htmlonly
 
-\htmlinclude datatable_begin.doi
+<script type="text/javascript">
+<!--
+  function alternate() {
+    var i,t,row,table, tables;
+    tables = document.getElementsByTagName("table");
+    for( t = 0; t < tables.length; ++t ) {
+      table = tables[ t ];
+      if ( table.className == 'reftable' ) {
+        for(i = 1; (row = table.getElementsByTagName("tr")[i]); ++i) 
+          if ( row.className != 'colgroup' )
+            if(i % 2 == 1) { row.className='odd'; }
+            else { row.className='even'; }
+      }
+    }
+  }  window.onload = alternate;
+-->
+</script>
 
-\htmlinclude RecoLocalTrackerAOD.doi
+\endhtmlonly
 
-\htmlinclude datatable_end.doi
+\section status Status
+Empty at the moment.
 
 \section contact Contact persons
 - Luca Lista

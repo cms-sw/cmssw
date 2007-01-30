@@ -1,5 +1,5 @@
-#ifndef RPCTrigger_RPCRingFromRolls_h
-#define RPCTrigger_RPCRingFromRolls_h
+#ifndef L1Trigger_RPCRingFromRolls_h
+#define L1Trigger_RPCRingFromRolls_h
 
 /** \class RPCRingFromRolls
  *
@@ -23,26 +23,26 @@ class RPCRingFromRolls {
     
     
     struct stripCords {
-      uint32_t detRawId;
-      int stripNo;
-      bool isVirtual;
+      uint32_t m_detRawId;
+      int m_stripNo;
+      bool m_isVirtual;
     };
     
     struct stripCordsOp{
       bool operator()(const stripCords sc1, const stripCords sc2) const
       {
-        if (sc1.detRawId!=sc2.detRawId)
-          return sc1.detRawId<sc2.detRawId;
+        if (sc1.m_detRawId!=sc2.m_detRawId)
+          return sc1.m_detRawId<sc2.m_detRawId;
         else
-          return sc1.stripNo<sc2.stripNo;
+          return sc1.m_stripNo<sc2.m_stripNo;
       }
     };
     
     struct RPCConnection {
-      int PAC;
-      int tower;
-      int logplane;
-      int posInCone;
+      int m_PAC;
+      int m_tower;
+      int m_logplane;
+      int m_posInCone;
     };
     
     typedef std::vector<RPCConnection> RPCConnectionsVec;
@@ -54,7 +54,7 @@ class RPCRingFromRolls {
     
     bool addDetId(RPCDetInfo detInfo);
     int makeRefConnections(RPCRingFromRolls *);
-    int makeOtherConnections(float phiCenter, int tower, int PAC);
+    int makeOtherConnections(float phiCenter, int m_tower, int m_PAC);
     RPCLinks giveConnections();
     
     
@@ -68,26 +68,28 @@ class RPCRingFromRolls {
   private:
     void setRefPlane();
     void doVirtualStrips();
-    int giveLogPlaneForTower(int tower);
+    void filterMixedStrips();
+    int giveLogPlaneForTower(int m_tower);
     
     void updatePhiStripsMap(RPCDetInfo detInfo);//
         
   private:
-    int m_towerMin; ///< The lowest tower no. to which curl contributes
-    int m_towerMax; ///< The highest tower no. to which curl contributes
+    int m_towerMin; ///< The lowest m_tower no. to which curl contributes
+    int m_towerMax; ///< The highest m_tower no. to which curl contributes
     int m_hwPlane; ///< Hardware plane no.
     int m_region; ///< Region no - 0 for barell +-1 for endcaps
     int m_ring;  ///< Wheel number for barell, ring number for endcaps
     int m_roll;  ///< roll no
     int m_curlId;///< this curlId
-    int m_physStripsInRingFromRolls; ///< Number of existing strips in curl;
-    int m_virtStripsInRingFromRolls; ///< Number of virtual strips in curl;
+    int m_physStripsInRingFromRolls; ///< m_Number of existing strips in curl;
+    int m_virtStripsInRingFromRolls; ///< m_Number of virtual strips in curl;
     
     int m_globRoll;
     
     bool m_isDataFresh; ///< Defines if data has real world contents
     bool m_isRefPlane;  ///< tells if detIds from this curl form a reference plane
     bool m_didVirtuals;
+    bool m_didFiltering;
     RPCLinks m_links;
     
     
@@ -123,9 +125,9 @@ class RPCRingFromRolls {
     typedef std::map<float, stripCords, phiMapCompare> GlobalStripPhiMap;
     GlobalStripPhiMap m_stripPhiMap;    
         
-    static const int mrtow [RPCRingFromRolls::IROLL_MAX+1] [RPCRingFromRolls::NHPLANES] [RPCRingFromRolls::NPOS];
-    static const int mrlogp [RPCRingFromRolls::IROLL_MAX+1] [RPCRingFromRolls::NHPLANES] [RPCRingFromRolls::NPOS];
-    static const unsigned int LOGPLANE_SIZE[17][6];
+    static const int m_mrtow [RPCRingFromRolls::IROLL_MAX+1] [RPCRingFromRolls::NHPLANES] [RPCRingFromRolls::NPOS];
+    static const int m_mrlogp [RPCRingFromRolls::IROLL_MAX+1] [RPCRingFromRolls::NHPLANES] [RPCRingFromRolls::NPOS];
+    static const unsigned int m_LOGPLANE_SIZE[17][6];
     
 };
 #endif

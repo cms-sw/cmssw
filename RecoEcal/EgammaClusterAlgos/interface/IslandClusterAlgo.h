@@ -61,6 +61,7 @@ class IslandClusterAlgo
   std::vector<reco::BasicCluster> makeClusters(const EcalRecHitCollection* hits,
                                                const CaloSubdetectorGeometry *geometry,
                                                const CaloSubdetectorTopology *topology_p,
+                                               const CaloSubdetectorGeometry *geometryES_p,
                                                EcalPart ecalPart);
 
   /// point in the space
@@ -97,6 +98,7 @@ class IslandClusterAlgo
   void mainSearch(const EcalRecHitCollection* hits,
                   const CaloSubdetectorGeometry *geometry_p,
                   const CaloSubdetectorTopology *topology_p,
+		  const CaloSubdetectorGeometry *geometryES_p,
                   EcalPart ecalPart);
  
   void searchNorth(const CaloNavigator<DetId> &navigator);
@@ -106,7 +108,7 @@ class IslandClusterAlgo
 
   bool shouldBeAdded(EcalRecHitCollection::const_iterator candidate_it, EcalRecHitCollection::const_iterator previous_it);
 
-  void makeCluster(const EcalRecHitCollection* hits,const CaloSubdetectorGeometry *geometry_p);
+  void makeCluster(const EcalRecHitCollection* hits,const CaloSubdetectorGeometry *geometry_p,const CaloSubdetectorGeometry *geometryES_p);
 
  };
 

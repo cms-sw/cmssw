@@ -32,6 +32,7 @@
 
   <class name="std::map<DetId, std::pair<unsigned int, unsigned int> >"/>
 
+  <class name="ProjectedSiStripRecHit2D" />
   <class name="SiPixelRecHit" />
   <class name="SiPixelCluster" />
   <class name="std::vector<SiPixelRecHit*>"/>

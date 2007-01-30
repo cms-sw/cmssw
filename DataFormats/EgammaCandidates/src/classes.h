@@ -1,9 +1,10 @@
 //
-// $Id: classes.h,v 1.12 2006/10/20 13:00:11 rahatlou Exp $
+// $Id: classes.h,v 1.13 2006/10/27 15:02:49 uberthon Exp $
 //
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchElectron.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/ConvertedPhoton.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
@@ -27,11 +28,17 @@ namespace {
     edm::RefProd<reco::ElectronCollection> rp2;
     edm::RefVector<reco::ElectronCollection> rv2;
 
-    reco::PixelMatchGsfElectronCollection v3;
-    edm::Wrapper<reco::PixelMatchGsfElectronCollection> w3;
-    edm::Ref<reco::PixelMatchGsfElectronCollection> r3;
-    edm::RefProd<reco::PixelMatchGsfElectronCollection> rp3;
-    edm::RefVector<reco::PixelMatchGsfElectronCollection> rv3;
+    reco::PixelMatchElectronCollection v3;
+    edm::Wrapper<reco::PixelMatchElectronCollection> w3;
+    edm::Ref<reco::PixelMatchElectronCollection> r3;
+    edm::RefProd<reco::PixelMatchElectronCollection> rp3;
+    edm::RefVector<reco::PixelMatchElectronCollection> rv3;
+
+    reco::PixelMatchGsfElectronCollection v4;
+    edm::Wrapper<reco::PixelMatchGsfElectronCollection> w4;
+    edm::Ref<reco::PixelMatchGsfElectronCollection> r4;
+    edm::RefProd<reco::PixelMatchGsfElectronCollection> rp4;
+    edm::RefVector<reco::PixelMatchGsfElectronCollection> rv4;
 
     reco::SiStripElectronCollection v5;
     edm::Wrapper<reco::SiStripElectronCollection> w5;
@@ -45,10 +52,10 @@ namespace {
     edm::RefProd<reco::ConvertedPhotonCollection> rp6;
     edm::RefVector<reco::ConvertedPhotonCollection> rv6;
 
-    std::map<unsigned int, float> m4;
-    reco::PhotonIsolationMap v4;
-    edm::Wrapper<reco::PhotonIsolationMap> w4;
-    edm::helpers::Key<edm::RefProd<reco::PhotonCollection > > h4;
+    std::map<unsigned int, float> m66;
+    reco::PhotonIsolationMap v66;
+    edm::Wrapper<reco::PhotonIsolationMap> w66;
+    edm::helpers::Key<edm::RefProd<reco::PhotonCollection > > h66;
 
     std::map<unsigned int, float> m7;
     reco::ElectronIsolationMap v7;

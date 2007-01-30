@@ -1,4 +1,5 @@
 <use name=FWCore/Framework>
+<use name=DataFormats/CaloTowers>
 <use name=DataFormats/ParticleFlowReco>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/Math>
@@ -7,6 +8,7 @@
 <use name=root>
 <export>
   <use name=FWCore/Framework>
+  <use name=DataFormats/CaloTowers>
   <use name=DataFormats/ParticleFlowReco>
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/Math>

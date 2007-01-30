@@ -26,6 +26,7 @@
 #include "DataFormats/Common/interface/BranchDescription.h"
 
 #include  "SimCalorimetry/EcalTrigPrimProducers/interface/EcalTrigPrimProducer.h"
+#include  "SimCalorimetry/EcalTrigPrimAlgos/interface/DBInterface.h"
 #include  "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "TFile.h"
@@ -50,9 +51,11 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig)
   label_= iConfig.getParameter<std::string>("Label");
   instanceNameEB_ = iConfig.getParameter<std::string>("InstanceEB");;
   instanceNameEE_ = iConfig.getParameter<std::string>("InstanceEE");;
-  fgvbMinEnergy_=  iConfig.getParameter<int>("FgvbMinEnergy");
-  ttfThreshLow_ =  iConfig.getParameter<double>("TTFLowEnergy");
-  ttfThreshHigh_=  iConfig.getParameter<double>("TTFHighEnergy");
+  databaseFileNameEB_ = iConfig.getParameter<std::string>("DatabaseFileEB");;
+  databaseFileNameEE_ = iConfig.getParameter<std::string>("DatabaseFileEE");;
+  //  fgvbMinEnergy_=  iConfig.getParameter<int>("FgvbMinEnergy");
+  //  ttfThreshLow_ =  iConfig.getParameter<double>("TTFLowEnergy");
+  //  ttfThreshHigh_=  iConfig.getParameter<double>("TTFHighEnergy");
   algo_=NULL;
   //FIXME: add configuration
                    
@@ -86,7 +89,8 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
     binOfMaximum_=6;
   }
 
-  algo_ = new EcalTrigPrimFunctionalAlgo(setup,  valTree_,binOfMaximum_,nrSamples_,ttfThreshLow_,ttfThreshHigh_);
+  db_ = new DBInterface(databaseFileNameEB_,databaseFileNameEE_);
+  algo_ = new EcalTrigPrimFunctionalAlgo(setup,  valTree_,binOfMaximum_,nrSamples_,db_);
   edm::LogInfo("constructor") <<"EcalTrigPrimProducer will write:  "<<nrSamples_<<" samples for each digi,  binOfMaximum used:  "<<binOfMaximum_;
 }
 
@@ -100,6 +104,7 @@ EcalTrigPrimProducer::~EcalTrigPrimProducer()
     histfile_->Write();
     histfile_->Close();
   }
+  delete db_ ;
 
 }
 
@@ -132,7 +137,7 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
   const EEDigiCollection *eedc=NULL;
   if (barrel) ebdc=ebDigis.product();
   if (endcap) eedc=eeDigis.product();
-  algo_->run(ebdc,eedc,*pOut, fgvbMinEnergy_);
+  algo_->run(ebdc,eedc,*pOut);
   for (unsigned int i=0;i<pOut->size();++i) {
     for (int isam=0;isam<(*pOut)[i].size();++isam) {
       if ((*pOut)[i][isam].raw()) LogDebug("Produced for ") <<" Tower  "<<i<<", sample "<<isam<<", value "<<(*pOut)[i][isam].raw();

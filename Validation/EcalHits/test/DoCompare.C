@@ -1,8 +1,8 @@
 void DoCompare( char* Energy ){
 
- static const int NHisto = 47;
- static const int NHisto2 = 4;
- static const int NHisto3 = 2;
+ const int NHisto = 47;
+ const int NHisto2 = 4;
+ const int NHisto3 = 2;
 
  TText* te = new TText();
  te->SetTextSize(0.1);

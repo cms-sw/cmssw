@@ -1,11 +1,11 @@
-#ifndef RPCTrigger_RPCTrigger_h
-#define RPCTrigger_RPCTrigger_h
+#ifndef L1Trigger_RPCTrigger_h
+#define L1Trigger_RPCTrigger_h
 
 /** \class RPCTrigger
  *  \brief Implements RPC trigger emulation
  *
- *  $Date: 2006/06/22 14:29:06 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/11/29 19:33:49 $
+ *  $Revision: 1.8 $
  *  \author Tomasz Fruboes
  *  \todo All the code must be reviewed and cleaned to comply coding rules
  */
@@ -32,13 +32,13 @@
 
 // L1RpcTrigger specific includes
 #include "L1Trigger/RPCTrigger/src/RPCTriggerGeo.h"
-#include "L1Trigger/RPCTrigger/src/L1RpcPacManager.h"
+#include "L1Trigger/RPCTrigger/src/RPCPacManager.h"
 
-#include "L1Trigger/RPCTrigger/src/L1RpcPacTrigger.h"
-#include "L1Trigger/RPCTrigger/src/L1RpcBasicTrigConfig.h"
-#include "L1Trigger/RPCTrigger/src/L1RpcPac.h"
-#include "L1Trigger/RPCTrigger/src/L1RpcConst.h"
-#include "L1Trigger/RPCTrigger/src/L1RpcPacManager.h"
+#include "L1Trigger/RPCTrigger/src/RPCPacTrigger.h"
+#include "L1Trigger/RPCTrigger/src/RPCBasicTrigConfig.h"
+#include "L1Trigger/RPCTrigger/src/RPCPacData.h"
+#include "L1Trigger/RPCTrigger/src/RPCConst.h"
+#include "L1Trigger/RPCTrigger/src/RPCPacManager.h"
 
 #include <memory>
 #include <vector>
@@ -58,13 +58,13 @@ class RPCTrigger : public edm::EDProducer {
       // ----------member data ---------------------------
     
     
-    RPCTriggerGeo theLinksystem;  ///< Tells where to send no of fired strip.
+    RPCTriggerGeo m_theLinksystem;  ///< Tells where to send no of fired strip.
     
-    L1RpcPacManager<L1RpcPac> m_pacManager;
+    RPCPacManager<RPCPacData> m_pacManager;
     
-    L1RpcBasicTrigConfig* m_trigConfig;
+    RPCBasicTrigConfig* m_trigConfig;
     
-    L1RpcPacTrigger* m_pacTrigger;
+    RPCPacTrigger* m_pacTrigger;
     
     std::vector<L1MuRegionalCand> giveFinallCandindates(L1RpcTBMuonsVec finalMuons, short type);
 

@@ -15,7 +15,7 @@ void HcalTrigTowerGeometry::setupHF(bool useShortFibers, bool useQuadRings) {
   useHFQuadPhiRings_=useQuadRings;
 }
 
-std::vector<HcalTrigTowerDetId> 
+std::vector<HcalTrigTowerDetId>
 HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
 
   std::vector<HcalTrigTowerDetId> results;
@@ -62,7 +62,7 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
 }
 
 
-std::vector<HcalDetId> 
+std::vector<HcalDetId>
 HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId &) const {
   std::vector<HcalDetId> results;
   return results;
@@ -71,9 +71,9 @@ HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId &) const {
 
 int HcalTrigTowerGeometry::hfTowerEtaSize(int ieta) const {
   int ietaAbs = abs(ieta); 
-  assert(ietaAbs >= firstHFTower());
-  // the first comes from rings 29-32.  The rest have 3 rings each
-  return (ietaAbs == firstHFTower()) ? 4 : 3;
+  assert(ietaAbs >= firstHFTower() && ietaAbs <= nTowers());
+  // the first three come from rings 29-31, 32-34, 35-37. The last has 4 rings: 38-41
+  return (ietaAbs == nTowers()) ? 4 : 3;
 }
 
 
@@ -111,4 +111,3 @@ void HcalTrigTowerGeometry::towerEtaBounds(int ieta, double & eta1, double & eta
   if(ieta < 0) eta1 *= -1;
   if(ieta < 0) eta2 *= -1;
 }
-

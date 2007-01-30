@@ -1,4 +1,4 @@
-void DoCompare(char *Sample){
+void DoCompare(char *Current, char *Reference=0) {
 
   static const int NPages = 6;
 
@@ -10,16 +10,15 @@ void DoCompare(char *Sample){
   gStyle->SetOptStat(111111);
 
   HistoCompare * myPV = new HistoCompare();
-  
-  char*  reffilename  = "${REFFILE}";
-  char*  curfilename  = "${CURFILE}";
-  
-  TFile * reffile = new TFile(reffilename);
-  TFile * curfile = new TFile(curfilename);
-  reffile->ls();
-  curfile->ls();
+  TFile * curfile = new TFile( TString(Current)+".root" );
+  TFile * reffile = curfile;
+  if (Reference) reffile = new TFile(TString(Reference)+".root");
 
   
+  if (Reference) reffile->ls();
+  curfile->ls();
+
+
   TCanvas* c1 = new TCanvas("c1","c1");
   c1->Divide(3,2); c1->cd(1); 
 
@@ -34,25 +33,28 @@ void DoCompare(char *Sample){
     if (isHisto && h1 && h2 && *h1->GetName()== *h2->GetName()) {
       iHisto++;
       c1->cd( (iHisto-1) % NPages + 1);
-      //cout <<"--------- PROC, ihisto: "<<iHisto<<" name:"<<h1->GetName()<<endl;
       h1->SetLineColor(2);
-      h2->SetLineColor(4);
       h1->SetLineStyle(3);
-      h2->SetLineStyle(5);
       h1->DrawCopy();
-      h2->DrawCopy("Same"); 
-      myPV->PVCompute(h1,h2, te);
+      if (Reference) {
+        h2->SetLineColor(4);
+        h2->SetLineStyle(5);
+        h2->DrawCopy("Same"); 
+        myPV->PVCompute(h1,h2, te);
+      }
       if ((iHisto % NPages) == 0) {
-        sprintf(title,"%s%s%d%s", Sample, "_", iHisto/NPages-1, ".eps");
+        sprintf(title,"%s%s%d%s", Current, "_", iHisto/NPages-1, ".eps");
         c1->Print(title);
       }
     }
-    delete h1;
+    if(Reference) delete h1;
     delete h2;
     object = list->After(object);
   }
   if ((iHisto % NPages) != 0) {
-    sprintf(title,"%s%s%d%s", Sample, "_", iHisto/NPages, ".eps");
+    sprintf(title,"%s%s%d%s", Current, "_", iHisto/NPages, ".eps");
     c1->Print(title);
   }
+
 }
+

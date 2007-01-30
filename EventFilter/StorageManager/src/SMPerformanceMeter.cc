@@ -113,6 +113,11 @@ unsigned long stor::SMPerformanceMeter::totalsamples()
   return sampleCounter_;
 }
 
+double stor::SMPerformanceMeter::totalvolumemb() 
+{
+  return totalMB4mean_;
+}
+
 double stor::SMPerformanceMeter::duration() 
 {
   return allTime_;
