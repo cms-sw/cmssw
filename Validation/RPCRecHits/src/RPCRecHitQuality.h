@@ -7,8 +7,8 @@
  *  Basic analyzer class which accesses 1D RPCRecHits
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2007/01/12 12:34:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/01/30 13:59:53 $
+ *  $Revision: 1.4 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -78,50 +78,6 @@ private:
   std::string recHitLabel;
   std::string digiLabel;
 
-  
-  /*
-  // Return a map between RPCRecHitPair and rpcId 
-  std::map<RPCDetId, std::vector<RPCRecHit> >
-  map1DRecHitsPerStrip(const RPCRecHitCollection* RPCRecHitPairs);
-
-  
-  // Compute SimHit distance from strip
-  float simHitDistFromStrip(const RPCRoll& roll,
-  			    const RPCCluster& cl,
-  			    const PSimHit& hit);
-  
-
-  // Find the RecHit closest to the muon SimHit
-  template  <typename type>
-  const type* 
-  findBestRecHit(const RPCRoll& roll,
-  		 const RPCCluster& cl,
-		 const std::vector<type>& recHits,
-		 const float simHitDist);
-
-
-
-
-  // Compute the distance from strip (cm) of a hits
-  float recHitDistFromStrip(const RPCRecHit& hitPair, 
-                            const RPCCluster& cl);
-  
-
-  // Return the error on the measured (cm) coordinate
-  float recHitPositionError(const RPCRecHit& recHit);
-  
-
-
-  // Does the real job
-  template  <typename type>
-  void compute(const RPCGeometry *rpcGeom,
-	       std::map<RPCDetId, std::vector<PSimHit> > simHitsPerStrip,
-	       std::map<RPCDetId, std::vector<type> > recHitsPerStrip,
-	       int step);
-
-
-  
-  */
   
 };
 
