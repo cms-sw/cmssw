@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.15 2007/01/29 02:07:24 elmer Exp $
+// $Id: JobReport.cc,v 1.17 2007/01/29 02:15:38 elmer Exp $
 //
 
 
@@ -200,7 +200,7 @@ namespace edm
     for (pos = generatorInfo_.begin(); pos != generatorInfo_.end(); ++pos){
       std::ostringstream msg;
       msg << "\n<Data Name=\"" << pos->first
-			<< "\" Value=\"" << pos->second << "\">";
+			<< "\" Value=\"" << pos->second << "\"/>";
       LogInfo("FwkJob") << msg.str();
     }
     LogInfo("FwkJob") << "</GeneratorInfo>";
