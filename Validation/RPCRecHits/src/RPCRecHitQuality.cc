@@ -87,9 +87,7 @@ void RPCRecHitQuality::endJob() {
   cout << endl <<"--- [RPCRecHitQuality] Analysing Event: #Run: " << event.id().run()
        << " #Event: " << event.id().event() << endl;
 
-  //theFile->cd(); 
-
-  // Get the RPC Geometry
+    // Get the RPC Geometry
   ESHandle<RPCGeometry> rpcGeom;
   eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
 
@@ -102,7 +100,7 @@ void RPCRecHitQuality::endJob() {
   std::map<int, double> nmapsim;
   
  
-    //================================================================================================
+  //================================================================================================
   
   
   // Get the rechit collection from the event
@@ -131,7 +129,7 @@ void RPCRecHitQuality::endJob() {
   LocalError locerr = (*recIt).localPositionError(); 
   double rhitlocalx = rhitlocal.x();
   double rhiterrx =locerr.xx();
-  cout << "[RecHit] Pos: " << rhitlocal << " Err: " << rhiterrx << endl;
+  //cout << "[RecHit] Pos: " << rhitlocal << " Err: " << rhiterrx << endl;
   Rechisto->Fill(rhitlocalx);
   maprec[rhitlocalx] = nrec;
   nmaperr[rhitlocalx] = rhiterrx;
@@ -140,7 +138,6 @@ void RPCRecHitQuality::endJob() {
   int i = 0;
   for (map<double, int>::iterator iter = maprec.begin(); iter != maprec.end(); iter++) {
        i = i + 1;
-       //cout << i << " " << (*iter).first << endl;
        nmaprec[i] = (*iter).first;
   }
  
@@ -154,7 +151,7 @@ void RPCRecHitQuality::endJob() {
   nsim = nsim + 1;
   LocalPoint shitlocal = (*simIt).localPosition();
   double shitlocalx = shitlocal.x();
-  cout << " [SimHit] Pos: " << shitlocal << endl;
+  //cout << " [SimHit] Pos: " << shitlocal << endl;
   Simhisto->Fill(shitlocalx);
   mapsim[shitlocalx] = nsim;
   }
@@ -162,7 +159,6 @@ void RPCRecHitQuality::endJob() {
   i = 0;
   for (map<double, int>::iterator iter = mapsim.begin(); iter != mapsim.end(); iter++) {
     i = i + 1;
-    //cout << i << " " << (*iter).first << endl;
     nmapsim[i] = (*iter).first;
   }
 
