@@ -5,8 +5,8 @@
 //   Description: Look-up tables for extrapolation
 //
 //
-//   $Date: 2006/06/01 00:00:00 $
-//   $Revision: 1.1 $
+//   $Date: 2006/07/26 10:31:00 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -33,6 +33,7 @@ using namespace std;
 // Collaborating Class Headers --
 //-------------------------------
 
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "L1Trigger/DTTrackFinder/interface/BitArray.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTExtParam.h"
@@ -125,10 +126,11 @@ int L1MuDTExtLut::load() {
     }
 
     // assemble file name
-    string ext_file = ext_dir + ext_str + ".lut";
+    edm::FileInPath lut_f = edm::FileInPath(string("L1Trigger/DTTrackFinder/parameters/" + ext_dir + ext_str + ".lut"));
+    string ext_file = lut_f.fullPath();
 
     // open file
-    L1TriggerLutFile file(defaultPath+ext_file);
+    L1TriggerLutFile file(ext_file);
     if ( file.open() != 0 ) return -1;
     if ( L1MuDTTFConfig::Debug(1) ) cout << "Reading file : " 
                                          << file.getName() << endl; 

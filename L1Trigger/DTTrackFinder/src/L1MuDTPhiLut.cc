@@ -5,7 +5,7 @@
 //   Description: Look-up tables for phi assignment 
 //
 //
-//   $Date: 2006/06/01 00:00:00 $
+//   $Date: 2006/06/26 16:11:13 $
 //   $Revision: 1.1 $
 //
 //   Author :
@@ -33,6 +33,7 @@ using namespace std;
 // Collaborating Class Headers --
 //-------------------------------
 
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "L1Trigger/DTTrackFinder/interface/BitArray.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1TriggerLutFile.h"
@@ -113,10 +114,11 @@ int L1MuDTPhiLut::load() {
     }
 
     // assemble file name
-    string phi_file = phi_dir + phi_str + ".lut";
+    edm::FileInPath lut_f = edm::FileInPath(string("L1Trigger/DTTrackFinder/parameters/" + phi_dir + phi_str + ".lut"));
+    string phi_file = lut_f.fullPath();
 
     // open file
-    L1TriggerLutFile file(defaultPath+phi_file);
+    L1TriggerLutFile file(phi_file);
     if ( file.open() != 0 ) return -1;
     if ( L1MuDTTFConfig::Debug(1) ) cout << "Reading file : " 
                                          << file.getName() << endl; 
