@@ -40,6 +40,7 @@ private:
 	// Other data members logically belong to ME Block record,
 	//  but physically are located in Data Block Header, which implementation is:
 	friend class CSCSPRecord;
+	friend class CSCTFPacker;
 	// Let this class set following data memebers:
 	unsigned int tbin_;           // time bin, that this ME block belongs to in global SP record
 	unsigned int valid_pattern;   // LCT valid bit

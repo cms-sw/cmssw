@@ -61,6 +61,8 @@ private:
 	unsigned skip             : 1; // event is skiped, only this header + trailer exist in the record
 	unsigned header_mark_8    : 4; // constant, should be 1010 = 0xA
 
+	friend class CSCTFPacker;
+
 public:
 	bool check(void) const {
 		return header_mark_1!=0x9 || header_mark_2!=0x9 || header_mark_3!=0x9 || header_mark_4!=0x9

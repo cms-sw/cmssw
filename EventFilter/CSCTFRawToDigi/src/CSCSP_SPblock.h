@@ -50,6 +50,7 @@ private:
 	// Other data members logically belong to SP Block record,
 	//  but physically are located in Data Block Header, which implementation is:
 	friend class CSCSPRecord;
+	friend class CSCTFPacker;
 	unsigned int tbin_; // time bin, that this SP block belongs to
 	unsigned int mode_; // stations, that this track crossed (they gave LCTs to build it)
 	unsigned int id_;   // track number (1, 2, or 3)

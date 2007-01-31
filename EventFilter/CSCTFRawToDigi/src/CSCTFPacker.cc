@@ -31,7 +31,7 @@ void CSCTFPacker::analyze(edm::Event const& e, edm::EventSetup const& iSetup){
 	edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
 	e.getByLabel("csctfunpacker","MuonCSCTFCorrelatedLCTDigi",corrlcts);
 
-	CSCSP_MEblock meDataRecord[12][7][4][9][2]; // LCT in sector X, tbin Y, station Z, csc W, and lct I
+	CSCSP_MEblock meDataRecord[12][7][5][9][2]; // LCT in sector X, tbin Y, station Z, csc W, and lct I
 	bzero(&meDataRecord,sizeof(meDataRecord));
 	CSCSPRecord meDataHeader[12][7]; // Data Block Header for sector X and tbin Y
 	bzero(&meDataHeader,sizeof(meDataHeader));
@@ -47,8 +47,7 @@ void CSCTFPacker::analyze(edm::Event const& e, edm::EventSetup const& iSetup){
 			int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
 			int tbin    = lct->getBX();
 			int fpga    = ( subSector ? subSector-1 : station+1 );
-
-//std::cout<<"Front data: "<<station<<"  sector: "<<sector<<"  subSector: "<<subSector<<"  tbin: "<<tbin<<"  cscId: "<<cscId<<endl;
+//std::cout<<"Front data station: "<<station<<"  sector: "<<sector<<"  subSector: "<<subSector<<"  tbin: "<<tbin<<"  cscId: "<<cscId<<"  fpga: "<<fpga<<endl;
 
 			// If Det Id is within range
 			if( sector<0 || sector>5 || station<0 || station>3 || cscId<0 || cscId>8 || lctId<0 || lctId>1){
@@ -106,22 +105,11 @@ void CSCTFPacker::analyze(edm::Event const& e, edm::EventSetup const& iSetup){
 	e.getByLabel("csctfunpacker","MuonL1CSCTrackCollection",tracks);
 
 	CSCSP_SPblock spDataRecord[12][7][3]; // Up to 3 tracks in sector X and tbin Y
+	bzero(&spDataRecord,sizeof(spDataRecord));
 	int nTrk=0;
 
 	for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk<tracks->end(); trk++){
-/*		for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=trk->second.product().begin(); csc!=trk->second.product().end(); csc++){
-			CSCCorrelatedLCTDigiCollection::Range range = corrlcts.product()->get(csc->first);
-			if( range.size() != 1 ) KARAUL;
-			else {
-				range.first();
-			}
-			int station = csc->first.station()-1;
-			int cscId   = csc->first.triggerCscId()-1;
-			int sector  = csc->first.triggerSector()-1;
-			int tbin    = trk->getBX();
-		}
-*/
-		int sector = 6*trk->first.endcap()+trk->first.sector();
+		int sector = 6*(trk->first.endcap()-1)+trk->first.sector()-1;
 		int tbin   = trk->first.BX();
 		spDataRecord[sector][tbin][nTrk].phi_       = trk->first.phi_packed();
 		spDataRecord[sector][tbin][nTrk].sign_      =(trk->first.ptLUTAddress()>>20)&0x1;
@@ -149,9 +137,9 @@ void CSCTFPacker::analyze(edm::Event const& e, edm::EventSetup const& iSetup){
 		spDataRecord[sector][tbin][nTrk].me4_tbin   = 0; // Unknown !
 		spDataRecord[sector][tbin][nTrk].mb_tbin    = 0; // Unknown !
 
-		nTrk++;
+		spDataRecord[sector][tbin][nTrk].id_ = nTrk+1; // for later use
 
-		spDataRecord[sector][tbin][nTrk].id_ = nTrk; // for later use
+		nTrk++;
 		switch(nTrk){
 			case 1: meDataHeader[sector][tbin].mode1 = (trk->first.ptLUTAddress()>>16)&0xF; break;
 			case 2: meDataHeader[sector][tbin].mode2 = (trk->first.ptLUTAddress()>>16)&0xF; break;
@@ -178,7 +166,8 @@ void CSCTFPacker::analyze(edm::Event const& e, edm::EventSetup const& iSetup){
 
 	header.csr_dfc  = nTBINs;
 	header.csr_dfc |= ( zeroSuppression ? 0x8 : 0x0 );
-	header.csr_dfc |= 0x7F; // All FPGAs are active
+	header.csr_dfc |= 0x7F0; // All FPGAs are active
+	header.skip     = 0;
 
 	CSCSPTrailer trailer;
 	bzero(&trailer,sizeof(trailer));
@@ -195,35 +184,34 @@ void CSCTFPacker::analyze(edm::Event const& e, edm::EventSetup const& iSetup){
 	trailer.trailer_mark_10= 0xE;
 
 	unsigned short spDDUrecord[700*12], *pos=spDDUrecord; // max length
+	*pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x5000;
+	*pos++ = 0x0000; *pos++ = 0x8000; *pos++ = 0x0001; *pos++ = 0x8000;
+	*pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000;
+
 	memcpy(pos,&header,16);
 	pos+=8;
 
 	for(int sector=0; sector<12; sector++){
 		if( !(activeSectors & (1<<sector)) ) continue;
-//std::cout<<"Writing sector: "<<sector<<endl;
 		for(int tbin=0; tbin<nTBINs; tbin++){
-//std::cout<<"Writing tbin: "<<tbin<<endl;
-			//if( !zeroSuppression || meDataHeader[sector][tbin].spare_1 )
 				memcpy(pos,&meDataHeader[sector][tbin],16);
 				pos+=8;
 				for(int fpga=0; fpga<5; fpga++){
-//std::cout<<"Writing FPGA: "<<fpga<<endl;
 					int nLCTs=0;
 					for(int cscId=0; cscId<9; cscId++)
 						for(int lctId=0; lctId<2; lctId++)
 							// Only 3 LCT per BX from the same fpga are allowed (to be valid):
 							if( meDataRecord[sector][tbin][fpga][cscId][lctId].valid_pattern ){
-//std::cout<<"Writing CSC: "<<cscId<<"  LCT: "<<lctId<<endl;
 								memcpy(pos,&meDataRecord[sector][tbin][fpga][cscId][lctId],8);
 								pos+=4;
 								nLCTs++;
 							}
-					// Here we imply that readout is set to be active (in DFC)
-					if( meDataHeader[sector][tbin].vq_a ) pos += 4;
-					if( meDataHeader[sector][tbin].vq_b ) pos += 4;
+					if( !zeroSuppression ) pos += 4*(3-nLCTs);
+					if( !zeroSuppression || meDataHeader[sector][tbin].vq_a ) pos += 4;
+					if( !zeroSuppression || meDataHeader[sector][tbin].vq_b ) pos += 4;
 				}
 				for(int trk=0; trk<3; trk++){
-					if( spDataRecord[sector][tbin][trk].id_ ){
+					if( !zeroSuppression || spDataRecord[sector][tbin][trk].id_ ){
 						memcpy(pos,&spDataRecord[sector][tbin][trk],8);
 						pos+=4;
 					}
@@ -233,6 +221,10 @@ void CSCTFPacker::analyze(edm::Event const& e, edm::EventSetup const& iSetup){
 
 	memcpy(pos,&trailer,16);
 	pos+=8;
+
+	*pos++ = 0x8000; *pos++ = 0x8000; *pos++ = 0xFFFF; *pos++ = 0x8000;
+	*pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000;
+	*pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000;
 
 	fwrite(spDDUrecord,2,pos-spDDUrecord,file);
 }

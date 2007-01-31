@@ -40,6 +40,8 @@ private:
 	unsigned crc_high_parity   : 1;
 	unsigned trailer_mark_10   : 4;  // constant, should be 1110 = 0xE
 
+	friend class CSCTFPacker;
+
 public:
 	bool check(void) const throw() {
 		return spare_1!=0 || spare_2!=0 || spare_3!=0 || zero_1!=0 || zero_2!=0 ||

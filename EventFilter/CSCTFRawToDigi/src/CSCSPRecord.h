@@ -60,6 +60,7 @@ private:
 	bool meFilled[5][3], mbFilled[2], spFilled[3];
 	// Allow CSCSPEvent, front end to the data format, access 'sp' field dirrectly
 	friend class CSCSPEvent;
+	friend class CSCTFPacker;
 
 public:
 	bool check(void) const throw() {
