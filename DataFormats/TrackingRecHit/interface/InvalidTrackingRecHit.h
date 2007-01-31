@@ -8,9 +8,10 @@
 
 class InvalidTrackingRecHit : public TrackingRecHit {
 public:
+  typedef TrackingRecHit::Type Type;
 
-  InvalidTrackingRecHit( const DetId& id) : detId_(id) {}
-  InvalidTrackingRecHit() : detId_(0) {}
+  InvalidTrackingRecHit( const DetId& id, Type type ) : detId_(id), type_(type) {}
+  InvalidTrackingRecHit() : detId_(0), type_(TrackingRecHit::missing) {}
 
   virtual ~InvalidTrackingRecHit() {}
   
@@ -35,10 +36,12 @@ public:
   virtual std::vector<TrackingRecHit*> recHits();
 
   virtual bool isValid() const {return false;}
+  virtual Type getType() const { return type_; }
 
 private:
 
   DetId detId_;
+  Type type_;
 
   void throwError() const;
 

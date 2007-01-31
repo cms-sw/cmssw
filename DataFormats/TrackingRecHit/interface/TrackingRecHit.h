@@ -9,6 +9,12 @@
 
 class TrackingRecHit {
 public:
+/** Type of hits:
+ *   valid    = valid hit
+ *   missing  = detector is good, but no rec hit found
+ *   inactive = detector is off, so there was no hope
+ *   bad      = there were many bad strips within the ellipse */
+  enum Type { valid = 0, missing = 1, inactive = 2, bad = 3 };
 
   virtual ~TrackingRecHit() {}
 
@@ -36,6 +42,7 @@ public:
 
   virtual float weight() const {return 1.;}
 
+  virtual Type getType() const { return valid; }
   virtual bool isValid() const {return true;}
 
 };
