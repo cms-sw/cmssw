@@ -1,6 +1,12 @@
 #include "DQMServices/Components/interface/StateMachine.h" 
 #include "log4cplus/logger.h"
+
 #include "xgi/include/xgi/Method.h"
+#include "xgi/include/xgi/Utils.h"
+
+#include "xoap/include/xoap/SOAPEnvelope.h"
+#include "xoap/include/xoap/SOAPBody.h"
+#include "xoap/include/xoap/domutils.h"
 
 using namespace dqm;
 
@@ -43,10 +49,6 @@ void StateMachine::bind(std::string page)
   xgi::bind(this, &StateMachine::Default, page);
 }   
 
-#include "xoap/include/xoap/SOAPEnvelope.h"
-#include "xoap/include/xoap/SOAPBody.h"
-#include "xoap/include/xoap/domutils.h"
-
 xoap::MessageReference StateMachine::fireEvent(xoap::MessageReference msg)
   throw (xoap::exception::Exception)
 {
@@ -73,7 +75,6 @@ xoap::MessageReference StateMachine::fireEvent(xoap::MessageReference msg)
   XCEPT_RAISE(xoap::exception::Exception, "Command not found");
 }
 
-#include "xgi/include/xgi/Utils.h"
 //
 // Web Navigation Pages
 //

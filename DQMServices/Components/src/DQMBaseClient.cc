@@ -1,9 +1,12 @@
 #include "DQMServices/Components/interface/DQMBaseClient.h"
 #include "DQMServices/Components/interface/Updater.h"
+#include "DQMServices/Components/interface/Updater.h"
+#include "DQMServices/UI/interface/MonitorUIRoot.h"
+
 #include "xgi/include/xgi/Method.h"
+#include "xgi/include/xgi/Utils.h"
 
 #include <iostream>
-
 using std::cout; using std::endl;
 
 DQMBaseClient::DQMBaseClient(xdaq::ApplicationStub *s, 
@@ -43,8 +46,6 @@ void DQMBaseClient::fireConfiguration(std::string name, std::string server, int 
   sp->fireItemAvailable("reconnectDelaySecs",&reconnect_delay_secs_);
 }
 
-#include "xgi/include/xgi/Utils.h"
-
 void DQMBaseClient::Default(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception)
 {
   *out << cgicc::HTMLDoctype(cgicc::HTMLDoctype::eStrict) << std::endl;
@@ -61,9 +62,6 @@ void DQMBaseClient::general(xgi::Input * in, xgi::Output * out ) throw (xgi::exc
 {
   *out << "General access to client info " << std::endl;
 }
-
-#include "DQMServices/Components/interface/Updater.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
 
 void DQMBaseClient::configureAction(toolbox::Event::Reference e) 
   throw (toolbox::fsm::exception::Exception)

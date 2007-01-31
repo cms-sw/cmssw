@@ -1,5 +1,6 @@
 #include "DQMServices/Core/interface/StringUtil.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/Tokenizer.h"
 
 #include <iostream>
 
@@ -188,7 +189,6 @@ bool StringUtil::unpackDirFormat(const string & name, DirFormat & dir)
   return true;
 }
 
-#include "DQMServices/Core/interface/Tokenizer.h"
 using dqm::Tokenizer;
 
 // unpack input string into vector<string> by using "separator"
