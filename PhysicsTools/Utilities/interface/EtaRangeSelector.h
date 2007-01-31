@@ -4,19 +4,14 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: EtaRangeSelector.h,v 1.1 2006/09/20 15:49:36 llista Exp $
+ * $Id: EtaRangeSelector.h,v 1.2 2006/10/03 10:34:03 llista Exp $
  */
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 template<typename T>
 struct EtaRangeSelector {
   typedef T value_type;
   EtaRangeSelector( double etaMin, double etaMax ) : 
     etaMin_( etaMin ), etaMax_( etaMax ) { }
-  explicit EtaRangeSelector( const edm::ParameterSet & cfg ) : 
-    etaMin_( cfg.template getParameter<double>( "etaMin" ) ),
-    etaMax_( cfg.template getParameter<double>( "etaMax" ) ) {
-  }
   bool operator()( const value_type & t ) const { 
     double eta = t.eta();
     return ( eta >= etaMin_ && eta <= etaMax_ ); 

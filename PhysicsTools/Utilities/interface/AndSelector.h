@@ -4,9 +4,8 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: PtMinSelector.h,v 1.2 2006/07/25 17:21:31 llista Exp $
+ * $Id: AndSelector.h,v 1.1 2006/09/20 15:49:36 llista Exp $
  */
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_same.hpp>
 
@@ -14,8 +13,8 @@ template<typename S1, typename S2>
 struct AndSelector {
   BOOST_STATIC_ASSERT( ( boost::is_same<typename S1::value_type, typename S2::value_type>::value ) );
   typedef typename S1::value_type value_type;
-  AndSelector( const edm::ParameterSet & cfg ) : 
-    s1_( cfg ), s2_( cfg ) { }
+  AndSelector( const S1 & s1, const S2 & s2 ) :
+    s1_( s1 ), s2_( s2 ) { }
   bool operator()( const value_type & t ) const { 
     return s1_( t ) && s2_( t );
   }
