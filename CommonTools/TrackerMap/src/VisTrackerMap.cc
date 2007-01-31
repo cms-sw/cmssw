@@ -106,6 +106,7 @@ void VisTrackerMap::paintEvent( QPaintEvent * )
 void VisTrackerMap::mousePressEvent(QMouseEvent *e)
 {
   int layer = tk->find_layer(e->pos().x(),e->pos().y());
+  cout << "mouse position " << e->pos().x() << " " << e->pos().y()<<" layer "<< layer << endl;
   ostringstream outs;
      
   TmModule * mod;
@@ -116,10 +117,11 @@ void VisTrackerMap::mousePressEvent(QMouseEvent *e)
       if(mod !=0 && !mod->notInUse()){
 
 	QRegion q(reg_mod[mod->getQPointArray()],false);
-	QPoint pt(e->pos().x(), (tk->getxsize()*4)-e->pos().y());
+//	QPoint pt(e->pos().x(), (tk->getxsize()*4)-e->pos().y());
+	QPoint pt(e->pos().x(), e->pos().y());
 	if(q.contains(pt)){
 
-	  outs << mod->name<<" "<< mod->text<<" DetId="<<mod->idex<<" count="<<mod->count<<" value=" <<mod->value;
+	  outs << mod->name<<" "<< mod->text<<" DetId="<<mod->idex<<" count="<<mod->count<<" value=" <<mod->value<< "mouse pos= "<< e->pos().x() <<" "<<e->pos().y();
 	  ql->setText(outs.str());
 
 	  emit moduleSelected(mod->idex);

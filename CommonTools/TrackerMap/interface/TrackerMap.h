@@ -49,10 +49,9 @@ class TrackerMap {
     {
       int add;
       int layer=0;
-      if(iy <= xsize){//endcap+z
-	add=15;
+      if(iy <= xsize){//endcap-z
 	layer = ix/ysize;
-	layer = layer+1+add;
+	layer = 15-layer;
       }
       if(iy > xsize && iy< 3*xsize){//barrel
 	add=30;
@@ -60,13 +59,14 @@ class TrackerMap {
 	  layer=1;
 	}else {
 	  layer = ix/(2*ysize);
-	  if(iy < 2*xsize)layer=layer*2+1; else layer=layer*2;
+	  if(iy < 2*xsize)layer=layer*2; else layer=layer*2+1;
      	}
 	layer = layer+add;
       }
-      if(iy >= 3*xsize){	//endcap-z
+      if(iy >= 3*xsize){	//endcap+z
+	add=15;
 	layer = ix/ysize;
-	layer = 15-layer;
+	layer = layer+1+add;
       }
       return layer;  
     }
