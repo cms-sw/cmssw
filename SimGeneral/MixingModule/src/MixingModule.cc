@@ -70,24 +70,18 @@ namespace edm
   void MixingModule::addSignals(const edm::Event &e) { 
     // fill in signal part of CrossingFrame
 
-    printf("Starting addSignals &&&&&&&&&&&&&&&&&&\n");fflush(stdout);
     // first add eventID
     simcf_->setEventID(e.id());
-    printf("Starting 1 addSignals &&&&&&&&&&&&&&&&&&\n");fflush(stdout);
-    LogDebug("add")<<"===============> adding signals for "<<e.id();
-    std::cout <<"\n >>>&&&&&&&&&&&&&&&&&&Starting signal for event "<<e.id();
+    LogDebug("MixingModule")<<"===============> adding signals for "<<e.id();
     eventId_=0;
 
     // SimHits
-    printf("Starting 2 addSignals &&&&&&&&&&&&&&&&&&\n");fflush(stdout);
     std::vector<edm::Handle<std::vector<PSimHit> > > resultsim;
     e.getManyByType(resultsim);
-    printf("Starting 3 addSignals &&&&&&&&&&&&&&&&&&\n");fflush(stdout);
     int ss=resultsim.size();
-     printf("1 addSignals , %d &&&&&&&&&&&&&&&&&&\n",ss);fflush(stdout);
     for (int ii=0;ii<ss;ii++) {
       edm::BranchDescription desc = resultsim[ii].provenance()->product;
-      LogDebug("addSignals") <<"For "<<desc.productInstanceName_<<" "<<resultsim[ii].product()->size()<<" Simhits added";
+      LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<" "<<resultsim[ii].product()->size()<<" Simhits added";
       simcf_->addSignalSimHits(desc.productInstanceName_,resultsim[ii].product());
     }
 
@@ -96,10 +90,9 @@ namespace edm
     std::vector<edm::Handle<std::vector<PCaloHit> > > resultcalo;
     e.getManyByType(resultcalo);
     int sc=resultcalo.size();
-     printf("2 addSignals , %d &&&&&&&&&&&&&&&&&&\n",sc);fflush(stdout);
     for (int ii=0;ii<sc;ii++) {
       edm::BranchDescription desc = resultcalo[ii].provenance()->product;
-      LogDebug("addSignals") <<"For "<<desc.productInstanceName_<<" "<<resultcalo[ii].product()->size()<<" Calohits added";
+      LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<" "<<resultcalo[ii].product()->size()<<" Calohits added";
       simcf_->addSignalCaloHits(desc.productInstanceName_,resultcalo[ii].product());
     }
   
@@ -108,10 +101,9 @@ namespace edm
     std::vector<edm::Handle<std::vector<SimTrack> > > result_t;
     e.getManyByType(result_t);
     int str=result_t.size();
-     printf("3 addSignals , %d &&&&&&&&&&&&&&&&&&\n",str);fflush(stdout);
     for (int ii=0;ii<str;ii++) {
       edm::BranchDescription desc =result_t[ii].provenance()->product;
-      LogDebug("addSignals") <<result_t[ii].product()->size()<<" Simtracks added";
+      LogDebug("MixingModule") <<result_t[ii].product()->size()<<" Simtracks added";
       if (result_t[ii].isValid()) simcf_->addSignalTracks(result_t[ii].product());
       else  LogWarning("InvalidData") <<"Invalid simtracks in signal";
     }
@@ -119,20 +111,17 @@ namespace edm
     std::vector<edm::Handle<std::vector<SimVertex> > > result_v;
     e.getManyByType(result_v);
    int sv=result_v.size();
-     printf("4 addSignals , %d &&&&&&&&&&&&&&&&&&\n",sv);fflush(stdout);
     for (int ii=0;ii<sv;ii++) {
       edm::BranchDescription desc = result_v[ii].provenance()->product;
-      LogDebug("addSignals") <<result_v[ii].product()->size()<<" Simvertices added";
+      LogDebug("MixingModule") <<result_v[ii].product()->size()<<" Simvertices added";
       if (result_v[ii].isValid()) simcf_->addSignalVertices(result_v[ii].product());
       else  LogWarning("InvalidData") <<"Invalid simvertices in signal";
     }
-    printf("Ending addSignals &&&&&&&&&&&&&&&&&&\n");fflush(stdout);
   }
 
   void MixingModule::addPileups(const int bcr, Event *e, unsigned int eventId) {
-    printf("Starting addPileupss &&&&&&&&&&&&&&&&&&\n");fflush(stdout);
 
-    LogDebug("addPileups") <<"===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
+    LogDebug("MixingModule") <<"===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
     // SimHits
     // we have to treat tracker/non tracker  containers separately, prepare a global map
     // (all this due to the fact that we need to use getmany to avoid exceptions)
@@ -150,7 +139,7 @@ namespace edm
         const std::vector<PSimHit> * simhits = simproducts[(*it)];
 	if (simhits) {
 	  simcf_->addPileupSimHits(bcr,(*it),simhits,eventId,false);
-	  LogDebug("addPileups") <<"For "<<(*it)<<", "<<simhits->size()<<" Simhits added";
+	  LogDebug("MixingModule") <<"For "<<(*it)<<", "<<simhits->size()<<" Simhits added";
 	}
     }
     // Tracker treatment
@@ -166,7 +155,7 @@ namespace edm
 	if (simhitshigh) {
 	  simcf_->addPileupSimHits(bcr,subdethigh,simhitshigh,eventId,checktof_);
 	  simcf_->addPileupSimHits(bcr,subdetlow,simhitshigh,eventId,checktof_);
-	  LogDebug("addPileups") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitshigh->size()<<" Simhits added";
+	  LogDebug("MixingModule") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitshigh->size()<<" Simhits added";
 	}
       }
 
@@ -177,7 +166,7 @@ namespace edm
 	if (simhitslow) {
 	  simcf_->addPileupSimHits(bcr,subdethigh,simhitslow,eventId, checktof_);
 	  simcf_->addPileupSimHits(bcr,subdetlow,simhitslow,eventId, checktof_);
-	  LogDebug("addPileups") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitslow->size()<<" Simhits added";
+	  LogDebug("MixingModule") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitslow->size()<<" Simhits added";
 	}
       }
     }
@@ -188,7 +177,7 @@ namespace edm
     int sc=resultcalo.size();
     for (int ii=0;ii<sc;ii++) {
       edm::BranchDescription desc = resultcalo[ii].provenance()->product;
-      LogDebug("addPileups") <<"For "<<desc.productInstanceName_<<" "<<resultcalo[ii].product()->size()<<" Calohits added";
+      LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<" "<<resultcalo[ii].product()->size()<<" Calohits added";
       simcf_->addPileupCaloHits(bcr,desc.productInstanceName_,resultcalo[ii].product(),eventId);
     }
  
@@ -199,7 +188,7 @@ namespace edm
     if (str>1) LogWarning("InvalidData") <<"Too many SimTrack containers, should be only one!";
     for (int ii=0;ii<str;ii++) {
       edm::BranchDescription desc =result_t[ii].provenance()->product;
-      LogDebug("addPileups") <<result_t[ii].product()->size()<<" Simtracks added";
+      LogDebug("MixingModule") <<result_t[ii].product()->size()<<" Simtracks added";
       if (result_t[ii].isValid()) simcf_->addPileupTracks(bcr,result_t[ii].product(),eventId,vertexoffset);
       else  LogWarning("InvalidData") <<"Invalid simtracks in signal";
     }
@@ -211,14 +200,13 @@ namespace edm
     if (sv>1) LogWarning("InvalidData") <<"Too many SimVertex containers, should be only one!";
     for (int ii=0;ii<sv;ii++) {
       edm::BranchDescription desc = result_v[ii].provenance()->product;
-      LogDebug("addPileups") <<result_v[ii].product()->size()<<" Simvertices added";
+      LogDebug("MixingModule") <<result_v[ii].product()->size()<<" Simvertices added";
       if (result_v[ii].isValid()) simcf_->addPileupVertices(bcr,result_v[ii].product(),eventId);
       else  LogWarning("InvalidData") <<"Invalid simvertices in signal";
     }
 
     // increment offsets
     vertexoffset+=result_v[0].product()->size();
-    printf("Ending addPileupss &&&&&&&&&&&&&&&&&&\n");fflush(stdout);
   }
  
   void MixingModule::put(edm::Event &e) {
