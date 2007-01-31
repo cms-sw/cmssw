@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.11 $
+ * \version $Revision: 1.12 $
  *
- * $Id: ObjectSelector.h,v 1.11 2006/12/12 10:18:15 llista Exp $
+ * $Id: ObjectSelector.h,v 1.12 2006/12/20 13:46:04 llista Exp $
  *
  */
 
@@ -20,7 +20,8 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
-#include "PhysicsTools/Utilities/interface/NonNullNumberSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "PhysicsTools/UtilAlgos/interface/NonNullNumberSelector.h"
 #include <utility>
 #include <vector>
 #include <memory>
@@ -85,7 +86,7 @@ public:
   src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
   filter_( false ),
   selector_( cfg ),
-  sizeSelector_( cfg ),
+  sizeSelector_( reco::modules::make<N>( cfg ) ),
   postProcessor_( cfg ) {
     const std::string filter( "filter" );
     std::vector<std::string> bools = cfg.template getParameterNamesForType<bool>();

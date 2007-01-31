@@ -9,6 +9,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "PhysicsTools/UtilAlgos/interface/DeltaR.h"
 
 namespace reco {
   namespace modules {
@@ -27,8 +29,6 @@ namespace reco {
   }
 }
 
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "PhysicsTools/Utilities/interface/DeltaR.h"
 
 namespace reco {
   namespace modules {
@@ -36,8 +36,10 @@ namespace reco {
     template<typename S, typename D = DeltaR<reco::Candidate> >
     class CandMatcher : public CandMatcherBase {
     public:
-      CandMatcher(  const edm::ParameterSet & cfg ) : CandMatcherBase( cfg ),
-        select_( cfg ), distance_( cfg ) { }
+      CandMatcher(  const edm::ParameterSet & cfg ) : 
+	CandMatcherBase( cfg ),
+        select_( reco::modules::make<S>( cfg ) ), 
+	distance_( reco::modules::make<D>( cfg ) ) { }
       ~CandMatcher() { }
     private:
       double matchDistance( const reco::Candidate & c1, const reco::Candidate & c2 ) const {

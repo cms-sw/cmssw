@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.12 $
+ * \version $Revision: 1.13 $
  *
- * $Id: CandCombiner.h,v 1.12 2007/01/09 10:38:12 llista Exp $
+ * $Id: CandCombiner.h,v 1.13 2007/01/11 09:09:26 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 #include <string>
 #include <vector>
 
@@ -56,7 +57,7 @@ class CandCombiner : public CandCombinerBase {
 public:
   /// constructor from parameter set
   explicit CandCombiner( const edm::ParameterSet & cfg ) :
-    CandCombinerBase( cfg ), combiner_( cfg, true, dauCharge_ ) {
+    CandCombinerBase( cfg ), combiner_( reco::modules::make<S>( cfg ), Setup(), true, dauCharge_ ) {
   }
   /// destructor
   virtual ~CandCombiner() { }

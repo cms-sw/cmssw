@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: ObjectCountFilter.h,v 1.5 2006/11/23 14:27:47 llista Exp $
+ * $Id: ObjectCountFilter.h,v 1.6 2006/12/07 10:53:14 llista Exp $
  *
  */
 
@@ -17,8 +17,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "PhysicsTools/Utilities/interface/AnySelector.h"
-#include "PhysicsTools/Utilities/interface/MinNumberSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/AnySelector.h"
+#include "PhysicsTools/UtilAlgos/interface/MinNumberSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 
 template<typename C, 
 	 typename S = AnySelector<typename C::value_type>, 
@@ -28,8 +29,8 @@ public:
   /// constructor 
   explicit ObjectCountFilter( const edm::ParameterSet & cfg ) :
     src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
-    select_( cfg ),
-    sizeSelect_( cfg ) {
+    select_( reco::modules::make<S>( cfg ) ),
+    sizeSelect_( reco::modules::make<N>( cfg ) ) {
   }
   
 private:
@@ -52,14 +53,13 @@ private:
   N sizeSelect_;
 };
 
-
 template<typename C, typename N>
 class ObjectCountFilter<C, AnySelector<typename C::value_type>, N> : public edm::EDFilter {
 public:
   /// constructor 
   explicit ObjectCountFilter( const edm::ParameterSet & cfg ) :
     src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
-    sizeSelect_( cfg ) {
+    sizeSelect_( reco::modules::make<N>( cfg ) ) {
   }
   
 private:

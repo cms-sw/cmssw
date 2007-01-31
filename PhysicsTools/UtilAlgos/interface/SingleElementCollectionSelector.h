@@ -7,12 +7,13 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: SingleElementCollectionSelector.h,v 1.3 2006/10/27 07:55:03 llista Exp $
+ * $Id: SingleElementCollectionSelector.h,v 1.4 2006/10/27 10:03:45 llista Exp $
  *
  */
 #include "PhysicsTools/UtilAlgos/interface/SelectionAdderTrait.h"
+#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 
 template<typename C, typename S, 
 	 typename SC = std::vector<const typename C::value_type *>, 
@@ -22,7 +23,7 @@ struct SingleElementCollectionSelector {
   typedef SC container;
   typedef typename container::const_iterator const_iterator;
   SingleElementCollectionSelector( const edm::ParameterSet & cfg ) : 
-    select_( cfg ) { }
+    select_( reco::modules::make<S>( cfg ) ) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
   void select( const edm::Handle<C> & c, const edm::Event & ) {

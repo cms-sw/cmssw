@@ -5,9 +5,9 @@
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/CandAlgos/src/CandCombiner.h"
-#include "PhysicsTools/Utilities/interface/AndSelector.h"
-#include "PhysicsTools/Utilities/interface/MassRangeSelector.h"
-#include "PhysicsTools/Utilities/interface/ChargeSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/AndSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/MassRangeSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/ChargeSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 typedef CandCombiner<

@@ -6,7 +6,7 @@
  *
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "PhysicsTools/CandAlgos/src/CandCombiner.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 

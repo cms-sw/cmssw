@@ -1,39 +1,15 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/Candidate>
-<library file=CandSelector.cc>
-  <use name=PhysicsTools/Parser>
-  <use name=PhysicsTools/UtilAlgos>
-</library>
-<library file=PtMinCandSelector.cc>
-  <use name=PhysicsTools/Utilities>
-  <use name=PhysicsTools/UtilAlgos>
-</library>
-<library file=MassRangeAndChargeCandCombiner.cc>
-  <use name=PhysicsTools/Utilities>
-  <use name=PhysicsTools/CandAlgos>
-</library>
-<library file=MassRangeAndChargeCandShallowCloneCombiner.cc>
-  <use name=PhysicsTools/Utilities>
-  <use name=PhysicsTools/CandAlgos>
-</library>
-<library file=CandCombiner.cc>
-  <use name=PhysicsTools/Parser>
-  <use name=PhysicsTools/CandAlgos>
-</library>
-<library file=CandShallowCloneCombiner.cc>
-  <use name=PhysicsTools/Parser>
-  <use name=PhysicsTools/CandAlgos>
-</library>
-<library file=CandMerger.cc>
-  <use name=PhysicsTools/UtilAlgos>
-</library>
-<library file=CandShallowCloneProducer.cc>
-  <use name=PhysicsTools/CandAlgos>
-</library>
-<library file=CandReducer.cc>
-  <use name=PhysicsTools/CandAlgos>
-</library>
-<library file=TrivialDeltaRMatcher.cc>
-  <use name=PhysicsTools/CandAlgos>
-</library>
+<use name=PhysicsTools/UtilAlgos>
+<use name=PhysicsTools/CandAlgos>
+<library file=CandSelector.cc></library>
+<library file=PtMinCandSelector.cc></library>
+<library file=MassRangeAndChargeCandCombiner.cc></library>
+<library file=MassRangeAndChargeCandShallowCloneCombiner.cc></library>
+<library file=CandCombiner.cc></library>
+<library file=CandShallowCloneCombiner.cc></library>
+<library file=CandMerger.cc></library>
+<library file=CandShallowCloneProducer.cc></library>
+<library file=CandReducer.cc></library>
+<library file=TrivialDeltaRMatcher.cc></library>

@@ -7,15 +7,17 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: ObjectPairCollectionSelector.h,v 1.4 2006/10/27 10:21:25 llista Exp $
+ * $Id: ObjectPairCollectionSelector.h,v 1.5 2006/11/23 14:50:56 llista Exp $
  *
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/UtilAlgos/interface/SelectionAdderTrait.h"
+#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 #include <vector>
+
 namespace edm { class Event; }
 
 template<typename C, typename S,
@@ -31,7 +33,7 @@ private:
 
 public:
   ObjectPairCollectionSelector( const edm::ParameterSet & cfg ) : 
-    select_( cfg ) { }
+    select_( reco::modules::make<S>( cfg ) ) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
   void select( const edm::Handle<C> & c, const edm::Event & ) {

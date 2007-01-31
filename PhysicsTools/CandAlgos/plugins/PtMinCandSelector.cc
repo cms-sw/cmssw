@@ -14,8 +14,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
-#include "PhysicsTools/Utilities/interface/PtMinSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/PtMinSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 
 typedef ObjectSelector<
           SingleElementCollectionSelector<

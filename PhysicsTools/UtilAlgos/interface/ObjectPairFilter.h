@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: ObjectPairFilter.h,v 1.1 2006/10/03 09:02:10 llista Exp $
+ * $Id: ObjectPairFilter.h,v 1.2 2006/10/03 10:34:20 llista Exp $
  *
  */
 
@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 #include <vector>
 #include <algorithm>
 
@@ -25,7 +26,7 @@ class ObjectPairFilter : public edm::EDFilter {
 public:
   /// constructor 
   explicit ObjectPairFilter( const edm::ParameterSet & cfg ) :
-    select_( cfg ),
+    select_( reco::modules::make<S>( cfg ) ),
     src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
     minNumber_( 1 ) {
     std::vector<std::string> ints = cfg.template getParameterNamesForType<unsigned int>();

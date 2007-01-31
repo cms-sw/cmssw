@@ -1,3 +1,4 @@
+<use name=PhysicsTools/Parser>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Framework>
 <use name=FWCore/ServiceRegistry>
@@ -7,6 +8,7 @@
 <use name=root>
 <export>
   <lib name=PhysicsToolsUtilAlgos>
+  <use name=PhysicsTools/Parser>
   <use name=FWCore/ServiceRegistry>
   <use name=FWCore/Framework>
   <use name=FWCore/ServiceRegistry>
