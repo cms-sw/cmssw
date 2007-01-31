@@ -13,8 +13,9 @@ namespace service {
 class InitRootHandlers
 {
 private:
-  bool unloadSigHandler;
-  bool resetErrHandler;
+  bool unloadSigHandler_;
+  bool resetErrHandler_;
+  bool autoLibraryLoader_;
 
 public:
   InitRootHandlers (edm::ParameterSet const& pset, edm::ActivityRegistry & activity);

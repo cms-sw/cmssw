@@ -5,6 +5,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
 <use name=FWCore/MessageLogger>
+<use name=FWCore/RootAutoLibraryLoader>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/Common>
