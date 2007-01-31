@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/01/31 19:20:21 $
- * $Revision: 1.119 $
+ * $Date: 2007/01/31 20:00:39 $
+ * $Revision: 1.120 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1272,14 +1272,14 @@ void EBPedestalClient::analyze(void){
           for ( int i = -1; i <= +1; i++ ) {
             for ( int j = -1; j <= +1; j++ ) {
 
-              if ( h01_[ism-1] ) x3val01 = x3val01 + h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j)) *
-                                                     h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j));
+              if ( h01_[ism-1] ) x3val01 = x3val01 + h01_[ism-1]->GetBinError(ie+i, ip+j) *
+                                                     h01_[ism-1]->GetBinError(ie+i, ip+j);
 
-              if ( h02_[ism-1] ) x3val02 = x3val02 + h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j)) *
-                                                     h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j));
+              if ( h02_[ism-1] ) x3val02 = x3val02 + h02_[ism-1]->GetBinError(ie+i, ip+j) *
+                                                     h02_[ism-1]->GetBinError(ie+i, ip+j);
  
-              if ( h03_[ism-1] ) x3val03 = x3val03 + h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j)) *
-                                                     h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j));
+              if ( h03_[ism-1] ) x3val03 = x3val03 + h03_[ism-1]->GetBinError(ie+i, ip+j) *
+                                                     h03_[ism-1]->GetBinError(ie+i, ip+j);
  
             }
           }
@@ -1288,16 +1288,16 @@ void EBPedestalClient::analyze(void){
           x3val03 = x3val03 / (9.*9.);
 
           y3val01 = 0.;
-          if ( j01_[ism-1] ) y3val01 = j01_[ism-1]->GetBinError(j01_[ism-1]->GetBin(ie, ip)) *
-                                       j01_[ism-1]->GetBinError(j01_[ism-1]->GetBin(ie, ip));
+          if ( j01_[ism-1] ) y3val01 = j01_[ism-1]->GetBinError(ie, ip) *
+                                       j01_[ism-1]->GetBinError(ie, ip);
 
           y3val02 = 0.;
-          if ( j02_[ism-1] ) y3val02 = j02_[ism-1]->GetBinError(j02_[ism-1]->GetBin(ie, ip)) *
-                                       j02_[ism-1]->GetBinError(j02_[ism-1]->GetBin(ie, ip));
+          if ( j02_[ism-1] ) y3val02 = j02_[ism-1]->GetBinError(ie, ip) *
+                                       j02_[ism-1]->GetBinError(ie, ip);
 
           y3val03 = 0.;
-          if ( j03_[ism-1] ) y3val03 = j03_[ism-1]->GetBinError(j03_[ism-1]->GetBin(ie, ip)) *
-                                       j03_[ism-1]->GetBinError(j03_[ism-1]->GetBin(ie, ip));
+          if ( j03_[ism-1] ) y3val03 = j03_[ism-1]->GetBinError(ie, ip) *
+                                       j03_[ism-1]->GetBinError(ie, ip);
 
           z3val01 = -999.;
           if ( x3val01 != 0 && y3val01 != 0 ) z3val01 = sqrt(fabs(x3val01 - y3val01));
@@ -1343,14 +1343,14 @@ void EBPedestalClient::analyze(void){
           for ( int i = -2; i <= +2; i++ ) {
             for ( int j = -2; j <= +2; j++ ) {
 
-              if ( h01_[ism-1] ) x5val01 = x5val01 + h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j)) *
-                                                     h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j));
+              if ( h01_[ism-1] ) x5val01 = x5val01 + h01_[ism-1]->GetBinError(ie+i, ip+j) *
+                                                     h01_[ism-1]->GetBinError(ie+i, ip+j);
 
-              if ( h02_[ism-1] ) x5val02 = x5val02 + h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j)) *
-                                                     h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j));
+              if ( h02_[ism-1] ) x5val02 = x5val02 + h02_[ism-1]->GetBinError(ie+i, ip+j) *
+                                                     h02_[ism-1]->GetBinError(ie+i, ip+j);
  
-              if ( h03_[ism-1] ) x5val03 = x5val03 + h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j)) *
-                                                     h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j));
+              if ( h03_[ism-1] ) x5val03 = x5val03 + h03_[ism-1]->GetBinError(ie+i, ip+j) *
+                                                     h03_[ism-1]->GetBinError(ie+i, ip+j);
  
             }
           }
@@ -1359,16 +1359,16 @@ void EBPedestalClient::analyze(void){
           x5val03 = x5val03 / (25.*25.);
 
           y5val01 = 0.;
-          if ( k01_[ism-1] ) y5val01 = k01_[ism-1]->GetBinError(k01_[ism-1]->GetBin(ie, ip)) *
-                                       k01_[ism-1]->GetBinError(k01_[ism-1]->GetBin(ie, ip));
+          if ( k01_[ism-1] ) y5val01 = k01_[ism-1]->GetBinError(ie, ip) *
+                                       k01_[ism-1]->GetBinError(ie, ip);
 
           y5val02 = 0.;
-          if ( k02_[ism-1] ) y5val02 = k02_[ism-1]->GetBinError(k02_[ism-1]->GetBin(ie, ip)) *
-                                       k02_[ism-1]->GetBinError(k02_[ism-1]->GetBin(ie, ip));
+          if ( k02_[ism-1] ) y5val02 = k02_[ism-1]->GetBinError(ie, ip) *
+                                       k02_[ism-1]->GetBinError(ie, ip);
 
           y5val03 = 0.;
-          if ( k03_[ism-1] ) y5val03 = k03_[ism-1]->GetBinError(k03_[ism-1]->GetBin(ie, ip)) *
-                                       k03_[ism-1]->GetBinError(k03_[ism-1]->GetBin(ie, ip));
+          if ( k03_[ism-1] ) y5val03 = k03_[ism-1]->GetBinError(ie, ip) *
+                                       k03_[ism-1]->GetBinError(ie, ip);
 
           z5val01 = -999.;
           if ( x5val01 != 0 && y5val01 != 0 ) z5val01 = sqrt(fabs(x5val01 - y5val01));

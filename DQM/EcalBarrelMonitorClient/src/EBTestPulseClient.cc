@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/01/31 19:20:21 $
- * $Revision: 1.118 $
+ * $Date: 2007/01/31 20:00:39 $
+ * $Revision: 1.119 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -468,7 +468,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( hs01_[ism-1] && hs01_[ism-1]->GetEntries() >= n_min_tot ) {
             for ( int i = 1; i <= 10; i++ ) {
-              sample01.push_back(int(hs01_[ism-1]->GetBinContent(hs01_[ism-1]->GetBin(1, i))));
+              sample01.push_back(int(hs01_[ism-1]->GetBinContent(1, i)));
             }
           } else {
             for ( int i = 1; i <= 10; i++ ) { sample01.push_back(-1.); }
@@ -476,7 +476,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( hs02_[ism-1] && hs02_[ism-1]->GetEntries() >= n_min_tot ) {
             for ( int i = 1; i <= 10; i++ ) {
-              sample02.push_back(int(hs02_[ism-1]->GetBinContent(hs02_[ism-1]->GetBin(1, i))));
+              sample02.push_back(int(hs02_[ism-1]->GetBinContent(1, i)));
             }
           } else {
             for ( int i = 1; i <= 10; i++ ) { sample02.push_back(-1.); }
@@ -484,7 +484,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( hs03_[ism-1] && hs03_[ism-1]->GetEntries() >= n_min_tot ) {
             for ( int i = 1; i <= 10; i++ ) {
-              sample03.push_back(int(hs03_[ism-1]->GetBinContent(hs03_[ism-1]->GetBin(1, i))));
+              sample03.push_back(int(hs03_[ism-1]->GetBinContent(1, i)));
             }
           } else {
             for ( int i = 1; i <= 10; i++ ) { sample03.push_back(-1.); }
@@ -1118,7 +1118,7 @@ void EBTestPulseClient::analyze(void){
           if ( rms01 > RMSThreshold_ )
             val = 0.;
           if ( he01_[ism-1] && numEventsinCry[0] > 0 ) {
-            float errorRate = he01_[ism-1]->GetBinContent(he01_[ism-1]->GetBin(ie, ip)) / numEventsinCry[0];
+            float errorRate = he01_[ism-1]->GetBinContent(ie, ip) / numEventsinCry[0];
             if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
           }
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
@@ -1138,7 +1138,7 @@ void EBTestPulseClient::analyze(void){
           if ( rms02 > RMSThreshold_ )
             val = 0.;
           if ( he02_[ism-1] && numEventsinCry[1] > 0 ) {
-            float errorRate = he02_[ism-1]->GetBinContent(he02_[ism-1]->GetBin(ie, ip)) / numEventsinCry[1];
+            float errorRate = he02_[ism-1]->GetBinContent(ie, ip) / numEventsinCry[1];
             if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
           }
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val );
@@ -1158,7 +1158,7 @@ void EBTestPulseClient::analyze(void){
           if ( rms03 > RMSThreshold_ )
             val = 0.;
           if ( he03_[ism-1] && numEventsinCry[2] > 0 ) {
-            float errorRate = he03_[ism-1]->GetBinContent(he03_[ism-1]->GetBin(ie, ip)) / numEventsinCry[2];
+            float errorRate = he03_[ism-1]->GetBinContent(ie, ip) / numEventsinCry[2];
             if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
           }
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val );

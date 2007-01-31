@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/11/21 13:16:52 $
- * $Revision: 1.62 $
+ * $Date: 2006/12/15 09:44:50 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -175,8 +175,8 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
       if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
         num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
         if ( num01 >= n_min_bin ) {
-          mean01 = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-          rms01  = h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie, ip));
+          mean01 = h01_[ism-1]->GetBinContent(ie, ip);
+          rms01  = h01_[ism-1]->GetBinError(ie, ip);
           update_channel = true;
         }
       }
@@ -184,8 +184,8 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
       if ( h02_[ism-1] && h02_[ism-1]->GetEntries() >= n_min_tot ) {
         num02 = h02_[ism-1]->GetBinEntries(h02_[ism-1]->GetBin(ie, ip));
         if ( num02 >= n_min_bin ) {
-          mean02 = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
-          rms02  = h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie, ip));
+          mean02 = h02_[ism-1]->GetBinContent(ie, ip);
+          rms02  = h02_[ism-1]->GetBinError(ie, ip);
           update_channel = true;
         }
       }

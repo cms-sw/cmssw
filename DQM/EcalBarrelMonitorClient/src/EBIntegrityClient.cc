@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/01/28 10:21:30 $
- * $Revision: 1.128 $
+ * $Date: 2007/01/29 15:19:37 $
+ * $Revision: 1.129 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -380,7 +380,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   bool update0 = false;
 
   if ( h00_ ) {
-    num00  = h00_->GetBinContent(h00_->GetBin(ism));
+    num00  = h00_->GetBinContent(ism);
     if ( num00 > 0 ) update0 = true;
   }
 
@@ -395,25 +395,25 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
       float numTot = -1.;
 
-      if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(h_[ism-1]->GetBin(ie, ip));
+      if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(ie, ip);
 
       if ( h01_[ism-1] ) {
-        num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
+        num01  = h01_[ism-1]->GetBinContent(ie, ip);
         if ( num01 > 0 ) update1 = true;
       }
 
       if ( h02_[ism-1] ) {
-        num02  = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
+        num02  = h02_[ism-1]->GetBinContent(ie, ip);
         if ( num02 > 0 ) update1 = true;
       }
 
       if ( h03_[ism-1] ) {
-        num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
+        num03  = h03_[ism-1]->GetBinContent(ie, ip);
         if ( num03 > 0 ) update1 = true;
       }
 
       if ( h04_[ism-1] ) {
-        num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
+        num04  = h04_[ism-1]->GetBinContent(ie, ip);
         if ( num04 > 0 ) update1 = true;
       }
 
@@ -486,18 +486,18 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         numTot = 0.;
         for ( int ie = 1 + 5*(iet-1); ie <= 5*iet; ie++ ) {
           for ( int ip = 1 + 5*(ipt-1); ip <= 5*ipt; ip++ ) {
-            numTot += h_[ism-1]->GetBinContent(h_[ism-1]->GetBin(ie, ip));
+            numTot += h_[ism-1]->GetBinContent(ie, ip);
           }
         }
       }
 
       if ( h05_[ism-1] ) {
-        num05  = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(iet, ipt));
+        num05  = h05_[ism-1]->GetBinContent(iet, ipt);
         if ( num05 > 0 ) update1 = true;
       }
 
       if ( h06_[ism-1] ) {
-        num06  = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(iet, ipt));
+        num06  = h06_[ism-1]->GetBinContent(iet, ipt);
         if ( num06 > 0 ) update1 = true;
       }
 
@@ -567,15 +567,15 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
       float numTot = -1.;
 
-      if ( hmem_[ism-1] ) numTot = hmem_[ism-1]->GetBinContent(hmem_[ism-1]->GetBin(ie, ip));
+      if ( hmem_[ism-1] ) numTot = hmem_[ism-1]->GetBinContent(ie, ip);
 
       if ( h07_[ism-1] ) {
-        num07  = h07_[ism-1]->GetBinContent(h07_[ism-1]->GetBin(ie, ip));
+        num07  = h07_[ism-1]->GetBinContent(ie, ip);
         if ( num07 > 0 ) update1 = true;
       }
 
       if ( h08_[ism-1] ) {
-        num08  = h08_[ism-1]->GetBinContent(h08_[ism-1]->GetBin(ie, ip));
+        num08  = h08_[ism-1]->GetBinContent(ie, ip);
         if ( num08 > 0 ) update1 = true;
       }
 
@@ -647,18 +647,18 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       numTot = 0.;
       for ( int ie = 1 + 5*(iet-1); ie <= 5*iet; ie++ ) {
         for ( int ip = 1 ; ip <= 5; ip++ ) {
-          numTot += hmem_[ism-1]->GetBinContent(hmem_[ism-1]->GetBin(ie, ip));
+          numTot += hmem_[ism-1]->GetBinContent(ie, ip);
         }
       }
     }
 
     if ( h09_[ism-1] ) {
-      num09  = h09_[ism-1]->GetBinContent(h09_[ism-1]->GetBin(iet, 1));
+      num09  = h09_[ism-1]->GetBinContent(iet, 1);
       if ( num09 > 0 ) update1 = true;
     }
 
     if ( h10_[ism-1] ) {
-      num10  = h10_[ism-1]->GetBinContent(h10_[ism-1]->GetBin(iet, 1));
+      num10  = h10_[ism-1]->GetBinContent(iet, 1);
       if ( num10 > 0 ) update1 = true;
     }
 
@@ -1203,7 +1203,7 @@ void EBIntegrityClient::analyze(void){
 
     // dcc size errors
     if ( h00_ ) {
-      num00  = h00_->GetBinContent(h00_->GetBin(ism));
+      num00  = h00_->GetBinContent(ism);
       update0 = true;
     }
 
@@ -1221,25 +1221,25 @@ void EBIntegrityClient::analyze(void){
 
         float numTot = -1.;
 
-        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(h_[ism-1]->GetBin(ie, ip));
+        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(ie, ip);
 
         if ( h01_[ism-1] ) {
-          num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
+          num01  = h01_[ism-1]->GetBinContent(ie, ip);
           update1 = true;
         }
 
         if ( h02_[ism-1] ) {
-          num02  = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
+          num02  = h02_[ism-1]->GetBinContent(ie, ip);
           update1 = true;
         }
 
         if ( h03_[ism-1] ) {
-          num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
+          num03  = h03_[ism-1]->GetBinContent(ie, ip);
           update1 = true;
         }
 
         if ( h04_[ism-1] ) {
-          num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
+          num04  = h04_[ism-1]->GetBinContent(ie, ip);
           update1 = true;
         }
 
@@ -1247,12 +1247,12 @@ void EBIntegrityClient::analyze(void){
         int ipt = 1 + ((ip-1)/5);
 
         if ( h05_[ism-1] ) {
-          num05  = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(iet, ipt));
+          num05  = h05_[ism-1]->GetBinContent(iet, ipt);
           update2 = true;
         }
 
         if ( h06_[ism-1] ) {
-          num06  = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(iet, ipt));
+          num06  = h06_[ism-1]->GetBinContent(iet, ipt);
           update2 = true;
         }
 
@@ -1364,15 +1364,15 @@ void EBIntegrityClient::analyze(void){
 
         float numTotmem = -1.;
 
-        if ( hmem_[ism-1] ) numTotmem = hmem_[ism-1]->GetBinContent(hmem_[ism-1]->GetBin(ie, ip));
+        if ( hmem_[ism-1] ) numTotmem = hmem_[ism-1]->GetBinContent(ie, ip);
 
         if ( h07_[ism-1] ) {
-          num07  = h07_[ism-1]->GetBinContent(h07_[ism-1]->GetBin(ie, ip));
+          num07  = h07_[ism-1]->GetBinContent(ie, ip);
           update1 = true;
         }
 
         if ( h08_[ism-1] ) {
-          num08  = h08_[ism-1]->GetBinContent(h08_[ism-1]->GetBin(ie, ip));
+          num08  = h08_[ism-1]->GetBinContent(ie, ip);
           update1 = true;
         }
 
@@ -1380,12 +1380,12 @@ void EBIntegrityClient::analyze(void){
         int ipt = 1;
 
         if ( h09_[ism-1] ) {
-          num09  = h09_[ism-1]->GetBinContent(h09_[ism-1]->GetBin(iet, ipt));
+          num09  = h09_[ism-1]->GetBinContent(iet, ipt);
           update2 = true;
         }
 
         if ( h10_[ism-1] ) {
-          num10  = h10_[ism-1]->GetBinContent(h10_[ism-1]->GetBin(iet, ipt));
+          num10  = h10_[ism-1]->GetBinContent(iet, ipt);
           update2 = true;
         }
 

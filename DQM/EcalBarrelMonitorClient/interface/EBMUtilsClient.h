@@ -1,11 +1,11 @@
-// $Id: EBMUtilsClient.h,v 1.20 2007/01/29 15:19:37 dellaric Exp $
+// $Id: EBMUtilsClient.h,v 1.21 2007/01/31 19:22:17 dellaric Exp $
 
 /*!
   \file EBMUtilsClient.h
   \brief Ecal Barrel Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.20 $
-  \date $Date: 2007/01/29 15:19:37 $
+  \version $Revision: 1.21 $
+  \date $Date: 2007/01/31 19:22:17 $
 */
 
 #ifndef EBMUtilsClient_H
@@ -128,8 +128,8 @@ class EBMUtilsClient {
       if ( histo->GetEntries() >= n_min_tot ) {
         num = histo->GetBinEntries(histo->GetBin(ix, iy));
         if ( num >= n_min_bin ) {
-          mean = histo->GetBinContent(histo->GetBin(ix, iy));
-          rms  = histo->GetBinError(histo->GetBin(ix, iy));
+          mean = histo->GetBinContent(ix, iy);
+          rms  = histo->GetBinError(ix, iy);
           return true;
         }
       }

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2006/12/15 09:44:50 $
- * $Revision: 1.36 $
+ * $Date: 2007/01/27 11:02:13 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -267,12 +267,12 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
       bool update_channel = false;
 
       if ( hBCryOnBeam_ && hBCryOnBeam_->GetEntries() >= n_min_tot ) {
-        num01 = hBCryOnBeam_->GetBinContent(hBCryOnBeam_->GetBin(ie, ip));
+        num01 = hBCryOnBeam_->GetBinContent(ie, ip);
         update_channel = true;
       }
 
       if ( hBMaxEneCry_ && hBMaxEneCry_->GetEntries() >= n_min_tot ) {
-        num02 = hBMaxEneCry_->GetBinContent(hBMaxEneCry_->GetBin(ie, ip));
+        num02 = hBMaxEneCry_->GetBinContent(ie, ip);
         update_channel = true;
       }
       
@@ -748,7 +748,7 @@ void EBBeamCaloClient::analyze(void){
       float found =0; //there should be just one bin filled but...
       for (int b_eta =1; b_eta<86; b_eta++){
 	for (int b_phi =1; b_phi<21; b_phi++){
-	  float bc = hBCryOnBeam_->GetBinContent(hBCryOnBeam_->GetBin(b_eta,b_phi));//FIX ME check if this is the correct binning 
+	  float bc = hBCryOnBeam_->GetBinContent(b_eta,b_phi);//FIX ME check if this is the correct binning 
 	  if(bc > found){ found =bc; ieta = b_eta; iphi= b_phi;}
 	}
       }
