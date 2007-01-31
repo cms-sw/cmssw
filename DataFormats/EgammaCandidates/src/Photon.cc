@@ -1,5 +1,6 @@
-// $Id: PhotonCandidate.cc,v 1.5 2006/05/31 12:57:40 llista Exp $
+// $Id: Photon.cc,v 1.2 2006/06/16 15:01:16 llista Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 using namespace reco;
 
@@ -19,4 +20,11 @@ bool Photon::overlap( const Candidate & c ) const {
 	   ( checkOverlap( superCluster(), o->superCluster() ) )
 	   );
   return false;
+}
+
+void Photon::setVertex(const Point & vertex) {
+  math::XYZVector direction = superCluster()->position() - vertex;
+  math::XYZVector momentum = direction.unit() * superCluster()->energy();
+  p4_.SetXYZT(momentum.x(), momentum.y(), momentum.z(), superCluster()->energy() );
+  vertex_ = vertex;
 }

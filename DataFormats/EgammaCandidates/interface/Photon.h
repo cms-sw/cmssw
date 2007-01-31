@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Photon.h,v 1.2 2006/06/16 15:01:16 llista Exp $
+ * \version $Id: Photon.h,v 1.3 2007/01/17 10:23:29 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -29,6 +29,8 @@ namespace reco {
     virtual reco::SuperClusterRef superCluster() const;
     /// set refrence to Photon component
     void setSuperCluster( const reco::SuperClusterRef & r ) { superCluster_ = r; }
+    /// set primary event vertex used to define photon direction
+    void setVertex(const Point & vertex);
     /// PDG identifier
     virtual int pdgId() const { return 22; }
 
