@@ -4,6 +4,7 @@
 <use name=DataFormats/GeometryVector>
 <use name=DataFormats/Math>
 <use name=DataFormats/RecoCandidate>
+<use name=DataFormats/GsfTrackReco>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/TrackingRecHit>
@@ -16,6 +17,7 @@
   <use name=DataFormats/GeometryVector>
   <use name=DataFormats/Math>
   <use name=DataFormats/RecoCandidate>
+  <use name=DataFormats/GsfTrackReco>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/TrackerRecHit2D>
   <use name=DataFormats/TrackingRecHit>

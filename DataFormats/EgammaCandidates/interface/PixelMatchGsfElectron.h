@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id: PixelMatchGsfElectron.h,v 1.4 2007/01/17 10:23:29 llista Exp $
+ * \version $Id: PixelMatchGsfElectron.h,v 1.10 2007/01/26 13:06:02 uberthon Exp $
  *
  */
 
@@ -25,6 +25,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchGsfElectron.h,v $
+// Revision 1.10  2007/01/26 13:06:02  uberthon
+// add doxygen header
+//
 // Revision 1.9  2007/01/23 12:46:58  uberthon
 // add outer track momentum
 //
@@ -60,8 +63,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "DataFormats/TrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/TrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"

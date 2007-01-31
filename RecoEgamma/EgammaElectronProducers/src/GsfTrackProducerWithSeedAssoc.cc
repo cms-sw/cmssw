@@ -27,7 +27,8 @@ GsfTrackProducerWithSeedAssoc::GsfTrackProducerWithSeedAssoc(const edm::Paramete
 //   a.erase(a.size()-6,a.size());
   //register your products
   produces<reco::GsfTrackCollection>().setBranchAlias( alias_ + "Tracks" );
-  produces<reco::GsfTrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
+  produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
+  produces<reco::GsfTrackExtraCollection>().setBranchAlias( alias_ + "GsfTrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
   produces<std::vector<Trajectory> >() ;
   produces<reco::GsfTrackSeedAssociationCollection>();
@@ -45,7 +46,8 @@ void GsfTrackProducerWithSeedAssoc::produce(edm::Event& theEvent, const edm::Eve
   //
   std::auto_ptr<TrackingRecHitCollection>    outputRHColl (new TrackingRecHitCollection);
   std::auto_ptr<reco::GsfTrackCollection>       outputTColl(new reco::GsfTrackCollection);
-  std::auto_ptr<reco::GsfTrackExtraCollection>  outputTEColl(new reco::GsfTrackExtraCollection);
+  std::auto_ptr<reco::TrackExtraCollection>  outputTEColl(new reco::TrackExtraCollection);
+  std::auto_ptr<reco::GsfTrackExtraCollection>  outputGsfTEColl(new reco::GsfTrackExtraCollection);
   std::auto_ptr<std::vector<Trajectory> >    outputTrajectoryColl(new std::vector<Trajectory>);
   std::auto_ptr<reco::GsfTrackSeedAssociationCollection> outputTSAssCollection(new reco::GsfTrackSeedAssociationCollection);
 
@@ -136,7 +138,8 @@ void GsfTrackProducerWithSeedAssoc::produce(edm::Event& theEvent, const edm::Eve
     //
     //put everything in the event
     // we copy putInEvt to get OrphanHandle filled...
-    putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
+    putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputGsfTEColl,
+	     outputTrajectoryColl, algoResults);
 
     // now construct associationmap and put it into event
     int itrack=0;
@@ -205,18 +208,21 @@ void GsfTrackProducerWithSeedAssoc::produce(edm::Event& theEvent, const edm::Eve
  void GsfTrackProducerWithSeedAssoc::putInEvt(edm::Event& evt,
 				 std::auto_ptr<TrackingRecHitCollection>& selHits,
 				 std::auto_ptr<reco::GsfTrackCollection>& selTracks,
-				 std::auto_ptr<reco::GsfTrackExtraCollection>& selTrackExtras,
+				 std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
+				 std::auto_ptr<reco::GsfTrackExtraCollection>& selGsfTrackExtras,
 				 std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
 				 AlgoProductCollection& algoResults)
 {
 
   
   TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
-  reco::GsfTrackExtraRefProd rTrackExtras = evt.getRefBeforePut<reco::GsfTrackExtraCollection>();
+  reco::TrackExtraRefProd rTrackExtras = evt.getRefBeforePut<reco::TrackExtraCollection>();
+  reco::GsfTrackExtraRefProd rGsfTrackExtras = evt.getRefBeforePut<reco::GsfTrackExtraCollection>();
   //  reco::GsfTrackRefProd rTracks = evt.getRefBeforePut<reco::GsfTrackCollection>();
 
-  edm::Ref<reco::GsfTrackExtraCollection>::key_type idx = 0;
-  edm::Ref<reco::GsfTrackExtraCollection>::key_type hidx = 0;
+  edm::Ref<reco::TrackExtraCollection>::key_type idx = 0;
+  edm::Ref<reco::TrackExtraCollection>::key_type hidx = 0;
+  edm::Ref<reco::GsfTrackExtraCollection>::key_type idxGsf = 0;
   for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
     Trajectory * theTraj = (*i).first;
     if(myTrajectoryInEvent_) selTrajectories->push_back(*theTraj);
@@ -243,34 +249,24 @@ void GsfTrackProducerWithSeedAssoc::produce(edm::Event& theEvent, const edm::Eve
       outerId = theTraj->firstMeasurement().recHit()->geographicalId().rawId();
       innerId = theTraj->lastMeasurement().recHit()->geographicalId().rawId();
    }
-    //build the GsfTrackExtra
     GlobalPoint v = outertsos.globalParameters().position();
     GlobalVector p = outertsos.globalParameters().momentum();
     math::XYZVector outmom( p.x(), p.y(), p.z() );
     math::XYZPoint  outpos( v.x(), v.y(), v.z() );
-    std::vector<reco::GsfComponent5D> outerStates;
-    outerStates.reserve(outertsos.components().size());
-    fillStates(outertsos,outerStates);
-
     v = innertsos.globalParameters().position();
     p = innertsos.globalParameters().momentum();
     math::XYZVector inmom( p.x(), p.y(), p.z() );
     math::XYZPoint  inpos( v.x(), v.y(), v.z() );
-    std::vector<reco::GsfComponent5D> innerStates;
-    innerStates.reserve(innertsos.components().size());
-    fillStates(innertsos,innerStates);
 
-    reco::GsfTrackExtraRef teref= reco::GsfTrackExtraRef ( rTrackExtras, idx ++ );
+    reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, idx ++ );
     reco::GsfTrack & track = selTracks->back();
     track.setExtra( teref );
-    selTrackExtras->push_back( reco::GsfTrackExtra (outpos, outmom, outertsos.curvilinearError(), 
-						    outerStates, outertsos.localParameters().pzSign(),
-						    outerId, true,
-						    inpos, inmom, innertsos.curvilinearError(), 
-						    innerStates, innertsos.localParameters().pzSign(),
-						    innerId, true));
+    selTrackExtras->push_back( reco::TrackExtra (outpos, outmom, true,
+						 inpos, inmom, true,
+						 outertsos.curvilinearError(), outerId, 
+						 innertsos.curvilinearError(), innerId));
 
-    reco::GsfTrackExtra & tx = selTrackExtras->back();
+     reco::TrackExtra & tx = selTrackExtras->back();
     size_t i = 0;
     for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
 	 j != transHits.end(); j ++ ) {
@@ -279,12 +275,26 @@ void GsfTrackProducerWithSeedAssoc::produce(edm::Event& theEvent, const edm::Eve
       selHits->push_back( hit );
       tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
     }
+
+  //build the GsfTrackExtra
+    std::vector<reco::GsfComponent5D> outerStates;
+    outerStates.reserve(outertsos.components().size());
+    fillStates(outertsos,outerStates);
+    std::vector<reco::GsfComponent5D> innerStates;
+    innerStates.reserve(innertsos.components().size());
+    fillStates(innertsos,innerStates);
+
+    reco::GsfTrackExtraRef terefGsf = reco::GsfTrackExtraRef ( rGsfTrackExtras, idxGsf ++ );
+    track.setGsfExtra( terefGsf );
+    selGsfTrackExtras->push_back( reco::GsfTrackExtra (outerStates, outertsos.localParameters().pzSign(),
+						       innerStates, innertsos.localParameters().pzSign()));
     delete theTrack;
     delete theTraj;
   }
 
   rTracks_ = evt.put( selTracks ); //this is changed
   evt.put( selTrackExtras );
+  evt.put( selGsfTrackExtras );
   evt.put( selHits );
   if(myTrajectoryInEvent_) evt.put(selTrajectories);
 }

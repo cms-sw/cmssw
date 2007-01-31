@@ -18,7 +18,7 @@
 #include "RecoTracker/TrackProducer/interface/GsfTrackProducerBase.h"
 
 //#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/TrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 
 class GsfTrackProducerWithSeedAssoc : public GsfTrackProducerBase, public edm::EDProducer {
 public:
@@ -41,7 +41,8 @@ private:
   void putInEvt(edm::Event& evt,
 				 std::auto_ptr<TrackingRecHitCollection>& selHits,
 				 std::auto_ptr<reco::GsfTrackCollection>& selTracks,
-				 std::auto_ptr<reco::GsfTrackExtraCollection>& selTrackExtras,
+				 std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
+				 std::auto_ptr<reco::GsfTrackExtraCollection>& selGsfTrackExtras,
 				 std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
 					      AlgoProductCollection& algoResults);
 

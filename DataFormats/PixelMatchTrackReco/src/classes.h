@@ -1,6 +1,6 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/PixelMatchTrackReco/interface/TrackSeedAssociation.h"
 #include "DataFormats/PixelMatchTrackReco/interface/GsfTrackSeedAssociation.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
