@@ -3,7 +3,7 @@
 
 
 //------------------------------------------------------------
-// $Id: PythonFormWriter.h,v 1.12 2006/11/08 00:28:01 rpw Exp $
+// $Id: PythonFormWriter.h,v 1.13 2007/01/30 21:53:00 rpw Exp $
 //
 //
 // PythonFormWriter defines a class that is to be used to walk the
@@ -79,9 +79,6 @@ namespace edm
       void writeCommaSeparated(const std::list<std::string> & names,
                                bool addQuotes, std::ostream & out);
 
-      /// sees if we're directly inside a VPSet, and not the first node
-      bool needsCommaForVPSet(const edm::pset::CompositeNode&) const;
-
       /// writes out the information for this type, e.g, "module", "source"
       void writeType(const std::string & type, std::ostream & out);
 
@@ -105,8 +102,6 @@ namespace edm
       std::list<std::string>  modulesWithSecSources_;
       std::list<std::string>  triggerPaths_;
       std::list<std::string>  endPaths_;
-      
-      bool                    processingVPSet_;
       
     }; // struct PythonFormWriter
   } // namespace pset

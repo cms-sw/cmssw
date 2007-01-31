@@ -98,8 +98,7 @@ namespace edm
       outputModuleNames_(),
       modulesWithSecSources_(),
       triggerPaths_(),
-      endPaths_(),
-      processingVPSet_(false)
+      endPaths_()
     {
       list<string> emptylist;
       modules_.insert(make_pair(string("es_module"), emptylist));
@@ -217,31 +216,10 @@ namespace edm
       }
       else 
       {
-        if(processingVPSet_ && needsCommaForVPSet(n))
-        {
-          moduleStack_.top()+= ",";
-        }
-         
         moduleStack_.top() += "{";
         writeCommaSeparated(n);
         moduleStack_.top() += "}";
       } 
-    }
-
-    bool PythonFormWriter::needsCommaForVPSet(const CompositeNode &n) const
-    {
-      bool result = false;
-      // I hope nobody does VPSET a = { include "" }
-      if(n.getParent()->type() == "VPSet")
-      {
-        VPSetNode * parent = dynamic_cast<VPSetNode *>(n.getParent());
-        Node * first = parent->nodes()->front().get();
-        if(first != &n) 
-        {
-          result = true; 
-        }
-      }
-      return result;
     }
 
     void
@@ -339,16 +317,7 @@ namespace edm
       out << ", [";
       moduleStack_.top() += out.str();
       
-      //moduleStack_.top() += "\n#start acceptForChildren in VPSetNode\n";
-      bool previouslyprocessingVPSet = processingVPSet_;
-
-      // start fresh for this level of VPSets-in-VPSets
-      processingVPSet_ = true;
-      n.acceptForChildren(*this);
-
-      processingVPSet_ = previouslyprocessingVPSet;
-
-      //moduleStack_.top() += "\n#end acceptForChildren in VPSetNode\n";
+      writeCommaSeparated(n);
 
       moduleStack_.top() += "])";
     }
