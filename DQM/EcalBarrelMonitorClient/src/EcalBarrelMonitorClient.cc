@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/01/31 13:50:10 $
- * $Revision: 1.203 $
+ * $Date: 2007/01/31 14:26:41 $
+ * $Revision: 1.204 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -135,14 +135,10 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // Mask file
 
-  if ( dbName_.size() == 0 ) {
+  maskFile_ = ps.getUntrackedParameter<string>("maskFile", "");
 
-    maskFile_ = ps.getUntrackedParameter<string>("maskFile", "");
-
-    if ( maskFile_.size() != 0 ) {
-      cout << " Using maskFile = '" << maskFile_ << "'" << endl;
-    }
-
+  if ( maskFile_.size() != 0 ) {
+    cout << " Using maskFile = '" << maskFile_ << "'" << endl;
   }
 
   // enableSubRun switch
