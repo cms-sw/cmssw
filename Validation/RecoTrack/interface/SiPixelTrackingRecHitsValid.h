@@ -63,6 +63,7 @@
 #include <string>
 
 using namespace std;
+using namespace edm;
 
 class TTree;
 class TFile;
@@ -96,7 +97,6 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   int genType_; // the type of particle that the simHit associated with recHits should be
 
   // Pixel barrel detector has 3 layers and 8 modules; book histograms for each module = (layer, ring) pair
-
   
   MonitorElement* mePosxBarrelLayerModule[3][8];
   MonitorElement* mePosyBarrelLayerModule[3][8];
@@ -123,8 +123,6 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   MonitorElement* mePullXvsEtaBarrelLayerModule[3][8];
   MonitorElement* mePullYvsEtaBarrelLayerModule[3][8];
   
-
-
   // All layers and modules together
   MonitorElement* mePosxBarrel;
   MonitorElement* mePosyBarrel;
@@ -160,14 +158,39 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   MonitorElement* mePosyBarrelFlippedLadders;
   MonitorElement* mePosyBarrelNonFlippedLadders;
 
+  MonitorElement* meResXvsAlphaBarrelFlippedLadders;
+  MonitorElement* meResYvsAlphaBarrelFlippedLadders;
+  MonitorElement* meResXvsBetaBarrelFlippedLadders;
+  MonitorElement* meResYvsBetaBarrelFlippedLadders;
+  MonitorElement* mePullXvsAlphaBarrelFlippedLadders;
+  MonitorElement* mePullYvsAlphaBarrelFlippedLadders;
+  MonitorElement* mePullXvsBetaBarrelFlippedLadders;
+  MonitorElement* mePullYvsBetaBarrelFlippedLadders;
+  MonitorElement* mePullXvsPhiBarrelFlippedLadders;
+  MonitorElement* mePullYvsPhiBarrelFlippedLadders;
+  MonitorElement* mePullXvsEtaBarrelFlippedLadders;
+  MonitorElement* mePullYvsEtaBarrelFlippedLadders;
+
+  MonitorElement* meResXvsAlphaBarrelNonFlippedLadders;
+  MonitorElement* meResYvsAlphaBarrelNonFlippedLadders;
+  MonitorElement* meResXvsBetaBarrelNonFlippedLadders;
+  MonitorElement* meResYvsBetaBarrelNonFlippedLadders;
+  MonitorElement* mePullXvsAlphaBarrelNonFlippedLadders;
+  MonitorElement* mePullYvsAlphaBarrelNonFlippedLadders;
+  MonitorElement* mePullXvsBetaBarrelNonFlippedLadders;
+  MonitorElement* mePullYvsBetaBarrelNonFlippedLadders;
+  MonitorElement* mePullXvsPhiBarrelNonFlippedLadders;
+  MonitorElement* mePullYvsPhiBarrelNonFlippedLadders;
+  MonitorElement* mePullXvsEtaBarrelNonFlippedLadders;
+  MonitorElement* mePullYvsEtaBarrelNonFlippedLadders;
+
+
   // Pixel forward detector has 2 sides, 2 disks per side, 2 panels per disk and either 3 or 4 plaquettes per blade
   // Panel 1 has 4 plaquettes
   // Panel 2 has 3 plaquettes
 
   // Negative Z side
   // Panel 1: 2 disks, 4 plaquets
-
-
 
   MonitorElement* mePosxZmPanel1DiskPlaq[2][4];
   MonitorElement* mePosyZmPanel1DiskPlaq[2][4];
@@ -220,7 +243,6 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   MonitorElement* mePullXvsEtaZmPanel2DiskPlaq[2][3];
   MonitorElement* mePullYvsEtaZmPanel2DiskPlaq[2][3];
 
-
   // Positive Z side
   // Panel 1: 2 disks, 4 plaquets
   MonitorElement* mePosxZpPanel1DiskPlaq[2][4];
@@ -248,7 +270,6 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   MonitorElement* mePullXvsEtaZpPanel1DiskPlaq[2][4];
   MonitorElement* mePullYvsEtaZpPanel1DiskPlaq[2][4];
 
-
   // Panel 2: 2 disks, 3 plaquets
   MonitorElement* mePosxZpPanel2DiskPlaq[2][3];
   MonitorElement* mePosyZpPanel2DiskPlaq[2][3];
@@ -274,9 +295,6 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   MonitorElement* mePullYvsPhiZpPanel2DiskPlaq[2][3];
   MonitorElement* mePullXvsEtaZpPanel2DiskPlaq[2][3];
   MonitorElement* mePullYvsEtaZpPanel2DiskPlaq[2][3];
-
-
-
 
   // All disks and plaquettes together
 
@@ -332,7 +350,6 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   MonitorElement* mePullXvsEtaZmPanel2;
   MonitorElement* mePullYvsEtaZmPanel2;
 
-
   // Positive Z side, panel 1
   MonitorElement* mePosxZpPanel1;
   MonitorElement* mePosyZpPanel1;
@@ -385,7 +402,26 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   MonitorElement* mePullXvsEtaZpPanel2;
   MonitorElement* mePullYvsEtaZpPanel2;
 
+  // all hits (not only from tracks) 
+  MonitorElement* mePosxBarrel_all_hits;
+  MonitorElement* mePosyBarrel_all_hits;
+  
+  MonitorElement* mePosxZmPanel1_all_hits;
+  MonitorElement* mePosyZmPanel1_all_hits;
+  MonitorElement* mePosxZmPanel2_all_hits;
+  MonitorElement* mePosyZmPanel2_all_hits;
+  
+  MonitorElement* mePosxZpPanel1_all_hits;
+  MonitorElement* mePosyZpPanel1_all_hits;
+  MonitorElement* mePosxZpPanel2_all_hits;
+  MonitorElement* mePosyZpPanel2_all_hits;
+  
+  // control histograms
+  MonitorElement* meTracksPerEvent;
+  MonitorElement* mePixRecHitsPerTrack;
 
+
+  // variables that go in the output tree
   float rechitx; // x position of hit 
   float rechity; // y position of hit
   float rechitz; // z position of hit
@@ -408,7 +444,6 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   float phi;   // polar track angle
   float eta;   // pseudo-rapidity (function of theta, the azimuthal angle)
 
-  // variables that go in the output tree
   int subdetId;
   int layer;  
   int ladder; 
@@ -422,6 +457,13 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   int flipped; // flipped = 1 if the module is flipped and 0 if non-flipped (only defined for barrel) 
 
   int nsimhit; // number of simhits associated with a rechit
+  int pidhit; // PID of the particle that produced the simHit associated with the recHit
+
+  float simhitx; // true x position of hit 
+  float simhity; // true y position of hit
+
+  int evt;
+  int run;
 
   TFile * tfile_;
   TTree * t_;
