@@ -1,8 +1,8 @@
 /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2007/01/12 12:34:34 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/01/30 14:06:06 $
+ *  $Revision: 1.5 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -68,6 +68,8 @@ void RPCRecHitQuality::endJob() {
 // Write the histos to file
   theFile->cd();
   
+  Residuals->GetXaxis()->SetTitle("Distance (cm)");
+  //Pulls->GetXaxis()->SetTitle("residual/error");
  
   // Write histos to file
   Rechisto->Write();
