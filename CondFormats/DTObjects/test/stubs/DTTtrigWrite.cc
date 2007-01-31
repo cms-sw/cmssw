@@ -1,7 +1,7 @@
 
 /*----------------------------------------------------------------------
 
-Toy EDProducers and EDProducts for testing purposes only.
+Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
@@ -28,8 +28,6 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <map>
 #include <iostream>
 #include <fstream>
-
-using namespace std;
 
 namespace edmtest {
 

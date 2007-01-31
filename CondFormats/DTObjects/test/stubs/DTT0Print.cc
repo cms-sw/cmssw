@@ -1,7 +1,7 @@
 
 /*----------------------------------------------------------------------
 
-Toy EDProducers and EDProducts for testing purposes only.
+Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
@@ -20,8 +20,6 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "CondFormats/DTObjects/test/stubs/DTT0Print.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DataRecord/interface/DTT0Rcd.h"
-
-using namespace std;
 
 namespace edmtest {
 
