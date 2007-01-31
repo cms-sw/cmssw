@@ -1584,11 +1584,11 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 		      //cout << "---------------- RecHit with no associated SimHit !!! -------------------------- " << endl;
 		      
 		    } // matchedhit.
-		
-		  mePixRecHitsPerTrack->Fill( n_hits );
-		  //cout << "---- end of loop on hits ----- " << endl;
 		  
 		} // end of loop on hits
+	      
+	      mePixRecHitsPerTrack->Fill( n_hits );
+	      //cout << "n_hits = " << n_hits << endl;
 	      
 	    } //end of loop on track 
 	  
