@@ -28,6 +28,7 @@
 // bool isItEdgePixelInY (int iybin) 
 // bool isItEdgePixel (int ixbin, int iybin) 
 // ------------------------------------------------------------------
+// Add the individual measurement to local trasformations classes 01/07 d.k.
 
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
@@ -101,9 +102,14 @@ public:
     std::pair<float,float> p = pixel(lp);
     return PixelChannelIdentifier::pixelToChannel( int(p.first), 
 						   int(p.second));
-    //return PixelDigi::pixelToChannel( int(p.first), int(p.second));
   }
 
+
+  // Transform measurement to local coordinates individually in each dimension
+  float localX(const float mpX) const;
+  float localY(const float mpY) const;
+
+  //-------------------------------------------------------------
   // Return the BIG pixel information
   inline static bool isItBigPixelInX(const int ixbin) {
     return ( (ixbin == 79) || (ixbin == 80));
@@ -125,7 +131,6 @@ public:
   } 
 
   //------------------------------------------------------------------
-
   // Return pitch
   virtual std::pair<float,float> pitch() const {
     return std::pair<float,float>( float(m_pitchx), float(m_pitchy));

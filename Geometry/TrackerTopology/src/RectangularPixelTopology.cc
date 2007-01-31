@@ -7,6 +7,7 @@
 // Danek Kotlinski & Michele Pioppi, 3/06.
 // See documentation in the include file.
 
+//--------------------------------------------------------------------
 // PixelTopology interface. 
 // Transform LocalPoint in cm to measurement in pitch units.
 std::pair<float,float> RectangularPixelTopology::pixel( 
@@ -131,7 +132,7 @@ std::pair<float,float> RectangularPixelTopology::pixel(
   
   return std::pair<float,float>(mpX,mpY);
 }
-//
+//----------------------------------------------------------------------
 // Topology interface, go from Masurement to Local corrdinates
 // pixel coordinates (mp) -> cm (LocalPoint)
 LocalPoint RectangularPixelTopology::localPosition( 
@@ -164,6 +165,10 @@ LocalPoint RectangularPixelTopology::localPosition(
     }
   } // if TP_DEBUG
   
+
+  // IF IT WORKS OK REPLACE THE CODE BELOW BY A CALL TO localY()
+  // float lpY = localY(mpy);
+
   // Start with Y
   int binoffy = int(mpy);             // truncate to int
   float fractionY = mpy - binoffy; // find the fraction 
@@ -264,6 +269,9 @@ LocalPoint RectangularPixelTopology::localPosition(
 	<<fractionY<<" "<<local_pitchy<<" "<<m_yoffset<<endl;
   }
   
+  // IF IT WORKS OK REPLACE THE CODE BELOW BY A CALL TO localX()
+  // float lpX = localX(mpx);
+
   // Do the X
   int binoffx=int(mpx);             // truncate to int
   float fractionX = mpx - binoffx; // find the fraction 
@@ -306,9 +314,162 @@ LocalPoint RectangularPixelTopology::localPosition(
 	<<fractionX<<" "<<local_pitchx<<" "<<m_xoffset<<endl;
   }
   
-  // Return it
+  // Return it as a LocalPoint
   return LocalPoint( lpX, lpY);
 }
+//--------------------------------------------------------------------
+// 
+// measuremet to local transformation for X coordinate
+// X coordinate is in the ROC row number direction
+float RectangularPixelTopology::localX(const float mpx) const {
+  int binoffx=int(mpx);             // truncate to int
+  float fractionX = mpx - binoffx; // find the fraction 
+  float local_pitchx = m_pitchx;      // defaultpitch
+  //if(fractionX<0.) cout<<" fractionx m "<<fractionX<<" "<<mpx<<endl;
+  
+  if (binoffx>159) {   // too large
+    if(TP_DEBUG) { 
+      cout<<" very bad, binx "<<binoffx<<setprecision(10)<<endl;
+      cout<<mpx<<" "<<binoffx<<" "
+	  <<fractionX<<" "<<local_pitchx<<" "<<m_xoffset<<endl;
+    }
+  } else if (binoffx>80) {     // ROC 1
+    binoffx=binoffx+2;
+  } else if (binoffx==80) {    // ROC 1
+    binoffx=binoffx+1;
+    local_pitchx = 2 * m_pitchx;
+    
+  } else if (binoffx==79) {      // ROC 0
+    binoffx=binoffx+0;
+    local_pitchx = 2 * m_pitchx;    
+  } else if (binoffx>=0) {       // ROC 0
+    binoffx=binoffx+0;
+    
+  } else { // too small
+    if(TP_DEBUG) { 
+      cout<<" very bad, binx "<<binoffx<<setprecision(10)<<endl;
+      cout<<mpx<<" "<<binoffx<<" "
+	  <<fractionX<<" "<<local_pitchx<<" "<<m_xoffset<<endl;
+    }
+  }
+  
+  // The final position in local coordinates 
+  float lpX = float(binoffx*m_pitchx) + fractionX*local_pitchx + 
+    m_xoffset;
+  
+  if(TP_DEBUG && (lpX<m_xoffset || lpX>(-m_xoffset)) ) {
+    cout<<" bad lp x "<<lpX<<setprecision(10)<<endl; 
+    cout<<mpx<<" "<<binoffx<<" "
+	<<fractionX<<" "<<local_pitchx<<" "<<m_xoffset<<endl;
+  }
+
+  return lpX;
+} 
+
+// measuremet to local transformation for Y coordinate
+// Y is in the ROC column number direction 
+float RectangularPixelTopology::localY(const float mpy) const {
+  int binoffy = int(mpy);             // truncate to int
+  float fractionY = mpy - binoffy; // find the fraction 
+  float local_pitchy = m_pitchy;      // defaultpitch
+  //if(fractionY<0.) cout<<" fractiony m "<<fractionY<<" "<<mpy<<endl;
+
+  if (binoffy>415) {   // too large
+    if(TP_DEBUG) { 
+      cout<<" very bad, biny "<<binoffy<<setprecision(10)<<endl;
+      cout<<mpy<<" "<<binoffy<<" "
+	  <<fractionY<<" "<<local_pitchy<<" "<<m_yoffset<<endl;
+    }
+  } else if (binoffy==415) {    // ROC 7, last big pixel
+    binoffy=binoffy+15;
+    local_pitchy = 2 * m_pitchy;
+  } else if (binoffy>364) {     // ROC 7
+    binoffy=binoffy+15;
+  } else if (binoffy==364) {    // ROC 7
+    binoffy=binoffy+14;
+    local_pitchy = 2 * m_pitchy;
+    
+  } else if (binoffy==363) {      // ROC 6
+    binoffy=binoffy+13;
+    local_pitchy = 2 * m_pitchy;    
+  } else if (binoffy>312) {       // ROC 6
+    binoffy=binoffy+13;
+  } else if (binoffy==312) {      // ROC 6
+    binoffy=binoffy+12;
+    local_pitchy = 2 * m_pitchy;
+    
+  } else if (binoffy==311) {      // ROC 5
+    binoffy=binoffy+11;
+    local_pitchy = 2 * m_pitchy;    
+  } else if (binoffy>260) {       // ROC 5
+    binoffy=binoffy+11;
+  } else if (binoffy==260) {      // ROC 5
+    binoffy=binoffy+10;
+    local_pitchy = 2 * m_pitchy;
+    
+  } else if (binoffy==259) {      // ROC 4
+    binoffy=binoffy+9;
+    local_pitchy = 2 * m_pitchy;    
+  } else if (binoffy>208) {       // ROC 4
+    binoffy=binoffy+9;
+  } else if (binoffy==208) {      // ROC 4
+    binoffy=binoffy+8;
+    local_pitchy = 2 * m_pitchy;
+    
+  } else if (binoffy==207) {      // ROC 3
+    binoffy=binoffy+7;
+    local_pitchy = 2 * m_pitchy;    
+    } else if (binoffy>156) {       // ROC 3
+    binoffy=binoffy+7;
+  } else if (binoffy==156) {      // ROC 3
+    binoffy=binoffy+6;
+    local_pitchy = 2 * m_pitchy;
+    
+  } else if (binoffy==155) {      // ROC 2
+    binoffy=binoffy+5;
+    local_pitchy = 2 * m_pitchy;    
+  } else if (binoffy>104) {       // ROC 2
+    binoffy=binoffy+5;
+  } else if (binoffy==104) {      // ROC 2
+    binoffy=binoffy+4;
+    local_pitchy = 2 * m_pitchy;
+    
+  } else if (binoffy==103) {      // ROC 1
+    binoffy=binoffy+3;
+    local_pitchy = 2 * m_pitchy;    
+  } else if (binoffy>52) {       // ROC 1
+    binoffy=binoffy+3;
+  } else if (binoffy==52) {      // ROC 1
+    binoffy=binoffy+2;
+    local_pitchy = 2 * m_pitchy;
+    
+  } else if (binoffy==51) {      // ROC 0
+    binoffy=binoffy+1;
+    local_pitchy = 2 * m_pitchy;    
+  } else if (binoffy>0) {        // ROC 0
+    binoffy=binoffy+1;
+  } else if (binoffy==0) {       // ROC 0
+    binoffy=binoffy+0;
+    local_pitchy = 2 * m_pitchy;
+  } else { // too small
+    if(TP_DEBUG) { 
+      cout<<" very bad, biny "<<binoffy<<setprecision(10)<<endl;
+      cout<<mpy<<" "<<binoffy<<" "
+	  <<fractionY<<" "<<local_pitchy<<" "<<m_yoffset<<endl;
+    }
+  }
+  
+  // The final position in local coordinates 
+  float lpY = float(binoffy*m_pitchy) + fractionY*local_pitchy + 
+    m_yoffset;
+  if(TP_DEBUG && (lpY<m_yoffset || lpY>(-m_yoffset)) ) {
+    cout<<" bad lp y "<<lpY<<setprecision(10)<<endl; 
+    cout<<mpy<<" "<<binoffy<<" "
+	<<fractionY<<" "<<local_pitchy<<" "<<m_yoffset<<endl;
+  }
+
+  return lpY;
+} 
 ///////////////////////////////////////////////////////////////////
 // Get hit errors in LocalPoint coordinates (cm)
 LocalError RectangularPixelTopology::localError( 
