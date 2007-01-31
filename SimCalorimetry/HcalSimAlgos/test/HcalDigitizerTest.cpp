@@ -157,7 +157,7 @@ std::cout << "TEST Pedestal " << pedestals.getValue(barrelDetId,  1) << std::end
   HcalCoderFactory coderFactory(HcalCoderFactory::NOMINAL);
   HcalElectronicsSim electronicsSim(&amplifier, &coderFactory);
   amplifier.setDbService(&calibratorHandle);
-  parameterMap.setDbService(&calibratorHandle);
+  //parameterMap.setDbService(&calibratorHandle);
 
   CaloTDigitizer<HBHEDigitizerTraits> hbheDigitizer(&hbheResponse, &electronicsSim, addNoise);
   CaloTDigitizer<HODigitizerTraits> hoDigitizer(&hoResponse, &electronicsSim, addNoise);
