@@ -27,6 +27,16 @@ public:
     return;
   }
 
+  virtual void fits(TH1 * oldHisto , TH1 * newHisto)
+  {
+   oldHisto->Fit("gaus");
+   newHisto->Fit("gaus");
+   TF1 *f1 = oldHisto->GetFunction("gaus");
+   TF2 *f2 = newHisto->GetFunction("gaus");
+   cout << "OLD:  mean " << f1->GetParameter(1) << "  sigma " << f1->GetParameter(2) << endl;
+   cout << "NEW:  mean " << f1->GetParameter(1) << "  sigma " << f1->GetParameter(2) << endl;
+  }
+
   virtual void openPage(string name, int nx=1, int ny=1) {}
   virtual void closePage() {}
 
@@ -42,8 +52,8 @@ public:
     theCanvas->cd(++subpad);
     oldHisto->UseCurrentStyle();
     newHisto->UseCurrentStyle();
-    oldHisto->SetLineColor(45);
-    newHisto->SetLineColor(47);
+    oldHisto->SetLineColor(kRed);
+    newHisto->SetLineColor(kBlue);
     oldHisto->Draw();
     newHisto->Draw("same");
     HistoCompare::compare(oldHisto, newHisto);
@@ -58,16 +68,17 @@ protected:
 class HistoCompareGif : public HistoCompareDraw
 {
 public:
-  HistoCompareGif(string title)
+  HistoCompareGif(string title, string suffix)
   : theTitle(title),
-    theName("")
+    theName(""),
+    theSuffix(suffix)
   {
   }
 
   virtual void openPage(string name, int nx, int ny) {
     theCanvas =  new TCanvas(theTitle.c_str(), theTitle.c_str(), 800, 600);
     theCanvas->Divide(nx, ny);
-    theName = name + ".gif";
+    theName = name + theSuffix + ".gif";
     subpad = 0;
   }
   
@@ -78,6 +89,7 @@ public:
 private:
   string theTitle;
   string theName;
+  string theSuffix;
 };
 
 

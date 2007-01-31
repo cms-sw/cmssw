@@ -16,7 +16,7 @@
 class CSCOval
 {
 public:
-  CSCOval(const char* drawhisto="none");
+  CSCOval(const char * suffix, const char* drawhisto="none");
   
   ~CSCOval();
 
@@ -32,21 +32,23 @@ private:
   TFile * rfile;
   TFile * sfile;
   HistoCompare * theComp;
+  string theSuffix;
   string theDirectory;
 };
 
 
-CSCOval::CSCOval(const char* drawhisto)
+CSCOval::CSCOval(const char* suffix, const char* drawhisto)
 : rfile(0),
   sfile(0),
   theComp(0),
+  theSuffix(suffix),
   theDirectory("DQMData/CSCDigiTask")
 {
   gROOT->Reset();
 
   string PathToRef = "../data/";
   string rfilename = PathToRef+ "CSCDigiValidation_ref.root";
-  string sfilename = "CSCDigiValidation.root";
+  string sfilename = "CSCDigiValidation" + theSuffix + ".root";
 
   delete gROOT->GetListOfFiles()->FindObject(rfilename.c_str());
   delete gROOT->GetListOfFiles()->FindObject(sfilename.c_str());
@@ -64,12 +66,9 @@ CSCOval::CSCOval(const char* drawhisto)
   gStyle->SetOptStat("n");
 
   //gROOT->ProcessLine(".x HistoCompare.C");
-
   if(drawhisto == "gif")
   {
-cout << "Gif? " << endl;
-    theComp = new HistoCompareGif("CSC");
-cout << "GIF " << endl;
+    theComp = new HistoCompareGif("CSC", theSuffix);
   }
   else if(drawhisto == "ps")
   {
@@ -79,9 +78,7 @@ cout << "GIF " << endl;
   {
     HistoCompare * comp = new HistoCompare();
     theComp = new HistoCompare();
-cout << "CMP " << endl;
   }
-cout << drawhisto << endl;
   run();
 }
 
