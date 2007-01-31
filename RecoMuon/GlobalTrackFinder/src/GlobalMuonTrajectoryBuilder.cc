@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/01/18 13:31:53 $
- *  $Revision: 1.70 $
+ *  $Date: 2007/01/30 19:35:43 $
+ *  $Revision: 1.71 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -533,31 +533,35 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
   else {
     refittedResult = tkTrajs;
   }
-  
+
   //return refittedResult;
 
   // Choose the best global fit for this Standalone Muon based on the
   // track probability
   
   CandidateContainer selectedResult;
-  MuonCandidate* tmpCand = *(refittedResult.begin());
+  MuonCandidate* tmpCand = 0;
+  if( refittedResult.size() > 0 )tmpCand = *(refittedResult.begin());
   double minProb = 9999;
+
   for(CandidateContainer::const_iterator iter=refittedResult.begin(); iter != refittedResult.end(); iter++) {
-    double prob = trackProbability(*(*iter)->trajectory());
-    LogDebug("GlobalMuonTrajectoryBuilder") 
+    double prob = trackProbability(*(*iter)->trajectory());    
+    /*
+    LogDebug(category) 
       << "Track Chi2: " << (*iter)->trajectory()->chiSquared() 
       << " Chi2/DoF " << (*iter)->trajectory()->chiSquared() / (*iter)->trajectory()->foundHits() 
       << " Prob " << prob
       << " Tracker pt " <<(*iter)->trackerTrack()->pt();
-    
-    if(prob < minProb) {
+    */
+
+    if(prob < minProb) { 
       minProb = prob;
       tmpCand = (*iter);
-    }
+    }    
   }
-
-  selectedResult.push_back(new MuonCandidate(new Trajectory(*(tmpCand->trajectory())), tmpCand->muonTrack(), tmpCand->trackerTrack()));
-
+  
+  if ( tmpCand )  selectedResult.push_back(new MuonCandidate(new Trajectory(*(tmpCand->trajectory())), tmpCand->muonTrack(), tmpCand->trackerTrack()));
+  
   for( CandidateContainer::const_iterator it = refittedResult.begin(); it != refittedResult.end(); ++it) {
     if ( (*it)->trajectory() ) delete (*it)->trajectory();
     if ( *it ) delete (*it);
