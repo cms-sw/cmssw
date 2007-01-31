@@ -13,7 +13,6 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
@@ -187,28 +186,6 @@ std::cout << "TEST Pedestal " << pedestals.getValue(barrelDetId,  1) << std::end
   cout << "HF Frames" << endl;
   copy(hfResult->begin(), hfResult->end(), std::ostream_iterator<HFDataFrame>(std::cout, "\n"));
 
-/*
-  cout << "SHAPES" << endl;
-  for(int i = -88; i < 140; ++i) {
-     cout << i << " " << hcalShape(i) << " " << hfShape(i) << " " << hcalShapeIntegrator(i) << " " << hfShapeIntegrator(i) << endl;
-  }
-i*/
-/*
-  //NO STANDARD TEST AVAILABLE AT THIS TIME//
-  HcalNominalTPGCoder nc(0.5);
-  CaloTPGSimpleTranscoder tcode();
-  coderFactory.setTPGCoder(&nc);
-  coderFactory.setCompressionLUTcoder(tcode->getHcalCompressor().release());
-
-  HcalTrigPrimDigiCollection trigPrims;
-  std::vector<double> w={-1,-1,1,1};
-  int latency=1;
-  bool peak=false;
-  HcalTriggerPrimitiveAlgo triggerPrimitiveAlgo(&coderFactory,peak,w,latency);
-  triggerPrimitiveAlgo.run(*hbheResult, *hfResult, trigPrims);
-  
-  copy(trigPrims.begin(), trigPrims.end(),  std::ostream_iterator<HcalTriggerPrimitiveDigi>(std::cout, "\n"));
-*/
 return 0;
 }
 
