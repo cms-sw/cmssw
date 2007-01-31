@@ -639,10 +639,9 @@ bool CocoaAnalyzer::DumpCocoaResults()
 
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( mydbservice.isAvailable() ){
-    //    try{
-          size_t alignmentsToken = mydbservice->callbackToken("Alignments");
-
-       mydbservice->newValidityForNewPayload<OpticalAlignments>(myobj,mydbservice->endOfTime(),alignmentsToken);
+    mydbservice->createNewIOV<OpticalAlignments>(myobj,
+                            mydbservice->endOfTime(),
+                            "OpticalAlignmentsRcd");
        /*? compilation error??
     }catch(const cond::Exception& er){
       std::cout<<er.what()<<std::endl;
