@@ -13,20 +13,19 @@
 // Magnetic field
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-#include <iostream>
-using namespace std;
-
-
-const float PI = 3.141593;
-const float HALFPI = PI * 0.5;
-const float degsPerRad = 57.29578;
-
 // The template header files
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
 #include <vector>
 #include "boost/multi_array.hpp"
+
+#include <iostream>
+
 using namespace SiPixelTemplateReco;
 using namespace std;
+
+const float PI = 3.141593;
+const float HALFPI = PI * 0.5;
+const float degsPerRad = 57.29578;
 
 //-----------------------------------------------------------------------------
 //  Constructor.  All detUnit-dependent quantities will be initialized later,
@@ -235,16 +234,11 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster,
   int minPixelCol = cluster.minPixelCol();
   int minPixelRow = cluster.minPixelRow();
   
-  // For reasons above my c++ understanding "isItEdgePixelInX/Y" only works 
-  // when called by a non-const "RectangularPixelTopology*" 
-  // If you understand this please email me at: ggiurgiu@pha.jhu.edu
-  // Until then I will make a non-const "RectangularPixelTopology*" 
-  RectangularPixelTopology* topol = theTopol;
-
   //--- Are we near either of the edges?
-  bool edgex = ( topol->isItEdgePixelInX( minPixelRow ) || topol->isItEdgePixelInX( maxPixelRow ) );
-  bool edgey = ( topol->isItEdgePixelInY( minPixelCol ) || topol->isItEdgePixelInY( maxPixelCol ) );
+  bool edgex = ( theTopol->isItEdgePixelInX( minPixelRow ) || theTopol->isItEdgePixelInX( maxPixelRow ) );
+  bool edgey = ( theTopol->isItEdgePixelInY( minPixelCol ) || theTopol->isItEdgePixelInY( maxPixelCol ) );
   
+
   if ( edgex && edgey ) 
     {
       //--- Both axes on the edge, no point in calling PixelErrorParameterization,
