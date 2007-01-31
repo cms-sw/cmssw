@@ -1,0 +1,23 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloTopology>
+<use name=DataFormats/EcalDigi>
+<use name=DataFormats/EcalDetId>
+<use name=SimCalorimetry/EcalSelectiveReadoutAlgos>
+<use name=root>
+
+<flags SEAL_PLUGIN_NAME="SimCalorimetryEcalElectronicsEmulation">
+
+<export>
+   <lib name=EcalSimpleSource>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=Geometry/CaloEventSetup>
+   <use name=Geometry/CaloTopology>
+   <use name=DataFormats/EcalDigi>
+   <use name=DataFormats/EcalDetId>
+   <use name=SimCalorimetry/EcalSelectiveReadoutAlgos>
+</export>
