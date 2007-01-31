@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/01/28 10:21:30 $
- * $Revision: 1.117 $
+ * $Date: 2007/01/29 15:19:37 $
+ * $Revision: 1.118 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -517,8 +517,11 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
           p.setTaskStatus(true);
         } else {
           p.setTaskStatus(false);
-          status = status && false;
         }
+
+        status = status && EBMUtilsClient::getBinQual(meg01_[ism-1], ie, ip);
+        status = status && EBMUtilsClient::getBinQual(meg02_[ism-1], ie, ip);
+        status = status && EBMUtilsClient::getBinQual(meg03_[ism-1], ie, ip);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -585,8 +588,10 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
         pn.setTaskStatus(true);
       } else {
         pn.setTaskStatus(false);
-        status = status && false;
       }
+
+      status = status && EBMUtilsClient::getBinQual(meg04_[ism-1], i, 1);
+      status = status && EBMUtilsClient::getBinQual(meg05_[ism-1], i, 1);
 
       if ( econn ) {
         try {

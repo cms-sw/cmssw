@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/01/28 10:21:30 $
- * $Revision: 1.116 $
+ * $Date: 2007/01/29 15:19:37 $
+ * $Revision: 1.117 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -450,8 +450,11 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           adc.setTaskStatus(true);
         } else {
           adc.setTaskStatus(false);
-          status = status && false;
         }
+
+        status = status && EBMUtilsClient::getBinQual(meg01_[ism-1], ie, ip);
+        status = status && EBMUtilsClient::getBinQual(meg02_[ism-1], ie, ip);
+        status = status && EBMUtilsClient::getBinQual(meg03_[ism-1], ie, ip);
 
         if ( ie == 1 && ip == 1 ) {
 
@@ -588,8 +591,10 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         pn.setTaskStatus(true);
       } else {
         pn.setTaskStatus(false);
-        status = status && false;
       }
+
+      status = status && EBMUtilsClient::getBinQual(meg04_[ism-1], i, 1);
+      status = status && EBMUtilsClient::getBinQual(meg05_[ism-1], i, 1);
 
       if ( econn ) {
         try {

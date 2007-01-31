@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/28 10:21:30 $
- * $Revision: 1.130 $
+ * $Date: 2007/01/29 15:19:37 $
+ * $Revision: 1.131 $
  * \author G. Della Ricca
  *
 */
@@ -959,8 +959,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           apd_bl.setTaskStatus(true);
         } else {
           apd_bl.setTaskStatus(false);
-          status = status && false;
         }
+
+        status = status && EBMUtilsClient::getBinQual(meg01_[ism-1], ie, ip);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -997,8 +998,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           apd_ir.setTaskStatus(true);
         } else {
           apd_ir.setTaskStatus(false);
-          status = status && false;
         }
+
+        status = status && EBMUtilsClient::getBinQual(meg02_[ism-1], ie, ip);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -1035,8 +1037,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           apd_gr.setTaskStatus(true);
         } else {
           apd_gr.setTaskStatus(false);
-          status = status && false;
         }
+
+        status = status && EBMUtilsClient::getBinQual(meg03_[ism-1], ie, ip);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -1073,8 +1076,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           apd_rd.setTaskStatus(true);
         } else {
           apd_rd.setTaskStatus(false);
-          status = status && false;
         }
+
+        status = status && EBMUtilsClient::getBinQual(meg04_[ism-1], ie, ip);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -1187,8 +1191,10 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         pn_bl.setTaskStatus(true);
       } else {
         pn_bl.setTaskStatus(false);
-        status = status && false;
       }
+
+      status = status && EBMUtilsClient::getBinQual(meg05_[ism-1], i, 1);
+      status = status && EBMUtilsClient::getBinQual(meg09_[ism-1], i, 1);
 
       if ( econn ) {
         try {
@@ -1231,8 +1237,10 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         pn_ir.setTaskStatus(true);
       } else {
         pn_ir.setTaskStatus(false);
-        status = status && false;
       }
+
+      status = status && EBMUtilsClient::getBinQual(meg06_[ism-1], i, 1);
+      status = status && EBMUtilsClient::getBinQual(meg10_[ism-1], i, 1);
 
       if ( econn ) {
         try {
@@ -1275,8 +1283,10 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         pn_gr.setTaskStatus(true);
       } else {
         pn_gr.setTaskStatus(false);
-        status = status && false;
       }
+
+      status = status && EBMUtilsClient::getBinQual(meg07_[ism-1], i, 1);
+      status = status && EBMUtilsClient::getBinQual(meg11_[ism-1], i, 1);
 
       if ( econn ) {
         try {
@@ -1319,8 +1329,10 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         pn_rd.setTaskStatus(true);
       } else {
         pn_rd.setTaskStatus(false);
-        status = status && false;
       }
+
+      status = status && EBMUtilsClient::getBinQual(meg08_[ism-1], i, 1);
+      status = status && EBMUtilsClient::getBinQual(meg12_[ism-1], i, 1);
 
       if ( econn ) {
         try {

@@ -1,11 +1,11 @@
-// $Id: EBMUtilsClient.h,v 1.19 2007/01/29 08:05:27 dellaric Exp $
+// $Id: EBMUtilsClient.h,v 1.20 2007/01/29 15:19:37 dellaric Exp $
 
 /*!
   \file EBMUtilsClient.h
   \brief Ecal Barrel Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.19 $
-  \date $Date: 2007/01/29 08:05:27 $
+  \version $Revision: 1.20 $
+  \date $Date: 2007/01/29 15:19:37 $
 */
 
 #ifndef EBMUtilsClient_H
@@ -105,7 +105,7 @@ class EBMUtilsClient {
   /*! \fn template<class T> static bool getBinStats( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms )
       \brief Returns true if the bin contains good statistical data
       \param histo input ROOT histogram.
-      \param input histogram's bin.
+      \param (ix, iy) input histogram's bin.
       \param num bin's entries.
       \param mean bins' mean.
       \param rms bin's rms.
@@ -134,6 +134,22 @@ class EBMUtilsClient {
         }
       }
 
+    }
+
+    return false;
+  }
+
+  /*! \fn template<class T> static bool getBinQual( const T* histo, const int ix, const int iy )
+      \brief Returns true if the bin quality is good or masked
+      \param histo input ROOT histogram.
+      \param (ix, iy) input histogram's bins
+   */
+  template<class T> static bool getBinQual( const T* histo, const int ix, const int iy ) {
+
+    if ( histo ) {
+      float val = histo->getBinContent(ix, iy);
+      if ( val == 0. || val == 2 ) return false;
+      if ( val == 1. || val >= 3 ) return true;
     }
 
     return false;

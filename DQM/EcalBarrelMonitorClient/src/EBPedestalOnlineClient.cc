@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/01/28 10:21:30 $
- * $Revision: 1.70 $
+ * $Date: 2007/01/29 15:19:37 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -282,8 +282,9 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
           p.setTaskStatus(true);
         } else {
           p.setTaskStatus(false);
-          status = status && false;
         }
+
+        status = status && EBMUtilsClient::getBinQual(meg03_[ism-1], ie, ip);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
