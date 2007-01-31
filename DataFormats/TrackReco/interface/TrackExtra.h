@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id$
+ * \version $Id: TrackExtra.h,v 1.13 2006/09/14 14:51:32 namapane Exp $
  *
  */
 #include <Rtypes.h>
@@ -41,41 +41,41 @@ namespace reco {
 		const Point & innerPosition, const Vector & innerMomentum, bool iok,
 		const CovarianceMatrix& outerState, unsigned int outerId,
 		const CovarianceMatrix& innerState, unsigned int innerId);
-    /// outermost point
+    /// outermost hit position
     const Point & outerPosition() const { return outerPosition_; }
-    /// momentum vector at outermost point
+    /// momentum vector at outermost hit position
     const Vector & outerMomentum() const { return outerMomentum_; }
-    /// returns true if the outermost point is valid
+    /// returns true if the outermost hit is valid
     bool outerOk() const { return outerOk_; }
-    /// innermost point
+    /// innermost hit position
     const Point & innerPosition() const { return innerPosition_; }
-    /// momentum vector at innermost point
+    /// momentum vector at innermost hit position
     const Vector & innerMomentum() const { return innerMomentum_; }
-    /// returns true if the innermost point is valid
+    /// returns true if the innermost hit is valid
     bool innerOk() const { return innerOk_; }
-    /// x coordinate of momentum vector at the outermost point    
+    /// x coordinate of momentum vector at the outermost hit position    
     double outerPx() const { return outerMomentum_.X(); }
-    /// y coordinate of momentum vector at the outermost point
+    /// y coordinate of momentum vector at the outermost hit position
     double outerPy() const { return outerMomentum_.Y(); }
-    /// z coordinate of momentum vector at the outermost point
+    /// z coordinate of momentum vector at the outermost hit position
     double outerPz() const { return outerMomentum_.Z(); }
-    /// x coordinate the outermost point
+    /// x coordinate the outermost hit position
     double outerX() const { return outerPosition_.X(); }
-    /// y coordinate the outermost point
+    /// y coordinate the outermost hit position
     double outerY() const { return outerPosition_.Y(); }
-    /// z coordinate the outermost point
+    /// z coordinate the outermost hit position
     double outerZ() const { return outerPosition_.Z(); }
-    /// magnitude of momentum vector at the outermost point    
+    /// magnitude of momentum vector at the outermost hit position    
     double outerP() const { return outerMomentum().R(); }
-    /// transverse momentum at the outermost point    
+    /// transverse momentum at the outermost hit position    
     double outerPt() const { return outerMomentum().Rho(); }
-    /// azimuthal angle of the  momentum vector at the outermost point
+    /// azimuthal angle of the  momentum vector at the outermost hit position
     double outerPhi() const { return outerMomentum().Phi(); }
-    /// pseudorapidity the  momentum vector at the outermost point
+    /// pseudorapidity the  momentum vector at the outermost hit position
     double outerEta() const { return outerMomentum().Eta(); }
-    /// polar angle of the  momentum vector at the outermost point
+    /// polar angle of the  momentum vector at the outermost hit position
     double outerTheta() const { return outerMomentum().Theta(); }
-    /// polar radius of the outermost point
+    /// polar radius of the outermost hit position
     double outerRadius() const { return outerPosition().Rho(); }
 
     /// outermost trajectory state curvilinear errors
@@ -92,22 +92,22 @@ namespace reco {
     unsigned int innerDetId() const { return innerDetId_; }
 
   private:
-    /// outermost point
+    /// outermost hit position
     Point outerPosition_;
-    /// momentum vector at outermost point
+    /// momentum vector at outermost hit position
     Vector outerMomentum_;
-    /// outermost point validity flag
+    /// outermost hit validity flag
     bool outerOk_;
     /// outermost trajectory state curvilinear errors 
     Double32_t outerCovariance_[ covarianceSize ];
     unsigned int outerDetId_;
 
 
-    /// innermost point
+    /// innermost hit position
     Point innerPosition_;
-    /// momentum vector at innermost point
+    /// momentum vector at innermost hit position
     Vector innerMomentum_;
-    /// innermost point validity flag
+    /// innermost hit validity flag
     bool innerOk_;
     /// innermost trajectory state 
     Double32_t innerCovariance_[ covarianceSize ];

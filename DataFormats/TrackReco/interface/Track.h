@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.30 2006/10/31 19:23:28 llista Exp $
+ * \version $Id: Track.h,v 1.31 2006/11/27 09:03:05 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -27,18 +27,18 @@ namespace reco {
     /// the point of closest approch to the beamline.    
     Track( double chi2, double ndof, const Point &, const Vector &, int charge,
 	   const CovarianceMatrix & );
-    /// return true if the outermost point is valid
+    /// return true if the outermost hit is valid
     bool outerOk() const { return extra_->outerOk(); }
-    /// return true if the innermost point is valid
+    /// return true if the innermost hit is valid
     bool innerOk() const { return extra_->innerOk(); }
-    /// position of the innermost point
+    /// position of the innermost hit
     const math::XYZPoint & innerPosition()  const { return extra_->innerPosition(); }
 
-    /// momentum vector at the innermost point
+    /// momentum vector at the innermost hit position
     const math::XYZVector & innerMomentum() const { return extra_->innerMomentum(); }
-    /// position of the outermost point
+    /// position of the outermost hit
     const math::XYZPoint & outerPosition()  const { return extra_->outerPosition(); }
-    /// momentum vector at the outermost point
+    /// momentum vector at the outermost hit position
     const math::XYZVector & outerMomentum() const { return extra_->outerMomentum(); }
     /// outermost trajectory state curvilinear errors
     CovarianceMatrix outerStateCovariance() const { return extra_->outerStateCovariance(); }
@@ -60,29 +60,29 @@ namespace reco {
     TrackingRecHitRef recHit( size_t i ) const { return extra_->recHit( i ); }
     /// number of RecHits
     size_t recHitsSize() const { return extra_->recHitsSize(); }
-    /// x coordinate of momentum vector at the outermost point
+    /// x coordinate of momentum vector at the outermost hit position
     double outerPx()     const { return extra_->outerPx(); }
-    /// y coordinate of momentum vector at the outermost point
+    /// y coordinate of momentum vector at the outermost hit position
     double outerPy()     const { return extra_->outerPy(); }
-    /// z coordinate of momentum vector at the outermost point
+    /// z coordinate of momentum vector at the outermost hit position
     double outerPz()     const { return extra_->outerPz(); }
-    /// x coordinate of the outermost point
+    /// x coordinate of the outermost hit position
     double outerX()      const { return extra_->outerX(); }
-    /// y coordinate of the outermost point
+    /// y coordinate of the outermost hit position
     double outerY()      const { return extra_->outerY(); }
-    /// z coordinate of the outermost point
+    /// z coordinate of the outermost hit position
     double outerZ()      const { return extra_->outerZ(); }
-    /// magnitude of momentum vector at the outermost point
+    /// magnitude of momentum vector at the outermost hit position
     double outerP()      const { return extra_->outerP(); }
-    /// transverse momentum at the outermost point
+    /// transverse momentum at the outermost hit position
     double outerPt()     const { return extra_->outerPt(); }
-    /// azimuthal angle of the  momentum vector at the outermost point
+    /// azimuthal angle of the  momentum vector at the outermost hit position
     double outerPhi()    const { return extra_->outerPhi(); }
-    /// pseudorapidity of the  momentum vector at the outermost point
+    /// pseudorapidity of the  momentum vector at the outermost hit position
     double outerEta()    const { return extra_->outerEta(); }
-    /// polar angle of the  momentum vector at the outermost point
+    /// polar angle of the  momentum vector at the outermost hit position
     double outerTheta()  const { return extra_->outerTheta(); }    
-    /// polar radius of the outermost point
+    /// polar radius of the outermost hit position
     double outerRadius() const { return extra_->outerRadius(); }
     /// set reference to "extra" object
     void setExtra( const TrackExtraRef & ref ) { extra_ = ref; }

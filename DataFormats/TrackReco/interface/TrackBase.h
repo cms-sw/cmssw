@@ -25,7 +25,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.48 2006/11/28 08:42:42 jalcaraz Exp $
+ * \version $Id: TrackBase.h,v 1.49 2006/11/28 13:36:39 jalcaraz Exp $
  *
  */
 
@@ -103,11 +103,11 @@ namespace reco {
     double phi() const { return momentum_.Phi(); }
     /// pseudorapidity of momentum vector
     double eta() const { return momentum_.Eta(); }
-    /// x coordinate of point of closest approach to the beamline
+    /// x coordinate of the reference point
     double vx() const { return vertex_.x(); }
-    /// y coordinate of point of closest approach to the beamline
+    /// y coordinate of the reference point
     double vy() const { return vertex_.y(); }
-    /// z coordinate of point of closest approach to the beamline
+    /// z coordinate of the reference point
     double vz() const { return vertex_.z(); }
 
     /// track momentum vector
