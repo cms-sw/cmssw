@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/29 15:19:37 $
- * $Revision: 1.131 $
+ * $Date: 2007/01/31 19:20:21 $
+ * $Revision: 1.132 $
  * \author G. Della Ricca
  *
 */
@@ -1193,8 +1193,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         pn_bl.setTaskStatus(false);
       }
 
-      status = status && EBMUtilsClient::getBinQual(meg05_[ism-1], i, 1);
-      status = status && EBMUtilsClient::getBinQual(meg09_[ism-1], i, 1);
+      status = status && EBMUtilsClient::getBinQual(meg05_[ism-1], i, 1) &&
+                         EBMUtilsClient::getBinQual(meg09_[ism-1], i, 1);
 
       if ( econn ) {
         try {
@@ -1239,8 +1239,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         pn_ir.setTaskStatus(false);
       }
 
-      status = status && EBMUtilsClient::getBinQual(meg06_[ism-1], i, 1);
-      status = status && EBMUtilsClient::getBinQual(meg10_[ism-1], i, 1);
+      status = status && EBMUtilsClient::getBinQual(meg06_[ism-1], i, 1) &&
+                         EBMUtilsClient::getBinQual(meg10_[ism-1], i, 1);
 
       if ( econn ) {
         try {
@@ -1285,8 +1285,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         pn_gr.setTaskStatus(false);
       }
 
-      status = status && EBMUtilsClient::getBinQual(meg07_[ism-1], i, 1);
-      status = status && EBMUtilsClient::getBinQual(meg11_[ism-1], i, 1);
+      status = status && EBMUtilsClient::getBinQual(meg07_[ism-1], i, 1) &&
+                         EBMUtilsClient::getBinQual(meg11_[ism-1], i, 1);
 
       if ( econn ) {
         try {
@@ -1331,8 +1331,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         pn_rd.setTaskStatus(false);
       }
 
-      status = status && EBMUtilsClient::getBinQual(meg08_[ism-1], i, 1);
-      status = status && EBMUtilsClient::getBinQual(meg12_[ism-1], i, 1);
+      status = status && EBMUtilsClient::getBinQual(meg08_[ism-1], i, 1) &&
+                         EBMUtilsClient::getBinQual(meg12_[ism-1], i, 1);
 
       if ( econn ) {
         try {

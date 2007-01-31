@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/01/29 15:19:37 $
- * $Revision: 1.117 $
+ * $Date: 2007/01/31 19:20:21 $
+ * $Revision: 1.118 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -452,9 +452,9 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           adc.setTaskStatus(false);
         }
 
-        status = status && EBMUtilsClient::getBinQual(meg01_[ism-1], ie, ip);
-        status = status && EBMUtilsClient::getBinQual(meg02_[ism-1], ie, ip);
-        status = status && EBMUtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+        status = status && EBMUtilsClient::getBinQual(meg01_[ism-1], ie, ip) &&
+                           EBMUtilsClient::getBinQual(meg02_[ism-1], ie, ip) &&
+                           EBMUtilsClient::getBinQual(meg03_[ism-1], ie, ip);
 
         if ( ie == 1 && ip == 1 ) {
 
@@ -593,8 +593,8 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         pn.setTaskStatus(false);
       }
 
-      status = status && EBMUtilsClient::getBinQual(meg04_[ism-1], i, 1);
-      status = status && EBMUtilsClient::getBinQual(meg05_[ism-1], i, 1);
+      status = status && EBMUtilsClient::getBinQual(meg04_[ism-1], i, 1) &&
+                         EBMUtilsClient::getBinQual(meg05_[ism-1], i, 1);
 
       if ( econn ) {
         try {
