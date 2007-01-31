@@ -163,7 +163,7 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
   
   // get the cluster position in local coordinates (cm) 
   LocalPoint lp = theTopol->localPosition( MeasurementPoint(xcenter, ycenter) );
-  float lp_mod = sqrt( lp.x()*lp.x() + lp.y()*lp.y() + lp.z()*lp.z() );
+  //float lp_mod = sqrt( lp.x()*lp.x() + lp.y()*lp.y() + lp.z()*lp.z() );
 
   // get the cluster position in global coordinates (cm)
   GlobalPoint gp = theDet->surface().toGlobal( lp );
