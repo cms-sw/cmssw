@@ -1,7 +1,8 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilderESProducer.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-// #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -26,8 +27,11 @@ TransientTrackBuilderESProducer::produce(const TransientTrackRecord & iRecord){
 
   edm::ESHandle<MagneticField> magfield;
   iRecord.getRecord<IdealMagneticFieldRecord>().get( magfield );     
-  
-  _builder  = boost::shared_ptr<TransientTrackBuilder>(new TransientTrackBuilder(magfield.product() ));
+  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+  iRecord.getRecord<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
+
+  _builder  = boost::shared_ptr<TransientTrackBuilder>(
+	new TransientTrackBuilder(magfield.product(), theTrackingGeometry ));
   return _builder;
 
 }

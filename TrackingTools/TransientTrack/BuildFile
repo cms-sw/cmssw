@@ -11,6 +11,7 @@
 <use name=DataFormats/Common>
 <use name=Geometry/CommonDetUnit>
 <use name=boost>
+<use name=TrackingTools/GsfTools>
 
 <export>
   <lib name=TrackingToolsTransientTrack>
@@ -26,6 +27,7 @@
   <use name=TrackingTools/Records>
   <use name=DataFormats/Common>
   <use name=Geometry/CommonDetUnit>
+  <use name=TrackingTools/GsfTools>
   <use name=boost>
 </export>
 

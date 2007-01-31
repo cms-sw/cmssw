@@ -6,11 +6,7 @@
 
 
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
-// #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-// #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-// #include "RecoLocalTracker/Records//interface/TrackerCPERecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include <boost/shared_ptr.hpp>
 

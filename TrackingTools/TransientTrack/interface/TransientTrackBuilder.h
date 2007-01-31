@@ -2,6 +2,8 @@
 #define TRACKINGTOOLS_TRANSIENTRACKBUILDER_H
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/GsfTrackFwd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -14,19 +16,25 @@
 
 class TransientTrackBuilder {
  public:
-    TransientTrackBuilder(const MagneticField* field) :
-   	theField(field) {}
+    TransientTrackBuilder(const MagneticField* field,
+	const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry) :
+   	theField(field) ,  theTrackingGeometry(trackingGeometry) {}
 
-    reco::TransientTrack * build ( const reco::Track * p)  const;
+    reco::TransientTrack build ( const reco::Track * p)  const;
+    reco::TransientTrack build ( const reco::GsfTrack * p)  const;
 
-    reco::TransientTrack * build ( const reco::TrackRef * p)  const;
+    reco::TransientTrack build ( const reco::TrackRef * p)  const;
+    reco::TransientTrack build ( const reco::GsfTrackRef * p)  const;
 
     std::vector<reco::TransientTrack> build ( const edm::Handle<reco::TrackCollection> & trkColl)  const;
+    std::vector<reco::TransientTrack> build ( const edm::Handle<reco::GsfTrackCollection> & trkColl)  const;
 
     const MagneticField* field() const {return theField;}
+    const edm::ESHandle<GlobalTrackingGeometry> trackingGeometry() const {return theTrackingGeometry;}
 
   private:
     const MagneticField* theField;
+    edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
 };
 
 
