@@ -13,6 +13,7 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonProducer.h"
 
@@ -28,6 +29,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 
   scHybridBarrelCollection_     = conf_.getParameter<std::string>("scHybridBarrelCollection");
   scIslandEndcapCollection_     = conf_.getParameter<std::string>("scIslandEndcapCollection");
+  vertexProducer_       = conf_.getParameter<std::string>("primaryVertexProducer");
   PhotonCollection_ = conf_.getParameter<std::string>("photonCollection");
 
   // Register the product
@@ -71,14 +73,23 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
   edm::LogInfo("PhotonProducer") << " Accessing Endcap SC collection with size : " << scEndcapCollection.size()  << "\n";
 
+  // Get the primary event vertex
+  Handle<reco::VertexCollection> vertexHandle;
+  reco::VertexCollection vertexCollection;
+  if (vertexProducer_ != "") {
+    theEvent.getByLabel(vertexProducer_, vertexHandle);
+    vertexCollection = *(vertexHandle.product());
+  }
+  math::XYZPoint vtx(0.,0.,0.);
+  if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
+
+  edm::LogInfo("PhotonProducer") << "Constructing Photon 4-vectors assuming primary vertex position: " << vtx << std::endl;
 
   //  Loop over barrel SC and fill the  photon collection
   int iSC=0; // index in photon collection
   int lSC=0; // local index on barrel
   reco::SuperClusterCollection::iterator aClus;
   for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); aClus++) {
-
-    const reco::Particle::Point  vtx( 0, 0, 0 );
 
     // compute correctly the momentum vector of the photon from primary vertex and cluster position
     math::XYZVector direction =aClus->position() - vtx;
@@ -100,8 +111,6 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   //  Loop over Endcap SC and fill the  photon collection
   lSC=0; // reset local index for endcap
   for(aClus = scEndcapCollection.begin(); aClus != scEndcapCollection.end(); aClus++) {
-
-    const reco::Particle::Point  vtx( 0, 0, 0 );
 
     math::XYZVector direction =aClus->position() - vtx;
     math::XYZVector momentum = direction.unit() * aClus->energy();
