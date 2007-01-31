@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.40 2007/01/10 06:37:25 wmtan Exp $
+$Id: PoolSource.cc,v 1.41 2007/01/19 04:33:29 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "IOPool/Input/src/PoolSource.h"
 #include "IOPool/Input/src/RootFile.h"
@@ -70,6 +70,10 @@ namespace edm {
 
   void PoolSource::init(FileCatalogItem const& file) {
     TTree::SetMaxTreeSize(kMaxLong64);
+    if (primary()) {
+      TFile *filePtr = (file.fileName().empty() ? 0 : TFile::Open(file.fileName().c_str()));
+      if (filePtr != 0) filePtr->Close();
+    }
     rootFile_ = RootFileSharedPtr(new RootFile(file.fileName(), catalog().url(),
 	processConfiguration(), file.logicalFileName()));
   }
