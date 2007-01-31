@@ -7,10 +7,10 @@
 #include "Geometry/Surface/interface/BoundCylinder.h"
 
 //Ported from ORCA
-//  $Date: 2006/09/22 19:20:57 $
-//  $Revision: 1.4 $
+//  $Date: 2006/11/15 14:54:47 $
+//  $Revision: 1.5 $
 
-StateOnTrackerBound::StateOnTrackerBound( Propagator* prop) :
+StateOnTrackerBound::StateOnTrackerBound( const Propagator* prop) :
   thePropagator( prop->clone())
 {}
  

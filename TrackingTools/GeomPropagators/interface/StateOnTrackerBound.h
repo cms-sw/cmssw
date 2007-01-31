@@ -9,13 +9,13 @@ class Propagator;
  *  barrel cylinder or to one of the forward disks that 
  *  constitute the envelope of the sensitive Tracker volumes.
  *  Ported from ORCA
- *  $Date: 2006/04/24 20:36:03 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/09/22 19:21:13 $
+ *  $Revision: 1.3 $
  */
 class StateOnTrackerBound {
 public:
 
-  StateOnTrackerBound(Propagator* prop);
+  StateOnTrackerBound(const Propagator* prop);
 
   ~StateOnTrackerBound();
 
