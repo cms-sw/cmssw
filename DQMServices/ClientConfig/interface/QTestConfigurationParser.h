@@ -6,8 +6,8 @@
  *  Parses the xml file with the configuration of quality tests
  *  and the map between quality tests and MonitorElement
  * 
- *  $Date: 2006/05/09 21:28:24 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/20 16:04:05 $
+ *  $Revision: 1.2 $
  *  \author Ilaria Segoni
   */
 
@@ -40,7 +40,7 @@ class QTestConfigurationParser : public DQMParserBase {
  private:	 
 	 bool qtestsConfig();
 	 bool monitorElementTestsMap();
-	 std::map<std::string, std::string> getParams(DOMElement* qtestElement, std::string test);
+	 std::map<std::string, std::string> getParams(xercesc::DOMElement* qtestElement, std::string test);
 	 int instances(){return s_numberOfInstances;}
 	 bool checkParameters(std::string qtestName, std::string qtestType);
 	 

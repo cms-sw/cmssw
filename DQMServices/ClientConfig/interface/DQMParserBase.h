@@ -6,8 +6,8 @@
  *  Base class for Parsers used by DQM
  *
  *
- *  $Date: 2006/07/20 16:04:05 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/25 12:31:29 $
+ *  $Revision: 1.3 $
  *  \author Ilaria Segoni
   */
 
@@ -28,8 +28,6 @@
 
 
 
-using namespace xercesc;
-
 class DQMParserBase{
 
  public:
@@ -45,8 +43,8 @@ class DQMParserBase{
 	void getNewDocument(std::string configFile);
 
  protected:	 
-	XercesDOMParser* parser; 
-	DOMDocument* doc;
+	xercesc::XercesDOMParser* parser; 
+	xercesc::DOMDocument* doc;
 	 
 	 
  private:	 

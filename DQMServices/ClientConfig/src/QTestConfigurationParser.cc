@@ -8,10 +8,11 @@
  *
  *  Implementation of QTestConfigurationParser
  *
- *  $Date: 2006/05/09 21:28:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/20 16:04:59 $
+ *  $Revision: 1.2 $
  *  \author Ilaria Segoni
  */
+using namespace xercesc;
 
 int QTestConfigurationParser::s_numberOfInstances = 0;
 

@@ -2,7 +2,7 @@
  *
  *  Implementation of MESubscriptionParser
  *
- *  $Date: 2006/05/04 10:29:07 $
+ *  $Date: 2006/05/09 21:28:37 $
  *  $Revision: 1.1 $
  *  \author Ilaria Segoni
  */
@@ -11,6 +11,8 @@
 #include "DQMServices/ClientConfig/interface/ParserFunctions.h"
 
 #include <stdexcept>         
+
+using namespace xercesc;
 
 int MESubscriptionParser::n_Instances = 0;
 

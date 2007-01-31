@@ -8,11 +8,13 @@
  *
  *  Implementation of DQMParserBase
  *
- *  $Date: 2006/07/20 16:04:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/25 12:31:29 $
+ *  $Revision: 1.3 $
  *  \author Ilaria Segoni
  */
 
+
+using namespace xercesc;
 
 DQMParserBase::DQMParserBase(){
 	parser=0; 
