@@ -34,12 +34,21 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 
-// Temporary stuff
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+
+
 #include <TTree.h>
 #include <TFile.h>
 
 using namespace std;
-using namespace edm;
 
 // End job: write and close the ntuple file
 void SiPixelTrackingRecHitsValid::endJob() 
@@ -87,8 +96,19 @@ void SiPixelTrackingRecHitsValid::beginJob(const edm::EventSetup& es)
   t_->Branch("phi", &phi, "phi/F", bufsize);
   t_->Branch("eta", &eta, "eta/F", bufsize);
 
-  t_->Branch("nsimhit", &nsimhit, "nsimhit/I", bufsize);
+  t_->Branch("half"   , &half   , "half/I"   , bufsize);
+  t_->Branch("flipped", &flipped, "flipped/I", bufsize);
 
+  t_->Branch("simhitx", &simhitx, "simhitx/F", bufsize);
+  t_->Branch("simhity", &simhity, "simhity/F", bufsize);
+
+  t_->Branch("nsimhit", &nsimhit, "nsimhit/I", bufsize);
+  t_->Branch("pidhit" , &pidhit , "pidhit/I" , bufsize);
+
+  t_->Branch("evt", &evt, "evt/I", bufsize);
+  t_->Branch("run", &run, "run/I", bufsize);
+
+  
 }
 
 SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps):dbe_(0), tfile_(0), t_(0)
@@ -109,6 +129,7 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
   //float radtodeg = 180.0 / math_pi;
 
   // Histogram ranges (low and high)
+
   float xl = -1.0; 
   float xh =  1.0;
   float errxl = 0.0;
@@ -127,32 +148,54 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
   float pullyl = -10.0;
   float pullyh =  10.0;
 
-  float barrel_alphal =  78.0;
-  float barrel_alphah = 102.0;
+  float barrel_alphal =  80.0;
+  float barrel_alphah = 100.0;
   float barrel_betal =  10.0;
   float barrel_betah = 170.0;
-  float barrel_phil = -180.0;
-  float barrel_phih =  180.0;
-  float barrel_etal = -2.5;
-  float barrel_etah =  2.5;
+  //float barrel_phil = -180.0;
+  //float barrel_phih =  180.0;
+  //float barrel_etal = -2.5;
+  //float barrel_etah =  2.5;
 
   float forward_p1_alphal = 100.0; 
-  float forward_p1_alphah = 120.0;
-  float forward_p2_alphal =  60.0; 
+  float forward_p1_alphah = 115.0;
+  float forward_p2_alphal =  65.0; 
   float forward_p2_alphah =  80.0;
+  float forward_neg_betal = 67.0; 
+  float forward_neg_betah = 73.0;
+  float forward_pos_betal = 107.0;
+  float forward_pos_betah = 113.0;
+  //float forward_phil = -180.0;
+  //float forward_phih =  180.0;
+  //float forward_neg_etal = -2.5;
+  //float forward_neg_etah = -1.5;
+  //float forward_pos_etal = 1.5;
+  //float forward_pos_etah = 2.5;
 
-  float forward_neg_betal = 66.0; 
-  float forward_neg_betah = 74.0;
-  float forward_pos_betal = 106.0;
-  float forward_pos_betah = 114.0;
-  
-  float forward_phil = -180.0;
-  float forward_phih =  180.0;
+  // special renages for pulls
+  float pull_barrel_alphal =  80.0;
+  float pull_barrel_alphah = 100.0;
+  float pull_barrel_betal =  10.0;
+  float pull_barrel_betah = 170.0;
+  float pull_barrel_phil = -180.0;
+  float pull_barrel_phih =  180.0;
+  float pull_barrel_etal = -2.4;
+  float pull_barrel_etah =  2.4;
 
-  float forward_neg_etal = -2.5;
-  float forward_neg_etah = -1.3;
-  float forward_pos_etal = 1.3;
-  float forward_pos_etah = 2.5;
+  float pull_forward_p1_alphal = 100.0; 
+  float pull_forward_p1_alphah = 112.0;
+  float pull_forward_p2_alphal =  68.0; 
+  float pull_forward_p2_alphah =  80.0;
+  float pull_forward_neg_betal = 68.0; 
+  float pull_forward_neg_betah = 72.0;
+  float pull_forward_pos_betal = 108.0;
+  float pull_forward_pos_betah = 112.0;
+  float pull_forward_phil = -180.0;
+  float pull_forward_phih =  180.0;
+  float pull_forward_neg_etal = -2.4;
+  float pull_forward_neg_etah = -1.4;
+  float pull_forward_pos_etal = 1.5;
+  float pull_forward_pos_etah = 2.5;
     
   int npixl = 0;
   int npixh = 20;
@@ -199,29 +242,38 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
 	sprintf(chisto, "meChargeBarrelLayerModule_%d_%d", i+1, j+1);
 	meChargeBarrelLayerModule[i][j] = dbe_->book1D(chisto, chisto, 100, barrel_chargel, barrel_chargeh);
       	sprintf(chisto, "meResXvsAlphaBarrelLayerModule_%d_%d", i+1, j+1);
-	meResXvsAlphaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh, "s");
+	meResXvsAlphaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh, "");
 	sprintf(chisto, "meResYvsAlphaBarrelLayerModule_%d_%d", i+1, j+1);
-	meResYvsAlphaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh, "s");
+	meResYvsAlphaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh, "");
 	sprintf(chisto, "meResXvsBetaBarrelLayerModule_%d_%d", i+1, j+1);
-	meResXvsBetaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh, "s");
+	meResXvsBetaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh, "");
 	sprintf(chisto, "meResYvsBetaBarrelLayerModule_%d_%d", i+1, j+1);
-	meResYvsBetaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh, "s"); 
+	meResYvsBetaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh, ""); 
+
 	sprintf(chisto, "mePullXvsAlphaBarrelLayerModule_%d_%d", i+1, j+1);
-	mePullXvsAlphaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, resxl, resxh, "s");
+	mePullXvsAlphaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 
+								  100, resxl, resxh, "");
 	sprintf(chisto, "mePullYvsAlphaBarrelLayerModule_%d_%d", i+1, j+1);
-	mePullYvsAlphaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, resyl, resyh, "s");
+	mePullYvsAlphaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 
+								  100, resyl, resyh, "");
 	sprintf(chisto, "mePullXvsBetaBarrelLayerModule_%d_%d", i+1, j+1);
-	mePullXvsBetaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, resxl, resxh, "s");
+	mePullXvsBetaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 
+								 100, resxl, resxh, "");
 	sprintf(chisto, "mePullYvsBetaBarrelLayerModule_%d_%d", i+1, j+1);
-	mePullYvsBetaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, resyl, resyh, "s"); 
+	mePullYvsBetaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 
+								 100, resyl, resyh, ""); 
  	sprintf(chisto, "mePullXvsPhiBarrelLayerModule_%d_%d", i+1, j+1);
-	mePullXvsPhiBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_phil, barrel_phih, 100, resxl, resxh, "s");
+	mePullXvsPhiBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, 
+								resxl, resxh, "");
 	sprintf(chisto, "mePullYvsPhiBarrelLayerModule_%d_%d", i+1, j+1);
-	mePullYvsPhiBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_phil, barrel_phih, 100, resyl, resyh, "s");
+	mePullYvsPhiBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 
+								100, resyl, resyh, "");
 	sprintf(chisto, "mePullXvsEtaBarrelLayerModule_%d_%d", i+1, j+1);
-	mePullXvsEtaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_etal, barrel_etah, 100, resxl, resxh, "s");
+	mePullXvsEtaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 
+								100, resxl, resxh, "");
 	sprintf(chisto, "mePullYvsEtaBarrelLayerModule_%d_%d", i+1, j+1);
-	mePullYvsEtaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_etal, barrel_etah, 100, resyl, resyh, "s"); 
+	mePullYvsEtaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 
+								100, resyl, resyh, ""); 
       }
   
   // Pixel forward detector has 2 disks, 2 panels and either 3 or 4 plaquettes
@@ -261,38 +313,41 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
 	meChargeZmPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
 	sprintf(chisto, "meResXvsAlphaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	meResXvsAlphaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resxh, "");
 	sprintf(chisto, "meResYvsAlphaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	meResYvsAlphaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resyh, "");
 	sprintf(chisto, "meResXvsBetaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	meResXvsBetaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resxh, "");
 	sprintf(chisto, "meResYvsBetaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	meResYvsBetaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resyh, "");
+
 	sprintf(chisto, "mePullXvsAlphaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsAlphaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, resxl,resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, resxl,resxh, "");
 	sprintf(chisto, "mePullYvsAlphaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsAlphaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, resyl,resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, resyl,resyh, "");
 	sprintf(chisto, "mePullXvsBetaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsBetaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, resxl,resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, resxl,resxh, "");
 	sprintf(chisto, "mePullYvsBetaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsBetaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, resyl,resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, resyl,resyh, "");
 	sprintf(chisto, "mePullXvsPhiZmPanel1DiskPlaq_%d_%d", i+1, j+1);
-	mePullXvsPhiZmPanel1DiskPlaq[i][j] = dbe_->bookProfile(chisto, chisto, 20, forward_phil, forward_phih, 100, resxl,resxh, "s");
+	mePullXvsPhiZmPanel1DiskPlaq[i][j] 
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, resxl,resxh, "");
 	sprintf(chisto, "mePullYvsPhiZmPanel1DiskPlaq_%d_%d", i+1, j+1);
-	mePullYvsPhiZmPanel1DiskPlaq[i][j] = dbe_->bookProfile(chisto, chisto, 20, forward_phil, forward_phih, 100, resyl,resyh, "s");
+	mePullYvsPhiZmPanel1DiskPlaq[i][j] 
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, resyl,resyh, "");
 	sprintf(chisto, "mePullXvsEtaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsEtaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_etal, forward_neg_etah, 100, resxl,resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, resxl,resxh, "");
 	sprintf(chisto, "mePullYvsEtaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsEtaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_etal, forward_neg_etah, 100, resyl,resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, resyl,resyh, "");
 
 	sprintf(chisto, "mePosxZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePosxZpPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, xl, xh);
@@ -320,38 +375,41 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
 	meChargeZpPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
 	sprintf(chisto, "meResXvsAlphaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	meResXvsAlphaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resxh, "");
 	sprintf(chisto, "meResYvsAlphaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	meResYvsAlphaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resyh, "");
 	sprintf(chisto, "meResXvsBetaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	meResXvsBetaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resxh, "");
 	sprintf(chisto, "meResYvsBetaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	meResYvsBetaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resyh, "");
+
 	sprintf(chisto, "mePullXvsAlphaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsAlphaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, resxl,resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, resxl,resxh, "");
 	sprintf(chisto, "mePullYvsAlphaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsAlphaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, resyl,resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, resyl,resyh, "");
 	sprintf(chisto, "mePullXvsBetaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsBetaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, resxl,resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, resxl,resxh, "");
 	sprintf(chisto, "mePullYvsBetaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsBetaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, resyl,resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, resyl,resyh, "");
 	sprintf(chisto, "mePullXvsPhiZpPanel1DiskPlaq_%d_%d", i+1, j+1);
-	mePullXvsPhiZpPanel1DiskPlaq[i][j] = dbe_->bookProfile(chisto, chisto, 20, forward_phil, forward_phih, 100, resxl,resxh, "s");
+	mePullXvsPhiZpPanel1DiskPlaq[i][j] 
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, resxl,resxh, "");
 	sprintf(chisto, "mePullYvsPhiZpPanel1DiskPlaq_%d_%d", i+1, j+1);
-	mePullYvsPhiZpPanel1DiskPlaq[i][j] = dbe_->bookProfile(chisto, chisto, 20, forward_phil, forward_phih, 100, resyl,resyh, "s");
+	mePullYvsPhiZpPanel1DiskPlaq[i][j] 
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, resyl,resyh, "");
 	sprintf(chisto, "mePullXvsEtaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsEtaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_etal, forward_pos_etah, 100, resxl,resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, resxl,resxh, "");
 	sprintf(chisto, "mePullYvsEtaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsEtaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_etal, forward_pos_etah, 100, resyl,resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, resyl,resyh, "");
 	
 	if ( j>2 ) continue; // panel 2 has only 3 plaquettes
 	
@@ -381,38 +439,41 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
 	meChargeZmPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
 	sprintf(chisto, "meResXvsAlphaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	meResXvsAlphaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resxh, "");
 	sprintf(chisto, "meResYvsAlphaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	meResYvsAlphaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resyh, "");
 	sprintf(chisto, "meResXvsBetaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	meResXvsBetaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resxh, "");
 	sprintf(chisto, "meResYvsBetaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	meResYvsBetaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resyh, "s"); 
+	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resyh, ""); 
+
 	sprintf(chisto, "mePullXvsAlphaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsAlphaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, resxl,resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, resxl,resxh, "");
 	sprintf(chisto, "mePullYvsAlphaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsAlphaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, resyl,resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, resyl,resyh, "");
 	sprintf(chisto, "mePullXvsBetaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsBetaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, resxl,resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, resxl,resxh, "");
 	sprintf(chisto, "mePullYvsBetaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsBetaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, resyl,resyh, "s"); 
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, resyl,resyh, ""); 
 	sprintf(chisto, "mePullXvsPhiZmPanel2DiskPlaq_%d_%d", i+1, j+1);
-	mePullXvsPhiZmPanel2DiskPlaq[i][j] = dbe_->bookProfile(chisto, chisto, 20, forward_phil, forward_phih, 100, resxl,resxh, "s");
+	mePullXvsPhiZmPanel2DiskPlaq[i][j] 
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, resxl,resxh, "");
 	sprintf(chisto, "mePullYvsPhiZmPanel2DiskPlaq_%d_%d", i+1, j+1);
-	mePullYvsPhiZmPanel2DiskPlaq[i][j] = dbe_->bookProfile(chisto, chisto, 20, forward_phil, forward_phih, 100, resyl,resyh, "s");
+	mePullYvsPhiZmPanel2DiskPlaq[i][j] 
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, resyl,resyh, "");
 	sprintf(chisto, "mePullXvsEtaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsEtaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_etal, forward_neg_etah, 100, resxl, resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, resxl, resxh, "");
 	sprintf(chisto, "mePullYvsEtaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsEtaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_etal, forward_neg_etah, 100, resyl, resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, resyl, resyh, "");
  
 	sprintf(chisto, "mePosxZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePosxZpPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, xl, xh);
@@ -440,43 +501,43 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
 	meChargeZpPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
 	sprintf(chisto, "meResXvsAlphaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	meResXvsAlphaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resxh, "");
 	sprintf(chisto, "meResYvsAlphaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	meResYvsAlphaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resyh, "");
 	sprintf(chisto, "meResXvsBetaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	meResXvsBetaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resxh, "");
 	sprintf(chisto, "meResYvsBetaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	meResYvsBetaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resyh, "s");
-      	sprintf(chisto, "mePullXvsAlphaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
+	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resyh, "");
+    
+  	sprintf(chisto, "mePullXvsAlphaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsAlphaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, resxl,resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, resxl,resxh, "");
 	sprintf(chisto, "mePullYvsAlphaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsAlphaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, resyl,resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, resyl,resyh, "");
 	sprintf(chisto, "mePullXvsBetaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsBetaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, resxl,resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, resxl,resxh, "");
 	sprintf(chisto, "mePullYvsBetaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsBetaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, resyl,resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, resyl,resyh, "");
       	sprintf(chisto, "mePullXvsPhiZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsPhiZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_phil, forward_phih, 100, resxl,resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, resxl,resxh, "");
 	sprintf(chisto, "mePullYvsPhiZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsPhiZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_phil, forward_phih, 100, resyl,resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, resyl,resyh, "");
 	sprintf(chisto, "mePullXvsEtaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsEtaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_etal, forward_pos_etah, 100, resxl,resxh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, resxl,resxh, "");
 	sprintf(chisto, "mePullYvsEtaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsEtaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_etal, forward_pos_etah, 100, resyl,resyh, "s");
+	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, resyl,resyh, "");
       
       } // for (int j=0; j<4; j++) // loop over plaquettes
-
 
   dbe_->setCurrentFolder("Histograms_all");
 
@@ -506,30 +567,30 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
   sprintf(chisto, "meChargeBarrel");
   meChargeBarrel = dbe_->book1D(chisto, chisto, 100, barrel_chargel, barrel_chargeh);
   sprintf(chisto, "meResXvsAlphaBarrel");
-  meResXvsAlphaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh);
+  meResXvsAlphaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh, "");
   sprintf(chisto, "meResYvsAlphaBarrel");
-  meResYvsAlphaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh);	
+  meResYvsAlphaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh, "");	
   sprintf(chisto, "meResXvsBetaBarrel");
-  meResXvsBetaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh);
+  meResXvsBetaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh, "");
   sprintf(chisto, "meResYvsBetaBarrel");
-  meResYvsBetaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh);	
+  meResYvsBetaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh, "");	
+ 
   sprintf(chisto, "mePullXvsAlphaBarrel");
-  mePullXvsAlphaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, resxl, resxh);
+  mePullXvsAlphaBarrel = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, resxl, resxh, "");
   sprintf(chisto, "mePullYvsAlphaBarrel");
-  mePullYvsAlphaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, resyl, resyh);	
+  mePullYvsAlphaBarrel = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, resyl, resyh, "");	
   sprintf(chisto, "mePullXvsBetaBarrel");
-  mePullXvsBetaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, resxl, resxh);
+  mePullXvsBetaBarrel = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, resxl, resxh, "");
   sprintf(chisto, "mePullYvsBetaBarrel");
-  mePullYvsBetaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, resyl, resyh);	
+  mePullYvsBetaBarrel = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, resyl, resyh, "");	
   sprintf(chisto, "mePullXvsPhiBarrel");
-  mePullXvsPhiBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_phil, barrel_phih, 100, resxl, resxh);
+  mePullXvsPhiBarrel = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, resxl, resxh, "");
   sprintf(chisto, "mePullYvsPhiBarrel");
-  mePullYvsPhiBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_phil, barrel_phih, 100, resyl, resyh);	
+  mePullYvsPhiBarrel = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, resyl, resyh, "");	
   sprintf(chisto, "mePullXvsEtaBarrel");
-  mePullXvsEtaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_etal, barrel_etah, 100, resxl, resxh);
+  mePullXvsEtaBarrel = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, resxl, resxh, "");
   sprintf(chisto, "mePullYvsEtaBarrel");
-  mePullYvsEtaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_etal, barrel_etah, 100, resyl, resyh);	
-
+  mePullYvsEtaBarrel = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, resyl, resyh, "");	
 
   sprintf(chisto, "mePosxBarrelHalfModule");
   mePosxBarrelHalfModule = dbe_->book1D(chisto, chisto, 100, xl, xh);
@@ -548,6 +609,74 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
   sprintf(chisto, "mePosyBarrelNonFlippedLadders");
   mePosyBarrelNonFlippedLadders = dbe_->book1D(chisto, chisto, 100, yl, yh);
   
+  sprintf(chisto, "meResXvsAlphaBarrelFlippedLadders");
+  meResXvsAlphaBarrelFlippedLadders = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh, "");
+  sprintf(chisto, "meResYvsAlphaBarrelFlippedLadders");
+  meResYvsAlphaBarrelFlippedLadders = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh, "");	
+  sprintf(chisto, "meResXvsBetaBarrelFlippedLadders");
+  meResXvsBetaBarrelFlippedLadders = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh, "");
+  sprintf(chisto, "meResYvsBetaBarrelFlippedLadders");
+  meResYvsBetaBarrelFlippedLadders = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh, "");	
+
+  sprintf(chisto, "mePullXvsAlphaBarrelFlippedLadders");
+  mePullXvsAlphaBarrelFlippedLadders 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, resxl, resxh, "");
+  sprintf(chisto, "mePullYvsAlphaBarrelFlippedLadders");
+  mePullYvsAlphaBarrelFlippedLadders 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, resyl, resyh, "");	
+  sprintf(chisto, "mePullXvsBetaBarrelFlippedLadders");
+  mePullXvsBetaBarrelFlippedLadders 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, resxl, resxh, "");
+  sprintf(chisto, "mePullYvsBetaBarrelFlippedLadders");
+  mePullYvsBetaBarrelFlippedLadders 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, resyl, resyh, "");	
+  sprintf(chisto, "mePullXvsPhiBarrelFlippedLadders");
+  mePullXvsPhiBarrelFlippedLadders 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, resxl, resxh, "");
+  sprintf(chisto, "mePullYvsPhiBarrelFlippedLadders");
+  mePullYvsPhiBarrelFlippedLadders 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, resyl, resyh, "");	
+  sprintf(chisto, "mePullXvsEtaBarrelFlippedLadders");
+  mePullXvsEtaBarrelFlippedLadders 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, resxl, resxh, "");
+  sprintf(chisto, "mePullYvsEtaBarrelFlippedLadders");
+  mePullYvsEtaBarrelFlippedLadders 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, resyl, resyh, "");	
+
+  sprintf(chisto, "meResXvsAlphaBarrelNonFlippedLadders");
+  meResXvsAlphaBarrelNonFlippedLadders = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh, "");
+  sprintf(chisto, "meResYvsAlphaBarrelNonFlippedLadders");
+  meResYvsAlphaBarrelNonFlippedLadders = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh, "");	
+  sprintf(chisto, "meResXvsBetaBarrelNonFlippedLadders");
+  meResXvsBetaBarrelNonFlippedLadders = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh, "");
+  sprintf(chisto, "meResYvsBetaBarrelNonFlippedLadders");
+  meResYvsBetaBarrelNonFlippedLadders = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh, "");	
+
+  sprintf(chisto, "mePullXvsAlphaBarrelNonFlippedLadders");
+  mePullXvsAlphaBarrelNonFlippedLadders 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, resxl, resxh, "");
+  sprintf(chisto, "mePullYvsAlphaBarrelNonFlippedLadders");
+  mePullYvsAlphaBarrelNonFlippedLadders 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, resyl, resyh, "");	
+  sprintf(chisto, "mePullXvsBetaBarrelNonFlippedLadders");
+  mePullXvsBetaBarrelNonFlippedLadders 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, resxl, resxh, "");
+  sprintf(chisto, "mePullYvsBetaBarrelNonFlippedLadders");
+  mePullYvsBetaBarrelNonFlippedLadders 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, resyl, resyh, "");	
+  sprintf(chisto, "mePullXvsPhiBarrelNonFlippedLadders");
+  mePullXvsPhiBarrelNonFlippedLadders 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, resxl, resxh, "");
+  sprintf(chisto, "mePullYvsPhiBarrelNonFlippedLadders");
+  mePullYvsPhiBarrelNonFlippedLadders 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, resyl, resyh, "");	
+  sprintf(chisto, "mePullXvsEtaBarrelNonFlippedLadders");
+  mePullXvsEtaBarrelNonFlippedLadders 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, resxl, resxh, "");
+  sprintf(chisto, "mePullYvsEtaBarrelNonFlippedLadders");
+  mePullYvsEtaBarrelNonFlippedLadders 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, resyl, resyh, "");	
+
   sprintf(chisto, "mePosxZmPanel1");
   mePosxZmPanel1 = dbe_->book1D(chisto, chisto, 100, xl, xh);
   sprintf(chisto, "mePosyZmPanel1");
@@ -573,30 +702,38 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
   sprintf(chisto, "meChargeZmPanel1");
   meChargeZmPanel1 = dbe_->book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
   sprintf(chisto, "meResXvsAlphaZmPanel1");
-  meResXvsAlphaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resxh);
+  meResXvsAlphaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resxh, "");
   sprintf(chisto, "meResYvsAlphaZmPanel1");
-  meResYvsAlphaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resyh);	
+  meResYvsAlphaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resyh, "");	
   sprintf(chisto, "meResXvsBetaZmPanel1");
-  meResXvsBetaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resxh);
+  meResXvsBetaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resxh, "");
   sprintf(chisto, "meResYvsBetaZmPanel1");
-  meResYvsBetaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resyh);	
-  sprintf(chisto, "mePullXvsAlphaZmPanel1");
-  mePullXvsAlphaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, resxl,  resxh);
-  sprintf(chisto, "mePullYvsAlphaZmPanel1");
-  mePullYvsAlphaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, resyl,  resyh);	
-  sprintf(chisto, "mePullXvsBetaZmPanel1");
-  mePullXvsBetaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, resxl,  resxh);
-  sprintf(chisto, "mePullYvsBetaZmPanel1");
-  mePullYvsBetaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, resyl,  resyh);	
-  sprintf(chisto, "mePullXvsPhiZmPanel1");
-  mePullXvsPhiZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_phil, forward_phih, 100, resxl,  resxh);
-  sprintf(chisto, "mePullYvsPhiZmPanel1");
-  mePullYvsPhiZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_phil, forward_phih, 100, resyl,  resyh);	
-  sprintf(chisto, "mePullXvsEtaZmPanel1");
-  mePullXvsEtaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_etal, forward_neg_etah, 100, resxl,  resxh);
-  sprintf(chisto, "mePullYvsEtaZmPanel1");
-  mePullYvsEtaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_etal, forward_neg_etah, 100, resyl,  resyh);
+  meResYvsBetaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resyh, "");	
 
+  sprintf(chisto, "mePullXvsAlphaZmPanel1");
+  mePullXvsAlphaZmPanel1 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, resxl,  resxh, "");
+  sprintf(chisto, "mePullYvsAlphaZmPanel1");
+  mePullYvsAlphaZmPanel1 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, resyl,  resyh, "");	
+  sprintf(chisto, "mePullXvsBetaZmPanel1");
+  mePullXvsBetaZmPanel1 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, resxl,  resxh, "");
+  sprintf(chisto, "mePullYvsBetaZmPanel1");
+  mePullYvsBetaZmPanel1 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, resyl,  resyh, "");	
+  sprintf(chisto, "mePullXvsPhiZmPanel1");
+  mePullXvsPhiZmPanel1 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, resxl,  resxh, "");
+  sprintf(chisto, "mePullYvsPhiZmPanel1");
+  mePullYvsPhiZmPanel1 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, resyl,  resyh, "");	
+  sprintf(chisto, "mePullXvsEtaZmPanel1");
+  mePullXvsEtaZmPanel1 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, resxl,  resxh, "");
+  sprintf(chisto, "mePullYvsEtaZmPanel1");
+  mePullYvsEtaZmPanel1 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, resyl,  resyh, "");
 
   sprintf(chisto, "mePosxZpPanel1");
   mePosxZpPanel1 = dbe_->book1D(chisto, chisto, 100, xl, xh);
@@ -623,31 +760,39 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
   sprintf(chisto, "meChargeZpPanel1");
   meChargeZpPanel1 = dbe_->book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
   sprintf(chisto, "meResXvsAlphaZpPanel1");
-  meResXvsAlphaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resxh);
+  meResXvsAlphaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resxh, "");
   sprintf(chisto, "meResYvsAlphaZpPanel1");
-  meResYvsAlphaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resyh);	
+  meResYvsAlphaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resyh, "");	
   sprintf(chisto, "meResXvsBetaZpPanel1");
-  meResXvsBetaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resxh);
+  meResXvsBetaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resxh, "");
   sprintf(chisto, "meResYvsBetaZpPanel1");
-  meResYvsBetaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resyh);	
+  meResYvsBetaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resyh, "");	
+ 
   sprintf(chisto, "mePullXvsAlphaZpPanel1");
-  mePullXvsAlphaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, resxl,  resxh);
+  mePullXvsAlphaZpPanel1 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, resxl,  resxh, "");
   sprintf(chisto, "mePullYvsAlphaZpPanel1");
-  mePullYvsAlphaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, resyl,  resyh);	
+  mePullYvsAlphaZpPanel1 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, resyl,  resyh, "");	
   sprintf(chisto, "mePullXvsBetaZpPanel1");
-  mePullXvsBetaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, resxl,  resxh);
+  mePullXvsBetaZpPanel1 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, resxl,  resxh, "");
   sprintf(chisto, "mePullYvsBetaZpPanel1");
-  mePullYvsBetaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, resyl,  resyh);	
+  mePullYvsBetaZpPanel1 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, resyl,  resyh, "");	
   sprintf(chisto, "mePullXvsPhiZpPanel1");
-  mePullXvsPhiZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_phil, forward_phih, 100, resxl,  resxh);
+  mePullXvsPhiZpPanel1 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, resxl,  resxh, "");
   sprintf(chisto, "mePullYvsPhiZpPanel1");
-  mePullYvsPhiZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_phil, forward_phih, 100, resyl,  resyh);	
+  mePullYvsPhiZpPanel1 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, resyl,  resyh, "");	
   sprintf(chisto, "mePullXvsEtaZpPanel1");
-  mePullXvsEtaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_etal, forward_pos_etah, 100, resxl,  resxh);
+  mePullXvsEtaZpPanel1 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, resxl,  resxh, "");
   sprintf(chisto, "mePullYvsEtaZpPanel1");
-  mePullYvsEtaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_etal, forward_pos_etah, 100, resyl,  resyh);
-
-  
+  mePullYvsEtaZpPanel1 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, resyl,  resyh, "");
+ 
   sprintf(chisto, "mePosxZmPanel2");
   mePosxZmPanel2 = dbe_->book1D(chisto, chisto, 100, xl, xh);
   sprintf(chisto, "mePosyZmPanel2");
@@ -673,30 +818,38 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
   sprintf(chisto, "meChargeZmPanel2");
   meChargeZmPanel2 = dbe_->book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
   sprintf(chisto, "meResXvsAlphaZmPanel2");
-  meResXvsAlphaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resxh);
+  meResXvsAlphaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resxh, "");
   sprintf(chisto, "meResYvsAlphaZmPanel2");
-  meResYvsAlphaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resyh);	
+  meResYvsAlphaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resyh, "");	
   sprintf(chisto, "meResXvsBetaZmPanel2");
-  meResXvsBetaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resxh);
+  meResXvsBetaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resxh, "");
   sprintf(chisto, "meResYvsBetaZmPanel2");
-  meResYvsBetaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resyh);	
+  meResYvsBetaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resyh, "");	
+ 
   sprintf(chisto, "mePullXvsAlphaZmPanel2");
-  mePullXvsAlphaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, resxl,  resxh);
+  mePullXvsAlphaZmPanel2 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, resxl,  resxh, "");
   sprintf(chisto, "mePullYvsAlphaZmPanel2");
-  mePullYvsAlphaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, resyl,  resyh);	
+  mePullYvsAlphaZmPanel2 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, resyl,  resyh, "");	
   sprintf(chisto, "mePullXvsBetaZmPanel2");
-  mePullXvsBetaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, resxl,  resxh);
+  mePullXvsBetaZmPanel2 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, resxl,  resxh, "");
   sprintf(chisto, "mePullYvsBetaZmPanel2");
-  mePullYvsBetaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, resyl,  resyh);	
+  mePullYvsBetaZmPanel2 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, resyl,  resyh, "");	
   sprintf(chisto, "mePullXvsPhiZmPanel2");
-  mePullXvsPhiZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_phil, forward_phih, 100, resxl,  resxh);
+  mePullXvsPhiZmPanel2 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, resxl,  resxh, "");
   sprintf(chisto, "mePullYvsPhiZmPanel2");
-  mePullYvsPhiZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_phil, forward_phih, 100, resyl,  resyh);	
+  mePullYvsPhiZmPanel2 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, resyl,  resyh, "");	
   sprintf(chisto, "mePullXvsEtaZmPanel2");
-  mePullXvsEtaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_etal, forward_neg_etah, 100, resxl,  resxh);
+  mePullXvsEtaZmPanel2 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, resxl,  resxh, "");
   sprintf(chisto, "mePullYvsEtaZmPanel2");
-  mePullYvsEtaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_etal, forward_neg_etah, 100, resyl,  resyh);
-
+  mePullYvsEtaZmPanel2 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, resyl,  resyh, "");
 
   sprintf(chisto, "mePosxZpPanel2");
   mePosxZpPanel2 = dbe_->book1D(chisto, chisto, 100, xl, xh);
@@ -723,29 +876,67 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
   sprintf(chisto, "meChargeZpPanel2");
   meChargeZpPanel2 = dbe_->book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
   sprintf(chisto, "meResXvsAlphaZpPanel2");
-  meResXvsAlphaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resxh);
+  meResXvsAlphaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resxh, "");
   sprintf(chisto, "meResYvsAlphaZpPanel2");
-  meResYvsAlphaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resyh);	
+  meResYvsAlphaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resyh, "");	
   sprintf(chisto, "meResXvsBetaZpPanel2");
-  meResXvsBetaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resxh);
+  meResXvsBetaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resxh, "");
   sprintf(chisto, "meResYvsBetaZpPanel2");
-  meResYvsBetaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resyh);	
+  meResYvsBetaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resyh, "");	
+ 
   sprintf(chisto, "mePullXvsAlphaZpPanel2");
-  mePullXvsAlphaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, resxl,  resxh);
+  mePullXvsAlphaZpPanel2 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, resxl,  resxh, "");
   sprintf(chisto, "mePullYvsAlphaZpPanel2");
-  mePullYvsAlphaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, resyl,  resyh);	
+  mePullYvsAlphaZpPanel2 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, resyl,  resyh, "");	
   sprintf(chisto, "mePullXvsBetaZpPanel2");
-  mePullXvsBetaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, resxl,  resxh);
+  mePullXvsBetaZpPanel2 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, resxl,  resxh, "");
   sprintf(chisto, "mePullYvsBetaZpPanel2");
-  mePullYvsBetaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, resyl,  resyh);	  
+  mePullYvsBetaZpPanel2 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, resyl,  resyh, "");	  
   sprintf(chisto, "mePullXvsPhiZpPanel2");
-  mePullXvsPhiZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_phil, forward_phih, 100, resxl,  resxh);
+  mePullXvsPhiZpPanel2 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, resxl,  resxh, "");
   sprintf(chisto, "mePullYvsPhiZpPanel2");
-  mePullYvsPhiZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_phil, forward_phih, 100, resyl,  resyh);	
+  mePullYvsPhiZpPanel2 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, resyl,  resyh, "");	
   sprintf(chisto, "mePullXvsEtaZpPanel2");
-  mePullXvsEtaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_etal, forward_pos_etah, 100, resxl,  resxh);
+  mePullXvsEtaZpPanel2 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, resxl,  resxh, "");
   sprintf(chisto, "mePullYvsEtaZpPanel2");
-  mePullYvsEtaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_etal, forward_pos_etah, 100, resyl,  resyh);
+  mePullYvsEtaZpPanel2 
+    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, resyl,  resyh, "");
+
+  // all hits (not only from tracks) 
+  sprintf(chisto, "mePosxBarrel_all_hits");
+  mePosxBarrel_all_hits = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  sprintf(chisto, "mePosyBarrel_all_hits"); 
+  mePosyBarrel_all_hits = dbe_->book1D(chisto, chisto, 100, yl, yh);
+
+  sprintf(chisto, "mePosxZmPanel1_all_hits");
+  mePosxZmPanel1_all_hits = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  sprintf(chisto, "mePosyZmPanel1_all_hits");
+  mePosyZmPanel1_all_hits = dbe_->book1D(chisto, chisto, 100, yl, yh);
+  sprintf(chisto, "mePosxZmPanel2_all_hits");
+  mePosxZmPanel2_all_hits = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  sprintf(chisto, "mePosyZmPanel2_all_hits");
+  mePosyZmPanel2_all_hits = dbe_->book1D(chisto, chisto, 100, yl, yh);
+
+  sprintf(chisto, "mePosxZpPanel1_all_hits");
+  mePosxZpPanel1_all_hits = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  sprintf(chisto, "mePosyZpPanel1_all_hits");
+  mePosyZpPanel1_all_hits = dbe_->book1D(chisto, chisto, 100, yl, yh);
+  sprintf(chisto, "mePosxZpPanel2_all_hits");
+  mePosxZpPanel2_all_hits = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  sprintf(chisto, "mePosyZpPanel2_all_hits");
+  mePosyZpPanel2_all_hits = dbe_->book1D(chisto, chisto, 100, yl, yh);
+
+  // control histograms
+  meTracksPerEvent     = dbe_->book1D("meTracksPerEvent"    , "meTracksPerEvent"    , 10, 0.0, 10.0);
+  mePixRecHitsPerTrack = dbe_->book1D("mePixRecHitsPerTrack", "mePixRecHitsPerTrack",  6, 0.0,  6.0);
+
 }
 
 // Virtual destructor needed.
@@ -757,12 +948,12 @@ SiPixelTrackingRecHitsValid::~SiPixelTrackingRecHitsValid()
 // Functions that gets called by framework every event
 void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
-  //int run = e.id().run();
-  int evt = e.id().event();
+  run = e.id().run();
+  evt = e.id().event();
 
-  //if ( evt%1000 == 0 ) 
-  //cout << "evt = " << evt << endl;
-
+  if ( evt%1000 == 0 ) 
+    cout << "evt = " << evt << endl;
+  
   float math_pi = 3.14159265;
   float radtodeg = 180.0 / math_pi;
     
@@ -781,11 +972,98 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
   if ( !MTCCtrack_ )
     {
+      // --------------------------------------- all hits -----------------------------------------------------------
+      //--- Fetch Pixel RecHits
+      edm::Handle<SiPixelRecHitCollection> recHitColl;
+      e.getByLabel( "siPixelRecHits", recHitColl);
+      
+      //cout <<" ----- Found " 
+      //   << const_cast<SiPixelRecHitCollection*>(recHitColl.product())->size()
+      //   << " Pixel RecHits" << std::endl;
+  
+      //-----Iterate over detunits
+      for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) 
+	{
+	  DetId detId = ((*it)->geographicalId());
+	 
+	  unsigned int subid = detId.subdetId();
+	  if ( !((subid==1) || (subid==2)) ) 
+	    continue; // end subid if
+	  
+	  SiPixelRecHitCollection::range pixelrechitRange = (recHitColl.product())->get(detId);
+	  SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.first;
+	  SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.second;
+	  SiPixelRecHitCollection::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
+	  std::vector<PSimHit> matched;
+	  
+	  //----Loop over rechits for this detId
+	  for ( ; pixeliter != pixelrechitRangeIteratorEnd; ++pixeliter) 
+	    {
+	      LocalPoint lp = pixeliter->localPosition();
+	      float rechitx = lp.x();
+	      float rechity = lp.y();
+	     
+	      detId = (*it)->geographicalId();
+	      subdetId = (int)detId.subdetId();
+	      if ( (int)detId.subdetId() == (int)PixelSubdetector::PixelBarrel ) 
+		{
+		  mePosxBarrel_all_hits->Fill( rechitx );
+		  mePosyBarrel_all_hits->Fill( rechity );
+		}
+	      else if ( (int)detId.subdetId() == (int)PixelSubdetector::PixelEndcap )
+		{
+		  PXFDetId fdetid(detId);
+		  side  = fdetid.side();
+		  disk  = fdetid.disk();
+		  blade = fdetid.blade();
+		  panel = fdetid.panel();
+		  plaq  = fdetid.module(); // also known as plaquette
+		  
+		  if ( side==1 ) 
+		    {
+		      if ( panel==1 )
+			{
+			  mePosxZmPanel1_all_hits->Fill( rechitx );
+			  mePosyZmPanel1_all_hits->Fill( rechity );
+			}
+		      else if ( panel==2 )
+			{
+			  mePosxZmPanel2_all_hits->Fill( rechitx );
+			  mePosyZmPanel2_all_hits->Fill( rechity );
+			}
+		      else std::cout << "..............................................Wrong panel number !" << std::endl; 
+		    } // if ( side==1 ) 
+		  else if ( side==2 )
+		    {
+		      if ( panel==1 )
+			{
+			  mePosxZpPanel1_all_hits->Fill( rechitx );
+			  mePosyZpPanel1_all_hits->Fill( rechity );
+			}
+		       else if ( panel==2 )
+			 {
+			   mePosxZpPanel2_all_hits->Fill( rechitx );
+			   mePosyZpPanel2_all_hits->Fill( rechity );
+			 }
+		       else std::cout << "..............................................Wrong panel number !" << std::endl; 
+		    } //else if ( side==2 )
+		  else std::cout << ".......................................................Wrong side !" << std::endl;
+		  
+		} // else if ( detId.subdetId()==PixelSubdetector::PixelEndcap )
+	      else std::cout << "We are not in the pixel detector" << (int)detId.subdetId() << endl;
+	      
+	    }
+	}
+      // ------------------------------------------------ all hits ---------------------------------------------------------------
+       
       // Get tracks
       edm::Handle<reco::TrackCollection> trackCollection;
       e.getByLabel(src_, trackCollection);
       const reco::TrackCollection *tracks = trackCollection.product();
       reco::TrackCollection::const_iterator tciter;
+
+      int n_tracks = (int)tracks->size(); // number of tracks in this event
+      meTracksPerEvent->Fill( n_tracks );
 
       if ( tracks->size() > 0 )
 	{
@@ -794,7 +1072,8 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    {
 	      phi = tciter->momentum().phi() / math_pi*180.0;
 	      eta = tciter->momentum().eta();
-
+	      
+	      int n_hits = 0;
 	      // First loop on hits: find matched hits
 	      for ( trackingRecHit_iterator it = tciter->recHitsBegin(); it != tciter->recHitsEnd(); it++) 
 		{
@@ -804,6 +1083,8 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 		  
 		  if ( matchedhit ) 
 		    {
+		      ++n_hits;
+		      
 		      layer  = -9999; 
 		      ladder = -9999; 
 		      mod    = -9999; 
@@ -836,11 +1117,9 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 		 
 		      nsimhit = -9999;
 		         
-		      // find alpha abd beta from track direction
-		      // const GeomDet* hitGeomDet = (&(*pDD))->idToDet( machedhit->geographicalId());
-		      // BasicSingleTrajectoryState* bsts = BasicSingleTrajectoryState( hitGeomDet->surface() );
-		      // LocalTrajectoryParameters ltp = bsts.localParameters();
-		      
+		      simhitx = -9999.9;
+		      simhity = -9999.9;
+
 		      position = (*it)->localPosition();
 		      error = (*it)->localPositionError();
 
@@ -867,6 +1146,8 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 			  float distx, disty, dist;
 			  bool found_hit_from_generated_particle = false;
 			  
+			  int n_assoc_muon = 0;
+
 			  vector<PSimHit>::const_iterator closestit = matched.begin();
 			  for (vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++)
 			    {
@@ -887,6 +1168,8 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	
 			      if ( dist < mindist )
 				{
+				  n_assoc_muon++;
+
 				  mindist = dist;
 				  closestit = m;
 				  found_hit_from_generated_particle = true;
@@ -898,8 +1181,16 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 			  if ( checkType_ && !found_hit_from_generated_particle )
 			    continue; 
 			  
-			  float simhitx = 0.5*( (*closestit).entryPoint().x() + (*closestit).exitPoint().x() );
-			  float simhity = 0.5*( (*closestit).entryPoint().y() + (*closestit).exitPoint().y() );
+			  if ( n_assoc_muon > 1 )
+			    {
+			      cout << " ----- This is not good: n_assoc_muon = " << n_assoc_muon << endl;
+			      cout << "evt = " << evt << endl;
+			    }
+
+			  pidhit = (*closestit).particleType();
+
+			  simhitx = 0.5*( (*closestit).entryPoint().x() + (*closestit).exitPoint().x() );
+			  simhity = 0.5*( (*closestit).entryPoint().y() + (*closestit).exitPoint().y() );
 			  
 			  rechitresx = rechitx - simhitx;
 			  rechitresy = rechity - simhity;
@@ -909,10 +1200,19 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 			  float simhitpx = (*closestit).momentumAtEntry().x();
 			  float simhitpy = (*closestit).momentumAtEntry().y();
 			  float simhitpz = (*closestit).momentumAtEntry().z();
+			  			  
+			  //beta  = atan2(simhitpz, simhitpy) * radtodeg;
+			  //alpha = atan2(simhitpz, simhitpx) * radtodeg;
 			  
+			  //if ( alpha > 0.0 )
+			  //continue;
+
+			  //beta  = fabs(beta);
+			  //alpha = fabs(alpha);
+
 			  beta  = fabs(atan2(simhitpz, simhitpy)) * radtodeg;
 			  alpha = fabs(atan2(simhitpz, simhitpx)) * radtodeg;
-			
+		
 			  detId = (*it)->geographicalId();
 
 			  subdetId = (int)detId.subdetId();
@@ -974,12 +1274,38 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 				  mePosxBarrelFlippedLadders->Fill( rechitx );
 				  mePosyBarrelFlippedLadders->Fill( rechity );
 				  flipped = 1;
+				
+				  meResXvsAlphaBarrelFlippedLadders->Fill( alpha, fabs(rechitresx) );
+				  meResYvsAlphaBarrelFlippedLadders->Fill( alpha, fabs(rechitresy) );
+				  meResXvsBetaBarrelFlippedLadders->Fill( beta, fabs(rechitresx) );
+				  meResYvsBetaBarrelFlippedLadders->Fill( beta, fabs(rechitresy) );
+				  mePullXvsAlphaBarrelFlippedLadders->Fill( alpha, rechitpullx );
+				  mePullYvsAlphaBarrelFlippedLadders->Fill( alpha, rechitpully );
+				  mePullXvsBetaBarrelFlippedLadders->Fill( beta, rechitpullx );
+				  mePullYvsBetaBarrelFlippedLadders->Fill( beta, rechitpully );
+				  mePullXvsPhiBarrelFlippedLadders->Fill( phi, rechitpullx );
+				  mePullYvsPhiBarrelFlippedLadders->Fill( phi, rechitpully );
+				  mePullXvsEtaBarrelFlippedLadders->Fill( eta, rechitpullx );
+				  mePullYvsEtaBarrelFlippedLadders->Fill( eta, rechitpully );
 				}
 			      else 
 				{ // not flipped
 				  mePosxBarrelNonFlippedLadders->Fill( rechitx );
 				  mePosyBarrelNonFlippedLadders->Fill( rechity );
 				  flipped = 0;
+				
+				  meResXvsAlphaBarrelNonFlippedLadders->Fill( alpha, fabs(rechitresx) );
+				  meResYvsAlphaBarrelNonFlippedLadders->Fill( alpha, fabs(rechitresy) );
+				  meResXvsBetaBarrelNonFlippedLadders->Fill( beta, fabs(rechitresx) );
+				  meResYvsBetaBarrelNonFlippedLadders->Fill( beta, fabs(rechitresy) );
+				  mePullXvsAlphaBarrelNonFlippedLadders->Fill( alpha, rechitpullx );
+				  mePullYvsAlphaBarrelNonFlippedLadders->Fill( alpha, rechitpully );
+				  mePullXvsBetaBarrelNonFlippedLadders->Fill( beta, rechitpullx );
+				  mePullYvsBetaBarrelNonFlippedLadders->Fill( beta, rechitpully );
+				  mePullXvsPhiBarrelNonFlippedLadders->Fill( phi, rechitpullx );
+				  mePullYvsPhiBarrelNonFlippedLadders->Fill( phi, rechitpully );
+				  mePullXvsEtaBarrelNonFlippedLadders->Fill( eta, rechitpullx );
+				  mePullYvsEtaBarrelNonFlippedLadders->Fill( eta, rechitpully );
 				}
 			          
 			      PXBDetId  bdetid(detId);
@@ -1256,9 +1582,10 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 			} // if ( !matched.empty() )
 		      //else
 		      //cout << "---------------- RecHit with no associated SimHit !!! -------------------------- " << endl;
- 
+		      
 		    } // matchedhit.
 		
+		  mePixRecHitsPerTrack->Fill( n_hits );
 		  //cout << "---- end of loop on hits ----- " << endl;
 		  
 		} // end of loop on hits
