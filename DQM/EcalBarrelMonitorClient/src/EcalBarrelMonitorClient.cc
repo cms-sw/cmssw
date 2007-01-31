@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/01/31 14:26:41 $
- * $Revision: 1.204 $
+ * $Date: 2007/01/31 16:32:00 $
+ * $Revision: 1.205 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -722,6 +722,8 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
       }
     }
   }
+
+  cout << endl;
 
   if ( econn ) {
     try {
