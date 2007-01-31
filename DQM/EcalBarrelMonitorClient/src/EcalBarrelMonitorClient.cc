@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/01/24 08:50:03 $
- * $Revision: 1.202 $
+ * $Date: 2007/01/31 13:50:10 $
+ * $Revision: 1.203 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -707,40 +707,23 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   cout << "====================" << endl;
   cout << endl;
 
-  if ( econn ) {
+  if ( maskFile_.size() != 0 ) {
     try {
-      cout << "Fetching masked channels from DB ... " << flush;
-      EcalErrorMask::readDB(econn, &runiov_);
+      cout << "Fetching masked channels from file ... " << flush;
+      EcalErrorMask::readFile(maskFile_, verbose_);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
-      if ( maskFile_.size() != 0 ) {
-        try {
-          cout << "Fetching masked channels from file ... " << flush;
-          EcalErrorMask::readFile(maskFile_, verbose_);
-          cout << "done." << endl;
-        } catch (runtime_error &e) {
-          cerr << e.what() << endl;
-        }
-      } else {
-        try {
-          EcalErrorMask::readFile(maskFile_, verbose_);
-        } catch (runtime_error &e) { }
-      }
     }
   } else {
-    if ( maskFile_.size() != 0 ) {
+    if ( econn ) {
       try {
-        cout << "Fetching masked channels from file ... " << flush;
-        EcalErrorMask::readFile(maskFile_, verbose_);
-        cout << "done." << endl;
+	cout << "Fetching masked channels from DB ... " << flush;
+	EcalErrorMask::readDB(econn, &runiov_);
+	cout << "done." << endl;
       } catch (runtime_error &e) {
-        cerr << e.what() << endl;
+	cerr << e.what() << endl;
       }
-    } else {
-      try {
-        EcalErrorMask::readFile(maskFile_, verbose_);
-      } catch (runtime_error &e) { }
     }
   }
 
