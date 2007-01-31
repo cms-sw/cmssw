@@ -1,21 +1,14 @@
 #ifndef TrackReco_GsfTransientTrack_h
 #define TrackReco_GsfTransientTrack_h
 //
-// Definition of Transient Track class for 
-// reconstruction posterior to track reconstruction (vertexing, b-tagging...)
+// Definition of Transient Track class for GsfTracks
 //
 
 #include "TrackingTools/TransientTrack/interface/BasicTransientTrack.h"
-#include "DataFormats/TrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
-// #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-// #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-// #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
-// #include "FWCore/Framework/interface/EventSetup.h"
-// #include "FWCore/Framework/interface/ESHandle.h"
-// #include "MagneticField/Engine/interface/MagneticField.h"
-// #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 namespace reco {
 

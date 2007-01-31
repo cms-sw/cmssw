@@ -6,6 +6,7 @@
 <use name=TrackingTools/PatternTools>
 <use name=FWCore/Utilities>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/GsfTrackReco>
 <use name=DataFormats/Math>
 <use name=TrackingTools/Records>
 <use name=DataFormats/Common>
@@ -23,6 +24,7 @@
   <use name=TrackingTools/PatternTools>
   <use name=FWCore/Utilities>
   <use name=DataFormats/TrackReco>
+  <use name=DataFormats/GsfTrackReco>
   <use name=DataFormats/Math>
   <use name=TrackingTools/Records>
   <use name=DataFormats/Common>
