@@ -11,7 +11,7 @@ using std::dec;
 GctBlock::GctBlock(const unsigned char * data) :
   head(GctBlockHeader(data))
 { 
-  for (unsigned i=0; i<head.length()*4; i++) {
+  for (unsigned i=0; i<head.blockLength(); i++) {
     d.push_back(data[i+4]); // +4 to get past header
   }  
 }
@@ -22,7 +22,7 @@ GctBlock::~GctBlock() {
 
 ostream& operator<<(ostream& os, const GctBlock& b) {
   os << "Block :" << b.head;
-  for (unsigned i=0; i<(b.head.length()*4); i=i+4) {
+  for (unsigned i=0; i<(b.head.blockLength()); i=i+4) {
     int val = b.d[i] + (b.d[i+1]<<8) + (b.d[i+2]<<16) + (b.d[i+3]<<24); 
     os << hex << val << dec << endl;
   }

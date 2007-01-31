@@ -15,9 +15,10 @@ class GctBlock {
   ~GctBlock();
   
   unsigned char id() const { return head.id(); }
-  unsigned char length() const { return head.length(); }
+  unsigned char nSamples() const { return head.nSamples(); }
   unsigned int bcId() const { return head.bcId(); }
   unsigned char eventId() const { return head.eventId(); }
+  unsigned char length() const { return head.blockLength(); }
 
   std::vector<unsigned char> data() const { return d; }
 

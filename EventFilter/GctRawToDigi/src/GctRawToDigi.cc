@@ -27,6 +27,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
 
+using std::cout;
 using std::endl;
 using std::vector;
 
@@ -86,6 +87,8 @@ GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
 
+  cout << "Unpacking an event" << endl;
+
   // do a simple check of the raw data
   if (d.size()<16) {
       edm::LogWarning("Invalid Data") << "Empty/invalid GCT raw data, size = " << d.size();
@@ -109,6 +112,8 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   
   GctDaqRecord rcd(d.data(), d.size());
   
+  cout << rcd << endl;
+
 }
 
 
@@ -123,5 +128,3 @@ void
 GctRawToDigi::endJob() {
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(GctRawToDigi);

@@ -1,28 +1,30 @@
-#ifndef GctRawToDigi_h
-#define GctRawToDigi_h
+#ifndef GctVmeToRaw_h
+#define GctVmeToRaw_h
 
 // -*- C++ -*-
 //
-// Package:    GctRawToDigi
-// Class:      GctRawToDigi
+// Package:    GctVmeToRaw
+// Class:      GctVmeToRaw
 // 
-/**\class GctRawToDigi GctRawToDigi.cc GctRawToDigi/GctRawToDigi/src/GctRawToDigi.cc
+/**\class GctVmeToRaw GctVmeToRaw.cc EventFilter/GctRawToDigi/src/GctVmeToRaw.cc
 
- Description: <one line class summary>
+ Description: Convert GCT VME output to Raw data format for unpacking
 
  Implementation:
-     <Notes on implementation>
+     Input format is a 32 bit hex string per line (LSW first). Events separated with blank line.
 */
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.2 2006/12/19 15:23:58 jbrooke Exp $
+// $Id: GctVmeToRaw.h,v 1.2 2006/12/19 15:23:58 jbrooke Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <string>
+#include <fstream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -36,24 +38,22 @@
 // class decleration
 //
 
-class GctRawToDigi : public edm::EDProducer {
+class GctVmeToRaw : public edm::EDProducer {
  public:
-  explicit GctRawToDigi(const edm::ParameterSet&);
-  ~GctRawToDigi();
+  explicit GctVmeToRaw(const edm::ParameterSet&);
+  ~GctVmeToRaw();
   
  private: // methods
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-  
-  void unpack(const FEDRawData& d, edm::Event& e);
 
- private:  // members
+ private:
+  
+  int evtSize_; // store event size
 
-  int fedId_;            // GCT FED ID
-  int nDebugSamples_;    // number of samples per block in debug mode
-  
-  
+  std::string filename_;
+  std::ifstream file_;
 
 };
 
