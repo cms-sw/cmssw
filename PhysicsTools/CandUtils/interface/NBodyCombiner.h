@@ -8,7 +8,6 @@
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include <vector>
@@ -83,10 +82,10 @@ public:
     NBodyCombinerBase( checkCharge, dauCharge ), 
     select_( select ), setup_() { }
   /// constructor from a selector, specifying optionally to check for charge
-  NBodyCombiner( const edm::ParameterSet & cfg,
+  NBodyCombiner( const S & select, const Setup & setup,
 		 bool checkCharge, const std::vector <int> & dauCharge ) : 
     NBodyCombinerBase( checkCharge, dauCharge ), 
-    select_( cfg ), setup_( cfg ) { }
+    select_( select ), setup_( setup ) { }
   /// return reference to setup object to allow its initialization
   Setup & setup() { return setup_; }
 private:
