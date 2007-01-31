@@ -1,0 +1,31 @@
+#include "PluginManager/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "HLTrigger/HLTstaging/interface/HLTJetTag.h"
+#include "HLTrigger/HLTstaging/interface/HLTMuonL1Filter.h"
+#include "HLTrigger/HLTstaging/interface/HLTMuonIsoFilter.h"
+#include "HLTrigger/HLTstaging/interface/HLTTauL25DoubleFilter.h"
+#include "HLTrigger/HLTstaging/interface/HLTEgammaEtFilter.h"
+#include "HLTrigger/HLTstaging/interface/HLTEgammaDoubleEtFilter.h"
+#include "HLTrigger/HLTstaging/interface/HLTEgammaEcalIsolFilter.h"
+#include "HLTrigger/HLTstaging/interface/HLTEgammaHcalIsolFilter.h"
+#include "HLTrigger/HLTstaging/interface/HLTPhotonTrackIsolFilter.h"
+#include "HLTrigger/HLTstaging/interface/HLTElectronTrackIsolFilter.h"
+#include "HLTrigger/HLTstaging/interface/HLTElectronPixelMatchFilter.h"
+#include "HLTrigger/HLTstaging/interface/HLTElectronEoverpFilter.h"
+
+DEFINE_SEAL_MODULE();
+DEFINE_ANOTHER_FWK_MODULE(HLTJetTag);
+DEFINE_ANOTHER_FWK_MODULE(HLTMuonL1Filter);
+DEFINE_ANOTHER_FWK_MODULE(HLTMuonIsoFilter);
+DEFINE_ANOTHER_FWK_MODULE(HLTTauL25DoubleFilter);
+
+
+DEFINE_ANOTHER_FWK_MODULE(HLTEgammaEtFilter);
+DEFINE_ANOTHER_FWK_MODULE(HLTEgammaDoubleEtFilter);
+DEFINE_ANOTHER_FWK_MODULE(HLTEgammaEcalIsolFilter);
+DEFINE_ANOTHER_FWK_MODULE(HLTEgammaHcalIsolFilter);
+DEFINE_ANOTHER_FWK_MODULE(HLTPhotonTrackIsolFilter);
+DEFINE_ANOTHER_FWK_MODULE(HLTElectronTrackIsolFilter);
+DEFINE_ANOTHER_FWK_MODULE(HLTElectronPixelMatchFilter);
+DEFINE_ANOTHER_FWK_MODULE(HLTElectronEoverpFilter);
