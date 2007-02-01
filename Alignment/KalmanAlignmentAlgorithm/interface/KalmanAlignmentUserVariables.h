@@ -43,7 +43,9 @@ public:
   /// Return the number of updates.
   int numberOfUpdates( void ) { return theNumberOfUpdates; }
   /// Call this function in case the associated Alignable was updated by the alignment algorithm.
-  void update( void );
+  void update( bool enforceUpdate = false );
+
+  const string identifier( void ) const { return theIdentifier; }
 
 protected:
 

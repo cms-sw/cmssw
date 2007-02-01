@@ -1,15 +1,19 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/SingleTrajectoryUpdator.h"
 
+#include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentDerivativesExtractor.h"
+
+#include "Utilities/Timing/interface/TimingReport.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include <algorithm>
+
 using namespace std;
 
 
 SingleTrajectoryUpdator::SingleTrajectoryUpdator( const edm::ParameterSet & config ) :
-  KalmanAlignmentUpdator( config )
-{
-  theMaxDistance = config.getParameter< int >( "MaxDistance" );
-  theMetricsCalculator.setMaxDistance( theMaxDistance );
-}
+  KalmanAlignmentUpdator( config ) {}
 
 
 SingleTrajectoryUpdator::~SingleTrajectoryUpdator( void ) {}
@@ -17,80 +21,61 @@ SingleTrajectoryUpdator::~SingleTrajectoryUpdator( void ) {}
 
 void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory,
 				       AlignmentParameterStore* store,
-				       AlignableNavigator* navigator )
+				       AlignableNavigator* navigator,
+				       KalmanAlignmentMetricsUpdator* metrics )
 {
-  cout << "[SingleTrajectoryUpdator::process] number of alignables: " << store->alignables().size() << endl;
-  cout << "[SingleTrajectoryUpdator::process] trajectory->isValid() = " << trajectory->isValid() << endl;
-
   if ( !( *trajectory ).isValid() ) return;
 
-  //vector< AlignableDet* > currentAlignableDets = store->alignableDetsFromHits( ( *trajectory ).recHits() );
-  //vector< AlignableDet* > currentAlignableDets = navigator->alignableDetsFromHits( ( *trajectory ).recHits() );
+  TimeMe* timer;
+  timer = new TimeMe( "Retrieve_Alignables" );
+
   vector< AlignableDet* > currentAlignableDets = alignableDetsFromHits( ( *trajectory ).recHits(), navigator );
-  // init with current AlignableDets and add additional AlignableDets later
-  vector< AlignableDet* > allAlignableDets = currentAlignableDets;
-  vector< AlignableDet* > additionalAlignableDets;
-  vector< AlignableDet* >::iterator itAD; 
-
-  // compute distances
-  theMetricsCalculator.computeDistances( currentAlignableDets );
-
-  map< AlignableDet*, int > updateList;
-  map< AlignableDet*, int >::iterator itUL;
-
-  set< AlignableDet* > alignableDetsFromUpdateList;
-  set< AlignableDet* >::iterator itAUL;
-
-  // make union of all lists
-  for ( itAD = currentAlignableDets.begin(); itAD != currentAlignableDets.end(); itAD++ )
-  {
-    updateList = theMetricsCalculator.getDistances( *itAD );
-    for ( itUL = updateList.begin(); itUL != updateList.end(); itUL++ )
-    {
-      if ( itUL->second <= theMaxDistance ) alignableDetsFromUpdateList.insert( itUL->first );
-    }
-  }
-
-  // make final list of modules for update
-  for ( itAUL = alignableDetsFromUpdateList.begin(); itAUL != alignableDetsFromUpdateList.end(); itAUL++ )
-  {
-    if ( find( allAlignableDets.begin(), allAlignableDets.end(), *itAUL ) == allAlignableDets.end() )
-    {
-      allAlignableDets.push_back( *itAUL );
-      additionalAlignableDets.push_back( *itAUL );
-    }
-  }
-
-  //vector< Alignable* > currentAlignables = store->alignablesFromAlignableDets( currentAlignableDets );
-  //vector< Alignable* > additionalAlignables = store->alignablesFromAlignableDets( additionalAlignableDets );
-  //vector< Alignable* > allAlignables = store->alignablesFromAlignableDets( allAlignableDets );
   vector< Alignable* > currentAlignables = alignablesFromAlignableDets( currentAlignableDets, store );
+
+  delete timer;
+  timer = new TimeMe( "Update_Metrics" );
+
+  metrics->update( currentAlignableDets );
+
+  delete timer;
+  timer = new TimeMe( "Retrieve_Alignables" );
+
+  vector< AlignableDet* > additionalAlignableDets = metrics->additionalAlignableDets( currentAlignableDets );
   vector< Alignable* > additionalAlignables = alignablesFromAlignableDets( additionalAlignableDets, store );
-  vector< Alignable* > allAlignables = alignablesFromAlignableDets( allAlignableDets, store );
 
-  CompositeAlignmentParameters currentParameters = store->selectParameters( currentAlignableDets );
-  AlgebraicSymMatrix currentAlignmentCov = currentParameters.covariance();
+  vector< AlignableDet* > allAlignableDets;
+  allAlignableDets.reserve( currentAlignableDets.size() + additionalAlignableDets.size() );
+  allAlignableDets.insert( allAlignableDets.end(), currentAlignableDets.begin(), currentAlignableDets.end() );
+  allAlignableDets.insert( allAlignableDets.end(), additionalAlignableDets.begin(), additionalAlignableDets.end() );
 
-  CompositeAlignmentParameters additionalParameters = store->selectParameters( additionalAlignableDets );
-  AlgebraicSymMatrix additionalAlignmentCov = additionalParameters.covariance();
+  delete timer;
+  timer = new TimeMe( "Retrieve_Parameters" );
 
-  CompositeAlignmentParameters allParameters = store->selectParameters( allAlignableDets );
-  AlgebraicVector allAlignmentParameters = allParameters.parameters();
-  AlgebraicSymMatrix fullAlignmentCov = allParameters.covariance();
-  AlgebraicMatrix mixedAlignmentCov = allParameters.covarianceSubset( additionalParameters.components(), currentParameters.components() );
-  AlgebraicMatrix alignmentCovSubset = allParameters.covarianceSubset( allParameters.components(), currentParameters.components() );
+  CompositeAlignmentParameters alignmentParameters = store->selectParameters( allAlignableDets );
 
-  //CompositeAlignmentDerivativesExtractor extractor( currentAlignables, currentAlignableDets, ( *trajectory ).trajectoryStates() );
-  //AlgebraicVector correctionTerm = extractor.correctionTerm();
-  //AlgebraicMatrix alignmentDeriv = extractor.derivatives();
-  AlgebraicVector correctionTerm = currentParameters.correctionTerm( ( *trajectory ).trajectoryStates(), currentAlignableDets );
-  AlgebraicMatrix alignmentDeriv = currentParameters.derivatives( ( *trajectory ).trajectoryStates(), currentAlignableDets );
+  delete timer;
+  timer = new TimeMe( "Retrieve_Matrices" );
+
+  const AlgebraicVector& allAlignmentParameters = alignmentParameters.parameters();
+  AlgebraicSymMatrix currentAlignmentCov = alignmentParameters.covarianceSubset( currentAlignables );
+  AlgebraicSymMatrix additionalAlignmentCov = alignmentParameters.covarianceSubset( additionalAlignables );
+  AlgebraicMatrix mixedAlignmentCov = alignmentParameters.covarianceSubset( additionalAlignables, currentAlignables );
+  AlgebraicMatrix alignmentCovSubset = alignmentParameters.covarianceSubset( alignmentParameters.components(), currentAlignables );
+
+  CompositeAlignmentDerivativesExtractor extractor( currentAlignables, currentAlignableDets, ( *trajectory ).trajectoryStates() );
+  AlgebraicVector correctionTerm = extractor.correctionTerm();
+  AlgebraicMatrix alignmentDeriv = extractor.derivatives();
   AlgebraicSymMatrix alignmentCov = currentAlignmentCov.similarity( alignmentDeriv );
 
   AlgebraicVector allMeasurements = ( *trajectory ).measurements();
   AlgebraicSymMatrix measurementCov = ( *trajectory ).measurementErrors();
   AlgebraicVector referenceTrajectory = ( *trajectory ).trajectoryPositions();
   AlgebraicMatrix derivatives = ( *trajectory ).derivatives();
+
+  //measurementCov += 1e-4*AlgebraicSymMatrix( measurementCov.num_row(), 1 );
+
+  delete timer;
+  timer = new TimeMe( "Update_Algo" );
 
   AlgebraicSymMatrix misalignedCov = measurementCov + alignmentCov;
 
@@ -116,15 +101,15 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
   AlgebraicMatrix gainMatrix = covTimesDeriv*limitCov;
 
   // make updates for the kalman-filter
-
   // update of parameters
   AlgebraicVector updatedAlignmentParameters =
     allAlignmentParameters + fullGainMatrix*( allMeasurements - correctionTerm - referenceTrajectory );
 
   // update of covariance
-
   int nCRow = currentAlignmentCov.num_row();
   int nARow = additionalAlignmentCov.num_row();
+
+  AlgebraicSymMatrix updatedAlignmentCov( nCRow + nARow );
 
   AlgebraicMatrix gTimesDeriv = limitCov*alignmentDeriv;
   AlgebraicMatrix simMat = AlgebraicMatrix( nCRow, nCRow, 1 ) - covTimesDeriv*gTimesDeriv;
@@ -136,11 +121,14 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
   AlgebraicSymMatrix additionalUpdateMat = misalignedCov.similarity( gTimesDeriv.T() ) - 2.*limitCov.similarity( alignmentDeriv.T() );
   AlgebraicSymMatrix updatedAdditionalAlignmentCov = additionalAlignmentCov + additionalUpdateMat.similarity( mixedAlignmentCov );
 
-  AlgebraicSymMatrix updatedAlignmentCov( nCRow + nARow, 0 );
-
   for ( int nRow=0; nRow<nCRow; nRow++ )
   {
-    for ( int nCol=0; nCol<nCRow; nCol++ ) updatedAlignmentCov[nRow][nCol] = updatedCurrentAlignmentCov[nRow][nCol];
+    for ( int nCol=0; nCol<=nRow; nCol++ ) updatedAlignmentCov[nRow][nCol] = updatedCurrentAlignmentCov[nRow][nCol];
+  }
+
+  for ( int nRow=0; nRow<nARow; nRow++ )
+  {
+     for ( int nCol=0; nCol<=nRow; nCol++ ) updatedAlignmentCov[nRow+nCRow][nCol+nCRow] = updatedAdditionalAlignmentCov[nRow][nCol];
   }
 
   for ( int nRow=0; nRow<nARow; nRow++ )
@@ -148,19 +136,40 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
     for ( int nCol=0; nCol<nCRow; nCol++ ) updatedAlignmentCov[nRow+nCRow][nCol] = updatedMixedAlignmentCov[nRow][nCol];
   }
 
-  for ( int nRow=0; nRow<nARow; nRow++ )
-  {
-    for ( int nCol=0; nCol<nARow; nCol++ ) updatedAlignmentCov[nRow+nCRow][nCol+nCRow] = updatedAdditionalAlignmentCov[nRow][nCol];
-  }
+  if ( !checkCovariance( updatedAlignmentCov ) ) throw cms::Exception( "LogicError" );
+
+  delete timer;
+  timer = new TimeMe( "Clone_Parameters" );
 
   // update in alignment-interface
   CompositeAlignmentParameters* updatedParameters;
-  updatedParameters = allParameters.clone( updatedAlignmentParameters, updatedAlignmentCov );
+  updatedParameters = alignmentParameters.clone( updatedAlignmentParameters, updatedAlignmentCov );
+
+  delete timer;
+  timer = new TimeMe( "Update_Parameters" );
+
   store->updateParameters( *updatedParameters );
   delete updatedParameters;
 
+  delete timer;
+  timer = new TimeMe( "Update_UserVariables" );
+
   // update user variables for debugging
-  updateUserVariables( allAlignables );
+  updateUserVariables( alignmentParameters.components() );
+  //updateUserVariables( currentAlignables );
+
+  delete timer;
 
   return;
+}
+
+
+bool SingleTrajectoryUpdator::checkCovariance( const AlgebraicSymMatrix& cov ) const
+{
+  for ( int i = 0; i < cov.num_row(); ++i )
+  {
+    if ( cov[i][i] < 0. ) return false;
+  }
+
+  return true;
 }

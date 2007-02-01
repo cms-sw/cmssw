@@ -4,12 +4,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdator.h"
-#include "Alignment/KalmanAlignmentAlgorithm/interface/MetricsCalculator.icc"
 
 using namespace std;
 
 /// A concrete updator for the KalmanAlignmentAlgorithm. It calculates an improved estimate on the
 /// current misalignment from a single ReferenceTrajectory.
+
+
+class CompositeAlignmentParameters;
 
 
 class SingleTrajectoryUpdator : public KalmanAlignmentUpdator
@@ -23,14 +25,14 @@ public:
   /// Calculate the improved estimate.
   virtual void process( const ReferenceTrajectoryPtr & trajectory,
 			AlignmentParameterStore* store,
-			AlignableNavigator* navigator );
+			AlignableNavigator* navigator,
+			KalmanAlignmentMetricsUpdator* metrics );
 
   virtual SingleTrajectoryUpdator* clone( void ) const { return new SingleTrajectoryUpdator( *this ); }
 
 private:
 
-  MetricsCalculator< AlignableDet* > theMetricsCalculator;
-  int theMaxDistance;
+  bool checkCovariance( const AlgebraicSymMatrix& cov ) const;
 };
 
 

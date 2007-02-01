@@ -4,7 +4,7 @@
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/TrajectoryFactoryBase.h"
-
+#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsUpdator.h"
 
 /// Abstract base class for updators for the KalmanAlignmentAlgorithm.
 
@@ -23,7 +23,8 @@ public:
   /// and calculate an improved estimate on the alignment parameters.
   virtual void process( const ReferenceTrajectoryPtr & trajectory,
 			AlignmentParameterStore* store,
-			AlignableNavigator* navigator ) = 0;
+			AlignableNavigator* navigator,
+			KalmanAlignmentMetricsUpdator* metrics ) = 0;
 
   virtual KalmanAlignmentUpdator* clone( void ) const = 0;
 
@@ -32,6 +33,8 @@ protected:
   /// Update the AlignmentUserVariables, given that the Alignables hold KalmanAlignmentUserVariables.
   void updateUserVariables( const std::vector< Alignable* > & alignables ) const;
 
+  /// Returns the Alignables associated with the AlignableDets. If two or more AlignableDets are assiocated
+  /// to the same Alignable, the Alignable is returned only once.
   const std::vector< Alignable* > alignablesFromAlignableDets( const std::vector< AlignableDet* > alignableDets,
 							       AlignmentParameterStore* store ) const;
 

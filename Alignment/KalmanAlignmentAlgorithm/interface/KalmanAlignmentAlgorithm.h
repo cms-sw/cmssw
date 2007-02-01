@@ -5,7 +5,10 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/TrajectoryFactoryBase.h"
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdator.h"
+#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsUpdator.h"
 
+// include for refitting
+#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 
 /// The main class for the Kalman alignment algorithm. It is the stage on which all the protagonists
 /// are playing: the refitter, the trajectory factory and the updator.
@@ -16,7 +19,7 @@ class AlignableNavigator;
 class TrajectoryFitter;
 
 
-class KalmanAlignmentAlgorithm : public AlignmentAlgorithmBase
+class KalmanAlignmentAlgorithm : public AlignmentAlgorithmBase, public TrackProducerBase
 {
 
 public:
@@ -26,32 +29,41 @@ public:
   KalmanAlignmentAlgorithm( const edm::ParameterSet& config );
   virtual ~KalmanAlignmentAlgorithm( void );
 
+  /// Dummy implementation.
+  /// Needed for inheritance of TrackProducerBase, but we don't produce anything.
+  virtual void produce( edm::Event&, const edm::EventSetup& ) {}
+
   virtual void initialize( const edm::EventSetup& setup, 
 			   AlignableTracker* tracker,
+                           AlignableMuon* muon,
 			   AlignmentParameterStore* store );
 
   virtual void terminate( void );
 
   virtual void run( const edm::EventSetup& setup,
-		    const TrajTrackPairCollection& tracks );
-
-  virtual AlgoProductCollection refitTracks( const edm::Event& event,
-					     const edm::EventSetup& setup );
+		    const ConstTrajTrackPairCollection& tracks );
 
 private:
 
   void initializeTrajectoryFitter( const edm::EventSetup& setup );
 
+  void initializeAlignmentParameters( const edm::EventSetup& setup );
+
+  ConstTrajTrackPairCollection refitTracks( const edm::EventSetup& setup,
+					    const ConstTrajTrackPairCollection& tracks );
+
   edm::ParameterSet theConfiguration;
 
   TrajectoryFactoryBase* theTrajectoryFactory;
   KalmanAlignmentUpdator* theAlignmentUpdator;
+  KalmanAlignmentMetricsUpdator* theMetricsUpdator;
 
   AlignmentParameterStore* theParameterStore;
   AlignableNavigator* theNavigator;
 
+  TrackProducerAlgorithm theRefitterAlgo;
   TrajectoryFitter* theTrajectoryRefitter;
-
+  bool theRefitterDebugFlag;
 };
 
 #endif

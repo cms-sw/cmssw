@@ -33,7 +33,9 @@ KalmanAlignmentUpdator::alignablesFromAlignableDets( const std::vector< Alignabl
   std::vector< AlignableDet* >::const_iterator itAD;
   for ( itAD = alignableDets.begin(); itAD != alignableDets.end(); ++itAD )
   {
-    alignables.push_back( store->alignableFromAlignableDet( *itAD ) );
+    Alignable* ali = store->alignableFromAlignableDet( *itAD );
+    if ( find( alignables.begin(), alignables.end(), *itAD ) == alignables.end() )
+      alignables.push_back( ali );
   }
 
   return alignables;

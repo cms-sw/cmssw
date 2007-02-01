@@ -1,10 +1,8 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUserVariables.h"
-#include "Alignment/KalmanAlignmentAlgorithm/interface/DataCollector.h"
+#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
 
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentTransformations.h"
-
-using namespace alignmentservices;
 
 
 KalmanAlignmentUserVariables::KalmanAlignmentUserVariables( Alignable* parent,
@@ -29,7 +27,7 @@ KalmanAlignmentUserVariables::KalmanAlignmentUserVariables( Alignable* parent,
     string strLayer = string( "Layer" ) + toString( iLayer ) + string( "_" );
     string strId =  string( "Id" ) + toString( iId );
 
-    theIdentifier = strName + strType + strLayer + strId;
+    theIdentifier = strType + strLayer + strName + strId;
   }
   else if ( parent )
   {
@@ -39,13 +37,13 @@ KalmanAlignmentUserVariables::KalmanAlignmentUserVariables( Alignable* parent,
 }
 
 
-void KalmanAlignmentUserVariables::update( void )
+void KalmanAlignmentUserVariables::update( bool enforceUpdate )
 {
   if ( theParentAlignable )
   {
     ++theNumberOfUpdates;
 
-    if ( ( ( theNumberOfUpdates % theUpdateFrequency == 0  ) || theFirstUpdate ) && DataCollector::isAvailable() )
+    if ( theNumberOfUpdates%theUpdateFrequency == 0 || theFirstUpdate || enforceUpdate )
     {
       AlgebraicVector parameters = theParentAlignable->alignmentParameters()->selectedParameters();
       AlgebraicSymMatrix covariance = theParentAlignable->alignmentParameters()->selectedCovariance();
@@ -64,13 +62,20 @@ void KalmanAlignmentUserVariables::update( void )
 
 	  if ( theFirstUpdate )
 	  {
-	    DataCollector::fillGraph( string("Delta") + parameterId, 0, -trueParameters[i]/selectedScaling(i) );
-	    DataCollector::fillGraph( string("Sigma") + parameterId, 0, sqrt(covariance[selected][selected])/selectedScaling(i) );
+	    KalmanAlignmentDataCollector::fillGraph( string("Delta") + parameterId, 0,
+						     -trueParameters[i]/selectedScaling(i) );
+
+	    KalmanAlignmentDataCollector::fillGraph( string("Sigma") + parameterId, 0,
+						     sqrt(covariance[selected][selected])/selectedScaling(i) );
 	  }
 	  else
 	  {
-	    DataCollector::fillGraph( string("Delta") + parameterId, theNumberOfUpdates, (parameters[selected]-trueParameters[i])/selectedScaling(i) );
-	    DataCollector::fillGraph( string("Sigma") + parameterId, theNumberOfUpdates, sqrt(covariance[selected][selected])/selectedScaling(i) );
+	    KalmanAlignmentDataCollector::fillGraph( string("Delta") + parameterId, theNumberOfUpdates,
+						     (parameters[selected]-trueParameters[i])/selectedScaling(i) );
+
+	    KalmanAlignmentDataCollector::fillGraph( string("Sigma") + parameterId, theNumberOfUpdates,
+						     sqrt(covariance[selected][selected])/selectedScaling(i) );
+
 	  }
 	  selected++;
 	}
@@ -99,12 +104,12 @@ const AlgebraicVector KalmanAlignmentUserVariables::extractTrueParameters( void 
   LocalVector localShifts( localRotation.multiplyInverse( localDisplacement.basicVector() ) );
 
   AlgebraicVector trueParameters( 6 );
-  trueParameters[0] = localShifts.x();
-  trueParameters[1] = localShifts.y();
-  trueParameters[2] = localShifts.z();
-  trueParameters[3] = localEulerAngles[0];
-  trueParameters[4] = localEulerAngles[1];
-  trueParameters[5] = localEulerAngles[2];
+  trueParameters[0] = -localShifts.x();
+  trueParameters[1] = -localShifts.y();
+  trueParameters[2] = -localShifts.z();
+  trueParameters[3] = -localEulerAngles[0];
+  trueParameters[4] = -localEulerAngles[1];
+  trueParameters[5] = -localEulerAngles[2];
 
   return trueParameters;
 }
