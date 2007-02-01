@@ -28,7 +28,6 @@ bool EcalSimpleSource::produce(edm::Event& evt){
 	if(verbose_) cout << "(" << iEta0 << "," << iPhi0 << "): ";
 	
        EBDataFrame dframe(EBDetId(iEta1,iPhi));
-       //cIndex2iPhi(iPhi0)));
        dframe.setSize(nSamples);
        
        for(int t = 0; t < nSamples; ++t){
@@ -113,7 +112,7 @@ EcalSimpleSource::EcalSimpleSource(const edm::ParameterSet& pset,
     }
     produces<EcalTrigPrimDigiCollection>();
   }
-};
+}
 
 void EcalSimpleSource::replaceAll(std::string& s, const std::string& from,
 				  const std::string& to) const{
