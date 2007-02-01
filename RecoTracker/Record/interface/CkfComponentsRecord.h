@@ -8,6 +8,8 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 
 
 #include "boost/mpl/vector.hpp"
@@ -18,7 +20,9 @@ class CkfComponentsRecord : public edm::eventsetup::DependentRecordImplementatio
 			                       TrackerCPERecord,
 			                       TransientRecHitRecord,
                                                TrackingComponentsRecord,
-			                       TrackerRecoGeometryRecord> > {};
+			                       TrackerRecoGeometryRecord,
+					       SiStripDetCablingRcd,
+					       SiStripNoisesRcd> > {};
 
 #endif 
 
