@@ -46,6 +46,7 @@
 
 #include <exception>
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <vector>
 
@@ -259,8 +260,6 @@ void SMi2oSender::setDestinations()
                     "SMi2oSender::No receiver in configuration");
   }
 }
-
-#include <iomanip>
 
 void SMi2oSender::defaultWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)

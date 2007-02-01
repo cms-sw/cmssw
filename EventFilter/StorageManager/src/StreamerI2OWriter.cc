@@ -31,6 +31,8 @@
 #include "xdaq/ApplicationGroup.h"
 
 #include "xcept/include/xcept/Exception.h"
+#include "xcept/include/xcept/tools.h"
+
 #include "toolbox/include/toolbox/fsm/exception/Exception.h"
 
 #include "toolbox/mem/MemoryPoolFactory.h"
@@ -416,8 +418,6 @@ namespace edm
   }
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-#include "xcept/include/xcept/tools.h"
 
   void StreamerI2OWriter::writeI2OData(EventMsgBuilder const& eventMessage)
   //

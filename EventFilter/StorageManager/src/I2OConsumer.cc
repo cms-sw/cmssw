@@ -54,6 +54,7 @@
 #include "xdata/Double.h"
 
 #include "xcept/tools.h"
+#include "xcept/include/xcept/tools.h"
 
 #include "i2o/Method.h"
 #include "i2o/utils/include/i2o/utils/AddressMap.h"
@@ -509,8 +510,6 @@ namespace edmtest
   }
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-#include "xcept/include/xcept/tools.h"
 
   void I2OConsumer::writeI2OData(const char* buffer, unsigned int size,
                                  edm::RunNumber_t runid, edm::EventNumber_t eventid)
