@@ -1,4 +1,21 @@
-#include "PhysicsTools/HepMCCandAlgos/src/MCTruthCompositeMatcher.h"
+/* \class MCTruthCompositeMatcher
+ *
+ * \author Luca Lista, INFN
+ *
+ */
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
+class MCTruthCompositeMatcher : public edm::EDProducer {
+public:
+  explicit MCTruthCompositeMatcher( const edm::ParameterSet & );
+  ~MCTruthCompositeMatcher();
+private:
+  edm::InputTag src_;
+  edm::InputTag matchMap_;
+  void produce( edm::Event & , const edm::EventSetup & );
+};
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -36,3 +53,7 @@ void MCTruthCompositeMatcher::produce( edm::Event & evt , const edm::EventSetup 
 
   evt.put( matchMap );
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE( MCTruthCompositeMatcher );

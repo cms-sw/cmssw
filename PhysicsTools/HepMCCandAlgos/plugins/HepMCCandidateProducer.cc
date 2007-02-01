@@ -1,5 +1,41 @@
-// $Id: HepMCCandidateProducer.cc,v 1.8 2006/10/29 21:09:39 llista Exp $
-#include "PhysicsTools/HepMCCandAlgos/src/HepMCCandidateProducer.h"
+/** class 
+ *
+ * \author Luca Lista, INFN
+ *
+ * \version $Id: HepMCCandidateProducer.h,v 1.6 2006/11/29 10:47:56 llista Exp $
+ *
+ */
+#include "FWCore/Framework/interface/EDProducer.h"
+#include <string>
+#include <vector>
+#include <set>
+
+class HepMCCandidateProducer : public edm::EDProducer {
+ public:
+  /// constructor
+  HepMCCandidateProducer( const edm::ParameterSet & );
+  /// destructor
+  ~HepMCCandidateProducer();
+
+ private:
+  /// vector of strings
+  typedef std::vector<std::string> vstring;
+  /// module init at begin of job
+  void beginJob( const edm::EventSetup & );
+  /// process one event
+  void produce( edm::Event & , const edm::EventSetup & );
+  /// source collection name  
+  std::string src_;
+  // selects only stable particles (HEPEVT status = 1)
+  bool stableOnly_;
+  /// exclude list
+  vstring excludeList_;
+  /// set of excluded particle id's
+  std::set<int> excludedIds_;
+  /// verbose flag
+  bool verbose_;
+};
+
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
@@ -71,3 +107,6 @@ void HepMCCandidateProducer::produce( Event& evt, const EventSetup& ) {
   evt.put( cands );
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE( HepMCCandidateProducer );
