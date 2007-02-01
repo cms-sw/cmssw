@@ -6,12 +6,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.16 2006/12/11 10:12:03 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.17 2007/01/11 14:01:58 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"

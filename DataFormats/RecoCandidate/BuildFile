@@ -4,6 +4,7 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/HcalRecHit>
+<use name=DataFormats/GsfTrackReco>
 <use name=DataFormats/TrackReco>
 <use name=rootrflx>
 <export>
@@ -12,6 +13,7 @@
   <use name=DataFormats/Candidate>
   <use name=DataFormats/Common>
   <use name=DataFormats/EgammaReco>
+  <use name=DataFormats/GsfTrackReco>
   <use name=DataFormats/TrackReco>
   <lib name=DataFormatsRecoCandidate>
 </export>
