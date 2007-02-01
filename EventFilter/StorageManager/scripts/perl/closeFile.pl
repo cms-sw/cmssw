@@ -16,11 +16,12 @@ sub show_help {  my $exit_status = shift@_;
   =======
   Script to do DB operation for Storage Manager upon closing a file
   - update STATUS to closed
-  - update STOP_TIME 
+  - update STOP_TIME  (default is current time)
+  - update PATHNAME
 
   Syntax:
   =======
-  ./closeFile.pl <file-name> [<status> <stop time>]
+  ./closeFile.pl <file-name> [<status> <stop_time> <path_name>]
 
   - h          to get this help 
 
@@ -48,8 +49,9 @@ sub CurrentTime
 }
 
 ################################################################################
+# command line arguements and defaults
 
-my ($FILENAME,$STATUS) = ("dummy","closed");
+my ($FILENAME,$STATUS,$PATHNAME) = ("dummy","closed","dummy");
 my $STOP_TIME = CurrentTime();
 
 if ("$ARGV[0]" eq "-h") { &show_help(0);          }
@@ -59,6 +61,10 @@ elsif ($#ARGV ==  1)    { $FILENAME  = "$ARGV[0]";
 elsif ($#ARGV ==  2)    { $FILENAME  = "$ARGV[0]"; 
 			  $STATUS    = "$ARGV[1]"; 
 			  $STOP_TIME = "$ARGV[2]";}
+elsif ($#ARGV ==  3)    { $FILENAME  = "$ARGV[0]"; 
+			  $STATUS    = "$ARGV[1]"; 
+			  $STOP_TIME = "$ARGV[2]";
+			  $PATHNAME  = "$ARGV[3]";}
 else                    { &show_help(1);          }
 
 ################################################################################
@@ -76,6 +82,13 @@ my $SQLUPDATE = "UPDATE CMS_STO_MGR_ADMIN.RUN_FILES SET STOP_TIME = '$STOP_TIME'
 my $sth = $dbh->do($SQLUPDATE);
 printf "$SQLUPDATE \n";
 
+if ( $#ARGV ==  3 )
+{
+    my $SQLUPDATE = "UPDATE CMS_STO_MGR_ADMIN.RUN_FILES SET PATHNAME = '$PATHNAME' WHERE FILENAME = '$FILENAME'";
+    my $sth = $dbh->do($SQLUPDATE);
+    printf "$SQLUPDATE \n";
+}
+    
 # Disconnect from DB
 $dbh->disconnect;
 exit 0;
