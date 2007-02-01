@@ -1429,7 +1429,7 @@ void FP420Test::update(const EndOfEvent * evt) {
 
   // ==========================================================================
   if (verbosity > 0) {
-   std::cout << " END OF Event " << (*evt)()->GetEventID() << std::endl;
+   std::cout << "FP420Test:  END OF Event " << (*evt)()->GetEventID() << std::endl;
   }
 
 }
