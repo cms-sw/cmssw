@@ -15,6 +15,11 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+
 #include <string>
 #include <memory>
 
@@ -34,7 +39,20 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   std::string pixelCPEName = pset_.getParameter<std::string>("PixelCPE");
   std::string stripCPEName = pset_.getParameter<std::string>("StripCPE");
   std::string matcherName  = pset_.getParameter<std::string>("HitMatcher");
+  
+  const SiStripNoises *ptr_stripNoises = 0;
+  edm::ESHandle<SiStripNoises>	stripNoises;
+  if (pset_.getParameter<bool>("UseStripNoiseDB")) {
+     iRecord.getRecord<SiStripNoisesRcd>().get(stripNoises);
+     ptr_stripNoises = stripNoises.product();	
+  }
 
+  const SiStripDetCabling *ptr_stripCabling = 0;
+  edm::ESHandle<SiStripDetCabling>		stripCabling;
+  if (pset_.getParameter<bool>("UseStripCablingDB")) {
+    iRecord.getRecord<SiStripDetCablingRcd>().get(stripCabling);
+    ptr_stripCabling = stripCabling.product();	
+  }
   
   edm::ESHandle<PixelClusterParameterEstimator> pixelCPE;
   edm::ESHandle<StripClusterParameterEstimator> stripCPE;
@@ -55,7 +73,9 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 										      stripCPE.product(),
 										      hitMatcher.product(),
 										      trackerGeom.product(),
-										      geometricSearchTracker.product()) ); 
+										      geometricSearchTracker.product(),
+										      ptr_stripCabling,
+										      ptr_stripNoises) ); 
   return _measurementTracker;
 }
 

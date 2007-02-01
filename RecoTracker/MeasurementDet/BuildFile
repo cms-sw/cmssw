@@ -20,6 +20,8 @@
  <use name=RecoTracker/GeometryESProducer>
  <use name=RecoLocalTracker/Records>
  <use name=RecoTracker/Record>
+ <use name=TrackingTools/TransientTrackingRecHit>
+ <use name=CalibFormats/SiStripObjects>
 </export>
 
 <use name=TrackingTools/MeasurementDet>
@@ -42,5 +44,9 @@
 <use name=RecoTracker/GeometryESProducer>
 <use name=RecoLocalTracker/Records>
 <use name=RecoTracker/Record>
+<use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/Records>
+<use name=TrackingTools/TransientTrackingRecHit>
+<use name=FWCore/MessageLogger>
 
 <flags SEAL_PLUGIN_NAME="RecoTrackerMeasurementDet">

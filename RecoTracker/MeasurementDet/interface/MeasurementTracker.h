@@ -6,16 +6,26 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 #include <map>
 #include <vector>
 
+class StrictWeakOrdering{
+ public:
+  bool operator() ( uint32_t p,const uint32_t& i) const {return p < i;}
+};
 class TkStripMeasurementDet;
 class TkPixelMeasurementDet;
 class TkGluedMeasurementDet;
@@ -31,9 +41,11 @@ public:
 		     const StripClusterParameterEstimator* stripCPE,
 		     const SiStripRecHitMatcher*  hitMatcher,
 		     const TrackerGeometry*  trackerGeom,
-		     const GeometricSearchTracker* geometricSearchTracker);
+		     const GeometricSearchTracker* geometricSearchTracker,
+		     const SiStripDetCabling *stripCabling,
+		     const SiStripNoises *stripNoises);
 
-  virtual ~MeasurementTracker() {}
+  virtual ~MeasurementTracker() { if (dummyStripNoises) delete dummyStripNoises; }
  
   void update( const edm::Event&) const;
 
@@ -69,6 +81,7 @@ private:
   const SiStripRecHitMatcher*           theHitMatcher;
   const TrackerGeometry*                theTrackerGeom;
   const GeometricSearchTracker*         theGeometricSearchTracker;
+  mutable SiStripNoises*                dummyStripNoises;  // not const
 
   void initialize() const;
 
@@ -83,6 +96,8 @@ private:
 
   void addStripDets( const TrackingGeometry::DetContainer& dets) const;
 
+  void initializeStripStatus (const SiStripDetCabling *stripCabling) const;
+  void initializeStripNoises (const SiStripNoises *stripNoises) const;
 };
 
 #endif
