@@ -62,8 +62,8 @@
 
 #include <string>
 
-using namespace std;
-using namespace edm;
+//using namespace std;
+//using namespace edm;
 
 class TTree;
 class TFile;
