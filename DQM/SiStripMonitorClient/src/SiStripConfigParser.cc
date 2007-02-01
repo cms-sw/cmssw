@@ -2,6 +2,8 @@
 #include "DQMServices/ClientConfig/interface/ParserFunctions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+
+using namespace xercesc;
 using namespace std;
 
 //
