@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "HLTrigger/Egamma/interface/HLTEgammaL1MatchFilter.h"
+#include "HLTrigger/Egamma/interface/HLTEgammaL1RelaxedMatchFilter.h"
 #include "HLTrigger/Egamma/interface/HLTEgammaEtFilter.h"
 #include "HLTrigger/Egamma/interface/HLTEgammaDoubleEtFilter.h"
 #include "HLTrigger/Egamma/interface/HLTEgammaEcalIsolFilter.h"
@@ -13,6 +14,7 @@
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaL1MatchFilter);
+DEFINE_ANOTHER_FWK_MODULE(HLTEgammaL1RelaxedMatchFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaEtFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaDoubleEtFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaEcalIsolFilter);

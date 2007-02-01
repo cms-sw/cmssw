@@ -1,12 +1,12 @@
-/** \class HLTEgammaL1MatchFilter
+/** \class HLTEgammaL1RelaxedMatchFilter
  *
- * $Id: HLTEgammaL1MatchFilter.cc,v 1.1 2007/01/30 13:42:47 monicava Exp $
+ * $Id: $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
  */
 
-#include "HLTrigger/Egamma/interface/HLTEgammaL1MatchFilter.h"
+#include "HLTrigger/Egamma/interface/HLTEgammaL1RelaxedMatchFilter.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 
@@ -30,28 +30,29 @@
 //
 // constructors and destructor
 //
-HLTEgammaL1MatchFilter::HLTEgammaL1MatchFilter(const edm::ParameterSet& iConfig)
+HLTEgammaL1RelaxedMatchFilter::HLTEgammaL1RelaxedMatchFilter(const edm::ParameterSet& iConfig)
 {
    candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
-   l1Tag_ = iConfig.getParameter< edm::InputTag > ("l1Tag");
+   l1IsolTag_ = iConfig.getParameter< edm::InputTag > ("l1IsolTag");
+   l1NonIsolTag_ = iConfig.getParameter< edm::InputTag > ("l1NonIsolTag");
    ncandcut_  = iConfig.getParameter<int> ("ncandcut");
 
    region_eta_size_      = iConfig.getParameter<double> ("region_eta_size");
    region_eta_size_ecap_ = iConfig.getParameter<double> ("region_eta_size_ecap");
    region_phi_size_      = iConfig.getParameter<double> ("region_phi_size");
    barrel_end_           = iConfig.getParameter<double> ("barrel_end");   
-   endcap_end_           = iConfig.getParameter<double> ("endcap_end");   
+   endcap_end_           = iConfig.getParameter<double> ("endcap_end");  
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
 }
 
-HLTEgammaL1MatchFilter::~HLTEgammaL1MatchFilter(){}
+HLTEgammaL1RelaxedMatchFilter::~HLTEgammaL1RelaxedMatchFilter(){}
 
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaL1MatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTEgammaL1RelaxedMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // The filter object
   std::auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs(path(),module()));
@@ -61,26 +62,28 @@ HLTEgammaL1MatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   // Get the recoEcalCandidates
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcands;
   iEvent.getByLabel(candTag_,recoecalcands);
-  //Get the L1 EM Particle Collection
-  edm::Handle< l1extra::L1EmParticleCollection > emColl ;
-  iEvent.getByLabel(l1Tag_, emColl ) ;
+  //Get the L1 Isol EM Particle Collection
+  edm::Handle< l1extra::L1EmParticleCollection > emIsolColl ;
+  iEvent.getByLabel(l1IsolTag_, emIsolColl ) ;
+  //Get the L1 NonIsol EM Particle Collection
+  edm::Handle< l1extra::L1EmParticleCollection > emNonIsolColl ;
+  iEvent.getByLabel(l1NonIsolTag_, emNonIsolColl ) ;
   // Get the CaloGeometry
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
   iSetup.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
 
-
   // look at all candidates,  check cuts and add to filter object
   int n(0);
 
-  for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoecalcands->begin(); recoecalcand!=recoecalcands->end(); recoecalcand++) {
 
+  for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoecalcands->begin(); recoecalcand!=recoecalcands->end(); recoecalcand++) {
+    
     bool MATCHEDSC = false;
 
     if(fabs(recoecalcand->eta()) < endcap_end_){
       //SC should be inside the ECAL fiducial volume
-
-      for( l1extra::L1EmParticleCollection::const_iterator emItr = emColl->begin(); emItr != emColl->end() ;++emItr ){
-
+    
+      for( l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl->begin(); emItr != emIsolColl->end() ;++emItr ){
 	//ORCA matching method
 	double etaBinLow  = 0.;
 	double etaBinHigh = 0.;	
@@ -102,7 +105,29 @@ HLTEgammaL1MatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 	   recoecalcand->phi() < phiBinHigh && recoecalcand->phi() > phiBinLow){
 	  MATCHEDSC = true;
 	}
-	
+      }
+
+      for( l1extra::L1EmParticleCollection::const_iterator emItr = emNonIsolColl->begin(); emItr != emNonIsolColl->end() ;++emItr ){
+	//ORCA matching method
+	double etaBinLow  = 0.;
+	double etaBinHigh = 0.;	
+	if(fabs(recoecalcand->eta()) < barrel_end_){
+	  etaBinLow = emItr->eta() - region_eta_size_/2.;
+	  etaBinHigh = etaBinLow + region_eta_size_;
+	}
+	else{
+	  etaBinLow = emItr->eta() - region_eta_size_ecap_/2.;
+	  etaBinHigh = etaBinLow + region_eta_size_ecap_;
+	}
+	double phiBinLow  = emItr->phi() - region_phi_size_/2.;
+	double phiBinHigh = phiBinLow + region_phi_size_; 
+	if(phiBinLow<0.)  phiBinLow += 2*M_PI;
+	if(phiBinHigh<0.) phiBinHigh += 2*M_PI;
+
+	if(recoecalcand->eta() < etaBinHigh && recoecalcand->eta() > etaBinLow &&
+	   recoecalcand->phi() < phiBinHigh && recoecalcand->phi() > phiBinLow){
+	  MATCHEDSC = true;
+	}
       }
       
       if(MATCHEDSC) {
@@ -110,13 +135,12 @@ HLTEgammaL1MatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 	ref=edm::RefToBase<reco::Candidate>(reco::RecoEcalCandidateRef(recoecalcands,distance(recoecalcands->begin(),recoecalcand)));
 	filterproduct->putParticle(ref);
       }
-
+      
     }
     
   }
-  
-  
-  
+
+
   // filter decision
   bool accept(n>=ncandcut_);
   

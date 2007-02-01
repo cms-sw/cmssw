@@ -1,7 +1,7 @@
-#ifndef HLTEgammaL1MatchFilter_h
-#define HLTEgammaL1MatchFilter_h
+#ifndef HLTEgammaL1RelaxedMatchFilter_h
+#define HLTEgammaL1RelaxedMatchFilter_h
 
-/** \class HLTEgammaL1MatchFilter
+/** \class HLTEgammaL1RelaxedMatchFilter
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -13,16 +13,17 @@
 // class decleration
 //
 
-class HLTEgammaL1MatchFilter : public HLTFilter {
+class HLTEgammaL1RelaxedMatchFilter : public HLTFilter {
 
    public:
-      explicit HLTEgammaL1MatchFilter(const edm::ParameterSet&);
-      ~HLTEgammaL1MatchFilter();
+      explicit HLTEgammaL1RelaxedMatchFilter(const edm::ParameterSet&);
+      ~HLTEgammaL1RelaxedMatchFilter();
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
       edm::InputTag candTag_; // input tag identifying product contains egammas
-      edm::InputTag l1Tag_; // input tag identifying product contains egammas
+      edm::InputTag l1IsolTag_; 
+      edm::InputTag l1NonIsolTag_;
       int    ncandcut_;        // number of egammas required
       // L1 matching cuts
       double region_eta_size_;
@@ -32,4 +33,4 @@ class HLTEgammaL1MatchFilter : public HLTFilter {
       double endcap_end_;
 };
 
-#endif //HLTEgammaL1MatchFilter_h
+#endif //HLTEgammaL1RelaxedMatchFilter_h
