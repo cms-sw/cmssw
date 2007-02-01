@@ -14,6 +14,8 @@
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/Vector/interface/LocalPoint.h"
 
+using namespace std;
+using namespace edm;
 
 SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
 

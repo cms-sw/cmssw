@@ -11,8 +11,8 @@
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 
-
-
+using namespace std;
+using namespace edm;
 
 SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
   

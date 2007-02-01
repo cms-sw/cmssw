@@ -19,20 +19,16 @@
 
 #include <string>
 
-using namespace std;
-using namespace edm;
-
-
-class  SiStripDigiValid: public EDAnalyzer {
+class  SiStripDigiValid: public edm::EDAnalyzer {
 
  public:
 
-    SiStripDigiValid(const ParameterSet& ps);
+    SiStripDigiValid(const edm::ParameterSet& ps);
     ~SiStripDigiValid();
 
  protected:
-     void analyze(const Event& e, const EventSetup& c);
-     void beginJob(const EventSetup& c);
+     void analyze(const edm::Event& e, const edm::EventSetup& c);
+     void beginJob(const edm::EventSetup& c);
      void endJob(void);
 
  private:
@@ -183,7 +179,7 @@ class  SiStripDigiValid: public EDAnalyzer {
 
     //Back-End Interface
     DaqMonitorBEInterface* dbe_;
-    string outputFile_;
+    std::string outputFile_;
     edm::InputTag src_;
 };
 

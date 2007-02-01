@@ -17,25 +17,21 @@
 
 #include <string>
 
-using namespace std;
-using namespace edm;
-
-
-class  SiPixelDigiValid: public EDAnalyzer {
+class  SiPixelDigiValid: public edm::EDAnalyzer {
 
  public:
     
-    SiPixelDigiValid(const ParameterSet& ps);
+    SiPixelDigiValid(const edm::ParameterSet& ps);
     ~SiPixelDigiValid();
 
  protected:
-     void analyze(const Event& e, const EventSetup& c);
-     void beginJob(const EventSetup& c);
+     void analyze(const edm::Event& e, const edm::EventSetup& c);
+     void beginJob(const edm::EventSetup& c);
      void endJob(void);
 
  private:
 
-  string outputFile_;
+  std::string outputFile_;
 
   //////Barrel Pixel
   /* 1st Layer */
