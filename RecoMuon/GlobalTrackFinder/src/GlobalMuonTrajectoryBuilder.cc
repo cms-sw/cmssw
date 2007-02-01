@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/01/30 19:35:43 $
- *  $Revision: 1.71 $
+ *  $Date: 2007/01/31 19:55:14 $
+ *  $Revision: 1.72 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -68,7 +68,6 @@
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackReFitter.h"
-#include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"

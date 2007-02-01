@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2006/12/11 00:03:41 $
- *  $Revision: 1.34 $
+ *  $Date: 2007/01/16 17:02:47 $
+ *  $Revision: 1.35 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  *  \author Adam Everett - Purdue University
@@ -11,6 +11,7 @@
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrackMatcher.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -24,7 +25,6 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
-
 using namespace std;
 using namespace edm;
 using namespace reco;
@@ -34,9 +34,6 @@ using namespace reco;
 GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(const edm::ParameterSet& par, 
                                                const MuonServiceProxy* service) : 
    theService(service) {
-  
-  ParameterSet updatorPSet = par.getParameter<ParameterSet>("UpdatorParameters");
-  theUpdator = new MuonUpdatorAtVertex(updatorPSet,theService);
   
   theMaxChi2 =  par.getParameter<double>("Chi2CutTrackMatcher");
   theMinP = 2.5;
@@ -56,9 +53,6 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(const edm::ParameterSet& par,
 //
 //
 GlobalMuonTrackMatcher::~GlobalMuonTrackMatcher() {
-
-  if (theUpdator) delete theUpdator;
-
 }
 
 
@@ -212,14 +206,23 @@ GlobalMuonTrackMatcher::convertToTSOS(const TrackCand& staCand,
 
   if( !innerMuTsos.isValid() || !outerTkTsos.isValid() ) return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(innerMuTsos,outerTkTsos);
 
+  // FIXME!! This is a patch in order to remove the MuonUpdatorAtVertex. This patch reproduces *exactly* the
+  // previous code, which was not correct by itself in the muon part (OK the tracker one). The "problem" is 
+  // that the innermostState doesn't know the effect of the vertex constraint.
+  // How to proceed to the fixing in the muon part: 
+  // take the state updated at vertx and propagate it on the outer tracker bound. To do this last step 
+  // the propagator must be changed: "SmartPropagatorOpposite" -> "SmartPropagator"
+  
   // extrapolate innermost standalone TSOS to outer tracker surface
-  TrajectoryStateOnSurface tkTsosFromMu = theUpdator->stateAtTracker(innerMuTsos);
 
+  StateOnTrackerBound fromMu(&*theService->propagator("SmartPropagatorOpposite"));
+  TrajectoryStateOnSurface tkTsosFromMu = fromMu(innerMuTsos);
+  
   // extrapolate outermost tracker measurement TSOS to outer tracker surface
-  TrajectoryStateOnSurface tkTsosFromTk = theUpdator->stateAtTracker(outerTkTsos);
-  
+  StateOnTrackerBound fromTk(&*theService->propagator("SmartPropagator"));
+  TrajectoryStateOnSurface tkTsosFromTk = fromTk(outerTkTsos);
+
   return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(tkTsosFromMu, tkTsosFromTk);
-  
 }
 
 

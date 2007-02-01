@@ -3,8 +3,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2006/11/10 17:27:21 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/01/03 21:59:56 $
+ *  $Revision: 1.10 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -56,6 +56,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "RecoMuon/GlobalMuonProducer/src/GlobalMuonMonitorInterface.h"
+#include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
 
 using namespace std;
 using namespace edm;
@@ -70,12 +71,11 @@ TrackerSeedGenerator::TrackerSeedGenerator(const edm::ParameterSet& par, const M
   theVertexErr(GlobalError(0.0001,0.0,0.0001,0.0,0.0,28.09)),
   combinatorialSeedGenerator(par)
 {
-  ParameterSet updatorPSet = par.getParameter<ParameterSet>("UpdatorParameters");
-  theUpdator = new MuonUpdatorAtVertex(updatorPSet,theService);
+  theUpdator = new MuonUpdatorAtVertex(par.getParameter<string>("UpdatorPropagator"),theService);
 
   theErrorRescale = par.getParameter<double>("ErrorRescaleFactor");
   theOption = par.getParameter<int>("SeedOption");
-  hitProducer = par.getParameter<std::string>("HitProducer");
+  hitProducer = par.getParameter<string>("HitProducer");
   theMaxSeeds = par.getParameter<int>("MaxSeeds");
 
   //ParameterSet pixelPSet = par.getParameter<ParameterSet>("PixelParameters");
@@ -132,7 +132,8 @@ void TrackerSeedGenerator::setEvent(const edm::Event &event)
 }
 
 //
-BTSeedCollection TrackerSeedGenerator::trackerSeeds(const Trajectory& muon, const RectangularEtaPhiTrackingRegion& rectRegion) {
+TrackerSeedGenerator::BTSeedCollection 
+TrackerSeedGenerator::trackerSeeds(const Trajectory& muon, const RectangularEtaPhiTrackingRegion& rectRegion) {
    theSeeds.clear();
    findSeeds(muon,rectRegion);
    return BTSeedCollection(theSeeds);
@@ -153,9 +154,29 @@ void TrackerSeedGenerator::findSeeds(const Trajectory& muon, const RectangularEt
 
   // propagate to the outer tracker surface (r = 123.3cm, halfLength = 293.5cm)
   //MuonUpdatorAtVertex updator;
-  MuonVertexMeasurement vm = theUpdator->update(traj);
-  TrajectoryStateOnSurface traj_trak = vm.stateAtTracker();
   
+
+  //<<< Very important FIXME!
+  // This is a patch to get the same result as before the vertex constraint in the STA reco had been applied.
+  // The correct way to proceed is pass DIRECTLY the state at vertex and then get the state on tracker
+  // bound. The current patch is correct, but passing directly the state a lot of time can be saved.
+
+  // Propagate and update the trajectory at vertex
+  pair<bool,FreeTrajectoryState> ftsVTX = 
+    theUpdator->propagateWithUpdate(traj,GlobalPoint(0.,0.,0.));
+  
+  if (!ftsVTX.first) return;
+  
+  // Get the Tracker bounds, since the propagation goes from the vertex to the tracker
+  // it is always along momentum
+  StateOnTrackerBound tracker( &*theService->propagator("SmartPropagator") );
+  
+  // Get the state at the tracker bound
+  TrajectoryStateOnSurface traj_trak = tracker(ftsVTX.second);
+  
+  //>>>
+
+
   if ( !traj_trak.isValid() ) return;
 
   // rescale errors
@@ -210,10 +231,10 @@ void TrackerSeedGenerator::findLayerList(const TrajectoryStateOnSurface& traj) {
   // we start from the outer surface of the tracker so it's oppositeToMomentum
 
   // barrel
-  const std::vector<BarrelDetLayer*>& barrel = theGeoTracker->barrelLayers();
+  const vector<BarrelDetLayer*>& barrel = theGeoTracker->barrelLayers();
 
   int layercounter = 0;
-  for (std::vector<BarrelDetLayer*>::const_iterator ilayer = barrel.begin(); ilayer != barrel.end(); ilayer++ ) {
+  for (vector<BarrelDetLayer*>::const_iterator ilayer = barrel.begin(); ilayer != barrel.end(); ilayer++ ) {
     layercounter++;
  
     const BoundCylinder& sur = (*ilayer)->specificSurface();    
@@ -229,10 +250,10 @@ void TrackerSeedGenerator::findLayerList(const TrajectoryStateOnSurface& traj) {
   float z = traj.globalPosition().z();
   if ( fabs(z) > 100 ) {
  
-    const std::vector<ForwardDetLayer*>& endcap = theGeoTracker->forwardLayers();
+    const vector<ForwardDetLayer*>& endcap = theGeoTracker->forwardLayers();
  
     layercounter = 0;
-    for (std::vector<ForwardDetLayer*>::const_iterator ilayer = endcap.begin(); ilayer != endcap.end(); ilayer++ ) {
+    for (vector<ForwardDetLayer*>::const_iterator ilayer = endcap.begin(); ilayer != endcap.end(); ilayer++ ) {
       float zl = (*ilayer)->position().z();
       if ( zl*z < 0 ) continue;
       layercounter++;
@@ -291,7 +312,7 @@ void TrackerSeedGenerator::primitiveSeeds(const Trajectory& muon,
       double maxChi2 = 150.0;
       Chi2MeasurementEstimator aEstimator(maxChi2);
       
-      const std::vector<TrajectoryMeasurement> meas = 
+      const vector<TrajectoryMeasurement> meas = 
 	theLayerMeasurements->measurements((*layer),start,*thePropagator,aEstimator); 
       //?FIXME: no fast version for layer
       
@@ -389,14 +410,14 @@ void TrackerSeedGenerator::createSeed(const MuonSeedDetLayer& outer,
     Chi2MeasurementEstimator aEstimator(maxChi2);
 
     //?FIXME: no fast version for layer    
-    const std::vector<TrajectoryMeasurement> measA = 
+    const vector<TrajectoryMeasurement> measA = 
       theLayerMeasurements->measurements((*outerlayer),start1,*thePropagator,aEstimator); 
-    const std::vector<TrajectoryMeasurement> measB = 
+    const vector<TrajectoryMeasurement> measB = 
       theLayerMeasurements->measurements((*innerlayer),start2,*thePropagator,aEstimator); 
     
     //?FIXME method not implemented in TrackingRegion    
-    //const std::vector<TransientTrackingRecHit> meas1;// = regionOfInterest.hits(outerlayer);
-    //const std::vector<TransientTrackingRecHit> meas2;// = regionOfInterest.hits(innerlayer);
+    //const vector<TransientTrackingRecHit> meas1;// = regionOfInterest.hits(outerlayer);
+    //const vector<TransientTrackingRecHit> meas2;// = regionOfInterest.hits(innerlayer);
     
     TransientTrackingRecHit::RecHitContainer layerRecHitsA;
     TransientTrackingRecHit::RecHitContainer layerRecHitsB;
@@ -458,7 +479,7 @@ void TrackerSeedGenerator::pixelSeeds(const Trajectory& muon,
                                       const RectangularEtaPhiTrackingRegion& regionOfInterest,
                                       float deltaEta, float deltaPhi) {
   
-  //std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
+  //auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
   vector<TrajectorySeed> ss;
   
   RectangularEtaPhiTrackingRegion region = RectangularEtaPhiTrackingRegion(regionOfInterest);

@@ -4,8 +4,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2006/11/10 17:27:21 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/01/03 21:59:57 $
+ *  $Revision: 1.8 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -39,74 +39,74 @@ class GlobalMuonMonitorInterface;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-typedef std::vector<TrajectorySeed> BTSeedCollection;
-
 class TrackerSeedGenerator {
 
-  public:
-    /// constructor
-    TrackerSeedGenerator(const edm::ParameterSet& par, const MuonServiceProxy*);
-    /// destructor
-    virtual ~TrackerSeedGenerator();
+ public:
+  typedef std::vector<TrajectorySeed> BTSeedCollection;  
+  
+  /// constructor
+  TrackerSeedGenerator(const edm::ParameterSet& par, const MuonServiceProxy*);
+  /// destructor
+  virtual ~TrackerSeedGenerator();
 
-    BTSeedCollection trackerSeeds(const Trajectory&, const RectangularEtaPhiTrackingRegion&);
+  BTSeedCollection trackerSeeds(const Trajectory&, const RectangularEtaPhiTrackingRegion&);
     
-    void setEvent(const edm::Event&);
+  void setEvent(const edm::Event&);
 
-  private:
-    /// create seeds from muon trajectory
-    void findSeeds(const Trajectory&, const RectangularEtaPhiTrackingRegion&); 
+ private:
+  /// create seeds from muon trajectory
+  void findSeeds(const Trajectory&, const RectangularEtaPhiTrackingRegion&); 
 
-    void findLayerList(const TrajectoryStateOnSurface& traj);
+  void findLayerList(const TrajectoryStateOnSurface& traj);
 
-    void primitiveSeeds(const Trajectory&, 
-                        const TrajectoryStateOnSurface&);
+  void primitiveSeeds(const Trajectory&, 
+		      const TrajectoryStateOnSurface&);
 
-    void consecutiveHitsSeeds(const Trajectory&, 
-                              const TrajectoryStateOnSurface&, 
-                              const edm::EventSetup&,
-                              const TrackingRegion&);
+  void consecutiveHitsSeeds(const Trajectory&, 
+			    const TrajectoryStateOnSurface&, 
+			    const edm::EventSetup&,
+			    const TrackingRegion&);
 
-    void createSeed(const MuonSeedDetLayer& outer,
-                    const MuonSeedDetLayer& inner,
-                    const edm::EventSetup&,
-                    const TrackingRegion& regionOfInterest);
+  void createSeed(const MuonSeedDetLayer& outer,
+		  const MuonSeedDetLayer& inner,
+		  const edm::EventSetup&,
+		  const TrackingRegion& regionOfInterest);
 
-    void pixelSeeds(const Trajectory&, 
-                    const TrajectoryStateOnSurface&, 
-		    const RectangularEtaPhiTrackingRegion&,
-                    float deltaEta, float deltaPhi);
+  void pixelSeeds(const Trajectory&, 
+		  const TrajectoryStateOnSurface&, 
+		  const RectangularEtaPhiTrackingRegion&,
+		  float deltaEta, float deltaPhi);
 
-    //Propagator* thePropagator;
-    //Propagator* theStepPropagator;
-    //SeedGeneratorFromTrackingRegion* theSeedGenerator;
-    MuonUpdatorAtVertex* theUpdator;
+  //Propagator* thePropagator;
+  //Propagator* theStepPropagator;
+  //SeedGeneratorFromTrackingRegion* theSeedGenerator;
+  MuonUpdatorAtVertex* theUpdator;
 
-    //ReconstructionDirection theDirection;
-    int theOption;
-    //bool theUseVertex;
-    int theMaxSeeds;
-    //int theMaxLayers;
-    float theErrorRescale;
-    std::vector<MuonSeedDetLayer> theLayerList;
-    BTSeedCollection theSeeds;
-    //edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-    //edm::ESHandle<MagneticField> theField;
-    //GeometricSearchTracker* theGeoTracker;
-    //const LayerMeasurements* theLayerMeasurements;
-    //const MeasurementTracker* theMeasurementTracker;
+  //ReconstructionDirection theDirection;
+  int theOption;
+  //bool theUseVertex;
+  int theMaxSeeds;
+  //int theMaxLayers;
+  float theErrorRescale;
+  std::vector<MuonSeedDetLayer> theLayerList;
+  BTSeedCollection theSeeds;
+  //edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+  //edm::ESHandle<MagneticField> theField;
+  //GeometricSearchTracker* theGeoTracker;
+  //const LayerMeasurements* theLayerMeasurements;
+  //const MeasurementTracker* theMeasurementTracker;
 
 
-    edm::Handle<SiPixelRecHitCollection> pixelHits;
-    std::string hitProducer;
+  edm::Handle<SiPixelRecHitCollection> pixelHits;
+  std::string hitProducer;
 
-    const MuonServiceProxy *theService;
-    GlobalPoint theVertexPos;
-    GlobalError theVertexErr;
-    CombinatorialRegionalSeedGeneratorFromPixel  combinatorialSeedGenerator;
+  const MuonServiceProxy *theService;
+  GlobalPoint theVertexPos;
+  GlobalError theVertexErr;
+  CombinatorialRegionalSeedGeneratorFromPixel  combinatorialSeedGenerator;
 
-    bool theMIMFlag;
-    GlobalMuonMonitorInterface* dataMonitor;
+  bool theMIMFlag;
+  GlobalMuonMonitorInterface* dataMonitor;
 
 };
 

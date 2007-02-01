@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2006/11/07 17:03:37 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/01/16 17:02:46 $
+ *  $Revision: 1.17 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
@@ -17,7 +17,6 @@
 class TrajectoryStateOnSurface;
 class MuonServiceProxy;
 class Trajectory;
-class MuonUpdatorAtVertex;
 
 class GlobalMuonMonitorInterface;
 
@@ -79,7 +78,6 @@ class GlobalMuonTrackMatcher {
     bool matchAtSurface_;
     GlobalPoint theVertexPos;
     GlobalError theVertexErr;
-    MuonUpdatorAtVertex* theUpdator;
 
     GlobalMuonMonitorInterface* dataMonitor;
 
