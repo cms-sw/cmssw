@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/01/31 16:32:00 $
- * $Revision: 1.205 $
+ * $Date: 2007/01/31 16:41:13 $
+ * $Revision: 1.206 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -16,6 +16,7 @@
 
 #include "TStyle.h"
 #include "TGaxis.h"
+#include "TColor.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -321,6 +322,22 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   gStyle->SetOptFit(kFALSE);
 
   gROOT->ForceStyle();
+
+  // Define new color palette
+
+  for( int i=1; i<7; i++ ) {
+    TColor* color;
+    float r = float((i&1)^((i&4)>>2)) * ( 1. - 0.5 * float( i / 4 ) );
+    float g = float((((i-1)%3+1)&2)>>1) * ( 1. - 0.5 * float( i / 4 ) );
+    float b = 0.0;
+    if( ! gROOT->GetColor( 300+i )) {
+      color = new TColor( 300+i, r, g, b, "" );
+    }
+    else {
+      color = gROOT->GetColor( 300+i );
+      color->SetRGB( r, g, b );
+    }
+  }
 
   // clients' constructors
 

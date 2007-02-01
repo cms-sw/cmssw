@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/01/29 15:19:37 $
- * $Revision: 1.129 $
+ * $Date: 2007/01/31 20:42:17 $
+ * $Revision: 1.130 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1508,7 +1508,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   const int csize = 250;
 
-  int pCol3[6] = { 2, 3, 5, 1, 1, 1 };
+  int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 30+i;
 

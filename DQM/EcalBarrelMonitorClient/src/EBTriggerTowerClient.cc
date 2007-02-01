@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2006/12/15 09:44:50 $
- * $Revision: 1.22 $
+ * $Date: 2007/01/27 11:02:13 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -502,7 +502,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   //const double histMax = 1.e15;
 
-  //int pCol3[6] = { 2, 3, 5, 1, 1, 1 };
+  //int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
 
   TH2C dummy( "dummy", "dummy for sm", 17, 0., 17., 4, 0., 4. );
   for ( int i = 0; i < 68; i++ ) {

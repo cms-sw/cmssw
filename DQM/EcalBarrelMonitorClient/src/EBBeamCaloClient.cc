@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2007/01/27 11:02:13 $
- * $Revision: 1.37 $
+ * $Date: 2007/01/31 20:42:17 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -844,7 +844,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   const int csize = 250;
   //  const double histMax = 1.e15;
 
-  int pCol3[6] = { 2, 3, 5, 1, 1, 1 };
+  int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
   
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for ( int i = 0; i < 68; i++ ) {

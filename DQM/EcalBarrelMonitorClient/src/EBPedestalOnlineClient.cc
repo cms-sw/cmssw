@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/01/29 15:19:37 $
- * $Revision: 1.71 $
+ * $Date: 2007/01/31 19:20:21 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -568,7 +568,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
 
   const double histMax = 1.e15;
 
-  int pCol3[6] = { 2, 3, 5, 1, 1, 1 };
+  int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for ( int i = 0; i < 68; i++ ) {
