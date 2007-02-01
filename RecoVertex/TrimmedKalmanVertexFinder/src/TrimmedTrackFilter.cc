@@ -10,5 +10,5 @@ TrimmedTrackFilter::TrimmedTrackFilter()
 bool 
 TrimmedTrackFilter::operator() (const TransientTrack& aTk) const 
 {
-  return aTk.pt() > thePtCut;
+  return aTk.initialFreeState().momentum().perp() > thePtCut;
 }
