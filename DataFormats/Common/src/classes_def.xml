@@ -172,6 +172,7 @@
  <class name="std::allocator<char>"/>
  <class name="std::allocator<short>"/>
  <class name="std::allocator<int>"/>
+ <class name="std::allocator<double>"/>
  <class name="std::less<int>"/>
  <class name="std::input_iterator_tag"/>
  <class name="std::output_iterator_tag"/>
