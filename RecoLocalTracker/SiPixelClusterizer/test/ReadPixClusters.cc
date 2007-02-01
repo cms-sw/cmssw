@@ -8,8 +8,6 @@
 #include <string>
 #include <iostream>
 
-using namespace std;
-
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -53,6 +51,8 @@ using namespace std;
 #include <TF1.h>
 #include <TH2F.h>
 #include <TH1F.h>
+
+using namespace std;
 
 class ReadPixClusters : public edm::EDAnalyzer {
  public:
@@ -243,11 +243,11 @@ void ReadPixClusters::analyze(const edm::Event& e,
     double detZ = theGeomDet->surface().position().z();
     double detR = theGeomDet->surface().position().perp();
 
-    const BoundPlane& plane = theGeomDet->surface(); //for transf.
+    //const BoundPlane& plane = theGeomDet->surface(); //for transf.
     
-    double detThick = theGeomDet->specificSurface().bounds().thickness();
-    int cols = theGeomDet->specificTopology().ncolumns();
-    int rows = theGeomDet->specificTopology().nrows();
+    //double detThick = theGeomDet->specificSurface().bounds().thickness();
+    //int cols = theGeomDet->specificTopology().ncolumns();
+    //int rows = theGeomDet->specificTopology().nrows();
     
 
     const RectangularPixelTopology * topol =
@@ -366,8 +366,8 @@ void ReadPixClusters::analyze(const edm::Event& e,
           float pixy = pixelsVec[i].y; // same
           float adc = ((pixelsVec[i].adc)/1000);
           //int chan = PixelChannelIdentifier::pixelToChannel(int(pixx),int(pixy));
-          bool binInX = (RectangularPixelTopology::isItBigPixelInX(int(pixx)));
-          bool bigInY = (RectangularPixelTopology::isItBigPixelInY(int(pixy)));
+          //bool binInX = (RectangularPixelTopology::isItBigPixelInX(int(pixx)));
+          //bool bigInY = (RectangularPixelTopology::isItBigPixelInY(int(pixy)));
 
 	  edgeInX = topol->isItEdgePixelInX(int(pixx));
 	  edgeInY = topol->isItEdgePixelInY(int(pixy));
