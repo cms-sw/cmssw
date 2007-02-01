@@ -1,11 +1,10 @@
 // File: FastJetProducer.cc
-// Description:  see FastJetProducer.h
 // Author:  Andreas Oehler, University Karlsruhe (TH)
-// Creation Date:  Nov. 06 2006 Initial version.
+// Creation Date:  Feb. 1 2007 Initial version.
 //--------------------------------------------
 #include <memory>
 
-#include "RecoJets/JetProducers/interface/FastJetProducer.h"
+#include "RecoJets/JetProducers/interface/ExtKtJetProducer.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
@@ -13,9 +12,14 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "FWCore/Framework/interface/Handle.h"
 
+//  Wrapper around ktjet-package (http://projects.hepforge.org/ktjet)
+//  See Reference: Comp. Phys. Comm. vol 153/1 85-96 (2003)
+//  Also:  http://www.arxiv.org/abs/hep-ph/0210022
+//  this package is included in the external CMSSW-dependencies
+//  License of package: GPL
+
 using namespace std;
 using namespace reco;
-using namespace JetReco;
 
 namespace {
   const bool debug = false;
@@ -26,22 +30,22 @@ namespace cms
 {
 
   // Constructor takes input parameters now: to be replaced with parameter set.
-  FastJetProducer::FastJetProducer(const edm::ParameterSet& conf)
+  ExtKtJetProducer::ExtKtJetProducer(const edm::ParameterSet& conf)
     : BaseJetProducer (conf), alg_(conf)
 
   {
     // branch alias
     char label [32];
-    sprintf (label, "FastJet%d%s", 
-	     int (floor (conf.getParameter<double>("FJ_ktRParam") * 10.)), 
+    sprintf (label, "ExtKtJet%d%s", 
+	     int (floor (conf.getParameter<double>("ExtKtRParam") * 10.)),                             
 	     jetType ().c_str());
 
     initBranch (label);
   }
 
   // run algorithm itself
-  bool FastJetProducer::runAlgorithm (const InputCollection& fInput, 
-		     OutputCollection* fOutput) {
+  bool ExtKtJetProducer::runAlgorithm (const JetReco::InputCollection& fInput, 
+				       JetReco::OutputCollection* fOutput) {
     alg_.run (fInput, fOutput);
 
     return true;
