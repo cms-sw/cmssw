@@ -39,9 +39,10 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   }
  
   float utraj =  theStripGDU->specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
-  float uerr  = sqrt(theStripGDU->specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
+  float uerr;
   //  if (theClusterRange.first == theClusterRange.second) { // empty
   if (empty  == true){
+    uerr= sqrt(theStripGDU->specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
      if (testStrips(utraj,uerr)) {
         result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::missing), 0.F));
      } else { 
@@ -84,6 +85,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   
   if ( result.empty()) {
     // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
+    uerr= sqrt(theStripGDU->specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
      if (testStrips(utraj,uerr)) {
         result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::missing), 0.F));
      } else { 
@@ -142,7 +144,7 @@ TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
         start++;
     }
     // std::cout << "[*GIO*] DetID " << (theStripGDU->geographicalId())() << "  u = (" << utraj << " +/- " << uerr << "), bad/tot = " << off << "/" << found << "\n";
-    return (off > 0 && off == found); //to be tuned
+    return !(off > 0 && off == found); //to be tuned
 }
 void
 TkStripMeasurementDet::setNoises(const SiStripNoises::Range noises) 

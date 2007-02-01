@@ -256,33 +256,33 @@ void MeasurementTracker::initializeStripNoises(const SiStripNoises *noises) cons
 }                                       
 
 void MeasurementTracker::initializeStripStatus(const SiStripDetCabling *cabling) const {
-    if (cabling)  {
-      //std::pair<double,double> t1,t2,t3; 
-      //TimeMe timer("[*GIO*] MTuSS TimeMe",false); t1 = timer.lap();
+  if (cabling)  {
+    //std::pair<double,double> t1,t2,t3; 
+    //TimeMe timer("[*GIO*] MTuSS TimeMe",false); t1 = timer.lap();
 
-        const std::map< uint32_t, std::vector<FedChannelConnection> > & activeModules = cabling->getDetCabling ();
-
-        //t3 = timer.lap();
-        //unsigned int on = 0, tot = 0; 
-        for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
-                i!=theStripDets.end(); i++) {
-            uint32_t detid = ((**i).geomDet().geographicalId()).rawId();
-	    std::map< uint32_t, std::vector<FedChannelConnection> >::const_iterator it =  activeModules.find(detid);
-            bool isOn = (it!=activeModules.end());
-            (*i)->setActive(isOn);
-            //tot++; on += (unsigned int) isOn;
-        }
-
-        //t2 = timer.lap();
-        //edm::LogInfo("[*GIO*] MTuSS") << "It took " << (t2.first - t1.first) << " s (total) to dispatch " << activeModules.size() << " modules (" 
-	//          << (t3.first - t1.first) << " in getActiveDetectorRawIds and " << (t2.first - t3.first) << " in searching";
-        //edm::LogInfo("[*GIO*] MTuSS") << " Total modules: " << tot << ", active " << on <<", inactive " << (tot -on);
-
-    } else {
-        for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
-                i!=theStripDets.end(); i++) {
-            (*i)->setActive(true);
-        }
+    const std::map< uint32_t, std::vector<FedChannelConnection> > & activeModules = cabling->getDetCabling ();
+    
+    //t3 = timer.lap();
+    //unsigned int on = 0, tot = 0; 
+    for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
+	 i!=theStripDets.end(); i++) {
+      uint32_t detid = ((**i).geomDet().geographicalId()).rawId();
+      std::map< uint32_t, std::vector<FedChannelConnection> >::const_iterator it =  activeModules.find(detid);
+      bool isOn = (it!=activeModules.end());
+      (*i)->setActive(isOn);
+      //tot++; on += (unsigned int) isOn;
     }
+    
+    //t2 = timer.lap();
+    //edm::LogInfo("[*GIO*] MTuSS") << "It took " << (t2.first - t1.first) << " s (total) to dispatch " << activeModules.size() << " modules (" 
+    //          << (t3.first - t1.first) << " in getActiveDetectorRawIds and " << (t2.first - t3.first) << " in searching";
+    //edm::LogInfo("[*GIO*] MTuSS") << " Total modules: " << tot << ", active " << on <<", inactive " << (tot -on);
+    
+  } else {
+    for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
+	 i!=theStripDets.end(); i++) {
+      (*i)->setActive(true);
+    }
+  }
 }
 
