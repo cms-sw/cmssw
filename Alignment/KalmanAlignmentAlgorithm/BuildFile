@@ -11,12 +11,15 @@
 <use name=Alignment/CommonAlignmentAlgorithm>
 <use name=Alignment/TrackerAlignment>
 
+<use name=RecoTracker/TrackProducer>
+
 <flags SEAL_PLUGIN_NAME="AlignmentKalmanAlignmentAlgorithm">
 
 <export>
  <lib name=AlignmentKalmanAlignmentAlgorithm>
  <use name=Alignment/CommonAlignmentAlgorithm>
  <use name=Alignment/TrackerAlignment>
+ <use name=RecoTracker/TrackProducer>
  <use name=FWCore/Utilities>
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
