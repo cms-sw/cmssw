@@ -8,6 +8,7 @@
 #include <string>
 
 class TFile;
+class TDirectory;
 
 namespace edm {
   class ActivityRegistry;
@@ -114,6 +115,8 @@ public:
     cd(); return new T( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 );
   }
 
+  TDirectory * cd( const std::string & ) const;
+
 private:
   /// pointer to opened TFile
   TFile * file_;
@@ -122,7 +125,9 @@ private:
   // current module label
   std::string currentModuleLabel_, currentModulenName_;
   /// change (and possibly create) to current directory
-  void cd() const;
+  TDirectory * cd() const;
+  /// set current directory
+  mutable bool setcd_;
 };
 
 #endif

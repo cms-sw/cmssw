@@ -10,7 +10,8 @@ using namespace std;
 using namespace edm;
 
 TFileService::TFileService( const ParameterSet & cfg, ActivityRegistry & r ) :
-  file_( new TFile( cfg.getParameter<string>( "fileName" ).c_str() , "RECREATE" ) ) {
+  file_( new TFile( cfg.getParameter<string>( "fileName" ).c_str() , "RECREATE" ) ),
+  setcd_( true ) {
   r.watchPreModuleConstruction( this, & TFileService::setDirectoryName ); 
   r.watchPreModule( this, & TFileService::setDirectoryName ); 
   r.watchPreModuleBeginJob( this, & TFileService::setDirectoryName ); 
@@ -25,20 +26,48 @@ TFileService::~TFileService() {
 void TFileService::setDirectoryName( const ModuleDescription & desc ) {
   currentModuleLabel_ = desc.moduleLabel_;
   currentModulenName_ = desc.moduleName_;
+  setcd_ = true;
 }
 
-void TFileService::cd() const {
-  TDirectory * dir = file_->GetDirectory( currentModuleLabel_.c_str() );
-  if ( dir == 0 )
-    dir = file_->mkdir( currentModuleLabel_.c_str(), 
-			(currentModuleLabel_ + " (" + currentModulenName_ + ") folter" ).c_str() );
+TDirectory * TFileService::cd() const {
+  TDirectory * dir = 0;
+  if ( setcd_ ) {
+    dir = file_->GetDirectory( currentModuleLabel_.c_str() );
+    if ( dir == 0 )
+      dir = file_->mkdir( currentModuleLabel_.c_str(), 
+			  (currentModuleLabel_ + " (" + currentModulenName_ + ") folter" ).c_str() );
+    if ( dir == 0 )   
+      throw 
+	cms::Exception( "InvalidDirectory" ) 
+	  << "Can't create directory " << currentModuleLabel_;
+    bool ok = file_->cd( currentModuleLabel_.c_str() );
+    if ( ! ok )
+      throw 
+	cms::Exception( "InvalidDirectory" ) 
+	  << "Can't change directory to newly created: " << currentModuleLabel_;
+    setcd_ = false;
+  }
+  return dir;
+}
+
+TDirectory * TFileService::cd( const std::string & dirName ) const {
+  TDirectory * pwd = cd();
+  if ( pwd == 0 )   
+    throw 
+      cms::Exception( "InvalidDirectory" ) 
+	<< "Can't change to current directory ";
+  const char * name = dirName.c_str();
+  TDirectory * dir = pwd->mkdir( name );
   if ( dir == 0 )   
     throw 
       cms::Exception( "InvalidDirectory" ) 
-	<< "Can't create directory " << currentModuleLabel_;
-  bool ok = file_->cd( currentModuleLabel_.c_str() );
+	<< "Can't create sub-directory " << name;
+ 
+  bool ok = file_->cd( ( currentModuleLabel_ + "/" + name ).c_str() );
   if ( ! ok )
     throw 
       cms::Exception( "InvalidDirectory" ) 
-	<< "Can't change directory to newly created: " << currentModuleLabel_;
+	<< "Can't change directory to newly created: " << name;
+  setcd_ = false;
+  return dir;
 }
