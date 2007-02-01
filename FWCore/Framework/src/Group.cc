@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.13 2006/08/24 22:03:12 wmtan Exp $
+$Id: Group.cc,v 1.14 2007/01/28 05:40:57 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <string>
@@ -53,6 +53,19 @@ namespace edm
     std::swap(provenance_,other.provenance_);
     std::swap(accessible_, other.accessible_);
     std::swap(onDemand_, other.onDemand_);
+  }
+
+  bool
+  Group::replace(Group& g) {
+    if(onDemand_) {
+      // The old one is a "placeholder" group for unscheduled processing.
+      // This new one is the one generated 'unscheduled'.
+      // NOTE: other API's of DataBlockImpl do NOT give out the Provenance*
+      // to "onDemand" groups, so no need to preserve the old Provenance.
+      this->swap(g);
+      return true;
+    }
+    return false;
   }
 
   void

@@ -6,7 +6,7 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.15 2007/01/11 23:39:20 paterno Exp $
+$Id: Group.h,v 1.16 2007/01/28 05:40:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -42,8 +42,6 @@ namespace edm {
     // provenance is currently available
     bool provenanceAvailable() const;
 
-    bool onDemand() const { return onDemand_; }
-
     EDProduct const* product() const { return product_; }
 
     Provenance const& provenance() const { return *provenance_; }
@@ -66,6 +64,9 @@ namespace edm {
 
     // Write the group to the stream.
     void write(std::ostream& os) const;
+
+    // Figure out what to do if a duplicate group is created.
+    bool replace(Group& g);
 
   private:
     Group(const Group&);

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: DataBlockImpl.cc,v 1.12 2007/01/28 05:40:57 wmtan Exp $
+  $Id: DataBlockImpl.cc,v 1.13 2007/01/29 21:28:51 wdd Exp $
   ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -78,12 +78,7 @@ namespace edm {
 
     BranchDict::iterator itFound = branchDict.find(bk);
     if (itFound != branchDict.end()) {
-      if(groups[itFound->second]->onDemand()) {
-        // The old one is a "placeholder" group for unscheduled processing.
-	// This new one is the one generated 'unscheduled'.
-	groups[itFound->second]->swap(*g);
-	//NOTE: other API's of DataBlockImpl do NOT give out the Provenance*
-	// to "onDemand" groups, so need to preserve the old Provenance.
+      if(groups[itFound->second]->replace(*g)) {
 	return;
       } else {
 	// the products are lost at this point!
