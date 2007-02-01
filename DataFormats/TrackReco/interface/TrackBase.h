@@ -25,7 +25,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.49 2006/11/28 13:36:39 jalcaraz Exp $
+ * \version $Id: TrackBase.h,v 1.50 2007/01/31 08:51:35 llista Exp $
  *
  */
 
@@ -85,7 +85,7 @@ namespace reco {
     double dxy() const { return ( - vx() * py() + vy() * px() ) / pt(); }
     /// track impact parameter in perigee convention (d0 = - dxy)
     double d0() const { return - dxy(); }
-    /// sz distance to beamline
+    /// Transverse distance to beamline in the plane formed by the direction tangent to the track and the Z axis
     double dsz() const { return vz() * pt() / p(); }
     /// z distance to beamline
     double dz() const { return vz(); }
@@ -121,11 +121,11 @@ namespace reco {
     }
     /// dsz with respect to a user-given beamSpot. Use with caution: new beamSpot must be close to (0,0,0), since the extrapolation is linear
     double dsz(const Point& myBeamSpot) const { 
-      return ( (vz()-myBeamSpot.z())*pt() - (myBeamSpot.x()*px()+myBeamSpot.y()*py())/pt()*pz() ) / p(); 
+      return ( (vz()-myBeamSpot.z())*pt() - ((vx()-myBeamSpot.x())*px()+(vy()-myBeamSpot.y())*py())/pt()*pz() ) / p(); 
     }
     /// dz with respect to a user-given beamSpot. Use with caution: new beamSpot must be close to (0,0,0), since the extrapolation is linear
     double dz(const Point& myBeamSpot) const { 
-      return (vz()-myBeamSpot.z()) - (myBeamSpot.x()*px()+myBeamSpot.y()*py())/pt() * (pz()/pt()); 
+      return (vz()-myBeamSpot.z()) - ((vx()-myBeamSpot.x())*px()+(vy()-myBeamSpot.y())*py())/pt() * (pz()/pt()); 
     }
 
     /// Parameters with one-to-one corerspondence to the covariance matrix
