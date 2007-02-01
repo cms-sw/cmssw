@@ -16,7 +16,7 @@ class CachingVertex;
 /** \class TransientVertex
  */
 
-class TransientVertex : public reco::Vertex {
+class TransientVertex {//: public reco::Vertex {
 
 public:
 
@@ -191,6 +191,7 @@ public:
   				const reco::TransientTrack& t2) const;
   void tkToTkCovariance(const TTtoTTmap covMap);
 
+  operator reco::Vertex() const;
 
 private:
 
@@ -198,7 +199,7 @@ private:
   mutable VertexState thePriorVertexState;
   mutable VertexState theVertexState;
 
-  void addTracks(const std::vector<reco::TransientTrack> & tracks);
+//   void addTracks(const std::vector<reco::TransientTrack> & tracks);
 
   std::vector<reco::TransientTrack> theOriginalTracks;
   std::vector<reco::TransientTrack> theRefittedTracks;
