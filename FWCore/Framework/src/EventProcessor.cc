@@ -22,6 +22,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
@@ -71,6 +72,7 @@ namespace edm {
   }
 
   using namespace event_processor;
+  using namespace edm::service;
 
   typedef vector<string>   StrVec;
   typedef list<string>     StrList;
@@ -118,7 +120,7 @@ namespace edm {
       "Exception",
       "Rewind"
     };
-
+  }
     // IMPORTANT NOTE:
     // the mAny messages are special, they must appear last in the
     // table if multiple entries for a CurrentState are present.
@@ -174,8 +176,8 @@ namespace edm {
       { sRunning,       mStopAsync,      sStopping },
       { sRunning,       mShutdownAsync,  sShuttingDown },
       { sRunning,       mShutdownSignal, sShuttingDown },
-      { sRunning,       mCountComplete,  sStopping }, // sJobReady },
-      { sRunning,       mInputExhausted, sStopping }, // sJobReady },
+      { sRunning,       mCountComplete,  sStopping }, // sJobReady 
+      { sRunning,       mInputExhausted, sStopping }, // sJobReady
       { sStopping,       mInputRewind, sJobReady },
       { sStopping,      mException,      sError },
       { sStopping,      mFinished,       sJobReady },
@@ -204,97 +206,6 @@ namespace edm {
 
     // Note: many of the messages generate the mBeginJob message first 
     //  mRunID, mRunCount, mSetRun
-
-    volatile bool shutdown_flag = false;
-
-    extern "C" {
-      static void ep_sigusr2(int,siginfo_t*,void*)
-      {
-	FDEBUG(1) << "in sigusr2 handler\n";
-	shutdown_flag = true;
-      }
-    }
-
-    boost::mutex signum_lock;
-    volatile int signum_value = 
-#if defined(__linux__)
-      SIGRTMIN;
-#else
-    0;
-#endif
-
-    int getSigNum()
-    {
-      boost::mutex::scoped_lock sl(signum_lock);
-      int rc = signum_value;
-      ++signum_value;
-      return rc;
-    }
-
-#define MUST_BE_ZERO(fun) if((fun) != 0)					\
-      { perror("EventProcessor::setupSignal: sig function failed"); abort(); }
-
-    void disableAllSigs(sigset_t* oldset)
-    {
-      sigset_t myset;
-      // all blocked for now
-      MUST_BE_ZERO(sigfillset(&myset));
-      MUST_BE_ZERO(pthread_sigmask(SIG_SETMASK,&myset,oldset));
-    }
-
-    void disableRTSigs()
-    {
-#if defined(__linux__)
-      // ignore all the RT signals
-      sigset_t myset;
-      MUST_BE_ZERO(sigemptyset(&myset));
-      
-      struct sigaction tmpact;
-      memset(&tmpact,0,sizeof(tmpact));
-      tmpact.sa_handler = SIG_IGN;
-
-      for(int num = SIGRTMIN; num < SIGRTMAX; ++num) {
-	  MUST_BE_ZERO(sigaddset(&myset,num));
-	  MUST_BE_ZERO(sigaction(num,&tmpact,NULL));
-      }
-      
-      MUST_BE_ZERO(pthread_sigmask(SIG_BLOCK,&myset,0));
-#endif
-    }
-
-    void reenableSigs(sigset_t* oldset)
-    {
-      // reenable the signals
-      MUST_BE_ZERO(pthread_sigmask(SIG_SETMASK,oldset,0));
-    }
-    
-    extern "C"
-    {
-      typedef void(*CFUNC)(int,siginfo_t*,void*);
-    }
-
-    void installSig(int signum, CFUNC func)
-    {
-      // set up my RT signal now
-      struct sigaction act;
-      memset(&act,0,sizeof(act));
-      act.sa_sigaction = func;
-      act.sa_flags = SA_RESTART;
-      
-      // get my signal number
-      int mysig = signum;
-      
-      if(sigaction(mysig,&act,NULL) != 0) {
-	  perror("sigaction failed");
-	  abort();
-      }
-      
-      sigset_t newset;
-      MUST_BE_ZERO(sigemptyset(&newset));
-      MUST_BE_ZERO(sigaddset(&newset,mysig));
-      MUST_BE_ZERO(pthread_sigmask(SIG_UNBLOCK,&newset,0));
-    }
-  }
 
   // ---------------------------------------------------------------
   shared_ptr<InputSource> 
@@ -488,7 +399,7 @@ namespace edm {
     // std::cerr << "Initialized pligin manager" << std::endl;
 
     // for now, install sigusr2 function.
-    installSig(SIGUSR2,ep_sigusr2);
+    installSig(SIGUSR2,edm::ep_sigusr2);
   }
 
 
@@ -770,7 +681,7 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
-    if(shutdown_flag)
+    if(edm::shutdown_flag)
     {
        changeState(mShutdownSignal);
        toerror.succeeded();
@@ -821,7 +732,7 @@ namespace edm {
     std::auto_ptr<EventPrincipal> previousPep;
 
     while(state_ == sRunning) {
-      if(shutdown_flag) {
+      if(edm::shutdown_flag) {
 	if (previousPep.get() != 0) endLumiAndRun(*previousPep.get());
 	changeState(mShutdownSignal);
 	rc = epSignal;
@@ -870,7 +781,7 @@ namespace edm {
     }
 
     // check once more for shutdown signal
-    if(!got_sig && shutdown_flag) {
+    if(!got_sig && edm::shutdown_flag) {
       changeState(mShutdownSignal);
       rc = epSignal;
     }
@@ -1256,7 +1167,6 @@ namespace edm {
     pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,0);
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
 
-    me->setupSignal();
     {
       boost::mutex::scoped_lock(me->stop_lock_);
       me->event_loop_id_ = pthread_self();
@@ -1306,16 +1216,5 @@ namespace edm {
       ++me->stop_count_;
       me->stopper_.notify_all();
     }
-  }
-
-
-  void EventProcessor::setupSignal()
-  {
-    sigset_t oldset;
-    disableAllSigs(&oldset);
-#if defined(__linux__)
-    disableRTSigs();
-    installSig(my_sig_num_,ep_sigusr2);
-#endif
   }
 }
