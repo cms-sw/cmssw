@@ -54,6 +54,8 @@ void SiPixelDigiModule::book() {
   meCol_ = theDMBE->book1D(hkey,"Digi column",500,0.,500.);
   sprintf(hkey, "row_module_%i",id_);
   meRow_ = theDMBE->book1D(hkey,"Digi row",200,0.,200.);
+  sprintf(hkey, "pixdigis_module_%i",id_);
+  mePixDigis_ = theDMBE->book2D(hkey,"Digis per four pixels",208,0.,416.,80,0.,160.);
 }
 
 //
@@ -69,11 +71,20 @@ void SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input) {
     
     // Look at digis now
     edm::DetSet<PixelDigi>::const_iterator  di;
+    //figure out the size of the module/plaquette:
+/*    int maxcol=0, maxrow=0;
+    for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
+      int col = di->column(); // column 
+      int row = di->row();    // row
+      if(col>maxcol) maxcol=col;
+      if(row>maxrow) maxrow=row;
+    }*/
     for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
       numberOfDigis++;
       int adc = di->adc();    // charge
       int col = di->column(); // column 
       int row = di->row();    // row
+      (mePixDigis_)->Fill((float)col,(float)row);
       (meADC_)->Fill((float)adc);
       (meCol_)->Fill((float)col);
       (meRow_)->Fill((float)row);

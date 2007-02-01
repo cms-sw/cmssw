@@ -45,6 +45,7 @@ class SiPixelDigiModule {
   MonitorElement* meADC_;
   MonitorElement* meCol_;
   MonitorElement* meRow_;
+  MonitorElement* mePixDigis_;
   
 };
 #endif
