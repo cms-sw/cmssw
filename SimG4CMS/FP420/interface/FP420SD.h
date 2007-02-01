@@ -11,7 +11,7 @@
 
 // last
 //#include "SimG4Core/Application/interface/SimTrackManager.h"
-#include "SimG4CMS/Calo/interface/CaloSD.h"
+//#include "SimG4CMS/Calo/interface/CaloSD.h"
 
 
 //#include "SimG4Core/Notification/interface/TrackWithHistory.h"
@@ -36,9 +36,16 @@
  
 
 
-//AZ:
 class TrackingSlaveSD;
-//class SimTrackManager;
+//AZ:
+class FP420SD;
+
+class TrackInformation;
+class SimTrackManager;
+class TrackingSlaveSD;
+class UpdatablePSimHit;
+class G4ProcessTypeEnumerator;
+class G4TrackToParticleID;
 
 
 //-------------------------------------------------------------------
@@ -81,6 +88,7 @@ public:
   //    Collection       hits_;
     void fillHits(edm::PSimHitContainer&, std::string use);
   
+  std::vector<std::string> getNames();
   
  private:
   void           update(const BeginOfEvent *);

@@ -5,31 +5,40 @@
 // Modifications: 
 ///////////////////////////////////////////////////////////////////////////////
 
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "SimG4CMS/FP420/interface/FP420SD.h"
-#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
-#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
-#include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
-
-#include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
-#include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
+#include "Geometry/Vector/interface/LocalPoint.h"
+#include "Geometry/Vector/interface/LocalVector.h"
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Geometry/interface/SDCatalog.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
+#include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
 
-#include "G4SDManager.hh"
-#include "G4Step.hh"
+
+#include "SimG4CMS/FP420/interface/FP420SD.h"
+#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
+#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
+#include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "SimG4Core/Notification/interface/TrackInformation.h"
+
 #include "G4Track.hh"
+#include "G4SDManager.hh"
 #include "G4VProcess.hh"
+#include "G4EventManager.hh"
+#include "G4Step.hh"
+
+#include <string>
+#include <vector>
+#include <iostream>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define debug
 //-------------------------------------------------------------------
@@ -467,5 +476,11 @@ void FP420SD::update (const ::EndOfEvent*) {
 void FP420SD::clearHits(){
   //AZ:
     slave->Initialize();
+}
+
+std::vector<std::string> FP420SD::getNames(){
+  std::vector<std::string> temp;
+  temp.push_back(slave->name());
+  return temp;
 }
 
