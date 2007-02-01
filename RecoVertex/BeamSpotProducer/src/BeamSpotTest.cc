@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotTest.cc,v 1.1 2006/12/15 20:00:37 yumiceva Exp $
+ version $Id: BeamSpotTest.cc,v 1.2 2007/01/22 23:36:08 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -131,7 +131,7 @@ BeamSpotTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	++track ) {
 	  fpt = track->pt();
 	  feta = track->eta();
-	  fphi0 = track->phi0();
+	  fphi0 = track->momentum().phi();
 	  fcharge = track->charge();
 	  fchi2 = track->chi2();
 	  fndof = track->ndof();

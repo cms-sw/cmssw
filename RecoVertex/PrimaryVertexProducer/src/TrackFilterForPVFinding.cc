@@ -13,8 +13,9 @@ TrackFilterForPVFinding::operator() (const reco::TransientTrack & tk) const
   PerigeeTrajectoryError::CovarianceMatrix c = tk.covariance();
  double d0Error=sqrt(c(3,3));
   */
-  return ( (tk.pt() > minPt())
-	  && (std::abs(tk.d0() / tk.d0Error()) < maxD0Significance()));
+  return ( (tk.initialFreeState().momentum().perp() > minPt())
+	  && (std::abs(tk.impactPointTSCP().perigeeParameters().transverseImpactParameter() 
+	  	/ tk.impactPointTSCP().perigeeError().transverseImpactParameterError()) < maxD0Significance()));
 }
 
 

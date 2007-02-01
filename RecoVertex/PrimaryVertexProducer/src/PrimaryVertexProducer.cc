@@ -92,28 +92,30 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     // convert transient vertices returned by the theAlgo to (reco) vertices
     for (vector<TransientVertex>::const_iterator iv = t_vts.begin();
 	 iv != t_vts.end(); iv++) {
-      Vertex v(Vertex::Point((*iv).position()), 
-	       RecoVertex::convertError((*iv).positionError()), 
-	       (*iv).totalChiSquared(), 
-	       (*iv).degreesOfFreedom() , 
-      (*iv).originalTracks().size());
-      vector<reco::TransientTrack> prongs = (*iv).originalTracks();
+	Vertex v = *iv;
 
-      // store link to tracks
-      for (vector<reco::TransientTrack>::const_iterator it = prongs.begin();
- 	   it != prongs.end(); it++) {
- 	if ((*it).persistentTrackRef().isNonnull()) {
-	  // edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
-	  //	  << (*it).persistentTrackRef().id() << ", "
-	  //	  << (*it).persistentTrackRef().key() << "\n";
- 	  v.add((*it).persistentTrackRef());
- 	}
- 	else {
- 	  if(fVerbose){
-	    cout << "PrimaryVertexProducer::this transient track has no persistent track ref" << endl;
-	  }
- 	}
-      }
+//       Vertex v(Vertex::Point((*iv).position()), 
+// 	       RecoVertex::convertError((*iv).positionError()), 
+// 	       (*iv).totalChiSquared(), 
+// 	       (*iv).degreesOfFreedom() , 
+//       (*iv).originalTracks().size());
+//       vector<reco::TransientTrack> prongs = (*iv).originalTracks();
+// 
+//       // store link to tracks
+//       for (vector<reco::TransientTrack>::const_iterator it = prongs.begin();
+//  	   it != prongs.end(); it++) {
+//  	if ((*it).persistentTrackRef().isNonnull()) {
+// 	  // edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+// 	  //	  << (*it).persistentTrackRef().id() << ", "
+// 	  //	  << (*it).persistentTrackRef().key() << "\n";
+//  	  v.add((*it).persistentTrackRef());
+//  	}
+//  	else {
+//  	  if(fVerbose){
+// 	    cout << "PrimaryVertexProducer::this transient track has no persistent track ref" << endl;
+// 	  }
+//  	}
+//       }
       vColl.push_back(v);
     }
 

@@ -7,7 +7,7 @@ namespace {
   bool recTrackLessZ(const reco::TransientTrack & tk1, 
 		     const reco::TransientTrack & tk2) 
   {
-    return tk1.dz() < tk2.dz();
+    return tk1.initialFreeState().position().z() < tk2.initialFreeState().position().z();
   }
 }
 
@@ -36,8 +36,8 @@ TrackClusterizerInZ::clusterize(const vector<reco::TransientTrack> & tracks)
   it++;
   for ( ; it != tks.end(); it++) {
 
-    double zPrev = currentCluster.back().dz();
-    double zCurr = (*it).dz();
+    double zPrev = currentCluster.back().initialFreeState().position().z();
+    double zCurr = (*it).initialFreeState().position().z();
     if ( abs(zCurr - zPrev) < zSeparation() ) {
       // close enough ? cluster together
       currentCluster.push_back(*it);
