@@ -4,8 +4,8 @@
 /** \class MuonTrajectoryBuilder
  *  Base class for the Muon reco Trajectory Builder 
  *
- *  $Date: 2007/01/04 00:34:04 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/01/17 16:18:05 $
+ *  $Revision: 1.18 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -14,7 +14,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include <vector>
 
-namespace edm {class EventSetup; class Event;}
+namespace edm {class Event;}
 
 class TrajectorySeed;
 

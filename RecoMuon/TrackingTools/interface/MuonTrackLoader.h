@@ -5,8 +5,8 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2006/10/24 09:20:06 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/01/04 00:35:23 $
+ *  $Revision: 1.12 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -23,6 +23,7 @@ namespace edm {class Event; class EventSetup; class ParameterSet;}
 class Trajectory;
 class Propagator;
 class MuonServiceProxy;
+class MuonUpdatorAtVertex;
 
 class MuonTrackLoader {
   public:
@@ -49,11 +50,22 @@ class MuonTrackLoader {
   
   private:
  
-    reco::Track buildTrack (const Trajectory&) const;
+    /// Build a track at the PCA WITHOUT any vertex constriant
+    std::pair<bool,reco::Track> buildTrackAtPCA(const Trajectory& trajectory) const;
+
+    /// Takes a track at the PCA and applies the vertex constriant
+    reco::Track buildTrackUpdatedAtPCA(const reco::Track& trackAtPCA) const;
+
     reco::TrackExtra buildTrackExtra(const Trajectory&) const;
 
-    std::string thePropagatorName;
-    bool theTrajectoryFlag;
+    double computeNDOF(const Trajectory& trajectory) const;
+  
     const MuonServiceProxy *theService;
+
+    bool theUpdatingAtVtx;
+    MuonUpdatorAtVertex *theUpdatorAtVtx;
+
+    bool theTrajectoryFlag;
+
 };
 #endif

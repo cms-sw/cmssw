@@ -4,8 +4,8 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2007/01/04 00:32:39 $
- *  $Revision: 1.20 $
+ *  $Date: 2007/01/17 16:18:05 $
+ *  $Revision: 1.21 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -42,9 +42,9 @@ class MuonTrackFinder {
     virtual ~MuonTrackFinder();
   
     /// reconstruct standalone tracks starting from a collection of seeds
-    void reconstruct(const edm::Handle<TrajectorySeedCollection>&,
-                     edm::Event&);                     
-    
+    edm::OrphanHandle<reco::TrackCollection> reconstruct(const edm::Handle<TrajectorySeedCollection>&,
+							 edm::Event&);
+
     /// reconstruct global tracks starting from a collection of
     /// standalone tracks and one of trakectories. If the latter
     /// is invalid, trajectories are refitted.
@@ -58,7 +58,7 @@ class MuonTrackFinder {
     void setEvent(const edm::Event&);
 
     /// convert the trajectories into tracks and load them in to the event
-    void load(const TrajectoryContainer&, edm::Event&);
+    edm::OrphanHandle<reco::TrackCollection> load(const TrajectoryContainer&, edm::Event&);
 
     /// convert the trajectories into tracks and load them in to the event
     void load(const CandidateContainer&, edm::Event&);

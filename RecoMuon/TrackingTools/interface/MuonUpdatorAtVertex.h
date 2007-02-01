@@ -1,68 +1,84 @@
-#ifndef TrackingTools_MuonUpdatorAtVertex_H
-#define TrackingTools_MuonUpdatorAtVertex_H
+#ifndef RecoMuon_TrackingTools_MuonUpdatorAtVertex_H
+#define RecoMuon_TrackingTools_MuonUpdatorAtVertex_H
 
- /**  \class MuonUpdatorAtVertex
-  *
-  *   Extrapolate a muon trajectory to 
-  *   a given vertex and 
-  *   apply a vertex constraint
-  *
-  *   $Date: 2006/09/01 21:49:45 $
-  *   $Revision: 1.9 $
-  *
-  *   \author   N. Neumeister            Purdue University
-  *
-  */
-
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
-#include "RecoMuon/TrackingTools/interface/MuonVertexMeasurement.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+/** \class MuonUpdatorAtVertex
+ *  This class do the extrapolation of a TrajectoryStateOnSurface to the PCA and can apply, with a different
+ *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
+ *  the vertex reconstruction.
+ *
+ *  For the time being the propagator is the SteppingHelixPropagator because the method propagate(TSOS,GlobalPoint)
+ *  it is in its specific interface. Once the interface of the Propagator base class will be updated, 
+ *  then propagator will become generic. 
+ *
+ *  $Date: $
+ *  $Revision: $
+ *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
+ */
 
 class TrajectoryStateOnSurface;
-class Propagator;
-class TransverseImpactPointExtrapolator;
-class KFUpdator;
-class MeasurementEstimator;
+class FreeTrajectoryState;
+class SteppingHelixPropagator;
 class MuonServiceProxy;
 
-namespace edm {class ParameterSet; class EventSetup;}
+
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "Geometry/Vector/interface/GlobalPoint.h"
+
+#include <string>
+
 
 class MuonUpdatorAtVertex {
+public:
+  /// Constructor
+  MuonUpdatorAtVertex(const std::string &propagatorName, const MuonServiceProxy *service);
 
- public:
- 
-  /// constructor from parameter set and MuonServiceProxy
-  MuonUpdatorAtVertex(const edm::ParameterSet&,const MuonServiceProxy *);
-  
-  /// destructor
+  /// Destructor
   virtual ~MuonUpdatorAtVertex();
 
-  /// get Propagator for outside tracker, SteppingHelixPropagator as default
-  /// anyDirection
-  std::auto_ptr<Propagator> propagator() const;
-    
-  /// return vertex measurement
-  MuonVertexMeasurement update(const TrajectoryStateOnSurface&) const;
+  // Operations
+  
+  /// Propagate the state to the vertex
+  // FIXME it is const. It will be when setPropagator() will be removed
+  std::pair<bool,FreeTrajectoryState>
+    propagate(const TrajectoryStateOnSurface &tsos, 
+	      const GlobalPoint &vtxPosition);
+  
+  /// Aplies the vertex constraint
+  std::pair<bool,FreeTrajectoryState> 
+    update(const reco::TransientTrack &track);
 
-  /// only return the state on outer tracker surface
-  TrajectoryStateOnSurface stateAtTracker(const TrajectoryStateOnSurface&) const;
+  /// Put the vertex constraint
+  std::pair<bool,FreeTrajectoryState>
+    update(const FreeTrajectoryState& ftsAtVtx);
 
-  void setVertex(const GlobalPoint&, const GlobalError&);
 
-    
- private:
+  std::pair<bool,FreeTrajectoryState>
+    propagateWithUpdate(const TrajectoryStateOnSurface &tsos, 
+			const GlobalPoint &vtxPosition);
+
+  reco::TransientTrack
+    buildTransientTrack(const FreeTrajectoryState& ftsAtVtx) const;
+  
+protected:
+
+private:
 
   const MuonServiceProxy *theService;
- 
-  GlobalPoint theVertexPos;
-  GlobalError theVertexErr;
 
-  TransverseImpactPointExtrapolator* theExtrapolator;
-  KFUpdator* theUpdator;
-  MeasurementEstimator* theEstimator;
-  std::string theOutPropagatorName;
-  std::string theInPropagatorName;
+  // FIXME
+  // The SteppingHelixPropagator must be used explicitly since the method propagate(TSOS,GlobalPoint)
+  // is only in its specific interface. Once the interface of the Propagator base class  will be
+  // updated, then thePropagator will become generic. 
+  SteppingHelixPropagator *thePropagator;
+
+  // FIXME
+  // remove the flag as the Propagator base class will gains the propagate(TSOS,Position) method
+  bool theFirstTime;
+  
+  // FIXME
+  // remove this method as the Propagator will gains the propagate(TSOS,Position) method
+  void setPropagator();
+  
 };
-
 #endif
+

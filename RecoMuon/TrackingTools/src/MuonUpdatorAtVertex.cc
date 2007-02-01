@@ -1,175 +1,176 @@
-/**  \class MuonUpdatorAtVertex
+/** \class MuonUpdatorAtVertex
+ *  This class do the extrapolation of a TrajectoryStateOnSurface to the PCA and can apply, with a different
+ *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
+ *  the vertex reconstruction.
  *
- *   Extrapolate a muon trajectory to 
- *   a given vertex and 
- *   apply a vertex constraint
- *
- *   $Date: 2006/09/01 15:47:05 $
- *   $Revision: 1.14 $
- *
- *   \author   N. Neumeister         Purdue University
- *   \author   C. Liu                Purdue University 
- *
+ *  $Date: $
+ *  $Revision: $
+ *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
-
-//-------------------------------
-// Collaborating Class Headers --
-//-------------------------------
-
-#include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "RecoMuon/TrackingTools/interface/VertexRecHit.h"
-#include "RecoMuon/TrackingTools/interface/DummyDet.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
-#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-#include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
-#include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Surface/interface/TkRotation.h"
-#include "TrackingTools/PatternTools/interface/MediumProperties.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
-#include "Geometry/Surface/interface/BoundDisk.h"
-#include "Geometry/Surface/interface/Plane.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "TrackingTools/GeomPropagators/interface/SmartPropagator.h"
 
-using namespace edm;
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
 using namespace std;
 
-//----------------
-// Constructors --
-//----------------
+/// Constructor
+MuonUpdatorAtVertex::MuonUpdatorAtVertex(const string &propagatorName,
+					   const MuonServiceProxy *service):theService(service){
+  
+  // FIXME
 
-MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& par, const MuonServiceProxy* service) : 
-  theService(service),
-  theExtrapolator( new TransverseImpactPointExtrapolator() ),
-  theUpdator(new KFUpdator()),
-  theEstimator(new Chi2MeasurementEstimator(150.)) {
+  // The SteppingHelixPropagator must be used explicitly since the method propagate(TSOS,GlobalPoint)
+  // is only in its specific interface. Once the interface of the Propagator base class  will be
+  // updated, then thePropagator will become generic. The string and the MuonServiceProxy are used
+  // in order to make more simpler and faster the future transition.
+  
+  thePropagator = 0;
+  
+  // FIXME
+  // remove the flag as the Propagator base class will gains the propagate(TSOS,Position) method
+  theFirstTime = true;
+}
 
-  theOutPropagatorName = par.getParameter<string>("OutPropagator");
-  theInPropagatorName = par.getParameter<string>("InPropagator");
+/// Destructor
+MuonUpdatorAtVertex::~MuonUpdatorAtVertex(){
+  delete thePropagator;
+}
 
+// Operations
+
+
+/////////
+// FIXME!!! remove this method as the Propagator will gains the propagate(TSOS,Position) method
+// remove the flag as well
+void MuonUpdatorAtVertex::setPropagator(){
+  const string metname = "Muon|RecoMuon|MuonUpdatorAtVertex";
+  
+  if(theFirstTime ||
+     theService->isTrackingComponentsRecordChanged()){
+    if(thePropagator) delete thePropagator;
+    Propagator *propagator = &*theService->propagator("SteppingHelixPropagatorOpposite")->clone();
+    thePropagator = dynamic_cast<SteppingHelixPropagator*>(propagator);  
+    theFirstTime = false;
+
+    LogDebug(metname) << " MuonUpdatorAtVertex::setPropagator: propagator changed!";
+  }
+  
+}
+///////////
+
+/// Propagate the state to the vertex
+// FIXME it is const. It will be when setPropagator() will be removed
+pair<bool,FreeTrajectoryState>
+MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos, 
+			       const GlobalPoint &vtxPosition){
+
+  const string metname = "Muon|RecoMuon|MuonUpdatorAtVertex";
+
+  setPropagator();
+  //  return thePropagator->propagate(*tsos.freeState(),vtxPosition);
+  pair<FreeTrajectoryState,double> 
+    result = thePropagator->propagateWithPath(*tsos.freeState(),vtxPosition);
+
+  LogDebug(metname) << "MuonUpdatorAtVertex::propagate, path: "
+		    << result.second << " parameters: " << result.first.parameters();
+
+  if( result.first.hasError()) 
+    return pair<bool,FreeTrajectoryState>(true,result.first);
+  else{
+    edm::LogWarning(metname) << "Propagation to the PCA failed!";
+    
+    // FIXME: returns FreeTrajectoryState() instead of result.first?
+    return pair<bool,FreeTrajectoryState>(false,result.first);
+  }
+}
+
+// FIXME it is const. It will be when setPropagator() will be removed
+pair<bool,FreeTrajectoryState>
+MuonUpdatorAtVertex::update(const reco::TransientTrack & track){
+
+  setPropagator();  
+
+  pair<bool,FreeTrajectoryState> result(false,FreeTrajectoryState());
+  
+  GlobalPoint glbPos(0.,0.,0.);
+  
   // assume beam spot position with nominal errors
   // sigma(x) = sigma(y) = 15 microns
   // sigma(z) = 5.3 cm
-  theVertexPos = GlobalPoint(0.0,0.0,0.0);
-  theVertexErr = GlobalError(0.00000225, 0., 0.00000225, 0., 0., 28.09);
+
+  AlgebraicSymMatrix mat(3,0);
+  mat[0][0] = (15.e-04)*(15.e-04);
+  mat[1][1] = (15.e-04)*(15.e-04);
+  mat[2][2] = (5.3)*(5.3);
+  GlobalError glbErrPos(mat);
   
-}
-
-
-//---------------
-// Destructor  --
-//---------------
-MuonUpdatorAtVertex::~MuonUpdatorAtVertex() {
-   
-  if (theEstimator) delete theEstimator;
-  if (theUpdator) delete theUpdator;
-  if (theExtrapolator) delete theExtrapolator;
-
-
-}
-
-// get Propagator for outside tracker, SteppingHelixPropagator as default
-// anyDirection
-auto_ptr<Propagator> MuonUpdatorAtVertex::propagator() const{
-
-    auto_ptr<Propagator> smartPropagator(new SmartPropagator(*theService->propagator(theInPropagatorName),
-							     *theService->propagator(theOutPropagatorName),
-							     &*theService->magneticField() ));
-    return smartPropagator;
-}
-
-//
-//
-//
-void MuonUpdatorAtVertex::setVertex(const GlobalPoint& p, const GlobalError& e) {
-
-  theVertexPos = p;
-  theVertexErr = e;
-
-}
-
-
-//
-//
-//
-MuonVertexMeasurement MuonUpdatorAtVertex::update(const TrajectoryStateOnSurface& tsos) const {
-  
-  if ( !tsos.isValid() ) {
-    edm::LogError("MuonUpdatorAtVertex") << "Error invalid TrajectoryStateOnSurface";
-    return MuonVertexMeasurement();
+  vector<reco::TransientTrack> singleTrackV(1,track) ;
+  KalmanVertexFitter kvf(true);
+  CachingVertex tv = kvf.vertex(singleTrackV, glbPos, glbErrPos);
+    
+  if(!tv.tracks().empty()) {
+    result.first = true;
+    result.second = tv.tracks().front()->refittedState()->freeTrajectoryState();
   }
-  
-  // get state at outer tracker surface
-  TrajectoryStateOnSurface trackerState = stateAtTracker(tsos);
-
-  // inside the tracker we can use Gtf propagator
-  TrajectoryStateOnSurface ipState = theExtrapolator->extrapolate(trackerState,theVertexPos, *propagator() );
-  TrajectoryStateOnSurface vertexState;
-  TrajectoryMeasurement vertexMeasurement;
-  double chi2 = 0.0;
-  
-  if ( ipState.isValid() ) {
-
-    // convert global error to 2D error matrix in the local frame of the tsos surface
-    const Surface& surf = ipState.surface();
-
-    ErrorFrameTransformer tran;
-    LocalError err2D = tran.transform(theVertexErr,surf);
-    // now construct a surface centred on the vertex and 
-    // perpendicular to the trajectory
-    // try to make BoundPlane identical to tsos surface
-    const BoundPlane* plane = dynamic_cast<const BoundPlane*>(&surf);
-    if ( plane == 0 ) {
-      plane = new BoundPlane(surf.position(),surf.rotation());
-    }
-
-    DummyDet det(plane);
-
-    const VertexRecHit* vrecHit = new VertexRecHit(LocalPoint(0.,0.),err2D); //FIXME
-    const TrackingRecHit* trecHit = (*vrecHit).hit();
-    //    GenericTransientTrackingRecHit* recHit = GenericTransientTrackingRecHit(&(det.geomDet()), trecHit);
-    TransientTrackingRecHit::RecHitPointer recHit = GenericTransientTrackingRecHit::build((&(det.geomDet())), trecHit);
-
-
-    std::pair<bool,double> pairChi2 = theEstimator->estimate(ipState, *recHit);
-
-    chi2 = pairChi2.second;
-
-    vertexState = theUpdator->update(ipState, *recHit);
-
-//    det.addRecHit(recHit);
-// measurements methods no longer exits for det
-    vertexMeasurement = TrajectoryMeasurement(ipState,vertexState,&*recHit,chi2);
-
-  }
-  return MuonVertexMeasurement(trackerState,ipState,vertexState,vertexMeasurement,chi2);
-
-}
-
-
-//
-//
-//
-TrajectoryStateOnSurface MuonUpdatorAtVertex::stateAtTracker(const TrajectoryStateOnSurface& tsos) const {
-
-  if ( !tsos.isValid() ) {
-    edm::LogError("MuonUpdatorAtVertex") << "Error invalid TrajectoryStateOnSurface";
-    return TrajectoryStateOnSurface();
-  }
-  
-  // get state at outer tracker surface
-  StateOnTrackerBound tracker( &*propagator() );
-
-  TrajectoryStateOnSurface result = tracker(tsos);
-
+  else
+    edm::LogWarning("Muon|RecoMuon|MuonUpdatorAtVertex") << "Constraint at vertex failed"; 
+    
   return result;
+}
 
+pair<bool,FreeTrajectoryState>
+MuonUpdatorAtVertex::update(const FreeTrajectoryState& ftsAtVtx){
+  
+  return update(buildTransientTrack(ftsAtVtx));
+
+}
+
+
+
+pair<bool,FreeTrajectoryState>
+MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos, 
+					 const GlobalPoint &vtxPosition){
+  
+  pair<bool,FreeTrajectoryState>
+    propagationResult = propagate(tsos,vtxPosition);
+
+  // FIXME!!!
+  // This is very very temporary! Waiting for the changes in the KalmanVertexFitter interface
+  reco::TransientTrack transientTrack = buildTransientTrack(propagationResult.second);
+  
+  return update(transientTrack);
+}
+
+
+reco::TransientTrack
+MuonUpdatorAtVertex::buildTransientTrack(const FreeTrajectoryState& ftsAtVtx) const {
+
+  GlobalPoint pca = ftsAtVtx.position();
+  math::XYZPoint persistentPCA(pca.x(),pca.y(),pca.z());
+  GlobalVector p = ftsAtVtx.momentum();
+  math::XYZVector persistentMomentum(p.x(),p.y(),p.z());
+  
+  double ndof = 100.;
+  double chi2 = 100.;    
+
+  reco::Track track(chi2, 
+		    ndof,
+		    persistentPCA,
+		    persistentMomentum,
+		    ftsAtVtx.charge(),
+		    ftsAtVtx.curvilinearError());
+  
+  
+  return reco::TransientTrack(track,
+			      &*theService->magneticField(),
+			      theService->trackingGeometry());
 }
