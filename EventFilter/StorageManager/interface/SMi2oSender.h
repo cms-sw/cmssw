@@ -2,23 +2,12 @@
 #define _SMI2OSENDER_H_
 
 /*
-   Author: Harry Cheung, FNAL
-
    Description:
-     Used for FU I2O frame output module.
-     See CMS EventFilter wiki page for further notes.
+     XDAQ application used for FU I2O frame output module.
+     See CMS EvF Storage Manager wiki page for further notes.
 
-   Modification:
-     version 1.1 2005/11/23
-       Initial implementation, only creates pool and destination.
-       Uses a global pointer. Needs changes for production version.
-     version 1.2 2005/12/15
-       Changed to using a committed heap memory pool allocator and
-       a way to set its size.
-       Added default home page to show statistics.
-
+   $Id$
 */
-
 
 #include "xdaq/Application.h"
 #include "xdaq/ApplicationContext.h"
@@ -34,7 +23,7 @@ class SMi2oSender: public xdaq::Application
 {
   public:
 
-  //XDAQ_INSTANTIATOR();
+  //XDAQ_INSTANTIATOR(); // This is the standard one that we may want to go back to
 
   SMi2oSender(xdaq::ApplicationStub * s) throw (xdaq::exception::Exception);
 
@@ -44,6 +33,21 @@ class SMi2oSender: public xdaq::Application
     (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
 
   void setDestinations();
+
+  static toolbox::mem::Reference
+      *createI2OFragmentChain(char *rawData,
+                              unsigned int dataSize,
+                              toolbox::mem::Pool *fragmentPool,
+                              unsigned int maxFragmentSize,
+                              unsigned int trueHeaderSize,
+                              unsigned short functionCode,
+                              xdaq::Application *sourceApp,
+                              xdaq::ApplicationDescriptor *destAppDesc,
+                              unsigned int& numBytesSend);
+
+  static void debugFragmentChain(toolbox::mem::Reference *head);
+
+  static void waitForPoolSpaceIfNeeded(toolbox::mem::Pool *targetPool);
 
   private:
 

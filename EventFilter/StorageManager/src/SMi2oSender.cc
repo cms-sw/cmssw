@@ -1,27 +1,17 @@
 /*
-   Author: Harry Cheung, FNAL
-
    Description:
-     XDAQ application that is meant to receive locally I2O frames
-     from the FU HLT application, and sends them via the network
-     to the Storage Manager.
-     See CMS EventFilter wiki page for further notes.
+     XDAQ application that is meant to act as the interface to the
+     output output running in the FU HLT application. It provides
+     the pointers to the XDAQ quantities needed by the framework
+     I2O output module, and provides utilities for creating the
+     chain of fragments and ensuring sufficient space in the memory pool.
+     See the CMS EvF Storage Manager wiki page for further notes.
 
-   Modification:
-     version 1.1 2005/11/23
-       Initial implementation, only creates pool and destination.
-       It does not relay I2O frames. This is done directly in the
-       I2O Output module in this preproduction version.
-       Uses a global pointer. Needs changes for production version.
-     version 1.2 2005/12/15
-       Changed to using a committed heap memory pool allocator and
-       a way to set its size.
-       Expanded global variable to enable statistics to be collected.
-       Added default home page to show statistics.
-     version 1.3 2006/01/24
-        Changed to hardwire to class testStorageManager as receiver
+   $Id$
 */
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/SMi2oSender.h"
 #include "EventFilter/StorageManager/interface/i2oStorageManagerMsg.h"
 
@@ -49,6 +39,7 @@
 #include <iomanip>
 #include <string>
 #include <vector>
+
 
 using namespace std;
 
@@ -123,16 +114,16 @@ xdaq::ApplicationDescriptor* getMyXDAQDest()
   return SMfudata.primarydest; 
 }
 
-void addMyXDAQMeasurement(unsigned long size)
+void addMyXDAQMeasurement(unsigned int size)
 {
   // for bandwidth performance measurements
   if ( SMfudata.pmeter_->addSample(size) )
   {
-    //LOG4CPLUS_INFO(SMfudata.app->getApplicationLogger(),
-    //  toolbox::toString("measured latency: %f for size %d",SMfudata.pmeter_->latency(), size));
-    //LOG4CPLUS_INFO(SMfudata.app->getApplicationLogger(),
+    //std::cout <<
+    //  toolbox::toString("measured latency: %f for size %d",SMfudata.pmeter_->latency(), size);
+    //std::cout <<
     //  toolbox::toString("latency:  %f, rate: %f,bandwidth %f, size: %d\n",
-    //  SMfudata.pmeter_->latency(),SMfudata.pmeter_->rate(),SMfudata.pmeter_->bandwidth(),size));
+    //  SMfudata.pmeter_->latency(),SMfudata.pmeter_->rate(),SMfudata.pmeter_->bandwidth(),size);
     // new measurement; so update
     SMfudata.databw_ = SMfudata.pmeter_->bandwidth();
     SMfudata.datarate_ = SMfudata.pmeter_->rate();
@@ -192,12 +183,12 @@ SMi2oSender::SMi2oSender(xdaq::ApplicationStub * s)
     pool_->setHighThreshold( (unsigned long)(committedpoolsize_ * 0.9));
     pool_->setLowThreshold(  (unsigned long)(committedpoolsize_ * 0.7));
     // check the settings at the beginning
-    std::cout << " max committed size " 
-              << pool_->getMemoryUsage().getCommitted() << std::endl;
-    std::cout << " mem size used (bytes) " 
-              << pool_->getMemoryUsage().getUsed() << std::endl;
-    std::cout << " max possible mem size " 
-              << pool_->getMemoryUsage().getMax() << std::endl;
+    LOG4CPLUS_INFO(getApplicationLogger(), " max committed size " 
+              << pool_->getMemoryUsage().getCommitted());
+    LOG4CPLUS_INFO(getApplicationLogger(), " mem size used (bytes) " 
+              << pool_->getMemoryUsage().getUsed());
+    LOG4CPLUS_INFO(getApplicationLogger(), " max possible mem size " 
+              << pool_->getMemoryUsage().getMax());
   }
   catch (toolbox::mem::exception::Exception& e)
   {
@@ -264,7 +255,7 @@ void SMi2oSender::setDestinations()
 void SMi2oSender::defaultWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  //std::cout << "default web page called" << std::endl;
+  std::cout << "SMi2oSender default web page called" << std::endl;
   *out << "<html>"                                                   << endl;
   *out << "<head>"                                                   << endl;
   *out << "<link type=\"text/css\" rel=\"stylesheet\"";
@@ -370,7 +361,7 @@ void SMi2oSender::defaultWebPage(xgi::Input *in, xgi::Output *out)
 // performance statistics
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Performance for last " << getMyXDAQsamples() << " frames"<< endl;
+    *out << "      " << "Performance for last " << getMyXDAQsamples() << " frame chains posted"<< endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
         *out << "<tr>" << std::endl;
@@ -416,7 +407,7 @@ void SMi2oSender::defaultWebPage(xgi::Input *in, xgi::Output *out)
 // mean performance statistics for whole run
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Mean Performance for " << getMyXDAQtotalsamples() << " frames, duration "
+    *out << "      " << "Mean Performance for " << getMyXDAQtotalsamples() << " frame-chains, duration "
          << getMyXDAQduration() << " seconds" << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
@@ -462,4 +453,297 @@ extern "C" xdaq::Application * instantiate_SMi2oSender(xdaq::ApplicationStub * s
 {
         std::cout << "Going to construct a SMi2oSender instance " << endl;
         return new SMi2oSender(stub);
+}
+
+/**
+ * Splits an arbitrarily large data buffer into a chain of I2O
+ * fragments of fixed maximum size.  This method treats each fragment
+ * as a I2O_SM_MULTIPART_MESSAGE_FRAME structure
+ * (see EventFilter/StorageManager/interface/i2oStorageManagerMsg.h) but
+ * leaves room for additional header data using the trueHeaderSize argument.
+ *
+ * This method can throw the following exceptions:
+ * - cms::Exception with category="InvalidInputValue" if one of
+ *   the consistency checks on the input arguments fails
+ * - other exceptions related to creating pool entries
+ */
+toolbox::mem::Reference
+    *SMi2oSender::createI2OFragmentChain(char *rawData,
+                                         unsigned int rawDataSize,
+                                         toolbox::mem::Pool *fragmentPool,
+                                         unsigned int maxFragmentDataSize,
+                                         unsigned int trueHeaderSize,
+                                         unsigned short functionCode,
+                                         xdaq::Application *sourceApp,
+                                         xdaq::ApplicationDescriptor *destAppDesc,
+                                         unsigned int& numBytesSent)
+{
+  // Assumes that sizes are already valid and multiple of 64 bits as
+  // is the case for StreamerI2OWriter (test performed during ctor)
+  // rawDataSize         = total bytes to fragment starting at rawData
+  // maxFragmentDataSize = size for the data
+  // trueHeaderSize      = size of all I2O headers
+  // trueHeaderSize + maxFragmentDataSize = i2o max size and multiple of 64 bits
+
+  // determine the number of fragments that are needed
+  unsigned int fragmentCount = (rawDataSize / maxFragmentDataSize);
+  unsigned int remainder = (rawDataSize % maxFragmentDataSize);
+  if(remainder > 0) ++fragmentCount;
+  //std::cout << "createI2OFragmentChain: number of frames needed = " << fragmentCount
+  //            << " remainder = " << remainder << std::endl;
+
+  // verify that the pool has room for the fragments or wait
+  SMi2oSender::waitForPoolSpaceIfNeeded(fragmentPool);
+
+  // create the fragments as elements in a chain of XDAQ Reference objects
+  unsigned int currentDataIndex = 0;
+  int remainingDataSize = rawDataSize;
+  numBytesSent = 0;
+  toolbox::mem::Reference *head = NULL;
+  toolbox::mem::Reference *tail = NULL;
+
+  // catch exceptions so that we can free allocated elements in the
+  // chain before re-throwing the exception
+  try
+  {
+    for(int fragIdx = 0; fragIdx < (int)fragmentCount; ++fragIdx)
+    {
+      // determine the size of data to be stored in this fragment
+      unsigned int dataFragmentSize = maxFragmentDataSize;
+      unsigned int fragmentSize = dataFragmentSize + trueHeaderSize;
+      if(remainingDataSize < (int)maxFragmentDataSize)
+      {
+        dataFragmentSize = (unsigned int)remainingDataSize;
+        // Only in this case do we need to ensure a multiple of 64 bits is sent
+        // as dataFragmentSize + trueHeaderSize is always a multiple of 64 bits
+        fragmentSize = dataFragmentSize + trueHeaderSize;
+        if((fragmentSize & 0x7) != 0)
+        {
+          // round it up to ensure sufficient space
+          fragmentSize = ((fragmentSize >> 3) + 1) << 3;
+        }
+      }
+
+      // allocate the fragment buffer from the pool
+      toolbox::mem::Reference *bufRef =
+        toolbox::mem::getMemoryPoolFactory()->getFrame(fragmentPool, fragmentSize);
+
+      // set up pointers to the allocated buffer
+      I2O_MESSAGE_FRAME *stdMsg =
+          (I2O_MESSAGE_FRAME*) bufRef->getDataLocation();
+      I2O_PRIVATE_MESSAGE_FRAME *pvtMsg =
+          (I2O_PRIVATE_MESSAGE_FRAME*) stdMsg;
+      I2O_SM_MULTIPART_MESSAGE_FRAME *msg =
+          (I2O_SM_MULTIPART_MESSAGE_FRAME*) stdMsg;
+
+      // zero out the memory buffer - is this a waste of cycles?
+      memset(msg, 0x00, fragmentSize);
+
+      // fill in the relevant fields in the I2O_MESSAGE_FRAME
+      // (see $XDAQ_ROOT/daq/extern/i2o/include/i2o/shared/i2omsg.h)
+      stdMsg->VersionOffset = 0;
+      stdMsg->MsgFlags      = 0;  // normal message (not multicast)
+      stdMsg->MessageSize   = fragmentSize >> 2;
+      stdMsg->Function      = I2O_PRIVATE_MESSAGE;
+      try
+      {
+        stdMsg->InitiatorAddress = i2o::utils::getAddressMap()->
+          getTid(sourceApp->getApplicationDescriptor());
+      }
+      catch (xdaq::exception::ApplicationDescriptorNotFound excpt)
+      {
+        edm::LogError("createI2OFragmentChain") 
+                      << "SMi2oSender::createI2OFragmentChain: exception in "
+                      << "getting source tid "
+                      <<  xcept::stdformat_exception_history(excpt);
+      }
+      try
+      {
+        stdMsg->TargetAddress =
+          i2o::utils::getAddressMap()->getTid(destAppDesc);
+      }
+      catch (xdaq::exception::ApplicationDescriptorNotFound excpt)
+      {
+        edm::LogError("createI2OFragmentChain") 
+                  << "SMi2oSender::createI2OFragmentChain: "
+                  << "exception in getting destination tid "
+                  <<  xcept::stdformat_exception_history(excpt);
+      }
+
+      // fill in the relevant fields in the I2O_PRIVATE_MESSAGE_FRAME
+      // (see $XDAQ_ROOT/daq/extern/i2o/include/i2o/shared/i2omsg.h)
+      pvtMsg->XFunctionCode  = functionCode;
+      pvtMsg->OrganizationID = XDAQ_ORGANIZATION_ID;
+
+      // fill in the necessary fields in the I2O_SM_MULTIPART_MESSAGE_FRAME
+      // (see $CMSSW_RELEASE_BASE/src/EventFilter/StorageManager/interface/
+      // i2oStorageManagerMsg.h)
+      msg->dataSize = dataFragmentSize;
+      msg->hltLocalId = sourceApp->getApplicationDescriptor()->getLocalId();
+      msg->hltInstance = sourceApp->getApplicationDescriptor()->getInstance();
+      try
+      {
+        msg->hltTid = i2o::utils::getAddressMap()->
+          getTid(sourceApp->getApplicationDescriptor());
+      }
+      catch (xdaq::exception::ApplicationDescriptorNotFound excpt)
+      {
+        edm::LogError("createI2OFragmentChain")
+                  << "SMi2oSender::createI2OFragmentChain: exception in "
+                  << "getting source tid "
+                  <<  xcept::stdformat_exception_history(excpt);
+      }
+
+      msg->numFrames = fragmentCount;
+      msg->frameCount = fragIdx;
+      msg->originalSize = rawDataSize;
+
+      // Fill in the long form of the source (HLT) identifier
+      int copySize;
+      std::string url = sourceApp->getApplicationDescriptor()->
+          getContextDescriptor()->getURL();
+      if(url.size() > MAX_I2O_SM_URLCHARS)
+      {
+        edm::LogInfo("createI2OFragmentChain")
+                     << "SMi2oSender: Error! Source URL truncated";
+        copySize = MAX_I2O_SM_URLCHARS;
+      }
+      else
+      {
+        copySize = url.size();
+      }
+      for(int idx = 0; idx < copySize; idx++)
+      {
+        msg->hltURL[idx] = url[idx];
+      }
+      std::string classname = sourceApp->getApplicationDescriptor()->
+          getClassName();
+      if(classname.size() > MAX_I2O_SM_URLCHARS)
+      {
+        edm::LogInfo("createI2OFragmentChain")
+                     << "SMi2oSender: Error! Source ClassName truncated";
+        copySize = MAX_I2O_SM_URLCHARS;
+      }
+      else
+      {
+        copySize = classname.size();
+      }
+      for(int idx = 0; idx < copySize; idx++)
+      {
+        msg->hltClassName[idx] = classname[idx];
+      }
+
+      // update the chain pointers as needed
+      if(fragIdx == 0)
+      {
+        head = bufRef;
+        tail = bufRef;
+      }
+      else
+      {
+        tail->setNextReference(bufRef);
+        tail = bufRef;
+      }
+
+      // fill in the data for this fragment
+      if(dataFragmentSize != 0)
+      {
+        char *dataTarget = (char *) msg + trueHeaderSize;
+        std::copy(rawData + currentDataIndex, 
+                  rawData + currentDataIndex + dataFragmentSize, dataTarget);
+      }
+
+      // need to set the actual buffer size that is being sent
+      bufRef->setDataSize(fragmentSize);
+
+      // update indices and sizes as needed
+      remainingDataSize -= dataFragmentSize;
+      currentDataIndex += dataFragmentSize;
+      numBytesSent += fragmentSize;
+      // should check that remainingDataSize doesn't go negative (shouldn't never do!)
+    }
+  }
+  // catch all exceptions
+  catch (...)
+  {
+
+    // free up any chain elements that we have already allocated
+    if(head != NULL)
+    {
+      head->release();
+      head = NULL;
+    }
+
+    // re-throw the exception
+    throw;
+  }
+
+  // return the first element in the chain
+  return head;
+}
+
+/**
+ * Prints debug information for the specified fragment chain to stdout.
+ */
+void SMi2oSender::debugFragmentChain(toolbox::mem::Reference *head)
+{
+  cout << "SMi2oSender::debugFragmentChain for "
+       << hex << head << dec << endl;
+  toolbox::mem::Reference *currentElement = head;
+  int elementCount = 0;
+  while(currentElement != NULL)
+  {
+    cout << "*** Fragment " << elementCount << endl;
+    cout << " - buffer address = " << hex << currentElement->getBuffer()
+         << dec << endl;
+    cout << " - data location = " << hex << currentElement->getDataLocation()
+         << dec << endl;
+    cout << " - data offset = 0x" << hex << currentElement->getDataOffset()
+         << dec << endl;
+    cout << " - data size = 0x" << hex << currentElement->getDataSize()
+         << dec << endl;
+
+    char *bufPtr = (char *) currentElement->getDataLocation();
+    bufPtr += currentElement->getDataOffset();
+    for(unsigned int idx = 0; idx < currentElement->getDataSize(); idx++)
+    {
+      if((idx % 24) == 0) {cout << endl;}
+      else if((idx % 4) == 0) {cout << " ";}
+      int val = 0xff & (int) bufPtr[idx];
+      if(val >= 0 && val <= 15) {cout << "0";}
+      cout << hex << val << dec;
+    }
+    cout << endl;
+
+    elementCount++;
+    currentElement = currentElement->getNextReference();
+  }
+  cout << " -> number of fragments in the chain is " << elementCount << endl;
+}
+
+/**
+ * Tests if there is sufficient space in the specified memory pool
+ * and waits for space to become available if not.
+ */
+void SMi2oSender::waitForPoolSpaceIfNeeded(toolbox::mem::Pool *targetPool)
+{
+  // return immediately if there is sufficient space available
+  if(!targetPool->isHighThresholdExceeded()) {return;}
+
+  // otherwise, wait for space to become available
+  edm::LogInfo("waitForPoolSpaceIfNeeded")
+                 << " High threshold exceeded in memory pool "
+                 << hex << targetPool << dec
+                 << ", max committed size "
+                 << targetPool->getMemoryUsage().getCommitted()
+                 << ", mem size used (bytes) "
+                 << targetPool->getMemoryUsage().getUsed();
+  unsigned int yc = 0;
+  while(targetPool->isLowThresholdExceeded())
+  {
+    usleep(50000);
+    yc++;
+  }
+  edm::LogInfo("waitForPoolSpaceIfNeeded") <<
+               "Yielded " << yc << " times before low threshold reached";
 }
