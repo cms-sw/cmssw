@@ -49,6 +49,7 @@
 #include <TFile.h>
 
 using namespace std;
+using namespace edm;
 
 // End job: write and close the ntuple file
 void SiPixelTrackingRecHitsValid::endJob() 
