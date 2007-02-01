@@ -29,13 +29,12 @@ void TFileService::setDirectoryName( const ModuleDescription & desc ) {
   setcd_ = true;
 }
 
-TDirectory * TFileService::cd() const {
-  TDirectory * dir = 0;
+void TFileService::cd() const {
   if ( setcd_ ) {
-    dir = file_->GetDirectory( currentModuleLabel_.c_str() );
+    TDirectory * dir = file_->GetDirectory( currentModuleLabel_.c_str() );
     if ( dir == 0 )
       dir = file_->mkdir( currentModuleLabel_.c_str(), 
-			  (currentModuleLabel_ + " (" + currentModulenName_ + ") folter" ).c_str() );
+			  (currentModuleLabel_ + " (" + currentModulenName_ + ") folder" ).c_str() );
     if ( dir == 0 )   
       throw 
 	cms::Exception( "InvalidDirectory" ) 
@@ -46,28 +45,28 @@ TDirectory * TFileService::cd() const {
 	cms::Exception( "InvalidDirectory" ) 
 	  << "Can't change directory to newly created: " << currentModuleLabel_;
     setcd_ = false;
-  }
-  return dir;
+  } 
 }
 
-TDirectory * TFileService::cd( const std::string & dirName ) const {
-  TDirectory * pwd = cd();
-  if ( pwd == 0 )   
-    throw 
-      cms::Exception( "InvalidDirectory" ) 
-	<< "Can't change to current directory ";
-  const char * name = dirName.c_str();
-  TDirectory * dir = pwd->mkdir( name );
+void TFileService::cd( const std::string & dirName ) const {
+  setcd_ = true;
+  cd();
+  TDirectory * dir = file_->GetDirectory( currentModuleLabel_.c_str() );
   if ( dir == 0 )   
     throw 
       cms::Exception( "InvalidDirectory" ) 
+	<< "Can't get current directory ";
+  const char * name = dirName.c_str();
+  dir = dir->mkdir( name );
+  if ( dir == 0 ) {
+    throw 
+      cms::Exception( "InvalidDirectory" ) 
 	<< "Can't create sub-directory " << name;
- 
+  }
   bool ok = file_->cd( ( currentModuleLabel_ + "/" + name ).c_str() );
   if ( ! ok )
     throw 
       cms::Exception( "InvalidDirectory" ) 
 	<< "Can't change directory to newly created: " << name;
   setcd_ = false;
-  return dir;
 }
