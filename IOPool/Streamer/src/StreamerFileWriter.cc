@@ -1,3 +1,5 @@
+// $Id:$
+
 #include "IOPool/Streamer/src/StreamerFileWriter.h"
 #include "IOPool/Streamer/interface/EventStreamOutput.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
@@ -6,7 +8,6 @@
 #include <vector>
 #include <string>
 
-using namespace edm;
 using namespace std;
 
 namespace edm

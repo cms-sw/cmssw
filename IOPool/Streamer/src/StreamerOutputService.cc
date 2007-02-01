@@ -1,4 +1,4 @@
-// $Id: StreamerOutputService.cc,v 1.18 2006/12/19 00:30:45 wmtan Exp $
+// $Id: StreamerOutputService.cc,v 1.19 2007/01/22 22:04:53 wmtan Exp $
 
 #include "IOPool/Streamer/interface/EventStreamOutput.h"
 #include "IOPool/Streamer/interface/StreamerOutputService.h"
@@ -21,17 +21,10 @@
 #include <string>
 #include <sstream>
 
-using namespace edm;
 using namespace std;
 
 namespace edm
 {
-
-std::string itoa(int i){
-        char temp[20];
-        sprintf(temp,"%d",i);
-        return((std::string)temp);
-}
 
 /* No one will use this CTOR anyways, we can remove it in future */
 StreamerOutputService::StreamerOutputService():
