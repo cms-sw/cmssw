@@ -13,8 +13,6 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
-using namespace std;
-
 class UserPartonMixture;
 class ParametrizationJetParton;
 class CaloJet;

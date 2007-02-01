@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
 
 class MCJetHelper{
 
@@ -22,7 +21,7 @@ class MCJetHelper{
 
  private:
 
-  string theCalibrationType;
+  std::string theCalibrationType;
   
 };
 #endif

@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
 
 class TauJetHelper{
 
@@ -22,7 +21,7 @@ class TauJetHelper{
 
  private:
 
-  string theCalibrationType;
+  std::string theCalibrationType;
   
 };
 #endif

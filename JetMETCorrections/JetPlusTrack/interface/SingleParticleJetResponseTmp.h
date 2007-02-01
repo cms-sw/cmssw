@@ -15,7 +15,6 @@
       
 #include <vector>
 #include <cmath>
-using namespace std;
 class SingleParticleJetResponseTmp 
 {
 public:
