@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/10/24 08:06:30 $
- *   $Revision: 1.19 $
+ *   $Date: 2006/10/24 09:40:21 $
+ *   $Revision: 1.20 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -62,8 +62,10 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
 				       new MuonTrackLoader(trackLoaderParameters,theService));
   
   produces<reco::TrackCollection>();
+  produces<reco::TrackCollection>("UpdatedAtVtx");
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
+  
   produces<std::vector<Trajectory> >();
 }
   

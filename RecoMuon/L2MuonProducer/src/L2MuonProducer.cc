@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2006/10/24 08:02:09 $
- *   $Revision: 1.15 $
+ *   $Date: 2006/10/24 09:39:41 $
+ *   $Revision: 1.16 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -64,6 +64,7 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
 				       new MuonTrackLoader(trackLoaderParameters, theService));
   
   produces<reco::TrackCollection>();
+  produces<reco::TrackCollection>("UpdatedAtVtx");
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
 
