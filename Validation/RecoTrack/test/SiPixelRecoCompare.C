@@ -54,11 +54,11 @@ void SetUpProfileHistograms( TProfile* h1, TProfile* h2,
 void SiPixelRecoCompare()
 {
   gROOT ->Reset();
-  //char*  sfilename = "./ROOT_FILES/pixeltrackingrechitshist34.root";
-  //char*  rfilename = "./ROOT_FILES/pixeltrackingrechitshist56.root"; 
+  char*  sfilename = "./ROOT_FILES/pixeltrackingrechitshist34.root";
+  char*  rfilename = "./ROOT_FILES/pixeltrackingrechitshist56.root"; 
   
-  char*  sfilename = "./pixeltrackingrechitshist.root"; // file to be checked
-  char*  rfilename = "../data/pixeltrackingrechitshist.root"; // reference file 
+  //char*  sfilename = "./pixeltrackingrechitshist.root"; // file to be checked
+  //char*  rfilename = "../data/pixeltrackingrechitshist.root"; // reference file 
   
   delete gROOT->GetListOfFiles()->FindObject(rfilename);
   delete gROOT->GetListOfFiles()->FindObject(sfilename);
@@ -75,8 +75,17 @@ void SiPixelRecoCompare()
   //gDirectory->ls();
   
   gROOT->ProcessLine(".x HistoCompare.C");
-  HistoCompare* myPV = new HistoCompare();
-  
+  //HistoCompare* myPV = new HistoCompare();
+  HistoCompare* myPV = new HistoCompare("RecoTrack_SiPixelRecoCompare.txt");
+  //myPV->setName("RecoTrack_SiPixelRecoCompare");
+
+  int n_bins = 145;
+  double low = 0.5;
+  double high = (double)n_bins + 0.5;
+  TH1F* h_pv = new TH1F("h_pv", "#Chi^{2} results for each distribution", n_bins, low, high);
+  int bin = 0;
+  double value_pv = -9999.9;
+
   if (1) 
     {
       TCanvas* can_meControl = new TCanvas("can_meControl", "can_meControl", 1000, 500);
@@ -102,18 +111,21 @@ void SiPixelRecoCompare()
       newmeTracksPerEvent->Draw("samehe"); 
       myPV->PVCompute(meTracksPerEvent, newmeTracksPerEvent, te );
       leg1->Draw();
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+    
       can_meControl->cd(2);
       //gPad->SetLogy();
       SetUpHistograms(mePixRecHitsPerTrack, newmePixRecHitsPerTrack, "pixel hits per track" );
       mePixRecHitsPerTrack->Draw("he");
       newmePixRecHitsPerTrack->Draw("samehe"); 
       myPV->PVCompute(mePixRecHitsPerTrack, newmePixRecHitsPerTrack, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_meControl->SaveAs("meControl_compare.eps");
       can_meControl->SaveAs("meControl_compare.gif");
     }
-  
+
+ 
   if (1) 
     {
       TCanvas* can_meCharge = new TCanvas("can_meCharge", "can_meCharge", 1200, 800);
@@ -150,6 +162,7 @@ void SiPixelRecoCompare()
       meChargeBarrel->Draw("he");
       newmeChargeBarrel->Draw("samehe"); 
       myPV->PVCompute(meChargeBarrel, newmeChargeBarrel, te );
+      h_pv->SetBinContent(++bin, myPV->getPV());
       leg2->Draw();
       
       can_meCharge->cd(2);
@@ -158,28 +171,32 @@ void SiPixelRecoCompare()
       meChargeZmPanel1->Draw("he");
       newmeChargeZmPanel1->Draw("samehe"); 
       myPV->PVCompute(meChargeZmPanel1, newmeChargeZmPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_meCharge->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(meChargeZmPanel2, newmeChargeZmPanel2, "panel2, z<0, cluster charge (elec)" );
       meChargeZmPanel2->Draw("he");
       newmeChargeZmPanel2->Draw("samehe"); 
       myPV->PVCompute(meChargeZmPanel2, newmeChargeZmPanel2, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_meCharge->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(meChargeZpPanel1, newmeChargeZpPanel1, "panel1, z>0, cluster charge (elec)" );
       meChargeZpPanel1->Draw("he");
       newmeChargeZpPanel1->Draw("samehe"); 
       myPV->PVCompute(meChargeZpPanel1, newmeChargeZpPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_meCharge->cd(6);
       //gPad->SetLogy();
       SetUpHistograms(meChargeZpPanel2, newmeChargeZpPanel2, "panel2, z>0, cluster charge (elec)" );  
       meChargeZpPanel2->Draw("he");
       newmeChargeZpPanel2->Draw("samehe"); 
       myPV->PVCompute(meChargeZpPanel2, newmeChargeZpPanel2, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_meCharge->SaveAs("meCharge_compare.eps");
       can_meCharge->SaveAs("meCharge_compare.gif");
     }
@@ -221,13 +238,15 @@ void SiPixelRecoCompare()
       newmeErrxBarrel->Draw("Samehe"); 
       myPV->PVCompute(meErrxBarrel, newmeErrxBarrel, te );
       leg3->Draw();
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Errx->cd(2);
       //gPad->SetLogy();
       SetUpHistograms(meErrxZmPanel1, newmeErrxZmPanel1, "panel1, z<0, x position error (cm)" );
       meErrxZmPanel1->Draw("he");
       newmeErrxZmPanel1->Draw("samehe"); 
       myPV->PVCompute(meErrxZmPanel1, newmeErrxZmPanel1, te );
+      h_pv->SetBinContent(++bin, myPV->getPV());
       
       can_Errx->cd(3);
       //gPad->SetLogy();
@@ -235,25 +254,28 @@ void SiPixelRecoCompare()
       meErrxZmPanel2->Draw("he");
       newmeErrxZmPanel2->Draw("samehe"); 
       myPV->PVCompute(meErrxZmPanel2, newmeErrxZmPanel2, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Errx->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(meErrxZpPanel1, newmeErrxZpPanel1, "panel1, z>0, x position error (cm)" );
       meErrxZpPanel1->Draw("he");
       newmeErrxZpPanel1->Draw("samehe"); 
       myPV->PVCompute(meErrxZpPanel1, newmeErrxZpPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Errx->cd(6);
       //gPad->SetLogy();
       SetUpHistograms(meErrxZpPanel2, newmeErrxZpPanel2, "panel2, z>0, x position error (cm)" );
       meErrxZpPanel2->Draw("he");
       newmeErrxZpPanel2->Draw("samehe"); 
       myPV->PVCompute(meErrxZpPanel2, newmeErrxZpPanel2, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Errx->SaveAs("meErrx_compare.eps");
       can_Errx->SaveAs("meErrx_compare.gif");
     }
-  
+
   if (1) 
     {
       TCanvas* can_Erry = new TCanvas("can_Erry", "can_Erry", 1200, 800);
@@ -291,35 +313,40 @@ void SiPixelRecoCompare()
       newmeErryBarrel->Draw("Samehe"); 
       myPV->PVCompute(meErryBarrel, newmeErryBarrel, te );
       leg4->Draw();
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Erry->cd(2);
       //gPad->SetLogy();
       SetUpHistograms(meErryZmPanel1, newmeErryZmPanel1, "panel1, z<0, y position error (cm)"  );
       meErryZmPanel1->Draw("he");
       newmeErryZmPanel1->Draw("samehe"); 
       myPV->PVCompute(meErryZmPanel1, newmeErryZmPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Erry->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(meErryZmPanel2, newmeErryZmPanel2, "panel2, z<0, y position error (cm)" );
       meErryZmPanel2->Draw("he");
       newmeErryZmPanel2->Draw("samehe"); 
       myPV->PVCompute(meErryZmPanel2, newmeErryZmPanel2, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Erry->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(meErryZpPanel1, newmeErryZpPanel1, "panel1, z>0, y position error (cm)" );
       meErryZpPanel1->Draw("he");
       newmeErryZpPanel1->Draw("samehe"); 
       myPV->PVCompute(meErryZpPanel1, newmeErryZpPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Erry->cd(6);
       //gPad->SetLogy();
       SetUpHistograms(meErryZpPanel2, newmeErryZpPanel2, "panel2, z>0, y position error (cm)" );
       meErryZpPanel2->Draw("he");
       newmeErryZpPanel2->Draw("samehe"); 
       myPV->PVCompute(meErryZpPanel2, newmeErryZpPanel2, te );
-      
+       h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Erry->SaveAs("meErry_compare.eps");
       can_Erry->SaveAs("meErry_compare.gif");
     }
@@ -361,34 +388,39 @@ void SiPixelRecoCompare()
       newmeNpixBarrel->Draw("Samehe"); 
       myPV->PVCompute(meNpixBarrel, newmeNpixBarrel, te );
       leg5->Draw();
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Npix->cd(2);
       //gPad->SetLogy();
       SetUpHistograms(meNpixZmPanel1, newmeNpixZmPanel1, "panel1, z<0, cluster size (pixels)"  );
       meNpixZmPanel1->Draw("he");
       newmeNpixZmPanel1->Draw("samehe"); 
       myPV->PVCompute(meNpixZmPanel1, newmeNpixZmPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Npix->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(meNpixZmPanel2, newmeNpixZmPanel2, "panel2, z<0, cluster size (pixels)" );
       meNpixZmPanel2->Draw("he");
       newmeNpixZmPanel2->Draw("samehe"); 
       myPV->PVCompute(meNpixZmPanel2, newmeNpixZmPanel2, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Npix->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(meNpixZpPanel1, newmeNpixZpPanel1, "panel1, z>0, cluster size (pixels)" );
       meNpixZpPanel1->Draw("he");
       newmeNpixZpPanel1->Draw("samehe"); 
       myPV->PVCompute(meNpixZpPanel1, newmeNpixZpPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Npix->cd(6);
       //gPad->SetLogy();
       SetUpHistograms(meNpixZpPanel2, newmeNpixZpPanel2, "panel2, z>0, cluster size (pixels)" );
       meNpixZpPanel2->Draw("he");
       newmeNpixZpPanel2->Draw("samehe"); 
       myPV->PVCompute(meNpixZpPanel2, newmeNpixZpPanel2, te );
+      h_pv->SetBinContent(++bin, myPV->getPV());
       
       //can_Npix->SaveAs("meNpix_compare.eps");
       //can_Npix->SaveAs("meNpix_compare.gif");
@@ -431,35 +463,40 @@ void SiPixelRecoCompare()
       newmeNxpixBarrel->Draw("Samehe"); 
       myPV->PVCompute(meNxpixBarrel, newmeNxpixBarrel, te );
       leg6->Draw();
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Nxpix->cd(2);
       //gPad->SetLogy();
       SetUpHistograms(meNxpixZmPanel1, newmeNxpixZmPanel1, "panel1, z<0, cluster x size (pixels)" );
       meNxpixZmPanel1->Draw("he");
       newmeNxpixZmPanel1->Draw("samehe"); 
       myPV->PVCompute(meNxpixZmPanel1, newmeNxpixZmPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Nxpix->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(meNxpixZmPanel2, newmeNxpixZmPanel2, "panel2, z<0, cluster x size (pixels)" );
       meNxpixZmPanel2->Draw("he");
       newmeNxpixZmPanel2->Draw("samehe"); 
       myPV->PVCompute(meNxpixZmPanel2, newmeNxpixZmPanel2, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Nxpix->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(meNxpixZpPanel1, newmeNxpixZpPanel1, "panel1, z>0, cluster x size (pixels)" );
       meNxpixZpPanel1->Draw("he");
       newmeNxpixZpPanel1->Draw("samehe"); 
       myPV->PVCompute(meNxpixZpPanel1, newmeNxpixZpPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Nxpix->cd(6);
       //gPad->SetLogy();
       SetUpHistograms(meNxpixZpPanel2, newmeNxpixZpPanel2, "panel2, z>0, cluster x size (pixels)" );
       meNxpixZpPanel2->Draw("he");
       newmeNxpixZpPanel2->Draw("samehe"); 
       myPV->PVCompute(meNxpixZpPanel2, newmeNxpixZpPanel2, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       //can_Nxpix->SaveAs("meNxpix_compare.eps");
       //can_Nxpix->SaveAs("meNxpix_compare.gif");
     }
@@ -501,35 +538,40 @@ void SiPixelRecoCompare()
       newmeNypixBarrel->Draw("Samehe"); 
       myPV->PVCompute(meNypixBarrel, newmeNypixBarrel, te );
       leg7->Draw();
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Nypix->cd(2);
       //gPad->SetLogy();
       SetUpHistograms(meNypixZmPanel1, newmeNypixZmPanel1, "panel1, z<0, cluster y size (pixels)" );
       meNypixZmPanel1->Draw("he");
       newmeNypixZmPanel1->Draw("samehe"); 
       myPV->PVCompute(meNypixZmPanel1, newmeNypixZmPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Nypix->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(meNypixZmPanel2, newmeNypixZmPanel2, "panel2, z<0, cluster y size (pixels)" );
       meNypixZmPanel2->Draw("he");
       newmeNypixZmPanel2->Draw("samehe"); 
       myPV->PVCompute(meNypixZmPanel2, newmeNypixZmPanel2, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Nypix->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(meNypixZpPanel1, newmeNypixZpPanel1, "panel1, z>0, cluster y size (pixels)" );
       meNypixZpPanel1->Draw("he");
       newmeNypixZpPanel1->Draw("samehe"); 
       myPV->PVCompute(meNypixZpPanel1, newmeNypixZpPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Nypix->cd(6);
       //gPad->SetLogy();
       SetUpHistograms(meNypixZpPanel2, newmeNypixZpPanel2, "panel2, z>0, cluster y size (pixels)" );
       meNypixZpPanel2->Draw("he");
       newmeNypixZpPanel2->Draw("samehe"); 
       myPV->PVCompute(meNypixZpPanel2, newmeNypixZpPanel2, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Nypix->SaveAs("meNypix_compare.eps");
       can_Nypix->SaveAs("meNypix_compare.gif");
     }
@@ -571,6 +613,7 @@ void SiPixelRecoCompare()
       newmePosxBarrel->Draw("Samehe"); 
       myPV->PVCompute(mePosxBarrel, newmePosxBarrel, te );
       leg8->Draw();
+      h_pv->SetBinContent(++bin, myPV->getPV());
       
       can_Posx->cd(2);
       //gPad->SetLogy();
@@ -578,28 +621,32 @@ void SiPixelRecoCompare()
       mePosxZmPanel1->Draw("he");
       newmePosxZmPanel1->Draw("samehe"); 
       myPV->PVCompute(mePosxZmPanel1, newmePosxZmPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Posx->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(mePosxZmPanel2, newmePosxZmPanel2, "panel2, z>0, x (cm)" );
       mePosxZmPanel2->Draw("he");
       newmePosxZmPanel2->Draw("samehe"); 
       myPV->PVCompute(mePosxZmPanel2, newmePosxZmPanel2, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Posx->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(mePosxZpPanel1, newmePosxZpPanel1, "panel1, z<0, x (cm)" );
       mePosxZpPanel1->Draw("he");
       newmePosxZpPanel1->Draw("samehe"); 
       myPV->PVCompute(mePosxZpPanel1, newmePosxZpPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Posx->cd(6);
       //gPad->SetLogy();
       SetUpHistograms(mePosxZpPanel2, newmePosxZpPanel2, "panel2, z>0, x (cm)" );
       mePosxZpPanel2->Draw("he");
       newmePosxZpPanel2->Draw("samehe"); 
       myPV->PVCompute(mePosxZpPanel2, newmePosxZpPanel2, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Posx->SaveAs("mePosx_compare.eps");
       can_Posx->SaveAs("mePosx_compare.gif");
   }
@@ -641,35 +688,40 @@ void SiPixelRecoCompare()
       newmePosyBarrel->Draw("Samehe"); 
       myPV->PVCompute(mePosyBarrel, newmePosyBarrel, te );
       leg9->Draw();
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Posy->cd(2);
       //gPad->SetLogy();
       SetUpHistograms(mePosyZmPanel1,  newmePosyZmPanel1, "panel1, z<0, y (cm)" );
       mePosyZmPanel1->Draw("he");
       newmePosyZmPanel1->Draw("samehe"); 
       myPV->PVCompute(mePosyZmPanel1, newmePosyZmPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Posy->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(mePosyZmPanel2, newmePosyZmPanel2, "panel2, z<0, y (cm)" );
       mePosyZmPanel2->Draw("he");
       newmePosyZmPanel2->Draw("samehe"); 
       myPV->PVCompute(mePosyZmPanel2, newmePosyZmPanel2, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Posy->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(mePosyZpPanel1, newmePosyZpPanel1, "panel1, z>0, y (cm)" );
       mePosyZpPanel1->Draw("he");
       newmePosyZpPanel1->Draw("samehe"); 
       myPV->PVCompute(mePosyZpPanel1, newmePosyZpPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Posy->cd(6);
       //gPad->SetLogy();
       SetUpHistograms(mePosyZpPanel2, newmePosyZpPanel2, "panel2, z>0, y (cm)" );
       mePosyZpPanel2->Draw("he");
       newmePosyZpPanel2->Draw("samehe"); 
       myPV->PVCompute(mePosyZpPanel2, newmePosyZpPanel2, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_Posy->SaveAs("mePosy_compare.eps");
       can_Posy->SaveAs("mePosy_compare.gif");
     }
@@ -714,35 +766,40 @@ void SiPixelRecoCompare()
       newmePullXvsAlphaBarrel->Draw("Samee"); 
       myPV->PVCompute(mePullXvsAlphaBarrel, newmePullXvsAlphaBarrel, te );
       leg10->Draw();
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_PullXvsAlpha->cd(2);
       //gPad->SetLogy();
       SetUpProfileHistograms(mePullXvsAlphaZmPanel1, newmePullXvsAlphaZmPanel1, "panel1, z<0, |alpha| (deg)", "pull x", lpull, hpull );
       mePullXvsAlphaZmPanel1->Draw("e");
       newmePullXvsAlphaZmPanel1->Draw("samee"); 
       myPV->PVCompute(mePullXvsAlphaZmPanel1, newmePullXvsAlphaZmPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_PullXvsAlpha->cd(3);
       //gPad->SetLogy();
       SetUpProfileHistograms(mePullXvsAlphaZmPanel2, newmePullXvsAlphaZmPanel2, "panel2, z<0, |alpha| (deg)", "pull x", lpull, hpull );
       mePullXvsAlphaZmPanel2->Draw("e");
       newmePullXvsAlphaZmPanel2->Draw("samee"); 
       myPV->PVCompute(mePullXvsAlphaZmPanel2, newmePullXvsAlphaZmPanel2, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_PullXvsAlpha->cd(5);
       //gPad->SetLogy();
       SetUpProfileHistograms(mePullXvsAlphaZpPanel1, newmePullXvsAlphaZpPanel1, "panel1, z>0, |alpha| (deg)", "pull x", lpull, hpull );
       mePullXvsAlphaZpPanel1->Draw("e");
       newmePullXvsAlphaZpPanel1->Draw("samee"); 
       myPV->PVCompute(mePullXvsAlphaZpPanel1, newmePullXvsAlphaZpPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_PullXvsAlpha->cd(6);
       //gPad->SetLogy();
       SetUpProfileHistograms(mePullXvsAlphaZpPanel2, newmePullXvsAlphaZpPanel2, "panel2, z>0, |alpha| (deg)", "pull x", lpull, hpull );
       mePullXvsAlphaZpPanel2->Draw("e");
       newmePullXvsAlphaZpPanel2->Draw("samee"); 
       myPV->PVCompute(mePullXvsAlphaZpPanel2, newmePullXvsAlphaZpPanel2, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_PullXvsAlpha->SaveAs("mePullXvsAlpha_compare.eps");
       can_PullXvsAlpha->SaveAs("mePullXvsAlpha_compare.gif");
     }
@@ -784,6 +841,7 @@ void SiPixelRecoCompare()
       newmePullXvsBetaBarrel->Draw("Samee"); 
       myPV->PVCompute(mePullXvsBetaBarrel, newmePullXvsBetaBarrel, te );
       leg11->Draw();
+      h_pv->SetBinContent(++bin, myPV->getPV());
 
       can_PullXvsBeta->cd(2);
       //gPad->SetLogy();
@@ -791,27 +849,31 @@ void SiPixelRecoCompare()
       mePullXvsBetaZmPanel1->Draw("e");
       newmePullXvsBetaZmPanel1->Draw("samee"); 
       myPV->PVCompute(mePullXvsBetaZmPanel1, newmePullXvsBetaZmPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_PullXvsBeta->cd(3);
       //gPad->SetLogy();
       SetUpProfileHistograms(mePullXvsBetaZmPanel2, newmePullXvsBetaZmPanel2, "panel2, z<0, |beta| (deg)", "pull x", lpull, hpull );
       mePullXvsBetaZmPanel2->Draw("e");
       newmePullXvsBetaZmPanel2->Draw("samee"); 
       myPV->PVCompute(mePullXvsBetaZmPanel2, newmePullXvsBetaZmPanel2, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_PullXvsBeta->cd(5);
       //gPad->SetLogy();
       SetUpProfileHistograms(mePullXvsBetaZpPanel1, newmePullXvsBetaZpPanel1, "panel1, z>0, |beta| (deg)", "pull x", lpull, hpull );
       mePullXvsBetaZpPanel1->Draw("e");
       newmePullXvsBetaZpPanel1->Draw("samee"); 
       myPV->PVCompute(mePullXvsBetaZpPanel1, newmePullXvsBetaZpPanel1, te );
-      
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
       can_PullXvsBeta->cd(6);
       //gPad->SetLogy();
       SetUpProfileHistograms(mePullXvsBetaZpPanel2, newmePullXvsBetaZpPanel2, "panel2, z>0, |beta| (deg)", "pull x", lpull, hpull );
       mePullXvsBetaZpPanel2->Draw("e");
       newmePullXvsBetaZpPanel2->Draw("samee"); 
       myPV->PVCompute(mePullXvsBetaZpPanel2, newmePullXvsBetaZpPanel2, te );
+      h_pv->SetBinContent(++bin, myPV->getPV());
 
       can_PullXvsBeta->SaveAs("mePullXvsBeta_compare.eps");
       can_PullXvsBeta->SaveAs("mePullXvsBeta_compare.gif");
@@ -854,6 +916,7 @@ if (0)
     newmePullXvsEtaBarrel->Draw("Samee"); 
     myPV->PVCompute(mePullXvsEtaBarrel, newmePullXvsEtaBarrel, te );
     leg12->Draw();
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullXvsEta->cd(2);
     //gPad->SetLogy();
@@ -861,13 +924,15 @@ if (0)
     mePullXvsEtaZmPanel1->Draw("e");
     newmePullXvsEtaZmPanel1->Draw("samee"); 
     myPV->PVCompute(mePullXvsEtaZmPanel1, newmePullXvsEtaZmPanel1, te );
-  
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
     can_PullXvsEta->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullXvsEtaZmPanel2, newmePullXvsEtaZmPanel2, "panel2, z<0, eta", "pull x", lpull, hpull );
     mePullXvsEtaZmPanel2->Draw("e");
     newmePullXvsEtaZmPanel2->Draw("samee"); 
     myPV->PVCompute(mePullXvsEtaZmPanel2, newmePullXvsEtaZmPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullXvsEta->cd(5);
     //gPad->SetLogy();
@@ -875,6 +940,7 @@ if (0)
     mePullXvsEtaZpPanel1->Draw("e");
     newmePullXvsEtaZpPanel1->Draw("samee"); 
     myPV->PVCompute(mePullXvsEtaZpPanel1, newmePullXvsEtaZpPanel1, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullXvsEta->cd(6);
     //gPad->SetLogy();
@@ -882,6 +948,7 @@ if (0)
     mePullXvsEtaZpPanel2->Draw("e");
     newmePullXvsEtaZpPanel2->Draw("samee"); 
     myPV->PVCompute(mePullXvsEtaZpPanel2, newmePullXvsEtaZpPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullXvsEta->SaveAs("mePullXvsEta_compare.eps");
     can_PullXvsEta->SaveAs("mePullXvsEta_compare.gif");
@@ -924,6 +991,7 @@ if (0)
     newmePullXvsPhiBarrel->Draw("Samee"); 
     myPV->PVCompute(mePullXvsPhiBarrel, newmePullXvsPhiBarrel, te );
     leg13->Draw();
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullXvsPhi->cd(2);
     //gPad->SetLogy();
@@ -931,13 +999,15 @@ if (0)
     mePullXvsPhiZmPanel1->Draw("e");
     newmePullXvsPhiZmPanel1->Draw("samee"); 
     myPV->PVCompute(mePullXvsPhiZmPanel1, newmePullXvsPhiZmPanel1, te );
-  
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
     can_PullXvsPhi->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullXvsPhiZmPanel2, newmePullXvsPhiZmPanel2, "panel2, z<0, phi (deg)", "pull x", lpull, hpull );
     mePullXvsPhiZmPanel2->Draw("e");
     newmePullXvsPhiZmPanel2->Draw("samee"); 
     myPV->PVCompute(mePullXvsPhiZmPanel2, newmePullXvsPhiZmPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullXvsPhi->cd(5);
     //gPad->SetLogy();
@@ -945,6 +1015,7 @@ if (0)
     mePullXvsPhiZpPanel1->Draw("e");
     newmePullXvsPhiZpPanel1->Draw("samee"); 
     myPV->PVCompute(mePullXvsPhiZpPanel1, newmePullXvsPhiZpPanel1, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullXvsPhi->cd(6);
     //gPad->SetLogy();
@@ -952,6 +1023,7 @@ if (0)
     mePullXvsPhiZpPanel2->Draw("e");
     newmePullXvsPhiZpPanel2->Draw("samee"); 
     myPV->PVCompute(mePullXvsPhiZpPanel2, newmePullXvsPhiZpPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullXvsPhi->SaveAs("mePullXvsPhi_compare.eps");
     can_PullXvsPhi->SaveAs("mePullXvsPhi_compare.gif");
@@ -994,6 +1066,7 @@ if (0)
     newmePullYvsAlphaBarrel->Draw("Samee"); 
     myPV->PVCompute(mePullYvsAlphaBarrel, newmePullYvsAlphaBarrel, te );
     leg14->Draw();
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullYvsAlpha->cd(2);
     //gPad->SetLogy();
@@ -1001,13 +1074,15 @@ if (0)
     mePullYvsAlphaZmPanel1->Draw("e");
     newmePullYvsAlphaZmPanel1->Draw("samee"); 
     myPV->PVCompute(mePullYvsAlphaZmPanel1, newmePullYvsAlphaZmPanel1, te );
-  
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
     can_PullYvsAlpha->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsAlphaZmPanel2, newmePullYvsAlphaZmPanel2, "panel2, z<0, |alpha| (deg)", "pull y", lpull, hpull );
     mePullYvsAlphaZmPanel2->Draw("e");
     newmePullYvsAlphaZmPanel2->Draw("samee"); 
     myPV->PVCompute(mePullYvsAlphaZmPanel2, newmePullYvsAlphaZmPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullYvsAlpha->cd(5);
     //gPad->SetLogy();
@@ -1015,6 +1090,7 @@ if (0)
     mePullYvsAlphaZpPanel1->Draw("e");
     newmePullYvsAlphaZpPanel1->Draw("samee"); 
     myPV->PVCompute(mePullYvsAlphaZpPanel1, newmePullYvsAlphaZpPanel1, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullYvsAlpha->cd(6);
     //gPad->SetLogy();
@@ -1022,6 +1098,7 @@ if (0)
     mePullYvsAlphaZpPanel2->Draw("e");
     newmePullYvsAlphaZpPanel2->Draw("samee"); 
     myPV->PVCompute(mePullYvsAlphaZpPanel2, newmePullYvsAlphaZpPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullYvsAlpha->SaveAs("mePullYvsAlpha_compare.eps");
     can_PullYvsAlpha->SaveAs("mePullYvsAlpha_compare.gif");
@@ -1064,6 +1141,7 @@ if (   1   )
     newmePullYvsBetaBarrel->Draw("Samee"); 
     myPV->PVCompute(mePullYvsBetaBarrel, newmePullYvsBetaBarrel, te );
     leg15->Draw();
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullYvsBeta->cd(2);
     //gPad->SetLogy();
@@ -1071,13 +1149,15 @@ if (   1   )
     mePullYvsBetaZmPanel1->Draw("e");
     newmePullYvsBetaZmPanel1->Draw("samee"); 
     myPV->PVCompute(mePullYvsBetaZmPanel1, newmePullYvsBetaZmPanel1, te );
-  
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
     can_PullYvsBeta->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsBetaZmPanel2, newmePullYvsBetaZmPanel2, "panel2, z<0, |beta| (deg)", "pull y", lpull, hpull );
     mePullYvsBetaZmPanel2->Draw("e");
     newmePullYvsBetaZmPanel2->Draw("samee"); 
     myPV->PVCompute(mePullYvsBetaZmPanel2, newmePullYvsBetaZmPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullYvsBeta->cd(5);
     //gPad->SetLogy();
@@ -1085,6 +1165,7 @@ if (   1   )
     mePullYvsBetaZpPanel1->Draw("e");
     newmePullYvsBetaZpPanel1->Draw("samee"); 
     myPV->PVCompute(mePullYvsBetaZpPanel1, newmePullYvsBetaZpPanel1, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullYvsBeta->cd(6);
     //gPad->SetLogy();
@@ -1092,6 +1173,7 @@ if (   1   )
     mePullYvsBetaZpPanel2->Draw("e");
     newmePullYvsBetaZpPanel2->Draw("samee"); 
     myPV->PVCompute(mePullYvsBetaZpPanel2, newmePullYvsBetaZpPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullYvsBeta->SaveAs("mePullYvsBeta_compare.eps");
     can_PullYvsBeta->SaveAs("mePullYvsBeta_compare.gif");
@@ -1134,6 +1216,7 @@ if (0)
     newmePullYvsEtaBarrel->Draw("Samee"); 
     myPV->PVCompute(mePullYvsEtaBarrel, newmePullYvsEtaBarrel, te );
     leg16->Draw();
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullYvsEta->cd(2);
     //gPad->SetLogy();
@@ -1141,13 +1224,15 @@ if (0)
     mePullYvsEtaZmPanel1->Draw("e");
     newmePullYvsEtaZmPanel1->Draw("samee"); 
     myPV->PVCompute(mePullYvsEtaZmPanel1, newmePullYvsEtaZmPanel1, te );
-  
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
     can_PullYvsEta->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsEtaZmPanel2, newmePullYvsEtaZmPanel2, "panel2, z<0, eta", "pull y", lpull, hpull );
     mePullYvsEtaZmPanel2->Draw("e");
     newmePullYvsEtaZmPanel2->Draw("samee"); 
     myPV->PVCompute(mePullYvsEtaZmPanel2, newmePullYvsEtaZmPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullYvsEta->cd(5);
     //gPad->SetLogy();
@@ -1155,6 +1240,7 @@ if (0)
     mePullYvsEtaZpPanel1->Draw("e");
     newmePullYvsEtaZpPanel1->Draw("samee"); 
     myPV->PVCompute(mePullYvsEtaZpPanel1, newmePullYvsEtaZpPanel1, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullYvsEta->cd(6);
     //gPad->SetLogy();
@@ -1162,6 +1248,7 @@ if (0)
     mePullYvsEtaZpPanel2->Draw("e");
     newmePullYvsEtaZpPanel2->Draw("samee"); 
     myPV->PVCompute(mePullYvsEtaZpPanel2, newmePullYvsEtaZpPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullYvsEta->SaveAs("mePullYvsEta_compare.eps");
     can_PullYvsEta->SaveAs("mePullYvsEta_compare.gif");
@@ -1204,6 +1291,7 @@ if (0)
     newmePullYvsPhiBarrel->Draw("Samee"); 
     myPV->PVCompute(mePullYvsPhiBarrel, newmePullYvsPhiBarrel, te );
     leg17->Draw();
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullYvsPhi->cd(2);
     //gPad->SetLogy();
@@ -1211,13 +1299,15 @@ if (0)
     mePullYvsPhiZmPanel1->Draw("e");
     newmePullYvsPhiZmPanel1->Draw("samee"); 
     myPV->PVCompute(mePullYvsPhiZmPanel1, newmePullYvsPhiZmPanel1, te );
-  
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
     can_PullYvsPhi->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsPhiZmPanel2, newmePullYvsPhiZmPanel2, "panel2, z<0, phi (deg)", "pull y" , lpull, hpull);
     mePullYvsPhiZmPanel2->Draw("e");
     newmePullYvsPhiZmPanel2->Draw("samee"); 
     myPV->PVCompute(mePullYvsPhiZmPanel2, newmePullYvsPhiZmPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullYvsPhi->cd(5);
     //gPad->SetLogy();
@@ -1225,6 +1315,7 @@ if (0)
     mePullYvsPhiZpPanel1->Draw("e");
     newmePullYvsPhiZpPanel1->Draw("samee"); 
     myPV->PVCompute(mePullYvsPhiZpPanel1, newmePullYvsPhiZpPanel1, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullYvsPhi->cd(6);
     //gPad->SetLogy();
@@ -1232,6 +1323,7 @@ if (0)
     mePullYvsPhiZpPanel2->Draw("e");
     newmePullYvsPhiZpPanel2->Draw("samee"); 
     myPV->PVCompute(mePullYvsPhiZpPanel2, newmePullYvsPhiZpPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_PullYvsPhi->SaveAs("mePullYvsPhi_compare.eps");
     can_PullYvsPhi->SaveAs("mePullYvsPhi_compare.gif");
@@ -1274,6 +1366,7 @@ if (1)
     newmePullxBarrel->Draw("Samehe"); 
     myPV->PVCompute(mePullxBarrel, newmePullxBarrel, te );
     leg18->Draw();
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_mePullx->cd(2);
     //gPad->SetLogy();
@@ -1281,13 +1374,15 @@ if (1)
     mePullxZmPanel1->Draw("he");
     newmePullxZmPanel1->Draw("samehe"); 
     myPV->PVCompute(mePullxZmPanel1, newmePullxZmPanel1, te );
-  
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
     can_mePullx->cd(3);
     //gPad->SetLogy();
     SetUpHistograms(mePullxZmPanel2, newmePullxZmPanel2, "panel2, z<0, pull x" );
     mePullxZmPanel2->Draw("he");
     newmePullxZmPanel2->Draw("samehe"); 
     myPV->PVCompute(mePullxZmPanel2, newmePullxZmPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_mePullx->cd(5);
     //gPad->SetLogy();
@@ -1295,13 +1390,15 @@ if (1)
     mePullxZpPanel1->Draw("he");
     newmePullxZpPanel1->Draw("samehe"); 
     myPV->PVCompute(mePullxZpPanel1, newmePullxZpPanel1, te );
-
+    h_pv->SetBinContent(++bin, myPV->getPV());
+    
     can_mePullx->cd(6);
     //gPad->SetLogy();
     SetUpHistograms(mePullxZpPanel2, newmePullxZpPanel2, "panel1, z>0, pull x" );
     mePullxZpPanel2->Draw("he");
     newmePullxZpPanel2->Draw("samehe"); 
     myPV->PVCompute(mePullxZpPanel2, newmePullxZpPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_mePullx->SaveAs("mePullx_compare.eps");
     can_mePullx->SaveAs("mePullx_compare.gif");
@@ -1344,20 +1441,23 @@ if (1)
     newmePullyBarrel->Draw("Samehe"); 
     myPV->PVCompute(mePullyBarrel, newmePullyBarrel, te );
     leg19->Draw();
-    
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
     can_mePully->cd(2);
     //gPad->SetLogy();
     SetUpHistograms(mePullyZmPanel1, newmePullyZmPanel1, "panel1, z<0, pull y" );
     mePullyZmPanel1->Draw("he");
     newmePullyZmPanel1->Draw("samehe"); 
     myPV->PVCompute(mePullyZmPanel1, newmePullyZmPanel1, te );
-  
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
     can_mePully->cd(3);
     //gPad->SetLogy();
     SetUpHistograms(mePullyZmPanel2, newmePullyZmPanel2, "panel2, z<0, pull y" );
     mePullyZmPanel2->Draw("he");
     newmePullyZmPanel2->Draw("samehe"); 
     myPV->PVCompute(mePullyZmPanel2, newmePullyZmPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_mePully->cd(5);
     //gPad->SetLogy();
@@ -1365,6 +1465,7 @@ if (1)
     mePullyZpPanel1->Draw("he");
     newmePullyZpPanel1->Draw("samehe"); 
     myPV->PVCompute(mePullyZpPanel1, newmePullyZpPanel1, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_mePully->cd(6);
     //gPad->SetLogy();
@@ -1372,6 +1473,7 @@ if (1)
     mePullyZpPanel2->Draw("he");
     newmePullyZpPanel2->Draw("samehe"); 
     myPV->PVCompute(mePullyZpPanel2, newmePullyZpPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_mePully->SaveAs("mePully_compare.eps");
     can_mePully->SaveAs("mePully_compare.gif");
@@ -1420,13 +1522,11 @@ if (1)
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsAlphaBarrelFlippedLadders, newmeResXvsAlphaBarrelFlippedLadders, 
 			   "barrel, non-flipped ladders, |alpha| (deg)", "<|x residual|> (cm)", ymin, ymax, leg20 );
-    //meResXvsAlphaBarrelFlippedLadders->SetTitleOffset(2.5, "Y");
-    //meResXvsAlphaBarrelFlippedLadders->SetMinimum(0.0005);
-    //meResXvsAlphaBarrelFlippedLadders->SetMaximum(0.0015);
     meResXvsAlphaBarrelFlippedLadders->Draw("e");
     newmeResXvsAlphaBarrelFlippedLadders->Draw("Samee"); 
     myPV->PVCompute(meResXvsAlphaBarrelFlippedLadders, newmeResXvsAlphaBarrelFlippedLadders, te );
     leg20->Draw();
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_ResXvsAlpha->cd(2);
     //gPad->SetLogy();
@@ -1437,7 +1537,8 @@ if (1)
     meResXvsAlphaZmPanel1->Draw("e");
     newmeResXvsAlphaZmPanel1->Draw("samee"); 
     myPV->PVCompute(meResXvsAlphaZmPanel1, newmeResXvsAlphaZmPanel1, te );
-  
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
     can_ResXvsAlpha->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsAlphaZmPanel2, newmeResXvsAlphaZmPanel2, 
@@ -1447,6 +1548,7 @@ if (1)
     meResXvsAlphaZmPanel2->Draw("e");
     newmeResXvsAlphaZmPanel2->Draw("samee"); 
     myPV->PVCompute(meResXvsAlphaZmPanel2, newmeResXvsAlphaZmPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_ResXvsAlpha->cd(4);
     //gPad->SetLogy();
@@ -1457,6 +1559,7 @@ if (1)
     meResXvsAlphaBarrelNonFlippedLadders->Draw("e");
     newmeResXvsAlphaBarrelNonFlippedLadders->Draw("Samee"); 
     myPV->PVCompute(meResXvsAlphaBarrelNonFlippedLadders, newmeResXvsAlphaBarrelNonFlippedLadders, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_ResXvsAlpha->cd(5);
     //gPad->SetLogy();
@@ -1467,6 +1570,7 @@ if (1)
     meResXvsAlphaZpPanel1->Draw("e");
     newmeResXvsAlphaZpPanel1->Draw("samee"); 
     myPV->PVCompute(meResXvsAlphaZpPanel1, newmeResXvsAlphaZpPanel1, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_ResXvsAlpha->cd(6);
     //gPad->SetLogy();
@@ -1477,6 +1581,7 @@ if (1)
     meResXvsAlphaZpPanel2->Draw("e");
     newmeResXvsAlphaZpPanel2->Draw("samee"); 
     myPV->PVCompute(meResXvsAlphaZpPanel2, newmeResXvsAlphaZpPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_ResXvsAlpha->SaveAs("meResXvsAlpha_compare.eps");
     can_ResXvsAlpha->SaveAs("meResXvsAlpha_compare.gif");
@@ -1520,6 +1625,7 @@ if (1)
     newmeResXvsBetaBarrel->Draw("Samee"); 
     myPV->PVCompute(meResXvsBetaBarrel, newmeResXvsBetaBarrel, te );
     leg21->Draw();
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_ResXvsBeta->cd(2);
     //gPad->SetLogy();
@@ -1528,7 +1634,8 @@ if (1)
     meResXvsBetaZmPanel1->Draw("e");
     newmeResXvsBetaZmPanel1->Draw("samee"); 
     myPV->PVCompute(meResXvsBetaZmPanel1, newmeResXvsBetaZmPanel1, te );
-  
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
     can_ResXvsBeta->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsBetaZmPanel2, newmeResXvsBetaZmPanel2, 
@@ -1536,6 +1643,7 @@ if (1)
     meResXvsBetaZmPanel2->Draw("e");
     newmeResXvsBetaZmPanel2->Draw("samee"); 
     myPV->PVCompute(meResXvsBetaZmPanel2, newmeResXvsBetaZmPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_ResXvsBeta->cd(5);
     //gPad->SetLogy();
@@ -1543,6 +1651,7 @@ if (1)
     meResXvsBetaZpPanel1->Draw("e");
     newmeResXvsBetaZpPanel1->Draw("samee"); 
     myPV->PVCompute(meResXvsBetaZpPanel1, newmeResXvsBetaZpPanel1, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_ResXvsBeta->cd(6);
     //gPad->SetLogy();
@@ -1550,6 +1659,7 @@ if (1)
     meResXvsBetaZpPanel2->Draw("e");
     newmeResXvsBetaZpPanel2->Draw("samee"); 
     myPV->PVCompute(meResXvsBetaZpPanel2, newmeResXvsBetaZpPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_ResXvsBeta->SaveAs("meResXvsBeta_compare.eps");
     can_ResXvsBeta->SaveAs("meResXvsBeta_compare.gif");
@@ -1596,34 +1706,43 @@ if (1)
     newmeResYvsAlphaBarrel->Draw("Samee"); 
     myPV->PVCompute(meResYvsAlphaBarrel, newmeResYvsAlphaBarrel, te );
     leg22->Draw();
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_ResYvsAlpha->cd(2);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResYvsAlphaZmPanel1, newmeResYvsAlphaZmPanel1, "panel1, z<0, |alpha| (deg)", "<|y residual|> (cm)", ymin, ymax );
+    SetUpProfileHistograms(meResYvsAlphaZmPanel1, newmeResYvsAlphaZmPanel1, 
+			   "panel1, z<0, |alpha| (deg)", "<|y residual|> (cm)", ymin, ymax );
     meResYvsAlphaZmPanel1->Draw("e");
     newmeResYvsAlphaZmPanel1->Draw("samee"); 
     myPV->PVCompute(meResYvsAlphaZmPanel1, newmeResYvsAlphaZmPanel1, te );
-  
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
     can_ResYvsAlpha->cd(3);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResYvsAlphaZmPanel2, newmeResYvsAlphaZmPanel2, "panel2, z<0, |alpha| (deg)", "<|y residual|> (cm)", ymin, ymax );
+    SetUpProfileHistograms(meResYvsAlphaZmPanel2, newmeResYvsAlphaZmPanel2, 
+			   "panel2, z<0, |alpha| (deg)", "<|y residual|> (cm)", ymin, ymax );
     meResYvsAlphaZmPanel2->Draw("e");
     newmeResYvsAlphaZmPanel2->Draw("samee"); 
     myPV->PVCompute(meResYvsAlphaZmPanel2, newmeResYvsAlphaZmPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_ResYvsAlpha->cd(5);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResYvsAlphaZpPanel1, newmeResYvsAlphaZpPanel1, "panel1, z>0, |alpha| (deg)", "<|y residual|> (cm)" , ymin, ymax);
+    SetUpProfileHistograms(meResYvsAlphaZpPanel1, newmeResYvsAlphaZpPanel1, 
+			   "panel1, z>0, |alpha| (deg)", "<|y residual|> (cm)" , ymin, ymax);
     meResYvsAlphaZpPanel1->Draw("e");
     newmeResYvsAlphaZpPanel1->Draw("samee"); 
     myPV->PVCompute(meResYvsAlphaZpPanel1, newmeResYvsAlphaZpPanel1, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_ResYvsAlpha->cd(6);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResYvsAlphaZpPanel2, newmeResYvsAlphaZpPanel2, "panel2, z>0, |alpha| (deg)", "<|y residual|> (cm)", ymin, ymax );
+    SetUpProfileHistograms(meResYvsAlphaZpPanel2, newmeResYvsAlphaZpPanel2, 
+			   "panel2, z>0, |alpha| (deg)", "<|y residual|> (cm)", ymin, ymax );
     meResYvsAlphaZpPanel2->Draw("e");
     newmeResYvsAlphaZpPanel2->Draw("samee"); 
     myPV->PVCompute(meResYvsAlphaZpPanel2, newmeResYvsAlphaZpPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_ResYvsAlpha->SaveAs("meResYvsAlpha_compare.eps");
     can_ResYvsAlpha->SaveAs("meResYvsAlpha_compare.gif");
@@ -1667,6 +1786,7 @@ if (1)
     newmeResYvsBetaBarrel->Draw("Samee"); 
     myPV->PVCompute(meResYvsBetaBarrel, newmeResYvsBetaBarrel, te );
     leg23->Draw();
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_ResYvsBeta->cd(2);
     //gPad->SetLogy();
@@ -1674,13 +1794,15 @@ if (1)
     meResYvsBetaZmPanel1->Draw("e");
     newmeResYvsBetaZmPanel1->Draw("samee"); 
     myPV->PVCompute(meResYvsBetaZmPanel1, newmeResYvsBetaZmPanel1, te );
-  
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
     can_ResYvsBeta->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResYvsBetaZmPanel2, newmeResYvsBetaZmPanel2, "panel2, z<0, |beta| (deg)", "<|y residual|> (cm)", ymin, ymax );
     meResYvsBetaZmPanel2->Draw("e");
     newmeResYvsBetaZmPanel2->Draw("samee"); 
     myPV->PVCompute(meResYvsBetaZmPanel2, newmeResYvsBetaZmPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_ResYvsBeta->cd(5);
     //gPad->SetLogy();
@@ -1688,6 +1810,7 @@ if (1)
     meResYvsBetaZpPanel1->Draw("e");
     newmeResYvsBetaZpPanel1->Draw("samee"); 
     myPV->PVCompute(meResYvsBetaZpPanel1, newmeResYvsBetaZpPanel1, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_ResYvsBeta->cd(6);
     //gPad->SetLogy();
@@ -1695,6 +1818,7 @@ if (1)
     meResYvsBetaZpPanel2->Draw("e");
     newmeResYvsBetaZpPanel2->Draw("samee"); 
     myPV->PVCompute(meResYvsBetaZpPanel2, newmeResYvsBetaZpPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_ResYvsBeta->SaveAs("meResYvsBeta_compare.eps");
     can_ResYvsBeta->SaveAs("meResYvsBeta_compare.gif");
@@ -1737,6 +1861,7 @@ if (1)
     newmeResxBarrel->Draw("Samehe"); 
     myPV->PVCompute(meResxBarrel, newmeResxBarrel, te );
     leg24->Draw();
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_meResx->cd(2);
     gPad->SetLogy();
@@ -1744,13 +1869,15 @@ if (1)
     meResxZmPanel1->Draw("he");
     newmeResxZmPanel1->Draw("samehe"); 
     myPV->PVCompute(meResxZmPanel1, newmeResxZmPanel1, te );
-  
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
     can_meResx->cd(3);
     gPad->SetLogy();
     SetUpHistograms(meResxZmPanel2,  newmeResxZmPanel2, "panel2, z<0, x residual (cm)");
     meResxZmPanel2->Draw("he");
     newmeResxZmPanel2->Draw("samehe"); 
     myPV->PVCompute(meResxZmPanel2, newmeResxZmPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_meResx->cd(5);
     gPad->SetLogy();
@@ -1758,6 +1885,7 @@ if (1)
     meResxZpPanel1->Draw("he");
     newmeResxZpPanel1->Draw("samehe"); 
     myPV->PVCompute(meResxZpPanel1, newmeResxZpPanel1, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_meResx->cd(6);
     gPad->SetLogy();
@@ -1765,7 +1893,8 @@ if (1)
     meResxZpPanel2->Draw("he");
     newmeResxZpPanel2->Draw("samehe"); 
     myPV->PVCompute(meResxZpPanel2, newmeResxZpPanel2, te );
-    
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
     can_meResx->SaveAs("meResx_compare.eps");
     can_meResx->SaveAs("meResx_compare.gif");
   }
@@ -1807,6 +1936,7 @@ if (1)
     newmeResyBarrel->Draw("Samehe"); 
     myPV->PVCompute(meResyBarrel, newmeResyBarrel, te );
     leg25->Draw();
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_meResy->cd(2);
     gPad->SetLogy();
@@ -1814,13 +1944,15 @@ if (1)
     meResyZmPanel1->Draw("he");
     newmeResyZmPanel1->Draw("samehe"); 
     myPV->PVCompute(meResyZmPanel1, newmeResyZmPanel1, te );
-  
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
     can_meResy->cd(3);
     gPad->SetLogy();
     SetUpHistograms(meResyZmPanel2, newmeResyZmPanel2, "panel2, z<0, y residual (cm) " );
     meResyZmPanel2->Draw("he");
     newmeResyZmPanel2->Draw("samehe"); 
     myPV->PVCompute(meResyZmPanel2, newmeResyZmPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_meResy->cd(5);
     gPad->SetLogy();
@@ -1828,6 +1960,7 @@ if (1)
     meResyZpPanel1->Draw("he");
     newmeResyZpPanel1->Draw("samehe"); 
     myPV->PVCompute(meResyZpPanel1, newmeResyZpPanel1, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_meResy->cd(6);
     gPad->SetLogy();
@@ -1835,6 +1968,7 @@ if (1)
     meResyZpPanel2->Draw("he");
     newmeResyZpPanel2->Draw("samehe"); 
     myPV->PVCompute(meResyZpPanel2, newmeResyZpPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
 
     can_meResy->SaveAs("meResy_compare.eps");
     can_meResy->SaveAs("meResy_compare.gif");
@@ -1866,6 +2000,7 @@ if (1)
        meChargeLayerModule[i][j]->Draw("he");
        newmeChargeLayerModule[i][j]->Draw("samehe"); 
        myPV->PVCompute(meChargeLayerModule[i][j], newmeChargeLayerModule[i][j], te );
+       h_pv->SetBinContent(++bin, myPV->getPV());
      }
  TLegend* leg26 = new TLegend(0.3, 0.7, 0.6, 0.9);
  leg26->SetBorderSize(0);
@@ -1896,6 +2031,7 @@ if (1)
        meChargeZmPanel1DiskPlaq[i][j]->Draw("he");
        newmeChargeZmPanel1DiskPlaq[i][j]->Draw("samehe"); 
        myPV->PVCompute(meChargeZmPanel1DiskPlaq[i][j], newmeChargeZmPanel1DiskPlaq[i][j], te );
+       h_pv->SetBinContent(++bin, myPV->getPV());
      }
  TLegend* leg27 = new TLegend(0.3, 0.7, 0.6, 0.9);
  leg27->SetBorderSize(0);
@@ -1926,6 +2062,7 @@ if (1)
        meChargeZmPanel2DiskPlaq[i][j]->Draw("he");
        newmeChargeZmPanel2DiskPlaq[i][j]->Draw("samehe"); 
        myPV->PVCompute(meChargeZmPanel2DiskPlaq[i][j], newmeChargeZmPanel2DiskPlaq[i][j], te );
+       h_pv->SetBinContent(++bin, myPV->getPV());
      }
  TLegend* leg28 = new TLegend(0.3, 0.7, 0.6, 0.9);
  leg28->SetBorderSize(0);
@@ -1956,6 +2093,7 @@ if (1)
        meChargeZpPanel1DiskPlaq[i][j]->Draw("he");
        newmeChargeZpPanel1DiskPlaq[i][j]->Draw("samehe"); 
        myPV->PVCompute(meChargeZpPanel1DiskPlaq[i][j], newmeChargeZpPanel1DiskPlaq[i][j], te );
+       h_pv->SetBinContent(++bin, myPV->getPV());
      }
  TLegend* leg29 = new TLegend(0.3, 0.7, 0.6, 0.9);
  leg29->SetBorderSize(0);
@@ -1986,11 +2124,25 @@ if (1)
        meChargeZpPanel2DiskPlaq[i][j]->Draw("he");
        newmeChargeZpPanel2DiskPlaq[i][j]->Draw("samehe"); 
        myPV->PVCompute(meChargeZpPanel2DiskPlaq[i][j], newmeChargeZpPanel2DiskPlaq[i][j], te );
+       h_pv->SetBinContent(++bin, myPV->getPV());
      }
  TLegend* leg30 = new TLegend(0.3, 0.7, 0.6, 0.9);
  leg30->SetBorderSize(0);
  leg30->AddEntry(   meChargeZmPanel2DiskPlaq[0][0], "reference  ", "l");
  leg30->AddEntry(newmeChargeZmPanel2DiskPlaq[0][0], "new release", "l");
  leg30->Draw();
+
+  TCanvas* can_pv = new TCanvas("can_pv", "can_mepv", 1200, 500);
+  gPad->SetLogy();
+  h_pv->SetXTitle("histogram number");
+  h_pv->SetYTitle("Probability");
+  h_pv->SetTitleOffset(0.7, "Y");
+  h_pv->Draw();
+
+  if ( n_bins != bin )
+    cout << "   We have " << bin << " histograms but " << n_bins << " bins in the probability summary plots. " << endl 
+	 << "   Please update n_bins to equal " << bin << "." << " Thank you !" << endl; 
+  
+  delete myPV;
 
 }
