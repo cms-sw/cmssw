@@ -8,14 +8,13 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.13 2006/10/21 02:48:58 wmtan Exp $
+// $Id: AutoLibraryLoader.cc,v 1.14 2006/12/16 13:33:29 wmtan Exp $
 //
 
 // system include files
 #include <iostream>
 #include "TROOT.h"
 #include "G__ci.h"
-#include "common.h"
 #include "boost/regex.hpp"
 
 // user include files
