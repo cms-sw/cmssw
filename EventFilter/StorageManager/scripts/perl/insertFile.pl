@@ -19,18 +19,18 @@ sub show_help {
   Script to insert an entry to the run_files table
 
   Syntax:
-  =======
-  insertFile <RUNNUMBER><LUMISECTION><INSTANCE><PRODUCER><PATHNAME><FILENAME>\
-    <HOSTNAME><STREAM><DATASET><STATUS><NEVENTS><FILESIZE><START_TIME>\
-    <STOP_TIME><CHECKSUM><CRC>
+  ======= 
+  insertFile.pl <RUNNUMBER> <LUMISECTION> <INSTANCE> <PRODUCER> <PATHNAME> <FILENAME>\
+    <HOSTNAME> <STREAM> <DATASET> <STATUS> <NEVENTS> <FILESIZE> <START_TIME>\
+    <STOP_TIME> <CHECKSUM> <CRC> <SAFETY> <COUNT> <TYPE>
   - h          to get this help
  
   Example:
   ========
-  ./insertFile '0' '0' '0' 'StorageManager' '/data/' \ 
+  ./insertFile.pl '43000' '0' '0' 'StorageManager' '/data/' \ 
          'test.00000000.A.StorageManager' 'cmsdisk0' \
          'A' '0' 'open' '0' '0' '24-DEC-2006 12.59.59.00' \
-         '25-DEC-2006 01.00.00.00' '0' '0'
+         '25-DEC-2006 01.00.00.00' '0' '0' '0' '0' 'test'
   inserts dummy entry in run_files table
   
   ##############################################################################   
@@ -42,7 +42,7 @@ sub show_help {
 my ($RUNNUMBER)   = ('0');  
 my ($LUMISECTION) = ('0');  
 my ($INSTANCE)    = ('0');
-#my ($COUNT)      =  ('0');  
+#
 my ($PRODUCER)    = ('StorageManager');  
 my ($PATHNAME)    = ('/data/');  
 my ($FILENAME)    = ('test.00000000.A.StorageManager');
@@ -56,9 +56,13 @@ my ($START_TIME)  = ('24-DEC-2006 12.59.59.00');
 my ($STOP_TIME)   = ('25-DEC-2006 01.00.00.00');
 my ($CHECKSUM)    = ('0');
 my ($CRC)         = ('0');
+my ($SAFETY)      = ('0');
+my ($COUNT)       = ('0');  
+my ($TYPE)        = ('test');  
+
 
 if ("$ARGV[0]" eq "-h") { &show_help(0);          }
-if ($#ARGV ==  15)      { $RUNNUMBER   = "$ARGV[0]";
+if ($#ARGV ==  18)      { $RUNNUMBER   = "$ARGV[0]";
 			  $LUMISECTION = "$ARGV[1]";
 			  $INSTANCE    = "$ARGV[2]";  
 			  $PRODUCER    = "$ARGV[3]";  
@@ -73,7 +77,11 @@ if ($#ARGV ==  15)      { $RUNNUMBER   = "$ARGV[0]";
 			  $START_TIME  = "$ARGV[12]";  
 			  $STOP_TIME   = "$ARGV[13]";   
 			  $CHECKSUM    = "$ARGV[14]";    
-			  $CRC         = "$ARGV[15]"; }
+			  $CRC         = "$ARGV[15]"; 
+		          $SAFETY      = "$ARGV[16]";
+		          $COUNT       = "$ARGV[17]";
+		          $TYPE        = "$ARGV[18]"
+			  }
 else                    { &show_help(1);          }
 
 # Connect to DB
@@ -82,10 +90,10 @@ my $reader = "cms_sto_mgr";
 my $dbh    = DBI->connect($dbi,$reader,"qwerty");
 
 # Do the update
-my $SQLUPDATE = "INSERT INTO CMS_STO_MGR_ADMIN.RUN_FILES (RUNNUMBER,LUMISECTION,INSTANCE,PRODUCER,PATHNAME,FILENAME,HOSTNAME,STREAM,DATASET,STATUS,NEVENTS,FILESIZE,START_TIME,STOP_TIME,CHECKSUM,CRC) VALUES ($RUNNUMBER,$LUMISECTION,$INSTANCE,'$PRODUCER','$PATHNAME','$FILENAME','$HOSTNAME','$STREAM','$DATASET','$STATUS',$NEVENTS,$FILESIZE,'$START_TIME','$STOP_TIME',$CHECKSUM,$CRC)";
+my $SQLUPDATE = "INSERT INTO CMS_STO_MGR_ADMIN.RUN_FILES (RUNNUMBER,LUMISECTION,INSTANCE,PRODUCER,PATHNAME,FILENAME,HOSTNAME,STREAM,DATASET,STATUS,NEVENTS,FILESIZE,START_TIME,STOP_TIME,CHECKSUM,CRC,SAFETY,COUNT,TYPE) VALUES ($RUNNUMBER,$LUMISECTION,$INSTANCE,'$PRODUCER','$PATHNAME','$FILENAME','$HOSTNAME','$STREAM','$DATASET','$STATUS',$NEVENTS,$FILESIZE,'$START_TIME','$STOP_TIME',$CHECKSUM,$CRC,$SAFETY,$COUNT,'$TYPE')";
 
 my $sth = $dbh->do($SQLUPDATE);
-print "$SQLUPDATE \n";
+#print "$SQLUPDATE \n";
 
 # Disconnect from DB
 $dbh->disconnect;
