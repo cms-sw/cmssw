@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/11/20 09:04:13 $
- * $Revision: 1.60 $
+ * $Date: 2006/11/21 13:16:51 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -39,16 +39,13 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
 
-using namespace cms;
-using namespace std;
-
-class EcalBarrelMonitorClient: public EDAnalyzer{
+class EcalBarrelMonitorClient: public edm::EDAnalyzer{
 
 public:
 
 /// Constructor
-EcalBarrelMonitorClient(const ParameterSet & ps);
-EcalBarrelMonitorClient(const ParameterSet & ps, MonitorUserInterface* mui);
+EcalBarrelMonitorClient(const edm::ParameterSet & ps);
+EcalBarrelMonitorClient(const edm::ParameterSet & ps, MonitorUserInterface* mui);
   
 /// Destructor
 ~EcalBarrelMonitorClient();
@@ -62,15 +59,15 @@ void unsubscribe(void);
 void softReset(void);
   
 // Initialize
-void initialize(const ParameterSet & ps);
+void initialize(const edm::ParameterSet & ps);
 
 /// Analyze
 void analyze(void);
-void analyze(const Event & e, const EventSetup & c){ this->analyze(); }
+void analyze(const edm::Event & e, const edm::EventSetup & c){ this->analyze(); }
   
 /// BeginJob
 void beginJob(void);
-void beginJob(const EventSetup & c){ this->beginJob(); }
+void beginJob(const edm::EventSetup & c){ this->beginJob(); }
   
 /// EndJob
 void endJob(void);

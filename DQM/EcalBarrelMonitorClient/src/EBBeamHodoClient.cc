@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2006/11/21 13:16:52 $
- * $Revision: 1.30 $
+ * $Date: 2006/12/15 09:44:50 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -30,6 +30,10 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EBBeamHodoClient::EBBeamHodoClient(const ParameterSet& ps){
 

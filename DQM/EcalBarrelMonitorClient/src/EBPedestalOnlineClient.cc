@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/01/31 19:20:21 $
- * $Revision: 1.72 $
+ * $Date: 2007/02/01 15:06:36 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,6 +34,10 @@
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps){
 

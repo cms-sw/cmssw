@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/01/31 20:42:17 $
- * $Revision: 1.120 $
+ * $Date: 2007/02/01 15:06:36 $
+ * $Revision: 1.121 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -38,6 +38,10 @@
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
 

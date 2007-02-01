@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2006/11/21 13:16:52 $
- * $Revision: 1.7 $
+ * $Date: 2006/12/15 09:44:50 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -30,6 +30,10 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EBClusterClient::EBClusterClient(const ParameterSet& ps){
 

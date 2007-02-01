@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/12/15 09:44:50 $
- * $Revision: 1.63 $
+ * $Date: 2007/01/31 20:42:17 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -31,6 +31,10 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EBCosmicClient::EBCosmicClient(const ParameterSet& ps){
 

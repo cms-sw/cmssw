@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerClient.h
  *
- * $Date: 2006/11/21 13:16:51 $
- * $Revision: 1.6 $
+ * $Date: 2006/12/15 09:44:49 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -29,10 +29,6 @@
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
 class MonitorUserInterface;
 class EcalCondDBInterface;
 class MonRunIOV;
@@ -42,7 +38,7 @@ class EBTriggerTowerClient : public EBClient {
 public:
 
 /// Constructor
-EBTriggerTowerClient(const ParameterSet& ps);
+EBTriggerTowerClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBTriggerTowerClient();

@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2007/01/26 20:26:04 $
- * $Revision: 1.41 $
+ * $Date: 2007/01/27 11:03:02 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -29,16 +29,16 @@
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+class MonitorUserInterface;
+class EcalCondDBInterface;
+class MonRunIOV;
 
 class EBTestPulseClient : public EBClient {
 
 public:
 
 /// Constructor
-EBTestPulseClient(const ParameterSet& ps);
+EBTestPulseClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBTestPulseClient();

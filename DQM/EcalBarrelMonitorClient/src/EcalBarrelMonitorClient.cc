@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/01/31 16:41:13 $
- * $Revision: 1.206 $
+ * $Date: 2007/02/01 15:06:36 $
+ * $Revision: 1.207 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -36,6 +36,10 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui){
 

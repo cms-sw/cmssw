@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/01/31 20:00:38 $
- * $Revision: 1.133 $
+ * $Date: 2007/02/01 15:06:35 $
+ * $Revision: 1.134 $
  * \author G. Della Ricca
  *
 */
@@ -42,6 +42,10 @@
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EBLaserClient::EBLaserClient(const ParameterSet& ps){
 

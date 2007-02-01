@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineClient.h
  *
- * $Date: 2006/11/21 13:16:51 $
- * $Revision: 1.22 $
+ * $Date: 2006/12/15 09:44:49 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -29,10 +29,6 @@
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
 class MonitorUserInterface;
 class EcalCondDBInterface;
 class MonRunIOV;
@@ -42,7 +38,7 @@ class EBPedestalOnlineClient : public EBClient {
 public:
 
 /// Constructor
-EBPedestalOnlineClient(const ParameterSet& ps);
+EBPedestalOnlineClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBPedestalOnlineClient();

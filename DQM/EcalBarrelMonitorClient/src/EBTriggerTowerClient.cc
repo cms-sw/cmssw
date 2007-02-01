@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/01/27 11:02:13 $
- * $Revision: 1.23 $
+ * $Date: 2007/02/01 15:06:36 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -29,6 +29,10 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps){
 

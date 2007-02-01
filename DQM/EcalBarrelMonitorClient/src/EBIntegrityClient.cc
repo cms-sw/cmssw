@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/01/31 20:42:17 $
- * $Revision: 1.130 $
+ * $Date: 2007/02/01 15:06:35 $
+ * $Revision: 1.131 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -42,6 +42,10 @@
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunMemChErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps){
 

@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2007/01/27 19:43:32 $
- * $Revision: 1.48 $
+ * $Date: 2007/01/29 15:19:37 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  *
 */
@@ -28,16 +28,16 @@
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+class MonitorUserInterface;
+class EcalCondDBInterface;
+class MonRunIOV;
 
 class EBLaserClient : public EBClient {
 
 public:
 
 /// Constructor
-EBLaserClient(const ParameterSet& ps);
+EBLaserClient(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBLaserClient();
