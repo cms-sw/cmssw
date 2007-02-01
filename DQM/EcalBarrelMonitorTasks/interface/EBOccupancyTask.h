@@ -4,8 +4,8 @@
 /*
  * \file EBOccupancyTask.h
  *
- * $Date: 2006/05/01 09:00:35 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/17 10:07:47 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -36,16 +36,12 @@
 #include <fstream>
 #include <vector>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-class EBOccupancyTask: public EDAnalyzer{
+class EBOccupancyTask: public edm::EDAnalyzer{
 
 public:
 
 /// Constructor
-EBOccupancyTask(const ParameterSet& ps);
+EBOccupancyTask(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBOccupancyTask();
@@ -53,10 +49,10 @@ virtual ~EBOccupancyTask();
 protected:
 
 /// Analyze
-void analyze(const Event& e, const EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const EventSetup& c);
+void beginJob(const edm::EventSetup& c);
 
 /// EndJob
 void endJob(void);

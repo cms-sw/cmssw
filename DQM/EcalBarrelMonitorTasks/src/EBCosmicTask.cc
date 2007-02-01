@@ -1,13 +1,17 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2006/08/08 09:07:34 $
- * $Revision: 1.56 $
+ * $Date: 2006/09/22 06:01:40 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EBCosmicTask::EBCosmicTask(const ParameterSet& ps){
 

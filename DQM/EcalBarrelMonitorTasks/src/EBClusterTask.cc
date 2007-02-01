@@ -1,13 +1,18 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2006/11/02 13:50:15 $
- * $Revision: 1.6 $
+ * $Date: 2006/11/03 10:07:17 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBClusterTask.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
+using namespace reco;
 
 EBClusterTask::EBClusterTask(const ParameterSet& ps){
 

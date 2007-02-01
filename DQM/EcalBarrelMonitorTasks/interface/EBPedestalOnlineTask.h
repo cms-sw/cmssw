@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineTask.h
  *
- * $Date: 2006/02/21 20:32:47 $
- * $Revision: 1.6 $
+ * $Date: 2006/06/17 10:07:47 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -36,16 +36,12 @@
 #include <fstream>
 #include <vector>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-class EBPedestalOnlineTask: public EDAnalyzer{
+class EBPedestalOnlineTask: public edm::EDAnalyzer{
 
 public:
 
 /// Constructor
-EBPedestalOnlineTask(const ParameterSet& ps);
+EBPedestalOnlineTask(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBPedestalOnlineTask();
@@ -53,10 +49,10 @@ virtual ~EBPedestalOnlineTask();
 protected:
 
 /// Analyze
-void analyze(const Event& e, const EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const EventSetup& c);
+void beginJob(const edm::EventSetup& c);
 
 /// EndJob
 void endJob(void);

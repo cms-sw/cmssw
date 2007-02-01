@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerTask.h
  *
- * $Date: 2006/09/12 13:01:16 $
- * $Revision: 1.1 $
+ * $Date: 2006/09/13 07:37:45 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -34,16 +34,12 @@
 #include <fstream>
 #include <vector>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-class EBTriggerTowerTask: public EDAnalyzer{
+class EBTriggerTowerTask: public edm::EDAnalyzer{
 
 public:
 
 /// Constructor
-EBTriggerTowerTask(const ParameterSet& ps);
+EBTriggerTowerTask(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBTriggerTowerTask();
@@ -51,10 +47,10 @@ virtual ~EBTriggerTowerTask();
 protected:
 
 /// Analyze
-void analyze(const Event& e, const EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const EventSetup& c);
+void beginJob(const edm::EventSetup& c);
 
 /// EndJob
 void endJob(void);

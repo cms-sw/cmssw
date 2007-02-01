@@ -1,13 +1,17 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/01/12 15:51:57 $
- * $Revision: 1.62 $
+ * $Date: 2007/01/15 18:53:14 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EBLaserTask::EBLaserTask(const ParameterSet& ps){
 

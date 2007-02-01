@@ -1,13 +1,17 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2006/10/02 12:57:52 $
- * $Revision: 1.22 $
+ * $Date: 2006/12/14 11:10:34 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTriggerTowerTask.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps){
 

@@ -1,14 +1,18 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2006/09/22 06:01:40 $
- * $Revision: 1.12 $
+ * $Date: 2006/12/14 11:10:34 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBOccupancyTask.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
 

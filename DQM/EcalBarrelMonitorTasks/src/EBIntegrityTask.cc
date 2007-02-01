@@ -1,13 +1,17 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/09/22 06:01:40 $
- * $Revision: 1.29 $
+ * $Date: 2006/12/14 11:10:34 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
  */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBIntegrityTask.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
 

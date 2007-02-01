@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloTask.h
  *
- * $Date: 2006/08/08 08:57:06 $
- * $Revision: 1.15 $
+ * $Date: 2006/08/09 15:03:56 $
+ * $Revision: 1.16 $
  * \author A. Ghezzi
  *
 */
@@ -37,16 +37,12 @@
 #include <fstream>
 #include <vector>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-class EBBeamCaloTask: public EDAnalyzer{
+class EBBeamCaloTask: public edm::EDAnalyzer{
 
 public:
 
 /// Constructor
-EBBeamCaloTask(const ParameterSet& ps);
+EBBeamCaloTask(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBBeamCaloTask();
@@ -54,10 +50,10 @@ virtual ~EBBeamCaloTask();
 protected:
 
 /// Analyze
-void analyze(const Event& e, const EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const EventSetup& c);
+void beginJob(const edm::EventSetup& c);
 
 /// EndJob
 void endJob(void);
@@ -73,8 +69,8 @@ private:
  const static int defaultPede_ = 200;
 int ievt_;
 
-string digiProducer_;
-//string DCCHeaderProducer_;
+std::string digiProducer_;
+//std::string DCCHeaderProducer_;
 
 MonitorElement* meBBCaloPulseProf_[cryInArray_];
 MonitorElement* meBBCaloPulseProfG12_[cryInArray_];

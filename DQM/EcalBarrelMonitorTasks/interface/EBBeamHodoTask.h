@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoTask.h
  *
- * $Date: 2006/07/31 10:39:19 $
- * $Revision: 1.6 $
+ * $Date: 2006/08/03 13:52:47 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -41,16 +41,12 @@
 #include <fstream>
 #include <vector>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-class EBBeamHodoTask: public EDAnalyzer{
+class EBBeamHodoTask: public edm::EDAnalyzer{
 
 public:
 
 /// Constructor
-EBBeamHodoTask(const ParameterSet& ps);
+EBBeamHodoTask(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBBeamHodoTask();
@@ -58,10 +54,10 @@ virtual ~EBBeamHodoTask();
 protected:
 
 /// Analyze
-void analyze(const Event& e, const EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const EventSetup& c);
+void beginJob(const edm::EventSetup& c);
 
 /// EndJob
 void endJob(void);
@@ -74,7 +70,7 @@ void cleanup(void);
 
 private:
  
-string outputFile_;
+std::string outputFile_;
  
  int ievt_;
  int LV1_;

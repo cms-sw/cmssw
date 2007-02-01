@@ -1,13 +1,17 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/10/18 08:02:44 $
- * $Revision: 1.47 $
+ * $Date: 2006/12/14 11:10:34 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EBPedestalTask::EBPedestalTask(const ParameterSet& ps){
 

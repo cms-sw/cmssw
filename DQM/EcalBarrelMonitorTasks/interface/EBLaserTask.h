@@ -4,8 +4,8 @@
 /*
  * \file EBLaserTask.h
  *
- * $Date: 2006/06/17 10:07:47 $
- * $Revision: 1.20 $
+ * $Date: 2006/12/20 15:43:04 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -36,16 +36,12 @@
 #include <fstream>
 #include <vector>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-class EBLaserTask: public EDAnalyzer{
+class EBLaserTask: public edm::EDAnalyzer{
 
 public:
 
 /// Constructor
-EBLaserTask(const ParameterSet& ps);
+EBLaserTask(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBLaserTask();
@@ -53,10 +49,10 @@ virtual ~EBLaserTask();
 protected:
 
 /// Analyze
-void analyze(const Event& e, const EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const EventSetup& c);
+void beginJob(const edm::EventSetup& c);
 
 /// EndJob
 void endJob(void);

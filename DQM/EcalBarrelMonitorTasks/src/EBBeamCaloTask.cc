@@ -1,14 +1,18 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2006/09/21 07:22:41 $
- * $Revision: 1.34 $
+ * $Date: 2006/09/22 06:01:40 $
+ * $Revision: 1.35 $
  * \author A. Ghezzi
  *
  */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBBeamCaloTask.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/EBMUtilsTasks.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EBBeamCaloTask::EBBeamCaloTask(const ParameterSet& ps){
 

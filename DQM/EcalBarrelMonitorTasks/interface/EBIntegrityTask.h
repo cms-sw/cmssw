@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityTask.h
  *
- * $Date: 2006/04/19 13:21:39 $
- * $Revision: 1.10 $
+ * $Date: 2006/06/17 10:07:47 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
  */
@@ -32,16 +32,12 @@
 #include <fstream>
 #include <vector>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-class EBIntegrityTask: public EDAnalyzer{
+class EBIntegrityTask: public edm::EDAnalyzer{
 
 public:
 
 /// Constructor
-EBIntegrityTask(const ParameterSet& ps);
+EBIntegrityTask(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBIntegrityTask();
@@ -49,10 +45,10 @@ virtual ~EBIntegrityTask();
 protected:
 
 /// Analyze
-void analyze(const Event& e, const EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const EventSetup& c);
+void beginJob(const edm::EventSetup& c);
 
 /// EndJob
 void endJob(void);

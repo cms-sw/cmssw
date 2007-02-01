@@ -1,14 +1,18 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/08/09 17:03:17 $
- * $Revision: 1.28 $
+ * $Date: 2006/09/22 06:01:40 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
  */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBBeamHodoTask.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EBBeamHodoTask::EBBeamHodoTask(const ParameterSet& ps){
 

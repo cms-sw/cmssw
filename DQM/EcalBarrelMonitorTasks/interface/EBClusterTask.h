@@ -4,8 +4,8 @@
 /*
  * \file EBClusterTask.h
  *
- * $Date: 2006/10/30 13:12:31 $
- * $Revision: 1.2 $
+ * $Date: 2006/11/02 13:50:14 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -39,17 +39,12 @@
 #include <fstream>
 #include <vector>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-using namespace reco;
-
-class EBClusterTask: public EDAnalyzer{
+class EBClusterTask: public edm::EDAnalyzer{
 
 public:
 
 /// Constructor
-EBClusterTask(const ParameterSet& ps);
+EBClusterTask(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBClusterTask();
@@ -57,10 +52,10 @@ virtual ~EBClusterTask();
 protected:
 
 /// Analyze
-void analyze(const Event& e, const EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 /// BeginJob
-void beginJob(const EventSetup& c);
+void beginJob(const edm::EventSetup& c);
 
 /// EndJob
 void endJob(void);

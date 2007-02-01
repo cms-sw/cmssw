@@ -1,13 +1,17 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2007/01/19 16:24:17 $
- * $Revision: 1.56 $
+ * $Date: 2007/01/22 18:05:23 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTestPulseTask.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EBTestPulseTask::EBTestPulseTask(const ParameterSet& ps){
 
