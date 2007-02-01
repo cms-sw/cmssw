@@ -8,6 +8,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/Framework/interface/Handle.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 
 class TransientTrackingRecHit;
 
@@ -38,6 +39,8 @@ public:
     empty = false;
   }
   void setEmpty(){empty = true;}
+  void setActive(bool active) { active_ = active; }
+  bool isActive() { return active_; }
 
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&) const;
 
@@ -52,6 +55,7 @@ public:
   TransientTrackingRecHit::RecHitPointer
   buildRecHit( const SiStripClusterRef&, const LocalTrajectoryParameters& ltp) const;
 
+  void setNoises(const SiStripNoises::Range range);
 private:
 
   const StripGeomDetUnit*               theStripGDU;
@@ -60,6 +64,10 @@ private:
   edm::Handle<edm::DetSetVector<SiStripCluster> > handle_;
   unsigned int id_;
   bool empty;
+  bool active_;
+  bool testStrips(float utraj, float uerr) const;
+
+  SiStripNoises::Range stripNoises_;
 
 };
 

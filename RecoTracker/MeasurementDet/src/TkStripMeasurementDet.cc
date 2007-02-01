@@ -30,14 +30,25 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 { 
   std::vector<TrajectoryMeasurement> result;
 
-  //  if (theClusterRange.first == theClusterRange.second) { // empty
-  if (empty  == true){
-    result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet()), 0.F));
+  if (active_ == false) {
+    result.push_back( TrajectoryMeasurement( stateOnThisDet, 
+    		InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
+		0.F));
+   // edm::LogInfo("[*GIO*] TkStrMD") << " DetID " << (theStripGDU->geographicalId())() << " inactive";
     return result;
   }
-  
-  float utraj = 
-    theStripGDU->specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
+ 
+  float utraj =  theStripGDU->specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
+  float uerr  = sqrt(theStripGDU->specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
+  //  if (theClusterRange.first == theClusterRange.second) { // empty
+  if (empty  == true){
+     if (testStrips(utraj,uerr)) {
+        result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::missing), 0.F));
+     } else { 
+        result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F));
+     }
+    return result;
+  }
   
   const_iterator rightCluster = 
     find_if( detSet_->begin(), detSet_->end(), StripClusterAboveU( utraj));
@@ -73,8 +84,11 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   
   if ( result.empty()) {
     // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
-    result.push_back( TrajectoryMeasurement( stateOnThisDet, 
-					     InvalidTransientRecHit::build(&geomDet()), 0.F)); 
+     if (testStrips(utraj,uerr)) {
+        result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::missing), 0.F));
+     } else { 
+        result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F));
+     }
   }
   else {
     // sort results according to estimator value
@@ -111,4 +125,35 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
     result.push_back( buildRecHit( cluster, ts.localParameters()));
   }
   return result;
+}
+
+bool
+TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
+    int istart = (int) (utraj - 3*uerr); if (istart < 0) istart = 0;
+    SiStripNoises::ContainerIterator start = stripNoises_.first + istart;
+    int iend = (int) (utraj + 3*uerr); 
+    SiStripNoises::ContainerIterator end = stripNoises_.first + iend;
+    if (end > stripNoises_.second) end = stripNoises_.second;
+
+    int found = 0, off = 0;
+    while (start < end) {
+        found++;
+        if (*start < 0) off++;
+        start++;
+    }
+    // std::cout << "[*GIO*] DetID " << (theStripGDU->geographicalId())() << "  u = (" << utraj << " +/- " << uerr << "), bad/tot = " << off << "/" << found << "\n";
+    return (off > 0 && off == found); //to be tuned
+}
+void
+TkStripMeasurementDet::setNoises(const SiStripNoises::Range noises) 
+{
+  stripNoises_ = noises;
+/*// count bad strips
+  int found = 0, off = 0;
+  for (SiStripNoises::ContainerIterator it = stripNoises_.first;
+        it != stripNoises_.second; it++) {
+        found++; if (*it < 0) off++;
+  }
+  //std::cout << "[*GIO*] DetID " << mydetid << ": bad strips = " << off << "/" << found << "\n";
+*/
 }
