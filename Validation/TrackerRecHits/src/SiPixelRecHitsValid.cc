@@ -29,6 +29,10 @@
 
 #include <math.h>
 
+using namespace std;
+using namespace edm;
+
+
 SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps): 
   dbe_(0), 
   conf_(ps),

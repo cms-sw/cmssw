@@ -45,8 +45,8 @@
 
 #include <string>
 
-using namespace std;
-using namespace edm;
+//using namespace std;
+//using namespace edm;
 
 class SiPixelRecHitsValid : public edm::EDAnalyzer {
 
@@ -60,12 +60,12 @@ class SiPixelRecHitsValid : public edm::EDAnalyzer {
    protected:
 
 	virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-	void beginJob(const EventSetup& c);
+	void beginJob(const edm::EventSetup& c);
 	void endJob();
 
    private:
 	DaqMonitorBEInterface* dbe_;
-	string outputFile_;
+	std::string outputFile_;
 
 	edm::ParameterSet conf_;
 

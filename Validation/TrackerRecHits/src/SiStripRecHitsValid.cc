@@ -25,6 +25,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h" 
 #include "DataFormats/Common/interface/OwnVector.h" 
 
+using namespace std;
+using namespace edm;
 
 //Constructor
 SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :

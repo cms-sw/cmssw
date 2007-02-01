@@ -29,7 +29,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 //--- for SimHit association
- #include "SimDataFormats/TrackingHit/interface/PSimHit.h"  
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"  
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
 
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -47,11 +47,6 @@
 
 #include <string>
 
-
-using namespace std;
-using namespace edm;
-
-
 class SiStripRecHitsValid : public edm::EDAnalyzer {
 
  public:
@@ -63,13 +58,13 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
  protected:
 
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void beginJob(const EventSetup& c);
+  void beginJob(const edm::EventSetup& c);
   void endJob();
   
  private: 
   //Back-End Interface
   DaqMonitorBEInterface* dbe_;
-  string outputFile_;
+  std::string outputFile_;
   MonitorElement*  meNumTotRphi;
   MonitorElement*  meNumTotSas;
   MonitorElement*  meNumTotMatched;
