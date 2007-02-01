@@ -2,8 +2,8 @@
  *
  *  Implementation of SiStripQualityTester
  *
- *  $Date: 2006/08/01 18:14:28 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/11/13 21:55:38 $
+ *  $Revision: 1.12 $
  *  \author Suchandra Dutta
  */
 #include "DQM/SiStripMonitorClient/interface/SiStripQualityTester.h"
@@ -11,6 +11,7 @@
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/ClientConfig/interface/QTestNames.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include<iostream>
 #include <fstream>
@@ -37,8 +38,9 @@ SiStripQualityTester::~SiStripQualityTester() {
 // -- Set up Quality Tests 
 //
 void SiStripQualityTester::setupQTests(MonitorUserInterface* mui) {
+  string localPath = string("DQM/SiStripMonitorClient/test/sistrip_qualitytest_config.xml");
   if (theQTestMap.size() == 0) {
-    readQualityTests("sistrip_qualitytest_config.xml");
+    readQualityTests(edm::FileInPath(localPath).fullPath());
   }
   for (SiStripQualityTester::QTestMapType::iterator it = theQTestMap.begin();
        it != theQTestMap.end(); it++) {

@@ -6,7 +6,7 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
-
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <iostream>
 using namespace std;
@@ -32,18 +32,20 @@ SiStripActionExecutor::~SiStripActionExecutor() {
 // -- Read Configurationn File
 //
 void SiStripActionExecutor::readConfiguration() {
+  string localPath = string("DQM/SiStripMonitorClient/test/sistrip_monitorelement_config.xml");
   if (configParser_ == 0) {
     configParser_ = new SiStripConfigParser();
-    configParser_->getDocument("sistrip_monitorelement_config.xml");
+    configParser_->getDocument(edm::FileInPath(localPath).fullPath());
   }
 }
 //
 // -- Read Configurationn File
 //
 bool SiStripActionExecutor::readConfiguration(int& tkmap_freq, int& sum_freq) {
+  string localPath = string("DQM/SiStripMonitorClient/test/sistrip_monitorelement_config.xml");
   if (configParser_ == 0) {
     configParser_ = new SiStripConfigParser();
-    configParser_->getDocument("sistrip_monitorelement_config.xml");
+    configParser_->getDocument(edm::FileInPath(localPath).fullPath());
   }
   if (!configParser_->getFrequencyForTrackerMap(tkmap_freq)){
     cout << "SiStripActionExecutor::readConfiguration: Failed to read TrackerMap configuration parameters!! ";
@@ -237,11 +239,6 @@ void SiStripActionExecutor::setupQTests(MonitorUserInterface * mui) {
   qtester.setupQTests(mui);
   mui->cd();
   cout << " Setting Up Quality Tests " << endl;
-  //  QTestHandle qtester;
-  //  if(!qtester.configureTests("sistrip_qualitytest_config.xml", mui)){
-  //    cout << " Attaching Qtests to MEs" << endl;
-  //    qtester.attachTests(mui);			
-  //  }
 }
 //
 // -- Check Status of Quality Tests
