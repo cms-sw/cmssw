@@ -4,48 +4,27 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2006/06/22 17:24:31 $
- * $Revision: 1.36 $
+ * $Date: 2006/06/27 20:56:20 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
-
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <memory>
-#include <iostream>
-#include <fstream>
-#include <vector>
 #include <string>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
-class EcalBarrelMonitorModule: public EDAnalyzer{
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+
+class EcalBarrelMonitorModule: public edm::EDAnalyzer{
 
 public:
 
 /// Constructor
-EcalBarrelMonitorModule(const ParameterSet& ps);
+EcalBarrelMonitorModule(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EcalBarrelMonitorModule();
@@ -53,10 +32,10 @@ virtual ~EcalBarrelMonitorModule();
 protected:
 
 /// Analyze
-void analyze(const Event& e, const EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const EventSetup& c);
+void beginJob(const edm::EventSetup& c);
 
 // EndJob
 void endJob(void);
@@ -100,7 +79,7 @@ MonitorElement* meEvent_[36];
 
 bool init_;
 
-string outputFile_;
+std::string outputFile_;
 
 };
 

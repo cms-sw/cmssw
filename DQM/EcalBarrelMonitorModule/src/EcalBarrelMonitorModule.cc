@@ -1,14 +1,37 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/09/22 06:01:39 $
- * $Revision: 1.113 $
+ * $Date: 2006/12/14 11:12:08 $
+ * $Revision: 1.114 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
 */
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
+
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <memory>
+#include <iostream>
+#include <fstream>
+#include <vector>
+
 #include <DQM/EcalBarrelMonitorModule/interface/EcalBarrelMonitorModule.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
 
 EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
