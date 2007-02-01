@@ -159,10 +159,15 @@ A set of tools used in track reconstruction
 
 - <b>RecoBTag</b><br>
  b-tagging algorithms 
+ - \ref RecoBTag_Analysis "Analysis" <br>
+ - \ref RecoBTag_CombinedSV "CombinedSV" <br>  
+ - \ref RecoBTag_Configuration "Configuration" <br>  
  - \ref RecoBTag_BTagTools "BTagTools" <br> 
  - \ref RecoBTag_CombinedBTag "CombinedBTag" <br>
+ - \ref RecoBTag_MCTools "MCTools" <br>
  - \ref RecoBTag_SoftLepton "SoftLepton" <br>
  - \ref RecoBTag_TrackCounting "TrackCounting" <br>
+ - \ref RecoBTag_TrackProbability "TrackProbability" <br>
  - \ref RecoBTag_XMLCalibration "XMLCalibration" <br>
 
 - <b>RecoBTau</b><br>
