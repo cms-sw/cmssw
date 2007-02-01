@@ -1,14 +1,49 @@
 #include <iostream.h>
+#include "TFile.h"
 
 class HistoCompare {
 
  public:
 
-  HistoCompare() { std::cout << "Initializing HistoCompare... " << std::endl; } ;
+  HistoCompare() 
+  { 
+    std::cout << "Initializing HistoCompare... " << std::endl; 
+    name = "none";
+  } ;
+
+  HistoCompare(char* thisname = "none") : mypv(-9999.9)
+  { 
+    name = thisname;
+    std::cout << "Initializing HistoCompare... " << std::endl; 
+    if ( name != "none" )
+      {
+	cout << "... creating output file" << endl;
+	
+	out_file.open( thisname, ios::out);
+	if ( out_file.fail() )
+	  {
+	    cout << "Could not open data file" << endl;
+	    exit(1);
+	  }
+      }
+  } ;
+  
+  ~HistoCompare()
+  {
+    if ( name != "none" )
+      {
+	cout << "... closing output file" << endl;
+	out_file.close();
+      }
+    
+  };
 
   void PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te );
   void PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te );
   void PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te );
+
+  Double_t getPV() { return mypv; };
+  void setName(char* s) { name = s; };
 
  private:
   
@@ -24,6 +59,10 @@ class HistoCompare {
   TProfile * mynewProfile;
 
   TText * myte;
+  
+  char* name;
+  
+  fstream out_file;
 
 };
 
@@ -34,15 +73,25 @@ HistoCompare::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te )
   mynewHisto1 = newHisto;
   myte = te;
 
-  Double_t mypv = myoldHisto1->Chi2Test(mynewHisto1,"OU");
+  //  Double_t mypv = myoldHisto1->Chi2Test(mynewHisto1,"OU");
+  mypv = myoldHisto1->Chi2Test(mynewHisto1,"OU");
   std::strstream buf;
   std::string value;
   buf<<"PV="<<mypv<<std::endl;
   buf>>value;
   
-  myte->DrawTextNDC(0.2,0.7, value.c_str());
+  myte->DrawTextNDC(0.6,0.7, value.c_str());
 
   std::cout << "[OVAL] " << myoldHisto1->GetName() << " PV = " << mypv << std::endl;
+  
+  if ( name != "none" )
+    {
+      if ( mypv < 0.01 )
+	out_file << myoldHisto1->GetName() << "     pv = " << mypv << "      comparison fails !!!" << endl; 
+      else
+	out_file << myoldHisto1->GetName() << "     pv = " << mypv << endl;
+    }
+  
   return;
 
 }
@@ -54,7 +103,8 @@ HistoCompare::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te )
   mynewHisto2 = newHisto;
   myte = te;
 
-  Double_t mypv = myoldHisto2->Chi2Test(mynewHisto2,"OU");
+  //Double_t mypv = myoldHisto2->Chi2Test(mynewHisto2,"OU");
+  mypv = myoldHisto2->Chi2Test(mynewHisto2,"OU");
   std::strstream buf;
   std::string value;
   buf<<"PV="<<mypv<<std::endl;
@@ -63,8 +113,16 @@ HistoCompare::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te )
   myte->DrawTextNDC(0.2,0.7, value.c_str());
 
   std::cout << "[OVAL] " << myoldHisto2->GetName() << " PV = " << mypv << std::endl;
-  return;
+  
+  if ( name != "none" )
+    {
+      if ( mypv < 0.01 )
+	out_file << myoldHisto1->GetName() << "     pv = " << mypv << "      comparison fails !!!" << endl; 
+      else
+	out_file << myoldHisto1->GetName() << "     pv = " << mypv << endl;
+    }
 
+  return;
 }
 
 
@@ -75,7 +133,8 @@ HistoCompare::PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te )
   mynewProfile = newHisto;
   myte = te;
 
-  Double_t mypv = myoldProfile->Chi2Test(mynewProfile,"OU");
+  //Double_t mypv = myoldProfile->Chi2Test(mynewProfile,"OU");
+  mypv = myoldProfile->Chi2Test(mynewProfile,"OU");
   std::strstream buf;
   std::string value;
   buf<<"PV="<<mypv<<std::endl;
@@ -84,6 +143,15 @@ HistoCompare::PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te )
   myte->DrawTextNDC(0.2,0.7, value.c_str());
 
   std::cout << "[OVAL] " << myoldProfile->GetName() << " PV = " << mypv << std::endl;
+  
+  if ( name != "none" )
+    {
+      if ( mypv < 0.01 )
+	out_file << myoldHisto1->GetName() << "     pv = " << mypv << "      comparison fails !!!" << endl; 
+      else
+	out_file << myoldHisto1->GetName() << "     pv = " << mypv << endl;
+    }
+  
   return;
 
 }
