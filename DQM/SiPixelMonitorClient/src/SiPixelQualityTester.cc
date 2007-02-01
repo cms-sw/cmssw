@@ -2,8 +2,8 @@
  *
  *  Implementation of SiPixelQualityTester
  *
- *  $Date: 2006/10/16 18:14:28 $
- *  $Revision: 0 $
+ *  $Date: 2006/10/19 14:10:06 $
+ *  $Revision: 1.1 $
  *  \author Petra Merkel
  */
 #include "DQM/SiPixelMonitorClient/interface/SiPixelQualityTester.h"
@@ -142,7 +142,7 @@ void SiPixelQualityTester::setMeanWithinExpectedTest(MonitorUserInterface* mui,
 int SiPixelQualityTester::getMEsUnderTest(vector<string>& me_names){  
   if (theMeAssociateMap.size() == 0) {
     cout << " SiPixelQualityTester::getMEsUnderTest ==> " << 
-      " ME association Map emptyis empty!!! " << endl;
+      " ME association Map is empty!!! " << endl;
     return 0;
   }
   me_names.clear();

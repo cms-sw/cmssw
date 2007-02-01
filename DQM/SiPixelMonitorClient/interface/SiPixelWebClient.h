@@ -1,14 +1,6 @@
 #ifndef _DQM_SiPixelMonitorClient_SiPixelWebClient_h_
 #define _DQM_SiPixelMonitorClient_SiPixelWebClient_h_
 
-/*
-  This class is the SiPixel client with a web interface. 
-  Such clients inherit the state machine from the DQMBaseClient class
-  of Components. From the UpdateObserver class of Components, they 
-  inherit the ability to define a function that gets automatically
-  called when an update is received.
-*/
-
 #include "DQMServices/Components/interface/DQMBaseClient.h"
 #include "DQMServices/Components/interface/Updater.h"
 #include "DQMServices/Components/interface/UpdateObserver.h"
@@ -63,7 +55,9 @@ private:
   void setupQTest() const;
 
   int updateFrequencyForTrackerMap_;
-  int updateFrequencyForSummary_;
+//  int updateFrequencyForSummary_;
+  int updateFrequencyForBarrelSummary_;
+  int updateFrequencyForEndcapSummary_;
 };
 
 // You always need to have this line! Do not remove:

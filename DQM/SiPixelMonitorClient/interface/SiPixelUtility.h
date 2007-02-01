@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiPixel Quality Tests
  * 
- *  $Date: 2006/10/16 18:14:27 $
- *  $Revision: 0 $
+ *  $Date: 2006/10/19 14:11:47 $
+ *  $Revision: 1.1 $
  *  \author Petra Merkel
   */
 
@@ -14,6 +14,7 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class SiPixelUtility
 {
@@ -25,6 +26,9 @@ class SiPixelUtility
 
  static void split(const std::string& str, std::vector<std::string>& tokens, 
              const std::string& delimiters=" ");
+ static void getStatusColor(int status, int& rval, int&gval, int& bval);
+ static void getStatusColor(int status, int& icol, std::string& tag);
+ static int getStatus(MonitorElement* me);
 };
 
 #endif

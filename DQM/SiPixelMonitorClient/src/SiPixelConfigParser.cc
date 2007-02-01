@@ -21,7 +21,7 @@ SiPixelConfigParser::~SiPixelConfigParser() {
 //
 // -- Read ME list for the TrackerMap
 //
-bool SiPixelConfigParser::getMENamesForTrackerMap(string& tkmap_name, 
+/*bool SiPixelConfigParser::getMENamesForTrackerMap(string& tkmap_name, 
 						 vector<string>& me_names){
   if (!doc) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
@@ -53,11 +53,11 @@ bool SiPixelConfigParser::getMENamesForTrackerMap(string& tkmap_name,
   if (me_names.size() == 0) return false;
   else return true;
   
-}
+}*/
 //
 // -- Read Update Frequency for the TrackerMap
 //
-bool SiPixelConfigParser::getFrequencyForTrackerMap(int& u_freq){
+/*bool SiPixelConfigParser::getFrequencyForTrackerMap(int& u_freq){
   if (!doc) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
@@ -74,22 +74,23 @@ bool SiPixelConfigParser::getFrequencyForTrackerMap(int& u_freq){
 		
   u_freq = atoi(qtxml::_toString(tkMapElement->getAttribute(qtxml::_toDOMS("update_frequency"))).c_str());
   return true;
-}
+}*/
 //
 // -- Get List of MEs for the summary plot and the
 //
-bool SiPixelConfigParser::getMENamesForSummary(string& structure_name,
+bool SiPixelConfigParser::getMENamesForBarrelSummary(string& structure_name,
 						vector<string>& me_names) {
+  //cout<<"Entering SiPixelConfigParser::getMENamesForBarrelSummary..."<<endl;
   if (!doc) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
 
   me_names.clear();
-  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureLevel"))->getLength();
+  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureBarrelLevel"))->getLength();
   if (structureNodes == 0) return false;
   /// Get Node
-  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureLevel"))->item(0);
+  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureBarrelLevel"))->item(0);
  //Get QTEST name
   if (! structureNode) return false;
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
@@ -97,8 +98,7 @@ bool SiPixelConfigParser::getMENamesForSummary(string& structure_name,
 		
   structure_name = qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("name"))); 
 
-  DOMNodeList * meList 
-		  = structureElement->getElementsByTagName(qtxml::_toDOMS("MonElement"));
+  DOMNodeList * meList = structureElement->getElementsByTagName(qtxml::_toDOMS("MonElement"));
   for (unsigned int k = 0; k < meList->getLength(); k++) {
     DOMNode* meNode = meList->item(k);
     if (!meNode) return false;
@@ -109,21 +109,57 @@ bool SiPixelConfigParser::getMENamesForSummary(string& structure_name,
   }
   if (me_names.size() == 0) return false;
   else return true;
+  //cout<<"...leaving SiPixelConfigParser::getMENamesForBarrelSummary!"<<endl;
   
 }
-//
-// -- Get List of MEs for the summary plot and the
-//
-bool SiPixelConfigParser::getFrequencyForSummary(int& u_freq) {
+bool SiPixelConfigParser::getMENamesForEndcapSummary(string& structure_name,
+						vector<string>& me_names) {
+  cout<<"Entering SiPixelConfigParser::getMENamesForEndcapSummary..."<<endl;
   if (!doc) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
 
-  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureLevel"))->getLength();
+  me_names.clear();
+  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureEndcapLevel"))->getLength();
   if (structureNodes == 0) return false;
   /// Get Node
-  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureLevel"))->item(0);
+  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureEndcapLevel"))->item(0);
+ //Get QTEST name
+  if (! structureNode) return false;
+  DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
+  if (! structureElement) return false;		 
+		
+  structure_name = qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("name"))); 
+
+  DOMNodeList * meList = structureElement->getElementsByTagName(qtxml::_toDOMS("MonElement"));
+  for (unsigned int k = 0; k < meList->getLength(); k++) {
+    DOMNode* meNode = meList->item(k);
+    if (!meNode) return false;
+    DOMElement* meElement = static_cast<DOMElement *>(meNode);          
+    if (!meElement) return false;
+    string me_name = qtxml::_toString(meElement->getAttribute (qtxml::_toDOMS ("name"))); 
+    me_names.push_back(me_name);    
+  }
+  if (me_names.size() == 0) return false;
+  else return true;
+  cout<<"...leaving SiPixelConfigParser::getMENamesForEndcapSummary!"<<endl;
+  
+}
+
+//
+// -- Get List of MEs for the summary plot and the
+//
+bool SiPixelConfigParser::getFrequencyForBarrelSummary(int& u_freq) {
+  if (!doc) {
+    cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
+    return false;
+  }
+
+  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureBarrelLevel"))->getLength();
+  if (structureNodes == 0) return false;
+  /// Get Node
+  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureBarrelLevel"))->item(0);
  //Get Node name
   if (! structureNode) return false;
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
@@ -132,3 +168,22 @@ bool SiPixelConfigParser::getFrequencyForSummary(int& u_freq) {
   u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("name"))).c_str());
   return true;
 }
+bool SiPixelConfigParser::getFrequencyForEndcapSummary(int& u_freq) {
+  if (!doc) {
+    cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
+    return false;
+  }
+
+  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureEndcapLevel"))->getLength();
+  if (structureNodes == 0) return false;
+  /// Get Node
+  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureEndcapLevel"))->item(0);
+ //Get Node name
+  if (! structureNode) return false;
+  DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
+  if (! structureElement) return false;		 
+		
+  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("name"))).c_str());
+  return true;
+}
+
