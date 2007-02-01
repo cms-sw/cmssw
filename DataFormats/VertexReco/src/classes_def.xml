@@ -1,4 +1,5 @@
 <lcgdict>
+  <class name="std::pair<unsigned int,double>" />
   <class name="reco::Vertex" />
   <class name="std::vector<reco::Vertex>" />
   <class name="edm::Wrapper<std::vector<reco::Vertex> >" />

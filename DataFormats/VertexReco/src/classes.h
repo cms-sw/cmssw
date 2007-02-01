@@ -4,9 +4,11 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include <vector>
+#include <utility>
 
 namespace {
   namespace {
+    std::pair<unsigned int,double> puid;
     reco::Vertex rv1;
     std::vector<reco::Vertex> v1;
     edm::Wrapper<std::vector<reco::Vertex> > wc1;
