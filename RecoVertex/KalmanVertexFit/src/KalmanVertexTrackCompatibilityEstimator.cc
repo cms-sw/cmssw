@@ -1,6 +1,8 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
+#include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include <algorithm>
+using namespace reco;
 
 struct vT_find
 {
@@ -56,7 +58,9 @@ KalmanVertexTrackCompatibilityEstimator::estimate(const reco::Vertex & vertex,
   CachingVertex cachingVertex(linP, err, initialTracks,
   			    vertex.chi2());
   // FIXME: this should work also for tracks without a persistent ref.
-  if (find(vertex.tracks_begin(), vertex.tracks_end(), track.persistentTrackRef()) != vertex.tracks_end())
+  const TrackTransientTrack* ttt = dynamic_cast<const TrackTransientTrack*>(track.basicTransientTrack());
+  if ((ttt!=0) && 
+  	(find(vertex.tracks_begin(), vertex.tracks_end(), ttt->persistentTrackRef()) != vertex.tracks_end()))
   {
     return estimateFittedTrack(cachingVertex, vertexTrack);
   } else {

@@ -71,9 +71,9 @@ private:
    */
   struct CompareTwoTracks {
     int operator() ( const reco::TransientTrack & a, const reco::TransientTrack & b ) {
-      //       return a.impactPointState().globalMomentum().mag() >
-      //              b.impactPointState().globalMomentum().mag();
-      return a.p() > b.p();
+            return a.initialFreeState().momentum().mag() >
+        	   b.initialFreeState().momentum().mag();
+//       return a.p() > b.p();
     };
   };
   vector <reco::TransientTrack> getBestTracks ( const vector<reco::TransientTrack> & ) const;

@@ -3,6 +3,7 @@
  <use name=RecoVertex/VertexPrimitives>
  <use name=RecoVertex/VertexTools>
  <use name=RecoVertex/LinearizationPointFinders>
+ <use name=TrackingTools/TransientTrack>
  <use name=DataFormats/Math>
 </export>
 
@@ -10,3 +11,4 @@
 <use name=RecoVertex/VertexTools>
 <use name=RecoVertex/LinearizationPointFinders>
 <use name=DataFormats/Math>
+<use name=TrackingTools/TransientTrack>
