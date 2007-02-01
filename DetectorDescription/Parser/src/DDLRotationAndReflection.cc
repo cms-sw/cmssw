@@ -36,8 +36,6 @@
 #include <string>
 #include <cmath>
 
-using namespace std;
-
 // Default constructor
 DDLRotationAndReflection::DDLRotationAndReflection() 
 {
@@ -184,11 +182,11 @@ int DDLRotationAndReflection::isLeftHanded (Hep3Vector x, Hep3Vector y, Hep3Vect
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
   
-  if (1-abs(check)>tol) {
+  if (1.0-std::abs(check)>tol) {
     std::cout << "DDLRotationAndReflection Coordinate axes forming rotation matrix "
 	 << getDDName(nmspace) 
 	 << " are not orthonormal.(tolerance=" << tol 
-	 << " check=" << abs(check)  << ")" 
+	 << " check=" << std::abs(check)  << ")" 
 	 << std::endl
 	 << " thetaX=" << (atts.find("thetaX")->second) 
 	 << ' ' << ev.eval(nmspace, atts.find("thetaX")->second)/deg << std::endl
@@ -206,7 +204,7 @@ int DDLRotationAndReflection::isLeftHanded (Hep3Vector x, Hep3Vector y, Hep3Vect
 	 << "  WAS NOT CREATED!" << std::endl;
     ret = -1;
   }
-  else if (1+check<=tol) {
+  else if (1.0+check<=tol) {
     ret = 1;    
   }
   DCOUT_V('P', "DDLRotation::isLeftHanded completed");
