@@ -24,16 +24,14 @@
 
 #include "JetMETCorrections/JetVertexAssociation/test/AnalysisJV.h"
 
-using namespace edm;
-using namespace std;
-using namespace reco;
-
 #include "TFile.h"
 #include "TH1.h"
 
 class TFile;
 class TH1D;
-
+using namespace edm;
+using namespace std;
+using namespace reco;
 
 AnalysisJV::AnalysisJV(const edm::ParameterSet& pset) :
   fOutputFileName( pset.getUntrackedParameter<string>("HistOutFile",std::string("jv_analysis.root"))){

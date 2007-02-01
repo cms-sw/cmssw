@@ -17,9 +17,9 @@ JetVertexMain::JetVertexMain(const ParameterSet & parameters) {
 }
 
 
-pair<double,bool> JetVertexMain::Main(const reco::CaloJet& jet, edm::Handle<TrackCollection> tracks, double signal_vert_Z){
+std::pair<double,bool> JetVertexMain::Main(const reco::CaloJet& jet, edm::Handle<TrackCollection> tracks, double signal_vert_Z){
 
-  pair<double, bool> parameter; 
+  std::pair<double, bool> parameter; 
  
   double jet_et = jet.et();
   double jet_phi = jet.phi();
@@ -60,18 +60,18 @@ pair<double,bool> JetVertexMain::Main(const reco::CaloJet& jet, edm::Handle<Trac
   if (Algo == 1) Var =  Track_Pt(Pt_jets_X, Pt_jets_Y)/jet_et;
   else if (Algo == 2) {
       if (Track_Pt(Pt_jets_X_tot, Pt_jets_Y_tot)!=0)  Var =  Track_Pt(Pt_jets_X, Pt_jets_Y)/Track_Pt(Pt_jets_X_tot, Pt_jets_Y_tot);
-      else  cout << "[Jets] JetVertexAssociation: Warning! problems for  Algo = 2: possible division by zero .." << endl;
+      else  std::cout << "[Jets] JetVertexAssociation: Warning! problems for  Algo = 2: possible division by zero .." << std::endl;
   }
   else {
     
       Var =  Track_Pt(Pt_jets_X, Pt_jets_Y)/jet_et;
-      cout << "[Jets] JetVertexAssociation: Warning! Algo = " << Algo << " not found; using Algo = 1" << endl;
+      std::cout << "[Jets] JetVertexAssociation: Warning! Algo = " << Algo << " not found; using Algo = 1" << std::endl;
   }
 
   //  cout<<"Var = "<<Var<<endl;
 
-  if (Var >= threshold) parameter = pair<double, bool>(Var, true);
-  else  parameter = pair<double, bool>(Var, false);
+  if (Var >= threshold) parameter = std::pair<double, bool>(Var, true);
+  else  parameter = std::pair<double, bool>(Var, false);
 
   return parameter;
 

@@ -8,11 +8,8 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include <cmath>
 
-using namespace std;
-using namespace edm;
-using namespace reco;
 
-class CaloJet;
+class reco::CaloJet;
 
 class  JetVertexMain  {
 
@@ -23,7 +20,7 @@ public:
   ~JetVertexMain(){};
 
   
- pair <double, bool> Main (const reco::CaloJet& jet, edm::Handle<TrackCollection> tracks, double SIGNAL_V_Z); 
+ std::pair <double, bool> Main (const reco::CaloJet& jet, edm::Handle<reco::TrackCollection> tracks, double SIGNAL_V_Z); 
               
  private:
   double DeltaR(double eta1, double eta2, double phi1, double phi2);

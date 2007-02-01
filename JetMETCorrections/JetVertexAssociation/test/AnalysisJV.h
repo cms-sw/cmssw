@@ -9,11 +9,6 @@
 #include <cmath>
 #include <vector>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
-using namespace edm;
-using namespace std;
-using namespace reco;
-
 #include "TFile.h"
 #include "TH1.h"
 
