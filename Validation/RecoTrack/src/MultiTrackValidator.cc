@@ -17,6 +17,7 @@
 
 #include <TF1.h>
 
+using namespace std;
 using namespace ROOT::Math;
 using namespace edm;
 
