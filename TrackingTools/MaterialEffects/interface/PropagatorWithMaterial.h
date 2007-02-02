@@ -6,7 +6,6 @@
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-using namespace std;
 
 /** Propagation including material effects.
  *
@@ -51,11 +50,11 @@ public:
     return propagateWithPath(fts,plane).first;
   }
 
-  virtual pair<TrajectoryStateOnSurface,double> propagateWithPath (const TrajectoryStateOnSurface& tsos, 
-								   const Plane& plane) const;
+  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const TrajectoryStateOnSurface& tsos, 
+									const Plane& plane) const;
 
-  virtual pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState& fts, 
-								   const Plane& plane) const;
+  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState& fts, 
+									const Plane& plane) const;
 
   virtual TrajectoryStateOnSurface propagate (const TrajectoryStateOnSurface& tsos, 
 					      const Cylinder& cylinder) const
@@ -73,11 +72,11 @@ public:
     return propagateWithPath(fts,cylinder).first;
   }
 
-  virtual pair<TrajectoryStateOnSurface,double> propagateWithPath (const TrajectoryStateOnSurface& tsos, 
-								   const Cylinder& cylinder) const;
+  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const TrajectoryStateOnSurface& tsos, 
+									const Cylinder& cylinder) const;
 
-  virtual pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState& fts, 
-								   const Cylinder& cylinder) const;
+  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState& fts, 
+									const Cylinder& cylinder) const;
 
   /// Limit on change in azimuthal angle 
   virtual bool setMaxDirectionChange( float phiMax) { 
@@ -124,7 +123,7 @@ private:
   DeepCopyPointerByClone<Propagator> theGeometricalPropagator;
   // Material effects
   DeepCopyPointerByClone<MaterialEffectsUpdator> theMEUpdator;
-  typedef pair<TrajectoryStateOnSurface,double> TsosWP;
+  typedef std::pair<TrajectoryStateOnSurface,double> TsosWP;
   // Use material at source?
   MaterialLocation theMaterialLocation;
   const MagneticField * field;

@@ -13,7 +13,6 @@ class TrackingRecHitProjector {
   RecHitPointer project( const TransientTrackingRecHit& hit,
 			 const GeomDet& det, 
 			 const TrajectoryStateOnSurface& ts) const {
-    using namespace std;
 
     GlobalVector gdir = ts.globalParameters().momentum();
     const BoundPlane& gluedPlane = det.surface();
@@ -22,12 +21,13 @@ class TrackingRecHitProjector {
     // check if the planes are parallel
     const float epsilon = 1.e-7; // corresponds to about 0.3 miliradian but cannot be reduced
                                  // because of float precision
-    if (fabs(gluedPlane.normalVector().dot( hitPlane.normalVector())) < 1-epsilon) {
-//       cout << "TkGluedMeasurementDet plane not parallel to DetUnit plane: dot product is " 
-// 	   << gluedPlane.normalVector().dot( hitPlane.normalVector()) << endl;
-// FIXME: throw the appropriate exception here...
-      //throw MeasurementDetException("TkGluedMeasurementDet plane not parallel to DetUnit plane");
-    }
+
+    //if (fabs(gluedPlane.normalVector().dot( hitPlane.normalVector())) < 1-epsilon) {
+    //       std::cout << "TkGluedMeasurementDet plane not parallel to DetUnit plane: dot product is " 
+    // 	   << gluedPlane.normalVector().dot( hitPlane.normalVector()) << endl;
+    // FIXME: throw the appropriate exception here...
+    //throw MeasurementDetException("TkGluedMeasurementDet plane not parallel to DetUnit plane");
+    //}
 
     double delta = gluedPlane.localZ( hitPlane.position());
     LocalVector ldir = gluedPlane.toLocal(gdir);
@@ -41,7 +41,7 @@ class TrackingRecHitProjector {
       hitErr = LocalError( hitErr.xx(), -hitErr.xy(), hitErr.yy());
     }
     LocalError rotatedError = hitErr.rotate( hitXAxis.x(), hitXAxis.y());
-
+    
     return ResultingHit::build( projectedHitPos, rotatedError, &det, hit.det(), hit);
   }
 
