@@ -29,23 +29,13 @@ InvariantMassAlgorithm::InvariantMassAlgorithm(const ParameterSet & parameters)
   track_matching_cone = parameters.getParameter<double>("ClusterTrackMatchingCone");
   inv_mass_cut  = parameters.getParameter<double>("InvariantMassCutoff");
 
-  std::vector<std::string> theLabels = parameters.getParameter<std::vector<std::string> >("labels");
+   // Fill data labels
+   trackAssociator_.theEBRecHitCollectionLabel = parameters.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
+   trackAssociator_.theEERecHitCollectionLabel = parameters.getParameter<edm::InputTag>("EERecHitCollectionLabel");
+   trackAssociator_.theCaloTowerCollectionLabel = parameters.getParameter<edm::InputTag>("CaloTowerCollectionLabel");
 
-  boost::regex regExp1 ("([^\\s,]+)[\\s,]+([^\\s,]+)$");
-  boost::regex regExp2 ("([^\\s,]+)[\\s,]+([^\\s,]+)[\\s,]+([^\\s,]+)$");
-  boost::smatch matches;
-	
+   trackAssociator_.useDefaultPropagator();
 
-  for(std::vector<std::string>::const_iterator label = theLabels.begin(); label != theLabels.end(); label++) {
-    if (boost::regex_match(*label,matches,regExp1))
-      trackAssociator_.addDataLabels(matches[1],matches[2]);
-    else if (boost::regex_match(*label,matches,regExp2))
-      trackAssociator_.addDataLabels(matches[1],matches[2],matches[3]);
-    else
-      edm::LogError("ConfigurationError") << "Failed to parse label:\n" << *label << "Skipped.\n";
-  trackAssociator_.useDefaultPropagator();
-
-  }
 }
 
 //
@@ -84,7 +74,7 @@ pair<reco::JetTag,reco::TauMassTagInfo> InvariantMassAlgorithm::tag(edm::Event& 
 float InvariantMassAlgorithm::getMinimumClusterDR(edm::Event& theEvent, const edm::EventSetup& theEventSetup, const reco::IsolatedTauTagInfoRef&  tauRef,const math::XYZVector& cluster_3vec) {
 
 
-  TrackAssociator::AssociatorParameters assotiator_parameters;
+  TrackDetectorAssociator::AssociatorParameters assotiator_parameters;
   assotiator_parameters.useEcal = true ;
   assotiator_parameters.useHcal = false ;
   assotiator_parameters.useMuon = false ;

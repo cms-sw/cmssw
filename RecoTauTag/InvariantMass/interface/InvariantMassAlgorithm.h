@@ -13,7 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "TrackingTools/TrackAssociator/interface/TrackAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
@@ -54,7 +54,7 @@ private:
   double track_matching_cone;
   double inv_mass_cut;
 
-  TrackAssociator trackAssociator_;
+  TrackDetectorAssociator trackAssociator_;
 };
 
 #endif 
