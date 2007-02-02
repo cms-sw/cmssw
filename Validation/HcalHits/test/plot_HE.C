@@ -1,16 +1,17 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
+void plot_HE(TString  inputfile="simevent_HE.root",
+	     TString outputfile="HE_histo.root",
+             TString    reffile="../data/HE_ref.root")
 {
  
   // Option to no-action(0)/draw(1)/save(2) (default = 0) histograms in gif.
   int doDraw = 0; 
 
-  //  char * filename = "simevent.root";
-  char * filename = "simevent_HE.root";
   char * treename = "Events";        //The Title of Tree.
   
-  delete gROOT->GetListOfFiles()->FindObject(filename);
+  delete gROOT->GetListOfFiles()->FindObject(inputfile);
 
-  TFile * myf  = new TFile(filename);
+  TFile * myf  = new TFile(inputfile);
   
   TTree * tree = dynamic_cast<TTree*>(myf->Get("Events"));
   assert(tree != 0);
@@ -159,29 +160,28 @@
     sprintf(hname,"h%d",i);
 
     if(i == 4 || i == 7 || i == 8 || i == 11 || i == 12) {
-      if(i == 11)  TH1F *h1[i] = new TH1F(hname,label1[i],100,-5.,5.);   
-      if(i == 12)  
-	TH1F *h1[i] = new TH1F(hname,label1[i],72,-3.1415926,3.1415926);   
-      if(i == 7 || i == 8) TH1F *h1[i] = new TH1F(hname,label1[i],100,-0.1,0.1);  
-      if( i == 4)  TH1F *h1[i] = new TH1F(hname,label1[i],60,0.,60.);  
+      if(i == 11) h1[i] = new TH1F(hname,label1[i],100,-5.,5.);   
+      if(i == 12) h1[i] = new TH1F(hname,label1[i],72,-3.1415926,3.1415926);   
+      if(i == 7 || i == 8) h1[i] = new TH1F(hname,label1[i],100,-0.1,0.1);  
+      if( i == 4)          h1[i] = new TH1F(hname,label1[i],60,0.,60.);  
     }
     else { 
-      TH1F *h1[i] = new TH1F(hname,label1[i],100,1.,0.);  
+      h1[i] = new TH1F(hname,label1[i],100,1.,0.);  
     }
 
   }
 
   // Special : global timing < 50 ns 
-  TH1F *h1[40] = new TH1F("h40",label1[40],50,0.,50.);  
+  h1[40] = new TH1F("h40",label1[40],50,0.,50.);  
   // Special : timing in the cluster (7x7) enery-weighted
-  TH1F *h1[41] = new TH1F("h41",label1[41],30,0.,30.);  
+  h1[41] = new TH1F("h41",label1[41],30,0.,30.);  
   // Special : number of ECAL&HCAL hits
-  TH1F *h1[42] = new TH1F("h42",label1[42],100,0.,500.);  
-  TH1F *h1[43] = new TH1F("h43",label1[43],60,0.,300.);  
-  TH1F *h1[44] = new TH1F("h44",label1[44],100,0.,500.);  
+  h1[42] = new TH1F("h42",label1[42],100,0.,500.);  
+  h1[43] = new TH1F("h43",label1[43],60,0.,300.);  
+  h1[44] = new TH1F("h44",label1[44],100,0.,500.);  
 
   // Special : Longitudinal profile
-  TH1F *h1[45] = new TH1F("h45",label1[45],20,0.,20.);
+  h1[45] = new TH1F("h45",label1[45],20,0.,20.);
   
   for (int i = 0; i < Nhist1; i++) {
     if(i != 39)  h1[i]->Sumw2();
@@ -191,7 +191,7 @@
   for (int i = 0; i < Nhist2; i++) {
     char hname[3]; 
     sprintf(hname,"D%d",i);
-    TH2F *h2[i] = new TH2F(hname,label2[i],150,0.,150.,150,0.,150.);
+    h2[i] = new TH2F(hname,label2[i],150,0.,150.,150,0.,150.);
   }
   //  h[i]->Sumw2();         // to get errors properly calculated
 
@@ -199,21 +199,21 @@
   for (int i = 0; i < nLayersMAX; i++) {
     char hname[4]; 
     sprintf(hname,"hl%d",i);
-    TH1F *h1l[i] = new TH1F(hname,label1l[i],40,0.,0.2);  
+    h1l[i] = new TH1F(hname,label1l[i],40,0.,0.2);  
   }
   // depths
   Float_t max[5] = {30000, 500, 500, 200, 200.};
   for (int i = 0; i < nDepthsMAX; i++) {
     char hname[3]; 
     sprintf(hname,"hd%d",i);
-    TH1F *h1d[i] = new TH1F(hname,label1d[i],100,0.,max[i]);  
+    h1d[i] = new TH1F(hname,label1d[i],100,0.,max[i]);  
   }
 
   // eta-phi grid (for muon samples)
   for (int i = 0; i < 5; i++) {
     char hname[3]; 
     sprintf(hname,"Dg%d",i);
-    TH2F *h2g[i] = new TH2F(hname,label2g[i],1000,-5.,5.,576,-3.1415927,3.1415927);
+    h2g[i] = new TH2F(hname,label2g[i],1000,-5.,5.,576,-3.1415927,3.1415927);
   }
 
   //***************************************************************************
@@ -489,7 +489,7 @@
 
 
   if (doDraw == 2) {
-    TFile OutFile("HE_new.root","RECREATE") ;
+    TFile OutFile(outputfile,"RECREATE") ;
     int ih = 0 ;
     for ( ih=0; ih<nLayersMAX; ih++ )
       {
@@ -516,7 +516,7 @@
    
    // open up ref. ROOT file
    //
-   TFile RefFile("../data/HE_ref.root") ;
+   TFile RefFile(reffile) ;
    
    // service variables
    //

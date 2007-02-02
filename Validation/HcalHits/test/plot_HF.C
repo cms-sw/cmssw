@@ -1,15 +1,16 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
+void plot_HF(TString  inputfile="simevent_HF.root",
+	     TString outputfile="HF_histo.root",
+             TString    reffile="../data/HF_ref.root")
 {
   // Option to no-action(0)/draw(1)/save(2) (default = 0) histograms in gif.
   int doDraw = 0; 
 
-  //  char * filename = "simevent.root";
-  char * filename = "simevent_HF.root";
   char * treename = "Events";        //The Title of Tree.
   
-  delete gROOT->GetListOfFiles()->FindObject(filename);
+  delete gROOT->GetListOfFiles()->FindObject(inputfile);
 
-  TFile * myf  = new TFile(filename);
+  TFile * myf  = new TFile(inputfile);
   
   TTree * tree = dynamic_cast<TTree*>(myf->Get("Events"));
   assert(tree != 0);
@@ -87,34 +88,33 @@
     sprintf(hname,"h%d",i);
 
     if(i == 4 || i == 7 || i == 8 ) {
-      if(i == 7)  TH1F *h1[i] = new TH1F(hname,label1[i],100,-5.,5.);   
-      if(i == 8)  
-	TH1F *h1[i] = new TH1F(hname,label1[i],72,-3.1415926,3.1415926);   
-      if(i == 4)  TH1F *h1[i] = new TH1F(hname,label1[i],30,0.,150.);  
+      if(i == 7) h1[i] = new TH1F(hname,label1[i],100,-5.,5.);   
+      if(i == 8) h1[i] = new TH1F(hname,label1[i],72,-3.1415926,3.1415926);   
+      if(i == 4) h1[i] = new TH1F(hname,label1[i],30,0.,150.);  
     }
     else { 
-      TH1F *h1[i] = new TH1F(hname,label1[i],100,1.,0.);  
+      h1[i] = new TH1F(hname,label1[i],100,1.,0.);  
     }
 
   }
 
   // Special : global timing < 60 ns 
-  TH1F *h1[15] = new TH1F("h15",label1[15],60,0.,60.);  
+  h1[15] = new TH1F("h15",label1[15],60,0.,60.);  
   // Special : timing in the cluster (7x7) enery-weighted
-  TH1F *h1[16] = new TH1F("h16",label1[16],60,0.,60.);  
+  h1[16] = new TH1F("h16",label1[16],60,0.,60.);  
   // Special : number of HCAL hits
-  TH1F *h1[17] = new TH1F("h17",label1[17],50,0.,50.);  
+  h1[17] = new TH1F("h17",label1[17],50,0.,50.);  
   // Special : signal in long fibers
-  TH1F *h1[18] = new TH1F("h18",label1[18],50,0.,50.);
+  h1[18] = new TH1F("h18",label1[18],50,0.,50.);
   // Special : signal in short fibers
-  TH1F *h1[19] = new TH1F("h19",label1[19],50,0.,50.);
+  h1[19] = new TH1F("h19",label1[19],50,0.,50.);
 
   for (int i = 0;  i < Nhist1; i++) {
      h1[i]->Sumw2();
   }
 
   // eta-phi grid (for muon samples)
-  TH2F *h2g = new TH2F("Grid",label2g,1000,-5.,5.,576,-3.1415927,3.1415927);
+  h2g = new TH2F("Grid",label2g,1000,-5.,5.,576,-3.1415927,3.1415927);
 
   //***************************************************************************
   //***************************************************************************
@@ -271,7 +271,7 @@
   // to create a reference ROOT histogram file
 
   if (doDraw == 2) {
-    TFile OutFile("HF_new.root","RECREATE") ;
+    TFile OutFile(outputfile,"RECREATE") ;
     int ih = 0 ;
 
     for ( ih=0; ih<Nhist1; ih++ )
@@ -295,7 +295,7 @@
    
    // open up ref. ROOT file
    //
-   TFile RefFile("../data/HF_ref.root") ;
+   TFile RefFile(reffile) ;
    
    // service variables
    //
