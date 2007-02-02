@@ -32,6 +32,7 @@ namespace edm {
     edm::disableRTSigs();
 #endif
     edm::installSig(SIGUSR2,edm::ep_sigusr2);
+    edm::reenableSigs(&oldset);
 
 //  registry.watchPostProcessEvent(this,&UnixSignalService::postEventProcessing);
   }
