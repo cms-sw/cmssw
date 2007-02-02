@@ -16,7 +16,7 @@
 class CSCOval
 {
 public:
-  CSCOval(const char* drawhisto="none");
+  CSCOval(const char * suffix, const char* drawhisto="none");
   
   ~CSCOval();
 
@@ -29,21 +29,23 @@ private:
   TFile * rfile;
   TFile * sfile;
   HistoCompare * theComp;
+  string theSuffix;
   string theDirectory;
 };
 
 
-CSCOval::CSCOval(const char* drawhisto)
+CSCOval::CSCOval(const char * suffix, const char* drawhisto)
 : rfile(0),
   sfile(0),
   theComp(0),
+  theSuffix(suffix),
   theDirectory("DQMData/CSCRecHitTask")
 {
   gROOT->Reset();
   gStyle->SetOptFit(111);
   string PathToRef = "../data/";
-  string rfilename = PathToRef+ "CSCRecHitValidation_ref.root";
-  string sfilename = "CSCRecHitValidation.root";
+  string rfilename = PathToRef+ "cscRecHitValidation_ref.root";
+  string sfilename = "cscRecHitValidation" + theSuffix + ".root";
 
   delete gROOT->GetListOfFiles()->FindObject(rfilename.c_str());
   delete gROOT->GetListOfFiles()->FindObject(sfilename.c_str());
@@ -64,7 +66,7 @@ CSCOval::CSCOval(const char* drawhisto)
 
   if(drawhisto == "gif")
   {
-    theComp = new HistoCompareGif("CSC");
+    theComp = new HistoCompareGif("CSC", theSuffix);
   }
   else if(drawhisto == "ps")
   {
