@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.5 2006/08/01 16:05:17 llista Exp $
+// $Id: SiPixelDigiSource.cc,v 1.6 2006/10/16 08:21:54 chiochia Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -189,4 +189,4 @@ void SiPixelDigiSource::bookMEs(){
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(SiPixelDigiSource)
+DEFINE_FWK_MODULE(SiPixelDigiSource);
