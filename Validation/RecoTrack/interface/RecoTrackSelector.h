@@ -25,7 +25,7 @@ public:
     return
       (t.numberOfValidHits() >= minHit_ &&
        fabs(t.pt()) >= ptMin_ &&
-       fabs(t.eta()) >= minRapidity_ && fabs(t.eta()) <= maxRapidity_ &&
+       t.eta() >= minRapidity_ && t.eta() <= maxRapidity_ &&
        fabs(t.d0()) <= tip_ &&
        fabs(t.dz()) <= lip_ );
   }

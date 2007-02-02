@@ -62,9 +62,6 @@
 
 #include <string>
 
-//using namespace std;
-//using namespace edm;
-
 class TTree;
 class TFile;
 
@@ -88,9 +85,9 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   edm::ParameterSet conf_;
   TrackLocalAngle *anglefinder_;
   DaqMonitorBEInterface* dbe_;
-  string outputFile_;
-  string src_;
-  string builderName_;
+  std::string outputFile_;
+  std::string src_;
+  std::string builderName_;
   bool MTCCtrack_;
 
   bool checkType_; // do we check that the simHit associated with recHit is of the expected particle type ?

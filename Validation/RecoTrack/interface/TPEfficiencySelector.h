@@ -26,9 +26,9 @@ public:
     return (
 	    tp.matchedHit() >= minHit_ &&
 	    sqrt(tp.momentum().perp2()) >= ptMin_ && 
-	    fabs(tp.momentum().eta()) >= minRapidity_ && fabs(tp.momentum().eta()) <= maxRapidity_ && 
-	    fabs(tp.parentVertex()->position().perp()) <= tip_ &&
- 	    fabs(tp.parentVertex()->position().z()) <= lip_  &&
+	    tp.momentum().eta() >= minRapidity_ && tp.momentum().eta() <= maxRapidity_ && 
+	    sqrt(tp.vertex().perp2()) <= tip_ &&
+ 	    fabs(tp.vertex().z()) <= lip_  &&
 	    //signalonly==true for efficiency
 	    tp.eventId().bunchCrossing()== 0 && tp.eventId().event() == 0
  	    );

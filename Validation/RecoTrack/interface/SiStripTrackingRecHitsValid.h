@@ -56,8 +56,6 @@
 
 #include <string>
 
-using namespace std;
-
 class SiStripTrackingRecHitsValid : public edm::EDAnalyzer
 {
  public:
@@ -75,9 +73,9 @@ class SiStripTrackingRecHitsValid : public edm::EDAnalyzer
   edm::ParameterSet conf_;
   TrackLocalAngle *anglefinder_;
   DaqMonitorBEInterface* dbe_;
-  string outputFile_;
-  string src_;
-  string builderName_;
+  std::string outputFile_;
+  std::string src_;
+  std::string builderName_;
   bool MTCCtrack_;
 
   //TIB

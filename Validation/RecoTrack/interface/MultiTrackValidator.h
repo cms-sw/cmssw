@@ -26,17 +26,15 @@
 #include <string>
 #include <TH1F.h>
 
-using namespace std;
-
 class MultiTrackValidator : public edm::EDAnalyzer {
  public:
 
   MultiTrackValidator(const edm::ParameterSet& pset):
     dbe_(0),
-    sim(pset.getParameter<string>("sim")),
-    label(pset.getParameter< vector<string> >("label")),
-    associators(pset.getParameter< vector<string> >("associators")),
-    out(pset.getParameter<string>("out")),
+    sim(pset.getParameter<std::string>("sim")),
+    label(pset.getParameter< std::vector<std::string> >("label")),
+    associators(pset.getParameter< std::vector<std::string> >("associators")),
+    out(pset.getParameter<std::string>("out")),
     min(pset.getParameter<double>("min")),
     max(pset.getParameter<double>("max")),
     nint(pset.getParameter<int>("nint")),
@@ -60,34 +58,34 @@ class MultiTrackValidator : public edm::EDAnalyzer {
 
   DaqMonitorBEInterface* dbe_;
 
-  string sim;
-  vector<string> label, associators;
-  string out;
+  std::string sim;
+  std::vector<std::string> label, associators;
+  std::string out;
   double  min, max;
   int nint;
   double minpT, maxpT;
   int nintpT;
   
-  vector<MonitorElement*> h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM;
-  vector<MonitorElement*> h_tracks, h_fakes, h_nchi2, h_nchi2_prob, h_hits,  h_ptrmsh, h_d0rmsh, h_charge;
-  vector<MonitorElement*> h_effic, h_fakerate, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta;
-  vector<MonitorElement*> h_recopT, h_assocpT, h_assoc2pT, h_simulpT;
-  vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi0,h_pullD0,h_pullDz,h_pullQoverp;
-  vector<MonitorElement*> chi2_vs_nhits, chi2_vs_eta, nhits_vs_eta, ptres_vs_eta, etares_vs_eta, nrec_vs_nsim;
-  vector<MonitorElement*> h_assochi2, h_assochi2_prob, h_hits_eta;
+  std::vector<MonitorElement*> h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM;
+  std::vector<MonitorElement*> h_tracks, h_fakes, h_nchi2, h_nchi2_prob, h_hits,  h_ptrmsh, h_d0rmsh, h_charge;
+  std::vector<MonitorElement*> h_effic, h_fakerate, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta;
+  std::vector<MonitorElement*> h_recopT, h_assocpT, h_assoc2pT, h_simulpT;
+  std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi0,h_pullD0,h_pullDz,h_pullQoverp;
+  std::vector<MonitorElement*> chi2_vs_nhits, chi2_vs_eta, nhits_vs_eta, ptres_vs_eta, etares_vs_eta, nrec_vs_nsim;
+  std::vector<MonitorElement*> h_assochi2, h_assochi2_prob, h_hits_eta;
   
-  vector< vector<double> > etaintervals;
-  vector< vector<double> > pTintervals;
-  vector< vector<double> > hitseta;
-  vector< vector<int> > totSIMeta,totRECeta,totASSeta,totASS2eta;
-  vector< vector<int> > totSIMpT,totRECpT,totASSpT,totASS2pT;
+  std::vector< std::vector<double> > etaintervals;
+  std::vector< std::vector<double> > pTintervals;
+  std::vector< std::vector<double> > hitseta;
+  std::vector< std::vector<int> > totSIMeta,totRECeta,totASSeta,totASS2eta;
+  std::vector< std::vector<int> > totSIMpT,totRECpT,totASSpT,totASS2pT;
   
-  vector< vector<TH1F*> > ptdistrib;
-  vector< vector<TH1F*> > d0distrib;
+  std::vector< std::vector<TH1F*> > ptdistrib;
+  std::vector< std::vector<TH1F*> > d0distrib;
 
   edm::ESHandle<MagneticField> theMF;
 
-  vector<const TrackAssociatorBase*> associator;
+  std::vector<const TrackAssociatorBase*> associator;
   const TrackAssociatorByChi2 * associatorForParamAtPca;
   RecoTrackSelector selectRecoTracks;
   TPEfficiencySelector selectTPs4Efficiency;
