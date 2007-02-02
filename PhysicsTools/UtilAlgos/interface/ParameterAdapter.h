@@ -2,14 +2,15 @@
 #define UtilAlgos_ParameterAdapter_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <boost/static_assert.hpp>
 
 namespace reco {
   namespace modules {
     
     template<typename S> 
     struct ParameterAdapter { 
-      BOOST_STATIC_ASSERT( sizeof( S ) == 0 ); 
+      static S make( const edm::ParameterSet & cfg ) {
+	return S( cfg );
+      }
     };
     
     template<typename S>
