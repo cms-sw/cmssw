@@ -1,21 +1,20 @@
+<use name=DetectorDescription/Base>
+<use name=DetectorDescription/Core>
+<use name=DetectorDescription/Parser>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageService>
+<use name=FWCore/ParameterSet>
+<use name=Foundation/SealUtil>
+<use name=Geometry/Records>
+<use name=MagneticField/Records>
 <export>
-<lib name=GeometryReadersXMLIdealGeometryESSource>
-<use name=DetectorDescription/CoreImpl>
-<use name=DetectorDescription/Parser>
-<use name=Geometry/Records>
-<use name=MagneticField/Records>
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet> 
-<use name=Utilities/General>
-<use name=clhep>
+  <use name=DetectorDescription/Core>
+  <use name=DetectorDescription/Parser>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=Geometry/Records>
+  <use name=MagneticField/Records>
+  <lib name=GeometryReadersXMLIdealGeometryESSource>
 </export>
+
 <flags SEAL_PLUGIN_NAME="GeometryReadersXMLIdealGeometryESSource">
-<use name=DetectorDescription/CoreImpl>
-<use name=DetectorDescription/Parser>
-<use name=Geometry/Records>
-<use name=MagneticField/Records>
-<use name=xerces-c>
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet> 
-<use name=Utilities/General>
-<use name=clhep>
