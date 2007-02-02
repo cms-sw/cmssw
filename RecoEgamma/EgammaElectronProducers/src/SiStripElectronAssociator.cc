@@ -13,9 +13,10 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Tue Aug  1 15:24:02 EDT 2006
-// $Id: SiStripElectronAssociator.cc,v 1.3 2006/11/02 18:39:02 futyand Exp $
+// $Id: SiStripElectronAssociator.cc,v 1.4 2006/12/20 17:19:03 rahatlou Exp $
 //
 //
+
 
 #include <map>
 
@@ -26,6 +27,7 @@
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -49,7 +51,8 @@
 SiStripElectronAssociator::SiStripElectronAssociator(const edm::ParameterSet& iConfig)
 {
    //register your products
-   produces<reco::ElectronCollection>();
+  electronsLabel_ = iConfig.getParameter<std::string>("electronsLabel");
+  produces<reco::ElectronCollection>(electronsLabel_);
 
    //now do what ever other initialization is needed
    siStripElectronProducer_ = iConfig.getParameter<std::string>("siStripElectronProducer");
@@ -105,6 +108,8 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
       // But first, make sure the track's hit list is not empty.
       if (trackPtr->recHitsBegin() == trackPtr->recHitsEnd()) { continue; }
+
+
 
       // Detector id is not enough to completely specify a hit
       uint32_t id = (*trackPtr->recHitsBegin())->geographicalId().rawId();
@@ -167,5 +172,5 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
    LogDebug("") << " Number of SiStripElectrons returned with a good fit " 
                      << countSiElFit << "\n"<<  std::endl ;
 
-   iEvent.put(output);
+   iEvent.put(output,electronsLabel_);
 }

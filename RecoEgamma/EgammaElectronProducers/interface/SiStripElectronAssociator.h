@@ -50,6 +50,8 @@ class SiStripElectronAssociator : public edm::EDProducer {
       std::string siStripElectronCollection_;
       std::string trackProducer_;
       std::string trackCollection_;
+
+      std::string electronsLabel_;
 };
 
 #endif // EgammaElectronProducers_SiStripElectronAssociator_h
