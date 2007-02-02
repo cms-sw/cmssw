@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/SiStripElectronProducer.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/SiStripElectronAssociator.h"
+#include "RecoEgamma/EgammaElectronProducers/interface/SiStripElectronAnalyzer.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/ElectronProducer.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/ElectronAnalyzer.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/ElectronPixelSeedProducer.h"
@@ -26,6 +27,7 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(CkfTrajectoryBuilderWithSeedAssocESProducer
 DEFINE_ANOTHER_FWK_MODULE(ElectronProducer);
 DEFINE_ANOTHER_FWK_MODULE(SiStripElectronProducer);
 DEFINE_ANOTHER_FWK_MODULE(SiStripElectronAssociator);
+DEFINE_ANOTHER_FWK_MODULE(SiStripElectronAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(ElectronAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(ElectronPixelSeedProducer);
 DEFINE_ANOTHER_FWK_MODULE(PixelMatchElectronProducer);
