@@ -113,6 +113,9 @@ void AlignmentCorrelationsStore::setCorrelations( Alignable* ap1, Alignable* ap2
 
 bool AlignmentCorrelationsStore::correlationsAvailable( Alignable* ap1, Alignable* ap2 ) const
 {
+  bool transpose = ( ap2 > ap1 );
+  if ( transpose ) std::swap( ap1, ap2 );
+
   Correlations::const_iterator itC1 = theCorrelations.find( ap1 );
   if ( itC1 != theCorrelations.end() )
   {
