@@ -88,10 +88,12 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 	  //save all the id of matched simtracks
 	  if(!SimTrackIds.empty()){
 	    for(size_t j=0; j<SimTrackIds.size(); j++){
+	      /*
 	      std::cout << " hit # " << ri << " SimId " << SimTrackIds[j].first 
 			<< "event id = " << SimTrackIds[j].second.event() 
 			<< " Bunch Xing = " << SimTrackIds[j].second.bunchCrossing() 
 			<< std::endl; 
+	      */
 	      matchedIds.push_back(SimTrackIds[j]);
 	    }
 	  }
@@ -117,13 +119,12 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 		for (TrackingParticle::g4t_iterator g4T = t -> g4Track_begin();
 		     g4T !=  t -> g4Track_end(); ++g4T) {
 		  if((*g4T).trackId() == matchedIds[j].first && t->eventId() == matchedIds[j].second){
-		    std::cout << " TP   (ID, Ev, BC) = " << (*g4T).trackId() 
-			      << ", " << t->eventId().event() << ", "<< t->eventId().bunchCrossing() << endl; 
-		    std::cout << " Match(ID, Ev, BC) = " <<  matchedIds[j].first
-			      << ", " << matchedIds[j].second.event() << ", "<< matchedIds[j].second.bunchCrossing() << endl; 
-		    //	    std::cout << " Nrh = " << ri << " Nshared = " << n << std::endl;
-		    std::cout << " G4  Track Momentum " << (*g4T).momentum() << std::endl;   
-		    std::cout << " reco Track Momentum " << track->momentum() << std::endl;  
+		    edm::LogVerbatim("TrackValidator") << " TP   (ID, Ev, BC) = " << (*g4T).trackId() 
+			      << ", " << t->eventId().event() << ", "<< t->eventId().bunchCrossing(); 
+		    edm::LogVerbatim("TrackValidator") << " Match(ID, Ev, BC) = " <<  matchedIds[j].first
+						       << ", " << matchedIds[j].second.event() << ", "<< matchedIds[j].second.bunchCrossing() 
+						       << "\n G4  Track Momentum " << (*g4T).momentum() 
+						       << " \t reco Track Momentum " << track->momentum();  
 		    nshared = std::count(matchedIds.begin(), matchedIds.end(), matchedIds[j]);
 		    if(ri!=0) fraction = (static_cast<double>(nshared)/static_cast<double>(ri));
 		    //for now save the number of shared hits between the reco and sim track
@@ -214,13 +215,12 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 		   g4T !=  t -> g4Track_end(); ++g4T) {
 		//		if((*g4T).trackId() == matchedIds[j]){
 		if((*g4T).trackId() == matchedIds[j].first && t->eventId() == matchedIds[j].second){
-		  std::cout << " TP   (ID, Ev, BC) = " << (*g4T).trackId() 
-			    << ", " << t->eventId().event() << ", "<< t->eventId().bunchCrossing() << endl; 
-		  std::cout << " Match(ID, Ev, BC) = " <<  matchedIds[j].first
-			    << ", " << matchedIds[j].second.event() << ", "<< matchedIds[j].second.bunchCrossing() << endl; 
-		  //	    std::cout << " Nrh = " << ri << " Nshared = " << n << std::endl;
-		  std::cout << " G4  Track Momentum " << (*g4T).momentum() << std::endl;   
-		  std::cout << " reco Track Momentum " << track->momentum() << std::endl;  
+		  edm::LogVerbatim("TrackValidator") << " TP   (ID, Ev, BC) = " << (*g4T).trackId() 
+			    << ", " << t->eventId().event() << ", "<< t->eventId().bunchCrossing(); 
+		  edm::LogVerbatim("TrackValidator") << " Match(ID, Ev, BC) = " <<  matchedIds[j].first
+						     << ", " << matchedIds[j].second.event() << ", "<< matchedIds[j].second.bunchCrossing() 
+						     << "\n G4  Track Momentum " << (*g4T).momentum() 
+						     << "\t reco Track Momentum " << track->momentum();  
 		  
 		  nshared = std::count(matchedIds.begin(), matchedIds.end(), matchedIds[j]);
 		  

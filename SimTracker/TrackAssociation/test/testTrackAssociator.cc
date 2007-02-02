@@ -21,7 +21,6 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
-
 testTrackAssociator::testTrackAssociator(edm::ParameterSet const& conf) {
 }
 
@@ -43,8 +42,6 @@ void testTrackAssociator::beginJob(const EventSetup & setup) {
 
 void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
-  using namespace edm;
-  using namespace reco;
   
   Handle<reco::TrackCollection> trackCollectionH;
   event.getByLabel("ctfWithMaterialTracks",trackCollectionH);
