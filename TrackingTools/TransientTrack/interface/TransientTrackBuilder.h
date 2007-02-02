@@ -29,6 +29,8 @@ class TransientTrackBuilder {
     std::vector<reco::TransientTrack> build ( const edm::Handle<reco::TrackCollection> & trkColl)  const;
     std::vector<reco::TransientTrack> build ( const edm::Handle<reco::GsfTrackCollection> & trkColl)  const;
 
+    reco::TransientTrack build (const FreeTrajectoryState & fts) const;
+
     const MagneticField* field() const {return theField;}
     const edm::ESHandle<GlobalTrackingGeometry> trackingGeometry() const {return theTrackingGeometry;}
 

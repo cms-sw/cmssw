@@ -1,5 +1,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/interface/GsfTransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackFromFTS.h"
 
 using namespace reco;
 using namespace std;
@@ -41,4 +42,8 @@ TransientTrackBuilder::build (const edm::Handle<reco::GsfTrackCollection> & trkC
 	new GsfTransientTrack(GsfTrackRef(trkColl, i), theField, theTrackingGeometry)) );
   }
   return ttVect;
+}
+
+TransientTrack TransientTrackBuilder::build (const FreeTrajectoryState & fts) const {
+  return TransientTrack(new TransientTrackFromFTS(fts));
 }
