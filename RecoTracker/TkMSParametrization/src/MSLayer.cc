@@ -5,7 +5,7 @@
 #include "RecoTracker/TkMSParametrization/interface/MSLayersKeeper.h"
 
 using namespace GeomDetEnumerators;
-
+using namespace std;
 template <class T> T sqr( T t) {return t*t;}
 
 //----------------------------------------------------------------------

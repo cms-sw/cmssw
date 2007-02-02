@@ -15,7 +15,7 @@ class LayerHitMap {
 
 public:
   typedef PixelRecoRange<float> Range;
-  typedef vector<TkHitPairsCachedHit>::const_iterator HitIter;
+  typedef std::vector<TkHitPairsCachedHit>::const_iterator HitIter;
   LayerHitMap() : theCells(0) { }
   LayerHitMap(const LayerWithHits*  ,  const edm::EventSetup& iSetup);
   LayerHitMap(const LayerHitMap & lhm,  const edm::EventSetup& iSetup); 
@@ -38,7 +38,7 @@ private:
   //  edm::ParameterSet conf_;
    mutable TkHitPairsCellManager * theCells;
    //TkHitPairsCellManager * theCells;
-  mutable vector<TkHitPairsCachedHit> theHits;
+  mutable std::vector<TkHitPairsCachedHit> theHits;
   float theLayerRZmin, theCellDeltaRZ;
   float theLayerPhimin, theCellDeltaPhi; 
   int theNbinsRZ, theNbinsPhi;

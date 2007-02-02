@@ -6,8 +6,9 @@
 #include "TrackingTools/PatternTools/interface/MediumProperties.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
-
 #include <vector>
+
+using namespace std;
 
 void MSLayersKeeperX0DetLayer::init(const edm::EventSetup &iSetup)
 {

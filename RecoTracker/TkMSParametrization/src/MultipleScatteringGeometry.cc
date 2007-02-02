@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 using namespace GeomDetEnumerators;
+using namespace std;
 
 //------------------------------------------------------------------------------
 const float MultipleScatteringGeometry::beamPipeR =  2.94;

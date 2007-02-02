@@ -45,7 +45,7 @@ public:
 
   bool operator== (const MSLayer &o) const;
   bool operator<  (const MSLayer &o) const;
-  pair<PixelRecoPointRZ,bool> crossing(
+  std::pair<PixelRecoPointRZ,bool> crossing(
       const PixelRecoLineRZ &line) const;
   float distance(const PixelRecoPointRZ & point) const;
 
@@ -58,10 +58,10 @@ private:
   DataX0 theX0Data;
 
   friend struct MSLayersKeeper;
-  friend ostream& operator<<( ostream& s, const MSLayer & l);
+  friend std::ostream& operator<<( std::ostream& s, const MSLayer & l);
 
 };
 
-ostream& operator<<( ostream& s, const MSLayer & l);
-ostream& operator<<( ostream& s, const MSLayer::DataX0 & d);
+std::ostream& operator<<( std::ostream& s, const MSLayer & l);
+std::ostream& operator<<( std::ostream& s, const MSLayer::DataX0 & d);
 #endif

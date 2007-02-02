@@ -2,7 +2,7 @@
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringX0Data.h"
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringGeometry.h"
 #include <algorithm>
-
+using namespace std;
 template <class T> T sqr( T t) {return t*t;}
 
 //------------------------------------------------------------------------------

@@ -15,7 +15,7 @@ class MSLayersAtAngle {
 
 public:
   MSLayersAtAngle() { }
-  MSLayersAtAngle(const vector<MSLayer> & layers);
+  MSLayersAtAngle(const std::vector<MSLayer> & layers);
   void update(const MSLayer & layer);
   const MSLayer * findLayer(const MSLayer & layer) const;
 
@@ -29,10 +29,10 @@ public:
   void print() const;
 
 private:
-  vector<MSLayer> theLayers;
+  std::vector<MSLayer> theLayers;
 
 private:
-  typedef vector<MSLayer>::const_iterator LayerItr;
+  typedef std::vector<MSLayer>::const_iterator LayerItr;
   LayerItr findLayer(const PixelRecoPointRZ & point,
                      LayerItr i1, LayerItr i2) const;
   float sum2RmRn(LayerItr i1, LayerItr i2,

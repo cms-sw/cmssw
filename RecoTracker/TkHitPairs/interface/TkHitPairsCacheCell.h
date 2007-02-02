@@ -8,7 +8,7 @@
 class TkHitPairsCacheCell {
 
 public:
-  typedef vector<TkHitPairsCachedHit>::const_iterator HitIter;
+  typedef std::vector<TkHitPairsCachedHit>::const_iterator HitIter;
   typedef PixelRecoRange<HitIter> HitIterRange;
 
   TkHitPairsCacheCell() : theBeg(0),theEnd(0) { }

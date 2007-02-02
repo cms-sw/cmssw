@@ -9,14 +9,14 @@ class DetLayer;
 class MultipleScatteringGeometry {
 public:
   MultipleScatteringGeometry(const edm::EventSetup &iSetup);
-  vector<MSLayer> detLayers(float eta, 
+  std::vector<MSLayer> detLayers(float eta, 
 			    float z,
 			    const edm::EventSetup &iSetup ) const;
-  vector<MSLayer> detLayers(const edm::EventSetup &iSetup) const;
-  vector<MSLayer> otherLayers(float eta,const edm::EventSetup &iSetup) const;
+  std::vector<MSLayer> detLayers(const edm::EventSetup &iSetup) const;
+  std::vector<MSLayer> otherLayers(float eta,const edm::EventSetup &iSetup) const;
 
  protected:
-  vector<const DetLayer*> theLayers; 
+  std::vector<const DetLayer*> theLayers; 
   static const float beamPipeR, endflangesZ, supportR;
 
 };

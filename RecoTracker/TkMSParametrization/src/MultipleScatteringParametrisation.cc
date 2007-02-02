@@ -16,6 +16,8 @@ template <class T> T sqr( T t) {return t*t;}
 //#include "Utilities/Notification/interface/TimingReport.h"
 //#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
+using namespace std;
+
 const float MultipleScatteringParametrisation::x0ToSigma = 0.0136;
 
 //using namespace PixelRecoUtilities;

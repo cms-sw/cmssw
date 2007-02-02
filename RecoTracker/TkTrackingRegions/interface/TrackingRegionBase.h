@@ -49,7 +49,7 @@ public:
 
   /// minimal pt of interest 
   virtual float ptMin()  const { 
-    return 1./max(fabs(theInvPtRange.max()), fabs(theInvPtRange.min())); 
+    return 1./std::max(fabs(theInvPtRange.max()), fabs(theInvPtRange.min())); 
   } 
 
   /// inverse pt range 
@@ -78,7 +78,7 @@ public:
   virtual TrackingRegionBase* clone() const = 0;
 
   static std::string const & name() 
-    { static string local("TrackingRegionBase"); return local; }
+    { static std::string local("TrackingRegionBase"); return local; }
   virtual std::string const & getName() const {return name();}
 
 

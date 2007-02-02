@@ -117,7 +117,7 @@ public:
   }
 
   static std::string const & name() 
-    { static string local("RectangularEtaPhiTrackingRegion"); return local; }
+    { static std::string local("RectangularEtaPhiTrackingRegion"); return local; }
   virtual std::string const & getName() const {return name();}
 
 

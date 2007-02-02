@@ -9,17 +9,17 @@
 
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "RecoTracker/TkMSParametrization/interface/rangeIntersection.h"
-using namespace std;
-template<class T> class PixelRecoRange : public pair<T,T> {
+
+template<class T> class PixelRecoRange : public std::pair<T,T> {
 public:
 
   PixelRecoRange() { }
 
   PixelRecoRange(const T & aMin, const T & aMax) 
-      : pair<T,T> (aMin,aMax) { }
+      : std::pair<T,T> (aMin,aMax) { }
 
-  PixelRecoRange(const pair<T,T> & aPair ) 
-      : pair<T,T> (aPair) { }  
+  PixelRecoRange(const std::pair<T,T> & aPair ) 
+      : std::pair<T,T> (aPair) { }  
 
   const T & min() const { return this->first; }
   const T & max() const { return this->second; }
@@ -52,8 +52,8 @@ public:
   void sort() { if (empty() ) swap(this->first,this->second); }
 };
 
-template <class T> ostream & operator<<( 
-    ostream& out, const PixelRecoRange<T>& r) 
+template <class T> std::ostream & operator<<( 
+     std::ostream& out, const PixelRecoRange<T>& r) 
 {
   return out << "("<<r.min()<<","<<r.max()<<")";
 }

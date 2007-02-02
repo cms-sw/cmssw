@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include <string>
-using namespace std;
+
 /** \namespace PixelRecoUtilities
  *  Small utility funcions used during seed generation 
  */

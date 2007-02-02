@@ -6,16 +6,16 @@
 #include <utility>
 #include <iostream>
 
-template <class T> class TkTrackingRegionsMargin : public pair<T,T> {
+template <class T> class TkTrackingRegionsMargin : public std::pair<T,T> {
 public:
 
   TkTrackingRegionsMargin() { }
 
   TkTrackingRegionsMargin(const T & aLeft, const T & aRight) 
-    : pair<T,T> (aLeft,aRight) { }
+    : std::pair<T,T> (aLeft,aRight) { }
 
-  TkTrackingRegionsMargin( const pair<T,T> & aPair)
-    : pair<T,T> (aPair) { }
+  TkTrackingRegionsMargin( const std::pair<T,T> & aPair)
+    : std::pair<T,T> (aPair) { }
 
   const T & left() const { return this->first; }
   const T & right() const { return this->second; }
@@ -27,8 +27,8 @@ public:
   } 
 };
 
-template <class T> ostream & operator<< ( 
-    ostream& out, const TkTrackingRegionsMargin<T> & m) 
+template <class T> std::ostream & operator<< ( 
+    std::ostream& out, const TkTrackingRegionsMargin<T> & m) 
 {
   return out  << "("<<m.left()<<","<<m.right()<<")";
 }

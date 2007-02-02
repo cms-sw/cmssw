@@ -26,12 +26,12 @@ public:
    : theDetCompatibility(detCompatibility), 
      theHitCompatibility (hitCompatibility) { }
   virtual ~OuterEstimator(){}
-  virtual pair<bool,double> estimate(
+  virtual std::pair<bool,double> estimate(
       const TrajectoryStateOnSurface& ts, 
       const TrackingRecHit& hit,  
       const edm::EventSetup& iSetup) 
     const {
-       return theHitCompatibility(&hit,iSetup) ? make_pair(true,1.) : make_pair(false,0.) ;
+       return theHitCompatibility(&hit,iSetup) ? std::make_pair(true,1.) : std::make_pair(false,0.) ;
   }
  
   virtual bool estimate(

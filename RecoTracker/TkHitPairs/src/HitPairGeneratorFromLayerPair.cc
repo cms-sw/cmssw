@@ -15,6 +15,7 @@
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 
 using namespace GeomDetEnumerators;
+using namespace std;
 
 typedef PixelRecoRange<float> Range;
 

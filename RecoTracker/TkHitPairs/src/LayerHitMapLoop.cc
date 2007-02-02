@@ -2,6 +2,7 @@
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapLoop.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
+using namespace std;
 
 LayerHitMapLoop::LayerHitMapLoop(const LayerHitMap & map)
   : theMap(map), safeBinRz(true), setStatus(0)

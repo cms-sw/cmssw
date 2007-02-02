@@ -14,6 +14,8 @@
 #include "RecoTracker/TkHitPairs/interface/TkHitPairsCacheCell.h"
 #include "Geometry/Surface/interface/BoundCylinder.h"
 
+using namespace std;
+
 LayerHitMap::LayerHitMap(const LayerWithHits* layerhits,const edm::EventSetup&iSetup) : theCells(0)
 {
   static int nRZ=5 ;

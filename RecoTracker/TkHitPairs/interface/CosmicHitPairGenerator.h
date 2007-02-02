@@ -19,7 +19,7 @@ class HitPairGeneratorFromLayerPair;
 
 class CosmicHitPairGenerator : public HitPairGenerator{
 
-  typedef vector<CosmicHitPairGeneratorFromLayerPair *>   Container;
+  typedef std::vector<CosmicHitPairGeneratorFromLayerPair *>   Container;
 
 public:
   CosmicHitPairGenerator(SeedLayerPairs& layers, const edm::EventSetup& iSetup);

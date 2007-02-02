@@ -4,7 +4,7 @@
 #include "RecoTracker/TkHitPairs/interface/CosmicHitPairGeneratorFromLayerPair.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
+using namespace std;
 
 
 CosmicHitPairGenerator::CosmicHitPairGenerator(SeedLayerPairs& layers,

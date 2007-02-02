@@ -24,8 +24,8 @@ class LayerWithHits;
      GlobalPoint ou2p=tracker->idToDet(h2.outer()->geographicalId())->surface().toGlobal(h2.outer()->localPosition());
      if (ou1p.y()*ou2p.y()<0) return ou1p.y()>ou2p.y();
      else{
-       float dist1=100*abs(ou1p.z()-in1p.z())-abs(ou1p.y())-0.1*abs(in1p.y());
-       float dist2=100*abs(ou2p.z()-in2p.z())-abs(ou2p.y())-0.1*abs(in2p.y());
+       float dist1=100*std::abs(ou1p.z()-in1p.z())-std::abs(ou1p.y())-0.1*std::abs(in1p.y());
+       float dist2=100*std::abs(ou2p.z()-in2p.z())-std::abs(ou2p.y())-0.1*std::abs(in2p.y());
        return dist1 < dist2;
      }
    }

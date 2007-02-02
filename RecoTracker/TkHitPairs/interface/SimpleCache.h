@@ -29,7 +29,7 @@ public:
   /// add object to cache. It is caller responsibility to check that object
   /// is not yet in cache.
   void add(const KeyType & key, const ValueType * value) {
-    theContainer.push_back( make_pair(key,value));
+    theContainer.push_back( std::make_pair(key,value));
   }
 
   /// emptify cache, delete values associated to Key
@@ -41,9 +41,9 @@ public:
   }
 
 protected:
-  typedef pair< KeyType, const ValueType * > KeyValuePair;
-  vector< KeyValuePair > theContainer;
-  typedef typename vector< KeyValuePair >::const_iterator ConstItr;
+  typedef std::pair< KeyType, const ValueType * > KeyValuePair;
+  std::vector< KeyValuePair > theContainer;
+  typedef typename std::vector< KeyValuePair >::const_iterator ConstItr;
 
 private:
   SimpleCache(const SimpleCache &) { }

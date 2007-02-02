@@ -5,7 +5,7 @@ OuterHitPhiPrediction::Range
     OuterHitPhiPrediction::operator()(float radius) const 
 {
 
-  if( max(fabs(theCurvature.min()), fabs(theCurvature.max())) > 1./radius) 
+  if( std::max(fabs(theCurvature.min()), fabs(theCurvature.max())) > 1./radius) 
       return Range(-M_PI,M_PI); 
   
   float Phi_r = asin(radius*theCurvature.max()/2 + theOriginRBound/radius);

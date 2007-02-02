@@ -2,7 +2,7 @@
 #define RecoTracker_TkTrackingRegions_GlobalDetRangeRPhi_H
 
 #include <utility>
-using namespace std;
+
 class BoundPlane;
 
 /** Keep R and Phi range for detunit */

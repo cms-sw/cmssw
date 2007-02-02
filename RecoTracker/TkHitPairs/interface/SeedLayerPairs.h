@@ -12,15 +12,15 @@
 #include "DataFormats/Common/interface/RangeMap.h"
 class DetLayer;
 class LayerWithHits;
-using namespace std;
+
 class SeedLayerPairs {
 public:
 
-  typedef pair< const LayerWithHits*, const LayerWithHits*>        LayerPair;
+  typedef std::pair< const LayerWithHits*, const LayerWithHits*>        LayerPair;
 
   SeedLayerPairs() {};
   virtual ~SeedLayerPairs() {};
-    virtual vector<LayerPair> operator()()= 0;
+    virtual std::vector<LayerPair> operator()()= 0;
   
 
 };

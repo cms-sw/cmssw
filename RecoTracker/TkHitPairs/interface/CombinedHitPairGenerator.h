@@ -20,7 +20,7 @@ class HitPairGeneratorFromLayerPair;
 
 class CombinedHitPairGenerator : public HitPairGenerator{
 
-  typedef vector<HitPairGeneratorFromLayerPair *>   Container;
+  typedef std::vector<HitPairGeneratorFromLayerPair *>   Container;
 
 public:
   CombinedHitPairGenerator(SeedLayerPairs& layers, const edm::EventSetup& iSetup);

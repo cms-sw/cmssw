@@ -9,7 +9,7 @@ class LayerHitMap;
 
 class LayerHitMapLoop {
 public:
-  typedef vector<TkHitPairsCachedHit>::const_iterator HitIter;
+  typedef std::vector<TkHitPairsCachedHit>::const_iterator HitIter;
   typedef PixelRecoRange<HitIter> HitIterRange;
   typedef PixelRecoRange<float> RangeF;
   typedef PixelRecoRange<int> RangeI;

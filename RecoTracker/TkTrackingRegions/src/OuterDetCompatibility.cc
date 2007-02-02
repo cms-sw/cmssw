@@ -3,6 +3,9 @@
 #include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeRPhi.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
+
+using namespace std;
+
 bool OuterDetCompatibility::operator() (const BoundPlane& plane) const
 {
   if (barrel) {

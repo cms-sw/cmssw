@@ -8,7 +8,7 @@
 #include "Geometry/Vector/interface/GlobalVector.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include <string>
-using namespace std;
+
 //#include "CommonDet/BasicDet/interface/RecHit.h"
 //#include "CommonDet/DetLayout/interface/DetLayer.h"
 
@@ -72,7 +72,7 @@ public:
 
   ///from RecObj
   static std::string const & name() 
-    { static string local("TrackingRegion"); return local; }
+    { static std::string local("TrackingRegion"); return local; }
   virtual std::string const & getName() const {return name();}
 
   

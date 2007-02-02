@@ -37,7 +37,7 @@ public:
   }
 
   static std::string const & name() 
-    { static string local("GlobalTrackingRegion"); return local; }
+    { static std::string local("GlobalTrackingRegion"); return local; }
   virtual std::string const & getName() const {return name();}
 
 

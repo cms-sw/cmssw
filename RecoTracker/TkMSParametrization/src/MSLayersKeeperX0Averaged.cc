@@ -2,6 +2,8 @@
 #include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0AtEta.h"
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringGeometry.h"
 
+using namespace std;
+
 void MSLayersKeeperX0Averaged::init(const edm::EventSetup &iSetup)
 {
   if (isInitialised) return;

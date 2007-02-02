@@ -22,6 +22,7 @@ template <class T> T sqr( T t) {return t*t;}
 
 
 using namespace PixelRecoUtilities;
+using namespace std;
 
 void RectangularEtaPhiTrackingRegion::
     initEtaRange( const GlobalVector & dir, const Margin& margin)

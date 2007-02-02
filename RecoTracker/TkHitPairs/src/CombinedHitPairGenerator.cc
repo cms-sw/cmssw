@@ -3,7 +3,7 @@
 #include "RecoTracker/TkHitPairs/interface/SeedLayerPairs.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 
-
+using namespace std;
 
 
 //CombinedHitPairGenerator::CombinedHitPairGenerator(SeedLayerPairs& layers)

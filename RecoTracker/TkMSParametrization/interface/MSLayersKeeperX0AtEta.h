@@ -16,12 +16,12 @@ public:
 private:
   float eta(int idxBin) const;
   int idxBin(float eta) const;
-  void setX0(vector<MSLayer>&, float eta, const SumX0AtEtaDataProvider &) const;
+  void setX0(std::vector<MSLayer>&, float eta, const SumX0AtEtaDataProvider &) const;
 
 private:
   bool isInitialised;
   int theHalfNBins; float theDeltaEta;
-  vector<MSLayersAtAngle> theLayersData ;
+  std::vector<MSLayersAtAngle> theLayersData ;
   friend class MSLayersKeeperX0Averaged; 
 };
 
