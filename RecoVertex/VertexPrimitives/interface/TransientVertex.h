@@ -158,6 +158,10 @@ public:
     return theRefittedTracks;
   }
 
+  /** Method to set the refitted tracks used to make the vertex.
+   */
+  void refittedTracks(const std::vector<reco::TransientTrack> & refittedTracks);
+
   /**
    * Returns true if the track-weights are available.
    */

@@ -232,6 +232,7 @@ CachingVertex::operator TransientVertex() const
 // Construct Track vector
   vector<reco::TransientTrack> ttVect;
   ttVect.reserve(theTracks.size());
+  vector<reco::TransientTrack> refTTVect;
   TransientTrackToFloatMap theWeightMap;
   TTtoTTmap ttCovMap;
   float theMinWeight = 0.5;
@@ -258,6 +259,9 @@ CachingVertex::operator TransientVertex() const
 	}
       }
     }
+    if ((**i).refittedStateAvailable()) {
+      refTTVect.push_back( (**i).refittedState()->transientTrack()) ;
+    }
   }
   TransientVertex tv;
   if (withPrior) {
@@ -267,6 +271,6 @@ CachingVertex::operator TransientVertex() const
   }
   tv.weightMap(theWeightMap);
   if (theCovMapAvailable) tv.tkToTkCovariance(ttCovMap);
+  if (!refTTVect.empty()) tv.refittedTracks(refTTVect);
   return tv;
-// Missing is the refitted track
 }

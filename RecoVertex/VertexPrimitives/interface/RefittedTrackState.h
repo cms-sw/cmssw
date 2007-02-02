@@ -5,6 +5,7 @@
 #include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include <vector>
 
 /**
@@ -77,6 +78,8 @@ public:
   	(const double newWeight) const = 0;
 
   virtual std::vector< ReferenceCountingPointer<RefittedTrackState> > components() const = 0;
+
+  virtual reco::TransientTrack transientTrack() const = 0;
 
 };
 #endif

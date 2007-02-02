@@ -131,6 +131,14 @@ void TransientVertex::weightMap(const TransientTrackToFloatMap & theMap)
 //   addTracks( theOriginalTracks );
 }
 
+void TransientVertex::refittedTracks(
+	const std::vector<reco::TransientTrack> & refittedTracks)
+{
+  theRefittedTracks = refittedTracks;
+  withRefittedTracks = true;
+}
+
+
 void TransientVertex::tkToTkCovariance(const TTtoTTmap covMap)
 {
   theCovMap = covMap;
