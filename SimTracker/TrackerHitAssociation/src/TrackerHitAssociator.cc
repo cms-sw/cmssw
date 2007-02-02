@@ -225,6 +225,12 @@ std::vector< SimHitIdpr > TrackerHitAssociator::associateHitId(const TrackingRec
 	{	  
 	  simtrackid = associateMatchedRecHit(rechit);
 	}
+      //check if it is a  ProjectedSiStripRecHit2D
+      if(const ProjectedSiStripRecHit2D * rechit = 
+	 dynamic_cast<const ProjectedSiStripRecHit2D *>(&thit))
+	{	  
+	  simtrackid = associateProjectedRecHit(rechit);
+	}
     }
   //check we are in the pixel tracker
   if( detid.subdetId() == PixelSubdetector::PixelBarrel || 
@@ -276,9 +282,11 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateSimpleRecHit(const SiStr
 	SimHitIdpr currentId(link.SimTrackId(), link.eventId());
 	//write only once the id
 	if(find(idcachev.begin(),idcachev.end(),currentId ) == idcachev.end()){
+	  /*
 	  std::cout << " Adding track id  = " << currentId.first  
 		    << " Event id = " << currentId.second.event() 
 		    << " Bunch Xing = " << currentId.second.bunchCrossing() << std::endl;
+	  */
 	  //cache_simtrackid.push_back(currentId);
 	  idcachev.push_back(currentId);
 	  simtrackid.push_back(currentId);
@@ -369,6 +377,19 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateMatchedRecHit(const SiSt
     }
   }
   return simtrackid;
+}
+
+
+std::vector<SimHitIdpr>  TrackerHitAssociator::associateProjectedRecHit(const ProjectedSiStripRecHit2D * projectedrechit)
+{
+  //projectedRecHit is a "matched" rechit with only one component
+
+  vector<SimHitIdpr> matched_mono;
+  matched_mono.clear();
+ 
+  const SiStripRecHit2D mono = projectedrechit->originalHit();
+  matched_mono = associateSimpleRecHit(&mono);
+  return matched_mono;
 }
 
 //std::vector<unsigned int>  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrechit)

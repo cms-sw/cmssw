@@ -38,6 +38,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
@@ -67,6 +68,7 @@ class TrackerHitAssociator {
   std::vector<SimHitIdpr> associateHitId(const TrackingRecHit & thit);
   std::vector<SimHitIdpr> associateSimpleRecHit(const SiStripRecHit2D * simplerechit);
   std::vector<SimHitIdpr> associateMatchedRecHit(const SiStripMatchedRecHit2D * matchedrechit);
+  std::vector<SimHitIdpr> associateProjectedRecHit(const ProjectedSiStripRecHit2D * projectedrechit);
   std::vector<SimHitIdpr> associatePixelRecHit(const SiPixelRecHit * pixelrechit);
   
   std::vector<PSimHit> theStripHits;
