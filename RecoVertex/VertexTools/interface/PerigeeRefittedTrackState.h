@@ -88,6 +88,8 @@ public:
 
   virtual std::vector<ReferenceCountingPointer<RefittedTrackState> > components() const;
 
+  virtual reco::TransientTrack transientTrack() const;
+
 private:
 
   TrajectoryStateClosestToPoint theState;

@@ -4,6 +4,7 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
 
 AlgebraicVector PerigeeRefittedTrackState::momentumVector() const
 {
@@ -52,4 +53,10 @@ PerigeeRefittedTrackState::trajectoryStateOnSurface(const Surface & surface,
   TrajectoryStateOnSurface tsos = thePropagator->propagate(freeTrajectoryState(), surface);
   return TrajectoryStateOnSurface (tsos.globalParameters(),
   	tsos.curvilinearError(), surface ,weight()) ;
+}
+
+reco::TransientTrack PerigeeRefittedTrackState::transientTrack() const
+{
+  TransientTrackFromFTSFactory factory;
+  return factory.build(freeTrajectoryState());
 }
