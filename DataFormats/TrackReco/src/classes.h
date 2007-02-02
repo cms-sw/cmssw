@@ -18,6 +18,7 @@ namespace {
     reco::TrackRefProd rp1;
     reco::TrackRefVector rv1;
     edm::Wrapper<reco::TrackRefVector> wv1;
+    std::vector<reco::TrackRef> vr1;
 
     edm::helpers::Key< edm::RefProd < std::vector < reco::Track > > > rpt1;
     edm::AssociationMap<edm::OneToValue< std::vector<reco::Track>, double, unsigned int > > am1;
