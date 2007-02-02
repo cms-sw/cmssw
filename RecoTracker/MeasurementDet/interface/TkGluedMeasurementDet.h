@@ -2,6 +2,7 @@
 #define TkGluedMeasurementDet_H
 
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
+#include "RecoTracker/MeasurementDet/interface/TkStripMeasurementDet.h"
 
 class GluedGeomDet;
 class SiStripRecHitMatcher;
@@ -27,8 +28,8 @@ private:
 
   const GluedGeomDet*         theGeomDet;
   const SiStripRecHitMatcher*       theMatcher;
-  const MeasurementDet*       theMonoDet;
-  const MeasurementDet*       theStereoDet;
+  const TkStripMeasurementDet*       theMonoDet;
+  const TkStripMeasurementDet*       theStereoDet;
 
   RecHitContainer 
   projectOnGluedDet( const RecHitContainer& hits,

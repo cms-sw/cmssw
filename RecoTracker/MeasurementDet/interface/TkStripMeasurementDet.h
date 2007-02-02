@@ -40,7 +40,7 @@ public:
   }
   void setEmpty(){empty = true;}
   void setActive(bool active) { active_ = active; }
-  bool isActive() { return active_; }
+  bool isActive() const { return active_; }
 
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&) const;
 

@@ -8,6 +8,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TrackingRecHitProjector.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
 #include "RecoTracker/MeasurementDet/interface/RecHitPropagator.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -19,8 +20,12 @@ TkGluedMeasurementDet::TkGluedMeasurementDet( const GluedGeomDet* gdet,
 					      const MeasurementDet* stereoDet) :
   MeasurementDet(gdet), theGeomDet(gdet), 
   theMatcher(matcher), 
-  theMonoDet( monoDet), theStereoDet(stereoDet)
+  theMonoDet( dynamic_cast<const TkStripMeasurementDet *>(monoDet)), 
+  theStereoDet( dynamic_cast<const TkStripMeasurementDet *>(stereoDet))
 {
+  if ((theMonoDet == 0) || (theStereoDet == 0)) {
+	throw MeasurementDetException("TkGluedMeasurementDet ERROR: Trying to glue a det which is not a TkStripMeasurementDet");
+  }
   
 }
 
@@ -35,11 +40,10 @@ TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 
   //checkProjection(ts, monoHits, stereoHits);
 
-  LocalVector tkDir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
-
   if (monoHits.empty()) return projectOnGluedDet( stereoHits, ts);
   else if (stereoHits.empty()) return projectOnGluedDet(monoHits, ts);
   else {    
+    LocalVector tkDir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
     // convert stereo hits to type expected by matcher
     SiStripRecHitMatcher::SimpleHitCollection  vsStereoHits;
     for (RecHitContainer::const_iterator stereoHit = stereoHits.begin();
@@ -90,8 +94,16 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
 					 const Propagator&, 
 					 const MeasurementEstimator& est) const
 {
-  NonPropagatingDetMeasurements realOne;
-  return realOne.get( *this, stateOnThisDet, est);
+   if (theMonoDet->isActive() || theStereoDet->isActive()) {
+      NonPropagatingDetMeasurements realOne;
+      return realOne.get( *this, stateOnThisDet, est);
+   } else {
+      std::vector<TrajectoryMeasurement> result;
+      result.push_back( TrajectoryMeasurement( stateOnThisDet, 
+               InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
+               0.F));
+      return result;	
+   }
 
 }
 
