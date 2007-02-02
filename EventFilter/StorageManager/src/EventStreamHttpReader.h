@@ -12,7 +12,7 @@
 #include <string>
 #include <fstream>
 
-namespace edmtestp
+namespace edm
 {
   struct ReadData;
 

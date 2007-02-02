@@ -37,7 +37,7 @@
 using namespace std;
 using namespace edm;
 
-namespace edmtestp
+namespace edm
 {  
   struct ReadData
   {
