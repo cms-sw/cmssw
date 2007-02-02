@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: RootAutoLibraryLoader.cc,v 1.2 2007/01/19 05:26:01 wmtan Exp $
+// $Id: RootAutoLibraryLoader.cc,v 1.3 2007/02/01 16:10:20 wmtan Exp $
 //
 
 // system include files
@@ -118,6 +118,14 @@ classNameForRoot(const std::string& iCapName)
 
 //Cint requires that we register the type and library containing the type
 // before the autoloading will work
+namespace {
+  struct CompareFirst {
+    bool operator()(const std::pair<std::string,const char*>&iLHS,
+               const std::pair<std::string,const char*>&iRHS) const{
+      return iLHS.first > iRHS.first;
+    }
+  };
+}
 static
 void registerTypes() {
   seal::PluginManager                       *db =  seal::PluginManager::get();
@@ -131,7 +139,8 @@ void registerTypes() {
   // all the classes in descending order so that embedded classes will be seen before
   // their containing classes, that way we can say the containing class is a namespace
   // before finding out it is actually a class
-  std::vector<std::string> classes;
+  typedef std::vector<std::pair<std::string,const char*> > ClassAndLibraries;
+  ClassAndLibraries classes;
   classes.reserve(1000);
   
   for (dir = db->beginDirectories(); dir != db->endDirectories(); ++dir) {
@@ -145,18 +154,20 @@ void registerTypes() {
           static const std::string cPrefix("LCGReflex/");
           if(cPrefix == cap.substr(0,cPrefix.size())) {
             std::string className = classNameForRoot(cap.c_str()+cPrefix.size());
-            classes.push_back(className);
+            classes.push_back(std::pair<std::string,const char*>(className, (*plugin)->libraryName().name()));
           }
         }
       }
     }
   }
-  std::sort(classes.begin(), classes.end(), std::greater<std::string>());
-  for(std::vector<std::string>::iterator itClass = classes.begin(), itClassEnd = classes.end();
+  //std::sort(classes.begin(), classes.end(), std::greater<std::string>());
+  std::sort(classes.begin(), classes.end(), CompareFirst() );
+  for(ClassAndLibraries::iterator itClass = classes.begin(), itClassEnd = classes.end();
       itClass != itClassEnd;
       ++itClass) {
     
-    const std::string& className = *itClass;
+    const std::string& className = itClass->first;
+    const char* const libraryName = itClass->second;
     //need to register namespaces and figure out if we have an embedded class
     static const std::string toFind(":<");
     std::string::size_type pos=0;
@@ -168,7 +179,7 @@ void registerTypes() {
       //std::cout <<"namespace "<<className.substr(0,pos).c_str()<<std::endl;
       pos += 2;
     }
-    G__set_class_autoloading_table(const_cast<char*>(className.c_str()), const_cast<char*>(kDummyLibName));
+    G__set_class_autoloading_table(const_cast<char*>(className.c_str()), const_cast<char*>(libraryName));
     //std::cout <<"class "<<className.c_str()<<std::endl;
   }
 }
