@@ -2,7 +2,8 @@
 #define TP_PIXELINDICES_H
 
 #include <iostream>
-using namespace std;
+
+//using namespace std;
 
 /**
  * Numbering of the pixels inside the readout chip (ROC).
@@ -46,17 +47,17 @@ class PixelIndices {
   // Constructor with the ROC size fixed to the default.
    PixelIndices(const int colsInDet,  const int rowsInDet ) : 
                 theColsInDet(colsInDet), theRowsInDet (rowsInDet) {
-
+ 
     theChipsInX = theRowsInDet / ROCSizeInX; // number of ROCs in X
     theChipsInY = theColsInDet / ROCSizeInY;    // number of ROCs in Y
 
     if(TP_CHECK_LIMITS) {
       if(theChipsInX<1 || theChipsInX>maxROCsInX) 
-	cout << " PixelIndices: Error in ROCsInX " 
-	     << theChipsInX <<" "<<theRowsInDet<<" "<<ROCSizeInX<<endl;
+	std::cout << " PixelIndices: Error in ROCsInX " 
+	     << theChipsInX <<" "<<theRowsInDet<<" "<<ROCSizeInX<<std::endl;
       if(theChipsInY<1 || theChipsInY>maxROCsInY) 
-	cout << " PixelIndices: Error in ROCsInY " 
-	     << theChipsInY <<" "<<theColsInDet<<" "<<ROCSizeInY<<endl;
+	std::cout << " PixelIndices: Error in ROCsInY " 
+	     << theChipsInY <<" "<<theColsInDet<<" "<<ROCSizeInY<<std::endl;
     }
   } 
   //************************************************************************
@@ -69,13 +70,14 @@ class PixelIndices {
   //***********************************************************************
 
  void print(void) const {
-    cout << " Pixel det with " << theChipsInX << " chips in x and "
-	 << theChipsInY << " in y " << endl; 
-    cout << " Pixel rows " << theRowsInDet << " and columns " 
-	 << theColsInDet << endl;  
-    cout << " Rows in one chip " << ROCSizeInX << " and columns " 
-	 << ROCSizeInY << endl;  
-    cout << " Double columns per ROC " << DColsPerROC << endl;
+
+    std::cout << " Pixel det with " << theChipsInX << " chips in x and "
+	 << theChipsInY << " in y " << std::endl; 
+    std::cout << " Pixel rows " << theRowsInDet << " and columns " 
+	 << theColsInDet << std::endl;  
+    std::cout << " Rows in one chip " << ROCSizeInX << " and columns " 
+	 << ROCSizeInY << std::endl;  
+    std::cout << " Double columns per ROC " << DColsPerROC << std::endl;
   }
 
   //********************************************************************
@@ -87,9 +89,10 @@ class PixelIndices {
   // rowAdd = 0-79
   inline static int convertDcolToCol(const int dcol, const int pix, 
 				     int & colROC, int & rowROC) {
+
       if(TP_CHECK_LIMITS) { 
 	if(dcol<0||dcol>=DColsPerROC||pix<2||pix>161) {
-	  cout<<"PixelIndices: wrong dcol or pix "<<dcol<<" "<<pix<<endl;
+	  std::cout<<"PixelIndices: wrong dcol or pix "<<dcol<<" "<<pix<<std::endl;
 	  rowROC = -1;     // dummy row Address
 	  colROC = -1;     // dummy col Address
 	  return -1; // Signal error
@@ -104,8 +107,8 @@ class PixelIndices {
 
       if(TP_CHECK_LIMITS) {
 	if(colROC<0||colROC>=ROCSizeInY||rowROC<0||rowROC>=ROCSizeInX ) {
-	  cout<<"PixelIndices: wrong col or row "<<colROC<<" "<<rowROC<<" "
-	      <<dcol<<" "<<pix<<endl;
+	  std::cout<<"PixelIndices: wrong col or row "<<colROC<<" "<<rowROC<<" "
+	      <<dcol<<" "<<pix<<std::endl;
 	  rowROC = -1;    // dummy row Address
 	  colROC = -1;    // dummy col Address
 	  return -1;
@@ -124,9 +127,9 @@ class PixelIndices {
 			const int rocId,
 			int & col,int & row ) const {
 
-      if(TP_CHECK_LIMITS) {
+       if(TP_CHECK_LIMITS) {
 	if(colROC<0 || colROC>=ROCSizeInY || rowROC<0 ||rowROC>=ROCSizeInX) {
-	  cout<<"PixelIndices: wrong index "<<colROC<<" "<<rowROC<<endl;
+	  std::cout<<"PixelIndices: wrong index "<<colROC<<" "<<rowROC<<std::endl;
 	  return -1;
 	}
       }
@@ -141,13 +144,13 @@ class PixelIndices {
 	//col = (16-rocId)*52 - colROC - 1;
 	col = (rocId-8)*ROCSizeInY + colROC;
       } else {
-	cout<<"PixelIndices: wrong ROC ID "<<rocId<<endl;
+	std::cout<<"PixelIndices: wrong ROC ID "<<rocId<<std::endl;
 	return -1;
       }
       if(TP_CHECK_LIMITS) {
 	if(col<0 || col>=(ROCSizeInY*theChipsInY) || row<0 || 
 			     row>=(ROCSizeInX*theChipsInX)) {
-	cout<<"PixelIndices: wrong index "<<col<<" "<<row<<endl;
+	std::cout<<"PixelIndices: wrong index "<<col<<" "<<row<<std::endl;
 	return -1;
 	}
       }
@@ -161,10 +164,11 @@ class PixelIndices {
   // colROC, rowROC - indices in the ROC frame.
   int transformToROC(const int col,const int row,
 		     int & rocId, int & colROC, int & rowROC ) const {
+
       if(TP_CHECK_LIMITS) {
 	if(col<0 || col>=(ROCSizeInY*theChipsInY) || row<0 || 
 			     row>=(ROCSizeInX*theChipsInX)) {
-	  cout<<"PixelIndices: wrong index 3 "<<endl;
+	  std::cout<<"PixelIndices: wrong index 3 "<<std::endl;
 	  return -1;
 	}
       }
@@ -176,7 +180,7 @@ class PixelIndices {
       // Get the ROC id from the 2D index
       rocId = rocIndex(chipX,chipY); 
       if(TP_CHECK_LIMITS && (rocId<0 || rocId>=16) ) {
-	cout<<"PixelIndices: wrong roc index "<<rocId<<endl;
+	std::cout<<"PixelIndices: wrong roc index "<<rocId<<std::endl;
 	return -1;
       }
       // get the local ROC coordinates
@@ -190,7 +194,7 @@ class PixelIndices {
 
       if(TP_CHECK_LIMITS) {
 	if(colROC<0||colROC>=ROCSizeInY||rowROC<0||rowROC>=ROCSizeInX) {
-	  cout<<"PixelIndices: wrong index "<<colROC<<" "<<rowROC<<endl;
+	  std::cout<<"PixelIndices: wrong index "<<colROC<<" "<<rowROC<<std::endl;
 	  return -1;
 	}
       }
@@ -202,10 +206,11 @@ class PixelIndices {
   // chipX and chipY.
   // Goes from 0 to 15.
   inline static int rocIndex(const int chipX, const int chipY) {
+
     int rocId = -1;
     if(TP_CHECK_LIMITS) {
       if(chipX<0 || chipX>=2 ||chipY<0 || chipY>=8) {
-	cout<<"PixelChipIndices: wrong index "<<chipX<<" "<<chipY<<endl;
+	std::cout<<"PixelChipIndices: wrong index "<<chipX<<" "<<chipY<<std::endl;
 	return -1;
       }
     }
@@ -214,7 +219,7 @@ class PixelIndices {
 
     if(TP_CHECK_LIMITS) {
       if(rocId < 0 || rocId >= (maxROCsInX*maxROCsInY) ) {
-	cout << "PixelIndices: Error in ROC index " << rocId << endl;
+	std::cout << "PixelIndices: Error in ROC index " << rocId << std::endl;
 	return -1;
       }
     }
@@ -224,10 +229,11 @@ class PixelIndices {
   // Calculate the dcol in ROC from the col in ROC frame.
   // dcols go from 0 to 25.
   inline static int DColumn(const int colROC) {
+
     int dColumnId = (colROC)/2; // double column 0-25
     if(TP_CHECK_LIMITS) {
       if(dColumnId<0 || dColumnId>=26) {
-	cout<<"PixelIndices: wrong dcol index  "<<dColumnId<<" "<<colROC<<endl;
+	std::cout<<"PixelIndices: wrong dcol index  "<<dColumnId<<" "<<colROC<<std::endl;
 	return -1;
       }
     }
@@ -246,63 +252,12 @@ class PixelIndices {
   inline static int pixelToChannelROC(const int rowROC, const int colROC) {
     return (rowROC<<6) | colROC;  // reserve 6 bit for col ROC index 0-52
   }
-  inline static pair<int,int> channelToPixelROC(const int chan) {
+  inline static std::pair<int,int> channelToPixelROC(const int chan) {
     int rowROC = (chan >> 6) & 0x7F; // reserve 7 bits for row ROC index 0-79 
     int colROC = chan & 0x3F;
-    return pair<int,int>(rowROC,colROC);
+    return std::pair<int,int>(rowROC,colROC);
   }
-
-
-/* #ifdef OLD */
-/*      Below are the old OBSOLETE reoutines  */
-/*   void chipIndices(const int pixelX, const int pixelY, int & chipX, */
-/* 		   int & chipY, int & row, int & col) const { */
-/*     int pixX = pixelX-1;  */
-/*     int pixY = pixelY-1; */
-/*     chipX = pixX / ROCSizeInX; // row index of the chip 0-1 */
-/*     chipY = pixY / ROCSizeInY;    // col index of the chip 0-7 */
-/*     row = (pixX%ROCSizeInX) + 1; // row in chip */
-/*     col = (pixY%ROCSizeInY) + 1;    // col in chip */
-/* #ifdef TP_CHECK_LIMITS */
-/*     if(chipX < 0 || chipX > (theChipsInX-1) )  */
-/*       cout << " PixelChipIndices: Error in chipX " << chipX << endl; */
-/*     if(chipY < 0 || chipY > (theChipsInY-1) )  */
-/*       cout << " PixelChipIndices: Error in chipY " << chipY << endl; */
-/*     if(row < 1 || row > ROCSizeInX )  */
-/*       cout << " PixelChipIndices: Error in ROC row# " << row << endl; */
-/*     if(col < 1 || col > ROCSizeInY )  */
-/*       cout << " PixelChipIndices: Error in ROC col# " << col << endl; */
-/* #endif */
-/*   } */
-/*   inline static int chipIndex(const int chipX, const int chipY) { */
-/*     int chipIndex = (chipX*8) + chipY +1; // index 1-16 */
-/* #ifdef TP_CHECK_LIMITS */
-/*     if(chipIndex < 1 || chipIndex > (maxROCsInX*maxROCsInY) )  */
-/*       cout << " PixelChipIndices: Error in ROC index " << chipIndex << endl; */
-/* #endif */
-/*     return chipIndex; */
-/*   } */
-/*   pair<int,int> dColumn(const int row, const int col) const { */
-/*     int dColumnId = (col-1)/2 + 1; // double column 1-26 */
-/*     int pixId = row + (col-dColumnId*2+1)*ROCSizeInX; //id in dCol 1-106  */
-/* #ifdef TP_CHECK_LIMITS */
-/*     if(dColumnId < 1 || dColumnId > DColsPerROC )  */
-/*       cout << " PixelChipIndices: Error in DColumn Id " << dColumnId << endl;*/
-/*     if(pixId < 1 || pixId > (2*ROCSizeInX) )  */
-/*       cout << " PixelChipIndices: Error in pix Id " << pixId << endl; */
-/* #endif */
-/*     return pair<int,int>(pixId,dColumnId); */
-/*   } */
-/*   inline static int dColumnIdInDet(const int dcol, const int chipIndex) { */
-/*     int id = dcol + (100*(chipIndex-1)); */
-/* #ifdef TP_CHECK_LIMITS */
-/*     if( id < 1 ||  */
-/*         id > (((maxROCsInX*maxROCsInY)-1)*100 + DColsPerROC) )  */
-/*       cout << " PixelChipIndices: Error in det dcol id " << id << endl; */
-/* #endif */
-/*     return id; */
-/*   } */
-/* #endif */
+  
 
   //***********************************************************************
  private:

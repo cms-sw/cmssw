@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.22 2006/08/02 11:20:13 chiochia Exp $
+// $Id: SiPixelDigitizer.cc,v 1.23 2006/11/13 14:33:53 chiochia Exp $
 //
 //
 
@@ -71,7 +71,7 @@
 //
 // constructors and destructor
 //
-using namespace std;
+//using namespace std;
 
 
 namespace cms
@@ -164,8 +164,7 @@ namespace cms
       }
 
     }
-    // Step C: create collection with the cache vector of DetSet
- 
+    // Step C: create collection with the cache vector of DetSet 
     std::auto_ptr<edm::DetSetVector<PixelDigi> > 
       output(new edm::DetSetVector<PixelDigi>(theDigiVector) );
     std::auto_ptr<edm::DetSetVector<PixelDigiSimLink> > 

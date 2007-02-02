@@ -27,10 +27,14 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 using namespace std;
 using namespace edm;
 
-SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf):conf_(conf){
+SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf) :conf_(conf) {
+  using std::cout;
+  using std::endl;
+
   // Common pixel parameters
   // This are parameters which are not likely to be changed
   NumberOfSegments = 20; // Default number of track segment divisions
@@ -186,7 +190,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
       cout << " test map" << endl;
       
       float par0,par1,par2,par3;
-      int rocid,colid,rowid;
+      int colid,rowid;
       string name;
       // Read MC tracks
       for(int i=0;i<(52*80);i++)  { // loop over tracks    
@@ -677,7 +681,7 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 	 gsl_sf_result result;
 	 int status = gsl_sf_erf_Q_e( (xLB-CloudCenterX)/SigmaX, &result);
 
-	 if (status != 0)  edm::LogWarning ("Integration")<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
+	 if (status != 0)  LogWarning ("Integration")<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
 	 LowerBound = 1-result.val;
 
        }
@@ -688,7 +692,7 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 	 xUB = topol->localPosition(mp).x();
 	 gsl_sf_result result;
 	 int status = gsl_sf_erf_Q_e( (xUB-CloudCenterX)/SigmaX, &result);
-	 if (status != 0)  edm::LogWarning ("Integration")<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
+	 if (status != 0)  LogWarning ("Integration")<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
 
 	UpperBound = 1. - result.val;
 
@@ -709,7 +713,7 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
         yLB = topol->localPosition(mp).y();
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e( (yLB-CloudCenterY)/SigmaY, &result);
-	 if (status != 0)  edm::LogWarning ("Integration")<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
+	 if (status != 0)  LogWarning ("Integration")<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
 
 	LowerBound = 1. - result.val;
 
@@ -724,7 +728,7 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e( (yUB-CloudCenterY)/SigmaY, &result);
 
-	if (status != 0) edm::LogWarning ("Integration") <<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
+	if (status != 0) LogWarning ("Integration") <<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
 
 	UpperBound = 1. - result.val;
 
@@ -1054,7 +1058,7 @@ float SiPixelDigitizerAlgorithm::missCalibrate(int col,int row,
   //const float p0=0.00492, p1=1.998, p2=90.6, p3=134.1; // average roc=6
   // Smeared (rms)
   //const float s0=0.00020, s1=0.051, s2=5.4, s3=4.4; // average roc=0
-  const float s0=0.00015, s1=0.043, s2=3.2, s3=3.1; // col average roc=0
+  //const float s0=0.00015, s1=0.043, s2=3.2, s3=3.1; // col average roc=0
 
   const float electronsPerVCAL = 65.; // out present VCAL calibration
   float newAmp = 0.; //Modified signal

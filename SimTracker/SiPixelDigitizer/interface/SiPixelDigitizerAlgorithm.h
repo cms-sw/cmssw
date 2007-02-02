@@ -263,7 +263,7 @@ class SiPixelDigitizerAlgorithm  {
     signal_map_type     _signal;       // from Digi.Skel.
 
     // To store calibration constants
-    map<int,CalParameters,less<int> > calmap;
+    std::map<int,CalParameters,std::less<int> > calmap;
 
 
     //-- additional member functions    
