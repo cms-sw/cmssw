@@ -76,13 +76,13 @@ void CSCRecHitValidation::analyze(const edm::Event&e, const edm::EventSetup& eve
 void CSCRecHitValidation::plotResolution(const PSimHit & simHit, const CSCRecHit2D & recHit,
                                          const CSCLayer * layer, int chamberType)
 {
-  double simHitX = simHit.localPosition().x();
-  //double hitY = simHit.localPosition().y();
-  double recHitX = recHit.localPosition().x();
-  //double recHitY = recHit.localPosition().y();
-  double d = recHitX - simHitX;
-  theResolutionPlots[chamberType-1]->Fill( d );
-  thePullPlots[chamberType-1]->Fill( d/recHit.localPositionError().xx() );
+  GlobalPoint simHitPos = layer->toGlobal(simHit.localPosition());
+  GlobalPoint recHitPos = layer->toGlobal(recHit.localPosition());
+
+  double dphi = recHitPos.phi() - simHitPos.phi();
+  double rdphi = recHitPos.perp() * dphi;
+  theResolutionPlots[chamberType-1]->Fill( rdphi );
+  thePullPlots[chamberType-1]->Fill( rdphi/recHit.localPositionError().xx() );
 }
 
 
