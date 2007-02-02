@@ -54,11 +54,11 @@ void SetUpProfileHistograms( TProfile* h1, TProfile* h2,
 void SiPixelRecoCompare()
 {
   gROOT ->Reset();
-  char*  sfilename = "./ROOT_FILES/pixeltrackingrechitshist34.root";
-  char*  rfilename = "./ROOT_FILES/pixeltrackingrechitshist56.root"; 
+  //char*  sfilename = "./ROOT_FILES/pixeltrackingrechitshist34.root";
+  //char*  rfilename = "./ROOT_FILES/pixeltrackingrechitshist56.root"; 
   
-  //char*  sfilename = "./pixeltrackingrechitshist.root"; // file to be checked
-  //char*  rfilename = "../data/pixeltrackingrechitshist.root"; // reference file 
+  char*  sfilename = "./pixeltrackingrechitshist.root"; // file to be checked
+  char*  rfilename = "../data/pixeltrackingrechitshist.root"; // reference file 
   
   delete gROOT->GetListOfFiles()->FindObject(rfilename);
   delete gROOT->GetListOfFiles()->FindObject(sfilename);
