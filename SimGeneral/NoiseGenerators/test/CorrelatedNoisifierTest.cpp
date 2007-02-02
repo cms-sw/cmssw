@@ -1,5 +1,4 @@
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
-#include "SimGeneral/NoiseGenerators/interface/NoiseStatistics.h"
 #include "CommonTools/Statistics/interface/AutocorrelationAnalyzer.h"
 
 class BoringSignal
