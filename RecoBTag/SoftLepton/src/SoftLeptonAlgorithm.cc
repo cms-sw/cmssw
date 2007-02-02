@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLeptonAlgorithm.cc,v 1.5 2006/11/08 11:12:11 fwyzard Exp $
+// $Id: SoftLeptonAlgorithm.cc,v 1.6 2006/12/07 02:51:24 fwyzard Exp $
 //
 
 // STL
@@ -148,9 +148,8 @@ SoftLeptonAlgorithm::tag(
     }
 
     // temporary TransientTrack
-    const reco::TransientTrack * transientTrack = m_transientTrackBuilder->build(&lepton);
-    properties.sip3d  = sip3D.apply( *transientTrack, jetAxis, primaryVertex ).second.significance();
-    delete transientTrack;
+    const reco::TransientTrack transientTrack = m_transientTrackBuilder->build(&lepton);
+    properties.sip3d  = sip3D.apply( transientTrack, jetAxis, primaryVertex ).second.significance();
     
     // Temporary TVector3 vecotrs
     TVector3 _axis( jetAxis.x(), jetAxis.y(), jetAxis.z() );
