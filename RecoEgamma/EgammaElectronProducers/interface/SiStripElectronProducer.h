@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:11:37 EDT 2006
-// $Id: SiStripElectronProducer.h,v 1.2 2006/06/21 22:48:09 pivarski Exp $
+// $Id: SiStripElectronProducer.h,v 1.3 2006/07/25 22:35:14 pivarski Exp $
 //
 
 // system include files
@@ -43,6 +43,7 @@ class SiStripElectronProducer : public edm::EDProducer {
       std::string siHitProducer_;
       std::string siRphiHitCollection_;
       std::string siStereoHitCollection_;
+      std::string siMatchedHitCollection_;
       std::string superClusterProducer_;
       std::string superClusterCollection_;
       std::string siStripElectronsLabel_;
