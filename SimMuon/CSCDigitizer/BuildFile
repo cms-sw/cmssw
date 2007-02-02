@@ -1,6 +1,7 @@
 
 <use name=FWCore/Framework>
 <use name=SimMuon/Neutron>
+<use name=SimGeneral/NoiseGenerators>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=Geometry/Records>
@@ -19,6 +20,7 @@
 <export>
   <lib name=SimMuonCSCDigitizer>
   <use name=SimMuon/Neutron>
+  <use name=SimGeneral/NoiseGenerators>
   <use name=FWCore/Framework>
   <use name=Foundation/PluginManager>
   <use name=FWCore/ParameterSet>
