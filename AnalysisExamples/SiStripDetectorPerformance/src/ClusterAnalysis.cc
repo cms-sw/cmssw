@@ -1,6 +1,6 @@
 /*
-* $Date: 2006/12/18 23:44:44 $
-* $Revision: 1.8 $
+* $Date: 2006/12/20 16:17:13 $
+* $Revision: 1.9 $
 *
 * \author: D. Giordano, domenico.giordano@cern.ch
 */
@@ -480,8 +480,8 @@ namespace cms{
     eventNb = e.id().event();
     edm::LogInfo("ClusterAnalysis") << "Processing run " << runNb << " event " << eventNb << std::endl;
 
-    SiStripNoiseService_.setESObjects(es);
-    SiStripPedestalsService_.setESObjects(es);
+    //SiStripNoiseService_.setESObjects(es);
+    //SiStripPedestalsService_.setESObjects(es);
     
     //Get input 
     e.getByLabel( ClusterInfo_src_, dsv_SiStripClusterInfo);
@@ -755,26 +755,16 @@ namespace cms{
 
     TString appString=SubDet[SubDet_enum]+flag;
 
-    //((TH1F*) Hlist->FindObject("cSignal"+appString))
-    //  ->Fill(cluster->charge());
     fillTH1(cluster->charge(),"cSignal"+appString,1,cluster->width());
 
-    //((TH1F*) Hlist->FindObject("cNoise"+appString))
-    //  ->Fill(cluster->noise());
     fillTH1(cluster->noise(),"cNoise"+appString,1,cluster->width());
 
     if (cluster->noise()){
-      //      ((TH1F*) Hlist->FindObject("cStoN"+appString))
-      //	->Fill(cluster->charge()/cluster->noise());
       fillTH1(cluster->charge()/cluster->noise(),"cStoN"+appString,1,cluster->width());
     }
       
-    //((TH1F*) Hlist->FindObject("cWidth" +appString))
-    //  ->Fill(cluster->width());
     fillTH1(cluster->width(),"cWidth"+appString,0);
 
-    //((TH1F*) Hlist->FindObject("cPos" +appString))
-    //  ->Fill(cluster->position());
     fillTH1(cluster->position(),"cPos"+appString,1,cluster->width());
 
     if (cluster->rawdigiAmplitudesL().size()!=0 ||  cluster->rawdigiAmplitudesR().size()!=0){
@@ -815,12 +805,8 @@ namespace cms{
       
       LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"] \n on detid "<< detid << " Ql=" << Ql << " Qr="<< Qr << " Qt="<<Qt<< " eta="<< Ql/Qt<< std::endl;
       
-      //((TH1F*) Hlist->FindObject("cEta"   +appString))
-      //->Fill(Ql/(Ql+Qr+cluster->maxCharge()));
       fillTH1(Ql/Qt,"cEta"+appString,1,cluster->width());
     
-    //((TH2F*) Hlist->FindObject("cEta_scatter"   +appString))
-    //->Fill((Ql-Qr)/(cluster->maxCharge()+Ql+Qr),(Ql+Qr)/(cluster->maxCharge()+Ql+Qr));
       fillTH2((Ql-Qr)/Qt,(Ql+Qr)/Qt,"cEta_scatter"+appString,1,cluster->width());
     }
 
@@ -832,22 +818,18 @@ namespace cms{
       TString appString=TString(strstr(aname,":"));
       //appString=TString(_StripGeomDetUnit->type().name()).ReplaceAll("FieldParameters:","_")+cdetid;
 
-      ((TH1F*) Hlist->FindObject("cSignal"+appString))
-	->Fill(cluster->charge());
-      
-      ((TH1F*) Hlist->FindObject("cNoise"+appString))
-	->Fill(cluster->noise());
+      fillTH1(cluster->charge(),"cSignal"+appString,0);
+
+      fillTH1(cluster->noise(),"cNoise"+appString,0);
 
       if (cluster->noise()){
-	((TH1F*) Hlist->FindObject("cStoN"+appString))
-	  ->Fill(cluster->charge()/cluster->noise());
+	fillTH1(cluster->charge()/cluster->noise(),"cStoN"+appString,0);
       }
       
-      ((TH1F*) Hlist->FindObject("cWidth" +appString))
-	->Fill(cluster->width());
+      fillTH1(cluster->width(),"cWidth"+appString,0);
 
-      ((TH1F*) Hlist->FindObject("cPos" +appString))
-	->Fill(cluster->position());
+
+      fillTH1(cluster->position(),"cPos"+appString,0);
 
       //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
       // Layer Detail Plots
@@ -857,22 +839,17 @@ namespace cms{
       appString=TString(GetSubDetAndLayer(detid).first)+cApp;
 
 
-      ((TH1F*) Hlist->FindObject("cSignal"+appString))
-	->Fill(cluster->charge());
-      
-      ((TH1F*) Hlist->FindObject("cNoise"+appString))
-	->Fill(cluster->noise());
+      fillTH1(cluster->charge(),"cSignal"+appString,0);
+
+      fillTH1(cluster->noise(),"cNoise"+appString,0);
 
       if (cluster->noise()){
-	((TH1F*) Hlist->FindObject("cStoN"+appString))
-	  ->Fill(cluster->charge()/cluster->noise());
+	fillTH1(cluster->charge()/cluster->noise(),"cStoN"+appString,0);
       }
       
-      ((TH1F*) Hlist->FindObject("cWidth" +appString))
-	->Fill(cluster->width());
+      fillTH1(cluster->width(),"cWidth"+appString,0);
 
-      ((TH1F*) Hlist->FindObject("cPos" +appString))
-	->Fill(cluster->position());
+      fillTH1(cluster->position(),"cPos"+appString,0);
     }      
     return true;
   }
@@ -914,9 +891,11 @@ namespace cms{
   void ClusterAnalysis::fillTH1(float value,TString name,bool widthFlag,float cwidth){
 
     for (int iw=0;iw<5;iw++){
-      if ( iw==0 || (iw==4 && cwidth>3) || ( iw>0 && iw<4 && cwidth==iw) )     
-	((TH1F*) Hlist->FindObject(name+width_flags[iw]))
-	  ->Fill(value);
+      if ( iw==0 || (iw==4 && cwidth>3) || ( iw>0 && iw<4 && cwidth==iw) ){     
+	TH1F* hh = (TH1F*) Hlist->FindObject(name+width_flags[iw]);
+	if (hh!=0)  
+	  hh->Fill(value);
+      }
       if (!widthFlag)
 	break;
     }
@@ -925,9 +904,11 @@ namespace cms{
   void ClusterAnalysis::fillTH2(float xvalue,float yvalue,TString name,bool widthFlag, float cwidth){
 
     for (int iw=0;iw<5;iw++){
-      if ( iw==0 || (iw==4 && cwidth>3) || ( iw>0 && iw<4 && cwidth==iw) )     
-	((TH2F*) Hlist->FindObject(name+width_flags[iw]))
-	  ->Fill(xvalue,yvalue);
+      if ( iw==0 || (iw==4 && cwidth>3) || ( iw>0 && iw<4 && cwidth==iw) ){     
+	TH2F* hh = (TH2F*) Hlist->FindObject(name+width_flags[iw]);
+	  if (hh!=0)  
+	    hh->Fill(xvalue,yvalue);
+      }
       if (!widthFlag)
 	break;
     }
