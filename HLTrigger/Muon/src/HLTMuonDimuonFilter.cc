@@ -2,7 +2,7 @@
  *
  * See header file for documentation
  *
- *  \author J. Alcaraz
+ *  \author J. Alcaraz, P. Garcia
  *
  */
 
@@ -101,8 +101,8 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (cand1=mucands->begin(); cand1!=mucands->end(); cand1++) {
       TrackRef tk1 = cand1->get<TrackRef>();
       // eta cut
-      LogDebug("HLTMuonDimuonFilter") << " 1st muon in loop, eta= "
-            << tk1->eta() << ", hits= " << tk1->numberOfValidHits();
+      LogDebug("HLTMuonDimuonFilter") << " 1st muon in loop: pt= "
+            << tk1->pt() << ", eta= " << tk1->eta() << ", hits= " << tk1->numberOfValidHits();
       if (fabs(tk1->eta())>max_Eta_) continue;
 
       // cut on number of hits
@@ -120,7 +120,6 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       double abspar1 = fabs(tk1->parameter(0));
       double ptLx1 = pt1;
       // convert 50% efficiency threshold to 90% efficiency threshold
-      //if (abscur>0 && errcur>0) ptLx += 3.9*errcur/abscur*pt;
       if (abspar1>0) ptLx1 += nsigma_Pt_*err1/abspar1*pt1;
       LogDebug("HLTMuonDimuonFilter") << " ... 1st muon in loop, pt1= "
             << pt1 << ", ptLx1= " << ptLx1;
@@ -130,10 +129,7 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             TrackRef tk2 = cand2->get<TrackRef>();
 
             // eta cut
-            LogDebug("HLTMuonDimuonFilter") << " 2nd muon in loop, eta= "
-                  << tk2->eta() << ", hits= " << tk2->numberOfValidHits();
-            LogDebug("HLTMuonDimuonFilter") << " 2nd muon in loop, pt= "
-                  << tk2->pt() << ", d0= " << tk2->d0();
+            LogDebug("HLTMuonDimuonFilter") << " 2nd muon in loop: pt= " << tk2->pt() << ", eta= " << tk2->eta() << ", hits= " << tk2->numberOfValidHits() << ", d0= " << tk2->d0();
             if (fabs(tk2->eta())>max_Eta_) continue;
 
             // cut on number of hits
@@ -151,7 +147,6 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             double abspar2 = fabs(tk2->parameter(0));
             double ptLx2 = pt2;
             // convert 50% efficiency threshold to 90% efficiency threshold
-            //if (abscur>0 && errcur>0) ptLx += 3.9*errcur/abscur*pt;
             if (abspar2>0) ptLx2 += nsigma_Pt_*err2/abspar2*pt2;
             LogDebug("HLTMuonDimuonFilter") << " ... 2nd muon in loop, pt2= "
                   << pt2 << ", ptLx2= " << ptLx2;
@@ -195,8 +190,8 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
             // Add this pair
             n++;
-            LogDebug("HLTMuonDimuonFilter") << " Track1 passing filter: eta= " << tk1->eta() << ", pt: " << tk1->pt();
-            LogDebug("HLTMuonDimuonFilter") << " Track2 passing filter: eta= " << tk2->eta() << ", pt: " << tk2->pt();
+            LogDebug("HLTMuonDimuonFilter") << " Track1 passing filter: pt= " << tk1->pt() << ", eta: " << tk1->eta();
+            LogDebug("HLTMuonDimuonFilter") << " Track2 passing filter: pt= " << tk2->pt() << ", eta: " << tk2->eta();
             LogDebug("HLTMuonDimuonFilter") << " Invmass= " << invmass;
 
             bool i1done = false;
@@ -233,6 +228,8 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // put filter object into the Event
    iEvent.put(filterproduct);
+
+   LogDebug("HLTMuonDimuonFilter") << " >>>>> Result of HLTMuonDimuonFilter is "<< accept << ", number of muon pairs passing thresholds= " << n; 
 
    return accept;
 }

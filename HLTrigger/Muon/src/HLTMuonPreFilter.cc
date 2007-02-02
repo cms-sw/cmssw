@@ -82,8 +82,7 @@ HLTMuonPreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (cand=mucands->begin(); cand!=mucands->end(); cand++) {
       TrackRef tk = cand->get<TrackRef>();
       // eta cut
-      LogDebug("HLTMuonPreFilter") << " Muon in loop, eta= "
-            << tk->eta() << ", hits= " << tk->numberOfValidHits();
+      LogDebug("HLTMuonPreFilter") << " Muon in loop, pt= " << tk->pt() << ", eta= " << tk->eta() << ", hits= " << tk->numberOfValidHits();
       if (fabs(tk->eta())>max_Eta_) continue;
 
       // cut on number of hits
@@ -101,7 +100,6 @@ HLTMuonPreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       double abspar0 = fabs(tk->parameter(0));
       double ptLx = pt;
       // convert 50% efficiency threshold to 90% efficiency threshold
-      //if (abscur>0 && errcur>0) ptLx += 3.9*errcur/abscur*pt;
       if (abspar0>0) ptLx += nsigma_Pt_*err0/abspar0*pt;
       LogDebug("HLTMuonPreFilter") << " ...Muon in loop, pt= "
             << pt << ", ptLx= " << ptLx;
@@ -117,8 +115,8 @@ HLTMuonPreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       RefToBase<Candidate> candref = filterproduct->getParticleRef(i);
       TrackRef tk = candref->get<TrackRef>();
       LogDebug("HLTMuonPreFilter")
-           << " Track passing filter: eta= " << tk->eta() << ", pt: " 
-            << tk->pt();
+           << " Track passing filter: pt= " << tk->pt() << ", eta: " 
+            << tk->eta();
    }
 
    // filter decision
@@ -126,6 +124,8 @@ HLTMuonPreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // put filter object into the Event
    iEvent.put(filterproduct);
+
+   LogDebug("HLTMuonPreFilter") << " >>>>> Result of HLTMuonPreFilter is " << accept << ", number of muons passing thresholds= " << n; 
 
    return accept;
 }

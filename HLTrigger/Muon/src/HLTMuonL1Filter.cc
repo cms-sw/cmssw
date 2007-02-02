@@ -80,8 +80,8 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (muon.isNull()) continue;
 
       LogDebug("HLTMuonL1Filter") 
-            << " Muon in loop, eta= " << muon->eta() 
-            << ", pt= " << muon->pt();
+            << " Muon in loop: pt= " << muon->pt() 
+            << ", eta= " << muon->eta();
       float eta   =  muon->eta();
       if (fabs(eta)>max_Eta_) continue;
       float pt    =  muon->pt();
@@ -102,8 +102,8 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (unsigned int i=0; i<filterproduct->size(); i++) {
       RefToBase<Candidate> mu = filterproduct->getParticleRef(i);
       LogDebug("HLTMuonL1Filter")
-           << " Muon passing filter: eta= " << mu->eta() << ", pt: " 
-            << mu->pt();
+           << " Muon passing filter: pt= " << mu->pt() << ", eta: " 
+            << mu->eta();
    }
 
    // filter decision
@@ -111,6 +111,8 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // put filter object into the Event
    iEvent.put(filterproduct);
+
+   LogDebug("HLTMuonL1Filter") << " >>>>> Result of HLTMuonL1Filter is " << accept << ", number of muons passing thresholds= " << n; 
 
    return accept;
 }

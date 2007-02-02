@@ -77,8 +77,7 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       TrackRef tk = candref->get<TrackRef>();
       MuIsoAssociationMap::result_type muonIsIsolated = (*depMap)[tk];
 
-      LogDebug("HLTMuonIsoFilter") 
-         << " Is Muon isolated? " << muonIsIsolated;
+      LogDebug("HLTMuonIsoFilter") << " Muon with pt= " << tk->pt() << ", eta= " << tk->eta() << "; Is Muon isolated? " << muonIsIsolated;
 
       if (!muonIsIsolated) continue;
 
@@ -92,8 +91,7 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // put filter object into the Event
    iEvent.put(filterproduct);
 
-   LogDebug("HLTMuonIsoFilter") 
-     << " Muons passing HLT isolation cuts= " << n;
+   LogDebug("HLTMuonIsoFilter") << " >>>>> Result of HLTMuonIsoFilter is " << accept << ", number of muons passing isolation cuts= " << n; 
 
    return accept;
 }
