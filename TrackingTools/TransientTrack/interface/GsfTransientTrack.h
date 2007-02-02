@@ -1,8 +1,10 @@
 #ifndef TrackReco_GsfTransientTrack_h
 #define TrackReco_GsfTransientTrack_h
-//
-// Definition of Transient Track class for GsfTracks
-//
+
+  /**
+   * Concrete implementation of the TransientTrack for a multi-state reco::GsfTrack
+   */
+
 
 #include "TrackingTools/TransientTrack/interface/BasicTransientTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -78,6 +80,7 @@ namespace reco {
 
     const MagneticField* field() const {return theField;}
 
+    const Track & track() const {return *this;}
 
   private:
 

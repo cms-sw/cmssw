@@ -1,21 +1,17 @@
 #ifndef TrackReco_TransientTrack_h
 #define TrackReco_TransientTrack_h
-//
-// Definition of Transient Track class for 
-// reconstruction posterior to track reconstruction (vertexing, b-tagging...)
-//
+
+
+  /**
+   * Definition of Transient Track class to be used for higher-level reconstruction
+   *  (vertexing, b-tagging...). It allows access to several services that the 
+   *  DataFormat tracks can not access (magnetic field, geometry)
+   */
+
 
 #include "TrackingTools/TransientTrack/interface/BasicTransientTrack.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-// #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-// #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-// #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
-// #include "FWCore/Framework/interface/EventSetup.h"
-// #include "FWCore/Framework/interface/ESHandle.h"
-// #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-// #include "MagneticField/Engine/interface/MagneticField.h"
-// #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 namespace reco {
 
@@ -35,8 +31,6 @@ namespace reco {
     TransientTrack( const Track & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
 
     TransientTrack( BasicTransientTrack * btt ) : Base(btt) {}
-
-//     TransientTrack& operator=(const TransientTrack & tt);
 
     void setES(const edm::EventSetup& es) {sharedData().setES(es);}
 
@@ -67,10 +61,6 @@ namespace reco {
     bool impactPointStateAvailable() const
 	{return data().impactPointStateAvailable();}
 
-    // access to original persistent track
-    //    const Track & persistentTrack() const { return *tk_; }
-//     TrackRef persistentTrackRef() const { return tkr_; }
-
     TrackCharge charge() const {return data().charge();}
 
     bool operator== (const TransientTrack & other) const
@@ -85,6 +75,32 @@ namespace reco {
 
     const BasicTransientTrack* basicTransientTrack() const {return &(data());}
 
+    const Track & track() const {return data().track();}
+
+
+// Methods forwarded to original track.
+
+    /// first iterator to RecHits
+    trackingRecHit_iterator recHitsBegin() const { return track().recHitsBegin(); }
+    /// last iterator to RecHits
+    trackingRecHit_iterator recHitsEnd() const { return track().recHitsEnd(); }
+    /// get n-th recHit
+    TrackingRecHitRef recHit( size_t i ) const { return track().recHit( i ); }
+    /// number of RecHits
+    size_t recHitsSize() const { return track().recHitsSize(); }
+    //  hit pattern
+    const HitPattern & hitPattern() const { return track().hitPattern(); }
+    /// number of hits found 
+    unsigned short numberOfValidHits() const { return track().hitPattern().numberOfValidHits(); }
+    /// number of hits lost
+    unsigned short numberOfLostHits() const { return track().hitPattern().numberOfLostHits(); }
+    /// chi-squared of the fit
+    double chi2() const { return track().chi2(); }
+    /// number of degrees of freedom of the fit
+    double ndof() const { return track().ndof(); }
+    /// chi-squared divided by n.d.o.f.
+    double normalizedChi2() const { return track().chi2() / track().ndof(); }
+ 
   };
 
 }

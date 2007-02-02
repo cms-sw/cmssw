@@ -1,23 +1,23 @@
 #ifndef TrackReco_BasicTransientTrack_h
 #define TrackReco_BasicTransientTrack_h
-//
-// Definition of Transient Track class for 
-// reconstruction posterior to track reconstruction (vertexing, b-tagging...)
-//
+
+/**
+ * Abstract Base class for reference counted TransientTrack
+ */
 
 #include "TrackingTools/TrajectoryState/interface/ProxyBase.h"
 #include "Geometry/Surface/interface/ReferenceCounted.h"
 #include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
 
-// #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
-// class TransientTrack;
 
 namespace reco {
 
@@ -64,6 +64,8 @@ namespace reco {
 //     virtual bool operator< (const TransientTrack & a) const = 0;
 
     virtual const MagneticField* field() const = 0;
+
+    virtual const Track & track() const = 0;
 
   };
 

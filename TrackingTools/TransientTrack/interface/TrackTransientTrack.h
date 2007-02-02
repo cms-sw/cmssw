@@ -1,20 +1,13 @@
 #ifndef TrackReco_TrackTransientTrack_h
 #define TrackReco_TrackTransientTrack_h
-//
-// Definition of Transient Track class for 
-// reconstruction posterior to track reconstruction (vertexing, b-tagging...)
-//
+
+  /**
+   * Concrete implementation of the TransientTrack for a reco::Track
+   */
 
 #include "TrackingTools/TransientTrack/interface/BasicTransientTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-// #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-// #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-// #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
-// #include "FWCore/Framework/interface/EventSetup.h"
-// #include "FWCore/Framework/interface/ESHandle.h"
-// #include "MagneticField/Engine/interface/MagneticField.h"
-// #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 namespace reco {
 
@@ -70,6 +63,8 @@ namespace reco {
 //       {return (initialFTS.momentum().z()<a.initialFreeState().momentum().z());}
 
     const MagneticField* field() const {return theField;}
+
+    const Track & track() const {return *this;}
 
 
   private:
