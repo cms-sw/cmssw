@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri May 26 16:11:30 EDT 2006
-// $Id: SiStripElectronProducer.cc,v 1.8 2006/07/31 22:08:14 pivarski Exp $
+// $Id: SiStripElectronProducer.cc,v 1.9 2006/09/20 12:18:42 rahatlou Exp $
 //
 
 // system include files
@@ -29,6 +29,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 
@@ -57,6 +58,7 @@ SiStripElectronProducer::SiStripElectronProducer(const edm::ParameterSet& iConfi
    siHitProducer_ = iConfig.getParameter<std::string>("siHitProducer");
    siRphiHitCollection_ = iConfig.getParameter<std::string>("siRphiHitCollection");
    siStereoHitCollection_ = iConfig.getParameter<std::string>("siStereoHitCollection");
+   siMatchedHitCollection_ = iConfig.getParameter<std::string>("siMatchedHitCollection");
 
    superClusterProducer_ = iConfig.getParameter<std::string>("superClusterProducer");
    superClusterCollection_ = iConfig.getParameter<std::string>("superClusterCollection");
@@ -68,6 +70,9 @@ SiStripElectronProducer::SiStripElectronProducer(const edm::ParameterSet& iConfi
       iConfig.getParameter<double>("maxNormResid"),
       iConfig.getParameter<int32_t>("minHits"),
       iConfig.getParameter<double>("maxReducedChi2"));
+
+   LogDebug("") << " Welcome to SiStripElectronProducer " ;
+
 }
 
 
@@ -113,6 +118,9 @@ SiStripElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    edm::Handle<SiStripRecHit2DCollection> stereoHitsHandle;
    iEvent.getByLabel(siHitProducer_, siStereoHitCollection_, stereoHitsHandle);
 
+   edm::Handle<SiStripMatchedRecHit2DCollection> matchedHitsHandle;
+   iEvent.getByLabel(siHitProducer_, siMatchedHitCollection_, matchedHitsHandle);
+
    edm::ESHandle<MagneticField> magneticFieldHandle;
    iSetup.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
 
@@ -120,7 +128,7 @@ SiStripElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    iEvent.getByLabel(superClusterProducer_, superClusterCollection_, superClusterHandle);
 
    // Set up SiStripElectronAlgo for this event
-   algo_p->prepareEvent(trackerHandle, rphiHitsHandle, stereoHitsHandle, magneticFieldHandle);
+   algo_p->prepareEvent(trackerHandle, rphiHitsHandle, stereoHitsHandle, matchedHitsHandle, magneticFieldHandle);
 
    // Prepare the output electron candidates and clouds to be filled
    std::auto_ptr<reco::SiStripElectronCollection> electronOut(new reco::SiStripElectronCollection);
