@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/02/01 17:58:00 $
+ *  $Revision: 1.16 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -143,11 +143,16 @@ MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos,
   pair<bool,FreeTrajectoryState>
     propagationResult = propagate(tsos,vtxPosition);
 
-  // FIXME!!!
-  // This is very very temporary! Waiting for the changes in the KalmanVertexFitter interface
-  reco::TransientTrack transientTrack = buildTransientTrack(propagationResult.second);
-  
-  return update(transientTrack);
+  if(propagationResult.first){
+    // FIXME!!!
+    // This is very very temporary! Waiting for the changes in the KalmanVertexFitter interface
+    reco::TransientTrack transientTrack = buildTransientTrack(propagationResult.second);
+    return update(transientTrack);
+  }
+  else{
+    edm::LogWarning("Muon|RecoMuon|MuonUpdatorAtVertex") << "Constraint at vertex failed";
+    return pair<bool,FreeTrajectoryState>(false,FreeTrajectoryState());
+  }
 }
 
 
