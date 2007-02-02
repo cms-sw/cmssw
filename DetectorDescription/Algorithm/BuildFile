@@ -1,9 +1,13 @@
-
+<use name=DataFormats/CLHEP>
+<use name=DetectorDescription/Base>
 <use name=DetectorDescription/Core>
-<use name=Framework/SealKernel>
-
+<use name=DetectorDescription/ExprAlgo>
+<use name=Foundation/PluginManager>
+<use name=clhep>
 <export>
- <lib name=DetectorDescriptionAlgorithm>
- <use name=DetectorDescription/Core>
- <use name=Framework/SealKernel>
+  <use name=DetectorDescription/Base>
+  <use name=DetectorDescription/Core>
+  <use name=Foundation/PluginManager>
+  <lib name=DetectorDescriptionAlgorithm>
 </export>
+

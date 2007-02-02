@@ -1,16 +1,23 @@
-<use name=xerces-c>
-<use name=boost>
-<use name=DetectorDescription/Core>
+<use name=DataFormats/CLHEP>
 <use name=DetectorDescription/Algorithm>
-<use name=Framework/SealKernel>
+<use name=DetectorDescription/Base>
+<use name=DetectorDescription/Core>
+<use name=DetectorDescription/ExprAlgo>
+<use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-
+<use name=FWCore/Utilities>
+<use name=Foundation/PluginManager>
+<use name=Foundation/SealUtil>
+<use name=boost>
+<use name=clhep>
+<use name=xerces-c>
 <export>
- <lib name=DetectorDescriptionParser>
- <use name=xerces-c>
- <use name=boost>
- <use name=DetectorDescription/Core>
- <use name=DetectorDescription/Algorithm>
- <use name=Framework/SealKernel>
- <use name=FWCore/ParameterSet>
+  <use name=DetectorDescription/Base>
+  <use name=DetectorDescription/Core>
+  <use name=Foundation/SealUtil>
+  <use name=boost>
+  <use name=clhep>
+  <use name=xerces-c>
+  <lib name=DetectorDescriptionParser>
 </export>
+

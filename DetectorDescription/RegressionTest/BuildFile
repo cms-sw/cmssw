@@ -1,16 +1,14 @@
-
-<use name=DetectorDescription/Parser>
-<use name=DetectorDescription/Parser>
-<use name=DetectorDescription/Core>
-<use name=DetectorDescription/CoreImpl>
+<use name=DataFormats/CLHEP>
+<use name=DetectorDescription/Algorithm>
 <use name=DetectorDescription/Base>
-<use name=Utilities/Timing>
-
+<use name=DetectorDescription/Core>
+<use name=DetectorDescription/ExprAlgo>
+<use name=DetectorDescription/Parser>
+<use name=clhep>
+<use name=xerces-c>
 <export>
- <lib name=DetectorDescriptionRegressionTest>
- <use name=DetectorDescription/Parser>
- <use name=DetectorDescription/Core>
- <use name=DetectorDescription/CoreImpl>
- <use name=DetectorDescription/Base>
- <use name=Utilities/Timing>
+  <use name=DetectorDescription/Base>
+  <use name=DetectorDescription/Core>
+  <lib name=DetectorDescriptionRegressionTest>
 </export>
+

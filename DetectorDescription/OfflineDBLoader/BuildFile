@@ -1,25 +1,18 @@
-<use name=DetectorDescription/Core>
-<use name=CondFormats/IdealGeometryObjects>
-<use name=DetectorDescription/DBReader>
-<use name=CondCore/MetaDataService>
-<use name=CondCore/IOVService>
 <use name=CondCore/DBCommon>
-<use name=FWCore/Framework>
+<use name=CondCore/IOVService>
+<use name=CondCore/MetaDataService>
+<use name=CondFormats/IdealGeometryObjects>
+<use name=CoralBase>
 <use name=DataSvc>
-<use name=RelationalAccess>
-
+<use name=DetectorDescription/Core>
+<use name=DetectorDescription/DBReader>
 <use name=DetectorDescription/Parser>
-
+<use name=DetectorDescription/PersistentDDDObjects>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=POOLCore>
 <export>
- <lib name=DetectorDescriptionOfflineDBLoader>
- <use name=DetectorDescription/Core>
- <use name=DetectorDescription/Parser>
- <use name=CondFormats/IdealGeometryObjects>
- <use name=DetectorDescription/DBReader>
- <use name=CondCore/MetaDataService>
- <use name=CondCore/IOVService>
- <use name=CondCore/DBCommon>
- <use name=FWCore/Framework>
- <use name=DataSvc>
- <use name=RelationalAccess>
+  <use name=DetectorDescription/Core>
+  <lib name=DetectorDescriptionOfflineDBLoader>
 </export>
+

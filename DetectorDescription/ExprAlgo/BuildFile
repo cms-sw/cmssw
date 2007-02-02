@@ -1,8 +1,10 @@
+<use name=DataFormats/CLHEP>
 <use name=DetectorDescription/Base>
-
+<use name=Foundation/SealUtil>
+<use name=clhep>
 <export>
- <lib name=DetectorDescriptionExprAlgo>
- <use name=DetectorDescription/Base>
+  <use name=DetectorDescription/Base>
+  <use name=clhep>
+  <lib name=DetectorDescriptionExprAlgo>
 </export>
-
 

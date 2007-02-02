@@ -1,7 +1,10 @@
-
+<use name=DataFormats/CLHEP>
+<use name=DetectorDescription/Base>
 <use name=DetectorDescription/CoreImpl>
-
+<use name=clhep>
 <export>
- <lib name=DetectorDescriptionCore>
- <use name=DetectorDescription/CoreImpl>
+  <use name=DetectorDescription/Base>
+  <use name=clhep>
+  <lib name=DetectorDescriptionCore>
 </export>
+
