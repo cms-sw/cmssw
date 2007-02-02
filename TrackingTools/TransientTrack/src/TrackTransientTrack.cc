@@ -68,12 +68,14 @@ TrackTransientTrack::TrackTransientTrack( const TrackTransientTrack & tt ) :
   initialFTS(tt.initialFreeState()), initialTSOSAvailable(false),
   initialTSCPAvailable(false)
 {
-//   std::cout << "construct from TrackTransientTrack" << std::endl;
-//   initialTSCP = tt.impactPointTSCP();
-  if (tt.initialTSOSAvailable) initialTSOS= tt.impactPointState();
-//   initialTSCP = TrajectoryStateClosestToPoint
-//     (parameters(), covariance(), GlobalPoint(0.,0.,0.), theField);
-//   std::cout << "construct from TrackTransientTrack OK" << std::endl;
+  if (tt.initialTSOSAvailable) {
+    initialTSOS= tt.impactPointState();
+    initialTSOSAvailable = true;
+  }
+  if (tt.initialTSCPAvailable) {
+    initialTSCP= tt.impactPointTSCP();
+    initialTSCPAvailable = true;
+  }
 }
 
 
