@@ -105,7 +105,7 @@ void
 Store<N,I,K>::clear()
 {
   typename registry_type::iterator it = reg_.begin();
-  for (; it != reg_.end(); ++ it) {
+  for (; it != reg_.end(); ++it) {
     delete it->second->second;
     delete it->second;
   }  

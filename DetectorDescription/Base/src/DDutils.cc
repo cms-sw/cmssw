@@ -6,7 +6,7 @@
 
 std::vector<int> dbl_to_int ( const std::vector<double> & vecdbl) {
   std::vector<int> tInt;
-  for (std::vector<double>::const_iterator vd_it = vecdbl.begin(); vd_it != vecdbl.end(); vd_it++) {
+  for (std::vector<double>::const_iterator vd_it = vecdbl.begin(); vd_it != vecdbl.end(); ++vd_it) {
     tInt.push_back(int(*vd_it));
   }
   return tInt;
