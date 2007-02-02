@@ -97,14 +97,14 @@ bool GraphPath<N,E>::fromTo(const N & from, const N & to, std::vector< std::vect
    bool rslt=false;
    if (paths2(segment_type(from,to),tres)) {
      typename result_type::iterator rit = tres.begin(); // iterator over std::vector< std::vector<seg_t> >
-     for (; rit!=tres.end(); rit++) {
+     for (; rit!=tres.end(); ++rit) {
        N & target = (*rit)[0].second;
        typename std::vector<segment_type>::reverse_iterator pit = rit->rbegin();
        typename std::vector<segment_type>::reverse_iterator pend = rit->rend(); 
-       pend--;
+       --pend;
        std::vector<N> v(1,(*rit)[0].first); // <A,X> -> <A>
        //std::cout << pit->first << '-';
-       pit++;
+       ++pit;
        for(; pit!=pend; ++pit) {
          v.push_back(pit->second);
 	 //std::cout << pit->second << '-';
@@ -150,7 +150,7 @@ bool GraphPath<N,E>::paths2(const segment_type & ft, result_type& result) const
       if (upd_seg.first!=upd_seg.second) // only update result if not <X,X> !!
         update(upd_seg,result,i); // adds new paths ..
       else
-        cntdwn--;
+        --cntdwn;
     }
     goOn = bool(cntdwn);
     
@@ -189,8 +189,8 @@ void GraphPath<N,E>::update(segment_type & s, result_type & result, int u) const
         << " aseg=" << segit->first << " " << segit->second << std::endl;
    */
    std::vector<segment_type>  temp_pth = result[u];
-   segit++;
-   for (; segit!=segs.end(); segit++) { // create new pathes (whenever a the path-tree is branching)
+   ++segit;
+   for (; segit!=segs.end(); ++segit) { // create new pathes (whenever a the path-tree is branching)
      std::vector<segment_type> v = temp_pth;
      v.push_back(*segit);
      result.push_back(v);     

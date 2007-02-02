@@ -81,12 +81,12 @@ DDRotationMatrix global_simpleAngular_0::rotation()
 	  std::string rn = "";
 	  std::string ns = "";
 	  while (foundColon < name.size() && name[foundColon] != ':')
-	    foundColon++;
+	    ++foundColon;
 	  if (foundColon != name.size())
 	    {
-	      for (size_t j = foundColon + 1; j < name.size(); j++)
+	      for (size_t j = foundColon + 1; j < name.size(); ++j)
 		rn = rn + name[j];
-	      for (size_t i = 0; i < foundColon; i++)
+	      for (size_t i = 0; i < foundColon; ++i)
 		ns = ns + name[i];
 	    }
 	  if (rn != "" && ns != "")
@@ -110,12 +110,12 @@ DDRotationMatrix global_simpleAngular_0::rotation()
       std::string rn = "";
       std::string ns = "";
       while (foundColon < name.size() && name[foundColon] != ':')
-	foundColon++;
+	++foundColon;
       if (foundColon != name.size())
 	{
-	  for (size_t j = foundColon + 1; j < name.size(); j++)
+	  for (size_t j = foundColon + 1; j < name.size(); ++j)
 	    rn = rn + name[j];
-	  for (size_t i = 0; i < foundColon; i++)
+	  for (size_t i = 0; i < foundColon; ++i)
 	    ns = ns + name[i];
 	}
       if (rn != "" && ns != "")
@@ -231,12 +231,12 @@ DDRotationMatrix global_simpleAngular_1::rotation()
 	  std::string rn = "";
 	  std::string ns = "";
 	  while (foundColon < name.size() && name[foundColon] != ':')
-	    foundColon++;
+	    ++foundColon;
 	  if (foundColon != name.size())
 	    {
-	      for (size_t j = foundColon + 1; j < name.size(); j++)
+	      for (size_t j = foundColon + 1; j < name.size(); ++j)
 		rn = rn + name[j];
-	      for (size_t i = 0; i < foundColon; i++)
+	      for (size_t i = 0; i < foundColon; ++i)
 		ns = ns + name[i];
 	    }
 	  if (rn != "" && ns != "")
@@ -259,12 +259,12 @@ DDRotationMatrix global_simpleAngular_1::rotation()
       std::string rn = "";
       std::string ns = "";
       while (foundColon < name.size() && name[foundColon] != ':')
-	foundColon++;
+	++foundColon;
       if (foundColon != name.size())
 	{
-	  for (size_t j = foundColon + 1; j < name.size(); j++)
+	  for (size_t j = foundColon + 1; j < name.size(); ++j)
 	    rn = rn + name[j];
-	  for (size_t i = 0; i < foundColon; i++)
+	  for (size_t i = 0; i < foundColon; ++i)
 	    ns = ns + name[i];
 	}
       if (rn != "" && ns != "")
@@ -389,12 +389,12 @@ DDRotationMatrix global_simpleAngular_2::rotation()
 	  std::string rn = "";
 	  std::string ns = "";
 	  while (foundColon < name.size() && name[foundColon] != ':')
-	    foundColon++;
+	    ++foundColon;
 	  if (foundColon != name.size())
 	    {
-	      for (size_t j = foundColon + 1; j < name.size(); j++)
+	      for (size_t j = foundColon + 1; j < name.size(); ++j)
 		rn = rn + name[j];
-	      for (size_t i = 0; i < foundColon; i++)
+	      for (size_t i = 0; i < foundColon; ++i)
 		ns = ns + name[i];
 	    }
 	  if (rn != "" && ns != "")
@@ -418,12 +418,12 @@ DDRotationMatrix global_simpleAngular_2::rotation()
       std::string rn = "";
       std::string ns = "";
       while (foundColon < name.size() && name[foundColon] != ':')
-	foundColon++;
+	++foundColon;
       if (foundColon != name.size())
 	{
-	  for (size_t j = foundColon + 1; j < name.size(); j++)
+	  for (size_t j = foundColon + 1; j < name.size(); ++j)
 	    rn = rn + name[j];
-	  for (size_t i = 0; i < foundColon; i++)
+	  for (size_t i = 0; i < foundColon; ++i)
 	    ns = ns + name[i];
 	}
       if (rn != "" && ns != "")

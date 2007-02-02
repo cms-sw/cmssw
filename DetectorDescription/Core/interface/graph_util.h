@@ -59,7 +59,7 @@ void graph_tree_output(const graph<N,E> & g, const N & root, std::ostream & os)
      std::string s(2*depth,' ');
      os << ' ' << s << w.current().first << '(' << w.current().second << ')' << std::endl;
      if (go=w.firstChild()) {
-       depth++;
+       ++depth;
      }
      else if(w.stack().size() >1 && w.nextSibling()) {
         go=true;
@@ -67,7 +67,7 @@ void graph_tree_output(const graph<N,E> & g, const N & root, std::ostream & os)
      else {
        go=false;
        while(w.parent()) {
-         depth--;
+         --depth;
 	  if (w.stack().size()>1 && w.nextSibling()) {
 	     go=true;
 	     break;

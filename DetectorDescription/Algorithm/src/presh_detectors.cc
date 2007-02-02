@@ -71,8 +71,8 @@ void presh_detectors::topHalfXPlane()
    double zlead1=0;
    for(int I=1; I<=20; ++I) {
      for(int J=IQUAD_MAX_[I]; J>=IQUAD_MIN_[I]; --J) {
-       NX++;
-       icopy++;
+       ++NX;
+       ++icopy;
        double XPOS = -1.*(J*waf_intra_col_sep_+(int(J/2))*waf_inter_col_sep_ - waf_intra_col_sep_/2.);
        double YPOS = (20-I)*waf_active_ + wedge_length_/2. + 0.05*cm;
        DDTranslation trans(XPOS,YPOS,zlead1+wedge_offset_);
@@ -81,8 +81,8 @@ void presh_detectors::topHalfXPlane()
        DDpos(BOX ,SF,icopy,trans,b_rot);
      }
      for(int J=IQUAD_MIN_[I]; J<=IQUAD_MAX_[I]; ++J) {
-       NX++;
-       icopy++;
+       ++NX;
+       ++icopy;
        // = -XPOS from above
        double XPOS = (J*waf_intra_col_sep_ + (int(J/2))*waf_inter_col_sep_ - waf_intra_col_sep_/2.);              
        // = same as YPOS from above

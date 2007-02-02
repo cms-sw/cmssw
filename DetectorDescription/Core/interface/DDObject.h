@@ -115,7 +115,7 @@ DDObject<T>::DDObject(T* object)
 { 
   static int id_(-1);
   DDName name(id_);
-  id_--;
+  --id_;
   registerAnoObject(name,object);
 }
 */

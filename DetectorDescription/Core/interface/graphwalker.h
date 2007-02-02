@@ -160,7 +160,7 @@ typename graphwalker<N,E>::result_type graphwalker<N,E>::nextSibling()
    //if (stack_.size() > 1) { only if single-root should be enforced ...
      edge_range & siblings = stack_.back();
      if (siblings.first != (siblings.second - 1) ) {
-       siblings.first++;
+       ++siblings.first;
        result = true;
      }  
    //}

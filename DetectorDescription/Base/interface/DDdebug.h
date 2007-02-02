@@ -50,8 +50,8 @@ inline const  std::string & ddDebugVS() {
 }
      
       
-  #define DCOUT(M_v_Y,M_v_S) { for(std::string::size_type M_v_i=0; M_v_i < ddDebugS().size(); M_v_i++) if(ddDebugS()[M_v_i]==M_v_Y) LogDebug("DDdebug") << ddDebugS()[M_v_i] << " : " << M_v_S << std::endl; }   
-  #define DCOUT_V(M_v_Y,M_v_S) { for(std::string::size_type M_v_i=0; M_v_i < ddDebugVS().size(); M_v_i++) if(ddDebugVS()[M_v_i]==M_v_Y) LogDebug("DDdebug") << ddDebugVS()[M_v_i] << "v: " << M_v_S << std::endl; }         
+  #define DCOUT(M_v_Y,M_v_S) { for(std::string::size_type M_v_i=0; M_v_i < ddDebugS().size(); ++M_v_i) if(ddDebugS()[M_v_i]==M_v_Y) LogDebug("DDdebug") << ddDebugS()[M_v_i] << " : " << M_v_S << std::endl; }   
+  #define DCOUT_V(M_v_Y,M_v_S) { for(std::string::size_type M_v_i=0; M_v_i < ddDebugVS().size(); ++M_v_i) if(ddDebugVS()[M_v_i]==M_v_Y) LogDebug("DDdebug") << ddDebugVS()[M_v_i] << "v: " << M_v_S << std::endl; }         
   
   // backward compatiblility, don't use anymore! 
   #define DEBUGOUT(s) if (ddDebug()) { LogDebug("DDdebug") << s << std::endl; }
