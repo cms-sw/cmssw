@@ -16,9 +16,8 @@
 
 GeometryConfiguration::GeometryConfiguration( const edm::ParameterSet& pset ) : dummyLocation_("") { 
   relFiles_ = pset.getParameter<std::vector<std::string> >("geomXMLFiles");
-  std::vector<std::string>::const_iterator rit = relFiles_.begin();
-  std::vector<std::string>::const_iterator ritEnd = relFiles_.end();
-  for ( ; rit != ritEnd; ++rit ) {
+  for (std::vector<std::string>::const_iterator rit = relFiles_.begin(), ritEnd = relFiles_.end();
+      rit != ritEnd; ++rit ) {
     edm::FileInPath fp(*rit);
     files_.push_back(fp.fullPath());
     emptyStrings_.push_back("");
@@ -60,7 +59,7 @@ const std::vector < std::string >  & GeometryConfiguration::getURLList(void) con
 void GeometryConfiguration::dumpFileList(void) const {
   std::cout << "File List:" << std::endl;
   std::cout << "  number of files=" << files_.size() << std::endl;
-  for (std::vector<std::string>::const_iterator it = files_.begin(); it != files_.end(); ++it)
+  for (std::vector<std::string>::const_iterator it = files_.begin(), itEnd = files_.end(); it != itEnd; ++it)
     std::cout << *it << std::endl;
 }
 
