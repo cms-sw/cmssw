@@ -2,16 +2,20 @@
 #include "Geometry/Surface/interface/Surface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 
-AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian
+AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian 
 (const GlobalTrajectoryParameters& globalParameters,
- const GlobalPoint& x, const GlobalVector& p, 
+ const GlobalPoint& x, 
+ const GlobalVector& p, 
  const double& s) : theJacobian(5, 5, 1) 
 {
   //
   // helix: calculate full jacobian
   //
-  if ( s*s*fabs(globalParameters.transverseCurvature())>1.e-5 )
-    computeFullJacobian(globalParameters,x,p,s);
+  if ( s*s*fabs(globalParameters.transverseCurvature())>1.e-5 ) { 
+    GlobalPoint xStart = globalParameters.position();
+    GlobalVector h  = globalParameters.megneticFieldInInverseGeV(xStart);
+    computeFullJacobian(globalParameters,x,p,h,s);
+  }
   //
   // straight line approximation, error in RPhi about 0.1um
   //
@@ -19,10 +23,34 @@ AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian
     computeStraightLineJacobian(globalParameters,x,p,s);
 }
 
+
+AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian
+(const GlobalTrajectoryParameters& globalParameters,
+ const GlobalPoint& x, 
+ const GlobalVector& p, 
+ const GlobalVector& h, // h is the magnetic Field in Inverse GeV
+ const double& s) : theJacobian(5, 5, 1) 
+{
+  //
+  // helix: calculate full jacobian
+  //
+  if ( s*s*fabs(globalParameters.transverseCurvature())>1.e-5 )
+    computeFullJacobian(globalParameters,x,p,h,s);
+  //
+  // straight line approximation, error in RPhi about 0.1um
+  //
+  else
+    computeStraightLineJacobian(globalParameters,x,p,s);
+}
+
+
 void
 AnalyticalCurvilinearJacobian::computeFullJacobian
 (const GlobalTrajectoryParameters& globalParameters,
- const GlobalPoint& x, const GlobalVector& p, const double& s)
+ const GlobalPoint& x, 
+ const GlobalVector& p, 
+ const GlobalVector& h, 
+ const double& s)
 {    
   //GlobalVector p1 = fts.momentum().unit();
   GlobalVector p1 = globalParameters.momentum().unit();
@@ -31,7 +59,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   GlobalPoint xStart = globalParameters.position();
   GlobalVector dx = xStart - x;
   //GlobalVector h  = MagneticField::inInverseGeV(xStart);
-  GlobalVector h  = globalParameters.megneticFieldInInverseGeV(xStart);
+  // Martijn: field is now given as parameter.. GlobalVector h  = globalParameters.megneticFieldInInverseGeV(xStart);
 
   //double qbp = fts.signedInverseMomentum();
   double qbp = globalParameters.signedInverseMomentum();
