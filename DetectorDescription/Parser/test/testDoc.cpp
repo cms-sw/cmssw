@@ -135,7 +135,7 @@ void DDLTestDoc::dumpFileList(void) const {
   cout << "File List:" << endl;
   vector<string> vst = getFileList();
   cout << "  number of files=" << vst.size() << endl;
-  for (vector<string>::const_iterator it = vst.begin(); it != vst.end(); it++)
+  for (vector<string>::const_iterator it = vst.begin(); it != vst.end(); ++it)
     cout << *it << endl;
 }
 
@@ -189,7 +189,7 @@ int DDLTestDoc::readConfig(const std::string& filename)
 
 //   std::vector<std::string> fnames = sch_->getFileNames();
 //   std::cout << "there are " << fnames.size() << " files." << std::endl;
-//   for (size_t i = 0; i < fnames.size(); i++)
+//   for (size_t i = 0; i < fnames.size(); ++i)
 //     std::cout << "url=" << sch_->getURLs()[i] << " file=" << sch_->getFileNames()[i] << std::endl;
   return 0;
 }

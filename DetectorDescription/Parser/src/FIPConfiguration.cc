@@ -73,7 +73,7 @@ std::string FIPConfiguration::getSchemaLocation() const { return configHandler_.
 void FIPConfiguration::dumpFileList(void) const {
   std::cout << "File List:" << std::endl;
   std::cout << "  number of files=" << files_.size() << std::endl;
-  for (std::vector<std::string>::const_iterator it = files_.begin(); it != files_.end(); it++)
+  for (std::vector<std::string>::const_iterator it = files_.begin(); it != files_.end(); ++it)
     std::cout << *it << std::endl;
 }
 
@@ -127,7 +127,7 @@ int FIPConfiguration::readConfig(const std::string& filename)
     const std::vector<std::string>& vFiles = configHandler_.getFileNames();
     size_t maxInd = vFiles.size();
     size_t ind = 0;
-    for ( ; ind < maxInd ; ind++) {
+    for(; ind < maxInd ; ++ind) {
       edm::FileInPath fp(vURLs[ind] + "/" + vFiles[ind]);
       std::cout << "FileInPath says..." << fp.fullPath() << std::endl;
       files_.push_back(fp.fullPath());
@@ -142,7 +142,7 @@ int FIPConfiguration::readConfig(const std::string& filename)
 
   //   std::vector<std::string> fnames = configHandler_.getFileNames();
   //   std::cout << "there are " << fnames.size() << " files." << std::endl;
-  //   for (size_t i = 0; i < fnames.size(); i++)
+  //   for (size_t i = 0; i < fnames.size(); ++i)
   //     std::cout << "url=" << configHandler_.getURLs()[i] << " file=" << configHandler_.getFileNames()[i] << std::endl;
   return 0;
 }

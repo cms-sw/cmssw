@@ -136,14 +136,14 @@ size_t DDLParser::isFound(const std::string& filename)
   FileNameHolder::const_iterator it = fileNames_.begin();
   size_t i = 1;
   bool foundFile = false;
-  while (it != fileNames_.end() && !foundFile) //  for (; it != fileNames_.end(); it++) 
+  while (it != fileNames_.end() && !foundFile) //  for (; it != fileNames_.end(); ++it) 
     {
       if (it->second.first == filename)
 	{
 	  foundFile = true;
 	}
-      else i++;
-      it++;
+      else ++i;
+      ++it;
     }
   if (foundFile)
     return i;
@@ -248,7 +248,7 @@ std::vector < std::string >  DDLParser::getFileList(void)
 {
   //  edm::LogInfo ("DDLParser") << "start getFileList" << std::endl;
   std::vector<std::string> flist;
-  for (FileNameHolder::const_iterator fit = fileNames_.begin(); fit != fileNames_.end(); fit++)
+  for (FileNameHolder::const_iterator fit = fileNames_.begin(); fit != fileNames_.end(); ++fit)
     {
       //      edm::LogInfo ("DDLParser") << "about to push_back " << std::endl;
       //      edm::LogInfo ("DDLParser") << "fit->second.second = " << fit->second.second << std::endl;
@@ -261,13 +261,13 @@ std::vector < std::string >  DDLParser::getFileList(void)
 
 void DDLParser::dumpFileList(void) {
   edm::LogInfo ("DDLParser") << "File List:" << std::endl;
-  for (FileNameHolder::const_iterator it = fileNames_.begin(); it != fileNames_.end(); it++)
+  for (FileNameHolder::const_iterator it = fileNames_.begin(); it != fileNames_.end(); ++it)
     edm::LogInfo ("DDLParser") << it->second.second << std::endl;
 }
 
 void DDLParser::dumpFileList(ostream& co) {
   co << "File List:" << std::endl;
-  for (FileNameHolder::const_iterator it = fileNames_.begin(); it != fileNames_.end(); it++)
+  for (FileNameHolder::const_iterator it = fileNames_.begin(); it != fileNames_.end(); ++it)
     co << it->second.second << std::endl;
 }
 
@@ -305,7 +305,7 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
   size_t fileIndex = 0;
   std::vector<std::string> fullFileName;
 
-  for (; fileIndex < (dp.getFileList()).size(); fileIndex++)
+  for (; fileIndex < (dp.getFileList()).size(); ++fileIndex)
     { 
       std::string ts = dp.getURLList()[fileIndex];
       std::string tf = dp.getFileList()[fileIndex];
@@ -325,7 +325,7 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 
     for (std::vector<std::string>::const_iterator fnit = fullFileName.begin(); 
 	 fnit != fullFileName.end();
-	 fnit++)
+	 ++fnit)
       {
 	size_t foundFile = isFound(expHandler_->extractFileName( *fnit )); 
 	
@@ -350,8 +350,8 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
     {
       SAX2Parser_->setContentHandler(expHandler_);
       //edm::LogInfo ("DDLParser") << "1st PASS: Parsing " << fileNames_.size() << " files." << std::endl;
-      //std::vector<std::string>::const_iterator currFile = fileNames_.begin(); currFile != fileNames_.end(); currFile++)
-      for (size_t i = 0; i < fileNames_.size(); i++)
+      //std::vector<std::string>::const_iterator currFile = fileNames_.begin(); currFile != fileNames_.end(); ++currFile)
+      for (size_t i = 0; i < fileNames_.size(); ++i)
 	{
 	  if (!parsed_[i])
 	    {
@@ -400,8 +400,8 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 
       // Process files again.
       //edm::LogInfo ("DDLParser") << "Parsing " << fileNames_.size() << " files." << std::endl;
-      for (size_t i = 0; i < fileNames_.size(); i++)
-	//std::vector<std::string>::const_iterator currFile = fileNames_.begin(); currFile != fileNames_.end(); currFile++)
+      for (size_t i = 0; i < fileNames_.size(); ++i)
+	//std::vector<std::string>::const_iterator currFile = fileNames_.begin(); currFile != fileNames_.end(); ++currFile)
 	{
 	  parseFile(i);
 	  parsed_[i] = true;

@@ -83,7 +83,7 @@ const map<DDSolid, set<DDLogicalPart> > & DDErrorDetection::so_lp()
     DDSolid m(it->first);
     result_[m]=s;
     set<DDSolid>::const_iterator sit(it->second.begin()), sed(it->second.end());
-    for ( ; sit != sed; ++sit) {
+    for(; sit != sed; ++sit) {
       result_[*sit] = s;
     }
     //cout << "insert: " << m.name() << endl;

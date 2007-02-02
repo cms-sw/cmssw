@@ -176,7 +176,7 @@ bool DDHtmlMaDetails::details(ostream & os, const DDName & nm)
     os << f_.p("Composites by fraction-mass:");
     os << f_.table() 
        << f_.tr() << f_.td("<b>fm</b>") << f_.td("<b>Material</b>") << f_.td("<b>elementary?</b>") << f_.trEnd();
-    for ( int i=0; i<co; ++i) {
+    for(int i=0; i<co; ++i) {
       pair<DDMaterial,double> fm = ma.constituent(i);
       string elem = "ERROR";
       DDMaterial m = fm.first;
@@ -310,7 +310,7 @@ void dd_to_html(DDHtmlDetails & dtls)
     list_file << f.ul();
     // loop over all instances of a single namespace
     set<string>::const_iterator nit(it->second.begin()), ned(it->second.end());
-    for ( ; nit != ned; ++nit) {
+    for(; nit != ned; ++nit) {
 
       const string & nm = *nit;
       string result_s = nm;

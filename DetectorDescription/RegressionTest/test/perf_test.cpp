@@ -80,7 +80,7 @@ try { // DDD Prototype can throw DDException defined in DetectorDescription/Core
   DDSolid::iterator<DDSolid> it, ed;
   ed.end();
   cout << "Listing the first 5 solids:" << endl;
-  for (int j=0; it != ed && j<5; j++, ++it) {
+  for (int j=0; it != ed && j<5; ++j, ++it) {
     cout << *it << endl;
   }
 

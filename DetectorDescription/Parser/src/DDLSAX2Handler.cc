@@ -55,7 +55,7 @@ void DDLSAX2Handler::startElement(const XMLCh* const uri
 				  , const XMLCh* const qname
 				  , const Attributes& attrs)
 {
-  elementCount_++;
+  ++elementCount_;
   attrCount_ += attrs.getLength();
 }
 
@@ -144,7 +144,7 @@ std::string DDLSAX2Handler::getnmspace(const std::string& fname)
   size_t j = 0;
   std::string ret="";
   while (j < fname.size() && fname[j] != '.')
-    j++;
+    ++j;
   if (j < fname.size() && fname[j] == '.')
     ret = fname.substr(0, j);
   return ret;

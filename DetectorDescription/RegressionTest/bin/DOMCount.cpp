@@ -55,7 +55,7 @@
  */
 
 /*
- * $Id: DOMCount.cpp,v 1.2 2003/11/26 09:50:55 liendl Exp $
+ * $Id: DOMCount.cpp,v 1.1 2006/03/20 10:49:52 case Exp $
  */
 
 // ---------------------------------------------------------------------------
@@ -186,7 +186,7 @@ int main(int argC, char* argV[])
     memset(localeStr, 0, sizeof localeStr);
 
     int argInd;
-    for (argInd = 1; argInd < argC; argInd++)
+    for (argInd = 1; argInd < argC; ++argInd)
     {
         // Break out on first parm not starting with a dash
         if (argV[argInd][0] != '-')

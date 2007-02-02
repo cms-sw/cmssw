@@ -39,7 +39,7 @@ void dd_exchange_value(std::vector<std::string> & vars, std::vector<std::string>
 	 vals[count] = val;
 	 break;
       }
-      count++;
+      ++count;
    }
 } 
       
@@ -111,7 +111,7 @@ double ClhepEvaluator::eval(const std::string & ns, const std::string & expr)
    if(evaluator_.status()!=HepTool::Evaluator::OK) {
       std::cout << "expr: " << prepared << std::endl;
       std::cout << "------";
-      for (int i=0; i<evaluator_.error_position(); i++) std::cout << "-";
+      for (int i=0; i<evaluator_.error_position(); ++i) std::cout << "-";
       std::cout << "^" << std::endl;
       evaluator_.print_error();
       throwex(ns,prepared,expr,"can't evaluate: " + expr + std::string("!"));
@@ -126,7 +126,7 @@ double ClhepEvaluator::eval(const char * expression)
    if (evaluator_.status()!=HepTool::Evaluator::OK) {
       std::cout << "expr: " << expression << std::endl;
       std::cout << "------";
-      for (int i=0; i<evaluator_.error_position(); i++) std::cout << "-";
+      for (int i=0; i<evaluator_.error_position(); ++i) std::cout << "-";
       std::cout << "^" << std::endl;
       evaluator_.print_error();
       throwex("",expression,"","can't evaluate: " + std::string(expression) + std::string("!"));   
@@ -192,7 +192,7 @@ void ClhepEvaluator::prepare(const std::string & ns,
 	         "found a ':' outside '[..]' , or too many '[' !",idx); 
        }
        insideBracket=true; 
-       varCount++;
+       ++varCount;
        break;
      
      case ']':
@@ -221,7 +221,7 @@ void ClhepEvaluator::prepare(const std::string & ns,
       ;
      } // switch
      
-     idx++;
+     ++idx;
    } // while(sz)
    
    // status after pass 1 must be: every [ ] is closed and no ':' 
@@ -239,7 +239,7 @@ void ClhepEvaluator::prepare(const std::string & ns,
      switch(exprValue[idx]) {
      
      case '[':
-       varCount++;
+       ++varCount;
        if ( !hasNs[varCount] ) {
          valResult = valResult + ns + sep;
        }	 
@@ -256,7 +256,7 @@ void ClhepEvaluator::prepare(const std::string & ns,
        valResult = valResult + exprValue[idx];
      } // switch
    
-     idx++;
+     ++idx;
    } // while 
 }	       
 	       
@@ -283,7 +283,7 @@ void ClhepEvaluator::prepare(const std::string & ns,
    // '['   ']'   ' '  ':'   are forbidden for names and namespaces of parameters
    std::string::size_type sz = s.size();
    while(sz) {
-     sz--;
+     --sz;
      //bool stop = false;
      switch (s[sz]) {
      case ']':

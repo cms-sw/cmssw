@@ -44,7 +44,7 @@ DDDividedPolyhedraRho::DDDividedPolyhedraRho( const DDDivision & div )
 				   , div_.offset() );
     }
 
-  //     for (int i = 0; i < compNDiv_; i++)
+  //     for (int i = 0; i < compNDiv_; ++i)
   //      {
   //        DDpos(  makeDDLogicalPart(i)
   //  	      , div_.parent()
@@ -130,7 +130,7 @@ DDLogicalPart DDDividedPolyhedraRho::makeDDLogicalPart ( const int copyNo ) cons
   int nZplanes = localzVec.size();
 
   double width = 0.;
-  for( int ii = 0; ii < nZplanes; ii++ )
+  for(int ii = 0; ii < nZplanes; ++ii)
     {
       //     width = CalculateWidth( origparamMother->Rmax[ii]
       //                           - origparamMother->Rmin[ii], compNDiv_, foffset );

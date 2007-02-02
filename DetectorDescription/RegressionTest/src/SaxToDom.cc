@@ -32,7 +32,7 @@ void SaxToDom::startElement( const XMLCh* const uri,
   NodeName nm(string(strx.localForm())); // as a temp.string
   //parent_.push_back(nm);
   AttList al; // map of attributes -> values
-  for (unsigned int i = 0; i < atts.getLength(); i++) {
+  for (unsigned int i = 0; i < atts.getLength(); ++i) {
     const XMLCh* aname = atts.getLocalName(i);
     const XMLCh* value = atts.getValue(i);
     // fill the tiny-dom-attribute-list (i.e. the map)

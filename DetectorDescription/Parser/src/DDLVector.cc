@@ -126,7 +126,7 @@ void DDLVector::processElement (const std::string& name, const std::string& nmsp
     {
       if (isNumVec) { //(atts.find("type") != atts.end() || atts.find("type")->second == "numeric") {
 	//	std::cout << "adding to pVecMap name= " << atts.find("name")->second << std::endl;
-	//	for (std::vector<double>::const_iterator it = pVector.begin(); it != pVector.end(); it++)
+	//	for (std::vector<double>::const_iterator it = pVector.begin(); it != pVector.end(); ++it)
 	//	  std::cout << *it << "\t" << std::endl;
 	pVecMap[atts.find("name")->second] = pVector;
 	//	std::cout << "size: " << pVecMap.size() << std::endl;

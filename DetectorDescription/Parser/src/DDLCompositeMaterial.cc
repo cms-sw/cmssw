@@ -105,7 +105,7 @@ void DDLCompositeMaterial::processElement (const std::string& type, const std::s
       throwError(msg);
     }
   try {
-    for (size_t i = 0; i < myrMaterial->size(); i++)
+    for (size_t i = 0; i < myrMaterial->size(); ++i)
       {
 	atts = myMF->getAttributeSet(i);
 	mat.addMaterial(myrMaterial->getDDName(nmspace, "name", i)

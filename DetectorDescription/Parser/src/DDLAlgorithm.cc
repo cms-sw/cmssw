@@ -71,14 +71,14 @@ void DDLAlgorithm::processElement (const std::string& name, const std::string& n
   // handle all Numeric elements in the Algorithm.
   DDNumericArguments nArgs;
   size_t i = 0;
-  for (; i < myNumeric->size(); i++)
+  for (; i < myNumeric->size(); ++i)
     {
       atts = myNumeric->getAttributeSet(i);
       nArgs[atts.find("name")->second] = ExprEvalSingleton::instance().eval(nmspace, atts.find("value")->second);
     }
 
   DDStringArguments sArgs;
-  for (i = 0; i < myString->size(); i++)
+  for (i = 0; i < myString->size(); ++i)
     {
       atts = myString->getAttributeSet(i);
       sArgs[atts.find("name")->second] = atts.find("value")->second;

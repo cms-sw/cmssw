@@ -82,7 +82,7 @@ DDXMLElement* DDXMLElementRegistry::getElement(const std::string& name)
 std::string DDXMLElementRegistry::getElementName(DDXMLElement* theElementBase)
 {
   std::string ret = "";
-  for (RegistryMap::const_iterator it = registry_->begin(); it != registry_->end(); it++)
+  for (RegistryMap::const_iterator it = registry_->begin(); it != registry_->end(); ++it)
     if (it->second == theElementBase)
       ret = it->first;
   return ret;
@@ -107,6 +107,6 @@ std::ostream & operator<<(std::ostream & os, const DDXMLElementRegistry & elemen
 void DDXMLElementRegistry::stream(std::ostream & os) const
 {
   os << "Output of current Element Registry:" << std::endl;
-  for (RegistryMap::const_iterator it=registry_->begin(); it != registry_->end(); it++)
+  for (RegistryMap::const_iterator it=registry_->begin(); it != registry_->end(); ++it)
     os << it->first <<  " at address " << it->second << std::endl;
 }			 

@@ -74,7 +74,7 @@ void DDLConfiguration::dumpFileList(void) const {
   std::cout << "File List:" << std::endl;
   std::vector<std::string> vst = getFileList();  // why do I need to do this?
   std::cout << "  number of files=" << vst.size() << std::endl;
-  for (std::vector<std::string>::const_iterator it = vst.begin(); it != vst.end(); it++)
+  for (std::vector<std::string>::const_iterator it = vst.begin(); it != vst.end(); ++it)
     std::cout << *it << std::endl;
 }
 
@@ -111,7 +111,7 @@ int DDLConfiguration::readConfig(const std::string& filename)
 
   //   std::vector<std::string> fnames = configHandler_.getFileNames();
   //   std::cout << "there are " << fnames.size() << " files." << std::endl;
-  //   for (size_t i = 0; i < fnames.size(); i++)
+  //   for (size_t i = 0; i < fnames.size(); ++i)
   //     std::cout << "url=" << configHandler_.getURLs()[i] << " file=" << configHandler_.getFileNames()[i] << std::endl;
   return 0;
 }

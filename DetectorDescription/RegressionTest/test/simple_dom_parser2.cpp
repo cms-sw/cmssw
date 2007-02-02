@@ -77,7 +77,7 @@ int main(int argC, char* argV[])
     bool                         namespacePrefixes = false;
 
     int argInd;
-    for (argInd = 1; argInd < argC; argInd++)
+    for (argInd = 1; argInd < argC; ++argInd)
     {
         // Break out on first parm not starting with a dash
         if (argV[argInd][0] != '-')

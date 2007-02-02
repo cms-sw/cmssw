@@ -77,12 +77,12 @@ void DDLSpecPar::processElement (const std::string& type, const std::string& nms
 //        snames = myParameter->getVectorAttribute("name");
 //        std::cout << "\tParameter Names" << std::endl;
 //        size_t i;
-//        for (i = 0; i < snames.size(); i++)
+//        for (i = 0; i < snames.size(); ++i)
 //  	{
 //  	  std::cout << "\t\t" << snames[i] << std::endl;
 //  	}
 //        std::cout << "\tPart Selectors:" << std::endl;
-//        for (i = 0; i < partsels.size(); i++)
+//        for (i = 0; i < partsels.size(); ++i)
 //  	{
 //  	  std::cout << "\t\t" << partsels[i] << std::endl;
 //  	}
@@ -92,7 +92,7 @@ void DDLSpecPar::processElement (const std::string& type, const std::string& nms
 
   //should i keep this? partsels = myPartSelector->getVectorAttribute("path");
   //otherise I have to do this block...
-  for (i = 0; i < myPartSelector->size(); i++)
+  for (i = 0; i < myPartSelector->size(); ++i)
     partsels.push_back((myPartSelector->getAttributeSet(i).find("path"))->second);
 
   DDsvalues_type svt;
@@ -135,7 +135,7 @@ void DDLSpecPar::processElement (const std::string& type, const std::string& nms
       doRegex = true;
   }
 
-  for (i = 0; i < myParameter->size(); i++)
+  for (i = 0; i < myParameter->size(); ++i)
     {
       const DDXMLAttribute & atts = myParameter->getAttributeSet(i);
       std::vector <DDValuePair> vvp;
@@ -182,7 +182,7 @@ void DDLSpecPar::processElement (const std::string& type, const std::string& nms
     }
 
   // Process the String names and values.
-  for (i = 0; i < myString->size(); i++)
+  for (i = 0; i < myString->size(); ++i)
     {
       const DDXMLAttribute & atts = myString->getAttributeSet(i);
       std::vector <DDValuePair> vvp;
@@ -196,7 +196,7 @@ void DDLSpecPar::processElement (const std::string& type, const std::string& nms
     }
   
   // Process the Numeric names and values.
-  for (i = 0; i < myNumeric->size(); i++)
+  for (i = 0; i < myNumeric->size(); ++i)
     {
       const DDXMLAttribute & atts = myNumeric->getAttributeSet(i);
       std::vector <DDValuePair> vvp;
@@ -212,7 +212,7 @@ void DDLSpecPar::processElement (const std::string& type, const std::string& nms
     }
   
   svt.reserve(vvvp.size());
-  for (vvvpType::const_iterator it = vvvp.begin(); it != vvvp.end(); it++)
+  for (vvvpType::const_iterator it = vvvp.begin(); it != vvvp.end(); ++it)
     {
       DDValue val(it->first, it->second.second);
       bool isEvaluated = it->second.first;

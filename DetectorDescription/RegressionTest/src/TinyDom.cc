@@ -19,16 +19,16 @@ void TinyDomPrettyPrint(ostream & os , const TinyDom & dom)
 //   os << space << "<" << w.current().first.str();
 //   if (w.firstChild()) {
 //     os << space << ">" << endl;
-//     level++;
+//     ++level;
 //     printTinyDom(os, w, level);
-//     level--
+//     --level
 //     os << space << "<" << w.current().first.str() << "/>" << endl;
 //   }
 //   else if (w.nextSibling()) {
 //     os << space << ">" << endl;
-//     //level++;
+//     //++level;
 //     printTinyDom(os, w, level);
-//     //level--
+//     //--level
 //     os << space << "<" << w.current().first.str() << "/>" << endl;    
 //   }
 // }

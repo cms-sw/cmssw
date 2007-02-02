@@ -61,7 +61,7 @@ void DDLSAX2ExpressionHandler::startElement(const XMLCh* const uri
 {
   static seal::SealTimer tdseh("DDLSAX2ExpressionHandler::startElement(..)", false);
   
-  elementCount_++;
+  ++elementCount_;
   attrCount_ += attrs.getLength();
 
   //char * tmpc = XMLString::transcode(qname);
@@ -74,7 +74,7 @@ void DDLSAX2ExpressionHandler::startElement(const XMLCh* const uri
       DCOUT_V('P', std::string("DDLSAX2ExpressionHandler: start ") + pElementName);
       unsigned int numAtts = attrs.getLength();
       std::string varName, varValue;
-      for (unsigned int i = 0; i < numAtts; i++)
+      for (unsigned int i = 0; i < numAtts; ++i)
 	{
 	  std::string myattname = StrX(attrs.getLocalName(i)).stringForm();
 	  std::string myvalue = StrX(attrs.getValue(i)).stringForm();

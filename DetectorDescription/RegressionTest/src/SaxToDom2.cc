@@ -37,7 +37,7 @@ void SaxToDom2::startElement( const XMLCh* const uri,
   StrX strx(name); // element-name
   AttList2 al;
 
-  for (unsigned int i = 0; i < atts.getLength(); i++)
+  for (unsigned int i = 0; i < atts.getLength(); ++i)
     {
       const XMLCh* aname = atts.getLocalName(i);
       const XMLCh* value = atts.getValue(i);

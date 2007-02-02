@@ -58,7 +58,7 @@ void DDLPolyGenerator::processElement (const std::string& name, const std::strin
 
   // get z and r
   std::vector<double> z, r;
-  for (size_t i = 0; i < myRZPoints->size(); i++)
+  for (size_t i = 0; i < myRZPoints->size(); ++i)
     {
       atts = myRZPoints->getAttributeSet(i);
       z.push_back(ev.eval(nmspace, atts.find("z")->second));
@@ -75,7 +75,7 @@ void DDLPolyGenerator::processElement (const std::string& name, const std::strin
        // it better be there!
        std::vector<double> rMax;
 
-       for (size_t i = 0; i < myZSection->size(); i++)
+       for (size_t i = 0; i < myZSection->size(); ++i)
 	 {
 	   atts = myZSection->getAttributeSet(i);
 	   z.push_back(ev.eval(nmspace, atts.find("z")->second));

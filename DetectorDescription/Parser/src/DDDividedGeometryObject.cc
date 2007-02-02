@@ -131,7 +131,7 @@ const std::string& DDDividedGeometryObject::getType() const
 void DDDividedGeometryObject::execute()
 {
   DCOUT_V('D', "about to make " <<  compNDiv_ << " divisions." << std::endl);
-  for (int i = theVoluFirstCopyNo_; i < compNDiv_+theVoluFirstCopyNo_; i++)
+  for (int i = theVoluFirstCopyNo_; i < compNDiv_+theVoluFirstCopyNo_; ++i)
     {
       DCOUT_V('D',  "Parent Volume: " << div_.parent() << std::endl);
       DCOUT_V('D',  "Child Volume: " << makeDDLogicalPart(i) << std::endl);

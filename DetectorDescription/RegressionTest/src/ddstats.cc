@@ -31,12 +31,12 @@ void ddstats(std::ostream & os)
   const graph_type & g = cpv.graph();
   
   DDExpandedView exv(cpv);
-  while (exv.next()) noExpNodes++;
+  while (exv.next()) ++noExpNodes;
 
   // iterate over the adjacency-list
   graph_type::const_adj_iterator it = g.begin();
-  for ( ; it != g.end(); ++it) {
-    noNodes++;
+  for(; it != g.end(); ++it) {
+    ++noNodes;
     noEdges += it->size();
   } 
  
@@ -45,7 +45,7 @@ void ddstats(std::ostream & os)
   lpst_type::iterator lpstit = lpst.begin();
   for(; lpstit != lpst.end(); ++lpstit) {
     noCLog += lpstit->first.name().size();
-    noLog++;
+    ++noLog;
   }
   
   typedef DDMaterial::StoreT::value_type mast_type;
@@ -53,7 +53,7 @@ void ddstats(std::ostream & os)
   mast_type::iterator mastit = mast.begin();
   for(; mastit != mast.end(); ++mastit) {
     noCMat += mastit->first.name().size();
-    noMat++;
+    ++noMat;
   }
 
   typedef DDSolid::StoreT::value_type sost_type;
@@ -63,7 +63,7 @@ void ddstats(std::ostream & os)
     noCSol += sostit->first.name().size();
     DDSolid s(sostit->first);
     noSolidP += s.parameters().size(); 
-    noSol++;
+    ++noSol;
   }
   
   typedef DDRotation::StoreT::value_type rost_type;
@@ -71,7 +71,7 @@ void ddstats(std::ostream & os)
   rost_type::iterator rostit = rost.begin();
   for(; rostit != rost.end(); ++rostit) {
     noCRot += rostit->first.name().size();
-    noRot++;
+    ++noRot;
   }
  
   // derived quantities

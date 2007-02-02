@@ -60,7 +60,7 @@ void DDLRotationSequence::processElement (const std::string& name, const std::st
 
   HepRotation R;
   try {
-    for (size_t i = 0; i < myRotations->size(); i++)
+    for (size_t i = 0; i < myRotations->size(); ++i)
       {
 	atts = myRotations->getAttributeSet(i);
 	R = myRotations->processOne(R, atts.find("axis")->second, atts.find("angle")->second);

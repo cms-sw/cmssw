@@ -65,7 +65,7 @@ void DDLDivision::processElement (const std::string& type, const std::string& nm
   size_t ax = 0;
   while (DDAxesNames::name(DDAxes(ax)) != atts.find("axis")->second &&
 	 DDAxesNames::name(DDAxes(ax)) != "undefined")
-    ax++;
+    ++ax;
 
   DDDivision div;
   try {

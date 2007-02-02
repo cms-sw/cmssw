@@ -135,7 +135,7 @@ DDLogicalPart DDDividedPolyconeRho::makeDDLogicalPart( const int copyNo ) const
   std::vector<double> newrMaxVec;
 
   double width = 0.;
-  for( int ii = 0; ii < nZplanes; ii++ )
+  for(int ii = 0; ii < nZplanes; ++ii)
     {
       width = calculateWidth( localrMaxVec[ii]
 			      - localrMinVec[ii], compNDiv_, div_.offset() );

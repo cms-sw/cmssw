@@ -106,7 +106,7 @@ void DDLSAX2FileHandler::startElement(const XMLCh* const uri
   unsigned int numAtts = attrs.getLength();
   std::vector<std::string> attrNames, attrValues;
 
-  for (unsigned int i = 0; i < numAtts; i++)
+  for (unsigned int i = 0; i < numAtts; ++i)
     {
       //***      char * buf = XMLString::transcode(attrs.getLocalName(i));
       //***      std::string myattname(buf); delete[] buf;
@@ -199,7 +199,7 @@ void DDLSAX2FileHandler::characters(  const   XMLCh* const    chars
 //     }
 
   std::string inString = "";
-  for (unsigned int i = 0; i < length; i++)
+  for (unsigned int i = 0; i < length; ++i)
     {
       char s = chars[i];
       inString = inString + s;
@@ -223,7 +223,7 @@ std::string DDLSAX2FileHandler::extractFileName(std::string fullname)
   std::string ret = "";
   size_t startfrom = fullname.size() - 1;
   while (startfrom > 0 && fullname[startfrom] != '/')
-    startfrom--;
+    --startfrom;
   if (fullname[startfrom] == '/') startfrom = startfrom + 1;
   ret = fullname.substr(startfrom, fullname.size() - startfrom);
   return ret;
@@ -232,7 +232,7 @@ std::string DDLSAX2FileHandler::extractFileName(std::string fullname)
 void DDLSAX2FileHandler::dumpElementTypeCounter()
 {
   for (std::map<std::string, int>::const_iterator it = elementTypeCounter_.begin();
-       it != elementTypeCounter_.end(); it++)
+       it != elementTypeCounter_.end(); ++it)
     std::cout << "Element: " << it->first << " (" << it->second << ")" << std::endl;
 }
 

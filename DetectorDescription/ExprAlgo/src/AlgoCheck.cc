@@ -119,14 +119,14 @@ bool AlgoCheck::checkBounds(parE_type::iterator pit,
 	     +  d2s(pit->second[i]) + std::string(" < min; min=")
 	     +  d2s(cit->second.min_) + std::string(" max=") +  d2s(cit->second.max_)
 	     +  "\n";
-         c++; // error count
+         ++c; // error count
        }
        if (pit->second[i] > cit->second.max_) {
          err += "\tpar. " + cit->first + std::string("[") + d2s(i) + std::string("]=")
 	     +  d2s(pit->second[i]) + std::string(" > max; min=")
 	     +  d2s(cit->second.min_) + std::string(" max=") +  d2s(cit->second.max_)
 	     +  "\n";
-         c++; // error count       
+         ++c; // error count       
        }
      }
      if (c)

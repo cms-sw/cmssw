@@ -40,7 +40,7 @@ DDDividedBoxX::DDDividedBoxX( const DDDivision & div) :
   // since DDBox is special, I will not make the solid and logical
   // part but once.  We'll see how bad the others go.
   // ihatethisihatethisihatethis
-  //    for (int i = 0; i < compNDiv_; i++)
+  //    for (int i = 0; i < compNDiv_; ++i)
   //      {
   //         DDpos(makeDDLogicalPart(i)  // child logical part
   //  	    , div_.parent()        // parent logical part
@@ -128,7 +128,7 @@ DDDividedBoxY::DDDividedBoxY( const DDDivision & div) :
   // since DDBox is special, I will not make the solid and logical
   // part but once.  We'll see how bad the others go.
   // ihatethisihatethisihatethis
-  //    for (int i = 0; i < compNDiv_; i++)
+  //    for (int i = 0; i < compNDiv_; ++i)
   //      {
   //         DDpos(makeDDLogicalPart(i)  // child logical part
   //  	    , div_.parent()        // parent logical part
@@ -215,7 +215,7 @@ DDDividedBoxZ::DDDividedBoxZ( const DDDivision & div) :
   // since DDBox is special, I will not make the solid and logical
   // part but once.  We'll see how bad the others go.
   // ihatethisihatethisihatethis
-  //    for (int i = 0; i < compNDiv_; i++)
+  //    for (int i = 0; i < compNDiv_; ++i)
   //      {
   //         DDpos(makeDDLogicalPart(i)  // child logical part
   //  	    , div_.parent()        // parent logical part

@@ -178,7 +178,7 @@ std::string DDLBooleanSolid::dumpBooleanSolid (const std::string& name, const st
   DDXMLElement* myrRotation  = DDLElementRegistry::getElement("rRotation"); // get rRotation child
   if (myrSolid->size() > 0)
     {
-      for (size_t i = 0; i < myrSolid->size(); i++)
+      for (size_t i = 0; i < myrSolid->size(); ++i)
 	{
 	  atts = myrSolid->getAttributeSet(i);
 	  s+="<rSolid name=\"" + atts.find("name")->second + "\"/>\n";

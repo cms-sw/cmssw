@@ -60,7 +60,7 @@ void DDXMLElement::loadAttributes (const std::string& elemName
   DDXMLAttribute & tAttributes =  attributes_.back();
   
   // adds attributes
-  for (size_t i = 0; i < names.size(); i++)
+  for (size_t i = 0; i < names.size(); ++i)
     {
       //   tAttributes[ names[i] ] = values[i];
       tAttributes[ names[i] ] = values[i];
@@ -264,10 +264,10 @@ void DDXMLElement::stream(std::ostream & os) const
 {
   os << "Output of current element attributes:" << std::endl;
   for (std::vector<DDXMLAttribute>::const_iterator itv = attributes_.begin();
-       itv != attributes_.end(); itv++)
+       itv != attributes_.end(); ++itv)
     {
       for (DDXMLAttribute::const_iterator it = itv->begin(); 
-	   it != itv->end(); it++)
+	   it != itv->end(); ++it)
 	os << it->first <<  " = " << it->second << "\t";
       os << std::endl;
     }
@@ -276,7 +276,7 @@ void DDXMLElement::stream(std::ostream & os) const
 void DDXMLElement::appendAttributes(std::vector<std::string> & tv
 					      , const std::string& name)
 {
-  for (size_t i = tv.size(); i < attributes_.size(); i++)
+  for (size_t i = tv.size(); i < attributes_.size(); ++i)
     {
       DDXMLAttribute::const_iterator itnv = attributes_[i].find(name);
       if (itnv != attributes_[i].end())

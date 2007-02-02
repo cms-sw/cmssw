@@ -16,11 +16,11 @@ void DDExpandedViewDump(ostream & os, DDExpandedView & ex, size_t skip, size_t s
   int  count(0);
   bool dotrans(true);
   if (getenv("DDNOTRANS")) dotrans=false;
-  skip++;
+  ++skip;
   while(go) {
     if ((count % 5000)==0) cout << count << ' ' << flush;
     if (sto > 0) if ((count % sto)==0) break;
-    count++;
+    ++count;
     if((count % skip) ==0){
       stringstream s;
       s.setf(ios_base::fixed,ios_base::floatfield);

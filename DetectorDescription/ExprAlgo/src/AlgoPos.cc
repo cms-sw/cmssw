@@ -97,7 +97,7 @@ int AlgoPos::copyno() const
 void AlgoPos::next()
 {
   // increase the invocation count of the algorithm
-  count_++;
+  ++count_;
   
   
   // iterate to the next position in the range [start_,end_,incr_]

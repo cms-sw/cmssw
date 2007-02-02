@@ -61,7 +61,7 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
 					, const Attributes& attrs)
 {
 
-  elementCount_++;
+  ++elementCount_;
   attrCount_ += attrs.getLength();
 
   std::string myelemname = StrX(qname).stringForm();
@@ -81,7 +81,7 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
 	    name=myvalue;
 	  if (myattname == "url")
 	    url=myvalue;
-          i++;
+          ++i;
 	}
       DCOUT('P', "file name = " << name << " and url = " << url);
       files_.push_back(name);
@@ -99,7 +99,7 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
 	    fileName = myvalue;
 	  if (myattname == "logicalPartName")
 	    logicalPartName = myvalue;
-	  i++;
+	  ++i;
 	}
 
       fileName = fileName.substr(0, fileName.find("."));
@@ -120,7 +120,7 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
 	    schemaLocation_ = myvalue;
           else if (myattname == "validation")
             doValidation_ = (myvalue == "true" ? true : false);
-	  i++;
+	  ++i;
 	}
     }
   DCOUT_V('P', "DDLSAX2ConfigHandler::startElement" << myelemname << " completed...");

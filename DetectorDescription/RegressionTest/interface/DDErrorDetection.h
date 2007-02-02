@@ -30,7 +30,7 @@ typedef std::map<std::string, std::set<DDName> > ns_nm_type;
 template<class T> std::ostream & operator<<(std::ostream & o, const set<T> & v)
 {
   typename set<T>::const_iterator it(v.begin()), ed(v.end());
-  for ( ; it != ed; ++it) {
+  for(; it != ed; ++it) {
     o << it->ddname() << ' ';
   }
   return o;
@@ -40,7 +40,7 @@ template<class T> std::ostream & operator<<(std::ostream & o, const set<T> & v)
 ostream & operator<<(ostream & o, const set<DDLogicalPart> & v)
 {
   set<DDLogicalPart>::const_iterator it(v.begin()), ed(v.end());
-  for ( ; it != ed; ++it) {
+  for(; it != ed; ++it) {
     o << it->ddname().name() << ' ';
   }
   return o;

@@ -87,7 +87,7 @@ void DDLAlgoPosPart::processElement (const std::string& type, const std::string&
 
   // First for ParE type
   parE_type parE;
-  for (size_t i = 0; i < myParE->size(); i++)
+  for (size_t i = 0; i < myParE->size(); ++i)
     {
       atts = myParE->getAttributeSet(i);
       // find vname in ParE.
@@ -109,7 +109,7 @@ void DDLAlgoPosPart::processElement (const std::string& type, const std::string&
   // Now for ParS type
   parS_type parS;
 
-  for (size_t i = 0; i < myParS->size(); i++)
+  for (size_t i = 0; i < myParS->size(); ++i)
     {
       atts = myParS->getAttributeSet(i);
 
