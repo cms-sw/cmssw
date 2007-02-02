@@ -7,7 +7,7 @@
 <flags SEAL_PLUGIN_NAME="ValidationRPCRecHits">
 
 <export>
- <lib name=ValidationDTRecHits>
+ <lib name=ValidationRPCRecHits>
  <use name=FWCore/Framework>
  <use name=DataFormats/RPCRecHit>
  <use name=Geometry/Records>
