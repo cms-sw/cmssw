@@ -5,7 +5,6 @@
 <use name=SimG4Core/Notification>
 <use name=SimG4Core/Application>
 <use name=SimG4CMS/Calo>
-<use name=SimG4CMS/FP420>
 <use name=SimDataFormats/SimHitMaker>
 <use name=SimDataFormats/CaloHit>
 <use name=DataFormats/Common>
@@ -19,9 +18,12 @@
 <use name=clhep>
 
 <export>
- <lib name=SimRPCMSFP420>
- <lib name=SimG4CMS/FP420>
+ <lib name=SimRomanPotSimFP420>
  <lib name=SimG4Core/Application>
 </export>
 
-<Flags SEAL_PLUGIN_NAME="SimRPCMSFP420">
+<Flags SEAL_PLUGIN_NAME="SimRomanPotSimFP420">
+
+
+#<use name=SimG4CMS/FP420>
+# <lib name=SimG4CMS/FP420>
