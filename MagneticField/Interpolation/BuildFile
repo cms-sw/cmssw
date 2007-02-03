@@ -1,8 +1,10 @@
-
+<use name=DataFormats/GeometrySurface>
+<use name=DataFormats/GeometryVector>
+<use name=MagneticField/VolumeGeometry>
 <export>
- <lib name=MagneticFieldInterpolation>
- <use name=Geometry/Surface>
+  <use name=DataFormats/GeometrySurface>
+  <use name=DataFormats/GeometryVector>
+  <use name=MagneticField/VolumeGeometry>
+  <lib name=MagneticFieldInterpolation>
 </export>
-
-<use name=Geometry/Surface>
 

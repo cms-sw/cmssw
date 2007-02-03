@@ -1,11 +1,12 @@
-
+<use name=DataFormats/GeometrySurface>
+<use name=DataFormats/GeometryVector>
+<use name=DetectorDescription/Core>
+<use name=MagneticField/Engine>
 <export>
- <lib name=MagneticFieldVolumeGeometry>
- <use name=Utilities/General>
- <use name=DetectorDescription/Core>
- <use name=Geometry/Surface>
+  <use name=DataFormats/GeometrySurface>
+  <use name=DataFormats/GeometryVector>
+  <use name=DetectorDescription/Core>
+  <use name=MagneticField/Engine>
+  <lib name=MagneticFieldVolumeGeometry>
 </export>
 
-<use name=Utilities/General>
-<use name=DetectorDescription/Core>
-<use name=Geometry/Surface>

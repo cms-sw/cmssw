@@ -1,8 +1,8 @@
-
-<export>
- <lib name=MagneticFieldLayers>
- <use name=MagneticField/VolumeGeometry>
-</export>
-
+<use name=DataFormats/GeometryVector>
 <use name=MagneticField/VolumeGeometry>
+<use name=Utilities/BinningTools>
+<export>
+  <use name=DataFormats/GeometryVector>
+  <lib name=MagneticFieldLayers>
+</export>
 

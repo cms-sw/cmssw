@@ -1,15 +1,10 @@
-
-<export>
- <lib name=MagneticFieldUniformEngine>
- <use name=MagneticField/Engine>
-</export>
-
+<use name=DataFormats/GeometryVector>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
-<use name=FWCore/Framework>
-<use name=FWCore/Utilities>
-<use name=FWCore/Services>
-<use name=FWCore/ParameterSet>
+<export>
+  <lib name=MagneticFieldUniformEngine>
+</export>
 
 <flags SEAL_PLUGIN_NAME="MagneticFieldUniformEngine">
-

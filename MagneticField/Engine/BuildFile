@@ -1,6 +1,7 @@
+<use name=DataFormats/GeometryVector>
 <use name=FWCore/Framework>
-
 <export>
- <lib name=MagneticFieldEngine>
- <use name=FWCore/Framework>
+  <use name=DataFormats/GeometryVector>
+  <lib name=MagneticFieldEngine>
 </export>
+
