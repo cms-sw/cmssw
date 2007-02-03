@@ -74,7 +74,7 @@
 
 #include <boost/regex.hpp>
 
-#include "TrackingTools/TrackAssociator/interface/TrackAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TimerStack.h"
 
 #include "TH1F.h"
@@ -122,7 +122,7 @@ class TestIsoTracks : public edm::EDAnalyzer {
   double theRvert;
   reco::Vertex theRecVertex; 
   vector<reco::Track> theTrack; 
-   TrackAssociator trackAssociator_;
+   TrackDetectorAssociator trackAssociator_;
    bool useEcal_;
    bool useHcal_;
    bool useMuon_;
@@ -237,7 +237,7 @@ void TestIsoTracks::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 //	  << " GeV" << std::endl;
 				       
       // Get HCAL energy in more generic way
-      TrackAssociator::AssociatorParameters parameters;
+      TrackDetectorAssociator::AssociatorParameters parameters;
       parameters.useEcal = useEcal_ ;
       parameters.useHcal = useHcal_ ;
       parameters.useMuon = useMuon_ ;

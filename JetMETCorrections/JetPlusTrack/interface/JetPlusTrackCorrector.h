@@ -14,7 +14,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "TrackingTools/TrackAssociator/interface/TrackAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TimerStack.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -54,7 +54,7 @@ private:
   int theResponseAlgo;
   double theRcalo;
   double theRvert;  
-  TrackAssociator trackAssociator_;
+  TrackDetectorAssociator trackAssociator_;
   SingleParticleJetResponseTmp * theSingle;
   edm::InputTag mInputCaloTower;
   edm::InputTag mInputPVfCTF;

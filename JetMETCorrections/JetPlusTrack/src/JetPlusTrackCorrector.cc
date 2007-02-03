@@ -114,7 +114,7 @@ double JetPlusTrackCorrector::correction( const LorentzVector& fJet,
        
 //      setTracksFromPrimaryVertex(trPV);
 //==================================================================================      
-         TrackAssociator::AssociatorParameters parameters;
+         TrackDetectorAssociator::AssociatorParameters parameters;
          parameters.useEcal = true ;
          parameters.useHcal = false ;
          parameters.useMuon = false ;
@@ -154,7 +154,7 @@ double JetPlusTrackCorrector::correction( const LorentzVector& fJet,
 //
    
       const FreeTrajectoryState fts = trackAssociator_.getFreeTrajectoryState(theEventSetup, *track);
-      const TrackAssociator::AssociatorParameters myparameters = parameters;   
+      const TrackDetectorAssociator::AssociatorParameters myparameters = parameters;   
       std::cout << "Details:\n" <<std::endl;
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, theEventSetup,
 							  fts,

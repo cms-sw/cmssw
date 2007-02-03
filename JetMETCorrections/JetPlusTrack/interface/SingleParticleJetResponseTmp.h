@@ -15,13 +15,14 @@
       
 #include <vector>
 #include <cmath>
+
 class SingleParticleJetResponseTmp 
 {
 public:
   
   SingleParticleJetResponseTmp();
   ~SingleParticleJetResponseTmp(){};
-  vector<double> response(double echar, double energycluster, int algo = 0) const;
+  std::vector<double> response(double echar, double energycluster, int algo = 0) const;
 };
 #endif
 

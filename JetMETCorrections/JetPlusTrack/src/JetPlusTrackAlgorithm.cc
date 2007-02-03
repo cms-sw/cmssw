@@ -55,7 +55,7 @@ reco::CaloJet JetPlusTrackAlgorithm::applyCorrection( const reco::CaloJet& fJet,
 
          if(fabs(fJet.eta())>2.1) return fJet;
 	 
-         TrackAssociator::AssociatorParameters parameters;
+         TrackDetectorAssociator::AssociatorParameters parameters;
          parameters.useEcal = true ;
          parameters.useHcal = false ;
          parameters.useMuon = false ;

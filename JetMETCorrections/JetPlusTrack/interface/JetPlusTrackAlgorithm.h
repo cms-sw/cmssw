@@ -17,7 +17,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "TrackingTools/TrackAssociator/interface/TrackAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TimerStack.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
@@ -40,15 +40,15 @@ public:
 
   void setParameters(double, double, int, std::vector<std::string> );
   void setPrimaryVertex(const reco::Vertex & a){theRecVertex = a;}
-  void setTracksFromPrimaryVertex(vector<reco::Track> & a){theTrack = a;}
+  void setTracksFromPrimaryVertex(std::vector<reco::Track> & a){theTrack = a;}
    
 private:
   int theResponseAlgo;
   double theRcalo;
   double theRvert;
   reco::Vertex theRecVertex; 
-  vector<reco::Track> theTrack; 
-  TrackAssociator trackAssociator_;
+  std::vector<reco::Track> theTrack; 
+  TrackDetectorAssociator trackAssociator_;
   SingleParticleJetResponseTmp * theSingle;
 };
 
