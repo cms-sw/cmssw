@@ -1,19 +1,25 @@
 
 void SetUpHistograms(TH1F* h1, TH1F* h2, const char* xtitle, TLegend* leg = 0)
 {
-  float scale = -9999.9;
-  h1->Sumw2();
-  h2->Sumw2();
-  scale = 1.0/h1->Integral();
-  h1->Scale(scale);
-  scale = 1.0/h2->Integral();
-  h2->Scale(scale);
+  float scale1 = -9999.9;
+  float scale2 = -9999.9;
+
+  if ( h1->Integral() != 0 && h2->Integral() != 0 )
+    {
+      scale1 = 1.0/(float)h1->Integral();
+      scale2 = 1.0/(float)h2->Integral();
+      
+      h1->Sumw2();
+      h2->Sumw2();
+      h1->Scale(scale1);
+      h2->Scale(scale2);
   
-  h1->SetLineWidth(2);
-  h2->SetLineWidth(2);
-  h1->SetLineColor(2);
-  h2->SetLineColor(4);
-  h2->SetLineStyle(2);  
+      h1->SetLineWidth(2);
+      h2->SetLineWidth(2);
+      h1->SetLineColor(2);
+      h2->SetLineColor(4);
+      h2->SetLineStyle(2);  
+    }
 
   h1->SetXTitle(xtitle);
 
@@ -726,8 +732,8 @@ void SiPixelRecoCompare()
       can_Posy->SaveAs("mePosy_compare.gif");
     }
   
-  double lpull = -0.030;
-  double hpull =  0.030;
+  double lpull = -1.0;
+  double hpull =  1.0;
 
   if (   1   ) 
     {
@@ -1479,8 +1485,8 @@ if (1)
     can_mePully->SaveAs("mePully_compare.gif");
   }
 
- double ymin = 0.0005;
- double ymax = 0.0015;
+ double xmin = 0.0000;
+ double xmax = 0.0020;
 
 if (1) 
   {
@@ -1521,7 +1527,7 @@ if (1)
     can_ResXvsAlpha->cd(1);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsAlphaBarrelFlippedLadders, newmeResXvsAlphaBarrelFlippedLadders, 
-			   "barrel, non-flipped ladders, |alpha| (deg)", "<|x residual|> (cm)", ymin, ymax, leg20 );
+			   "barrel, non-flipped ladders, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax, leg20 );
     meResXvsAlphaBarrelFlippedLadders->Draw("e");
     newmeResXvsAlphaBarrelFlippedLadders->Draw("Samee"); 
     myPV->PVCompute(meResXvsAlphaBarrelFlippedLadders, newmeResXvsAlphaBarrelFlippedLadders, te );
@@ -1531,9 +1537,9 @@ if (1)
     can_ResXvsAlpha->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsAlphaZmPanel1, newmeResXvsAlphaZmPanel1, 
-			   "panel1, z<0, |alpha| (deg)", "<|x residual|> (cm)", ymin, ymax );
-    meResXvsAlphaZmPanel1->SetMinimum(0.0005);
-    meResXvsAlphaZmPanel1->SetMaximum(0.0015);
+			   "panel1, z<0, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax );
+    meResXvsAlphaZmPanel1->SetMinimum(xmin);
+    meResXvsAlphaZmPanel1->SetMaximum(xmax);
     meResXvsAlphaZmPanel1->Draw("e");
     newmeResXvsAlphaZmPanel1->Draw("samee"); 
     myPV->PVCompute(meResXvsAlphaZmPanel1, newmeResXvsAlphaZmPanel1, te );
@@ -1542,9 +1548,9 @@ if (1)
     can_ResXvsAlpha->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsAlphaZmPanel2, newmeResXvsAlphaZmPanel2, 
-			   "panel2, z<0, |alpha| (deg)", "<|x residual|> (cm)", ymin, ymax );
-    meResXvsAlphaZmPanel2->SetMinimum(0.0005);
-    meResXvsAlphaZmPanel2->SetMaximum(0.0015);
+			   "panel2, z<0, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax );
+    meResXvsAlphaZmPanel2->SetMinimum(xmin);
+    meResXvsAlphaZmPanel2->SetMaximum(xmax);
     meResXvsAlphaZmPanel2->Draw("e");
     newmeResXvsAlphaZmPanel2->Draw("samee"); 
     myPV->PVCompute(meResXvsAlphaZmPanel2, newmeResXvsAlphaZmPanel2, te );
@@ -1553,9 +1559,9 @@ if (1)
     can_ResXvsAlpha->cd(4);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsAlphaBarrelNonFlippedLadders, newmeResXvsAlphaBarrelNonFlippedLadders, 
-			   "barrel, flipped ladders, |alpha| (deg)", "<|x residual|> (cm)", ymin, ymax );
-    meResXvsAlphaBarrelNonFlippedLadders->SetMinimum(0.0005);
-    meResXvsAlphaBarrelNonFlippedLadders->SetMaximum(0.0015);
+			   "barrel, flipped ladders, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax );
+    meResXvsAlphaBarrelNonFlippedLadders->SetMinimum(xmin);
+    meResXvsAlphaBarrelNonFlippedLadders->SetMaximum(xmax);
     meResXvsAlphaBarrelNonFlippedLadders->Draw("e");
     newmeResXvsAlphaBarrelNonFlippedLadders->Draw("Samee"); 
     myPV->PVCompute(meResXvsAlphaBarrelNonFlippedLadders, newmeResXvsAlphaBarrelNonFlippedLadders, te );
@@ -1564,9 +1570,9 @@ if (1)
     can_ResXvsAlpha->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsAlphaZpPanel1, newmeResXvsAlphaZpPanel1, 
-			   "panel1, z>0, |alpha| (deg)", "<|x residual|> (cm)", ymin, ymax );
-    meResXvsAlphaZpPanel1->SetMinimum(0.0005);
-    meResXvsAlphaZpPanel1->SetMaximum(0.0015);
+			   "panel1, z>0, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax );
+    meResXvsAlphaZpPanel1->SetMinimum(xmin);
+    meResXvsAlphaZpPanel1->SetMaximum(xmax);
     meResXvsAlphaZpPanel1->Draw("e");
     newmeResXvsAlphaZpPanel1->Draw("samee"); 
     myPV->PVCompute(meResXvsAlphaZpPanel1, newmeResXvsAlphaZpPanel1, te );
@@ -1575,9 +1581,9 @@ if (1)
     can_ResXvsAlpha->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsAlphaZpPanel2, newmeResXvsAlphaZpPanel2,
-			   "panel2, z>0, |alpha| (deg)", "<|x residual|> (cm)", ymin, ymax );
-    meResXvsAlphaZpPanel2->SetMinimum(0.0005);
-    meResXvsAlphaZpPanel2->SetMaximum(0.0015);
+			   "panel2, z>0, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax );
+    meResXvsAlphaZpPanel2->SetMinimum(xmin);
+    meResXvsAlphaZpPanel2->SetMaximum(xmax);
     meResXvsAlphaZpPanel2->Draw("e");
     newmeResXvsAlphaZpPanel2->Draw("samee"); 
     myPV->PVCompute(meResXvsAlphaZpPanel2, newmeResXvsAlphaZpPanel2, te );
@@ -1620,7 +1626,7 @@ if (1)
     can_ResXvsBeta->cd(1);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsBetaBarrel, newmeResXvsBetaBarrel, 
-			   "barrel, |beta| (deg)", "<|x residual|> (cm)", ymin, ymax, leg21 );
+			   "barrel, |beta| (deg)", "<|x residual|> (cm)", xmin, xmax, leg21 );
     meResXvsBetaBarrel->Draw("e");
     newmeResXvsBetaBarrel->Draw("Samee"); 
     myPV->PVCompute(meResXvsBetaBarrel, newmeResXvsBetaBarrel, te );
@@ -1630,7 +1636,7 @@ if (1)
     can_ResXvsBeta->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsBetaZmPanel1, newmeResXvsBetaZmPanel1, 
-			   "panel1, z<0, |beta| (deg)", "<|x residual|> (cm)", ymin, ymax );
+			   "panel1, z<0, |beta| (deg)", "<|x residual|> (cm)", xmin, xmax );
     meResXvsBetaZmPanel1->Draw("e");
     newmeResXvsBetaZmPanel1->Draw("samee"); 
     myPV->PVCompute(meResXvsBetaZmPanel1, newmeResXvsBetaZmPanel1, te );
@@ -1639,7 +1645,7 @@ if (1)
     can_ResXvsBeta->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsBetaZmPanel2, newmeResXvsBetaZmPanel2, 
-			   "panel2, z<0, |beta| (deg)", "<|x residual|> (cm)", ymin, ymax ); 
+			   "panel2, z<0, |beta| (deg)", "<|x residual|> (cm)", xmin, xmax ); 
     meResXvsBetaZmPanel2->Draw("e");
     newmeResXvsBetaZmPanel2->Draw("samee"); 
     myPV->PVCompute(meResXvsBetaZmPanel2, newmeResXvsBetaZmPanel2, te );
@@ -1647,7 +1653,7 @@ if (1)
 
     can_ResXvsBeta->cd(5);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResXvsBetaZpPanel1, newmeResXvsBetaZpPanel1, "panel1, z>0, |beta| (deg)", "<|x residual|> (cm)", ymin, ymax );
+    SetUpProfileHistograms(meResXvsBetaZpPanel1, newmeResXvsBetaZpPanel1, "panel1, z>0, |beta| (deg)", "<|x residual|> (cm)", xmin, xmax );
     meResXvsBetaZpPanel1->Draw("e");
     newmeResXvsBetaZpPanel1->Draw("samee"); 
     myPV->PVCompute(meResXvsBetaZpPanel1, newmeResXvsBetaZpPanel1, te );
@@ -1655,7 +1661,7 @@ if (1)
 
     can_ResXvsBeta->cd(6);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResXvsBetaZpPanel2, newmeResXvsBetaZpPanel2, "panel2, z>0, |beta| (deg)", "<|x residual|> (cm)", ymin, ymax );
+    SetUpProfileHistograms(meResXvsBetaZpPanel2, newmeResXvsBetaZpPanel2, "panel2, z>0, |beta| (deg)", "<|x residual|> (cm)", xmin, xmax );
     meResXvsBetaZpPanel2->Draw("e");
     newmeResXvsBetaZpPanel2->Draw("samee"); 
     myPV->PVCompute(meResXvsBetaZpPanel2, newmeResXvsBetaZpPanel2, te );
@@ -2132,17 +2138,23 @@ if (1)
  leg30->AddEntry(newmeChargeZmPanel2DiskPlaq[0][0], "new release", "l");
  leg30->Draw();
 
-  TCanvas* can_pv = new TCanvas("can_pv", "can_mepv", 1200, 500);
-  gPad->SetLogy();
-  h_pv->SetXTitle("histogram number");
-  h_pv->SetYTitle("Probability");
-  h_pv->SetTitleOffset(0.7, "Y");
-  h_pv->Draw();
+ can_meChargeZpPanel2DiskPlaq->SaveAs("meChargeBarrelZpPanel2DiskPlaq_compare.eps");
+ can_meChargeZpPanel2DiskPlaq->SaveAs("meChargeBarrelZpPanel2DiskPlaq_compare.gif");
+ 
+ TCanvas* can_pv = new TCanvas("can_pv", "can_mepv", 1200, 500);
+ gPad->SetLogy();
+ h_pv->SetXTitle("histogram number");
+ h_pv->SetYTitle("Probability");
+ h_pv->SetTitleOffset(0.7, "Y");
+ h_pv->Draw();
 
-  if ( n_bins != bin )
-    cout << "   We have " << bin << " histograms but " << n_bins << " bins in the probability summary plots. " << endl 
-	 << "   Please update n_bins to equal " << bin << "." << " Thank you !" << endl; 
-  
-  delete myPV;
+ can_pv->SaveAs("summary_pv.eps");
+ can_pv->SaveAs("summary_pv.gif");
+
+ if ( n_bins != bin )
+   cout << "   We have " << bin << " histograms but " << n_bins << " bins in the probability summary plots. " << endl 
+	<< "   Please update n_bins to equal " << bin << "." << " Thank you !" << endl; 
+ 
+ delete myPV;
 
 }
