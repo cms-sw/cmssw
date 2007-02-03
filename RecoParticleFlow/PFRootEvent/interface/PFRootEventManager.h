@@ -415,6 +415,9 @@ class PFRootEventManager {
   /// clusters. If off, clusters from tree are used.
   bool   clusteringIsOn_;
 
+  /// clustering mode. 
+  int    clusteringMode_;
+
   /// debug printouts for clustering on/off
   bool   clusteringDebug_;
 
@@ -434,7 +437,10 @@ class PFRootEventManager {
   int    nNeighboursEcal_;
 
   /// ecal number of crystals for position calculation
-  int    nCrystalsPosCalcEcal_;
+  int    posCalcNCrystalsEcal_;
+
+  /// ecal p1 for position calculation
+  double posCalcP1Ecal_;
 
   /// ecal shower sigma 
   double showerSigmaEcal_;

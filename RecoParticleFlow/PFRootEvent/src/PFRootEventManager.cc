@@ -93,9 +93,13 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
 
   clusteringIsOn_ = true;
   options_->GetOpt("clustering", "on/off", clusteringIsOn_);
+
+  clusteringMode_ = 0;
+  options_->GetOpt("clustering", "mode", clusteringMode_);  
   
   clusteringDebug_ = false;
   options_->GetOpt("clustering", "debug", clusteringDebug_);
+
 
 
   // input root file --------------------------------------------
@@ -286,8 +290,8 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   displayClusterLines_ = false;
   options_->GetOpt("display", "cluster_lines", displayClusterLines_);
   
-  if(displayClusterLines_) 
-    cout<<"will display cluster lines "<<endl;
+//   if(displayClusterLines_) 
+//     cout<<"will display cluster lines "<<endl;
 
   viewSizeEtaPhi_.clear();
   options_->GetOpt("display", "viewsize_etaphi", viewSizeEtaPhi_);
@@ -361,9 +365,14 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   nNeighboursEcal_ = 4;
   options_->GetOpt("clustering", "neighbours_Ecal", nNeighboursEcal_);
   
-  nCrystalsPosCalcEcal_ = -1;
-  options_->GetOpt("clustering", "nCrystals_PosCalc_Ecal", 
-		   nCrystalsPosCalcEcal_);
+  posCalcNCrystalsEcal_ = -1;
+  options_->GetOpt("clustering", "posCalc_nCrystals_Ecal", 
+		   posCalcNCrystalsEcal_);
+
+  posCalcP1Ecal_ = -1;
+  options_->GetOpt("clustering", "posCalc_p1_Ecal", 
+		   posCalcP1Ecal_);
+  
 
   int dcormode = 0;
   options_->GetOpt("clustering", "depthCor_Mode", dcormode);
@@ -845,6 +854,7 @@ void PFRootEventManager::clustering() {
 
   PFClusterAlgo clusterAlgoECAL;
   clusterAlgoECAL.enableDebugging( clusteringDebug_ ); 
+  clusterAlgoECAL.setMode( clusteringMode_ ); 
 
   clusterAlgoECAL.setThreshEcalBarrel( threshEcalBarrel_ );
   clusterAlgoECAL.setThreshSeedEcalBarrel( threshSeedEcalBarrel_ );
@@ -855,9 +865,11 @@ void PFRootEventManager::clustering() {
   clusterAlgoECAL.setNNeighboursEcal( nNeighboursEcal_  );
   clusterAlgoECAL.setShowerSigmaEcal( showerSigmaEcal_  );
 
-  clusterAlgoECAL.SetNCrystalPosCalcEcal( nCrystalsPosCalcEcal_ );
+  clusterAlgoECAL.setPosCalcNCrystalsEcal( posCalcNCrystalsEcal_ );
+  clusterAlgoECAL.setPosCalcP1Ecal( posCalcP1Ecal_ );
+  
 
-  // cout<<clusterAlgoECAL<<endl;
+  cout<<clusterAlgoECAL<<endl;
 
   for(unsigned i=0; i<rechitsECAL_.size(); i++) {
     rechits.insert( make_pair(rechitsECAL_[i].detId(), &rechitsECAL_[i] ) );
@@ -1166,9 +1178,9 @@ void PFRootEventManager::displayView(unsigned viewType) {
   // display reconstructed objects
   displayView_[viewType]->cd();
   displayRecHits(viewType, phi0);
+  displayClusters(viewType, phi0);
   if(displayRecTracks_) displayRecTracks(viewType, phi0);
   if(displayTrueParticles_) displayTrueParticles(viewType, phi0);
-  displayClusters(viewType, phi0);
 }
 
 
@@ -1529,7 +1541,7 @@ void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
 
 void PFRootEventManager::displayClusterLines(const reco::PFCluster& cluster) {
   
-  cout<<"displayClusterLines"<<endl;
+  // cout<<"displayClusterLines"<<endl;
   
   const math::XYZPoint& xyzPos = cluster.positionXYZ();
   double eta = xyzPos.Eta(); 
@@ -1544,7 +1556,7 @@ void PFRootEventManager::displayClusterLines(const reco::PFCluster& cluster) {
   for(unsigned i=0; i<rhfracs.size(); i++) {
     double rheta = rhfracs[i].getRecHit()->positionXYZ().Eta();
     double rhphi = rhfracs[i].getRecHit()->positionXYZ().Phi();
-    cout<<" "<<eta<<" "<<phi<<" "<<rheta<<" "<<rhphi<<endl;
+    // cout<<" "<<eta<<" "<<phi<<" "<<rheta<<" "<<rhphi<<endl;
 
     l.DrawLine(eta,phi,rheta,rhphi);
   }
