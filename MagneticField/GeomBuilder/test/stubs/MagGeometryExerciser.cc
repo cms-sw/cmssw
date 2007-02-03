@@ -3,15 +3,15 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/27 15:13:11 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/12/12 18:36:24 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
 #include "MagneticField/GeomBuilder/test/stubs/MagGeometryExerciser.h"
 #include "MagneticField/VolumeBasedEngine/interface/MagGeometry.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
-#include "Geometry/Vector/interface/Pi.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 #include "Utilities/Timing/interface/TimingReport.h"
 
 #include <CLHEP/Random/RandFlat.h>
@@ -65,7 +65,7 @@ void MagGeometryExerciser::testFindVolume(int ntry){
   }
 
   cout << "Random points:" << endl;
-  for (int i = 0; i<ntry; i++) {
+  for (int i = 0; i<ntry; ++i) {
     float R = RandFlat::shoot(minR,maxR);
     float Z = RandFlat::shoot(minZ,maxZ);
     float phi = RandFlat::shoot(minPhi,maxPhi);
@@ -173,7 +173,7 @@ void MagGeometryExerciser::testInside(int ntry) {
   }
   
   cout << "Random points:" << endl;
-  for (int i = 0; i<ntry; i++) {
+  for (int i = 0; i<ntry; ++i) {
     float R = RandFlat::shoot(minR,maxR);
     float Z = RandFlat::shoot(minZ,maxZ);
     float phi = RandFlat::shoot(minPhi,maxPhi);
@@ -205,7 +205,7 @@ void MagGeometryExerciser::testInside(const GlobalPoint & gp){
 
   MagVolume6Faces * found = 0;
   for (vector<MagVolume6Faces*>::const_iterator v = vols.begin();
-       v!=vols.end(); v++){
+       v!=vols.end(); ++v){
     if ((*v)==0) {
       cout << endl << "ERROR: no magvlolume" << endl;
       continue;

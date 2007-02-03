@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/26 14:47:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/09/27 15:15:52 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -15,10 +15,10 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 
-#include "Geometry/Surface/interface/Plane.h"
-#include "Geometry/Surface/interface/Cylinder.h"
-#include "Geometry/Surface/interface/Cone.h"
-#include "Geometry/Vector/interface/CoordinateSets.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Cone.h"
+#include "DataFormats/GeometryVector/interface/CoordinateSets.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -30,6 +30,7 @@
 #include <string>
 #include <iterator>
 #include <iomanip>
+#include <iostream>
 
 using namespace SurfaceOrientation;
 using namespace std;
@@ -53,7 +54,7 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
 			fv.translation().z()/cm)),
     expand(expand2Pi)
 {
-  for (int i=0; i<6; i++) {
+  for (int i=0; i<6; ++i) {
     isAssigned[i] = false;
   }
 
@@ -77,8 +78,8 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
 
       
   { // Extract the name of associated field file.
-    vector<string> temp;
-    string pname = "mfield_";
+    std::vector<std::string> temp;
+    std::string pname = "mfield_";
     pname += fv.logicalPart().name().name();
     DDValue val(pname);
     DDsvalues_type sv(fv.mergedSpecifics());
@@ -109,8 +110,8 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
 	 << " Material= " << fv.logicalPart().material().name();
 
     cout << " Orientation of surfaces:";
-    string sideName[3] =  {"positiveSide", "negativeSide", "onSurface"};
-    for (int i=0; i<6; i++) {    
+    std::string sideName[3] =  {"positiveSide", "negativeSide", "onSurface"};
+    for (int i=0; i<6; ++i) {    
       cout << "  " << i << ":" << sideName[surfaces[i]->side(center_,0.3)];
     }
     cout << endl;
@@ -417,10 +418,10 @@ MagGeoBuilderFromDDD::volumeHandle::surface(int which_side) const {
 }
 
 
-vector<VolumeSide>
+std::vector<VolumeSide>
 MagGeoBuilderFromDDD::volumeHandle::sides(){
-  vector<VolumeSide> result;
-  for (int i=0; i<6; i++){
+  std::vector<VolumeSide> result;
+  for (int i=0; i<6; ++i){
     // If this is just a master volume out of wich a 2pi volume
     // should be built (e.g. central cylinder), skip the phi boundaries.
     if (expand && (i==phiplus || i==phiminus)) continue;
@@ -432,17 +433,17 @@ MagGeoBuilderFromDDD::volumeHandle::sides(){
 }
 
 void MagGeoBuilderFromDDD::volumeHandle::printUniqueNames(handles::const_iterator begin, handles::const_iterator end ) {
-    vector<std::string> names;
+    std::vector<std::string> names;
     for (handles::const_iterator i = begin; 
-	 i != end; i++){
+	 i != end; ++i){
       names.push_back((*i)->name);
     }
      
     sort(names.begin(),names.end());
-    vector<std::string>::iterator i = unique(names.begin(),names.end());
+    std::vector<std::string>::iterator i = unique(names.begin(),names.end());
     int nvols = int(i - names.begin());
     cout << nvols << " ";
-    copy(names.begin(), i, ostream_iterator<string>(cout, " "));
+    copy(names.begin(), i, ostream_iterator<std::string>(cout, " "));
      
     cout << endl;
 }

@@ -1,7 +1,7 @@
 #ifndef RectangularVolumeBounds_H
 #define RectangularVolumeBounds_H
 
-#include "Geometry/Surface/interface/RectangularPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
 typedef RectangularPlaneBounds RectangularVolumeBounds;
 

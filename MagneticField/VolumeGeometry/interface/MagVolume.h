@@ -1,7 +1,7 @@
 #ifndef MagVolume_H
 #define MagVolume_H
 
-#include "Geometry/Surface/interface/GloballyPositioned.h"
+#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "MagneticField/VolumeGeometry/interface/VolumeSide.h"
 #include "MagneticField/Engine/interface/MagneticField.h"

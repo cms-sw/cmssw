@@ -2,7 +2,7 @@
 #define MFGrid3D_H
 
 #include "MagneticField/Interpolation/interface/MFGrid.h"
-#include "Geometry/Vector/interface/Basic3DVector.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "MagneticField/Interpolation/interface/Grid1D.h"
 #include "MagneticField/Interpolation/interface/Grid3D.h"
 

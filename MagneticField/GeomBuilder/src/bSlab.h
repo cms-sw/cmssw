@@ -6,14 +6,14 @@
  *  In most cases, a slab is a single volume, but in few cases it consists
  *  in several volumes contiguous in phi.
  *
- *  $Date: 2005/09/06 15:48:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/09/27 15:15:52 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
 #include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
 #include "MagneticField/GeomBuilder/src/volumeHandle.h"
-#include "Geometry/Vector/interface/Pi.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 
 class MagBSlab;
 

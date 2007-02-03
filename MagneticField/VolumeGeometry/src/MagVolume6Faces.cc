@@ -32,7 +32,7 @@ bool MagVolume6Faces::inside( const GlobalPoint& gp, double tolerance) const
 #endif
 
   // check if the point is on the correct side of all delimiting surfaces
-  for (std::vector<VolumeSide>::const_iterator i=theFaces.begin(); i!=theFaces.end(); i++) {
+  for (std::vector<VolumeSide>::const_iterator i=theFaces.begin(); i!=theFaces.end(); ++i) {
     Surface::Side side = i->surface().side( gp, tolerance);
     if ( side != i->surfaceSide() && side != SurfaceOrientation::onSurface) return false;
   }

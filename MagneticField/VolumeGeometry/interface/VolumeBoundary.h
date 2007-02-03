@@ -2,7 +2,7 @@
 #define VolumeBoundary_H
 
 /* #include "Utilities/GenUtil/interface/ReferenceCountingPointer.h" */
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 class BoundarySurface;
 class BoundVolume;
 class Bounds;

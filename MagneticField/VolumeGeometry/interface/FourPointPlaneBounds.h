@@ -1,9 +1,9 @@
 #ifndef FourPointPlaneBounds_H
 #define FourPointPlaneBounds_H
 
-#include "Geometry/Surface/interface/Bounds.h"
-#include "Geometry/Vector/interface/LocalVector.h"
-#include "Geometry/Vector/interface/Vector2DBase.h"
+#include "DataFormats/GeometrySurface/interface/Bounds.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/Vector2DBase.h"
 
 typedef Vector2DBase< float, LocalTag>    Local2DVector;
 

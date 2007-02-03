@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/26 14:47:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/01/18 19:05:39 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -12,7 +12,7 @@
 #include "MagneticField/Layers/interface/MagBSector.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
-#include "Geometry/Vector/interface/Phi.h"
+#include "DataFormats/GeometryVector/interface/Phi.h"
 
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 
@@ -53,7 +53,7 @@ MagBLayer::~MagBLayer() {
   delete theSingleVolume;
 
   for (vector<MagBSector *>::const_iterator isec = theSectors.begin();
-       isec != theSectors.end(); isec++) {
+       isec != theSectors.end(); ++isec) {
     delete (*isec);
   }
 }

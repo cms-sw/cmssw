@@ -7,8 +7,8 @@
  * One instance is created for each DDVolume. The parameters of the 
  * boundary surfaces are calculated during construction.
  *
- *  $Date: 2005/09/26 14:47:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/09/27 15:15:52 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -16,7 +16,7 @@
 
 /* #include "DDD/DDCore/interface/DDSolid.h" */
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "Geometry/Surface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
 //#include "ClassReuse/SurfaceGeometry/interface/BoundPlane.h"
 #include "MagneticField/VolumeGeometry/interface/VolumeSide.h"
 

@@ -1,8 +1,8 @@
 /** \file
  *  A simple example of ho to access the magnetic field.
  *
- *  $Date: 2006/10/27 01:35:33 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/01/18 19:01:22 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
@@ -22,8 +22,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "Geometry/Vector/interface/Pi.h"
-#include "Geometry/Vector/interface/CoordinateSets.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
+#include "DataFormats/GeometryVector/interface/CoordinateSets.h"
 
 
 #include <iostream>

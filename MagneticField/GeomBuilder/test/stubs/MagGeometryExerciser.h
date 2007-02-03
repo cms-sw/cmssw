@@ -4,13 +4,13 @@
 /** \class MagGeometryExerciser
  *  No description available.
  *
- *  $Date: 2005/04/11 17:17:43 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/09/27 15:13:11 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
 #include <vector>
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 class MagGeometry;
 class MagVolume6Faces;

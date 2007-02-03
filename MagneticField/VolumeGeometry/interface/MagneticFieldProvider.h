@@ -1,10 +1,10 @@
 #ifndef MagneticFieldProvider_H
 #define MagneticFieldProvider_H
 
-#include "Geometry/Vector/interface/Point3DBase.h"
-#include "Geometry/Vector/interface/Vector3DBase.h"
-#include "Geometry/Vector/interface/LocalTag.h"
-#include "Geometry/Vector/interface/GlobalTag.h"
+#include "DataFormats/GeometryVector/interface/Point3DBase.h"
+#include "DataFormats/GeometryVector/interface/Vector3DBase.h"
+#include "DataFormats/GeometryVector/interface/LocalTag.h"
+#include "DataFormats/GeometryVector/interface/GlobalTag.h"
 
 template <class T>
 class MagneticFieldProvider {

@@ -1,8 +1,8 @@
 #ifndef VolumeSide_H
 #define VolumeSide_H
 
-#include "Geometry/Surface/interface/Surface.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 /** Class for delimiding surface of a volume.
  *  The additional information with respect to Surface that is needed

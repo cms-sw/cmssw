@@ -1,6 +1,6 @@
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 VolumeBasedMagneticField::VolumeBasedMagneticField( const edm::ParameterSet& config,
 						    std::vector<MagBLayer *> theBLayers,

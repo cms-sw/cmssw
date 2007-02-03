@@ -1,7 +1,7 @@
 // #include "Utilities/Configuration/interface/Architecture.h"
 
 #include "MagneticField/VolumeGeometry/interface/FourPointPlaneBounds.h"
-#include "Geometry/Surface/interface/GeomExceptions.h"
+#include "DataFormats/GeometrySurface/interface/GeomExceptions.h"
 #include <algorithm>
 #include <iostream>
 
@@ -13,7 +13,7 @@ FourPointPlaneBounds::FourPointPlaneBounds( const LocalPoint& a, const LocalPoin
     corners_[3] = Local2DPoint( d.x(), d.y());
 
 // check for convexity
-    for (int i=0; i<4; i++) {
+    for (int i=0; i<4; ++i) {
 	if (checkSide( i, corner(i+2)) *  checkSide( i, corner(i+3)) < 0) { // not on same side
 	    throw GeometryError("FourPointPlaneBounds: coners not in order or not convex");
 	}
@@ -32,7 +32,7 @@ double FourPointPlaneBounds::checkSide( int i, const Local2DPoint& lp) const {
 
 bool FourPointPlaneBounds::inside( const Local3DPoint& lp) const
 {
-    for (int i=0; i<4; i++) {
+    for (int i=0; i<4; ++i) {
 	if (checkSide(i,lp.x(),lp.y()) < 0) return false;
     }
     return true;

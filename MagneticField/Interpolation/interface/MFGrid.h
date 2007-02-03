@@ -1,7 +1,7 @@
 #ifndef MFGrid_H
 #define MFGrid_H
 
-#include "Geometry/Surface/interface/GloballyPositioned.h"
+#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
 
 #include <vector>

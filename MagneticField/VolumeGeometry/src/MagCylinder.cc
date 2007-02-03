@@ -3,7 +3,7 @@
 
 #include "MagneticField/VolumeGeometry/interface/MagCylinder.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
-#include "Geometry/Surface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
 
 #ifndef NO_DETAILED_TIMING
 // TOFIX

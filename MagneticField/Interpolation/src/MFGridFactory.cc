@@ -1,6 +1,6 @@
 #include "MagneticField/Interpolation/interface/MFGridFactory.h"
 #include "MagneticField/Interpolation/interface/binary_ifstream.h"
-#include "Geometry/Surface/interface/GloballyPositioned.h"
+#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 
 #include "MagneticField/Interpolation/interface/RectangularCartesianMFGrid.h"
 #include "MagneticField/Interpolation/interface/RectangularCylindricalMFGrid.h"

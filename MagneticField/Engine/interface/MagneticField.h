@@ -5,13 +5,13 @@
  *
  *  Base class for the different implementation of magnetic field engines.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/05/31 13:42:30 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
-#include "Geometry/Vector/interface/GlobalVector.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 class MagneticField
 {

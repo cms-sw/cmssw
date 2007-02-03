@@ -1,7 +1,7 @@
 #ifndef BoundVolume_H
 #define BoundVolume_H
 
-#include "Geometry/Surface/interface/GloballyPositioned.h"
+#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 
 class VolumeBoundary;
 class PropagationDirection;

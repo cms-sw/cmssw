@@ -5,12 +5,12 @@
  *  A sector of volumes in the endcap.
  *  One sector is composed of several layers (MagELayer)
  *
- *  $Date: 2004/06/22 17:05:13 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/09/06 15:49:29 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include <vector>
 

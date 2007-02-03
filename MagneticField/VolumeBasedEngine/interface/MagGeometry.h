@@ -4,12 +4,12 @@
 /** \class MagGeometry
  *  Entry point to the geometry of magnetic volumes.
  *
- *  $Date: 2005/10/26 18:33:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/20 10:15:10 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "MagneticField/Layers/src/MagBinFinders.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
