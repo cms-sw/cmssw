@@ -8,6 +8,7 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+using namespace std;
 
 KFFittingSmoother::~KFFittingSmoother() {
   delete theSmoother;
