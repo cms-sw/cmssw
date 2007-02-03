@@ -74,7 +74,7 @@ HistoCompare::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te )
   myte = te;
 
   //  Double_t mypv = myoldHisto1->Chi2Test(mynewHisto1,"OU");
-  mypv = myoldHisto1->Chi2Test(mynewHisto1,"OU");
+  mypv = myoldHisto1->Chi2Test(mynewHisto1, "OU");
   std::strstream buf;
   std::string value;
   buf<<"PV="<<mypv<<std::endl;
