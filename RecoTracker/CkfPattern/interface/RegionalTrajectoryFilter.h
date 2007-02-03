@@ -20,7 +20,7 @@ public:
     return thePtFilter(traj);
   }
   /// name method imposed by TrajectoryFilter
-  string name () const {return string("RegionalTrajectoryFilter");}
+  std::string name () const {return std::string("RegionalTrajectoryFilter");}
 
 private:
   const MinPtTrajectoryFilter thePtFilter;

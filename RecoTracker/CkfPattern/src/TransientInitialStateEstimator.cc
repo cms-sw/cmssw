@@ -18,6 +18,8 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
+using namespace std;
+
 TransientInitialStateEstimator::TransientInitialStateEstimator( const edm::EventSetup& es,
 								const edm::ParameterSet& conf)
 {

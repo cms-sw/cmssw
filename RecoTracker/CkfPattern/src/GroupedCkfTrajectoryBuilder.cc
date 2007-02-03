@@ -40,6 +40,8 @@
 
 #include <algorithm> 
 
+using namespace std;
+
 //#define DBG_GCTB
 
 
