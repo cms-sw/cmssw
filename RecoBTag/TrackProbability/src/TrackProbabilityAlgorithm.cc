@@ -72,9 +72,9 @@ if(jetTracks.product()->numberOfAssociations(jetTracks->key)!=0) //if there are 
  for(edm::RefVector<reco::TrackCollection>::const_iterator it=tracks.begin() ; it!=tracks.end(); it++ , i++ )
         {
              const Track & track = **it;
-             const TransientTrack * transientTrack = (m_transientTrackBuilder->build(&(**it)));
-             float distToAxis = SignedImpactParameter3D::distanceWithJetAxis(*transientTrack,direction,pv).second.value();
-             float dLen = SignedDecayLength3D::apply(*transientTrack,direction,pv).second.value(); 
+             const TransientTrack transientTrack = (m_transientTrackBuilder->build(&(**it)));
+             float distToAxis = SignedImpactParameter3D::distanceWithJetAxis(transientTrack,direction,pv).second.value();
+             float dLen = SignedDecayLength3D::apply(transientTrack,direction,pv).second.value(); 
      /*  cout << "cuts: pt,d0,nhit,LIP,Chi,MaxDistJetAx,MaxDL" << endl;
             cout << track.pt() << " > " << m_cutMinPt << endl;
               cout << track.d0() << " < " << m_cutMaxTIP << endl;
@@ -93,8 +93,8 @@ if(jetTracks.product()->numberOfAssociations(jetTracks->key)!=0) //if there are 
                  fabs(dLen) < m_cutMaxDecayLen
                 )
              {
-              pair<bool,double> prob3d =  m_probabilityEstimator->probability(0,sip3D.apply(*transientTrack,direction,pv).second.significance(),track,*(jetTracks->key),pv);
-              pair<bool,double> prob2d =  m_probabilityEstimator->probability(1,stip.apply(*transientTrack,direction,pv).second.significance(),track,*(jetTracks->key),pv);
+              pair<bool,double> prob3d =  m_probabilityEstimator->probability(0,sip3D.apply(transientTrack,direction,pv).second.significance(),track,*(jetTracks->key),pv);
+              pair<bool,double> prob2d =  m_probabilityEstimator->probability(1,stip.apply(transientTrack,direction,pv).second.significance(),track,*(jetTracks->key),pv);
               
               if(prob3d.first)
                { 
@@ -110,11 +110,7 @@ if(jetTracks.product()->numberOfAssociations(jetTracks->key)!=0) //if there are 
                  if(-log(p2d)> 5) p2d=exp(-5.0);  //FIXME:configurable!!
                  probability2DMap.insert( pair<double,int>(p2d,i));
                }
- 
-
              }
-	     delete transientTrack;
-           
          }
   }
  
