@@ -48,12 +48,12 @@ bool PixelSLinkDataInputSource::produce(edm::Event& event) {
     return false;
   }
 
-  std::cout<<"FED header:"<<std::hex<<data<<std::dec <<  std::endl;
+  //std::cout<<"FED header:"<<std::hex<<data<<std::dec <<  std::endl;
 
   
-  unsigned int fed_id=(data>>9)&&0xfff;
+  unsigned int fed_id=(data>>8)&0xfff;
   
-  std::cout << "FED id="<<fed_id<<std::endl;
+  //std::cout << "FED id="<<fed_id<<std::endl;
   
   buffer.push_back(data);
   
