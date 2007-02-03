@@ -1,6 +1,7 @@
 // include header for MagneticFieldGrid (regular + extension for some trapezoids)
 #include "MagneticField/Interpolation/interface/MagneticFieldGrid.h"
 
+using namespace std;
 
 void MagneticFieldGrid::load(const string& name){
   binary_ifstream inFile(name);
