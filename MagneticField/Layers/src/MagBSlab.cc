@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/06 15:49:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/01/18 19:05:39 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -24,15 +24,15 @@ MagBSlab::MagBSlab(vector<MagVolume*> volumes, double zMin) :
 
 MagBSlab::~MagBSlab(){  
   for (vector<MagVolume *>::const_iterator ivol = theVolumes.begin();
-       ivol != theVolumes.end(); ivol++) {
+       ivol != theVolumes.end(); ++ivol) {
     delete (*ivol);
   }
 }
 
 
 MagVolume* MagBSlab::findVolume(const GlobalPoint & gp, double tolerance) const {
-  for ( vector<MagVolume*>::const_iterator ivol = theVolumes.begin();
-	ivol != theVolumes.end(); ivol++) {
+  for(vector<MagVolume*>::const_iterator ivol = theVolumes.begin();
+	ivol != theVolumes.end(); ++ivol) {
     // FIXME : use a binfinder
     // TOFIX
     if (verbose::debugOut) cout << "        Trying volume "

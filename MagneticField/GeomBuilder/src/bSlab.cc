@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/26 14:47:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/09/27 15:15:52 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -36,7 +36,7 @@ MagGeoBuilderFromDDD::bSlab::bSlab(handles::const_iterator begin, handles::const
     handles::const_iterator i = volumes.begin();
     float Zmax = (*i)->surface(zplus).position().z();
     float Zmin= (*i)->surface(zminus).position().z();
-    for (i++; i != volumes.end(); i++){
+    for (++i; i != volumes.end(); ++i){
       // FIXME! tolerance increased to 0.025 due to mismatch in volumes 76->78!
       //      const float epsilon = 0.025;
       const float epsilon = 0.001;      
@@ -65,7 +65,7 @@ MagBSlab * MagGeoBuilderFromDDD::bSlab::buildMagBSlab() const {
   if (mslab==0) {
     vector<MagVolume*> mVols;
     for (handles::const_iterator vol = volumes.begin();
-	 vol!=volumes.end(); vol++) {
+	 vol!=volumes.end(); ++vol) {
       mVols.push_back((*vol)->magVolume);
     }
     mslab = new MagBSlab(mVols, volumes.front()->surface(zminus).position().z()); //FIXME

@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/04/14 17:35:33 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/09/06 15:49:19 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -26,7 +26,7 @@ MagELayer::MagELayer(vector<MagVolume*> volumes, double zMin, double zMax) :
 
 MagELayer::~MagELayer(){
   for (vector<MagVolume *>::const_iterator ivol = theVolumes.begin();
-       ivol != theVolumes.end(); ivol++) {
+       ivol != theVolumes.end(); ++ivol) {
     delete (*ivol);
   }
 }
@@ -34,8 +34,8 @@ MagELayer::~MagELayer(){
 
 MagVolume * 
 MagELayer::findVolume(const GlobalPoint & gp, double tolerance) const {
-  for ( vector<MagVolume*>::const_iterator ivol = theVolumes.begin();
-	ivol != theVolumes.end(); ivol++) {
+  for(vector<MagVolume*>::const_iterator ivol = theVolumes.begin();
+	ivol != theVolumes.end(); ++ivol) {
     // FIXME : use a binfinder
     // TOFIX
 //     if (verbose.debugOut) cout << "        Trying volume "

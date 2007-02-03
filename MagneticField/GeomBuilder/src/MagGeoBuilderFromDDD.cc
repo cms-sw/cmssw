@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/12/12 18:24:52 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/05/31 13:52:51 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -36,7 +36,7 @@
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 
-#include "Geometry/Vector/interface/Pi.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -59,12 +59,12 @@ MagGeoBuilderFromDDD::MagGeoBuilderFromDDD()  {
 
 MagGeoBuilderFromDDD::~MagGeoBuilderFromDDD(){
   for (handles::const_iterator i=bVolumes.begin();
-       i!=bVolumes.end(); i++){
+       i!=bVolumes.end(); ++i){
     delete (*i);
   }
   
   for (handles::const_iterator i=eVolumes.begin();
-       i!=eVolumes.end(); i++){
+       i!=eVolumes.end(); ++i){
     delete (*i);
   }
 }
@@ -84,12 +84,12 @@ void MagGeoBuilderFromDDD::summary(handles & volumes){
   handles::const_iterator first = volumes.begin();
   handles::const_iterator last = volumes.end();
 
-  for (handles::const_iterator i=first; i!=last; i++){
+  for (handles::const_iterator i=first; i!=last; ++i){
     if (int((*i)->shape())>4) continue; // FIXME: missing shapes...
-    for (int side = 0; side < 6; side++) {
+    for (int side = 0; side < 6; ++side) {
       int references = 	(*i)->references(side);
       if ((*i)->isPlaneMatched(side)) {
-	iassigned++;
+	++iassigned;
 	bool firstOcc = (ptrs.insert((int) &((*i)->surface(side)))).second;
 	if (firstOcc) iref_ass+=references;
 	if (references<2){  
@@ -207,14 +207,14 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
       // not replicated, i.e. copy number #1)
       if (v->copyno==1) {
 	buildInterpolator(v, bInterpolators);
-	bVolCount++;
+	++bVolCount;
       }
     } else {               // Endcaps
       if (bldVerb::debugOut) cout << " (Endcaps)" <<endl;
       eVolumes.push_back(v);
       if (v->copyno==1) { 
 	buildInterpolator(v, eInterpolators);
-	eVolCount++;
+	++eVolCount;
       }
     }
 
@@ -261,7 +261,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
   handles::const_iterator first = bVolumes.begin();
   handles::const_iterator last = bVolumes.end();  
 
-  for (handles::const_iterator i=first; i!=last; i++){
+  for (handles::const_iterator i=first; i!=last; ++i){
     hisR.fill((*i)->RN());
   }
   vector<float> rClust = hisR.clusterize(resolution);
@@ -269,10 +269,10 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
   handles::const_iterator ringStart = first;
   handles::const_iterator separ = first;
 
-  for (unsigned int i=0; i<rClust.size() - 1; i++) {
+  for (unsigned int i=0; i<rClust.size() - 1; ++i) {
     if (bldVerb::debugOut) cout << " Layer at RN = " << rClust[i];
     float rSepar = (rClust[i] + rClust[i+1])/2.f;
-    while ((*separ)->RN() < rSepar) separ++;
+    while ((*separ)->RN() < rSepar) ++separ;
 
     bLayer thislayer(ringStart, separ);
     layers.push_back(thislayer);
@@ -295,7 +295,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
   precomputed_value_sort(eVolumes.begin(), eVolumes.end(), ExtractPhi()); 
  
   // ASSUMPTION: There are 12 sectors and each sector is 30 deg wide.
-  for (int i = 0; i<12; i++) {
+  for (int i = 0; i<12; ++i) {
     int offset = eVolumes.size()/12;
     //    int isec = (i+binOffset)%12;
     if (bldVerb::debugOut) cout << " Sector at phi = "
@@ -317,19 +317,19 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 
 //   // Loop on layers
 //   for (vector<bLayer>::const_iterator ilay = layers.begin();
-//        ilay!= layers.end(); ilay++) {
+//        ilay!= layers.end(); ++ilay) {
 //     cout << "On Layer: " << ilay-layers.begin() << " RN: " << (*ilay).RN()
 // 	 <<endl;     
 
 //     // Loop on wheels
 //     for (vector<bWheel>::const_iterator iwheel = (*ilay).wheels.begin();
-// 	 iwheel != (*ilay).wheels.end(); iwheel++) {
+// 	 iwheel != (*ilay).wheels.end(); ++iwheel) {
 //       cout << "  On Wheel: " << iwheel- (*ilay).wheels.begin()<< " Z: "
 // 	   << (*iwheel).minZ() << " " << (*iwheel).maxZ() << " " 
 // 	   << ((*iwheel).minZ()+(*iwheel).maxZ())/2. <<endl;
 
 //       // Loop on sectors.
-//       for (int isector = 0; isector<12; isector++) {
+//       for (int isector = 0; isector<12; ++isector) {
 // 	// FIXME: create new constructor...
 // 	bSectorNavigator navy(layers,
 // 			      ilay-layers.begin(),
@@ -353,7 +353,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 
   // Build MagBLayers
   for (vector<bLayer>::const_iterator ilay = layers.begin();
-       ilay!= layers.end(); ilay++) {
+       ilay!= layers.end(); ++ilay) {
     mBLayers.push_back((*ilay).buildMagBLayer());
   }
 
@@ -372,7 +372,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 
   // Build the MagESectors
   for (vector<eSector>::const_iterator isec = sectors.begin();
-       isec!= sectors.end(); isec++) {
+       isec!= sectors.end(); ++isec) {
     mESectors.push_back((*isec).buildMagESector());
   }
 
@@ -390,7 +390,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, MagProviderInterpol*> & interpolators) {
   // Build all MagVolumes setting the MagProviderInterpol
   for (handles::const_iterator vol=volumes.begin(); vol!=volumes.end();
-       vol++){
+       ++vol){
     const MagProviderInterpol* mp = 0;
     if (interpolators.find((*vol)->magFile)!=interpolators.end()) {
       mp = interpolators[(*vol)->magFile];
@@ -466,9 +466,9 @@ void MagGeoBuilderFromDDD::testInside(handles & volumes) {
   cout << "--------------------------------------------------" << endl;
   cout << " inside(center) test" << endl;
   for (handles::const_iterator vol=volumes.begin(); vol!=volumes.end();
-       vol++){
+       ++vol){
     for (handles::const_iterator i=volumes.begin(); i!=volumes.end();
-	 i++){
+	 ++i){
       if ((*i)==(*vol)) continue;
       //if ((*i)->magVolume == 0) continue;
       if ((*i)->magVolume->inside((*vol)->center())) {
@@ -500,7 +500,7 @@ vector<MagVolume6Faces*> MagGeoBuilderFromDDD::barrelVolumes() const{
   vector<MagVolume6Faces*> v;
   v.reserve(bVolumes.size());
   for (handles::const_iterator i=bVolumes.begin();
-       i!=bVolumes.end(); i++){
+       i!=bVolumes.end(); ++i){
     v.push_back((*i)->magVolume);
   }
   return v;
@@ -510,7 +510,7 @@ vector<MagVolume6Faces*> MagGeoBuilderFromDDD::endcapVolumes() const{
   vector<MagVolume6Faces*> v;
   v.reserve(eVolumes.size());
   for (handles::const_iterator i=eVolumes.begin();
-       i!=eVolumes.end(); i++){
+       i!=eVolumes.end(); ++i){
     v.push_back((*i)->magVolume);
   }
   return v;

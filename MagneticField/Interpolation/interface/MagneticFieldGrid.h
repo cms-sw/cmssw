@@ -31,20 +31,19 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-using namespace std;
 
 class MagneticFieldGrid{
 public:
   // constructor
   MagneticFieldGrid(){
     GridType = 0;
-    for (int i=0;i<3;i++) {NumberOfPoints[i] = 0;};
-    for (int i=0;i<3;i++) {ReferencePoint[i] = 0.;};
-    for (int i=0;i<3;i++) {BasicDistance0[i] = 0.;};
-    for (int i=0;i<3;i++) {for (int j=0;j<3;j++) {BasicDistance1[i][j] = 0.;};};
-    for (int i=0;i<3;i++) {for (int j=0;j<3;j++) {BasicDistance2[i][j] = 0.;};};
-    for (int i=0;i<4;i++) {RParAsFunOfPhi[i] = 0.;};
-    for (int i=0;i<3;i++) {EasyCoordinate[i] = false;};
+    for (int i=0;i<3; ++i) {NumberOfPoints[i] = 0;};
+    for (int i=0;i<3; ++i) {ReferencePoint[i] = 0.;};
+    for (int i=0;i<3; ++i) {BasicDistance0[i] = 0.;};
+    for (int i=0;i<3; ++i) {for (int j=0;j<3; ++j) {BasicDistance1[i][j] = 0.;};};
+    for (int i=0;i<3; ++i) {for (int j=0;j<3; ++j) {BasicDistance2[i][j] = 0.;};};
+    for (int i=0;i<4; ++i) {RParAsFunOfPhi[i] = 0.;};
+    for (int i=0;i<3; ++i) {EasyCoordinate[i] = false;};
   }
   // destructor
   ~MagneticFieldGrid(){}

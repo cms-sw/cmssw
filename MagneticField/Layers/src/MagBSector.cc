@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/11/14 16:03:52 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/01/18 19:05:39 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -24,7 +24,7 @@ MagBSector::MagBSector(vector<MagBRod*>& rods, Geom::Phi<float> phiMin) :
 
 MagBSector::~MagBSector(){
   for (vector<MagBRod *>::const_iterator irod = theRods.begin();
-       irod != theRods.end(); irod++) {
+       irod != theRods.end(); ++irod) {
     delete (*irod);
   }
 }
@@ -34,8 +34,8 @@ MagVolume * MagBSector::findVolume(const GlobalPoint & gp, double tolerance) con
   Geom::Phi<float> phi = gp.phi();
 
   // FIXME : use a binfinder
-  for ( vector<MagBRod*>::const_iterator irod = theRods.begin();
-	irod != theRods.end(); irod++) {
+  for(vector<MagBRod*>::const_iterator irod = theRods.begin();
+	irod != theRods.end(); ++irod) {
     // TOFIX
     if (verbose::debugOut) cout << "     Trying rod at phi " << (*irod)->minPhi()
 				<< " " << phi << endl ;

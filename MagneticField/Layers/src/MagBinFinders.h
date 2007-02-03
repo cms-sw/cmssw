@@ -15,8 +15,8 @@ namespace MagBinFinders {
 /** \class GeneralBinFinderInR
  *  A R binfinder for a non-periodic group of detectors.
  *
- *  $Date: 2005/09/26 14:47:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/11/14 16:03:52 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -36,7 +36,7 @@ public:
     theBorders(borders) {
     // FIXME: compute bin positions.
 //     for (vector<T>::const_iterator i=theBorders.begin();
-// 	 i<theBorders.end(); i++) {
+// 	 i<theBorders.end(); ++i) {
 //      theBorders.push_back(((*i) + (*(i+1))) / 2.);
 
 //     cout << "GeneralBinFinderInR_ " << theNbins << " " << theBorders.size() << " " << (int) this << endl;
@@ -67,7 +67,7 @@ public:
   /// AND is closest to R
   virtual int binIndex( T R) const {
     int i;
-    for (i = 0; i<theNbins; i++) {
+    for (i = 0; i<theNbins; ++i) {
       if (R < theBorders[i]){ // FIXME: one can be skipped?
 	 break;
       }
@@ -141,7 +141,7 @@ public:
 //     theNbins( last-first)
 //   {
 //     theBins.reserve(theNbins);
-//     for (vector<Det*>::const_iterator i=first; i<last-1; i++) {
+//     for (vector<Det*>::const_iterator i=first; i<last-1; ++i) {
 //       theBins.push_back((**i).position().z());
 //       theBorders.push_back(((**i).position().z() + 
 // 			    (**(i+1)).position().z()) / 2.);
@@ -152,14 +152,14 @@ public:
 //   }
 
   /// returns an index in the valid range for the bin closest to Z
-  virtual int binIndex( T z) const {
-    int bin = binIndex( int((z-theZOffset)/theZStep)+1);
+  virtual int binIndex(T z) const {
+    int bin = binIndex(int((z-theZOffset)/theZStep)+1);
     
     // check left border
     if (bin > 0) {
-      if ( z < theBorders[bin-1]) {
+      if (z < theBorders[bin-1]) {
 	// z is to the left of the left border, the correct bin is left
-	for (int i=bin-1; ; i--) {
+	for (int i=bin-1; ; --i) {
 	  if (i <= 0) return 0;  
 	  if ( z > theBorders[i-1]) return i;
 	}
@@ -171,7 +171,7 @@ public:
     if (bin < theNbins-1) {
       if ( z > theBorders[bin]) {
 	// z is to the right of the right border, the correct bin is right
-	for (int i=bin+1; ; i++) {
+	for (int i=bin+1; ; ++i) {
 	  if (i >= theNbins-1) return theNbins-1;  
 	  if ( z < theBorders[i]) return i;
 	}

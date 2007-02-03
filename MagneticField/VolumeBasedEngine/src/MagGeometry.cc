@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/12/12 18:22:44 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/20 10:14:57 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -51,7 +51,7 @@ MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer 
   vector<double> rBorders;
 
   for (vector<MagBLayer *>::const_iterator ilay = theBLayers.begin();
-       ilay != theBLayers.end(); ilay++) {
+       ilay != theBLayers.end(); ++ilay) {
     if (verbose::debugOut) cout << "  Barrel layer at " << (*ilay)->minR() <<endl;
     //FIXME assume layers are already sorted in minR
     rBorders.push_back((*ilay)->minR());
@@ -61,7 +61,7 @@ MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer 
 
   if (verbose::debugOut) {
     for (vector<MagESector *>::const_iterator isec = theESectors.begin();
-	 isec != theESectors.end(); isec++) {
+	 isec != theESectors.end(); ++isec) {
       cout << "  Endcap sector at " << (*isec)->minPhi() << endl;
     }
   }
@@ -84,12 +84,12 @@ MagGeometry::~MagGeometry(){
   delete theEndcapBinFinder;
 
   for (vector<MagBLayer *>::const_iterator ilay = theBLayers.begin();
-       ilay != theBLayers.end(); ilay++) {
+       ilay != theBLayers.end(); ++ilay) {
     delete (*ilay);
   }
 
   for (vector<MagESector *>::const_iterator ilay = theESectors.begin();
-       ilay != theESectors.end(); ilay++) {
+       ilay != theESectors.end(); ++ilay) {
     delete (*ilay);
   }
 }
@@ -151,7 +151,7 @@ MagGeometry::findVolume1(const GlobalPoint & gp, double tolerance) const {
   MagVolume6Faces * found = 0;
   if (inBarrel(gpSym)) { // Barrel
     for (vector<MagVolume6Faces*>::const_iterator v = theBVolumes.begin();
-	 v!=theBVolumes.end(); v++){
+	 v!=theBVolumes.end(); ++v){
       if ((*v)==0) {
 	cout << endl << "***ERROR: MagGeometry::findVolume: MagVolume not set" << endl;
 	continue;
@@ -163,7 +163,7 @@ MagGeometry::findVolume1(const GlobalPoint & gp, double tolerance) const {
     }
   } else { // Endcaps
     for (vector<MagVolume6Faces*>::const_iterator v = theEVolumes.begin();
-	 v!=theEVolumes.end(); v++){
+	 v!=theEVolumes.end(); ++v){
       if ((*v)==0) {
 	cout << endl << "***ERROR: MagGeometry::findVolume: MagVolume not set" << endl;
 	continue;
@@ -192,7 +192,7 @@ MagGeometry::findVolume2(const GlobalPoint & gp, double tolerance) const{
     double R = gp.perp();
     int bin = theBarrelBinFinder->binIndex(R);
     
-    for (int bin1 = bin; bin1 >= max(0,bin-2); bin1--) {
+    for (int bin1 = bin; bin1 >= max(0,bin-2); --bin1) {
       if (verbose::debugOut) cout << "Trying layer at R " << theBLayers[bin1]->minR()
 		      << " " << R << endl ;
       result = theBLayers[bin1]->findVolume(gp, tolerance);

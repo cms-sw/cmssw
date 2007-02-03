@@ -1110,19 +1110,19 @@ void prepareMagneticFieldGrid::saveGridToFile(const string& outName){
 void  prepareMagneticFieldGrid::convertUnits(){
   double cm = 100.; // m->cm (just multiply all lengths with 100)
   if (XyzCoordinates){
-    for (int i=0;i<3;i++) {ReferencePoint[i] *= cm;};
-    for (int i=0;i<3;i++) {BasicDistance0[i] *= cm;};
-    for (int i=0;i<3;i++) {for (int j=0;j<3;j++) {BasicDistance1[i][j] *= cm;};};
-    for (int i=0;i<3;i++) {for (int j=0;j<3;j++) {BasicDistance2[i][j] *= cm;};};
-    for (int i=0;i<4;i++) {RParAsFunOfPhi[i] *= cm;};
+    for (int i=0;i<3; ++i) {ReferencePoint[i] *= cm;};
+    for (int i=0;i<3; ++i) {BasicDistance0[i] *= cm;};
+    for (int i=0;i<3; ++i) {for (int j=0;j<3; ++j) {BasicDistance1[i][j] *= cm;};};
+    for (int i=0;i<3; ++i) {for (int j=0;j<3; ++j) {BasicDistance2[i][j] *= cm;};};
+    for (int i=0;i<4; ++i) {RParAsFunOfPhi[i] *= cm;};
   }
   double du[3] = {100.,1.,100.}; // m->cm ; rad->rad (unchanged)
   if (RpzCoordinates){
-    for (int i=0;i<3;i++) {ReferencePoint[i] *= du[i];};
-    for (int i=0;i<3;i++) {BasicDistance0[i] *= du[i];};
-    for (int i=0;i<3;i++) {for (int j=0;j<3;j++) {BasicDistance1[i][j] *= du[i];};};
-    for (int i=0;i<3;i++) {for (int j=0;j<3;j++) {BasicDistance2[i][j] *= du[i];};};
-    for (int i=0;i<4;i++) {RParAsFunOfPhi[i] *= cm;};
+    for (int i=0;i<3; ++i) {ReferencePoint[i] *= du[i];};
+    for (int i=0;i<3; ++i) {BasicDistance0[i] *= du[i];};
+    for (int i=0;i<3; ++i) {for (int j=0;j<3; ++j) {BasicDistance1[i][j] *= du[i];};};
+    for (int i=0;i<3; ++i) {for (int j=0;j<3; ++j) {BasicDistance2[i][j] *= du[i];};};
+    for (int i=0;i<4; ++i) {RParAsFunOfPhi[i] *= cm;};
   }
   return;
 }

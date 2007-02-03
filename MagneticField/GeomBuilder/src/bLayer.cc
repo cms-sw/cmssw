@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/26 14:47:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/09/27 15:15:52 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -63,7 +63,7 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
     do {
       if (bldVerb::debugOut) std::cout << (*secBegin)->name 
 				 << " " << (*secBegin)->copyno << std::endl;
-      secBegin++;
+      ++secBegin;
     } while ((secBegin != theVolumes.end()) &&
 	     (*secBegin)->sameSurface(refSurf,outer)); // This works only if outer surface is a plane, otherwise sameSurface returns always true!
     
@@ -98,7 +98,7 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
   if (size!=1) { // Build the 12 sectors
     int offset = size/12;
     sectors.resize(12);
-    for (int i = 0; i<12; i++) {
+    for (int i = 0; i<12; ++i) {
       int isec = (i+binOffset)%12;
       sectors[isec>=0?isec:isec+12] = bSector(theVolumes.begin()+((i)*offset),
 					      theVolumes.begin()+((i+1)*offset));
@@ -149,7 +149,7 @@ MagBLayer * MagGeoBuilderFromDDD::bLayer::buildMagBLayer() const {
 
     // If we have several sectors, create the MagBSector
     std::vector<MagBSector*> mSectors;
-    for (unsigned int i=0; i<sectors.size(); i++) {
+    for (unsigned int i=0; i<sectors.size(); ++i) {
       mSectors.push_back(sectors[i].buildMagBSector());
     }
     mlayer = new MagBLayer(mSectors, minR());

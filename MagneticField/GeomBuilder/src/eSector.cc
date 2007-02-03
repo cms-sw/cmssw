@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/26 14:47:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/09/27 15:15:52 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -13,11 +13,11 @@
 #include "MagneticField/Layers/interface/MagESector.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 
-using namespace SurfaceOrientation;
-using namespace std;
-
 #include <algorithm>
 #include "Utilities/General/interface/precomputed_value_sort.h"
+
+using namespace SurfaceOrientation;
+using namespace std;
 
 // The ctor is in charge of finding layers inside the sector.
 MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin,
@@ -41,7 +41,7 @@ MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin,
   handles::const_iterator first = theVolumes.begin();
   handles::const_iterator last = theVolumes.end();  
 
-  for (handles::const_iterator i=first; i!=last; i++){
+  for (handles::const_iterator i=first; i!=last; ++i){
     hisZ.fill((*i)->center().z());
   }
   vector<float> zClust = hisZ.clusterize(resolution);
@@ -52,9 +52,9 @@ MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin,
   handles::const_iterator layStart = first;
   handles::const_iterator separ = first;
 
-  for (unsigned int i=0; i<zClust.size() - 1; i++) {
+  for (unsigned int i=0; i<zClust.size() - 1; ++i) {
     float zSepar = (zClust[i] + zClust[i+1])/2.f;
-    while ((*separ)->center().z() < zSepar) separ++;
+    while ((*separ)->center().z() < zSepar) ++separ;
     if (bldVerb::debugOut) {
       cout << "     Layer at: " << zClust[i]
 	   << " elements: " << separ-layStart << " unique volumes: ";
@@ -85,7 +85,7 @@ MagESector* MagGeoBuilderFromDDD::eSector::buildMagESector() const{
   if (msector==0) {
     vector<MagELayer*> mLayers;
     for (vector<eLayer>::const_iterator lay = layers.begin();
-	 lay!=layers.end(); lay++) {
+	 lay!=layers.end(); ++lay) {
       mLayers.push_back((*lay).buildMagELayer());
     }
     msector = new MagESector(mLayers, theVolumes.front()->minPhi()); //FIXME

@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2004/06/22 17:05:14 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/09/06 15:49:19 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -13,9 +13,9 @@
 
 // #include "MagneticField/MagLayers/interface/MagVerbosity.h"
 
-using namespace std;
-
 #include <iostream>
+
+using namespace std;
 
 MagESector::MagESector(vector<MagELayer*>& layers, Geom::Phi<float> phiMin):
   theLayers(layers),
@@ -25,7 +25,7 @@ MagESector::MagESector(vector<MagELayer*>& layers, Geom::Phi<float> phiMin):
 
 MagESector::~MagESector(){
   for (vector<MagELayer *>::const_iterator ilay = theLayers.begin();
-       ilay != theLayers.end(); ilay++) {
+       ilay != theLayers.end(); ++ilay) {
     delete (*ilay);
   }
 }
@@ -38,8 +38,8 @@ MagVolume * MagESector::findVolume(const GlobalPoint & gp, double tolerance) con
   //  int count = 0;
 
   // FIXME : use a binfinder
-  for ( vector<MagELayer*>::const_reverse_iterator ilay = theLayers.rbegin();
-	ilay != theLayers.rend(); ilay++) {
+  for(vector<MagELayer*>::const_reverse_iterator ilay = theLayers.rbegin();
+	ilay != theLayers.rend(); ++ilay) {
 
     if (Z+tolerance>(*ilay)->minZ()) {
       if (Z-tolerance<(*ilay)->maxZ()) {
@@ -49,7 +49,7 @@ MagVolume * MagESector::findVolume(const GlobalPoint & gp, double tolerance) con
 // 	if (verbose.debugOut) {
 // 	  cout << "***In elayer " << count << " " 
 // 	       << (result==0? " failed " : " OK ") <<endl;
-// 	  count++;
+// 	  ++count;
 // 	}
       } else {
 	// break;  // FIXME: OK if sorted by maxZ

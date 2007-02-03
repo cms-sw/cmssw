@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/26 14:47:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/09/27 15:15:52 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -15,10 +15,11 @@
 
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
+#include <algorithm>
+
 using namespace SurfaceOrientation;
 using namespace std;
 
-#include <algorithm>
 
 // Default ctor needed to have arrays.
 MagGeoBuilderFromDDD::bSector::bSector(){}
@@ -64,7 +65,7 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
     handles::const_iterator first = volumes.begin();
     handles::const_iterator last = volumes.end();  
 
-    for (handles::const_iterator i=first; i!=last; i++){
+    for (handles::const_iterator i=first; i!=last; ++i){
       hisPhi.fill((*i)->maxPhi()-phi0);
     }
     vector<float> phiClust = hisPhi.clusterize(resolution);
@@ -79,7 +80,7 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
       (*min_element(first,last,LessZ()))->minZ();    
 
     float DZ1 = 0.;
-    for (unsigned int i=0; i<phiClust.size(); i++) {
+    for (unsigned int i=0; i<phiClust.size(); ++i) {
       float phiSepar;
       if (i<phiClust.size()-1) {
 	phiSepar = (phiClust[i] + phiClust[i+1])/2.f;
@@ -94,7 +95,7 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
 			<< (*separ)->maxPhi()-phi0  << " "
 			<< (*separ)->maxZ() << " " << (*separ)->minZ() << " "
 			<< DZ1 << endl;
-	separ++;
+	++separ;
       }
 
       // FIXME: print warning for small discrepancies. Tolerance (below)
@@ -136,7 +137,7 @@ MagBSector* MagGeoBuilderFromDDD::bSector::buildMagBSector() const{
   if (msector==0) {
     vector<MagBRod*> mRods;
     for (vector<bRod>::const_iterator rod = rods.begin();
-	 rod!=rods.end(); rod++) {
+	 rod!=rods.end(); ++rod) {
       mRods.push_back((*rod).buildMagBRod());
     }
     msector = new MagBSector(mRods, volumes.front()->minPhi()); //FIXME

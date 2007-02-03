@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/06 15:48:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/09/26 14:47:13 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -54,7 +54,7 @@ MagELayer * MagGeoBuilderFromDDD::eLayer::buildMagELayer() const {
     double zmax = -1e19;
     vector<MagVolume*> mVols;
     for (handles::const_iterator vol = theVolumes.begin();
-	 vol!=theVolumes.end(); vol++) {
+	 vol!=theVolumes.end(); ++vol) {
       mVols.push_back((*vol)->magVolume);
       zmin = min(zmin, (*vol)->minZ());
       zmax = max(zmax, (*vol)->maxZ());

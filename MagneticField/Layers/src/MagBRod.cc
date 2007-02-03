@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/06 15:49:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/01/18 19:05:39 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -29,7 +29,7 @@ MagBRod::MagBRod(vector<MagBSlab*>& slabs, Geom::Phi<float> phiMin) :
   if (theSlabs.size()>1) { // Set the binfinder
     vector<double> zBorders;
     for (vector<MagBSlab *>::const_iterator islab = theSlabs.begin();
-	 islab != theSlabs.end(); islab++) {
+	 islab != theSlabs.end(); ++islab) {
   // TOFIX
       if (verbose::debugOut) cout << (*islab)->minZ() <<endl;
       //FIXME assume layers are already sorted in Z
@@ -43,7 +43,7 @@ MagBRod::~MagBRod() {
   delete theBinFinder;
   
   for (vector<MagBSlab *>::const_iterator islab = theSlabs.begin();
-       islab != theSlabs.end(); islab++) {
+       islab != theSlabs.end(); ++islab) {
     delete (*islab);
   }
 }
