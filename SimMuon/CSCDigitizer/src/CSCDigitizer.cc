@@ -106,6 +106,12 @@ void CSCDigitizer::setStripConditions(CSCStripConditions * cond)
 }
 
 
+void CSCDigitizer::setParticleDataTable(const ParticleDataTable * pdt)
+{
+  theWireHitSim->setParticleDataTable(pdt);
+}
+
+
 const CSCLayer * CSCDigitizer::findLayer(int detId) const {
   assert(theCSCGeometry != 0);
   const GeomDetUnit* detUnit = theCSCGeometry->idToDetUnit(CSCDetId(detId));

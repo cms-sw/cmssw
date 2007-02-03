@@ -18,6 +18,7 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include <boost/utility.hpp>
 
 class CSCDriftSim;
@@ -51,6 +52,8 @@ public:
   void setMagneticField(const MagneticField * field);
 
   void setStripConditions(CSCStripConditions * cond);
+
+  void setParticleDataTable(const ParticleDataTable * pdt);
 
   /// finds the layer in the geometry associated with this det ID
   const CSCLayer * findLayer(int detId) const;

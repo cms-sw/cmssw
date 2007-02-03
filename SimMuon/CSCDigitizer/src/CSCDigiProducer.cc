@@ -10,7 +10,7 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimMuon/CSCDigitizer/src/CSCConfigurableStripConditions.h"
 #include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h"
-
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 
 CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps) 
@@ -71,6 +71,12 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   eventSetup.get<IdealMagneticFieldRecord>().get(magfield);
 
   theDigitizer.setMagneticField(&*magfield);
+
+
+  // set the particle table
+  edm::ESHandle < ParticleDataTable > pdt;
+  eventSetup.getData( pdt );
+  theDigitizer.setParticleDataTable(&*pdt);
 
   // run the digitizer
   theDigitizer.doAction(*hits, *pWireDigis, *pStripDigis, *pComparatorDigis);

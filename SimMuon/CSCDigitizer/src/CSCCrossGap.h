@@ -27,7 +27,7 @@ public:
    * mom = momentum of particle
    * gap = space std::vector representing the hit entry and exit
    */
-  CSCCrossGap(int iam, float mom, LocalVector gap);
+  CSCCrossGap(double mass, float mom, LocalVector gap);
   ~CSCCrossGap(){};
 
   std::vector<LocalPoint> ionClusters() const { return clusters; }
@@ -55,7 +55,6 @@ public:
   float length() const { return theGap.mag(); }
 
 private:
-  int setParticle(int);
 
   double theBeta2; // Lorentz beta^2
   double theGamma; // Lorentz gamma
