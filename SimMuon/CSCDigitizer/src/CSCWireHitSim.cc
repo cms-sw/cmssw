@@ -95,3 +95,8 @@ CSCWireHitSim::getIonizationClusters(const PSimHit & simHit,
 }
 
 
+void CSCWireHitSim::setParticleDataTable(const ParticleDataTable * pdt)
+{
+  theGasIonizer->setParticleDataTable(pdt);
+}
+
