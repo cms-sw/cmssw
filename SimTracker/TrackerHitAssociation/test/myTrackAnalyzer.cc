@@ -13,12 +13,10 @@ myTrackAnalyzer::myTrackAnalyzer(edm::ParameterSet const& conf) :
   conf_(conf),
   doPixel_( conf.getParameter<bool>("associatePixel") ),
   doStrip_( conf.getParameter<bool>("associateStrip") ) {
-  cout << " Constructor " << endl;
 }
 
 myTrackAnalyzer::~myTrackAnalyzer()
 {
-  cout << " Destructor " << endl;
 }
 
 
@@ -77,9 +75,10 @@ void myTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& se
       cout <<"\t\tNumber of RecHits "<<track->recHitsSize()<<endl;
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
 	if ((*it)->isValid()){
-	  cout <<"\t\t\tRecHit on det "<<(*it)->geographicalId().rawId()<<endl;
-	  cout <<"\t\t\tRecHit in LP "<<(*it)->localPosition()<<endl;
-	  cout <<"\t\t\tRecHit in GP "<<theG->idToDet((*it)->geographicalId())->surface().toGlobal((*it)->localPosition()) <<endl;
+	  std::cout <<"\t\t\tRecHit on det "<<(*it)->geographicalId().rawId()<<std::endl;
+	  std::cout <<"\t\t\tRecHit in LP "<<(*it)->localPosition()<<std::endl;
+	  std::cout <<"\t\t\tRecHit in GP "
+	<<theG->idToDet((*it)->geographicalId())->surface().toGlobal((*it)->localPosition()) <<std::endl;
 	  //try SimHit matching
 	  float mindist = 999999;
 	  float dist;
@@ -129,9 +128,9 @@ void myTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& se
       float tothits = track->recHitsSize();//include pixel as well..
       float fraction = totsim/tothits ;
 
-      cout << " Track id # " << i << "# of rechits = " << track->recHitsSize() << " matched simtrack id= " << idmax 
-	   << " fraction = " << fraction << endl;
-      cout << " sim track mom = " <<  theSimTracks[idmax].momentum() << endl;
+      std::cout << " Track id # " << i << "# of rechits = " << track->recHitsSize() << " matched simtrack id= " << idmax 
+	   << " fraction = " << fraction << std::endl;
+      std::cout << " sim track mom = " <<  theSimTracks[idmax].momentum() << std::endl;
       i++;
       
     }
