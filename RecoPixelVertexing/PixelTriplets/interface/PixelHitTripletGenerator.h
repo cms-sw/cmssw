@@ -22,7 +22,7 @@ class PixelLayerTriplets;
 
 class PixelHitTripletGenerator : public HitTripletGenerator {
 
-  typedef vector<HitTripletGeneratorFromPairAndLayers* > GeneratorContainer;
+  typedef std::vector<HitTripletGeneratorFromPairAndLayers* > GeneratorContainer;
 
 public:
   PixelHitTripletGenerator( const edm::ParameterSet& cfg);
