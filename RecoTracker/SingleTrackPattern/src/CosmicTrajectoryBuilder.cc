@@ -17,6 +17,7 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
+using namespace std;
 CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet& conf) : conf_(conf) { 
   //minimum number of hits per tracks
 
@@ -329,9 +330,9 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
     const TrajectorySeed& tmpseed=traj.seed();
     if (thePropagatorOp->propagate(traj.lastMeasurement().updatedState(),
 				   tracker->idToDet((*hits.begin())->geographicalId())->surface()).isValid()){
-      TSOS startingState=  TrajectoryStateWithArbitraryError()
-	(thePropagatorOp->propagate(traj.lastMeasurement().updatedState(),
-				    tracker->idToDet((*hits.begin())->geographicalId())->surface()));
+      TSOS startingState= 
+	thePropagatorOp->propagate(traj.lastMeasurement().updatedState(),
+				   tracker->idToDet((*hits.begin())->geographicalId())->surface());
       
       trajFit = theFitter->fit(tmpseed,hits, startingState );
     }

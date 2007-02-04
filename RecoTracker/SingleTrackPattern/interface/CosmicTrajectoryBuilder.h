@@ -83,7 +83,7 @@ class CosmicTrajectoryBuilder
 	     const SiPixelRecHitCollection &collpixel,
 	     const edm::EventSetup& es,
 	     edm::Event& e,
-	     vector<Trajectory> &trajoutput);
+	     std::vector<Trajectory> &trajoutput);
 
     void init(const edm::EventSetup& es,bool);
     Trajectory createStartingTrajectory( const TrajectorySeed& seed) const;
@@ -91,7 +91,7 @@ class CosmicTrajectoryBuilder
     std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
  
  
-    vector<const TrackingRecHit*> SortHits(const SiStripRecHit2DCollection &collstereo,
+    std::vector<const TrackingRecHit*> SortHits(const SiStripRecHit2DCollection &collstereo,
 					   const SiStripRecHit2DCollection &collrphi ,
 					   const SiStripMatchedRecHit2DCollection &collmatched,
 					   const SiPixelRecHitCollection &collpixel,
@@ -103,7 +103,7 @@ class CosmicTrajectoryBuilder
 			   const TransientTrackingRecHit& hit) const;
     
     void AddHit(Trajectory &traj,
-		vector<const TrackingRecHit*>Hits);
+		std::vector<const TrackingRecHit*>Hits);
     //		edm::OwnVector<TransientTrackingRecHit> hits);
     bool qualityFilter(Trajectory traj);
 
