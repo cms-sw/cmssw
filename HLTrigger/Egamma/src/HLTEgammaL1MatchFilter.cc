@@ -1,6 +1,6 @@
 /** \class HLTEgammaL1MatchFilter
  *
- * $Id: HLTEgammaL1MatchFilter.cc,v 1.1 2007/01/30 13:42:47 monicava Exp $
+ * $Id: HLTEgammaL1MatchFilter.cc,v 1.2 2007/02/01 15:17:47 monicava Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -81,6 +81,7 @@ HLTEgammaL1MatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
       for( l1extra::L1EmParticleCollection::const_iterator emItr = emColl->begin(); emItr != emColl->end() ;++emItr ){
 
+
 	//ORCA matching method
 	double etaBinLow  = 0.;
 	double etaBinHigh = 0.;	
@@ -94,9 +95,6 @@ HLTEgammaL1MatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 	}
 	double phiBinLow  = emItr->phi() - region_phi_size_/2.;
 	double phiBinHigh = phiBinLow + region_phi_size_; 
-	if(phiBinLow<0.)  phiBinLow += 2*M_PI;
-	if(phiBinHigh<0.) phiBinHigh += 2*M_PI;
-
 
 	if(recoecalcand->eta() < etaBinHigh && recoecalcand->eta() > etaBinLow &&
 	   recoecalcand->phi() < phiBinHigh && recoecalcand->phi() > phiBinLow){

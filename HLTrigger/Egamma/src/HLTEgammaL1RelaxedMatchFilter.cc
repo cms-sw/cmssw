@@ -1,6 +1,6 @@
 /** \class HLTEgammaL1RelaxedMatchFilter
  *
- * $Id: $
+ * $Id: HLTEgammaL1RelaxedMatchFilter.cc,v 1.1 2007/02/01 15:18:46 monicava Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -97,9 +97,6 @@ HLTEgammaL1RelaxedMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup&
 	}
 	double phiBinLow  = emItr->phi() - region_phi_size_/2.;
 	double phiBinHigh = phiBinLow + region_phi_size_; 
-	if(phiBinLow<0.)  phiBinLow += 2*M_PI;
-	if(phiBinHigh<0.) phiBinHigh += 2*M_PI;
-
 
 	if(recoecalcand->eta() < etaBinHigh && recoecalcand->eta() > etaBinLow &&
 	   recoecalcand->phi() < phiBinHigh && recoecalcand->phi() > phiBinLow){
@@ -121,8 +118,6 @@ HLTEgammaL1RelaxedMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup&
 	}
 	double phiBinLow  = emItr->phi() - region_phi_size_/2.;
 	double phiBinHigh = phiBinLow + region_phi_size_; 
-	if(phiBinLow<0.)  phiBinLow += 2*M_PI;
-	if(phiBinHigh<0.) phiBinHigh += 2*M_PI;
 
 	if(recoecalcand->eta() < etaBinHigh && recoecalcand->eta() > etaBinLow &&
 	   recoecalcand->phi() < phiBinHigh && recoecalcand->phi() > phiBinLow){
