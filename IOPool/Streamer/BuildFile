@@ -3,6 +3,7 @@
 <use name=zlib>
 <use name=rootcore>
 <use name=FWCore/Framework>
+<use name=FWCore/RootAutoLibraryLoader>
 <use name=IOPool/Common>
 <use name=DataFormats/Streamer>
 <export>
@@ -11,6 +12,7 @@
  <use name=zlib>
  <use name=rootcore>
  <use name=FWCore/Framework>
+ <use name=FWCore/RootAutoLibraryLoader>
  <use name=IOPool/Common>
  <use name=DataFormats/Streamer>
 </export>
