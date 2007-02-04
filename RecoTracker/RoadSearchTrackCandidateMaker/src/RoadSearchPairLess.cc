@@ -28,15 +28,15 @@ bool RoadSearchPairLess::InsideOutCompare(const std::pair<TransientTrackingRecHi
 			     << HitTM2.first->globalPosition().z() ;
        
 
-       if( (ida.subdetId() == StripSubdetector::TIB || ida.subdetId() == StripSubdetector::TOB || ida.subdetId() == PixelSubdetector::PixelBarrel) &&
-	   (idb.subdetId() == StripSubdetector::TIB || idb.subdetId() == StripSubdetector::TOB || idb.subdetId() == PixelSubdetector::PixelBarrel)) {  // barrel with barrel
+       if( ((unsigned int)ida.subdetId() == StripSubdetector::TIB || (unsigned int)ida.subdetId() == StripSubdetector::TOB || (unsigned int)ida.subdetId() == PixelSubdetector::PixelBarrel) &&
+	   ((unsigned int)idb.subdetId() == StripSubdetector::TIB || (unsigned int)idb.subdetId() == StripSubdetector::TOB || (unsigned int)idb.subdetId() == PixelSubdetector::PixelBarrel)) {  // barrel with barrel
 	 float diff = HitTM1.first->globalPosition().perp() - HitTM2.first->globalPosition().perp();
 	 if (std::abs(diff)<1.0e-9) return false;
 	 else return (diff < 0);    
        }
        
-       if( (ida.subdetId() == StripSubdetector::TEC || ida.subdetId() == StripSubdetector::TID || ida.subdetId() == PixelSubdetector::PixelEndcap) &&
-	   (idb.subdetId() == StripSubdetector::TEC || idb.subdetId() == StripSubdetector::TID || idb.subdetId() == PixelSubdetector::PixelEndcap)) {  // fwd with fwd
+       if( ((unsigned int)ida.subdetId() == StripSubdetector::TEC || (unsigned int)ida.subdetId() == StripSubdetector::TID || (unsigned int)ida.subdetId() == PixelSubdetector::PixelEndcap) &&
+	   ((unsigned int)idb.subdetId() == StripSubdetector::TEC || (unsigned int)idb.subdetId() == StripSubdetector::TID || (unsigned int)idb.subdetId() == PixelSubdetector::PixelEndcap)) {  // fwd with fwd
 	 float diff = std::abs( HitTM1.first->globalPosition().z() ) - std::abs( HitTM2.first->globalPosition().z() );
 	 if (std::abs(diff)<1.0e-9) return false;
 	 else return (diff < 0);
@@ -46,8 +46,8 @@ bool RoadSearchPairLess::InsideOutCompare(const std::pair<TransientTrackingRecHi
        //  here I have 1 barrel against one forward
        //
        
-       if( (ida.subdetId() == StripSubdetector::TIB || ida.subdetId() == StripSubdetector::TOB || ida.subdetId() == PixelSubdetector::PixelBarrel) &&
-	   (idb.subdetId() == StripSubdetector::TEC || idb.subdetId() == StripSubdetector::TID || idb.subdetId() == PixelSubdetector::PixelEndcap)) {  // barrel with barrel
+       if( ((unsigned int)ida.subdetId() == StripSubdetector::TIB || (unsigned int)ida.subdetId() == StripSubdetector::TOB || (unsigned int)ida.subdetId() == PixelSubdetector::PixelBarrel) &&
+	   ((unsigned int)idb.subdetId() == StripSubdetector::TEC || (unsigned int)idb.subdetId() == StripSubdetector::TID || (unsigned int)idb.subdetId() == PixelSubdetector::PixelEndcap)) {  // barrel with barrel
 	 LogDebug("RoadSearch") <<"*** How did this happen ?!?!? ***" ;
        }else{
 	 LogDebug("RoadSearch") <<"*** How did this happen ?!?!? ***" ;
