@@ -6,6 +6,7 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/SiStripDigi>
 <use name=DataFormats/SiStripCluster>
+<use name=AnalysisDataFormats/SiStripClusterInfo>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/TrackerRecHit2D>
