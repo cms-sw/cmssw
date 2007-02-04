@@ -106,6 +106,9 @@ public:
 
  protected:
 
+  /// different ways of getting the neighbour data
+  enum fetchType { TOP, BOT, TOPBOT };
+
   /// algo ID
   int m_id;
 	
@@ -153,7 +156,7 @@ public:
   /// Get the input regions for adjacent 2x11 search windows plus eta=0 neighbours
   void fetchEdgeStripsInput();
   /// fetch the protoJets from neighbour jetFinder
-  void fetchProtoJetsFromNeighbour();
+  void fetchProtoJetsFromNeighbour(const fetchType ft);
   /// Sort the found jets. All jetFinders should call this in process().
   void sortJets();
   /// Fill the Et strip sums and Ht sum. All jetFinders should call this in process().

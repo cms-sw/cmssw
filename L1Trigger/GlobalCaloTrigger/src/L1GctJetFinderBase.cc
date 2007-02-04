@@ -186,8 +186,8 @@ void L1GctJetFinderBase::fetchScInput(L1GctSourceCard* sourceCard, int col0) {
 
       int col = col0+localPhi;
       if (col>=0 && col<this->nCols()) {
-	unsigned offset = col*COL_OFFSET + localEta + 1;
-	m_inputRegions.at(offset) = sourceCard->getRegions().at(pos);
+		unsigned offset = col*COL_OFFSET + localEta + 1;
+		m_inputRegions.at(offset) = sourceCard->getRegions().at(pos);
       }
     }
   }
@@ -215,16 +215,35 @@ void L1GctJetFinderBase::fetchNeighbourScInput(L1GctSourceCard* sourceCard, int 
 }
 
 /// fetch the protoJets from neighbour jetFinder
-void L1GctJetFinderBase::fetchProtoJetsFromNeighbour()
+void L1GctJetFinderBase::fetchProtoJetsFromNeighbour(const fetchType ft)
 {
-  m_rcvdProtoJets = m_neighbourJetFinders.at(0)->getSentProtoJets();
+  switch (ft) {
+  case TOP : 
+    m_rcvdProtoJets = m_neighbourJetFinders.at(0)->getSentProtoJets(); break;
+  case BOT :
+    m_rcvdProtoJets = m_neighbourJetFinders.at(1)->getSentProtoJets(); break;
+  case TOPBOT :
+    // Copy half the jets from each neighbour
+    static const unsigned int MAX_TOPBOT_JETS = MAX_JETS_OUT/2;
+    unsigned j=0;
+    RegionsVector temp;
+    temp = m_neighbourJetFinders.at(0)->getSentProtoJets();
+    for ( ; j<MAX_TOPBOT_JETS; ++j) {
+      m_rcvdProtoJets.at(j) = temp.at(j);
+    } 
+    temp = m_neighbourJetFinders.at(1)->getSentProtoJets();
+    for ( ; j<MAX_JETS_OUT; ++j) {
+      m_rcvdProtoJets.at(j) = temp.at(j);
+    }     
+    break;
+  }
 }
 
 
 /// Sort the found jets. All jetFinders should call this in process().
 void L1GctJetFinderBase::sortJets()
 {
-  //presort the jets into decending order of energy
+  //presort the jets into descending order of energy
   sort(m_outputJets.begin(), m_outputJets.end(), L1GctJet::rankGreaterThan());
 }
    

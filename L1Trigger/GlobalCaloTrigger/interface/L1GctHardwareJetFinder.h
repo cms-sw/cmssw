@@ -74,10 +74,12 @@ private:
   /// The second stage of clustering, called by process()
   void findJets();  
 
-  /// Both clustering stages need to find local maxima in the search array
-  void findLocalMaxima(const RegionsVector rgv);
-  /// Both clustering stages need to convert local maxima to clusters
-  void findClusters(const RegionsVector rgv, const bool preClusterLogic);
+  /// Find local maxima in the search array
+  void findLocalMaxima();
+  /// Convert local maxima to clusters
+  void findProtoClusters();
+  /// Convert protojets to final jets
+  void findFinalClusters();
 
   // Comparison operator for sorting local maxima
   // In the case where the two et values are equal, we favour
