@@ -1,9 +1,9 @@
 #ifndef StreamerOutputModule_h_
 #define StreamerOutputModule_h_
 
-// $Id: StreamerOutputModule.h,v 1.19 2007/01/12 21:16:50 wmtan Exp $
+// $Id: StreamerOutputModule.h,v 1.20 2007/01/22 21:54:09 wmtan Exp $
 
-#include "IOPool/Streamer/interface/ClassFiller.h"
+#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -178,7 +178,9 @@ StreamerOutputModule<Consumer>::StreamerOutputModule(edm::ParameterSet const& ps
       }
     }
     bufs_.resize(maxEventSize_);
-    edm::loadExtraClasses();
+    //edm::loadExtraClasses();
+    // do the line below instead of loadExtraClasses() to avoid Root errors
+    edm::RootAutoLibraryLoader::enable();
   }
 
 template <class Consumer>
