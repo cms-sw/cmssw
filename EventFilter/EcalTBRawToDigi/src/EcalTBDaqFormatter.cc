@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/10/11 17:24:34 $
- *  $Revision: 1.33 $
+ *  $Date: 2007/01/10 19:18:04 $
+ *  $Revision: 1.34 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -211,11 +211,11 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     // staus==0:  tower expected; status==1: tower not expected
     for (int u=1; u< (kTriggerTowersAndMem+1); u++)
       {
-           if(   TowerStatus[u] ==0   ) 
-	 {_ExpectedTowers[_expTowersIndex]=u;
-	   _expTowersIndex++;
-	   _numExpectedTowers++;
-	 }
+	if(   TowerStatus[u] ==0   ) 
+	  {_ExpectedTowers[_expTowersIndex]=u;
+	    _expTowersIndex++;
+	    _numExpectedTowers++;
+	  }
       }
     // resetting counter of expected towers
     _expTowersIndex=0;
@@ -300,8 +300,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	      // report on wrong tt block size
 	      blocksizecollection.push_back(idtt);
 
-	      ++ _expTowersIndex;
-	      continue;	
+	      ++ _expTowersIndex; 	      continue;	
 
 	    }
 	  
@@ -315,7 +314,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	  // Access the Xstal data
 	  for( vector< DCCXtalBlock * >::iterator itXtalBlock = xtalDataBlocks.begin(); 
 	       itXtalBlock!= xtalDataBlocks.end(); 
-	       itXtalBlock++){
+	       itXtalBlock++){ //loop on crys of a  tower
 
 	    strip              =(*itXtalBlock)->stripID();
 	    ch                 =(*itXtalBlock)->xtalID();
@@ -358,19 +357,18 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 			chidcollection.push_back(idExp);
 		      }
 		    }
+		  
+		    // chennel with id which does not follow correct odering
+		    expCryInTower++;		    continue;
 		    
-		    expCryInTower = cryInTower +1;
-		    continue;
-		    
-		  }// end else
+		  }// end 'ch_id does not respect growing order'
 		
 	      }// end   if zero supression
-	    
+	  
 
 
-	    else {
-	      
-	      // if there is no zero suppression, channel has to equal the expected channel
+	    else {	      // if there is no zero suppression, channel has to equal the expected channel
+
 	      if(   (cryInTower != expCryInTower) )
 		{
 		  
@@ -387,13 +385,13 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		  
 		  // report on wrong channel id
 		  chidcollection.push_back(idExp);
-		  
-		  expCryInTower++;
-		  continue;
+
+		  // there has been unexpected crystal id, dataframe not to go to the Event
+		  expCryInTower++; 		  continue;
 		  
 		} // if channel in data does not equal expected channel
 
-	      expCryInTower++;	      
+	      expCryInTower++;
 
 	    } // end 'not zero suppression'
 	    
@@ -409,34 +407,39 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    theFrame.setSize(xtalDataSamples.size());
       
       
+
 	    // gain cannot be 0, checking for that
 	    bool        gainIsOk =true;
 	    unsigned gain_mask      = 12288;    //12th and 13th bit
-
 	    vector <int> xtalGain;
-      
+
 	    for (unsigned short i=0; i<xtalDataSamples.size(); ++i ) {
+	      
 	      theFrame.setSample (i, xtalDataSamples[i] );
-	      if((xtalDataSamples[i] & gain_mask) == 0)
-		{gainIsOk =false;}
+	      
+	      if((xtalDataSamples[i] & gain_mask) == 0){gainIsOk =false;}
+	      
 	      xtalGain.push_back(0);
 	      xtalGain[i] |= (xtalDataSamples[i] >> 12);
 	    }
-
-	    digicollection.push_back(theFrame);
-      
+	    
 	    if (! gainIsOk) {
-	      
 	      LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
 					    << " gain==0 for strip: "  << expStripInTower
 					    << "\t channel: " << expCryInStrip
 					    << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
 					    << "\t in event: " << (*itEventBlock)->getDataField("LV1");
-	      
 	      // report on gain==0
 	      gaincollection.push_back(id);
-                
+	      
+	      // there has been a gain==0, dataframe not to go to the Event
+	      continue; //	      expCryInTower already incremented
 	    }
+
+
+	    
+	    
+	    // looking for forbidden gain transitions
 	    
 	    short firstGainWrong=-1;
 	    short numGainWrong=0;
@@ -444,7 +447,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    for (unsigned short i=0; i<xtalGain.size(); i++ ) {
 	      
 	      if (i>0 && xtalGain[i-1]>xtalGain[i]) {
-		numGainWrong++;
+		
+		numGainWrong++;// counting forbidden gain transitions
 		
 		if (firstGainWrong == -1) {
 		  firstGainWrong=i;
@@ -457,6 +461,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	      }
 	    }
 
+	    // only discriminating if gain stays the same after the forbidden gain transition
 	    bool wrongGainStaysTheSame=false;
 	    if (firstGainWrong!=-1 && firstGainWrong<9){
 	      short gainWrong = xtalGain[firstGainWrong];
@@ -471,7 +476,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
 	      }// END loop on samples after forbidden transition
             
-	    }// if firstGainWrong!=0 && firstGainWrong<8
+	    }// END OF if firstGainWrong!=0 && firstGainWrong<8
+
 
 	    if (numGainWrong>0) {
 	      gainswitchcollection.push_back(id);
@@ -480,7 +486,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
               
 		LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter:interpretRawData"
 					      << "channelHasGainSwitchProblem: wrong transition stays till last sample"<< "\n";
-              
+
+		gainswitchstaycollection.push_back(id);              
 	      }
 	      else if (numGainWrong>1) {
 		LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter:interpretRawData"
@@ -491,12 +498,21 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		  countADC &= xtalDataSamples[i1];
 		  LogWarning("EcalTBRawToDigi") << "Sample " << i1 << " ADC " << countADC << " Gain " << xtalGain[i1];
 		}
-	      }
-	    }
 
-	    if (wrongGainStaysTheSame) gainswitchstaycollection.push_back(id);
+	      }// end 'if there is multiple transition'
+	     
 
-	  }// end loop on crystals
+	      // there has been a forbidden gain transition,  dataframe not to go to the Event
+	      continue; //	      expCryInTower already incremented
+
+	    }// END of:   'if there is a forbidden gain transition'
+
+
+	    // here (already continued if gain==0 or if forbidden-gain-switch),
+	    // data frame needs go to the Event
+	    digicollection.push_back(theFrame);
+	    
+	  }// end loop on crystals within a tower block
 	  
 	  
 	  _expTowersIndex++;
@@ -845,7 +861,7 @@ int  EcalTBDaqFormatter::cryIc(int tower, int strip, int ch) {
 bool EcalTBDaqFormatter::rightTower(int tower) const {
   
   if ((tower>12 && tower<21) || (tower>28 && tower<37) ||
-       (tower>44 && tower<53) || (tower>60 && tower<69))
+      (tower>44 && tower<53) || (tower>60 && tower<69))
     return true;
   else
     return false;

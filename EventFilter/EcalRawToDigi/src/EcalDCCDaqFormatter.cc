@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/08/23 15:01:17 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/10/05 12:42:47 $
+ *  $Revision: 1.4 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -50,14 +50,14 @@ EcalDCCDaqFormatter::EcalDCCDaqFormatter () {
 }
 
 void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData , 
-					  EBDigiCollection& digicollection, EcalPnDiodeDigiCollection & pndigicollection , 
-					  EcalRawDataCollection& DCCheaderCollection, 
-					  EBDetIdCollection & dccsizecollection , 
-					  EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection,
-					  EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection, 
-					  EBDetIdCollection & gainswitchcollection, EBDetIdCollection & gainswitchstaycollection, 
-					  EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
-					  EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection)
+					   EBDigiCollection& digicollection, EcalPnDiodeDigiCollection & pndigicollection , 
+					   EcalRawDataCollection& DCCheaderCollection, 
+					   EBDetIdCollection & dccsizecollection , 
+					   EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection,
+					   EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection, 
+					   EBDetIdCollection & gainswitchcollection, EBDetIdCollection & gainswitchstaycollection, 
+					   EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
+					   EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection)
 {
 
   const unsigned char * pData = fedData.data();
@@ -76,7 +76,7 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 			    << "size " << length;
   
  
- // mean + 3sigma estimation needed when switching to 0suppressed data
+  // mean + 3sigma estimation needed when switching to 0suppressed data
   //  digicollection.reserve(kCrystals);
   pnAllocated = false;
   
@@ -91,9 +91,9 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
        itEventBlock != dccEventBlocks.end(); 
        itEventBlock++){
 
-//     cout << " DCC ID " <<  (*itEventBlock)->getDataField("FED/DCC ID") << endl; 
-//     cout << " BX number " << (*itEventBlock)->getDataField("BX") << endl;
-//     cout << " RUN NUMBER  " <<  (*itEventBlock)->getDataField("RUN NUMBER") << endl;
+    //     cout << " DCC ID " <<  (*itEventBlock)->getDataField("FED/DCC ID") << endl; 
+    //     cout << " BX number " << (*itEventBlock)->getDataField("BX") << endl;
+    //     cout << " RUN NUMBER  " <<  (*itEventBlock)->getDataField("RUN NUMBER") << endl;
 
     int DCCid=(*itEventBlock)->getDataField("FED/DCC ID");      
     int SMid=theMapper_->getSMId(DCCid);      
@@ -102,10 +102,10 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     if( (*itEventBlock)->eventHasErrors() && _displayParserMessages)
       {
         LogWarning("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter::interpretRawData"
-				      << "errors found from parser... ";
+				    << "errors found from parser... ";
         LogWarning("EcalRawToDigi") << (*itEventBlock)->eventErrorString();
         LogWarning("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter::interpretRawData"
-				      << "... errors from parser notified";
+				    << "... errors from parser notified";
       }
     // getting the fields of the DCC header
     EcalDCCHeaderBlock theDCCheader;
@@ -114,7 +114,7 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     short trigger_type = (*itEventBlock)->getDataField("TRIGGER TYPE");
     if(trigger_type >0 && trigger_type <5){theDCCheader.setBasicTriggerType(trigger_type);}
     else{ LogWarning("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter::interpretRawData"
-					<< "unrecognized TRIGGER TYPE: "<<trigger_type;}
+				      << "unrecognized TRIGGER TYPE: "<<trigger_type;}
     theDCCheader.setLV1((*itEventBlock)->getDataField("LV1"));
     theDCCheader.setBX((*itEventBlock)->getDataField("BX"));
     theDCCheader.setErrors((*itEventBlock)->getDataField("DCC ERRORS"));
@@ -155,7 +155,7 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     
     vector< DCCTowerBlock * > dccTowerBlocks = (*itEventBlock)->towerBlocks();
     LogDebug("EcalRawToDigi") << "@SUBS=EcalDCCDaqFormatter::interpretRawData"
-				<< "dccTowerBlocks size " << dccTowerBlocks.size();
+			      << "dccTowerBlocks size " << dccTowerBlocks.size();
 
 
 
@@ -176,17 +176,17 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     _expTowersIndex=0;
       
    
-//     // FIXME: dccID hard coded, for now
-//     unsigned dccID = 1-1;// at the moment SM is 1 by default (in DetID)
+    //     // FIXME: dccID hard coded, for now
+    //     unsigned dccID = 1-1;// at the moment SM is 1 by default (in DetID)
 
     // if number of dccEventBlocks NOT same as expected stop
     if (!      (dccTowerBlocks.size() == _numExpectedTowers)      )
       {
         // we probably always want to know if this happens
         LogWarning("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter::interpretRawData"
-				      << "number of TowerBlocks found (" << dccTowerBlocks.size()
-				      << ") differs from expected (" << _numExpectedTowers 
-				      << ") skipping event"; 
+				    << "number of TowerBlocks found (" << dccTowerBlocks.size()
+				    << ") differs from expected (" << _numExpectedTowers 
+				    << ") skipping event"; 
 
         EBDetId idsm(SMid, 1,EBDetId::SMCRYSTALMODE);
         dccsizecollection.push_back(idsm);
@@ -226,9 +226,9 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
       if (  !(tower == _ExpectedTowers[_expTowersIndex])	  )
         {	
           LogWarning("EcalRawToDigi") << "@SUBS=EcalDCCDaqFormatter::interpretRawData"
-					<< "TTower id found (=" << tower 
-					<< ") different from expected (=" <<  _ExpectedTowers[_expTowersIndex] 
-					<< ") " << (_expTowersIndex+1) << "th tower checked"; 
+				      << "TTower id found (=" << tower 
+				      << ") different from expected (=" <<  _ExpectedTowers[_expTowersIndex] 
+				      << ") " << (_expTowersIndex+1) << "th tower checked"; 
 	    
 
 
@@ -252,14 +252,13 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	  if (xtalDataBlocks.size() != kChannelsPerTower)
 	    {     
 	      LogWarning("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter::interpretRawData"
-					    << "wrong dccBlock size is: "  << xtalDataBlocks.size() 
-					    << " in event " << (*itEventBlock)->getDataField("LV1")
-					    << " for TT " << _ExpectedTowers[_expTowersIndex];
+					  << "wrong dccBlock size is: "  << xtalDataBlocks.size() 
+					  << " in event " << (*itEventBlock)->getDataField("LV1")
+					  << " for TT " << _ExpectedTowers[_expTowersIndex];
 	      // report on wrong tt block size
 	      blocksizecollection.push_back(idtt);
 
-	      ++ _expTowersIndex;
-	      continue;	
+	      ++ _expTowersIndex; 	      continue;	
 	    }
 
 	
@@ -308,11 +307,18 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		    // report on wrong channel id
 		    chidcollection.push_back(idExp);
 		    
-		    expCryInTower++; continue;
+		    // there has been unexpected crystal id, dataframe not to go to the Event		  
+		    expCryInTower++; 		  continue;
+		    
 		  }
           
 	      }//end of in case of non zero suppression
-      
+	    else
+	      {
+		LogInfo("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter::interpretRawData "
+					 << " this unpacker does not support 0suppressed dat, for the moment"
+					 << endl;
+	      }
 	        
 	    // data  to be stored in EBDataFrame, identified by EBDetId
 	    int  ic        = cryIc(tower, strip,  ch) ;
@@ -323,10 +329,12 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    theFrame.setSize(xtalDataSamples.size());
       
       
+
+
+
 	    // gain cannot be 0, checking for that
 	    bool        gainIsOk =true;
 	    unsigned gain_mask      = 12288;    //12th and 13th bit
-
 	    vector <int> xtalGain;
       
 	    for (unsigned short i=0; i<xtalDataSamples.size(); ++i ) {
@@ -336,8 +344,6 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	      xtalGain.push_back(0);
 	      xtalGain[i] |= (xtalDataSamples[i] >> 12);
 	    }
-
-	    digicollection.push_back(theFrame);
       
 	    if (! gainIsOk) {
 	      
@@ -349,12 +355,19 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	      
 	      // report on gain==0
 	      gaincollection.push_back(id);
-                
+
+	      // there has been a gain==0, dataframe not to go to the Event
+	      expCryInTower++; 	      continue;
 	    }
+
+
+
+
+
+	    // looking for forbidden gain transitions
 	    
 	    short firstGainWrong=-1;
 	    short numGainWrong=0;
-	    
 	    for (unsigned short i=0; i<xtalGain.size(); i++ ) {
 	      
 	      if (i>0 && xtalGain[i-1]>xtalGain[i]) {
@@ -363,14 +376,16 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		if (firstGainWrong == -1) {
 		  firstGainWrong=i;
 		  LogWarning("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter::interpretRawData"
-						<< "channelHasGainSwitchProblem: crystal eta = " << id.ieta() << " phi = " << id.iphi();
+					      << "channelHasGainSwitchProblem: crystal eta = " << id.ieta() << " phi = " << id.iphi();
 		}
 		LogWarning("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter::interpretRawData"
-					      << "channelHasGainSwitchProblem: sample = " << (i-1) 
-					      << " gain: " << xtalGain[i-1] << " sample: " << i << " gain: " << xtalGain[i];
+					    << "channelHasGainSwitchProblem: sample = " << (i-1) 
+					    << " gain: " << xtalGain[i-1] << " sample: " << i << " gain: " << xtalGain[i];
 	      }
 	    }
 
+
+	    // only discriminating if gain stays the same after the forbidden gain transition
 	    bool wrongGainStaysTheSame=false;
 	    if (firstGainWrong!=-1 && firstGainWrong<9){
 	      short gainWrong = xtalGain[firstGainWrong];
@@ -392,27 +407,36 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
 	      if (numGainWrong == 1 && (wrongGainStaysTheSame)) {
               
+		gainswitchstaycollection.push_back(id);
 		LogWarning("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter:interpretRawData"
-					      << "channelHasGainSwitchProblem: wrong transition stays till last sample"<< "\n";
+					    << "channelHasGainSwitchProblem: wrong transition stays till last sample"<< "\n";
               
 	      }
 	      else if (numGainWrong>1) {
 		LogWarning("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter:interpretRawData"
-					      << "channelHasGainSwitchProblem: more than 1 wrong transition";
+					    << "channelHasGainSwitchProblem: more than 1 wrong transition";
               
 		for (unsigned short i1=0; i1<xtalDataSamples.size(); ++i1 ) {
 		  int countADC = 0x00000FFF;
 		  countADC &= xtalDataSamples[i1];
 		  LogWarning("EcalRawToDigi") << "Sample " << i1 << " ADC " << countADC << " Gain " << xtalGain[i1];
 		}
-	      }
-	    }
+	      }// end 'if there is multiple transition'
 
-	    if (wrongGainStaysTheSame) gainswitchstaycollection.push_back(id);
+	      // there has been a forbidden gain transition,  dataframe not to go to the Event
+	      expCryInTower++;  	    continue;
 
-	    if (!theDCCheader.getZeroSuppression())
-	      expCryInTower++; 
-	  }// end loop on crystals
+	    }// END of:   'if there is a forbidden gain transition'
+
+	    // This unpacker does not handle 0suppressed data, as of now
+	    // if (!theDCCheader.getZeroSuppression()) 	      expCryInTower++; 
+	    expCryInTower++; 
+
+	    // here (already continued if gain==0 or if forbidden-gain-switch),
+	    // data frame needs go to the Event
+	    digicollection.push_back(theFrame);
+
+	  }// end loop on crystals within a tower block
 	  
 	  
 	  _expTowersIndex++;
@@ -430,7 +454,7 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	{
 	  
 	  LogDebug("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter::interpretRawData"
-				      << "processing mem box num: " << (*itTowerBlock)->towerID();
+				    << "processing mem box num: " << (*itTowerBlock)->towerID();
 
 	  // if tt 69 or 70 found, allocate Pn digi collection
 	  if(! pnAllocated) 
@@ -439,7 +463,7 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	      pnAllocated = true;
 	    }
 
-         // using SMid=slot-in-CMS, not DCCid=fed
+	  // using SMid=slot-in-CMS, not DCCid=fed
 	  DecodeMEM( SMid , (*itTowerBlock),  pndigicollection ,
 		     memttidcollection,  memblocksizecollection,
 		     memgaincollection,  memchidcollection);
@@ -453,8 +477,8 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
       // wrong tt id
       else  {
         LogWarning("EcalRawToDigi") <<"@SUB=EcalDCCDaqFormatter::interpretRawData"
-				      << " processing tt with ID not existing ( "
-				      <<  (*itTowerBlock)->towerID() << ")";
+				    << " processing tt with ID not existing ( "
+				    <<  (*itTowerBlock)->towerID() << ")";
         ++ _expTowersIndex;continue; 
       }// end: tt id error
 
@@ -471,12 +495,12 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
 
 void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  EcalPnDiodeDigiCollection & pndigicollection ,
-				    EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
-				    EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection)
+				     EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
+				     EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection)
 {
   
   LogDebug("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter::DecodeMEM"
- 			      << "in mem " << towerblock->towerID();  
+			    << "in mem " << towerblock->towerID();  
   
   int  tower_id = towerblock ->towerID() ;
   int  mem_id   = tower_id-69;
@@ -492,7 +516,7 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
   if(tower_id != 69 && tower_id != 70) 
     {
       LogWarning("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter:decodeMem"
-				    << "DecodeMEM: this is not a mem box tower (" << tower_id << ")"<< "\n";
+				  << "DecodeMEM: this is not a mem box tower (" << tower_id << ")"<< "\n";
       ++ _expTowersIndex;
       return;
     }
@@ -502,9 +526,9 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
   if ( tower_id != ( (int)_ExpectedTowers[_expTowersIndex])  )
     {
       LogWarning("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter:decodeMem"
-				    << "DecodeMEM: tower " << tower_id  
-				    << " is not the same as expected " << ((int)_ExpectedTowers[_expTowersIndex])
-				    << " (according to DCC header channel status)\n";
+				  << "DecodeMEM: tower " << tower_id  
+				  << " is not the same as expected " << ((int)_ExpectedTowers[_expTowersIndex])
+				  << " (according to DCC header channel status)\n";
       
       // chosing channel 1 as representative as a dummy...
       EcalElectronicsId id(SMid, tower_id, 1);
@@ -525,8 +549,8 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
   if (dccXtalBlocks.size() != kChannelsPerTower)
     {     
       LogDebug("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter:decodeMem"
-				  << " wrong dccBlock size, namely: "  << dccXtalBlocks.size() 
-				  << ", for mem " << _ExpectedTowers[_expTowersIndex];
+				<< " wrong dccBlock size, namely: "  << dccXtalBlocks.size() 
+				<< ", for mem " << _ExpectedTowers[_expTowersIndex];
 
       // reporting mem-tt block size problem
       // chosing channel 1 as representative as a dummy...
@@ -552,10 +576,10 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
       {
 	
 	LogDebug("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter:decodeMem"
-				    << " in mem " <<  towerblock->towerID()
-				    << ", expected:\t strip"
-				    << (wished_strip_id+1)  << " cry " << (wished_ch_id+1) << "\tfound: "
-				    << "  strip " <<  strip_id << "  cry " << xtal_id;
+				  << " in mem " <<  towerblock->towerID()
+				  << ", expected:\t strip"
+				  << (wished_strip_id+1)  << " cry " << (wished_ch_id+1) << "\tfound: "
+				  << "  strip " <<  strip_id << "  cry " << xtal_id;
 	
 	// report on crystal with unexpected indices
 	EcalElectronicsId id(SMid, tower_id, wished_strip_id*5 + wished_ch_id + 1);
@@ -633,11 +657,11 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
 	    memgaincollection.push_back(id);
 	    
 	    LogWarning("EcalRawToDigi")  << "@SUB=EcalDCCDaqFormatter:decodeMem"
-					   << "in mem " <<  towerblock->towerID()
-					   << " :\t strip: "
-					   << (strip +1)  << " cry: " << (channel+1) 
-					   << " has 14th bit non zero! Gain results: "
-					   << sampleGain << ".";
+					 << "in mem " <<  towerblock->towerID()
+					 << " :\t strip: "
+					 << (strip +1)  << " cry: " << (channel+1) 
+					 << " has 14th bit non zero! Gain results: "
+					 << sampleGain << ".";
 	    
 	    continue;
 	  }// end 'if gain is zero'
@@ -693,9 +717,9 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
 
     thePnDigi.setSize(kSamplesPerPn);
 
-//     for (int sample =0; sample<kSamplesPerPn; sample++)
-//       {thePnDigi.setSample(sample, data_MEM[(mem_id)*250 + (pnId-1)*kSamplesPerPn + sample ] );  }
-//     pndigicollection.push_back(thePnDigi);
+    //     for (int sample =0; sample<kSamplesPerPn; sample++)
+    //       {thePnDigi.setSample(sample, data_MEM[(mem_id)*250 + (pnId-1)*kSamplesPerPn + sample ] );  }
+    //     pndigicollection.push_back(thePnDigi);
 
     for (int sample =0; sample<kSamplesPerPn; sample++)
       {
@@ -754,7 +778,7 @@ int  EcalDCCDaqFormatter::cryIc(int tower, int strip, int ch) {
 bool EcalDCCDaqFormatter::rightTower(int tower) const {
   
   if ((tower>12 && tower<21) || (tower>28 && tower<37) ||
-       (tower>44 && tower<53) || (tower>60 && tower<69))
+      (tower>44 && tower<53) || (tower>60 && tower<69))
     return true;
   else
     return false;
