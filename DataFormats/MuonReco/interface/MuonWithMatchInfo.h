@@ -14,7 +14,7 @@
  *
  * \author Dmytro Kovalskyi, UCSB
  *
- * \version $Id: MuonWithMatchInfo.h,v 1.2 2007/01/24 09:25:27 dmytro Exp $
+ * \version $Id: MuonWithMatchInfo.h,v 1.3 2007/01/30 18:15:20 dmytro Exp $
  *
  */
 
@@ -44,6 +44,7 @@ namespace reco {
       /// muon chamber matching information
       struct MuonChamberMatch {
 	 std::vector<MuonSegmentMatch> segmentMatches;  // segments matching propagated track trajectory
+	 std::vector<MuonSegmentMatch> truthMatches;  // SimHit projection matching propagated track trajectory
 	 float edgeX;      // distance to closest edge in X (negative - inside, positive - outside)
 	 float edgeY;      // distance to closest edge in Y (negative - inside, positive - outside)
 	 float x;          // X position of the track
@@ -62,6 +63,7 @@ namespace reco {
       void setCalEnergy( const MuonEnergy& calEnergy ) { calEnergy_ = calEnergy; }
       /// get muon matching information
       std::vector<MuonChamberMatch>& matches() { return muMatches_;}
+      const std::vector<MuonChamberMatch>& matches() const { return muMatches_;	}
       /// set muon matching information
       void setMatches( const std::vector<MuonChamberMatch>& matches ) { muMatches_ = matches; }
       /// number of chambers
