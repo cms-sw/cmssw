@@ -57,6 +57,7 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig)
   //  ttfThreshLow_ =  iConfig.getParameter<double>("TTFLowEnergy");
   //  ttfThreshHigh_=  iConfig.getParameter<double>("TTFHighEnergy");
   algo_=NULL;
+  db_=NULL;
   //FIXME: add configuration
                    
 }
@@ -90,6 +91,7 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
   }
 
   db_ = new DBInterface(databaseFileNameEB_,databaseFileNameEE_);
+  printf("=============> Created DBinterface %p\n",db_);fflush(stdout);
   algo_ = new EcalTrigPrimFunctionalAlgo(setup,  valTree_,binOfMaximum_,nrSamples_,db_);
   edm::LogInfo("constructor") <<"EcalTrigPrimProducer will write:  "<<nrSamples_<<" samples for each digi,  binOfMaximum used:  "<<binOfMaximum_;
 }
@@ -99,12 +101,17 @@ EcalTrigPrimProducer::~EcalTrigPrimProducer()
 
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
+  printf("========================> 1\n");fflush(stdout);
   delete algo_;
+  printf("========================>2\n");fflush(stdout);
   if (valid_) {
     histfile_->Write();
     histfile_->Close();
   }
-  delete db_ ;
+  printf("========================>3\n");fflush(stdout);
+  printf("=============> destroying DBinterface %p\n",db_);fflush(stdout);
+   delete db_ ;
+  printf("========================>4\n");fflush(stdout);
 
 }
 
