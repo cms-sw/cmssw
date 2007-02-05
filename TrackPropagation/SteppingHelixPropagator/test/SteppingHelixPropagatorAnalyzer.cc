@@ -17,7 +17,7 @@ positions of a muon in the detector.
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.9 2007/01/04 19:02:22 slava77 Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.10 2007/01/10 02:04:39 slava77 Exp $
 //
 //
 
@@ -382,6 +382,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 		   <<igHit->surf->position()
 		   <<" "<<igHit->surf->rotation()<<std::endl;
 	}
+	pStatus = 0;
 	if (radX0CorrectionMode_ ){
 	  const SteppingHelixPropagator* shPropCPtr = 
 	    dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
