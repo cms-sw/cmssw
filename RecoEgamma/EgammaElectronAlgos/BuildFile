@@ -5,6 +5,7 @@
 <use name=DataFormats/DetId>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/TrackingRecHit>
+<use name=DataFormats/GsfTrackReco>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/EgammaCandidates>
@@ -12,7 +13,6 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=RecoTracker/MeasurementDet>
-<use name=RecoTracker/RoadSearchHelixMaker>
 <use name=RecoTracker/TkSeedGenerator>
 <use name=RecoTracker/TkDetLayers>
 <use name=RecoTracker/TkNavigation>
@@ -34,6 +34,7 @@
    <use name=DataFormats/DetId>
    <use name=DataFormats/TrackerRecHit2D>
    <use name=DataFormats/TrackingRecHit>
+   <use name=DataFormats/GsfTrackReco>
    <use name=DataFormats/TrackReco>
    <use name=DataFormats/EgammaReco>
    <use name=DataFormats/EgammaCandidates>
@@ -42,7 +43,6 @@
    <use name=Geometry/TrackerGeometryBuilder>
    <use name=RecoTracker/MeasurementDet>
    <use name=RecoTracker/TkSeedGenerator>
-   <use name=RecoTracker/RoadSearchHelixMaker>
    <use name=RecoTracker/TkDetLayers>
    <use name=RecoTracker/TkNavigation>
    <use name=TrackingTools/DetLayers>

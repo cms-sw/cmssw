@@ -15,7 +15,7 @@
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
-#include "DataFormats/TrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/PixelMatchTrackReco/interface/GsfTrackSeedAssociation.h"
 
@@ -78,6 +78,8 @@ public:
   double ptCut_;
  
   // input configuration
+  std::string hbheLabel_;
+  std::string hbheInstanceName_;
   std::string trackBarrelLabel_;
   std::string trackEndcapLabel_;
   std::string trackBarrelInstanceName_;
