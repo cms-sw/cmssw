@@ -148,7 +148,6 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
   std::vector<const GeomDetUnit *> glued;
 
   for(u_int32_t i=0;i<gdu.size();i++){
-    unsigned int subdet_id = gduId[i].subdetId();
     StripSubdetector sidet( gduId[i].rawId());
     tracker->addDet((GeomDet*) gdu[i]);
     tracker->addDetId(gduId[i]);      

@@ -13,7 +13,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: TrackerMapTool.cc,v 1.3 2006/10/24 11:35:08 fambrogl Exp $
+// $Id: TrackerMapTool.cc,v 1.4 2006/10/27 16:36:58 fambrogl Exp $
 //
 //
 
@@ -26,7 +26,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-using namespace std;
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -111,7 +110,6 @@ int layerno(int subdet,int leftright,int layer){
 void
 TrackerMapTool::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ){
   
-  using namespace edm;
   
   edm::LogInfo("TrackerMapTool")<< "Here I am";
   
@@ -128,7 +126,7 @@ TrackerMapTool::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   
   int nlay=0;
   int layer,subdet,leftright=0,ringno,petalno,moduleno,isStereo,pixel_strip,barrel_forward;
-  string name0,name1,name2,name3,name4,name5;
+  std::string name0,name1,name2,name3,name4,name5;
   int ring = 0;
   int forback;
   int nmod = 0;
@@ -139,10 +137,10 @@ TrackerMapTool::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   float phi,phi1;
   float rmedioS[]={0.27665, 0.3671, 0.4474, 0.5617, 0.6768, 0.8189, 0.9907};
   float rmedioP[]={0.0623081, 0.074111,  0.0870344, 0.103416, 0.115766, 0.132728, 0.140506};
-  string nameDet;
+  std::string nameDet;
   int last_layer=0;
   float width,length,thickness,widthAtHalfLength;
-  std::ofstream output("tracker.dat",ios::out);
+  std::ofstream output("tracker.dat",std::ios::out);
   
   std::vector<GeomDetUnit*>::const_iterator begin = pDD->detUnits().begin();
   std::vector<GeomDetUnit*>::const_iterator end = pDD->detUnits().end();
@@ -256,7 +254,7 @@ TrackerMapTool::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     } //end of endcap part
     if (isStereo==1) nmod=nmod+100;
     name4=" "; if (isStereo==1)name4=" stereo";
-    ostringstream outs;
+    std::ostringstream outs;
     if(subdet==6)
       outs << nameDet<<" "<<name0<<" layer " <<layer<<name1<<ringno<<name2<<petalno<<name5<<" module  "<<moduleno<<name3<<" "<<name4;
     if(subdet==2)
@@ -266,8 +264,8 @@ TrackerMapTool::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     char buffer [20];
     sprintf(buffer,"%X",(*begin)->geographicalId().rawId());
     int id = (*begin)->geographicalId().rawId();
-    output <<ntotmod<< " "<< pixel_strip << " " <<barrel_forward<<" "<<nlay << " " << ring << " " << nmod <<" " << posx << " " <<posy << " " <<posz<<" "<<length<<" " <<width<<" "<<thickness<<" "<<widthAtHalfLength<<" "<<" "<<id<< endl;
-    output << outs.str() << endl;
+    output <<ntotmod<< " "<< pixel_strip << " " <<barrel_forward<<" "<<nlay << " " << ring << " " << nmod <<" " << posx << " " <<posy << " " <<posz<<" "<<length<<" " <<width<<" "<<thickness<<" "<<widthAtHalfLength<<" "<<" "<<id<< std::endl;
+    output << outs.str() << std::endl;
   }
   
 }

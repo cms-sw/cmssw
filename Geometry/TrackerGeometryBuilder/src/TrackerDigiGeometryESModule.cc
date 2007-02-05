@@ -20,8 +20,6 @@
 
 #include <memory>
 
-using namespace edm;
-
 TrackerDigiGeometryESModule::TrackerDigiGeometryESModule(const edm::ParameterSet & p) 
 {
 

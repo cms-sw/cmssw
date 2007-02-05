@@ -13,7 +13,6 @@
 
 #include<ext/functional>
 
-using namespace std;
 
 //class DetIdComparator : public binary_function<DetId, DetId, bool> {
 class DetIdComparator {

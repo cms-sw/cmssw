@@ -13,7 +13,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.7 2006/10/24 11:35:01 fambrogl Exp $
+// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.8 2006/11/16 13:54:51 fambrogl Exp $
 //
 //
 
@@ -103,7 +103,6 @@ TrackerDigiGeometryAnalyzer::~TrackerDigiGeometryAnalyzer()
 void
 TrackerDigiGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   using namespace edm;
 
    edm::LogInfo("TrackerDigiGeometryAnalyzer")<< "Here I am";
    //
@@ -147,7 +146,6 @@ TrackerDigiGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::Event
 }
 void TrackerDigiGeometryAnalyzer::analyseTrapezoidal( const GeomDetUnit& det)
 {
-  using namespace std;
 
   // checkRotation( det);
 
@@ -164,8 +162,8 @@ void TrackerDigiGeometryAnalyzer::analyseTrapezoidal( const GeomDetUnit& det)
   double width = tb->width();
 
   const std::vector<float> par = tb->parameters();
-  double top = max(par[1], par[0]);
-  double bot = min(par[1], par[0]);
+  double top = std::max(par[1], par[0]);
+  double bot = std::min(par[1], par[0]);
 
   std::cout << std::endl;
   std::cout  << "Det at pos " << pos << " has length " << length
@@ -181,7 +179,7 @@ void TrackerDigiGeometryAnalyzer::analyseTrapezoidal( const GeomDetUnit& det)
   GlobalVector yShift = det.surface().toGlobal( LocalVector( 0, safety*length/2., 0));
   GlobalPoint outerMiddle = pos + yShift;
   GlobalPoint innerMiddle = pos + (-1.*yShift);
-  if (outerMiddle.perp() < innerMiddle.perp()) swap( outerMiddle, innerMiddle);
+  if (outerMiddle.perp() < innerMiddle.perp()) std::swap( outerMiddle, innerMiddle);
 
   GlobalVector upperShift = det.surface().toGlobal( LocalVector( safety*top, 0, 0));
 
@@ -217,12 +215,11 @@ void TrackerDigiGeometryAnalyzer::analyseTrapezoidal( const GeomDetUnit& det)
 
 void TrackerDigiGeometryAnalyzer::checkRotation( const GeomDetUnit& det)
 {
-  using namespace std;
 
-  const double eps = numeric_limits<float>::epsilon();
+  const double eps = std::numeric_limits<float>::epsilon();
   static int first = 0;
   if (first == 0) {
-    std::cout << "numeric_limits<float>::epsilon() " << numeric_limits<float>::epsilon() << std::endl;
+    std::cout << "numeric_limits<float>::epsilon() " << std::numeric_limits<float>::epsilon() << std::endl;
     first =1;
   }
 
@@ -253,7 +250,6 @@ void TrackerDigiGeometryAnalyzer::checkRotation( const GeomDetUnit& det)
 
 void TrackerDigiGeometryAnalyzer::checkTopology( const GeomDetUnit& det)
 {
-  using namespace std;
 
   const StripTopology& topol = dynamic_cast<const StripTopology&>(det.topology());
   const int N = 5;

@@ -113,15 +113,13 @@ ModuleInfo::~ModuleInfo()
 void
 ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  using namespace edm;
-  using namespace std;
   
   edm::LogInfo("ModuleInfo") << "begins";
   
   // output file
-  std::ofstream Output("ModuleInfo.log",ios::out);
+  std::ofstream Output("ModuleInfo.log",std::ios::out);
   // TEC output as Martin Weber's
-  std::ofstream TECOutput("TECLayout_CMSSW.dat",ios::out);
+  std::ofstream TECOutput("TECLayout_CMSSW.dat",std::ios::out);
   //
   
   //
@@ -129,8 +127,8 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   //
   edm::ESHandle<GeometricDet> rDD;
   iSetup.get<IdealGeometryRecord>().get( rDD );     
-  edm::LogInfo("ModuleInfo") << " Top node is  " << &(*rDD) << " " <<  (*rDD).name().name() << endl;
-  edm::LogInfo("ModuleInfo") << " And Contains  Daughters: " << (*rDD).deepComponents().size() << endl;
+  edm::LogInfo("ModuleInfo") << " Top node is  " << &(*rDD) << " " <<  (*rDD).name().name() << std::endl;
+  edm::LogInfo("ModuleInfo") << " And Contains  Daughters: " << (*rDD).deepComponents().size() << std::endl;
   CmsTrackerDebugNavigator nav;
   nav.dump(&(*rDD));
   //
@@ -200,11 +198,11 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   //
   
   
-  vector<const GeometricDet*> modules =  (*rDD).deepComponents();
-  Output << "************************ List of modules with positions ************************" << endl;
+  std::vector<const GeometricDet*> modules =  (*rDD).deepComponents();
+  Output << "************************ List of modules with positions ************************" << std::endl;
   for(unsigned int i=0; i<modules.size();i++){
     unsigned int rawid = modules[i]->geographicalID().rawId();
-    Output << " ******** raw Id = " << rawid << endl;
+    Output << " ******** raw Id = " << rawid << std::endl;
     int subdetid = modules[i]->geographicalID().subdetId();
     double volume = modules[i]->volume() / 1000; // mm3->cm3
     double density = modules[i]->density() / density_units;
@@ -223,7 +221,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	volume_pxb+=volume;
 	weight_pxb+=weight;
 	activeSurface_pxb+=activeSurface;
-	string name = modules[i]->name().name();
+	std::string name = modules[i]->name().name();
 	if(name == "PixelBarrelActiveFull") pxb_fullN++;
 	if(name == "PixelBarrelActiveHalf") pxb_halfN++;
 	PXBDetId module(rawid);
@@ -233,9 +231,9 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	
 	Output << " PXB" << "\t" << "Layer " << theLayer << " Ladder " << theLadder
 	       << "\t" << " module " << theModule << " " << name << "\t"
-	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << endl
+	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl
 	       << "\t" << "volume " << volume << " cm3 \t" << "density " << density << " g/cm3 \t" << "weight " << weight << " kg \t" << "thickness " << thickness
-	       << " um \t" << " active area " << activeSurface << " cm2" << endl;
+	       << " um \t" << " active area " << activeSurface << " cm2" << std::endl;
 	break;
       }
       
@@ -246,7 +244,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	volume_pxf+=volume;
 	weight_pxf+=weight;
 	activeSurface_pxf+=activeSurface;
-	string name = modules[i]->name().name();
+	std::string name = modules[i]->name().name();
 	if(name == "PixelForwardActive1x2") pxf_1x2N++;
 	if(name == "PixelForwardActive1x5") pxf_1x5N++;
 	if(name == "PixelForwardActive2x3") pxf_2x3N++;
@@ -257,13 +255,13 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	unsigned int theDisk   = module.disk();
 	unsigned int theBlade  = module.blade();
 	unsigned int theModule = module.module();
-	string side;
+	std::string side;
 	side = (module.side() == 1 ) ? "-" : "+";
 	Output << " PXF" << side << "\t" << "Disk " << theDisk << " Blade " << theBlade << " Panel " << thePanel
 	       << "\t" << " module " << theModule << "\t" << name << "\t"
-	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << endl
+	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl
 	       << "\t" << "volume " << volume << " cm3 \t" << "density " << density << " g/cm3 \t" << "weight " << weight << " kg \t" << "thickness " << thickness
-	       << " um \t" << " active area " << activeSurface << " cm2" << endl;
+	       << " um \t" << " active area " << activeSurface << " cm2" << std::endl;
 	break;
       }
       
@@ -274,25 +272,25 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	volume_tib+=volume;
 	weight_tib+=weight;
 	activeSurface_tib+=activeSurface;
-	string name = modules[i]->name().name();
+	std::string name = modules[i]->name().name();
 	if(name == "TIBActiveRphi0") tib_L12_rphiN++;
 	if(name == "TIBActiveSter0") tib_L12_sterN++;
 	if(name == "TIBActiveRphi2") tib_L34_rphiN++;
 	TIBDetId module(rawid);
 	unsigned int         theLayer  = module.layer();
-	vector<unsigned int> theString = module.string();
+	std::vector<unsigned int> theString = module.string();
 	unsigned int         theModule = module.module();
-	string side;
-	string part;
+	std::string side;
+	std::string part;
 	side = (theString[0] == 0 ) ? "-" : "+";
 	part = (theString[1] == 0 ) ? "int" : "ext";
 	
 	Output << " TIB" << side << "\t" << "Layer " << theLayer << " " << part
 	       << "\t" << "string " << theString[2] << "\t" << " module " << theModule << " " << name << "\t"
 	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << " "
-	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << endl
+	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << std::endl
 	       << "\t" << "volume " << volume << " cm3 \t" << "density " << density << " g/cm3 \t" << "weight " << weight << " kg \t" << "thickness " << thickness
-	       << " um \t" << " active area " << activeSurface << " cm2" << endl;
+	       << " um \t" << " active area " << activeSurface << " cm2" << std::endl;
 	
 	break;
       }
@@ -304,7 +302,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	volume_tid+=volume;
 	weight_tid+=weight;
 	activeSurface_tid+=activeSurface;
-	string name = modules[i]->name().name();
+	std::string name = modules[i]->name().name();
 	if(name == "TIDModule0RphiActive")   tid_r1_rphiN++;
 	if(name == "TIDModule0StereoActive") tid_r1_sterN++;
 	if(name == "TIDModule1RphiActive")   tid_r2_rphiN++;
@@ -313,17 +311,17 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	TIDDetId module(rawid);
 	unsigned int         theDisk   = module.wheel();
 	unsigned int         theRing   = module.ring();
-	vector<unsigned int> theModule = module.module();
-	string side;
-	string part;
+	std::vector<unsigned int> theModule = module.module();
+	std::string side;
+	std::string part;
 	side = (module.side() == 1 ) ? "-" : "+";
 	part = (theModule[0] == 0 ) ? "back" : "front";
 	Output << " TID" << side << "\t" << "Disk " << theDisk << " Ring " << theRing << " " << part
 	       << "\t" << " module " << theModule[1] << "\t" << name << "\t"
 	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << " "
-	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << endl
+	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << std::endl
 	       << "\t" << "volume " << volume << " cm3 \t" << "density " << density << " g/cm3 \t" << "weight " << weight << " kg \t" << "thickness " << thickness
-	       << " um \t" << " active area " << activeSurface << " cm2" << endl;
+	       << " um \t" << " active area " << activeSurface << " cm2" << std::endl;
 	break;
       }
       
@@ -334,25 +332,25 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	volume_tob+=volume;
 	weight_tob+=weight;
 	activeSurface_tob+=activeSurface;
-	string name = modules[i]->name().name();
+	std::string name = modules[i]->name().name();
 	if(name == "TOBActiveRphi0") tob_R12_rphiN++;
 	if(name == "TOBActiveSter0") tob_R12_sterN++;
 	if(name == "TOBActiveRphi2") tob_R34_rphiN++;
 	if(name == "TOBActiveRphi4") tob_R56_rphiN++;
 	TOBDetId module(rawid);
 	unsigned int         theLayer  = module.layer();
-	vector<unsigned int> theRod    = module.rod();
+	std::vector<unsigned int> theRod    = module.rod();
 	unsigned int         theModule = module.module();
-	string side;
-	string part;
+	std::string side;
+	std::string part;
 	side = (theRod[0] == 1 ) ? "+" : "-";
 	
 	Output << " TOB" << side << "\t" << "Layer " << theLayer 
 	       << "\t" << "rod " << theRod[1] << " module " << theModule << "\t" << name << "\t" 
 	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << " "
-	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << endl
+	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << std::endl
 	       << "\t" << "volume " << volume << " cm3 \t" << "density " << density << " g/cm3 \t" << "weight " << weight << " kg \t" << "thickness " << thickness
-	       << " um \t" << " active area " << activeSurface << " cm2" << endl;
+	       << " um \t" << " active area " << activeSurface << " cm2" << std::endl;
 	break;
       }
       
@@ -363,7 +361,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	volume_tec+=volume;
 	weight_tec+=weight;
 	activeSurface_tec+=activeSurface;
-	string name = modules[i]->name().name();
+	std::string name = modules[i]->name().name();
 	if(name == "TECModule0RphiActive")   tec_r1_rphiN++;
 	if(name == "TECModule0StereoActive") tec_r1_sterN++;
 	if(name == "TECModule1RphiActive")   tec_r2_rphiN++;
@@ -377,18 +375,18 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	TECDetId module(rawid);
 	unsigned int theWheel = module.wheel();
 	unsigned int         theModule = module.module();
-	vector<unsigned int> thePetal  = module.petal();
+	std::vector<unsigned int> thePetal  = module.petal();
 	unsigned int         theRing   = module.ring();
-	string side;
-	string petal;
+	std::string side;
+	std::string petal;
 	side  = (module.side() == 1 ) ? "-" : "+";
 	petal = (thePetal[0] == 1 ) ? "forward" : "backward";
 	Output << " TEC" << side << "\t" << "Wheel " << theWheel << " Petal " << thePetal[1] << " " << petal << " Ring " << theRing << "\t"
 	       << "\t" << " module " << theModule << "\t" << name << "\t"
 	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << " "
-	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << endl
+	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << std::endl
 	       << "\t" << "volume " << volume << " cm3 \t" << "density " << density << " g/cm3 \t" << "weight " << weight << " kg \t" << "thickness " << thickness
-	       << " um \t" << " active area " << activeSurface << " cm2" << endl;
+	       << " um \t" << " active area " << activeSurface << " cm2" << std::endl;
 	
 	// TEC output as Martin Weber's
 	int out_side  = (module.side() == 1 ) ? -1 : 1;
@@ -416,12 +414,12 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	double out_phi_rad = atan2(modules[i]->translation()[1],modules[i]->translation()[0]);
 	TECOutput << out_side << " " << out_disk << " " << out_sector << " " << out_petal
 		  << " " << out_ring << " " << out_module << " " << out_sensor
-		  << " " << out_x << " " << out_y << " " << out_z << " " << out_r << " " << out_phi_rad << endl;
+		  << " " << out_x << " " << out_y << " " << out_z << " " << out_r << " " << out_phi_rad << std::endl;
 	//
 	break;
       }
     default:
-      Output << " WARNING no Silicon Strip detector, I got a " << rawid << endl;;
+      Output << " WARNING no Silicon Strip detector, I got a " << rawid << std::endl;;
     }
     
     // Local axes from Reco
@@ -437,23 +435,23 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     //
     
     // active area center
-    Output << "\tActive Area Center" << endl;
-    Output << "\t O = (" << modules[i]->translation()[0] << "," << modules[i]->translation()[1] << "," << modules[i]->translation()[2] << ")" << endl;
+    Output << "\tActive Area Center" << std::endl;
+    Output << "\t O = (" << modules[i]->translation()[0] << "," << modules[i]->translation()[1] << "," << modules[i]->translation()[2] << ")" << std::endl;
     Output << "\t\t polar radius " 
 	   << sqrt(modules[i]->translation()[0]*modules[i]->translation()[0]+modules[i]->translation()[1]*modules[i]->translation()[1])
 	   << "\t" << "phi [deg] " 
 	   << atan2(modules[i]->translation()[1],modules[i]->translation()[0]) * 360. / 6.283185307
 	   << "\t" << "phi [rad] "
 	   << atan2(modules[i]->translation()[1],modules[i]->translation()[0])
-	   << endl;
+	   << std::endl;
     // active area versors (rotation matrix)
-    Output << "\tActive Area Rotation Matrix" << endl;
-    Output << "\t z = n = (" << modules[i]->rotation().xz() << "," << modules[i]->rotation().yz() << "," << modules[i]->rotation().zz() << ")" << endl
-	   << "\t [Rec] = (" << zGlobal.x()                 << "," << zGlobal.y()                 << "," << zGlobal.z()                 << ")" << endl
-	   << "\t x = t = (" << modules[i]->rotation().xx() << "," << modules[i]->rotation().yx() << "," << modules[i]->rotation().zx() << ")" << endl
-	   << "\t [Rec] = (" << xGlobal.x()                 << "," << xGlobal.y()                 << "," << xGlobal.z()                 << ")" << endl
-	   << "\t y = k = (" << modules[i]->rotation().xy() << "," << modules[i]->rotation().yy() << "," << modules[i]->rotation().zy() << ")" << endl
-	   << "\t [Rec] = (" << yGlobal.x()                 << "," << yGlobal.y()                 << "," << yGlobal.z()                 << ")" << endl;
+    Output << "\tActive Area Rotation Matrix" << std::endl;
+    Output << "\t z = n = (" << modules[i]->rotation().xz() << "," << modules[i]->rotation().yz() << "," << modules[i]->rotation().zz() << ")" << std::endl
+	   << "\t [Rec] = (" << zGlobal.x()                 << "," << zGlobal.y()                 << "," << zGlobal.z()                 << ")" << std::endl
+	   << "\t x = t = (" << modules[i]->rotation().xx() << "," << modules[i]->rotation().yx() << "," << modules[i]->rotation().zx() << ")" << std::endl
+	   << "\t [Rec] = (" << xGlobal.x()                 << "," << xGlobal.y()                 << "," << xGlobal.z()                 << ")" << std::endl
+	   << "\t y = k = (" << modules[i]->rotation().xy() << "," << modules[i]->rotation().yy() << "," << modules[i]->rotation().zy() << ")" << std::endl
+	   << "\t [Rec] = (" << yGlobal.x()                 << "," << yGlobal.y()                 << "," << yGlobal.z()                 << ")" << std::endl;
     
   }
   
@@ -504,89 +502,89 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   //
   
   // summary
-  Output << "---------------------" << endl;
-  Output << " Counters " << endl;
-  Output << "---------------------" << endl;
-  Output << " PXB    = " << pxbN << endl;
-  Output << "   Full = " << pxb_fullN << endl;
-  Output << "   Half = " << pxb_halfN << endl;
-  Output << "   Active Silicon Detectors"                    << endl;
-  Output << "     Weight  = " << weight_pxb        << " kg"  << endl;
-  Output << "     Volume  = " << volume_pxb        << " cm3" << endl;
-  Output << "     Surface = " << activeSurface_pxb << " cm2" << endl;
-  Output << "        PSI46s   = " << psi_pxb  << endl;;
-  Output << "        channels = " << chan_pxb << endl;;
-  Output << " PXF    = " << pxfN << endl;
-  Output << "   1x2 = " << pxf_1x2N << endl;
-  Output << "   1x5 = " << pxf_1x5N << endl;
-  Output << "   2x3 = " << pxf_2x3N << endl;
-  Output << "   2x4 = " << pxf_2x4N << endl;
-  Output << "   2x5 = " << pxf_2x5N << endl;
-  Output << "   Active Silicon Detectors"                    << endl;
-  Output << "     Weight  = " << weight_pxf        << " kg"  << endl;
-  Output << "     Volume  = " << volume_pxf        << " cm3" << endl;
-  Output << "     Surface = " << activeSurface_pxf << " cm2" << endl;
-  Output << "        PSI46s   = " << psi_pxf  << endl;;
-  Output << "        channels = " << chan_pxf << endl;;
-  Output << " TIB    = " << tibN << endl;
-  Output << "   L12 rphi   = " << tib_L12_rphiN << endl;
-  Output << "   L12 stereo = " << tib_L12_sterN << endl;
-  Output << "   L34        = " << tib_L34_rphiN << endl;
-  Output << "   Active Silicon Detectors"                    << endl;
-  Output << "     Weight  = " << weight_tib        << " kg"  << endl;
-  Output << "     Volume  = " << volume_tib        << " cm3" << endl;
-  Output << "     Surface = " << activeSurface_tib << " cm2" << endl;
-  Output << "        APV25s   = " << apv_tib  << endl;;
-  Output << "        channels = " << chan_tib << endl;;
-  Output << " TID    = " << tidN << endl;
-  Output << "   r1 rphi    = " << tid_r1_rphiN << endl;
-  Output << "   r1 stereo  = " << tid_r1_sterN << endl;
-  Output << "   r2 rphi    = " << tid_r2_rphiN << endl;
-  Output << "   r2 stereo  = " << tid_r2_sterN << endl;
-  Output << "   r3 rphi    = " << tid_r3_rphiN << endl;
-  Output << "   Active Silicon Detectors"                    << endl;
-  Output << "     Weight  = " << weight_tid        << " kg"  << endl;
-  Output << "     Volume  = " << volume_tid        << " cm3" << endl;;
-  Output << "     Surface = " << activeSurface_tid << " cm2" << endl;
-  Output << "        APV25s   = " << apv_tid  << endl;;
-  Output << "        channels = " << chan_tid << endl;;
-  Output << " TOB    = " << tobN << endl;
-  Output << "   R12 rphi   = " << tob_R12_rphiN << endl;
-  Output << "   R12 stereo = " << tob_R12_sterN << endl;
-  Output << "   R34        = " << tob_R34_rphiN << endl;
-  Output << "   R56        = " << tob_R56_rphiN << endl;
-  Output << "   Active Silicon Detectors"                    << endl;
-  Output << "     Weight  = " << weight_tob        << " kg"  << endl;
-  Output << "     Volume  = " << volume_tob        << " cm3" << endl;;
-  Output << "     Surface = " << activeSurface_tob << " cm2" << endl;
-  Output << "        APV25s   = " << apv_tob  << endl;;
-  Output << "        channels = " << chan_tob << endl;;
-  Output << " TEC    = " << tecN << endl;
-  Output << "   r1 rphi    = " << tec_r1_rphiN << endl;
-  Output << "   r1 stereo  = " << tec_r1_sterN << endl;
-  Output << "   r2 rphi    = " << tec_r2_rphiN << endl;
-  Output << "   r2 stereo  = " << tec_r2_sterN << endl;
-  Output << "   r3 rphi    = " << tec_r3_rphiN << endl;
-  Output << "   r4 rphi    = " << tec_r4_rphiN << endl;
-  Output << "   r5 rphi    = " << tec_r5_rphiN << endl;
-  Output << "   r5 stereo  = " << tec_r5_sterN << endl;
-  Output << "   r6 rphi    = " << tec_r6_rphiN << endl;
-  Output << "   r7 rphi    = " << tec_r7_rphiN << endl;
-  Output << "   Active Silicon Detectors"                    << endl;
-  Output << "     Weight  = " << weight_tec        << " kg"  << endl;
-  Output << "     Volume  = " << volume_tec        << " cm3" << endl;;
-  Output << "     Surface = " << activeSurface_tec << " cm2" << endl;
-  Output << "        APV25s   = " << apv_tec  << endl;;
-  Output << "        channels = " << chan_tec << endl;;
-  Output << "---------------------" << endl;
-  Output << " Total Weight      = " << weight_total        << " kg"  << endl;
-  Output << " Total Volume      = " << volume_total        << " cm3" << endl;;
-  Output << " Total Active Area = " << activeSurface_total << " cm2" << endl;
-  Output << "        PSI46s   = " << psi_tot << endl;;
-  Output << "        APV25s   = " << apv_tot << endl;;
-  Output << "        pixel channels = " << chan_pixel << endl;;
-  Output << "        strip channels = " << chan_strip << endl;;
-  Output << "        total channels = " << chan_tot   << endl;;
+  Output << "---------------------" << std::endl;
+  Output << " Counters " << std::endl;
+  Output << "---------------------" << std::endl;
+  Output << " PXB    = " << pxbN << std::endl;
+  Output << "   Full = " << pxb_fullN << std::endl;
+  Output << "   Half = " << pxb_halfN << std::endl;
+  Output << "   Active Silicon Detectors"                    << std::endl;
+  Output << "     Weight  = " << weight_pxb        << " kg"  << std::endl;
+  Output << "     Volume  = " << volume_pxb        << " cm3" << std::endl;
+  Output << "     Surface = " << activeSurface_pxb << " cm2" << std::endl;
+  Output << "        PSI46s   = " << psi_pxb  << std::endl;
+  Output << "        channels = " << chan_pxb << std::endl;
+  Output << " PXF    = " << pxfN << std::endl;
+  Output << "   1x2 = " << pxf_1x2N << std::endl;
+  Output << "   1x5 = " << pxf_1x5N << std::endl;
+  Output << "   2x3 = " << pxf_2x3N << std::endl;
+  Output << "   2x4 = " << pxf_2x4N << std::endl;
+  Output << "   2x5 = " << pxf_2x5N << std::endl;
+  Output << "   Active Silicon Detectors"                    << std::endl;
+  Output << "     Weight  = " << weight_pxf        << " kg"  << std::endl;
+  Output << "     Volume  = " << volume_pxf        << " cm3" << std::endl;
+  Output << "     Surface = " << activeSurface_pxf << " cm2" << std::endl;
+  Output << "        PSI46s   = " << psi_pxf  << std::endl;
+  Output << "        channels = " << chan_pxf << std::endl;
+  Output << " TIB    = " << tibN << std::endl;
+  Output << "   L12 rphi   = " << tib_L12_rphiN << std::endl;
+  Output << "   L12 stereo = " << tib_L12_sterN << std::endl;
+  Output << "   L34        = " << tib_L34_rphiN << std::endl;
+  Output << "   Active Silicon Detectors"                    << std::endl;
+  Output << "     Weight  = " << weight_tib        << " kg"  << std::endl;
+  Output << "     Volume  = " << volume_tib        << " cm3" << std::endl;
+  Output << "     Surface = " << activeSurface_tib << " cm2" << std::endl;
+  Output << "        APV25s   = " << apv_tib  << std::endl;
+  Output << "        channels = " << chan_tib << std::endl;
+  Output << " TID    = " << tidN << std::endl;
+  Output << "   r1 rphi    = " << tid_r1_rphiN << std::endl;
+  Output << "   r1 stereo  = " << tid_r1_sterN << std::endl;
+  Output << "   r2 rphi    = " << tid_r2_rphiN << std::endl;
+  Output << "   r2 stereo  = " << tid_r2_sterN << std::endl;
+  Output << "   r3 rphi    = " << tid_r3_rphiN << std::endl;
+  Output << "   Active Silicon Detectors"                    << std::endl;
+  Output << "     Weight  = " << weight_tid        << " kg"  << std::endl;
+  Output << "     Volume  = " << volume_tid        << " cm3" << std::endl;;
+  Output << "     Surface = " << activeSurface_tid << " cm2" << std::endl;
+  Output << "        APV25s   = " << apv_tid  << std::endl;
+  Output << "        channels = " << chan_tid << std::endl;
+  Output << " TOB    = " << tobN << std::endl;
+  Output << "   R12 rphi   = " << tob_R12_rphiN << std::endl;
+  Output << "   R12 stereo = " << tob_R12_sterN << std::endl;
+  Output << "   R34        = " << tob_R34_rphiN << std::endl;
+  Output << "   R56        = " << tob_R56_rphiN << std::endl;
+  Output << "   Active Silicon Detectors"                    << std::endl;
+  Output << "     Weight  = " << weight_tob        << " kg"  << std::endl;
+  Output << "     Volume  = " << volume_tob        << " cm3" << std::endl;
+  Output << "     Surface = " << activeSurface_tob << " cm2" << std::endl;
+  Output << "        APV25s   = " << apv_tob  << std::endl;
+  Output << "        channels = " << chan_tob << std::endl;
+  Output << " TEC    = " << tecN << std::endl;
+  Output << "   r1 rphi    = " << tec_r1_rphiN << std::endl;
+  Output << "   r1 stereo  = " << tec_r1_sterN << std::endl;
+  Output << "   r2 rphi    = " << tec_r2_rphiN << std::endl;
+  Output << "   r2 stereo  = " << tec_r2_sterN << std::endl;
+  Output << "   r3 rphi    = " << tec_r3_rphiN << std::endl;
+  Output << "   r4 rphi    = " << tec_r4_rphiN << std::endl;
+  Output << "   r5 rphi    = " << tec_r5_rphiN << std::endl;
+  Output << "   r5 stereo  = " << tec_r5_sterN << std::endl;
+  Output << "   r6 rphi    = " << tec_r6_rphiN << std::endl;
+  Output << "   r7 rphi    = " << tec_r7_rphiN << std::endl;
+  Output << "   Active Silicon Detectors"                    << std::endl;
+  Output << "     Weight  = " << weight_tec        << " kg"  << std::endl;
+  Output << "     Volume  = " << volume_tec        << " cm3" << std::endl;
+  Output << "     Surface = " << activeSurface_tec << " cm2" << std::endl;
+  Output << "        APV25s   = " << apv_tec  << std::endl;
+  Output << "        channels = " << chan_tec << std::endl;
+  Output << "---------------------" << std::endl;
+  Output << " Total Weight      = " << weight_total        << " kg"  << std::endl;
+  Output << " Total Volume      = " << volume_total        << " cm3" << std::endl;
+  Output << " Total Active Area = " << activeSurface_total << " cm2" << std::endl;
+  Output << "        PSI46s   = " << psi_tot << std::endl;
+  Output << "        APV25s   = " << apv_tot << std::endl;
+  Output << "        pixel channels = " << chan_pixel << std::endl;
+  Output << "        strip channels = " << chan_strip << std::endl;
+  Output << "        total channels = " << chan_tot   << std::endl;
   //
 }
 
