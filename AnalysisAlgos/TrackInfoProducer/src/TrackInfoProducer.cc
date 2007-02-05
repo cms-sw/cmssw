@@ -59,7 +59,7 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
     edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
     theEvent.getByLabel(TkTag,TrajectoryCollection);
     edm::Handle<reco::TrackCollection > trackCollection;
-    theEvent.getByLabel(TkTag,TrajectoryCollection);
+    theEvent.getByLabel(TkTag,trackCollection);
     edm::Handle<TrackingRecHitCollection> rechitscollection;
     theEvent.getByLabel(RHTag,rechitscollection);
     //
@@ -111,15 +111,19 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
       
 	GlobalPoint pi = innertsos.globalParameters().position();
 	GlobalVector vi = innertsos.globalParameters().momentum();
-
+	edm::LogInfo("TrackInfoProducer")<<"GLOBAL POINTS AND VECTORS calculated";
      
 	reco::TrackCollection::const_iterator tk_iterator;
-	edm::Ref<reco::TrackCollection>::key_type idtk = 0;      
+	edm::Ref<reco::TrackCollection>::key_type idtk = 0;
+	edm::LogInfo("TrackInfoProducer")<<"tkcollection size= ";
+	edm::LogInfo("TrackInfoProducer")<<trackCollection->size();
 	for(tk_iterator=trackCollection->begin();tk_iterator!=trackCollection->end();tk_iterator++){//loop on tracks
+	  edm::LogInfo("TrackInfoProducer")<<"CALCULATE GLOBAL POINTS AND VECTORS";
 	  GlobalPoint tkpo = GlobalPoint(tk_iterator->outerPosition().X(),tk_iterator->outerPosition().Y(),tk_iterator->outerPosition().Z());
 	   GlobalVector tkvo = GlobalVector(tk_iterator->outerMomentum().X(),tk_iterator->outerMomentum().Y(),tk_iterator->outerMomentum().Z());
 	   GlobalPoint tkpi = GlobalPoint(tk_iterator->innerPosition().X(),tk_iterator->innerPosition().Y(),tk_iterator->innerPosition().Z());
 	   GlobalVector tkvi = GlobalVector(tk_iterator->innerMomentum().X(),tk_iterator->innerMomentum().Y(),tk_iterator->innerMomentum().Z());
+	  edm::LogInfo("TrackInfoProducer")<<"CALCULATEd";
 	   if(((vo-tkvo).mag()<1e-16)&&
 	      ((po-tkpo).mag()<1e-16)&&
 	      ((vi-tkvi).mag()<1e-16)&&
@@ -128,11 +132,20 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 	      (tk_iterator->outerDetId()==outerId)
 	      )
 	     {
+	       edm::LogInfo("TrackInfoProducer")<<"insert objects in the collection";
 	       TIassociationFwdColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, idtk),edm::Ref<reco::TrackInfoCollection>(rTrackInfof, idti));
 	       TIassociationBwdColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, idtk),edm::Ref<reco::TrackInfoCollection>(rTrackInfob, idti));
 	       TIassociationUpdatedColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, idtk),edm::Ref<reco::TrackInfoCollection>(rTrackInfou, idti));
 	       TIassociationCombinedColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, idtk),edm::Ref<reco::TrackInfoCollection>(rTrackInfoc, idti));
 	     }
+	   else {
+	     edm::LogInfo("TrackInfoProducer")<<" Track outer position and momentum and detid:"<< tkpo <<" "<<tkvo<<" "<<tk_iterator->outerDetId();
+	     edm::LogInfo("TrackInfoProducer")<<" Track inner position and momentum and detid:"<< tkpi <<" "<<tkvi<<" "<<tk_iterator->innerDetId();
+	     edm::LogInfo("TrackInfoProducer")<<" Traj outer position and momentum and detid:"<< po <<" "<<vo<<" "<<outerId;
+	     edm::LogInfo("TrackInfoProducer")<<" Traj inner position and momentum and detid:"<< pi <<" "<<vi<<" "<<innerId;
+	     
+	     edm::LogInfo("TrackInfoProducer")<<"trying an other track"; 
+	   }
 	   idtk++;
 	}
 	idti++;
