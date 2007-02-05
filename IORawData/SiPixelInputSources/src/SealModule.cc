@@ -3,5 +3,6 @@
 
 #include "IORawData/SiPixelInputSources/interface/PixelSLinkDataInputSource.h"
 
-DEFINE_FWK_INPUT_SOURCE(PixelSLinkDataInputSource)
+DEFINE_FWK_INPUT_SOURCE(PixelSLinkDataInputSource);
+
 
