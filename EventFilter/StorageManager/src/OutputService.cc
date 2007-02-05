@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: OutputService.cc,v 1.1 2007/02/05 11:19:57 klute Exp $
 
 #include <EventFilter/StorageManager/interface/OutputService.h>
 
@@ -24,8 +24,8 @@ OutputService::OutputService(boost::shared_ptr<FileRecord> file,
   writer_ = shared_ptr<StreamerFileWriter> (new StreamerFileWriter(streamerFileName, indexFileName));
   writeHeader(view);
 
-  //file_ -> increaseFileSize(view.size()); //this is duplicated
   file_ -> firstEntry(getTimeStamp());
+  file_ -> insertFileInDatabase();
 }
 
 
@@ -78,6 +78,8 @@ void OutputService::closeFile()
   file_   -> moveFileToClosed();
   file_   -> writeToSummaryCatalog();
   file_   -> writeToMailBox();
+  file_   -> updateDatabase();
+  file_   -> notifyTier0();
 }
 
 

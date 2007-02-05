@@ -1,6 +1,7 @@
-// $Id:$
+// $Id: FileRecord.cc,v 1.1 2007/02/05 11:19:57 klute Exp $
 
 #include <EventFilter/StorageManager/interface/FileRecord.h>
+#include <EventFilter/StorageManager/interface/Configurator.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <errno.h>
@@ -21,14 +22,14 @@ FileRecord::FileRecord(int lumi, string file, string path):
   basePath_(path),
   fileSystem_(""),
   workingDir_("/open/"),
-  statFileName_("summaryCatalog.txt"),
   mailBoxPath_(path+"/mbox"),
   lumiSection_(lumi),
   fileCounter_(0),
   fileSize_(0), 
   events_(0), 
   firstEntry_(0.0), 
-  lastEntry_(0.0)
+  lastEntry_(0.0),
+  smParameter_(stor::Configurator::instance()->getParameter())
 {
 }
 
@@ -61,11 +62,93 @@ void FileRecord::writeToSummaryCatalog()
               << timeStamp(lastEntry()) << ind
 	      << (int) (lastEntry()-firstEntry()) << endl;
   string currentStatString (currentStat.str());
-  ofstream of(statFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+  ofstream of(smParameter_->fileCatalog().c_str(), ios_base::ate | ios_base::out | ios_base::app );
   of << currentStatString;
   of.close();
 }
 
+
+//
+// *** notify Tier 0 about a new file
+// *** just call a script with the relavant information
+//
+void FileRecord::notifyTier0()
+{
+  // create command
+  std::ostringstream oss;
+  oss << smParameter_->notifyTier0Script() << " " 
+      << "--RUNNUMBER="    << runNumber_                         << " "
+      << "--LUMISECTION="  << lumiSection_                       << " "
+      << "--INSTANCE="     << smParameter_->smInstance()         << " "
+      << "--COUNT="        << fileCounter_                       << " "
+      << "--TYPE="         << setupLabel_                        << " "
+      << "--STREAM="       << streamLabel_                       << " "
+      << "--STATUS="       << "closed"                           << " "
+      << "--SAFETY="        << smParameter_->initialSafetyLevel() << " "
+      << "--NEVENTS="       << events_                            << " "
+      << "--FILESIZE="      << fileSize_                          << " "
+      << "--HOSTNAME="      << smParameter_->host()               << " " 
+      << "--PATHNAME="      << filePath()                         << " "
+      << "--FILENAME="      << fileName() << fileCounterStr() <<  ".dat";
+
+  // execute script
+  int status = std::system(oss.str().c_str());
+  if (status) 
+    {
+      edm::LogError("StorageManager") << " Error executing " << oss.str().c_str() 
+				      << " Return value = " << status;
+    }
+}
+
+
+//
+// *** update file information in database
+// *** just call a script with the relavant information
+// *** next version will use TStore
+//
+void FileRecord::updateDatabase()
+{
+  std::ostringstream oss;
+  oss << smParameter_->closeFileScript() << " " 
+      << fileName() <<  ".dat";
+
+  // execute script
+  int status = std::system(oss.str().c_str());
+  if (status) 
+    {
+      edm::LogError("StorageManager") << " Error executing " << oss.str().c_str() 
+				      << " Return value = " << status;
+    }
+}
+
+
+//
+// *** insert file information in database
+// *** just call a script with the relavant information
+// *** next version will use TStore
+//
+void FileRecord::insertFileInDatabase()
+{
+  std::ostringstream oss;
+  oss << smParameter_->insertFileScript()   << " " 
+      << runNumber_                         << " "
+      << lumiSection_                       << " "
+      << smParameter_->smInstance()         << " "
+      << "StorageManager"                   << " "
+      << filePath()                         << " "
+      << fileName() << fileCounterStr() << ".dat "
+      << streamLabel_                       << " "
+      << setupLabel_                        << " "
+      << "stream";
+ 
+  // execute script
+  int status = std::system(oss.str().c_str());
+  if (status) 
+    {
+      edm::LogError("StorageManager") << " Error executing " << oss.str().c_str() 
+				      << " Return value = " << status;
+    }
+}
 
 //
 // *** return a formatted string for the file counter
@@ -163,8 +246,8 @@ void FileRecord::checkDirectory(string path)
   int retVal = stat(path.c_str(), &buf);
   if(retVal !=0 )
     {
-      edm::LogError("testStorageManager") << "Directory " << path
-					  << " does not exist. Error=" << errno ;
+      edm::LogError("StorageManager") << "Directory " << path
+				      << " does not exist. Error=" << errno ;
     }
 }
 
@@ -181,7 +264,7 @@ void FileRecord::report(ostream &os, int indentation) const
   os << prefix << "basePath_           " << basePath_       << "\n";  
   os << prefix << "workingDir_         " << workingDir_     << "\n";
   os << prefix << "fileSystem_         " << fileSystem_     << "\n";
-  os << prefix << "statFileName_       " << statFileName_   << "\n";
+  os << prefix << "fileCatalog()       " << smParameter_->fileCatalog() << "\n"; 
   os << prefix << "mailBoxPath_        " << mailBoxPath_    << "\n";
   os << prefix << "lumiSection_        " << lumiSection_    << "\n";
   os << prefix << "fileCounter_        " << fileCounter_    << "\n";

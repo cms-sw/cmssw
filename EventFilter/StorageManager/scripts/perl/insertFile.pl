@@ -1,10 +1,11 @@
 #!/usr/bin/env perl
 # Created by Markus Klute on 2007 Jan 24.
-# $Id:$
+# $Id: insertFile.pl,v 1.2 2007/02/01 08:15:35 klute Exp $
 ################################################################################
 
 use strict;
 use DBI;
+use Sys::Hostname;
 
 ################################################################################
 
@@ -37,6 +38,26 @@ sub show_help {
   \n";
   exit $exit_status;
 }
+
+################################################################################
+# need to get the time and date in "oracle" format
+sub CurrentTime
+{
+    my @date = split(" ",`date`);
+    my $month = @date[1];
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime time;
+    my $dt = "AM";
+
+    if    ($hour == 0) {$hour = 12;       $dt = "PM";}
+    elsif ($hour > 12) {$hour = $hour-12; $dt = "PM";}
+		     
+    $year=$year+1900;
+    $min  = '0' . $min  if ($min < 10);
+    $hour = '0' . $hour if ($hour < 10);
+    $sec  = '0' . $sec  if ($sec < 10);
+    return "$mday-$month-$year $hour.$min.$sec.000000 $dt +00:00";
+}
+
 ################################################################################
 
 my ($RUNNUMBER)   = ('0');  
@@ -60,6 +81,8 @@ my ($SAFETY)      = ('0');
 my ($COUNT)       = ('0');  
 my ($TYPE)        = ('test');  
 
+$START_TIME = CurrentTime();
+$STOP_TIME  = $START_TIME;
 
 if ("$ARGV[0]" eq "-h") { &show_help(0);          }
 if ($#ARGV ==  18)      { $RUNNUMBER   = "$ARGV[0]";
@@ -80,7 +103,18 @@ if ($#ARGV ==  18)      { $RUNNUMBER   = "$ARGV[0]";
 			  $CRC         = "$ARGV[15]"; 
 		          $SAFETY      = "$ARGV[16]";
 		          $COUNT       = "$ARGV[17]";
-		          $TYPE        = "$ARGV[18]"
+		          $TYPE        = "$ARGV[18]";
+			  }
+elsif ($#ARGV ==  8)    { $RUNNUMBER   = "$ARGV[0]";
+			  $LUMISECTION = "$ARGV[1]";
+			  $INSTANCE    = "$ARGV[2]";  
+			  $PRODUCER    = "$ARGV[3]";  
+			  $PATHNAME    = "$ARGV[4]";    
+			  $FILENAME    = "$ARGV[5]";    
+			  $STREAM      = "$ARGV[6]";      
+			  $DATASET     = "$ARGV[7]";     
+		          $TYPE        = "$ARGV[8]";
+			  $HOSTNAME    = hostname();
 			  }
 else                    { &show_help(1);          }
 

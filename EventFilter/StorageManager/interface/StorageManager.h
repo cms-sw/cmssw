@@ -11,7 +11,7 @@
      See CMS EventFilter wiki page for further notes.
 */
 
-// $Id$
+// $Id: StorageManager.h,v 1.1 2007/02/04 06:27:48 hcheung Exp $
 
 #include <string>
 #include <list>
@@ -114,6 +114,10 @@ namespace stor {
     xdata::Integer nLogicalDisk_;
     xdata::String  fileCatalog_;
 
+    xdata::String  closeFileScript_;
+    xdata::String  notifyTier0Script_;
+    xdata::String  insertFileScript_;
+                                                                                                          
     bool writeStreamerOnly_;
     std::string smConfigString_;
     std::string smFileCatalog_;

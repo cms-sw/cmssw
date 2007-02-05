@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.1 2007/02/04 06:29:56 hcheung Exp $
+// $Id: StorageManager.cc,v 1.2 2007/02/05 11:19:57 klute Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -10,6 +10,8 @@
 #include "EventFilter/StorageManager/interface/i2oStorageManagerMsg.h"
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
+#include "EventFilter/StorageManager/interface/Configurator.h"
+#include "EventFilter/StorageManager/interface/Parameter.h"
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
@@ -124,14 +126,23 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   pool_is_set_    = 0;
   pool_           = 0;
   nLogicalDisk_   = 0;
-  fileCatalog_    = "summaryCatalog.txt";
 
   // Variables needed for streamer file writing
   // should be getting these from SM config file - put them in xml for now
   // until we do it in StreamerOutputService ctor
   ispace->fireItemAvailable("streamerOnly", &streamer_only_);
   ispace->fireItemAvailable("nLogicalDisk", &nLogicalDisk_);
-  ispace->fireItemAvailable("fileCatalog",  &fileCatalog_);
+
+  boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
+  closeFileScript_    = smParameter_ -> closeFileScript();
+  notifyTier0Script_  = smParameter_ -> notifyTier0Script();
+  insertFileScript_   = smParameter_ -> insertFileScript();  
+  fileCatalog_        = smParameter_ -> fileCatalog(); 
+
+  ispace->fireItemAvailable("closeFileScript",    &closeFileScript_);
+  ispace->fireItemAvailable("notifyTier0Script",  &notifyTier0Script_);
+  ispace->fireItemAvailable("insertFileScript",   &insertFileScript_);
+  ispace->fireItemAvailable("fileCatalog",        &fileCatalog_);
 
   // added for Event Server
   ser_prods_size_ = 0;
@@ -169,6 +180,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   // sourcename << xmlClass << "_" << instance;
   sourcename << instance;
   sourceId_ = sourcename.str();
+  smParameter_ -> setSmInstance(sourceId_);  // sourceId_ can be removed ...
 
   // need either of the two calls below so that deserializeRegistry can run
   // in order to compare two registries (cannot compare byte-for-byte)
@@ -211,6 +223,12 @@ void StorageManager::configureAction(toolbox::Event::Reference e)
   writeStreamerOnly_ = (bool) streamer_only_;
   smConfigString_    = my_config;
   smFileCatalog_     = fileCatalog_.toString();
+
+  boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
+  smParameter_ -> setCloseFileScript(closeFileScript_.toString());
+  smParameter_ -> setNotifyTier0Script(notifyTier0Script_.toString());
+  smParameter_ -> setInsertFileScript(insertFileScript_.toString());
+  smParameter_ -> setFileCatalog(fileCatalog_.toString());
 
   if (maxESEventRate_ < 0.0)
     maxESEventRate_ = 0.0;

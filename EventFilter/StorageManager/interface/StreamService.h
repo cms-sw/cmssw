@@ -1,7 +1,7 @@
 #ifndef STREAMSERVICE_H
 #define STREAMSERVICE_H
 
-// $Id:$
+// $Id: StreamService.h,v 1.1 2007/02/05 11:19:56 klute Exp $
 
 // - handling output files per stream make the problem 1-dimensional 
 // - allows to use different file handling rules per stream
@@ -52,12 +52,12 @@ namespace edm {
       void   setSourceId(std::string s)    { sourceId_ = s; }
 
       std::list<std::string> getFileList();
-      std::list<std::string>getCurrentFileList();
+      std::list<std::string> getCurrentFileList();
 
     private:
       boost::shared_ptr<OutputService>  newOutputService();
       boost::shared_ptr<OutputService>  getOutputService(EventMsgView const&);
-      boost::shared_ptr<FileRecord> generateFileRecord();  
+      boost::shared_ptr<FileRecord>     generateFileRecord();  
 
       void   saveInitMessage(InitMsgView const&);
       void   initializeSelection(InitMsgView const&);

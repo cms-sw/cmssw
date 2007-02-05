@@ -1,7 +1,9 @@
 #ifndef FILERECORD_H
 #define FILERECORD_H
 
-// $Id:$
+// $Id: FileRecord.h,v 1.1 2007/02/05 11:19:56 klute Exp $
+#include <EventFilter/StorageManager/interface/Parameter.h>
+#include <boost/shared_ptr.hpp>
 #include <string>
 
 namespace edm {
@@ -18,13 +20,19 @@ namespace edm {
       void   fileSystem(int);
       void   writeToSummaryCatalog();
       void   writeToMailBox();
+      void   notifyTier0();
+      void   updateDatabase();
+      void   insertFileInDatabase();
       void   moveFileToClosed();
       void   firstEntry(double d)   { firstEntry_ = d; }
       void   lastEntry(double d)    { lastEntry_  = d; }
       void   increaseFileSize(int i){ fileSize_   += i; }
       void   increaseEventCount()   { events_++; }
       void   checkDirectories();
-      void   setCatalog(std::string s)   { statFileName_ = s; }
+      void   setCatalog(std::string s)     { statFileName_ = s; }
+      void   setRunNumber(int i)           { runNumber_ = i; }
+      void   setStreamLabel(std::string s) { streamLabel_ = s;}
+      void   setSetupLabel(std::string s)  { setupLabel_ = s;}
 
       std::string fileName()             { return fileName_; }
       std::string basePath()             { return basePath_; }
@@ -52,14 +60,20 @@ namespace edm {
 
       std::string statFileName_;                          // catalog file name
       std::string mailBoxPath_;                           // mail box path
+
+      std::string setupLabel_;
+      std::string streamLabel_;
       
       int    lumiSection_;                           // luminosity section  
+      int    runNumber_;                             // runNumber
       int    fileCounter_;                           // number of files with fileName_ as name
       int    fileSize_;                              // current file size
       int    events_;                                // total number of events
       double firstEntry_;                            // time when last event was writen
       double lastEntry_;                             // time when last event was writen
  
+      boost::shared_ptr<stor::Parameter> smParameter_;     // 
+      
       void   checkDirectory(std::string);
    };
 

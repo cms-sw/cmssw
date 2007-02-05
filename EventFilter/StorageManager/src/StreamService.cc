@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: StreamService.cc,v 1.1 2007/02/05 11:19:57 klute Exp $
 
 #include <EventFilter/StorageManager/interface/StreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -277,6 +277,9 @@ boost::shared_ptr<FileRecord> StreamService::generateFileRecord()
   
   fd->checkDirectories();
   fd->setCatalog(catalog_);
+  fd->setRunNumber(runNumber_);
+  fd->setStreamLabel(streamLabel_);
+  fd->setSetupLabel(setupLabel_);
   // fd->report(cout, 12);
   return fd;
 }
