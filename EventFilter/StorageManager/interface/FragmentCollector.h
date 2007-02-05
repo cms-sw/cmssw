@@ -16,13 +16,13 @@
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
-#include "IOPool/Streamer/interface/StreamerOutSrvcManager.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 
 #include "DataFormats/Common/interface/ProductRegistry.h"
 
 #include "EventFilter/StorageManager/interface/EvtMsgRingBuffer.h"
 #include "EventFilter/StorageManager/interface/EventServer.h"
+#include "EventFilter/StorageManager/interface/ServiceManager.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
@@ -96,7 +96,7 @@ namespace stor
     std::string catalog_;
     std::string sourceId_;
 
-    std::auto_ptr<edm::StreamerOutSrvcManager> writer_;
+    std::auto_ptr<edm::ServiceManager> writer_;
 
   public:
     bool esbuf_isEmpty() { return evtsrv_area_.isEmpty(); }

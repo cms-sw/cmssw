@@ -1,7 +1,7 @@
-// $Id: FragmentCollector.cc,v 1.25 2007/01/10 18:09:00 klute Exp $
+// $Id: FragmentCollector.cc,v 1.26 2007/01/10 22:51:26 wmtan Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
-#include "EventFilter/StorageManager/test/SillyLockService.h"
+#include "EventFilter/StorageManager/interface/ProgressMarker.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -10,7 +10,6 @@
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
-#include "IOPool/Streamer/interface/ProgressMarker.h"
 
 #include "boost/bind.hpp"
 
@@ -37,7 +36,7 @@ namespace stor
     // inserter_(*evtbuf_q_),
     prods_(0),//prods_(&p),
 	info_(&h), 
-    writer_(new edm::StreamerOutSrvcManager(config_str)),
+    writer_(new edm::ServiceManager(config_str)),
     evtsrv_area_(10),
     oneinN_(10), 
     count_4_oneinN_(0) // added for Event Server by HWKC
@@ -55,7 +54,7 @@ namespace stor
     // inserter_(*evtbuf_q_),
     prods_(0),
 	info_(info.get()), 
-    writer_(new edm::StreamerOutSrvcManager(config_str)),
+    writer_(new edm::ServiceManager(config_str)),
     evtsrv_area_(10),
     oneinN_(10), 
     count_4_oneinN_(0) // added for Event Server by HWKC

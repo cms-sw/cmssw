@@ -1,4 +1,4 @@
-// $Id$
+// $Id: StorageManager.cc,v 1.1 2007/02/04 06:29:56 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -9,6 +9,7 @@
 #include "EventFilter/StorageManager/interface/StorageManager.h"
 #include "EventFilter/StorageManager/interface/i2oStorageManagerMsg.h"
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
+#include "EventFilter/StorageManager/interface/ProgressMarker.h"
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
@@ -25,7 +26,6 @@
 #include "IOPool/Streamer/interface/HLTInfo.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 #include "IOPool/Streamer/interface/TestFileReader.h"
-#include "IOPool/Streamer/interface/ProgressMarker.h"
 #include "IOPool/Streamer/interface/StreamDeserializer.h"
 
 #include "xcept/tools.h"
