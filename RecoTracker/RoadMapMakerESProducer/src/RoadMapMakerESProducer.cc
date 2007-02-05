@@ -8,66 +8,67 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/03/23 01:55:48 $
-// $Revision: 1.4 $
+// $Author: wmtan $
+// $Date: 2006/10/27 01:35:39 $
+// $Revision: 1.5 $
 //
 
 #include "RecoTracker/RoadMapMakerESProducer/interface/RoadMapMakerESProducer.h"
 
-#include "RecoTracker/RoadMapMakerESProducer/interface/RoadMaker.h"
+#include "RecoTracker/RingRecord/interface/Rings.h"
+#include "RecoTracker/RingRecord/interface/RingRecord.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
-//
-// constructors and destructor
-//
 RoadMapMakerESProducer::RoadMapMakerESProducer(const edm::ParameterSet& iConfig)
 {
-  //the following line is needed to tell the framework what
-  // data is being produced
+
   setWhatProduced(this);
 
-  //now do what ever other initialization is needed
-  verbosity_                 = iConfig.getUntrackedParameter<int>("VerbosityLevel",0);
   writeOut_                  = iConfig.getUntrackedParameter<bool>("WriteOutRoadMapToAsciiFile",false);
   fileName_                  = iConfig.getUntrackedParameter<std::string>("RoadMapAsciiFile","");
-  writeOutOldStyle_          = iConfig.getUntrackedParameter<bool>("WriteOutRoadMapToAsciiFileOldStyle",false);
-  fileNameOldStyle_          = iConfig.getUntrackedParameter<std::string>("RoadMapAsciiFileOldStyle","");
-  writeOutTrackerAsciiDump_  = iConfig.getUntrackedParameter<bool>("WriteOutTrackerAsciiDump",false);
-  fileNameTrackerAsciiDump_  = iConfig.getUntrackedParameter<std::string>("TrackerAsciiDumpFile","");  
+
+  std::string tmp_string         = iConfig.getUntrackedParameter<std::string>("GeometryStructure","FullDetector");
+
+  if ( tmp_string == "MTCC" ) {
+    geometryStructure_ = RoadMaker::MTCC;
+  } else if ( tmp_string == "TIFTOB" ) {
+    geometryStructure_ = RoadMaker::TIFTOB;
+  } else if ( tmp_string == "FullDetector" ) {
+    geometryStructure_ = RoadMaker::FullDetector;
+  } else {
+    geometryStructure_ = RoadMaker::FullDetector;
+  }
+
+  tmp_string         = iConfig.getUntrackedParameter<std::string>("SeedingType","FourRingSeeds");
+
+  if ( tmp_string == "TwoRingSeeds" ) {
+    seedingType_ = RoadMaker::TwoRingSeeds;
+  } else if ( tmp_string == "FourRingSeeds" ) {
+    seedingType_ = RoadMaker::FourRingSeeds;
+  } else {
+    seedingType_ = RoadMaker::FourRingSeeds;
+  }
+
 }
 
 
 RoadMapMakerESProducer::~RoadMapMakerESProducer()
 {
  
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-
 }
 
 
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 RoadMapMakerESProducer::ReturnType
-RoadMapMakerESProducer::produce(const TrackerDigiGeometryRecord& iRecord)
+RoadMapMakerESProducer::produce(const RoadMapRecord& iRecord)
 {
 
-  // get geometry
-  edm::ESHandle<TrackerGeometry> trackingGeometryHandle;
-  iRecord.get(trackingGeometryHandle);
-  const TrackerGeometry& tracker(*trackingGeometryHandle);
+  // get rings
+  edm::ESHandle<Rings> ringHandle;
+  iRecord.getRecord<RingRecord>().get(ringHandle);
+  const Rings *rings = ringHandle.product();
 
-  RoadMaker maker(tracker,verbosity_);
-
-  if ( writeOutTrackerAsciiDump_ ) {
-    std::ofstream output(fileNameTrackerAsciiDump_.c_str());
-    output << maker.printTrackerDetUnits(tracker);
-  }
+  RoadMaker maker(rings,
+		  geometryStructure_,
+		  seedingType_);
 
   Roads *roads = maker.getRoads();
   
@@ -75,10 +76,6 @@ RoadMapMakerESProducer::produce(const TrackerDigiGeometryRecord& iRecord)
 
   if ( writeOut_ ) {
     roads->dump(fileName_);
-  }
-
-  if ( writeOutOldStyle_ ) {
-    maker.dumpOldStyle(fileNameOldStyle_);
   }
 
   return pRoads ;

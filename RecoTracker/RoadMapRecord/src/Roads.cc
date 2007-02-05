@@ -28,13 +28,15 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
-Roads::Roads() : numberOfLayers_(0) {
+#include "TrackingTools/RoadSearchHitAccess/interface/RoadSearchDetIdHelper.h"
+
+Roads::Roads() {
 
 }
 
-Roads::Roads(std::string ascii_filename, unsigned int verbosity) : numberOfLayers_(0) {
+Roads::Roads(std::string ascii_filename, const Rings *rings) : rings_(rings) {
 
-  readInFromAsciiFile(ascii_filename,verbosity);
+  readInFromAsciiFile(ascii_filename);
 
 }
 
@@ -42,144 +44,128 @@ Roads::~Roads() {
 
 }
 
-void Roads::readInFromAsciiFile(std::string ascii_filename, unsigned int verbosity) {
+void Roads::readInFromAsciiFile(std::string ascii_filename) {
 
-  unsigned int counter = 0;
-
+  // input file
   std::ifstream input(ascii_filename.c_str());
+
+  // variable declaration
+  unsigned int counter         = 0;
   std::istringstream stream;
   std::string line;
-  unsigned int index, type;
-  float rmin,rmax,zmin,zmax;
-  unsigned int ndetid = 0;
-  double phi;
-  unsigned int detid;
-  unsigned int nringsinroadset;
-  
-  // number of subdetector components
-  unsigned int comp;
+  unsigned int nroads          = 0;
+  unsigned int nrings          = 0;
+  unsigned int nlayers         = 0;
+  unsigned int index           = 0;
+
+  // read in number of roads
   std::getline(input,line);
   while (std::isspace(line[0]) || (line[0] == 35) ) {
     std::getline(input,line);
   }
   stream.str(line);
   stream.clear();
-  stream >> comp;
+  stream >> nroads;
 
-  std::getline(input,line);
-  while (std::isspace(line[0]) || (line[0] == 35) ) {
+  for (unsigned int road = 0; 
+       road < nroads;
+       ++road ) {
+    // read in number of inner seed rings
     std::getline(input,line);
-  }
-  stream.str(line);
-  stream.clear();
-  unsigned int temp;
-  for (unsigned int i = 0; i < comp; ++i ) {
-    stream >> temp;
-    numberOfLayers_.push_back(temp);
-  }
-
-  while ( std::getline(input,line) ) {
-    if ( !std::isspace(line[0]) && !(line[0] == 35) ) {
-
-      // inner seed ring
-      stream.str(line);
-      stream.clear();
-      stream >> index >> rmin >> rmax >> zmin >> zmax >> type;
-      Ring innerSeed(index,rmin,rmax,zmin,zmax,type);
+    while (std::isspace(line[0]) || (line[0] == 35) ) {
       std::getline(input,line);
-      while (std::isspace(line[0]) || (line[0] == 35) ) {
-	std::getline(input,line);
-      }
-      stream.str(line);
-      stream.clear();
-      stream >> ndetid;
-      for (unsigned int i = 0; i < ndetid; ++i ) {
-	std::getline(input,line);
-	while (std::isspace(line[0]) || (line[0] == 35) ) {
-	  std::getline(input,line);
-	}
-	stream.str(line);
-	stream.clear();
-	stream >> phi >> detid;
-	innerSeed.addId(phi,DetId(detid));
-      }
-
-      // outer seed ring
-      std::getline(input,line);
-      while (std::isspace(line[0]) || (line[0] == 35) ) {
-	std::getline(input,line);
-      }
-      stream.str(line);
-      stream.clear();
-      stream >> index >> rmin >> rmax >> zmin >> zmax >> type;
-      Ring outerSeed(index,rmin,rmax,zmin,zmax,type);
-      std::getline(input,line);
-      while (std::isspace(line[0]) || (line[0] == 35) ) {
-	std::getline(input,line);
-      }
-      stream.str(line);
-      stream.clear();
-      stream >> ndetid;
-      for (unsigned int i = 0; i < ndetid; ++i ) {
-	std::getline(input,line);
-	while (std::isspace(line[0]) || (line[0] == 35) ) {
-	  std::getline(input,line);
-	}
-	stream.str(line);
-	stream.clear();
-	stream >> phi >> detid;
-	outerSeed.addId(phi,DetId(detid));
-      }
-
-      // RoadSeed
-      RoadSeed seed(innerSeed,outerSeed);
-
-      // RoadSet
-      RoadSet set;
-
-      // number of rings in set
-      std::getline(input,line);
-      while (std::isspace(line[0]) || (line[0] == 35) ) {
-	std::getline(input,line);
-      }
-      stream.str(line);
-      stream.clear();
-      stream >> nringsinroadset;
-      for ( unsigned int i = 0; i < nringsinroadset; ++i ) {
-	std::getline(input,line);
-	while (std::isspace(line[0]) || (line[0] == 35) ) {
-	  std::getline(input,line);
-	}
-	stream.str(line);
-	stream.clear();
-	stream >> index >> rmin >> rmax >> zmin >> zmax >> type;
-	Ring ring(index,rmin,rmax,zmin,zmax,type);
-	std::getline(input,line);
-	while (std::isspace(line[0]) || (line[0] == 35) ) {
-	  std::getline(input,line);
-	}
-	stream.str(line);
-	stream.clear();
-	stream >> ndetid;
-	for (unsigned int i = 0; i < ndetid; ++i ) {
-	  std::getline(input,line);
-	  while (std::isspace(line[0]) || (line[0] == 35) ) {
-	    std::getline(input,line);
-	  }
-	  stream.str(line);
-	  stream.clear();
-	  stream >> phi >> detid;
-	  ring.addId(phi,DetId(detid));
-	}
-	set.push_back(ring);
-      }
-
-      // add seed and set to map
-      roadMap_.insert(make_pair(seed,set));
-      ++counter;
     }
-  }
+    std::vector<const Ring*> innerSeedRings;
+    stream.str(line);
+    stream.clear();
+    stream >> nrings;
+    for ( unsigned int i = 0;
+	  i < nrings;
+	  ++i ) {
 
+      // read in ring indices for inner seed rings
+      std::getline(input,line);
+      while (std::isspace(line[0]) || (line[0] == 35) ) {
+	std::getline(input,line);
+      }
+      stream.str(line);
+      stream.clear();
+      stream >> index;
+      innerSeedRings.push_back(rings_->getRing(index));
+    }
+
+    // read in number of outer seed rings
+    std::getline(input,line);
+    while (std::isspace(line[0]) || (line[0] == 35) ) {
+      std::getline(input,line);
+    }
+    std::vector<const Ring*> outerSeedRings;
+    stream.str(line);
+    stream.clear();
+    stream >> nrings;
+    for ( unsigned int i = 0;
+	  i < nrings;
+	  ++i ) {
+
+      // read in ring indices for outer seed rings
+      std::getline(input,line);
+      while (std::isspace(line[0]) || (line[0] == 35) ) {
+	std::getline(input,line);
+      }
+      stream.str(line);
+      stream.clear();
+      stream >> index;
+      outerSeedRings.push_back(rings_->getRing(index));
+    }
+
+    // RoadSeed
+    RoadSeed seed(innerSeedRings,outerSeedRings);
+
+    // RoadSet
+    RoadSet set;
+
+    // number of layers in road set
+    std::getline(input,line);
+    while (std::isspace(line[0]) || (line[0] == 35) ) {
+      std::getline(input,line);
+    }
+    stream.str(line);
+    stream.clear();
+    stream >> nlayers;
+
+    for ( unsigned int i = 0;
+	  i < nlayers;
+	  ++i ) {
+
+      std::vector<const Ring*> layer;
+
+      // number of rings in layer
+      std::getline(input,line);
+      while (std::isspace(line[0]) || (line[0] == 35) ) {
+	std::getline(input,line);
+      }
+      stream.str(line);
+      stream.clear();
+      stream >> nrings;
+      for ( unsigned int j = 0; j < nrings; ++j ) {
+	std::getline(input,line);
+	while (std::isspace(line[0]) || (line[0] == 35) ) {
+	  std::getline(input,line);
+	}
+	stream.str(line);
+	stream.clear();
+	stream >> index;
+	layer.push_back(rings_->getRing(index));
+      }
+      set.push_back(layer);
+    }
+      
+
+    // add seed and set to map
+    roadMap_.insert(make_pair(seed,set));
+    ++counter;
+  }
+  
   edm::LogInfo("RoadSearch") << "Read in: " << counter << " RoadSets from file: " << ascii_filename;
 
 }
@@ -187,37 +173,50 @@ void Roads::readInFromAsciiFile(std::string ascii_filename, unsigned int verbosi
 void Roads::dump(std::string ascii_filename) const {
 
   std::ofstream stream(ascii_filename.c_str());
-
+  
   dumpHeader(stream);
 
-    stream << "### Road subdetector information ###" << std::endl;
-    unsigned int totalNumberOfLayersPerSubdetector = 0;
-    for ( NumberOfLayersPerSubdetectorConstIterator component = numberOfLayers_.begin(); component != numberOfLayers_.end(); ++component) {
-      totalNumberOfLayersPerSubdetector += *component;
-    }
-    stream << totalNumberOfLayersPerSubdetector << std::endl;
-    for ( NumberOfLayersPerSubdetectorConstIterator component = numberOfLayers_.begin(); component != numberOfLayers_.end(); ++component) {
-      stream << *component << " ";
-    }
-    stream << std::endl;
+  stream << "### Road information ###" << std::endl;
+  stream << roadMap_.size() << std::endl;
 
-  for ( const_iterator roaditerator = roadMap_.begin(); roaditerator != roadMap_.end(); ++roaditerator ) {
+  unsigned int counter = 0;
 
-    stream << "### RoadMap Entry ###" << std::endl;
+  for ( const_iterator roaditerator = roadMap_.begin(); 
+	roaditerator != roadMap_.end(); 
+	++roaditerator ) {
+
+    ++counter;
+
+    stream << "### RoadMap Entry " << counter << " ###" << std::endl;
 
     RoadSeed seed = (*roaditerator).first;
     RoadSet  set  = (*roaditerator).second;
 
     stream << "### RoadSeed First Ring ###" << std::endl;
-    stream << seed.first.dump();
+    stream << seed.first.size() << std::endl;
+    for (std::vector<const Ring*>::const_iterator ring = seed.first.begin();
+	 ring != seed.first.end();
+	 ++ring ) {
+      stream << (*ring)->getindex() << std::endl;
+    }
     stream << "### RoadSeed Second Ring ###" << std::endl;
-    stream << seed.second.dump();
+    stream << seed.second.size() << std::endl;
+    for (std::vector<const Ring*>::const_iterator ring = seed.second.begin();
+	 ring != seed.second.end();
+	 ++ring ) {
+      stream << (*ring)->getindex() << std::endl;
+    }
 
     stream << "### RoadSet ###" << std::endl;
     stream << set.size() << std::endl;
-
-    for ( RoadSet::const_iterator setiterator = set.begin(); setiterator != set.end(); ++setiterator ) {
-      stream << (*setiterator).dump();
+    for ( RoadSet::const_iterator layer = set.begin(); layer != set.end(); ++layer ) {
+      stream << "### Layer ###" << std::endl;
+      stream << layer->size() << std::endl;
+      for ( std::vector<const Ring*>::const_iterator ring = layer->begin();
+	    ring != layer->end();
+	    ++ring ) {
+	stream << (*ring)->getindex() << std::endl;
+      }
     }
   }
 }
@@ -232,47 +231,49 @@ void Roads::dumpHeader(std::ofstream &stream) const {
   stream << "# " << std::endl;
   stream << "# a dump of the RoadMap structure:" << std::endl;
   stream << "#" << std::endl;
-  stream << "# Road subdetector information: number of subdetectors, number of layers per subdetector" << std::endl;
-  stream << "# Ring: index, rmin, rmax, zmin, zmax, std::vector<DetId>: Ring of DetUnits in phi" << std::endl;
-  stream << "# RoadSeed: std::pair<Ring,Ring>: inner and outer Ring Seed for the Road" << std::endl;
-  stream << "# RoadSet : std::vector<DetId>: all Rings belonging to a road" << std::endl;
+  stream << "# Road Information: <number of roads>" << std::endl;
+  stream << "# Ring: index, rmin, rmax, zmin, zmax, std::vector<DetId>: Ring of DetUnits in phi taken from ring service" << std::endl;
+  stream << "# RoadSeed: std::pair<std::vector<const Ring*>,std::vector<const Ring*> >: inner and outer Ring Seed for the Road" << std::endl;
+  stream << "# RoadSet : std::vector<std::vectro<const Ring*> >: all Rings belonging to a road structured in layers" << std::endl;
   stream << "# RoadMap: std::multimap<RoadSeed,RoadSet>: main container for the Roads" << std::endl;
   stream << "# " << std::endl;
   stream << "# Ascii-Format:" << std::endl;
   stream << "# " << std::endl;
-  stream << "# Road subdetector information:" << std::endl;
+  stream << "# Road Information:" << std::endl;
+  stream << "#       <number of roads>" << std::endl;
   stream << "#" << std::endl;
-  stream << "#       ### Road subdetector information ###" << std::endl;
-  stream << "#       <number of subdetectors n>" << std::endl;
-  stream << "#       <number of layers of subdetector 1> <number of layers of subdetector 2> ... <number of layers of subdetector n>" << std::endl;
-  stream << "# " << std::endl;
-  stream << "# Ring:" << std::endl;
-  stream << "#" << std::endl;
-  stream << "#       ### Ring: <index> ###" << std::endl;
-  stream << "#       <index> <rmin> <rmax> <zmin> <zmax>" << std::endl;
-  stream << "#       <number of DetId's in std::vector<DetId> >" << std::endl;
-  stream << "#       <phi of DetUnit described by DetId> <DetId::rawId()>" << std::endl;
-  stream << "#       <phi of DetUnit described by DetId> <DetId::rawId()>" << std::endl;
-  stream << "#            ..." << std::endl;
-  stream << "#" << std::endl;
-  stream << "# RoadMap:" << std::endl;
+  stream << "# RoadMap for each road:" << std::endl;
   stream << "#" << std::endl;
   stream << "#       ### RoadMap Entry ###" << std::endl;
   stream << "#       ### RoadSeed First Ring ###" << std::endl;
-  stream << "#       < std::pair<Ring,Ring>.first>" << std::endl;
-  stream << "#       ### RoadSeed First Ring ###" << std::endl;
-  stream << "#       < std::pair<Ring,Ring>.second>" << std::endl;
+  stream << "#       <number of inner seed rings>" << std::endl;
+  stream << "#       <index>" << std::endl;
+  stream << "#       <index>" << std::endl;
+  stream << "#       ..." << std::endl;
+  stream << "#       ### RoadSeed Second Ring ###" << std::endl;
+  stream << "#       <number of outer seed rings>" << std::endl;
+  stream << "#       <index>" << std::endl;
+  stream << "#       <index>" << std::endl;
+  stream << "#       ..." << std::endl;
   stream << "#       ### RoadSet ###" << std::endl;
-  stream << "#       <number of Rings in RoadSet>" << std::endl;
-  stream << "#       <Ring>" << std::endl;
-  stream << "#       <Ring>" << std::endl;
+  stream << "#       <number of Layers in RoadSet>" << std::endl;
+  stream << "#       ### Layer ###" << std::endl;
+  stream << "#       <number of rings in layer>" << std::endl;
+  stream << "#       <index>" << std::endl;
+  stream << "#       <index>" << std::endl;
   stream << "#        ..." << std::endl;
-  stream << "# " << std::endl;
-  stream << "# " << std::endl;
+  stream << "#       ### Layer ###" << std::endl;
+  stream << "#        ..." << std::endl;
+  stream << "#" << std::endl;
+  stream << "#" << std::endl;
   
 }
 
-const Roads::RoadSeed* Roads::getRoadSeed(DetId InnerSeedRing, DetId OuterSeedRing, double InnerSeedRingPhi,double OuterSeedRingPhi, double dphi_scalefactor) const {
+const Roads::RoadSeed* Roads::getRoadSeed(DetId InnerSeedRing, 
+					  DetId OuterSeedRing, 
+					  double InnerSeedRingPhi,
+					  double OuterSeedRingPhi,
+					  double dphi_scalefactor) const {
 
   // loop over seed Ring pairs
 
@@ -281,11 +282,20 @@ const Roads::RoadSeed* Roads::getRoadSeed(DetId InnerSeedRing, DetId OuterSeedRi
   Ring::type outerSeedRingType = getRingType(OuterSeedRing);
 
   for ( const_iterator road = roadMap_.begin(); road != roadMap_.end(); ++road ) {
-    if ( road->first.first.getType() == innerSeedRingType &&
-	 road->first.second.getType() == outerSeedRingType ) {
-      if ( road->first.first.containsDetId(InnerSeedRing,InnerSeedRingPhi,dphi_scalefactor) &&
-	   road->first.second.containsDetId(OuterSeedRing,OuterSeedRingPhi,dphi_scalefactor) ) {
-	return &(road->first);
+    for ( std::vector<const Ring*>::const_iterator innerRing = road->first.first.begin();
+	  innerRing != road->first.first.end();
+	  ++innerRing ) {
+      if ( (*innerRing)->getType() == innerSeedRingType ) {
+	for ( std::vector<const Ring*>::const_iterator outerRing = road->first.second.begin();
+	      outerRing != road->first.second.end();
+	      ++outerRing ) {
+	  if ( (*outerRing)->getType() == outerSeedRingType ) {
+	    if ( (*innerRing)->containsDetId(InnerSeedRing,InnerSeedRingPhi,dphi_scalefactor) &&
+		 (*outerRing)->containsDetId(OuterSeedRing,OuterSeedRingPhi,dphi_scalefactor) ) {
+	      return &(road->first);
+	    }
+	  }
+	}
       }
     }
   }
@@ -297,16 +307,83 @@ const Roads::RoadSeed* Roads::getRoadSeed(DetId InnerSeedRing, DetId OuterSeedRi
   return 0;
 }
 
-const Roads::type Roads::getRoadType(const RoadSeed *const seed) const {
+const Roads::RoadSeed* Roads::getRoadSeed(std::vector<DetId> seedRingDetIds,
+					  std::vector<double> seedRingHitsPhi,
+					  double dphi_scalefactor) const {
+  //
+  // loop over roads and return first road which contains all seedRingDetIds
+  //
 
-  if ( (seed->second.getType() == Ring::PXBRing) ||
-       (seed->second.getType() == Ring::TIBRing) ||
-       (seed->second.getType() == Ring::TOBRing) ) {
+  for ( const_iterator road = roadMap_.begin(); road != roadMap_.end(); ++road ) {
+    unsigned int found = 0;
+    for ( unsigned int detIdCounter = 0;
+	  detIdCounter < seedRingDetIds.size();
+	  ++detIdCounter ) {
+      DetId      id   = RoadSearchDetIdHelper::ReturnRPhiId(seedRingDetIds[detIdCounter]);
+      double     phi  = seedRingHitsPhi[detIdCounter];
+      Ring::type type = getRingType(id);
+
+      bool foundInInnerRing = false;
+      for ( std::vector<const Ring*>::const_iterator innerRing = road->first.first.begin();
+	    innerRing != road->first.first.end();
+	    ++innerRing ) {
+	if ( (*innerRing)->getType() == type ) {
+	  if ( (*innerRing)->containsDetId(id,phi,dphi_scalefactor) ) {
+	    ++found;
+	    foundInInnerRing = true;
+	  }
+	}
+      }
+
+      if ( !foundInInnerRing ) {
+	for ( std::vector<const Ring*>::const_iterator outerRing = road->first.second.begin();
+	      outerRing != road->first.second.end();
+	      ++outerRing ) {
+	  if ( (*outerRing)->getType() == type ) {
+	    if ( (*outerRing)->containsDetId(id,phi,dphi_scalefactor) ) {
+	      ++found;
+	    }
+	  }
+	}
+      }
+
+      if ( found == seedRingDetIds.size() ) {
+	      return &(road->first);
+      }
+    }
+  }
+
+  std::ostringstream ost;
+  
+  ost << "RoadSeed could not be found for following hits:\n";
+  for ( unsigned int detIdCounter = 0;
+	detIdCounter < seedRingDetIds.size();
+	++detIdCounter ) {
+    ost << "Hit DetId: " << seedRingDetIds[detIdCounter].rawId() << " phi: " << seedRingHitsPhi[detIdCounter] << "\n";
+  }
+  
+  edm::LogError("RoadSearch") << ost.str();
+  
+  return 0;
+}
+
+const Roads::type Roads::getRoadType(const RoadSeed *const seed) const {
+  //
+  // check if one of the outer rings is in TOB, then mark as RPhi
+  // problematic for transition region
+  bool TOBRing = false;
+  for ( std::vector<const Ring*>::const_iterator ring = seed->second.begin();
+	ring != seed->second.end();
+	++ring) {
+    if ( (*ring)->getType() == Ring::TOBRing) {
+      TOBRing = true;
+    }
+  }
+  if ( TOBRing ) {
     return Roads::RPhi;
   } else {
     return Roads::ZPhi;
   }
-
 }
 
 

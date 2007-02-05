@@ -12,8 +12,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/15 01:00:30 $
-// $Revision: 1.2 $
+// $Date: 2006/03/03 22:23:12 $
+// $Revision: 1.3 $
 //
 
 // system include files
@@ -23,16 +23,12 @@
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "RecoTracker/RoadMapMakerESProducer/interface/RoadMaker.h"
 
+#include "RecoTracker/RoadMapRecord/interface/RoadMapRecord.h"
 #include "RecoTracker/RoadMapRecord/interface/Roads.h"
-
-//
-// class decleration
-//
 
 class RoadMapMakerESProducer : public edm::ESProducer {
 
@@ -43,17 +39,16 @@ class RoadMapMakerESProducer : public edm::ESProducer {
 
   typedef std::auto_ptr<Roads> ReturnType;
 
-  ReturnType produce(const TrackerDigiGeometryRecord&);
+  ReturnType produce(const RoadMapRecord&);
 
  private:
-  // ----------member data ---------------------------
-  unsigned int verbosity_;
+
   bool writeOut_;
   std::string fileName_;
-  bool writeOutOldStyle_;
-  std::string fileNameOldStyle_;
-  bool writeOutTrackerAsciiDump_;
-  std::string fileNameTrackerAsciiDump_;
+
+  RoadMaker::GeometryStructure geometryStructure_;
+  RoadMaker::SeedingType       seedingType_;
+
 };
 
 #endif

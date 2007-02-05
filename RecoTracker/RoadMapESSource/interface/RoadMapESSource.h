@@ -12,8 +12,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
-// $Revision: 1.1 $
+// $Date: 2006/01/15 00:59:13 $
+// $Revision: 1.2 $
 //
 
 // system include files
@@ -27,13 +27,8 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "RecoTracker/RoadMapRecord/interface/RoadMapRecord.h"
 #include "RecoTracker/RoadMapRecord/interface/Roads.h"
-
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
-//
-// class declaration
-//
 
 class RoadMapESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 
@@ -44,7 +39,7 @@ class RoadMapESSource : public edm::ESProducer, public edm::EventSetupRecordInte
 
   typedef std::auto_ptr<Roads> ReturnType;
 
-  ReturnType produce(const TrackerDigiGeometryRecord&);
+  ReturnType produce(const RoadMapRecord&);
 
  protected:
 
@@ -52,9 +47,8 @@ class RoadMapESSource : public edm::ESProducer, public edm::EventSetupRecordInte
 
  private:
 
-  // ----------member data ---------------------------
   std::string fileName_;
-  unsigned int verbosity_;
+
 };
 
 #endif

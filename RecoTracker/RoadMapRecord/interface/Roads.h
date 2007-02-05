@@ -26,28 +26,19 @@
 #include <string>
 #include <fstream>
 
-#include "RecoTracker/RoadMapRecord/interface/Ring.h"
+#include "RecoTracker/RingRecord/interface/Ring.h"
+#include "RecoTracker/RingRecord/interface/Rings.h"
 
 class Roads {
  
  public:
   
-  typedef std::pair<Ring,Ring> RoadSeed;
-  typedef std::vector<Ring> RoadSet;
+  typedef std::pair<std::vector<const Ring*>, std::vector<const Ring*> > RoadSeed;
+  typedef std::vector<std::vector<const Ring*> > RoadSet;
   typedef std::multimap<RoadSeed,RoadSet> RoadMap;
   
-  typedef RoadSet::iterator RoadSetIterator;
-  typedef RoadSet::const_iterator RoadSetConstIterator;
-  typedef std::pair<RoadSetIterator,RoadSetIterator> RoadSetIteratorRange;
-  typedef std::pair<RoadSetConstIterator,RoadSetConstIterator> RoadSetConstIteratorRange;
   typedef RoadMap::iterator iterator;
   typedef RoadMap::const_iterator const_iterator;
-  typedef std::pair<iterator,iterator> RoadMapRange;
-  typedef std::pair<const_iterator,const_iterator> RoadMapConstRange;
-
-  typedef std::vector<unsigned int> NumberOfLayersPerSubdetector;
-  typedef std::vector<unsigned int>::iterator NumberOfLayersPerSubdetectorIterator;
-  typedef std::vector<unsigned int>::const_iterator NumberOfLayersPerSubdetectorConstIterator;
 
   enum type {
     RPhi,
@@ -55,11 +46,12 @@ class Roads {
   };
 
   Roads();
-  Roads(std::string ascii_file, unsigned int verbosity = 0);
+  Roads(std::string ascii_file, const Rings *rings);
 
   ~Roads();
 
   inline void insert(RoadSeed *seed, RoadSet *set) { roadMap_.insert(make_pair(*seed,*set)); }
+  inline void insert(RoadSeed seed, RoadSet set) { roadMap_.insert(make_pair(seed,set)); }
 
   inline iterator begin() { return roadMap_.begin(); }
   inline iterator end()   { return roadMap_.end();   }
@@ -67,30 +59,40 @@ class Roads {
   inline const_iterator begin() const { return roadMap_.begin(); }
   inline const_iterator end()   const { return roadMap_.end();   }
 
+  inline RoadMap::size_type size() const { return roadMap_.size(); }
+
   void dump(std::string ascii_filename = "roads.dat") const;
   
   void dumpHeader(std::ofstream &stream) const;
 
-  void readInFromAsciiFile(std::string ascii_file, unsigned int verbosity);
+  void readInFromAsciiFile(std::string ascii_file);
 
-  const RoadSeed* getRoadSeed(DetId InnerSeedRing, DetId OuterSeedRing, 
-			      double InnerSeedRingPhi = 999999., double OuterSeedRingPhi = 999999., double dphi_scalefactor=1.5) const;
+  const RoadSeed* getRoadSeed(DetId InnerSeedRing, 
+			      DetId OuterSeedRing, 
+			      double InnerSeedRingPhi = 999999., 
+			      double OuterSeedRingPhi = 999999.,
+			      double dphi_scalefactor=1.5) const;
 
-  inline RoadMapConstRange getRoadSet(const RoadSeed *const seed) const { return roadMap_.equal_range(*seed); }
+  const RoadSeed* getRoadSeed(std::vector<DetId> seedRingDetIds,
+			      std::vector<double> seedRingHitsPhi,
+			      double dphi_scalefactor=1.5) const;
+
+  inline const_iterator getRoadSet(const RoadSeed *seed) const { return roadMap_.find(*seed); }
 
   const type getRoadType(const RoadSeed *const seed) const;
 
-  inline NumberOfLayersPerSubdetector getNumberOfLayersPerSubdetector() const { return numberOfLayers_; }
-
-  inline void setNumberOfLayersPerSubdetector(NumberOfLayersPerSubdetector input) { numberOfLayers_ = input; }
-
   const Ring::type getRingType(DetId id) const;
+
+  inline void erase(iterator entry) { roadMap_.erase(entry); }
+
+  inline const Ring* getRing(DetId id, double phi = 999999., double z = 999999.) const {
+    return rings_->getRing(id,phi,z);
+  }
 
  private:
 
+  const Rings *rings_;
   RoadMap roadMap_;
-
-  NumberOfLayersPerSubdetector numberOfLayers_;
 
 };
 
