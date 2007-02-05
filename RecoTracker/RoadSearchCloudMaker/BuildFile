@@ -20,6 +20,7 @@
 <use name=Geometry/Surface>
 
 <use name=RecoTracker/RoadMapRecord>
+<use name=RecoTracker/RingRecord>
 
 <use name=TrackingTools/RoadSearchHitAccess>
 
@@ -45,6 +46,7 @@
  <use name=Geometry/Surface>
 
  <use name=RecoTracker/RoadMapRecord>
+ <use name=RecoTracker/RingRecord>
 
  <use name=TrackingTools/RoadSearchHitAccess>
 

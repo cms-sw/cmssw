@@ -56,6 +56,7 @@
 //
 
 #include <string>
+#include <sstream>
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -92,23 +93,21 @@ class RoadSearchCloudMakerAlgorithm
 	   const edm::EventSetup& es,
 	   RoadSearchCloudCollection &output);
 
-  void FillRecHitsIntoCloudGeneral(DetId id, double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
-				   const TrajectorySeed* seed, std::vector<bool> &usedLayersArray, 
-				   Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector,
+  unsigned int FillRecHitsIntoCloudGeneral(DetId id, double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
+				   const TrajectorySeed* seed, 
 				   const TrackerGeometry *tracker, RoadSearchCloud &cloud);
 
-  void FillRecHitsIntoCloud(DetId id, const SiStripRecHit2DCollection* inputRecHits, 
-			    double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
-			    const TrajectorySeed* seed, std::vector<bool> &usedLayersArray, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector,
-			    const TrackerGeometry *tracker, RoadSearchCloud &cloud);
+  unsigned int FillRecHitsIntoCloud(DetId id, const SiStripRecHit2DCollection* inputRecHits, 
+				    double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
+				    const TrajectorySeed* seed, 
+				    const TrackerGeometry *tracker, RoadSearchCloud &cloud);
 
-
-  void FillPixRecHitsIntoCloud(DetId id, 
-			       const SiPixelRecHitCollection *inputRecHits, 
-			       double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
-			       const TrajectorySeed* seed, std::vector<bool> &usedLayersArray, 
-			       Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector,
-			       const TrackerGeometry *tracker, RoadSearchCloud &cloud);
+  
+  unsigned int FillPixRecHitsIntoCloud(DetId id, 
+				       const SiPixelRecHitCollection *inputRecHits, 
+				       double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
+				       const TrajectorySeed* seed, 
+				       const TrackerGeometry *tracker, RoadSearchCloud &cloud);
 
   bool isSingleLayer(DetId id);
 
@@ -121,13 +120,6 @@ class RoadSearchCloudMakerAlgorithm
   double map_phi(double phi);
   double map_phi2(double phi);
 
-  void setLayerNumberArray(DetId id, std::vector<bool> &usedLayersArray, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector);
-
-  unsigned int getIndexInUsedLayersArray(DetId id, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector);
-
-  bool checkMinimalNumberOfUsedLayers(std::vector<bool> &usedLayersArray);
-  bool checkMaximalNumberOfMissedLayers(std::vector<bool> &usedLayersArray, const Roads::RoadSet &roadSet, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector);
-  bool checkMaximalNumberOfConsecutiveMissedLayers(std::vector<bool> &usedLayersArray, const Roads::RoadSet &roadSet, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector);
   void makecircle(double x1_cs, double y1_cs,double x2_cs, double y2_cs,
                                              double x3_cs, double y3_cs);
 
@@ -152,12 +144,14 @@ class RoadSearchCloudMakerAlgorithm
   unsigned int maxDetHitsInCloudPerDetId;
   unsigned int minNumberOfUsedLayersPerRoad;
   unsigned int maxNumberOfMissedLayersPerRoad;
-  unsigned int maxNumberOfConsecutiveMissedLayersPerRoad;
-  double scalefactorRoadSeedWindow;
 
   bool doCleaning_;
   double mergingFraction_;
   unsigned int maxRecHitsInCloud_;
+
+  std::ostringstream output_;
+  double scalefactorRoadSeedWindow_;
+
 };
 
 #endif
