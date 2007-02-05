@@ -6,8 +6,8 @@
  *   consecutive tracker layers
  *
  *
- *   $Date: 2006/07/26 20:26:47 $
- *   $Revision: 1.3 $
+ *   $Date: 2006/07/27 08:50:20 $
+ *   $Revision: 1.4 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author porting C. Liu             Purdue University
@@ -32,6 +32,8 @@
 //----------------
 // Constructors --
 //----------------
+
+using namespace std;
 
 MuonSeedFromConsecutiveHits::MuonSeedFromConsecutiveHits(const TransientTrackingRecHit& outerHit,
                                                          const TransientTrackingRecHit& innerHit,
