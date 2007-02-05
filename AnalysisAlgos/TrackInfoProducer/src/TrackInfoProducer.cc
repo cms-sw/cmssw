@@ -55,13 +55,16 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
   
   edm::InputTag TkTag = conf_.getParameter<edm::InputTag>("cosmicTracks");
   edm::InputTag RHTag = conf_.getParameter<edm::InputTag>("rechits");
-  try{  
     edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
-    theEvent.getByLabel(TkTag,TrajectoryCollection);
     edm::Handle<reco::TrackCollection > trackCollection;
-    theEvent.getByLabel(TkTag,trackCollection);
     edm::Handle<TrackingRecHitCollection> rechitscollection;
+  try{  
+
+    theEvent.getByLabel(TkTag,TrajectoryCollection);
+    theEvent.getByLabel(TkTag,trackCollection);
     theEvent.getByLabel(RHTag,rechitscollection);
+  } 
+  catch (cms::Exception &e){ edm::LogInfo("TrackInfoProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
     //
     //run the algorithm  
     //
@@ -69,11 +72,12 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 
     std::vector<Trajectory>::const_iterator traj_iterator;
     
-    reco::TrackInfoRefProd rTrackInfof = theEvent.getRefBeforePut<reco::TrackInfoCollection>(forwardPredictedStateTag_);
-    reco::TrackInfoRefProd rTrackInfob = theEvent.getRefBeforePut<reco::TrackInfoCollection>(backwardPredictedStateTag_);
-    reco::TrackInfoRefProd rTrackInfou = theEvent.getRefBeforePut<reco::TrackInfoCollection>(updatedStateTag_);
-    reco::TrackInfoRefProd rTrackInfoc = theEvent.getRefBeforePut<reco::TrackInfoCollection>(combinedStateTag_);
+    //    reco::TrackInfoRefProd rTrackInfof = theEvent.getRefBeforePut<reco::TrackInfoCollection>(forwardPredictedStateTag_);
+    // reco::TrackInfoRefProd rTrackInfob = theEvent.getRefBeforePut<reco::TrackInfoCollection>(backwardPredictedStateTag_);
+    //reco::TrackInfoRefProd rTrackInfou = theEvent.getRefBeforePut<reco::TrackInfoCollection>(updatedStateTag_);
+    //reco::TrackInfoRefProd rTrackInfoc = theEvent.getRefBeforePut<reco::TrackInfoCollection>(combinedStateTag_);
     edm::Ref<reco::TrackInfoCollection>::key_type idti = 0;
+      std::vector<int> trackid;
     for(traj_iterator=TrajectoryCollection->begin();traj_iterator!=TrajectoryCollection->end();traj_iterator++){//loop on trajectories
 
       theAlgo_.run(traj_iterator,&rechitscollection,
@@ -133,17 +137,18 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 	      )
 	     {
 	       edm::LogInfo("TrackInfoProducer")<<"insert objects in the collection";
-	       TIassociationFwdColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, idtk),edm::Ref<reco::TrackInfoCollection>(rTrackInfof, idti));
-	       TIassociationBwdColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, idtk),edm::Ref<reco::TrackInfoCollection>(rTrackInfob, idti));
-	       TIassociationUpdatedColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, idtk),edm::Ref<reco::TrackInfoCollection>(rTrackInfou, idti));
-	       TIassociationCombinedColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, idtk),edm::Ref<reco::TrackInfoCollection>(rTrackInfoc, idti));
+	       //	       TIassociationFwdColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, idtk),edm::Ref<reco::TrackInfoCollection>(rTrackInfof, idti));
+	       //TIassociationBwdColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, idtk),edm::Ref<reco::TrackInfoCollection>(rTrackInfob, idti));
+	       //TIassociationUpdatedColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, idtk),edm::Ref<reco::TrackInfoCollection>(rTrackInfou, idti));
+	       //TIassociationCombinedColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, idtk),edm::Ref<reco::TrackInfoCollection>(rTrackInfoc, idti));
+	       trackid.push_back(idtk);
 	     }
 	   else {
 	     edm::LogInfo("TrackInfoProducer")<<" Track outer position and momentum and detid:"<< tkpo <<" "<<tkvo<<" "<<tk_iterator->outerDetId();
 	     edm::LogInfo("TrackInfoProducer")<<" Track inner position and momentum and detid:"<< tkpi <<" "<<tkvi<<" "<<tk_iterator->innerDetId();
 	     edm::LogInfo("TrackInfoProducer")<<" Traj outer position and momentum and detid:"<< po <<" "<<vo<<" "<<outerId;
 	     edm::LogInfo("TrackInfoProducer")<<" Traj inner position and momentum and detid:"<< pi <<" "<<vi<<" "<<innerId;
-	     
+	     trackid.push_back(0);
 	     edm::LogInfo("TrackInfoProducer")<<"trying an other track"; 
 	   }
 	   idtk++;
@@ -152,15 +157,21 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
       }
       else {edm::LogInfo("TrackInfoProducer")<<"association failed"; }
     }
-  } 
-  catch (cms::Exception &e){ edm::LogInfo("TrackInfoProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
-  //
   //put everything in the event
-  theEvent.put(outputFwdColl,forwardPredictedStateTag_ );
-  theEvent.put(outputBwdColl,backwardPredictedStateTag_);
-  theEvent.put(outputUpdatedColl,updatedStateTag_ );
-  theEvent.put(outputCombinedColl,combinedStateTag_ );
-
+  const edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfof = theEvent.put(outputFwdColl,forwardPredictedStateTag_ );
+  const edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfob =   theEvent.put(outputBwdColl,backwardPredictedStateTag_);
+  const edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfou =   theEvent.put(outputUpdatedColl,updatedStateTag_ );
+  const edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfoc =   theEvent.put(outputCombinedColl,combinedStateTag_ );
+  for(int i=0; i <trackid.size();i++){
+    TIassociationFwdColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, trackid[i]),edm::Ref<reco::TrackInfoCollection>(rTrackInfof, i));
+    TIassociationBwdColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, trackid[i]),edm::Ref<reco::TrackInfoCollection>(rTrackInfob, i));
+    TIassociationUpdatedColl->insert( edm::Ref<reco::TrackCollection>(trackCollection,trackid[i] ),edm::Ref<reco::TrackInfoCollection>(rTrackInfou, i));
+    TIassociationCombinedColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, trackid[i]),edm::Ref<reco::TrackInfoCollection>(rTrackInfoc, i)); 
+  }
+  theEvent.put(TIassociationFwdColl,forwardPredictedStateTag_ );
+  theEvent.put(TIassociationBwdColl,backwardPredictedStateTag_);
+  theEvent.put(TIassociationUpdatedColl,updatedStateTag_ );
+  theEvent.put(TIassociationCombinedColl,combinedStateTag_ ); 
 }
 
 
