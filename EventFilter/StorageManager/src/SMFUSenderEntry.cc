@@ -408,6 +408,6 @@ bool SMFUSenderEntry::copyRegistry(toolbox::mem::Reference *head)
     copy(&tempbuffer[0], &tempbuffer[0]+origsize, registryData_);
   } // end of number of frames test
 
-  // the test of subsequent registries must be done in testStorageManager
+  // the test of subsequent registries must be done in StorageManager
   return true;
 }
