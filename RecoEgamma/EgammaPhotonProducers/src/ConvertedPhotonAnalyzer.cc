@@ -151,7 +151,7 @@ void ConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetu
   std::vector<SimTrack*> pizeroTracks;
   std::vector<const SimTrack *> trkFromConversion;
   SimVertex primVtx;   
-  vector<int> convInd;
+  std::vector<int> convInd;
 
   ///// Get the recontructed converted photons
   Handle<reco::ConvertedPhotonCollection> convertedPhotonHandle; 
