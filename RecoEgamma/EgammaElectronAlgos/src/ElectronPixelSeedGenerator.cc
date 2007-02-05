@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.15 2006/10/17 11:48:28 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.16 2006/10/25 08:51:54 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -44,6 +44,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include <vector>
+#include <utility>
 
 ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(float iephimin1, float iephimax1,
 			                               float ipphimin1, float ipphimax1,
@@ -85,28 +87,16 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup, const edm
 
   myMatchEle->setES(&(*theMagField),theMeasurementTracker);
   myMatchPos->setES(&(*theMagField),theMeasurementTracker);
-
-  //FIXME: to be reactivated
-  //  moduleLabelBarrel_=conf.getParameter<string>("superClusterBarrelProducer");
-  //  instanceNameBarrel_=conf.getParameter<string>("superClusterBarrelLabel");
-  //CC@@
-  //moduleLabelEndcap_=conf.getParameter<string>("superClusterEndcapProducer");
-  //instanceNameEndcap_=conf.getParameter<string>("superClusterEndcapLabel");
 }
 
-void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::Handle<SuperClusterCollection> &clusters, ElectronPixelSeedCollection & out){
+void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::Handle<reco::SuperClusterCollection> &clusters, reco::ElectronPixelSeedCollection & out){
 
   theMeasurementTracker->update(e);
   
   NavigationSetter setter(*theNavigationSchool);
 
-  //FIXME: to be reactivated
-  // get input clusters 
-  //  edm::Handle<SuperClusterCollection> bclusters;
-  //  e.getByLabel(moduleLabelBarrel_,instanceNameBarrel_,bclusters);
-
   for  (unsigned int i=0;i<clusters->size();++i) {
-    edm::Ref<SuperClusterCollection> theClusB(clusters,i);
+    edm::Ref<reco::SuperClusterCollection> theClusB(clusters,i);
     // Find the seeds
     recHits_.clear();
     LogDebug ("run") << "new cluster, calling seedsFromThisCluster";
@@ -135,7 +125,7 @@ void ElectronPixelSeedGenerator::setup(bool off)
 
 }
 
-void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterCollection> seedCluster, ElectronPixelSeedCollection& result)
+void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClusterCollection> seedCluster, reco::ElectronPixelSeedCollection& result)
 {
   float clusterEnergy = seedCluster->energy();
   GlobalPoint clusterPos(seedCluster->position().x(),
@@ -150,7 +140,7 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterColl
   // is this an electron
   double aCharge=-1.;
    
-  vector<pair<RecHitWithDist,ConstRecHitPointer> > elePixelHits = 
+  std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > elePixelHits = 
     myMatchEle->compatibleHits(clusterPos,vertexPos, clusterEnergy, aCharge);
   float vertexZ = myMatchEle->getVertex();
   GlobalPoint eleVertex(0.,0.,vertexZ); 
@@ -159,21 +149,21 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterColl
   if (!elePixelHits.empty() ) {
     LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] electron compatible hits found ";
     isEle = 1;
-    vector<pair<RecHitWithDist,ConstRecHitPointer> >::iterator v;
+    std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >::iterator v;
      
     for (v = elePixelHits.begin(); v != elePixelHits.end(); v++) {
        
       (*v).first.invert();
       bool valid = prepareElTrackSeed((*v).first.recHit(),(*v).second,eleVertex);
       if (valid) {
-        ElectronPixelSeed s(seedCluster,*pts_,recHits_,dir);
+        reco::ElectronPixelSeed s(seedCluster,*pts_,recHits_,dir);
         result.push_back(s);
       }
     }
   }  
   aCharge=1.;  
   
-  vector<pair<RecHitWithDist,ConstRecHitPointer> > posPixelHits = 
+  std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > posPixelHits = 
     myMatchPos->compatibleHits(clusterPos,vertexPos, clusterEnergy, aCharge);
   vertexZ = myMatchPos->getVertex();
    
@@ -181,10 +171,10 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterColl
   if (!posPixelHits.empty() ) {
     LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] positron compatible hits found ";
     isEle == 1 ? isEle = 3 : isEle = 2;
-    vector<pair<RecHitWithDist,ConstRecHitPointer> >::iterator v;
+    std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >::iterator v;
     for (v = posPixelHits.begin(); v != posPixelHits.end(); v++) {
       bool valid = prepareElTrackSeed((*v).first.recHit(),(*v).second,posVertex);
-      if (valid) result.push_back(ElectronPixelSeed(seedCluster,*pts_,recHits_,dir));
+      if (valid) result.push_back(reco::ElectronPixelSeed(seedCluster,*pts_,recHits_,dir));
     }
   } 
 

@@ -34,8 +34,6 @@ class PixelHitMatcher;
 class MeasurementTracker;
 class NavigationSchool;
 
-using namespace reco;  //FIXME
-
 class ElectronPixelSeedGenerator
 {
 public:
@@ -66,15 +64,12 @@ public:
 
   void setup(bool);
   void setupES(const edm::EventSetup& setup, const edm::ParameterSet& conf);
-  void run(edm::Event&, const edm::Handle<SuperClusterCollection>&, ElectronPixelSeedCollection&);
+  void run(edm::Event&, const edm::Handle<reco::SuperClusterCollection>&, reco::ElectronPixelSeedCollection&);
 
  private:
 
-  void seedsFromThisCluster(edm::Ref<SuperClusterCollection> seedCluster, ElectronPixelSeedCollection & out);
-  //RC void prepareElTrackSeed(const TSiPixelRecHit& outerhit,const TSiPixelRecHit& innerhit, const GlobalPoint& vertexPos);
-  //void prepareElTrackSeed(ConstRecHitPointer outerhit,ConstRecHitPointer innerhit, const GlobalPoint& vertexPos);
+  void seedsFromThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster, reco::ElectronPixelSeedCollection & out);
   bool prepareElTrackSeed(ConstRecHitPointer outerhit,ConstRecHitPointer innerhit, const GlobalPoint& vertexPos);
-  
 
   float ephimin1;
   float ephimax1;
@@ -82,12 +77,6 @@ public:
   float pphimax1;
   float pphimin2, pphimax2;
   float zmin1, zmax1, zmin2, zmax2;
-
-  //  std::string moduleLabelBarrel_;
-  //  std::string instanceNameBarrel_;
-  //CC@@ adding these two lines causes a segv at end of job
-  //std::string moduleLabelEndcap_;
-  //std::string instanceNameEndcap_;
 
   PixelHitMatcher *myMatchEle;
   PixelHitMatcher *myMatchPos;

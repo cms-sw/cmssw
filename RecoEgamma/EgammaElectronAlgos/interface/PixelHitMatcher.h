@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.1 2006/06/02 16:21:02 uberthon Exp $
+// $Id: PixelHitMatcher.h,v 1.2 2006/07/31 21:36:13 tboccali Exp $
 //
 //
 
@@ -43,8 +43,6 @@ class MagneticField;
 class GeometricSearchTracker;
 class LayerMeasurements;
 class NavigationSchool;
-
-using namespace reco; //FIXME
 
 class RecHitWithDist
 {
@@ -95,12 +93,12 @@ class PixelHitMatcher{
   void setES(const MagneticField*, const MeasurementTracker *theMeasurementTracker);
 
   //RC vector<pair<RecHitWithDist,TSiPixelRecHit> > compatibleHits(const GlobalPoint& xmeas,
-  vector<pair<RecHitWithDist,ConstRecHitPointer> > compatibleHits(const GlobalPoint& xmeas,
+  std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > compatibleHits(const GlobalPoint& xmeas,
 								  const GlobalPoint& vprim,
 								  float energy,
 								  float charge);
-  vector<Hep3Vector> predicted1Hits();
-  vector<Hep3Vector> predicted2Hits();
+  std::vector<Hep3Vector> predicted1Hits();
+  std::vector<Hep3Vector> predicted2Hits();
   float getVertex();
  
  private:
@@ -108,8 +106,8 @@ class PixelHitMatcher{
   RecHitContainer hitsInTrack;
 
   float phi1min, phi1max, phi2min, phi2max, z1min, z1max, z2min, z2max;
-  vector<Hep3Vector> pred1Meas;
-  vector<Hep3Vector> pred2Meas; 
+  std::vector<Hep3Vector> pred1Meas;
+  std::vector<Hep3Vector> pred2Meas; 
   FTSFromVertexToPointFactory myFTS;
   BarrelMeasurementEstimator meas1stBLayer;
   BarrelMeasurementEstimator meas2ndBLayer;

@@ -15,7 +15,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchNextLayers.h,v 1.1 2006/06/02 16:21:02 uberthon Exp $
+// $Id: PixelMatchNextLayers.h,v 1.2 2006/07/31 21:36:13 tboccali Exp $
 //
 //
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 
@@ -36,21 +36,20 @@ public:
 	                        const PropagatorWithMaterial *aProp, 
                       const BarrelMeasurementEstimator *aBarrelMeas,
 		      const ForwardMeasurementEstimator *aForwardMeas);
-  vector<TrajectoryMeasurement> measurementsInNextLayers() const;
-  vector<TrajectoryMeasurement> badMeasurementsInNextLayers() const;
+  std::vector<TrajectoryMeasurement> measurementsInNextLayers() const;
+  std::vector<TrajectoryMeasurement> badMeasurementsInNextLayers() const;
   //RC vector<TSiPixelRecHit> hitsInNextLayers() const;  
   //In this way we are losing the information about the kind of the ReferenceCounted TTRH? 
   TransientTrackingRecHit::RecHitContainer hitsInNextLayers() const;  
-  vector<Hep3Vector> predictionInNextLayers() const;
+  std::vector<Hep3Vector> predictionInNextLayers() const;
 
   
 private:
                                                         
-  vector<TrajectoryMeasurement> measurementsHere;
-  vector<TrajectoryMeasurement> badMeasurementsHere;  
-  //RC vector<TSiPixelRecHit> hitsHere;
+  std::vector<TrajectoryMeasurement> measurementsHere;
+  std::vector<TrajectoryMeasurement> badMeasurementsHere;  
   TransientTrackingRecHit::RecHitContainer hitsHere;
-  vector<Hep3Vector> predictionHere; 
+  std::vector<Hep3Vector> predictionHere; 
 };
 
 #endif

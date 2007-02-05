@@ -8,14 +8,14 @@
 /**\class ElectronPixelSeedProducer EgammaElectronAlgos/BarrelMeasurementEstimator
 
  Description: MeasurementEstimator for Pixel Barrel, ported from ORCA
-
+ Class defining the search area in the barrel in the pixel match
  Implementation:
      <Notes on implementation>
 */
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.h,v 1.1 2006/06/02 16:21:02 uberthon Exp $
+// $Id: BarrelMeasurementEstimator.h,v 1.2 2006/06/30 12:36:56 uberthon Exp $
 //
 //
 
@@ -26,8 +26,8 @@
 
 #include "Geometry/Surface/interface/BoundPlane.h"
 
-/** Class defining the search area in the barrel in the pixel match 
- */
+#include <utility>
+
 
 class BarrelMeasurementEstimator : public MeasurementEstimator {
 public:

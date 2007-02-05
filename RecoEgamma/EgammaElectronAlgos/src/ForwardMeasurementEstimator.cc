@@ -13,10 +13,9 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.cc,v 1.1 2006/06/02 16:21:02 uberthon Exp $
+// $Id: ForwardMeasurementEstimator.cc,v 1.2 2006/06/30 12:36:57 uberthon Exp $
 //
 //
-//using namespace std; // FIXME: for Philess
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
@@ -25,7 +24,7 @@
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 
 // zero value indicates incompatible ts - hit pair
-pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
+std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
 							 const TransientTrackingRecHit& hit) const {
 
   float tsPhi = ts.globalParameters().position().phi();
@@ -75,17 +74,17 @@ pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectoryStateOn
   if ( phiDiff < thePhiRangeMax && phiDiff > thePhiRangeMin && 
        rhR < rMax && rhR > rMin) {
  
-    return pair<bool,double>(true,1.);
+    return std::pair<bool,double>(true,1.);
   } else {
-    return pair<bool,double>(false,0.);
+    return std::pair<bool,double>(false,0.);
   }
-  return pair<bool,double>(false,0.);
+  return std::pair<bool,double>(false,0.);
 }
 
 bool ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
 					    const BoundPlane& plane) const {
 
-  typedef     pair<float,float>   Range;
+  typedef std::pair<float,float>   Range;
 
   GlobalPoint trajPos(ts.globalParameters().position());
   GlobalDetRangeRPhi detRange(plane);

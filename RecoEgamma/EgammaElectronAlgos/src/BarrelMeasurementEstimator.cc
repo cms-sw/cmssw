@@ -13,10 +13,10 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.cc,v 1.1 2006/06/02 16:21:02 uberthon Exp $
+// $Id: BarrelMeasurementEstimator.cc,v 1.2 2006/06/30 12:36:57 uberthon Exp $
 //
 //
-using namespace std; // FIXME: for Philess
+
 #include "RecoEgamma/EgammaElectronAlgos/interface/BarrelMeasurementEstimator.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeZPhi.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
