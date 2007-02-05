@@ -7,6 +7,7 @@
 //#include "CommonDet/PatternPrimitives/interface/TrajectoryStateOnSurface.h"
 
 //#include "TrackerReco/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
+using namespace std;
 
 template <class T> T sqr( T t) {return t*t;}
 

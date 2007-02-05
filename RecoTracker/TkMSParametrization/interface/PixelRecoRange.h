@@ -49,7 +49,7 @@ public:
          (max() < r.max()) ? r.max() : max()); 
   }
 
-  void sort() { if (empty() ) swap(this->first,this->second); }
+  void sort() { if (empty() ) std::swap(this->first,this->second); }
 };
 
 template <class T> std::ostream & operator<<( 

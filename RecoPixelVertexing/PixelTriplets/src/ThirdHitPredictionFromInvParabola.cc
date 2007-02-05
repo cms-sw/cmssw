@@ -55,7 +55,7 @@ double ThirdHitPredictionFromInvParabola::
   PointUV predicted(p3.u(), predv, &theRotation);
   double dphi = predicted.unmap().phi()-point3.phi();
   double dist = (predicted.unmap()-point3).mag();
-  cout <<" ip="<<ip<<" predV="<<predv<<" dphi:"<<dphi<<" dist:"<<dist<<endl;
+  //cout <<" ip="<<ip<<" predV="<<predv<<" dphi:"<<dphi<<" dist:"<<dist<<endl;
    
   return dist;
 }

@@ -1,5 +1,5 @@
 #include "ParabolaFit.h"
- 
+using namespace std; 
 template <class T> T sqr( T t) {return t*t;}
 
 void ParabolaFit::addPoint(double x, double y, double w)

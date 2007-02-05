@@ -4,8 +4,6 @@
 #include <string>
 #include "Utilities/Timing/interface/TimingReport.h"
 
-using namespace std;
-
 class R2DTimerObserver :  public TimingReport::ItemObserver {
 /// \class R2DTimerObserver
 /// utility to get the real/cpu time betwen last TimingReport::Item start-stop.
@@ -42,14 +40,14 @@ private:
 
 public:
 
-  void init(string name) {
+  void init(const std::string & name) {
     timer_item = &(*TimingReport::current())[name];
     timer_item->switchCPU(false);
     timer_item->setObs(this);
   }
 
   R2DTimerObserver() : timer_item(0), lastState(0,0) { }
-  R2DTimerObserver(string name) : lastState(0,0) { init( name) ; }
+  R2DTimerObserver(const std::string name) : lastState(0,0) { init( name) ; }
 
   const LastMeasurement & lastMeasurement() { return theMeasurement; }
   TimingReport::Item & item() { return *timer_item; }

@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
+#include <vector>
 
 
 class PixelTripletHLTGenerator : public HitTripletGeneratorFromPairAndLayers {
@@ -33,13 +34,13 @@ public:
       const TrackingRegion& region, OrderedHitTriplets & trs, const edm::EventSetup& iSetup);
 
   const HitPairGenerator & pairGenerator() const { return *thePairGenerator; }
-  const vector<const LayerWithHits*> thirdLayers() const { return theLayers; }
+  const std::vector<const LayerWithHits*> thirdLayers() const { return theLayers; }
 
 private:
 
   edm::ParameterSet         theConfig;
   HitPairGenerator * thePairGenerator;
-  vector<const LayerWithHits*> theLayers;
+  std::vector<const LayerWithHits*> theLayers;
   LayerCacheType * theLayerCache;
 };
 #endif

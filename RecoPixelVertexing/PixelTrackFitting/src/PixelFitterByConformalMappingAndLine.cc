@@ -23,6 +23,8 @@
 #include "ConformalMappingFit.h"
 #include "PixelTrackBuilder.h"
 
+using namespace std;
+
 template <class T> T sqr( T t) {return t*t;}
 
 

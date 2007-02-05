@@ -34,7 +34,7 @@ ThirdHitRZPrediction::Range ThirdHitRZPrediction::
     v2 = theLine.rAtZ(theDetRange.max());
   } else return Range(0.,0.); 
 
-  if (v1 > v2) swap(v1,v2);
+  if (v1 > v2) std::swap(v1,v2);
   return Range(v1-theTolerance.left(),v2+theTolerance.right());
 }
 

@@ -20,7 +20,6 @@
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
-using namespace std;
 
 #include "R2DTimerObserver.h"
 
@@ -28,6 +27,7 @@ using namespace std;
 #include "TFile.h"
 #include "TROOT.h"
 
+using namespace std;
 
 // -----------------------------------------------------------------------------
 SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf ) 

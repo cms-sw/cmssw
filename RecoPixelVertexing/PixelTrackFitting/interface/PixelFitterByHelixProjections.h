@@ -25,7 +25,7 @@ public:
       const std::vector<const TrackingRecHit *>& hits,
       const TrackingRegion& region) const;
 private:
-  int charge(const vector<GlobalPoint> & points) const;
+  int charge(const std::vector<GlobalPoint> & points) const;
   float cotTheta(const GlobalPoint& pinner, const GlobalPoint& pouter) const;
   float phi(float xC, float yC, int charge) const;
   float pt(float curvature) const;

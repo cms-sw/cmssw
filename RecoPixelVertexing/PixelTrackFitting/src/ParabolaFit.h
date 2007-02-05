@@ -2,7 +2,6 @@
 #define ParabolaFit_H
 
 #include <vector>
-using namespace std;
 
 /** The parabola fit 
     y = parA + parB * x + parC * x*x
@@ -41,7 +40,7 @@ private:
 
 private:
   struct Point { double x; double y; double w; }; 
-  vector<Point> points;
+  std::vector<Point> points;
   bool doErr;
   mutable Result theResult;  mutable bool hasValues, hasErrors;
 };

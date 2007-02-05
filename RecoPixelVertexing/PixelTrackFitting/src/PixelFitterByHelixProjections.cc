@@ -33,6 +33,8 @@
 #include "CircleFromThreePoints.h"
 #include "PixelTrackBuilder.h"
 
+using namespace std;
+
 PixelFitterByHelixProjections::PixelFitterByHelixProjections(
    const edm::ParameterSet& cfg) 
  : theConfig(cfg), theTracker(0), theField(0), theTTRecHitBuilder(0) { }

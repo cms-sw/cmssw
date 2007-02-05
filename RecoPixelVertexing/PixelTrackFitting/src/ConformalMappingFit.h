@@ -8,17 +8,16 @@
 #include "ParabolaFit.h"
 #include <vector>
 
-using namespace std;
 class ConformalMappingFit {
 public:
   typedef TkRotation<double> Rotation;
   typedef Basic2DVector<double> PointXY;
 
-  ConformalMappingFit(const vector<PointXY> & hits);
+  ConformalMappingFit(const std::vector<PointXY> & hits);
 
-//  ConformalMappingFit(const vector<RecHit>& hits,
+//  ConformalMappingFit(const std::vector<RecHit>& hits,
 //      const Rotation * rot = 0,
-//      const vector<TrajectoryStateOnSurface> * tsos = 0,
+//      const std::vector<TrajectoryStateOnSurface> * tsos = 0,
 //      bool useMultScatt = false, float pt = 1., float zVtx = 0.);
 
   ~ConformalMappingFit();
@@ -42,8 +41,8 @@ public:
   const Rotation * rotation() const { return theRotation; }
 
 private:
-  void init( const vector<PointXY> & hits, 
-      const vector<float> & errRPhi2, const Rotation * rot = 0);
+  void init( const std::vector<PointXY> & hits, 
+      const std::vector<float> & errRPhi2, const Rotation * rot = 0);
   double phiRot() const;
   void findRot( const PointXY &);
 
