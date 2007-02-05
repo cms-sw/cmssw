@@ -27,8 +27,9 @@
 OutInConversionSeedFinder::OutInConversionSeedFinder( const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker ) : ConversionSeedFinder( field, theInputMeasurementTracker)  {
 
   
+  //    LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder CTOR " << "\n";      
     LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder CTOR " << "\n";      
-    theLayerMeasurements_ =  new LayerMeasurements(theInputMeasurementTracker );
+   theLayerMeasurements_ =  new LayerMeasurements(theInputMeasurementTracker );
 
 
     the2ndHitdphi_ = 0.01; 
@@ -175,8 +176,13 @@ FreeTrajectoryState OutInConversionSeedFinder::makeTrackState(int  charge) const
    LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState startingPoint " << startingPoint << " calo position " << theBCPosition_ << "\n";
   GlobalVector gvTracker(momentumInTracker.x(), momentumInTracker.y(), momentumInTracker.z());
   GlobalTrajectoryParameters gtp(startingPoint, gvTracker, charge, theMF_);
+  // dummy error matrix
+  AlgebraicSymMatrix m(5,1) ;
+  m[0][0] = 0.1; m[1][1] = 0.1 ; m[2][2] = 0.1 ;
+  m[3][3] = 0.1 ; m[4][4] = 0.1;
   
-  return FreeTrajectoryState(gtp) ;
+   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState " <<  FreeTrajectoryState(gtp, CurvilinearTrajectoryError(m) ) << std::endl;
+  return FreeTrajectoryState(gtp, CurvilinearTrajectoryError(m) ) ;
 
 
 }
@@ -203,16 +209,16 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
 
       thePropagatorWithMaterial_.setPropagationDirection(alongMomentum);
      
-      LogDebug("OutInConversionSeedFinder") << "OutInSeedFinder::startSeed propagationDirection  " << int(thePropagatorWithMaterial_.propagationDirection() ) << "\n";       
- 
+       LogDebug("OutInConversionSeedFinder") << "OutInSeedFinder::startSeed propagationDirection  " << int(thePropagatorWithMaterial_.propagationDirection() ) << "\n";       
+      
       TSOS tsos(fts, layer->surface() );
-
-      LogDebug("OutInConversionSeedFinder") << "OutInSeedFinder::startSeed  after  TSOS tsos(fts, layer->surface() ) " << "\n";
-
+      
+       LogDebug("OutInConversionSeedFinder") << "OutInSeedFinder::startSeed  after  TSOS tsos(fts, layer->surface() ) " << "\n";
+      
       theFirstMeasurements_ = theLayerMeasurements_->measurements( *layer, tsos, thePropagatorWithMaterial_, *newEstimator);
-
-      LogDebug("OutInConversionSeedFinder") << "OutInSeedFinder::startSeed  after  theFirstMeasurements_   " << "\n";
-
+      
+       LogDebug("OutInConversionSeedFinder") << "OutInSeedFinder::startSeed  after  theFirstMeasurements_   " << "\n";
+      
       if(theFirstMeasurements_.size() > 1) // always a dummy returned, too
 	LogDebug("OutInConversionSeedFinder") <<  " Found " << theFirstMeasurements_.size()-1 << " 1st hits in seed" << "\n";
       
