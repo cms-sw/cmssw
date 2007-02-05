@@ -14,12 +14,13 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2006/09/01 21:15:30 $
-// $Revision: 1.10 $
+// $Author: gutsche $
+// $Date: 2006/09/08 19:26:18 $
+// $Revision: 1.11 $
 //
 
 #include <string>
+#include <sstream>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -42,6 +43,8 @@
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/RoadSearchHitAccess/interface/DetHitAccess.h"
 
+#include "RecoTracker/RoadSearchSeedFinder/interface/RoadSearchCircleSeed.h"
+
 class RoadSearchSeedFinderAlgorithm 
 {
  public:
@@ -57,27 +60,52 @@ class RoadSearchSeedFinderAlgorithm
 	   const edm::EventSetup& es,
 	   TrajectorySeedCollection &output);
   
-  CurvilinearTrajectoryError initialError( const TrackingRecHit* outerHit,
-					   const TrackingRecHit* innerHit,
-					   const GlobalPoint& vertexPos,
+  CurvilinearTrajectoryError initialError( const GlobalPoint& vertexPos,
 					   const GlobalError& vertexErr);
 
-  TrajectorySeed makeSeedFromPair(const TrackingRecHit* innerHit,
-				  const GlobalPoint* innerPos,
-				  const TrackingRecHit* outerHit,
-				  const GlobalPoint* outerPos,
-				  const edm::EventSetup& es);
+  bool convertCircleToTrajectorySeed(TrajectorySeedCollection &output,
+				     RoadSearchCircleSeed circleSeed,
+				     const edm::EventSetup& es);
+
+  bool mergeCircleSeeds(std::vector<RoadSearchCircleSeed> &circleSeeds);
   
-  void makeSeedsFromInnerHit(TrajectorySeedCollection* outcoll,
-			     const TrackingRecHit* innerHit,
-			     const std::vector<TrackingRecHit*>* outerHits,
-			     const edm::EventSetup& es);
-  
+  bool calculateCircleSeedsFromHits(std::vector<RoadSearchCircleSeed> &circleSeeds,
+				    GlobalPoint ring1GlobalPoint,
+				    TrackingRecHit *ring1RecHit,
+				    std::vector<TrackingRecHit*> ring2RecHits,
+				    std::vector<TrackingRecHit*> ring3RecHits);
+
+  bool calculateCircleSeedsFromHits(std::vector<RoadSearchCircleSeed> &circleSeeds,
+				    GlobalPoint ring1GlobalPoint,
+				    TrackingRecHit *ring1RecHit,
+				    std::vector<TrackingRecHit*> ring2RecHits);
+
+  bool calculateCircleSeedsFromRingsOneInnerTwoOuter(std::vector<RoadSearchCircleSeed> &circleSeeds,
+						     const Ring* ring1,
+						     const Ring* ring2,
+						     const Ring* ring3);
+
+  bool calculateCircleSeedsFromRingsTwoInnerOneOuter(std::vector<RoadSearchCircleSeed> &circleSeeds,
+						     const Ring* ring1,
+						     const Ring* ring2,
+						     const Ring* ring3);
+  bool calculateCircleSeedsFromRingsOneInnerOneOuter(std::vector<RoadSearchCircleSeed> &circleSeeds,
+						     const Ring* ring1,
+						     const Ring* ring2);
+
+  bool ringsOnSameLayer(const Ring *ring1, 
+			const Ring* ring2);
+  bool detIdsOnSameLayer(DetId id1, 
+			 DetId id2);
 
  private:
 
-  bool NoFieldCosmic_;
-  double theMinPt_;
+  double       minPt_;
+  double       maxImpactParameter_;
+  double       phiRangeDetIdLookup_;
+  double       mergeSeedsCenterCut_;
+  double       mergeSeedsRadiusCut_;
+  unsigned int mergeSeedsDifferentHitsCut_;
 
   DetHitAccess innerSeedHitVector_;
   DetHitAccess outerSeedHitVector_;
@@ -85,6 +113,20 @@ class RoadSearchSeedFinderAlgorithm
   const TrackerGeometry *tracker_;
   const Roads           *roads_;
   const MagneticField   *magnet_;
+
+  std::ostringstream output_;
+
+  double beamSpotZMagneticField_;
+  double minRadius_;
+
+  double maxCenterDistance_;
+  double maxRadiusDifference_;
+  double maxCurvatureDifference_;
+  unsigned int numMergedCircles_;
+
+  std::vector<unsigned int> usedSeedRingCombinations_;
+
+  std::string mode_;
 
 };
 
