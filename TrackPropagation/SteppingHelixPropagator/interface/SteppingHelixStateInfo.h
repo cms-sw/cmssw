@@ -6,15 +6,15 @@
 /** \class SteppingHelixStateInfo
  *  Holder of SteppingHelixState information
  *
- *  $Date: 2007/01/19 17:26:20 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/01/24 01:01:24 $
+ *  $Revision: 1.4 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.h,v 1.3 2007/01/19 17:26:20 slava77 Exp $
+// $Id: SteppingHelixStateInfo.h,v 1.4 2007/01/24 01:01:24 slava77 Exp $
 //
 //
 
@@ -54,7 +54,7 @@ class SteppingHelixStateInfo {
     UNDEFINED
   };
 
-  SteppingHelixStateInfo(): isComplete(0), isValidInfo(0), status_(UNDEFINED) {}
+  SteppingHelixStateInfo(): isComplete(0), isValid_(0), status_(UNDEFINED) {}
   SteppingHelixStateInfo(const FreeTrajectoryState& fts);
 
   TrajectoryStateOnSurface getStateOnSurface(const Surface& surf) const;
@@ -65,8 +65,9 @@ class SteppingHelixStateInfo {
   GlobalPoint position() const {return GlobalPoint(r3.x(), r3.y(), r3.z());}
   GlobalVector momentum() const {return GlobalVector(p3.x(), p3.y(), p3.z());}
   int charge() const {return q;}
+  double path() const {return isValid_ ? path_ : 0;}
 
-  bool isValid() const {return isValidInfo;}
+  bool isValid() const {return isValid_;}
 
   Result status() const {return status_;}
 
@@ -77,7 +78,7 @@ class SteppingHelixStateInfo {
   Point r3;
   HepSymMatrix cov;
   HepSymMatrix matDCov;
-  double path;
+  double path_;
   double radPath;
   Basis rep;
   double dir;
@@ -87,7 +88,7 @@ class SteppingHelixStateInfo {
   const MagneticField* field;  
 
   bool isComplete;
-  bool isValidInfo;
+  bool isValid_;
   Result status_;
 };
 #endif

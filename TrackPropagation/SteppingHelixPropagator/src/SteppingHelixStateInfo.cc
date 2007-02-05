@@ -1,15 +1,15 @@
 /** \class SteppingHelixStateInfo
  *  Implementation part of the stepping helix propagator state data structure
  *
- *  $Date: 2007/01/04 18:32:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/01/10 02:03:16 $
+ *  $Revision: 1.2 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.cc,v 1.1 2007/01/04 18:32:17 slava77 Exp $
+// $Id: SteppingHelixStateInfo.cc,v 1.2 2007/01/10 02:03:16 slava77 Exp $
 //
 //
 
@@ -29,7 +29,7 @@ SteppingHelixStateInfo::SteppingHelixStateInfo(const FreeTrajectoryState& fts){
   else cov = HepSymMatrix(1, 0);
 
   isComplete = false;
-  isValidInfo = true;
+  isValid_ = true;
 }
 
 TrajectoryStateOnSurface SteppingHelixStateInfo::getStateOnSurface(const Surface& surf) const {
