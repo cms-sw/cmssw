@@ -12,10 +12,10 @@
 
 
 void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  traj_iterator,edm::Handle<TrackingRecHitCollection> *rechits,
-				     reco::TrackInfo *outputFwd,
-				     reco::TrackInfo *outputBwd,
-				     reco::TrackInfo *outputUpdated, 
-				     reco::TrackInfo *outputCombined)
+				     reco::TrackInfo &outputFwd,
+				     reco::TrackInfo &outputBwd,
+				     reco::TrackInfo &outputUpdated, 
+				     reco::TrackInfo &outputCombined)
 {
   //  edm::LogInfo("TrackInfoProducer") << "Number of Trajectories: "<<inputcoll->size();
 
@@ -70,10 +70,10 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
       }
     }
     //    if(fwdtrajinfo.size()>0){
-    outputFwd=new reco::TrackInfo((traj_iterator->seed()),fwdtrajinfo);
-    outputBwd=new reco::TrackInfo((traj_iterator->seed()),bwdtrajinfo);
-    outputUpdated=new reco::TrackInfo((traj_iterator->seed()),updatedtrajinfo);
-    outputCombined=new reco::TrackInfo((traj_iterator->seed()),combinedtrajinfo);
+    outputFwd=reco::TrackInfo((traj_iterator->seed()),fwdtrajinfo);
+    outputBwd=reco::TrackInfo((traj_iterator->seed()),bwdtrajinfo);
+    outputUpdated=reco::TrackInfo((traj_iterator->seed()),updatedtrajinfo);
+    outputCombined=reco::TrackInfo((traj_iterator->seed()),combinedtrajinfo);
     //      outputFwdColl.push_back(*fwdtracki);
     //outputBwdColl.push_back(*bwdtracki);
     //outputUpdatedColl.push_back(*updatedtracki);

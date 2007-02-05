@@ -68,7 +68,7 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
     //
     //run the algorithm  
     //
-    reco::TrackInfo *outputFwd=0,*outputBwd=0,*outputUpdated=0, *outputCombined=0;
+    reco::TrackInfo outputFwd,outputBwd,outputUpdated, outputCombined;
 
     std::vector<Trajectory>::const_iterator traj_iterator;
     
@@ -83,11 +83,11 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
       theAlgo_.run(traj_iterator,&rechitscollection,
 		   outputFwd,outputBwd,outputUpdated, outputCombined
 		   );
-      if(outputFwd!=0)outputFwdColl->push_back(*outputFwd);
-      if(outputBwd!=0)outputBwdColl->push_back(*outputBwd);
-      if(outputUpdated!=0)outputUpdatedColl->push_back(*outputUpdated);
-      if(outputCombined!=0)outputCombinedColl->push_back(*outputCombined);
-
+      outputFwdColl->push_back(outputFwd);
+      outputBwdColl->push_back(outputBwd);
+      outputUpdatedColl->push_back(outputUpdated);
+      outputCombinedColl->push_back(outputCombined);
+      
       TrajectoryStateOnSurface outertsos=0;
       TrajectoryStateOnSurface innertsos=0;
       unsigned int outerId=0, innerId=0;
@@ -118,7 +118,7 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 	edm::LogInfo("TrackInfoProducer")<<"GLOBAL POINTS AND VECTORS calculated";
      
 	reco::TrackCollection::const_iterator tk_iterator;
-	edm::Ref<reco::TrackCollection>::key_type idtk = 0;
+	int idtk = 0;
 	edm::LogInfo("TrackInfoProducer")<<"tkcollection size= ";
 	edm::LogInfo("TrackInfoProducer")<<trackCollection->size();
 	for(tk_iterator=trackCollection->begin();tk_iterator!=trackCollection->end();tk_iterator++){//loop on tracks
@@ -137,10 +137,6 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 	      )
 	     {
 	       edm::LogInfo("TrackInfoProducer")<<"insert objects in the collection";
-	       //	       TIassociationFwdColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, idtk),edm::Ref<reco::TrackInfoCollection>(rTrackInfof, idti));
-	       //TIassociationBwdColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, idtk),edm::Ref<reco::TrackInfoCollection>(rTrackInfob, idti));
-	       //TIassociationUpdatedColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, idtk),edm::Ref<reco::TrackInfoCollection>(rTrackInfou, idti));
-	       //TIassociationCombinedColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, idtk),edm::Ref<reco::TrackInfoCollection>(rTrackInfoc, idti));
 	       trackid.push_back(idtk);
 	     }
 	   else {
@@ -157,6 +153,10 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
       }
       else {edm::LogInfo("TrackInfoProducer")<<"association failed"; }
     }
+    edm::LogInfo("TrackInfoProducer")<<"outputFwdColl size= "<<outputFwdColl->size();
+    edm::LogInfo("TrackInfoProducer")<<"outputBwdColl size= "<<outputBwdColl->size();
+    edm::LogInfo("TrackInfoProducer")<<"outputUPColl size= "<<outputUpdatedColl->size();
+    edm::LogInfo("TrackInfoProducer")<<"outputcmbnedColl size= "<<outputCombinedColl->size();
   //put everything in the event
   const edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfof = theEvent.put(outputFwdColl,forwardPredictedStateTag_ );
   const edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfob =   theEvent.put(outputBwdColl,backwardPredictedStateTag_);
