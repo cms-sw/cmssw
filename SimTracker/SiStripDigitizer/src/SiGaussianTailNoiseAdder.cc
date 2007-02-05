@@ -11,7 +11,7 @@ SiGaussianTailNoiseAdder::addNoise(SiPileUpSignals::signal_map_type in){
 
   SiPileUpSignals::signal_map_type _signal;  
   
-  map<int,float,less<int> > generatedNoise;
+  std::map<int,float,std::less<int> > generatedNoise;
   
   GaussianTailNoiseGenerator gen;
   gen.generate(numStrips,threshold,noiseRMS,generatedNoise);
@@ -30,7 +30,7 @@ SiGaussianTailNoiseAdder::addNoise(SiPileUpSignals::signal_map_type in){
   //
   // Noise on the other strips
   
-  typedef map<int,float,less<int> >::iterator MI;
+  typedef std::map<int,float,std::less<int> >::iterator MI;
   
   for(MI p = generatedNoise.begin(); p != generatedNoise.end(); p++){
     if(_signal[(*p).first] == 0) {

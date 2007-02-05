@@ -13,7 +13,7 @@ class StripDet;
 class SiInduceChargeOnStrips{
  public:
   
-  typedef map< int, float, less<int> > hit_map_type;
+  typedef std::map< int, float, std::less<int> > hit_map_type;
   
   
   virtual ~SiInduceChargeOnStrips() { }

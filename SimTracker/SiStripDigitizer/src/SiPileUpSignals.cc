@@ -10,6 +10,6 @@ void SiPileUpSignals::resetLink(){
 void SiPileUpSignals::add(SiHitDigitizer::hit_map_type in, const PSimHit& hit){
   for (SiHitDigitizer::hit_map_type::const_iterator im = in.begin(); im!=in.end(); im++ ){
     theMap[(*im).first] += Amplitude((*im).second);
-    theMapLink[(*im).first].push_back(pair < const PSimHit*, Amplitude >(&hit,Amplitude((*im).second)));
+    theMapLink[(*im).first].push_back(std::pair < const PSimHit*, Amplitude >(&hit,Amplitude((*im).second)));
   }
 }

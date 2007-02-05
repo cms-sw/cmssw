@@ -32,7 +32,6 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
-using namespace std;
 
 class SiStripDigitizerAlgorithm 
 {
@@ -40,7 +39,7 @@ class SiStripDigitizerAlgorithm
 
   typedef  SiDigitalConverter::DigitalMapType DigitalMapType;
   typedef  SiPileUpSignals::HitToDigisMapType HitToDigisMapType;
-  typedef map< int, float, less<int> > hit_map_type;
+  typedef std::map< int, float, std::less<int> > hit_map_type;
   typedef float Amplitude;
 
   //digisimlink
@@ -56,7 +55,7 @@ class SiStripDigitizerAlgorithm
 
  private:
   int ndigis; 
-  vector<short int> adcVec;
+  std::vector<short int> adcVec;
 
   edm::ParameterSet conf_;
   // Const Parameters needed by:

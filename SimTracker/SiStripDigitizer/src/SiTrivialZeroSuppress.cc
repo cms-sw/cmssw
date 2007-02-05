@@ -48,7 +48,7 @@ SiZeroSuppress::DigitalMapType SiTrivialZeroSuppress::zeroSuppress(const Digital
 //This performs the zero suppression
 SiZeroSuppress::DigitalMapType SiTrivialZeroSuppress::trkFEDclusterizer(const DigitalMapType &in) 
 {
-  const string s2("SiTrivialZeroSuppress::trkFEDclusterizer1");
+  const std::string s2("SiTrivialZeroSuppress::trkFEDclusterizer1");
   //  TimeMe time_me(s2); // ???
   
   DigitalMapType selectedSignal;
@@ -71,7 +71,7 @@ SiZeroSuppress::DigitalMapType SiTrivialZeroSuppress::trkFEDclusterizer(const Di
     //Otherwise if strip was found then find it's ADC count.
     if ( iPrev  != in.end() ) adcPrev  = iPrev->second;
     if ( iNext  != in.end() ) adcNext  = iNext->second;
-    int adcMaxNeigh = max(adcPrev, adcNext);
+    int adcMaxNeigh = std::max(adcPrev, adcNext);
      
     //Find adc values for next neighbouring strips
     iPrev2 = in.find(strip - 2); 

@@ -23,8 +23,8 @@ class SiTrivialInduceChargeOnStrips: public SiInduceChargeOnStrips{
  private:
   edm::ParameterSet conf_;
   double clusterWidth;
-  vector<double> signalCoupling; 
-  vector<double> coupling_costant;
+  std::vector<double> signalCoupling; 
+  std::vector<double> coupling_costant;
   double geVperElectron;
 };
 

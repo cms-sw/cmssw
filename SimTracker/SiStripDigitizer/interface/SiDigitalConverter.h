@@ -9,7 +9,7 @@ class SiDigitalConverter{
    
  public:
    
-  typedef map< int, int, less<int> >         DigitalMapType;
+  typedef std::map< int, int, std::less<int> >         DigitalMapType;
   typedef SiPileUpSignals::signal_map_type   signal_map_type;
   
   virtual ~SiDigitalConverter() { }

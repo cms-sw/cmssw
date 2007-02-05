@@ -23,8 +23,6 @@
 #include "Geometry/Surface/interface/BoundSurface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace std;
-
 #define CBOLTZ (1.38E-23)
 #define e_SI (1.6E-19)
 
@@ -98,13 +96,13 @@ edm::DetSet<SiStripDigi>::collection_type SiStripDigitizerAlgorithm::run(const s
   //
   // First: loop on the SimHits
   //
-  vector<PSimHit>::const_iterator simHitIter = input.begin();
-  vector<PSimHit>::const_iterator simHitIterEnd = input.end();
+  std::vector<PSimHit>::const_iterator simHitIter = input.begin();
+  std::vector<PSimHit>::const_iterator simHitIterEnd = input.end();
   for (;simHitIter != simHitIterEnd; ++simHitIter) {
     
     const PSimHit& ihit = *simHitIter;
     
-    if ( abs(ihit.tof()) < tofCut && ihit.energyLoss()>0) {
+    if ( std::fabs(ihit.tof()) < tofCut && ihit.energyLoss()>0) {
       SiHitDigitizer::hit_map_type _temp = theSiHitDigitizer->processHit(ihit,*det,bfield);
       theSiPileUpSignals->add(_temp,ihit);
       
@@ -147,8 +145,8 @@ void SiStripDigitizerAlgorithm::push_digis(const DigitalMapType& dm,
     if ((*((const_cast<DigitalMapType * >(&dm)))).find((*mi).first) != (*((const_cast<DigitalMapType * >(&dm)))).end() ){           
       // --- For each channel, sum up the signals from a simtrack
       
-      map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
-      for (vector < pair < const PSimHit*, Amplitude > >::const_iterator simul = 
+      std::map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
+      for (std::vector < std::pair < const PSimHit*, Amplitude > >::const_iterator simul = 
 	     (*mi).second.begin() ; simul != (*mi).second.end(); simul ++){
 	totalAmplitudePerSimHit[(*simul).first] += (*simul).second;
       }
@@ -160,7 +158,7 @@ void SiStripDigitizerAlgorithm::push_digis(const DigitalMapType& dm,
       
       //--- digisimlink
       
-      for (map<const PSimHit *, Amplitude>::const_iterator iter = totalAmplitudePerSimHit.begin(); 
+      for (std::map<const PSimHit *, Amplitude>::const_iterator iter = totalAmplitudePerSimHit.begin(); 
 	   iter != totalAmplitudePerSimHit.end(); iter++){
 	
 	float threshold = 0.;

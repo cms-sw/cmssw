@@ -44,7 +44,7 @@ SiInduceChargeOnStrips::hit_map_type SiTrivialInduceChargeOnStrips::induce(SiCha
       else {
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e((i-chargePosition)/chargeSpread, &result);
-	if (status != 0) cerr<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen"<<endl;
+	if (status != 0) std::cerr<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen"<<std::endl;
 	lowerBound = 1. - result.val;
 	//      float       olowerBound = freq_((i-chargePosition)/chargeSpread);
         //      cout <<" UPPERB "<<olowerBound<<" " <<lowerBound<<" " <<lowerBound-olowerBound<<endl;
@@ -55,7 +55,7 @@ SiInduceChargeOnStrips::hit_map_type SiTrivialInduceChargeOnStrips::induce(SiCha
       else {
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e((i-chargePosition+1)/chargeSpread, &result);
-		if (status != 0) cerr<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen"<<endl;
+		if (status != 0) std::cerr<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen"<<std::endl;
 	upperBound = 1. - result.val;
 	//      float       oupperBound = freq_((i-chargePosition+1)/chargeSpread);
 	//      cout <<" UPPERB "<<oupperBound<<" " <<upperBound<<" " <<upperBound-oupperBound<<endl;

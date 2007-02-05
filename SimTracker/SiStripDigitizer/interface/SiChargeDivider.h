@@ -5,7 +5,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
-using namespace std;
 #include <vector>
 /**
  * Base class for the division of a Geant energy deposit in smaller elementary charges inside the silicon
@@ -13,7 +12,7 @@ using namespace std;
 class SiChargeDivider{
  public:
   
-  typedef vector< EnergyDepositUnit > ionization_type;
+  typedef std::vector< EnergyDepositUnit > ionization_type;
   
   virtual ~SiChargeDivider() { }
   virtual ionization_type divide(const PSimHit&, const StripGeomDetUnit& det) = 0;
