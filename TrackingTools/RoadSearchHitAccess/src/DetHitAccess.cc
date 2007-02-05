@@ -5,6 +5,9 @@ DetHitAccess::DetHitAccess(){
   // default for access mode
   accessMode_ = standard;
 
+  use_rphiRecHits_ = true;
+  use_rphiRecHits_ = true;
+
 }
 
 DetHitAccess::~DetHitAccess(){
@@ -17,6 +20,9 @@ DetHitAccess::DetHitAccess(const SiStripRecHit2DCollection* rphiRecHits,
   
   // default for access mode
   accessMode_ = standard;
+
+  use_rphiRecHits_ = true;
+  use_rphiRecHits_ = true;
 
   // set collections
   setCollections(rphiRecHits,stereoRecHits,matchedRecHits,pixelRecHits);
@@ -169,8 +175,8 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
 		SiStripMatchedRecHit2DCollection::range matchedDetHits = matchedHits_->get(useDetId);
 		for ( SiStripMatchedRecHit2DCollection::const_iterator matchedDetHit = matchedDetHits.first;
 		      matchedDetHit != matchedDetHits.second; ++matchedDetHit ) { 
-		  if (stereoDetHit->localPosition().x()==matchedDetHit->monoHit()->localPosition().x() 
-		      && stereoDetHit->localPosition().y()==matchedDetHit->monoHit()->localPosition().y() ) {
+		  if (stereoDetHit->localPosition().x()==matchedDetHit->stereoHit()->localPosition().x() 
+		      && stereoDetHit->localPosition().y()==matchedDetHit->stereoHit()->localPosition().y() ) {
 		    use_stereo=false;
 		    break;
 		  }
