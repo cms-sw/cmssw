@@ -1,0 +1,12 @@
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=RecoTracker/RingRecord>
+<use name=Geometry/Records>
+<flags SEAL_PLUGIN_NAME="RecoTrackerRingESSource">
+<export>
+   <lib name=RecoTrackerRingESSource>
+   <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
+   <use name=RecoTracker/RingRecord>
+   <use name=Geometry/Records>
+</export>
