@@ -26,9 +26,12 @@ typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
 
   ~TrackInfoProducerAlgorithm() {}
   
-  void run(const std::vector<Trajectory> * inputcoll, edm::Handle<TrackingRecHitCollection> *rechits, reco::TrackInfoCollection &outputFwdcoll,
-	   reco::TrackInfoCollection & outputBwdColl,reco::TrackInfoCollection &outputUpdatedColl, reco::TrackInfoCollection &outputCombinedColl);
-
+  void run(std::vector<Trajectory>::const_iterator input, edm::Handle<TrackingRecHitCollection> *rechits, 
+	   reco::TrackInfo *outputFwd,
+	   reco::TrackInfo *outputBwd,
+	   reco::TrackInfo *outputUpdated, 
+	   reco::TrackInfo *outputCombined);
+    
  private:
   edm::ParameterSet conf_;
 };

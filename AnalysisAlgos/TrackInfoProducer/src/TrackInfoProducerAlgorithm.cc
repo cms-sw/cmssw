@@ -11,14 +11,17 @@
 #include "Utilities/General/interface/CMSexception.h"
 
 
-void TrackInfoProducerAlgorithm::run(const std::vector<Trajectory> * inputcoll,edm::Handle<TrackingRecHitCollection> *rechits,reco::TrackInfoCollection &outputFwdColl,
-				     reco::TrackInfoCollection & outputBwdColl,reco::TrackInfoCollection &outputUpdatedColl, reco::TrackInfoCollection &outputCombinedColl)
+void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  traj_iterator,edm::Handle<TrackingRecHitCollection> *rechits,
+				     reco::TrackInfo *outputFwd,
+				     reco::TrackInfo *outputBwd,
+				     reco::TrackInfo *outputUpdated, 
+				     reco::TrackInfo *outputCombined)
 {
   //  edm::LogInfo("TrackInfoProducer") << "Number of Trajectories: "<<inputcoll->size();
 
-  std::vector<Trajectory>::const_iterator traj_iterator;
+  //  std::vector<Trajectory>::const_iterator traj_iterator;
   
-  for(traj_iterator=inputcoll->begin();traj_iterator!=inputcoll->end();traj_iterator++){//loop on trajectories
+  // for(traj_iterator=inputcoll->begin();traj_iterator!=inputcoll->end();traj_iterator++){//loop on trajectories
     std::vector<TrajectoryMeasurement> measurements =traj_iterator->measurements();
     
     std::vector<TrajectoryMeasurement>::iterator traj_mes_iterator;
@@ -66,15 +69,15 @@ void TrackInfoProducerAlgorithm::run(const std::vector<Trajectory> * inputcoll,e
 	combinedtrajinfo.insert(make_pair(thehitref,*combinedptsod));
       }
     }
-    if(fwdtrajinfo.size()>0){
-      reco::TrackInfo * fwdtracki=new reco::TrackInfo((traj_iterator->seed()),fwdtrajinfo);
-      reco::TrackInfo * bwdtracki=new reco::TrackInfo((traj_iterator->seed()),bwdtrajinfo);
-      reco::TrackInfo * updatedtracki=new reco::TrackInfo((traj_iterator->seed()),updatedtrajinfo);
-      reco::TrackInfo * combinedtracki=new reco::TrackInfo((traj_iterator->seed()),combinedtrajinfo);
-      outputFwdColl.push_back(*fwdtracki);
-      outputBwdColl.push_back(*bwdtracki);
-      outputUpdatedColl.push_back(*updatedtracki);
-      outputCombinedColl.push_back(*combinedtracki);
-    }
-  }
+    //    if(fwdtrajinfo.size()>0){
+    outputFwd=new reco::TrackInfo((traj_iterator->seed()),fwdtrajinfo);
+    outputBwd=new reco::TrackInfo((traj_iterator->seed()),bwdtrajinfo);
+    outputUpdated=new reco::TrackInfo((traj_iterator->seed()),updatedtrajinfo);
+    outputCombined=new reco::TrackInfo((traj_iterator->seed()),combinedtrajinfo);
+    //      outputFwdColl.push_back(*fwdtracki);
+    //outputBwdColl.push_back(*bwdtracki);
+    //outputUpdatedColl.push_back(*updatedtracki);
+    //outputCombinedColl.push_back(*combinedtracki);
+    //    }
+    //  }
 }
