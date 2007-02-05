@@ -864,10 +864,27 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
     def _place(self,name,proc):
         proc._placeVPSet(name,self)
 
-def untracked(param):
-    """used to set a 'param' parameter to be 'untracked'"""
-    param.setIsTracked(False)
-    return param
+class _Untracked(object):
+    """Class type for 'untracked' to allow nice syntax"""
+    def __call__(self,param):
+        """used to set a 'param' parameter to be 'untracked'"""
+        param.setIsTracked(False)
+        return param
+    def __getattr__(self,name):
+        """A factory which allows syntax untracked.name(value) to construct an
+        an instance of 'name' class which is is set to be untracked"""
+        class Factory(object):
+            def __init__(self,name):
+                self.name = name
+            def __call__(self,*value,**params):
+                param = globals()[self.name](*value,**params)
+                return untracked(param)
+        return Factory(name)
+#def untracked(param):
+#    """used to set a 'param' parameter to be 'untracked'"""
+#    param.setIsTracked(False)
+#    return param
+untracked = _Untracked()
 
 class _Sequenceable(object):
     """Denotes an object which can be placed in a sequence"""
@@ -1069,6 +1086,9 @@ if __name__=="__main__":
             p.a = untracked(int32(1))
             self.assertEqual(p.a.value(), 1)
             self.failIf(p.a.isTracked())
+            p.a = untracked.int32(1)
+            self.assertEqual(p.a.value(), 1)
+            self.failIf(p.a.isTracked())
             p = _Parameterizable(foo=int32(10), bar = untracked(double(1.0)))
             self.assertEqual(p.foo.value(), 10)
             self.assertEqual(p.bar.value(),1.0)
@@ -1125,6 +1145,16 @@ if __name__=="__main__":
             p=untracked(int32(1))
             self.assertRaises(TypeError,untracked,(1),{})
             self.failIf(p.isTracked())
+            p=untracked.int32(1)
+            self.assertRaises(TypeError,untracked,(1),{})
+            self.failIf(p.isTracked())
+            p=untracked.vint32(1,5,3)
+            self.assertRaises(TypeError,untracked,(1,5,3),{})
+            self.failIf(p.isTracked())
+            p = untracked.PSet(b=int32(1))
+            self.failIf(p.isTracked())
+            self.assertEqual(p.b.value(),1)
+
         def testProcessInsertion(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
