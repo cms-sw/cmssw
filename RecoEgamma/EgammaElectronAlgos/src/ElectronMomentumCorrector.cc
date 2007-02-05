@@ -1,7 +1,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/TrackReco/interface/GsfTrack.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "TrackingTools/GsfTools/interface/GSUtilities.h"

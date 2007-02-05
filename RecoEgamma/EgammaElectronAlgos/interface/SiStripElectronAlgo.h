@@ -34,8 +34,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -77,7 +75,6 @@ class SiStripElectronAlgo
       void prepareEvent(const edm::ESHandle<TrackerGeometry>& tracker,
 			const edm::Handle<SiStripRecHit2DCollection>& rphiHits,
 			const edm::Handle<SiStripRecHit2DCollection>& stereoHits,
-			const edm::Handle<SiStripMatchedRecHit2DCollection>& matchedHits,
 			const edm::ESHandle<MagneticField>& magneticField);
 
       // returns true iff an electron/positron was found
@@ -97,10 +94,6 @@ class SiStripElectronAlgo
       // selects from TID or TEC if endcap == true, TIB or TOB otherwise
       void coarseHitSelection(std::vector<const SiStripRecHit2D*>& hitPointersOut,
 			      bool stereo, bool endcap);
-      void coarseBarrelMonoHitSelection(std::vector<const SiStripRecHit2D*>& monoHitPointersOut );
-      void coarseEndcapMonoHitSelection(std::vector<const SiStripRecHit2D*>& monoHitPointersOut );
-      void coarseMatchedHitSelection(std::vector<const SiStripMatchedRecHit2D*>& coarseMatchedHitPointersOut);
-
 
       // projects a phi band of width phiBandWidth_ from supercluster into tracker (given a chargeHypothesis)
       // fills *_pos_ or *_neg_ member data with the results
@@ -127,21 +120,13 @@ class SiStripElectronAlgo
       const TrackerGeometry* tracker_p_;
       const SiStripRecHit2DCollection* rphiHits_p_;
       const SiStripRecHit2DCollection* stereoHits_p_;
-      const SiStripMatchedRecHit2DCollection* matchedHits_p_;
       const MagneticField* magneticField_p_;
 
       const edm::Handle<SiStripRecHit2DCollection>* rphiHits_hp_;
       const edm::Handle<SiStripRecHit2DCollection>* stereoHits_hp_;
-      const edm::Handle<SiStripMatchedRecHit2DCollection>* matchedHits_hp_;
-
-
       std::map<const SiStripRecHit2D*, unsigned int> rphiKey_;
       std::map<const SiStripRecHit2D*, unsigned int> stereoKey_;
-      std::map<const SiStripMatchedRecHit2D*, unsigned int> matchedKey_;
-
       std::map<const TrackingRecHit*, bool> hitUsed_;
-      std::map<const TrackingRecHit*, bool> matchedHitUsed_;
-
 
       double redchi2_pos_;
       GlobalPoint position_pos_;
@@ -150,8 +135,6 @@ class SiStripElectronAlgo
       std::vector<const TrackingRecHit*> outputHits_pos_;
       edm::RefVector<SiStripRecHit2DCollection> outputRphiHits_pos_;
       edm::RefVector<SiStripRecHit2DCollection> outputStereoHits_pos_;
-      edm::RefVector<SiStripRecHit2DCollection> outputMatchedHits_neg_;
-
       double phiVsRSlope_pos_;
       double slope_pos_;
       double intercept_pos_;
@@ -160,7 +143,6 @@ class SiStripElectronAlgo
       double correct_pT_pos_;
       double pZ_pos_;
       double zVsRSlope_pos_;
-      unsigned int numberOfMatchedHits_pos_;
       unsigned int numberOfStereoHits_pos_;
       unsigned int numberOfBarrelRphiHits_pos_;
       unsigned int numberOfEndcapZphiHits_pos_;

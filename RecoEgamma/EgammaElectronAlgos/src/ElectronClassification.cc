@@ -62,11 +62,11 @@ void ElectronClassification::classify(const PixelMatchGsfElectron &electron) {
   float p2 = 8.97269e+00;
 
   float pin  = electron.trackMomentumAtVtx().R(); 
-  float pout = electron.trackMomentumOut().R(); 
-     
+  float pout = electron.track()->outerMomentum().R();
+       
   float peak = p0 + p1/(pin-p2);
   
-  int nbrem = electron.numberOfClusters()-1;
+  int nbrem = electron.numberOfClusters();
 
   // golden
   if (nbrem == 0 && 

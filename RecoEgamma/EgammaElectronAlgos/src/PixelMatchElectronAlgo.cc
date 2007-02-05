@@ -27,7 +27,6 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -76,18 +75,25 @@ PixelMatchElectronAlgo::PixelMatchElectronAlgo(double maxEOverPBarrel, double ma
   hOverEConeSize_(hOverEConeSize), maxHOverE_(maxHOverE), 
   maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi), ptCut_(ptcut)
 {   
+  //printf("Algo Constructor start===================\n");fflush(stdout);
   geomPropBw_=0;	
   geomPropFw_=0;	
   mtsTransform_=0;
+  //printf("Algo Constructor end===================\n");fflush(stdout);
 }
 
 PixelMatchElectronAlgo::~PixelMatchElectronAlgo() {
+  //printf("Algo Destructor start ===================\n");fflush(stdout);
   delete geomPropBw_;
+  //printf("Algo Destructor 1 ===================\n");fflush(stdout);
   delete geomPropFw_;
+  //printf("Algo Destructor 2 ===================\n");fflush(stdout);
   delete mtsTransform_;
+  //printf("Algo Destructor end ===================\n");fflush(stdout);
 }
 
 void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::ParameterSet &conf) {
+  //printf("Algo setupES start ===================\n");fflush(stdout);
 
   //services
   es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
@@ -103,8 +109,6 @@ void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::Param
 
   // get nested parameter set for the TransientInitialStateEstimator
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
-  hbheLabel_ = conf.getParameter<string>("hbheModule");
-  hbheInstanceName_ = conf.getParameter<string>("hbheInstance");
   trackBarrelLabel_ = conf.getParameter<string>("TrackBarrelLabel");
   trackBarrelInstanceName_ = conf.getParameter<string>("TrackBarrelProducer");
   trackEndcapLabel_ = conf.getParameter<string>("TrackEndcapLabel");
@@ -117,6 +121,7 @@ void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::Param
   assBarrelTrTSInstanceName_ = conf.getParameter<string>("AssocTrTBarrelProducer");
   assEndcapTrTSLabel_ = conf.getParameter<string>("AssocTrTEndcapLabel");
   assEndcapTrTSInstanceName_ = conf.getParameter<string>("AssocTrTEndcapProducer");
+  //printf("Algo setupES end ===================\n");fflush(stdout);
 }
 
 void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & outEle) {
@@ -128,7 +133,7 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
   edm::Handle<HBHERecHitCollection> hbhe;
   HBHERecHitMetaCollection *mhbhe=0;
   if (hOverEConeSize_ > 0.) {
-    e.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
+    e.getByType(hbhe);  
     mhbhe=  &HBHERecHitMetaCollection(*hbhe);  //FIXME, generates warning
   }
   e.getByLabel(trackBarrelLabel_,trackBarrelInstanceName_,tracksBarrelH);
@@ -335,6 +340,7 @@ GlobalVector PixelMatchElectronAlgo::computeMode(const TrajectoryStateOnSurface 
     delete[] PyErr;
     delete[] Pz;
     delete[] PzErr;
+  //} else printf("tsos not valid!!\n");fflush(stdout);
   } else edm::LogInfo("") << "tsos not valid!!";
   return GlobalVector(mode_Px,mode_Py,mode_Pz);	
 
