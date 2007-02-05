@@ -4,9 +4,9 @@
 /** \class InOutConversionSeedFinder
  **  
  **
- **  $Id: InOutConversionSeedFinder.h,v 1.4 2006/11/14 15:20:27 nancy Exp $ 
- **  $Date: 2006/11/14 15:20:27 $ 
- **  $Revision: 1.4 $
+ **  $Id: InOutConversionSeedFinder.h,v 1.5 2006/12/19 17:35:31 nancy Exp $ 
+ **  $Date: 2006/12/19 17:35:31 $ 
+ **  $Revision: 1.5 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -87,7 +87,7 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
   
   std::vector<Trajectory> inputTracks_;
   std::vector<Trajectory> theOutInTracks_;
-  mutable vector<TrajectoryMeasurement> theFirstMeasurements_;
+  mutable std::vector<TrajectoryMeasurement> theFirstMeasurements_;
   
   const LayerMeasurements*      theLayerMeasurements_;
   mutable reco::BasicCluster theSecondBC_;

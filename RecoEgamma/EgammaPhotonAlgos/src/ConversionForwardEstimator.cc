@@ -13,11 +13,11 @@
 
 
   // zero value indicates incompatible ts - hit pair
-pair<bool,double> ConversionForwardEstimator::estimate( const TrajectoryStateOnSurface& ts, 
+std::pair<bool,double> ConversionForwardEstimator::estimate( const TrajectoryStateOnSurface& ts, 
 							const TransientTrackingRecHit& hit) const {
-   LogDebug("ConversionForwardEstimator") << "::estimate( const TrajectoryStateOnSurface& ts ...) " << "\n";
+  LogDebug("ConversionForwardEstimator") << "::estimate( const TrajectoryStateOnSurface& ts ...) " << "\n";
   
-  pair<bool,double> result;
+  std::pair<bool,double> result;
   
   float tsPhi = ts.globalParameters().position().phi();
   GlobalPoint gp = hit.globalPosition();

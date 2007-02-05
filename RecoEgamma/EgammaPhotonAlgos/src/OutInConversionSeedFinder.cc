@@ -172,7 +172,7 @@ FreeTrajectoryState OutInConversionSeedFinder::makeTrackState(int  charge) const
 
   GlobalPoint startingPoint(hepStartingPoint.x(), hepStartingPoint.y(), hepStartingPoint.z());
 
-   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState startingPoint " << startingPoint << " calo position " << theBCPosition_ << endl;
+   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState startingPoint " << startingPoint << " calo position " << theBCPosition_ << "\n";
   GlobalVector gvTracker(momentumInTracker.x(), momentumInTracker.y(), momentumInTracker.z());
   GlobalTrajectoryParameters gtp(startingPoint, gvTracker, charge, theMF_);
   
@@ -188,7 +188,7 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::startSeed layer list " << this->layerList().size() <<  "\n";
   LogDebug("OutInConversionSeedFinder") << " fts " << fts <<  "\n";  
 
-  vector<const DetLayer*> myLayers=layerList();
+  std::vector<const DetLayer*> myLayers=layerList();
   if ( myLayers.size() > 3 ) {
     
     for(unsigned int ilayer = myLayers.size()-1; ilayer >= myLayers.size()-2; --ilayer) {
@@ -218,7 +218,7 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
       
       delete newEstimator;
       
-      LogDebug("OutInConversionSeedFinder") << "OutInSeedFinder::startSeed Layer " << ilayer << " theFirstMeasurements_.size " << theFirstMeasurements_.size() << endl;
+      LogDebug("OutInConversionSeedFinder") << "OutInSeedFinder::startSeed Layer " << ilayer << " theFirstMeasurements_.size " << theFirstMeasurements_.size() << "\n";
       
       for(unsigned int i = 0; i < theFirstMeasurements_.size(); ++i) {
 	TrajectoryMeasurement m1 = theFirstMeasurements_[i];
@@ -325,8 +325,8 @@ void OutInConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
   TSOS tsos(fts, layer->surface() );
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::completeSeed propagationDirection  " << int(propagator->propagationDirection() ) << "\n";               
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::completeSeed pointer to estimator " << newEstimator << "\n";
-  vector<TrajectoryMeasurement> measurements = theLayerMeasurements_->measurements( *layer, tsos, *propagator, *newEstimator);
-  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::completeSeed Found " << measurements.size() << " second hits " << endl;
+  std::vector<TrajectoryMeasurement> measurements = theLayerMeasurements_->measurements( *layer, tsos, *propagator, *newEstimator);
+  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::completeSeed Found " << measurements.size() << " second hits " << "\n";
   delete newEstimator;
 
   for(unsigned int i = 0; i < measurements.size(); ++i) {

@@ -3,9 +3,9 @@
 /** \class ConversionSeedFinder
  **  
  **
- **  $Id: ConversionSeedFinder.h,v 1.3 2006/07/10 17:54:57 nancy Exp $ 
- **  $Date: 2006/07/10 17:54:57 $ 
- **  $Revision: 1.3 $
+ **  $Id: ConversionSeedFinder.h,v 1.4 2006/11/14 15:20:32 nancy Exp $ 
+ **  $Date: 2006/11/14 15:20:32 $ 
+ **  $Revision: 1.4 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -65,7 +65,7 @@ class ConversionSeedFinder {
 
   TrajectorySeedCollection seeds() {std::cout << " Returning  seeds " << std::endl; return theSeeds_;}
   virtual void setCandidate(reco::SuperCluster& sc ) const { theSC_=&sc; }			       
-  vector<const DetLayer*> layerList() const { return theLayerList_;}
+  std::vector<const DetLayer*> layerList() const { return theLayerList_;}
  
   
   void setMeasurementTracker(const MeasurementTracker* tracker) const { ; }
@@ -100,7 +100,7 @@ class ConversionSeedFinder {
   mutable reco::SuperCluster*  theSC_;
 
   
-  mutable vector<const DetLayer *> theLayerList_ ;    
+  mutable std::vector<const DetLayer *> theLayerList_ ;    
     
   mutable GlobalPoint theBCPosition_;
   mutable float       theBCEnergy_; 

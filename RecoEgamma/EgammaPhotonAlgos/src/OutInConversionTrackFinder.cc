@@ -67,7 +67,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 							   TrackCandidateCollection &output_p ) const { 
 
   
-  LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder::tracks getting " <<  outInSeeds.size() << " Out-In seeds " << endl;
+  LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder::tracks getting " <<  outInSeeds.size() << " Out-In seeds " << "\n";;
 
 
 
@@ -157,7 +157,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 
  
   if ( unsmoothedResult.size() ) {
-    vector<Trajectory>::iterator it=unsmoothedResult.begin();
+    std::vector<Trajectory>::iterator it=unsmoothedResult.begin();
 
     // only send out the two best tracks 
     result.push_back(*it);      
@@ -171,12 +171,12 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 
 
   //LogDebug("OutInConversionTrackFinder") << "  Returning " << result.size() << "Out In Tracks " << "\n";
-  LogDebug("OutInConversionTrackFinder") << "  Returning " << unsmoothedResult.size() << "Out In Trajectories  " << "\n";
+    LogDebug("OutInConversionTrackFinder") << "  Returning " << unsmoothedResult.size() << "Out In Trajectories  " << "\n";
  
 
 
   // Convert to TrackCandidates and fill in the output_p
-  for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
+  for (std::vector<Trajectory>::const_iterator it = result.begin(); it != result.end(); it++) {
     
     edm::OwnVector<TrackingRecHit> recHits;
     Trajectory::RecHitContainer thits = it->recHits();
@@ -191,7 +191,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 
     // temporary protection againt invalid initial states
     if (! initState.first.isValid() || initState.second == 0) {
-      cout << "invalid innerState, will not make TrackCandidate" << endl;
+     LogDebug("OutInConversionTrackFinder")  << "invalid innerState, will not make TrackCandidate" << "\n";;
       continue;
     }
     
