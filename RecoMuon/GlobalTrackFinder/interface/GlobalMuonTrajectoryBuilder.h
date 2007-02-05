@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/01/17 16:18:03 $
- *  $Revision: 1.46 $
+ *  $Date: 2007/01/18 13:31:53 $
+ *  $Revision: 1.47 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -39,9 +39,10 @@ class MuonServiceProxy;
 class Trajectory;
 class TrackerSeedGenerator;
 class TrajectoryCleaner;
-class MuonTrackLoader;
 
 class GlobalMuonMonitorInterface;
+
+class TrackTransformer;
 
 //class CkfTrajectoryBuilder;
 
@@ -68,7 +69,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
   public:
 
     /// constructor with Parameter Set and MuonServiceProxy
-    GlobalMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*, MuonTrackLoader*);
+    GlobalMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*);
           
     /// destructor
     ~GlobalMuonTrajectoryBuilder();
@@ -132,6 +133,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     MuonTrackConverter* theTrackConverter;
     TrackerSeedGenerator* theTkSeedGenerator;
     TrajectoryCleaner* theTrajectoryCleaner;
+    TrackTransformer* theTrackTransformer;
     
     int   theMuonHitsOption;
     NavigationDirection theDirection;
@@ -143,7 +145,6 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     float theRPCChi2Cut;
     edm::InputTag theTkTrackLabel;
     std::string theCkfBuilderName;
-    std::string theL2SeededTkLabel;
 
     bool theTkTrajsAvailableFlag;
     bool theMakeTkSeedFlag;
@@ -158,7 +159,6 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     const edm::Event* theEvent;
 
     const MuonServiceProxy *theService;
-    MuonTrackLoader *theTrackLoader;
 
     GlobalMuonMonitorInterface* dataMonitor;
 

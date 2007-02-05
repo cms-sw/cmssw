@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2006/11/22 17:55:12 $
- *   $Revision: 1.20 $
+ *   $Date: 2007/01/03 20:37:23 $
+ *   $Revision: 1.21 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -62,7 +62,7 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   
   // instantiate the concrete trajectory builder in the Track Finder
   MuonTrackLoader* mtl = new MuonTrackLoader(trackLoaderParameters,theService);
-  GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(trajectoryBuilderParameters, theService, mtl);
+  GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(trajectoryBuilderParameters, theService);
 
   theTrackFinder = new MuonTrackFinder(gmtb, mtl);
   
@@ -113,7 +113,6 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
     event.getByLabel(theSTACollectionLabel,staMuonsTraj);      
     LogDebug(metname)<<"Track Reconstruction (tracks, trajs) "<< staMuons.product()->size() << " " << staMuonsTraj.product()->size() <<endl;
   } 
-  
 
   theTrackFinder->reconstruct(staMuons, staMuonsTraj, event);      
 

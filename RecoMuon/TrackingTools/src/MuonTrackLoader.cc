@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/01/09 14:01:52 $
- *  $Revision: 1.37 $
+ *  $Date: 2007/02/01 17:58:00 $
+ *  $Revision: 1.38 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -45,9 +45,15 @@ MuonTrackLoader::MuonTrackLoader(ParameterSet &parameterSet, const MuonServicePr
   // Flag to put the trajectory into the event
   theTrajectoryFlag = parameterSet.getUntrackedParameter<bool>("PutTrajectoryIntoEvent",false);
 
+  theL2SeededTkLabel = parameterSet.getUntrackedParameter<std::string>("MuonSeededTracksInstance",std::string());
+  
+  thePutTkTrackFlag_ = parameterSet.getUntrackedParameter<bool>("PutTkTrackIntoEvent",false);
+
   const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
   theUpdatorAtVtx = new MuonUpdatorAtVertex(propagatorName,service);
+
 }
+
 
 
 OrphanHandle<reco::TrackCollection> 
@@ -155,7 +161,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 
     // fill the TrackCollection
     trackCollection->push_back(track);
-
+    LogDebug(metname) << "Debug Track being loaded pt "<<  track.pt();
     // fill the TrackCollection updated at vtx
     if(theUpdatingAtVtx) updatedAtVtxTrackCollection->push_back(updatedTrack);
 
@@ -171,6 +177,10 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   event.put(recHitCollection,instance);
   event.put(trackExtraCollection,instance);
   if ( theTrajectoryFlag ) event.put(trajectoryCollection,instance);
+
+
+
+  
 
   if(theUpdatingAtVtx){
     event.put(trackCollection,instance);
@@ -203,9 +213,11 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   
   // get combined Trajectories
   TrajectoryContainer combinedTrajs;
+  TrajectoryContainer trackerTrajs;
   for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); it++) {
     combinedTrajs.push_back((*it)->trajectory());
-    
+    trackerTrajs.push_back((*it)->trackerTrajectory());
+  
     // Create the reco::muon
     reco::Muon muon;
     muon.setStandAlone((*it)->muonTrack());
@@ -217,10 +229,19 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   // create the TrackCollection of combined Trajectories
   // FIXME: could this be done one track at a time in the previous loop?
   OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event);
+
+  OrphanHandle<reco::TrackCollection> trackerTracks;
+  if(thePutTkTrackFlag_) trackerTracks = loadTracks(trackerTrajs, event,theL2SeededTkLabel);
+
   
   reco::MuonCollection::iterator muon = muonCollection->begin();
   for ( unsigned int position = 0; position != combinedTracks->size(); position++ ) {
     reco::TrackRef combinedTR(combinedTracks, position);
+
+    reco::TrackRef trackerTR;
+    if(thePutTkTrackFlag_) trackerTR = reco::TrackRef(trackerTracks, position);
+
+
     // fill the combined information.
     // FIXME: can this break in case combined info cannot be added to some tracks?
     (*muon).setCharge(combinedTR->charge());
@@ -230,6 +251,8 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     (*muon).setP4(p4);
     (*muon).setVertex(combinedTR->vertex());
     (*muon).setCombined(combinedTR);
+    if(thePutTkTrackFlag_) (*muon).setTrack(trackerTR);
+
     muon++;
   }
   

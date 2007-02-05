@@ -5,8 +5,8 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2007/01/04 00:35:23 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/02/01 17:57:59 $
+ *  $Revision: 1.13 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -66,6 +66,10 @@ class MuonTrackLoader {
     MuonUpdatorAtVertex *theUpdatorAtVtx;
 
     bool theTrajectoryFlag;
+
+    /// Label for L2SeededTracks
+    std::string theL2SeededTkLabel; 
+    bool thePutTkTrackFlag_;
 
 };
 #endif

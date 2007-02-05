@@ -4,8 +4,8 @@
 /** \class MuonCandidate
  *  Auxiliary class for muon candidates
  *
- *  $Date: 2006/08/29 22:29:02 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/08/29 23:23:56 $
+ *  $Revision: 1.6 $
  *  \author N. Neumeister	Purdue University 
  */
 
@@ -25,10 +25,16 @@ class MuonCandidate {
   
     /// constructor
     MuonCandidate(Trajectory* traj, 
+		  const reco::TrackRef& muon, 
+		  const reco::TrackRef& tracker,
+    		  Trajectory* trackerTraj) :
+      theTrajectory(traj), theMuonTrack(muon), theTrackerTrack(tracker), theTrackerTrajectory(trackerTraj) {} 
+    
+    MuonCandidate(Trajectory* traj, 
                   const reco::TrackRef& muon, 
                   const reco::TrackRef& tracker) :
       theTrajectory(traj), theMuonTrack(muon), theTrackerTrack(tracker) {} 
-  
+    
     /// destructor
     virtual ~MuonCandidate() { }
   
@@ -40,12 +46,16 @@ class MuonCandidate {
 
     /// return tracker track
     const reco::TrackRef trackerTrack() const { return theTrackerTrack; }
-                     
+    
+    /// return tracker trajectory
+    Trajectory* trackerTrajectory() const { return theTrackerTrajectory; }
+                 
   private:
 
     Trajectory* theTrajectory;
     reco::TrackRef theMuonTrack;
     reco::TrackRef theTrackerTrack;
+    Trajectory* theTrackerTrajectory;
 
 };
 #endif 
