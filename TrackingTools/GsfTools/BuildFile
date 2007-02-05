@@ -3,18 +3,29 @@
 
 <export>
  <lib name=TrackingToolsGsfTools>
- <use name="FWCore/MessageLogger">
+ <use name="FWCore/Framework">
+ <use name="FWCore/ParameterSet">
  <use name="FWCore/Utilities">
  <use name="Geometry/CommonDetAlgo">
+ <use name="Geometry/Surface">
  <use name="TrackingTools/GeomPropagators">
+ <use name="TrackingTools/Records">
  <use name="TrackingTools/TrajectoryState">
  <use name="DataFormats/GsfTrackReco">
 </export>
 
-<use name="FWCore/MessageLogger">
-<use name="FWCore/Utilities">
-<use name="Geometry/CommonDetAlgo">
-<use name="TrackingTools/GeomPropagators">
-<use name="TrackingTools/TrajectoryState">
-<use name="DataFormats/GsfTrackReco">
+ <use name="FWCore/Framework">
+ <use name="FWCore/MessageLogger">
+ <use name="FWCore/ParameterSet">
+ <use name="FWCore/Utilities">
+ <use name="Geometry/CommonDetAlgo">
+ <use name="Geometry/CommonDetUnit">
+ <use name="Geometry/Surface">
+ <use name="TrackingTools/GeomPropagators">
+ <use name="TrackingTools/Records">
+ <use name="TrackingTools/TrajectoryParametrization">
+ <use name="TrackingTools/TrajectoryState">
+ <use name="DataFormats/GsfTrackReco">
+ <use name="DataFormats/TrackReco">
 
+<flags SEAL_PLUGIN_NAME="TrackingToolsGsfTools">
