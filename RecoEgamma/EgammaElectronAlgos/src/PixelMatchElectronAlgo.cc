@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.32 2007/01/30 17:58:22 rahatlou Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.34 2007/02/05 13:56:47 rahatlou Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -133,8 +133,14 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
   edm::Handle<HBHERecHitCollection> hbhe;
   HBHERecHitMetaCollection *mhbhe=0;
   if (hOverEConeSize_ > 0.) {
-    e.getByType(hbhe);  
-    mhbhe=  &HBHERecHitMetaCollection(*hbhe);  //FIXME, generates warning
+    // ShR, 5 Feb 2007: trouble in 122!
+    // e.getByType(hbhe);  
+    // mhbhe=  &HBHERecHitMetaCollection(*hbhe);  //FIXME, generates warning
+    // temporary fix ONLY for 1_2_2
+    std::string lModule("hbhereco");
+    e.getByLabel(lModule,hbhe);
+    mhbhe =  &HBHERecHitMetaCollection(*hbhe);
+    // ShR: end of nasty hack
   }
   e.getByLabel(trackBarrelLabel_,trackBarrelInstanceName_,tracksBarrelH);
   e.getByLabel(trackEndcapLabel_,trackEndcapInstanceName_,tracksEndcapH);
