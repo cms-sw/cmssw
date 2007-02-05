@@ -148,7 +148,7 @@ void DumpEvent::WriteJets(const edm::Event& iEvent, const edm::EventSetup& iSetu
       int nConstituents= detIDs.size();
       for (int i = 0; i <nConstituents ; i++) 
 	{
-	  CaloTowerCollection::const_iterator theTower=caloTowers->find(detIDs[i]);  //Find the tower from its CaloTowerDetID	
+	  //CaloTowerCollection::const_iterator theTower=caloTowers->find(detIDs[i]);  //Find the tower from its CaloTowerDetID	
 	  int ietaTower = detIDs[i].ieta();
 	  int iphiTower = detIDs[i].iphi();
 	  hCaloTowerToJetMap_ieta_iphi->Fill(ietaTower, iphiTower, njet);
@@ -231,12 +231,12 @@ void DumpEvent::WriteSCs(const edm::Event& iEvent, const edm::EventSetup& iSetup
     
     vector<DetId> crystals = BSCC->getHitsByDetId();
     vector<DetId>::const_iterator crystal;
-    int cry = 0;
+    //int cry = 0;
     for (crystal = crystals.begin(); crystal != crystals.end(); crystal++) 
       {      
 	// get the subdetector
 	int SubDet = (*crystal).subdetId();
-	DetId::Detector DetNum=(*crystal).det();
+	//DetId::Detector DetNum=(*crystal).det();
 	if (SubDet == 1) 
 	  {
 	    EBDetId EcalID = *crystal;
@@ -262,12 +262,12 @@ void DumpEvent::WriteSCs(const edm::Event& iEvent, const edm::EventSetup& iSetup
     DEBUG("SC# " << Bscs << " : eta = " << BSCC->eta() << ", phi = " << BSCC->phi() << ", Energy = " << energy );
     vector<DetId> crystals = ESCC->getHitsByDetId();
     vector<DetId>::const_iterator crystal;
-    int cry = 0;
+    //int cry = 0;
     for (crystal = crystals.begin(); crystal != crystals.end(); crystal++) 
       {      
 	// get the subdetector
 	int SubDet = (*crystal).subdetId();
-	DetId::Detector DetNum=(*crystal).det();
+	//DetId::Detector DetNum=(*crystal).det();
 	if (SubDet == 2) 
 	  {
 	    EEDetId EcalID = *crystal;

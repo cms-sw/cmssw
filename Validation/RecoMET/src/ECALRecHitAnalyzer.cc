@@ -97,7 +97,7 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
 {
   // Fill geometry histograms
   using namespace edm;
-  int b=0;
+  //int b=0;
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<IdealGeometryRecord>().get(pG);
   const CaloGeometry cG = *pG;
@@ -109,7 +109,7 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   for (std::vector<DetId>::iterator i=EBids.begin(); i!=EBids.end(); i++) {
     n++;
     const CaloCellGeometry* cell=EBgeom->getGeometry(*i);
-    GlobalPoint p = cell->getPosition();
+    //GlobalPoint p = cell->getPosition();
     
     EBDetId EcalID(i->rawId());
     
@@ -133,13 +133,13 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   for (std::vector<DetId>::iterator i=EEids.begin(); i!=EEids.end(); i++) {
     n++;
     const CaloCellGeometry* cell=EEgeom->getGeometry(*i);
-    GlobalPoint p = cell->getPosition();
+    //GlobalPoint p = cell->getPosition();
     EEDetId EcalID(i->rawId());
     int Crystal_zside = EcalID.zside();
     int Crystal_ix = EcalID.ix();
     int Crystal_iy = EcalID.iy();
-    double Crystal_eta = cell->getPosition().eta();
-    double Crystal_phi = cell->getPosition().phi();
+    //double Crystal_eta = cell->getPosition().eta();
+    //double Crystal_phi = cell->getPosition().phi();
     double Crystal_x = cell->getPosition().x();
     double Crystal_y = cell->getPosition().y();
     // ECAL -endcap
@@ -165,7 +165,7 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
  
   //-------Set the cell size for each (ieta, iphi) bin-------//
   double currentLowEdge_eta = 0;
-  double currentHighEdge_eta = 0;
+  //double currentHighEdge_eta = 0;
   for (int ieta=1; ieta<=85 ; ieta++)
     {
       int ieta_ = 86 + ieta;
@@ -178,7 +178,7 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
       else 
 	etam1 = hEB_ieta_iphi_etaMap->GetBinContent(ieta_ - 1, 1);
 
-      double phi = hEB_ieta_iphi_phiMap->GetBinContent(ieta_, 1);
+      //double phi = hEB_ieta_iphi_phiMap->GetBinContent(ieta_, 1);
       double deta = fabs( eta - etam1 );
       double dphi = fabs( hEB_ieta_iphi_phiMap->GetBinContent(ieta_, 1) - hEB_ieta_iphi_phiMap->GetBinContent(ieta_, 2) );
           

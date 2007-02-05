@@ -73,7 +73,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
 {
   // Fill geometry histograms
   using namespace edm;
-  int b=0;
+  //int b=0;
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<IdealGeometryRecord>().get(pG);
   const CaloGeometry cG = *pG;
@@ -85,7 +85,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
       n++;
       const CaloCellGeometry* cell=geom->getGeometry(*i);
       CaloTowerDetId ctId(i->rawId());
-      GlobalPoint p = cell->getPosition();
+      //GlobalPoint p = cell->getPosition();
       
       int Tower_ieta = ctId.ieta();
       int Tower_iphi = ctId.iphi();
@@ -104,7 +104,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   
   //-------Set the cell size for each (ieta, iphi) bin-------//
   double currentLowEdge_eta = 0;
-  double currentHighEdge_eta = 0;
+  //double currentHighEdge_eta = 0;
   for (int ieta=1; ieta<=41 ; ieta++)
     {
       int ieta_ = 42 + ieta;
@@ -156,8 +156,8 @@ void HCALRecHitAnalyzer::WriteHCALRecHits(const edm::Event& iEvent, const edm::E
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<IdealGeometryRecord>().get(pG);
   const CaloGeometry cG = *pG;
-  const CaloSubdetectorGeometry* EBgeom=cG.getSubdetectorGeometry(DetId::Ecal,1);
-  const CaloSubdetectorGeometry* EEgeom=cG.getSubdetectorGeometry(DetId::Ecal,2);
+  //const CaloSubdetectorGeometry* EBgeom=cG.getSubdetectorGeometry(DetId::Ecal,1);
+  //const CaloSubdetectorGeometry* EEgeom=cG.getSubdetectorGeometry(DetId::Ecal,2);
   // Loop over towers and get each tower's RecHit constituents
   for( ; calotower != towerCollection->end(); calotower++ ) 
     {

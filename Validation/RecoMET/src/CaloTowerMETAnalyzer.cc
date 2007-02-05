@@ -70,7 +70,7 @@ void CaloTowerMETAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
 {
   // Fill geometry histograms
   using namespace edm;
-  int b=0;
+  //int b=0;
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<IdealGeometryRecord>().get(pG);
   const CaloGeometry cG = *pG;
@@ -82,7 +82,7 @@ void CaloTowerMETAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
       n++;
       const CaloCellGeometry* cell=geom->getGeometry(*i);
       CaloTowerDetId ctId(i->rawId());
-      GlobalPoint p = cell->getPosition();
+      //GlobalPoint p = cell->getPosition();
       
       int Tower_ieta = ctId.ieta();
       int Tower_iphi = ctId.iphi();
@@ -101,7 +101,7 @@ void CaloTowerMETAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   
   //-------Set the cell size for each (ieta, iphi) bin-------//
   double currentLowEdge_eta = 0;
-  double currentHighEdge_eta = 0;
+  //double currentHighEdge_eta = 0;
   for (int ieta=1; ieta<=41 ; ieta++)
     {
       int ieta_ = 42 + ieta;
@@ -146,22 +146,22 @@ void CaloTowerMETAnalyzer::WriteCaloTowers(const edm::Event& iEvent, const edm::
   Int_t tower_ = 0;
   for( ; calotower != towerCollection->end(); calotower++ ) 
     {
-      math::RhoEtaPhiVector Momentum = calotower->momentum();
+      //math::RhoEtaPhiVector Momentum = calotower->momentum();
       double Tower_ET = calotower->et();
       double Tower_Energy  = calotower->energy();
-      double Tower_Eta = calotower->eta();
-      double Tower_Phi = calotower->phi();
+      //double Tower_Eta = calotower->eta();
+      //double Tower_Phi = calotower->phi();
       double Tower_EMEnergy = calotower->emEnergy();
       double Tower_HadEnergy = calotower->hadEnergy();
       double Tower_OuterEnergy = calotower->outerEnergy();
       double Tower_EMEt = calotower->emEt();
       double Tower_HadEt = calotower->hadEt();
-      int Tower_EMLV1 = calotower->emLvl1();
-      int Tower_HadLV1 = calotower->hadLv11();
+      //int Tower_EMLV1 = calotower->emLvl1();
+      //int Tower_HadLV1 = calotower->hadLv11();
       int Tower_ieta = calotower->id().ieta();
       int Tower_iphi = calotower->id().iphi();
       
-      int EtaRing = 41+Tower_ieta;
+      //int EtaRing = 41+Tower_ieta;
       if (CurrentEvent == theEvent)
 	{
 	  hCT_et_ieta_iphi->Fill(Tower_ieta, Tower_iphi, Tower_ET );
