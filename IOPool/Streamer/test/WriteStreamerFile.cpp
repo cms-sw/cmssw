@@ -115,11 +115,11 @@ int main()
              emb.eventAddr());
 
     //Lets write this to our streamer file .
-    cout<<"Writting Event# : "<<eventId<<" To Streamer file"<<endl;
+    cout<<"Writing Event# : "<<eventId<<" To Streamer file"<<endl;
     uint64 offset = stream_writer.write(emb);
   
     //Lets write the Index too
-    cout<<"Writting Event Index :" << eventId 
+    cout<<"Writing Event Index :" << eventId 
         <<" with offset# : " << offset << " To Index file" 
                              <<endl;
     index_writer.write(emb, offset);
