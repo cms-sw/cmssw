@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2007/01/04 19:00:03 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/01/24 01:06:39 $
+ *  $Revision: 1.11 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.10 2007/01/04 19:00:03 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.11 2007/01/24 01:06:39 slava77 Exp $
 //
 //
 
@@ -245,6 +245,8 @@ class SteppingHelixPropagator : public Propagator {
   bool noErrorPropagation_;
   bool applyRadX0Correction_;
   bool useMagVolumes_;
+
+  double defaultStep_;
 };
 
 #endif

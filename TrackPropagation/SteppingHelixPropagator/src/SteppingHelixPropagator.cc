@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/01/24 01:06:40 $
- *  $Revision: 1.22 $
+ *  $Date: 2007/01/24 01:23:17 $
+ *  $Revision: 1.23 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.22 2007/01/24 01:06:40 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.23 2007/01/24 01:23:17 slava77 Exp $
 //
 //
 
@@ -56,8 +56,9 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
     svBuf_[i].cov = HepSymMatrix(6,0);
     svBuf_[i].matDCov = HepSymMatrix(6,0);
     svBuf_[i].isComplete = true;
-    svBuf_[i].isValidInfo = true;
+    svBuf_[i].isValid_ = true;
   }
+  defaultStep_ = 1.;
 }
 
 TrajectoryStateOnSurface 
@@ -93,7 +94,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
 
   const StateInfo& svCurrent = propagate(svBuf_[0], pDest);
 
-  return TsosPP(svCurrent.getStateOnSurface(pDest), svCurrent.path);
+  return TsosPP(svCurrent.getStateOnSurface(pDest), svCurrent.path());
 }
 
 std::pair<TrajectoryStateOnSurface, double> 
@@ -104,7 +105,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
 
   const StateInfo& svCurrent = propagate(svBuf_[0], cDest);
 
-  return TsosPP(svCurrent.getStateOnSurface(cDest), svCurrent.path);
+  return TsosPP(svCurrent.getStateOnSurface(cDest), svCurrent.path());
 }
 
 
@@ -118,7 +119,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   FreeTrajectoryState ftsDest;
   svCurrent.getFreeState(ftsDest);
 
-  return FtsPP(ftsDest, svCurrent.path);
+  return FtsPP(ftsDest, svCurrent.path());
 }
 
 std::pair<FreeTrajectoryState, double> 
@@ -133,7 +134,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   FreeTrajectoryState ftsDest;
   svCurrent.getFreeState(ftsDest);
 
-  return FtsPP(ftsDest, svCurrent.path);
+  return FtsPP(ftsDest, svCurrent.path());
 }
 
 
@@ -301,14 +302,14 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 
   if (result != SteppingHelixStateInfo::OK ){
     svCurrent->status_ = result;
-    svCurrent->isValidInfo = result == SteppingHelixStateInfo::OK;
+    svCurrent->isValid_ = result == SteppingHelixStateInfo::OK;
     svCurrent->field = field_;
     return result;
   }
 
   result = SteppingHelixStateInfo::UNDEFINED;
   bool makeNextStep = true;
-  double dStep = 1.;
+  double dStep = defaultStep_;
   PropagationDirection dir,oldDir;
   dir = propagationDirection(); 
   oldDir = dir;
@@ -318,7 +319,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
   double tanDistMag = 1e12;
   
   while (makeNextStep){
-    dStep = 1.;
+    dStep = defaultStep_;
     svCurrent = &svBuf_[cIndex_(nPoints_-1)];
     double curZ = svCurrent->r3.z();
     double curR = svCurrent->r3.perp();
@@ -348,13 +349,17 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 	dStep = fabs(tanDist)*0.5; 
       }
     }
-    if (dStep > 1e-10){
+    if (dStep > 1e-10 && ! (fabs(dist) < fabs(epsilon))){
       StateInfo* svNext = &svBuf_[cIndex_(nPoints_)];
       makeAtomStep((*svCurrent), (*svNext), dStep, dir, HEL_AS_F);
       nPoints_++;    svCurrent = &svBuf_[cIndex_(nPoints_-1)];
+      if (oldDir != dir) nOsc++;
+      oldDir = dir;
     }
-    if (oldDir != dir) nOsc++;
-    oldDir = dir;
+
+    if (nOsc>1 && fabs(dStep)>epsilon){
+      if (debug_) std::cout<<"Ooops"<<std::endl;
+    }
 
     if (fabs(dist) < fabs(epsilon)  ) result = SteppingHelixStateInfo::OK;
 
@@ -376,14 +381,14 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 	}
       } else {
 	//keep this trial point and continue
-	dStep = 1.;
+	dStep = defaultStep_;
 	if (debug_){
 	  std::cout<<"Found branch point in PCA"<<std::endl;
 	}
       }
     }
 
-    if (nPoints_ > MAX_STEPS || nOsc > 6) result = SteppingHelixStateInfo::FAULT;
+    if (nPoints_ > MAX_STEPS*1./defaultStep_ || nOsc > 6) result = SteppingHelixStateInfo::FAULT;
 
     if (svCurrent->p3.mag() < 0.1 ) result = SteppingHelixStateInfo::RANGEOUT;
 
@@ -391,7 +396,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 
     makeNextStep = result == SteppingHelixStateInfo::UNDEFINED;
     svCurrent->status_ = result;
-    svCurrent->isValidInfo = result == SteppingHelixStateInfo::OK;
+    svCurrent->isValid_ = result == SteppingHelixStateInfo::OK;
     svCurrent->field = field_;
   }
 
@@ -430,7 +435,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       std::cout<<"going to NOT IMPLEMENTED"<<std::endl;
       break;
     }
-    std::cout<<"Made "<<nPoints_-1<<" steps and stopped at(cur step) "<<svCurrent->r3<<std::endl;
+    std::cout<<"Made "<<nPoints_-1<<" steps and stopped at(cur step) "<<svCurrent->r3<<" nOsc "<<nOsc<<std::endl;
   }
   
   return result;
@@ -445,7 +450,7 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   svCurrent.r3 = r3;
   svCurrent.dir = dir == alongMomentum ? 1.: -1.;
 
-  svCurrent.path = 0; // this could've held the initial path
+  svCurrent.path_ = 0; // this could've held the initial path
   svCurrent.radPath = 0;
 
   GlobalPoint gPoint(r3.x(), r3.y(), r3.z());
@@ -473,7 +478,7 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   svCurrent.isComplete = true;
 
   if (debug_){
-    std::cout<<"Loaded at  path: "<<svCurrent.path<<" radPath: "<<svCurrent.radPath
+    std::cout<<"Loaded at  path: "<<svCurrent.path_<<" radPath: "<<svCurrent.radPath
 	     <<" p3 "<<" pt: "<<svCurrent.p3.perp()<<" phi: "<<svCurrent.p3.phi()
 	     <<" eta: "<<svCurrent.p3.eta()
 	     <<" "<<svCurrent.p3
@@ -500,7 +505,7 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
   svNext.r3+= tmpR3;
   tmpR3 = svPrevious.rep.lZ; tmpR3*=dZ;
   svNext.r3+= tmpR3;
-  svNext.path = svPrevious.path + dS;
+  svNext.path_ = svPrevious.path_ + dS;
   svNext.radPath = svPrevious.radPath + dX0;
 
 
@@ -532,7 +537,7 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
   }
 
   if (debug_){
-    std::cout<<"Now at  path: "<<svNext.path<<" radPath: "<<svNext.radPath
+    std::cout<<"Now at  path: "<<svNext.path_<<" radPath: "<<svNext.radPath
 	     <<" p3 "<<" pt: "<<svNext.p3.perp()<<" phi: "<<svNext.p3.phi()
 	     <<" eta: "<<svNext.p3.eta()
 	     <<" "<<svNext.p3
@@ -564,7 +569,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 					   PropagationDirection dir, 
 					   SteppingHelixPropagator::Fancy fancy) const{
   if (debug_){
-    std::cout<<"Make atom step "<<svCurrent.path<<" with step "<<dS<<" in direction "<<dir<<std::endl;
+    std::cout<<"Make atom step "<<svCurrent.path_<<" with step "<<dS<<" in direction "<<dir<<std::endl;
   }
 
   double dP = 0;
@@ -960,7 +965,26 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
       double dRDotN = (sv.r3 - rPlane).dot(nPlane);
       
       dist = fabs(dRDotN);
-      tanDist = dist/sv.p3.dot(nPlane)*sv.p3.mag();
+      double p0 = sv.p3.mag();
+      double b0 = sv.bf.mag();
+      double tN = sv.p3.dot(nPlane)/p0;
+      if (fabs(tN)>1e-24) tanDist = -dRDotN/tN;
+      if (fabs(tanDist) > 1e4) tanDist = 1e4;
+      if (b0>1.5e-6){
+	double kVal = 0.0029979*sv.q/p0*b0;
+	double aVal = tanDist*kVal;
+	Vector lVec = sv.bf.cross(sv.p3)/b0/p0;
+	double bVal = lVec.dot(nPlane)/tN;
+	if (fabs(aVal*bVal)< 0.3){
+	  double cVal = - sv.bf.cross(lVec).dot(nPlane)/b0/tN;
+	  double tanDCorr = bVal/2.*aVal + (bVal*bVal/2. + cVal/6)*aVal*aVal; 
+	  //+ (-bVal/24. + 0.625*bVal*bVal*bVal + 5./12.*bVal*cVal)*aVal*aVal*aVal
+	  if (debug_) std::cout<<tanDist<<" vs "<<tanDist*(1.+tanDCorr)<<" corr "<<tanDist*tanDCorr<<std::endl;
+	  tanDist *= (1.+tanDCorr);
+	} else {
+	  if (debug_) std::cout<<"ABVal too large:: will not converge"<<std::endl;
+	}
+      }
       refDirection = (sv.p3.dot(nPlane))*dRDotN < 0. ?
 	alongMomentum : oppositeToMomentum;
       result = SteppingHelixStateInfo::OK;
@@ -1002,7 +1026,7 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
     //     break;
   case PATHL_DT:
     {
-      double curS = fabs(sv.path);
+      double curS = fabs(sv.path_);
       dist = pars[PATHL_P] - curS;
       tanDist = dist;
       refDirection = pars[PATHL_P] > 0 ? 
