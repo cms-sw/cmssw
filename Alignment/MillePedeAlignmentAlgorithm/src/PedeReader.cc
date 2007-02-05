@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.1 $
- *  $Date: 2006/11/14 08:45:05 $
+ *  $Revision: 1.2 $
+ *  $Date: 2006/11/30 10:34:05 $
  *  (last update by $Author: flucke $)
  */
 
@@ -143,12 +143,15 @@ Alignable* PedeReader::setParameter(unsigned int paramLabel,
       userParams->diffBefore()[paramNum] = buf[2] / cmsToPede; // no break
     case 2: 
       parVec[paramNum] = buf[0] / cmsToPede; // parameter
-      userParams->preSigma()[paramNum] = buf[1] / cmsToPede; // presigma given, probably means fixed
-      if (!userParams->isFixed(paramNum) && bufLength == 2) {
-        edm::LogError("Alignment") << "@SUB=PedeReader::setParameter"
-                                   << "Param " << paramLabel << " (from "
-                                   << typeid(*alignable).name() << ") without result!";
-        userParams->isValid()[paramNum] = false;
+      userParams->preSigma()[paramNum] = buf[1];  // presigma given, probably means fixed
+      if (!userParams->isFixed(paramNum)) {
+        userParams->preSigma()[paramNum] /= cmsToPede;
+        if (bufLength == 2) {
+          edm::LogError("Alignment") << "@SUB=PedeReader::setParameter"
+                                     << "Param " << paramLabel << " (from "
+                                     << typeid(*alignable).name() << ") without result!";
+          userParams->isValid()[paramNum] = false;
+        }
       }
       break;
     case 0:
