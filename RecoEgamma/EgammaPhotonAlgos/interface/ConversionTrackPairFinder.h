@@ -30,11 +30,6 @@ public:
 
   ~ConversionTrackPairFinder();
 
-
-  // void run(edm::Event& evt, const edm::Handle<reco::TrackCollection>& outIn,  const edm::Handle<reco::TrackCollection>& inOut  );
- std::vector<std::vector<reco::Track> > run(const edm::Handle<reco::TrackCollection>& outIn,  const edm::Handle<reco::TrackCollection>& inOut  );
-
-
  std::vector<std::vector<reco::TransientTrack> > run(std::vector<reco::TransientTrack> outIn,  std::vector<reco::TransientTrack> inOut  );
 
 
@@ -42,7 +37,7 @@ public:
 
 class ByNumOfHits {
  public:
-  bool operator()(reco::Track a, reco::Track  b) {
+  bool operator()(reco::TransientTrack a, reco::TransientTrack  b) {
     if (a.numberOfValidHits()  == b.numberOfValidHits()  ) {
       return a.normalizedChi2() < b.normalizedChi2();
     } else {

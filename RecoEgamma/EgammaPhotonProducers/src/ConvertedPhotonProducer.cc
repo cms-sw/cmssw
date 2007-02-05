@@ -28,6 +28,7 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 //
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
@@ -232,9 +233,12 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	//// loop over tracks in the pair for creating a reference
 	trackPairRef.clear();
 	for ( std::vector<reco::TransientTrack>::const_iterator iTk=(*iPair).begin(); iTk!=(*iPair).end(); ++iTk) {
-	  LogDebug("ConvertedPhotonProducer") << " Transient Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
+	  LogDebug("ConvertedPhotonProducer") << " Transient Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
 	  
-	  reco::TrackRef myTkRef= iTk->persistentTrackRef(); 
+	  const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
+	  reco::TrackRef myTkRef= ttt->persistentTrackRef(); 
+
+	  //reco::TrackRef myTkRef= iTk->persistentTrackRef(); 
 	  LogDebug("ConvertedPhotonProducer") << " Ref to Rec Tracks in the pair  charge " << myTkRef->charge() << " Num of RecHits " << myTkRef->recHitsSize() << " inner momentum " << myTkRef->innerMomentum() << "\n";  
 	  
 	  
@@ -340,9 +344,14 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	//// loop over tracks in the pair for creating a reference
 	trackPairRef.clear();
 	for ( std::vector<reco::TransientTrack>::const_iterator iTk=(*iPair).begin(); iTk!=(*iPair).end(); ++iTk) {
-	  LogDebug("ConvertedPhotonProducer") << " Transient Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
+	  LogDebug("ConvertedPhotonProducer") << " Transient Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
 	  
-	  reco::TrackRef myTkRef= iTk->persistentTrackRef(); 
+
+	  const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
+	  reco::TrackRef myTkRef= ttt->persistentTrackRef(); 
+
+
+	  //	  reco::TrackRef myTkRef= iTk->persistentTrackRef(); 
 	  LogDebug("ConvertedPhotonProducer") << " Ref to Rec Tracks in the pair  charge " << myTkRef->charge() << " Num of RecHits " << myTkRef->recHitsSize() << " inner momentum " << myTkRef->innerMomentum() << "\n";  
 	  
 	  

@@ -35,51 +35,8 @@ CachingVertex  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pa
   LogDebug("ConversionVertexFinder") << "ConversionVertexFinder run pair size " << pair.size() <<  "\n";  
   
   for ( std::vector<reco::TransientTrack>::const_iterator iTk=pair.begin(); iTk!=pair.end(); ++iTk) {
-    LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder  Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
+   LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder  Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
   }
-  
-  
-  /*
-    TransientVertex* theVertex;
-    try {
-    
-    KalmanVertexFitter myFitter(true);
-    CachingVertex* cv;
-
-    cv = new CachingVertex ( myFitter.vertex( pair)  );
-
-    
-    
-    theVertex= new TransientVertex ( *cv ) ;
-
-    
-    
-    } catch (std::exception & err) {
-    
-    LogDebug("ConversionVertexFinder")  << " ConversionVertexFinder Exception during event number: " << "\n";
-    
-    }
-    
-    
-    
-  if ( theVertex->isValid() ) {
-  LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder VALID " << "\n";
-  } else {
-  LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder NOT VALID " << "\n";
-  }
-  
-  if ( theVertex->isValid() ) {
-  LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder vertex position " << theVertex->position() << "\n";
-  return theVertex;
-  
-  } else {
-  
-  
-  return 0;
-  }
-  
-  */
-  
   
   
   
