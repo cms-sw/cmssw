@@ -6,8 +6,8 @@
  *   consecutive tracker layers
  *
  *
- *   $Date: 2006/07/27 08:50:20 $
- *   $Revision: 1.4 $
+ *   $Date: 2007/02/05 13:47:55 $
+ *   $Revision: 1.5 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author porting C. Liu             Purdue University
@@ -23,6 +23,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //---------------------------------
 //       class MuonSeedFromConsecutiveHits
@@ -106,7 +108,7 @@ void MuonSeedFromConsecutiveHits::construct(const TransientTrackingRecHit& outer
  
   }  
   else {
-    cout << "Error in MuonSeedFromConsecutiveHits: invalid helix" << endl;
+    LogDebug("TrackerSeedGenerator") << "Error in MuonSeedFromConsecutiveHits: invalid helix";
     status = false;
   }
 
