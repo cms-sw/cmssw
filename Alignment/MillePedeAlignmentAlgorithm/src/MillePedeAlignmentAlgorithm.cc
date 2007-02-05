@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.6 $
- *  $Date: 2007/01/25 11:04:59 $
+ *  $Revision: 1.7 $
+ *  $Date: 2007/01/26 11:25:03 $
  *  (last update by $Author: flucke $)
  */
 
@@ -407,9 +407,11 @@ bool MillePedeAlignmentAlgorithm::areEmptyParams(const std::vector<Alignable*> &
     const AlignmentParameters *params = (*iAli)->alignmentParameters();
     if (params) {
       const AlgebraicVector &parVec(params->parameters());
+      const AlgebraicMatrix &parCov(params->covariance());
       for (int i = 0; i < parVec.num_row(); ++i) {
-        if (parVec[i] != 0.) {
-          return false;
+        if (parVec[i] != 0.) return false;
+        for (int j = i; j < parCov.num_col(); ++j) {
+          if (parCov[i][j] != 0.) return false;
         }
       }
     }
