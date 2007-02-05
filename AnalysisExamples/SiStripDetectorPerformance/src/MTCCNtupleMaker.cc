@@ -29,8 +29,12 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+<<<<<<< MTCCNtupleMaker.cc
+#include "AnalysisDataFormats/SiStripClusterInfo/interface/SiStripClusterInfo.h"
+=======
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterInfo.h"
+>>>>>>> 1.10
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
