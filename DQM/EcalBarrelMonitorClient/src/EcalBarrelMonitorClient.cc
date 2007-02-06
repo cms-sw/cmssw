@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/01 15:06:36 $
- * $Revision: 1.207 $
+ * $Date: 2007/02/01 15:25:25 $
+ * $Revision: 1.208 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -309,7 +309,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   gStyle->SetTitleX(0.00);
   gStyle->SetTitleY(1.00);
   gStyle->SetTitleW(0.00);
-  gStyle->SetTitleH(0.06);
+  gStyle->SetTitleH(0.05);
   gStyle->SetTitleBorderSize(0);
   gStyle->SetTitleFont(43, "c");
   gStyle->SetTitleFontSize(11);
