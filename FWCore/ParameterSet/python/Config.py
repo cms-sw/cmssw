@@ -866,19 +866,20 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
 
 class _Untracked(object):
     """Class type for 'untracked' to allow nice syntax"""
-    def __call__(self,param):
+    @staticmethod
+    def __call__(param):
         """used to set a 'param' parameter to be 'untracked'"""
         param.setIsTracked(False)
         return param
     def __getattr__(self,name):
         """A factory which allows syntax untracked.name(value) to construct an
-        an instance of 'name' class which is is set to be untracked"""
+        instance of 'name' class which is set to be untracked"""
         class Factory(object):
             def __init__(self,name):
                 self.name = name
             def __call__(self,*value,**params):
                 param = globals()[self.name](*value,**params)
-                return untracked(param)
+                return _Untracked.__call__(param)
         return Factory(name)
 #def untracked(param):
 #    """used to set a 'param' parameter to be 'untracked'"""
