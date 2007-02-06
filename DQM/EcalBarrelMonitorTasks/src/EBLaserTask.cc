@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/01/15 18:53:14 $
- * $Revision: 1.63 $
+ * $Date: 2007/02/01 15:43:57 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  *
 */
@@ -576,7 +576,8 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       }
 
-      float xval = float(adc) * gain;
+//      float xval = float(adc) * gain;
+      float xval = float(adc);
 
       if ( meShapeMap ) meShapeMap->Fill(ic - 0.5, i + 0.5, xval);
 

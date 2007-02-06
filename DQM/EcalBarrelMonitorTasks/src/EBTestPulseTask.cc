@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2007/01/22 18:05:23 $
- * $Revision: 1.57 $
+ * $Date: 2007/02/01 15:43:57 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  *
 */
@@ -78,7 +78,7 @@ void EBTestPulseTask::setup(void){
       meShapeMapG01_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       dbe->tag(meShapeMapG01_[i], i+1);
       sprintf(histo, "EBTPT amplitude SM%02d G01", i+1);
-      meAmplMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meAmplMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe->tag(meAmplMapG01_[i], i+1);
       sprintf(histo, "EBTPT amplitude error SM%02d G01", i+1);
       meAmplErrorMapG01_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -91,7 +91,7 @@ void EBTestPulseTask::setup(void){
       meShapeMapG06_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       dbe->tag(meShapeMapG06_[i], i+1);
       sprintf(histo, "EBTPT amplitude SM%02d G06", i+1);
-      meAmplMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meAmplMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe->tag(meAmplMapG06_[i], i+1);
       sprintf(histo, "EBTPT amplitude error SM%02d G06", i+1);
       meAmplErrorMapG06_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -104,7 +104,7 @@ void EBTestPulseTask::setup(void){
       meShapeMapG12_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       dbe->tag(meShapeMapG12_[i], i+1);
       sprintf(histo, "EBTPT amplitude SM%02d G12", i+1);
-      meAmplMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meAmplMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe->tag(meAmplMapG12_[i], i+1);
       sprintf(histo, "EBTPT amplitude error SM%02d G12", i+1);
       meAmplErrorMapG12_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -271,7 +271,8 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
       if ( dccMap[ism-1].getMgpaGain() == 2 ) meShapeMap = meShapeMapG06_[ism-1];
       if ( dccMap[ism-1].getMgpaGain() == 1 ) meShapeMap = meShapeMapG12_[ism-1];
 
-      float xval = float(adc) * gain;
+//      float xval = float(adc) * gain;
+      float xval = float(adc);
 
       if ( meShapeMap ) meShapeMap->Fill(ic - 0.5, i + 0.5, xval);
 
@@ -312,9 +313,9 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     float xval = hit.amplitude();
 
-    if ( dccMap[ism-1].getMgpaGain() == 3 ) xval = xval * 1./12.;
-    if ( dccMap[ism-1].getMgpaGain() == 2 ) xval = xval * 1./ 2.;
-    if ( dccMap[ism-1].getMgpaGain() == 1 ) xval = xval * 1./ 1.;
+//    if ( dccMap[ism-1].getMgpaGain() == 3 ) xval = xval * 1./12.;
+//    if ( dccMap[ism-1].getMgpaGain() == 2 ) xval = xval * 1./ 2.;
+//    if ( dccMap[ism-1].getMgpaGain() == 1 ) xval = xval * 1./ 1.;
 
     LogDebug("EBTestPulseTask") << " hit amplitude " << xval;
 
