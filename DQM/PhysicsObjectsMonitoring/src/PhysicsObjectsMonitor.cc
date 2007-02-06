@@ -1,8 +1,8 @@
 /** \class PhysicsObjectsMonitor
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2006/10/27 01:35:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/10/31 08:01:42 $
+ *  $Revision: 1.5 $
  *  \author M. Mulders - CERN <martijn.mulders@cern.ch>
  *  Based on STAMuonAnalyzer by R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -23,7 +23,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+// Not needed for data monitoring! #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
@@ -103,7 +103,8 @@ void PhysicsObjectsMonitor::beginJob(const EventSetup& eventSetup){
 void PhysicsObjectsMonitor::endJob(){
   
  if(theDataType == "SimData"){
-    edm::LogInfo ("PhysicsObjectsMonitor") << "Number of Sim tracks: " << numberOfSimTracks;
+   //     edm::LogInfo ("PhysicsObjectsMonitor") << "Number of Sim tracks: " << numberOfSimTracks;
+    edm::LogInfo ("PhysicsObjectsMonitor") << "Sorry! Running this package on simulation is no longer supported! ";
   }
 
   edm::LogInfo ("PhysicsObjectsMonitor") << "Number of Reco tracks: " << numberOfRecTracks ;
@@ -133,25 +134,25 @@ void PhysicsObjectsMonitor::analyze(const Event & event, const EventSetup& event
   double simPt=0.;
 
   // Get the SimTrack collection from the event
-  if(theDataType == "SimData"){
-    Handle<SimTrackContainer> simTracks;
-    event.getByLabel("g4SimHits",simTracks);
+  //  if(theDataType == "SimData"){
+  //  Handle<SimTrackContainer> simTracks;
+  //  event.getByLabel("g4SimHits",simTracks);
     
-    numberOfRecTracks += staTracks->size();
+  //  numberOfRecTracks += staTracks->size();
 
-    SimTrackContainer::const_iterator simTrack;
+  //    SimTrackContainer::const_iterator simTrack;
 
-    edm::LogInfo ("PhysicsObjectsMonitor") <<"Simulated tracks: ";
-    for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
-      if (abs((*simTrack).type()) == 13) {
-        edm::LogInfo ("PhysicsObjectsMonitor") <<	"Sim pT: "<<(*simTrack).momentum().perp()<<endl;
-	simPt=(*simTrack).momentum().perp();
-	edm::LogInfo ("PhysicsObjectsMonitor") <<"Sim Eta: "<<(*simTrack).momentum().eta()<<endl;
-	numberOfSimTracks++;
-      }    
-    }
-    edm::LogInfo ("PhysicsObjectsMonitor") << "\n";
-  }
+  //    edm::LogInfo ("PhysicsObjectsMonitor") <<"Simulated tracks: ";
+  //  for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
+  //    if (abs((*simTrack).type()) == 13) {
+  //      edm::LogInfo ("PhysicsObjectsMonitor") <<	"Sim pT: "<<(*simTrack).momentum().perp()<<endl;
+  //	simPt=(*simTrack).momentum().perp();
+  //	edm::LogInfo ("PhysicsObjectsMonitor") <<"Sim Eta: "<<(*simTrack).momentum().eta()<<endl;
+  //	numberOfSimTracks++;
+  //   }    
+  //  }
+  //  edm::LogInfo ("PhysicsObjectsMonitor") << "\n";
+  //}
   
   reco::TrackCollection::const_iterator staTrack;
   
