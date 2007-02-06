@@ -15,8 +15,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/09/08 19:26:18 $
-// $Revision: 1.11 $
+// $Date: 2007/02/05 19:26:14 $
+// $Revision: 1.12 $
 //
 
 #include <string>
@@ -110,6 +110,14 @@ class RoadSearchSeedFinderAlgorithm
   DetHitAccess innerSeedHitVector_;
   DetHitAccess outerSeedHitVector_;
 
+  DetHitAccess::accessMode innerSeedHitAccessMode_;
+  bool                     innerSeedHitAccessUseRPhi_;
+  bool                     innerSeedHitAccessUseStereo_;
+
+  DetHitAccess::accessMode outerSeedHitAccessMode_;
+  bool                     outerSeedHitAccessUseRPhi_;
+  bool                     outerSeedHitAccessUseStereo_;
+
   const TrackerGeometry *tracker_;
   const Roads           *roads_;
   const MagneticField   *magnet_;
@@ -119,6 +127,7 @@ class RoadSearchSeedFinderAlgorithm
   double beamSpotZMagneticField_;
   double minRadius_;
 
+  unsigned int compareLast_;
   double maxCenterDistance_;
   double maxRadiusDifference_;
   double maxCurvatureDifference_;

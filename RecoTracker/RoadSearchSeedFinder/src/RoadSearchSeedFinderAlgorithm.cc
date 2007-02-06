@@ -12,8 +12,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/11/10 21:54:49 $
-// $Revision: 1.20 $
+// $Date: 2007/02/05 19:26:14 $
+// $Revision: 1.22 $
 //
 
 #include <vector>
@@ -69,6 +69,7 @@ RoadSearchSeedFinderAlgorithm::RoadSearchSeedFinderAlgorithm(const edm::Paramete
   minPt_                      = conf.getParameter<double>("MinimalReconstructedTransverseMomentum");
   maxImpactParameter_         = conf.getParameter<double>("MaximalImpactParameter");
   phiRangeDetIdLookup_        = conf.getParameter<double>("PhiRangeForDetIdLookupInRings");
+  compareLast_                = conf.getParameter<unsigned int>("MergeSeedsCompareLast");
   mergeSeedsCenterCut_        = conf.getParameter<double>("MergeSeedsCenterCut");
   mergeSeedsRadiusCut_        = conf.getParameter<double>("MergeSeedsRadiusCut");
   mergeSeedsDifferentHitsCut_ = conf.getParameter<unsigned int>("MergeSeedsDifferentHitsCut");
@@ -79,13 +80,35 @@ RoadSearchSeedFinderAlgorithm::RoadSearchSeedFinderAlgorithm(const edm::Paramete
     mode_ = "STANDARD";
   }
 
+  std::string tmp             = conf.getParameter<std::string>("InnerSeedRecHitAccessMode");
+  if ( tmp == "STANDARD" ) {
+    innerSeedHitAccessMode_ = DetHitAccess::standard;
+  } else if ( tmp == "RPHI" ) {
+    innerSeedHitAccessMode_ = DetHitAccess::rphi;
+  } else {
+    innerSeedHitAccessMode_ = DetHitAccess::standard;
+  }
+  innerSeedHitAccessUseRPhi_  = conf.getParameter<bool>("InnerSeedRecHitAccessUseRPhi");
+  innerSeedHitAccessUseStereo_  = conf.getParameter<bool>("InnerSeedRecHitAccessUseStereo");
+
+  tmp                         = conf.getParameter<std::string>("OuterSeedRecHitAccessMode");
+  if ( tmp == "STANDARD" ) {
+    outerSeedHitAccessMode_ = DetHitAccess::standard;
+  } else if ( tmp == "RPHI" ) {
+    outerSeedHitAccessMode_ = DetHitAccess::rphi;
+  } else {
+    outerSeedHitAccessMode_ = DetHitAccess::standard;
+  }
+  outerSeedHitAccessUseRPhi_  = conf.getParameter<bool>("OuterSeedRecHitAccessUseRPhi");
+  outerSeedHitAccessUseStereo_  = conf.getParameter<bool>("OuterSeedRecHitAccessUseStereo");
+
   // configure DetHitAccess
-  innerSeedHitVector_.setMode(DetHitAccess::standard);
-  innerSeedHitVector_.use_rphiRecHits(true);
-  innerSeedHitVector_.use_stereoRecHits(true);
-  outerSeedHitVector_.setMode(DetHitAccess::standard);
-  outerSeedHitVector_.use_rphiRecHits(true);
-  outerSeedHitVector_.use_stereoRecHits(true);
+  innerSeedHitVector_.setMode(innerSeedHitAccessMode_);
+  innerSeedHitVector_.use_rphiRecHits(innerSeedHitAccessUseRPhi_);
+  innerSeedHitVector_.use_stereoRecHits(innerSeedHitAccessUseStereo_);
+  outerSeedHitVector_.setMode(outerSeedHitAccessMode_);
+  outerSeedHitVector_.use_rphiRecHits(outerSeedHitAccessUseRPhi_);
+  outerSeedHitVector_.use_stereoRecHits(outerSeedHitAccessUseStereo_);
 
 }
 
@@ -573,28 +596,42 @@ bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromHits(std::vector<Roa
 	  addCircle = true;
 	}
 
-	for (std::vector<RoadSearchCircleSeed>::iterator alreadyContainedCircle = circleSeeds.begin();
-	     alreadyContainedCircle != circleSeeds.end();
-	     ++alreadyContainedCircle ) {
-	  // cut on percentage of distance between centers vs. average of centers
-	  double averageCenter = std::sqrt(((alreadyContainedCircle->Center().x()+circle.Center().x())/2) *
-					   ((alreadyContainedCircle->Center().x()+circle.Center().x())/2) +
-					   ((alreadyContainedCircle->Center().y()+circle.Center().y())/2) *
-					   ((alreadyContainedCircle->Center().y()+circle.Center().y())/2) );
-	  double differenceCenter = std::sqrt((alreadyContainedCircle->Center().x()-circle.Center().x()) *
-					      (alreadyContainedCircle->Center().x()-circle.Center().x()) +
-					      (alreadyContainedCircle->Center().y()-circle.Center().y()) *
-					      (alreadyContainedCircle->Center().y()-circle.Center().y()));
-	  double percentageCenter = differenceCenter / averageCenter;
-	  // cut on percentage of difference of radii vs, average of radii
-	  double averageRadius = (alreadyContainedCircle->Radius() + circle.Radius() ) /2;
-	  double differenceRadius = std::abs(alreadyContainedCircle->Radius() - circle.Radius());
-	  double percentageRadius = differenceRadius / averageRadius;
-	  if ( (percentageCenter < mergeSeedsCenterCut_) &&
-	       (percentageRadius < mergeSeedsRadiusCut_) ) {
-	    
-	    addCircle = false;
-	    break;
+	// do merging if compareLast > 0
+	if ( compareLast_ > 0 ) {
+
+	  std::vector<RoadSearchCircleSeed>::iterator begin;
+	  if ( (compareLast_ == 9999999) ||
+	       (compareLast_ > circleSeeds.size()) ) {
+	    begin = circleSeeds.begin();
+	  } else {
+	    begin = circleSeeds.end()-(compareLast_+1);
+	  }
+	  std::vector<RoadSearchCircleSeed>::iterator end = circleSeeds.end();
+
+
+	  for (std::vector<RoadSearchCircleSeed>::iterator alreadyContainedCircle = begin;
+	       alreadyContainedCircle != end;
+	       ++alreadyContainedCircle ) {
+	    // cut on percentage of distance between centers vs. average of centers
+	    double averageCenter = std::sqrt(((alreadyContainedCircle->Center().x()+circle.Center().x())/2) *
+					     ((alreadyContainedCircle->Center().x()+circle.Center().x())/2) +
+					     ((alreadyContainedCircle->Center().y()+circle.Center().y())/2) *
+					     ((alreadyContainedCircle->Center().y()+circle.Center().y())/2) );
+	    double differenceCenter = std::sqrt((alreadyContainedCircle->Center().x()-circle.Center().x()) *
+						(alreadyContainedCircle->Center().x()-circle.Center().x()) +
+						(alreadyContainedCircle->Center().y()-circle.Center().y()) *
+						(alreadyContainedCircle->Center().y()-circle.Center().y()));
+	    double percentageCenter = differenceCenter / averageCenter;
+	    // cut on percentage of difference of radii vs, average of radii
+	    double averageRadius = (alreadyContainedCircle->Radius() + circle.Radius() ) /2;
+	    double differenceRadius = std::abs(alreadyContainedCircle->Radius() - circle.Radius());
+	    double percentageRadius = differenceRadius / averageRadius;
+	    if ( (percentageCenter < mergeSeedsCenterCut_) &&
+		 (percentageRadius < mergeSeedsRadiusCut_) ) {
+	      
+	      addCircle = false;
+	      break;
+	    }
 	  }
 	}
       }
@@ -605,108 +642,6 @@ bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromHits(std::vector<Roa
       }
     }
   }
-
-//       // add circle if individual seed cuts are fulfilled
-//       bool addCircle = false;
-//       if ( circle.Type() == RoadSearchCircleSeed::straightLine ) {
-// 	addCircle = true;
-//       } else {
-// 	if ( (circle.Radius() > minRadius_) &&
-// 	     (circle.ImpactParameter() < maxImpactParameter_) ) {
-// 	  addCircle = true;
-// 	}
-//       }
-
-//       // check if circle already added compatible with this circle, if yes, only add hit as last entry of vectors in circle
-//       if ( addCircle ) {
-// 	if ( circleSeeds.size() == 0 ) {
-// 	  circleSeeds.push_back(circle);
-// 	} else {
-// 	  bool addCircle_2 = true;
-// 	  for (std::vector<RoadSearchCircleSeed>::iterator alreadyContainedCircle = circleSeeds.begin();
-// 	       alreadyContainedCircle != circleSeeds.end();
-// 	       ++alreadyContainedCircle ) {
-// 	    // cut on percentage of distance between centers vs. average of centers
-//  	    double averageCenter = std::sqrt(((alreadyContainedCircle->Center().x()+circle.Center().x())/2) *
-// 					     ((alreadyContainedCircle->Center().x()+circle.Center().x())/2) +
-// 					     ((alreadyContainedCircle->Center().y()+circle.Center().y())/2) *
-// 					     ((alreadyContainedCircle->Center().y()+circle.Center().y())/2) );
-// 	    double differenceCenter = std::sqrt((alreadyContainedCircle->Center().x()-circle.Center().x()) *
-// 						(alreadyContainedCircle->Center().x()-circle.Center().x()) +
-// 						(alreadyContainedCircle->Center().y()-circle.Center().y()) *
-// 						(alreadyContainedCircle->Center().y()-circle.Center().y()));
-// 	    double percentageCenter = differenceCenter / averageCenter;
-// 	    // cut on percentage of difference of radii vs, average of radii
-// 	    double averageRadius = (alreadyContainedCircle->Radius() + circle.Radius() ) /2;
-// 	    double differenceRadius = std::abs(alreadyContainedCircle->Radius() - circle.Radius());
-// 	    double percentageRadius = differenceRadius / averageRadius;
-// 	    if ( (percentageCenter < mergeSeedsCenterCut_) &&
-// 		 (percentageRadius < mergeSeedsRadiusCut_) ) {
-
-// 	      addCircle_2 = false;
-// 	      break;
-
-
-// // 	      std::vector<TrackingRecHit*> alreadyContainedCircleHits = alreadyContainedCircle->Hits();
-// // 	      std::vector<TrackingRecHit*> circleHits                 = circle.Hits();
-// // 	      std::vector<int> candidates;
-// // 	      int counter = -1;
-// // 	      for (std::vector<TrackingRecHit*>::iterator circleHit = circleHits.begin();
-// // 		   circleHit != circleHits.end();
-// // 		   ++circleHit ) {
-// // 		++counter;
-// // 		bool included = false;
-// // 		for (std::vector<TrackingRecHit*>::iterator alreadyContainedCircleHit = alreadyContainedCircleHits.begin();
-// // 		     alreadyContainedCircleHit != alreadyContainedCircleHits.end();
-// // 		     ++alreadyContainedCircleHit ) {
-// // 		  if ( (*alreadyContainedCircleHit) == (*circleHit) ) {
-// // 		    included = true;
-// // 		  }
-// // 		}
-// // 		if ( !included ) {
-// // 		  candidates.push_back(counter);
-// // 		}
-// // 	      }
-
-// // 	      // check that number of candidates is not more than cut
-// // 	      if ( candidates.size() <= mergeSeedsDifferentHitsCut_ ) {
-
-// // 		// check that all candidates are on different layers than already included hits
-// // 		bool notOnSameLayer = true;
-// // 		for (std::vector<int>::iterator index = candidates.begin();
-// // 		     index != candidates.end();
-// // 		     ++index) {
-// // 		  for (std::vector<TrackingRecHit*>::iterator alreadyContainedCircleHit = alreadyContainedCircleHits.begin();
-// // 		       alreadyContainedCircleHit != alreadyContainedCircleHits.end();
-// // 		       ++alreadyContainedCircleHit ) {
-// // 		    if ( detIdsOnSameLayer((*alreadyContainedCircleHit)->geographicalId(),circleHits[*index]->geographicalId()) ) {
-// // 		      notOnSameLayer = false;
-// // 		    }
-// // 		  }
-// // 		}
-
-// // 		// add hits if not on same layer
-// // 		if ( notOnSameLayer ) {
-// // 		  ++numMergedCircles_;
-// // 		  addCircle_2 = false;
-// // 		  std::vector<GlobalPoint> circlePoints = circle.Points();
-// // 		  for (std::vector<int>::iterator index = candidates.begin();
-// // 		       index != candidates.end();
-// // 		       ++index) {
-// // 		    alreadyContainedCircle->AddPoint(circlePoints[*index]);
-// // 		    alreadyContainedCircle->AddHit(circleHits[*index]);
-// // 		  }
-// // 		}
-// // 	      }
-// 	    }
-// 	  }
-// 	  if ( addCircle_2 ) {
-// 	  circleSeeds.push_back(circle);
-// 	  // 	  }
-// 	}
-//       }
-//     }
-//   }
 
   return result;
 }
