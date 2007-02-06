@@ -24,7 +24,6 @@ PFCluster::PFCluster() :
   posCalcDepthCor_(false),
   color_(1)
 { 
-  // cout<<"PFCluster default"<<endl;
   instanceCounter_++;
 }
 
@@ -39,7 +38,6 @@ PFCluster::PFCluster(unsigned id, int type) :
   posCalcDepthCor_(false),
   color_(1)
 {  
-  // cout<<"PFCluster"<<endl;
   instanceCounter_++;
 }
   
@@ -56,7 +54,6 @@ PFCluster::PFCluster(unsigned id, int type, int layer, double energy,
   posCalcDepthCor_(false),
   color_(2)
 {  
-  // cout<<"PFCluster"<<endl;
   instanceCounter_++;
 }
   
@@ -74,12 +71,10 @@ PFCluster::PFCluster(const PFCluster& other) :
   posCalcDepthCor_(other.posCalcDepthCor_),
   color_(other.color_)
 {
-  // cout<<"PFCluster copy"<<endl;
   instanceCounter_++;
 }
 
 PFCluster::~PFCluster() {
-// cout<<"~PFCluster"<<endl;  
   instanceCounter_--;
 }
 
@@ -103,6 +98,8 @@ void PFCluster::calculatePosition( int algo,
 				   double p1, 
 				   bool depcor,
 				   int  ncrystals) {
+
+  cerr<<"pfcluster : calculatePosition "<<rechits_.size()<<endl;
 
   if( rechits_.empty() ) {
     cerr<<"PFCluster::calculatePosition: empty cluster!!!"<<endl; 
@@ -133,7 +130,7 @@ void PFCluster::calculatePosition( int algo,
   for (unsigned ic=0; ic<rechits_.size(); ic++ ) {
 
     const reco::PFRecHit* rechit = rechits_[ic].getRecHit();
-    if(rechit->isSeed() ) seedId = rechit->detId();
+    if( rechit->isSeed() ) seedId = rechit->detId();
 
     double frac =  rechits_[ic].getFraction();
     double theRecHitEnergy = rechit->energy() * frac;
@@ -145,9 +142,7 @@ void PFCluster::calculatePosition( int algo,
 
   layer /= energy_;
   layer_ = lrintf(layer); // nearest integer
-  
 
-  // cout<<"loop done. layers "<<layer<<" "<<energy_<<" "<<layer_<<endl;
 
   if( p1 < 0 ) { 
     // automatic (and hopefully best !) determination of the parameter
@@ -173,7 +168,8 @@ void PFCluster::calculatePosition( int algo,
 	if(p1<0.01) p1 = 0.01;
 	break;
       default:
-	cerr<<"Clusters weight_p1_HCAL -1 NOT YET ALLOWED! Chose a better value in the opt file"<<endl;
+	cerr<<"Clusters weight_p1 -1 not yet allowed for layer "<<layer
+	    <<". Chose a better value in the opt file"<<endl;
 	assert(0);
 	break;
       }
@@ -182,12 +178,15 @@ void PFCluster::calculatePosition( int algo,
     default:
       cerr<<"p1<0 means automatic p1 determination from the cluster energy"
 	  <<endl;
-      cerr<<"this is only implemented for POSCALC_LOG2, sorry."<<endl;
+      cerr<<"this is only implemented for POSCALC_LOG, sorry."<<endl;
       cerr<<algo<<endl;
       assert(0);
       break;
     }
   } 
+  else if( p1< 1e-9 ) { // will divide by p1 later on
+    p1 = 1e-9;
+  }
 
   // calculate uncorrected cluster position -------------------------
 
@@ -200,25 +199,25 @@ void PFCluster::calculatePosition( int algo,
   double y = 0;
   double z = 0;
   
-  // cerr<<"seed id "<<seedId<<endl;
+  cerr<<"seed id "<<seedId<<endl;
   for (unsigned ic=0; ic<rechits_.size(); ic++ ) {
     
     const reco::PFRecHit* rechit = rechits_[ic].getRecHit();
 
-    // cerr<<"rechit id "<<rechit->detId()<<endl;
+    cerr<<"rechit id "<<rechit->detId()<<endl;
     if(rechit->detId() != seedId) {
-      // cerr<<"not the seed"<<endl;
+      cerr<<"not the seed"<<endl;
       if( ncrystals == 5 ) {
-	// cerr<<"ncrystals = 5"<<endl;
+	cerr<<"ncrystals = 5"<<endl;
 	if(!rechit->isNeighbour4(seedId) ) {
-	  // cerr<<"continue"<<endl;
+	  cerr<<"continue"<<endl;
 	  continue;
 	}
       }
       if( ncrystals == 9 ) {
-	// cerr<<"ncrystals = 9"<<endl;
+	cerr<<"ncrystals = 9"<<endl;
 	if(!rechit->isNeighbour8(seedId) ) {
-	  // cerr<<"continue"<<endl;
+	  cerr<<"continue"<<endl;
 	  continue;
 	}
       }
@@ -240,6 +239,7 @@ void PFCluster::calculatePosition( int algo,
       cerr<<"algo "<<algo<<" not defined !"<<endl;
       assert(0);
     }
+    
     
     
     const math::XYZPoint& rechitposxyz = rechit->positionXYZ();
@@ -280,8 +280,6 @@ void PFCluster::calculatePosition( int algo,
 
   // correction of the rechit position, 
   // according to the depth, only for ECAL 
-
-  // cout<<"PFCluster::calculatePosition "<<depthCorMode_<<" "<<depcor<<endl;
 
 
   if( depthCorMode_ &&   // correction activated
@@ -335,7 +333,6 @@ void PFCluster::calculatePosition( int algo,
     depthv /= sqrt(depthv.Mag2() );
     depthv *= depth;
 
-    // cout<<"depth : "<<depth<<" "<<sqrt( depthv.Mag2() )<<endl;
 
     // now calculate corrected cluster position:    
     math::XYZPoint clusterposxyzcor;
@@ -379,19 +376,8 @@ void PFCluster::calculatePosition( int algo,
       math::XYZVector rechitaxis = rechit->getAxisXYZ();
       // rechitaxis -= math::XYZVector( rechitposxyz.X(), rechitposxyz.Y(), rechitposxyz.Z() );
       
-
-//       // corrected rechit position:
-//       math::XYZVector rechitposxyzcor(rechitaxis); 
-//       rechitposxyzcor /= sqrt( rechitposxyzcor.Mag2() );    
-//       rechitposxyzcor *= rechitaxis.Dot( depthv );
-
-//       //      rechitposxyzcor.SetMag( rechitaxis.Dot( depthv ) );
-//       rechitposxyzcor += rechitposxyz;
-
-      // cout<<"rechitaxis.Mag   : "<< sqrt( rechitaxis.Mag2() )<<endl;
       math::XYZVector rechitaxisu( rechitaxis );
       rechitaxisu /= sqrt( rechitaxis.Mag2() );
-      // cout<<"rechitaxis.Mag,u : "<< sqrt( rechitaxisu.Mag2() )<<endl;
 
       math::XYZVector displacement( rechitaxisu );
       // displacement /= sqrt( displacement.Mag2() );    
@@ -400,15 +386,6 @@ void PFCluster::calculatePosition( int algo,
       math::XYZPoint rechitposxyzcor( rechitposxyz );
       rechitposxyzcor += displacement;
 
-      // cout<<"displacement length "<<sqrt( displacement.Mag2() )<<endl;
-      // cout<<"rechit pos "
-// 	  <<rechitposxyz.Rho()
-//       	  <<" "<<rechitposxyz.Eta()
-//       	  <<" "<<rechitposxyz.Phi()<<endl;
-      // cout<<"rechit cor "
-// 	  <<rechitposxyzcor.Rho()
-//       	  <<" "<<rechitposxyzcor.Eta()
-//       	  <<" "<<rechitposxyzcor.Phi()<<endl;
 
       if( theRecHitEnergy > maxe ) {
 	firstrechitposxyz = rechitposxyzcor;
@@ -457,19 +434,6 @@ void PFCluster::calculatePosition( int algo,
       clusterposxyz = clusterposxyzcor;
     }
   }
-  
-  // cout<<(*this)<<endl;
-
-//   // here calculate the distance between the cluster and the rechit with max e
-
-//   fDseed = ( clusterposxyz - firstrechitposxyz).Mag();
-  
-//   // calculate the distance between the cluster and each rechit
-
-//   for (unsigned ic=0; ic<rechits_.size(); ic++ ) {
-//     rechits_[ic].SetDistToCluster( ( clusterposxyz - rechits_[ic].getRecHit()->positionXYZ() ).Mag() );
-//   }
-
 }
 
 

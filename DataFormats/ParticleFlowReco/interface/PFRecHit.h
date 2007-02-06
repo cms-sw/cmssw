@@ -74,11 +74,14 @@ namespace reco {
     /// rechit energy
     double energy() const { return energy_; }
 
-    /// is seed ? (-1:unknown, 0:no, 1 yes)
-    int  isSeed() const { return isSeed_; }
+    /// \return seed state (-1:unknown, 0:no, 1 yes)
+    int  seedState() const { return seedState_; }
     
+    /// is seed ? 
+    bool isSeed() const { return (seedState_>0) ? true : false; }
+
     /// set seed status
-    void youAreSeed(int seedstate=1) {isSeed_ = seedstate;} 
+    void youAreSeed(int seedstate=1) {seedState_ = seedstate;} 
 
     /// rechit cell centre x, y, z
     const math::XYZPoint& positionXYZ() const { return posxyz_; }
@@ -141,7 +144,7 @@ namespace reco {
     double              energy_;
 
     /// is this a seed ? (-1:unknown, 0:no, 1 yes) (transient)
-    int                 isSeed_;
+    int                 seedState_;
  
     /// rechit cell centre: x, y, z
     math::XYZPoint      posxyz_;

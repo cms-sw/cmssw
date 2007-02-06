@@ -13,7 +13,7 @@
   <class name="edm::Wrapper<std::vector<reco::PFCluster> >"/>
   <class name="reco::PFRecHit">
     <field name="posrep_" transient="true"/>
-    <field name="isSeed_" transient="true"/>
+    <field name="seedState_" transient="true"/>
     <field name="neighbours4_" transient="true"/>
     <field name="neighbours8_" transient="true"/>
     <field name="nNeighbours_" transient="true"/>

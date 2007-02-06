@@ -11,7 +11,7 @@ PFRecHit::PFRecHit() :
   detId_(0),
   layer_(0),
   energy_(0.), 
-  isSeed_(-1), 
+  seedState_(-1), 
   posxyz_(math::XYZPoint(0.,0.,0.)),
   posrep_(REPPoint(0.,0.,0.)) {
 
@@ -31,7 +31,7 @@ PFRecHit::PFRecHit(unsigned detId,
   detId_(detId),
   layer_(layer),
   energy_(energy), 
-  isSeed_(-1), 
+  seedState_(-1), 
   posxyz_(position),
   posrep_( position.Rho(), position.Eta(), position.Phi() ),
   axisxyz_(axisxyz),
@@ -47,7 +47,7 @@ PFRecHit::PFRecHit(unsigned detId,
   detId_(detId),
   layer_(layer),
   energy_(energy), 
-  isSeed_(-1), 
+  seedState_(-1), 
   posxyz_(posx, posy, posz),
   posrep_( posxyz_.Rho(), 
 	   posxyz_.Eta(), 
@@ -66,7 +66,7 @@ PFRecHit::PFRecHit(const PFRecHit& other) :
   detId_(other.detId_), 
   layer_(other.layer_), 
   energy_(other.energy_), 
-  isSeed_(other.isSeed_),
+  seedState_(other.seedState_),
   posxyz_(other.posxyz_), 
   posrep_(other.posrep_),
   axisxyz_(other.axisxyz_),
@@ -242,7 +242,7 @@ ostream& reco::operator<<(ostream& out, const reco::PFRecHit& hit) {
      <<" position: "
      <<" / "<<posxyz.Rho()<<","<<posxyz.Eta()<<","<<posxyz.Phi()
      <<" / "<<posxyz.X()<<","<<posxyz.Y()<<","<<posxyz.Z()
-     <<" SEED: "<<hit.isSeed_;
+     <<" SEED: "<<hit.seedState_;
   
 //   out<<endl;
 //   out<<"neighbours "<<endl;
