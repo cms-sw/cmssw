@@ -5,7 +5,7 @@
 
 RootTree.h // used by ROOT input sources
 
-$Id: RootTree.h,v 1.3 2006/12/28 00:24:12 wmtan Exp $
+$Id: RootTree.h,v 1.4 2006/12/30 16:54:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -58,6 +58,7 @@ namespace edm {
       auxBranch_->SetAddress(&pAux);
       auxBranch_->GetEntry(entryNumber_);
     }
+    void fillMetaData();
   private:
     boost::shared_ptr<TFile> filePtr_;
 // We use bare pointers for pointers to some ROOT entities.

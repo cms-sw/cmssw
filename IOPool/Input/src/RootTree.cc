@@ -63,9 +63,17 @@ namespace edm {
       }
   }
 
+  // fillMetaData() is a separate function only so it can be monitored for performance.
+  // We could redesign things so we read branches ne at a time on demand.
+  void
+  RootTree::fillMetaData() {
+    metaTree_->GetEntry(entryNumber_);
+  }
+
   void
   RootTree::fillGroups(DataBlockImpl& item) {
     if (metaTree_ == 0) return;
+    fillMetaData();
     // Loop over provenance
     metaTree_->GetEntry(entryNumber_);
     std::vector<BranchEntryDescription>::const_iterator pit = provenance_.begin();
