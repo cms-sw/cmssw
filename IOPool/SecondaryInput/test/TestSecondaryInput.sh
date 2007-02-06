@@ -47,6 +47,12 @@ cmsRun --parameter-set ${LOCAL_TMP_DIR}/PreSecondaryInputTest.cfg || die 'Failur
 cat > ${LOCAL_TMP_DIR}/SecondaryInputTest.cfg << !
 # Configuration file for SecondaryInputTest
 process PROD  = {
+	service = RandomNumberGeneratorService {
+		untracked uint32 sourceSeed = 98765
+		PSet moduleSeeds = {
+			untracked uint32 Thing = 12345
+		}
+	}
         include "FWCore/Framework/test/cmsExceptionsFatal.cff"
 	source = PoolSource { 
 		untracked int32 maxEvents = 42
