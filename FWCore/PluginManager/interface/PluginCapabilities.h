@@ -1,0 +1,1 @@
+#include "PluginManager/PluginCapabilities.h"
