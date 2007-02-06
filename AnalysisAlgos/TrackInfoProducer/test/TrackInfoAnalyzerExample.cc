@@ -12,6 +12,7 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
+#include "AnalysisDataFormats/TrackInfo/interface/TrackInfoTrackAssociation.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -33,20 +34,27 @@ class TrackInfoAnalyzerExample : public edm::EDAnalyzer {
     using namespace std;
 
     //std::cout << "\nEvent ID = "<< event.id() << std::endl ;
-    edm::InputTag TkTag = conf_.getParameter<edm::InputTag>("TrackInfo");
-    edm::Handle<reco::TrackInfoCollection> trackCollection;
-    event.getByLabel(TkTag, trackCollection);
+    edm::InputTag TkiTag = conf_.getParameter<edm::InputTag>("TrackInfo");
+    edm::Handle<reco::TrackInfoTrackAssociationCollection> TItkassociatorCollection;
+    event.getByLabel(TkiTag,TItkassociatorCollection);
+    edm::InputTag TkTag = conf_.getParameter<edm::InputTag>("Tracks");
+    edm::Handle<reco::TrackCollection> tkCollection;
+    event.getByLabel(TkTag,tkCollection);
       
-    reco::TrackInfoCollection tC = *(trackCollection.product());
 
-    edm::LogInfo("TrackInfoAnalyzerExample") <<"number of infos "<< tC.size();
-    for (reco::TrackInfoCollection::iterator track=tC.begin(); track!=tC.end(); track++){
-      
+    //    edm::LogInfo("TrackInfoAnalyzerExample") <<"number of infos "<< tC.size();
+ 
+    //    for (reco::TrackCollection::const_iterator track=tkCollection->begin(); track!=tkCollection->end(); ++track){
+    for (unsigned int track=0;track<tkCollection->size();++track){
+      reco::TrackRef trackref=reco::TrackRef(tkCollection,track);
+      edm::LogInfo("TrackInfoAnalyzerExample")<<"Track pt"<<trackref->pt();
       //const reco::TrackInfo::TrajectoryInfo tinfo=track->trajstate();
       reco::TrackInfo::TrajectoryInfo::const_iterator iter;
-      edm::LogInfo("TrackInfoAnalyzerExample") <<"N hits in the seed: "<<track->seed().nHits();
-      edm::LogInfo("TrackInfoAnalyzerExample") <<"Starting stare "<<track->seed().startingState().parameters().position();
-      for(iter=track->trajStateMap().begin();iter!=track->trajStateMap().end();iter++){
+      reco::TrackInfoRef trackinforef=(*TItkassociatorCollection.product())[trackref];
+      edm::LogInfo("TrackInfoAnalyzerExample") <<"N hits in the seed: "<<(*TItkassociatorCollection.product())[trackref]->seed().nHits();
+      //      edm::LogInfo("TrackInfoAnalyzerExample") <<"Starting state "<<track->second->seed().startingState().parameters().position();
+      // loop on the track hits
+      for(iter=(*TItkassociatorCollection.product())[trackref]->trajStateMap().begin();iter!=(*TItkassociatorCollection.product())[trackref]->trajStateMap().end();iter++){
 	edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalMomentum: "<<((*iter).second.parameters()).momentum();
 	edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalPosition: "<<((*iter).second.parameters()).position();
 	edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalPosition (rechit): "<<((*iter).first)->localPosition();

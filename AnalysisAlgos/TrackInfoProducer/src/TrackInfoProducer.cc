@@ -71,15 +71,10 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
     reco::TrackInfo outputFwd,outputBwd,outputUpdated, outputCombined;
 
     std::vector<Trajectory>::const_iterator traj_iterator;
-    
-    //    reco::TrackInfoRefProd rTrackInfof = theEvent.getRefBeforePut<reco::TrackInfoCollection>(forwardPredictedStateTag_);
-    // reco::TrackInfoRefProd rTrackInfob = theEvent.getRefBeforePut<reco::TrackInfoCollection>(backwardPredictedStateTag_);
-    //reco::TrackInfoRefProd rTrackInfou = theEvent.getRefBeforePut<reco::TrackInfoCollection>(updatedStateTag_);
-    //reco::TrackInfoRefProd rTrackInfoc = theEvent.getRefBeforePut<reco::TrackInfoCollection>(combinedStateTag_);
-    edm::Ref<reco::TrackInfoCollection>::key_type idti = 0;
-      std::vector<int> trackid;
-    for(traj_iterator=TrajectoryCollection->begin();traj_iterator!=TrajectoryCollection->end();traj_iterator++){//loop on trajectories
 
+    std::vector<unsigned int> trackid;
+    for(traj_iterator=TrajectoryCollection->begin();traj_iterator!=TrajectoryCollection->end();++traj_iterator){//loop on trajectories
+      
       theAlgo_.run(traj_iterator,&rechitscollection,
 		   outputFwd,outputBwd,outputUpdated, outputCombined
 		   );
@@ -87,70 +82,53 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
       outputBwdColl->push_back(*(new reco::TrackInfo(outputBwd)));
       outputUpdatedColl->push_back(*(new reco::TrackInfo(outputUpdated)));
       outputCombinedColl->push_back(*(new reco::TrackInfo(outputCombined)));
+      unsigned int idtk = 0;
       
-      TrajectoryStateOnSurface outertsos=0;
-      TrajectoryStateOnSurface innertsos=0;
-      unsigned int outerId=0, innerId=0;
-      if (traj_iterator->direction() == alongMomentum) {
-	outertsos = traj_iterator->lastMeasurement().updatedState();
-	innertsos = traj_iterator->firstMeasurement().updatedState();
-	//if(traj_iterator->lastMeasurement().recHit()->isValid())outerId = traj_iterator->lastMeasurement().recHit()->geographicalId().rawId();
-	//if(traj_iterator->firstMeasurement().recHit()->isValid())innerId = traj_iterator->firstMeasurement().recHit()->geographicalId().rawId();
-      } else { 
-	outertsos = traj_iterator->firstMeasurement().updatedState();
-	innertsos = traj_iterator->lastMeasurement().updatedState();
-	//if(traj_iterator->firstMeasurement().recHit()->isValid())outerId = traj_iterator->firstMeasurement().recHit()->geographicalId().rawId();
-	//if(traj_iterator->lastMeasurement().recHit()->isValid())innerId = traj_iterator->lastMeasurement().recHit()->geographicalId().rawId();
-      }
-      //      if(outerId>0&&innerId>0){
+      if(TrajectoryCollection->size()==1)trackid.push_back(idtk);
+      else{
+	TrajectoryStateOnSurface outertsos=0;
+	TrajectoryStateOnSurface innertsos=0;
+	
+	if (traj_iterator->direction() == alongMomentum) {
+	  outertsos = traj_iterator->lastMeasurement().updatedState();
+	  innertsos = traj_iterator->firstMeasurement().updatedState();
+	} else { 
+	  outertsos = traj_iterator->firstMeasurement().updatedState();
+	  innertsos = traj_iterator->lastMeasurement().updatedState();
+	}
 	GlobalPoint po = outertsos.globalParameters().position();
 	GlobalVector vo = outertsos.globalParameters().momentum();
 	
 	GlobalPoint pi = innertsos.globalParameters().position();
 	GlobalVector vi = innertsos.globalParameters().momentum();
-     
+	
 	reco::TrackCollection::const_iterator tk_iterator;
-	int idtk = 0;
-
 	for(tk_iterator=trackCollection->begin();tk_iterator!=trackCollection->end();++tk_iterator){//loop on tracks
-
+	  
 	  GlobalPoint tkpo = GlobalPoint(tk_iterator->outerPosition().X(),tk_iterator->outerPosition().Y(),tk_iterator->outerPosition().Z());
-	   GlobalVector tkvo = GlobalVector(tk_iterator->outerMomentum().X(),tk_iterator->outerMomentum().Y(),tk_iterator->outerMomentum().Z());
-	   GlobalPoint tkpi = GlobalPoint(tk_iterator->innerPosition().X(),tk_iterator->innerPosition().Y(),tk_iterator->innerPosition().Z());
-	   GlobalVector tkvi = GlobalVector(tk_iterator->innerMomentum().X(),tk_iterator->innerMomentum().Y(),tk_iterator->innerMomentum().Z());
-
-	   if(((vo-tkvo).mag()<1e-16)&&
-	      ((po-tkpo).mag()<1e-16)&&
-	      ((vi-tkvi).mag()<1e-16)&&
-	      ((pi-tkpi).mag()<1e-16)//&&
-	      //	      (tk_iterator->innerDetId()==innerId)&&
-	      //(tk_iterator->outerDetId()==outerId)
-	      )
-	     {
-	       trackid.push_back(idtk);
-	     }
-	   else {
-	     LogDebug("TrackInfoProducer")<<" Track outer position and momentum and detid:"<< tkpo <<" "<<tkvo<<" "<<tk_iterator->outerDetId();
-	     LogDebug("TrackInfoProducer")<<" Track inner position and momentum and detid:"<< tkpi <<" "<<tkvi<<" "<<tk_iterator->innerDetId();
-	     LogDebug("TrackInfoProducer")<<" Traj outer position and momentum and detid:"<< po <<" "<<vo<<" "<<outerId;
-	     LogDebug("TrackInfoProducer")<<" Traj inner position and momentum and detid:"<< pi <<" "<<vi<<" "<<innerId;
-	     LogDebug("TrackInfoProducer")<<"Track not associated trying an other track"; 
-	   }
-	   idtk++;
+	  GlobalVector tkvo = GlobalVector(tk_iterator->outerMomentum().X(),tk_iterator->outerMomentum().Y(),tk_iterator->outerMomentum().Z());
+	  GlobalPoint tkpi = GlobalPoint(tk_iterator->innerPosition().X(),tk_iterator->innerPosition().Y(),tk_iterator->innerPosition().Z());
+	  GlobalVector tkvi = GlobalVector(tk_iterator->innerMomentum().X(),tk_iterator->innerMomentum().Y(),tk_iterator->innerMomentum().Z());
+	  
+	  if(((vo-tkvo).mag()<1e-16)&&
+	     ((po-tkpo).mag()<1e-16)&&
+	     ((vi-tkvi).mag()<1e-16)&&
+	     ((pi-tkpi).mag()<1e-16)){
+	    trackid.push_back(idtk);
+	  }
+	  else {
+	    LogDebug("TrackInfoProducer")<<"Track not associated trying an other track"; 
+	  }
+	  idtk++;
 	}
-	idti++;
-	//      }
+      }
     }
-    edm::LogInfo("TrackInfoProducer")<<"outputFwdColl size= "<<outputFwdColl->size();
-    edm::LogInfo("TrackInfoProducer")<<"outputBwdColl size= "<<outputBwdColl->size();
-    edm::LogInfo("TrackInfoProducer")<<"outputUPColl size= "<<outputUpdatedColl->size();
-    edm::LogInfo("TrackInfoProducer")<<"outputcmbnedColl size= "<<outputCombinedColl->size();
     //put everything in the event
     const edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfof = theEvent.put(outputFwdColl,forwardPredictedStateTag_ );
     const edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfob =   theEvent.put(outputBwdColl,backwardPredictedStateTag_);
     const edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfou =   theEvent.put(outputUpdatedColl,updatedStateTag_ );
     const edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfoc =   theEvent.put(outputCombinedColl,combinedStateTag_ );
-    for(int i=0; i <trackid.size();i++){
+    for(unsigned int i=0; i <trackid.size();++i){
       TIassociationFwdColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, trackid[i]),edm::Ref<reco::TrackInfoCollection>(rTrackInfof, i));
       TIassociationBwdColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, trackid[i]),edm::Ref<reco::TrackInfoCollection>(rTrackInfob, i));
       TIassociationUpdatedColl->insert( edm::Ref<reco::TrackCollection>(trackCollection,trackid[i] ),edm::Ref<reco::TrackInfoCollection>(rTrackInfou, i));
