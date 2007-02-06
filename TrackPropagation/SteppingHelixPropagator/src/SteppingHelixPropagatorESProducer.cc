@@ -52,6 +52,9 @@ SteppingHelixPropagatorESProducer::produce(const TrackingComponentsRecord & iRec
   bool debugMode = pset_.getParameter<bool>("debug");
   shProp->setDebug(debugMode);
 
+  bool useMagVolumes = pset_.getParameter<bool>("useMagVolumes");
+  shProp->setUseMagVolumes(useMagVolumes);
+
   _propagator  = boost::shared_ptr<Propagator>(shProp);
   return _propagator;
 }

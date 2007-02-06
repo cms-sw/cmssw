@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/02/06 01:15:25 $
- *  $Revision: 1.25 $
+ *  $Date: 2007/02/06 20:49:18 $
+ *  $Revision: 1.26 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.25 2007/02/06 01:15:25 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.26 2007/02/06 20:49:18 slava77 Exp $
 //
 //
 
@@ -52,7 +52,7 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
   noMaterialMode_ = false;
   noErrorPropagation_ = false;
   applyRadX0Correction_ = false;
-  useMagVolumes_ = true;
+  useMagVolumes_ = false;
   for (int i = 0; i <= MAX_POINTS; i++){
     svBuf_[i].cov = HepSymMatrix(6,0);
     svBuf_[i].matDCov = HepSymMatrix(6,0);
