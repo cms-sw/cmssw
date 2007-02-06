@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/01/24 01:23:17 $
- *  $Revision: 1.23 $
+ *  $Date: 2007/02/05 19:01:49 $
+ *  $Revision: 1.24 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.23 2007/01/24 01:23:17 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.24 2007/02/05 19:01:49 slava77 Exp $
 //
 //
 
@@ -45,6 +45,7 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
   unit66_(6,1)
 {
   field_ = field;
+  vbField_ = dynamic_cast<const VolumeBasedMagneticField*>(field_);
   covRot_ = HepMatrix(6,6,0);
   dCTransform_ = unit66_;
   debug_ = false;
@@ -317,22 +318,48 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 
   double distMag = 1e12;
   double tanDistMag = 1e12;
-  
+
+  double tanDistNextCheck = -0.1;//just need a negative start val
+  double tanDistMagNextCheck = -0.1;
+  double oldDStep = 0;
+  PropagationDirection oldRefDirection = propagationDirection();
+
   while (makeNextStep){
     dStep = defaultStep_;
     svCurrent = &svBuf_[cIndex_(nPoints_-1)];
     double curZ = svCurrent->r3.z();
     double curR = svCurrent->r3.perp();
     refDirection = propagationDirection();
-    refToDest(type, (*svCurrent), pars, dist, tanDist, refDirection);
+
+    tanDistNextCheck -= oldDStep;
+    tanDistMagNextCheck -= oldDStep;
+    
+    if (tanDistNextCheck < 0){
+      refToDest(type, (*svCurrent), pars, dist, tanDist, refDirection);
+      tanDistNextCheck = fabs(tanDist)*0.5 - 0.5; //need a better guess (to-do)
+      oldRefDirection = refDirection;
+    } else {
+      tanDist  = tanDist > 0. ? tanDist - oldDStep : tanDist + oldDStep; 
+      refDirection = oldRefDirection;
+      if (debug_) std::cout<<"Skipped refToDest: guess tanDist = "<<tanDist<<std::endl;
+    }
 
     if (propagationDirection() == anyDirection){
       dir = refDirection;
     } else {
       dir = propagationDirection();
     }
+
+    Result resultToMag = SteppingHelixStateInfo::UNDEFINED;
     if (useMagVolumes_){//need to know the general direction
-      refToMagVolume((*svCurrent), dir, distMag, tanDistMag);
+      if (tanDistMagNextCheck < 0){
+	resultToMag = refToMagVolume((*svCurrent), dir, distMag, tanDistMag);
+	tanDistMagNextCheck = fabs(tanDistMag)*0.5-0.5; //need a better guess (to-do)
+      } else {
+	resultToMag = SteppingHelixStateInfo::OK;
+	tanDistMag  = tanDistMag > 0. ? tanDistMag - oldDStep : tanDistMag + oldDStep; 
+	if (debug_) std::cout<<"Skipped refToMag: guess tanDistMag = "<<tanDistMag<<std::endl;
+      }
     }
 
     double rDotP = svCurrent->r3.dot(svCurrent->p3);
@@ -342,13 +369,20 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 	){
       dStep = fabs(tanDist) -1e-12;
     }
-    if (fabs(tanDist) < dStep){
-      dStep = fabs(tanDist); 
+    double tanDistMin = fabs(tanDist);
+    if (tanDistMin > fabs(tanDistMag)+0.05 && resultToMag == SteppingHelixStateInfo::OK){
+      tanDistMin = fabs(tanDistMag)+0.05;     //try to step into the next volume
+    }
+    if (fabs(tanDistMin) < dStep){
+      dStep = fabs(tanDistMin); 
       if (type == POINT_PCA_DT){
 	//being lazy here; the best is to take into account the curvature
-	dStep = fabs(tanDist)*0.5; 
+	dStep = fabs(tanDistMin)*0.5; 
       }
     }
+    //keep this path length for the next step
+    oldDStep = dStep;
+
     if (dStep > 1e-10 && ! (fabs(dist) < fabs(epsilon))){
       StateInfo* svNext = &svBuf_[cIndex_(nPoints_)];
       makeAtomStep((*svCurrent), (*svNext), dStep, dir, HEL_AS_F);
@@ -457,11 +491,11 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   GlobalVector bf = field_->inTesla(gPoint);
   if (useMagVolumes_){
     GlobalPoint gPointNegZ(svCurrent.r3.x(), svCurrent.r3.y(), svCurrent.r3.z() > 0. ? -svCurrent.r3.z() : svCurrent.r3.z());
-    const VolumeBasedMagneticField* vbField = dynamic_cast<const VolumeBasedMagneticField*>(field_);
-    if (vbField ){
-      svCurrent.magVol = vbField->findVolume(gPointNegZ);
+    if (vbField_ ){
+      svCurrent.magVol = vbField_->findVolume(gPointNegZ);
     } else {
-      std::cout<<"Failed to cast into VolumeBasedMagneticField"<<std::endl;
+      std::cout<<"Failed to cast into VolumeBasedMagneticField: fall back to the default behavior"<<std::endl;
+      svCurrent.magVol = 0;
     }
     if (debug_){
       std::cout<<"Got volume at "<<svCurrent.magVol<<std::endl;
@@ -516,11 +550,14 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
   if (svNext.bf.mag() < 1e-6) svNext.bf.set(0., 0., 1e-6);
   if (useMagVolumes_){
     GlobalPoint gPointNegZ(svNext.r3.x(), svNext.r3.y(), svNext.r3.z() > 0. ? -svNext.r3.z() : svNext.r3.z());
-    const VolumeBasedMagneticField* vbField = dynamic_cast<const VolumeBasedMagneticField*>(field_);
-    if (vbField ){
-      svNext.magVol = vbField->findVolume(gPointNegZ);
+    if (vbField_ ){
+      svNext.magVol = vbField_->findVolume(gPointNegZ);
     } else {
       std::cout<<"Failed to cast into VolumeBasedMagneticField"<<std::endl;
+      svNext.magVol = 0;
+    }
+    if (debug_){
+      std::cout<<"Got volume at "<<svNext.magVol<<std::endl;
     }
   }
   
@@ -1176,14 +1213,14 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       refToDest(dType, sv, pars, 
 		distToFace[iFace], tanDistToFace[iFace], refDirectionToFace[iFace]);
     
-    if (refDirectionToFace[iFace] == dir){
+    if (refDirectionToFace[iFace] == dir || fabs(distToFace[iFace]/tanDistToFace[iFace]) < 2e-2){
       double sign = dir == alongMomentum ? 1. : -1.;
       GlobalPoint gPointEst(sv.r3.x(), sv.r3.y(), sv.r3.z());
       GlobalVector gDir(sv.p3.x(), sv.p3.y(), sv.p3.z());
       gDir /= sv.p3.mag();
-      gPointEst += sign*fabs(fabs(distToFace[iFace])-2e-4)*gDir;
+      gPointEst += sign*sqrt(fabs(distToFace[iFace]*tanDistToFace[iFace]))*gDir;
       if (debug_){
-	std::cout<<"Linear est point closer to the face less 2 um "<<gPointEst
+	std::cout<<"Linear est point "<<gPointEst
 		 <<std::endl;
       }
       GlobalPoint gPointEstNegZ(gPointEst.x(), gPointEst.y(),

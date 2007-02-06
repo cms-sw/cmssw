@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2007/01/24 01:06:39 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/02/05 19:01:49 $
+ *  $Revision: 1.12 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.11 2007/01/24 01:06:39 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.12 2007/02/05 19:01:49 slava77 Exp $
 //
 //
 
@@ -38,6 +38,7 @@
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 
 class MagneticField;
+class VolumeBasedMagneticField;
 class MagVolume;
 
 class SteppingHelixPropagator : public Propagator {
@@ -239,6 +240,7 @@ class SteppingHelixPropagator : public Propagator {
   mutable HepMatrix dCTransform_;
 
   const MagneticField* field_;
+  const VolumeBasedMagneticField* vbField_;
   const HepDiagMatrix unit66_;
   bool debug_;
   bool noMaterialMode_;
