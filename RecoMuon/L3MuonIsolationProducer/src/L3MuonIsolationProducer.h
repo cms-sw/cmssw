@@ -10,7 +10,7 @@
 
 #include "RecoMuon/MuonIsolation/interface/Cuts.h"
 
-#include "RecoMuon/MuonIsolation/src/TrackExtractor.h"
+#include "RecoMuon/MuonIsolation/interface/TrackExtractor.h"
 
 #include <string>
 
