@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2007/02/05 19:01:49 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/02/06 01:15:26 $
+ *  $Revision: 1.13 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.12 2007/02/05 19:01:49 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.13 2007/02/06 01:15:26 slava77 Exp $
 //
 //
 
@@ -47,9 +47,14 @@ class SteppingHelixPropagator : public Propagator {
   typedef Hep3Vector  Point;
 
   typedef SteppingHelixStateInfo StateInfo;
-  typedef SteppingHelixStateInfo::Basis Basis;
   typedef SteppingHelixStateInfo::Result Result;
 
+  struct Basis {
+    Vector lX;
+    Vector lY;
+    Vector lZ;
+  };
+  
   enum Pars {
     RADIUS_P=0,
     Z_P = 0,
@@ -184,12 +189,11 @@ class SteppingHelixPropagator : public Propagator {
     void getNextState(const SteppingHelixPropagator::StateInfo& svPrevious,
 		      SteppingHelixPropagator::StateInfo& svNext,		      
 		      double dP, 
-		      SteppingHelixPropagator::Vector tau, double dX, double dY, double dZ, 
+		      const SteppingHelixPropagator::Vector& tau, const SteppingHelixPropagator::Vector& drVec, 
 		      double dS, double dX0,
 		      const HepMatrix& dCov) const;
   
   /// Set/compute basis vectors for local coordinates at current step (called by incrementState)
-  void setRep(SteppingHelixPropagator::StateInfo& sv) const;
   void setRep(SteppingHelixPropagator::Basis& rep,
 	      const SteppingHelixPropagator::Vector& tau) const;
 
@@ -216,15 +220,6 @@ class SteppingHelixPropagator : public Propagator {
   Result refToMagVolume(const SteppingHelixPropagator::StateInfo& sv,
 			PropagationDirection dir,
 			double& dist, double& tanDist) const;
-
-  /// Compute covariance matrix rotation given change in basis vectors
-  void initCovRotation(const SteppingHelixPropagator::Vector* repI[3], 
-		       const SteppingHelixPropagator::Vector* repF[3],
-		       HepMatrix& covRot) const;
-		       
-  /// |B|-field gradient in local coordinates
-  void getLocBGrad(SteppingHelixPropagator::StateInfo& sv,
-		   double delta) const;
 
  private:
   typedef std::pair<TrajectoryStateOnSurface, double> TsosPP;

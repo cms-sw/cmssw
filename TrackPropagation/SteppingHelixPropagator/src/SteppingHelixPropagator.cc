@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/02/05 19:01:49 $
- *  $Revision: 1.24 $
+ *  $Date: 2007/02/06 01:15:25 $
+ *  $Revision: 1.25 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.24 2007/02/05 19:01:49 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.25 2007/02/06 01:15:25 slava77 Exp $
 //
 //
 
@@ -52,7 +52,7 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
   noMaterialMode_ = false;
   noErrorPropagation_ = false;
   applyRadX0Correction_ = false;
-  useMagVolumes_ = false;
+  useMagVolumes_ = true;
   for (int i = 0; i <= MAX_POINTS; i++){
     svBuf_[i].cov = HepSymMatrix(6,0);
     svBuf_[i].matDCov = HepSymMatrix(6,0);
@@ -505,7 +505,6 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   svCurrent.bf.set(bf.x(), bf.y(), bf.z());
   if (svCurrent.bf.mag() < 1e-6) svCurrent.bf.set(0., 0., 1e-6);
 
-  setRep(svCurrent);
 
   svCurrent.cov.assign(cov);
 
@@ -525,20 +524,15 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
 
 void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateInfo& svPrevious, 
 					   SteppingHelixPropagator::StateInfo& svNext,
-					   double dP, SteppingHelixPropagator::Vector tau,
-					   double dX, double dY, double dZ, double dS, double dX0,
+					   double dP, const SteppingHelixPropagator::Vector& tau,
+					   const SteppingHelixPropagator::Vector& drVec, double dS, double dX0,
 					   const HepMatrix& dCovTransform) const{
   svNext.q = svPrevious.q;
   svNext.dir = dS > 0.0 ? 1.: -1.; 
   svNext.p3 = tau;  svNext.p3*=(svPrevious.p3.mag() - svNext.dir*fabs(dP));
 
-  svNext.r3 = svPrevious.r3;
-  Vector tmpR3 = svPrevious.rep.lX; tmpR3*=dX;
-  svNext.r3+= tmpR3;
-  tmpR3 = svPrevious.rep.lY; tmpR3*=dY;
-  svNext.r3+= tmpR3;
-  tmpR3 = svPrevious.rep.lZ; tmpR3*=dZ;
-  svNext.r3+= tmpR3;
+  svNext.r3 = svPrevious.r3 + drVec;
+
   svNext.path_ = svPrevious.path_ + dS;
   svNext.radPath = svPrevious.radPath + dX0;
 
@@ -560,9 +554,6 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
       std::cout<<"Got volume at "<<svNext.magVol<<std::endl;
     }
   }
-  
-  setRep(svNext);
-  //  getLocBGrad(ind, 1e-1);
   
   
   //update Emat only if it's valid
@@ -587,11 +578,6 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
   }
 }
 
-void SteppingHelixPropagator::setRep(SteppingHelixPropagator::StateInfo& sv) const{
-  Vector tau = sv.p3/(sv.p3.mag());
-  setRep(sv.rep, tau);
-}
-
 void SteppingHelixPropagator::setRep(SteppingHelixPropagator::Basis& rep, 
 				     const SteppingHelixPropagator::Vector& tau) const{
   Vector zRep(0., 0., 1.);
@@ -612,77 +598,60 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
   double dP = 0;
   Vector tau = svCurrent.p3; tau/=tau.mag();
   Vector tauNext(tau);
+  Vector drVec;
 
   dS = dir == alongMomentum ? fabs(dS) : -fabs(dS);
 
   double p0 = svCurrent.p3.mag();
-  double b0 = svCurrent.bf.mag();
-  double phi = 0.0029979*svCurrent.q*b0/p0*dS;
-  bool phiSmall = fabs(phi) < 3e-8;
 
-  double cosPhi = cos(phi);
-  double oneLessCosPhi = phiSmall ? 0.5*phi*phi*(1.- phi*phi/12.)  : 1.-cosPhi;
-  double oneLessCosPhiOPhi = phiSmall ? 0.5*phi*(1.- phi*phi/12.)  : oneLessCosPhi/phi;
-  double sinPhi = sin(phi);
-  double sinPhiOPhi = phiSmall ? 1. - phi*phi/6. : sinPhi/phi;
-  double phiLessSinPhiOPhi = phiSmall ? phi*phi/6.*(1. - phi*phi/20.) : (phi - sinPhi)/phi;
-
-  Vector bHat = svCurrent.bf; bHat /= bHat.mag();
-  double bxC = svCurrent.rep.lX.dot(bHat);
-  double by = svCurrent.rep.lY.dot(bHat);
-  double bz = svCurrent.rep.lZ.dot(bHat);
-  double oneLessBxC2 = (1.-bxC*bxC);
-
-  //components in local rf
-  double dX =0.;
-  double dY =0.;
-  double dZ =0.;
-  double tauX =0.;
-  double tauY =0.;
-  double tauZ =0.;
-  
-  double dEdXPrime = 0;
   double radX0 = 1e24;
-  double dEdx = getDeDx(svCurrent, dEdXPrime, radX0);
-  double theta02 = 14.e-3/p0*sqrt(fabs(dS)/radX0); // .. drop log term (this is non-additive)
-  theta02 *=theta02;
-  if (applyRadX0Correction_){
-    // this provides the integrand for theta^2
-    // if summed up along the path, should result in 
-    // theta_total^2 = Int_0^x0{ f(x)dX} = (13.6/p0)^2*x0*(1+0.036*ln(x0+1))
-    // x0+1 above is to make the result infrared safe.
-    double x0 = fabs(svCurrent.radPath);
-    double dX0 = fabs(dS)/radX0;
-    double alphaX0 = 13.6e-3/p0; alphaX0 *= alphaX0;
-    double betaX0 = 0.038;
-    theta02 = dX0*alphaX0*(1+betaX0*log(x0+1))*(1 + betaX0*log(x0+1) + 2.*betaX0*x0/(x0+1) );
-  }
-
-  double epsilonP0 = 0;
-  double omegaP0 = 0;
 
   switch (fancy){
   case HEL_AS_F:
-  case HEL_ALL_F:
+  case HEL_ALL_F:{
+    double b0 = svCurrent.bf.mag();
+    double phi = 0.0029979*svCurrent.q*b0/p0*dS;
+    bool phiSmall = fabs(phi) < 3e-8;
+
+    double cosPhi = cos(phi);
+    double oneLessCosPhi = phiSmall ? 0.5*phi*phi*(1.- phi*phi/12.)  : 1.-cosPhi;
+    double oneLessCosPhiOPhi = phiSmall ? 0.5*phi*(1.- phi*phi/12.)  : oneLessCosPhi/phi;
+    double sinPhi = sin(phi);
+    double sinPhiOPhi = phiSmall ? 1. - phi*phi/6. : sinPhi/phi;
+    double phiLessSinPhiOPhi = phiSmall ? phi*phi/6.*(1. - phi*phi/20.) : (phi - sinPhi)/phi;
+
+    Vector bHat = svCurrent.bf; bHat /= bHat.mag();
+
+    double dEdXPrime = 0;
+    double dEdx = getDeDx(svCurrent, dEdXPrime, radX0);
     dP = dEdx*dS;
-    tauX = (1.0 - oneLessCosPhi*oneLessBxC2);
-    tauY = (oneLessCosPhi*bxC*by - sinPhi*bz);
-    tauZ = (oneLessCosPhi*bxC*bz + sinPhi*by);
+    Vector btVec(bHat.cross(tau));
+    Vector bbtVec(bHat.cross(btVec));
+    Vector tbtVec(tau.cross(btVec));
+    
+    tauNext = tau + bbtVec*oneLessCosPhi - btVec*sinPhi;
 
-    tauNext = svCurrent.rep.lX*tauX 
-      + svCurrent.rep.lY*tauY + svCurrent.rep.lZ*tauZ;
-
-    dX = dS*(1. - phiLessSinPhiOPhi*oneLessBxC2);
-    dY = dS*(bxC*by*phiLessSinPhiOPhi - oneLessCosPhiOPhi*bz);
-    dZ = dS*(bxC*bz*phiLessSinPhiOPhi + oneLessCosPhiOPhi*by);
+    drVec = tau + bbtVec*phiLessSinPhiOPhi - btVec*oneLessCosPhiOPhi;
+    drVec *= dS;
 
     if (svCurrent.cov.num_row() >=5){
-      epsilonP0 = 1.+ dP/p0;
-      omegaP0 = -dP/p0 + dS*dEdXPrime;      
+      double theta02 = 14.e-3/p0*sqrt(fabs(dS)/radX0); // .. drop log term (this is non-additive)
+      theta02 *=theta02;
+      if (applyRadX0Correction_){
+	// this provides the integrand for theta^2
+	// if summed up along the path, should result in 
+	// theta_total^2 = Int_0^x0{ f(x)dX} = (13.6/p0)^2*x0*(1+0.036*ln(x0+1))
+	// x0+1 above is to make the result infrared safe.
+	double x0 = fabs(svCurrent.radPath);
+	double dX0 = fabs(dS)/radX0;
+	double alphaX0 = 13.6e-3/p0; alphaX0 *= alphaX0;
+	double betaX0 = 0.038;
+	theta02 = dX0*alphaX0*(1+betaX0*log(x0+1))*(1 + betaX0*log(x0+1) + 2.*betaX0*x0/(x0+1) );
+      }
       
-      Vector btVec(bHat.cross(tau));
-      Vector bbtVec(bHat.cross(btVec));
-      Vector tbtVec(tau.cross(btVec));
+      double epsilonP0 = 1.+ dP/p0;
+      double omegaP0 = -dP/p0 + dS*dEdXPrime;      
+      
 
       double dsp = dS/p0;
 
@@ -806,8 +775,8 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
       svCurrent.matDCov(3,6) = mZZ;
       
     }
-
     break;
+  }
 //   case POL_1_F:
 //   case POL_2_F:
 //   case POL_M_F:
@@ -818,7 +787,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 
   if (dir == oppositeToMomentum) dP = -fabs(dP);
   dP = dP > p0 ? p0-1e-5 : dP;
-  getNextState(svCurrent, svNext, dP, tauNext, dX, dY, dZ, dS, dS/radX0,
+  getNextState(svCurrent, svNext, dP, tauNext, drVec, dS, dS/radX0,
 		 dCTransform_);
   return true;
 }
@@ -1262,35 +1231,5 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
 }
 
 //transforms 6x6 "local" cov matrix (r_3x3, p_3x3)
-void SteppingHelixPropagator::initCovRotation(const SteppingHelixPropagator::Vector* repI[3], 
-					      const SteppingHelixPropagator::Vector* repF[3],
-					      HepMatrix& covRot) const{
-  
 
-  covRot*=0; //reset
-  //fill in a block-diagonal rotation
-  for (int i = 1; i <=3; i++){
-    for (int j = 1; j <=3; j++){
-      double r_ij = (*repF[i-1]).dot(*repI[j-1]);
-      covRot(i,j) = r_ij;
-      covRot(i+3,j+3) = r_ij;
-    }
-  }
-}
-
-
-void SteppingHelixPropagator::getLocBGrad(SteppingHelixPropagator::StateInfo& sv,
-					  double delta) const{
-  Point r3[3];
-  r3[0] = sv.r3 + sv.rep.lX*delta;
-  r3[1] = sv.r3 + sv.rep.lY*delta;
-  r3[2] = sv.r3 + sv.rep.lZ*delta;
-
-  double bVal[3];
-  double bVal0 = sv.bf.mag();
-  for (int i = 0; i < 3; i++){
-    bVal[i] = field_->inTesla(GlobalPoint(r3[i].x(), r3[i].y(), r3[i].z())).mag();
-  }
-  sv.bfGradLoc.set((bVal[0] -bVal0)/delta, (bVal[1] -bVal0)/delta, (bVal[2] -bVal0)/delta);
-}
 

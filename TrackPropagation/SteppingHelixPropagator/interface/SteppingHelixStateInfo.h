@@ -6,15 +6,15 @@
 /** \class SteppingHelixStateInfo
  *  Holder of SteppingHelixState information
  *
- *  $Date: 2007/01/24 01:01:24 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/02/05 18:48:07 $
+ *  $Revision: 1.5 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.h,v 1.4 2007/01/24 01:01:24 slava77 Exp $
+// $Id: SteppingHelixStateInfo.h,v 1.5 2007/02/05 18:48:07 slava77 Exp $
 //
 //
 
@@ -37,12 +37,6 @@ class SteppingHelixStateInfo {
  public:
   typedef Hep3Vector Vector;
   typedef Hep3Vector  Point;
-  
-  struct Basis {
-    Vector lX;
-    Vector lY;
-    Vector lZ;
-  };
   
   enum Result {
     OK=0,
@@ -80,7 +74,6 @@ class SteppingHelixStateInfo {
   HepSymMatrix matDCov;
   double path_;
   double radPath;
-  Basis rep;
   double dir;
   Vector bf;
   Vector bfGradLoc;
