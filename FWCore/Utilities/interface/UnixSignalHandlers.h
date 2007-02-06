@@ -18,9 +18,11 @@ At present, only SIGUSR2 is considered.
 
 namespace edm {
 
+    extern boost::mutex usr2_lock;
+    extern volatile bool shutdown_flag;
+
     extern "C" {
       void ep_sigusr2(int,siginfo_t*,void*);
-      extern volatile bool shutdown_flag;
       typedef void(*CFUNC)(int,siginfo_t*,void*);
     }
 

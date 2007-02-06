@@ -10,15 +10,20 @@ using namespace std;
 
 namespace edm {
 
+    boost::mutex usr2_lock;
+
     extern "C" {
       volatile bool shutdown_flag = false;
 
       void ep_sigusr2(int,siginfo_t*,void*)
       {
 	FDEBUG(1) << "in sigusr2 handler\n";
+//      boost::mutex::scoped_lock sl(usr2_lock);
+      {
 	shutdown_flag = true;
       }
     }
+  }
 
     boost::mutex signum_lock;
     volatile int signum_value = 
