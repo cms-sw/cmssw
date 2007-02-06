@@ -58,6 +58,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   processPS_ = 
     iConfig.getUntrackedParameter<bool>("process_PS",true);
 
+
   clusteringEcal_ = 
     iConfig.getUntrackedParameter<bool>("clustering_Ecal",true);
   clusteringHcal_ = 
@@ -67,6 +68,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   clusteringPS_ = 
     iConfig.getUntrackedParameter<bool>("clustering_PS",true);
     
+
 
   // parameters for ecal clustering
   
@@ -80,6 +82,22 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   threshSeedEcalEndcap_ = 
     iConfig.getParameter<double>("thresh_Seed_Ecal_Endcap");
 
+
+  nNeighboursEcal_ = 
+    iConfig.getParameter<int>("nNeighbours_Ecal");
+
+  posCalcP1Ecal_ = 
+    iConfig.getParameter<double>("posCalcP1_Ecal");
+
+  posCalcNCrystalEcal_ = 
+    iConfig.getParameter<int>("posCalcNCrystal_Ecal");
+    
+  showerSigmaEcal_ = 
+    iConfig.getParameter<double>("showerSigma_Ecal");
+    
+
+  
+
   // parameters for preshower clustering 
 
   threshPS_ = 
@@ -87,6 +105,20 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   threshSeedPS_ = 
     iConfig.getParameter<double>("thresh_Seed_PS");
   
+
+  nNeighboursPS_ = 
+    iConfig.getParameter<int>("nNeighbours_PS");
+
+  posCalcP1PS_ = 
+    iConfig.getParameter<double>("posCalcP1_PS");
+
+  posCalcNCrystalPS_ = 
+    iConfig.getParameter<int>("posCalcNCrystal_PS");
+    
+  showerSigmaPS_ = 
+    iConfig.getParameter<double>("showerSigma_PS");
+    
+
 
   // parameters for hcal clustering
 
@@ -100,6 +132,18 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   threshSeedHcalEndcap_ = 
     iConfig.getParameter<double>("thresh_Seed_Hcal_Endcap");
 
+
+  nNeighboursHcal_ = 
+    iConfig.getParameter<int>("nNeighbours_Hcal");
+
+  posCalcP1Hcal_ = 
+    iConfig.getParameter<double>("posCalcP1_Hcal");
+
+  posCalcNCrystalHcal_ = 
+    iConfig.getParameter<int>("posCalcNCrystal_Hcal");
+    
+  showerSigmaHcal_ = 
+    iConfig.getParameter<double>("showerSigma_Hcal");
   
 
   int    dcormode = 
@@ -121,7 +165,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
       dcorbp > -0.5 )
     reco::PFCluster::setDepthCorParameters( dcormode, 
 					    dcora, dcorb, 
-					    dcorap, dcorbp);
+					    dcorap, dcorbp );
 
   
   ecalRecHitsEBModuleLabel_ = 
@@ -186,6 +230,7 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 				const edm::EventSetup& iSetup) {
 
   
+  cerr<<"making clusters"<<endl;
 
   // for output  
   //   auto_ptr< vector<reco::PFRecHit> > 
@@ -366,15 +411,20 @@ void PFClusterProducer::produce(edm::Event& iEvent,
     }
     
     if(clusteringEcal_) {
-      LogDebug("PFClusterProducer")<<"perform clustering in ECAL"<<endl;
       PFClusterAlgo clusteralgo; 
       
-      clusteralgo.setThreshEcalBarrel( threshEcalBarrel_ );
-      clusteralgo.setThreshSeedEcalBarrel( threshSeedEcalBarrel_ );
+      clusteralgo.setThreshBarrel( threshEcalBarrel_ );
+      clusteralgo.setThreshSeedBarrel( threshSeedEcalBarrel_ );
       
-      clusteralgo.setThreshEcalEndcap( threshEcalEndcap_ );
-      clusteralgo.setThreshSeedEcalEndcap( threshSeedEcalEndcap_ );
+      clusteralgo.setThreshEndcap( threshEcalEndcap_ );
+      clusteralgo.setThreshSeedEndcap( threshSeedEcalEndcap_ );
+        
+      clusteralgo.setNNeighbours( nNeighboursEcal_ );
+      clusteralgo.setPosCalcNCrystal( posCalcNCrystalEcal_ );
+      clusteralgo.setPosCalcP1( posCalcP1Ecal_ );
+      clusteralgo.setShowerSigma( showerSigmaEcal_ );
       
+
       clusteralgo.init( idSortedRecHits ); 
       clusteralgo.doClustering();
 
@@ -539,11 +589,16 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	  
 	  PFClusterAlgo clusteralgo; 
 	  
-	  clusteralgo.setThreshHcalBarrel( threshHcalBarrel_ );
-	  clusteralgo.setThreshSeedHcalBarrel( threshSeedHcalBarrel_ );
+	  clusteralgo.setThreshBarrel( threshHcalBarrel_ );
+	  clusteralgo.setThreshSeedBarrel( threshSeedHcalBarrel_ );
 	  
-	  clusteralgo.setThreshHcalEndcap( threshHcalEndcap_ );
-	  clusteralgo.setThreshSeedHcalEndcap( threshSeedHcalEndcap_ );
+	  clusteralgo.setThreshEndcap( threshHcalEndcap_ );
+	  clusteralgo.setThreshSeedEndcap( threshSeedHcalEndcap_ );
+
+	  clusteralgo.setNNeighbours( nNeighboursHcal_ );
+	  clusteralgo.setPosCalcNCrystal( posCalcNCrystalHcal_ );
+	  clusteralgo.setPosCalcP1( posCalcP1Hcal_ );
+	  clusteralgo.setShowerSigma( showerSigmaHcal_ );
 	  
 	  clusteralgo.init( hcalrechits ); 
 	  clusteralgo.doClustering();
@@ -679,12 +734,17 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 
 	    PFClusterAlgo clusteralgo; 
 	  
-	    clusteralgo.setThreshHcalBarrel( threshHcalBarrel_ );
-	    clusteralgo.setThreshSeedHcalBarrel( threshSeedHcalBarrel_ );
+	    clusteralgo.setThreshBarrel( threshHcalBarrel_ );
+	    clusteralgo.setThreshSeedBarrel( threshSeedHcalBarrel_ );
 	  
-	    clusteralgo.setThreshHcalEndcap( threshHcalEndcap_ );
-	    clusteralgo.setThreshSeedHcalEndcap( threshSeedHcalEndcap_ );
+	    clusteralgo.setThreshEndcap( threshHcalEndcap_ );
+	    clusteralgo.setThreshSeedEndcap( threshSeedHcalEndcap_ );
     
+	    clusteralgo.setNNeighbours( nNeighboursHcal_ );
+	    clusteralgo.setPosCalcNCrystal( posCalcNCrystalHcal_ );
+	    clusteralgo.setPosCalcP1( posCalcP1Hcal_ );
+	    clusteralgo.setShowerSigma( showerSigmaHcal_ );
+
 	    clusteralgo.init( hcalrechits ); 
 	    clusteralgo.doClustering();
 	
@@ -846,8 +906,13 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 
 	PFClusterAlgo clusteralgo; 
 	
-	clusteralgo.setThreshPS( threshPS_ );
-	clusteralgo.setThreshSeedPS( threshSeedPS_ );
+	clusteralgo.setThreshEndcap( threshPS_ );
+	clusteralgo.setThreshSeedEndcap( threshSeedPS_ );
+
+	clusteralgo.setNNeighbours( nNeighboursPS_ );
+	clusteralgo.setPosCalcNCrystal( posCalcNCrystalPS_ );
+	clusteralgo.setPosCalcP1( posCalcP1PS_ );
+	clusteralgo.setShowerSigma( showerSigmaPS_ );
 	
 	clusteralgo.init( psrechits ); 
 	clusteralgo.doClustering();

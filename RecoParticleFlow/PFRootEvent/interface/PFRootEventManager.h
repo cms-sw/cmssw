@@ -181,7 +181,8 @@ class PFRootEventManager {
   void displayTrack(const std::vector<reco::PFTrajectoryPoint>& points, 
 		    unsigned viewType, double phi0, 
 		    double sign, bool displayInitial, 
-		    int linestyle, int mstyle, int color);  
+		    int linestyle, int markerstyle, double markersize, 
+		    int color);  
 
 
   /// unzooms all support histograms
@@ -416,10 +417,13 @@ class PFRootEventManager {
   bool   clusteringIsOn_;
 
   /// clustering mode. 
-  int    clusteringMode_;
+  // int    clusteringMode_;
 
   /// debug printouts for clustering on/off
   bool   clusteringDebug_;
+
+  /// debug printouts for this PFRootEventManager on/off
+  bool   debug_;  
 
   /// ecal barrel threshold
   double threshEcalBarrel_;
@@ -437,7 +441,7 @@ class PFRootEventManager {
   int    nNeighboursEcal_;
 
   /// ecal number of crystals for position calculation
-  int    posCalcNCrystalsEcal_;
+  int    posCalcNCrystalEcal_;
 
   /// ecal p1 for position calculation
   double posCalcP1Ecal_;
@@ -460,6 +464,9 @@ class PFRootEventManager {
   /// hcal number of neighbours
   int    nNeighboursHcal_;
 
+  /// hcal p1 for position calculation
+  double posCalcP1Hcal_;
+
 
   /// ps threshold
   double threshPS_;
@@ -467,6 +474,8 @@ class PFRootEventManager {
   /// ps seed threshold
   double threshSeedPS_;
 
+  /// ps p1 for position calculation
+  double posCalcP1PS_;
 
   // particle flow ------------------------------------------
   bool   displayJetColors_;

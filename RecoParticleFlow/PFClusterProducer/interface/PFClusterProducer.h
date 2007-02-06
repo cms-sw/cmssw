@@ -101,7 +101,20 @@ class PFClusterProducer : public edm::EDProducer {
   /// ecal endcap seed threshold
   double threshSeedEcalEndcap_;
 
+  /// ecal number of neighbours
+  int nNeighboursEcal_;
+  
+  /// ecal number of crystals for position calculation
+  int posCalcNCrystalEcal_;
 
+  /// ecal parameter for position calculation  
+  double posCalcP1Ecal_;
+  
+  /// ecal sigma of shower (cm)
+  double showerSigmaEcal_;
+
+
+  // PS parameters ===============================================
 
   /// ps threshold
   double threshPS_;
@@ -109,6 +122,20 @@ class PFClusterProducer : public edm::EDProducer {
   /// ps seed threshold
   double threshSeedPS_;
 
+  /// ps number of neighbours
+  int nNeighboursPS_;
+  
+  /// ps number of crystals for position calculation
+  int posCalcNCrystalPS_;
+
+  /// ps parameter for position calculation  
+  double posCalcP1PS_;
+  
+  /// ps sigma of shower (cm)
+  double showerSigmaPS_;
+
+
+  // HCAL parameters =============================================
 
 
   /// hcal barrel threshold
@@ -122,6 +149,19 @@ class PFClusterProducer : public edm::EDProducer {
 
   /// hcal endcap seed threshold
   double threshSeedHcalEndcap_;
+
+  /// Hcal number of neighbours
+  int nNeighboursHcal_;
+  
+  /// Hcal number of crystals for position calculation
+  int posCalcNCrystalHcal_;
+
+  /// Hcal parameter for position calculation  
+  double posCalcP1Hcal_;
+  
+  /// Hcal sigma of shower (cm)
+  double showerSigmaHcal_;
+
 
 
   /// produce rechits yes/no 

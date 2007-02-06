@@ -14,5 +14,5 @@
   <use name=DataFormats/Math>
   <use name=RecoParticleFlow/PFClusterAlgo>
   <use name=RecoParticleFlow/PFAlgo>
-  <lib name=DemoPFRootEvent>
+  <lib name=RecoParticleFlowPFRootEvent>
 </export>
