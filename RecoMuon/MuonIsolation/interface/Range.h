@@ -1,7 +1,9 @@
 #ifndef MuonIsolation_Range_H
 #define MuonIsolation_Range_H
 
-/** Define a range [aMin,aMax] */
+/** \class muonisolation::Range
+ *  Define a range [aMin,aMax] 
+ */
 
 #include <iostream>
 #include <utility>

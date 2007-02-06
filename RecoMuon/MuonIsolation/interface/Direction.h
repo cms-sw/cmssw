@@ -1,7 +1,7 @@
 #ifndef MuonIsolation_Direction_H
 #define MuonIsolation_Direction_H 
 
-/** \class L3MuonIsolation::Direction
+/** \class muonisolation::Direction
  *  Simple eta-phi direction
  *  \author M. Zanetti
  */

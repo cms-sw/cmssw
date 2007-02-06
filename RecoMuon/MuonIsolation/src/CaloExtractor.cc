@@ -1,4 +1,4 @@
-#include "RecoMuon/MuonIsolation/src/CaloExtractor.h"
+#include "RecoMuon/MuonIsolation/interface/CaloExtractor.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"

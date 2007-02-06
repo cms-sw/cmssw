@@ -3,7 +3,7 @@
 
 /**  \class L2MuonIsolationProducer
  * 
- *   L2 HLT muon producer:
+ *   L2 HLT muon isolation producer
  *
  *   \author  J.Alcaraz
  */
@@ -15,7 +15,7 @@
 
 #include "RecoMuon/MuonIsolation/interface/Cuts.h"
 
-#include "RecoMuon/MuonIsolation/src/CaloExtractor.h"
+#include "RecoMuon/MuonIsolation/interface/CaloExtractor.h"
 
 class L2MuonIsolationProducer : public edm::EDProducer {
 
