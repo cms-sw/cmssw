@@ -24,8 +24,16 @@ void DoCompare( ){
  TFile * reffile = new TFile(reffilename);
  TFile * curfile = new TFile(curfilename);
 
+ reffile->cd("DQMData/DTDigiValidationTask");
+ gDirectory->ls();
+
+ curfile->cd("DQMData/DTDigiValidationTask");
+ gDirectory->ls();
+
  //1-Dimension Histogram
  char* label[NHisto];
+ char* label_dir[NHisto];
+
  label[0] = "DigiTimeBox";            
  label[1] = "DigiTimeBox_wheel2m";   
  label[2] = "DigiTimeBox_wheel1m";
@@ -33,7 +41,7 @@ void DoCompare( ){
  label[4] = "DigiTimeBox_wheel1p";
  label[5] = "DigiTimeBox_wheel2p";  
  label[6] = "DigiEfficiencyMu";
- label[7] = "DigiEfficiency"; 
+ label[7] = "DigiEfficiency";
  label[8] = "Number_Digi_per_layer";
  label[9] = "Number_simhit_vs_digi";
  label[10] = "Wire_Number_with_double_Digi";
@@ -47,6 +55,7 @@ void DoCompare( ){
  label[18] = "Digi_occupancy_MB4"; 
  
  char stringcham[40]; 
+ char stringall[80];
  
  TH1F* htemp1[NHisto];
  TH1F* htemp2[NHisto];
@@ -58,9 +67,13 @@ void DoCompare( ){
       sprintf(stringcham, "DigiTimeBox_slid_%d", i-19) ;
       label[i] = stringcham;
     }
-   htemp1[i]  = dynamic_cast<TH1F*>(reffile->Get(label[i]));
-   htemp2[i]  = dynamic_cast<TH1F*>(curfile->Get(label[i]));
-   if( htemp1[i] == 0 ) std::cout << " one is empty " << endl;
+      sprintf(stringall, "DQMData/DTDigiValidationTask/%s",label[i]);
+      label_dir[i] = stringall;
+   
+   htemp1[i]  = dynamic_cast<TH1F*>(reffile->Get(label_dir[i]));
+   htemp2[i]  = dynamic_cast<TH1F*>(curfile->Get(label_dir[i]));
+   if( htemp1[i] == 0 ) std::cout << " reference histo is empty " << endl;
+   if( htemp2[i] == 0 ) std::cout << " current version histo is empty " << endl;
    if( htemp1[i] == 0 || htemp2[i] == 0) continue;
    
    htemp1[i]->SetLineColor(2);

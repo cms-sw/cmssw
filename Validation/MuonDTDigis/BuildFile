@@ -1,17 +1,23 @@
-<use name=CLHEP>	
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=DQMServices/CoreROOT>
+<use name=DataFormats/DTDigi>
+<use name=DataFormats/MuonDetId>
+<use name=Geometry/DTGeometry>
+<use name=Geometry/Records>
 <use name=root>
-<use name=boost>
-<use name=sigcpp>
 
+<flags SEAL_PLUGIN_NAME="ValidationMuonDTDigis">
 
-<library file="DTDigiAnalyzer.cc" name=DTDigiAnalyzer>
+<export>
+  <lib name=ValidationMuonDTDigis>
   <use name=FWCore/Framework>
-  <use name=Foundation/PluginManager>
   <use name=FWCore/ParameterSet>
+  <use name=DQMServices/CoreROOT>
+  <use name=DataFormats/DTDigi>
   <use name=DataFormats/MuonDetId>
   <use name=Geometry/DTGeometry>
   <use name=Geometry/Records>
-  <use name=DataFormats/DTDigi>
-  <flags SEAL_PLUGIN_NAME="DTDigiAnalyzer">
-</library>
+  <use name=root>
+</export>
 

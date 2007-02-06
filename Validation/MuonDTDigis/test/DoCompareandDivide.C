@@ -16,8 +16,14 @@ void DoCompareandDivide( ){
 
  TFile * reffile = new TFile(reffilename);
 
+ reffile->cd("DQMData/DTDigiValidationTask");
+ gDirectory->ls(); 
+
  //1-Dimension Histogram
  char* label[NHisto];
+ char* label_dir[NHisto];
+ char stringall[80];
+ 
  label[0] = "Simhit_occupancy_MB1";
  label[1] = "Digi_occupancy_MB1";
  label[2] = "Simhit_occupancy_MB2";
@@ -28,28 +34,39 @@ void DoCompareandDivide( ){
  label[7] = "Digi_occupancy_MB4";
 
 
+
  TH1F* htemp1;
  TH1F* htemp2;
+
  for ( int i = 0; i<4 ; i++ ) {
    char title[50];
    TCanvas c1;
-   htemp1  = dynamic_cast<TH1F*>(reffile->Get(label[2*i]));
-   htemp2  = dynamic_cast<TH1F*>(reffile->Get(label[2*i+1]));
-//   if( htemp1 == 0 || htemp2 == 0) continue;
+ 
+   sprintf(stringall, "DQMData/DTDigiValidationTask/%s",label[2*i]);
+   label_dir[2*i] = stringall;
+   htemp1  = dynamic_cast<TH1F*>(reffile->Get(label_dir[2*i]));
+
+   sprintf(stringall, "DQMData/DTDigiValidationTask/%s",label[2*i+1]);
+   label_dir[2*i+1] = stringall; 
+   htemp2  = dynamic_cast<TH1F*>(reffile->Get(label_dir[2*i+1]));
+  
+   if( htemp1 == 0 ) std::cout << " SimHits histo is empty " << endl;
+   if( htemp2 == 0 ) std::cout << " Digis histo is empty " << endl;
+   if( htemp1 == 0 || htemp2 == 0) continue;
    htemp1->SetLineColor(4);
    htemp2->SetLineColor(2);
    htemp1->SetLineStyle(1);
    htemp2->SetLineStyle(3);
    htemp1->SetLineWidth(2);
    TLegend leg(0.1, 0.15, 0.2, 0.25);
-   leg.AddEntry(htemp1, "Reference", "l");
-   leg.AddEntry(htemp2, "New ", "l");
+   leg.AddEntry(htemp1, "SimHits", "l");
+   leg.AddEntry(htemp2, "Digis ", "l");
  
    htemp2->Draw();
 
    htemp1->Draw("Same"); 
    leg.Draw();
-   sprintf(title,"%s%s", label[2*i],"_and_Digi.jpg");   
+   sprintf(title,"%s%s", label[2*i],"_and_Digi.eps");   
    c1.Print(title);
 
    TH1F* hout = new TH1F(*htemp1);
@@ -62,7 +79,7 @@ void DoCompareandDivide( ){
 
 
 //   myPV->PVCompute(htemp1[i],htemp2[i], te);
-   sprintf(title,"%s%s", label[2*i+1],"_over_Digi_ratio.jpg");
+   sprintf(title,"%s%s", label[2*i+1],"_over_Digi_ratio.eps");
   c1.Print(title);
  }
 
