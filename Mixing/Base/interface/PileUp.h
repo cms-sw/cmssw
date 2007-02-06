@@ -8,7 +8,6 @@
 
 namespace CLHEP {
   class RandPoisson;
-  class RandFlat;
 }
 
 namespace edm {
@@ -38,7 +37,6 @@ namespace edm {
     unsigned int const maxEventsToSkip_;
     VectorInputSource * const input_;
     CLHEP::RandPoisson *poissonDistribution_;
-    CLHEP::RandFlat *flatDistribution_;
   };
 }
 
