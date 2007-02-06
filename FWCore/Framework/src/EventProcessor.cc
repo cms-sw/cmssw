@@ -396,7 +396,7 @@ namespace edm {
   EventProcessor::DoPluginInit::DoPluginInit()
   { 
     seal::PluginManager::get()->initialise();
-    // std::cerr << "Initialized pligin manager" << std::endl;
+    // std::cerr << "Initialized plugin manager" << std::endl;
 
     // for now, install sigusr2 function.
     installSig(SIGUSR2,edm::ep_sigusr2);
@@ -681,11 +681,15 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
-    if(edm::shutdown_flag)
+//  Lay on a lock
     {
-       changeState(mShutdownSignal);
-       toerror.succeeded();
-       return evtDesc;
+      boost::mutex::scoped_lock sl(usr2_lock);
+      if(edm::shutdown_flag)
+      {
+         changeState(mShutdownSignal);
+         toerror.succeeded();
+         return evtDesc;
+      }
     }
 
     std::auto_ptr<EventPrincipal> pep;
@@ -732,12 +736,16 @@ namespace edm {
     std::auto_ptr<EventPrincipal> previousPep;
 
     while(state_ == sRunning) {
-      if(edm::shutdown_flag) {
-	if (previousPep.get() != 0) endLumiAndRun(*previousPep.get());
-	changeState(mShutdownSignal);
-	rc = epSignal;
-	got_sig = true;
-	continue;
+//  Lay on a lock
+      {
+        boost::mutex::scoped_lock sl(usr2_lock);
+        if(edm::shutdown_flag) {
+  	  if (previousPep.get() != 0) endLumiAndRun(*previousPep.get());
+ 	  changeState(mShutdownSignal);
+	  rc = epSignal;
+	  got_sig = true;
+	  continue;
+        }
       }
 
       if(!runforever && eventcount >= numberToProcess) {
@@ -781,11 +789,13 @@ namespace edm {
     }
 
     // check once more for shutdown signal
-    if(!got_sig && edm::shutdown_flag) {
-      changeState(mShutdownSignal);
-      rc = epSignal;
+    {
+      boost::mutex::scoped_lock sl(usr2_lock);
+      if(!got_sig && edm::shutdown_flag) {
+        changeState(mShutdownSignal);
+        rc = epSignal;
+      }
     }
-
 
     toerror.succeeded();
     return rc;
