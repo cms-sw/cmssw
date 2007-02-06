@@ -1,7 +1,4 @@
 <lcgdict>
-  <class name="reco::EcalRecHitData"/>
-  <class name="std::vector<reco::EcalRecHitData>"/>
-
   <class name="reco::EcalCluster"/>
   <class name="reco::BasicCluster"/>
   <class name="std::vector<reco::BasicCluster>"/>

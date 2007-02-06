@@ -12,7 +12,6 @@
 
 namespace { 
   namespace {
-    std::vector<reco::EcalRecHitData> v01;
     std::vector<reco::BasicCluster> v11;
     reco::BasicClusterCollection v1;
     edm::Wrapper<reco::BasicClusterCollection> w1;
