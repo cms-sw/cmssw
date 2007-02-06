@@ -1,6 +1,5 @@
 #include <iostream>
 #include <cstdlib>
-//#include <signal.h>
 
 #include "FWCore/Services/src/UnixSignalService.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
@@ -13,8 +12,10 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
+#ifdef NOT_YET
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#endif
 
 using namespace std;
 
@@ -26,7 +27,6 @@ namespace edm {
                                        edm::ActivityRegistry& registry)
   {
 // Establish the handler (ep_sigusr2) for SIGUSR2
-//  sigset_t oldset;
     edm::disableAllSigs(&oldset);
 #if defined(__linux__)
     edm::disableRTSigs();

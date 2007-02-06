@@ -13,7 +13,7 @@ This service is instantiated at job startup.
 #include <string>
 #include <signal.h>
 
-#include "sigc++/signal.h"
+//#include "sigc++/signal.h"
 #include "boost/thread/thread.hpp"
 
 namespace edm {
