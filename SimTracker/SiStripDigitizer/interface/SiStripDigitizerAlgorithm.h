@@ -33,6 +33,8 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
 
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
 class SiStripDigitizerAlgorithm 
 {
  public:
@@ -47,7 +49,7 @@ class SiStripDigitizerAlgorithm
   std::vector<StripDigiSimLink> make_link(){ return link_coll;}
 
   
-  SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, StripGeomDetUnit *det, uint32_t& idForNoise, SiStripNoiseService*);
+  SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, StripGeomDetUnit *det, uint32_t& idForNoise, SiStripNoiseService*,const ParticleDataTable* pdt);
   ~SiStripDigitizerAlgorithm();
 
   // Runs the algorithm
@@ -119,9 +121,6 @@ class SiStripDigitizerAlgorithm
   float theGainSmearing;        // The sigma of the gain fluctuation (around 1)
   float theOffsetSmearing;      // The sigma of the offset fluct. (around 0)
 
-  // The PDTable
-  //  HepPDTable *particleTable;
-
   //-- charge fluctuation
   double tMax;  // The delta production cut, should be as in OSCAR = 30keV
                 //                                           cmsim = 100keV
@@ -137,7 +136,7 @@ class SiStripDigitizerAlgorithm
   GeomDetType::SubDetector stripPart;            // is it barrel on forward
   const StripGeomDetUnit* _detp;
   const StripTopology* topol;
-
+  const ParticleDataTable * pdt_;
   std::vector<SiStripDigi> digis;
 
 };

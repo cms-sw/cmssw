@@ -27,7 +27,8 @@
 #define e_SI (1.6E-19)
 
 SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, StripGeomDetUnit *det,
-						     uint32_t& idForNoise , SiStripNoiseService* noiseService):conf_(conf){
+						     uint32_t& idForNoise , SiStripNoiseService* noiseService,const ParticleDataTable * pdt):conf_(conf),
+																       pdt_(pdt){
   //  cout << "Creating a SiStripDigitizerAlgorithm." << endl;
 
   ndigis=0;
@@ -60,7 +61,7 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
 
   theSiNoiseAdder = new SiGaussianTailNoiseAdder(numStrips,noiseRMS,theThreshold);
   theSiZeroSuppress = new SiTrivialZeroSuppress(conf_,noiseRMS/theElectronPerADC);
-  theSiHitDigitizer = new SiHitDigitizer(conf_,det);
+  theSiHitDigitizer = new SiHitDigitizer(conf_,det,pdt_);
   theSiPileUpSignals = new SiPileUpSignals();
   theSiDigitalConverter = new SiTrivialDigitalConverter(theElectronPerADC,theAdcFullScale);
 

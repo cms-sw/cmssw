@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.26 2006/11/13 14:41:22 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.27 2007/02/05 11:37:17 fambrogl Exp $
 //
 //
 
@@ -56,7 +56,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
-//#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) : 
   conf_(conf),SiStripNoiseService_(conf)
@@ -80,8 +80,10 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::Handle<CrossingFrame> cf;
   iEvent.getByType(cf);
 
-  //  edm::ESHandle < ParticleDataTable > pdt;
-  //  iSetup.getData( pdt );
+  edm::ESHandle < ParticleDataTable > pdt;
+  iSetup.getData( pdt );
+  
+
   
   std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
   
@@ -123,7 +125,7 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       uint32_t idForNoise = (*iu)->geographicalId().rawId();
       if(theAlgoMap.find(&(sgd->type())) == theAlgoMap.end()) {
 	theAlgoMap[&(sgd->type())] = boost::shared_ptr<SiStripDigitizerAlgorithm>(new SiStripDigitizerAlgorithm(conf_, sgd,
-														idForNoise,&SiStripNoiseService_));
+														idForNoise,&SiStripNoiseService_,&*pdt));
       }
       
       collector.data= ((theAlgoMap.find(&(sgd->type())))->second)->run(SimHitMap[(*iu)->geographicalId().rawId()], sgd, bfield);
