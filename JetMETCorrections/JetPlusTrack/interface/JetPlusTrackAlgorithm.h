@@ -38,7 +38,7 @@ public:
   reco::CaloJet applyCorrection (const reco::CaloJet& fJet);
   reco::CaloJet applyCorrection (const reco::CaloJet& fJet, edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  void setParameters(double, double, int, std::vector<std::string> );
+  void setParameters(double, double, int, std::vector<edm::InputTag> labels);
   void setPrimaryVertex(const reco::Vertex & a){theRecVertex = a;}
   void setTracksFromPrimaryVertex(std::vector<reco::Track> & a){theTrack = a;}
    

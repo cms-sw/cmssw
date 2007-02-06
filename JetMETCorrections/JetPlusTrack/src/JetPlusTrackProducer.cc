@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova
 //         Created:  Wed Feb  1 17:04:23 CET 2006
-// $Id: JetPlusTrackProducer.cc,v 1.1 2006/10/15 14:31:51 kodolova Exp $
+// $Id: JetPlusTrackProducer.cc,v 1.2 2006/10/20 14:41:57 kodolova Exp $
 //
 //
 
@@ -59,10 +59,21 @@ JetPlusTrack::JetPlusTrack(const edm::ParameterSet& iConfig):
 					   theResponse(iConfig.getParameter<int>("respalgo"))
 
 {
-    m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks");
    //now do what ever other initialization is needed
+   
+   m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks");
+
    // Fill data labels
-    std::vector<std::string> theLabels = iConfig.getParameter<std::vector<std::string> >("labels");
+    std::vector<edm::InputTag> theLabels;
+    theLabels.push_back(iConfig.getParameter<edm::InputTag>("EBRecHitCollectionLabel"));
+    theLabels.push_back(iConfig.getParameter<edm::InputTag>("EERecHitCollectionLabel"));
+    theLabels.push_back(iConfig.getParameter<edm::InputTag>("CaloTowerCollectionLabel"));
+    theLabels.push_back(iConfig.getParameter<edm::InputTag>("HBHERecHitCollectionLabel"));
+    theLabels.push_back(iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel"));
+    theLabels.push_back(iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel"));
+    theLabels.push_back(iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel"));
+    
+    
     produces<CaloJetCollection>();
     mAlgorithm.setParameters(theRcalo,theRvert,theResponse,theLabels);
 }

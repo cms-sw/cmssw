@@ -13,27 +13,21 @@ JetPlusTrackAlgorithm::~JetPlusTrackAlgorithm()
 {
 }
 
-void JetPlusTrackAlgorithm::setParameters(double aCalo, double aVert, int theResp, std::vector<std::string> labels )
+void JetPlusTrackAlgorithm::setParameters(double aCalo, double aVert, int theResp, std::vector<edm::InputTag> labels)
 { 
      theRcalo = aCalo;
      theRvert = aVert;
      theResponseAlgo = theResp;
         // Fill data labels
+   trackAssociator_.theEBRecHitCollectionLabel = labels[0];
+   trackAssociator_.theEERecHitCollectionLabel = labels[1] ;
+   trackAssociator_.theCaloTowerCollectionLabel = labels[2];
+   trackAssociator_.theHBHERecHitCollectionLabel = labels[3];
+   trackAssociator_.theHORecHitCollectionLabel = labels[4];
+   trackAssociator_.theDTRecSegment4DCollectionLabel = labels[5];
+   trackAssociator_.theCSCSegmentCollectionLabel = labels[6];
 
 
-   boost::regex regExp1 ("([^\\s,]+)[\\s,]+([^\\s,]+)$");
-   boost::regex regExp2 ("([^\\s,]+)[\\s,]+([^\\s,]+)[\\s,]+([^\\s,]+)$");
-   boost::smatch matches;
-	
-
-   for(std::vector<std::string>::const_iterator label = labels.begin(); label != labels.end(); label++) {
-      if (boost::regex_match(*label,matches,regExp1))
-	trackAssociator_.addDataLabels(matches[1],matches[2]);
-      else if (boost::regex_match(*label,matches,regExp2))
-	trackAssociator_.addDataLabels(matches[1],matches[2],matches[3]);
-      else
-	edm::LogError("ConfigurationError") << "Failed to parse label:\n" << *label << "Skipped.\n";
-   }
 }
 
 reco::CaloJet JetPlusTrackAlgorithm::applyCorrection( const reco::CaloJet& fJet) 

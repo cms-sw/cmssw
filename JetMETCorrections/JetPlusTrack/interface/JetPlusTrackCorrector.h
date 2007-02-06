@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CLHEP/Vector/LorentzVector.h"
 
 namespace edm {
   class ParameterSet;
@@ -43,7 +44,7 @@ public:
   
   virtual double correction (const LorentzVector& fJet, edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  void setParameters(double, double, int, std::vector<std::string> );
+  void setParameters(double, double, int );
 //  void setPrimaryVertex(reco::Vertex & a) {theRecVertex = a;}
 //  void setTracksFromPrimaryVertex(vector<reco::Track> & a) {theTrack = a;}
   

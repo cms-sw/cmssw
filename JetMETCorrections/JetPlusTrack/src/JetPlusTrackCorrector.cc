@@ -15,16 +15,21 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
                           mInputCaloTower = iConfig.getParameter<edm::InputTag>("src2");
 			  mInputPVfCTF = iConfig.getParameter<edm::InputTag>("src3");
 			  
-			  m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks");
-			  std::vector<std::string> theLabels = iConfig.getParameter<std::vector<std::string> >("labels");
 			  
 			  theRcalo = iConfig.getParameter<double>("rcalo");
 			  theRvert = iConfig.getParameter<double>("rvert");
 			  theResponseAlgo = iConfig.getParameter<int>("respalgo");
+   trackAssociator_.theEBRecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
+   trackAssociator_.theEERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EERecHitCollectionLabel");
+   trackAssociator_.theCaloTowerCollectionLabel = iConfig.getParameter<edm::InputTag>("CaloTowerCollectionLabel");
+   trackAssociator_.theHBHERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HBHERecHitCollectionLabel");
+   trackAssociator_.theHORecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
+   trackAssociator_.theDTRecSegment4DCollectionLabel = iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel");
+   trackAssociator_.theCSCSegmentCollectionLabel = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
 			  
                           trackAssociator_.useDefaultPropagator();
                           theSingle = new SingleParticleJetResponseTmp;
-			  setParameters(theRcalo,theRvert,theResponseAlgo,theLabels);
+			  setParameters(theRcalo,theRvert,theResponseAlgo);
 			  
 }
 
@@ -32,27 +37,13 @@ JetPlusTrackCorrector::~JetPlusTrackCorrector()
 {
 }
 
-void JetPlusTrackCorrector::setParameters(double aCalo, double aVert, int theResp, std::vector<std::string> labels )
+void JetPlusTrackCorrector::setParameters(double aCalo, double aVert, int theResp )
 { 
      theRcalo = aCalo;
      theRvert = aVert;
      theResponseAlgo = theResp;
-        // Fill data labels
+        // Fill data labels for trackassociator
 
-
-   boost::regex regExp1 ("([^\\s,]+)[\\s,]+([^\\s,]+)$");
-   boost::regex regExp2 ("([^\\s,]+)[\\s,]+([^\\s,]+)[\\s,]+([^\\s,]+)$");
-   boost::smatch matches;
-	
-
-   for(std::vector<std::string>::const_iterator label = labels.begin(); label != labels.end(); label++) {
-      if (boost::regex_match(*label,matches,regExp1))
-	trackAssociator_.addDataLabels(matches[1],matches[2]);
-      else if (boost::regex_match(*label,matches,regExp2))
-	trackAssociator_.addDataLabels(matches[1],matches[2],matches[3]);
-      else
-	edm::LogError("ConfigurationError") << "Failed to parse label:\n" << *label << "Skipped.\n";
-   }
 }
 
 double JetPlusTrackCorrector::correction( const LorentzVector& fJet) const 
@@ -126,7 +117,7 @@ double JetPlusTrackCorrector::correction( const LorentzVector& fJet,
 //         std::vector<GlobalPoint> AllTracks1;
 //         cout<<" JetPlusTrackCorrector::The position of the primary vertex "<<theRecVertex.position()<<endl;
 
-      double NewResponse = fJet.energy(); double echar = 0.; double echarsum = 0.;
+      double NewResponse = fJet.E(); double echar = 0.; double echarsum = 0.;
       
       for (vector<reco::Track>::const_iterator track = theTrack.begin();
                 track != theTrack.end(); track++)
@@ -199,10 +190,10 @@ double JetPlusTrackCorrector::correction( const LorentzVector& fJet,
          NewResponse =  NewResponse - resp.front() - resp.back();
     
       } 
-       cout<<" Energy of charged= "<<echar<<" energy of jet "<<fJet.energy()<<" "<<NewResponse<<
+       cout<<" Energy of charged= "<<echar<<" energy of jet "<<fJet.E()<<" "<<NewResponse<<
        " "<<echarsum<<endl;
 	 
-         float mScale = NewResponse/fJet.energy();
+         float mScale = NewResponse/fJet.E();
 	 		
      return mScale;
 }

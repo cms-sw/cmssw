@@ -39,7 +39,6 @@ namespace cms
     edm::InputTag mInputCaloTower;
     edm::InputTag mInputPVfCTF;
     std::string m_inputTrackLabel;
-    
     double theRcalo;
     double theRvert;
     int theResponse;
