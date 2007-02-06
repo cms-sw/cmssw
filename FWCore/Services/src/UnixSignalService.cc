@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cstdlib>
-#include <signal.h>
+//#include <signal.h>
 
 #include "FWCore/Services/src/UnixSignalService.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
@@ -26,7 +26,7 @@ namespace edm {
                                        edm::ActivityRegistry& registry)
   {
 // Establish the handler (ep_sigusr2) for SIGUSR2
-    sigset_t oldset;
+//  sigset_t oldset;
     edm::disableAllSigs(&oldset);
 #if defined(__linux__)
     edm::disableRTSigs();

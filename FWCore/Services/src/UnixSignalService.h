@@ -32,6 +32,9 @@ namespace edm {
     ~UnixSignalService();
 //  void postEventProcessing( const Event& ev, const EventSetup& es );
 
+  private:
+    sigset_t oldset;
+
   }; // class UnixSignalService
   }  // end of namespace service
 }    // end of namespace edm
