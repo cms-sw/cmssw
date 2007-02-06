@@ -110,10 +110,10 @@ TestIsoSimTracks::TestIsoSimTracks(const edm::ParameterSet& iConfig)
    useMuon_ = iConfig.getParameter<bool>("useMuon");
    
    // Fill data labels
-   std::vector<std::string> labels = iConfig.getParameter<std::vector<std::string> >("labels");
-   boost::regex regExp1 ("([^\\s,]+)[\\s,]+([^\\s,]+)$");
-   boost::regex regExp2 ("([^\\s,]+)[\\s,]+([^\\s,]+)[\\s,]+([^\\s,]+)$");
-   boost::smatch matches;
+   //std::vector<std::string> labels = iConfig.getParameter<std::vector<std::string> >("labels");
+   //boost::regex regExp1 ("([^\\s,]+)[\\s,]+([^\\s,]+)$");
+   //boost::regex regExp2 ("([^\\s,]+)[\\s,]+([^\\s,]+)[\\s,]+([^\\s,]+)$");
+   //boost::smatch matches;
 	
    m_Hfile=new TFile("IsoHists.root","RECREATE");
     IsoHists.eta = new TH1F("Eta","Track eta",100,-5.,5.);
@@ -122,18 +122,26 @@ TestIsoSimTracks::TestIsoSimTracks(const edm::ParameterSet& iConfig)
     IsoHists.pt = new TH1F("pt","Track pt",100,0.,10.);
     IsoHists.isomult = new TH1F("IsoMult","Iso Mult",10,-0.5,9.5);
 
-   for(std::vector<std::string>::const_iterator label = labels.begin(); label != labels.end(); label++) {
-      if (boost::regex_match(*label,matches,regExp1))
-	trackAssociator_.addDataLabels(matches[1],matches[2]);
-      else if (boost::regex_match(*label,matches,regExp2))
-	trackAssociator_.addDataLabels(matches[1],matches[2],matches[3]);
-      else
-	edm::LogError("ConfigurationError") << "Failed to parse label:\n" << *label << "Skipped.\n";
-   }
+   //for(std::vector<std::string>::const_iterator label = labels.begin(); label != labels.end(); label++) {
+   //   if (boost::regex_match(*label,matches,regExp1))
+//	trackAssociator_.addDataLabels(matches[1],matches[2]);
+ //     else if (boost::regex_match(*label,matches,regExp2))
+//	trackAssociator_.addDataLabels(matches[1],matches[2],matches[3]);
+ //     else
+//	edm::LogError("ConfigurationError") << "Failed to parse label:\n" << *label << "Skipped.\n";
+ //  }
    
    // trackAssociator_.addDataLabels("EBRecHitCollection","ecalrechit","EcalRecHitsEB");
    // trackAssociator_.addDataLabels("CaloTowerCollection","towermaker");
    // trackAssociator_.addDataLabels("DTRecSegment4DCollection","recseg4dbuilder");
+
+   trackAssociator_.theEBRecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
+   trackAssociator_.theEERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EERecHitCollectionLabel");
+   trackAssociator_.theCaloTowerCollectionLabel = iConfig.getParameter<edm::InputTag>("CaloTowerCollectionLabel");
+   trackAssociator_.theHBHERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HBHERecHitCollectionLabel");
+   trackAssociator_.theHORecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
+   trackAssociator_.theDTRecSegment4DCollectionLabel = iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel");
+   trackAssociator_.theCSCSegmentCollectionLabel = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
    
    trackAssociator_.useDefaultPropagator();
 }
