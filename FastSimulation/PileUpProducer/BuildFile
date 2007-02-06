@@ -3,7 +3,6 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
-<use name=FWCore/Services>
 <use name=Foundation/PluginManager>
 <use name=SimDataFormats/HepMCProduct>
 <use name=IOPool/Common>
@@ -19,7 +18,6 @@
  <use name=FWCore/ParameterSet>
  <use name=FWCore/Framework>
  <use name=FWCore/Utilities>
- <use name=FWCore/Services>
  <use name=Foundation/PluginManager>
  <use name=SimDataFormats/HepMCProduct>
  <use name=IOPool/Common>
