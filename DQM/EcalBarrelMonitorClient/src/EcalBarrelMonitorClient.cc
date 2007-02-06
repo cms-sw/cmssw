@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/01 15:25:25 $
- * $Revision: 1.208 $
+ * $Date: 2007/02/06 10:31:56 $
+ * $Revision: 1.209 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -329,19 +329,31 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // Define new color palette
 
-  for( int i=1; i<7; i++ ) {
+  //for( int i=1; i<7; i++ ) {
+    //TColor* color;
+    //float r = float((i&1)^((i&4)>>2)) * ( 1. - 0.5 * float( i / 4 ) );
+    //float g = float((((i-1)%3+1)&2)>>1) * ( 1. - 0.5 * float( i / 4 ) );
+    //float b = 0.0;
+    //if( ! gROOT->GetColor( 300+i )) {
+      //color = new TColor( 300+i, r, g, b, "" );
+    //}
+    //else {
+      //color = gROOT->GetColor( 300+i );
+      //color->SetRGB( r, g, b );
+    //}
+  //}
+
+  float rgb[6][3] = {{1, 0, 0}, {0, 1, 0}, {1, 0.96, 0}, {0.5, 0, 0}, {0, 0.5, 0}, {0.75, 0.63, 0}};
+  for( int i=0; i<6; i++ ) {
     TColor* color;
-    float r = float((i&1)^((i&4)>>2)) * ( 1. - 0.5 * float( i / 4 ) );
-    float g = float((((i-1)%3+1)&2)>>1) * ( 1. - 0.5 * float( i / 4 ) );
-    float b = 0.0;
-    if( ! gROOT->GetColor( 300+i )) {
-      color = new TColor( 300+i, r, g, b, "" );
+    if( ! gROOT->GetColor( 301+i )) {
+      color = new TColor( 301+i, rgb[i][0], rgb[i][1], rgb[i][2], "" );
     }
     else {
-      color = gROOT->GetColor( 300+i );
-      color->SetRGB( r, g, b );
+      color = gROOT->GetColor( 301+i );
+      color->SetRGB( rgb[i][0], rgb[i][1], rgb[i][2] );
     }
-  }
+  }  
 
   // clients' constructors
 
