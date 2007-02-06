@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/02/01 15:25:24 $
- * $Revision: 1.135 $
+ * $Date: 2007/02/03 09:12:28 $
+ * $Revision: 1.136 $
  * \author G. Della Ricca
  *
 */
@@ -3465,7 +3465,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cQual->SetGridx();
         cQual->SetGridy();
         obj2f->SetMinimum(-0.00000001);
-        obj2f->SetMaximum(5.0);
+        obj2f->SetMaximum(6.0);
         obj2f->Draw("col");
         dummy.Draw("text,same");
         cQual->Update();
@@ -3763,7 +3763,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cQual->SetGridx();
         cQual->SetGridy(0);
         obj2f->SetMinimum(-0.00000001);
-        obj2f->SetMaximum(5.0);
+        obj2f->SetMaximum(6.0);
         obj2f->Draw("col");
         dummy1.Draw("text,same");
         cQual->Update();
@@ -3817,7 +3817,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cQual->SetGridx();
         cQual->SetGridy(0);
         obj2f->SetMinimum(-0.00000001);
-        obj2f->SetMaximum(5.0);
+        obj2f->SetMaximum(6.0);
         obj2f->Draw("col");
         dummy1.Draw("text,same");
         cQual->Update();

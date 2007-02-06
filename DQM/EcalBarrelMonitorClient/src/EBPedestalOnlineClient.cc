@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/02/01 15:06:36 $
- * $Revision: 1.73 $
+ * $Date: 2007/02/01 15:25:25 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -625,7 +625,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
       cQual->SetGridx();
       cQual->SetGridy();
       obj2f->SetMinimum(-0.00000001);
-      obj2f->SetMaximum(5.0);
+      obj2f->SetMaximum(6.0);
       obj2f->Draw("col");
       dummy.Draw("text,same");
       cQual->Update();

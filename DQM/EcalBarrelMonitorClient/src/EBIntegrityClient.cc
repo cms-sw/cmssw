@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/02/01 15:06:35 $
- * $Revision: 1.131 $
+ * $Date: 2007/02/01 15:25:24 $
+ * $Revision: 1.132 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1636,7 +1636,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
       cQual->SetGridx();
       cQual->SetGridy();
       obj2f->SetMinimum(-0.00000001);
-      obj2f->SetMaximum(5.0);
+      obj2f->SetMaximum(6.0);
       obj2f->Draw("col");
       dummy1.Draw("text,same");
       cQual->Update();
@@ -1766,7 +1766,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMeMem->SetGridx();
       cMeMem->SetGridy(0);
       obj2f->SetMinimum(-0.00000001);
-      obj2f->SetMaximum(5.0);
+      obj2f->SetMaximum(6.0);
       obj2f->Draw("col");
       dummy3.Draw("text,same");
       cMeMem->Update();

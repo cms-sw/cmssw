@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2007/02/01 15:06:35 $
- * $Revision: 1.39 $
+ * $Date: 2007/02/01 15:25:24 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -919,7 +919,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->SetGridx();
     can->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(5.0);
+    obj2f->SetMaximum(6.0);
     obj2f->Draw("col");
     dummy.Draw("text,same");
     can->Update();
@@ -952,7 +952,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2f->GetXaxis()->SetNdivisions(0);
     obj2f->GetYaxis()->SetNdivisions(0);
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(5.0);
+    obj2f->SetMaximum(6.0);
     obj2f->Draw("col");
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -994,7 +994,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->SetGridx();
     //can->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(5.0);
+    obj2f->SetMaximum(6.0);
     obj2f->GetXaxis()->SetTitle("step in the scan");
     obj2f->GetXaxis()->SetTitleColor(1);
     obj2f->Draw("col");
