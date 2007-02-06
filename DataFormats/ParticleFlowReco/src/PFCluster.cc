@@ -99,10 +99,8 @@ void PFCluster::calculatePosition( int algo,
 				   bool depcor,
 				   int  ncrystals) {
 
-  cerr<<"pfcluster : calculatePosition "<<rechits_.size()<<endl;
 
   if( rechits_.empty() ) {
-    cerr<<"PFCluster::calculatePosition: empty cluster!!!"<<endl; 
     return;
   }
   
@@ -199,25 +197,18 @@ void PFCluster::calculatePosition( int algo,
   double y = 0;
   double z = 0;
   
-  cerr<<"seed id "<<seedId<<endl;
   for (unsigned ic=0; ic<rechits_.size(); ic++ ) {
     
     const reco::PFRecHit* rechit = rechits_[ic].getRecHit();
 
-    cerr<<"rechit id "<<rechit->detId()<<endl;
-    if(rechit->detId() != seedId) {
-      cerr<<"not the seed"<<endl;
-      if( ncrystals == 5 ) {
-	cerr<<"ncrystals = 5"<<endl;
+    if(rechit->detId() != seedId) { // not the seed
+      if( ncrystals == 5 ) { // pos calculated from the 5 neighbours only
 	if(!rechit->isNeighbour4(seedId) ) {
-	  cerr<<"continue"<<endl;
 	  continue;
 	}
       }
-      if( ncrystals == 9 ) {
-	cerr<<"ncrystals = 9"<<endl;
+      if( ncrystals == 9 ) { // pos calculated from the 9 neighbours only
 	if(!rechit->isNeighbour8(seedId) ) {
-	  cerr<<"continue"<<endl;
 	  continue;
 	}
       }
@@ -346,20 +337,14 @@ void PFCluster::calculatePosition( int algo,
     for (unsigned ic=0; ic<rechits_.size(); ic++ ) {
       const reco::PFRecHit* rechit = rechits_[ic].getRecHit();
       
-      // cerr<<"rechit id "<<rechit->detId()<<endl;
       if(rechit->detId() != seedId) {
-	// cerr<<"not the seed"<<endl;
 	if( ncrystals == 5 ) {
-	  // cerr<<"ncrystals = 5"<<endl;
 	  if(!rechit->isNeighbour4(seedId) ) {
-	    // cerr<<"continue"<<endl;
 	    continue;
 	  }
 	}
 	if( ncrystals == 9 ) {
-	  // cerr<<"ncrystals = 9"<<endl;
 	  if(!rechit->isNeighbour8(seedId) ) {
-	    // cerr<<"continue"<<endl;
 	    continue;
 	  }
 	}
@@ -477,17 +462,17 @@ PFCluster& PFCluster::operator+=(const PFCluster& other) {
   }
 
   // sortCells();
-  cerr<<"summing clusters"<<endl
-      <<(*this)<<endl
-      <<other<<endl;
-
+  //   cerr<<"summing clusters"<<endl
+  //       <<(*this)<<endl
+  //       <<other<<endl;
+  
   // rechits are not stored in the event ! must do something else
   //   calculatePosition(other.posCalcMode_, 
   // 		    other.posCalcP1_, 
   // 		    other.posCalcDepthCor_);
- 
-
-  cerr<<"To be implemented!"<<endl;
+  
+  
+  //   cerr<<"To be implemented!"<<endl;
  
   return *this;
 
