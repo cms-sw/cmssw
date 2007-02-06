@@ -1,7 +1,7 @@
 /** \class MuonDTDigis
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2007/01/29 15:52:21 $
+ *  $Date: 2007/02/06 10:50:26 $
  *  $Revision: 1.1 $
  *  \authors: R. Bellan
  */
@@ -417,4 +417,4 @@ hDigis* MuonDTDigis::WheelHistos(int wheel){
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE(MuonDTDigis)
+DEFINE_FWK_MODULE(MuonDTDigis);
