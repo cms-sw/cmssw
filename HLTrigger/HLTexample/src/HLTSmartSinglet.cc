@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/14 16:29:12 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/10/04 16:02:42 $
+ *  $Revision: 1.17 $
  *
  *  \author Martin Grunewald
  *
@@ -27,7 +27,7 @@ HLTSmartSinglet<T>::HLTSmartSinglet(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.template getParameter<edm::InputTag>("inputTag")),
   cut_      (iConfig.template getParameter<std::string>  ("cut"     )),
   min_N_    (iConfig.template getParameter<int>          ("MinN"    )),
-  select_   (iConfig                                                 )
+  select_   (cut_                                                    )
 {
    LogDebug("") << "Input/cut/ncut : " << inputTag_.encode() << " " << cut_<< " " << min_N_ ;
 
