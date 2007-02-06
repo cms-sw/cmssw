@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/02/03 09:12:28 $
- * $Revision: 1.136 $
+ * $Date: 2007/02/06 18:19:49 $
+ * $Revision: 1.137 $
  * \author G. Della Ricca
  *
 */
@@ -2825,7 +2825,7 @@ void EBLaserClient::analyze(void){
         if ( ! update12 )
           update12 = EBMUtilsClient::getBinStats(h24_[ism-1], ie, ip, num12, mean12, rms12);
 
-        if ( update01 && update02 && update09 ) {
+        if ( update01 ) {
 
           float val;
 
@@ -2839,12 +2839,6 @@ void EBLaserClient::analyze(void){
             if ( mea01_[ism-1] ) mea01_[ism-1]->setBinContent( ip+20*(ie-1), mean01 );
             if ( mea01_[ism-1] ) mea01_[ism-1]->setBinError( ip+20*(ie-1), rms01 );
 
-            if ( met01_[ism-1] ) met01_[ism-1]->setBinContent( ip+20*(ie-1), mean09 );
-            if ( met01_[ism-1] ) met01_[ism-1]->setBinError( ip+20*(ie-1), rms09 );
-
-            if ( meaopn01_[ism-1] ) meaopn01_[ism-1]->setBinContent( ip+20*(ie-1), mean02 );
-            if ( meaopn01_[ism-1] ) meaopn01_[ism-1]->setBinError( ip+20*(ie-1), rms02 );
-
           } else {
 
             val = 1.;
@@ -2855,17 +2849,11 @@ void EBLaserClient::analyze(void){
             if ( mea05_[ism-1] ) mea05_[ism-1]->setBinContent( ip+20*(ie-1), mean01 );
             if ( mea05_[ism-1] ) mea05_[ism-1]->setBinError( ip+20*(ie-1), rms01 );
 
-            if ( met05_[ism-1] ) met05_[ism-1]->setBinContent( ip+20*(ie-1), mean09 );
-            if ( met05_[ism-1] ) met05_[ism-1]->setBinError( ip+20*(ie-1), rms09 );
-
-            if ( meaopn05_[ism-1] ) meaopn05_[ism-1]->setBinContent( ip+20*(ie-1), mean02 );
-            if ( meaopn05_[ism-1] ) meaopn05_[ism-1]->setBinError( ip+20*(ie-1), rms02 );
-
           }
 
         }
 
-        if ( update03 && update04 && update10 ) {
+        if ( update03 ) {
 
           float val;
 
@@ -2879,12 +2867,6 @@ void EBLaserClient::analyze(void){
             if ( mea02_[ism-1] ) mea02_[ism-1]->setBinContent( ip+20*(ie-1), mean03 );
             if ( mea02_[ism-1] ) mea02_[ism-1]->setBinError( ip+20*(ie-1), rms03 );
 
-            if ( met02_[ism-1] ) met02_[ism-1]->setBinContent( ip+20*(ie-1), mean10 );
-            if ( met02_[ism-1] ) met02_[ism-1]->setBinError( ip+20*(ie-1), rms10 );
-
-            if ( meaopn02_[ism-1] ) meaopn02_[ism-1]->setBinContent( ip+20*(ie-1), mean04 );
-            if ( meaopn02_[ism-1] ) meaopn02_[ism-1]->setBinError( ip+20*(ie-1), rms04 );
-
           } else {
 
             val = 1.;
@@ -2895,17 +2877,11 @@ void EBLaserClient::analyze(void){
             if ( mea06_[ism-1] ) mea06_[ism-1]->setBinContent( ip+20*(ie-1), mean03 );
             if ( mea06_[ism-1] ) mea06_[ism-1]->setBinError( ip+20*(ie-1), rms03 );
 
-            if ( met06_[ism-1] ) met06_[ism-1]->setBinContent( ip+20*(ie-1), mean10 );
-            if ( met06_[ism-1] ) met06_[ism-1]->setBinError( ip+20*(ie-1), rms10 );
-
-            if ( meaopn06_[ism-1] ) meaopn06_[ism-1]->setBinContent( ip+20*(ie-1), mean04 );
-            if ( meaopn06_[ism-1] ) meaopn06_[ism-1]->setBinError( ip+20*(ie-1), rms04 );
-
           }
 
         }
 
-        if ( update05 && update06 && update11 ) {
+        if ( update05 ) {
 
           float val;
 
@@ -2919,12 +2895,6 @@ void EBLaserClient::analyze(void){
             if ( mea03_[ism-1] ) mea03_[ism-1]->setBinContent( ip+20*(ie-1), mean05 );
             if ( mea03_[ism-1] ) mea03_[ism-1]->setBinError( ip+20*(ie-1), rms05 );
 
-            if ( met03_[ism-1] ) met03_[ism-1]->setBinContent( ip+20*(ie-1), mean11 );
-            if ( met03_[ism-1] ) met03_[ism-1]->setBinError( ip+20*(ie-1), rms11 );
-
-            if ( meaopn03_[ism-1] ) meaopn03_[ism-1]->setBinContent( ip+20*(ie-1), mean06 );
-            if ( meaopn03_[ism-1] ) meaopn03_[ism-1]->setBinError( ip+20*(ie-1), rms06 );
-
           } else {
 
             val = 1.;
@@ -2935,17 +2905,11 @@ void EBLaserClient::analyze(void){
             if ( mea07_[ism-1] ) mea07_[ism-1]->setBinContent( ip+20*(ie-1), mean05 );
             if ( mea07_[ism-1] ) mea07_[ism-1]->setBinError( ip+20*(ie-1), rms05 );
 
-            if ( met07_[ism-1] ) met07_[ism-1]->setBinContent( ip+20*(ie-1), mean11 );
-            if ( met07_[ism-1] ) met07_[ism-1]->setBinError( ip+20*(ie-1), rms11 );
-
-            if ( meaopn07_[ism-1] ) meaopn07_[ism-1]->setBinContent( ip+20*(ie-1), mean06 );
-            if ( meaopn07_[ism-1] ) meaopn07_[ism-1]->setBinError( ip+20*(ie-1), rms06 );
-
           }
 
         }
 
-        if ( update07 && update08 && update12 ) {
+        if ( update07 ) {
 
           float val;
 
@@ -2959,12 +2923,6 @@ void EBLaserClient::analyze(void){
             if ( mea04_[ism-1] ) mea04_[ism-1]->setBinContent( ip+20*(ie-1), mean07 );
             if ( mea04_[ism-1] ) mea04_[ism-1]->setBinError( ip+20*(ie-1), rms07 );
 
-            if ( met04_[ism-1] ) met04_[ism-1]->setBinContent( ip+20*(ie-1), mean12 );
-            if ( met04_[ism-1] ) met04_[ism-1]->setBinError( ip+20*(ie-1), rms12 );
-
-            if ( meaopn04_[ism-1] ) meaopn04_[ism-1]->setBinContent( ip+20*(ie-1), mean08 );
-            if ( meaopn04_[ism-1] ) meaopn04_[ism-1]->setBinError( ip+20*(ie-1), rms08 );
-
           } else {
 
             val = 1.;
@@ -2975,11 +2933,133 @@ void EBLaserClient::analyze(void){
             if ( mea08_[ism-1] ) mea08_[ism-1]->setBinContent( ip+20*(ie-1), mean07 );
             if ( mea08_[ism-1] ) mea08_[ism-1]->setBinError( ip+20*(ie-1), rms07 );
 
-            if ( met08_[ism-1] ) met08_[ism-1]->setBinContent( ip+20*(ie-1), mean12 );
-            if ( met08_[ism-1] ) met08_[ism-1]->setBinError( ip+20*(ie-1), rms12 );
+          }
+
+        }
+
+        if ( update02 ) {
+
+          if ( ie < 6 || ip > 10 ) {
+
+            if ( meaopn01_[ism-1] ) meaopn01_[ism-1]->setBinContent( ip+20*(ie-1), mean02 );
+            if ( meaopn01_[ism-1] ) meaopn01_[ism-1]->setBinError( ip+20*(ie-1), rms02 );
+
+          } else {
+
+            if ( meaopn05_[ism-1] ) meaopn05_[ism-1]->setBinContent( ip+20*(ie-1), mean02 );
+            if ( meaopn05_[ism-1] ) meaopn05_[ism-1]->setBinError( ip+20*(ie-1), rms02 );
+
+          }
+
+        }
+
+        if ( update04 ) {
+
+          if ( ie < 6 || ip > 10 ) {
+
+            if ( meaopn02_[ism-1] ) meaopn02_[ism-1]->setBinContent( ip+20*(ie-1), mean04 );
+            if ( meaopn02_[ism-1] ) meaopn02_[ism-1]->setBinError( ip+20*(ie-1), rms04 );
+
+          } else {
+
+            if ( meaopn06_[ism-1] ) meaopn06_[ism-1]->setBinContent( ip+20*(ie-1), mean04 );
+            if ( meaopn06_[ism-1] ) meaopn06_[ism-1]->setBinError( ip+20*(ie-1), rms04 );
+
+          }
+
+        }
+
+        if ( update06 ) {
+
+          if ( ie < 6 || ip > 10 ) {
+
+            if ( meaopn03_[ism-1] ) meaopn03_[ism-1]->setBinContent( ip+20*(ie-1), mean06 );
+            if ( meaopn03_[ism-1] ) meaopn03_[ism-1]->setBinError( ip+20*(ie-1), rms06 );
+
+          } else {
+
+            if ( meaopn07_[ism-1] ) meaopn07_[ism-1]->setBinContent( ip+20*(ie-1), mean06 );
+            if ( meaopn07_[ism-1] ) meaopn07_[ism-1]->setBinError( ip+20*(ie-1), rms06 );
+
+          }
+
+        }
+
+        if ( update08 ) {
+
+          if ( ie < 6 || ip > 10 ) {
+
+            if ( meaopn04_[ism-1] ) meaopn04_[ism-1]->setBinContent( ip+20*(ie-1), mean08 );
+            if ( meaopn04_[ism-1] ) meaopn04_[ism-1]->setBinError( ip+20*(ie-1), rms08 );
+
+          } else {
 
             if ( meaopn08_[ism-1] ) meaopn08_[ism-1]->setBinContent( ip+20*(ie-1), mean08 );
             if ( meaopn08_[ism-1] ) meaopn08_[ism-1]->setBinError( ip+20*(ie-1), rms08 );
+
+          }
+
+        }
+
+        if ( update09 ) {
+
+          if ( ie < 6 || ip > 10 ) {
+
+            if ( met01_[ism-1] ) met01_[ism-1]->setBinContent( ip+20*(ie-1), mean09 );
+            if ( met01_[ism-1] ) met01_[ism-1]->setBinError( ip+20*(ie-1), rms09 );
+
+          } else {
+
+            if ( met05_[ism-1] ) met05_[ism-1]->setBinContent( ip+20*(ie-1), mean09 );
+            if ( met05_[ism-1] ) met05_[ism-1]->setBinError( ip+20*(ie-1), rms09 );
+
+          }
+
+        }
+
+        if ( update10 ) {
+
+          if ( ie < 6 || ip > 10 ) {
+
+            if ( met02_[ism-1] ) met02_[ism-1]->setBinContent( ip+20*(ie-1), mean10 );
+            if ( met02_[ism-1] ) met02_[ism-1]->setBinError( ip+20*(ie-1), rms10 );
+
+          } else {
+
+            if ( met06_[ism-1] ) met06_[ism-1]->setBinContent( ip+20*(ie-1), mean10 );
+            if ( met06_[ism-1] ) met06_[ism-1]->setBinError( ip+20*(ie-1), rms10 );
+
+          }
+
+        }
+
+        if ( update11 ) {
+
+          if ( ie < 6 || ip > 10 ) {
+
+            if ( met03_[ism-1] ) met03_[ism-1]->setBinContent( ip+20*(ie-1), mean11 );
+            if ( met03_[ism-1] ) met03_[ism-1]->setBinError( ip+20*(ie-1), rms11 );
+
+          } else {
+
+            if ( met07_[ism-1] ) met07_[ism-1]->setBinContent( ip+20*(ie-1), mean11 );
+            if ( met07_[ism-1] ) met07_[ism-1]->setBinError( ip+20*(ie-1), rms11 );
+
+          }
+
+        }
+
+        if ( update12 ) {
+
+          if ( ie < 6 || ip > 10 ) {
+
+            if ( met04_[ism-1] ) met04_[ism-1]->setBinContent( ip+20*(ie-1), mean12 );
+            if ( met04_[ism-1] ) met04_[ism-1]->setBinError( ip+20*(ie-1), rms12 );
+
+          } else {
+
+            if ( met08_[ism-1] ) met08_[ism-1]->setBinContent( ip+20*(ie-1), mean12 );
+            if ( met08_[ism-1] ) met08_[ism-1]->setBinError( ip+20*(ie-1), rms12 );
 
           }
 
