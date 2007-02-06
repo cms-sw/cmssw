@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2007/01/17 23:17:38 $
-// $Revision: 1.25 $
+// $Author: gutsche $
+// $Date: 2007/02/04 17:59:46 $
+// $Revision: 1.26 $
 //
 
 #include <vector>
@@ -441,8 +441,6 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           //                                  vertexPos, vertexErr));
           std::vector<Trajectory> rawTrajectories;
 
-          Trajectory seedTraj(*(new TrajectorySeed()), alongMomentum);
-
 	  // Need to put the first hit on the trajectory
 	  const TrajectoryStateOnSurface innerState = 
 	    thePropagator->propagate(fts,tracker->idToDet(innerHit->geographicalId())->surface());
@@ -455,6 +453,18 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	  if (!est.first) continue;	    
 	  TrajectoryStateOnSurface innerUpdated= theUpdator->update( innerState,*intrhit);                         
 	  TrajectoryMeasurement tm = TrajectoryMeasurement(innerState, innerUpdated, &(*intrhit),est.second,innerHitLayer);
+
+	  PTrajectoryStateOnDet* pFirstStateTwo = TrajectoryStateTransform().persistentState(innerUpdated,
+											     intrhit->geographicalId().rawId());
+	  edm::OwnVector<TrackingRecHit> newHitsTwo;
+	  newHitsTwo.push_back(intrhit->hit()->clone());
+
+	  TrajectorySeed tmpseedTwo = TrajectorySeed(*pFirstStateTwo, 
+						     newHitsTwo,
+						     alongMomentum);
+
+          Trajectory seedTraj(tmpseedTwo, alongMomentum);
+
 	  seedTraj.push(tm,est.second);
 
 
