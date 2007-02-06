@@ -240,22 +240,22 @@ void VisTrackerMap::visDrawModule(TmModule * mod, int key,int nlay,QPointArray a
       np = 3;
       if(mod->idModule>100 ){for(int j=0;j<3;j++){
         x=(int)(tk->xdpixel(xp[j]));y=(int)(tk->ydpixel(yp[j]));
-        if(!horizontal_view)a.setPoint(j,x,y);else a.setPoint(j,y,x);
+        if(!horizontal_view)a.setPoint(j,x,y);else a.setPoint(j,y,1360-x);
       }
-      if(!horizontal_view)a.setPoint(3,x,y);else a.setPoint(3,y,x);
+      if(!horizontal_view)a.setPoint(3,x,y);else a.setPoint(3,y,1360-x);
       }else {
         x=(int)(tk->xdpixel(xp[2]));y=(int)(tk->ydpixel(yp[2]));
-        if(!horizontal_view)a.setPoint(0,x,y); else a.setPoint(0,y,x);
+        if(!horizontal_view)a.setPoint(0,x,y); else a.setPoint(0,y,1360-x);
         x=(int)(tk->xdpixel(xp[3]));y=(int)(tk->ydpixel(yp[3]));
-        if(!horizontal_view)a.setPoint(1,x,y); else a.setPoint(1,y,x);
+        if(!horizontal_view)a.setPoint(1,x,y); else a.setPoint(1,y,1360-x);
         x=(int)(tk->xdpixel(xp[0]));y=(int)(tk->ydpixel(yp[0]));
-        if(!horizontal_view)a.setPoint(2,x,y); else a.setPoint(2,y,x);
-        if(!horizontal_view)a.setPoint(3,x,y); else a.setPoint(3,y,x);
+        if(!horizontal_view)a.setPoint(2,x,y); else a.setPoint(2,y,1360-x);
+        if(!horizontal_view)a.setPoint(3,x,y); else a.setPoint(3,y,1360-x);
       }
     } else {
       for(int j=0;j<4;j++){
         x=(int)(tk->xdpixel(xp[j]));y=(int)(tk->ydpixel(yp[j]));
-        if(!horizontal_view)a.setPoint(j,x,y);else a.setPoint(j,y,x);
+        if(!horizontal_view)a.setPoint(j,x,y);else a.setPoint(j,y,1360-x);
       }
     }
 }
