@@ -10,10 +10,7 @@ At present, only SIGUSR2 is considered.
 
 ----------------------------------------------------------------------*/
 
-#include <string>
 #include <signal.h>
-
-#include "sigc++/signal.h"
 #include "boost/thread/thread.hpp"
 
 namespace edm {

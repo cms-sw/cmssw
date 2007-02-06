@@ -4,7 +4,6 @@
 
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-#include "boost/thread/thread.hpp"
 
 using namespace std;
 
@@ -18,12 +17,9 @@ namespace edm {
       void ep_sigusr2(int,siginfo_t*,void*)
       {
 	FDEBUG(1) << "in sigusr2 handler\n";
-//      boost::mutex::scoped_lock sl(usr2_lock);
-      {
 	shutdown_flag = true;
       }
     }
-  }
 
     boost::mutex signum_lock;
     volatile int signum_value = 
