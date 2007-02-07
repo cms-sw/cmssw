@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.19 2007/02/05 13:56:47 rahatlou Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.20 2007/02/05 14:07:17 rahatlou Exp $
 //
 
 // system include files
@@ -442,14 +442,14 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 
   // Determine how to project from the supercluster into the tracker
   double energy = superclusterIn->energy();
-  double pT = energy * superclusterIn->rho()/sqrt(superclusterIn->x()*superclusterIn->x() +
+  double pT = energy * superclusterIn->position().rho()/sqrt(superclusterIn->x()*superclusterIn->x() +
 						  superclusterIn->y()*superclusterIn->y() +
 						  superclusterIn->z()*superclusterIn->z());
   // cf Jackson p. 581-2, a little geometry
   double phiVsRSlope = -3.00e-3 * chargeHypothesis * magneticField_p_->inTesla(GlobalPoint(superclusterIn->x(), superclusterIn->y(), 0.)).z() / pT / 2.;
 
   // Shorthand for supercluster radius, z
-  const double scr = superclusterIn->rho();
+  const double scr = superclusterIn->position().rho();
   const double scz = superclusterIn->position().z();
 
   // These are used to fit all hits to a line in phi(r)
