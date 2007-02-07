@@ -3,15 +3,16 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/Utilities>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ServiceRegistry>
+<use name=FWCore/Utilities>
 <use name=DataFormats/Common>
 <export>
  <lib name=FWCoreMessageService>
  <use name=boost>
  <use name=FWCore/MessageLogger>
  <use name=FWCore/ParameterSet>
- <use name=FWCore/Utilities>
  <use name=FWCore/ServiceRegistry>
+ <use name=FWCore/Utilities>
  <use name=DataFormats/Common>
 </export>
