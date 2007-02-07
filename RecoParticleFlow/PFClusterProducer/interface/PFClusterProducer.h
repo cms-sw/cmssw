@@ -27,10 +27,11 @@ for particle flow clusters.
 \date   July 2006
 */
 
-
 class CaloSubdetectorTopology;
 class CaloSubdetectorGeometry;
 class DetId;
+
+
 
 class PFClusterProducer : public edm::EDProducer {
  public:
@@ -42,6 +43,39 @@ class PFClusterProducer : public edm::EDProducer {
   
 
  private:
+
+  /// process ECAL rechits
+  void produceEcal(edm::Event&, const edm::EventSetup&);
+
+  /// process HCAL rechits
+  void produceHcal(edm::Event&, const edm::EventSetup&);
+
+  reco::PFRecHit*  createEcalRecHit( const DetId& detid,
+				     double energy,
+				     int layer,
+				     const CaloSubdetectorGeometry* geom );
+
+  reco::PFRecHit*  createHcalRecHit( const DetId& detid, 
+				     double energy,
+				     int layer,
+				     const CaloSubdetectorGeometry* geom );
+  
+  /* not necessary to have a function for this: */
+  /*   reco::PFRecHit*  createHcalCTRecHit( const DetId& detid,  */
+  /* 				       double energy, */
+  /* 				       int layer, */
+  /* 				       const CaloSubdetectorGeometry* geom ); */
+
+  
+
+
+
+  /// find the position and the axis of the cell for a given rechit
+  bool findEcalRecHitGeometry ( const DetId& detid, 
+				const CaloSubdetectorGeometry* geom,
+				math::XYZVector& position, 
+				math::XYZVector& axis );
+
 
   /// find and set the neighbours to a given rechit
   void 
@@ -61,10 +95,8 @@ class PFClusterProducer : public edm::EDProducer {
   DetId getNorth(const DetId& id, const CaloSubdetectorTopology& topology);
   DetId getSouth(const DetId& id, const CaloSubdetectorTopology& topology);
   
-  reco::PFRecHit*  createHcalRecHit( const DetId& detid, 
-				     double energy,
-				     int layer,
-				     const CaloSubdetectorGeometry* geom );
+
+  
 
   // ----------member data ---------------------------
 
