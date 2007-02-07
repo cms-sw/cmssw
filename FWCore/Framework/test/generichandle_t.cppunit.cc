@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.15 2007/01/10 05:59:30 wmtan Exp $
+$Id: generichandle_t.cppunit.cc,v 1.16 2007/01/28 05:37:27 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <string>
@@ -22,6 +22,8 @@ $Id: generichandle_t.cppunit.cc,v 1.15 2007/01/10 05:59:30 wmtan Exp $
 
 #include "FWCore/Framework/interface/GenericHandle.h"
 #include <cppunit/extensions/HelperMacros.h>
+
+#include "SealBase/Error.h"
 
 class testGenericHandle: public CppUnit::TestFixture {
 CPPUNIT_TEST_SUITE(testGenericHandle);

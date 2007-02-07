@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.17 2006/12/08 20:30:20 wmtan Exp $
+$Id: Worker.cc,v 1.18 2007/01/09 17:28:25 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -14,6 +14,7 @@ $Id: Worker.cc,v 1.17 2006/12/08 20:30:20 wmtan Exp $
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "boost/signal.hpp"
+#include "SealBase/Error.h"
 
 namespace edm
 {

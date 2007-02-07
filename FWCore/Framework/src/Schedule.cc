@@ -25,6 +25,8 @@
 #include "FWCore/Framework/src/OutputWorker.h"
 #include "FWCore/Framework/src/FilterWorker.h"
 
+#include "SealBase/Error.h"
+
 #include "boost/shared_ptr.hpp"
 #include "boost/bind.hpp"
 #include "boost/lambda/lambda.hpp"
