@@ -9,9 +9,9 @@ const TrajectorySeed & TrackInfo::seed() const {return seed_;}
 
 const TrackInfo::TrajectoryInfo & TrackInfo::trajStateMap() const {return trajstate_;}
 
-const PTrajectoryStateOnDet & TrackInfo::stateOnDet(TrackingRecHitRef hit) {return trajstate_[hit];}
+const PTrajectoryStateOnDet & TrackInfo::stateOnDet(TrackingRecHitRef hit)const {return trajstate_.find(hit)->second;}
 
-const LocalVector  TrackInfo::localTrackMomentum(TrackingRecHitRef hit){ return ((trajstate_[hit]).parameters()).momentum();} 
+const LocalVector  TrackInfo::localTrackMomentum(TrackingRecHitRef hit)const{ return ((trajstate_.find(hit))->second.parameters()).momentum();} 
 
-const LocalPoint  TrackInfo::localTrackPosition(TrackingRecHitRef hit){ return ((trajstate_[hit]).parameters()).position();} 
+const LocalPoint  TrackInfo::localTrackPosition(TrackingRecHitRef hit)const { return ((trajstate_.find(hit))->second.parameters()).position();} 
 

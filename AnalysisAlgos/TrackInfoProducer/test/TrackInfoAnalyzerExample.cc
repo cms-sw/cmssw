@@ -33,34 +33,60 @@ class TrackInfoAnalyzerExample : public edm::EDAnalyzer {
 
     using namespace std;
 
-    //std::cout << "\nEvent ID = "<< event.id() << std::endl ;
+    //get TrackInfoTrackAssociationCollection from the event
     edm::InputTag TkiTag = conf_.getParameter<edm::InputTag>("TrackInfo");
     edm::Handle<reco::TrackInfoTrackAssociationCollection> TItkassociatorCollection;
     event.getByLabel(TkiTag,TItkassociatorCollection);
+
+    // get track collection from the event
     edm::InputTag TkTag = conf_.getParameter<edm::InputTag>("Tracks");
     edm::Handle<reco::TrackCollection> tkCollection;
     event.getByLabel(TkTag,tkCollection);
-      
 
-    //    edm::LogInfo("TrackInfoAnalyzerExample") <<"number of infos "<< tC.size();
- 
-    //    for (reco::TrackCollection::const_iterator track=tkCollection->begin(); track!=tkCollection->end(); ++track){
+
+    // loop on the tracks
     for (unsigned int track=0;track<tkCollection->size();++track){
+      
+      //build the ref to the track
       reco::TrackRef trackref=reco::TrackRef(tkCollection,track);
       edm::LogInfo("TrackInfoAnalyzerExample")<<"Track pt"<<trackref->pt();
-      //const reco::TrackInfo::TrajectoryInfo tinfo=track->trajstate();
-      reco::TrackInfo::TrajectoryInfo::const_iterator iter;
+      
+      //get the ref to the trackinfo
       reco::TrackInfoRef trackinforef=(*TItkassociatorCollection.product())[trackref];
-      edm::LogInfo("TrackInfoAnalyzerExample") <<"N hits in the seed: "<<(*TItkassociatorCollection.product())[trackref]->seed().nHits();
-      //      edm::LogInfo("TrackInfoAnalyzerExample") <<"Starting state "<<track->second->seed().startingState().parameters().position();
-      // loop on the track hits
-      for(iter=(*TItkassociatorCollection.product())[trackref]->trajStateMap().begin();iter!=(*TItkassociatorCollection.product())[trackref]->trajStateMap().end();iter++){
-	edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalMomentum: "<<((*iter).second.parameters()).momentum();
-	edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalPosition: "<<((*iter).second.parameters()).position();
+      
+      // get additional track information from trackinfo:
+      
+      //the seed:
+      const TrajectorySeed seed=trackinforef->seed();
+      edm::LogInfo("TrackInfoAnalyzerExample") <<"N hits in the seed: "<<seed.nHits();
+      edm::LogInfo("TrackInfoAnalyzerExample") <<"Starting state position"<<seed.startingState().parameters().position();
+      edm::LogInfo("TrackInfoAnalyzerExample") <<"Starting state direction"<<seed.startingState().parameters().momentum();
+      
+  
+      //local angle for a specific hit
+      TrackingRecHitRef rechitref=trackref->recHit(2);
+      if(rechitref->isValid()){
+	const LocalVector localdir=trackinforef->localTrackMomentum(rechitref);
+	edm::LogInfo("TrackInfoAnalyzerExample") <<"Local x-z plane angle of 3rd hit:"<<atan2(localdir.x(),localdir.z());
+      }
+
+      // loop on all the track hits
+      reco::TrackInfo::TrajectoryInfo::const_iterator iter;
+      for(iter=trackinforef->trajStateMap().begin();iter!=trackinforef->trajStateMap().end();iter++){
+	
+	//trajectory local direction and position on detector
+	LocalVector statedirection=((*iter).second.parameters()).momentum();
+	LocalPoint  stateposition=(*iter).second.parameters().position();
+	edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalMomentum: "<<statedirection;
+	edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalPosition: "<<stateposition;
+	edm::LogInfo("TrackInfoAnalyzerExample") <<"Local x-z plane angle: "<<atan2(statedirection.x(),statedirection.z());
+	
+	//hit position on detector
 	edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalPosition (rechit): "<<((*iter).first)->localPosition();
       }
     }
   }
+
 };
 
 DEFINE_SEAL_MODULE();
