@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: productregistry.cppunit.cc,v 1.16 2006/11/04 00:35:44 wmtan Exp $
+   \version $Id: productregistry.cppunit.cc,v 1.17 2006/12/05 23:56:18 paterno Exp $
    \date 21 July 2005
 */
 
@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "DataFormats/Common/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
-#include "FWCore/Utilities/interface/ProblemTracker.h"
+#include "FWCore/PluginManager/interface/ProblemTracker.h"
 
 // namespace edm {
 //   class EDProduct;

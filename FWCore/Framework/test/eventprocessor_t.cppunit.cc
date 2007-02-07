@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.20 2006/07/06 19:11:44 wmtan Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.21 2007/01/23 00:33:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -21,7 +21,7 @@ $Id: eventprocessor_t.cppunit.cc,v 1.20 2006/07/06 19:11:44 wmtan Exp $
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/test/stubs/TestBeginEndJobAnalyzer.h"
 
-#include "FWCore/Utilities/interface/ProblemTracker.h"
+#include "FWCore/PluginManager/interface/ProblemTracker.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 

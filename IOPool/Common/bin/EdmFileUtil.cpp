@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // EdmFileUtil.cpp
 //
-// $Id: EdmFileUtil.cpp,v 1.5 2006/12/20 00:00:59 wmtan Exp $
+// $Id: EdmFileUtil.cpp,v 1.6 2007/01/22 21:49:20 wmtan Exp $
 //
 // Author: Chih-hsiang Cheng, LLNL
 //         Chih-Hsiang.Cheng@cern.ch
@@ -23,9 +23,9 @@
 #include "IOPool/Common/interface/PoolDataSvc.h"
 #include "Cintex/Cintex.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/ProblemTracker.h"
+#include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/Utilities/interface/Presence.h"
-#include "FWCore/Utilities/interface/PresenceFactory.h"
+#include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
 #include "TFile.h"
