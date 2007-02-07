@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 15:21:05 EDT 2005
-// $Id: ComponentFactory.h,v 1.15 2006/10/10 02:07:23 chrjones Exp $
+// $Id: ComponentFactory.h,v 1.16 2007/01/23 00:32:02 wmtan Exp $
 //
 
 // system include files
@@ -25,7 +25,7 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
-#include "PluginManager/PluginFactory.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "DataFormats/Common/interface/PassID.h"
 #include "DataFormats/Common/interface/ReleaseVersion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

@@ -10,7 +10,7 @@
 #include "FWCore/Framework/src/Factory.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 
-#include "PluginManager/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/parse.h"

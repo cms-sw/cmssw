@@ -7,7 +7,7 @@
 
 #include <string>
 #include <map>
-#include "PluginManager/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 namespace edm {

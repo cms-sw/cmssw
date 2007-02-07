@@ -1,7 +1,7 @@
 #ifndef Framework_InputSourceFactory_h
 #define Framework_InputSourceFactory_h
 
-#include "PluginManager/PluginFactory.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/InputSource.h"

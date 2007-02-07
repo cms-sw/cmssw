@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: RootAutoLibraryLoader.cc,v 1.3 2007/02/01 16:10:20 wmtan Exp $
+// $Id: RootAutoLibraryLoader.cc,v 1.4 2007/02/02 15:42:49 chrjones Exp $
 //
 
 // system include files
@@ -21,10 +21,10 @@
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/RootAutoLibraryLoader/src/stdNamespaceAdder.h"
 
-#include "PluginManager/PluginManager.h"
-#include "PluginManager/ModuleCache.h"
-#include "PluginManager/Module.h"
-#include "PluginManager/PluginCapabilities.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/ModuleCache.h"
+#include "FWCore/PluginManager/interface/Module.h"
+#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 
 #include "Reflex/Type.h"
 #include "Cintex/Cintex.h"

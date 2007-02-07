@@ -2,7 +2,7 @@
  <lib name=FWCoreRootAutoLibraryLoader>
  <use name=rootcore>
 </export>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=rootrflx>
 <use name=rootcintex>
 <use name=rootcore>

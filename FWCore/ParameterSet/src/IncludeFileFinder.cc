@@ -1,8 +1,8 @@
 #include "FWCore/ParameterSet/interface/IncludeFileFinder.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "PluginManager/ModuleDescriptor.h"
-#include "PluginManager/ModuleCache.h"
-#include "PluginManager/Module.h"
+#include "FWCore/PluginManager/interface/ModuleDescriptor.h"
+#include "FWCore/PluginManager/interface/ModuleCache.h"
+#include "FWCore/PluginManager/interface/Module.h"
 #include <iostream>
 
 using namespace seal;

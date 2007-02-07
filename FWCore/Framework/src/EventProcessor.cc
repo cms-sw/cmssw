@@ -15,7 +15,7 @@
 #include "boost/mem_fn.hpp"
 #include "boost/thread/xtime.hpp"
 
-#include "PluginManager/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 
 #include "DataFormats/Common/interface/ProcessConfiguration.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"

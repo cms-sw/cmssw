@@ -1,7 +1,7 @@
 #ifndef Framework_VectorInputSourceMacros_h
 #define Framework_VectorInputSourceMacros_h
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/src/VectorInputSourceFactory.h"
 #include "FWCore/Framework/interface/VectorInputSource.h"
 

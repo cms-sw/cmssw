@@ -9,13 +9,13 @@
 // Author:      Chris Jones
 // Created:     Thu May 26 11:01:19 EDT 2005
 // Changed:     Viji Sundararajan 28-Jun-2005
-// $Id: eventsetupplugin_t.cppunit.cc,v 1.5 2006/07/06 19:11:44 wmtan Exp $
+// $Id: eventsetupplugin_t.cppunit.cc,v 1.6 2006/08/16 00:12:44 rpw Exp $
 //
 
 // system include files
 #include <cppunit/extensions/HelperMacros.h>
 // user include files
-#include "PluginManager/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/SourceFactory.h"

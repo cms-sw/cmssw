@@ -1,7 +1,7 @@
 #ifndef Framework_InputSourceMacros_h
 #define Framework_InputSourceMacros_h
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/src/InputSourceFactory.h"
 #include "FWCore/Framework/interface/InputSource.h"
 

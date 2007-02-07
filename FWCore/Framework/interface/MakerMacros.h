@@ -1,7 +1,7 @@
 #ifndef Framework_MakerMacros_h
 #define Framework_MakerMacros_h
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/src/Factory.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
 
