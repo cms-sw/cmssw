@@ -441,11 +441,11 @@ void TIFNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
 	    if( oIter->firstStrip() == cluster->firstStrip()) {
 
 
-// Check if it was already processed and take some action: flag or don't write it.
-// if use a flag: you can exclude it from disributions of all clusters, track cluters...
-// if don't write: you don't have the information when looking at single tracks,
-// for example you want to look at all the clusters which belong to the second track in a given event...
-//	if( oProcessedClusters[oDSVIter->id] != oIter->firstStrip()) {
+	      // Check if it was already processed and take some action: flag or don't write it.
+	      // if use a flag: you can exclude it from disributions of all clusters, track cluters...
+	      // if don't write: you don't have the information when looking at single tracks,
+	      // for example you want to look at all the clusters which belong to the second track in a given event...
+	      //	if( oProcessedClusters[oDSVIter->id] != oIter->firstStrip()) {
 
 
 
@@ -461,7 +461,7 @@ void TIFNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
 	      std::cout << "Cluster Info size = " << oIter->stripAmplitudes().size() << " or  width " << oIter->width() << std::endl;
 
-	      std::cout<< "Cluster Info Charge = " << clusterchg << std::endl;
+	      std::cout << "Cluster Info Charge = " << clusterchg << std::endl;
 
 
 	      //fill here using clusterinfo thing
@@ -532,35 +532,35 @@ void TIFNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
 	      
 	      float normprojection = (localmagdir * ylocal)/(localmagfield);
 	      
-		if(normprojection>0){sign = 1;}
-		if(normprojection<0){sign = -1;}
+	      if(normprojection>0){sign = 1;}
+	      if(normprojection<0){sign = -1;}
 		
-		//Stereocorrection applied in TrackLocalAngleTIF
+	      //Stereocorrection applied in TrackLocalAngleTIF
 		
-		if((detid.stereo()==1) && (normprojection == 0.)){
-		  LogDebug("TIFNtupleMaker::analyze")<<"Error: TIB|TOB YBprojection = 0";
-		}
+	      if((detid.stereo()==1) && (normprojection == 0.)){
+		LogDebug("TIFNtupleMaker::analyze")<<"Error: TIB|TOB YBprojection = 0";
+	      }
 		
-		if((detid.stereo()==1) && (normprojection != 0.)){
-		  stereocorrection = 1/normprojection;
-		  stereocorrection*=sign;
+	      if((detid.stereo()==1) && (normprojection != 0.)){
+		stereocorrection = 1/normprojection;
+		stereocorrection*=sign;
 		  
-		  float tg = tan((angle*TMath::Pi())/180);
-		  tg*=stereocorrection;
-		  angle = atan(tg)*180/TMath::Pi();
+		float tg = tan((angle*TMath::Pi())/180);
+		tg*=stereocorrection;
+		angle = atan(tg)*180/TMath::Pi();
 		  
-		  tg = tan( angleXZ);
-		  tg*=stereocorrection;
-		  angleXZ = atan( tg);
+		tg = tan( angleXZ);
+		tg*=stereocorrection;
+		angleXZ = atan( tg);
 		  
-		  tg = tan( angleYZ);
-		  tg*=stereocorrection;
-		  angleYZ = atan( tg);
-		}
+		tg = tan( angleYZ);
+		tg*=stereocorrection;
+		angleYZ = atan( tg);
+	      }
 		
-		angle   *= sign;
-		angleXZ *= sign;
-		angleYZ *= sign;       
+	      angle   *= sign;
+	      angleXZ *= sign;
+	      angleYZ *= sign;       
 	    }
 	  } // end if localmagfield!=0
 	    // -------------------
@@ -568,138 +568,138 @@ void TIFNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
 	    //Filling histograms
 	    
-	    if(conf_.getParameter<bool>("SINGLE_DETECTORS")) {
-	      histos[module]->Fill(angle,size);
+	  if(conf_.getParameter<bool>("SINGLE_DETECTORS")) {
+	    histos[module]->Fill(angle,size);
 	      
-	      LogDebug("TIFNtupleMaker::analyze")<<"Module histogram filled";
-	    }
+	    LogDebug("TIFNtupleMaker::analyze")<<"Module histogram filled";
+	  }
 	    
-	    //Summary histograms
+	  //Summary histograms
 	    
-	    if(detid.subdetId() == int (StripSubdetector::TIB)){
-	      TIBDetId TIBid=TIBDetId(hit->geographicalId());
+	  if(detid.subdetId() == int (StripSubdetector::TIB)){
+	    TIBDetId TIBid=TIBDetId(hit->geographicalId());
 	      
-	      extint = TIBid.string()[1];
-	      string = TIBid.string()[2];
-	      bwfw= TIBid.string()[0];
-	      layer = TIBid.layer();
+	    extint = TIBid.string()[1];
+	    string = TIBid.string()[2];
+	    bwfw= TIBid.string()[0];
+	    layer = TIBid.layer();
 	      
-	      if(layer == 1){
-		histos[1]->Fill(angle,size);
-		if(TIBid.stereo()==0){
-		  htaTIBL1mono->Fill(angle);}
-		if(TIBid.stereo()==1){
-		  htaTIBL1stereo->Fill(angle);}
+	    if(layer == 1){
+	      histos[1]->Fill(angle,size);
+	      if(TIBid.stereo()==0){
+		htaTIBL1mono->Fill(angle);}
+	      if(TIBid.stereo()==1){
+		htaTIBL1stereo->Fill(angle);}
 		
-		if(TIBid.string()[1]==0){//int
-		  histos[2]->Fill(angle,size);
-		}
-		if(TIBid.string()[1]==1){//ext
-		  histos[3]->Fill(angle,size);
-		}
+	      if(TIBid.string()[1]==0){//int
+		histos[2]->Fill(angle,size);
 	      }
-	      
-	      if(layer == 2){
-		histos[4]->Fill(angle,size);
-		if(TIBid.stereo()==0){
-		  htaTIBL2mono->Fill(angle);}
-		if(TIBid.stereo()==1){
-		  htaTIBL2stereo->Fill(angle);}
-		
-		if(TIBid.string()[1]==0){//int
-		  histos[5]->Fill(angle,size);
-		}
-		if(TIBid.string()[1]==1){//ext
-		  histos[6]->Fill(angle,size);
-		}
-	      }
-	      
-	      if(layer == 3){
-		std::cout << "angle = " << angle << std::endl;
-		std::cout << "size = " << size << std::endl;
-		histos[7]->Fill(angle,size);
-		std::cout << "non stereo layer TIBid.stereo() = " << TIBid.stereo() << std::endl;
-		htaTIBL3->Fill(angle);
-		if(TIBid.string()[1]==0){//int
-		  histos[8]->Fill(angle,size);
-		}
-		if(TIBid.string()[1]==1){//ext
-		  histos[9]->Fill(angle,size);
-		}
-	      }
-	      
-	      if(layer == 4){
-		histos[10]->Fill(angle,size);
-		htaTIBL4->Fill(angle);
-		if(TIBid.string()[1]==0){//int
-		  histos[11]->Fill(angle,size);
-		}
-		if(TIBid.string()[1]==1){//ext
-		  histos[12]->Fill(angle,size);
-		}
+	      if(TIBid.string()[1]==1){//ext
+		histos[3]->Fill(angle,size);
 	      }
 	    }
+	      
+	    if(layer == 2){
+	      histos[4]->Fill(angle,size);
+	      if(TIBid.stereo()==0){
+		htaTIBL2mono->Fill(angle);}
+	      if(TIBid.stereo()==1){
+		htaTIBL2stereo->Fill(angle);}
+		
+	      if(TIBid.string()[1]==0){//int
+		histos[5]->Fill(angle,size);
+	      }
+	      if(TIBid.string()[1]==1){//ext
+		histos[6]->Fill(angle,size);
+	      }
+	    }
+	      
+	    if(layer == 3){
+	      std::cout << "angle = " << angle << std::endl;
+	      std::cout << "size = " << size << std::endl;
+	      histos[7]->Fill(angle,size);
+	      std::cout << "non stereo layer TIBid.stereo() = " << TIBid.stereo() << std::endl;
+	      htaTIBL3->Fill(angle);
+	      if(TIBid.string()[1]==0){//int
+		histos[8]->Fill(angle,size);
+	      }
+	      if(TIBid.string()[1]==1){//ext
+		histos[9]->Fill(angle,size);
+	      }
+	    }
+	      
+	    if(layer == 4){
+	      histos[10]->Fill(angle,size);
+	      htaTIBL4->Fill(angle);
+	      if(TIBid.string()[1]==0){//int
+		histos[11]->Fill(angle,size);
+	      }
+	      if(TIBid.string()[1]==1){//ext
+		histos[12]->Fill(angle,size);
+	      }
+	    }
+	  }
 
-	    if(conf_.getParameter<bool>("TOB_ON")) {
+	  if(conf_.getParameter<bool>("TOB_ON")) {
 	    if(detid.subdetId() == int (StripSubdetector::TOB)){
 	      TOBDetId TOBid=TOBDetId(hit->geographicalId());
 	      
-	    layer = TOBid.layer();
-	    rod = TOBid.rod()[1];
-	    bwfw = TOBid.rod()[0];
+	      layer = TOBid.layer();
+	      rod = TOBid.rod()[1];
+	      bwfw = TOBid.rod()[0];
 	    
-	    if(layer == 1){
-	      histos[13]->Fill(angle,size);		
-	      if(TOBid.stereo()==0){//mono
-		htaTOBL1mono->Fill(angle);
+	      if(layer == 1){
+		histos[13]->Fill(angle,size);		
+		if(TOBid.stereo()==0){//mono
+		  htaTOBL1mono->Fill(angle);
+		}
+		if(TOBid.stereo()==1){//stereo
+		  htaTOBL1stereo->Fill(angle);
+		}
 	      }
-	      if(TOBid.stereo()==1){//stereo
-		htaTOBL1stereo->Fill(angle);
+	      if(layer == 2){
+		histos[14]->Fill(angle,size);		
+		if(TOBid.stereo()==0){//mono
+		  htaTOBL2mono->Fill(angle);
+		}
+		if(TOBid.stereo()==1){//stereo
+		  htaTOBL2stereo->Fill(angle);
+		}
 	      }
-	    }
-	    if(layer == 2){
-	      histos[14]->Fill(angle,size);		
-	      if(TOBid.stereo()==0){//mono
-		htaTOBL2mono->Fill(angle);
-	      }
-	      if(TOBid.stereo()==1){//stereo
-		htaTOBL2stereo->Fill(angle);
-	      }
-	    }
-	    if(layer == 3){
-	      histos[15]->Fill(angle,size);
-	      htaTOBL3->Fill(angle);}
+	      if(layer == 3){
+		histos[15]->Fill(angle,size);
+		htaTOBL3->Fill(angle);}
 	    
-	    if(layer == 4){
-	      histos[16]->Fill(angle,size);
-	      htaTOBL4->Fill(angle);}
+	      if(layer == 4){
+		histos[16]->Fill(angle,size);
+		htaTOBL4->Fill(angle);}
 	    
-	    if(layer == 5){
-	      histos[17]->Fill(angle,size);
-	      htaTOBL5->Fill(angle);}
+	      if(layer == 5){
+		histos[17]->Fill(angle,size);
+		htaTOBL5->Fill(angle);}
 	    
-	    if(layer == 6){
-	      histos[18]->Fill(angle,size);
-	      htaTOBL6->Fill(angle);}
+	      if(layer == 6){
+		histos[18]->Fill(angle,size);
+		htaTOBL6->Fill(angle);}
 	    }
-	    }
+	  }
 
-	    if(conf_.getParameter<bool>("TID_ON")) {
-	      if(detid.subdetId() == int (StripSubdetector::TID)){
-		TIDDetId TIDid=TIDDetId(hit->geographicalId());
-		bwfw = TIDid.module()[0];
-		wheel = TIDid.wheel();
-		//aggiungere plots per il tid
-	      }
+	  if(conf_.getParameter<bool>("TID_ON")) {
+	    if(detid.subdetId() == int (StripSubdetector::TID)){
+	      TIDDetId TIDid=TIDDetId(hit->geographicalId());
+	      bwfw = TIDid.module()[0];
+	      wheel = TIDid.wheel();
+	      //aggiungere plots per il tid
 	    }
+	  }
 
-	    if(conf_.getParameter<bool>("TEC_ON")) {
-	      if(detid.subdetId() == int (StripSubdetector::TEC)){
-		TECDetId TECid=TECDetId(hit->geographicalId());
-		bwfw = TECid.petal()[0];
-		wheel = TECid.wheel();
-	      }
+	  if(conf_.getParameter<bool>("TEC_ON")) {
+	    if(detid.subdetId() == int (StripSubdetector::TEC)){
+	      TECDetId TECid=TECDetId(hit->geographicalId());
+	      bwfw = TECid.petal()[0];
+	      wheel = TECid.wheel();
 	    }
+	  }
 
 	  const GeomDetUnit * stripdet=(const GeomDetUnit*)tracker->idToDetUnit(detid);
       
@@ -890,6 +890,8 @@ void TIFNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
 	  //	  std::cout << "cluster width = " << oIter->width() << std::endl;
 	  size	      = int(oIter->width()); // cluster width
+	  std::cout << "size = " << size << std::endl;
+
 
 	  // ClusterInfo was not processed yet
 	  clusterpos    = oIter->position();
@@ -913,21 +915,21 @@ void TIFNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
     }
   }
 
-// Work in progress
-// ----------------
-//   if (conf_.getParameter<bool>("TIB_ON")) {
-//     nTotClusters += nTotClustersTIB;
-//   }
-//   if (conf_.getParameter<bool>("TOB_ON")) {
-//     nTotClusters += nTotClustersTOB;
-//   }
-//   if (conf_.getParameter<bool>("TID_ON")) {
-//     nTotClusters += nTotClustersTID;
-//   }
-//   if (conf_.getParameter<bool>("TEC_ON")) {
-//     nTotClusters += nTotClustersTEC;
-//   }
-//-----------------
+  // Work in progress
+  // ----------------
+  //   if (conf_.getParameter<bool>("TIB_ON")) {
+  //     nTotClusters += nTotClustersTIB;
+  //   }
+  //   if (conf_.getParameter<bool>("TOB_ON")) {
+  //     nTotClusters += nTotClustersTOB;
+  //   }
+  //   if (conf_.getParameter<bool>("TID_ON")) {
+  //     nTotClusters += nTotClustersTID;
+  //   }
+  //   if (conf_.getParameter<bool>("TEC_ON")) {
+  //     nTotClusters += nTotClustersTEC;
+  //   }
+  //-----------------
 
   oGlobalPlots[0]->Fill( ( 1.0 * nTrackClusters) / nTotClusters);
 
@@ -936,29 +938,29 @@ void TIFNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
     std::cout << "oClustersPerLayer[StripSubdetector::TIB][2] = " << oClustersPerLayer[StripSubdetector::TIB][2] << std::endl;
     std::cout << "oClustersPerLayer[StripSubdetector::TIB][3] = " << oClustersPerLayer[StripSubdetector::TIB][3] << std::endl;
     std::cout << "oClustersPerLayer[StripSubdetector::TIB][4] = " << oClustersPerLayer[StripSubdetector::TIB][4] << std::endl;
-  //     if( 0 < oClustersPerLayer[StripSubdetector::TIB][1])
-  //       oDetPlots[StripSubdetector::TIB][0]->Fill( oClustersPerLayer[StripSubdetector::TIB][1]);
+    //     if( 0 < oClustersPerLayer[StripSubdetector::TIB][1])
+    //       oDetPlots[StripSubdetector::TIB][0]->Fill( oClustersPerLayer[StripSubdetector::TIB][1]);
 
-  //     if( 0 < oClustersPerLayer[StripSubdetector::TIB][2])
-  //       oDetPlots[StripSubdetector::TIB][1]->Fill( oClustersPerLayer[StripSubdetector::TIB][2]);
+    //     if( 0 < oClustersPerLayer[StripSubdetector::TIB][2])
+    //       oDetPlots[StripSubdetector::TIB][1]->Fill( oClustersPerLayer[StripSubdetector::TIB][2]);
 
-  //     if( 0 < oClustersPerLayer[StripSubdetector::TIB][3])
-  //       oDetPlots[StripSubdetector::TIB][2]->Fill( oClustersPerLayer[StripSubdetector::TIB][3]);
+    //     if( 0 < oClustersPerLayer[StripSubdetector::TIB][3])
+    //       oDetPlots[StripSubdetector::TIB][2]->Fill( oClustersPerLayer[StripSubdetector::TIB][3]);
 
-  //     if( 0 < oClustersPerLayer[StripSubdetector::TIB][4])
-  //       oDetPlots[StripSubdetector::TIB][3]->Fill( oClustersPerLayer[StripSubdetector::TIB][4]);
+    //     if( 0 < oClustersPerLayer[StripSubdetector::TIB][4])
+    //       oDetPlots[StripSubdetector::TIB][3]->Fill( oClustersPerLayer[StripSubdetector::TIB][4]);
   }
  
-  if(conf_.getParameter<bool>("TOB_ON")) {
-    if( 0 < oClustersPerLayer[StripSubdetector::TOB][3])
-      oDetPlots[StripSubdetector::TOB][0]->Fill( oClustersPerLayer[StripSubdetector::TOB][3]);
-    if( 0 < oClustersPerLayer[StripSubdetector::TOB][4])
-      oDetPlots[StripSubdetector::TOB][1]->Fill( oClustersPerLayer[StripSubdetector::TOB][4]);
-    if( 0 < oClustersPerLayer[StripSubdetector::TOB][3])
-      oDetPlots[StripSubdetector::TOB][2]->Fill( oClustersPerLayer[StripSubdetector::TOB][5]);
-    if( 0 < oClustersPerLayer[StripSubdetector::TOB][4])
-      oDetPlots[StripSubdetector::TOB][3]->Fill( oClustersPerLayer[StripSubdetector::TOB][6]);
-  }
+//   if(conf_.getParameter<bool>("TOB_ON")) {
+//     if( 0 < oClustersPerLayer[StripSubdetector::TOB][3])
+//       oDetPlots[StripSubdetector::TOB][0]->Fill( oClustersPerLayer[StripSubdetector::TOB][3]);
+//     if( 0 < oClustersPerLayer[StripSubdetector::TOB][4])
+//       oDetPlots[StripSubdetector::TOB][1]->Fill( oClustersPerLayer[StripSubdetector::TOB][4]);
+//     if( 0 < oClustersPerLayer[StripSubdetector::TOB][3])
+//       oDetPlots[StripSubdetector::TOB][2]->Fill( oClustersPerLayer[StripSubdetector::TOB][5]);
+//     if( 0 < oClustersPerLayer[StripSubdetector::TOB][4])
+//       oDetPlots[StripSubdetector::TOB][3]->Fill( oClustersPerLayer[StripSubdetector::TOB][6]);
+//   }
 
   //sistemare e add TID
 
@@ -1463,7 +1465,7 @@ void TIFNtupleMaker::_summaryHistos() {
       // empty the layer number
       Layer_strstream.str("");
     }
-// MODIFYING
+    // MODIFYING
 
 
 
@@ -1523,120 +1525,120 @@ void TIFNtupleMaker::_summaryHistos() {
 
   // TIB
   // ---
-//  if(conf_.getParameter<bool>("TIB_ON")){
-    histos[1] = new TProfile("TIBL1_widthvsangle", "Cluster width vs track angle: TIB layer 1",30,-30.,30.);
-    xaxis = histos[1]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[1]->GetYaxis();
-    yaxis->SetTitle("number of strips");
-    histos[2] = new TProfile("TIBL1_widthvsangle_int", "Cluster width vs track angle: TIB layer 1 INT",30,-30.,30.);
-    xaxis = histos[2]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[2]->GetYaxis();
-    yaxis->SetTitle("number of strips");
-    histos[3] = new TProfile("TIBL1_widthvsangle_ext", "Cluster width vs track angle: TIB layer 1 EXT",30,-30.,30.);
-    xaxis = histos[3]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[3]->GetYaxis();
-    yaxis->SetTitle("number of strips");
-    histos[4] = new TProfile("TIBL2_widthvsangle", "Cluster width vs track angle: TIB layer 2",30,-30.,30.);
-    xaxis = histos[4]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[4]->GetYaxis();
-    yaxis->SetTitle("number of strips");
-    histos[5] = new TProfile("TIBL2_widthvsangle_int", "Cluster width vs track angle: TIB layer 2 INT",30,-30.,30.);
-    xaxis = histos[5]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[5]->GetYaxis();
-    yaxis->SetTitle("number of strips");
-    histos[6] = new TProfile("TIBL2_widthvsangle_ext", "Cluster width vs track angle: TIB layer 2 EXT",30,-30.,30.);
-    xaxis = histos[6]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[6]->GetYaxis();
-    yaxis->SetTitle("number of strips");
-    histos[7] = new TProfile("TIBL3_widthvsangle", "Cluster width vs track angle: TIB layer 3",30,-30.,30.);
-    xaxis = histos[7]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[7]->GetYaxis();
-    yaxis->SetTitle("number of strips");  
-    histos[8] = new TProfile("TIBL3_widthvsangle_int", "Cluster width vs track angle: TIB layer 3 INT",30,-30.,30.);
-    xaxis = histos[8]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[8]->GetYaxis();
-    yaxis->SetTitle("number of strips");
-    histos[9] = new TProfile("TIBL3_widthvsangle_ext", "Cluster width vs track angle: TIB layer 3 EXT",30,-30.,30.);
-    xaxis = histos[9]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[9]->GetYaxis();
-    yaxis->SetTitle("number of strips");
-    histos[10] = new TProfile("TIBL4_widthvsangle", "Cluster width vs track angle: TIB layer 4",30,-30.,30.);
-    xaxis = histos[10]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[10]->GetYaxis();
-    yaxis->SetTitle("number of strips");
-    histos[11] = new TProfile("TIBL4_widthvsangle_int", "Cluster width vs track angle: TIB layer 4 INT",30,-30.,30.);
-    xaxis = histos[11]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[11]->GetYaxis();
-    yaxis->SetTitle("number of strips");
-    histos[12] = new TProfile("TIBL4_widthvsangle_ext", "Cluster width vs track angle: TIB layer 4 EXT",30,-30.,30.);
-    xaxis = histos[12]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[12]->GetYaxis();
-    yaxis->SetTitle("number of strips");
-//  } // TIB_ON
+  //  if(conf_.getParameter<bool>("TIB_ON")){
+  histos[1] = new TProfile("TIBL1_widthvsangle", "Cluster width vs track angle: TIB layer 1",30,-30.,30.);
+  xaxis = histos[1]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[1]->GetYaxis();
+  yaxis->SetTitle("number of strips");
+  histos[2] = new TProfile("TIBL1_widthvsangle_int", "Cluster width vs track angle: TIB layer 1 INT",30,-30.,30.);
+  xaxis = histos[2]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[2]->GetYaxis();
+  yaxis->SetTitle("number of strips");
+  histos[3] = new TProfile("TIBL1_widthvsangle_ext", "Cluster width vs track angle: TIB layer 1 EXT",30,-30.,30.);
+  xaxis = histos[3]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[3]->GetYaxis();
+  yaxis->SetTitle("number of strips");
+  histos[4] = new TProfile("TIBL2_widthvsangle", "Cluster width vs track angle: TIB layer 2",30,-30.,30.);
+  xaxis = histos[4]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[4]->GetYaxis();
+  yaxis->SetTitle("number of strips");
+  histos[5] = new TProfile("TIBL2_widthvsangle_int", "Cluster width vs track angle: TIB layer 2 INT",30,-30.,30.);
+  xaxis = histos[5]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[5]->GetYaxis();
+  yaxis->SetTitle("number of strips");
+  histos[6] = new TProfile("TIBL2_widthvsangle_ext", "Cluster width vs track angle: TIB layer 2 EXT",30,-30.,30.);
+  xaxis = histos[6]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[6]->GetYaxis();
+  yaxis->SetTitle("number of strips");
+  histos[7] = new TProfile("TIBL3_widthvsangle", "Cluster width vs track angle: TIB layer 3",30,-30.,30.);
+  xaxis = histos[7]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[7]->GetYaxis();
+  yaxis->SetTitle("number of strips");  
+  histos[8] = new TProfile("TIBL3_widthvsangle_int", "Cluster width vs track angle: TIB layer 3 INT",30,-30.,30.);
+  xaxis = histos[8]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[8]->GetYaxis();
+  yaxis->SetTitle("number of strips");
+  histos[9] = new TProfile("TIBL3_widthvsangle_ext", "Cluster width vs track angle: TIB layer 3 EXT",30,-30.,30.);
+  xaxis = histos[9]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[9]->GetYaxis();
+  yaxis->SetTitle("number of strips");
+  histos[10] = new TProfile("TIBL4_widthvsangle", "Cluster width vs track angle: TIB layer 4",30,-30.,30.);
+  xaxis = histos[10]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[10]->GetYaxis();
+  yaxis->SetTitle("number of strips");
+  histos[11] = new TProfile("TIBL4_widthvsangle_int", "Cluster width vs track angle: TIB layer 4 INT",30,-30.,30.);
+  xaxis = histos[11]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[11]->GetYaxis();
+  yaxis->SetTitle("number of strips");
+  histos[12] = new TProfile("TIBL4_widthvsangle_ext", "Cluster width vs track angle: TIB layer 4 EXT",30,-30.,30.);
+  xaxis = histos[12]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[12]->GetYaxis();
+  yaxis->SetTitle("number of strips");
+  //  } // TIB_ON
 
   // TOB
   // ---
-//  if(conf_.getParameter<bool>("TOB_ON")) {
-    histos[13] = new TProfile("TOBL1_widthvsangle", "Cluster width vs track angle: TOB layer 1",30,-30.,30.);
-    xaxis = histos[13]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[13]->GetYaxis();
-    yaxis->SetTitle("number of strips");
-    histos[14] = new TProfile("TOBL2_widthvsangle", "Cluster width vs track angle: TOB layer 2",30,-30.,30.);
-    xaxis = histos[14]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[14]->GetYaxis();
-    yaxis->SetTitle("number of strips");
-    histos[15] = new TProfile("TOBL3_widthvsangle", "Cluster width vs track angle: TOB layer 3",30,-30.,30.);
-    xaxis = histos[15]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[15]->GetYaxis();
-    yaxis->SetTitle("number of strips");
-    histos[16] = new TProfile("TOBL4_widthvsangle", "Cluster width vs track angle: TOB layer 4",30,-30.,30.);
-    xaxis = histos[16]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[16]->GetYaxis();
-    yaxis->SetTitle("number of strips");
-    histos[17] = new TProfile("TOBL5_widthvsangle", "Cluster width vs track angle: TOB layer 5",30,-30.,30.);
-    xaxis = histos[17]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[17]->GetYaxis();
-    yaxis->SetTitle("number of strips");
-    histos[18] = new TProfile("TOBL6_widthvsangle", "Cluster width vs track angle: TOB layer 6",30,-30.,30.);
-    xaxis = histos[18]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[18]->GetYaxis();
-    yaxis->SetTitle("number of strips");
+  //  if(conf_.getParameter<bool>("TOB_ON")) {
+  histos[13] = new TProfile("TOBL1_widthvsangle", "Cluster width vs track angle: TOB layer 1",30,-30.,30.);
+  xaxis = histos[13]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[13]->GetYaxis();
+  yaxis->SetTitle("number of strips");
+  histos[14] = new TProfile("TOBL2_widthvsangle", "Cluster width vs track angle: TOB layer 2",30,-30.,30.);
+  xaxis = histos[14]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[14]->GetYaxis();
+  yaxis->SetTitle("number of strips");
+  histos[15] = new TProfile("TOBL3_widthvsangle", "Cluster width vs track angle: TOB layer 3",30,-30.,30.);
+  xaxis = histos[15]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[15]->GetYaxis();
+  yaxis->SetTitle("number of strips");
+  histos[16] = new TProfile("TOBL4_widthvsangle", "Cluster width vs track angle: TOB layer 4",30,-30.,30.);
+  xaxis = histos[16]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[16]->GetYaxis();
+  yaxis->SetTitle("number of strips");
+  histos[17] = new TProfile("TOBL5_widthvsangle", "Cluster width vs track angle: TOB layer 5",30,-30.,30.);
+  xaxis = histos[17]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[17]->GetYaxis();
+  yaxis->SetTitle("number of strips");
+  histos[18] = new TProfile("TOBL6_widthvsangle", "Cluster width vs track angle: TOB layer 6",30,-30.,30.);
+  xaxis = histos[18]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[18]->GetYaxis();
+  yaxis->SetTitle("number of strips");
 
 
-    // -------------------------
-    // MAKE IT GENERAL OR REMOVE
-    // -------------------------
+  // -------------------------
+  // MAKE IT GENERAL OR REMOVE
+  // -------------------------
 
-    // TOB Layer 6 cluster charge vs angle
-    // -----------------------------------
-    histos[19] = new TProfile("Charge_vs_Angle", "Cluster charge vs track angle: TOB layer 6",30,-30.,30.);
-    xaxis = histos[19]->GetXaxis();
-    xaxis->SetTitle("degree");
-    yaxis = histos[19]->GetYaxis();
-    yaxis->SetTitle("charge");
+  // TOB Layer 6 cluster charge vs angle
+  // -----------------------------------
+  histos[19] = new TProfile("Charge_vs_Angle", "Cluster charge vs track angle: TOB layer 6",30,-30.,30.);
+  xaxis = histos[19]->GetXaxis();
+  xaxis->SetTitle("degree");
+  yaxis = histos[19]->GetYaxis();
+  yaxis->SetTitle("charge");
 
-    // -------------------------
-    // -------------------------
+  // -------------------------
+  // -------------------------
 
-//  } // if TOB_ON = true
+  //  } // if TOB_ON = true
 
   // Cluster charge
   // --------------
