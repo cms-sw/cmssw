@@ -74,7 +74,6 @@
 #include <sstream>
 #include <string>
 #include <stdexcept>
-#include "SealBase/Error.h" // Stil need to catch these as long as plug-in manager is used.
 
 #include "boost/type_traits/is_base_and_derived.hpp"
 #include "boost/type_traits/is_polymorphic.hpp"
