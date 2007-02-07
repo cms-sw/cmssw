@@ -45,13 +45,15 @@ bool cond::PoolStorageManager::isSessionShared() const{
 void cond::PoolStorageManager::connect(){
   if(!m_started) init();
   m_cat->connect();
+  m_cat->start();
 }
 void cond::PoolStorageManager::disconnect(){
   m_svc->session().disconnectAll();
+  m_cat->commit();
   m_cat->disconnect();
 }
 void cond::PoolStorageManager::startTransaction(bool isReadOnly){
-  m_cat->start();
+  //m_cat->start();
   if(!isReadOnly){
     m_svc->transaction().start( pool::ITransaction::UPDATE );
   }else{
@@ -60,11 +62,11 @@ void cond::PoolStorageManager::startTransaction(bool isReadOnly){
 }
 void cond::PoolStorageManager::commit(){
   m_svc->transaction().commit();
-  m_cat->commit();
+  //m_cat->commit();
 }
 void cond::PoolStorageManager::rollback(){
   m_svc->transaction().rollback();
-  m_cat->rollback();
+  //m_cat->rollback();
 }
 std::string
 cond::PoolStorageManager::copyObjectTo( cond::PoolStorageManager& destDB,
