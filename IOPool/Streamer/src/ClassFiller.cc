@@ -5,7 +5,7 @@
 #include "Reflex/Type.h"
 #include "Reflex/Member.h"
 #include "Reflex/Base.h"
-#include "PluginManager/PluginCapabilities.h"
+#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "StorageSvc/IOODatabaseFactory.h"
 #include "StorageSvc/IClassLoader.h"
 #include "StorageSvc/DbType.h"
