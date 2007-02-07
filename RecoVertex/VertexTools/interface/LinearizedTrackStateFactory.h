@@ -4,7 +4,7 @@
 #include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
 #include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-
+#include "RecoVertex/VertexTools/interface/AbstractLTSFactory.h"
 
 /**
  *  Concrete class to encapsulate the creation of a RefCountedLinearizedTrack,
@@ -13,7 +13,7 @@
  *  so that the reference-counting mechanism works well.
  */
 
-class LinearizedTrackStateFactory {
+class LinearizedTrackStateFactory : public AbstractLTSFactory {
 
 public:
 
@@ -26,6 +26,8 @@ public:
 
   RefCountedLinearizedTrackState
     linearizedTrackState(LinearizedTrackState * lts) const;
+
+  const LinearizedTrackStateFactory * clone() const;
 
 //   RefCountedLinearizedTrackState
 //     linearizedTrackState(const GlobalPoint & linP, RefCountedKinematicParticle & prt) const;

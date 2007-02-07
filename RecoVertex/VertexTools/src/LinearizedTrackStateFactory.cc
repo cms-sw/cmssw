@@ -28,3 +28,10 @@ LinearizedTrackStateFactory::linearizedTrackState
 // {
 //  return RefCountedLinearizedTrackState(new KinematicLinearizedTrackState(linP, prt));
 // }
+//
+
+const LinearizedTrackStateFactory * LinearizedTrackStateFactory::clone() const
+{
+  return new LinearizedTrackStateFactory ( *this );
+}
+
