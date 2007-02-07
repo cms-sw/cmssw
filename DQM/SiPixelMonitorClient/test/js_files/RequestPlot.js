@@ -52,6 +52,10 @@ function SetHistosAndPlotOption() {
     if (document.getElementById("logy").checked) {
       qstring += '&logy=true';
     }
+    // color palette option
+    if (document.getElementById("colpal").checked) {
+      qstring += '&colpal=true';
+    }
     obj = document.getElementById("x-low");
     value = parseFloat(obj.value);
     if (!isNaN(value)) qstring += '&xmin=' + value;
