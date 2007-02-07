@@ -137,11 +137,6 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   edm::OrphanHandle<reco::ClusterShapeCollection> clusHandle = evt.put(clustersshapes_p, 
 								       clustershapecollection_);
 
-  reco::ClusterShapeCollection clusColl= *clusHandle;
-  for (unsigned int i = 0; i < clusColl.size(); i++){
-    reco::ClusterShapeRef reffer(reco::ClusterShapeRef(clusHandle, i));
-    basicClusters[i].SetClusterShapeRef(reffer);
-  }
   // create an auto_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
   std::auto_ptr< reco::BasicClusterCollection > basicclusters_p(new reco::BasicClusterCollection);
   basicclusters_p->assign(basicClusters.begin(), basicClusters.end());

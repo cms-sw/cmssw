@@ -182,15 +182,6 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
   else
     clusHandle= evt.put(clustersshapes_p, clustershapecollectionEE_);
 
-  //Set references from BasicClusters to ClusterShapes.
-  reco::ClusterShapeCollection clusColl= *clusHandle;
-  for (unsigned int i = 0; i < clusColl.size(); i++){
-    reco::ClusterShapeRef reffer(reco::ClusterShapeRef(clusHandle, i));
-    clusters[i].SetClusterShapeRef(reffer);
-  }
-
-  //End creating clustershapes and adding Refs to appropriate BasicClusters.
-
   // create an auto_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
   std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
   clusters_p->assign(clusters.begin(), clusters.end());
@@ -203,7 +194,7 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
 
   // BasicClusterShapeAssociationMap
   std::auto_ptr<reco::BasicClusterShapeAssociationCollection> shapeAssocs_p(new reco::BasicClusterShapeAssociationCollection);
-  for (unsigned int i = 0; i < clusColl.size(); i++){
+  for (unsigned int i = 0; i < clusHandle->size(); i++){
     shapeAssocs_p->insert(edm::Ref<reco::BasicClusterCollection>(bccHandle,i),edm::Ref<reco::ClusterShapeCollection>(clusHandle,i));
   }  
   evt.put(shapeAssocs_p,clusterShapeAssociation);
