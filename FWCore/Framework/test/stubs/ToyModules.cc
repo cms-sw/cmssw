@@ -4,6 +4,7 @@
 Toy EDProducers and EDProducts for testing purposes only.
 
 ----------------------------------------------------------------------*/
+
 #include <cassert>
 #include <stdexcept>
 #include <string>
@@ -297,7 +298,7 @@ namespace edmtest {
   //--------------------------------------------------------------------
   //
   // Produces two products:
-  //    DSVSimpelProduct
+  //    DSVSimpleProduct
   //    DSVWeirdProduct
   //
   class DSVProducer : public edm::EDProducer 
@@ -351,14 +352,13 @@ namespace edmtest {
       {
 	guts[i].data = size_ - i;
       }
-
+    
     // Verify that the vector is not sorted -- in fact, it is sorted
     // backwards!
     for (int i = 1; i < size_; ++i)
       {
-	assert( guts[i-1].data > guts[i].data);
+ 	assert( guts[i-1].data > guts[i].data);
       }
-
     detset item(1); // this will get DetID 1
     item.data = guts;
 

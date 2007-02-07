@@ -74,7 +74,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.14 2007/01/13 08:27:36 wmtan Exp $
+$Id: DataViewImpl.h,v 1.15 2007/01/23 00:32:02 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -348,11 +348,13 @@ namespace edm {
     template <typename T> no_tag  has_postinsert_helper(...);
     template <typename T> yes_tag has_postinsert_helper(postinsert_function<T, &T::post_insert> * p);
 
+
     template<typename T>
     struct has_postinsert
     {
       static bool const value = 
-	sizeof(has_postinsert_helper<T>(0)) == sizeof(yes_tag);
+	sizeof(has_postinsert_helper<T>(0)) == sizeof(yes_tag) &&
+	!boost::is_base_of<edm::DoNotSortUponInsertion, T>::value;
     };
 #else
     //------------------------------------------------------------

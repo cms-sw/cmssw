@@ -5,7 +5,7 @@
 
 Definition of traits templates used in the EDM.  
 
-$Id: traits.h,v 1.10 2007/01/19 23:28:23 wdd Exp $
+$Id: traits.h,v 1.11 2007/01/23 00:25:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -34,9 +34,13 @@ namespace edm
   // time to influence the behavior of Event::put.
   //
   // Usage:
-  //    MyClass : public edm::DoNotSortUponInsertion { ... }
+  //    class MyClass : public edm::DoNotSortUponInsertion { ... }
   //
   struct DoNotSortUponInsertion { };
+
+  // Other is a base class. NEVER USE IT. It is for the
+  // core of the event model only.
+  struct Other { };
 
 #if ! GCC_PREREQUISITE(3,4,4)
   //------------------------------------------------------------

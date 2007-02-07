@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.12 2007/01/23 00:25:52 wmtan Exp $
+$Id: DetSetVector.h,v 1.13 2007/01/29 20:08:27 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -32,9 +32,10 @@ $Id: DetSetVector.h,v 1.12 2007/01/23 00:25:52 wmtan Exp $
 #include <vector>
 
 #include "boost/concept_check.hpp"
-#include "boost/type_traits.hpp"
-#include "boost/lambda/lambda.hpp"
 #include "boost/lambda/bind.hpp"
+#include "boost/lambda/lambda.hpp"
+#include "boost/mpl/if.hpp"
+#include "boost/type_traits.hpp"
 
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/DetSet.h"
@@ -86,8 +87,19 @@ namespace edm {
   //------------------------------------------------------------
   //
 
+  // If DetSetVector<T> is instantiated with a class T which inherits
+  // from DoNotSortUponInsertion, the resulting class inherits from
+  // DoNotSortUponInsertion. In the normal case, DetSetVector<T>
+  // inherits from Other.  (This is necessary to assure that
+  // DetSetVector<T> is not sorted upon insertion into the Event when
+  // T is defined to inherit from DoNotSortUponInsertion).
+
   template <class T>
-  class DetSetVector {
+  class DetSetVector : 
+    public boost::mpl::if_c<boost::is_base_of<edm::DoNotSortUponInsertion, T>::value,
+			    edm::DoNotSortUponInsertion,
+			    Other>::type
+  {
     /// DetSetVector requires that T objects can be compared with
     /// operator<.
     BOOST_CLASS_REQUIRE(T, boost, LessThanComparableConcept);
