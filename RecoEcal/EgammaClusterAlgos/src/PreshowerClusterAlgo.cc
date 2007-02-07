@@ -29,7 +29,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   }
 
   // create null-cluster
-  EcalRecHitCollection dummy;
+  std::vector<DetId> dummy;
   Point posi(0,0,0);  
   if ( debugLevel_ <= pINFO ) std::cout << " Creating a null-cluster" << std::endl;
   reco::PreshowerCluster nullcluster=reco::PreshowerCluster(0.,posi,dummy,basicClust_ref,plane);
@@ -210,22 +210,24 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   double Eclust = 0;
 
   if ( debugLevel_ == pINFO ) std::cout << "The found ES cluster strips: " << std::endl;  
+  std::vector<DetId> usedHits;
   for (it=clusterRecHits.begin(); it != clusterRecHits.end(); it++) {
      Eclust += it->energy();
+     usedHits.push_back(it->id());
      if ( debugLevel_ == pINFO ) std::cout << it->id() <<", E = " << it->energy()<<"; ";
   }   
   if ( debugLevel_ == pINFO ) std::cout << std::endl;
 
 
   // ES cluster is created from vector clusterRecHits
-  reco::PreshowerCluster cluster=reco::PreshowerCluster(Eclust,pos,clusterRecHits,basicClust_ref,plane);
+  reco::PreshowerCluster cluster=reco::PreshowerCluster(Eclust,pos,usedHits,basicClust_ref,plane);
 
   if ( debugLevel_ <= pINFO ) {
      std::cout << " ES Cluster is created with " << std::endl;
      std::cout << " energy = " << cluster.energy() << std::endl;
      std::cout << " (eta,phi) = " << "("<<cluster.eta()<<", "<<cluster.phi()<<")"<< std::endl;
      std::cout << " nhits = " << cluster.nhits() << std::endl;
-     std::cout << " radius = " << cluster.radius() << std::endl; 
+     std::cout << " radius = " << cluster.position().r() << std::endl; 
      std::cout << " (x,y,z) = " << "(" << cluster.x() <<", "<< cluster.y() <<", "<< cluster.z()<<")"<< std::endl;     
   }
  
