@@ -1,27 +1,10 @@
 #ifndef JetPlusTrackCorrector_h
 #define JetPlusTrackCorrector_h
 
-#include <map>
-#include <string>
-#include <vector>
-
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
-
-#include "JetMETCorrections/JetPlusTrack/interface/SingleParticleJetResponseTmp.h"
-
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-#include "TrackingTools/TrackAssociator/interface/TimerStack.h"
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CLHEP/Vector/LorentzVector.h"
+
+class SingleParticleJetResponseTmp;
 
 namespace edm {
   class ParameterSet;

@@ -1,13 +1,19 @@
 #include "JetMETCorrections/JetPlusTrack/interface/JetPlusTrackCorrector.h"
+
+#include <vector>
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include <vector>
-#include <fstream>
-#include <sstream>
-#include <boost/regex.hpp>
+#include "JetMETCorrections/JetPlusTrack/interface/SingleParticleJetResponseTmp.h"
+
+
+
+
 using namespace std;
 
 JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
@@ -117,7 +123,7 @@ double JetPlusTrackCorrector::correction( const LorentzVector& fJet,
 //         std::vector<GlobalPoint> AllTracks1;
 //         cout<<" JetPlusTrackCorrector::The position of the primary vertex "<<theRecVertex.position()<<endl;
 
-      double NewResponse = fJet.E(); double echar = 0.; double echarsum = 0.;
+      double NewResponse = fJet.energy(); double echar = 0.; double echarsum = 0.;
       
       for (vector<reco::Track>::const_iterator track = theTrack.begin();
                 track != theTrack.end(); track++)
@@ -190,10 +196,10 @@ double JetPlusTrackCorrector::correction( const LorentzVector& fJet,
          NewResponse =  NewResponse - resp.front() - resp.back();
     
       } 
-       cout<<" Energy of charged= "<<echar<<" energy of jet "<<fJet.E()<<" "<<NewResponse<<
+       cout<<" Energy of charged= "<<echar<<" energy of jet "<<fJet.energy()<<" "<<NewResponse<<
        " "<<echarsum<<endl;
 	 
-         float mScale = NewResponse/fJet.E();
+         float mScale = NewResponse/fJet.energy();
 	 		
      return mScale;
 }
