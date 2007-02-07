@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/06 15:50:04 $
- * $Revision: 1.210 $
+ * $Date: 2007/02/06 18:19:50 $
+ * $Revision: 1.211 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -330,7 +330,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   // Define new color palette
 
   float rgb[6][3] = {{1.00, 0.00, 0.00}, {0.00, 1.00, 0.00}, {1.00, 0.96, 0.00},
-                     {0.50, 0.00, 0.00}, {0.00, 0.40, 0.00}, {0.75, 0.63, 0.00}};
+                     {0.50, 0.00, 0.20}, {0.00, 0.50, 0.40}, {0.94, 0.78, 0.00}};
 
   for( int i=0; i<6; i++ ) {
     TColor* color;
