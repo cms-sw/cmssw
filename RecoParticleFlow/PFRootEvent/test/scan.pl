@@ -23,13 +23,7 @@ my $bsub=0;
 
 my $pwd = `pwd`;
 chomp $pwd;
-
-my $date = `date +%d%b%Y_%H%M%S`;
-my $scandir = "ScanOut_$date";
-chomp $scandir;
-`mkdir $scandir`;
-`echo "scan.pl @ARGV" > scan.pl.log`;
-`mv scan.pl.log $scandir`;
+my @args =  @ARGV;
 
 GetOptions ('tag1=s' => \$tag1,
 	    'tag2=s' => \$tag2,
@@ -48,6 +42,7 @@ if($help) {
     exit(1);
 }
 
+
 if($doNotSubmit) {
     print "will do nothing... \n";
 }
@@ -55,6 +50,13 @@ if($doNotSubmit) {
 print "master : $masterfile\n";
 print "======== tags: $tag1 $tag2 ==  values: $svalues == $sfiles ======= \n";
 
+
+my $date = `date +%d%b%Y_%H%M%S`;
+my $scandir = "ScanOut\_$tag1\_$tag2";
+chomp $scandir;
+`mkdir $scandir`;
+`echo "scan.pl @args" > scan.pl.log`;
+`mv scan.pl.log $scandir`;
 
 
 my $ls = "ls";
