@@ -1,37 +1,39 @@
 #include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
 // #include "Vertex/LinearizationPointFinders/interface/LMSLinearizationPointFinder.h"
 #include "RecoVertex/KinematicFit/interface/FinalTreeBuilder.h"
-#include "RecoVertex/VertexTools/interface/SequentialVertexSmoother.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackUpdator.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanSmoothedVertexChi2Estimator.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanTrackToTrackCovCalculator.h"
+// #include "RecoVertex/VertexTools/interface/SequentialVertexSmoother.h"
+// #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
+// #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackUpdator.h"
+// #include "RecoVertex/KalmanVertexFit/interface/KalmanSmoothedVertexChi2Estimator.h"
+// #include "RecoVertex/KalmanVertexFit/interface/KalmanTrackToTrackCovCalculator.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+#include "RecoVertex/LinearizationPointFinders/interface/FsmwLinearizationPointFinder.h"
 
 KinematicParticleVertexFitter::KinematicParticleVertexFitter()
 { 
+  fitter = new KalmanVertexFitter(true);
 //FIXME
-//  pointFinder =  new LMSLinearizationPointFinder;
+ pointFinder =  new FsmwLinearizationPointFinder(20, -2., 0.4, 10.);
  vFactory = new VertexTrackFactory();
- KalmanVertexTrackUpdator kvtu;
- KalmanSmoothedVertexChi2Estimator est;
- KalmanTrackToTrackCovCalculator cl;
- SequentialVertexSmoother smoother(kvtu,est,cl);
- KalmanVertexUpdator updator; 
- fitter = new SequentialKinematicVertexFitter(updator, smoother);
+//  KalmanVertexTrackUpdator kvtu;
+//  KalmanSmoothedVertexChi2Estimator est;
+//  KalmanTrackToTrackCovCalculator cl;
+//  SequentialVertexSmoother smoother(kvtu,est,cl);
+//  KalmanVertexUpdator updator; 
+//  fitter = new SequentialKinematicVertexFitter(updator, smoother);
 }
 
-KinematicParticleVertexFitter::KinematicParticleVertexFitter(const LinearizationPointFinder&  finder)
-{ 
- pointFinder = finder.clone();
- vFactory = new VertexTrackFactory();
- KalmanVertexTrackUpdator kvtu;
- KalmanSmoothedVertexChi2Estimator est;
- KalmanTrackToTrackCovCalculator cl;
- SequentialVertexSmoother smoother(kvtu,est,cl);
- KalmanVertexUpdator updator; 
- fitter = new SequentialKinematicVertexFitter(updator, smoother);
-}
+// KinematicParticleVertexFitter::KinematicParticleVertexFitter(const LinearizationPointFinder&  finder)
+// { 
+//  pointFinder = finder.clone();
+//  vFactory = new VertexTrackFactory();
+//  KalmanVertexTrackUpdator kvtu;
+//  KalmanSmoothedVertexChi2Estimator est;
+//  KalmanTrackToTrackCovCalculator cl;
+//  SequentialVertexSmoother smoother(kvtu,est,cl);
+//  KalmanVertexUpdator updator; 
+//  fitter = new SequentialKinematicVertexFitter(updator, smoother);
+// }
 
 KinematicParticleVertexFitter::~KinematicParticleVertexFitter()
 {
@@ -66,15 +68,15 @@ RefCountedKinematicTree KinematicParticleVertexFitter::fit(vector<RefCountedKine
  for(vector<RefCountedKinematicParticle>::const_iterator i = newPart.begin();i != newPart.end();i++)
  {ttf.push_back(vFactory->vertexTrack((*i)->particleLinearizedTrackState(linPoint),state,1.));}
 
-//debugging code to check neutrals: 
- for(vector<RefCountedVertexTrack>::const_iterator i = ttf.begin(); i!=ttf.end(); i++)
- {
-//   cout<<"predicted state momentum error"<<(*i)->linearizedTrack()->predictedStateMomentumError()<<endl;
-//  cout<<"Momentum jacobian"<<(*i)->linearizedTrack()->momentumJacobian() <<endl;
- //  cout<<"predicted state momentum "<<(*i)->linearizedTrack()->predictedStateMomentum()<<endl;
-//   cout<<"constant term"<<(*i)->linearizedTrack()->constantTerm()<<endl;
-
- }
+// //debugging code to check neutrals: 
+//  for(vector<RefCountedVertexTrack>::const_iterator i = ttf.begin(); i!=ttf.end(); i++)
+//  {
+// //   cout<<"predicted state momentum error"<<(*i)->linearizedTrack()->predictedStateMomentumError()<<endl;
+// //  cout<<"Momentum jacobian"<<(*i)->linearizedTrack()->momentumJacobian() <<endl;
+//  //  cout<<"predicted state momentum "<<(*i)->linearizedTrack()->predictedStateMomentum()<<endl;
+// //   cout<<"constant term"<<(*i)->linearizedTrack()->constantTerm()<<endl;
+// 
+//  }
 
 
 //getting the vertex position and covariance matrix

@@ -1,14 +1,13 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicState.h"
-#include "TrackingTools/TrajectoryState/interface/FakeField.h"
 
-KinematicState::KinematicState(const KinematicParameters& parameters, 
-                               const KinematicParametersError& error, 
-                               const TrackCharge& charge):
-                               param(parameters),err(error), ch(charge), vl(true)
+KinematicState::KinematicState(const KinematicParameters& parameters,
+	const KinematicParametersError& error, const TrackCharge& charge,
+	const MagneticField* field) :
+	theField(field), param(parameters),err(error), ch(charge), vl(true)
 {}
 
 
-bool KinematicState::operator==(const KinematicState& other) const 
+bool KinematicState::operator==(const KinematicState& other) const
 {
  bool res = false;
  if((kinematicParameters().vector() == other.kinematicParameters().vector())&&
@@ -27,7 +26,7 @@ KinematicParametersError KinematicState::kinematicParametersError() const
 
 GlobalVector KinematicState::globalMomentum() const
 {return param.momentum();}
- 
+
 GlobalPoint KinematicState::globalPosition() const
 {return param.position();}
 
@@ -36,8 +35,8 @@ TrackCharge KinematicState::particleCharge() const
 
 FreeTrajectoryState KinematicState::freeTrajectoryState() const
 {
- GlobalTrajectoryParameters globalPar(globalPosition(),globalMomentum(),particleCharge(), 
-				TrackingTools::FakeField::Field::field());
+ GlobalTrajectoryParameters globalPar(globalPosition(), globalMomentum(),
+	particleCharge(), theField);
  AlgebraicSymMatrix cError = kinematicParametersError().matrix().sub(1,6);
  CartesianTrajectoryError cartError(cError);
 // cout<<"conversion called"<<endl;

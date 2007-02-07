@@ -248,7 +248,7 @@ vector<RefCountedKinematicTree>  LagrangeParentParticleFitter::fit(vector<RefCou
 //new refitted parameters and covariance  
   KinematicParameters param(lRefPar);
   KinematicParametersError er(lRefCovS); 
-  KinematicState kState(param,er,(*i)->initialState().particleCharge());
+  KinematicState kState(param,er,(*i)->initialState().particleCharge(), (**i).magneticField());
   RefCountedKinematicParticle refParticle  = (*i)->refittedParticle(kState,chi(j),ndf(j),cs->clone());
   
 //replacing particle itself  

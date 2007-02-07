@@ -86,7 +86,8 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex& vtx,
 //new born kinematic particle 
  KinematicParameters kPar(par);
  KinematicParametersError kEr(sCov);  
- KinematicState nState(kPar, kEr, ch);
+ const MagneticField* field=input.front()->magneticField();
+ KinematicState nState(kPar, kEr, ch, field);
  
 //invalid previous particle and empty constraint:
  KinematicParticle * zp = 0;
@@ -114,7 +115,7 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex& vtx,
   AlgebraicSymMatrix lCov = rS->covariance();
   KinematicParametersError lkCov(lCov);
   TrackCharge lch = lT->charge();
-  KinematicState nState(lkPar,lkCov,lch);
+  KinematicState nState(lkPar,lkCov,lch, field);
   RefCountedKinematicParticle nPart = (*j)->refittedParticle(nState,vChi,vNdf);
   rrP.push_back(nPart);
   if((*j)->correspondingTree() != 0)

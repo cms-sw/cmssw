@@ -3,12 +3,12 @@
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToCartesian.h"
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
 #include "Geometry/Surface/interface/BoundPlane.h"
-#include "TrackingTools/TrajectoryState/interface/FakeField.h"
 
 using namespace std;
 
-KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCA(const KinematicState& state,
-                                                                              const GlobalPoint& referencePoint) const
+KinematicState
+TrackKinematicStatePropagator::propagateToTheTransversePCA
+	(const KinematicState& state, const GlobalPoint& referencePoint) const
 {
  if( state.particleCharge() == 0. ) {
     return propagateToTheTransversePCANeutral(state, referencePoint);
@@ -17,14 +17,14 @@ KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCA(const 
   }
 }
 
-pair<HelixBarrelPlaneCrossingByCircle,BoundPlane *> TrackKinematicStatePropagator::planeCrossing(
-                                                                         const FreeTrajectoryState& state,
-                                                                         const GlobalPoint& point) const
+pair<HelixBarrelPlaneCrossingByCircle,BoundPlane *>
+TrackKinematicStatePropagator::planeCrossing(const FreeTrajectoryState& state,
+	const GlobalPoint& point) const
 {
  GlobalPoint inPos = state.position();
  GlobalVector inMom = state.momentum();
  double kappa = state.transverseCurvature();
- double fac = 1./state.charge()/TrackingTools::FakeField::Field::inGeVPerCentimeter(point).z();
+ double fac = 1./state.charge()/state.parameters().magneticField().inInverseGeV(point).z();
  
  GlobalVectorDouble xOrig2Centre = GlobalVectorDouble(fac * inMom.y(), -fac * inMom.x(), 0.);
  GlobalVectorDouble xOrigProj = GlobalVectorDouble(inPos.x(), inPos.y(), 0.);
@@ -50,8 +50,9 @@ pair<HelixBarrelPlaneCrossingByCircle,BoundPlane *> TrackKinematicStatePropagato
 }
 
 
-KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCACharged(const KinematicState& state, 
-                                                                              const GlobalPoint& referencePoint) const
+KinematicState
+TrackKinematicStatePropagator::propagateToTheTransversePCACharged
+	(const KinematicState& state, const GlobalPoint& referencePoint) const
 {
 //first use the existing FTS propagator to obtain parameters at PCA
 //in transverse plane to the given point
@@ -62,7 +63,7 @@ KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCACharged
     
 //initial parameters as class and vectors:  
   GlobalTrajectoryParameters inPar(state.globalPosition(),state.globalMomentum(), 
-		state.particleCharge(), TrackingTools::FakeField::Field::field());
+		state.particleCharge(), state.magneticField());
   ParticleMass mass = state.mass();							  
   GlobalVector inMom = state.globalMomentum();							  
   
@@ -95,7 +96,7 @@ KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCACharged
 //mass - momentum projections corellations do change under such a transformation:
 //special Jacobian needed  
   GlobalTrajectoryParameters fPar(nPosition, nMomentum, state.particleCharge(),
-  				TrackingTools::FakeField::Field::field());
+  				state.magneticField());
 					       							  
   JacobianCartesianToCurvilinear cart2curv(inPar);
   JacobianCurvilinearToCartesian curv2cart(fPar);
@@ -127,11 +128,11 @@ KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCACharged
 //return parameters as a kiematic state  
   KinematicParameters resPar(par);
   KinematicParametersError resEr(cov);
-  return  KinematicState(resPar,resEr,state.particleCharge()); 
+  return  KinematicState(resPar,resEr,state.particleCharge(), state.magneticField()); 
  }
   
-KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCANeutral(const KinematicState& state,
-                                                                              const GlobalPoint& referencePoint) const
+KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCANeutral
+	(const KinematicState& state, const GlobalPoint& referencePoint) const
 {
 //new parameters vector and covariance:
  AlgebraicVector par(7,0);
@@ -139,7 +140,7 @@ KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCANeutral
  
  AlgebraicVector inStatePar = state.kinematicParameters().vector();
  GlobalTrajectoryParameters inPar(state.globalPosition(),state.globalMomentum(), 
-		state.particleCharge(), TrackingTools::FakeField::Field::field());
+		state.particleCharge(), state.magneticField());
  
 //first making a free trajectory state and propagating it according
 //to the algorithm provided by Thomas Speer and Wolfgang Adam 
@@ -176,7 +177,7 @@ KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCANeutral
 //distinguish between neutral and charged states themselves
 
  GlobalTrajectoryParameters fPar(xPerigee, pPerigee, state.particleCharge(),
-				TrackingTools::FakeField::Field::field());
+				state.magneticField());
  JacobianCartesianToCurvilinear cart2curv(inPar);
  JacobianCurvilinearToCartesian curv2cart(fPar);
   
@@ -207,7 +208,7 @@ KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCANeutral
 //return parameters as a kiematic state  
  KinematicParameters resPar(par);
  KinematicParametersError resEr(cov);
- return  KinematicState(resPar,resEr,state.particleCharge());  	
+ return  KinematicState(resPar,resEr,state.particleCharge(), state.magneticField());  	
 }
 
 

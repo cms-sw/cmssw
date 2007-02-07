@@ -2,7 +2,6 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicPerigeeConversions.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToCurvilinear.h"
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
-#include "TrackingTools/TrajectoryState/interface/FakeField.h"
 
 PerigeeKinematicState::PerigeeKinematicState(const KinematicState& state, const GlobalPoint& pt):
  point(pt), inState(state),  errorIsAvailable(true),vl(true)

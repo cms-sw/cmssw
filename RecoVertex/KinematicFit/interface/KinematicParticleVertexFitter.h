@@ -1,11 +1,11 @@
 #ifndef KinematicParticleVertexFitter_H
 #define KinematicParticleVertexFitter_H
 
-#include "RecoVertex/KinematicFit/interface/SequentialKinematicVertexFitter.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicTree.h"
 #include "RecoVertex/VertexTools/interface/LinearizationPointFinder.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
 #include "RecoVertex/KinematicFit/interface/InputSort.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 
 /**
  * Class creating a kinematic particle out
@@ -33,13 +33,13 @@ public:
  KinematicParticleVertexFitter();
  
  
-/**
+/*
  * Constructor with the LinearizationPointFinder
  * Linearization point finder should have an 
  * ability to find point out of set of FreeTrajectoryStates
  * LMSLinearizationPointFinder is used as default.
  */
- KinematicParticleVertexFitter(const LinearizationPointFinder& finder);
+//  KinematicParticleVertexFitter(const LinearizationPointFinder& finder);
  
  ~KinematicParticleVertexFitter();
  
@@ -55,7 +55,8 @@ public:
 private:
 		    
 //widely used common tools 
-  SequentialKinematicVertexFitter * fitter;
+  //SequentialKinematicVertexFitter * fitter; use the default KalmanFilter instead!
+  KalmanVertexFitter * fitter;
   LinearizationPointFinder * pointFinder; 
   VertexTrackFactory * vFactory;
 };

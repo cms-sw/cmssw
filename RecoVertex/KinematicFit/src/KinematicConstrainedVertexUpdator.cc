@@ -13,10 +13,12 @@ KinematicConstrainedVertexUpdator::~KinematicConstrainedVertexUpdator()
  delete vConstraint;
 }
 
-pair<pair<vector<KinematicState>, AlgebraicMatrix >, RefCountedKinematicVertex > KinematicConstrainedVertexUpdator::
-                 update(const AlgebraicVector& inPar, const AlgebraicMatrix& inCov, vector<KinematicState> lStates,
-	                                        const GlobalPoint& lPoint, MultiTrackKinematicConstraint * cs)const
+pair<pair<vector<KinematicState>, AlgebraicMatrix >, RefCountedKinematicVertex >
+KinematicConstrainedVertexUpdator::update(const AlgebraicVector& inPar,
+	const AlgebraicMatrix& inCov, vector<KinematicState> lStates,
+	const GlobalPoint& lPoint, MultiTrackKinematicConstraint * cs)const
 {
+ const MagneticField* field=lStates.front().magneticField();
  AlgebraicMatrix d_matrix = vConstraint->parametersDerivative(lStates, lPoint);
  AlgebraicMatrix e_matrix = vConstraint->positionDerivative(lStates, lPoint);
  AlgebraicVector val_s = vConstraint->value(lStates, lPoint);
@@ -152,7 +154,7 @@ pair<pair<vector<KinematicState>, AlgebraicMatrix >, RefCountedKinematicVertex >
    TrackCharge chl = i_st->particleCharge();
    KinematicParameters nrPar(newPar);
    KinematicParametersError nrEr(nCovariance);
-   KinematicState newState(nrPar,nrEr,chl);
+   KinematicState newState(nrPar,nrEr,chl, field);
    ns.push_back(newState);
    i_int++;
   }

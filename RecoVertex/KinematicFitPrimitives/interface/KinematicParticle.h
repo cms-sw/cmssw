@@ -117,6 +117,8 @@ public:
   
  virtual float degreesOfFreedom() const;
    
+  const MagneticField* magneticField() const {return theField;}
+
 protected: 
 
  virtual void setTreePointer(KinematicTree * tr) const;
@@ -125,6 +127,8 @@ protected:
  * Data members which should be initialized by user in 
  * derived classes
  */ 
+
+  const MagneticField* theField;
 
 //pointer to the tree current
 //particle  belongs to

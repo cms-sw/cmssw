@@ -1,5 +1,4 @@
 #include "RecoVertex/KinematicFit/interface/ConstrainedTreeBuilder.h"
-#include "TrackingTools/TrajectoryState/interface/FakeField.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
 ConstrainedTreeBuilder::ConstrainedTreeBuilder()
@@ -25,6 +24,7 @@ RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(vector<RefCountedKinem
  par(3) = vtx->position().z();
  double ent = 0.;
  int charge = 0;
+ const MagneticField* field=prt.front()->magneticField();
  for(vector<RefCountedKinematicParticle>::iterator i = prt.begin(); i != prt.end(); i++)
  {
   charge += (*i)->currentState().particleCharge();
@@ -68,7 +68,7 @@ RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(vector<RefCountedKinem
  KinematicParameters nP(par);
  KinematicParametersError nE(sCov);
  
- KinematicState nState(nP,nE,charge);
+ KinematicState nState(nP,nE,charge, field);
  
 //new born kinematic particle 
  float chi2 = vtx->chiSquared();
@@ -122,7 +122,7 @@ AlgebraicMatrix ConstrainedTreeBuilder::momentumPart(vector<RefCountedKinematicP
  
 //vertex position related components of the matrix 
   TrackCharge ch = (*i)->currentState().particleCharge();
-  double field = TrackingTools::FakeField::Field::inGeVPerCentimeter((*i)->currentState().globalPosition()).z();
+  double field = (*i)->magneticField()->inInverseGeV((*i)->currentState().globalPosition()).z();
   double a_i = -0.29979246*ch*field;
   AlgebraicMatrix upper(3,7,0);
   AlgebraicMatrix diagonal(7,7,0);

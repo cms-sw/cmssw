@@ -1,7 +1,6 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/ParticleKinematicLinearizedTrackState.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicRefittedTrackState.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicPerigeeConversions.h"
-#include "TrackingTools/TrajectoryState/interface/FakeField.h"
 
 AlgebraicVector ParticleKinematicLinearizedTrackState::constantTerm() const
 {
@@ -100,14 +99,14 @@ ReferenceCountingPointer<LinearizedTrackState>  ParticleKinematicLinearizedTrack
  return new  ParticleKinematicLinearizedTrackState(newLP, pr);
 }
 						   
-RefCountedRefittedTrackState  ParticleKinematicLinearizedTrackState::createRefittedTrackState(
-                                                   const GlobalPoint & vertexPosition, 
-	                                           const AlgebraicVector & vectorParameters,
-	                                           const AlgebraicSymMatrix & covarianceMatrix)const
+RefCountedRefittedTrackState
+ParticleKinematicLinearizedTrackState::createRefittedTrackState(
+	const GlobalPoint & vertexPosition,  const AlgebraicVector & vectorParameters,
+	const AlgebraicSymMatrix & covarianceMatrix) const
 {
  KinematicPerigeeConversions conversions;  
- KinematicState lst = conversions.kinematicState(vectorParameters,vertexPosition,
-                                                     charge(),covarianceMatrix); 
+ KinematicState lst = conversions.kinematicState(vectorParameters, vertexPosition,
+		charge(), covarianceMatrix, part->currentState().magneticField()); 
  RefCountedRefittedTrackState rst =  RefCountedRefittedTrackState(new KinematicRefittedTrackState(lst));  
  return rst;
 }						   
@@ -154,7 +153,7 @@ void ParticleKinematicLinearizedTrackState::computeChargedJacobians() const
  GlobalPoint paramPt(theLinPoint);
 // thePredState = builder(part->currentState(), paramPt);
  
- double field = TrackingTools::FakeField::Field::inGeVPerCentimeter(thePredState.theState().globalPosition()).z();
+ double field  = part->currentState().magneticField()->inInverseGeV(thePredState.theState().globalPosition()).z();
  double signTC = -part->currentState().particleCharge();
  
  double thetaAtEP = thePredState.theState().globalMomentum().theta();

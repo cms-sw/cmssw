@@ -1,6 +1,5 @@
 #include "RecoVertex/KinematicFit/interface/VertexKinematicConstraint.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
-#include "TrackingTools/TrajectoryState/interface/FakeField.h"
 
 VertexKinematicConstraint::VertexKinematicConstraint()
 {}
@@ -30,7 +29,7 @@ AlgebraicVector VertexKinematicConstraint::value(const vector<KinematicState> st
   {
 
 //charged particle  
-   double field = TrackingTools::FakeField::Field::inGeVPerCentimeter(pos).z();
+   double field = i->magneticField()->inInverseGeV(pos).z();
    double a_i = -0.29979246*ch*field;
    double j = a_i*(d_x * mom.x() + d_y * mom.y())/(pt*pt);
  
@@ -68,7 +67,7 @@ AlgebraicMatrix VertexKinematicConstraint::parametersDerivative(const vector<Kin
   if(ch !=0){
   
 //charged particle  
-   double field = TrackingTools::FakeField::Field::inGeVPerCentimeter(pos).z();
+   double field = i->magneticField()->inInverseGeV(pos).z();
    double a_i = -0.29979246*ch*field;
    double j = a_i*(d_x * mom.x() + d_y * mom.y())/(pt*pt);
    double r_x = d_x - 2* mom.x()*(d_x*mom.x()+d_y*mom.y())/(pt*pt);
@@ -127,7 +126,7 @@ AlgebraicMatrix VertexKinematicConstraint::positionDerivative(const vector<Kinem
   {
   
 //charged particle  
-   double field = TrackingTools::FakeField::Field::inGeVPerCentimeter(pos).z();
+   double field = i->magneticField()->inInverseGeV(pos).z();
    double a_i = -0.29979246*ch*field;
    double j = a_i*(d_x * mom.x() + d_y * mom.y())/(pt*pt);
    double s = 1/(pt*pt*sqrt(1 - j*j));

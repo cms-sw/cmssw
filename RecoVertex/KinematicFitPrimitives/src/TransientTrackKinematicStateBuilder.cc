@@ -10,9 +10,13 @@ KinematicState TransientTrackKinematicStateBuilder::operator()(const TransientTr
  return buildState(*(track.impactPointState().freeState()), m, m_sigma);
 } 
 
-KinematicState TransientTrackKinematicStateBuilder::operator()(const KinematicParameters& par,
-                             const KinematicParametersError& er, const TrackCharge& ch) const
-{return KinematicState(par,er,ch);}
+KinematicState
+TransientTrackKinematicStateBuilder::operator()(const KinematicParameters& par,
+	const KinematicParametersError& er, const TrackCharge& ch,
+	const MagneticField* field) const
+{
+  return KinematicState(par, er, ch, field);
+}
  
 KinematicState TransientTrackKinematicStateBuilder::operator()(const TransientTrack& track, 
                           const GlobalPoint& point, const ParticleMass& m,float m_sigma) const
@@ -41,8 +45,9 @@ PerigeeKinematicState TransientTrackKinematicStateBuilder::operator()(const Kine
  return PerigeeKinematicState(nState, point);
 }	
 
-KinematicState TransientTrackKinematicStateBuilder::buildState(const FreeTrajectoryState & state, 
-                            const ParticleMass& mass, float m_sigma)const
+KinematicState
+TransientTrackKinematicStateBuilder::buildState(const FreeTrajectoryState & state, 
+	const ParticleMass& mass, float m_sigma) const
 { 
  AlgebraicVector par(7);
  AlgebraicSymMatrix cov(7,0);
@@ -66,5 +71,5 @@ KinematicState TransientTrackKinematicStateBuilder::buildState(const FreeTraject
 //making parameters & error
  KinematicParameters wPar(par);
  KinematicParametersError wEr(cov);
- return KinematicState(wPar,wEr,state.charge());
+ return KinematicState(wPar,wEr,state.charge(), &state.parameters().magneticField());
 }

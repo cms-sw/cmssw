@@ -5,6 +5,7 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParametersError.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/ParticleMass.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 /**
  * Class  providing  a state of particle needed
@@ -31,8 +32,9 @@ public:
  * KinematicError and Charge. To be used with
  * proper KinematicStateBuilder.
  */
- KinematicState(const KinematicParameters& parameters, const KinematicParametersError& error, 
-                                                       const TrackCharge& charge);
+ KinematicState(const KinematicParameters& parameters,
+ 	const KinematicParametersError& error, const TrackCharge& charge,
+	const MagneticField* field);
 						       
  bool operator==(const KinematicState& other) const;
 
@@ -61,17 +63,16 @@ public:
  bool isValid() const
  {return vl;}
 
-
+  const MagneticField* magneticField() const {return theField;}
 
  
 private:
 
- KinematicParameters param;
-
- KinematicParametersError err;
-
- TrackCharge ch;
+  const MagneticField* theField;
+  KinematicParameters param;
+  KinematicParametersError err;
+  TrackCharge ch;
  
- bool vl;
+  bool vl;
 };
 #endif

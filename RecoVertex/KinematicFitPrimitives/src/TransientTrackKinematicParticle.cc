@@ -3,12 +3,13 @@
 
 using namespace reco;
 
-TransientTrackKinematicParticle::
-TransientTrackKinematicParticle(const KinematicState& kineState,float& chiSquared,
-                  float& degreesOfFr, KinematicConstraint * lastConstraint,
-                    ReferenceCountingPointer<KinematicParticle> previousParticle,
-	          KinematicStatePropagator * pr, const TransientTrack * initialTrack)
+TransientTrackKinematicParticle::TransientTrackKinematicParticle
+	(const KinematicState& kineState, float& chiSquared,
+	float& degreesOfFr, KinematicConstraint * lastConstraint,
+	ReferenceCountingPointer<KinematicParticle> previousParticle,
+	KinematicStatePropagator * pr, const TransientTrack * initialTrack)
 {
+  theField = kineState.magneticField();
  if(previousParticle.get() == 0)
  { 
   initState = kineState;

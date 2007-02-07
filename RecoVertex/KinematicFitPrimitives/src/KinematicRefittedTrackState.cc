@@ -3,7 +3,6 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicPerigeeConversions.h"
-#include "TrackingTools/TrajectoryState/interface/FakeField.h"
 
 
 KinematicRefittedTrackState::KinematicRefittedTrackState(const KinematicState& st)		
@@ -53,8 +52,7 @@ AlgebraicVector KinematicRefittedTrackState::momentumVector() const
 
 TrajectoryStateOnSurface KinematicRefittedTrackState::trajectoryStateOnSurface(const Surface & surface) const
 {
- AnalyticalPropagator thePropagator(TrackingTools::FakeField::Field::field(), 
- 					anyDirection);
+  AnalyticalPropagator thePropagator(state.magneticField(), anyDirection);
  return thePropagator.propagate(freeTrajectoryState(), surface);
 }
 
@@ -87,3 +85,9 @@ std::vector< ReferenceCountingPointer<RefittedTrackState> > KinematicRefittedTra
 
 
 
+reco::TransientTrack KinematicRefittedTrackState::transientTrack() const
+{
+  throw VertexException("KinematicRefittedTrackState::Can Not write a TransientTrack");
+//  TransientTrackFromFTSFactory factory;
+//   return factory.build(freeTrajectoryState());
+}

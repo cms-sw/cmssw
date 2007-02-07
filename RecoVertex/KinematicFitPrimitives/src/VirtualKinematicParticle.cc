@@ -1,13 +1,15 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/VirtualKinematicParticle.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 
-VirtualKinematicParticle::VirtualKinematicParticle(const KinematicState& kineState,float& chiSquared,
-                                            float& degreesOfFr, KinematicConstraint * lastConstraint,
-                                        ReferenceCountingPointer<KinematicParticle> previousParticle,
-		                                                       KinematicStatePropagator * pr)
-{ 
+VirtualKinematicParticle::VirtualKinematicParticle
+	(const KinematicState& kineState, float& chiSquared, float& degreesOfFr,
+	 KinematicConstraint * lastConstraint,
+	 ReferenceCountingPointer<KinematicParticle> previousParticle,
+	 KinematicStatePropagator * pr)
+{
+  theField = kineState.magneticField();
  if(previousParticle.get() == 0)
- { 
+ {
   initState = kineState;
  }else{initState = previousParticle->initialState();}
  cState = kineState;
@@ -22,7 +24,7 @@ VirtualKinematicParticle::VirtualKinematicParticle(const KinematicState& kineSta
   propagator = new TrackKinematicStatePropagator();
  }
  tree = 0;
-}						   
+}
 
 VirtualKinematicParticle::~VirtualKinematicParticle()
 {delete propagator;}
@@ -30,12 +32,12 @@ VirtualKinematicParticle::~VirtualKinematicParticle()
 bool VirtualKinematicParticle::operator==(const KinematicParticle& other)const
 {
  bool dc = false;
- 
+
 //first looking if this is an object of the same type
  const  KinematicParticle * lp = &other;
  const VirtualKinematicParticle * lPart = dynamic_cast<const VirtualKinematicParticle * >(lp);
- if(lPart != 0 && initialState() == lPart->initialState()) dc = true; 
- return dc; 
+ if(lPart != 0 && initialState() == lPart->initialState()) dc = true;
+ return dc;
 }
 
 bool VirtualKinematicParticle::operator==(const ReferenceCountingPointer<KinematicParticle>& other) const
@@ -43,15 +45,15 @@ bool VirtualKinematicParticle::operator==(const ReferenceCountingPointer<Kinemat
  bool res = false;
  if(*this == *other) res = true;
  return res;
-} 
+}
 
 bool VirtualKinematicParticle::operator!=(const KinematicParticle& other)const
 {
  if (*this == other){
   return false;
- }else{return true;} 
+ }else{return true;}
 }
- 
+
 KinematicState VirtualKinematicParticle::stateAtPoint(const GlobalPoint& point)const
 {
  GlobalPoint iP = cState.kinematicParameters().position();
@@ -59,7 +61,7 @@ KinematicState VirtualKinematicParticle::stateAtPoint(const GlobalPoint& point)c
  {
   return cState ;
  }else{return propagator->propagateToTheTransversePCA(cState,point);} }
- 
+
 RefCountedKinematicParticle VirtualKinematicParticle::refittedParticle(const KinematicState& state,
                                                        float chi2, float ndf, KinematicConstraint * cons)const
 {
@@ -67,8 +69,8 @@ RefCountedKinematicParticle VirtualKinematicParticle::refittedParticle(const Kin
  ReferenceCountingPointer<KinematicParticle> current = ReferenceCountingPointer<KinematicParticle>(ncp);
  return ReferenceCountingPointer<KinematicParticle>(new VirtualKinematicParticle(state,chi2,ndf,cons,current,
                                                                                                 propagator));
-}			  
-			  
+}
+
 RefCountedLinearizedTrackState VirtualKinematicParticle::particleLinearizedTrackState(const GlobalPoint& point)const
 {
  VirtualKinematicParticle * cr = const_cast<VirtualKinematicParticle * >(this);

@@ -6,6 +6,7 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/PerigeeKinematicState.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/ParticleMass.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 /**
  * Kinematic State builder for TransientTrack  based kinematic states.
@@ -32,8 +33,9 @@ public:
  * Operator creating a KinematicState directly out of 
  * 7 state parameters and their covariance matrix
  */ 
-  KinematicState operator()(const KinematicParameters& par, const KinematicParametersError& er, 
-                                                                         const TrackCharge& ch) const;
+  KinematicState operator()(const KinematicParameters& par,
+	const KinematicParametersError& er, const TrackCharge& ch,
+	const MagneticField* field) const;
  
 /**
  * Operator creating a KinematicState out of a RecObj

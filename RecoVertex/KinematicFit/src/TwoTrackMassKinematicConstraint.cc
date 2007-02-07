@@ -1,6 +1,5 @@
 #include "RecoVertex/KinematicFit/interface/TwoTrackMassKinematicConstraint.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
-#include "TrackingTools/TrajectoryState/interface/FakeField.h"
 
 
 AlgebraicVector  TwoTrackMassKinematicConstraint::value(const vector<KinematicState> states,
@@ -10,20 +9,20 @@ AlgebraicVector  TwoTrackMassKinematicConstraint::value(const vector<KinematicSt
  if(states[0].particleCharge() ==0. || states[1].particleCharge()==0) 
          throw VertexException("TwoTrackMassKinematicConstraint:: 0 charge states passed");
  AlgebraicVector res(1,0);
- vector<KinematicState>::const_iterator i_st  = states.begin();
- KinematicState p_1 = *i_st;
- i_st++;
- KinematicState p_2 = *i_st;
- TrackCharge ch1 = p_1.particleCharge();
- TrackCharge ch2 = p_2.particleCharge();
+//  vector<KinematicState>::const_iterator i_st  = states.begin();
+//  KinematicState p_1 = *i_st;
+//  i_st++;
+//  KinematicState p_2 = *i_st;
+ TrackCharge ch1 = states[0].particleCharge();
+ TrackCharge ch2 = states[1].particleCharge();
  
- double field1 = TrackingTools::FakeField::Field::inGeVPerCentimeter(p_1.globalPosition()).z();
+ double field1 = states[0].magneticField()->inInverseGeV(states[0].globalPosition()).z();
  double a_1 = -0.29979246*ch1*field1;
- double field2 = TrackingTools::FakeField::Field::inGeVPerCentimeter(p_2.globalPosition()).z();
+ double field2 = states[1].magneticField()->inInverseGeV(states[1].globalPosition()).z();
  double a_2 = -0.29979246*ch2*field2;
 
- AlgebraicVector p1 = p_1.kinematicParameters().vector();
- AlgebraicVector p2 = p_2.kinematicParameters().vector();
+ AlgebraicVector p1 = states[0].kinematicParameters().vector();
+ AlgebraicVector p2 = states[1].kinematicParameters().vector();
  
  double p1vx = p1(4) - a_1*(point.y() - p1(2));
  double p1vy = p1(5) + a_1*(point.x() - p1(1));
@@ -59,16 +58,16 @@ AlgebraicMatrix TwoTrackMassKinematicConstraint::parametersDerivative(const vect
  KinematicState p_1 = *i_st;
  i_st++;
  KinematicState p_2 = *i_st;
- TrackCharge ch1 = p_1.particleCharge();
- TrackCharge ch2 = p_2.particleCharge();
+ TrackCharge ch1 = states[0].particleCharge();
+ TrackCharge ch2 = states[1].particleCharge();
  
- double field1 = TrackingTools::FakeField::Field::inGeVPerCentimeter(p_1.globalPosition()).z();
+ double field1 = states[0].magneticField()->inInverseGeV(states[0].globalPosition()).z();
  double a_1 = -0.29979246*ch1*field1;
- double field2 = TrackingTools::FakeField::Field::inGeVPerCentimeter(p_2.globalPosition()).z();
+ double field2 = states[1].magneticField()->inInverseGeV(states[1].globalPosition()).z();
  double a_2 = -0.29979246*ch2*field2;
  
- AlgebraicVector p1 = p_1.kinematicParameters().vector();
- AlgebraicVector p2 = p_2.kinematicParameters().vector();
+ AlgebraicVector p1 = states[0].kinematicParameters().vector();
+ AlgebraicVector p2 = states[1].kinematicParameters().vector();
  
  double p1vx = p1(4) - a_1*(point.y() - p1(2));
  double p1vy = p1(5) + a_1*(point.x() - p1(1));
@@ -126,16 +125,16 @@ AlgebraicMatrix TwoTrackMassKinematicConstraint::positionDerivative(const vector
  KinematicState p_1 = *i_st;
  i_st++;
  KinematicState p_2 = *i_st;
- TrackCharge ch1 = p_1.particleCharge();
- TrackCharge ch2 = p_2.particleCharge();
+ TrackCharge ch1 = states[0].particleCharge();
+ TrackCharge ch2 = states[1].particleCharge();
  
- double field1 = TrackingTools::FakeField::Field::inGeVPerCentimeter(p_1.globalPosition()).z();
+ double field1 = states[0].magneticField()->inInverseGeV(states[0].globalPosition()).z();
  double a_1 = -0.29979246*ch1*field1;
- double field2 = TrackingTools::FakeField::Field::inGeVPerCentimeter(p_2.globalPosition()).z();
+ double field2 = states[1].magneticField()->inInverseGeV(states[1].globalPosition()).z();
  double a_2 = -0.29979246*ch2*field2;
  
- AlgebraicVector p1 = p_1.kinematicParameters().vector();
- AlgebraicVector p2 = p_2.kinematicParameters().vector();
+ AlgebraicVector p1 = states[0].kinematicParameters().vector();
+ AlgebraicVector p2 = states[1].kinematicParameters().vector();
  
  double p1vx = p1(4) - a_1*(point.y() - p1(2));
  double p1vy = p1(5) + a_1*(point.x() - p1(1));
