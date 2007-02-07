@@ -1,3 +1,4 @@
+#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -215,5 +216,4 @@ const NumberOfDevices& SiStripFecCabling::countDevices() const {
 
 // -----------------------------------------------------------------------------
 // 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 EVENTSETUP_DATA_REG(SiStripFecCabling);
