@@ -1,4 +1,7 @@
 <use name=Foundation/PluginManager>
+<use name=FWCore/Utilities>
 <export>
+  <lib name=FWCorePluginManager>
   <use name=Foundation/PluginManager>
+  <use name=FWCore/Utilities>
 </export>
