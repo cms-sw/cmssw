@@ -181,7 +181,7 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
 
   clustersECALBranch_ = tree_->GetBranch(clustersECALbranchname.c_str());
   if(!clustersECALBranch_) {
-    cerr <<"PFRootEventManager::ReadOptions : clusters_ECAL_branch not found : "
+    cerr <<"PFRootEventManager::ReadOptions : clusters_ECAL_branch not found:"
 	 <<clustersECALbranchname<<endl;
   }
   else if(!clusteringIsOn_) {
@@ -527,7 +527,7 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   
   verbosity_ = VERBOSE;
   options_->GetOpt("print", "verbosity", verbosity_ );
-  
+  cout<<"verbosity : "<<verbosity_<<endl;
 }
 
 PFRootEventManager::~PFRootEventManager() {
@@ -584,6 +584,8 @@ bool PFRootEventManager::processEntry(int entry) {
   }  
 
   if( clusteringIsOn_ ) clustering(); 
+  else if( verbosity_ == VERBOSE )
+    cout<<"clustering is OFF - clusters come from the input file"<<endl; 
 
   if(verbosity_ == VERBOSE ) {
     if(clustersECAL_.get() ) {
