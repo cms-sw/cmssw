@@ -34,7 +34,6 @@ namespace edm {
     bool const poisson_;
     bool const fixed_;
     bool const none_;
-    unsigned int const maxEventsToSkip_;
     VectorInputSource * const input_;
     CLHEP::RandPoisson *poissonDistribution_;
   };
