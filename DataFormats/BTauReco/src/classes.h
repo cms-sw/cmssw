@@ -9,6 +9,7 @@
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/JetTagProxy.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
@@ -31,6 +32,12 @@ namespace {
     edm::Ref<reco::JetTagCollection> r1;
     edm::RefProd<reco::JetTagCollection> rp1;
     edm::RefVector<reco::JetTagCollection> rv1;
+
+    reco::JetTagProxyCollection jtpc;
+    edm::Wrapper<reco::JetTagProxyCollection> jtpc_w;
+    edm::Ref<reco::JetTagProxyCollection> jtpc_r;
+    edm::RefProd<reco::JetTagProxyCollection> jtpc_rp;
+    edm::RefVector<reco::JetTagProxyCollection> jtpc_rv;
 
     reco::TaggingVariableListCollection tvlc;
     edm::Wrapper<reco::TaggingVariableListCollection> tvlc_w;

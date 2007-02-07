@@ -2,6 +2,7 @@
 #define DataFormats_BTauReco_JetTagProxy_h
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/JetTagProxyFwd.h"
 
 namespace reco {
  

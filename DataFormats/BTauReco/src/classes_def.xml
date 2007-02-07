@@ -6,6 +6,13 @@
   <class name="edm::RefProd<std::vector<reco::JetTag> >" />
   <class name="edm::RefVector<std::vector<reco::JetTag>, reco::JetTag, edm::refhelper::FindUsingAdvance<std::vector<reco::JetTag>, reco::JetTag> >" />
 
+  <class name="reco::JetTagProxy" />
+  <class name="std::vector<reco::JetTagProxy>" />
+  <class name="edm::Wrapper<std::vector<reco::JetTagProxy> >" />
+  <class name="edm::Ref<std::vector<reco::JetTagProxy>, reco::JetTagProxy, edm::refhelper::FindUsingAdvance<std::vector<reco::JetTagProxy>, reco::JetTagProxy> >" />
+  <class name="edm::RefProd<std::vector<reco::JetTagProxy> >" />
+  <class name="edm::RefVector<std::vector<reco::JetTagProxy>, reco::JetTagProxy, edm::refhelper::FindUsingAdvance<std::vector<reco::JetTagProxy>, reco::JetTagProxy> >" />
+
   <class name="std::pair<reco::btag::TaggingVariableName, reco::TaggingValue>" />
   <class name="std::vector<std::pair<reco::btag::TaggingVariableName, reco::TaggingValue> >" />
   <class name="reco::TaggingVariableList" />
