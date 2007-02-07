@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.24 2006/11/10 17:35:03 dkcira Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.25 2006/12/10 08:28:16 dkcira Exp $
 //
 //
 
@@ -97,7 +97,7 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
     SiStripFolderOrganizer folder_organizer;
 
     folder_organizer.setSiStripFolder();
-    charge_of_each_cluster = dbe_->book1D("ChargeOfEachCluster","ChargeOfEachCluster",300,-0.5,300.5);
+    charge_of_each_cluster = dbe_->book1D("ChargeOfEachCluster","ChargeOfEachCluster",500,-0.5,500.5);
 
     // loop over detectors and book MEs
     edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<"nr. of SelectedDetIds:  "<<SelectedDetIds.size();
@@ -118,13 +118,13 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
       local_modmes.ClusterWidth = dbe_->book1D(hid, hid, 11,-0.5,10.5); dbe_->tag(local_modmes.ClusterWidth, *detid_iterator);
       //ClusterCharge
       hid = hidmanager.createHistoId("ClusterCharge","det",*detid_iterator);
-      local_modmes.ClusterCharge = dbe_->book1D(hid, hid, 31,-0.5,100.5); dbe_->tag(local_modmes.ClusterCharge, *detid_iterator);
+      local_modmes.ClusterCharge = dbe_->book1D(hid, hid, 31,-0.5,300.5); dbe_->tag(local_modmes.ClusterCharge, *detid_iterator);
       //ClusterNoise
       hid = hidmanager.createHistoId("ClusterNoise","det",*detid_iterator);
       local_modmes.ClusterNoise = dbe_->book1D(hid, hid, 80,0.,10.); dbe_->tag(local_modmes.ClusterNoise, *detid_iterator);
       //ClusterSignal
       hid = hidmanager.createHistoId("ClusterSignal","det",*detid_iterator);
-      local_modmes.ClusterSignal = dbe_->book1D(hid, hid, 100,0.,200.); dbe_->tag(local_modmes.ClusterSignal, *detid_iterator);
+      local_modmes.ClusterSignal = dbe_->book1D(hid, hid, 100,0.,300.); dbe_->tag(local_modmes.ClusterSignal, *detid_iterator);
       //ClusterSignalOverNoise
       hid = hidmanager.createHistoId("ClusterSignalOverNoise","det",*detid_iterator);
       local_modmes.ClusterSignalOverNoise = dbe_->book1D(hid, hid, 100,0.,50.); dbe_->tag(local_modmes.ClusterSignalOverNoise, *detid_iterator);
