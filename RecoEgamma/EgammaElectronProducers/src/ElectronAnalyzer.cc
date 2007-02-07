@@ -13,7 +13,7 @@
 //
 // Original Author:  Alessandro Palma
 //         Created:  Thu Sep 21 11:41:35 CEST 2006
-// $Id: ElectronAnalyzer.cc,v 1.11 2006/12/08 14:57:03 rahatlou Exp $
+// $Id: ElectronAnalyzer.cc,v 1.12 2006/12/19 10:22:07 rahatlou Exp $
 //
 //
 
@@ -39,6 +39,7 @@
 #include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/ElectronAnalyzer.h"
