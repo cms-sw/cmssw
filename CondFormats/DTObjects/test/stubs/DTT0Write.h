@@ -19,6 +19,7 @@ namespace edmtest {
     explicit  DTT0Write(int i) ;
     virtual ~ DTT0Write();
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    virtual void endJob();
   private:
   };
 }

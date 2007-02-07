@@ -46,6 +46,10 @@ namespace edmtest {
     std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
     std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
 
+  }
+
+  void DTT0Write::endJob() {
+
     std::cout<<"DTT0Write::analyze "<<std::endl;
     edm::Service<cond::service::PoolDBOutputService> dbservice;
     if( !dbservice.isAvailable() ){
