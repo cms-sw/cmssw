@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.2 2007/01/23 20:05:49 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.3 2007/01/30 18:40:01 dmytro Exp $
 //
 //
 
@@ -542,8 +542,7 @@ FreeTrajectoryState TrackDetectorAssociator::getFreeTrajectoryState( const edm::
    iSetup.get<IdealMagneticFieldRecord>().get(bField);
    
    GlobalVector vector( track.momentum().x(), track.momentum().y(), track.momentum().z() );
-   // convert mm to cm
-   GlobalPoint point( vertex.position().x()*.1, vertex.position().y()*.1, vertex.position().z()*.1 );
+   GlobalPoint point( vertex.position().x(), vertex.position().y(), vertex.position().z() );
 
    HepPDT::ParticleID id(track.type());
    int charge = id.threeCharge() < 0 ? -1 : 1;
