@@ -233,194 +233,9 @@ PFClusterProducer::~PFClusterProducer() {}
 void PFClusterProducer::produce(edm::Event& iEvent, 
 				const edm::EventSetup& iSetup) {
   
-  
-
-  
-
   if( processEcal_ ) produceEcal(iEvent, iSetup);
-  
-
   if( processHcal_ ) produceHcal(iEvent, iSetup);
-
-
-
-
-  if(processPS_) {
-
-    map<unsigned,  reco::PFRecHit* > psrechits;
-
-    // get the ps geometry
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<IdealGeometryRecord>().get(geoHandle);
-    
-    const CaloSubdetectorGeometry *psGeometry = 
-      geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-    
-    // get the ps topology
-    EcalPreshowerTopology psTopology(geoHandle);
-
-//     edm::ESHandle<CaloTopology> topoHandle;
-//     iSetup.get<CaloTopologyRecord>().get(topoHandle);     
-
-//     const CaloSubdetectorTopology *psTopology = 
-//       topoHandle->getSubdetectorTopology(DetId::Ecal,EcalPreshower);
-
-
-    // process rechits
-    Handle< EcalRecHitCollection >   pRecHits;
-
-
-    try {
-      iEvent.getByLabel(ecalRecHitsESModuleLabel_,
-			ecalRecHitsESProductInstanceName_,
-			pRecHits);
-      if (!(pRecHits.isValid())) {
-	LogError("PFClusterProducer")
-	  <<"could not get a handle on preshower rechits!"<<endl;
-	return;
-      }
-
-      const EcalRecHitCollection& rechits = *( pRecHits.product() );
-      typedef EcalRecHitCollection::const_iterator IT;
- 
-      for(IT i=rechits.begin(); i!=rechits.end(); i++) {
-	const EcalRecHit& hit = *i;
-      
-	double energy = hit.energy();
-	if( energy < threshPS_ ) continue; 
-            
- 	const ESDetId& detid = hit.detid();
-	const CaloCellGeometry *thisCell = psGeometry->getGeometry(detid);
- 
-// 	CaloNavigator<ESDetId> navigator(detid,&psTopology);
-
-// 	ESDetId n = navigator.north();
-// 	if(n != DetId(0) )
-// 	  cout<<"north "<<n.plane()<<endl;
-// 	navigator.home();
-     
-// 	ESDetId s = navigator.south();
-// 	if(s != DetId(0) )
-// 	  cout<<"south "<<s.plane()<<endl;
-// 	navigator.home();
-     
-	if(!thisCell) {
-	  LogError("PFClusterProducer")<<"warning detid "<<detid.rawId()
-				       <<" not found in preshower geometry"
-				       <<endl;
-	  return;
-	}
-      
-	const GlobalPoint& position = thisCell->getPosition();
-     
-	int layer = 0;
-            
-	switch( detid.plane() ) {
-	case 1:
-	  layer = PFLayer::PS1;
-	  break;
-	case 2:
-	  layer = PFLayer::PS2;
-	  break;
-	default:
-	  LogError("PFClusterProducer")
-	    <<"incorrect preshower plane !! plane number "
-	    <<detid.plane()<<endl;
-	  assert(0);
-	}
- 
-	reco::PFRecHit *pfrechit 
-	  = new reco::PFRecHit( detid.rawId(), layer, energy, 
-				position.x(), position.y(), position.z(), 
-				0,0,0 );
-	
-	psrechits.insert( make_pair(detid.rawId(), pfrechit) );
-	
-      }
-    
-      // cout<<"find rechits neighbours"<<endl;
-      for( PFClusterAlgo::IDH ih = psrechits.begin(); 
-	   ih != psrechits.end(); ih++) {
-	
-	findRecHitNeighbours( ih->second, psrechits, 
-			      psTopology, 
-			      *psGeometry, 
-			      psTopology,
-			      *psGeometry);
-      }
-      
-      if(clusteringPS_) {
-
-	PFClusterAlgo clusteralgo; 
-	
-	clusteralgo.setThreshEndcap( threshPS_ );
-	clusteralgo.setThreshSeedEndcap( threshSeedPS_ );
-
-	clusteralgo.setNNeighbours( nNeighboursPS_ );
-	clusteralgo.setPosCalcNCrystal( posCalcNCrystalPS_ );
-	clusteralgo.setPosCalcP1( posCalcP1PS_ );
-	clusteralgo.setShowerSigma( showerSigmaPS_ );
-	
-	clusteralgo.init( psrechits ); 
-	clusteralgo.doClustering();
-
-	LogInfo("PFClusterProducer")
-	  <<" Preshower clusters --------------------------------- "<<endl
-	  <<clusteralgo<<endl;
-	
-	auto_ptr< vector<reco::PFCluster> > 
-	  outClustersPS( clusteralgo.clusters() ); 
-	//       outClustersPS = clusteralgo.clusters();
-	iEvent.put( outClustersPS, "PS");
-      }    
-
-      // if requested, get rechits passing the threshold from algo, 
-      // and pass them to the event.
-      if(produceRecHits_) {
-
-// 	const map<unsigned, reco::PFRecHit* >& algohits = 
-// 	  clusteralgo.idRecHits();
-
-	auto_ptr< vector<reco::PFRecHit> > 
-	  recHits( new vector<reco::PFRecHit> ); 
-	recHits->reserve( psrechits.size() );
-	
-// 	for(PFClusterAlgo::IDH ih=algohits.begin(); 
-// 	    ih!=algohits.end(); ih++) {
-// 	  recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
-// 	}
-	for( PFClusterAlgo::IDH ih = psrechits.begin(); 
-	     ih != psrechits.end(); ih++) {  
- 	  recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
-	}
-	
-	iEvent.put( recHits, "PS" );
-      }
-      
-
-      // clear all 
-      for( PFClusterAlgo::IDH ih = psrechits.begin(); 
-	   ih != psrechits.end(); ih++) {  
-	delete ih->second;
-      }
-    }
-    catch ( cms::Exception& ex ) {
-      edm::LogError("PFClusterProducer") 
-	<<"Error! can't get the preshower rechits. module: "
-	<<ecalRecHitsESModuleLabel_
-	<<", product instance: "<<ecalRecHitsESProductInstanceName_
-	<<endl;
-    }
-  }
-  
-  
-  // if( produceRecHits_) iEvent.put( allRecHits );
-
-  //  cout<<"allClusters->size() "<<allClusters->size()<<endl;
-  // if(!allClusters->empty()) cout<<allClusters->back()<<endl;
-  //   iEvent.put( outClustersECAL, "ECAL");
-  //   iEvent.put( outClustersHCAL, "HCAL" );
-  //   iEvent.put( outClustersPS, "PS");
+  if(processPS_) producePS(iEvent, iSetup);
 }
 
 
@@ -715,67 +530,6 @@ void PFClusterProducer::produceHcal(edm::Event& iEvent,
 				caloTowerTopology, 
 				*caloTowerGeometry );
       }
-//       // do clustering 
-	
-//       if(clusteringHcal_) {
-	  
-// 	PFClusterAlgo clusteralgo; 
-	  
-// 	clusteralgo.setThreshBarrel( threshHcalBarrel_ );
-// 	clusteralgo.setThreshSeedBarrel( threshSeedHcalBarrel_ );
-	  
-// 	clusteralgo.setThreshEndcap( threshHcalEndcap_ );
-// 	clusteralgo.setThreshSeedEndcap( threshSeedHcalEndcap_ );
-
-// 	clusteralgo.setNNeighbours( nNeighboursHcal_ );
-// 	clusteralgo.setPosCalcNCrystal( posCalcNCrystalHcal_ );
-// 	clusteralgo.setPosCalcP1( posCalcP1Hcal_ );
-// 	clusteralgo.setShowerSigma( showerSigmaHcal_ );
-	  
-// 	clusteralgo.init( hcalrechits ); 
-// 	clusteralgo.doClustering();
-	    
-// 	LogInfo("PFClusterProducer")
-// 	  <<" HCAL clusters --------------------------------- "<<endl
-// 	  <<clusteralgo<<endl;
-	
-// 	auto_ptr< vector<reco::PFCluster> > 
-// 	  outClustersHCAL( clusteralgo.clusters() ); 
-// 	// 	outClustersHCAL = clusteralgo.clusters();
-// 	iEvent.put( outClustersHCAL, "HCAL");
-	  
-//       }
-
-//       // if requested, get rechits passing the threshold from algo, 
-//       // and pass them to the event.
-//       if(produceRecHits_) {
-
-// 	// 	  const map<unsigned, reco::PFRecHit* >& 
-// 	// 	    algohits = clusteralgo.idRecHits();
-	  
-// 	auto_ptr< vector<reco::PFRecHit> > 
-// 	  recHits( new vector<reco::PFRecHit> ); 
-// 	recHits->reserve( hcalrechits.size() );
-	  
-// 	// 	  for(PFClusterAlgo::IDH ih=algohits.begin(); 
-// 	// 	      ih!=algohits.end(); ih++) {
-// 	// 	    recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
-// 	// 	  }
-// 	for( PFClusterAlgo::IDH ih = hcalrechits.begin(); 
-// 	     ih != hcalrechits.end(); ih++) {
-// 	  recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
-// 	}
-	  
-// 	iEvent.put( recHits, "HCAL" );
-//       }
-
-	
-//       // clear all 
-//       for( PFClusterAlgo::IDH ih = hcalrechits.begin(); 
-// 	   ih != hcalrechits.end(); ih++) {
-	
-// 	delete ih->second;
-//       }
     }
     catch ( cms::Exception& ex ) {
       edm::LogError("PFClusterProducerError")
@@ -884,9 +638,9 @@ void PFClusterProducer::produceHcal(edm::Event& iEvent,
     auto_ptr< vector<reco::PFCluster> > 
       outClustersHCAL( clusteralgo.clusters() ); 
     // 	outClustersHCAL = clusteralgo.clusters();
-    iEvent.put( outClustersHCAL, "HCAL");
-	  
+    iEvent.put( outClustersHCAL, "HCAL");	  
   }
+
 
   // if requested, get rechits passing the threshold from algo, 
   // and pass them to the event.
@@ -913,6 +667,149 @@ void PFClusterProducer::produceHcal(edm::Event& iEvent,
   }
 }
 
+
+
+void PFClusterProducer::producePS(edm::Event& iEvent, 
+				  const edm::EventSetup& iSetup) {
+  
+  map<unsigned,  reco::PFRecHit* > psrechits;
+
+  // get the ps geometry
+  edm::ESHandle<CaloGeometry> geoHandle;
+  iSetup.get<IdealGeometryRecord>().get(geoHandle);
+    
+  const CaloSubdetectorGeometry *psGeometry = 
+    geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+    
+  // get the ps topology
+  EcalPreshowerTopology psTopology(geoHandle);
+
+  // process rechits
+  Handle< EcalRecHitCollection >   pRecHits;
+
+
+  try {
+    iEvent.getByLabel(ecalRecHitsESModuleLabel_,
+		      ecalRecHitsESProductInstanceName_,
+		      pRecHits);
+    if (!(pRecHits.isValid())) {
+      LogError("PFClusterProducer")
+	<<"could not get a handle on preshower rechits!"<<endl;
+      return;
+    }
+
+    const EcalRecHitCollection& rechits = *( pRecHits.product() );
+    typedef EcalRecHitCollection::const_iterator IT;
+ 
+    for(IT i=rechits.begin(); i!=rechits.end(); i++) {
+      const EcalRecHit& hit = *i;
+      
+      double energy = hit.energy();
+      if( energy < threshPS_ ) continue; 
+            
+      const ESDetId& detid = hit.detid();
+      const CaloCellGeometry *thisCell = psGeometry->getGeometry(detid);
+     
+      if(!thisCell) {
+	LogError("PFClusterProducer")<<"warning detid "<<detid.rawId()
+				     <<" not found in preshower geometry"
+				     <<endl;
+	return;
+      }
+      
+      const GlobalPoint& position = thisCell->getPosition();
+     
+      int layer = 0;
+            
+      switch( detid.plane() ) {
+      case 1:
+	layer = PFLayer::PS1;
+	break;
+      case 2:
+	layer = PFLayer::PS2;
+	break;
+      default:
+	LogError("PFClusterProducer")
+	  <<"incorrect preshower plane !! plane number "
+	  <<detid.plane()<<endl;
+	assert(0);
+      }
+ 
+      reco::PFRecHit *pfrechit 
+	= new reco::PFRecHit( detid.rawId(), layer, energy, 
+			      position.x(), position.y(), position.z(), 
+			      0,0,0 );
+	
+      psrechits.insert( make_pair(detid.rawId(), pfrechit) );
+	
+    }
+    
+    // cout<<"find rechits neighbours"<<endl;
+    for( PFClusterAlgo::IDH ih = psrechits.begin(); 
+	 ih != psrechits.end(); ih++) {
+	
+      findRecHitNeighbours( ih->second, psrechits, 
+			    psTopology, 
+			    *psGeometry, 
+			    psTopology,
+			    *psGeometry);
+    }
+      
+    if(clusteringPS_) {
+
+      PFClusterAlgo clusteralgo; 
+	
+      clusteralgo.setThreshEndcap( threshPS_ );
+      clusteralgo.setThreshSeedEndcap( threshSeedPS_ );
+
+      clusteralgo.setNNeighbours( nNeighboursPS_ );
+      clusteralgo.setPosCalcNCrystal( posCalcNCrystalPS_ );
+      clusteralgo.setPosCalcP1( posCalcP1PS_ );
+      clusteralgo.setShowerSigma( showerSigmaPS_ );
+	
+      clusteralgo.init( psrechits ); 
+      clusteralgo.doClustering();
+
+      LogInfo("PFClusterProducer")
+	<<" Preshower clusters --------------------------------- "<<endl
+	<<clusteralgo<<endl;
+	
+      auto_ptr< vector<reco::PFCluster> > 
+	outClustersPS( clusteralgo.clusters() ); 
+      iEvent.put( outClustersPS, "PS");
+    }    
+
+    // if requested, get rechits passing the threshold from algo, 
+    // and pass them to the event.
+    if(produceRecHits_) {
+	
+      auto_ptr< vector<reco::PFRecHit> > 
+	recHits( new vector<reco::PFRecHit> ); 
+      recHits->reserve( psrechits.size() );
+	
+      for( PFClusterAlgo::IDH ih = psrechits.begin(); 
+	   ih != psrechits.end(); ih++) {  
+	recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
+      }
+	
+      iEvent.put( recHits, "PS" );
+    }
+      
+
+    // clear all 
+    for( PFClusterAlgo::IDH ih = psrechits.begin(); 
+	 ih != psrechits.end(); ih++) {  
+      delete ih->second;
+    }
+  }
+  catch ( cms::Exception& ex ) {
+    edm::LogError("PFClusterProducer") 
+      <<"Error! can't get the preshower rechits. module: "
+      <<ecalRecHitsESModuleLabel_
+      <<", product instance: "<<ecalRecHitsESProductInstanceName_
+      <<endl;
+  }
+}
 
 
 
@@ -997,10 +894,6 @@ PFClusterProducer::createHcalRecHit( const DetId& detid,
   
 //   return rh;
 // }
-
-
-
-
 
 
 

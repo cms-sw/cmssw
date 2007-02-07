@@ -50,6 +50,12 @@ class PFClusterProducer : public edm::EDProducer {
   /// process HCAL rechits
   void produceHcal(edm::Event&, const edm::EventSetup&);
 
+  /// process PS rechits
+  void producePS(edm::Event&, const edm::EventSetup&);
+
+
+
+
   reco::PFRecHit*  createEcalRecHit( const DetId& detid,
 				     double energy,
 				     int layer,
