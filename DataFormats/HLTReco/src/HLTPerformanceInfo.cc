@@ -1,4 +1,4 @@
-// $Id: HLTPerformanceInfo.cc,v 1.3 2006/12/05 23:48:03 wittich Exp $
+// $Id: HLTPerformanceInfo.cc,v 1.4 2007/01/10 06:10:11 dlange Exp $
 #include <functional>
 #include <algorithm>
 #include <numeric>
@@ -6,7 +6,6 @@
 #include <boost/lambda/lambda.hpp> 
 #include <boost/lambda/bind.hpp> 
 #include <boost/bind.hpp> 
-using namespace boost;
 
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
 
