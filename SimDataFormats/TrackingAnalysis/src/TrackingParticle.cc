@@ -61,7 +61,7 @@ void TrackingParticle::setParentVertex(const TrackingVertexRef &ref) {
 
 void TrackingParticle::addDecayVertex(const TrackingVertexRef &ref){
   decayVertex_ = ref;
-  //  decayVertices_.push_back(ref);
+  //  decayVertices_.push_back(ref); // Restore for 1.4
 }
 
 void TrackingParticle::setMatchedHit(const int &hitnumb) {
