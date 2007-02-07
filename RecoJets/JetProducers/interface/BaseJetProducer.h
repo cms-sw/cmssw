@@ -7,7 +7,7 @@
  * It handles generic manipulations of input and output collections
  *
  * \author Fedor Ratnikov (UMd) Aug. 22, 2006
- * $Id: BaseJetProducer.h,v 1.1 2006/08/22 22:11:40 fedor Exp $
+ * $Id: BaseJetProducer.h,v 1.2 2006/12/05 18:37:45 fedor Exp $
  *
  ************************************************************/
 
@@ -32,8 +32,6 @@ namespace cms
     virtual ~BaseJetProducer();
     /**Produces the EDM products*/
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
-    /** init branches and set alias name */
-    void initBranch (const std::string& fName);
     /** jet type */
     std::string jetType () const {return jetType_;}
 
@@ -44,6 +42,7 @@ namespace cms
   private:
     edm::InputTag src_;
     std::string jetType_;
+    bool verbose_;
   };
 }
 

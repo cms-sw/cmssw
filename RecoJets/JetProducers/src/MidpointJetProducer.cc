@@ -4,7 +4,7 @@
 // Creation Date:  MFP Apr. 6 2005 Initial version.
 // Revision:  R. Harris,  Oct. 19, 2005 Modified to use real CaloTowers from Jeremy Mans
 // Revisions:  F.Ratnikov, 8-Mar-2006, accommodate Candidate model
-// $Id: MidpointJetProducer.cc,v 1.16 2006/08/22 22:11:41 fedor Exp $
+// $Id: MidpointJetProducer.cc,v 1.17 2006/12/05 18:37:46 fedor Exp $
 //
 //--------------------------------------------
 #include <memory>
@@ -40,14 +40,7 @@ namespace cms
 	 conf.getParameter<int>("maxIterations"),
 	 conf.getParameter<double>("overlapThreshold"),
 	 conf.getUntrackedParameter<int>("debugLevel",0))
-  {
-    // branch alias
-    char label [32];
-    sprintf (label, "MC%d%s", 
-	     int (floor (conf.getParameter<double>("coneRadius") * 10. + 0.5)), 
-	     jetType ().c_str());
-    initBranch (label);
-}
+  {}
 
 
   // run algorithm itself

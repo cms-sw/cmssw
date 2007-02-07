@@ -29,15 +29,7 @@ namespace cms
   FastJetProducer::FastJetProducer(const edm::ParameterSet& conf)
     : BaseJetProducer (conf), alg_(conf)
 
-  {
-    // branch alias
-    char label [32];
-    sprintf (label, "FastJet%d%s", 
-	     int (floor (conf.getParameter<double>("FJ_ktRParam") * 10.)), 
-	     jetType ().c_str());
-
-    initBranch (label);
-  }
+  {}
 
   // run algorithm itself
   bool FastJetProducer::runAlgorithm (const InputCollection& fInput, 

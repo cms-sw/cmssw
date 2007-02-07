@@ -24,14 +24,7 @@ namespace cms {
     alg_(conf.getParameter<double>("seedThreshold"),
 	 conf.getParameter<double>("coneRadius"),
 	 conf.getParameter<double>("towerThreshold"))
-  {
-    // branch alias
-    char label [32];
-    sprintf (label, "IC%d%s", 
-	     int (floor (conf.getParameter<double>("coneRadius") * 10. + 0.5)), 
-	     jetType ().c_str());
-    initBranch (label);
-  }
+  {}
 
   // run algorithm itself
   bool IterativeConeJetProducer::runAlgorithm (const JetReco::InputCollection& fInput, 

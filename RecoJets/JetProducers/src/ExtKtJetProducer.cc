@@ -33,15 +33,7 @@ namespace cms
   ExtKtJetProducer::ExtKtJetProducer(const edm::ParameterSet& conf)
     : BaseJetProducer (conf), alg_(conf)
 
-  {
-    // branch alias
-    char label [32];
-    sprintf (label, "ExtKtJet%d%s", 
-	     int (floor (conf.getParameter<double>("ExtKtRParam") * 10.)),                             
-	     jetType ().c_str());
-
-    initBranch (label);
-  }
+  {}
 
   // run algorithm itself
   bool ExtKtJetProducer::runAlgorithm (const JetReco::InputCollection& fInput, 
