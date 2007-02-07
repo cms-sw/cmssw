@@ -6,8 +6,8 @@
    // Events->Draw("muons.energy().had>>h3(100,0,10)","fabs(muons.eta())<1");
    Events->Draw("muons.calEnergy().had>>h3(100,0,10)");
    
-   c4 = new TCanvas("c4","ECAL energy deposition (barrel)");
-   Events->Draw("muons.calEnergy().em>>h4(100,0,2)","abs(muons.track().get().eta())<1");
+   c4 = new TCanvas("c4","ECAL energy deposition");
+   Events->Draw("muons.calEnergy().em>>h4(100,0,2)");
 
    gROOT->LoadMacro("resolution_fit.cxx");
    c5 = new TCanvas("c5","Muon DT segments",400,800);
