@@ -133,14 +133,12 @@ void SiStripActionExecutor::fillGrandSummaryHistos(MonitorUserInterface* mui) {
       (dir_name.find("FU") == 0) ) return;
   vector<string> subdirs = mui->getSubdirs();
   if (subdirs.size() == 0) return;;
-  int ival = 0;
   for (vector<string>::const_iterator isum = summaryMENames.begin();
        isum != summaryMENames.end(); isum++) {
     string name = (*isum);
     int binStep =0;
     for (vector<string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
-      ival++;
       mui->cd(*it);
       vector<string> contents = mui->getMEs();
       mui->goUp();
@@ -154,10 +152,10 @@ void SiStripActionExecutor::fillGrandSummaryHistos(MonitorUserInterface* mui) {
           map<string, MonitorElement*>::iterator iPos = MEMap.find(name); 
           MonitorElement* me; 
           if (iPos == MEMap.end()) {
-	    me = getSummaryME(mui, name);
+	    me = getSummaryME(mui, name, true);
 	    MEMap.insert(pair<string, MonitorElement*>(name, me));
           } else  me =  iPos->second;
-          fillHistos(ival, binStep, me_i, me);
+          fillHistos(0, binStep, me_i, me);
           binStep += me_i->getNbinsX();
           break;
 	}
@@ -169,7 +167,7 @@ void SiStripActionExecutor::fillGrandSummaryHistos(MonitorUserInterface* mui) {
 // -- Get Summary ME
 //
 MonitorElement* SiStripActionExecutor::getSummaryME(MonitorUserInterface* mui, 
-                         string& name) {
+                         string& name, bool ifl) {
   MonitorElement* me = 0;
   string currDir = mui->pwd();
   string sum_name = "Summary_" + name + "_in_" 
@@ -196,9 +194,7 @@ MonitorElement* SiStripActionExecutor::getSummaryME(MonitorUserInterface* mui,
     int nBins = 0;
     vector<string> subdirs = mui->getSubdirs();
     map<int, string> tags;
-    if (name.find("Noise") != string::npos && 
-        name.find("NoisyStrip") != string::npos &&
-        name.find("PedesPerStrip") != string::npos) {
+    if (!ifl) {
       nBins = subdirs.size();
     } else {
       for (vector<string>::const_iterator it = subdirs.begin();
@@ -421,12 +417,20 @@ void SiStripActionExecutor::fillSummaryHistos(MonitorUserInterface* mui) {
           if (!me_i) continue;
           map<string, MonitorElement*>::iterator iPos = MEMap.find(name); 
           MonitorElement* me;
-          if (iPos == MEMap.end()) {
-            me = getSummaryME(mui, name);
+          bool fillEachBin = false;
+	  if (name.find("Noise") != string::npos ||
+	      name.find("NoisyStrip") != string::npos ||
+	      name.find("PedsPerStrip") != string::npos) fillEachBin = true;
+          // Get the Summary ME
+	  if (iPos == MEMap.end()){
+            me = getSummaryME(mui, name, fillEachBin);
             MEMap.insert(pair<string, MonitorElement*>(name, me));
           } else  me =  iPos->second;
-          fillHistos(ndet, iBinStep, me_i, me);
-          iBinStep += me_i->getNbinsX();
+          // Fill it now
+          if (fillEachBin) {
+            fillHistos(0, iBinStep, me_i, me);
+            iBinStep += me_i->getNbinsX();
+          } else  fillHistos(ndet, 0, me_i, me);
           break;
         }
       }
@@ -439,9 +443,7 @@ void SiStripActionExecutor::fillSummaryHistos(MonitorUserInterface* mui) {
 void SiStripActionExecutor::fillHistos(int ival, int istep, 
                        MonitorElement* me_src, MonitorElement* me) {
   string name = me->getName();
-  if (name.find("Noise") == string::npos && 
-      name.find("NoisyStrips") == string::npos &&
-      name.find("PedsPerStrip") == string::npos) {
+  if (ival != 0) {
     me->Fill(ival, me_src->getMean());
   } else {
     int nbins = me_src->getNbinsX();

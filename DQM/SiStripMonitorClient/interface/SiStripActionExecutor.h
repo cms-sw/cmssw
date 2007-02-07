@@ -32,7 +32,8 @@ class SiStripActionExecutor {
  int getTkMapMENames(std::vector<std::string>& names);
 
  private:
- MonitorElement* getSummaryME(MonitorUserInterface* mui, std::string& name);
+ MonitorElement* getSummaryME(MonitorUserInterface* mui,
+                              std::string& name, bool ifl);
   void fillSummary(MonitorUserInterface* mui);
 
   void fillGrandSummaryHistos(MonitorUserInterface* mui);
