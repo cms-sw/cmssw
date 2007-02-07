@@ -12,7 +12,7 @@
 // M. De Mattia 30/1/2007
 #include "AnalysisAlgos/SiStripClusterInfoProducer/interface/SiStripFakeRawDigiModule.h"
 
-//using cms::ClusterAnalysis;
+using cms::ClusterAnalysis;
 using cms::ClusterAnalysisFilter;
 using cms::CosmicTIFFilter;
 using cms::CosmicGenFilter;
