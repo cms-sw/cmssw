@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/06 18:19:50 $
- * $Revision: 1.211 $
+ * $Date: 2007/02/07 08:32:34 $
+ * $Revision: 1.212 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -36,6 +36,7 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h>
+#include "DQM/EcalBarrelMonitorDisplayPlugins/interface/ColorPalette.h"
 
 using namespace cms;
 using namespace edm;
@@ -329,17 +330,14 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // Define new color palette
 
-  float rgb[6][3] = {{1.00, 0.00, 0.00}, {0.00, 1.00, 0.00}, {1.00, 0.96, 0.00},
-                     {0.50, 0.00, 0.20}, {0.00, 0.50, 0.40}, {0.94, 0.78, 0.00}};
-
   for( int i=0; i<6; i++ ) {
     TColor* color;
     if( ! gROOT->GetColor( 301+i )) {
-      color = new TColor( 301+i, rgb[i][0], rgb[i][1], rgb[i][2], "" );
+      color = new TColor( 301+i, ecdqm::rgb[i][0], ecdqm::rgb[i][1], ecdqm::rgb[i][2], "" );
     }
     else {
       color = gROOT->GetColor( 301+i );
-      color->SetRGB( rgb[i][0], rgb[i][1], rgb[i][2] );
+      color->SetRGB( ecdqm::rgb[i][0], ecdqm::rgb[i][1], ecdqm::rgb[i][2] );
     }
   }  
 
