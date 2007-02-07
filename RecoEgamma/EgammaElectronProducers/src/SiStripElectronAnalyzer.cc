@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id$
+// $Id: SiStripElectronAnalyzer.cc,v 1.1 2007/02/02 14:18:50 duboscq Exp $
 //
 
 // system include files
@@ -562,8 +562,8 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // set up vector of bool for SiStrips having or not having Electrons
   // this causes a warning because of variable array size at compilation time ;
-  bool hasElectron_[siStripElectronHandle->end()- siStripElectronHandle->begin()] ;
-
+  // BAD  bool hasElectron_[siStripElectronHandle->end()- siStripElectronHandle->begin()] ;
+  bool* hasElectron_ = new bool[siStripElectronHandle->end()- siStripElectronHandle->begin()] ; 
   for (int icount = 0 ; 
        icount < siStripElectronHandle->end()- siStripElectronHandle->begin() ;
        ++icount) 
@@ -571,7 +571,8 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // also set up a counter to associate the ith electron to the jth strippy
   // Electron_to_strippy[i] = j: i-th Electron is j-th strippy 
-  unsigned int Electron_to_strippy[electrons->end()- electrons->begin()];
+  // BAD  unsigned int Electron_to_strippy[electrons->end()- electrons->begin()];
+  unsigned int* Electron_to_strippy = new unsigned int[electrons->end()- electrons->begin()]; 
   for (int icount = 0 ; 
        icount <electrons->end()- electrons->begin();  ++icount) 
     { Electron_to_strippy[icount] = 0 ;}
@@ -858,7 +859,8 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     } // outer loop
   }// m(ee) loop
   
-
+  delete[] hasElectron_;
+  delete[] Electron_to_strippy; 
 
   ///
   ///////////////////////////////////////////////////////////////////////////////////
