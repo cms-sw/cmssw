@@ -15,7 +15,7 @@ reco::SuperClusterCollection BremRecoveryClusterAlgo::makeSuperClusters(reco::Ba
   for (it = clustersCollection.begin(); it != clustersCollection.end(); it++)
     {
       reco::BasicClusterRef cluster_p = *it;
-      if (cluster_p->algo() < 100) 
+      if (cluster_p->algo() == reco::island) 
       {
 	  if (cluster_p->position().eta() < etaBorder)
 	    {
