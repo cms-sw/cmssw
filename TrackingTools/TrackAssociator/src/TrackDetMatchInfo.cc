@@ -1,8 +1,10 @@
 #include <map>
 #include "TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h"
+#include "TrackingTools/TrackAssociator/interface/DetIdInfo.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 int TrackDetMatchInfo::numberOfSegments() const {
    int numSegments = 0;
@@ -134,79 +136,81 @@ double TrackDetMatchInfo::hoTowerEnergy()
 
 //////////////////////////////////////////////////
 
-double TrackDetMatchInfo::ecalNeighborHitEnergy(int gridSize)
+double TrackDetMatchInfo::towerNxNEnergy(const DetId& id, int gridSize)
 {
-   double energy(0);
-   std::map<DetId, EcalRecHit> neighbors;
-   for(std::vector<EcalRecHit>::const_iterator crossedHit=crossedEcalRecHits.begin(); crossedHit!=crossedEcalRecHits.end(); crossedHit++) {
-      if(crossedHit->id().subdetId()==1) {//EB
-         EBDetId crossedId(crossedHit->id());
-         for(std::vector<EcalRecHit>::const_iterator hit=ecalRecHits.begin(); hit!=ecalRecHits.end(); hit++) {
-            if(hit->id().subdetId()==1) {//EB
-               EBDetId neighborId(hit->id());
-
-               if(abs((crossedId.ieta()<0?crossedId.ieta()+1:crossedId.ieta())-(neighborId.ieta()<0?neighborId.ieta()+1:neighborId.ieta()))<gridSize-1 && abs(crossedId.iphi()-neighborId.iphi())%359<gridSize-1)
-                  neighbors.insert(std::make_pair(hit->id(), *hit));
-            }
-         }
-         continue;
-      }
-      if(crossedHit->id().subdetId()==2) {//EE
-         EEDetId crossedId(crossedHit->id());
-         for(std::vector<EcalRecHit>::const_iterator hit=ecalRecHits.begin(); hit!=ecalRecHits.end(); hit++) {
-            if(hit->id().subdetId()==2) {//EE
-               EEDetId neighborId(hit->id());
-               if(crossedId.zside()==neighborId.zside() && abs(crossedId.ix()-neighborId.ix())<gridSize-1 && abs(crossedId.iy()-neighborId.iy())<gridSize-1)
-                  neighbors.insert(std::make_pair(hit->id(), *hit));
-            }
-         }
-         continue;
-      }
+   if( id.det() != DetId::Calo ) {
+      edm::LogWarning("TrackAssociator") << "Wrong DetId. Expected CaloTower, but found:\n" <<
+	DetIdInfo::info(id)<<"\n";
+      return -99999;
    }
-
-   for(std::map<DetId, EcalRecHit>::const_iterator hit=neighbors.begin(); hit!=neighbors.end(); hit++)
-      energy += hit->second.energy();
-
+   CaloTowerDetId centerId(id);
+   double energy(0);
+   for(std::vector<CaloTower>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++) {
+      CaloTowerDetId neighborId(hit->id());
+      int dEta = abs( (centerId.ieta()<0?centerId.ieta()+1:centerId.ieta() )
+		      -(neighborId.ieta()<0?neighborId.ieta()+1:neighborId.ieta() ) ) ;
+      int dPhi = abs( centerId.iphi()-neighborId.iphi() );
+      if ( abs(72-dPhi) < dPhi ) dPhi = 72-dPhi;
+      if(  dEta <= gridSize && dPhi <= gridSize ) energy += hit->energy();
+   }
    return energy;
 }
 
-double TrackDetMatchInfo::ecalNeighborTowerEnergy(int gridSize)
+double TrackDetMatchInfo::hcalNxNEnergy(const DetId& id, int gridSize)
 {
-   double energy(0);
-   std::map<DetId, CaloTower> neighbors;
-   for(std::vector<CaloTower>::const_iterator crossedTower=crossedTowers.begin(); crossedTower!=crossedTowers.end(); crossedTower++) {
-      CaloTowerDetId crossedId(crossedTower->id());
-      for(std::vector<CaloTower>::const_iterator tower=towers.begin(); tower!=towers.end(); tower++) {
-         CaloTowerDetId neighborId(tower->id());
-         if(abs((crossedId.ieta()<0?crossedId.ieta()+1:crossedId.ieta())-(neighborId.ieta()<0?neighborId.ieta()+1:neighborId.ieta()))<gridSize-1 && abs(crossedId.iphi()-neighborId.iphi())%71<gridSize-1)
-            neighbors.insert(std::make_pair(tower->id(), *tower));
-      }
-      continue;
+   if( id.det() != DetId::Hcal || (id.subdetId() != HcalBarrel && id.subdetId() != HcalEndcap) ) {
+      edm::LogWarning("TrackAssociator") << "Wrong DetId. Expected HE or HB, but found:\n" <<
+	DetIdInfo::info(id)<<"\n";
+      return -99999;
    }
-
-   for(std::map<DetId, CaloTower>::const_iterator tower=neighbors.begin(); tower!=neighbors.end(); tower++)
-      energy += tower->second.emEnergy();
-
+   HcalDetId centerId(id);
+   double energy(0);
+   for(std::vector<HBHERecHit>::const_iterator hit=hcalRecHits.begin(); hit!=hcalRecHits.end(); hit++) {
+      HcalDetId neighborId(hit->id());
+      int dEta = abs( (centerId.ieta()<0?centerId.ieta()+1:centerId.ieta() )
+		      -(neighborId.ieta()<0?neighborId.ieta()+1:neighborId.ieta() ) ) ;
+      int dPhi = abs( centerId.iphi()-neighborId.iphi() );
+      if ( abs(72-dPhi) < dPhi ) dPhi = 72-dPhi;
+      if(  dEta <= gridSize && dPhi <= gridSize ) energy += hit->energy();
+   }
    return energy;
 }
 
-double TrackDetMatchInfo::hcalNeighborEnergy(int gridSize)
+double TrackDetMatchInfo::ecalNxNEnergy(const DetId& id, int gridSize)
 {
-   double energy(0);
-   std::map<DetId, CaloTower> neighbors;
-   for(std::vector<CaloTower>::const_iterator crossedTower=crossedTowers.begin(); crossedTower!=crossedTowers.end(); crossedTower++) {
-      CaloTowerDetId crossedId(crossedTower->id());
-      for(std::vector<CaloTower>::const_iterator tower=towers.begin(); tower!=towers.end(); tower++) {
-         CaloTowerDetId neighborId(tower->id());
-         if(abs((crossedId.ieta()<0?crossedId.ieta()+1:crossedId.ieta())-(neighborId.ieta()<0?neighborId.ieta()+1:neighborId.ieta()))<gridSize-1 && abs(crossedId.iphi()-neighborId.iphi())%71<gridSize-1)
-            neighbors.insert(std::make_pair(tower->id(), *tower));
+   if( id.det() != DetId::Ecal || (id.subdetId() != EcalBarrel && id.subdetId() != EcalEndcap) ) {
+      edm::LogWarning("TrackAssociator") << "Wrong DetId. Expected EcalBarrel or EcalEndcap, but found:\n" <<
+	DetIdInfo::info(id)<<"\n";
+      return -99999;
+   }
+   // Since the ECAL granularity is small and the gap between EE and EB is significant,
+   // energy is computed only within the system that contains the element with maximal
+   // energy deposition
+   if( id.subdetId() == EcalBarrel ) {
+      EBDetId centerId(id);
+      double energy(0);
+      for(std::vector<EcalRecHit>::const_iterator hit=ecalRecHits.begin(); hit!=ecalRecHits.end(); hit++) {
+	 if (hit->id().subdetId() != EcalBarrel) continue;
+	 EBDetId neighborId(hit->id());
+	 int dEta = abs( (centerId.ieta()<0?centerId.ieta()+1:centerId.ieta() )
+			 -(neighborId.ieta()<0?neighborId.ieta()+1:neighborId.ieta() ) ) ;
+	 int dPhi = abs( centerId.iphi()-neighborId.iphi() );
+	 if ( abs(360-dPhi) < dPhi ) dPhi = 360-dPhi;
+	 if(  dEta <= gridSize && dPhi <= gridSize ) energy += hit->energy();
       }
-      continue;
+      return energy;
    }
 
-   for(std::map<DetId, CaloTower>::const_iterator tower=neighbors.begin(); tower!=neighbors.end(); tower++)
-      energy += tower->second.hadEnergy();
-
+   // Endcap
+   EEDetId centerId(id);
+   double energy(0);
+   for(std::vector<EcalRecHit>::const_iterator hit=ecalRecHits.begin(); hit!=ecalRecHits.end(); hit++) {
+      if (hit->id().subdetId() != EcalEndcap) continue;
+      EEDetId neighborId(hit->id());
+      if(  centerId.zside() == neighborId.zside() && 
+	   abs(centerId.ix()-neighborId.ix()) <= gridSize && 
+	   abs(centerId.iy()-neighborId.iy()) <= gridSize ) energy += hit->energy();
+   }
    return energy;
 }
 
@@ -222,4 +226,40 @@ TrackDetMatchInfo::TrackDetMatchInfo():
      , isGoodMuon(false)
 
 {
+}
+
+DetId TrackDetMatchInfo::findEcalMaxDeposition()
+{
+   DetId id;
+   float maxEnergy = -9999;
+   for(std::vector<EcalRecHit>::const_iterator hit=ecalRecHits.begin(); hit!=ecalRecHits.end(); hit++)
+     if ( hit->energy() > maxEnergy ) {
+	maxEnergy = hit->energy();
+	id = hit->detid();
+     }
+   return id;
+}
+
+DetId TrackDetMatchInfo::findHcalMaxDeposition()
+{
+   DetId id;
+   float maxEnergy = -9999;
+   for(std::vector<HBHERecHit>::const_iterator hit=hcalRecHits.begin(); hit!=hcalRecHits.end(); hit++)
+     if ( hit->energy() > maxEnergy ) {
+	maxEnergy = hit->energy();
+	id = hit->detid();
+     }
+   return id;
+}
+
+DetId TrackDetMatchInfo::findTowerMaxDeposition()
+{
+   DetId id;
+   float maxEnergy = -9999;
+   for(std::vector<CaloTower>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++)
+     if ( hit->energy() > maxEnergy ) {
+	maxEnergy = hit->energy();
+	id = hit->id();
+     }
+   return id;
 }

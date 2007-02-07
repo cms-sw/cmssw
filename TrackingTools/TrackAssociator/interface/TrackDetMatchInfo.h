@@ -32,10 +32,16 @@ class TrackDetMatchInfo {
    double hoTowerEnergy();
    double hoTowerConeEnergy();
 
-   double ecalNeighborHitEnergy(int gridSize);
-   double ecalNeighborTowerEnergy(int gridSize);
-   double hcalNeighborEnergy(int gridSize);
+   /// Find detector elements with highest energy deposition
+   DetId findEcalMaxDeposition();
+   DetId findHcalMaxDeposition();
+   DetId findTowerMaxDeposition();
    
+   /// get energy of the NxN matrix around the maximal deposition
+   /// N = 2*gridSize + 1
+   double ecalNxNEnergy(const DetId&, int gridSize = 1);
+   double hcalNxNEnergy(const DetId&, int gridSize = 1);
+   double towerNxNEnergy(const DetId&, int gridSize = 1);
 
    int numberOfSegments() const;
    int numberOfSegmentsInStation(int station) const;

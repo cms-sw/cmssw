@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.2 2007/01/22 08:19:01 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.3 2007/01/30 18:40:01 dmytro Exp $
 //
 //
 
@@ -37,13 +37,21 @@ void CachedTrajectory::propagateForward(SteppingHelixStateInfo& state, float dis
    float r11 = r22*r33-r23*r32;
    float r12 = r23*r31;
    float r13 = -r22*r31;
+   
    Surface::RotationType rotation(r11, r12, r13,
 				  r21, r22, r23,
 				  r31, r32, r33);
    Surface* target = new Plane(state.position()+vector*distance, rotation);
    if( SteppingHelixPropagator* shp = dynamic_cast<SteppingHelixPropagator*>(propagator_) )
      {
-	state = shp->propagate(state, *target);
+	try {
+	   state = shp->propagate(state, *target);
+	}
+	catch(...){
+	   edm::LogWarning("TrackAssociator") << "An exception is caught during the track propagation\n"
+	     << state.momentum().x() << ", " << state.momentum().y() << ", " << state.momentum().z();
+	   state = SteppingHelixStateInfo();
+	}
      }
    else
      {
@@ -53,7 +61,6 @@ void CachedTrajectory::propagateForward(SteppingHelixStateInfo& state, float dis
 	state = SteppingHelixStateInfo( *(stateOnSurface.freeState()) );
      }
    
-
    // LogTrace("TrackAssociator")
    // << state.position().mag() << " , "   << state.position().eta() << " , "
    // << state.position().phi();
@@ -151,8 +158,16 @@ TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
    timers.pop_and_push("CachedTrajectory::propagate::localPropagation",TimerStack::FastMonitoring);
    if (SteppingHelixPropagator* shp = dynamic_cast<SteppingHelixPropagator*>(propagator_))
      {
-	SteppingHelixStateInfo shsi(shp->propagate(fullTrajectory_[closestPointOnLeft], *plane));
-	return shsi.getStateOnSurface(*plane);
+	SteppingHelixStateInfo state;
+	try { 
+	   state = shp->propagate(fullTrajectory_[closestPointOnLeft], *plane);
+	}
+	catch(...){
+	   edm::LogWarning("TrackAssociator") << "An exception is caught during the track propagation\n"
+	     << state.momentum().x() << ", " << state.momentum().y() << ", " << state.momentum().z();
+	   return TrajectoryStateOnSurface();
+	}
+	return state.getStateOnSurface(*plane);
      }
    else
      {
