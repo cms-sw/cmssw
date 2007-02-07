@@ -397,11 +397,12 @@ void SiStripActionExecutor::fillSummaryHistos(MonitorUserInterface* mui) {
   vector<string> subdirs = mui->getSubdirs();
   if (subdirs.size() ==0) return;
   
-  int ndet = 0;
+
   for (vector<string>::const_iterator isum = summaryMENames.begin();
        isum != summaryMENames.end(); isum++) {    
     string name = (*isum);
     int iBinStep = 0;
+    int ndet = 0;
     for (vector<string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
       if ( (*it).find("module_") == string::npos) continue;
