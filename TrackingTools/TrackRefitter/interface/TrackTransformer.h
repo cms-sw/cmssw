@@ -10,8 +10,8 @@
  *  pointers to the services, therefore EACH event the setServices(const edm::EventSetup&)
  *  method MUST be called in the code in which the TrackTransformer is used.
  *
- *  $Date: 2006/11/23 11:42:53 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/11/24 16:36:32 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -21,8 +21,9 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 namespace edm {class ParameterSet; class EventSetup;}
-namespace reco {class Track; class TransientTrack;}
+namespace reco {class TransientTrack;}
 
 class TrajectoryFitter;
 class TrajectorySmoother;
@@ -43,8 +44,11 @@ public:
   // Operations
 
   /// Convert a reco::Track into Trajectory
-  std::vector<Trajectory> transform(const reco::Track&);
-  
+  std::vector<Trajectory> transform(const reco::Track&) const;
+
+  /// Convert a reco::TrackRef into Trajectory
+  std::vector<Trajectory> transform(const reco::TrackRef&) const;
+
   /// the magnetic field
   const MagneticField* magneticField() const {return &*theMGField;}
   

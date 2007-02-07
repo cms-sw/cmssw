@@ -96,6 +96,11 @@ void TrackTransformer::setServices(const EventSetup& setup){
 }
 
 
+vector<Trajectory> TrackTransformer::transform(const reco::TrackRef& track) const {
+  return transform(*track);
+}
+
+
 TransientTrackingRecHit::ConstRecHitContainer
 TrackTransformer::getTransientRecHits(const reco::TransientTrack& track) const {
 
@@ -113,7 +118,7 @@ TrackTransformer::getTransientRecHits(const reco::TransientTrack& track) const {
 
 
 /// Convert Tracks into Trajectories
-vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack){
+vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack) const {
   
   const std::string metname = "Reco|TrackingTools|TrackTransformer";
   
@@ -159,4 +164,3 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack){
   
   return trajectoriesSM;
 }
-

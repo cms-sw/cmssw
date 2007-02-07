@@ -110,7 +110,7 @@ void TrajectoryReader::analyze(const Event & event, const EventSetup& eventSetup
        tr != tracks->end(); ++tr) {
     
     reco::TransientTrack track(*tr,&*magField,trackingGeometry); 
-    LogDebug(metname) << "Valid RecHits: "<<track.found() << " invalid RecHits: " << track.lost();
+    LogDebug(metname) << "Valid RecHits: "<<track.numberOfValidHits() << " invalid RecHits: " << track.numberOfLostHits();
 
     int i = 0;
     for(trackingRecHit_iterator recHit = track.recHitsBegin(); recHit != track.recHitsEnd(); ++recHit)
@@ -152,7 +152,7 @@ void TrajectoryReader::analyze(const Event & event, const EventSetup& eventSetup
       hDPtOut->Fill(track.outermostMeasurementState().globalMomentum().perp() -
  		    trajectory->lastMeasurement().updatedState().globalMomentum().perp());
 
-      LogDebug(metname)<< "Difference: " <<track.found()- trajectory->recHits().size();
+      LogDebug(metname)<< "Difference: " <<track.recHitsSize()- trajectory->recHits().size();
       
     }     
   }
