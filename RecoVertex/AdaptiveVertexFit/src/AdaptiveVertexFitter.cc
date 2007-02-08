@@ -2,7 +2,6 @@
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 #include "RecoVertex/VertexTools/interface/AnnealingSchedule.h"
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
-#include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/KalmanChiSquare.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
@@ -24,11 +23,12 @@ AdaptiveVertexFitter::AdaptiveVertexFitter(
       const LinearizationPointFinder & linP,
       const VertexUpdator & updator,
       const VertexTrackCompatibilityEstimator & crit,
-      const VertexSmoother & smoother ) :
+      const VertexSmoother & smoother,
+      const AbstractLTSFactory & ltsf ) :
     theNr(0),
     theLinP(linP.clone()), theUpdator( updator.clone()),
     theSmoother ( smoother.clone() ), theAssProbComputer( ann.clone() ),
-    theComp ( crit.clone() )
+    theComp ( crit.clone() ), theLinTrkFactory ( ltsf.clone() )
 {
   readParameters();
 }
@@ -46,7 +46,8 @@ AdaptiveVertexFitter::AdaptiveVertexFitter
     theLinP ( o.theLinP->clone() ), theUpdator ( o.theUpdator->clone() ),
     theSmoother ( o.theSmoother->clone() ),
     theAssProbComputer ( o.theAssProbComputer->clone() ),
-    theComp ( o.theComp->clone() )
+    theComp ( o.theComp->clone() ),
+    theLinTrkFactory ( o.theLinTrkFactory->clone() )
 {}
 
 AdaptiveVertexFitter::~AdaptiveVertexFitter()
@@ -56,6 +57,7 @@ AdaptiveVertexFitter::~AdaptiveVertexFitter()
   delete theSmoother;
   delete theAssProbComputer;
   delete theComp;
+  delete theLinTrkFactory;
 }
 
 void AdaptiveVertexFitter::readParameters()
@@ -182,7 +184,7 @@ AdaptiveVertexFitter::linearizeTracks(const vector<reco::TransientTrack> & track
   {
     try {
       RefCountedLinearizedTrackState lTrData
-        = LinearizedTrackStateFactory().linearizedTrackState(linP, *i);
+        = theLinTrkFactory->linearizedTrackState(linP, *i);
       lTracks.push_back(lTrData);
     } catch ( exception & e ) {
       cout << "[AdaptiveVertexFitter] Exception " << e.what() << " in ::linearizeTracks."
@@ -215,7 +217,7 @@ AdaptiveVertexFitter::reLinearizeTracks(
   {
     try {
       RefCountedLinearizedTrackState lTrData
-        = LinearizedTrackStateFactory().linearizedTrackState( linP, (**i).linearizedTrack()->track() );
+        = theLinTrkFactory->linearizedTrackState( linP, (**i).linearizedTrack()->track() );
       /*
       RefCountedLinearizedTrackState lTrData =
               (**i).linearizedTrack()->stateWithNewLinearizationPoint(linP);

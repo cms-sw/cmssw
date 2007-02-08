@@ -8,6 +8,7 @@
 #include "RecoVertex/VertexTools/interface/DummyVertexSmoother.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexTrackCompatibilityEstimator.h"
+#include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h"
 
 /**
@@ -49,7 +50,8 @@ public:
       const VertexUpdator & updator = KalmanVertexUpdator(),
       const VertexTrackCompatibilityEstimator & estor =
              KalmanVertexTrackCompatibilityEstimator(),
-      const VertexSmoother & smoother = DummyVertexSmoother() );
+      const VertexSmoother & smoother = DummyVertexSmoother(),
+      const AbstractLTSFactory & ltsf = LinearizedTrackStateFactory() );
 
   AdaptiveVertexFitter( const AdaptiveVertexFitter & original );
 
@@ -168,7 +170,6 @@ private:
    */
   void readParameters();
 
-
 private:
   float theMaxShift;
   float theMaxLPShift;
@@ -181,6 +182,7 @@ private:
   VertexSmoother * theSmoother;
   AnnealingSchedule * theAssProbComputer;
   VertexTrackCompatibilityEstimator * theComp;
+  const AbstractLTSFactory * theLinTrkFactory;
 };
 
 #endif
