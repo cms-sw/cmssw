@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "RecoTracker/TkSeedGenerator/interface/GlobalPixelSeedGenerator.h"
+#include "RecoTracker/TkSeedGenerator/interface/GlobalPixelSeedGeneratorWithVertex.h"
 #include "RecoTracker/TkSeedGenerator/interface/RegionalPixelSeedGenerator.h"
 #include "RecoTracker/TkSeedGenerator/interface/RegionalPixelSeedGeneratorFromRectangularTrackingRegion.h"
 #include "RecoTracker/TkSeedGenerator/interface/GlobalPixelLessSeedGenerator.h"
@@ -12,6 +13,7 @@
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(GlobalPixelSeedGenerator);
+DEFINE_ANOTHER_FWK_MODULE(GlobalPixelSeedGeneratorWithVertex);
 DEFINE_ANOTHER_FWK_MODULE(RegionalPixelSeedGenerator);
 DEFINE_ANOTHER_FWK_MODULE(RegionalPixelSeedGeneratorFromRectangularTrackingRegion);
 DEFINE_ANOTHER_FWK_MODULE(GlobalPixelLessSeedGenerator);
