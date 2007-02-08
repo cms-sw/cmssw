@@ -67,7 +67,11 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
   else hcalLinear = hcal;
   
   float etLinear = ecalLinear + hcalLinear;
-  unsigned long HE_FGBit = (calcHEBit(ecalLinear,hcalLinear) || fgbit);
+  unsigned long HE_FGBit;
+  if(iAbsEta < 14)
+    HE_FGBit = (calcHEBit(ecalLinear,hcalLinear) || fgbit);
+  else
+    HE_FGBit = 0; // calcHEBit(ecalLinear,hcalLinear);
   unsigned long etIn7Bits = convertToInteger(ecalLinear, eGammaLSB_, 7);
   unsigned long etIn9Bits = convertToInteger(etLinear, jetMETLSB_, 9);
   unsigned long activityBit = calcActivityBit(ecalLinear, hcalLinear);
@@ -75,6 +79,14 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
   unsigned long shiftHE_FGBit = HE_FGBit<<7;
   unsigned long shiftActivityBit = activityBit<<17;
   unsigned long output=etIn7Bits+shiftHE_FGBit+shiftEtIn9Bits+shiftActivityBit;
+  if(etIn7Bits > 10 && iAbsEta > 13)
+    {
+      cout << "etIn7Bits   = " << etIn7Bits << endl
+	   << "HE_FGBit    = " << HE_FGBit << endl
+	   << "ecalLinear  = " << ecalLinear << endl
+	   << "hcalLinear  = " << hcalLinear << endl
+	   << "output      = " << output << endl;
+    }
   return output;
 }
 

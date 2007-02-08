@@ -1,5 +1,7 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTElectronIsolationCard.h"
 
+#include <iomanip>
+
 L1RCTElectronIsolationCard::L1RCTElectronIsolationCard(int crateNumber,
 						       int cardNumber) :
   crtNo(crateNumber),cardNo(cardNumber),isoElectrons(2),nonIsoElectrons(2),
@@ -53,11 +55,14 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
   unsigned short westEt;
   unsigned short westHE_FG;
   //i is row and j is column
+  unsigned short sumEt = 0;
   for(int i = 0; i<4; i++){
     for(int j = 0; j<4; j++){
       primaryEt = region->getEtIn7Bits(i,j);
       primaryHE_FG = region->getHE_FGBit(i,j); 
       
+      sumEt += primaryEt;
+
       northEt = region->getEtIn7Bits(i-1,j);
       northHE_FG = region->getHE_FGBit(i-1,j);
       southEt = region->getEtIn7Bits(i+1,j);
@@ -110,6 +115,14 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
   candidates.push_back(fullIsoElectron);
   unsigned short fullNonIsoElectron = nonIsoElectron*16 + cardNo*2;  // leaves room for region info in last bit
   candidates.push_back(fullNonIsoElectron);
+
+  if(sumEt > 10 && cardNo > 3) 
+    {
+      cout << "Region Information for Card " << cardNo << " :" << endl;
+      region->print();
+      cout << std::hex << "isoElectron    = " << isoElectron << " code: " << fullIsoElectron << std::dec << endl;
+      cout << std::hex << "NonIsoElectron = " << nonIsoElectron << " code: " << fullNonIsoElectron << std::dec << endl;
+    }
 
   return candidates;
 }

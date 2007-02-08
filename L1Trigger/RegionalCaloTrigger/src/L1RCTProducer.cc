@@ -12,6 +12,7 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 
 L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) : 
+  rct(0),
   src(conf.getParameter<edm::FileInPath>("src")),
   orcaFileInput(conf.getUntrackedParameter<bool>("orcaFileInput")),
   lutFile(conf.getParameter<edm::FileInPath>("lutFile"))
