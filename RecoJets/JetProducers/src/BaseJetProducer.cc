@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.6 2007/02/07 00:39:53 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.7 2007/02/08 01:46:12 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -11,6 +11,7 @@
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoJets/JetProducers/interface/BaseJetProducer.h"
 
@@ -89,9 +90,14 @@ namespace cms
       }
     }
 
-
     // run algorithm
-    runAlgorithm (input, &output);
+    if (input.empty ()) {
+      edm::LogWarning("Empty Event") << "empty input for jet algorithm: bypassing..." << std::endl;
+    }
+    else {
+      runAlgorithm (input, &output);
+    }
+
     // produce output collection
     auto_ptr<CaloJetCollection> caloJets;
     if (makeCaloJet (mJetType)) caloJets.reset (new CaloJetCollection);
