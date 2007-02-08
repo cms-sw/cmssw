@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.10 2007/02/08 08:36:07 benigno Exp $
+// $Id: EcalErrorMask.cc,v 1.11 2007/02/08 09:10:31 benigno Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.10 $
-  \date $Date: 2007/02/08 08:36:07 $
+  \version $Revision: 1.11 $
+  \date $Date: 2007/02/08 09:10:31 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
@@ -391,6 +391,8 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
   std::ifstream inf( outFile.c_str() );
   inf.close();
   if( !inf.fail() ) {
+    std::cout << std::endl;
+    std::cout << "File ";
     std::cout << outFile << " already exists. Should I replace it? [y/n] ";
     std::string yesno; std::cin >> yesno;
     if( yesno == "n" ) {
