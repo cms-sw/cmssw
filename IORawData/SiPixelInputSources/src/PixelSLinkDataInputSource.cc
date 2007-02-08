@@ -63,12 +63,16 @@ bool PixelSLinkDataInputSource::produce(edm::Event& event) {
   }while((data >> 60) != 0xa);
   
   FEDRawData * rawData = new FEDRawData(8*buffer.size());
-  FEDRawData& fedRawData = buffers->FEDData( fed_id );
-  fedRawData=*rawData;
-  unsigned char* dataptr=fedRawData.data();
+  unsigned char* dataptr=rawData->data();
+
   for (unsigned int i=0;i<buffer.size();i++){
     ((unsigned long long *)dataptr)[i]=buffer[i];
   }
+
+  FEDRawData& fedRawData = buffers->FEDData( fed_id );
+  fedRawData=*rawData;
+
+  event.put(buffers);
 
   return true;
 
