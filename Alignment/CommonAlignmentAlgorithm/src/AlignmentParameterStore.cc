@@ -599,30 +599,30 @@ attachUserVariables( const Alignables& alivec,
 
 //__________________________________________________________________________________________________
 void AlignmentParameterStore::setAlignmentPositionError( const Alignables& alivec, 
-							 double valshift, double valrot )
+                                                         double valshift, double valrot )
 {
   bool first=true;
   for ( Alignables::const_iterator iali = alivec.begin(); iali != alivec.end(); ++iali ) 
   {
-    if (valshift>0)
-    {
-      AlignmentPositionError ape(valshift,valshift,valshift);
-      (*iali)->addAlignmentPositionError(ape);
-      if (first)
-	LogDebug("StoreAPE") << "Store APE from shift: " << valshift;
-    }
 
-    if (valrot>0)
-    {
-      AlignmentTransformations alignTransform;
-      AlgebraicVector r(3);
-      r[0]=valrot; r[1]=valrot; r[2]=valrot;
-      Surface::RotationType aperot 
-	= alignTransform.rotationType( alignTransform.rotMatrix3(r) );
-      (*iali)->addAlignmentPositionErrorFromRotation(aperot);
-      if (first) 
-	LogDebug("StoreAPE") << "Store APE from rotation: " << valrot;
-    }
+    // First reset APE	 
+    AlignmentPositionError nulApe(0,0,0);	 
+    (*iali)->setAlignmentPositionError(nulApe);
+
+    // Set APE from displacement
+    AlignmentPositionError ape(valshift,valshift,valshift);
+    if ( valshift > 0. ) (*iali)->addAlignmentPositionError(ape);
+    else (*iali)->setAlignmentPositionError(ape);
+    if (first) LogDebug("StoreAPE") << "Store APE from shift: " << valshift;
+
+    // Set APE from rotation
+    AlignmentTransformations alignTransform;
+    AlgebraicVector r(3);
+    r[0]=valrot; r[1]=valrot; r[2]=valrot;
+    Surface::RotationType aperot = alignTransform.rotationType( alignTransform.rotMatrix3(r) );
+    (*iali)->addAlignmentPositionErrorFromRotation(aperot);
+    if (first) LogDebug("StoreAPE") << "Store APE from rotation: " << valrot;
+
     first=false;
   }
 }
