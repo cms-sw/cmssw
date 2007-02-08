@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.8 2007/01/23 12:54:54 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.9 2007/01/31 14:26:41 benigno Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.8 $
-  \date $Date: 2007/01/23 12:54:54 $
+  \version $Revision: 1.9 $
+  \date $Date: 2007/01/31 14:26:41 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
@@ -25,7 +25,7 @@ std::map<EcalLogicID, RunMemTTErrorsDat>   EcalErrorMask::mapMemTTErrors_;
 
 //---------------------------------------------------------------------------------------------
 
-void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::runtime_error ) {
+void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySyntax ) throw( std::runtime_error ) {
 
   if( done_ ) {
       throw( std::runtime_error( "Input File already read." ) );
@@ -33,6 +33,12 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
   }
 
   done_ = true;
+
+  if( verifySyntax ) {
+    std::cout << "----------------------------------------------------------------" << std::endl
+	      << "---> Verifying syntax in " << inFile << std::endl
+	      << "----------------------------------------------------------------" << std::endl;
+  }
 
   const unsigned int lineSize = 512;
   char line[lineSize];
@@ -45,6 +51,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
   }
 
   int linecount = 0;
+  int nerrors = 0;
 
   // Local copy of error dictionary
   std::vector<EcalErrorDictionary::errorDef_t> errors;
@@ -70,21 +77,33 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 
     int sm; is >> sm;
     if( sm < 1 || sm > 36 ) {
-      f.close();
       std::ostringstream os;
-      os << "line " << linecount << ": SM must be a number between 1 and 36" << std::ends;
-      throw( std::runtime_error( os.str() ) );
-      return;
+      os << "line " << linecount << " --> SM must be a number between 1 and 36: " << sm << std::ends;
+      if( verifySyntax ) {
+	std::cerr << os.str() << std::endl;
+	nerrors++;
+      }
+      else {
+	f.close();
+	throw( std::runtime_error( os.str() ) );
+	return;
+      }
     }
     
     if( s == "Crystal" ) {
       int ic; is >> ic;
       if( ic < 1 || ic > 1700 ) {
-	f.close();
 	std::ostringstream os;
-	os << "line " << linecount << ": IC must be a number between 1 and 1700" << std::ends;
-	throw( std::runtime_error( os.str() ) );
-	return;
+	os << "line " << linecount << " --> IC must be a number between 1 and 1700: " << ic << std::ends;
+	if( verifySyntax ) {
+	  std::cerr << os.str() << std::endl;
+	  nerrors++;
+	}
+	else {
+	  f.close();
+	  throw( std::runtime_error( os.str() ) );
+	  return;
+	}
       }
       std::string shortDesc; is >> shortDesc;
       uint64_t bitmask; bitmask = 0;
@@ -95,33 +114,47 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 	}
       }
       if( bitmask == 0 ) {
-	f.close();
 	std::ostringstream os;
-	os << "line " << linecount << ": This Short Description was not found in the Dictionary" << std::ends;
-	throw( std::runtime_error( os.str() ) );
-	return;
+	os << "line " << linecount << " --> This Short Description was not found in the Dictionary: " << shortDesc << std::ends;
+	if( verifySyntax ) {
+	  std::cerr << os.str() << std::endl;
+	  nerrors++;
+	}
+	else {
+	  f.close();
+	  throw( std::runtime_error( os.str() ) );
+	  return;
+	}
       }
-      EcalLogicID id = EcalLogicID( "EB_crystal_number", 1011000000+10000*sm+ic, sm, ic, 0 );
-      std::map<EcalLogicID, RunCrystalErrorsDat>::iterator i = EcalErrorMask::mapCrystalErrors_.find( id );
-      if( i != mapCrystalErrors_.end() ) {
-	uint64_t oldBitmask = (i->second).getErrorBits();
-	oldBitmask |= bitmask;
-	(i->second).setErrorBits( oldBitmask );
-      }
-      else {
-	RunCrystalErrorsDat error;
-	error.setErrorBits(bitmask);
-	EcalErrorMask::mapCrystalErrors_[ id ] = error;
+      if( !verifySyntax ) {
+	EcalLogicID id = EcalLogicID( "EB_crystal_number", 1011000000+10000*sm+ic, sm, ic, 0 );
+	std::map<EcalLogicID, RunCrystalErrorsDat>::iterator i = EcalErrorMask::mapCrystalErrors_.find( id );
+	if( i != mapCrystalErrors_.end() ) {
+	  uint64_t oldBitmask = (i->second).getErrorBits();
+	  oldBitmask |= bitmask;
+	  (i->second).setErrorBits( oldBitmask );
+	}
+	else {
+	  RunCrystalErrorsDat error;
+	  error.setErrorBits(bitmask);
+	  EcalErrorMask::mapCrystalErrors_[ id ] = error;
+	}
       }
     }
     else if( s == "TT" ) {
       int it; is >> it;
       if( it < 1 || it > 68 ) {
-	f.close();
 	std::ostringstream os;
-	os << "line " << linecount << ": IT must be a number between 1 and 68" << std::ends;
-	throw( std::runtime_error( os.str() ) );
-	return;
+	os << "line " << linecount << " --> IT must be a number between 1 and 68: " << it << std::ends;
+	if( verifySyntax ) {
+	  std::cerr << os.str() << std::endl;
+	  nerrors++;
+	}
+	else {
+	  f.close();
+	  throw( std::runtime_error( os.str() ) );
+	  return;
+	}
       }
       std::string shortDesc; is >> shortDesc;
       uint64_t bitmask; bitmask = 0;
@@ -132,33 +165,47 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 	}
       }
       if( bitmask == 0 ) {
-	f.close();
 	std::ostringstream os;
-	os << "line " << linecount << ": This Short Description was not found in the Dictionary" << std::ends;
-	throw( std::runtime_error( os.str() ) );
-	return;
+	os << "line " << linecount << " --> This Short Description was not found in the Dictionary:" << shortDesc << std::ends;
+	if( verifySyntax ) {
+	  std::cerr << os.str() << std::endl;
+	  nerrors++;
+	}
+	else {
+	  f.close();
+	  throw( std::runtime_error( os.str() ) );
+	  return;
+	}
       }
-      EcalLogicID id = EcalLogicID( "EB_trigger_tower", 1021000000+10000*sm+it, sm, it, 0 );
-      std::map<EcalLogicID, RunTTErrorsDat>::iterator i = EcalErrorMask::mapTTErrors_.find( id );
-      if( i != mapTTErrors_.end() ) {
-	uint64_t oldBitmask = (i->second).getErrorBits();
-	oldBitmask |= bitmask;
-	(i->second).setErrorBits( oldBitmask );
-      }
-      else {
-	RunTTErrorsDat error;
-	error.setErrorBits(bitmask);
-	EcalErrorMask::mapTTErrors_[ id ] = error;
+      if( !verifySyntax ) {
+	EcalLogicID id = EcalLogicID( "EB_trigger_tower", 1021000000+10000*sm+it, sm, it, 0 );
+	std::map<EcalLogicID, RunTTErrorsDat>::iterator i = EcalErrorMask::mapTTErrors_.find( id );
+	if( i != mapTTErrors_.end() ) {
+	  uint64_t oldBitmask = (i->second).getErrorBits();
+	  oldBitmask |= bitmask;
+	  (i->second).setErrorBits( oldBitmask );
+	}
+	else {
+	  RunTTErrorsDat error;
+	  error.setErrorBits(bitmask);
+	  EcalErrorMask::mapTTErrors_[ id ] = error;
+	}
       }
     }
     else if( s == "PN" ) {
       int ic; is >> ic;
       if( ic < 1 || ic > 10 ) {
-	f.close();
 	std::ostringstream os;
-	os << "line " << linecount << ": IC must be a number between 1 and 10" << std::ends;
-	throw( std::runtime_error( os.str() ) );
-	return;
+	os << "line " << linecount << " --> IC must be a number between 1 and 10: " << ic << std::ends;
+	if( verifySyntax ) {
+	  std::cerr << os.str() << std::endl;
+	  nerrors++;
+	}
+	else {
+	  f.close();
+	  throw( std::runtime_error( os.str() ) );
+	  return;
+	}
       }
       std::string shortDesc; is >> shortDesc;
       uint64_t bitmask; bitmask = 0;
@@ -169,33 +216,47 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 	}
       }
       if( bitmask == 0 ) {
-	f.close();
 	std::ostringstream os;
-	os << "line " << linecount << ": This Short Description was not found in the Dictionary" << std::ends;
-	throw( std::runtime_error( os.str() ) );
-	return;
+	os << "line " << linecount << " --> This Short Description was not found in the Dictionary: " << shortDesc << std::ends;
+	if( verifySyntax ) {
+	  std::cerr << os.str() << std::endl;
+	  nerrors++;
+	}
+	else {
+	  f.close();
+	  throw( std::runtime_error( os.str() ) );
+	  return;
+	}
       }
-      EcalLogicID id = EcalLogicID( "EB_LM_PN", 1131000000+10000*sm+(ic-1), sm, (ic-1), 0 );
-      std::map<EcalLogicID, RunPNErrorsDat>::iterator i = EcalErrorMask::mapPNErrors_.find( id );
-      if( i != mapPNErrors_.end() ) {
-	uint64_t oldBitmask = (i->second).getErrorBits();
-	oldBitmask |= bitmask;
-	(i->second).setErrorBits( oldBitmask );
-      }
-      else {
-	RunPNErrorsDat error;
-	error.setErrorBits(bitmask);
-	EcalErrorMask::mapPNErrors_[ id ] = error;
+      if( !verifySyntax ) {
+	EcalLogicID id = EcalLogicID( "EB_LM_PN", 1131000000+10000*sm+(ic-1), sm, (ic-1), 0 );
+	std::map<EcalLogicID, RunPNErrorsDat>::iterator i = EcalErrorMask::mapPNErrors_.find( id );
+	if( i != mapPNErrors_.end() ) {
+	  uint64_t oldBitmask = (i->second).getErrorBits();
+	  oldBitmask |= bitmask;
+	  (i->second).setErrorBits( oldBitmask );
+	}
+	else {
+	  RunPNErrorsDat error;
+	  error.setErrorBits(bitmask);
+	  EcalErrorMask::mapPNErrors_[ id ] = error;
+	}
       }
     }
     else if( s == "MemCh" ) {
       int ic; is >> ic;
       if( ic < 1 || ic > 50 ) {
-	f.close();
 	std::ostringstream os;
-	os << "line " << linecount << ": IC must be a number between 1 and 50" << std::ends;
-	throw( std::runtime_error( os.str() ) );
-	return;
+	os << "line " << linecount << " --> IC must be a number between 1 and 50: " << ic << std::ends;
+	if( verifySyntax ) {
+	  std::cerr << os.str() << std::endl;
+	  nerrors++;
+	}
+	else {
+	  f.close();
+	  throw( std::runtime_error( os.str() ) );
+	  return;
+	}
       }
       std::string shortDesc; is >> shortDesc;
       uint64_t bitmask; bitmask = 0;
@@ -206,33 +267,47 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 	}
       }
       if( bitmask == 0 ) {
-	f.close();
 	std::ostringstream os;
-	os << "line " << linecount << ": This Short Description was not found in the Dictionary" << std::ends;
-	throw( std::runtime_error( os.str() ) );
-	return;
+	os << "line " << linecount << " --> This Short Description was not found in the Dictionary: " << shortDesc << std::ends;
+	if( verifySyntax ) {
+	  std::cerr << os.str() << std::endl;
+	  nerrors++;
+	}
+	else {
+	  f.close();
+	  throw( std::runtime_error( os.str() ) );
+	  return;
+	}
       }
-      EcalLogicID id = EcalLogicID( "EB_mem_channel", 1191000000+10000*sm+ic, sm, ic, 0 );
-      std::map<EcalLogicID, RunMemChErrorsDat>::iterator i = EcalErrorMask::mapMemChErrors_.find( id );
-      if( i != mapMemChErrors_.end() ) {
-	uint64_t oldBitmask = (i->second).getErrorBits();
-	oldBitmask |= bitmask;
-	(i->second).setErrorBits( oldBitmask );
-      }
-      else {
-	RunMemChErrorsDat error;
-	error.setErrorBits(bitmask);
-	EcalErrorMask::mapMemChErrors_[ id ] = error;
+      if( !verifySyntax ) {
+	EcalLogicID id = EcalLogicID( "EB_mem_channel", 1191000000+10000*sm+ic, sm, ic, 0 );
+	std::map<EcalLogicID, RunMemChErrorsDat>::iterator i = EcalErrorMask::mapMemChErrors_.find( id );
+	if( i != mapMemChErrors_.end() ) {
+	  uint64_t oldBitmask = (i->second).getErrorBits();
+	  oldBitmask |= bitmask;
+	  (i->second).setErrorBits( oldBitmask );
+	}
+	else {
+	  RunMemChErrorsDat error;
+	  error.setErrorBits(bitmask);
+	  EcalErrorMask::mapMemChErrors_[ id ] = error;
+	}
       }
     }
     else if( s == "MemTT" ) {
       int it; is >> it;
       if( it < 69 || it > 70 ) {
-	f.close();
 	std::ostringstream os;
-	os << "line " << linecount << ": IT must be 69 or 70" << std::ends;
-	throw( std::runtime_error( os.str() ) );
-	return;
+	os << "line " << linecount << " --> IT must be 69 or 70: " << it << std::ends;
+	if( verifySyntax ) {
+	  std::cerr << os.str() << std::endl;
+	  nerrors++;
+	}
+	else {
+	  f.close();
+	  throw( std::runtime_error( os.str() ) );
+	  return;
+	}
       }
       std::string shortDesc; is >> shortDesc;
       uint64_t bitmask; bitmask = 0;
@@ -243,31 +318,62 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose ) throw( std::run
 	}
       }
       if( bitmask == 0 ) {
-	f.close();
 	std::ostringstream os;
-	os << "line " << linecount << ": This Short Description was not found in the Dictionary" << std::ends;
-	throw( std::runtime_error( os.str() ) );
-	return;
+	os << "line " << linecount << " --> This Short Description was not found in the Dictionary: " << shortDesc << std::ends;
+	if( verifySyntax ) {
+	  std::cerr << os.str() << std::endl;
+	  nerrors++;
+	}
+	else {
+	  f.close();
+	  throw( std::runtime_error( os.str() ) );
+	  return;
+	}
       }
-      EcalLogicID id = EcalLogicID( "EB_mem_TT", 1181000000+10000*sm+it, sm, it, 0 );
-      std::map<EcalLogicID, RunMemTTErrorsDat>::iterator i = EcalErrorMask::mapMemTTErrors_.find( id );
-      if( i != mapMemTTErrors_.end() ) {
-	uint64_t oldBitmask = (i->second).getErrorBits();
-	oldBitmask |= bitmask;
-	(i->second).setErrorBits( oldBitmask );
-      }
-      else {
-	RunMemTTErrorsDat error;
-	error.setErrorBits(bitmask);
-	EcalErrorMask::mapMemTTErrors_[ id ] = error;
+      if( !verifySyntax ) {
+	EcalLogicID id = EcalLogicID( "EB_mem_TT", 1181000000+10000*sm+it, sm, it, 0 );
+	std::map<EcalLogicID, RunMemTTErrorsDat>::iterator i = EcalErrorMask::mapMemTTErrors_.find( id );
+	if( i != mapMemTTErrors_.end() ) {
+	  uint64_t oldBitmask = (i->second).getErrorBits();
+	  oldBitmask |= bitmask;
+	  (i->second).setErrorBits( oldBitmask );
+	}
+	else {
+	  RunMemTTErrorsDat error;
+	  error.setErrorBits(bitmask);
+	  EcalErrorMask::mapMemTTErrors_[ id ] = error;
+	}
       }
     }
     else {
-      f.close();
-      throw( std::runtime_error( "Wrong Table Name" ) );
-      return;
+      std::ostringstream os;
+      os << "line " << linecount << " --> Wrong Table Name: " << s << std::ends;
+      if( verifySyntax ) {
+	std::cerr << os.str() << std::endl;
+	nerrors++;
+      }
+      else {
+	f.close();
+	throw( std::runtime_error( os.str() ) );
+	return;
+      }
     }
+  }
 
+  if( verifySyntax ) {
+    std::cout << "----------------------------------------------------------------" << std::endl;
+    if( nerrors > 0 ) {
+      if( nerrors == 1 ) {
+	std::cerr << "---> " << inFile << " contains a syntax error, please fix it..." << std::endl;
+      }
+      else {
+	std::cerr << "---> " << inFile << " contains " << nerrors << " syntax errors, please fix them..." << std::endl;
+      }
+    }
+    else {
+      std::cout << "---> " << inFile << " syntax sounds correct... Good!" << std::endl;
+    }
+    std::cout << "----------------------------------------------------------------" << std::endl;
   }
 
   if( verbose ) std::cout << "------- End Input Mask File Dump --------" 
