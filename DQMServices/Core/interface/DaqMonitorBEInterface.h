@@ -30,7 +30,7 @@ class DaqMonitorBEInterface: public StringUtil
   {
     //pthread_mutex_init(&mutex_,0); 
     dqm_locker = 0;
-    DQM_VERBOSE = 1; resetStuff();
+    DQM_VERBOSE = 1; resetMonitoringDiff(); resetMonitorableDiff();
   }  
   virtual ~DaqMonitorBEInterface();
  
@@ -305,18 +305,24 @@ class DaqMonitorBEInterface: public StringUtil
   void convert(std::vector<std::string> & put_here, 
 	       const dqm::me_util::monit_map & in) const;
   
-  /* come here at end of monitoring cycle for all receivers;
-     (a) call resetUpdate for modified contents
+  /** come here after sending monitoring to all receivers;
+     (a) call resetUpdate for modified contents:
 
-     (b) if resetMEs=true, reset MEs that were updated (and have resetMe = true);
+     if resetMEs=true, reset MEs that were updated (and have resetMe = true);
      [flag resetMe is typically set by sources (false by default)];
      [Clients in standalone mode should also have resetMEs = true] 
 
-     (c) if callResetStuff = true, call resetStuff
-     (typical behaviour: Sources & Collector have callResetStuff = true, whereas
-     clients have callResetStuff = false, so GUI/WebInterface can access the 
+     (b) if callResetDiff = true, call resetMonitoringDiff
+     (typical behaviour: Sources & Collector have callResetDiff = true, whereas
+     clients have callResetDiff = false, so GUI/WebInterface can access the 
      modifications in monitorable & monitoring) */
-  void doneSending(bool resetMEs, bool callResetStuff);
+  void doneSendingMonitoring(bool resetMEs, bool callResetDiff);
+  /** come here after sending monitorable to all receivers;
+     if callResetDiff = true, call resetMonitorableDiff
+     (typical behaviour: Sources & Collector have callResetDiff = true, whereas
+     clients have callResetDiff = false, so GUI/WebInterface can access the 
+     modifications in monitorable & monitoring) */
+  void doneSendingMonitorable(bool callResetDiff);
   /// extract object (TH1F, TH2F, ...) from <to>; return success flag
   /// flag fromRemoteNode indicating if ME arrived from different node
   virtual bool extractObject(TObject * to, MonitorElementRootFolder * dir, 
@@ -447,10 +453,13 @@ class DaqMonitorBEInterface: public StringUtil
   void add2UpdatedQReports(QReport * qr)
   {updatedQReports.insert(qr);}
 
-  /// (a) reset modifications to monitorable since last cycle 
-  /// (b) reset sets of added/removed/updated contents and updated QReports
-  void resetStuff(void);
+  /// reset modifications to monitorable since last cycle 
+  /// and sets of added/removed contents
+  void resetMonitorableDiff();
 
+  /// reset updated contents and updated QReports
+  void resetMonitoringDiff();
+      
   boost::mutex::scoped_lock * dqm_locker;
   // ------------------- data structures -----------------------------
   
@@ -607,9 +616,10 @@ class DaqMonitorBEInterface: public StringUtil
   /// if found, create QReport from QCriterion and add to ME
   void scanContents(QCriterion * qc, const std::string & search_string) const;
 
-  /// check if resetStuff was called 
+  /// check if resetMonitoringDiff and resetMonitorableDiff were called 
   /// (to be reset in MonitorUserInterface::runQualityTests)
-  inline bool wasResetCalled() const{return resetWasCalled;}
+  inline bool wasResetCalled() const
+  {return rMonitoringDiffWasCalled && rMonitorableDiffWasCalled;}
 
   /// make new directory structure for Subscribers, Tags and CMEs
   virtual void makeDirStructure
@@ -627,9 +637,10 @@ class DaqMonitorBEInterface: public StringUtil
   //
  private:
   /// use to printout warning when calling quality tests twice without
-  /// having called resetStuff in between...
+  /// having called resetMonitoringDiff, resetMonitorableDiff in between...
   /// (to be reset in MonitorUserInterface::runQualityTests)
-  bool resetWasCalled;
+  bool rMonitoringDiffWasCalled;
+  bool rMonitorableDiffWasCalled;
   /// run quality tests (also finds updated contents in last monitoring cycle,
   /// including newly added content) <-- to be called only by runQTests
   virtual void runQualityTests(void) = 0;

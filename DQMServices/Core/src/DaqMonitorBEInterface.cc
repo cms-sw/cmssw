@@ -87,9 +87,9 @@ void DaqMonitorBEInterface::getRemovedMonitorable(vector<string> & put_here) con
   put_here = removedMonitorable;
 }
 
-// (a) reset modifications to monitorable since last cycle 
-// (b) reset sets of added/removed/updated contents and updated QReports
-void DaqMonitorBEInterface::resetStuff(void)
+// reset modifications to monitorable since last cycle 
+// and sets of added/removed contents
+void DaqMonitorBEInterface::resetMonitorableDiff()
 {
   // reset added, removed monitorable
   addedMonitorable.clear();
@@ -100,26 +100,46 @@ void DaqMonitorBEInterface::resetStuff(void)
   // reset modified tags
   addedTags.clear();
   removedTags.clear();
+
+  rMonitorableDiffWasCalled = true;
+}
+
+// reset updated contents and updated QReports
+void DaqMonitorBEInterface::resetMonitoringDiff()
+{
   // reset updated contents
   updatedContents.clear();
   // reset updated QReports
   updatedQReports.clear();
 
-  resetWasCalled = true;
+  rMonitoringDiffWasCalled = true;
 }
 
-/* come here at end of monitoring cycle for all receivers;
-   (a) call resetUpdate for modified contents
+/* come here after sending monitorable to all receivers;
+   if callResetDiff = true, call resetMonitorableDiff
+   (typical behaviour: Sources & Collector have callResetDiff = true, whereas
+   clients have callResetDiff = false, so GUI/WebInterface can access the 
+   modifications in monitorable & monitoring) */
+void 
+DaqMonitorBEInterface::doneSendingMonitorable(bool callResetDiff)
+{
+  // if flag=true, reset list of modified monitoring
+  if(callResetDiff)resetMonitorableDiff();
+}
+
+/* come here after sending monitoring to all receivers;
+   (a) call resetUpdate for modified contents:
    
-   (b) if resetMEs=true, reset MEs that were updated (and have resetMe = true);
+   if resetMEs=true, reset MEs that were updated (and have resetMe = true);
    [flag resetMe is typically set by sources (false by default)];
    [Clients in standalone mode should also have resetMEs = true] 
    
-   (c) if callResetStuff = true, call resetStuff
-   (typical behaviour: Sources & Collector have callResetStuff = true, whereas
-   clients have callResetStuff = false, so GUI/WebInterface can access the 
+   (b) if callResetDiff = true, call resetMonitoringDiff
+   (typical behaviour: Sources & Collector have callResetDiff = true, whereas
+   clients have callResetDiff = false, so GUI/WebInterface can access the 
    modifications in monitorable & monitoring) */
-void DaqMonitorBEInterface::doneSending(bool resetMEs, bool callResetStuff)
+void 
+DaqMonitorBEInterface::doneSendingMonitoring(bool resetMEs, bool callResetDiff)
 {
 
   // reset "update" flag for monitoring objects that have been updated/added
@@ -152,8 +172,8 @@ void DaqMonitorBEInterface::doneSending(bool resetMEs, bool callResetStuff)
 	(*it)->resetUpdate();
     }
   
-  // if flag=true, reset list of modified monitorable & monitoring
-  if(callResetStuff)resetStuff();
+  // if flag=true, reset list of modified monitoring
+  if(callResetDiff)resetMonitoringDiff();
 
 }
 
@@ -246,7 +266,7 @@ void DaqMonitorBEInterface::runQTests(void)
   for(vqc_it it = modifiedAlgos.begin(); it != modifiedAlgos.end(); ++it)
     (*it)->wasModified_ = false;
 
-  resetWasCalled = false;
+  rMonitoringDiffWasCalled = rMonitorableDiffWasCalled = false;
 }
 
 // loop over quality tests & addedContents: look for MEs that 
@@ -577,7 +597,7 @@ void DaqMonitorBEInterface::addQReport(vector<MonitorElement *> & allMEs,
     {
       /* I need to double-check that qreport is not already added to ME;
 	 This is because there is a chance that users may
-	 1. define a ME after resetStuff has been called
+	 1. define a ME after resetMonitoringDiff has been called
 	 2. call MonitorUserInterface::useQTest
 	 3. and then call MonitorUserInterface::runQTests, which
 	 eventually calls this function
