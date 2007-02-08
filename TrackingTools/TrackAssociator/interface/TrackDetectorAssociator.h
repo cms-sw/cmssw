@@ -16,7 +16,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.h,v 1.1 2007/01/22 08:56:26 dmytro Exp $
+// $Id: TrackDetectorAssociator.h,v 1.2 2007/01/23 20:05:49 dmytro Exp $
 //
 //
 
@@ -143,11 +143,6 @@ class TrackDetectorAssociator {
    
    /// use the default propagator
    void useDefaultPropagator();
-   
-   /// specify names of EDProducts to use for different input data types
-   void addDataLabels( const std::string className,
-		       const std::string moduleLabel,
-		       const std::string productInstanceLabel = "");
    
    /// get FreeTrajectoryState from different track representations
    FreeTrajectoryState getFreeTrajectoryState( const edm::EventSetup&, 
