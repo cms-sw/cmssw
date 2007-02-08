@@ -13,8 +13,8 @@
   <class name="edm::RefProd<std::vector<reco::JetTagProxy> >" />
   <class name="edm::RefVector<std::vector<reco::JetTagProxy>, reco::JetTagProxy, edm::refhelper::FindUsingAdvance<std::vector<reco::JetTagProxy>, reco::JetTagProxy> >" />
 
-  <class name="std::pair<reco::btag::TaggingVariableName, reco::TaggingValue>" />
-  <class name="std::vector<std::pair<reco::btag::TaggingVariableName, reco::TaggingValue> >" />
+  <class name="std::pair<reco::btau::TaggingVariableName, reco::TaggingValue>" />
+  <class name="std::vector<std::pair<reco::btau::TaggingVariableName, reco::TaggingValue> >" />
   <class name="reco::TaggingVariableList" />
   <class name="std::vector<reco::TaggingVariableList>" />
   <class name="edm::Wrapper<std::vector<reco::TaggingVariableList> >" />
