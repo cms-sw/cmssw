@@ -2,13 +2,14 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.21 2007/01/23 00:33:29 wmtan Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.22 2007/02/07 23:21:14 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
 #include <iostream>
 #include <string>
 #include "boost/regex.hpp"
+#include "SealBase/Error.h"
 
 //I need to open a 'back door' in order to test the functionality
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"

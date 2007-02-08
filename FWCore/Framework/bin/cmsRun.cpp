@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.26 2007/02/01 23:36:37 wmtan Exp $
+$Id: cmsRun.cpp,v 1.27 2007/02/07 23:21:14 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -16,6 +16,8 @@ $Id: cmsRun.cpp,v 1.26 2007/02/01 23:36:37 wmtan Exp $
 #include <memory>
 #include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
+
+#include "SealBase/Error.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
