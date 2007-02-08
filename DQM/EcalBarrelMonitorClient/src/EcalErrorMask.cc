@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.9 2007/01/31 14:26:41 benigno Exp $
+// $Id: EcalErrorMask.cc,v 1.10 2007/02/08 08:36:07 benigno Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.9 $
-  \date $Date: 2007/01/31 14:26:41 $
+  \version $Revision: 1.10 $
+  \date $Date: 2007/02/08 08:36:07 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
@@ -387,6 +387,18 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 //---------------------------------------------------------------------------------------------
 
 void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error ) {
+
+  std::ifstream inf( outFile.c_str() );
+  inf.close();
+  if( !inf.fail() ) {
+    std::cout << outFile << " already exists. Should I replace it? [y/n] ";
+    std::string yesno; std::cin >> yesno;
+    if( yesno == "n" ) {
+      std::string s = outFile + " left unchanged.";
+      throw( std::runtime_error( s ) );
+      return;
+    }
+  }
 
   std::fstream f( outFile.c_str(), std::ios::out );
   if( f.fail() ) {
