@@ -4,17 +4,17 @@
  * 
  * Common variables and functions for the application (basically a config
  * script)
- * $Id: common.php,v 1.4 2006/07/23 16:53:18 egeland Exp $
+ * $Id: common.php,v 1.9 2007/02/08 15:27:57 egeland Exp $
  */
 
 function get_conn_params($location) {
   if ($location && $location == 'P5_MT' ) {
     return array('user' => "cms_ecal",
-	       'pass' => "ecaldev05",
+	       'pass' => "",
 	       'sid'  => "omds");
   } else {
     return array('user' => "cond01",
-	       'pass' => "oracond01",
+	       'pass' => "",
 	       'sid'  => "ecalh4db");
   }
 }
