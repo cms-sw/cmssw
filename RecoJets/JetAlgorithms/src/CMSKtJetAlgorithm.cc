@@ -32,25 +32,22 @@ CMSKtJetAlgorithm::CMSKtJetAlgorithm()
   theKtJetAngle      = 2;    // angular
   theKtJetRecom      = 1;    // E
   theKtJetRParameter = 1.0;  // value corresponding to the Snowmass convention
-  theKtJetECut = 0.;
 }
 
-CMSKtJetAlgorithm::CMSKtJetAlgorithm(int aKtJetAngle,int aKtJetRecom, float aKtJetECut)
+CMSKtJetAlgorithm::CMSKtJetAlgorithm(int aKtJetAngle,int aKtJetRecom)
 {
   theKtJetType  = 4;            // for pp collisons
   theKtJetAngle = aKtJetAngle;
   theKtJetRecom = aKtJetRecom;
   theKtJetRParameter = 1.0;     // value corresponding to the Snowmass convention
-  theKtJetECut = aKtJetECut;
 }
 
-CMSKtJetAlgorithm::CMSKtJetAlgorithm(int aKtJetAngle,int aKtJetRecom, float aKtJetECut, float aKtJetRParameter)
+CMSKtJetAlgorithm::CMSKtJetAlgorithm(int aKtJetAngle,int aKtJetRecom, float aKtJetRParameter)
 {
   theKtJetType       = 4; // for pp collisons
   theKtJetAngle      = aKtJetAngle;
   theKtJetRecom      = aKtJetRecom;
   theKtJetRParameter = aKtJetRParameter;
-  theKtJetECut       = aKtJetECut;
 }
 
 void CMSKtJetAlgorithm::setKtJetAngle(int aKtJetAngle)
@@ -67,10 +64,6 @@ void CMSKtJetAlgorithm::setKtJetRParameter(float aKtJetRParameter)
 {
   theKtJetRParameter = aKtJetRParameter; 
 }
-void CMSKtJetAlgorithm::setKtJetECut(float aKtJetECut)
-{
-  theKtJetECut = aKtJetECut; 
-}
 
 void CMSKtJetAlgorithm::run (const InputCollection& fInput, OutputCollection* fOutput)
 {
@@ -85,19 +78,17 @@ void CMSKtJetAlgorithm::run (const InputCollection& fInput, OutputCollection* fO
   int index = 0;
   for (; index < (int)fInput.size (); index++) {
     InputItem constituent = fInput [index];
-    if (constituent->energy() >= theKtJetECut) {
-      ktInput.push_back (CmsKtJet::KtLorentzVector (constituent->px (), constituent->py (), 
-						 constituent->pz (), constituent->energy ()));
-      indexMap.push_back (index);
-      if (DEBUG_OUT >= 2) {
-	printf ("tower: index:%4d eta:%5.2f phi:%5.2f e:%7.2f px:%7.2f py:%7.2f pz:%7.2f\n",
-		index, constituent->eta(), constituent->phi(), constituent->energy (),
-		constituent->px (), constituent->py (), constituent->pz ());
-      }
+    ktInput.push_back (CmsKtJet::KtLorentzVector (constituent->px (), constituent->py (), 
+						  constituent->pz (), constituent->energy ()));
+    indexMap.push_back (index);
+    if (DEBUG_OUT >= 2) {
+      printf ("tower: index:%4d eta:%5.2f phi:%5.2f e:%7.2f px:%7.2f py:%7.2f pz:%7.2f\n",
+	      index, constituent->eta(), constituent->phi(), constituent->energy (),
+	      constituent->px (), constituent->py (), constituent->pz ());
     }
   }
   if (DEBUG_OUT >= 1) {
-    std::cout << "CMSKtJetAlgorithm::run-> " << ktInput.size () << " towers above " << theKtJetECut << std::endl;
+    std::cout << "CMSKtJetAlgorithm::run-> " << ktInput.size () << std::endl;
   }
   
   // R. Harris, 1/12/06, If there are no inputs, simply return empty CaloJetCollection.

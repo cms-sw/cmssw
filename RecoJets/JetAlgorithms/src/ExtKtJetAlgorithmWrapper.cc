@@ -39,7 +39,6 @@ ExtKtJetAlgorithmWrapper::ExtKtJetAlgorithmWrapper(const edm::ParameterSet& ps)
   theNjets=ps.getParameter<int>("njets");
   theAngle=ps.getParameter<int>("KtAngle");
   theRecom=ps.getParameter<int>("KtRecom");
-  theMinEnergyInput=ps.getParameter<double>("MinEnergyInput");
   
   
   theColType=4; //set to pp-collision
@@ -70,7 +69,7 @@ void ExtKtJetAlgorithmWrapper::run(const std::vector <FJCand>& fInput,
       //p.set_user_index(index_);
       const unsigned int lvID=p.getID();
       theIDMap[lvID]=(*inputCand);
-      if (theMinEnergyInput<=E) theInput.push_back(p);
+      theInput.push_back(p);
       index_++;
    }
    

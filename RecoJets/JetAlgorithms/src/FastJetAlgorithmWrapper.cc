@@ -59,8 +59,6 @@ FastJetAlgorithmWrapper::FastJetAlgorithmWrapper(const edm::ParameterSet& ps){
   //default dcut should be -1 (off)
   theNjets=ps.getParameter<int>("njets");
   //default njets should be -1 (off)
-  theInputMinE=ps.getParameter<double>("InputMinE");
-  //default InputMinE should be 0(off)
   if (ps.getParameter<string>("UE_Subtraction")=="yes") theDoSubtraction=true;
   else theDoSubtraction=false;
   //default UE_Subtraction should be false (off)
@@ -164,7 +162,7 @@ void FastJetAlgorithmWrapper::run(const std::vector<FJCand>& fInput,
       double E=(*inputCand)->energy();
       fastjet::PseudoJet PsJet(px,py,pz,E);
       PsJet.set_user_index(index_);
-      if (E>=theInputMinE) input_vectors.push_back(PsJet);
+      input_vectors.push_back(PsJet);
       index_++;
    }
    

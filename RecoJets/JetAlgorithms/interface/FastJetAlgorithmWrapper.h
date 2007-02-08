@@ -51,7 +51,6 @@ class FastJetAlgorithmWrapper
   JetConfig *theJetConfig;
   double thePtMin;
   double theDcut;
-  double theInputMinE;
   int theNjets;
   // Subtraction-Parameters:
   bool theDoSubtraction;

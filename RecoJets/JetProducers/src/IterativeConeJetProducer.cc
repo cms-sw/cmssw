@@ -22,8 +22,7 @@ namespace cms {
   IterativeConeJetProducer::IterativeConeJetProducer(edm::ParameterSet const& conf):
     BaseJetProducer (conf),
     alg_(conf.getParameter<double>("seedThreshold"),
-	 conf.getParameter<double>("coneRadius"),
-	 conf.getParameter<double>("towerThreshold"))
+	 conf.getParameter<double>("coneRadius"))
   {}
 
   // run algorithm itself

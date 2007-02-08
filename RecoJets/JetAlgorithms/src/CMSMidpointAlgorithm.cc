@@ -56,17 +56,15 @@ namespace {
   }
 
   
-  std::vector<InputItem> towersWithinCone(const InputCollection& fInput, double coneEta, double conePhi, double coneRadius, double etThreshold){
+  std::vector<InputItem> towersWithinCone(const InputCollection& fInput, double coneEta, double conePhi, double coneRadius){
     std::vector<InputItem> result;
     InputCollection::const_iterator towerIter = fInput.begin();
     InputCollection::const_iterator towerIterEnd = fInput.end();
     for (;towerIter != towerIterEnd; ++towerIter) {
       InputItem caloTowerPointer = *towerIter;
-      if(caloTowerPointer->et() > etThreshold){
-	double dR = deltaR (coneEta, conePhi, caloTowerPointer->eta(), caloTowerPointer->phi());
-	if(dR < coneRadius){
-	  result.push_back(caloTowerPointer);
-	}
+      double dR = deltaR (coneEta, conePhi, caloTowerPointer->eta(), caloTowerPointer->phi());
+      if(dR < coneRadius){
+	result.push_back(caloTowerPointer);
       }
     }
     return result;
@@ -182,7 +180,7 @@ void CMSMidpointAlgorithm::iterateCone(const InputCollection& fInput,
     
     //Add all towers in cone and over threshold to the cluster
     vector<InputItem> towersInSeedCluster 
-      = towersWithinCone(fInput, startRapidity, startPhi, iterationtheConeRadius, theTowerThreshold);
+      = towersWithinCone(fInput, startRapidity, startPhi, iterationtheConeRadius);
     if(theDebugLevel>=2)cout << "[CMSMidpointAlgorithm] iter=" << nIterations << ", towers=" <<towersInSeedCluster.size();    
     
     if(towersInSeedCluster.size()<1) {  // Just in case there is an empty cone.

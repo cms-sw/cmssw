@@ -39,7 +39,6 @@ class ExtKtJetAlgorithmWrapper
  private:
   int theMode;
   double thePtMin;
-  double theMinEnergyInput;
   double theDcut;
   int theNjets;
   int theAngle;

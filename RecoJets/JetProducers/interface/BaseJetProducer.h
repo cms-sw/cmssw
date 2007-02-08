@@ -7,7 +7,7 @@
  * It handles generic manipulations of input and output collections
  *
  * \author Fedor Ratnikov (UMd) Aug. 22, 2006
- * $Id: BaseJetProducer.h,v 1.2 2006/12/05 18:37:45 fedor Exp $
+ * $Id: BaseJetProducer.h,v 1.3 2007/02/07 00:39:53 fedor Exp $
  *
  ************************************************************/
 
@@ -33,16 +33,18 @@ namespace cms
     /**Produces the EDM products*/
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
     /** jet type */
-    std::string jetType () const {return jetType_;}
+    std::string jetType () const {return mJetType;}
 
     // abstract method to be set up in actual implementations
     /** run algorithm itself */
     virtual bool runAlgorithm (const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput) = 0;
 
   private:
-    edm::InputTag src_;
-    std::string jetType_;
-    bool verbose_;
+    edm::InputTag mSrc;
+    std::string mJetType;
+    bool mVerbose;
+    double mEtInputCut;
+    double mEInputCut;
   };
 }
 

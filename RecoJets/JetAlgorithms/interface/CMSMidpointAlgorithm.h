@@ -17,7 +17,7 @@
  * \version   2nd Version Apr. 6, 2005  Modifications toward integration in new EDM.
  * \version   3rd Version Oct. 19, 2005 Modified to work with real CaloTowers from Jeremy Mans
  * \version   F.Ratnikov, Mar. 8, 2006. Work from Candidate
- * $Id: CMSMidpointAlgorithm.h,v 1.4 2006/05/09 20:32:31 fedor Exp $
+ * $Id: CMSMidpointAlgorithm.h,v 1.5 2006/12/05 18:37:43 fedor Exp $
  *
  ************************************************************/
 
@@ -58,7 +58,6 @@ class CMSMidpointAlgorithm
   
   CMSMidpointAlgorithm () :
     theSeedThreshold(3.0),
-    theTowerThreshold(1.0),
     theConeRadius(0.5),
     theConeAreaFraction(1.0),
     theMaxPairSize(2),
@@ -68,10 +67,9 @@ class CMSMidpointAlgorithm
   { }
 
   /// Constructor takes as input all the values of the algorithm that the user can change, and the CaloTower Collection pointer.
-  CMSMidpointAlgorithm(double st, double tt, double cr, double caf, 
+  CMSMidpointAlgorithm(double st, double cr, double caf, 
 		       int mps, int mi, double ot, int dl) : 
     theSeedThreshold(st),
-    theTowerThreshold(tt),
     theConeRadius(cr),
     theConeAreaFraction(caf),
     theMaxPairSize(mps),
@@ -113,7 +111,6 @@ class CMSMidpointAlgorithm
 
 
   double theSeedThreshold;
-  double theTowerThreshold;
   double theConeRadius;
   double theConeAreaFraction;
   int    theMaxPairSize;

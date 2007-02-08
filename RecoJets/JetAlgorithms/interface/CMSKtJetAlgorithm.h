@@ -21,7 +21,7 @@
  * \version   1st Version April 22, 2005.
  * \version   R. Harris, October 19, 2005 modified to use real CaloTowers
  * \version   F.Ratnikov, Mar. 8, 2006. Correct bug, work from Candidate
- * $Id: CMSKtJetAlgorithm.h,v 1.6 2006/03/08 20:30:29 fedor Exp $
+ * $Id: CMSKtJetAlgorithm.h,v 1.7 2006/12/05 18:37:43 fedor Exp $
  *
  ************************************************************/
  
@@ -38,18 +38,17 @@ public:
   Values: 1- Angular, 2- Delta R and 3- QCD emission schemas
   \param aKtJetRecom Defines the recombination schema. Values: 1- E, 2- Pt, 3- pt^2,
   4- Et, 5- Et^2
-  \param aKtJetECut  Energy threshold of the input constituents.*/
-  CMSKtJetAlgorithm(int aKtJetAngle,int aKtJetRecom, float aKtJetECut);
+  .*/
+  CMSKtJetAlgorithm(int aKtJetAngle,int aKtJetRecom);
 
   /** Constructor
   \param aKtJetAngle Controls the angular defintions of the variables d_kB and d_kl.
   Values: 1- Angular, 2- Delta R and 3- QCD emission schemas
   \param aKtJetRecom Defines the recombination schema. Values: 1- E, 2- Pt, 3- pt^2,
   4- Et, 5- Et^2
-  \param aKtJetECut  Energy threshold of the input constituents.
   \param aKtJetRParameter Scale factor of the Kt algorithm. Default value is 1 according
   to the Snow-mass convention*/
-  CMSKtJetAlgorithm(int aKtJetAngle,int aKtJetRecom, float aKtJetECut, float aKtJetRParameter = 1.);  
+  CMSKtJetAlgorithm(int aKtJetAngle,int aKtJetRecom, float aKtJetRParameter = 1.);  
   /** Default constructor    */
   ~CMSKtJetAlgorithm() {};
   
@@ -74,10 +73,6 @@ public:
   to the Snow-mass convention*/
   void setKtJetRParameter(float aKtJetRParameter);
 
-  /** setKtJetECut: Sets the scale tower energy thrshold cut.
-  \param aKtJetECut  Energy threshold of the input constituents.*/
-  void setKtJetECut(float aKtJetECut);
-  
 private:
   /** theKtJetType: Type of collision. Always 4 -> pp collision    */
   int   theKtJetType;
@@ -91,7 +86,5 @@ private:
   /** theKtJetRParam: Scale factor    */
   float theKtJetRParameter;
 
-  /** theKtJetECut: Energy threshold of the input constituents    */
-  float theKtJetECut;
 };
 #endif

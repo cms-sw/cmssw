@@ -4,7 +4,7 @@
 // Creation Date:  MFP Apr. 6 2005 Initial version.
 // Revision:  R. Harris,  Oct. 19, 2005 Modified to use real CaloTowers from Jeremy Mans
 // Revisions:  F.Ratnikov, 8-Mar-2006, accommodate Candidate model
-// $Id: MidpointJetProducer.cc,v 1.17 2006/12/05 18:37:46 fedor Exp $
+// $Id: MidpointJetProducer.cc,v 1.18 2007/02/07 00:39:53 fedor Exp $
 //
 //--------------------------------------------
 #include <memory>
@@ -33,7 +33,6 @@ namespace cms
   MidpointJetProducer::MidpointJetProducer(edm::ParameterSet const& conf):
     BaseJetProducer (conf),
     alg_(conf.getParameter<double>("seedThreshold"),
-	 conf.getParameter<double>("towerThreshold"),
 	 conf.getParameter<double>("coneRadius"),
 	 conf.getParameter<double>("coneAreaFraction"),
 	 conf.getParameter<int>("maxPairSize"),

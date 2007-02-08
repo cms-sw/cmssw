@@ -1,5 +1,5 @@
 // Original author: A. Ulyanov
-// $Id: CMSIterativeConeAlgorithm.cc,v 1.4 2006/06/06 22:08:54 fedor Exp $
+// $Id: CMSIterativeConeAlgorithm.cc,v 1.5 2006/12/05 18:37:44 fedor Exp $
 
 #include "RecoJets/JetAlgorithms/interface/CMSIterativeConeAlgorithm.h"
 
@@ -22,10 +22,7 @@ void CMSIterativeConeAlgorithm::run(const InputCollection& fInput, OutputCollect
   list<InputItem> input;
   for (InputCollection::const_iterator towerIter = fInput.begin();
        towerIter != fInput.end(); ++towerIter) {
-    InputItem tower = *towerIter; 
-    if(tower->et() > theTowerThreshold){
-      input.push_back(tower);
-    }
+    input.push_back(*towerIter);
   }   
   GreaterByEtRef <InputItem> compCandidate;
   input.sort(compCandidate);
