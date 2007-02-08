@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2006/06/25 10:55:07 $
- * $Revision: 1.6 $
+ * $Date: 2006/07/03 08:54:17 $
+ * $Revision: 1.7 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -38,8 +38,10 @@ EBPedOffset::EBPedOffset (const ParameterSet& paramSet) :
   m_SMnum (paramSet.getParameter<int> ("SMnum")) ,
   m_dbHostName (paramSet.getUntrackedParameter<std::string> ("dbHostName","0")) ,
   m_dbName (paramSet.getUntrackedParameter<std::string> ("dbName","0")) ,
-  m_dbUserName (paramSet.getParameter<std::string> ("dbUserName")) ,
-  m_dbPassword (paramSet.getParameter<std::string> ("dbPassword")) ,
+  m_dbUserName (paramSet.getUntrackedParameter<std::string> ("dbUserName")) ,
+  m_dbPassword (paramSet.getUntrackedParameter<std::string> ("dbPassword")) ,
+  m_dbHostPort (paramSet.getUntrackedParameter<int> ("dbHostPort",1521)) ,
+  m_location (paramSet.getUntrackedParameter<std::string>("location", "H4")) ,
   m_run (paramSet.getParameter<int> ("run")) ,
   m_plotting (paramSet.getParameter<std::string> ("plotting"))    
 {
@@ -183,26 +185,31 @@ void EBPedOffset::writeDb ()
   EcalCondDBInterface* DBconnection ;
   try {
     DBconnection = new EcalCondDBInterface (m_dbHostName, m_dbName, 
-                                            m_dbUserName, m_dbPassword) ; 
+                                            m_dbUserName, m_dbPassword, m_dbHostPort) ; 
   } catch (runtime_error &e) {
     cerr << e.what() << endl ;
     return ;
   }
 
-  // define the query to get the right place in the database
+  // define the query for RunIOV to get the right place in the database
   RunTag runtag ;  
   LocationDef locdef ;
   RunTypeDef rundef ;
-  locdef.setLocation ("H4") ;
+  locdef.setLocation (m_location) ;
+
+  runtag.setGeneralTag ("PEDESTAL-OFFSET") ;
   rundef.setRunType ("PEDESTAL-OFFSET") ;
-//  rundef.setConfigTag ("PEDESTAL-OFFSET_SCAN") ;
-//  rundef.setConfigVersion (1) ;  // for H4
+  //rundef.setRunType ("TEST") ;
+  //runtag.setGeneralTag ("TEST") ;
+
   runtag.setLocationDef (locdef) ;
   runtag.setRunTypeDef (rundef) ;
-  runtag.setGeneralTag ("PEDESTAL-OFFSET") ;
+
+
   run_t run = m_run ; //FIXME dal config file
   RunIOV runiov = DBconnection->fetchRunIOV (&runtag, run) ;
 
+  // MonRunIOV
   MonVersionDef monverdef ;  
   monverdef.setMonitoringVersion ("test01") ;
   MonRunTag montag ;
@@ -211,8 +218,23 @@ void EBPedOffset::writeDb ()
 
   subrun_t subrun = 1 ; //hardcoded!
   
-  // get the interval of validity where to ins
-  MonRunIOV moniov = DBconnection->fetchMonRunIOV (&runtag, &montag, run, subrun) ;
+  MonRunIOV moniov ;
+
+  try{
+    moniov= DBconnection->fetchMonRunIOV (&runtag, &montag, run, subrun) ;
+  } 
+  catch (runtime_error &e) {
+  //if not already in the DB create a new MonRunIOV
+  Tm startSubRun;
+  startSubRun.setToCurrentGMTime();
+  
+  // setup the MonIOV
+  moniov.setRunIOV(runiov);
+  moniov.setSubRunNumber(subrun);
+  moniov.setSubRunStart(startSubRun);
+  moniov.setMonRunTag(montag);
+  std::cout<<"creating a new MonRunIOV"<<std::endl;
+  }
 
   // create the table to be filled and the map to be inserted
   EcalLogicID ecid ;
@@ -239,7 +261,7 @@ void EBPedOffset::writeDb ()
             {
               try {
                 ecid = DBconnection->getEcalLogicID ("EB_crystal_number", 
-                                                     result->first, xtal) ;
+                                                     result->first, xtal+1) ;
                 DBdataset[ecid] = DBtable ;
               } catch (runtime_error &e) {
                 cerr << e.what() << endl ;
@@ -259,6 +281,7 @@ void EBPedOffset::writeDb ()
     }
   }
 
+  if ( DBconnection ) {delete DBconnection;}
 }
 
 

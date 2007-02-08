@@ -5,8 +5,8 @@
  * \file EBPedOffset.h
  * \class EBPedOffset
  * \brief calculate the best DAC value to obtain a pedestal = 200
- * $Date: 2006/04/18 18:15:18 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/26 13:11:20 $
+ * $Revision: 1.4 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  *
 */
@@ -111,6 +111,11 @@ class EBPedOffset: public edm::EDAnalyzer
     std::string m_dbUserName ;
     //! database user password
     std::string m_dbPassword ;
+    //! database 
+    int m_dbHostPort;
+
+    // used to retrieve the run_iov 
+    std::string m_location;
     //! run number
     int m_run ;
     
