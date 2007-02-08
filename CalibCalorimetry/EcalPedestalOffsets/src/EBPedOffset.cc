@@ -42,6 +42,7 @@ EBPedOffset::EBPedOffset (const ParameterSet& paramSet) :
   m_dbPassword (paramSet.getUntrackedParameter<std::string> ("dbPassword")) ,
   m_dbHostPort (paramSet.getUntrackedParameter<int> ("dbHostPort",1521)) ,
   m_location (paramSet.getUntrackedParameter<std::string>("location", "H4")) ,
+  m_create_moniov (paramSet.getUntrackedParameter<bool>("createMonIOV", false)) ,
   m_run (paramSet.getParameter<int> ("run")) ,
   m_plotting (paramSet.getParameter<std::string> ("plotting"))    
 {
@@ -197,10 +198,10 @@ void EBPedOffset::writeDb ()
   RunTypeDef rundef ;
   locdef.setLocation (m_location) ;
 
-  runtag.setGeneralTag ("PEDESTAL-OFFSET") ;
-  rundef.setRunType ("PEDESTAL-OFFSET") ;
-  //rundef.setRunType ("TEST") ;
-  //runtag.setGeneralTag ("TEST") ;
+  //runtag.setGeneralTag ("PEDESTAL-OFFSET") ;
+  //rundef.setRunType ("PEDESTAL-OFFSET") ;
+  rundef.setRunType ("TEST") ;
+  runtag.setGeneralTag ("TEST") ;
 
   runtag.setLocationDef (locdef) ;
   runtag.setRunTypeDef (rundef) ;
@@ -216,7 +217,7 @@ void EBPedOffset::writeDb ()
   montag.setMonVersionDef (monverdef) ;
   montag.setGeneralTag ("CMSSW") ;
 
-  subrun_t subrun = 1 ; //hardcoded!
+  subrun_t subrun = 8 ; //hardcoded!
   
   MonRunIOV moniov ;
 
@@ -224,16 +225,23 @@ void EBPedOffset::writeDb ()
     moniov= DBconnection->fetchMonRunIOV (&runtag, &montag, run, subrun) ;
   } 
   catch (runtime_error &e) {
-  //if not already in the DB create a new MonRunIOV
-  Tm startSubRun;
-  startSubRun.setToCurrentGMTime();
-  
-  // setup the MonIOV
-  moniov.setRunIOV(runiov);
-  moniov.setSubRunNumber(subrun);
-  moniov.setSubRunStart(startSubRun);
-  moniov.setMonRunTag(montag);
-  std::cout<<"creating a new MonRunIOV"<<std::endl;
+    if(m_create_moniov){
+      //if not already in the DB create a new MonRunIOV
+      Tm startSubRun;
+      startSubRun.setToCurrentGMTime();
+      // setup the MonIOV
+      moniov.setRunIOV(runiov);
+      moniov.setSubRunNumber(subrun);
+      moniov.setSubRunStart(startSubRun);
+      moniov.setMonRunTag(montag);
+      std::cout<<"creating a new MonRunIOV"<<std::endl;
+    }
+    else{
+      std::cout<<" no MonRunIOV existing in the DB"<<std::endl;
+      std::cout<<" the result will not be stored into the DB"<<std::endl;
+      if ( DBconnection ) {delete DBconnection;}
+      return;
+    }
   }
 
   // create the table to be filled and the map to be inserted
@@ -266,7 +274,7 @@ void EBPedOffset::writeDb ()
               } catch (runtime_error &e) {
                 cerr << e.what() << endl ;
               }
-           }
+	    }
         } // loop over the crystals
     } // loop over the super-modules
 

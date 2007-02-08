@@ -5,8 +5,8 @@
  * \file EBPedOffset.h
  * \class EBPedOffset
  * \brief calculate the best DAC value to obtain a pedestal = 200
- * $Date: 2006/04/26 13:11:20 $
- * $Revision: 1.4 $
+ * $Date: 2007/02/08 14:47:31 $
+ * $Revision: 1.5 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  *
 */
@@ -113,7 +113,9 @@ class EBPedOffset: public edm::EDAnalyzer
     std::string m_dbPassword ;
     //! database 
     int m_dbHostPort;
-
+    //!allow the creation of a new moniov if not existing in the DB
+    //!by default it is false.
+    bool m_create_moniov;
     // used to retrieve the run_iov 
     std::string m_location;
     //! run number
