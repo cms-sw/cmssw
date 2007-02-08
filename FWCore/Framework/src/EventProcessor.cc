@@ -16,6 +16,7 @@
 #include "boost/thread/xtime.hpp"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
+#include "SealBase/Error.h"
 
 #include "DataFormats/Common/interface/ProcessConfiguration.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
