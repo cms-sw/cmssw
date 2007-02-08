@@ -27,10 +27,19 @@ const char* TaggingVariableDescription[] = {
   /* [vertexCategory] = */  "category of secondary vertex (Reco, Pseudo, No)",
   /* [vertexMass]     = */  "mass of secondary vertex",
   /* [vertexMultiplicity] = */ "track multiplicity at secondary vertex",
-  /* [flightDistance2DSignificance] */ "significance in 2d of distance between primary and secondary vtx",
-  /* [eSVXOverE]      = */ "ratio of energy at secondary vertex over total energy",
-  /* [trackSip2dAbCharm] = */ "track 2D signed impact parameter significance above charm mass",
-
+  /* [flightDistance2DSignificance]  = */ "significance in 2d of distance between primary and secondary vtx",
+  /* [flightDistance3DSignificance]  = */ "significance in 3d of distance between primary and secondary vtx",
+  /* [secondaryVtxEnergyRatio]       = */ "ratio of energy at secondary vertex over total energy",
+  /* [piontracksEtjetEtRatio]        = */ "ratio of pion tracks transverse energy over jet energy",
+  /* [trackSip2dAbCharm]             = */ "track 2D signed impact parameter significance above charm mass",
+  /* [neutralEnergy]                 = */ "neutral ECAL clus. energy sum",
+  /* [neutralEnergyOverCombinedEnergy] = */ "neutral ECAL clus. energy sum/(neutral ECAL clus. energy sum + pion tracks energy)",
+  /* [neutralIsolEnergy]             = */ "neutral ECAL clus. energy sum in isolation band",
+  /* [neutralIsolEnergyOverCombinedEnergy] = */ "neutral ECAL clus. energy sum in isolation band/(neutral ECAL clus. energy sum + pion tracks energy)",
+  /* [neutralEnergyRatio]            = */ "ratio of neutral ECAL clus. energy sum in isolation band over neutral ECAL clus. energy sum",
+  /* [neutralclusterNumber]          = */ "number of neutral ECAL clus.",
+  /* [neutralclusterRadius]          = */ "mean DR between neutral ECAL clus. and lead.track",
+  
   /* [lastTaggingVariable] = */ ""
 };
 
@@ -53,23 +62,31 @@ const char* TaggingVariableTokens[] = {
   /* [vertexCategory] = */  "vertexCategory",
   /* [vertexMass]     = */  "vertexMass",
   /* [vertexMultiplicity] = */ "vertexMultiplicity",
-  /* [flightDistance2DSignificance] */ "flightDistance2DSignificance",
-  /* [eSVXOverE]      = */ "eSVXOverE",
-  /* [trackSip2dAbCharm] = */ "trackSip2dAbCharm",
-
-  /* [lastTaggingVariable] = */ "lastTaggingVariable"
+  /* [flightDistance2DSignificance] = */  "flightDistance2DSignificance",
+  /* [flightDistance3DSignificance] = */  "flightDistance3DSignificance",
+  /* [secondaryVtxEnergyRatio]      = */  "secondaryVtxEnergyRatio",
+  /* [piontracksEtjetEtRatio]       = */  "piontracksEtjetEtRatio",
+  /* [trackSip2dAbCharm]            = */  "trackSip2dAbCharm",
+  /* [neutralEnergy]                = */  "neutralEnergy",
+  /* [neutralEnergyOverCombinedEnergy] = */  "neutralEnergyOverCombinedEnergy",
+  /* [neutralIsolEnergy]            = */  "neutralIsolEnergy",
+  /* [neutralIsolEnergyOverCombinedEnergy] = */  "neutralIsolEnergyOverCombinedEnergy",
+  /* [neutralEnergyRatio]           = */  "neutralEnergyRatio",
+  /* [neutralclusterNumber]         = */  "neutralclusterNumber",
+  /* [neutralclusterRadius]         = */  "neutralclusterRadius",
+  /* [lastTaggingVariable]          = */  "lastTaggingVariable"
 };
 
-btag::TaggingVariableName getTaggingVariableName ( const std::string & name )
+btau::TaggingVariableName getTaggingVariableName ( const std::string & name )
 {
-  for ( int i=0; i<= reco::btag::lastTaggingVariable ; i++ )
+  for ( int i=0; i<= reco::btau::lastTaggingVariable ; i++ )
   {
     if ( name == TaggingVariableTokens[i] ) 
     {
-      return (reco::btag::TaggingVariableName) (i);
+      return (reco::btau::TaggingVariableName) (i);
     }
   }
-  return btag::lastTaggingVariable;
+  return btau::lastTaggingVariable;
 }
 
 // check if a tag is present in the TaggingVariableList
