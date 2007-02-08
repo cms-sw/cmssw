@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2006/12/15 09:44:50 $
- * $Revision: 1.8 $
+ * $Date: 2007/02/01 15:25:24 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -459,7 +459,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   const double histMax = 1.e15;
 
   int pCol4[10];
-  for ( int i = 0; i < 10; i++ ) pCol4[i] = 30+i;
+  for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
 
   string imgNameB[3], imgNameBMap[2], imgNameS[3], imgNameSMap[2], imgName, meName;
 

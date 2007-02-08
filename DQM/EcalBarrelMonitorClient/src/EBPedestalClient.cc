@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/02/01 15:25:25 $
- * $Revision: 1.123 $
+ * $Date: 2007/02/06 18:19:49 $
+ * $Revision: 1.124 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1440,7 +1440,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
 
   int pCol4[10];
-  for ( int i = 0; i < 10; i++ ) pCol4[i] = 30+i;
+  for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for ( int i = 0; i < 68; i++ ) {

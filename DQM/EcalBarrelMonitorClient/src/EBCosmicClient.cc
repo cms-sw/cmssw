@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2007/01/31 20:42:17 $
- * $Revision: 1.64 $
+ * $Date: 2007/02/01 15:25:24 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -448,7 +448,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
   const double histMax = 1.e15;
 
   int pCol4[10];
-  for ( int i = 0; i < 10; i++ ) pCol4[i] = 30+i;
+  for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for ( int i = 0; i < 68; i++ ) {
