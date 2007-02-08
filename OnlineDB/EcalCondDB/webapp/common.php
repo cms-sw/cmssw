@@ -7,10 +7,16 @@
  * $Id: common.php,v 1.4 2006/07/23 16:53:18 egeland Exp $
  */
 
-function get_conn_params() {
-  return array('user' => "cond01",
-	       'pass' => "",
+function get_conn_params($location) {
+  if ($location && $location == 'P5_MT' ) {
+    return array('user' => "cms_ecal",
+	       'pass' => "ecaldev05",
+	       'sid'  => "omds");
+  } else {
+    return array('user' => "cond01",
+	       'pass' => "oracond01",
 	       'sid'  => "ecalh4db");
+  }
 }
 
 function get_dqm_url($location, $runtype, $run) {
@@ -22,6 +28,8 @@ function get_dqm_url($location, $runtype, $run) {
     } else {
       $url = "http://pctorino2.cern.ch/html/";
     }
+  } elseif ($location && $location == 'P5_MT') {
+    $url = "http://lxcms201.cern.ch/mtcc/";
   } else {
     $url = "http://lxcms201.cern.ch/html/";
   }

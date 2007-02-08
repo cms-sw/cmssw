@@ -10,6 +10,8 @@ $taskcode = $_GET['taskcode'];
 $run      = $_GET['run'];
 $iov_id   = $_GET['iov_id'];
 
+$conn = connect($_GET['loc']);
+
 ?>
 
 <!doctype html public "-//w3c//dtd html 4.0 transitional//en">
@@ -118,8 +120,8 @@ function add_xtal_headers() {
 }
 
 function add_xtal_columns($xtal) {
-  $eta = floor(($xtal -1)/20);
-  $phi = ($xtal -1) % 20;
+  $eta = 1+floor(($xtal -1)/20);
+  $phi = 1+($xtal -1) % 20;
 
   echo "<td>$eta</td><td>$phi</td>";
 }

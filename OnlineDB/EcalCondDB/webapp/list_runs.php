@@ -10,7 +10,7 @@ require_once 'common.php';
 require_once 'db_functions.php';
 require_once 'pager_functions.php';
 
-$conn = connect();
+$conn = connect($_GET['location']);
 
 function input_errors() {
   $error = "";
@@ -82,7 +82,7 @@ function fill_monitoring_table($run, $run_iov_id, $runtype) {
       $outcome_bits = $monresults['TASK_OUTCOME'][$i];
       echo "<td>", draw_tasklist($list_bits, $outcome_bits, $run, $loc, $iov_id), "</td>";
       echo "<td><a href='$dqm_url'>DQM</a></td>";
-      echo "<td class='dbplot'>",  draw_plotlink('MON', $exists_str, $run, $iov_id), "</td>";
+      echo "<td class='dbplot'>",  draw_plotlink('MON', $exists_str, $run, $loc, $iov_id), "</td>";
       echo "</tr>\n";
     }
   } else {
@@ -113,7 +113,7 @@ function fill_dcu_table($run, $run_iov_id) {
       }
       $exists_str = $dcuresults['DAT_EXISTS'][$i];
       $iov_id = $dcuresults['IOV_ID'][$i];
-      echo "<td class='dbplot'>",  draw_plotlink('DCU', $exists_str, $run, $iov_id), "</td>";
+      echo "<td class='dbplot'>",  draw_plotlink('DCU', $exists_str, $run, $loc, $iov_id), "</td>";
       echo "</tr>\n";
     }
   } else {
@@ -180,9 +180,9 @@ function draw_beamlink( $run, $loc) {
  
 }
 
-function draw_plotlink($datatype, $exists_str, $run, $iov_id) {
+function draw_plotlink($datatype, $exists_str, $run, $loc, $iov_id) {
   if ($exists_str) {
-    $url = htmlentities("plot.php?run=$run&datatype=$datatype&iov_id=$iov_id&exists_str=$exists_str");
+    $url = htmlentities("plot.php?run=$run&loc=$loc&datatype=$datatype&iov_id=$iov_id&exists_str=$exists_str");
     $target = "plot$datatype$iov_id";
 
 

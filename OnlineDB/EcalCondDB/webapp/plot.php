@@ -3,12 +3,14 @@
  * plot.php
  * 
  * Plot selection and display page
- * $Id: plot.php,v 1.1 2006/06/26 17:01:46 egeland Exp $
+ * $Id: plot.php,v 1.2 2006/07/23 16:47:58 egeland Exp $
  */
 
 
 require_once 'common.php';
 require_once 'db_functions.php';
+
+$conn = connect($_GET['loc']);
 
 function input_errors() {
   $error = "";
@@ -32,7 +34,7 @@ function draw_plotselect_form() {
   draw_plotselect();
   echo "<input type='submit' name='' value='Plot' />";
   // Variable to pass on to next load
-  foreach (array('run', 'datatype', 'iov_id', 'exists_str') as $name) {
+  foreach (array('run', 'loc', 'datatype', 'iov_id', 'exists_str') as $name) {
     $value = $_GET[$name];
     echo "<input type='hidden' name='$name' value='$value' />";
   }

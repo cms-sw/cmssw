@@ -12,11 +12,11 @@ error_reporting(E_ALL);
 ini_set("display_errors","on");
 
 # Globals
-$conn = connect();
+$conn = connect("");
 
 /* Connects to the database, returns connection handle */
-function & connect() {
-  $params = get_conn_params();
+function & connect($location) {
+  $params = get_conn_params($location);
   $db_user = $params['user'];
   $db_pass = $params['pass'];
   $db_sid  = $params['sid'];
