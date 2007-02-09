@@ -107,30 +107,31 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 //std::cout << tool << std::endl;
 //std::cout << pedvalue << std::endl;
           // now do a few selected individual bins, if it's big enough
-          float fBin4  = tool[3];
-          float fBin56 = tool[4] + tool[5];
+          float fBin5  = tool[4];
+          float fBin67 = tool[5] + tool[6];
 
           if(subpedvalue_)
           {
-             fBin4 -= calibrations.pedestal((*ihbhe)[3].capid());
-             fBin56 -= (calibrations.pedestal((*ihbhe)[0].capid())
-                      + calibrations.pedestal((*ihbhe)[1].capid()));
+             fBin5 -= calibrations.pedestal((*ihbhe)[4].capid());
+
+             fBin67 -= (calibrations.pedestal((*ihbhe)[5].capid())
+                      + calibrations.pedestal((*ihbhe)[6].capid()));
           }
           else 
           {
-            fBin4 -= pedvalue;
-            fBin56 -= 2*pedvalue;
+            fBin5 -= pedvalue;
+            fBin67 -= 2*pedvalue;
           }
 
           //fBin12 is a pedestal, others are percentages
           if(fDigiSum > 0)
           {
-            fBin4 /= fDigiSum;
-            fBin56 /= fDigiSum;
+            fBin5 /= fDigiSum;
+            fBin67 /= fDigiSum;
           }
 
-          monitor()->fillBin4Frac(fBin4);
-          monitor()->fillBin56Frac(fBin56);
+          monitor()->fillBin5Frac(fBin5);
+          monitor()->fillBin67Frac(fBin67);
         }
 	      ndigis++;
 	    }

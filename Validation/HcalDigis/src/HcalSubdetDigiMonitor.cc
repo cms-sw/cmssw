@@ -22,8 +22,8 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DaqMonitorBEInterface* dbe,
   meSumDigis(0),
   meSumDigis_noise(0),
   mePedestal(0),
-  meBin4Frac(0),
-  meBin56Frac(0)
+  meBin5Frac(0),
+  meBin67Frac(0)
 {
 
   // defaults are for HB
@@ -41,8 +41,10 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DaqMonitorBEInterface* dbe,
   {
     etaPlot = HistLim(60, -3., 3.);
     phiPlot.n = 36;
-    ndigisPlot.max = 200.;
+    ndigisPlot.max = 250.;
     simePlot.max = 1.;
+    ratioPlot.max = 1400.;
+    digiAmpPlot=HistLim(10000, 0., 1000.);
   }
   else if(subdet_ == "HF")
   {
@@ -64,34 +66,34 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DaqMonitorBEInterface* dbe,
 
   Char_t histo[100];
   const char * sub = subdet_.c_str();
-
-  sprintf (histo, "HcalDigiTask_Eta_of_digis_%s", sub ) ;
+  dbe_->setCurrentFolder("HcalDigiTask");
+  sprintf (histo, "HcalDigiTask_eta_of_digis_%s", sub ) ;
   meEta= book1D(histo, etaPlot);
-  sprintf (histo, "HcalDigiTask_Phi_of_digis_%s", sub ) ;
+  sprintf (histo, "HcalDigiTask_phi_of_digis_%s", sub ) ;
   mePhi= book1D(histo, phiPlot);
   sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_%s", sub);
   meDigiSimhit= book2D(histo, simePlot, digiAmpPlot);
-  sprintf (histo, "HcalDigiTask_Ratio_energy_digis_vs_simhits_%s", sub);
+  sprintf (histo, "HcalDigiTask_ratio_energy_digis_vs_simhits_%s", sub);
   meRatioDigiSimhit= book1D(histo, ratioPlot);
 
-  sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_%s_profile", sub);
+  sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_profile_%s", sub);
   meDigiSimhitProfile = bookProfile(histo, simePlot, digiAmpPlot);
 
   sprintf (histo, "HcalDigiTask_number_of_digis_%s", sub);
   menDigis= book1D(histo, ndigisPlot);
 
   sprintf (histo, "HcalDigiTask_sum_over_digis_fC_%s", sub);
-  meSumDigis= book1D(histo, HistLim(100, 0., digiAmpPlot.max));
+  meSumDigis= book1D(histo, HistLim(50, 0., digiAmpPlot.max));
 
   sprintf (histo, "HcalDigiTask_sum_over_digis_fC_noise_%s", sub);
   meSumDigis_noise = book1D(histo, HistLim(50, -sumWithNoiseMax, sumWithNoiseMax));
 
   sprintf (histo, "HcalDigiTask_pedestal_%s", sub);
   mePedestal= book1D(histo, pedestalPlot);
-  sprintf (histo, "HcalDigiTask_bin_4_frac_%s", sub);
-  meBin4Frac = book1D(histo, fracPlot);
-  sprintf (histo, "HcalDigiTask_bin_5_6_frac_%s", sub);
-  meBin56Frac = book1D(histo, fracPlot);
+  sprintf (histo, "HcalDigiTask_bin_5_frac_%s", sub);
+  meBin5Frac = book1D(histo, fracPlot);
+  sprintf (histo, "HcalDigiTask_bin_6_7_frac_%s", sub);
+  meBin67Frac = book1D(histo, fracPlot);
 
 }
 

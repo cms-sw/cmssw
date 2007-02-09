@@ -21,8 +21,8 @@ public:
   void fillSumDigis(double value) {fillElement(meSumDigis, value);}
   void fillSumDigis_noise(double value) {fillElement(meSumDigis_noise, value);}
   void fillPedestal(double value) {fillElement(mePedestal, value);}
-  void fillBin4Frac(double value) {fillElement(meBin4Frac, value);}
-  void fillBin56Frac(double value) {fillElement(meBin56Frac, value);}
+  void fillBin5Frac(double value) {fillElement(meBin5Frac, value);}
+  void fillBin67Frac(double value) {fillElement(meBin67Frac, value);}
 
 private:
   void fillElement(MonitorElement* me, double value)
@@ -62,8 +62,8 @@ private:
   MonitorElement* meSumDigis;
   MonitorElement* meSumDigis_noise;
   MonitorElement* mePedestal;
-  MonitorElement* meBin4Frac;
-  MonitorElement* meBin56Frac;
+  MonitorElement* meBin5Frac;
+  MonitorElement* meBin67Frac;
 };
 
 #endif
