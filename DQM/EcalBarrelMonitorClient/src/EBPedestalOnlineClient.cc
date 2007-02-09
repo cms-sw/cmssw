@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/02/01 15:25:25 $
- * $Revision: 1.74 $
+ * $Date: 2007/02/06 18:19:49 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -306,8 +306,6 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
     }
   }
 
-  EBMUtilsClient::resetHisto( meh03_[ism-1] );
-
   if ( econn ) {
     try {
       cout << "Inserting MonPedestalsOnlineDat ... " << flush;
@@ -426,6 +424,14 @@ void EBPedestalOnlineClient::unsubscribe(void){
 }
 
 void EBPedestalOnlineClient::softReset(void){
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    if ( meh03_[ism-1] ) mui_->softReset(meh03_[ism-1]);
+
+  }
 
 }
 
