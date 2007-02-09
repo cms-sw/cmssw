@@ -34,6 +34,10 @@ DDEcalBarrelAlgo::DDEcalBarrelAlgo() :
   m_vecBarRMax   (    ),
   m_vecBarTran   (    ),
   m_vecBarRota   (    ),
+  m_vecBarRota2  (    ),
+  m_vecBarRota3  (    ),
+  m_BarPhiLo     (0),
+  m_BarPhiHi     (0),
   m_BarHere      (0),
   m_SpmName      (""),
   m_SpmMat       (""),
@@ -349,6 +353,10 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
    m_vecBarRMax  = vArgs["BarRMax" ] ;
    m_vecBarTran  = vArgs["BarTran" ] ;
    m_vecBarRota  = vArgs["BarRota" ] ;
+   m_vecBarRota2 = vArgs["BarRota2" ] ;
+   m_vecBarRota3 = vArgs["BarRota3" ] ;
+   m_BarPhiLo    = nArgs["BarPhiLo" ] ;
+   m_BarPhiHi    = nArgs["BarPhiHi" ] ;
    m_BarHere     = nArgs["BarHere" ] ;
 
    m_SpmName     = sArgs["SpmName"] ;
@@ -677,7 +685,7 @@ void DDEcalBarrelAlgo::execute()
       // Barrel parent volume----------------------------------------------------------
       DDpos( DDLogicalPart( barName(), barMat(), 
 			    DDSolidFactory::polycone(
-			       barName(), 0, 360.*deg, 
+			       barName(), barPhiLo(), ( barPhiHi() - barPhiLo() ), 
 			       vecBarZPts(), vecBarRMin(), vecBarRMax())),
 	     parent().name() , 
 	     copyOne, 
@@ -685,10 +693,18 @@ void DDEcalBarrelAlgo::execute()
 			   vecBarTran()[1],
 			   vecBarTran()[2]), 
 	     myrot(barName().name()+"Rot",
+		   Rota(Vec3(vecBarRota3()[0],
+			     vecBarRota3()[1],
+			     vecBarRota3()[2]),
+			vecBarRota3()[3])*
+		   Rota(Vec3(vecBarRota2()[0],
+			     vecBarRota2()[1],
+			     vecBarRota2()[2]),
+			vecBarRota2()[3])*
 		   Rota(Vec3(vecBarRota()[0],
 			     vecBarRota()[1],
 			     vecBarRota()[2]),
-			vecBarRota()[3]))) ;
+			vecBarRota()[3]) ) ) ;
       // End Barrel parent volume----------------------------------------------------------
 
 

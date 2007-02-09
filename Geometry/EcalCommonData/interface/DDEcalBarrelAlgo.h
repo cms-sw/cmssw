@@ -57,6 +57,10 @@ class DDEcalBarrelAlgo : public DDAlgorithm {
       const std::vector<double>& vecBarRMax()  const { return m_vecBarRMax        ; }
       const std::vector<double>& vecBarTran()  const { return m_vecBarTran        ; }
       const std::vector<double>& vecBarRota()  const { return m_vecBarRota        ; }
+      const std::vector<double>& vecBarRota2() const { return m_vecBarRota2       ; }
+      const std::vector<double>& vecBarRota3() const { return m_vecBarRota3       ; }
+      double                     barPhiLo()    const { return m_BarPhiLo          ; }
+      double                     barPhiHi()    const { return m_BarPhiHi          ; }
       double                     barHere()     const { return m_BarHere           ; }
 
       DDName                     spmName()     const { return ddname( m_SpmName ) ; } 
@@ -399,6 +403,10 @@ private:
       std::vector<double> m_vecBarRMax ; // Barrel list of rMax pts
       std::vector<double> m_vecBarTran ; // Barrel translation
       std::vector<double> m_vecBarRota ; // Barrel rotation
+      std::vector<double> m_vecBarRota2; // 2nd Barrel rotation
+      std::vector<double> m_vecBarRota3; // 2nd Barrel rotation
+      double              m_BarPhiLo   ; // Barrel phi lo
+      double              m_BarPhiHi   ; // Barrel phi hi
       double              m_BarHere    ; // Barrel presence flag
       
       // Supermodule volume
