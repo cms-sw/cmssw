@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/07 09:01:30 $
- * $Revision: 1.213 $
+ * $Date: 2007/02/08 15:23:59 $
+ * $Revision: 1.214 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -990,6 +990,9 @@ void EcalBarrelMonitorClient::subscribe(void){
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: subscribe" << endl;
 
+  mui_->subscribe("*/FU0_is_done");
+  mui_->subscribe("*/FU0_is_dead");
+
   mui_->subscribe("*/EcalBarrel/EcalInfo/STATUS");
   mui_->subscribe("*/EcalBarrel/EcalInfo/RUN");
   mui_->subscribe("*/EcalBarrel/EcalInfo/EVT");
@@ -1012,6 +1015,9 @@ void EcalBarrelMonitorClient::subscribe(void){
 }
 
 void EcalBarrelMonitorClient::subscribeNew(void){
+
+  mui_->subscribeNew("*/FU0_is_done");
+  mui_->subscribeNew("*/FU0_is_dead");
 
   mui_->subscribeNew("*/EcalBarrel/EcalInfo/STATUS");
   mui_->subscribeNew("*/EcalBarrel/EcalInfo/RUN");
@@ -1036,6 +1042,9 @@ void EcalBarrelMonitorClient::unsubscribe(void) {
     }
 
   }
+
+  mui_->unsubscribe("*/FU0_is_done");
+  mui_->unsubscribe("*/FU0_is_dead");
 
   mui_->unsubscribe("*/EcalBarrel/EcalInfo/STATUS");
   mui_->unsubscribe("*/EcalBarrel/EcalInfo/RUN");
@@ -1243,7 +1252,27 @@ void EcalBarrelMonitorClient::analyze(void){
     }
 
   }
-  
+
+  me = mui_->get("Collector/FU0_is_done");
+  if ( me ) {
+    if ( status_ == "running" ) {
+      cout << endl;
+      cout << " Source FU0 is done, forcing 'end-of-run'" << endl;
+      cout << endl;
+      status_ = "end-of-run";
+    }
+  }
+
+  me = mui_->get("Collector/FU0_is_dead");
+  if ( me ) {
+    if ( status_ == "running" ) {
+      cout << endl;
+      cout << " Source FU0 is dead, forcing 'end-of-run'" << endl;
+      cout << endl;
+      status_ = "end-of-run";
+    }
+  }
+
   if ( status_ == "end-of-run" ) {
     
     if ( begin_run_ && ! end_run_ ) {
@@ -1376,5 +1405,6 @@ void EcalBarrelMonitorClient::htmlOutput(void){
 
   htmlFile.close();
 
+  cout << endl;
 }
 
