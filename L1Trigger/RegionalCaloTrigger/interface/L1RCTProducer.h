@@ -12,6 +12,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <string>
+
 class L1RCT;
 
 class L1RCTProducer : public edm::EDProducer
@@ -26,5 +28,7 @@ class L1RCTProducer : public edm::EDProducer
   edm::FileInPath src;
   bool orcaFileInput;
   edm::FileInPath lutFile;
+  std::string rctTestInputFile;
+  std::string rctTestOutputFile;
 };
 #endif

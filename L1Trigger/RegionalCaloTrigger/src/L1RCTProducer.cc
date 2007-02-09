@@ -15,7 +15,9 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   rct(0),
   src(conf.getParameter<edm::FileInPath>("src")),
   orcaFileInput(conf.getUntrackedParameter<bool>("orcaFileInput")),
-  lutFile(conf.getParameter<edm::FileInPath>("lutFile"))
+  lutFile(conf.getParameter<edm::FileInPath>("lutFile")),
+  rctTestInputFile(conf.getParameter<std::string>("rctTestInputFile")),
+  rctTestOutputFile(conf.getParameter<std::string>("rctTestOutputFile"))
 {
   //produces<JSCOutput>();
   
@@ -36,7 +38,7 @@ void L1RCTProducer::beginJob(const edm::EventSetup& eventSetup)
 {
   edm::ESHandle<CaloTPGTranscoder> transcoder;
   eventSetup.get<CaloTPGRecord>().get(transcoder);
-  rct = new L1RCT(lutFile.fullPath(), transcoder);
+  rct = new L1RCT(lutFile.fullPath(), transcoder, rctTestInputFile, rctTestOutputFile);
 }
 
 void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup& c)

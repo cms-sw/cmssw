@@ -3,6 +3,13 @@
 #include <fstream>
 #include <string>
 
+#include <iostream>
+using std::cout;
+using std::cerr;
+using std::endl;
+
+#include <iomanip>
+
 //#include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 
 #include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
@@ -46,7 +53,15 @@ L1RCT::L1RCT(std::string lutFile) : empty(),neighborMap(){
   makeCrates();
 }
 
-L1RCT::L1RCT(std::string lutFile, edm::ESHandle<CaloTPGTranscoder> transcoder) : empty(),neighborMap(){
+L1RCT::L1RCT(std::string lutFile, 
+	     edm::ESHandle<CaloTPGTranscoder> transcoder, 
+	     std::string rctTestInputFile, 
+	     std::string rctTestOutputFile) : 
+  empty(),
+  neighborMap(),
+  rctTestInputFile_(rctTestInputFile),
+  rctTestOutputFile_(rctTestOutputFile)  
+{
   transcoder_ = transcoder;
   lut = new L1RCTLookupTables(lutFile, transcoder);
   makeCrates();
@@ -58,9 +73,7 @@ void L1RCT::setGctEmScale(const L1CaloEtScale* scale){
 
 void L1RCT::input(vector<vector<vector<unsigned short> > > barrel,
 		  vector<vector<unsigned short> > hf){
-  //cout << "L1RCT::input() entered" << endl;
   for(int i = 0; i<18; i++){
-    //cout << "calling Crate.input() for crate " << i << endl;
     crates.at(i).input(barrel.at(i),hf.at(i),lut);
   }
 }
@@ -73,10 +86,8 @@ void L1RCT::fileInput(const char* filename){            // added "const" also in
   vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
   vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
   unsigned short x;
-  //cout << "L1RCT::fileInput() entered" << endl;
   std::ifstream instream(filename);
   if(instream){
-    //cout << "file opened in L1RCT::fileInput()" << endl;
     for(int i = 0; i<18;i++){
       for(int j = 0; j<7; j++){
 	for(int k = 0; k<64; k++){
@@ -84,9 +95,7 @@ void L1RCT::fileInput(const char* filename){            // added "const" also in
 	    unsigned short bit = x/256;             // added J.Leonard Aug. 16 06
 	    unsigned short energy = x&255;          //
 	    unsigned short input = energy*2 + bit;  //
-	    //	    barrel.at(i).at(j).at(k) = x;
 	    barrel.at(i).at(j).at(k) = input;
-	    //cout << x;
 	  }
 	  else
 	    break;
@@ -95,17 +104,13 @@ void L1RCT::fileInput(const char* filename){            // added "const" also in
       for(int j = 0; j<8; j++){
 	if(instream >> x){
 	  hf.at(i).at(j) = x;
-	  //cout << x;
 	}
 	else
 	  break;
       }
     }
-    //cout << "input filled from file" << endl;
   }
-  //cout << "calling L1RCT::input()" << endl;
   input(barrel,hf);
-  //cout << "L1RCT::input() called" << endl;
 }
 
 
@@ -114,9 +119,6 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
   vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
   vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
 
-// ecal:
-//  cout << "\n\nECAL" << endl;
-//  cout << "\t\t\t\t\tCrate\tCard\tTower\tInput" << endl;
   int nEcalDigi = ecalCollection.size();
   if (nEcalDigi>4032) {nEcalDigi=4032;}
   for (int i = 0; i < nEcalDigi; i++){
@@ -140,14 +142,11 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     if ((crate<18) && (card<7) && ((tower - 1)<32)) {             // changed 64 to 32 Sept. 19 J. Leonard
       barrel.at(crate).at(card).at(tower - 1) = ecalInput;        // 
     }
-    else { cout << "out of range!"; }
-    //    cout << "Ecal:\t" <<crate << "\t" << card << "\t" << tower << "\t" << ecalInput << endl;
+    else { cerr << "L1RCT: out of range!"; }
   }
 
 //same for hcal, once we get the hcal digis, just need to add 32 to towers:
 // just copied and pasted and changed names where necessary
-//  cout << "\n\nHCAL" << endl;
-//  cout << "\t\t\t\t\tCrate\tCard\tTower\tInput" << endl;
   int nHcalDigi = hcalCollection.size();
   if (nHcalDigi != 4176){ cout << "There are " << nHcalDigi << " instead of 4176!" << endl;}
   // incl HF 4032 + 144 = 4176
@@ -160,8 +159,6 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     unsigned short iphi = (72 + 18 - cal_iphi) % 72;
     // transform Hcal TOWERS (1-72)into local rct (intuitive) phi bins (72 bins) 0-71
     // Use local iphi to work out the region and crate (for HB/HE and HF)
-
-
     // HF regions need to have local iphi 0-17
     if (absIeta >= 29) {
       iphi = iphi/4;
@@ -183,209 +180,85 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
       if ((crate<18) && (card<7) && ((tower - 1)<32)) {               // changed 64 to 32 Sept. 19 J. Leonard
         barrel.at(crate).at(card).at(tower - 1 + 32) = hcalInput;  // hcal towers are ecal + 32 see RC.cc
       }
-      else { cout << "out of range!"; }
+      else { cout << "L1RCT: out of range!"; }
     }
     else if ((absIeta >= 29) && (absIeta <= 32)){
       // put input into correct crate/region of HF
       if ((crate<18) && (tower<8)) {
         hf.at(crate).at(tower) = hcalInput;
       }
-      else { cout << "out of range!"; }
+      else { cout << "L1RCT: out of range!"; }
     }
   }
   input(barrel,hf);
+
+  saveRCTInput(barrel);
 
   return;
 
 }
 
-// takes hcal digi input for crates 0 and 1, fills rest of cal with zeros
-// intended for pam's hardware test ONLY
-void L1RCT::digiTestInput(HcalTrigPrimDigiCollection hcalCollection){
-  vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
-  vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
-  //unsigned short x;
-  vector<vector<unsigned short> > ecalBarrel(72,vector<unsigned short>(56));
-  vector<vector<unsigned short> > hcalBarrel(72,vector<unsigned short>(56));
-  //vector<vector<unsigned short> > hcalForward(18,vector<unsigned short>(8));
-
-
-  std::ofstream file_out("cratetest_towerinputs.txt", std::ios::app);
-  if (!file_out){
-    std::cerr << "Tower input file did not open!" << endl;
-    return;
-  }
-
-
-// ecal:
-
-  for (int i = 0; i < 18; i++){
-    for (int j = 0; j < 7; j++){
-      for (int k = 0; k < 32; k++){
-        barrel.at(i).at(j).at(k) = 0;
-      }
+// Create file for hardware playback when requested
+void L1RCT::saveRCTInput(vector<vector<vector<unsigned short> > > barrel)
+{
+  // Mike and Kira -- this is your playpen
+  if(strcmp(rctTestInputFile_.c_str(), "-NONE-") == 0) return;
+  static std::ofstream file_out(rctTestInputFile_.c_str(), std::ios::app);
+  if(!file_out)
+    {
+      std::cerr << "Could not create " << rctTestInputFile_ << endl;
+      exit(1);
     }
-  }
-
-
-// hcal:
-//  cout << "\n\nHCAL" << endl;
-  cout << "\t\t\t\t\tCrate\tCard\tTower\tInput" << endl;
-  int nHcalDigi = hcalCollection.size();
-  cout << "There are " << nHcalDigi << " hcal digis.  There should be 448." << endl;
-
-  for (int i = 0; i < nHcalDigi; i++){
-    short ieta = (short) hcalCollection[i].id().ieta(); 
-/*
-    if (hcalCollection[i].SOI_compressedEt()>0) { 
-      cout << "Energy " << hcalCollection[i].SOI_compressedEt()
- 	 << " eta " << ieta; 
+  static int event = 0;
+  if(event == 0)
+    {
+      file_out
+	<< "Crate = 0-17" << std::endl
+	<< "Card = 0-7 within the crate" << std::endl
+	<< "Tower = 0-32 covers 4 x 8 covered by the card" << std::endl
+	<< "EMAddr(0:8) = EMFGBit(0:0)+CompressedEMET(1:8)" << std::endl
+	<< "HDAddr(0:8) = HDFGBit(0:0)+CompressedHDET(1:8) - note: HDFGBit(0:0) is not part of the hardware LUT address" << std::endl
+	<< "LutOut(0:17)= LinearEMET(0:6)+HoEFGVetoBit(7:7)+LinearJetET(8:16)+ActivityBit(17:17)" << std::endl
+	<< "Event" << "\t"
+	<< "Crate" << "\t"
+	<< "Card" << "\t"
+	<< "Tower" << "\t"
+	<< "EMAddr" << "\t"
+	<< "HDAddr" << "\t"
+	<< "LUTOut"
+	<< std::endl;
     }
-*/
-
-    unsigned short absIeta = (unsigned short) abs(ieta);
-    unsigned short cal_iphi = (unsigned short) hcalCollection[i].id().iphi();
-//     if (hcalCollection[i].SOI_compressedEt()>0) { 
-//    cout << " raw phi " << cal_iphi; 
-//     }
-    // All Hcal primitives (including HF) are reported
-    // with phi bin numbering in the range 0-72.
-    unsigned short iphi = (72 + 18 - cal_iphi) % 72;      // transform Hcal TOWERS (1-72)into local rct (intuitive) phi bins (72 bins) 0-71
-
-    //map digis to crates, cards, and towers
-
-    unsigned short crate = 999, card = 999, tower = 999;
-    crate = calcCrate(iphi, ieta);
-    if (crate > 1) {
-      cout << "WARNING: hcal digi " << i << " is in crate " << crate << endl;
+  if(event < 64)
+    {
+      for(unsigned short iCrate = 0; iCrate < 18; iCrate++)
+	{
+	  for(unsigned short iCard = 0; iCard < 7; iCard++)
+	    {
+	      for(unsigned short iTower = 0; iTower < 32; iTower++)
+		{
+		  unsigned short ecal = barrel[iCrate][iCard][iTower] / 2;
+		  unsigned short hcal = barrel[iCrate][iCard][iTower+32] / 2;
+		  unsigned short fgbit = barrel[iCrate][iCard][iTower] & 1;
+		  unsigned long lutOutput = lut->lookup(ecal, hcal, fgbit, iCrate, iCard, iTower);
+		  file_out
+		    << std::hex 
+		    << event << "\t"
+		    << iCrate << "\t"
+		    << iCard << "\t"
+		    << iTower << "\t"
+		    << barrel[iCrate][iCard][iTower] << "\t"
+		    << barrel[iCrate][iCard][iTower+32] << "\t"
+		    << lutOutput
+		    << std::dec 
+		    << std::endl;
+		  
+		}
+	    }
+	}
     }
-
-    if (absIeta >= 29) {
-      cout << "WARNING: hcal digi " << i << " has absIeta " << absIeta << ", greater than 28!" << endl;
-    }
-//     if (hcalCollection[i].SOI_compressedEt()>0) { 
-//    cout << " rct phi " << iphi << "  "; 
-//     }
-
-    if (absIeta < 29){
-      card = calcCard(iphi, absIeta);
-    }
-    tower = calcTower(iphi, absIeta);
-
-    unsigned short energy = hcalCollection[i].SOI_compressedEt();
-    unsigned short fineGrain = (unsigned short) hcalCollection[i].SOI_fineGrain();
-    unsigned short hcalInput = energy*2 + fineGrain;
-
-    if (absIeta <= 28){
-
-      // for file diagram of digi inputs
-      if (ieta > 0){
-	hcalBarrel.at(iphi).at(ieta - 1) = hcalInput;
-      }
-      else {
-	hcalBarrel.at(iphi).at(56 + ieta) = hcalInput;
-      }
-
-      // put input into correct crate/card/tower of barrel
-      if ((crate<18) && (card<7) && ((tower - 1)<32)) {
-        barrel.at(crate).at(card).at(tower - 1 + 32) = hcalInput;  // hcal towers are ecal + 32 see RC.cc
-      }
-      else { cout << "out of range!"; }
-      cout << "Hcal:\t" << crate << "\t" << card << "\t" << tower + 32 << "\t" << hcalInput << endl;
-    }
-
-/*
-    else if ((absIeta >= 29) && (absIeta <= 32)){
-      // put input into correct crate/region of HF
-      if ((crate<18) && (tower<8)) {
-        hf.at(crate).at(tower) = hcalInput;
-      }
-      else { cout << "out of range!"; }
-      cout << "HF: crate " << crate << "\tregion " << tower << "\tinput " << hcalInput << endl;
-    }
-*/
-
-  }
-
-  for (int i = 0; i < 18; i++){
-    if (i > 1){
-      for (int j = 0; j < 7; j++){
-        for (int k = 0; k < 32; k++){
-          barrel.at(i).at(j).at(k + 32) = 0;
-          cout << "hcal barrel " << i << " " << j << " " << k << " is " << barrel.at(i).at(j).at(k+32) << endl;
-        }
-      }
-    }
-    for (int j = 0; j < 8; j++){
-      hf.at(i).at(j) = 0;
-      cout << "hf " << i << " " << j << " is " << hf.at(i).at(j) << endl;
-    }
-  }
-
-
-  file_out << "iphi goes from 1-72 down rows, ieta goes from -28 to 28 across columns." << endl << endl;
-/*
-  file_out << "ECAL:" << endl;
-  for (int i = 0; i < 72; i++){
-    for (int j = 0; j < 28; j++){
-      file_out.width(3);
-      file_out << ecalBarrel.at(i).at(28+j);
-    }
-    for (int j = 0; j < 28; j++){
-      file_out.width(3);
-      file_out << ecalBarrel.at(i).at(j);
-    }
-    file_out << endl;
-  }
-*/
-  file_out << "\n\n\n\n\n" << endl;
-  file_out << "HCAL:" << endl;
-  for (int i = 0; i < 72; i++){
-    for (int j = 0; j < 28; j++){
-      file_out.width(3);
-      file_out << hcalBarrel.at(i).at(28+j);
-    }
-    for (int j = 0; j < 28; j++){
-      file_out.width(3);
-      file_out << hcalBarrel.at(i).at(j);
-    }
-    file_out << endl;
-  }
-/*
-  file_out << "\n\n\n\n\n" << endl;
-
-  file_out << "HF:" << endl;
-  for (int i = 0; i < 9; i++){
-    for (int j = 3; j >= 0; j--){
-      file_out.width(3);
-      file_out << hf.at(i).at(j);
-    }
-    file_out << "\t\t\t";
-    for (int j = 0; j <= 3; j++){
-      file_out.width(3);
-      file_out << hf.at(i+9).at(j);
-    }
-    file_out << endl;
-    for (int j = 7; j >= 4; j--){
-      file_out.width(3);
-      file_out << hf.at(i).at(j);
-    }
-    file_out << "\t\t\t";
-    for (int j = 4; j <= 7; j++){
-      file_out.width(3);
-      file_out << hf.at(i+9).at(j);
-    }
-    file_out << endl;
-  }
-*/
-  file_out << "\n\n\n\n\n" << endl;
-  file_out.close();
-
-
-  input(barrel,hf);
+  event++;
   return;
 }
-
 
 //As the name implies, it will randomly generate input for the 
 //regional calotrigger.

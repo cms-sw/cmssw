@@ -12,7 +12,6 @@
 <use name=CalibFormats/CaloTPG>
 <use name=CalibCalorimetry/CaloTPG>
 <use name=L1Trigger/L1Scales>
-<use name=SimDataFormats/HepMCProduct>
 <use name=clhep>
 
 <flags SEAL_PLUGIN_NAME="L1TriggerRegionalCaloTrigger">
@@ -32,6 +31,5 @@
 <use name=CalibFormats/CaloTPG>
 <use name=CalibCalorimetry/CaloTPG>
 <use name=L1Trigger/L1Scales>
-<use name=SimDataFormats/HepMCProduct>
 <use name=clhep>
 </export>

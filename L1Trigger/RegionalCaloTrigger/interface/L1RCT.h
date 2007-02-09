@@ -28,7 +28,8 @@ class L1RCT {
  public:
   
   L1RCT(std::string lutFile);
-  L1RCT(std::string lutFile, edm::ESHandle<CaloTPGTranscoder> transcoder);
+  L1RCT(std::string lutFile, edm::ESHandle<CaloTPGTranscoder> transcoder,
+	std::string rctTestInputFile, std::string rctTestOutputFile);
 
   void setGctEmScale(const L1CaloEtScale* scale);
 
@@ -51,7 +52,8 @@ class L1RCT {
   void fileInput(const char* filename);       // added "const" also in .cc
 
   void digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDigiCollection hcalCollection);
-  void digiTestInput(HcalTrigPrimDigiCollection hcalCollection);
+
+  void saveRCTInput(vector<vector<vector<unsigned short> > > barrel);
 
   void randomInput();
 
@@ -131,6 +133,9 @@ class L1RCT {
 
   edm::ESHandle<CaloTPGTranscoder> transcoder_;
   L1RCTLookupTables* lut;
+
+  std::string rctTestInputFile_;
+  std::string rctTestOutputFile_;
 
 };
 
