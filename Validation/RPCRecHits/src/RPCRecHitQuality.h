@@ -7,8 +7,8 @@
  *  Basic analyzer class which accesses 1D RPCRecHits
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2007/01/30 13:59:53 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/01/30 14:54:42 $
+ *  $Revision: 1.5 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -21,6 +21,8 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "TH1F.h"
+#include "TFolder.h"
 
 
 //#include <vector>
@@ -54,6 +56,7 @@ public:
   // Destructor
   virtual ~RPCRecHitQuality();
 
+  
   void arrange(MixCollection<PSimHit> & simHits,
                RPCDigiCollection & rpcDigis);
 
@@ -77,8 +80,13 @@ private:
   std::string simHitLabel;
   std::string recHitLabel;
   std::string digiLabel;
-
-  
+  TH1F* ochamb[5][12][4][4];
+  TH1F* test[5]; 
+  TH1F* clchamb[5][12][4][4];
+  TFolder* sec[5][12];
+  TFolder* whe[5];
+  TFolder* sta[5][12][4];	
+  TFolder* lay[5][12][4][2];
 };
 
   
