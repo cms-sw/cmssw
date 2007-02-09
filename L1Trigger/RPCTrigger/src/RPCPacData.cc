@@ -30,7 +30,7 @@
 RPCPacData::RPCPacData(std::string patFilesDir, int tower, int logSector, int logSegment){
   
  //: RPCPacBase(tower, logSector, logSegment) { 
-  
+  m_MaxQuality=0;
   std::string patFileName;
   
   RPCConst rpcconst;
@@ -148,6 +148,7 @@ std::string RPCPacData::getPatternsGroupDescription(int patternGroupNum) {
 
 void RPCPacData::insertQualityRecord(unsigned int qualityTabNumber,
                               unsigned short firedPlanes, short quality) {
+  
   if(quality > m_MaxQuality)
     m_MaxQuality = quality;
   if(qualityTabNumber < m_QualityTabsVec.size()) {
