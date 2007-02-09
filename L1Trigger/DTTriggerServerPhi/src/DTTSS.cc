@@ -7,12 +7,11 @@
 //
 //   Author List:
 //   C. Grandi
-//   Modifications: 
+//   Modifications:
+//   04/01/2007 : C. Battilana local config update
 //
 //
 //--------------------------------------------------
-
-// #include "Utilities/Configuration/interface/Architecture.h"
 
 //-----------------------
 // This Class's Header --
@@ -23,7 +22,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 #include "L1Trigger/DTTriggerServerPhi/interface/DTTSCand.h"
-#include "L1Trigger/DTUtilities/interface/DTConfig.h"
+#include "L1Trigger/DTTriggerServerPhi/interface/DTConfigTSPhi.h"
 
 //---------------
 // C++ Headers --
@@ -34,11 +33,11 @@
 //----------------
 // Constructors --
 //----------------
-DTTSS::DTTSS(DTConfig* config, int n) : _config(config), _n(n), _ignoreSecondTrack(0) {
+DTTSS::DTTSS(DTConfigTSPhi* config, int n) : _config(config), _n(n), _ignoreSecondTrack(0) {
 
   // reserve the appropriate amount of space for vectors
-  //_tctrig[0].reserve(DTConfig::NTCTSS);
-  //_tctrig[1].reserve(DTConfig::NTCTSS);
+  //_tctrig[0].reserve(DTConfigTSPhi::NTCTSS);
+  //_tctrig[1].reserve(DTConfigTSPhi::NTCTSS);
   //_outcand.reserve(2);
   _logWord1 = "1/----";
   _logWord2 = "2/----";
@@ -76,7 +75,7 @@ DTTSS::clear() {
 void
 DTTSS::run() {
 
-  if(config()->debug()>2){
+  if(config()->debug()){
     std::cout << "DTTSS::run: Processing DTTSS number " << _n << " : ";
     std::cout << nFirstT() << " first & " << nSecondT() << " second tracks" << std::endl;
   }
@@ -86,7 +85,7 @@ DTTSS::run() {
   // SORT 1
   //
   // debugging
-  if(config()->debug()>2){
+  if(config()->debug()){
     std::cout << "Vector of first tracks in DTTSS: " << std::endl;
     std::vector<DTTSCand*>::const_iterator p;
     for(p=_tctrig[0].begin(); p!=_tctrig[0].end(); p++) {
@@ -105,7 +104,7 @@ DTTSS::run() {
   // SORT 2
   //
   // debugging
-  if(config()->debug()>2){
+  if(config()->debug()){
     std::vector<DTTSCand*>::const_iterator p;
     std::cout << "Vector of second tracks (including carry) in DTTSS: " << std::endl;
     for(p=_tctrig[1].begin(); p!=_tctrig[1].end(); p++) {
@@ -156,7 +155,7 @@ DTTSS::sortTSS1() {
 
   // Carry enabled if correlated and TRACO is next to best
     bool inner_or_corr;
-    if(config()->TssGhost1Corr()==1)
+    if(config()->TssGhost1Corr())
       {inner_or_corr=carry->isInner() || carry->isCorr();
 
       }
@@ -249,7 +248,7 @@ DTTSS::sortTSS2() {
     if(config()->TssGhost2Flag()!=0){    // 2nd tracks not always enabled
 
        bool inner_or_corr;
-       if(config()->TssGhost2Corr()==1)
+       if(config()->TssGhost2Corr())
           {inner_or_corr=curr->isInner() || curr->isCorr();
 
           }

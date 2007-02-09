@@ -7,12 +7,11 @@
 //
 //   Author List:
 //   C. Grandi
-//   Modifications: S. Marcellini, D. Bonacorsi
-//
+//   Modifications: 
+//   S. Marcellini, D. Bonacorsi
+//   04/01/2007 : C. Battilana local config update
 //
 //--------------------------------------------------
-
-//#include "Utilities/Configuration/interface/Architecture.h"
 
 //-----------------------
 // This Class's Header --
@@ -22,7 +21,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "L1Trigger/DTUtilities/interface/DTConfig.h"
+#include "L1Trigger/DTTriggerServerPhi/interface/DTConfigTSPhi.h"
 
 //---------------
 // C++ Headers --
@@ -142,9 +141,9 @@ DTTSCand::setBitsTss() {
        std::cout << " All bits set to 1" << std::endl;
      }
      // Masking:
-     int enaH = config()->TssHtrigEna(itk);
-     int enaI = config()->TssInOutEna(itk);
-     int enaC = config()->TssCorrEna(itk) ;
+     bool enaH = config()->TssHtrigEna(itk);
+     bool enaI = config()->TssInOutEna(itk);
+     bool enaC = config()->TssCorrEna(itk) ;
      if(isCarry()) {
        // Special setting for carry
        enaH = config()->TssHtrigEnaCarry();
@@ -241,9 +240,9 @@ DTTSCand::setBitsTsm() {
       std::cout << " All bits set to 1" << std::endl;
       
     // Masking:
-      int enaH = config()->TsmHtrigEna(itk);
-      int enaI = config()->TsmInOutEna(itk);
-      int enaC = config()->TsmCorrEna(itk) ;
+      bool enaH = config()->TsmHtrigEna(itk);
+      bool enaI = config()->TsmInOutEna(itk);
+      bool enaC = config()->TsmCorrEna(itk) ;
       if(isCarry()) {
 	// Special setting for carry
 	enaH = config()->TsmHtrigEnaCarry();

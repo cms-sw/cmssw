@@ -12,10 +12,10 @@
 //           improved algorithm for 2nd track handling in case of pile-up in TSM
 //           param: tsmgetcarryflag - value: 1 (default)
 //   feb04 - Implementation of sector collector related stuff(S. Marcellini)
+//   jan07 - C. Battilana local conf update
 //
 //--------------------------------------------------
 
-//#include "Utilities/Configuration/interface/Architecture.h"
 #include "L1Trigger/DTUtilities/interface/BitArray.h"
 
 //-----------------------
@@ -40,27 +40,29 @@
 //----------------
 // Constructors --
 //----------------
-DTTSPhi::DTTSPhi(DTTrigGeom* geom, DTTracoCard* tracocard) : 
+DTTSPhi::DTTSPhi(DTTrigGeom* geom, DTTracoCard* tracocard, edm::ParameterSet& tsp_pset) : 
                                DTGeomSupplier(geom), _tracocard(tracocard){
+
+  _config = new DTConfigTSPhi(tsp_pset);
 
   // reserve the appropriate amount of space for vectors
   int i=0;
-  for(i=0;i<DTConfig::NSTEPL - DTConfig::NSTEPF + 1 ;i++) {  // SM add + 1
-    _tss[i].reserve(DTConfig::NTSSTSM);
+  for(i=0;i<DTConfigTSPhi::NSTEPL - DTConfigTSPhi::NSTEPF + 1 ;i++) {  // SM add + 1
+    _tss[i].reserve(DTConfigTSPhi::NTSSTSM);
     // DBSM-doubleTSM
-    _tsm[i].reserve(DTConfig::NTSMD);
+    _tsm[i].reserve(DTConfigTSPhi::NTSMD);
   }
 
-  for(int is=0;is<DTConfig::NSTEPL-DTConfig::NSTEPF+1;is++) {
+  for(int is=0;is<DTConfigTSPhi::NSTEPL-DTConfigTSPhi::NSTEPF+1;is++) {
 
     // create DTTSSs  
-    for(int itss=1; itss<=DTConfig::NTSSTSM; itss++) {
+    for(int itss=1; itss<=DTConfigTSPhi::NTSSTSM; itss++) {
       DTTSS* tss = new DTTSS(config(), itss);
       _tss[is].push_back(tss);
     }
 
     // create DTTSMs     SM double TSM  
-    for(int itsmd=1; itsmd<=DTConfig::NTSMD; itsmd++) {
+    for(int itsmd=1; itsmd<=DTConfigTSPhi::NTSMD; itsmd++) {
       DTTSM* tsm = new DTTSM(config(), itsmd);
       _tsm[is].push_back(tsm);
     }
@@ -75,7 +77,7 @@ DTTSPhi::~DTTSPhi(){
 
   std::vector<DTTSS*>::iterator ptss;
   std::vector<DTTSM*>::iterator ptsm;
-  for(int is=0;is<DTConfig::NSTEPL-DTConfig::NSTEPF+1;is++){
+  for(int is=0;is<DTConfigTSPhi::NSTEPL-DTConfigTSPhi::NSTEPF+1;is++){
     // clear TSSs
     for (ptss = _tss[is].begin(); ptss != _tss[is].end(); ptss++){
       delete (*ptss);
@@ -90,6 +92,8 @@ DTTSPhi::~DTTSPhi(){
   }
   
   localClear();
+  
+  delete _config;
 
 }
 
@@ -100,7 +104,7 @@ DTTSPhi::~DTTSPhi(){
 
 void
 DTTSPhi::localClear() {
-  for(int is=0;is<DTConfig::NSTEPL-DTConfig::NSTEPF+1;is++) {
+  for(int is=0;is<DTConfigTSPhi::NSTEPL-DTConfigTSPhi::NSTEPF+1;is++) {
     // clear buffer
     std::vector<DTTSCand*>::iterator p1;
     for(p1 = _tctrig[is].begin(); p1 != _tctrig[is].end(); p1++) {
@@ -122,10 +126,11 @@ DTTSPhi::localClear() {
 
 void
 DTTSPhi::loadTSPhi() {
+
   // clear DTTSSs and DTTSM 
   localClear();
   
-  if(config()->debug()>2){
+  if(config()->debug()){
     std::cout << "DTTSPhi::loadDTTSPhi called for wheel=" << wheel() ;
     std::cout <<                                ", station=" << station();
     std::cout <<                                ", sector="  << sector() << std::endl;
@@ -135,14 +140,13 @@ DTTSPhi::loadTSPhi() {
   std::vector<DTTracoTrigData>::const_iterator p;
   std::vector<DTTracoTrigData>::const_iterator pend=_tracocard->end();
   for(p=_tracocard->begin();p!=pend;p++){
-    //sm: add selection of a single traco for test beam debug purpose
-    //sm: read all tracos is the default
-    if(config()->usedTraco(p->tracoNumber()) < 0 || config()->usedTraco(p->tracoNumber())==1 ) {
+
+    if(config()->usedTraco(p->tracoNumber()) /*|| config()->usedTraco(p->tracoNumber())==1*/ ) {
       int step = p->step();
       int fs = (p->isFirst()) ? 1 : 2 ;
             
       // if first track is found inhibit second track processing in previous BX
-      if( fs==1 && step>DTConfig::NSTEPF)
+      if( fs==1 && step>DTConfigTSPhi::NSTEPF)
 	ignoreSecondTrack(step-1,p->tracoNumber());
       
       // load trigger
@@ -153,7 +157,7 @@ DTTSPhi::loadTSPhi() {
 
 void
 DTTSPhi::addTracoT(int step, const DTTracoTrigData* tracotrig, int ifs) {
-  if(step<DTConfig::NSTEPF||step>DTConfig::NSTEPL){
+  if(step<DTConfigTSPhi::NSTEPF||step>DTConfigTSPhi::NSTEPL){
     std::cout << "DTTSPhi::addTracoT: step out of range: " << step;
     std::cout << " trigger not added!" << std::endl;
     return;
@@ -166,8 +170,8 @@ DTTSPhi::addTracoT(int step, const DTTracoTrigData* tracotrig, int ifs) {
   }
   
   // Get the appropriate TSS
-  int itss = (tracotrig->tracoNumber() -1 ) / DTConfig::NTCTSS + 1;
-  if(itss<1 || itss>DTConfig::NTSSTSM) {
+  int itss = (tracotrig->tracoNumber() -1 ) / DTConfigTSPhi::NTCTSS + 1;
+  if(itss<1 || itss>DTConfigTSPhi::NTSSTSM) {
     std::cout << "DTTSPhi::addTracoT: wrong TRACO number: ";
     std::cout << tracotrig->tracoNumber();
     std::cout << " trigger not added!" << std::endl;
@@ -175,22 +179,22 @@ DTTSPhi::addTracoT(int step, const DTTracoTrigData* tracotrig, int ifs) {
   }
   
   // TSM status check (if it is the case, reject TRACO triggers related to broken TSMData)
-  if( config()->TsmStatus(station(),sector(),wheel()).element(itss)==0){      // TSMD broken
+  if( config()->TsmStatus().element(itss)==0){      // TSMD broken
     return;
   }
 
-  int pos = tracotrig->tracoNumber() - (itss-1)*DTConfig::NTCTSS;
+  int pos = tracotrig->tracoNumber() - (itss-1)*DTConfigTSPhi::NTCTSS;
   DTTSS* tss = getDTTSS(step,itss);
   
   // Create a new Trigger Server candidate
   DTTSCand* cand = new DTTSCand(tss, tracotrig, ifs, pos);
   
   // Add it to the buffer and to the TSS  
-  _tctrig[step-DTConfig::NSTEPF].push_back(cand);
+  _tctrig[step-DTConfigTSPhi::NSTEPF].push_back(cand);
   tss->addDTTSCand(cand);
 
   // Debugging...
-  if(config()->debug()>2){
+  if(config()->debug()){
     std::cout << "DTTSPhi::addTracoT at step " << step;
     if(ifs==1) {
       std::cout << " (first track)";
@@ -212,18 +216,18 @@ DTTSPhi::runTSPhi() {
 
   bool existSecondPrevBx = false;
   int itsmd = 1;  // initialize it to 1, default value if not in back up mode
-  int ntsm[DTConfig::NSTEPL+1-DTConfig::NSTEPF][DTConfig::NTSMD];  
+  int ntsm[DTConfigTSPhi::NSTEPL+1-DTConfigTSPhi::NSTEPF][DTConfigTSPhi::NTSMD];  
   int i_tsmd;
-
-  for(int is=DTConfig::NSTEPF;is<DTConfig::NSTEPL+1;is++) {
+  
+  for(int is=DTConfigTSPhi::NSTEPF;is<DTConfigTSPhi::NSTEPL+1;is++) {
     // loop on DTTSSs
     int ntss = 0;
     i_tsmd = 0;
-    ntsm[is-DTConfig::NSTEPF][0] = 0; // counter to make sector collector run if at least a tsm 
-    ntsm[is-DTConfig::NSTEPF][1] = 0;
+    ntsm[is-DTConfigTSPhi::NSTEPF][0] = 0; // counter to make sector collector run if at least a tsm 
+    ntsm[is-DTConfigTSPhi::NSTEPF][1] = 0;
     std::vector<DTTSS*>::iterator p;
-    for(p=_tss[is-DTConfig::NSTEPF].begin(); 
-        p<_tss[is-DTConfig::NSTEPF].end(); p++) {
+    for(p=_tss[is-DTConfigTSPhi::NSTEPF].begin(); 
+        p<_tss[is-DTConfigTSPhi::NSTEPF].end(); p++) {
       if((*p)->nTracoT(1)>0) {
 	// run DTTSS algorithm on non-empty DTTSSs
         (*p)->run();
@@ -231,24 +235,23 @@ DTTSPhi::runTSPhi() {
         if((*p)->nTracks()>0){
           for(int it=1;it<=(*p)->nTracks();it++){
 	    //--- SM double TSM    get the corresponding tsm data 
-	    int bkmod = config()->TsmStatus(station(),sector(),wheel()).element(0);
+	    int bkmod = config()->TsmStatus().element(0);
 	    if (bkmod==0) {    // we are in back-up mode
 	      int my_itss = (*p)->number();   // metodo di DTTSS che ritorna itss
 	      int ntsstsmd = config()->TSSinTSMD(station(),sector());
-	      if(ntsstsmd<2 || ntsstsmd>DTConfig::NTSSTSMD) {                 
+	      if(ntsstsmd<2 || ntsstsmd>DTConfigTSPhi::NTSSTSMD) {                 
 		std::cout << " DTTSPhi::addTracoT - wrong TSMD: " << ntsstsmd << std::endl;
 	      }
   
 	      // Get the appropriate TSMD
 	      itsmd = (my_itss -1 ) / ntsstsmd + 1;
-              if(config()->debug()>2){
+              if(config()->debug()){
 		std::cout << " DTTSPhi::addTracoT: itsmd = (my_itss -1 ) / ntsstsmd + 1  ---> my_itss = " <<
 		  my_itss << "  ntsstsmd = " << ntsstsmd << "  itsmd = " << itsmd << std::endl;}
 	    }
             else if(bkmod==1) {
 	      itsmd = 1;  // initialize it to 1, default value if not in back up mode
 	    }
-	    
 	    if(itsmd>2) std::cout << "****** >DTTSPhi::RunTSPhi wrong  itsmd = " << itsmd << std::endl; 
             DTTSM* tsm = getDTTSM(is,itsmd); 
             tsm->addCand((*p)->getTrack(it));
@@ -263,18 +266,17 @@ DTTSPhi::runTSPhi() {
  
     std::vector<DTTSM*>::iterator p_tsm;
     
-    for(p_tsm=_tsm[is-DTConfig::NSTEPF].begin(); 
-        p_tsm<_tsm[is-DTConfig::NSTEPF].end(); p_tsm++) { 
+    for(p_tsm=_tsm[is-DTConfigTSPhi::NSTEPF].begin(); 
+        p_tsm<_tsm[is-DTConfigTSPhi::NSTEPF].end(); p_tsm++) {
       
       // Run TSM sorting if at least a first track 
 
       i_tsmd = (*p_tsm)->number()-1; // returns itsmd (0 in default, 0 or 1 when bkmode )
+      
       if((*p_tsm)->nCand(1)>0) {  
-            
-	int bkmod = config()->TsmStatus(station(),sector(),wheel()).element(0);
+	int bkmod = config()->TsmStatus().element(0);
 
         (*p_tsm)->run(bkmod);   // bkmod 1 normal, 0 backup
-	
 	// Run TSM for current BX in case of 1st Tracks
 	// Run TSM for previous BX for second tracks, to check whether there is a pile up
 	// Tells whether a second track at previous BX exists
@@ -282,22 +284,20 @@ DTTSPhi::runTSPhi() {
 	if((*p_tsm)->nTracks()>0){
 	  // We have a first track. Store it if code is > 0
 	  
-	  if((*p_tsm)->getTrack(1)->tracoTr()->code()>0) {    
+	  if((*p_tsm)->getTrack(1)->tracoTr()->code()>0) {
 	    
 	    DTTSCand* first = (*p_tsm)->getTrack(1);
 	    if( config()->TsmGetCarryFlag()==0 ) {  //  get 1st tk at current BX and ignore any 2nd tk at previous BX
 	      
               _cache.push_back(DTChambPhSegm(ChamberId(),is,(*p_tsm)->getTrack(1)->tracoTr(),1));
-	      
-	      ntsm[is-DTConfig::NSTEPF][i_tsmd]++;  // SM increment ntsm at current BX
-	      if( config()->debug()>2)
-	        std::cout << "ntsm = " <<  ntsm[is-DTConfig::NSTEPF][i_tsmd] << " is = " << is << " i_tsmd = " << i_tsmd << std::endl; 
+	      ntsm[is-DTConfigTSPhi::NSTEPF][i_tsmd]++;  // SM increment ntsm at current BX
+	      if( config()->debug())
+	        std::cout << "ntsm = " <<  ntsm[is-DTConfigTSPhi::NSTEPF][i_tsmd] << " is = " << is << " i_tsmd = " << i_tsmd << std::endl; 
 	      if((*p_tsm)->nTracks()>1)   {  // there is a 2nd tk
-		
 		if((*p_tsm)->getTrack(2)->tracoTr()->code()>0) {   // check if its code > 0
-		  ntsm[is-DTConfig::NSTEPF][i_tsmd]++;
-		  if( config()->debug()>2)
-                    std::cout << "ntsm = " <<  ntsm[is-DTConfig::NSTEPF][i_tsmd] << " is = " << is << " i_tsmd = " << i_tsmd << std::endl; 
+		  ntsm[is-DTConfigTSPhi::NSTEPF][i_tsmd]++;
+		  if( config()->debug())
+                    std::cout << "ntsm = " <<  ntsm[is-DTConfigTSPhi::NSTEPF][i_tsmd] << " is = " << is << " i_tsmd = " << i_tsmd << std::endl; 
 		  
 		  secondPrevBx=(*p_tsm)->getTrack(2) ;   // assign second tk of previous BX
                   
@@ -305,10 +305,8 @@ DTTSPhi::runTSPhi() {
 	      }
 	    }
 	    else if( config()->TsmGetCarryFlag()==1 ) {   // compare with 2nd tk in previous BX and get the tk with better quality
-	      
-	      existSecondPrevBx = ((is-1-DTConfig::NSTEPF>=0) &&  ( ntsm[is-1-DTConfig::NSTEPF][i_tsmd]>1) &&   
+	      existSecondPrevBx = ((is-1-DTConfigTSPhi::NSTEPF>=0) &&  ( ntsm[is-1-DTConfigTSPhi::NSTEPF][i_tsmd]>1) &&   
 				   (secondPrevBx->tracoTr()->code()>0));                
-	      
 	      if( (!existSecondPrevBx)  || 
 		  ! (	(secondPrevBx->isCorr() && secondPrevBx->isHtrig() && secondPrevBx->isInner()) ||             
                         (secondPrevBx->isCorr() && secondPrevBx->isHtrig() && !secondPrevBx->isInner())  ||           
@@ -329,45 +327,42 @@ DTTSPhi::runTSPhi() {
 		       (first->isCorr() && !first->isHtrig() && first->isInner()) ) )
 		  ) {
 		// SM sector collector
-		
-		ntsm[is-DTConfig::NSTEPF][i_tsmd]++;  // SM increment ntsm at current BX. I need to know if there is at least a first track from TSM to run Sect Coll
+		ntsm[is-DTConfigTSPhi::NSTEPF][i_tsmd]++;  // SM increment ntsm at current BX. I need to know if there is at least a first track from TSM to run Sect Coll
 		
 		_cache.push_back(DTChambPhSegm(ChamberId(),is,(*p_tsm)->getTrack(1)->tracoTr(),1));
-		
 		//		(*p_tsm)->getTrack(1)->print();
 		
 		if((*p_tsm)->nTracks()>1)   {  // there is a 2nd tk
-		  ntsm[is-DTConfig::NSTEPF][i_tsmd]++;		  
+		  ntsm[is-DTConfigTSPhi::NSTEPF][i_tsmd]++;		  
   		  if((*p_tsm)->getTrack(2)->tracoTr()->code()>0) {   // check if its code > 0
   		    secondPrevBx=(*p_tsm)->getTrack(2) ;   // assign second previous BX
 		  }
 		}
 	      }
 	      else   {      // if 2nd tk prev BX is better than first present BX skip the event and get 2nd prev BX 
-		ntsm[is-1-DTConfig::NSTEPF][i_tsmd]++;  // SM increment ntsm at previous BX.
+		ntsm[is-1-DTConfigTSPhi::NSTEPF][i_tsmd]++;  // SM increment ntsm at previous BX.
 		_cache.push_back(DTChambPhSegm(ChamberId(),is-1,secondPrevBx->tracoTr(),2));
-		secondPrevBx->print();
+		//secondPrevBx->print();
 	      }
 	    }
 	    
 	    else if( config()->TsmGetCarryFlag()==2 ) {  // neglect first tk if it is a low uncorrelated trigger
-	      
-	      existSecondPrevBx = ((is-1-DTConfig::NSTEPF>=0) && (ntsm[is-1-DTConfig::NSTEPF][i_tsmd] >1) && (secondPrevBx->tracoTr()->code()>0));
+	      existSecondPrevBx = ((is-1-DTConfigTSPhi::NSTEPF>=0) && (ntsm[is-1-DTConfigTSPhi::NSTEPF][i_tsmd] >1) && (secondPrevBx->tracoTr()->code()>0));
 	      if( (!existSecondPrevBx) || first->isHtrig() || first->isCorr()) {
-		ntsm[is-DTConfig::NSTEPF][i_tsmd]++;  // SM increment ntsm at current BX. 
+		ntsm[is-DTConfigTSPhi::NSTEPF][i_tsmd]++;  // SM increment ntsm at current BX. 
 		// SM sector collector: Load DTSectColl with output of DTTSM
 		_cache.push_back(DTChambPhSegm(ChamberId(),is,(*p_tsm)->getTrack(1)->tracoTr(),1));
 		//		(*p_tsm)->getTrack(1)->print();
 		
 		if((*p_tsm)->nTracks()>1)   {  // there is a 2nd tk
-		  ntsm[is-DTConfig::NSTEPF][i_tsmd]++;
+		  ntsm[is-DTConfigTSPhi::NSTEPF][i_tsmd]++;
 		  if((*p_tsm)->getTrack(2)->tracoTr()->code()>0) {   // check if its code > 0
 		    secondPrevBx=(*p_tsm)->getTrack(2) ;   // assign second tk of previous BX
 		  }
 		}
 	      }
 	      else {
-		ntsm[is-1-DTConfig::NSTEPF][i_tsmd]++;  // SM increment ntsm at previous BX. 
+		ntsm[is-1-DTConfigTSPhi::NSTEPF][i_tsmd]++;  // SM increment ntsm at previous BX. 
 		_cache.push_back(DTChambPhSegm(ChamberId(),is-1,secondPrevBx->tracoTr(),2));
 		//		secondPrevBx->print(); 
 	      }
@@ -377,11 +372,9 @@ DTTSPhi::runTSPhi() {
 
 
       }      
-      else if ( ((*p_tsm)->nCand(1) == 0) && (is-1-DTConfig::NSTEPF>=0) && ntsm[is-1-DTConfig::NSTEPF][i_tsmd] > 0 ) {// it means that the last BX with sort 2 was not the previous one
-	existSecondPrevBx = ((is-1-DTConfig::NSTEPF>=0) && (ntsm[is-1-DTConfig::NSTEPF][i_tsmd]>1) && (secondPrevBx->tracoTr()->code()>0));
-	
+      else if ( ((*p_tsm)->nCand(1) == 0) && (is-1-DTConfigTSPhi::NSTEPF>=0) && ntsm[is-1-DTConfigTSPhi::NSTEPF][i_tsmd] > 0 ) {// it means that the last BX with sort 2 was not the previous one
+	existSecondPrevBx = ((is-1-DTConfigTSPhi::NSTEPF>=0) && (ntsm[is-1-DTConfigTSPhi::NSTEPF][i_tsmd]>1) && (secondPrevBx->tracoTr()->code()>0));
 	if(existSecondPrevBx) {
-	  
 	  _cache.push_back(DTChambPhSegm(ChamberId(),is-1,secondPrevBx->tracoTr(),2));
 	  
 	  //	  secondPrevBx->print();
@@ -391,9 +384,8 @@ DTTSPhi::runTSPhi() {
       //---
     
   }   // end loop on step  
-  
   // debugging...
-  if(config()->debug()>0){
+  if(config()->debug()){
     if(_cache.size()>0){
       std::cout << "====================================================" << std::endl;
       std::cout << "                  Phi segments                     " << std::endl;
@@ -415,13 +407,13 @@ DTTSPhi::ignoreSecondTrack(int step, int tracon) {
   
   int itsmd = 1; // initialize it to default
   
-  if(step<DTConfig::NSTEPF||step>DTConfig::NSTEPL){
+  if(step<DTConfigTSPhi::NSTEPF||step>DTConfigTSPhi::NSTEPL){
     std::cout << "DTTSPhi::ignoreSecondTrack: step out of range: " << step;
     std::cout << " no flag set!" << std::endl;
     return;
   }
-  int itss = (tracon-1 ) / DTConfig::NTCTSS + 1;
-  if(itss<1 || itss>DTConfig::NTSSTSM) {
+  int itss = (tracon-1 ) / DTConfigTSPhi::NTCTSS + 1;
+  if(itss<1 || itss>DTConfigTSPhi::NTSSTSM) {
     std::cout << "DTTSPhi::ignoreSecondTrack: wrong TRACO number: " << tracon;
     std::cout << " no flag set!" << std::endl;
     return;
@@ -429,7 +421,7 @@ DTTSPhi::ignoreSecondTrack(int step, int tracon) {
   DTTSS* tss = getDTTSS(step,itss);
   tss->ignoreSecondTrack();
   
-  int bkmod = config()->TsmStatus(station(),sector(),wheel()).element(0);
+  int bkmod = config()->TsmStatus().element(0);
   if (bkmod==0) {  // we are in back-up mode
     
     int ntsstsmd = config()->TSSinTSMD(station(),sector());
@@ -444,19 +436,19 @@ DTTSPhi::ignoreSecondTrack(int step, int tracon) {
 
 DTTSS*
 DTTSPhi::getDTTSS(int step, unsigned n) const {
-  if(step<DTConfig::NSTEPF||step>DTConfig::NSTEPL){
+  if(step<DTConfigTSPhi::NSTEPF||step>DTConfigTSPhi::NSTEPL){
     std::cout << "DTTSPhi::getDTTSS: step out of range: " << step;
     std::cout << " empty pointer returned!" << std::endl;
     return 0;
   }
-  if(n<1 || n>_tss[step-DTConfig::NSTEPF].size()){
+  if(n<1 || n>_tss[step-DTConfigTSPhi::NSTEPF].size()){
     std::cout << "DTTSPhi::getDTTSS: requested DTTSS not present: " << n;
     std::cout << " (at step " << step << ")";
     std::cout << " empty pointer returned!" << std::endl;
     return 0;
   }
   
-  std::vector<DTTSS*>::const_iterator p = _tss[step-DTConfig::NSTEPF].begin()+n-1;
+  std::vector<DTTSS*>::const_iterator p = _tss[step-DTConfigTSPhi::NSTEPF].begin()+n-1;
   return *p;
   
   
@@ -465,18 +457,18 @@ DTTSPhi::getDTTSS(int step, unsigned n) const {
 
 DTTSM*
 DTTSPhi::getDTTSM(int step, unsigned n) const {
-  if(step<DTConfig::NSTEPF||step>DTConfig::NSTEPL){
+  if(step<DTConfigTSPhi::NSTEPF||step>DTConfigTSPhi::NSTEPL){
     std::cout << "DTTSPhi::getDTTSM: step out of range: " << step;
     std::cout << " empty pointer returned!" << std::endl;
     return 0;
   }
-  if(n<1 || n>_tsm[step-DTConfig::NSTEPF].size()){
+  if(n<1 || n>_tsm[step-DTConfigTSPhi::NSTEPF].size()){
     std::cout << "DTTSPhi::getDTTSM: requested DTTSM not present: " << n;
     std::cout << " (at step " << step << ")";
     std::cout << " empty pointer returned!" << std::endl;
     return 0;
   }
-  std::vector<DTTSM*>::const_iterator p_tsm = _tsm[step-DTConfig::NSTEPF].begin()+n-1;
+  std::vector<DTTSM*>::const_iterator p_tsm = _tsm[step-DTConfigTSPhi::NSTEPF].begin()+n-1;
   return *p_tsm;
 }
 

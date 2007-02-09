@@ -3,8 +3,8 @@
 /**  \class DTTSCand
  *    A Trigger Server Candidate
  *
- *   $Date: 2004/03/18 09:23:02 $
- *   $Revision: 1.11 $
+ *   $Date: 2006/07/19 10:41:15 $
+ *   $Revision: 1.1 $
  *
  *   \author C. Grandi, D. Bonacorsi, S. Marcellini
  */
@@ -16,7 +16,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-class DTConfig;
+class DTConfigTSPhi;
 
 //----------------------
 // Base Class Headers --
@@ -80,7 +80,7 @@ class DTTSCand {
     inline void clear();
 
     /// Configuration set
-    inline DTConfig* config() const { return _tss->config(); }
+    inline DTConfigTSPhi* config() const { return _tss->config(); }
 
     /// Return associated TRACO trigger
     inline const DTTracoTrigData* tracoTr() const { return _tctrig; }

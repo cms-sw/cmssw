@@ -4,8 +4,8 @@
  *    Implementation of TSM trigger algorithm
  *
  *
- *   $Date: 2004/03/18 09:23:02 $
- *   $Revision: 1.7 $
+ *   $Date: 2006/07/19 10:41:15 $
+ *   $Revision: 1.1 $
  *
  *   \author C. Grandi, D. Bonacorsi, S. Marcellini
  */
@@ -19,10 +19,9 @@
 //------------------------------------
 class DTTracoTrigData;
 class DTTSCand;
-class DTConfig;
+class DTConfigTSPhi;
 // added DBSM
 class DTTrigGeom;
-//class DTGeomSupplier;
 //----------------------
 // Base Class Headers --
 //----------------------
@@ -44,7 +43,7 @@ class DTTSM {
 
     ///  Constructor
     // SM double TSM 
-    DTTSM(DTConfig*, int);   
+    DTTSM(DTConfigTSPhi*, int);   
 
     /// Destructor 
     ~DTTSM();
@@ -72,7 +71,7 @@ class DTTSM {
     void clear();
 
     /// Configuration set
-    inline DTConfig* config() const { return _config; }
+    inline DTConfigTSPhi* config() const { return _config; }
 
     /// Return the number of input tracks (first/second)
     unsigned nCand(int ifs) const;
@@ -97,7 +96,7 @@ class DTTSM {
  
   private:
 
-    DTConfig* _config;
+    DTConfigTSPhi* _config;
 
 
     // SM double TSM

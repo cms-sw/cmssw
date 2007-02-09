@@ -4,8 +4,8 @@
  *    Implementation of TS Phi trigger algorithm
  *
  *
- *   $Date: 2004/03/18 09:23:02 $
- *   $Revision: 1.12 $
+ *   $Date: 2006/07/19 10:41:15 $
+ *   $Revision: 1.1 $
  *
  *   \author C. Grandi, D. Bonacorsi, S. Marcellini
  */
@@ -32,12 +32,10 @@ class DTTrigGeom;
 //----------------------
 // Base Class Headers --
 //----------------------
-
-//#include "CARF/Reco/interface/RecDet.h"
-//#include "CARF/G3Event/interface/G3EventProxy.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
 #include "L1Trigger/DTUtilities/interface/DTGeomSupplier.h"
-#include "L1Trigger/DTUtilities/interface/DTConfig.h"
+#include "L1Trigger/DTTriggerServerPhi/interface/DTConfigTSPhi.h"
 #include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
 
 //---------------
@@ -49,7 +47,6 @@ class DTTrigGeom;
 //              -- Class Interface --
 //              ---------------------
 
-//typedef RecDet < DTChambPhSegm,G3EventProxy*, std::vector<DTChambPhSegm> > DTTSPhiManager;
 typedef DTCache < DTChambPhSegm, std::vector<DTChambPhSegm> > DTTSPhiManager;
 
 class DTTSPhi : public DTTSPhiManager, public DTGeomSupplier {
@@ -57,10 +54,13 @@ class DTTSPhi : public DTTSPhiManager, public DTGeomSupplier {
  public:
   
   /// Constructor
-  DTTSPhi(DTTrigGeom*, DTTracoCard*);
+  DTTSPhi(DTTrigGeom*, DTTracoCard*, edm::ParameterSet&);
   
   /// Destructor 
   ~DTTSPhi();
+
+  /// Returns the configuration class
+  inline DTConfigTSPhi* config() const {return _config; }
   
   /// Return number of DTTSPhi segments  
   int nSegm(int step);
@@ -75,7 +75,7 @@ class DTTSPhi : public DTTSPhiManager, public DTGeomSupplier {
   LocalVector localDirection(const DTTrigData*) const;
   
   /// Load TRACO triggers and run TSPhi algorithm
-  virtual void reconstruct() { clearCache();  loadTSPhi(); runTSPhi(); }
+  virtual void reconstruct() { loadTSPhi(); runTSPhi(); }
 
  private:
   
@@ -106,15 +106,16 @@ class DTTSPhi : public DTTSPhiManager, public DTGeomSupplier {
  private:
   
   DTTracoCard* _tracocard;
+
+  DTConfigTSPhi* _config;
   
   // Components
-  std::vector<DTTSS*> _tss[DTConfig::NSTEPL-DTConfig::NSTEPF+1];
+  std::vector<DTTSS*> _tss[DTConfigTSPhi::NSTEPL-DTConfigTSPhi::NSTEPF+1];
   // DBSM-doubleTSM
-  //  DTTSM* _tsm[DTConfig::NSTEPL-DTConfig::NSTEPF+1];
-  std::vector<DTTSM*> _tsm[DTConfig::NSTEPL-DTConfig::NSTEPF+1];
+  std::vector<DTTSM*> _tsm[DTConfigTSPhi::NSTEPL-DTConfigTSPhi::NSTEPF+1];
   
   // Input data
-  std::vector<DTTSCand*> _tctrig[DTConfig::NSTEPL-DTConfig::NSTEPF+1];
+  std::vector<DTTSCand*> _tctrig[DTConfigTSPhi::NSTEPL-DTConfigTSPhi::NSTEPF+1];
   
 };
 

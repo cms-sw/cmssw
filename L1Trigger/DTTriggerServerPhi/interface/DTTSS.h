@@ -4,8 +4,8 @@
  *    Implementation of TSS trigger algorithm
  *
  *
- *   $Date: 2003/10/18 09:18:22 $
- *   $Revision: 1.6 $
+ *   $Date: 2006/07/19 10:41:15 $
+ *   $Revision: 1.1 $
  *
  *   \author C. Grandi, D. Bonacorsi, S. Marcellini
  */
@@ -19,7 +19,7 @@
 //------------------------------------
 class DTTracoTrigData;
 class DTTSCand;
-class DTConfig;
+class DTConfigTSPhi;
 
 //----------------------
 // Base Class Headers --
@@ -40,7 +40,7 @@ class DTTSS {
   public:
 
     /// Constructor
-    DTTSS(DTConfig*, int);
+    DTTSS(DTConfigTSPhi*, int);
   
     /// Destructor 
     ~DTTSS();
@@ -67,7 +67,7 @@ class DTTSS {
     inline int number() const { return _n; }
 
     /// Configuration set
-    inline DTConfig* config() const { return _config; }
+    inline DTConfigTSPhi* config() const { return _config; }
 
     /// Return the number of input tracks (first/second)
     unsigned nTracoT(int ifs) const;
@@ -98,7 +98,7 @@ class DTTSS {
 
   private:
 
-    DTConfig* _config;
+    DTConfigTSPhi* _config;
 
     // identification
     int _n;

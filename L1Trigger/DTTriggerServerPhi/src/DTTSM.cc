@@ -7,12 +7,12 @@
 //
 //   Author List:
 //   C. Grandi
-//   Modifications: S. Marcellini, D. Bonacorsi
+//   Modifications: 
+//   S. Marcellini, D. Bonacorsi 
+//   04/01/2007 : C.Battilana local config update
 //
 //
 //--------------------------------------------------
-
-//#include "Utilities/Configuration/interface/Architecture.h"
 
 //-----------------------
 // This Class's Header --
@@ -22,7 +22,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "L1Trigger/DTUtilities/interface/DTConfig.h"
+#include "L1Trigger/DTTriggerServerPhi/interface/DTConfigTSPhi.h"
 #include "L1Trigger/DTTriggerServerPhi/interface/DTTSCand.h"
 
 //---------------
@@ -35,10 +35,10 @@
 // Constructors --
 //----------------
 // DBSM-doubleTSM
-DTTSM::DTTSM(DTConfig* config, int n) : _config(config), _n(n), _ignoreSecondTrack(0) {
+DTTSM::DTTSM(DTConfigTSPhi* config, int n) : _config(config), _n(n), _ignoreSecondTrack(0) {
   // reserve the appropriate amount of space for vectors
-  _incand[0].reserve(DTConfig::NTSSTSM);
-  _incand[1].reserve(DTConfig::NTSSTSM);
+  _incand[0].reserve(DTConfigTSPhi::NTSSTSM);
+  _incand[1].reserve(DTConfigTSPhi::NTSSTSM);
   _outcand.reserve(2);
 }
 
@@ -69,7 +69,7 @@ DTTSM::clear() {
 void
 DTTSM::run(int bkmod) {
   
-  if(config()->debug()>2){
+  if(config()->debug()){
     std::cout << "DTTSM::run: Processing DTTSM: ";
     std::cout << nFirstT() << " first & " << nSecondT() << " second tracks" << std::endl;
   }
@@ -80,7 +80,7 @@ DTTSM::run(int bkmod) {
   //
   
   // debugging
-  if(config()->debug()>2){
+  if(config()->debug()){
     std::cout << "Vector of first tracks in DTTSM: " << std::endl;
     std::vector<DTTSCand*>::const_iterator p;
     for(p=_incand[0].begin(); p!=_incand[0].end(); p++) {
@@ -101,7 +101,7 @@ DTTSM::run(int bkmod) {
   //
   
   // debugging
-  if(config()->debug()>2){
+  if(config()->debug()){
     std::vector<DTTSCand*>::const_iterator p;
     std::cout << "Vector of second tracks (including carry) in DTTSM: " << std::endl;
     for(p=_incand[1].begin(); p!=_incand[1].end(); p++) {
@@ -157,7 +157,7 @@ DTTSM::sortTSM1(int bkmod) {
     
     // Carry enabled if correlated and TRACO is next to best
     bool inner_or_corr;
-    if(config()->TsmGhost1Corr()==1) {
+    if(config()->TsmGhost1Corr()) {
       inner_or_corr=carry->isInner() || carry->isCorr();  
     } else {
       inner_or_corr=carry->isInner();
@@ -166,9 +166,9 @@ DTTSM::sortTSM1(int bkmod) {
     if(config()->TsmGhost1Flag()<2){ // Carry isn't always suppressed
       // check if adjacent DTTracoChips
       int adj = (carry->tssNumber()==best->tssNumber()+1 &&          //next DTTracoChip
-		 best->TcPos()==DTConfig::NTCTSS && carry->TcPos()==1 ) ||
+		 best->TcPos()==DTConfigTSPhi::NTCTSS && carry->TcPos()==1 ) ||
 	(carry->tssNumber()==best->tssNumber()-1 &&         // prev DTTracoChip
-	 best->TcPos()==1 && carry->TcPos()==DTConfig::NTCTSS ) ||
+	 best->TcPos()==1 && carry->TcPos()==DTConfigTSPhi::NTCTSS ) ||
 	(carry->tssNumber()==best->tssNumber() &&           // same DTTracoChip
 	 abs(carry->TcPos()-best->TcPos())==1                     );   
       
@@ -223,7 +223,7 @@ DTTSM::sortTSM2(int bkmod) {
     // this is not needed if config of DTTSM == config of DTTSS
     
     bool inner_or_corr;
-    if(config()->TsmGhost2Corr()==1)
+    if(config()->TsmGhost2Corr())
       {inner_or_corr=curr->isInner() || curr->isCorr();
       }
     else

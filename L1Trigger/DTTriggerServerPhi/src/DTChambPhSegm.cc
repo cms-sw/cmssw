@@ -11,15 +11,14 @@
 //
 //
 //--------------------------------------------------
-
-//#include "Utilities/Configuration/interface/Architecture.h"
-
+ 
 //-----------------------
 // This Class's Header --
 //-----------------------
 #include "L1Trigger/DTBti/interface/DTBtiTrigData.h"
 #include "L1Trigger/DTTraco/interface/DTTracoTrig.h"
 #include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
+#include "L1Trigger/DTTriggerServerPhi/interface/DTConfigTSPhi.h"
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -82,7 +81,7 @@ void
 DTChambPhSegm::print() const {
   std::cout << "TP at step " << step() << ", in wheel " << wheel();
   std::cout << ", station " << station() << ", sector " << sector() << std::endl;
-  std::cout << "TSS " << (tracoTrig()->tracoNumber()-1) / DTConfig::NTCTSS + 1;
+  std::cout << "TSS " << (tracoTrig()->tracoNumber()-1) / DTConfigTSPhi::NTCTSS + 1;
   std::cout << ", TRACO " << tracoNumber() << " : " << std::endl;
   std::cout << "  -->  code " << oldCode() << ", K " << K();
   std::cout << ", X " << X() << ", position mask " << posMask() << std::endl;

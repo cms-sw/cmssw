@@ -5,8 +5,8 @@
  *    Muon Chamber Trigger Phi candidate 
  *
  *
- *   $Date: 2004/03/18 09:23:02 $
- *   $Revision: 1.13 $
+ *   $Date: 2006/07/19 10:41:15 $
+ *   $Revision: 1.1 $
  *
  *   \author C. Grandi S. Marcellini. D. Bonacorsi
  */
@@ -22,12 +22,10 @@
 // Base Class Headers --
 //----------------------
 
-//#include "Muon/MUtilities/interface/MuVolumeId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
-//#include "Profound/MuNumbering/interface/MuBarIdInclude.h"
 #include "L1Trigger/DTTraco/interface/DTTracoTrigData.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigData.h"
 
