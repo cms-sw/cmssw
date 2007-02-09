@@ -33,6 +33,8 @@ TProfile* prof_x0_str_ELE;
 TProfile* prof_x0_str_OTH;
 TProfile* prof_x0_str_AIR;
 //
+TProfile2D* prof2d_x0_det_total;
+//
 unsigned int iFirst = 1;
 unsigned int iLast  = 8;
 //
@@ -89,6 +91,8 @@ MaterialBudget(TString detector) {
   createPlots("l_vs_eta");
   createPlots("l_vs_phi");
   createPlots("l_vs_R");
+  create2DPlots("x_vs_eta_vs_phi");
+  create2DPlots("l_vs_eta_vs_phi");
   //
 }
 
@@ -262,6 +266,117 @@ void createPlots(TString plot) {
   //  theLegend->AddEntry(hist_x0_total,"Total",       "e");
   theLegend->Draw();
   //
+  
+  // Store
+  can.Update();
+  can.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //
+  
+}
+
+// Plots
+void create2DPlots(TString plot) {
+  unsigned int plotNumber = 0;
+  TString abscissaName = "dummy";
+  TString ordinateName = "dummy";
+  if(plot.CompareTo("x_vs_eta_vs_phi") == 0) {
+    plotNumber = 30;
+    abscissaName = TString("#eta");
+    ordinateName = TString("#varphi");
+    quotaName    = TString("x/X_{0}");
+  } else if(plot.CompareTo("l_vs_eta_vs_phi") == 0) {
+    plotNumber = 1030;
+    abscissaName = TString("#eta");
+    ordinateName = TString("#varphi");
+    quotaName    = TString("#lambda/#lambda_{0}");
+  } else {
+    cout << " error: chosen plot name not known " << plot << endl;
+    return;
+  }
+  
+  // get TProfiles
+  prof2d_x0_det_total = (TProfile2D*)theDetectorFile->Get(Form("%u", plotNumber));
+  
+  // histos
+  TH2D* hist_x0_total = (TH2D*)prof2d_x0_det_total->ProjectionXY();
+  //
+  
+  if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip") {
+    TString subDetector = "TIB";
+    for(unsigned int i_detector=iFirst; i_detector<=iLast; i_detector++) {
+      switch(i_detector) {
+      case 1: {
+	subDetector = "TIDF";
+	break;
+      }
+      case 2: {
+	subDetector = "TIDB";
+	break;
+      }
+      case 3: {
+	subDetector = "TOB";
+	break;
+      }
+      case 4: {
+	subDetector = "TEC";
+	break;
+      }
+      case 5: {
+	subDetector = "TkStrct";
+	break;
+      }
+      case 6: {
+	subDetector = "PixBar";
+	break;
+      }
+      case 7: {
+	subDetector = "PixFwdPlus";
+	break;
+      }
+      case 8: {
+	subDetector = "PixFwdMinus";
+	break;
+      }
+      default: cout << " something wrong" << endl;
+      }
+      // file name
+      TString subDetectorFileName = "matbdg_" + subDetector + ".root";
+      // open file
+      TFile* subDetectorFile = new TFile(subDetectorFileName);
+      cout << "*** Open file... " << endl;
+      cout << subDetectorFileName << endl;
+      cout << "***" << endl;
+      // subdetector profiles
+      prof2d_x0_det_total = (TProfile2D*)subDetectorFile->Get(Form("%u", plotNumber));
+      // add to summary histogram
+      hist_x0_total->Add( (TH2D*)prof2d_x0_det_total->ProjectionXY("B"), +1.000 );
+    }
+  }
+  //
+  
+  // properties
+  gStyle->SetPalette(1);
+  //
+  
+  // stack
+  TString hist2dTitle = Form( "Material Budget (%s) ",quotaName.Data() ) + theDetector + Form( ";%s;%s;%s",abscissaName.Data(),ordinateName.Data(),quotaName.Data() );
+  TH2D* hist2d_x0_total = hist_x0_total; //->Rebin2D(5,5);
+  hist2d_x0_total->SetTitle(hist2dTitle);
+  //
+  
+  // canvas
+  TCanvas can("can","can",800,800);
+  can.Range(0,0,25,25);
+  can.SetFillColor(kWhite);
+  gStyle->SetOptStat(0);
+  //
+  
+  // Draw
+  gStyle->SetPalette(1);
+  hist2d_x0_total->Draw("COLZ");
+  //
+  
   
   // Store
   can.Update();
