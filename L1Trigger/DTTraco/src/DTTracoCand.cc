@@ -24,7 +24,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "L1Trigger/DTUtilities/interface/DTConfig.h"
+#include "L1Trigger/DTTraco/interface/DTConfigTraco.h"
 #include "L1Trigger/DTTraco/interface/DTTracoChip.h"
 #include "L1Trigger/DTBti/interface/DTBtiTrigData.h"
 
@@ -41,7 +41,7 @@ DTTracoCand::DTTracoCand(DTTracoChip* tc,
 				 int pos, int step) : 
   _traco(tc), _btitr(btitr), _step(step), _position(pos), _usable(1) {
   
-  if(pos<1 || pos>4*DTConfig::NBTITC) {
+  if(pos<1 || pos>4*DTConfigTraco::NBTITC) {
     std::cout << "DTTracoCand::DTTracoCand: wrong position: " << pos;
     std::cout << ", dummy coordinates set!" << std::endl;
     _tcX = 9999;
@@ -57,8 +57,8 @@ DTTracoCand::DTTracoCand(DTTracoChip* tc,
   // X in local TRACO frame (position conversion): Xtr = Xbti + BTIC*(i+4 or o-4)
   int lstep = tc->BTIC();
   _tcX = btitr->X() + lstep * (
-	 (pos<=DTConfig::NBTITC)*(pos-1 + DTConfig::NBTITC) +  // inner
-	 (pos> DTConfig::NBTITC)*(pos-1 - DTConfig::NBTITC) ); // outer
+	 (pos<=DTConfigTraco::NBTITC)*(pos-1 + DTConfigTraco::NBTITC) +  // inner
+	 (pos> DTConfigTraco::NBTITC)*(pos-1 - DTConfigTraco::NBTITC) ); // outer
 
   //NEWGEO add phi sl offset to inner positions
   if(btitr->btiSL()==1)

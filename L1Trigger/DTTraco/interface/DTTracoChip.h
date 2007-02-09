@@ -6,8 +6,8 @@
  *   Internally uses DTTracoCand to store BTI triggers
  * 
  * 
- *   $Date: 2004/07/09 17:14:41 $
- *   $Revision: 1.13 $
+ *   $Date: 2006/07/19 10:24:02 $
+ *   $Revision: 1.1 $
  * 
  *   \author S. Vanini
  */
@@ -42,6 +42,7 @@ class DTTracoTrigData;
 #include "L1Trigger/DTUtilities/interface/DTConfig.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
 #include "L1Trigger/DTUtilities/interface/BitArray.h"
+#include "L1Trigger/DTTraco/interface/DTConfigTraco.h"
 
 //---------------
 // C++ Headers --
@@ -57,7 +58,10 @@ class DTTracoChip {
   public:
 
     /// Constructor
-    DTTracoChip(DTTracoCard* card, int n);
+    //DTTracoChip(DTTracoCard* card, int n);
+
+    /// Constructor for passing configuration
+    DTTracoChip(DTTracoCard* card, int n, DTConfigTraco* config);
 
     /// Copy constructor
     DTTracoChip(const DTTracoChip& traco);
@@ -108,7 +112,10 @@ class DTTracoChip {
     inline int sector() const { return _geom->sector(); }
 
     /// Configuration set
-    inline DTConfig* config() const { return _geom->config(); }
+    //inline DTConfig* config() const { return _geom->config(); }
+
+    /// New Configuration set
+    inline DTConfigTraco* config() const { return _config; }
 
     /// Radial angle of correlator center in mrad referred to plane sl
     float psiRad(int sl=0) const;
@@ -152,7 +159,7 @@ class DTTracoChip {
 
     /// return overlap flag
     inline int ovlFlag(int step) {
-      return _flag[step-DTConfig::NSTEPF].element(1);}
+      return _flag[step-DTConfigTraco::NSTEPF].element(1);}
 
   private:
 
@@ -178,38 +185,38 @@ class DTTracoChip {
     int insideAngWindow(DTTracoTrig* ) const;
 
   private:
-
     // identification
     DTTrigGeom* _geom;
     DTTracoId _id;
-    DTConfig* _conf; 
+    // parent card
+    DTTracoCard* _card;
+    //config
+    DTConfigTraco* _config;
+
     int _krad;
     int _btic;
     int _ibtioff;
     int _dd;
 
-    // parent card
-    DTTracoCard* _card;
-
     // input data
-    std::vector<DTTracoCand> _innerCand[DTConfig::NSTEPL-DTConfig::NSTEPF+1];
-    std::vector<DTTracoCand> _outerCand[DTConfig::NSTEPL-DTConfig::NSTEPF+1];
+    std::vector<DTTracoCand> _innerCand[DTConfigTraco::NSTEPL-DTConfigTraco::NSTEPF+1];
+    std::vector<DTTracoCand> _outerCand[DTConfigTraco::NSTEPL-DTConfigTraco::NSTEPF+1];
 
     // output data
-    std::vector<DTTracoTrig*> _tracotrig[DTConfig::NSTEPL-DTConfig::NSTEPF+1];
+    std::vector<DTTracoTrig*> _tracotrig[DTConfigTraco::NSTEPL-DTConfigTraco::NSTEPF+1];
 
     // internal use variables: SV 11V04 lts suppression if to bx+1, bx=array index
-    BitArray<DTConfig::NSTEPL+2> _bxlts;
+    BitArray<DTConfigTraco::NSTEPL+2> _bxlts;
     // *** FOR TESTBEAM DATA  *** SV from input data instead from card! 
     // 1: overlap with II track from bx-1)
     // 2: II track rej.
     // 3...8: IL,IR,OL,OR,th,th
     // 9: H present in traco at bx
-    BitArray<32> _flag[DTConfig::NSTEPL-DTConfig::NSTEPF+1]; 
+    BitArray<32> _flag[DTConfigTraco::NSTEPL-DTConfigTraco::NSTEPF+1]; 
 
     // psi acceptance of correlator MT ports
-    int _PSIMIN[4*DTConfig::NBTITC];
-    int _PSIMAX[4*DTConfig::NBTITC];         
+    int _PSIMIN[4*DTConfigTraco::NBTITC];
+    int _PSIMAX[4*DTConfigTraco::NBTITC];         
 
     // LUT file class
     DTTracoLUTs* _luts;

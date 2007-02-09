@@ -1,18 +1,14 @@
-<use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=DataFormats/Common>
-<use name=Geometry/Records>
 <use name=Geometry/DTGeometry>
 <use name=L1Trigger/DTUtilities>
 <use name=L1Trigger/DTBti>
 <use name=L1Trigger/DTTriggerServerTheta>
-<use name=Utilities/General>
+<use name=VisFramework/VisUtilities>
 
 <use name=CLHEP>
 <use name=root>
-
-<flags SEAL_PLUGIN_NAME="L1TriggerDTTraco">
+<use name=rootrflx>
 
 <export>
    <lib name=L1TriggerDTTraco>
@@ -20,14 +16,8 @@
    <use name=L1Trigger/DTTriggerServerTheta>	
    <use name=L1Trigger/DTBti>
    <use name=L1Trigger/DTUtilities>
-   <use name=FWCore/Framework>
-   <use name=Utilities/General>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
-   <use name=DataFormats/Common>
-   <use name=Geometry/Records>
    <use name=Geometry/DTGeometry>
-   <use name=CLHEP>
-   <use name=root>	
 
 </export>

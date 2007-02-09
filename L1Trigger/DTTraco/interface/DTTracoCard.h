@@ -4,8 +4,8 @@
  *   Contains active DTTracoChips
  *
  *
- *   $Date: 2003/10/18 09:15:30 $
- *   $Revision: 1.11 $
+ *   $Date: 2006/07/19 10:24:02 $
+ *   $Revision: 1.1 $
  *
  *   \author C. Grandi, S. Vanini 
  *
@@ -33,17 +33,18 @@ class DTTrigGeom;
 #include "L1Trigger/DTUtilities/interface/DTConfig.h"
 #include "L1Trigger/DTTraco/interface/DTTracoTrigData.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
+#include "L1Trigger/DTTraco/interface/DTConfigTraco.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <map>
 #include <vector>
+
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
-
-//typedef RecDet< DTTracoTrigData,G3EventProxy*,std::vector<DTTracoTrigData> > TRACOCache;
 
 typedef DTCache< DTTracoTrigData,std::vector<DTTracoTrigData> > TRACOCache;
 
@@ -56,10 +57,13 @@ class DTTracoCard : public TRACOCache, public DTGeomSupplier {
   public:
 
     /// Constructor
-    DTTracoCard(DTTrigGeom*, DTBtiCard*, DTTSTheta*);
+    DTTracoCard(DTTrigGeom*, DTBtiCard*, DTTSTheta*,edm::ParameterSet&);
 
     /// Destructor 
     ~DTTracoCard();
+
+    /// Return config
+    inline DTConfigTraco* config() const { return _configTraco; } 
 
     /// Return TSTheta
     inline DTTSTheta* TSTh() const { return _tstheta; }
@@ -126,6 +130,7 @@ class DTTracoCard : public TRACOCache, public DTGeomSupplier {
     int _PSIMIN[4*DTConfig::NBTITC];
     int _PSIMAX[4*DTConfig::NBTITC];
 
+    DTConfigTraco * _configTraco;
 };
 
 #endif
