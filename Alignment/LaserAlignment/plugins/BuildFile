@@ -1,0 +1,48 @@
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ServiceRegistry>
+
+<library name=LaserAlignment file=LaserAlignment.cc,LaserAlignmentInitHistograms.cc,LaserAlignmentTrackerStatistics.cc,LaserAlignmentAlignmentAlgorithm.cc,LaserAlignmentFit.cc>
+	<lib name=AlignmentLaserAlignment>
+	<use name=Alignment/LaserAlignment>
+	<use name=Alignment/TrackerAlignment>
+	<use name=CondCore/DBOutputService>
+	<use name=DataFormats/Common>
+	<use name=DataFormats/DetId>
+	<use name=DataFormats/LaserAlignment>
+	<use name=DataFormats/SiStripDetId>
+	<use name=DataFormats/SiStripDigi>
+	<use name=Geometry/CommonTopologies>
+	<use name=Geometry/TrackerGeometryBuilder>
+	<use name=Geometry/TrackerNumberingBuilder>
+	<use name=Utilities/Timing>
+	<use name=boost>
+	<use name=CLHEP>
+	<use name=root>
+	<use name=rootcore>
+</library>
+
+<library file=LaserClusterizer.cc>
+	<lib name=AlignmentLaserAlignment>
+	<use name=DataFormats/Common>
+	<use name=DataFormats/LaserAlignment>
+	<use name=DataFormats/SiStripCluster>
+	<use name=DataFormats/SiStripDigi>
+	<use name=Geometry/TrackerGeometryBuilder>
+</library>
+
+<library file=LaserSeedGenerator.cc>
+	<lib name=AlignmentLaserAlignment>
+	<use name=DataFormats/TrackerRecHit2D>
+	<use name=DataFormats/TrajectorySeed>
+	<use name=Geometry/TrackerGeometryBuilder>
+	<use name=MagneticField/Engine>
+	<use name=MagneticField/Records>
+	<use name=RecoTracker/TkSeedGenerator>
+	<use name=RecoTracker/TkTrackingRegions>
+	<use name=TrackingTools/KalmanUpdators>
+	<use name=TrackingTools/MaterialEffects>
+	<use name=TrackingTools/TrajectoryState>
+	<use name=TrackingTools/TransientTrackingRecHit>
+</library>

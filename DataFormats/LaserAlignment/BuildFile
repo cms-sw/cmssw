@@ -1,0 +1,6 @@
+<use name=DataFormats/Common>
+
+<export>
+   <lib name=DataFormatsLaserAlignment>
+   <use name=DataFormats/Common>
+</export>
