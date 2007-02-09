@@ -1,10 +1,18 @@
+<use name=DataFormats/Candidate>
+<use name=DataFormats/Common>
+<use name=DataFormats/HLTReco>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<flags SEAL_PLUGIN_NAME="HLTriggerHLTcore">
+<use name=FWCore/ServiceRegistry>
+<use name=Foundation/PluginManager>
 <export>
-   <lib name=HLTriggerHLTcore>
-   <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
-   <use name=FWCore/ParameterSet>
+  <use name=DataFormats/Candidate>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/HLTReco>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <lib name=HLTriggerHLTcore>
 </export>
+
+<flags SEAL_PLUGIN_NAME="HLTriggerHLTcore">
