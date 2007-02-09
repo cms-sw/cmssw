@@ -6,8 +6,8 @@
  *   Internally uses DTBtiHit to store muon digis
  *
  *
- *   $Date: 2004/07/09 17:14:40 $
- *   $Revision: 1.12 $
+ *   $Date: 2006/07/19 10:18:31 $
+ *   $Revision: 1.1 $
  *
  *   \author S. Vanini
  */
@@ -33,6 +33,7 @@ class DTDigi;
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
 #include "L1Trigger/DTUtilities/interface/DTConfig.h"
 #include "L1Trigger/DTUtilities/interface/BitArray.h"
+#include "L1Trigger/DTBti/interface/DTConfigBti.h"
 
 
 //---------------
@@ -49,7 +50,10 @@ class DTBtiChip {
   public:
 
   //! original constructor 
-  DTBtiChip(DTTrigGeom* geom, int supl, int n);
+  //DTBtiChip(DTTrigGeom* geom, int supl, int n);
+
+  //! new constructor with configuration 
+  DTBtiChip(DTTrigGeom* geom, int supl, int n, DTConfigBti* _config );
 
   //! Copy constructor
   DTBtiChip(const DTBtiChip& bti);
@@ -109,7 +113,11 @@ class DTBtiChip {
   DTBtiTrigData triggerData(int step, unsigned n) const;
 
   //! Configuration set
-  inline DTConfig* config() const { return _geom->config(); }
+  //inline DTConfig* config() const { return _geom->config(); }
+
+  //! testing DTConfigBti
+  inline DTConfigBti* config() const { return _config; }
+
 
   //! Return trigger geometry
   inline DTTrigGeom* geom() const { return _geom; }
@@ -158,6 +166,8 @@ class DTBtiChip {
  private:
 
   DTTrigGeom* _geom;
+  DTConfigBti* _config;
+
   DTBtiId _id;
 
   // input data from DTDigis

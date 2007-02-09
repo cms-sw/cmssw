@@ -148,8 +148,6 @@ DTBtiChip::computeEqs(){
   // NB now Keq=Kman
 
   float K0 = config()->ST();
-  float lac = config()->LAngBTICorr();
-  
   //cout <<"K0="<<K0<<endl;
 
   //enabled patterns....
@@ -223,7 +221,7 @@ DTBtiChip::computeEqs(){
   i=1;  //  1324B  --> 1L3L2R4R
   if(PTMS[i] ){
   _Keq[i][0] =  _difs[1]        + 2.*K0;
-  _Keq[i][1] = -(_sums[5]+lac)  + 2.*K0;
+  _Keq[i][1] = -(_sums[5])  + 2.*K0;
   _Keq[i][2] = -_difs[6]        + 2.*K0;
   _Keq[i][3] = -(_sums[0]/2.) + 2.*K0 + 0.01;
   _Keq[i][4] = -(_sums[8]/2.) + 2.*K0 + 0.01;
@@ -278,11 +276,10 @@ cout << "int('') = " << int( (double(_sums[2])/3.) ) << endl;
  
 
   i=4;  //  i = DTBtiChipEQMAP->index("1364A");  --> 1L3L6L4R
-  lac=0;
   if(PTMS[i] ){
   _Keq[i][0] =  _difs[1]        + 2.*K0;
   _Keq[i][1] =  _difs[10]       + 2.*K0;
-  _Keq[i][2] = -(_sums[13]+lac) + 2.*K0;
+  _Keq[i][2] = -(_sums[13]) + 2.*K0;
   _Keq[i][3] =  (_difs[3]/2.)   + 2.*K0 + 0.01;
   _Keq[i][4] = -(_sums[8]/2.)   + 2.*K0 + 0.01;
   //_Keq[i][5] = -(_sums[2]/3.)   + 2.*K0 + 0.51;
@@ -329,7 +326,7 @@ cout << "int('') = " << int( (double(_sums[2])/3.) ) << endl;
   i=7;  //  i = DTBtiChipEQMAP->index("1368A");  --> 1R3R6L8L
   if(PTMS[i] ){
   _Keq[i][0] = -_difs[1]        + 2.*K0;
-  _Keq[i][1] =  (_sums[10]+lac);
+  _Keq[i][1] =  (_sums[10]);
   _Keq[i][2] =  _difs[20]       + 2.*K0;
   _Keq[i][3] =  (_sums[3]/2.)   +    K0 + 0.01;
   _Keq[i][4] =  (_sums[11]/2.)  +    K0 + 0.01;
@@ -346,7 +343,7 @@ cout << "int('') = " << int( (double(_sums[2])/3.) ) << endl;
   if(PTMS[i] ){
   _Keq[i][0] = -_difs[1]          + 2.*K0;
   _Keq[i][1] = -_difs[10]         + 2.*K0;
-  _Keq[i][2] =  (_sums[20]+lac);
+  _Keq[i][2] =  (_sums[20]);
   _Keq[i][3] = -(_difs[3]/2.)     + 2.*K0 + 0.01;
   _Keq[i][4] =  (_sums[11]/2.)    +    K0 + 0.01;
   //_Keq[i][5] =  (_sums[4]/3.)     + 4.*K0/3.;
@@ -361,7 +358,7 @@ cout << "int('') = " << int( (double(_sums[2])/3.) ) << endl;
 
   i=9;  //  i = DTBtiChipEQMAP->index("1368C");  --> 1R3L6L8L
   if(PTMS[i] ){
-  _Keq[i][0] =  (_sums[1]+lac);
+  _Keq[i][0] =  (_sums[1]);
   _Keq[i][1] =  _difs[10]        + 2.*K0;
   _Keq[i][2] =  _difs[20]        + 2.*K0;
   _Keq[i][3] =  (_sums[3]/2.)    +    K0 + 0.01;
@@ -412,7 +409,7 @@ cout << "int('') = " << int( (double(_sums[2])/3.) ) << endl;
   if(PTMS[i] ){
   _Keq[i][0] =  _difs[9];
   _Keq[i][1] =  _difs[5];
-  _Keq[i][2] =  (_sums[6]+lac);
+  _Keq[i][2] =  (_sums[6]);
   _Keq[i][3] =  (_difs[7]/2.) + 0.01;
   _Keq[i][4] =  (_sums[8]/2.)  + 0.01;
   _Keq[i][5] =  (_sums[12]/3.) + 0.51;
@@ -456,7 +453,7 @@ cout << "int('') = " << int( (double(_sums[2])/3.) ) << endl;
   i=15;  //  i = DTBtiChipEQMAP->index("5364C");  --> 5R3R6L4L
   if(PTMS[i] ){
   _Keq[i][0] =  _difs[9];
-  _Keq[i][1] =  (_sums[10]+lac);
+  _Keq[i][1] =  (_sums[10]);
   _Keq[i][2] = -_difs[13];
   _Keq[i][3] =  (_sums[16]/2.  + 0.01);
   _Keq[i][4] =  (_sums[8]/2.   + 0.01);
@@ -516,7 +513,7 @@ cout << "int('') = " << int( (double(_sums[2])/3.) ) << endl;
  
   i=19;  //  i = DTBtiChipEQMAP->index("5368C");  --> 5L3R6R8R
   if(PTMS[i] ){
-  _Keq[i][0] = -(_sums[9]+lac)  + 2.*K0;
+  _Keq[i][0] = -(_sums[9])  + 2.*K0;
   _Keq[i][1] = -_difs[10]       + 2.*K0;
   _Keq[i][2] = -_difs[20]       + 2.*K0;
   _Keq[i][3] = -(_sums[16]/2.)  + 2.*K0 + 0.01;
@@ -564,7 +561,7 @@ cout << "int('') = " << int( (double(_sums[2])/3.) ) << endl;
  
   i=22;  //  i = DTBtiChipEQMAP->index("5764C");  --> 5R7L6L4L
   if(PTMS[i] ){
-  _Keq[i][0] =  (_sums[17]+lac);
+  _Keq[i][0] =  (_sums[17]);
   _Keq[i][1] = -_difs[19];
   _Keq[i][2] = -_difs[13];
   _Keq[i][3] =  (_sums[16]/2.  + 0.01);
@@ -579,7 +576,7 @@ cout << "int('') = " << int( (double(_sums[2])/3.) ) << endl;
   if(PTMS[i] ){
   _Keq[i][0] = -_difs[23];
   _Keq[i][1] = -_difs[19];
-  _Keq[i][2] = -(_sums[13]+lac) + 2.*K0;
+  _Keq[i][2] = -(_sums[13]) + 2.*K0;
   _Keq[i][3] = -(_difs[21]/2.) + 0.01;
   _Keq[i][4] = -(_sums[14]/2.)  +    K0 + 0.01;
   //_Keq[i][5] = -(_sums[15]/3.)  + 2.*K0/3.;
@@ -594,7 +591,7 @@ cout << "int('') = " << int( (double(_sums[2])/3.) ) << endl;
   i=24;  //  i = DTBtiChipEQMAP->index("9764B");  --> 9L7L6R4R
   if(PTMS[i] ){
   _Keq[i][0] = -_difs[23];
-  _Keq[i][1] = -(_sums[19]+lac)   + 2.*K0;
+  _Keq[i][1] = -(_sums[19])   + 2.*K0;
   _Keq[i][2] =  _difs[13];
   _Keq[i][3] = -(_sums[21]/2.)    +    K0 + 0.01;
   _Keq[i][4] = -(_sums[14]/2.)    +    K0 + 0.01;
@@ -609,7 +606,7 @@ cout << "int('') = " << int( (double(_sums[2])/3.) ) << endl;
  
   i=25;  //  i = DTBtiChipEQMAP->index("9764C");  --> 9L7R6R4R
   if(PTMS[i] ){
-  _Keq[i][0] = -(_sums[23]+lac)   + 2.*K0;
+  _Keq[i][0] = -(_sums[23])   + 2.*K0;
   _Keq[i][1] =  _difs[19];
   _Keq[i][2] =  _difs[13];
   _Keq[i][3] = -(_sums[21]/2.)    +   K0 + 0.01;
@@ -642,7 +639,7 @@ cout << "int('') = " << int( (double(_sums[2])/3.) ) << endl;
   i=27;  //  i = DTBtiChipEQMAP->index("5768B");  --> 5L7L6R8R
   if(PTMS[i] ){
   _Keq[i][0] =  _difs[17]       + 2.*K0;
-  _Keq[i][1] = -(_sums[19]+lac) + 2.*K0;
+  _Keq[i][1] = -(_sums[19]) + 2.*K0;
   _Keq[i][2] = -_difs[20]       + 2.*K0;
   _Keq[i][3] = -(_sums[16]/2.)  + 2.*K0 + 0.01;
   _Keq[i][4] = -(_sums[22]/2.)  + 2.*K0 + 0.01;

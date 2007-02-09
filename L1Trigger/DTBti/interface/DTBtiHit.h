@@ -5,8 +5,8 @@
  *   A class for hits in a drift cell
  *
  *
- *   $Date: 2004/07/09 17:14:41 $
- *   $Revision: 1.10 $
+ *   $Date: 2006/07/19 10:18:31 $
+ *   $Revision: 1.1 $
  *
  *   \author  C. Grandi, S. Vanini
  *   Modifications: 
@@ -14,7 +14,7 @@
  *   1/IV/03 SV  time in clock units included: _clockTime
  *   --> operation with drift time are commented
  *   22/VI/04 SV: last trigger code update
- *
+ *   15/I/07 SV : new config update
  */
 //
 //--------------------------------------------------
@@ -30,6 +30,7 @@ class DTDigi;
 // Base Class Headers --
 //----------------------
 #include "L1Trigger/DTUtilities/interface/DTConfig.h"
+#include "L1Trigger/DTBti/interface/DTConfigBti.h"
 
 //---------------
 // C++ Headers --
@@ -48,11 +49,11 @@ class DTBtiHit {
   public:
 
   /// Constructor
-  DTBtiHit(const DTDigi*, DTConfig*);
+  DTBtiHit(const DTDigi*, DTConfigBti*);
 
   /// Constructor from clock times
-  DTBtiHit(int clockTime , DTConfig*);
-		       
+  DTBtiHit(int clockTime , DTConfigBti*);
+		      
   /// Copy constructor
   DTBtiHit(const DTBtiHit&);
   
@@ -84,10 +85,10 @@ class DTBtiHit {
   }
 
   //! true if signal is in the registers
-  //SV jtrig()=_config->lstep() added: is for tdrift==0
+  //SV jtrig()=_config->ST() added: is for tdrift==0
   inline int isInsideReg() const {
-    //return _curTime<0 && jtrig()<=_config->lstep();
-    return ( _clockTime<=0 && jtrig()<=_config->lstep() );      //SV bug fix 17XII03
+    //return _curTime<0 && jtrig()<=_config->ST();
+    return ( _clockTime<=0 && jtrig()<=_config->ST() );      //SV bug fix 17XII03
   }
 
   //! position in registers
@@ -117,7 +118,7 @@ public:
 
 private:
   const DTDigi* _hitdigi;
-  DTConfig* _config;
+  DTConfigBti* _config;
   float _curTime;
   int _clockTime;
 };

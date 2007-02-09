@@ -55,7 +55,7 @@ DTBtiChip::findTrig(){
 
 //  int accpatB = config()->AccPattB(); //default +-1
 //  int accpatA = config()->AccPattA(); //default +-2
-//  int tiKes = config()->TimIndKEqSupp();
+//  int tiKes = config()->XON();
   int RON = config()->RONflag();  //default 1, redundant patterns enabled
   int PTMS[32];
   for(int i=0; i<32; i++){
@@ -183,7 +183,7 @@ DTBtiChip::findTrig(){
   // Low level triggers -B
   if( keepTrig( 1,accpatB,2) ) return;   // 5768B -->  1 - acc. patt. B
   if( keepTrig( 2,accpatA,2) ) return;   // 5768C -->  2 - acc. patt. A
-  if( (_id.superlayer()==2 && tiKes==1) || tiKes==2 ) {
+  if(tiKes==1) {
     if( keepTrig( 3,accpatA,2) ) return; // 5768D -->  3 - acc. patt. A
   }
   if( keepTrig( 4,accpatB,2) ) return;   // 1364A -->  4 - acc. patt. B
@@ -195,19 +195,19 @@ DTBtiChip::findTrig(){
   if( keepTrig(10,accpatA,2) ) return;   // 5324A --> 10 - acc. patt. A
   if( keepTrig(11,accpatA,2) ) return;   // 5324B --> 11 - acc. patt. A
   if( keepTrig(12,accpatB,2) ) return;   // 5324C --> 12 - acc. patt. B
-  if( (_id.superlayer()==2 && tiKes==1) || tiKes==2 ) {
+  if(tiKes==1) {
     if( keepTrig(13,accpatA,2) ) return; // 5364A --> 13 - acc. patt. A
   }
   if( keepTrig(14,accpatA,2) ) return;   // 5364B --> 14 - acc. patt. A
   if( keepTrig(15,accpatB,2) ) return;   // 5364C --> 15 - acc. patt. B
   if( keepTrig(16,accpatA,2) ) return;   // 5364D --> 16 - acc. patt. A
-  if( (_id.superlayer()==2 && tiKes==1) || tiKes==2 ) {
+  if(tiKes==1) {
     if( keepTrig(17,accpatA,2) ) return; // 5368A --> 17 - acc. patt. A
   }
   if( keepTrig(18,accpatA,2) ) return;   // 5368B --> 18 - acc. patt. A
   if( keepTrig(19,accpatB,2) ) return;   // 5368C --> 19 - acc. patt. B
   if( keepTrig(20,accpatA,2) ) return;   // 5764A --> 20 - acc. patt. A
-  if( (_id.superlayer()==2 && tiKes==1) || tiKes==2 ) {
+  if(tiKes==1) {
     if( keepTrig(21,accpatA,2) ) return; // 5764B --> 21 - acc. patt. A
   }
   if( keepTrig(22,accpatB,2) ) return;   // 5764C --> 22 - acc. patt. B
@@ -222,13 +222,13 @@ DTBtiChip::findTrig(){
   if( keepTrig( 3,accpatA,3) ) return;   // 5768D -->  3 - acc. patt. A
   if( keepTrig( 4,accpatB,3) ) return;   // 1364A -->  4 - acc. patt. B
   if( keepTrig( 5,accpatA,3) ) return;   // 1364B -->  5 - acc. patt. A
-  if( (_id.superlayer()==2 && tiKes==1) || tiKes==2 ) {
+  if(tiKes==1) {
     if( keepTrig( 6,accpatA,3) ) return; // 1364C -->  6 - acc. patt. A
   }
   if( keepTrig( 7,accpatB,3) ) return;   // 1368A -->  7 - acc. patt. B
   if( keepTrig( 8,accpatB,3) ) return;   // 1368B -->  8 - acc. patt. B
   if( keepTrig( 9,accpatB,3) ) return;   // 1368C -->  9 - acc. patt. B
-  if( (_id.superlayer()==2 && tiKes==1) || tiKes==2 ) {
+  if(tiKes==1) {
     if( keepTrig(10,accpatA,3) ) return; // 5324A --> 10 - acc. patt. A
   }
   if( keepTrig(11,accpatA,3) ) return;   // 5324B --> 11 - acc. patt. A
@@ -236,7 +236,7 @@ DTBtiChip::findTrig(){
   if( keepTrig(13,accpatA,3) ) return;   // 5364A --> 13 - acc. patt. A
   if( keepTrig(14,accpatA,3) ) return;   // 5364B --> 14 - acc. patt. A
   if( keepTrig(15,accpatB,3) ) return;   // 5364C --> 15 - acc. patt. B
-  if( (_id.superlayer()==2 && tiKes==1) || tiKes==2 ) {
+  if(tiKes==1) {
     if( keepTrig(16,accpatA,3) ) return; // 5364D --> 16 - acc. patt. A
   }
   if( keepTrig(17,accpatA,3) ) return;   // 5368A --> 17 - acc. patt. A
@@ -248,7 +248,7 @@ DTBtiChip::findTrig(){
   if( keepTrig(23,accpatB,3) ) return;   // 9764A --> 23 - acc. patt. B
   if( keepTrig(24,accpatB,3) ) return;   // 9764B --> 24 - acc. patt. B
   if( keepTrig(25,accpatB,3) ) return;   // 9764C --> 25 - acc. patt. B
-  if( (_id.superlayer()==2 && tiKes==1) || tiKes==2 ) {
+  if(tiKes==1) {
     if( keepTrig( 0,accpatA,3) ) return; // 5768A -->  0 - acc. patt. A
   }
 
@@ -261,7 +261,7 @@ DTBtiChip::findTrig(){
   if( keepTrig( 6,accpatA,1) ) return;   // 1364C -->  6 - acc. patt. A
   if( keepTrig( 7,accpatB,1) ) return;   // 1368A -->  7 - acc. patt. B
   if( keepTrig( 8,accpatB,1) ) return;   // 1368B -->  8 - acc. patt. B
-  if( (_id.superlayer()==2 && tiKes==1) || tiKes==2 ) {
+  if(tiKes==1) {
     if( keepTrig( 9,accpatB,1) ) return; // 1368C -->  9 - acc. patt. B
   }
   if( keepTrig(10,accpatA,1) ) return;   // 5324A --> 10 - acc. patt. A
@@ -273,17 +273,17 @@ DTBtiChip::findTrig(){
   if( keepTrig(16,accpatA,1) ) return;   // 5364D --> 16 - acc. patt. A
   if( keepTrig(17,accpatA,1) ) return;   // 5368A --> 17 - acc. patt. A
   if( keepTrig(18,accpatA,1) ) return;   // 5368B --> 18 - acc. patt. A
-  if( (_id.superlayer()==2 && tiKes==1) || tiKes==2 ) {
+  if(tiKes==1) {
     if( keepTrig(19,accpatB,1) ) return; // 5368C --> 19 - acc. patt. B
   }
   if( keepTrig(20,accpatA,1) ) return;   // 5764A --> 20 - acc. patt. A
   if( keepTrig(21,accpatA,1) ) return;   // 5764B --> 21 - acc. patt. A
-  if( (_id.superlayer()==2 && tiKes==1) || tiKes==2 ) {
+  if(tiKes==1) {
     if( keepTrig(22,accpatB,1) ) return; // 5764C --> 22 - acc. patt. B
   }
   if( keepTrig(23,accpatB,1) ) return;   // 9764A --> 23 - acc. patt. B
   if( keepTrig(24,accpatB,1) ) return;   // 9764B --> 24 - acc. patt. B
-  if( (_id.superlayer()==2 && tiKes==1) || tiKes==2 ) {
+  if(tiKes==1) {
     if( keepTrig(25,accpatB,1) ) return; // 9764C --> 25 - acc. patt. B
   }
   if( keepTrig( 0,accpatA,1) ) return;   // 5768A -->  0 - acc. patt. A
@@ -293,19 +293,19 @@ DTBtiChip::findTrig(){
   if( keepTrig( 1,accpatB,4) ) return;   // 5768B -->  1 - acc. patt. B
   if( keepTrig( 2,accpatA,4) ) return;   // 5768C -->  2 - acc. patt. A
   if( keepTrig( 3,accpatA,4) ) return;   // 5768D -->  3 - acc. patt. A
-  if( (_id.superlayer()==2 && tiKes==1) || tiKes==2 ) {
+  if(tiKes==1) {
     if( keepTrig( 4,accpatB,4) ) return; // 1364A -->  4 - acc. patt. B
   }
   if( keepTrig( 5,accpatA,4) ) return;   // 1364B -->  5 - acc. patt. A
   if( keepTrig( 6,accpatA,4) ) return;   // 1364C -->  6 - acc. patt. A
   if( keepTrig( 7,accpatB,4) ) return;   // 1368A -->  7 - acc. patt. B
-  if( (_id.superlayer()==2 && tiKes==1) || tiKes==2 ) {
+  if(tiKes==1) {
     if( keepTrig( 8,accpatB,4) ) return; // 1368B -->  8 - acc. patt. B
   }
   if( keepTrig( 9,accpatB,4) ) return;   // 1368C -->  9 - acc. patt. B
   if( keepTrig(10,accpatA,4) ) return;   // 5324A --> 10 - acc. patt. A
   if( keepTrig(11,accpatA,4) ) return;   // 5324B --> 11 - acc. patt. A
-  if( (_id.superlayer()==2 && tiKes==1) || tiKes==2 ) {
+  if(tiKes==1) {
     if( keepTrig(12,accpatB,4) ) return; // 5324C --> 12 - acc. patt. B
   }
   if( keepTrig(13,accpatA,4) ) return;   // 5364A --> 13 - acc. patt. A
@@ -318,7 +318,7 @@ DTBtiChip::findTrig(){
   if( keepTrig(20,accpatA,4) ) return;   // 5764A --> 20 - acc. patt. A
   if( keepTrig(21,accpatA,4) ) return;   // 5764B --> 21 - acc. patt. A
   if( keepTrig(22,accpatB,4) ) return;   // 5764C --> 22 - acc. patt. B
-  if( (_id.superlayer()==2 && tiKes==1) || tiKes==2 ) {
+  if(tiKes==1) {
     if( keepTrig(23,accpatB,4) ) return; // 9764A --> 23 - acc. patt. B
   }
   if( keepTrig(24,accpatB,4) ) return;   // 9764B --> 24 - acc. patt. B
@@ -335,7 +335,7 @@ int DTBtiChip::keepTrigPatt(const int flag,const int eq,const int pattType, int 
   int AC2 = config()->AccPattAC2(); //default 3
   int ACH = config()->AccPattACH(); //default 1
   int ACL = config()->AccPattACL(); //default 2
-  int tiKes = config()->TimIndKEqSupp();
+  int tiKes = config()->XON();
 
   if(config()->debug()>4){
     cout << "DTBtiChip::keepTrigPatt called with arguments: ";
@@ -347,7 +347,7 @@ int DTBtiChip::keepTrigPatt(const int flag,const int eq,const int pattType, int 
   int mm[6];
 
   //NB _Keq = (Kman - K0)/2   where K0=tmax*2  --->OBSOLETE, now Keq=Kman
-  //int K0 = 2 * (config()->TMAX()); 
+  //int K0 = 2 * (config()->ST()/2.); 
   int K0 = int (config()->ST());
 
   int i=0;
@@ -510,8 +510,8 @@ int DTBtiChip::keepTrigPatt(const int flag,const int eq,const int pattType, int 
         LKMax=i;
         int storefg = 1; 
 
-        //SV - XON time-ind.Keq suppr.
-        if((tiKes==1 && _id.superlayer()==2) || tiKes==2) {
+        //SV - XON time-ind.Keq suppr. XON=0 do not abilitate patterns 
+        if(tiKes==0) {
           if(eq==3 || eq==13 || eq==17 || eq==21 || eq==29){  
             if(config()->debug()>3)
               cout << "SelTrig: doing XON suppression!"<<endl;
@@ -555,7 +555,7 @@ int DTBtiChip::keepTrigPatt(const int flag,const int eq,const int pattType, int 
         int storefg = 1;
  
         //SV - XON time-ind.Keq suppr.
-        if((tiKes==1 && _id.superlayer()==2) || tiKes==2) {
+        if(tiKes==0) {
           if(eq==0 || eq==6 || eq==10 || eq==16 || eq==26 || eq==30){  
             if(config()->debug()>3)
               cout << "SelTrig: doing XON suppression!"<<endl;
@@ -601,7 +601,7 @@ int DTBtiChip::keepTrigPatt(const int flag,const int eq,const int pattType, int 
         int storefg = 1;
 
         //SV - XON time-ind.Keq suppr.
-        if((tiKes==1 && _id.superlayer()==2) || tiKes==2) {
+        if(tiKes==0) {
           if(eq==9 || eq==19 || eq==22 || eq==25 ){  
             if(config()->debug()>3)
               cout << "SelTrig: doing low-A XON suppression!"<<endl;
@@ -641,7 +641,7 @@ int DTBtiChip::keepTrigPatt(const int flag,const int eq,const int pattType, int 
         int storefg = 1;
 
         //SV - XON time-ind.Keq suppr.
-        if((tiKes==1 && _id.superlayer()==2) || tiKes==2) {
+        if(tiKes==0){
           if(eq==4 || eq==8 || eq==12 || eq==23){  
             if(config()->debug()>3)
               cout << "SelTrig: doing XON suppression!"<<endl;
@@ -736,7 +736,8 @@ DTBtiChip::keepTrig(const int eq, const int acp, const int code) {
   for(i=0;i<6;i++){
     mm[i]=0;
     int mk = (int)(2*_Keq[eq][i]);
-    if(abs(mk) > config()->KCut(_id.superlayer()-1))continue;
+    if(abs(mk) > config()->KCut() )
+      	continue;
     mm[i]=(int)(_Keq[eq][i]*2)+KCen;
     //    if(_Keq[eq][i]<0){
     //      mm[i]=_Keq[eq][i]*2-0.5+KCen;

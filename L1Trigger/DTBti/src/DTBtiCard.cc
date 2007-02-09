@@ -11,6 +11,7 @@
 //   S. Vanini
 //   22/VI/04 SV: last trigger code update - digi offset subtracted from digi time
 //   III/05 SV  : NEWGEO : trigger in new geometry ! 
+//   05/II/07 SV : new DTConfig update 
 //--------------------------------------------------
 
 //-----------------------
@@ -41,8 +42,7 @@
 #include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
-#include "SimMuon/DTDigitizer/interface/DTDigiSyncFactory.h"
-#include "SimMuon/DTDigitizer/interface/DTDigiSyncBase.h"
+
 //---------------
 // C++ Headers --
 //---------------
@@ -57,14 +57,22 @@ using namespace edm;
 // Constructors --
 //----------------
 
-DTBtiCard::DTBtiCard(DTTrigGeom* geom) : DTGeomSupplier(geom) {
+DTBtiCard::DTBtiCard(DTTrigGeom* geom,edm::ParameterSet& bti_pset) : DTGeomSupplier(geom) {
+
+        _configBti = new DTConfigBti(bti_pset);
+	//_configBti->print();
+
 }
 
 //--------------
 // Destructor --
 //--------------
 
-DTBtiCard::~DTBtiCard(){}
+DTBtiCard::~DTBtiCard(){
+
+  delete _configBti;
+
+}
 
 //--------------
 // Operations --
@@ -216,8 +224,10 @@ DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
   
   localClear();
   //double ftdelay = config()->FTStep()*config()->FTStepW();
-  double delay   = config()->SyncDelay();
-  
+  //double delay   = config()->SyncDelay();
+  double finedelay   = config()->MCSetupTime();
+  double MCdelay   = config()->MCDigiOffset();
+
 
   if(config()->debug()>2){
     std::cout << "DTBtiCard::loadBTI called for wheel=" << wheel() ;
@@ -245,7 +255,10 @@ DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
 	 ++digiIt){
       if((*digiIt).time()<1000 &&(*digiIt).time()>0){
 	if(config()->debug()>0) (*digiIt).print();
-	float tdrift = (*digiIt).time() - delay; //-1.0*theSync->emulatorOffset(&idwire); // CB Up to now the offset is read from .cfg file 07/09/06
+	float tdrift = (*digiIt).time() - MCdelay + finedelay; //-1.0*theSync->emulatorOffset(&idwire); // CB Up to now the offset is read from .cfg file 07/09/06
+
+//      std::cout<<"tdrift "<< tdrift << " (*digiIt).wire() " << (*digiIt).wire() << std::endl;
+
 	DTDigi* pdigi = new DTDigi((*digiIt).wire(),tdrift);
 	_digis.push_back(const_cast<DTDigi*>(pdigi) );
 	
@@ -377,7 +390,7 @@ DTBtiCard::activeGetBTI(int sl, int n){
   if( pbti!=_btimap[sl-1].end() ) {
     bti = (*pbti).second;
   } else {
-    bti = new DTBtiChip(geom(),sl,n);
+    bti = new DTBtiChip(geom(),sl,n, _configBti);
     _btimap[sl-1][n]=bti;
   }
   return bti;
@@ -583,7 +596,7 @@ DTBtiCard::localDirection(const DTTrigData* tr) const {
   }
   float x1,r,x,y,z;
   x1 = -(float)trig->K() * geom()->cellPitch() /
-                      (float)(config()->lstep());
+                      (float)(config()->ST());
   z = - 2 * geom()->cellH();
   r = sqrt(x1*x1+z*z);
   if(trig->btiSL()!=2) {

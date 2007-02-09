@@ -11,7 +11,8 @@
 //   Modifications: 
 //   S. Vanini
 //   30/IX/03 SV : wire dead time = ST added
-//   22/VI/04 SV: last trigger code update
+//   22/VI/04 SV : last trigger code update
+//   15/I/07  SV : new DTConfig setup
 //--------------------------------------------------
 
 //-----------------------
@@ -43,11 +44,13 @@ using namespace std;
 // Constructors --
 //----------------
 
-DTBtiChip::DTBtiChip(DTTrigGeom* geom, int supl, int n):
-_geom(geom) {
+DTBtiChip::DTBtiChip(DTTrigGeom* geom, int supl, int n, DTConfigBti* conf): _geom(geom), _config(conf) {
+
+
  // original constructor
  setSnap();
  reSumSet(); 
+
  // Debugging...
   if(config()->debug()>2){
     cout << "DTBtiChip constructor called for BTI number " << n;
@@ -59,6 +62,7 @@ _geom(geom) {
   for(i=0;i<DTConfig::NSTEPL - DTConfig::NSTEPF;i++) {
     _trigs[i].reserve(2);
   }
+
   for(i=0;i<9;i++) {
     _digis[i].reserve(10);
     _hits[i].reserve(10);
@@ -74,26 +78,27 @@ _geom(geom) {
   DTChamberId sid = _geom->statId();
   _id = DTBtiId(sid, supl, n);
 
-  if(config()->trigSetupGeom()){
+  //all this is obsolete, in new DTConfig setup... SV 15/I/2007
+  //if(config()->trigSetupGeom()){
     //set K acceptance for each bti! SV
-    _MinKleftTraco = config()->LL_bti(n,supl);
-    _MaxKleftTraco = config()->LH_bti(n,supl);
-    _MinKcenterTraco = config()->CL_bti(n,supl);
-    _MaxKcenterTraco = config()->CH_bti(n,supl);
-    _MinKrightTraco = config()->RL_bti(n,supl);
-    _MaxKrightTraco = config()->RH_bti(n,supl);
+    //_MinKleftTraco = config()->LL_bti(n,supl);
+    //_MaxKleftTraco = config()->LH_bti(n,supl);
+    //_MinKcenterTraco = config()->CL_bti(n,supl);
+    //_MaxKcenterTraco = config()->CH_bti(n,supl);
+    //_MinKrightTraco = config()->RL_bti(n,supl);
+    //_MaxKrightTraco = config()->RH_bti(n,supl);
 
-    if(config()->debug()>2){
-      cout << "K acceptance:" << endl;
-      cout << "  for left traco "<<_MinKleftTraco<<"<K<"<<_MaxKleftTraco<<endl;
-      cout << "  for center traco "<<_MinKcenterTraco<<"<K<"<<_MaxKcenterTraco<<endl;
-      cout << "  for right traco "<<_MinKrightTraco<<"<K<"<<_MaxKrightTraco<<endl;
-    }
+    //if(config()->debug()>2){
+      //cout << "K acceptance:" << endl;
+      //cout << "  for left traco "<<_MinKleftTraco<<"<K<"<<_MaxKleftTraco<<endl;
+      //cout << "  for center traco "<<_MinKcenterTraco<<"<K<"<<_MaxKcenterTraco<<endl;
+      //cout << "  for right traco "<<_MinKrightTraco<<"<K<"<<_MaxKrightTraco<<endl;
+    //}
     // end debugging
-  }
+  //}
 
 
-  if(config()->trigSetupGeom() == 0){
+  //if(config()->trigSetupGeom() == 0){
     // set K acceptance for this BTI: 6 bit resolution....  
     _MinKAcc = 0;
     _MaxKAcc = 63;
@@ -113,7 +118,7 @@ _geom(geom) {
 //     // theta bti acceptance cut is in bti chip (no traco in theta!)
 //     // acceptance from orca geom: bti theta angle in CMS frame +-2 in K units 
 //     if(_id.superlayer()==2){
-//       float distp2 = (int)(2*_geom->cellH()*config()->lstep()/_geom->cellPitch());
+//       float distp2 = (int)(2*_geom->cellH()*config()->ST()/_geom->cellPitch());
 //       float K0 = config()->ST();
 
 // /*      DTBtiId _id1 = DTBtiId(sid,supl,1);
@@ -163,21 +168,23 @@ _geom(geom) {
 // theta bti acceptance cut is in bti chip (no traco in theta!)
     // acceptance is determined about BTI angle wrt vertex with programmable value 
     if(_id.superlayer()==2){
-      float distp2 = (int)(2*_geom->cellH()*config()->lstep()/_geom->cellPitch());
+      float distp2 = (int)(2*_geom->cellH()*config()->ST()/_geom->cellPitch());
       float K0 = config()->ST();
 
-	  // position of BTI 1 and of current one
+      // position of BTI 1 and of current one
       DTBtiId _id1 = DTBtiId(sid,supl,1);
-	  GlobalPoint gp1 = _geom->CMSPosition(_id1); 
+      GlobalPoint gp1 = _geom->CMSPosition(_id1); 
       GlobalPoint gp = CMSPosition();
       if(config()->debug()>3){
         cout << "Position: R=" << gp.perp() << "cm, Phi=" << gp.phi()*180/3.14159;
         cout << " deg, Z=" << gp.z() << " cm" << endl;
       }
 // new geometry: modified wrt old due to specularity of theta SLs --> fixed 6/9/06 
-	    float theta;
-	    if(gp1.z() < 0.0) theta = atan( -(gp.z())/gp.perp() );				
-		else theta = atan( (gp.z())/gp.perp() );
+      float theta;
+      if(gp1.z() < 0.0) 
+      	theta = atan( -(gp.z())/gp.perp() );				
+      else 
+        theta = atan( (gp.z())/gp.perp() );
 
 // set BTI acceptance window : fixed wrt ORCA on 6/9/06  
       float fktmin = tan(theta)*distp2+K0 ;
@@ -186,7 +193,7 @@ _geom(geom) {
 	  int ktmax = static_cast<int>(fktmax)+config()->KAccTheta();
       if(ktmin>_MinKAcc)_MinKAcc=ktmin;
       if(ktmax<_MaxKAcc)_MaxKAcc=ktmax;
-    }
+    }//end theta acceptance computation 
 
     // debugging
     if(config()->debug()>2){
@@ -194,7 +201,7 @@ _geom(geom) {
       cout << "K acceptance:" << _MinKAcc << "," << _MaxKAcc  << endl;
     }
     // end debugging
-  }
+  //}// end if trigSetupGeom=0
 
 
   //SV flag for initialization....
@@ -662,7 +669,7 @@ DTBtiChip::run() {
       findTrig();
     }
   }
-  if( config()->slLTS()>0 ) doLTS(); // low trigger suppression
+  if( config()->LTS()>0 ) doLTS(); // low trigger suppression
 }
 
 void
@@ -736,13 +743,14 @@ DTBtiChip::doLTS() {
  
   if(config()->debug()>2)
     cout<<"Do LTS"<<endl;
-  int ltsfl = config()->slLTS();
-  int slts = config()->sideLTS();
-  int nbxlts = config()->nbxLTS(superlayer()-1);
+  int lts = config()->LTS();
+  int nbxlts = config()->SET();
 
   // Do LTS only on the requested SL
-  if (superlayer()==2 && ltsfl==1) return;
-  if (superlayer()!=2 && ltsfl==2) return;
+  //if (superlayer()==2 && lts==1) return;
+  //if (superlayer()!=2 && lts==2) return;
+  //new DTConfig: do LTS only is LTS!=0  --> somewhat redundant !
+  if (lts==0) return;
 
   // loop on steps
   for(int is=DTConfig::NSTEPF; is<=DTConfig::NSTEPL; is++) {
@@ -752,7 +760,7 @@ DTBtiChip::doLTS() {
         for(int js=is+1;(js<=is+nbxlts&&js<=DTConfig::NSTEPL);js++){
           if(nTrig(js)>0) { // non empty step
             DTBtiTrig* tr = trigger(js,1);
-            if( tr->code()<8 && slts>=0 ) {
+            if( tr->code()<8 && (lts==1 || lts==3)) {
               if(config()->debug()>3)
                 cout<<"LTS: erasing trigger!"<<endl; 
               eraseTrigger(js,1); // delete trigger
@@ -760,16 +768,15 @@ DTBtiChip::doLTS() {
           }
         }
         // do LTS on previous step
-        if(slts!=2 || superlayer()==2) {
-          if(is>DTConfig::NSTEPF && nTrig(is-1)>0) { // non empty step
-            DTBtiTrig* tr = trigger(is-1,1);
-            if( tr->code()<8 && (slts<=0||slts==2) ) {
-              if(config()->debug()>3)
+        if(is>DTConfig::NSTEPF && nTrig(is-1)>0) { // non empty step
+          DTBtiTrig* tr = trigger(is-1,1);
+          if( tr->code()<8 && (lts==2 || lts==3) ) {
+            if(config()->debug()>3)
                 cout<<"LTS: erasing trigger!"<<endl;                                
-              eraseTrigger(is-1,1); // delete trigger
-            }
+            eraseTrigger(is-1,1); // delete trigger
           }
         }
+
       }
     }
   }
@@ -785,13 +792,8 @@ DTBtiChip::store(const int eq, const int code, const int K, const int X,
 
   
   // accept in range triggers (acceptances defined in constructor)
-  if(  ( config()->trigSetupGeom()==0  &&  (K>=_MinKAcc && K<=_MaxKAcc) )
-                                   ||
-       ( config()->trigSetupGeom()==1  &&  ((K>=_MinKleftTraco && K<=_MaxKleftTraco)
-                                                              ||
-                                           (K>=_MinKcenterTraco && K<=_MaxKcenterTraco)
-                                                              ||
-                                           (K>=_MinKrightTraco && K<=_MaxKrightTraco)) )  ){
+  if(K>=_MinKAcc && K<=_MaxKAcc) 
+  {
     int trig_step = currentStep();
 
 /*
@@ -807,16 +809,8 @@ DTBtiChip::store(const int eq, const int code, const int K, const int X,
 	   trig_step = currentStep()+1;
     }
 */     
-    //store strobe
+    //store strobe: SV no strobe defined for this setup SV 15/I/2007
     int strobe=-1;
-    if(config()->trigSetupGeom()==1){ 
-      if(K>=_MinKleftTraco && K<=_MaxKleftTraco)
-	strobe = 0;
-      if(K>=_MinKcenterTraco && K<=_MaxKcenterTraco)
-	strobe = 1;
-      if(K>=_MinKrightTraco && K<=_MaxKrightTraco)
-	strobe = 2;
-    }
 
     // create a new trigger
     float Keq[6] = {KeqAB,KeqBC,KeqCD,KeqAC,KeqBD,KeqAD};
@@ -847,12 +841,7 @@ DTBtiChip::store(const int eq, const int code, const int K, const int X,
     if(config()->debug()>2){
       cout << "DTBtiChip::store, at step "<< currentStep();
       cout << " allowed K range is: [";
-      if(config()->trigSetupGeom()==0)
-        cout << _MinKAcc << ","<< _MaxKAcc << "]";
-      else
- 	cout <<_MinKleftTraco<<","<<_MaxKleftTraco<<"] and [" 
-  	     <<_MinKcenterTraco<<","<<_MaxKcenterTraco<<"] and [" 
-	     <<_MinKrightTraco<<","<<_MaxKrightTraco<<"]" << endl;
+      cout << _MinKAcc << ","<< _MaxKAcc << "]";
       cout << "K value is " << K << endl; 
     }
     return 0;

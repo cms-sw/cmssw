@@ -11,7 +11,7 @@
 //   S. Vanini
 //   17/V/04  SV: tdrift in tdc units, phase is included!!
 //   22/VI/04 SV: last trigger code update
-// 
+//   05/II/07 SV: move setuptime to BtiCard
 //--------------------------------------------------
 
 //#include "Utilities/Configuration/interface/Architecture.h"
@@ -45,7 +45,7 @@ const float DTBtiHit::_stepTimeTdc = 16.;
 // Constructors --
 //----------------
 
-DTBtiHit::DTBtiHit(const DTDigi* hitdigi, DTConfig* config) :
+DTBtiHit::DTBtiHit(const DTDigi* hitdigi, DTConfigBti* config) :
   _hitdigi(hitdigi), _config(config) {
 
   //SV tdcunits 11V04: time in tdc units! setup time too!
@@ -81,10 +81,12 @@ DTBtiHit::DTBtiHit(const DTDigi* hitdigi, DTConfig* config) :
    
 */
   //bti clocks of 16 tdc units : first clock is number 1!
-  _clockTime = (int)( (_curTime + _config->SetupTime()) / _stepTimeTdc ) + 1;
+  //_clockTime = (int)( (_curTime + _config->SetupTime()) / _stepTimeTdc ) + 1;
+  _clockTime = (int)( _curTime  / _stepTimeTdc ) + 1;
+
 }
 
-DTBtiHit::DTBtiHit(int clockTime, DTConfig* config) :
+DTBtiHit::DTBtiHit(int clockTime, DTConfigBti* config) :
   _config(config) {
   _clockTime = clockTime;
   _hitdigi = 0;

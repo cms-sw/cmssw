@@ -4,8 +4,8 @@
  *     Contains active L1MuDTBtiChips
  *
  *
- *   $Date: 2003/10/18 09:12:53 $
- *   $Revision: 1.12 $
+ *   $Date: 2006/07/19 10:18:31 $
+ *   $Revision: 1.1 $
  *
  *   \author C. Grandi, S. Vanini
  *
@@ -27,11 +27,14 @@ class DTTrigGeom;
 //----------------------
 // Base Class Headers --
 //----------------------
-#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "L1Trigger/DTUtilities/interface/DTGeomSupplier.h"
 #include "L1Trigger/DTUtilities/interface/DTBtiId.h"
 #include "L1Trigger/DTBti/interface/DTBtiTrigData.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
+
+#include "L1Trigger/DTBti/interface/DTConfigBti.h"
+
 
 //---------------
 // C++ Headers --
@@ -56,10 +59,13 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
   public:
 
     /// Constructor
-    DTBtiCard(DTTrigGeom*);
+    DTBtiCard(DTTrigGeom*,edm::ParameterSet&);
 
     /// Destructor 
     ~DTBtiCard();
+
+    /// Returns configuration
+    inline DTConfigBti* config() const { return _configBti; }
 
     /// Returns the required BTI. Return 0 if it doesn't exist
     DTBtiChip* getBTI(int sl, int n) const; 
@@ -109,6 +115,7 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
 
     BTIContainer _btimap[3];
     std::vector<DTDigi*> _digis; 
+    DTConfigBti * _configBti; 
 
 };
 
