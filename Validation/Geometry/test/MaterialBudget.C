@@ -366,7 +366,7 @@ void create2DPlots(TString plot) {
   //
   
   // canvas
-  TCanvas can("can","can",800,800);
+  TCanvas can("can","can",1200,800);
   can.Range(0,0,25,25);
   can.SetFillColor(kWhite);
   gStyle->SetOptStat(0);
