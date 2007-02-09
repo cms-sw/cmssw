@@ -9,9 +9,6 @@
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/TrackerMuFilter.h"
 // M. De Mattia 25/1/2007
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/TIFNtupleMaker.h"
-// M. De Mattia 30/1/2007
-#include "AnalysisAlgos/SiStripClusterInfoProducer/interface/SiStripFakeRawDigiModule.h"
-
 using cms::ClusterAnalysis;
 using cms::ClusterAnalysisFilter;
 using cms::CosmicTIFFilter;
@@ -28,5 +25,4 @@ DEFINE_ANOTHER_FWK_MODULE(CosmicGenFilter);
 DEFINE_ANOTHER_FWK_MODULE(TrackerMuFilter);
 // 25/1/2007
 DEFINE_ANOTHER_FWK_MODULE(TIFNtupleMaker);
-// 25/1/2007
-DEFINE_ANOTHER_FWK_MODULE(SiStripFakeRawDigiModule);
+

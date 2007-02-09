@@ -7,7 +7,6 @@
 <use name=DataFormats/SiStripDigi>
 <use name=DataFormats/SiStripCluster>
 <use name=AnalysisDataFormats/SiStripClusterInfo>
-<use name=AnalysisAlgos/SiStripClusterInfoProducer>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/TrackerRecHit2D>
@@ -48,7 +47,6 @@
  <use name=CalibTracker/SiStripConnectivity>
  <use name=CommonTools/SiStripZeroSuppression>
 <use name=RecoLocalTracker/SiStripClusterizer>
-<use name=AnalysisAlgos/SiStripClusterInfoProducer>
 <use name=FastSimulation/Particle>
 <use name=FastSimulation/BaseParticlePropagator>
 <use name=Geometry/DTGeometry>
