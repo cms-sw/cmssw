@@ -477,8 +477,11 @@ namespace edm
       setupOnDemandSystem(ep, es);
     }
     try {
+      //If the CallPrePost object is used, it must live for the entire time the event is
+      // being processed
+      std::auto_ptr<CallPrePost> sentry;
       if (isEvent) {
- 	CallPrePost cpp(act_reg_.get(), &ep, &es);
+ 	sentry = std::auto_ptr<CallPrePost>(new CallPrePost(act_reg_.get(), &ep, &es));
       }
 
       if (runTriggerPaths(ep, es, bat)) {
