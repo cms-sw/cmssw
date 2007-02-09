@@ -1,5 +1,4 @@
 <use name=SimG4Core/Physics>
-<use name=SimG4Core/Packaging>
 <use name=SimG4Core/SensitiveDetector>
 <use name=Foundation/PluginManager>
 <use name=SimG4Core/Generators>
