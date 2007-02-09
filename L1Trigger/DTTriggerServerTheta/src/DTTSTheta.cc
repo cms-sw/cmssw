@@ -9,6 +9,7 @@
 //   C. Grandi
 //   Modifications: 
 //   III/2005 : Sara Vanini NEWGEO update
+//   I/2007 : Carlo Battilana Config class update
 //
 //--------------------------------------------------
 
@@ -32,14 +33,18 @@
 //----------------
 // Constructors --
 //----------------
-DTTSTheta::DTTSTheta(DTTrigGeom* geom, DTBtiCard* bticard) : 
+DTTSTheta::DTTSTheta(DTTrigGeom* geom, DTBtiCard* bticard, edm::ParameterSet& tst_pset) : 
                                  DTGeomSupplier(geom),  _bticard(bticard) {
-  for(int i=0;i<DTConfig::NSTEPL-DTConfig::NSTEPF+1;i++){
+
+  _config = new DTConfigTSTheta(tst_pset);
+
+  for(int i=0;i<DTConfigTSTheta::NSTEPL-DTConfigTSTheta::NSTEPF+1;i++){
     _trig[i].zero();
     _Htrig[i].zero();
     _ntrig[i] = 0;
     _nHtrig[i] = 0;
   }
+
 }
 
 
@@ -47,6 +52,7 @@ DTTSTheta::DTTSTheta(DTTrigGeom* geom, DTBtiCard* bticard) :
 // Destructor --
 //--------------
 DTTSTheta::~DTTSTheta(){
+  delete _config;
 }
 
 
@@ -56,7 +62,7 @@ DTTSTheta::~DTTSTheta(){
 
 void
 DTTSTheta::localClear() {
-  for(int is=0;is<DTConfig::NSTEPL-DTConfig::NSTEPF+1;is++){
+  for(int is=0;is<DTConfigTSTheta::NSTEPL-DTConfigTSTheta::NSTEPF+1;is++){
     // clear input bit masks
     _trig[is].zero();
     _Htrig[is].zero();
@@ -70,7 +76,7 @@ DTTSTheta::loadDTTSTheta() {
   localClear();
   if(station()==4)return;
  
-  if(config()->debug()>2){
+  if(config()->debug()){
     std::cout << "DTTSTheta::loadDTTSTheta called for wheel=" << wheel() ;
     std::cout <<                                ", station=" << station();
     std::cout <<                                ", sector="  << sector() << std::endl;
@@ -83,7 +89,6 @@ DTTSTheta::loadDTTSTheta() {
     // Look only to BTIs in SL 2
     if (p->btiSL() == 2) {
       // BTI number
-      // int nbti = p->btiNumber(); CB unused variable
       int step = p->step();
       add_btiT( step, &(*p) );
     }
@@ -103,7 +108,7 @@ OBSOLETE! in NEWGEO the bti number order is the correct one!
 		      sector()==8 || sector()==9 || sector()==12))
       || wheel()==-1 
       || wheel()==-2)
-    {n=DTConfig::NCELLTH + 1 - n; }
+    {n=DTConfigTSTheta::NCELLTH + 1 - n; }
   
 */
 
@@ -112,20 +117,20 @@ OBSOLETE! in NEWGEO the bti number order is the correct one!
     std::cout << " trigger not added!" << std::endl;
     return;
   }
-  if(step<DTConfig::NSTEPF||step>DTConfig::NSTEPL){
+  if(step<DTConfigTSTheta::NSTEPF||step>DTConfigTSTheta::NSTEPL){
     std::cout << "DTTSTheta::add_btiT: step out of range: " << step;
     std::cout << " trigger not added!" << std::endl;
     return;
   }
-  _trig[step-DTConfig::NSTEPF].set(n-1);
-  _ntrig[step-DTConfig::NSTEPF]++;
+  _trig[step-DTConfigTSTheta::NSTEPF].set(n-1);
+  _ntrig[step-DTConfigTSTheta::NSTEPF]++;
 
   if(btitrig->code()==8){
-    _Htrig[step-DTConfig::NSTEPF].set(n-1);
-    _nHtrig[step-DTConfig::NSTEPF]++;
+    _Htrig[step-DTConfigTSTheta::NSTEPF].set(n-1);
+    _nHtrig[step-DTConfigTSTheta::NSTEPF]++;
   }
 
-  if(config()->debug()>2){
+  if(config()->debug()){
     std::cout << "BTI Trigger added at step " << step;
     std::cout << " to DTTSTheta at position " << n <<  std::endl;
   }
@@ -135,8 +140,8 @@ OBSOLETE! in NEWGEO the bti number order is the correct one!
 void
 DTTSTheta::runDTTSTheta() {
   // Just make a DTChambThSegm for each step and store it
-  for(int is=DTConfig::NSTEPF;is<DTConfig::NSTEPL+1;is++) {
-    if(_ntrig[is-DTConfig::NSTEPF]>0) {
+  for(int is=DTConfigTSTheta::NSTEPF;is<DTConfigTSTheta::NSTEPL+1;is++) {
+    if(_ntrig[is-DTConfigTSTheta::NSTEPF]>0) {
       int i=0;
       int code[8];
       int pos[8];
@@ -155,7 +160,7 @@ DTTSTheta::runDTTSTheta() {
       if(code[7] > code[6])   code[6]=code[7]; 
 
       
-      if(config()->debug()>=1){
+      if(config()->debug()){
       std::cout  << " wheel = " << wheel() << " station = " << station() << " sector = " << sector() << std::endl;
 	std::cout << " pos :  ";
 	for(i=0;i<8;i++) {
@@ -181,7 +186,7 @@ DTTSTheta::runDTTSTheta() {
   }
 
   // debugging...
-  if(config()->debug()>0){
+  if(config()->debug()){
     if(_cache.size()>0){
       std::cout << "====================================================" << std::endl;
       std::cout << "                 Theta segments                     " << std::endl;
@@ -218,44 +223,44 @@ DTTSTheta::segment(int step, unsigned n) {
 
 int 
 DTTSTheta::nTrig(int step) {
-  if(step<DTConfig::NSTEPF||step>DTConfig::NSTEPL){
+  if(step<DTConfigTSTheta::NSTEPF||step>DTConfigTSTheta::NSTEPL){
     std::cout << "DTTSTheta::nTrig: step out of range " << step;
     std::cout << " 0 returned" << std::endl;
     return 0;
   }
-  if(size()>0) return _ntrig[step-DTConfig::NSTEPF];
+  if(size()>0) return _ntrig[step-DTConfigTSTheta::NSTEPF];
   return 0;
 }
 
 int 
 DTTSTheta::nHTrig(int step) { 
-  if(step<DTConfig::NSTEPF||step>DTConfig::NSTEPL){
+  if(step<DTConfigTSTheta::NSTEPF||step>DTConfigTSTheta::NSTEPL){
     std::cout << "DTTSTheta::nHTrig: step out of range " << step;
     std::cout << " 0 returned" << std::endl;
     return 0;
   }
-  if(size()>0) return _nHtrig[step-DTConfig::NSTEPF]; 
+  if(size()>0) return _nHtrig[step-DTConfigTSTheta::NSTEPF]; 
   return 0;
 }
 
-BitArray<DTConfig::NCELLTH>*
+BitArray<DTConfigTSTheta::NCELLTH>*
 DTTSTheta::btiMask(int step) const {
-  if(step<DTConfig::NSTEPF||step>DTConfig::NSTEPL){
+  if(step<DTConfigTSTheta::NSTEPF||step>DTConfigTSTheta::NSTEPL){
     std::cout << "DTTSTheta::btiMask: step out of range " << step;
     std::cout << " empty pointer returned" << std::endl;
     return 0;
   }
-  return (BitArray<DTConfig::NCELLTH>*)&_trig[step-DTConfig::NSTEPF]; 
+  return (BitArray<DTConfigTSTheta::NCELLTH>*)&_trig[step-DTConfigTSTheta::NSTEPF]; 
 }
 
-BitArray<DTConfig::NCELLTH>*
+BitArray<DTConfigTSTheta::NCELLTH>*
 DTTSTheta::btiQual(int step) const {
-  if(step<DTConfig::NSTEPF||step>DTConfig::NSTEPL){
+  if(step<DTConfigTSTheta::NSTEPF||step>DTConfigTSTheta::NSTEPL){
     std::cout << "DTTSTheta::btiQual: step out of range " << step;
     std::cout << " empty pointer returned" << std::endl;
     return 0;
   }
-  return (BitArray<DTConfig::NCELLTH>*)&_Htrig[step-DTConfig::NSTEPF]; 
+  return (BitArray<DTConfigTSTheta::NCELLTH>*)&_Htrig[step-DTConfigTSTheta::NSTEPF]; 
 }
 
 LocalPoint 
