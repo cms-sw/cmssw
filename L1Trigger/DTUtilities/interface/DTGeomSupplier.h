@@ -4,8 +4,8 @@
  *   Defines the ability to calculate coordinates 
  *   of L1DT Trigger objects
  *
- *   $Date: 2003/10/17 10:06:10 $
- *   $Revision: 1.7 $
+ *   $Date: 2006/07/19 10:32:51 $
+ *   $Revision: 1.1 $
  *
  *   \author C.Grandi
  */
@@ -25,7 +25,6 @@
 #include "Geometry/Vector/interface/GlobalVector.h"
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Vector/interface/LocalVector.h"
-//#include "Profound/MuNumbering/interface/MuBarIdInclude.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
@@ -55,9 +54,6 @@ class DTGeomSupplier {
 
   /// Associated geometry
   inline DTTrigGeom* geom() const { return _geom; }
-
-  /// Return the configuration set
-  inline DTConfig* config() const { return _geom->config(); }
 
   /// Associated chamber
   inline DTChamber* stat() const { return _geom->stat(); }

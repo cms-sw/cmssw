@@ -45,11 +45,11 @@ using namespace std;
 // Constructors --
 //----------------
 
-DTTrigGeom::DTTrigGeom(DTChamber* stat, DTConfig* conf) : 
-  _stat(stat), _config(conf) {
+DTTrigGeom::DTTrigGeom(DTChamber* stat, bool debug) : 
+  _stat(stat) {
 
   // get the geometry from the station
-  getGeom();
+  getGeom(debug);
 
 }
 
@@ -198,7 +198,7 @@ DTTrigGeom::posFE(int sl) const {
 }
 
 void
-DTTrigGeom::getGeom() {
+DTTrigGeom::getGeom(bool debug) {
 
   // Geometrical constants of chamber
   // Cell width (cm)
@@ -232,7 +232,7 @@ DTTrigGeom::getGeom() {
   }
 
   // debugging
-  if(config()->debug()>3){
+  if(debug){
     std::cout << setiosflags(std::ios::showpoint | std::ios::fixed) << std::setw(4) <<
       std::setprecision(1);
     std::cout << "Identification: wheel=" << wheel();
