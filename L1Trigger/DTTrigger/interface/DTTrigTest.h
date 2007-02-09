@@ -7,8 +7,8 @@
  *   studies
  *
  *
- *   $Date: 2006/09/18 10:40:16 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/10/13 10:59:26 $
+ *   $Revision: 1.2 $
  *
  *   \author C. Battilana
  */
@@ -19,18 +19,17 @@
 #define L1Trigger_DTTrigger_DTTrigTest_h
 
 // Framework related headers
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Trigger related headers
 #include "L1Trigger/DTTrigger/interface/DTTrig.h"
 
-// Root related headers
+// Root headers
 #include "TTree.h"
 #include "TFile.h"
-
-
 
 using namespace edm;
 
@@ -55,18 +54,18 @@ public:
 private:
 
   // time to TDC_time conversion
-  static const double myTtoTDC;
+  static const double my_TtoTDC;
 
   // trigger istance
-  DTTrig* MyTrig;
+  DTTrig* my_trig;
 
   // debug flag
-  bool debug;
+  bool my_debug;
 
   // tree
-  TTree* theTree;
+  TTree* my_tree;
   // TFile
-  TFile *f;
+  TFile *my_rootfile;
 
   //GENERAL block
   int             runn;
@@ -146,6 +145,32 @@ private:
   int thcode[40][7];
   int thpos[40][7];
   int thqual[40][7];
+
+  // SECTOR COLLECTOR (PHI VIEW)
+  int nscphi;
+  int scphwh[40];
+  int scphstat[40]; 
+  int scphsect[40];
+  int scphbx[40];
+  int scphcod[40];
+  int scphphi[40];
+  int scphphib[40];
+  float scphposx[100];
+  float scphposy[100];
+  float scphposz[100];
+  float scphdirx[100];
+  float scphdiry[100];
+  float scphdirz[100]; 
+
+  // SECTOR COLLECTOR (THETA VIEW)
+  int nsctheta;
+  int scthwh[40];
+  int scthstat[40]; 
+  int scthsect[40];
+  int scthbx[40];
+  int scthcode[40][7];
+  int scthpos[40][7];
+  int scthqual[40][7];
 
 };
  

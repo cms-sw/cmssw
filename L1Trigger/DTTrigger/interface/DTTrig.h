@@ -4,8 +4,8 @@
  *     Steering routine for L1 trigger simulation in a muon barrel station
  *
  *
- *   $Date: 2006/07/19 10:49:05 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/09/18 10:37:45 $
+ *   $Revision: 1.2 $
  *
  *   \author C.Grandi
  */
@@ -19,23 +19,15 @@
 //---------------
 #include<map>
 #include<string>
-//----------------------
-// Base Class Headers --
-//----------------------
-
-//#include "Utilities/Notification/interface/LazyObserver.h"
-//#include "CARF/G3Event/interface/G3SetUp.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "L1Trigger/DTUtilities/interface/DTConfig.h"
-//#include "Profound/MuNumbering/interface/MuBarIdInclude.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
-//#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "L1Trigger//DTSectorCollector/interface/DTSectCollId.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/Vector/interface/GlobalVector.h"
@@ -48,15 +40,12 @@
 #include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
 #include "L1Trigger/DTTriggerServerTheta/interface/DTChambThSegm.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectColl.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
  
-//SV for TestBeams tests
-//class DTTrig : protected LazyObserver<TBSetUp*> {
-
-//class DTTrig : protected LazyObserver<G3SetUp*> {
 class DTTrig {
 
   public:
@@ -64,10 +53,7 @@ class DTTrig {
     typedef std::map< DTChamberId,DTSCTrigUnit*,std::less<DTChamberId> > TUcontainer;
     typedef TUcontainer::iterator TU_iterator;
     typedef TUcontainer::const_iterator TU_const_iterator;
-    typedef std::map< DTChamberId,DTConfig*,std::less<DTChamberId> > Confcontainer;
-    typedef Confcontainer::iterator Conf_iterator;
-    typedef Confcontainer::const_iterator Conf_const_iterator;
-    typedef std::map< DTSectCollId,DTSectColl*,std::less<DTSectCollId> > SCcontainer;
+   typedef std::map< DTSectCollId,DTSectColl*,std::less<DTSectCollId> > SCcontainer;
     typedef SCcontainer::iterator SC_iterator;
     typedef SCcontainer::const_iterator SC_const_iterator;
     typedef std::pair<TU_iterator,TU_iterator> Range;
@@ -79,18 +65,17 @@ class DTTrig {
   public:
   
     /// Constructors
-    DTTrig();
+   /*  DTTrig(); */
     
-    DTTrig(const edm::ParameterSet& pset, std::string mysync);
+    DTTrig(const edm::ParameterSet& pset);
     
     /// Destructor
     ~DTTrig();
 
     // SV overwrite LazyObserver function with dummy one for TestBeams
     //void check() {};
-  
+    
     /// Create the trigger units and store them in the cache
-    //void createTUs(G3SetUp*);
     void createTUs(const edm::EventSetup& iSetup);
 
     void triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup);
@@ -130,14 +115,11 @@ class DTTrig {
     SCRange cache1() { /*check();*/ return SCRange(_cache1.begin(), _cache1.end()); }
     /// -------------------------------------------
 
-    /// Return the configuration set
-    inline DTConfig* config() { return _config; }
-
     /// Return a trigger unit - Muon numbering
     DTSCTrigUnit* trigUnit(DTChamberId sid);
 
     /// Return a trigger unit - Muon numbering, MTTF numbering
-    DTSCTrigUnit* trigUnit(int wheel, int stat, int sect);      //, int flag=0);
+    DTSCTrigUnit* trigUnit(int wheel, int stat, int sect);
 
     /// Return the first phi track segment in req. chamber/step
     DTChambPhSegm* chPhiSegm1(DTChamberId sid, int step);
@@ -168,25 +150,28 @@ class DTTrig {
 
 
     /// sector collector 
-    /// Return the first phi track segment in req. chamber/step
-    DTChambPhSegm* chSectCollSegm1(DTSectColl* unit, int step);
+    /// Return the first phi track segment in req. chamber/step [SC step]
+    DTSectCollPhSegm* chSectCollPhSegm1(DTSectColl* unit, int step);
 
-    /// Return the first phi track segment in req. chamber/step, MTTF numbering
-    DTChambPhSegm* chSectCollSegm1(int wheel, int stat, int sect, int step); 
+    /// Return the first phi track segment in req. chamber/step, [MTTF numbering & SC step]
+    DTSectCollPhSegm* chSectCollPhSegm1(int wheel, int sect, int step); 
 
-    /// Return the second phi track segment in req. chamber/step
-    DTChambPhSegm* chSectCollSegm2(DTSectColl* unit, int step);
+    /// Return the second phi track segment in req. chamber/step [SC step]
+    DTSectCollPhSegm* chSectCollPhSegm2(DTSectColl* unit, int step);
   
-    /// Return the second phi track segment in req. chamber/step, MTTF numbering
-    DTChambPhSegm* chSectCollSegm2(int wheel, int stat, int sect, int step);
+    /// Return the second phi track segment in req. chamber/step, [MTTF numbering & SC step]
+    DTSectCollPhSegm* chSectCollPhSegm2(int wheel, int sect, int step);
+
+    /// Return the theta track segment in req. chamber/step [SC step]
+    DTSectCollThSegm* chSectCollThSegm(DTSectColl* unit, int step);
+
+    /// Return the theta track segment in req. chamber/step, [MTTF numbering & SC step]
+    DTSectCollThSegm* chSectCollThSegm(int wheel, int sect, int step);
 
     /// end sector collector
 
     /// Dump the geometry
     void dumpGeom();
-
-    /// Return the expected correct BX number
-    inline int correctBX() const { return static_cast<int>(ceil(_config->TMAX())); }
 
     // Methods to access intermediate results
 
@@ -202,8 +187,11 @@ class DTTrig {
     /// Returns a copy of all the Trigger Server (Theta) triggers
     std::vector<DTChambThSegm> TSThTrigs();
 
-    /// Returns a copy of all the Sector Collector (phi) triggers
-    std::vector<DTChambPhSegm> SCTrigs();
+    /// Returns a copy of all the Sector Collector (Phi) triggers
+    std::vector<DTSectCollPhSegm> SCPhTrigs();
+
+    /// Returns a copy of all the Sector Collector (Theta) triggers
+    std::vector<DTSectCollThSegm> SCThTrigs();
 
     /// Coordinate of a trigger-data object in chamber frame
     LocalPoint localPosition(const DTTrigData* trig) const {
@@ -232,33 +220,25 @@ class DTTrig {
 
   private:
 
-   //SV TestBeam 2003 comparison version
-/*  void lazyUpDate(TBSetUp* run) { 
-    cout << "DTTrig lazyUpDate ... " << endl;
-    clear(); createTUs(run); }
-*/
-
-    //void lazyUpDate(G3SetUp* run) { clear(); createTUs(run); }
-
-    /// const version of the methods to access TUs are private to avoid misuse
+    /// const version of the methods to access TUs and SCs are private to avoid misuse
     /// Return a trigger unit - Muon numbering - const version
     DTSCTrigUnit* constTrigUnit(DTChamberId sid) const;
 
     /// Return a trigger unit - Muon numbering, MTTF numbering - const version
-    DTSCTrigUnit* constTrigUnit(int wheel, int stat, int sect) const; //, int flag=0) const;
+    DTSCTrigUnit* constTrigUnit(int wheel, int stat, int sect) const;
 
     /// Return a SC unit - Muon numbering - const version
     DTSectColl* SCUnit(DTSectCollId scid) const;
 
     /// Return a SC Unit Muon Numbering, MTTF numbering - const version
-    DTSectColl* SCUnit(int wheel, int stat, int sect) const; //, int flag=0) const;
+    DTSectColl* SCUnit(int wheel, int sect) const;
  
   private:
 
     TUcontainer _cache;       // Trigger units
     SCcontainer _cache1;      // Sector Collector units
-    DTConfig* _config;        // Configuration parameters
-    Confcontainer _localconf; // CB Local configuration parameters
+    edm::ParameterSet _conf_pset;    // Configuration Pset
+    bool _debug;                     // Debug flag
 };
 
 #endif

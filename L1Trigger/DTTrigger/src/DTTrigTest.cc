@@ -7,8 +7,8 @@
  *   studies
  *
  *
- *   $Date: 2006/09/18 10:47:15 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/10/13 10:56:14 $
+ *   $Revision: 1.2 $
  *
  *   \author C. Battilana
  */
@@ -18,16 +18,17 @@
 // This class's header
 #include "L1Trigger/DTTrigger/interface/DTTrigTest.h"
 
-// Framework headers
-#include "FWCore/Framework/interface/ESHandle.h"
 
 // Trigger and DataFormats headers
-#include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
+#include "L1Trigger/DTSectorCollector/interface/DTSectCollPhSegm.h"
+#include "L1Trigger/DTSectorCollector/interface/DTSectCollThSegm.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 // ROOT headers 
 #include "TROOT.h"
+#include "TTree.h"
+#include "TFile.h"
 
 // Collaborating classes
 #include <CLHEP/Vector/LorentzVector.h>
@@ -35,137 +36,172 @@
 // C++ headers
 #include <iostream>
 #include <math.h>
+#include<time.h>
 
 using namespace std;
 
 
 
-const double DTTrigTest::myTtoTDC = 32./25.;
+const double DTTrigTest::my_TtoTDC = 32./25.;
 
 DTTrigTest::DTTrigTest(const ParameterSet& pset){ 
 
-  debug= pset.getUntrackedParameter<bool>("debug");
+  my_debug= pset.getUntrackedParameter<bool>("debug");
   string outputfile = pset.getUntrackedParameter<string>("outputFileName");
-  if (debug == true) cout << "[DTTrigTest] Creating rootfile " <<  outputfile <<endl;
-  f = new TFile(outputfile.c_str(),"RECREATE");
-  theTree = new TTree("h1","GMT",0);
-  bool globaldelay = pset.getUntrackedParameter<bool>("globalSync");
-  double syncdelay = pset.getUntrackedParameter<double>("syncDelay");
-  stringstream myos;
-  myos << syncdelay;
-  if (globaldelay) {
-    if (debug == true) cout << "[DTTrigTest] Using same synchronization for all chambers:" << endl;
-    MyTrig = new DTTrig();
-    double ftdelay = pset.getUntrackedParameter<double>("globalSyncValue");
-    MyTrig->config()->setParam("Programmable Dealy",myos.str());
-    MyTrig->config()->setParamValue("BTI setup time","psetdelay",ftdelay*myTtoTDC);
-    if (debug == true) cout << "[DTTrigTest] Delay set to " << ftdelay << " ns (as set in parameterset)" << endl; 
-  }
-  else {
-    if (debug == true) cout << "[DTTrigTest] Using chamber by chamber synchronization" << endl;
-    MyTrig = new DTTrig(pset.getUntrackedParameter<ParameterSet>("L1DTFineSync"),myos.str());
-  }
-  //  MyTrig->config()->setParam("Debugging level","fullTRACO");
-  if (debug == true) cout << "[DTTrigTest] Constructor executed!!!" << endl;
+  if (my_debug) 
+    cout << "[DTTrigTest] Creating rootfile " <<  outputfile <<endl;
+  my_rootfile = new TFile(outputfile.c_str(),"RECREATE");
+  my_tree = new TTree("h1","GMT",0);
+  my_trig = new DTTrig(pset.getParameter<ParameterSet>("DTTPGParameters"));
+
+//   bool globaldelay = pset.getUntrackedParameter<bool>("globalSync");
+//   double syncdelay = pset.getUntrackedParameter<double>("syncDelay");
+//   stringstream myos;
+//   myos << syncdelay;
+  
+//   if (globaldelay) {
+//     if (my_debug)
+//       cout << "[DTTrigTest] Using same synchronization for all chambers:" << endl;
+//     my_trig = new DTTrig();
+//     double ftdelay = pset.getUntrackedParameter<double>("globalSyncValue");
+//     my_trig->config()->setParam("Programmable Dealy",myos.str());
+//     my_trig->config()->setParamValue("BTI setup time","psetdelay",ftdelay*my_TtoTDC);
+//     if (my_debug ) 
+//       cout << "[DTTrigTest] Delay set to " << ftdelay << " ns (as set in parameterset)" << endl; 
+//   }
+//   else {
+//     if (my_debug) 
+//       cout << "[DTTrigTest] Using chamber by chamber synchronization" << endl;
+//     my_trig = new DTTrig(pset.getUntrackedParameter<ParameterSet>("L1DTFineSync"),myos.str());
+//   }
+  if (my_debug) cout << "[DTTrigTest] Constructor executed!!!" << endl;
+
 
 }
 
 DTTrigTest::~DTTrigTest(){ 
 
-  delete MyTrig;
-  delete f;
-  if (debug == true) cout << "[DTTrigTest] Destructor executed!!!" << endl;
+  delete my_trig;
+  delete my_rootfile;
+  if (my_debug) 
+    cout << "[DTTrigTest] Destructor executed!!!" << endl;
 
 }
 
 void DTTrigTest::endJob(){
 
-  if (debug == true) cout << "[DTTrigTest] Writing Tree and Closing File" << endl;
-  theTree->Write();
-  delete theTree;
-  f->Close();
+  if (my_debug) 
+    cout << "[DTTrigTest] Writing Tree and Closing File" << endl;
+  my_tree->Write();
+  delete my_tree;
+  my_rootfile->Close();
 
 }
 
 void DTTrigTest::beginJob(const EventSetup & iEventSetup){   
     
-  MyTrig->createTUs(iEventSetup);
-  if (debug == true) cout << "[DTTrigTest] TU's Created" << endl;
+  my_trig->createTUs(iEventSetup);
+  if (my_debug ) 
+    cout << "[DTTrigTest] TU's Created" << endl;
   
   // BOOKING of the tree's varables
   // GENERAL block branches
-  theTree->Branch("Run",&runn,"Run/I");
-  theTree->Branch("Event",&eventn,"Event/I");
-  theTree->Branch("Weight",&weight,"Weight/F");  
+  my_tree->Branch("Run",&runn,"Run/I");
+  my_tree->Branch("Event",&eventn,"Event/I");
+  my_tree->Branch("Weight",&weight,"Weight/F");  
   // GEANT block branches
-  theTree->Branch("Ngen",&ngen,"Ngen/I");
-  theTree->Branch("Pxgen",pxgen,"Pxgen[Ngen]/F");
-  theTree->Branch("Pygen",pygen,"Pygen[Ngen]/F");
-  theTree->Branch("Pzgen",pzgen,"Pzgen[Ngen]/F");
-  theTree->Branch("Ptgen",ptgen,"Ptgen[Ngen]/F");
-  theTree->Branch("Etagen",etagen,"Etagen[Ngen]/F");
-  theTree->Branch("Phigen",phigen,"Phigen[Ngen]/F");
-  theTree->Branch("Chagen",chagen,"Chagen[Ngen]/I");
-  theTree->Branch("Vxgen",vxgen,"Vxgen[Ngen]/F");
-  theTree->Branch("Vygen",vygen,"Vygen[Ngen]/F");
-  theTree->Branch("Vzgen",vzgen,"Vzgen[Ngen]/F");
+  my_tree->Branch("Ngen",&ngen,"Ngen/I");
+  my_tree->Branch("Pxgen",pxgen,"Pxgen[Ngen]/F");
+  my_tree->Branch("Pygen",pygen,"Pygen[Ngen]/F");
+  my_tree->Branch("Pzgen",pzgen,"Pzgen[Ngen]/F");
+  my_tree->Branch("Ptgen",ptgen,"Ptgen[Ngen]/F");
+  my_tree->Branch("Etagen",etagen,"Etagen[Ngen]/F");
+  my_tree->Branch("Phigen",phigen,"Phigen[Ngen]/F");
+  my_tree->Branch("Chagen",chagen,"Chagen[Ngen]/I");
+  my_tree->Branch("Vxgen",vxgen,"Vxgen[Ngen]/F");
+  my_tree->Branch("Vygen",vygen,"Vygen[Ngen]/F");
+  my_tree->Branch("Vzgen",vzgen,"Vzgen[Ngen]/F");
   // L1MuDTBtiChipS block
-  theTree->Branch("Nbti",&nbti,"Nbti/I");
-  theTree->Branch("bwh",bwh,"bwh[Nbti]/I"); 
-  theTree->Branch("bstat",bstat,"bstat[Nbti]/I");    
-  theTree->Branch("bsect",bsect,"bsect[Nbti]/I");  
-  theTree->Branch("bsl",bsl,"bsl[Nbti]/I");
-  theTree->Branch("bnum",bnum,"bnum[Nbti]/I");
-  theTree->Branch("bbx",bbx,"bbx[Nbti]/I");
-  theTree->Branch("bcod",bcod,"bcod[Nbti]/I");
-  theTree->Branch("bk",bk,"bk[Nbti]/I");
-  theTree->Branch("bx",bx,"bx[Nbti]/I");
-  theTree->Branch("bposx",bposx,"bposx[Nbti]/F");
-  theTree->Branch("bposy",bposy,"bposy[Nbti]/F");
-  theTree->Branch("bposz",bposz,"bposz[Nbti]/F");
-  theTree->Branch("bdirx",bdirx,"bdirx[Nbti]/F");
-  theTree->Branch("bdiry",bdiry,"bdiry[Nbti]/F");
-  theTree->Branch("bdirz",bdirz,"bdirz[Nbti]/F");
+  my_tree->Branch("Nbti",&nbti,"Nbti/I");
+  my_tree->Branch("bwh",bwh,"bwh[Nbti]/I"); 
+  my_tree->Branch("bstat",bstat,"bstat[Nbti]/I");    
+  my_tree->Branch("bsect",bsect,"bsect[Nbti]/I");  
+  my_tree->Branch("bsl",bsl,"bsl[Nbti]/I");
+  my_tree->Branch("bnum",bnum,"bnum[Nbti]/I");
+  my_tree->Branch("bbx",bbx,"bbx[Nbti]/I");
+  my_tree->Branch("bcod",bcod,"bcod[Nbti]/I");
+  my_tree->Branch("bk",bk,"bk[Nbti]/I");
+  my_tree->Branch("bx",bx,"bx[Nbti]/I");
+  my_tree->Branch("bposx",bposx,"bposx[Nbti]/F");
+  my_tree->Branch("bposy",bposy,"bposy[Nbti]/F");
+  my_tree->Branch("bposz",bposz,"bposz[Nbti]/F");
+  my_tree->Branch("bdirx",bdirx,"bdirx[Nbti]/F");
+  my_tree->Branch("bdiry",bdiry,"bdiry[Nbti]/F");
+  my_tree->Branch("bdirz",bdirz,"bdirz[Nbti]/F");
   // L1MuDTTracoChipS block
-  theTree->Branch("Ntraco",&ntraco,"Ntraco/I");
-  theTree->Branch("twh",twh,"twh[Ntraco]/I"); 
-  theTree->Branch("tstat",tstat,"tstat[Ntraco]/I");    
-  theTree->Branch("tsect",tsect,"tsect[Ntraco]/I");  
-  theTree->Branch("tnum",tnum,"tnum[Ntraco]/I"); 
-  theTree->Branch("tbx",tbx,"tbx[Ntraco]/I");
-  theTree->Branch("tcod",tcod,"tcod[Ntraco]/I");
-  theTree->Branch("tk",tk,"tk[Ntraco]/I");
-  theTree->Branch("tx",tx,"tx[Ntraco]/I");
-  theTree->Branch("tposx",tposx,"tposx[Ntraco]/F");
-  theTree->Branch("tposy",tposy,"tposy[Ntraco]/F");
-  theTree->Branch("tposz",tposz,"tposz[Ntraco]/F");
-  theTree->Branch("tdirx",tdirx,"tdirx[Ntraco]/F");
-  theTree->Branch("tdiry",tdiry,"tdiry[Ntraco]/F");
-  theTree->Branch("tdirz",tdirz,"tdirz[Ntraco]/F");
+  my_tree->Branch("Ntraco",&ntraco,"Ntraco/I");
+  my_tree->Branch("twh",twh,"twh[Ntraco]/I"); 
+  my_tree->Branch("tstat",tstat,"tstat[Ntraco]/I");    
+  my_tree->Branch("tsect",tsect,"tsect[Ntraco]/I");  
+  my_tree->Branch("tnum",tnum,"tnum[Ntraco]/I"); 
+  my_tree->Branch("tbx",tbx,"tbx[Ntraco]/I");
+  my_tree->Branch("tcod",tcod,"tcod[Ntraco]/I");
+  my_tree->Branch("tk",tk,"tk[Ntraco]/I");
+  my_tree->Branch("tx",tx,"tx[Ntraco]/I");
+  my_tree->Branch("tposx",tposx,"tposx[Ntraco]/F");
+  my_tree->Branch("tposy",tposy,"tposy[Ntraco]/F");
+  my_tree->Branch("tposz",tposz,"tposz[Ntraco]/F");
+  my_tree->Branch("tdirx",tdirx,"tdirx[Ntraco]/F");
+  my_tree->Branch("tdiry",tdiry,"tdiry[Ntraco]/F");
+  my_tree->Branch("tdirz",tdirz,"tdirz[Ntraco]/F");
   // TSPHI block
-  theTree->Branch("Ntsphi",&ntsphi,"Ntsphi/I");
-  theTree->Branch("swh",swh,"swh[Ntsphi]/I"); 
-  theTree->Branch("sstat",sstat,"sstat[Ntsphi]/I");    
-  theTree->Branch("ssect",ssect,"ssect[Ntsphi]/I");  
-  theTree->Branch("sbx",sbx,"sbx[Ntsphi]/I");
-  theTree->Branch("scod",scod,"scod[Ntsphi]/I");
-  theTree->Branch("sphi",sphi,"sphi[Ntsphi]/I");
-  theTree->Branch("sphib",sphib,"sphib[Ntsphi]/I");
-  theTree->Branch("sposx",sposx,"sposx[Ntsphi]/F");
-  theTree->Branch("sposy",sposy,"sposy[Ntsphi]/F");
-  theTree->Branch("sposz",sposz,"sposz[Ntsphi]/F");
-  theTree->Branch("sdirx",sdirx,"sdirx[Ntsphi]/F");
-  theTree->Branch("sdiry",sdiry,"sdiry[Ntsphi]/F");
-  theTree->Branch("sdirz",sdirz,"sdirz[Ntsphi]/F");
+  my_tree->Branch("Ntsphi",&ntsphi,"Ntsphi/I");
+  my_tree->Branch("swh",swh,"swh[Ntsphi]/I"); 
+  my_tree->Branch("sstat",sstat,"sstat[Ntsphi]/I");    
+  my_tree->Branch("ssect",ssect,"ssect[Ntsphi]/I");  
+  my_tree->Branch("sbx",sbx,"sbx[Ntsphi]/I");
+  my_tree->Branch("scod",scod,"scod[Ntsphi]/I");
+  my_tree->Branch("sphi",sphi,"sphi[Ntsphi]/I");
+  my_tree->Branch("sphib",sphib,"sphib[Ntsphi]/I");
+  my_tree->Branch("sposx",sposx,"sposx[Ntsphi]/F");
+  my_tree->Branch("sposy",sposy,"sposy[Ntsphi]/F");
+  my_tree->Branch("sposz",sposz,"sposz[Ntsphi]/F");
+  my_tree->Branch("sdirx",sdirx,"sdirx[Ntsphi]/F");
+  my_tree->Branch("sdiry",sdiry,"sdiry[Ntsphi]/F");
+  my_tree->Branch("sdirz",sdirz,"sdirz[Ntsphi]/F");
   // TSTHETA block
-  theTree->Branch("Ntstheta",&ntstheta,"Ntstheta/I");
-  theTree->Branch("thwh",thwh,"thwh[Ntstheta]/I"); 
-  theTree->Branch("thstat",thstat,"thstat[Ntstheta]/I");    
-  theTree->Branch("thsect",thsect,"thsect[Ntstheta]/I");  
-  theTree->Branch("thbx",thbx,"thbx[Ntstheta]/I");
-  theTree->Branch("thcode",thcode,"thcode[Ntstheta][7]/I");
-  theTree->Branch("thpos",thpos,"thpos[Ntstheta][7]/I");
-  theTree->Branch("thqual",thqual,"thqual[Ntstheta][7]/I");
+  my_tree->Branch("Ntstheta",&ntstheta,"Ntstheta/I");
+  my_tree->Branch("thwh",thwh,"thwh[Ntstheta]/I"); 
+  my_tree->Branch("thstat",thstat,"thstat[Ntstheta]/I");    
+  my_tree->Branch("thsect",thsect,"thsect[Ntstheta]/I");  
+  my_tree->Branch("thbx",thbx,"thbx[Ntstheta]/I");
+  my_tree->Branch("thcode",thcode,"thcode[Ntstheta][7]/I");
+  my_tree->Branch("thpos",thpos,"thpos[Ntstheta][7]/I");
+  my_tree->Branch("thqual",thqual,"thqual[Ntstheta][7]/I");
+  // SC PHI block
+  my_tree->Branch("Nscphi",&nscphi,"Nscphi/I");
+  my_tree->Branch("scphwh",scphwh,"scphwh[Nscphi]/I"); 
+  my_tree->Branch("scphstat",scphstat,"scphstat[Nscphi]/I");    
+  my_tree->Branch("scphsect",scphsect,"scphsect[Nscphi]/I");  
+  my_tree->Branch("scphbx",scphbx,"scphbx[Nscphi]/I");
+  my_tree->Branch("scphcod",scphcod,"scphcod[Nscphi]/I");
+  my_tree->Branch("scphphi",scphphi,"scphphi[Nscphi]/I");
+  my_tree->Branch("scphphib",scphphib,"scphphib[Nscphi]/I");
+  my_tree->Branch("scphposx",scphposx,"scphposx[Nscphi]/F");
+  my_tree->Branch("scphposy",scphposy,"scphposy[Nscphi]/F");
+  my_tree->Branch("scphposz",scphposz,"scphposz[Nscphi]/F");
+  my_tree->Branch("scphdirx",scphdirx,"scphdirx[Nscphi]/F");
+  my_tree->Branch("scphdiry",scphdiry,"scphdiry[Nscphi]/F");
+  my_tree->Branch("scphdirz",scphdirz,"scphdirz[Nscphi]/F");
+  // SC THETA block
+  my_tree->Branch("Nsctheta",&nsctheta,"Nsctheta/I");
+  my_tree->Branch("scthwh",scthwh,"scthwh[Nsctheta]/I"); 
+  my_tree->Branch("scthstat",scthstat,"scthstat[Nsctheta]/I");    
+  my_tree->Branch("scthsect",scthsect,"scthsect[Nsctheta]/I");  
+  my_tree->Branch("scthbx",scthbx,"scthbx[Nsctheta]/I");
+  my_tree->Branch("scthcode",scthcode,"scthcode[Nsctheta][7]/I");
+  my_tree->Branch("scthpos",scthpos,"scthpos[Nsctheta][7]/I");
+  my_tree->Branch("scthqual",scthqual,"scthqual[Nsctheta][7]/I");
 
 }
 
@@ -174,9 +210,10 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
   const int MAXGEN  = 10;
   const float ptcut  = 1.0;
   const float etacut = 2.4;
-  
-  MyTrig->triggerReco(iEvent,iEventSetup);
-  cout << "[DTTrigTest] Trigger algorithm executed for run " << iEvent.id().run() <<" event " << iEvent.id().event() << endl;
+  my_trig->triggerReco(iEvent,iEventSetup);
+  if (my_debug)
+    cout << "[DTTrigTest] Trigger algorithm executed for run " << iEvent.id().run() 
+	 <<" event " << iEvent.id().event() << endl;
   
   // GENERAL Block
   runn   = iEvent.id().run();
@@ -190,7 +227,9 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
   iEvent.getByLabel("g4SimHits",MyVertexes);
   vector<SimTrack>::const_iterator itrack;
   ngen=0;
-  if (debug == true) cout  << "[DTTrigTest] Tracks found in the detector (not only muons) " << MyTracks->size() <<endl;
+  if (my_debug) 
+    cout  << "[DTTrigTest] Tracks found in the detector (not only muons) " << MyTracks->size() <<endl;
+  
   for (itrack=MyTracks->begin(); itrack!=MyTracks->end(); itrack++){
     if ( abs(itrack->type())==13){
       float pt  = itrack->momentum().perp();
@@ -198,7 +237,7 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
       if ( pt>ptcut && fabs(eta)<etacut ){
 	HepLorentzVector momentum = itrack->momentum();
 	float phi = momentum.phi();
-	int charge = static_cast<int> (-itrack->type()/13); //static_cast<int> (itrack->charge()); charge() still to be implemented
+	int charge = static_cast<int> (-itrack->type()/13); //static_cast<int> (itrack->charge());
 	if ( phi<0 ) phi = 2*M_PI + phi;
 	int vtxindex = itrack->vertIndex();
 	float gvx=0,gvy=0,gvz=0;
@@ -226,10 +265,12 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
   
   // L1 Local Trigger Block
   // BTI
-  vector<DTBtiTrigData> btitrigs = MyTrig->BtiTrigs();
+  vector<DTBtiTrigData> btitrigs = my_trig->BtiTrigs();
   vector<DTBtiTrigData>::const_iterator pbti;
   int ibti = 0;
-  if (debug == true) cout << "[DTTrigTest] " << btitrigs.size() << " BTI triggers found" << endl;
+  if (my_debug)
+    cout << "[DTTrigTest] " << btitrigs.size() << " BTI triggers found" << endl;
+  
   for ( pbti = btitrigs.begin(); pbti != btitrigs.end(); pbti++ ) {
     if ( ibti < 100 ) {
       bwh[ibti]=pbti->wheel();
@@ -241,8 +282,8 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
       bcod[ibti]=pbti->code();
       bk[ibti]=pbti->K();
       bx[ibti]=pbti->X();
-      GlobalPoint pos = MyTrig->CMSPosition(&(*pbti));
-      GlobalVector dir = MyTrig->CMSDirection(&(*pbti));
+      GlobalPoint pos = my_trig->CMSPosition(&(*pbti));
+      GlobalVector dir = my_trig->CMSDirection(&(*pbti));
       bposx[ibti] = pos.x();
       bposy[ibti] = pos.y();
       bposz[ibti] = pos.z();
@@ -253,13 +294,14 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
     }
   } 
   nbti = ibti;
-  //cout << nbti << endl;
   
   //TRACO
-  vector<DTTracoTrigData> tracotrigs = MyTrig->TracoTrigs();
+  vector<DTTracoTrigData> tracotrigs = my_trig->TracoTrigs();
   vector<DTTracoTrigData>::const_iterator ptc;
   int itraco = 0;
-  if (debug == true) cout << "[DTTrigTest] " << tracotrigs.size() << " TRACO triggers found" << endl;
+  if (my_debug)
+    cout << "[DTTrigTest] " << tracotrigs.size() << " TRACO triggers found" << endl;
+  
   for (ptc=tracotrigs.begin(); ptc!=tracotrigs.end(); ptc++) {
     if (itraco<80) {
       twh[itraco]=ptc->wheel();
@@ -270,8 +312,8 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
       tcod[itraco]=ptc->code();
       tk[itraco]=ptc->K();
       tx[itraco]=ptc->X();
-      GlobalPoint pos = MyTrig->CMSPosition(&(*ptc));
-      GlobalVector dir = MyTrig->CMSDirection(&(*ptc));
+      GlobalPoint pos = my_trig->CMSPosition(&(*ptc));
+      GlobalVector dir = my_trig->CMSDirection(&(*ptc));
       tposx[itraco] = pos.x();
       tposy[itraco] = pos.y();
       tposz[itraco] = pos.z();
@@ -282,25 +324,25 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
     }
   }
   ntraco = itraco;
-  //cout << ntraco << endl;
   
   //TSPHI
-  vector<DTChambPhSegm> tsphtrigs = MyTrig->TSPhTrigs();
+  vector<DTChambPhSegm> tsphtrigs = my_trig->TSPhTrigs();
   vector<DTChambPhSegm>::const_iterator ptsph;
   int itsphi = 0; 
-  if (debug == true) cout << "[DTTrigTest] " << tsphtrigs.size() << " TSPhi triggers found" << endl;
+  if (my_debug ) 
+    cout << "[DTTrigTest] " << tsphtrigs.size() << " TSPhi triggers found" << endl;
+  
   for (ptsph=tsphtrigs.begin(); ptsph!=tsphtrigs.end(); ptsph++) {
     if (itsphi<40 ) {
-      const DTChambPhSegm& seg = (*ptsph);
       swh[itsphi] = ptsph->wheel();
       sstat[itsphi] = ptsph->station();
       ssect[itsphi] = ptsph->sector();
-      sbx[itsphi] = ptsph->step();      
+      sbx[itsphi] = ptsph->step();
       scod[itsphi] = ptsph->oldCode();
       sphi[itsphi] = ptsph->phi();
       sphib[itsphi] = ptsph->phiB();
-      GlobalPoint pos = MyTrig->CMSPosition(&seg); 
-      GlobalVector dir = MyTrig->CMSDirection(&seg);
+      GlobalPoint pos = my_trig->CMSPosition(&(*ptsph)); 
+      GlobalVector dir = my_trig->CMSDirection(&(*ptsph));
       sposx[itsphi] = pos.x();
       sposy[itsphi] = pos.y();
       sposz[itsphi] = pos.z();
@@ -311,13 +353,14 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
     }
   }
   ntsphi = itsphi;
-  //cout << ntsphi << endl;
   
-  //TSPHI
-  vector<DTChambThSegm> tsthtrigs = MyTrig->TSThTrigs();
+  //TSTHETA
+  vector<DTChambThSegm> tsthtrigs = my_trig->TSThTrigs();
   vector<DTChambThSegm>::const_iterator ptsth;
   int itstheta = 0; 
-  if (debug == true) cout << "[DTTrigTest] " << tsthtrigs.size() << " TSTheta triggers found" << endl;
+  if (my_debug) 
+    cout << "[DTTrigTest] " << tsthtrigs.size() << " TSTheta triggers found" << endl;
+  
   for (ptsth=tsthtrigs.begin(); ptsth!=tsthtrigs.end(); ptsth++) {
     if (itstheta<40 ) {
       thwh[itstheta] = ptsth->ChamberId().wheel();
@@ -334,7 +377,60 @@ void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
   }
   ntstheta = itstheta;
   
+  //SCPHI
+  vector<DTSectCollPhSegm> scphtrigs = my_trig->SCPhTrigs();
+  vector<DTSectCollPhSegm>::const_iterator pscph;
+  int iscphi = 0; 
+  if (my_debug ) 
+    cout << "[DTTrigTest] " << scphtrigs.size() << " SectCollPhi triggers found" << endl;
+  
+  for (pscph=scphtrigs.begin(); pscph!=scphtrigs.end(); pscph++) {
+    if (iscphi<40 ) {
+      const DTChambPhSegm *seg = (*pscph).tsPhiTrig();
+      scphwh[iscphi] = pscph->wheel();
+      scphstat[iscphi] = pscph->station();
+      scphsect[iscphi] = pscph->sector();
+      scphbx[iscphi] = pscph->step();
+      scphcod[iscphi] = pscph->oldCode();
+      scphphi[iscphi] = pscph->phi();
+      scphphib[iscphi] = pscph->phiB();
+      GlobalPoint pos = my_trig->CMSPosition(seg); 
+      GlobalVector dir = my_trig->CMSDirection(seg);
+      scphposx[iscphi] = pos.x();
+      scphposy[iscphi] = pos.y();
+      scphposz[iscphi] = pos.z();
+      scphdirx[iscphi] = dir.x();
+      scphdiry[iscphi] = dir.y();
+      scphdirz[iscphi] = dir.z();
+      iscphi++;
+    }
+  }
+  nscphi = iscphi;
+  
+  //SCTHETA
+  vector<DTSectCollThSegm> scthtrigs = my_trig->SCThTrigs();
+  vector<DTSectCollThSegm>::const_iterator pscth;
+  int isctheta = 0; 
+  if (my_debug) 
+    cout << "[DTTrigTest] " << scthtrigs.size() << " SectCollTheta triggers found" << endl;
+  
+  for (pscth=scthtrigs.begin(); pscth!=scthtrigs.end(); pscth++) {
+    if (isctheta<40 ) {
+      scthwh[isctheta] = pscth->ChamberId().wheel();
+      scthstat[isctheta] = pscth->ChamberId().station();
+      scthsect[isctheta] = pscth->ChamberId().sector();
+      scthbx[isctheta] = pscth->step();
+      for(int i=0;i<7;i++) {
+	  scthcode[isctheta][i] = pscth->code(i);
+	  scthpos[isctheta][i] = pscth->position(i);
+	  scthqual[isctheta][i] = pscth->quality(i);
+      }
+      isctheta++;
+    }
+  }
+  nsctheta = isctheta;
+  
   //Fill the tree
-  theTree->Fill();
+  my_tree->Fill();
 
 }

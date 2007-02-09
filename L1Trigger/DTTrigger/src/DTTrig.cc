@@ -9,11 +9,9 @@
 //   Author List:
 //   C. Grandi
 //   Modifications: 
-//   S Vanini, S. Marcellini, D. Bonacorsi
+//   S Vanini, S. Marcellini, D. Bonacorsi,  C.Battilana
 //
 //--------------------------------------------------
-
-//#include "Utilities/Configuration/interface/Architecture.h"
 
 //-----------------------
 // This Class's Header --
@@ -29,11 +27,6 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 
-//SV to access geometry from TestBeams, TB2003 setup...
-//#include "TestBeams/DTBXSetUp/interface/DTBXSetUp.h"
-//#include "Utilities/Notification/interface/Singleton.h"
-//#include "Muon/MBDetector/interface/MuBarDetectorMap.h"
-
 //---------------
 // C++ Headers --
 //---------------
@@ -42,116 +35,28 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-//#include "Utilities/Notification/interface/Singleton.h"
-//#include "Muon/MBSetup/interface/MuBarrelSetup.h"
-//#include "Muon/MBDetector/interface/MuBarDetectorMap.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 
 //----------------
 // Constructors --
 //----------------
-DTTrig::DTTrig() {
+
+// DTTrig::DTTrig()
+
+
+DTTrig::DTTrig(const edm::ParameterSet& pset) :
+_conf_pset(pset) {
 
 
   // Set configuration parameters
-  _config = new DTConfig();
+  _debug = pset.getUntrackedParameter<bool>("Debug");
 
-  if(config()->debug()>3){
+  if(_debug){
     std::cout << std::endl;
     std::cout << "**** Initialization of DTTrigger ****" << std::endl;
     std::cout << std::endl;
   }
 
-  for(int iwh=-2;iwh<=2;iwh++){ 
-    for(int ist=1;ist<=4;ist++){ 
-      for(int ise=1;ise<=12;ise++){
-	DTChamberId chid(iwh,ist,ise);
-	// create varous config files
-	Conf_iterator cit = _localconf.find(chid);
-	if ( cit != _localconf.end()) {
-	  std::cout << "DTTrig::init: Local Config File already exists" << std::endl;
-	  continue;
-	}
-	_localconf[chid] = _config;
-      }
-    }
-  }
-  for(int iwh=-2;iwh<=2;iwh++){  
-    for(int ise=13;ise<=14;ise++){
-      int ist=4;
-      DTChamberId chid(iwh,ist,ise);
-      // create varous config files
-      Conf_iterator cit = _localconf.find(chid);
-      if ( cit != _localconf.end()) {
-	std::cout << "DTTrig::init: Local Config File already exists" << std::endl;
-	continue;
-      }
-      _localconf[chid] = _config;
-    }
-  }
-  
-
-}
-
-
-DTTrig::DTTrig(const edm::ParameterSet& pset, std::string mysync) {
-
-
-  // Set configuration parameters
-  _config = new DTConfig();
-
-  if(config()->debug()>3){
-    std::cout << std::endl;
-    std::cout << "**** Initialization of DTTrigger ****" << std::endl;
-    std::cout << std::endl;
-  }
-
-  for(int iwh=-2;iwh<=2;iwh++){ 
-    for(int ist=1;ist<=4;ist++){ 
-      for(int ise=1;ise<=12;ise++){
-	DTChamberId chid(iwh,ist,ise);
-	// create varous config files
-	Conf_iterator cit = _localconf.find(chid);
-	if ( cit != _localconf.end()) {
-	  std::cout << "DTTrig::init: Local Config File already exists" << std::endl;
-	  continue;
-	}
-	DTConfig *conf = new DTConfig();
-	std::stringstream os;
-	os << "wh" << chid.wheel()
-	   << "se" << chid.sector()
-	   << "st" << chid.station();
-	double ftdelay = pset.getParameter<double>(os.str());
-	conf->setParamValue("BTI setup time","psetdelay",ftdelay*32./25.);
-	//conf->setParam("BTI setup time","psetdelay");
-	conf->setParam("Programmable Dealy",mysync);
-	_localconf[chid] = conf;
-      }
-    }
-  }
-  for(int iwh=-2;iwh<=2;iwh++){  
-    for(int ise=13;ise<=14;ise++){
-      int ist=4;
-      DTChamberId chid(iwh,ist,ise);
-      // create varous config files
-      Conf_iterator cit = _localconf.find(chid);
-      if ( cit != _localconf.end()) {
-	std::cout << "DTTrig::init: Local Config File already exists" << std::endl;
-	continue;
-      }
-      DTConfig *conf = new DTConfig();
-      std::stringstream os;
-      os << "wh" << chid.wheel()
-	 << "se" << chid.sector()
-	 << "st" << chid.station();
-      double ftdelay = pset.getParameter<double>(os.str());
-      conf->setParamValue("BTI setup time","psetdelay",ftdelay*32./25.);
-      //conf->setParam("BTI Fine sync delay","psetdelay");
-      conf->setParam("Programmable Dealy",mysync);
-      _localconf[chid] = conf;
-    }
-  }
-  
 }
 
 
@@ -159,66 +64,50 @@ DTTrig::DTTrig(const edm::ParameterSet& pset, std::string mysync) {
 // Destructor --
 //--------------
 DTTrig::~DTTrig(){
-  delete _config;
+
   clear();
+
 }
 
-//--------------
-// Operations --
-//--------------
-struct TmpSort : 
-  public std::binary_function< const DTChamber*, 
-  const DTChamber*, bool> {
-    public:
-      bool operator()(const DTChamber* c1, 
-                      const DTChamber* c2) const {
-        return c1->id() < c2->id(); }
-};
-
 void 
-//DTTrig::createTUs(TBSetUp* run){   //SV: for TestBeams setup
-// DTTrig::createTUs(G3SetUp* run){
 DTTrig::createTUs(const edm::EventSetup& iSetup ){
   
   // build up Sector Collectors and then
   // build the trrigger units (one for each chamber)
-  //     for(int iwh=1;iwh<=5;iwh++){ 
   for(int iwh=-2;iwh<=2;iwh++){ 
-    for(int ist=1;ist<=4;ist++){    
-      for(int ise=1;ise<=12;ise++){ 
-	if(config()->debug()>3){
-	  std::cout << "calling sectcollid wh st sc " << iwh << " " <<ist << " " << ise << std::endl;}
-	DTSectCollId scid(iwh, ist, ise);
-	SC_iterator it =  _cache1.find(scid);
-	if ( it != _cache1.end()) {
-	  std::cout << "DTTrig::createTUs: Sector Collector unit already exists"<<std::endl;
-	  continue;
-	}    
-	// add a sector collector to the map
-	DTSectColl* sc = new DTSectColl( config());
-	if(config()->debug()>3){
-	  std::cout << " DTTrig::createTUs new SC sc = " << sc << " at scid.station() " << scid.station() 
-		    << " at scid.sector() " << scid.sector() << " at scid.wheel() " << scid.wheel()   << std::endl;}
-	_cache1[scid] = sc; 
-	
+    for(int ise=1;ise<=12;ise++){ 
+      if(_debug){
+	std::cout << "calling sectcollid wh sc " << iwh <<  " " << ise << std::endl;}
+      DTSectCollId scid(iwh,ise);
+      SC_iterator it =  _cache1.find(scid);
+      if ( it != _cache1.end()) {
+	std::cout << "DTTrig::createTUs: Sector Collector unit already exists"<<std::endl;
+	continue;
+      }    
+      // add a sector collector to the map
+//       SCConf_iterator scit = _scconf.find(scid);
+      edm::ParameterSet sc_pset = _conf_pset.getParameter<edm::ParameterSet>("SectCollParameters");
+      DTSectColl* sc;
+      sc = new DTSectColl(sc_pset);
+      //  if ( scit != _scconf.end()){
+      // 	sc = new DTSectColl( (*scit).second);
+      //       }
+      //       else {
+      // 	std::cout << "DTTrig::createTUs: SC config file does not exist. Using default one";
+      // 	sc = new DTSectColl(config());
+      //       }
+      if(_debug){
+	std::cout << " DTTrig::createTUs new SC sc = " << sc  
+		  << " at scid.sector() " << scid.sector() 
+		  << " at scid.wheel() " << scid.wheel()   
+		  << std::endl;
       }
+      _cache1[scid] = sc;  
     }
   }
   
-  // ---------------  
-  
-  // build the trigger units (one for each chamber)
-//   DTrelSetup* muon_setup = Singleton<MuBarrelSetup>::instance();
-//   const DTDetectorMap& map = muon_setup->map();
-//   const std::vector<DTChamber*> chamsTmp = map.chambers();
-//   std::vector<DTChamber*> chams(chamsTmp);
-//   sort(chams.begin(), chams.end(), TmpSort());
-//   for ( std::vector<DTChamber*>::const_iterator ich = chams.begin();
-//         ich!=chams.end(); ich++ ) { 
-  //Fino qua dovrebbe diventare...
   edm::ESHandle<DTGeometry>pDD;
   iSetup.get<MuonGeometryRecord>().get(pDD);
-  //iEvent.getByLabel("srivi_qui_il_label",pDD);
   for (std::vector<DTChamber*>::const_iterator ich=pDD->chambers().begin(); ich!=pDD->chambers().end();ich++){
        
     DTChamber* chamb = (*ich);
@@ -228,51 +117,50 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
       std::cout << "DTTrig::init: Trigger unit already exists" << std::endl;
       continue;
     }    
-    Conf_iterator cit = _localconf.find(chid);
-      if ( cit == _localconf.end()) {
-	std::cout << "DTTrig::init: Local Config File already existsnot found using default congig" << std::endl;
-	DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,config());
-	_cache[chid] = tru;
-	continue;
-      }
+    //    Conf_iterator cit = _truconf.find(chid);
+    //       if ( cit == _truconf.end()) {
+    // 	std::cout << "DTTrig::init: Local Config File not found using default config" << std::endl;
+    // 	DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,config());
+    // 	_cache[chid] = tru;
+    // 	continue;
+    //       }
+
     // add a trigger unit to the map with a link to the station
-    DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,(*cit).second);
+    edm::ParameterSet tu_pset = _conf_pset.getParameter<edm::ParameterSet>("TUParameters");
+    DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,tu_pset);
     _cache[chid] = tru;
     
     //----------- add TU to corresponding SC
     // returning correspondent SC id
-    int flag = 0;
     DTSectCollId scid;
     if(chid.sector()==13) { 
-      flag = 1; 
-      scid = DTSectCollId(chid.wheel(), chid.station(), 4);}
+      scid = DTSectCollId(chid.wheel(), 4);}
     else if(chid.sector()==14)  {
-      flag = 1; 
-      scid = DTSectCollId(chid.wheel(), chid.station(), 10);}
-    else if((chid.sector()==4 ||chid.sector()==10) && (chid.station()==4)) { flag = 0; 
-    scid = DTSectCollId(chid.wheel(), chid.station(), chid.sector() );}
-    else  { flag = 2; 
-    scid = DTSectCollId(chid.wheel(), chid.station(), chid.sector() );}
+      scid = DTSectCollId(chid.wheel(), 10);}
+    else  { 
+      scid = DTSectCollId(chid.wheel(), chid.sector() );}
     
     SC_iterator it1 =  _cache1.find(scid);
-
+    
     if ( it1 != _cache1.end()) {
       
       DTSectColl* sc = (*it1).second;
-      if(config()->debug()>3) {
-      std::cout << "DTTrig::init:  adding TU in SC << at station() " << scid.station() << 
-	" sector = " << scid.sector() << " wheel = " << scid.wheel() << std::endl;}
-      sc->addTU(tru,flag);    
+      if(_debug) {
+	std::cout << "DTTrig::init:  adding TU in SC << " 
+		  << " sector = " << scid.sector() 
+		  << " wheel = " << scid.wheel() 
+		  << std::endl;}
+      sc->addTU(tru);    
     }
     else {
       std::cout << "DTTrig::createTUs: Trigger Unit not in the map: ";
     }
-
+    
   }
   /*
   //SV for TestBeam 2003: Chambers from DTBXSetp ddd geometry
   // loop over chambers, superlayers and layers
-  if(config()->debug()>3)
+  if(_debug)
     std::cout << "DTTrig::createTUs" << std::endl;
   DTBXSetUp* setup = Singleton<DTBXSetUp>::instance();
   DTDetectorMap* detMap = setup->chamberMap();
@@ -286,7 +174,7 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
       continue;
     }
     // add a trigger unit to the map with a link to the station
-    if(config()->debug()>3)
+    if(_debug)
       std::cout << "Creating Trigger Unit and adding to the cache" << std::endl;
     DTSCTrigUnit* tru = new DTSCTrigUnit((*stat), config());
     _cache[idc] = tru;
@@ -322,48 +210,81 @@ DTTrig::triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 //       digiMap[chambId].push_back((*digiIt));
 //     }
   }
+
+  // CB the commented because we don't use config()->debug() anymore in future will probably be possible to avoid the digis sorting  
+//   if(config()->debug()>2){
+//     std::cout << "----------DTDigis ordered by chamber:" << std::endl;
+//     for (DTDigiMap_const_iterator digiMapIt=digiMap.begin();
+// 	 digiMapIt!=digiMap.end();
+// 	 digiMapIt++){
+//       DTChamberId chambId = (*digiMapIt).first;
+//       DTDigiCollection digis = (*digiMapIt).second;
+//       std::cout << "Chamber id   " << chambId << std::endl;
+//       DTDigiCollection::DigiRangeIterator RangeIt;
+//       for (RangeIt=digis.begin();
+// 	   RangeIt!=digis.end();
+// 	   RangeIt++){
+// 	std::cout << "Digi's layer   " << (*RangeIt).first << std::endl;
+// 	const DTDigiCollection::Range& range = (*RangeIt).second;
+// 	for (DTDigiCollection::const_iterator digiIt = range.first;
+// 	     digiIt!=range.second;
+// 	     ++digiIt){
+// 	  std::cout << "Digi's data   " << (*digiIt) << std::endl; 
+// 	}
+	
+	
+//       }
+//     }
+//   }
   
-  if(config()->debug()>2){
-    std::cout << "----------DTDigis ordered by chamber:" << std::endl;
-    for (DTDigiMap_const_iterator digiMapIt=digiMap.begin();
-	 digiMapIt!=digiMap.end();
-	 digiMapIt++){
-      DTChamberId chambId = (*digiMapIt).first;
-      DTDigiCollection digis = (*digiMapIt).second;
-      std::cout << "Chamber id   " << chambId << std::endl;
-      DTDigiCollection::DigiRangeIterator RangeIt;
-      for (RangeIt=digis.begin();
-	   RangeIt!=digis.end();
-	   RangeIt++){
-	std::cout << "Digi's layer   " << (*RangeIt).first << std::endl;
-	const DTDigiCollection::Range& range = (*RangeIt).second;
-	for (DTDigiCollection::const_iterator digiIt = range.first;
-	     digiIt!=range.second;
-	     ++digiIt){
-	  std::cout << "Digi's data   " << (*digiIt) << std::endl; 
-	}
-	
-	
+  //Run reconstruct for single trigger subsystem (Bti, Traco TS)
+  for (TU_iterator it=_cache.begin();it!=_cache.end();it++){
+    DTSCTrigUnit* thisTU=(*it).second;
+    if (thisTU->BtiTrigs()->size()>0){
+      thisTU->BtiTrigs()->clearCache();
+      thisTU->TSThTrigs()->clearCache();
+      thisTU->TracoTrigs()->clearCache();
+      thisTU->TSPhTrigs()->clearCache();
+    }
+    DTChamberId chid=thisTU->statId();
+    DTDigiMap_iterator dmit = digiMap.find(chid);
+    if (dmit !=digiMap.end()){
+      thisTU->BtiTrigs()->reconstruct((*dmit).second); 
+      if(thisTU->BtiTrigs()->size()>0){
+	thisTU->TSThTrigs()->reconstruct();
+	thisTU->TracoTrigs()->reconstruct();
+	if(thisTU->TracoTrigs()->size()>0)
+	  thisTU->TSPhTrigs()->reconstruct();
       }
     }
   }
-
-  //Run reconstruct for single trigger subsystem (Bti, Traco TS)
-  for (TU_iterator it=_cache.begin();it!=_cache.end();it++){
-    //DTDigiCollection dummydigicoll;
-    DTSCTrigUnit* thisTU=(*it).second;
-    DTChamberId chid=thisTU->statId();
-    DTDigiMap_iterator dmit = digiMap.find(chid);
-    if (dmit !=digiMap.end()) {thisTU->BtiTrigs()->reconstruct((*dmit).second);}
-    else {thisTU->BtiTrigs()->clearCache();}
-    thisTU->TSThTrigs()->reconstruct();
-    thisTU->TracoTrigs()->reconstruct();
-    thisTU->TSPhTrigs()->reconstruct();
-  }
   //Run reconstruct for Sector Collector
   for (SC_iterator it=_cache1.begin();it!=_cache1.end();it++){
-    (*it).second->reconstruct();
+    DTSectColl* sectcoll = (*it).second;
+    DTSectCollId scid = (*it).first;
+    if (sectcoll->sizePh()>0 || sectcoll->sizeTh()>0)
+      sectcoll->clearCache();
+    bool mustreco = false;
+    for (int i=1;i<5;i++) {
+      if (sectcoll->getTSPhi(i)->size()>0) {
+	mustreco = true;
+	break;
+      }
+    }
+    for (int i=1;i<4;i++) {
+      if (sectcoll->getTSTheta(i)->size()>0) {
+	mustreco = true;
+	break;
+      }
+    }
+    if (scid.sector()==4 || scid.sector()==10){
+      if (sectcoll->getTSPhi(5)->size()>0)
+	mustreco = true;
+    }
+    if (mustreco)
+      sectcoll->reconstruct();
   }
+
 }
 
 void
@@ -413,7 +334,6 @@ SC_const_iterator it = _cache1.find(scid);
   if ( it == _cache1.end()) {
     std::cout << "DTTrig::SCUnit: Trigger Unit not in the map: ";
     std::cout << " wheel=" << scid.wheel() ;
-    std::cout << ", station=" << scid.station();
     std::cout << ", sector=" << scid.sector();
     std::cout << std::endl;
     return 0;
@@ -423,31 +343,20 @@ SC_const_iterator it = _cache1.find(scid);
 }
 
 DTSCTrigUnit*
-DTTrig::trigUnit(int wheel, int stat, int sect) {     //, int flag) {
-//    std::cout << " SC: running DTTrig::trigUnit(int wheel, int stat, int sect, int flag " << "wheel, stat, sect, flag " << wheel << " " << stat << " " << sect << " " << flag << std::endl;
-  /*check();*/ return constTrigUnit(wheel, stat, sect); //, flag);
+DTTrig::trigUnit(int wheel, int stat, int sect) {
+  return constTrigUnit(wheel, stat, sect);
 }
 
 DTSectColl*
-DTTrig::SCUnit(int wheel, int stat, int sect) const {     //, int flag) {
-//    std::cout << " SC: running DTTrig::SCUnit(int wheel, int stat, int sect, int flag " << "wheel, stat, sect, flag " << wheel << " " << stat << " " << sect << " " << flag << std::endl;
-
-  /*check();*/ 
-  //  wheel+=3;
+DTTrig::SCUnit(int wheel, int sect) const {
   sect++;
-return SCUnit(DTSectCollId(wheel,stat,sect));
+  return SCUnit(DTSectCollId(wheel,sect));
 }
 
 
 DTSCTrigUnit*
-DTTrig::constTrigUnit(int wheel, int stat, int sect) const {  // ,int flag) const {
-  ///sm  wheel+=3; // offset 3 for wheel number ([-2,2] --> [1,5])
+DTTrig::constTrigUnit(int wheel, int stat, int sect) const {
   sect++;   // offset 1 for sector number ([0,11] --> [1,12])
-  // 90 and 270 deg sectors in MB4 are split up into 2 chambers
-  // if flag!=0 the 'twin' chamber is passed
-  //  std::cout << "SC: running DTTrig::constTrigUnit(int wheel, int stat, int sect, int flag) " << std::endl;;
-  //  if(stat==4&&(sect==4||sect==10)&&flag!=0) sect = (sect+74)/6; 
-
   return constTrigUnit(DTChamberId(wheel,stat,sect));
 
 }
@@ -492,9 +401,9 @@ DTTrig::chThetaSegm(DTChamberId sid, int step) {
 
 DTChambPhSegm*
 DTTrig::chPhiSegm1(int wheel, int stat, int sect, int step) {
-  // return chPhiSegm1(trigUnit(wheel,stat,sect),step);
+   return chPhiSegm1(trigUnit(wheel,stat,sect),step);
   // to make it transparent to the outside world
-    return chSectCollSegm1(wheel,stat,sect,step);
+  //  return chSectCollSegm1(wheel,stat,sect,step);
 
 }
 
@@ -504,9 +413,9 @@ DTTrig::chPhiSegm2(int wheel, int stat, int sect, int step) {
   // if hrizontal chambers of MB4 get first track of twin chamber (flag=1)
   //   return chPhiSegm1(trigUnit(wheel,stat,sect,1),step);
   //  } else {
-  //  return chPhiSegm2(trigUnit(wheel,stat,sect),step);
+    return chPhiSegm2(trigUnit(wheel,stat,sect),step);
   // to make it transparent to the outside world
-  return chSectCollSegm2(wheel,stat,sect,step);
+  // return chSectCollSegm2(wheel,stat,sect,step);
   //}
 }
 
@@ -517,50 +426,51 @@ DTTrig::chThetaSegm(int wheel, int stat, int sect, int step) {
 }
 
 // SM sector collector section
-DTChambPhSegm* 
-DTTrig::chSectCollSegm1(DTSectColl* unit, int step) {
+DTSectCollPhSegm* 
+DTTrig::chSectCollPhSegm1(DTSectColl* unit, int step) {
 
   if(unit==0)return 0;
-   if(unit->nSegm(step)<1)return 0;
-  //  std::cout << " SC: running DTTrig::chSectCollSegm(DTSectColl* unit, int step) BEFORE END" << std::endl;
-  return const_cast<DTChambPhSegm*>(unit->SectCollSegment(step,1));
+   if(unit->nSegmPh(step)<1)return 0;
+   return const_cast<DTSectCollPhSegm*>(unit->SectCollPhSegment(step,1));
 }
 
-DTChambPhSegm* 
-DTTrig::chSectCollSegm2(DTSectColl* unit, int step) {
+DTSectCollPhSegm* 
+DTTrig::chSectCollPhSegm2(DTSectColl* unit, int step) {
   if(unit==0)return 0;
-    if(unit->nSegm(step)<2)return 0;
-  return const_cast<DTChambPhSegm*>(unit->SectCollSegment(step,2));
+    if(unit->nSegmPh(step)<2)return 0;
+  return const_cast<DTSectCollPhSegm*>(unit->SectCollPhSegment(step,2));
 }
 
-//DTChambPhSegm* 
-//DTTrig::chSectCollSegm1(DTChamberId sid, int step) {
-//  return chSectCollSegm1(trigUnit(sid),step);
-//}
 
-//DTChambPhSegm* 
-//DTTrig::chSectCollSegm2(DTChamberId sid, int step) {
-//  return chSectCollSegm2(trigUnit(sid),step);
-//}
+DTSectCollPhSegm*
+DTTrig::chSectCollPhSegm1(int wheel, int sect, int step) {
 
-
-
-DTChambPhSegm*
-DTTrig::chSectCollSegm1(int wheel, int stat, int sect, int step) {
-
-  return chSectCollSegm1(SCUnit(wheel,stat,sect),step);
+  return chSectCollPhSegm1(SCUnit(wheel,sect),step);
 }
 
-DTChambPhSegm* 
-DTTrig::chSectCollSegm2(int wheel, int stat, int sect, int step) {
+DTSectCollPhSegm* 
+DTTrig::chSectCollPhSegm2(int wheel, int sect, int step) {
   //  if(stat==4&&(sect==3||sect==9)) {
     // if hrizontal chambers of MB4 get first track of twin chamber (flag=1)
   //return chSectCollSegm1(trigUnit(wheel,stat,sect,1),step);
   //} else {
-    return chSectCollSegm2(SCUnit(wheel,stat,sect),step);
+    return chSectCollPhSegm2(SCUnit(wheel,sect),step);
     //}
 }
 
+DTSectCollThSegm* 
+DTTrig::chSectCollThSegm(DTSectColl* unit, int step) {
+
+  if(unit==0)return 0;
+   if(unit->nSegmTh(step)<1)return 0;
+  return const_cast<DTSectCollThSegm*>(unit->SectCollThSegment(step));
+}
+
+DTSectCollThSegm*
+DTTrig::chSectCollThSegm(int wheel, int sect, int step) {
+
+  return chSectCollThSegm(SCUnit(wheel,sect),step);
+}
 
   // end SM
 
@@ -637,11 +547,11 @@ DTTrig::TSThTrigs()  {
   return trigs;
 }
 
-std::vector<DTChambPhSegm> 
-DTTrig::SCTrigs()  {
+std::vector<DTSectCollPhSegm> 
+DTTrig::SCPhTrigs()  {
   /*check();*/
-  std::vector<DTChambPhSegm> trigs;
-  //  TU_iterator ptu;
+  std::vector<DTSectCollPhSegm> trigs;
+  //  SC_iterator ptu;
   SC_iterator psc;
   for(psc=_cache1.begin();psc!=_cache1.end();psc++) {
     //    DTSCTrigUnit* tu = (*ptu).second;
@@ -655,9 +565,9 @@ DTTrig::SCTrigs()  {
     //      } 
 
     DTSectColl* sc = (*psc).second;
-    std::vector<DTChambPhSegm>::const_iterator p; //p=0;
-    std::vector<DTChambPhSegm>::const_iterator peb=sc->end();
-    for(p=sc->begin();p!=peb;p++){
+    std::vector<DTSectCollPhSegm>::const_iterator p;
+    std::vector<DTSectCollPhSegm>::const_iterator peb=sc->endPh();
+    for(p=sc->beginPh();p!=peb;p++){
       trigs.push_back(*p);
     }
 
@@ -666,8 +576,19 @@ DTTrig::SCTrigs()  {
 }
 
 
+std::vector<DTSectCollThSegm> 
+DTTrig::SCThTrigs()  {
+  /*check();*/
+  std::vector<DTSectCollThSegm> trigs;
+  SC_iterator psc;
+  for(psc=_cache1.begin();psc!=_cache1.end();psc++) {
+    DTSectColl* sc = (*psc).second;
+    std::vector<DTSectCollThSegm>::const_iterator p; //p=0;
+    std::vector<DTSectCollThSegm>::const_iterator peb=sc->endTh();
+    for(p=sc->beginTh();p!=peb;p++){
+      trigs.push_back(*p);
+    }
 
-
-
-
-
+  }
+  return trigs;
+}
