@@ -10,11 +10,7 @@ This service is instantiated at job startup.
 
 ----------------------------------------------------------------------*/
 
-#include <string>
 #include <signal.h>
-
-//#include "sigc++/signal.h"
-#include "boost/thread/thread.hpp"
 
 namespace edm {
   class ParameterSet;
@@ -34,6 +30,7 @@ namespace edm {
 
   private:
     sigset_t oldset;
+    bool mainThreadAllSigs_;
 
   }; // class UnixSignalService
   }  // end of namespace service
