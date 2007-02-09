@@ -11,6 +11,8 @@ namespace edm {
 
     boost::mutex usr2_lock;
 
+//--------------------------------------------------------------
+
     extern "C" {
       volatile bool shutdown_flag = false;
 
@@ -21,6 +23,8 @@ namespace edm {
       }
     }
 
+//--------------------------------------------------------------
+
     boost::mutex signum_lock;
     volatile int signum_value = 
 #if defined(__linux__)
@@ -28,6 +32,8 @@ namespace edm {
 #else
     0;
 #endif
+
+//--------------------------------------------------------------
 
     int getSigNum()
     {
@@ -38,7 +44,9 @@ namespace edm {
     }
 
 #define MUST_BE_ZERO(fun) if((fun) != 0)					\
-      { perror("UnixSignalService::setupSignal: sig function failed"); abort(); }
+      { perror("UnixSignalHandlers::setupSignal: sig function failed"); abort(); }
+
+//--------------------------------------------------------------
 
     void disableAllSigs(sigset_t* oldset)
     {
@@ -47,6 +55,8 @@ namespace edm {
       MUST_BE_ZERO(sigfillset(&myset));
       MUST_BE_ZERO(pthread_sigmask(SIG_SETMASK,&myset,oldset));
     }
+
+//--------------------------------------------------------------
 
     void disableRTSigs()
     {
@@ -68,11 +78,15 @@ namespace edm {
 #endif
     }
 
+//--------------------------------------------------------------
+
     void reenableSigs(sigset_t* oldset)
     {
       // reenable the signals
       MUST_BE_ZERO(pthread_sigmask(SIG_SETMASK,oldset,0));
     }
+
+//--------------------------------------------------------------
 
     void installSig(int signum, CFUNC func)
     {

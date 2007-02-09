@@ -6,8 +6,6 @@
 UnixSignalHandlers: A set of little utility functions to establish
 and manipulate Unix-style signal handling.
 
-At present, only SIGUSR2 is considered.
-
 ----------------------------------------------------------------------*/
 
 #include <signal.h>
