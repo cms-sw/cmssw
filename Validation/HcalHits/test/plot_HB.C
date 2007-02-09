@@ -1,9 +1,4 @@
-#include "TFile.h"
-#include "TTree.h"
-#include "TBranch.h"
-#include "TH2F.h"
-#include "TH2F.h"
-
+// Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
 void plot_HB(TString inputfile="simevent_HB.root",
 	     TString outputfile="HB_histo.root",
 	     TString    reffile="../data/HB_ref.root")
