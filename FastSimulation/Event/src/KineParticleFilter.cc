@@ -15,6 +15,7 @@ KineParticleFilter::KineParticleFilter(const edm::ParameterSet& kine)
   EMin   = kine.getParameter<double>("EMin");   // Lower E  bound (all, in GeV)
 
   // Change eta cuts to cos**2(theta) cuts (less CPU consuming)
+  if ( etaMax > 20. ) etaMax = 20.; // Protection against paranoid people.
   double cosMax = (exp(2.*etaMax)-1.) / (exp(2.*etaMax)+1.);
   cos2Max = cosMax*cosMax;
 
