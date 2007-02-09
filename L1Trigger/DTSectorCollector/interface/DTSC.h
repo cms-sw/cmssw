@@ -1,9 +1,9 @@
 //-------------------------------------------------
 //
-/**   \class: L1MuDTSC.h
+/**   \class: DTSC.h
  *
  *
- *   $Date: 2004/03/24 14:23:07 $
+ *   $Date: 2006/07/19 10:44:41 $
  *
  *   Implementation of Sector Collector trigger algorithm
  *
@@ -20,8 +20,9 @@
 //------------------------------------
 class DTTracoTrigData;
 class DTChambPhSegm;
-class DTSectCollCand;
-class DTConfig;
+class DTSectCollPhCand;
+class DTSectCollThCand;
+class DTConfigSectColl;
 class DTTrigGeom;
 
 //----------------------
@@ -44,7 +45,7 @@ class DTSC{
  public:
 
   //!  Constructor
-  DTSC(DTConfig*);
+  DTSC(DTConfigSectColl*, int istat);
  
   //!  Destructor 
   ~DTSC();
@@ -52,7 +53,14 @@ class DTSC{
   // non-const methods
 
   //! Add a TSM candidate to the Sect Coll, ifs is first/second track flag
-  void addCand(DTSectCollCand* cand);
+  void addPhCand(DTSectCollPhCand* cand);
+
+  //! Add a Theta candidate to sect coll
+  void addThCand(DTSectCollThCand* cand);
+
+  //! add a Sector Collector  CONTROLLA LA DIFFERENZA TRA QUESTO E addPhCand!!!!!!!!!!
+  void addDTSectCollPhCand(DTSectCollPhCand* cand);
+
 
   //! Set a flag to skip sort2
   void ignoreSecondTrack() { _ignoreSecondTrack=1; }
@@ -60,11 +68,11 @@ class DTSC{
   //! Run the Sector Collector algorithm
   void run();
 
-  //! Sort 1
-  DTSectCollCand* DTSectCollsort1();
+  //! Phi Sort 1
+  DTSectCollPhCand* DTSectCollsort1();
   
-  //! Sort 2
-  DTSectCollCand* DTSectCollsort2();
+  //! Phi Sort 2
+  DTSectCollPhCand* DTSectCollsort2();
 
   //! Clear
   void clear();
@@ -72,47 +80,57 @@ class DTSC{
   // const methods
 
   //! Configuration set
-  inline DTConfig* config() const { return _config; }
+  inline DTConfigSectColl* config() const { return _config; }
 
-  //! Return the number of input tracks (first/second)
-  unsigned nCand(int ifs) const;
+  //! Return the number of Phi input tracks (first/second)
+  unsigned nCandPh (int ifs) const;
+
+  //! Return the number of Theta input tracks
+  unsigned nCandTh () const;
 
   //! Return the number of input first tracks
-  inline int nFirstT() const { return _incand[0].size(); }
+  inline int nFirstTPh() const { return _incand_ph[0].size(); }
 
   //! Return the number of input second tracks
-  inline int nSecondT() const { return _incand[1].size(); }
-
-  //! add a Sector Collector
-  void addDTSectCollCand(DTSectCollCand* cand);
+  inline int nSecondTPh() const { return _incand_ph[1].size(); }
 
   //! Return requested TSS candidate
-  DTSectCollCand* getDTSectCollCand(int ifs, unsigned n) const;
+  DTSectCollPhCand* getDTSectCollPhCand(int ifs, unsigned n) const;
 
-  //! Return requested TRACO trigger
-  const DTTracoTrigData* getTracoT(int ifs, unsigned n) const;
+  //! Return requested Theta candidate
+  DTSectCollThCand* getDTSectCollThCand(unsigned n) const;
 
-  //! Return the number of sorted tracks
-  inline int nTracks() const { return _outcand.size(); }
+  //! Return the number of output Phi tracks
+  inline int nTracksPh() const { return _outcand_ph.size(); }
 
-  //! Return the requested track
-  //  DTSectCollCand* getTrack(int n) const ;
-  DTSectCollCand* getTrack(int n) const ;
+  //! Return the number of output Theta tracks
+  inline int nTracksTh() const { return _cand_th.size(); }
+
+  //! Return the requested Phi track
+  DTSectCollPhCand* getTrackPh(int n) const ; 
+  
+  //! Return the requested Theta track
+  DTSectCollThCand* getTrackTh(int n) const ;
 
  private:
 
   // Configuration
-  DTConfig* _config;
+  DTConfigSectColl* _config;
 
-  // input data
-  std::vector<DTSectCollCand*> _incand[2];
+  // input phi data
+  std::vector<DTSectCollPhCand*> _incand_ph[2];
 
-  // output data
-  std::vector<DTSectCollCand*> _outcand;
+  // output phi data
+  std::vector<DTSectCollPhCand*> _outcand_ph;
+
+  // theta data 
+  std::vector<DTSectCollThCand*> _cand_th;
 
   // internal use variables
   int _ignoreSecondTrack;
 
+  // station number [1-5]
+  int _stat;
 
 };
 

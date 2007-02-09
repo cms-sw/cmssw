@@ -1,11 +1,11 @@
 //-------------------------------------------------
 //
-//   \class: L1MuDTSC.h
+//   \class: DTSC.h
 /**
  *   Implementation of Sector Collector trigger algorithm
  *
  *
- *   $Date: 2004/03/18 09:43:46 $
+ *   $Date: 2006/07/19 10:44:41 $
  *
  *   \author D. Bonacorsi, S. Marcellini
  */
@@ -19,10 +19,10 @@
 //------------------------------------
 class DTTracoTrigData;
 class DTTSCand;
-class DTConfig;
+class DTConfigSectColl;
 // added DBSM
 class DTTrigGeom;
-//class DTGeomSupplier;
+
 //----------------------
 // Base Class Headers --
 //----------------------
@@ -42,10 +42,9 @@ class DTTrigGeom;
 class DTSC{
 
  public:
-  //!  Constructor
- 
-    DTSC(DTConfig*);
- 
+
+  //!  Constructor 
+  DTSC(DTConfigSectColl*);
 
   //!  Destructor 
   ~DTSC();
@@ -73,7 +72,7 @@ class DTSC{
   // const methods
 
   //! Configuration set
-  inline DTConfig* config() const { return _config; }
+  inline DTConfigSectColl* config() const { return _config; }
 
   //! Return the number of input tracks (first/second)
   unsigned nCand(int ifs) const;
@@ -98,8 +97,9 @@ class DTSC{
 
 
  private:
+
   // Configuration
-  DTConfig* _config;
+  DTConfigSectColl* _config;
 
   // input data
   std::vector<DTTSCand*> _incand[2];

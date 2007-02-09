@@ -8,11 +8,13 @@
 //   Author List:
 //   S. Marcellini
 //   Modifications: 
+//   11/11/06 C. Battilana : theta cand added
+//   12/12/06 C. Battilana : _stat added
+//   09/01/07 C. Battilana : updated to local conf
 //
 //
 //--------------------------------------------------
 
-//#include "Utilities/Configuration/interface/Architecture.h"
 
 //-----------------------
 // This Class's Header --
@@ -22,9 +24,10 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "L1Trigger/DTUtilities/interface/DTConfig.h"
-//#include "Trigger/DTTriggerServerPhi/interface/DTTSPhi.h"
+#include "L1Trigger/DTSectorCollector/interface/DTConfigSectColl.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectColl.h"
+#include "L1Trigger/DTSectorCollector/interface/DTSectCollPhCand.h"
+#include "L1Trigger/DTSectorCollector/interface/DTSectCollThCand.h"
 
 //---------------
 // C++ Headers --
@@ -36,11 +39,11 @@
 // Constructors --
 //----------------
 
-DTSC::DTSC(DTConfig* config) : _config(config), _ignoreSecondTrack(0) {
+DTSC::DTSC(DTConfigSectColl* config, int istat) : _config(config), _ignoreSecondTrack(0) ,_stat(istat){
 
   // reserve the appropriate amount of space for vectors
-  // test _incand[0].reserve(DTConfig::NTSMSC);
-  // test_incand[1].reserve(DTConfig::NTSMSC);
+  // test _incand[0].reserve(DTConfigSectColl::NTSMSC);
+  // test_incand[1].reserve(DTConfigSectColl::NTSMSC);
   // test _outcand.reserve(2);
  
 }
@@ -67,10 +70,11 @@ DTSC::clear() {
 
   for(int itk=0;itk<=1;itk++){
  
-    _incand[itk].clear();
+    _incand_ph[itk].clear();
   }
 
-  _outcand.clear();
+  _outcand_ph.clear();
+  _cand_th.clear();
 
 }
 
@@ -79,72 +83,74 @@ DTSC::clear() {
 void
 DTSC::run() {
 
-  if(config()->debug()>2){
+  if(config()->debug()){
     std::cout << "DTSC::run: Processing DTSectColl: ";
-    std::cout << nFirstT() << " first & " << nSecondT() << " second tracks" << std::endl;
+    std::cout << nFirstTPh() << " first & " << nSecondTPh() << " second Phi tracks ";
+    std::cout << " - "<< nCandTh() << " Theta tracks" << std::endl;
+  
   }
 
-  if(nFirstT()<1)return; // skip if no first tracks
+  if(nFirstTPh()<1)return; // skip if no first tracks
   //
   // SORT 1
   //
 
   // debugging
-    if(config()->debug()>2){
-     std::cout << "Vector of first tracks in DTSectColl: " << std::endl;
-    std::vector<DTSectCollCand*>::const_iterator p;
-    for(p=_incand[0].begin(); p!=_incand[0].end(); p++) {
+    if(config()->debug()){
+     std::cout << "Vector of first Phi tracks in DTSectColl: " << std::endl;
+    std::vector<DTSectCollPhCand*>::const_iterator p;
+    for(p=_incand_ph[0].begin(); p!=_incand_ph[0].end(); p++) {
            (*p)->print();
     }
    }
   // end debugging
  
-  DTSectCollCand* first=DTSectCollsort1();
-  if(config()->debug()>2){
-    std::cout << "SC: DTSC::run: first track is = " << first << std::endl;
+  DTSectCollPhCand* first=DTSectCollsort1();
+  if(config()->debug()){
+    std::cout << "SC: DTSC::run: first Phi track is = " << first << std::endl;
   }
   if(first!=0) {
-    _outcand.push_back(first); 
+    _outcand_ph.push_back(first); 
 
   }
-  if(nSecondT()<1)return; // skip if no second tracks
+  if(nSecondTPh()<1)return; // skip if no second tracks
 
   //
   // SORT 2
   //
 
   // debugging
-  if(config()->debug()>2){
-    std::vector<DTSectCollCand*>::const_iterator p;
-    std::cout << "Vector of second tracks in DTSectColl: " << std::endl;
-    for(p=_incand[1].begin(); p!=_incand[1].end(); p++) {
+  if(config()->debug()){
+    std::vector<DTSectCollPhCand*>::const_iterator p;
+    std::cout << "Vector of second Phi tracks in DTSectColl: " << std::endl;
+    for(p=_incand_ph[1].begin(); p!=_incand_ph[1].end(); p++) {
        (*p)->print();
     }
   }
   // end debugging
 
-  DTSectCollCand* second=DTSectCollsort2();
+  DTSectCollPhCand* second=DTSectCollsort2();
   if(second!=0) {
-    _outcand.push_back(second); 
+    _outcand_ph.push_back(second); 
   }
   
 }
 
 
-DTSectCollCand*
+DTSectCollPhCand*
 DTSC::DTSectCollsort1() {
 
   // Do a sort 1
-  DTSectCollCand* best=0;
-  DTSectCollCand* carry=0;
-  std::vector<DTSectCollCand*>::iterator p;
-  for(p=_incand[0].begin(); p!=_incand[0].end(); p++) {
-    DTSectCollCand* curr=(*p);
+  DTSectCollPhCand* best=0;
+  DTSectCollPhCand* carry=0;
+  std::vector<DTSectCollPhCand*>::iterator p;
+  for(p=_incand_ph[0].begin(); p!=_incand_ph[0].end(); p++) {
+    DTSectCollPhCand* curr=(*p);
 
     curr->setBitsSectColl();    // SM sector collector set bits in dataword to make SC sorting
     
     // NO Carry in Sector Collector sorting in default 
-    if(config()->SCGetCarryFlag()==1) {  // get carry
+    if(config()->SCGetCarryFlag(_stat)) {  // get carry
 
       if(best==0){
 	best=curr;
@@ -161,7 +167,7 @@ DTSC::DTSectCollsort1() {
       } 
 
     }
-    else if(config()->SCGetCarryFlag()==0){ // no carry (default)
+    else if(config()->SCGetCarryFlag(_stat)==0){ // no carry (default)
       if(best==0){
 	best=curr;
       } 
@@ -172,9 +178,9 @@ DTSC::DTSectCollsort1() {
       
     }
     
-    if(carry!=0 && config()->SCGetCarryFlag()==1) { // reassign carry to sort 2 candidates
+    if(carry!=0 && config()->SCGetCarryFlag(_stat)) { // reassign carry to sort 2 candidates
       carry->setSecondTrack(); // change value of 1st/2nd track bit
-      _incand[1].push_back(carry); // add to list of 2nd track
+      _incand_ph[1].push_back(carry); // add to list of 2nd track
  
     }
   } 
@@ -184,20 +190,20 @@ DTSC::DTSectCollsort1() {
 }
 
 
-DTSectCollCand*
+DTSectCollPhCand*
 DTSC::DTSectCollsort2() {
 
   // Check if there are second tracks
 
-  if(nTracks()<1){
-    std::cout << "DTSC::DTSectCollsort2: called with no first track.";
+  if(nTracksPh()<1){
+    std::cout << "DTSC::DTSectCollsort2: called with no first Phi track.";
     std::cout << " empty pointer returned!" << std::endl;
     return 0;
   }
   // If a first track at the following BX is present, ignore second tracks of any kind
   if(_ignoreSecondTrack){
 
-    for(std::vector<DTSectCollCand*>::iterator p=_incand[1].begin(); p!=_incand[1].end(); p++) {
+    for(std::vector<DTSectCollPhCand*>::iterator p=_incand_ph[1].begin(); p!=_incand_ph[1].end(); p++) {
 
     }
     return 0;
@@ -205,10 +211,10 @@ DTSC::DTSectCollsort2() {
 
   // If no first tracks at the following BX, do a sort 2
   //  DTSectCollCand* best=getTrack(1);  ! not needed as lons as there is no comparison with best in sort 2
-  DTSectCollCand* second=0;
-  std::vector<DTSectCollCand*>::iterator p;
-  for(p=_incand[1].begin(); p!=_incand[1].end(); p++) {
-    DTSectCollCand* curr=(*p);
+  DTSectCollPhCand* second=0;
+  std::vector<DTSectCollPhCand*>::iterator p;
+  for(p=_incand_ph[1].begin(); p!=_incand_ph[1].end(); p++) {
+    DTSectCollPhCand* curr=(*p);
     curr->setBitsSectColl();    // SM sector collector set bits in dataword to make SC sorting
     
     if(second==0){
@@ -226,85 +232,108 @@ DTSC::DTSectCollsort2() {
 
 
 void
-DTSC::addCand(DTSectCollCand* cand) {
+DTSC::addPhCand(DTSectCollPhCand* cand) {
 
-  _incand[(1-cand->isFirst())].push_back(cand); 
+  _incand_ph[(1-cand->isFirst())].push_back(cand); 
+
+}
+
+void
+DTSC::addThCand(DTSectCollThCand* cand) {
+
+  _cand_th.push_back(cand); 
 
 }
 
 
 unsigned
-DTSC::nCand(int ifs) const {
+DTSC::nCandPh(int ifs) const {
 
   if(ifs<1||ifs>2){
-    std::cout << "DTSC::nCand: wrong track number: " << ifs;
+    std::cout << "DTSC::nCandPh: wrong track number: " << ifs;
     std::cout << " 0 returned!" << std::endl;
     return 0;
   }
-  return _incand[ifs-1].size();
+  return _incand_ph[ifs-1].size();
+
+}
+
+unsigned
+DTSC::nCandTh() const {
+
+  return _cand_th.size();
 
 }
 
 
-DTSectCollCand*
-DTSC::getDTSectCollCand(int ifs, unsigned n) const {
+DTSectCollPhCand*
+DTSC::getDTSectCollPhCand(int ifs, unsigned n) const {
 
   if(ifs<1||ifs>2){
-    std::cout << "DTSC::getDTSectCollCand: wrong track number: " << ifs;
+    std::cout << "DTSC::getDTSectCollPhCand: wrong track number: " << ifs;
     std::cout << " empty pointer returned!" << std::endl;
     return 0;
   }
-  if(n<1 || n>nCand(ifs)) {
-    std::cout << "DTSC::getDTSectCollCand: requested trigger not present: " << n;
+  if(n<1 || n>nCandPh(ifs)) {
+    std::cout << "DTSC::getDTSectCollPhCand: requested trigger not present: " << n;
     std::cout << " empty pointer returned!" << std::endl;
     return 0;
   }
 
-  std::vector<DTSectCollCand*>::const_iterator p = _incand[ifs-1].begin()+n-1;
+  std::vector<DTSectCollPhCand*>::const_iterator p = _incand_ph[ifs-1].begin()+n-1;
+  return (*p);
+
+}
+
+DTSectCollThCand*
+DTSC::getDTSectCollThCand(unsigned n) const {
+
+  if(n<1 || n>nCandTh()) {
+    std::cout << "DTSC::getDTSectCollThCand: requested trigger not present: " << n;
+    std::cout << " empty pointer returned!" << std::endl;
+    return 0;
+  }
+
+  std::vector<DTSectCollThCand*>::const_iterator p = _cand_th.begin()+n-1;
+  return (*p);
+
+}
+
+void
+DTSC::addDTSectCollPhCand(DTSectCollPhCand* cand) {
+
+  int ifs = (cand->isFirst()) ? 0 : 1;
+ 
+  _incand_ph[ifs].push_back(cand); 
+
+}
+
+DTSectCollPhCand*
+DTSC::getTrackPh(int n) const {
+
+  if(n<1 || n>nTracksPh()) {
+    std::cout << "DTSC::getTrackPh: requested track not present: " << n;
+    std::cout << " empty pointer returned!" << std::endl;
+    return 0;
+  }
+
+  std::vector<DTSectCollPhCand*>::const_iterator p = _outcand_ph.begin()+n-1;
+
   return (*p);
 
 }
 
 
-void
-DTSC::addDTSectCollCand(DTSectCollCand* cand) {
+DTSectCollThCand*
+DTSC::getTrackTh(int n) const {
 
-  int ifs = (cand->isFirst()) ? 0 : 1;
- 
-  _incand[ifs].push_back(cand); 
-
-}
-
-
-const DTTracoTrigData*
-DTSC::getTracoT(int ifs, unsigned n) const {
-
-  if(ifs<1||ifs>2){
-    std::cout << "DTSC::getTracoT: wrong track number: " << ifs;
-    std::cout << " empty pointer returned!" << std::endl;
-    return 0;
-  }
-  if(n<1 || n>nCand(ifs)) {
-    std::cout << "DTSC::getTracoT: requested trigger not present: " << n;
+  if(n<1 || n>nTracksTh()) {
+    std::cout << "DTSC::getTrackTh: requested track not present: " << n;
     std::cout << " empty pointer returned!" << std::endl;
     return 0;
   }
 
-  return getDTSectCollCand(ifs, n)->tracoTr();
-
-}
-
-
-DTSectCollCand*
-DTSC::getTrack(int n) const {
-
-  if(n<1 || n>nTracks()) {
-    std::cout << "DTSC::getTrack: requested track not present: " << n;
-    std::cout << " empty pointer returned!" << std::endl;
-    return 0;
-  }
-
-  std::vector<DTSectCollCand*>::const_iterator p = _outcand.begin()+n-1;
+  std::vector<DTSectCollThCand*>::const_iterator p = _cand_th.begin()+n-1;
 
   return (*p);
 

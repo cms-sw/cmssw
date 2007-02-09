@@ -1,18 +1,18 @@
 //-------------------------------------------------
 //
-//   Class: DTSectCollId.cpp
+//   Class: DTSectCollId.cc
 //
 //   Description: Definition of sector collectors
 //
 //
 //   Author List:
 //   S. Marcellini
-//   Modifications: 
+//   Modifications:
+//   11/12/06 C.Battilana : new SectCollId definitions 
 //
 //
 //--------------------------------------------------
 
-//#include "Utilities/Configuration/interface/Architecture.h"
 
 //-----------------------
 // This Class's Header --
@@ -32,11 +32,9 @@
 
 #include <iostream>
 std::ostream& operator<<(std::ostream &os, const DTSectCollId& id){
-  os << "Wheel: " << id.wheel() << " Station: " << id.station() << " Sector: " <<
-    id.sector();
+  os << "Wheel: "   << id.wheel() 
+     << " Sector: " << id.sector();
   return os;
-
-    id.sector();
 }
 
 

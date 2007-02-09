@@ -1,28 +1,23 @@
 //-------------------------------------------------
 //
-//   Class: DTSectCollCand.cpp
+//   Class: DTSectCollPhCand.cpp
 //
-//   Description: A Sextor Collector Candidate
+//   Description: A Sector Collector Phi Candidate
 //
 //
 //   Author List:
 //   S.Marcellini D.Bonacorsi
 //   Modifications: 
+//   11/06 C. Battilana: Class moved from Cand to PhCand
 //
 //
 //--------------------------------------------------
 
-//#include "Utilities/Configuration/interface/Architecture.h"
 
 //-----------------------
 // This Class's Header --
 //-----------------------
-#include "L1Trigger/DTSectorCollector/interface/DTSectCollCand.h"
-
-//-------------------------------
-// Collaborating Class Headers --
-//-------------------------------
-#include "L1Trigger/DTUtilities/interface/DTConfig.h"
+#include "L1Trigger/DTSectorCollector/interface/DTSectCollPhCand.h"
 
 //---------------
 // C++ Headers --
@@ -32,21 +27,21 @@
 //----------------
 // Constructors --
 //---------------- // SM double TSM 
-DTSectCollCand::DTSectCollCand(DTSC* tsc, const DTChambPhSegm* tsmsegm, int ifs) 
+DTSectCollPhCand::DTSectCollPhCand(DTSC* tsc, const DTChambPhSegm* tsmsegm, int ifs) 
   : _tsc(tsc), _tsmsegm(tsmsegm) {
   _dataword.one();              // reset dataword to 0x1ff
   if(ifs==1)_dataword.unset(14); // set bit 14 (0=first, 1=second tracks)
 }
 
 
-DTSectCollCand::DTSectCollCand() {
+DTSectCollPhCand::DTSectCollPhCand() {
  
 }
 
 //--------------
 // Destructor --
 //--------------
-DTSectCollCand::~DTSectCollCand(){
+DTSectCollPhCand::~DTSectCollPhCand(){
 }
 
 
@@ -54,8 +49,8 @@ DTSectCollCand::~DTSectCollCand(){
 // Operations --
 //--------------
 
-DTSectCollCand& 
-DTSectCollCand::operator=(const DTSectCollCand& tsccand) {
+DTSectCollPhCand& 
+DTSectCollPhCand::operator=(const DTSectCollPhCand& tsccand) {
   if(this != &tsccand){
     _tsc = tsccand._tsc;
     _tsmsegm = tsccand._tsmsegm;
@@ -64,20 +59,29 @@ DTSectCollCand::operator=(const DTSectCollCand& tsccand) {
 }
 
 void
-DTSectCollCand::clear()  { 
+DTSectCollPhCand::clear()  { 
   _tsmsegm=0; 
   _dataword.one();
 //   std::cout << " clear dataword : " << _dataword.print() << std::endl;
 }
 
+int
+DTSectCollPhCand::CoarseSync() const{
+  int sect= _tsmsegm->ChamberId().sector();
+  if (sect<13) 
+    return config()->CoarseSync(_tsmsegm->ChamberId().station());
+  else 
+    return config()->CoarseSync(5);
+}
+
 // SM double TSM: remove datawordbk and replace it with dataword
 void
-DTSectCollCand::setBitsSectColl() {
+DTSectCollPhCand::setBitsSectColl() {
 
   clearBitsSectColl();
     
   if(abs(_tsmsegm->DeltaPsiR())>1024 ){ // Check phiB within 10 bits range
-    std::cout << "DTSectCollCand::setBitsSectColl phiB outside valid range: " << _tsmsegm->DeltaPsiR();
+    std::cout << "DTSectCollPhCand::setBitsSectColl phiB outside valid range: " << _tsmsegm->DeltaPsiR();
     std::cout << " deltaPsiR set to 512" <<  std::endl;
   }
   else {
@@ -103,16 +107,15 @@ DTSectCollCand::setBitsSectColl() {
 
 
   void 
-  DTSectCollCand::print() const {
-    std::cout << "Sector Collector Candidate: " << std::endl; 
+  DTSectCollPhCand::print() const {
+    std::cout << "Sector Collector Phi Candidate: " << std::endl; 
     if(_dataword.element(14)==0) {std::cout << "First track type" << std::endl;}
     else {std::cout << "Second track type" << std::endl;}
        std::cout << " code=" << _tsmsegm->pvCode();
-
         std::cout << " dataword=";
         _dataword.print();
     // SM double TSM remove datawordbk section
-
+	std::cout << " SC step=" << CoarseSync()+_tsmsegm->step(); 
     std::cout << std::endl;
   }
 

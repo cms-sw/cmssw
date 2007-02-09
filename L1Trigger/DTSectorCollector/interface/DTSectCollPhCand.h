@@ -1,31 +1,27 @@
 //-------------------------------------------------
 //
-/**   \Class: L1MuDTSectCollCand.h
- *    A Trigger Server Candidate
+/**   \Class: DTSectCollPhCand.h
+ *    A Trigger Server Phi Candidate
  *
- *   $Date: 2004/03/24 14:39:07 $
+ *   $Date: 2006/07/19 10:44:41 $
  *  
  *
- *   \author D. Bonacorsi, S. Marcellini
+ *   \Authors D. Bonacorsi, S. Marcellini
  */
 //
 //--------------------------------------------------
-#ifndef DT_SECT_COLL_CAND_H
-#define DT_SECT_COLL_CAND_H
+#ifndef DT_SECT_COLL_PH_CAND_H
+#define DT_SECT_COLL_PH_CAND_H
 
-//------------------------------------
-// Collaborating Class Declarations --
-//------------------------------------
-class DTConfig;
 
 //----------------------
 // Base Class Headers --
 //----------------------
+#include "L1Trigger/DTSectorCollector/interface/DTConfigSectColl.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSC.h"
 #include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
 #include "L1Trigger/DTTraco/interface/DTTracoTrigData.h"
 #include "L1Trigger/DTUtilities/interface/BitArray.h"
-
 //---------------
 // C++ Headers --
 //---------------
@@ -35,23 +31,23 @@ class DTConfig;
 //              -- Class Interface --
 //              ---------------------
 
-class DTSectCollCand {
+class DTSectCollPhCand {
 
  public:
   
-  DTSectCollCand(DTSC*, const DTChambPhSegm*, int);
+  DTSectCollPhCand(DTSC* , const DTChambPhSegm*, int);
 
   //!  Constructor
-  DTSectCollCand();
+  DTSectCollPhCand();
 
   //!  Constructor
-  DTSectCollCand(const DTSectCollCand& tsccand);
+  DTSectCollPhCand(const DTSectCollPhCand& tsccand);
   
   //! Assignment operator
-  DTSectCollCand& operator=(const DTSectCollCand& tsccand);
+  DTSectCollPhCand& operator=(const DTSectCollPhCand& tsccand);
 
   //!  Destructor 
-  ~DTSectCollCand();
+  ~DTSectCollPhCand();
 
   // Non-const methods
 
@@ -70,46 +66,50 @@ class DTSectCollCand {
   //! Reset the carry bit
   void resetCarry() { _isCarry=0; }
 
+  //! Set the SC Candidate step
+  
+  
   //! clear the trigger
   inline void clear();
 
   // Const methods
 
   //! Configuration set
-  inline DTConfig* config() const { return _tsc->config(); }
+  inline DTConfigSectColl* config() const { return _tsc->config(); }
 
   //! Return the DTTSS
   inline DTSC* tsc() const { return _tsc; }
 
   inline int isFirst() const { return _dataword.element(14)==0; }
 
-  //! Return associated TSPhi trigger
-  inline const DTTracoTrigData* tracoTr() const { return _tctrig; }
-  inline const DTChambPhSegm* tsTr() const { return _tsmsegm; }
+   //! Return associated TSPhi trigger 
+   inline const DTChambPhSegm* tsTr() const { return _tsmsegm; } 
 
   //! Return an uint16 with the content of the data word (for debugging)
   inline unsigned dataword() const { return _dataword.dataWord(0)&0x1ff; }
 
   //! Operator < used for sorting
-  bool operator < (const DTSectCollCand& c) const { return _dataword<c._dataword; }
+  bool operator < (const DTSectCollPhCand& c) const { return _dataword<c._dataword; }
 
   //! Operator <= used for sorting
-  bool operator <= (const DTSectCollCand& c) const { return _dataword<=c._dataword; }
+  bool operator <= (const DTSectCollPhCand& c) const { return _dataword<=c._dataword; }
 
   //! Print the trigger
   void print() const; 
+
+  //! Return the Coarse Sync Parameter
+  int CoarseSync() const;
 
 
  private:
 
   DTSC* _tsc;
   const DTChambPhSegm* _tsmsegm;
-  const DTTracoTrigData* _tctrig;
 
   // BitArray<9> _dataword;   // the word on which sorting is done
   BitArray<15> _dataword;   // the word on which sorting is done. reserve space enough for Preview and full data
 
-  int _isCarry;            
+  int _isCarry;
 
 };
 #endif

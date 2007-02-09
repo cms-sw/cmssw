@@ -6,18 +6,19 @@ bool DTSectCollId::operator== (const DTSectCollId& id) const
 { 
   if ( _wheel!=id.wheel()) return false;
   if ( _sector!=id.sector())return false;
-  if ( _station!=id.station())return false;
   return true;
+}
+
+bool DTSectCollId::operator!= (const DTSectCollId& id) const
+{
+  return !(*this==id);
 }
 
 bool DTSectCollId::operator < (const DTSectCollId& id) const
 { 
   if ( wheel()       < id.wheel()      ) return true;
   if ( wheel()       > id.wheel()      ) return false;
-  
-  if ( station()     < id.station()    ) return true;
-  if ( station()     > id.station()    ) return false;
-  
+    
   if ( sector()      < id.sector()     ) return true;
   if ( sector()      > id.sector()     ) return false;
 
@@ -26,7 +27,6 @@ bool DTSectCollId::operator < (const DTSectCollId& id) const
 DTSectCollId & 
 DTSectCollId::operator = ( const DTSectCollId& statId){
   _wheel = statId._wheel;
-  _station = statId._station;
   _sector = statId._sector;
   return *this; 
 }

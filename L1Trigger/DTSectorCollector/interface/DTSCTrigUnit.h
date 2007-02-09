@@ -1,9 +1,9 @@
 //-------------------------------------------------
 //
-/**  \class  L1MuDTSCTrigUnit
+/**  \class  DTSCTrigUnit
  *     Muon Barrel Sector Collector Trigger Unit (Chamber trigger)
  *
- *   $Date: 2004/08/17 14:49:12 $
+ *   $Date: 2006/07/19 10:44:41 $
  *   $Revision: 1.1 $
  *
  *   \author C.Grandi, S. Marcellini
@@ -42,9 +42,9 @@
 #include "Geometry/Vector/interface/GlobalVector.h"
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Vector/interface/LocalVector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class DTChamber;
-
 
 
 
@@ -57,7 +57,7 @@ class DTSCTrigUnit {
   public:
 
     /// Constructor
-    DTSCTrigUnit(DTChamber* stat, DTConfig* conf) ;
+    DTSCTrigUnit(DTChamber* stat, edm::ParameterSet& tu_pset) ;
   
     /// Destructor 
     ~DTSCTrigUnit() ;
@@ -147,8 +147,6 @@ class DTSCTrigUnit {
     }
 
   private:
-
-    DTConfig* _config;         // Configuration parameters
 
     DTTrigGeom* _geom;         // Pointer to the geometry
   
