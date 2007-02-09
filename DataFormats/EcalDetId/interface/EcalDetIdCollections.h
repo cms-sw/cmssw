@@ -6,9 +6,11 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 
 typedef edm::EDCollection<EBDetId> EBDetIdCollection;
 typedef edm::EDCollection<EcalElectronicsId> EcalElectronicsIdCollection;
 typedef edm::EDCollection<EcalTrigTowerDetId> EcalTrigTowerDetIdCollection;
+typedef edm::EDCollection<EcalScDetId> EcalScDetIdCollection;
 
 #endif

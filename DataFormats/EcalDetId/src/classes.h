@@ -16,14 +16,17 @@ namespace {
 
     EBDetIdCollection theEBDI_;
     EcalTrigTowerDetIdCollection theETTDI_;
+    EcalScDetIdCollection theESCDI_;
     EcalElectronicsIdCollection theEELI_;
 
     edm::Wrapper<EBDetIdCollection> anotherEBDIw_;
     edm::Wrapper<EcalTrigTowerDetIdCollection> anothertheETTDIw_;
+    edm::Wrapper<EcalScDetIdCollection> anothertheESCDIw_;
     edm::Wrapper<EcalElectronicsIdCollection> anothertheEELIw_;
 
     edm::Wrapper< edm::EDCollection<EBDetId> > theEBDIw_;
     edm::Wrapper< edm::EDCollection<EcalTrigTowerDetId> > theETTDIw_;
+    edm::Wrapper< edm::EDCollection<EcalScDetIdCollection> > theESCDIw_;
     edm::Wrapper< edm::EDCollection<EcalElectronicsId> > theEELIw_;
  }
 }
