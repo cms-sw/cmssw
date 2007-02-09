@@ -128,7 +128,11 @@ void CSCOval::runStrips()
   plot("CSCStripDigisPerLayer");
   plot("CSCStripDigisPerEvent");
   plot("CSCStripAmplitude");
+  plot("CSCStrip4to5");
+  plot("CSCStrip6to5");
   plot3x3("CSCStripDigiResolution");
+  plot3x3("CSCWireDigiTimeType");
+  plot3x3("CSCComparatorDigiTimeType");
 }
 
 
