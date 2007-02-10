@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.8 2006/12/07 02:51:24 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.9 2007/01/15 23:38:12 fwyzard Exp $
 //
 
 
@@ -77,8 +77,11 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   Handle<reco::VertexCollection> primaryVertex;
   iEvent.getByLabel(m_primaryVertexProducer, primaryVertex);
 
-  Handle<reco::MuonCollection> leptons;
-  iEvent.getByLabel(m_leptonProducer, leptons);
+  Handle<reco::TrackCollection> h_leptons;
+  iEvent.getByLabel(m_leptonProducer, h_leptons);
+  TrackRefVector leptons;   // FIXME: extra conversion for historical reasons
+  for (unsigned int i = 0; i < h_leptons->size(); i++)
+    leptons.push_back( TrackRef(h_leptons, i) );
 
   // output collections
   std::auto_ptr<reco::JetTagCollection>            baseCollection( new reco::JetTagCollection() );
@@ -101,7 +104,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
        ++j) {
     unsigned int i = j->key.key();
     reco::JetTracksAssociationRef jetRef( jetTracksAssociation, i );
-    std::pair<reco::JetTag, reco::SoftLeptonTagInfo> result = m_algo.tag( jetRef, pv, *leptons );
+    std::pair<reco::JetTag, reco::SoftLeptonTagInfo> result = m_algo.tag( jetRef, pv, leptons );
     #ifdef DEBUG
     std::cerr << "  Jet " << std::setw(2) << i << " has " << std::setw(2) << result.first.tracks().size() << " tracks and " << std::setw(2) << result.second.leptons() << " leptons" << std::endl;
     std::cerr << "  Tagger result: " << result.first.discriminator() << endl;
