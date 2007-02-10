@@ -15,13 +15,6 @@
 
 #include "SimMuon/DTDigitizer/test/Histograms.h"
 
-hDigis hDigis_global("Global");
-hDigis hDigis_W0("Wheel0");
-hDigis hDigis_W1("Wheel1");
-hDigis hDigis_W2("Wheel2");
-
-hHits hAllHits("AllHits");
-
 using namespace edm;
 using namespace std;
 
@@ -58,6 +51,12 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
   //DigiTimeBox = new TH1F("DigiTimeBox","Digi Time Box",2048,0,1600);
   if(file_more_plots->IsOpen()) cout<<"File for additional plots: " << outputFile_more_plots_ << "  open!"<<endl;
   else cout<<"*** Error in opening file for additional plots ***"<<endl;
+
+ hDigis_global = new hDigis("Global");
+ hDigis_W0 = new hDigis("Wheel0");
+ hDigis_W1 = new hDigis("Wheel1");
+ hDigis_W2 = new hDigis("Wheel2");
+ hAllHits = new hHits("AllHits");
 
   
   // ---------------------- 
@@ -108,6 +107,7 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
 
 //meDigiTimeBox_SL_       = 0;
   meDigiHisto_            = 0;
+
 
   // ----------------------                 
   // We go 
@@ -195,8 +195,8 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
     sprintf (histo_t, "Digi_occupancy_MB4" );
     meMB4_digi_occup_ = dbe_->book1D(histo_n, histo_t, 99, 0., 99. );
 
-    sprintf (histo_n, "" );
-    sprintf (histo_t, "" );
+//    sprintf (histo_n, "" );
+//    sprintf (histo_t, "" );
 
 /*
 //  Other option
@@ -225,16 +225,20 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
 }
 
 MuonDTDigis::~MuonDTDigis(){
+
    
   file_more_plots->cd();
-//  DigiTimeBox->Write();
-  hDigis_global.Write();
-  hDigis_W0.Write();
-  hDigis_W1.Write();
-  hDigis_W2.Write();
-  hAllHits.Write();
+
+  hDigis_global->Write();
+
+  hDigis_W0->Write();
+  hDigis_W1->Write();
+  hDigis_W2->Write();
+  hAllHits->Write();
+
   file_more_plots->Close();
 
+  cout << " outputFile_.size() " << outputFile_.size() << " dbe " << dbe_ << endl; 
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_); 
 
   if(verbose_)
@@ -304,13 +308,15 @@ void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
 
     float path = (exitP-entryP).mag();
     float path_x = fabs((exitP-entryP).x());
-      
-    hAllHits.Fill(entryP.x(),exitP.x(),
+
+     
+    hAllHits->Fill(entryP.x(),exitP.x(),
 		   entryP.y(),exitP.y(),
 		   entryP.z(),exitP.z(),
 		   path , path_x, 
 		   partType, hit->processType(),
 		  hit->pabs());
+
   }
    
   // cout << "num muon simhits " << num_musimhits << endl;
@@ -384,7 +390,7 @@ void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
      if( mu ) num_mudigis++;  
   
      if(mu && theta){
-	hDigis_global.Fill((*digiIt).time(),theta,id.superlayer());
+	hDigis_global->Fill((*digiIt).time(),theta,id.superlayer());
 	//filling digi histos for wheel and for RZ and RPhi
 	WheelHistos(id.wheel())->Fill((*digiIt).time(),theta,id.superlayer());
       }
@@ -405,11 +411,11 @@ void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
 hDigis* MuonDTDigis::WheelHistos(int wheel){
   switch(abs(wheel)){
 
-  case 0: return  &hDigis_W0;
+  case 0: return  hDigis_W0;
   
-  case 1: return  &hDigis_W1;
+  case 1: return  hDigis_W1;
     
-  case 2: return  &hDigis_W2;
+  case 2: return  hDigis_W2;
      
   default: return NULL;
   }

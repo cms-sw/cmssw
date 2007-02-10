@@ -4,7 +4,7 @@
 /** \class MuonDTDigis
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2007/01/29 15:57:04 $
+ *  $Date: 2007/02/06 10:51:27 $
  *  $Revision: 1.1 $
  *  \authors: R. Bellan
  */
@@ -107,10 +107,16 @@ class MuonDTDigis : public edm::EDAnalyzer{
   std::vector<MonitorElement*> meDigiTimeBox_SL_;
   MonitorElement* meDigiHisto_;
 
+  TH1F *hMuonDigis;
 //  TH1F *DigiTimeBox;
   TFile *file_more_plots;
 
-  
+  hDigis *hDigis_global;
+  hDigis *hDigis_W0;
+  hDigis *hDigis_W1; 
+  hDigis *hDigis_W2;
+  hHits *hAllHits;
+ 
 };
 
 #endif    
