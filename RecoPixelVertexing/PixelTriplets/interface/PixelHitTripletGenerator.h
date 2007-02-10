@@ -6,18 +6,22 @@
  *  initialised from provided layers in the form of PixelLayerTriplets  
  */ 
 
-#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
-#include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/Common/interface/RangeMap.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class TrackingRegion;
 class LayerWithHits;
 class DetLayer;
 class HitTripletGeneratorFromPairAndLayers;
 class PixelLayerTriplets;
+//class SiPixelRecHitCollection;
+
+namespace edm { class Event; }
+namespace edm { class EventSetup; }
+
+#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
+#include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <vector>
 
 
 class PixelHitTripletGenerator : public HitTripletGenerator {
@@ -36,6 +40,7 @@ public:
      const edm::EventSetup& );
 
   void init(const SiPixelRecHitCollection &coll,const edm::EventSetup& iSetup);
+  void init(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   
 private:
 

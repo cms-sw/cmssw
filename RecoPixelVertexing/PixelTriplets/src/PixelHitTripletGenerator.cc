@@ -56,3 +56,29 @@ void PixelHitTripletGenerator::init(const SiPixelRecHitCollection &coll,const ed
   } 
 }
   
+void PixelHitTripletGenerator::init(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  if (!thePixel) thePixel = new PixelLayerTriplets;
+//  thePixel->init(coll, iSetup);
+  thePixel->init(iEvent, iSetup);
+  vector<PixelLayerTriplets::LayerPairAndLayers>::const_iterator it;
+  vector<PixelLayerTriplets::LayerPairAndLayers> trilayers=thePixel->layers();
+  for (it = trilayers.begin(); it != trilayers.end(); it++) {
+    const LayerWithHits * first = (*it).first.first;
+    const LayerWithHits * second = (*it).first.second;
+    vector<const LayerWithHits *> thirds = (*it).second;
+
+
+    std::string       generatorName = theConfig.getParameter<std::string>("Generator");
+    edm::ParameterSet generatorPSet = theConfig.getParameter<edm::ParameterSet>("GeneratorPSet");
+
+    HitTripletGeneratorFromPairAndLayers * aGen =
+        HitTripletGeneratorFromPairAndLayersFactory::get()->create(generatorName,generatorPSet);
+
+    aGen->init( HitPairGeneratorFromLayerPair( first, second, &theLayerCache, iSetup),
+                thirds, &theLayerCache);
+
+    theGenerators.push_back( aGen);
+  }
+}
+

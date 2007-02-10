@@ -2,7 +2,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/CosmicHitTripletGenerator.h"
 
+#include <vector>
 
+using namespace std;
 
 CosmicHitTripletGenerator::CosmicHitTripletGenerator(LayerTriplets& layers,
 						   const edm::EventSetup& iSetup)

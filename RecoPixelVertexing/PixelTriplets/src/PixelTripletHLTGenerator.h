@@ -14,6 +14,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
+
+#include <utility>
 #include <vector>
 
 
@@ -37,6 +39,9 @@ public:
   const std::vector<const LayerWithHits*> thirdLayers() const { return theLayers; }
 
 private:
+  bool checkPhiInRange(float phi, float phi1, float phi2) const;
+  std::pair<float,float> mergePhiRanges(
+      const std::pair<float,float> &r1, const std::pair<float,float> &r2) const; 
 
   edm::ParameterSet         theConfig;
   HitPairGenerator * thePairGenerator;

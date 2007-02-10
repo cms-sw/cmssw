@@ -13,11 +13,12 @@
 #include "Geometry/Vector/interface/Basic3DVector.h"
 #include "Geometry/Surface/interface/TkRotation.h"
 
+#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
+
 
 class TrackingRegion;
 class OrderedHitPair;
-#include "Geometry/Vector/interface/GlobalPoint.h"
-//#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 
 class ThirdHitPredictionFromInvParabola {
@@ -25,13 +26,20 @@ class ThirdHitPredictionFromInvParabola {
 public:
 
   typedef TkRotation<double> Rotation;
+  typedef PixelRecoRange<float> Range;
 
 //  ThirdHitPredictionFromInvParabola(const OrderedHitPair & hitPair);
 //  double isCompatible(const TrackingRecHit & hit, const TrackingRegion & region) const;
-  ThirdHitPredictionFromInvParabola(const GlobalPoint & P1, const GlobalPoint & P2);
-  double isCompatible(const GlobalPoint& hit, double ip, double curv) const;
 
-  void init( const GlobalPoint & P1, const GlobalPoint & P2);
+  ThirdHitPredictionFromInvParabola(const GlobalPoint & P1, const GlobalPoint & P2,
+    double ip, double curv, double tolerance);
+
+  Range operator()(double radius) const;
+  Range operator()(const GlobalPoint& hit) const;
+
+  void init( const GlobalPoint & P1, const GlobalPoint & P2,  double ip, double curv);
+
+
 private:
 
   double test( const GlobalPoint & P3, const double & ip) const;
@@ -40,6 +48,7 @@ private:
   double coeffB(const double & impactParameter) const;
   double predV(const double & u, const double & ip) const;
   double ipFromCurvature(const double & curvature) const;
+  Range rangeRPhi(double radius, double pointUV_u) const;
 
 private:
 
@@ -73,6 +82,10 @@ private:
   Rotation theRotation;
   typedef MappedPoint<double> PointUV;
   PointUV p1, p2;
+
+  Range ipRange, ipConstraint, theConstrainedIp;
+  float theTolerance;
+
 };
 
 #endif

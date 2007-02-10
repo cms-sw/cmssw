@@ -20,7 +20,7 @@ class HitTripletGeneratorFromLayerTriplet;
 
 class CosmicHitTripletGenerator : public HitTripletGenerator{
 
-  typedef vector<CosmicHitTripletGeneratorFromLayerTriplet *>   Container;
+  typedef std::vector<CosmicHitTripletGeneratorFromLayerTriplet *>   Container;
 
 public:
   CosmicHitTripletGenerator(LayerTriplets& layers, const edm::EventSetup& iSetup);

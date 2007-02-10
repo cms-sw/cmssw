@@ -15,12 +15,11 @@
 #include "RecoTracker/TkHitPairs/interface/SeedLayerPairs.h"
 class DetLayer;
 class LayerWithHits;
-using namespace std;
 
 class LayerTriplets {
 public:
   //  typedef pair<SeedLayerPairs::LayerPair, const LayerWithHits* > LayerTriplet;
-  typedef pair<SeedLayerPairs::LayerPair, vector<const LayerWithHits*> > LayerPairAndLayers;
+  typedef std::pair<SeedLayerPairs::LayerPair, std::vector<const LayerWithHits*> > LayerPairAndLayers;
   LayerTriplets(){};
   virtual  ~LayerTriplets(){};
   //  virtual std::vector<LayerTriplet> operator()()= 0;

@@ -26,14 +26,15 @@ typedef PixelRecoRange<double> Ranged;
 //}
 
 ThirdHitPredictionFromInvParabola::ThirdHitPredictionFromInvParabola( 
-    const GlobalPoint& P1, const GlobalPoint& P2)
+    const GlobalPoint& P1, const GlobalPoint& P2,double ip, double curv, double torlerance)
+  : theTolerance(torlerance)
 {
-  init(P1,P2);
+  init(P1,P2,ip,curv);
 }
 
 
 void ThirdHitPredictionFromInvParabola::
-    init( const GlobalPoint & P1, const GlobalPoint & P2)
+    init( const GlobalPoint & P1, const GlobalPoint & P2, double ip, double curv)
 {
   GlobalVector aX = GlobalVector( P2.x()-P1.x(), P2.y()-P1.y(), 0.).unit();
   GlobalVector aY( -aX.y(), aX.x(), 0.); 
@@ -43,6 +44,11 @@ void ThirdHitPredictionFromInvParabola::
   p1 = PointUV(Point2D(P1.x(),P1.y()), &theRotation);
   p2 = PointUV(Point2D(P2.x(),P2.y()), &theRotation);
 
+  ipRange = Range(-ip, ip); 
+  ipRange.sort();
+  ipConstraint = Range(ipFromCurvature(-curv),ipFromCurvature(curv)); 
+  ipConstraint.sort();
+  theConstrainedIp = ipRange.intersection(ipConstraint);
 }
     
 double ThirdHitPredictionFromInvParabola::
@@ -60,65 +66,57 @@ double ThirdHitPredictionFromInvParabola::
   return dist;
 }
 
-double ThirdHitPredictionFromInvParabola::
-//    isCompatible(const GlobalPoint& hit, const TrackingRegion & region) const
-  isCompatible(const GlobalPoint& hit, double ip, double curv) const
+ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::operator()(
+    double radius) const
 {
-//  GlobalPoint P3 = hit.globalPosition();
-  GlobalPoint P3 = hit;
-  Point2D point3(P3.x(),P3.y());
-  PointUV p3( point3, &theRotation);
-
-//  double ip = region.originRBound();
-//  double curv = PixelRecoUtilities::curvature(1/region.ptMin());
+  double invr2 = 1/radius/radius; 
+  double u = 1./radius;
+  double v = 0.;
   
-  Ranged ipRange(-ip, ip); 
-  ipRange.sort();
-  Ranged ipConstraint(ipFromCurvature(-curv),ipFromCurvature(curv));
-  ipConstraint.sort();
-  Ranged ipConstrainedRange = ipRange.intersection(ipConstraint);
+  int nIter=2;                               // here even 1 works well
+  for (int i=0; i<nIter; i++) {
+    v = predV(u,theConstrainedIp.mean()); 
+    double d2 = invr2-sqr(v);
+    u = (d2 > 0) ? sqrt(d2) : 0.;
+  }
+  return rangeRPhi(radius,u);
+}
 
-  Ranged predv;
-  if (!ipConstrainedRange.empty()) {
-    double tmp1 = predV(p3.u(), ipConstrainedRange.min());
-    double tmp2 = predV(p3.u(), ipConstrainedRange.max()); 
-    predv = Ranged(tmp1,tmp2); 
+
+ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::operator()(
+    const GlobalPoint& hit) const
+{
+  Point2D point3(hit.x(),hit.y());
+  PointUV p3( point3, &theRotation);
+  return rangeRPhi( point3.mag(), p3.u());
+}
+
+ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rangeRPhi(double radius, double pointUV_u) const
+{
+  Range predv;
+  if (!theConstrainedIp.empty()) {
+    double tmp1 = predV(pointUV_u, theConstrainedIp.min());
+    double tmp2 = predV(pointUV_u, theConstrainedIp.max());
+    predv = Range(tmp1,tmp2);
     predv.sort();
-  } 
+  }
   else if (ipRange.max() < ipConstraint.min()) {
-    double tmp = predV(p3.u(), ipRange.max());
-    predv = Ranged(tmp,tmp);
-  } 
+    double tmp = predV(pointUV_u, ipRange.max());
+    predv = Range(tmp,tmp);
+  }
   else {
-    double tmp = predV(p3.u(), ipRange.min());
-    predv = Ranged(tmp,tmp);
+    double tmp = predV(pointUV_u, ipRange.min());
+    predv = Range(tmp,tmp);
   }
 
-  double distance = 0;
-  if ( p3.v() < predv.min()) {
-    PointUV predicted(p3.u(), predv.min(), &theRotation);
-    double dphi = predicted.unmap().phi()-point3.phi();
-    while ( dphi >= M_PI) dphi -= 2*M_PI; 
-    while ( dphi < -M_PI) dphi += 2*M_PI; 
-    distance = dphi * point3.mag();
-  } else if ( predv.max() < p3.v()) {
-    PointUV predicted(p3.u(), predv.max(), &theRotation);
-    double dphi = predicted.unmap().phi()-point3.phi();
-    while ( dphi >= M_PI) dphi -= 2*M_PI; 
-    while ( dphi < -M_PI) dphi += 2*M_PI; 
-    distance = dphi * point3.mag();
-  } 
+  PointUV predicted(pointUV_u, predv.min(), &theRotation);
+  double phi1 = predicted.unmap().phi();
+  if ( phi1 >= M_PI) phi1 -= 2*M_PI;
+  if ( phi1 < -M_PI) phi1 += 2*M_PI;
+  double phi2 = phi1+radius*(predv.max()-predv.min());
+  return Range( radius*phi1-theTolerance, radius*phi2+theTolerance);
+} 
 
-//
-//cout << "ipRange     : "<<ipRange<<endl;
-//cout << "ipConstraint: "<<ipConstraint<<endl;
-//cout << "ipConstrainedRange: "<<ipConstrainedRange<<endl;
-//cout << "predv Range: "<<predv<<" value:"<<p3.v()
-//     << " distance: "<< distance << endl;
-//
-
-  return distance;
-}
 
 double ThirdHitPredictionFromInvParabola::
     ipFromCurvature(const double & curvature) const 
