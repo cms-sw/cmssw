@@ -409,8 +409,9 @@ bool PixelCPEBase::isFlipped() const
 }
 
 //-----------------------------------------------------------------------------
-// Lorentz shift. For the moment only in X direction (barrel & endcaps)
-// For the forward the y componenet might have to be added.
+// HALF OF the Lorentz shift (so for the full shift multiply by 2), and
+// in the units of pitch.  (So note these are neither local nor measurement
+// units!)
 //-----------------------------------------------------------------------------
 float PixelCPEBase::lorentzShiftX() const 
 {
