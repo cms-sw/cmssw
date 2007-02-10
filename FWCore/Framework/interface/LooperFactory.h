@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: LooperFactory.h,v 1.3 2006/10/30 23:07:53 wmtan Exp $
+// $Id: LooperFactory.h,v 1.4 2006/12/26 03:13:40 wmtan Exp $
 //
 
 // system include files
@@ -28,7 +28,6 @@
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 
 // forward declarations
-
 namespace edm {
    class EDLooper;
    class EventSetupRecordIntervalFinder;
@@ -42,6 +41,11 @@ namespace edm {
             boost::shared_ptr<DataProxyProvider> pProvider(iComponent);
             ComponentDescription description = pProvider->description();
             description.isSource_=true;
+            description.isLooper_=true;
+	    if(description.label_ =="@main_looper") {
+	       //remove the 'hidden' label so that es_prefer statements will work
+	       description.label_ ="";
+	    }
             pProvider->setDescription(description);
             iProvider.add(pProvider);
       }

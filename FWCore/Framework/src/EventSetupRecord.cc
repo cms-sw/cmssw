@@ -84,9 +84,15 @@ EventSetupRecord::add(const DataKey& iKey ,
       // POLICY: If a Producer and a Source both claim to deliver the same data, the
       //  Producer 'trumps' the Source. If two modules of the same type claim to deliver the
       //  same data, this is an error unless the configuration specifically states which one
-      //  is to be chosen.
+      //  is to be chosen.  A Looper trumps both a Producer and a Source.
+
       assert(proxy->providerDescription());
       assert(iProxy->providerDescription());
+      if(iProxy->providerDescription()->isLooper_) {
+         (*proxies_.find(iKey)).second = iProxy ;
+	 return true;
+      }
+	 
       if(proxy->providerDescription()->isSource_ == iProxy->providerDescription()->isSource_) {
          //should lookup to see if there is a specified 'chosen' one and only if not, throw the exception
          throw cms::Exception("EventSetupConflict") <<"two EventSetup "<< 

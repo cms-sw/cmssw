@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 15 14:07:57 EST 2005
-// $Id: ComponentDescription.h,v 1.3 2006/07/06 19:11:42 wmtan Exp $
+// $Id: ComponentDescription.h,v 1.4 2006/08/31 23:26:24 wmtan Exp $
 //
 
 // system include files
@@ -34,6 +34,7 @@ namespace edm {
          std::string label_; // A human friendly string that uniquely identifies the label
          std::string type_;  // A human friendly string that uniquely identifies the name 
          bool isSource_;
+	 bool isLooper_;
          
          // The following set of parameters comes from
          // DataFormats/Common/interface/ModuleDescription.h
@@ -58,6 +59,7 @@ namespace edm {
 	     label_(),
 	     type_(),
 	     isSource_(false),
+             isLooper_(false),
 	     pid_(),
 	     releaseVersion_(),
 	     processName_(),
@@ -65,10 +67,12 @@ namespace edm {
          
          ComponentDescription(const std::string& iType,
                               const std::string& iLabel,
-                              bool iIsSource) :
+                              bool iIsSource,
+                              bool iIsLooper=false) :
 				label_(iLabel),
 				type_(iType),
 				isSource_(iIsSource),
+                                isLooper_(iIsLooper),
 				pid_(), 
 				releaseVersion_(), 
 				processName_(), 
