@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.cc,v 1.1 2006/12/15 20:00:37 yumiceva Exp $
+ version $Id: BSFitter.cc,v 1.2 2007/01/22 23:36:08 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -157,6 +157,13 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 					matrix(j,k) = tmp_d0phi.covariance()(j,k);
 				}
 			}
+			// slopes
+			for (int j = 4 ; j < 6 ; ++j) {
+			  for(int k = j ; k < 6 ; ++k) {
+			    matrix(j,k) = tmp_d0phi.covariance()(j,k);
+			  }
+                        }
+
 		
 			// put everything into one object
 			reco::BeamSpot spot(reco::BeamSpot::Point(tmp_d0phi.x0(), tmp_d0phi.y0(), tmp_z.z0()),
@@ -493,8 +500,8 @@ reco::BeamSpot BSFitter::Fit_d_z_likelihood(double *inipar) {
 
 	ff_minimum = fmin.Fval();
 	
-	std::cout << " eval= " << ff_minimum
-			  << "/n params[0]= " << fmin.Parameters().Vec()(0) << std::endl;
+	//std::cout << " eval= " << ff_minimum
+	//		  << "/n params[0]= " << fmin.Parameters().Vec()(0) << std::endl;
 	
 	reco::BeamSpot::CovarianceMatrix matrix;
 

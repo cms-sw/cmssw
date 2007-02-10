@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotTest.cc,v 1.2 2007/01/22 23:36:08 yumiceva Exp $
+ version $Id: BeamSpotTest.cc,v 1.3 2007/02/01 16:56:56 speer Exp $
 
 ________________________________________________________________**/
 
@@ -65,11 +65,17 @@ BeamSpotTest::BeamSpotTest(const edm::ParameterSet& iConfig)
   
   // get parameter
  
-  ckfSeedProducerLabel_ = iConfig.getUntrackedParameter<std::string>("ckfSeedProducerLabel");
-  ckfTrackCandidateProducerLabel_ = iConfig.getUntrackedParameter<std::string>("ckfTrackCandidateProducerLabel");
-  ckfTrackProducerLabel_ = iConfig.getUntrackedParameter<std::string>("ckfTrackProducerLabel");
+  //ckfSeedProducerLabel_ = iConfig.getUntrackedParameter<std::string>("ckfSeedProducerLabel");
+  //ckfTrackCandidateProducerLabel_ = iConfig.getUntrackedParameter<std::string>("ckfTrackCandidateProducerLabel");
+  //ckfTrackProducerLabel_ = iConfig.getUntrackedParameter<std::string>("ckfTrackProducerLabel");
 
-  sameNumberOfTracks = iConfig.getUntrackedParameter<unsigned int>("sameNumberOfTracks");
+  //sameNumberOfTracks = iConfig.getUntrackedParameter<unsigned int>("sameNumberOfTracks");
+
+  //
+  fptmin = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<double>("MinimumPt");
+  fmaxNtracks = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<int>("MaximumNtracks");
+  ckfTrackProducerLabel_ = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getUntrackedParameter<std::string>("TrackCollection");
+   
 
 }
 
@@ -183,9 +189,9 @@ BeamSpotTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  }
 
 	  ftree_->Fill();
-
+          // track quality
 	  if (fnStripHit>=8 && fnPixelHit >= 2 &&
-		  fchi2/fndof<5) {
+		  fchi2/fndof<5 && fpt>fptmin) {
 		  fBSvector.push_back(BSTrkParameters(fz0,fsigmaz0,fd0,fsigmad0,fphi0,fpt));
 	  }
 	  
@@ -236,7 +242,7 @@ BeamSpotTest::endJob() {
 	myalgo->SetFitVariable("d");
 	myalgo->SetFitType("d0phi");
 	reco::BeamSpot beam_fit_dphi = myalgo->Fit();
-	std::cout << " d0-phi0 Fit: ONLY" << std::endl;
+	std::cout << " d0-phi0 Fit ONLY:" << std::endl;
 	std::cout << beam_fit_dphi << std::endl;
 
 		
@@ -253,8 +259,8 @@ BeamSpotTest::endJob() {
 	std::cout << " IP Resolution Fit" << std::endl;
 	std::cout << beam_fit_dresz_lh << std::endl;
 
-	std::cout << "c0 = " << myalgo->GetResPar0() << " +- " << std::endl;
-	std::cout << "c1 = " << myalgo->GetResPar1() << " +- " << std::endl;
+	std::cout << "c0 = " << myalgo->GetResPar0() << " +- " << myalgo->GetResPar0Err() << std::endl;
+	std::cout << "c1 = " << myalgo->GetResPar1() << " +- " << myalgo->GetResPar1Err() << std::endl;
 	
 	
 }

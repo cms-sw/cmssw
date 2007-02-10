@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotTest.h,v 1.1 2006/12/15 20:00:37 yumiceva Exp $
+ version $Id: BeamSpotTest.h,v 1.2 2007/01/22 23:36:07 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -68,6 +68,9 @@ class BeamSpotTest : public edm::EDAnalyzer {
   std::string ckfTrackProducerLabel_;
 
   unsigned int sameNumberOfTracks;
+
+  float fptmin;
+  int fmaxNtracks;  
 
 };
 
