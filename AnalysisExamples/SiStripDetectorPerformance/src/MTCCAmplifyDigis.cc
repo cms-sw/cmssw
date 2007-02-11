@@ -99,16 +99,16 @@ void MTCCAmplifyDigis::produce( edm::Event &roEvent,
 
       // 1. Apply GAUSS to digi ADC
       // 2. Scale result
-      const double dNEW_ADC = rdSCALE *
+      const double dNewAdc = rdSCALE *
 			      oTRandom.Gaus( roDIGI.adc(),
 					     rdSIGMA);
 
-      if( 0 >= dNEW_ADC) {
-        dNEW_ADC = 0;
+      if( 0 >= dNewAdc) {
+        dNewAdc = 0;
       }
 
       return SiStripDigi( roDIGI.strip(),
-                          static_cast<uint16_t>( dNEW_ADC));
+                          static_cast<uint16_t>( dNewAdc));
     }
   } amplifyDigi;
 
