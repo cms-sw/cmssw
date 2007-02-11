@@ -56,12 +56,6 @@ LaserBeamsTEC1::LaserBeamsTEC1(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4doub
   // initialize the random number engine
   theDRand48Engine = new DRand48Engine();
 
-  // use the random number generator service of the framework
-  edm::Service<edm::RandomNumberGenerator> rng;
-  uint seed = rng->mySeed();
-
-  // set the seed
-  theDRand48Engine->setSeed(seed);
 }
 
 LaserBeamsTEC1::~LaserBeamsTEC1()
@@ -73,6 +67,13 @@ LaserBeamsTEC1::~LaserBeamsTEC1()
 void LaserBeamsTEC1::GeneratePrimaries(G4Event* myEvent)
 {
   // this function is called at the beginning of an Event in LaserAlignment::upDate(const BeginOfEvent * myEvent)
+
+  // use the random number generator service of the framework
+  edm::Service<edm::RandomNumberGenerator> rng;
+  uint seed = rng->mySeed();
+
+  // set the seed
+  theDRand48Engine->setSeed(seed);
 
   // number of LaserRings and Laserdiodes
   const G4int nLaserRings = 2;

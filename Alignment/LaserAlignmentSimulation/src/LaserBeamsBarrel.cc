@@ -58,12 +58,6 @@ LaserBeamsBarrel::LaserBeamsBarrel(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4
   // initialize the random number engine
   theDRand48Engine = new DRand48Engine();
 
-  // use the random number generator service of the framework
-  edm::Service<edm::RandomNumberGenerator> rng;
-  uint seed = rng->mySeed();
-
-  // set the seed
-  theDRand48Engine->setSeed(seed);
 }
 
 LaserBeamsBarrel::~LaserBeamsBarrel()
@@ -75,6 +69,13 @@ LaserBeamsBarrel::~LaserBeamsBarrel()
 void LaserBeamsBarrel::GeneratePrimaries(G4Event * myEvent)
 {
   // this function is called at the beginning of an Event in LaserAlignment::upDate(const BeginOfEvent * myEvent)
+
+  // use the random number generator service of the framework
+  edm::Service<edm::RandomNumberGenerator> rng;
+  uint seed = rng->mySeed();
+
+  // set the seed
+  theDRand48Engine->setSeed(seed);
 
   // number of LaserBeams
   const G4int nLaserBeams = 8;
