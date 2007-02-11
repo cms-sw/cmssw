@@ -8,6 +8,7 @@
    <class name="ESDataFrame"/>
    <class name="EcalTriggerPrimitiveSample"/>
    <class name="EcalTriggerPrimitiveDigi"/>
+   <class name="EcalSrFlag"/>
    <class name="EBSrFlag"/>
    <class name="EESrFlag"/>
    <class name="EcalPnDiodeDigi"/>
