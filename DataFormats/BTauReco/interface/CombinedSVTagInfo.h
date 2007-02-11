@@ -1,13 +1,14 @@
 #ifndef DataFormats_BTauReco_CombinedSVTagInfo_h
 #define DataFormats_BTauReco_CombinedSVTagInfo_h
 
+#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/VertexTypes.h"
 // #include "RecoBTag/CombinedSVTagInfo/interface/CombinedData.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "DataFormats/BTauReco/interface/JetTagFwd.h"
 
 namespace reco {
-  class CombinedSVTagInfo {
+  class CombinedSVTagInfo : public BaseTagInfo {
   public:
     /**
      *  The tag object of the combined btagger. Holds
@@ -20,15 +21,13 @@ namespace reco {
 
     virtual ~CombinedSVTagInfo();
 
-    double discriminator() const;
-    const reco::TaggingVariableList & variables() const;
+    float discriminator() const;
+    const TaggingVariableList & variables() const;
     virtual CombinedSVTagInfo * clone() const;
-    void setJetTag ( const JetTagRef ref );
 
   private:
     reco::TaggingVariableList vars_;
     double discriminator_;
-    reco::JetTagRef basetag_;
   };
 }
 

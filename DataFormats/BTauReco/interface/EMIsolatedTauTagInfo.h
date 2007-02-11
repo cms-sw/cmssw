@@ -41,7 +41,7 @@ namespace reco {
     const JetCrystalsAssociationRef& jcaRef() const { return m_jetCrystalsAssociation; }
 
     //default discriminator: returns the value of the discriminator computed with the parameters taken from the cfg file in the EDProducer
-  double discriminator() const { 
+  float discriminator() const { 
     return m_discriminator; 
     }
   void setDiscriminator(double discriminator) {m_discriminator =discriminator;}  
@@ -70,22 +70,18 @@ namespace reco {
 	  return pIsol;
 
       }
-    double discriminator(float rMax, float rMin, float pIsolCut)
+    float discriminator(float rMax, float rMin, float pIsolCut)
       {
 	double newDiscriminator_ =0;
 	double pIsol_ = pIsol(rMax, rMin);
 	if (pIsol_ < pIsolCut) newDiscriminator_ =1.;
 				 
 	return newDiscriminator_;
-	
       }
-
-    
-
   
   private:
 
-    double m_discriminator; //Default discriminator assigned in the EDProducer 
+    float m_discriminator; //Default discriminator assigned in the EDProducer 
     JetCrystalsAssociationRef m_jetCrystalsAssociation;
   };
 }

@@ -5,6 +5,7 @@
 #include <map>
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/TauMassTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
@@ -13,8 +14,7 @@
 
 namespace reco {
  
- 
-  class TauMassTagInfo {
+  class TauMassTagInfo : public BaseTagInfo {
   public:
 
     typedef edm::AssociationMap < edm::OneToValue<BasicClusterCollection,
@@ -25,29 +25,22 @@ namespace reco {
     
     virtual TauMassTagInfo* clone() const { return new TauMassTagInfo( * this ); }
     
+    //default discriminator: returns the discriminator of the jet tag
+    using BaseTagInfo::discriminator;
     
-    double discriminator(const double rm_cone,const double pt_cut,const double rs_cone,
-                         const double track_cone,const double m_cut) const;
-    //default discriminator: returns the discriminator of the jet tag, 
-
-    double discriminator() const;
+    float discriminator(const double rm_cone,const double pt_cut,const double rs_cone,
+                        const double track_cone,const double m_cut) const;
     
     void  setIsolatedTauTag(const IsolatedTauTagInfoRef);
     const IsolatedTauTagInfoRef& getIsolatedTauTag() const;
 
     void storeClusterTrackCollection(reco::BasicClusterRef clusterRef,float dr);
 
-    void setJetTag(const JetTagRef jetRef);
-    const JetTagRef & getJetTag() const;
-
     double getInvariantMass(const double rm_cone, const double pt_cut,
                           const double rs_cone,const double track_cone) const;    
 
   private:
-    
-
-    JetTagRef             jetTag;
-    IsolatedTauTagInfoRef isolatedTau;
+    IsolatedTauTagInfoRef             isolatedTau;
     ClusterTrackAssociationCollection clusterMap; // const?
 
   };

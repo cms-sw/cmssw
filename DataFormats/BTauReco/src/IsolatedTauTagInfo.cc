@@ -44,7 +44,7 @@ const RefVector<TrackCollection> IsolatedTauTagInfo::tracksInCone( const math::X
 
 const TrackRef IsolatedTauTagInfo::leadingSignalTrack(const float rm_cone, const float pt_min) const {
 
-  const Jet & myjet = m_jetTag->jet(); 
+  const Jet & myjet = jet(); 
   math::XYZVector jet3Vec   (myjet.px(),myjet.py(),myjet.pz()) ;
 
   const  RefVector<TrackCollection>  sTracks = tracksInCone(jet3Vec, rm_cone, pt_min);
@@ -66,10 +66,8 @@ const TrackRef IsolatedTauTagInfo::leadingSignalTrack(const float rm_cone, const
 
 
 const TrackRef IsolatedTauTagInfo::leadingSignalTrack(const math::XYZVector myVector, const float rm_cone, const float pt_min) const {
-
-
-const  RefVector<TrackCollection>  sTracks = tracksInCone(myVector, rm_cone, pt_min);
- TrackRef leadTk;
+  const RefVector<TrackCollection> sTracks = tracksInCone(myVector, rm_cone, pt_min);
+  TrackRef leadTk;
   float pt_cut = pt_min;
   if (sTracks.size() >0) 
     {
@@ -85,7 +83,7 @@ const  RefVector<TrackCollection>  sTracks = tracksInCone(myVector, rm_cone, pt_
   return leadTk;
 }
 
-double IsolatedTauTagInfo::discriminator(float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing) const
+float IsolatedTauTagInfo::discriminator(float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing) const
 {
   double myDiscriminator = 0.;
   const TrackRef leadTk = leadingSignalTrack(m_cone, pt_min_lt);
@@ -106,7 +104,7 @@ double IsolatedTauTagInfo::discriminator(float m_cone, float sig_cone, float iso
   return myDiscriminator;
 }
 
-double IsolatedTauTagInfo::discriminator(math::XYZVector myVector, float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing) const
+float IsolatedTauTagInfo::discriminator(math::XYZVector myVector, float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing) const
 {
   double myDiscriminator = 0;
   //if signal cone is greater then the isolation cone and the leadTk exists, the jet is isolated.
@@ -128,11 +126,11 @@ const  TrackRef leadTk = leadingSignalTrack(myVector, m_cone, pt_min_lt);
   return myDiscriminator;
 }
 
-double IsolatedTauTagInfo::discriminator(float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing, float dz_lt) const
+float IsolatedTauTagInfo::discriminator(float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing, float dz_lt) const
 {
   double myDiscriminator = 0;
 
-const TrackRef leadTk = leadingSignalTrack(m_cone, pt_min_lt);
+  const TrackRef leadTk = leadingSignalTrack(m_cone, pt_min_lt);
 
   if(!leadTk) {
     return myDiscriminator;
@@ -151,7 +149,7 @@ const TrackRef leadTk = leadingSignalTrack(m_cone, pt_min_lt);
   return myDiscriminator;
 }
 
-double IsolatedTauTagInfo::discriminator(math::XYZVector myVector, float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing, float dz_lt) const
+float IsolatedTauTagInfo::discriminator(math::XYZVector myVector, float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing, float dz_lt) const
 {
   double myDiscriminator = 0;
 

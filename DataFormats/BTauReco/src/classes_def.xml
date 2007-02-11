@@ -1,27 +1,36 @@
 <lcgdict>
-  <class name="reco::JetTag" />
-  <class name="std::vector<reco::JetTag>" />
-  <class name="edm::Wrapper<std::vector<reco::JetTag> >" />
-  <class name="edm::Ref<std::vector<reco::JetTag>, reco::JetTag, edm::refhelper::FindUsingAdvance<std::vector<reco::JetTag>, reco::JetTag> >" />
-  <class name="edm::RefProd<std::vector<reco::JetTag> >" />
-  <class name="edm::RefVector<std::vector<reco::JetTag>, reco::JetTag, edm::refhelper::FindUsingAdvance<std::vector<reco::JetTag>, reco::JetTag> >" />
+  <!-- <class name="reco::JetTag" /> -->
+  <class name="reco::JetTagCollection" />
+  <class name="reco::JetTagRef" />
+  <class name="reco::JetTagRefProd" />
+  <class name="reco::JetTagRefVector" />
+  <class name="edm::Wrapper<reco::JetTagCollection>" />
 
-  <class name="reco::JetTagProxy" />
-  <class name="std::vector<reco::JetTagProxy>" />
-  <class name="edm::Wrapper<std::vector<reco::JetTagProxy> >" />
-  <class name="edm::Ref<std::vector<reco::JetTagProxy>, reco::JetTagProxy, edm::refhelper::FindUsingAdvance<std::vector<reco::JetTagProxy>, reco::JetTagProxy> >" />
-  <class name="edm::RefProd<std::vector<reco::JetTagProxy> >" />
-  <class name="edm::RefVector<std::vector<reco::JetTagProxy>, reco::JetTagProxy, edm::refhelper::FindUsingAdvance<std::vector<reco::JetTagProxy>, reco::JetTagProxy> >" />
-
-  <class name="std::pair<reco::btau::TaggingVariableName, reco::TaggingValue>" />
-  <class name="std::vector<std::pair<reco::btau::TaggingVariableName, reco::TaggingValue> >" />
-  <class name="reco::TaggingVariableList" />
-  <class name="std::vector<reco::TaggingVariableList>" />
-  <class name="edm::Wrapper<std::vector<reco::TaggingVariableList> >" />
-  <class name="edm::Ref<std::vector<reco::TaggingVariableList>, reco::TaggingVariableList, edm::refhelper::FindUsingAdvance<std::vector<reco::TaggingVariableList>, reco::TaggingVariableList> >" />
-  <class name="edm::RefProd<std::vector<reco::TaggingVariableList> >" />
-  <class name="edm::RefVector<std::vector<reco::TaggingVariableList>, reco::TaggingVariableList, edm::refhelper::FindUsingAdvance<std::vector<reco::TaggingVariableList>, reco::TaggingVariableList> >" />
+  <class name="reco::BaseTagInfo" />
+  <class name="reco::BaseTagInfoCollection" />
+  <class name="reco::BaseTagInfoRef" />
+  <class name="reco::BaseTagInfoRefProd" />
+  <class name="reco::BaseTagInfoRefVector" />
+  <class name="edm::Wrapper<reco::BaseTagInfoCollection>" />
   
+  <class name="reco::TaggingVariable" />
+  <class name="std::vector<reco::TaggingVariable>" />
+  <class name="reco::TaggingVariableList" />
+  <class name="reco::TaggingVariableListCollection" />
+  <class name="reco::TaggingVariableListRef" />
+  <class name="reco::TaggingVariableListRefProd" />
+  <class name="reco::TaggingVariableListRefVector" />
+  <class name="edm::Wrapper<reco::TaggingVariableListCollection>" />
+  
+  <class name="reco::JetTracksAssociation" />
+  <class name="reco::JetTracksAssociationCollection">
+    <field name="transientMap_" transient="true" />
+  </class>
+  <class name="reco::JetTracksAssociationRef" />
+  <class name="reco::JetTracksAssociationRefProd" />
+  <class name="reco::JetTracksAssociationRefVector" />
+  <class name="edm::Wrapper<reco::JetTracksAssociationCollection>" />
+
   <class name="reco::TrackCountingTagInfo" />
   <class name="std::vector<reco::TrackCountingTagInfo>" />
   <class name="edm::Wrapper<std::vector<reco::TrackCountingTagInfo> >" />
@@ -29,13 +38,12 @@
   <class name="edm::RefProd<std::vector<reco::TrackCountingTagInfo> >" />
   <class name="edm::RefVector<std::vector<reco::TrackCountingTagInfo>, reco::TrackCountingTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TrackCountingTagInfo>, reco::TrackCountingTagInfo> >" />
 
-   <class name="reco::TrackProbabilityTagInfo" />
-   <class name="std::vector<reco::TrackProbabilityTagInfo>" />
-   <class name="edm::Wrapper<std::vector<reco::TrackProbabilityTagInfo> >" />
-   <class name="edm::Ref<std::vector<reco::TrackProbabilityTagInfo>, reco::TrackProbabilityTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TrackProbabilityTagInfo>, reco::TrackProbabilityTagInfo> >" />
-   <class name="edm::RefProd<std::vector<reco::TrackProbabilityTagInfo> >" />
-   <class name="edm::RefVector<std::vector<reco::TrackProbabilityTagInfo>, reco::TrackProbabilityTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TrackProbabilityTagInfo>, reco::TrackProbabilityTagInfo> >" />
-
+  <class name="reco::TrackProbabilityTagInfo" />
+  <class name="std::vector<reco::TrackProbabilityTagInfo>" />
+  <class name="edm::Wrapper<std::vector<reco::TrackProbabilityTagInfo> >" />
+  <class name="edm::Ref<std::vector<reco::TrackProbabilityTagInfo>, reco::TrackProbabilityTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TrackProbabilityTagInfo>, reco::TrackProbabilityTagInfo> >" />
+  <class name="edm::RefProd<std::vector<reco::TrackProbabilityTagInfo> >" />
+  <class name="edm::RefVector<std::vector<reco::TrackProbabilityTagInfo>, reco::TrackProbabilityTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TrackProbabilityTagInfo>, reco::TrackProbabilityTagInfo> >" />
 
   <class name="reco::IsolatedTauTagInfo" />
   <class name="std::vector<reco::IsolatedTauTagInfo>" />
@@ -44,7 +52,7 @@
   <class name="edm::RefProd<std::vector<reco::IsolatedTauTagInfo> >" />
   <class name="edm::RefVector<std::vector<reco::IsolatedTauTagInfo>, reco::IsolatedTauTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedTauTagInfo>, reco::IsolatedTauTagInfo> >" />
 
-<class name="reco::EMIsolatedTauTagInfo" />
+  <class name="reco::EMIsolatedTauTagInfo" />
   <class name="std::vector<reco::EMIsolatedTauTagInfo>" />
   <class name="edm::Wrapper<std::vector<reco::EMIsolatedTauTagInfo> >" />
   <class name="edm::Ref<std::vector<reco::EMIsolatedTauTagInfo>, reco::EMIsolatedTauTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::EMIsolatedTauTagInfo>, reco::EMIsolatedTauTagInfo> >" />
@@ -90,26 +98,18 @@
   <class name="edm::RefProd<std::vector<reco::TauImpactParameterInfo> >" />
   <class name="edm::RefVector<std::vector<reco::TauImpactParameterInfo>, reco::TauImpactParameterInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TauImpactParameterInfo>, reco::TauImpactParameterInfo> >" />
 
-
- <class name="reco::TauMassTagInfo" />
+  <class name="reco::TauMassTagInfo" />
   <class name="std::vector<reco::TauMassTagInfo>" />
   <class name="edm::Wrapper<std::vector<reco::TauMassTagInfo> >" />
   <class name="edm::Ref<std::vector<reco::TauMassTagInfo>, reco::TauMassTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TauMassTagInfo>, reco::TauMassTagInfo> > " />
   <class name="edm::RefProd<std::vector<reco::TauMassTagInfo> > " />
   <class name="edm::RefVector<std::vector<reco::TauMassTagInfo>, reco::TauMassTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TauMassTagInfo>, reco::TauMassTagInfo> >" />
 
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CaloJet> > , edm::RefProd<std::vector<reco::Track> > >"/> 
-  <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::CaloJet>, std::vector<reco::Track>, unsigned int > >">
-    <field name="transientMap_" transient="true" />
-  </class>
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::CaloJet>, std::vector<reco::Track>, unsigned int > > >"/>
-  
   <class name="std::map<unsigned int, reco::TauImpactParameterTrackData>"/>
   <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>,reco::TauImpactParameterTrackData,unsigned int> >">
     <field name="transientMap_" transient="true" />
   </class>
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>,reco::TauImpactParameterTrackData,unsigned int> > >" />
-
 
   <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::CaloJet>, float, unsigned int > >" >
     <field name="transientMap_" transient="true" />
@@ -117,29 +117,29 @@
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::CaloJet>, float, unsigned int> > >" />
   <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::CaloJet> > >" />
 
-
-<class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CaloJet> > , edm::RefProd<std::vector<reco::EMLorentzVector> > >"/>
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CaloJet> > , edm::RefProd<std::vector<reco::EMLorentzVector> > >"/>
   <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::CaloJet>, std::vector<reco::EMLorentzVector>, unsigned int > >">
      <field name="transientMap_" transient="true" />
   </class>
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::CaloJet>, std::vector<reco::EMLorentzVector>, unsigned int > > >"/>
      
-     <class name="edm::helpers::Key<reco::JetTracksAssociationRef>"/>  
-     <class name="reco::TracksInJetData"/>       
-     <class name="reco::TrackIPData"/>     
-     <class name="std::vector<reco::TrackIPData>" />
-     <class name="edm::AssociationMap<edm::OneToValue<reco::JetTracksAssociationCollection, reco::TracksInJetData,unsigned int> >">     
-      <field name="transientMap_" transient="true" />
-     </class> 
-     <class name="edm::Wrapper<reco::JetTracksIPDataAssociationCollection>"/>     
-     <class name="reco::JetTracksIPDataAssociation"/>     
-     <class name="reco::JetTracksIPDataAssociationRef"/>     
-     <class name="reco::JetTracksIPDataAssociationRefProd"/>     
-     <class name="reco::JetTracksIPDataAssociationRefVector"/>     
+  <class name="edm::helpers::Key<reco::JetTracksAssociationRef>"/>  
+  <class name="reco::TracksInJetData"/>       
+  <class name="reco::TrackIPData"/>     
+  <class name="std::vector<reco::TrackIPData>" />
+  <class name="edm::AssociationMap<edm::OneToValue<reco::JetTracksAssociationCollection, reco::TracksInJetData,unsigned int> >">     
+    <field name="transientMap_" transient="true" />
+  </class> 
+  <class name="edm::Wrapper<reco::JetTracksIPDataAssociationCollection>"/>     
+  <class name="reco::JetTracksIPDataAssociation"/>     
+  <class name="reco::JetTracksIPDataAssociationRef"/>     
+  <class name="reco::JetTracksIPDataAssociationRefProd"/>     
+  <class name="reco::JetTracksIPDataAssociationRefVector"/>     
     
-     <class name="edm::helpers::Key<edm::RefProd<reco::JetTracksAssociationCollection> >"/>
+  <class name="edm::helpers::Key<edm::RefProd<reco::JetTracksAssociationCollection> >"/>
 
   <class pattern="edm::Ref<edm::AssociationMap<*>" />
   <class pattern="edm::RefProd<edm::AssociationMap<*>" />
   <class pattern="edm::RefVector<edm::AssociationMap<*>" />
+
 </lcgdict>

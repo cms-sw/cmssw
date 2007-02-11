@@ -10,8 +10,8 @@
 //
 
 
-#include "DataFormats/BTauReco/interface/JetTagFwd.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -36,8 +36,7 @@ struct SortByDescendingTrackPt
 };
 
 
-
-  class IsolatedTauTagInfo{
+class IsolatedTauTagInfo : public BaseTagInfo {
 
   public:
     //default constructor
@@ -55,36 +54,24 @@ struct SortByDescendingTrackPt
     }
     //destructor
     virtual ~IsolatedTauTagInfo() {};
-    //method used to set the reference to the JetTag
-    void setJetTag(const JetTagRef myRef) { 
-       m_jetTag = myRef;
-     }
-    //get the jet from the jetTag
-    const Jet & jet() const { return m_jetTag->jet(); }
     
     //get the tracks from the jetTag
-    const TrackRefVector & allTracks() const { return (*m_jetTag).tracks(); }
+    const TrackRefVector & allTracks() const { return tracks(); }
 
     //get the selected tracks used to computed the isolation
     const TrackRefVector & selectedTracks() const {return selectedTracks_;}
     
-    //get the reference to the jet
-    const JetTagRef & jetRef() const { return m_jetTag; }
-
     virtual IsolatedTauTagInfo* clone() const { return new IsolatedTauTagInfo( *this ); }
   
     //default discriminator: returns the value of the discriminator of the jet tag, i.e. the one computed with the parameters taken from the cfg file
-    double discriminator() const { 
-      double myDiscr = m_jetTag->discriminator();
-      return myDiscr; }
+    using BaseTagInfo::discriminator;
 
     //methods to be used to recomputed the isolation with a new set of parameters
-    double discriminator(float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing=0) const;
-    double discriminator( math::XYZVector myVector, float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing) const;
+    float discriminator(float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing = 0) const;
+    float discriminator( math::XYZVector myVector, float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing) const;
     //Used in case the PV is not considered
-    double discriminator(float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing, float dz_lt) const;
-    double discriminator( math::XYZVector myVector, float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing, float dz_lt) const;
-
+    float discriminator(float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing, float dz_lt) const;
+    float discriminator( math::XYZVector myVector, float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing, float dz_lt) const;
     
     // return all tracks in a cone of size "size" around a direction "direction" 
     const edm::RefVector<TrackCollection> tracksInCone(const math::XYZVector myVector,const float size,  const float pt_min ) const;
@@ -94,15 +81,8 @@ struct SortByDescendingTrackPt
     const TrackRef leadingSignalTrack(const float rm_cone, const float pt_min) const;
     const TrackRef leadingSignalTrack(math::XYZVector myVector, const float rm_cone, const float pt_min) const;
      
-     
   private:
-    
-
-
-
-    JetTagRef m_jetTag;
     TrackRefVector selectedTracks_;
-    TrackRef track;
   };
 }
 

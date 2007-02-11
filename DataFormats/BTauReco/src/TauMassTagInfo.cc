@@ -7,21 +7,13 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-double reco::TauMassTagInfo::discriminator(const double rm_cone,const double pt_cut,
+float reco::TauMassTagInfo::discriminator(const double rm_cone,const double pt_cut,
                                    const double rs_cone, const double track_cone, 
                                    const double m_cut) const {
-  double discriminator = 0.0;
+  float discriminator = 0.0;
   double invariantMass = getInvariantMass(rm_cone,pt_cut,rs_cone,track_cone);  
   if (invariantMass >= 0.0 && invariantMass < m_cut ) discriminator = 1.0;
   return discriminator;
-}
-//
-// --default discriminator: returns the value of the discriminator of the jet tag
-//
-double reco::TauMassTagInfo::discriminator() const {
-
-  return isolatedTau->jetRef()->discriminator(); 
-
 }
 //
 // -- Set IsolatedTauTag
@@ -34,18 +26,6 @@ void reco::TauMassTagInfo::setIsolatedTauTag(const IsolatedTauTagInfoRef isolati
 //
 const IsolatedTauTagInfoRef& reco::TauMassTagInfo::getIsolatedTauTag() const {
    return isolatedTau;
-}
-//
-// -- Set JetTag
-//
-void reco::TauMassTagInfo::setJetTag(const JetTagRef jetTagRef){
-  jetTag = jetTagRef;
-}
-//
-// -- get JetTag
-//
-const JetTagRef & reco::TauMassTagInfo::getJetTag() const {
-  return jetTag;
 }
 //
 // -- Set Cluster Collection

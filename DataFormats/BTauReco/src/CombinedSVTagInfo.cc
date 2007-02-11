@@ -8,7 +8,7 @@ reco::CombinedSVTagInfo::CombinedSVTagInfo ( const reco::TaggingVariableList & l
 reco::CombinedSVTagInfo::CombinedSVTagInfo ()
 {}
 
-double reco::CombinedSVTagInfo::discriminator() const
+float reco::CombinedSVTagInfo::discriminator() const
 {
   return discriminator_;
 }
@@ -25,8 +25,3 @@ reco::CombinedSVTagInfo * reco::CombinedSVTagInfo::clone() const
 
 reco::CombinedSVTagInfo::~CombinedSVTagInfo()
 {}
-
-void reco::CombinedSVTagInfo::setJetTag ( const reco::JetTagRef ref )
-{
-  basetag_=ref;
-}

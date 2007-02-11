@@ -4,12 +4,13 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfoFwd.h"
 
 
 namespace reco {
  
-class TrackProbabilityTagInfo
+class TrackProbabilityTagInfo : public BaseTagInfo
  {
   public:
 
@@ -89,6 +90,9 @@ int factorial(int n) const
   return -log10(ProbJet)/4.;
 }
 
+  // default discriminator 
+  using BaseTagInfo::discriminator;
+   
  /**
   Recompute discriminator 
   ipType = 0 means 3d impact parameter
@@ -121,18 +125,12 @@ int factorial(int n) const
  
   virtual const Track & track(size_t n,int ipType) const
   {
-
-    return *m_jetTag->tracks()[trackIndex(n,ipType)];
+    return *tracks()[trackIndex(n,ipType)];
   }
  
   virtual TrackProbabilityTagInfo* clone() const { return new TrackProbabilityTagInfo( * this ); }
   
-  void setJetTag(const JetTagRef ref) { 
-        m_jetTag = ref;
-   }
- 
   private:
-   edm::Ref<JetTagCollection> m_jetTag; 
    std::vector<double> m_probability2d;  //create a smarter container instead of 
    std::vector<double> m_probability3d;  //create a smarter container instead of 
    std::vector<int> m_trackOrder2d;       // this  pair of vectors. 

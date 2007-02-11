@@ -10,8 +10,8 @@
 
 #include "DataFormats/BTauReco/interface/CombinedTauTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
-#include "DataFormats/BTauReco/interface/JetTagFwd.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -25,7 +25,7 @@ using namespace edm;
 using namespace std;
 
 namespace reco { 
-  class CombinedTauTagInfo{
+  class CombinedTauTagInfo : public BaseTagInfo {
   public:
     CombinedTauTagInfo() {
       thecandidate_passed_trackerselection=false;
@@ -55,19 +55,12 @@ namespace reco {
     }
     virtual ~CombinedTauTagInfo() {};
     
-    //the reference to the JetTag
-    const JetTagRef& jettagRef()const{return JetTagRef_;}
-    void setjettagRef(const JetTagRef x) {JetTagRef_=x;}
-    
-    //the jet from the JetTag   
-    const Jet& jet()const{return JetTagRef_->jet();}
-    
     //the reference to the IsolatedTauTagInfo
     const IsolatedTauTagInfoRef& isolatedtautaginfoRef()const{return IsolatedTauTagInfoRef_;}
     void setisolatedtautaginfoRef(const IsolatedTauTagInfoRef x) {IsolatedTauTagInfoRef_=x;}
    
     //get the tracks from the JetTag
-    const TrackRefVector& allTks()const{return (*JetTagRef_).tracks();}
+    const TrackRefVector& allTks() const {return tracks();}
    
     //the tracks considered in the isolation strip and signal cone selections
     const TrackRefVector& selectedTks()const{return filtered_Tks_;}
@@ -79,17 +72,12 @@ namespace reco {
    
     virtual CombinedTauTagInfo* clone() const{return new CombinedTauTagInfo(*this );}
     
-    //default discriminator : returns the value of the discriminator of the JetTag
     // returns 0.        if candidate did not pass tracker selection,
     //         1.        if candidate passed tracker selection and did not contain neutral obj.,
     //         0<=  <=1  if candidate passed tracker selection, contained neutral obj. and goes through the likelihood ratio mechanism, 
     //         NaN       the values of the likelihood functions PDFs are 0 (test the result of discriminator() with bool isnan(.));  
     // truth matched Tau candidate PDFs obtained with evts from ORCA reco. bt04_double_tau_had sample without PU,
     // fake Tau candidate PDFs obtained with evts from ORCA reco. jm03b_qcd30_50, jm03b_qcd50_80, jm03b_qcd80_120 and jm03b_qcd120_170 samples, all without PU.   
-    double discriminator() const { 
-      double thediscriminator=JetTagRef_->discriminator();
-      return thediscriminator; 
-    }
     bool passed_trackerselection()const{return(thecandidate_passed_trackerselection);}
     void setpassed_trackerselection(bool x){thecandidate_passed_trackerselection=x;}
 
@@ -156,7 +144,6 @@ namespace reco {
    double HCALEt_o_leadTkPt()const{return(theHCALEt_o_leadTkPt);} // NaN : failure when trying to find the lead. tk contact on ECAL surface point; 
    void setHCALEt_o_leadTkPt(double x){theHCALEt_o_leadTkPt=x;}
  private:
-   JetTagRef JetTagRef_;
    IsolatedTauTagInfoRef IsolatedTauTagInfoRef_;
    TrackRefVector filtered_Tks_;
    TrackRefVector signal_Tks_;
