@@ -17,6 +17,9 @@ SUMMARY
                    used at all)
                    [Note: values are double, e.g. '.959']
 
+  [Note: THE CODE WAS TESTED ONLY FOR MONTE-CARLO... Real Data tests are coming
+         soon and changes will be posted.]
+
 CONTACT INFO
   Samvel Khalatian (samvel at fnal dot gov)
 
