@@ -99,9 +99,9 @@ void MTCCAmplifyDigis::produce( edm::Event &roEvent,
 
       // 1. Apply GAUSS to digi ADC
       // 2. Scale result
-      const double dNewAdc = rdSCALE *
-			      oTRandom.Gaus( roDIGI.adc(),
-					     rdSIGMA);
+      double dNewAdc = rdSCALE *
+			                 oTRandom.Gaus( roDIGI.adc(),
+					                            rdSIGMA);
 
       if( 0 >= dNewAdc) {
         dNewAdc = 0;
