@@ -1,15 +1,15 @@
-#ifndef BeamSpotProducer_BeamSpotTest_h
-#define BeamSpotProducer_BeamSpotTest_h
+#ifndef BeamSpotProducer_BeamSpotAnalyzer_h
+#define BeamSpotProducer_BeamSpotAnalyzer_h
 
 /**_________________________________________________________________
-   class:   BeamSpotTest.h
+   class:   BeamSpotAnalyzer.h
    package: RecoVertex/BeamSpotProducer
    
 
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotTest.h,v 1.2 2007/01/22 23:36:07 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.h,v 1.3 2007/02/10 23:13:30 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -27,10 +27,10 @@ ________________________________________________________________**/
 #include "TFile.h"
 #include "TTree.h"
 
-class BeamSpotTest : public edm::EDAnalyzer {
+class BeamSpotAnalyzer : public edm::EDAnalyzer {
  public:
-  explicit BeamSpotTest(const edm::ParameterSet&);
-  ~BeamSpotTest();
+  explicit BeamSpotAnalyzer(const edm::ParameterSet&);
+  ~BeamSpotAnalyzer();
 
  private:
   virtual void beginJob(const edm::EventSetup&) ;

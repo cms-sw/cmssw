@@ -1,12 +1,12 @@
 /**_________________________________________________________________
-   class:   BeamSpotTest.cc
+   class:   BeamSpotAnalyzer.cc
    package: RecoVertex/BeamSpotProducer
    
 
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotTest.cc,v 1.3 2007/02/01 16:56:56 speer Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.4 2007/02/10 23:13:31 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -15,7 +15,7 @@ ________________________________________________________________**/
 #include <string>
 // CMS
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "RecoVertex/BeamSpotProducer/interface/BeamSpotTest.h"
+#include "RecoVertex/BeamSpotProducer/interface/BeamSpotAnalyzer.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -32,7 +32,7 @@ ________________________________________________________________**/
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 
-BeamSpotTest::BeamSpotTest(const edm::ParameterSet& iConfig)
+BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
 {
 
   file_ = new TFile(iConfig.getUntrackedParameter<std::string>("OutputFileName").c_str(),"RECREATE");
@@ -80,7 +80,7 @@ BeamSpotTest::BeamSpotTest(const edm::ParameterSet& iConfig)
 }
 
 
-BeamSpotTest::~BeamSpotTest()
+BeamSpotAnalyzer::~BeamSpotAnalyzer()
 {
  
   if ( file_ != 0 ) {
@@ -93,7 +93,7 @@ BeamSpotTest::~BeamSpotTest()
 
 
 void
-BeamSpotTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+BeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
 	ftree_->SetBranchAddress("theta",&ftheta);
@@ -204,12 +204,12 @@ BeamSpotTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 void 
-BeamSpotTest::beginJob(const edm::EventSetup&)
+BeamSpotAnalyzer::beginJob(const edm::EventSetup&)
 {
 }
 
 void 
-BeamSpotTest::endJob() {
+BeamSpotAnalyzer::endJob() {
 
 	std::cout << "\n-------------------------------------\n\n" << std::endl;
 	std::cout << " calculating beam spot..." << std::endl;
