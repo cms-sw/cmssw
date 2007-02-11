@@ -94,22 +94,21 @@ void MTCCAmplifyDigis::produce( edm::Event &roEvent,
   struct {
     SiStripDigi operator()( const SiStripDigi &roDIGI,
                             const double      &rdSIGMA,
-			    const double      &rdSCALE) {
+			                      const double      &rdSCALE) {
       static TRandom oTRandom;
 
       // 1. Apply GAUSS to digi ADC
       // 2. Scale result
-      const unsigned int nNEW_ADC = 
-        static_cast<unsigned int>( rdSCALE *
-			       oTRandom.Gaus( roDIGI.adc(),
-					      rdSIGMA));
+      const double dNEW_ADC = rdSCALE *
+			      oTRandom.Gaus( roDIGI.adc(),
+					     rdSIGMA);
 
-      if( 0 > nNEW_ADC) {
-	return SiStripDigi( roDIGI.strip(), 0);
+      if( 0 >= dNEW_ADC) {
+        dNEW_ADC = 0;
       }
 
       return SiStripDigi( roDIGI.strip(),
-                          nNEW_ADC);
+                          static_cast<uint16_t>( dNEW_ADC));
     }
   } amplifyDigi;
 
