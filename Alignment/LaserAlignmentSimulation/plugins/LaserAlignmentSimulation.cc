@@ -30,7 +30,8 @@ LaserAlignmentSimulation::LaserAlignmentSimulation(edm::ParameterSet const& theC
     theTimer(), 
     theMaterialProperties(),
     thePrimaryGenerator(), theSteppingAction(),
-    theBarrelHits(0), theEndcapHits(0)
+    theBarrelHits(0), theEndcapHits(0),
+		theParameterSet(theConf)
 {
 
   // make some noise
@@ -42,13 +43,6 @@ LaserAlignmentSimulation::LaserAlignmentSimulation(edm::ParameterSet const& theC
 
   // declare timer
   theTimer = new G4Timer;
-
-  // the PrimaryGeneratorAction: defines the used particlegun for the Laser events
-  thePrimaryGenerator = new LaserPrimaryGeneratorAction(theConf);
-
-  // the UserSteppingAction: at the moment this prints only some information
-  theSteppingAction = new LaserSteppingAction(theConf);
-
 }
 
 LaserAlignmentSimulation::~LaserAlignmentSimulation() 
@@ -66,6 +60,13 @@ void LaserAlignmentSimulation::update(const BeginOfRun * myRun)
 
   // start timer
   theTimer->Start();
+
+
+  // the PrimaryGeneratorAction: defines the used particlegun for the Laser events
+  thePrimaryGenerator = new LaserPrimaryGeneratorAction(theParameterSet);
+
+  // the UserSteppingAction: at the moment this prints only some information
+  theSteppingAction = new LaserSteppingAction(theParameterSet);
 
   // construct your own material properties for setting refractionindex and so on
   theMaterialProperties = new MaterialProperties(theMPDebug, theSiAbsLengthScale);

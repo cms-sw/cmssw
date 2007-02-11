@@ -86,6 +86,7 @@ class LaserAlignmentSimulation : public Observer<const BeginOfRun *>,
   int theBarrelHits;
   int theEndcapHits;
 
+  edm::ParameterSet theParameterSet;
 /*   TrackerG4SimHitNumberingScheme theNumberingScheme; */
 };
 
