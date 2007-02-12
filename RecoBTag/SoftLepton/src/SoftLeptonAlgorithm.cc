@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLeptonAlgorithm.cc,v 1.6 2006/12/07 02:51:24 fwyzard Exp $
+// $Id: SoftLeptonAlgorithm.cc,v 1.7 2007/02/02 10:22:43 fwyzard Exp $
 //
 
 // STL
@@ -21,9 +21,7 @@
 #include <iostream>
 #include <iomanip>
 
-// Vectors
-#include "Geometry/Vector/interface/GlobalVector.h"
-
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
