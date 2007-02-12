@@ -1,8 +1,10 @@
 // include header for prepareMagneticFieldGrid (regular + extension for some trapezoids)
 #include "MagneticField/Interpolation/interface/prepareMagneticFieldGrid.h"
 
+using std::cout;
+using std::endl;
 
-void prepareMagneticFieldGrid::countTrueNumberOfPoints(const string& name){
+void prepareMagneticFieldGrid::countTrueNumberOfPoints(const std::string& name){
 
   int nLines = 0;
   int nPoints = 0;
@@ -10,12 +12,12 @@ void prepareMagneticFieldGrid::countTrueNumberOfPoints(const string& name){
 
   // define vectors of IndexedDoubleVectors
   IndexedDoubleVector         XBVector;
-  vector<IndexedDoubleVector> XBValues;
+  std::vector<IndexedDoubleVector> XBValues;
 
   // read file and copy to a vector
   double epsilonRadius = 1e-8;
   double x1,x2,x3,Bx,By,Bz,perm,poten;
-  ifstream file(name.c_str());
+  std::ifstream file(name.c_str());
   if (file.good()) {
     while (file.good()){
       file >> x1 >> x2 >> x3 >> Bx >> By >> Bz >> perm >> poten;
@@ -63,7 +65,7 @@ void prepareMagneticFieldGrid::countTrueNumberOfPoints(const string& name){
 }
 
 
-void prepareMagneticFieldGrid::fillFromFile(const string& name){
+void prepareMagneticFieldGrid::fillFromFile(const std::string& name){
 
   // check, whether coordinates are Cartesian or cylindrical
   std::string::size_type ibeg, iend;
@@ -74,20 +76,20 @@ void prepareMagneticFieldGrid::fillFromFile(const string& name){
 
   // define vectors of IndexedDoubleVectors
   IndexedDoubleVector XBVector;
-  vector<IndexedDoubleVector>  XBValues;
-  vector<IndexedDoubleVector> IXBValues;
-  vector<IndexedDoubleVector>  XBArray;
+  std::vector<IndexedDoubleVector>  XBValues;
+  std::vector<IndexedDoubleVector> IXBValues;
+  std::vector<IndexedDoubleVector>  XBArray;
 
   // vectors for pre analysis
-  vector<double> valX[3];
-  vector<int>    numX[3];
+  std::vector<double> valX[3];
+  std::vector<int>    numX[3];
 
   // copy ASCII file to the vector
   int nLines = 0;
   int     index[3] = {0,0,0};
   int    nSteps[3] = {0,0,0};
   double x1,x2,x3,Bx,By,Bz,perm,poten;
-  ifstream file(name.c_str());
+  std::ifstream file(name.c_str());
   if (file.good()) {
     while (file.good()){
       file >> x1 >> x2 >> x3 >> Bx >> By >> Bz >> perm >> poten;
@@ -108,8 +110,8 @@ void prepareMagneticFieldGrid::fillFromFile(const string& name){
 	  for (int i=0; i<3; ++i){
             bool knownValue = false;
 	    for (int j=0; j<(nSteps[i]+1); ++j){
-	      if (abs(valX[i].operator[](j) - pnt[i]) < EPSILON) knownValue = true;
-	      if (abs(valX[i].operator[](j) - pnt[i]) < EPSILON) numX[i].operator[](j)+=1;
+	      if (std::abs(valX[i].operator[](j) - pnt[i]) < EPSILON) knownValue = true;
+	      if (std::abs(valX[i].operator[](j) - pnt[i]) < EPSILON) numX[i].operator[](j)+=1;
 	    }
 	    if (!knownValue) {
 	      valX[i].push_back(pnt[i]);
@@ -139,7 +141,7 @@ void prepareMagneticFieldGrid::fillFromFile(const string& name){
       newVal = valX[i].operator[](j);
       if (j ==1) BasicDistance0[i] = newVal - oldVal;
       else if (j > 1){
-	if (abs(newVal - oldVal - BasicDistance0[i]) > EPSILON) EasyCoordinate[i] = false;
+	if (std::abs(newVal - oldVal - BasicDistance0[i]) > EPSILON) EasyCoordinate[i] = false;
       }
       oldVal = newVal;
     }
@@ -154,7 +156,7 @@ void prepareMagneticFieldGrid::fillFromFile(const string& name){
     for (int i=0; i<3; ++i){
       for (int j=0; j<NumberOfPoints[i]; ++j){
 	if (EasyCoordinate[i]){
-	  if (abs(valX[i].operator[](j) - pnt[i]) < EPSILON) index[i] = j;
+	  if (std::abs(valX[i].operator[](j) - pnt[i]) < EPSILON) index[i] = j;
 	}
       }
     }
@@ -205,7 +207,7 @@ void prepareMagneticFieldGrid::fillFromFile(const string& name){
     }
     // calculate difference between the two reference points minus the total difference (=0)
     double totDiff = secondRefPoint[i] - (ReferencePoint[i] + offset + stepSize*nSteps[i]);
-    if (abs(totDiff) < EPSILON*10.) systematicGrid[i] = true;
+    if (std::abs(totDiff) < EPSILON*10.) systematicGrid[i] = true;
     else                         systematicGrid[i] = false;
     if (!systematicGrid[i]) KnownStructure = false;
   }
@@ -247,7 +249,7 @@ void prepareMagneticFieldGrid::fillFromFile(const string& name){
     for (int i=0; i<3; ++i){
       if (EasyCoordinate[i]) ++nEasy;
     }
-    vector<double> misValX[3];
+    std::vector<double> misValX[3];
 
     // try to recover info of missing coordiates
     if (nEasy > 0){
@@ -282,10 +284,10 @@ void prepareMagneticFieldGrid::fillFromFile(const string& name){
 		double thisVal = 0.; double lastVal = 0.; double deltVal = 0.;
 		for (int j=0; j<NumberOfPoints[i]; ++j){
                   thisVal = misValX[i].operator[](j);
-		  if (abs(thisVal - pnt[i]) < EPSILON) index[i] = j;
+		  if (std::abs(thisVal - pnt[i]) < EPSILON) index[i] = j;
 		  if (j ==1) deltVal = thisVal - lastVal;
 		  else if (j > 1){
-		    if (abs(thisVal - lastVal - deltVal) > EPSILON) goodIndex[i] = false;
+		    if (std::abs(thisVal - lastVal - deltVal) > EPSILON) goodIndex[i] = false;
 		  }
 		  lastVal = thisVal;
 		}
@@ -314,7 +316,7 @@ void prepareMagneticFieldGrid::fillFromFile(const string& name){
 	    else{
 	      bool knownValue = false;
 	      for (int j=0; j<NumberOfPoints[i]; ++j){
-		if (abs(misValX[i].operator[](j) - pnt[i]) < EPSILON) knownValue = true;
+		if (std::abs(misValX[i].operator[](j) - pnt[i]) < EPSILON) knownValue = true;
 	      }
 	      if (!knownValue){
 		++NumberOfPoints[i];
@@ -339,10 +341,10 @@ void prepareMagneticFieldGrid::fillFromFile(const string& name){
 		double thisVal = 0.; double lastVal = 0.; double deltVal = 0.;
 		for (int j=0; j<NumberOfPoints[i]; ++j){
                   thisVal = misValX[i].operator[](j);
-		  if (abs(thisVal - pnt[i]) < EPSILON) index[i] = j;
+		  if (std::abs(thisVal - pnt[i]) < EPSILON) index[i] = j;
 		  if (j ==1) deltVal = thisVal - lastVal;
 		  else if (j > 1){
-		    if (abs(thisVal - lastVal - deltVal) > EPSILON) goodIndex[i] = false;
+		    if (std::abs(thisVal - lastVal - deltVal) > EPSILON) goodIndex[i] = false;
 		  }
 		  lastVal = thisVal;
 		}
@@ -467,7 +469,7 @@ void prepareMagneticFieldGrid::fillFromFile(const string& name){
       }
       // calculate difference between the two reference points minus the total difference (=0)
       double totDiff = secondRefPoint[i] - (ReferencePoint[i] + offset + stepSize*nSteps[i]);
-      if (abs(totDiff) < EPSILON*10.) systematicGrid[i] = true;
+      if (std::abs(totDiff) < EPSILON*10.) systematicGrid[i] = true;
       else                         systematicGrid[i] = false;
       if (!systematicGrid[i]) KnownStructure = false;
     }
@@ -546,7 +548,7 @@ void prepareMagneticFieldGrid::fillFromFile(const string& name){
 }
 
 
-void prepareMagneticFieldGrid::fillFromFileSpecial(const string& name){
+void prepareMagneticFieldGrid::fillFromFileSpecial(const std::string& name){
 
   // check, whether coordinates are Cartesian or cylindrical
   std::string::size_type ibeg, iend;
@@ -557,20 +559,20 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const string& name){
 
   // define vectors of IndexedDoubleVectors
   IndexedDoubleVector XBVector;
-  vector<IndexedDoubleVector>  XBValues;
-  vector<IndexedDoubleVector> IXBValues;
-  vector<IndexedDoubleVector>  XBArray;
+  std::vector<IndexedDoubleVector>  XBValues;
+  std::vector<IndexedDoubleVector> IXBValues;
+  std::vector<IndexedDoubleVector>  XBArray;
 
   // vectors for pre analysis
-  vector<double> valX[3];
-  vector<int>    numX[3];
+  std::vector<double> valX[3];
+  std::vector<int>    numX[3];
 
   // copy ASCII file to the vector
   int nLines = 0;
   int     index[3] = {0,0,0};
   int    nSteps[3] = {0,0,0};
   double x1,x2,x3,Bx,By,Bz,perm,poten;
-  ifstream file(name.c_str());
+  std::ifstream file(name.c_str());
   if (file.good()) {
     while (file.good()){
       file >> x1 >> x2 >> x3 >> Bx >> By >> Bz >> perm >> poten;
@@ -591,8 +593,8 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const string& name){
 	  for (int i=0; i<3; ++i){
             bool knownValue = false;
 	    for (int j=0; j<(nSteps[i]+1); ++j){
-	      if (abs(valX[i].operator[](j) - pnt[i]) < EPSILON) knownValue = true;
-	      if (abs(valX[i].operator[](j) - pnt[i]) < EPSILON) numX[i].operator[](j)+=1;
+	      if (std::abs(valX[i].operator[](j) - pnt[i]) < EPSILON) knownValue = true;
+	      if (std::abs(valX[i].operator[](j) - pnt[i]) < EPSILON) numX[i].operator[](j)+=1;
 	    }
 	    if (!knownValue) {
 	      valX[i].push_back(pnt[i]);
@@ -620,13 +622,13 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const string& name){
       newVal = valX[i].operator[](j);
       if (j ==1) BasicDistance0[i] = newVal - oldVal;
       else if (j > 1){
-	if (abs(newVal - oldVal - BasicDistance0[i]) > EPSILON) EasyCoordinate[i] = false;
+	if (std::abs(newVal - oldVal - BasicDistance0[i]) > EPSILON) EasyCoordinate[i] = false;
       }
       oldVal = newVal;
     }
   }
 
-  cout << endl;
+  std::cout << std::endl;
 
   // define indices for easy coordinates
   for (int iLine=0; iLine<nLines; ++iLine){
@@ -637,7 +639,7 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const string& name){
     for (int i=0; i<3; ++i){
       for (int j=0; j<NumberOfPoints[i]; ++j){
 	if (EasyCoordinate[i]){
-	  if (abs(valX[i].operator[](j) - pnt[i]) < EPSILON) index[i] = j;
+	  if (std::abs(valX[i].operator[](j) - pnt[i]) < EPSILON) index[i] = j;
 	}
       }
     }
@@ -681,7 +683,7 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const string& name){
     double stepSize = BasicDistance0[i];
     // calculate difference between the two reference points minus the total difference (=0)
     double totDiff = secondRefPoint[i] - (ReferencePoint[i] + stepSize*nSteps[i]);
-    if (abs(totDiff) < EPSILON*10.) systematicGrid[i] = true;
+    if (std::abs(totDiff) < EPSILON*10.) systematicGrid[i] = true;
     else                         systematicGrid[i] = false;
     if (!systematicGrid[i]) KnownStructure = false;
   }
@@ -693,7 +695,7 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const string& name){
     for (int i=0; i<3; ++i){
       if (EasyCoordinate[i]) ++nEasy;
     }
-    vector<double> misValX[3];
+    std::vector<double> misValX[3];
 
     // try to recover info of missing coordiates
     if (nEasy > 0){
@@ -728,10 +730,10 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const string& name){
 		double thisVal = 0.; double lastVal = 0.; double deltVal = 0.;
 		for (int j=0; j<NumberOfPoints[i]; ++j){
                   thisVal = misValX[i].operator[](j);
-		  if (abs(thisVal - pnt[i]) < EPSILON) index[i] = j;
+		  if (std::abs(thisVal - pnt[i]) < EPSILON) index[i] = j;
 		  if (j ==1) deltVal = thisVal - lastVal;
 		  else if (j > 1){
-		    if (abs(thisVal - lastVal - deltVal) > EPSILON) goodIndex[i] = false;
+		    if (std::abs(thisVal - lastVal - deltVal) > EPSILON) goodIndex[i] = false;
 		  }
 		  lastVal = thisVal;
 		}
@@ -760,7 +762,7 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const string& name){
 	    else{
 	      bool knownValue = false;
 	      for (int j=0; j<NumberOfPoints[i]; ++j){
-		if (abs(misValX[i].operator[](j) - pnt[i]) < EPSILON) knownValue = true;
+		if (std::abs(misValX[i].operator[](j) - pnt[i]) < EPSILON) knownValue = true;
 	      }
 	      if (!knownValue){
 		++NumberOfPoints[i];
@@ -785,10 +787,10 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const string& name){
 		double thisVal = 0.; double lastVal = 0.; double deltVal = 0.;
 		for (int j=0; j<NumberOfPoints[i]; ++j){
                   thisVal = misValX[i].operator[](j);
-		  if (abs(thisVal - pnt[i]) < EPSILON) index[i] = j;
+		  if (std::abs(thisVal - pnt[i]) < EPSILON) index[i] = j;
 		  if (j ==1) deltVal = thisVal - lastVal;
 		  else if (j > 1){
-		    if (abs(thisVal - lastVal - deltVal) > EPSILON) goodIndex[i] = false;
+		    if (std::abs(thisVal - lastVal - deltVal) > EPSILON) goodIndex[i] = false;
 		  }
 		  lastVal = thisVal;
 		}
@@ -815,9 +817,9 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const string& name){
       for (int i=0; i<3; ++i){
 	nSteps[i] = NumberOfPoints[i]-1;
       }
-      vector<double> rMinVec;
-      vector<double> rMaxVec;
-      vector<double> phiVec;
+      std::vector<double> rMinVec;
+      std::vector<double> rMaxVec;
+      std::vector<double> phiVec;
       for (int iLine=0; iLine<nLines; ++iLine){
 	XBVector = XBArray.operator[](iLine);
 	XBVector.getI3(index[0], index[1], index[2]);
@@ -842,10 +844,10 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const string& name){
 	  RParAsFunOfPhi[3] = rhoMin;
 	}
 	else{
-	  if (abs(rMax   - RParAsFunOfPhi[0]) > EPSILON) RParAsFunOfPhi[0] = 0.;
-	  if (abs(rhoMax - RParAsFunOfPhi[1]) > EPSILON) RParAsFunOfPhi[1] = 0.;
-	  if (abs(rMin   - RParAsFunOfPhi[2]) > EPSILON) RParAsFunOfPhi[2] = 0.;
-	  if (abs(rhoMin - RParAsFunOfPhi[3]) > EPSILON) RParAsFunOfPhi[3] = 0.;
+	  if (std::abs(rMax   - RParAsFunOfPhi[0]) > EPSILON) RParAsFunOfPhi[0] = 0.;
+	  if (std::abs(rhoMax - RParAsFunOfPhi[1]) > EPSILON) RParAsFunOfPhi[1] = 0.;
+	  if (std::abs(rMin   - RParAsFunOfPhi[2]) > EPSILON) RParAsFunOfPhi[2] = 0.;
+	  if (std::abs(rhoMin - RParAsFunOfPhi[3]) > EPSILON) RParAsFunOfPhi[3] = 0.;
 	}
       }
 
@@ -875,19 +877,19 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const string& name){
     }
 
     double sinPhi = sin(secondRefPoint[1]);
-    if (abs(sinPhi) < EPSILON) sinPhi = EPSILON;
+    if (std::abs(sinPhi) < EPSILON) sinPhi = EPSILON;
     double totStepSize = RParAsFunOfPhi[0] + RParAsFunOfPhi[1]/sinPhi - RParAsFunOfPhi[2] - RParAsFunOfPhi[3]/sinPhi;
     double startingPoint = RParAsFunOfPhi[2] + RParAsFunOfPhi[3]/sinPhi;
     double totDiff = secondRefPoint[0] - (startingPoint + totStepSize);
-    if (abs(totDiff) < EPSILON*10.) systematicGrid[0] = true;
+    if (std::abs(totDiff) < EPSILON*10.) systematicGrid[0] = true;
     else                         systematicGrid[0] = false;
     if (!systematicGrid[0]) KnownStructure = false;
     totDiff = secondRefPoint[1] - (ReferencePoint[1] + BasicDistance0[1]*nSteps[1]);
-    if (abs(totDiff) < EPSILON*10.) systematicGrid[1] = true;
+    if (std::abs(totDiff) < EPSILON*10.) systematicGrid[1] = true;
     else                         systematicGrid[1] = false;
     if (!systematicGrid[1]) KnownStructure = false;
     totDiff = secondRefPoint[2] - (ReferencePoint[2] + BasicDistance0[2]*nSteps[2]);
-    if (abs(totDiff) < EPSILON*10.) systematicGrid[2] = true;
+    if (std::abs(totDiff) < EPSILON*10.) systematicGrid[2] = true;
     else                         systematicGrid[2] = false;
     if (!systematicGrid[2]) KnownStructure = false;
 
@@ -992,7 +994,7 @@ void prepareMagneticFieldGrid::validateAllPoints(){
           double tmpPnt[3] = {0.0,0.0,0.0};
 	  putIndCalcXReturnB(index[0], index[1], index[2], tmpPnt[0], tmpPnt[1], tmpPnt[2], Bx, By, Bz);
 	  for (int i=0; i<3; ++i){
-	    if (abs(tmpPnt[i]-pnt[i]) > EPSILON) ++numberOfErrors;
+	    if (std::abs(tmpPnt[i]-pnt[i]) > EPSILON) ++numberOfErrors;
 	  }
         }
       }
@@ -1027,7 +1029,7 @@ void prepareMagneticFieldGrid::validateAllPoints(){
 	  double tmpPnt[3] = {0.0,0.0,0.0};
 	  putIndCalcXReturnB(index[0], index[1], index[2], tmpPnt[0], tmpPnt[1], tmpPnt[2], Bx, By, Bz);
 	  for (int i=0; i<3; ++i){
-	    if (abs(tmpPnt[i]-pnt[i]) > EPSILON) ++numberOfErrors;
+	    if (std::abs(tmpPnt[i]-pnt[i]) > EPSILON) ++numberOfErrors;
 	  }
 	}
       }
@@ -1041,7 +1043,7 @@ void prepareMagneticFieldGrid::validateAllPoints(){
 }
 
 
-void prepareMagneticFieldGrid::saveGridToFile(const string& outName){
+void prepareMagneticFieldGrid::saveGridToFile(const std::string& outName){
 
   // open output file
   binary_ofstream outFile(outName);
@@ -1100,7 +1102,7 @@ void prepareMagneticFieldGrid::saveGridToFile(const string& outName){
     outFile << Bx << By << Bz;
   }
   // make end and close output file
-  const string lastEntry = "complete";
+  const std::string lastEntry = "complete";
   outFile << lastEntry;
   outFile.close();
   if (PRINT) cout << "  output " << outName << endl;
@@ -1142,9 +1144,9 @@ void prepareMagneticFieldGrid::interpolateAtPoint(double X1, double X2, double X
     int index1[3] = {0,0,0};
     for (int i=0; i<3; ++i){
       if (NumberOfPoints[i] > 1){
-	                                     index0[i] = max(0,index[i]);
+	                                     index0[i] = std::max(0,index[i]);
 	if (index0[i] > NumberOfPoints[i]-2) index0[i] = NumberOfPoints[i]-2;;
-	                                     index1[i] = max(1,index[i]+1);;
+	                                     index1[i] = std::max(1,index[i]+1);;
 	if (index1[i] > NumberOfPoints[i]-1) index1[i] = NumberOfPoints[i]-1;
       }
     }
@@ -1199,7 +1201,7 @@ void prepareMagneticFieldGrid::putCoordGetIndices(double X1, double X2, double X
   }
   if (GridType == 5){
     double sinPhi = sin(pnt[1]);
-    if (abs(sinPhi) < EPSILON){
+    if (std::abs(sinPhi) < EPSILON){
       sinPhi = EPSILON;
       cout << "ERROR DIVISION BY ZERO" << endl;
     }
@@ -1257,7 +1259,7 @@ void prepareMagneticFieldGrid::putIndCalcXReturnB(int Index1, int Index2, int In
     pnt[2] = ReferencePoint[2] + BasicDistance0[2]*index[2];
     pnt[1] = ReferencePoint[1] + BasicDistance0[1]*index[1];
     double sinPhi = sin(pnt[1]);
-    if (abs(sinPhi) < EPSILON){
+    if (std::abs(sinPhi) < EPSILON){
       sinPhi = EPSILON;
       cout << "ERROR DIVISION BY ZERO" << endl;
     }

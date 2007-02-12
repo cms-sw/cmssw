@@ -35,7 +35,6 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-using namespace std;
 
 #define PRINT true
 #define EPSILON 1e-4
@@ -112,24 +111,24 @@ private:
   bool   XyzCoordinates;
   bool   RpzCoordinates;
   // all points (X1,X2,X3,Bx,By,Bz) of one volume
-  vector<SixDPoint> GridData;
+  std::vector<SixDPoint> GridData;
 
   // convert original units [m] to new units [cm]
   void convertUnits();
 
 public:
   /// check, if number of lines corresponds to number of points in space (double counting test)
-  void countTrueNumberOfPoints(const string& name);
+  void countTrueNumberOfPoints(const std::string& name);
   /// reads the corresponding ASCII file, detects the logic of the points, and saves them on a grid
-  void fillFromFile(const string& name);
+  void fillFromFile(const std::string& name);
   /// sames as fillFromFile, but for special cases which are not covered by the standard algorithm
-  void fillFromFileSpecial(const string& name);
+  void fillFromFileSpecial(const std::string& name);
   /// returns value of GridType (and eventually prints the type + short description)
   int gridType();
   /// possibility to check existing MagneticFieldGrid point by point (all points)
   void validateAllPoints();
   /// sames as fillFromFile, but for special cases which are not covered by the standard algorithm
-  void saveGridToFile(const string& outName);
+  void saveGridToFile(const std::string& outName);
 
   /// indicates, that MagneticFieldGrid is fully operational (for interpolation)
   bool isReady();
