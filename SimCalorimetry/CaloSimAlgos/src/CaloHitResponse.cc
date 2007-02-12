@@ -1,4 +1,3 @@
-using namespace std;
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h" 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h" 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
