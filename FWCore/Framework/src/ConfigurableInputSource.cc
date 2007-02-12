@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.12 2006/12/28 23:52:02 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.13 2007/01/10 05:58:48 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,6 +24,7 @@ namespace edm {
     presentTime_(pset.getUntrackedParameter<unsigned int>("firstTime", 0)),  //time in ns
     origTime_(presentTime_),
     timeBetweenEvents_(pset.getUntrackedParameter<unsigned int>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)),
+    eventCreationDelay_(pset.getUntrackedParameter<unsigned int>("eventCreationDelay", 0)),
     numberEventsInThisRun_(0),
     numberEventsInThisLumi_(0),
     zerothEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1) - 1),
@@ -193,6 +194,7 @@ namespace edm {
       numberEventsInThisLumi_ = 1;
     }
     presentTime_ += timeBetweenEvents_;
+    usleep(eventCreationDelay_);
   }
 
 }

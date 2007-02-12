@@ -2,7 +2,7 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.13 2006/12/28 23:52:01 wmtan Exp $
+$Id: ConfigurableInputSource.h,v 1.14 2007/01/10 05:58:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
@@ -25,6 +25,7 @@ namespace edm {
     unsigned int numberEventsInLumi() const {return numberEventsInLumi_;} 
     TimeValue_t presentTime() const {return presentTime_;}
     unsigned int timeBetweenEvents() const {return timeBetweenEvents_;}
+    unsigned long eventCreationDelay() const {return eventCreationDelay_;}
     unsigned int numberEventsInThisRun() const {return numberEventsInThisRun_;}
     unsigned int numberEventsInThisLumi() const {return numberEventsInThisLumi_;}
     RunNumber_t run() const {return eventID_.run();}
@@ -61,6 +62,7 @@ namespace edm {
     TimeValue_t presentTime_;
     TimeValue_t origTime_;
     unsigned int timeBetweenEvents_;
+    unsigned long eventCreationDelay_;  /* microseconds */
 
     unsigned int numberEventsInThisRun_;
     unsigned int numberEventsInThisLumi_;
