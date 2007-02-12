@@ -44,7 +44,10 @@ namespace reco {
     Vertex( const Point &, const Error &, double chi2, double ndof, size_t size );
     /// add a reference to a Track
     void add( const TrackRef & r, float w=1.0 );
+    /// add the original a Track(reference) and the smoothed Track
+    void add( const TrackRef & r, const Track & refTrack, float w=1.0 );
     void removeTracks();
+    ///returns the weight with which a Track has contributed to the vertex-fit.
     float trackWeight ( const TrackRef & r ) const;
     /// first iterator over tracks
     track_iterator tracks_begin() const;
@@ -93,10 +96,31 @@ namespace reco {
     /// fill SMatrix
     void fill( CovarianceMatrix & v ) const;
 
+    /// Checks whether refitted tracks are stored.
+    bool hasRefittedTracks() const {return !refittedTracks_.empty();}
+    
+    /// Returns the original track which corresponds to a particular refitted Track
+    /// Throws an exception if now refitted tracks are stored ot the track is not found in the list
+    TrackRef originalTrack(const Track & refTrack) const;
+
+    /// Returns the refitted track which corresponds to a particular original Track
+    /// Throws an exception if now refitted tracks are stored ot the track is not found in the list
+    Track refittedTrack(const TrackRef & track) const;
+
+    /// Returns the container of refitted tracks
+    const std::vector<Track> & refittedTracks() const { return refittedTracks_;}
+
   private:
     void createTracks() const;
 
   private:
+    class TrackEqual {
+      public:
+	TrackEqual( const Track & t) : track_( t ) { }
+	bool operator()( const Track & t ) const { return t.pt()==track_.pt();}
+      private:
+	const Track & track_;
+    };
     /// chi-sqared
     Double32_t chi2_;
     /// number of degrees of freedom
@@ -107,7 +131,11 @@ namespace reco {
     Double32_t covariance_[ size ];
     /// reference to tracks
     mutable TrackRefVector tracks_;
+    /// The vector of refitted tracks
+    std::vector<Track> refittedTracks_;
     edm::AssociationMap< edm::OneToValue<reco::TrackCollection, float> > weights_;
+
+
     /// position index
     index idx( index i, index j ) const {
       int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );
