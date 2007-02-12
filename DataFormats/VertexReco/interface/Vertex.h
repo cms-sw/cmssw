@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.22 2006/10/06 12:24:39 walten Exp $
+ * \version $Id: Vertex.h,v 1.23 2006/11/15 10:59:48 llista Exp $
  *
  */
 #include <Rtypes.h>
@@ -43,9 +43,9 @@ namespace reco {
     /// constructor from values
     Vertex( const Point &, const Error &, double chi2, double ndof, size_t size );
     /// add a reference to a Track
-    void add( const TrackRef & r, double w=1.0 );
+    void add( const TrackRef & r, float w=1.0 );
     void removeTracks();
-    double trackWeight ( const TrackRef & r ) const;
+    float trackWeight ( const TrackRef & r ) const;
     /// first iterator over tracks
     track_iterator tracks_begin() const;
     /// last iterator over tracks
@@ -107,7 +107,7 @@ namespace reco {
     Double32_t covariance_[ size ];
     /// reference to tracks
     mutable TrackRefVector tracks_;
-    edm::AssociationMap< edm::OneToValue<reco::TrackCollection, double> > weights_;
+    edm::AssociationMap< edm::OneToValue<reco::TrackCollection, float> > weights_;
     /// position index
     index idx( index i, index j ) const {
       int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );

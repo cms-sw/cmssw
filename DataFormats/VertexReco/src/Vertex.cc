@@ -1,5 +1,5 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
-// $Id: Vertex.cc,v 1.6 2006/07/20 14:34:40 llista Exp $
+// $Id: Vertex.cc,v 1.7 2006/10/06 12:24:40 walten Exp $
 using namespace reco;
 using namespace std;
 
@@ -33,7 +33,7 @@ track_iterator Vertex::tracks_begin() const
 
 void Vertex::createTracks() const
 {
-  for ( edm::AssociationMap < edm::OneToValue<reco::TrackCollection, double> >::const_iterator 
+  for ( edm::AssociationMap < edm::OneToValue<reco::TrackCollection, float> >::const_iterator 
         i=weights_.begin(); i!=weights_.end() ; ++i )
   {
     tracks_.push_back ( i->key );
@@ -47,7 +47,7 @@ track_iterator Vertex::tracks_end() const
   // return weights_.keys().end();
 }
 
-void Vertex::add ( const TrackRef & r, double w )
+void Vertex::add ( const TrackRef & r, float w )
 {
   // tracks_.push_back ( r ); // FIXME should be removed
   weights_.insert(r,w);
@@ -59,7 +59,7 @@ void Vertex::removeTracks()
   tracks_.clear();
 }
 
-double Vertex::trackWeight ( const TrackRef & r ) const
+float Vertex::trackWeight ( const TrackRef & r ) const
 {
   return weights_.find(r)->val;
 }
