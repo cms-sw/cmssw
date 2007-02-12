@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2006/09/08 23:24:38 $
-$Revision: 1.12 $
+$Date: 2007/01/09 22:49:20 $
+$Revision: 1.14 $
 */
 
 #include <iostream>
@@ -15,93 +15,79 @@ $Revision: 1.12 $
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
 HcalElectronicsMap::HcalElectronicsMap() 
-  : mSortedById (false),
-    mSortedByElId (false),
-    mSortedByTrigId (false)
 {}
+
+namespace hcal_impl {
+    class LessById {public: bool operator () (const HcalElectronicsMap::Item* a, const HcalElectronicsMap::Item* b) {return a->mId < b->mId;}};
+    class LessByElId {public: 
+      bool operator () (const HcalElectronicsMap::Item* a, const HcalElectronicsMap::Item* b) {return a->mElId < b->mElId;}
+      bool operator () (const HcalElectronicsMap::Item& a, const HcalElectronicsMap::Item& b) {return a.mElId < b.mElId;}
+    };
+    class LessByTrigId {public: bool operator () (const HcalElectronicsMap::Item* a, const HcalElectronicsMap::Item* b) {return a->mTrigId < b->mTrigId;}};
+}
 
 HcalElectronicsMap::~HcalElectronicsMap(){}
 
-const HcalElectronicsMap::Item* HcalElectronicsMap::findById (unsigned long fId, bool fWarning) const {
+const HcalElectronicsMap::Item* HcalElectronicsMap::findById (unsigned long fId) const {
   Item target (fId, 0, 0);
-  std::vector<HcalElectronicsMap::Item>::const_iterator item;
-  if (mSortedById) {
-    item = std::lower_bound (mItems.begin(), mItems.end(), target, Item::LessById ());
-  }
-  else {
-    if (fWarning) std::cerr << "HcalElectronicsMap-> container is not sorted. Use sortByChaId () to search effectively" << std::endl;
-    item = mItems.begin();
-    Item::LessById less;
-    while (! (item == mItems.end() || (!less (*item,target) && !less (target, *item)))) item++;
-    //    while (item != mItems.end() && !( less (*item,target) || less (target, *item))) item++;
-  }
-  if (item == mItems.end() || item->mId != fId) 
+  std::vector<const HcalElectronicsMap::Item*>::const_iterator item;
+
+  if (mItemsById.size()!=mItems.size()) sortById();
+  
+  item = std::lower_bound (mItemsById.begin(), mItemsById.end(), &target, hcal_impl::LessById());
+  if (item == mItemsById.end() || (*item)->mId != fId) 
     //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
     return 0;
-  return &*item;
+  return *item;
 }
 
-const HcalElectronicsMap::Item* HcalElectronicsMap::findByElId (unsigned long fElId, bool fWarning) const {
+const HcalElectronicsMap::Item* HcalElectronicsMap::findByElId (unsigned long fElId) const {
   Item target (0, fElId, 0);
   std::vector<HcalElectronicsMap::Item>::const_iterator item;
-  if (mSortedByElId) {
-    item = std::lower_bound (mItems.begin(), mItems.end(), target, Item::LessByElId ());
-  }
-  else {
-    if (fWarning) std::cerr << "HcalElectronicsMap-> container is not sorted. Use sortById () to search effectively" << std::endl;
-    item = mItems.begin();
-    Item::LessByElId less;
-    while (! (item == mItems.end() || ( !less (*item,target) && !less (target, *item)))) item++;
-  }
+
+  item = std::lower_bound (mItems.begin(), mItems.end(), target, hcal_impl::LessByElId ());
   if (item == mItems.end() || item->mElId != fElId)
     // throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for e-cell " << fElId;
     return 0;
   return &*item;
 }
 
-const HcalElectronicsMap::Item* HcalElectronicsMap::findByTrigId (unsigned long fTrigId, bool fWarning) const {
+const HcalElectronicsMap::Item* HcalElectronicsMap::findByTrigId (unsigned long fTrigId) const {
   Item target (0, 0, fTrigId);
-  std::vector<HcalElectronicsMap::Item>::const_iterator item;
-  if (mSortedByTrigId) {
-    item = std::lower_bound (mItems.begin(), mItems.end(), target, Item::LessByTrigId ());
-  }
-  else {
-    if (fWarning) std::cerr << "HcalElectronicsMap-> container is not sorted. Use sortByTrigId () to search effectively" << std::endl;
-    item = mItems.begin();
-    Item::LessByTrigId less;
-    while (item != mItems.end() && !( less (*item,target) || less (target, *item))) item++;
-  }
-  if (item == mItems.end() || item->mTrigId != fTrigId)
-    // throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for trig-cell " << fTrigId;
+  std::vector<const HcalElectronicsMap::Item*>::const_iterator item;
+
+  if (mItemsByTrigId.size()!=mItems.size()) sortByTriggerId();
+  
+  item = std::lower_bound (mItemsByTrigId.begin(), mItemsByTrigId.end(), &target, hcal_impl::LessByTrigId());
+  if (item == mItemsByTrigId.end() || (*item)->mId != fTrigId) 
+    //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
     return 0;
-  return &*item;
+  return *item;
 }
 
-
-const DetId HcalElectronicsMap::lookup(HcalElectronicsId fId, bool fWarning ) const {
-  const Item* item = findByElId (fId.rawId (), fWarning);
+const DetId HcalElectronicsMap::lookup(HcalElectronicsId fId ) const {
+  const Item* item = findByElId (fId.rawId ());
   return DetId (item ? item->mId : 0);
 }
 
-const HcalElectronicsId HcalElectronicsMap::lookup(DetId fId, bool fWarning) const {
-  const Item* item = findById (fId.rawId (), fWarning);
+const HcalElectronicsId HcalElectronicsMap::lookup(DetId fId) const {
+  const Item* item = findById (fId.rawId ());
   return HcalElectronicsId (item ? item->mElId : 0);
 }
 
-const DetId HcalElectronicsMap::lookupTrigger(HcalElectronicsId fId, bool fWarning) const {
-  const Item* item = findByElId (fId.rawId (), fWarning);
+const DetId HcalElectronicsMap::lookupTrigger(HcalElectronicsId fId) const {
+  const Item* item = findByElId (fId.rawId ());
   return DetId (item ? item->mTrigId : 0);
 }
 
-const HcalElectronicsId HcalElectronicsMap::lookupTrigger(DetId fId, bool fWarning) const {
-  const Item* item = findByTrigId (fId.rawId (), fWarning);
+const HcalElectronicsId HcalElectronicsMap::lookupTrigger(DetId fId) const {
+  const Item* item = findByTrigId (fId.rawId ());
   return HcalElectronicsId (item ? item->mElId : 0);
 }
 
 bool HcalElectronicsMap::setMapping (DetId fId, HcalElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId) {
   Item item (fId.rawId (), fElectronicsId.rawId (), fTriggerId.rawId ());
   mItems.push_back (item);
-  mSortedById = mSortedByElId = mSortedByTrigId = false;
   return true;
 }
 
@@ -163,7 +149,7 @@ std::vector <HcalTrigTowerDetId> HcalElectronicsMap::allTriggerId () const {
 }
 
 bool HcalElectronicsMap::mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId) {
-  const Item* item = findByElId (fElectronicsId.rawId (), false);
+  const Item* item = findByElId (fElectronicsId.rawId ());
   if (item) { // record exists
     if (item->mTrigId == 0) {
       ((Item*)item)->mTrigId = fTriggerId.rawId (); // just cast avoiding long machinery
@@ -181,7 +167,7 @@ bool HcalElectronicsMap::mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigT
 }
 
 bool HcalElectronicsMap::mapEId2chId (HcalElectronicsId fElectronicsId, DetId fId) {
-  const Item* item = findByElId (fElectronicsId.rawId (), false);
+  const Item* item = findByElId (fElectronicsId.rawId ());
   if (item) { // record exists
     if (item->mId == 0) {
       ((Item*)item)->mId = fId.rawId (); // just cast avoiding long machinery
@@ -196,27 +182,26 @@ bool HcalElectronicsMap::mapEId2chId (HcalElectronicsId fElectronicsId, DetId fI
   return setMapping (fId, fElectronicsId, 0);
 }
 
-void HcalElectronicsMap::sortById () {
-    if (!mSortedById) {
-    std::sort (mItems.begin(), mItems.end(), Item::LessById ());
-    mSortedById = true;
-    mSortedByElId = mSortedByTrigId = false;
+void HcalElectronicsMap::sortById () const {
+  if (mItems.size()!=mItemsById.size()) {
+    mItemsById.clear();
+    mItemsById.reserve(mItems.size());
+    for (std::vector<Item>::const_iterator i=mItems.begin(); i!=mItems.end(); ++i) {
+      mItemsById.push_back(&(*i));
+    }
   }
-
+  std::sort (mItemsById.begin(), mItemsById.end(), hcal_impl::LessById ());
 }
 void HcalElectronicsMap::sortByElectronicsId () {
-    if (!mSortedByElId) {
-    std::sort (mItems.begin(), mItems.end(), Item::LessByElId ());
-    mSortedByElId = true;
-    mSortedById = mSortedByTrigId = false;
-  }
-
+  std::sort (mItems.begin(), mItems.end(), hcal_impl::LessByElId ());
 }
-void HcalElectronicsMap::sortByTriggerId () {
-    if (!mSortedByTrigId) {
-    std::sort (mItems.begin(), mItems.end(), Item::LessByTrigId ());
-    mSortedByTrigId = true;
-    mSortedById = mSortedByElId = false;
+void HcalElectronicsMap::sortByTriggerId () const {
+  if (mItems.size()!=mItemsByTrigId.size()) {
+    mItemsByTrigId.clear();
+    mItemsByTrigId.reserve(mItems.size());
+    for (std::vector<Item>::const_iterator i=mItems.begin(); i!=mItems.end(); ++i) {
+      mItemsByTrigId.push_back(&(*i));
+    }
   }
-
+  std::sort (mItemsByTrigId.begin(), mItemsByTrigId.end(), hcal_impl::LessByTrigId ());
 }
