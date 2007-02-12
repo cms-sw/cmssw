@@ -1,6 +1,6 @@
 #include "DataFormats/Common/interface/ModuleDescription.h"
 
-#include "SealZip/MD5Digest.h"
+#include "FWCore/Utilities/interface/Digest.h"
 
 #include <ostream>
 #include <sstream>
@@ -9,7 +9,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: ModuleDescription.cc,v 1.3 2006/07/21 21:56:41 wmtan Exp $
+$Id: ModuleDescription.cc,v 1.4 2006/08/24 22:15:44 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -64,7 +64,6 @@ namespace edm {
   {
     // This implementation is ripe for optimization.
     // We do not use operator<< because it does not write out everything.
-    seal::MD5Digest md5alg;
     std::ostringstream oss;
     oss << parameterSetID() << ' ' 
 	<< moduleName() << ' '
@@ -74,8 +73,8 @@ namespace edm {
 	<< processName() << ' '
 	<< passID();
     std::string stringrep = oss.str();
-    md5alg.update(stringrep.data(), stringrep.size());
-    return ModuleDescriptionID(md5alg.format());
+    cms::Digest md5alg(stringrep);
+    return ModuleDescriptionID(md5alg.digest().toString());
   }
 
 }

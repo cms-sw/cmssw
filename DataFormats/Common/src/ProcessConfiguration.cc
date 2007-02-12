@@ -1,13 +1,13 @@
 #include <sstream>
 #include <string>
 
-#include "SealZip/MD5Digest.h"
+#include "FWCore/Utilities/interface/Digest.h"
 #include "DataFormats/Common/interface/ProcessConfiguration.h"
 #include <ostream>
 
 /*----------------------------------------------------------------------
 
-$Id: ProcessConfiguration.cc,v 1.1 2006/07/07 19:42:35 paterno Exp $
+$Id: ProcessConfiguration.cc,v 1.2 2006/08/24 22:15:44 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,12 +19,11 @@ namespace edm {
   ProcessConfiguration::id() const
   {
     // This implementation is ripe for optimization.
-    seal::MD5Digest md5alg;
     std::ostringstream oss;
     oss << *this;
     std::string stringrep = oss.str();
-    md5alg.update(stringrep.data(), stringrep.size());
-    return ProcessConfigurationID(md5alg.format());
+    cms::Digest md5alg(stringrep);
+    return ProcessConfigurationID(md5alg.digest().toString());
   }
 
   std::ostream&

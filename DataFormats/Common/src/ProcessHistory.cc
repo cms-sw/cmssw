@@ -2,7 +2,7 @@
 #include <ostream>
 #include <sstream>
 #include <string>
-#include "SealZip/MD5Digest.h"
+#include "FWCore/Utilities/interface/Digest.h"
 
 #include "DataFormats/Common/interface/ProcessHistory.h"
 
@@ -24,9 +24,8 @@ namespace edm {
 	  << i->passID() << ' ';
     }
     std::string stringrep = oss.str();
-    seal::MD5Digest md5alg;
-    md5alg.update(stringrep.data(), stringrep.size());
-    ProcessHistoryID tmp(md5alg.format());
+    cms::Digest md5alg(stringrep);
+    ProcessHistoryID tmp(md5alg.digest().toString());
     id_.swap(tmp);
     return id_;
   }
