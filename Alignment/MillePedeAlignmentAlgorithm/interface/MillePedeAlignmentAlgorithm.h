@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.4 $
-///  $Date: 2007/01/25 11:04:58 $
+///  $Revision: 1.5 $
+///  $Date: 2007/01/26 11:25:02 $
 ///  (last update by $Author: flucke $)
 
 
@@ -31,6 +31,7 @@ class AlignableMuon;
 class MagneticField;
 
 class AlignmentParameters;
+class AlignableNavigator;
 
 class MillePedeMonitor;
 class PedeSteerer;
@@ -74,6 +75,11 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 			const TrajectoryStateOnSurface &tsos, MeasurementDirection xOrY,
 			std::vector<float> &globalDerivatives, std::vector<int> &globalLabels,
 			AlignmentParameters *&params) const;
+  bool globalDerivativesHierarchy(const TrajectoryStateOnSurface &tsos,
+				  Alignable *ali, AlignableDet *alidet, MeasurementDirection xOrY,
+				  std::vector<float> &globalDerivatives,
+				  std::vector<int> &globalLabels,
+				  AlignmentParameters *&lowestParams) const;
   void callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, 
 		 unsigned int iTrajHit, MeasurementDirection xOrY,
 		 const std::vector<float> &globalDerivatives, const std::vector<int> &globalLabels);

@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.7 $
- *  $Date: 2007/01/26 11:25:03 $
+ *  $Revision: 1.8 $
+ *  $Date: 2007/02/05 12:50:03 $
  *  (last update by $Author: flucke $)
  */
 
@@ -29,6 +29,8 @@
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
+
+#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
@@ -277,47 +279,52 @@ int MillePedeAlignmentAlgorithm::globalDerivatives(const ConstRecHitPointer &rec
     return -1;
   }
 
-  // get relevant Alignable
-  Alignable *ali = theAlignmentParameterStore->alignableFromAlignableDet(alidet);
-  if (!ali) { // FIXME: if not selected to be aligned? need regardAllHits, cf. below?
-    // happens e.g. for pixel alignables if pixel not foreseen to be aligned
-    // FIXME: In ORCA also if from stereo only the 'second' module is hit (said Markus S.)
-    const GlobalPoint posDet(alidet->globalPosition());
-    LogDebug("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::globalDerivatives"
-//     edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::globalDerivatives"
-			  << "No alignable in Store for AlignableDet at (r/z/phi) = ("
-			  << posDet.perp() << "/" << posDet.z() << "/" << posDet.phi() << ").";
-    return 0;
-  }
-
-  const unsigned int alignableLabel = thePedeSteer->alignableLabel(ali);
-  if (0 == alignableLabel) { // FIXME: what about regardAllHits in Markus' code?
-    edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::globalDerivatives"
-				 << "Label not found, skip Alignable.";
+  if (this->globalDerivativesHierarchy(tsos, alidet, alidet, xOrY, // 2x alidet, sic!
+                                       globalDerivatives, globalLabels, params)) {
+    return (globalDerivatives.empty() ? 0 : 1); // empty: no alignable for hit
+  } else {
     return -1;
   }
+}
 
-  // get Alignment Parameters
-  params = ali->alignmentParameters();
-  if (!params) {
-    edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::globalDerivatives"
-				 << "No AlignableParameters for Alignable in store.";
-    return -1;
-  }
+//____________________________________________________
+bool MillePedeAlignmentAlgorithm
+::globalDerivativesHierarchy(const TrajectoryStateOnSurface &tsos,
+                             Alignable *ali, AlignableDet *alidet, MeasurementDirection xOrY,
+                             std::vector<float> &globalDerivatives,
+                             std::vector<int> &globalLabels,
+                             AlignmentParameters *&lowestParams) const
+{
+  // derivatives and labels are recursively attached
+  if (!alidet) return false;
+  if (!ali) return true; // no mother might be OK
 
-  if (theMonitor) theMonitor->fillFrameToFrame(alidet, ali);
+  if (theMonitor && alidet != ali) theMonitor->fillFrameToFrame(alidet, ali);
 
-  const std::vector<bool> &selPars = params->selector();
-  const AlgebraicMatrix derivs(params->derivatives(tsos, alidet));
-  // cols: 2, i.e. x&y, rows: parameters, usually RigidBodyAlignmentParameters::N_PARAM
-  for (unsigned int iSel = 0; iSel < selPars.size(); ++iSel) {
-    if (selPars[iSel]) {
-      globalDerivatives.push_back(derivs[iSel][xOrY]/thePedeSteer->cmsToPedeFactor(iSel));
-      globalLabels.push_back(thePedeSteer->parameterLabel(alignableLabel, iSel));
+  AlignmentParameters *params = ali->alignmentParameters();
+  if (params) {
+    if (!lowestParams) lowestParams = params; // set parameters of lowest level
+
+    const unsigned int alignableLabel = thePedeSteer->alignableLabel(ali);
+    if (0 == alignableLabel) { // FIXME: what about regardAllHits in Markus' code?
+      edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::globalDerivativesHierarchy"
+                                   << "Label not found, skip Alignable.";
+      return false;
+    }
+    
+    const std::vector<bool> &selPars = params->selector();
+    const AlgebraicMatrix derivs(params->derivatives(tsos, alidet));
+    // cols: 2, i.e. x&y, rows: parameters, usually RigidBodyAlignmentParameters::N_PARAM
+    for (unsigned int iSel = 0; iSel < selPars.size(); ++iSel) {
+      if (selPars[iSel]) {
+        globalDerivatives.push_back(derivs[iSel][xOrY]/thePedeSteer->cmsToPedeFactor(iSel));
+        globalLabels.push_back(thePedeSteer->parameterLabel(alignableLabel, iSel));
+      }
     }
   }
 
-  return 1;
+  return this->globalDerivativesHierarchy(tsos, ali->mother(), alidet, xOrY,
+                                          globalDerivatives, globalLabels, lowestParams);
 }
 
 //____________________________________________________
