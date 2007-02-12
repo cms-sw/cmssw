@@ -29,7 +29,7 @@ struct DQMEventHeader
 {
   Header header_;
   char_uint32 runNumber_;
-  char_uint32 reserved_; // can be used for file num
+  char_uint32 reserved_;
 };
 
 class DQMEventMsgView
