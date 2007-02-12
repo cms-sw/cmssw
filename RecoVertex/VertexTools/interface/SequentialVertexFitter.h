@@ -7,7 +7,7 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexSmoother.h"
 #include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 // #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 // #include "Vertex/VertexPrimitives/interface/VertexSeedFactory.h"
 
@@ -45,11 +45,11 @@ public:
   /**
    *   Same as above, using a ParameterSet to set the convergence criteria
    */
-  /*
+
   SequentialVertexFitter(const edm::ParameterSet& pSet,
       const LinearizationPointFinder & linP, 
       const VertexUpdator & updator, const VertexSmoother & smoother);
-  */
+
   /**
    * Copy constructor
    */
@@ -151,10 +151,8 @@ public:
   const int maxStep() const
   {return theMaxStep;}
 
-  /*
   const edm::ParameterSet parameterSet() const 
   {return thePSet;}
-  */
 
   SequentialVertexFitter * clone() const {
     return new SequentialVertexFitter(* this);
@@ -212,18 +210,18 @@ private:
    */
 
   void readParameters();
-  //  void setDefaultParameters();
+  void setDefaultParameters();
 
 
   float theMaxShift;
   int theMaxStep;
 
+  edm::ParameterSet thePSet;
   LinearizationPointFinder*  theLinP;
   VertexUpdator * theUpdator;
   VertexSmoother * theSmoother;
   LinearizedTrackStateFactory theLTrackFactory;
   VertexTrackFactory theVTrackFactory;
-  //  edm::ParameterSet thePSet;
 
   // VertexSeedFactory theVSeedFactory;
 };

@@ -34,7 +34,8 @@ public:
    * Same as above, using a ParameterSet to set the convergence criteria
    */
 
-  //  KalmanVertexFitter(const edm::ParameterSet& pSet, bool useSmoothing = false);
+  KalmanVertexFitter(const edm::ParameterSet& pSet, bool useSmoothing = false);
+
   KalmanVertexFitter(const KalmanVertexFitter & other ) :
     theSequentialFitter ( other.theSequentialFitter->clone() ) {}
 
@@ -107,6 +108,9 @@ public:
 
 private:
 
+  void setup(const edm::ParameterSet& pSet,  bool useSmoothing );
+
+  edm::ParameterSet defaultParameters() const ;
 
   const SequentialVertexFitter * theSequentialFitter;
 };
