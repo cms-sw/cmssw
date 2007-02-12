@@ -2,12 +2,12 @@
 #define WEBGUI_H 1
 
 
-#include "EventFilter/Utilities/interface/EPStateMachine.h"
 #include "EventFilter/Utilities/interface/Css.h"
 
 #include "xdaq/include/xdaq/Application.h"
 
 #include "toolbox/include/toolbox/lang/Class.h"
+#include "toolbox/include/toolbox/fsm/FiniteStateMachine.h"
 
 #include "xdata/include/xdata/Serializable.h"
 #include "xdata/include/xdata/UnsignedInteger32.h"
@@ -43,7 +43,7 @@ namespace evf {
     //
     // construction/destruction
     //
-    WebGUI(xdaq::Application* app,EPStateMachine* fsm);
+    WebGUI(xdaq::Application* app,toolbox::fsm::FiniteStateMachine* fsm);
     virtual ~WebGUI();
     
     
@@ -101,10 +101,10 @@ namespace evf {
     //
     // member data
     //
-    xdaq::Application *app_;
-    EPStateMachine    *fsm_;
-    Css                css_;
-    Logger             log_;
+    xdaq::Application                *app_;
+    toolbox::fsm::FiniteStateMachine *fsm_;
+    Css                               css_;
+    Logger                            log_;
 
     std::string        sourceId_;
     std::string        urn_;

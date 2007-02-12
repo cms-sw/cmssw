@@ -1,5 +1,11 @@
 2007-02-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
+	* tag V00-11-08
+	* remove dependency on EPStateMachine, use XDAQ's
+	toolbox::fsm::FinitStateMachine instead
+
+2007-02-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
 	* tag V00-11-07 
 	* add state transition 'Stop' (from 'Enabled' to
 	'Configured') to EPStateMachine; requires clients to implement

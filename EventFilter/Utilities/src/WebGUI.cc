@@ -29,7 +29,7 @@ using namespace cgicc;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-WebGUI::WebGUI(xdaq::Application* app,EPStateMachine* fsm)
+WebGUI::WebGUI(xdaq::Application* app,toolbox::fsm::FiniteStateMachine* fsm)
   : app_(app)
   , fsm_(fsm)
   , log_(app->getApplicationContext()->getLogger())
@@ -403,7 +403,8 @@ void WebGUI::htmlHead(Input_t *in,Output_t* out,CString_t& pageTitle)
 //______________________________________________________________________________
 void WebGUI::htmlHeadline(Input_t *in,Output_t *out,CString_t& link,CString_t& icon)
 {
-  string stateName=fsm_->stateName_.toString(); 
+  int    state    =fsm_->getCurrentState();
+  string stateName=fsm_->getStateName(state);
   
   *out<<table().set("border","0").set("width","100%")<<endl
       <<tr()<<td().set("align","left")<<endl
