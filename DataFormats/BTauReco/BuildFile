@@ -6,7 +6,9 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
+<use name=FWCore/Utilities>
 <use name=boost>
+<use name=clhep>
 <use name=rootmath>
 <use name=rootrflx>
 <export>
@@ -19,6 +21,7 @@
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/VertexReco>
   <use name=boost>
+  <use name=clhep>
   <use name=rootmath>
   <lib name=DataFormatsBTauReco>
 </export>
