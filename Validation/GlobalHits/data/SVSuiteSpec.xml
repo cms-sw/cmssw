@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <SVSuite>
 	<SVSuiteSpec Name="SVSuite-GlobalHits-Minbias" Type="Processing">
-		<Parameter Name="InputDataset" Value="/SVSuite100pre3-GlobalHits-Minbias-GenEvents/GEN/CMSSW_1_0_0_pre3-GEN-1158161635-merged"/>
+		<Parameter Name="InputDataset" Value="/SVSuite122-GlobalChain-MinBias-GenEvents/GEN/CMSSW_1_2_2-GEN-1170821556"/>
 		<Parameter Name="SplitSize" Value="100"/>
 		<Parameter Name="SplitType" Value="event"/>
 		<Parameter Name="NumberOfJobs" Value="100"/>
