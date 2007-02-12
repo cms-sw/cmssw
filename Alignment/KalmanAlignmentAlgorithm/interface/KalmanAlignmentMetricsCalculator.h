@@ -1,11 +1,13 @@
 #ifndef Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentMetricsCalculator_h
 #define Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentMetricsCalculator_h
 
-/// Calculates the metrical distances (stored as short int) for a set of AlignableDets.
+/// Calculates the metrical distances (stored as type Distance) for a set of Alignables,
+/// which are identified by a certain index (Index).
 /// See E.Widl, R.Fr\"uhwirth, W.Adam, A Kalman Filter for Track-based Alignment, CMS
-/// NOTE-2006/022 for details.
+/// NOTE-2006/022 for more details.
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
+
 
 class KalmanAlignmentMetricsCalculator
 {
@@ -52,19 +54,22 @@ private:
   /// Insert the 'propagated distances' into the lists of the remaining alignables.
   void insertPropagatedDistances( FullDistancesList& propagated );
 
-  void extractPropagatedDistances(  FullDistancesList& changes, AlignableDet* alignable,
-				    SingleDistancesList* oldList, SingleDistancesList* newList );
+  /// Extract entries from the updated lists that need to be further propagated.
+  void extractPropagatedDistances( FullDistancesList& changes, AlignableDet* alignable,
+				   SingleDistancesList* oldList, SingleDistancesList* newList );
+
+  /// If the current update of the metric has connected previously unrelated parts (in a metrical sense),
+  /// add this information to the table of propagated distances.
+  void connect( FullDistancesList& changes, SingleDistancesList* connection,
+		AlignableDet* alignable, short int value );
 
   void insertDistance( FullDistancesList& dist, AlignableDet* i, AlignableDet* j, short int value );
   void insertDistance( SingleDistancesList* distList, AlignableDet* j, short int value );
-
-  short int additionalDistance( AlignableDet* i, AlignableDet* j ) const;
 
   FullDistancesList theDistances;
   short int theMaxDistance;
 
   SingleDistancesList theDefaultReturnList;
-
 };
 
 

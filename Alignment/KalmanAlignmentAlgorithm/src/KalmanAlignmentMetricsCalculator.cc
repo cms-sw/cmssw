@@ -31,7 +31,7 @@ void KalmanAlignmentMetricsCalculator::updateDistances( const std::vector< Align
       currentDistances[*itA] = itD->second;
 
       std::vector< AlignableDet* >::const_iterator itA2;
-      for ( itA2 = alignables.begin(); itA2 != alignables.end(); ++itA2 ) (*itD->second)[*itA2] = 1;
+      for ( itA2 = alignables.begin(); itA2 != alignables.end(); ++itA2 ) (*itD->second)[*itA2] = ( *itA == *itA2 ) ? 0 : 1;
     }
     else
     {
@@ -40,7 +40,7 @@ void KalmanAlignmentMetricsCalculator::updateDistances( const std::vector< Align
       currentDistances[*itA] = newEntry;
 
       std::vector< AlignableDet* >::const_iterator itA2;
-      for ( itA2 = alignables.begin(); itA2 != alignables.end(); ++itA2 ) (*newEntry)[*itA2] = 1;
+      for ( itA2 = alignables.begin(); itA2 != alignables.end(); ++itA2 ) (*newEntry)[*itA2] = ( *itA == *itA2 ) ? 0 :  1;
     }
   }
 
@@ -55,6 +55,7 @@ void KalmanAlignmentMetricsCalculator::updateDistances( const std::vector< Align
     {
       if ( itC1->first != itC2->first ) updateList( updatedList, itC2->second );
     }
+
     extractPropagatedDistances( propagatedDistances, itC1->first, itC1->second, updatedList );
     updatedDistances[itC1->first] = updatedList;
   }
@@ -119,7 +120,7 @@ void KalmanAlignmentMetricsCalculator::clearDistances( FullDistancesList& dist )
 
 
 void KalmanAlignmentMetricsCalculator::updateList( SingleDistancesList* thisList,
-						   SingleDistancesList* otherList )
+				    SingleDistancesList* otherList )
 {
   SingleDistancesList::iterator itThis;
   SingleDistancesList::iterator itOther;
@@ -175,12 +176,14 @@ void KalmanAlignmentMetricsCalculator::insertPropagatedDistances( FullDistancesL
 
 
 void KalmanAlignmentMetricsCalculator::extractPropagatedDistances( FullDistancesList& changes,
-								   AlignableDet* alignable,
-								   SingleDistancesList* oldList,
-								   SingleDistancesList* newList )
+						    AlignableDet* alignable,
+						    SingleDistancesList* oldList,
+						    SingleDistancesList* newList )
 {
   SingleDistancesList::iterator itOld;
   SingleDistancesList::iterator itNew;
+
+  SingleDistancesList newConnections;
 
   // Distances-list newList has at least entries for the same indices as distances-list
   // oldList. For this reason 'newList->begin()->first <= oldList->begin()->first' and
@@ -188,31 +191,41 @@ void KalmanAlignmentMetricsCalculator::extractPropagatedDistances( FullDistances
   for ( itOld = oldList->begin(), itNew = newList->begin(); itNew != newList->end(); ++itNew )
   {
     // No entry associated to index itNew->first present in oldList. --> This is indeed a change.
-    if ( itOld == oldList->end() || itNew->first < itOld->first ) {
+    if ( itOld == oldList->end() || itNew->first < itOld->first )
+    {
       insertDistance( changes, itNew->first, alignable, itNew->second );
+      newConnections[itNew->first] = itNew->second;
     // Entry associated to index itNew->first present in oldList. --> Check if it has changed.
     } else if ( itNew->first == itOld->first ) {
       if ( itNew->second != itOld->second ) insertDistance( changes, itNew->first, alignable, itNew->second );
       ++itOld;
     }
   }
+
+  SingleDistancesList::iterator it;
+  for ( it = newConnections.begin(); it != newConnections.end(); ++it )
+    connect( changes, newList, it->first, it->second );
 }
 
 
-void KalmanAlignmentMetricsCalculator::insertDistance( FullDistancesList& dist,
-						       AlignableDet* i,
-						       AlignableDet* j,
-						       short int value )
+void KalmanAlignmentMetricsCalculator::connect( FullDistancesList& changes, SingleDistancesList* connection,
+				  AlignableDet* alignable, short int value )
+{
+  SingleDistancesList::iterator itL;
+  for ( itL = connection->begin(); itL != connection->end(); ++itL )
+  {
+    if ( itL->first != alignable ) insertDistance( changes, alignable, itL->first, value + itL->second );
+  }
+
+}
+
+
+void KalmanAlignmentMetricsCalculator::insertDistance( FullDistancesList& dist, AlignableDet* i, AlignableDet* j, short int value )
 {
   FullDistancesList::iterator itD = dist.find( i );
   if ( itD != dist.end() ) // Found distances-list for index i.
   {
-    SingleDistancesList::iterator itL = itD->second->find( j );
-    if ( itL != itD->second->end() ) { // Entry associated to index-pair (i,j) found.
-      itL->second = value;
-    } else { // No entry associated to index-pair (i,j) found. --> Insert new entry.
-      (*itD->second)[j] = value;
-    }
+    insertDistance( itD->second, j, value );
   }
   else // No distances-list found for value i.
   {
@@ -223,13 +236,11 @@ void KalmanAlignmentMetricsCalculator::insertDistance( FullDistancesList& dist,
 }
 
 
-void KalmanAlignmentMetricsCalculator::insertDistance( SingleDistancesList* distList,
-						       AlignableDet* j,
-						       short int value )
+void KalmanAlignmentMetricsCalculator::insertDistance( SingleDistancesList* distList, AlignableDet* j, short int value )
 {
   SingleDistancesList::iterator itL = distList->find( j );
   if ( itL != distList->end() ) { // Entry associated to index j found.
-    itL->second = value;
+    if ( itL->second > value ) itL->second = value;
   } else { // No entry associated to index j found. -> Insert new entry.
     (*distList)[j] = value;
   }
