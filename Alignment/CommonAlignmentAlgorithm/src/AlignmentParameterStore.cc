@@ -26,7 +26,7 @@ AlignmentParameterStore::AlignmentParameterStore( std::vector<Alignable*> alivec
   }
   else
   {
-    const edm::ParameterSet& extCorrConfig =
+    const edm::ParameterSet extCorrConfig =
       config.getParameter<edm::ParameterSet>( "ExtendedCorrelationsConfig" );
     theCorrelationsStore = new AlignmentExtendedCorrelationsStore( extCorrConfig );
   }
