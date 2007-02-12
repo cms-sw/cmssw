@@ -22,7 +22,7 @@
 SiPixelWebInterface::SiPixelWebInterface(std::string theContextURL, std::string theApplicationURL, MonitorUserInterface ** _mui_p)
   : WebInterface(theContextURL, theApplicationURL, _mui_p)
 {
-  cout<<"entering WebInterface"<<endl;
+//  cout<<"entering WebInterface"<<endl;
   theActionFlag = NoAction;
   actionExecutor_ = 0;
   infoExtractor_  = 0;
@@ -33,7 +33,7 @@ SiPixelWebInterface::SiPixelWebInterface(std::string theContextURL, std::string 
 
   if (actionExecutor_ == 0) actionExecutor_ = new SiPixelActionExecutor();
   if (infoExtractor_ == 0) infoExtractor_ = new SiPixelInformationExtractor();
-  cout<<"leaving WebInterface"<<endl;
+//  cout<<"leaving WebInterface"<<endl;
 }
 
 
@@ -41,32 +41,32 @@ SiPixelWebInterface::SiPixelWebInterface(std::string theContextURL, std::string 
 // -- Create default and customised Widgets
 // 
 void SiPixelWebInterface::createAll() { 
-  cout<<"entering createAll"<<endl;
-  Navigator * nav = new Navigator(getApplicationURL(), "50px", "50px");
-  ContentViewer * cont = new ContentViewer(getApplicationURL(), "180px", "50px");
-  GifDisplay * dis = new GifDisplay(getApplicationURL(), "25px","300px", "500px", "600px", "MyGifDisplay"); 
+//  cout<<"entering createAll"<<endl;
+//  Navigator * nav = new Navigator(getApplicationURL(), "50px", "50px");
+//  ContentViewer * cont = new ContentViewer(getApplicationURL(), "180px", "50px");
+//  GifDisplay * dis = new GifDisplay(getApplicationURL(), "25px","300px", "500px", "600px", "MyGifDisplay"); 
   // an html link
   HTMLLink *link = new HTMLLink(getApplicationURL(), "380px", "50px", 
 				"<i>SiPixelWebInterface</i>", 
 				"/temporary/Online.html");
   
   page_p = new WebPage(getApplicationURL());
-  page_p->add("navigator", nav);
-  page_p->add("contentViewer", cont);
-  page_p->add("gifDisplay", dis);
+//  page_p->add("navigator", nav);
+//  page_p->add("contentViewer", cont);
+//  page_p->add("gifDisplay", dis);
   page_p->add("htmlLink", link);
-  cout<<"leaving createAll"<<endl;
+//  cout<<"leaving createAll"<<endl;
 }
 //
 // --  Destructor
 // 
 SiPixelWebInterface::~SiPixelWebInterface() {
-  cout<<"entering WebInterface destructor"<<endl;
+//  cout<<"entering WebInterface destructor"<<endl;
   if (actionExecutor_) delete actionExecutor_;
   actionExecutor_ = 0;
   if (infoExtractor_) delete infoExtractor_;
   infoExtractor_ = 0; 
-  cout<<"leaving WebInterface destructor"<<endl;
+//  cout<<"leaving WebInterface destructor"<<endl;
 }
 // 
 // -- Handles requests from WebElements submitting non-default requests 
@@ -85,6 +85,8 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   cout << " requestID " << requestID << endl;
   if (requestID == "SubscribeAll") {
     theActionFlag = SubscribeAll;
+  } else if (requestID == "SetupQTest") {
+    theActionFlag = setupQTest;
   } else if (requestID == "CheckQTResults") {
     theActionFlag = QTestResult;
   } else if (requestID == "CreateSummary") {
@@ -199,6 +201,12 @@ cout<<"entering performAction..."<<endl;
     {
       cout << " SiPixelWebInterface::Summary " << endl;
       actionExecutor_->createSummary((*mui_p));
+      break;
+    }
+  case SiPixelWebInterface::setupQTest :
+    {
+      cout << " SiPixelWebInterface::setupQTests " << endl;
+      actionExecutor_->setupQTests((*mui_p));
       break;
     }
   case SiPixelWebInterface::QTestResult :

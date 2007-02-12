@@ -14,10 +14,10 @@ class SiPixelWebInterface : public WebInterface
 public:
 
   enum SiPixelActionType{NoAction=0, SubscribeAll=1, Summary=2, Collate=3,
-                         QTestResult=4, CreateTkMap=5, 
-                         SaveData=6, 
-                         PlotSingleModuleHistos=7, 
-                         PlotSingleHistogram=8, PlotTkMapHistogram=9};
+                         setupQTest=4, QTestResult=5, CreateTkMap=6, 
+                         SaveData=7, 
+                         PlotSingleModuleHistos=8, 
+                         PlotSingleHistogram=9, PlotTkMapHistogram=10};
 
   SiPixelWebInterface(std::string theContextURL, std::string theApplicationURL, MonitorUserInterface ** _mui_p);
   ~SiPixelWebInterface();
