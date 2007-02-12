@@ -190,6 +190,31 @@ TransientVertex::tkToTkCovariance(const TransientTrack& t1, const TransientTrack
   }
 }
 
+
+TransientTrack TransientVertex::originalTrack(const TransientTrack & refTrack) const
+{
+  if (theRefittedTracks.empty())
+	throw VertexException("No refitted tracks stored in vertex");
+  std::vector<TransientTrack>::const_iterator it =
+	find(theRefittedTracks.begin(), theRefittedTracks.end(), refTrack);
+  if (it==theRefittedTracks.end())
+	throw VertexException("Refitted track not found in list");
+  size_t pos = it - theRefittedTracks.begin();
+  return theOriginalTracks[pos];
+}
+
+TransientTrack TransientVertex::refittedTrack(const TransientTrack & track) const
+{
+  if (theRefittedTracks.empty())
+	throw VertexException("No refitted tracks stored in vertex");
+  std::vector<TransientTrack>::const_iterator it =
+	find(theOriginalTracks.begin(), theOriginalTracks.end(), track);
+  if (it==theOriginalTracks.end())
+	throw VertexException("Track not found in list");
+  size_t pos = it - theOriginalTracks.begin();
+  return theRefittedTracks[pos];
+}
+
 TransientVertex::operator reco::Vertex() const
 {
   Vertex vertex(Vertex::Point(theVertexState.position()),
@@ -200,7 +225,11 @@ TransientVertex::operator reco::Vertex() const
     const TrackTransientTrack* ttt = dynamic_cast<const TrackTransientTrack*>((*i).basicTransientTrack());
     if ((ttt!=0) && (ttt->persistentTrackRef().isNonnull()))
     {
-      vertex.add(ttt->persistentTrackRef());// FIXME: add wieghts: , trackWeight ( *i ) );
+      if (withRefittedTracks) {
+	vertex.add(ttt->persistentTrackRef(), refittedTrack(*i).track(), trackWeight ( *i ) );
+      } else { 
+	vertex.add(ttt->persistentTrackRef(), trackWeight ( *i ) );
+      }
     }
   }
   return vertex;

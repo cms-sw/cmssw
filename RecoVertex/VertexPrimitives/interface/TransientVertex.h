@@ -158,6 +158,20 @@ public:
     return theRefittedTracks;
   }
 
+  /**
+   * Returns the original track which corresponds to a particular refitted Track
+   * Throws an exception if now refitted tracks are stored ot the track is not found in the list
+   */
+
+  reco::TransientTrack originalTrack(const reco::TransientTrack & refTrack) const;
+
+  /**
+   * Returns the refitted track which corresponds to a particular original Track
+   * Throws an exception if now refitted tracks are stored ot the track is not found in the list
+   */
+  reco::TransientTrack refittedTrack(const reco::TransientTrack & track) const;
+
+
   /** Method to set the refitted tracks used to make the vertex.
    */
   void refittedTracks(const std::vector<reco::TransientTrack> & refittedTracks);
