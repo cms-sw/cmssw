@@ -46,7 +46,7 @@ void SiPixelWebInterface::createAll() {
 //  ContentViewer * cont = new ContentViewer(getApplicationURL(), "180px", "50px");
 //  GifDisplay * dis = new GifDisplay(getApplicationURL(), "25px","300px", "500px", "600px", "MyGifDisplay"); 
   // an html link
-  HTMLLink *link = new HTMLLink(getApplicationURL(), "380px", "50px", 
+  HTMLLink *link = new HTMLLink(getApplicationURL(), "50px", "50px", 
 				"<i>SiPixelWebInterface</i>", 
 				"/temporary/Online.html");
   
