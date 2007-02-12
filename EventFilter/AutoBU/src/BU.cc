@@ -267,6 +267,14 @@ void BU::enableAction(toolbox::Event::Reference e)
 
 
 //______________________________________________________________________________
+void BU::stopAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception)
+{
+  LOG4CPLUS_INFO(log_,"BU -> STOPPED <-");
+}
+
+
+//______________________________________________________________________________
 void BU::suspendAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception)
 {
@@ -435,7 +443,7 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
     sumOfSizes_  +=evtSizeInBytes;
     unlock();
   }
-
+  
   // Free the request message from the FU
   bufRef->release();
 }
@@ -552,10 +560,9 @@ void BU::fillFedBuffers(unsigned int iSuperFrag,FEDRawDataCollection* event)
       for(unsigned int i=0;i<fedN_[iSuperFrag];i++) {
 	unsigned int iFedSize(0);
 	while (iFedSize<(fedTrailerSize_+fedHeaderSize_)||iFedSize>fedSizeMax_) {
-	  double logSize=RandGauss::shoot(std::log((double)fedSizeMean_),
-					  std::log((double)fedSizeMean_)-
-					  std::log((double)fedSizeWidth_/2.));
-	  iFedSize=(int)(std::exp(logSize));
+	  double dFedSize=RandGauss::shoot((double)fedSizeMean_,
+					   (double)fedSizeWidth_);
+	  iFedSize=(int)(dFedSize);
 	  iFedSize-=iFedSize % 8; // all blocks aligned to 64 bit words
 	}
 	fedSize_[i]=iFedSize;

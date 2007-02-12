@@ -81,6 +81,8 @@ namespace evf {
       throw (toolbox::fsm::exception::Exception);
     void enableAction(toolbox::Event::Reference e)
       throw (toolbox::fsm::exception::Exception);
+    void stopAction(toolbox::Event::Reference e)
+      throw (toolbox::fsm::exception::Exception);
     void suspendAction(toolbox::Event::Reference e)
       throw (toolbox::fsm::exception::Exception);
     void resumeAction(toolbox::Event::Reference e)
