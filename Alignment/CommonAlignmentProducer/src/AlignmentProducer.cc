@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.20.2.2 $
-///  last update: $Date: 2007/01/26 17:03:25 $
+///  Revision   : $Revision: 1.22 $
+///  last update: $Date: 2007/01/26 17:19:47 $
 ///  by         : $Author: flucke $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
@@ -41,7 +41,7 @@
 #include "CondFormats/DataRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/DataRecord/interface/CSCAlignmentErrorRcd.h"
 
-// Tracking
+// Tracking 	 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 // Alignment
@@ -50,9 +50,9 @@
 #include "Alignment/TrackerAlignment/interface/TrackerScenarioBuilder.h"
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentTransformations.h"
+#include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
-
 
 using namespace std;
 
@@ -226,7 +226,6 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   // Initialize alignment algorithm
   theAlignmentAlgo->initialize( iSetup, theAlignableTracker,
                                 theAlignableMuon, theAlignmentParameterStore );
-
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
                             << "Now physically apply alignments to  geometry...";
 
@@ -244,7 +243,6 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
     std::auto_ptr<AlignmentErrors> cscAlignmentErrors(theAlignableTracker->alignmentErrors());
     aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrors) );
   }
-
 }
 
 //_____________________________________________________________________________
