@@ -39,4 +39,8 @@
     <field name="transientMap_" transient="true" /> 
   </class>
 
+  <class name="edm::AssociationMap<edm::OneToValue< std::vector<reco::Track>, float, unsigned int > >">
+    <field name="transientMap_" transient="true" /> 
+  </class>
+
   </lcgdict>
