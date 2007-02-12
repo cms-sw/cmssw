@@ -1,49 +1,50 @@
+/**
+ * \file AlignmentParameterStore.cc
+ *
+ *  $Revision: 1.8 $
+ *  $Date: 2007/02/05 12:50:03 $
+ *  (last update by $Author: flucke $)
+ */
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/CommonAlignmentParametrization/interface/KarimakiAlignmentDerivatives.h"
-#include "Alignment/CommonAlignmentParametrization/interface/AlignmentTransformations.h"
+#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
-#include <string>
+#include "Alignment/CommonAlignmentParametrization/interface/AlignmentTransformations.h"
+#include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
 // This class's header
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentCorrelationsStore.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentExtendedCorrelationsStore.h"
 
 
 //__________________________________________________________________________________________________
-AlignmentParameterStore::AlignmentParameterStore( std::vector<Alignable*> alivec,
+AlignmentParameterStore::AlignmentParameterStore( const Alignables &alis,
 						  const edm::ParameterSet& config ) :
-  theAlignables(alivec)
+  theAlignables(alis)
 {
-  bool useExtendedCorrelations =
-    config.getUntrackedParameter<bool>( "UseExtendedCorrelations", false );
-
-  if ( !useExtendedCorrelations )
-  {
+  if (config.getUntrackedParameter<bool>("UseExtendedCorrelations")) {
+    theCorrelationsStore = new AlignmentExtendedCorrelationsStore
+      (config.getParameter<edm::ParameterSet>("ExtendedCorrelationsConfig"));
+  } else {
     theCorrelationsStore = new AlignmentCorrelationsStore();
-  }
-  else
-  {
-    const edm::ParameterSet extCorrConfig =
-      config.getParameter<edm::ParameterSet>( "ExtendedCorrelationsConfig" );
-    theCorrelationsStore = new AlignmentExtendedCorrelationsStore( extCorrConfig );
   }
 
   theTrackerAlignableId = new TrackerAlignableId;
 
-  // Fill detId <-> Alignable map
-  std::vector<Alignable*>::iterator it;
-  for ( it = alivec.begin(); it != alivec.end(); ++it )
-  {
-    DetIds tmpDetIds = findDetIds(*it);
-    for ( DetIds::iterator iDetId = tmpDetIds.begin(); iDetId != tmpDetIds.end(); ++iDetId )
-      theActiveAlignablesByDetId[ *iDetId ] = *it;
-  }
+  edm::LogInfo("Alignment") << "@SUB=AlignmentParameterStore"
+                            << "Created with " << theAlignables.size() << " alignables.";
+}
 
-  edm::LogInfo("Alignment") << "@SUB=AlignmentParameterStore::AlignmentParameterStore"
-                            << "Created.";
+//__________________________________________________________________________________________________
+AlignmentParameterStore::~AlignmentParameterStore()
+{
+  delete theCorrelationsStore;
+  delete theTrackerAlignableId;
 }
 
 //__________________________________________________________________________________________________
@@ -61,8 +62,7 @@ AlignmentParameterStore::selectParameters( const std::vector<AlignableDet*>& ali
   std::vector<AlignableDet*>::const_iterator iad;
   for( iad = alignabledets.begin(); iad != alignabledets.end(); ++iad ) 
   {
-    unsigned int detId = (*iad)->geomDetId().rawId();
-    Alignable* ali = alignableFromDetId( detId );
+    Alignable* ali = alignableFromAlignableDet( *iad );
     if ( ali ) 
     {
       alidettoalimap[ *iad ] = ali; // Add to map
@@ -168,55 +168,17 @@ std::vector<Alignable*> AlignmentParameterStore::validAlignables(void) const
   return result;
 }
 
-
 //__________________________________________________________________________________________________
-Alignable* 
-AlignmentParameterStore::alignableFromGeomDet( const GeomDet* geomDet ) const
+Alignable* AlignmentParameterStore::alignableFromAlignableDet( AlignableDet* alignableDet ) const
 {
-  return alignableFromDetId( geomDet->geographicalId().rawId() );
+  Alignable *mother = alignableDet;
+  while (mother) {
+    if (mother->alignmentParameters()) return mother;
+    mother = mother->mother();
+  }
+
+  return 0;
 }
-
-
-//__________________________________________________________________________________________________
-Alignable* 
-AlignmentParameterStore::alignableFromAlignableDet( const AlignableDet* alignableDet ) const
-{
-  return alignableFromDetId( alignableDet->geomDetId().rawId() );
-}
-
-
-//__________________________________________________________________________________________________
-Alignable* 
-AlignmentParameterStore::alignableFromDetId( const unsigned int& detId ) const
-{
-
-  ActiveAlignablesByDetIdMap::const_iterator iali = theActiveAlignablesByDetId.find( detId );
-  if ( iali != theActiveAlignablesByDetId.end() ) 
-    return (*iali).second;
-  else return 0;
-
-}
-
-
-//__________________________________________________________________________________________________
-AlignmentParameterStore::DetIds 
-AlignmentParameterStore::findDetIds(Alignable* alignable)
-{
-
-  DetIds result;
-  AlignableDet* alidet = dynamic_cast<AlignableDet*>( alignable );
-  if (alidet !=0) result.push_back( alignable->geomDetId().rawId() );
-  std::vector<Alignable*> comp = alignable->components();
-  if ( comp.size() > 1 )
-    for ( std::vector<Alignable*>::const_iterator ib = comp.begin(); ib != comp.end(); ++ib ) 
-    {
-      DetIds tmpDetIds = findDetIds(*ib);
-      std::copy( tmpDetIds.begin(), tmpDetIds.end(), std::back_inserter( result ) );
-    }
-  return result;
-}
-
-
 
 //__________________________________________________________________________________________________
 void AlignmentParameterStore::applyParameters(void)
@@ -355,7 +317,7 @@ void AlignmentParameterStore::acquireRelativeParameters(void)
 // type: -6   -5   -4   -3   -2    -1     1     2    3    4    5    6
 //      TEC- TOB- TID- TIB- PxEC- PxBR- PxBr+ PxEC+ TIB+ TID+ TOB+ TEC+
 // Layers start from zero
-std::pair<int,int> AlignmentParameterStore::typeAndLayer(Alignable* ali)
+std::pair<int,int> AlignmentParameterStore::typeAndLayer(const Alignable* ali) const
 {
   return theTrackerAlignableId->typeAndLayerFromAlignable( ali );
 }
