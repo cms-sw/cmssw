@@ -107,8 +107,8 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   std::map<std::string,double> providedParameters;  
   providedParameters.insert(std::make_pair("LogWeighted",1));
   providedParameters.insert(std::make_pair("X0",0.89));
-  providedParameters.insert(std::make_pair("T0",6.2));
-  providedParameters.insert(std::make_pair("W0",4.0));
+  providedParameters.insert(std::make_pair("T0_barl",5.7));
+  providedParameters.insert(std::make_pair("W0",4.2));
 
   PositionCalc posCalculator_ = PositionCalc(providedParameters);
   //PositionCalc::Initialize(providedParameters, &recHitsEB_map, &(*geometry_p));
