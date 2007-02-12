@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.28 2006/10/18 23:34:05 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.29 2006/11/21 03:32:04 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -458,7 +458,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap&
 
   for (unsigned i = 0; i < eids.size (); i++) {
     HcalElectronicsId eid = eids[i];
-    DetId channel = fObject.lookup (eid, false);
+    DetId channel = fObject.lookup (eid);
     if (channel.rawId()) {
       HcalText2DetIdConverter converter (channel);
       sprintf (buf, " %6d %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
@@ -468,7 +468,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap&
 	       );
       fOutput << buf << std::endl;
     }
-    DetId trigger = fObject.lookupTrigger (eid, false);
+    DetId trigger = fObject.lookupTrigger (eid);
     if (trigger.rawId ()) {
       HcalText2DetIdConverter converter (trigger);
       sprintf (buf, " %6d %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
