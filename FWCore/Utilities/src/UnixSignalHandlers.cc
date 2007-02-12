@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <cstdlib>
 #include <signal.h>
 
@@ -88,6 +89,23 @@ namespace edm {
 
 //--------------------------------------------------------------
 
+    void enableSignal( sigset_t* newset, int signum)
+    {
+      // enable the specified signal
+      MUST_BE_ZERO(sigaddset(newset, signum));
+    }
+
+
+//--------------------------------------------------------------
+
+    void disableSignal( sigset_t* newset, int signum)
+    {
+      // disable the specified signal
+      MUST_BE_ZERO(sigdelset(newset, signum));
+    }
+
+//--------------------------------------------------------------
+
     void installSig(int signum, CFUNC func)
     {
       // set up my RT signal now
@@ -108,6 +126,32 @@ namespace edm {
       MUST_BE_ZERO(sigemptyset(&newset));
       MUST_BE_ZERO(sigaddset(&newset,mysig));
       MUST_BE_ZERO(pthread_sigmask(SIG_UNBLOCK,&newset,0));
+    }
+
+//--------------------------------------------------------------
+
+    void sigInventory()
+    {
+      int rc;
+      sigset_t tmpset, oldset;
+//    Make a full house set of signals, except for SIGKILL = 9
+//    and SIGSTOP = 19 which cannot be blocked
+      MUST_BE_ZERO(sigfillset(&tmpset));
+      MUST_BE_ZERO(sigdelset(&tmpset, SIGKILL));
+      MUST_BE_ZERO(sigdelset(&tmpset, SIGSTOP));
+//    Swap it with the current sigset_t
+      MUST_BE_ZERO(pthread_sigmask( SIG_SETMASK, &tmpset, &oldset ));
+//    Now see what's included in the set
+      for(int k=1; k<_NSIG; ++k) {
+        std::cerr << "sigismember is " << sigismember( &tmpset, k )
+                  << " for signal " << std::setw(2) << k
+#if defined(__linux__)
+                  << " (" << strsignal(k) << ")"
+#endif
+                  << std::endl;
+      }
+//    Finally put the original sigset_t back
+      MUST_BE_ZERO(pthread_sigmask( SIG_SETMASK, &oldset, &tmpset));
     }
 
 } // end of namespace edm

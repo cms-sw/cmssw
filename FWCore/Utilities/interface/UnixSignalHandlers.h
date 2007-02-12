@@ -24,8 +24,11 @@ namespace edm {
     int getSigNum();
     void disableAllSigs(sigset_t* oldset);
     void disableRTSigs();
+    void enableSignal(sigset_t* newset, int signum);
+    void disableSignal(sigset_t* newset, int signum);
     void reenableSigs(sigset_t* oldset);
     void installSig(int signum, CFUNC func);
+    void sigInventory();
 
 }  // end of namespace edm
 #endif
