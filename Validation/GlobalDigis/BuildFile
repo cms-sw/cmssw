@@ -5,6 +5,7 @@
 <use name=Geometry/CaloEventSetup>
 <use name=SimDataFormats/GlobalDigiValidation>
 <use name=DataFormats/DetId>
+<use name=DataFormats/Common>
 <use name=Geometry/CommonDetUnit>
 <use name=root>
 <use name=clhep>
@@ -20,6 +21,7 @@
  <use name=Geometry/CaloEventSetup>
  <use name=SimDataFormats/GlobalDigiValidation>
  <use name=DataFormats/DetId>
+ <use name=DataFormats/Common>
  <use name=Geometry/CommonDetUnit>
  <use name=root>
  <use name=clhep>
