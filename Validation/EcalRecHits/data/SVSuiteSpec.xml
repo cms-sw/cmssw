@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <SVSuite>
 
-	<SVSuiteSpec Name="SVSuite-EcalChain-Photon30GeV-all" Type="Processing">
-	        <Parameter Name="InputDataset" Value="/SVSuite100-EcalHits-Photon30GeVAll-GenEvents/GEN/CMSSW_1_0_0-GEN-1159911421"/>
+	<SVSuiteSpec Name="SVSuite-EcalChain-Photon30GeV-All" Type="Processing">
+	        <Parameter Name="InputDataset" Value="/SVSuite122-EcalChain-Photon30GeV-All-GenEvents/GEN/CMSSW_1_2_2-GEN-1170791550"/>
 		<Parameter Name="SplitSize" Value="200"/>
 		<Parameter Name="SplitType" Value="event"/>
 		<Parameter Name="SaveCMSRunOutput" Value="False"/>
@@ -14,8 +14,8 @@
 		<Tool Name="runEcalChain Simhit30GeV_all"/>
 	</SVSuiteSpec>
 
-	<SVSuiteSpec Name="SVSuite-EcalChain-Photon400GeV-all" Type="Processing">
-	        <Parameter Name="InputDataset" Value="/SVSuite100-EcalHits-Photon400GeVAll-GenEvents/GEN/CMSSW_1_0_0-GEN-1160684806"/>
+	<SVSuiteSpec Name="SVSuite-EcalChain-Photon400GeV-All" Type="Processing">
+	        <Parameter Name="InputDataset" Value="/SVSuite122-EcalChain-Photon400GeV-All-GenEvents/GEN/CMSSW_1_2_2-GEN-1170800929"/>
 		<Parameter Name="SplitSize" Value="100"/>
 		<Parameter Name="SplitType" Value="event"/>
 		<Parameter Name="SaveCMSRunOutput" Value="False"/>
@@ -27,8 +27,8 @@
 		<Tool Name="runEcalChain Simhit400GeV_all"/>
 	</SVSuiteSpec>
 
-	<SVSuiteSpec Name="SVSuite-EcalChain-PionPt60GeV-all" Type="Processing">
-	        <Parameter Name="InputDataset" Value="/SVSuite100-EcalHits-PionPt60GeVAll-GenEvents/GEN/CMSSW_1_0_0-GEN-1160594258"/>
+	<SVSuiteSpec Name="SVSuite-EcalChain-PionPt60GeV-All" Type="Processing">
+	        <Parameter Name="InputDataset" Value="/SVSuite122-EcalChain-Photon400GeV-All-GenEvents/GEN/CMSSW_1_2_2-GEN-1170800929"/>
 		<Parameter Name="SplitSize" Value="200"/>
 		<Parameter Name="SplitType" Value="event"/>
 		<Parameter Name="SaveCMSRunOutput" Value="False"/>
