@@ -110,12 +110,14 @@ void KalmanAlignmentAlgorithm::run( const edm::EventSetup & setup,
   if ( iEvent % 100 == 0 ) std::cout << "[KalmanAlignmentAlgorithm::run] Event Nr. " << iEvent << std::endl;
   iEvent++;
 
-  //AlgoProductCollection refittedTracks = refitTracks( setup, tracks );
+  // Run the refitter algorithm.
   ConstTrajTrackPairCollection refittedTracks = refitTracks( setup, tracks );
 
+  // Produce reference trajectories.
   ReferenceTrajectoryCollection trajectories = theTrajectoryFactory->trajectories( setup, refittedTracks );
   ReferenceTrajectoryCollection::iterator itTrajectories = trajectories.begin();
 
+  // Run the alignment algorithm.
   while( itTrajectories != trajectories.end() )
   {
     try
@@ -132,6 +134,14 @@ void KalmanAlignmentAlgorithm::run( const edm::EventSetup & setup,
 
     ++itTrajectories;
   }
+
+  // Clean-Up.
+  for ( ConstTrajTrackPairCollection::const_iterator it = refittedTracks.begin(); it != refittedTracks.end(); ++it )
+  {
+    delete (*it).first;
+    delete (*it).second;
+  }
+  refittedTracks.clear();
 }
 
 
@@ -365,3 +375,4 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
     ( *itAlignable )->setAlignmentParameters( alignmentParameters );
   }
 }
+
