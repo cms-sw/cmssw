@@ -10,11 +10,6 @@ using namespace std;
 using namespace edm;
 using namespace sipixelobjects;
 
-FrameConversion::FrameConversion( int rowOffset, int rowSlopeSign, int colOffset, int colSlopeSign)
-  : theRowConversion( LinearConversion(rowOffset,rowSlopeSign) ),
-    theCollumnConversion( LinearConversion(colOffset, colSlopeSign) )
-{ }
-
 FrameConversion::FrameConversion( const PixelBarrelName & name, int rocIdInDetUnit)
 {
   int slopeRow =0;

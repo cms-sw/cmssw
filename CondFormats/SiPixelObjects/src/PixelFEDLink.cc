@@ -14,14 +14,15 @@ using namespace sipixelobjects;
 
 void PixelFEDLink::addItem(const PixelROC & roc)
 {
-  if(roc.idInLink()+1 > theROCs.size() ) theROCs.resize(roc.idInLink()+1);
-  theROCs[roc.idInLink()] = roc;
+  // INFO roc numbering vs vector has offset=1
+  if(roc.idInLink() > theROCs.size() ) theROCs.resize(roc.idInLink());
+  theROCs[roc.idInLink()-1] = roc;
 }
 
 bool PixelFEDLink::checkRocNumbering() const
 {
   bool result = true;
-  int idx_expected = -1;
+  int idx_expected = 0;
   typedef ROCs::const_iterator CIR;
   for (CIR it = theROCs.begin(); it != theROCs.end(); it++) {
     idx_expected++;

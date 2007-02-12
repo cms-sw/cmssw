@@ -82,12 +82,12 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   TimeMe t(timer.item(), false);
   FEDNumbering fednum;
   pair<int,int> fedIds = fednum.getSiPixelFEDIds();
-  fedIds.first = 1;
-  fedIds.second = 40; //  temporary FIX !!!!
+  fedIds.first = 0;
+  fedIds.second = 39; //  temporary FIX !!!!
   
 
   for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
-    LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
+//    LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
     PixelDataFormatter::Digis digis;
      
     //get event data for this fed
@@ -99,9 +99,11 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     //pack digi into collection
     typedef PixelDataFormatter::Digis::iterator ID;
     for (ID it = digis.begin(); it != digis.end(); it++) {
-      uint32_t detid = it->id;
+//      uint32_t detid = it->id;
+      uint32_t detid = it->first;
       edm::DetSet<PixelDigi>& detSet = collection->find_or_insert(detid);
-      detSet.data = it->data;
+//      detSet.data = it->data;
+      detSet.data = it->second;
     } 
   }
 }

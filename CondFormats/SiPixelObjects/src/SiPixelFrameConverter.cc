@@ -24,7 +24,7 @@ bool SiPixelFrameConverter::hasDetUnit(uint32_t rawId) const
     const PixelFEDLink * link = theFed.link(idxLink);
     if (!link) continue;
     int numberOfRocs = link->numberOfROCs();
-    for(int idxRoc = 0; idxRoc < numberOfRocs; idxRoc++) {
+    for(int idxRoc = 1; idxRoc <= numberOfRocs; idxRoc++) {
       const PixelROC * roc = link->roc(idxRoc);
       if (!roc) continue;
       if (rawId == roc->rawId() ) return true;
@@ -67,7 +67,7 @@ SiPixelFrameConverter::CablingIndex SiPixelFrameConverter::
     int linkid = link->id();
     int numberOfRocs = link->numberOfROCs();
 
-    for(int idxRoc = 0; idxRoc < numberOfRocs; idxRoc++) {
+    for(int idxRoc = 1; idxRoc <= numberOfRocs; idxRoc++) {
       const PixelROC * roc = link->roc(idxRoc);
       if (detector.rawId == roc->rawId() ) {
         PixelROC::GlobalPixel global = {detector.row, detector.col};

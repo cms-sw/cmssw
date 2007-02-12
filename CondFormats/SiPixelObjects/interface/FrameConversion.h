@@ -13,7 +13,9 @@ class FrameConversion {
 public:
   FrameConversion( const PixelEndcapName & name, int rocIdInDetUnit);
   FrameConversion( const PixelBarrelName & name, int rocIdInDetUnit);
-  FrameConversion( int rowOffset, int rowSlopeSign, int colOffset, int colSlopeSign);
+  FrameConversion( int rowOffset, int rowSlopeSign, int colOffset, int colSlopeSign)
+    : theRowConversion( LinearConversion(rowOffset,rowSlopeSign) ),
+    theCollumnConversion( LinearConversion(colOffset, colSlopeSign) ) {}
 
   const sipixelobjects::LinearConversion & row() const { return theRowConversion; }
   const sipixelobjects::LinearConversion & collumn() const { return theCollumnConversion;}

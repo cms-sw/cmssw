@@ -23,28 +23,8 @@ PixelROC::PixelROC(uint32_t du, int idDU, int idLk, const FrameConversion & fram
 bool PixelROC::inside( const LocalPixel & lp) const
 {
   return (     0 <= lp.dcol && lp.dcol < 26
-           &&  0 <= lp.pxid && lp.pxid < 160 );
+           &&  2 <= lp.pxid && lp.pxid < 162 );
 }
-
-PixelROC::GlobalPixel PixelROC:: toGlobal(const LocalPixel & loc) const 
-{
-  int rocCol, rocRow;
-  if (loc.pxid < theNRows) {
-    rocCol = loc.dcol*2;
-    rocRow = loc.pxid;
-  }
-  else {
-    rocCol = loc.dcol*2 + 1;
-    rocRow = 2*theNRows - loc.pxid-1;
-  }
-
-  GlobalPixel result;
-  FrameConversion conversion(theRowOffset,theRowSlopeSign,theColOffset,theColSlopeSign);
-  result.col    = conversion.collumn().convert(rocCol);
-  result.row    = conversion.row().convert(rocRow);
-  return result;
-}
-
 
 PixelROC::LocalPixel PixelROC::toLocal( const GlobalPixel& glo) const
 {
@@ -55,7 +35,7 @@ PixelROC::LocalPixel PixelROC::toLocal( const GlobalPixel& glo) const
   LocalPixel loc = {-1,-1};
   if (0<= rocRow && rocRow < PixelROC::rows() && 0 <= rocCol && rocCol <PixelROC::cols()) {
     loc.dcol = rocCol/2;
-    loc.pxid = (rocCol %2 == 0) ? rocRow : 2*theNRows - rocRow - 1;
+    loc.pxid = 2*(theNRows-rocRow)+ (rocCol%2);
   }
   return loc;
 }

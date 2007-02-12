@@ -94,7 +94,7 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(
   for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
     PixelFEDLink::ROCs rocs; 
     PixelFEDLink link(++idLink);
-    int idRoc = -1;
+    int idRoc = 0;
     for (int id = (*it).rocIds.min(); id <= (*it).rocIds.max(); id++) {
       idRoc++;
       FrameConversion frame(*(it->name), id);

@@ -173,7 +173,7 @@ void PixelToLNKAssociateFromAscii::addConnections(
      int zmodule = atoi( module.substr(3,pos-3).c_str());
 
      // place modules in connections
-     int rocLnkId = -1; 
+     int rocLnkId = 0; 
      for (int rocDetId=rocDetIds.min(); rocDetId <= rocDetIds.max(); rocDetId++) {
        rocLnkId++;
        DetectorRocId  detectorRocId;

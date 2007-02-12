@@ -63,8 +63,8 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
          int digiCounter = 0; 
   for (DI di=digiCollection->begin(); di != digiCollection->end(); di++) {
     digiCounter += (di->data).size(); 
-//    digis[ di->id] = di->data;
-    digis.push_back(*di);
+    digis[ di->id] = di->data;
+//    digis.push_back(*di);
   }
   allDigiCounter += digiCounter;
 

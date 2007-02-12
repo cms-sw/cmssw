@@ -46,7 +46,7 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce( const edm::EventSet
 {
   FEDNumbering fednum;
 //  TRange<int> fedIds = fednum.getSiPixelFEDIds();
-  TRange<int> fedIds(0,40);
+  TRange<int> fedIds(0,39);
   edm::LogInfo("SiPixelFedCablingMapBuilder")<<"pixel fedid range: "<<fedIds;
 
 
@@ -86,7 +86,7 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce( const edm::EventSet
 
 
   if (theAssociatorName=="PixelToFEDAssociateFromAscii") {
-  cout <<" HERE PixelToLNKAssociateFromAscii"<<endl;
+  cout <<" HERE PixelToFEDAssociateFromAscii"<<endl;
   vector<FedSpec> fedSpecs(fedIds.max()-fedIds.min()+1); 
   for (int id=fedIds.first; id<=fedIds.second; id++) {
     FedSpec fs={ id, vector<PixelModuleName* >(), vector<uint32_t>()};
@@ -129,6 +129,7 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce( const edm::EventSet
   }
   } else {
     PixelToFEDAssociate::DetectorRocId detectorRocId;
+    cout <<" HERE PixelToLNKAssociateFromAscii"<<endl;
     for (UNITS::iterator iu=units.begin(); iu != units.end(); iu++) {
       PixelModuleName * name =  (*iu).first; 
       detectorRocId.module = name;

@@ -1,6 +1,7 @@
 #ifndef SiPixelObjects_PixelROC_H
 #define SiPixelObjects_PixelROC_H
 
+#include "CondFormats/SiPixelObjects/interface/FrameConversion.h"
 #include <boost/cstdint.hpp>
 #include <string>
 
@@ -13,8 +14,6 @@
 
 
 namespace sipixelobjects {
-
-class FrameConversion;
 
 class PixelROC {
 public:
@@ -51,7 +50,15 @@ public:
 
   /// converts LocalPixel in ROC to DU coordinates. 
   /// LocalPixel must be inside ROC. Otherwise result is meaningless
-  GlobalPixel toGlobal(const LocalPixel & loc) const;
+  GlobalPixel toGlobal(const LocalPixel & loc) const {
+    int rocCol = loc.dcol*2 + loc.pxid%2;
+    int rocRow = theNRows-loc.pxid/2;
+    GlobalPixel result;
+    FrameConversion conv(theRowOffset,theRowSlopeSign,theColOffset,theColSlopeSign);
+    result.col    = conv.collumn().convert(rocCol);
+    result.row    = conv.row().convert(rocRow);
+    return result;
+  }
 
   /// check if position is inside this ROC
   bool inside(const LocalPixel & lp) const;

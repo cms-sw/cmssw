@@ -48,8 +48,8 @@ class PixelDataFormatter {
 public:
 
   typedef std::vector<PixelDigi> DetDigis;
-//  typedef std::map<uint32_t, DetDigis> Digis;
-  typedef std::vector< edm::DetSet<PixelDigi> > Digis;
+  typedef std::map<uint32_t, DetDigis> Digis;
+//  typedef std::vector< edm::DetSet<PixelDigi> > Digis;
   typedef std::pair<DetDigis::const_iterator, DetDigis::const_iterator> Range;
 
   PixelDataFormatter(const SiPixelFedCablingMap * map);

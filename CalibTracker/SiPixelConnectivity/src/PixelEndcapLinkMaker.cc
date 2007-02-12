@@ -83,7 +83,7 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(
   result.reserve(36);
   int lastPannelId = -1;
   int idLink = -1;
-  int idRoc = -1;
+  int idRoc = 0;
   PixelFEDLink link(idLink); // dummy object, id=-1
 
   for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
@@ -93,7 +93,7 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(
     if ( pannelId != lastPannelId ) {
       lastPannelId = pannelId;
       if (idLink >= 0) result.push_back(link);
-      idRoc = -1;
+      idRoc = 0;
       link = PixelFEDLink(++idLink); // real link, to be filled
     }
 

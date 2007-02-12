@@ -83,7 +83,7 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
     theWordCounter += 2*(nWords-2);
     //LogTrace("")<<"data words: "<< (trailer-header-1);
     for (const Word64* word = header+1; word != trailer; word++) {
-      LogTrace("PixelDataFormatter") << print(*word);
+//      LogTrace("PixelDataFormatter") << print(*word);
       static const Word64 WORD32_mask  = 0xffffffff;
       Word32 w1 =  *word >> 32 & WORD32_mask;
       Word32 w2 =  *word       & WORD32_mask;
@@ -105,12 +105,12 @@ FEDRawData * PixelDataFormatter::formatData(int fedId, const Digis & digis)
   SiPixelFrameConverter converter(theCablingMap, fedId);
   for (Digis::const_iterator im = digis.begin(); im != digis.end(); im++) {
     allDetDigis++;
-    uint32_t rawId = im->id;
-//    uint32_t rawId = im->first;
+//    uint32_t rawId = im->id;
+    uint32_t rawId = im->first;
     if ( !converter.hasDetUnit(rawId) ) continue;
     hasDetDigis++;
-    const DetDigis & detDigis = im->data;
-//    const DetDigis & detDigis = im->second;
+//    const DetDigis & detDigis = im->data;
+    const DetDigis & detDigis = im->second;
     for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); it++) {
       theDigiCounter++;
       const PixelDigi & digi = (*it);
@@ -177,7 +177,9 @@ FEDRawData * PixelDataFormatter::formatData(int fedId, const Digis & digis)
 void PixelDataFormatter::digi2word( const SiPixelFrameConverter& converter,
     uint32_t detId, const PixelDigi& digi, std::vector<Word32> & words) const
 {
-  LogDebug("PixelDataFormatter")<< print(digi);
+  LogDebug("PixelDataFormatter")
+// <<" detId: " << detId 
+  <<print(digi);
 
   SiPixelFrameConverter::DetectorIndex detector = {detId, digi.row(), digi.column()};
   SiPixelFrameConverter::CablingIndex  cabling = converter.toCabling(detector);
@@ -215,16 +217,16 @@ void PixelDataFormatter::word2digi(const SiPixelFrameConverter& converter,
   SiPixelFrameConverter::DetectorIndex detIdx = converter.toDetector(cabling);
 
   PixelDigi pd(detIdx.row, detIdx.col,  adc);
-//  digis[detIdx.rawId].push_back(pd);
+  digis[detIdx.rawId].push_back(pd);
 
-  Digis::iterator it = lower_bound(digis.begin(), digis.end(), detIdx.rawId);
-  if ( (it == digis.end()) ||  (it->id != detIdx.rawId )) {               // new detunit
-    it = digis.insert( it, edm::DetSet<PixelDigi>(detIdx.rawId) );
-  }
-  (*it).data.push_back(pd);
+//  Digis::iterator it = lower_bound(digis.begin(), digis.end(), detIdx.rawId);
+//  if ( (it == digis.end()) ||  (it->id != detIdx.rawId )) {               // new detunit
+//    it = digis.insert( it, edm::DetSet<PixelDigi>(detIdx.rawId) );
+//  }
+//  (*it).data.push_back(pd);
 
   theDigiCounter++;
-  LogDebug("PixelDataFormatter") << print(pd);
+//  LogDebug("PixelDataFormatter") << print(pd);
 
 }
 

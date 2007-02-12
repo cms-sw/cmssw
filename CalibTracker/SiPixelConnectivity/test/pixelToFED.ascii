@@ -1,44 +1,44 @@
-VERSION 3.0   10.09.2006
+VERSION 5.0   12.02.2007
 
 #
 # barrel pI
 #
-FED: 1 
+FED: 0 
   S: 4   L: 1   Z: 1,4   F: 1,2 
   S: 4   L: 2   Z: 1,4   F: 1,2 
   S: 4   L: 3   Z: 1,4   F: 1,3 
 
-FED: 2 
+FED: 1 
   S: 4   L: 1   Z: 1,4   F: 3 
   S: 4   L: 2   Z: 1,4   F: 3,4 
   S: 4   L: 3   Z: 1,4   F: 4,6 
 
-FED: 3  
+FED: 2  
   S: 4   L: 1   Z: 1,4   F: 4 
   S: 4   L: 2   Z: 1,4   F: 5,6 
   S: 4   L: 3   Z: 1,4   F: 7,9 
 
-FED: 4 
+FED: 3 
   S: 4   L: 1   Z: 1,4   F: 5 
   S: 4   L: 2   Z: 1,4   F: 7,8 
   S: 4   L: 3   Z: 1,4   F: 10,11 
 
-FED: 13
+FED: 12
   S: 4   L: 1   Z: 1,4   F: 6 
   S: 4   L: 2   Z: 1,4   F: 9,10 
   S: 4   L: 3   Z: 1,4   F: 12,13 
 
-FED: 14 
+FED: 13 
   S: 4   L: 1   Z: 1,4   F: 7 
   S: 4   L: 2   Z: 1,4   F: 11,12 
   S: 4   L: 3   Z: 1,4   F: 14,16 
 
-FED: 15 
+FED: 14 
   S: 4   L: 1   Z: 1,4   F: 8 
   S: 4   L: 2   Z: 1,4   F: 13,14 
   S: 4   L: 3   Z: 1,4   F: 17,19 
 
-FED: 16 
+FED: 15 
   S: 4   L: 1   Z: 1,4   F: 9,10 
   S: 4   L: 2   Z: 1,4   F: 15,16 
   S: 4   L: 3   Z: 1,4   F: 20,22 
@@ -46,42 +46,42 @@ FED: 16
 #
 # barrel pO
 #
-FED: 8 
+FED: 7 
   S: 3   L: 1   Z: 1,4   F: 1,2 
   S: 3   L: 2   Z: 1,4   F: 1,2 
   S: 3   L: 3   Z: 1,4   F: 1,3 
 
-FED: 7 
+FED: 6 
   S: 3   L: 1   Z: 1,4   F: 3 
   S: 3   L: 2   Z: 1,4   F: 3,4 
   S: 3   L: 3   Z: 1,4   F: 4,6 
 
-FED: 6  
+FED: 5  
   S: 3   L: 1   Z: 1,4   F: 4 
   S: 3   L: 2   Z: 1,4   F: 5,6 
   S: 3   L: 3   Z: 1,4   F: 7,9 
 
-FED: 5 
+FED: 4 
   S: 3   L: 1   Z: 1,4   F: 5 
   S: 3   L: 2   Z: 1,4   F: 7,8 
   S: 3   L: 3   Z: 1,4   F: 10,11 
 
-FED: 12
+FED: 11
   S: 3   L: 1   Z: 1,4   F: 6 
   S: 3   L: 2   Z: 1,4   F: 9,10 
   S: 3   L: 3   Z: 1,4   F: 12,13 
 
-FED: 11 
+FED: 10 
   S: 3   L: 1   Z: 1,4   F: 7 
   S: 3   L: 2   Z: 1,4   F: 11,12 
   S: 3   L: 3   Z: 1,4   F: 14,16 
 
-FED: 10 
+FED: 9 
   S: 3   L: 1   Z: 1,4   F: 8 
   S: 3   L: 2   Z: 1,4   F: 13,14 
   S: 3   L: 3   Z: 1,4   F: 17,19 
 
-FED: 9 
+FED: 8 
   S: 3   L: 1   Z: 1,4   F: 9,10 
   S: 3   L: 2   Z: 1,4   F: 15,16 
   S: 3   L: 3   Z: 1,4   F: 20,22 
@@ -89,42 +89,42 @@ FED: 9
 #
 # barrel mI
 #
-FED: 24 
+FED: 23 
   S: 2   L: 1   Z: 1,4   F: 1,2 
   S: 2   L: 2   Z: 1,4   F: 1,2 
   S: 2   L: 3   Z: 1,4   F: 1,3 
 
-FED: 23 
+FED: 22 
   S: 2   L: 1   Z: 1,4   F: 3 
   S: 2   L: 2   Z: 1,4   F: 3,4 
   S: 2   L: 3   Z: 1,4   F: 4,6 
 
-FED: 22  
+FED: 21  
   S: 2   L: 1   Z: 1,4   F: 4 
   S: 2   L: 2   Z: 1,4   F: 5,6 
   S: 2   L: 3   Z: 1,4   F: 7,9 
 
-FED: 21 
+FED: 20 
   S: 2   L: 1   Z: 1,4   F: 5 
   S: 2   L: 2   Z: 1,4   F: 7,8 
   S: 2   L: 3   Z: 1,4   F: 10,11 
 
-FED: 28 
+FED: 27 
   S: 2   L: 1   Z: 1,4   F: 6 
   S: 2   L: 2   Z: 1,4   F: 9,10 
   S: 2   L: 3   Z: 1,4   F: 12,13 
 
-FED: 27 
+FED: 26 
   S: 2   L: 1   Z: 1,4   F: 7 
   S: 2   L: 2   Z: 1,4   F: 11,12 
   S: 2   L: 3   Z: 1,4   F: 14,16 
 
-FED: 26 
+FED: 25 
   S: 2   L: 1   Z: 1,4   F: 8 
   S: 2   L: 2   Z: 1,4   F: 13,14 
   S: 2   L: 3   Z: 1,4   F: 17,19 
 
-FED: 25 
+FED: 24 
   S: 2   L: 1   Z: 1,4   F: 9,10 
   S: 2   L: 2   Z: 1,4   F: 15,16 
   S: 2   L: 3   Z: 1,4   F: 20,22 
@@ -132,42 +132,42 @@ FED: 25
 #
 # barrel m0
 #
-FED: 17 
+FED: 16 
   S: 1   L: 1   Z: 1,4   F: 1,2 
   S: 1   L: 2   Z: 1,4   F: 1,2 
   S: 1   L: 3   Z: 1,4   F: 1,3 
 
-FED: 18 
+FED: 17 
   S: 1   L: 1   Z: 1,4   F: 3 
   S: 1   L: 2   Z: 1,4   F: 3,4 
   S: 1   L: 3   Z: 1,4   F: 4,6 
 
-FED: 19  
+FED: 18  
   S: 1   L: 1   Z: 1,4   F: 4 
   S: 1   L: 2   Z: 1,4   F: 5,6 
   S: 1   L: 3   Z: 1,4   F: 7,9 
 
-FED: 20 
+FED: 19 
   S: 1   L: 1   Z: 1,4   F: 5 
   S: 1   L: 2   Z: 1,4   F: 7,8 
   S: 1   L: 3   Z: 1,4   F: 10,11 
 
-FED: 29 
+FED: 28 
   S: 1   L: 1   Z: 1,4   F: 6 
   S: 1   L: 2   Z: 1,4   F: 9,10 
   S: 1   L: 3   Z: 1,4   F: 12,13 
 
-FED: 30 
+FED: 29 
   S: 1   L: 1   Z: 1,4   F: 7 
   S: 1   L: 2   Z: 1,4   F: 11,12 
   S: 1   L: 3   Z: 1,4   F: 14,16 
 
-FED: 31 
+FED: 30 
   S: 1   L: 1   Z: 1,4   F: 8 
   S: 1   L: 2   Z: 1,4   F: 13,14 
   S: 1   L: 3   Z: 1,4   F: 17,19 
 
-FED: 32 
+FED: 31 
   S: 1   L: 1   Z: 1,4   F: 9,10 
   S: 1   L: 2   Z: 1,4   F: 15,16 
   S: 1   L: 3   Z: 1,4   F: 20,22 
@@ -175,31 +175,31 @@ FED: 32
 #
 # positive endcap halfcylinder pI 
 #
-FED: 33 
+FED: 32 
   E: 4    D: 1,3  B: 1,6 
-FED: 34 
+FED: 33 
   E: 4    D: 1,3  B: 7,12 
 
 #
 # positive endcap halfcylinder p0 
 #
-FED: 35 
+FED: 34 
   E: 3    D: 1,3  B: 1,6 
-FED: 36 
+FED: 35 
   E: 3    D: 1,3  B: 7,12 
 
 #
 # negative endcap halfcylinder mI 
 #
-FED: 37 
+FED: 36 
   E: 2    D: 1,3  B: 1,6 
-FED: 38 
+FED: 37 
   E: 2    D: 1,3  B: 7,12 
 
 #
 # negative endcap halfcylinder m0 
 #
-FED: 39 
+FED: 38 
   E: 1    D: 1,3  B: 1,6 
-FED: 40 
+FED: 39 
   E: 1    D: 1,3  B: 7,12 
