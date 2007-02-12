@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.13 2007/01/10 05:58:48 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.14 2007/02/12 17:18:17 biery Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -194,7 +194,7 @@ namespace edm {
       numberEventsInThisLumi_ = 1;
     }
     presentTime_ += timeBetweenEvents_;
-    usleep(eventCreationDelay_);
+    if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}
   }
 
 }
