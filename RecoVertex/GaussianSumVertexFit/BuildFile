@@ -1,0 +1,18 @@
+<export>
+ <lib name=RecoVertexGaussianSumVertexFit>
+ <use name=RecoVertex/KalmanVertexFit>
+ <use name=RecoVertex/VertexPrimitives>
+ <use name=RecoVertex/VertexTools>
+ <use name=RecoVertex/LinearizationPointFinders>
+ <use name=TrackingTools/TransientTrack>
+ <use name=DataFormats/Math>
+ <use name=TrackingTools/GsfTrack>
+</export>
+
+<use name=RecoVertex/VertexPrimitives>
+<use name=RecoVertex/VertexTools>
+<use name=RecoVertex/LinearizationPointFinders>
+<use name=DataFormats/Math>
+<use name=TrackingTools/TransientTrack>
+<use name=RecoVertex/KalmanVertexFit>
+<use name=TrackingTools/GsfTrack>

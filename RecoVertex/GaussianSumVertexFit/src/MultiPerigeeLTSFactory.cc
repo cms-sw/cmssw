@@ -25,3 +25,8 @@ MultiPerigeeLTSFactory::linearizedTrackState(const GlobalPoint & linP,
 }
 
 
+const MultiPerigeeLTSFactory * MultiPerigeeLTSFactory::clone() const
+{
+  return new MultiPerigeeLTSFactory ( *this );
+}
+

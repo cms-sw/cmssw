@@ -4,10 +4,7 @@
 #include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
 #include "RecoVertex/GaussianSumVertexFit/interface/PerigeeMultiLTS.h"
 #include "TrackingTools/TransientTrack/interface/GsfTransientTrack.h"
-
-// #include "CommonReco/PatternTools/interface/TransverseImpactPointExtrapolator.h"
-//#include "CommonReco/PatternTools/interface/RecTrack.h"
-//#include "Vertex/VertexPrimitives/interface/LinearizedTrackStateFactory.h"
+#include "RecoVertex/VertexTools/interface/AbstractLTSFactory.h"
 
 /** 
  *  Concrete class to encapsulate the creation of RefCountedLinearizedTrackState, 
@@ -18,7 +15,7 @@
  *  so that the reference-counting mechanism works well. 
  */ 
 
-class MultiPerigeeLTSFactory {
+class MultiPerigeeLTSFactory : public AbstractLTSFactory  {
 
 public:
 //   MultiPerigeeLTSFactory();
@@ -30,6 +27,9 @@ public:
   RefCountedLinearizedTrackState
     linearizedTrackState(const GlobalPoint & linP, const reco::TransientTrack & track,
     	const TrajectoryStateOnSurface& tsos) const;
+
+  const MultiPerigeeLTSFactory * clone() const;
+
 };
 
 #endif

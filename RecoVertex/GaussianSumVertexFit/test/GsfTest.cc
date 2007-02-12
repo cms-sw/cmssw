@@ -4,7 +4,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -119,7 +119,7 @@ GsfTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   catch (std::exception & err) {
-   edm::LogInfo("RecoVertex/GsfTest") 
+//   edm::LogInfo("RecoVertex/GsfTest") 
      cout << "Exception during event number: " << iEvent.id() 
       << "\n" << err.what() << "\n";
   }
