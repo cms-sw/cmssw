@@ -4,6 +4,9 @@ cond::SessionConfiguration::~SessionConfiguration(){}
 void cond::SessionConfiguration::setAuthenticationMethod( cond::AuthenticationMethod m ){
   m_authMethod=m;
 }
+void cond::SessionConfiguration::setAuthenticationPath( const std::string& p ){
+  m_authPath=p;
+}
 void cond::SessionConfiguration::setBlobStreamer( const std::string& name ){
   m_hasBlobstreamer=true;
   m_blobstreamerName=name;
@@ -28,4 +31,7 @@ cond::MessageLevel cond::SessionConfiguration::messageLevel() const{
 }
 bool cond::SessionConfiguration::hasStandaloneRelationalService() const{
   return m_hasStandaloneRelationalService;
+}
+std::string cond::SessionConfiguration::authName() const{
+  return m_authPath;
 }

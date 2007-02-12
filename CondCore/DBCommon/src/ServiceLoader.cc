@@ -13,6 +13,7 @@
 #include "RelationalAccess/IMonitoringService.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
 #include "RelationalStorageService/IBlobStreamingService.h"
+//#include <cstdlib>
 cond::ServiceLoader::ServiceLoader():m_isPoolContext(true),m_context(0) {
 }
 cond::ServiceLoader::~ServiceLoader(){
@@ -141,28 +142,3 @@ void cond::ServiceLoader::loadBlobStreamingService( const std::string& component
     throw cond::Exception( "could not locate the BlobStreamingService" );
   }
 }
-/*
-  void cond::ServiceLoader::loadLookupService(){
-  if(!m_loader) {
-  this->initLoader();
-  }
-  m_loader->load( "CORAL/Services/DefaultBlobStreamingService" );
-  std::vector< seal::IHandle<pool::IBlobStreamingService> > v_svc;
-  m_context()->query( v_svc );
-  if ( v_svc.empty() ) {
-  throw cond::Exception( "could not locate the BlobStreamingService" );
-  }
-  }
-*/
-/*void cond::ServiceLoader::loadUserMonitoringService(){
-  if(!m_loader) {
-    this->initLoader();
-  }
-  m_loader->load( "CORAL/Services/UserMonitoringService" );
-  std::vector< seal::IHandle<coral::monitor::IMonitoringService> > v_svc;
-  m_context->query( v_svc );
-  if ( v_svc.empty() ) {
-    throw cond::Exception( "could not locate the UserMonitoringService" );
-  }
-}
-*/

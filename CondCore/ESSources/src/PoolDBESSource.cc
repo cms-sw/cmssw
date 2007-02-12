@@ -9,6 +9,7 @@
 #include "CondCore/DBCommon/interface/RelationalStorageManager.h"
 #include "CondCore/DBCommon/interface/PoolStorageManager.h"
 #include "CondCore/DBCommon/interface/ConfigSessionFromParameterSet.h"
+#include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
@@ -21,6 +22,7 @@
 #include <iostream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
+#include <cstdlib>
 //
 // static data member definitions
 //
@@ -117,7 +119,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   }
   m_session=new cond::DBSession(true);
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
-  cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
+  //cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   using namespace edm;
   using namespace edm::eventsetup;  
@@ -193,9 +195,13 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     }
   }
   m_con=connect;
-  //std::cout<<m_con<<std::endl;
-  m_pooldb=new cond::PoolStorageManager(m_con,mycatalog,m_session);
+  cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
+  std::string authpath("CORAL_AUTH_PATH=");
+  authpath+=m_session->sessionConfiguration().authName();
+  const char* charauthpath=authpath.c_str();
+  ::putenv(const_cast<char*>(charauthpath));
   m_session->open();
+  m_pooldb=new cond::PoolStorageManager(m_con,mycatalog,m_session);
   if(m_timetype=="timestamp"){
     m_iovservice=new cond::IOVService(*m_pooldb,cond::timestamp);
   }else{

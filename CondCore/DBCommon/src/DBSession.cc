@@ -23,8 +23,14 @@ void cond::DBSession::open(){
   }
   //necessary
   m_loader->loadMessageService( m_sessionConfig->messageLevel() );
-  m_loader->loadConnectionService( *m_connectConfig );
+  /*if( m_sessionConfig->authenticationMethod()==cond::XML ){
+    std::string authpath("CORAL_AUTH_PATH=");
+    //authpath+=m_sessionConfig->authName();
+    //::putenv(const_cast<char*>(authpath.c_str()));
+  }
+  */
   m_loader->loadAuthenticationService( m_sessionConfig->authenticationMethod() );
+  m_loader->loadConnectionService( *m_connectConfig );
   //optional
   if(  m_sessionConfig->hasStandaloneRelationalService() ){
     m_loader->loadRelationalService();
