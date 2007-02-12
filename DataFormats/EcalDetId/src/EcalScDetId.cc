@@ -107,7 +107,7 @@ int EcalScDetId::isc() const
   return iSC;
 }  
 
-bool EcalScDetId::validDetId(int crystal_ix, int crystal_iy, int iz) const {
+bool EcalScDetId::validDetId(int iX, int iY, int iZ) const {
   static const char endcapMap[401] = {
     "       XXXXXX       "
     "    XXXXXXXXXXXX    "
@@ -130,7 +130,7 @@ bool EcalScDetId::validDetId(int crystal_ix, int crystal_iy, int iz) const {
     "    XXXXXXXXXXXX    "
     "       XXXXXX       "};
 
-  return abs(iz)==1 && endcapMap[ix()-1+(iy()-1)*20]!=' ';
+  return abs(iZ)==1 && endcapMap[iX-1+(iY-1)*20]!=' ';
 }
 
 std::ostream& operator<<(std::ostream& s,const EcalScDetId& id) {
