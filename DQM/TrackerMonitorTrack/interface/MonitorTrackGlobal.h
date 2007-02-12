@@ -15,7 +15,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Tue May 23 18:35:30 CEST 2006
-// $Id: MonitorTrackGlobal.h,v 1.4 2006/06/04 17:52:23 goitom Exp $
+// $Id: MonitorTrackGlobal.h,v 1.5 2006/06/27 07:52:56 dkcira Exp $
 //
 //
 
@@ -60,8 +60,10 @@ class MonitorTrackGlobal : public edm::EDAnalyzer {
 
   MonitorElement * NumberOfTracks;
   MonitorElement * NumberOfRecHitsPerTrack;
+  MonitorElement * NumberOfMeanRecHitsPerTrack;
   MonitorElement * NumberOfRecHitsPerTrackVsPhi;
-  MonitorElement * NumberOfRecHitsPerTrackVsPseudorapidity;
+  MonitorElement * NumberOfRecHitsPerTrackVsTheta;
+  MonitorElement * NumberOfRecHitsPerTrackVsEta;
 
   MonitorElement * TrackPx;
   MonitorElement * TrackPy;

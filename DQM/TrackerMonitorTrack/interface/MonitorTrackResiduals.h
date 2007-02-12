@@ -44,7 +44,9 @@
 
   using namespace std;
 
-typedef std::map<int, MonitorElement *> HistoClass;
+typedef std::map<std::string, MonitorElement *> HistoClass;
+typedef std::map<int, MonitorElement *> HistoClass2;
+typedef std::map<long, long> Numerator;
 
 class MonitorTrackResiduals : public edm::EDAnalyzer {
    public:
@@ -63,6 +65,9 @@ class MonitorTrackResiduals : public edm::EDAnalyzer {
   edm::ParameterSet conf_;
 
   HistoClass HitResidual;
+  HistoClass2 HitResidual2;
+  Numerator DetIdToInt;
+  Numerator IntToDetId;
 };
 
 #endif

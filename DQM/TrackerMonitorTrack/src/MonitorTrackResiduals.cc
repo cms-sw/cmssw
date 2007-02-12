@@ -94,24 +94,125 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup)
   vector<uint32_t> DetIds = activeDets;
   
   vector<uint32_t> TIBDetIds;
+  vector<uint32_t> TIBL1DetIds;
+  vector<uint32_t> TIBL2DetIds;
+  vector<uint32_t> TIBL3DetIds;
+  vector<uint32_t> TIBL4DetIds;
+  
+  substructure.getTIBDetectors(activeDets, TIBDetIds); // this adds rawDetIds to SelectedDetIds
+  
+  substructure.getTIBDetectors(activeDets, TIBL1DetIds, 1); // this adds rawDetIds to SelectedDetIds
+  substructure.getTIBDetectors(activeDets, TIBL2DetIds, 2); // this adds rawDetIds to SelectedDetIds
+  substructure.getTIBDetectors(activeDets, TIBL3DetIds, 3); // this adds rawDetIds to SelectedDetIds
+  substructure.getTIBDetectors(activeDets, TIBL4DetIds, 4); // this adds rawDetIds to SelectedDetIds
+  
   vector<uint32_t> TOBDetIds;
   vector<uint32_t> TIDDetIds;
   vector<uint32_t> TECDetIds;
-  
-  substructure.getTIBDetectors(activeDets, TIBDetIds); // this adds rawDetIds to SelectedDetIds 
   substructure.getTOBDetectors(activeDets, TOBDetIds); // this adds rawDetIds to SelectedDetIds
   substructure.getTIDDetectors(activeDets, TIDDetIds); // this adds rawDetIds to SelectedDetIds
   substructure.getTECDetectors(activeDets, TECDetIds); // this adds rawDetIds to SelectedDetIds
     
-    // book histo for each detector module
+    // book histo per each detector module
+  int counter = 1;
+  fstream file_op("IntToDetID.txt",ios::out);
   for (vector<uint32_t>::const_iterator DetItr=activeDets.begin(); DetItr!=activeDets.end(); DetItr++)
     {
       folder_organizer.setDetectorFolder(*DetItr); // pas detid - uint32 to this method - sets appropriate detector folder
       int ModuleID = (*DetItr);
       folder_organizer.setDetectorFolder(*DetItr); // top Mechanical View Folder
       string hid = hidmanager.createHistoId("HitResiduals","det",*DetItr);
-      HitResidual[ModuleID] = dbe->book1D(hid, hid, 100, -2., 2.);
+      HitResidual2[ModuleID] = dbe->book1D(hid, hid, 50, -5., 5.);
+	  IntToDetId[counter] = ModuleID; //Create a table of reference assigned consective number to actual module id
+	  DetIdToInt[ModuleID] = counter; //create a table of reference reversing the above
+	  std::cout << "Number: " << counter << " -- ModuleID: "<< ModuleID << std::endl;
+	  file_op << "Number: " << counter << " -- ModuleID: "<< ModuleID << std::endl;
+	  counter++;
     }
+	
+	file_op.close();
+		  
+  // book TIB histo
+  vector<uint32_t>::const_iterator detid_begin = TIBDetIds.begin(); // get the first TIB Detector module
+  vector<uint32_t>::const_iterator detid_end = TIBDetIds.end() -1; // get the last TIB Detector Module, -1??
+  int beging=(*detid_begin); // Save first TIB Detector module id as int
+  int detBegin = DetIdToInt[beging]; // Convert the detector Id to the numberrin system provided above. (i.e starting form 1)
+  int ending=(*detid_end); // Save the last detector module id as int
+  int detEnd = DetIdToInt[ending]; // Convert the detector Id to the numberrin system provided above. (i.e starting form 1)
+  dbe->setCurrentFolder("Track/Residuals");
+  HitResidual["TIB"] = dbe->bookProfile("TIBHitResiduals", "TIB Hit residuals",  TIBDetIds.size(), detBegin, detEnd, 1, -4, 4);
+  
+  // book TIB Layer 1 histo
+  detid_begin = TIBL1DetIds.begin();
+  detid_end = TIBL1DetIds.end()-1;
+  beging=(*detid_begin);
+  detBegin = DetIdToInt[beging];
+  ending=(*detid_end);
+  detEnd = DetIdToInt[ending];
+  dbe->setCurrentFolder("Track/Residuals/TIB");
+  HitResidual["TIBL1"] = dbe->bookProfile("TIBLayer1HitResiduals", "TIB Layer 1 Hit residuals", TIBL1DetIds.size(), detBegin, detEnd, 1, -4, 4);
+ 
+  // book TIB Layer 2 histo
+  detid_begin = TIBL2DetIds.begin();
+  detid_end = TIBL2DetIds.end()-1;
+  beging=(*detid_begin);
+  detBegin = DetIdToInt[beging];
+  ending=(*detid_end);
+  detEnd = DetIdToInt[ending];
+  dbe->setCurrentFolder("Track/Residuals/TIB");
+  HitResidual["TIBL2"] = dbe->bookProfile("TIBLayer2HitResiduals", "TIB Layer 2 Hit residuals", TIBL2DetIds.size(), detBegin, detEnd, 1, -4, 4);
+
+
+  // book TIB Layer 3 histo
+  detid_begin = TIBL3DetIds.begin();
+  detid_end = TIBL3DetIds.end()-1;
+  beging=(*detid_begin);
+  detBegin = DetIdToInt[beging];
+  ending=(*detid_end);
+  detEnd = DetIdToInt[ending];
+  dbe->setCurrentFolder("Track/Residuals/TIB");
+  HitResidual["TIBL3"] = dbe->bookProfile("TIBLayer3HitResiduals", "TIB Layer3 Hit residuals", TIBL3DetIds.size(), detBegin, detEnd, 1, -4, 4);
+  
+  // book TIB Layer 4 histo
+  detid_begin = TIBL4DetIds.begin();
+  detid_end = TIBL4DetIds.end()-1;
+  beging=(*detid_begin);
+  detBegin = DetIdToInt[beging];
+  ending=(*detid_end);
+  detEnd = DetIdToInt[ending];
+  dbe->setCurrentFolder("Track/Residuals/TIB");
+  HitResidual["TIBL4"] = dbe->bookProfile("TIBLayer4HitResiduals", "TIB Layer 4 Hit residuals", TIBL4DetIds.size(), detBegin, detEnd, 1, -4, 4);
+  
+  // book TOB histo
+  detid_begin = TOBDetIds.begin();
+  detid_end = TOBDetIds.end()-1;
+  beging=(*detid_begin);
+  detBegin = DetIdToInt[beging];
+  ending=(*detid_end);
+  detEnd = DetIdToInt[ending];
+  dbe->setCurrentFolder("Track/Residuals");
+  HitResidual["TOB"] = dbe->bookProfile("TOBHitResiduals", "TOB Hit residuals", TOBDetIds.size(), detBegin, detEnd, 1, -4, 4);
+
+  // book TID histo
+  detid_begin = TIDDetIds.begin();
+  detid_end = TIDDetIds.end()-1;
+  beging=(*detid_begin);
+  detBegin = DetIdToInt[beging];
+  ending=(*detid_end);
+  detEnd = DetIdToInt[ending];
+  dbe->setCurrentFolder("Track/Residuals");
+  HitResidual["TID"] = dbe->bookProfile("TIDHitResiduals", "TID Hit residuals", TIDDetIds.size(), detBegin, detEnd, 1, -4, 4);
+
+  // book TEC histo
+  detid_begin = TECDetIds.begin();
+  detid_end = TECDetIds.end()-1;
+  beging=(*detid_begin);
+  detBegin = DetIdToInt[beging];
+  ending=(*detid_end);
+  detEnd = DetIdToInt[ending];
+  dbe->setCurrentFolder("Track/Residuals");
+  HitResidual["TEC"] = dbe->bookProfile("TECHitResiduals", "TEC Hit residuals", TECDetIds.size(), detBegin, detEnd, 1, -4, 4);
+
 }
 
 void MonitorTrackResiduals::endJob(void)
@@ -156,6 +257,8 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
   for (TrackCandidateCollection::const_iterator track = trackCandidateCollection->begin(); 
        track!=trackCandidateCollection->end(); ++track)
     {
+      int test;
+      std::cin >> test;
       const TrackCandidate * theTC = &(*track);
       PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
       const TrackCandidate::range& recHitVec=theTC->recHits();
@@ -210,10 +313,37 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 		  DetId hit_detId = hit->geographicalId();				
 		  int IntRawDetID = (hit_detId.rawId());
 					
-		  HitResidual[IntRawDetID]->Fill(residual.x()); // Fill the individual detector module Histograms
+		  HitResidual2[IntRawDetID]->Fill(residual.x()); // Fill the individual detector module Histograms
 				
+		  int IntRawDetID2 = DetIdToInt[IntRawDetID]; // Convert the detector module id to the numbering 
 		  //system arranged above for the purpose of filling the histograms.
-														       				
+															
+		  TIBDetId layer(hit_detId);
+				
+		  switch(hit_detId.subdetId()) // Check which sub-detector section a module belongs to
+		    {
+		    case StripSubdetector::TIB :
+		      HitResidual["TIB"]->Fill(IntRawDetID2, residual.x());
+
+		      std::cout << "\n\n\n\n\n *** Filling Histos **** \n\n\n\n" << endl;
+
+		      if (layer.layer()==1) HitResidual["TIBL1"]->Fill(IntRawDetID2, residual.x());
+		      if (layer.layer()==2) HitResidual["TIBL2"]->Fill(IntRawDetID2, residual.x());
+		      if (layer.layer()==3) HitResidual["TIBL3"]->Fill(IntRawDetID2, residual.x());
+		      if (layer.layer()==4) HitResidual["TIBL4"]->Fill(IntRawDetID2, residual.x());
+		      break;
+		    case StripSubdetector::TOB :
+		      HitResidual["TOB"]->Fill(IntRawDetID2, residual.x());
+		      break;
+		    case StripSubdetector::TID :
+		      HitResidual["TID"]->Fill(IntRawDetID2, residual.x());
+		      break;
+		    case StripSubdetector::TEC :
+		      HitResidual["TEC"]->Fill(IntRawDetID2, residual.x());
+		      break;
+		    default:
+		      break;
+		    }
 		}
 	    }
 	}
