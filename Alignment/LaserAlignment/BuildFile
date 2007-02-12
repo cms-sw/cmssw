@@ -32,6 +32,7 @@
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=rootcore>
+<use name=f77compiler>
 
 <export>
   <use name=Alignment/TrackerAlignment>
