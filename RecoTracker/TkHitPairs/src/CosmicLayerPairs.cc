@@ -13,6 +13,7 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"  
 vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()() 
 {
   vector<LayerPair> result;
@@ -44,6 +45,36 @@ vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()()
     result.push_back( LayerPair(lh3,lh4));
     result.push_back( LayerPair(lh1,lh1));
     result.push_back( LayerPair(lh2,lh2));
+  }
+  if (_geometry=="CkfTIBD+"){
+
+    result.push_back( LayerPair(lh1,lh2));
+    result.push_back( LayerPair(lh3,lh4));
+  }
+  if (_geometry=="CkfTIBD+3"){
+
+    result.push_back( LayerPair(lh1,lh2));
+    result.push_back( LayerPair(lh1,lh3));	
+    result.push_back( LayerPair(lh3,lh4));
+    result.push_back( LayerPair(lh2,lh4));
+  }
+  if (_geometry=="CkfTIF"){
+    result.push_back( LayerPair(lh1,lh2));
+    result.push_back( LayerPair(lh3,lh4));		
+  }
+  if (_geometry=="CkfTIF3"){
+    result.push_back( LayerPair(lh1,lh2));
+    result.push_back( LayerPair(lh1,lh3));
+    result.push_back( LayerPair(lh4,lh5));
+    result.push_back( LayerPair(lh5,lh6));
+    result.push_back( LayerPair(lh4,lh6));
+  }
+  if (_geometry=="CkfTOB"){
+    result.push_back( LayerPair(lh1,lh2));
+    result.push_back( LayerPair(lh1,lh3));
+    result.push_back( LayerPair(lh4,lh5));
+    result.push_back( LayerPair(lh5,lh6));
+    result.push_back( LayerPair(lh4,lh6));
   }
   return result;
 }
@@ -141,6 +172,102 @@ void CosmicLayerPairs::init(const SiStripRecHit2DCollection &collstereo,
     lh2=new  LayerWithHits(bl2,rphi_range2); allLayersWithHits.push_back(lh2);
     lh3=new  LayerWithHits(bl3,rphi_range3); allLayersWithHits.push_back(lh3);
     lh4=new  LayerWithHits(bl4,rphi_range4); allLayersWithHits.push_back(lh4);
+
+  }
+  if ((_geometry=="CkfTIBD+") || (_geometry=="CkfTIBD+3")){
+
+    const TIBLayer*  bl1=dynamic_cast<TIBLayer*>(bl[3]);
+    const TIBLayer*  bl2=dynamic_cast<TIBLayer*>(bl[4]);
+    const TIBLayer*  bl3=dynamic_cast<TIBLayer*>(bl[5]);
+    const TIBLayer*  bl4=dynamic_cast<TIBLayer*>(bl[6]);
+    rphi_range1=collrphi.get(acc.stripTIBLayer(1));
+    rphi_range2=collrphi.get(acc.stripTIBLayer(2));
+    rphi_range3=collrphi.get(acc.stripTIBLayer(3));
+    rphi_range4=collrphi.get(acc.stripTIBLayer(4));
+/*
+    SiStripRecHit2DCollection myl1collection;
+    SiStripRecHit2DCollection myl2collection;	
+    SiStripRecHit2DCollection::const_iterator irphi = collrphi.begin();
+    
+    for (; irphi != collrphi.end(); irphi ++){
+	DetId id = irphi->geographicalId();
+	if (StripSubdetector(id).subdetId() == StripSubdetector::TIB){
+		TIBDetId tibid = TIBDetId(id);
+		std::cout << "Inserting " << id.rawId() << std::endl; 
+		if (tibid.layer()==1) myl1collection.put(id, collrphi.get(id).first, collrphi.get(id).second);
+		if (tibid.layer()==2) myl2collection.put(id, collrphi.get(id).first, collrphi.get(id).second);
+	}
+    }	 
+    rphi_range1.first = myl1collection.begin(); rphi_range1.second = myl1collection.end();
+    rphi_range2.first = myl2collection.begin(); rphi_range2.second = myl2collection.end();
+*/
+    lh1=new  LayerWithHits(bl1,rphi_range1); allLayersWithHits.push_back(lh1);
+    lh2=new  LayerWithHits(bl2,rphi_range2); allLayersWithHits.push_back(lh2);
+    lh3=new  LayerWithHits(bl3,rphi_range3); allLayersWithHits.push_back(lh3);
+    lh4=new  LayerWithHits(bl4,rphi_range4); allLayersWithHits.push_back(lh4);	
+  }
+  
+
+  if (_geometry=="CkfTIF"){
+    const TIBLayer*  bl1=dynamic_cast<TIBLayer*>(bl[3]);
+    const TIBLayer*  bl2=dynamic_cast<TIBLayer*>(bl[4]);
+    const TOBLayer*  bl3=dynamic_cast<TOBLayer*>(bl[11]);
+    const TOBLayer*  bl4=dynamic_cast<TOBLayer*>(bl[12]);
+    rphi_range1=collrphi.get(acc.stripTIBLayer(1));
+    rphi_range2=collrphi.get(acc.stripTIBLayer(2));
+    rphi_range3=collrphi.get(acc.stripTOBLayer(5));
+    rphi_range4=collrphi.get(acc.stripTOBLayer(6));
+    
+    lh1=new  LayerWithHits(bl1,rphi_range1); allLayersWithHits.push_back(lh1);
+    lh2=new  LayerWithHits(bl2,rphi_range2); allLayersWithHits.push_back(lh2);
+    lh3=new  LayerWithHits(bl3,rphi_range3); allLayersWithHits.push_back(lh3);
+    lh4=new  LayerWithHits(bl4,rphi_range4); allLayersWithHits.push_back(lh4);	
+
+  }	
+  if (_geometry=="CkfTIF3"){
+    const TIBLayer*  bl1=dynamic_cast<TIBLayer*>(bl[3]);
+    const TIBLayer*  bl2=dynamic_cast<TIBLayer*>(bl[4]);
+    const TIBLayer*  bl3=dynamic_cast<TIBLayer*>(bl[5]);	
+    const TOBLayer*  bl4=dynamic_cast<TOBLayer*>(bl[10]);	
+    const TOBLayer*  bl5=dynamic_cast<TOBLayer*>(bl[11]);
+    const TOBLayer*  bl6=dynamic_cast<TOBLayer*>(bl[12]);
+    rphi_range1=collrphi.get(acc.stripTIBLayer(1));
+    rphi_range2=collrphi.get(acc.stripTIBLayer(2));
+    rphi_range3=collrphi.get(acc.stripTIBLayer(3));
+    rphi_range4=collrphi.get(acc.stripTOBLayer(4));
+    rphi_range5=collrphi.get(acc.stripTOBLayer(5));
+    rphi_range6=collrphi.get(acc.stripTOBLayer(6));	
+
+    lh1=new  LayerWithHits(bl1,rphi_range1); allLayersWithHits.push_back(lh1);
+    lh2=new  LayerWithHits(bl2,rphi_range2); allLayersWithHits.push_back(lh2);
+    lh3=new  LayerWithHits(bl3,rphi_range3); allLayersWithHits.push_back(lh3);
+    lh4=new  LayerWithHits(bl4,rphi_range4); allLayersWithHits.push_back(lh4);
+    lh5=new  LayerWithHits(bl5,rphi_range5); allLayersWithHits.push_back(lh5);
+    lh6=new  LayerWithHits(bl6,rphi_range6); allLayersWithHits.push_back(lh6);
+    
+
+  }
+  if (_geometry=="CkfTOB"){
+    const TOBLayer*  bl1=dynamic_cast<TOBLayer*>(bl[7]);
+    const TOBLayer*  bl2=dynamic_cast<TOBLayer*>(bl[8]);
+    const TOBLayer*  bl3=dynamic_cast<TOBLayer*>(bl[9]);
+    const TOBLayer*  bl4=dynamic_cast<TOBLayer*>(bl[10]);
+    const TOBLayer*  bl5=dynamic_cast<TOBLayer*>(bl[11]);
+    const TOBLayer*  bl6=dynamic_cast<TOBLayer*>(bl[12]);
+    rphi_range1=collrphi.get(acc.stripTOBLayer(1));
+    rphi_range2=collrphi.get(acc.stripTOBLayer(2));
+    rphi_range3=collrphi.get(acc.stripTOBLayer(3));
+    rphi_range4=collrphi.get(acc.stripTOBLayer(4));
+    rphi_range5=collrphi.get(acc.stripTOBLayer(5));
+    rphi_range6=collrphi.get(acc.stripTOBLayer(6));
+
+    lh1=new  LayerWithHits(bl1,rphi_range1); allLayersWithHits.push_back(lh1);
+    lh2=new  LayerWithHits(bl2,rphi_range2); allLayersWithHits.push_back(lh2);
+    lh3=new  LayerWithHits(bl3,rphi_range3); allLayersWithHits.push_back(lh3);
+    lh4=new  LayerWithHits(bl4,rphi_range4); allLayersWithHits.push_back(lh4);
+    lh5=new  LayerWithHits(bl5,rphi_range5); allLayersWithHits.push_back(lh5);
+    lh6=new  LayerWithHits(bl6,rphi_range6); allLayersWithHits.push_back(lh6);
+
 
   }
 

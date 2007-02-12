@@ -36,6 +36,8 @@ private:
   SiStripRecHit2DCollection::range rphi_range2;
   SiStripRecHit2DCollection::range rphi_range3;
   SiStripRecHit2DCollection::range rphi_range4;
+  SiStripRecHit2DCollection::range rphi_range5;
+  SiStripRecHit2DCollection::range rphi_range6;
 
   SiStripRecHit2DCollection::range stereo_range1;
   SiStripRecHit2DCollection::range stereo_range2;
@@ -50,6 +52,8 @@ private:
   LayerWithHits *lh2;
   LayerWithHits *lh3;
   LayerWithHits *lh4;
+  LayerWithHits *lh5;
+  LayerWithHits *lh6;
 
    vector<BarrelDetLayer*> bl;
    vector<ForwardDetLayer*> fpos;
