@@ -38,38 +38,24 @@ namespace evf
 	  addState('S', "Suspended", this, &EPStateMachine::stateChanged);
 	  
 	  // Define FSM transitions
-	  addStateTransition('H', 'R', "Configure", me,
-			     &T::configureAction);
-	  addStateTransition('R', 'E', "Enable", me,
-			     &T::enableAction);
-	  addStateTransition('E', 'S', "Suspend", me,
-			     &T::suspendAction);
-	  addStateTransition('S', 'E', "Resume", me,
-			     &T::resumeAction);
-	  addStateTransition('H', 'H', "Halt", me,
-			     &T::nullAction);
-	  addStateTransition('R', 'H', "Halt", me,
-			     &T::haltAction);
-	  addStateTransition('E', 'H', "Halt", me,
-			     &T::haltAction);
-	  addStateTransition('S', 'H', "Halt", me,
-			     &T::haltAction);
+	  addStateTransition('H', 'R', "Configure", me, &T::configureAction);
+	  addStateTransition('R', 'E', "Enable",    me, &T::enableAction);
+	  addStateTransition('E', 'R', "Stop",      me, &T::stopAction);
+	  addStateTransition('E', 'S', "Suspend",   me, &T::suspendAction);
+	  addStateTransition('S', 'E', "Resume",    me, &T::resumeAction);
+	  addStateTransition('H', 'H', "Halt",      me, &T::nullAction);
+	  addStateTransition('R', 'H', "Halt",      me, &T::haltAction);
+	  addStateTransition('E', 'H', "Halt",      me, &T::haltAction);
+	  addStateTransition('S', 'H', "Halt",      me, &T::haltAction);
 	  
-	  setFailedStateTransitionAction
-	    (
-	     this,
-	     &EPStateMachine::failedTransition
-	     );
-	  
-	  setFailedStateTransitionChanged
-	    (
-	     this,
-	     &EPStateMachine::stateChanged
-	     );
+	  setFailedStateTransitionAction(this,&EPStateMachine::failedTransition);
+	  setFailedStateTransitionChanged(this,&EPStateMachine::stateChanged);
 	  
 	  setInitialState('H');
 	  reset();
+	  
 	  xoap::bind(me,&T::fireEvent,"Configure", XDAQ_NS_URI);
+	  xoap::bind(me,&T::fireEvent,"Stop"     , XDAQ_NS_URI);
 	  xoap::bind(me,&T::fireEvent,"Enable"   , XDAQ_NS_URI);
 	  xoap::bind(me,&T::fireEvent,"Suspend"  , XDAQ_NS_URI);
 	  xoap::bind(me,&T::fireEvent,"Resume"   , XDAQ_NS_URI);
@@ -81,66 +67,67 @@ namespace evf
 
       void failedTransition(toolbox::Event::Reference e)
 	throw (toolbox::fsm::exception::Exception)
-	{
-	  toolbox::fsm::FailedEvent &fe =
-	    dynamic_cast<toolbox::fsm::FailedEvent&>(*e);
-	  
-	  LOG4CPLUS_FATAL(logger_,
-			  "Failure occurred when performing transition from: "
-			  << fe.getFromState() <<  " to: " << fe.getToState()
-			  << " exception: " << fe.getException().what());
-	}
+      {
+	toolbox::fsm::FailedEvent &fe =
+	  dynamic_cast<toolbox::fsm::FailedEvent&>(*e);
+	
+	LOG4CPLUS_FATAL(logger_,
+			"Failure occurred when performing transition from: "
+			<< fe.getFromState() <<  " to: " << fe.getToState()
+			<< " exception: " << fe.getException().what());
+      }
       
       void stateChanged(toolbox::fsm::FiniteStateMachine & fsm)
 	throw (toolbox::fsm::exception::Exception)
-	{
-	  LOG4CPLUS_INFO(logger_,
-			 "Changed to state: "
-			 << getStateName(getCurrentState()));
-	}
-  
-
+      {
+	LOG4CPLUS_INFO(logger_,
+		       "Changed to state: "
+		       << getStateName(getCurrentState()));
+      }
+      
+      
       /**
        * Calls FiniteStateMachine::reset() and keeps stateName_ and state_
        * in sync.
        */
       void reset() throw (toolbox::fsm::exception::Exception)
-	{
-	  FiniteStateMachine::reset();
-	  
-	  state_     = FiniteStateMachine::getCurrentState();
-	  stateName_ = FiniteStateMachine::getStateName(state_);
-	}
-
-
+      {
+	FiniteStateMachine::reset();
+	
+	state_     = FiniteStateMachine::getCurrentState();
+	stateName_ = FiniteStateMachine::getStateName(state_);
+      }
+      
+      
       /**
        * Calls FiniteStateMachine::fireEvent() and keeps stateName_ and state_
        * in sync.
        */
       void fireEvent(toolbox::Event::Reference e) 
 	throw (toolbox::fsm::exception::Exception)
-	{
-	  try{
-	    FiniteStateMachine::fireEvent(e);
-	  }
-	  catch(toolbox::fsm::exception::Exception ex)
-	    {
-	      LOG4CPLUS_ERROR(logger_,"EPStateMachine fireEvent failed " 
-			      << ex.what());
+      {
+	try{
+	  FiniteStateMachine::fireEvent(e);
+	}
+	catch(toolbox::fsm::exception::Exception ex)
+	  {
+	    LOG4CPLUS_ERROR(logger_,"EPStateMachine fireEvent failed " 
+			    << ex.what());
 	    }  
-	  catch(...)
-	    {
+	catch(...)
+	  {
 	      LOG4CPLUS_ERROR(logger_,"EPStateMachine fireEvent failed " 
 			      << " Unknown Exception " << " state is " 
 			      << FiniteStateMachine::getCurrentState());
-	    }
-	      
-	  
-	  state_     = FiniteStateMachine::getCurrentState();
-	  stateName_ = FiniteStateMachine::getStateName(state_);
-	}
-
-      xoap::MessageReference processFSMCommand(const std::string cmdName)  throw (xoap::exception::Exception) ;
+	  }
+	
+	
+	state_     = FiniteStateMachine::getCurrentState();
+	stateName_ = FiniteStateMachine::getStateName(state_);
+      }
+      
+      xoap::MessageReference processFSMCommand(const std::string cmdName)
+	throw (xoap::exception::Exception);
       xoap::MessageReference createFSMReplyMsg(const std::string cmd, 
 					       const std::string state);
 
