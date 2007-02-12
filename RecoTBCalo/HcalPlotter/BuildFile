@@ -1,0 +1,12 @@
+<use name=DataFormats/HcalDetId>
+<use name=DataFormats/HcalDigi>
+<use name=DataFormats/HcalRecHit>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
+<use name=TBDataFormats/HcalTBObjects>
+<use name=root>
+<export>
+  <lib name=RecoTBCaloHcalPlotter>
+</export>
