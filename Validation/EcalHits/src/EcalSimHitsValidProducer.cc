@@ -211,13 +211,13 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
   G4PrimaryParticle * thePrim = 0;
   int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
   if ( nvertex <= 0) {
-          LogWarning("EcalSimHitsValidProducer")
+          edm::LogWarning("EcalSimHitsValidProducer")
                 <<" No Vertex in this Event!";
   }else {
     for ( int i = 0; i< nvertex; i++){
           G4PrimaryVertex * avertex =(*evt)()->GetPrimaryVertex(i);
           if ( avertex == 0 )
-                  LogWarning("EcalSimHitsValidProducer")
+                  edm::LogWarning("EcalSimHitsValidProducer")
                   <<" Pointer to vertex is NULL!";
           else {
              float x0 = avertex->GetX0();
@@ -231,7 +231,7 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
     
              int npart = avertex->GetNumberOfParticle();
              if ( npart == 0)
-                LogWarning("EcalSimHitsValidProducer")
+                edm::LogWarning("EcalSimHitsValidProducer")
                 <<" No primary particle in this event";
              else {
                  if ( thePrim == 0)
@@ -253,7 +253,7 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
 
           pInit =sqrt( pow(px,2.) + pow(py,2.) + pow(pz,2.));
           if ( pInit == 0)
-                  LogWarning("EcalSimHitsValidProducer") 
+                  edm::LogWarning("EcalSimHitsValidProducer") 
                   <<" Primary has p = 0 ; ";
           else {
                   theMomentum[3]= pInit;
@@ -267,7 +267,7 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
 
           thePID = thePrim->GetPDGcode();
       }else {
-          LogWarning("EcalSimHitsValidProducer")
+          edm::LogWarning("EcalSimHitsValidProducer")
           <<" Could not find the primary particle!!";
       }
   }

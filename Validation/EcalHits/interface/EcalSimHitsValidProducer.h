@@ -13,9 +13,6 @@
 
 #include <CLHEP/Vector/LorentzVector.h>
 
-using namespace std;
-using namespace edm;
-
 class BeginOfEvent;
 class G4Step;
 class EndOfEvent;
@@ -26,8 +23,8 @@ class EcalSimHitsValidProducer : public SimProducer,
                          public Observer<const G4Step*>,
                          public Observer<const EndOfEvent*>
 {
-    typedef vector<float>  FloatVector;
-    typedef map<uint32_t,float,less<uint32_t> >  MapType;
+    typedef std::vector<float>  FloatVector;
+    typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
 
 public:
     EcalSimHitsValidProducer(const edm::ParameterSet&);
@@ -139,7 +136,7 @@ private:
   HepLorentzVector theVertex;
 
   int     thePID; 
-  string  label;
+  std::string  label;
 };
 
 #endif
