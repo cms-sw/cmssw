@@ -1,8 +1,8 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-//$Id$
+//$Id: EcalScDetId.h,v 1.1 2007/02/09 10:47:54 meridian Exp $
 
-#ifndef ECALSDDETID_H
-#define ECALSCDETID_H
+#ifndef EcalDetId_EcalScDetId_h
+#define EcalDetId_EcalScDetId_h
 
 #include <ostream>
 #include "DataFormats/DetId/interface/DetId.h"
@@ -77,4 +77,4 @@ class EcalScDetId : public DetId {
 std::ostream& operator<<(std::ostream& s,const EcalScDetId& id);
 
 
-#endif //ECALSCDETID not defined
+#endif //EcalDetId_EcalScDetId_h not defined
