@@ -5,8 +5,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
