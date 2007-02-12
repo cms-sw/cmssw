@@ -18,8 +18,8 @@
 ///
 /// class for calculating derivatives between different frames
 ///
-///  $Date: 2006/10/17 11:02:42 $
-///  $Revision: 1.11 $
+///  $Date: 2006/10/19 14:20:59 $
+///  $Revision: 1.2 $
 /// (last update by $Author: flucke $)
 
 class FrameToFrameDerivative
@@ -28,7 +28,7 @@ class FrameToFrameDerivative
   public:
 
   /// Return the derivative DeltaFrame(object)/DeltaFrame(composedobject) 
-  AlgebraicMatrix frameToFrameDerivative(const AlignableDet* object,
+  AlgebraicMatrix frameToFrameDerivative(const Alignable* object,
 					 const Alignable* composedObject) const;
 
   /// Return the derivative DeltaFrame(object)/DeltaFrame(composedobject) 

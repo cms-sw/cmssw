@@ -1,7 +1,7 @@
 /** \file FrameToFrameDerivative.cc
  *
- *  $Date: 2005/07/26 10:13:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/10/19 14:20:59 $
+ *  $Revision: 1.3 $
  */
 
 #include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
@@ -9,7 +9,7 @@
 
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
-FrameToFrameDerivative::frameToFrameDerivative(const AlignableDet* object,
+FrameToFrameDerivative::frameToFrameDerivative(const Alignable* object,
 					       const Alignable* composedObject) const
 {
  
