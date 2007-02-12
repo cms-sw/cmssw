@@ -242,6 +242,7 @@ cout<<"entering SiPixelInformationExtractor::plotHistos"<<endl;
   int height = 600;
   TCanvas canvas("TestCanvas", "Test Canvas");
   canvas.Clear();
+  gROOT->Reset(); gStyle->SetPalette(1);
   int ncol, nrow;
  
   float xlow = -1.0;
@@ -302,8 +303,13 @@ cout<<"entering SiPixelInformationExtractor::plotHistos"<<endl;
       canvas.cd(i);
       //      TAxis* xa = ob->operator->()->GetXaxis();
       //      xa->SetRangeUser(xlow, xhigh);
-      gROOT->SetStyle("Plain"); gStyle->SetPalette(1);
-      ob->operator->()->Draw();
+      if(hasItem(req_map,"colpal")){
+        gROOT->Reset(); gStyle->SetPalette(1); gStyle->SetOptStat(0);
+        ob->operator->()->Draw("colz");
+      }else{
+        gStyle->SetOptStat(1);
+        ob->operator->()->Draw();
+      }
       if (icol != 1) {
 	TText tt;
 	tt.SetTextSize(0.12);
