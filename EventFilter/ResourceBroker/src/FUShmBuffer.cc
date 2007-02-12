@@ -19,6 +19,7 @@
 #define SEM_KEYPATH     "/dev/null"    /* Path used on ftok for semget key  */
 #define SEM_KEYID       1              /* Id used on ftok for semget key    */
 
+#define NSKIP_MAX       100
 
 using namespace std;
 using namespace evf;
@@ -98,6 +99,15 @@ FUShmBufferCell* FUShmBuffer::cell(unsigned int i)
 FUShmBufferCell* FUShmBuffer::currentWriterCell()
 {
   FUShmBufferCell* result=cell(writeIndex_);
+  while (result->isWritten()||result->isProcessing()) {
+    result->skip();
+    if (result->nSkip()>NSKIP_MAX) result->setStateDead();
+    else {
+      writeIndex_=(writeIndex_+1)%nCell_;
+      result     = cell(writeIndex_);
+    }
+  }
+  result->resetSkip();
   writeIndex_=(writeIndex_+1)%nCell_;
   return result;
 }
@@ -113,19 +123,19 @@ FUShmBufferCell* FUShmBuffer::currentReaderCell()
 
 
 //______________________________________________________________________________
-void FUShmBuffer::scheduleForDiscard(unsigned int buResourceId)
+FUShmBufferCell* FUShmBuffer::cellToBeDiscarded()
 {
-  waitDiscardSem();
-  buIdToBeDiscarded_ = buResourceId;
-  postDiscardedSem();
+  waitDiscardedSem();
+  return cell(cellIndexToBeDiscarded_);
 }
 
 
 //______________________________________________________________________________
-unsigned int FUShmBuffer::buIdToBeDiscarded()
+void FUShmBuffer::scheduleForDiscard(FUShmBufferCell* cell)
 {
-  waitDiscardedSem();
-  return buIdToBeDiscarded_;
+  waitDiscardSem();
+  cellIndexToBeDiscarded_ = cell->index();
+  postDiscardedSem();
 }
 
 

@@ -44,6 +44,9 @@ namespace evf {
     // allocate new events from builder unit
     void   sendAllocate();
     
+    // send empty events to notify clients to shutdown
+    void   shutDownClients();
+    
     // initialization of the resource queue
     void   initialize(UInt_t nbResources,UInt_t eventBufferSize);
     

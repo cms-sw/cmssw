@@ -1,3 +1,13 @@
+2007-02-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-01-02
+	* add stopAction() to FUResourceBroker.
+	* add shutDownClients() method to FUResourceTable: a bunch of
+	empty events are going to be scheduled which indicate the
+	FUShmReader to shut down operation.
+	* if the FUEventProcessor is 'halted' *before* the Broker is
+	halted, the allocated shared memory should be released now.
+
 2007-01-18  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-01-01

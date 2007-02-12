@@ -64,19 +64,12 @@ namespace evf {
     // public member functions
     //
     
-    // toolbox::task::TimerListener callback, and init/start/stop the corresp. timer
-    void timeExpired(toolbox::task::TimerEvent& e);
-    void initTimer();
-    void startTimer();
-    void stopTimer();
-
-    // xdata::ActionListener callback(s)
-    void actionPerformed(xdata::Event& e);
-    
     // finite state machine callbacks
     void configureAction(toolbox::Event::Reference e)
       throw (toolbox::fsm::exception::Exception);
     void enableAction(toolbox::Event::Reference e)
+      throw (toolbox::fsm::exception::Exception);
+    void stopAction(toolbox::Event::Reference e)
       throw (toolbox::fsm::exception::Exception);
     void suspendAction(toolbox::Event::Reference e)
       throw (toolbox::fsm::exception::Exception);
@@ -90,7 +83,16 @@ namespace evf {
     xoap::MessageReference fireEvent(xoap::MessageReference msg)
       throw (xoap::exception::Exception);
     
+    // toolbox::task::TimerListener callback, and init/start/stop the corresp. timer
+    void timeExpired(toolbox::task::TimerEvent& e);
+    void initTimer();
+    void startTimer();
+    void stopTimer();
+
+    // xdata::ActionListener callback(s)
+    void actionPerformed(xdata::Event& e);
     
+   
     //  connection to builder unit bu_
     void connectToBUs();
     
@@ -129,7 +131,7 @@ namespace evf {
     
     // finite state machine
     evf::EPStateMachine*     fsm_;
-    
+        
     // vector of connected builder units (BUs)
     BUVec_t                  bu_;
     

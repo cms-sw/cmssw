@@ -12,6 +12,8 @@
 #include "toolbox/include/toolbox/task/WorkLoopFactory.h"
 #include "interface/evb/include/i2oEVBMsgs.h"
 
+#include <unistd.h>
+
 
 using namespace evf;
 using namespace std;
@@ -85,6 +87,45 @@ void FUResourceTable::sendAllocate()
 
 
 //______________________________________________________________________________
+void FUResourceTable::shutDownClients()
+{
+  if (!shmMode_) {
+    LOG4CPLUS_ERROR(log_,"FUResourceTable::shutDownClients() not implemented!");
+    return;
+  }
+
+  LOG4CPLUS_ERROR(log_,"FUResourceTable::shutDownClients(): "
+		  <<"nbFreeSlots = "<<nbFreeSlots()<<" "
+		  <<"nbPending   = "<<nbPending());
+  
+  unsigned int nbClients = nbShmClients();
+  for (unsigned int i=0;i<nbClients;i++) {
+    waitWriterSem();
+    shmBuffer_->lock();
+    FUShmBufferCell* cell=shmBuffer_->currentWriterCell();
+    UInt_t fuResourceId=cell->fuResourceId();
+    if (!cell->isEmpty()) {
+      if (cell->isProcessed()) {
+	lock();
+	resources_[fuResourceId]->release();
+	unlock();
+      }
+      else if (cell->isDead()) {
+	LOG4CPLUS_ERROR(log_,"KILL EVENT: evtNumber="<<cell->evtNumber());
+      }
+      else {
+	LOG4CPLUS_ERROR(log_,"cell "<<cell->index()<<" is in unexpected state!");
+      }
+    }
+    cell->setStateEmpty();
+    shmBuffer_->unlock();
+    postReaderSem();
+  }
+  
+}
+
+
+//______________________________________________________________________________
 void FUResourceTable::initialize(UInt_t nbResources,UInt_t eventBufferSize)
 {
   clear();
@@ -92,7 +133,7 @@ void FUResourceTable::initialize(UInt_t nbResources,UInt_t eventBufferSize)
   if (shmMode_) {
     shmBuffer_=FUShmBuffer::createShmBuffer(nbResources,eventBufferSize);
     if (0==shmBuffer_) {
-      LOG4CPLUS_ERROR(log_,"Creation of shared memory segment failed.");
+      LOG4CPLUS_FATAL(log_,"CREATION OF SHARED MEMORY SEGMENT FAILED!");
     }
     else {
       for (UInt_t i=0;i<nbResources;i++) {
@@ -117,7 +158,6 @@ void FUResourceTable::initialize(UInt_t nbResources,UInt_t eventBufferSize)
 void FUResourceTable::clear()
 {
   for (UInt_t i=0;i<resources_.size();i++) delete resources_[i];
-  
   resources_.clear();
   while (!freeResourceIds_.empty()) freeResourceIds_.pop();
   builtResourceIds_.clear();
@@ -165,7 +205,7 @@ void FUResourceTable::resetCounters()
 void FUResourceTable::startWorkLoop() throw (evf::Exception)
 {
   // instantiate work loop
-  string workLoopName = "shm work loop";
+  string workLoopName = "shmWorkLoop";
   try {
     workLoop_ = toolbox::task::getWorkLoopFactory()->getWorkLoop(workLoopName,
 								 "waiting");
@@ -187,7 +227,7 @@ void FUResourceTable::startWorkLoop() throw (evf::Exception)
   }
   
   // submit work loop action to work loop
-  string workLoopActionName = "shm work loop action";
+  string workLoopActionName = "shmWorkLoopAction";
   workLoopActionSignature_ = toolbox::task::bind(this,
 						 &FUResourceTable::workLoopAction,
 						 workLoopActionName);
@@ -205,9 +245,19 @@ void FUResourceTable::startWorkLoop() throw (evf::Exception)
 //______________________________________________________________________________
 bool FUResourceTable::workLoopAction(toolbox::task::WorkLoop* /* wl */)
 {
-  UInt_t buResourceId=shmBuffer_->buIdToBeDiscarded();
+  //UInt_t buResourceId=shmBuffer_->buIdToBeDiscarded();
+  FUShmBufferCell* cell = shmBuffer_->cellToBeDiscarded();
+  shmBuffer_->lock();
+  assert(cell->isProcessed());
+  UInt_t buResourceId = cell->buResourceId();
+  UInt_t fuResourceId = cell->fuResourceId();
+  cell->setStateEmpty();
+  shmBuffer_->unlock();
   shmBuffer_->postDiscardSem();
   sendDiscard(buResourceId);
+  lock();
+  resources_[fuResourceId]->release();
+  unlock();
   sendAllocate();
   return true; // reschedule
 }
@@ -216,27 +266,21 @@ bool FUResourceTable::workLoopAction(toolbox::task::WorkLoop* /* wl */)
 //______________________________________________________________________________
 UInt_t FUResourceTable::allocateResource()
 {
+  // fuResourceId for next available resource
+  UInt_t fuResourceId;
+  
   waitWriterSem();
   
-  // determine fuResourceId for next available resource
-  UInt_t fuResourceId;
-
   // shared memory mode: release resource
   if (shmMode_) {
     shmBuffer_->lock();
     FUShmBufferCell* cell=shmBuffer_->currentWriterCell();
     fuResourceId=cell->fuResourceId();
-    if (!cell->isEmpty()) {
-      if (cell->isProcessed()) {
-	lock();
-	resources_[fuResourceId]->release();
-	unlock();
-      }
-      else {
-	LOG4CPLUS_DEBUG(log_,"DROP EVENT: evtNumber="<<cell->evtNumber());
-	//cell->dump(); //TODO
-      }
+    if (cell->isDead()) {
+      LOG4CPLUS_ERROR(log_,"DEAD EVENT: evtNumber="<<cell->evtNumber());
+      //cell->dump(); //TODO
     }
+    cell->setStateWriting();
     shmBuffer_->unlock();
   }
   // standard mode: use queue to manage free resources
@@ -251,8 +295,7 @@ UInt_t FUResourceTable::allocateResource()
   nbAllocated_++;
   
   // set the resource to check the crc for each fed if requested
-  if (0==nbAllocated_%doCrcCheck_)
-    resources_[fuResourceId]->doCrcCheck(true);
+  if (0==nbAllocated_%doCrcCheck_) resources_[fuResourceId]->doCrcCheck(true);
   
   return fuResourceId;
 }
@@ -327,13 +370,16 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
 //______________________________________________________________________________
 FEDRawDataCollection* FUResourceTable::requestResource(UInt_t& evtNumber,
 						       UInt_t& buResourceId)
+  // This is *the* way to pick up an available resource in standard mode,
+  // and it is used as well in shm mode if events are being dropped.
 {
+  FEDRawDataCollection* result(0);
+  
   waitReaderSem();
   
   lock();
   
-  FEDRawDataCollection* result(0);
-  
+  // for droping mode!
   if (shmMode_) {
     FUShmBufferCell* cell=shmBuffer_->currentReaderCell();
     cell->setStateProcessed();

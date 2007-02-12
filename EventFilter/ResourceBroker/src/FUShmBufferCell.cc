@@ -28,6 +28,7 @@ FUShmBufferCell::FUShmBufferCell(unsigned int index,
 				 bool         ownsMemory)
   : ownsMemory_(ownsMemory)
   , fuResourceId_(index)
+  , nSkip_(0)
   , bufferSize_(bufferSize)
   , nFed_(nFed)
   , nSuperFrag_(nSuperFrag)
@@ -161,14 +162,27 @@ unsigned char* FUShmBufferCell::bufferAddr() const
 //______________________________________________________________________________
 unsigned int FUShmBufferCell::eventSize() const
 {
-  unsigned int result(0);
-  for (unsigned int i=0;i<nSuperFrag();i++) result+=superFragSize(i);
+  return bufferPosition_;
+  /*
+    unsigned int result(0);
+    for (unsigned int i=0;i<nSuperFrag();i++) result+=superFragSize(i);
+    unsigned int result2=bufferPosition_;
+    assert(result==result2);
+    return result;
+  */
+}
 
-  unsigned int result2=bufferPosition_;
 
-  assert(result==result2);
-    
-  return result;
+//______________________________________________________________________________
+void FUShmBufferCell::print_state()
+{
+  switch (state_) {
+  case 0 : cout<<"cell "<<index()<<" state: emtpy"     <<endl;
+  case 1 : cout<<"cell "<<index()<<" state: written"   <<endl;
+  case 2 : cout<<"cell "<<index()<<" state: processing"<<endl;
+  case 3 : cout<<"cell "<<index()<<" state: processed" <<endl;
+  case 4 : cout<<"cell "<<index()<<" state: dead"      <<endl;
+  }
 }
 
 
@@ -176,6 +190,7 @@ unsigned int FUShmBufferCell::eventSize() const
 void FUShmBufferCell::clear()
 {
   setStateEmpty();
+  nSkip_=0;
   
   unsigned int* fedSizeAddr;
   fedSizeAddr=(unsigned int*)((unsigned int)this+fedSizeOffset_);
@@ -192,8 +207,8 @@ void FUShmBufferCell::clear()
 //______________________________________________________________________________
 void FUShmBufferCell::print(int verbose) const
 {
-  cout<<"FUShmBufferCell:"
-      <<" fuResourceId="<<fuResourceId()
+  cout<<"FUShmBufferCell: state="<<state_<<endl;
+  cout<<" fuResourceId="<<fuResourceId()
       <<" buResourceId="<<buResourceId()
       <<" evtNumber="<<evtNumber()
       <<" this=0x"<<hex<<(int)this<<dec

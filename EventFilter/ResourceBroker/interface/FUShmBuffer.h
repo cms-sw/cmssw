@@ -47,10 +47,10 @@ namespace evf {
     FUShmBufferCell* cell(unsigned int i);
     FUShmBufferCell* currentWriterCell();
     FUShmBufferCell* currentReaderCell();
+    FUShmBufferCell* cellToBeDiscarded();
     
-    void             scheduleForDiscard(unsigned int buResourceId);
-    unsigned int     buIdToBeDiscarded();
-
+    void             scheduleForDiscard(FUShmBufferCell* cell);
+    
     void             initialize();
 
     void             lock()             { sem_wait(2); }
@@ -121,7 +121,7 @@ namespace evf {
     int             semid_;
     unsigned int    writeIndex_;
     unsigned int    readIndex_;
-    unsigned int    buIdToBeDiscarded_;
+    unsigned int    cellIndexToBeDiscarded_;
     unsigned int    nCell_;
     unsigned int    cellBufferSize_;
     unsigned int    nFed_;

@@ -78,7 +78,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , doCrcCheck_(1)
   , buClassName_("BU")
   , buInstance_(0)
-  , queueSize_(16)
+  , queueSize_(64)
   , nbAllocateSent_(0)
   , nbTakeReceived_(0)
   , nbMeasurements_(0)
@@ -96,7 +96,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   
   // initialize the finite state machine
   fsm_=new EPStateMachine(log_);
-  fsm_->init<FUResourceBroker>(this);
+    fsm_->init<FUResourceBroker>(this);
 
   // i2o callback for FU_TAKE messages from builder unit
   i2o::bind(this,
@@ -149,6 +149,126 @@ FUResourceBroker::~FUResourceBroker()
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
+void FUResourceBroker::configureAction(toolbox::Event::Reference e) 
+  throw (toolbox::fsm::exception::Exception)
+{
+  // establish connection to builder unit(s)
+  connectToBUs();
+
+  // initialize resource table
+  resourceTable_=new FUResourceTable(queueSize_,eventBufferSize_,shmMode_,
+				     bu_[buInstance_],log_);
+  resourceTable_->resetCounters();
+  
+  // reset counters and other variables to 'configured' state
+  reset();
+  
+  LOG4CPLUS_INFO(log_,"FUResourceBroker -> CONFIGURED <-");
+}
+
+
+//______________________________________________________________________________
+void FUResourceBroker::enableAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception)
+{
+  // initialize timer
+  initTimer();
+  
+  // request events from builder unit
+  if (shmMode_) resourceTable_->startWorkLoop();
+  resourceTable_->sendAllocate();
+  
+  LOG4CPLUS_INFO(log_,"FUResourceBroker -> ENABLED <-");
+}
+
+
+//______________________________________________________________________________
+void FUResourceBroker::stopAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception)
+{
+  resourceTable_->shutDownClients();
+  LOG4CPLUS_INFO(log_,"FUResourceBroker -> STOPPED <-"); 
+}
+
+
+//______________________________________________________________________________
+void FUResourceBroker::suspendAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception)
+{
+  lock_.take();
+  LOG4CPLUS_INFO(log_,"FUResourceBroker -> SUSPENDED <-");
+}
+
+
+//______________________________________________________________________________
+void FUResourceBroker::resumeAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception)
+{
+  lock_.give();
+  LOG4CPLUS_INFO(log_,"FUResourceBroker -> RESUMED <-");
+}
+
+
+//______________________________________________________________________________
+void FUResourceBroker::haltAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception)
+{
+  stopTimer();
+  
+  resourceTable_->shutDownClients();
+
+  UInt_t count = 0;
+  while (count<10) {
+    if (resourceTable_->nbShmClients()==0) {
+      delete resourceTable_;
+      resourceTable_=0;
+      LOG4CPLUS_WARN(log_,++count<<". try to destroy resource table succeeded!");
+      break;
+    }
+    else {
+      LOG4CPLUS_WARN(log_,++count<<". try to destroy resource table failed ...");
+      ::sleep(5);
+    }
+  } 
+
+  if (0!=resourceTable_) LOG4CPLUS_ERROR(log_,"Failed to destroy resource table.");
+  
+  LOG4CPLUS_INFO(log_,"FUResourceBroker -> HALTED <-");
+}
+
+
+//______________________________________________________________________________
+void FUResourceBroker::nullAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception)
+{
+  LOG4CPLUS_INFO(log_,"FUResourceBroker::nullAction() called.");
+}
+
+
+//______________________________________________________________________________
+xoap::MessageReference FUResourceBroker::fireEvent(xoap::MessageReference msg)
+  throw (xoap::exception::Exception)
+{
+  xoap::SOAPPart     part    =msg->getSOAPPart();
+  xoap::SOAPEnvelope env     =part.getEnvelope();
+  xoap::SOAPBody     body    =env.getBody();
+  DOMNode           *node    =body.getDOMNode();
+  DOMNodeList       *bodyList=node->getChildNodes();
+  DOMNode           *command =0;
+  string             commandName;
+  
+  for (UInt_t i=0;i<bodyList->getLength();i++) {
+    command = bodyList->item(i);
+    if(command->getNodeType() == DOMNode::ELEMENT_NODE) {
+      commandName = xoap::XMLCh2String(command->getLocalName());
+      return fsm_->processFSMCommand(commandName);
+    }
+  }
+  XCEPT_RAISE(xoap::exception::Exception,"Command not found");
+}
+
+
+//______________________________________________________________________________
 void FUResourceBroker::timeExpired(toolbox::task::TimerEvent& e)
 {
   lock_.take();
@@ -185,29 +305,30 @@ void FUResourceBroker::timeExpired(toolbox::task::TimerEvent& e)
 //______________________________________________________________________________
 void FUResourceBroker::initTimer()
 {
-  toolbox::task::getTimerFactory()->createTimer(sourceId_);
-  toolbox::task::Timer *timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
-  timer->stop();
-  cout<<"initTimer() finished."<<endl;
+  try {
+    toolbox::task::getTimerFactory()->createTimer(sourceId_);
+    toolbox::task::Timer *timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
+    timer->stop();
+  }
+  catch (toolbox::task::exception::Exception& e) {
+    LOG4CPLUS_WARN(log_,"FUResourceBroker::initTimer() failed.");
+  }
 }
 
 
 //______________________________________________________________________________
 void FUResourceBroker::startTimer()
 {
-  toolbox::task::Timer *timer(0);
   try {
-    timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
-  }
-  catch (toolbox::task::exception::Exception& e) {
-    LOG4CPLUS_ERROR(log_,"getTimer() failed.");
-  }
-
-  if (0!=timer) {
+    toolbox::task::Timer* timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
     toolbox::TimeInterval oneSec(1.);
     toolbox::TimeVal      startTime=toolbox::TimeVal::gettimeofday();
     timer->start();
     timer->scheduleAtFixedRate(startTime,this,oneSec,gui_->monInfoSpace(),sourceId_);
+    
+  }
+  catch (toolbox::task::exception::Exception& e) {
+    LOG4CPLUS_WARN(log_,"FUResourceBroker::startTimer() failed.");
   }
 }
 
@@ -215,9 +336,14 @@ void FUResourceBroker::startTimer()
 //______________________________________________________________________________
 void FUResourceBroker::stopTimer()
 { 
-  toolbox::task::Timer *timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
-  if (0!=timer) timer->stop();
-  toolbox::task::getTimerFactory()->removeTimer(sourceId_);
+  try {
+    toolbox::task::Timer *timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
+    timer->stop();
+    toolbox::task::getTimerFactory()->removeTimer(sourceId_);
+  }
+  catch (toolbox::task::exception::Exception& e) {
+    LOG4CPLUS_WARN(log_,"FUResourceBroker::stopTimer() failed.");
+  }
 }
 
 
@@ -261,125 +387,6 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
 
 
 //______________________________________________________________________________
-void FUResourceBroker::configureAction(toolbox::Event::Reference e) 
-  throw (toolbox::fsm::exception::Exception)
-{
-  // establish connection to builder unit(s)
-  connectToBUs();
-
-  // initialize resource table
-  if (0==resourceTable_) {
-    resourceTable_=new FUResourceTable(queueSize_,eventBufferSize_,shmMode_,
-				       bu_[buInstance_],log_);
-    resourceTable_->resetCounters();
-  }
-  else if (resourceTable_->nbResources()!=queueSize_) {
-    resourceTable_->initialize(queueSize_,eventBufferSize_);
-  }
-  else {
-    resourceTable_->reset();
-  }
-  
-  // reset counters and other variables to 'configured' state
-  reset();
-  
-  // initialize timer
-  initTimer();
-  
-  LOG4CPLUS_INFO(log_,"FUResourceBroker -> CONFIGURED <-");
-}
-
-
-//______________________________________________________________________________
-void FUResourceBroker::enableAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception)
-{
-  // request events from builder unit
-  if (shmMode_) resourceTable_->startWorkLoop();
-  resourceTable_->sendAllocate();
-  
-  LOG4CPLUS_INFO(log_,"FUResourceBroker -> ENABLED <-");
-}
-
-
-//______________________________________________________________________________
-void FUResourceBroker::suspendAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception)
-{
-  lock_.take();
-  LOG4CPLUS_INFO(log_,"FUResourceBroker -> SUSPENDED <-");
-}
-
-
-//______________________________________________________________________________
-void FUResourceBroker::resumeAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception)
-{
-  lock_.give();
-  LOG4CPLUS_INFO(log_,"FUResourceBroker -> RESUMED <-");
-}
-
-
-//______________________________________________________________________________
-void FUResourceBroker::haltAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception)
-{
-  stopTimer();
-  
-  UInt_t count = 0;
-  while (count<10) {
-    if (resourceTable_->nbShmClients()==0) {
-      delete resourceTable_;
-      resourceTable_=0;
-      LOG4CPLUS_WARN(log_,++count<<". try to destroy resource table succeeded.");
-      break;
-    }
-    else {
-      ::sleep(1);
-      count++;
-      LOG4CPLUS_WARN(log_,count<<". try to destroy resource table failed.");
-    }
-  } 
-
-  if (0!=resourceTable_)
-    LOG4CPLUS_ERROR(log_,"Failed to destroy resource table.");
-  
-  LOG4CPLUS_INFO(log_,"FUResourceBroker -> HALTED <-");
-}
-
-
-//______________________________________________________________________________
-void FUResourceBroker::nullAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception)
-{
-  LOG4CPLUS_INFO(log_,"FUResourceBroker::nullAction() called.");
-}
-
-
-//______________________________________________________________________________
-xoap::MessageReference FUResourceBroker::fireEvent(xoap::MessageReference msg)
-  throw (xoap::exception::Exception)
-{
-  xoap::SOAPPart     part    =msg->getSOAPPart();
-  xoap::SOAPEnvelope env     =part.getEnvelope();
-  xoap::SOAPBody     body    =env.getBody();
-  DOMNode           *node    =body.getDOMNode();
-  DOMNodeList       *bodyList=node->getChildNodes();
-  DOMNode           *command =0;
-  string             commandName;
-  
-  for (UInt_t i=0;i<bodyList->getLength();i++) {
-    command = bodyList->item(i);
-    if(command->getNodeType() == DOMNode::ELEMENT_NODE) {
-      commandName = xoap::XMLCh2String(command->getLocalName());
-      return fsm_->processFSMCommand(commandName);
-    }
-  }
-  XCEPT_RAISE(xoap::exception::Exception,"Command not found");
-}
-
-
-//______________________________________________________________________________
 void FUResourceBroker::connectToBUs()
 {
   if (0!=bu_.size()) return;
@@ -397,8 +404,6 @@ void FUResourceBroker::connectToBUs()
   
   bu_.resize(maxBuInstance+1);
   bu_.assign(bu_.size(),0);
-  
-  if (bu_.size()!=buAppDescs.size()) LOG4CPLUS_ERROR(log_,"maxBuInstance > #BUs!");
   
   bool buInstValid(false);
   
@@ -421,11 +426,6 @@ void FUResourceBroker::connectToBUs()
 //______________________________________________________________________________
 void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef)
 {
-  //if (fsm_->getCurrentState()!='E') {
-  //bufRef->release();
-  //return;
-  //}
-
   // start the timer only upon receiving the first message
   if (nbTakeReceived_.value_==0) startTimer();
   
@@ -434,15 +434,11 @@ void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef)
   bool eventComplete=resourceTable_->buildResource(bufRef);
 
   if (eventComplete&&doDropEvents_) {
-      UInt_t evtNumber;
-      UInt_t buResourceId;
+      UInt_t evtNumber, buResourceId;
       FEDRawDataCollection *fedColl=
 	resourceTable_->rqstEvent(evtNumber,buResourceId);
       resourceTable_->sendDiscard(buResourceId);
-      if (!shmMode_) {
-	cout<<"delete fedColl."<<endl;
-	delete fedColl;
-      }
+      if (!shmMode_) delete fedColl;
   }
   
 }
