@@ -25,7 +25,6 @@ namespace edm {
 
   UnixSignalService::UnixSignalService(edm::ParameterSet const& pset,
                                        edm::ActivityRegistry& registry)
-    : mainThreadAllSigs_(pset.getUntrackedParameter<bool> ("EnableAllSignals", true))
   {
 // Establish the handler (ep_sigusr2) for SIGUSR2
     edm::disableAllSigs(&oldset);
@@ -33,20 +32,10 @@ namespace edm {
     edm::disableRTSigs();
 #endif
     edm::installSig(SIGUSR2,edm::ep_sigusr2);
-    if( mainThreadAllSigs_ )  edm::reenableSigs(&oldset);
-
-#ifdef NOT_YET
-    registry.watchPostProcessEvent(this,&UnixSignalService::postEventProcessing);
-#endif
+    edm::reenableSigs(&oldset);
   }
 
   UnixSignalService::~UnixSignalService() {}
 
-#ifdef NOT_YET
-  void UnixSignalService::postEventProcessing( const edm::Event& ev, const edm::EventSetup& es )
-  {
-    std::cerr << "UnixSignalService::postEventProcessing reached" << std::endl;
-  }
-#endif
 } // end of namespace service
 } // end of namespace edm
