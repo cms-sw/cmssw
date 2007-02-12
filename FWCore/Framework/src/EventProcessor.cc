@@ -682,7 +682,10 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
-//  Lay on a lock
+//  Lay on a lock.
+//  N. B. It's a scoped lock so be sure to give it a scope.
+//  That's the reason for the apparently gratuitous { ... }.
+//  They are NOT gratuitous! Bad things will happen without them!
     {
       boost::mutex::scoped_lock sl(usr2_lock);
       if(edm::shutdown_flag)
@@ -741,11 +744,11 @@ namespace edm {
       {
         boost::mutex::scoped_lock sl(usr2_lock);
         if(edm::shutdown_flag) {
-  	  if (previousPep.get() != 0) endLumiAndRun(*previousPep.get());
- 	  changeState(mShutdownSignal);
-	  rc = epSignal;
-	  got_sig = true;
-	  continue;
+          if (previousPep.get() != 0) endLumiAndRun(*previousPep.get());
+          changeState(mShutdownSignal);
+          rc = epSignal;
+          got_sig = true;
+          continue;
         }
       }
 
