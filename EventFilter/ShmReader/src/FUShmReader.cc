@@ -59,6 +59,7 @@ bool FUShmReader::fillRawData(EventID& eID,
 			      Timestamp& tstamp, 
 			      FEDRawDataCollection*& data)
 {
+  // just in case the reader hasn't yet attached to the shm segment
   if (0==shmBuffer_) {
     shmBuffer_=FUShmBuffer::getShmBuffer();
     if(0==shmBuffer_) {
@@ -66,28 +67,34 @@ bool FUShmReader::fillRawData(EventID& eID,
       throw cms::Exception("NullPointer")<<"Failed to retrieve shm segment."<<endl;
     }
   }
-  
+
+  // discard old event
   if(0!=event_) {
     FUShmBufferCell* oldCell=shmBuffer_->cell(fuResourceId_);
-    assert(oldCell->isRead());
+    assert(oldCell->isProcessing());
     oldCell->setStateProcessed();
-    shmBuffer_->scheduleForDiscard(oldCell->buResourceId());
+    shmBuffer_->scheduleForDiscard(oldCell);
     shmBuffer_->postWriterSem();
   }
 
+  // wait for an event to become available, retrieve it
   shmBuffer_->waitReaderSem();
-
   shmBuffer_->lock();
-  
   FUShmBufferCell* newCell=shmBuffer_->currentReaderCell();
-  assert(newCell->isWritten());
-  
   shmBuffer_->unlock();
-
+  
+  // if the event is 'empty', the reader is being told to shut down!
+  if (newCell->isEmpty()) {
+    edm::LogInfo("ShutDown")<<"Received empty event, shut down."<<endl;
+    shmBuffer_->postWriterSem();
+    return false;
+  }
+  else assert(newCell->isWritten());
+  
+  // read the event data into the fwk raw data format
   evtNumber_   =newCell->evtNumber();
   fuResourceId_=newCell->fuResourceId();
   event_       =new FEDRawDataCollection();
-  
   for (unsigned int i=0;i<newCell->nFed();i++) {
     unsigned int fedSize=newCell->fedSize(i);
     if (fedSize>0) {
@@ -97,7 +104,8 @@ bool FUShmReader::fillRawData(EventID& eID,
     }
   }
   
-  newCell->setStateRead();
+  // set cell state to 'processing' and hand back over to the processor
+  newCell->setStateProcessing();
   eID=EventID(runNumber_,evtNumber_);
   data=event_;
 
