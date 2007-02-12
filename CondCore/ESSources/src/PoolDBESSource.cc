@@ -198,8 +198,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
   std::string authpath("CORAL_AUTH_PATH=");
   authpath+=m_session->sessionConfiguration().authName();
-  const char* charauthpath=authpath.c_str();
-  ::putenv(const_cast<char*>(charauthpath));
+  ::putenv(const_cast<char*>(authpath.c_str()));
   m_session->open();
   m_pooldb=new cond::PoolStorageManager(m_con,mycatalog,m_session);
   if(m_timetype=="timestamp"){

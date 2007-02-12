@@ -21,12 +21,12 @@ void cond::DBSession::open(){
   }else{
     m_loader->useOwnContext();
   }
-  //necessary
   m_loader->loadMessageService( m_sessionConfig->messageLevel() );
-  /*if( m_sessionConfig->authenticationMethod()==cond::XML ){
-    std::string authpath("CORAL_AUTH_PATH=");
-    //authpath+=m_sessionConfig->authName();
-    //::putenv(const_cast<char*>(authpath.c_str()));
+  /*
+  if( m_sessionConfig->authenticationMethod()==cond::XML ){
+  std::string authpath("CORAL_AUTH_PATH=");
+  authpath+=m_sessionConfig->authName();
+  //::putenv(const_cast<char*>(authpath.c_str()));
   }
   */
   m_loader->loadAuthenticationService( m_sessionConfig->authenticationMethod() );
