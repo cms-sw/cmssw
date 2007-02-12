@@ -1,6 +1,6 @@
 #include <L1Trigger/CSCTrackFinder/src/CSCTFDTReceiver.h>
 #include <L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h>
-#include <L1Trigger/DTUtilities/interface/DTConfig.h>
+#include <L1Trigger/DTTraco/interface/DTConfigTraco.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h>
@@ -41,7 +41,7 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
 		      // phi was 12 bits (signed) for pi radians = 57.3 deg
 		      // relative to center of 30 degree DT sector
 		      double tmp = static_cast<const double> (dtts[stub]->phi()) /
-			DTConfig::RESOLPSIR * 180./M_PI + 15.;
+			DTConfigTraco::RESOLPSIR * 180./M_PI + 15.;
 
 		      int phi = static_cast<int> (tmp/60. * (1<<(CSCBitWidths::kGlobalPhiDataBitWidth)));
 		      if (is>sector) phi = phi + (1<<(CSCBitWidths::kGlobalPhiDataBitWidth - 1));
@@ -59,7 +59,7 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
 			(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))-1;
 
 		      // change phib from 10 bits to 6
-		      int phib = (dtts[stub]->phiB() + DTConfig::RESOLPSI) / 16;
+		      int phib = (dtts[stub]->phiB() + DTConfigTraco::RESOLPSI) / 16;
 		      int qual = dtts[stub]->code();
 		      // barrel allows quality=0!
 		      /// shift all by one and take mod 8, since DT quality of 7 is a null stub

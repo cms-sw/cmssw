@@ -3,7 +3,7 @@
 <export>
  <lib name=L1TriggerCSCTrackFinder>
  <use name=L1Trigger/CSCCommonTrigger>
- <use name=L1Trigger/DTUtilities>
+ <use name=L1Trigger/DTTraco>
  <use name=L1Trigger/DTTrackFinder>
  <use name=DataFormats/CSCDigi>
  <use name=DataFormats/L1CSCTrackFinder>
