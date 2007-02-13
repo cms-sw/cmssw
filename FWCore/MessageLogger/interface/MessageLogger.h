@@ -14,7 +14,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.18 2006/10/02 20:31:21 marafino Exp $
+// $Id: MessageLogger.h,v 1.19 2006/10/31 21:04:04 fischler Exp $
 //
 // =================================================
 // Change log
@@ -263,8 +263,8 @@ public:
 #endif
 
 #ifdef EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG 
-#define LogDebug(id) edm::Suppress_LogDebug_();
-#define LogTrace(id) edm::Suppress_LogDebug_();
+#define LogDebug(id) edm::Suppress_LogDebug_()
+#define LogTrace(id) edm::Suppress_LogDebug_()
 #else
 #define LogDebug(id)                                 \
   ( !edm::MessageDrop::instance()->debugEnabled )    \
