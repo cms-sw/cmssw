@@ -40,7 +40,8 @@ public:
    */
 
   SequentialVertexFitter(const LinearizationPointFinder & linP, 
-      const VertexUpdator & updator, const VertexSmoother & smoother);
+      const VertexUpdator & updator, const VertexSmoother & smoother,
+      const AbstractLTSFactory & ltsf = LinearizedTrackStateFactory());
 
   /**
    *   Same as above, using a ParameterSet to set the convergence criteria
@@ -48,7 +49,8 @@ public:
 
   SequentialVertexFitter(const edm::ParameterSet& pSet,
       const LinearizationPointFinder & linP, 
-      const VertexUpdator & updator, const VertexSmoother & smoother);
+      const VertexUpdator & updator, const VertexSmoother & smoother,
+      const AbstractLTSFactory & ltsf = LinearizedTrackStateFactory());
 
   /**
    * Copy constructor
@@ -158,6 +160,9 @@ public:
     return new SequentialVertexFitter(* this);
   }
 
+  const AbstractLTSFactory * linearizedTrackStateFactory() const 
+  { return theLTrackFactory;}
+
 protected:
 
   /**
@@ -220,7 +225,8 @@ private:
   LinearizationPointFinder*  theLinP;
   VertexUpdator * theUpdator;
   VertexSmoother * theSmoother;
-  LinearizedTrackStateFactory theLTrackFactory;
+  const AbstractLTSFactory * theLTrackFactory;
+//   LinearizedTrackStateFactoryAbstractLTSFactory theLTrackFactory;
   VertexTrackFactory theVTrackFactory;
 
   // VertexSeedFactory theVSeedFactory;

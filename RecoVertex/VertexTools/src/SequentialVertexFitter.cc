@@ -16,18 +16,20 @@ namespace {
 
 SequentialVertexFitter::SequentialVertexFitter(
   const LinearizationPointFinder & linP, 
-  const VertexUpdator & updator, const VertexSmoother & smoother) : 
+  const VertexUpdator & updator, const VertexSmoother & smoother,
+  const AbstractLTSFactory & ltsf ) : 
   theLinP(linP.clone()), theUpdator(updator.clone()), 
-  theSmoother(smoother.clone())
+  theSmoother(smoother.clone()), theLTrackFactory ( ltsf.clone() )
 {
   setDefaultParameters();
 }
 
 SequentialVertexFitter::SequentialVertexFitter(
   const edm::ParameterSet& pSet, const LinearizationPointFinder & linP, 
-  const VertexUpdator & updator, const VertexSmoother & smoother) : 
+  const VertexUpdator & updator, const VertexSmoother & smoother,
+  const AbstractLTSFactory & ltsf) : 
   thePSet(pSet), theLinP(linP.clone()), theUpdator(updator.clone()), 
-  theSmoother(smoother.clone())
+  theSmoother(smoother.clone()), theLTrackFactory ( ltsf.clone() )
 {
   readParameters();
 }
@@ -42,6 +44,7 @@ SequentialVertexFitter::SequentialVertexFitter(
   theSmoother = original.vertexSmoother()->clone();
   theMaxShift = original.maxShift();
   theMaxStep = original.maxStep();
+  theLTrackFactory = original.linearizedTrackStateFactory()->clone();
 }
 
 
@@ -50,6 +53,7 @@ SequentialVertexFitter::~SequentialVertexFitter()
   delete theLinP;
   delete theUpdator;
   delete theSmoother;
+  delete theLTrackFactory;
 }
 
 
@@ -152,7 +156,7 @@ SequentialVertexFitter::linearizeTracks(
   for(vector<reco::TransientTrack>::const_iterator i = tracks.begin(); 
       i != tracks.end(); i++) {
     RefCountedLinearizedTrackState lTrData 
-      = theLTrackFactory.linearizedTrackState(linP, *i);
+      = theLTrackFactory->linearizedTrackState(linP, *i);
     RefCountedVertexTrack vTrData = theVTrackFactory.vertexTrack(lTrData,state);
     finalTracks.push_back(vTrData);
   }
@@ -178,7 +182,7 @@ SequentialVertexFitter::reLinearizeTracks(
     //    RefCountedLinearizedTrackState lTrData = 
     //    	(**i).linearizedTrack()->stateWithNewLinearizationPoint(linP);
     RefCountedLinearizedTrackState lTrData = 
-      theLTrackFactory.linearizedTrackState(linP, 
+      theLTrackFactory->linearizedTrackState(linP, 
 					    (**i).linearizedTrack()->track());
     RefCountedVertexTrack vTrData =
       theVTrackFactory.vertexTrack(lTrData,state, (**i).weight() );
