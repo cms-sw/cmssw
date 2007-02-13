@@ -558,6 +558,7 @@ def _parsePathInReverse(s,loc,toks):
 
 class _ModuleSeries(object):
     def __init__(self,topNode,s,loc,toks):
+        #NOTE: nee to record what file we are from as well
         self.topNode = topNode
         self.forErrorMessage = (s,loc,toks)
     def make(self,process):
@@ -567,7 +568,7 @@ class _ModuleSeries(object):
         except AttributeError, e:
             raise pp.ParseFatalException(self.forErrorMessage[0],
                                          self.forErrorMessage[1],
-                                         self.type()+" '"+self.forErrorMessage[2][0][0]+"' contains the error "+str(e))
+                                         self.type()+" '"+self.forErrorMessage[2][0][0]+"' contains the error: no sequencable item with label "+str(e))
         except Exception, e:
             raise pp.ParseFatalException(self.forErrorMessage[0],self.forErrorMessage[1],self.type()+" '"+self.forErrorMessage[2][0][0]+"' contains the error "+str(e))
     def __str__(self):
