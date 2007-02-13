@@ -214,7 +214,7 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
        float E = it_super->energy() + deltaE;
        
        if ( debugL == PreshowerClusterAlgo::pDEBUG ) std::cout << " Creating corrected SC " << std::endl;
-       reco::SuperCluster sc( E, it_super->position(), it_super->seed(), new_BC);
+       reco::SuperCluster sc( E, it_super->position(), it_super->seed(), new_BC, deltaE);
        new_SC.push_back(sc);
        if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << " SuperClusters energies: new E = " << sc.energy() 
                                         << " vs. old E =" << it_super->energy() << std::endl;
