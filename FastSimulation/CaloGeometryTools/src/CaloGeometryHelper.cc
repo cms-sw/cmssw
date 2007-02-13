@@ -9,8 +9,10 @@
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "Geometry/EcalPreshowerAlgo/interface/EcalPreshowerGeometry.h"
 
 #include "FastSimulation/CaloGeometryTools/interface/DistanceToCell.h"
 #include "FastSimulation/CaloGeometryTools/interface/Crystal.h"
@@ -28,6 +30,7 @@ CaloGeometryHelper::CaloGeometryHelper():Calorimeter()
 
 CaloGeometryHelper::CaloGeometryHelper(const edm::ParameterSet& fastCalo):Calorimeter(fastCalo)
 {
+  std::cout << " In the constructor with ParameterSet " << std::endl;
   psLayer1Z_ = 303;
   psLayer2Z_ = 307;
 }
@@ -36,6 +39,13 @@ void CaloGeometryHelper::initialize()
 {
   buildNeighbourArray();
   bfield_ = MagneticFieldMap::instance()->inTesla(GlobalPoint(0.,0.,0.)).z();
+  ESDetId cps1(getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(80.,80.,303.),1));
+  psLayer1Z_ = getEcalPreshowerGeometry()->getGeometry(cps1)->getPosition().z();
+  ESDetId cps2(getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(80.,80.,307.),2));
+  psLayer2Z_ = getEcalPreshowerGeometry()->getGeometry(cps2)->getPosition().z();
+  LogDebug("CaloGeometryTools")  << " Preshower layer positions " << psLayer1Z_ << " " << psLayer2Z_ << std::endl;
+  std::cout << " Preshower layer positions " << psLayer1Z_ << " " << psLayer2Z_ << std::endl;
+
 }
 
 CaloGeometryHelper::~CaloGeometryHelper()
@@ -152,7 +162,7 @@ void CaloGeometryHelper::buildNeighbourArray()
       unsigned hashedindex=EBDetId(vec[ic]).hashedIndex();
       if(hashedindex>=nbarrel)
 	{
-	  LogDebug("CaloCaloGeometryTools")  << " Array overflow " << std::endl;
+	  LogDebug("CaloGeometryTools")  << " Array overflow " << std::endl;
 	}
 
 
@@ -211,7 +221,7 @@ void CaloGeometryHelper::buildNeighbourArray()
       
       if(hashedindex>=nendcap)
 	{
-	  LogDebug("CaloCaloGeometryTools")  << " Array overflow " << std::endl;
+	  LogDebug("CaloGeometryTools")  << " Array overflow " << std::endl;
 	}
 
       if(nneighbours==9)

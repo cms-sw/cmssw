@@ -49,9 +49,9 @@ void Crystal::setCorners(const std::vector<GlobalPoint>& vec,const GlobalPoint& 
     }
   else if(subdetn_==EcalEndcap)
     {
-      double x=center_.x();
-      double y=center_.y();
-      double z=center_.z();
+      double x=pos.x();
+      double y=pos.y();
+      double z=pos.z();
       unsigned offset=0;
       int zsign=1;
       if(z>0) 
@@ -78,7 +78,6 @@ void Crystal::setCorners(const std::vector<GlobalPoint>& vec,const GlobalPoint& 
 	    offset=1;
 	  zsign=-1;
 	}
-      
       corners_.clear();
       corners_.resize(8);
       for(unsigned ic=0;ic<4;++ic)

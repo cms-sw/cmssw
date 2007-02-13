@@ -79,6 +79,9 @@ class CrystalPad
   ///get the center
   inline const Hep2Vector& center() const {return center_;}
 
+  /// for graphic debugging
+  void getDrawingCoordinates(std::vector<float>&x, std::vector<float>&y) const;   
+
   
  private:
   std::vector<Hep2Vector> corners_;

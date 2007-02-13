@@ -264,3 +264,18 @@ std::ostream & operator << (std::ostream& ost,  CrystalPad & quad)
   return ost;
 }
 
+void CrystalPad::getDrawingCoordinates(std::vector<float> &x, std::vector<float>&y) const
+{
+  x.clear();
+  y.clear();
+  x.push_back(corners_[0].x());
+  x.push_back(corners_[1].x());
+  x.push_back(corners_[2].x());
+  x.push_back(corners_[3].x());
+  x.push_back(corners_[0].x());
+  y.push_back(corners_[0].y());
+  y.push_back(corners_[1].y());
+  y.push_back(corners_[2].y());
+  y.push_back(corners_[3].y());
+  y.push_back(corners_[0].y());
+}
