@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/09 22:38:09 $
- * $Revision: 1.215 $
+ * $Date: 2007/02/13 11:09:03 $
+ * $Revision: 1.216 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -83,27 +83,6 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   clients_.clear();
   clientNames_.clear();
-
-  begin_run_ = false;
-  end_run_   = false;
-
-  forced_status_ = false;
-
-  forced_update_ = false;
-
-  h_ = 0;
-
-  status_  = "unknown";
-  run_     = -1;
-  evt_     = -1;
-  runtype_ = -1;
-
-  subrun_  = -1;
-
-  last_jevt_   = -1;
-  last_update_ = 0;
-
-  unknowns_ = 0;
 
   // DQM ROOT input
 
@@ -442,6 +421,26 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 }
 
 void EcalBarrelMonitorClient::beginJob(void){
+
+  begin_run_ = false;
+  end_run_   = false;
+
+  forced_status_ = false;
+  forced_update_ = false;
+
+  h_ = 0;
+
+  status_  = "unknown";
+  run_     = -1;
+  evt_     = -1;
+  runtype_ = -1;
+
+  subrun_  = -1;
+
+  last_jevt_   = -1;
+  last_update_ =  0;
+
+  unknowns_ = 0;
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: beginJob" << endl;
 
@@ -1194,9 +1193,8 @@ void EcalBarrelMonitorClient::analyze(void){
 
     if ( ! begin_run_ ) {
 
-      this->beginRun();
-
       forced_status_ = false;
+      this->beginRun();
 
     }
     
@@ -1261,10 +1259,9 @@ void EcalBarrelMonitorClient::analyze(void){
     
     if ( begin_run_ && ! end_run_ ) {
 
-      this->endRun();
-      
       forced_status_ = false;
-      
+      this->endRun();
+
     }
     
   }
@@ -1299,9 +1296,8 @@ void EcalBarrelMonitorClient::analyze(void){
           cout << "Forcing beginRun() ... NOW !" << endl;
           cout << endl;
 
-          this->beginRun();
-
           forced_status_ = true;
+          this->beginRun();
 
         }
 
@@ -1313,9 +1309,8 @@ void EcalBarrelMonitorClient::analyze(void){
             cout << "Forcing endRun() ... NOW !" << endl;
             cout << endl;
 
-            this->endRun();
-
             forced_status_ = true;
+            this->endRun();
 
           }
 
@@ -1323,30 +1318,32 @@ void EcalBarrelMonitorClient::analyze(void){
 
       }
 
-      me = mui_->get("Collector/FU0_is_done");
-      if ( me ) {
-        if ( status_ == "running" ) {
+      if ( begin_run_ ) {
+
+        me = mui_->get("Collector/FU0_is_done");
+        if ( me ) {
+
           cout << endl;
           cout << " Source FU0 is done, forcing endRun() ... NOW !" << endl;
           cout << endl;
 
+          forced_status_ = true;
           this->endRun();
 
-          forced_status_ = true;
         }
-      }
 
-      me = mui_->get("Collector/FU0_is_dead");
-      if ( me ) {
-        if ( status_ == "running" ) {
+        me = mui_->get("Collector/FU0_is_dead");
+        if ( me ) {
+
           cout << endl;
           cout << " Source FU0 is dead, forcing endRun() ... NOW !" << endl;
           cout << endl;
 
+          forced_status_ = true;
           this->endRun();
 
-          forced_status_ = true;
         }
+
       }
 
     }
