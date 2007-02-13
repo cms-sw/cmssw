@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.6 $
- *  $Date: 2006/11/30 10:34:05 $
+ *  $Revision: 1.7 $
+ *  $Date: 2007/01/25 10:08:54 $
  *  (last update by $Author: flucke $)
  */
 
@@ -34,34 +34,34 @@ const unsigned int PedeSteerer::theMinLabel = 1; // must be > 0
 //___________________________________________________________________________
 
 PedeSteerer::PedeSteerer(Alignable *highestLevelAlignable, const std::vector<Alignable*> &alis,
-//PedeSteerer::PedeSteerer(AlignableTracker *alignableTracker, AlignmentParameterStore *store,
-			 const edm::ParameterSet &config) :
+                         const edm::ParameterSet &config) :
   myConfig(config)
 {
-  // opens steerFileName as text output file, appending .txt
 
-  std::string name(this->directory());
-  name += myConfig.getParameter<std::string>("steerFile") += ".txt";
-  mySteerFile.open(name.c_str(), std::ios::out);
+  this->buildMap(highestLevelAlignable);
 
-  if (!mySteerFile.is_open()) {
-    edm::LogError("Alignment") << "@SUB=PedeSteerer::PedeSteerer"
-			       << "Could not open " << name << " as output file.";
+  const std::string nameFixFile(this->fileName("FixPara"));
+  const std::pair<unsigned int, unsigned int> nFixFixCor(this->fixParameters(alis, nameFixFile));
+  if (nFixFixCor.first != 0 || nFixFixCor.second != 0) {
+    edm::LogInfo("Alignment") << "@SUB=PedeSteerer" 
+                              << nFixFixCor.first << " parameters fixed at 0. and "
+                              << nFixFixCor.second << " at 'original' position, "
+                              << "steering file " << nameFixFile << ".";
+  } 
+
+  const std::string nameHierarchyFile(this->fileName("Hierarchy"));
+  unsigned int nConstraint = this->hierarchyConstraints(alis, nameHierarchyFile);
+  if (nConstraint) {
+    edm::LogInfo("Alignment") << "@SUB=PedeSteerer" 
+                              << "Hierarchy constraints for " << nConstraint << " alignables, "
+                              << "steering file " << nameHierarchyFile << ".";
   }
-
-  this->buildMap(highestLevelAlignable);//alignableTracker);
-  const std::pair<unsigned int, unsigned int> nFixFixCor(this->fixParameters(alis));
-  edm::LogInfo("Alignment") << "@SUB=PedeSteerer" 
-                            << nFixFixCor.first << " parameters fixed at 0. and "
-                            << nFixFixCor.second << " at 'original' position";
 }
 
 //___________________________________________________________________________
 
 PedeSteerer::~PedeSteerer()
 {
-  // closes file
-  mySteerFile.close();
 }
 
 //___________________________________________________________________________
@@ -123,31 +123,6 @@ unsigned int PedeSteerer::parameterLabel(unsigned int aliLabel, unsigned int par
                                       << " out of range 0 <= num < " << theMaxNumParam;
   }
   return aliLabel + parNum;
-
-  /*
-  const unsigned int bitOffset = 20;
-  const unsigned int patterLength = 3;
-  unsigned int aMask = 0;
-  for (unsigned int i = 0; i < patterLength; ++i) {
-    aMask += (1 << i);
-  }
-  const unsigned int bitMask = (aMask << bitOffset);
-
-  if (aliLabel & bitMask) {
-    throw cms::Exception("LogicError") 
-      << "bits to put parNum in are not empty. Mask " << bitMask
-      << ", aliLabel " << aliLabel;
-  }
-
-  if (parNum != ((parNum << bitOffset) >> bitOffset)) {
-    throw cms::Exception("LogicError") 
-      << "parNum = " << parNum << " requires more than " << patterLength
-      << " bits";
-  }
-
-  aliLabel += (parNum << bitOffset);
-  return aliLabel;
-  */
 }
 
 //___________________________________________________________________________
@@ -244,10 +219,12 @@ unsigned int PedeSteerer::buildReverseMap()
 
 //_________________________________________________________________________
 std::pair<unsigned int, unsigned int>
-PedeSteerer::fixParameters(const std::vector<Alignable*> &alis)
+PedeSteerer::fixParameters(const std::vector<Alignable*> &alis, const std::string &fileName)
 {
   // return number of parameters fixed at 0. and fixed at original position 
   std::pair<unsigned int, unsigned int> numFixNumFixCor(0, 0);
+
+  std::ofstream *filePtr = 0;
 
   for (std::vector<Alignable*>::const_iterator iAli = alis.begin() ; iAli != alis.end(); ++iAli) {
     AlignmentParameters *params = (*iAli)->alignmentParameters();
@@ -256,7 +233,13 @@ PedeSteerer::fixParameters(const std::vector<Alignable*> &alis)
     if (!selVar) continue;
 
     for (unsigned int iParam = 0; static_cast<int>(iParam) < params->size(); ++iParam) {
-      int whichFix = this->fixParameter(*iAli, iParam, selVar->fullSelection()[iParam]);
+      char selector = selVar->fullSelection()[iParam];
+      if (selector == '0' || selector == '1') continue; // free or ignored parameter FIXME: ugly!
+      if (!filePtr) {
+        filePtr = this->createSteerFile(fileName, true);
+        (*filePtr) << "Parameter\n";
+      }
+      int whichFix = this->fixParameter(*iAli, iParam, selVar->fullSelection()[iParam], *filePtr);
       if (whichFix == 1) {
         ++(numFixNumFixCor.first);
       } else if (whichFix == -1) {
@@ -266,14 +249,14 @@ PedeSteerer::fixParameters(const std::vector<Alignable*> &alis)
     params->setUserVariables(0); // erase the info since it is not needed anymore
   }
 
-  // Flush to disc in case we want to use it before closed (e.g. in runPede...), put keep open...
-  mySteerFile.flush(); // ...in case this method is called again to add further constraints.
+  delete filePtr; // automatically flushes, no problem if NULL ptr.   
 
   return numFixNumFixCor;
 }
 
 //_________________________________________________________________________
-int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector)
+int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector,
+                              std::ofstream &file) const
 {
   int result = 0;
   float fixAt = 0.;
@@ -290,17 +273,55 @@ int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector
 
   if (result) {
     const unsigned int aliLabel = this->alignableLabel(ali);
-    mySteerFile << this->parameterLabel(aliLabel, iParam) << "  " 
-                << fixAt * this->cmsToPedeFactor(iParam) << " -1.0";
+    file << this->parameterLabel(aliLabel, iParam) << "  " 
+         << fixAt * this->cmsToPedeFactor(iParam) << " -1.0";
     if (0) { // debug
       const GlobalPoint position(ali->globalPosition());
-      mySteerFile << " eta " << position.eta() << ", z " << position.z()
-                  << ", r " << position.perp() << ", phi " << position.phi();
+      file << "* eta " << position.eta() << ", z " << position.z()
+           << ", r " << position.perp() << ", phi " << position.phi();
     }
-    mySteerFile << "\n";
+    file << "\n";
   }
 
   return result;
+}
+
+//_________________________________________________________________________
+unsigned int PedeSteerer::hierarchyConstraints(const std::vector<Alignable*> &alis,
+                                               const std::string &fileName)
+{
+  edm::LogWarning("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
+                               << "Hierarchy constraints not yet implemented!";
+
+  return 0;
+}
+
+//_________________________________________________________________________
+std::ofstream* PedeSteerer::createSteerFile(const std::string &name, bool addToList)
+{
+  std::ofstream *result = new std::ofstream(name.c_str(), std::ios::out);
+  if (!result || !result->is_open()) {
+    edm::LogError("Alignment") << "@SUB=PedeSteerer::createSteerFile"
+			       << "Could not open " << name << " as output file.";
+    delete result; // in case just open failed
+  } else if (addToList) {
+    mySteeringFiles.push_back(name); // keep track
+  }
+
+  return result;
+}
+
+
+//_________________________________________________________________________
+std::string PedeSteerer::fileName(const std::string &addendum) const
+{
+
+  std::string name(this->directory());
+  name += myConfig.getParameter<std::string>("steerFile");
+  name += addendum;
+  name += ".txt";
+
+  return name;
 }
 
 //_________________________________________________________________________
@@ -317,17 +338,60 @@ std::string PedeSteerer::directory() const
 //_________________________________________________________________________
 std::string PedeSteerer::pedeOutFile() const
 {
-  return this->directory() += myConfig.getParameter<std::string>("steerFile") += ".log";
+  return "millepede.res"; // fixme: needs improvement: directory!
 }
 
 //_________________________________________________________________________
-bool PedeSteerer::runPede(const std::string &binaryFiles) const
+std::string PedeSteerer::buildMasterSteer(const std::vector<std::string> &binaryFiles)
 {
+  const std::string nameMasterSteer(this->fileName("Master"));
+  std::ofstream *mainSteerPtr = this->createSteerFile(nameMasterSteer, false);
+  if (!mainSteerPtr) return "";
+
+  // add steering files to master steering file
+  std::ofstream &mainSteerRef = *mainSteerPtr;
+  for (unsigned int iFile = 0; iFile < mySteeringFiles.size(); ++iFile) {
+    mainSteerRef << mySteeringFiles[iFile] << "\n";
+  }
+
+  // add binary files to master steering file
+  mainSteerRef << "\nCfiles\n";
+  for (unsigned int iFile = 0; iFile < binaryFiles.size(); ++iFile) {
+    mainSteerRef << binaryFiles[iFile] << "\n";
+  }
+
+  // add method
+  mainSteerRef << "\nmethod  " << myConfig.getParameter<std::string>("method") << "\n";
+
+  // add outlier treatment
+  const std::vector<std::string> outTr(myConfig.getParameter<std::vector<std::string> >("outlier"));
+  mainSteerRef << "\n* Outlier treatment\n";
+  for (unsigned int i = 0; i < outTr.size(); ++i) {
+    mainSteerRef << outTr[i] << "\n";
+  }
+
+  // add further options
+  const std::vector<std::string> opt(myConfig.getParameter<std::vector<std::string> >("options"));
+  mainSteerRef << "\n* Further options \n";
+  for (unsigned int i = 0; i < opt.size(); ++i) {
+    mainSteerRef << opt[i] << "\n";
+  }
+
+  delete mainSteerPtr;  // close (and flush) again
+
+  return nameMasterSteer;
+}
+
+//_________________________________________________________________________
+bool PedeSteerer::runPede(const std::string &masterSteer) const
+{
+  if (masterSteer.empty()) {
+    edm::LogError("Alignment") << "@SUB=PedeSteerer::runPede" << "Empty master steer file, stop";
+    return false;
+  }
+
   std::string command(myConfig.getUntrackedParameter<std::string>("pedeCommand"));
-  command += "n ";
-  command += this->directory() += myConfig.getParameter<std::string>("steerFile");
-  command += " ";
-  command += binaryFiles;
+  (command += " ") += masterSteer;
   const std::string dump(myConfig.getUntrackedParameter<std::string>("pedeDump"));
   if (!dump.empty()) {
     command += " > ";

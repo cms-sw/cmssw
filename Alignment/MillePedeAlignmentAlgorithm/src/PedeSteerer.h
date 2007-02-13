@@ -8,15 +8,16 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2006/11/30 10:34:05 $
- * $Revision: 1.5 $
+ * $Date: 2007/01/25 10:08:54 $
+ * $Revision: 1.6 $
  * (last update by $Author: flucke $)
  */
 
-#include <fstream>
 #include <vector>
 #include <map> 
 #include <string>
+// forward ofstream:
+#include <iosfwd> 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -46,7 +47,10 @@ class PedeSteerer
   /// alignable from alignable or parameter label
   Alignable* alignableFromLabel(unsigned int label) const;
 
-  bool runPede(const std::string &binaryFiles) const;
+  /// construct (and return name of) master steering file from config, binaryFiles etc.
+  std::string buildMasterSteer(const std::vector<std::string> &binaryFiles);
+  /// run pede, masterSteer should be as returned from buildMasterSteer(...)
+  bool runPede(const std::string &masterSteer) const;
   std::string pedeOutFile() const;
   double cmsToPedeFactor(unsigned int parNum) const;
 
@@ -59,13 +63,20 @@ class PedeSteerer
 
   unsigned int buildMap(Alignable *highestLevelAli);
   unsigned int buildReverseMap();
-  std::pair<unsigned int, unsigned int> fixParameters(const std::vector<Alignable*> &alignables);
-  int fixParameter(Alignable *ali, unsigned int iParam, char selector);
+  std::pair<unsigned int, unsigned int> fixParameters(const std::vector<Alignable*> &alignables,
+						      const std::string &file);
+  int fixParameter(Alignable *ali, unsigned int iParam, char selector, std::ofstream &file) const;
+  unsigned int hierarchyConstraints(const std::vector<Alignable*> &alis,
+				    const std::string &file);
 
   std::string directory() const;
+  /// full name with directory and 'idenitfier'
+  std::string fileName(const std::string &addendum) const;
+  /// create and open file with name, if (addToList) append to mySteeringFiles
+  std::ofstream* createSteerFile(const std::string &name, bool addToList);
 
   edm::ParameterSet myConfig;
-  std::ofstream     mySteerFile; /// text steering file
+  std::vector<std::string> mySteeringFiles; /// keeps track of created 'secondary' steering files
   AlignableToIdMap  myAlignableToIdMap; /// providing unique ID for alignable, space for param IDs
   IdToAlignableMap  myIdToAlignableMap; /// reverse map
 

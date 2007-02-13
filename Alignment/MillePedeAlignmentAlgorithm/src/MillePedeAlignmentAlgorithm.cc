@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.8 $
- *  $Date: 2007/02/05 12:50:03 $
+ *  $Revision: 1.9 $
+ *  $Date: 2007/02/12 16:49:04 $
  *  (last update by $Author: flucke $)
  */
 
@@ -43,7 +43,6 @@
 #include <sstream>
 
 #include <TMath.h>
-#include <TArrayF.h>
 
 typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
@@ -120,31 +119,33 @@ void MillePedeAlignmentAlgorithm::terminate()
   delete theMille;// delete to close binary before running pede below (flush would be enough...)
   theMille = 0;
 
+  const std::string masterSteer(thePedeSteer->buildMasterSteer(files));// do only if myPedeSteerBit?
   bool pedeOk = true;
   if (this->isMode(myPedeRunBit)) {
-    std::string files;
+    std::vector<std::string> files;
     if (this->isMode(myMilleBit) || !theConfig.getParameter<std::string>("binaryFile").empty()) {
-      (files += theDir) += theConfig.getParameter<std::string>("binaryFile");
+      files.push_back(theDir + theConfig.getParameter<std::string>("binaryFile"));
     } else {
-      const std::vector<std::string> bFiles
+      const std::vector<std::string> plainFiles
         (theConfig.getParameter<std::vector<std::string> >("mergeBinaryFiles"));
-      for (std::vector<std::string>::const_iterator iF = bFiles.begin(); iF != bFiles.end(); ++iF) {
-        ((files += theDir) += *iF) += " ";
+      for (std::vector<std::string>::const_iterator i = plainFiles.begin(), iEnd = plainFiles.end();
+           i != iEnd; ++i) {
+        files.push_back(theDir + *i);
       }
     }
-    pedeOk = thePedeSteer->runPede(files);
+    pedeOk = thePedeSteer->runPede(masterSteer);
   }
 
   if (this->isMode(myPedeReadBit)) {
-    if (pedeOk && this->readFromPede(thePedeSteer->pedeOutFile())) {
+    const std::string pedeOutFile(theDir + thePedeSteer->pedeOutFile());
+    if (pedeOk && this->readFromPede(pedeOutFile)) {
       edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::terminate"
-                                << "Read successfully from " << thePedeSteer->pedeOutFile();
+                                << "Read successfully from " << pedeOutFile;
       // FIXME: problem if what is read in does not correspond to store
       theAlignmentParameterStore->applyParameters(); // FIXME ?
     } else {
       edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::terminate"
-                                 << "Problems running pede or reading from "
-                                 << thePedeSteer->pedeOutFile();
+                                 << "Problems running pede or reading from " << pedeOutFile;
     }
   }
 
@@ -362,6 +363,7 @@ bool MillePedeAlignmentAlgorithm::is2D(const ConstRecHitPointer &recHit) const
 {
   // FIXME: Check whether this is a reliable and recommended way to find out...
   // e.g. problem: What about glued detectors where only one module is hit?
+  // probably downcast the hit to a concrete class (matched?)
   return (!recHit->detUnit() || recHit->detUnit()->type().isTrackerPixel());
 }
 
