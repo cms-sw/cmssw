@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.9 $
- *  $Date: 2007/02/12 16:49:04 $
+ *  $Revision: 1.10 $
+ *  $Date: 2007/02/13 12:03:11 $
  *  (last update by $Author: flucke $)
  */
 
@@ -119,30 +119,30 @@ void MillePedeAlignmentAlgorithm::terminate()
   delete theMille;// delete to close binary before running pede below (flush would be enough...)
   theMille = 0;
 
+  std::vector<std::string> files;
+  if (this->isMode(myMilleBit) || !theConfig.getParameter<std::string>("binaryFile").empty()) {
+    files.push_back(theDir + theConfig.getParameter<std::string>("binaryFile"));
+  } else {
+    const std::vector<std::string> plainFiles
+      (theConfig.getParameter<std::vector<std::string> >("mergeBinaryFiles"));
+    for (std::vector<std::string>::const_iterator i = plainFiles.begin(), iEnd = plainFiles.end();
+         i != iEnd; ++i) {
+      files.push_back(theDir + *i);
+    }
+  }
   const std::string masterSteer(thePedeSteer->buildMasterSteer(files));// do only if myPedeSteerBit?
   bool pedeOk = true;
   if (this->isMode(myPedeRunBit)) {
-    std::vector<std::string> files;
-    if (this->isMode(myMilleBit) || !theConfig.getParameter<std::string>("binaryFile").empty()) {
-      files.push_back(theDir + theConfig.getParameter<std::string>("binaryFile"));
-    } else {
-      const std::vector<std::string> plainFiles
-        (theConfig.getParameter<std::vector<std::string> >("mergeBinaryFiles"));
-      for (std::vector<std::string>::const_iterator i = plainFiles.begin(), iEnd = plainFiles.end();
-           i != iEnd; ++i) {
-        files.push_back(theDir + *i);
-      }
-    }
     pedeOk = thePedeSteer->runPede(masterSteer);
   }
-
+  
   if (this->isMode(myPedeReadBit)) {
-    const std::string pedeOutFile(theDir + thePedeSteer->pedeOutFile());
+    const std::string pedeOutFile(theDir + thePedeSteer->pedeOutFile());//FIXME 'fragile' in new pede
     if (pedeOk && this->readFromPede(pedeOutFile)) {
       edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::terminate"
                                 << "Read successfully from " << pedeOutFile;
       // FIXME: problem if what is read in does not correspond to store
-      theAlignmentParameterStore->applyParameters(); // FIXME ?
+      theAlignmentParameterStore->applyParameters();// FIXME, do reverse in case of mis-ali. tool?
     } else {
       edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::terminate"
                                  << "Problems running pede or reading from " << pedeOutFile;
