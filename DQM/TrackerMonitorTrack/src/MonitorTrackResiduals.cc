@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.cc,v 1.21 2006/11/01 10:51:00 goitom Exp $
+// $Id: MonitorTrackResiduals.cc,v 1.23 2007/02/12 13:37:10 goitom Exp $
 //
 //
 
@@ -85,19 +85,19 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup)
   iSetup.get<SiStripDetCablingRcd>().get(tkmechstruct);
 
   // get list of active detectors from SiStripDetCabling
-  vector<uint32_t> activeDets;
+  std::vector<uint32_t> activeDets;
   activeDets.clear(); // just in case
   tkmechstruct->addActiveDetectorsRawIds(activeDets);
 
   // use SiStripSubStructure for selecting certain regions
   SiStripSubStructure substructure;
-  vector<uint32_t> DetIds = activeDets;
+  std::vector<uint32_t> DetIds = activeDets;
   
-  vector<uint32_t> TIBDetIds;
-  vector<uint32_t> TIBL1DetIds;
-  vector<uint32_t> TIBL2DetIds;
-  vector<uint32_t> TIBL3DetIds;
-  vector<uint32_t> TIBL4DetIds;
+  std::vector<uint32_t> TIBDetIds;
+  std::vector<uint32_t> TIBL1DetIds;
+  std::vector<uint32_t> TIBL2DetIds;
+  std::vector<uint32_t> TIBL3DetIds;
+  std::vector<uint32_t> TIBL4DetIds;
   
   substructure.getTIBDetectors(activeDets, TIBDetIds); // this adds rawDetIds to SelectedDetIds
   
@@ -106,22 +106,22 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup)
   substructure.getTIBDetectors(activeDets, TIBL3DetIds, 3); // this adds rawDetIds to SelectedDetIds
   substructure.getTIBDetectors(activeDets, TIBL4DetIds, 4); // this adds rawDetIds to SelectedDetIds
   
-  vector<uint32_t> TOBDetIds;
-  vector<uint32_t> TIDDetIds;
-  vector<uint32_t> TECDetIds;
+  std::vector<uint32_t> TOBDetIds;
+  std::vector<uint32_t> TIDDetIds;
+  std::vector<uint32_t> TECDetIds;
   substructure.getTOBDetectors(activeDets, TOBDetIds); // this adds rawDetIds to SelectedDetIds
   substructure.getTIDDetectors(activeDets, TIDDetIds); // this adds rawDetIds to SelectedDetIds
   substructure.getTECDetectors(activeDets, TECDetIds); // this adds rawDetIds to SelectedDetIds
     
     // book histo per each detector module
   int counter = 1;
-  fstream file_op("IntToDetID.txt",ios::out);
-  for (vector<uint32_t>::const_iterator DetItr=activeDets.begin(); DetItr!=activeDets.end(); DetItr++)
+  std::fstream file_op("IntToDetID.txt",std::ios::out);
+  for (std::vector<uint32_t>::const_iterator DetItr=activeDets.begin(); DetItr!=activeDets.end(); DetItr++)
     {
       folder_organizer.setDetectorFolder(*DetItr); // pas detid - uint32 to this method - sets appropriate detector folder
       int ModuleID = (*DetItr);
       folder_organizer.setDetectorFolder(*DetItr); // top Mechanical View Folder
-      string hid = hidmanager.createHistoId("HitResiduals","det",*DetItr);
+      std::string hid = hidmanager.createHistoId("HitResiduals","det",*DetItr);
       HitResidual2[ModuleID] = dbe->book1D(hid, hid, 50, -5., 5.);
 	  IntToDetId[counter] = ModuleID; //Create a table of reference assigned consective number to actual module id
 	  DetIdToInt[ModuleID] = counter; //create a table of reference reversing the above
@@ -133,8 +133,8 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup)
 	file_op.close();
 		  
   // book TIB histo
-  vector<uint32_t>::const_iterator detid_begin = TIBDetIds.begin(); // get the first TIB Detector module
-  vector<uint32_t>::const_iterator detid_end = TIBDetIds.end() -1; // get the last TIB Detector Module, -1??
+  std::vector<uint32_t>::const_iterator detid_begin = TIBDetIds.begin(); // get the first TIB Detector module
+  std::vector<uint32_t>::const_iterator detid_end = TIBDetIds.end() -1; // get the last TIB Detector Module, -1??
   int beging=(*detid_begin); // Save first TIB Detector module id as int
   int detBegin = DetIdToInt[beging]; // Convert the detector Id to the numberrin system provided above. (i.e starting form 1)
   int ending=(*detid_end); // Save the last detector module id as int
@@ -325,7 +325,7 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 		    case StripSubdetector::TIB :
 		      HitResidual["TIB"]->Fill(IntRawDetID2, residual.x());
 
-		      std::cout << "\n\n\n\n\n *** Filling Histos **** \n\n\n\n" << endl;
+		      std::cout << "\n\n\n\n\n *** Filling Histos **** \n\n\n\n" << std::endl;
 
 		      if (layer.layer()==1) HitResidual["TIBL1"]->Fill(IntRawDetID2, residual.x());
 		      if (layer.layer()==2) HitResidual["TIBL2"]->Fill(IntRawDetID2, residual.x());

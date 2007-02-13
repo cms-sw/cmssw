@@ -16,7 +16,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.h,v 1.5 2006/11/01 10:50:59 goitom Exp $
+// $Id: MonitorTrackResiduals.h,v 1.7 2007/02/12 13:37:09 goitom Exp $
 //
 //
 
@@ -41,8 +41,6 @@
 //
 // class decleration
 //
-
-  using namespace std;
 
 typedef std::map<std::string, MonitorElement *> HistoClass;
 typedef std::map<int, MonitorElement *> HistoClass2;
