@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <map>
 #include <vector>
@@ -25,7 +26,8 @@ class GluedGeomDet;
 class MeasurementTracker : public MeasurementDetSystem {
 public:
 
-  MeasurementTracker(const PixelClusterParameterEstimator* pixelCPE,
+  MeasurementTracker(const edm::ParameterSet&              conf,
+		     const PixelClusterParameterEstimator* pixelCPE,
 		     const StripClusterParameterEstimator* stripCPE,
 		     const SiStripRecHitMatcher*  hitMatcher,
 		     const TrackerGeometry*  trackerGeom,
@@ -52,6 +54,8 @@ public:
 
 
 private:
+  const edm::ParameterSet& pset_;
+
   mutable unsigned int lastEventNumber;
   mutable unsigned int lastRunNumber;
 

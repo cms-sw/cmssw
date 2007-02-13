@@ -3,8 +3,9 @@
 
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVLinearizer.h>
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
+#include <vector> 
 
-class EBDetId;
+class DBInterface ;
 
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
@@ -37,38 +38,29 @@ class EBDetId;
     /** maximum number of samples per frame */
     //temporary, waiting for changes in EBDataFrame
     enum { SIZEMAX = 10}; 
-    enum {numberOfCrystalsInStrip = 5};
-
+    DBInterface * db_ ;
     bool off;
     int uncorrectedSample_;
     int gainID_;
     int base_;
     int mult_;
     int shift_;
-    int tow_;
-    int baseLine_[68][5][5][3]; //to be changed
-    int multLine_[68][5][5][3]; //to be changed
-    int shiftLine_[68][5][5][3]; //to be changed
     int strip_;
+    std::vector<unsigned int> params_ ;
 
-    int setInput(EcalMGPASample RawSam, int stripNum, int towNum, int XtalNumberInStrip);
-
-    int getBase(int XtalNumberInTower) const;
-    //    int getMult() const;
-    //    int getShift() const;
-    int getMult(int XtalnumberInTower) const;
-    int getShift(int XtalnumberInTower) const; 
+    int setInput(EcalMGPASample RawSam) ;
     int process() ;
 
 
   public:
     //    EcalFenixLinearizer(EcalBarrelTopology *);
-    EcalFenixLinearizer();
+    EcalFenixLinearizer(DBInterface * db);
     virtual ~EcalFenixLinearizer();
 
 
     virtual EBDataFrame process(EBDataFrame&) {EBDataFrame df;return df;} //for base class
-    virtual void  process(const EBDataFrame &,int stripnr, int townr,EBDataFrame *out); 
+    virtual void  process(const EBDataFrame &, EBDataFrame *out); 
+    void setParameters(int SM, int towNum, int stripNum,int XtalNumberInStrip) ;
 
 
   };

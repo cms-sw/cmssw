@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2006/11/10 17:23:27 $
- *  $Revision: 1.55 $
+ *  $Date: 2006/11/22 17:54:34 $
+ *  $Revision: 1.58 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -41,6 +41,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Utilities/Timing/interface/TimingReport.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 
@@ -95,12 +96,8 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
 
   theLayerMeasurements = new MuonDetLayerMeasurements();
   
-  tkSeedFlag = false;
+  tkSeedFlag = par.getParameter<bool>("RegionalSeedFlag");
   theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");  
-  if (theTkTrackLabel == "") {
-    LogInfo(metname) << "TkTrackCollectionLabel unspecified" ;  
-    tkSeedFlag = true;
-  }
 
   theTrackConverter = new MuonTrackConverter(par,theService);
   theTrackMatcher = new GlobalMuonTrackMatcher(par,theService);
@@ -118,7 +115,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   theVertexErr = GlobalError(0.0001,0.0,0.0001,0.0,0.0,28.09);
 
   convert = true;
-  tkTrajsAvailable = false;
+  tkTrajsAvailable = par.getParameter<bool>("TkTrajectoryAvailable");
   first = true;
   
   std::string ckfBuilderName = par.getParameter<std::string>("TkTrackBuilder");
@@ -155,18 +152,12 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
       << " tracker Tracks with label "<< theTkTrackLabel;
   }  
   edm::Handle<std::vector<Trajectory> > handleTrackerTrajs;
-  try
-    {
-      event.getByLabel(theTkTrackLabel,handleTrackerTrajs);
-      tkTrajsAvailable = true;
-      allTrackerTrajs = &*handleTrackerTrajs;         
-      if( first ) LogInfo(metname) << "Tk Trajectories Found! ";
-    }
-  catch (...)
-    {
-      if( first ) LogInfo(metname) << "No Tk Trajectories Found! ";
-      tkTrajsAvailable = false;
-    }
+  
+  if(tkTrajsAvailable) {
+    event.getByLabel(theTkTrackLabel,handleTrackerTrajs);
+    allTrackerTrajs = &*handleTrackerTrajs;         
+    if( first ) LogInfo(metname) << "Tk Trajectories Found! ";
+  }
   
   theLayerMeasurements->setEvent(event);  
   theTkSeedGenerator->setEvent(event);
@@ -184,36 +175,40 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 // reconstruct trajectories
 //
 MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
-
+  
   std::string metname = "GLBTrajBuilder::trajectories";
+  bool timing = false;
+  TimeMe time_GLBBuilder_tot(metname,timing);
+
   // cut on muons with low momenta
   if ( (staCandIn).second->pt() < thePtCut || (staCandIn).second->innerMomentum().Rho() < thePtCut || (staCandIn).second->innerMomentum().R() < 2.5 ) return CandidateContainer();
   
   // convert the STA track into a Trajectory if Trajectory not already present
   TrackCand staCand = TrackCand(staCandIn);
   addTraj(staCand);
-
+  
   vector<TrackCand> regionalTkTracks = makeTkCandCollection(staCand);
   LogInfo(metname) << "Found " << regionalTkTracks.size() << " tracks within region of interest";  
   
   // match tracker tracks to muon track
   vector<TrackCand> trackerTracks = theTrackMatcher->match(staCand, regionalTkTracks);
   LogInfo(metname) << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
-
+  
   // build a combined tracker-muon MuonCandidate
   CandidateContainer result = build(staCand, trackerTracks);
   LogInfo(metname) << "Found "<< result.size() << " GLBMuons from one STACand";
-
+  
   // free memory
-  if ( staCand.first != 0) {
-    if ( staCand.first ) delete staCand.first;
-  }
-  for ( vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
-    if ( (*is).first ) delete (*is).first;
-  }
+  if ( staCandIn.first == 0) delete staCand.first;
 
+  if ( !tkTrajsAvailable ) {
+    for ( vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
+      delete (*is).first;   
+    }
+  }
+  
   return result;
-
+  
 }
 
 
@@ -330,7 +325,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
   //
   CandidateContainer tkTrajs;
   for (vector<TrackCand>::const_iterator tkt = tkMatchedTracks.begin(); tkt != tkMatchedTracks.end(); tkt++) {
-    if ((*tkt).first != 0) {
+    if ((*tkt).first != 0 && (*tkt).first->isValid()) {
       MuonCandidate* muonCand = new MuonCandidate(new Trajectory(*(*tkt).first),staCand.second,(*tkt).second);
       tkTrajs.push_back(muonCand);
     }
@@ -890,8 +885,8 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
       TrackCand tkCand = TrackCand(0,tkTrackRef);
       if ( tkTrajsAvailable ) {
 	std::vector<Trajectory>::const_iterator it = allTrackerTrajs->begin()+position;
-	Trajectory trajRef = *it;
-	if( trajRef.isValid() ) tkCand = TrackCand(&trajRef,tkTrackRef);
+	const Trajectory* trajRef(&*it);
+	if( trajRef->isValid() ) tkCand.first = trajRef;
       } 
       tkTrackCands.push_back(tkCand);          
     }
@@ -908,8 +903,7 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
 void GlobalMuonTrajectoryBuilder::addTraj(TrackCand& candIn) const {
 
   std::string metname = "GLBTrajBuilder::addTraj";
-  if( candIn.first == 0 || !(candIn.first->isValid()) ) {
-    if( candIn.first ) delete candIn.first;
+  if( candIn.first == 0 ) {
     LogDebug(metname) << "Making new trajectory from TrackRef";
     TC staTrajs = theTrackConverter->convert(candIn.second);
     candIn = ( !staTrajs.empty() ) ? TrackCand(new Trajectory(staTrajs.front()),candIn.second) : TrackCand(0,candIn.second);    

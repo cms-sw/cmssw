@@ -5,8 +5,10 @@
 <use name=Foundation/PluginManager>
 <use name=DataFormats/L1GlobalCaloTrigger>
 <use name=L1Trigger/L1Scales>
+<use name=root>
 
 <flags SEAL_PLUGIN_NAME="L1TriggerGlobalCaloTrigger">
+<Flags CXXFLAGS="-g">
 
 <export>
   <lib name=L1TriggerGlobalCaloTrigger>
@@ -17,5 +19,7 @@
   <use name=Foundation/PluginManager>
   <use name=DataFormats/L1GlobalCaloTrigger>
   <use name=L1Trigger/L1Scales>
+  <use name=root>
+  <Flags CXXFLAGS="-g">
 </export>
 

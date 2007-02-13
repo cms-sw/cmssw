@@ -4,7 +4,9 @@
 
 #include "RecoMuon/L3MuonProducer/src/L3MuonProducer.h"
 #include "RecoMuon/L3MuonProducer/src/L3MuonCandidateProducer.h"
+#include "RecoMuon/L3MuonProducer/src/L3MuonAltProducer.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(L3MuonProducer);
 DEFINE_ANOTHER_FWK_MODULE(L3MuonCandidateProducer);
+DEFINE_ANOTHER_FWK_MODULE(L3MuonAltProducer);

@@ -8,7 +8,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Thu Mar  9 17:29:31 CET 2006
-// $Id: TrackProducerAlgorithm.h,v 1.8 2006/07/28 15:17:29 cerati Exp $
+// $Id: TrackProducerAlgorithm.h,v 1.9 2006/11/15 11:35:43 cerati Exp $
 //
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -33,8 +33,7 @@ class TrackProducerAlgorithm {
  public:
 
   TrackProducerAlgorithm(const edm::ParameterSet& conf) : 
-    conf_(conf),
-    numberOfTrackParameters_(conf_.getParameter<int>("numberOfTrackParameters"))
+    conf_(conf)
     { }
 
   ~TrackProducerAlgorithm() {}
@@ -65,7 +64,6 @@ class TrackProducerAlgorithm {
 
  private:
   edm::ParameterSet conf_;
-  int numberOfTrackParameters_;
 };
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef Demo_PFRootEvent_PFRootEventManager_h
-#define Demo_PFRootEvent_PFRootEventManager_h
+#ifndef RecoParticleFlow_PFRootEvent_PFRootEventManager_h
+#define RecoParticleFlow_PFRootEvent_PFRootEventManager_h
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
@@ -7,6 +7,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFParticle.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 #include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
@@ -129,7 +131,8 @@ class PFRootEventManager {
   /// performs particle flow
   void particleFlow();
 
-  /// display one entry 
+
+  /// process and display one entry 
   void display(int ientry);
 
 /*   void displayXY(); */
@@ -142,7 +145,11 @@ class PFRootEventManager {
 /*   void displayEtaPhiE(); */
 /*   void displayEtaPhiH(); */
   
- 
+  /// display next selected entry. if init, restart from i=0
+  void displayNext(bool init);
+
+  /// display current entry
+  void display();
 
   /// display x/y or r/z
   void displayView(unsigned viewType);
@@ -161,6 +168,8 @@ class PFRootEventManager {
   void displayCluster(const reco::PFCluster& cluster,
 		      unsigned viewType, double phi0 = 0.);
   
+  /// display cluster-to-rechits lines
+  void displayClusterLines(const reco::PFCluster& cluster);
 
   /// display reconstructed tracks
   void displayRecTracks(unsigned viewType, double phi0 = 0.);
@@ -238,6 +247,9 @@ class PFRootEventManager {
 
   /// ECAL island clusters branch_;
   TBranch*   clustersIslandBarrelBranch_;
+
+  /// calotowers
+  TBranch* caloTowersBranch_;
   
   /// reconstructed tracks branch  
   TBranch*   recTracksBranch_;          
@@ -273,6 +285,8 @@ class PFRootEventManager {
   /// clusters ECAL island barrel
   std::vector<reco::BasicCluster>  clustersIslandBarrel_;
   
+  CaloTowerCollection              caloTowers_;
+
   /// reconstructed tracks
   std::vector<reco::PFRecTrack> recTracks_;
   
@@ -312,6 +326,9 @@ class PFRootEventManager {
 
   /// algos to display
   std::set<int>            algosToDisplay_;  
+
+  /// display cluster-to-rechits lines ? 
+  bool                     displayClusterLines_;
 
   /// display pad xy size for eta/phi view
   std::vector<int>         viewSizeEtaPhi_;        

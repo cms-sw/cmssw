@@ -41,6 +41,10 @@ using namespace std;
 MTCCNtupleMaker::MTCCNtupleMaker(edm::ParameterSet const& conf) : 
   conf_(conf), 
   filename_(conf.getParameter<std::string>("fileName")),
+  oSiStripDigisLabel_( conf.getUntrackedParameter<std::string>( "oSiStripDigisLabel")),
+  oSiStripDigisProdInstName_( conf.getUntrackedParameter<std::string>( "oSiStripDigisProdInstName")),
+  bUseLTCDigis_( conf.getUntrackedParameter<bool>( "bUseLTCDigis")),
+  dCROSS_TALK_ERR( conf.getUntrackedParameter<double>( "dCrossTalkErr")),
   bTriggerDT( false),
   bTriggerCSC( false),
   bTriggerRBC1( false),
@@ -102,6 +106,7 @@ void MTCCNtupleMaker::beginJob(const edm::EventSetup& c){
   MTCCNtupleMakerTree->Branch( "clusterbarycenter", &clusterbarycenter, "clusterbarycenter/F");
   MTCCNtupleMakerTree->Branch( "clustermaxchg", &clustermaxchg, "clustermaxchg/F");
   MTCCNtupleMakerTree->Branch( "clusterseednoise", &clusterseednoise, "clusterseednoise/F");
+  MTCCNtupleMakerTree->Branch( "clustercrosstalk", &clustercrosstalk, "clustercrosstalk/F");
   // Trigger Bits
   MTCCNtupleMakerTree->Branch( "bTriggerDT",   &bTriggerDT,	  "bTriggerDT/O");
   MTCCNtupleMakerTree->Branch( "bTriggerCSC",  &bTriggerCSC,  "bTriggerCSC/O");
@@ -212,7 +217,7 @@ void MTCCNtupleMaker::beginJob(const edm::EventSetup& c){
   
   const TrackerGeometry::DetIdContainer& Id = estracker->detIds();
    
-  TrackerGeometry::DetIdContainer::iterator Iditer;
+  TrackerGeometry::DetIdContainer::const_iterator Iditer;
     
   monodscounter=0;
   monosscounter=0;
@@ -605,26 +610,28 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
   e.getByLabel( conf_.getParameter<std::string>( "TracksLabel"), trackCollection);
   //e.getByType(trackCollection);
 
-  // Extract Trigger Bits
-  edm::Handle<LTCDigiCollection> oLTCDigis;
-  e.getByType( oLTCDigis);
+  if( bUseLTCDigis_) {
+    // Extract Trigger Bits
+    edm::Handle<LTCDigiCollection> oLTCDigis;
+    e.getByType( oLTCDigis);
 
-  // Now loop over all 6 triggers and save their values in corresponding
-  // boolean variables :)
-  if( 1 > oLTCDigis->size()) {
-    LogDebug( "MTCCNtupleMaker::analyze")
-      << "[warning] More than one LTCDigis object stored in LTCDigiCollection";
-  }
+    // Now loop over all 6 triggers and save their values in corresponding
+    // boolean variables :)
+    if( 1 > oLTCDigis->size()) {
+      LogDebug( "MTCCNtupleMaker::analyze")
+	<< "[warning] More than one LTCDigis object stored in LTCDigiCollection";
+    }
 
-  for( LTCDigiCollection::const_iterator oITER = oLTCDigis->begin();
-       oITER != oLTCDigis->end();
-       ++oITER) {
+    for( LTCDigiCollection::const_iterator oITER = oLTCDigis->begin();
+	 oITER != oLTCDigis->end();
+	 ++oITER) {
 
-    bTriggerDT   |= oITER->HasTriggered( 0);
-    bTriggerCSC  |= oITER->HasTriggered( 1);
-    bTriggerRBC1 |= oITER->HasTriggered( 2);
-    bTriggerRBC2 |= oITER->HasTriggered( 3);
-    bTriggerRPC  |= oITER->HasTriggered( 4);
+      bTriggerDT   |= oITER->HasTriggered( 0);
+      bTriggerCSC  |= oITER->HasTriggered( 1);
+      bTriggerRBC1 |= oITER->HasTriggered( 2);
+      bTriggerRBC2 |= oITER->HasTriggered( 3);
+      bTriggerRPC  |= oITER->HasTriggered( 4);
+    }
   }
     
   const reco::TrackCollection *tracks=trackCollection.product();
@@ -704,13 +711,13 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
   edm::Handle<edm::DetSetVector<SiStripClusterInfo> > oDSVClusterInfos;
   e.getByLabel( "siStripClusterInfoProducer", oDSVClusterInfos);
 
-  // Get Trigger Bits
-  edm::Handle<std::vector<LTCDigi> > oLTCDigis;
-  e.getByType( oLTCDigis);
-
   // Get SiStripDigis
   edm::Handle<edm::DetSetVector<SiStripDigi> > oDSVDigis;
-  e.getByLabel( "SiStripDigis", "ZeroSuppressed", oDSVDigis);
+  if( oSiStripDigisProdInstName_.size()) {
+    e.getByLabel( oSiStripDigisLabel_.c_str(), oSiStripDigisProdInstName_.c_str(), oDSVDigis);
+  } else {
+    e.getByLabel( oSiStripDigisLabel_.c_str(), oDSVDigis);
+  }
       
   std::map<uint32_t, int> oProcessedClusters;
 
@@ -778,6 +785,15 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
       clusterseednoise=-99;
     
       const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(hitsiter->first);
+      dLclX = hit->localPosition().x(); 
+      dLclY = hit->localPosition().y(); 
+      dLclZ = hit->localPosition().z(); 
+
+      GlobalPoint oRecHitGlobalPos = tracker->idToDet( hit->geographicalId())->toGlobal( hit->localPosition());
+      dGlbX = oRecHitGlobalPos.x();
+      dGlbY = oRecHitGlobalPos.y();
+      dGlbZ = oRecHitGlobalPos.z();
+
       const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=hit->cluster();
 
       std::vector<SiStripDigi> oDigis = 
@@ -788,6 +804,9 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
       clustereta = getClusterEta( cluster->amplitudes(),
 				  cluster->firstStrip(),
 				  oDigis);
+      clustercrosstalk = getClusterCrossTalk( cluster->amplitudes(),
+				              cluster->firstStrip(),
+				              oDigis);
 
       std::vector<SiStripClusterInfo> oClusterInfos = 
 	oDSVClusterInfos->operator[]( cluster->geographicalId()).data;
@@ -887,12 +906,6 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
       }
       }
 
-      dLclX = roLclDir.second.x();
-      dLclY = roLclDir.second.y();
-      dLclZ = roLclDir.second.z();
-      dGlbX = roGlbDir.second.x();
-      dGlbY = roGlbDir.second.y();
-      dGlbZ = roGlbDir.second.z();
 
       //Filling histograms
             
@@ -1171,7 +1184,7 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      }
 	  }
 
-	  size	      = oIter->width(); // cluster width
+	  size	      = (int) oIter->width(); // cluster width
 
 	  // ClusterInfo was not processed yet
 	  clusterpos    = oIter->position();
@@ -1183,6 +1196,10 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  clustereta    = getClusterEta( oIter->stripAmplitudes(), 
 					 oIter->firstStrip(),
 					 oDigis);
+
+          clustercrosstalk = getClusterCrossTalk( oIter->stripAmplitudes(),
+				                  oIter->firstStrip(),
+				                  oDigis);
 
 	  bTrack = false;
 
@@ -1997,15 +2014,14 @@ void MTCCNtupleMaker::endJob(){
 //   rnFIRST_STRIP	 cluster first strip shift whithin module
 //   roDIGIS		 vector of digis within current module
 // @return
-//   int  ClusterEta or 0 on error
+//   int  ClusterEta or -99 on error
 double 
   MTCCNtupleMaker::getClusterEta( const std::vector<uint16_t> &roSTRIP_AMPLITUDES,
 				      const int			  &rnFIRST_STRIP,
 				      const DigisVector		  &roDIGIS) const {
-  double dClusterEta = 0;
-
-  // Check if cluster is not empty: otherwise exception will be thrown on
-  // ClusterEta calculation due to try to execute `0 / 0`
+  // Given value is used to separate non-physical values
+  // [Example: cluster with empty amplitudes vector]
+  double dClusterEta = -99;
 
   // Cluster eta calculation
   int anMaxSignal[2][2];
@@ -2018,7 +2034,7 @@ double
   }
 	
   // Find two strips with highest amplitudes
-  // i is a relative stip number: relative to a cluster
+  // i is a stip number within module
   for( int i = 0, nSize = roSTRIP_AMPLITUDES.size(); nSize > i; ++i) {
     int nCurCharge = roSTRIP_AMPLITUDES[i];
 
@@ -2044,32 +2060,62 @@ double
 	       0 == anMaxSignal[0][1]) {
 
       // One Strip cluster: check for Digis
-      DigisVector::const_iterator oITER = roDIGIS.begin();
+      DigisVector::const_iterator oITER( roDIGIS.begin());
       for( ;
 	   oITER != roDIGIS.end() && oITER->strip() != anMaxSignal[1][0];
 	   ++oITER) {}
 
-      // Check if previous neighbouring strip exists
-      if( oITER != roDIGIS.begin() &&
-	  ( oITER->strip() - 1) == ( oITER - 1)->strip()) {
-	// There is previous strip specified :)
-	double dADCPrevStrip = ( oITER - 1)->adc();
-	dClusterEta = ( 1.0 * dADCPrevStrip) / ( dADCPrevStrip + 
-						 anMaxSignal[1][1]);
-      } else if( oITER != roDIGIS.end() &&
-		 oITER != ( roDIGIS.end() - 1) &&
-		 ( oITER->strip() + 1) == ( oITER + 1)->strip()) {
-	// well, there is no previous strip. How about next one? It is
-	// specified :)
-	dClusterEta = ( 1.0 * anMaxSignal[1][1]) / ( ( oITER + 1)->adc() + 
-						     anMaxSignal[1][1]);
+      // Check if Digi for given cluster strip was found
+      if( oITER != roDIGIS.end()) {
+
+	// Check if previous neighbouring strip exists
+	DigisVector::const_iterator oITER_PREV( roDIGIS.end());
+	if( oITER != roDIGIS.begin() &&
+	    ( oITER->strip() - 1) == ( oITER - 1)->strip()) {
+	  // There is previous strip specified :)
+	  oITER_PREV = oITER - 1;
+	}
+
+	// Check if next neighbouring strip exists
+	DigisVector::const_iterator oITER_NEXT( roDIGIS.end());
+	if( oITER != roDIGIS.end() &&
+	    oITER != ( roDIGIS.end() - 1) &&
+	    ( oITER->strip() + 1) == ( oITER + 1)->strip()) {
+	  // There is previous strip specified :)
+	  oITER_NEXT = oITER + 1;
+	}
+
+	if( oITER_PREV != oITER_NEXT) {
+	  if( oITER_PREV != roDIGIS.end() && oITER_NEXT != roDIGIS.end()) {
+	    // Both Digis are specified
+	    // Now Pick the one with max amplitude
+	    if( oITER_PREV->adc() > oITER_NEXT->adc()) {
+	      dClusterEta = ( 1.0 * oITER_PREV->adc()) / ( oITER_PREV->adc() + 
+							   anMaxSignal[1][1]);
+	    } else {
+	      dClusterEta = ( 1.0 * anMaxSignal[1][1]) / ( oITER_NEXT->adc() + 
+							   anMaxSignal[1][1]);
+	    }
+	  } else if( oITER_PREV != roDIGIS.end()) {
+	    // only Prev digi is specified
+	    dClusterEta = ( 1.0 * oITER_PREV->adc()) / ( oITER_PREV->adc() + 
+							 anMaxSignal[1][1]);
+	  } else {
+	    // only Next digi is specified
+	    dClusterEta = ( 1.0 * anMaxSignal[1][1]) / ( oITER_NEXT->adc() + 
+							 anMaxSignal[1][1]);
+	  }
+	} else {
+	  // PREV and NEXT iterators point to the end of DIGIs vector. 
+	  // Consequently it is assumed there are no neighbouring digis at all
+	  // for given cluster. It is obvious why ClusterEta should be Zero.
+	  // [Hint: take a look at the case [0][0] < [1][0] ]
+	  dClusterEta = 0;
+	} // End check if any neighbouring digi is specified
       } else {
-	// There is no even next strip specified... Ouch, this is real single
-	// strip cluster without any neighbouring Digis specified :( It is
-	// obvious why ClusterEta should be ZERO :)
-	// [Hint: take a look at the case [0][0] < [1][0] ]
+	// Digi for given Clusters strip was not found
 	dClusterEta = 0;
-      }
+      } // end check if Digi for given cluster strip was found
     } else {
       // anMaxSignal[0] is Left one
       dClusterEta = ( 1.0 * anMaxSignal[0][1]) / ( anMaxSignal[1][1] + 
@@ -2079,3 +2125,218 @@ double
 
   return dClusterEta;
 }
+
+// ClusterCrosstalk = ( SignalL + SignalR) / SignalSeed
+//   Extremely useful for croostalk determination that should be used in
+// MonteCarlo clusters simulation. In MonteCarlo each cluster affects 
+// neighbouring ones, the charge is divided:
+//
+//  Simulated             Digitized
+//    Signal                Signal
+//       +
+//       +
+//       +                    +
+//       +                    +
+//       +          =>        +
+//       +                    +
+//       +                    +
+//       +                +   +   +
+//       +                +   +   +
+//  N-1  N  N+1          N-1  N  N+1
+//
+//  Strip   Crosstalk
+//   N-1     x * SignalN
+//   N       ( 1 - 2 * x) * SignalN
+//   N+1     x * SignalN
+//
+// @arguments
+//   roSTRIP_AMPLITUDES	 vector of strips ADC counts in cluster
+//   rnFIRST_STRIP	 cluster first strip shift whithin module
+//   roDIGIS		 vector of digis within current module
+// @return
+//   int  ClusterCrosstalk or -99 on error
+double 
+  MTCCNtupleMaker::getClusterCrossTalk( const std::vector<uint16_t> 
+                                          &roSTRIP_AMPLITUDES,
+				        const int         &rnFIRST_STRIP,
+				        const DigisVector &roDIGIS) const {
+  // Given value is used to separate non-physical values
+  // [Example: cluster with empty amplitudes vector]
+  double dClusterCrossTalk = -99;
+
+  switch( roSTRIP_AMPLITUDES.size()) {
+    case 1: {
+      // One Strip cluster: try to find corresponding Digi
+      DigisVector::const_iterator oITER( roDIGIS.begin());
+      for( ;
+	   oITER != roDIGIS.end() && oITER->strip() != roSTRIP_AMPLITUDES[0];
+	   ++oITER) {}
+
+      // Check if Digi for given cluster strip was found
+      if( oITER != roDIGIS.end()) {
+
+	// Check if previous neighbouring strip exists
+	DigisVector::const_iterator oITER_PREV( roDIGIS.end());
+	if( oITER != roDIGIS.begin() &&
+	    ( oITER->strip() - 1) == ( oITER - 1)->strip()) {
+	  // There is previous strip specified :)
+	  oITER_PREV = oITER - 1;
+	}
+
+	// Check if next neighbouring strip exists
+	DigisVector::const_iterator oITER_NEXT( roDIGIS.end());
+	if( oITER != roDIGIS.end() &&
+	    oITER != ( roDIGIS.end() - 1) &&
+	    ( oITER->strip() + 1) == ( oITER + 1)->strip()) {
+	  // There is previous strip specified :)
+	  oITER_NEXT = oITER + 1;
+	}
+
+        // Now check if both neighbouring digis exist
+	if( oITER_PREV != roDIGIS.end() && oITER_NEXT != roDIGIS.end()) {
+	  // Both Digis are specified
+	  // Now Pick the one with max amplitude
+	  dClusterCrossTalk = 
+	    calculateClusterCrossTalk( oITER_PREV->adc(),
+	                               roSTRIP_AMPLITUDES[0],
+				       oITER_NEXT->adc());
+	} // End check if both neighbouring digis exist
+      } // end check if Digi for given cluster strip was found
+    }
+    case 3: {
+      dClusterCrossTalk = calculateClusterCrossTalk( roSTRIP_AMPLITUDES[0],
+                                                     roSTRIP_AMPLITUDES[1],
+						     roSTRIP_AMPLITUDES[2]);
+    }
+    default:
+      break;
+  }
+
+
+
+  return dClusterCrossTalk;
+}
+
+// Calculate Cluster CrossTalk:
+// ClusterCrosstalk = ( SignalL + SignalR) / SignalSeed
+// @arguments
+//   rdADC_STRIPL  ADC in left strip
+//   rnADC_STRIP   ADC in Center strip
+//   rnADC_STRIPR  ADC in right strip
+// @return
+//   double  Calculated crosstalk or -99 on error 
+double 
+  MTCCNtupleMaker::calculateClusterCrossTalk( const double &rdADC_STRIPL,
+                                              const int    &rnADC_STRIP,
+					      const int    &rnADC_STRIPR) const 
+{
+  // Check if neigbouring strips have signals amplitudes within some
+  // error
+  return ( abs( rdADC_STRIPL - rnADC_STRIPR) < 
+             dCROSS_TALK_ERR * ( rdADC_STRIPL + rnADC_STRIPR) / 2 &&
+             0 < rnADC_STRIP ? 
+	   ( rdADC_STRIPL + rnADC_STRIPR) / rnADC_STRIP : 
+	   -99);
+}
+
+/*
+double 
+  MTCCNtupleMaker::getClusterCrossTalk( const std::vector<uint16_t> 
+                                          &roSTRIP_AMPLITUDES,
+				        const int         &rnFIRST_STRIP,
+				        const DigisVector &roDIGIS) const {
+  // Given value is used to separate non-physical values
+  // [Example: cluster with empty amplitudes vector]
+  double dClusterCrossTalk = -99;
+
+  switch( roSTRIP_AMPLITUDES.size()) {
+    case 1: {
+      // One Strip cluster: try to find corresponding Digi
+      DigisVector::const_iterator oITER( roDIGIS.begin());
+      for( ;
+	   oITER != roDIGIS.end() && oITER->strip() != roSTRIP_AMPLITUDES[0];
+	   ++oITER) {}
+
+      // Check if Digi for given cluster strip was found
+      if( oITER != roDIGIS.end()) {
+
+	// Check if previous neighbouring strip exists
+	DigisVector::const_iterator oITER_PREV( roDIGIS.end());
+	if( oITER != roDIGIS.begin() &&
+	    ( oITER->strip() - 1) == ( oITER - 1)->strip()) {
+	  // There is previous strip specified :)
+	  oITER_PREV = oITER - 1;
+	}
+
+	// Check if next neighbouring strip exists
+	DigisVector::const_iterator oITER_NEXT( roDIGIS.end());
+	if( oITER != roDIGIS.end() &&
+	    oITER != ( roDIGIS.end() - 1) &&
+	    ( oITER->strip() + 1) == ( oITER + 1)->strip()) {
+	  // There is previous strip specified :)
+	  oITER_NEXT = oITER + 1;
+	}
+
+        // Now check if both neighbouring digis exist and there is no
+	// anything in N-2 and N+2 to make sure neighbouring digis were
+	// created from central one
+	if( oITER_PREV != roDIGIS.end() && 
+	    oITER_NEXT != roDIGIS.end() &&
+	    !( oITER_PREV != roDIGIS.begin() && 
+	       ( oITER_PREV - 1)->strip() == oITER_PREV->strip() - 1) && 
+	    !( oITER_NEXT != roDIGIS.end() - 1 &&
+	       ( oITER_NEXT + 1)->strip() == oITER_NEXT->strip() + 1)) {
+
+	  // Both Digis are specified
+	  // Now Pick the one with max amplitude
+	  dClusterCrossTalk = 
+	    calculateClusterCrossTalk( oITER_PREV->adc(),
+	                               roSTRIP_AMPLITUDES[0],
+				       oITER_NEXT->adc());
+	} // End check if both neighbouring digis exist
+      } // end check if Digi for given cluster strip was found
+    }
+    case 3: {
+      // Try to find Digi that corresponds to central strip
+      DigisVector::const_iterator oITER( roDIGIS.begin());
+      for( ;
+	   oITER != roDIGIS.end() && oITER->strip() != roSTRIP_AMPLITUDES[1];
+	   ++oITER) {}
+
+      // Check if Digi for given cluster strip was found
+      if( oITER != roDIGIS.end()) {
+	DigisVector::const_iterator oITER_N_MINUS_2( oITER);
+	for( int i = 2; i > 0; --i) {
+	  if( oITER_N_MINUS_2 == roDIGIS.begin()) {
+	    // There is no N-2 Digi
+	    oITER_N_MINUS_2 = roDIGIS.end();
+	    break;
+	  }
+	  --oITER_N_MINUS_2;
+	}
+
+	DigisVector::const_iterator oITER_N_PLUS_2( oITER);
+	for( int i = 2; oITER_N_PLUS_2 != roDIGIS.end() && i > 0; --i) {
+	  ++oITER_N_PLUS_2;
+	}
+
+	// Check if there is no N-2/N+2 Digi specified
+	if( ( ( oITER_N_MINUS_2 == roDIGIS.end() ||
+	        oITER_N_MINUS_2->strip() + 1 != ( oITER_N_MINUS_2 + 1)->strip()) &&
+	      ( oITER_N_PLUS_2 == roDIGIS.end() ||
+	        oITER_N_PLUS_2->strip() - 1 != ( oITER_N_PLUS_2 - 1)->strip())) ) {
+	  dClusterCrossTalk = calculateClusterCrossTalk( roSTRIP_AMPLITUDES[0],
+							 roSTRIP_AMPLITUDES[1],
+							 roSTRIP_AMPLITUDES[2]);
+	}
+      }
+    }
+    default:
+      break;
+  }
+
+
+
+  return dClusterCrossTalk;
+}
+*/

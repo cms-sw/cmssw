@@ -5,10 +5,14 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "Utilities/Timing/interface/TimingReport.h"
+#include "TrackingTools/TrackAssociator/interface/TimerStack.h"
+
 class TrackingTruthProducer : public edm::EDProducer {
 
 public:
   explicit TrackingTruthProducer( const edm::ParameterSet & );
+//  ~TrackingTruthProducer() { TimingReport::current()->dump(std::cout); }
 
 private:
   void produce( edm::Event &, const edm::EventSetup & );

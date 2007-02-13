@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:35:45 EDT 2005
-// $Id: Tracer.h,v 1.4 2006/04/20 16:54:07 chrjones Exp $
+// $Id: Tracer.h,v 1.6 2006/04/22 03:57:16 wmtan Exp $
 //
 
 // system include files
@@ -46,6 +46,9 @@ public:
          
          void preSource();
          void postSource();
+         
+         void prePath(const std::string&);
+         void postPath(const std::string&, const edm::HLTPathStatus&);
 private:
          std::string indention_;
          unsigned int depth_;

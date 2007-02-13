@@ -1,6 +1,7 @@
 // makes CaloTowerCandidates from CaloTowers
 // original author: L.Lista INFN, modifyed by: F.Ratnikov UMd 
 // Author for regionality A. Nikitenko
+// Modified by S. Gennai
 #include <cmath>
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -8,12 +9,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTauTag/HLTProducers/interface/CaloTowerCreatorForTauHLT.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 // Math
 #include "Math/GenVector/VectorUtil.h"
-#include "Math/GenVector/PxPyPzE4D.h"
+#include <cmath>
 
 using namespace edm;
 using namespace reco;
@@ -25,8 +24,8 @@ CaloTowerCreatorForTauHLT::CaloTowerCreatorForTauHLT( const ParameterSet & p )
   mVerbose (p.getUntrackedParameter<int> ("verbose", 0)),
   mtowers (p.getParameter<string> ("towers")),
   mCone (p.getParameter<double> ("UseTowersInCone")),
-  mTauTrigger (p.getParameter<string> ("TauTrigger")),
-  ml1seeds (p.getParameter<InputTag> ("l1seeds")),
+  mTauTrigger (p.getParameter<InputTag> ("TauTrigger")),
+//  ml1seeds (p.getParameter<InputTag> ("l1seeds")),
   mEtThreshold (p.getParameter<double> ("minimumEt")),
   mEThreshold (p.getParameter<double> ("minimumE")),
   mTauId (p.getParameter<int> ("TauId"))
@@ -42,10 +41,8 @@ void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
   evt.getByLabel( mtowers, caloTowers );
 
   // imitate L1 seeds
-  InputTag tauJetInputTag( ml1seeds.label(), mTauTrigger ) ;
   Handle<L1JetParticleCollection> jetsgen;
-  evt.getByLabel(tauJetInputTag, jetsgen);
-  //   cout <<"Size of the jetgen "<<jetsgen->size()<<endl;  
+  evt.getByLabel(mTauTrigger, jetsgen);
   auto_ptr<CandidateCollection> cands( new CandidateCollection );
   cands->reserve( caloTowers->size() );
   
@@ -58,7 +55,7 @@ void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
 	  double Sum08 = 0.;
 	  
 	  if (mVerbose == 3) {
-	    std::cout <<" Generated jet et = " << (*myL1Jet).et()
+	    std::cout <<" L1 jet et = " << (*myL1Jet).et()
 		      <<" eta = " << myL1Jet->eta()
 		      <<" phi = " << myL1Jet->phi() << endl;
 	  }
@@ -70,23 +67,19 @@ void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
 			<< cal->et() << '/' << cal->eta() << '/' << cal->phi() << '/' << cal->energy() << " is...";
 	    }
 	    if (cal->et() >= mEtThreshold && cal->energy() >= mEThreshold ) {
-	      
 	      math::PtEtaPhiELorentzVector p( cal->et(), cal->eta(), cal->phi(), cal->energy() );
-  
-	      
-	      double delta  = ROOT::Math::VectorUtil::DeltaR((*myL1Jet).p4().Vect(), p);
+  	      double delta  = ROOT::Math::VectorUtil::DeltaR((*myL1Jet).p4().Vect(), p);
 	      
 	      if(delta < mCone) {
-		
 		RecoCaloTowerCandidate * c = 
 		  new RecoCaloTowerCandidate( 0, Candidate::LorentzVector( p ) );
 		c->setCaloTower (CaloTowerRef( caloTowers, idx) );
+		Sum08 += c->et(); 
 		cands->push_back( c );
-		Sum08 += c->pt(); 
 		if (mVerbose == 3) std::cout << "accepted: pT/eta/phi:" 
-					     << c->pt() << '/' 
-					     << c->eta() <<  '/' 
-					     << c->phi()
+					     << cal->et() << '/' 
+					     << cal->eta() <<  '/' 
+					     << cal->phi()
 					     <<" emEt()= " << (*caloTowers)[idx].emEt() 
 					     <<" ehEt()= " << (*caloTowers)[idx].hadEt() 
 					     <<" deltar= " << delta 
@@ -98,13 +91,13 @@ void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
 	    }
 	  }
 	  if (mVerbose == 3) {
-	    std::cout << "CaloTowerCreatorForTauHLT::produce-> " << cands->size () << " candidates created" << std::endl;
-	    std::cout << " Sum08 = " << Sum08 << endl;
+	  std::cout << "CaloTowerCreatorForTauHLT::produce-> " << cands->size () << " candidates created" << std::endl;
+	  std::cout << " Sum08 = " << Sum08 << std::endl;
 	  }
 	}
       idTau++;
     }
-  
+
   evt.put( cands );
   
 }

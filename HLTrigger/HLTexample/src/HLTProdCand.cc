@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/18 13:35:34 $
- *  $Revision: 1.23 $
+ *  $Date: 2006/08/18 16:49:59 $
+ *  $Revision: 1.24 $
  *
  *  \author Martin Grunewald
  *
@@ -113,15 +113,21 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // photons, electrons, muons and taus: generator level
    // tracks: all charged particles; superclusters: electrons and photons
 
-   // get hold of generator records
-   vector<edm::Handle<edm::HepMCProduct> > hepmcs;
+   // get hold of generator record - try "VtxSmeared" first, then "source"
    edm::Handle<edm::HepMCProduct> hepmc;
-   iEvent.getManyByType(hepmcs);
-   LogDebug("") << "Number of HepMC products found: " << hepmcs.size();
+   try{iEvent.getByLabel("VtxSmeared",hepmc);} catch(...) {;}
+   if (hepmc.isValid()) {
+     LogDebug("") << "HepMC product VtxSmeared found! ";
+   } else {
+     try{iEvent.getByLabel("source",hepmc);} catch(...) {;}
+     if (hepmc.isValid()) {
+       LogDebug("") << "HepMC product source found! ";
+     } else {
+       LogDebug("") << "HepMC product: Not Found! ";
+     }
+   }
 
-   // loop over all final-state particles in all generator records
-   for (unsigned int i=0; i!=hepmcs.size(); i++) {
-     hepmc=hepmcs[i];
+   if (hepmc.isValid()) {
      const HepMC::GenEvent* evt = hepmc->GetEvent();
      for (HepMC::GenEvent::particle_const_iterator pitr=evt->particles_begin(); pitr!=evt->particles_end(); pitr++) {
 

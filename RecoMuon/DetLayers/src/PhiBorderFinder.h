@@ -5,8 +5,8 @@
  *  Find the phi binning of a list of detector according to several 
  *  definitions.
  *
- *  $Date: 2006/06/02 15:19:39 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/01/20 18:45:06 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -18,6 +18,9 @@
 #include <Geometry/Surface/interface/GeometricSorting.h>
 #include <TrackingTools/DetLayers/interface/simple_stat.h>
 #include <FWCore/Utilities/interface/Exception.h>
+
+// FIXME: remove this include
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 
@@ -32,7 +35,13 @@ public:
     : theNbins(theDets.size()), isPhiPeriodic_(false), isPhiOverlapping_(false) {
     precomputed_value_sort(theDets.begin(), theDets.end(), DetPhi());
 
+    const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|PhiBorderFinder";
+
     double step = 2.*Geom::pi()/theNbins;
+
+    LogTrace(metname) << "RecoMuonDetLayers::PhiBorderFinder "
+		      << "step w: " << step << " # of bins: " << theNbins;
+    
     std::vector<double> spread(theNbins);
     std::vector<std::pair<double,double> > phiEdge;
     phiEdge.reserve(theNbins);
@@ -42,6 +51,10 @@ public:
       thePhiBins.push_back(theDets[i]->position().phi());
       spread.push_back(theDets[i]->position().phi()
 	- (theDets[0]->position().phi() + i*step));
+      
+      LogTrace(metname) << "bin: " << i << " phi bin: " << thePhiBins[i]
+			<< " spread: " <<  spread[i];
+      
 
       ConstReferenceCountingPointer<BoundPlane> plane = 
 	dynamic_cast<const BoundPlane*>(&theDets[i]->surface());
@@ -60,21 +73,44 @@ public:
 //	float z = pt->z();
 	if (phi < phimin) phimin = phi;
 	if (phi > phimax) phimax = phi;
+
+	LogTrace(metname) << "Plane corner "<< *pt
+			  << " phi: " << phi << " phi min: " << phimin << " phi max: " << phimax; 
+
       }
       if (phimin*phimax < 0. &&           //Handle pi border:
 	  phimax - phimin > Geom::pi()) { //Assume that the Det is on
                                           //the shortest side 
+	LogTrace(metname) << "Swapping...";
+
 	std::swap(phimin,phimax);
       }
       phiEdge.push_back(std::pair<double,double>(phimin,phimax));
-      
+
+      LogTrace(metname) << "Final phi edges: " << phimin << " " << phimax;
+
     }
     
     for (unsigned int i = 0; i < theNbins; i++) {
-      Geom::Phi<double> br(positiveRange
-		      (positiveRange(phiEdge[binIndex(i-1)].second)
-		       +positiveRange(phiEdge[i].first))/2.);
-      thePhiBorders.push_back(br);
+      
+      // Put the two phi values in the [0,2pi] range
+      double firstPhi  = positiveRange(phiEdge[i].first);
+      double secondPhi = positiveRange(phiEdge[binIndex(i-1)].second);
+
+      // Reformat them in the [-pi,pi] range
+      Geom::Phi<double> firstEdge(firstPhi);
+      Geom::Phi<double> secondEdge(secondPhi);
+
+      // Calculate the mean and format the result in the [-pi,pi] range
+      // Get their value in order to perform the mean in the correct way
+      Geom::Phi<double> mean((firstEdge.value() + secondEdge.value())/2.);
+      
+      // Special case: at +-pi there is a discontinuity
+      if ( phiEdge[i].first * phiEdge[binIndex(i-1)].second < 0 &&
+	   fabs(firstPhi-secondPhi) < Geom::pi() ) 
+	mean = Geom::pi() - mean;
+      
+      thePhiBorders.push_back(mean);
     }
   
     for (unsigned int i = 0; i < theNbins; i++) {
@@ -99,6 +135,8 @@ public:
 
   virtual ~PhiBorderFinder(){};
 
+  inline unsigned int nBins() {return theNbins;}
+
   /// Returns true if the Dets are periodic in phi.
   inline bool isPhiPeriodic() const { return isPhiPeriodic_; }
   
@@ -107,14 +145,13 @@ public:
 
   /// The borders, defined for each det as the middle between its lower 
   /// edge and the previous Det's upper edge.
-  inline std::vector<double> phiBorders() const { return thePhiBorders; }
+  inline const std::vector<double>& phiBorders() const { return thePhiBorders; }
 
   /// The centers of the Dets.
-  inline std::vector<double> phiBins() const { return thePhiBins; }
+  inline const std::vector<double>& phiBins() const { return thePhiBins; }
 
   //  inline std::vector<double> etaBorders() {}
   //  inline std::vector<double> zBorders() {}
-
 
 private:
   unsigned int theNbins;

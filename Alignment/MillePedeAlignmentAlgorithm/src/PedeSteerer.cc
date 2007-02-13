@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.4 $
- *  $Date: 2006/11/14 08:29:05 $
+ *  $Revision: 1.2 $
+ *  $Date: 2006/11/07 10:43:23 $
  *  (last update by $Author: flucke $)
  */
 
@@ -26,17 +26,14 @@
 #include <algorithm>
 
 const unsigned int PedeSteerer::theMaxNumParam = RigidBodyAlignmentParameters::N_PARAM;
-const unsigned int PedeSteerer::theMinLabel = 1; // must be > 0
 
 //___________________________________________________________________________
 
 PedeSteerer::PedeSteerer(AlignableTracker *alignableTracker, AlignmentParameterStore *store,
-			 const edm::ParameterSet &config, const char *fileDir) 
+			 const edm::ParameterSet &config) : 
+  mySteerFile(config.getParameter<std::string>("steerFile").c_str(), std::ios::out)
 {
   // opens steerFileName as text output file
-  std::string dir(fileDir);
-  if (!dir.empty()) dir += '/';
-  mySteerFile.open((dir + config.getParameter<std::string>("steerFile")).c_str(), std::ios::out);
 
   if (!mySteerFile.is_open()) {
     edm::LogError("Alignment") << "@SUB=PedeSteerer::PedeSteerer"
@@ -61,7 +58,8 @@ PedeSteerer::~PedeSteerer()
 //___________________________________________________________________________
 /// Return 32-bit unique label for alignable, 0 indicates failure.
 /// So far works only within the tracker.
-unsigned int PedeSteerer::alignableLabel(Alignable *alignable) const
+// uint32_t 
+unsigned int PedeSteerer::alignableLabel(const Alignable *alignable) const
 {
   if (!alignable) return 0;
 
@@ -145,40 +143,6 @@ unsigned int PedeSteerer::parameterLabel(unsigned int aliLabel, unsigned int par
   */
 }
 
-//___________________________________________________________________________
-unsigned int PedeSteerer::paramNumFromLabel(unsigned int paramLabel) const
-{
-  if (paramLabel < theMinLabel) {
-    edm::LogError("LogicError") << "@SUB=PedeSteerer::paramNumFromLabel"
-                                << "label " << paramLabel << " should be >= " << theMinLabel;
-    return 0;
-  }
-  return (paramLabel - theMinLabel) % theMaxNumParam;
-}
-
-//___________________________________________________________________________
-unsigned int PedeSteerer::alignableLabelFromLabel(unsigned int paramLabel) const
-{
-  return paramLabel - this->paramNumFromLabel(paramLabel);
-}
-
-//___________________________________________________________________________
-Alignable* PedeSteerer::alignableFromLabel(unsigned int label) const
-{
-  const unsigned int aliLabel = this->alignableLabelFromLabel(label);
-  if (aliLabel < theMinLabel) return 0; // error already given
-  
-  if (myIdToAlignableMap.empty()) const_cast<PedeSteerer*>(this)->buildReverseMap();
-  IdToAlignableMap::const_iterator position = myIdToAlignableMap.find(aliLabel);
-  if (position != myIdToAlignableMap.end()) {
-    return position->second;
-  } else {
-    edm::LogError("LogicError") << "@SUB=PedeSteerer::alignableFromLabel"
-                                << "alignable label " << aliLabel << " not in map";
-    return 0;
-  }
-}
-
 //_________________________________________________________________________
 unsigned int PedeSteerer::buildMap(Alignable *highestLevelAli)
 {
@@ -190,7 +154,7 @@ unsigned int PedeSteerer::buildMap(Alignable *highestLevelAli)
   allComps.push_back(highestLevelAli);
   highestLevelAli->recursiveComponents(allComps);
 
-  unsigned int id = theMinLabel;
+  unsigned int id = 1;
   for (std::vector<Alignable*>::const_iterator iter = allComps.begin();
        iter != allComps.end(); ++iter) {
     myAlignableToIdMap.insert(AlignableToIdPair(*iter, id));
@@ -198,23 +162,6 @@ unsigned int PedeSteerer::buildMap(Alignable *highestLevelAli)
   }
 
   return allComps.size();
-}
-
-
-//_________________________________________________________________________
-unsigned int PedeSteerer::buildReverseMap()
-{
-
-  myIdToAlignableMap.clear();  // just in case of re-use...
-
-  for (AlignableToIdMap::iterator it = myAlignableToIdMap.begin();
-       it != myAlignableToIdMap.end(); ++it) {
-    const unsigned int key = (*it).second;
-    Alignable *ali = (*it).first;
-    myIdToAlignableMap[key] = ali;
-  }
-
-  return myIdToAlignableMap.size();
 }
 
 //_________________________________________________________________________

@@ -10,6 +10,7 @@
 #include "FWCore/Utilities/interface/PresenceFactory.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageService/interface/MessageLogger.h"
 
 #include "toolbox/include/TaskGroup.h"
 
@@ -105,7 +106,8 @@ outPut_(true), inputPrescale_(1), outputPrescale_(1),  outprev_(true),
   // Bind web interface
   xgi::bind(this, &FUEventProcessor::css           , "styles.css");
   xgi::bind(this, &FUEventProcessor::defaultWebPage, "Default"   );
-  xgi::bind(this, &FUEventProcessor::moduleWeb     , "moduleWeb"    );
+  xgi::bind(this, &FUEventProcessor::moduleWeb     , "moduleWeb" );
+  xgi::bind(this, &FUEventProcessor::microState    , "microState");
 
   //  logger_ = this->getApplicationLogger();
 }
@@ -121,6 +123,9 @@ FUEventProcessor::~FUEventProcessor()
 #include "EventFilter/Message2log4cplus/interface/MLlog4cplus.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+ #include "EventFilter/Utilities/interface/MicroStateService.h"
+
+using edm::service::MessageLogger;
 
 void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
@@ -138,18 +143,6 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
       
       try {
 	ah_ = new edm::AssertHandler();   
-	LOG4CPLUS_DEBUG(this->getApplicationLogger(),
-		       "Trying to create message service presence ");
-	edm::PresenceFactory *pf = edm::PresenceFactory::get();
-	LOG4CPLUS_DEBUG(this->getApplicationLogger(),
-			"presence factory pointer is " << hex << (int) pf
-			<< dec);
-	if(pf != 0)
-	  m_messageServicePresence = boost::shared_ptr<edm::Presence>(pf->makePresence("MessageServicePresence").release());
-	else
-	  LOG4CPLUS_ERROR(this->getApplicationLogger(),
-			  "Unable to create message service presence ");
-	
       } 
       catch(seal::Error& e) 
 	{
@@ -174,41 +167,111 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
 	}
     }
 
-  //test it 
-  edm::LogInfo("FUEventProcessor") << "started MessageLogger Service ";
-
-
 
   ParameterSetRetriever pr(offConfig_.value_);
   std::string configString = pr.getAsString();
 
-  //  boost::shared_ptr<ParameterSet>          params; // change this name!
-  //  makeParameterSets(configString, params, pServiceSets);
+  boost::shared_ptr<edm::ParameterSet> params; // change this name!
+  boost::shared_ptr<vector<edm::ParameterSet> >pServiceSets;
+  makeParameterSets(configString, params, pServiceSets);
   if(!servicesDone_)
     {
-      vector<edm::ParameterSet> pServiceSets;
-      internal::addServiceMaybe(pServiceSets, "DaqMonitorROOTBackEnd");
-      internal::addServiceMaybe(pServiceSets, "MLlog4cplus");
-      internal::addServiceMaybe(pServiceSets, "MonitorDaemon");
-      serviceToken_ = edm::ServiceRegistry::createSet(pServiceSets);
-      servicesDone_ = true;
+
+      internal::addServiceMaybe(*pServiceSets, "DaqMonitorROOTBackEnd");
+      internal::addServiceMaybe(*pServiceSets, "MonitorDaemon");
+      //      internal::addServiceMaybe(*pServiceSets, "MessageLogger");
+      internal::addServiceMaybe(*pServiceSets, "MLlog4cplus");
+      internal::addServiceMaybe(*pServiceSets, "MicroStateService");
+      try{
+	serviceToken_ = edm::ServiceRegistry::createSet(*pServiceSets);
+      }
+      catch(seal::Error& e) 
+	{
+	  LOG4CPLUS_ERROR(this->getApplicationLogger(),
+			  e.explainSelf());
+	}
+      catch(cms::Exception &e)
+	{
+	  LOG4CPLUS_ERROR(this->getApplicationLogger(),
+			  e.explainSelf());
+	}    
+      
+      catch(std::exception &e)
+	{
+	  LOG4CPLUS_ERROR(this->getApplicationLogger(),
+			  e.what());
+	}
+      catch(...)
+	{
+	  LOG4CPLUS_ERROR(this->getApplicationLogger(),
+			  "Unknown Exception");
+	}
+
     }
+
 
   edm::ServiceRegistry::Operate operate(serviceToken_);
   try{
     rmt_p = edm::Service<MonitorDaemon>()->rmt(add_, port_, del_, nam_, rdel_);
     edm::Service<ML::MLlog4cplus>()->setAppl(this);
+    //    edm::Service<MessageLogger>();
   }
   catch(...)
       { 
 	LOG4CPLUS_INFO(this->getApplicationLogger(),"exception when trying to get service MonitorDaemon");
       }
+  if(!servicesDone_)
+    
+    {
+      try{
+	LOG4CPLUS_DEBUG(this->getApplicationLogger(),
+		       "Trying to create message service presence ");
+	edm::PresenceFactory *pf = edm::PresenceFactory::get();
+	LOG4CPLUS_DEBUG(this->getApplicationLogger(),
+		       "presence factory pointer is " << (int) pf);
+	if(pf != 0)
+	  m_messageServicePresence = boost::shared_ptr<edm::Presence>(pf->makePresence("MessageServicePresence").release());
+	else
+	  LOG4CPLUS_ERROR(this->getApplicationLogger(),
+			  "Unable to create message service presence ");
+	servicesDone_ = true;
+	
+      } 
+      catch(seal::Error& e) 
+	{
+	  LOG4CPLUS_ERROR(this->getApplicationLogger(),
+			  e.explainSelf());
+	}
+      catch(cms::Exception &e)
+	{
+	  LOG4CPLUS_ERROR(this->getApplicationLogger(),
+			  e.explainSelf());
+	}    
+      
+      catch(std::exception &e)
+	{
+	  LOG4CPLUS_ERROR(this->getApplicationLogger(),
+			  e.what());
+	}
+      catch(...)
+	{
+	  LOG4CPLUS_ERROR(this->getApplicationLogger(),
+			  "Unknown Exception");
+	}
+      
+    }
+  //test it 
+  edm::LogInfo("FUEventProcessor") << "started MessageLogger Service ";
 
   edm::LogInfo("FUEventProcessor") << "Using config string \n" << configString;
 
   try{
-
-    proc_ = new edm::EventProcessor(configString, serviceToken_, edm::serviceregistry::kTokenOverrides);
+    std::vector<std::string> defaultServices;
+    defaultServices.push_back("MessageLogger");
+    defaultServices.push_back("InitRootHandlers");
+    defaultServices.push_back("LoadAllDictionaries");
+    defaultServices.push_back("JobReportService");
+    proc_ = new edm::EventProcessor(configString, serviceToken_, edm::serviceregistry::kTokenOverrides, defaultServices);
     if(!outPut_) //proc_->toggleOutput();
       //  proc_->prescaleInput(inputPrescale_);
       //  proc_->prescaleOutput(outputPrescale_);
@@ -470,10 +533,15 @@ void FUEventProcessor::defaultWebPage (xgi::Input  *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   std::string urn = getApplicationDescriptor()->getURN();
+  ostringstream ourl;
+  ourl << "'/" <<  urn << "/microState'";
   *out << "<!-- base href=\"/" <<  urn
        << "\"> -->" << endl;
   *out << "<html>"                                                   << endl;
   *out << "<head>"                                                   << endl;
+  //insert javascript code
+  jsGen(in,out,ourl.str());
+  *out << "<STYLE type=\"text/css\"> #T1 {border-width: 2px; border: solid blue; text-align: center} </STYLE> "                                      << endl; 
   *out << "<link type=\"text/css\" rel=\"stylesheet\"";
   *out << " href=\"/" <<  urn
        << "/styles.css\"/>"                   << endl;
@@ -481,63 +549,66 @@ void FUEventProcessor::defaultWebPage (xgi::Input  *in, xgi::Output *out)
        << getApplicationDescriptor()->getInstance() 
        << " MAIN</title>"     << endl;
   *out << "</head>"                                                  << endl;
-  *out << "<body>"                                                   << endl;
-    *out << "<table border=\"0\" width=\"100%\">"                      << endl;
-    *out << "<tr>"                                                     << endl;
-    *out << "  <td align=\"left\">"                                    << endl;
-    *out << "    <img"                                                 << endl;
-    *out << "     align=\"middle\""                                    << endl;
-    *out << "     src=\"/daq/evb/examples/fu/images/fu64x64.gif\""     << endl;
-    *out << "     alt=\"main\""                                        << endl;
-    *out << "     width=\"64\""                                        << endl;
-    *out << "     height=\"64\""                                       << endl;
-    *out << "     border=\"\"/>"                                       << endl;
-    *out << "    <b>"                                                  << endl;
-    *out << getApplicationDescriptor()->getClassName() 
-	 << getApplicationDescriptor()->getInstance()                  << endl;
-    *out << "      " << fsm_->stateName_.toString()                    << endl;
-    *out << "    </b>"                                                 << endl;
-    *out << "  </td>"                                                  << endl;
-    *out << "  <td width=\"32\">"                                      << endl;
-    *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
-    *out << "      <img"                                               << endl;
-    *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/xdaq/hyperdaq/images/HyperDAQ.jpg\""    << endl;
-    *out << "       alt=\"HyperDAQ\""                                  << endl;
-    *out << "       width=\"32\""                                      << endl;
-    *out << "       height=\"32\""                                      << endl;
-    *out << "       border=\"\"/>"                                     << endl;
-    *out << "    </a>"                                                 << endl;
-    *out << "  </td>"                                                  << endl;
-    *out << "  <td width=\"32\">"                                      << endl;
-    *out << "  </td>"                                                  << endl;
-    *out << "  <td width=\"32\">"                                      << endl;
-    *out << "    <a href=\"/" << urn 
-	 << "/debug\">"                   << endl;
-    *out << "      <img"                                               << endl;
-    *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/evb/bu/images/debug32x32.gif\""         << endl;
-    *out << "       alt=\"debug\""                                     << endl;
-    *out << "       width=\"32\""                                      << endl;
-    *out << "       height=\"32\""                                     << endl;
-    *out << "       border=\"\"/>"                                     << endl;
-    *out << "    </a>"                                                 << endl;
-    *out << "  </td>"                                                  << endl;
-    *out << "</tr>"                                                    << endl;
-    *out << "</table>"                                                 << endl;
-
+  *out << "<body onload=\"loadXMLDoc()\">"                           << endl;
+  *out << "<table border=\"0\" width=\"100%\">"                      << endl;
+  *out << "<tr>"                                                     << endl;
+  *out << "  <td align=\"left\">"                                    << endl;
+  *out << "    <img"                                                 << endl;
+  *out << "     align=\"middle\""                                    << endl;
+  *out << "     src=\"/daq/evb/examples/fu/images/fu64x64.gif\""     << endl;
+  *out << "     alt=\"main\""                                        << endl;
+  *out << "     width=\"64\""                                        << endl;
+  *out << "     height=\"64\""                                       << endl;
+  *out << "     border=\"\"/>"                                       << endl;
+  *out << "    <b>"                                                  << endl;
+  *out << getApplicationDescriptor()->getClassName() 
+       << getApplicationDescriptor()->getInstance()                  << endl;
+  *out << "      " << fsm_->stateName_.toString()                    << endl;
+  *out << "    </b>"                                                 << endl;
+  *out << "  </td>"                                                  << endl;
+  *out << "  <td width=\"32\">"                                      << endl;
+  *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
+  *out << "      <img"                                               << endl;
+  *out << "       align=\"middle\""                                  << endl;
+  *out << "       src=\"/daq/xdaq/hyperdaq/images/HyperDAQ.jpg\""    << endl;
+  *out << "       alt=\"HyperDAQ\""                                  << endl;
+  *out << "       width=\"32\""                                      << endl;
+  *out << "       height=\"32\""                                     << endl;
+  *out << "       border=\"\"/>"                                     << endl;
+  *out << "    </a>"                                                 << endl;
+  *out << "  </td>"                                                  << endl;
+  *out << "  <td width=\"32\">"                                      << endl;
+  *out << "  </td>"                                                  << endl;
+  *out << "  <td width=\"32\">"                                      << endl;
+  *out << "    <a href=\"/" << urn 
+       << "/debug\">"                                                << endl;
+  *out << "      <img"                                               << endl;
+  *out << "       align=\"middle\""                                  << endl;
+  *out << "       src=\"/daq/evb/bu/images/debug32x32.gif\""         << endl;
+  *out << "       alt=\"debug\""                                     << endl;
+  *out << "       width=\"32\""                                      << endl;
+  *out << "       height=\"32\""                                     << endl;
+  *out << "       border=\"\"/>"                                     << endl;
+  *out << "    </a>"                                                 << endl;
+  *out << "  </td>"                                                  << endl;
+  *out << "</tr>"                                                    << endl;
+  *out << "</table>"                                                 << endl;
+  
   *out << "<hr/>"                                                    << endl;
   *out << "<table>"                                                  << endl;
   *out << "<tr valign=\"top\">"                                      << endl;
   *out << "  <td>"                                                   << endl;
+  *out << "<div id=\"T1\" style=\"border:2px solid blue;height:80;width:150\">microState</div><br /> " << endl;
+  *out << "  </td>"                                                  << endl;
 
-  if(proc_)
+  *out << "  <td>"                                                   << endl;
+    if(proc_)
     taskWebPage(in,out,urn);
   else
     *out << "Unconfigured" << endl;
   *out << "  </td>"                                                  << endl;
   *out << "</table>"                                                 << endl;
-
+  
   *out << "<textarea rows=" << 10 << " cols=80 scroll=yes>"          << endl;
   *out << offConfig_.value_                                          << endl;
   *out << "</textarea><P>"                                           << endl;
@@ -589,6 +660,14 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,
   *out << "Value" << std::endl;
   *out << "</th>" << std::endl;
   *out << "</tr>" << std::endl;
+  *out << "<tr>" << std::endl;
+  *out << "<td >" << std::endl;
+  *out << "EP state" << std::endl;
+  *out << "</td>" << std::endl;
+  *out << "<td>" << std::endl;
+  *out << proc_->getState() << std::endl;
+  *out << "</td>" << std::endl;
+  *out << "  </tr>"                                            << endl;
   *out << "<tr>" << std::endl;
   *out << "<td >" << std::endl;
   *out << "Processed Events/Accepted Events" << std::endl;
@@ -725,5 +804,81 @@ void FUEventProcessor::moduleWeb(xgi::Input  *in, xgi::Output *out)
     }
 }
 
+void FUEventProcessor::jsGen(xgi::Input *in, xgi::Output *out, string url)
+  throw (xgi::exception::Exception)
+{
+  *out << "<script type=\"text/javascript\"> \n";
+  *out << "var xmlhttp \n";
+  *out << " \n";
+  *out << "function loadXMLDoc() \n";
+  *out << "{ \n";
+  *out << "xmlhttp=null \n";
+  *out << " \n";
+  *out << "if (window.XMLHttpRequest) \n";
+  *out << "  { \n";
+  *out << "  xmlhttp=new XMLHttpRequest() \n";
+  *out << "  } \n";
+  *out << " \n";
+  *out << "else if (window.ActiveXObject) \n";
+  *out << "  { \n";
+  *out << "  xmlhttp=new ActiveXObject(\"Microsoft.XMLHTTP\") \n";
+  *out << "  } \n";
+  *out << "if (xmlhttp!=null) \n";
+  *out << "  { \n";
+  *out << "  xmlhttp.onreadystatechange=state_Change \n";
+  *out << "  xmlhttp.open(\"GET\"," << url << ",true) \n";
+  *out << "  xmlhttp.send(null) \n";
+  *out << "  setTimeout('loadXMLDoc()',500) \n";
+  *out << "  } \n";
+  *out << "else \n";
+  *out << "  { \n";
+  *out << "  alert(\"Your browser does not support XMLHTTP.\") \n";
+  *out << "  } \n";
+  *out << "} \n";
+  *out << " \n";
+  *out << "function state_Change() \n";
+  *out << "{ \n";
+  // if xmlhttp shows "loaded"
+  *out << "if (xmlhttp.readyState==4) \n";
+  *out << "  { \n";
+  // if "OK" 
+  *out << " if (xmlhttp.status==200) \n";
+  *out << "  { \n";
+  *out << "  document.getElementById('T1').innerHTML=xmlhttp.responseText \n";
+  *out << "  } \n";
+  *out << "  else \n";
+  *out << "  { \n";
+  *out << "  document.getElementById('T1').innerHTML=xmlhttp.statusText \n";
+  *out << "  } \n";
+  *out << "  } \n";
+  *out << "} \n";
+  *out << " \n";
+  *out << "</script> \n";
+}
+
+
+void FUEventProcessor::microState(xgi::Input  *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  edm::ServiceRegistry::Operate operate(serviceToken_);
+  MicroStateService *mss = 0;
+  string micro1 = "unavailable";
+  string micro2 = "unavailable";
+  try{
+    mss = edm::Service<MicroStateService>().operator->();
+  }
+  catch(...)
+      { 
+	LOG4CPLUS_INFO(this->getApplicationLogger(),"exception when trying to get service MicroStateService");
+      }
+  if(mss)
+    {
+      micro1 = mss->getMicroState1();
+      micro2 = mss->getMicroState2();
+    }
+  cout << "microstate page " << micro1 << " " << micro2 << endl;
+  *out << "<br>  " << micro1 << endl;
+  *out << "<br>  " << micro2 << endl;
+}
 
 XDAQ_INSTANTIATOR_IMPL(evf::FUEventProcessor)

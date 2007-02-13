@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.8 2006/10/13 17:36:39 evansde Exp $
+// $Id: JobReport.h,v 1.9 2006/10/21 02:49:00 wmtan Exp $
 //
 
 #include <cstddef>
@@ -146,6 +146,19 @@ namespace edm {
          */
         void writeOutputFile(OutputFile & f);
         
+
+	/*
+	 * Add Generator info to the map of gen info stored in this 
+	 * instance.
+	 */
+	void addGeneratorInfo(std::string name, std::string value);
+	
+	/*
+	 * Write out generator info to the job report
+	 */
+	void writeGeneratorInfo(void);
+	
+
         /*
          *  Flush all open files to logger in event of a problem.
          */
@@ -153,6 +166,7 @@ namespace edm {
   
         std::vector<InputFile> inputFiles_;
         std::vector<OutputFile> outputFiles_;
+	std::map<std::string, std::string> generatorInfo_;
       };
 
       JobReport();
@@ -261,6 +275,10 @@ namespace edm {
       /// for use with EdmFastMerge 
       void overrideContributingInputs(Token outputToken, std::vector<Token> inputTokens);
       
+      /// Report key/value style generator/lumi information
+      /// Eg:  reportGeneratorInfo("CrossSection" , "ValueHere")
+      /// No special chars in the value string. 
+      void reportGeneratorInfo(std::string  name, std::string  value);
 
    protected:
       boost::scoped_ptr<JobReportImpl>& impl() {return impl_;}

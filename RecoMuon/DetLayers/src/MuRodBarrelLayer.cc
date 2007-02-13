@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/11 10:56:51 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/01/19 11:57:44 $
+ *  $Revision: 1.12 $
  *  \author N. Amapane - CERN
  */
 
@@ -52,13 +52,13 @@ MuRodBarrelLayer::MuRodBarrelLayer(vector<const DetRod*>& rods) :
 
   // Compute the layer's surface and bounds (from the components())
   BarrelDetLayer::initialize(); 
-
+  
   LogTrace(metname) << "Constructing MuRodBarrelLayer: "
-                    << basicComponents().size() << " Dets " 
-                    << theRods.size() << " Rods "
-                    << " R: " << specificSurface().radius()
-                    << " Per.: " << bf.isPhiPeriodic()
-                    << " Overl.: " << isOverlapping;
+		    << basicComponents().size() << " Dets " 
+		    << theRods.size() << " Rods "
+		    << " R: " << specificSurface().radius()
+		    << " Per.: " << bf.isPhiPeriodic()
+		    << " Overl.: " << isOverlapping;
 }
 
 
@@ -80,7 +80,8 @@ MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
  
   LogTrace(metname) << "MuRodBarrelLayer::compatibleDets, Cyl R: " 
                     << specificSurface().radius()
-                    << " TSOS at R: " << startingState.globalPosition().perp();
+                    << " TSOS at R= " << startingState.globalPosition().perp()
+		    << " phi= " << startingState.globalPosition().phi();
 
   pair<bool, TrajectoryStateOnSurface> compat =
     compatible(startingState, prop, est);
@@ -90,8 +91,12 @@ MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
     return vector<DetWithState>();
   } 
 
-
   TrajectoryStateOnSurface& tsos = compat.second;
+
+  LogTrace(metname) << "     MuRodBarrelLayer::compatibleDets, reached layer at: "
+		    << tsos.globalPosition()
+		    << " R = " << tsos.globalPosition().perp()
+		    << " phi = " << tsos.globalPosition().phi();
 
   int closest = theBinFinder->binIndex(tsos.globalPosition().phi());
   const DetRod* closestRod = theRods[closest];

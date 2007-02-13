@@ -13,7 +13,7 @@
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "DataFormats/TrackReco/interface/TrackSeedAssociation.h"
+#include "DataFormats/PixelMatchTrackReco/interface/TrackSeedAssociation.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateSeedAssociation.h"
 
 TrackProducerWithSeedAssoc::TrackProducerWithSeedAssoc(const edm::ParameterSet& iConfig):

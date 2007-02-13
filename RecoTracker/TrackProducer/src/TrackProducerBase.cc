@@ -69,7 +69,11 @@ void TrackProducerBase::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCandida
   //
   LogDebug("TrackProducer") << 
     "get the TrackCandidateCollection from the event, source is " << src_<<"\n";
-  theEvent.getByLabel(src_,theTCCollection );
+  if (pro_=="") {
+    theEvent.getByLabel(src_,theTCCollection );  
+  } else {
+    theEvent.getByLabel(pro_,src_,theTCCollection );
+  }
 }
 
 void TrackProducerBase::getFromEvt(edm::Event& theEvent,edm::Handle<reco::TrackCollection>& theTCollection)
@@ -79,7 +83,11 @@ void TrackProducerBase::getFromEvt(edm::Event& theEvent,edm::Handle<reco::TrackC
   //
   LogDebug("TrackProducer") << 
     "get the TrackCollection from the event, source is " << src_<<"\n";
-  theEvent.getByLabel(src_,theTCollection );
+  if (pro_=="") {
+    theEvent.getByLabel(src_,theTCollection );  
+  } else {
+    theEvent.getByLabel(pro_,src_,theTCollection );
+  }
 }
 
 void TrackProducerBase::putInEvt(edm::Event& evt,

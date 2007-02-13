@@ -1,5 +1,5 @@
-#ifndef RPCTrigger_TTPatternsGroup_h
-#define RPCTrigger_TTPatternsGroup_h
+#ifndef L1Trigger_TTPatternsGroup_h
+#define L1Trigger_TTPatternsGroup_h
 // -*- C++ -*-
 //
 // Package:     RPCTrigger
@@ -15,7 +15,7 @@
 #include "L1Trigger/RPCTrigger/src/TPatternsGroup.h"
  
 class TTPatternsGroup: public TPatternsGroup {
-    friend class L1RpcPac;
+    friend class RPCPacData;
     public:
       TTPatternsGroup();
 };

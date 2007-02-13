@@ -8,7 +8,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoisson.h"
 
 #include <algorithm>
@@ -23,13 +22,11 @@ namespace edm {
       poisson_(type_ == "poisson"),
       fixed_(type_ == "fixed"),
       none_(type_ == "none"),
-      maxEventsToSkip_(pset.getUntrackedParameter<unsigned int>("maxEventsToSkip", 0)),
       input_(VectorInputSourceFactory::get()->makeVectorInputSource(pset, InputSourceDescription()).release()),
-      poissonDistribution_(0),
-      flatDistribution_(0) {
+      poissonDistribution_(0) {
 
    edm::Service<edm::RandomNumberGenerator> rng;
-   if ( ! rng.isAvailable()) {
+   if (!rng.isAvailable()) {
      throw cms::Exception("Configuration")
        << "PileUp requires the RandomNumberGeneratorService\n"
           "which is not present in the configuration file.  You must add the service\n"
@@ -39,23 +36,16 @@ namespace edm {
    CLHEP::HepRandomEngine& engine = rng->getEngine();
 
    poissonDistribution_ = new CLHEP::RandPoisson(engine, averageNumber_);
-   flatDistribution_ = new CLHEP::RandFlat(engine, 0, maxEventsToSkip_ + 1);
 
     if (!(poisson_ || fixed_ || none_)) {
       throw cms::Exception("Illegal parameter value","PileUp::PileUp(ParameterSet const& pset)")
         << "'type' parameter (a string) has a value of '" << type_ << "'.\n"
         << "Legal values are 'poisson', 'fixed', or 'none'\n";
     }
-    if (maxEventsToSkip_ != 0) {
-      int jump = static_cast<int>(flatDistribution_->fire());
-      LogInfo("PileUp") << "Initial SKIP: " << jump ;
-      input_->skipEvents(jump);
-    }
   }
 
   PileUp::~PileUp() {
     delete poissonDistribution_;
-    delete flatDistribution_;
   }
 
   void
@@ -70,12 +60,7 @@ namespace edm {
         input_->readMany(n, oneResult);
         LogDebug("readPileup") << "READ: " << oneResult.size();
         std::copy(oneResult.begin(), oneResult.end(), std::back_inserter(eventVector));
-        n -= oneResult.size();
-        if (n > 0 && maxEventsToSkip_ != 0) {
-	  int jump = static_cast<int>(flatDistribution_->fire());
-          LogDebug("readPileup") << "SKIP: " << jump ;
-          input_->skipEvents(jump);
-        }
+	n -= oneResult.size();
       }
       result.push_back(eventVector);
     }

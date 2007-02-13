@@ -6,10 +6,12 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include <vector>
 
 namespace {
-  namespace {    
+  namespace {
+    ProjectedSiStripRecHit2D projHit;   
     SiStripRecHit2D a1;
     SiStripMatchedRecHit2D a2;
     SiPixelRecHit b1;

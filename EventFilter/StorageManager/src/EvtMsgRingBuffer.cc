@@ -31,9 +31,9 @@ EventMsgView EvtMsgRingBuffer::pop_front()
   // check to see if empty - what to return?
   // calling code needs to check ifEmpty() and do appropriate thing
   // should really return a message an appropriate MsgCode
-  if(isEmpty()) return EventMsgView(&ring_buffer_[head_][0],0,0);
+  if(isEmpty()) return EventMsgView(&ring_buffer_[head_][0]);
 
-  EventMsgView popthis(&ring_buffer_[head_][0],0,0);
+  EventMsgView popthis(&ring_buffer_[head_][0]);
   if(head_ == (int)maxsize_-1) head_ = 0;
   else head_++;
   // see if now empty and need to move the tail

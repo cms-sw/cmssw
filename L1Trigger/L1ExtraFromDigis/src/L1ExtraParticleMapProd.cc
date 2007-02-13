@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id: L1ExtraParticleMapProd.cc,v 1.1 2006/10/17 21:41:32 wsun Exp $
+// $Id: L1ExtraParticleMapProd.cc,v 1.2 2006/10/27 01:35:33 wmtan Exp $
 //
 //
 
@@ -639,7 +639,7 @@ L1ExtraParticleMapProd::evaluateSingleObjectTrigger(
 {
    for( size_t i = 0 ; i < inputRefs.size() ; ++i )
    {
-      if( inputRefs[ i ].get()->et() > etThreshold )
+      if( inputRefs[ i ].get()->et() >= etThreshold )
       {
 	 decision = true ;
 	 outputRefs.push_back( inputRefs[ i ] ) ;
@@ -661,12 +661,12 @@ L1ExtraParticleMapProd::evaluateDoubleSameObjectTrigger(
    for( size_t i = 0 ; i+1 < inputRefs.size() ; ++i )
    {
       const edm::Ref< TCollection >& refi = inputRefs[ i ] ;
-      if( refi.get()->et() > etThreshold )
+      if( refi.get()->et() >= etThreshold )
       {
 	 for( size_t j = i+1 ; j < inputRefs.size() ; ++j )
 	 {
 	    const edm::Ref< TCollection >& refj = inputRefs[ j ] ;
-	    if( refj.get()->et() > etThreshold )
+	    if( refj.get()->et() >= etThreshold )
 	    {
 	       decision = true ;
 
@@ -727,17 +727,17 @@ L1ExtraParticleMapProd::evaluateTripleSameObjectTrigger(
    for( size_t i = 0 ; i+2 < inputRefs.size() ; ++i )
    {
       const edm::Ref< TCollection >& refi = inputRefs[ i ] ;
-      if( refi.get()->et() > etThreshold )
+      if( refi.get()->et() >= etThreshold )
       {
 	 for( size_t j = i+1 ; j+1 < inputRefs.size() ; ++j )
 	 {
 	    const edm::Ref< TCollection >& refj = inputRefs[ j ] ;
-	    if( refj.get()->et() > etThreshold )
+	    if( refj.get()->et() >= etThreshold )
 	    {
 	       for( size_t k = j+1 ; k < inputRefs.size() ; ++k )
 	       {
 		  const edm::Ref< TCollection >& refk = inputRefs[ k ] ;
-		  if( refk.get()->et() > etThreshold )
+		  if( refk.get()->et() >= etThreshold )
 		  {
 		     decision = true ;
 
@@ -813,22 +813,22 @@ L1ExtraParticleMapProd::evaluateQuadSameObjectTrigger(
    for( size_t i = 0 ; i+3 < inputRefs.size() ; ++i )
    {
       const edm::Ref< TCollection >& refi = inputRefs[ i ] ;
-      if( refi.get()->et() > etThreshold )
+      if( refi.get()->et() >= etThreshold )
       {
 	 for( size_t j = i+1 ; j+2 < inputRefs.size() ; ++j )
 	 {
 	    const edm::Ref< TCollection >& refj = inputRefs[ j ] ;
-	    if( refj.get()->et() > etThreshold )
+	    if( refj.get()->et() >= etThreshold )
 	    {
 	       for( size_t k = j+1 ; k+1 < inputRefs.size() ; ++k )
 	       {
 		  const edm::Ref< TCollection >& refk = inputRefs[ k ] ;
-		  if( refk.get()->et() > etThreshold )
+		  if( refk.get()->et() >= etThreshold )
 		  {
 		     for( size_t p = k+1 ; p < inputRefs.size() ; ++p )
 		     {
 			const edm::Ref< TCollection >& refp = inputRefs[ p ] ;
-			if( refp.get()->et() > etThreshold )
+			if( refp.get()->et() >= etThreshold )
 			{
 			   decision = true ;
 
@@ -921,12 +921,12 @@ L1ExtraParticleMapProd::evaluateDoubleDifferentObjectTrigger(
    for( size_t i = 0 ; i < inputRefs1.size() ; ++i )
    {
       const edm::Ref< TCollection1 >& refi = inputRefs1[ i ] ;
-      if( refi.get()->et() > etThreshold1 )
+      if( refi.get()->et() >= etThreshold1 )
       {
 	 for( size_t j = 0 ; j < inputRefs2.size() ; ++j )
 	 {
 	    const edm::Ref< TCollection2 >& refj = inputRefs2[ j ] ;
-	    if( refj.get()->et() > etThreshold2 )
+	    if( refj.get()->et() >= etThreshold2 )
 	    {
 	       decision = true ;
 

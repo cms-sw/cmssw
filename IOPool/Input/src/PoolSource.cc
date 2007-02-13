@@ -1,7 +1,6 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.37 2006/09/28 20:35:12 wmtan Exp $
+$Id: PoolSource.cc,v 1.43 2007/02/06 23:07:55 wmtan Exp $
 ----------------------------------------------------------------------*/
-
 #include "IOPool/Input/src/PoolSource.h"
 #include "IOPool/Input/src/RootFile.h"
 #include "IOPool/Common/interface/ClassFiller.h"
@@ -12,6 +11,11 @@ $Id: PoolSource.cc,v 1.37 2006/09/28 20:35:12 wmtan Exp $
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
+#include "CLHEP/Random/RandFlat.h"
+#include "TTree.h"
 
 namespace edm {
   PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :
@@ -20,21 +24,34 @@ namespace edm {
     rootFile_(),
     origRootFile_(),
     origEntryNumber_(),
-    matchMode_(BranchDescription::Permissive)
+    matchMode_(BranchDescription::Permissive),
+    flatDistribution_(0),
+    eventsRemainingInFile_(0)
   {
     std::string matchMode = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
     if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
     ClassFiller();
-    init(*fileIter_);
     if (primary()) {
+      init(*fileIter_);
       updateProductRegistry();
+      setInitialPosition(pset);
+    } else {
+      Service<RandomNumberGenerator> rng;
+      if (!rng.isAvailable()) {
+        throw cms::Exception("Configuration")
+          << "A secondary input source requires the RandomNumberGeneratorService\n"
+          "which is not present in the configuration file.  You must add the service\n"
+          "in the configuration file or remove the modules that require it.";
+      }
+      CLHEP::HepRandomEngine& engine = rng->getEngine();
+      flatDistribution_ = new CLHEP::RandFlat(engine);
     }
-    setInitialPosition(pset);
   }
 
   void
   PoolSource::endJob() {
     rootFile_->close();
+    delete flatDistribution_;
   }
 
   void PoolSource::setInitialPosition(ParameterSet const& pset) {
@@ -66,7 +83,7 @@ namespace edm {
   }
 
   void PoolSource::init(FileCatalogItem const& file) {
-
+    TTree::SetMaxTreeSize(kMaxLong64);
     rootFile_ = RootFileSharedPtr(new RootFile(file.fileName(), catalog().url(), file.logicalFileName()));
   }
 
@@ -75,15 +92,15 @@ namespace edm {
       productRegistry().setNextID(rootFile_->productRegistry().nextID());
     }
     ProductRegistry::ProductList const& prodList = rootFile_->productRegistry().productList();
-    for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
-	it != prodList.end(); ++it) {
+    for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
+	it != itEnd; ++it) {
       productRegistry().copyProduct(it->second);
     }
   }
 
   bool PoolSource::next() {
     if(rootFile_->next()) return true;
-    ++fileIter_;
+    if(fileIter_ != fileCatalogItems().end()) ++fileIter_;
     if(fileIter_ == fileCatalogItems().end()) {
       if (primary()) {
 	return false;
@@ -182,6 +199,12 @@ namespace edm {
   void
   PoolSource::rewind_() {
     rootFile_ = origRootFile_;
+    rewindFile();
+  }
+
+  // Rewind to the beginning of the current file
+  void
+  PoolSource::rewindFile() {
     rootFile_->setEntryNumber(origEntryNumber_);
   }
 
@@ -231,12 +254,25 @@ namespace edm {
   void
   PoolSource::readMany_(int number, EventPrincipalVector& result) {
     for (int i = 0; i < number; ++i) {
+      while (eventsRemainingInFile_ <= 0) randomize();
       std::auto_ptr<EventPrincipal> ev = read();
       if (ev.get() == 0) {
-	return;
+	rewindFile();
+	ev = read();
+	assert(ev.get() != 0);
       }
       EventPrincipalVectorElement e(ev.release());
       result.push_back(e);
+      --eventsRemainingInFile_;
     }
+  }
+
+  void
+  PoolSource::randomize() {
+    FileCatalogItem const& file = *(fileCatalogItems().begin() +
+				 flatDistribution_->fireInt(fileCatalogItems().size()));
+    rootFile_ = RootFileSharedPtr(new RootFile(file.fileName(), catalog().url(), file.logicalFileName()));
+    eventsRemainingInFile_ = rootFile_->entries();
+    rootFile_->setEntryNumber(flatDistribution_->fireInt(eventsRemainingInFile_));
   }
 }
