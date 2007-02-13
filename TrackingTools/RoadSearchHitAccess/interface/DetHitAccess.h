@@ -23,7 +23,7 @@ class DetHitAccess {
 
  public:
 
-  enum accessMode {standard,rphi};
+  enum accessMode {standard,rphi,rphi_stereo};
 
   DetHitAccess();
 

@@ -22,7 +22,7 @@ DetHitAccess::DetHitAccess(const SiStripRecHit2DCollection* rphiRecHits,
   accessMode_ = standard;
 
   use_rphiRecHits_ = true;
-  use_rphiRecHits_ = true;
+  use_stereoRecHits_ = true;
 
   // set collections
   setCollections(rphiRecHits,stereoRecHits,matchedRecHits,pixelRecHits);
@@ -46,6 +46,10 @@ void DetHitAccess::setCollections(const SiStripRecHit2DCollection* rphiRecHits,
   
 }
 
+
+//
+//DetId that is given to getHitVector is *always* rphi
+//
 std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
   
   std::vector<TrackingRecHit*> RecHitVec;
@@ -59,9 +63,9 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
 
 
     if (accessMode_ == rphi ) {
-      
+      //
       //return only r-phi RecHits; in case of double modules eliminate recurring r-phi RecHits
-    
+      //
       if( !StripDetId.glued() ) {
 	DetId useDetId(StripDetId.rawId());
 	try {
@@ -104,11 +108,63 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
 	  edm::LogWarning("RoadSearch") << "matched RecHit collection not set properly";
 	}
       }
+    } else if (accessMode_ == rphi_stereo ) {
+      //
+      //return only r-phi and stereo RecHits
+      //
+      if( !StripDetId.glued() ) {
+	DetId useDetId(StripDetId.rawId());
+	try {
+	  if ( rphiHitsDetIds_.end() != std::find(rphiHitsDetIds_.begin(),rphiHitsDetIds_.end(),useDetId) ) {
+	    SiStripRecHit2DCollection::range rphiDetHits = rphiHits_->get(useDetId);
+	    for ( SiStripRecHit2DCollection::const_iterator rphiDetHit = rphiDetHits.first;
+		  rphiDetHit != rphiDetHits.second; 
+		  ++rphiDetHit ) {
+	      RecHitVec.push_back((TrackingRecHit*)(&(*rphiDetHit)));
+	    }
+	  }
+	} catch(const std::exception& er) {
+	  edm::LogWarning("RoadSearch") << "rphi RecHit collection not set properly";
+	}
+
+      } else {
+	
+	DetId rphiDetId(StripDetId.glued()+2);
+	try {
+	  if ( rphiHitsDetIds_.end() != std::find(rphiHitsDetIds_.begin(),rphiHitsDetIds_.end(),rphiDetId) ) {
+	    SiStripRecHit2DCollection::range rphiDetHits = rphiHits_->get(rphiDetId);
+	    for ( SiStripRecHit2DCollection::const_iterator rphiDetHit = rphiDetHits.first;
+		  rphiDetHit != rphiDetHits.second; 
+		  ++rphiDetHit ) {
+	      RecHitVec.push_back((TrackingRecHit*)(&(*rphiDetHit)));
+	    }
+	  }
+	} catch(const std::exception& er) {
+	  edm::LogWarning("RoadSearch") << "rphi RecHit collection not set properly";
+	}
+
+	DetId stereoDetId(StripDetId.glued()+1);
+	try {
+	  if ( stereoHitsDetIds_.end() != std::find(stereoHitsDetIds_.begin(),stereoHitsDetIds_.end(),stereoDetId) ) {
+	    SiStripRecHit2DCollection::range stereoDetHits = stereoHits_->get(stereoDetId);
+	    for ( SiStripRecHit2DCollection::const_iterator stereoDetHit = stereoDetHits.first;
+		  stereoDetHit != stereoDetHits.second; 
+		  ++stereoDetHit ) {
+	      RecHitVec.push_back((TrackingRecHit*)(&(*stereoDetHit)));
+	    }
+	  }
+	} catch(const std::exception& er) {
+	  edm::LogWarning("RoadSearch") << "stereo RecHit collection not set properly";
+	}
+
+      }
+
+
     } else if (accessMode_ == standard ) {
-      
+      //
       //single modules: return r-phi RecHits
       //double modules: return matched RecHits + r-phi RecHits that are not used by matched RecHits
-
+      //
       if( !StripDetId.glued() ) {
 	DetId useDetId(StripDetId.rawId());
 	try {
