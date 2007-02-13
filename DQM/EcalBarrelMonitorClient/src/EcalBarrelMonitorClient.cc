@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/13 11:23:54 $
- * $Revision: 1.217 $
+ * $Date: 2007/02/13 16:13:34 $
+ * $Revision: 1.218 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1260,11 +1260,15 @@ void EcalBarrelMonitorClient::analyze(void){
   }
 
   if ( status_ == "end-of-run" ) {
-    
-    if ( begin_run_ && ! end_run_ ) {
 
-      forced_status_ = false;
-      this->endRun();
+    if ( run_ > 0 && evt_ > 0 && runtype_ != -1 ) {
+
+      if ( begin_run_ && ! end_run_ ) {
+
+        forced_status_ = false;
+        this->endRun();
+
+      }
 
     }
     
