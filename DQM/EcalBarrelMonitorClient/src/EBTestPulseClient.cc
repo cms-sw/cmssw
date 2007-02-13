@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/02/01 15:25:25 $
- * $Revision: 1.122 $
+ * $Date: 2007/02/06 18:19:49 $
+ * $Revision: 1.123 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -168,9 +168,9 @@ void EBTestPulseClient::beginJob(MonitorUserInterface* mui){
       sprintf(qtname, "EBTPT pedestal quality PNs SM%02d G16", ism);
       qtha07_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
  
-      qtha01_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0);
-      qtha02_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0);
-      qtha03_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0);
+      qtha01_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0*12.);
+      qtha02_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0*12.);
+      qtha03_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0*12.);
 
       qtha04_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
       qtha05_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);

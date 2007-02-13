@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/02/06 18:19:49 $
- * $Revision: 1.137 $
+ * $Date: 2007/02/06 19:40:05 $
+ * $Revision: 1.138 $
  * \author G. Della Ricca
  *
 */
@@ -307,14 +307,14 @@ void EBLaserClient::beginJob(MonitorUserInterface* mui){
       sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L4 G16", ism);
       qth24_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      qth01_[ism-1]->setMeanRange(100.0, 4096.0);
-      qth02_[ism-1]->setMeanRange(100.0, 4096.0);
-      qth03_[ism-1]->setMeanRange(100.0, 4096.0);
-      qth04_[ism-1]->setMeanRange(100.0, 4096.0);
-      qth05_[ism-1]->setMeanRange(100.0, 4096.0);
-      qth06_[ism-1]->setMeanRange(100.0, 4096.0);
-      qth07_[ism-1]->setMeanRange(100.0, 4096.0);
-      qth08_[ism-1]->setMeanRange(100.0, 4096.0);
+      qth01_[ism-1]->setMeanRange(100.0, 4096.0*12.);
+      qth02_[ism-1]->setMeanRange(100.0, 4096.0*12.);
+      qth03_[ism-1]->setMeanRange(100.0, 4096.0*12.);
+      qth04_[ism-1]->setMeanRange(100.0, 4096.0*12.);
+      qth05_[ism-1]->setMeanRange(100.0, 4096.0*12.);
+      qth06_[ism-1]->setMeanRange(100.0, 4096.0*12.);
+      qth07_[ism-1]->setMeanRange(100.0, 4096.0*12.);
+      qth08_[ism-1]->setMeanRange(100.0, 4096.0*12.);
 
       qth09_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
       qth10_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
