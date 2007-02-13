@@ -258,7 +258,7 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
           else {
                   theMomentum[3]= pInit;
                   double costheta  = pz/pInit;
-                  double theta = acos(min(max(costheta, -1.),1.));
+                  double theta = acos(std::min(std::max(costheta, -1.),1.));
                   etaInit = -log(tan(theta/2));
 
                   if ( px != 0 || py != 0)
