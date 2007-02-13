@@ -3,12 +3,12 @@
 
 /// \class MillePedeAlignmentAlgorithm
 ///
-///  CMSSW interface to pede: produces pede's binary input and steering
+///  CMSSW interface to pede: produces pede's binary input and steering file(s)
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.5 $
-///  $Date: 2007/01/26 11:25:02 $
+///  $Revision: 1.6 $
+///  $Date: 2007/02/12 16:49:04 $
 ///  (last update by $Author: flucke $)
 
 
@@ -75,6 +75,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 			const TrajectoryStateOnSurface &tsos, MeasurementDirection xOrY,
 			std::vector<float> &globalDerivatives, std::vector<int> &globalLabels,
 			AlignmentParameters *&params) const;
+  /// recursively adding derivatives and labels
   bool globalDerivativesHierarchy(const TrajectoryStateOnSurface &tsos,
 				  Alignable *ali, AlignableDet *alidet, MeasurementDirection xOrY,
 				  std::vector<float> &globalDerivatives,
