@@ -556,8 +556,8 @@ class int32(_SimpleParameterTypeBase):
 class uint32(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
-        return ((isinstance(value,int) and value > 0) or
-                (isinstance(value,long) and value > 0) and value <= 0xFFFFFFFF)
+        return ((isinstance(value,int) and value >= 0) or
+                (isinstance(value,long) and value >= 0) and value <= 0xFFFFFFFF)
     @staticmethod
     def _valueFromString(value):
         if len(value) >1 and '0x' == value[:2]:
@@ -579,8 +579,8 @@ class int64(_SimpleParameterTypeBase):
 class uint64(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
-        return ((isinstance(value,int) and value > 0) or
-                (ininstance(value,long) and value > 0) and value <= 0xFFFFFFFFFFFFFFFF)
+        return ((isinstance(value,int) and value >= 0) or
+                (ininstance(value,long) and value >= 0) and value <= 0xFFFFFFFFFFFFFFFF)
     @staticmethod
     def _valueFromString(value):
         if len(value) >1 and '0x' == value[:2]:
@@ -1120,6 +1120,15 @@ if __name__=="__main__":
             self.assertEqual(i.value(),1)
             self.assertRaises(ValueError,int32,"i")
             i = int32._valueFromString("0xA")
+            self.assertEqual(i.value(),10)
+        def testuint32(self):
+            i = uint32(1)
+            self.assertEqual(i.value(),1)
+            i = uint32(0)
+            self.assertEqual(i.value(),0)
+            self.assertRaises(ValueError,uint32,"i")
+            self.assertRaises(ValueError,uint32,-1)
+            i = uint32._valueFromString("0xA")
             self.assertEqual(i.value(),10)
         def testvint32(self):
             v = vint32()
