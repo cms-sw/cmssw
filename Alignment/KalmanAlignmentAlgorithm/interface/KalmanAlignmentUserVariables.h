@@ -8,10 +8,9 @@
 
 #include <string>
 
-using namespace std;
-
 /// User variables used by the KalmanAlignmentAlgorithm. The evolution of the estimated alignment
-/// parameters is stored in graphs using the DataCollector.
+/// parameters is stored in graphs using the KalmanAlignmentDataCollector.
+
 
 class KalmanAlignmentUserVariables : public AlignmentUserVariables
 {
@@ -45,16 +44,16 @@ public:
   /// Call this function in case the associated Alignable was updated by the alignment algorithm.
   void update( bool enforceUpdate = false );
 
-  const string identifier( void ) const { return theIdentifier; }
+  const std::string identifier( void ) const { return theIdentifier; }
 
 protected:
 
   const AlgebraicVector extractTrueParameters( void ) const;
 
-  const string selectedParameter( const int& selected ) const;
+  const std::string selectedParameter( const int& selected ) const;
   const float selectedScaling( const int& selected ) const;
 
-  const string toString( const int& i ) const;
+  const std::string toString( const int& i ) const;
 
   Alignable* theParentAlignable;
 
@@ -64,7 +63,7 @@ protected:
 
   bool theFirstUpdate;
 
-  string theIdentifier;
+  std::string theIdentifier;
 };
 
 

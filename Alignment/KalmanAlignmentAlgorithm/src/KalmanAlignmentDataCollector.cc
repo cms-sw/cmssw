@@ -1,12 +1,12 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
 
-#include <iostream>
-#include <algorithm>
-
 #include "TH1F.h"
 #include "TGraph.h"
 #include "TFile.h"
+
+using namespace std;
+
 
 KalmanAlignmentDataCollector* KalmanAlignmentDataCollector::theDataCollector = 0;
 
@@ -78,7 +78,7 @@ void KalmanAlignmentDataCollector::write( string file_name, string mode )
 
 void KalmanAlignmentDataCollector::clear( void )
 {
-  if ( theDataCollector ) theDataCollector->clear();
+  if ( theDataCollector ) theDataCollector->clearData();
 }
 
 

@@ -5,8 +5,6 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdator.h"
 
-using namespace std;
-
 /// A concrete updator for the KalmanAlignmentAlgorithm. It calculates an improved estimate on the
 /// current misalignment from a single ReferenceTrajectory.
 

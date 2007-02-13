@@ -32,7 +32,7 @@
 #include "CLHEP/Random/RandGauss.h"
 #include <fstream>
 
-using namespace edm;
+using namespace std;
 
 
 KalmanAlignmentAlgorithm::KalmanAlignmentAlgorithm( const edm::ParameterSet& config ) :
@@ -57,19 +57,19 @@ void KalmanAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 
   initializeAlignmentParameters( setup );
 
-  std::string identifier;
+  string identifier;
   edm::ParameterSet config;
 
-  identifier = theConfiguration.getParameter< std::string >( "AlignmentUpdator" );
-  config = theConfiguration.getParameter< ParameterSet >( identifier );
+  identifier = theConfiguration.getParameter< string >( "AlignmentUpdator" );
+  config = theConfiguration.getParameter< edm::ParameterSet >( identifier );
   theAlignmentUpdator = KalmanAlignmentUpdatorPlugin::getUpdator( identifier, config );
 
-  identifier = theConfiguration.getParameter< std::string >( "MetricsUpdator" );
-  config = theConfiguration.getParameter< ParameterSet >( identifier );
+  identifier = theConfiguration.getParameter< string >( "MetricsUpdator" );
+  config = theConfiguration.getParameter< edm::ParameterSet >( identifier );
   theMetricsUpdator = KalmanAlignmentMetricsUpdatorPlugin::getUpdator( identifier, config );
 
-  identifier = theConfiguration.getParameter< std::string >( "TrajectoryFactory" );
-  config = theConfiguration.getParameter< ParameterSet >( identifier );
+  identifier = theConfiguration.getParameter< string >( "TrajectoryFactory" );
+  config = theConfiguration.getParameter< edm::ParameterSet >( identifier );
   theTrajectoryFactory = TrajectoryFactoryPlugin::getFactory( identifier, config );
 
   theRefitterDebugFlag = theConfiguration.getUntrackedParameter< bool >( "DebugRefitter", true );
@@ -80,14 +80,14 @@ void KalmanAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 
 void KalmanAlignmentAlgorithm::terminate( void )
 {
-  std::cout << "[KalmanAlignmentAlgorithm::terminate] start ..." << std::endl;
+  cout << "[KalmanAlignmentAlgorithm::terminate] start ..." << endl;
 
   KalmanAlignmentDataCollector::write();
 
   TimingReport* timing = TimingReport::current();
-  timing->dump( std::cout );  
+  timing->dump( cout );  
 
-  std::string timingLogFile = theConfiguration.getUntrackedParameter<std::string>( "TimingLogFile", "timing.log" );
+  string timingLogFile = theConfiguration.getUntrackedParameter< string >( "TimingLogFile", "timing.log" );
 
   ofstream* output = new ofstream( timingLogFile.c_str() );
   timing->dump( *output );
@@ -99,7 +99,7 @@ void KalmanAlignmentAlgorithm::terminate( void )
   delete theTrajectoryFactory;
   delete theAlignmentUpdator;
 
-  std::cout << "[KalmanAlignmentAlgorithm::terminate] ... done." << std::endl;
+  cout << "[KalmanAlignmentAlgorithm::terminate] ... done." << endl;
 }
 
 
@@ -107,7 +107,7 @@ void KalmanAlignmentAlgorithm::run( const edm::EventSetup & setup,
 				    const ConstTrajTrackPairCollection & tracks )
 {
   static int iEvent = 1;
-  if ( iEvent % 100 == 0 ) std::cout << "[KalmanAlignmentAlgorithm::run] Event Nr. " << iEvent << std::endl;
+  if ( iEvent % 100 == 0 ) cout << "[KalmanAlignmentAlgorithm::run] Event Nr. " << iEvent << endl;
   iEvent++;
 
   // Run the refitter algorithm.
@@ -218,7 +218,7 @@ KalmanAlignmentAlgorithm::refitTracks( const edm::EventSetup& setup,
 void KalmanAlignmentAlgorithm::initializeTrajectoryFitter( const edm::EventSetup& setup )
 {
   edm::ESHandle< TrajectoryFitter > defaultTrajectoryFitter;
-  std::string fitterName = theConfiguration.getParameter< std::string >( "Fitter" );
+  string fitterName = theConfiguration.getParameter< string >( "Fitter" );
   setup.get< TrackingComponentsRecord >().get( fitterName, defaultTrajectoryFitter );
 
   const KFFittingSmoother* fittingSmoother = dynamic_cast< const KFFittingSmoother* >( defaultTrajectoryFitter.product() );
@@ -254,7 +254,7 @@ void KalmanAlignmentAlgorithm::initializeTrajectoryFitter( const edm::EventSetup
 
 void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSetup& setup )
 {
-  const ParameterSet initConfig = theConfiguration.getParameter< ParameterSet >( "Initialization" );
+  const edm::ParameterSet initConfig = theConfiguration.getParameter< edm::ParameterSet >( "Initialization" );
 
   int updateGraph = initConfig.getUntrackedParameter< int >( "UpdateGraphs", 100 );
 

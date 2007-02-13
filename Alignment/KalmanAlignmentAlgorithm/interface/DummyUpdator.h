@@ -5,8 +5,6 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdator.h"
 
-using namespace std;
-
 /// A dummy alignment-updator for the KalmanAlignmentAlgorithm - it does nothing.
 
 class DummyUpdator : public KalmanAlignmentUpdator
@@ -24,10 +22,6 @@ public:
 			KalmanAlignmentMetricsUpdator* metrics );
 
   virtual DummyUpdator* clone( void ) const { return new DummyUpdator( *this ); }
-
-private:
-
-//   int theNAlignables;
 
 };
 

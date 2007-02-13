@@ -4,6 +4,8 @@
 
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentTransformations.h"
 
+using namespace std;
+
 
 KalmanAlignmentUserVariables::KalmanAlignmentUserVariables( Alignable* parent,
 							    TrackerAlignableId* alignableId,
