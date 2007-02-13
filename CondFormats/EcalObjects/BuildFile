@@ -1,9 +1,0 @@
-<flags GENREFLEX_ARGS="--">
-<use name=FWCore/Framework>
-<use name=boost>
-<use name=rootrflx>
-<export>
-  <use name=boost>
-  <lib name=CondFormatsEcalObjects>
-</export>
-

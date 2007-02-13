@@ -1,8 +1,0 @@
-<export>
- <lib name=UtilitiesGeneral>
- <use name=boost>
- <use name=Foundation/SealBase>
-</export>
-
-<use name=boost>
-<use name=Foundation/SealBase>

@@ -1,7 +1,0 @@
-<use name=boost>
-<use name=boost_filesystem>
-<export>
- <lib name=FWCoreUtilities>
- <use name=boost>
- <use name=boost_filesystem> 
-</export>

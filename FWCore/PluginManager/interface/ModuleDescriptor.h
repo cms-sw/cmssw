@@ -1,1 +1,0 @@
-#include "PluginManager/ModuleDescriptor.h"

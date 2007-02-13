@@ -1,8 +1,0 @@
-<lcgdict>
-  <class name="DTChamberId"/>
-  <class name="DTSuperLayerId"/>
-  <class name="DTLayerId"/>
-  <class name="DTWireId"/>
-  <class name="CSCDetId"/>
-  <class name="RPCDetId"/>
-</lcgdict>

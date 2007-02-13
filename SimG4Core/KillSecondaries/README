@@ -1,9 +1,0 @@
-TO USE:
- 
-in .cfg file:
- 
-	 VPSet Watchers = { 
-         {
-               string type = "KillSecondariesRunAction"
-         } }
- 

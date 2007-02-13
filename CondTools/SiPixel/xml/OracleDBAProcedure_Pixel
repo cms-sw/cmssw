@@ -1,5 +1,0 @@
-#! /bin/tcsh -f
-##
-## To reate mapping descriptions, if not already defined here
-##
-pool_build_object_relational_mapping -f mapping-template-SiPixelGainCalibration.xml -o SiPixelGainCalibration-mapping-default.xml -d CondFormatsSiPixelObjects -c sqlite_file:pippo.db -b -u whoever -p whatever

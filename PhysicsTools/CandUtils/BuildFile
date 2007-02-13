@@ -1,7 +1,0 @@
-<use name=PhysicsTools/Parser>
-<use name=DataFormats/Candidate>
-<export>
-  <lib name=PhysicsToolsCandUtils>
-  <use name=PhysicsTools/Parser>
-  <use name=DataFormats/Candidate>
-</export>

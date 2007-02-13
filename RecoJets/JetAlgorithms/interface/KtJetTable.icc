@@ -1,4 +1,0 @@
-inline int KtJetTable::getNJets() const {
-  return m_jets.size();
-}
-

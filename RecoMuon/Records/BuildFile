@@ -1,9 +1,0 @@
-<export>
-   <lib name=RecoMuonRecords>
-   <use name=FWCore/Framework>
-</export>
-
-<use name=FWCore/Utilities>
-<use name=FWCore/Framework>
-<use name=Geometry/Records>
-<use name=boost>

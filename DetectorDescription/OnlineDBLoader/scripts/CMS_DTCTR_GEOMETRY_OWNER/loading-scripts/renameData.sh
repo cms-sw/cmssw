@@ -1,9 +1,0 @@
-mv data/BOOLEANSOLIDS.dat.cdl data/BOOLEANSOLIDS.cdl
-mv data/BOXES.dat.cdl data/BOXES.cdl
-mv data/CONES.dat.cdl data/CONES.cdl
-mv data/POLYCONES.dat.cdl data/POLYCONES.cdl
-mv data/POLYHEDRAS.dat.cdl data/POLYHEDRAS.cdl
-mv data/TRAPEZOIDS.dat.cdl data/TRAPEZOIDS.cdl
-mv data/TRD1S.dat.cdl data/TRD1S.cdl
-mv data/TUBESECTIONS.dat.cdl data/TUBESECTIONS.cdl
-mv data/ZSECTIONS.dat.cdl data/ZSECTIONS.cdl

@@ -1,6 +1,0 @@
-<use name=Utilities/General> 
-<use name=FWCore/Framework>
-<export>
- <lib name=GeometryCommonTopologies>
- <use name=Geometry/CommonDetAlgo>
-</export>

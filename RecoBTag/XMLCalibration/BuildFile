@@ -1,9 +1,0 @@
-<lib name=CondFormatsBTagObjects>
-<use name=xerces-c>
-
-<export>
-  <lib name=CondFormatsBTagObjects>
-  <lib name=RecoBTagXMLCalibration>
-  <use name=xerces-c>
-</export>
-

@@ -1,6 +1,0 @@
-#ifndef RecoLocalMuon_DTDriftTimeParameters_H
-#define RecoLocalMuon_DTDriftTimeParameters_H
-
-#include "DataFormats/MuonData/src/DTDriftTimeParameters.icc"
-
-#endif
