@@ -9,7 +9,7 @@
 		<Parameter Name="NumberOfJobs" Value="10"/>
 		<Parameter Name="Configuration" Value="Validation/EcalHits/test/valid_ecal_simhit.cfg"/>
 		<ReferenceLFN>
-			/store/SVSuite/Reference/SVSuite-data-CMSSW_1_1_x.tar.gz
+			/store/SVSuite/Reference/SVSuite-data-CMSSW_1_2_x.tar.gz
 		</ReferenceLFN>
 		<Tool Name="runEcalHits Simhit30GeV_all"/>
 	</SVSuiteSpec>
@@ -51,7 +51,7 @@
 		<Parameter Name="NumberOfJobs" Value="2"/>
 		<Parameter Name="Configuration" Value="Validation/EcalHits/test/valid_ecal_simhit.cfg"/>
 		<ReferenceLFN>
-			/store/SVSuite/Reference/SVSuite-data-CMSSW_1_1_x.tar.gz
+			/store/SVSuite/Reference/SVSuite-data-CMSSW_1_2_x.tar.gz
 		</ReferenceLFN>
 		<Tool Name="runEcalHits Simhit400GeV_all"/>
 	</SVSuiteSpec>
@@ -64,7 +64,7 @@
 		<Parameter Name="NumberOfJobs" Value="10"/>
 		<Parameter Name="Configuration" Value="Validation/EcalHits/test/valid_ecal_simhit.cfg"/>
 		<ReferenceLFN>
-			/store/SVSuite/Reference/SVSuite-data-CMSSW_1_1_x.tar.gz
+			/store/SVSuite/Reference/SVSuite-data-CMSSW_1_2_x.tar.gz
 		</ReferenceLFN>
 		<Tool Name="runEcalHits SimhitPion_all"/>
 	</SVSuiteSpec>

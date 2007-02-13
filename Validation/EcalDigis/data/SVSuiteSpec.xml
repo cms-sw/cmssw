@@ -9,7 +9,7 @@
 		<Parameter Name="NumberOfJobs" Value="10"/>
 		<Parameter Name="Configuration" Value="Validation/EcalDigis/test/Photon_E30GeV_all.cfg"/>
 		<ReferenceLFN>
-			/store/SVSuite/Reference/SVSuite-data-EcalDigis-CMSSW_1_1_x.tar.gz
+			/store/SVSuite/Reference/SVSuite-data-CMSSW_1_2_x.tar.gz
 		</ReferenceLFN>
 		<Tool Name="runEcalDigis"/>
 	</SVSuiteSpec>
@@ -22,7 +22,7 @@
 		<Parameter Name="NumberOfJobs" Value="2"/>
 		<Parameter Name="Configuration" Value="Validation/EcalDigis/test/Photon_E30GeV_all.cfg"/>
 		<ReferenceLFN>
-			/store/SVSuite/Reference/SVSuite-data-EcalDigis-CMSSW_1_1_x.tar.gz
+			/store/SVSuite/Reference/SVSuite-data-CMSSW_1_2_x.tar.gz
 		</ReferenceLFN>
 		<Tool Name="runEcalDigis"/>
 	</SVSuiteSpec>
@@ -35,7 +35,7 @@
 		<Parameter Name="NumberOfJobs" Value="10"/>
 		<Parameter Name="Configuration" Value="Validation/EcalDigis/test/Photon_E30GeV_all.cfg"/>
 		<ReferenceLFN>
-			/store/SVSuite/Reference/SVSuite-data-EcalDigis-CMSSW_1_1_x.tar.gz
+			/store/SVSuite/Reference/SVSuite-data-EcalDigis-CMSSW_1_2_x.tar.gz
 		</ReferenceLFN>
 		<Tool Name="runEcalDigis"/>
 	</SVSuiteSpec>
