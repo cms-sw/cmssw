@@ -1,0 +1,20 @@
+
+<export>
+
+  <lib name=RecoVertexTertiaryTracksVertexFinder>
+
+  <use name=RecoVertex/KalmanVertexFit>
+  <use name=RecoVertex/VertexPrimitives>
+  <use name=RecoVertex/TrimmedKalmanVertexFinder>
+  <use name=TrackingTools/TransientTrack>
+  <use name=clhep>
+  <use name=root>
+
+</export>
+
+  <use name=RecoVertex/KalmanVertexFit>
+  <use name=RecoVertex/VertexPrimitives>
+  <use name=RecoVertex/TrimmedKalmanVertexFinder>
+  <use name=TrackingTools/TransientTrack>
+  <use name=clhep>
+  <use name=root>
