@@ -28,7 +28,7 @@
 	</SVSuiteSpec>
 
 	<SVSuiteSpec Name="SVSuite-EcalChain-PionPt60GeV-All" Type="Processing">
-	        <Parameter Name="InputDataset" Value="/SVSuite122-EcalChain-Photon400GeV-All-GenEvents/GEN/CMSSW_1_2_2-GEN-1170800929"/>
+	        <Parameter Name="InputDataset" Value="/SVSuite122-EcalChain-PionPt60GeV-All-GenEvents/GEN/CMSSW_1_2_2-GEN-1170801505"/>
 		<Parameter Name="SplitSize" Value="200"/>
 		<Parameter Name="SplitType" Value="event"/>
 		<Parameter Name="SaveCMSRunOutput" Value="False"/>
