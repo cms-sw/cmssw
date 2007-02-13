@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2006/10/02 09:33:00 $
- * $Revision: 1.21 $
+ * $Date: 2006/09/29 12:43:50 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -61,7 +61,7 @@ void EBTriggerTowerTask::setup(void){
 
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBTTT Et map SM%02d", i+1);
-      meEtMap_[i] = dbe->bookProfile2D(histo, histo, 17, 0., 17., 4, 0., 4., 128, 0, 512., "s");
+      meEtMap_[i] = dbe->bookProfile2D(histo, histo, 17, 0., 17., 4, 0., 4., 128, 0., 512., "s");
       sprintf(histo, "EBTTT FineGrainVeto SM%02d", i+1);
       meVeto_[i] = dbe->book3D(histo, histo, 17, 0., 17., 4, 0., 4., 2, 0., 2.);
       sprintf(histo, "EBTTT Flags SM%02d", i+1);
@@ -73,9 +73,9 @@ void EBTriggerTowerTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       for (int j = 0; j < 68 ; j++) {
         sprintf(histo, "EBTTT Et T SM%02d TT%02d", i+1, j+1);
-        meEtMapT_[i][j] = dbe->book1D(histo, histo, 128, 0.0001, 512.);
+        meEtMapT_[i][j] = dbe->book1D(histo, histo, 128, 0., 512.);
         sprintf(histo, "EBTTT Et R SM%02d TT%02d", i+1, j+1);
-        meEtMapR_[i][j] = dbe->book1D(histo, histo, 128, 0.0001, 512.);
+        meEtMapR_[i][j] = dbe->book1D(histo, histo, 128, 0., 512.);
       }
     }
 
@@ -225,9 +225,7 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 
       xval = hit.amplitude();
 
-//      xval = xval * (1./16.) * TMath::Sin(2*TMath::ATan(TMath::Exp(-0.0174*(ie-0.5))));
-
-      xval = xval * (1./16.);
+      xval = xval * (1./16.) * TMath::Sin(2*TMath::ATan(TMath::Exp(-0.0174*(ie-0.5))));
 
       xmap[ism-1][itt-1] = xmap[ism-1][itt-1] + xval;
 

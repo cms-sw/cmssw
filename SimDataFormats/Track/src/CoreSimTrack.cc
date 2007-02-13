@@ -42,6 +42,10 @@ int CoreSimTrack::chargeValue(const int& Id)const{
   }
   //... direct translation
   else if(kqa<=100) {hepchg = ichg[kqa-1];}
+  //... deuteron or tritium
+  else if(kqa==100 || kqa==101) {hepchg = -3;}
+  //... alpha or He3
+  else if(kqa==102 || kqa==104) {hepchg = -6;}
   //... KS and KL (and undefined)
   else if(kqj == 0) {hepchg = 0;}
   //C... direct translation

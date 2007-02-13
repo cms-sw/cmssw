@@ -101,7 +101,7 @@ int HcalGeometry::etaRing(HcalSubdetector bc, double abseta) const
     for(etaring = 1;
         etaring <= theTopology->lastHERing(); ++etaring)
     {
-      if(theHBHEEtaBounds[etaring] > abseta) break;
+      if(theHBHEEtaBounds[etaring] >= abseta) break;
     }
   }
 

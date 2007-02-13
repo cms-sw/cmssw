@@ -28,19 +28,22 @@ public:
   bool operator==(const DDExpandedNode & n) const;				 		  		 
   
   //! the LogicalPart describing this node    
-  const DDLogicalPart & logicalPart() const;
+  const DDLogicalPart & logicalPart() const { return logp_; }
+  
   
   //! absolute translation of this node   
-  const DDTranslation & absTranslation() const;
+  const DDTranslation & absTranslation() const { return trans_; }
+  
   
   //! absolute rotation of this node  
-  const DDRotationMatrix & absRotation() const;
-  
+  const DDRotationMatrix & absRotation() const { return rot_; }
+    
   //! copy number of this node  
   int copyno() const;
   
   //! sibling number of this node
-  int siblingno() const;
+  int siblingno() const { return siblingno_; }  
+  
   
   const DDPosData * posdata() const { return posd_; }
    
@@ -51,6 +54,7 @@ private:
   DDRotationMatrix rot_; // absolute rotation
   int siblingno_; // internal sibling-numbering from 0 to max-sibling
 };
+
 
 
 //! function object to compare to ExpandedNodes 

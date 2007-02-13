@@ -225,7 +225,8 @@ void AnalyzeTracksClusters::analyze(const edm::Event& e, const edm::EventSetup& 
 	      {	  
 		const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > 
 		  cluster=singlehit->cluster();
-		const std::vector<uint16_t> amplitudes=cluster->amplitudes();
+		const std::vector<uint16_t> amplitudes( cluster->amplitudes().begin(),
+		                                        cluster->amplitudes().end());
 		Clu_size[Nclu]=amplitudes.size();
 		double cluscharge=0;
 		for(size_t ia=0; ia<amplitudes.size();ia++)
@@ -305,7 +306,8 @@ void AnalyzeTracksClusters::analyze(const edm::Event& e, const edm::EventSetup& 
 	    float Signal=0;
 	    int posi=ic->firstStrip();
 	    
-	    const std::vector<uint16_t> amplitudes=ic->amplitudes();
+	    const std::vector<uint16_t> amplitudes( ic->amplitudes().begin(),
+	                                            ic->amplitudes().end());
 	    for(size_t i=0; i<amplitudes.size();i++)
 	      {
 		if (amplitudes[i]>0)

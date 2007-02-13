@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep  6 10:26:49 EDT 2005
-// $Id: ActivityRegistry.cc,v 1.8 2006/04/22 03:57:16 wmtan Exp $
+// $Id: ActivityRegistry.cc,v 1.9 2006/08/08 00:35:59 chrjones Exp $
 //
 
 // system include files
@@ -70,6 +70,9 @@ edm::ActivityRegistry::connect(ActivityRegistry& iOther)
    preProcessEventSignal_.connect(iOther.preProcessEventSignal_);
    postProcessEventSignal_.connect(iOther.postProcessEventSignal_);
 
+   preProcessPathSignal_.connect(iOther.preProcessPathSignal_);
+   postProcessPathSignal_.connect(iOther.postProcessPathSignal_);
+
    preModuleSignal_.connect(iOther.preModuleSignal_);
    postModuleSignal_.connect(iOther.postModuleSignal_);
 
@@ -106,6 +109,9 @@ edm::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
   copySlotsToFrom(preProcessEventSignal_,iOther.preProcessEventSignal_);
   copySlotsToFrom(postProcessEventSignal_,iOther.postProcessEventSignal_);
   
+  copySlotsToFrom(preProcessPathSignal_,iOther.preProcessPathSignal_);
+  copySlotsToFrom(postProcessPathSignal_,iOther.postProcessPathSignal_);
+
   copySlotsToFrom(preModuleSignal_,iOther.preModuleSignal_);
   copySlotsToFrom(postModuleSignal_,iOther.postModuleSignal_);
   

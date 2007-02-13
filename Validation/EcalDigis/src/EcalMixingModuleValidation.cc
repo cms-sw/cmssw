@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2006/10/26 08:30:32 $
- * $Revision: 1.5 $
+ * $Date: 2006/11/08 16:46:04 $
+ * $Revision: 1.6 $
  * \author F. Cossutti
  *
 */
@@ -141,16 +141,16 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const ParameterSet& ps):
     dbe_->setCurrentFolder("EcalDigiTask");
   
     sprintf (histo, "EcalDigiTask Barrel maximum Digi over sim signal ratio gt 100 ADC" ) ;
-    meEBDigiMixRatiogt100ADC_ = dbe_->book1D(histo, histo, 200, 0., 40.) ;
+    meEBDigiMixRatiogt100ADC_ = dbe_->book1D(histo, histo, 200, 0., 100.) ;
       
     sprintf (histo, "EcalDigiTask Endcap maximum Digi over sim signal ratio gt 100 ADC" ) ;
-    meEEDigiMixRatiogt100ADC_ = dbe_->book1D(histo, histo, 200, 0., 40.) ;
+    meEEDigiMixRatiogt100ADC_ = dbe_->book1D(histo, histo, 200, 0., 100.) ;
       
     sprintf (histo, "EcalDigiTask Barrel maximum Digi over sim signal ratio signal gt 50pc gun" ) ;
-    meEBDigiMixRatioOriggt50pc_ = dbe_->book1D(histo, histo, 100, 0., 20.) ;
+    meEBDigiMixRatioOriggt50pc_ = dbe_->book1D(histo, histo, 200, 0., 100.) ;
       
     sprintf (histo, "EcalDigiTask Endcap maximum Digi over sim signal ratio signal gt 40pc gun" ) ;
-    meEEDigiMixRatioOriggt40pc_ = dbe_->book1D(histo, histo, 100, 0., 20.) ;
+    meEEDigiMixRatioOriggt40pc_ = dbe_->book1D(histo, histo, 200, 0., 100.) ;
       
     sprintf (histo, "EcalDigiTask Barrel bunch crossing" ) ;
     meEBbunchCrossing_ = dbe_->book1D(histo, histo, 20, -10., 10.) ;

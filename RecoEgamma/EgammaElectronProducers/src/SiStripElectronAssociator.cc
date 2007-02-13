@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Tue Aug  1 15:24:02 EDT 2006
-// $Id: SiStripElectronAssociator.cc,v 1.2 2006/09/20 12:18:42 rahatlou Exp $
+// $Id: SiStripElectronAssociator.cc,v 1.3 2006/11/02 18:39:02 futyand Exp $
 //
 //
 
@@ -33,6 +33,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 
 //
 // constants, enums and typedefs
@@ -115,14 +116,14 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	 if (!alreadySeen[&(*strippyIter)]) {
 
 	    bool hitInCommon = false;
-	    for (edm::RefVector<TrackingRecHitCollection>::const_iterator hitIter = strippyIter->rphiRecHits().begin();  hitIter != strippyIter->rphiRecHits().end();  ++hitIter) {
+	    for (edm::RefVector<SiStripRecHit2DCollection>::const_iterator hitIter = strippyIter->rphiRecHits().begin();  hitIter != strippyIter->rphiRecHits().end();  ++hitIter) {
 	       if ((*hitIter)->geographicalId().rawId() == id   &&
 		   ((*hitIter)->localPosition() - pos).mag() < 1e-10) {
 		  hitInCommon = true;
 		  break;
 	       }
 	    } // end loop over rphi hits
-	    for (edm::RefVector<TrackingRecHitCollection>::const_iterator hitIter = strippyIter->stereoRecHits().begin();  hitIter != strippyIter->stereoRecHits().end();  ++hitIter) {
+	    for (edm::RefVector<SiStripRecHit2DCollection>::const_iterator hitIter = strippyIter->stereoRecHits().begin();  hitIter != strippyIter->stereoRecHits().end();  ++hitIter) {
 	       if ((*hitIter)->geographicalId().rawId() == id   &&
 		   ((*hitIter)->localPosition() - pos).mag() < 1e-10) {
 		  hitInCommon = true;

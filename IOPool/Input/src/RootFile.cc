@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.36 2006/09/28 20:33:57 wmtan Exp $
+$Id: RootFile.cc,v 1.39 2006/12/04 23:13:42 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -210,7 +210,7 @@ namespace edm {
     // We're not done ... so prepare the EventPrincipal
     boost::shared_ptr<DelayedReader> store_(new RootDelayedReader(entryNumber(), branches_, filePtr_));
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
-		eventID_, evAux.time(), pReg, evAux.luminosityBlockID(),
+                eventID_, evAux.time(), pReg, evAux.luminosityBlockID(),
 		evAux.processHistoryID_, store_));
     // Loop over provenance
     std::vector<BranchEntryDescription>::iterator pit = eventProvenance_.begin();
@@ -223,13 +223,15 @@ namespace edm {
       // br->GetEntry(rootFile_->entryNumber());
       // std::auto_ptr<Provenance> prov(new Provenance(*pit));
       // prov->product = productMap_[prov.event.productID_];
-      // std::auto_ptr<Group> g(new Group(std::auto_ptr<EDProduct>(p), prov));
+      // bool const isPresent = prov->event.isPresent();
+      // std::auto_ptr<Group> g(new Group(std::auto_ptr<EDProduct>(p), prov, isPresent));
       // END These lines read all branches
       // BEGIN These lines defer reading branches
       std::auto_ptr<Provenance> prov(new Provenance);
       prov->event = *pit;
       prov->product = productMap_[prov->event.productID_];
-      std::auto_ptr<Group> g(new Group(prov, prov->event.isPresent()));
+      bool const isPresent = prov->event.isPresent();
+      std::auto_ptr<Group> g(new Group(prov, isPresent));
       // END These lines defer reading branches
       thisEvent->addGroup(g);
     }

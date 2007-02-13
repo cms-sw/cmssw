@@ -9,8 +9,8 @@
  *   starting from a standalone reonstructed muon.
  *
  *
- *   $Date: 2006/10/19 18:46:15 $
- *   $Revision: 1.5 $
+ *   $Date: 2006/10/19 20:50:15 $
+ *   $Revision: 1.6 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -40,6 +40,8 @@ class GlobalMuonProducer : public edm::EDProducer {
     
   /// Seed STA Label
   edm::InputTag theSTACollectionLabel;
+
+  bool theSTATrajectoryFlag;
   
   MuonTrackFinder* theTrackFinder;
     

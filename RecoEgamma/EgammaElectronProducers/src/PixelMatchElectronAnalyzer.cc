@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAnalyzer.cc,v 1.5 2006/10/27 21:57:09 uberthon Exp $
+// $Id: PixelMatchElectronAnalyzer.cc,v 1.7 2006/12/06 16:17:19 uberthon Exp $
 //
 //
 
@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchElectron.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
@@ -89,11 +89,11 @@ PixelMatchElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
 
   // get electrons
   
-  edm::Handle<PixelMatchGsfElectronCollection> electrons;
+  edm::Handle<PixelMatchElectronCollection> electrons;
   e.getByType(electrons); 
   edm::LogInfo("")<<"\n\n =================> Treating event "<<e.id()<<" Number of electrons "<<electrons.product()->size();
 
-  for( PixelMatchGsfElectronCollection::const_iterator MyS= (*electrons).begin(); MyS != (*electrons).end(); ++MyS) {
+  for( PixelMatchElectronCollection::const_iterator MyS= (*electrons).begin(); MyS != (*electrons).end(); ++MyS) {
     
     //electron quantities
     histCharge_->Fill((*MyS).charge());
@@ -104,7 +104,6 @@ PixelMatchElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
     histPhi_->Fill((*MyS).phi());
 
     // track informations 
-    //    reco::GsfTrackRef tr =(*MyS).track();
     reco::TrackRef tr =(*MyS).track();
     histTrCharge_->Fill(tr->charge());
     histTrInP_->Fill((*tr).innerMomentum().R());

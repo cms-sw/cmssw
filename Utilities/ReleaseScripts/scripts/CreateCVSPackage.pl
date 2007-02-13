@@ -1,54 +1,52 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 #____________________________________________________________________ 
 # File: CreateCVSPackage.pl
 #____________________________________________________________________ 
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-28 09:50:38+0200
-# Revision: $Id: CreateCVSPackage.pl,v 1.8 2006/06/20 12:37:38 sashby Exp $ 
+# Revision: $Id: CreateCVSPackage.pl,v 1.9 2006/07/06 10:39:35 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
 #--------------------------------------------------------------------
-use Cwd;
+use Cwd qw(cwd);
 use Getopt::Long ();
 use File::Basename;
-use File::Path;
 
 # Fixed parameters:
 my $cvs = '/usr/bin/cvs';
-my $projectroot='CMSSW';
+my $projectroot = 'CMSSW';
 my $cvsroot = ':kserver:cmscvs.cern.ch:/cvs_server/repositories/'.$projectroot;
 
 # Use CVSROOT to override:
-if ($ENV{CVSROOT})
-   {
-   $cvsroot = $ENV{CVSROOT};
-   }
+if ($ENV{CVSROOT}) {
+    $cvsroot = $ENV{CVSROOT};
+}
 
-my ($subsystem,$packagename,$fullpackagename);
-my ($principaladmin);
-my $principaladmins={};
-my $subsystemadmin;
-my $packagelist;
-
-# Arrays of developers and admins:
-my ($developeridlist,$adminidlist);
-# Hash which will contain all the info for
-# the developers/admins of the package. By
+# List of packages to create:
+my $actionlist = new ActionList;
+# Objects which will contain all the info for
+# the developers/admins of the packages. By
 # default, the principal admin is the first
 # one to appear on the command line after the
 # --admin option:
-my $developers={};
+my $developerlist;
+my $adminlist;
+my ($packagelist,$developeridlist,$adminidlist);   
+# Batch file mode:
 my $batchfile;
 
 my %opts; $opts{VERBOSE} = 0; # non-verbose by default;
-$opts{DEBUG} = 0; # Debugging off by default;
-$opts{CLEAN} = 1; # Remove the checked out directories by default;
-$opts{BATCH} = $opts{USE_WGET} = $opts{TCQUERY} = 0; # Normal operation is commandline rather than file or
-                                                     # wget from DB as source of new packages/admin/developer info;
-$opts{UPDATE_TC} = 0; # We require a second command to update the tag collector package list;
+$opts{DEBUG} = 0;             # Debugging off by default;
+$opts{CLEAN} = 1;             # Remove the checked out directories by default;
+$opts{BATCH} = $opts{USE_WGET} = $opts{TCQUERY} = 0;
+# Normal operation is commandline rather than file or
+# wget from DB as source of new packages/admin/developer info;
+$opts{UPDATE_TC} = 0; # We require a second command to update the
+                      # tag collector package list;
 
+# Process options:
 my %options = (
 	       "packagename=s" => sub { $packagelist = [ split(" ",$_[1]) ]; },	       
 	       "developers=s"  => sub { $developeridlist=&proc_ilist($_[1]); },
@@ -66,472 +64,565 @@ my %options = (
 # Get the options using Getopt:
 Getopt::Long::config qw(default no_ignore_case require_order);
 
-if (! Getopt::Long::GetOptions(\%opts, %options))
-   {
-   print STDERR "$0: Error with arguments.","\n";
-   }
-else
-   {
-   # Check for batch mode. If batch is active, no need to check for
-   # the info from cmdline:
-   if ($opts{BATCH})
-      {
-      print "Running in batch mode: reading instructions from $batchfile.\n";
-      &set_admins_from_file();      
-      }
-   elsif ($opts{USE_WGET})
-      {
-      # We use a wget request to the database (via a CGI script):
-      print "Running in batch mode: getting approved packages from the TagCollector.\n";
-      &set_admins_from_wget_req();      
-      }
-   elsif ($opts{UPDATE_TC})
-      {
-      print "Updating approved package list in the TagCollector.\n";
-      # Reset the TC:
-      my $rv = &update_tc();
-      exit($rv);
-      }
-   elsif ($opts{TCQUERY})
-      {
-      # Query th tag collector and dump the package list:
-      &query_tc_for_new_packages();
-      print "Done\n";
-      exit(0);
-      }
-   else
-      {
-      # Build the list of developers and admins:
-      &set_admins();
-      }
-   
-   # Loop over the packages stored in the developers info hash:
-   foreach $pk (keys %$developers)
-      {
-      $fullpackagename = $pk;
-      $principaladmin=$principaladmins->{$fullpackagename};
-      &runit();      
-      }
-   
-   print "Done\n";
-   }
+if (! Getopt::Long::GetOptions(\%opts, %options)) {
+    print STDERR "$0: Error with arguments.","\n";
+} else {
+    # Check for batch mode. If batch is active, no need to check for
+    # the info from cmdline:
+    if ($opts{BATCH} || $opts{USE_WGET}) {
+	if ($opts{BATCH}) {
+	    print "Running in batch mode: reading instructions from $batchfile.\n";
+	    # Check that the file exists:
+	    die basename($0).": Unable to read $batchfile, $!","\n", unless (-f $batchfile);
+	    open(SOURCE,"< $batchfile") || die basename($0).": Unable to open $batchfile, $!","\n";
+	} else {
+	    # We use a wget request to the database (via a CGI script):
+	    print "Running in batch mode: getting approved packages from the TagCollector.\n";
+	    open(SOURCE,"wget --no-check-certificate -o /dev/null -nv -O- 'https://cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/GetPacksForCVS?noupdate=1' |")
+		|| die "Can't run wget request: $!","\n";
+	}
 
-sub runit()
-   {
-   # We must have a package name:
-   die basename($0),": No package name given!\n", unless ($fullpackagename);
-   # We must have developer names as a list:
-   die basename($0),": No developers given!\n", unless ($#$developeridlist > -1);
-   # We must have a package admin:
-   die basename($0),": No package admins given!\n", unless ($#$adminidlist > -1);
-   
-   # Get subsystem and package parts:
-   ($subsystem,$packagename) = split("/",$fullpackagename);
-   
-   if ($opts{DEBUG})
-      {
-      print "Principal admin for package $fullpackagename will be $principaladmin.","\n";
-      print "\n";
-      print "Full list of developers and admins:\n";
-      map
-	 {
-	 printf("%-20s %-10s %-1d\n",$developers->{$fullpackagename}->{$_}->[0],$developers->{$fullpackagename}->{$_}->[1],$developers->{$fullpackagename}->{$_}->[2]);
-	 } keys %{$developers->{$fullpackagename}};
-      print "\n";
-      
-      print &generate_NewLeaf($packagename);
-      print "\n";
-      print &generate_developers();
-      print "\n";
-      exit(0);
-      }
-      
-   # Check out the .admin directory of the subsystem where the
-   # the package is to be created:
-   die basename($0),": Subsystem $subsystem already checked out in current directory.","\n", if (-d $subsystem);
-   # Proceed with checkout:
-   print "Checking out .admin directory of $subsystem.","\n",if ($opts{VERBOSE});
-   $subsystemadmin=$subsystem."/.admin";
-   &get($subsystemadmin);
-   
-   # Check to make sure that there's a NewLeaf file. Otherwise create it:
-   my $nlmsg=".";
-   if (! -f $subsystemadmin."/NewLeaf")
-      {
-      print "No NewLeaf file found in subsystem $subsystem. Going to create one.\n",if ($opts{VERBOSE});
-      # Create, add and commit the NewLeaf file:
-      &CreateNewLeaf($packagename);
-      $nlmsg=" (and NewLeaf file created).";
-      }
-   else
-      {
-      # Just update the existing file:      
-      print "The name of the package to create is $packagename. Here we go.","\n",if ($opts{VERBOSE});
-      &UpdateNewLeaf($packagename);
-      }
-   
-   # Now commit the added/changed NewLeaf file:
-   &commit($subsystemadmin,"Adding new package $packagename to NewLeaf$nlmsg");
-   # Now check out the new package:
-   my $newpack=$subsystem."/".$packagename;
-   &get($newpack);
-   # Generate the developers file for the new package:
-   &UpdateDevelopers($newpack);
-   # Commit the changed developers file:
-   &commit($newpack,"Updating developers file for $packagename.");
-   # Clean up (skip if --noclean active):
-   if ($opts{CLEAN})
-      {
-      my $ndel = rmtree($subsystem); # Returns number of deleted dirs. 0 means failure;
-      die basename($0).": Unable to clean up - error removing $subsystem!","\n", if (!$ndel);
-      }   
-   }
+	while (<SOURCE>) {
+	    # Get rid of spaces at the end of the line:
+	    $_ =~ s/(.*?)\s*?/$1/g;
+	    my ($pack,$adminidlist,$developeridlist) = ($_ =~ /^(.*?)\s*?adm.*?:(.*?)\s*?devel.*?:(.*?)$/);
+	    # Create new container for developer list:
+	    my $adminlist = new AdminList(&proc_ilist($adminidlist));
+	    my $developerlist = new DeveloperList(&proc_ilist($developeridlist));
+	    # Add the infos to the action list:
+	    $actionlist->additem(new ActionItem($pack, $developerlist, $adminlist));	    
+	}
+	close(SOURCE);
+    } elsif ($opts{UPDATE_TC}) {
+	# Reset the TC:
+	print "Updating approved package list in the TagCollector.\n";
+	print "Packages are assumed to have been created successfully!\n";
+	my $rv = system("wget","--no-check-certificate","-o","/dev/null","-nv","-O-",'https://cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/GetPacksForCVS');
+	if ($rv != 0) {
+	    print "There were ERRORS when updating the tag collector!","\n";
+	}
+	exit($rv);
+    } elsif ($opts{TCQUERY}) {
+	# Query th tag collector and dump the package list:
+	open(WGET,"wget --no-check-certificate -o /dev/null -nv -O- 'https://cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/GetPacksForCVS?noupdate=1' |") || die "Can't run wget request: $!","\n";
+	my $n = 0;
+	while(<WGET>) {
+	    chomp;
+	    print "TC_REQUEST QUERY: ",$_,"\n";
+	    $n++;
+	}
+	print $n." package requests queued.\n";
+	close(WGET);
+	print "Done\n";
+	exit(0);
+    } else {
+	# Build the list of developers and admins. This block will be active when
+	# the --package, --admin and --developers opts are used together.
+	# We must have a package name:
+	die basename($0),": No package(s) given!\n", unless ($#$packagelist > -1);
+	# We must have developer names as a list:
+	die basename($0),": No developers given!\n", unless ($#$developeridlist > -1);
+	# We must have a package admin:
+	die basename($0),": No package admins given!\n", unless ($#$adminidlist > -1);
+	# Create new container for developer list:
+	my $adminlist = new AdminList($adminidlist);
+	my $developerlist = new DeveloperList($developeridlist);
+	foreach my $pack (@$packagelist) {
+	    $actionlist->additem(new ActionItem($pack, $developerlist, $adminlist));    
+	}
+    }    
+    # Run the actions:
+    $actionlist->exec();
+    print "\n";
+}
 
-sub set_admins()
-   {
-   foreach my $package (@$packagelist)
-      {
-      $developers->{$package} = {};
-      # Set the principal admin:
-      $principaladmins->{$package} = $adminidlist->[0];
-      # Read through the lists of developers to get full info:
-      foreach my $loginid (@$developeridlist)
-	 {
-	 # Use phone command to get the full info for this person:
-	 chomp(my ($pbinfo)=`phone -loginid $loginid -FULL`);
-	 my ($ccid,$pbdata,$email) = split(";",$pbinfo);   
-	 my ($lastname,$firstname,@rest) = split(" ",$pbdata);
-	 $lastname = ucfirst(lc($lastname));
-	 # Store in the developers hash:
-	 $developers->{$package}->{$loginid} = [ "$firstname $lastname", $email, 0 ];
-	 }
-      
-      # Do the same for admins:
-      foreach my $loginid (@$adminidlist)
-	 {
-	 # Use phone command to get the full info for this person:
-	 chomp(my ($pbinfo)=`phone -loginid $loginid -FULL`);
-	 my ($ccid,$pbdata,$email) = split(";",$pbinfo);   
-	 my ($lastname,$firstname,@rest) = split(" ",$pbdata);
-	 $lastname = ucfirst(lc($lastname));
-	 # Store in the developers hash:
-	 $developers->{$package} ->{$loginid} = [ "$firstname $lastname", $email, 1 ];
-	 }
-      }
-   }
+#### Global functions (in package main) ####
+sub proc_ilist() {
+    my ($istring)=@_;
+    my $list;
+    # If the list is comma-separated:
+    if ($istring =~ /,/) {      
+	$list=[ split(",",$istring) ];
+    } else {
+	$list=[ split(" ",$istring) ];
+    }
+    return $list;
+}
 
-sub query_tc_for_new_packages()
-   {
-   open(WGET,"wget --no-check-certificate -o /dev/null -nv -O- 'https://cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/GetPacksForCVS?noupdate=1' |")
-      || die "Can't run wget request: $!","\n";
-   my $n = 0;
-   while(<WGET>)
-      {
-      chomp;
-      print "TC_REQUEST QUERY: ",$_,"\n";
-      $n++;
-      }
-   print $n." package requests queued.\n";
-   close(WGET);
-   }
+sub usage() {
+    my $name=basename($0);
+    my $string="\nUsage: $name --package=<PACKAGE> --admin=<ADMIN> --developers=<DEVLIST>[-h] [-v]\n";
+    $string.="\nor     $name --batch=<FILENAME> [-h] [-v]\n";
+    $string.="\nor     $name --usewget | --tcupdate [-h] [-v]\n";
+    $string.="\n";
+    $string.="--packagename=<PACKAGE>       Name of package to be created (in full,i.e. <sub>/<package>).\n";   
+    $string.="\n";
+    $string.="--admin=<ADMIN>               The administrators for this package. ADMIN should be given as a\n";
+    $string.="                              quoted list of administrator login IDs.\n";
+    $string.="                              This list can be comma or space separated.\n";
+    $string.="\n";
+    $string.="--developers=<DEVLIST>        The list of people to be registered as developers for this package.\n";
+    $string.="                              DEVLIST should be given as a quoted list of login IDs.\n";
+    $string.="                              This list can be comma or space separated.\n";
+    $string.="--batch=<FILENAME>            Read the package and admin/developer info from FILENAME.\n";
+    $string.="                              The file format should be:\n";
+    $string.="                              <PACKAGE> admins:A,B,C,D developers:A,B,C,D\n";
+    $string.="--usewget                     Use wget to run a CGI script on the server to check for and return\n";
+    $string.="                              the current list of approved packages, their developers/admins.\n";
+    $string.="--querytc                     Query the tag collector for new packages queued for creation.\n";
+    $string.="--tcupdate                    Update the Tag Collector status for the created packages.\n";
+    $string.="\n";
+    $string.="--noclean                     Don't remove the checked out directories from the working area.\n";
+    $string.="\n"; 
+    $string.="OPTIONS:\n";
+    $string.="--verbose | -v                Be verbose.\n";
+    $string.="--debug   | -d                Debug mode. Show the info on admins and developers. Dump the generated\n";
+    $string.="                              developers file to STDOUT and exit. Doesn't modify any files.\n";
+    $string.="--help    | -h                Show help and exit.\n";
+    print $string,"\n";
+}
 
-sub set_admins_from_wget_req()
-   {
-   my ($adminstring,$developerstring);
+#### Packages ####
+package ActionList;
 
-   open(WGET,"wget --no-check-certificate -o /dev/null -nv -O- 'https://cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/GetPacksForCVS?noupdate=1' |")
-      || die "Can't run wget request: $!","\n";
-   
-   while (<WGET>)
-      {
-      # Get rid of spaces at the end of the line:
-      $_ =~ s/(.*?)\s*?/$1/g;
-      # Format is <PACKAGE> admins:A,B,C,D developers:A,B,C,D
-      ($packagename,$adminstring,$developerstring) = ($_ =~ /^(.*?)\s*?adm.*?:(.*?)\s*?devel.*?:(.*?)$/);
-      $adminidlist=&proc_ilist($adminstring);
-      $developeridlist=&proc_ilist($developerstring);
-      $developers->{$packagename} = {};
-      # Set the principal admin:
-      $principaladmins->{$packagename} = $adminidlist->[0];
+sub new() {
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self = {};
+    bless($self, $class);
+    # Package list:
+    $self->{ITEMS} = [];
+    return $self;
+}
 
-      # Read through the lists of developers to get full info:
-      foreach my $loginid (@$developeridlist)
-	 {
-	 $loginid =~ s/\s*//g;
-	 # Store in the developers hash:
-	 $developers->{$packagename}->{$loginid} = [ @{&getFullNameAndEmail($loginid)}, 0 ];
-	 }
-      
-      # Do the same for admins:
-      foreach my $loginid (@$adminidlist)
-	 {
-	 $loginid =~ s/\s*//g;	        
-	 # Store in the developers hash:
-	 $developers->{$packagename}->{$loginid} = [ @{&getFullNameAndEmail($loginid)}, 1 ];
-	 }     
-      }
-   
-   close(WGET);
-   }
+sub additem() {
+    my $self=shift;
+    my ($item)=@_;
+    push(@{$self->{ITEMS}},$item);
+}
 
-sub update_tc()
-   {
-   print "\n";
-   print "Updating tag collector using wget (packages are assumed to have been created successfully)\n";
-   my $rv = system("wget","--no-check-certificate","-o","/dev/null","-nv","-O-",'https://cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/GetPacksForCVS');
-   if ($rv != 0)
-      {
-      print "There were ERRORS when updating the tag collector!","\n";
-      }
-   print "\n";
-   return $rv;
-   }
+sub exec() {
+    my $self=shift;
+    foreach my $it (@{$self->{ITEMS}}) {
+	print ">>> Package ".$it->package()->fullname()."\n"; 
+ 	# First, check out the package. This will tell us if the package already exists.
+	&CVS::co($it->package()->fullname()."/.admin");
+	if (-d $it->package()->fullname()."/.admin") {
+	    print "Package ",$it->package()->fullname()," already exists. Going to update the developer file.","\n";
+	    # Check out the developer file and update it"
+	    &CVS::co($it->package()->fullname()."/.admin/developers");
+	    my $developers = Developers->new($it);
+	    $developers->write();
+	} else {
+	    # The package does not exist. Create it:
+	    print "Creating ",$it->package()->fullname(),"\n";
+	    # First, try checking out the .admin directory of the subsystem. 
+	    print "\tGetting SubSystem ",$it->package->modulename(),"/.admin\n";
+	    &CVS::co($it->package->modulename()."/.admin");
+	    if (-d $it->package->modulename()."/.admin") {
+		# We have a .admin directory. Now check for NewLeaf file, creating
+		# if necessary:
+		print "\tUpdating/creating NewLeaf file.","\n";
+		my $newleaf = NewLeaf->new($it);
+		$newleaf->write();
+		# At this point the package should've been created so check out
+		# and update the developer file:
+		&CVS::co($it->package()->fullname()."/.admin/developers");
+		my $developers = Developers->new($it);
+		$developers->write();		
+	    } else {
+		# SubSystem must be created. Check out project admin directory:
+		print "Creating ",$it->package->modulename(),"\n";
+		print "\tGetting project admin directory","\n";		
+		&CVS::co("admin");
+		if (-d "./admin") {
+		    if (-f "./admin/AddModule") {
+			# Add new module:
+			print "\tFound AddModule file. Updating it.","\n";
+			my $newmodule = AddModule->new($it);
+			$newmodule->write();
+		    } else {
+			# Create the AddModule file:
+			print "\tNo AddModule file found. Creating it.","\n";
+			my $newmodule = AddModule->new($it);
+			$newmodule->write();
+		    }
+		} else {
+		    print "ERROR: No admin directory found for this project!\n";
+		    exit(1);
+		}		
+		# Now proceed. First check out the newly-created subsystem:
+		print "\tGetting SubSystem ",$it->package->modulename(),"\n";
+		&CVS::co($it->package->modulename());
+		if (-d $it->package->modulename()) {
+		    # SubSystem exists. Get the .admin directory:
+		    print "\tGetting ",$it->package->modulename(),"/.admin","\n";
+		    &CVS::co($it->package->modulename()."/.admin");
+		    if (-d $it->package->modulename()."/.admin") {
+			# We have a .admin directory. Now check for NewLeaf file, creating
+			# if necessary:
+			print "\tUpdating/creating NewLeaf file.","\n";
+			my $newleaf = NewLeaf->new($it);
+			$newleaf->write();
+			# At this point the package should've been created so check out
+			# and update the developer file:
+			&CVS::co($it->package()->fullname()."/.admin/developers");
+			my $developers = Developers->new($it);
+			$developers->write();
+		    }
+		}
+	    }
+	}
+	print "\n";
+    }
+    print "\n== Finished. ==\n";
+}
 
-sub set_admins_from_file()
-   {
-   my ($adminstring,$developerstring);
-   # Check that the file exists:
-   die basename($0).": Unable to read $batchfile, $!","\n", unless (-f $batchfile);
-   open(BATCH,"< $batchfile") || die basename($0).": Unable to open $batchfile, $!","\n";
-   while (<BATCH>)
-      {
-      # Get rid of spaces at the end of the line:
-      $_ =~ s/(.*?)\s*?/$1/g;
-      # Format is <PACKAGE> admins:A,B,C,D developers:A,B,C,D
-      ($packagename,$adminstring,$developerstring) = ($_ =~ /^(.*?)\s*?adm.*?:(.*?)\s*?devel.*?:(.*?)$/);
-      $adminidlist=&proc_ilist($adminstring);
-      $developeridlist=&proc_ilist($developerstring);
-      $developers->{$packagename} = {};
-      # Set the principal admin:
-      $principaladmins->{$packagename} = $adminidlist->[0];
+package ActionItem;
 
-      # Read through the lists of developers to get full info:
-      foreach my $loginid (@$developeridlist)
-	 {
-	 $loginid =~ s/\s*//g;
-	 # Store in the developers hash:
-	 $developers->{$packagename}->{$loginid} = [ @{&getFullNameAndEmail($loginid)}, 0 ];
-	 }
-      
-      # Do the same for admins:
-      foreach my $loginid (@$adminidlist)
-	 {
-	 $loginid =~ s/\s*//g;	        
-	 # Store in the developers hash:
-	 $developers->{$packagename}->{$loginid} = [ @{&getFullNameAndEmail($loginid)}, 1 ];
-	 }     
-      }
-   
-   close(BATCH);
-   }
+sub new($;$;$) {
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self = {};
+    bless($self, $class);
+    my ($packagename) = shift;
+    $self->{PACKAGE} = new Package($packagename);
+    $self->{DEVELOPERLIST} = shift;    
+    $self->{ADMINLIST} = shift;
+    return $self;
+}
 
-sub getFullNameAndEmail()
-   {
-   my ($loginid)=@_;
+sub package() {
+    my $self=shift;
+    return $self->{PACKAGE};
+}
 
-   open(PHONE,"phone -loginid $loginid -FULL |");
-   chomp(my $info = (<PHONE>));
-   
-   my ($ccid,$pbdata,$email) = split(";",$info);
-   my $namestring;
-   my (@name_elements);
-   
-   # If there's a phone number, extract the name list from the string:
-   if (($namestring) = ($pbdata =~ /^(.*?)\s*?[0-9]* [0-9].*$/))
-      {
-      (@name_elements)=split(" ",$namestring);
-      }
-   else
-      {
-      # Otherwise, just use the full string returned from the phone command:
-      (@name_elements)=split(" ",$pbdata);
-      }
-   
-   my $firstname=pop(@name_elements);
-   my $lastname=join(" ",map { ucfirst(lc($_)) } splice(@name_elements, 0, $#name_elements+1));
-   close(PHONE);
-   return [ "$firstname $lastname", $email ];
-   }
+sub developers() {
+    my $self=shift;
+    return $self->{DEVELOPERLIST};
+}
 
-sub CreateNewLeaf()
-   {
-   my ($packagename)=@_;
-   my $sdir=cwd();
-   chdir $subsystemadmin;
-   print "Going to create entry for new package \"$packagename\" with admin\n",if ($opts{VERBOSE});
-   print "(admin) \"$principaladmin\" in subsystem \"$subsystem\".\n",if ($opts{VERBOSE});
-   open(NEWLEAF,"> NewLeaf") || die basename($0).": Unable to open Newleaf for writing (dir is $subsystemadmin): $!","\n";
-   print NEWLEAF &generate_NewLeaf($packagename),"\n";
-   close(NEWLEAF);
-   # Now add it to the repository:
-   my $rv = system($cvs,"-Q","-d",$cvsroot,"add", "NewLeaf");
-   chdir $sdir;
-   # Check the status of the add and report:
-   if ($rv != 0)
-      {
-      die basename($0).": Unable to add $subsystemadmin/NewLeaf.","\n";
-      }
-   }
+sub admins() {
+    my $self=shift;
+    return $self->{ADMINLIST};
+}
 
-sub UpdateNewLeaf()
-   {
-   my ($packagename)=@_;
-   print "Going to create entry for new package \"$packagename\" with admin\n",if ($opts{VERBOSE});
-   print "(admin) \"$principaladmin\" in subsystem \"$subsystem\".\n",if ($opts{VERBOSE});
-   open(NEWLEAF,"> $subsystemadmin/NewLeaf") || die basename($0).": Unable to open $subsystemadmin/Newleaf for writing: $!","\n";
-   print NEWLEAF &generate_NewLeaf($packagename),"\n";
-   close(NEWLEAF);
-   }
+package DeveloperList;
 
-sub UpdateDevelopers()
-   {
-   my ($newpack)=@_;
-   print "Going to create developers file for new package \"$newpack\".\n",if ($opts{VERBOSE});
-   open(DEVELOPERS,"> $newpack/.admin/developers") || die basename($0).": Unable to open $newpack/.admin/developers for writing: $!","\n";
-   print DEVELOPERS &generate_developers();
-   close(DEVELOPERS);
-   }
+sub new($) {
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self = {};
+    bless($self, $class);
+    $self->{IDS} = [];
+    my ($idlist)=@_;
+    # Read through the lists of developers to get full info:
+    foreach my $loginid (@$idlist) {
+	# Use phone command to get the full info for this person:
+	chomp(my ($pbinfo)=`phone -loginid $loginid -FULL`);
+	# Check to see if user exists:
+	if ($pbinfo =~ /not found/) {
+	    print "WARNING: Userid \"$loginid\" not found in CCDB. Ignoring this user.","\n";
+	    next;
+	}
+	my ($ccid,$pbdata,$email) = split(";",$pbinfo);   
+	my ($lastname,$firstname,@rest) = split(" ",$pbdata);
+	$lastname = ucfirst(lc($lastname));
+	push(@{$self->{IDS}},new ID($loginid,"$firstname $lastname",$email));
+    }
 
-sub get()
-   {
-   my $rv=0;
-   my ($item)=@_;
-   # If we don't have an arg, exit:
-   die basename($0).": Nothing to check out!","\n", unless ($item);
-   # Check out item from HEAD:
-   $rv = system($cvs,"-Q","-d",$cvsroot,"co","-P", $item);      
-   # Check the status of the checkout and report if a package tag doesn't exist:
-   if ($rv != 0)
-      {
-      die basename($0).": Unable to check out $item!","\n";
-      }
-   
-   return $rv;
-   }
+    # Simple check for existence of at least 1 developer:
+    die "ERROR: No developers defined for this package.\n", unless ($#{$self->{IDS}} > -1);
+    return $self;
+}
 
-sub commit()
-   {
-   my ($location,$message)=@_;
-   my $rv=0;
-   my $idir=cwd();
-   $message = "\"$message\"";
-   chdir $location;
-   $rv = system($cvs,"-Q","-d",$cvsroot,"ci","-m", $message);      
-   # Check the status of the checkout and report if there was a problem:
-   if ($rv != 0)
-      {
-      # Only warn because sometimes CVSpm has been successful even though
-      # it exits with stat 1:
-      warn(basename($0).": There may have been problems with checkin. Check Karma!\n");
-      }
+sub ids() {
+    my $self=shift;
+    return $self->{IDS};
+}
 
-   chdir $idir;
-   return $rv;
-   }
+package AdminList;
 
-sub proc_ilist()
-   {
-   my ($istring)=@_;
-   my $list;
-   # If the list is comma-separated:
-   if ($istring =~ /,/)
-      {      
-      $list=[ split(",",$istring) ];
-      }
-   else
-      {
-      $list=[ split(" ",$istring) ];
-      }
-   return $list;
-   }
+sub new($) {
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self = {};
+    bless($self, $class);
+    $self->{IDS} = [];
+    my ($idlist)=@_;
+    # Read through the lists of developers to get full info:
+    foreach my $loginid (@$idlist) {
+	# Use phone command to get the full info for this person:
+	chomp(my ($pbinfo)=`phone -loginid $loginid -FULL`);
+	# Check to see if user exists:
+	if ($pbinfo =~ /not found/) {
+	    print "WARNING: Userid \"$loginid\" not found in CCDB. Ignoring this user.","\n";
+	    next;
+	}
+	my ($ccid,$pbdata,$email) = split(";",$pbinfo);   
+	my ($lastname,$firstname,@rest) = split(" ",$pbdata);
+	$lastname = ucfirst(lc($lastname));
+	push(@{$self->{IDS}},new ID($loginid,"$firstname $lastname",$email));
+    }
 
-sub generate_NewLeaf()
-   {
-   my $newleaf="";
-   my ($packagename)=@_;
-   $newleaf.="# This is a administration file\n";
-   $newleaf.="# Fill in the Fields below and commit to add a new leaf\n";
-   $newleaf.="# Each Leaf must have someone defined as being responsible for it.\n";
-   $newleaf.="# email address and username should refer to this person\n";
-   $newleaf.="#\n";
-   $newleaf.="\n";
-   $newleaf.="Valid Username : ".$principaladmin."\n";
-   $newleaf.="Valid Email    : ".$developers->{$fullpackagename}->{$principaladmin}->[1]."\n";
-   $newleaf.="New Leaf Name  : ".$packagename."\n";
-   return $newleaf;
-   }
+    # Simple check for existence of at least 1 admin:
+    die "ERROR: No admin defined for this package.\n", unless ($#{$self->{IDS}} > -1);
+    return $self;
+}
 
-sub generate_developers()
-   {
-   my $developerfile="# Names of Developers with write access to this module\n";
-   $developerfile.="#\n";
-   $developerfile.="# There are two types of developers:\n";
-   $developerfile.="# 1) Administrators - entitled to edit all files in the module ,\n";
-   $developerfile.="#    in particular the .admin directory.  (Including this file) \n";
-   $developerfile.="# 2) Regular Developers - entitled to edit all files in the module\n";
-   $developerfile.="#    except those in the .admin directory.\n";
-   $developerfile.="#\n";
-   $developerfile.="# You must use the full name of the developer as recorded on this system.\n";
-   $developerfile.="# see :\n";
-   $developerfile.="# http://cmsdoc.cern.ch/cmsoo/projects/swdevtools/developer_list.html\n";
-   $developerfile.="# for a full list of names. If the developer you require is not on this\n";
-   $developerfile.="# list then email the cvs administrator (cvsadmin\@cmscvs.cern.ch)\n";
-   $developerfile.="#\n";
-   $developerfile.="# Important\n";
-   $developerfile.="# ---------\n";
-   $developerfile.="# --- Put names of regular developers after the >Developers Tag\n";
-   $developerfile.="# --- Put names of administrators after the >Administrators Tag\n";
-   $developerfile.="#\n";
-   $developerfile.="# Mailists\n";
-   $developerfile.="# --------\n";
-   $developerfile.="# The bug reporting system can automatically send mail to all the developers\n";
-   $developerfile.="# and administrators. Add the email address after the name (seperated by a :)\n";
-   $developerfile.="# of developers to include in the list.\n";
-   $developerfile.="#\n";
-   $developerfile.=">Developers\n";
-   map
-      {
-      $developerfile.="$developers->{$fullpackagename}->{$_}->[0] : ".$developers->{$fullpackagename}->{$_}->[1]."\n";
-      } keys %{$developers->{$fullpackagename}};
-   $developerfile.="\n";
-   $developerfile.=">Administrators\n";
-   map
-      {
-      $developerfile.="$developers->{$fullpackagename}->{$_}->[0] : ".$developers->{$fullpackagename}->{$_}->[1]."\n", if ($developers->{$fullpackagename}->{$_}->[2]);
-      } keys %{$developers->{$fullpackagename}};
-   return $developerfile;
-   }
+sub ids() {
+    my $self=shift;
+    return $self->{IDS};
+}
 
-sub usage()
-   {
-   my $name=basename($0);
-   my $string="\nUsage: $name --package=<PACKAGE> --admin=<ADMIN> --developers=<DEVLIST>[-h] [-v]\n";
-   $string.="\nor     $name --batch=<FILENAME> [-h] [-v]\n";
-   $string.="\nor     $name --usewget | --tcupdate [-h] [-v]\n";
-   $string.="\n";
-   $string.="--packagename=<PACKAGE>       Name of package to be created (in full,i.e. <sub>/<package>).\n";   
-   $string.="\n";
-   $string.="--admin=<ADMIN>               The administrators for this package. ADMIN should be given as a\n";
-   $string.="                              quoted list of administrator login IDs.\n";
-   $string.="                              This list can be comma or space separated.\n";
-   $string.="\n";
-   $string.="--developers=<DEVLIST>        The list of people to be registered as developers for this package.\n";
-   $string.="                              DEVLIST should be given as a quoted list of login IDs.\n";
-   $string.="                              This list can be comma or space separated.\n";
-   $string.="--batch=<FILENAME>            Read the package and admin/developer info from FILENAME.\n";
-   $string.="                              The file format should be:\n";
-   $string.="                              <PACKAGE> admins:A,B,C,D developers:A,B,C,D\n";
-   $string.="--usewget                     Use wget to run a CGI script on the server to check for and return\n";
-   $string.="                              the current list of approved packages, their developers/admins.\n";
-   $string.="--querytc                     Query the tag collector for new packages queued for creation.\n";
-   $string.="--tcupdate                    Update the Tag Collector status for the created packages.\n";
-   $string.="\n";
-   $string.="--noclean                     Don't remove the checked out directories from the working area.\n";
-   $string.="\n"; 
-   $string.="OPTIONS:\n";
-   $string.="--verbose | -v                Be verbose.\n";
-   $string.="--debug   | -d                Debug mode. Show the info on admins and developers. Dump the generated\n";
-   $string.="                              developers file to STDOUT and exit. Doesn't modify any files.\n";
-   $string.="--help    | -h                Show help and exit.\n";
-   print $string,"\n";
-   }
+sub principal() {
+    my $self=shift;
+    return $self->{IDS}->[0];
+}
+
+package ID;
+
+sub new($;$;$) {
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self = {};
+    bless($self, $class);
+    my ($loginid,$fullname,$email)=@_;
+    $self->{LOGINID} = $loginid;
+    $self->{FULLNAME} = $fullname;
+    $self->{EMAIL} = $email;
+    return $self;
+}
+
+sub loginid() {
+    my $self=shift;
+    return $self->{LOGINID};
+}
+
+sub fullname() {
+    my $self=shift;
+    return $self->{FULLNAME};
+}
+
+sub email() {
+    my $self=shift;
+    return $self->{EMAIL};
+}
+
+sub idstring() {
+    my $self=shift;
+    return $self->{LOGINID}." : ".$self->{FULLNAME}." : ".$self->{EMAIL};
+}
+
+package Package;
+
+sub new() {
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self = {};
+    bless($self, $class);
+    my ($pname) = @_;
+    $self->{FULLNAME} = $pname;
+    my ($subsys, $pk) = split("/",$self->{FULLNAME});
+    $self->{MODULENAME} = $subsys;
+    $self->{LEAFNAME} = $pk;    
+    return $self;
+}
+
+sub fullname() {
+    my $self=shift;
+    return $self->{FULLNAME};
+}
+
+sub modulename() {
+    my $self=shift;
+    return $self->{MODULENAME};
+}
+
+sub leafname() {
+    my $self=shift;
+    return $self->{LEAFNAME};
+}
+
+package AddModule;
+use File::Basename;
+use Cwd;
+
+sub new() {
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self = {};
+    bless($self, $class);
+    my ($actionitem) = @_;
+    $self->{CURRENT_ITEM} = $actionitem;
+    return $self;
+}
+
+sub write() {
+    my $self=shift;
+    my $sdir=cwd();   
+    my $module="";
+    print "Creating new module ",$self->{CURRENT_ITEM}->package()->modulename(),"\n";
+    $module.="# This is a administration file\n";
+    $module.="# Fill in the Fields below and commit to add a new module\n";
+    $module.="# Each Module must have someone defined as being responsible for it.\n";
+    $module.="# email address and login name should refer to this person\n";
+    $module.="# The Module/Project must be a pre-defined module.\n";
+    $module.="\n";
+    $module.="Login Name             : ".$self->{CURRENT_ITEM}->admins->principal()->loginid."\n";
+    $module.="Valid Email            : ".$self->{CURRENT_ITEM}->admins->principal()->email."\n";
+    $module.="Add to Module/Project  : CMSSW\n";
+    $module.="New Module Name        : ".$self->{CURRENT_ITEM}->package()->modulename()."\n";
+    # Change to the checked-out admin dir:
+    chdir "./admin";
+    # Write the file:
+    open(FILE,"> AddModule") || die basename($0).": Unable to open AddModule for writing: $!","\n";
+    print FILE $module,"\n";
+    close(FILE);
+    # Add and commit the file (if file already exists, the add is ignored):
+    &CVS::add("AddModule");
+    &CVS::ci("AddModule");
+    chdir $sdir;
+}
+
+package NewLeaf;
+use File::Basename;
+use Cwd;
+
+sub new() {
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self = {};
+    bless($self, $class);
+    my ($actionitem) = @_;
+    $self->{CURRENT_ITEM} = $actionitem;
+    return $self;
+}
+
+sub write() {
+    my $self=shift;
+    my $sdir=cwd();
+    my $leaf="";
+    print "Creating new leaf ",$self->{CURRENT_ITEM}->package()->leafname(),"\n";
+    $leaf.="# This is a administration file\n";
+    $leaf.="# Fill in the Fields below and commit to add a new leaf\n";
+    $leaf.="# Each Leaf must have someone defined as being responsible for it.\n";
+    $leaf.="# email address and login name should refer to this person.\n";
+    $leaf.="\n";
+    $leaf.="Login Name             : ".$self->{CURRENT_ITEM}->admins->principal()->loginid."\n";
+    $leaf.="Valid Email            : ".$self->{CURRENT_ITEM}->admins->principal()->email."\n";
+    $leaf.="New Leaf Name          : ".$self->{CURRENT_ITEM}->package()->leafname()."\n";
+    # Change to the checked-out admin dir:
+    chdir $self->{CURRENT_ITEM}->package()->modulename()."/.admin";
+    # Write the file:
+    open(FILE,"> NewLeaf") || die basename($0).": Unable to open NewLeaf for writing: $!","\n";
+    print FILE $leaf,"\n";
+    close(FILE);
+    # Add and commit the file (if file already exists, the add is ignored):
+    &CVS::add("NewLeaf");
+    &CVS::ci("NewLeaf");
+    chdir $sdir;
+}
+
+package Developers;
+use File::Basename;
+use Cwd;
+
+sub new() {
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self = {};
+    bless($self, $class);
+    my ($actionitem) = @_;
+    $self->{CURRENT_ITEM} = $actionitem;
+    return $self;
+}
+
+sub write() {
+    my $self=shift;
+    my $sdir=cwd();
+    print "Creating new developer file for ",$self->{CURRENT_ITEM}->package()->fullname(),"\n";
+    my $developerfile="# Names of Developers with write access to this module\n";
+    $developerfile.="#\n";
+    $developerfile.="# There are two types of developers:\n";
+    $developerfile.="# 1) Administrators - entitled to edit all files in the module ,\n";
+    $developerfile.="#    in particular the .admin directory.  (Including this file) \n";
+    $developerfile.="# 2) Regular Developers - entitled to edit all files in the module\n";
+    $developerfile.="#    except those in the .admin directory.\n";
+    $developerfile.="#\n";
+    $developerfile.="# Entries must have the following format:\n";
+    $developerfile.="#\n";
+    $developerfile.="#      [logname] : [Firstname Familyname] : [emailaddress]\n";
+    $developerfile.="#\n";
+    $developerfile.="#      where [logname] is the login name of the user (in lower case)\n";
+    $developerfile.="#            [Firstname Familyname] is the fullname of the user in free format\n";
+    $developerfile.="#            [emailaddress] any email address of the user\n";
+    $developerfile.="#\n";
+    $developerfile.="#      IMPORTANT: The only entry that uniqely identifies the user\n";
+    $developerfile.="#                 is the [loginname]. The rest of the entries are\n";
+    $developerfile.="#                 used for information and clarity purposes.\n";
+    $developerfile.="#\n";
+    $developerfile.="# You can find the information required to add a user, using the \"phone\"\n";
+    $developerfile.="# command from any CERN machine. \"phone user -A\" will give you a list of his\n";
+    $developerfile.="# accounts and lognames too.\n";
+    $developerfile.="# A safe assumption is to look for his ZH account on AFS/LXPLUS\n";
+    $developerfile.="# Please remember to use lower case for the logname.\n";
+    $developerfile.="# In case of doubts, please contact cvsadmin.cern.ch\n";
+    $developerfile.="#\n";
+    $developerfile.="# Important\n";
+    $developerfile.="# ---------\n";
+    $developerfile.="# --- Put names of regular developers after the >Developers Tag\n";
+    $developerfile.="# --- Put names of administrators after the >Administrators Tag\n";
+    $developerfile.="#\n";
+    $developerfile.="# NB: This file was automatically generated by CreateCVSPackage.pl.\n";
+    $developerfile.="#\n";
+    $developerfile.=">Developers\n";
+    map {
+	$developerfile.=$_->idstring()."\n";
+    } @{$self->{CURRENT_ITEM}->developers()->ids()};
+    $developerfile.="\n";
+    $developerfile.=">Administrators\n";
+    map {
+	$developerfile.=$_->idstring()."\n";
+    } @{$self->{CURRENT_ITEM}->admins()->ids()};
+    # Change to the checked-out admin dir:
+    chdir $self->{CURRENT_ITEM}->package()->fullname()."/.admin";
+    # Write the file:
+    open(FILE,"> developers") || die basename($0).": Unable to open developers file for writing: $!","\n";
+    print FILE $developerfile,"\n";
+    close(FILE);
+    # Add and commit the file (if file already exists, the add is ignored):
+    &CVS::add("developers");
+    &CVS::ci("developers");
+    chdir $sdir;
+}
+
+package CVS;
+
+sub co() {
+    my $rv=0;
+    my ($item)=@_;
+    die "CVS: Nothing to check out!","\n", unless ($item);
+    my $cmd = "$cvs -Q -d $cvsroot co -P $item >/dev/null 2>&1";
+    $rv = system($cmd);
+    return $rv;
+}
+
+sub add() {
+    my $rv=0;
+    my ($item)=@_;
+    die "CVS: Nothing to add!","\n", unless ($item);
+    my $cmd = "$cvs -Q -d $cvsroot add $item >/dev/null 2>&1";
+    $rv = system($cmd);
+    return $rv;
+}
+
+sub ci() {
+    my $rv=0;
+    my ($item)=@_;
+    my ($message) = "CreateCVSPackage: Check in of $item.";
+    die "CVS: Nothing to check in!","\n", unless ($item);
+    my $cmd = "$cvs -Q -d $cvsroot ci -m \"$message\" $item >/dev/null 2>&1";
+    $rv = system($cmd);
+    return $rv;   
+}

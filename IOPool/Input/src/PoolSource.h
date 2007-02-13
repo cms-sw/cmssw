@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.26 2006/09/21 19:40:32 wmtan Exp $
+$Id: PoolSource.h,v 1.29 2007/02/06 23:07:55 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -22,6 +22,10 @@ $Id: PoolSource.h,v 1.26 2006/09/21 19:40:32 wmtan Exp $
 
 #include "boost/shared_ptr.hpp"
 
+namespace CLHEP {
+  class RandFlat;
+}
+
 namespace edm {
 
   class RootFile;
@@ -33,6 +37,7 @@ namespace edm {
 
     /// Called by framework at end of job
     virtual void endJob();
+
 
   private:
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
@@ -49,12 +54,17 @@ namespace edm {
     void setInitialPosition(ParameterSet const& pset);
     bool next();
     bool previous();
+    void rewindFile();
+    void randomize();
 
     std::vector<FileCatalogItem>::const_iterator fileIter_;
     RootFileSharedPtr rootFile_;
     RootFileSharedPtr origRootFile_;
     EntryNumber origEntryNumber_;
     BranchDescription::MatchMode matchMode_;
+
+    CLHEP::RandFlat * flatDistribution_;
+    int eventsRemainingInFile_;
   }; // class PoolSource
   typedef PoolSource PoolRASource;
 }

@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.cc,v 1.4 2006/07/07 14:00:57 chrjones Exp $
+// $Id: Timing.cc,v 1.5 2006/07/31 21:21:56 evansde Exp $
 //
 
 #include "FWCore/Services/interface/Timing.h"
@@ -36,7 +36,7 @@ namespace edm {
     }
 
     Timing::Timing(const ParameterSet& iPS, ActivityRegistry&iRegistry):
-      want_summary_(iPS.getUntrackedParameter<bool>("summaryOnly",false)),
+      summary_only_(iPS.getUntrackedParameter<bool>("summaryOnly",false)),
       report_summary_(iPS.getUntrackedParameter<bool>("useJobReport",false)),
       max_event_time_(0.),
       min_event_time_(0.),
@@ -61,14 +61,14 @@ namespace edm {
     void Timing::postBeginJob()
     {
       //edm::LogInfo("TimeReport")
-      cout
+      if (not summary_only_) {
+        edm::LogSystem("TimeReport")
 	<< "TimeReport> Report activated" << "\n"
 	<< "TimeReport> Report columns headings for events: "
 	<< "eventnum runnum timetaken\n"
 	<< "TimeReport> Report columns headings for modules: "
-	<< "eventnum runnum modulelabel modulename timetaken\n"
-	<< "\n";
-
+	<< "eventnum runnum modulelabel modulename timetaken";
+      }
       curr_job_ = getTime();
     }
 
@@ -77,7 +77,7 @@ namespace edm {
       double t = getTime() - curr_job_;
       double average_event_t = t / total_event_count_;
       //edm::LogInfo("TimeReport")
-      cout
+      edm::LogSystem("TimeReport")
 	<< "TimeReport> Time report complete in "
 	<< t << " seconds"
 	<< "\n"
@@ -85,7 +85,6 @@ namespace edm {
         << " Min: " << min_event_time_ << "\n"
         << " Max: " << max_event_time_ << "\n"
         << " Avg: " << average_event_t << "\n";
-      
       if (report_summary_){
 	Service<JobReport> reportSvc;
 	std::map<std::string, double> reportData;
@@ -110,12 +109,13 @@ namespace edm {
     void Timing::postEventProcessing(const Event& e, const EventSetup&)
     {
       double t = getTime() - curr_event_time_;
-      edm::LogInfo("TimeEvent")
+      if (not summary_only_) {
+        edm::LogSystem("TimeEvent")
 	<< "TimeEvent> "
 	<< curr_event_.event() << " "
 	<< curr_event_.run() << " "
-	<< t << "\n";
-      
+	<< t;
+      }
       if (total_event_count_ == 0) {
 	max_event_time_ = t;
         min_event_time_ = t;
@@ -135,13 +135,14 @@ namespace edm {
     {
       double t = getTime() - curr_module_time_;
       //edm::LogInfo("TimeModule")
-      cout << "TimeModule> "
+      if (not summary_only_) {
+        edm::LogSystem("TimeModule") << "TimeModule> "
 	   << curr_event_.event() << " "
 	   << curr_event_.run() << " "
 	   << desc.moduleLabel_ << " "
 	   << desc.moduleName_ << " "
-	   << t << "\n";
-
+	   << t;
+      }
    
       newMeasurementSignal(desc,t);
     }

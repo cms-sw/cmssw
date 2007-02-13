@@ -5,8 +5,8 @@
  *
  * Digi for CSC CFEB status.
  *  
- *  $Date: 2006/09/06 14:04:19 $
- *  $Revision: 1.1 $
+ *  $Date:$
+ *  $Revision:$
  *
  * \author N. Terentiev, CMU
  *
@@ -80,6 +80,7 @@ public:
   void print() const;
 
 private:
+  friend class testCSCCFEBStatusDigis;
   
   uint16_t cfebnmb_;
   uint16_t L1AOverlap_;

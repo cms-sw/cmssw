@@ -4,6 +4,8 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVFgvb.h>
 #include <vector>
 
+class DBInterface ;
+
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
 
@@ -22,10 +24,15 @@
     */
 class EcalFenixFgvbEB : public EcalVFgvb {
 
+ private:
+    DBInterface * db_ ;
+    std::vector<unsigned int> params_ ;
 
  public:
-  EcalFenixFgvbEB() {;}
+  EcalFenixFgvbEB(DBInterface * db) ;
+  virtual ~EcalFenixFgvbEB();
   int process() {return 0;} //FIXME: find better base methods
+  void setParameters(int SM, int towNum);
 
   std::vector<int> process( std::vector<int> add_out, std::vector<int> maxof2_out);
 };

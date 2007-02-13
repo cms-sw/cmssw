@@ -1,13 +1,14 @@
 /** \file RPCRingFromRolls.cc
  *
- *  $Date: 2006/08/02 12:37:05 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/11/28 11:23:44 $
+ *  $Revision: 1.5 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/src/RPCRingFromRolls.h"
 #include "L1Trigger/RPCTrigger/src/RPCDetInfo.h"
+#include "L1Trigger/RPCTrigger/src/RPCException.h"
 #include <cmath>
-//#include <algorithm>
+#include <algorithm>
 //#############################################################################
 /**
  *
@@ -32,6 +33,7 @@ RPCRingFromRolls::RPCRingFromRolls()
   m_isRefPlane = false;
   m_isDataFresh = true;
   m_didVirtuals = false; 
+  m_didFiltering = false;
   
 }
 
@@ -41,7 +43,7 @@ RPCRingFromRolls::~RPCRingFromRolls(){ }
 *
 * \brief Adds detId tu the curl
 * \todo Implement check if added detInfo  _does_ belong to this RPCRingFromRolls
-* \todo Check if added detInfo is allready in map
+* \todo check if added detInfo is allready in map
 * \todo Implement xcheck if towers are calculated properly
 *
 */
@@ -66,7 +68,7 @@ bool RPCRingFromRolls::addDetId(RPCDetInfo detInfo){
     m_towerMax=-1;
     
     for (int i=0; i < 3; i++){
-      int ttemp = mrtow [std::abs(m_globRoll)] [m_hwPlane-1][i];
+      int ttemp = m_mrtow [std::abs(m_globRoll)] [m_hwPlane-1][i];
       if (  ((m_towerMin < 0)||(m_towerMax < 0)) && (ttemp >= 0)   ){ 
         m_towerMin = ttemp;
         m_towerMax = ttemp;
@@ -115,7 +117,7 @@ bool RPCRingFromRolls::addDetId(RPCDetInfo detInfo){
  *
  */
 //#############################################################################
-int RPCRingFromRolls::makeOtherConnections(float phiCentre, int tower, int PAC){
+int RPCRingFromRolls::makeOtherConnections(float phiCentre, int m_tower, int m_PAC){
   
   if (isRefPlane()){
     edm::LogError("RPCTrigger") << "Trouble. RingFromRolls " << m_curlId
@@ -123,32 +125,33 @@ int RPCRingFromRolls::makeOtherConnections(float phiCentre, int tower, int PAC){
     return -1;
   }
 
-  if ( (tower < getMinTower()) || (tower > getMaxTower()))  // This curl not contributes to this tower.
+  if ( (m_tower < getMinTower()) || (m_tower > getMaxTower()))  // This curl not contributes to this m_tower.
     return 0;
 
   doVirtualStrips();
+  filterMixedStrips(); // Fixes overlaping chambers problem
   
   RPCConnection newConnection;
-  newConnection.PAC = PAC;
-  newConnection.tower = tower; 
-  newConnection.logplane = giveLogPlaneForTower(newConnection.tower);
+  newConnection.m_PAC = m_PAC;
+  newConnection.m_tower = m_tower; 
+  newConnection.m_logplane = giveLogPlaneForTower(newConnection.m_tower);
     
-  if (newConnection.logplane < 0){
+  if (newConnection.m_logplane < 0){
     
     LogDebug("RPCTrigger") << "Trouble. RingFromRolls "<< getRingFromRollsId()
-        << " wants to contribute to tower " << tower;
+        << " wants to contribute to m_tower " << m_tower;
        
     return -1;
   }
   
-  int logplaneSize = LOGPLANE_SIZE[std::abs(newConnection.tower)][newConnection.logplane-1];
-  //int logplaneSize = LOGPLANE_SIZE[std::abs(newConnection.tower)][m_hwPlane-1];
+  int logplaneSize = m_LOGPLANE_SIZE[std::abs(newConnection.m_tower)][newConnection.m_logplane-1];
+  //int logplaneSize = m_LOGPLANE_SIZE[std::abs(newConnection.m_tower)][m_hwPlane-1];
   
   if ((logplaneSize > 72)||(logplaneSize < 1)){
     LogDebug("RPCTrigger") << "Trouble. RingFromRolls "<< getRingFromRollsId()
         << " wants to have wrong strips number (" << logplaneSize<< ")"
-        << " in plane " << newConnection.logplane
-        << " in tower " << newConnection.tower;
+        << " in plane " << newConnection.m_logplane
+        << " in m_tower " << newConnection.m_tower;
         
     return -1;
   }
@@ -160,8 +163,8 @@ int RPCRingFromRolls::makeOtherConnections(float phiCentre, int tower, int PAC){
       it == m_stripPhiMap.begin();
   }
     
-  // XXX - possible source of logical errors - cones may be shifted +-1 comparing to ORCA
-  for (int i=0; i < logplaneSize/2; i++){
+  
+  for (int i=0; i < logplaneSize/2; i++){ 
     if (it==m_stripPhiMap.begin())
       it=m_stripPhiMap.end();  // (m_stripPhiMap.end()--) is ok.
     it--;
@@ -169,6 +172,7 @@ int RPCRingFromRolls::makeOtherConnections(float phiCentre, int tower, int PAC){
   
   // In barell station 4 (farrest station) chambers overlap in phi.
   // This is the q&d method to avoid mixing of strips in logplanes
+  /*
   if (m_region == 0 && m_hwPlane == 4){
                
       std::map<uint32_t,GlobalStripPhiMap> chambersMap;
@@ -176,20 +180,20 @@ int RPCRingFromRolls::makeOtherConnections(float phiCentre, int tower, int PAC){
       
       for (int i=0; i < logplaneSize; i++){
           stripCords scTemp = it->second;
-          (chambersMap[scTemp.detRawId])[it->first]=it->second;
+          (chambersMap[scTemp.m_detRawId])[it->first]=it->second;
           //aMap[it->first]=it->second;
           
-          if (lowestPhiMap.find(scTemp.detRawId)==lowestPhiMap.end())// New detID
+          if (lowestPhiMap.find(scTemp.m_detRawId)==lowestPhiMap.end())// New detID
             {
-               lowestPhiMap[scTemp.detRawId]=it->first;                                               
+               lowestPhiMap[scTemp.m_detRawId]=it->first;                                               
             } 
           else // detId allready in map
             {
                RPCRingFromRolls::phiMapCompare compare;
                   // compare(a,b) <=>  (a<b)
-               if (compare(lowestPhiMap[scTemp.detRawId],it->first))
+               if (compare(lowestPhiMap[scTemp.m_detRawId],it->first))
                  {
-                   lowestPhiMap[scTemp.detRawId]=it->first;
+                   lowestPhiMap[scTemp.m_detRawId]=it->first;
                  }
             }
         it++;
@@ -216,18 +220,18 @@ int RPCRingFromRolls::makeOtherConnections(float phiCentre, int tower, int PAC){
           GlobalStripPhiMap::const_iterator stripIt = aMap.begin();
           for(;stripIt!=aMap.end();stripIt++){
              //stripCords scTemp = stripIt->second;
-             newConnection.posInCone = curStripInConeNo;
+             newConnection.m_posInCone = curStripInConeNo;
              m_links[stripIt->second].push_back(newConnection);
              curStripInConeNo++;
           }
       }
   
-  }
+}
   else // Normal, non overlaping chamber
   {
       for (int i=0; i < logplaneSize; i++){
         stripCords scTemp = it->second;
-        newConnection.posInCone = i;
+        newConnection.m_posInCone = i;
         m_links[it->second].push_back(newConnection);
     
         it++;
@@ -235,6 +239,20 @@ int RPCRingFromRolls::makeOtherConnections(float phiCentre, int tower, int PAC){
           it=m_stripPhiMap.begin();
       }
   }
+  */
+  
+  // 
+  for (int i=0; i < logplaneSize; i++){
+    stripCords scTemp = it->second;
+    newConnection.m_posInCone = i;
+    m_links[it->second].push_back(newConnection);
+    
+    it++;
+    if (it==m_stripPhiMap.end())
+      it=m_stripPhiMap.begin();
+  }
+
+    
   return 0;
   
 }
@@ -248,7 +266,7 @@ RPCRingFromRolls::RPCLinks RPCRingFromRolls::giveConnections(){
  *
  * \brief Makes connections for reference rings
  * \todo Calculate centrePhi in more elegant way
- * \note Conevention: first strip in logplane is no. 0
+ * \note Conevention: first strip in m_logplane is no. 0
 *
  */
 //#############################################################################
@@ -302,17 +320,17 @@ int RPCRingFromRolls::makeRefConnections(RPCRingFromRolls *otherRingFromRolls){
     } // new pac end
     
     RPCConnection newConnection;
-    newConnection.PAC = curPacNo;
-    newConnection.tower = m_towerMin; // For refRingFromRolls m_towerMin and m_towerMax are equal
-    newConnection.posInCone = curStripNo-curBegStripNo;  // Conevention: first strip in logplane is no. 0 
+    newConnection.m_PAC = curPacNo;
+    newConnection.m_tower = m_towerMin; // For refRingFromRolls m_towerMin and m_towerMax are equal
+    newConnection.m_posInCone = curStripNo-curBegStripNo;  // Conevention: first strip in m_logplane is no. 0 
     
-    newConnection.logplane = giveLogPlaneForTower(newConnection.tower);
+    newConnection.m_logplane = giveLogPlaneForTower(newConnection.m_tower);
   
-    if (newConnection.logplane < 0){
+    if (newConnection.m_logplane < 0){
       
-      edm::LogError("RPCTrigger") << "Trouble. Strip " << it->second.stripNo
-          << " of det " << it->second.detRawId
-          << " has negative logplane";
+      edm::LogError("RPCTrigger") << "Trouble. Strip " << it->second.m_stripNo
+          << " of det " << it->second.m_detRawId
+          << " has negative m_logplane";
       
     }
     
@@ -322,14 +340,14 @@ int RPCRingFromRolls::makeRefConnections(RPCRingFromRolls *otherRingFromRolls){
     else {  // strip allready in map, we should have the same connections
       
       RPCConnectionsVec existingConnection = m_links[it->second];
-      if ( (existingConnection[0].PAC != newConnection.PAC ) ||  
-            (existingConnection[0].tower != newConnection.tower ) ||
-            (existingConnection[0].logplane != newConnection.logplane ) ||
-            (existingConnection[0].posInCone != newConnection.posInCone ) )
+      if ( (existingConnection[0].m_PAC != newConnection.m_PAC ) ||  
+            (existingConnection[0].m_tower != newConnection.m_tower ) ||
+            (existingConnection[0].m_logplane != newConnection.m_logplane ) ||
+            (existingConnection[0].m_posInCone != newConnection.m_posInCone ) )
       {
         
-        edm::LogError("RPCTrigger") << "Trouble. Strip " << it->second.stripNo
-            << " of reference det " << it->second.detRawId
+        edm::LogError("RPCTrigger") << "Trouble. Strip " << it->second.m_stripNo
+            << " of reference det " << it->second.m_detRawId
             << " has multiple connections";
             
       }
@@ -344,7 +362,7 @@ int RPCRingFromRolls::makeRefConnections(RPCRingFromRolls *otherRingFromRolls){
 //#############################################################################
 /**
  *
- * \brief Calculates logplane
+ * \brief Calculates m_logplane
  * \todo Clean this method
  *
  */
@@ -353,15 +371,12 @@ int RPCRingFromRolls::giveLogPlaneForTower(int tower){
     
   int logplane = -1;
   for (int i=0;i<3;i++){
-    int ttemp = mrtow [std::abs(m_globRoll)] [m_hwPlane-1][i];
+    int ttemp = m_mrtow [std::abs(m_globRoll)] [m_hwPlane-1][i];
     if ( ttemp == std::abs(tower) )
-      logplane = mrlogp [std::abs(m_globRoll)] [m_hwPlane-1][i];
+      logplane = m_mrlogp [std::abs(m_globRoll)] [m_hwPlane-1][i];
   }
-    
-
 
   return logplane;
-
 }
 //#############################################################################
 /**
@@ -385,15 +400,15 @@ void RPCRingFromRolls::updatePhiStripsMap(RPCDetInfo detInfo){
 
     float phi = it->second;
     stripCords sc;
-    sc.stripNo = it->first;
-    sc.detRawId = rawId;
-    sc.isVirtual = false;
+    sc.m_stripNo = it->first;
+    sc.m_detRawId = rawId;
+    sc.m_isVirtual = false;
     m_stripPhiMap[phi]=sc;
     
     if(firstIt){
       maxPhi=phi;
       minPhi=phi;
-      maxStripNo = sc.stripNo;
+      maxStripNo = sc.m_stripNo;
       firstIt=false;          
     } 
     
@@ -404,12 +419,102 @@ void RPCRingFromRolls::updatePhiStripsMap(RPCDetInfo detInfo){
       maxPhi=phi;
     }
     
-    if (maxStripNo<sc.stripNo)
-      maxStripNo=sc.stripNo;
+    if (maxStripNo<sc.m_stripNo)
+      maxStripNo=sc.m_stripNo;
     
     m_physStripsInRingFromRolls++;
   }// loop end
   
+}
+//#############################################################################
+/**
+ *
+ * \brief Filters strip
+ *
+ */
+//#############################################################################
+void RPCRingFromRolls::filterMixedStrips(){
+
+  if (m_didFiltering){ // run once
+    return;
+  }
+  
+  m_didFiltering=true;
+  
+  if (m_region != 0 || m_hwPlane != 4) 
+    return;
+  
+//  std::cout << "Another filtering" << std::endl;
+  
+  RPCRingFromRolls::phiMapCompare compare;
+  /*
+                  // compare(a,b) <=>  (a<b)
+  if (compare(lowestPhiMap[scTemp.m_detRawId],it->first))
+  {
+    lowestPhiMap[scTemp.m_detRawId]=it->first;
+  }
+  */
+  /*  
+  std::map<uint32_t,float> phiCutMap;
+  //Iterate over the chambers. For each chamber calculate a cut in phi
+  RPCDetInfoPhiMap::const_iterator it = m_RPCDetPhiMap.begin();
+  for(;it!=m_RPCDetPhiMap.end();it++){
+  
+  
+}*/
+  
+  // filter strips
+  
+  uint32_t curRawID = 0, firstRawID = 0;
+  bool firstRun=true;
+  float phiCut = 0;
+  
+  std::vector<uint32_t> procChambers; // Stores rawIds of chambers that were processed
+    
+  GlobalStripPhiMap::iterator it = m_stripPhiMap.begin();
+  for(;it!=m_stripPhiMap.end();it++){
+    
+    if(firstRun){
+      firstRun=false;
+      curRawID = it->second.m_detRawId;
+      phiCut = m_RPCDetInfoMap[curRawID].getMaxPhi();
+      firstRawID = curRawID; // First chamber is processed twice - at begin at the end of processing
+    } 
+    else {
+      float phi = it->first;
+      uint32_t rawID = it->second.m_detRawId;
+  //    std::cout << rawID << " " << phi << " " << phiCut << std::endl;
+      if (rawID!=curRawID){ // Region of mixed strips
+        //if (procChambers.find(rawID)!=procChambers.end()){
+        if (std::find(procChambers.begin(),procChambers.end(),rawID)!=procChambers.end()){
+          if (rawID == firstRawID && procChambers.size() != 1) {} //do nothing for first processed chamber when  
+                                                                  // proccesing it second time at the end
+          else
+            throw RPCException("The chamber should be allready processed");
+        }
+        if (compare(phi,phiCut)){  // compare(a,b) <=>  (a<b)
+          //GlobalStripPhiMap::iterator ittemp = it;
+          m_stripPhiMap.erase(it++);// delete strip pointed by it (not by it++ !)
+          //ittemp--; // 
+          //it=ittemp; 
+          it--; // go to prev. element - loop will inc. it for us
+        } 
+        else { // Strip is ok - start new chamber
+          procChambers.push_back(curRawID); // Store info, that the chamber was proccessd
+          curRawID=rawID; // save new chamber id
+          phiCut = m_RPCDetInfoMap[curRawID].getMaxPhi(); // get new cut
+        }
+      
+      }
+        
+        
+    }
+  
+  
+  }
+  
+  
+
 }
 //#############################################################################
 /**
@@ -424,7 +529,7 @@ void RPCRingFromRolls::updatePhiStripsMap(RPCDetInfo detInfo){
 //#############################################################################
 void RPCRingFromRolls::doVirtualStrips(){
   
-  if (m_didVirtuals){ // Run once
+  if (m_didVirtuals){ // run once
     return;
   }
   m_didVirtuals=true;
@@ -481,11 +586,11 @@ void RPCRingFromRolls::doVirtualStrips(){
        stripsToAdd++; 
     
     stripCords sc;
-    sc.detRawId = rawDetIDLast;
-    sc.stripNo = 0;
-    sc.isVirtual = true;
+    sc.m_detRawId = rawDetIDLast;
+    sc.m_stripNo = 0;
+    sc.m_isVirtual = true;
     for (int i = 0;i<stripsToAdd;i++){
-        sc.stripNo--;
+        sc.m_stripNo--;
         newVirtualStrips[phiMaxLast+dphi*(i+1)]=sc;
         m_virtStripsInRingFromRolls++;
     }
@@ -529,9 +634,9 @@ void RPCRingFromRolls::setRefPlane() {
 //#
 //#############################################################################
 bool RPCRingFromRolls::isRefPlane() const { return m_isRefPlane;} ///< Returns value of m_isReferencePlane
-int RPCRingFromRolls::getMinTower() const { return m_towerMin;} ///< Returns value of min tower
-int RPCRingFromRolls::getMaxTower() const{ return m_towerMax;} ///< Returns value of max tower
-int RPCRingFromRolls::getRingFromRollsId() const{ return m_curlId;} ///< Returns value of max tower
+int RPCRingFromRolls::getMinTower() const { return m_towerMin;} ///< Returns value of min m_tower
+int RPCRingFromRolls::getMaxTower() const{ return m_towerMax;} ///< Returns value of max m_tower
+int RPCRingFromRolls::getRingFromRollsId() const{ return m_curlId;} ///< Returns value of max m_tower
 
 
 //#############################################################################
@@ -542,8 +647,8 @@ int RPCRingFromRolls::getRingFromRollsId() const{ return m_curlId;} ///< Returns
 
 
 // Straigth from ORCA
-const int RPCRingFromRolls::mrtow [RPCRingFromRolls::IROLL_MAX+1] [RPCRingFromRolls::NHPLANES] [RPCRingFromRolls::NPOS] =
-//const int RPCRingFromRolls::mrtow [] [] [] =
+const int RPCRingFromRolls::m_mrtow [RPCRingFromRolls::IROLL_MAX+1] [RPCRingFromRolls::NHPLANES] [RPCRingFromRolls::NPOS] =
+//const int RPCRingFromRolls::m_mrtow [] [] [] =
 {
 // MB1in/MF1  MB2in/MF2   MB3/MF3   MB4/MF4      MB1out    MB2out
 //     1          2          3         4           5         6
@@ -567,8 +672,8 @@ const int RPCRingFromRolls::mrtow [RPCRingFromRolls::IROLL_MAX+1] [RPCRingFromRo
   { {16,-1,-1},{16,-1,-1},{-1,-1,-1},{-1,-1,-1},{-1,-1,-1},{-1,-1,-1} }    //    17
 };
 
-const int RPCRingFromRolls::mrlogp [RPCRingFromRolls::IROLL_MAX+1] [RPCRingFromRolls::NHPLANES] [RPCRingFromRolls::NPOS] =
-//const int RPCRingFromRolls::mrlogp [] [] [] =
+const int RPCRingFromRolls::m_mrlogp [RPCRingFromRolls::IROLL_MAX+1] [RPCRingFromRolls::NHPLANES] [RPCRingFromRolls::NPOS] =
+//const int RPCRingFromRolls::m_mrlogp [] [] [] =
 {
 // MB1in/MF1  MB2in/MF2   MB3/MF3   MB4/MF4      MB1out    MB2out
 //     1          2          3          4          5          6
@@ -594,8 +699,8 @@ const int RPCRingFromRolls::mrlogp [RPCRingFromRolls::IROLL_MAX+1] [RPCRingFromR
 
 
 // Straigth from ORCA
-const unsigned int RPCRingFromRolls::LOGPLANE_SIZE[RPCRingFromRolls::TOWERMAX+1][RPCRingFromRolls::NHPLANES] = {
-//const unsigned int RPCRingFromRolls::LOGPLANE_SIZE[17][6] = {
+const unsigned int RPCRingFromRolls::m_LOGPLANE_SIZE[RPCRingFromRolls::TOWERMAX+1][RPCRingFromRolls::NHPLANES] = {
+//const unsigned int RPCRingFromRolls::m_LOGPLANE_SIZE[17][6] = {
  //LOGPLANE  1,  2,  3   4   5   6
            {72, 56,  8, 40, 40, 24}, //TOWER 0
            {72, 56,  8, 40, 40, 24}, //TOWER 1
@@ -631,8 +736,8 @@ void RPCRingFromRolls::printContents() {
     GlobalStripPhiMap::const_iterator it;
     for (it=m_stripPhiMap.begin(); it != m_stripPhiMap.end(); it++){
       LogDebug("RPCTrigger") << "phi" << it->first
-          << " stripNo=" << (it->second).stripNo
-          << " isVirtual=" << (it->second).isVirtual
+          << " m_stripNo=" << (it->second).m_stripNo
+          << " m_isVirtual=" << (it->second).m_isVirtual
     }
   }//*/
 
@@ -650,7 +755,7 @@ void RPCRingFromRolls::printContents() {
       << " phys= " << m_physStripsInRingFromRolls
       << " virt= " << m_virtStripsInRingFromRolls
       << " all= " << m_virtStripsInRingFromRolls+m_physStripsInRingFromRolls
-      << "|strips conneced: " << m_links.size(); // with or without virtual strips. Check it, it may have changed
+      << "|strips conneced: " << m_links.size(); // with or without virtual strips. check it, it may have changed
   
   
   /*
@@ -671,8 +776,8 @@ void RPCRingFromRolls::printContents() {
   for (it = m_stripPhiMap.begin(); it != m_stripPhiMap.end(); it++){
   LogDebug("RPCTrigger")
         << "Phi: " << it->first 
-        << " detId: " << it->second.detRawId 
-        << " stripNo: " << it->second.stripNo  << 
+        << " detId: " << it->second.m_detRawId 
+        << " m_stripNo: " << it->second.m_stripNo  << 
   }//*/
 
 }

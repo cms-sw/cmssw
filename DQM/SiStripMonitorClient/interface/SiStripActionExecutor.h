@@ -29,6 +29,7 @@ class SiStripActionExecutor {
  void fillLayout(MonitorUserInterface * mui);
  void saveMEs(MonitorUserInterface * mui, std::string fname);
  bool getCollationFlag(){return collationDone;}
+ int getTkMapMENames(std::vector<std::string>& names);
 
  private:
  MonitorElement* getSummaryME(MonitorUserInterface* mui, std::string& name);
@@ -41,6 +42,7 @@ class SiStripActionExecutor {
   SiStripConfigParser* configParser_;
   SiStripConfigWriter* configWriter_;
   std::vector<std::string> summaryMENames;
+  std::vector<std::string> tkMapMENames;
   bool collationDone;
 };
 #endif

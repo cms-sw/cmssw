@@ -19,8 +19,8 @@ namespace edm {
   * Abstract interface for the mutual transcoder required for compressing
   * and uncompressing the ET stored in HCAL and ECAL Trigger Primitives
   * 
-  * $Date: 2006/09/14 20:02:05 $
-  * $Revision: 1.3 $
+  * $Date: 2006/10/25 21:16:58 $
+  * $Revision: 1.4 $
   * \author J. Mans - Minnesota
   */
 class CaloTPGTranscoder {
@@ -45,6 +45,9 @@ public:
   virtual void rctJetUncompress(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc,
 				   const EcalTrigTowerDetId& eid, const EcalTriggerPrimitiveSample& ec, 
 				   unsigned int& et) const = 0;
+
+  virtual double hcaletValue(const int& ieta, const int& compET) const = 0;
+  
 
   boost::shared_ptr<HcalTPGCompressor> getHcalCompressor() const { return hccompress_; }
   boost::shared_ptr<EcalTPGCompressor> getEcalCompressor() const { return eccompress_; }

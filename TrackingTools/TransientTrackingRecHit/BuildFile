@@ -9,6 +9,7 @@
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/CommonDetUnit>
 <use name=TrackingTools/Records>
+<use name=TrackingTools/TrajectoryState>
 
 <export>
 <lib name=TrackingToolsTransientTrackingRecHit>

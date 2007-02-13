@@ -6,7 +6,7 @@
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.16 2006/08/22 20:28:01 ewv Exp $
+ * \version $Id: TrackingVertex.h,v 1.17 2006/10/23 17:23:00 ewv Exp $
  *
  */
  
@@ -18,9 +18,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-
-using edm::SimVertexRef;
-using edm::SimVertexRefVector;
 
 class TrackingVertex {
 

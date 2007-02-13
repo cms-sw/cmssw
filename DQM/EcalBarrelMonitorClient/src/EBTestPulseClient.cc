@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/10/18 16:57:52 $
- * $Revision: 1.90 $
+ * $Date: 2006/08/03 19:41:25 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -481,6 +481,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
           val = false;
         }
         adc.setTaskStatus(val);
+        status = status && val;
 
         if ( ie == 1 && ip == 1 ) {
 
@@ -543,8 +544,6 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
             cerr << e.what() << endl;
           }
         }
-
-        status = status && val;
 
       }
 
@@ -650,6 +649,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
         val = false;
       }
       pn.setTaskStatus(val);
+      status = status && val;
 
       if ( econn ) {
         try {
@@ -659,8 +659,6 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, i
           cerr << e.what() << endl;
         }
       }
-
-      status = status && val;
 
     }
 
@@ -1257,7 +1255,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   const double histMax = 1.e15;
 
-  int pCol3[4] = { 2, 3, 5, 1 };
+  int pCol3[3] = { 2, 3, 5 };
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for ( int i = 0; i < 68; i++ ) {
@@ -1322,7 +1320,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cQual->cd();
         gStyle->SetOptStat(" ");
-        gStyle->SetPalette(4, pCol3);
+        gStyle->SetPalette(3, pCol3);
         obj2f->GetXaxis()->SetNdivisions(17);
         obj2f->GetYaxis()->SetNdivisions(4);
         cQual->SetGridx();
