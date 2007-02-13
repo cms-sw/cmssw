@@ -9,7 +9,7 @@
 		<Parameter Name="NumberOfJobs" Value="10"/>
 		<Parameter Name="Configuration" Value="Validation/EcalRecHits/test/Photon_E30GeV_all.cfg"/>
 		<ReferenceLFN>
-			/store/SVSuite/Reference/SVSuite-data-EcalChain-CMSSW_1_2_x.tar.gz
+			/store/SVSuite/Reference/SVSuite-data-CMSSW_1_2_x.tar.gz
 		</ReferenceLFN>
 		<Tool Name="runEcalChain Simhit30GeV_all"/>
 	</SVSuiteSpec>
@@ -22,7 +22,7 @@
 		<Parameter Name="NumberOfJobs" Value="2"/>
 		<Parameter Name="Configuration" Value="Validation/EcalRecHits/test/Photon_E30GeV_all.cfg"/>
 		<ReferenceLFN>
-			/store/SVSuite/Reference/SVSuite-data-EcalChain-CMSSW_1_2_x.tar.gz
+			/store/SVSuite/Reference/SVSuite-data-CMSSW_1_2_x.tar.gz
 		</ReferenceLFN>
 		<Tool Name="runEcalChain Simhit400GeV_all"/>
 	</SVSuiteSpec>
@@ -35,7 +35,7 @@
 		<Parameter Name="NumberOfJobs" Value="10"/>
 		<Parameter Name="Configuration" Value="Validation/EcalRecHits/test/Photon_E30GeV_all.cfg"/>
 		<ReferenceLFN>
-			/store/SVSuite/Reference/SVSuite-data-EcalChain-CMSSW_1_2_x.tar.gz
+			/store/SVSuite/Reference/SVSuite-data-CMSSW_1_2_x.tar.gz
 		</ReferenceLFN>
 		<Tool Name="runEcalChain SimhitPion_all"/>
 	</SVSuiteSpec>
