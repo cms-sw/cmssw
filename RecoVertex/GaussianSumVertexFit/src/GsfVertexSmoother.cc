@@ -71,7 +71,7 @@ GsfVertexSmoother::smooth(const CachingVertex & vertex) const
     VertexState meanedVertex = 
          meanVertex(ascendingFittedVertices[indexNumber].vertexState(), 
     		    descendingFittedVertices[indexNumber].vertexState());
-    if (limitComponents) meanedVertex = theMerger->mergeVertexState(meanedVertex);
+    if (limitComponents) meanedVertex = theMerger->merge(meanedVertex);
     // Add the vertex and smooth the track:
     TrackChi2Pair thePair = vertexAndTrackUpdate(meanedVertex, *i, vertex.position());
     smoothedChi2 += thePair.second;

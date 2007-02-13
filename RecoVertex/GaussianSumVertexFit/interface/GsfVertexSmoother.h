@@ -10,6 +10,7 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanSmoothedVertexChi2Estimator.h"
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexWeightCalculator.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
+#include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
 
 
@@ -89,7 +90,7 @@ private:
 	const VertexState fittedVertex) const;
 
   bool limitComponents;
-  GsfVertexMerger * theMerger;
+  DeepCopyPointerByClone<GsfVertexMerger> theMerger;
   GsfVertexUpdator theUpdator;
   KalmanVertexUpdator kalmanVertexUpdator;
   KalmanSmoothedVertexChi2Estimator smoothedChi2Estimator;

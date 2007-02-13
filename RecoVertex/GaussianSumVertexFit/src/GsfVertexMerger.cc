@@ -50,7 +50,7 @@ CachingVertex GsfVertexMerger::merge(const CachingVertex & oldVertex) const
   if (oldVertex.vertexState().components().size() <= maxComponents) 
   	return oldVertex;
 cout << "start merger :"<<oldVertex.vertexState().components().size()<<endl;
-  VertexState newVertexState = mergeVertexState(oldVertex.vertexState());
+  VertexState newVertexState = merge(oldVertex.vertexState());
 cout << "end merger :"<<newVertexState.components().size()<<endl;
 
   if  (oldVertex.hasPrior()) {
@@ -64,7 +64,7 @@ cout << "end merger :"<<newVertexState.components().size()<<endl;
 }
 
 
-VertexState GsfVertexMerger::mergeVertexState(const VertexState & oldVertex) const
+VertexState GsfVertexMerger::merge(const VertexState & oldVertex) const
 {
   if (oldVertex.components().size() <= maxComponents) 
   	return oldVertex;

@@ -2,6 +2,12 @@
 #include "RecoVertex/GaussianSumVertexFit/interface/BasicMultiVertexState.h"
 #include <cfloat>
 
+GsfVertexUpdator::GsfVertexUpdator(bool limit, const GsfVertexMerger * merger) :
+  limitComponents (limit)
+{
+  if (limitComponents) theMerger = merger->clone();
+}
+
 
 CachingVertex GsfVertexUpdator::add(const CachingVertex & oldVertex,
 				    const RefCountedVertexTrack track) const
@@ -61,6 +67,9 @@ CachingVertex GsfVertexUpdator::add(const CachingVertex & oldVertex,
 //   cout << "c \n ";
   double chi2 = oldVertex.totalChiSquared() + vertexChi2Pair.second;
   cout << "updator return\n ";
+
+  // Merge:
+  if (limitComponents) newVertexState = theMerger->merge(newVertexState);
 
   if  (oldVertex.hasPrior()) {
     return CachingVertex(oldVertex.priorPosition(), oldVertex.priorError(),

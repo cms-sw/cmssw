@@ -4,6 +4,7 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexUpdator.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexWeightCalculator.h"
+#include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexMerger.h"
 
 /**
  *  Vertex updator for the Gaussian Sum vertex filter.
@@ -14,6 +15,7 @@ class GsfVertexUpdator: public VertexUpdator {
 
 public:
 
+  GsfVertexUpdator(bool limit = false, const GsfVertexMerger * merger = 0);
 /**
  *  Method to add a track to an existing CachingVertex
  *
@@ -54,6 +56,8 @@ private:
   VertexChi2Pair assembleVertexComponents(
   	 const vector<VertexComponent> & newVertexComponents) const;
 
+  bool limitComponents;
+  DeepCopyPointerByClone<GsfVertexMerger> theMerger;
   KalmanVertexUpdator kalmanVertexUpdator;
   GsfVertexWeightCalculator theWeightCalculator;
 };

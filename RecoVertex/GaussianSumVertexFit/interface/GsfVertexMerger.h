@@ -19,7 +19,8 @@ public:
   ~GsfVertexMerger() {}
 
   CachingVertex merge(const CachingVertex & vertex) const;
-  VertexState mergeVertexState(const VertexState & vertex) const;
+
+  VertexState merge(const VertexState & vertex) const;
 
   GsfVertexMerger * clone() const {
     return new GsfVertexMerger(* this);
