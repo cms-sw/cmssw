@@ -3,8 +3,6 @@
 
 #include <iostream>
 
-//using namespace std;
-
 /**
  * Numbering of the pixels inside the readout chip (ROC).
  * There is a column index and a row index.

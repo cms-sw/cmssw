@@ -9,7 +9,10 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimGeneral/HepPDT/interface/HepPDTable.h"
+
+//#include "SimGeneral/HepPDT/interface/HepPDTable.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -246,8 +249,9 @@ class SiPixelDigitizerAlgorithm  {
     
 
     // The PDTable
-    HepPDTable *particleTable;
-    
+    //HepPDTable *particleTable;
+    ParticleDataTable *particleTable;
+
     //-- charge fluctuation
     double tMax;  // The delta production cut, should be as in OSCAR = 30keV
     //                                           cmsim = 100keV
