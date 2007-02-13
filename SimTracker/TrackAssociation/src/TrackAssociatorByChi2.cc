@@ -99,22 +99,23 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 
     int tpindex =0;
     for (TrackingParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
-      for (TrackingParticle::g4t_iterator t=tp->g4Track_begin(); t!=tp->g4Track_end(); ++t) {
+//       for (TrackingParticle::g4t_iterator t=tp->g4Track_begin(); t!=tp->g4Track_end(); ++t) {
 	
 	//FIXME correct?
-	if (t->momentum().perp()<0.5) continue;
+	if (sqrt(tp->momentum().perp2())<0.5) continue;
 	
-	Basic3DVector<double> momAtVtx(t->momentum().x(),t->momentum().y(),t->momentum().z());
-	Basic3DVector<double> vert;
-	const TrackingVertex * tv = &(*(tp->parentVertex()));
-	int vind=0;
-	for (TrackingVertex::g4v_iterator v=tv->g4Vertices_begin(); v!=tv->g4Vertices_end(); v++){
-	  if (vind==t->vertIndex()) 
-	    vert=Basic3DVector<double>(v->position().x(),v->position().y(),v->position().z());
-	  vind++;   
-	}
+	Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
+	Basic3DVector<double> vert=(Basic3DVector<double>) tp->vertex();
 
-	TrackBase::ParameterVector gParameters=parametersAtClosestApproachGeom(vert, momAtVtx, t->charge());
+// 	const TrackingVertex * tv = &(*(tp->parentVertex()));
+// 	int vind=0;
+// 	for (TrackingVertex::g4v_iterator v=tv->g4Vertices_begin(); v!=tv->g4Vertices_end(); v++){
+// 	  if (vind==t->vertIndex()) 
+// 	    vert=Basic3DVector<double>(v->position().x(),v->position().y(),v->position().z());
+// 	  vind++;   
+// 	}
+
+	TrackBase::ParameterVector gParameters=parametersAtClosestApproachGeom(vert, momAtVtx, tp->charge());
 
 	//sParameters[0] = qoverp;
 	//sParameters[1] = lambda;
@@ -128,7 +129,7 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 	chi2 = ROOT::Math::Similarity(diffParameters, recoTrackCovMatrix);
 	chi2 /= 5;
 
-	LogDebug("TrackAssociator") << "====NEW TRACKING PARTICLE WITH PT=" << t->momentum().perp() << "====\n" 
+	LogDebug("TrackAssociator") << "====NEW TRACKING PARTICLE WITH PT=" << sqrt(tp->momentum().perp2()) << "====\n" 
 				    << "qoverp simG: " << gParameters[0] << "\n" 
 				    << "lambda simG: " << gParameters[1] << "\n" 
 				    << "phi    simG: " << gParameters[2] << "\n" 
@@ -148,7 +149,7 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
 				  std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
 						 -chi2));//-chi2 because the Association Map is ordered using std::greater
 	}
-      }
+//       }
     }
     
   }
@@ -169,24 +170,24 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
 
   int tpindex =0;
   for (TrackingParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
-    for (TrackingParticle::g4t_iterator t=tp->g4Track_begin(); t!=tp->g4Track_end(); ++t) {
+//     for (TrackingParticle::g4t_iterator t=tp->g4Track_begin(); t!=tp->g4Track_end(); ++t) {
 
-      if (t->momentum().perp()<0.5) continue;
+      if (sqrt(tp->momentum().perp2())<0.5) continue;
 
     LogDebug("TrackAssociator") << "=========LOOKING FOR ASSOCIATION===========" << "\n"
-				 << "TrackingParticle #"<<tpindex<<" with pt=" << t->momentum().perp() << "\n"
+				 << "TrackingParticle #"<<tpindex<<" with pt=" << sqrt(tp->momentum().perp2()) << "\n"
 				 << "===========================================" << "\n";
       
-      Basic3DVector<double> momAtVtx(t->momentum().x(),t->momentum().y(),t->momentum().z());
-      Basic3DVector<double> vert;//(tp->vertex().x(),tp->vertex().y(),tp->vertex().z());
-      const TrackingVertex * tv = &(*(tp->parentVertex()));
-      int vind=0;
-      for (TrackingVertex::g4v_iterator v=tv->g4Vertices_begin(); v!=tv->g4Vertices_end(); v++){
-	if (vind==t->vertIndex()) vert=Basic3DVector<double>(v->position().x(),v->position().y(),v->position().z());
-	vind++;
-      }
+      Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
+      Basic3DVector<double> vert(tp->vertex().x(),tp->vertex().y(),tp->vertex().z());
+//       const TrackingVertex * tv = &(*(tp->parentVertex()));
+//       int vind=0;
+//       for (TrackingVertex::g4v_iterator v=tv->g4Vertices_begin(); v!=tv->g4Vertices_end(); v++){
+// 	if (vind==t->vertIndex()) vert=Basic3DVector<double>(v->position().x(),v->position().y(),v->position().z());
+// 	vind++;
+//       }
 
-      TrackBase::ParameterVector sParameters=parametersAtClosestApproachGeom(vert, momAtVtx, t->charge());
+      TrackBase::ParameterVector sParameters=parametersAtClosestApproachGeom(vert, momAtVtx, tp->charge());
      
       int tindex=0;
       for (TrackCollection::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
@@ -227,7 +228,7 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
 				  std::make_pair(reco::TrackRef(tCH,tindex),
 						 -chi2));//-chi2 because the Association Map is ordered using std::greater
 	}
-      }
+//       }
     }
     
   }
