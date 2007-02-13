@@ -28,6 +28,7 @@ namespace edm {
     void disableSignal(sigset_t* newset, int signum);
     void reenableSigs(sigset_t* oldset);
     void installSig(int signum, CFUNC func);
+    void installCustomHandler(int signum, CFUNC func);
     void sigInventory();
 
 }  // end of namespace edm

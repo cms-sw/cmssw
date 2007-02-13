@@ -49,7 +49,7 @@ namespace edm {
 
 //--------------------------------------------------------------
 
-    void disableAllSigs(sigset_t* oldset)
+    void disableAllSigs( sigset_t* oldset )
     {
       sigset_t myset;
       // all blocked for now
@@ -81,7 +81,7 @@ namespace edm {
 
 //--------------------------------------------------------------
 
-    void reenableSigs(sigset_t* oldset)
+    void reenableSigs( sigset_t* oldset )
     {
       // reenable the signals
       MUST_BE_ZERO(pthread_sigmask(SIG_SETMASK,oldset,0));
@@ -89,7 +89,7 @@ namespace edm {
 
 //--------------------------------------------------------------
 
-    void enableSignal( sigset_t* newset, int signum)
+    void enableSignal( sigset_t* newset, int signum )
     {
       // enable the specified signal
       MUST_BE_ZERO(sigaddset(newset, signum));
@@ -98,7 +98,7 @@ namespace edm {
 
 //--------------------------------------------------------------
 
-    void disableSignal( sigset_t* newset, int signum)
+    void disableSignal( sigset_t* newset, int signum )
     {
       // disable the specified signal
       MUST_BE_ZERO(sigdelset(newset, signum));
@@ -106,7 +106,20 @@ namespace edm {
 
 //--------------------------------------------------------------
 
-    void installSig(int signum, CFUNC func)
+    void installCustomHandler( int signum, CFUNC func )
+    {
+      sigset_t oldset;
+      edm::disableAllSigs(&oldset);
+#if defined(__linux__)
+      edm::disableRTSigs();
+#endif
+      edm::installSig(signum,edm::ep_sigusr2);
+      edm::reenableSigs(&oldset);
+    }
+
+//--------------------------------------------------------------
+
+    void installSig( int signum, CFUNC func )
     {
       // set up my RT signal now
       struct sigaction act;
@@ -132,7 +145,6 @@ namespace edm {
 
     void sigInventory()
     {
-      int rc;
       sigset_t tmpset, oldset;
 //    Make a full house set of signals, except for SIGKILL = 9
 //    and SIGSTOP = 19 which cannot be blocked
