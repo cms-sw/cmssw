@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/08 15:23:59 $
- * $Revision: 1.214 $
+ * $Date: 2007/02/09 22:38:09 $
+ * $Revision: 1.215 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -570,7 +570,11 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
 
-  if ( subrun_ != -1 ) this->softReset();
+  if ( subrun_ != -1 ) {
+    if ( enableSubRun_ ) {
+      this->softReset();
+    }
+  }
 
   for ( int i=0; i<int(clients_.size()); i++ ) {
     bool ended; ended = false;
@@ -1253,26 +1257,6 @@ void EcalBarrelMonitorClient::analyze(void){
 
   }
 
-  me = mui_->get("Collector/FU0_is_done");
-  if ( me ) {
-    if ( status_ == "running" ) {
-      cout << endl;
-      cout << " Source FU0 is done, forcing 'end-of-run'" << endl;
-      cout << endl;
-      status_ = "end-of-run";
-    }
-  }
-
-  me = mui_->get("Collector/FU0_is_dead");
-  if ( me ) {
-    if ( status_ == "running" ) {
-      cout << endl;
-      cout << " Source FU0 is dead, forcing 'end-of-run'" << endl;
-      cout << endl;
-      status_ = "end-of-run";
-    }
-  }
-
   if ( status_ == "end-of-run" ) {
     
     if ( begin_run_ && ! end_run_ ) {
@@ -1286,7 +1270,7 @@ void EcalBarrelMonitorClient::analyze(void){
   }
 
   // BEGIN: run-time fixes for missing state transitions
-  
+
   if ( status_ == "unknown" ) {
     
     if ( update ) unknowns_++;
@@ -1302,13 +1286,13 @@ void EcalBarrelMonitorClient::analyze(void){
     }
     
   }
-  
+
   if ( status_ == "running" ) {
     
-    if ( ! forced_status_ ) {
-      
-      if ( run_ > 0 && evt_ > 0 && runtype_ != -1 ) {
-        
+    if ( run_ > 0 && evt_ > 0 && runtype_ != -1 ) {
+
+      if ( ! forced_status_ ) {
+
         if ( ! begin_run_ ) {
 
           cout << endl;
@@ -1337,6 +1321,32 @@ void EcalBarrelMonitorClient::analyze(void){
 
         }
 
+      }
+
+      me = mui_->get("Collector/FU0_is_done");
+      if ( me ) {
+        if ( status_ == "running" ) {
+          cout << endl;
+          cout << " Source FU0 is done, forcing endRun() ... NOW !" << endl;
+          cout << endl;
+
+          this->endRun();
+
+          forced_status_ = true;
+        }
+      }
+
+      me = mui_->get("Collector/FU0_is_dead");
+      if ( me ) {
+        if ( status_ == "running" ) {
+          cout << endl;
+          cout << " Source FU0 is dead, forcing endRun() ... NOW !" << endl;
+          cout << endl;
+
+          this->endRun();
+
+          forced_status_ = true;
+        }
       }
 
     }
