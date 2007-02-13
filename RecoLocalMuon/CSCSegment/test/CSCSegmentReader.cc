@@ -1,7 +1,7 @@
 /** \file CSCSegmentReader.cc
  *
- *  $Date: 2006/12/15 03:34:52 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/01/22 23:04:24 $
+ *  $Revision: 1.10 $
  *  \author M. Sani
  *
  *  Modified by D. Fortin - UC Riverside
@@ -65,7 +65,7 @@ CSCSegmentReader::~CSCSegmentReader() {
   heff2    = new TH1F("h2", "efficiency", segMap1.size()*2 + 2, 0, segMap1.size()*2 + 2); 
   heff3    = new TH1F("h3", "efficiency", segMap1.size()*2 + 2, 0, segMap1.size()*2 + 2); 
 
-  cout << "Raw reco efficiency for 6-hit simulated segment" << endl;        
+  cout << "Raw reco efficiency for 6-hit simulated segment (nhits > 3)" << endl;        
   for (map<string,int>::const_iterator it = segMap1.begin(); it != segMap1.end(); it++) {
     ibin++;
     float eff = (float)it->second/(float)chaMap1[it->first]; 
@@ -75,7 +75,7 @@ CSCSegmentReader::~CSCSegmentReader() {
          << "  "      << eff  << endl;
   }
   ibin = 0;
-  cout << "Raw reco efficiency for chamber with 6 layers with rechits" << endl;        
+  cout << "Raw reco efficiency for chamber with 6 layers with rechits (nhits > 3)" << endl;        
   for (map<string,int>::const_iterator it = segMap2.begin(); it != segMap2.end(); it++) {
     ibin++;
     float eff = (float)it->second/(float)chaMap2[it->first]; 
@@ -95,7 +95,7 @@ CSCSegmentReader::~CSCSegmentReader() {
          << "  "      << eff  << endl;
   }
   ibin = 0;
-  cout << "Reco efficiency for chamber with 6 layers with rechits" << endl;        
+  cout << "Reco efficiency for building 6-hit segment for chamber with 6 layers with rechits" << endl;        
   for (map<string,int>::const_iterator it = segMap3.begin(); it != segMap3.end(); it++) {
     ibin++;
     float eff = (float)it->second/(float)chaMap2[it->first]; 
