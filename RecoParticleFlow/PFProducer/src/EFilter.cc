@@ -26,7 +26,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
-#include "DataFormats/ParticleFlowReco/interface/PFParticle.h"
+#include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
 
 using namespace edm;
 using namespace std;
@@ -62,7 +62,7 @@ EFilter::filter(edm::Event& iEvent,
 
 
   try {
-    Handle<std::vector<reco::PFParticle> > particles;
+    Handle<std::vector<reco::PFSimParticle> > particles;
     iEvent.getByLabel("particleFlow", particles);
     //    cout<<"n particles = "<<particles->size()<<endl;
 
@@ -87,7 +87,7 @@ EFilter::filter(edm::Event& iEvent,
     }
   }
   catch(...) {
-    LogError("PFProducer")<<"EFilter : cannot get PFParticles with module label "
+    LogError("PFProducer")<<"EFilter : cannot get PFSimParticles with module label "
                           <<"particleFlow"<<endl;
     return true;
   }

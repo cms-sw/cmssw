@@ -9,8 +9,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 // #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFParticle.h"
-#include "DataFormats/ParticleFlowReco/interface/PFParticleFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
+#include "DataFormats/ParticleFlowReco/interface/PFSimParticleFwd.h"
 
 // include files used for reconstructed tracks
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -100,7 +100,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) :
 
 
   // register products
-  produces<reco::PFParticleCollection>();
+  produces<reco::PFSimParticleCollection>();
   produces<reco::PFRecTrackCollection>();
   produces<reco::CandidateCollection>();
   
@@ -261,8 +261,8 @@ void PFProducer::produce(Event& iEvent,
   // output collection for rectracks. will be used for particle flow
   auto_ptr< reco::PFRecTrackCollection > 
     pOutputPFRecTrackCollection(new reco::PFRecTrackCollection);
-  auto_ptr< reco::PFParticleCollection > 
-    pOutputPFParticleCollection(new reco::PFParticleCollection ); 
+  auto_ptr< reco::PFSimParticleCollection > 
+    pOutputPFSimParticleCollection(new reco::PFSimParticleCollection ); 
   auto_ptr< reco::CandidateCollection > 
     pOutputCandidateCollection(new reco::CandidateCollection ); 
   
@@ -304,7 +304,7 @@ void PFProducer::produce(Event& iEvent,
       if( ! fst.noMother() ) 
 	motherId = fst.mother().id();
 
-      reco::PFParticle particle(  fst.charge(), 
+      reco::PFSimParticle particle(  fst.charge(), 
 				  fst.type(), 
 				  fst.id(), 
 				  motherId,
@@ -411,10 +411,10 @@ void PFProducer::produce(Event& iEvent,
 // 	particle.addPoint( hcalPtout ); 	
       }
           
-      pOutputPFParticleCollection->push_back( particle );
+      pOutputPFSimParticleCollection->push_back( particle );
     }
 
-//     iEvent.put(pOutputPFParticleCollection);
+//     iEvent.put(pOutputPFSimParticleCollection);
   }
   
   
@@ -572,7 +572,7 @@ void PFProducer::produce(Event& iEvent,
   LogDebug("PFProducer")<<"Putting products in the event"<<endl;
   
   iEvent.put(pOutputPFRecTrackCollection);
-  iEvent.put(pOutputPFParticleCollection);
+  iEvent.put(pOutputPFSimParticleCollection);
   iEvent.put(pOutputCandidateCollection);
 
   LogDebug("PFProducer")<<"STOP event: "<<iEvent.id().event()

@@ -33,9 +33,9 @@
   </class>
   <class name="std::vector<reco::PFRecTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecTrack> >"/>
-  <class name="reco::PFParticle"/>
-  <class name="std::vector<reco::PFParticle>"/>
-  <class name="edm::Wrapper<std::vector<reco::PFParticle> >"/>
+  <class name="reco::PFSimParticle"/>
+  <class name="std::vector<reco::PFSimParticle>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFSimParticle> >"/>
   <class name="reco::PFResolutionMap"/>
 </lcgdict>
 

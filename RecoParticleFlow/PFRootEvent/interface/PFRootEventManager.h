@@ -5,7 +5,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFParticle.h"
+#include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
@@ -292,7 +292,7 @@ class PFRootEventManager {
   std::vector<reco::PFRecTrack> recTracks_;
   
   /// true particles
-  std::vector<reco::PFParticle> trueParticles_;
+  std::vector<reco::PFSimParticle> trueParticles_;
   
   /// all pfblock elements
   std::set< PFBlockElement* > allElements_; 

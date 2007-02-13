@@ -1,11 +1,11 @@
-#include "DataFormats/ParticleFlowReco/interface/PFParticle.h"
+#include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace reco;
 using namespace std;
 
 
-PFParticle::PFParticle() :
+PFSimParticle::PFSimParticle() :
   PFTrack(),
   pdgCode_(0), 
   id_(0),
@@ -13,7 +13,7 @@ PFParticle::PFParticle() :
 {}
 
 
-PFParticle::PFParticle(double charge, int pdgCode,
+PFSimParticle::PFSimParticle(double charge, int pdgCode,
 		       unsigned id, int motherId,
 		       const vector<int>& daughterIds) : 
   PFTrack(charge),
@@ -24,7 +24,7 @@ PFParticle::PFParticle(double charge, int pdgCode,
 {}
   
 
-PFParticle::PFParticle(const PFParticle& other) :
+PFSimParticle::PFSimParticle(const PFSimParticle& other) :
   PFTrack(other), 
   pdgCode_(other.pdgCode_), 
   id_(other.id_), 
@@ -33,7 +33,7 @@ PFParticle::PFParticle(const PFParticle& other) :
 {}
 
 ostream& reco::operator<<(ostream& out, 
-			  const PFParticle& particle) {  
+			  const PFSimParticle& particle) {  
   if (!out) return out;  
 
   const reco::PFTrajectoryPoint& closestApproach = 

@@ -2,7 +2,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFParticle.h"
+#include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
 #include "DataFormats/ParticleFlowReco/interface/PFResolutionMap.h"
 
@@ -17,7 +17,7 @@ namespace {
     edm::Wrapper< std::vector<reco::PFRecTrack> >        PFRecTrackProd;
     std::vector<reco::PFTrajectoryPoint> tsv4;
     edm::Wrapper< std::vector<reco::PFTrajectoryPoint> > PFTrajPtProd;
-    std::vector<reco::PFParticle>        tsv5;
-    edm::Wrapper< std::vector<reco::PFParticle> >        PFParticleProd;
+    std::vector<reco::PFSimParticle>        tsv5;
+    edm::Wrapper< std::vector<reco::PFSimParticle> >        PFSimParticleProd;
   }
 }

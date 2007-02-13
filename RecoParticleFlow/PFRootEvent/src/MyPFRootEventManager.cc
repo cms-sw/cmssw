@@ -31,7 +31,7 @@ bool MyPFRootEventManager::processEntry(int entry) {
   cout<<"true particles: "<<endl;
 
   for(unsigned i=0; i<trueParticles_.size(); i++) {
-    const reco::PFParticle& ptc = trueParticles_[i];
+    const reco::PFSimParticle& ptc = trueParticles_[i];
       
     cout<<ptc<<endl;
   }

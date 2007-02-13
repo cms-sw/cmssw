@@ -37,7 +37,7 @@ bool PFRootEventManagerColin::processEntry(int entry) {
   // if(trueParticles_.size() != 1 ) return false;
 
   for(unsigned i=0; i<trueParticles_.size(); i++) {
-    const reco::PFParticle& ptc = trueParticles_[i];
+    const reco::PFSimParticle& ptc = trueParticles_[i];
       
     // cout<<ptc<<endl;
 

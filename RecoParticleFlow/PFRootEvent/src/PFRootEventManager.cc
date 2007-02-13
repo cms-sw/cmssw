@@ -823,7 +823,7 @@ bool PFRootEventManager::readFromRealData(int entry) {
   trueParticles_.clear(); 
   for(int i=0; i<npart; i++) {
     vector<int> daughters;
-    reco::PFParticle particle( -1, 11, i+1, -1, daughters);
+    reco::PFSimParticle particle( -1, 11, i+1, -1, daughters);
 
 
     math::XYZPoint posxyzdummy( 0, 0, 0);
@@ -1624,7 +1624,7 @@ void PFRootEventManager::displayTrueParticles(unsigned viewType, double phi0) {
 
   for(unsigned i=0; i<trueParticles_.size(); i++) {
     
-    const reco::PFParticle& ptc = trueParticles_[i];
+    const reco::PFSimParticle& ptc = trueParticles_[i];
     
 
     double sign = 1.;
