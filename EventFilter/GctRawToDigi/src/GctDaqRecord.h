@@ -29,8 +29,9 @@ class GctDaqRecord {
   std::vector<unsigned char> header_;
   std::vector<unsigned char> footer_;
 
+  std::vector<GctBlockHeader> blockHeaders_;
   std::vector<GctBlock> blocks_;
-
+  
 };
 
 

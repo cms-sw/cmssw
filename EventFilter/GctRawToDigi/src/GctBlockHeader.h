@@ -27,8 +27,6 @@ class GctBlockHeader {
   unsigned int bcId() const { return ((d[1]&0xf0)>>4) + (d[2]<<4); }
   unsigned int eventId() const { return d[3]; }
 
-  unsigned int blockLength() const;
-
   friend std::ostream& operator<<(std::ostream& os, const GctBlockHeader& h);
 
  private:

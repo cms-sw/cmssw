@@ -2,6 +2,7 @@
 
 // system
 #include <vector>
+#include <iostream>
 
 // framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -10,7 +11,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 // GCT raw data formats
-#include "EventFilter/GctRawToDigi/src/GctDaqRecord.h"
+//#include "EventFilter/GctRawToDigi/src/GctDaqRecord.h"
 #include "EventFilter/GctRawToDigi/src/GctBlock.h"
 
 // GCT input data formats
@@ -31,9 +32,12 @@ using std::cout;
 using std::endl;
 using std::vector;
 
+unsigned GctRawToDigi::MAX_EXCESS = 512;
+unsigned GctRawToDigi::MAX_BLOCKS = 128;
+
 
 GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
-  fedId_(iConfig.getUntrackedParameter<int>("GctFedId",999))
+  fedId_(iConfig.getUntrackedParameter<int>("GctFedId",745))
 {
 
   edm::LogInfo("GCT") << "GctRawToDigi will unpack FED Id " << fedId_ << endl;
@@ -54,7 +58,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
 GctRawToDigi::~GctRawToDigi()
 {
  
-   // do anything here that needs to be done at desctruction time
+   // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
 
 }
@@ -77,13 +81,8 @@ GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    unpack(gctRcd, iEvent);
 
-
-/* this is an EventSetup example
-   //Read SetupData from the SetupRecord in the EventSetup
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-*/
 }
+
 
 void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
 
@@ -95,24 +94,52 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
       return;
   }
 
-
   // make collections for storing data
   std::auto_ptr<L1CaloEmCollection> rctEm(new L1CaloEmCollection()); 
   std::auto_ptr<L1CaloRegionCollection> rctRgn(new L1CaloRegionCollection()); 
   
   std::auto_ptr<L1GctEmCandCollection> gctEm(new L1GctEmCandCollection()); 
   std::auto_ptr<L1GctJetCandCollection> gctRgn(new L1GctJetCandCollection()); 
+
+  std::vector<GctBlockHeader> bHdrs;
+
+
+  // unpacking variables
+  const unsigned char * data = d.data();
+  unsigned dEnd = d.size()-16; // bytes in payload
+  unsigned dPtr = 8; // data pointer
+  bool lost = false;
+
+  // read blocks
+  for (unsigned nb=0; !lost && dPtr<dEnd && nb<MAX_BLOCKS; nb++) {
+
+    // 1 read block header
+    GctBlockHeader blockHead(&data[dPtr]);
+
+    // 2 get block size (in 32 bit words)
+    unsigned blockLen = converter_.blockLength(blockHead.id());
+
+    // 3 if block recognised, convert it and store header
+    if ( converter_.validBlock(blockHead.id()) ) {
+      converter_.convertBlock(&data[dPtr], blockHead.id(), gctEm.get());
+      bHdrs.push_back(blockHead);
+      dPtr += 4*(blockLen+1); // 4 because blockLen is in 32-bit words, +1 for header
+    }
+    else {
+      lost = true;
+      edm::LogWarning("GCT") << "Unrecognised data block at byte " << dPtr << ". Bailing out" << endl;
+      edm::LogWarning("GCT") << blockHead << endl;
+    }
     
-  // unpack process :
-  // 1. read internal header
-  // 2. read following nSamples, and
-  //    2a. if blockId is known, create relevant objects
-  //    2b. otherwise, create block
-  // 3. move to next internal header
+  }
+
+  cout << "Found " << bHdrs.size() << " GCT internal headers" << endl;
+  for (unsigned i=0; i<bHdrs.size(); i++) {
+    cout << bHdrs[i]<< endl;
+  }
+  cout << "Read " << gctEm.get()->size() << " GCT EM candidates" << endl;
+
   
-  GctDaqRecord rcd(d.data(), d.size());
-  
-  cout << rcd << endl;
 
 }
 

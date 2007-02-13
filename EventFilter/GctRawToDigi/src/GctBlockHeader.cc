@@ -17,11 +17,7 @@ GctBlockHeader::~GctBlockHeader() {
 
 }
 
-unsigned int GctBlockHeader::blockLength() const {
-  return 0;
-}
-
 ostream& operator<<(ostream& os, const GctBlockHeader& h) {
-  os << "ID " << hex << h.id() << " : Samples " << h.nSamples() << " : BX " << h.bcId() << " : Event " << h.eventId() << " : Length " << h.blockLength() << dec << endl;
+  os << "ID " << hex << h.id() << " : Samples " << h.nSamples() << " : BX " << h.bcId() << " : Event " << h.eventId() << dec;
   return os;
 }

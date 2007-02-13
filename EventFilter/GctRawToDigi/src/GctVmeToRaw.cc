@@ -24,13 +24,14 @@ using std::ios;
 
 GctVmeToRaw::GctVmeToRaw(const edm::ParameterSet& iConfig) :
   filename_(iConfig.getUntrackedParameter<string>("filename", "slinkOutput.txt")),
-  evtSize_(iConfig.getUntrackedParameter<int>("eventSize", 512))
+  evtSize_(iConfig.getUntrackedParameter<int>("eventSize", 1024)),
+  fedId_(iConfig.getUntrackedParameter<int>("fedId", 745))
 {
-  edm::LogInfo("GCT") << "GctVmeToRaw : reading VME data from " << filename_ << endl;
+  edm::LogInfo("GCT") << "Reading VME data from " << filename_ << endl;
 
   // open VME file
   file_.open(filename_.c_str(), ios::in);
-  if(!file_.good()) { edm::LogInfo("GCT") << "GctVmeToRaw : could not open " << filename_ << endl; }
+  if(!file_.good()) { edm::LogInfo("GCT") << "Failed to open VME file " << filename_ << endl; }
 
   //register the products
   produces<FEDRawDataCollection>();
@@ -55,41 +56,35 @@ GctVmeToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // create the collection
    std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
+   // retrieve the target buffer
+   FEDRawData& feddata=rawColl->FEDData(fedId_);
+   // Allocate space for header+trailer+payload
+   feddata.resize(evtSize_);
 
-   // create the FEDRawData
-   FEDRawData rawEvt(evtSize_);
 
    // read file
    string line;
    int i=0;
          
-   while (file_ >> line && line!="") {
+   while (file_ >> line && line!="" && i<evtSize_/4) {
 
      // convert string to int
      std::istringstream iss(line);
      unsigned long d;
      iss >> std::hex >> d;
 
-     cout << std::hex << d << endl;
-
-     // copy to raw data
-     if (rawEvt.size() < (i+1)*4) { rawEvt.resize( (i*4)+8 ); }
+     // copy data
      for (int j=0; j<4; j++) {
-       if ( i*4+j < rawEvt.size()) {
-	 //cout << std::hex << ((d>>(8*j))&0xff) << endl;
-	 rawEvt.data()[i*4+j] = (d>>(8*j))&0xff;
-       }
-       else {
-	 cerr << "VME data bigger the FEDRawData container : "  << rawEvt.size() << endl;
+       if ( (i*4+j) < evtSize_ ) { 
+	 char c = (d>>(8*j))&0xff;
+	 feddata.data()[i*4+j] = c;
        }
      }
 
-     i++;
-
+     ++i;
    }
 
-   rawColl->FEDData(1) = rawEvt;
-   
+   // put the collection in the event
    iEvent.put(rawColl);
      
 }

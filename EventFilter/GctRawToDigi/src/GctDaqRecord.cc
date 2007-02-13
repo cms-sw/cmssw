@@ -34,10 +34,10 @@ GctDaqRecord::GctDaqRecord(const unsigned char * data, const unsigned int size) 
    // store blocks
    unsigned i=8;
    while(i<size-8) {
-     GctBlock block(&data[i]);
-     if (block.length()==0) { i++; }
-     else { i=i+block.length(); }
-     blocks_.push_back(block);
+     //     GctBlock block(&data[i]);
+     //      if (block.length()==0) { i++; }
+     //      else { i=i+block.length(); }
+     //     blocks_.push_back(block);
    }
 
 }
@@ -56,8 +56,8 @@ ostream& operator<<(ostream& os, const GctDaqRecord& e) {
   os << "BX ID      " << std::hex << e.bcId() << endl;
   os << "Source ID  " << std::hex << e.sourceId() << endl;
   
-  vector<GctBlock>::const_iterator b;
-  for (b=e.blocks_.begin(); b!=e.blocks_.end(); b++) {
+  vector<GctBlockHeader>::const_iterator b;
+  for (b=e.blockHeaders_.begin(); b!=e.blockHeaders_.end(); b++) {
     os << *b;
   }
 

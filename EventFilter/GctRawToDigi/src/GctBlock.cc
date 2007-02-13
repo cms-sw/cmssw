@@ -8,12 +8,11 @@ using std::hex;
 using std::dec;
 
 
-GctBlock::GctBlock(const unsigned char * data) :
-  head(GctBlockHeader(data))
-{ 
-  for (unsigned i=0; i<head.blockLength(); i++) {
-    d.push_back(data[i+4]); // +4 to get past header
-  }  
+GctBlock::GctBlock(const unsigned char * data, unsigned length) {
+  for (unsigned i=0; i<length; i++) {
+    unsigned word = data[4+i] + data[5+i]<<8 + data[6+i]<<16 + data[7+i]<<24;
+    data_.push_back(word);
+  }
 }
 
 GctBlock::~GctBlock() {
@@ -21,10 +20,13 @@ GctBlock::~GctBlock() {
 }
 
 ostream& operator<<(ostream& os, const GctBlock& b) {
-  os << "Block :" << b.head;
-  for (unsigned i=0; i<(b.head.blockLength()); i=i+4) {
-    int val = b.d[i] + (b.d[i+1]<<8) + (b.d[i+2]<<16) + (b.d[i+3]<<24); 
-    os << hex << val << dec << endl;
+  //  os << "Block :" << b.head_;
+
+  os << hex;
+  for (unsigned i=0; i < b.data_.size(); i++) {
+    os << b.data_[i] << endl;
   }
+  os << endl;
+
   return os;
 }

@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctVmeToRaw.h,v 1.2 2006/12/19 15:23:58 jbrooke Exp $
+// $Id: GctVmeToRaw.h,v 1.1 2007/01/31 22:28:58 jbrooke Exp $
 //
 //
 
@@ -51,6 +51,8 @@ class GctVmeToRaw : public edm::EDProducer {
  private:
   
   int evtSize_; // store event size
+
+  int fedId_;
 
   std::string filename_;
   std::ifstream file_;

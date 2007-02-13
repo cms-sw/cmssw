@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.2 2006/12/19 15:23:58 jbrooke Exp $
+// $Id: GctRawToDigi.h,v 1.3 2007/01/31 22:27:52 jbrooke Exp $
 //
 //
 
@@ -31,6 +31,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
+
+#include "EventFilter/GctRawToDigi/src/GctBlockConverter.h"
 
 //
 // class decleration
@@ -50,10 +52,14 @@ class GctRawToDigi : public edm::EDProducer {
 
  private:  // members
 
+  static unsigned MAX_EXCESS;
+  static unsigned MAX_BLOCKS;
+
   int fedId_;            // GCT FED ID
   int nDebugSamples_;    // number of samples per block in debug mode
   
-  
+  // Block to Digi converter
+  GctBlockConverter converter_;
 
 };
 

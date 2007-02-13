@@ -11,23 +11,23 @@
 
 class GctBlock {
  public:
-  GctBlock(const unsigned char * data);
+  GctBlock(const unsigned char * data, unsigned length);
   ~GctBlock();
   
-  unsigned char id() const { return head.id(); }
-  unsigned char nSamples() const { return head.nSamples(); }
-  unsigned int bcId() const { return head.bcId(); }
-  unsigned char eventId() const { return head.eventId(); }
-  unsigned char length() const { return head.blockLength(); }
+  //   unsigned char id() const { return head.id(); }
+  //   unsigned char nSamples() const { return head.nSamples(); }
+  //   unsigned int bcId() const { return head.bcId(); } 
+  //   unsigned char eventId() const { return head.eventId(); }
+  unsigned char length() const { return data_.size(); }
 
-  std::vector<unsigned char> data() const { return d; }
+  std::vector<unsigned> data() const { return data_; }
 
   friend std::ostream& operator<<(std::ostream& os, const GctBlock& b);
 
  private:
   
-  GctBlockHeader head;
-  std::vector<unsigned char> d;
+  //GctBlockHeader head_;
+  std::vector<unsigned> data_;
 
 };
 
