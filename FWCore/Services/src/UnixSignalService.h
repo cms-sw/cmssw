@@ -26,11 +26,6 @@ namespace edm {
   public:
     UnixSignalService(edm::ParameterSet const& ps, edm::ActivityRegistry& ac); 
     ~UnixSignalService();
-//  void postEventProcessing( const Event& ev, const EventSetup& es );
-
-  private:
-    sigset_t oldset;
-    bool mainThreadAllSigs_;
 
   }; // class UnixSignalService
   }  // end of namespace service
