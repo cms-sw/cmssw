@@ -1,0 +1,23 @@
+<use name=root>
+<use name=DataFormats/BTauReco>
+<use name=DQMServices/QualityTests>
+<use name=Foundation/PluginManager>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
+<use name=RecoBTag/Analysis>
+<use name=RecoBTag/MCTools>
+<flags SEAL_PLUGIN_NAME="ValidationRecoB">
+
+<export>
+   <lib name=ValidationRecoB>
+   <use name=root>
+   <use name=DataFormats/BTauReco>
+   <use name=DQMServices/QualityTests>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
+   <use name=FWCore/Utilities>
+   <use name=RecoBTag/Analysis>
+   <use name=RecoBTag/MCTools>
+</export>
