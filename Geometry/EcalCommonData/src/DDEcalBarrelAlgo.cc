@@ -6,7 +6,6 @@
 #include <cmath>
 #include <algorithm>
 
-namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
@@ -24,6 +23,8 @@ namespace std{} using namespace std;
 #include <CLHEP/Geometry/Plane3D.h>
 #include <CLHEP/Geometry/Vector3D.h>
 #include <CLHEP/Geometry/Transform3D.h>
+
+namespace std{} using namespace std;
 
 DDEcalBarrelAlgo::DDEcalBarrelAlgo() :
   m_idNameSpace  ( "" ),
