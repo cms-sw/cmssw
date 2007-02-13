@@ -569,7 +569,7 @@ class _ModuleSeries(object):
                                          self.forErrorMessage[1],
                                          self.type()+" '"+self.forErrorMessage[2][0][0]+"' contains the error "+str(e))
         except Exception, e:
-            raise pp.ParseFatalException(s,loc,self.type()+" '"+self.forErrorMessage[2][0][0]+"' contains the error "+str(e))
+            raise pp.ParseFatalException(self.forErrorMessage[0],self.forErrorMessage[1],self.type()+" '"+self.forErrorMessage[2][0][0]+"' contains the error "+str(e))
     def __str__(self):
         return str(self.topNode)
 
