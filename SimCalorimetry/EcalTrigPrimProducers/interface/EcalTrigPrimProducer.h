@@ -50,6 +50,8 @@ class EcalTrigPrimProducer : public edm::EDProducer
   TFile *histfile_;
   TTree *valTree_;
   bool valid_;
+  bool barrelOnly_;
+  bool tcpFormat_;
   std::string label_;
   std::string instanceNameEB_;
   std::string instanceNameEE_;

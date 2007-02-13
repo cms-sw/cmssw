@@ -34,12 +34,14 @@
 
 const int EcalTrigPrimProducer::nrSamples_=5;
 
-EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig)
+EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
+  valid_(iConfig.getUntrackedParameter<bool>("Validation")),
+  barrelOnly_(iConfig.getParameter<bool>("BarrelOnly")),
+  tcpFormat_(iConfig.getParameter<bool>("TcpOutput"))
 {
   //register your products
   produces <EcalTrigPrimDigiCollection >();
-
-  valid_= iConfig.getUntrackedParameter<bool>("Validation");
+  if (tcpFormat_) produces <EcalTrigPrimDigiCollection >("formatTCP");
   if (valid_) {
     histfile_ = new TFile("valid.root","UPDATE");
     valTree_ = new TTree("V","Validation Tree");
@@ -82,17 +84,17 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
   }
   catch(cms::Exception& e) {
     // segv in case product was found but not parameter..
-    edm::LogWarning("")<<"Could not find parameter binOfMaximum in  product registry for EBDataFramesSorted, had to set binOfMaximum by  Hand";
+    edm::LogWarning("EcalTPG")<<"Could not find parameter binOfMaximum in  product registry for EBDataFramesSorted, had to set binOfMaximum by  Hand";
     binOfMaximum_=6;
   }
   if (binOfMaximum_==0) {
-    edm::LogWarning("")<<"Could not find product registry of  EBDataFramesSorted, had to set binOfMaximum by Hand";
+    edm::LogWarning("EcalTPG")<<"Could not find product registry of  EBDataFramesSorted, had to set binOfMaximum by Hand";
     binOfMaximum_=6;
   }
 
   db_ = new DBInterface(databaseFileNameEB_,databaseFileNameEE_);
-  algo_ = new EcalTrigPrimFunctionalAlgo(setup,  valTree_,binOfMaximum_,nrSamples_,db_);
-  edm::LogInfo("constructor") <<"EcalTrigPrimProducer will write:  "<<nrSamples_<<" samples for each digi,  binOfMaximum used:  "<<binOfMaximum_;
+  algo_ = new EcalTrigPrimFunctionalAlgo(setup,  valTree_,binOfMaximum_,nrSamples_,db_,tcpFormat_,barrelOnly_);
+  edm::LogInfo("EcalTPG") <<"EcalTrigPrimProducer will write:  "<<nrSamples_<<" samples for each digi,  binOfMaximum used:  "<<binOfMaximum_;
 }
 
 EcalTrigPrimProducer::~EcalTrigPrimProducer()
@@ -121,31 +123,33 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
   try{e.getByLabel(label_,instanceNameEB_,ebDigis);}
   catch(cms::Exception &e) {
     barrel=false;
-    edm::LogWarning("produce") <<" Couldnt find Barrel dataframes";
+    edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes";
   }
   try{e.getByLabel(label_,instanceNameEE_,eeDigis);}
   catch(cms::Exception &e) {
     endcap=false;
-    edm::LogWarning("produce") <<" Couldnt find Endcap dataframes";
+    edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes";
   }
 
-  LogDebug("Startproduce") <<" =================> Treating event  "<<e.id()<<", Number of EBDFataFrames "<<ebDigis.product()->size() ;
+  LogDebug("EcalTPG") <<" =================> Treating event  "<<e.id()<<", Number of EBDFataFrames "<<ebDigis.product()->size() ;
   std::auto_ptr<EcalTrigPrimDigiCollection> pOut(new  EcalTrigPrimDigiCollection);
-
+  std::auto_ptr<EcalTrigPrimDigiCollection> pOutTcp(new  EcalTrigPrimDigiCollection);
+ 
 
   // invoke algorithm  //FIXME: better separation
   const EBDigiCollection *ebdc=NULL;
   const EEDigiCollection *eedc=NULL;
   if (barrel) ebdc=ebDigis.product();
   if (endcap) eedc=eeDigis.product();
-  algo_->run(ebdc,eedc,*pOut);
+  algo_->run(ebdc,eedc,*pOut,*pOutTcp);
   for (unsigned int i=0;i<pOut->size();++i) {
     for (int isam=0;isam<(*pOut)[i].size();++isam) {
-      if ((*pOut)[i][isam].raw()) LogDebug("Produced for ") <<" Tower  "<<i<<", sample "<<isam<<", value "<<(*pOut)[i][isam].raw();
+      if ((*pOut)[i][isam].raw()) LogDebug("EcalTPG") <<" Produced for tower  "<<i<<", sample "<<isam<<", value "<<(*pOut)[i][isam].raw();
     }
   }
-  edm::LogInfo("produce") <<"For Barrel + Endcap, "<<pOut->size()<<" TP  Digis were produced";
+  edm::LogInfo("EcalTPG") <<"For Barrel + Endcap, "<<pOut->size()<<" TP  Digis were produced";
     
   // put result into the Event
   e.put(pOut);
+  if (tcpFormat_) e.put(pOutTcp,"formatTCP");
 }

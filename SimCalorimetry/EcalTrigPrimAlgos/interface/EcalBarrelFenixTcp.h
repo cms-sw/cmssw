@@ -20,10 +20,12 @@ class DBInterface ;
 
 
   public:
-    EcalBarrelFenixTcp(DBInterface * db);
+    EcalBarrelFenixTcp(DBInterface * db, bool tccFormat);
     virtual ~EcalBarrelFenixTcp() ;
 
-    void process(std::vector<std::vector<int> > & tpframetow,std::vector< EcalTriggerPrimitiveSample> & tptow,
+    void process(std::vector<std::vector<int> > & tpframetow,
+         std::vector< EcalTriggerPrimitiveSample> & tptow,
+         std::vector< EcalTriggerPrimitiveSample> & tptow2,
 		 int SM, int towerInSM);
     EcalFenixBypassLin *getBypasslin(int i) const {return bypasslin_[i];}
     EcalFenixEtTot *getAdder() const { return  dynamic_cast<EcalFenixEtTot *>(adder_);}

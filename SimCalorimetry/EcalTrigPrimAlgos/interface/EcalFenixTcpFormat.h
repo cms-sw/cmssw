@@ -26,15 +26,16 @@ class EcalFenixTcpFormat : public EcalVFormatter {
 
 
  public:
-  EcalFenixTcpFormat(DBInterface * db);
+  EcalFenixTcpFormat(DBInterface * db, bool tccFormat);
   virtual ~EcalFenixTcpFormat();
   virtual std::vector<int> process(std::vector<int>,std::vector<int>) {  std::vector<int> v;return v;}
-  void process(std::vector<int> &Et, std::vector<int> &fgvb, std::vector<EcalTriggerPrimitiveSample> & out) ;
+  void process(std::vector<int> &Et, std::vector<int> &fgvb, std::vector<EcalTriggerPrimitiveSample> & out, std::vector<EcalTriggerPrimitiveSample> & outTcc) ;
   void setParameters(int SM, int towerInSM)  ;
 
  private:
   DBInterface * db_ ;
   std::vector<unsigned int> lut_ ;
+  bool tcpFormat_;
 
 };
 

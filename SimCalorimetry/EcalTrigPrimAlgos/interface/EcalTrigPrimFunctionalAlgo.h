@@ -3,8 +3,8 @@
 /** \class EcalTrigPrimFunctionalAlgo
  *
  * EcalTrigPrimFunctionalAlgo is the main algorithm class for TPG
- * It coordinates all the aother algorithms
- * Structi=ure is very close to electronics
+ * It coordinates all the other algorithms
+ * Structure is very close to electronics
  *
  *
  * \author Ursula Berthon, Stephanie Baffioni,  LLR Palaiseau
@@ -46,13 +46,13 @@ class EcalTrigPrimFunctionalAlgo
   
   //  typedef PRecDet<EcalTrigPrim> precdet;
 
-  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax, int nrsamples, DBInterface *db);
-  EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, TTree *tree, int binofmax, int nrsamples,  DBInterface *db);
+  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax, int nrsamples, DBInterface *db, bool tccFormat, bool barrelOnly);
+  EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, TTree *tree, int binofmax, int nrsamples,  DBInterface *db, bool tccFormat, bool barrelOnly);
   virtual ~EcalTrigPrimFunctionalAlgo();
 
   /** this actually calculates the trigger primitives (from Digis) */
 
-  void run(const EBDigiCollection* ebdcol, const EEDigiCollection* eedcol, EcalTrigPrimDigiCollection & result);
+  void run(const EBDigiCollection * ebdcol, const EEDigiCollection* eedcol, EcalTrigPrimDigiCollection & result,EcalTrigPrimDigiCollection & resultTcc);
 
 
  private:
@@ -86,7 +86,6 @@ class EcalTrigPrimFunctionalAlgo
   /** map of (coarse granularity) cell to the CaloTimeSample objects
       associated to this cell for the EcalBarrel. */
   SUMVB sumBarrel_; 
-
 
   /** number of 'strips' (crystals of same eta index) per trigger
       tower in ecal barrel */
@@ -124,6 +123,8 @@ class EcalTrigPrimFunctionalAlgo
   std::string dbFileEB_, dbFileEE_;
   DBInterface *db_;
 
+  bool tcpFormat_;
+  bool barrelOnly_;
   // thresholds for TTF calculation
   //  double threshLow_;
   //  double threshHigh_;

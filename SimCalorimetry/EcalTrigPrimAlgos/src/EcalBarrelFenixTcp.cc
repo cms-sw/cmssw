@@ -2,11 +2,11 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFormat.h>
 #include <iostream>
 
-  EcalBarrelFenixTcp::EcalBarrelFenixTcp(DBInterface * db) { 
+  EcalBarrelFenixTcp::EcalBarrelFenixTcp(DBInterface * db, bool tcpFormat) { 
     for (int i=0;i<nStripsPerTower_;i++) bypasslin_[i] = new EcalFenixBypassLin();
     adder_= new EcalFenixEtTot();
     maxOf2_=new EcalFenixMaxof2();
-    formatter_= new EcalFenixTcpFormat(db);
+    formatter_= new EcalFenixTcpFormat(db,tcpFormat);
     fgvb_= new EcalFenixFgvbEB(db);
 
   }
@@ -18,7 +18,9 @@
     delete fgvb_;
   }
  
-void EcalBarrelFenixTcp:: process(std::vector<std::vector<int> > & tpframetow, std::vector<EcalTriggerPrimitiveSample> &tcp_out,
+void EcalBarrelFenixTcp:: process(std::vector<std::vector<int> > & tpframetow, 
+                  std::vector<EcalTriggerPrimitiveSample> &tcp_out,
+                  std::vector<EcalTriggerPrimitiveSample> &tcp_out2,
 				  int SM, int towerInSM) 
   { 
 
@@ -79,7 +81,7 @@ void EcalBarrelFenixTcp:: process(std::vector<std::vector<int> > & tpframetow, s
 
     // call formatter
     this->getFormatter()->setParameters(SM, towerInSM) ;
-    this->getFormatter()->process(adder_out,fgvb_out,tcp_out);
+    this->getFormatter()->process(adder_out,fgvb_out,tcp_out,tcp_out2);
      //this is a test:
     //    std::cout<< "output of formatter is a vector of size: "<<formatter_out.size()<<endl; 
     //    std::cout<< "value : "<<endl;
