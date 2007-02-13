@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.7 2006/09/12 23:53:40 rahatlou Exp $
+ * \version $Id: SuperCluster.h,v 1.8 2007/02/06 23:49:53 futyand Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -30,7 +30,14 @@ namespace reco {
 
     SuperCluster( double energy, const Point& position,
                   const BasicClusterRef & seed,
-                  const BasicClusterRefVector& clusters);
+                  const BasicClusterRefVector& clusters,
+		  double Epreshower = 0.);
+
+    /// raw uncorrected energy (sum of energies of component BasicClusters)
+    double rawEnergy() const;
+
+    /// energy deposited in preshower 
+    double preshowerEnergy() const { return preshowerEnergy_; }
 
     /// seed BasicCluster
     const BasicClusterRef & seed() const { return seed_; }
@@ -63,6 +70,8 @@ namespace reco {
 
     /// used hits by detId - retrieved from BC constituents
     std::vector<DetId> usedHits_;
+
+    double preshowerEnergy_;
 
   };
 
