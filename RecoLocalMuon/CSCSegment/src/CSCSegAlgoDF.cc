@@ -1,7 +1,7 @@
 /**
  * \file CSCSegAlgoDF.cc
  *
- *  \author Dominique Fortin -UCR
+ *  \author Dominique Fortin - UCR
  */
  
 #include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoDF.h>
@@ -30,8 +30,6 @@ CSCSegAlgoDF::CSCSegAlgoDF(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
   minLayersApart         = ps.getUntrackedParameter<int>("minLayersApart");
   nSigmaFromSegment      = ps.getUntrackedParameter<double>("nSigmaFromSegment");
   minHitsPerSegment      = ps.getUntrackedParameter<int>("minHitsPerSegment");
-  muonsPerChamberMax     = ps.getUntrackedParameter<int>("CSCSegmentPerChamberMax");      
-  chi2ndfProbMin         = ps.getUntrackedParameter<double>("chi2ndfProbMin");
   dRPhiFineMax           = ps.getUntrackedParameter<double>("dRPhiFineMax");
   dPhiFineMax            = ps.getUntrackedParameter<double>("dPhiFineMax");
   chi2Max                = ps.getUntrackedParameter<double>("chi2Max");
@@ -176,12 +174,17 @@ void CSCSegAlgoDF::tryAddingHitsToSegment( const ChamberHitContainer& rechits,
   
   ChamberHitContainerCIt ib = rechits.begin();
   ChamberHitContainerCIt ie = rechits.end();
+
+  int nHitsLeft = 0;
   
   for ( int pass = 0; pass < 2; pass++) {
     
+    if ( pass > 0 && nHitsLeft < 4) return;
+
     for ( ChamberHitContainerCIt i = ib; i != ie; ++i ) {
       
       if ( usedHits[i-ib] ) continue;   // Don't use hits already part of a segment.
+      nHitsLeft++;
       
       if (pass < 1) if (i == i1 || i == i2 ) continue;  // For first pass, don't try changing endpoints (seeds).
 
@@ -467,12 +470,13 @@ bool CSCSegAlgoDF::isHitNearSegment( const CSCRecHit2D* hit) const {
   if (deltaPhi < -2.*M_PI) deltaPhi += 2.*M_PI;
  
   double RdeltaPhi = R * deltaPhi;
-  
 
   double deltaX = LocalX - u;
   double deltaY = LocalY - v;
 
   // Normalize in terms of sigma_u and sigma_v
+  if (sigma_u < 0.001) sigma_u = 0.001;
+  if (sigma_v < 0.001) sigma_v = 0.001;
   deltaX /= sigma_u;
   deltaY /= sigma_v;
 
@@ -587,9 +591,9 @@ bool CSCSegAlgoDF::isSegmentGood(const ChamberHitContainer& RecHitsInChamber) co
 
   unsigned int iadd = ( RecHitsInChamber.size() > 20 )? iadd = 1 : 0;  
 
-//  if (protoSegment.size() >= minHitsPerSegment+iadd) return true;
-  if ((protoSegment.size() >= minHitsPerSegment+iadd) &&
-      (protoChi2/(2*protoSegment.size()-4) < chi2Max )) return true;
+  if (protoSegment.size() >= minHitsPerSegment+iadd) return true;
+//  if ((protoSegment.size() >= minHitsPerSegment+iadd) &&
+//      (protoChi2/(2*protoSegment.size()-4) < chi2Max )) return true;
 
   return false;
 }
