@@ -3,14 +3,13 @@
 #include <fstream>
 #include <iomanip>
 
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
 
 using std::ofstream;
 using std::setw;
 using std::endl;
 using std::cout;
-
-#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
 // print the region map and region-associated data (rct/gct card/input numbers)
 
