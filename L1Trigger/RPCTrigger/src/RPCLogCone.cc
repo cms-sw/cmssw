@@ -151,7 +151,10 @@ void RPCLogCone::shift(int pos) {
         it++)
     {
       shiftPos = it->first + pos;
-      if ( shiftPos >= 0 && shiftPos < (int)RPCConst::m_LOGPLANE_SIZE[abs(m_ConeCrdnts.m_Tower)])
+ /*     std::cout << shiftPos << " "
+                << RPCConst::m_LOGPLANE_SIZE[abs(m_ConeCrdnts.m_Tower)] 
+                << std::endl;*/
+      if ( shiftPos >= 0 && shiftPos < (int)RPCConst::m_LOGPLANE_SIZE[abs(m_ConeCrdnts.m_Tower)][logPlane])
         shifted.insert(TLogPlane::value_type(shiftPos, it->second));
     }
     m_LogPlanesVec[logPlane] = shifted;
