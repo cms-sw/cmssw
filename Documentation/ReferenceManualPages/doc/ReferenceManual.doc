@@ -10,19 +10,23 @@ This page explains how to write the documentation for your code.
 Classes are method are documented with properly formatted comments in the code.
 
 Here is a template of a documented 
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Documentation/CodingRules/Template.h?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>.h file</a>, 
-and of a <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Documentation/CodingRules/Template.cc?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>.cc file</a>. The resulting doxygen page is \ref Template "here".
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Documentation/CodingRules/Template.h?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>.h file</a>, 
+and of a <a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Documentation/CodingRules/Template.cc?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>.cc file</a>. The resulting doxygen page is \ref Template "here".
 
 \section pakagedoc Package Documentation
-Each package should contain a very brief description of its content and purpose. Remember that this is a reference, and not a user's guide: tutorials, howtos, etc. are best documented on the Wiki pages. Cross link between <a href=https://uimon.cern.ch/twiki/bin/view/CMS/MuonSW>Wiki pages</a>
+Each package should contain a very brief description of its content and purpose. Remember that this is a reference, 
+and not a user's guide: tutorials, howtos, etc. are best documented in the 
+<a href=https://twiki.cern.ch/twiki/bin/view/CMS/SWGuide>CMS Offline Guide</a> and 
+in  the <a href=https://twiki.cern.ch/twiki/bin/view/CMS/WorkBook>WorkBook</a>. 
+Cross links between the CMS Offline Guide and the WorkBook
 and this manual are a good way to avoid duplication of content.
 
 This documentation should be written in a file [Package]/doc/[Package].doc,
 according to the template
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Documentation/ReferenceManualPages/template/Package.doc.template?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Documentation/ReferenceManualPages/template/Package.doc</a>. 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Documentation/ReferenceManualPages/template/Package.doc.template?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Documentation/ReferenceManualPages/template/Package.doc</a>. 
 The simplest way of doing this is to go to the doc/ directory in your package and then run the script 
 \htmlonly
-<a href="http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/*checkout*/CMSSW/Documentation/ReferenceManualScripts/scripts/makePackageDoc?rev=HEAD&cvsroot=CMSSW">makePackageDoc</a>,
+<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/*checkout*/CMSSW/Documentation/ReferenceManualScripts/scripts/makePackageDoc?rev=HEAD&cvsroot=CMSSW">makePackageDoc</a>,
 \endhtmlonly
 which is available in your PATH, once you have done eval `scramv1 runtime -csh`. This script creates the file [Package].doc
 according to the above template, and automatically includes inside it a list of the classes and modules to be documented.
@@ -64,5 +68,5 @@ displays in the following way:
 
 <hr>
 Last updated:
- @DATE@ L. Lista
+ @DATE@ K. Lassila-Perini
 */
