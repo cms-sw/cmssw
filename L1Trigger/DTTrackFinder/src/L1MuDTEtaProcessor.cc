@@ -9,8 +9,8 @@
 //                one Eta Track Finder (ETF) and 
 //                one Eta Matching Unit (EMU) 
 //
-//   $Date: 2006/07/26 10:31:00 $
-//   $Revision: 1.2 $
+//   $Date: 2007/01/18 17:37:33 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -224,7 +224,7 @@ void L1MuDTEtaProcessor::receiveData(int bx, const edm::Event& e) {
   e.getByType(dttrig);
 
   // const int bx_offset = dttrig->correctBX();
-  int bx_offset=16;
+  int bx_offset=0;
   bx = bx + bx_offset;
   
   //

@@ -5,8 +5,8 @@
 //   Description: Sector Receiver 
 //
 //
-//   $Date: 2006/07/26 10:31:00 $
-//   $Revision: 1.2 $
+//   $Date: 2007/01/23 10:38:06 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -107,7 +107,7 @@ void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e) {
   L1MuDTChambPhDigi* ts=0;
 
   // const int bx_offset = dttrig->correctBX();
-  int bx_offset=16;
+  int bx_offset=0;
   bx = bx + bx_offset;
 
   // get DTBX phi track segments  
