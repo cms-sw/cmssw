@@ -1,19 +1,23 @@
 <flags SEAL_PLUGIN_NAME="DQMEcalBarrelMonitorDbModule">
+<use name=CoralBase>
+<use name=DQMServices/Core>
+<use name=DQMServices/Daemon>
 <use name=FWCore/Framework>
-<use name=DQMServices/CoreROOT>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
+<use name=Foundation/PluginManager>
+<use name=Framework/SealKernel>
 <use name=RelationalAccess>
-<use name=boost>
-<use name=root>
-<use name=coral>
+<use name=rootcore>
 <use name=xerces-c>
-
 <export>
- <lib name=DQMEcalBarrelMonitorDbModule>
- <use name=FWCore/Framework>
- <use name=DQMServices/CoreROOT>
- <use name=RelationalAccess>
- <use name=boost>
- <use name=root>
- <use name=coral>
- <use name=xerces-c>
+  <use name=DQMServices/Core>
+  <use name=DQMServices/Daemon>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/ParameterSet>
+  <use name=RelationalAccess>
+  <use name=xerces-c>
+  <lib name=DQMEcalBarrelMonitorDbModule>
 </export>

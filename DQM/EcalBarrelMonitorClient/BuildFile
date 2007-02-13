@@ -1,27 +1,24 @@
 <flags SEAL_PLUGIN_NAME="DQMEcalBarrelMonitorClient">
+<use name=CondTools/Ecal>
+<use name=DQM/EcalBarrelMonitorDisplayPlugins>
+<use name=DQMServices/Core>
+<use name=DQMServices/Daemon>
+<use name=DQMServices/QualityTests>
+<use name=DQMServices/UI>
+<use name=DataFormats/EcalRawData>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
-<use name=DQMServices/CoreROOT>
-<use name=boost>
-<use name=root>
-<use name=DQMServices/NodeROOT>
-<use name=DQMServices/UI>
+<use name=FWCore/ParameterSet>
+<use name=Foundation/PluginManager>
 <use name=OnlineDB/EcalCondDB>
-<use name=DataFormats/EcalRawData>
-<use name=CondFormats/EcalObjects>
-<use name=oracle>
-
+<use name=rootcore>
 <export>
- <lib name=DQMEcalBarrelMonitorClient>
- <use name=FWCore/Framework>
- <use name=FWCore/MessageLogger>
- <use name=DQMServices/CoreROOT>
- <use name=boost>
- <use name=root>
- <use name=DQMServices/NodeROOT>
- <use name=DQMServices/UI>
- <use name=OnlineDB/EcalCondDB>
- <use name=DataFormats/EcalRawData>
- <use name=CondFormats/EcalObjects>
- <use name=oracle>
+  <use name=DQMServices/Core>
+  <use name=DQMServices/QualityTests>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/ParameterSet>
+  <use name=OnlineDB/EcalCondDB>
+  <use name=rootcore>
+  <lib name=DQMEcalBarrelMonitorClient>
 </export>
