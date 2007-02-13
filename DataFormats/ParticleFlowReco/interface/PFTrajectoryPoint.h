@@ -17,7 +17,7 @@ namespace reco {
   /**\class PFTrajectoryPoint
      \brief Trajectory point (a PFRecTrack holds several trajectory points)
      
-     \todo   deal with origin and end vertices of PFParticles
+     \todo   deal with origin and end vertices of PFSimParticles
      \todo   remove HCAL exit
      \author Renaud Bruneliere
      \date   July 2006
