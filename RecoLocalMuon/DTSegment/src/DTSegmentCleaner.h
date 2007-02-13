@@ -12,8 +12,8 @@
  *  retaining the segment with higher number of hits and best chi2, while the
  *  others are deleted.
  *
- * $Date: 2006/04/11 16:59:01 $
- * $Revision: 1.2 $
+ * $Date: 2006/07/28 16:26:43 $
+ * $Revision: 1.3 $
  * \author : Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
@@ -55,6 +55,7 @@ class DTSegmentCleaner{
     std::vector<DTSegmentCand*> ghostBuster(std::vector<DTSegmentCand*> inputCands) const ;
 
   int nSharedHitsMax;
+  int nUnSharedHitsMin;
   ///treatment of LR ambiguity cases: 1 chooses the best chi2
   ///                                 2 chooses the smaller angle
   ///                                 3 keeps both candidates

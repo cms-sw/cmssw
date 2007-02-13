@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/08/28 09:36:41 $
- * $Revision: 1.6 $
+ * $Date: 2006/08/29 16:05:06 $
+ * $Revision: 1.7 $
  * \author : Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -21,6 +21,8 @@ using namespace std;
 /* Constructor */ 
 DTSegmentCleaner::DTSegmentCleaner(const edm::ParameterSet& pset) {
   nSharedHitsMax = pset.getParameter<int>("nSharedHitsMax");
+
+  nUnSharedHitsMin = pset.getParameter<int>("nUnSharedHitsMin");
 
   segmCleanerMode = pset.getParameter<int>("segmCleanerMode");
  
@@ -109,35 +111,40 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(vector<DTSegmentCand*> in
 
 vector<DTSegmentCand*> 
 DTSegmentCleaner::ghostBuster(vector<DTSegmentCand*> inputCands) const {
-  vector<DTSegmentCand*> result;
   vector<DTSegmentCand*> ghosts;
   for (vector<DTSegmentCand*>::iterator cand=inputCands.begin();
        cand!=inputCands.end(); ++cand) {
     for (vector<DTSegmentCand*>::iterator cand2=cand+1;
          cand2!=inputCands.end(); ++cand2) {
-	 unsigned int nSharedHits=(*cand)->nSharedHitPairs(*(*cand2));
-       // cout << "Sharing " << (**cand) << " " << (**cand2) << " " << nSharedHits
-       //   << " < " << ((**cand)<(**cand2)) << endl;
-       	 if ((nSharedHits==((*cand)->nHits())) && (nSharedHits==((*cand2)->nHits()))
-	  &&(fabs((*cand)->chi2()-(*cand2)->chi2())<0.1)
-	  &&(segmCleanerMode==3))
-	 {
-	   continue;
-	 }
-	 if ((int)nSharedHits >= nSharedHitsMax ) {
-	   if ((**cand)<(**cand2)) {
-	     // cout << (**cand) << " is ghost " << endl;
-	     ghosts.push_back(*cand);
-	   }
-	   else {
-	     // cout << (**cand2) << " is ghost " << endl;
-	     ghosts.push_back(*cand2);
-	   }
-	   continue;
-	 }
+      unsigned int nSharedHits=(*cand)->nSharedHitPairs(*(*cand2));
+      // cout << "Sharing " << (**cand) << " " << (**cand2) << " " << nSharedHits
+      //   << " (first or second) " << ((**cand)<(**cand2)) << endl;
+      if ((nSharedHits==((*cand)->nHits())) && (nSharedHits==((*cand2)->nHits()))
+          &&(fabs((*cand)->chi2()-(*cand2)->chi2())<0.1)
+          &&(segmCleanerMode==3))
+      {
+        continue;
+      }
+
+      // remove the worst segment if too many shared hits or too few unshared
+      if ((int)nSharedHits >= nSharedHitsMax ||
+          (int)((*cand)->nHits()-nSharedHits)<=nUnSharedHitsMin ||
+          (int)((*cand2)->nHits()-nSharedHits)<=nUnSharedHitsMin) {
+        if ((**cand)<(**cand2)) {
+          //cout << (**cand) << " is ghost " << endl;
+          ghosts.push_back(*cand);
+        }
+        else {
+          //cout << (**cand2) << " is ghost " << endl;
+          ghosts.push_back(*cand2);
+        }
+        continue;
+      }
+
     }
   }
 
+  vector<DTSegmentCand*> result;
   for (vector<DTSegmentCand*>::const_iterator cand=inputCands.begin();
        cand!=inputCands.end(); ++cand) {
     bool isGhost=false;
