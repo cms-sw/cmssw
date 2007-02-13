@@ -1,6 +1,6 @@
 2005-11-28  Giulio Eulisse  <giulio.eulisse@cern.ch>
 
-	* TStorageFactorySystem.cc: forgotten method added.
+	* TStorageFactorySystem.cc: forgotten method added. 
 
 	* TFileAdaptorLinkDef.h: forgot to commit the file to cvs...
 
