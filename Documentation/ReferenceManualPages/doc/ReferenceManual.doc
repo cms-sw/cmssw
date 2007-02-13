@@ -7,7 +7,7 @@ This is the CMSSW Reference Manual, the reference documentation of all classes a
 This page explains how to write the documentation for your code.
 
 \section classdoc Class Documentation
-Classes are method are documented with properly formatted comments in the code.
+Classes and methods are documented with properly formatted comments in the code.
 
 Here is a template of a documented 
 <a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Documentation/CodingRules/Template.h?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>.h file</a>, 
