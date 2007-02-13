@@ -5,7 +5,7 @@
  *
  * \authors Dmirty Bandurin (KSU), Ted Kolberg (ND)
  */
-// $Id: PreshowerCluster.h,v 1.11 2006/07/21 14:02:04 rahatlou Exp $
+// $Id: PreshowerCluster.h,v 1.13 2007/02/06 23:55:53 futyand Exp $
 //
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
@@ -38,13 +38,9 @@ namespace reco {
     int nhits() const {return usedHits_.size();}
 
     /// Preshower plane
-    int plane() {
-      return plane_;
-    }
+    int plane() const { return plane_; }
 
-    double et() const {
-      return energy()/cosh(eta());
-    }
+    double et() const { return energy()/cosh(eta()); }
 
     /// Comparisons
     bool operator==(const PreshowerCluster&) const;
