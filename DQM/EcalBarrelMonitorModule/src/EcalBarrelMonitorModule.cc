@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/12/14 11:12:08 $
- * $Revision: 1.114 $
+ * $Date: 2007/02/01 10:25:25 $
+ * $Revision: 1.115 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -125,6 +125,14 @@ void EcalBarrelMonitorModule::beginJob(const EventSetup& c){
     }
   }
 
+  // begin-of-run
+  if ( meStatus_ ) meStatus_->Fill(0);
+
+  if ( meRun_ ) meRun_->Fill(-1);
+  if ( meEvt_ ) meEvt_->Fill(-1);
+
+  if ( meRunType_ ) meRunType_->Fill(-1);
+
 }
 
 void EcalBarrelMonitorModule::setup(void){
@@ -143,6 +151,7 @@ void EcalBarrelMonitorModule::setup(void){
     meRunType_ = dbe_->bookInt("RUNTYPE");
   }
 
+  // unknown
   if ( meStatus_ ) meStatus_->Fill(-1);
 
   if ( meRun_ ) meRun_->Fill(-1);

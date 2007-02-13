@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/13 11:09:03 $
- * $Revision: 1.216 $
+ * $Date: 2007/02/13 11:23:54 $
+ * $Revision: 1.217 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1191,10 +1191,14 @@ void EcalBarrelMonitorClient::analyze(void){
 
   if ( status_ == "begin-of-run" ) {
 
-    if ( ! begin_run_ ) {
+    if ( run_ > 0 && evt_ > 0 && runtype_ != -1 ) {
 
-      forced_status_ = false;
-      this->beginRun();
+      if ( ! begin_run_ ) {
+
+        forced_status_ = false;
+        this->beginRun();
+
+      }
 
     }
     
@@ -1296,7 +1300,7 @@ void EcalBarrelMonitorClient::analyze(void){
           cout << "Forcing beginRun() ... NOW !" << endl;
           cout << endl;
 
-          forced_status_ = true;
+          // forced_status_ = true;
           this->beginRun();
 
         }
@@ -1309,7 +1313,7 @@ void EcalBarrelMonitorClient::analyze(void){
             cout << "Forcing endRun() ... NOW !" << endl;
             cout << endl;
 
-            forced_status_ = true;
+            // forced_status_ = true;
             this->endRun();
 
           }
@@ -1327,7 +1331,7 @@ void EcalBarrelMonitorClient::analyze(void){
           cout << " Source FU0 is done, forcing endRun() ... NOW !" << endl;
           cout << endl;
 
-          forced_status_ = true;
+          // forced_status_ = true;
           this->endRun();
 
         }
@@ -1339,7 +1343,7 @@ void EcalBarrelMonitorClient::analyze(void){
           cout << " Source FU0 is dead, forcing endRun() ... NOW !" << endl;
           cout << endl;
 
-          forced_status_ = true;
+          // forced_status_ = true;
           this->endRun();
 
         }
