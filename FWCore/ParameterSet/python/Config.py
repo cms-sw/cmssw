@@ -866,6 +866,7 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
 
 class _Untracked(object):
     """Class type for 'untracked' to allow nice syntax"""
+    __name__ = "untracked"
     @staticmethod
     def __call__(param):
         """used to set a 'param' parameter to be 'untracked'"""
@@ -874,6 +875,7 @@ class _Untracked(object):
     def __getattr__(self,name):
         """A factory which allows syntax untracked.name(value) to construct an
         instance of 'name' class which is set to be untracked"""
+        if name == "__bases__": raise AttributeError  # isclass uses __bases__ to recognize class objects 
         class Factory(object):
             def __init__(self,name):
                 self.name = name
