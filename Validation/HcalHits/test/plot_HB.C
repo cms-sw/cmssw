@@ -1,11 +1,13 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
 void plot_HB(TString inputfile="simevent_HB.root",
 	     TString outputfile="HB_histo.root",
+	     Int_t drawmode = 0, 
 	     TString    reffile="../data/HB_ref.root")
 {
 
   // Option to no-action(0)/draw(1)/save(2) (default = 0) histograms in gif.
-  int doDraw = 0; 
+  //int doDraw = 0; 
+  int doDraw = drawmode;
 
   char * treename = "Events";        //The Title of Tree.
   
@@ -527,7 +529,10 @@ void plot_HB(TString inputfile="simevent_HB.root",
 
     OutFile.Write() ;
     OutFile.Close() ;
-    cout << "HB_new.root histogram file created" << endl ; 
+    cout << outputfile << " histogram file created" << endl ; 
+    
+    return ;
+    
   }
 
    // now perform Chi2 test for histograms that hold

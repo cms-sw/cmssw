@@ -1,11 +1,13 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
 void plot_HE(TString  inputfile="simevent_HE.root",
 	     TString outputfile="HE_histo.root",
+	     Int_t drawmode = 0,
              TString    reffile="../data/HE_ref.root")
 {
  
   // Option to no-action(0)/draw(1)/save(2) (default = 0) histograms in gif.
-  int doDraw = 0; 
+  //int doDraw = 0; 
+  int doDraw = drawmode;
 
   char * treename = "Events";        //The Title of Tree.
   
@@ -502,7 +504,10 @@ void plot_HE(TString  inputfile="simevent_HE.root",
 
     OutFile.Write() ;
     OutFile.Close() ;
-    cout << "HE_new.root histogram file created" << endl ;
+    cout << outputfile << " histogram file created" << endl ;
+    
+    return ;
+    
   }
   /*
   return;

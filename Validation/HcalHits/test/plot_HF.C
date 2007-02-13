@@ -1,10 +1,12 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
 void plot_HF(TString  inputfile="simevent_HF.root",
 	     TString outputfile="HF_histo.root",
+	     Int_t drawmode = 0,
              TString    reffile="../data/HF_ref.root")
 {
   // Option to no-action(0)/draw(1)/save(2) (default = 0) histograms in gif.
-  int doDraw = 0; 
+  //int doDraw = 0;
+   int doDraw = drawmode;
 
   char * treename = "Events";        //The Title of Tree.
   
@@ -281,7 +283,10 @@ void plot_HF(TString  inputfile="simevent_HF.root",
 
     OutFile.Write() ;
     OutFile.Close() ;
-    cout << "HF_new.root histogram file created" << endl ; 
+    cout << outputfile << " histogram file created" << endl ; 
+    
+    return;
+    
   }
 
   /*
