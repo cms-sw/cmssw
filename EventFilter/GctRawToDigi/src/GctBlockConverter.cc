@@ -2,6 +2,8 @@
 #include "EventFilter/GctRawToDigi/src/GctBlockConverter.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
+//#include "EventFilter/GctRawToDigi/interface/L1GctInternalObject.h"
+
 
 #include <iostream>
 
@@ -36,3 +38,4 @@ void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id, st
   }
 
 }
+

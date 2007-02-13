@@ -4,12 +4,8 @@
 
 #include <vector>
 #include <map>
-//#include <utility>
 #include <memory>
 
-#include "EventFilter/GctRawToDigi/src/GctBlock.h"
-
-//#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
 
 
 class GctBlockConverter {

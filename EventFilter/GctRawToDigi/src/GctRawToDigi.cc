@@ -11,8 +11,8 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 // GCT raw data formats
-//#include "EventFilter/GctRawToDigi/src/GctDaqRecord.h"
-#include "EventFilter/GctRawToDigi/src/GctBlock.h"
+#include "EventFilter/GctRawToDigi/src/GctBlockHeader.h"
+//#include "EventFilter/GctRawToDigi/interface/L1GctInternalObject.h"
 
 // GCT input data formats
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
