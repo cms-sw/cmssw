@@ -36,6 +36,8 @@ MagneticFieldMap::initialize()
   std::list<TrackerLayer>::iterator cyliter;
   std::list<TrackerLayer>::iterator cylitBeg=geometry_->cylinderBegin();
   std::list<TrackerLayer>::iterator cylitEnd=geometry_->cylinderEnd();
+
+  gROOT->cd();
   
   // Prepare the histograms
   cout << "Prepare magnetic field local database for FAMOS speed-up" << endl;
