@@ -14,7 +14,7 @@ through shared pointers.
 The DataBlockImpl returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: DataBlockImpl.h,v 1.10 2007/01/12 21:07:58 wmtan Exp $
+$Id: DataBlockImpl.h,v 1.11 2007/01/17 06:24:03 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <list>
@@ -109,7 +109,7 @@ namespace edm {
     //      this value_type,
     //   4. and which matches teh given module label and product
     //      instance name.
-    BasicHandle getMatchingSequence(std::type_info const& valuetype,
+    BasicHandle getMatchingSequence(std::type_info const& wantedElementType,
 				    std::string const& moduleLabel,
 				    std::string const& productInstanceName) const;
 

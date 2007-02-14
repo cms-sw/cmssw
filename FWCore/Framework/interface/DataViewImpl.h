@@ -74,7 +74,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.15 2007/01/23 00:32:02 wmtan Exp $
+$Id: DataViewImpl.h,v 1.16 2007/02/07 23:01:43 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -252,8 +252,8 @@ namespace edm {
 		   BasicHandleVec& results) const;
 
     BasicHandle
-    getMatchingSequence_(std::type_info const& valuetype,
-			 std::string const& label,
+    getMatchingSequence_(std::type_info const& wantedElementType,
+			 std::string const& moduleLabel,
 			 std::string const& productInstanceName) const;
 
     // Also isolates the DataViewImpl class
@@ -510,15 +510,17 @@ namespace edm {
 
   template <typename ELEMENT>
   void
-  DataViewImpl::getByLabel(std::string const& label,
+  DataViewImpl::getByLabel(std::string const& moduleLabel,
 			   std::string const& productInstanceName,
 			   Handle<View<ELEMENT> >& result) const
   {
     result.clear();
 
-    std::type_info const& valuetype = typeid(ELEMENT);
+    std::type_info const& wantedElementType = typeid(ELEMENT);
     BasicHandle bh = 
-      this->getMatchingSequence_(valuetype, label, productInstanceName);
+      this->getMatchingSequence_(wantedElementType, 
+				 moduleLabel, 
+				 productInstanceName);
     assert (bh.isValid());
 
     std::vector<void const*> pointersToElements;

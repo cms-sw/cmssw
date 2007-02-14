@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.8 2007/01/11 23:39:20 paterno Exp $
+$Id: DataViewImpl.cc,v 1.9 2007/01/28 05:38:48 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -120,11 +120,13 @@ namespace edm {
   }
 
   BasicHandle
-  DataViewImpl::getMatchingSequence_(type_info const& valuetype,
-				     string const& label,
+  DataViewImpl::getMatchingSequence_(type_info const& wantedElementType,
+				     string const& moduleLabel,
 				     string const& productInstanceName) const
   {
-    return dbk_.getMatchingSequence(valuetype, label, productInstanceName);
+    return dbk_.getMatchingSequence(wantedElementType,
+				    moduleLabel,
+				    productInstanceName);
   }
 
   Provenance const&

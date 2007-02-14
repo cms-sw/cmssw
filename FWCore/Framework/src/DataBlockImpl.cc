@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: DataBlockImpl.cc,v 1.13 2007/01/29 21:28:51 wdd Exp $
+  $Id: DataBlockImpl.cc,v 1.14 2007/02/01 20:18:31 wmtan Exp $
   ----------------------------------------------------------------------*/
 #include <algorithm>
 #include <memory>
@@ -507,7 +507,7 @@ namespace edm {
   };
 
   BasicHandle
-  DataBlockImpl::getMatchingSequence(type_info const& valuetype,
+  DataBlockImpl::getMatchingSequence(type_info const& wantedElementType,
 				     string const& moduleLabel,
 				     string const& productInstanceName) const
   {
@@ -548,7 +548,7 @@ namespace edm {
 	      this->resolve_(**i);
 	    }
 
-	  NeitherSameNorDerivedType removalPredicate(valuetype);
+	  NeitherSameNorDerivedType removalPredicate(wantedElementType);
 	  candidateGroups.remove_if(removalPredicate);
 	  
 	  if (candidateGroups.size() == 1) {
@@ -568,7 +568,7 @@ namespace edm {
 	      << "  module label: " << moduleLabel
 	      << "  productInstanceName: " << productInstanceName
 	      << "  processName: " << iproc->processName()
-	      << "  value type: " << valuetype.name()
+	      << "  value type: " << wantedElementType.name()
 	      << '\n';
 	  }
 	  // If we're here, no candidate group survived the removal
