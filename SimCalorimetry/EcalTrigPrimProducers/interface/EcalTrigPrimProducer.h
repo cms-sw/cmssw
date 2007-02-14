@@ -57,6 +57,7 @@ class EcalTrigPrimProducer : public edm::EDProducer
   std::string instanceNameEE_;
   std::string databaseFileNameEB_;
   std::string databaseFileNameEE_;
+  double ebDccAdcToGeV_,eeDccAdcToGeV_;
   //  int fgvbMinEnergy_;
   //  double ttfThreshLow_;
   //  double ttfThreshHigh_;

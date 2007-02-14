@@ -46,8 +46,8 @@ class EcalTrigPrimFunctionalAlgo
   
   //  typedef PRecDet<EcalTrigPrim> precdet;
 
-  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax, int nrsamples, DBInterface *db, bool tccFormat, bool barrelOnly);
-  EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, TTree *tree, int binofmax, int nrsamples,  DBInterface *db, bool tccFormat, bool barrelOnly);
+  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax, int nrsamples, DBInterface *db, bool tccFormat, bool barrelOnly, double ebDccAdcToGeV, double eeDccAdcToGeV);
+  EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, TTree *tree, int binofmax, int nrsamples,  DBInterface *db, bool tccFormat, bool barrelOnly, double ebDccAdcToGeV, double eeDccAdcToGeV);
   virtual ~EcalTrigPrimFunctionalAlgo();
 
   /** this actually calculates the trigger primitives (from Digis) */
@@ -125,10 +125,9 @@ class EcalTrigPrimFunctionalAlgo
 
   bool tcpFormat_;
   bool barrelOnly_;
-  // thresholds for TTF calculation
-  //  double threshLow_;
-  //  double threshHigh_;
 
+  //parameters from EB(E)DataFrames
+  double ebDccAdcToGeV_,eeDccAdcToGeV_;
 
 };
 

@@ -37,12 +37,17 @@
 #include <TMath.h>
 //----------------------------------------------------------------------
 
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax,int nrsamples, DBInterface *db, bool tcpFormat, bool barrelOnly):valid_(false),valTree_(NULL),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples), db_(db), tcpFormat_(tcpFormat), barrelOnly_(barrelOnly)
-
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax,int nrsamples, DBInterface *db, bool tcpFormat, bool barrelOnly,double ebDccAdcToGeV,double eeDccAdcToGeV):
+  valid_(false),valTree_(NULL),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples), db_(db), 
+  tcpFormat_(tcpFormat), barrelOnly_(barrelOnly),
+  ebDccAdcToGeV_(ebDccAdcToGeV),eeDccAdcToGeV_(eeDccAdcToGeV)
 {this->init(setup);}
 
 //----------------------------------------------------------------------
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,TTree *tree,int binofmax, int nrsamples,  DBInterface *db, bool tcpFormat, bool barrelOnly):valid_(true),valTree_(tree),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples), db_(db), tcpFormat_(tcpFormat), barrelOnly_(barrelOnly)
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,TTree *tree,int binofmax, int nrsamples,  DBInterface *db, bool tcpFormat, bool barrelOnly,double ebDccAdcToGeV,double eeDccAdcToGeV):
+  valid_(true),valTree_(tree),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples), db_(db), 
+  tcpFormat_(tcpFormat), barrelOnly_(barrelOnly),
+  ebDccAdcToGeV_(ebDccAdcToGeV),eeDccAdcToGeV_(eeDccAdcToGeV)
 {this->init(setup);}
 
 //----------------------------------------------------------------------
@@ -247,10 +252,9 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 	    if (et0 > etmax) etmax=et0;
 	  }
 
+	  //for the moment, there is no fgvb implemented...
 	  int fgvb=0;
-	  int fgvbMinEn = 50; //FIXME: temporary for temporary Endcap code!!!!
 
-	  if (etmax > fgvbMinEn && float(et)/float(etmax) > .85) fgvb=1;
 	  int ttf=calculateTTF(et);
 	  et=et>>4;
 	  if (et>0xFF) et=0xFF;
