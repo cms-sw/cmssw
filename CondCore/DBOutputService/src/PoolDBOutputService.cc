@@ -36,7 +36,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
   m_session->open();
   m_pooldb=new cond::PoolStorageManager(connect,catconnect,m_session);
-  m_coraldb=new cond::RelationalStorageManager(connect);
+  m_coraldb=new cond::RelationalStorageManager(connect,m_session);
   if( timetype=="timestamp" ){
     m_iovservice=new cond::IOVService(*m_pooldb,cond::timestamp);
   }else{

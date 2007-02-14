@@ -8,6 +8,7 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
 #include "IOVPayloadEndOfJob.h"
+#include <cstdlib>
 IOVPayloadEndOfJob::IOVPayloadEndOfJob(const edm::ParameterSet& iConfig ):
   m_record(iConfig.getParameter< std::string >("record")){
   std::cout<<"IOVPayloadEndOfJob::IOVPayloadEndOfJob"<<std::endl;
@@ -20,6 +21,7 @@ void IOVPayloadEndOfJob::analyze( const edm::Event& evt, const edm::EventSetup& 
 }
 void IOVPayloadEndOfJob::endJob(){ 
   std::cout<<"IOVPayloadEndOfJob::endJob "<<std::endl;
+  //::putenv(const_cast<char*>("CORAL_AUTH_PATH=/home/xiezhen/work/CMSSW/dev130/CMSSW_1_2_0/src/CondCore/DBOutputService/test/auth"));
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( !mydbservice.isAvailable() ){
     std::cout<<"Service is unavailable"<<std::endl;
