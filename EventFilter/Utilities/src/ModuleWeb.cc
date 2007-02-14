@@ -2,22 +2,23 @@
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "xgi/include/xgi/Input.h"
+#include "xgi/include/xgi/Output.h"
+
 #include <string>
 
-using namespace std;
-using namespace evf;
 
-ModuleWeb::ModuleWeb(const string &moduleName) : moduleName_(moduleName)
+namespace evf{
+
+ModuleWeb::ModuleWeb(const std::string &moduleName) : moduleName_(moduleName)
 {
   if(edm::Service<ModuleWebRegistry>())
     edm::Service<ModuleWebRegistry>()->registerWeb(moduleName_, this);
 }
 
-#include "xgi/include/xgi/Input.h"
-#include "xgi/include/xgi/Output.h"
-
 void ModuleWeb::defaultWebPage(xgi::Input *in, xgi::Output *out)
 {
+  using std::endl;
   *out << "<html>"                                                   << endl;
   *out << "<head>"                                                   << endl;
 
@@ -29,3 +30,4 @@ void ModuleWeb::defaultWebPage(xgi::Input *in, xgi::Output *out)
   *out << "</body>"                                                  << endl;
   *out << "</html>"                                                  << endl;
 }
+} //end namespace evf

@@ -1,11 +1,9 @@
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
 #include "EventFilter/Utilities/interface/ModuleWeb.h"
 
-using namespace evf;
 #include <iostream>
 
-using namespace std;
-
+namespace evf{
 ModuleWebRegistry::ModuleWebRegistry(const edm::ParameterSet &ps){
 }
 
@@ -23,7 +21,7 @@ void ModuleWebRegistry::invoke(xgi::Input *in, xgi::Output *out, const std::stri
       }
       catch(...)
 	{
-	  cout << "exception caught when calling moduleweb page for " << name << endl;
+	  std::cout << "exception caught when calling moduleweb page for " << name << std::endl;
 	}
     }
 }
@@ -41,3 +39,4 @@ void ModuleWebRegistry::publish(xdata::InfoSpace *is)
 void ModuleWebRegistry::clear(){clm_.clear();}
 
 
+} //end namespace evf
