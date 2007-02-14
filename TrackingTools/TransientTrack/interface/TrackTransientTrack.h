@@ -39,7 +39,7 @@ namespace reco {
 
     TrajectoryStateClosestToPoint 
       trajectoryStateClosestToPoint( const GlobalPoint & point ) const
-      {return builder(initialTSCP.theState(), point);}
+      {return builder(initialFTS, point);}
 
    /**
     * The TSOS at any point. The initial state will be used for the propagation.
@@ -52,15 +52,12 @@ namespace reco {
 
     bool impactPointStateAvailable() const {return  initialTSOSAvailable;}
 
-    // access to original persistent track
-    //    const Track & persistentTrack() const { return *tk_; }
+  /**
+   * access to original persistent track
+   */
     TrackRef persistentTrackRef() const { return tkr_; }
 
     TrackCharge charge() const {return Track::charge();}
-
-//     bool operator== (const TransientTrack & a) const {return (a.persistentTrackRef()==tkr_);}
-//     bool operator< (const TransientTrack & a) const 
-//       {return (initialFTS.momentum().z()<a.initialFreeState().momentum().z());}
 
     const MagneticField* field() const {return theField;}
 
