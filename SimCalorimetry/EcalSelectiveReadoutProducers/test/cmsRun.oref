@@ -12,54 +12,84 @@
        
        =================================================
        
-%MSG-i EcalGeom:  24-Jul-2006 15:05:00 XYZ pre-events
-Creating ShowerForwardNumberingScheme
-%MSG-i EcalGeom:  24-Jul-2006 15:05:00 XYZ pre-events
+%MSG-w Root_Warning:  TClassTable::Add() 14-Feb-2007 20:18:30 CET pre-events
+class ROOT::Math::Cartesian3D<double> already in TClassTable
+%MSG-w Root_Warning:  TClassTable::Add() 14-Feb-2007 20:18:30 CET pre-events
+class ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
+%MSG-w Root_Warning:  TClassTable::Add() 14-Feb-2007 20:18:30 CET pre-events
+class ROOT::Math::CylindricalEta3D<double> already in TClassTable
+%MSG-w Root_Warning:  TClassTable::Add() 14-Feb-2007 20:18:30 CET pre-events
+class ROOT::Math::DisplacementVector3D<ROOT::Math::CylindricalEta3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
+%MSG-w Root_Warning:  TClassTable::Add() 14-Feb-2007 20:18:30 CET pre-events
+class ROOT::Math::Polar3D<double> already in TClassTable
+%MSG-w Root_Warning:  TClassTable::Add() 14-Feb-2007 20:18:30 CET pre-events
+class ROOT::Math::DisplacementVector3D<ROOT::Math::Polar3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
+%MSG-w Root_Warning:  TClassTable::Add() 14-Feb-2007 20:18:30 CET pre-events
+class ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> already in TClassTable
+%MSG-w Root_Warning:  TClassTable::Add() 14-Feb-2007 20:18:30 CET pre-events
+class ROOT::Math::PxPyPzE4D<double> already in TClassTable
+%MSG-w Root_Warning:  TClassTable::Add() 14-Feb-2007 20:18:30 CET pre-events
+class ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > already in TClassTable
+%MSG-w Root_Warning:  TClassTable::Add() 14-Feb-2007 20:18:30 CET pre-events
+class ROOT::Math::PtEtaPhiE4D<double> already in TClassTable
+%MSG-w Root_Warning:  TClassTable::Add() 14-Feb-2007 20:18:30 CET pre-events
+class ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > already in TClassTable
+%MSG-i EcalGeom:  14-Feb-2007 20:18:30 CET pre-events
 Creating EcalBarrelNumberingScheme
-%MSG-i EcalGeom:  24-Jul-2006 15:05:00 XYZ pre-events
+%MSG-i EcalGeom:  14-Feb-2007 20:18:30 CET pre-events
 Creating EcalEndcapNumberingScheme
-%MSG-i DDLParser:  24-Jul-2006 15:05:01 XYZ pre-events
+%MSG-i EcalGeom:  14-Feb-2007 20:18:30 CET pre-events
+Creating EcalPreshowerNumberingScheme
+%MSG-i DDLParser:  14-Feb-2007 20:18:30 CET pre-events
 Start Parsing.  Validation is set off for the time being.
 Element: Constant (64)
-%MSG-e Specific:  24-Jul-2006 15:05:08 XYZ pre-events
+%MSG-e Specific:  14-Feb-2007 20:18:35 CET pre-events
 =========>
-%MSG-e Specific:  24-Jul-2006 15:05:08 XYZ pre-events
+%MSG-e Specific:  14-Feb-2007 20:18:35 CET pre-events
 DC: Exception:
-%MSG-e Specific:  24-Jul-2006 15:05:08 XYZ pre-events
+%MSG-e Specific:  14-Feb-2007 20:18:35 CET pre-events
 SpecPar will be ignored for the following selection-std::string:
-%MSG-e Specific:  24-Jul-2006 15:05:08 XYZ pre-events
+%MSG-e Specific:  14-Feb-2007 20:18:35 CET pre-events
 //HVQF
-%MSG-e Specific:  24-Jul-2006 15:05:08 XYZ pre-events
+%MSG-e Specific:  14-Feb-2007 20:18:35 CET pre-events
 =========>
-%MSG-e Specific:  24-Jul-2006 15:05:08 XYZ pre-events
+%MSG-e Specific:  14-Feb-2007 20:18:35 CET pre-events
 DC: Exception:
-%MSG-e Specific:  24-Jul-2006 15:05:08 XYZ pre-events
+%MSG-e Specific:  14-Feb-2007 20:18:35 CET pre-events
 SpecPar will be ignored for the following selection-std::string:
-%MSG-e Specific:  24-Jul-2006 15:05:08 XYZ pre-events
+%MSG-e Specific:  14-Feb-2007 20:18:35 CET pre-events
 //HVQX
-%MSG-e Specific:  24-Jul-2006 15:05:08 XYZ pre-events
+%MSG-e Specific:  14-Feb-2007 20:18:35 CET pre-events
 =========>
-%MSG-e Specific:  24-Jul-2006 15:05:08 XYZ pre-events
+%MSG-e Specific:  14-Feb-2007 20:18:35 CET pre-events
 DC: Exception:
-%MSG-e Specific:  24-Jul-2006 15:05:08 XYZ pre-events
+%MSG-e Specific:  14-Feb-2007 20:18:35 CET pre-events
 SpecPar will be ignored for the following selection-std::string:
-%MSG-e Specific:  24-Jul-2006 15:05:08 XYZ pre-events
+%MSG-e Specific:  14-Feb-2007 20:18:35 CET pre-events
 //HFFibre.*
-Using the site default catalog: trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio
-%MSG-w Digitization:  EcalSelectiveReadoutProducer:ecalSelectiveReadout{ctor} 
-       24-Jul-2006 15:05:16 XYZ pre-events
+cms:OCMS
+Timing in XMLIdealGeometryESSource : Real Time = 5.1 (s), User Time = 4.97 (s), System Time = 0.12 (s), Cpu Time = 5.09 (s), Idle Time = 0.01 (s), 
+%MSG-w Digitization:  EcalSelectiveReadoutProducer:ecalDigis{ctor} 
+       14-Feb-2007 20:18:38 CET pre-events
 Beware a simplified trigger primitive computation is used for the ECAL selective readout
-%MSG-w path:  PoolOutputModule:o1{ctor} 24-Jul-2006 15:05:18 XYZ pre-events
+%MSG-w path:  AfterModuleConstruction 14-Feb-2007 20:18:38 CET pre-events
 The following module labels are not assigned to any path:
-'tp'
+'ecalTriggerPrimitiveDigis'
 
-file:tpSrp.root: level[Always] Root file version:51200
-%MSG-i FwkReport:  main_input:source 24-Jul-2006 15:05:40 XYZ BeforeEvents
+%MSG-i FwkReport:  main_input:source 14-Feb-2007 20:18:38 CET BeforeEvents
 Begin processing the 1th record. Run 1, Event 1
 Using default HCAL topology
+%MSG-i HcalHardcodeGeometry:  EcalSelectiveReadoutProducer:ecalDigis 
+       14-Feb-2007 20:18:38 CET Run: 1 Event: 1
 Number of HCAL DetIds made: 1 2592
+%MSG-i HcalHardcodeGeometry:  EcalSelectiveReadoutProducer:ecalDigis 
+       14-Feb-2007 20:18:38 CET Run: 1 Event: 1
 Number of HCAL DetIds made: 2 2592
+%MSG-i HcalHardcodeGeometry:  EcalSelectiveReadoutProducer:ecalDigis 
+       14-Feb-2007 20:18:38 CET Run: 1 Event: 1
 Number of HCAL DetIds made: 4 1728
+%MSG-i HcalHardcodeGeometry:  EcalSelectiveReadoutProducer:ecalDigis 
+       14-Feb-2007 20:18:38 CET Run: 1 Event: 1
 Number of HCAL DetIds made: 3 2160
 [EcalBarrelGeometryEP]::Constructing EcalBarrelGeometry
 [EcalBarrelGeometryLoaderFromDDD]:: start the construction of EcalBarrel
@@ -74,10 +104,13 @@ Number of HCAL DetIds made: 3 2160
 [EcalPreshowerGeometryEP]::Constructing EcalPreshowerGeometry
 [EcalPreshowerGeometryLoaderFromDDD]:: start the construction of EcalPreshower
 [EcalPreshowerGeometry] # of strips : 137728
+/data/pgras/cmssw/CMSSW_1_3_0_pre2/src/Geometry/EcalPreshowerAlgo/src/EcalPreshowerGeometryLoaderFromDDD.cc:58: 4.67755
 [EcalPreshowerGeometryLoaderFromDDD]:: Returning EcalPreshowerGeometry
+%MSG-i Geometry:  EcalSelectiveReadoutProducer:ecalDigis 
+       14-Feb-2007 20:18:51 CET Run: 1 Event: 1
 CaloTowersHardcodeGeometry made 4392 towers.
-%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalSelectiveReadout 
-       24-Jul-2006 15:08:44 XYZ Run: 1 Event: 1
+%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalDigis 
+       14-Feb-2007 20:18:53 CET Run: 1 Event: 1
 2423 low interest TT in barrel
 0 single TT in barrel
 24 neighbor interest TT in barrel
@@ -87,10 +120,10 @@ CaloTowersHardcodeGeometry made 4392 towers.
 0 neighbor TT in endcap
 0 center TT in endcap
 
-%MSG-i FwkReport:  main_input:source 24-Jul-2006 15:09:53 XYZ Run: 1 Event: 1
+%MSG-i FwkReport:  main_input:source 14-Feb-2007 20:18:53 CET Run: 1 Event: 1
 Begin processing the 2th record. Run 1, Event 2
-%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalSelectiveReadout 
-       24-Jul-2006 15:09:57 XYZ Run: 1 Event: 2
+%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalDigis 
+       14-Feb-2007 20:18:54 CET Run: 1 Event: 2
 2423 low interest TT in barrel
 0 single TT in barrel
 24 neighbor interest TT in barrel
@@ -100,10 +133,10 @@ Begin processing the 2th record. Run 1, Event 2
 0 neighbor TT in endcap
 0 center TT in endcap
 
-%MSG-i FwkReport:  main_input:source 24-Jul-2006 15:11:10 XYZ Run: 1 Event: 2
+%MSG-i FwkReport:  main_input:source 14-Feb-2007 20:18:55 CET Run: 1 Event: 2
 Begin processing the 3th record. Run 1, Event 3
-%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalSelectiveReadout 
-       24-Jul-2006 15:11:13 XYZ Run: 1 Event: 3
+%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalDigis 
+       14-Feb-2007 20:18:56 CET Run: 1 Event: 3
 2423 low interest TT in barrel
 0 single TT in barrel
 24 neighbor interest TT in barrel
@@ -113,10 +146,10 @@ Begin processing the 3th record. Run 1, Event 3
 0 neighbor TT in endcap
 0 center TT in endcap
 
-%MSG-i FwkReport:  main_input:source 24-Jul-2006 15:12:20 XYZ Run: 1 Event: 3
+%MSG-i FwkReport:  main_input:source 14-Feb-2007 20:18:57 CET Run: 1 Event: 3
 Begin processing the 4th record. Run 1, Event 4
-%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalSelectiveReadout 
-       24-Jul-2006 15:12:23 XYZ Run: 1 Event: 4
+%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalDigis 
+       14-Feb-2007 20:18:58 CET Run: 1 Event: 4
 2423 low interest TT in barrel
 0 single TT in barrel
 24 neighbor interest TT in barrel
@@ -126,10 +159,10 @@ Begin processing the 4th record. Run 1, Event 4
 0 neighbor TT in endcap
 0 center TT in endcap
 
-%MSG-i FwkReport:  main_input:source 24-Jul-2006 15:13:25 XYZ Run: 1 Event: 4
+%MSG-i FwkReport:  main_input:source 14-Feb-2007 20:18:59 CET Run: 1 Event: 4
 Begin processing the 5th record. Run 1, Event 5
-%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalSelectiveReadout 
-       24-Jul-2006 15:13:28 XYZ Run: 1 Event: 5
+%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalDigis 
+       14-Feb-2007 20:19:00 CET Run: 1 Event: 5
 2448 low interest TT in barrel
 0 single TT in barrel
 0 neighbor interest TT in barrel
@@ -139,10 +172,10 @@ Begin processing the 5th record. Run 1, Event 5
 16 neighbor TT in endcap
 2 center TT in endcap
 
-%MSG-i FwkReport:  main_input:source 24-Jul-2006 15:14:30 XYZ Run: 1 Event: 5
+%MSG-i FwkReport:  main_input:source 14-Feb-2007 20:19:01 CET Run: 1 Event: 5
 Begin processing the 6th record. Run 1, Event 6
-%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalSelectiveReadout 
-       24-Jul-2006 15:14:33 XYZ Run: 1 Event: 6
+%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalDigis 
+       14-Feb-2007 20:19:02 CET Run: 1 Event: 6
 2448 low interest TT in barrel
 0 single TT in barrel
 0 neighbor interest TT in barrel
@@ -152,10 +185,10 @@ Begin processing the 6th record. Run 1, Event 6
 22 neighbor TT in endcap
 2 center TT in endcap
 
-%MSG-i FwkReport:  main_input:source 24-Jul-2006 15:15:35 XYZ Run: 1 Event: 6
+%MSG-i FwkReport:  main_input:source 14-Feb-2007 20:19:03 CET Run: 1 Event: 6
 Begin processing the 7th record. Run 1, Event 7
-%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalSelectiveReadout 
-       24-Jul-2006 15:15:37 XYZ Run: 1 Event: 7
+%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalDigis 
+       14-Feb-2007 20:19:04 CET Run: 1 Event: 7
 2448 low interest TT in barrel
 0 single TT in barrel
 0 neighbor interest TT in barrel
@@ -165,10 +198,10 @@ Begin processing the 7th record. Run 1, Event 7
 24 neighbor TT in endcap
 1 center TT in endcap
 
-%MSG-i FwkReport:  main_input:source 24-Jul-2006 15:16:40 XYZ Run: 1 Event: 7
+%MSG-i FwkReport:  main_input:source 14-Feb-2007 20:19:04 CET Run: 1 Event: 7
 Begin processing the 8th record. Run 1, Event 8
-%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalSelectiveReadout 
-       24-Jul-2006 15:16:42 XYZ Run: 1 Event: 8
+%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalDigis 
+       14-Feb-2007 20:19:05 CET Run: 1 Event: 8
 2448 low interest TT in barrel
 0 single TT in barrel
 0 neighbor interest TT in barrel
@@ -178,23 +211,23 @@ Begin processing the 8th record. Run 1, Event 8
 24 neighbor TT in endcap
 1 center TT in endcap
 
-%MSG-i FwkReport:  main_input:source 24-Jul-2006 15:17:44 XYZ Run: 1 Event: 8
+%MSG-i FwkReport:  main_input:source 14-Feb-2007 20:19:06 CET Run: 1 Event: 8
 Begin processing the 9th record. Run 1, Event 9
-%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalSelectiveReadout 
-       24-Jul-2006 15:17:47 XYZ Run: 1 Event: 9
-2418 low interest TT in barrel
+%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalDigis 
+       14-Feb-2007 20:19:07 CET Run: 1 Event: 9
+2423 low interest TT in barrel
 0 single TT in barrel
-28 neighbor interest TT in barrel
-2 centre interest TT in barrel
+24 neighbor interest TT in barrel
+1 centre interest TT in barrel
 1584 low interest TT in endcap
 0 single TT in endcap
 0 neighbor TT in endcap
 0 center TT in endcap
 
-%MSG-i FwkReport:  main_input:source 24-Jul-2006 15:18:48 XYZ Run: 1 Event: 9
+%MSG-i FwkReport:  main_input:source 14-Feb-2007 20:19:08 CET Run: 1 Event: 9
 Begin processing the 10th record. Run 1, Event 10
-%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalSelectiveReadout 
-       24-Jul-2006 15:18:51 XYZ Run: 1 Event: 10
+%MSG-i EcalSelectiveReadout:  EcalSelectiveReadoutProducer:ecalDigis 
+       14-Feb-2007 20:19:09 CET Run: 1 Event: 10
 2433 low interest TT in barrel
 0 single TT in barrel
 14 neighbor interest TT in barrel
@@ -204,91 +237,15 @@ Begin processing the 10th record. Run 1, Event 10
 10 neighbor TT in endcap
 0 center TT in endcap
 
-%MSG-i FwkJob:  PostSource 24-Jul-2006 15:19:58 XYZ Run: 1 Event: 10
-
-<File>
-%MSG-i FwkJob:  PostSource 24-Jul-2006 15:19:58 XYZ Run: 1 Event: 10
-
-<State  Value="closed"/>
-<LFN></LFN>
-<PFN>file:tpSrp.root</PFN>
-<Catalog>file:PoolFileCatalog.xml</Catalog>
-<ModuleLabel>o1</ModuleLabel>
-<Runs>
-  <Run>1</Run>
-</Runs>
-<Branches>
-  <Branch>CrossingFrame_mix__DIGI.</Branch>
-  <Branch>EBDataFramesSorted_ecalSelectiveReadout_ebDigis_TpSrp.</Branch>
-  <Branch>EBDataFramesSorted_ecaldigi__DIGI.</Branch>
-  <Branch>EEDataFramesSorted_ecalSelectiveReadout_eeDigis_TpSrp.</Branch>
-  <Branch>EEDataFramesSorted_ecaldigi__DIGI.</Branch>
-  <Branch>ESDataFramesSorted_ecaldigi__DIGI.</Branch>
-  <Branch>PCaloHits_SimG4Object_CaloHitsTk_PROD.</Branch>
-  <Branch>PCaloHits_SimG4Object_CastorBU_PROD.</Branch>
-  <Branch>PCaloHits_SimG4Object_CastorFI_PROD.</Branch>
-  <Branch>PCaloHits_SimG4Object_CastorPL_PROD.</Branch>
-  <Branch>PCaloHits_SimG4Object_CastorTU_PROD.</Branch>
-  <Branch>PCaloHits_SimG4Object_EcalHitsEB_PROD.</Branch>
-  <Branch>PCaloHits_SimG4Object_EcalHitsEE_PROD.</Branch>
-  <Branch>PCaloHits_SimG4Object_EcalHitsES_PROD.</Branch>
-  <Branch>PCaloHits_SimG4Object_HcalHits_PROD.</Branch>
-  <Branch>PCaloHits_SimG4Object_ZDCHITS_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_MuonCSCHits_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_MuonDTHits_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_MuonRPCHits_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_TotemHitsRP_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_TotemHitsT1_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_TotemHitsT2Gem_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_TrackerHitsPixelBarrelHighTof_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_TrackerHitsPixelBarrelLowTof_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_TrackerHitsPixelEndcapHighTof_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_TrackerHitsPixelEndcapLowTof_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_TrackerHitsTECHighTof_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_TrackerHitsTECLowTof_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_TrackerHitsTIBHighTof_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_TrackerHitsTIBLowTof_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_TrackerHitsTIDHighTof_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_TrackerHitsTIDLowTof_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_TrackerHitsTOBHighTof_PROD.</Branch>
-  <Branch>PSimHits_SimG4Object_TrackerHitsTOBLowTof_PROD.</Branch>
-  <Branch>SimTracks_SimG4Object__PROD.</Branch>
-  <Branch>SimVertexs_SimG4Object__PROD.</Branch>
-  <Branch>edmHepMCProduct_VtxSmeared__PROD.</Branch>
-  <Branch>edmHepMCProduct_source__PROD.</Branch>
-</Branches>
-<OutputModuleClass>PoolOutputModule</OutputModuleClass>
-<TotalEvents>10</TotalEvents>
-
-%MSG-i FwkJob:  PostSource 24-Jul-2006 15:19:58 XYZ Run: 1 Event: 10
-
-<Inputs>
-%MSG-i FwkJob:  PostSource 24-Jul-2006 15:19:58 XYZ Run: 1 Event: 10
-
-<Input>
-%MSG-i FwkJob:  PostSource 24-Jul-2006 15:19:58 XYZ Run: 1 Event: 10
-
-  <LFN></LFN>
-%MSG-i FwkJob:  PostSource 24-Jul-2006 15:19:58 XYZ Run: 1 Event: 10
-
-  <PFN>file:photon100GeV_digi.root</PFN>
-%MSG-i FwkJob:  PostSource 24-Jul-2006 15:19:58 XYZ Run: 1 Event: 10
-
-</Input>
-%MSG-i FwkJob:  PostSource 24-Jul-2006 15:19:58 XYZ Run: 1 Event: 10
-
-</Inputs>
-%MSG-i FwkJob:  PostSource 24-Jul-2006 15:19:58 XYZ Run: 1 Event: 10
-
-</File>
-%MSG-i FwkJob:  PostSource 24-Jul-2006 15:19:58 XYZ Run: 1 Event: 10
+%MSG-i FwkJob:  PostModule 14-Feb-2007 20:19:10 CET Run: 1 Event: 10
 
 <InputFile>
 <State  Value="closed"/>
 <LFN></LFN>
-<PFN>file:photon100GeV_digi.root</PFN>
-<Catalog>trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio</Catalog>
+<PFN>file://srp_validation_in.root</PFN>
+<Catalog></Catalog>
 <ModuleLabel>source</ModuleLabel>
+<GUID></GUID>
 <Runs>
   <Run>1</Run>
 </Runs>
@@ -297,12 +254,25 @@ Begin processing the 10th record. Run 1, Event 10
 <InputSourceClass>PoolSource</InputSourceClass>
 <EventsRead>10</EventsRead>
 </InputFile>
-%MSG-i EcalGeom:  PostSource 24-Jul-2006 15:19:58 XYZ Run: 1 Event: 10
-Deleting ShowerForwardNumberingScheme
-%MSG-i EcalGeom:  PostSource 24-Jul-2006 15:19:58 XYZ Run: 1 Event: 10
+%MSG-i FwkJob:  PostModule 14-Feb-2007 20:19:10 CET Run: 1 Event: 10
+<StorageStatistics>
+Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
+Storage statistics: file/close=1/1/0MB/0.047947ms/0.047947ms/0.047947ms; file/destruct=1/1/0MB/0.0753786ms/0.0753786ms/0.0753786ms; file/open=2/2/0MB/0.301096ms/0.0273433ms/0.273753ms; file/position=49/49/0MB/0.271689ms/0.00106827ms/0.0224402ms; file/read=79/79/6.41308MB/19.8153ms/0.00182488ms/1.19019ms; file/write=0/0/0MB/0ms/100000ms/0ms; tstoragefile/close=1/1/0MB/0.153402ms/0.153402ms/0.153402ms; tstoragefile/construct=2/2/0MB/1430.43ms/11.2732ms/1419.16ms; tstoragefile/read=79/79/6.41308MB/21.0375ms/0.00484636ms/1.21696ms; tstoragefile/readu=0/0/0MB/0ms/100000ms/0ms; tstoragefile/readx=79/79/6.41308MB/20.0838ms/0.00281982ms/1.19598ms; tstoragefile/seek=79/79/0MB/0.859521ms/0.000636625ms/0.0185738ms; tstoragefile/seekx=33/33/0MB/0.308974ms/0.00229985ms/0.015709ms; tstoragefile/stat=4/4/0MB/0.0540916ms/0.00653125ms/0.0299548ms; tfile/read=?/?/6.41308MB/?ms/?ms/?ms; tfile/write=?/?/0MB/?ms/?ms/?ms
+</StorageStatistics>
+%MSG-i EcalGeom:  PostModule 14-Feb-2007 20:19:10 CET Run: 1 Event: 10
 Deleting EcalBarrelNumberingScheme
-%MSG-i EcalGeom:  PostSource 24-Jul-2006 15:19:58 XYZ Run: 1 Event: 10
+%MSG-i EcalGeom:  PostModule 14-Feb-2007 20:19:10 CET Run: 1 Event: 10
 Deleting EcalEndcapNumberingScheme
+%MSG-i EcalGeom:  PostModule 14-Feb-2007 20:19:10 CET Run: 1 Event: 10
+Deleting EcalPreshowerNumberingScheme
+%MSG-i FwkJob:  PostModule 14-Feb-2007 20:19:10 CET Run: 1 Event: 10
+
+<GeneratorInfo>
+%MSG-i FwkJob:  PostModule 14-Feb-2007 20:19:10 CET Run: 1 Event: 10
+</GeneratorInfo>
+Sib rot stats same/diff 17397209 21621978
+Merging stats 671337 0 413184 0 0
+DDCompare stat 1084521 0
 
 [oval run] ==========================================
 [oval run] result: OK
