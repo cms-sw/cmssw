@@ -6,15 +6,15 @@
 /** \class SteppingHelixStateInfo
  *  Holder of SteppingHelixState information
  *
- *  $Date: 2007/02/05 18:48:07 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/02/06 20:49:17 $
+ *  $Revision: 1.6 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.h,v 1.5 2007/02/05 18:48:07 slava77 Exp $
+// $Id: SteppingHelixStateInfo.h,v 1.6 2007/02/06 20:49:17 slava77 Exp $
 //
 //
 
@@ -66,6 +66,20 @@ class SteppingHelixStateInfo {
   Result status() const {return status_;}
 
  protected:
+  struct VolumeBounds {
+    VolumeBounds(): zMin(0), zMax(1e4), rMin(0), rMax(1e4), th1(0), th2(0) {}
+    VolumeBounds(double r0, double r1, double z0, double z1):
+      zMin(z0), zMax(z1), rMin(r0), rMax(r1), th1(0), th2(0) {}
+    VolumeBounds(double r0, double r1, double z0, double z1, double t1, double t2):
+      zMin(z0), zMax(z1), rMin(r0), rMax(r1), th1(t1), th2(t2) {}
+    double zMin;
+    double zMax;
+    double rMin;
+    double rMax;
+    double th1;
+    double th2;
+  };
+  
 
   int q;
   Vector p3;
@@ -79,6 +93,11 @@ class SteppingHelixStateInfo {
   Vector bfGradLoc;
   const MagVolume* magVol;
   const MagneticField* field;  
+
+  VolumeBounds rzLims;
+  double dEdx;
+  double dEdXPrime;
+  double radX0;
 
   bool isComplete;
   bool isValid_;

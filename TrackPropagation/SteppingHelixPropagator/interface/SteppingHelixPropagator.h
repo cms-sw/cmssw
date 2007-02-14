@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2007/02/06 01:15:26 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/02/06 20:49:17 $
+ *  $Revision: 1.14 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.13 2007/02/06 01:15:26 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.14 2007/02/06 20:49:17 slava77 Exp $
 //
 //
 
@@ -156,9 +156,13 @@ class SteppingHelixPropagator : public Propagator {
   void applyRadX0Correction(bool applyRadX0Correction) { applyRadX0Correction_ = applyRadX0Correction;}
 
   ///Switch to using MagneticField Volumes .. as in VolumeBasedMagneticField
-    void setUseMagVolumes(bool val){ useMagVolumes_ = val;}
+  void setUseMagVolumes(bool val){ useMagVolumes_ = val;}
+
+  ///Switch to using Material Volumes .. internally defined for now
+  void setUseMatVolumes(bool val){ useMatVolumes_ = val;}
 
  protected:
+  typedef SteppingHelixStateInfo::VolumeBounds MatBounds;
   /// (Internals) Init starting point
   void setIState(const FreeTrajectoryState& ftsStart) const;
   void setIState(const SteppingHelixStateInfo& sStart) const;
@@ -186,12 +190,12 @@ class SteppingHelixPropagator : public Propagator {
 
   /// (Internals) compute transients for current point (increments step counter).
   ///  Called by makeAtomStep
-    void getNextState(const SteppingHelixPropagator::StateInfo& svPrevious,
-		      SteppingHelixPropagator::StateInfo& svNext,		      
-		      double dP, 
-		      const SteppingHelixPropagator::Vector& tau, const SteppingHelixPropagator::Vector& drVec, 
-		      double dS, double dX0,
-		      const HepMatrix& dCov) const;
+  void getNextState(const SteppingHelixPropagator::StateInfo& svPrevious,
+		    SteppingHelixPropagator::StateInfo& svNext,		      
+		    double dP, 
+		    const SteppingHelixPropagator::Vector& tau, const SteppingHelixPropagator::Vector& drVec, 
+		    double dS, double dX0,
+		    const HepMatrix& dCov) const;
   
   /// Set/compute basis vectors for local coordinates at current step (called by incrementState)
   void setRep(SteppingHelixPropagator::Basis& rep,
@@ -205,7 +209,7 @@ class SteppingHelixPropagator : public Propagator {
 
   /// estimate average (in fact smth. close to MPV and median) energy loss per unit path length
   double getDeDx(const SteppingHelixPropagator::StateInfo& sv, 
-		 double& dEdXPrime, double& radX0) const;
+		 double& dEdXPrime, double& radX0, MatBounds& rzLims) const;
 
   /// (Internals) circular index for array of transients
   int cIndex_(int ind) const;
@@ -218,6 +222,10 @@ class SteppingHelixPropagator : public Propagator {
   /// (Internals) determine distance and direction from the current position to the 
   /// boundary of current mag volume
   Result refToMagVolume(const SteppingHelixPropagator::StateInfo& sv,
+			PropagationDirection dir,
+			double& dist, double& tanDist) const;
+
+  Result refToMatVolume(const SteppingHelixPropagator::StateInfo& sv,
 			PropagationDirection dir,
 			double& dist, double& tanDist) const;
 
@@ -242,6 +250,7 @@ class SteppingHelixPropagator : public Propagator {
   bool noErrorPropagation_;
   bool applyRadX0Correction_;
   bool useMagVolumes_;
+  bool useMatVolumes_;
 
   double defaultStep_;
 };
