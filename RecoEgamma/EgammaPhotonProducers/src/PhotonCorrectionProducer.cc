@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu May 25 11:10:50 CDT 2006
-// $Id$
+// $Id: PhotonCorrectionProducer.cc,v 1.11 2006/12/17 14:13:41 futyand Exp $
 //
 
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonCorrectionProducer.h"
@@ -21,12 +21,18 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+
+#include "RecoEgamma/EgammaPhotonAlgos/interface/EtaPtdrCorrectionAlgo.h"
+#include "RecoEgamma/EgammaPhotonAlgos/interface/PhiPtdrCorrectionAlgo.h"
+#include "RecoEgamma/EgammaPhotonAlgos/interface/E1E9PtdrCorrectionAlgo.h"
+#include "RecoEgamma/EgammaPhotonAlgos/interface/E9ESCPtdrCorrectionAlgo.h"
+
 #include "RecoEgamma/EgammaPhotonAlgos/interface/EtaCorrectionAlgo.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/E1E9CorrectionAlgo.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/E9ESCCorrectionAlgo.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonBasketBorderCorrectionAlgo.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 PhotonCorrectionProducer::PhotonCorrectionProducer(const edm::ParameterSet& ps)
 {
@@ -95,18 +101,24 @@ void PhotonCorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& e
       edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product "<<endcapClusterShapeMapCollection_.c_str();
     }
        
-  for (reco::PhotonCollection::const_iterator phItr = photonCollection.begin(); phItr != photonCollection.end(); phItr++)
+  for (reco::PhotonCollection::const_iterator ph = photonCollection.begin(); ph != photonCollection.end(); ph++)
     {
-      reco::Photon corPhoton = *phItr;
+      double corrfactor = 1.;
       for(std::vector<PhotonCorrectionAlgoBase*>::const_iterator algoItr = algo_v.begin(); algoItr != algo_v.end(); algoItr++)
 	{
-	  DetId id = corPhoton.superCluster()->seed()->getHitsByDetId()[0];
-	  bool isBarrel = (id.subdetId() == EcalBarrel);
-	  const reco::BasicClusterShapeAssociationCollection& clusterShapeCollection = isBarrel ? (*barrelClShpHandle) : (*endcapClShpHandle);
-	  reco::Photon newPhotonCand =  isBarrel ? (*algoItr)->applyBarrelCorrection(corPhoton, clusterShapeCollection) : (*algoItr)->applyEndcapCorrection(corPhoton, clusterShapeCollection);;
-	  corPhoton = newPhotonCand;
-	}      
-      photon_ap->push_back(corPhoton);       
+	  DetId id = ph->superCluster()->seed()->getHitsByDetId()[0];
+	  if (id.subdetId() == EcalBarrel) {
+	    corrfactor *= (*algoItr)->barrelCorrection(*ph,*barrelClShpHandle);
+	    //std::cout << "barrel correction factor = " << corrfactor << std::endl;
+	  } else {
+	    corrfactor *= (*algoItr)->endcapCorrection(*ph,*endcapClShpHandle);
+	    //std::cout << "endcap correction factor = " << corrfactor << std::endl;
+	  }
+	}
+      reco::Photon correctedPhoton(ph->charge(), ph->p4()*corrfactor, ph->r9(), ph->r19(), ph->e5x5(), ph->vertex());
+      //std::cout << "photon energy before, after correction: " << ph->energy() << ", " << correctedPhoton.energy() << std::endl;
+      correctedPhoton.setSuperCluster(ph->superCluster());
+      photon_ap->push_back(correctedPhoton);
     }
   
   evt.put(photon_ap, photonCorrCollection_);
@@ -115,7 +127,13 @@ void PhotonCorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& e
 
 void PhotonCorrectionProducer::registorAlgos()
 {
-  //register all algorithms
+  //register PTDR algorithms
+  algo_m["E9ESCPtdr"] = new E9ESCPtdrCorrectionAlgo;
+  algo_m["PhiPtdr"]   = new PhiPtdrCorrectionAlgo;
+  algo_m["EtaPtdr"]   = new EtaPtdrCorrectionAlgo;
+  algo_m["E1E9Ptdr"]  = new E1E9PtdrCorrectionAlgo;
+
+  //register ORCA algorithms
   algo_m["E9ESC"] = new E9ESCCorrectionAlgo;
   algo_m["Eta"]   = new EtaCorrectionAlgo;
   algo_m["E1E9"]  = new E1E9CorrectionAlgo;
