@@ -424,10 +424,23 @@ namespace edm {
   void adjustForDefaultService(vector<ParameterSet>& adjust,
 			       string const& service)
   {
-    typedef std::vector<edm::ParameterSet>::const_iterator Iter;
+    typedef std::vector<edm::ParameterSet>::iterator Iter;
     for(Iter it = adjust.begin(), itEnd = adjust.end(); it != itEnd; ++it) {
 	string name = it->getParameter<std::string>("@service_type");
-	if (name == service) return;
+
+	if (name == service) {
+ 
+          // If the service is already there move it to the end so
+          // it will be created before all the others already there
+          // This means we use the order from the default services list
+          // and the parameters from the configuration file
+          while (true) {
+            Iter iterNext = it + 1;
+            if (iterNext == itEnd) return;
+            iter_swap(it, iterNext);
+            ++it;
+          }
+        }
     }
     adjustForService(adjust, service);
   }
@@ -548,23 +561,30 @@ namespace edm {
     shared_ptr<vector<ParameterSet> > pServiceSets;
     shared_ptr<ParameterSet> processParamsPtr; // change this name!
     makeParameterSets(config, processParamsPtr, pServiceSets);
-    for(vector<string>::const_iterator i = defaultServices.begin(), iEnd = defaultServices.end();
-	 i != iEnd; ++i) {
-      adjustForDefaultService(*(pServiceSets.get()), *i);
-    }
-    for(vector<string>::const_iterator j = forcedServices.begin(), jEnd = forcedServices.end();
+
+    // Add the forced and default services to pServiceSets.
+    // In pServiceSets, we want the default services first, then the forced
+    // services, then the services from the configuration.  It is efficient
+    // and convenient to add them in reverse order.  Then after we are done
+    // adding, we reverse the vector again to get the desired order.
+    std::reverse(pServiceSets->begin(), pServiceSets->end());
+    for(vector<string>::const_reverse_iterator j = forcedServices.rbegin(),
+                                            jEnd = forcedServices.rend();
 	 j != jEnd; ++j) {
       adjustForService(*(pServiceSets.get()), *j);
     }
+    for(vector<string>::const_reverse_iterator i = defaultServices.rbegin(),
+                                            iEnd = defaultServices.rend();
+	 i != iEnd; ++i) {
+      adjustForDefaultService(*(pServiceSets.get()), *i);
+    }
+    std::reverse(pServiceSets->begin(), pServiceSets->end());
 
     //create the services
     ServiceToken tempToken(ServiceRegistry::createSet(*pServiceSets, iToken, iLegacy));
 
-    //using copySlotsTo rather than just connectTo allows a performance improvement
-    // since slots are called directly rather than indirectly through another ActivityRegistry
-    // The downside is if items were added to 'tempToken' then 'actReg_' would not see the changes
-    // However, in this case since tempToken is a temporary, the use of copySlotsTo is safe
-    //tempToken.connectTo(*actReg_);
+    // Copy slots that hold all the registered callback functions like
+    // PostBeginJob into an ActivityRegistry that is owned by EventProcessor
     tempToken.copySlotsTo(*actReg_); 
     
     //add the ProductRegistry as a service ONLY for the construction phase

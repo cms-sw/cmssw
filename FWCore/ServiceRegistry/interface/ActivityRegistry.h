@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:53:09 EDT 2005
-// $Id: ActivityRegistry.h,v 1.13 2006/12/09 03:20:27 chrjones Exp $
+// $Id: ActivityRegistry.h,v 1.14 2007/01/09 17:26:53 chrjones Exp $
 //
 
 // system include files
@@ -58,7 +58,8 @@ namespace edm {
       ///signal is emitted after all modules have gotten their endJob called
       PostEndJob postEndJobSignal_;
       void watchPostEndJob(const PostEndJob::slot_type& iSlot) {
-         postEndJobSignal_.connect(iSlot);
+         PostEndJob::slot_list_type sl = postEndJobSignal_.slots();
+         sl.push_front(iSlot);
       }
       AR_WATCH_USING_METHOD_0(watchPostEndJob)
 
@@ -68,7 +69,8 @@ namespace edm {
       JobFailure    jobFailureSignal_;
       ///convenience function for attaching to signal
       void watchJobFailure(const JobFailure::slot_type& iSlot) {
-         jobFailureSignal_.connect(iSlot);
+         JobFailure::slot_list_type sl = jobFailureSignal_.slots();
+         sl.push_front(iSlot);
       }
       AR_WATCH_USING_METHOD_0(watchJobFailure)
       
@@ -84,7 +86,8 @@ namespace edm {
         typedef sigc::signal<void> PostSource;
       PostSource postSourceSignal_;
       void watchPostSource(const PostSource::slot_type& iSlot) {
-        postSourceSignal_.connect(iSlot);
+         PostSource::slot_list_type sl = postSourceSignal_.slots();
+         sl.push_front(iSlot);
       }
       AR_WATCH_USING_METHOD_0(watchPostSource)
         
@@ -101,7 +104,8 @@ namespace edm {
       /// signal is emitted after all modules have finished processing the Event
       PostProcessEvent postProcessEventSignal_;
       void watchPostProcessEvent(const PostProcessEvent::slot_type& iSlot) {
-         postProcessEventSignal_.connect(iSlot);
+         PostProcessEvent::slot_list_type sl = postProcessEventSignal_.slots();
+         sl.push_front(iSlot);
       }
       AR_WATCH_USING_METHOD_2(watchPostProcessEvent)
 
@@ -117,7 +121,8 @@ namespace edm {
       typedef sigc::signal<void , const std::string&, const HLTPathStatus&> PostProcessPath;
       PostProcessPath postProcessPathSignal_;
       void watchPostProcessPath(const PostProcessPath::slot_type& iSlot) {
-        postProcessPathSignal_.connect(iSlot);
+         PostProcessPath::slot_list_type sl = postProcessPathSignal_.slots();
+         sl.push_front(iSlot);
       }  
       AR_WATCH_USING_METHOD_2(watchPostProcessPath)
         
@@ -133,7 +138,8 @@ namespace edm {
       typedef sigc::signal<void, const ModuleDescription&> PostModuleConstruction;
       PostModuleConstruction postModuleConstructionSignal_;
       void watchPostModuleConstruction(const PostModuleConstruction::slot_type& iSlot) {
-         postModuleConstructionSignal_.connect(iSlot);
+         PostModuleConstruction::slot_list_type sl = postModuleConstructionSignal_.slots();
+         sl.push_front(iSlot);
       }
       AR_WATCH_USING_METHOD_1(watchPostModuleConstruction)
 
@@ -149,7 +155,8 @@ namespace edm {
       typedef sigc::signal<void, const ModuleDescription&> PostModuleBeginJob;
       PostModuleBeginJob postModuleBeginJobSignal_;
       void watchPostModuleBeginJob(const PostModuleBeginJob::slot_type& iSlot) {
-        postModuleBeginJobSignal_.connect(iSlot);
+         PostModuleBeginJob::slot_list_type sl = postModuleBeginJobSignal_.slots();
+         sl.push_front(iSlot);
       }
       AR_WATCH_USING_METHOD_1(watchPostModuleBeginJob)
         
@@ -165,7 +172,8 @@ namespace edm {
       typedef sigc::signal<void, const ModuleDescription&> PostModuleEndJob;
       PostModuleEndJob postModuleEndJobSignal_;
       void watchPostModuleEndJob(const PostModuleEndJob::slot_type& iSlot) {
-        postModuleEndJobSignal_.connect(iSlot);
+         PostModuleEndJob::slot_list_type sl = postModuleEndJobSignal_.slots();
+         sl.push_front(iSlot);
       }
       AR_WATCH_USING_METHOD_1(watchPostModuleEndJob)
         
@@ -181,7 +189,8 @@ namespace edm {
       typedef sigc::signal<void, const ModuleDescription&> PostModule;
       PostModule postModuleSignal_;
       void watchPostModule(const PostModule::slot_type& iSlot) {
-         postModuleSignal_.connect(iSlot);
+         PostModule::slot_list_type sl = postModuleSignal_.slots();
+         sl.push_front(iSlot);
       }
       AR_WATCH_USING_METHOD_1(watchPostModule)
          
@@ -197,7 +206,8 @@ namespace edm {
         typedef sigc::signal<void, const ModuleDescription&> PostSourceConstruction;
       PostSourceConstruction postSourceConstructionSignal_;
       void watchPostSourceConstruction(const PostSourceConstruction::slot_type& iSlot) {
-        postSourceConstructionSignal_.connect(iSlot);
+         PostSourceConstruction::slot_list_type sl = postSourceConstructionSignal_.slots();
+         sl.push_front(iSlot);
       }
       AR_WATCH_USING_METHOD_1(watchPostSourceConstruction)
         // ---------- member functions ---------------------------
@@ -208,6 +218,8 @@ namespace edm {
       ///copy the slots from iOther and connect them directly to our own
       /// this allows us to 'forward' signals more efficiently,
       /// BUT if iOther gains new slots after this call, we will not see them
+      /// This is also careful to keep the order of the slots proper
+      /// for services.
       void copySlotsFrom(ActivityRegistry& iOther);
       
    private:

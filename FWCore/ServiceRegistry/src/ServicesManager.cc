@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:19 EDT 2005
-// $Id: ServicesManager.cc,v 1.8 2006/08/08 00:37:05 chrjones Exp $
+// $Id: ServicesManager.cc,v 1.9 2007/01/19 04:38:40 wmtan Exp $
 //
 
 // system include files
@@ -63,8 +63,8 @@ type2Maker_(new Type2Maker)
 ServicesManager::ServicesManager(ServiceToken iToken,
                                  ServiceLegacy iLegacy,
                                  const std::vector<edm::ParameterSet>& iConfiguration):
-type2Maker_(new Type2Maker),
-associatedManager_(iToken.manager_)
+  associatedManager_(iToken.manager_),
+  type2Maker_(new Type2Maker)
 {
    fillListOfMakers(iConfiguration);
 
@@ -126,13 +126,10 @@ associatedManager_(iToken.manager_)
             }
             break;
       }
+      //make sure our signals are propagated to our 'inherited' Services
+      registry_.copySlotsFrom(associatedManager_->registry_); 
    }
    createServices();
-
-   //make sure our signals are propagated to our 'inherited' Services
-   if(0 != associatedManager_.get()) {
-      registry_.connect(associatedManager_->registry_);
-   }
 }
 
 // ServicesManager::ServicesManager(const ServicesManager& rhs)
@@ -140,10 +137,32 @@ associatedManager_(iToken.manager_)
 //    // do actual copying here;
 // }
 
-//ServicesManager::~ServicesManager()
-//{
-//}
-   
+ServicesManager::~ServicesManager()
+{
+   // Force the Service destructors to execute in the reverse order of construction.
+   // Note that services passed in by a token are not included in this loop and
+   // do not get destroyed until the ServicesManager object that created them is destroyed
+   // which occurs after the body of this destructor is executed (the correct order).
+   // Services directly passed in by a put and not created in the constructor
+   // may or not be detroyed in the desired order because this class does not control
+   // their creation (as I'm writing this comment everything in a standard cmsRun
+   // executable is destroyed in the desired order).
+   for (std::vector<TypeIDBase>::const_reverse_iterator idIter = actualCreationOrder_.rbegin(),
+                                                         idEnd = actualCreationOrder_.rend();
+        idIter != idEnd;
+        ++idIter) {
+
+      Type2Service::iterator itService = type2Service_.find(*idIter);
+
+      if (itService != type2Service_.end()) {
+
+         // This will cause the Service's destruction if
+         // there are no other shared pointers around
+         itService->second.reset();
+      }
+   }
+}
+
 //
 // assignment operators
 //
@@ -193,6 +212,7 @@ ServicesManager::fillListOfMakers(const std::vector<edm::ParameterSet>& iConfigu
         ++itParam) {
       boost::shared_ptr<ServiceMakerBase> base(
                                                ServicePluginFactory::get()->create(itParam->getParameter<std::string>("@service_type")));
+
       if(0 == base.get()) {
          throw edm::Exception(edm::errors::Configuration, "Service")
          <<"could not find a service named "
@@ -211,6 +231,7 @@ ServicesManager::fillListOfMakers(const std::vector<edm::ParameterSet>& iConfigu
                                                   MakerHolder(base,
                                                               *itParam,
                                                               registry_)));
+      requestedCreationOrder_.push_back(TypeIDBase(base->serviceType()));
    }
    
 }
@@ -238,18 +259,26 @@ ServicesManager::createServices()
    //Now, make each Service.  If a service depends on a service that has yet to be
    // created, that other service will automatically be made
    
-   
-   for(Type2Maker::iterator itMaker = type2Maker_->begin(), itMakerEnd = type2Maker_->end();
-        itMaker != itMakerEnd;
-        ++itMaker) {
-      try{
+   for (std::vector<TypeIDBase>::const_iterator idIter = requestedCreationOrder_.begin(),
+	                                         idEnd = requestedCreationOrder_.end();
+        idIter != idEnd;
+        ++idIter) {
+     Type2Maker::iterator itMaker = type2Maker_->find(*idIter);
+
+     // Check to make sure this maker is still there.  They are deleted
+     // sometimes and that is OK.
+     if (itMaker != type2Maker_->end()) {
+       try {
+         // This creates the service
          itMaker->second.add(*this);
-      }catch(cms::Exception& iException){
+       }
+       catch(cms::Exception& iException) {
          edm::Exception toThrow(edm::errors::Configuration,"Error occured while creating ");
          toThrow<<itMaker->second.pset_->getParameter<std::string>("@service_type")<<"\n";
          toThrow.append(iException);
          throw toThrow;
-      }
+       }
+     }
    }
    
    //No longer need the makers

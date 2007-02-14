@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep  6 10:26:49 EDT 2005
-// $Id: ActivityRegistry.cc,v 1.10 2006/12/09 03:20:30 chrjones Exp $
+// $Id: ActivityRegistry.cc,v 1.11 2007/01/09 17:26:56 chrjones Exp $
 //
 
 // system include files
@@ -101,37 +101,69 @@ copySlotsToFrom(T& iTo, T& iFrom)
   std::for_each(slots.begin(),slots.end(),
                 boost::bind( &T::connect, iTo, _1) );
 }
+
+template<class T>
+static
+inline
+void
+copySlotsToFromReverse(T& iTo, T& iFrom)
+{
+  // This handles service slots that are supposed to be in reverse
+  // order of construction. Copying new ones in is a little
+  // tricky.  Here is an example of what follows
+  // slots in iTo before  4 3 2 1  and copy in slots in iFrom 8 7 6 5
+  // reverse both  1 2 3 4  plus 5 6 7 8
+  // then do the copy 1 2 3 4 5 6 7 8
+  // then reverse back again to get the desired order
+  // 8 7 6 5 4 3 2 1
+
+  typename T::slot_list_type slotsFrom = iFrom.slots();
+  typename T::slot_list_type slotsTo   = iTo.slots();
+  
+  std::reverse(slotsTo.begin(), slotsTo.end());
+  std::reverse(slotsFrom.begin(), slotsFrom.end());
+
+  std::for_each(slotsFrom.begin(),slotsFrom.end(),
+                boost::bind( &T::connect, iTo, _1) );
+
+  std::reverse(slotsTo.begin(), slotsTo.end());
+
+  // Be nice and put these back in the state they were
+  // at the beginning
+  std::reverse(slotsFrom.begin(), slotsFrom.end());
+}
+
 void 
 edm::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
 {
   copySlotsToFrom(postBeginJobSignal_,iOther.postBeginJobSignal_);
-  copySlotsToFrom(postEndJobSignal_,iOther.postEndJobSignal_);
+  copySlotsToFromReverse(postEndJobSignal_,iOther.postEndJobSignal_);
   
-  copySlotsToFrom(jobFailureSignal_,iOther.jobFailureSignal_);
+  copySlotsToFromReverse(jobFailureSignal_,iOther.jobFailureSignal_);
   
   copySlotsToFrom(preSourceSignal_,iOther.preSourceSignal_);
-  copySlotsToFrom(postSourceSignal_,iOther.postSourceSignal_);
+  copySlotsToFromReverse(postSourceSignal_,iOther.postSourceSignal_);
   
   copySlotsToFrom(preProcessEventSignal_,iOther.preProcessEventSignal_);
-  copySlotsToFrom(postProcessEventSignal_,iOther.postProcessEventSignal_);
+  copySlotsToFromReverse(postProcessEventSignal_,iOther.postProcessEventSignal_);
   
   copySlotsToFrom(preProcessPathSignal_,iOther.preProcessPathSignal_);
-  copySlotsToFrom(postProcessPathSignal_,iOther.postProcessPathSignal_);
+  copySlotsToFromReverse(postProcessPathSignal_,iOther.postProcessPathSignal_);
 
   copySlotsToFrom(preModuleSignal_,iOther.preModuleSignal_);
-  copySlotsToFrom(postModuleSignal_,iOther.postModuleSignal_);
+  copySlotsToFromReverse(postModuleSignal_,iOther.postModuleSignal_);
   
   copySlotsToFrom(preModuleConstructionSignal_,iOther.preModuleConstructionSignal_);
-  copySlotsToFrom(postModuleConstructionSignal_,iOther.postModuleConstructionSignal_);
+  copySlotsToFromReverse(postModuleConstructionSignal_,iOther.postModuleConstructionSignal_);
   
   copySlotsToFrom(preModuleBeginJobSignal_,iOther.preModuleBeginJobSignal_);
-  copySlotsToFrom(postModuleBeginJobSignal_,iOther.postModuleBeginJobSignal_);
+  copySlotsToFromReverse(postModuleBeginJobSignal_,iOther.postModuleBeginJobSignal_);
   
   copySlotsToFrom(preModuleEndJobSignal_,iOther.preModuleEndJobSignal_);
-  copySlotsToFrom(postModuleEndJobSignal_,iOther.postModuleEndJobSignal_);
+  copySlotsToFromReverse(postModuleEndJobSignal_,iOther.postModuleEndJobSignal_);
   
   copySlotsToFrom(preSourceConstructionSignal_,iOther.preSourceConstructionSignal_);
-  copySlotsToFrom(postSourceConstructionSignal_,iOther.postSourceConstructionSignal_);
+  copySlotsToFromReverse(postSourceConstructionSignal_,iOther.postSourceConstructionSignal_);
   
 }
 
