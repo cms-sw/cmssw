@@ -1,0 +1,11 @@
+     <lcgdict>
+        <class name="CalibratedHistogram"/>
+        <class name="std::vector<float>"/>
+
+        <class name="TrackProbabilityCategoryData"/>
+        
+        <class name="TrackProbabilityCalibration"/>
+	<class name="TrackProbabilityCalibration::Entry"/>
+	<class name="std::vector<TrackProbabilityCalibration::Entry>"/>     
+  <class pattern="*iterator*"/>
+</lcgdict>   
