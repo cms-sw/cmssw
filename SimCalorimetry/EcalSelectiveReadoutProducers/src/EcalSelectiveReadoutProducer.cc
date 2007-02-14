@@ -21,15 +21,18 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
    eedigiCollection_ = params.getParameter<std::string>("EEdigiCollection");
    ebSRPdigiCollection_ = params.getParameter<std::string>("EBSRPdigiCollection");
    eeSRPdigiCollection_ = params.getParameter<std::string>("EESRPdigiCollection");
+   ebSrFlagCollection_ = params.getParameter<std::string>("EBSrFlagCollection");
+   eeSrFlagCollection_ = params.getParameter<std::string>("EESrFlagCollection");
    trigPrimProducer_ = params.getParameter<string>("trigPrimProducer");
    trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
    dumpFlags_ = params.getUntrackedParameter<int>("dumpFlags", 0);
    //instantiates the selective readout algorithm:
    suppressor_ = auto_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params));
-
    //declares the products made by this producer:
    produces<EBDigiCollection>(ebSRPdigiCollection_);
    produces<EEDigiCollection>(eeSRPdigiCollection_);
+   produces<EBSrFlagCollection>(ebSrFlagCollection_);
+   produces<EESrFlagCollection>(eeSrFlagCollection_);
 }
 
 
@@ -50,40 +53,49 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
   const EcalTrigPrimDigiCollection* trigPrims =
     trigPrimBypass_?&emptyTPColl:getTrigPrims(event);
 
-
-  static int iEvent = 0;
-  stringstream buffer;
-  
-  if(dumpFlags_>iEvent){
-    buffer << "TTFMap_" << event.id(); //iEvent;
-    ofstream ttfFile(buffer.str().c_str());
-    printTTFlags(*trigPrims, ttfFile);
-  }
   
   //gets the digis from the events:
   const EBDigiCollection* ebDigis = getEBDigis(event);
   const EEDigiCollection* eeDigis = getEEDigis(event);
   
   //runs the selective readout algorithm:
-  auto_ptr<EBDigiCollection> selectedEBDigi(new EBDigiCollection);
-  auto_ptr<EEDigiCollection> selectedEEDigi(new EEDigiCollection);
+  auto_ptr<EBDigiCollection> selectedEBDigis(new EBDigiCollection);
+  auto_ptr<EEDigiCollection> selectedEEDigis(new EEDigiCollection);
+  auto_ptr<EBSrFlagCollection> ebSrFlags(new EBSrFlagCollection);
+  auto_ptr<EESrFlagCollection> eeSrFlags(new EESrFlagCollection);
 
   suppressor_->run(eventSetup, *trigPrims, *ebDigis, *eeDigis,
-		   *selectedEBDigi, *selectedEEDigi);
+		   *selectedEBDigis, *selectedEEDigis,
+		   *ebSrFlags, *eeSrFlags);
+
+  static int iEvent = 1;
+  if(dumpFlags_>=iEvent){
+    ofstream ttfFile("TTF.txt", (iEvent==1?ios::trunc:ios::app));
+    suppressor_->printTTFlags(ttfFile, iEvent,
+			      iEvent==1?true:false);
   
-  if(dumpFlags_>iEvent){
-    buffer.str("");
-    buffer << "SRFMap_" << event.id();//iEvent;
-    ofstream srfFile(buffer.str().c_str());
-    suppressor_->getEcalSelectiveReadout()->printHeader(srfFile);
+    ofstream srfFile("SRF.txt", (iEvent==1?ios::trunc:ios::app));
+    if(iEvent==1){
+      suppressor_->getEcalSelectiveReadout()->printHeader(srfFile);
+    }
+    srfFile << "# Event " << iEvent << "\n";
     suppressor_->getEcalSelectiveReadout()->print(srfFile);
+    srfFile << "\n";
+
+    ofstream afFile("AF.txt", (iEvent==1?ios::trunc:ios::ate));
+    printSrFlags(afFile, *ebSrFlags, *eeSrFlags, iEvent,
+		 iEvent==1?true:false);
   }
   
   ++iEvent; //event counter
   
   //puts the selected digis into the event:
-  event.put(selectedEBDigi, ebSRPdigiCollection_);
-  event.put(selectedEEDigi, eeSRPdigiCollection_);
+  event.put(selectedEBDigis, ebSRPdigiCollection_);
+  event.put(selectedEEDigis, eeSRPdigiCollection_);
+  
+  //puts the SR flags into the event:
+  event.put(ebSrFlags, ebSrFlagCollection_);
+  event.put(eeSrFlags, eeSrFlagCollection_);
   
 }
 
@@ -175,10 +187,10 @@ void EcalSelectiveReadoutProducer::printTTFlags(const EcalTrigPrimDigiCollection
       it != tp.end(); ++it){
     const EcalTriggerPrimitiveDigi& trigPrim = *it;
     if(trigPrim.size()>0){
-      int iEta0 = trigPrim.id().ieta();
-      int iEta = iEta0<0?iEta0+nEta/2:iEta0+nEta/2-1;
-      int iPhi = trigPrim.id().iphi() - 1;
-      ttf[iEta][iPhi] = trigPrim[4].ttFlag();
+      int iEta = trigPrim.id().ieta();
+      int iEta0 = iEta<0?iEta+nEta/2:iEta+nEta/2-1;
+      int iPhi0 = trigPrim.id().iphi() - 1;
+      ttf[iEta0][iPhi0] = trigPrim.ttFlag();
     }
   }
   for(int iEta=0; iEta<nEta; ++iEta){
@@ -249,4 +261,143 @@ EcalSelectiveReadoutProducer::getBinOfMax(const edm::Event& evt,
     rc = false;
   }
   return rc;
+}
+
+void
+EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
+					   const EBSrFlagCollection& ebSrFlags,
+					   const EESrFlagCollection& eeSrFlags,
+					   int iEvent,
+					   bool withHeader){
+  const char srpFlagMarker[] = {'.', 'z', 'Z', 'F', '4','5','6','7'};
+  if(withHeader){
+    time_t t;
+    time(&t);
+    const char* date = ctime(&t);
+    os << "#SRP flag map\n#\n"
+      "# Generatied on: " << date << "\n#\n"
+      "# +-->Phi/Y " << srpFlagMarker[0] << ": suppressed\n"
+      "# |         " << srpFlagMarker[1] << ": ZS 1\n"
+      "# |         " << srpFlagMarker[2] << ": ZS 2\n"
+      "# V Eta/X   " << srpFlagMarker[3] << ": full readout\n"
+      "#\n";    
+  }
+
+  //EE-,EB,EE+ map wil be written onto file in following format:
+  //
+  //      72
+  // <-------------->
+  //  20
+  // <--->
+  //  EEE                A             +-----> Y
+  // EEEEE               |             |
+  // EE EE               | 20   EE-    |
+  // EEEEE               |             |
+  //  EEE                V             V X
+  // BBBBBBBBBBBBBBBBB   A
+  // BBBBBBBBBBBBBBBBB   |             +-----> Phi
+  // BBBBBBBBBBBBBBBBB   |             |
+  // BBBBBBBBBBBBBBBBB   | 34  EB      |
+  // BBBBBBBBBBBBBBBBB   |             |
+  // BBBBBBBBBBBBBBBBB   |             V Eta
+  // BBBBBBBBBBBBBBBBB   |
+  // BBBBBBBBBBBBBBBBB   |
+  // BBBBBBBBBBBBBBBBB   V
+  //  EEE                A             +-----> Y
+  // EEEEE               |             |
+  // EE EE               | 20 EE+      |
+  // EEEEE               |             |
+  //  EEE                V             V X
+  //
+  //
+  //
+  //
+  //event header:
+  if(iEvent>=0){
+    os << "# Event " << iEvent << "\n";
+  }
+
+  //retrieve flags:
+  const int nEndcaps = 2;
+  const int nScX = 20;
+  const int nScY = 20;
+  int eeSrf[nEndcaps][nScX][nScY];
+  for(size_t i=0; i < sizeof(eeSrf)/sizeof(int); ((int*)eeSrf)[i++] = -1){};
+  for(EESrFlagCollection::const_iterator it = eeSrFlags.begin();
+      it != eeSrFlags.end(); ++it){
+    const EESrFlag& flag = *it;
+    int iZ0 = flag.id().zside()>0?1:0;
+    int iX0 = flag.id().ix()-1;
+    int iY0 = flag.id().iy()-1;
+    assert(iZ0>=0 && iZ0<nEndcaps);
+    assert(iX0>=0 && iX0<nScX);
+    assert(iY0>=0 && iY0<nScY);
+    eeSrf[iZ0][iX0][iY0] = flag.value();
+  }
+  const int nEbTtEta = 34;
+  const int nEeTtEta = 11;
+  const int nTtEta = nEeTtEta*2+nEbTtEta;
+  const int nTtPhi = 72;
+  int ebSrf[nEbTtEta][nTtPhi];
+  for(size_t i=0; i<sizeof(ebSrf)/sizeof(int); ((int*)ebSrf)[i++] = -1){};
+  for(EBSrFlagCollection::const_iterator it = ebSrFlags.begin();
+      it != ebSrFlags.end(); ++it){
+    
+    const EBSrFlag& flag = *it;
+    int iEta = flag.id().ieta();
+    int iEta0 = iEta + nTtEta/2 - (iEta>=0?1:0); //0->55 from eta=-3 to eta=3
+    int iEbEta0 = iEta0 - nEeTtEta;//0->33 from eta=-1.48 to eta=1.48
+    int iPhi0 = flag.id().iphi() - 1;
+    assert(iEbEta0>=0 && iEbEta0<nEbTtEta);
+    assert(iPhi0>=0 && iPhi0<nTtPhi);
+
+//     cout << __FILE__ << ":" << __LINE__ << ": "
+// 	 <<  iEta << "\t" << flag.id().iphi() << " -> "
+// 	 << iEbEta0 << "\t" << iPhi0
+// 	 << "... Flag: " << flag.value() << "\n";
+
+    
+    ebSrf[iEbEta0][iPhi0] = flag.value();
+  }
+  
+  
+  //print flags:
+
+  //EE-
+  for(int iX0=0; iX0<nScX; ++iX0){
+    for(int iY0=0; iY0<nScY; ++iY0){
+      int srFlag = eeSrf[0][iX0][iY0];
+      assert(srFlag>=-1
+	     && srFlag<(int)(sizeof(srpFlagMarker)/sizeof(srpFlagMarker[0])));
+      os << (srFlag==-1?' ':srpFlagMarker[srFlag]);
+    }
+    os << "\n"; //one Y supercystal column per line
+  } //next supercrystal X-index
+   
+  //EB
+  for(int iEta0 = 0;
+      iEta0 < nEbTtEta;
+      ++iEta0){
+    for(int iPhi0 = 0; iPhi0 < nTtPhi; ++iPhi0){
+      int srFlag = ebSrf[iEta0][iPhi0];
+      assert(srFlag>=0
+	     && srFlag<(int)(sizeof(srpFlagMarker)/sizeof(srpFlagMarker[0]))); 
+      os << srpFlagMarker[srFlag];
+    }
+    os << "\n"; //one phi per line
+  }
+   
+  //EE+
+  for(int iX0=0; iX0<nScX; ++iX0){
+    for(int iY0=0; iY0<nScY; ++iY0){
+      int srFlag = eeSrf[1][iX0][iY0];
+      assert(srFlag>=-1
+	     && srFlag<(int)(sizeof(srpFlagMarker)/sizeof(srpFlagMarker[0])));
+      os << (srFlag==-1?' ':srpFlagMarker[srFlag]);
+    }
+    os << "\n"; //one Y supercystal column per line
+  } //next supercrystal X-index
+  
+  //event trailer:
+  os << "\n";
 }

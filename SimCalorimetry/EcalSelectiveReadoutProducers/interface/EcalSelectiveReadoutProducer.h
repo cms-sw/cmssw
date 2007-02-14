@@ -34,6 +34,19 @@ public:
   virtual void
   produce(edm::Event& event, const edm::EventSetup& eventSetup);
 
+  /** Help function to print SR flags.
+   * @param ebSrFlags the action flags of EB
+   * @param eeSrFlag the action flags of EE
+   * @param iEvent event number. Ignored if <0.
+   * @param withHeader, if true an output description is written out as header.
+   */
+  static void
+  printSrFlags(std::ostream& os,
+	       const EBSrFlagCollection& ebSrFlags,
+	       const EESrFlagCollection& eeSrFlags,
+	       int iEvent = -1,
+	       bool withHeader = true);
+  
 private:
 
   /** Sanity check on the DCC FIR filter weights. Log warning or
@@ -72,16 +85,15 @@ private:
   void
   printTTFlags(const EcalTrigPrimDigiCollection& tp, std::ostream& os) const;
   
-  void
-  printSRFHeader(std::ostream& os);
-  
 private:
   std::auto_ptr<EcalSelectiveReadoutSuppressor> suppressor_;
   std::string digiProducer_; // name of module/plugin/producer making digis
-  std::string ebdigiCollection_; // secondary name given to collection of digis
-  std::string eedigiCollection_; // secondary name given to collection of digis
-  std::string ebSRPdigiCollection_; // secondary name given to collection of digis
-  std::string eeSRPdigiCollection_; // secondary name given to collection of digis
+  std::string ebdigiCollection_; // secondary name given to collection of input digis
+  std::string eedigiCollection_; // secondary name given to collection of input digis
+  std::string ebSRPdigiCollection_; // secondary name given to collection of suppressed digis
+  std::string eeSRPdigiCollection_; // secondary name given to collection of suppressed digis
+  std::string ebSrFlagCollection_; // secondary name given to collection of SR flag digis
+  std::string eeSrFlagCollection_; // secondary name given to collection of SR flag digis
   std::string trigPrimProducer_; // name of module/plugin/producer making triggere primitives
 
   // store the pointer, so we don't have to update it every event
