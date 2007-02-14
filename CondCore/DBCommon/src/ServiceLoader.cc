@@ -5,7 +5,7 @@
 #include "PluginManager/PluginManager.h"
 #include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"
-#include "SealKernel/Component.h"
+//#include "SealKernel/Component.h"
 #include "SealKernel/IMessageService.h"
 #include "RelationalAccess/IAuthenticationService.h"
 #include "RelationalAccess/IRelationalService.h"
@@ -13,7 +13,7 @@
 #include "RelationalAccess/IMonitoringService.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
 #include "RelationalStorageService/IBlobStreamingService.h"
-//#include <cstdlib>
+
 cond::ServiceLoader::ServiceLoader():m_isPoolContext(true),m_context(0) {
 }
 cond::ServiceLoader::~ServiceLoader(){
@@ -72,27 +72,14 @@ void cond::ServiceLoader::loadAuthenticationService(cond::AuthenticationMethod m
     this->initLoader();
   }
   std::vector< seal::IHandle<coral::IAuthenticationService> > v_svc;
-  switch ( method ) {
-  case cond::Env :
-    m_loader->load( "CORAL/Services/EnvironmentAuthenticationService" );
-    m_context->query( v_svc );
-    if ( v_svc.empty() ) {
-      throw cond::Exception( "could not locate the coral authentication service" );
-    }
-    break;
-  case cond::XML :
+  if( method== cond::XML ) {
     m_loader->load( "CORAL/Services/XMLAuthenticationService" );
-    m_context->query( v_svc );
-    if ( v_svc.empty() ) {
-      throw cond::Exception( "could not locate the coral authentication service" );
-    }
-    break;
-  default:
+  }else{
     m_loader->load( "CORAL/Services/EnvironmentAuthenticationService" );
-    m_context->query( v_svc );
-    if ( v_svc.empty() ) {
-      throw cond::Exception( "could not locate the coral authentication service" );
-    }
+  }
+  m_loader->context()->query(v_svc);
+  if ( v_svc.empty() ) {
+    throw cond::Exception( "Could not locate authentication service" );
   }
 }
 void cond::ServiceLoader::loadRelationalService(){

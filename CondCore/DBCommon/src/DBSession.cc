@@ -6,6 +6,11 @@
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "ServiceLoader.h"
+#include "SealKernel/Property.h"
+#include "SealKernel/PropertyManager.h"
+#include "RelationalAccess/IAuthenticationService.h"
+#include <boost/filesystem/operations.hpp>
+
 cond::DBSession::DBSession():m_isActive(false),m_loader(new cond::ServiceLoader),m_connectConfig(new cond::ConnectionConfiguration),m_sessionConfig(new cond::SessionConfiguration),m_usePoolContext(true){ 
 }
 cond::DBSession::DBSession(bool usePoolContext):m_isActive(false),m_loader(new cond::ServiceLoader),m_connectConfig(new cond::ConnectionConfiguration),m_sessionConfig(new cond::SessionConfiguration),m_usePoolContext(usePoolContext){ 
@@ -22,14 +27,21 @@ void cond::DBSession::open(){
     m_loader->useOwnContext();
   }
   m_loader->loadMessageService( m_sessionConfig->messageLevel() );
-  /*
-  if( m_sessionConfig->authenticationMethod()==cond::XML ){
-  std::string authpath("CORAL_AUTH_PATH=");
-  authpath+=m_sessionConfig->authName();
-  //::putenv(const_cast<char*>(authpath.c_str()));
-  }
-  */
   m_loader->loadAuthenticationService( m_sessionConfig->authenticationMethod() );
+  if( m_sessionConfig->authenticationMethod()==cond::XML ){
+    boost::filesystem::path authPath( m_sessionConfig->authName() );
+    authPath /= boost::filesystem::path("authentication.xml");
+    std::string authName=authPath.string();
+    size_t nchildren=m_loader->context()->children();
+    for( size_t i=0; i<nchildren; ++i ){
+      seal::Handle<seal::PropertyManager> pmgr=m_loader->context()->child(i)->component<seal::PropertyManager>();
+      std::string scopeName=pmgr->scopeName();
+      //std::cout << "Scope: \"" << scopeName << "\"" << std::endl;
+      if( scopeName=="CORAL/Services/XMLAuthenticationService" ){
+	pmgr->property("AuthenticationFile")->set(authName);
+      }
+    }
+  }
   m_loader->loadConnectionService( *m_connectConfig );
   //optional
   if(  m_sessionConfig->hasStandaloneRelationalService() ){

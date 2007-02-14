@@ -4,7 +4,7 @@
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "boost/filesystem/operations.hpp"
-#include <iostream>
+//#include <iostream>
 cond::ConfigSessionFromParameterSet::ConfigSessionFromParameterSet(
 		       cond::DBSession& session,
 		       const edm::ParameterSet& connectionPset ){
