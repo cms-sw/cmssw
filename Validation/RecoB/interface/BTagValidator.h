@@ -9,7 +9,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.h,v 1.1 2007/02/11 03:32:53 yumiceva Exp $
+ version $Id: BTagValidator.h,v 1.1 2007/02/13 16:31:46 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -51,8 +51,10 @@ class BTagValidator : public edm::EDAnalyzer
     std::string algorithm_;
     std::string rootFile_;    
     std::string DQMFile_;
+	std::string referenceFilename_;
     vstring histogramList_;
-        
+	bool doCompare_;
+	
     // performance analicer base class
     BTagPABaseABC * petBase_;
 };

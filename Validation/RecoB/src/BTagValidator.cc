@@ -6,7 +6,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.cc,v 1.1 2007/02/11 03:32:53 yumiceva Exp $
+ version $Id: BTagValidator.cc,v 1.1 2007/02/13 16:31:46 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -26,6 +26,7 @@ ________________________________________________________________**/
 #include "RecoBTag/Analysis/interface/TrackCountingTagPlotter.h"
 #include "RecoBTag/Analysis/interface/TrackProbabilityTagPlotter.h"
 
+#include "Validation/RecoB/interface/HistoCompare.h"
 
 //
 // constructors and destructor
@@ -34,7 +35,9 @@ BTagValidator::BTagValidator(const edm::ParameterSet& iConfig) :
   algorithm_( iConfig.getParameter<std::string>( "algorithm" ) ),
   rootFile_( iConfig.getParameter<std::string>( "rootfile" ) ),
   DQMFile_( iConfig.getParameter<std::string>( "DQMFile" ) ),
-  histogramList_( iConfig.getParameter<vstring>( "histogramList" ) ) {
+  histogramList_( iConfig.getParameter<vstring>( "histogramList" ) ),
+  referenceFilename_( iConfig.getParameter<std::string>( "ReferenceFilename" ) ),
+  doCompare_( iConfig.getParameter<bool>( "CompareHistograms" ) ) {
 	
 	// change assert to CMS catch exeptions
 	//assert( !algorithm_.empty() ) ;   
@@ -78,14 +81,27 @@ BTagValidator::endJob() {
 	
 	petBase_->endJob();
 
+	std::cout << "=== Begin Validation" << std::endl;
+
 	// Validation section
 	TObject * tObject ;
 
 	// DQM element
-	MonitorElement * monitorElement ;
+	MonitorElement* monElement ;
+	MonitorElement* monElementRes;
 
 	TFile * file = new TFile ( TString ( rootFile_ ) ) ;
-   
+
+	// comparison
+	HistoCompare hcompare;
+
+	if (doCompare_) {
+	  hcompare.SetReferenceFilename(TString(referenceFilename_) );
+	  std::cout << referenceFilename_ << std::endl;
+	}
+	
+	file->cd();
+
 	// get hold of back-end interface
 	DaqMonitorBEInterface * dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 	
@@ -105,18 +121,42 @@ BTagValidator::endJob() {
 			std::cout << "  xmin : " << histogram->GetXaxis()->GetXmin() << std::endl ;
 			std::cout << "  xmax : " << histogram->GetXaxis()->GetXmax() << std::endl ;
 			
-			monitorElement = dbe->book1D (
+			
+			TH1* hresiduals;
+			if (doCompare_) {
+			  std::cout << "  begin comparison"<< std::endl;
+			  hresiduals = hcompare.Compare(histogram, "/DQMData/"+TString(algorithm_)+"/"+TString(histogram->GetName()) );
+			  std::cout << "  comparison result: " << hcompare.GetResult() << std::endl;
+			}
+			file->cd();
+			
+			monElement = dbe->book1D (
 				std::string( histogram->GetName() ),
 				std::string( histogram->GetTitle() ),
 				histogram->GetXaxis()->GetNbins(),
 				histogram->GetXaxis()->GetXmin(),
 				histogram->GetXaxis()->GetXmax()
 				);
-
 			for(Int_t x=0; x<histogram->GetXaxis()->GetNbins(); x++) {
-				monitorElement->setBinContent ( x, histogram->GetBinContent( x ) ) ; 
-				monitorElement->setBinError ( x, histogram->GetBinError( x ) ) ;
-			}  
+			  monElement->setBinContent ( x, histogram->GetBinContent( x ) ) ;
+			  monElement->setBinError ( x, histogram->GetBinError( x ) ) ;
+                        }
+
+			if (doCompare_) {
+			  monElementRes = dbe->book1D (
+						       std::string( hresiduals->GetName() ),
+						       std::string( hresiduals->GetTitle() ),
+						       hresiduals->GetXaxis()->GetNbins(),
+						       hresiduals->GetXaxis()->GetXmin(),
+						       hresiduals->GetXaxis()->GetXmax()
+						       );
+
+			
+			  for(Int_t x=0; x<hresiduals->GetXaxis()->GetNbins(); x++) {
+			    monElementRes->setBinContent ( x, hresiduals->GetBinContent( x ) ) ; 
+			    monElementRes->setBinError ( x, hresiduals->GetBinError( x ) ) ;
+			  }  
+			}
 		}
 		else if ( tObject->IsA()->InheritsFrom( "TH2" ) ) {
 			
@@ -130,7 +170,7 @@ BTagValidator::endJob() {
 			std::cout << "  ymin : " << histogram->GetYaxis()->GetXmin() << std::endl ;
 			std::cout << "  ymax : " << histogram->GetYaxis()->GetXmax() << std::endl ;
                
-			monitorElement = dbe->book2D (
+			monElement = dbe->book2D (
 				std::string( histogram->GetName() ),
 				std::string( histogram->GetTitle() ),
 				histogram->GetXaxis()->GetNbins(),
@@ -143,8 +183,8 @@ BTagValidator::endJob() {
 
 			for(Int_t x=0; x<histogram->GetXaxis()->GetNbins(); x++)
 				for(Int_t y=0; y<histogram->GetYaxis()->GetNbins(); y++) {
-					monitorElement->setBinContent ( x, y, histogram->GetBinContent( x, y ) ) ;                 
-					monitorElement->setBinError ( x, y, histogram->GetBinError( x, y ) ) ;                 
+					monElement->setBinContent ( x, y, histogram->GetBinContent( x, y ) ) ;                 
+					monElement->setBinError ( x, y, histogram->GetBinError( x, y ) ) ;                 
 				}
 		}
 		else if ( tObject->IsA()->InheritsFrom( "TH3" ) ) {
@@ -161,7 +201,7 @@ BTagValidator::endJob() {
 			std::cout << "  zmin : " << histogram->GetZaxis()->GetXmin() << std::endl ;
 			std::cout << "  zmax : " << histogram->GetZaxis()->GetXmax() << std::endl ;
 			
-			monitorElement = dbe->book3D (
+			monElement = dbe->book3D (
 				std::string( histogram->GetName() ),
 				std::string( histogram->GetTitle() ),
 				histogram->GetXaxis()->GetNbins(),
@@ -178,8 +218,8 @@ BTagValidator::endJob() {
 			for(Int_t x=0; x<histogram->GetXaxis()->GetNbins(); x++)
 				for(Int_t y=0; y<histogram->GetYaxis()->GetNbins(); y++)
 					for(Int_t z=0; z<histogram->GetZaxis()->GetNbins(); z++) {
-						monitorElement->setBinContent ( x, y, z, histogram->GetBinContent( x, y, z ) ) ;                 
-						monitorElement->setBinError ( x, y, z, histogram->GetBinError( x, y, z ) ) ;                 
+						monElement->setBinContent ( x, y, z, histogram->GetBinContent( x, y, z ) ) ;                 
+						monElement->setBinError ( x, y, z, histogram->GetBinError( x, y, z ) ) ;                 
 					}
 		}
 	}
