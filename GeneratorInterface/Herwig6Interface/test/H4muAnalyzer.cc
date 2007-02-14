@@ -6,7 +6,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: H4muAnalyzer.cc,v 1.1 2006/11/14 15:15:14 fabstoec Exp $
+// $Id: H4muAnalyzer.cc,v 1.1 2006/11/17 14:00:19 fabstoec Exp $
 //
 //
 
@@ -102,4 +102,4 @@ H4muAnalyzer::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(H4muAnalyzer)
+DEFINE_FWK_MODULE(H4muAnalyzer);
