@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.22 $
-///  last update: $Date: 2007/01/26 17:19:47 $
+///  Revision   : $Revision: 1.23 $
+///  last update: $Date: 2007/02/12 16:28:33 $
 ///  by         : $Author: flucke $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
@@ -236,11 +236,12 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
     aligner.applyAlignments<TrackerGeometry>( &(*theTracker),&(*alignments),&(*alignmentErrors));
   }
   if ( doMuon_ ) {
-    std::auto_ptr<Alignments> dtAlignments(theAlignableTracker->alignments());
-    std::auto_ptr<AlignmentErrors> dtAlignmentErrors(theAlignableTracker->alignmentErrors());
+    std::auto_ptr<Alignments>      dtAlignments(       theAlignableMuon->dtAlignments());
+    std::auto_ptr<AlignmentErrors> dtAlignmentErrors(  theAlignableMuon->dtAlignmentErrors());
+    std::auto_ptr<Alignments>      cscAlignments(      theAlignableMuon->cscAlignments());
+    std::auto_ptr<AlignmentErrors> cscAlignmentErrors( theAlignableMuon->cscAlignmentErrors());
+
     aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrors) );
-    std::auto_ptr<Alignments> cscAlignments(theAlignableTracker->alignments());
-    std::auto_ptr<AlignmentErrors> cscAlignmentErrors(theAlignableTracker->alignmentErrors());
     aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrors) );
   }
 }
@@ -263,29 +264,67 @@ void AlignmentProducer::endOfJob()
     if( !poolDbService.isAvailable() ) // Die if not available
       throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
     
-    // Get alignments+errors
-    Alignments* alignments = theAlignableTracker->alignments();
-    AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
+    if ( doTracker_ ) {
+       // Get alignments+errors
+       Alignments* alignments = theAlignableTracker->alignments();
+       AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
 
-    // Store
-    std::string alignRecordName( "TrackerAlignmentRcd" );
-    std::string errorRecordName( "TrackerAlignmentErrorRcd" );
+       // Store
+       std::string alignRecordName( "TrackerAlignmentRcd" );
+       std::string errorRecordName( "TrackerAlignmentErrorRcd" );
 
-    if ( poolDbService->isNewTagRequest(alignRecordName) )
-      poolDbService->createNewIOV<Alignments>( alignments, poolDbService->endOfTime(), 
-                                               alignRecordName );
-    else
-      poolDbService->appendSinceTime<Alignments>( alignments, poolDbService->currentTime(), 
-                                                  alignRecordName );
-    if ( poolDbService->isNewTagRequest(errorRecordName) )
-      poolDbService->createNewIOV<AlignmentErrors>( alignmentErrors, poolDbService->endOfTime(), 
-                                                    errorRecordName );
-    else
-      poolDbService->appendSinceTime<AlignmentErrors>( alignmentErrors, poolDbService->currentTime(), 
-                                                       errorRecordName );
+       if ( poolDbService->isNewTagRequest(alignRecordName) )
+	  poolDbService->createNewIOV<Alignments>( alignments, poolDbService->endOfTime(), 
+						   alignRecordName );
+       else
+	  poolDbService->appendSinceTime<Alignments>( alignments, poolDbService->currentTime(), 
+						      alignRecordName );
+       if ( poolDbService->isNewTagRequest(errorRecordName) )
+	  poolDbService->createNewIOV<AlignmentErrors>( alignmentErrors, poolDbService->endOfTime(), 
+							errorRecordName );
+       else
+	  poolDbService->appendSinceTime<AlignmentErrors>( alignmentErrors, poolDbService->currentTime(), 
+							   errorRecordName );
+    }
+ 
+    if ( doMuon_ ) {
+       // Get alignments+errors
+       Alignments*      dtAlignments       = theAlignableMuon->dtAlignments();
+       AlignmentErrors* dtAlignmentErrors  = theAlignableMuon->dtAlignmentErrors();
+       Alignments*      cscAlignments      = theAlignableMuon->cscAlignments();
+       AlignmentErrors* cscAlignmentErrors = theAlignableMuon->cscAlignmentErrors();
+
+       std::string dtAlignRecordName( "DTAlignments" );
+       std::string dtErrorRecordName( "DTAlignmentErrors" );
+       std::string cscAlignRecordName( "CSCAlignments" );
+       std::string cscErrorRecordName( "CSCAlignmentErrors" );
+
+       if (poolDbService->isNewTagRequest(dtAlignRecordName)) {
+	  poolDbService->createNewIOV<Alignments>( &(*dtAlignments), poolDbService->endOfTime(), dtAlignRecordName);
+       }
+       else {
+	  poolDbService->appendSinceTime<Alignments>( &(*dtAlignments), poolDbService->currentTime(), dtAlignRecordName);
+       }
+       if (poolDbService->isNewTagRequest(dtErrorRecordName)) {
+	  poolDbService->createNewIOV<AlignmentErrors>( &(*dtAlignmentErrors), poolDbService->endOfTime(), dtErrorRecordName);
+       }
+       else {
+	  poolDbService->appendSinceTime<AlignmentErrors>( &(*dtAlignmentErrors), poolDbService->currentTime(), dtErrorRecordName);
+       }
+       if (poolDbService->isNewTagRequest(cscAlignRecordName)) {
+	  poolDbService->createNewIOV<Alignments>( &(*cscAlignments), poolDbService->endOfTime(), cscAlignRecordName);
+       }
+       else {
+	  poolDbService->appendSinceTime<Alignments>( &(*cscAlignments), poolDbService->currentTime(), cscAlignRecordName);
+       }
+       if (poolDbService->isNewTagRequest(cscErrorRecordName)) {
+	  poolDbService->createNewIOV<AlignmentErrors>( &(*cscAlignmentErrors), poolDbService->endOfTime(), cscErrorRecordName);
+       }
+       else {
+	  poolDbService->appendSinceTime<AlignmentErrors>( &(*cscAlignmentErrors), poolDbService->currentTime(), cscErrorRecordName);
+       }
+    }
   }
-
-
 }
 
 //_____________________________________________________________________________
