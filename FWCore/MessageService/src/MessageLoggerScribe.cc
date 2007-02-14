@@ -88,6 +88,9 @@
 //      .log without needing to place a dot in the Pset name.  Also accept
 //	an explicit filename.
 //
+//  15 - 2/11/06 mf - at bottom
+//	Declared static_errorlog_p
+//
 // ----------------------------------------------------------------------
 
 
@@ -103,12 +106,15 @@
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
+
 #include <algorithm>
 #include <cassert>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
+#include <signal.h>
 
 using std::cerr;
 
@@ -126,7 +132,6 @@ MessageLoggerScribe::MessageLoggerScribe()
 {
   admin_p->setContextSupplier(msg_context);
 }
-
 
 MessageLoggerScribe::~MessageLoggerScribe()
 {
@@ -737,5 +742,9 @@ void
     }
 }
 
+ErrorLog * MessageLoggerScribe::static_errorlog_p;
+
+
 } // end of namespace service  
 } // end of namespace edm  
+

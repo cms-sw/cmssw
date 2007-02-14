@@ -18,6 +18,20 @@
 namespace edm {
 namespace service {       
 
+// ----------------------------------------------------------------------
+//
+// MessageLoggerScribe.cc
+//
+// Changes:
+//
+//   1 - 2/6/07  mf  	
+//	Set up ability to get a remembered pointer to the ErrorLog of an
+//      instance of MessageLoggerScribe, from a non-member function, via
+//	getErrorLog_ptr(), and a corresponding routine to remember the pointer
+//	as setStaticErrorLog_ptr().  Needed if we decide to send an explicit 
+//      message from the scribe.
+//	
+// -----------------------------------------------------------------------
 
 class MessageLoggerScribe
 {
@@ -29,6 +43,9 @@ public:
   // --- receive and act on messages:
   void  run();
 
+  // --- obtain a pointer to the errorlog 
+  static ErrorLog * getErrorLog_ptr() {return static_errorlog_p;}
+  
 private:
   // --- convenience typedefs
   typedef std::string          String;
@@ -64,11 +81,9 @@ private:
     return t;
   }
 
-
-
-
   // --- other helpers
   void parseCategories (std::string const & s, std::vector<std::string> & cats);
+  void setStaticErrorLog_ptr() {static_errorlog_p = errorlog_p;}
   
   // --- data:
   ELadministrator               * admin_p;
@@ -81,7 +96,7 @@ private:
   std::map<String,std::ostream *> stream_ps;
   std::vector<ELdestControl>      statisticsDestControls;
   std::vector<bool>               statisticsResets;
-  
+  static ErrorLog		* static_errorlog_p;
 };  // MessageLoggerScribe
 
 
