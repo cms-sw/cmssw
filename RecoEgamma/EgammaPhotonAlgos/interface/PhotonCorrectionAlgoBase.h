@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 29 14:58:00 CDT 2006
-// $Id$
+// $Id: PhotonCorrectionAlgoBase.h,v 1.1 2006/12/17 14:49:43 futyand Exp $
 //
 
 // system include files
@@ -36,11 +36,9 @@ class PhotonCorrectionAlgoBase
 
       virtual ~PhotonCorrectionAlgoBase(){};
 
-      static float unCorrectedEnergy(const reco::SuperClusterRef& sc);
+      virtual double barrelCorrection(const reco::Photon& ph, const reco::BasicClusterShapeAssociationCollection &clshpMap) = 0;       
 
-      virtual reco::Photon applyBarrelCorrection(const reco::Photon& ph, const reco::BasicClusterShapeAssociationCollection &clshpMap) = 0;       
-
-      virtual reco::Photon applyEndcapCorrection(const reco::Photon& ph, const reco::BasicClusterShapeAssociationCollection &clshpMap) = 0;     
+      virtual double endcapCorrection(const reco::Photon& ph, const reco::BasicClusterShapeAssociationCollection &clshpMap) = 0;     
    private:
 
 
