@@ -2,8 +2,7 @@
     
     Container for ADC<->fQ conversion constants for HCAL QIE
    $Author: ratnikov
-   $Date: 2005/08/18 23:41:41 $
-   $Revision: 1.1 $
+   $Revision: 1.3 by michals$
 */
 
 #include <iostream>
@@ -22,7 +21,7 @@ HcalChannelCoder::HcalChannelCoder (const float fOffset [16], const float fSlope
 
 double HcalChannelCoder::charge (const QieShape& fShape, int fAdc, int fCapId) const {
   int range = (fAdc >> 6) & 0x3;
-  double charge = (fShape.linearization (fAdc) - mOffset [fCapId][range]) * mSlope [fCapId][range];
+  double charge = fShape.linearization (fAdc) / mSlope [fCapId][range] + mOffset [fCapId][range];
 //   std::cout << "HcalChannelCoder::charge-> " << fAdc << '/' << fCapId 
 // 	    << " result: " << charge << std::endl;
   return charge;
@@ -33,7 +32,7 @@ int HcalChannelCoder::adc (const QieShape& fShape, double fCharge, int fCapId) c
   int adc = -1; //nothing found yet
   // search for the range
   for (int range = 0; range < 4; range++) {
-    double qieCharge = fCharge / mSlope [fCapId][range] + mOffset [fCapId][range];
+    double qieCharge = (fCharge - mOffset [fCapId][range]) * mSlope [fCapId][range];
     double qieChargeMax = fShape.linearization (32*range+31) + 0.5 * fShape.binSize (32*range+31);
     if (range == 3 && qieCharge > qieChargeMax) adc = 127; // overflow
     if (qieCharge > qieChargeMax) continue; // next range
