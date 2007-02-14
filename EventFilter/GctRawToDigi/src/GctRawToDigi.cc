@@ -45,8 +45,12 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   //register the products
   produces<L1CaloEmCollection>();
   produces<L1CaloRegionCollection>();
-  produces<L1GctEmCandCollection>();
-  produces<L1GctJetCandCollection>();
+  produces<L1GctEmCandCollection>("isoEm");
+  produces<L1GctEmCandCollection>("nonIsoEm");
+  produces<L1GctEmCandCollection>("GctInterEm");
+  produces<L1GctJetCandCollection>("cenJets");
+  produces<L1GctJetCandCollection>("forJets");
+  produces<L1GctJetCandCollection>("tauJets");
   produces<L1GctEtTotal>();
   produces<L1GctEtHad>();
   produces<L1GctEtMiss>();
@@ -107,13 +111,21 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   std::auto_ptr<L1GctEmCandCollection> gctInterEm(new L1GctEmCandCollection()); 
 
   // GCT output data
-  std::auto_ptr<L1GctEmCandCollection> gctEm(new L1GctEmCandCollection()); 
-//   std::auto_ptr<L1GctJetCandCollection> gctCenJets(new L1GctJetCandCollection()); 
-//   std::auto_ptr<L1GctJetCandCollection> gctForJets(new L1GctJetCandCollection()); 
-//   std::auto_ptr<L1GctJetCandCollection> gctTauJets(new L1GctJetCandCollection()); 
+  std::auto_ptr<L1GctEmCandCollection> gctIsoEm(new L1GctEmCandCollection()); 
+  std::auto_ptr<L1GctEmCandCollection> gctNonIsoEm(new L1GctEmCandCollection()); 
+  std::auto_ptr<L1GctJetCandCollection> gctCenJets(new L1GctJetCandCollection()); 
+  std::auto_ptr<L1GctJetCandCollection> gctForJets(new L1GctJetCandCollection()); 
+  std::auto_ptr<L1GctJetCandCollection> gctTauJets(new L1GctJetCandCollection()); 
+  
+  std::auto_ptr<L1GctEtTotal> etTotResult(new L1GctEtTotal() );
+  std::auto_ptr<L1GctEtHad> etHadResult(new L1GctEtHad() );
+  std::auto_ptr<L1GctEtMiss> etMissResult(new L1GctEtMiss() );
+
 
   // setup converter
-  converter_.setEmCollection(gctEm.get());
+  converter_.setRctEmCollection(rctEm.get());
+  converter_.setIsoEmCollection(gctIsoEm.get());
+  converter_.setNonIsoEmCollection(gctNonIsoEm.get());
   converter_.setInterEmCollection(gctInterEm.get());
 
   // unpacking variables
@@ -150,18 +162,20 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   for (unsigned i=0; i<bHdrs.size(); i++) {
     cout << bHdrs[i]<< endl;
   }
-  cout << "Read " << gctEm.get()->size() << " GCT EM candidates" << endl;
+  cout << "Read " << gctIsoEm.get()->size() << " GCT iso EM candidates" << endl;
+  cout << "Read " << gctNonIsoEm.get()->size() << " GCT non-iso EM candidates" << endl;
+  cout << "Read " << gctInterEm.get()->size() << " GCT intermediate EM candidates" << endl;
 
 
   // put data into the event
-  //  e.put(rctEm);
-  //  e.put(rctRgn);
-  e.put(gctEm, "gctEm");
-  //  e.put(gctInterEm, "GctInterEm");
-  
-  //   e.put(gctCenJets,"cenJets");
-  //   e.put(gctForJets,"forJets");
-  //   e.put(gctTauJets,"tauJets");
+  e.put(rctEm);
+  e.put(rctRgn);
+  e.put(gctIsoEm, "isoEm");
+  e.put(gctNonIsoEm, "nonIsoEm");
+  e.put(gctInterEm, "GctInterEm");
+  e.put(gctCenJets,"cenJets");
+  e.put(gctForJets,"forJets");
+  e.put(gctTauJets,"tauJets");
 
 }
 

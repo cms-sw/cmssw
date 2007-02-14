@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
 
@@ -27,7 +28,9 @@ class GctBlockConverter {
   void convertBlock(const unsigned char * d, unsigned id);
 
   // set collection pointers
-  void setEmCollection(L1GctEmCandCollection* coll) { gctEm = coll; }
+  void setRctEmCollection(L1CaloEmCollection* coll) { rctEm = coll; }
+  void setIsoEmCollection(L1GctEmCandCollection* coll) { gctIsoEm = coll; }
+  void setNonIsoEmCollection(L1GctEmCandCollection* coll) { gctNonIsoEm = coll; }
   void setInterEmCollection(L1GctEmCandCollection* coll) { gctInterEm = coll; }
 
  private:
@@ -38,8 +41,12 @@ class GctBlockConverter {
   // block info
   std::map<unsigned, unsigned> blockLength_;  // size of a block
 
+  // collections of RCT objects
+  L1CaloEmCollection* rctEm;
+
   // collections of output objects
-  L1GctEmCandCollection* gctEm;
+  L1GctEmCandCollection* gctIsoEm;
+  L1GctEmCandCollection* gctNonIsoEm;
   L1GctEmCandCollection* gctInterEm;  
 
 };

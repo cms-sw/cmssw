@@ -39,11 +39,19 @@ void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id) {
     unsigned w1 = data[i*4+2] + data[i*4+3]<<8;
     bool iso;
 
+    // ToDo : split these up into separate methods!
+
     if (id==0x68) {  // ConcElec: Output to Global Trigger
       // formats defined for GT output, no need to change
       iso = (i > 1);
-      gctEm->push_back( L1GctEmCand(w0, iso) );
-      gctEm->push_back( L1GctEmCand(w1, iso) );
+      if (iso) {
+	gctIsoEm->push_back( L1GctEmCand(w0, iso) );
+	gctIsoEm->push_back( L1GctEmCand(w1, iso) );
+      }
+      else {
+	gctNonIsoEm->push_back( L1GctEmCand(w0, iso) );
+	gctNonIsoEm->push_back( L1GctEmCand(w1, iso) );
+      }
     }
     else if (id==0x69) { // ConcElec: Sort Input
       // re-arrange intermediate data to match GT output format
