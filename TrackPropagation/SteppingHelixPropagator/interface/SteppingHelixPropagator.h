@@ -9,22 +9,22 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2007/02/06 20:49:17 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/02/14 06:16:46 $
+ *  $Revision: 1.15 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.14 2007/02/06 20:49:17 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.15 2007/02/14 06:16:46 slava77 Exp $
 //
 //
 
 
 
-#include "Geometry/Vector/interface/GlobalVector.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
