@@ -10,8 +10,13 @@
 <use name=RecoBTag/BTagTools>
 <use name=RecoBTag/Records>
 <use name=RecoVertex/PrimaryVertexProducer>
+<use name=RecoCaloTools/Selectors>
+<use name=RecoCaloTools/MetaCollections>
 <use name=TrackingTools/Records>
 <use name=TrackingTools/TransientTrack>
+<use name=TrackingTools/TrackAssociator>
+<use name=TrackingTools/GeomPropagators>
+<use name=TrackPropagation/SteppingHelixPropagator>
 <use name=boost>
 <use name=rootcore>
 <use name=root>
