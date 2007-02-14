@@ -4,8 +4,8 @@
 /** \class DTROChainCoding
  *  A class for handling the DT Read-out chain.
  *
- *  $Date: 2006/05/30 08:29:06 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/25 15:31:38 $
+ *  $Revision: 1.3 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -14,8 +14,6 @@
 #include <vector>
 
 #include <boost/cstdint.hpp>
-
-using namespace std;
 
 
 /// FIXEME:

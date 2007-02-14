@@ -4,8 +4,8 @@
 /** \class DTROS25Data
  *  The collection containing DT ROS25 status data.
  *
- *  $Date: 2006/04/13 17:14:28 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/25 15:31:38 $
+ *  $Revision: 1.3 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -16,11 +16,9 @@
 #include <vector>
 
 
-using namespace std;
-
-typedef pair<int, DTTDCMeasurementWord> DTTDCData;
-typedef pair<int, DTTDCErrorWord> DTTDCError;
-typedef pair<DTLocalTriggerDataWord, int> DTSectorCollectorData;
+typedef std::pair<int, DTTDCMeasurementWord> DTTDCData;
+typedef std::pair<int, DTTDCErrorWord> DTTDCError;
+typedef std::pair<DTLocalTriggerDataWord, int> DTSectorCollectorData;
 
 class DTROS25Data {
 
@@ -49,26 +47,26 @@ public:
   inline int getROSID() const { return theROSId; } 
 
   inline const DTROSTrailerWord & getROSTrailer() const {return theROSTrailer;}
-  inline const vector<DTROSErrorWord>& getROSErrors() const {return theROSErrors;}
-  inline const vector<DTROSDebugWord>& getROSDebugs() const {return theROSDebugs;}
-  inline const vector<DTROBTrailerWord>& getROBTrailers() const {return theROBTrailers;}
-  inline const vector<DTTDCMeasurementWord>& getTDCMeasurements() const {return theTDCMeasurements;}
-  inline const vector<DTTDCData>& getTDCData() const {return theTDCData;}
-  inline const vector<DTTDCError>& getTDCError() const {return theTDCError;}
-  inline const vector<DTSectorCollectorData>& getSCData() const {return theSCData;}
+  inline const std::vector<DTROSErrorWord>& getROSErrors() const {return theROSErrors;}
+  inline const std::vector<DTROSDebugWord>& getROSDebugs() const {return theROSDebugs;}
+  inline const std::vector<DTROBTrailerWord>& getROBTrailers() const {return theROBTrailers;}
+  inline const std::vector<DTTDCMeasurementWord>& getTDCMeasurements() const {return theTDCMeasurements;}
+  inline const std::vector<DTTDCData>& getTDCData() const {return theTDCData;}
+  inline const std::vector<DTTDCError>& getTDCError() const {return theTDCError;}
+  inline const std::vector<DTSectorCollectorData>& getSCData() const {return theSCData;}
 
 private:
 
   int theROSId;
 
   DTROSTrailerWord theROSTrailer;
-  vector<DTROSErrorWord> theROSErrors;
-  vector<DTROSDebugWord> theROSDebugs;
-  vector<DTROBTrailerWord> theROBTrailers;
-  vector<DTTDCMeasurementWord> theTDCMeasurements;
-  vector<DTTDCData> theTDCData;
-  vector<DTTDCError> theTDCError;
-  vector<DTSectorCollectorData> theSCData;
+  std::vector<DTROSErrorWord> theROSErrors;
+  std::vector<DTROSDebugWord> theROSDebugs;
+  std::vector<DTROBTrailerWord> theROBTrailers;
+  std::vector<DTTDCMeasurementWord> theTDCMeasurements;
+  std::vector<DTTDCData> theTDCData;
+  std::vector<DTTDCError> theTDCError;
+  std::vector<DTSectorCollectorData> theSCData;
 
 };
 
@@ -100,7 +98,7 @@ public:
   /// Getters
   inline const FEDHeader & getDDUHeader() const {return theDDUHeader;}
   inline const FEDTrailer & getDDUTrailer() const {return theDDUTrailer;}
-  inline const vector<DTDDUFirstStatusWord> & getFirstStatusWord() const {
+  inline const std::vector<DTDDUFirstStatusWord> & getFirstStatusWord() const {
     return theROSStatusWords;}
   inline const DTDDUSecondStatusWord & getSecondStatusWord() const {
     return theDDUStatusWord;}
@@ -110,7 +108,7 @@ private:
 
   FEDHeader theDDUHeader;
   FEDTrailer theDDUTrailer;
-  vector<DTDDUFirstStatusWord> theROSStatusWords;
+  std::vector<DTDDUFirstStatusWord> theROSStatusWords;
   DTDDUSecondStatusWord theDDUStatusWord;
 
 };

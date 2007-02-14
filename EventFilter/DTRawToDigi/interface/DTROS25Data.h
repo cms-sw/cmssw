@@ -4,8 +4,8 @@
 /** \class DTROS25Data
  *  The collection containing DT ROS25 status data.
  *
- *  $Date: 2006/03/21 19:55:35 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/24 16:14:07 $
+ *  $Revision: 1.3 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -14,9 +14,7 @@
 #include <vector>
 
 
-using namespace std;
-
-typedef pair<int, DTTDCMeasurementWord> DTTDCData;
+typedef std::pair<int, DTTDCMeasurementWord> DTTDCData;
 
 class DTROS25Data {
 
@@ -42,23 +40,23 @@ public:
   /// Getters
   inline int getROSID() const { return theROSId; }
 
-  inline const vector<DTROSTrailerWord>& getROSTrailers() const {return theROSTrailers;}
-  inline const vector<DTROSErrorWord>& getROSErrors() const {return theROSErrors;}
-  inline const vector<DTROSDebugWord>& getROSDebugs() const {return theROSDebugs;}
-  inline const vector<DTROBTrailerWord>& getROBTrailers() const {return theROBTrailers;}
-  inline const vector<DTTDCMeasurementWord>& getTDCMeasurements() const {return theTDCMeasurements;}
-  inline const vector<DTTDCData>& getTDCData() const {return theTDCData;}
+  inline const std::vector<DTROSTrailerWord>& getROSTrailers() const {return theROSTrailers;}
+  inline const std::vector<DTROSErrorWord>& getROSErrors() const {return theROSErrors;}
+  inline const std::vector<DTROSDebugWord>& getROSDebugs() const {return theROSDebugs;}
+  inline const std::vector<DTROBTrailerWord>& getROBTrailers() const {return theROBTrailers;}
+  inline const std::vector<DTTDCMeasurementWord>& getTDCMeasurements() const {return theTDCMeasurements;}
+  inline const std::vector<DTTDCData>& getTDCData() const {return theTDCData;}
 
 private:
 
   int theROSId;
 
-  vector<DTROSTrailerWord> theROSTrailers;
-  vector<DTROSErrorWord> theROSErrors;
-  vector<DTROSDebugWord> theROSDebugs;
-  vector<DTROBTrailerWord> theROBTrailers;
-  vector<DTTDCMeasurementWord> theTDCMeasurements;
-  vector<DTTDCData> theTDCData;
+  std::vector<DTROSTrailerWord> theROSTrailers;
+  std::vector<DTROSErrorWord> theROSErrors;
+  std::vector<DTROSDebugWord> theROSDebugs;
+  std::vector<DTROBTrailerWord> theROBTrailers;
+  std::vector<DTTDCMeasurementWord> theTDCMeasurements;
+  std::vector<DTTDCData> theTDCData;
 
 };
 
