@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.28 2006/12/23 03:16:11 wmtan Exp $
+$Id: PoolSource.h,v 1.29 2007/02/06 23:07:55 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -55,6 +55,7 @@ namespace edm {
     bool next();
     bool previous();
     void rewindFile();
+    void readRandom(int number, EventPrincipalVector& result);
     void randomize();
 
     std::vector<FileCatalogItem>::const_iterator fileIter_;

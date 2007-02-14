@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.42 2007/01/31 00:26:29 wmtan Exp $
+$Id: PoolSource.cc,v 1.43 2007/02/06 23:07:55 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "IOPool/Input/src/PoolSource.h"
 #include "IOPool/Input/src/RootFile.h"
@@ -260,6 +260,23 @@ namespace edm {
 
   void
   PoolSource::readMany_(int number, EventPrincipalVector& result) {
+    if (!primary()) {
+	readRandom(number, result);
+	return;
+    }
+    for (int i = 0; i < number; ++i) {
+      std::auto_ptr<EventPrincipal> ev = read();
+      if (ev.get() == 0) {
+	return;
+      }
+      EventPrincipalVectorElement e(ev.release());
+      result.push_back(e);
+      --eventsRemainingInFile_;
+    }
+  }
+
+  void
+  PoolSource::readRandom(int number, EventPrincipalVector& result) {
     for (int i = 0; i < number; ++i) {
       while (eventsRemainingInFile_ <= 0) randomize();
       std::auto_ptr<EventPrincipal> ev = read();
