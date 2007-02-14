@@ -2,7 +2,21 @@
 
 #include "FWCore/Framework/src/ReflexTools.h"
 
-using namespace ROOT::Reflex;
+namespace ROOT
+{
+  namespace Reflex
+  {
+    std::ostream& operator<< (std::ostream& os, Type const& t)
+    {
+      os << t.Name();
+      return os;
+    }
+  }
+}
+
+using ROOT::Reflex::Type;
+using ROOT::Reflex::Type_Iterator;
+
 
 namespace edm
 {
@@ -37,5 +51,4 @@ namespace edm
       wrapper_type_of(possible_sequence_wrapper, possible_sequence) &&
       value_type_of(possible_sequence, found_sequence_value_type);
   }
-
 }

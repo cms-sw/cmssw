@@ -1,10 +1,13 @@
 /*----------------------------------------------------------------------
-  $Id: DataBlockImpl.cc,v 1.14 2007/02/01 20:18:31 wmtan Exp $
+  $Id: DataBlockImpl.cc,v 1.15 2007/02/14 14:20:30 paterno Exp $
   ----------------------------------------------------------------------*/
+
 #include <algorithm>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
+
+#include "boost/bind.hpp"
 
 #include "Reflex/Type.h"
 #include "Reflex/Base.h" // (needed for Type::HasBase to work correctly)
@@ -15,9 +18,8 @@
 #include "FWCore/Framework/src/ReflexTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-
-
 using namespace std;
+using ROOT::Reflex::Type;
 
 namespace edm {
 
@@ -463,46 +465,48 @@ namespace edm {
     }
   }
 
+
+
   class NeitherSameNorDerivedType {
   public:
-    typedef DataBlockImpl::MatchingGroups::value_type arg_t;
+    typedef DataBlockImpl::MatchingGroups::value_type group_ptr;
 
-    explicit NeitherSameNorDerivedType(type_info const& elementType) :
-      typeToMatch_(ROOT::Reflex::Type::ByTypeInfo(elementType)) 
+    explicit NeitherSameNorDerivedType(type_info const& wantedElementType) :
+      typeToMatch_(Type::ByTypeInfo(wantedElementType)) 
     {
-      if (typeToMatch_ == ROOT::Reflex::Type()) {
+      if (typeToMatch_ == Type()) {
         throw edm::Exception(errors::LogicError)
           << "DataBlockImpl::NeitherSameNorDerivedType constructor\n"
           << "Input type is not known by ROOT::Reflex\n"
-          << "The mangled name of this type is \"" << elementType.name() << "\"\n"
+          << "The mangled name of this type is '" 
+	  << wantedElementType.name() << "'\n"
           << "Probably the dictionary for this class needs to be defined\n"
-          << "or maybe there is an error in the type passed as a template argument to a View\n\n";
+          << "or maybe there is an error in the type passed as a "
+	  << "template argument to a View\n\n";
       }
     }
 
-    bool operator()(arg_t const& group) const {
-      return !matches(group);
-    }
+    bool operator()(group_ptr const& group) const { return !matches(group); }
+
   private:
-    ROOT::Reflex::Type typeToMatch_;
+    Type typeToMatch_;
+
+    // Return true if the given elementType is either the same type
+    // as, or is a public subclass of, the type we are trying to
+    // match.
+    bool element_type_matches(Type const& elementType) const
+    {
+      return
+	elementType == typeToMatch_ ||
+	elementType.HasBase(typeToMatch_);
+    }
 
     // Return true if the given group contains an EDProduct that is a
     // sequence, and if the value_type of that sequence is either the
     // same as our valuetype, or derives from our valuetype.
-    bool matches(arg_t const& group) const {
-      ROOT::Reflex::Type wrapperType = 
-	ROOT::Reflex::Type::ByTypeInfo(typeid(*(group->product())));
-      ROOT::Reflex::Type elementType;
-      bool sequenceFound = is_sequence_wrapper(wrapperType, elementType);
-      bool matchFound = false;
-      if (sequenceFound) {
-	if (elementType == typeToMatch_ || elementType.HasBase(typeToMatch_)) {
-	      matchFound = true;
-	} else {
-	      matchFound = false;
-	}
-      }
-      return matchFound;
+    bool matches(group_ptr const& group) const
+    {
+      return group->isMatchingSequence(typeToMatch_);
     }
   };
 
@@ -539,14 +543,14 @@ namespace edm {
 
 	  // Resolve all candidates -- we can't look at the dynamic
 	  // types until we have the product instances in memory.
-	  for (MatchingGroups::iterator
-		 i = candidateGroups.begin(),
-		 e = candidateGroups.end();
-	       i != e;
-	       ++i)
-	    {
-	      this->resolve_(**i);
-	    }
+ 	  for (MatchingGroups::iterator
+ 		 i = candidateGroups.begin(),
+ 		 e = candidateGroups.end();
+ 	       i != e;
+ 	       ++i)
+ 	    {
+ 	      this->resolve_(**i);
+ 	    }
 
 	  NeitherSameNorDerivedType removalPredicate(wantedElementType);
 	  candidateGroups.remove_if(removalPredicate);
@@ -581,11 +585,11 @@ namespace edm {
     //             TODO: Implement this function.
     throw edm::Exception(errors::ProductNotFound,"NoMatch")
       << "DataBlockImpl::getMatchingSequence could not find "
-      << "any product with module label \"" 
+      << "any product with module label '" 
       << moduleLabel
-      << " and product instance name \"" 
+      << "' and product instance name '" 
       << productInstanceName
-      << "\"\n";
+      << "'\n";
 
     // The following never gets executed, but it makes some compilers
     // happy.

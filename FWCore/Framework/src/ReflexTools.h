@@ -7,15 +7,18 @@ ReflexTools provides a small number of Reflex-based tools, used in
 the CMS event model.  
 
 
-$Id: Group.h,v 1.14 2006/08/10 23:24:42 wmtan Exp $
+$Id: ReflexTools.h,v 1.1 2007/01/11 23:39:20 paterno Exp $
 
 ----------------------------------------------------------------------*/
+
+#include <ostream>
 
 namespace ROOT
 {
   namespace Reflex
   {
     class Type;
+    std::ostream& operator<< (std::ostream& os, Type const& t);  
   }
 }
 

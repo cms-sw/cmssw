@@ -6,11 +6,13 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.16 2007/01/28 05:40:57 wmtan Exp $
+$Id: Group.h,v 1.17 2007/02/01 20:18:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <memory>
+
+#include "Reflex/Type.h"
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Provenance.h"
@@ -67,6 +69,19 @@ namespace edm {
 
     // Figure out what to do if a duplicate group is created.
     bool replace(Group& g);
+
+    // Return the type of the product stored in this Group.
+    // We are relying on the fact that Type instances are small, and
+    // so we are free to copy them at will.
+    ROOT::Reflex::Type productType() const;
+
+
+    // Return true if this group's product is a sequence, and if the
+    // sequence has a 'value_type' that 'matches' the given type.
+    // 'Matches' in this context means the sequence's value_type is
+    // either the same as the given type, or has the given type as a
+    // public base type.
+    bool isMatchingSequence(ROOT::Reflex::Type const& wanted) const;
 
   private:
     Group(const Group&);

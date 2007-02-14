@@ -1,9 +1,11 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.14 2007/01/28 05:40:57 wmtan Exp $
+$Id: Group.cc,v 1.15 2007/02/01 20:18:31 wmtan Exp $
 ----------------------------------------------------------------------*/
-
 #include <string>
 #include "FWCore/Framework/src/Group.h"
+#include "FWCore/Framework/src/ReflexTools.h"
+
+using ROOT::Reflex::Type;
 
 namespace edm
 {
@@ -68,11 +70,38 @@ namespace edm
     return false;
   }
 
+  Type
+  Group::productType() const
+  {
+    return Type::ByTypeInfo(typeid(*product()));
+  }
+
+  bool
+  Group::isMatchingSequence(Type const& wantedElementType) const
+  {
+    Type value_type;
+    bool is_sequence = is_sequence_wrapper(productType(), value_type);
+
+
+    // If our product is not a sequence, we can't match...
+    if (!is_sequence) return false;
+
+    Type elementType = value_type; // this is not true for RefVector...
+
+    return 
+      is_sequence 
+      ? (elementType==wantedElementType || 
+	 elementType.HasBase(wantedElementType))
+      : false;      
+  }
+
   void
-  Group::write(std::ostream& os) const {
+  Group::write(std::ostream& os) const 
+  {
     // This is grossly inadequate. It is also not critical for the
     // first pass.
-    os << std::string("Group for product with ID: ") << provenance_->productID();
+    os << std::string("Group for product with ID: ")
+       << provenance_->productID();
   }
 
 }
