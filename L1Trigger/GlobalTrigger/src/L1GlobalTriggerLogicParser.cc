@@ -21,9 +21,13 @@
 // system include files
 #include <string>
 #include <stack>
+#include <vector>
+
 #include <iostream>
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerConfig.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
@@ -199,6 +203,57 @@ void L1GlobalTriggerLogicParser::buildRPNExpression() {
 }
 
 /**
+ * getLogicalExpression get a string containing the logical expression
+ *
+ *
+ * @return A string containing the logical expression.
+ *
+ */
+
+std::string L1GlobalTriggerLogicParser::getLogicalExpression() {
+    
+    // add spaces before and after brackets to the original expression
+    std::string exprwithbs;
+    addBracketSpaces(p_expression, exprwithbs);
+
+    std::string result;         // result string
+    result.clear();
+
+    OperationType actoperation = OP_NULL;
+    OperationType lastoperation = OP_NULL;
+
+    std::string tokenstr;
+    TokenRPN tokenrpn;    // token for the use of getOperation
+        
+    istringstream expr_iss(exprwithbs); // stringstream to separate all tokens
+
+    while (!expr_iss.eof()) {
+        
+        expr_iss >> tokenstr;
+        if (expr_iss.eof()) {
+            break;
+        }
+
+        actoperation = getOperation(tokenstr, lastoperation, tokenrpn);
+        if (actoperation == OP_INVALID) {
+            return result;  // it should never be invalid, because it is checked
+        }
+        
+        if (actoperation != OP_OPERAND) {
+            result.append(getRuleFromType(actoperation)->opstr); 
+        } else {
+            result.append(tokenrpn.operand->getName());
+        }
+        result.append(" ");         // one whitespace after each token
+        lastoperation = actoperation;
+    }
+
+    return result;
+
+}
+
+
+/**
  * getNumericExpression get a string with each operand replaced with 
  *     the value from the operand.
  *
@@ -223,7 +278,7 @@ std::string L1GlobalTriggerLogicParser::getNumericExpression() {
     std::string tokenstr;
     TokenRPN tokenrpn;    // token for the use of getOperation
         
-    istringstream expr_iss(exprwithbs);	// stringstream to seperate all tokens
+    istringstream expr_iss(exprwithbs);	// stringstream to separate all tokens
 
     while (!expr_iss.eof()) {
         
@@ -255,6 +310,66 @@ std::string L1GlobalTriggerLogicParser::getNumericExpression() {
 }
 
 /**
+ * get the vector of combinations for the algorithm
+ *
+ */
+
+
+std::vector<CombinationsInCond> 
+    L1GlobalTriggerLogicParser::getCombinationVector() {
+
+    // add spaces before and after brackets to the original expression
+    std::string exprwithbs;
+    addBracketSpaces(p_expression, exprwithbs);
+
+    std::vector<CombinationsInCond> result;
+    result.clear();
+
+    OperationType actoperation = OP_NULL;
+    OperationType lastoperation = OP_NULL;
+
+    std::string tokenstr;
+    TokenRPN tokenrpn;    // token for the use of getOperation
+        
+    istringstream expr_iss(exprwithbs); // stringstream to separate all tokens
+
+    while (!expr_iss.eof()) {
+        
+        expr_iss >> tokenstr;
+        if (expr_iss.eof()) {
+            break;
+        }
+
+        actoperation = getOperation(tokenstr, lastoperation, tokenrpn);
+        if (actoperation == OP_INVALID) {
+            return result;  // it should never be invalid, because it is checked
+        }
+        
+        if (actoperation != OP_OPERAND) {
+            // do nothing, just to remind the operation logic
+        } else {
+            CombinationsInCond* combInCondition = tokenrpn.operand->getCombinationsInCond();
+            result.push_back(*combInCondition);            
+            
+//            LogTrace("L1GlobalTriggerLogicalParser")
+//            << "\n  L1GlobalTriggerLogicalParser: " 
+//            << "CombinationsInCond size = " << (*combInCondition).size()
+//            << " for condition " << tokenrpn.operand->getName() 
+//            << std::endl;
+        }
+        lastoperation = actoperation;
+    }
+
+//    LogTrace("L1GlobalTriggerLogicalParser")
+//    << "\n  L1GlobalTriggerLogicalParser: " 
+//    << "CombinationVector size = " << result.size() 
+//    << " for algorithm " << p_name 
+//    << std::endl;
+    
+    return result;
+}
+
+/**
  * buildRPNVector Try to build the postfix notation. 
  *
  * @param expression The expression to be parsed.
@@ -265,7 +380,7 @@ std::string L1GlobalTriggerLogicParser::getNumericExpression() {
 
 int L1GlobalTriggerLogicParser::buildRPNVector(const std::string& expression) {
     
-    istringstream expr_iss(expression);	// stringstream to seperate all tokens
+    istringstream expr_iss(expression);	// stringstream to separate all tokens
 
     std::string tokenstr;           // one token
     TokenRPN tokenrpn;              // the token as TokenRPN type
@@ -512,7 +627,7 @@ const bool L1GlobalTriggerLogicParser::blockCondition() const {
     
 void L1GlobalTriggerLogicParser::printThresholds(std::ostream& myCout) const {
 
-    myCout << "\nL1GlobalTriggerLogicParser: Threshold values " << std::endl;
+    myCout << "\nL1GlobalTriggerLogicParser: threshold values " << std::endl;
     myCout << "  Name:               " << getName() << std::endl;
     myCout << "  Output pin:         " << getOutputPin() << std::endl;
     myCout << "  Expression:         " << p_expression << std::endl;

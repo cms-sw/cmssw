@@ -58,25 +58,25 @@ public:
     // type for a single particle template
     typedef struct                                   // TODO: keep it a` la C?
     {    
-        unsigned int pt_h_threshold; // usually 5 bits
-        unsigned int pt_l_threshold; // usually 5 bits
-        bool en_mip; //
-        bool en_iso; // isolation bit
-        unsigned int quality; // usually 8 bits
-        u_int64_t eta; // usually 64 bits // TODO really?
-        unsigned int phi_h; // usually 8 bits
-        unsigned int phi_l; // usually 8 bits
+        unsigned int pt_h_threshold;
+        unsigned int pt_l_threshold;
+        bool en_mip; 
+        bool en_iso;                  // isolation bit
+        unsigned int quality; 
+        u_int64_t eta; 
+        unsigned int phi_h; 
+        unsigned int phi_l; 
     } ParticleParameter;
 
     // correlation parameters
     typedef struct
     {
-        unsigned int charge_correlation; // usually  3 bits
-        u_int64_t delta_eta;             // usually 64 bits
+        unsigned int charge_correlation; 
+        u_int64_t delta_eta;             
         unsigned int delta_eta_maxbits;
-                                         // 73 = 64+8 bits for delta phi
-        u_int64_t delta_phil;            // 64 bits
-        u_int64_t delta_phih;            //  9 bits
+                                         
+        u_int64_t delta_phil;            
+        u_int64_t delta_phih;            
         unsigned int delta_phi_maxbits; 
     } ConditionParameter;
         
@@ -116,10 +116,6 @@ private:
     void copy( const L1GlobalTriggerMuonTemplate& cp);
 
     const bool checkParticle(int nconditon, L1MuGMTCand &cand) const;
-
-    // TODO why templated? 
-    template<class Type1>
-        const bool checkBitM(Type1 const &mask, unsigned int bitNumber) const; 
         
 };
 

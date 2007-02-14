@@ -158,7 +158,7 @@ const bool L1GlobalTriggerEsumsTemplate::blockCondition() const {
 
 void L1GlobalTriggerEsumsTemplate::printThresholds(std::ostream& myCout) const {
 
-    myCout << "L1GlobalTriggerEsumsTemplate: Threshold values " << std::endl;
+    myCout << "L1GlobalTriggerEsumsTemplate: threshold values " << std::endl;
     myCout << "Condition Name: " << getName() << std::endl;
 
     switch (p_sumtype) {

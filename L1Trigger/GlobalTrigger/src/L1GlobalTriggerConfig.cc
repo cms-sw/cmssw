@@ -808,7 +808,11 @@ int L1GlobalTriggerConfig::countConditionChildMaxBits(DOMNode *node,
 
     // count the bits
     LogTrace("L1GlobalTriggerConfig") 
-        << "      Counting maxbits: high value = " << maxbitsh << " low value = " << maxbitsl 
+        << std::dec 
+        << "        words: dec: high (MSB) word = " << maxbitsh << " low word = " << maxbitsl 
+        << std::hex << "\n"
+        << "        words: hex: high (MSB) word = " << maxbitsh << " low word = " << maxbitsl
+        << std::dec  
         << std::endl;
 
     unsigned int counter = 0;
@@ -1077,6 +1081,11 @@ int L1GlobalTriggerConfig::parseMuon(DOMNode* node,
     // fill into structure
     for (int i = 0; i < numtype; i++) {
         particleparameter[i].quality = tmpvalues[i];
+
+        LogTrace("L1GlobalTriggerConfig") 
+            << "      quality mask (hex) for muon " << i << " = " 
+            << std::hex << tmpvalues[i] << std::dec 
+            << std::endl;
     }
 
     // get eta
@@ -1087,6 +1096,11 @@ int L1GlobalTriggerConfig::parseMuon(DOMNode* node,
     // fill into structure
     for (int i = 0; i < numtype; i++) {
         particleparameter[i].eta = tmpvalues[i];
+
+        LogTrace("L1GlobalTriggerConfig") 
+            << "      eta (hex) for muon " << i << " = " 
+            << std::hex << tmpvalues[i] << std::dec 
+            << std::endl;
     }
 
     // get phi_h 
@@ -1097,6 +1111,11 @@ int L1GlobalTriggerConfig::parseMuon(DOMNode* node,
     // fill into structure
     for (int i = 0; i < numtype; i++) {
         particleparameter[i].phi_h = tmpvalues[i];
+
+        LogTrace("L1GlobalTriggerConfig") 
+            << "      phi_h (hex) for muon " << i << " = " 
+            << std::hex << tmpvalues[i] << std::dec 
+            << std::endl;
     }
     
     // get phi_l
@@ -1107,6 +1126,11 @@ int L1GlobalTriggerConfig::parseMuon(DOMNode* node,
     // fill into structure
     for (int i = 0; i < numtype; i++) {
         particleparameter[i].phi_l = tmpvalues[i];
+
+        LogTrace("L1GlobalTriggerConfig") 
+            << "      phi_l (hex) for muon " << i << " = " 
+            << std::hex << tmpvalues[i] << std::dec 
+            << std::endl;
     }
 
     // get charge correlation
@@ -1119,6 +1143,11 @@ int L1GlobalTriggerConfig::parseMuon(DOMNode* node,
         return -1;
     }
     conditionparameter.charge_correlation = tmpvalues[0];
+
+    LogTrace("L1GlobalTriggerConfig") 
+        << "      charge correlation" << " = " 
+        << std::hex << tmpvalues[0] << std::dec 
+        << std::endl;
 
     // get mip and iso bits
 
@@ -1161,20 +1190,34 @@ int L1GlobalTriggerConfig::parseMuon(DOMNode* node,
         conditionparameter.delta_phih = tmpvalues[1];
 
         // get maxbits for deltaeta
-
         unsigned int maxbits;     // maximal bit counts for wsc values        
+
+        LogTrace("L1GlobalTriggerConfig") 
+            << "      Counting delta_eta_maxbits" 
+            << std::endl; 
+
         if (countConditionChildMaxBits(node, xml_deltaeta_tag, maxbits) != 0) {
             return -1;
         }
         
         conditionparameter.delta_eta_maxbits = maxbits;
+        LogTrace("L1GlobalTriggerConfig") 
+            << "        delta_eta_maxbits (dec) = " << maxbits 
+            << std::endl; 
 
         // get maxbits for deltaphi
+        LogTrace("L1GlobalTriggerConfig") 
+            << "      Counting delta_phi_maxbits" 
+            << std::endl; 
+        
         if (countConditionChildMaxBits(node, xml_deltaphi_tag, maxbits) != 0) {
             return -1;
         }
         
         conditionparameter.delta_phi_maxbits = maxbits;
+        LogTrace("L1GlobalTriggerConfig") 
+            << "        delta_phi_maxbits (dec) = " << maxbits 
+            << std::endl; 
     }
         
     // now create a new MuonCondition
@@ -1274,6 +1317,11 @@ int L1GlobalTriggerConfig::parseCalo(DOMNode* node,
     // fill into structure
     for (int i = 0; i < numtype; i++) {
         particleparameter[i].et_threshold = tmpvalues[i];
+
+        LogTrace("L1GlobalTriggerConfig") 
+            << "      ET threshold (hex) for object " << i << " = " 
+            << std::hex << tmpvalues[i] << std::dec 
+            << std::endl;
     }
 
     // get eta_thresholds
@@ -1284,6 +1332,11 @@ int L1GlobalTriggerConfig::parseCalo(DOMNode* node,
     // fill into structure
     for (int i = 0; i < numtype; i++) {
         particleparameter[i].eta = tmpvalues[i];
+
+        LogTrace("L1GlobalTriggerConfig") 
+            << "      eta (hex) for object " << i << " = " 
+            << std::hex << tmpvalues[i] << std::dec 
+            << std::endl;
     }
 
     // get phi
@@ -1293,6 +1346,11 @@ int L1GlobalTriggerConfig::parseCalo(DOMNode* node,
     // fill into structure
     for (int i = 0; i < numtype; i++) {
         particleparameter[i].phi = tmpvalues[i];
+
+        LogTrace("L1GlobalTriggerConfig") 
+            << "      phi (hex) for object " << i << " = " 
+            << std::hex << tmpvalues[i] << std::dec 
+            << std::endl;
     }
 
     // indicates if a correlation is used
@@ -1305,7 +1363,8 @@ int L1GlobalTriggerConfig::parseCalo(DOMNode* node,
         
         conditionparameter.delta_eta = tmpvalues[0];        
         LogTrace("L1GlobalTriggerConfig") 
-            << "      delta eta calo = " << tmpvalues[0] 
+            << "      delta_eta (hex) = " 
+            << std::hex << tmpvalues[0] << std::dec 
             << std::endl;
         
         if (getConditionChildValues(node, xml_deltaphi_tag, 1, tmpvalues) != 0) {
@@ -1314,7 +1373,8 @@ int L1GlobalTriggerConfig::parseCalo(DOMNode* node,
         
         conditionparameter.delta_phi = tmpvalues[0];
         LogTrace("L1GlobalTriggerConfig") 
-            << "      delta phi calo = " << tmpvalues[0] 
+            << "      delta_phi (hex) = "
+            << std::hex << tmpvalues[0] << std::dec 
             << std::endl;
 
         // get maxbits for deltaeta
@@ -1328,6 +1388,9 @@ int L1GlobalTriggerConfig::parseCalo(DOMNode* node,
         }
         
         conditionparameter.delta_eta_maxbits = maxbits;
+        LogTrace("L1GlobalTriggerConfig") 
+            << "        delta_eta_maxbits (dec) = " << maxbits 
+            << std::endl; 
 
         // get maxbits for deltaphi
         LogTrace("L1GlobalTriggerConfig") 
@@ -1338,6 +1401,9 @@ int L1GlobalTriggerConfig::parseCalo(DOMNode* node,
         }
         
         conditionparameter.delta_phi_maxbits = maxbits;
+        LogTrace("L1GlobalTriggerConfig") 
+            << "        delta_phi_maxbits (dec) = " << maxbits 
+            << std::endl; 
 
     }
 
@@ -1680,7 +1746,7 @@ int L1GlobalTriggerConfig::parseConditions(XercesDOMParser *parser) {
         conditionNameNode = findXMLChild(conditionNameNode, "", true, &conditionNameNodeName);
         while (conditionNameNode != 0) {
             LogTrace("L1GlobalTriggerConfig") 
-                << "\n    Found a condition with name: "<< conditionNameNodeName 
+                << "\n    Found a condition with name: " << conditionNameNodeName 
                 << std::endl;
             if (workCondition(conditionNameNode, conditionNameNodeName, chipNr) != 0) {
                 return -1;
@@ -1816,7 +1882,7 @@ int L1GlobalTriggerConfig::parseAlgos(DOMNode* node)
         std::ostringstream algoNrOss;
         algoNrOss << algoNr;          // convert algoNr to string
         LogTrace("L1GlobalTriggerConfig") 
-            << "    Found an algo with name: "<< algoNameNodeName 
+            << "    Found an algo with name: " << algoNameNodeName 
             << std::endl;
         
         // add a number to make the names unique

@@ -20,8 +20,11 @@
 
 // system include files
 #include <string>
+#include <vector>
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -38,6 +41,7 @@ L1GlobalTriggerConditions::L1GlobalTriggerConditions(
     
      p_name = name; 
      p_lastresult = false;
+     p_combinationsInCond = new CombinationsInCond;
 
 }
 
@@ -52,5 +56,21 @@ L1GlobalTriggerConditions::L1GlobalTriggerConditions(L1GlobalTriggerConditions& 
 
 // destructor
 L1GlobalTriggerConditions::~L1GlobalTriggerConditions() {
+
+    delete p_combinationsInCond;
+
 }
+
+// methods
+
+// get the vector of combinations for the algorithm
+// dummy here (not needed for objects templates), redefined for (pre)algorithms
+std::vector<CombinationsInCond> 
+    L1GlobalTriggerConditions::getCombinationVector() {
+        
+    std::vector<CombinationsInCond> dummy;
+    return dummy;
+            
+}
+
 

@@ -25,11 +25,17 @@
 #include <iostream>
 #include <iomanip>
 
+#include <cmath>
+#include <cstdlib>
+
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerGTL.h"
+
+#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFunctions.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
  
@@ -51,9 +57,10 @@ void L1GlobalTriggerMuonTemplate::copy(const L1GlobalTriggerMuonTemplate &cp) {
     p_wsc = cp.getWsc();
     setGeEq(cp.getGeEq());
 
-    // TODO: macro instead of 4
-    memcpy(p_particleparameter, cp.getParticleParameter(), sizeof(ParticleParameter)*4); 
-    memcpy(&p_conditionparameter, cp.getConditionParameter(), sizeof(ConditionParameter));
+    memcpy(p_particleparameter, cp.getParticleParameter(), 
+        sizeof(ParticleParameter)*L1GlobalTriggerReadoutSetup::NumberL1Muons); 
+    memcpy(&p_conditionparameter, cp.getConditionParameter(), 
+        sizeof(ConditionParameter));
   
 }
 
@@ -101,14 +108,15 @@ void L1GlobalTriggerMuonTemplate::setConditionParameter(
     const ConditionParameter* conditionp, bool wsc) {
     
     p_number = numparticles;
-    if (p_number > 4) p_number = 4; //TODO: macro instead of 4
+    if (p_number > L1GlobalTriggerReadoutSetup::NumberL1Muons) {
+        p_number = L1GlobalTriggerReadoutSetup::NumberL1Muons;
+    }
     p_wsc= wsc;
 
     memcpy(p_particleparameter, particlep, sizeof(ParticleParameter)*p_number);
     memcpy(&p_conditionparameter, conditionp, sizeof(ConditionParameter));
   
 }
-
 
 /**
  * blockCondition - Try all permutations of particles and check correlation
@@ -120,10 +128,9 @@ void L1GlobalTriggerMuonTemplate::setConditionParameter(
 const bool L1GlobalTriggerMuonTemplate::blockCondition() const {
 
     // maximum number of candidates 
-    // TODO take it from L1GlobalTriggerReadoutRecord?    
-    const int maxNumberCands = 4;
+    const int maxNumberCands = L1GlobalTriggerReadoutSetup::NumberL1Muons;
 
-   // the candidates
+    // the candidates
     L1MuGMTCand* v[maxNumberCands];
     int index[maxNumberCands];
     
@@ -132,163 +139,332 @@ const bool L1GlobalTriggerMuonTemplate::blockCondition() const {
        index[i] = i;    
     }
   
-    bool tmpResult;
-  
-    // first check if there is a permutation that matches
+    int jumpIndex = 1;
+    int jump = factorial(maxNumberCands - p_number);
+
+    int totalLoops = 0;
+    int passLoops = 0;
+    
+    // condition result condResult set to true if at least one permutation 
+    //     passes all requirements
+    // all possible permutations are checked 
+    bool condResult = false;
+
+    // store the indices of the muon objects 
+    // from the combination evaluated in the condition     
+    SingleCombInCond objectsInComb;
+
+    // clear the p_combinationsInCond vector 
+    (*p_combinationsInCond).clear();    
+
     do {
+
+        if (--jumpIndex) continue;
+
         LogTrace("L1GlobalTriggerMuonTemplate") 
-            << "\n  Trigger object permutation " << std::endl;
+            << "\n  Evaluating new trigger object permutation ... " << std::endl;
         
-        tmpResult = true;
-        for (int i = 0; i < (int) p_number; i++) {
+        jumpIndex = jump;        
+        totalLoops++;
+        
+        // clean up the indices in the combination     
+        objectsInComb.clear();
+
+        bool tmpResult = true;
+
+        // check if there is a permutation that matches particle conditions
+        for (int i = 0; i < static_cast<int> (p_number); i++) {
             LogTrace("L1GlobalTriggerMuonTemplate") 
                 << "  Current condition index = " << i 
                 << " < last index = " << p_number
+                << ";  checking object with index = " << index[i]  
                 << std::endl;
             
             tmpResult &= checkParticle(i, *(v)[index[i]] );
+            objectsInComb.push_back(index[i]);
+            
         }
     
-        if (tmpResult) break; 
-                    
-    } while (std::next_permutation(index, index + p_number) );
+        std::ostringstream myCout;                 
+        std::copy(objectsInComb.begin(), objectsInComb.end(), 
+            std::ostream_iterator<int> (myCout, " "));
 
-    if (tmpResult == false) {
-        LogTrace("L1GlobalTriggerMuonTemplate") 
-            << "  L1GlobalTriggerMuonTemplate: no permutation match for all four muon candidates.\n" 
-            << std::endl;
-        return false;
-    } 
+        // if permutation does not match particle conditions
+        // skip charge and spatial correlations
+        if ( !tmpResult ) {
 
-
-    // charge_correlation consists of 3 relevant bits (D2, D1, D0)
-    if (p_conditionparameter.charge_correlation & 1 == 0) { // charge ignore bit (D0) not set?
-        for (int i = 0; i < (int) p_number; i++) {
-            // we can't check invalid charge            
-            if ( !( v[i]->charge_valid() ) ) return false; 
-        }
-
-        if (p_number == 1) { // one particle condition
-    
-          // D2..enable pos, D1..enable neg
-          if ( ! ( ((p_conditionparameter.charge_correlation & 4) != 0 && v[0]->charge() > 0) ||
-    	           ((p_conditionparameter.charge_correlation & 2) != 0 && v[0]->charge() < 0)    ) ) {
-            return false;
-          }
-
+            LogTrace("L1GlobalTriggerMuonTemplate") 
+                << "  Trigger object permutation ( " <<  myCout.str() 
+                << ") fails single-particle requirements." 
+                << std::endl;
+            continue;
         } else {
-    
-            bool signsequal = true;	
-            for (int i = 0; i< (int) p_number-1; i++) {
-                if (v[i]->charge() != v[i+1]->charge()) { // find out if signs are equal
-                    signsequal = false;
-    	            break;
-                }
-            }
-            
-            // two or three particle condition
-            if (p_number == 2 || p_number == 3) {
-                // D2..enable equal, D1..enable not equal
-                if ( ! ( ((p_conditionparameter.charge_correlation & 4) != 0 &&  signsequal) ||
-       	                 ((p_conditionparameter.charge_correlation & 2) != 0 && !signsequal)   ) ) {
-                    return false;
-                }
-            }
-    
-            // four particle condition
-            if (p_number == 4) {
-                //counter to count positive charges to determine if there are pairs
-                unsigned int poscount=0;  
-                
-                for (int i = 0; i < (int) p_number; i++) {
-                    if ( v[i]->charge() > 0 ) poscount++;
-                }
-                
-                // D2..enable equal, D1..enable pairs
-                if ( ! ( ((p_conditionparameter.charge_correlation & 4) != 0 && signsequal   ) ||
-    	                 ((p_conditionparameter.charge_correlation & 2) != 0 && poscount == 2)    ) ) {
-                    return false;
-                } 
-            }
+            LogTrace("L1GlobalTriggerMuonTemplate") 
+                << "  Trigger object permutation ( " <<  myCout.str() 
+                << ") passes single-particle requirements." 
+                << std::endl;
         }
-    } // end signchecks
- 
-    if (p_wsc) {
 
-        unsigned int delta_eta;
-        unsigned int delta_phi;
+        // charge_correlation consists of 3 relevant bits (D2, D1, D0)
 
-        for (int i = 0; i < maxNumberCands; ++i) {
-            for (int k = i + 1; k < maxNumberCands; ++k) {
+        // charge ignore bit (D0) not set?
+        if (p_conditionparameter.charge_correlation & 1 == 0) {
 
-                // check delta_eta
-                
-                // absolute value of eta difference (... could use abs() ) 
-                if (v[i]->etaIndex() > v[k]->etaIndex()) { 
-                    delta_eta = v[i]->etaIndex() - v[k]->etaIndex();
-                } else {
-                    delta_eta = v[k]->etaIndex() - v[i]->etaIndex();
-                }
-                
-                LogTrace("L1GlobalTriggerMuonTemplate") 
-                    << "  delta_eta = " << delta_eta << " for "  
-                    << "v[" << i <<"]->etaIndex() = " << v[i]->etaIndex() << ", " 
-                    << "v[" << k <<"]->etaIndex() = " << v[k]->etaIndex()  
-                    << std::endl;
-            
-                if ( !checkBit(p_conditionparameter.delta_eta, delta_eta) ) {
-                    return false;
-                }
-    
-                // check delta_phi
-                
-                // calculate absolute value of delta_phi
-                if (v[i]->phiIndex() > v[k]->phiIndex()) { 
-                    delta_phi = v[i]->phiIndex() - v[k]->phiIndex();
-                } else {
-                    delta_phi = v[k]->phiIndex() - v[i]->phiIndex();
-                }
-                LogTrace("L1GlobalTriggerMuonTemplate") 
-                    << std::dec << "  delta_phi = " << delta_phi << " for " 
-                    << "v[" << i <<"]->phiIndex() = " << v[i]->phiIndex() << ", " 
-                    << "v[" << k <<"]->phiIndex() = " << v[k]->phiIndex()  
-                    << std::endl;
-    
-                // check if delta_phi > 180 (aka delta_phi_maxbits) 
-                // delta_phi contains bits for 0..180 (0 and 180 included)
-                // usualy delta_phi_maxbits == 73
-                if (delta_phi > p_conditionparameter.delta_phi_maxbits) {
+            LogTrace("L1GlobalTriggerMuonTemplate") 
+                << "\n  Checking charge correlations: \n"
+                << std::endl;
+
+            for (int i = 0; i < static_cast<int> (p_number); i++) {
+                // check valid charge - skip if invalid charge            
+                bool chargeValid = v[index[i]]->charge_valid();
+                tmpResult &= chargeValid; 
+
+                if ( !chargeValid ) {
                     LogTrace("L1GlobalTriggerMuonTemplate") 
-                        << "  delta_phi = " << delta_phi 
-                        << " > p_conditionparameter.delta_phi_maxbits ==> needs re-scaling" 
+                        << "  Invalid charge for object " <<  index[i] 
                         << std::endl;
+                    continue;
+                }
+            }
+    
+            if (! tmpResult) {
+    
+                LogTrace("L1GlobalTriggerMuonTemplate") 
+                    << "  Trigger object permutation ( " <<  myCout.str() 
+                    << ") fails charge validity requirements." 
+                    << std::endl;
+                continue;
+            }
+            
+            if (p_number == 1) { // one particle condition
+        
+              // D2..enable pos, D1..enable neg
+              if ( ! ( ( (p_conditionparameter.charge_correlation & 4) != 0 
+                         && v[index[0]]->charge() > 0
+                       ) ||
+                       ( (p_conditionparameter.charge_correlation & 2) != 0 
+                         && v[index[0]]->charge() < 0
+                       )    
+                     ) 
+                 ) {
+                    
+                  continue;
+              }
+    
+            } else {
+        
+                // find out if signs are equal
+                bool equalSigns = true; 
+                for (int i = 0; i < static_cast<int> (p_number)-1; i++) {
+                    if (v[index[i]]->charge() != v[index[i+1]]->charge()) {
+                        equalSigns = false;
+                        break;
+                    }
+                }
+                
+                // two or three particle condition
+                if (p_number == 2 || p_number == 3) {
+                    // D2..enable equal, D1..enable not equal
+                    if ( ! ( ( (p_conditionparameter.charge_correlation & 4) != 0 
+                                &&  equalSigns
+                             ) ||
+                             ( (p_conditionparameter.charge_correlation & 2) != 0 
+                                && !equalSigns
+                             )   
+                           ) 
+                       ) {
                         
-                    // delta_phi > 180 ==> take 360 - delta_phi
-                    delta_phi = (p_conditionparameter.delta_phi_maxbits - 1)*2 - delta_phi;   
-                    LogTrace("L1GlobalTriggerMuonTemplate") 
-                        << "  delta_phi changed to: " <<  delta_phi 
-                        << std::endl;
-                }
-            
-                // delta_phi bitmask is saved in two u_int64_t 
-                if (delta_phi < 64) {
-                    if (!checkBit(p_conditionparameter.delta_phil, delta_phi) ) {
-                        return false;
-                    }
-                } else {
-                    if (!checkBit(p_conditionparameter.delta_phih, delta_phi - 64)) {
-                        return false;
+                        continue;
                     }
                 }
-            
-            }                       
-        }         
-    
-    } // end wsc check
+        
+                // four particle condition
+                if (p_number == 4) {
+                    //counter to count positive charges to determine if there are pairs
+                    unsigned int posCount = 0;  
+                    
+                    for (int i = 0; i < static_cast<int> (p_number); i++) {
+                        if ( v[index[i]]->charge() > 0 ) posCount++;
+                    }
+                    
+                    // D2..enable equal, D1..enable pairs
+                    if ( ! ( ( (p_conditionparameter.charge_correlation & 4) != 0 
+                               && equalSigns   
+                             ) ||
+                             ( (p_conditionparameter.charge_correlation & 2) != 0 
+                               && posCount == 2
+                             )    
+                           ) 
+                       ) {
+                        
+                        continue;
+                    } 
+                }
+            }
+        } // end signchecks
 
-    // if we get here all checks were successfull
-    return true;
+        if (p_wsc) {
+            
+            LogTrace("L1GlobalTriggerMuonTemplate") 
+                << "\n  Checking spatial correlations: \n"
+                << std::endl;
+
+            // wsc requirements have always p_number = 2
+            // one can use directly index[0] and index[1] to compute 
+            // eta and phi differences
+            const int ObjInWscComb = 2;
+            if (static_cast<int> (p_number) != ObjInWscComb) {
+                edm::LogError("L1GlobalTriggerMuonTemplate") 
+                    << "\n  ERROR: " 
+                    << "number of particles in condition with spatial correlation = "
+                    << p_number << "\n  it must be = " << ObjInWscComb 
+                    << std::endl;
+                // TODO Perhaps I should throw here an exception, 
+                // since something is really wrong if p_number != ObjInWscComb (=2)
+                continue;  
+            }
     
+            unsigned int delta_eta;
+            unsigned int delta_phi;
+        
+            // check delta_eta
+            
+            // get eta index and the sign bit of the eta index (MSB is the sign)
+            //   signedEta[i] is the signed eta index of v[index[i]]
+            int signedEta[ObjInWscComb]; 
+            int signBit[ObjInWscComb] = {0, 0}; 
+
+            int etaBits = L1GlobalTriggerReadoutSetup::MuonEtaBits;
+            
+            int scaleEta = 1 << (etaBits - 1);
+            LogTrace("L1GlobalTriggerMuonTemplate") 
+                << "  scale factor for eta = " << scaleEta << " ( "  
+                << etaBits << " bits for eta of the muon, MSB - sign bit), " 
+                << std::endl;
+            
+            for (int i = 0; i < ObjInWscComb; ++i) {
+                signBit[i] = (v[index[i]]->etaIndex() & scaleEta)>>(etaBits - 1);
+                signedEta[i] = ( v[index[i]]->etaIndex() )%scaleEta;
+
+                if (signBit[i] == 1) {
+                    signedEta[i] = (-1)*signedEta[i];
+                }                
+
+            }
+
+            // compute delta_eta - add 1 if signs are different (due to +0/-0 indices)            
+            delta_eta = static_cast<int> (std::abs(signedEta[1] - signedEta[0])) 
+                + static_cast<int> (signBit[1]^signBit[0]); 
+
+            LogTrace("L1GlobalTriggerMuonTemplate") 
+                << "  delta_eta = " << delta_eta << " for "  
+                << "v[" << index[0] <<"]->etaIndex() = " << v[index[0]]->etaIndex()
+                << " (scaled value " << signedEta[0] << "), " 
+                << "v[" << index[1] <<"]->etaIndex() = " << v[index[1]]->etaIndex()  
+                << " (scaled value " << signedEta[1] << "), " 
+                << std::endl;
+        
+            if ( !checkBit(p_conditionparameter.delta_eta, delta_eta) ) {
+                LogTrace("L1GlobalTriggerMuonTemplate") << "  muon delta_eta: failed" 
+                    << std::endl;
+                continue;
+            } else {
+                LogTrace("L1GlobalTriggerMuonTemplate") 
+                    << "  ==> muon delta_eta: passed" 
+                    << std::endl;
+            }
+
+            // check delta_phi
+            
+            // calculate absolute value of delta_phi
+            if (v[index[0]]->phiIndex() > v[index[1]]->phiIndex()) { 
+                delta_phi = v[index[0]]->phiIndex() - v[index[1]]->phiIndex();
+            } else {
+                delta_phi = v[index[1]]->phiIndex() - v[index[0]]->phiIndex();
+            }
+            LogTrace("L1GlobalTriggerMuonTemplate") 
+                << std::dec << "  delta_phi = " << delta_phi << " for " 
+                << "v[" << index[0] <<"]->phiIndex() = " << v[index[0]]->phiIndex() 
+                << ", " 
+                << "v[" << index[1] <<"]->phiIndex() = " << v[index[1]]->phiIndex()  
+                << std::endl;
+
+            // check if delta_phi > 180 (aka delta_phi_maxbits) 
+            // delta_phi contains bits for 0..180 (0 and 180 included)
+            // delta_phi_maxbits == 73 for a range of 2.5 deg (see scale file)
+            while (delta_phi > p_conditionparameter.delta_phi_maxbits) {
+                LogTrace("L1GlobalTriggerMuonTemplate") 
+                    << "  delta_phi = " << delta_phi 
+                    << " > p_conditionparameter.delta_phi_maxbits ==> needs re-scaling" 
+                    << std::endl;
+                    
+                // delta_phi > 180 ==> take 360 - delta_phi
+                delta_phi = (p_conditionparameter.delta_phi_maxbits - 1)*2 - delta_phi;   
+                LogTrace("L1GlobalTriggerMuonTemplate") 
+                    << "  delta_phi changed to: " <<  delta_phi 
+                    << std::endl;
+            }
+        
+            // delta_phi bitmask is saved in two u_int64_t (see parser) 
+            if (delta_phi < 64) {
+                if (!checkBit(p_conditionparameter.delta_phil, delta_phi) ) {
+                    continue;
+                }
+            } else {
+                if (!checkBit(p_conditionparameter.delta_phih, delta_phi - 64)) {
+                    continue;
+                }
+            }
+            
+    
+        } // end wsc check
+        
+        // if we get here all checks were successfull for this combination 
+        // set the general result for blockCondition remains "true"
+
+        condResult = true;
+        passLoops++;
+        (*p_combinationsInCond).push_back(objectsInComb);
+
+        LogTrace("L1GlobalTriggerMuonTemplate") 
+            << "\n  ... Trigger object permutation ( " <<  myCout.str() 
+            << ") passes all requirements." 
+            << std::endl;
+
+                    
+    } while ( std::next_permutation(index, index + maxNumberCands) );
+    
+    LogTrace("L1GlobalTriggerMuonTemplate") 
+        << "\n  L1GlobalTriggerMuonTemplate: total number of permutations found:          " 
+        << totalLoops 
+        << "\n  L1GlobalTriggerMuonTemplate: number of permutations passing requirements: " 
+        << passLoops << "\n" 
+        << std::endl;    
+
+        CombinationsInCond::const_iterator itVV;
+        std::ostringstream myCout1;                 
+
+        for(itVV  = (*p_combinationsInCond).begin(); 
+            itVV != (*p_combinationsInCond).end(); itVV++) {
+            
+            myCout1 << "( ";
+        
+            std::copy((*itVV).begin(), (*itVV).end(), 
+                std::ostream_iterator<int> (myCout1, " "));
+            
+            myCout1 << "); ";
+
+        }
+
+
+        LogTrace("L1GlobalTriggerMuonTemplate") 
+            << "\n  List of combinations passing all requirements for this condition: \n  " 
+            <<  myCout1.str() 
+            << " \n" 
+            << std::endl;
+
+    return condResult;
+
 }
 
 void L1GlobalTriggerMuonTemplate::printThresholds(std::ostream& myCout) const {
@@ -354,7 +530,7 @@ const bool L1GlobalTriggerMuonTemplate::checkParticle(
   
     std::string checkFalse = "\n  ==> checkParticle = false ";        
     
-    if (ncondition >= (int) p_number || ncondition < 0) {
+    if (ncondition >= static_cast<int> (p_number) || ncondition < 0) {
         LogTrace("L1GlobalTriggerMuonTemplate")
             << "L1GlobalTriggerMuonTemplate:"
             << "  Number of condition outside [0, p_number) interval." 
@@ -383,7 +559,8 @@ const bool L1GlobalTriggerMuonTemplate::checkParticle(
     
     // checkThreshold always check ">=" or ">" 
     // if checkThreshold = false for high pt threshold: check isolation  
-    if (!checkThreshold(p_particleparameter[ncondition].pt_h_threshold, cand.ptIndex())) {
+    if (!checkThreshold(p_particleparameter[ncondition].pt_h_threshold, 
+        cand.ptIndex())) {
     
         LogTrace("L1GlobalTriggerMuonTemplate") 
             << "  muon: value < high pt threshold ==> check low pt threshold" 
@@ -391,11 +568,12 @@ const bool L1GlobalTriggerMuonTemplate::checkParticle(
             
         // check isolated muon
 
-        // using the table from GTL-6U-module.pdf at top of page 35 TODO FIXME  
-        // the exact behavior is not jet decided
+        // using the logic table from GTL-6U-module.pdf at top of page 35 
+        // TODO FIXME change to the latest version implemented in hw  
     
         // false if lower than low threshold
-        if ( !checkThreshold( p_particleparameter[ncondition].pt_l_threshold, cand.ptIndex() ) ) {
+        if ( !checkThreshold( p_particleparameter[ncondition].pt_l_threshold, 
+            cand.ptIndex() ) ) {
             LogTrace("L1GlobalTriggerMuonTemplate") << "  muon low pt threshold: failed" 
                 << checkFalse 
                 << std::endl;            
@@ -418,11 +596,19 @@ const bool L1GlobalTriggerMuonTemplate::checkParticle(
         }
     
     } else {
-        LogTrace("L1GlobalTriggerMuonTemplate") << "  ===> muon high pt threshold: passed" 
+        LogTrace("L1GlobalTriggerMuonTemplate") 
+            << "  ===> muon high pt threshold: passed" 
             << std::endl;
     }
   
     // check eta
+    LogTrace("L1GlobalTriggerMuonTemplate") << "  muon eta check"
+        << " etaIndex() = " 
+        << std::dec << cand.etaIndex() << " (dec) " 
+        << std::hex << cand.etaIndex() << " (hex) "
+        << std::dec
+        << std::endl;
+    
     if (!checkBit(p_particleparameter[ncondition].eta, cand.etaIndex())) {
         LogTrace("L1GlobalTriggerMuonTemplate") << "  muon eta: failed" 
             << checkFalse 
@@ -432,8 +618,10 @@ const bool L1GlobalTriggerMuonTemplate::checkParticle(
         LogTrace("L1GlobalTriggerMuonTemplate") << "  ==> muon eta: passed" << std::endl;
     }
   
-    // check phi if it is in the range
-    if ( p_particleparameter[ncondition].phi_h >= p_particleparameter[ncondition].phi_l) { 
+    // check phi if it is in the range (no LUT used - LUT too big for hw chip)
+    if (p_particleparameter[ncondition].phi_h >= 
+        p_particleparameter[ncondition].phi_l) { 
+
         if (! ( p_particleparameter[ncondition].phi_l <= cand.phiIndex() &&
                 cand.phiIndex() <= p_particleparameter[ncondition].phi_h    ) ) {
 
@@ -459,14 +647,30 @@ const bool L1GlobalTriggerMuonTemplate::checkParticle(
 
   
     // check quality ( bit check )
-    // if (!checkBit(p_particleparameter[ncondition].quality, cand.quality())) return false;
-    if (!checkBitM(p_particleparameter[ncondition].quality, cand.quality())) {
-        LogTrace("L1GlobalTriggerMuonTemplate") << "  muon quality: failed" 
+    
+    if ( cand.quality() == 0 ) {
+        LogTrace("L1GlobalTriggerMuonTemplate") << "  muon with quality = 0 are rejected" 
             << checkFalse 
             << std::endl;
         return false;
+    }
+        
+    if (p_particleparameter[ncondition].quality == 0) {
+        LogTrace("L1GlobalTriggerMuonTemplate") << "  muon quality: mask = " 
+            << p_particleparameter[ncondition].quality
+            << " ==> quality not requested ==> passed "
+            << std::endl;
     } else {
-        LogTrace("L1GlobalTriggerMuonTemplate") << "  ==> muon quality: passed" << std::endl;
+        if (!checkBit(p_particleparameter[ncondition].quality, cand.quality())) {
+            LogTrace("L1GlobalTriggerMuonTemplate") << "  muon quality: failed" 
+                << checkFalse 
+                << std::endl;
+            return false;
+        } else {
+            LogTrace("L1GlobalTriggerMuonTemplate") 
+                << "  ==> muon quality: passed" 
+                << std::endl;
+        }
     }
 
     // check mip
@@ -478,7 +682,8 @@ const bool L1GlobalTriggerMuonTemplate::checkParticle(
                 << std::endl;
             return false;
         } else {
-            LogTrace("L1GlobalTriggerMuonTemplate") << "  muon mip: passed" << std::endl;
+            LogTrace("L1GlobalTriggerMuonTemplate") << "  muon mip: passed" 
+                << std::endl;
         }
     }
 
@@ -490,32 +695,3 @@ const bool L1GlobalTriggerMuonTemplate::checkParticle(
     return true;
 }
     
-template<class Type1>
-    const bool L1GlobalTriggerMuonTemplate::checkBitM(
-    Type1 const &mask, unsigned int bitNumber) const {
-
-    if (bitNumber >= 64) return false; // TODO 64 as static or parameter
-
-    // do not accept muons with quality zero
-    if ( bitNumber == 0) return false;
-    
-    if ( mask == 0) return true;
- 
-    u_int64_t oneBit = 1;
-    oneBit <<= bitNumber;
-      
-    LogTrace("L1GlobalTriggerMuonTemplate") 
-        << "  checkBit muon" 
-        << "\n     mask address = " << &mask
-        << std::dec  
-        << "\n     dec: mask = " << mask << " oneBit = " << oneBit << " bitNumber = " << bitNumber 
-        << std::hex 
-        << "\n     hex: mask = " << mask << " oneBit = " << oneBit << " bitNumber = " << bitNumber
-        << std::dec 
-        << "\n     mask & oneBit result = " << bool ( mask & oneBit ) 
-        << std::endl;
-        
-      
-    return (mask & oneBit);
-}
-

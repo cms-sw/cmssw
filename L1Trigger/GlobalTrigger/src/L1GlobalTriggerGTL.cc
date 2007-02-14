@@ -23,7 +23,10 @@
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerSetup.h"
@@ -182,6 +185,31 @@ void L1GlobalTriggerGTL::run(int iBxInEvent) {
                 LogTrace("L1GlobalTriggerGTL")
                     << condName << " result: " << condResult 
                     << std::endl;
+                    
+//                CombinationsInCond* combsInCond = itxml->second->getCombinationsInCond();
+//                    
+//                CombinationsInCond::const_iterator itVV;
+//                std::ostringstream myCout1;                 
+//        
+//                for(itVV  = (*combsInCond).begin(); 
+//                    itVV != (*combsInCond).end(); itVV++) {
+//                    
+//                    myCout1 << "( ";
+//                
+//                    std::copy((*itVV).begin(), (*itVV).end(), 
+//                        std::ostream_iterator<int> (myCout1, " "));
+//                    
+//                    myCout1 << "); ";
+//        
+//                }
+//        
+//        
+//                LogTrace("L1GlobalTriggerGTL") 
+//                    << "\n  List of combinations passing all requirements for this condition: \n  " 
+//                    <<  myCout1.str() 
+//                    << " \n" 
+//                    << std::endl;
+                                         
             
             }
         }
@@ -195,13 +223,37 @@ void L1GlobalTriggerGTL::run(int iBxInEvent) {
                                 
             std::string prealgoName = itxml->first;
             bool prealgoResult = itxml->second->blockCondition_sr(); 
-            std::string prealgoExpression = itxml->second->getNumericExpression();
+            std::string prealgoLogExpression = itxml->second->getLogicalExpression();
+            std::string prealgoNumExpression = itxml->second->getNumericExpression();
             
-            LogTrace("L1GlobalTriggerGTL")
-                << "  " << prealgoName << " : " << prealgoResult 
-                << " = " << prealgoExpression
-                << std::endl;
+            // set the pins if VERSION_FINAL (final version uses prealgorithms)
+            if (gtConf->getVersion() == L1GlobalTriggerConfig::VERSION_FINAL) {
 
+                // algo( i ) = prealgo( i+1 ), i = 0, MaxNumberAlgorithms
+                int prealgoNumber = itxml->second->getAlgoNumber();               
+    
+                if (itxml->second->getLastResult()) {
+                    if (prealgoNumber > 0) {
+                        m_gtlAlgorithmOR.set( prealgoNumber-1);
+                        
+                    }
+                }
+                
+                edm::LogVerbatim("L1GlobalTriggerGTL")
+                    << " Bit " << prealgoNumber-1
+                    << " " << prealgoName << " = " << prealgoLogExpression << ": " 
+                    << m_gtlAlgorithmOR[ prealgoNumber-1 ]
+                    << " = " << prealgoNumExpression
+                    << std::endl;
+            } else {
+            
+                LogTrace("L1GlobalTriggerGTL")
+                    << " " << prealgoName << " = " << prealgoLogExpression << ": " 
+                    << prealgoResult 
+                    << " = " << prealgoNumExpression
+                    << std::endl;
+            }
+            
         }
         LogTrace("L1GlobalTriggerGTL") 
             << "\n---------- End of prealgorithm list ---------\n" 
@@ -216,27 +268,11 @@ void L1GlobalTriggerGTL::run(int iBxInEvent) {
             
             std::string algoName = itxml->first;
             bool algoResult = itxml->second->blockCondition_sr(); 
-            std::string algoExpression = itxml->second->getNumericExpression();
-            
-            LogTrace("L1GlobalTriggerGTL")
-                << "  " << algoName << " : " << algoResult 
-                << " = " << algoExpression
-                << std::endl;
+            std::string algoLogExpression = itxml->second->getLogicalExpression();
+            std::string algoNumExpression = itxml->second->getNumericExpression();
 
-        }
-        LogTrace("L1GlobalTriggerGTL") 
-            << "\n---------- End of algorithm list ----------\n" 
-            << std::endl;
-
-        // set the pins
-        if (gtConf->getVersion() == L1GlobalTriggerConfig::VERSION_PROTOTYPE) {
-            // prototype version uses algos
-            for (L1GlobalTriggerConfig::ConditionsMap::const_iterator 
-                itxml  = gtConf->algosmap.begin(); 
-                itxml != gtConf->algosmap.end(); itxml++) {
-
-                std::string algoName = itxml->first;
-    
+            // set the pins if VERSION_PROTOTYPE (prototype version uses algos)
+            if (gtConf->getVersion() == L1GlobalTriggerConfig::VERSION_PROTOTYPE) {
                 if (itxml->second->getLastResult()) {
                     if (itxml->second->getOutputPin() > 0) {
                         m_gtlAlgorithmOR.set( itxml->second->getOutputPin()-1);
@@ -245,37 +281,82 @@ void L1GlobalTriggerGTL::run(int iBxInEvent) {
 
                 edm::LogVerbatim("L1GlobalTriggerGTL")
                     << " Bit " << itxml->second->getOutputPin()-1
-                    << " " << algoName << ": "  
+                    << " " << algoName << " = " << algoLogExpression  
+                    << " = " << algoNumExpression
+                    << std::endl;
+
+            } else {           
+                                     
+                LogTrace("L1GlobalTriggerGTL")
+                    << "  " << algoName << " = " << algoLogExpression 
+                    << " = " << algoNumExpression  << " = " << algoResult
                     << std::endl;
             }
 
-        } else {
-            // final version use prealgos
-            for (L1GlobalTriggerConfig::ConditionsMap::const_iterator 
-                itxml  = gtConf->prealgosmap.begin(); 
-                itxml != gtConf->prealgosmap.end(); itxml++) {
-
-                std::string prealgoName = itxml->first;
-                
-                // algo( i ) = prealgo( i+1 ), i = 0, MaxNumberAlgorithms
-                int prealgoNumber = itxml->second->getAlgoNumber();               
-    
-                if (itxml->second->getLastResult()) {
-                    if (prealgoNumber > 0) {
-                        m_gtlAlgorithmOR.set( prealgoNumber-1);
-                        
-                    }
-                }
-                
-                edm::LogVerbatim("L1GlobalTriggerGTL")
-                    << " Bit " << prealgoNumber-1
-                    << " " << prealgoName << ": " << m_gtlAlgorithmOR[ prealgoNumber-1 ]
-                    << std::endl;
-
-            }
         }
+        LogTrace("L1GlobalTriggerGTL") 
+            << "\n---------- End of algorithm list ----------\n" 
+            << std::endl;
+
     }
     
+}
+
+// fill object map record
+void L1GlobalTriggerGTL::fillObjectMap() {
+
+    const L1GlobalTriggerConfig* gtConf = m_GT.gtSetup()->gtConfig();
+        
+    // do it only if VERSION_FINAL
+    if (gtConf->getVersion() == L1GlobalTriggerConfig::VERSION_FINAL) {
+    
+        L1GlobalTriggerObjectMap* objMap = new L1GlobalTriggerObjectMap();
+        
+        for (L1GlobalTriggerConfig::ConditionsMap::const_iterator 
+            itxml  = gtConf->prealgosmap.begin(); 
+            itxml != gtConf->prealgosmap.end(); itxml++) {
+                                
+            std::string prealgoNameVal = itxml->first;
+
+            // algo( i ) = prealgo( i+1 ), i = 0, MaxNumberAlgorithms
+            int prealgoNumberVal = itxml->second->getAlgoNumber(); 
+            int algoBitNumberVal = prealgoNumberVal -1;
+
+            bool prealgoResultVal = itxml->second->getLastResult();
+
+            std::string prealgoLogExpressionVal = itxml->second->getLogicalExpression();
+            std::string prealgoNumExpressionVal = itxml->second->getNumericExpression();
+
+            std::vector<CombinationsInCond> combVectorVal = 
+                itxml->second->getCombinationVector(); 
+            
+            // set object map
+            
+            objMap->reset();
+            
+            objMap->setAlgoName(prealgoNameVal);
+            objMap->setAlgoBitNumber(algoBitNumberVal);
+            objMap->setAlgoGtlResult(prealgoResultVal);
+            objMap->setAlgoLogicalExpression(prealgoLogExpressionVal);
+            objMap->setAlgoNumericalExpression(prealgoNumExpressionVal);
+            objMap->setCombinationVector(combVectorVal);
+            
+            std::ostringstream myCout1;                 
+            objMap->print(myCout1);
+
+            LogTrace("L1GlobalTriggerGTL") 
+                <<  myCout1.str() 
+                << std::endl;
+                
+                                    
+            // FIXME here
+
+            
+        }
+        
+        delete objMap;
+    }
+
 }
 
 // clear GTL

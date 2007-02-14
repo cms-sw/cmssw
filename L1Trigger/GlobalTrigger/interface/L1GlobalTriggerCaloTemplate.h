@@ -112,10 +112,10 @@ private:
     /// copy function for copy constructor and operator=
     void copy( const L1GlobalTriggerCaloTemplate& cp);
 
-    // load calo candidates
+    /// load calo candidates
     virtual L1GctCand* getCandidate( int indexCand ) const;
 
-    // function to check a single particle if it matches a condition
+    /// function to check a single particle if it matches a condition
     const bool checkParticle(int ncondition, L1GctCand &cand) const;
 
 };

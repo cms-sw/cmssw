@@ -20,11 +20,16 @@
 
 // system include files
 #include <string>
+#include <vector>
+
 #include <iosfwd>
 
 // user include files
 //   base class
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerConditions.h"
+
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerConfig.h"
 
 // forward declarations
@@ -42,12 +47,20 @@ public:
     /// destructor
     virtual ~L1GlobalTriggerLogicParser();
 
+public:
+
     ///
     virtual const bool blockCondition() const;
+
+    /// get the expression (without the results inserted for the operands)
+    virtual std::string getLogicalExpression();
 
     /// get the expression with the results inserted for the operands
     virtual std::string getNumericExpression();
     
+    /// get / set the vector of combinations for the algorithm
+    virtual std::vector<CombinationsInCond> getCombinationVector();
+
     /// set the expression and build the parse tree
     int setExpression( const std::string& expression, 
         L1GlobalTriggerConfig::ConditionsMap* operandmap, unsigned int nummap=1);

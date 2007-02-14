@@ -24,7 +24,11 @@
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 
@@ -64,7 +68,7 @@ public:
     typedef std::vector<L1GlobalTriggerConditions*> conditions;
 
     typedef std::vector<conditions*> conditionContainer;
-
+    
 public:
 
     /// receive data from Global Muon Trigger
@@ -73,6 +77,9 @@ public:
     /// run the GTL
     void run(int iBxInEvent);
     
+    /// fill object map record
+    void fillObjectMap();
+
     /// clear GTL
     void reset(); 
     

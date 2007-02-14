@@ -21,10 +21,12 @@
 // system include files
 #include <iostream>
 #include <iomanip>
+
 #include <string>
+#include <vector>
 
 // user include files 
-
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // forward declarations
@@ -44,7 +46,7 @@ public:
     
     /// destructor
     virtual ~L1GlobalTriggerConditions();
-    
+
 public:
     
     inline bool getGeEq() const { return p_ge_eq; }
@@ -72,8 +74,17 @@ public:
     /// print thresholds
     virtual void printThresholds(std::ostream& myCout) const = 0;
 
+    /// get logical expression
+    virtual std::string getLogicalExpression() { return p_name; }
+
     /// get numeric expression
     virtual std::string getNumericExpression() { if (p_lastresult) { return "1"; } else { return "0";} }
+
+    /// get the vector of combinations for the algorithm
+    virtual std::vector<CombinationsInCond> getCombinationVector();
+
+    /// get all the object combinations evaluated to true in the condition
+    inline CombinationsInCond* getCombinationsInCond() const { return p_combinationsInCond; }
 
 protected:
 
@@ -89,8 +100,12 @@ protected:
     /// output pin on condition chip
     int p_outputpin;    
 
-    /// output pin on condition chip
+    /// algorithm number (bit number in decision word)
     int p_algoNumber;    
+    
+    /// store all the object combinations evaluated to true in the condition     
+    CombinationsInCond* p_combinationsInCond;
+
 
 protected:
 
@@ -159,7 +174,7 @@ template<class Type1>
     oneBit <<= bitNumber;  
         
     LogTrace("L1GlobalTriggerConditions") 
-        << "  checkBit " 
+        << "    checkBit " 
         << "\n     mask address = " << &mask
         << std::dec  
         << "\n     dec: mask = " << mask << " oneBit = " << oneBit << " bitNumber = " << bitNumber 

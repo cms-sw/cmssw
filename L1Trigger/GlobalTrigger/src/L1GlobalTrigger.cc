@@ -25,6 +25,9 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
@@ -61,6 +64,7 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& iConfig) {
     // register products
     produces<L1GlobalTriggerReadoutRecord>();
     produces<L1GlobalTriggerEvmReadoutRecord>();
+    produces<L1GlobalTriggerObjectMapRecord>();
 
     // set configuration parameters
     if(!m_gtSetup) m_gtSetup = new L1GlobalTriggerSetup(*this, iConfig);
@@ -128,6 +132,14 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::auto_ptr<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord(
         new L1GlobalTriggerEvmReadoutRecord(m_totalBxInEvent) );
 
+    // * produce the L1GlobalTriggerObjectMapRecord
+    LogDebug("L1GlobalTrigger") 
+        << "\nL1GlobalTrigger : producing L1GlobalTriggerObjectMapRecord\n"
+        << std::endl; 
+        
+    std::auto_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord(
+        new L1GlobalTriggerObjectMapRecord() );
+        
     // * create L1GtfeWord
     
     L1GtfeWord gtfeWordValue;
@@ -188,6 +200,13 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             LogDebug("L1GlobalTrigger") 
                 << "\n AlgorithmOR\n" << m_gtGTL->getAlgorithmOR() << "\n" 
                 << std::endl;
+                
+            if (iBxInEvent == 0) { // FIXME
+            
+               m_gtGTL->fillObjectMap(); 
+            
+            }
+                
             
         } 
     
@@ -362,10 +381,11 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     }
 
-
+     
     // **             
     iEvent.put( gtReadoutRecord );
     iEvent.put( gtEvmReadoutRecord );
+    iEvent.put( gtObjectMapRecord );
 
 }
 

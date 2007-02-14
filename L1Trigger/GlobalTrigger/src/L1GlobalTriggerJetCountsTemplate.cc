@@ -125,7 +125,7 @@ const bool L1GlobalTriggerJetCountsTemplate::blockCondition() const {
   
 void L1GlobalTriggerJetCountsTemplate::printThresholds(std::ostream& myCout) const {
 
-    myCout << "L1GlobalTriggerJetCountsTemplate: Threshold values " << std::endl;
+    myCout << "L1GlobalTriggerJetCountsTemplate: threshold values " << std::endl;
     myCout << "Condition Name: " << getName() << std::endl;
 
     myCout << std::endl;
