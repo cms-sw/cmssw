@@ -97,8 +97,8 @@ void L1GlobalTriggerSetup::setTriggerMenu(std::string& menuDir) {
     std::string defXmlFile = f1.fullPath();
     
     if (f1.isLocal()) {
-        LogDebug("L1GlobalTriggerSetup") 
-            << "FileInPath: XML configuration file: \n  " << defXmlFile 
+        edm::LogInfo("L1GlobalTriggerSetup") 
+            << "\n\n  Trigger menu and configuration: XML file: \n  " << defXmlFile << "\n\n" 
             << std::endl;        
 	} else {
         // FileInPath throw exception if the file is not found;

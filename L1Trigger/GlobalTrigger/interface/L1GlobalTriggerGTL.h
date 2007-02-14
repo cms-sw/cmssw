@@ -78,7 +78,7 @@ public:
     void run(int iBxInEvent);
     
     /// fill object map record
-    void fillObjectMap();
+    const std::vector<L1GlobalTriggerObjectMap>* objectMap();
 
     /// clear GTL
     void reset(); 

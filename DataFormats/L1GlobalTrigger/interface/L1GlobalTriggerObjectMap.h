@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -115,7 +115,7 @@ public:
     void reset();
     
     /// print the full object map
-    void print(std::ostream& myCout);
+    void print(std::ostream& myCout) const;
     
 private:
 

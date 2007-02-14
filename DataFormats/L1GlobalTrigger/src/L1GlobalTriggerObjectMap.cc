@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -66,7 +66,7 @@ void L1GlobalTriggerObjectMap::reset()
 
 }
 
-void L1GlobalTriggerObjectMap::print(std::ostream& myCout)
+void L1GlobalTriggerObjectMap::print(std::ostream& myCout) const
 {
 
     myCout << "L1GlobalTriggerObjectMap: print " << std::endl;
@@ -107,7 +107,7 @@ void L1GlobalTriggerObjectMap::print(std::ostream& myCout)
 
         }
 
-        myCout << "\n";
+        myCout << "\n\n";
     }
 }
 

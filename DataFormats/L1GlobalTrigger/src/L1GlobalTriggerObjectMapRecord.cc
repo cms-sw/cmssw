@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -27,6 +27,8 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 // forward declarations
 
 
@@ -40,23 +42,59 @@ L1GlobalTriggerObjectMapRecord::~L1GlobalTriggerObjectMapRecord()
 
 // methods
 
-// return all the combinations passing the requirements imposed in condition condName
-// from algorithm algoName
+// return all the combinations passing the requirements imposed in condition condNameVal
+// from algorithm algoNameVal
 const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
     std::string algoNameVal, std::string condNameVal)
 {
 
-    for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_GtObjectMap.begin(); 
-        itObj != m_GtObjectMap.end(); ++itObj) {
-        
-        if ( (*itObj).algoName() == algoNameVal ) {
-            int conditionIndex = 0; // FIXME
+    for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
+            itObj != m_gtObjectMap.end(); ++itObj) {
 
-           return &((*itObj).combinationVector().at(conditionIndex));
-        }               
+        if ( (*itObj).algoName() == algoNameVal ) {
+            int conditionIndex = 0; // FIXME implement simple parser for logical expression
+
+            return &((*itObj).combinationVector().at(conditionIndex));
+        }
     }
-    
+
+    // no (algoName, condName) found, return zero pointer!
+
+    edm::LogError("L1GlobalTriggerObjectMapRecord")
+    << "\n  ERROR: The requested (algorithm name, condition name) = ("
+    << algoNameVal << ", " << condNameVal 
+    << ") does not exists in the trigger menu." 
+    << "  Returning zero pointer for getCombinationsInCond" 
+    << std::endl;
+
     return 0;
-    
+
 }
 
+// return all the combinations passing the requirements imposed in condition condNameVal
+// from algorithm with bit number algoBitNumberVal
+const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
+    int algoBitNumberVal, std::string condNameVal)
+{
+
+    for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
+            itObj != m_gtObjectMap.end(); ++itObj) {
+
+        if ( (*itObj).algoBitNumber() == algoBitNumberVal ) {
+            int conditionIndex = 0; // FIXME implement simple parser for logical expression
+
+            return &((*itObj).combinationVector().at(conditionIndex));
+        }
+    }
+
+    // no (algoBitNumber, condName) found, return zero pointer!
+    edm::LogError("L1GlobalTriggerObjectMapRecord")
+    << "\n  ERROR: The requested (algorithm bit number, condition name) = ("
+    << algoBitNumberVal << ", " << condNameVal 
+    << ") does not exists in the trigger menu." 
+    << "  Returning zero pointer for getCombinationsInCond" 
+    << std::endl;
+
+    return 0;
+
+}

@@ -303,9 +303,13 @@ void L1GlobalTriggerGTL::run(int iBxInEvent) {
 }
 
 // fill object map record
-void L1GlobalTriggerGTL::fillObjectMap() {
+const std::vector<L1GlobalTriggerObjectMap>* L1GlobalTriggerGTL::objectMap() {
 
     const L1GlobalTriggerConfig* gtConf = m_GT.gtSetup()->gtConfig();
+    
+    // empty vector for object maps
+    std::vector<L1GlobalTriggerObjectMap>* 
+        objMapVec = new std::vector<L1GlobalTriggerObjectMap>();
         
     // do it only if VERSION_FINAL
     if (gtConf->getVersion() == L1GlobalTriggerConfig::VERSION_FINAL) {
@@ -348,15 +352,17 @@ void L1GlobalTriggerGTL::fillObjectMap() {
                 <<  myCout1.str() 
                 << std::endl;
                 
-                                    
-            // FIXME here
-
+            objMapVec->push_back(*objMap);
+                                                
+            // after last usage, objMapVec must be deleted! 
             
         }
         
         delete objMap;
     }
 
+    return objMapVec;
+    
 }
 
 // clear GTL

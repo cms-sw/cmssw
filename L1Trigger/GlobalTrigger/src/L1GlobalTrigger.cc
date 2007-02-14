@@ -201,13 +201,15 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 << "\n AlgorithmOR\n" << m_gtGTL->getAlgorithmOR() << "\n" 
                 << std::endl;
                 
-            if (iBxInEvent == 0) { // FIXME
+            if (iBxInEvent == 0) { // TODO map only for BX = 0?
             
-               m_gtGTL->fillObjectMap(); 
+                const std::vector<L1GlobalTriggerObjectMap>* objMapVec = m_gtGTL->objectMap(); 
+
+                gtObjectMapRecord->setGtObjectMap(*objMapVec);                
+                delete objMapVec;
             
             }
-                
-            
+                            
         } 
     
         // * run FDL
@@ -381,7 +383,24 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     }
 
-     
+    if ( edm::isDebugEnabled() ) {
+
+        const std::vector<L1GlobalTriggerObjectMap> 
+            objMapVec = gtObjectMapRecord->gtObjectMap(); 
+
+        for (std::vector<L1GlobalTriggerObjectMap>::const_iterator it = objMapVec.begin(); 
+            it != objMapVec.end(); ++it)
+        {
+            (*it).print(myCoutStream);
+        }
+
+        LogDebug("L1GlobalTrigger")
+            << "Test gtObjectMapRecord in L1GlobalTrigger \n\n" << myCoutStream.str()
+            << std::endl;
+        myCoutStream.str(""); myCoutStream.clear();
+
+    }
+         
     // **             
     iEvent.put( gtReadoutRecord );
     iEvent.put( gtEvmReadoutRecord );

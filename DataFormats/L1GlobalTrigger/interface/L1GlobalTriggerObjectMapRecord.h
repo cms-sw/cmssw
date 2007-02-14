@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -46,9 +46,27 @@ public:
     const CombinationsInCond* getCombinationsInCond(
         std::string algoNameVal, std::string condNameVal);
 
+    /// return all the combinations passing the requirements imposed in condition condNameVal
+    /// from algorithm with bit number algoBitNumberVal
+    const CombinationsInCond* getCombinationsInCond(
+        int algoBitNumberVal, std::string condNameVal);
+
+public:
+
+    /// get / set the vector of object maps
+    inline const std::vector<L1GlobalTriggerObjectMap>& gtObjectMap() const
+    {
+        return m_gtObjectMap;
+    }
+
+    void setGtObjectMap(const std::vector<L1GlobalTriggerObjectMap>& gtObjectMapValue)
+    {
+        m_gtObjectMap = gtObjectMapValue;
+    }
+
 private:
 
-    std::vector<L1GlobalTriggerObjectMap> m_GtObjectMap;
+    std::vector<L1GlobalTriggerObjectMap> m_gtObjectMap;
 
 };
 
