@@ -10,9 +10,9 @@ class E9ESCCorrectionAlgo : public PhotonCorrectionAlgoBase
   E9ESCCorrectionAlgo(){};
   ~E9ESCCorrectionAlgo(){};
   
-  virtual reco::Photon applyBarrelCorrection(const reco::Photon& ph, const reco::BasicClusterShapeAssociationCollection &clshpMap) ;      
+  virtual double barrelCorrection(const reco::Photon& ph, const reco::BasicClusterShapeAssociationCollection &clshpMap) ;      
 
-  virtual reco::Photon applyEndcapCorrection(const reco::Photon& ph, const reco::BasicClusterShapeAssociationCollection &clshpMap) ;     
+  virtual double endcapCorrection(const reco::Photon& ph, const reco::BasicClusterShapeAssociationCollection &clshpMap) ;     
 };
 
 #endif

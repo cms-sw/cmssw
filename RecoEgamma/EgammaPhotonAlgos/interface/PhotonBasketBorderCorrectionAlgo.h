@@ -12,8 +12,8 @@ class PhotonBasketBorderCorrectionAlgo : public PhotonCorrectionAlgoBase
   PhotonBasketBorderCorrectionAlgo(){};
   virtual ~PhotonBasketBorderCorrectionAlgo(){};
   
-  virtual reco::Photon applyBarrelCorrection(const reco::Photon&ph, const reco::BasicClusterShapeAssociationCollection &clshpMap);
-  virtual reco::Photon applyEndcapCorrection(const reco::Photon&ph, const reco::BasicClusterShapeAssociationCollection &clshpMap);
+  virtual double barrelCorrection(const reco::Photon&ph, const reco::BasicClusterShapeAssociationCollection &clshpMap);
+  virtual double endcapCorrection(const reco::Photon&ph, const reco::BasicClusterShapeAssociationCollection &clshpMap);
 
  private:
   
