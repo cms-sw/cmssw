@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -71,10 +71,12 @@ public:
     // muons are represented as 32 bits (actually 26 bits)     
     typedef unsigned MuonDataWord;
     static const unsigned int NumberMuonBits = 32;
+    static const unsigned int MuonEtaBits = 6; // MSB: sign (0+/1-), 5 bits: value
 
     // e-gamma, jet objects have 16 bits
     typedef uint16_t CaloDataWord;
     static const unsigned int NumberCaloBits = 16;
+    static const unsigned int CaloEtaBits = 4; // MSB: sign (0+/1-), 3 bits: value
 
     // missing Et has 32 bits
     typedef uint32_t CaloMissingEtWord;

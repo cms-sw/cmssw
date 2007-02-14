@@ -1,6 +1,8 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1TcsWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
@@ -34,5 +36,13 @@ namespace { namespace {
     // dictionary for L1 Global Trigger EVM Readout Record
     L1GlobalTriggerEvmReadoutRecord dummy60;
     edm::Wrapper<L1GlobalTriggerEvmReadoutRecord> dummy61;
+
+    // dictionary for L1 Global Trigger Object Map
+    L1GlobalTriggerObjectMap dummy70;
+    edm::Wrapper<L1GlobalTriggerObjectMap> dummy71;
+
+    // dictionary for L1 Global Trigger Object Map Record
+    L1GlobalTriggerObjectMapRecord dummy72;
+    edm::Wrapper<L1GlobalTriggerObjectMapRecord> dummy73;
 } }
 

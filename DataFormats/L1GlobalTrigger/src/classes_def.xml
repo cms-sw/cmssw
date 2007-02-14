@@ -16,4 +16,10 @@
   
   <class name="L1GlobalTriggerEvmReadoutRecord"/>
   <class name="edm::Wrapper<L1GlobalTriggerEvmReadoutRecord>"/>
+
+  <class name="L1GlobalTriggerObjectMap"/>
+  <class name="edm::Wrapper<L1GlobalTriggerObjectMap>"/>
+
+  <class name="L1GlobalTriggerObjectMapRecord"/>
+  <class name="edm::Wrapper<L1GlobalTriggerObjectMapRecord>"/>
 </lcgdict>
