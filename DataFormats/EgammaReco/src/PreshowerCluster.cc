@@ -1,5 +1,5 @@
 //
-// $Id: PreshowerCluster.cc,v 1.8 2006/07/20 18:34:56 dbanduri Exp $
+// $Id: PreshowerCluster.cc,v 1.11 2007/02/07 00:00:42 futyand Exp $
 //
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
@@ -9,12 +9,12 @@ using namespace reco;
 PreshowerCluster::~PreshowerCluster() { }
 
 
-PreshowerCluster::PreshowerCluster(const double E, const Point& pos, const std::vector<DetId> usedHits, BasicClusterRefVector::iterator BC_ref,
-                     const int plane): EcalCluster(E, pos)
+PreshowerCluster::PreshowerCluster(const double E, const Point& pos,
+				   const std::vector<DetId> usedHits,
+				   const int plane) : EcalCluster(E, pos)
 {
   usedHits_ = usedHits;
   plane_ = plane;
-  bc_ref_ = (*BC_ref);
 
 //   std::cout << " PreshowerCluster::PreshowerCluster, E = " << energy() << std::endl;
 //   std::cout << " PreshowerCluster::PreshowerCluster, POS = " << "(" << x() <<","<< y() <<","<< z() <<")"<< std::endl;
@@ -27,6 +27,7 @@ PreshowerCluster::PreshowerCluster(const PreshowerCluster &b) : EcalCluster( b.e
 {
   usedHits_ = b.usedHits_;
   plane_ = b.plane_; 
+  bc_ref_=b.bc_ref_;
 }
 
 
