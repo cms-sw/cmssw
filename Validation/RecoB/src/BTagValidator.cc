@@ -6,7 +6,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.cc,v 1.2 2007/02/14 16:58:35 yumiceva Exp $
+ version $Id: BTagValidator.cc,v 1.3 2007/02/14 20:09:42 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -40,21 +40,23 @@ BTagValidator::BTagValidator(const edm::ParameterSet& iConfig) {
 	histogramList_ = iConfig.getParameter<vstring>( "histogramList" );
 	referenceFilename_ = iConfig.getParameter<std::string>( "ReferenceFilename" );
 	doCompare_ = iConfig.getParameter<bool>( "CompareHistograms" );
+	doAnalysis_ = iConfig.getParameter<bool>( "doAnalysis" );
 				
 	// change assert to CMS catch exceptions
 	// throw edm::Exception(errors::Configuration, "no label") << "thelabel do no exist";
 	
-	if (algorithm_ == "TrackCounting") 
-		petBase_ = new BTagPABase<reco::TrackCountingTagInfoCollection, TrackCountingTagPlotter>(iConfig);
-	else if (algorithm_ == "TrackProbability")
-		petBase_ = new BTagPABase<reco::TrackCountingTagInfoCollection, TrackProbabilityTagPlotter>(iConfig);
-	else {
-		cout << "BTagPerformanceAnalyzer: Unknown algorithm "<< algorithm_ <<endl;
-		cout << " Choose between JetTag, TrackCounting, TrackProbability\n";
-		exit(1);
+	if (doAnalysis_)
+	{	
+		if (algorithm_ == "TrackCounting") 
+			petBase_ = new BTagPABase<reco::TrackCountingTagInfoCollection, TrackCountingTagPlotter>(iConfig);
+		else if (algorithm_ == "TrackProbability")
+			petBase_ = new BTagPABase<reco::TrackCountingTagInfoCollection, TrackProbabilityTagPlotter>(iConfig);
+		else {
+			cout << "BTagPerformanceAnalyzer: Unknown algorithm "<< algorithm_ <<endl;
+			cout << " Choose between JetTag, TrackCounting, TrackProbability\n";
+			exit(1);
+		}
 	}
-
-	
 }
 
 
@@ -71,17 +73,16 @@ BTagValidator::~BTagValidator() {
 void
 BTagValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-	petBase_->analyze(iEvent, iSetup);
+	if(doAnalysis_) petBase_->analyze(iEvent, iSetup);
 }
 
 
 void 
 BTagValidator::endJob() {
 
-	
-	petBase_->endJob();
-
 	std::cout << "=== Begin Validation" << std::endl;
+
+	if ( doAnalysis_ ) petBase_->endJob();
 
 	// Validation section
 	TObject * tObject ;
@@ -90,7 +91,7 @@ BTagValidator::endJob() {
 	MonitorElement* monElement ;
 	MonitorElement* monElementRes;
 
-	TFile * file = new TFile ( TString ( rootFile_ ) ) ;
+	TFile *	file = new TFile ( TString ( rootFile_ ) ) ;
 
 	// comparison
 	HistoCompare hcompare;
