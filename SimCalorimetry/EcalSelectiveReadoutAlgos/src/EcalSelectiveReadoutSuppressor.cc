@@ -21,31 +21,31 @@
 
 #include <limits>
 #include <cmath>
+#include <iostream>
 
 using namespace boost;
 using namespace std;
 
 const int EcalSelectiveReadoutSuppressor::nFIRTaps = 6;
 
-#include <iostream>
-EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params)//:
-  //firstFIRSample(params.getParameter<int>("ecalDccZs1stSample")),
-  //weights(params.getParameter<vector<double> >("dccNormalizedWeights"))
-{
- firstFIRSample = params.getParameter<int>("ecalDccZs1stSample");
- weights = params.getParameter<vector<double> >("dccNormalizedWeights");
+EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params):
+  firstFIRSample(params.getParameter<int>("ecalDccZs1stSample")),
+  weights(params.getParameter<vector<double> >("dccNormalizedWeights")){
+  
   double adcToGeV = params.getParameter<double>("ebDccAdcToGeV");
-  ebGeV2ADC = adcToGeV!=0?1./adcToGeV:0.;
+  thrUnit[BARREL] = adcToGeV/4.; //unit=1/4th ADC count
+  
   adcToGeV = params.getParameter<double>("eeDccAdcToGeV");
-  eeGeV2ADC = adcToGeV!=0?1./adcToGeV:0.;
-  initTowerThresholds( params.getParameter<double>("srpLowTowerThreshold"), 
-               params.getParameter<double>("srpHighTowerThreshold"),
-               params.getParameter<int>("deltaEta"),
-               params.getParameter<int>("deltaPhi") );
+  thrUnit[ENDCAP] = adcToGeV/4.; //unit=1/4th ADC count
+  
+  initTowerThresholds(params.getParameter<double>("srpLowTowerThreshold"), 
+		      params.getParameter<double>("srpHighTowerThreshold"),
+		      params.getParameter<int>("deltaEta"),
+		      params.getParameter<int>("deltaPhi") );
   initCellThresholds(params.getParameter<double>("srpBarrelLowInterestChannelZS"),
-                     params.getParameter<double>("srpEndcapLowInterestChannelZS"),
+		     params.getParameter<double>("srpEndcapLowInterestChannelZS"),
 		     params.getParameter<double>("srpBarrelHighInterestChannelZS"),
-                     params.getParameter<double>("srpEndcapHighInterestChannelZS")
+		     params.getParameter<double>("srpEndcapHighInterestChannelZS")
 		     );
   trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
   trigPrimBypassWithPeakFinder_
@@ -54,13 +54,12 @@ EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::Parame
   trigPrimBypassHTH_ = params.getParameter<double>("trigPrimBypassHTH");
   if(trigPrimBypass_){
     edm::LogWarning("Digitization") << "Beware a simplified trigger primitive "
-       "computation is used for the ECAL selective readout";
-   }
+      "computation is used for the ECAL selective readout";
+  }
 }
 
 
-void EcalSelectiveReadoutSuppressor::setTriggerMap(const EcalTrigTowerConstituentsMap * map) 
-{
+void EcalSelectiveReadoutSuppressor::setTriggerMap(const EcalTrigTowerConstituentsMap * map){
   theTriggerMap = map;
   ecalSelectiveReadout->setTriggerMap(map);
 }
@@ -68,13 +67,15 @@ void EcalSelectiveReadoutSuppressor::setTriggerMap(const EcalTrigTowerConstituen
 
 void EcalSelectiveReadoutSuppressor::setGeometry(const CaloGeometry * caloGeometry) 
 {
-  ecalSelectiveReadout->setGeometry(caloGeometry);
+#ifndef ECALSELECTIVEREADOUT_NOGEOM
+   ecalSelectiveReadout->setGeometry(caloGeometry);
+#endif
 }
 
 
-void EcalSelectiveReadoutSuppressor::initTowerThresholds(double lowTowerThreshold, double highTowerThreshold,
-                                                 int deltaEta, int deltaPhi) 
-{
+void EcalSelectiveReadoutSuppressor::initTowerThresholds(double lowTowerThreshold,
+							 double highTowerThreshold,
+							 int deltaEta, int deltaPhi){
   std::vector<double> srpThr(2);
   srpThr[0]= lowTowerThreshold;
   srpThr[1]= highTowerThreshold;
@@ -82,50 +83,77 @@ void EcalSelectiveReadoutSuppressor::initTowerThresholds(double lowTowerThreshol
 }
 
 
-void EcalSelectiveReadoutSuppressor::initCellThresholds(double barrelLowInterest, double endcapLowInterest, double barrelHighInterest, double endcapHighInterest)
-{ 
-  zsThreshold[BARREL][0] = barrelLowInterest;
-  zsThreshold[BARREL][1] = barrelHighInterest;
-  zsThreshold[ENDCAP][0] = endcapLowInterest;
-  zsThreshold[ENDCAP][1] = endcapHighInterest;
+void EcalSelectiveReadoutSuppressor::initCellThresholds(double barrelLowInterest,
+							double endcapLowInterest,
+							double barrelHighInterest,
+							double endcapHighInterest){
+  //center, neighbour and single RUs are grouped into a single
+  //'high interest' group
+  int lowInterestThr[2]; //index for BARREL/ENDCAP
+  int lowInterestSrFlag[2];
+  int highInterestThr[2];
+  int highInterestSrFlag[2];
   
-  zsThreshold[BARREL][2] = barrelHighInterest;
-  zsThreshold[BARREL][3] = barrelHighInterest;
-  zsThreshold[ENDCAP][2] = endcapHighInterest;
-  zsThreshold[ENDCAP][3] = endcapHighInterest;
+  lowInterestThr[BARREL] = internalThreshold(barrelLowInterest, BARREL);
+  lowInterestSrFlag[BARREL] = thr2Srf(lowInterestThr[BARREL],
+				      EcalSrFlag::SRF_ZS1);
+  
+  highInterestThr[BARREL] = internalThreshold(barrelHighInterest, BARREL);
+  highInterestSrFlag[BARREL] = thr2Srf(highInterestThr[BARREL],
+				       EcalSrFlag::SRF_ZS2);
+  
+  lowInterestThr[ENDCAP] = internalThreshold(endcapLowInterest, ENDCAP);
+  lowInterestSrFlag[ENDCAP] = thr2Srf(lowInterestThr[ENDCAP],
+				      EcalSrFlag::SRF_ZS2);
+
+  highInterestThr[ENDCAP] = internalThreshold(endcapHighInterest, ENDCAP); 
+  highInterestSrFlag[ENDCAP] = thr2Srf(highInterestThr[ENDCAP],
+				       EcalSrFlag::SRF_ZS2);
+  
+  for(int iSubDet = 0; iSubDet<2; ++iSubDet){
+    //low interest
+    zsThreshold[iSubDet][0] = lowInterestThr[iSubDet];
+    srFlags[iSubDet][0] = lowInterestSrFlag[iSubDet];
+
+    //single->high interest
+    zsThreshold[iSubDet][1] = highInterestThr[iSubDet];
+    srFlags[iSubDet][1] = highInterestSrFlag[iSubDet];
+
+    //neighbour->high interest
+    zsThreshold[iSubDet][2] = highInterestThr[iSubDet];
+    srFlags[iSubDet][2] = highInterestSrFlag[iSubDet];
+
+    //center->high interest
+    zsThreshold[iSubDet][3] = highInterestThr[iSubDet];
+    srFlags[iSubDet][3] = highInterestSrFlag[iSubDet];
+  }
 }
 
+int EcalSelectiveReadoutSuppressor::thr2Srf(int thr, int zsFlag) const{
+  if(thr==numeric_limits<int>::max()){
+    return EcalSrFlag::SRF_SUPPRESS;
+  }
+  if(thr==numeric_limits<int>::min()){
+    return EcalSrFlag::SRF_FULL;
+  } 
+  return zsFlag;
+}
 
-double EcalSelectiveReadoutSuppressor::threshold(const EBDetId & detId) const {
-  
+/*
+double EcalSelectiveReadoutSuppressor::threshold(const EBDetId & detId) const {  
   int interestLevel = ecalSelectiveReadout->getCrystalInterest(detId);
    return interestLevel!=EcalSelectiveReadout::UNKNOWN?zsThreshold[0][interestLevel]:-numeric_limits<double>::max();
  }
+*/
+/*
+  double EcalSelectiveReadoutSuppressor::threshold(const EEDetId & detId) const {
+    int interestLevel = ecalSelectiveReadout->getCrystalInterest(detId);
+    return interestLevel!=EcalSelectiveReadout::UNKNOWN?zsThreshold[1][interestLevel]:-numeric_limits<double>::max();
+    }
+  */
 
-
-double EcalSelectiveReadoutSuppressor::threshold(const EEDetId & detId) const {
-  int interestLevel = ecalSelectiveReadout->getCrystalInterest(detId);
-   return interestLevel!=EcalSelectiveReadout::UNKNOWN?zsThreshold[1][interestLevel]:-numeric_limits<double>::max();
-}
-
-//This implementation  assumes that int is coded on at least 28-bits,
-//which in pratice should be always true.
-template<class T>
-bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
-					    float threshold){
-  double eGeV2ADC;
-  switch(frame.id().subdetId()){
-  case EcalBarrel:
-    eGeV2ADC = ebGeV2ADC;
-    break;
-  case EcalEndcap:
-    eGeV2ADC = eeGeV2ADC;
-    break;
-  default:
-    throw cms::Exception("EcalSelectiveReadoutSuppressor: unexpected subdetector id in a dataframe. Only EB and EE data frame are expected.");
-  }
-  
-  double thr_ = threshold * eGeV2ADC * 4.;
+int EcalSelectiveReadoutSuppressor::internalThreshold(double thresholdInGeV, int iSubDet) const{
+  double thr_ = thresholdInGeV / thrUnit[iSubDet];
   //treating over- and underflows, threshold is coded on 11+1 signed bits
   //an underflow threshold is considered here as if NoRO DCC switch is on
   //an overflow threshold is considered here as if ForcedRO DCC switch in on
@@ -135,11 +163,18 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
   if(thr_>=0x7FF+.5){
     thr = numeric_limits<int>::max();
   } else if(thr_<=-0x7FF-.5){
-    thr = -numeric_limits<int>::min();
+    thr = numeric_limits<int>::min();
   } else{
     thr = lround(thr_);
   }
-  
+  return thr;
+}
+
+//This implementation  assumes that int is coded on at least 28-bits,
+//which in pratice should be always true.
+template<class T>
+bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
+					    int thr){
   //FIR filter weights:
   const vector<int>& w = getFIRWeigths();
   
@@ -148,13 +183,13 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
   bool gain12saturated = false;
   const int gain12 = 0x01; 
   const int lastFIRSample = firstFIRSample + nFIRTaps - 1;
-  LogDebug("DccFir") << "DCC FIR operation: ";
+  //LogDebug("DccFir") << "DCC FIR operation: ";
   for(int i=firstFIRSample-1; i<lastFIRSample; ++i){
     if(i>=0 && i < frame.size()){
       const EcalMGPASample& sample = frame[i];
       if(sample.gainId()!=gain12) gain12saturated = true;
-      LogTrace("DccFir")  << (i>=firstFIRSample?"+":"") << sample.adc()
-			  << "*(" << w[i] << ")";
+      //LogTrace("DccFir") << (i>=firstFIRSample?"+":"") << sample.adc()
+      // 			  << "*(" << w[i] << ")";
       acc+=sample.adc()*w[i];
     } else{
       edm::LogWarning("DccFir") << __FILE__ << ":" << __LINE__ <<
@@ -162,8 +197,8 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
 	"parameter is not valid...";
     }
   }
-  LogTrace("DccFir") << "\n";
-  //discards the 8 LSBs
+  //LogTrace("DccFir") << "\n";
+  //discards the 8 LSBs 
   //(shift operator cannot be used on negative numbers because
   // the result depends on compilator implementation)
   acc = (acc>=0)?(acc >> 8):-(-acc >> 8);
@@ -173,60 +208,15 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
 
   const bool result = acc>=thr || gain12saturated;
   
-  LogTrace("DccFir") << "acc: " << acc << "\n"
-		     << "threshold: " << thr << " (" << threshold << "GeV)\n"
-		     << "saturated: " << (gain12saturated?"yes":"no") << "\n"
-		     << "ZS passed: " << (result?"yes":"no") << "\n";
-  
+  //LogTrace("DccFir") << "acc: " << acc << "\n"
+  //  		     << "threshold: " << thr << " ("
+  //  		     << thr*thrUnit[frame.id().subdet()==EcalBarrel?0:1]
+  //  		     << "GeV)\n"
+  //  		     << "saturated: " << (gain12saturated?"yes":"no") << "\n"
+  //  		     << "ZS passed: " << (result?"yes":"no") << "\n";
+
   return result;
 }
-
-
-int EcalSelectiveReadoutSuppressor::accumulate(const EcalDataFrame & frame,
-                                               bool & gain12saturated)
-{
-  //FIR filter weights:
-  const vector<int>& w = getFIRWeigths();
-
-  int acc = 0;
-  gain12saturated = false;
-  const int gain12 = 0x01;
-  const int lastFIRSample = firstFIRSample + nFIRTaps - 1;
-  LogDebug("DccFir") << "DCC FIR operation: ";
-  for(int i=firstFIRSample-1; i<lastFIRSample; ++i){
-    if(i>=0 && i < frame.size()){
-      const EcalMGPASample& sample = frame[i];
-      if(sample.gainId()!=gain12) gain12saturated = true;
-      LogTrace("DccFir")  << (i>=firstFIRSample?"+":"") << sample.adc()
-        << "*(" << w[i] << ")";
-      acc+=sample.adc()*w[i];
-    } else{
-      edm::LogWarning("DccFir") << __FILE__ << ":" << __LINE__ <<
-  ": Not enough samples in data frame or 'ecalDccZs1stSample' module "
-  "parameter is not valid...";
-    }
-  }
-  return acc;
-}
-
-
-double EcalSelectiveReadoutSuppressor::energy(const EcalDataFrame & frame)
-{
-  bool gain12saturated;
-  double acc = accumulate(frame, gain12saturated);
-  double adc2GeV;
-  switch(frame.id().subdetId()){
-  case EcalBarrel:
-    adc2GeV = 1./ebGeV2ADC;
-    break;
-  case EcalEndcap:
-    adc2GeV = 1./eeGeV2ADC;
-    break;
-  }
-  acc *= (adc2GeV / (1<<10));
-  return acc;
-}
-
 
 void EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,   
 					 const EcalTrigPrimDigiCollection & trigPrims,
@@ -234,9 +224,11 @@ void EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 					 EEDigiCollection & endcapDigis){
   EBDigiCollection selectedBarrelDigis;
   EEDigiCollection selectedEndcapDigis;
-
+  EBSrFlagCollection ebSrFlags;
+  EESrFlagCollection eeSrFlags;
+  
   run(eventSetup, trigPrims, barrelDigis, endcapDigis,
-      selectedBarrelDigis, selectedEndcapDigis);
+      selectedBarrelDigis, selectedEndcapDigis, ebSrFlags, eeSrFlags);
   
 //replaces the input with the suppressed version
   barrelDigis.swap(selectedBarrelDigis);
@@ -249,22 +241,26 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 				    const EcalTrigPrimDigiCollection & trigPrims,
 				    const EBDigiCollection & barrelDigis,
 				    const EEDigiCollection & endcapDigis,
-				    EBDigiCollection & selectedBarrelDigis,
-				    EEDigiCollection & selectedEndcapDigis)
-{
+				    EBDigiCollection& selectedBarrelDigis,
+				    EEDigiCollection& selectedEndcapDigis,
+				    EBSrFlagCollection& ebSrFlags,
+				    EESrFlagCollection& eeSrFlags){
   if(!trigPrimBypass_){//normal mode
     setTtFlags(trigPrims);
   } else{//debug mode, run w/o TP digis
     setTtFlags(eventSetup, barrelDigis, endcapDigis);
   }
+
+  ecalSelectiveReadout->runSelectiveReadout0(ttFlags);  
   
-  ecalSelectiveReadout->runSelectiveReadout0(ttFlags);
+  selectedBarrelDigis.reserve(barrelDigis.size()/20);
+  selectedEndcapDigis.reserve(endcapDigis.size()/20);
 
   // do barrel first
   for(EBDigiCollection::const_iterator digiItr = barrelDigis.begin();
       digiItr != barrelDigis.end(); ++digiItr){
-    //TO DO: remove EBDetId conversion once EBxxxDigi::id() return type fixed 
-    if(accept(*digiItr, threshold(EBDetId(digiItr->id())))){
+    int interestLevel = ecalSelectiveReadout->getCrystalInterest(digiItr->id());
+    if(accept(*digiItr, zsThreshold[BARREL][interestLevel])){
       selectedBarrelDigis.push_back(*digiItr);
     } 
   }
@@ -272,125 +268,88 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
   // and endcaps
   for(EEDigiCollection::const_iterator digiItr = endcapDigis.begin();
       digiItr != endcapDigis.end(); ++digiItr){
-    //TO DO: remove EEDetId conversion once EBxxxDigi::id() return type fixed 
-    if(accept(*digiItr, threshold(EEDetId(digiItr->id())))){
+    int interestLevel = ecalSelectiveReadout->getCrystalInterest(digiItr->id());
+    if(accept(*digiItr, zsThreshold[ENDCAP][interestLevel])){
       selectedEndcapDigis.push_back(*digiItr);
     }
+  }
+  
+  ebSrFlags.reserve(34*72);
+  eeSrFlags.reserve(624);
+  //SR flags:
+  for(int iZ = -1; iZ <=1; iZ+=2){ //-1=>EE-, EB-, +1=>EE+, EB+
+    //barrel:
+    for(unsigned iEta = 1; iEta <= nBarrelTriggerTowersInEta/2; ++iEta){
+      for(unsigned iPhi = 1; iPhi <= nTriggerTowersInPhi; ++iPhi){
+	const EcalTrigTowerDetId id(iZ, EcalBarrel, iEta, iPhi);
+	EcalSelectiveReadout::towerInterest_t interest
+	  = ecalSelectiveReadout->getTowerInterest(id);
+	if(interest<0){
+	  throw cms::Exception("EcalSelectiveReadout")
+	    << __FILE__ << ":" << __LINE__ << ": " << "unknown SR flag. for "
+	    << " TT " << id << ". Most probably a bug.";
+	}
+	int flag;
+	if(interest==EcalSelectiveReadout::FORCED_RO){
+	  flag = EcalSrFlag::SRF_FORCED_MASK | EcalSrFlag::SRF_FULL;
+	} else{
+	  flag = srFlags[BARREL][interest];
+	}
+	ebSrFlags.push_back(EBSrFlag(id, flag));
+      }//next iPhi
+    } //next barrel iEta
+
+    //endcap:
+    EcalScDetId id;
+    for(int iX = 1; iX <= 20; ++iX){
+      for(int iY = 1; iY <= 20; ++iY){
+	try{
+	  id = EcalScDetId(iX, iY, iZ);
+	} catch(cms::Exception e){//exception thrown if no SC at (iX,iY)
+	  continue;
+	}
+	EcalSelectiveReadout::towerInterest_t interest
+	  = ecalSelectiveReadout->getSuperCrystalInterest(id);
+	if(interest>=0){//negative no SC at (iX,iY) coordinates
+	  int flag;
+	  if(interest==EcalSelectiveReadout::FORCED_RO){
+	    flag = EcalSrFlag::SRF_FORCED_MASK | EcalSrFlag::SRF_FULL;
+	  } else{
+	    flag = srFlags[BARREL][interest];
+	  }
+	  eeSrFlags.push_back(EESrFlag(id, flag));
+	} else{
+	  cout << __FILE__ << ":" << __LINE__ << ": "
+	       <<  "negative interest in EE for SC "
+	       << id << "\n";
+	}
+      } //next iY
+    } //next iX
   }
 }
 
 
 void EcalSelectiveReadoutSuppressor::setTtFlags(const EcalTrigPrimDigiCollection & trigPrims){
-  for(size_t iEta = 0; iEta < nTriggerTowersInEta; ++iEta){
-    for(size_t iPhi = 0; iPhi < nTriggerTowersInPhi; ++iPhi){
-      ttFlags[iEta][iPhi] = EcalSelectiveReadout::TTF_FORCED_RO_OTHER1;
+  for(size_t iEta0 = 0; iEta0 < nTriggerTowersInEta; ++iEta0){
+    for(size_t iPhi0 = 0; iPhi0 < nTriggerTowersInPhi; ++iPhi0){
+      ttFlags[iEta0][iPhi0] = EcalSelectiveReadout::TTF_FORCED_RO_OTHER1;
     }
   }
   for(EcalTrigPrimDigiCollection::const_iterator trigPrim = trigPrims.begin();
       trigPrim != trigPrims.end(); ++trigPrim){
-    int iEta0 =  trigPrim->id().ieta();
-    unsigned int iEta;
-    if(iEta0<0){ //z- half ECAL: transforming ranges -28;-1 => 0;27
-      iEta = iEta0 + nTriggerTowersInEta/2;
+    int iEta =  trigPrim->id().ieta();
+    unsigned int iEta0;
+    if(iEta<0){ //z- half ECAL: transforming ranges -28;-1 => 0;27
+      iEta0 = iEta + nTriggerTowersInEta/2;
     } else{ //z+ halfECAL: transforming ranges 1;28 => 28;55
-      iEta = iEta0 + nTriggerTowersInEta/2 - 1;
+      iEta0 = iEta + nTriggerTowersInEta/2 - 1;
     }
 
-    unsigned int iPhi = trigPrim->id().iphi() - 1;
-
-    //TODO: code below must be change to use
-    //EcalTriggerPrimitiveDigi::ttFlags() method, once available:
-    int iTPSample;
-    if(trigPrim->size()>8){//version before nb of Tp data samples was changed
-      iTPSample = 5;
-    } else{
-      iTPSample = 2;
-    }
-    if(trigPrim->size()>=iTPSample){
-      ttFlags[iEta][iPhi] = (EcalSelectiveReadout::ttFlag_t)(*trigPrim)[iTPSample].ttFlag();
-    }
+    unsigned int iPhi0 = trigPrim->id().iphi() - 1;
+    ttFlags[iEta0][iPhi0] = (EcalSelectiveReadout::ttFlag_t) trigPrim->ttFlag(); 
   }
 }
 
-
-// void EcalSelectiveReadoutSuppressor::setTriggerTowers(const EcalTrigPrimDigiCollection & trigPrims){
-  
-//     for(size_t iEta = 0; iEta < nTriggerTowersInEta; ++iEta){
-//       for(size_t iPhi = 0; iPhi < nTriggerTowersInPhi; ++iPhi){
-//         triggerEt[iEta][iPhi] = 0.;
-//         triggerEt[iEta][iPhi] = 0.;
-//       }
-//     }
-
-//     int iTrigPrim = 0;
-//     for(EcalTrigPrimDigiCollection::const_iterator trigPrim = trigPrims.begin();
-//         trigPrim != trigPrims.end(); ++trigPrim)
-//     {
-//       float et = Et(*trigPrim); //or etWithoutBXID() ???
-//        // we want the indexing to go from zero.
-//       int eta0 =  trigPrim->id().ieta();
-//       unsigned int eta;
-//       if(eta0<0){ //z- half ECAL: transforming ranges -28;-1 => 0;27
-// 	eta = eta0 + nTriggerTowersInEta/2;
-//       } else{ //z+ halfECAL: transforming ranges 1;28 => 28;55
-// 	eta = eta0 + nTriggerTowersInEta/2 - 1;
-//       }
-//       unsigned int phi = trigPrim->id().iphi() - 1;
-//       assert(eta<nTriggerTowersInEta);
-//       assert(phi<nTriggerTowersInPhi);
-
-// //TODO is this still true?
-// /*
-//       if(eta>1 || eta < 54){//this detector eta-section part is divided in 72 phi bins
-//         triggerEt[eta][phi] = et;
-//       } else{//this detector eta-section is divided in only 36 phi bins
-// 	//For this eta regions,
-// 	//current tower eta numbering scheme is inconsistent. For geometry
-// 	//version 133:
-// 	//- TT are numbered from 0 to 72 for 36 bins
-// 	//- some TT have an even index, some an odd index
-// 	//For geometry version 125, there are 72 phi bins.
-// 	//The code below should handle both geometry definition.
-// 	//If there are 72 input trigger primitives for each inner eta-ring,
-// 	//then the average of the trigger primitive of the two pseudo-TT of
-// 	//a pair (nEta, nEta+1) is taken as Et of both pseudo TTs.
-// 	//If there are only 36 input TTs for each inner eta ring, then half
-// 	//of the present primitive of a pseudo TT pair is used as Et of both
-// 	//pseudo TTs.
-      
-// 	//Gets the even index of the pseudo-TT pair this TT belong to:
-// 	int phiEvenIndex = (phi/2)*2; //integer arithmetic
-      
-// 	//divides the TT into 2 phi bins in order to match with 72 phi-bins SRP
-// 	//scheme or average the Et on the two pseudo TTs if the TT is already
-// 	//divided into two trigger primitives.
-// 	triggerEt[eta][phiEvenIndex][iz] += et/2.;
-// 	triggerEt[eta][phiEvenIndex+1][iz] += et/2.;
-//       }
-// */
-//       triggerEt[eta][phi] += et;
-//       ++iTrigPrim;
-//     }
-//     //checks trigger primitive count:
-//     // with geom 133 we must have 4 eta bins divided in 36 trigger towers
-//     //        and 52 eta bins divided in 72 trigger towers:
-//     //  
-//     const int expectedTrigPrimCount133 = 36*4 + 72*52;
-  
-//     // with geom 125 we must have 56 eta bins divided in 72 trigger towers
-//     const int expectedTrigPrimCount125 = 72*56;  
-  
-//     if(iTrigPrim!=expectedTrigPrimCount133
-//        && iTrigPrim!=expectedTrigPrimCount125 ){//wrong number of trigger primitives
-//       std::cout << "Error. Number of trigger primitive is wrong ("
-// 		<< iTrigPrim << " instead of " << expectedTrigPrimCount125
-// 		<< " or " << expectedTrigPrimCount133
-// 		<< "). It can happened if they were erroneously zero "
-// 	"suppressed (see bug reports #7069 and #7229). Running with trigger "
-// 	"primitive reconstruction forced may "
-// 	"solve the problem." << std::endl;
-//     }
-//   }
 
 vector<int> EcalSelectiveReadoutSuppressor::getFIRWeigths() {
   if(firWeights.size()==0){
@@ -551,3 +510,31 @@ double EcalSelectiveReadoutSuppressor::frame2Energy(const T& frame,
   //cout << "\n";
   return acc;
 }
+
+void EcalSelectiveReadoutSuppressor::printTTFlags(ostream& os, int iEvent,
+						  bool withHeader) const{
+  const char tccFlagMarker[] = { '?', '.', 'S', '?', 'C', 'E', 'E', 'E', 'E'};
+  const int nEta = EcalSelectiveReadout::nTriggerTowersInEta;
+  const int nPhi = EcalSelectiveReadout::nTriggerTowersInPhi;
+  
+  if(withHeader){
+    os << "# TCC flag map\n#\n"
+      "# +-->Phi            " << tccFlagMarker[1] << ": 000 (low interest)\n"
+      "# |                  " << tccFlagMarker[2] << ": 001 (mid interest)\n"
+      "# |                  " << tccFlagMarker[3] << ": 010 (not valid)\n"
+      "# V Eta              " << tccFlagMarker[5] << ": 011 (high interest)\n"
+      "#                    " << tccFlagMarker[6] << ": 1xx forced readout (Hw error)\n";
+  }
+
+  if(iEvent>=0){
+    os << "#\n#Event " << iEvent << "\n";
+  }
+  
+  for(int iEta=0; iEta<nEta; ++iEta){
+    for(int iPhi=0; iPhi<nPhi; ++iPhi){
+      os << tccFlagMarker[ttFlags[iEta][iPhi]+1];
+    }
+    os << "\n";
+  }
+}
+  

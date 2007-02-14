@@ -11,52 +11,83 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 
-class EcalSelectiveReadoutSuppressor 
-{
+class EcalSelectiveReadoutSuppressor{
 public:
-  /// default parameters
-
-  
-  //  EcalSelectiveReadoutSuppressor();
+  /** Construtor.
+   * @param params configuration
+   */
   EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params);
-
+  
   enum {BARREL, ENDCAP};
 
+  /** Gets number of weights supported by the zero suppression filter
+   * @return number of weights
+   */
   static int getFIRTapCount(){ return nFIRTaps;}
   
-  /// the mapping of which cell goes with which trigger tower
+  /** Set the mapping of which cell goes with which trigger tower
+   * @param map the trigger tower map
+   */
   void setTriggerMap(const EcalTrigTowerConstituentsMap * map);
 
+  /** Sets the geometry of the calorimeters
+   */
   void setGeometry(const CaloGeometry * caloGeometry);
-  
+
+  /** Runs the selective readout(SR) algorithm.
+   * @deprecated use the other run methode instead
+   * @param eventSetup event conditions
+   * @param trigPrims the ECAL trigger primitives used as input to the SR.
+   * @param barrelDigis [in,out] the EB digi collection to filter
+   * @param endcapDigis [in,out] the EE digi collection to filter
+   */
   void run(const edm::EventSetup& eventSetup,
 	   const EcalTrigPrimDigiCollection & trigPrims,
            EBDigiCollection & barrelDigis,
            EEDigiCollection & endcapDigis);
 
+  /** Runs the selective readout (SR) algorithm.
+   * @param eventSetup event conditions
+   * @param trigPrims the ECAL trigger primitives used as input to the SR.
+   * @param barrelDigis the input EB digi collection
+   * @param endcapDigis the input EE digi collection
+   * @param selectedBarrelDigis [out] the EB digi passing the SR
+   * @param selectedEndcapDigis [out] the EE digi passing the SR
+   * @param ebSrFlags [out] the computed SR flags for EB
+   * @param eeSrFlags [out] the computed SR flags for EE
+   */
   void run(const edm::EventSetup& eventSetup,
 	   const EcalTrigPrimDigiCollection & trigPrims,
            const EBDigiCollection & barrelDigis,
            const EEDigiCollection & endcapDigis,
            EBDigiCollection & selectedBarrelDigis,
-           EEDigiCollection & selectedEndcapDigis);
+           EEDigiCollection & selectedEndcapDigis,
+	   EBSrFlagCollection& ebSrFlags,
+	   EESrFlagCollection& eeSrFlags);
 
-  //for debugging
+  /** For debugging purposes.
+   */
   EcalSelectiveReadout* getEcalSelectiveReadout(){return ecalSelectiveReadout;}
-  /// three methods I don't know how to implement
-  int accumulate(const EcalDataFrame & frame,  bool & gain12saturated);
-  double energy(const EcalDataFrame & frame);
 
+  /** Writes out TT flags. On of the 'run' method must be called beforehand.
+   * Beware this method might be removed in future.
+   * @param os stream to write to
+   * @param iEvent event index. Ignored if <0.
+   * @param withHeader. If true writes out a header with the legend.
+   */
+  void printTTFlags(std::ostream& os, int iEvent = -1,
+                    bool withHeader=true) const;
   
  private:
 
   /** Returns true if a digi passes the zero suppression.
    * @param frame, data frame (aka digi). T must be an EEDataFrame
    * or an EBDataFrame 
-   * @para zero suppression threshold.
+   * @param thr zero suppression threshold in thrUnit.
+   * @return true if passed ZS filter, false if failed
    */
   template<class T>
-  bool accept(const T& frame, float threshold);
+  bool accept(const T& frame, int thr);
   
   /// helpers for constructors
   /** When a trigger tower (TT) is classified
@@ -66,11 +97,21 @@ public:
    * The thresholds are the Low Et and High Et 
    * threshold for selective readout trigger tower classification
    */
-  void initTowerThresholds(double lowThreshold, double highThreshold, int deltaEta, int deltaPhi);
+  void initTowerThresholds(double lowThreshold, double highThreshold,
+			   int deltaEta, int deltaPhi);
+  
+  /** Initializes ZS threshold and SR classificion to SR ("action") flags
+   */
   void initCellThresholds(double barrelLowInterest, double endcapLowInterest,
 			  double barrelHighInterest, double endcapHighInterest);
-
-
+  /** Converts threshold in GeV to threshold in internal unit used by the
+   * ZS FIR. 
+   * @param thresholdInGeV the theshold in GeV
+   * @param iSubDet 0 for barrel, 1 for endcap
+   * @return threshold in thrUnit unit. INT_MAX means complete suppression,
+   * INT_MIN means no zero suppression.
+   */
+  int internalThreshold(double thresholdInGeV, int iSubDet) const;
 
   /** Gets the integer weights used by the zero suppression
    * FIR filter.
@@ -140,6 +181,15 @@ public:
   template<class T>
   double frame2Energy(const T& frame, int timeOffset = 0) const;
 
+
+  /** Help function to get SR flag from ZS threshold using min/max convention
+   * for SUPPRESS and FULL_READOUT: see zsThreshold.
+   * @param thr ZS threshold in thrUnit
+   * @param flag for Zero suppression: EcalSrFlag::SRF_ZS1 or
+   * EcalSrFlag::SRF_ZS2
+   * @return the SR flag
+   */
+  int thr2Srf(int thr, int zsFlag) const;
   
   /** Number of endcap, obviously two.
    */
@@ -181,16 +231,6 @@ public:
    */
   std::vector<int> firWeights;
 
-  /** Energy->ADC factor used to interpret the zero suppression thresholds
-   * for EB
-   */
-  double ebGeV2ADC;
-
-  /** Energy->ADC factor used to interpret the zero suppression thresholds
-   * for EE.
-   */
-  double eeGeV2ADC;
-  
   /** Depth of DCC zero suppression FIR filter (number of taps),
    * in principal 6.
    */
@@ -200,17 +240,23 @@ public:
    */
   std::vector<double> weights;
   
-  /** Zero suppresion threshold for the ECAL.
+  /** Zero suppresion threshold for the ECAL expressed in ebThrUnit and
+   * eeThrUnit. Set to numeric_limits<int>::min() for FULL READOUT and
+   * to numeric_limits<int>::max() for SUPPRESS.
    * First index: 0 for barrel, 1 for endcap
    * 2nd index: channel interest (see EcalSelectiveReadout::towerInterest_t
    */
-  double zsThreshold[2][4];
+  int zsThreshold[2][4];
 
+  /** Internal unit for Zero Suppression threshold (1/4th ADC count) used by
+   * the FIR.
+   * Index: 0 for barrel, 1 for endcap
+   */
+  double thrUnit[2];
 
   /** Switch for trigger primitive simulation module bypass debug mode.
    */
   bool trigPrimBypass_;
-
 
   /** When in trigger primitive simulation module bypass debug mode,
    * switch to enable Peak finder effect simulation
@@ -226,5 +272,12 @@ public:
    * debug mode.
    */
   double trigPrimBypassHTH_;
+
+  /** Maps RU interest flag (low interest, single neighbour, center) to
+   * Selective readout action flag (type of readout).
+   * 1st index: 0 for barrel, 1 for endcap
+   * 2nd index: RU interest (low, single, neighbour, center)
+   */
+  int srFlags[2][4];
 };
 #endif

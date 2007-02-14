@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.h,v 1.4 2006/06/04 22:02:28 rpw Exp $
+ * $Id: EcalSelectiveReadout.h,v 1.5 2006/06/14 12:00:30 pgras Exp $
  */
 
 #ifndef ECALSELECTIVEREADOUT_H
@@ -10,9 +10,17 @@
 #include <iosfwd>
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+
+#define ECALSELECTIVEREADOUT_NOGEOM //version w/o geometry dependency.
+
+#ifndef ECALSELECTIVEREADOUT_NOGEOM
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#endif //ECALSELECTIVEREADOUT_NOGEOM not defined
+
+
 
 /** This class is used to run the selective readout processing on the
  * electromagnetic calorimeter. Normal user do not need to access directly this
@@ -129,11 +137,12 @@ public:
     theTriggerMap = map;
   }
 
-
+#ifndef ECALSELECTIVEREADOUT_NOGEOM
   void setGeometry(const CaloGeometry * caloGeometry) {
     theGeometry = caloGeometry;
   }
-
+#endif //ECALSELECTIVEREADOUT_NOGEOM not defined
+  
   /** Selective readout algorithm type 0.
    *  The algorithm is the following:
    *  <OL>
@@ -163,14 +172,29 @@ public:
    */
   void runSelectiveReadout0(const ttFlag_t
                             towerFlags[nTriggerTowersInEta][nTriggerTowersInPhi]);
-  
+
+  /** Gets the SR interest classification of an EB channel
+   * @param ebDetId id of the crystal
+   * @param interest
+   */
   towerInterest_t getCrystalInterest(const EBDetId & ebDetId) const;
 
+  /** Gets the SR interest classification of an EE channel
+   * @param eeDetId id of the crystal
+   * @return interest
+   */
   towerInterest_t getCrystalInterest(const EEDetId & eeDetId) const;
 
-  /**Gets the SR flags of a trigger tower (TT).
+  /** Gets the SR interest classification of an EE supercrystal
+   * @param scDetId id of the crystal
+   * @return interest
+   */
+  towerInterest_t getSuperCrystalInterest(const EcalScDetId& scDetId) const;
+  
+  /**Gets the SR interest classification of a trigger tower (TT).
    * @param iEta index of the TT along eta
    * @param iPhi index of the TT along phi
+   * @return interest
    */
   towerInterest_t getTowerInterest(const EcalTrigTowerDetId & towerId) const;
 
@@ -182,7 +206,7 @@ public:
 
   void printBarrel(std::ostream & os) const;
   void printEndcap(int endcap, std::ostream & s) const;
-
+  
 private:
 
   /** Classifies trigger tower in three classes:<UL>
@@ -224,7 +248,9 @@ private:
 private:
 
   const EcalTrigTowerConstituentsMap * theTriggerMap;
+#ifndef ECALSELECTIVEREADOUT_NOGEOM
   const CaloGeometry * theGeometry;
+#endif //ECALSELECTIVEREADOUT_NOGEOM not defined
   std::vector<double> threshold;
   towerInterest_t towerInterest[nTriggerTowersInEta][nTriggerTowersInPhi];
   towerInterest_t supercrystalInterest[nEndcaps][nSupercrystalXBins][nSupercrystalYBins];

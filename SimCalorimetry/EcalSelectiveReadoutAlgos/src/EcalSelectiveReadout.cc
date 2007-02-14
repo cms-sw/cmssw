@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.cc,v 1.8 2006/07/07 20:02:25 pgras Exp $
+ * $Id: EcalSelectiveReadout.cc,v 1.9 2006/07/21 06:41:24 pgras Exp $
  */
 
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
@@ -50,38 +50,39 @@ EcalSelectiveReadout::runSelectiveReadout0(const ttFlag_t ttFlags[nTriggerTowers
   int nTriggerTowerE[] = {0, 0, 0, 0};
   int nTriggerTowerB[] = {0, 0, 0, 0};
 
-  static int ncall = 0;
-  if(ncall < 10){
-    ++ncall;
-    for(size_t iPhi = 0; iPhi < nTriggerTowersInPhi; ++iPhi){
-      for(size_t iEta = 0; iEta < nTriggerTowersInEta; ++iEta){
-        if(iEta < nEndcapTriggerTowersInEta
-         || iEta >= nBarrelTriggerTowersInEta + nEndcapTriggerTowersInEta){
-          //in endcaps
-          ++nTriggerTowerE[towerInterest[iEta][iPhi]];
-        } else{//in barrel
-          ++nTriggerTowerB[towerInterest[iEta][iPhi]];
-        }
-      }
-    }
-    edm::LogInfo("EcalSelectiveReadout")
-      << nTriggerTowerB[LOWINTEREST] << " low interest TT in barrel\n"
-      << nTriggerTowerB[SINGLE]      << " single TT in barrel\n"
-      << nTriggerTowerB[NEIGHBOUR]   << " neighbor interest TT in barrel\n"
-      << nTriggerTowerB[CENTER]      << " centre interest TT in barrel\n"
-      << nTriggerTowerE[LOWINTEREST] << " low interest TT in endcap\n"
-      << nTriggerTowerE[SINGLE]      << " single TT in endcap\n"
-      << nTriggerTowerE[NEIGHBOUR]   << " neighbor TT in endcap\n"
-      << nTriggerTowerE[CENTER]      << " center TT in endcap\n";
-  }
+   static int ncall = 0;
+   if(ncall < 10){
+     ++ncall;
+     for(size_t iPhi = 0; iPhi < nTriggerTowersInPhi; ++iPhi){
+       for(size_t iEta = 0; iEta < nTriggerTowersInEta; ++iEta){
+         if(iEta < nEndcapTriggerTowersInEta
+          || iEta >= nBarrelTriggerTowersInEta + nEndcapTriggerTowersInEta){
+           //in endcaps
+           ++nTriggerTowerE[towerInterest[iEta][iPhi]];
+         } else{//in barrel
+           ++nTriggerTowerB[towerInterest[iEta][iPhi]];
+         }
+       }
+     }
+     edm::LogInfo("EcalSelectiveReadout")
+       << nTriggerTowerB[LOWINTEREST] << " low interest TT in barrel\n"
+       << nTriggerTowerB[SINGLE]      << " single TT in barrel\n"
+       << nTriggerTowerB[NEIGHBOUR]   << " neighbor interest TT in barrel\n"
+       << nTriggerTowerB[CENTER]      << " centre interest TT in barrel\n"
+       << nTriggerTowerE[LOWINTEREST] << " low interest TT in endcap\n"
+       << nTriggerTowerE[SINGLE]      << " single TT in endcap\n"
+       << nTriggerTowerE[NEIGHBOUR]   << " neighbor TT in endcap\n"
+       << nTriggerTowerE[CENTER]      << " center TT in endcap\n";
+   }
   //end TT interest class composition debugging display
   
   //For the endcap the TT classification must be mapped to the SC:
   resetSupercrystalInterest();
+  
+#ifndef ECALSELECTIVEREADOUT_NOGEOM
   const std::vector<DetId>& endcapDetIds = theGeometry->getValidDetIds(DetId::Ecal, EcalEndcap);
   for(std::vector<DetId>::const_iterator eeDetIdItr = endcapDetIds.begin();
-      eeDetIdItr != endcapDetIds.end(); ++eeDetIdItr)
-  {
+      eeDetIdItr != endcapDetIds.end(); ++eeDetIdItr){
     // for each superCrystal, the interest is the highest interest
     // of any trigger tower associated with any crystal in this SC
     EcalTrigTowerDetId trigTower = theTriggerMap->towerOf(*eeDetIdItr);
@@ -93,9 +94,35 @@ EcalSelectiveReadout::runSelectiveReadout0(const ttFlag_t ttFlags[nTriggerTowers
     setHigher(supercrystalInterest[iz][superCrystalX][superCrystalY], 
               getTowerInterest(trigTower));
   }
+#else //ECALSELECTIVEREADOUT_NOGEOM not defined
+  EEDetId xtal;
+  for(int iZ0=0; iZ0<2; ++iZ0){//0->EE-, 1->EE+
+    for(unsigned iX0=0; iX0<nEndcapXBins; ++iX0){
+      for(unsigned iY0=0; iY0<nEndcapYBins; ++iY0){
+        try{
+          xtal = EEDetId(iX0+1, iY0+1, (iZ0>0?1:-1));
+        } catch(cms::Exception e){//exception thrown if no crystal at
+          //                        this position
+          continue;
+        }
+        //works around a EEDetId bug. To remove once the bug fixed.
+        if(39 <= iX0 && iX0 <= 60 && 45 <= iY0 && iY0 <= 54){
+          continue;
+        }
+        // for each superCrystal, the interest is the highest interest
+        // of any trigger tower associated with any crystal in this SC
+        EcalTrigTowerDetId trigTower = theTriggerMap->towerOf(xtal);
+        assert(trigTower.rawId() != 0); 
+        int superCrystalX = iX0 / 5;
+        int superCrystalY = iY0 / 5;
+        setHigher(supercrystalInterest[iZ0][superCrystalX][superCrystalY], 
+                  getTowerInterest(trigTower));
+      }
+    }
+  }
+#endif
 }
-
-
+ 
 EcalSelectiveReadout::towerInterest_t 
 EcalSelectiveReadout::getCrystalInterest(const EBDetId & ebDetId) const
 {
@@ -112,6 +139,15 @@ EcalSelectiveReadout::getCrystalInterest(const EEDetId & eeDetId) const
   int superCrystalY = (eeDetId.iy()-1) / 5;
   return supercrystalInterest[iz][superCrystalX][superCrystalY];
 }
+EcalSelectiveReadout::towerInterest_t 
+
+EcalSelectiveReadout::getSuperCrystalInterest(const EcalScDetId& scDetId) const 
+{
+  int iz = (scDetId.zside() == 1) ? 1 : 0;
+  int superCrystalX = scDetId.ix()-1;
+  int superCrystalY = scDetId.iy()-1;
+  return supercrystalInterest[iz][superCrystalX][superCrystalY];
+}
 
 
 
@@ -124,39 +160,6 @@ EcalSelectiveReadout::getTowerInterest(const EcalTrigTowerDetId & tower) const
   int iPhi = tower.iphi() - 1;
   return towerInterest[iEta][iPhi];
 }
-
-
-// void
-// EcalSelectiveReadout::classifyTriggerTowers(const float towerEt[nTriggerTowersInEta][nTriggerTowersInPhi])
-// {
-//   for(int iEta=0; iEta < (int)nTriggerTowersInEta; ++iEta){
-//     for(int iPhi=0; iPhi < (int)nTriggerTowersInPhi; ++iPhi){
-//       if(towerEt[iEta][iPhi] > threshold[1]){
-//         //flags this tower as a center tower
-//         towerInterest[iEta][iPhi] = CENTER;
-//         //flags the neighbours of this tower
-//         for(int iEtaNeigh = std::max<int>(0,iEta-dEta);
-//             iEtaNeigh <= std::min<int>(nTriggerTowersInEta-1, iEta+dEta);
-//             ++iEtaNeigh){
-//           for(int iPhiNeigh = iPhi-dPhi;
-//               iPhiNeigh <= iPhi+dPhi;
-//               ++iPhiNeigh){
-//             //beware, iPhiNeigh must be moved to [0,72] interval
-//             //=> %nTriggerTowersInPhi required
-//             int iPhiNeigh_ = iPhiNeigh%(int)nTriggerTowersInPhi;
-//             if(iPhiNeigh_<0) {
-//               iPhiNeigh_ += nTriggerTowersInPhi;
-//             }
-//             setHigher(towerInterest[iEtaNeigh][iPhiNeigh_],
-//                       NEIGHBOUR);
-//           }
-//         }
-//       } else if(towerEt[iEta][iPhi] > threshold[0]){
-// 	setHigher(towerInterest[iEta][iPhi], SINGLE);
-//       }
-//     }
-//   }
-// }
 
 void
 EcalSelectiveReadout::classifyTriggerTowers(const ttFlag_t ttFlags[nTriggerTowersInEta][nTriggerTowersInPhi])
