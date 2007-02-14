@@ -6,6 +6,9 @@
 #include <map>
 #include <memory>
 
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
+
+
 
 
 class GctBlockConverter {
@@ -20,14 +23,24 @@ class GctBlockConverter {
   // return block length in 32-bit words
   unsigned blockLength(unsigned id);
     
-  // template function to convert a block into a collection of RCT/GCT objects
-  template<typename T>
-    void convertBlock(const unsigned char * d, unsigned id, std::vector<T>* coll);
+  // convert a block
+  void convertBlock(const unsigned char * d, unsigned id);
+
+  // set collection pointers
+  void setEmCollection(L1GctEmCandCollection* coll) { gctEm = coll; }
+  void setInterEmCollection(L1GctEmCandCollection* coll) { gctInterEm = coll; }
+
+ private:
+
 
  private:
 
   // block info
   std::map<unsigned, unsigned> blockLength_;  // size of a block
+
+  // collections of output objects
+  L1GctEmCandCollection* gctEm;
+  L1GctEmCandCollection* gctInterEm;  
 
 };
 
