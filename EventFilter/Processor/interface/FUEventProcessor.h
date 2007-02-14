@@ -42,6 +42,7 @@ namespace evf
     private:
       void configureAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception);
       void enableAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception);
+      void stopAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception);
       virtual void suspendAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception);
       virtual void resumeAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception);
       virtual void haltAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception);
