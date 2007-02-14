@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackProbability.cc,v 1.3 2007/01/22 16:46:01 arizzi Exp $
+// $Id: TrackProbability.cc,v 1.4 2007/01/23 14:11:02 arizzi Exp $
 //
 //
 
@@ -46,7 +46,7 @@
 #include "RecoBTag/TrackProbability/interface/TrackClassFilterCategory.h"
 #include "RecoBTag/XMLCalibration/interface/AlgorithmCalibration.h"
 
-#include "CondFormats/BTagObjects/interface/TrackProbabilityCalibration.h"
+#include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
 //#include "RecoBTag/TrackProbability/interface/CalibrationInterface.h"
 #include "RecoBTag/XMLCalibration/interface/CalibrationInterface.h"
 #include "CondFormats/DataRecord/interface/BTagTrackProbability2DRcd.h"

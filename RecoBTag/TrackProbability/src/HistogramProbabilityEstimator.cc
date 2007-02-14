@@ -1,6 +1,6 @@
 
 #include "RecoBTag/TrackProbability/interface/HistogramProbabilityEstimator.h"
-#include "CondFormats/BTagObjects/interface/CalibratedHistogram.h"
+#include "CondFormats/BTauObjects/interface/CalibratedHistogram.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

@@ -5,7 +5,7 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "CondFormats/BTagObjects/interface/CalibratedHistogram.h"
+#include "CondFormats/BTauObjects/interface/CalibratedHistogram.h"
 #include "RecoBTag/XMLCalibration/interface/CalibratedHistogramXML.h"
 //#include "RecoBTag/TrackProbability/interface/CalibrationInterface.h"
 #include "RecoBTag/XMLCalibration/interface/CalibrationInterface.h"

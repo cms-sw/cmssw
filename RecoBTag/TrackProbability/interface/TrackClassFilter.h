@@ -4,7 +4,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "CondFormats/BTagObjects/interface/TrackProbabilityCategoryData.h"
+#include "CondFormats/BTauObjects/interface/TrackProbabilityCategoryData.h"
 
   /**  filter to define the belonging of a track to a TrackClass
    */ 

@@ -8,9 +8,9 @@
 <use name=RecoBTag/XMLCalibration>
 <use name=DataFormats/VertexReco>
 
-<use name=CondFormats/BTagObjects>
+<use name=CondFormats/BTauObjects>
 <use name=CondFormats/DataRecord>
-<use name=CondCore/BTagPlugins>
+<use name=CondCore/BTauPlugins>
 
 
 <flags SEAL_PLUGIN_NAME="RecoBTagTrackProbability">
@@ -25,9 +25,9 @@
    <use name=RecoBTag/XMLCalibration>
    <use name=DataFormats/VertexReco>
 
-   <use name=CondFormats/BTagObjects>
+   <use name=CondFormats/BTauObjects>
    <use name=CondFormats/DataRecord>
-   <use name=CondCore/BTagPlugins>
+   <use name=CondCore/BTauPlugins>
 
 
 </export>

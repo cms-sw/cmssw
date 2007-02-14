@@ -2,7 +2,7 @@
 #define TRACKCLASSFILTERCATEGORY_H
 
 #include "RecoBTag/TrackProbability/interface/TrackClassFilter.h"
-#include "CondFormats/BTagObjects/interface/TrackProbabilityCategoryData.h"
+#include "CondFormats/BTauObjects/interface/TrackProbabilityCategoryData.h"
 
 
 #include <xercesc/dom/DOM.hpp>

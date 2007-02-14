@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TrackProbabilityAnalyzer.cc,v 1.4 2007/01/22 16:46:01 arizzi Exp $
+// $Id: TrackProbabilityAnalyzer.cc,v 1.5 2007/01/23 14:11:02 arizzi Exp $
 //
 //
 
@@ -46,7 +46,7 @@ using namespace std;
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
 
-#include "CondFormats/BTagObjects/interface/TrackProbabilityCalibration.h"
+#include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
 //#include "CondFormats/DataRecord/interface/BTagTrackProbabilityRcd.h"
 
 using namespace reco;
