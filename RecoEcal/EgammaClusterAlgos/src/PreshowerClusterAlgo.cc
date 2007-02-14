@@ -11,7 +11,6 @@
 reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
 							    HitsID *used_strips,
                                                             RecHitsMap *the_rechitsMap_p,
-							    reco::BasicClusterRefVector::iterator basicClust_ref,	     	   
                                                             const CaloSubdetectorGeometry*& geometry_p,
                                                             CaloSubdetectorTopology*& topology_p)
 {
@@ -32,7 +31,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   std::vector<DetId> dummy;
   Point posi(0,0,0);  
   if ( debugLevel_ <= pINFO ) std::cout << " Creating a null-cluster" << std::endl;
-  reco::PreshowerCluster nullcluster=reco::PreshowerCluster(0.,posi,dummy,basicClust_ref,plane);
+  reco::PreshowerCluster nullcluster=reco::PreshowerCluster(0.,posi,dummy,plane);
 
   if ( strip == ESDetId(0) ) return nullcluster;   //works in case of no intersected strip found (e.g. in the Barrel)
 
@@ -220,7 +219,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
 
 
   // ES cluster is created from vector clusterRecHits
-  reco::PreshowerCluster cluster=reco::PreshowerCluster(Eclust,pos,usedHits,basicClust_ref,plane);
+  reco::PreshowerCluster cluster=reco::PreshowerCluster(Eclust,pos,usedHits,plane);
 
   if ( debugLevel_ <= pINFO ) {
      std::cout << " ES Cluster is created with " << std::endl;
