@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/02/01 10:25:25 $
- * $Revision: 1.115 $
+ * $Date: 2007/02/13 16:13:35 $
+ * $Revision: 1.116 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -124,14 +124,6 @@ void EcalBarrelMonitorModule::beginJob(const EventSetup& c){
       dbe_->rmdir("EcalBarrel/EcalEvent");
     }
   }
-
-  // begin-of-run
-  if ( meStatus_ ) meStatus_->Fill(0);
-
-  if ( meRun_ ) meRun_->Fill(-1);
-  if ( meEvt_ ) meEvt_->Fill(-1);
-
-  if ( meRunType_ ) meRunType_->Fill(-1);
 
 }
 
