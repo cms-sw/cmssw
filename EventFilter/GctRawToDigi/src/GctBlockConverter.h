@@ -5,10 +5,10 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <boost/cstdint.hpp>
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
-
 
 
 
@@ -35,12 +35,20 @@ class GctBlockConverter {
 
  private:
 
+  // ToDo : write functions for each block
+  void wordToGctEmCand(uint16_t w0, uint16_t w1, int line);
+  void wordToGctInterEmCand(uint16_t w0, uint16_t w1, int line);
+
 
  private:
 
   // block info
   std::map<unsigned, unsigned> blockLength_;  // size of a block
 
+  // map of unpack methods
+  typedef  void (GctBlockConverter::*convFn)(uint16_t, uint16_t, int);
+  std::map< unsigned, convFn > convertFn_;
+  
   // collections of RCT objects
   L1CaloEmCollection* rctEm;
 
