@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2007/01/16 17:02:47 $
- *  $Revision: 1.35 $
+ *  $Date: 2007/02/01 18:06:29 $
+ *  $Revision: 1.36 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  *  \author Adam Everett - Purdue University
@@ -15,6 +15,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
@@ -24,6 +25,12 @@
 #include "Utilities/Timing/interface/TimingReport.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
+
+#include <DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h>
+
+
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace edm;
@@ -86,14 +93,14 @@ GlobalMuonTrackMatcher::matchOne(const TrackCand& staCand,
 }
 
 
-//
-// choose a vector of tracker Tracks from a TrackCollection that has Chi2 
-// less than theMaxChi2, for a given standalone Track
-//
+///
+/// choose a vector of tracker Tracks from a TrackCollection that has Chi2 
+/// less than theMaxChi2, for a given standalone Track
+///
 vector<GlobalMuonTrackMatcher::TrackCand>
 GlobalMuonTrackMatcher::match(const TrackCand& staCand, 
                               const std::vector<TrackCand>& tkTs) const {
-  
+  const string category = "GlobalMuonTrackMatcher";  
   vector<TrackCand> result; 
   
   if ( tkTs.empty() ) return result;
@@ -102,7 +109,7 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
     dataMonitor->book1D("matchMethod","Match type result of event",11,-0.5,10.5);
     dataMonitor->fill1("matchMethod",0);
   }
-    
+
   for (vector<TrackCand>::const_iterator is = tkTs.begin(); is != tkTs.end(); ++is) {
     pair<bool,double> check = matchChi(staCand,*is);    
     
@@ -114,6 +121,7 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
   if(theMIMFlag && !result.empty()) dataMonitor->fill1("matchMethod",1);  
     
   if( result.empty() ) {
+    LogDebug(category) << "MatchChi returned 0 results";
     for (vector<TrackCand>::const_iterator is = tkTs.begin(); is != tkTs.end(); ++is) {
       if( matchPos(staCand,*is) ) result.push_back(*is);
     }
@@ -123,11 +131,12 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
     
   //if there are no matches, return the TkTrack closest to STACandin eta-phi space
   if ( result.empty() ) {
+    LogDebug(category) << "MatchPos returned 0 results";
     result.push_back(matchMomAtIP(staCand,tkTs));
   }
 
   if(theMIMFlag && !result.empty()) dataMonitor->fill1("matchMethod",3);  
-  
+
   return result;
 }
 
@@ -139,19 +148,21 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
 pair<bool,double> 
 GlobalMuonTrackMatcher::matchChi(const TrackCand& staCand, 
                               const TrackCand& tkCand) const {
-
+  const string category = "GlobalMuonTrackMatcher";
   double chi2 = -1;
   
   if( matchAtSurface_ ) {
+    LogDebug(category) << "Match at surface";
     pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> tsosPair = 
       convertToTSOS(staCand,tkCand);    
     chi2 = matchChiAtSurface(tsosPair.first, tsosPair.second);        
   } else {    
+    LogDebug(category) << "Match at IP" ;
     chi2 = matchChiAtIP(staCand, tkCand);    
   }
   
   bool chi2Match = ( chi2 > 0. && chi2 <= theMaxChi2 ) ? true : false;
-    
+
   if(theMIMFlag) {
     dataMonitor->book1D("matchChi2_all","#chi^{2} of all tracks",500,0,1000);
     dataMonitor->fill1("matchChi2_all",chi2);
@@ -164,40 +175,38 @@ GlobalMuonTrackMatcher::matchChi(const TrackCand& staCand,
 bool
 GlobalMuonTrackMatcher::matchPos(const TrackCand& staCand,
 				 const TrackCand& tkCand) const {
-  
+  const string category = "GlobalMuonTrackMatcher";
   pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> tsosPair = 
       convertToTSOS(staCand,tkCand);
-  
+
   return matchPosAtSurface(tsosPair.first, tsosPair.second);
 }
 
-
+/**
+ * \param staCand A TrackCand from standalone muon
+ * \param tkCand A TrackCand from the tracker
+ * \return Pair of TSOS on surface of tracker
+ **/
 pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>
 GlobalMuonTrackMatcher::convertToTSOS(const TrackCand& staCand,
 				      const TrackCand& tkCand) const {
-  
+  const string category = "GlobalMuonTrackMatcher";
+
   TrajectoryStateOnSurface innerMuTsos;  
   TrajectoryStateOnSurface outerTkTsos;
   TrajectoryStateTransform tsTransform;
-  
-  if (staCand.first == 0) {
-    if(theMIMFlag) {
-      dataMonitor->book1D("matchPropTime","Propagation time from innerMu to Tk Surface",1000,0.,4.);
-    }
-    TimeMe propTime("matchProp");
-    innerMuTsos = tsTransform.innerStateOnSurface(*staCand.second,*theService->trackingGeometry(),&*theService->magneticField());
-    pair<double,double> time = propTime.lap();
-    if(theMIMFlag) dataMonitor->fill1("matchPropTime",time.second);
-  } else {
-    innerMuTsos = staCand.first->firstMeasurement().updatedState();
-  }
-  
+
+  TransientTrack innerMuTT(*staCand.second,&*theService->magneticField(),theService->trackingGeometry());
+  innerMuTsos = innerMuTT.impactPointState();
+
   if (tkCand.first == 0) {
+    LogDebug(category);
     // make sure the tracker Track has enough momentum to reach muon chambers
     if ( !(tkCand.second->p() < theMinP || tkCand.second->pt() < theMinPt )) {
       outerTkTsos = tsTransform.outerStateOnSurface(*tkCand.second,*theService->trackingGeometry(),&*theService->magneticField());
     }
   } else {    
+    LogDebug(category);
     const GlobalVector& mom = tkCand.first->firstMeasurement().updatedState().globalMomentum();
     if ( ! (mom.mag() < theMinP || mom.perp() < theMinPt )) {
       outerTkTsos = (tkCand.first->direction() == alongMomentum) ? tkCand.first->lastMeasurement().updatedState() : tkCand.first->firstMeasurement().updatedState();
@@ -206,22 +215,13 @@ GlobalMuonTrackMatcher::convertToTSOS(const TrackCand& staCand,
 
   if( !innerMuTsos.isValid() || !outerTkTsos.isValid() ) return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(innerMuTsos,outerTkTsos);
 
-  // FIXME!! This is a patch in order to remove the MuonUpdatorAtVertex. This patch reproduces *exactly* the
-  // previous code, which was not correct by itself in the muon part (OK the tracker one). The "problem" is 
-  // that the innermostState doesn't know the effect of the vertex constraint.
-  // How to proceed to the fixing in the muon part: 
-  // take the state updated at vertx and propagate it on the outer tracker bound. To do this last step 
-  // the propagator must be changed: "SmartPropagatorOpposite" -> "SmartPropagator"
-  
-  // extrapolate innermost standalone TSOS to outer tracker surface
+  //define StateOnTrackerBound objects  
+  StateOnTrackerBound fromInside(&*theService->propagator("SmartPropagator"));
 
-  StateOnTrackerBound fromMu(&*theService->propagator("SmartPropagatorOpposite"));
-  TrajectoryStateOnSurface tkTsosFromMu = fromMu(innerMuTsos);
+  // extrapolate to outer tracker surface
+  TrajectoryStateOnSurface tkTsosFromMu = fromInside(innerMuTsos);
+  TrajectoryStateOnSurface tkTsosFromTk = fromInside(outerTkTsos);
   
-  // extrapolate outermost tracker measurement TSOS to outer tracker surface
-  StateOnTrackerBound fromTk(&*theService->propagator("SmartPropagator"));
-  TrajectoryStateOnSurface tkTsosFromTk = fromTk(outerTkTsos);
-
   return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(tkTsosFromMu, tkTsosFromTk);
 }
 
@@ -232,17 +232,19 @@ GlobalMuonTrackMatcher::convertToTSOS(const TrackCand& staCand,
 double 
 GlobalMuonTrackMatcher::matchChiAtSurface(const TrajectoryStateOnSurface& tsos1, 
 					  const TrajectoryStateOnSurface& tsos2) const {
+  const string category = "GlobalMuonTrackMatcher";
 
   if( !tsos1.isValid() || !tsos2.isValid() ) return -1.;
 
   AlgebraicVector v(tsos1.localParameters().vector() - tsos2.localParameters().vector());
   AlgebraicSymMatrix m(tsos1.localError().matrix() + tsos2.localError().matrix());
-  
+  LogDebug(category) << "vector v " << v;
+
   int ierr;
   m.invert(ierr);
   // if (ierr != 0) throw exception;
   double est = m.similarity(v);
-  
+  LogDebug(category) << "Chi2 " << est;
   return est;
 }
 
@@ -250,8 +252,9 @@ GlobalMuonTrackMatcher::matchChiAtSurface(const TrajectoryStateOnSurface& tsos1,
 double
 GlobalMuonTrackMatcher::matchChiAtIP(const TrackCand& staCand, 
 				     const TrackCand& tkCand) const {
-  
+  const string category = "GlobalMuonTrackMatcher";  
   TrackBase::ParameterVector delta = staCand.second->parameters() - tkCand.second->parameters();
+  LogDebug(category) << "Parameter Vector " << delta;
   TrackBase::CovarianceMatrix cov = staCand.second->covariance()+tkCand.second->covariance();
 
   cov.Invert();
@@ -261,7 +264,7 @@ GlobalMuonTrackMatcher::matchChiAtIP(const TrackCand& staCand,
       chi2 += delta[i]*cov(i,j)*delta[j];
     }
   }
-  
+
   return chi2;  
 }
 
@@ -269,6 +272,7 @@ GlobalMuonTrackMatcher::matchChiAtIP(const TrackCand& staCand,
 bool
 GlobalMuonTrackMatcher::matchPosAtSurface(const TrajectoryStateOnSurface& tsos1,
 					  const TrajectoryStateOnSurface& tsos2) const {
+  const string category = "GlobalMuonTrackMatcher";
 
   if( !tsos1.isValid() || !tsos2.isValid() ) return false;
 
@@ -281,7 +285,7 @@ GlobalMuonTrackMatcher::matchPosAtSurface(const TrajectoryStateOnSurface& tsos1,
 
   float dd = 0.2;
   bool goodCoords = ( (dphi < dd) || (deta < dd) ) ? true : false;  
-
+  LogDebug(category) << "dphi " << dphi << " deta " << deta;
   return goodCoords;
 }
 
@@ -289,7 +293,8 @@ GlobalMuonTrackMatcher::matchPosAtSurface(const TrajectoryStateOnSurface& tsos1,
 GlobalMuonTrackMatcher::TrackCand
 GlobalMuonTrackMatcher::matchMomAtIP(const TrackCand& staCand,
 				     const std::vector<TrackCand>& tkTs) const{
-  
+  const string category = "GlobalMuonTrackMatcher";
+
   TrackCand returnVal;
   float deltaR = 1000.0;
   
@@ -303,6 +308,7 @@ GlobalMuonTrackMatcher::matchMomAtIP(const TrackCand& staCand,
     }
     double Phi1 = staCand.second->phi();
     double Phi2;
+
     if ((*is).first != 0) {
       Phi2 = (*is).first->firstMeasurement().updatedState().globalMomentum().phi();
     } else {
@@ -311,12 +317,12 @@ GlobalMuonTrackMatcher::matchMomAtIP(const TrackCand& staCand,
     double deltaEta = Eta1 - Eta2;
     double deltaPhi(fabs(Geom::Phi<float>(Phi1)-Geom::Phi<float>(Phi2)));
     double deltaR_tmp = sqrt(pow(deltaEta,2.) + pow(deltaPhi,2.));
-    
+
     if (deltaR_tmp < deltaR) {
       deltaR = deltaR_tmp;
       returnVal = *is;
     }
   }    
-  
+
   return returnVal;  
 }

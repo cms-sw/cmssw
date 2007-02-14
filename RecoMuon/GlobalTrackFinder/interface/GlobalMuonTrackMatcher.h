@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2007/01/16 17:02:46 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/02/01 18:06:28 $
+ *  $Revision: 1.18 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
@@ -62,7 +62,8 @@ class GlobalMuonTrackMatcher {
     /// check if two Tracks match at IP
     double matchChiAtIP(const TrackCand&,
 			const TrackCand&) const;
-
+    
+    /// Conversion from TrackCand to TSOS
     std::pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> convertToTSOS(const TrackCand&, const TrackCand&) const;
 
     bool matchPosAtSurface(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;

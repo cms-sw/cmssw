@@ -4,8 +4,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/01/03 21:59:57 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/01 18:03:55 $
+ *  $Revision: 1.9 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -43,19 +43,20 @@ class TrackerSeedGenerator {
 
  public:
   typedef std::vector<TrajectorySeed> BTSeedCollection;  
+  typedef std::pair<const Trajectory*, reco::TrackRef> TrackCand;
   
   /// constructor
   TrackerSeedGenerator(const edm::ParameterSet& par, const MuonServiceProxy*);
   /// destructor
   virtual ~TrackerSeedGenerator();
 
-  BTSeedCollection trackerSeeds(const Trajectory&, const RectangularEtaPhiTrackingRegion&);
+  BTSeedCollection trackerSeeds(const TrackCand&, const RectangularEtaPhiTrackingRegion&);
     
   void setEvent(const edm::Event&);
 
  private:
   /// create seeds from muon trajectory
-  void findSeeds(const Trajectory&, const RectangularEtaPhiTrackingRegion&); 
+  void findSeeds(const TrackCand&, const RectangularEtaPhiTrackingRegion&); 
 
   void findLayerList(const TrajectoryStateOnSurface& traj);
 

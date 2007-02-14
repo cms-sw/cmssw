@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/02/01 18:06:29 $
- *  $Revision: 1.73 $
+ *  $Date: 2007/02/05 19:07:38 $
+ *  $Revision: 1.74 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -225,6 +225,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
 
   // convert the STA track into a Trajectory if Trajectory not already present
   TrackCand staCand(staCandIn);
+  LogDebug(category) << "Adding Traj to STA";
   addTraj(staCand);
 
   timerName = category + "::makeTkCandCollection";
@@ -1033,11 +1034,12 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
 
     std::vector<TrajectorySeed> tkSeeds; 
     TC allTkTrajs;
-    if( theMakeTkSeedFlag && staCand.first != 0  && staCand.first->isValid() ) {
+    //if( theMakeTkSeedFlag && staCand.first != 0  && staCand.first->isValid() ) {
+    if( theMakeTkSeedFlag ) {
       timerName = category + "::makeSeeds";
       times.push(timerName);
       RectangularEtaPhiTrackingRegion region = defineRegionOfInterest((staCand.second));
-      tkSeeds = theTkSeedGenerator->trackerSeeds(*(staCand.first),region);
+      tkSeeds = theTkSeedGenerator->trackerSeeds(staCand,region);
 
       LogDebug(category) << "Found " << tkSeeds.size() << " tracker seeds";
 
@@ -1115,7 +1117,7 @@ void GlobalMuonTrajectoryBuilder::addTraj(TrackCand& candIn) const {
     LogDebug(category) << "Making new trajectory from TrackRef " << (*candIn.second).pt();
 
     TC staTrajs = theTrackTransformer->transform(*(candIn.second));
-    
+    if(staTrajs.empty()) LogDebug(category) << "Transformer: Add Traj failed!";    
     candIn = ( !staTrajs.empty() ) ? TrackCand(new Trajectory(staTrajs.front()),candIn.second) : TrackCand(0,candIn.second);    
 
   }

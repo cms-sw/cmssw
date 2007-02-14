@@ -3,8 +3,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/01/03 21:59:56 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/02/01 18:03:55 $
+ *  $Revision: 1.11 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -133,50 +133,31 @@ void TrackerSeedGenerator::setEvent(const edm::Event &event)
 
 //
 TrackerSeedGenerator::BTSeedCollection 
-TrackerSeedGenerator::trackerSeeds(const Trajectory& muon, const RectangularEtaPhiTrackingRegion& rectRegion) {
+TrackerSeedGenerator::trackerSeeds(const TrackCand& muon, const RectangularEtaPhiTrackingRegion& rectRegion) {
    theSeeds.clear();
    findSeeds(muon,rectRegion);
    return BTSeedCollection(theSeeds);
 
 }
 //
-void TrackerSeedGenerator::findSeeds(const Trajectory& muon, const RectangularEtaPhiTrackingRegion& rectRegion) {
+void TrackerSeedGenerator::findSeeds(const TrackCand& muon, const RectangularEtaPhiTrackingRegion& rectRegion) {
 
-  if ( !muon.isValid() ) return;
+  //if ( !muon.first->isValid() ) return;
 
   // track at innermost muon station
-  TrajectoryStateOnSurface traj = muon.firstMeasurement().updatedState();
-  if ( muon.direction() == oppositeToMomentum ) 
-    traj = muon.lastMeasurement().updatedState();
+  TrajectoryStateTransform tsTransform;
+  FreeTrajectoryState muFTS = tsTransform.initialFreeState(*(muon.second),&*theService->magneticField());
 
   //FIXME: the result of STA should contain Trajectory or something more
-  if ( !traj.isValid() ) return;
+  //if ( !muFTS.isValid() ) return;
 
-  // propagate to the outer tracker surface (r = 123.3cm, halfLength = 293.5cm)
-  //MuonUpdatorAtVertex updator;
-  
-
-  //<<< Very important FIXME!
-  // This is a patch to get the same result as before the vertex constraint in the STA reco had been applied.
-  // The correct way to proceed is pass DIRECTLY the state at vertex and then get the state on tracker
-  // bound. The current patch is correct, but passing directly the state a lot of time can be saved.
-
-  // Propagate and update the trajectory at vertex
-  pair<bool,FreeTrajectoryState> ftsVTX = 
-    theUpdator->propagateWithUpdate(traj,GlobalPoint(0.,0.,0.));
-  
-  if (!ftsVTX.first) return;
-  
   // Get the Tracker bounds, since the propagation goes from the vertex to the tracker
   // it is always along momentum
   StateOnTrackerBound tracker( &*theService->propagator("SmartPropagator") );
   
   // Get the state at the tracker bound
-  TrajectoryStateOnSurface traj_trak = tracker(ftsVTX.second);
+  TrajectoryStateOnSurface traj_trak = tracker(muFTS);
   
-  //>>>
-
-
   if ( !traj_trak.isValid() ) return;
 
   // rescale errors
@@ -196,14 +177,14 @@ void TrackerSeedGenerator::findSeeds(const Trajectory& muon, const RectangularEt
   // 4 = combined (2+1)
 
   switch ( theOption ) {
-    case 0 : { primitiveSeeds(muon,traj_trak); break; }
-    case 1 : { consecutiveHitsSeeds(muon,traj_trak,theService->eventSetup(),rectRegion); break; }
-    case 2 : { pixelSeeds(muon,traj_trak,rectRegion,deltaEta,deltaPhi); break; }
-    case 3 : { primitiveSeeds(muon,traj_trak);
-               consecutiveHitsSeeds(muon,traj_trak,theService->eventSetup(),rectRegion);
+    case 0 : { primitiveSeeds(*muon.first,traj_trak); break; }
+    case 1 : { consecutiveHitsSeeds(*muon.first,traj_trak,theService->eventSetup(),rectRegion); break; }
+    case 2 : { pixelSeeds(*muon.first,traj_trak,rectRegion,deltaEta,deltaPhi); break; }
+    case 3 : { primitiveSeeds(*muon.first,traj_trak);
+               consecutiveHitsSeeds(*muon.first,traj_trak,theService->eventSetup(),rectRegion);
                break; }
-    case 4 : { pixelSeeds(muon,traj_trak,rectRegion,deltaEta,deltaPhi);
-               consecutiveHitsSeeds(muon,traj_trak,theService->eventSetup(),rectRegion);
+    case 4 : { pixelSeeds(*muon.first,traj_trak,rectRegion,deltaEta,deltaPhi);
+               consecutiveHitsSeeds(*muon.first,traj_trak,theService->eventSetup(),rectRegion);
                break; }
       /*
 	default : { if ( theDirection == outsideIn ) {
