@@ -85,9 +85,9 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   edm::ParameterSet conf_;
   TrackLocalAngle *anglefinder_;
   DaqMonitorBEInterface* dbe_;
-  std::string outputFile_;
-  std::string src_;
-  std::string builderName_;
+  string outputFile_;
+  string src_;
+  string builderName_;
   bool MTCCtrack_;
 
   bool checkType_; // do we check that the simHit associated with recHit is of the expected particle type ?
@@ -181,6 +181,29 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   MonitorElement* mePullXvsEtaBarrelNonFlippedLadders;
   MonitorElement* mePullYvsEtaBarrelNonFlippedLadders;
 
+  MonitorElement* meWPullXvsAlphaBarrelFlippedLadders;
+  MonitorElement* meWPullYvsAlphaBarrelFlippedLadders;
+  MonitorElement* meWPullXvsBetaBarrelFlippedLadders;
+  MonitorElement* meWPullYvsBetaBarrelFlippedLadders;
+  MonitorElement* meWPullXvsAlphaBarrelNonFlippedLadders;
+  MonitorElement* meWPullYvsAlphaBarrelNonFlippedLadders;
+  MonitorElement* meWPullXvsBetaBarrelNonFlippedLadders;
+  MonitorElement* meWPullYvsBetaBarrelNonFlippedLadders;
+
+  // Split barrel x/y residuals and pulls in 3 layers  
+  MonitorElement* meResxBarrelLayer[3];
+  MonitorElement* meResyBarrelLayer[3];
+  MonitorElement* mePullxBarrelLayer[3];
+  MonitorElement* mePullyBarrelLayer[3];
+
+  MonitorElement* meResXvsAlphaBarrelFlippedLaddersLayer[3];
+  MonitorElement* meResYvsAlphaBarrelFlippedLaddersLayer[3];
+  MonitorElement* meResXvsBetaBarrelFlippedLaddersLayer[3];
+  MonitorElement* meResYvsBetaBarrelFlippedLaddersLayer[3];
+  MonitorElement* meResXvsAlphaBarrelNonFlippedLaddersLayer[3];
+  MonitorElement* meResYvsAlphaBarrelNonFlippedLaddersLayer[3];
+  MonitorElement* meResXvsBetaBarrelNonFlippedLaddersLayer[3];
+  MonitorElement* meResYvsBetaBarrelNonFlippedLaddersLayer[3];
 
   // Pixel forward detector has 2 sides, 2 disks per side, 2 panels per disk and either 3 or 4 plaquettes per blade
   // Panel 1 has 4 plaquettes
@@ -321,6 +344,11 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   MonitorElement* mePullXvsEtaZmPanel1;
   MonitorElement* mePullYvsEtaZmPanel1;
 
+  MonitorElement* meWPullXvsAlphaZmPanel1;
+  MonitorElement* meWPullYvsAlphaZmPanel1;
+  MonitorElement* meWPullXvsBetaZmPanel1;
+  MonitorElement* meWPullYvsBetaZmPanel1;
+
   // Negative Z side, panel 2
   MonitorElement* mePosxZmPanel2;
   MonitorElement* mePosyZmPanel2;
@@ -346,6 +374,11 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   MonitorElement* mePullYvsPhiZmPanel2;
   MonitorElement* mePullXvsEtaZmPanel2;
   MonitorElement* mePullYvsEtaZmPanel2;
+
+  MonitorElement* meWPullXvsAlphaZmPanel2;
+  MonitorElement* meWPullYvsAlphaZmPanel2;
+  MonitorElement* meWPullXvsBetaZmPanel2;
+  MonitorElement* meWPullYvsBetaZmPanel2;
 
   // Positive Z side, panel 1
   MonitorElement* mePosxZpPanel1;
@@ -373,6 +406,11 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   MonitorElement* mePullXvsEtaZpPanel1;
   MonitorElement* mePullYvsEtaZpPanel1;
 
+  MonitorElement* meWPullXvsAlphaZpPanel1;
+  MonitorElement* meWPullYvsAlphaZpPanel1;
+  MonitorElement* meWPullXvsBetaZpPanel1;
+  MonitorElement* meWPullYvsBetaZpPanel1;
+
   // Positive Z side, panel 2
   MonitorElement* mePosxZpPanel2;
   MonitorElement* mePosyZpPanel2;
@@ -398,6 +436,11 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   MonitorElement* mePullYvsPhiZpPanel2;
   MonitorElement* mePullXvsEtaZpPanel2;
   MonitorElement* mePullYvsEtaZpPanel2;
+
+  MonitorElement* meWPullXvsAlphaZpPanel2;
+  MonitorElement* meWPullYvsAlphaZpPanel2;
+  MonitorElement* meWPullXvsBetaZpPanel2;
+  MonitorElement* meWPullYvsBetaZpPanel2;
 
   // all hits (not only from tracks) 
   MonitorElement* mePosxBarrel_all_hits;
