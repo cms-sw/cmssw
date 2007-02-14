@@ -23,7 +23,7 @@
 #include "RecoMuon/MuonIsolation/src/TrackSelector.h"
 
 #include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
-#include "RecoMuon/MuonIsolation/src/TrackExtractor.h"
+#include "RecoMuon/MuonIsolation/interface/TrackExtractor.h"
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
