@@ -3,14 +3,13 @@
 
 #include <vector>
 #include <map>
-using namespace std;
 
 class CSCobject{
  public:
   CSCobject();
   ~CSCobject();
 
-  map< int,vector<vector<float> > > obj;
+  std::map< int, std::vector<std::vector<float> > > obj;
 };
 
 #endif
