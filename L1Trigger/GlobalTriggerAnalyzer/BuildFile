@@ -1,0 +1,22 @@
+<flags SEAL_PLUGIN_NAME="L1TriggerGlobalTriggerAnalyzer">
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
+<use name=DataFormats/L1GlobalTrigger>
+<use name=DataFormats/L1GlobalMuonTrigger>
+<use name=DataFormats/L1GlobalCaloTrigger>
+<use name=clhep>
+<use name=root>
+<export>
+   <lib name=L1TriggerGlobalTriggerAnalyzer>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/Common>
+   <use name=DataFormats/L1GlobalTrigger>
+   <use name=DataFormats/L1GlobalMuonTrigger>
+   <use name=DataFormats/L1GlobalCaloTrigger>
+   <use name=clhep>
+   <use name=root>
+</export>
