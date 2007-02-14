@@ -82,7 +82,7 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
     suppressor_->getEcalSelectiveReadout()->print(srfFile);
     srfFile << "\n";
 
-    ofstream afFile("AF.txt", (iEvent==1?ios::trunc:ios::ate));
+    ofstream afFile("AF.txt", (iEvent==1?ios::trunc:ios::app));
     printSrFlags(afFile, *ebSrFlags, *eeSrFlags, iEvent,
 		 iEvent==1?true:false);
   }
