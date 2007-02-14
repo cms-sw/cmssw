@@ -2,7 +2,7 @@
 #define CalibratedHistogramXML_H
 #include <xercesc/dom/DOM.hpp>
 #include "RecoBTag/XMLCalibration/interface/CalibratedObject.h"
-#include "CondFormats/BTagObjects/interface/CalibratedHistogram.h"
+#include "CondFormats/BTauObjects/interface/CalibratedHistogram.h"
 #include <vector>
 #include <xercesc/dom/DOMNode.hpp>
 
