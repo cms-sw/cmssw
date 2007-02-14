@@ -1,4 +1,16 @@
+<flags SEAL_PLUGIN_NAME="FastSimulationMaterialEffects">
 <use name=clhep>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Framework>
+<use name=FWCore/Utilities>
+<use name=FWCore/Services>
+<use name=Foundation/PluginManager>
+<use name=SimDataFormats/Track>
+<use name=DataFormats/Common>
+<use name=IOPool/Common>
+<use name=IOPool/Input>
+<use name=boost>
+<use name=rootcore>
 <use name=FastSimulation/ParticlePropagator>
 <use name=FastSimulation/TrackerSetup>
 <use name=FastSimulation/Utilities>
@@ -7,6 +19,17 @@
 #<use name=Geometry/Vector>
 <export>
  <use name=clhep>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/Framework>
+ <use name=FWCore/Utilities>
+ <use name=FWCore/Services>
+ <use name=Foundation/PluginManager>
+ <use name=SimDataFormats/Track>
+ <use name=DataFormats/Common>
+ <use name=IOPool/Common>
+ <use name=IOPool/Input>
+ <use name=boost>
+ <use name=rootcore>
  <lib name=FastSimulationMaterialEffects>
  <use name=FastSimulation/ParticlePropagator>
  <use name=FastSimulation/TrackerSetup>

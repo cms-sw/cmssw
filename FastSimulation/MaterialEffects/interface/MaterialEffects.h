@@ -40,6 +40,8 @@ class PairProductionUpdator;
 class MultipleScatteringUpdator;
 class BremsstrahlungUpdator;
 class EnergyLossUpdator;
+class NuclearInteractionUpdator;
+class NuclearInteractionEDMUpdator;
 
 class MaterialEffects
 {
@@ -73,6 +75,8 @@ class MaterialEffects
   BremsstrahlungUpdator* Bremsstrahlung;
   MultipleScatteringUpdator* MultipleScattering;
   EnergyLossUpdator* EnergyLoss;
+  NuclearInteractionUpdator* NuclearInteraction;
+  NuclearInteractionEDMUpdator* NuclearInteractionEDM;
 
   double pTmin;
   GlobalVector theNormalVector;

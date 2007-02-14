@@ -11,17 +11,21 @@
 #include "FastSimulation/MaterialEffects/interface/MultipleScatteringUpdator.h"
 #include "FastSimulation/MaterialEffects/interface/BremsstrahlungUpdator.h"
 #include "FastSimulation/MaterialEffects/interface/EnergyLossUpdator.h"
-
-//#include "FastSimulation/Utilitiess/interface/FamosHistos.h"
+#include "FastSimulation/MaterialEffects/interface/NuclearInteractionUpdator.h"
+#include "FastSimulation/MaterialEffects/interface/NuclearInteractionEDMUpdator.h"
 
 #include <list>
 #include <utility>
 #include <iostream>
+#include <string>
 
 using namespace std;
 
 MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
-  : PairProduction(0), Bremsstrahlung(0), MultipleScattering(0), EnergyLoss(0), pTmin(999.)
+  : PairProduction(0), Bremsstrahlung(0), 
+    MultipleScattering(0), EnergyLoss(0), 
+    NuclearInteraction(0), NuclearInteractionEDM(0), 
+    pTmin(999.)
 {
   // Set the minimal photon energy for a Brem from e+/-
 
@@ -29,6 +33,8 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
   bool doBremsstrahlung     = matEff.getParameter<bool>("Bremsstrahlung");
   bool doEnergyLoss         = matEff.getParameter<bool>("EnergyLoss");
   bool doMultipleScattering = matEff.getParameter<bool>("MultipleScattering");
+  bool doNuclearInteraction = matEff.getParameter<bool>("NuclearInteraction");
+  bool doNuclearInteractionEDM = matEff.getParameter<bool>("NuclearInteractionEDM");
   
   // Set the minimal pT before giving up the dE/dx treatment
 
@@ -60,6 +66,32 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
 
   }
 
+  if ( doNuclearInteraction ) { 
+    std::vector<std::string> listOfFiles 
+      = matEff.getUntrackedParameter<std::vector<std::string> >("fileNames");
+    vector<double> pionEnergies 
+      = matEff.getUntrackedParameter<std::vector<double> >("pionEnergies");
+    double pionEnergy 
+      = matEff.getParameter<double>("pionEnergy");
+    double lengthRatio 
+      = matEff.getParameter<double>("lengthRatio");
+    NuclearInteraction = 
+      new NuclearInteractionUpdator(listOfFiles,pionEnergies,pionEnergy,lengthRatio);
+  }
+
+  if ( doNuclearInteractionEDM ) { 
+    edm::ParameterSet listOfEDMFiles 
+      = matEff.getParameter<edm::ParameterSet>("NuclearInteractionInput");
+    vector<double> pionEnergies 
+      = matEff.getUntrackedParameter<std::vector<double> >("pionEnergies");
+    double pionEnergy 
+      = matEff.getParameter<double>("pionEnergy");
+    double lengthRatio 
+      = matEff.getParameter<double>("lengthRatio");
+    NuclearInteractionEDM = 
+      new NuclearInteractionEDMUpdator(listOfEDMFiles,pionEnergies,pionEnergy,lengthRatio);
+  }
+
 }
 
 
@@ -69,6 +101,8 @@ MaterialEffects::~MaterialEffects() {
   if ( Bremsstrahlung ) delete Bremsstrahlung;
   if ( EnergyLoss ) delete EnergyLoss;
   if ( MultipleScattering ) delete MultipleScattering;
+  if ( NuclearInteraction ) delete NuclearInteraction;
+  if ( NuclearInteractionEDM ) delete NuclearInteractionEDM;
 
 }
 
@@ -127,14 +161,96 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
       // The photon converted. Return.
       return;
     }
-  } 
+  }
+
+  if ( myTrack.pid() == 22 ) return;
+  theNormalVector = normalVector(layer,myTrack);
+  radlen = radLengths(layer,myTrack);
+
+//------------------------
+//   Nuclear interactions
+//------------------------ 
+
+  if ( NuclearInteraction && myTrack.pid() > 22 ) { 
+
+    // A few fudge factors ...
+    double factor = 1.;
+
+    if ( !layer.sensitive() ) { 
+      if ( layer.layerNumber() == 107 ) { 
+	double eta = myTrack.vertex().eta();
+	factor = eta > 2.2 ? 1.0 +(eta-2.2)*3.0 : 1.0;
+      }	else if ( layer.layerNumber() == 113 ) { 
+	double zed = fabs(myTrack.vertex().z());
+	factor = zed > 116. ? 0.6 : 1.4;
+      } else if ( layer.layerNumber() == 115 ) {
+	factor = 0.0;
+      }
+    }
+    
+    // Simulate a nuclear interaction
+    NuclearInteraction->updateState(myTrack,radlen*factor);
+
+    if ( NuclearInteraction->nDaughters() ) { 
+
+      //add a end vertex to the mother particle
+      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack);
+      
+      // This was a hadron that interacted inelastically
+      for ( DaughterIter = NuclearInteraction->beginDaughters();
+	    DaughterIter != NuclearInteraction->endDaughters(); 
+	    ++DaughterIter) {
+
+	mySimEvent.addSimTrack(*DaughterIter, ivertex);
+
+      }
+      // The hadron is destroyed. Return.
+      return;
+    }
+    
+  }
+
+  if ( NuclearInteractionEDM && myTrack.pid() > 22 ) { 
+    
+    // A few fudge factors ...
+    double factor = 1.;
+
+    if ( !layer.sensitive() ) { 
+      if ( layer.layerNumber() == 107 ) { 
+	double eta = myTrack.vertex().eta();
+	factor = eta > 2.2 ? 1.0 +(eta-2.2)*3.0 : 1.0;
+      }	else if ( layer.layerNumber() == 113 ) { 
+	double zed = fabs(myTrack.vertex().z());
+	factor = zed > 116. ? 0.6 : 1.4;
+      } else if ( layer.layerNumber() == 115 ) {
+	factor = 0.0;
+      }
+    }
+
+    // Simulate a nuclear interaction
+    NuclearInteractionEDM->updateState(myTrack,radlen*factor);
+    if ( NuclearInteractionEDM->nDaughters() ) { 
+
+      //add a end vertex to the mother particle
+      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack);
+      
+      // This was a hadron that interacted inelastically
+      for ( DaughterIter = NuclearInteractionEDM->beginDaughters();
+	    DaughterIter != NuclearInteractionEDM->endDaughters(); 
+	    ++DaughterIter) {
+
+	mySimEvent.addSimTrack(*DaughterIter, ivertex);
+
+      }
+      // The hadron is destroyed. Return.
+      return;
+    }
+    
+  }
 
   if ( myTrack.charge() == 0 ) return;
 
   if ( !Bremsstrahlung && !EnergyLoss && !MultipleScattering ) return;
-
-  theNormalVector = normalVector(layer,myTrack);
-  radlen = radLengths(layer,myTrack);
 
 //----------------
 //  Bremsstrahlung
