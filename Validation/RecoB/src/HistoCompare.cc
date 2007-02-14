@@ -6,7 +6,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: HistoCompare.cc,v 1.1 2007/02/14 16:58:35 yumiceva Exp $
+ version $Id: HistoCompare.cc,v 1.2 2007/02/14 20:09:42 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -54,20 +54,29 @@ TH1* HistoCompare::Compare(TH1 *h, TString hname) {
 	resHisto_ = (TH1*) h->Clone(TString(h->GetName())+"_residuals");
 	resHisto_->Reset();
 
+	// clone input histogram
+	TH1 *htemp = (TH1*) h->Clone(TString(h->GetName()));
+
 	refFile_->cd();
 	//std::cout << "get reference" << std::endl;
 	refHisto_ = (TH1*) gDirectory->Get( hname );
 	//std::cout << "historef: " << refHisto_->GetName() << " entries: "<< refHisto_->GetEntries() << std::endl;
 	//std::cout << "name: " << refHisto_->GetName() << std::endl;
+
+
+	// normalize histograms
+	htemp->Scale(1./htemp->Integral());
+	refHisto_->Scale(1./refHisto_->Integral());
 	
 	if (setChi2Test_) {
-		result_ = refHisto_->Chi2Test(h,"UFOF");
+		result_ = refHisto_->Chi2Test(htemp,"UFOF");
 	}
 	if (setKGTest_) {
-		result_ = refHisto_->KolmogorovTest(h,"UO");
+		result_ = refHisto_->KolmogorovTest(htemp,"UO");
 	}
 
-	resHisto_->Add( h, refHisto_, 1., -1.);
+	
+	resHisto_->Add( htemp, refHisto_, 1., -1.);
 	
 	//std::cout << " residual done." << std::endl;
 	
