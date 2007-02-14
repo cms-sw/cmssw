@@ -230,7 +230,7 @@ FSimTrack::simHit(unsigned layer) const {
 
 ostream& operator <<(ostream& o , const FSimTrack& t) {
 
-  string name = t.particleInfo()->name();
+  string name = t.particleInfo() ? t.particleInfo()->name() : "Unknown";
   HepLorentzVector momentum1 = t.momentum();
   Hep3Vector vertex1 = t.vertex().position().vect();
   int vertexId1 = t.vertex().id();
