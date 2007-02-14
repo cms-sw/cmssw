@@ -32,7 +32,8 @@ using namespace std;
 // -----------------------------------------------------------------------------
 SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf ) 
   : eventCounter_(0), 
-    theLabel( conf.getParameter<edm::InputTag>( "src") ),
+    config_(conf),
+//    theLabel( conf.getParameter<edm::InputTag>( "src") ),
     fedCablingMap_(0)
 {
   edm::LogInfo("SiPixelRawToDigi")<< " HERE ** constructor!" << endl;
@@ -69,8 +70,9 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   static  R2DTimerObserver timer("**** MY TIMING REPORT ***");
 
   edm::Handle<FEDRawDataCollection> buffers;
-  ev.getByLabel(theLabel, buffers);
-
+  static string label = config_.getUntrackedParameter<string>("InputLabel","source");
+  static string instance = config_.getUntrackedParameter<string>("InputInstance","");
+  ev.getByLabel( label, instance, buffers);
 
 // create product (digis)
   std::auto_ptr< edm::DetSetVector<PixelDigi> > collection( new edm::DetSetVector<PixelDigi> );
