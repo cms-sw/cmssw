@@ -26,6 +26,7 @@ namespace dqm
     ///transition methods to be implemented by the application
     virtual void configureAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception) = 0;
     virtual void enableAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception) = 0;
+    virtual void stopAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception){}; //just a noop to keep the compiler happy for the moment
     virtual void suspendAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception) = 0;
     virtual void resumeAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception) = 0;
     virtual void haltAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception) = 0;
