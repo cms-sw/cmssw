@@ -35,7 +35,7 @@ private:
   bool usePrimaryVertex;
   // now a data member to use the usual Filter<T> interface
 
-  static const bool debug = true; 
+  static const bool debug = false; 
   
 };
 #endif

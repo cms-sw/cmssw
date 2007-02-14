@@ -34,7 +34,7 @@ ConfigurableTertiaryTracksVertexFinder::ConfigurableTertiaryTracksVertexFinder(
   theMinSign2D = 3.0;  // min transverse distance significance
   theMinTracks = 2;    // min number of tracks
   theFlight2DSvFilter= new Flight2DSvFilter(theMaxDist2D,theMinDist2D,
-    theMinSign2D,theMinTracks);
+					    theMinSign2D,theMinTracks);
 
   //  thePrimaryVertex = new TransientVertex;
   // FIXME this is incomplete!? -> get real primary vertex!
@@ -150,11 +150,11 @@ std::vector<TransientVertex> ConfigurableTertiaryTracksVertexFinder::reconstruct
     if( (!TransientTrackInVertices::isInVertex((*itT),primaryVertices)) 
      && (!TransientTrackInVertices::isInVertex((*itT),vertices)) )
        unusedTracks.push_back( *itT ); 
-  if (debug) cout <<"remaining tracks: "<<unusedTracks.size()<<endl;
+  if (debug) cout <<"[TTVF] remaining tracks: "<<unusedTracks.size()<<endl;
 
   // now add tracks to the SV candidate
   AddTvTrack MyAddTVTrack( &primaryVertices, &secondaryVertices, 
-    theMaxSigOnDistTrackToB );  
+			   theMaxSigOnDistTrackToB);  
   vector<TransientVertex> newVertices =
     MyAddTVTrack.getSecondaryVertices(unusedTracks); 
 

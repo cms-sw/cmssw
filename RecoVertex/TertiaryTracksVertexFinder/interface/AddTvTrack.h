@@ -13,7 +13,7 @@
 class AddTvTrack  {
 
  public:
-  AddTvTrack( std::vector<TransientVertex>*, std::vector<TransientVertex>*, double ) ;
+  AddTvTrack( std::vector<TransientVertex>*, std::vector<TransientVertex>*, double) ;
    
   ~AddTvTrack() {}  // nothing special to be done here
 
@@ -44,7 +44,7 @@ class AddTvTrack  {
   std::vector<TransientVertex> *theSecondaryVertices;
   double MaxSigOnDistTrackToB;
 
-  static const bool debug = true;
+  static const bool debug = false;
 
 };
 

@@ -6,8 +6,9 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
 
-#include "RecoVertex/TertiaryTracksVertexFinder/interface/TrajectoryExtrapolatorToLine.h"
-
+//#include "RecoVertex/TertiaryTracksVertexFinder/interface/TrajectoryExtrapolatorToLine.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalTrajectoryExtrapolatorToLine.h"
+#include "Geometry/Surface/interface/Line.h"
 
 #include "RecoVertex/TertiaryTracksVertexFinder/interface/AddTvTrack.h"
 
@@ -19,9 +20,9 @@ AddTvTrack::AddTvTrack( vector<TransientVertex> *PrimaryVertices, vector<Transie
   thePrimaryVertices    = PrimaryVertices;
   theSecondaryVertices  = SecondaryVertices;
   MaxSigOnDistTrackToB  = maxSigOnDistTrackToB; 
-
 }
 
+//-----------------------------------------------------------------------------
 
 vector<TransientVertex> AddTvTrack::getSecondaryVertices(const vector<TransientTrack> & unusedTracks ) {
 
@@ -38,15 +39,13 @@ vector<TransientVertex> AddTvTrack::getSecondaryVertices(const vector<TransientT
 
   for( vector<TransientTrack>::const_iterator itT = unusedTracks.begin() ; itT != unusedTracks.end() ; itT++ ) { // filter Tracks on Impact Parameter Sig
 
-    GlobalPoint vtxPoint(0.,0.,0.);
-    //GlobalPoint vtxPoint((*thePrimaryVertices)[0].position());
+    GlobalPoint vtxPoint((*thePrimaryVertices)[0].position());
 
-    cout <<"sip: "<< (*itT).impactPointState().signedInverseMomentum()<<endl;
     TrajectoryStateClosestToPoint tscp=(*itT).trajectoryStateClosestToPoint(vtxPoint);
     double val=tscp.perigeeParameters().transverseImpactParameter();
     double error=sqrt((tscp.perigeeError().covarianceMatrix())[3][3]);
 
-    if (debug) cout <<"val,err"<<val<<","<<error<<endl;
+    if (debug) cout <<"[AddTvTrack] tip val,err"<<val<<","<<error<<endl;
 
     //double val= 0.; //(*itT).transverseImpactParameter().value();
     //double error= 9999.; //(*itT).transverseImpactParameter().error();
@@ -74,13 +73,39 @@ vector<TransientVertex> AddTvTrack::getSecondaryVertices(const vector<TransientT
   for( vector<TransientTrack>::const_iterator itT = unusedTrackswithIPSig.begin() ; itT != unusedTrackswithIPSig.end() ; itT++ ) {   // main loop over tracks
     try {  
 
-       //  TrajectoryStateOnSurface MyTransientTrackTrajectory = (*itT).stateAtLine(bFlightLine);  // get closest Point to bFlightLine on TransientTrack   
+      // ORCA implementation
+      //  TrajectoryStateOnSurface MyTransientTrackTrajectory = (*itT).stateAtLine(bFlightLine);  // get closest Point to bFlightLine on TransientTrack   
+      // GlobalPoint GlobalPoint2 = MyTransientTrackTrajectory.globalPosition(); // Point on  TransientTrack closest to bFlightLine  
 
-      TrajectoryExtrapolatorToLine theTETL;
-      
-      TrajectoryStateOnSurface MyTransientTrackTrajectory = theTETL.stateAtLine(*itT,bFlightLine);
-       
-      GlobalPoint GlobalPoint2 = MyTransientTrackTrajectory.globalPosition();   // Point on  TransientTrack closest to bFlightLine  
+      TransientTrack track = *itT;
+      AnalyticalTrajectoryExtrapolatorToLine TETL(track.field());
+      TrajectoryStateOnSurface MyTransientTrackTrajectory;
+
+      // approach from impact point first
+      // create a fts without errors for faster propagation
+      FreeTrajectoryState fastFts(track.impactPointState().freeTrajectoryState()->parameters());
+      TrajectoryStateOnSurface cptl = TETL.extrapolate(fastFts, bFlightLine);
+      // extrapolate from closest measurement
+      if (cptl.isValid()) {
+        // FreeTrajectoryState* fts = theTrack.closestState(cptl.globalPosition()).freeState();
+        // closestState() not provided in CMSSW, need to do by hand ...
+        FreeTrajectoryState fts;
+        GlobalVector d1 = track.innermostMeasurementState().globalPosition()-cptl.globalPosition();
+        GlobalVector d2 = track.outermostMeasurementState().globalPosition()-cptl.globalPosition();
+        if (d1.mag() < d2.mag()) fts=*(track.innermostMeasurementState().freeState());
+	else                     fts=*(track.outermostMeasurementState().freeState());
+        TrajectoryStateOnSurface cptl2 = TETL.extrapolate(fts, bFlightLine);
+        MyTransientTrackTrajectory=cptl2;
+      } 
+      else { 
+        MyTransientTrackTrajectory=cptl;
+      } 
+
+      // Point on  TransientTrack closest to bFlightLine  
+      GlobalPoint GlobalPoint2 = MyTransientTrackTrajectory.globalPosition();  
+
+      /////////////////////////////////////////////
+
       GlobalVector VectorDistanceTransientTrackbFlightLine = bFlightLine.distance(GlobalPoint2);
       
       double X = GlobalPoint2.x() + VectorDistanceTransientTrackbFlightLine.x();
@@ -185,7 +210,7 @@ vector<TransientVertex> AddTvTrack::getSecondaryVertices(const vector<TransientT
    
  } // end try block 
     catch(...) {
-      cout << " AddTvTrack::getSecondaryVertices throws exception " << endl;
+      cout << " [AddTvTrack]::getSecondaryVertices throws exception " << endl;
     }
 
   }      // end  main loop over tracks

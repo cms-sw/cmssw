@@ -46,7 +46,7 @@ class ConfigurableTertiaryTracksVertexFinder : public VertexReconstructor {
     const std::vector<reco::TransientTrack> & tracks, 
     const TransientVertex& pv) const; 
 
-  static const bool debug = true;
+  static const bool debug = false;
 
   ConfigurableTrimmedVertexFinder* theTKVF;
   V0SvFilter* theV0SvFilter;
