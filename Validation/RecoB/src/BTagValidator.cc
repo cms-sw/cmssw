@@ -6,7 +6,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.cc,v 1.1 2007/02/13 16:31:46 yumiceva Exp $
+ version $Id: BTagValidator.cc,v 1.2 2007/02/14 16:58:35 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -31,20 +31,19 @@ ________________________________________________________________**/
 //
 // constructors and destructor
 //
-BTagValidator::BTagValidator(const edm::ParameterSet& iConfig) :
-  algorithm_( iConfig.getParameter<std::string>( "algorithm" ) ),
-  rootFile_( iConfig.getParameter<std::string>( "rootfile" ) ),
-  DQMFile_( iConfig.getParameter<std::string>( "DQMFile" ) ),
-  histogramList_( iConfig.getParameter<vstring>( "histogramList" ) ),
-  referenceFilename_( iConfig.getParameter<std::string>( "ReferenceFilename" ) ),
-  doCompare_( iConfig.getParameter<bool>( "CompareHistograms" ) ) {
-	
-	// change assert to CMS catch exeptions
-	//assert( !algorithm_.empty() ) ;   
-	//assert( !rootFile_.empty() ) ;     
-	//assert( !DQMFile_.empty() ) ;   
-	//assert( !histogramList_.empty() ) ;   
+BTagValidator::BTagValidator(const edm::ParameterSet& iConfig) {
 
+
+	algorithm_ = iConfig.getParameter<std::string>( "algorithm" );
+	rootFile_ = iConfig.getParameter<std::string>( "rootfile" );
+	DQMFile_ = iConfig.getParameter<std::string>( "DQMFile" );
+	histogramList_ = iConfig.getParameter<vstring>( "histogramList" );
+	referenceFilename_ = iConfig.getParameter<std::string>( "ReferenceFilename" );
+	doCompare_ = iConfig.getParameter<bool>( "CompareHistograms" );
+				
+	// change assert to CMS catch exceptions
+	// throw edm::Exception(errors::Configuration, "no label") << "thelabel do no exist";
+	
 	if (algorithm_ == "TrackCounting") 
 		petBase_ = new BTagPABase<reco::TrackCountingTagInfoCollection, TrackCountingTagPlotter>(iConfig);
 	else if (algorithm_ == "TrackProbability")
@@ -54,6 +53,7 @@ BTagValidator::BTagValidator(const edm::ParameterSet& iConfig) :
 		cout << " Choose between JetTag, TrackCounting, TrackProbability\n";
 		exit(1);
 	}
+
 	
 }
 
@@ -71,7 +71,7 @@ BTagValidator::~BTagValidator() {
 void
 BTagValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  petBase_->analyze(iEvent, iSetup);
+	petBase_->analyze(iEvent, iSetup);
 }
 
 
@@ -97,7 +97,7 @@ BTagValidator::endJob() {
 
 	if (doCompare_) {
 	  hcompare.SetReferenceFilename(TString(referenceFilename_) );
-	  std::cout << referenceFilename_ << std::endl;
+	  //std::cout << referenceFilename_ << std::endl;
 	}
 	
 	file->cd();
@@ -122,7 +122,7 @@ BTagValidator::endJob() {
 			std::cout << "  xmax : " << histogram->GetXaxis()->GetXmax() << std::endl ;
 			
 			
-			TH1* hresiduals;
+			TH1* hresiduals = 0;
 			if (doCompare_) {
 			  std::cout << "  begin comparison"<< std::endl;
 			  hresiduals = hcompare.Compare(histogram, "/DQMData/"+TString(algorithm_)+"/"+TString(histogram->GetName()) );
@@ -142,7 +142,7 @@ BTagValidator::endJob() {
 			  monElement->setBinError ( x, histogram->GetBinError( x ) ) ;
                         }
 
-			if (doCompare_) {
+			if (doCompare_ && hresiduals!= 0 ) {
 			  monElementRes = dbe->book1D (
 						       std::string( hresiduals->GetName() ),
 						       std::string( hresiduals->GetTitle() ),

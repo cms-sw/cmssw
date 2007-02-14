@@ -9,7 +9,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: HistoCompare.h,v 1.1 2007/02/13 16:31:46 yumiceva Exp $
+ version $Id: HistoCompare.h,v 1.1 2007/02/14 16:58:34 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -38,6 +38,7 @@ class HistoCompare {
 	  refFile_ = new TFile(refFilename_);
 	  if (refFile_->IsZombie()) {
 		  std::cout << " Error openning file " << refFilename_ << std::endl;
+		  std::cout << " we will not compare histograms. " << std::endl;
 		  do_nothing_ = true;
 	  }
 	  std::cout << " open file" << std::endl;

@@ -6,7 +6,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: HistoCompare.cc,v 1.1 2007/02/13 16:31:46 yumiceva Exp $
+ version $Id: HistoCompare.cc,v 1.1 2007/02/14 16:58:35 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -27,9 +27,12 @@ HistoCompare::HistoCompare(TString refFilename) {
 	refFile_ = new TFile(refFilename);
 	if (refFile_->IsZombie()) {
 		std::cout << " Error openning file " << refFilename << std::endl;
+		std::cout << " we will not compare histograms. " << std::endl;
 		do_nothing_ = true;
+	} else {
+		std::cout << " open file " << refFilename << std::endl;
 	}
-	std::cout << "open file " << refFilename << std::endl;
+	
 	setChi2Test_ = true;
 	
 }
