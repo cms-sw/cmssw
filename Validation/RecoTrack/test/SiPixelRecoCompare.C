@@ -60,9 +60,7 @@ void SetUpProfileHistograms( TProfile* h1, TProfile* h2,
 void SiPixelRecoCompare()
 {
   gROOT ->Reset();
-  //char*  sfilename = "./ROOT_FILES/pixeltrackingrechitshist34.root";
-  //char*  rfilename = "./ROOT_FILES/pixeltrackingrechitshist56.root"; 
-  
+    
   char*  sfilename = "./pixeltrackingrechitshist.root"; // file to be checked
   char*  rfilename = "../data/pixeltrackingrechitshist.root"; // reference file 
   
@@ -85,12 +83,14 @@ void SiPixelRecoCompare()
   HistoCompare* myPV = new HistoCompare("RecoTrack_SiPixelRecoCompare.txt");
   //myPV->setName("RecoTrack_SiPixelRecoCompare");
 
-  int n_bins = 145;
+  int n_bins = 169;
   double low = 0.5;
   double high = (double)n_bins + 0.5;
   TH1F* h_pv = new TH1F("h_pv", "#Chi^{2} results for each distribution", n_bins, low, high);
   int bin = 0;
   double value_pv = -9999.9;
+
+
 
   if (1) 
     {
@@ -160,7 +160,6 @@ void SiPixelRecoCompare()
       sfile->GetObject("DQMData/Histograms_all/meChargeZmPanel2", newmeChargeZmPanel2);
       sfile->GetObject("DQMData/Histograms_all/meChargeZpPanel1", newmeChargeZpPanel1);
       sfile->GetObject("DQMData/Histograms_all/meChargeZpPanel2", newmeChargeZpPanel2);
-      
       TLegend* leg2 = new TLegend(0.3, 0.7, 0.6, 0.9);
       can_meCharge->cd(1);
       //gPad->SetLogy();
@@ -735,6 +734,9 @@ void SiPixelRecoCompare()
   double lpull = -1.0;
   double hpull =  1.0;
 
+  double lwpull = 0.0;
+  double hwpull = 2.0;
+
   if (   1   ) 
     {
       TCanvas* can_PullXvsAlpha = new TCanvas("can_PullXvsAlpha", "can_PullXvsAlpha", 1200, 800);
@@ -885,81 +887,106 @@ void SiPixelRecoCompare()
       can_PullXvsBeta->SaveAs("mePullXvsBeta_compare.gif");
     }
 
-if (0) 
-  {
-    TCanvas* can_PullXvsEta = new TCanvas("can_PullXvsEta", "can_PullXvsEta", 1200, 800);
-    can_PullXvsEta->Divide(3,2);
-    
-    TProfile* mePullXvsEtaBarrel;
-    TProfile* mePullXvsEtaZmPanel1;
-    TProfile* mePullXvsEtaZmPanel2;
-    TProfile* mePullXvsEtaZpPanel1;
-    TProfile* mePullXvsEtaZpPanel2;
-    
-    TProfile* newmePullXvsEtaBarrel;
-    TProfile* newmePullXvsEtaZmPanel1;
-    TProfile* newmePullXvsEtaZmPanel2;
-    TProfile* newmePullXvsEtaZpPanel1;
-    TProfile* newmePullXvsEtaZpPanel2;
 
-    rfile->GetObject("DQMData/Histograms_all/mePullXvsEtaBarrel"  , mePullXvsEtaBarrel  );
-    rfile->GetObject("DQMData/Histograms_all/mePullXvsEtaZmPanel1", mePullXvsEtaZmPanel1);
-    rfile->GetObject("DQMData/Histograms_all/mePullXvsEtaZmPanel2", mePullXvsEtaZmPanel2);
-    rfile->GetObject("DQMData/Histograms_all/mePullXvsEtaZpPanel1", mePullXvsEtaZpPanel1);
-    rfile->GetObject("DQMData/Histograms_all/mePullXvsEtaZpPanel2", mePullXvsEtaZpPanel2);
 
-    sfile->GetObject("DQMData/Histograms_all/mePullXvsEtaBarrel"  , newmePullXvsEtaBarrel  ); 
-    sfile->GetObject("DQMData/Histograms_all/mePullXvsEtaZmPanel1", newmePullXvsEtaZmPanel1);
-    sfile->GetObject("DQMData/Histograms_all/mePullXvsEtaZmPanel2", newmePullXvsEtaZmPanel2);
-    sfile->GetObject("DQMData/Histograms_all/mePullXvsEtaZpPanel1", newmePullXvsEtaZpPanel1);
-    sfile->GetObject("DQMData/Histograms_all/mePullXvsEtaZpPanel2", newmePullXvsEtaZpPanel2);
+
+
+
+
+
+
+ if (   1   ) 
+    {
+      TCanvas* can_WPullXvsAlpha = new TCanvas("can_WPullXvsAlpha", "can_WPullXvsAlpha", 1200, 800);
+      can_WPullXvsAlpha->Divide(3,2);
+      
+      TProfile* meWPullXvsAlphaBarrelNFP;
+      TProfile* meWPullXvsAlphaBarrelFP;
+      TProfile* meWPullXvsAlphaZmPanel1;
+      TProfile* meWPullXvsAlphaZmPanel2;
+      TProfile* meWPullXvsAlphaZpPanel1;
+      TProfile* meWPullXvsAlphaZpPanel2;
+      
+      TProfile* newmeWPullXvsAlphaBarrelNFP;
+      TProfile* newmeWPullXvsAlphaBarrelFP;
+      TProfile* newmeWPullXvsAlphaBarrel;
+      TProfile* newmeWPullXvsAlphaZmPanel1;
+      TProfile* newmeWPullXvsAlphaZmPanel2;
+      TProfile* newmeWPullXvsAlphaZpPanel1;
+      TProfile* newmeWPullXvsAlphaZpPanel2;
+      
+      rfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaBarrelNonFlippedLadders", meWPullXvsAlphaBarrelNFP  );
+      rfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaBarrelFlippedLadders"   , meWPullXvsAlphaBarrelFP   );
+      rfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaZmPanel1", meWPullXvsAlphaZmPanel1);
+      rfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaZmPanel2", meWPullXvsAlphaZmPanel2);
+      rfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaZpPanel1", meWPullXvsAlphaZpPanel1);
+      rfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaZpPanel2", meWPullXvsAlphaZpPanel2);
+      
+      sfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaBarrelNonFlippedLadders", newmeWPullXvsAlphaBarrelNFP  );
+      sfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaBarrelFlippedLadders"   , newmeWPullXvsAlphaBarrelFP   );
+      sfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaZmPanel1", newmeWPullXvsAlphaZmPanel1);
+      sfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaZmPanel2", newmeWPullXvsAlphaZmPanel2);
+      sfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaZpPanel1", newmeWPullXvsAlphaZpPanel1);
+      sfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaZpPanel2", newmeWPullXvsAlphaZpPanel2);
+      
+      TLegend* leg10 = new TLegend(0.3, 0.7, 0.6, 0.9);
+      can_WPullXvsAlpha->cd(1);
+      //gPad->SetLogy();
+      SetUpProfileHistograms(meWPullXvsAlphaBarrelNFP, newmeWPullXvsAlphaBarrelNFP, 
+			     "non-flipped  ladders, barrel, |alpha| (deg)", "< | pull x | >", lwpull, hwpull, leg10 );
+      meWPullXvsAlphaBarrelNFP->Draw("e");
+      newmeWPullXvsAlphaBarrelNFP->Draw("Samee"); 
+      myPV->PVCompute(meWPullXvsAlphaBarrelNFP, newmeWPullXvsAlphaBarrelNFP, te );
+      leg10->Draw();
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
+      can_WPullXvsAlpha->cd(2);
+      //gPad->SetLogy();
+      SetUpProfileHistograms(meWPullXvsAlphaZmPanel1, newmeWPullXvsAlphaZmPanel1, "panel1, z<0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
+      meWPullXvsAlphaZmPanel1->Draw("e");
+      newmeWPullXvsAlphaZmPanel1->Draw("samee"); 
+      myPV->PVCompute(meWPullXvsAlphaZmPanel1, newmeWPullXvsAlphaZmPanel1, te );
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
+      can_WPullXvsAlpha->cd(3);
+      //gPad->SetLogy();
+      SetUpProfileHistograms(meWPullXvsAlphaZmPanel2, newmeWPullXvsAlphaZmPanel2, "panel2, z<0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
+      meWPullXvsAlphaZmPanel2->Draw("e");
+      newmeWPullXvsAlphaZmPanel2->Draw("samee"); 
+      myPV->PVCompute(meWPullXvsAlphaZmPanel2, newmeWPullXvsAlphaZmPanel2, te );
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
+      can_WPullXvsAlpha->cd(4);
+      //gPad->SetLogy();
+      SetUpProfileHistograms(meWPullXvsAlphaBarrelFP, newmeWPullXvsAlphaBarrelFP, 
+			     "flipped ladders, barrel, |alpha| (deg)", "< | pull x | >", lwpull, hwpull);
+      meWPullXvsAlphaBarrelFP->Draw("e");
+      newmeWPullXvsAlphaBarrelFP->Draw("Samee"); 
+      myPV->PVCompute(meWPullXvsAlphaBarrelFP, newmeWPullXvsAlphaBarrelFP, te );
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
+      can_WPullXvsAlpha->cd(5);
+      //gPad->SetLogy();
+      SetUpProfileHistograms(meWPullXvsAlphaZpPanel1, newmeWPullXvsAlphaZpPanel1, 
+			     "panel1, z>0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
+      meWPullXvsAlphaZpPanel1->Draw("e");
+      newmeWPullXvsAlphaZpPanel1->Draw("samee"); 
+      myPV->PVCompute(meWPullXvsAlphaZpPanel1, newmeWPullXvsAlphaZpPanel1, te );
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
+      can_WPullXvsAlpha->cd(6);
+      //gPad->SetLogy();
+      SetUpProfileHistograms(meWPullXvsAlphaZpPanel2, newmeWPullXvsAlphaZpPanel2, 
+			     "panel2, z>0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
+      meWPullXvsAlphaZpPanel2->Draw("e");
+      newmeWPullXvsAlphaZpPanel2->Draw("samee"); 
+      myPV->PVCompute(meWPullXvsAlphaZpPanel2, newmeWPullXvsAlphaZpPanel2, te );
+      h_pv->SetBinContent(++bin, myPV->getPV());
+
+      can_WPullXvsAlpha->SaveAs("meWPullXvsAlpha_compare.eps");
+      can_WPullXvsAlpha->SaveAs("meWPullXvsAlpha_compare.gif");
+    }
   
-    TLegend* leg12 = new TLegend(0.3, 0.7, 0.6, 0.9);
-    can_PullXvsEta->cd(1);
-    //gPad->SetLogy();
-    SetUpProfileHistograms(mePullXvsEtaBarrel, newmePullXvsEtaBarrel, "barrel, eta", "pull x", lpull, hpull, leg12 );
-    mePullXvsEtaBarrel->Draw("e");
-    newmePullXvsEtaBarrel->Draw("Samee"); 
-    myPV->PVCompute(mePullXvsEtaBarrel, newmePullXvsEtaBarrel, te );
-    leg12->Draw();
-    h_pv->SetBinContent(++bin, myPV->getPV());
-
-    can_PullXvsEta->cd(2);
-    //gPad->SetLogy();
-    SetUpProfileHistograms(mePullXvsEtaZmPanel1, newmePullXvsEtaZmPanel1, "panel1, z<0, eta", "pull x", lpull, hpull );
-    mePullXvsEtaZmPanel1->Draw("e");
-    newmePullXvsEtaZmPanel1->Draw("samee"); 
-    myPV->PVCompute(mePullXvsEtaZmPanel1, newmePullXvsEtaZmPanel1, te );
-    h_pv->SetBinContent(++bin, myPV->getPV());
-
-    can_PullXvsEta->cd(3);
-    //gPad->SetLogy();
-    SetUpProfileHistograms(mePullXvsEtaZmPanel2, newmePullXvsEtaZmPanel2, "panel2, z<0, eta", "pull x", lpull, hpull );
-    mePullXvsEtaZmPanel2->Draw("e");
-    newmePullXvsEtaZmPanel2->Draw("samee"); 
-    myPV->PVCompute(mePullXvsEtaZmPanel2, newmePullXvsEtaZmPanel2, te );
-    h_pv->SetBinContent(++bin, myPV->getPV());
-
-    can_PullXvsEta->cd(5);
-    //gPad->SetLogy();
-    SetUpProfileHistograms(mePullXvsEtaZpPanel1, newmePullXvsEtaZpPanel1, "panel1, z>0, eta", "pull x", lpull, hpull );
-    mePullXvsEtaZpPanel1->Draw("e");
-    newmePullXvsEtaZpPanel1->Draw("samee"); 
-    myPV->PVCompute(mePullXvsEtaZpPanel1, newmePullXvsEtaZpPanel1, te );
-    h_pv->SetBinContent(++bin, myPV->getPV());
-
-    can_PullXvsEta->cd(6);
-    //gPad->SetLogy();
-    SetUpProfileHistograms(mePullXvsEtaZpPanel2, newmePullXvsEtaZpPanel2, "panel2, z>0, eta", "pull x", lpull, hpull );
-    mePullXvsEtaZpPanel2->Draw("e");
-    newmePullXvsEtaZpPanel2->Draw("samee"); 
-    myPV->PVCompute(mePullXvsEtaZpPanel2, newmePullXvsEtaZpPanel2, te );
-    h_pv->SetBinContent(++bin, myPV->getPV());
-
-    can_PullXvsEta->SaveAs("mePullXvsEta_compare.eps");
-    can_PullXvsEta->SaveAs("mePullXvsEta_compare.gif");
-  }
-
 if (0) 
   {
     TCanvas* can_PullXvsPhi = new TCanvas("can_PullXvsPhi", "can_PullXvsPhi", 1200, 800);
@@ -1184,6 +1211,108 @@ if (   1   )
     can_PullYvsBeta->SaveAs("mePullYvsBeta_compare.eps");
     can_PullYvsBeta->SaveAs("mePullYvsBeta_compare.gif");
   }
+
+
+
+if (   1   ) 
+  {
+    TCanvas* can_WPullYvsBeta = new TCanvas("can_WPullYvsBeta", "can_WPullYvsBeta", 1200, 800);
+    can_WPullYvsBeta->Divide(3,2);
+    
+    TProfile* meWPullYvsBetaBarrelNFP;
+    TProfile* meWPullYvsBetaBarrelFP;
+    TProfile* meWPullYvsBetaZmPanel1;
+    TProfile* meWPullYvsBetaZmPanel2;
+    TProfile* meWPullYvsBetaZpPanel1;
+    TProfile* meWPullYvsBetaZpPanel2;
+    
+    TProfile* newmeWPullYvsBetaBarrelNFP;
+    TProfile* newmeWPullYvsBetaBarrelFP;
+    TProfile* newmeWPullYvsBetaBarrel;
+    TProfile* newmeWPullYvsBetaZmPanel1;
+    TProfile* newmeWPullYvsBetaZmPanel2;
+    TProfile* newmeWPullYvsBetaZpPanel1;
+    TProfile* newmeWPullYvsBetaZpPanel2;
+
+    rfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaBarrelNonFlippedLadders", meWPullYvsBetaBarrelNFP  );
+    rfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaBarrelFlippedLadders"   , meWPullYvsBetaBarrelFP  );
+    rfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaZmPanel1", meWPullYvsBetaZmPanel1);
+    rfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaZmPanel2", meWPullYvsBetaZmPanel2);
+    rfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaZpPanel1", meWPullYvsBetaZpPanel1);
+    rfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaZpPanel2", meWPullYvsBetaZpPanel2);
+
+    sfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaBarrelNonFlippedLadders", newmeWPullYvsBetaBarrelNFP  );
+    sfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaBarrelFlippedLadders"   , newmeWPullYvsBetaBarrelFP  );
+    sfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaBarrel"  , newmeWPullYvsBetaBarrel  ); 
+    sfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaZmPanel1", newmeWPullYvsBetaZmPanel1);
+    sfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaZmPanel2", newmeWPullYvsBetaZmPanel2);
+    sfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaZpPanel1", newmeWPullYvsBetaZpPanel1);
+    sfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaZpPanel2", newmeWPullYvsBetaZpPanel2);
+  
+    TLegend* leg15 = new TLegend(0.3, 0.7, 0.6, 0.9);
+    can_WPullYvsBeta->cd(1);
+    //gPad->SetLogy();
+    SetUpProfileHistograms(meWPullYvsBetaBarrelNFP, newmeWPullYvsBetaBarrelNFP, 
+			   "non-flipped ladders, barrel, |beta| (deg)", "< | pull y | > ", lwpull, hwpull, leg15 );
+    meWPullYvsBetaBarrelNFP->Draw("e");
+    newmeWPullYvsBetaBarrelNFP->Draw("Samee"); 
+    myPV->PVCompute(meWPullYvsBetaBarrelNFP, newmeWPullYvsBetaBarrelNFP, te );
+    leg15->Draw();
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
+    can_WPullYvsBeta->cd(2);
+    //gPad->SetLogy();
+    SetUpProfileHistograms(meWPullYvsBetaZmPanel1, newmeWPullYvsBetaZmPanel1, "panel1, z<0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
+    meWPullYvsBetaZmPanel1->Draw("e");
+    newmeWPullYvsBetaZmPanel1->Draw("samee"); 
+    myPV->PVCompute(meWPullYvsBetaZmPanel1, newmeWPullYvsBetaZmPanel1, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
+    can_WPullYvsBeta->cd(3);
+    //gPad->SetLogy();
+    SetUpProfileHistograms(meWPullYvsBetaZmPanel2, newmeWPullYvsBetaZmPanel2, 
+			   "panel2, z<0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
+    meWPullYvsBetaZmPanel2->Draw("e");
+    newmeWPullYvsBetaZmPanel2->Draw("samee"); 
+    myPV->PVCompute(meWPullYvsBetaZmPanel2, newmeWPullYvsBetaZmPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
+    can_WPullYvsBeta->cd(4);
+    //gPad->SetLogy();
+    SetUpProfileHistograms(meWPullYvsBetaBarrelFP, newmeWPullYvsBetaBarrelFP, 
+			   "flipped ladders, barrel, |beta| (deg)", "< | pull y | > ", lwpull, hwpull);
+    meWPullYvsBetaBarrelFP->Draw("e");
+    newmeWPullYvsBetaBarrelFP->Draw("Samee"); 
+    myPV->PVCompute(meWPullYvsBetaBarrelFP, newmeWPullYvsBetaBarrelFP, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
+    can_WPullYvsBeta->cd(5);
+    //gPad->SetLogy();
+    SetUpProfileHistograms(meWPullYvsBetaZpPanel1, newmeWPullYvsBetaZpPanel1, 
+			   "panel1, z>0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
+    meWPullYvsBetaZpPanel1->Draw("e");
+    newmeWPullYvsBetaZpPanel1->Draw("samee"); 
+    myPV->PVCompute(meWPullYvsBetaZpPanel1, newmeWPullYvsBetaZpPanel1, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
+    can_WPullYvsBeta->cd(6);
+    //gPad->SetLogy();
+    SetUpProfileHistograms(meWPullYvsBetaZpPanel2, newmeWPullYvsBetaZpPanel2, 
+			   "panel2, z>0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
+    meWPullYvsBetaZpPanel2->Draw("e");
+    newmeWPullYvsBetaZpPanel2->Draw("samee"); 
+    myPV->PVCompute(meWPullYvsBetaZpPanel2, newmeWPullYvsBetaZpPanel2, te );
+    h_pv->SetBinContent(++bin, myPV->getPV());
+
+    can_WPullYvsBeta->SaveAs("meWPullYvsBeta_compare.eps");
+    can_WPullYvsBeta->SaveAs("meWPullYvsBeta_compare.gif");
+  }
+
+
+
+
+
+
 
 if (0) 
   {
@@ -2140,6 +2269,113 @@ if (1)
 
  can_meChargeZpPanel2DiskPlaq->SaveAs("meChargeBarrelZpPanel2DiskPlaq_compare.eps");
  can_meChargeZpPanel2DiskPlaq->SaveAs("meChargeBarrelZpPanel2DiskPlaq_compare.gif");
+
+
+ TCanvas* can_meResLayers = new TCanvas("can_meResLayers", "can_meResLayers", 1200, 800);
+ can_meResLayers->Divide(3,2);
+ 
+ TH1F* meResxBarrelLayer[3];
+ TH1F* newmeResxBarrelLayer[3];
+  
+ Char_t xtitle[100];
+
+ for (Int_t i=0; i<3; i++) // loop layers
+   {
+     sprintf(histo, "DQMData/Histograms_per_ring-layer_or_disk-plaquette/meResxBarrelLayer_%d", i+1);
+     rfile->GetObject(histo, meResxBarrelLayer[i]);
+     sfile->GetObject(histo, newmeResxBarrelLayer[i]); 
+     
+     can_meResLayers->cd(i+1);
+     gPad->SetLogy();
+     sprintf(xtitle, "barrel, layer %d, res x", i+1);
+     SetUpHistograms(meResxBarrelLayer[i], newmeResxBarrelLayer[i], xtitle );
+     meResxBarrelLayer[i]->Draw("he");
+     newmeResxBarrelLayer[i]->Draw("samehe"); 
+     myPV->PVCompute(meResxBarrelLayer[i], newmeResxBarrelLayer[i], te );
+     h_pv->SetBinContent(++bin, myPV->getPV());
+   }
+ TLegend* leg31 = new TLegend(0.3, 0.7, 0.6, 0.9);
+ leg31->SetBorderSize(0);
+ leg31->AddEntry(   meResxBarrelLayer[0], "reference  ", "l");
+ leg31->AddEntry(newmeResxBarrelLayer[0], "new release", "l");
+ leg31->Draw();
+
+ TH1F* meResyBarrelLayer[3];
+ TH1F* newmeResyBarrelLayer[3];
+  
+ for (Int_t i=0; i<3; i++) // loop layers
+   {
+     sprintf(histo, "DQMData/Histograms_per_ring-layer_or_disk-plaquette/meResyBarrelLayer_%d", i+1);
+     rfile->GetObject(histo, meResyBarrelLayer[i]);
+     sfile->GetObject(histo, newmeResyBarrelLayer[i]); 
+       
+     can_meResLayers->cd(3+i+1);
+     gPad->SetLogy();
+     sprintf(xtitle, "barrel, layer %d, res y", i+1);
+     SetUpHistograms(meResyBarrelLayer[i], newmeResyBarrelLayer[i], xtitle );
+     meResyBarrelLayer[i]->Draw("he");
+     newmeResyBarrelLayer[i]->Draw("samehe"); 
+     myPV->PVCompute(meResyBarrelLayer[i], newmeResyBarrelLayer[i], te );
+     h_pv->SetBinContent(++bin, myPV->getPV());
+   }
+ 
+ can_meResLayers->SaveAs("meResBarrelLayers_compare.eps");
+ can_meResLayers->SaveAs("meResBarrelLayers_compare.gif");
+
+
+
+ TCanvas* can_mePullLayers = new TCanvas("can_mePullLayers", "can_mePullLayers", 1200, 800);
+ can_mePullLayers->Divide(3,2);
+ 
+ TH1F* mePullxBarrelLayer[3];
+ TH1F* newmePullxBarrelLayer[3];
+  
+ Char_t xtitle[100];
+
+ for (Int_t i=0; i<3; i++) // loop layers
+   {
+     sprintf(histo, "DQMData/Histograms_per_ring-layer_or_disk-plaquette/mePullxBarrelLayer_%d", i+1);
+     rfile->GetObject(histo, mePullxBarrelLayer[i]);
+     sfile->GetObject(histo, newmePullxBarrelLayer[i]); 
+     
+     can_mePullLayers->cd(i+1);
+     //gPad->SetLogy();
+     sprintf(xtitle, "barrel, layer %d, pull x", i+1);
+     SetUpHistograms(mePullxBarrelLayer[i], newmePullxBarrelLayer[i], xtitle );
+     mePullxBarrelLayer[i]->Draw("he");
+     newmePullxBarrelLayer[i]->Draw("samehe"); 
+     myPV->PVCompute(mePullxBarrelLayer[i], newmePullxBarrelLayer[i], te );
+     h_pv->SetBinContent(++bin, myPV->getPV());
+   }
+ TLegend* leg32 = new TLegend(0.3, 0.7, 0.6, 0.9);
+ leg32->SetBorderSize(0);
+ leg32->AddEntry(   mePullxBarrelLayer[0], "reference  ", "l");
+ leg32->AddEntry(newmePullxBarrelLayer[0], "new release", "l");
+ leg32->Draw();
+
+ TH1F* mePullyBarrelLayer[3];
+ TH1F* newmePullyBarrelLayer[3];
+  
+ for (Int_t i=0; i<3; i++) // loop layers
+   {
+     sprintf(histo, "DQMData/Histograms_per_ring-layer_or_disk-plaquette/mePullyBarrelLayer_%d", i+1);
+     rfile->GetObject(histo, mePullyBarrelLayer[i]);
+     sfile->GetObject(histo, newmePullyBarrelLayer[i]); 
+       
+     can_mePullLayers->cd(3+i+1);
+     //gPad->SetLogy();
+     sprintf(xtitle, "barrel, layer %d, pull y", i+1);
+     SetUpHistograms(mePullyBarrelLayer[i], newmePullyBarrelLayer[i], xtitle );
+     mePullyBarrelLayer[i]->Draw("he");
+     newmePullyBarrelLayer[i]->Draw("samehe"); 
+     myPV->PVCompute(mePullyBarrelLayer[i], newmePullyBarrelLayer[i], te );
+     h_pv->SetBinContent(++bin, myPV->getPV());
+   }
+ 
+ can_mePullLayers->SaveAs("mePullBarrelLayers_compare.eps");
+ can_mePullLayers->SaveAs("mePullBarrelLayers_compare.gif");
+
+
  
  TCanvas* can_pv = new TCanvas("can_pv", "can_mepv", 1200, 500);
  gPad->SetLogy();
