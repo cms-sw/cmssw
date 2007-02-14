@@ -1,11 +1,13 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -14,7 +16,7 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
-#include "FastSimulation/Utilities/interface/Histos.h"
+#include "FastSimulation/MaterialEffects/interface/NUEvent.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -22,37 +24,37 @@
 #include <string>
 #include "TH2.h"
 #include "TFile.h"
-#include "TCanvas.h"
+#include "TTree.h"
+#include "TProcessID.h"
 
-class testMaterialEffects : public edm::EDAnalyzer {
+class testNuclearInteractions : public edm::EDProducer {
+
 public :
-  explicit testMaterialEffects(const edm::ParameterSet&);
-  ~testMaterialEffects();
+  explicit testNuclearInteractions(const edm::ParameterSet&);
+  ~testNuclearInteractions();
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
+  virtual void produce(edm::Event&, const edm::EventSetup& );
   virtual void beginJob(const edm::EventSetup & c);
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
   edm::ParameterSet vertexGenerator_;
   edm::ParameterSet particleFilter_;
+  bool saveNU;
   std::vector<FSimEvent*> mySimEvent;
+  NUEvent* nuEvent;
+  TTree* nuTree;
+  TFile* outFile;
+  int ObjectNumber;
   std::string simModuleLabel_;  
   DaqMonitorBEInterface * dbe;
-  //  TH2F * h100;
+  // TH2F * h100;
   std::vector<MonitorElement*> h0;
   std::vector<MonitorElement*> h1;
   std::vector<MonitorElement*> h2;
   std::vector<MonitorElement*> h3;
   std::vector<MonitorElement*> h4;
   std::vector<MonitorElement*> h5;
-  std::vector<MonitorElement*> h6;
-  std::vector<MonitorElement*> h7;
-  std::vector<MonitorElement*> h8;
-  std::vector<MonitorElement*> h9;
-  std::vector<MonitorElement*> h10;
-  std::vector<MonitorElement*> h11;
-  std::vector<MonitorElement*> h12;
   std::vector<MonitorElement*> htmp;
 
   std::vector< std::vector<MonitorElement*> > h100;
@@ -66,10 +68,21 @@ private:
   std::vector< std::vector<double> > subTrackerLength;
   std::vector<double> tmpRadius;
   std::vector<double> tmpLength;
+  /*
+  std::vector<MonitorElement*> h6;
+  std::vector<MonitorElement*> h7;
+  std::vector<MonitorElement*> h8;
+  std::vector<MonitorElement*> h9;
+  std::vector<MonitorElement*> h10;
+  std::vector<MonitorElement*> h11;
+  std::vector<MonitorElement*> h12;
+  */
+  int intfull;
+  int intfast;
 
 };
 
-testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p) :
+testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   mySimEvent(2, static_cast<FSimEvent*>(0)),
   h0(2,static_cast<MonitorElement*>(0)),
   h1(2,static_cast<MonitorElement*>(0)),
@@ -77,6 +90,10 @@ testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p) :
   h3(2,static_cast<MonitorElement*>(0)),
   h4(2,static_cast<MonitorElement*>(0)),
   h5(2,static_cast<MonitorElement*>(0)),
+  htmp(2,static_cast<MonitorElement*>(0)),
+  tmpRadius(2,static_cast<double>(0.)),
+  tmpLength(2,static_cast<double>(0.)),
+  /*
   h6(2,static_cast<MonitorElement*>(0)),
   h7(2,static_cast<MonitorElement*>(0)),
   h8(2,static_cast<MonitorElement*>(0)),
@@ -84,33 +101,60 @@ testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p) :
   h10(2,static_cast<MonitorElement*>(0)),
   h11(2,static_cast<MonitorElement*>(0)),
   h12(2,static_cast<MonitorElement*>(0)),
-  htmp(2,static_cast<MonitorElement*>(0)),
-  tmpRadius(2,static_cast<double>(0.)),
-  tmpLength(2,static_cast<double>(0.))
+ */
+  intfull(0),
+  intfast(0)
 {
   
+  // This producer produce a vector of SimTracks
+  produces<edm::SimTrackContainer>();
+
+  // Let's just initialize the SimEvent's
   vertexGenerator_ = p.getParameter<edm::ParameterSet>
     ( "TestVertexGenerator" );   
   particleFilter_ = p.getParameter<edm::ParameterSet>
     ( "TestParticleFilter" );   
+
+  // Do we save the nuclear interactions?
+  saveNU = p.getParameter<double>("SaveNuclearInteractions");
+
   // For the full sim
   mySimEvent[0] = new FSimEvent(vertexGenerator_, particleFilter_);
   // For the fast sim
   mySimEvent[1] = new FSimEvent(vertexGenerator_, particleFilter_);
+
+  // Where the nuclear interactions are saved;
+  if ( saveNU ) { 
+
+    nuEvent = new NUEvent();
   
+    std::string outFileName = "NuclearInteractionsTest.root";
+    outFile = new TFile(outFileName.c_str(),"recreate");
+
+    // Open the tree
+    nuTree = new TTree("NuclearInteractions","");
+    nuTree->Branch("nuEvent","NUEvent",&nuEvent,32000,99);
+
+  }
+
+  // ObjectNumber
+  ObjectNumber = -1;
+    
+  // ... and the histograms
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   h0[0] = dbe->book2D("radioFull", "Full Tracker radiography", 1000, 0.,320.,1000,0., 150. );
   h0[1] = dbe->book2D("radioFast", "Fast Tracker radiography", 1000, 0.,320.,1000,0., 150. );
-  h1[0] = dbe->book1D("etaEFull", "Full Electron eta distribution",54,0.,2.7);
-  h1[1] = dbe->book1D("etaEFast", "Fast Electron eta distribution",54,0.,2.7);
-  h2[0] = dbe->book1D("EgammaFull", "Full Brem energy distribution",600,0.,300.);
-  h2[1] = dbe->book1D("EgammaFast", "Fast Brem energy distribution",600,0.,300.);
-  h3[0] = dbe->book1D("FEgammaFull", "Full Brem energy fraction distribution",1000,0.,1.);
-  h3[1] = dbe->book1D("FEgammaFast", "Fast Brem energy fraction distribution",1000,0.,1.);
-  h4[0] = dbe->book1D("NgammaFull", "Full Brem number",25,-0.5,24.5);
-  h4[1] = dbe->book1D("NgammaFast", "Fast Brem number",25,-0.5,24.5);
-  h5[0] = dbe->book1D("NgammaMinFull", "Full Brem number > Emin",25,-0.5,24.5);
-  h5[1] = dbe->book1D("NgammaMinFast", "Fast Brem number > Emin",25,-0.5,24.5);
+  h1[0] = dbe->book1D("vertexFull", "Full Nb of Vertices",20,-0.5,19.5);
+  h1[1] = dbe->book1D("vertexFast", "Fast Nb of Vertices",20,-0.5,19.5);
+  h2[0] = dbe->book1D("daughterFull", "Full Nb of daughters",20,-0.5,19.5);
+  h2[1] = dbe->book1D("daughterFast", "Fast Nb of daughters",20,-0.5,19.5);
+  h3[0] = dbe->book1D("ecmFull", "Full centre-of-mass energy",100,0.,10.);
+  h3[1] = dbe->book1D("ecmFast", "Fast centre-of-mass energy",100,0.,10.);
+  h4[0] = dbe->book1D("FecmFull", "Full c.m. energy fraction",100,0.,2.);
+  h4[1] = dbe->book1D("FecmFast", "Fast c.m. energy fraction",100,0.,2.);
+  h5[0] = dbe->book1D("FmomFull", "Full momemtum",100,0.,10.);
+  h5[1] = dbe->book1D("FmomFast", "Fast momemtum",100,0.,10.);
+  /*
   h6[0] = dbe->book2D("radioFullRem1", "Full Tracker radiography", 1000, 0.,320.,1000,0., 150. );
   h6[1] = dbe->book2D("radioFastRem1", "Fast Tracker radiography", 1000, 0.,320.,1000,0., 150. );
   h7[0] = dbe->book2D("radioFullRem2", "Full Tracker radiography", 1000, 0.,320.,1000,0., 150. );
@@ -125,6 +169,7 @@ testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p) :
   h11[1] = dbe->book2D("radioFastTO", "Fast TO radiography", 1000, 0.,320.,1000,0., 150. );
   h12[0] = dbe->book2D("radioFullCA", "Full CA radiography", 1000, 0.,320.,1000,0., 150. );
   h12[1] = dbe->book2D("radioFastCA", "Fast CA radiography", 1000, 0.,320.,1000,0., 150. );
+  */
 
   // Beam Pipe
   htmp[0] = dbe->book1D("BeamPipeFull", "Full Beam Pipe",120,0.,3.);
@@ -592,16 +637,35 @@ testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p) :
   //	      << " "  << trackerRadius[hist][1] 
   //	      << ", Length = " << trackerLength[hist][0] 
   //	      << " " << trackerLength[hist][1] << std::endl;
+
 								
 }
 
-testMaterialEffects::~testMaterialEffects()
+testNuclearInteractions::~testNuclearInteractions()
 {
-  dbe->save("test.root");
+  dbe->save("testNuclearInteractions.root");
+
+  if ( saveNU ) {
+ 
+    outFile->cd();
+    // Fill the last (incomplete) nuEvent
+    nuTree->Fill();
+    // Conclude the writing on disk
+    nuTree->Write();
+    // Print information
+    nuTree->Print();
+    // And tidy up everything!
+    //  outFile->Close();
+    delete nuEvent;
+    delete nuTree;
+    delete outFile;
+
+  }
+  
   //  delete mySimEvent;
 }
 
-void testMaterialEffects::beginJob(const edm::EventSetup & es)
+void testNuclearInteractions::beginJob(const edm::EventSetup & es)
 {
   // init Particle data table (from Pythia)
   edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
@@ -613,8 +677,11 @@ void testMaterialEffects::beginJob(const edm::EventSetup & es)
 }
 
 void
-testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
+
+  std::auto_ptr<edm::SimTrackContainer> nuclSimTracks(new edm::SimTrackContainer);
+
   //  std::cout << "Fill full event " << std::endl;
   edm::Handle<std::vector<SimTrack> > fullSimTracks;
   iEvent.getByLabel("g4SimHits",fullSimTracks);
@@ -622,132 +689,177 @@ testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel("g4SimHits",fullSimVertices);
   mySimEvent[0]->fill( *fullSimTracks, *fullSimVertices );
   
-  //  std::cout << "Fill full event " << std::endl;
-  edm::Handle<std::vector<SimTrack> > fastSimTracks;
-  iEvent.getByLabel("famosSimHits",fastSimTracks);
-  edm::Handle<std::vector<SimVertex> > fastSimVertices;
-  iEvent.getByLabel("famosSimHits",fastSimVertices);
-  mySimEvent[1]->fill( *fastSimTracks, *fastSimVertices );
+  //  std::cout << "Fill fast event " << std::endl;
+  /* */
+  if ( !saveNU ) { 
+    edm::Handle<std::vector<SimTrack> > fastSimTracks;
+    iEvent.getByLabel("famosSimHits",fastSimTracks);
+    edm::Handle<std::vector<SimVertex> > fastSimVertices;
+    iEvent.getByLabel("famosSimHits",fastSimVertices);
+    mySimEvent[1]->fill( *fastSimTracks, *fastSimVertices );
+  }
+  /* */
   
+  //  mySimEvent[0]->print();
+  HepLorentzVector theProtonMomentum(0.,0.,0.,0.986);
+
+  // Save the object number count for a new NUevent
+  if ( saveNU ) { 
+    if ( ObjectNumber == -1 || nuEvent->nInteractions() == 1000 ) {
+      ObjectNumber = TProcessID::GetObjectCount();
+      nuEvent->reset();
+    }
+  }
+
   for ( unsigned ievt=0; ievt<2; ++ievt ) {
 
     //    std::cout << "Event number " << ievt << std::endl;
     //    mySimEvent[ievt]->print();
 
     const std::vector<FSimVertex>& fsimVertices = *(mySimEvent[ievt]->vertices() );
-    for(unsigned i=0; i<fsimVertices.size(); i++) {
-      h0[ievt]->Fill(fabs(fsimVertices[i].position().z()),
-	    	          fsimVertices[i].position().perp());
+    if ( !fsimVertices.size() ) continue;
+
+    h1[ievt]->Fill(fsimVertices.size());
+    if ( fsimVertices.size() == 1 ) continue;  
+
+
+    double zed = fsimVertices[1].position().z();
+    double radius = fsimVertices[1].position().perp();
+    double eta = fsimVertices[1].position().eta();
+
+    h0[ievt]->Fill(fabs(fsimVertices[1].position().z()),
+		        fsimVertices[1].position().perp());
+
+    // Pion's number of daughters
+    FSimTrack& thePion = mySimEvent[ievt]->track(0);
+ 
+    FSimVertex& thePionVertex = mySimEvent[ievt]->vertex(1);
+    unsigned ndaugh = thePionVertex.nDaughters();
+    h2[ievt]->Fill(ndaugh);
+
+    // Check for a second vertex
+    //    bool theSecondVertex = fsimVertices.size() > 2 ?
+    //      mySimEvent[ievt]->vertex(2).parent().id() == 0 : false;
+    //    std::cout << "Plusieurs interactions ? " << theSecondVertex << std::endl;
+    
+    // First and last daughters
+    int firstDaughter = -1;
+    int lastDaughter = -1;
+    if ( thePionVertex.nDaughters() ) { 
+      lastDaughter = thePionVertex.daughters()[thePionVertex.nDaughters()-1];
+      firstDaughter = thePionVertex.daughters()[0];
     }
-    
-    // Loop over all tracks 
-    int ntracks = mySimEvent[ievt]->nTracks();      
-    
-    for (int i=0;i<ntracks;++i) {
-      
-      FSimTrack& myTrack = mySimEvent[ievt]->track(i);
-      std::vector<int> myGammas;
 
-      // Select the original electrons
-      if (abs(myTrack.type()) == 11 && myTrack.vertex().noParent())  {
-	int firstDaughter = -1;
-	int lastDaughter = -1;
-	unsigned nbrems=0;
-	unsigned nbremsmin=0;
-	double feta=fabs(myTrack.momentum().eta());
-	// Plot electron pseudo-rapidity
-	h1[ievt]->Fill(feta);
-	
-	if ( myTrack.nDaughters() ) { 
-	  firstDaughter = myTrack.daughters()[0];
-	  lastDaughter = myTrack.daughters()[myTrack.nDaughters()-1];
-	}
-	
-	HepLorentzVector theElectron=myTrack.momentum();
-	//	std::cout << " The starting electron " << theElectron << " " 
-	//		  << myTrack.vertex().position() << " " 
-	//		  << myTrack.endVertex().position() << " "
-	//		  << myTrack.nDaughters() << " " 
-	//		  << firstDaughter << " " 
-	//		  << lastDaughter << " " 
-	//		  << std::endl;
-	
-	// Fill the photons.
-	if(!(firstDaughter<0||lastDaughter<0)) {
+    // Reject pion decays (already simulated in FAMOS)
+    if ( thePionVertex.nDaughters() == 1 ) { 
+      FSimTrack myDaugh = mySimEvent[ievt]->track(firstDaughter);
+      if (abs(myDaugh.type()) == 11 || abs(myDaugh.type()) == 13 ) return;
+    } 
+
+    // Find the daughters, and boost them.
+    if(!(firstDaughter<0||lastDaughter<0)) {
 	  
-	  for(int igamma=firstDaughter;igamma<=lastDaughter;++igamma) {
-	    FSimTrack myGamma = mySimEvent[ievt]->track(igamma);
-	    if(myGamma.type()!=22) continue;
-	    HepLorentzVector theFather=theElectron;
-	    theElectron=theElectron-myGamma.momentum();
-	    nbrems++;
-	    if(myGamma.momentum().e() < 0.5 || 
-//	       myGamma.momentum().e() > 10. || 
-	       myGamma.momentum().e()/theElectron.e() < 0.005 ) continue;
-	    nbremsmin++;
-	    myGammas.push_back(igamma);
+      // Compute the boost for the cm frame, and the cm energy.
+      HepLorentzVector theBoost = thePion.momentum()+theProtonMomentum;
+      double ecm = theBoost.mag();
+      theBoost /=  theBoost.e();
+      HepLorentzVector theTotal(0.,0.,0.,0.);
 
-	    h2[ievt]->Fill(myGamma.momentum().e());
-	    h3[ievt]->Fill(myGamma.momentum().e()/theElectron.e());
-
-	  }
-	  h4[ievt]->Fill(nbrems);
-	  h5[ievt]->Fill(nbremsmin);
-	}
-      } else {
-	continue;
+      if ( ievt == 0 && saveNU ) {
+	NUEvent::NUInteraction interaction;
+	interaction.first = nuEvent->nParticles();
+	interaction.last = interaction.first + lastDaughter - firstDaughter;
+	nuEvent->addNUInteraction(interaction);
       }
 
-      // Loop over all stored brems
-      for(unsigned ig=0;ig<myGammas.size();++ig) {
-	FSimTrack theGamma=mySimEvent[ievt]->track(myGammas[ig]);
-	float radius = theGamma.vertex().position().perp();
-	float zed    = fabs(theGamma.vertex().position().z());
-	float eta    = fabs(theGamma.vertex().position().eta());
+      for(int idaugh=firstDaughter;idaugh<=lastDaughter;++idaugh) {
 
- 	// Fill the individual layer histograms !
-	bool filled = false;
-	for ( unsigned hist=0; hist<h100.size() && !filled; ++hist ) {
-	  if ( radius < trackerRadius[hist][ievt] && 
-	       zed < trackerLength[hist][ievt] ) {
+	// Boost the tracks
+	FSimTrack myDaugh = mySimEvent[ievt]->track(idaugh);
+	//	std::cout << "Daughter " << idaugh << " " << myDaugh << std::endl;
+	HepLorentzVector theMom = myDaugh.momentum();
+	theMom.boost(-theBoost.x(),-theBoost.y(),-theBoost.z());
+	theTotal += theMom;
+
+ 	// Save the fully simulated tracks
+	if ( ievt == 0 && saveNU ) { 
+	  NUEvent::NUParticle particle;
+	  particle.px = theMom.x()/ecm;
+	  particle.py = theMom.y()/ecm;
+	  particle.pz = theMom.z()/ecm;
+	  particle.mass = theMom.mag();
+	  particle.id = myDaugh.type();
+	  nuEvent->addNUParticle(particle);
+	  SimTrack nuclSimTrack(myDaugh.type(),theMom/ecm,-1,-1);
+	  nuclSimTracks->push_back(nuclSimTrack);
+	}
+      }
+
+      // Save some histograms
+      h3[ievt]->Fill(ecm);
+      h4[ievt]->Fill(theTotal.mag()/ecm);
+      h5[ievt]->Fill(theTotal.vect().mag());
+
+      // Fill the individual layer histograms !
+      bool filled = false;
+      for ( unsigned hist=0; hist<h100.size() && !filled; ++hist ) {
+	if ( radius < trackerRadius[hist][ievt] && 
+	     fabs(zed) < trackerLength[hist][ievt] ) {
 	    h100[hist][ievt]->Fill(eta);
 	    filled = true;
 	  }
 	}
-	if (!filled) h6[ievt]->Fill(zed,radius);
 
- 	// Fill the block histograms !
-	filled = false;
-	for ( unsigned hist=0; hist<h200.size() && !filled; ++hist ) {
-	  if ( radius < blockTrackerRadius[hist][ievt] && 
-	       zed < blockTrackerLength[hist][ievt] ) {
-	    h200[hist][ievt]->Fill(eta);
-	    filled = true;
-	  }
+      // Fill the block histograms !
+      filled = false;
+      for ( unsigned hist=0; hist<h200.size() && !filled; ++hist ) {
+	if ( radius < blockTrackerRadius[hist][ievt] && 
+	     fabs(zed) < blockTrackerLength[hist][ievt] ) {
+	  h200[hist][ievt]->Fill(eta);
+	  filled = true;
 	}
-	if (!filled) h7[ievt]->Fill(zed,radius);
+      }
 
- 	// Fill the cumulative histograms !
-	for ( unsigned hist=0; hist<h300.size(); ++hist ) {
-	  if ( ( radius < subTrackerRadius[hist][ievt] && 
-		 zed < subTrackerLength[hist][ievt] ) || 
-	       ( hist == 2 && 
-		 radius < subTrackerRadius[1][ievt] && 
-		 zed < subTrackerLength[1][ievt] ) ) {
-	    h300[hist][ievt]->Fill(eta);
-	    if ( hist == 0 ) h8[ievt]->Fill(zed,radius);
-	    if ( hist == 1 ) h9[ievt]->Fill(zed,radius);
-	    if ( hist == 2 ) h10[ievt]->Fill(zed,radius);
-	    if ( hist == 3 ) h11[ievt]->Fill(zed,radius);
-	    if ( hist == 4 ) h12[ievt]->Fill(zed,radius);
-	  }
+      // Fill the cumulative histograms !
+      for ( unsigned hist=0; hist<h300.size(); ++hist ) {
+	if ( ( radius < subTrackerRadius[hist][ievt] && 
+	       fabs(zed) < subTrackerLength[hist][ievt] ) || 
+	     ( hist == 2 && 
+	       radius < subTrackerRadius[1][ievt] && 
+	       fabs(zed) < subTrackerLength[1][ievt] ) ) {
+	  h300[hist][ievt]->Fill(eta);
 	}
-
       }
     }
+    
+    // Save the fully simulated tracks from the nuclear interaction
+    if ( ievt == 0 && saveNU ) {
+      std::cout << "Saved " << nuclSimTracks->size() 
+		<< " simTracks in the Event" << std::endl;
+      iEvent.put(nuclSimTracks);
+
+      //      std::cout << "Number of interactions in nuEvent = "
+      //		<< nuEvent->nInteractions() << std::endl;
+      if ( nuEvent->nInteractions() == 1000 ) { 
+        // Reset Event object count to avoid memory overflows
+	TProcessID::SetObjectCount(ObjectNumber);
+	// Save the nuEvent
+	std::cout << "Saved " << nuEvent->nInteractions() 
+		  << " Interaction(s) with " << nuEvent->nParticles()
+		  << " Particles in the NUEvent " << std::endl;
+	outFile->cd(); 
+	nuTree->Fill();
+	nuTree->Print();
+
+      }
+
+    }
+
   }
+
+
 }
 
 //define this as a plug-in
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(testMaterialEffects);
+DEFINE_ANOTHER_FWK_MODULE(testNuclearInteractions);

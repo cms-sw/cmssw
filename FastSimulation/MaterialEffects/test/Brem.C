@@ -9,7 +9,15 @@ void DrawComparison(TH1F* fast, TH1F* full, int colfast=2, int colfull=2, int st
    fast->SetMarkerColor(colfast);
    fast->SetMarkerStyle(style);
    fast->GetYaxis()->SetTitleOffset(1.6);
-   fast->SetXTitle("#eta");
+   if ( fast->GetName() == "EGammaFast" )  
+     fast->SetXTitle("Energy (GeV)");
+   else if ( fast->GetName() == "FEGammaFast" ) 
+     fast->SetXTitle("Energy Fraction");
+   if ( fast->GetName() == "NGammaFast" || 
+	fast->GetName() == "NGammaMinFast" )  
+     fast->SetXTitle("Photons per electrons");
+   else
+     fast->SetXTitle("#eta");
    fast->SetYTitle("Nb. of photons");
    fast->Draw("sameerro");
 
