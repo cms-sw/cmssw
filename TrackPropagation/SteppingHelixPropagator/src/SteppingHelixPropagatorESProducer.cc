@@ -55,6 +55,9 @@ SteppingHelixPropagatorESProducer::produce(const TrackingComponentsRecord & iRec
   bool useMagVolumes = pset_.getParameter<bool>("useMagVolumes");
   shProp->setUseMagVolumes(useMagVolumes);
 
+  bool useMatVolumes = pset_.getParameter<bool>("useMatVolumes");
+  shProp->setUseMatVolumes(useMatVolumes);
+
   _propagator  = boost::shared_ptr<Propagator>(shProp);
   return _propagator;
 }
