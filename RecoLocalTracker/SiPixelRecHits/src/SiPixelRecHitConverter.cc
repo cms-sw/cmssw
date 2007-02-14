@@ -13,6 +13,7 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEInitial.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEParmError.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateReco.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGeneric.h"
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -134,6 +135,13 @@ namespace cms
 	cout << endl;
 	cout << "--------------------------- Using CPE TemplateReco ---------------------------------------------" << endl;
 	cpe_ = new PixelCPETemplateReco(conf_,mag);
+	ready_ = true;
+      } 
+    else if ( cpeName_ == "Generic" ) 
+      {
+	cout << endl;
+	cout << "--------------------------- Using CPE Generic --------------------------------------------------" << endl;
+	cpe_ = new PixelCPEGeneric(conf_,mag);
 	ready_ = true;
       } 
     else 
