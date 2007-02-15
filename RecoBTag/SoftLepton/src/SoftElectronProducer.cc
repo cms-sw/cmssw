@@ -60,8 +60,6 @@ SoftElectronProducer::SoftElectronProducer(const edm::ParameterSet &iConf) :
 
   theElecNN = new ElectronIdMLP;
 
-  string theCollectionName = theConf.getParameter<string>("ElectronCollection");
-
   // register the product
   produces<reco::ElectronCollection>();
 }

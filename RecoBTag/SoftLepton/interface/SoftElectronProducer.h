@@ -3,9 +3,9 @@
 /** \class SoftElectronProducer
  *
  *
- *  $Id: SoftElectronProducer.h,v 1.1 2007/02/14 16:37:53 demine Exp $
- *  $Date: 2007/02/14 16:37:53 $
- *  $Revision: 1.1 $
+ *  $Id: SoftElectronProducer.h,v 1.2 2007/02/15 17:26:05 demine Exp $
+ *  $Date: 2007/02/15 17:26:05 $
+ *  $Revision: 1.2 $
  *
  *  \author P. Demin - UCL, Louvain-la-Neuve - Belgium
  *
@@ -39,10 +39,7 @@ class SoftElectronProducer : public edm::EDProducer
   edm::InputTag theBasicClusterTag, theBasicClusterShapeTag;
   edm::InputTag thePrimaryVertexTag;
 
-  std::string theCollectionName;
-
   double theHOverEConeSize;
-  
   double theDiscriminatorCut;
 
   TrackDetectorAssociator *theTrackAssociator;
