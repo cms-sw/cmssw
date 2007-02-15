@@ -38,11 +38,12 @@ RPCPacMuon RPCPac::run(const RPCLogCone & cone) const
 
   //bestMuon.setConeCrdnts(cone.);
   bestMuon.setLogConeIdx(cone.getIdx());
+  /*
   int refStripNum = m_pacData->getPattern(bestMuon.getPatternNum())
                              .getStripFrom(RPCConst::m_REF_PLANE[abs(m_CurrConeCrdnts.m_Tower)])
                               +  m_CurrConeCrdnts.m_LogSector * 96
                               + m_CurrConeCrdnts.m_LogSegment * 8;
-  bestMuon.setRefStripNum(refStripNum);
+  bestMuon.setRefStripNum(refStripNum);*/
   return bestMuon;
 }
 
