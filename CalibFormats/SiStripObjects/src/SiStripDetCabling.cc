@@ -6,7 +6,7 @@
 //     <Notes on implementation>
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.5 2007/01/29 15:24:35 dkcira Exp $
+// $Id: SiStripDetCabling.cc,v 1.6 2007/01/29 15:42:19 dkcira Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -149,7 +149,7 @@ const FedChannelConnection& SiStripDetCabling::getConnection( uint32_t det_id, u
 const unsigned int SiStripDetCabling::getDcuId( uint32_t det_id ) const{
   const vector<FedChannelConnection>& fcconns = getConnections( det_id );
   if(fcconns.size()!=0) {
-     return ( fcconns.at(1) ).dcuId(); // get dcuId of first element - when you build check this consistency
+     return ( fcconns.at(0) ).dcuId(); // get dcuId of first element - when you build check this consistency
   }
   // default if none of the above is fulfilled
   unsigned int default_zero_value = 0;
@@ -160,7 +160,7 @@ const unsigned int SiStripDetCabling::getDcuId( uint32_t det_id ) const{
 const uint16_t SiStripDetCabling::nApvPairs(uint32_t det_id) const{
  const vector<FedChannelConnection>& fcconns = getConnections( det_id );
  if(fcconns.size()!=0) {
-  return( fcconns.at(1).nApvPairs()); // nr of apvpairs for associated module
+  return( fcconns.at(0).nApvPairs()); // nr of apvpairs for associated module
  }else{
    return 0;
  }
