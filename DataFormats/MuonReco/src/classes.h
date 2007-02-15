@@ -39,5 +39,11 @@ namespace {
     reco::MuIsoDepositAssociationMap v5;
     edm::Wrapper<reco::MuIsoDepositAssociationMap> w5;
 
+    reco::MuIsoIntAssociationMap v6;
+    edm::Wrapper<reco::MuIsoIntAssociationMap> w6;
+
+    reco::MuIsoFloatAssociationMap v7;
+    edm::Wrapper<reco::MuIsoFloatAssociationMap> w7;
+
   }
 }

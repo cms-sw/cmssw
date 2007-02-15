@@ -19,8 +19,10 @@ namespace reco {
   /// iterator over a vector of references to MuIsoDeposit objects all in the same collection
   typedef MuIsoDepositRefVector::iterator MuIsoDeposit_iterator;
 
-  /// Map
+  /// Maps
   typedef edm::AssociationMap<edm::OneToValue<TrackCollection,bool> > MuIsoAssociationMap;
+  typedef edm::AssociationMap<edm::OneToValue<TrackCollection,int> > MuIsoIntAssociationMap;
+  typedef edm::AssociationMap<edm::OneToValue<TrackCollection,float> > MuIsoFloatAssociationMap;
   typedef edm::AssociationMap<edm::OneToValue<TrackCollection,reco::MuIsoDeposit> > MuIsoDepositAssociationMap;
 }
 
