@@ -18,6 +18,7 @@
 <use name=CalibTracker/SiStripConnectivity>
 <use name=CalibTracker/SiStripAPVAnalysis>
 
+<use name=CommonTools/SiStripZeroSuppression>
 
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/FEDRawData>

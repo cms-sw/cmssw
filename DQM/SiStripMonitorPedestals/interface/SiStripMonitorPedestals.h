@@ -16,7 +16,7 @@
 //
 // Original Author:  gennai, dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorPedestals.h,v 1.7 2006/11/14 11:35:26 dutta Exp $
+// $Id: SiStripMonitorPedestals.h,v 1.8 2006/11/17 08:54:29 dutta Exp $
 //
 
 // system include files
@@ -38,12 +38,15 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+
 // cabling
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
-#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 //
 #include "CalibTracker/SiStripAPVAnalysis/interface/ApvAnalysisFactory.h"
+//SiStripPedestalsService
+#include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
+#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
 
 #include "boost/cstdint.hpp"
 #include <iostream>
@@ -85,15 +88,21 @@ class SiStripMonitorPedestals : public edm::EDAnalyzer {
 	 MonitorElement* NoisyStripDistribution;
 
 	 MonitorElement* CMDistribution;
-	 
+
+
+	 //MonitorElements for CondDB data display
+	 MonitorElement* PedsPerStripDB;
+	 MonitorElement* CMSubNoisePerStripDB;
+	 MonitorElement* NoisyStripsDB;
        };
        DaqMonitorBEInterface* dbe_;
        edm::ParameterSet conf_;
-       std::map<uint32_t, ModMEs> DigiMEs;
-       SiStripFedCabling* fedCabling_;
-
+       std::map<uint32_t, ModMEs> PedMEs;
+       edm::ESHandle<SiStripDetCabling> detcabling;
+       edm::ParameterSet pedsPSet_;
        bool analyzed;
-       
+       bool firstEvent;
+
        //The following to be put inside the parametersets
        int16_t nEvUpdate_;
        int16_t signalCutPeds_;
@@ -101,11 +110,13 @@ class SiStripMonitorPedestals : public edm::EDAnalyzer {
        int16_t nEvInit_;
        int nIteration_;
        ApvAnalysisFactory* apvFactory_;
-       edm::ParameterSet pedsPSet_;
        int  theEventInitNumber_; 
        int theEventIterNumber_;
        int NumCMstripsInGroup_;
        std::string outPutFileName;
+
+       SiStripNoiseService SiStripNoiseService_;  
+       SiStripPedestalsService SiStripPedestalsService_;  
 };
 
 #endif
