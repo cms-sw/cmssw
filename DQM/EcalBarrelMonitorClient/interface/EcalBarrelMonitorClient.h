@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/02/01 15:25:24 $
- * $Revision: 1.62 $
+ * $Date: 2007/02/15 07:06:51 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -14,8 +14,6 @@
 #include <string>
 #include <vector>
 #include <map>
-
-#include "TROOT.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -26,19 +24,10 @@
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
-
 #include <DQM/EcalBarrelMonitorClient/interface/EBClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
+
+#include "TROOT.h"
+#include "TH1.h"
 
 class EcalBarrelMonitorClient: public edm::EDAnalyzer{
 

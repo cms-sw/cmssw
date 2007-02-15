@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/13 16:43:24 $
- * $Revision: 1.219 $
+ * $Date: 2007/02/13 17:22:11 $
+ * $Revision: 1.220 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -14,9 +14,7 @@
 #include <fstream>
 #include <algorithm>
 
-#include "TStyle.h"
-#include "TGaxis.h"
-#include "TColor.h"
+#include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -33,10 +31,27 @@
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
+
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h>
 #include "DQM/EcalBarrelMonitorDisplayPlugins/interface/ColorPalette.h"
+
+#include "DQMServices/Core/interface/CollateMonitorElement.h"
+
+#include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
+
+#include "TStyle.h"
+#include "TGaxis.h"
+#include "TColor.h"
 
 using namespace cms;
 using namespace edm;
