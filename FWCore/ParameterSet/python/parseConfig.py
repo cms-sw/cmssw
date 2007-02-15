@@ -568,9 +568,16 @@ class _ModuleSeries(object):
         except AttributeError, e:
             raise pp.ParseFatalException(self.forErrorMessage[0],
                                          self.forErrorMessage[1],
-                                         self.type()+" '"+self.forErrorMessage[2][0][0]+"' contains the error: no sequencable item with label "+str(e))
+                                         self.type()+" '"
+                                         +self.forErrorMessage[2][0][0]+
+                                         "' contains the error: no sequencable item with label "
+                                         +str(e))
         except Exception, e:
-            raise pp.ParseFatalException(self.forErrorMessage[0],self.forErrorMessage[1],self.type()+" '"+self.forErrorMessage[2][0][0]+"' contains the error "+str(e))
+            raise pp.ParseFatalException(self.forErrorMessage[0],
+                                         self.forErrorMessage[1],
+                                         self.type()
+                                         +" '"+self.forErrorMessage[2][0][0]
+                                         +"' contains the error "+str(e))
     def __str__(self):
         return str(self.topNode)
 
@@ -955,12 +962,12 @@ processBody.ignore(pp.pythonStyleComment)
 
 
 #.cfi
-onlyPlugin = plugin+pp.StringEnd()
+onlyPlugin = plugin|pp.empty+pp.StringEnd()
 #.cff
-onlyProcessBody = processBody+pp.StringEnd()
+onlyProcessBody = processBody|pp.empty+pp.StringEnd()
 onlyProcessBody.ignore(pp.cppStyleComment)
 onlyProcessBody.ignore(pp.pythonStyleComment)
-onlyParameters = parameters+pp.StringEnd()
+onlyParameters = parameters|pp.empty+pp.StringEnd()
 #.cfg
 process = pp.Group(pp.Suppress('process')+label+_equalTo+_scopeBegin+pp.Group(processBody)+_scopeEnd).setParseAction(_makeProcess)+pp.StringEnd()
 process.ignore(pp.cppStyleComment)
@@ -1176,6 +1183,10 @@ PSet blah = {
                 self.assertEqual(d['Sub/Pack/data/foo.cfi'].filename, 'Sub/Pack/data/foo.cfi')
                 self.assertRaises(RuntimeError,_findAndHandleProcessBlockIncludes,t)
                 #t = _findAndHandleProcessBlockIncludes(t)
+                _fileFactory = TestFactory('Sub/Pack/data/foo.cff', '#an empty file')
+                t=onlyParameters.parseString("PSet blah = {include 'Sub/Pack/data/foo.cff'}")
+                d=dict(iter(t))
+                self.assertEqual(type(d['blah']),cms.PSet)
             finally:
                 _fileFactory = oldFactory
         def testPlugin(self):
