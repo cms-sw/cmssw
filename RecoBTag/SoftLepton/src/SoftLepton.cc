@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.9 2007/01/15 23:38:12 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.10 2007/02/10 01:03:12 fwyzard Exp $
 //
 
 
@@ -32,6 +32,8 @@ using namespace std;
 using namespace edm;
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 using namespace reco;
 
@@ -77,11 +79,25 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   Handle<reco::VertexCollection> primaryVertex;
   iEvent.getByLabel(m_primaryVertexProducer, primaryVertex);
 
-  Handle<reco::TrackCollection> h_leptons;
-  iEvent.getByLabel(m_leptonProducer, h_leptons);
   TrackRefVector leptons;   // FIXME: extra conversion for historical reasons
-  for (unsigned int i = 0; i < h_leptons->size(); i++)
-    leptons.push_back( TrackRef(h_leptons, i) );
+
+  if(m_concreteTagger.compare("softElectronBTagger") == 0)
+  {
+    Handle<reco::ElectronCollection> h_electrons;
+    iEvent.getByLabel(m_leptonProducer, h_electrons);
+    reco::ElectronCollection::const_iterator electron;
+    for(electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
+    {
+      leptons.push_back(electron->track());
+    }
+  }
+  else
+  {
+    Handle<reco::TrackCollection> h_muons;
+    iEvent.getByLabel(m_leptonProducer, h_muons);
+    for (unsigned int i = 0; i < h_muons->size(); i++)
+      leptons.push_back( TrackRef(h_muons, i) );
+  }
 
   // output collections
   std::auto_ptr<reco::JetTagCollection>            baseCollection( new reco::JetTagCollection() );
