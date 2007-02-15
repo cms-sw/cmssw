@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.10 2007/02/10 01:03:12 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.11 2007/02/15 16:14:26 demine Exp $
 //
 
 
@@ -32,8 +32,9 @@ using namespace std;
 using namespace edm;
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 using namespace reco;
 
@@ -79,24 +80,39 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   Handle<reco::VertexCollection> primaryVertex;
   iEvent.getByLabel(m_primaryVertexProducer, primaryVertex);
 
-  TrackRefVector leptons;   // FIXME: extra conversion for historical reasons
-
-  if(m_concreteTagger.compare("softElectronBTagger") == 0)
-  {
+  TrackRefVector leptons;
+  // try to access the input collection as a collection of Electons, Muons or Tracks
+  // FIXME: it would be nice not to have to rely on exceptions
+  try {
     Handle<reco::ElectronCollection> h_electrons;
     iEvent.getByLabel(m_leptonProducer, h_electrons);
-    reco::ElectronCollection::const_iterator electron;
-    for(electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
-    {
+    #ifdef DEBUG
+    cerr << "SoftLepton::produce : collection " << m_leptonProducer << "found, identified as ElectronCollection" << endl;
+    #endif
+    for (reco::ElectronCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
       leptons.push_back(electron->track());
+  } 
+  catch(edm::Exception e)  { 
+    // electrons not found, look for muons
+    try {
+      Handle<reco::MuonCollection> h_muons;
+      iEvent.getByLabel(m_leptonProducer, h_muons);
+      #ifdef DEBUG
+      cerr << "SoftLepton::produce : collection " << m_leptonProducer << "found, identified as MuonCollection" << endl;
+      #endif
+      for (reco::MuonCollection::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon)
+        leptons.push_back( muon->combinedMuon() );
     }
-  }
-  else
-  {
-    Handle<reco::TrackCollection> h_muons;
-    iEvent.getByLabel(m_leptonProducer, h_muons);
-    for (unsigned int i = 0; i < h_muons->size(); i++)
-      leptons.push_back( TrackRef(h_muons, i) );
+    catch(edm::Exception e) {
+      // electrons or muons not found, look for tracks
+      Handle<reco::TrackCollection> h_tracks;
+      iEvent.getByLabel(m_leptonProducer, h_tracks);
+      #ifdef DEBUG
+      cerr << "SoftLepton::produce : collection " << m_leptonProducer << "found, identified as TrackCollection" << endl;
+      #endif
+      for (unsigned int i = 0; i < h_tracks->size(); i++)
+        leptons.push_back( TrackRef(h_tracks, i) );
+    }
   }
 
   // output collections
