@@ -16,7 +16,7 @@
 #include <algorithm>
 
 
-reco::Photon PhotonBasketBorderCorrectionAlgo::applyBarrelCorrection(const reco::Photon&ph,  const reco::BasicClusterShapeAssociationCollection &clshpMap)
+double PhotonBasketBorderCorrectionAlgo::barrelCorrection(const reco::Photon&ph,  const reco::BasicClusterShapeAssociationCollection &clshpMap)
 {
   //From EgammaPhoton/src/PhotonEscale.h
   float correctedSC(0);
@@ -28,24 +28,14 @@ reco::Photon PhotonBasketBorderCorrectionAlgo::applyBarrelCorrection(const reco:
     const reco::ClusterShapeRef& shapeRef = shapeItr->val;    
     correctedSC += basicClusterCorrEnergy(*(*bcItr), *shapeRef);
   }
-  float rawEnergy = unCorrectedEnergy(ph.superCluster());
-  correctedSC *= ph.superCluster()->energy()/rawEnergy;
+  correctedSC *= ph.superCluster()->energy()/ph.superCluster()->rawEnergy();
 
-  reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItr = clshpMap.find(ph.superCluster()->seed());
-  assert(seedShpItr != clshpMap.end());
-  const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
-  float e9 = seedShapeRef->e3x3();
-  float r9 = e9/rawEnergy;
+  float r9 = ph.r9();
   float CUTR9_BAR_5x5 = 0.97;
-  float correctedS25 = seedShapeRef->e5x5(); 
+  float correctedS25 = ph.e5x5(); 
   float bestEstimate = (r9>CUTR9_BAR_5x5) ? correctedS25 : correctedSC;
 
-  math::XYZTLorentzVector new4p = ph.p4();
-  new4p *= (bestEstimate/ph.energy());
-  
-  reco::Photon correctedPhoton(ph.charge(),new4p, ph.vertex());
-  correctedPhoton.setSuperCluster(ph.superCluster());
-  return correctedPhoton;  
+  return bestEstimate/ph.energy();  
 }
 
 float PhotonBasketBorderCorrectionAlgo::basicClusterCorrEnergy(const reco::BasicCluster&bc,  const reco::ClusterShape& shape )
@@ -164,11 +154,9 @@ float PhotonBasketBorderCorrectionAlgo::zeroCrackCor(float &logeta)
 }
 
 
-reco::Photon PhotonBasketBorderCorrectionAlgo::applyEndcapCorrection(const reco::Photon&ph,  const reco::BasicClusterShapeAssociationCollection &clshpMap)
+double PhotonBasketBorderCorrectionAlgo::endcapCorrection(const reco::Photon&ph,  const reco::BasicClusterShapeAssociationCollection &clshpMap)
 {
   //dummy correction now
-  reco::Photon correctedPhoton(ph.charge(), ph.p4(), ph.vertex());
-  correctedPhoton.setSuperCluster(ph.superCluster());
-  return correctedPhoton;  
+  return 1.; 
 }
 

@@ -8,17 +8,11 @@
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 
 
-reco::Photon E9ESCCorrectionAlgo::applyBarrelCorrection(const reco::Photon& ph, const reco::BasicClusterShapeAssociationCollection &clshpMap)
+double E9ESCCorrectionAlgo::barrelCorrection(const reco::Photon& ph, const reco::BasicClusterShapeAssociationCollection &clshpMap)
 {
   //translate from E9ESCEBRY in ORCA
-  reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItr = clshpMap.find(ph.superCluster()->seed());
-  assert(seedShpItr != clshpMap.end());
-  const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
-  //      float e9 = ph->GetEGCandidate()->data()->seed()->getS9();
-  float e9 = seedShapeRef->e3x3();
-  //      float esc = ph->GetEGCandidate()->data()->energyUncorrected();
-  float esc = unCorrectedEnergy(ph.superCluster());
-  float x=e9/esc;
+  float x=ph.r9();
+
   if (x>1.) x=1.;
 
   double par[7] = {0};
@@ -60,32 +54,19 @@ reco::Photon E9ESCCorrectionAlgo::applyBarrelCorrection(const reco::Photon& ph, 
   
   float f5x5=par5x5[0]; 
   //      float uncorrectedE25 =  ph->s25Energy();
-  float uncorrectedE25 =  seedShapeRef->e5x5();  
+  float uncorrectedE25 =  ph.e5x5();  
   float correctedSC = uncorrectedE/(1.+f);
   float correctedS25 = uncorrectedE25/f5x5;  
   float bestEstimate = (x>CUTR9_BAR_5x5) ? correctedS25 : correctedSC;
       
-  math::XYZTLorentzVector new4p = ph.p4();
-  new4p *= (bestEstimate/ph.energy());
-  
-  reco::Photon correctedPhoton(ph.charge(),new4p, ph.vertex());
-  correctedPhoton.setSuperCluster(ph.superCluster());
-  return correctedPhoton;    
+  return bestEstimate/ph.energy();    
 }
 
 
-reco::Photon E9ESCCorrectionAlgo::applyEndcapCorrection(const reco::Photon& ph, const reco::BasicClusterShapeAssociationCollection &clshpMap)
+double E9ESCCorrectionAlgo::endcapCorrection(const reco::Photon& ph, const reco::BasicClusterShapeAssociationCollection &clshpMap)
 {
   //translate from E9ESCEFRY in ORCA
-  reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItr = clshpMap.find(ph.superCluster()->seed());
-  assert(seedShpItr != clshpMap.end());
-  const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
-  //      float e9 = ph->GetEGCandidate()->data()->seed()->getS9();
-  float e9 = seedShapeRef->e3x3();
-  //      float esc = ph->GetEGCandidate()->data()->energyUncorrected();
-  float esc = unCorrectedEnergy(ph.superCluster());
-  
-  float x=e9/esc;
+  float x=ph.r9();
   
   double par[7] = {0};
   
@@ -114,12 +95,7 @@ reco::Photon E9ESCCorrectionAlgo::applyEndcapCorrection(const reco::Photon& ph, 
   
   float bestEstimate =  correctedSC;
   
-  math::XYZTLorentzVector new4p = ph.p4();
-  new4p *= (bestEstimate/ph.energy());
-  
-  reco::Photon correctedPhoton(ph.charge(),new4p, ph.vertex());
-  correctedPhoton.setSuperCluster(ph.superCluster());
-  return correctedPhoton;  
+  return bestEstimate/ph.energy(); 
 }
 
 

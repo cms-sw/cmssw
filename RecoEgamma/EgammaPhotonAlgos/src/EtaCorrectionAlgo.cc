@@ -10,22 +10,15 @@
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 
-reco::Photon EtaCorrectionAlgo::applyBarrelCorrection(const reco::Photon& ph, const reco::BasicClusterShapeAssociationCollection &clshpMap)
+double EtaCorrectionAlgo::barrelCorrection(const reco::Photon& ph, const reco::BasicClusterShapeAssociationCollection &clshpMap)
 {
   //translate from EtaEBRY in ORCA
   
   float CUTR9_BAR_1 = 0.95;
   float CUTR9_BAR_2 = 0.88;
   
-  reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItr = clshpMap.find(ph.superCluster()->seed());
-  assert(seedShpItr != clshpMap.end());
-  const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
-  //      float x = fabs(ph->GetEGCandidate()->data()->eta());
-  float x = fabs(ph.superCluster()->position().eta());      
-  //      float e9 = ph->GetEGCandidate()->data()->seed()->getS9();
-  float e9 = seedShapeRef->e3x3();
-  //      float r9 = e9/ph->GetEGCandidate()->data()->energyUncorrected();
-  float r9 = e9/unCorrectedEnergy(ph.superCluster());
+  float x = fabs(ph.superCluster()->position().eta());
+  float r9=ph.r9();
   
   double par[7] = {0};
   
@@ -80,7 +73,7 @@ reco::Photon EtaCorrectionAlgo::applyBarrelCorrection(const reco::Photon& ph, co
   }
   
   //      float oldCorrS25 =  ph->s25Energy();
-  float oldCorrS25 =  seedShapeRef->e5x5();
+  float oldCorrS25 =  ph.e5x5();
   float f5x5 = par5x5[0]+par5x5[1]*x+par5x5[2]*pow(x,2);        
   float newCorrS25 = oldCorrS25/f5x5;
   
@@ -89,31 +82,18 @@ reco::Photon EtaCorrectionAlgo::applyBarrelCorrection(const reco::Photon& ph, co
   
   float bestEstimate = (r9>CUTR9_BAR_5x5) ? correctedS25 : correctedSC;
   
-  math::XYZTLorentzVector new4p = ph.p4();
-  new4p *= (bestEstimate/ph.energy());
-  
-  reco::Photon correctedPhoton(ph.charge(),new4p, ph.vertex());
-  correctedPhoton.setSuperCluster(ph.superCluster());
-
-  return correctedPhoton;    
+  return bestEstimate/ph.energy();    
 }
 
 
-reco::Photon EtaCorrectionAlgo::applyEndcapCorrection(const reco::Photon& ph, const reco::BasicClusterShapeAssociationCollection &clshpMap)
+double EtaCorrectionAlgo::endcapCorrection(const reco::Photon& ph, const reco::BasicClusterShapeAssociationCollection &clshpMap)
 {
   //translate from EtaEFRY in ORCA
   float CUTR9_END_1 = 0.95;
   float CUTR9_END_2 = 0.88;
-  
-  reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItr = clshpMap.find(ph.superCluster()->seed());
-  assert(seedShpItr != clshpMap.end());
-  const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
-  //      float x = fabs(ph->GetEGCandidate()->data()->eta());
+
   float x = fabs(ph.superCluster()->position().eta());
-  //      float e9 = ph->GetEGCandidate()->data()->seed()->getS9();
-  float e9 = seedShapeRef->e3x3();
-  //      float r9 = e9/ph->GetEGCandidate()->data()->energyUncorrected();
-  float r9 = e9/unCorrectedEnergy(ph.superCluster());
+  float r9=ph.r9();
   
   double par[7] = {0};
   
@@ -174,11 +154,6 @@ reco::Photon EtaCorrectionAlgo::applyEndcapCorrection(const reco::Photon& ph, co
   //float correctedS25 = ph.superCluster()->e5x5();
   float bestEstimate = correctedSC;
 
-  math::XYZTLorentzVector new4p = ph.p4();
-  new4p *= (bestEstimate/ph.energy());
-  
-  reco::Photon correctedPhoton(ph.charge(),new4p, ph.vertex());
-  correctedPhoton.setSuperCluster(ph.superCluster());
-  return correctedPhoton;  
+  return bestEstimate/ph.energy();  
 }
 
