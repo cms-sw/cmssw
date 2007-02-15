@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/11/21 13:16:51 $
- * $Revision: 1.61 $
+ * $Date: 2007/02/01 15:25:24 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,11 +17,12 @@
 
 #include "TROOT.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 
