@@ -106,12 +106,27 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
       Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
       Basic3DVector<double> vert=(Basic3DVector<double>) tp->vertex();
 
-      TrackBase::ParameterVector gParameters=parametersAtClosestApproachGeom(vert, momAtVtx, tp->charge());
+      TrackBase::ParameterVector sParameters=parametersAtClosestApproachGeom(vert, momAtVtx, tp->charge());
 
-      TrackBase::ParameterVector diffParameters = rParameters - gParameters;
+      TrackBase::ParameterVector diffParameters = rParameters - sParameters;
 
       chi2 = ROOT::Math::Similarity(diffParameters, recoTrackCovMatrix);
       chi2 /= 5;
+
+      LogDebug("TrackAssociator") << "====RECO TRACK WITH PT=" << rt->pt() << "====\n" 
+				  << "qoverp simG: " << sParameters[0] << "\n" 
+				  << "lambda simG: " << sParameters[1] << "\n" 
+				  << "phi    simG: " << sParameters[2] << "\n" 
+				  << "dxy    simG: " << sParameters[3] << "\n" 
+				  << "dsz    simG: " << sParameters[4] << "\n" 
+				  << ": " /*<< */ << "\n" 
+				  << "qoverp rec: " << rt->qoverp()/*rParameters[0]*/ << "\n" 
+				  << "lambda rec: " << rt->lambda()/*rParameters[1]*/ << "\n" 
+				  << "phi    rec: " << rt->phi()/*rParameters[2]*/ << "\n" 
+				  << "dxy    rec: " << rt->dxy()/*rParameters[3]*/ << "\n" 
+				  << "dsz    rec: " << rt->dsz()/*rParameters[4]*/ << "\n" 
+				  << ": " /*<< */ << "\n" 
+				  << "chi2: " << chi2 << "\n";
 
       if (chi2<chi2cut) {
 	outputCollection.insert(reco::TrackRef(tCH,tindex), 
@@ -168,6 +183,21 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
       
       chi2 = ROOT::Math::Similarity(recoTrackCovMatrix, diffParameters);
       chi2 /= 5;
+
+      LogDebug("TrackAssociator") << "====RECO TRACK WITH PT=" << rt->pt() << "====\n" 
+				  << "qoverp simG: " << sParameters[0] << "\n" 
+				  << "lambda simG: " << sParameters[1] << "\n" 
+				  << "phi    simG: " << sParameters[2] << "\n" 
+				  << "dxy    simG: " << sParameters[3] << "\n" 
+				  << "dsz    simG: " << sParameters[4] << "\n" 
+				  << ": " /*<< */ << "\n" 
+				  << "qoverp rec: " << rt->qoverp()/*rParameters[0]*/ << "\n" 
+				  << "lambda rec: " << rt->lambda()/*rParameters[1]*/ << "\n" 
+				  << "phi    rec: " << rt->phi()/*rParameters[2]*/ << "\n" 
+				  << "dxy    rec: " << rt->dxy()/*rParameters[3]*/ << "\n" 
+				  << "dsz    rec: " << rt->dsz()/*rParameters[4]*/ << "\n" 
+				  << ": " /*<< */ << "\n" 
+				  << "chi2: " << chi2 << "\n";
       
       if (chi2<chi2cut) {
 	outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
@@ -257,10 +287,6 @@ TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproachGeo
     phisim+=2*Geom::pi();
   }
 
-  GlobalVector pca(d0sim1*sin(phisim),d0sim1*cos(phisim),dzsim1);
-  double helixCenterX = (rho-d0sim1)*sin(phisim);
-  double helixCenterY = (rho-d0sim1)*cos(phisim);
-
   double qoverp = charge/momAtVtx.mag();
 
   TrackBase::ParameterVector sParameters;
@@ -270,10 +296,13 @@ TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproachGeo
   sParameters[1] = Geom::halfPi() - momAtVtx.theta();
   sParameters[2] = phisim;
   sParameters[3] = -d0sim1;
-  sParameters[4] = dzsim1*momAtVtx.mag()/momAtVtx.perp();
+  sParameters[4] = dzsim1*momAtVtx.perp()/momAtVtx.mag();
 
 #if 0
+  GlobalVector pca(d0sim1*sin(phisim),d0sim1*cos(phisim),dzsim1);
   GlobalVector momAtPca(momAtVtx.perp()*cos(phisim),momAtVtx.perp()*sin(phisim),momAtVtx.z());
+  double helixCenterX = (rho-d0sim1)*sin(phisim);
+  double helixCenterY = (rho-d0sim1)*cos(phisim);
   double centerToPcaX = (helixCenterX-pca.x());
   double centerToPcaY = (helixCenterY-pca.y());
   LogDebug("TrackAssociator") << "+++++++++++++++parametersAtClosestApproachGEOM++++++++++++++" << "\n"
@@ -302,17 +331,21 @@ TrackBase::ParameterVector TrackAssociatorByChi2::parametersAtClosestApproachGeo
 			      << "momAtPca.x(): " << momAtPca.x() << "\n"
 			      << "momAtPca.y(): " << momAtPca.y() << "\n"
 			      << "momAtPca.z(): " << momAtPca.z() << "\n"
+			      << "momAtPca.mag(): " << momAtPca.mag() << "\n"
+			      << "momAtPca.perp(): " << momAtPca.perp() << "\n"
 			      << "momAtVtx.x(): " << momAtVtx.x() << "\n"
 			      << "momAtVtx.y(): " << momAtVtx.y() << "\n"
 			      << "momAtVtx.z(): " << momAtVtx.z() << "\n"
+			      << "momAtVtx.mag(): " << momAtVtx.mag() << "\n"
+			      << "momAtVtx.perp(): " << momAtVtx.perp() << "\n"
 			      << "magField.z()   : " << magField.z() << "\n"
 			      << "magField.perp(): " << magField.perp() << "\n"
 			      << " " /*<< */ << "\n"
 			      << "qoverp: " << sParameters[0] << "\n"
 			      << "lambda: " << sParameters[1] << "\n"
 			      << "phi   : " << sParameters[2] << "\n"
-			      << "dx    : " << sParameters[3] << "\n"
-			      << "ds    : " << sParameters[4] << "\n"
+			      << "dxy   : " << sParameters[3] << "\n"
+			      << "dsz   : " << sParameters[4] << "\n"
 			      << " " /*<< */ << "\n"
 			      << " " /*<< */ << "\n";
 #endif
