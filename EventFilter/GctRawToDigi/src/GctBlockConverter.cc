@@ -17,9 +17,9 @@ GctBlockConverter::GctBlockConverter() {
   // setup block length map
   blockLength_[0x68] = 4;
   blockLength_[0x69] = 16;
-  //  blockLength_[0x88] = 16;
-  //  blockLength_[0x89] = 12;
-  //  blockLength_[0x8B] = 4;
+  blockLength_[0x88] = 16;
+  blockLength_[0x89] = 12;
+  blockLength_[0x8B] = 4;
 
   // setup converter fn map
   //  convertFn_[0x68] = &GctBlockConverter::wordToGctEmCand;
@@ -31,7 +31,7 @@ GctBlockConverter::~GctBlockConverter() { }
 
 // recognise block ID
 bool GctBlockConverter::validBlock(unsigned id) {
-  return ( blockLength_.find(id)!=blockLength_.end() );
+  return ( blockLength_.find(id) != blockLength_.end() );
 }
 
 // return block length in 32-bit words
