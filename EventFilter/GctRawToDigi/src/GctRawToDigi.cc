@@ -153,8 +153,10 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
     }
     else {  // otherwise bail out
       lost = true;
-      edm::LogWarning("GCT") << "Unrecognised data block at byte " << dPtr << ". Bailing out" << endl;
-      edm::LogWarning("GCT") << blockHead << endl;
+//       edm::LogWarning("GCT") << "Unrecognised data block at byte " << dPtr << ". Bailing out" << endl;
+//       edm::LogWarning("GCT") << blockHead << endl;
+      cout << "Unrecognised data block at byte " << dPtr << ". Bailing out" << endl;
+      cout << blockHead << endl;
     }
     
   }
