@@ -16,8 +16,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
+using namespace edm;
 
-const int EcalSimRawData::ttType[nTtsAlongEbEta] = {
+const int EcalSimRawData::ttType[nEbTtEta] = {
   0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,1, //EE-
   0,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1//EE+
 };
@@ -43,28 +44,24 @@ const int EcalSimRawData::strip2Eta[nTtTypes][ttEdge] = {
   {0,1,2,3,4}  //TT type 1
 };
 
-EcalSimRawData::EcalSimRawData(const edm::ParameterSet& params)
-  //  : params_(params)
-{
+EcalSimRawData::EcalSimRawData(const edm::ParameterSet& params){
   //sets up parameters:
-  digiProducer_ = params.getParameter<string>("digiProducer");
-  ebdigiCollection_ = params.getParameter<std::string>("EBdigiCollection");
-  eedigiCollection_ = params.getParameter<std::string>("EEdigiCollection");
-  //ebSRPdigiCollection_ = params.getParameter<std::string>("EBSRPdigiCollection");
-  //eeSRPdigiCollection_ = params.getParameter<std::string>("EESRPdigiCollection");
-  tpDigiCollection_ = params.getParameter<std::string>("tpdigiCollection");
-  trigPrimProducer_ = params.getParameter<string>("trigPrimProducer");
+  digiProducer_ = params.getParameter<string>("unsuppressedDigiProducer");
+  ebDigiCollection_ = params.getParameter<std::string>("EBdigiCollection");
+  eeDigiCollection_ = params.getParameter<std::string>("EEdigiCollection");
+  srDigiProducer_ = params.getParameter<string>("srProducer");
+  ebSrFlagCollection_ = params.getParameter<std::string>("EBSrFlagCollection");
+  eeSrFlagCollection_ = params.getParameter<std::string>("EESrFlagCollection");
+  tpDigiCollection_
+    = params.getParameter<std::string>("trigPrimDigiCollection");
+  tcpDigiCollection_ = params.getParameter<std::string>("tcpDigiCollection");
+  tpProducer_ = params.getParameter<string>("trigPrimProducer");
   xtalVerbose_ = params.getUntrackedParameter<bool>("xtalVerbose", false);
   tpVerbose_ = params.getUntrackedParameter<bool>("tpVerbose", false);
   tcc2dcc_ = params.getUntrackedParameter<bool>("tcc2dccData", true);
   srp2dcc_ = params.getUntrackedParameter<bool>("srp2dccData", true);
-  thrs_.push_back(params.getParameter<double>("srpLowTowerThreshold"));
-  thrs_.push_back(params.getParameter<double>("srpHighTowerThreshold"));
-  dEta_ = params.getParameter<int>("deltaEta");
-  dPhi_ = params.getParameter<int>("deltaPhi");
-  assert(thrs_.size()==2);
-  dccNum_ = -1;//params.getUntrackedParameter<int>("dccNum", -1);
-  tccNum_ = -1;//params.getUntrackedParameter<int>("tccNum", -1);
+  dccNum_ = params.getUntrackedParameter<int>("dccNum", -1);
+  tccNum_ = params.getUntrackedParameter<int>("tccNum", -1);
 		  
   string writeMode = params.getParameter<string>("writeMode");
 
@@ -79,11 +76,11 @@ EcalSimRawData::EcalSimRawData(const edm::ParameterSet& params)
   //dumpFlags_ = params.getUntrackedParameter<int>("dumpFlags", 0);
 
 
-  ttfFile.open("TTF.txt", ios::ate);
-  if(!ttfFile) throw cms::Exception("Failed to create file TTF.txt");
+  //ttfFile.open("TTF.txt", ios::ate);
+  //if(!ttfFile) throw cms::Exception("Failed to create file TTF.txt");
 
-  srfFile.open("SRF.txt", ios::ate);
-  if(!srfFile) throw cms::Exception("Failed to create file SRF.txt");
+  //srfFile.open("SRF.txt", ios::ate);
+  //if(!srfFile) throw cms::Exception("Failed to create file SRF.txt");
 }
 
 void
@@ -94,11 +91,11 @@ EcalSimRawData::analyze(const edm::Event& event,
   static int iEvent = 1;
     
   edm::Handle<EBDigiCollection> hEbDigis;
-  event.getByLabel(digiProducer_, ebdigiCollection_, hEbDigis);
+  event.getByLabel(digiProducer_, ebDigiCollection_, hEbDigis);
   assert(hEbDigis.isValid());
   const EBDigiCollection& ebDigis = *hEbDigis.product();
 
-  if(xtalVerbose_){
+  if(xtalVerbose_ | tpVerbose_){
     cout << "======================================================================\n"
       " Event " << iEvent << "\n"
 	 << "---------------------------------------------------------------------\n";
@@ -106,154 +103,42 @@ EcalSimRawData::analyze(const edm::Event& event,
   
   if(ebDigis.size()==0) return;
   
-  int nSamples = ebDigis.begin()->size();
-  
   vector<uint16_t> adc[nEbEta][nEbPhi];
-
-  const uint16_t suppressed = 0xFFFF;
-
-  adc[0][0] = vector<uint16_t>(nSamples, suppressed);
-  
-  for(int iEbEta=0; iEbEta<nEbEta; ++iEbEta){
-    for(int iEbPhi=0; iEbPhi<nEbPhi; ++iEbPhi){
-      adc[iEbEta][iEbPhi] = adc[0][0];
-    }
-  }
-
-  if(xtalVerbose_){
-    cout << setfill('0');
-  }
-  for(EBDigiCollection::const_iterator it = ebDigis.begin();
-      it != ebDigis.end(); ++it){
-    const EBDataFrame& frame = *it;
-
-    int iEta0 = iEta2cIndex((frame.id()).ieta());
-    int iPhi0 = iPhi2cIndex((frame.id()).iphi());
-
-//     cout << "xtl indices conv: (" << frame.id().ieta() << ","
-// 	 << frame.id().iphi() << ") -> ("
-// 	 << iEta0 << "," << iPhi0 << ")\n";
-    
-    if(iEta0<0 || iEta0>=nEbEta){
-      cout << "iEta0 (= " << iEta0 << ") is out of range ("
-           << "[0," << nEbEta -1 << "]\n";
-    }
-    if(iPhi0<0 || iPhi0>=nEbPhi){
-      cout << "iPhi0 (= " << iPhi0 << ") is out of range ("
-           << "[0," << nEbPhi -1 << "]\n";
-    }
-    
-    if(xtalVerbose_){
-      cout << iEta0 << "\t" << iPhi0 << ":\t";
-      cout << hex;
-    }
-    assert(nSamples==frame.size());
-    for(int iSample=0; iSample<nSamples; ++iSample){
-      const EcalMGPASample& sample = frame.sample(iSample);
-      uint16_t encodedAdc = sample.raw();
-      adc[iEta0][iPhi0][iSample] = encodedAdc;  
-      if(xtalVerbose_){
-	cout << (iSample>0?" ":"") << "0x" << setw(4) 
-	     << encodedAdc;
-      }
-    }
-    if(xtalVerbose_) cout << "\n" << dec;
-  }
-  if(xtalVerbose_) cout << setfill(' ');
+  getEbDigi(event, adc);
   genFeData("ecal", iEvent, adc);
 
-  //Trigger primitives:
-  edm::Handle<EcalTrigPrimDigiCollection> hTpDigis;
-  event.getByLabel(trigPrimProducer_, tpDigiCollection_, hTpDigis);
-  if(hTpDigis.isValid()&&hTpDigis->size()>0){
-    const EcalTrigPrimDigiCollection& tpDigis = *hTpDigis.product();
 
-    uint16_t tps[nTtsAlongEta][nTtsAlongPhi];
-    EcalSelectiveReadout::ttFlag_t ttf[nTtsAlongEta][nTtsAlongPhi];
-    for(int iTtEta0=0; iTtEta0 < nTtsAlongEta; ++iTtEta0){
-      for(int iTtPhi0=0; iTtPhi0 < nTtsAlongPhi; ++iTtPhi0){
-	tps[iTtEta0][iTtPhi0] = 0xFFFF;
-	ttf[iTtEta0][iTtPhi0] = EcalSelectiveReadout::TTF_UNKNOWN;
-      }
-    }
-    if(tpVerbose_){
-      cout << setfill('0');
-    }
-    for(EcalTrigPrimDigiCollection::const_iterator it = tpDigis.begin();
-	it != tpDigis.end(); ++it){
-      const EcalTriggerPrimitiveDigi& tp = *it;
-      int iTtEta0 = iTtEta2cIndex(tp.id().ieta());
-      int iTtPhi0 = iTtPhi2cIndex(tp.id().iphi());
-      if(iTtEta0<0 || iTtEta0>=nTtsAlongEta){
-	cout << "iTtEta0 (= " << iTtEta0 << ") is out of range ("
-	     << "[0," << nTtsAlongEbEta -1 << "]\n";
-      }
-      if(iTtPhi0<0 || iTtPhi0>=nTtsAlongPhi){
-	cout << "iTtPhi0 (= " << iTtPhi0 << ") is out of range ("
-	     << "[0," << nTtsAlongPhi -1 << "]\n";
-      }
-      //FIXME: here it is assumed that no compression is applied
-      int adc = tp.compressedEt();
-      if(tpVerbose_){
-	for(int i=0; i<tp.size(); ++i){
-	  cout << (i==0?"TP:":"") << "\t"
-	       << tp.sample(i).compressedEt();
-	}
-	for(int i=0; i<tp.size(); ++i){
-	  cout << (i==0?"\tTTF:":"") << "\t" << tp.sample(i).ttFlag();
-	}
-	cout << "\n";
-      }
-      int fgvb = tp.fineGrain();
-      tps[iTtEta0][iTtPhi0] =
-	(tp.ttFlag() & 0x7) <<9 
-	| (fgvb&0x1) <<8
-	| (adc&0xFF);
-      if(tpVerbose_){
-	cout << "tps[" << iTtEta0 << "][" << iTtPhi0 << "] = #"
-	     << oct << tps[iTtEta0][iTtPhi0] << "o"
-	     << " - " << "#" << tp.ttFlag() << "o" << dec << "\n";
-      }
-      ttf[iTtEta0][iTtPhi0] = (EcalSelectiveReadout::ttFlag_t)tp.ttFlag();
-      if(tpVerbose_){
-	cout << "TP(" << iTtEta0 << "," << iTtPhi0 << ") = "
-	     << "0x" << setw(4) 
-	     << tps[iTtEta0][iTtPhi0]
-	     << "\tcmssw indices: "
-	     << tp.id().ieta() << " " << tp.id().iphi() << "\n";
-      }
-    }//next TP
-    if(tpVerbose_) cout << setfill(' ');
-    
-    //TTF file:
-    printTTFlags(ttf, iEvent, ttfFile);
-    
-    genTcpData("ecal", iEvent, tps);
+  int tcp[nTtEta][nTtPhi];
+  getTp(event, tcpDigiCollection_, tcp);
+  genTccIn("ecal", iEvent, tcp);
 
+  //TTF file:
+  //printTTFlags(ttf, iEvent, ttfFile);
 
-    //SR flags:
-    EcalSelectiveReadout::towerInterest_t ebSrf[nTtsAlongEta][nTtsAlongPhi];
-    EcalSelectiveReadout::towerInterest_t eeSrf[nEndcaps][nScX][nScY];
-    getSrfs(ttf, ebSrf, eeSrf, es);
-    //SRF file:
-    printSRFlags(ebSrf, eeSrf, iEvent, srfFile);
-    if(srp2dcc_){
-      genSrData("ecal", iEvent, ebSrf);
-    }
-  } else{//TP digis not found
-    static bool tpErr = false;
-    if(!tpErr){
-    cout << "Warning TP digis not found! No TP will be produed" << endl;
-    tpErr = true;
-    }
+  if(tcc2dcc_){
+    int tp[nTtEta][nTtPhi];
+    getTp(event, tpDigiCollection_, tp); 
+    genTccOut("ecal", iEvent, tp);
   }
+  
+  //SR flags:
+  int ebSrf[nTtEta][nTtPhi];
+  int eeSrf[nEndcaps][nScX][nScY];
+
+  getSrfs(event, ebSrf, eeSrf);
+  //SRF file:
+  //printSRFlags(ebSrf, eeSrf, iEvent, srfFile);
+  if(srp2dcc_){
+    genSrData("ecal", iEvent, ebSrf);
+  }
+  
   ++iEvent; //event counter
 }
 
 void EcalSimRawData::elec2GeomNum(int ittEta0, int ittPhi0, int strip1,
 				  int ch1, int& iEta0, int& iPhi0) const{
-  assert(0<=ittEta0 && ittEta0<nTtsAlongEbEta);
-  assert(0<=ittPhi0 && ittPhi0<nTtsAlongPhi);
+  assert(0<=ittEta0 && ittEta0<nEbTtEta);
+  assert(0<=ittPhi0 && ittPhi0<nTtPhi);
   assert(1<=strip1&& strip1<=ttEdge);
   assert(1<=ch1 && ch1<=ttEdge);
   const int type = ttType[ittEta0];
@@ -341,13 +226,13 @@ void EcalSimRawData::genFeData(string basename, int iEvent,
 	f << (iEvent==1?"":"\n") << "[Event:" << iEvent << "]\n";
       }
       
-      for(int iTtEtaInSm0 = 0; iTtEtaInSm0 < nTtsAlongSmEta; ++iTtEtaInSm0){
-	int iTtEta0 = iZ0*nTtsAlongSmEta + iTtEtaInSm0;
-	for(int iTtPhiInSm0 = 0; iTtPhiInSm0 < nTtsAlongSmPhi; ++iTtPhiInSm0){
+      for(int iTtEtaInSm0 = 0; iTtEtaInSm0 < nTtSmEta; ++iTtEtaInSm0){
+	int iTtEta0 = iZ0*nTtSmEta + iTtEtaInSm0;
+	for(int iTtPhiInSm0 = 0; iTtPhiInSm0 < nTtSmPhi; ++iTtPhiInSm0){
 	  //phi=0deg at middle of 1st barrel DCC:
 	  int iTtPhi0 = -nTtPhisPerEbDcc/2 + iDccPhi0*nTtPhisPerEbDcc
 	    + iTtPhiInSm0;
-	  if(iTtPhi0<0) iTtPhi0 += nTtsAlongPhi;
+	  if(iTtPhi0<0) iTtPhi0 += nTtPhi;
 	  for(int stripId1 = 1; stripId1 <= ttEdge; ++stripId1){
 	    uint16_t stripHeader =
 	      0xF << 11
@@ -401,8 +286,7 @@ void EcalSimRawData::genFeData(string basename, int iEvent,
 }
 
 void EcalSimRawData::genSrData(string basename, int iEvent,
-			       EcalSelectiveReadout::towerInterest_t srf[nTtsAlongEbEta][nTtsAlongPhi]
-			       ) const{
+			       int srf[nEbTtEta][nTtPhi]) const{
   for(int iZ0 = 0; iZ0<2; ++iZ0){
     for(int iDccPhi0 = 0; iDccPhi0<nDccInPhi; ++iDccPhi0){
       int iDcc1 = iDccPhi0 + iZ0*nDccInPhi + nDccEndcap + 1;
@@ -419,7 +303,7 @@ void EcalSimRawData::genSrData(string basename, int iEvent,
       int iWord = 0;
   
       if(writeMode_==ascii){
-	f << (iEvent==1?"":"\n") << "[Event:" << iEvent << "]\n";
+	f << (iEvent==1?"":"\n")<< "[Event:" << iEvent << "]\n";
       }
 
       const uint16_t le1 = 0;
@@ -438,14 +322,14 @@ void EcalSimRawData::genSrData(string basename, int iEvent,
 
       cout << "iDcc1: " << iDcc1 << "\n";
       
-      for(int iTtEtaInSm0 = 0; iTtEtaInSm0 < nTtsAlongSmEta; ++iTtEtaInSm0){
-	//	int iTtEbEta0 = iZ0*nTtsAlongSmEta + iTtEtaInSm0;
-	int iTtEta0 = nTtsAlongEeEta + iZ0*nTtsAlongSmEta + iTtEtaInSm0;
-	for(int iTtPhiInSm0 = 0; iTtPhiInSm0 < nTtsAlongSmPhi; ++iTtPhiInSm0){
+      for(int iTtEtaInSm0 = 0; iTtEtaInSm0 < nTtSmEta; ++iTtEtaInSm0){
+	//	int iTtEbEta0 = iZ0*nTtSmEta + iTtEtaInSm0;
+	int iTtEta0 = nEeTtEta + iZ0*nTtSmEta + iTtEtaInSm0;
+	for(int iTtPhiInSm0 = 0; iTtPhiInSm0 < nTtSmPhi; ++iTtPhiInSm0){
 	  //phi=0deg at middle of 1st barrel DCC:
 	  int iTtPhi0 = -nTtPhisPerEbDcc/2 + iDccPhi0*nTtPhisPerEbDcc
 	    + iTtPhiInSm0;
-	  if(iTtPhi0<0) iTtPhi0 += nTtsAlongPhi;
+	  if(iTtPhi0<0) iTtPhi0 += nTtPhi;
 	  //flags are packed by four:
 	  //|15 |14 |13-12 |11      9|8      6|5      3|2      0| 
 	  //| P | 0 | X  X |  srf i+3| srf i+2| srf i+1| srf i  |
@@ -471,9 +355,64 @@ void EcalSimRawData::genSrData(string basename, int iEvent,
 }
 
 
-void EcalSimRawData::genTcpData(string basename, int iEvent,
-				const uint16_t tps[nTtsAlongEta][nTtsAlongPhi]
-				) const{
+void EcalSimRawData::genTccIn(string basename, int iEvent,
+			      const int tcp[nTtEta][nTtPhi]) const{
+  for(int iZ0 = 0; iZ0<2; ++iZ0){
+    for(int iTccPhi0 = 0; iTccPhi0<nTccInPhi; ++iTccPhi0){
+      int iTcc1 = iTccPhi0 + iZ0*nTccInPhi + nTccEndcap + 1;
+      
+      if(tccNum_!=-1  && tccNum_!=iTcc1) continue;
+      
+      stringstream s;
+      s.str("");
+      char* ext = ".txt"; //only ascii mode supported for TCP
+
+      s << basename << "_tcc" << setfill('0') << setw(2) << iTcc1
+	<< setfill(' ') << ext;
+      ofstream fe2tcc(s.str().c_str(), (iEvent==1?ios::ate:ios::app));
+
+      if(!fe2tcc) throw cms::Exception(string("Failed to create file ")
+				       + s.str() + ".");
+      
+      int memPos = iEvent-1;
+      int iCh1 = 1;
+      for(int iTtEtaInSm0 = 0; iTtEtaInSm0 < nTtSmEta; ++iTtEtaInSm0){
+	int iTtEta0 = nEeTtEta + iZ0*nTtSmEta + iTtEtaInSm0;
+	for(int iTtPhiInSm0 = 0; iTtPhiInSm0 < nTtSmPhi; ++iTtPhiInSm0){
+	  //phi=0deg at middle of 1st barrel DCC:
+	  int iTtPhi0 = -nTtPhisPerEbTcc/2 + iTccPhi0*nTtPhisPerEbTcc
+	    + iTtPhiInSm0;
+	  if(iTtPhi0<0) iTtPhi0 += nTtPhi;
+
+	  uint16_t tp_fe2tcc = tcp[iTtEta0][iTtPhi0]&0xFF
+	    | (tcp[iTtEta0][iTtPhi0]&0x600)>>1 ;
+	  
+	  if(tpVerbose_){
+	    cout << dec
+		 << "iTcc1 = " << iTcc1 << "\t"
+		 << "iTtEta0 = " << iTtEta0 << "\t"
+		 << "iTtPhi0 = " << iTtPhi0 << "\t"
+		 << "iCh1 = " << iCh1 << "\t"
+		 << "memPos = " << memPos << "\t" 
+		 << "tp = 0x" << hex << tcp[iTtEta0][iTtPhi0]
+		 << dec << "\n";
+	  }
+	  fe2tcc << iCh1 << "\t"
+		 << memPos << "\t"
+		 << setfill('0') << hex
+		 << "0x" << setw(4) << tp_fe2tcc << "\t"
+		 << "0"
+		 << dec << setfill(' ') << "\n";
+	  ++iCh1;
+	} //next TT along phi
+      } //next TT along eta
+    } //next TCC
+  } //next half-barrel
+}
+
+
+void EcalSimRawData::genTccOut(string basename, int iEvent,
+			       const int tps[nTtEta][nTtPhi]) const{
   int iDccWord = 0;
 
   for(int iZ0 = 0; iZ0<2; ++iZ0){
@@ -488,53 +427,39 @@ void EcalSimRawData::genTcpData(string basename, int iEvent,
 
       s << basename << "_tcc" << setfill('0') << setw(2) << iTcc1
 	<< setfill(' ') << ext;
-      ofstream fe2tcc(s.str().c_str(), (iEvent==1?ios::ate:ios::app));
 
-      if(!fe2tcc) throw cms::Exception(string("Failed to create file ")
-				       + s.str() + ".");
-
-      auto_ptr<ofstream> dccF;
-      if(tcc2dcc_){
-	s.str("");
-	s << basename << "_tcc2dcc" << setfill('0') << setw(2) << iTcc1
-	  << setfill(' ') << getExt();
-	dccF = auto_ptr<ofstream>(new ofstream(s.str().c_str(),
-					       (iEvent==1?ios::ate:ios::app)));
-	if(!*dccF){
-	  cout << "Warning: failed to create or open file " << s << ".\n";
-	  dccF.reset();
-	}
-      }
-
-      if(dccF.get()!=0){
-	const uint16_t h1 = 1;
-	const uint16_t le1 = 0;
-	const uint16_t le0 = 0;
-	const uint16_t nSamples = 1;
-	const uint16_t nTts = 68;
-	const uint16_t data = (h1 & 0x1) << 14
-	  | (le1 & 0x1) << 12
-	  | (le0 & 0x1) << 11
-	  | (nSamples & 0xF) << 7
-	  | (nTts & 0x7F);	
-	*dccF << (iEvent==1?"":"\n") << "[Event:" << iEvent << "]\n";
-	fwrite(*dccF, data, iDccWord, false);
+      s.str("");
+      s << basename << "_tcc2dcc" << setfill('0') << setw(2) << iTcc1
+	<< setfill(' ') << getExt();
+      ofstream dccF(s.str().c_str(), (iEvent==1?ios::ate:ios::app));
+      
+      if(!dccF){
+	cout << "Warning: failed to create or open file " << s << ".\n";
+	return;
       }
       
-      //      if(writeMode_==ascii){
-      //	fe2tcc << "[Event:" << iEvent << "]\n";
-      //}
+      const uint16_t h1 = 1;
+      const uint16_t le1 = 0;
+      const uint16_t le0 = 0;
+      const uint16_t nSamples = 1;
+      const uint16_t nTts = 68;
+      const uint16_t data = (h1 & 0x1) << 14
+	| (le1 & 0x1) << 12
+	| (le0 & 0x1) << 11
+	| (nSamples & 0xF) << 7
+	| (nTts & 0x7F);	
+      dccF << (iEvent==1?"":"\n") << "[Event:" << iEvent << "]\n";
+      fwrite(dccF, data, iDccWord, false);
+      
       int memPos = iEvent-1;
       int iCh1 = 1;
-      for(int iTtEtaInSm0 = 0; iTtEtaInSm0 < nTtsAlongSmEta; ++iTtEtaInSm0){
-	int iTtEta0 = nTtsAlongEeEta + iZ0*nTtsAlongSmEta + iTtEtaInSm0;
-	for(int iTtPhiInSm0 = 0; iTtPhiInSm0 < nTtsAlongSmPhi; ++iTtPhiInSm0){
+      for(int iTtEtaInSm0 = 0; iTtEtaInSm0 < nTtSmEta; ++iTtEtaInSm0){
+	int iTtEta0 = nEeTtEta + iZ0*nTtSmEta + iTtEtaInSm0;
+	for(int iTtPhiInSm0 = 0; iTtPhiInSm0 < nTtSmPhi; ++iTtPhiInSm0){
 	  //phi=0deg at middle of 1st barrel DCC:
 	  int iTtPhi0 = -nTtPhisPerEbTcc/2 + iTccPhi0*nTtPhisPerEbTcc
 	    + iTtPhiInSm0;
-	  if(iTtPhi0<0) iTtPhi0 += nTtsAlongPhi;
-
-	  uint16_t tp_fe2tcc = tps[iTtEta0][iTtPhi0]&0xFF | (tps[iTtEta0][iTtPhi0]&0x600)>>1 ;
+	  if(iTtPhi0<0) iTtPhi0 += nTtPhi;
 	  
 	  if(tpVerbose_){
 	    cout << dec
@@ -546,20 +471,12 @@ void EcalSimRawData::genTcpData(string basename, int iEvent,
 		 << "tp = 0x" << hex << tps[iTtEta0][iTtPhi0]
 		 << dec << "\n";
 	  }
-	  fe2tcc << iCh1 << "\t"
-		 << memPos << "\t"
-		 << setfill('0') << hex
-		 << "0x" << setw(4) << tp_fe2tcc << "\t"
-		 << "0"
-		 << dec << setfill(' ') << "\n";
-	  if(dccF.get()!=0){
-	    fwrite(*dccF, tps[iTtEta0][iTtPhi0], iDccWord, false);
-	  }
+	  fwrite(dccF, tps[iTtEta0][iTtPhi0], iDccWord, false);
 	  ++iCh1;
-	  } //next TT along phi
-	} //next TT along eta
-      } //next TCC
-    } //next half-barrel
+	} //next TT along phi
+      } //next TT along eta
+    } //next TCC
+  } //next half-barrel
 }
 
 
@@ -573,214 +490,258 @@ void EcalSimRawData::setHParity(uint16_t& a) const{
   a ^= p[a&0xF] ^ p[(a>>4)&0xF] ^ p[(a>>8)&0xF] ^ p[a>>12&0xF] ^ odd;   
 }
 
-void EcalSimRawData::getSrfs(const EcalSelectiveReadout::ttFlag_t ttf[nTtsAlongEta][nTtsAlongPhi],
-			     EcalSelectiveReadout::towerInterest_t ebSrf[nTtsAlongEta][nTtsAlongPhi],
-			     EcalSelectiveReadout::towerInterest_t eeSrf[nEndcaps][nScX][nScY],
-			     const edm::EventSetup& es){
-  static bool firstCall = true;
-  if(firstCall){
-    esr_ = auto_ptr<EcalSelectiveReadout>
-      (new EcalSelectiveReadout(thrs_, dEta_, dPhi_));
-    firstCall = false;
+void EcalSimRawData::getSrfs(const edm::Event& event,
+			     int ebSrf[nTtEta][nTtPhi],
+			     int eeSrf[nEndcaps][nScX][nScY]) const{
+
+  //EE
+  edm::Handle<EESrFlagCollection> hEeSrFlags;
+  event.getByLabel(srDigiProducer_, eeSrFlagCollection_, hEeSrFlags);
+  for(size_t i=0; i < sizeof(eeSrf)/sizeof(int); ((int*)eeSrf)[i++] = -1){};
+  if(hEeSrFlags.isValid()){
+    for(EESrFlagCollection::const_iterator it = hEeSrFlags->begin();
+	it != hEeSrFlags->end(); ++it){
+      const EESrFlag& flag = *it;
+      int iZ0 = flag.id().zside()>0?1:0;
+      int iX0 = flag.id().ix()-1;
+      int iY0 = flag.id().iy()-1;
+      assert(iZ0>=0 && iZ0<nEndcaps);
+      assert(iX0>=0 && iX0<nScX);
+      assert(iY0>=0 && iY0<nScY);
+      eeSrf[iZ0][iX0][iY0] = flag.value();
+    }
+  } else{
+    LogWarning("EcalSimRawData") << "EE SR flag not found ("
+				 << "Product label: " << srDigiProducer_
+				 << "Producet instance: "
+				 << eeSrFlagCollection_ << ")";
   }
-  checkGeometry(es);
-  checkTriggerMap(es);
-  esr_->runSelectiveReadout0(ttf);
-  cout << "======================================================================\n";
-  cout << "SRP Result: \n";
-  cout << *esr_;
-  cout << "======================================================================\n";
-  for(int iTtEta0 = 0; iTtEta0 < nTtsAlongEta; ++iTtEta0){
-    for(int iTtPhi0 = 0; iTtPhi0 < nTtsAlongPhi; ++iTtPhi0){
-      int iTtEta = cIndex2iTtEta(iTtEta0);
-      int zside = (iTtEta0<0)?-1:1;
-      int iTtPhi = cIndex2TtPhi(iTtPhi0);
-      ebSrf[iTtEta0][iTtPhi0] =
-	esr_->getTowerInterest(EcalTrigTowerDetId(zside, EcalBarrel,
-						  abs(iTtEta),
-						  iTtPhi));
+
+  //EB
+  edm::Handle<EBSrFlagCollection> hEbSrFlags;
+  event.getByLabel(srDigiProducer_, ebSrFlagCollection_, hEbSrFlags);
+  for(size_t i=0; i<sizeof(ebSrf)/sizeof(int); ((int*)ebSrf)[i++] = -1){};
+  if(hEbSrFlags.isValid()){
+    for(EBSrFlagCollection::const_iterator it = hEbSrFlags->begin();
+	it != hEbSrFlags->end(); ++it){
+      
+      const EBSrFlag& flag = *it;
+      int iEta = flag.id().ieta();
+      int iEta0 = iEta + nTtEta/2 - (iEta>=0?1:0); //0->55 from eta=-3 to eta=3
+      int iEbEta0 = iEta0 - nEeTtEta;//0->33 from eta=-1.48 to eta=1.48
+      int iPhi0 = flag.id().iphi() - 1;
+      assert(iEbEta0>=0 && iEbEta0<nEbTtEta);
+      assert(iPhi0>=0 && iPhi0<nTtPhi);
+      
+      ebSrf[iEbEta0][iPhi0] = flag.value();
+    }
+  } else{
+    LogWarning("EcalSimRawData") << "EB SR flag not found ("
+				 << "Product label: " << srDigiProducer_
+				 << "Producet instance: "
+				 << ebSrFlagCollection_ << ")";
+  }
+}
+
+
+// void EcalSimRawData::printTTFlags(const EcalSelectiveReadout::ttFlag_t
+// 				  ttf[nTtEta][nTtPhi],
+// 				  int iEvent, ostream& os) const{
+//   const char tccFlagMarker[] = { '?', '.', 'S', '?', 'C', 'E', 'E', 'E', 'E'};
+//   const int nEta = EcalSelectiveReadout::nTriggerTowersInEta;
+//   const int nPhi = EcalSelectiveReadout::nTriggerTowersInPhi;
+  
+//   if(iEvent==1){
+//     os << "# TCC flag map\n#\n"
+//       "# +-->Phi            " << tccFlagMarker[1] << ": 000 (low interest)\n"
+//       "# |                  " << tccFlagMarker[2] << ": 001 (mid interest)\n"
+//       "# |                  " << tccFlagMarker[3] << ": 010 (not valid)\n"
+//       "# V Eta              " << tccFlagMarker[5] << ": 011 (high interest)\n"
+//       "#                    " << tccFlagMarker[6] << ": 1xx forced readout (Hw error)\n";
+//   }
+
+//   os << "#\n#Event " << iEvent << "\n";
+  
+//   for(int iEta=0; iEta<nEta; ++iEta){
+//     for(int iPhi=0; iPhi<nPhi; ++iPhi){
+//       os << tccFlagMarker[ttf[iEta][iPhi]+1];
+//     }
+//     os << "\n";
+//   }
+// }
+  
+
+// void EcalSimRawData::printSRFlags(EcalSelectiveReadout::towerInterest_t
+// 				  ebSrf[nEbTtEta][nTtPhi],
+// 				  EcalSelectiveReadout::towerInterest_t
+// 				  eeSrf[nEndcaps][nScX][nScY],
+// 				  int iEvent, ostream& os) const{
+//   const char srpFlagMarker[] = {'.', 'S', 'N', 'C', '4','5','6','7'};
+//   if(iEvent==1){
+//     time_t t;
+//     time(&t);
+//     const char* date = ctime(&t);
+//     os << "#SRP flag map\n#\n"
+//       "# Generatied on: " << date << "\n#\n"
+//       "# Low TT Et Threshold:  " <<  thrs_[0] << " GeV\n"
+//       "# High TT Et Threshold: " << thrs_[1] << " GeV\n"
+//       "# Algorithm type: " << 2*dEta_+1 << "x" << 2*dPhi_+1 << "\n"
+//       "# +-->Phi/Y " << srpFlagMarker[0] << ": low interest\n"
+//       "# |         " << srpFlagMarker[1] << ": single\n"
+//       "# |         " << srpFlagMarker[2] << ": neighbour\n"
+//       "# V Eta/X   " << srpFlagMarker[3] << ": center\n"
+//       "#\n";    
+//   }
+
+//   //EE-,EB,EE+ map wil be written onto file in following format:
+//   //
+//   //      72
+//   // <-------------->
+//   //  20
+//   // <--->
+//   //  EEE                A             +-----> Y
+//   // EEEEE               |             |
+//   // EE EE               | 20   EE-    |
+//   // EEEEE               |             |
+//   //  EEE                V             V X
+//   // BBBBBBBBBBBBBBBBB   A
+//   // BBBBBBBBBBBBBBBBB   |             +-----> Phi
+//   // BBBBBBBBBBBBBBBBB   |             |
+//   // BBBBBBBBBBBBBBBBB   | 34  EB      |
+//   // BBBBBBBBBBBBBBBBB   |             |
+//   // BBBBBBBBBBBBBBBBB   |             V Eta
+//   // BBBBBBBBBBBBBBBBB   |
+//   // BBBBBBBBBBBBBBBBB   |
+//   // BBBBBBBBBBBBBBBBB   V
+//   //  EEE                A             +-----> Y
+//   // EEEEE               |             |
+//   // EE EE               | 20 EE+      |
+//   // EEEEE               |             |
+//   //  EEE                V             V X
+//   //
+//   //
+//   //
+//   //
+//   //event header:
+//   os << "# Event " << iEvent << "\n";
+
+//   esr_->print(os);
+  
+//   //event trailer:
+//   os << "\n";
+// }
+
+void EcalSimRawData::getEbDigi(const edm::Event& event,
+			       vector<uint16_t> adc[nEbEta][nEbPhi]) const{
+
+  edm::Handle<EBDigiCollection> hEbDigis;
+  event.getByLabel(digiProducer_, ebDigiCollection_, hEbDigis);
+
+  int nSamples = 0;
+  if(hEbDigis.isValid() && hEbDigis->size()>0){//there is at least one digi
+    nSamples  = hEbDigis->begin()->size();//gets the sample count from 1st digi
+  }
+
+
+  const uint16_t suppressed = 0xFFFF;
+
+  adc[0][0] = vector<uint16_t>(nSamples, suppressed);
+  
+  for(int iEbEta=0; iEbEta<nEbEta; ++iEbEta){
+    for(int iEbPhi=0; iEbPhi<nEbPhi; ++iEbPhi){
+      adc[iEbEta][iEbPhi] = adc[0][0];
     }
   }
-  const float center = nScX/2-.5;
-  for(int iEE = 0; iEE < nEndcaps; ++iEE){
-    for(int iX0 = 0; iX0 < nScX; ++iX0){
-      for(int iY0 = 0; iY0 < nScY; ++iY0){
-	//distance to center of endcap to the square:
-	float dCenter2 = pow(iX0-center,2)+pow(iY0-center,2);
-	//some trick to get an existing crystal of SC even for partial SC:
-	cout << "PGPGPGP>>> " << (dCenter2<25*25) << "\t"
-	     << (iX0*5+5) << "," << (iY0*5+5) << "\t"
-	     << (iX0*5+1) << "," << (iY0*5+1) << "\n";
-	try{
-	  EEDetId aCrystalOfSc = (dCenter2<25*25)?EEDetId(iX0*5+5, iY0*5+5, (iEE==0?-1:1)):EEDetId(iX0*5+1, iY0*5+1, (iEE==0?-1:1));
-	  eeSrf[iEE][iX0][iY0] =
-	    esr_->getCrystalInterest(aCrystalOfSc);
-	} catch(cms::Exception e){
-	  eeSrf[iEE][iX0][iY0] = EcalSelectiveReadout::UNKNOWN;
-	}
+  if(hEbDigis.isValid()){
+    if(xtalVerbose_) cout << setfill('0');
+    for(EBDigiCollection::const_iterator it = hEbDigis->begin();
+	it != hEbDigis->end(); ++it){
+      const EBDataFrame& frame = *it;
+      
+      int iEta0 = iEta2cIndex((frame.id()).ieta());
+      int iPhi0 = iPhi2cIndex((frame.id()).iphi());
+      
+      //     cout << "xtl indices conv: (" << frame.id().ieta() << ","
+      // 	 << frame.id().iphi() << ") -> ("
+      // 	 << iEta0 << "," << iPhi0 << ")\n";
+    
+      if(iEta0<0 || iEta0>=nEbEta){
+	cout << "iEta0 (= " << iEta0 << ") is out of range ("
+	     << "[0," << nEbEta -1 << "]\n";
       }
-    }
-  }
-}
-
-void EcalSimRawData::checkGeometry(const edm::EventSetup& es){
-  edm::ESHandle<CaloGeometry> hGeometry;
-  es.get<IdealGeometryRecord>().get(hGeometry);
-  
-  const CaloGeometry * pGeometry = &*hGeometry;
-  
-  // see if we need to update
-  if(pGeometry != theGeometry) {
-    theGeometry = pGeometry;
-    esr_->setGeometry(theGeometry);
-  }
-}
-
-
-void EcalSimRawData::checkTriggerMap(const edm::EventSetup&
-					      es){
-  edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap;
-  es.get<IdealGeometryRecord>().get(eTTmap);
-  
-  const EcalTrigTowerConstituentsMap * pMap = &*eTTmap;
-  
-  // see if we need to update
-  if(pMap!= theTriggerTowerMap) {
-    theTriggerTowerMap = pMap;
-    esr_->setTriggerMap(theTriggerTowerMap);
-  }
-}
-
-void EcalSimRawData::printTTFlags(const EcalSelectiveReadout::ttFlag_t
-				  ttf[nTtsAlongEta][nTtsAlongPhi],
-				  int iEvent, ostream& os) const{
-  const char tccFlagMarker[] = { '?', '.', 'S', '?', 'C', 'E', 'E', 'E', 'E'};
-  const int nEta = EcalSelectiveReadout::nTriggerTowersInEta;
-  const int nPhi = EcalSelectiveReadout::nTriggerTowersInPhi;
-  
-  if(iEvent==1){
-    os << "# TCC flag map\n#\n"
-      "# +-->Phi            " << tccFlagMarker[1] << ": 000 (low interest)\n"
-      "# |                  " << tccFlagMarker[2] << ": 001 (mid interest)\n"
-      "# |                  " << tccFlagMarker[3] << ": 010 (not valid)\n"
-      "# V Eta              " << tccFlagMarker[5] << ": 011 (high interest)\n"
-      "#                    " << tccFlagMarker[6] << ": 1xx forced readout (Hw error)\n";
-  }
-
-  os << "#\n#Event " << iEvent << "\n";
-  
-  for(int iEta=0; iEta<nEta; ++iEta){
-    for(int iPhi=0; iPhi<nPhi; ++iPhi){
-      os << tccFlagMarker[ttf[iEta][iPhi]+1];
-    }
-    os << "\n";
-  }
-}
-  
-
-void EcalSimRawData::printSRFlags(EcalSelectiveReadout::towerInterest_t
-				  ebSrf[nTtsAlongEbEta][nTtsAlongPhi],
-				  EcalSelectiveReadout::towerInterest_t
-				  eeSrf[nEndcaps][nScX][nScY],
-				  int iEvent, ostream& os) const{
-  const char srpFlagMarker[] = {'.', 'S', 'N', 'C', '4','5','6','7'};
-  if(iEvent==1){
-    time_t t;
-    time(&t);
-    const char* date = ctime(&t);
-    os << "#SRP flag map\n#\n"
-      "# Generatied on: " << date << "\n#\n"
-      "# Low TT Et Threshold:  " <<  thrs_[0] << " GeV\n"
-      "# High TT Et Threshold: " << thrs_[1] << " GeV\n"
-      "# Algorithm type: " << 2*dEta_+1 << "x" << 2*dPhi_+1 << "\n"
-      "# +-->Phi/Y " << srpFlagMarker[0] << ": low interest\n"
-      "# |         " << srpFlagMarker[1] << ": single\n"
-      "# |         " << srpFlagMarker[2] << ": neighbour\n"
-      "# V Eta/X   " << srpFlagMarker[3] << ": center\n"
-      "#\n";    
-  }
-
-  //EE-,EB,EE+ map wil be written onto file in following format:
-  //
-  //      72
-  // <-------------->
-  //  20
-  // <--->
-  //  EEE                A             +-----> Y
-  // EEEEE               |             |
-  // EE EE               | 20   EE-    |
-  // EEEEE               |             |
-  //  EEE                V             V X
-  // BBBBBBBBBBBBBBBBB   A
-  // BBBBBBBBBBBBBBBBB   |             +-----> Phi
-  // BBBBBBBBBBBBBBBBB   |             |
-  // BBBBBBBBBBBBBBBBB   | 34  EB      |
-  // BBBBBBBBBBBBBBBBB   |             |
-  // BBBBBBBBBBBBBBBBB   |             V Eta
-  // BBBBBBBBBBBBBBBBB   |
-  // BBBBBBBBBBBBBBBBB   |
-  // BBBBBBBBBBBBBBBBB   V
-  //  EEE                A             +-----> Y
-  // EEEEE               |             |
-  // EE EE               | 20 EE+      |
-  // EEEEE               |             |
-  //  EEE                V             V X
-  //
-  //
-  //
-  //
-  //event header:
-  os << "# Event " << iEvent << "\n";
-
-  esr_->print(os);
-  
-#if 0
-  for(int iX0=0; iX0<nScX; ++iX0){
-    for(int iY0=0; iY0<nScY; ++iY0){
-      EcalSelectiveReadout::towerInterest_t srFlag = eeSrf[0][iX0][iY0];
-      if(!((unsigned)srFlag<sizeof(srpFlagMarker)/sizeof(srpFlagMarker[0])
-	   || srFlag==EcalSelectiveReadout::UNKNOWN)){
-
-	cout << "==========> "
-	     << srFlag << " " << EcalSelectiveReadout::UNKNOWN
-	     << " " << iEvent << " " << iX0 << " " << iY0 << endl;
-	 
+      if(iPhi0<0 || iPhi0>=nEbPhi){
+	cout << "iPhi0 (= " << iPhi0 << ") is out of range ("
+	     << "[0," << nEbPhi -1 << "]\n";
+      }
+    
+      if(xtalVerbose_){
+	cout << iEta0 << "\t" << iPhi0 << ":\t";
+	cout << hex;
       }
       
-      assert((unsigned)srFlag<sizeof(srpFlagMarker)/sizeof(srpFlagMarker[0])
-	     || srFlag==EcalSelectiveReadout::UNKNOWN);
-      os << (srFlag==EcalSelectiveReadout::UNKNOWN?
-	     ' ':srpFlagMarker[srFlag]);
+      if(nSamples!=frame.size()){
+	throw cms::Exception("EcalSimRawData", "Found EB digis with different sample count! This is not supported by EcalSimRawData.");
+      }
+    
+      for(int iSample=0; iSample<nSamples; ++iSample){
+	const EcalMGPASample& sample = frame.sample(iSample);
+	uint16_t encodedAdc = sample.raw();
+	adc[iEta0][iPhi0][iSample] = encodedAdc;  
+	if(xtalVerbose_){
+	  cout << (iSample>0?" ":"") << "0x" << setw(4) 
+	       << encodedAdc;
+	}
+      }
+      if(xtalVerbose_) cout << "\n" << dec;
     }
-    os << "\n"; //one Y supercystal column per line
-  } //next supercrystal X-index
-   
-  //EB
-  for(int iEta0 = 0;
-      iEta0 < nTtsAlongEbEta;
-      ++iEta0){
-    for(int iPhi0 = 0; iPhi0 < nTtsAlongPhi; ++iPhi0){
-      EcalSelectiveReadout::towerInterest_t srFlag = ebSrf[iEta0][iPhi0];
-      assert((unsigned)srFlag
-	     < sizeof(srpFlagMarker)/sizeof(srpFlagMarker[0]));
-      os << srpFlagMarker[srFlag];
-    }
-    os << "\n"; //one phi per line
+    if(xtalVerbose_) cout << setfill(' ');
   }
-   
-  //EE+
-  for(int iX0=0; iX0<nScX; ++iX0){
-    for(int iY0=0; iY0<nScY; ++iY0){
-      EcalSelectiveReadout::towerInterest_t srFlag
-	= eeSrf[1][iX0][iY0];
-      assert((unsigned)srFlag<sizeof(srpFlagMarker)/sizeof(srpFlagMarker[0])
-	     ||srFlag==EcalSelectiveReadout::UNKNOWN);
-      os << (srFlag==EcalSelectiveReadout::UNKNOWN?
-	     ' ':srpFlagMarker[srFlag]);
+}
+  
+
+void EcalSimRawData::getTp(const edm::Event& event,
+			   const std::string& collName,
+			   int tcp[nTtEta][nTtPhi]) const{
+  edm::Handle<EcalTrigPrimDigiCollection> hTpDigis;
+  event.getByLabel(tpProducer_, collName, hTpDigis);
+  if(hTpDigis.isValid() && hTpDigis->size()>0){
+    const EcalTrigPrimDigiCollection& tpDigis = *hTpDigis.product();
+
+    uint16_t tcp[nTtEta][nTtPhi];
+    //    EcalSelectiveReadout::ttFlag_t ttf[nTtEta][nTtPhi];
+    for(int iTtEta0=0; iTtEta0 < nTtEta; ++iTtEta0){
+      for(int iTtPhi0=0; iTtPhi0 < nTtPhi; ++iTtPhi0){
+	tcp[iTtEta0][iTtPhi0] = 0xFFFF;
+      }
     }
-    os << "\n"; //one Y supercystal column per line
-  } //next supercrystal X-index
-#endif
-  //event trailer:
-  os << "\n";
+    if(tpVerbose_){
+      cout << setfill('0');
+    }
+    for(EcalTrigPrimDigiCollection::const_iterator it = tpDigis.begin();
+	it != tpDigis.end(); ++it){
+      const EcalTriggerPrimitiveDigi& tp = *it;
+      int iTtEta0 = iTtEta2cIndex(tp.id().ieta());
+      int iTtPhi0 = iTtPhi2cIndex(tp.id().iphi());
+      if(iTtEta0<0 || iTtEta0>=nTtEta){
+	cout << "iTtEta0 (= " << iTtEta0 << ") is out of range ("
+	     << "[0," << nEbTtEta -1 << "]\n";
+      }
+      if(iTtPhi0<0 || iTtPhi0>=nTtPhi){
+	cout << "iTtPhi0 (= " << iTtPhi0 << ") is out of range ("
+	     << "[0," << nTtPhi -1 << "]\n";
+      }
+
+      tcp[iTtEta0][iTtPhi0] = tp[tp.sampleOfInterest()].raw();
+
+      if(tpVerbose_){
+	cout << collName << (collName.size()==0?"":" ")
+	     << "TP(" << iTtEta0 << "," << iTtPhi0 << ") = "
+	     << "0x" << setw(4) 
+	     << tcp[iTtEta0][iTtPhi0]
+	     << "\tcmssw indices: "
+	     << tp.id().ieta() << " " << tp.id().iphi() << "\n";
+      }
+    }//next TP
+    if(tpVerbose_) cout << setfill(' ');
+  }
 }

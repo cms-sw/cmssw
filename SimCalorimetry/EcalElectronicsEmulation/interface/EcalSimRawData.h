@@ -1,5 +1,5 @@
 /*  
- * $Id$
+ * $Id: EcalSimRawData.h,v 1.1 2007/01/31 10:00:51 pgras Exp $
  */
 
 #include "FWCore/Framework/interface/Event.h"
@@ -91,27 +91,27 @@ private:
 
   /** Number of TTs along SM phi
    */
-  static const int nTtsAlongSmPhi = 4;
+  static const int nTtSmPhi = 4;
 
   /** Number of TTs along SM eta
    */
-  static const int nTtsAlongSmEta = 17;
+  static const int nTtSmEta = 17;
 
   /** Number of TTs along Ecal Phi
    */
-  static const int nTtsAlongPhi = nEbPhi/ttEdge;//72
+  static const int nTtPhi = nEbPhi/ttEdge;//72
 
   /** Number of TTs along Ecal barrel eta
    */
-  static const int nTtsAlongEbEta = nEbEta/ttEdge;//34
+  static const int nEbTtEta = nEbEta/ttEdge;//34
 
   /** Number of TTs along eta for one endcap.
    */
-  static const int nTtsAlongEeEta = 11;
+  static const int nEeTtEta = 11;
 
   /** Number of TTs along ECAL eta
    */
-  static const int nTtsAlongEta = 2*(nTtsAlongEbEta+nTtsAlongEeEta);//56
+  static const int nTtEta = 2*(nEbTtEta+nEeTtEta);//56
 
   /** Number of barrel DCCs along Phi
    */
@@ -153,7 +153,7 @@ private:
    * ttType[iTtEta0]: trigger tower type of TTs with eta 'c-arrary' index
    * iTtEta0
    */
-  static const int ttType[nTtsAlongEbEta];
+  static const int ttType[nEbTtEta];
 
   /** Maps (strip_id, channel_id) to phi index within a TT.
    * stripCh2Phi[iTtType][strip_id-1][ch_id-1] will be the phi index of the
@@ -292,9 +292,40 @@ private:
    * @param iEvent event index
    * @param tps the payload, the trigger primitives
    */
-  void genTcpData(std::string basename, int iEvent,
-		  const uint16_t tps[nTtsAlongEta][nTtsAlongPhi]) const;
+  void genTccIn(std::string basename, int iEvent,
+		const int tps[nTtEta][nTtPhi]) const;
 
+  /** Generates TCC->DCC data
+   * @param basename base for the output file name. DCC number is appended to
+   * the name
+   * @param iEvent event index
+   * @param tps the payload, the trigger primitives
+   */
+  void genTccOut(std::string basename, int iEvent,
+		 const int tps[nTtEta][nTtPhi]) const;
+
+
+  
+  /** Retrieves barrel digis (APD ADC count).
+   * @param event CMS event
+   * @param adc [out] the adc counts: adc[iEta0][iPhi0][iTimeSample0] 
+   */
+  void getEbDigi(const edm::Event& event,
+		 std::vector<uint16_t> adc[nEbEta][nEbPhi]) const;
+
+
+  /** Extracts the trigger primitive (TP). The collection name
+   * parameter permits to select either the TCP Fenix output
+   * or the TCC output.
+   * Note: TCP output is only valid for the barrel.
+   * @param event CMS event
+   * @param collName label of the EDM collection containing the TP.
+   * @param tp [out] the trigger primitives
+   */
+  void getTp(const edm::Event& event, const std::string& collName,
+	     int tp[nTtEta][nTtPhi]) const;
+
+  
   /** Help function to get the file extension which depends on the output
    * formats.
    */
@@ -314,16 +345,12 @@ private:
 
 
   /** Computes the selective readout flags.
-   * @param [in] ttf the TT flags
+   * @param [in] event CMS event
    * @param [out] ebSrf the computed SR flags for barrel
    * @param [out] eeSrf the computed SR flags for endcaps
-   * @param es [in] the Event setup
    */
-  void getSrfs(const EcalSelectiveReadout::ttFlag_t
-	       ttf[nTtsAlongEta][nTtsAlongPhi],
-	       EcalSelectiveReadout::towerInterest_t ebSrf[nTtsAlongEbEta][nTtsAlongPhi],
-	       EcalSelectiveReadout::towerInterest_t eeSrf[nEndcaps][nScX][nScY],
-	       const edm::EventSetup& es);
+  void getSrfs(const edm::Event& event, int ebSrf[nTtEta][nTtPhi],
+	       int eeSrf[nEndcaps][nScX][nScY]) const;
 
   /** Generates SR flags
    * @param basename base for the output file name. DCC number is appended to
@@ -332,27 +359,26 @@ private:
    * @param the trigger tower flags
    */
   void genSrData(std::string basename, int iEvent,
-		 EcalSelectiveReadout::towerInterest_t
-		 ttf[nTtsAlongEbEta][nTtsAlongPhi]) const;
+		 int ttf[nEbTtEta][nTtPhi]) const;
 
-  /** Writes out TT flags
-   * @param ttf the TT flags
-   * @param iEvent event index
-   * @param os stream to write to
-   */
-  void printTTFlags(const EcalSelectiveReadout::ttFlag_t
-		    ttf[nTtsAlongEta][nTtsAlongPhi],
-		    int iEvent, std::ostream& os) const;
+//   /** Writes out TT flags
+//    * @param ttf the TT flags
+//    * @param iEvent event index
+//    * @param os stream to write to
+//    */
+//   void printTTFlags(const EcalSelectiveReadout::ttFlag_t
+// 		    ttf[nTtEta][nTtPhi],
+// 		    int iEvent, std::ostream& os) const;
 
-  /** Writes out SR flags
-   * @param ebSrf the TT flags of the barrel
-   * @param eeSrf the TT flags of the endcaps
-   * @param iEvent event index
-   * @param os stream to write to
-   */  
-  void printSRFlags(EcalSelectiveReadout::towerInterest_t ebSrf[nTtsAlongEbEta][nTtsAlongPhi],
-		    EcalSelectiveReadout::towerInterest_t eeSrf[nEndcaps][nScX][nScY],
-		    int iEvent, std::ostream& os) const;
+//   /** Writes out SR flags
+//    * @param ebSrf the TT flags of the barrel
+//    * @param eeSrf the TT flags of the endcaps
+//    * @param iEvent event index
+//    * @param os stream to write to
+//    */  
+//   void printSRFlags(EcalSelectiveReadout::towerInterest_t ebSrf[nEbTtEta][nTtPhi],
+// 		    EcalSelectiveReadout::towerInterest_t eeSrf[nEndcaps][nScX][nScY],
+// 		    int iEvent, std::ostream& os) const;
   
 private:
   /** Name of module/plugin/producer making digis
@@ -361,23 +387,32 @@ private:
 
   /** EB digi product instance name
    */
-  std::string ebdigiCollection_;
+  std::string ebDigiCollection_;
 
   /** EE digi product instance name
    */
-  std::string eedigiCollection_;
+  std::string eeDigiCollection_;
 
-   /** EB SRP digi product instance name
-   */
-  //std::string ebSRPdigiCollection_;
 
-  /** EE SRP digi product instancename
+  /** Label of SR flags and suppressed digis
    */
-  //std::string eeSRPdigiCollection_;
+  std::string srDigiProducer_;
+  
+   /** EB SRP flag digi product instance name
+   */
+  std::string ebSrFlagCollection_;
+
+  /** EE SRP flag digi product instancename
+   */
+  std::string eeSrFlagCollection_;
 
   /** Trigger primitive digi product instance name
    */
   std::string tpDigiCollection_; 
+
+  /** TCP Fenix output digi product instance name
+   */
+  std::string tcpDigiCollection_; 
   
   /** Calorimeter geometry
    */
@@ -385,7 +420,7 @@ private:
 
   /** Name of the trigger primitive label
    */
-  std::string trigPrimProducer_;
+  std::string tpProducer_;
 
   /** output format
    */
@@ -414,18 +449,6 @@ private:
   /** Selective readout simulator
    */
   std::auto_ptr<EcalSelectiveReadout> esr_;
-
-  /** Selective readout TT thresholds
-   */
-  std::vector<double> thrs_;
-
-  /** Neighbourhood eta-range for selective readout.
-   */
-  int dEta_;
-
-  /** Neighbourhood phi-range for selective readout.
-   */
-  int dPhi_;
 
   /** Output file for trigger tower flags
    */
