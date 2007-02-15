@@ -15,7 +15,7 @@
 //
 // Original Authors:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:43 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.h,v 1.1 2006/10/23 15:27:41 wdd Exp $
+// $Id: RandomNumberGeneratorService.h,v 1.2 2006/10/25 17:43:23 wdd Exp $
 //
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -68,6 +68,12 @@ namespace edm {
 
       void preModule(const ModuleDescription& iDesc);
       void postModule(const ModuleDescription& iDesc);
+
+      void preModuleBeginJob(const ModuleDescription& iDesc);
+      void postModuleBeginJob(const ModuleDescription& iDesc);
+
+      void preModuleEndJob(const ModuleDescription& iDesc);
+      void postModuleEndJob(const ModuleDescription& iDesc);
 
       virtual const std::vector<std::string>& getCachedLabels() const;
       virtual const std::vector<std::vector<uint32_t> >& getCachedStates() const;

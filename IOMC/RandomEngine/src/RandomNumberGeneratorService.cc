@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.cc,v 1.3 2006/11/02 17:35:18 wdd Exp $
+// $Id: RandomNumberGeneratorService.cc,v 1.4 2007/01/19 17:46:19 wdd Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
@@ -216,6 +216,12 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
   iRegistry.watchPreModule(this,&RandomNumberGeneratorService::preModule);
   iRegistry.watchPostModule(this,&RandomNumberGeneratorService::postModule);
 
+  iRegistry.watchPreModuleBeginJob(this,&RandomNumberGeneratorService::preModuleBeginJob);
+  iRegistry.watchPostModuleBeginJob(this,&RandomNumberGeneratorService::postModuleBeginJob);
+
+  iRegistry.watchPreModuleEndJob(this,&RandomNumberGeneratorService::preModuleEndJob);
+  iRegistry.watchPostModuleEndJob(this,&RandomNumberGeneratorService::postModuleEndJob);
+
   // the default for the stack is to point to the 'end' of our map which is used to define not set
   engineStack_.push_back(engineMap_.end());
   currentEngine_ = engineMap_.end();
@@ -390,6 +396,30 @@ RandomNumberGeneratorService::preModule(const ModuleDescription& iDesc)
 
 void 
 RandomNumberGeneratorService::postModule(const ModuleDescription&)
+{
+  pop();
+}
+
+void 
+RandomNumberGeneratorService::preModuleBeginJob(const ModuleDescription& iDesc)
+{
+  push(iDesc.moduleLabel_);
+}
+
+void 
+RandomNumberGeneratorService::postModuleBeginJob(const ModuleDescription&)
+{
+  pop();
+}
+
+void 
+RandomNumberGeneratorService::preModuleEndJob(const ModuleDescription& iDesc)
+{
+  push(iDesc.moduleLabel_);
+}
+
+void 
+RandomNumberGeneratorService::postModuleEndJob(const ModuleDescription&)
 {
   pop();
 }

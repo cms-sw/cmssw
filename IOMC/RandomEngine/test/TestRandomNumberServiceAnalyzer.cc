@@ -13,7 +13,7 @@ service.  Prints them to an output file named testRandomNumberService.txt.
 //
 // Original Author:  Chris Jones, David Dagenhart
 //         Created:  Tue Mar  7 11:57:09 EST 2006
-// $Id$
+// $Id: TestRandomNumberServiceAnalyzer.cc,v 1.1 2006/10/26 21:34:08 wdd Exp $
 //
 //
 
@@ -42,6 +42,9 @@ class TestRandomNumberServiceAnalyzer : public edm::EDAnalyzer {
     ~TestRandomNumberServiceAnalyzer();
 
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+    void beginJob(edm::EventSetup const&);
+    void endJob();
 
   private:
     static bool firstFileOpen_;
@@ -141,6 +144,24 @@ TestRandomNumberServiceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   }
 
   outFile.close();
+}
+
+void TestRandomNumberServiceAnalyzer::beginJob(edm::EventSetup const&) {
+
+  using namespace edm;
+  Service<RandomNumberGenerator> rng;
+
+  std::cout << "*** TestRandomNumberServiceAnalyzer beginJob() ***\n";
+  std::cout << rng->mySeed() << "\n";
+}
+
+void TestRandomNumberServiceAnalyzer::endJob() {
+
+  using namespace edm;
+  Service<RandomNumberGenerator> rng;
+
+  std::cout << "*** TestRandomNumberServiceAnalyzer endJob() ***\n";
+  std::cout << rng->mySeed() << "\n";
 }
 
 //define this as a plug-in
