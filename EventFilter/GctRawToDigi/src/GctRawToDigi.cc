@@ -90,8 +90,6 @@ GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
 
-  cout << "Unpacking an event" << endl;
-
   // do a simple check of the raw data
   if (d.size()<16) {
       edm::LogWarning("Invalid Data") << "Empty/invalid GCT raw data, size = " << d.size();
@@ -153,21 +151,25 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
     }
     else {  // otherwise bail out
       lost = true;
-       edm::LogWarning("GCT") << "Unrecognised data block at byte " << dPtr << ". Bailing out" << endl;
-       edm::LogWarning("GCT") << blockHead << endl;
+      edm::LogWarning("GCT") << "Unrecognised data block at byte " << dPtr << ". Bailing out" << endl;
+      edm::LogWarning("GCT") << blockHead << endl;
     }
     
   }
 
   // print info (to be removed!)
-  cout << "Found " << bHdrs.size() << " GCT internal headers" << endl;
+  std::ostream os;
+  os << "Found " << bHdrs.size() << " GCT internal headers" << endl;
   for (unsigned i=0; i<bHdrs.size(); i++) {
-    cout << bHdrs[i]<< endl;
+    os << bHdrs[i]<< endl;
   }
-  cout << "Read " << rctEm.get()->size() << " RCT EM candidates" << endl;
-  cout << "Read " << gctIsoEm.get()->size() << " GCT iso EM candidates" << endl;
-  cout << "Read " << gctNonIsoEm.get()->size() << " GCT non-iso EM candidates" << endl;
-  cout << "Read " << gctInterEm.get()->size() << " GCT intermediate EM candidates" << endl;
+  os << "Read " << rctEm.get()->size() << " RCT EM candidates" << endl;
+  os << "Read " << gctIsoEm.get()->size() << " GCT iso EM candidates" << endl;
+  os << "Read " << gctNonIsoEm.get()->size() << " GCT non-iso EM candidates" << endl;
+  os << "Read " << gctInterEm.get()->size() << " GCT intermediate EM candidates" << endl;
+
+  edm::LogInfo("GCT") << os;
+
 
   // put data into the event
   e.put(rctEm);
