@@ -44,12 +44,14 @@ class EcalTriggerPrimitiveDigi {
   /// True if debug mode (# of samples > 1)
   bool isDebug() const;
 
+  /// Gets the interesting sample
+  int sampleOfInterest() const;
+  
  private:
   
   EcalTrigTowerDetId id_;
   int size_;
   std::vector<EcalTriggerPrimitiveSample> data_;
-  int sampleOfInterest() const;
 };
 
 
