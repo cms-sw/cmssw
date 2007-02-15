@@ -9,9 +9,6 @@
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-
 #include "FastSimulation/MaterialEffects/interface/NuclearInteractionEDMUpdator.h"
 #include "FastSimulation/MaterialEffects/interface/NUEvent.h"
 

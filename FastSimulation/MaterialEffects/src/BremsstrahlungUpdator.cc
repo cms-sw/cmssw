@@ -1,8 +1,3 @@
-//CMSSW Headers
-#include "Geometry/Vector/interface/Basic3DVector.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-
 //FAMOS Headers
 #include "FastSimulation/MaterialEffects/interface/BremsstrahlungUpdator.h"
 

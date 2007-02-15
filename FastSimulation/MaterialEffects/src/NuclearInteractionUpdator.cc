@@ -2,9 +2,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-
 #include "FastSimulation/MaterialEffects/interface/NuclearInteractionUpdator.h"
 #include "FastSimulation/MaterialEffects/interface/NUEvent.h"
 

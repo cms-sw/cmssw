@@ -1,12 +1,7 @@
 #ifndef MATERIALEFFECTSUPDATOR_H
 #define MATERIALEFFECTSUPDATOR_H
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-
-#include "Geometry/Surface/interface/Surface.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
-#include "Geometry/Surface/interface/BoundDisk.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"

@@ -1,6 +1,3 @@
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-
 #include "FastSimulation/MaterialEffects/interface/PairProductionUpdator.h"
 
 #include "CLHEP/Vector/LorentzVector.h"
