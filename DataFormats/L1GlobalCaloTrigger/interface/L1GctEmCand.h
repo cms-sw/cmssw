@@ -65,6 +65,14 @@ public:
   /// which stream did this come from
   bool isolated() const { return m_iso; }
 
+  /// equality operator
+  int operator==(const L1GctEmCand& c) const { return ((m_data==c.raw() && m_iso==c.isolated())
+                                                      || (this->empty() && c.empty())); }
+
+  /// inequality operator
+  int operator!=(const L1GctEmCand& c) const { return ((m_data!=c.raw() || m_iso!=c.isolated())
+                                                     && (!this->empty() || !c.empty())); }
+
  private:
 
   // set internal data from rank and region ieta, iphi

@@ -62,7 +62,17 @@ public:
   /// check if this is a forward jet
   bool isForward() const { return m_isFor; }
 
- private:
+   /// equality operator
+  int operator==(const L1GctJetCand& c) const { return ((m_data==c.raw() && 
+                                                m_isTau==c.isTau() && m_isFor==c.isForward())
+                                                 || (this->empty() && c.empty())); }
+
+   /// inequality operator
+  int operator!=(const L1GctJetCand& c) const { return ((m_data!=c.raw() || 
+                                                m_isTau!=c.isTau() || m_isFor!=c.isForward())
+                                                && (!this->empty() || !c.empty())); }
+
+private:
 
   uint16_t m_data;
   bool m_isTau;
