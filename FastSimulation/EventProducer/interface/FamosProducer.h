@@ -3,15 +3,12 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/EDProduct.h"
-
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 class FamosManager;
 

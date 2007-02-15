@@ -4,10 +4,10 @@
 //#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/src/VectorInputSourceFactory.h"
 
 #include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 

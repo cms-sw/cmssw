@@ -5,9 +5,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "FastSimulation/EventProducer/interface/FamosProducer.h"
 #include "FastSimulation/EventProducer/interface/FamosManager.h"
