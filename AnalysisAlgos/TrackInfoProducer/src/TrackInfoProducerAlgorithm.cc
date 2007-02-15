@@ -47,6 +47,7 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
       int i=0,j=0;
       //edm::LogInfo("TrackInfoProducer") <<"Rechit size: "<<rechits->product()->size();
       for (thehit=rechits->product()->begin();thehit!=rechits->product()->end();thehit++){
+	if (!thehit->isValid()) continue;
 	if(thehit->geographicalId().rawId()==detid&&
 	   (thehit->localPosition() - pos).mag() < 1e-4)
 	  {

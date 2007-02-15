@@ -74,14 +74,7 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 
     std::vector<unsigned int> trackid;
     for(traj_iterator=TrajectoryCollection->begin();traj_iterator!=TrajectoryCollection->end();++traj_iterator){//loop on trajectories
-      
-      theAlgo_.run(traj_iterator,&rechitscollection,
-		   outputFwd,outputBwd,outputUpdated, outputCombined
-		   );
-      outputFwdColl->push_back(*(new reco::TrackInfo(outputFwd)));
-      outputBwdColl->push_back(*(new reco::TrackInfo(outputBwd)));
-      outputUpdatedColl->push_back(*(new reco::TrackInfo(outputUpdated)));
-      outputCombinedColl->push_back(*(new reco::TrackInfo(outputCombined)));
+      //associate the trajectory to the track
       unsigned int idtk = 0;
       
       if(TrajectoryCollection->size()==1)trackid.push_back(idtk);
@@ -122,6 +115,14 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 	  idtk++;
 	}
       }
+      theAlgo_.run(traj_iterator,&rechitscollection,
+		   outputFwd,outputBwd,outputUpdated, outputCombined
+		   );
+      outputFwdColl->push_back(*(new reco::TrackInfo(outputFwd)));
+      outputBwdColl->push_back(*(new reco::TrackInfo(outputBwd)));
+      outputUpdatedColl->push_back(*(new reco::TrackInfo(outputUpdated)));
+      outputCombinedColl->push_back(*(new reco::TrackInfo(outputCombined)));
+
     }
     //put everything in the event
     const edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfof = theEvent.put(outputFwdColl,forwardPredictedStateTag_ );
