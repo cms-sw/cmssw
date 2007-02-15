@@ -20,7 +20,7 @@ namespace {
 }
 
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Common/interface/traits.h" // DoNotSortUponInsertion
 namespace {
   namespace {
     edm::Wrapper< SiStripRawDigi > raw0;
