@@ -11,7 +11,7 @@ struct vT_find
 //initial tracks  
     vector<RefCountedVertexTrack> tracks = v.tracks();
     vector<RefCountedVertexTrack>::iterator pos 
-      = find(tracks.begin(), tracks.end(), t);
+      = find_if(tracks.begin(), tracks.end(), VertexTrackEqual(t));
     return (pos != tracks.end());
   }
 }; 
@@ -130,7 +130,7 @@ float KalmanVertexTrackCompatibilityEstimator::estimateDifference
   //track->linearizedTrack()->predictedState().perigeeError().weightMatrix();  
    
 //chi2   
- return(nWeight.similarity(posResiduals) + track->weight()*w.similarity(parameterResiduals));
+ return(nWeight.similarity(posResiduals) + w.similarity(parameterResiduals));
 
 }
 
