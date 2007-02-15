@@ -104,29 +104,29 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   std::vector<GctBlockHeader> bHdrs;
 
   // GCT input data
-  std::auto_ptr<L1CaloEmCollection> rctEm(new L1CaloEmCollection()); 
-  std::auto_ptr<L1CaloRegionCollection> rctRgn(new L1CaloRegionCollection()); 
+  std::auto_ptr<L1CaloEmCollection> rctEm( new L1CaloEmCollection() ); 
+  std::auto_ptr<L1CaloRegionCollection> rctRgn( new L1CaloRegionCollection() ); 
   
   // GCT intermediate data
-  std::auto_ptr<L1GctEmCandCollection> gctInterEm(new L1GctEmCandCollection()); 
+  std::auto_ptr<L1GctEmCandCollection> gctInterEm( new L1GctEmCandCollection() ); 
 
   // GCT output data
-  std::auto_ptr<L1GctEmCandCollection> gctIsoEm(new L1GctEmCandCollection()); 
-  std::auto_ptr<L1GctEmCandCollection> gctNonIsoEm(new L1GctEmCandCollection()); 
-  std::auto_ptr<L1GctJetCandCollection> gctCenJets(new L1GctJetCandCollection()); 
-  std::auto_ptr<L1GctJetCandCollection> gctForJets(new L1GctJetCandCollection()); 
-  std::auto_ptr<L1GctJetCandCollection> gctTauJets(new L1GctJetCandCollection()); 
+  std::auto_ptr<L1GctEmCandCollection> gctIsoEm( new L1GctEmCandCollection() ); 
+  std::auto_ptr<L1GctEmCandCollection> gctNonIsoEm( new L1GctEmCandCollection() ); 
+  std::auto_ptr<L1GctJetCandCollection> gctCenJets( new L1GctJetCandCollection() ); 
+  std::auto_ptr<L1GctJetCandCollection> gctForJets( new L1GctJetCandCollection() ); 
+  std::auto_ptr<L1GctJetCandCollection> gctTauJets( new L1GctJetCandCollection() ); 
   
-  std::auto_ptr<L1GctEtTotal> etTotResult(new L1GctEtTotal() );
-  std::auto_ptr<L1GctEtHad> etHadResult(new L1GctEtHad() );
-  std::auto_ptr<L1GctEtMiss> etMissResult(new L1GctEtMiss() );
+  std::auto_ptr<L1GctEtTotal> etTotResult( new L1GctEtTotal() );
+  std::auto_ptr<L1GctEtHad> etHadResult( new L1GctEtHad() );
+  std::auto_ptr<L1GctEtMiss> etMissResult( new L1GctEtMiss() );
 
 
   // setup converter
-  converter_.setRctEmCollection(rctEm.get());
-  converter_.setIsoEmCollection(gctIsoEm.get());
-  converter_.setNonIsoEmCollection(gctNonIsoEm.get());
-  converter_.setInterEmCollection(gctInterEm.get());
+  converter_.setRctEmCollection( rctEm.get() );
+  converter_.setIsoEmCollection( gctIsoEm.get() );
+  converter_.setNonIsoEmCollection( gctNonIsoEm.get() );
+  converter_.setInterEmCollection( gctInterEm.get() );
 
   // unpacking variables
   const unsigned char * data = d.data();
@@ -143,12 +143,13 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
 
     // 2 get block size (in 32 bit words)
     unsigned blockLen = converter_.blockLength(id);
+    unsigned nSamples = blockHead.nSamples();
 
     // 3 if block recognised, convert it and store header
     if ( converter_.validBlock(id) ) {
-      converter_.convertBlock(&data[dPtr], id);
+      converter_.convertBlock(&data[dPtr], id, nSamples);
       bHdrs.push_back(blockHead);
-      dPtr += 4*(blockLen+1); // 4 because blockLen is in 32-bit words, +1 for header
+      dPtr += 4*(blockLen*nSamples+1); // *4 because blockLen is in 32-bit words, +1 for header
     }
     else {  // otherwise bail out
       lost = true;
@@ -158,14 +159,15 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
     
   }
 
+  // print info (to be removed!)
   cout << "Found " << bHdrs.size() << " GCT internal headers" << endl;
   for (unsigned i=0; i<bHdrs.size(); i++) {
     cout << bHdrs[i]<< endl;
   }
+  cout << "Read " << rctEm.get()->size() << " RCT EM candidates" << endl;
   cout << "Read " << gctIsoEm.get()->size() << " GCT iso EM candidates" << endl;
   cout << "Read " << gctNonIsoEm.get()->size() << " GCT non-iso EM candidates" << endl;
   cout << "Read " << gctInterEm.get()->size() << " GCT intermediate EM candidates" << endl;
-
 
   // put data into the event
   e.put(rctEm);

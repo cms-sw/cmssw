@@ -25,7 +25,7 @@ class GctBlockConverter {
   unsigned blockLength(unsigned id);
     
   // convert a block
-  void convertBlock(const unsigned char * d, unsigned id);
+  void convertBlock(const unsigned char * d, unsigned id, unsigned nSamples);
 
   // set collection pointers
   void setRctEmCollection(L1CaloEmCollection* coll) { rctEm = coll; }
@@ -35,9 +35,10 @@ class GctBlockConverter {
 
  private:
 
-  // ToDo : write functions for each block
-  void wordToGctEmCand(uint16_t w0, uint16_t w1, int line);
-  void wordToGctInterEmCand(uint16_t w0, uint16_t w1, int line);
+  // convert functions for each type of block
+  void blockToRctEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
+  void blockToGctInterEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
+  void blockToGctEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
 
 
  private:
@@ -45,7 +46,7 @@ class GctBlockConverter {
   // block info
   std::map<unsigned, unsigned> blockLength_;  // size of a block
 
-  // map of unpack methods
+  // map of conversion functions
   typedef  void (GctBlockConverter::*convFn)(uint16_t, uint16_t, int);
   std::map< unsigned, convFn > convertFn_;
   
