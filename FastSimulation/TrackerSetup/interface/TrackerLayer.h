@@ -1,9 +1,9 @@
 #ifndef _TrackerLayer_H_
 #define _TrackerLayer_H_
 
-#include "Geometry/Surface/interface/BoundSurface.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
-#include "Geometry/Surface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
 /** A class that gives some properties of the Tracker Layers in FAMOS
  */

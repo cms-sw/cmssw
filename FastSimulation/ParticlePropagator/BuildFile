@@ -1,17 +1,16 @@
-<use name=clhep>
-<use name=MagneticField/Engine>
-<use name=Geometry/Surface>
+<use name=DataFormats/GeometryVector>
 <use name=FastSimulation/BaseParticlePropagator>
-<use name=FastSimulation/Particle>
 <use name=FastSimulation/Event>
+<use name=FastSimulation/TrackerSetup>
+<use name=Geometry/Surface>
+<use name=MagneticField/Engine>
+<use name=clhep>
+<use name=rootcore>
 
 <export>
- <use name=clhep>
- <lib name=FastSimulationParticlePropagator>
- <use name=MagneticField/Engine>
- <use name=Geometry/Surface>
- <use name=FastSimulation/BaseParticlePropagator>
- <use name=FastSimulation/Particle>
- <use name=FastSimulation/Event>
+  <use name=DataFormats/GeometryVector>
+  <use name=FastSimulation/BaseParticlePropagator>
+  <use name=FastSimulation/TrackerSetup>
+  <use name=clhep>
+  <lib name=FastSimulationParticlePropagator>
 </export>
-

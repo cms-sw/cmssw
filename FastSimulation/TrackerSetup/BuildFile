@@ -1,17 +1,11 @@
-<use name=clhep>
+<use name=DataFormats/GeometrySurface>
 <use name=FWCore/Utilities>
 <use name=Geometry/Surface>
-<use name=TrackingTools/PatternTools>
-<use name=TrackingTools/DetLayers>
 <use name=RecoTracker/TkDetLayers>
+<use name=TrackingTools/DetLayers>
+<use name=TrackingTools/PatternTools>
 
 <export>
- <use name=clhep>
- <lib name=FastSimulationTrackerSetup>
- <use name=FWCore/Utilities>
- <use name=Geometry/Surface>
- <use name=TrackingTools/PatternTools>
- <use name=TrackingTools/DetLayers>
- <use name=RecoTracker/TkDetLayers>
+  <use name=DataFormats/GeometrySurface>
+  <lib name=FastSimulationTrackerSetup>
 </export>
-

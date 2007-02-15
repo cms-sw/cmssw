@@ -2,8 +2,8 @@
 #define FastSimulation_ParticlePropagator_MagneticFieldMap_H
 
 // Framework Headers
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 // Famos headers
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"

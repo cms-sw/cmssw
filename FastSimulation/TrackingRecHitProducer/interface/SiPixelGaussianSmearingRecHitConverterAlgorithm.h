@@ -20,8 +20,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
 // Vectors
-#include "Geometry/Vector/interface/Point3DBase.h"
-#include "Geometry/Surface/interface/LocalError.h"
+#include "DataFormats/GeometryVector/interface/Point3DBase.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
 
 // STL
 #include <vector>

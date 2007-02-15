@@ -24,9 +24,9 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 
 // CLHEP
-#include "Geometry/Vector/interface/Point3DBase.h"
-#include "Geometry/Surface/interface/LocalError.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometryVector/interface/Point3DBase.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 // STL
 #include <vector>

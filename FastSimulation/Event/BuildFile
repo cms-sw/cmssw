@@ -1,25 +1,20 @@
-<use name=clhep>
+<use name=DataFormats/Common>
 <use name=FWCore/ParameterSet>
+<use name=FastSimulation/BaseParticlePropagator>
+<use name=FastSimulation/Particle>
+<use name=FastSimulation/Utilities>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
 <use name=SimGeneral/HepPDTRecord>
-<use name=IOMC/GaussianEventVertexGenerator>
-<use name=IOMC/FlatEventVertexGenerator>
-<use name=IOMC/EventVertexGenerators>
-<use name=FastSimulation/Particle>
-<use name=FastSimulation/BaseParticlePropagator>
-<use name=FastSimulation/Utilities>
+<use name=clhep>
+
 <export>
- <use name=clhep>
- <lib name=FastSimulationEvent>
- <use name=FWCore/ParameterSet>
- <use name=SimDataFormats/Track>
- <use name=SimDataFormats/Vertex>
- <use name=SimGeneral/HepPDTRecord>
- <use name=IOMC/GaussianEventVertexGenerator>
- <use name=IOMC/FlatEventVertexGenerator>
- <use name=IOMC/EventVertexGenerators>
- <use name=FastSimulation/Particle>
- <use name=FastSimulation/BaseParticlePropagator>
- <use name=FastSimulation/Utilities>
+  <use name=DataFormats/Common>
+  <use name=FWCore/ParameterSet>
+  <use name=FastSimulation/Particle>
+  <use name=SimDataFormats/Track>
+  <use name=SimDataFormats/Vertex>
+  <use name=SimGeneral/HepPDTRecord>
+  <use name=clhep>
+  <lib name=FastSimulationEvent>
 </export>
