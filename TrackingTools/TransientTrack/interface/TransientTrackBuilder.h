@@ -21,9 +21,11 @@ class TransientTrackBuilder {
    	theField(field) ,  theTrackingGeometry(trackingGeometry) {}
 
     reco::TransientTrack build ( const reco::Track * p)  const;
+    reco::TransientTrack build ( const reco::Track & p)  const;
     reco::TransientTrack build ( const reco::GsfTrack * p)  const;
 
     reco::TransientTrack build ( const reco::TrackRef * p)  const;
+    reco::TransientTrack build ( const reco::TrackRef & p)  const;
     reco::TransientTrack build ( const reco::GsfTrackRef * p)  const;
 
     std::vector<reco::TransientTrack> build ( const edm::Handle<reco::TrackCollection> & trkColl)  const;
