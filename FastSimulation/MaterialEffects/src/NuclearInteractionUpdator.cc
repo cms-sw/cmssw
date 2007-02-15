@@ -9,6 +9,7 @@
 #include "FastSimulation/MaterialEffects/interface/NUEvent.h"
 
 #include "CLHEP/Vector/LorentzVector.h"
+#include "CLHEP/Vector/Rotation.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include <iostream>
@@ -146,7 +147,11 @@ void NuclearInteractionUpdator::compute(ParticlePropagator& Particle)
       // The boost characteristics
       HepLorentzVector theBoost = Proton + Hadron;
       theBoost /= theBoost.e();
-      
+
+      // Some rotation arount the boost axis, for more randomness
+      Hep3Vector theAxis = theBoost.vect().unit();
+      double theAngle = random->flatShoot() * 2. * 3.14159265358979323;
+      HepRotation theRotation(theAxis,theAngle);
       //      std::cerr << "File chosen : " << file 
       //		<< " Current interaction = " << theCurrentInteraction[file] 
       //		<< " Total interactions = " << theNumberOfInteractions[file] << std::endl;
@@ -201,9 +206,12 @@ void NuclearInteractionUpdator::compute(ParticlePropagator& Particle)
 			      HepLorentzVector(aParticle.px,aParticle.py,
 					       aParticle.pz,energy)*ecm);
 
+	// Rotate around the boost axis
+	(*myPart) *= theRotation;
+	
 	// Boost it in the lab frame
 	myPart->boost(theBoost.x(),theBoost.y(),theBoost.z());
-	
+
 	// Update the daughter list
 	_theUpdatedState.push_back(myPart);
 	
