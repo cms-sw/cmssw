@@ -35,6 +35,12 @@ class L1GctEtTotal {
   /// get the overflow
   bool overflow() const { return (m_data & 0x1000)!=0; }
 
+  /// equality operator
+  int operator==(const L1GctEtTotal& e) const { return m_data==e.raw(); }
+
+  /// inequality operator
+  int operator!=(const L1GctEtTotal& e) const { return m_data!=e.raw(); }
+
  private:
 
   uint16_t m_data;
@@ -62,6 +68,12 @@ class L1GctEtHad {
 
   /// get the overflow
   bool overFlow() const { return (m_data & 0x1000)!=0; }
+
+  /// equality operator
+  int operator==(const L1GctEtHad& e) const { return m_data==e.raw(); }
+
+  /// inequality operator
+  int operator!=(const L1GctEtHad& e) const { return m_data!=e.raw(); }
 
  private:
 
@@ -93,6 +105,12 @@ class L1GctEtMiss {
 
   /// get the Et
   unsigned phi() const { return (m_data>>13) & 0x7f; }
+
+  /// equality operator
+  int operator==(const L1GctEtMiss& e) const { return m_data==e.raw(); }
+
+  /// inequality operator
+  int operator!=(const L1GctEtMiss& e) const { return m_data!=e.raw(); }
 
  private:
 

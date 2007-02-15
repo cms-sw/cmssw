@@ -46,6 +46,12 @@ class L1GctJetCounts {
   /// get count by index
   unsigned count(unsigned i) const;
 
+  /// equality operator
+  int operator==(const L1GctJetCounts& c) const { return (m_data0==c.raw0() && m_data1==c.raw1()); }
+
+  /// inequality operator
+  int operator!=(const L1GctJetCounts& c) const { return (m_data0!=c.raw0() || m_data1!=c.raw1()); }
+
  private:
 
   /// static maximum number of jet counts
