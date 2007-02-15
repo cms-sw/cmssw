@@ -29,18 +29,11 @@ class HistogramProbabilityEstimator {
    :   m_calibration3D(calib3D),m_calibrationTransverse(calib2D)
     {}
 
-   HistogramProbabilityEstimator( AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>  * calib3Dold,
-                                 AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML> * calib2Dold)
+   HistogramProbabilityEstimator( AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>  * calib3D,
+                                 AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML> * calib2D)
+    :   m_calibration3D(calib3D),m_calibrationTransverse(calib2D)
+
   {
-/*    m_calibration3D = new    CalibrationInterface<TrackClassFilterCategory,CalibratedHistogram>;
-    for(size_t i=0;i<ca3D->data.size(); i++)
-     {
-        cout <<  "  Adding category" << endl;
-        calib3d->addEntry(TrackClassFilterCategory(ca3D->data[i].category),ca3D->data[i].histogram); // convert category data to filtering category
-     }
- 
-   m_calibrationTransverse = new    CalibrationInterface<TrackClassFilterCategory,CalibratedHistogram>;
-*/
   }
 
  ~HistogramProbabilityEstimator()
