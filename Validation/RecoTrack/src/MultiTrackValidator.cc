@@ -330,8 +330,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  double qoverpSim = sParameters[0];
 	  double lambdaSim = sParameters[1];
 	  double phiSim    = sParameters[2];
-	  double d0Sim     = sParameters[3];
-	  double dzSim     = sParameters[4];
+	  double d0Sim     = -sParameters[3];
+	  double dzSim     = sParameters[4]*momAtVtx.mag()/momAtVtx.perp();
 
 	  double qoverpres=(track->qoverp()-qoverpSim)/track->qoverpError();
 	  double thetares=(track->lambda()-lambdaSim)/track->thetaError();
