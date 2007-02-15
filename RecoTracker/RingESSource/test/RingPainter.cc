@@ -9,7 +9,7 @@
 // Created:         Thu Dec  7 08:52:54 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/06/20 09:09:19 $
+// $Date: 2007/02/05 19:01:46 $
 // $Revision: 1.1 $
 //
 
@@ -21,7 +21,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "RecoTracker/RingRecord/interface/RingRecord.h"
 #include "RecoTracker/RingRecord/interface/Rings.h"
 
 namespace cms
@@ -41,7 +41,7 @@ namespace cms
   {
 
     edm::ESHandle<Rings> rings;
-    es.get<TrackerDigiGeometryRecord>().get(rings);
+    es.get<RingRecord>().get(rings);
 
     ringPainterAlgorithm_.run(rings.product());
 
