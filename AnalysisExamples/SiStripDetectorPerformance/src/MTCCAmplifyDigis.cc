@@ -7,13 +7,14 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 
-#include "Tutorial/Digis/interface/GetSiStripDigisFwd.h"
-#include "Tutorial/Digis/interface/GetSiStripDigis.h"
+// #include "Tutorial/Digis/interface/GetSiStripDigisFwd.h"
+// #include "Tutorial/Digis/interface/GetSiStripDigis.h"
 
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/MTCCAmplifyDigis.h"
 
@@ -84,11 +85,18 @@ MTCCAmplifyDigis::~MTCCAmplifyDigis() {}
 void MTCCAmplifyDigis::produce( edm::Event &roEvent, 
                                 const edm::EventSetup &roEVENT_SETUP) {
   // Extract all SiStripDigi's
-  edm::Handle<extra::DSVSiStripDigis> oDSVSiStripDigis;
+  typedef edm::DetSetVector<SiStripDigi> DSVSiStripDigis;
+
+  edm::Handle<DSVSiStripDigis> oDSVSiStripDigis;
+  roEvent.getByLabel( oSiStripDigisLabel_.c_str(),
+                      oSiStripDigisProdInstName_.c_str(),
+                      oDSVSiStripDigis);
+  /*
   extra::getSiStripDigis( oDSVSiStripDigis,
 			  roEvent,
 			  oSiStripDigisLabel_,
 			  oSiStripDigisProdInstName_);
+  */
 
   // Declare inline function
   struct {
@@ -117,7 +125,7 @@ void MTCCAmplifyDigis::produce( edm::Event &roEvent,
 
   // Amplify Original Digis
   // Loop over Digi's collection: keys are DetId's
-  for( extra::DSVSiStripDigis::const_iterator oDSVIter = 
+  for( DSVSiStripDigis::const_iterator oDSVIter = 
          oDSVSiStripDigis->begin();
        oDSVIter != oDSVSiStripDigis->end();
        ++oDSVIter) {
@@ -198,8 +206,8 @@ void MTCCAmplifyDigis::produce( edm::Event &roEvent,
   }
 
   // Create Amplified Digis collection
-  std::auto_ptr<extra::DSVSiStripDigis > 
-    oAmplifiedDigis( new extra::DSVSiStripDigis( oVDSAmplifiedDigis));
+  std::auto_ptr<DSVSiStripDigis > 
+    oAmplifiedDigis( new DSVSiStripDigis( oVDSAmplifiedDigis));
 
   // Write Amplified Digis to Event
   roEvent.put( oAmplifiedDigis);
