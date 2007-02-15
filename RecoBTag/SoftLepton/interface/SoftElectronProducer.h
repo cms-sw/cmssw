@@ -3,8 +3,8 @@
 /** \class SoftElectronProducer
  *
  *
- *  $Id: SoftElectronProducer.h, v 1.0 2007/02/14 15:00:00 demine Exp $
- *  $Date: 2007/02/14 15:00:00 $
+ *  $Id: SoftElectronProducer.h,v 1.1 2007/02/14 16:37:53 demine Exp $
+ *  $Date: 2007/02/14 16:37:53 $
  *  $Revision: 1.1 $
  *
  *  \author P. Demin - UCL, Louvain-la-Neuve - Belgium
@@ -28,17 +28,18 @@ class SoftElectronProducer : public edm::EDProducer
   SoftElectronProducer (const edm::ParameterSet &iConf);
   ~SoftElectronProducer();
 
+ private:
 
   virtual void beginJob(edm::EventSetup const &iSetup);
   virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup);
-
- private:
 
   edm::ParameterSet theConf;
 
   edm::InputTag theTrackTag;
   edm::InputTag theBasicClusterTag, theBasicClusterShapeTag;
   edm::InputTag thePrimaryVertexTag;
+
+  std::string theCollectionName;
 
   double theHOverEConeSize;
   
