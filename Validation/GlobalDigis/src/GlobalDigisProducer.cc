@@ -184,12 +184,10 @@ void GlobalDigisProducer::clear()
 
   // reset electromagnetic info
   // EE info
-  EECalADC.clear();
   EECalmaxPos.clear(); 
   EECalAEE.clear(); 
   EECalSHE.clear();
   // EB info
-  EBCalADC.clear();
   EBCalmaxPos.clear(); 
   EBCalAEE.clear(); 
   EBCalSHE.clear();

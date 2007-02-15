@@ -1,12 +1,13 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/Framework>
+<use name=DataFormats/Common>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
-<use name=Geometry/CaloEventSetup>
+<use name=DataFormats/EcalDigi>
+<use name=DataFormats/EcalDetId>
 <use name=SimDataFormats/GlobalDigiValidation>
-<use name=DataFormats/DetId>
-<use name=DataFormats/Common>
-<use name=Geometry/CommonDetUnit>
+<use name=SimDataFormats/CrossingFrame>
+<use name=SimDataFormats/CaloHit>
 <use name=root>
 <use name=clhep>
 
@@ -14,15 +15,15 @@
 
 <export>
  <lib name=ValidationGlobalDigis>
- <use name=Foundation/PluginManager>
  <use name=FWCore/Framework>
+ <use name=DataFormats/Common>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/MessageLogger>
- <use name=Geometry/CaloEventSetup>
+ <use name=DataFormats/EcalDigi>
+ <use name=DataFormats/EcalDetId>
  <use name=SimDataFormats/GlobalDigiValidation>
- <use name=DataFormats/DetId>
- <use name=DataFormats/Common>
- <use name=Geometry/CommonDetUnit>
+ <use name=SimDataFormats/CrossingFrame>
+ <use name=SimDataFormats/CaloHit>
  <use name=root>
  <use name=clhep>
 </export>
