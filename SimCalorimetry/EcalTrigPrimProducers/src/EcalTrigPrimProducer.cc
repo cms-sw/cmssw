@@ -137,23 +137,28 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
     edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes";
   }
 
-  LogDebug("EcalTPG") <<" =================> Treating event  "<<e.id()<<", Number of EBDFataFrames "<<ebDigis.product()->size() ;
+  LogDebug("EcalTPG") <<" =================> Treating event  "<<e.id()<<", Number of EBDataFrames "<<ebDigis.product()->size()<<", Number of EEDataFrames "<<eeDigis.product()->size() ;
   std::auto_ptr<EcalTrigPrimDigiCollection> pOut(new  EcalTrigPrimDigiCollection);
   std::auto_ptr<EcalTrigPrimDigiCollection> pOutTcp(new  EcalTrigPrimDigiCollection);
  
 
-  // invoke algorithm  //FIXME: better separation
+  // invoke algorithm 
   const EBDigiCollection *ebdc=NULL;
   const EEDigiCollection *eedc=NULL;
   if (barrel) ebdc=ebDigis.product();
   if (endcap) eedc=eeDigis.product();
   algo_->run(ebdc,eedc,*pOut,*pOutTcp);
+
+  // debug prints if TP >0
   for (unsigned int i=0;i<pOut->size();++i) {
+    bool print=false;
     for (int isam=0;isam<(*pOut)[i].size();++isam) {
-      if ((*pOut)[i][isam].raw()) LogDebug("EcalTPG") <<" Produced for tower  "<<i<<", sample "<<isam<<", value "<<(*pOut)[i][isam].raw();
+      if ((*pOut)[i][isam].raw()) print=true;
     }
+    if (print) LogDebug("EcalTPG") <<" For tower  "<<(((*pOut)[i])).id()<<", TP is "<<(*pOut)[i];
   }
-  edm::LogInfo("EcalTPG") <<"For Barrel + Endcap, "<<pOut->size()<<" TP  Digis were produced";
+
+  edm::LogInfo("EcalTPG") <<"\n =================> For Barrel + Endcap, "<<pOut->size()<<" TP  Digis were produced (including zero ones)";
     
   // put result into the Event
   e.put(pOut);

@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.cc,v 1.2 2006/07/19 09:55:21 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.cc,v 1.3 2006/10/23 09:33:50 uberthon Exp $
 //
 //
 
@@ -84,7 +84,15 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   for (unsigned int i=0;i<tp.product()->size();i++) {
     EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
     int subdet=d.id().subDet()-1;
-      ecal_et_[subdet]->Fill(d.compressedEt());
+      if (subdet==0) {
+	ecal_et_[subdet]->Fill(d.compressedEt());
+      }
+      else {
+	if (d.id().ietaAbs()==27 || d.id().ietaAbs()==28) {
+	  if (i%2) ecal_et_[subdet]->Fill(d.compressedEt()*2.);
+	}
+	else ecal_et_[subdet]->Fill(d.compressedEt());
+      }
       ecal_tt_[subdet]->Fill(d.ttFlag());
       ecal_fgvb_[subdet]->Fill(d.fineGrain());
   }
