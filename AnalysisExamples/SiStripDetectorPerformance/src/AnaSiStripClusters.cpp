@@ -9,14 +9,19 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
+/*
 #include "Tutorial/Digis/interface/GetSiStripDigis.h"
 #include "Tutorial/Clusters/interface/GetSiStripClusters.h"
 #include "Tutorial/Clusters/interface/GetSiStripClusterEta.h"
+*/
 
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/AnaSiStripClusters.h"
 
@@ -32,15 +37,18 @@ AnaSiStripClusters::AnaSiStripClusters( const edm::ParameterSet &roPARAMETER_SET
       roPARAMETER_SET.getUntrackedParameter<std::string>( "oOutputFileName")),
     oLblSiStripCluster_(
       roPARAMETER_SET.getUntrackedParameter<std::string>( 
-	"oLabelSiStripCluster")),
+	      "oLabelSiStripCluster")),
+    oProdInstNameCluster_(
+      roPARAMETER_SET.getUntrackedParameter<std::string>( 
+        "oProdInstNameCluster")),
     oLblSiStripDigi_(
       roPARAMETER_SET.getUntrackedParameter<std::string>( 
-	"oLabelSiStripDigi")),
+	      "oLabelSiStripDigi")),
     oProdInstNameDigi_(
       roPARAMETER_SET.getUntrackedParameter<std::string>( "oProdInstNameDigi")),
     bMTCCMode_(
       roPARAMETER_SET.getUntrackedParameter<bool>( 
-	"bMTCCMode")),
+	      "bMTCCMode")),
     poOutputFile_( 0),
     poClusterTree_( 0) 
 {}
@@ -102,19 +110,34 @@ void AnaSiStripClusters::beginJob( const edm::EventSetup &roEVENT_SETUP) {
 // @return
 //    None
 void AnaSiStripClusters::analyze( const edm::Event &roEVENT,
-				  const edm::EventSetup &roEVENT_SETUP) {
+				                          const edm::EventSetup &roEVENT_SETUP) {
+
   // Extract all SiStripCluster's
-  edm::Handle<extra::DSVSiStripClusters> oDSVSiStripClusters;
+  typedef edm::DetSetVector<SiStripCluster> DSVSiStripClusters;
+
+  edm::Handle<DSVSiStripClusters> oDSVSiStripClusters;
+  roEVENT.getByLabel( oLblSiStripCluster_.c_str(),
+                      oProdInstNameCluster_.c_str(),
+                      oDSVSiStripClusters);
+  /*
   extra::getSiStripClusters( oDSVSiStripClusters,
 			     roEVENT,
 			     oLblSiStripCluster_);
+  */
 
   // Extract all SiStripDigi's
-  edm::Handle<extra::DSVSiStripDigis> oDSVSiStripDigis;
+  typedef edm::DetSetVector<SiStripDigi> DSVSiStripDigis;
+
+  edm::Handle<DSVSiStripDigis> oDSVSiStripDigis;
+  roEVENT.getByLabel( oLblSiStripDigi_.c_str(),
+                      oProdInstNameDigi_.c_str(),
+                      oDSVSiStripDigis);
+  /*
   extra::getSiStripDigis( oDSVSiStripDigis,
 			  roEVENT,
 			  oLblSiStripDigi_,
 			  oProdInstNameDigi_);
+  */
 
   struct {
     // By default cTIB and cTOB are initialized with 0
@@ -128,8 +151,8 @@ void AnaSiStripClusters::analyze( const edm::Event &roEVENT,
   }
 
   // Loop over Cluster's collection: keys are DetId's
-  for( extra::DSVSiStripClusters::const_iterator oDSVIter = 
-	  oDSVSiStripClusters->begin();
+  for( DSVSiStripClusters::const_iterator oDSVIter = 
+	       oDSVSiStripClusters->begin();
        oDSVIter != oDSVSiStripClusters->end();
        ++oDSVIter) {
 
@@ -141,25 +164,25 @@ void AnaSiStripClusters::analyze( const edm::Event &roEVENT,
 
     // Loop over Clusters in given DetId
     for( std::vector<SiStripCluster>::const_iterator oVIter = 
-	    roVCLUSTERS.begin();
-	 oVIter != roVCLUSTERS.end();
-	 ++oVIter) {
+	         roVCLUSTERS.begin();
+	       oVIter != roVCLUSTERS.end();
+	       ++oVIter) {
 
       switch( oDetId.subdetId()) {
-	case StripSubdetector::TIB:
-	  {
-	    TIBDetId oTIBDetId( oDetId.rawId());
-	    oCluster_.nLayer = oTIBDetId.layer() + oMTCCLayerCorr.cTIB;
-	    break;
-	  }
-	case StripSubdetector::TOB:
-	  {
-	    TOBDetId oTOBDetId( oDetId.rawId());
-	    oCluster_.nLayer = oTOBDetId.layer() + oMTCCLayerCorr.cTOB;
-	    break;
-	  }
-	default:
-	  continue;
+        case StripSubdetector::TIB:
+          {
+            TIBDetId oTIBDetId( oDetId.rawId());
+            oCluster_.nLayer = oTIBDetId.layer() + oMTCCLayerCorr.cTIB;
+            break;
+          }
+        case StripSubdetector::TOB:
+          {
+            TOBDetId oTOBDetId( oDetId.rawId());
+            oCluster_.nLayer = oTOBDetId.layer() + oMTCCLayerCorr.cTOB;
+            break;
+          }
+        default:
+          continue;
       }
 
       // Fill leafs
@@ -173,21 +196,18 @@ void AnaSiStripClusters::analyze( const edm::Event &roEVENT,
       oCluster_.nCharge = 0;
       for( std::vector<uint16_t>::const_iterator oITER = roCLUSTER_AMPLITUDES.begin();
            oITER != roCLUSTER_AMPLITUDES.end();
-	   ++oITER) {
+	         ++oITER) {
+
         oCluster_.nCharge += *oITER;
       }
 
       oCluster_.dEta = 
         getClusterEta( roCLUSTER_AMPLITUDES,
-			      oVIter->firstStrip(),
-			      oDSVSiStripDigis->operator[]( 
-			        oDetId.rawId()).data);
+                       oVIter->firstStrip(),
+                       oDSVSiStripDigis->operator[]( 
+                         oDetId.rawId()).data);
 
-      oCluster_.dEtaTutorial = 
-        extra::getSiStripClusterEta( roCLUSTER_AMPLITUDES,
-				     oVIter->firstStrip(),
-				     oDSVSiStripDigis->operator[]( 
-				       oDetId.rawId()).data);
+      oCluster_.dEtaTutorial = -1;
 
       // Fill Tree with leafs combination
       poClusterTree_->Fill();
