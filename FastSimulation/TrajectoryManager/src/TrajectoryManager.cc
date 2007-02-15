@@ -1,8 +1,8 @@
 //CMSSW Headers
-#include "Geometry/Surface/interface/BoundDisk.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
-#include "Geometry/Surface/interface/Surface.h"
-#include "Geometry/Surface/interface/TangentPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/TangentPlane.h"
 //#include "CommonReco/PatternTools/interface/DummyDet.h"
 
 // Tracker reco geometry headers 

@@ -1,8 +1,8 @@
+<use name=DataFormats/GeometrySurface>
 <use name=DataFormats/GeometryVector>
 <use name=FastSimulation/BaseParticlePropagator>
 <use name=FastSimulation/Event>
 <use name=FastSimulation/TrackerSetup>
-<use name=Geometry/Surface>
 <use name=MagneticField/Engine>
 <use name=clhep>
 <use name=rootcore>

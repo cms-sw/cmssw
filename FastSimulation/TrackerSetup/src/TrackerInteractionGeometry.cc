@@ -4,11 +4,11 @@ using namespace std;
 #include "FWCore/Utilities/interface/Exception.h"
 
 //CMSSW Headers
-#include "Geometry/Surface/interface/Surface.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
-#include "Geometry/Surface/interface/SimpleCylinderBounds.h"
-#include "Geometry/Surface/interface/BoundDisk.h"
-#include "Geometry/Surface/interface/SimpleDiskBounds.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 
 // Tracker/Tracking Headers
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"

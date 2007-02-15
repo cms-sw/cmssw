@@ -1,6 +1,6 @@
 #include "FastSimulation/TrajectoryManager/interface/InsideBoundsMeasurementEstimator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
 bool InsideBoundsMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
 					     const BoundPlane& plane) const

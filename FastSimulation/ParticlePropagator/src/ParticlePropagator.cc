@@ -1,6 +1,6 @@
 //CMSSW headers
-#include "Geometry/Surface/interface/BoundDisk.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 
 //FAMOS headers
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
