@@ -2,6 +2,7 @@
 
 // system
 #include <vector>
+#include <sstream>
 #include <iostream>
 
 // framework
@@ -151,14 +152,16 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
     }
     else {  // otherwise bail out
       lost = true;
-      edm::LogWarning("GCT") << "Unrecognised data block at byte " << dPtr << ". Bailing out" << endl;
-      edm::LogWarning("GCT") << blockHead << endl;
+      std::ostringstream os;
+      os << "Unrecognised data block at byte " << dPtr << ". Bailing out" << endl;
+      os << blockHead << endl;
+      edm::LogWarning("GCT") << os.str();
     }
     
   }
 
   // print info (to be removed!)
-  std::ostream os;
+  std::ostringstream os;
   os << "Found " << bHdrs.size() << " GCT internal headers" << endl;
   for (unsigned i=0; i<bHdrs.size(); i++) {
     os << bHdrs[i]<< endl;
@@ -168,7 +171,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   os << "Read " << gctNonIsoEm.get()->size() << " GCT non-iso EM candidates" << endl;
   os << "Read " << gctInterEm.get()->size() << " GCT intermediate EM candidates" << endl;
 
-  edm::LogInfo("GCT") << os;
+  edm::LogVerbatim("GCT") << os.str();
 
 
   // put data into the event
