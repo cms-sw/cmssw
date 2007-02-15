@@ -11,6 +11,10 @@
     scale_=conf.getParameter<double>("NSigmaInside");  
   }
 
+  SiStripRecHitMatcher::SiStripRecHitMatcher(const double theScale){   
+    scale_=theScale;  
+  }
+
 
 
 //match a single hit
@@ -29,6 +33,31 @@ const SiStripMatchedRecHit2D& SiStripRecHitMatcher::match(const SiStripRecHit2D 
   return *collection.begin();
 }
 
+//repeat matching for an already  a single hit
+SiStripMatchedRecHit2D* SiStripRecHitMatcher::match(const SiStripMatchedRecHit2D *origRH, 
+					    const GluedGeomDet* gluedDet,
+					    LocalVector trackdirection) const{
+
+  const SiStripRecHit2D* theMonoRH   = origRH->monoHit();
+  const SiStripRecHit2D* theStereoRH = origRH->stereoHit();
+  SimpleHitCollection theStereoHits;
+  theStereoHits.push_back(theStereoRH);
+
+  edm::OwnVector<SiStripMatchedRecHit2D> collection;
+  collection= match( theMonoRH,
+		     theStereoHits.begin(), theStereoHits.end(), 
+		     gluedDet,trackdirection);
+
+  if (collection.size() == 0) {
+    return 0;
+  }
+  else{
+    SiStripMatchedRecHit2D* tempHit = collection[0].clone();
+    return tempHit;
+  }
+
+}
+
 
 edm::OwnVector<SiStripMatchedRecHit2D> 
 SiStripRecHitMatcher::match( const  SiStripRecHit2D *monoRH,
@@ -37,6 +66,7 @@ SiStripRecHitMatcher::match( const  SiStripRecHit2D *monoRH,
 			     LocalVector trackdirection) const
 {
   SimpleHitCollection stereoHits;
+
   for (RecHitIterator i=begin; i != end; ++i) {
     stereoHits.push_back( &(*i)); // convert to simple pointer
   }
