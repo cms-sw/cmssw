@@ -3,18 +3,20 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2007/02/01 17:58:00 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/02/02 16:10:29 $
+ *  $Revision: 1.17 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -24,8 +26,11 @@ using namespace std;
 
 /// Constructor
 MuonUpdatorAtVertex::MuonUpdatorAtVertex(const string &propagatorName,
-					   const MuonServiceProxy *service):theService(service){
+					 const MuonServiceProxy *service):theService(service){
   
+  // FIXME
+  theChi2Cut = 1000000.;
+
   // FIXME
 
   // The SteppingHelixPropagator must be used explicitly since the method propagate(TSOS,GlobalPoint)
@@ -97,7 +102,8 @@ MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos,
 pair<bool,FreeTrajectoryState>
 MuonUpdatorAtVertex::update(const reco::TransientTrack & track){
 
-  setPropagator();  
+  // FIXME
+  setPropagator();
 
   pair<bool,FreeTrajectoryState> result(false,FreeTrajectoryState());
   
@@ -112,14 +118,12 @@ MuonUpdatorAtVertex::update(const reco::TransientTrack & track){
   mat[1][1] = (15.e-04)*(15.e-04);
   mat[2][2] = (5.3)*(5.3);
   GlobalError glbErrPos(mat);
-  
-  vector<reco::TransientTrack> singleTrackV(1,track) ;
-  KalmanVertexFitter kvf(true);
-  CachingVertex tv = kvf.vertex(singleTrackV, glbPos, glbErrPos);
+
+  reco::TransientTrack newTransientTrack = theConstrictor.constrain(track,glbPos, glbErrPos);
     
-  if(!tv.tracks().empty()) {
+  if(newTransientTrack.chi2() <= theChi2Cut) {
     result.first = true;
-    result.second = tv.tracks().front()->refittedState()->freeTrajectoryState();
+    result.second = *newTransientTrack.impactPointState().freeState();
   }
   else
     edm::LogWarning("Muon|RecoMuon|MuonUpdatorAtVertex") << "Constraint at vertex failed"; 
@@ -130,8 +134,7 @@ MuonUpdatorAtVertex::update(const reco::TransientTrack & track){
 pair<bool,FreeTrajectoryState>
 MuonUpdatorAtVertex::update(const FreeTrajectoryState& ftsAtVtx){
   
-  return update(buildTransientTrack(ftsAtVtx));
-
+  return update(theTransientTrackFactory.build(ftsAtVtx));
 }
 
 
@@ -146,8 +149,7 @@ MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos,
   if(propagationResult.first){
     // FIXME!!!
     // This is very very temporary! Waiting for the changes in the KalmanVertexFitter interface
-    reco::TransientTrack transientTrack = buildTransientTrack(propagationResult.second);
-    return update(transientTrack);
+    return update(propagationResult.second);
   }
   else{
     edm::LogWarning("Muon|RecoMuon|MuonUpdatorAtVertex") << "Constraint at vertex failed";
@@ -156,26 +158,3 @@ MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos,
 }
 
 
-reco::TransientTrack
-MuonUpdatorAtVertex::buildTransientTrack(const FreeTrajectoryState& ftsAtVtx) const {
-
-  GlobalPoint pca = ftsAtVtx.position();
-  math::XYZPoint persistentPCA(pca.x(),pca.y(),pca.z());
-  GlobalVector p = ftsAtVtx.momentum();
-  math::XYZVector persistentMomentum(p.x(),p.y(),p.z());
-  
-  double ndof = 100.;
-  double chi2 = 100.;    
-
-  reco::Track track(chi2, 
-		    ndof,
-		    persistentPCA,
-		    persistentMomentum,
-		    ftsAtVtx.charge(),
-		    ftsAtVtx.curvilinearError());
-  
-  
-  return reco::TransientTrack(track,
-			      &*theService->magneticField(),
-			      theService->trackingGeometry());
-}

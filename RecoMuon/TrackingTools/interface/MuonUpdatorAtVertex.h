@@ -10,8 +10,8 @@
  *  it is in its specific interface. Once the interface of the Propagator base class will be updated, 
  *  then propagator will become generic. 
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/02/01 17:57:59 $
+ *  $Revision: 1.11 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -20,9 +20,10 @@ class FreeTrajectoryState;
 class SteppingHelixPropagator;
 class MuonServiceProxy;
 
-
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
+
 
 #include <string>
 
@@ -55,9 +56,6 @@ public:
   std::pair<bool,FreeTrajectoryState>
     propagateWithUpdate(const TrajectoryStateOnSurface &tsos, 
 			const GlobalPoint &vtxPosition);
-
-  reco::TransientTrack
-    buildTransientTrack(const FreeTrajectoryState& ftsAtVtx) const;
   
 protected:
 
@@ -78,7 +76,10 @@ private:
   // FIXME
   // remove this method as the Propagator will gains the propagate(TSOS,Position) method
   void setPropagator();
-  
+
+  TransientTrackFromFTSFactory theTransientTrackFactory;
+  SingleTrackVertexConstraint theConstrictor;
+  double theChi2Cut;
 };
 #endif
 
