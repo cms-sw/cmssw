@@ -35,8 +35,10 @@ public:
  typedef TrackClassFilterInput Input;
 
  bool match(const TrackClassFilterInput &input) const;
-  void readFromDOM( XERCES_CPP_NAMESPACE::DOMElement * dom);
+ void readFromDOM( XERCES_CPP_NAMESPACE::DOMElement * dom);
  void saveToDOM( XERCES_CPP_NAMESPACE::DOMElement * dom);
+  
+ TrackProbabilityCategoryData categoryData() {return filter; }
  
  
  private:

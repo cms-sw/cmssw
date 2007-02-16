@@ -30,6 +30,9 @@ template <class CategoryT,class CalibDataT> class CalibrationInterface
     int addEntry(const CategoryT & categoryDefinition,const CalibDataT & data);
     
     void setCalibData(int index,const CalibDataT & data); 
+   
+    const std::vector<std::pair<CategoryT, CalibDataT> > & categoriesWithData() const  {return m_categoriesWithData; }
+    int size() const {return m_categoriesWithData.size(); }
 
   private:
     std::vector<std::pair<CategoryT, CalibDataT> > m_categoriesWithData;
