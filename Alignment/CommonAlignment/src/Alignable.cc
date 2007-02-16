@@ -1,8 +1,8 @@
 /** \file Alignable.cc
  *
- *  $Date$
- *  $Revision$
- *  (last update by $Author$)
+ *  $Date: 2006/10/17 11:02:43 $
+ *  $Revision: 1.4 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -12,6 +12,38 @@ Alignable::Alignable() :
   theMisalignmentActive(true), theDetId(0), theAlignmentParameters(0), theMother(0)
 {
 }
+
+//__________________________________________________________________________________________________
+bool Alignable::firstParamComponents(std::vector<Alignable*> &daughts) const
+{
+  bool isConsistent = true;
+  bool hasAliDau = false; // whether there are any (grand-) daughters with parameters
+  bool first = true;
+  const std::vector<Alignable*> comps(this->components());
+  for (std::vector<Alignable*>::const_iterator iDau = comps.begin(), iDauEnd = comps.end();
+       iDau != iDauEnd; ++iDau) {
+    if ((*iDau)->alignmentParameters()) { // daughter has parameters itself
+      daughts.push_back(*iDau);
+      if (!first && !hasAliDau) isConsistent = false;
+      hasAliDau = true;
+    } else {
+      const unsigned int nDauBefore = daughts.size();
+      if (!(*iDau)->firstParamComponents(daughts)) {
+        isConsistent = false; // problem down in hierarchy
+      }
+      if (daughts.size() != nDauBefore) {
+        if (!first && !hasAliDau) isConsistent = false;
+        hasAliDau = true;
+      } else if (hasAliDau) { // no daughters with params, but previous daughters did have daughters
+        isConsistent = false;
+      }
+    }
+    first = false;
+  }
+
+  return isConsistent;
+}
+
 
 //__________________________________________________________________________________________________
 void Alignable::setAlignmentParameters( AlignmentParameters* dap )

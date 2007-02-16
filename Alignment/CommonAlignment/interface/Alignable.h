@@ -25,8 +25,8 @@
  * The class derives from DetPositioner, a friend class of
  * GeomDet, which allows to move the GeomDet. 
  *
- *  $Date: 2006/10/17 11:02:42 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/10/19 13:31:17 $
+ *  $Revision: 1.12 $
  *  (last update by $Author: flucke $)
  */
 
@@ -59,6 +59,11 @@ public:
   /// representing single sided SiStrip modules.
   /// (for performance reason by adding to argument) 
   virtual void recursiveComponents(std::vector<Alignable*> &result) const = 0;
+
+  /// Steps down hierarchy until components with AlignmenParameters are found 
+  /// and adds them to argument. True either if no such components are found
+  /// or if all branches of components end with such components.
+  virtual bool firstParamComponents(std::vector<Alignable*> &daughts) const;
 
   /// Return pointer to container alignable (if any)
   virtual Alignable* mother() const { return theMother; }
