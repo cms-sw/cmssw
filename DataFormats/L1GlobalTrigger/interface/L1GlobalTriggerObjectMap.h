@@ -99,7 +99,7 @@ public:
     }
 
     /// get / set the vector of combinations for the algorithm
-    inline const std::vector<CombinationsInCond> combinationVector() const
+    inline const std::vector<CombinationsInCond>& combinationVector() const
     {
         return m_combinationVector;
     }

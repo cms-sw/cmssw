@@ -28,6 +28,7 @@
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
 // forward declarations
 
@@ -45,8 +46,10 @@ L1GlobalTriggerObjectMap::~L1GlobalTriggerObjectMap()
 void L1GlobalTriggerObjectMap::reset()
 {
 
+    std::string emptyString;
+
     // name of the algorithm
-    m_algoName = "";
+    m_algoName = emptyString;
 
     // bit number for algorithm
     m_algoBitNumber = -1;
@@ -55,11 +58,11 @@ void L1GlobalTriggerObjectMap::reset()
     m_algoGtlResult = false;
 
     // logical expression for the algorithm
-    m_algoLogicalExpression = "";
+    m_algoLogicalExpression = emptyString;
 
     // numerical expression for the algorithm
     // (logical expression with conditions replaced with the actual values)
-    m_algoNumericalExpression = "";
+    m_algoNumericalExpression = emptyString;
 
     // vector of combinations for all conditions in an algorithm
     m_combinationVector.clear();
@@ -81,9 +84,17 @@ void L1GlobalTriggerObjectMap::print(std::ostream& myCout) const
     myCout << "  conditions: "  << std::endl;
 
     std::vector<CombinationsInCond>::const_iterator itVVV;
-    for(itVVV  = m_combinationVector.begin(); itVVV != m_combinationVector.end(); itVVV++) {
+    int iCond = 0;
+    for(itVVV  = m_combinationVector.begin();
+            itVVV != m_combinationVector.end(); itVVV++) {
 
-        myCout << "    Condition name: " << std::endl;
+        L1GtLogicParser logicParser(m_algoLogicalExpression, m_algoNumericalExpression);
+
+        std::string condName = logicParser.conditionName(iCond);
+        bool condResult = logicParser.conditionResult(condName);
+
+        myCout << "    Condition " << condName << " evaluated to " << condResult
+        << std::endl;
         myCout << "    List of combinations passing all requirements for this condition:"
         << std::endl;
 
@@ -106,7 +117,7 @@ void L1GlobalTriggerObjectMap::print(std::ostream& myCout) const
             }
 
         }
-
+        iCond++;
         myCout << "\n\n";
     }
 }

@@ -42,7 +42,7 @@ public:
 public:
 
     /// return all the combinations passing the requirements imposed in condition condNameVal
-    /// from algorithm algoNameVal
+    /// from algorithm with name algoNameVal
     const CombinationsInCond* getCombinationsInCond(
         std::string algoNameVal, std::string condNameVal);
 
@@ -50,6 +50,14 @@ public:
     /// from algorithm with bit number algoBitNumberVal
     const CombinationsInCond* getCombinationsInCond(
         int algoBitNumberVal, std::string condNameVal);
+
+    /// return the result for the condition condNameVal
+    /// from algorithm with name algoNameVal
+    bool getConditionResult(std::string algoNameVal, std::string condNameVal);
+
+    /// return the result for the condition condNameVal
+    /// from algorithm with bit number algoBitNumberVal
+    bool getConditionResult(int algoBitNumberVal, std::string condNameVal);
 
 public:
 
