@@ -43,6 +43,8 @@ MTCCNtupleMaker::MTCCNtupleMaker(edm::ParameterSet const& conf) :
   filename_(conf.getParameter<std::string>("fileName")),
   oSiStripDigisLabel_( conf.getUntrackedParameter<std::string>( "oSiStripDigisLabel")),
   oSiStripDigisProdInstName_( conf.getUntrackedParameter<std::string>( "oSiStripDigisProdInstName")),
+  oTracksLabel_( conf.getUntrackedParameter<std::string>( "TracksLabel")),
+  oTracksProdInstName_( conf.getUntrackedParameter<std::string>( "TracksProdInstName")),
   bUseLTCDigis_( conf.getUntrackedParameter<bool>( "bUseLTCDigis")),
   dCROSS_TALK_ERR( conf.getUntrackedParameter<double>( "dCrossTalkErr")),
   bTriggerDT( false),
@@ -607,7 +609,9 @@ void MTCCNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es)
   //LogDebug("MTCCNtupleMaker::analyze")<<"MTCC - Getting tracks";
   
   edm::Handle<reco::TrackCollection> trackCollection;
-  e.getByLabel( conf_.getParameter<std::string>( "TracksLabel"), trackCollection);
+  e.getByLabel( oTracksLabel_,
+                oTracksProdInstName_,
+                trackCollection);
   //e.getByType(trackCollection);
 
   if( bUseLTCDigis_) {
