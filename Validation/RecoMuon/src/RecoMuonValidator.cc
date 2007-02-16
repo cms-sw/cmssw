@@ -6,6 +6,7 @@
 #include <map>
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "TMath.h"
 

@@ -20,6 +20,8 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
+class MuonServiceProxy;
+
 class RecoMuonValidator : public edm::EDAnalyzer 
 {
  public:
@@ -57,6 +59,8 @@ class RecoMuonValidator : public edm::EDAnalyzer
   TH2F * hGenPhiVsEta_, * hSimPhiVsEta_, * hStaPhiVsEta_, * hGlbPhiVsEta_;
   TH2F * hStaEtaVsDeltaPt_, * hGlbEtaVsDeltaPt_;
   TH2F * hStaEtaVsResolPt_, * hGlbEtaVsResolPt_;
+
+  MuonServiceProxy *theService;
 };
 
 #endif
