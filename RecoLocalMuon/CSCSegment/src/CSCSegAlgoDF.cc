@@ -33,14 +33,24 @@ CSCSegAlgoDF::CSCSegAlgoDF(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
   dRPhiFineMax           = ps.getUntrackedParameter<double>("dRPhiFineMax");
   dPhiFineMax            = ps.getUntrackedParameter<double>("dPhiFineMax");
   chi2Max                = ps.getUntrackedParameter<double>("chi2Max");
-	
+  thetaScaleMax          = ps.getUntrackedParameter<double>("thetaScaleMax");
+  tanPhiMax              = ps.getUntrackedParameter<double>("tanPhiMax");	
 }
 
 
 std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, ChamberHitContainer rechits) {
 
-  // Store chamber in temp memory
+  // Store chamber info in temp memory
   theChamber = aChamber; 
+  const CSCLayer* layer1 = aChamber->layer(1);
+  const CSCLayerGeometry* layergeom = layer1->geometry();
+  float apothem = layergeom->length()/2.;
+  LocalPoint lp(0,apothem,0);
+  GlobalPoint gp = layer1->toGlobal(lp);
+
+  // This is the maximum muon entrance angle which would be pointing to the IP
+  // For the MEX2 and ME13 chambers though, the B-field bends the track in y...
+  maxTheta = gp.theta();
 
   return buildSegments(rechits); 
 }
@@ -62,7 +72,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
   std::vector<CSCSegment> segmentInChamber;
   segmentInChamber.clear();
 
-  if (rechits.size() < 2) return segmentInChamber;
+  if (rechits.size() < 3) return segmentInChamber;
 
   LayerIndex layerIndex( rechits.size() );
   
@@ -126,10 +136,9 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
       // Check no. of hits on segment, and if enough flag them as used
       segok = isSegmentGood(rechits);
       if ( segok ) {
-        if ( debug ) std::cout << "Found a segment !!!" << std::endl;
 
         // Flag used hits
-       flagHitsAsUsed(rechits);
+        flagHitsAsUsed(rechits);
 
         // calculate error matrix
         AlgebraicSymMatrix protoErrors = calculateError();     
@@ -142,6 +151,9 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
               
         segmentInChamber.push_back(temp); 
         protoSegment.clear();
+        if ( debug ) std::cout << "Found a segment in chamber ME" 
+                               << theChamber->id().station() << "/" 
+                               << theChamber->id().ring() << std::endl;
       } 
     } 
   }
@@ -216,15 +228,24 @@ bool CSCSegAlgoDF::addHit(const CSCRecHit2D* aHit, int layer) {
   // Return true if hit was added successfully and then parameters are updated.
   // Return false if there is already a hit on the same layer, or insert failed.
   
-  bool ok = true;
+  bool ok;
   
   // Test that we are not trying to add the same hit again
   for ( ChamberHitContainer::const_iterator it = protoSegment.begin(); it != protoSegment.end(); it++ ) 
-    if ( aHit == (*it)  ) ok = false;
+    if ( aHit == (*it)  ) return false;
   
-  if ( ok ) {
+  if ( protoSegment.size() == 1) {
+    ChamberHitContainer old_protoSegment = protoSegment;
     protoSegment.push_back(aHit);
-    updateParameters();
+    ok = updateParameters();
+    if ( !ok ) { 
+      protoSegment = old_protoSegment;
+      ok = updateParameters();
+      return false;
+    }
+  } else {
+    protoSegment.push_back(aHit);
+    ok = updateParameters();
   }
   return ok;
 }    
@@ -235,7 +256,7 @@ bool CSCSegAlgoDF::addHit(const CSCRecHit2D* aHit, int layer) {
  * Perform a simple Least Square Fit on proto segment to determine slope and intercept
  *
  */   
-void CSCSegAlgoDF::updateParameters() {
+bool CSCSegAlgoDF::updateParameters() {
   
   //  no. of wire hits in the proto segment
   //  By construction this is the no. of layers with hits
@@ -244,7 +265,7 @@ void CSCSegAlgoDF::updateParameters() {
   int nh = protoSegment.size();
   
   // First hit added to a segment must always fail here
-  if ( nh < 2 ) return;
+  if ( nh < 2 ) return true;
   
   if ( nh == 2 ) {
     
@@ -258,7 +279,7 @@ void CSCSegAlgoDF::updateParameters() {
     const CSCRecHit2D& h2 = (**ih);
     
     //@@ Skip if on same layer, but should be impossible
-    if (il1 == il2)  return;
+    if (il1 == il2)  return false;
     
     const CSCLayer* layer1 = theChamber->layer(il1);
     const CSCLayer* layer2 = theChamber->layer(il2);
@@ -275,18 +296,23 @@ void CSCSegAlgoDF::updateParameters() {
     
     float dz = h2pos.z()-h1pos.z();
     protoSlope_u = (h2pos.x() - h1pos.x())/dz ;
-    protoSlope_v = (h2pos.y() - h1pos.y())/dz ;
-    
+    protoSlope_v = (h2pos.y() - h1pos.y())/dz ;    
     protoChi2 = 0.;
 
-  } else if (nh > 2) {
-    
+    // Test if entrance angle is less than maximum value pointing to IP
+    if (fabs(protoSlope_v) > tan(maxTheta)*thetaScaleMax) return false;
+    if (fabs(protoSlope_u) > tanPhiMax ) return false;
+
+  } else if (nh > 2) {    
+
     // When we have more than two hits then we can fit projections to straight lines
     fitSlopes();  
     fillChiSquared();
+
   }
 
   fillLocalDirection();
+  return true;
 }
 
 
@@ -468,7 +494,8 @@ bool CSCSegAlgoDF::isHitNearSegment( const CSCRecHit2D* hit) const {
   double deltaPhi = Sphi - Hphi;
   if (deltaPhi >  2.*M_PI) deltaPhi -= 2.*M_PI;
   if (deltaPhi < -2.*M_PI) deltaPhi += 2.*M_PI;
- 
+  if (deltaPhi < 0.) deltaPhi = -deltaPhi; 
+
   double RdeltaPhi = R * deltaPhi;
 
   double deltaX = LocalX - u;
@@ -591,11 +618,12 @@ bool CSCSegAlgoDF::isSegmentGood(const ChamberHitContainer& RecHitsInChamber) co
 
   unsigned int iadd = ( RecHitsInChamber.size() > 20 )? iadd = 1 : 0;  
 
-  if (protoSegment.size() >= minHitsPerSegment+iadd) return true;
+  if (protoSegment.size() < minHitsPerSegment+iadd) return false;
+
 //  if ((protoSegment.size() >= minHitsPerSegment+iadd) &&
 //      (protoChi2/(2*protoSegment.size()-4) < chi2Max )) return true;
 
-  return false;
+  return true;
 }
 
 

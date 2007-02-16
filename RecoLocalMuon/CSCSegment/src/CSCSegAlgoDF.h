@@ -103,7 +103,7 @@ private:
 	
   /// Utility functions 	
   bool addHit(const CSCRecHit2D* hit, int layer);
-  void updateParameters(void);
+  bool updateParameters(void);
   void fitSlopes(void);
   void fillChiSquared(void);
   void fillLocalDirection(void);
@@ -121,6 +121,9 @@ private:
   const CSCChamber* theChamber;
   BoolContainer usedHits;
 
+  // Requirement on segment slope in dy/dz plane:
+  float maxTheta;
+
   ChamberHitContainer protoSegment;
   float       protoSlope_u;
   float       protoSlope_v;
@@ -136,9 +139,9 @@ private:
   int    muonsPerChamberMax;
   double dRPhiFineMax;
   double dPhiFineMax;
-  double chi2ndfProbMin;
   float  chi2Max;
-
+  float thetaScaleMax;  
+  float tanPhiMax;
 };
 
 #endif
