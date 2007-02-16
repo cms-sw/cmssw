@@ -35,7 +35,7 @@
 
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
-#include "JetMETCorrections/MCJet/interface/CaloTowerBoundriesMC.h"
+#include "CaloTowerBoundriesMC.h"
 
 
 class SimJetResponseAnalysis : public edm::EDAnalyzer {

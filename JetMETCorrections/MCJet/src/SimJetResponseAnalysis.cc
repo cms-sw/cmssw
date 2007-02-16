@@ -13,8 +13,8 @@
 
 //#include <CLHEP/Vector/TwoVector.h>
 
-#include "JetMETCorrections/MCJet/interface/SimJetResponseAnalysis.h"
-#include "JetMETCorrections/MCJet/interface/JetUtilMC.h"
+#include "SimJetResponseAnalysis.h"
+#include "JetUtilMC.h"
 
 typedef CaloJetCollection::const_iterator CalJetIter;
 typedef GenJetCollection::const_iterator GenJetIter;

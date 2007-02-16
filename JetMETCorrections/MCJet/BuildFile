@@ -9,11 +9,5 @@
 <flags SEAL_PLUGIN_NAME="JetMETCorrectionsMCJet">
 <export>
    <lib name=JetMETCorrectionsMCJet>
-   <use name=root>
-   <use name=clhep>
-   <use name=FWCore/Framework>
-   <use name=FWCore/ParameterSet>
-   <use name=DataFormats/JetReco>
    <use name=JetMETCorrections/Objects>
-   <use name=DataFormats/Common>
 </export>
