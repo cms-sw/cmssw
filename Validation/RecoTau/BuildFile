@@ -6,6 +6,9 @@
 <use name=DataFormats/JetReco>
 <use name=DataFormats/BTauReco>
 <use name=RecoTauTag/ConeIsolation>
+<use name=DataFormats/HepMCCandidate>
+<use name=SimDataFormats/HepMCProduct>
+
 <use name=Foundation/PluginManager>
 <flags SEAL_PLUGIN_NAME="ValidationRecoTau">
 <export>
@@ -18,4 +21,6 @@
    <use name=DataFormats/JetReco>
 <use name=DataFormats/BTauReco>
 <use name=RecoTauTag/ConeIsolation>
+<use name=DataFormats/HepMCCandidate>
+<use name=SimDataFormats/HepMCProduct>
 </export>
