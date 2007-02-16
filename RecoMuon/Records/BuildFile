@@ -1,6 +1,5 @@
 <export>
    <lib name=RecoMuonRecords>
-   <use name=FWCore/Framework>
 </export>
 
 <use name=FWCore/Utilities>
