@@ -146,7 +146,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
 
     // 3 if block recognised, convert it and store header
     if ( converter_.validBlock(id) ) {
-      converter_.convertBlock(&data[dPtr], id, nSamples);
+      converter_.convertBlock(&data[dPtr+4], id, nSamples);  // pass pointer to first word in block payload
       bHdrs.push_back(blockHead);
       dPtr += 4*(blockLen*nSamples+1); // *4 because blockLen is in 32-bit words, +1 for header
     }

@@ -66,14 +66,15 @@ void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id, un
 // NB - need to get GCT output digis in the right place in the record!
 void GctBlockConverter::blockToGctEmCand(const unsigned char * data, unsigned id, unsigned nSamples) {
   for (int i=0; i<blockLength(id)*nSamples; i=i+nSamples) {  // temporarily just take 0th time sample
+    unsigned offset = i*4*nSamples;
     bool iso = (i > 1);
-    if (iso) {
-      gctIsoEm->push_back( L1GctEmCand(data[i*4]   + data[i*4+1]<<8, iso) );
-      gctIsoEm->push_back( L1GctEmCand(data[i*4+2] + data[i*4+3]<<8, iso) );
+    if (i > 1) {
+      gctIsoEm->push_back( L1GctEmCand(data[offset]   + (data[offset+1]<<8), true) );
+      gctIsoEm->push_back( L1GctEmCand(data[offset+2] + (data[offset+3]<<8), true) );
     }
     else {
-      gctNonIsoEm->push_back( L1GctEmCand(data[i*4] + data[i*4+1]<<8, iso) );
-      gctNonIsoEm->push_back( L1GctEmCand(data[i*4+2] + data[i*4+3]<<8, iso) );
+      gctNonIsoEm->push_back( L1GctEmCand(data[offset] + (data[offset+1]<<8), false) );
+      gctNonIsoEm->push_back( L1GctEmCand(data[offset+2] + (data[offset+3]<<8), false) );
     }
   }  
 }
@@ -83,10 +84,10 @@ void GctBlockConverter::blockToGctEmCand(const unsigned char * data, unsigned id
 void GctBlockConverter::blockToGctInterEmCand(const unsigned char * data, unsigned id, unsigned nSamples) {
   for (int i=0; i<blockLength(id)*nSamples; i=i+nSamples) {  // temporarily just take 0th time sample
     unsigned offset = i*4*nSamples;
-    uint16_t w0 = data[offset]   + data[offset+1]<<8; 
-    uint16_t w1 = data[offset+2] + data[offset+3]<<8;
-    w0 = (w0 & 0x1ff) + (w0 & 0xfc00)>>1;
-    w1 = (w1 & 0x1ff) + (w1 & 0xfc00)>>1;
+    uint16_t w0 = data[offset]   + (data[offset+1]<<8); 
+    uint16_t w1 = data[offset+2] + (data[offset+3]<<8);
+    w0 = (w0 & 0x1ff) + ((w0 & 0xfc00)>>1);
+    w1 = (w1 & 0x1ff) + ((w1 & 0xfc00)>>1);
     gctInterEm->push_back( L1GctEmCand(w0, i > 7) );
     gctInterEm->push_back( L1GctEmCand(w1, i > 7) );
   }
@@ -101,13 +102,13 @@ void GctBlockConverter::blockToRctEmCand(const unsigned char * data, unsigned id
   for (int iRct=0; iRct<blockLength(id)*nSamples; iRct=iRct+(nSamples*3)) {  // temporarily just take 0th time sample
     unsigned offset = iRct*4*3*nSamples;  // 4 bytes per 32-bits, 3 SC outputs per RCT crate
     for (int j=0; j<7; j++) {
-      d[j] = data[offset+(j/2)] + data[offset+(j/2)+1]<<8; 
+      d[j] = data[offset+(j/2)] + (data[offset+(j/2)+1]<<8); 
     }
     
     rctEm->push_back( L1CaloEmCand( d[0] & 0x1ff, iRct, true) );
-    rctEm->push_back( L1CaloEmCand( (d[0] & 0x3800)>>10 + (d[2] & 0x7800)>>7 + (d[4] & 0x3800)>>3, iRct, true) );
+    rctEm->push_back( L1CaloEmCand( ((d[0] & 0x3800)>>10) + ((d[2] & 0x7800)>>7) + ((d[4] & 0x3800)>>3), iRct, true) );
     rctEm->push_back( L1CaloEmCand( d[1] & 0x1ff, iRct, true) );
-    rctEm->push_back( L1CaloEmCand( (d[1] & 0x3800)>>10 + (d[3] & 0x7800)>>7 + (d[5] & 0x3800)>>3, iRct, true) );
+    rctEm->push_back( L1CaloEmCand( ((d[1] & 0x3800)>>10) + ((d[3] & 0x7800)>>7) + ((d[5] & 0x3800)>>3), iRct, true) );
     rctEm->push_back( L1CaloEmCand( d[2] & 0x1ff, iRct, true) );
     rctEm->push_back( L1CaloEmCand( d[4] & 0x1ff, iRct, true) );
     rctEm->push_back( L1CaloEmCand( d[3] & 0x1ff, iRct, true) );
