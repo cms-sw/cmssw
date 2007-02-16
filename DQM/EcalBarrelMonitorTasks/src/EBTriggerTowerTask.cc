@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2006/12/14 11:10:34 $
- * $Revision: 1.23 $
+ * $Date: 2007/02/01 15:43:57 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -233,6 +233,7 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
       float xval = 0.;
 
       xval = hit.amplitude();
+      if ( xval <= 0. ) xval = 0.0;
 
 //      xval = xval * (1./16.) * TMath::Sin(2*TMath::ATan(TMath::Exp(-0.0174*(ie-0.5))));
 

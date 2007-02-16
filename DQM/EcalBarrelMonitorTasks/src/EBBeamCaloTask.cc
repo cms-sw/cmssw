@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2007/02/01 15:43:57 $
- * $Revision: 1.36 $
+ * $Date: 2007/02/01 15:50:03 $
+ * $Revision: 1.37 $
  * \author A. Ghezzi
  *
  */
@@ -742,6 +742,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     //LogDebug("EBBeamCaloTask") << " rechits deta, dphi, i_in_array" << deta_c  << " " <<  dphi_c << " " <<i_in_array;
   
     float R_ene = hit.amplitude();
+    if ( R_ene <= 0. ) R_ene = 0.0;
     if(R_ene > maxEne){
       maxEne=R_ene;
       ieM =ie; ipM = ip;

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/09/22 06:01:40 $
- * $Revision: 1.29 $
+ * $Date: 2007/02/01 15:43:57 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -528,6 +528,7 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   EBDetId maxHitId(0);
   for (  EBUncalibratedRecHitCollection::const_iterator uncalHitItr = pUncalRH->begin();  uncalHitItr!= pUncalRH->end(); uncalHitItr++ ) {
     double e = (*uncalHitItr).amplitude();
+    if ( e <= 0. ) e = 0.0;
     if ( e > maxE )  {
       maxE       = e;
       maxHitId = (*uncalHitItr).id();
@@ -566,6 +567,7 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
       try{
 	Xtals5x5[icry]=EBDetId(maxHitId.ieta()+column-2,maxHitId.iphi()+row-2,EBDetId::ETAPHIMODE);
 	double e = (*  pUncalRH->find( Xtals5x5[icry] )  ).amplitude(); 
+	if ( e <= 0. ) e = 0.0;
 	ene5x5[icry] =e;
 	e25 +=e;
       }catch ( std::runtime_error &e )
