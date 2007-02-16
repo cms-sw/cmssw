@@ -19,31 +19,50 @@ namespace edm
 {
   class MCatNLOSource : public GeneratedInputSource {
   public:
-
-    /// Constructor
+    
     MCatNLOSource(const ParameterSet &, const InputSourceDescription &);
-    /// Destructor
     virtual ~MCatNLOSource();
-
-
-  private:
-
-    /// Pass parameters to HERWIG
-    bool hwgive(const std::string& iParm );
-
+    
   private:
     
     virtual bool produce(Event & e);
     void clear();
+    bool give(const std::string& iParm );
+    bool hwgive(const std::string& iParm );
+    void processHG();
+    void processLL();
+    void processVH();
+    void processVV();
+    void processQQ();
+    void processSB();
+    void processST();
+    void processUnknown(bool);
+    void getVpar();
+
+    void createStringFile(const std::string&);
     
     HepMC::GenEvent  *evt;
+
+    // include hard event generation ... 
+    bool doHardEvents_;
     
-    /// Verbosity flag
+    // Verbosity parameters
+    bool mcatnloVerbosity_;
     int herwigVerbosity_;
     bool herwigHepMCVerbosity_;
     int maxEventsToPrint_;
+
+    // run parameters
     double comenergy;
     int processNumber_;
+    int numEvents_;
+    std::string stringFileName_;
+
+    // needed for NLO ouput
+    char directory[70];
+    char prefix_bases[10];
+    char prefix_events[10];
+
   };
 } 
 

@@ -7,7 +7,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id$
+// $Id: ZeeAnalyzer.cc,v 1.1 2006/11/14 15:15:14 fabstoec Exp $
 //
 //
 
@@ -110,4 +110,4 @@ ZeeAnalyzer::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(ZeeAnalyzer)
+DEFINE_FWK_MODULE(ZeeAnalyzer);
