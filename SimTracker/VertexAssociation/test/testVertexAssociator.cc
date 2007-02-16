@@ -16,9 +16,9 @@
 #include <iostream>
 #include <string>
 
-//class TrackAssociator; 
-class TrackAssociatorByHits; 
-class TrackerHitAssociator; 
+//class TrackAssociator;
+class TrackAssociatorByHits;
+class TrackerHitAssociator;
 
 using namespace reco;
 using namespace std;
@@ -45,22 +45,40 @@ void testVertexAssociator::beginJob(const EventSetup & setup) {
   edm::ESHandle<VertexAssociatorBase> theTracksAssociator;
   setup.get<VertexAssociatorRecord>().get("VertexAssociatorByTracks",theTracksAssociator);
   associatorByTracks = (VertexAssociatorBase *) theTracksAssociator.product();
-  
+
+  rootFile = new TFile("MyHistograms.root","RECREATE");
+  rootFile->cd();
+
+  xMiss = new TH1F("xmiss","x Miss Distance (cm)",100,-0.02,0.02);
+  yMiss = new TH1F("ymiss","y Miss Distance (cm)",100,-0.02,0.02);
+  zMiss = new TH1F("zmiss","z Miss Distance (cm)",100,-0.02,0.02);
+  rMiss = new TH1F("rmiss","r Miss Distance (cm)",100,-0.02,0.02);
+
+  zVert = new TH1F("zvert","z, Reconstructed Vertex (cm)", 200, -1.0,1.0);
+  zTrue = new TH1F("ztrue","z, Simulated Vertex (cm)", 200, -1.0,1.0);
+}
+
+void testVertexAssociator::endJob() {
+  cout << "Writing histos" << endl;
+//  rootFile->cd();
+//  xMiss->Write();
+  rootFile->Write();
+  rootFile->Close();
 }
 
 void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
   using namespace edm;
   using namespace reco;
-  
+
   Handle<reco::TrackCollection> trackCollectionH;
   event.getByLabel("ctfWithMaterialTracks",trackCollectionH);
-  const  reco::TrackCollection  tC = *(trackCollectionH.product()); 
-  
+  const  reco::TrackCollection  tC = *(trackCollectionH.product());
+
   Handle<SimTrackContainer> simTrackCollection;
   event.getByLabel("g4SimHits", simTrackCollection);
   const SimTrackContainer simTC = *(simTrackCollection.product());
-  
+
   Handle<SimVertexContainer> simVertexCollection;
   event.getByLabel("g4SimHits", simVertexCollection);
   const SimVertexContainer simVC = *(simVertexCollection.product());
@@ -80,36 +98,49 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
   cout << "\nEvent ID = "<< event.id() << endl ;
 
 
-  //RECOTOSIM 
+  //RECOTOSIM
   cout << "                      ****************** Reco To Sim ****************** " << endl;
-  cout << "-- Associator by hits --" << endl;  
-  reco::RecoToSimCollection p = 
+  cout << "-- Associator by hits --" << endl;
+  reco::RecoToSimCollection p =
     associatorByHits->associateRecoToSim (trackCollectionH,TPCollectionH,&event );
 //    associatorByChi2->associateRecoToSim (trackCollectionH,TPCollectionH,&event );
   reco::VertexRecoToSimCollection vR2S = associatorByTracks ->
       associateRecoToSim(primaryVertexH,TVCollectionH,event,p);
-  
+
   for (reco::VertexRecoToSimCollection::const_iterator iR2S = vR2S.begin();
        iR2S != vR2S.end(); ++iR2S) {
-    math::XYZPoint recoPos = (iR2S -> key) -> position(); 
-    cout << "Reco Position " << recoPos << endl;
+    math::XYZPoint recoPos = (iR2S -> key) -> position();
+//    cout << "Reco Position " << recoPos << endl;
     std::vector<std::pair<TrackingVertexRef, double> > vVR = iR2S -> val;
-    cout << "Found Recovertex with " << vVR.size() << " associated TrackingVertex" << endl;
+//    cout << "Found Recovertex with " << vVR.size() << " associated TrackingVertex" << endl;
     for (std::vector<std::pair<TrackingVertexRef, double> >::const_iterator
         iMatch = vVR.begin(); iMatch != vVR.end(); ++iMatch) {
-        cout << "Match found with quality " <<  iMatch -> second << endl;
+//        cout << "Match found with quality " <<  iMatch -> second << endl;
         HepLorentzVector simVec = (iMatch -> first) -> position();
-        math::XYZPoint simPos = math::XYZPoint(simVec.x(),simVec.y(),simVec.z()); 
-         
-        cout << "Sim  Position " << simPos << " distance " << (simPos - recoPos).R()   << endl;
-    }  
-  }       
-  
-  
+        math::XYZPoint simPos = math::XYZPoint(simVec.x(),simVec.y(),simVec.z());
+
+//        cout << "Sim  Position " << simPos << " distance " << (simPos - recoPos).R()   << endl;
+
+        double xmiss = simPos.X() - recoPos.X();
+        double ymiss = simPos.Y() - recoPos.Y();
+        double zmiss = simPos.Z() - recoPos.Z();
+        double rmiss = sqrt(xmiss*xmiss+ymiss*ymiss+zmiss*zmiss);
+
+        xMiss->Fill(simPos.X() - recoPos.X());
+        yMiss->Fill(simPos.Y() - recoPos.Y());
+        zMiss->Fill(simPos.Z() - recoPos.Z());
+        rMiss->Fill(rmiss);
+
+        zVert->Fill(simPos.Z());
+        zTrue->Fill(recoPos.Z());
+    }
+  }
+
+
 //      //SIMTORECO
 //  cout << "                      ****************** Sim To Reco ****************** " << endl;
-//  cout << "-- Associator by hits --" << endl;  
-//  reco::SimToRecoCollection q = 
+//  cout << "-- Associator by hits --" << endl;
+//  reco::SimToRecoCollection q =
 //    associatorByHits->associateSimToReco(trackCollectionH,TPCollectionH,&event );
 
 }
