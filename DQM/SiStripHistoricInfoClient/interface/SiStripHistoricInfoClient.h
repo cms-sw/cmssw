@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:34 CEST 2006
-// $Id: SiStripHistoricInfoClient.h,v 1.4 2006/12/13 16:25:49 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.h,v 1.5 2006/12/13 17:46:01 dkcira Exp $
 //
 
 #include "DQMServices/Components/interface/DQMBaseClient.h"
@@ -58,11 +58,6 @@ public:
   // this obligatory method is called by the Updater component, whenever there is an update 
   void onUpdate() const;
 
-  // TStore 
-  void tstore_sistrip();
-  DOMNode *getNodeNamed(xoap::MessageReference msg,const std::string &nodeName) throw (xcept::Exception);
-  xdata::Table ExtractTableFromAttachment(xoap::MessageReference reply);
-
 private:
   //
   void retrievePointersToModuleMEs() const;
@@ -80,8 +75,6 @@ private:
   mutable std::map<uint32_t, std::vector<MonitorElement *> > ClientPointersToModuleMEs;
   mutable std::map<uint32_t, std::pair<double, double> > ClusterChargeMeanRMS;
   mutable std::map<uint32_t, std::pair<double, double> > OccupancyMeanRMS;
-
-private:
 
 };
 
