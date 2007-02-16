@@ -15,6 +15,8 @@ using namespace cms;
 DEFINE_ANOTHER_FWK_MODULE(JetCorrectionProducer);
 
 #include "JetCorrectionService.icc"
+#include "JetMETCorrections/Objects/interface/SimpleJetCorrector.h"
+DEFINE_JET_CORRECTION_SERVICE (SimpleJetCorrector, SimpleJetCorrectionService);
 #include "JetMETCorrections/MCJet/interface/MCJetCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (MCJetCorrector, MCJetCorrectionService);
 #include "JetMETCorrections/GammaJet/interface/GammaJetCorrector.h"
