@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
-// $Id: $
+// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.1 2006/11/03 16:57:21 monicava Exp $
 //
 //
 #include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTPixelMatchElectronAlgo.h"
@@ -147,7 +147,7 @@ void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> track
 					   tscp.momentum().z()*scale,
 					   (*sclAss)[seed]->energy());
     
-    Electron ele(t.charge(),momentum,math::XYZPoint( 0, 0, 0 ));
+    Electron ele(t.charge(),momentum, t.vertex());
     ele.setSuperCluster((*sclAss)[seed]);
     edm::Ref<TrackCollection> myRef(tracksH,i);
     ele.setTrack(myRef);
