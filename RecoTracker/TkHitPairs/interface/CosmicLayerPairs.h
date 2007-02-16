@@ -48,12 +48,7 @@ private:
   SiStripMatchedRecHit2DCollection::range match_range3;
   TrackerLayerIdAccessor acc;
   
-  LayerWithHits *lh1;
-  LayerWithHits *lh2;
-  LayerWithHits *lh3;
-  LayerWithHits *lh4;
-  LayerWithHits *lh5;
-  LayerWithHits *lh6;
+
 
    vector<BarrelDetLayer*> bl;
    vector<ForwardDetLayer*> fpos;
@@ -70,7 +65,13 @@ private:
 	     const edm::EventSetup& iSetup);
 
  private:
- std::string _geometry;
+   std::string _geometry;
+   LayerWithHits *lh1;
+   LayerWithHits *lh2;
+   LayerWithHits *lh3;
+   LayerWithHits *lh4;
+   LayerWithHits *lh5;
+   LayerWithHits *lh6;
 };
 
 
