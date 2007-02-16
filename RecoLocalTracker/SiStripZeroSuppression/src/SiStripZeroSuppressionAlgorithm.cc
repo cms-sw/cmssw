@@ -10,16 +10,15 @@
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsSubtractor.h"
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripMedianCommonModeNoiseSubtraction.h"
+#include "CommonTools/SiStripZeroSuppression/interface/SiStripFastLinearCommonModeNoiseSubtraction.h"
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripTT6CommonModeNoiseSubtraction.h"
 
 #include "sstream"
 
-using namespace std;
-
 SiStripZeroSuppressionAlgorithm::SiStripZeroSuppressionAlgorithm(const edm::ParameterSet& conf) : 
   conf_(conf),  
-  ZeroSuppressionMode_(conf.getParameter<string>("ZeroSuppressionMode")),
-  CMNSubtractionMode_(conf.getParameter<string>("CommonModeNoiseSubtractionMode")){
+  ZeroSuppressionMode_(conf.getParameter<std::string>("ZeroSuppressionMode")),
+  CMNSubtractionMode_(conf.getParameter<std::string>("CommonModeNoiseSubtractionMode")){
     
   edm::LogInfo("SiStripZeroSuppression") 
     << "[SiStripZeroSuppressionAlgorithm::SiStripZeroSuppressionAlgorithm] Constructing object..."
@@ -32,7 +31,7 @@ SiStripZeroSuppressionAlgorithm::SiStripZeroSuppressionAlgorithm(const edm::Para
     validZeroSuppression_ = true;
   } 
   else {
-    edm::LogError("SiStripZeroSuppression") << "[SiStripZeroSuppressionAlgorithm::SiStripZeroSuppressionAlgorithm] No valid strip ZeroSuppressor selected, possible ZeroSuppressor: SiStripFedZeroSuppression" << endl;
+    edm::LogError("SiStripZeroSuppression") << "[SiStripZeroSuppressionAlgorithm::SiStripZeroSuppressionAlgorithm] No valid strip ZeroSuppressor selected, possible ZeroSuppressor: SiStripFedZeroSuppression" << std::endl;
     validZeroSuppression_ = false;
   }
 
@@ -45,8 +44,12 @@ SiStripZeroSuppressionAlgorithm::SiStripZeroSuppressionAlgorithm(const edm::Para
     SiStripCommonModeNoiseSubtractor_ = new SiStripTT6CommonModeNoiseSubtraction(conf.getParameter<double>("CutToAvoidSignal"));
     validCMNSubtraction_ = true;
   }
+  else if ( CMNSubtractionMode_ == "FastLinear") { 
+    SiStripCommonModeNoiseSubtractor_ = new SiStripFastLinearCommonModeNoiseSubtraction();
+    validCMNSubtraction_ = true;
+  }
   else {
-    edm::LogError("SiStripZeroSuppression") << "[SiStripZeroSuppressionAlgorithm::SiStripZeroSuppressionAlgorithm] No valid CommonModeNoiseSubtraction Mode selected, possible CMNSubtractionMode: Median or TT6" << endl;
+    edm::LogError("SiStripZeroSuppression") << "[SiStripZeroSuppressionAlgorithm::SiStripZeroSuppressionAlgorithm] No valid CommonModeNoiseSubtraction Mode selected, possible CMNSubtractionMode: Median or TT6" << std::endl;
     validCMNSubtraction_ = false;
   } 
 
@@ -68,6 +71,7 @@ void SiStripZeroSuppressionAlgorithm::configure( SiStripPedestalsService* in_a ,
     SiStripPedestalsSubtractor_->setSiStripPedestalsService(in_a);
     SiStripZeroSuppressor_->setSiStripPedestalsService(in_a);
     SiStripZeroSuppressor_->setSiStripNoiseService(in_b);
+    SiStripCommonModeNoiseSubtractor_->setSiStripNoiseService(in_b);
 } 
 
 void SiStripZeroSuppressionAlgorithm::run(std::string RawDigiType, 
