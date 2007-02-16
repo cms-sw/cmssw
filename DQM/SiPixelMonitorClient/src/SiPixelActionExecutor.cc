@@ -496,7 +496,7 @@ void SiPixelActionExecutor::setupQTests(MonitorUserInterface * mui) {
   if (collationDone) mui->cd("Collector/Collated/SiPixel");
   qtester.setupQTests(mui);
   mui->cd();
-  cout << " Setting Up Quality Tests " << endl;
+  //cout << " Setting Up Quality Tests " << endl;
   //  QTestHandle qtester;
   //  if(!qtester.configureTests("sistrip_qualitytest_config.xml", mui)){
   //    cout << " Attaching Qtests to MEs" << endl;
