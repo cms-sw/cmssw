@@ -5,12 +5,13 @@
 #include <deque>
 #include <set>
 
-#include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "FWCore/Integration/test/ViewAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/View.h"
+#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/TestObjects/interface/ToyProducts.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/View.h"
+#include "FWCore/Integration/test/ViewAnalyzer.h"
 
 using namespace edm;
 using namespace std;
@@ -39,6 +40,8 @@ namespace edmtest
     testProduct<std::set<int> >(e, "intset");
 
     testDSVProduct(e, "dsvsimple");
+
+    //testProduct<edm::RefVector<std::vector<int> > >(e, "intvecrefvec");
   }
 
   template <class P>
