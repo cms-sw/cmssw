@@ -3,6 +3,7 @@
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/AnalyzeTracksClusters.h"
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/ClusterAnalysis.h"
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/ClusterAnalysisFilter.h"
+#include "AnalysisExamples/SiStripDetectorPerformance/interface/MTCCAmplifyDigis.h"
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/MTCCNtupleMaker.h"
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/CosmicTIFFilter.h"
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/CosmicGenFilter.h"
@@ -19,6 +20,7 @@ DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(AnalyzeTracksClusters);
 DEFINE_ANOTHER_FWK_MODULE(ClusterAnalysis);
 DEFINE_ANOTHER_FWK_MODULE(ClusterAnalysisFilter);
+DEFINE_ANOTHER_FWK_MODULE(MTCCAmplifyDigis);
 DEFINE_ANOTHER_FWK_MODULE(MTCCNtupleMaker);
 DEFINE_ANOTHER_FWK_MODULE(CosmicTIFFilter);
 DEFINE_ANOTHER_FWK_MODULE(CosmicGenFilter);
