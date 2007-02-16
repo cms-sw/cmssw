@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/12/12 08:21:51 $
- *  $Revision: 1.25 $
+ *  $Date: 2007/01/16 08:05:27 $
+ *  $Revision: 1.27 $
  *
  *  \author Martin Grunewald
  *
@@ -155,7 +155,7 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   taus->push_back(CaloJet(p4,specific,jetconst));
 	 } else if (abs(ipdg)==22) {
 	   // photon
-	   phot->push_back(    Photon       (0,p4));
+	   phot->push_back(    Photon       (0,p4,1.0,1.0,p4.E()));
 	   ecal->push_back(RecoEcalCandidate(0,p4));
 	 } else if (abs(ipdg)==12 || abs(ipdg)==14 || abs(ipdg)==16 || abs(ipdg)==18) {
 	   // neutrinos (e mu tau 4th generation)
