@@ -26,7 +26,8 @@ public:
    */     
   VertexTrack(const RefCountedLinearizedTrackState lt, 
 	      const VertexState v, 
-	      float weight, const RefCountedRefittedTrackState & refittedState);
+	      float weight, const RefCountedRefittedTrackState & refittedState,
+	      float smoothedChi2);
 
   /** Constructor with the linearized track data, vertex seed and weight
    *  and state and covariance at vertex, constrained by vertex
@@ -34,7 +35,7 @@ public:
   VertexTrack(const RefCountedLinearizedTrackState lt, 
 	      const VertexState v, 
 	      float weight, const RefCountedRefittedTrackState & refittedState,
-	      const AlgebraicMatrix & tVCov);
+	      float smoothedChi2, const AlgebraicMatrix & tVCov);
 
   /** Access methods
    */ 
@@ -43,6 +44,15 @@ public:
   float weight() const { return theWeight; }
   bool refittedStateAvailable() const { return stAvailable; }
   bool tkToVertexCovarianceAvailable() const { return covAvailable; }
+
+  /**
+   * The smoother track-chi2 (can be used to test the track-vertex compatibility).
+   * Its value has a meaning only if the smoother has been run after the vertex
+   * fit (track-refit) . Otherwise, the value returned is -1.
+   */
+
+  float smoothedChi2() const { return smoothedChi2_; }
+
 
   /** Track state with vertex constraint
    */
@@ -69,7 +79,7 @@ public:
   {
     return ((*data.linearizedTrack().get()) == (*linearizedTrack().get()));
   }
-  
+
   /** Method helping Kalman vertex fit
    */
   AlgebraicVector refittedParamFromEquation() const;
@@ -84,6 +94,7 @@ private:
   bool covAvailable;
   RefCountedRefittedTrackState theRefittedState;
   AlgebraicMatrix  tkTVCovariance;
+  float smoothedChi2_;
 };
 
 #endif
