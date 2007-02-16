@@ -1,11 +1,11 @@
 #include <memory>
 #include <string>
 
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -29,15 +29,15 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
-#include "Geometry/Surface/interface/BoundSurface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "Geometry/Surface/interface/MediumProperties.h"
+#include "DataFormats/GeometrySurface/interface/MediumProperties.h"
+#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
+#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 //for debug only 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
