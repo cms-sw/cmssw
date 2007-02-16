@@ -5,8 +5,5 @@
 
 <export>
  <lib name=FastSimulationParticleDecay>
- <use name=clhep>
- <use name=pythia>
- <use name=FastSimulation/ParticlePropagator>
 </export>
 
