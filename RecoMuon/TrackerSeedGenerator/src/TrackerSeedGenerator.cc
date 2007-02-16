@@ -3,8 +3,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/02/01 18:03:55 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/02/14 06:12:39 $
+ *  $Revision: 1.12 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -77,6 +77,8 @@ TrackerSeedGenerator::TrackerSeedGenerator(const edm::ParameterSet& par, const M
   theOption = par.getParameter<int>("SeedOption");
   hitProducer = par.getParameter<string>("HitProducer");
   theMaxSeeds = par.getParameter<int>("MaxSeeds");
+
+  theOutPropagator = par.getParameter<string>("StateOnTrackerBoundOutPropagator");
 
   //ParameterSet pixelPSet = par.getParameter<ParameterSet>("PixelParameters");
   //combinatorialSeedGenerator = new CombinatorialSeedGeneratorFromPixel(par);

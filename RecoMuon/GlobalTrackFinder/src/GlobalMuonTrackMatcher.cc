@@ -1,8 +1,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker tracks
  *
- *  $Date: 2007/02/14 06:11:44 $
- *  $Revision: 1.37 $
+ *  $Date: 2007/02/16 13:33:34 $
+ *  $Revision: 1.38 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  *  \author Adam Everett - Purdue University
@@ -42,9 +42,9 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(const edm::ParameterSet& par,
                                                const MuonServiceProxy* service) : 
    theService(service) {
   
-  theMaxChi2 =  par.getParameter<double>("Chi2CutTrackMatcher");
-  theMinP = 2.5;
-  theMinPt = 1.0;
+  theMaxChi2 =  par.getParameter<double>("Chi2Cut");
+  theMinP =   par.getParameter<double>("MinP");
+  theMinPt =   par.getParameter<double>("MinPt");
 
   theMIMFlag = par.getUntrackedParameter<bool>("performMuonIntegrityMonitor",false);
   if(theMIMFlag) {
@@ -52,6 +52,8 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(const edm::ParameterSet& par,
   }
 
   matchAtSurface_ = par.getUntrackedParameter<bool>("MatchAtSurface",true);
+
+  theOutPropagatorName = par.getParameter<string>("StateOnTrackerBoundOutPropagator");
 
 }
 
@@ -199,6 +201,8 @@ GlobalMuonTrackMatcher::convertToTSOS(const TrackCand& staCand,
   TransientTrack innerMuTT(*staCand.second,&*theService->magneticField(),theService->trackingGeometry());
   innerMuTsos = innerMuTT.impactPointState();
 
+  LogDebug(category) << "@SUB=converToTSOS" << " innerMuTsos " << innerMuTsos;
+
   if (tkCand.first == 0) {
     LogTrace(category);
     // make sure the tracker Track has enough momentum to reach muon chambers
@@ -213,15 +217,20 @@ GlobalMuonTrackMatcher::convertToTSOS(const TrackCand& staCand,
     }
   }
 
-  if( !innerMuTsos.isValid() || !outerTkTsos.isValid() ) return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(innerMuTsos,outerTkTsos);
+  if( !innerMuTsos.isValid() || !outerTkTsos.isValid() ) {
+    LogDebug(category) << "@SUB" << "innerMuTsos.isValid() = " << innerMuTsos.isValid() << " outeTkTsos.isValid() = " << outerTkTsos.isValid() ;
+return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(innerMuTsos,outerTkTsos);
+  }
 
   //define StateOnTrackerBound objects  
-  StateOnTrackerBound fromInside(&*theService->propagator("SmartPropagator"));
+  StateOnTrackerBound fromInside(&*theService->propagator(theOutPropagatorName));
 
   // extrapolate to outer tracker surface
   TrajectoryStateOnSurface tkTsosFromMu = fromInside(innerMuTsos);
   TrajectoryStateOnSurface tkTsosFromTk = fromInside(outerTkTsos);
   
+  LogDebug(category) << "tkTsosFromMu (helix)" << tkTsosFromMu;
+
   return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(tkTsosFromMu, tkTsosFromTk);
 }
 
@@ -238,6 +247,7 @@ GlobalMuonTrackMatcher::matchChiAtSurface(const TrajectoryStateOnSurface& tsos1,
 
   AlgebraicVector v(tsos1.localParameters().vector() - tsos2.localParameters().vector());
   AlgebraicSymMatrix m(tsos1.localError().matrix() + tsos2.localError().matrix());
+
   LogTrace(category) << "vector v " << v;
 
   int ierr;

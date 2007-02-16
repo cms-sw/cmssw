@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2007/02/01 18:06:28 $
- *  $Revision: 1.18 $
+ *  $Date: 2007/02/14 06:11:43 $
+ *  $Revision: 1.19 $
  *  \author Chang Liu  - Purdue University
  *  \author Norbert Neumeister - Purdue University
  */
@@ -77,6 +77,7 @@ class GlobalMuonTrackMatcher {
     double theMinPt;
     bool theMIMFlag;
     bool matchAtSurface_;
+    std::string theOutPropagatorName;
     GlobalPoint theVertexPos;
     GlobalError theVertexErr;
 

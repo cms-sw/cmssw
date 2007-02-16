@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a L2 reonstructed muon.
  *
- *   $Date: 2007/02/05 19:07:39 $
- *   $Revision: 1.4 $
+ *   $Date: 2007/02/16 13:32:53 $
+ *   $Revision: 1.5 $
  *   \author  A. Everett - Purdue University
  */
 
@@ -115,7 +115,7 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   Handle<vector<Trajectory> > L2MuonsTraj;
 
   if(theL2TrajectoryFlag) {
-    event.getByLabel(theL2CollectionLabel,L2MuonsTraj);      
+    event.getByLabel(theL2CollectionLabel.label(),L2MuonsTraj);      
     LogTrace(metname)<<"Track Reconstruction (tracks, trajs) "<< L2Muons.product()->size() << " " << L2MuonsTraj.product()->size() <<endl;
   }   
 

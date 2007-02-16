@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2007/02/05 19:07:37 $
- *   $Revision: 1.22 $
+ *   $Date: 2007/02/16 13:33:11 $
+ *   $Revision: 1.23 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -44,6 +44,8 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
 
   // Parameter set for the Builder
   ParameterSet trajectoryBuilderParameters = parameterSet.getParameter<ParameterSet>("GLBTrajBuilderParameters");
+  InputTag trackCollectionTag = parameterSet.getParameter<InputTag>("TrackerCollectionLabel");
+  trajectoryBuilderParameters.addParameter<InputTag>("TrackerCollectionLabel",trackCollectionTag);
 
   // STA Muon Collection Label
   theSTACollectionLabel = parameterSet.getParameter<InputTag>("MuonCollectionLabel");
@@ -110,7 +112,7 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   Handle<vector<Trajectory> > staMuonsTraj;
 
   if(theSTATrajectoryFlag) {
-    event.getByLabel(theSTACollectionLabel,staMuonsTraj);      
+    event.getByLabel(theSTACollectionLabel.label(),staMuonsTraj);      
     LogTrace(metname)<<"Track Reconstruction (tracks, trajs) "<< staMuons.product()->size() << " " << staMuonsTraj.product()->size() <<endl;
   } 
 

@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/02/14 06:11:44 $
- *  $Revision: 1.75 $
+ *  $Date: 2007/02/16 13:33:34 $
+ *  $Revision: 1.76 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -110,7 +110,12 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
 
 
   theTrackConverter = new MuonTrackConverter(par,theService);
-  theTrackMatcher = new GlobalMuonTrackMatcher(par,theService);
+
+  string stateOnTrackerOutProp = par.getParameter<string>("StateOnTrackerBoundOutPropagator");
+
+  ParameterSet trackMatcherPSet = par.getParameter<ParameterSet>("GlobalMuonTrackMatcher");
+  trackMatcherPSet.addParameter<string>("StateOnTrackerBoundOutPropagator",stateOnTrackerOutProp);
+  theTrackMatcher = new GlobalMuonTrackMatcher(trackMatcherPSet,theService);
 
   theTrackTransformer = new TrackTransformer(par.getParameter<ParameterSet>("TrackTransformer"));
 
@@ -132,9 +137,10 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   if(theMakeTkSeedFlag) {
     theCkfBuilderName = par.getParameter<std::string>("TkTrackBuilder");
     ParameterSet seedGeneratorPSet = par.getParameter<ParameterSet>("SeedGeneratorParameters");
+    seedGeneratorPSet.addParameter<string>("StateOnTrackerBoundOutPropagator",stateOnTrackerOutProp);
     theTkSeedGenerator = new TrackerSeedGenerator(seedGeneratorPSet,theService);
   } else {
-    theTkTrackLabel = par.getParameter<edm::InputTag>("TkTrackCollectionLabel");
+    theTkTrackLabel = par.getParameter<edm::InputTag>("TrackerCollectionLabel");
   }
 
   theMIMFlag = par.getUntrackedParameter<bool>("performMuonIntegrityMonitor",false);
@@ -309,37 +315,49 @@ GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const TrackCand& staCan
 //
 RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInterest(const reco::TrackRef& staTrack) const {
 
- //Get Track direction at vertex
+  TrajectoryStateTransform tsTransform;
+  FreeTrajectoryState muFTS = tsTransform.initialFreeState(*staTrack,&*theService->magneticField());
+  
+  //Get Track direction at vertex
   GlobalVector dirVector(staTrack->px(),staTrack->py(),staTrack->pz());
-
+  //--
+  //-- dirVector = muFTS.momentum();
+  
   //Get track momentum
   const math::XYZVector& mo = staTrack->innerMomentum();
   GlobalVector mom(mo.x(),mo.y(),mo.z());
-  if ( staTrack->p() > 1.0 )
-    mom = GlobalVector(staTrack->px(),staTrack->py(),staTrack->pz());
-
+  if ( staTrack->p() > 1.0 ) {
+    mom = dirVector; 
+  }
   //Get innerMu position
   const math::XYZPoint& po = staTrack->innerPosition();
   GlobalPoint pos(po.x(),po.y(),po.z());
-
+  
   //Get dEta and dPhi: (direction at vertex) - (innerMuTsos position)
   float eta1 = dirVector.eta();
   float eta2 = pos.eta();
   float deta(fabs(eta1- eta2));
   float dphi(fabs(Geom::Phi<float>(dirVector.phi())-Geom::Phi<float>(pos.phi()))
-);
-
+	     );
+  
   //deta = 1 * deta;
   //dphi = 1 * dphi;
-
+  
   //deta = 1 * max(double(deta),0.05);
   //dphi = 1 * max(double(dphi),0.07);
-
+  
+  GlobalPoint vertexPos = theVertexPos;
+  GlobalError vertexErr = theVertexErr;
+  //--  
+  //-- vertexPos = (muFTS.position());
+  //-- vertexErr = (muFTS.cartesianError().position());
+  
+  
   double minPt    = max(1.5,mom.perp()*0.6);
   double deltaZ   = min(15.9,3*sqrt(theVertexErr.czz()));
   double deltaEta = 0.05;
   double deltaPhi = 0.07;
-
+  
   if ( deta > 0.05 ) { // 0.06
     deltaEta += deta/2;
   }
@@ -353,7 +371,7 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
   deltaEta = 1 * max(double(2.5 * deta),deltaEta);
   deltaPhi = 1 * max(double(3.5 * dphi),deltaPhi);
 
-  RectangularEtaPhiTrackingRegion rectRegion(dirVector, theVertexPos,
+  RectangularEtaPhiTrackingRegion rectRegion(dirVector, vertexPos,
                                              minPt, 0.2,
                                              deltaZ, deltaEta, deltaPhi);
 
@@ -992,8 +1010,10 @@ GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::makeTrajsFromSeeds(
     
     //result.insert(result.end(), tkTrajs.begin(), tkTrajs.end());
     if(theMIMFlag) {
-      dataMonitor->book1D("tk_seed","Tracks per seed",101,-0.5,100.5);
-      dataMonitor->fill1("tk_seed",rawResult.size());
+      dataMonitor->book1D("tk_seed","Trajectories per seed",101,-0.5,100.5);
+      dataMonitor->fill1("tk_seed",tkTrajs.size());
+      dataMonitor->book1D("tk_seed_clean","Trajectories per seed after cleaning",101,-0.5,100.5);
+      dataMonitor->fill1("tk_seed_clean",rawResult.size());
     }
   }
   //vector<Trajectory> unsmoothedResult;
@@ -1065,7 +1085,7 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
     LogTrace(category) << "Found " << tkCandColl.size() << " tkCands from seeds";
 
     if(theMIMFlag) {
-      dataMonitor->book1D("tk_sta","Tracks per STA",101,-0.5,100.5);
+      dataMonitor->book1D("tk_sta","Trajectories per STA",101,-0.5,100.5);
       dataMonitor->fill1("tk_sta",tkCandColl.size());
     }
 

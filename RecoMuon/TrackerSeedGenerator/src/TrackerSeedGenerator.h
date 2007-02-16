@@ -4,8 +4,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/02/01 18:03:55 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/02/14 06:12:39 $
+ *  $Revision: 1.10 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -100,6 +100,7 @@ class TrackerSeedGenerator {
 
   edm::Handle<SiPixelRecHitCollection> pixelHits;
   std::string hitProducer;
+  std::string theOutPropagator;
 
   const MuonServiceProxy *theService;
   GlobalPoint theVertexPos;
