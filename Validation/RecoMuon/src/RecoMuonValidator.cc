@@ -245,3 +245,64 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   if ( glbTracks->size() >  1 ) LogInfo("RecoMuonValidator") << "Multiple GlbRecMuon, n = " << glbTracks->size();
 }
 
+
+//////////////////////////////////////////////////////////////////////
+
+// on how to use the service have a look at RecoMuon/StandAloneMuonProducer
+
+// Take the seed collection
+Handle<TrajectorySeedCollection> seeds; 
+event.getByLabel(theSeedCollectionLabel,seeds);
+
+//get the seed's TSOS:
+TrajectoryStateOnSurface
+seedTSOS(const TrajectorySeed& seed){
+
+  // Get the Trajectory State on Det (persistent version of a TSOS) from the seed
+  PTrajectoryStateOnDet pTSOD = seed.startingState();
+  
+  // Transform it in a TrajectoryStateOnSurface
+  TrajectoryStateTransform tsTransform;
+  
+  DetId seedDetId(pTSOD.detId());
+
+  const GeomDet* gdet = theService->trackingGeometry()->idToDet( seedDetId );
+
+  TrajectoryStateOnSurface initialState = tsTransform.transientState(pTSOD, &(gdet->surface()), 
+								     &*theService->magneticField());
+  
+
+  // Get the layer on which the seed relies
+  const DetLayer *initialLayer = theService->detLayerGeometry()->idToLayer( seedDetId );
+
+  PropagationDirection detLayerOrder = oppositeToMomentum;
+
+  // ask for compatible layers
+  vector<const DetLayer*> detLayers;
+
+  //  if(theNavigationType == "Standard")
+    detLayers = initialLayer->compatibleLayers( *initialState.freeState(),detLayerOrder); 
+    //   else if (theNavigationType == "Direct"){
+    //     DirectMuonNavigation navigation( &*theService->detLayerGeometry() );
+    //     detLayers = navigation.compatibleLayers( *initialState.freeState(),detLayerOrder);
+    //   }
+    //   else
+    //     edm::LogError(metname) << "No Properly Navigation Selected!!"<<endl;
+
+ 
+  TrajectoryStateOnSurface result = initialState;
+
+  if(detLayers.size()){
+
+    const DetLayer* finalLayer = detLayers.back();
+    
+    const TrajectoryStateOnSurface propagatedState = 
+      theService->propagator(theSeedPropagatorName)->propagate(initialState,
+							       finalLayer->surface());
+
+    if(propagatedState.isValid())
+      result = propagatedState;
+  }
+  
+  return result;
+}
