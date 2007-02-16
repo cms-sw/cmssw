@@ -35,4 +35,6 @@ namespace { namespace {
   edm::Wrapper<edm::SortedCollection<edmtestprod::Simple,edm::StrictWeakOrdering<edmtestprod::Simple> > > dummy25;
   edm::Wrapper<edmtestprod::StreamTestThing> dummy26;
   edm::Wrapper<edmtestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901> dummy27;
+
+  edm::Wrapper<edm::RefVector<std::vector<int> > > dummyw28;
 }}

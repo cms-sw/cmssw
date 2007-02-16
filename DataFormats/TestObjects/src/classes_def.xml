@@ -33,6 +33,9 @@
  <class name="edm::Wrapper<std::vector<edmtest::Thing> >"/>
  <class name="edm::Wrapper<std::vector<edmtest::OtherThing> >"/>
 
+ <class name="edm::Ref<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> >"/>
+ <class name="edm::RefVector<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> >"/>
+
  <class name="edmtestprod::Simple"/>
  <class name="edmtestprod::Ord<edmtestprod::Simple>"/>
  <class name="edmtestprod::StreamTestTmpl<edmtestprod::Ord<edmtestprod::Simple> >"/>
