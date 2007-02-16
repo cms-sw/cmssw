@@ -64,6 +64,7 @@ class AnaSiStripClusters: public edm::EDAnalyzer {
 
     std::string oOutputFileName_;
     std::string oLblSiStripCluster_;
+    std::string oProdInstNameCluster_;
     std::string oLblSiStripDigi_;
     std::string oProdInstNameDigi_;
     bool        bMTCCMode_;
