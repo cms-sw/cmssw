@@ -1,16 +1,16 @@
 <TESTSCONFIGURATION>
 
-<QTEST name="NoisyChannels">
-	<TYPE>NoisyChannelROOT</TYPE>	
+<QTEST name="ContentsYRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">-10</PARAM>
+	<PARAM name="ymax">10</PARAM>
 	<PARAM name="error">0.80</PARAM>
 	<PARAM name="warning">0.70</PARAM>
-	<PARAM name="tolerance">1</PARAM>
-	<PARAM name="neighbours">3</PARAM>
 </QTEST>
 
 
-<LINK name="*OccupancyNoise*">
-	<TestName activate="true">NoisyChannels</TestName>
+<LINK name="*tTrigTest*">
+	<TestName activate="true">ContentsYRange</TestName>
 </LINK>
 
 
