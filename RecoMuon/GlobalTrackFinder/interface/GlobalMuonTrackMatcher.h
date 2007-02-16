@@ -4,20 +4,19 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2007/02/14 06:11:43 $
- *  $Revision: 1.19 $
- *  \author Chang Liu  - Purdue University
- *  \author Norbert Neumeister - Purdue University
+ *  $Date: 2007/02/01 18:06:28 $
+ *  $Revision: 1.18 $
+ *
+ *  \author Chang Liu           Purdue University
+ *  \author Adam Everett        Purdue University
+ *  \author Norbert Neumeister  Purdue University
  */
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 
 class TrajectoryStateOnSurface;
 class MuonServiceProxy;
 class Trajectory;
-
 class GlobalMuonMonitorInterface;
 
 namespace edm {class ParameterSet;}
@@ -50,8 +49,9 @@ class GlobalMuonTrackMatcher {
     
     /// check if two TrackRefs match at tracker surface
     std::pair<bool,double> matchChi(const TrackCand&,
-                                 const TrackCand&) const;
+                                    const TrackCand&) const;
 
+    /// check position of two tracks
     bool matchPos(const TrackCand&,
 		  const TrackCand&) const;
     
@@ -62,24 +62,28 @@ class GlobalMuonTrackMatcher {
     /// check if two Tracks match at IP
     double matchChiAtIP(const TrackCand&,
 			const TrackCand&) const;
-    
-    /// Conversion from TrackCand to TSOS
-    std::pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> convertToTSOS(const TrackCand&, const TrackCand&) const;
 
-    bool matchPosAtSurface(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
+    /// propagate two tracks to a common surface
+    std::pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> convertToTSOS(const TrackCand&, 
+                                                                                const TrackCand&) const;
 
-    TrackCand matchMomAtIP(const TrackCand&, const std::vector<TrackCand>&) const;
+    /// compare global positions of track candidates
+    bool matchPosAtSurface(const TrajectoryStateOnSurface&, 
+                           const TrajectoryStateOnSurface&) const;
+
+    /// compare global directions of track candidates
+    TrackCand matchMomAtIP(const TrackCand&, 
+                           const std::vector<TrackCand>&) const;
 
   private:
     
     double theMaxChi2;
     double theMinP;
     double theMinPt;
+    double theDeltaEta;
+    double theDeltaPhi;
     bool theMIMFlag;
     bool matchAtSurface_;
-    std::string theOutPropagatorName;
-    GlobalPoint theVertexPos;
-    GlobalError theVertexErr;
 
     GlobalMuonMonitorInterface* dataMonitor;
 
