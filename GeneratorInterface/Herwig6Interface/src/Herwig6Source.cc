@@ -71,7 +71,7 @@ extern struct {
      & AUTPDF
      COMMON/HWPRCH/AUTPDF(2),BDECAY   */
 extern struct {
-  char AUTPDF[20],BDECAY;
+  char AUTPDF[2][20],BDECAY;
 } hwprch_;
 #define hwprch hwprch_
 
@@ -234,6 +234,13 @@ extern struct {
 HepMC::IO_HERWIG conv;
 // ***********************
 
+extern"C" {
+  void setpdfpath_(char*);
+  void setlhaparm_(char*);
+}
+
+#define setpdfpath setpdfpath_
+#define setlhaparm setlhaparm_
 
 //used for defaults
   static const unsigned long kNanoSecPerSec = 1000000000;
@@ -244,8 +251,10 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
   GeneratedInputSource(pset, desc), evt(0), 
   herwigVerbosity_ (pset.getUntrackedParameter<int>("herwigVerbosity",0)),
   herwigHepMCVerbosity_ (pset.getUntrackedParameter<bool>("herwigHepMCVerbosity",false)),
+  herwigLhapdfVerbosity_ (pset.getUntrackedParameter<int>("herwigLhapdfVerbosity",0)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",0)),
-  comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.))
+  comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
+  lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath",""))
 {
   
   cout << "Herwig6Source: initializing Herwig. " << endl;
@@ -261,6 +270,10 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
 
   cout << "Herwig verbosity level = " << herwigVerbosity_ << endl;
 
+  // LHA vebosity: 0=silent, 1=lowkey, 2=defaul(all)
+
+  cout << "LHAPDF verbosity level = " << herwigLhapdfVerbosity_ << endl;
+  
   //Max number of events printed on verbosity level 
   //maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
   cout << "Number of events to be printed = " << maxEventsToPrint_ << endl;
@@ -338,7 +351,40 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
   hwevnt.NRN[0] = seed1;
   hwevnt.NRN[1] = seed2;*/
 
-  
+  // set the LHSPDF grid directory
+  hwprch.AUTPDF[0][0]='H';
+  hwprch.AUTPDF[0][1]='W';
+  hwprch.AUTPDF[0][2]='L';
+  hwprch.AUTPDF[0][3]='H';
+  hwprch.AUTPDF[0][4]='A';
+  hwprch.AUTPDF[0][5]='P';
+  hwprch.AUTPDF[0][6]='D';
+  hwprch.AUTPDF[0][7]='F';
+  hwprch.AUTPDF[1][0]='H';
+  hwprch.AUTPDF[1][1]='W';
+  hwprch.AUTPDF[1][2]='L';
+  hwprch.AUTPDF[1][3]='H';
+  hwprch.AUTPDF[1][4]='A';
+  hwprch.AUTPDF[1][5]='P';
+  hwprch.AUTPDF[1][6]='D';
+  hwprch.AUTPDF[1][7]='F';
+  for(int i=8; i<20; ++i) {
+    hwprch.AUTPDF[0][i]=' ';
+    hwprch.AUTPDF[1][i]=' ';
+  }
+
+
+  char pdfpath[232];
+  bool dot=false;
+  for(int i=0; i<232; ++i) {
+    if(lhapdfSetPath_.c_str()[i]=='\0') dot=true;
+    if(!dot) pdfpath[i]=lhapdfSetPath_.c_str()[i];
+    else pdfpath[i]=' ';
+  }
+
+  setpdfpath(pdfpath);
+
+
   hwuinc();
 
   // callung HWUSTA to make any particle stable (PI0 by default)
@@ -440,7 +486,7 @@ Herwig6Source::hwgive(const std::string& ParameterString) {
     }
   }
   else if(!strncmp(ParameterString.c_str(),"AUTPDF(",7)){
-    cout<<" WARNING: AUTPDF parameter *not* suported. HERWIG will use default PDF's."<<endl;
+    cout<<" WARNING: AUTPDF parameter *not* suported. HERWIG will use LHAPDF."<<endl;
   }
   else if(!strncmp(ParameterString.c_str(),"TAUDEC",6)){
     int tostart=0;

@@ -41,8 +41,11 @@ namespace edm
     /// Verbosity flag
     int herwigVerbosity_;
     bool herwigHepMCVerbosity_;
+    int herwigLhapdfVerbosity_;
     int maxEventsToPrint_;
     double comenergy;
+
+    std::string lhapdfSetPath_;
     
   };
 } 
