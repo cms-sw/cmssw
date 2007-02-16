@@ -11,6 +11,12 @@ namespace ROOT
       os << t.Name();
       return os;
     }
+
+    std::ostream& operator<< (std::ostream& os, TypeTemplate const& tt)
+    {
+      os << tt.Name();
+      return os;
+    }
   }
 }
 

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: DataBlockImpl.cc,v 1.15 2007/02/14 14:20:30 paterno Exp $
+  $Id: DataBlockImpl.cc,v 1.16 2007/02/14 21:17:07 paterno Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -490,16 +490,6 @@ namespace edm {
 
   private:
     Type typeToMatch_;
-
-    // Return true if the given elementType is either the same type
-    // as, or is a public subclass of, the type we are trying to
-    // match.
-    bool element_type_matches(Type const& elementType) const
-    {
-      return
-	elementType == typeToMatch_ ||
-	elementType.HasBase(typeToMatch_);
-    }
 
     // Return true if the given group contains an EDProduct that is a
     // sequence, and if the value_type of that sequence is either the

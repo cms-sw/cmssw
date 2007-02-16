@@ -10,17 +10,18 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <string>
 #include <vector>
 
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/TestObjects/interface/ToyProducts.h"
 
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edmtest {
@@ -40,11 +41,11 @@ namespace edmtest {
   public:
     explicit FailingProducer(edm::ParameterSet const& /*p*/) {  }
     virtual ~FailingProducer() { }
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
   };
 
   void
-  FailingProducer::produce(edm::Event&, const edm::EventSetup&) {
+  FailingProducer::produce(edm::Event&, edm::EventSetup const&) {
     // We throw a double because the EventProcessor is *never*
     // configured to catch doubles.
     double x = 2.5;
@@ -65,13 +66,13 @@ namespace edmtest {
       produces<IntProduct>();
     }
     virtual ~IntProducer() { }
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
   private:
     int value_;
   };
 
   void
-  IntProducer::produce(edm::Event& e, const edm::EventSetup&) {
+  IntProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
     std::auto_ptr<IntProduct> p(new IntProduct(value_));
     e.put(p);
@@ -92,13 +93,13 @@ namespace edmtest {
       produces<DoubleProduct>();
     }
     virtual ~DoubleProducer() { }
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
   private:
     double value_;
   };
 
   void
-  DoubleProducer::produce(edm::Event& e, const edm::EventSetup&) {
+  DoubleProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
     // Get input
     edm::Handle<IntProduct> h;
@@ -133,13 +134,13 @@ namespace edmtest {
         produces<IntProduct>();
       }
     virtual ~AddIntsProducer() { }
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
   private:
     std::vector<std::string> labels_;
   };
   
   void
-  AddIntsProducer::produce(edm::Event& e, const edm::EventSetup&) {
+  AddIntsProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
     int value = 0;
     for(std::vector<std::string>::iterator itLabel = labels_.begin(), itLabelEnd = labels_.end();
@@ -172,7 +173,7 @@ namespace edmtest {
     }
 
     virtual ~SCSimpleProducer() { }
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
     
   private:
     int size_;  // number of Simples to put in the collection
@@ -180,7 +181,7 @@ namespace edmtest {
 
   void
   SCSimpleProducer::produce(edm::Event& e, 
-			    const edm::EventSetup& /* unused */) 
+			    edm::EventSetup const& /* unused */) 
   {
     // Fill up a collection so that it is sorted *backwards*.
     std::vector<Simple> guts(size_);
@@ -224,7 +225,7 @@ namespace edmtest {
     }
 
     virtual ~OVSimpleProducer() { }
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
     
   private:
     int size_;  // number of Simples to put in the collection
@@ -232,7 +233,7 @@ namespace edmtest {
 
   void
   OVSimpleProducer::produce(edm::Event& e, 
-			    const edm::EventSetup& /* unused */) 
+			    edm::EventSetup const& /* unused */) 
   {
     // Fill up a collection
     std::auto_ptr<OVSimpleProduct> p(new OVSimpleProduct());
@@ -271,7 +272,7 @@ namespace edmtest {
     }
 
     virtual ~AVSimpleProducer() { }
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
     
   private:
     int size_;  // number of Simple objects to put in the collection
@@ -279,7 +280,7 @@ namespace edmtest {
 
   void
   AVSimpleProducer::produce(edm::Event& e, 
-                            const edm::EventSetup& /* unused */) 
+                            edm::EventSetup const& /* unused */) 
   {
     // Fill up a collection
     std::auto_ptr<AVSimpleProduct> p(new AVSimpleProduct());
@@ -331,7 +332,7 @@ namespace edmtest {
 
   void
   DSVProducer::produce(edm::Event& e, 
-			     const edm::EventSetup& /* unused */)
+			     edm::EventSetup const& /* unused */)
   {
     this->make_a_product<DSVSimpleProduct>(e);
     this->make_a_product<DSVWeirdProduct>(e);
@@ -369,6 +370,7 @@ namespace edmtest {
     // depending upon the product type.
     e.put(p);
   }
+
   //--------------------------------------------------------------------
   //
   // Produces an std::vector<int> instance.
@@ -382,14 +384,14 @@ namespace edmtest {
       produces<std::vector<int> >();
     }
     virtual ~IntVectorProducer() { }
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
   private:
     int    value_;
     size_t count_;
   };
 
   void
-  IntVectorProducer::produce(edm::Event& e, const edm::EventSetup&) {
+  IntVectorProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
     std::auto_ptr<std::vector<int> > p(new std::vector<int>(count_, value_));
     e.put(p);
@@ -408,14 +410,14 @@ namespace edmtest {
       produces<std::list<int> >();
     }
     virtual ~IntListProducer() { }
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
   private:
     int    value_;
     size_t count_;
   };
 
   void
-  IntListProducer::produce(edm::Event& e, const edm::EventSetup&) {
+  IntListProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
     std::auto_ptr<std::list<int> > p(new std::list<int>(count_, value_));
     e.put(p);
@@ -434,14 +436,14 @@ namespace edmtest {
       produces<std::deque<int> >();
     }
     virtual ~IntDequeProducer() { }
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
   private:
     int    value_;
     size_t count_;
   };
 
   void
-  IntDequeProducer::produce(edm::Event& e, const edm::EventSetup&) {
+  IntDequeProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
     std::auto_ptr<std::deque<int> > p(new std::deque<int>(count_, value_));
     e.put(p);
@@ -460,19 +462,58 @@ namespace edmtest {
       produces<std::set<int> >();
     }
     virtual ~IntSetProducer() { }
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
   private:
     int start_;
     int stop_;
   };
 
   void
-  IntSetProducer::produce(edm::Event& e, const edm::EventSetup&) {
+  IntSetProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
     std::auto_ptr<std::set<int> > p(new std::set<int>());
     for (int i = start_; i < stop_; ++i) p->insert(i);
     e.put(p);
   }
+
+  //--------------------------------------------------------------------
+  //
+  // Produces an edm::RefVector<std::vector<int> > instance.
+  // This requires that an instance of IntVectorProducer be run *before*
+  // this producer.
+  class IntVecRefVectorProducer : public edm::EDProducer {
+    typedef edm::RefVector<std::vector<int> > product_type;
+
+  public:
+    explicit IntVecRefVectorProducer(edm::ParameterSet const& p) :
+      target_(p.getParameter<std::string>("target"))
+    {
+      produces<product_type>();
+    }
+    virtual ~IntVecRefVectorProducer() { }
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+
+  private:
+    std::string target_;
+  };
+
+  void
+  IntVecRefVectorProducer::produce(edm::Event& e, edm::EventSetup const&) {
+    // EventSetup is not used.
+    // Get our input:
+    edm::Handle<std::vector<int> > input;
+    e.getByLabel(target_, input);
+    assert(input.isValid());
+
+    std::auto_ptr<product_type> prod(new product_type());
+    
+    typedef product_type::value_type ref;
+    for (size_t i = 0, sz =input->size(); i!=sz; ++i) 
+      prod->push_back(ref(input, i));
+
+    e.put(prod);
+  }
+
 
   //--------------------------------------------------------------------
   //
@@ -489,7 +530,7 @@ namespace edmtest {
       moduleLabel_(iPSet.getUntrackedParameter<std::string>("moduleLabel")) {
       }
      
-    void analyze(const edm::Event& iEvent, const edm::EventSetup&) {
+    void analyze(const edm::Event& iEvent, edm::EventSetup const&) {
       edm::Handle<IntProduct> handle;
       iEvent.getByLabel(moduleLabel_,handle);
       if(handle->value != value_) {
@@ -639,6 +680,7 @@ using edmtest::IntVectorProducer;
 using edmtest::IntListProducer;
 using edmtest::IntDequeProducer;
 using edmtest::IntSetProducer;
+using edmtest::IntVecRefVectorProducer;
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(FailingProducer);
 DEFINE_ANOTHER_FWK_MODULE(IntProducer);
@@ -655,3 +697,5 @@ DEFINE_ANOTHER_FWK_MODULE(IntVectorProducer);
 DEFINE_ANOTHER_FWK_MODULE(IntListProducer);
 DEFINE_ANOTHER_FWK_MODULE(IntDequeProducer);
 DEFINE_ANOTHER_FWK_MODULE(IntSetProducer);
+DEFINE_ANOTHER_FWK_MODULE(IntVecRefVectorProducer);
+

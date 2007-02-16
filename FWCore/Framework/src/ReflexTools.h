@@ -7,7 +7,7 @@ ReflexTools provides a small number of Reflex-based tools, used in
 the CMS event model.  
 
 
-$Id: ReflexTools.h,v 1.1 2007/01/11 23:39:20 paterno Exp $
+$Id: ReflexTools.h,v 1.2 2007/02/14 21:17:07 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,6 +19,7 @@ namespace ROOT
   {
     class Type;
     std::ostream& operator<< (std::ostream& os, Type const& t);  
+    std::ostream& operator<< (std::ostream& os, TypeTemplate const& tt);
   }
 }
 

@@ -1,11 +1,12 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.15 2007/02/01 20:18:31 wmtan Exp $
+$Id: Group.cc,v 1.16 2007/02/14 21:17:07 paterno Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "FWCore/Framework/src/Group.h"
 #include "FWCore/Framework/src/ReflexTools.h"
 
 using ROOT::Reflex::Type;
+using ROOT::Reflex::TypeTemplate;
 
 namespace edm
 {
@@ -87,6 +88,14 @@ namespace edm
     if (!is_sequence) return false;
 
     Type elementType = value_type; // this is not true for RefVector...
+
+    TypeTemplate valueTypeTemplate = value_type.TemplateFamily();
+
+    // debugging start
+    std::cerr << "Group::isMatchingSequence\n"
+	      << "  value_type is: " << value_type << '\n'
+	      << "  valueTypeTemplate is: " << valueTypeTemplate << '\n';
+    // debugging end
 
     return 
       is_sequence 
