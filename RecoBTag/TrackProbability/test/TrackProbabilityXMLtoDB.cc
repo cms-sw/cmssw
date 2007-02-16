@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TrackProbabilityXMLtoDB.cc,v 1.6 2006/11/19 08:49:35 tboccali Exp $
+// $Id: TrackProbabilityXMLtoDB.cc,v 1.1 2007/02/16 08:37:53 arizzi Exp $
 //
 //
 
@@ -112,7 +112,7 @@ class TrackProbabilityXMLtoDB : public edm::EDAnalyzer {
           }
 
 
-//         mydbservice->createNewIOV<TrackProbabilityCalibration>(calibration,  mydbservice->endOfTime(),"BTagTrackProbability3DRcd");    
+         mydbservice->createNewIOV<TrackProbabilityCalibration>(calibration,  mydbservice->endOfTime(),"BTagTrackProbability3DRcd");    
 
          mydbservice->createNewIOV<TrackProbabilityCalibration>(calibration2d,  mydbservice->endOfTime(),"BTagTrackProbability2DRcd");   
                
