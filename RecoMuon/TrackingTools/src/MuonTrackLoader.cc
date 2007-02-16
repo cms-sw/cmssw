@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/02/01 17:58:00 $
- *  $Revision: 1.38 $
+ *  $Date: 2007/02/05 19:07:40 $
+ *  $Revision: 1.39 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -96,7 +96,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     return event.put(trackCollection,instance);
   }
   
-  LogDebug(metname) << "Create the collection of Tracks";
+  LogTrace(metname) << "Create the collection of Tracks";
 
   reco::TrackExtraRef::key_type trackExtraIndex = 0;
   TrackingRecHitRef::key_type recHitsIndex = 0;
@@ -161,7 +161,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 
     // fill the TrackCollection
     trackCollection->push_back(track);
-    LogDebug(metname) << "Debug Track being loaded pt "<<  track.pt();
+    LogTrace(metname) << "Debug Track being loaded pt "<<  track.pt();
     // fill the TrackCollection updated at vtx
     if(theUpdatingAtVtx) updatedAtVtxTrackCollection->push_back(updatedTrack);
 
@@ -172,7 +172,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   }
   
   // Put the Collections in the event
-  LogDebug(metname) << "put the Collections in the event";
+  LogTrace(metname) << "put the Collections in the event";
   
   event.put(recHitCollection,instance);
   event.put(trackExtraCollection,instance);
@@ -257,7 +257,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   }
   
   // put the MuonCollection in the event
-  LogDebug(metname) << "put the MuonCollection in the event" << "\n";
+  LogTrace(metname) << "put the MuonCollection in the event" << "\n";
   OrphanHandle<reco::MuonCollection> orphanHandleMuon = event.put(muonCollection);
   
   return orphanHandleMuon;
@@ -274,23 +274,23 @@ std::pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& t
   TrajectoryStateOnSurface innerTSOS;
   
   if (trajectory.direction() == alongMomentum) {
-    LogDebug(metname)<<"alongMomentum";
+    LogTrace(metname)<<"alongMomentum";
     innerTSOS = trajectory.firstMeasurement().updatedState();
   } 
   else if (trajectory.direction() == oppositeToMomentum) { 
-    LogDebug(metname)<<"oppositeToMomentum";
+    LogTrace(metname)<<"oppositeToMomentum";
     innerTSOS = trajectory.lastMeasurement().updatedState();
   }
   else LogError(metname)<<"Wrong propagation direction!";
   
-  LogDebug(metname) << "TSOS before the extrapolation at vtx";
-  LogDebug(metname) << debug.dumpTSOS(innerTSOS);
-  LogDebug(metname) << "Parameters ";
-  LogDebug(metname) << innerTSOS.freeState()->parameters();
-  LogDebug(metname) << "Cartesian Errors";
-  LogDebug(metname) << innerTSOS.freeState()->cartesianError().matrix();
-  LogDebug(metname) << "Curvilinear Errors";
-  LogDebug(metname) << innerTSOS.freeState()->curvilinearError().matrix();
+  LogTrace(metname) << "TSOS before the extrapolation at vtx";
+  LogTrace(metname) << debug.dumpTSOS(innerTSOS);
+  LogTrace(metname) << "Parameters ";
+  LogTrace(metname) << innerTSOS.freeState()->parameters();
+  LogTrace(metname) << "Cartesian Errors";
+  LogTrace(metname) << innerTSOS.freeState()->cartesianError().matrix();
+  LogTrace(metname) << "Curvilinear Errors";
+  LogTrace(metname) << innerTSOS.freeState()->curvilinearError().matrix();
 
 
   // This is needed to extrapolate the tsos at vertex
@@ -302,8 +302,8 @@ std::pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& t
     
     FreeTrajectoryState ftsAtVtx = extrapolationResult.second;
     
-    LogDebug(metname) << "TSOS after the extrapolation at vtx";
-    LogDebug(metname) << debug.dumpFTS(ftsAtVtx);
+    LogTrace(metname) << "TSOS after the extrapolation at vtx";
+    LogTrace(metname) << debug.dumpFTS(ftsAtVtx);
     
     GlobalPoint pca = ftsAtVtx.position();
     math::XYZPoint persistentPCA(pca.x(),pca.y(),pca.z());
@@ -337,17 +337,17 @@ reco::Track MuonTrackLoader::buildTrackUpdatedAtPCA(const reco::Track &track) co
 				      &*theService->magneticField(),
 				      theService->trackingGeometry());
 
-  LogDebug(metname) << "Apply the vertex constraint";
+  LogTrace(metname) << "Apply the vertex constraint";
   std::pair<bool,FreeTrajectoryState> updateResult = theUpdatorAtVtx->update(transientTrack);
 
   if(!updateResult.first){
     return reco::Track();
   }
 
-  LogDebug(metname) << "FTS after the vertex constraint";
+  LogTrace(metname) << "FTS after the vertex constraint";
   FreeTrajectoryState &ftsAtVtx = updateResult.second;
 
-  LogDebug(metname) << debug.dumpFTS(ftsAtVtx);
+  LogTrace(metname) << debug.dumpFTS(ftsAtVtx);
   
   GlobalPoint pca = ftsAtVtx.position();
   math::XYZPoint persistentPCA(pca.x(),pca.y(),pca.z());
@@ -380,14 +380,14 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   unsigned int innerId=0, outerId=0;
   
   if (trajectory.direction() == alongMomentum) {
-    LogDebug(metname)<<"alongMomentum";
+    LogTrace(metname)<<"alongMomentum";
     outerTSOS = trajectory.lastMeasurement().updatedState();
     innerTSOS = trajectory.firstMeasurement().updatedState();
     outerId = trajectory.lastMeasurement().recHit()->geographicalId().rawId();
     innerId = trajectory.firstMeasurement().recHit()->geographicalId().rawId();
   } 
   else if (trajectory.direction() == oppositeToMomentum) {
-    LogDebug(metname)<<"oppositeToMomentum";
+    LogTrace(metname)<<"oppositeToMomentum";
     outerTSOS = trajectory.firstMeasurement().updatedState();
     innerTSOS = trajectory.lastMeasurement().updatedState();
     outerId = trajectory.firstMeasurement().recHit()->geographicalId().rawId();

@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/10/24 09:40:21 $
- *   $Revision: 1.20 $
+ *   $Date: 2007/02/01 18:05:33 $
+ *   $Revision: 1.21 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -40,7 +40,7 @@ using namespace std;
 
 /// constructor with config
 StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet){
-  LogDebug("Muon|RecoMuon|StandAloneMuonProducer")<<"constructor called"<<endl;
+  LogTrace("Muon|RecoMuon|StandAloneMuonProducer")<<"constructor called"<<endl;
 
   // Parameter set for the Builder
   ParameterSet trajectoryBuilderParameters = parameterSet.getParameter<ParameterSet>("STATrajBuilderParameters");
@@ -71,7 +71,7 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   
 /// destructor
 StandAloneMuonProducer::~StandAloneMuonProducer(){
-  LogDebug("Muon|RecoMuon|StandAloneMuonProducer")<<"StandAloneMuonProducer destructor called"<<endl;
+  LogTrace("Muon|RecoMuon|StandAloneMuonProducer")<<"StandAloneMuonProducer destructor called"<<endl;
   if (theService) delete theService;
   if (theTrackFinder) delete theTrackFinder;
 }
@@ -80,11 +80,11 @@ StandAloneMuonProducer::~StandAloneMuonProducer(){
 void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup){
   const std::string metname = "Muon|RecoMuon|StandAloneMuonProducer";
   
-  LogDebug(metname)<<endl<<endl<<endl;
-  LogDebug(metname)<<"Stand Alone Muon Reconstruction Started"<<endl;
+  LogTrace(metname)<<endl<<endl<<endl;
+  LogTrace(metname)<<"Stand Alone Muon Reconstruction Started"<<endl;
 
   // Take the seeds container
-  LogDebug(metname)<<"Taking the seeds: "<<theSeedCollectionLabel.label()<<endl;
+  LogTrace(metname)<<"Taking the seeds: "<<theSeedCollectionLabel.label()<<endl;
   Handle<TrajectorySeedCollection> seeds; 
   event.getByLabel(theSeedCollectionLabel,seeds);
 
@@ -92,10 +92,10 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
   theService->update(eventSetup);
 
   // Reconstruct 
-  LogDebug(metname)<<"Track Reconstruction"<<endl;
+  LogTrace(metname)<<"Track Reconstruction"<<endl;
   theTrackFinder->reconstruct(seeds,event);
  
-  LogDebug(metname)<<"Event loaded"
+  LogTrace(metname)<<"Event loaded"
 		   <<"================================"
 		   <<endl<<endl;
 }

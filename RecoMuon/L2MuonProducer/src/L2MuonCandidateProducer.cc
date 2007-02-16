@@ -38,7 +38,7 @@ using namespace reco;
 
 /// constructor with config
 L2MuonCandidateProducer::L2MuonCandidateProducer(const ParameterSet& parameterSet){
-  LogDebug("Muon|RecoMuon|L2MuonCandidateProducer")<<" constructor called";
+  LogTrace("Muon|RecoMuon|L2MuonCandidateProducer")<<" constructor called";
 
   // StandAlone Collection Label
   theSACollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
@@ -48,7 +48,7 @@ L2MuonCandidateProducer::L2MuonCandidateProducer(const ParameterSet& parameterSe
   
 /// destructor
 L2MuonCandidateProducer::~L2MuonCandidateProducer(){
-  LogDebug("Muon|RecoMuon|L2MuonCandidateProducer")<<" L2MuonCandidateProducer destructor called";
+  LogTrace("Muon|RecoMuon|L2MuonCandidateProducer")<<" L2MuonCandidateProducer destructor called";
 }
 
 
@@ -57,12 +57,12 @@ void L2MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
   const string metname = "Muon|RecoMuon|L2MuonCandidateProducer";
   
   // Take the SA container
-  LogDebug(metname)<<" Taking the StandAlone muons: "<<theSACollectionLabel.label();
+  LogTrace(metname)<<" Taking the StandAlone muons: "<<theSACollectionLabel.label();
   Handle<TrackCollection> tracks; 
   event.getByLabel(theSACollectionLabel,tracks);
 
   // Create a RecoChargedCandidate collection
-  LogDebug(metname)<<" Creating the RecoChargedCandidate collection";
+  LogTrace(metname)<<" Creating the RecoChargedCandidate collection";
   auto_ptr<RecoChargedCandidateCollection> candidates( new RecoChargedCandidateCollection());
 
   for (unsigned int i=0; i<tracks->size(); i++) {
@@ -77,6 +77,6 @@ void L2MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
   
   event.put(candidates);
  
-  LogDebug(metname)<<" Event loaded"
+  LogTrace(metname)<<" Event loaded"
 		   <<"================================";
 }

@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/11/17 18:07:44 $
- *  $Revision: 1.21 $
+ *  $Date: 2007/01/18 13:26:53 $
+ *  $Revision: 1.22 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -166,7 +166,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
   
   TrajectoryStateOnSurface lastUpdatedTSOS = measurement->predictedState();
   
-  LogDebug(metname)<<"Number of rechits for the fit: "<<recHitsForFit.size()<<endl;
+  LogTrace(metname)<<"Number of rechits for the fit: "<<recHitsForFit.size()<<endl;
  
   TransientTrackingRecHit::ConstRecHitContainer::iterator recHit;
   for(recHit = recHitsForFit.begin(); recHit != recHitsForFit.end(); ++recHit ) {
@@ -179,7 +179,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
       if ( propagatedTSOS.isValid() ) {
         pair<bool,double> thisChi2 = estimator()->estimate(propagatedTSOS, *((*recHit).get()));
 
-	LogDebug(metname) << "Estimation for Kalman Fit. Chi2: " << thisChi2.second;
+	LogTrace(metname) << "Estimation for Kalman Fit. Chi2: " << thisChi2.second;
 	
         // The Chi2 cut was already applied in the estimator, which
         // returns 0 if the chi2 is bigger than the cut defined in its
@@ -187,9 +187,9 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
         if ( thisChi2.first ) {
           updated=true;
 	  
-          LogDebug(metname) << endl 
+          LogTrace(metname) << endl 
 			    << "     Kalman Start" << "\n" << "\n";
-          LogDebug(metname) << "  Meas. Position : " << (**recHit).globalPosition() << "\n"
+          LogTrace(metname) << "  Meas. Position : " << (**recHit).globalPosition() << "\n"
 			    << "  Pred. Position : " << propagatedTSOS.globalPosition()
 			    << "  Pred Direction : " << propagatedTSOS.globalDirection()<< endl;
 
@@ -200,16 +200,16 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
 
           lastUpdatedTSOS = measurementUpdator()->update(propagatedTSOS,*((*recHit).get()));
 
-          LogDebug(metname) << "  Fit   Position : " << lastUpdatedTSOS.globalPosition()
+          LogTrace(metname) << "  Fit   Position : " << lastUpdatedTSOS.globalPosition()
 			    << "  Fit  Direction : " << lastUpdatedTSOS.globalDirection()
 			    << "\n"
 			    << "  Fit position radius : " 
 			    << lastUpdatedTSOS.globalPosition().perp()
 			    << "filter updated" << endl;
 	  
-	  LogDebug(metname) << muonDumper.dumpTSOS(lastUpdatedTSOS);
+	  LogTrace(metname) << muonDumper.dumpTSOS(lastUpdatedTSOS);
 	  
-	  LogDebug(metname) << "\n\n     Kalman End" << "\n" << "\n";	      
+	  LogTrace(metname) << "\n\n     Kalman End" << "\n" << "\n";	      
 	  
 	  TrajectoryMeasurement updatedMeasurement = updateMeasurement( propagatedTSOS, lastUpdatedTSOS, 
 									*recHit,thisChi2.second,detLayer, 

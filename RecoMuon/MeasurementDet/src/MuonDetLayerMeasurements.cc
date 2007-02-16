@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2006/08/03 13:39:10 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/12/29 18:32:32 $
+ *  $Revision: 1.20 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -58,7 +58,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer MuonDetLayerMeasurements::recHi
     
     // Create the ChamberId
     DTChamberId chamberId(geoId.rawId());
-    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(DT): "<<chamberId<<std::endl;
+    LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(DT): "<<chamberId<<std::endl;
     
     // Get the DT-Segment which relies on this chamber
     DTRecSegment4DCollection::range range = dtRecHits->get(chamberId);
@@ -80,7 +80,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer MuonDetLayerMeasurements::recHi
 
     // Create the chamber Id
     CSCDetId chamberId(geoId.rawId());
-    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(CSC): "<<chamberId<<std::endl;
+    LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(CSC): "<<chamberId<<std::endl;
 
     // Get the CSC-Segment which relies on this chamber
     CSCSegmentCollection::range range = cscSegments->get(chamberId);
@@ -102,7 +102,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer MuonDetLayerMeasurements::recHi
     
     // Create the chamber Id
     RPCDetId chamberId(geoId.rawId());
-    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(RPC): "<<chamberId<<std::endl;
+    LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(RPC): "<<chamberId<<std::endl;
     
     // Get the RPC-Segment which relies on this chamber
     RPCRecHitCollection::range range = rpcRecHits->get(chamberId);
@@ -133,7 +133,7 @@ MuonDetLayerMeasurements::measurements( const DetLayer* layer,
   MeasurementContainer result;
   
   std::vector<DetWithState> dss = layer->compatibleDets(startingState, prop, est);
-  LogDebug("RecoMuon")<<"compatibleDets: "<<dss.size()<<std::endl;
+  LogTrace("RecoMuon")<<"compatibleDets: "<<dss.size()<<std::endl;
   
   for (std::vector<DetWithState>::const_iterator ids = dss.begin(); ids !=dss.end(); ids++){
     

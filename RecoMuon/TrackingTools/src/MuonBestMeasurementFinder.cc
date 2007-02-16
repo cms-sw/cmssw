@@ -7,8 +7,8 @@
  *  The evaluation is made (in hard-code way) with the granularity = 1. Where
  *  the granularity is the one defined in the MuonTrajectoyUpdatorClass.
  *
- *  $Date: 2006/08/31 18:24:18 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/09/04 17:07:53 $
+ *  $Revision: 1.11 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -63,7 +63,7 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
   // If we have just one (or zero) valid meas, return it at once 
   // (or return null measurement)
   if(NumValidMeas<=1) {
-    LogDebug(metname) << "MuonBestMeasurement: just " << NumValidMeas
+    LogTrace(metname) << "MuonBestMeasurement: just " << NumValidMeas
 		      << " valid measurement ";
     return bestMeasurement;
   }
@@ -82,13 +82,13 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
     // ask for the 2D-segments/2D-rechit
     TransientTrackingRecHit::ConstRecHitContainer rhits_list = muonRecHit->transientHits();
 
-    LogDebug(metname)<<"Number of rechits in the measurement rechit: "<<rhits_list.size()<<endl;
+    LogTrace(metname)<<"Number of rechits in the measurement rechit: "<<rhits_list.size()<<endl;
     
     // loop over them
     for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit = rhits_list.begin(); 
 	 rhit!= rhits_list.end(); rhit++ ) {
       if ((*rhit)->isValid() ) {
-	LogDebug(metname)<<"Rechit dimension: "<<(*rhit)->dimension()<<endl;
+	LogTrace(metname)<<"Rechit dimension: "<<(*rhit)->dimension()<<endl;
 	npts+=(*rhit)->dimension();
 	  
 	TrajectoryStateOnSurface predState;
@@ -102,13 +102,13 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
 	if ( predState.isValid() ) { 
 	  std::pair<bool,double> sing_chi2 = estimator()->estimate( predState, *((*rhit).get()));
 	  thisChi2 += sing_chi2.second ;
-	  LogDebug(metname) << " sing_chi2: "
+	  LogTrace(metname) << " sing_chi2: "
 			    << sing_chi2.second;
 	}
       }
     }
     double chi2PerNDoF = thisChi2/npts;
-    LogDebug(metname) << " The eeasurement has a chi2/npts " << chi2PerNDoF << " with dof = " << npts
+    LogTrace(metname) << " The eeasurement has a chi2/npts " << chi2PerNDoF << " with dof = " << npts
 		      << " \n Till now the best chi2 is " << minChi2PerNDoF;
     
     if ( chi2PerNDoF && chi2PerNDoF<minChi2PerNDoF ) {
@@ -117,7 +117,7 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
     }
     
   }
-  LogDebug(metname)<<"The final best chi2 is "<<minChi2PerNDoF<<endl;
+  LogTrace(metname)<<"The final best chi2 is "<<minChi2PerNDoF<<endl;
   return bestMeasurement;
 }
 
@@ -148,7 +148,7 @@ MuonBestMeasurementFinder::findBestMeasurement_OLD(std::vector<TrajectoryMeasure
   // If we have just one (or zero) valid meas, return it at once 
   // (or return null meas)
   if(NumValidMeas<=1) {
-    LogDebug(metname) << "MuonBestMeasurement: just " << NumValidMeas
+    LogTrace(metname) << "MuonBestMeasurement: just " << NumValidMeas
 		      << " valid meas ";
     return theMeas;
   }
@@ -189,13 +189,13 @@ MuonBestMeasurementFinder::findBestMeasurement_OLD(std::vector<TrajectoryMeasure
           if ( predState.isValid() ) { 
             std::pair<bool,double> sing_chi2 = estimator()->estimate( predState, *((*rhit).get()));
             thisChi2 += sing_chi2.second ;
-            LogDebug(metname) << " sing_chi2: "
+            LogTrace(metname) << " sing_chi2: "
 			      << sing_chi2.second;
           }
         }
       }
       double chi2PerNDoF = thisChi2/npts;
-      LogDebug(metname) << " --> chi2/npts " << chi2PerNDoF << "/" << npts
+      LogTrace(metname) << " --> chi2/npts " << chi2PerNDoF << "/" << npts
 			<< " best chi2=" << minChi2PerNDoF;
 
       if ( chi2PerNDoF && chi2PerNDoF<minChi2PerNDoF ) {
@@ -204,7 +204,7 @@ MuonBestMeasurementFinder::findBestMeasurement_OLD(std::vector<TrajectoryMeasure
       }
     }
     else {
-      LogDebug(metname) << "MuonBestMeasurement Invalid Meas";
+      LogTrace(metname) << "MuonBestMeasurement Invalid Meas";
     }
   }
 

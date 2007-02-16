@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2006/08/16 10:07:09 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/10/05 13:11:55 $
+ *  $Revision: 1.16 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -53,10 +53,10 @@ TrajectorySeed MuonSeedFromRecHits::seed(const edm::EventSetup& eSetup) const {
   computePtWithoutVtx(pt, spt);
 
   // some dump...
-  LogDebug(metname) << " Pt MB1 @vtx: " << pt[0] << " w: " << spt[0] << "\n" 
+  LogTrace(metname) << " Pt MB1 @vtx: " << pt[0] << " w: " << spt[0] << "\n" 
 		    << " Pt MB2 @vtx: " << pt[1] << " w: " << spt[1]<< endl ;
   
-  LogDebug(metname) << " Pt MB2-MB1 " << pt[2] << " w: " << spt[2]<< "\n" 
+  LogTrace(metname) << " Pt MB2-MB1 " << pt[2] << " w: " << spt[2]<< "\n" 
 		    << " Pt MB3-MB1 " << pt[3] << " w: " << spt[3]<< "\n" 
 		    << " Pt MB3-MB2 " << pt[4] << " w: " << spt[4]<< "\n" 
 		    << " Pt MB4-MB1 " << pt[5] << " w: " << spt[5]<< "\n" 
@@ -68,7 +68,7 @@ TrajectorySeed MuonSeedFromRecHits::seed(const edm::EventSetup& eSetup) const {
   float sptmean=0.;
   computeBestPt(pt, spt, ptmean, sptmean);
   
-  LogDebug(metname) << " Seed Pt :" << ptmean << "+/-" << sptmean << endl;
+  LogTrace(metname) << " Seed Pt :" << ptmean << "+/-" << sptmean << endl;
   
   // take the best candidate
   ConstMuonRecHitPointer last = best_cand();
@@ -390,7 +390,7 @@ void MuonSeedFromRecHits::computeBestPt(double* pt,
         sptvtx = gsl_stats_wvariance_m (spt, 1, pt, 1, n, ptvtx);
         sptvtx = sqrt(sptvtx);
       }
-      LogDebug(metname) << " GSL: Pt w vtx :" << ptvtx << "+/-" <<
+      LogTrace(metname) << " GSL: Pt w vtx :" << ptvtx << "+/-" <<
         sptvtx << endl;
       
       // FIXME: temp hack
@@ -421,7 +421,7 @@ void MuonSeedFromRecHits::computeBestPt(double* pt,
         sptMB = gsl_stats_wvariance_m (&spt[2], 1, &pt[2], 1, n, ptMB);
         sptMB = sqrt(sptMB);
       }
-      LogDebug(metname) << " GSL: Pt w/o vtx :" << ptMB << "+/-" <<
+      LogTrace(metname) << " GSL: Pt w/o vtx :" << ptMB << "+/-" <<
         sptMB << endl;
     }
 
@@ -430,7 +430,7 @@ void MuonSeedFromRecHits::computeBestPt(double* pt,
     if((ptvtx+ptMB)!=0.0) ptpool=(ptvtx-ptMB)/(ptvtx+ptMB);
     bool fromvtx=true;
     if(fabs(ptpool)>0.2) fromvtx=false; 
-    LogDebug(metname) << "From vtx? " <<fromvtx << " ptpool "<< ptpool << endl;
+    LogTrace(metname) << "From vtx? " <<fromvtx << " ptpool "<< ptpool << endl;
 
     // now choose the "right" pt => weighted mean
     int n=0;
@@ -451,7 +451,7 @@ void MuonSeedFromRecHits::computeBestPt(double* pt,
       sptmean = gsl_stats_wvariance_m (sptTmp, 1, ptTmp, 1, n, ptmean);
       sptmean = sqrt(sptmean);
     }
-    LogDebug(metname) << " GSL Pt :" << ptmean << "+/-" << sptmean << endl;
+    LogTrace(metname) << " GSL Pt :" << ptmean << "+/-" << sptmean << endl;
 
     // Recompute mean with a cut at 3 sigma
     for ( int nm =0; nm<8; nm++ ){
@@ -462,7 +462,7 @@ void MuonSeedFromRecHits::computeBestPt(double* pt,
     ptmean = gsl_stats_wmean(sptTmp, 1, ptTmp, 1, n);
     sptmean = gsl_stats_wvariance_m (sptTmp, 1, ptTmp, 1, n, ptmean);
     sptmean = sqrt(sptmean);
-    LogDebug(metname) << " GSL recomp Pt :" << ptmean << "+/-" << sptmean << endl;
+    LogTrace(metname) << " GSL recomp Pt :" << ptmean << "+/-" << sptmean << endl;
   }
 }
 
@@ -505,8 +505,8 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   // H => is the 4x5 projection matrix
   // parError the 4x4 parameter error matrix of the RecHit
 
-  // LogDebug(metname) << "Projection matrix:\n" << last->projectionMatrix();
-  // LogDebug(metname) << "Error matrix:\n" << last->parametersError();
+  // LogTrace(metname) << "Projection matrix:\n" << last->projectionMatrix();
+  // LogTrace(metname) << "Error matrix:\n" << last->parametersError();
 
   mat = last->parametersError().similarityT( last->projectionMatrix() );
   
@@ -520,16 +520,16 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   // Create the TrajectoryStateOnSurface
   TrajectoryStateOnSurface tsos(param, error, last->det()->surface(),&*field);
 
-  LogDebug(metname) << "Trajectory State on Surface before the extrapolation"<<endl;
-  LogDebug(metname) << debug.dumpTSOS(tsos);
+  LogTrace(metname) << "Trajectory State on Surface before the extrapolation"<<endl;
+  LogTrace(metname) << debug.dumpTSOS(tsos);
   
   // Take the DetLayer on which relies the rechit
   DetId id = last->geographicalId();
 
   // Segment layer
-  LogDebug(metname) << "The RecSegment relies on: "<<endl;
-  LogDebug(metname) << debug.dumpMuonId(id);
-  LogDebug(metname) << debug.dumpTSOS(tsos);
+  LogTrace(metname) << "The RecSegment relies on: "<<endl;
+  LogTrace(metname) << debug.dumpMuonId(id);
+  LogTrace(metname) << debug.dumpTSOS(tsos);
 
   // Transform it in a TrajectoryStateOnSurface
   TrajectoryStateTransform tsTransform;

@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2006/08/28 16:16:59 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/01/20 02:56:16 $
+ *  $Revision: 1.16 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -68,7 +68,7 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
   }
 
   if ( num_bar ) {
-    LogDebug(metname)
+    LogTrace(metname)
       << "Barrel Seeds " << num_bar << endl;
     theSeeds.push_back(barrel.seed(eSetup));
  
@@ -79,7 +79,7 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
   }
   
   // 5
-  else LogDebug(metname) << "Endcap Seed" << endl;
+  else LogTrace(metname) << "Endcap Seed" << endl;
 
   //Search ME1  ...
   MuonRecHitPointer me1=0, meit=0;
@@ -298,7 +298,7 @@ MuonSeedFinder::createEndcapSeed_OLD(MuonRecHitPointer me,
   const FreeTrajectoryState state = *(tsos.freeState());
 
   MuonPatternRecoDumper debugDumper;
-  LogDebug(metname) << debugDumper.dumpFTS(state);
+  LogTrace(metname) << debugDumper.dumpFTS(state);
 
   float z=0;
   /// magic number: eta=1.479 correspond to upper corner of ME1/1
@@ -349,13 +349,13 @@ MuonSeedFinder::createEndcapSeed_OLD(MuonRecHitPointer me,
 
     theSeeds.push_back(seed);
     
-    LogDebug(metname)<<"  Propag.oppositeToMomentum "<<endl;
-    LogDebug(metname)<< debugDumper.dumpTSOS(trj);
-    LogDebug(metname) << "=== Successfull propagation" << endl;  // +v
+    LogTrace(metname)<<"  Propag.oppositeToMomentum "<<endl;
+    LogTrace(metname)<< debugDumper.dumpTSOS(trj);
+    LogTrace(metname) << "=== Successfull propagation" << endl;  // +v
     
     result=true;
   } else {
-    LogDebug(metname) << "Invalid propagation" << endl;
+    LogTrace(metname) << "Invalid propagation" << endl;
     result=false;
   }
   delete propagator;

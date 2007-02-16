@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2006/11/23 02:27:44 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/01/30 19:35:45 $
+ *  $Revision: 1.11 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -14,14 +14,14 @@ using namespace std;
 void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){ 
   const std::string metname = "Muon|RecoMuon|MuonTrajectoryCleaner";
 
-  LogDebug(metname) << "Muon Trajectory Cleaner called" << endl;
+  LogTrace(metname) << "Muon Trajectory Cleaner called" << endl;
 
   TrajectoryContainer::iterator iter, jter;
   Trajectory::DataContainer::const_iterator m1, m2;
 
   if ( trajC.size() < 2 ) return;
   
-  LogDebug(metname) << "Number of trajectories in the container: " <<trajC.size()<< endl;
+  LogTrace(metname) << "Number of trajectories in the container: " <<trajC.size()<< endl;
 
   int i(0), j(0);
   int match(0);
@@ -49,7 +49,7 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
         }
       }
       
-      LogDebug(metname) 
+      LogTrace(metname) 
 	<< " MuonTrajSelector: trajC " << i << " chi2/nRH = " 
 	<< (*iter)->chiSquared() << "/" << (*iter)->foundHits() <<
 	" vs trajC " << j << " chi2/nRH = " << (*jter)->chiSquared() <<
@@ -95,7 +95,7 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
 void MuonTrajectoryCleaner::clean(CandidateContainer& candC){ 
   const std::string metname = "Muon|RecoMuon|MuonTrajectoryCleaner";
 
-  LogDebug(metname) << "Muon Trajectory Cleaner called" << endl;
+  LogTrace(metname) << "Muon Trajectory Cleaner called" << endl;
 
   if ( candC.size() < 2 ) return;
 
@@ -106,7 +106,7 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
   const float deltaPhi = 0.01;
   const float deltaPt  = 1.0;
   
-  LogDebug(metname) << "Number of muon candidates in the container: " <<candC.size()<< endl;
+  LogTrace(metname) << "Number of muon candidates in the container: " <<candC.size()<< endl;
 
   int i(0), j(0);
   int match(0);
@@ -151,7 +151,7 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
         }
       }
       
-      LogDebug(metname) 
+      LogTrace(metname) 
 	<< " MuonTrajSelector: candC " << i << " chi2/nRH = " 
 	<< (*iter)->trajectory()->chiSquared() << "/" << (*iter)->trajectory()->foundHits() <<
 	" vs trajC " << j << " chi2/nRH = " << (*jter)->trajectory()->chiSquared() <<
@@ -175,7 +175,7 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
       float dpt(abs(pt1-pt2));
       if ( dpt < deltaPt && deta < deltaEta && dphi < deltaPhi ) {
         directionMatch = true;
-        LogDebug(metname)
+        LogTrace(metname)
         << " MuonTrajSelector: candC " << i<<" and "<<j<< " direction matched: "
         <<innerTSOS.globalMomentum()<<" and " <<innerTSOS2.globalMomentum();
 

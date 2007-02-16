@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a L2 reonstructed muon.
  *
- *   $Date: 2007/01/03 20:37:01 $
- *   $Revision: 1.3 $
+ *   $Date: 2007/02/05 19:07:39 $
+ *   $Revision: 1.4 $
  *   \author  A. Everett - Purdue University
  */
 
@@ -39,7 +39,7 @@ using namespace std;
 //
 L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
 
-  LogDebug("L3MuonProducer") << "constructor called" << endl;
+  LogTrace("L3MuonProducer") << "constructor called" << endl;
 
   // Parameter set for the Builder
   ParameterSet trajectoryBuilderParameters = parameterSet.getParameter<ParameterSet>("L3TrajBuilderParameters");
@@ -86,7 +86,7 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
 //
 L3MuonProducer::~L3MuonProducer() {
 
-  LogDebug("L3MuonProducer") << "destructor called" << endl;
+  LogTrace("L3MuonProducer") << "destructor called" << endl;
   if (theService) delete theService;
   if (theTrackFinder) delete theTrackFinder;
 
@@ -98,8 +98,8 @@ L3MuonProducer::~L3MuonProducer() {
 //
 void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   const string metname = "Muon|RecoMuon|L3MuonProducer";  
-  LogDebug(metname)<<endl<<endl<<endl;
-  LogDebug(metname)<<"L3 Muon Reconstruction started"<<endl;  
+  LogTrace(metname)<<endl<<endl<<endl;
+  LogTrace(metname)<<"L3 Muon Reconstruction started"<<endl;  
 
   typedef vector<Trajectory> TrajColl;
 
@@ -107,7 +107,7 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   theService->update(eventSetup);
 
   // Take the L2 muon container(s)
-  LogDebug(metname)<<"Taking the L2 Muons "<<theL2CollectionLabel.label()<<endl;
+  LogTrace(metname)<<"Taking the L2 Muons "<<theL2CollectionLabel.label()<<endl;
 
   Handle<reco::TrackCollection> L2Muons;
   event.getByLabel(theL2CollectionLabel,L2Muons);
@@ -116,13 +116,13 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   if(theL2TrajectoryFlag) {
     event.getByLabel(theL2CollectionLabel,L2MuonsTraj);      
-    LogDebug(metname)<<"Track Reconstruction (tracks, trajs) "<< L2Muons.product()->size() << " " << L2MuonsTraj.product()->size() <<endl;
+    LogTrace(metname)<<"Track Reconstruction (tracks, trajs) "<< L2Muons.product()->size() << " " << L2MuonsTraj.product()->size() <<endl;
   }   
 
   theTrackFinder->reconstruct(L2Muons, L2MuonsTraj, event);      
 
   
-  LogDebug(metname)<<"Event loaded"
+  LogTrace(metname)<<"Event loaded"
                    <<"================================"
                    <<endl<<endl;
     

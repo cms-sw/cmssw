@@ -4,8 +4,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2006/10/19 13:52:43 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/01 17:56:38 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -80,7 +80,7 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
   // Global Tracking Geometry
   unsigned long long newCacheId_GTG = setup.get<GlobalTrackingGeometryRecord>().cacheIdentifier();
   if ( newCacheId_GTG != theCacheId_GTG ) {
-    LogDebug(metname) << "GlobalTrackingGeometry changed!";
+    LogTrace(metname) << "GlobalTrackingGeometry changed!";
     theCacheId_GTG = newCacheId_GTG;
     setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
   }
@@ -88,7 +88,7 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
   // Magfield Field
   unsigned long long newCacheId_MG = setup.get<IdealMagneticFieldRecord>().cacheIdentifier();
   if ( newCacheId_MG != theCacheId_MG ) {
-    LogDebug(metname) << "Magnetic Field changed!";
+    LogTrace(metname) << "Magnetic Field changed!";
     theCacheId_MG = newCacheId_MG;
     setup.get<IdealMagneticFieldRecord>().get(theMGField);
   }
@@ -96,7 +96,7 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
   // DetLayer Geometry
   unsigned long long newCacheId_DG = setup.get<MuonRecoGeometryRecord>().cacheIdentifier();
   if ( newCacheId_DG != theCacheId_DG ) {
-    LogDebug(metname) << "Muon Reco Geometry changed!";
+    LogTrace(metname) << "Muon Reco Geometry changed!";
     theCacheId_DG = newCacheId_DG;
     setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
     // MuonNavigationSchool should live until its validity expires, and then DELETE
@@ -111,7 +111,7 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
   theChangeInTrackingComponentsRecord = false;
   unsigned long long newCacheId_P = setup.get<TrackingComponentsRecord>().cacheIdentifier();
   if ( newCacheId_P != theCacheId_P ) {
-    LogDebug(metname) << "Tracking Component changed!";
+    LogTrace(metname) << "Tracking Component changed!";
     theChangeInTrackingComponentsRecord = true;
     theCacheId_P = newCacheId_P;
     for(propagators::iterator prop = thePropagators.begin(); prop != thePropagators.end();

@@ -24,7 +24,7 @@ using namespace reco;
 
 /// constructor with config
 L3MuonAltProducer::L3MuonAltProducer(const ParameterSet& parameterSet){
-  LogDebug("Muon|RecoMuon|L3MuonAltProducer")<<" constructor called";
+  LogTrace("Muon|RecoMuon|L3MuonAltProducer")<<" constructor called";
 
   // Collection Labels
   theMuonCollectionLabel = parameterSet.getParameter<InputTag>("MuonCollection");
@@ -36,7 +36,7 @@ L3MuonAltProducer::L3MuonAltProducer(const ParameterSet& parameterSet){
   
 /// destructor
 L3MuonAltProducer::~L3MuonAltProducer(){
-  LogDebug("Muon|RecoMuon|L3MuonAltProducer")<<" L3MuonAltProducer destructor called";
+  LogTrace("Muon|RecoMuon|L3MuonAltProducer")<<" L3MuonAltProducer destructor called";
 }
 
 
@@ -45,16 +45,16 @@ void L3MuonAltProducer::produce(Event& event, const EventSetup& eventSetup){
   const string metname = "Muon|RecoMuon|L3MuonAltProducer";
   
   // Take the L3 container
-  LogDebug(metname)<<" Taking the regional track collection: "<<theTrackCollectionLabel.label();
+  LogTrace(metname)<<" Taking the regional track collection: "<<theTrackCollectionLabel.label();
   Handle<TrackCollection> tracks; 
   event.getByLabel(theTrackCollectionLabel,tracks);
 
-  LogDebug(metname)<<" Taking the StandAlone muon collection: "<<theMuonCollectionLabel.label();
+  LogTrace(metname)<<" Taking the StandAlone muon collection: "<<theMuonCollectionLabel.label();
   Handle<TrackCollection> muons; 
   event.getByLabel(theMuonCollectionLabel,muons);
 
   // Create the L3 muon collection
-  LogDebug(metname)<<" Creating the L3 muon collection";
+  LogTrace(metname)<<" Creating the L3 muon collection";
   auto_ptr<TrackCollection> l3muons( new TrackCollection());
 
   for (unsigned int i=0; i<muons->size(); i++) {
@@ -66,7 +66,7 @@ void L3MuonAltProducer::produce(Event& event, const EventSetup& eventSetup){
   
   event.put(l3muons);
  
-  LogDebug(metname)<<" Event loaded"
+  LogTrace(metname)<<" Event loaded"
 		   <<"================================";
 }
 
@@ -93,7 +93,7 @@ TrackRef L3MuonAltProducer::muonMatch(const TrackRef& mu, const Handle<TrackColl
             }
       }
 
-      LogDebug(metname)<<" L2 Muon has been matched to a track: ptmu= " << mu->pt() << ", pttk= " << best->pt() << ", chi2/ndof= " << chi2min/TrackBase::dimension;
+      LogTrace(metname)<<" L2 Muon has been matched to a track: ptmu= " << mu->pt() << ", pttk= " << best->pt() << ", chi2/ndof= " << chi2min/TrackBase::dimension;
 
       return best;
 }

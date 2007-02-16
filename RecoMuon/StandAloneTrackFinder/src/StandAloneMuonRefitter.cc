@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/09/13 10:44:28 $
- *  $Revision: 1.31 $
+ *  $Date: 2007/01/18 13:29:27 $
+ *  $Revision: 1.32 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -95,7 +95,7 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par,
 
 StandAloneMuonRefitter::~StandAloneMuonRefitter(){
 
-  LogDebug("Muon|RecoMuon|StandAloneMuonRefitter")
+  LogTrace("Muon|RecoMuon|StandAloneMuonRefitter")
     <<"StandAloneMuonRefitter destructor called"<<endl;
   
   delete theEstimator;
@@ -178,7 +178,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
   
   MuonPatternRecoDumper debug;
   
-  LogDebug(metname) << "Starting the refit"<<endl; 
+  LogTrace(metname) << "Starting the refit"<<endl; 
   TimeMe t(metname,timing);
 
   // this is the most outward TSOS updated with a recHit onto a DetLayer
@@ -193,7 +193,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
   vector<const DetLayer*> detLayers = compatibleLayers(initialLayer,*initialTSOS.freeTrajectoryState(),
 						       propagationDirection());  
   
-  LogDebug(metname)<<"compatible layers found: "<<detLayers.size()<<endl;
+  LogTrace(metname)<<"compatible layers found: "<<detLayers.size()<<endl;
   
   vector<const DetLayer*>::const_iterator layer;
 
@@ -202,9 +202,9 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
     
     //    bool firstTime = true;
 
-    LogDebug(metname) << debug.dumpLayer(*layer);
+    LogTrace(metname) << debug.dumpLayer(*layer);
     
-    LogDebug(metname) << "search Trajectory Measurement from: " << lastTSOS.globalPosition();
+    LogTrace(metname) << "search Trajectory Measurement from: " << lastTSOS.globalPosition();
     
     vector<TrajectoryMeasurement> measL = 
       theMeasurementExtractor->measurements(*layer,
@@ -212,7 +212,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
       					   *propagator(), 
 					   *estimator());
 
-    LogDebug(metname) << "Number of Trajectory Measurement: " << measL.size();
+    LogTrace(metname) << "Number of Trajectory Measurement: " << measL.size();
         
     TrajectoryMeasurement* bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL, propagator());
 
@@ -232,7 +232,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 	fabs(lastTSOS.freeTrajectoryState()->momentum().eta() - 
 	     initialTSOS.freeTrajectoryState()->momentum().eta())>0.1 ) {
 
-      LogDebug(metname) << "No measurement and big eta variation wrt seed" << endl
+      LogTrace(metname) << "No measurement and big eta variation wrt seed" << endl
 			<< "trying with lastButOneUpdatedTSOS";
       measL = theMeasurementExtractor->measurements(*layer,
 						   lastButOneUpdatedTSOS, 
@@ -248,7 +248,7 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 	fabs(lastTSOS.freeTrajectoryState()->momentum().eta() - 
 	     initialTSOS.freeTrajectoryState()->momentum().eta())>0.1 ) {
 
-      LogDebug(metname) << "No measurement and big eta variation wrt seed" << endl
+      LogTrace(metname) << "No measurement and big eta variation wrt seed" << endl
 			<< "tryng with seed TSOS";
 
       measL = theMeasurementExtractor->measurements(*layer,
@@ -263,13 +263,13 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 
     // check if the there is a measurement
     if(bestMeasurement){
-      LogDebug(metname)<<"best measurement found" << "\n"
+      LogTrace(metname)<<"best measurement found" << "\n"
 		       <<"updating the trajectory..."<<endl;
       pair<bool,TrajectoryStateOnSurface> result = updator()->update(bestMeasurement,
 								     trajectory,
 								     propagator());
-      LogDebug(metname)<<"trajectory updated: "<<result.first<<endl;
-      LogDebug(metname) << debug.dumpTSOS(result.second);
+      LogTrace(metname)<<"trajectory updated: "<<result.first<<endl;
+      LogTrace(metname) << debug.dumpTSOS(result.second);
       
       if(result.first){ 
 	lastTSOS = result.second;
@@ -284,9 +284,9 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
     // state for the following measurement serches. I take the first in the
     // container. FIXME!!! I want to carefully check this!!!!!
     else{
-      LogDebug(metname)<<"No best measurement found"<<endl;
+      LogTrace(metname)<<"No best measurement found"<<endl;
       if (measL.size()>0){
-	LogDebug(metname)<<"but the #of measurement is "<<measL.size()<<endl;
+	LogTrace(metname)<<"but the #of measurement is "<<measL.size()<<endl;
         lastTSOS = measL.front().predictedState();
       }
     }

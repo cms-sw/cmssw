@@ -7,8 +7,8 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: 2006/11/13 13:49:44 $
- *   $Revision: 1.4 $
+ *   $Date: 2006/11/13 15:27:20 $
+ *   $Revision: 1.5 $
  *
  *   \author  A.Everett, R.Bellan
  *
@@ -93,7 +93,7 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   // Muon particles
   edm::Handle<L1MuonParticleCollection> muColl;
   iEvent.getByLabel(theSource, muColl);
-  LogDebug(metname) << "Number of muons " << muColl->size() << endl;
+  LogTrace(metname) << "Number of muons " << muColl->size() << endl;
   
   L1MuonParticleCollection::const_iterator it;
   for(it = muColl->begin(); it != muColl->end(); it++) {
@@ -119,16 +119,16 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
     if ( pt < theL1MinPt || fabs(eta) > theL1MaxEta ) continue;
     
-    LogDebug(metname) << "New L2 Muon Seed";
-    LogDebug(metname) << "Pt = " << pt << " GeV/c";
-    LogDebug(metname) << "eta = " << eta;
-    LogDebug(metname) << "theta = " << theta << " rad";
-    LogDebug(metname) << "phi = " << phi << " rad";
-    LogDebug(metname) << "charge = "<< charge;
-    LogDebug(metname) << "In Barrel? = "<< barrel;
+    LogTrace(metname) << "New L2 Muon Seed";
+    LogTrace(metname) << "Pt = " << pt << " GeV/c";
+    LogTrace(metname) << "eta = " << eta;
+    LogTrace(metname) << "theta = " << theta << " rad";
+    LogTrace(metname) << "phi = " << phi << " rad";
+    LogTrace(metname) << "charge = "<< charge;
+    LogTrace(metname) << "In Barrel? = "<< barrel;
     
     if ( quality <= theL1MinQuality ) continue;
-    LogDebug(metname) << "quality = "<< quality; 
+    LogTrace(metname) << "quality = "<< quality; 
     
     // Update the services
     theService->update(iSetup);
@@ -142,24 +142,24 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	
     // Get the det layer on which the state should be put
     if ( barrel ){
-      LogDebug(metname) << "The seed is in the barrel";
+      LogTrace(metname) << "The seed is in the barrel";
       
       // MB2
       DetId id = DTChamberId(0,2,0);
       detLayer = theService->detLayerGeometry()->idToLayer(id);
-      LogDebug(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
+      LogTrace(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
       
       const BoundSurface* sur = &(detLayer->surface());
       const BoundCylinder* bc = dynamic_cast<const BoundCylinder*>(sur);
 
       radius = fabs(bc->radius()/sin(theta));
 
-      LogDebug(metname) << "radius "<<radius;
+      LogTrace(metname) << "radius "<<radius;
 
       if ( pt < 3.5 ) pt = 3.5;
     }
     else { 
-      LogDebug(metname) << "The seed is in the endcap";
+      LogTrace(metname) << "The seed is in the endcap";
       
       DetId id;
       // ME2
@@ -169,7 +169,7 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	id = CSCDetId(2,2,0,0,0); 
       
       detLayer = theService->detLayerGeometry()->idToLayer(id);
-      LogDebug(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
+      LogTrace(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
 
       radius = fabs(detLayer->position().z()/cos(theta));      
       
@@ -197,15 +197,15 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
     const FreeTrajectoryState state(param,error);
    
-    LogDebug(metname) << "Free trajectory State from the parameters";
-    LogDebug(metname) << debug.dumpFTS(state);
+    LogTrace(metname) << "Free trajectory State from the parameters";
+    LogTrace(metname) << debug.dumpFTS(state);
 
     // Propagate the state on the MB2/ME2 surface
     TrajectoryStateOnSurface tsos = theService->propagator(thePropagatorName)->propagate(state, detLayer->surface());
    
-    LogDebug(metname) << "State after the propagation on the layer";
-    LogDebug(metname) << debug.dumpLayer(detLayer);
-    LogDebug(metname) << debug.dumpFTS(state);
+    LogTrace(metname) << "State after the propagation on the layer";
+    LogTrace(metname) << debug.dumpLayer(detLayer);
+    LogTrace(metname) << debug.dumpFTS(state);
 
     if (tsos.isValid()) {
       // Get the compatible dets on the layer
@@ -219,13 +219,13 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
 	const GeomDet *newTSOSDet = detsWithStates.front().first;
 	
-	LogDebug(metname) << "Most compatible det";
-	LogDebug(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
+	LogTrace(metname) << "Most compatible det";
+	LogTrace(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
 
 	if (newTSOS.isValid()){
 
-	  LogDebug(metname) << "State on it";
-	  LogDebug(metname) << debug.dumpTSOS(newTSOS);
+	  LogTrace(metname) << "State on it";
+	  LogTrace(metname) << debug.dumpTSOS(newTSOS);
 	  
 	  // convert the TSOS into a PTSOD
 	  PTrajectoryStateOnDet *seedTSOS = tsTransform.persistentState( newTSOS,newTSOSDet->geographicalId().rawId());

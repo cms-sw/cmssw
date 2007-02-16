@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2006/10/24 09:39:41 $
- *   $Revision: 1.16 $
+ *   $Date: 2007/02/01 18:06:57 $
+ *   $Revision: 1.17 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -42,7 +42,7 @@ using namespace std;
 
 /// constructor with config
 L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
-  LogDebug("Muon|RecoMuon|L2MuonProducer")<<"constructor called"<<endl;
+  LogTrace("Muon|RecoMuon|L2MuonProducer")<<"constructor called"<<endl;
 
   // Parameter set for the Builder
   ParameterSet trajectoryBuilderParameters = parameterSet.getParameter<ParameterSet>("L2TrajBuilderParameters");
@@ -73,7 +73,7 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   
 /// destructor
 L2MuonProducer::~L2MuonProducer(){
-  LogDebug("Muon|RecoMuon|L2eMuonProducer")<<"L2MuonProducer destructor called"<<endl;
+  LogTrace("Muon|RecoMuon|L2eMuonProducer")<<"L2MuonProducer destructor called"<<endl;
   if (theService) delete theService;
   if (theTrackFinder) delete theTrackFinder;
 }
@@ -84,11 +84,11 @@ void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup){
   
  const std::string metname = "Muon|RecoMuon|L2MuonProducer";
   
-  LogDebug(metname)<<endl<<endl<<endl;
-  LogDebug(metname)<<"L2 Muon Reconstruction Started"<<endl;
+  LogTrace(metname)<<endl<<endl<<endl;
+  LogTrace(metname)<<"L2 Muon Reconstruction Started"<<endl;
   
   // Take the seeds container
-  LogDebug(metname)<<"Taking the seeds: "<<theSeedCollectionLabel.label()<<endl;
+  LogTrace(metname)<<"Taking the seeds: "<<theSeedCollectionLabel.label()<<endl;
   Handle<TrajectorySeedCollection> seeds; 
   event.getByLabel(theSeedCollectionLabel,seeds);
 
@@ -96,10 +96,10 @@ void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup){
   theService->update(eventSetup);
   
   // Reconstruct 
-  LogDebug(metname)<<"Track Reconstruction"<<endl;
+  LogTrace(metname)<<"Track Reconstruction"<<endl;
   theTrackFinder->reconstruct(seeds,event);
   
-  LogDebug(metname)<<"Event loaded"
+  LogTrace(metname)<<"Event loaded"
 		   <<"================================"
 		   <<endl<<endl;
 }

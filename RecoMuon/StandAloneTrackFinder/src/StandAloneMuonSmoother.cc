@@ -4,8 +4,8 @@
  *  This class contains the KFTrajectorySmoother and takes care
  *  to update the it whenever the propagator change.
  *
- *  $Date: 2006/08/31 18:28:04 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/10/18 16:33:04 $
+ *  $Revision: 1.7 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -83,7 +83,7 @@ StandAloneMuonSmoother::SmoothingResult StandAloneMuonSmoother::smooth(const Tra
   vector<Trajectory> trajectoriesSM = smoother()->trajectories(inputTrajectory);
   
   if(!trajectoriesSM.size()){
-    LogDebug(metname) << "No Track smoothed!";
+    LogTrace(metname) << "No Track smoothed!";
     return SmoothingResult(false,inputTrajectory); 
   }
   

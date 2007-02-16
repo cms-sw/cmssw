@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2007/01/03 20:37:23 $
- *   $Revision: 1.21 $
+ *   $Date: 2007/02/05 19:07:37 $
+ *   $Revision: 1.22 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -40,7 +40,7 @@ using namespace std;
 //
 GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
 
-  LogDebug("Muon|RecoMuon|GlobalMuonProducer") << "constructor called" << endl;
+  LogTrace("Muon|RecoMuon|GlobalMuonProducer") << "constructor called" << endl;
 
   // Parameter set for the Builder
   ParameterSet trajectoryBuilderParameters = parameterSet.getParameter<ParameterSet>("GLBTrajBuilderParameters");
@@ -81,7 +81,7 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
 //
 GlobalMuonProducer::~GlobalMuonProducer() {
 
-  LogDebug("Muon|RecoMuon|GlobalMuonProducer") << "destructor called" << endl;
+  LogTrace("Muon|RecoMuon|GlobalMuonProducer") << "destructor called" << endl;
   if (theService) delete theService;
   if (theTrackFinder) delete theTrackFinder;
 
@@ -93,8 +93,8 @@ GlobalMuonProducer::~GlobalMuonProducer() {
 //
 void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   const string metname = "Muon|RecoMuon|GlobalMuonProducer";  
-  LogDebug(metname)<<endl<<endl<<endl;
-  LogDebug(metname)<<"Global Muon Reconstruction started"<<endl;  
+  LogTrace(metname)<<endl<<endl<<endl;
+  LogTrace(metname)<<"Global Muon Reconstruction started"<<endl;  
 
   typedef vector<Trajectory> TrajColl;
 
@@ -102,7 +102,7 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   theService->update(eventSetup);
 
   // Take the STA muon container(s)
-  LogDebug(metname)<<"Taking the Stand Alone Muons "<<theSTACollectionLabel.label()<<endl;
+  LogTrace(metname)<<"Taking the Stand Alone Muons "<<theSTACollectionLabel.label()<<endl;
 
   Handle<reco::TrackCollection> staMuons;
   event.getByLabel(theSTACollectionLabel,staMuons);
@@ -111,13 +111,13 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   if(theSTATrajectoryFlag) {
     event.getByLabel(theSTACollectionLabel,staMuonsTraj);      
-    LogDebug(metname)<<"Track Reconstruction (tracks, trajs) "<< staMuons.product()->size() << " " << staMuonsTraj.product()->size() <<endl;
+    LogTrace(metname)<<"Track Reconstruction (tracks, trajs) "<< staMuons.product()->size() << " " << staMuonsTraj.product()->size() <<endl;
   } 
 
   theTrackFinder->reconstruct(staMuons, staMuonsTraj, event);      
 
   
-  LogDebug(metname)<<"Event loaded"
+  LogTrace(metname)<<"Event loaded"
                    <<"================================"
                    <<endl<<endl;
     

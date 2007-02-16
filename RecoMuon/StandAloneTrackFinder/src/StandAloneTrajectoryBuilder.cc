@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2007/01/04 00:43:14 $
- *  $Revision: 1.36 $
+ *  $Date: 2007/01/17 16:18:04 $
+ *  $Revision: 1.37 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
  */
@@ -40,7 +40,7 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
 								 const MuonServiceProxy* service):theService(service){
   const std::string metname = "Muon|RecoMuon|StandAloneMuonTrajectoryBuilder";
   
-  LogDebug(metname) << "constructor called" << endl;
+  LogTrace(metname) << "constructor called" << endl;
 
   // The navigation type:
   // "Direct","Standard"
@@ -97,7 +97,7 @@ void StandAloneMuonTrajectoryBuilder::setEvent(const edm::Event& event){
 
 StandAloneMuonTrajectoryBuilder::~StandAloneMuonTrajectoryBuilder(){
 
-  LogDebug("Muon|RecoMuon|StandAloneMuonTrajectoryBuilder") 
+  LogTrace("Muon|RecoMuon|StandAloneMuonTrajectoryBuilder") 
     << "StandAloneMuonTrajectoryBuilder destructor called" << endl;
   
   if(theRefitter) delete theRefitter;
@@ -135,23 +135,23 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // Get the last TSOS
   TrajectoryStateOnSurface tsosAfterRefit = refitter()->lastUpdatedTSOS();
 
-  LogDebug(metname) << "StandAloneMuonTrajectoryBuilder REFITTER OUTPUT " << endl ;
-  LogDebug(metname) << debug.dumpTSOS(tsosAfterRefit);
+  LogTrace(metname) << "StandAloneMuonTrajectoryBuilder REFITTER OUTPUT " << endl ;
+  LogTrace(metname) << debug.dumpTSOS(tsosAfterRefit);
   
 
   if( refitter()->layers().size() ) 
-    LogDebug(metname) << debug.dumpLayer( refitter()->lastDetLayer());
+    LogTrace(metname) << debug.dumpLayer( refitter()->lastDetLayer());
   else return trajectoryContainer; 
   
-  LogDebug(metname) << "Number of DT/CSC/RPC chamber used (fw): " 
+  LogTrace(metname) << "Number of DT/CSC/RPC chamber used (fw): " 
        << refitter()->getDTChamberUsed() << "/"
        << refitter()->getCSCChamberUsed() << "/"
        << refitter()->getRPCChamberUsed() <<endl;
-  LogDebug(metname) << "Momentum: " <<tsosAfterRefit.freeState()->momentum();
+  LogTrace(metname) << "Momentum: " <<tsosAfterRefit.freeState()->momentum();
   
 
   if(!doBackwardRefit){
-    LogDebug(metname) << "Only forward refit requested. Any backward refit will be performed!"<<endl;
+    LogTrace(metname) << "Only forward refit requested. Any backward refit will be performed!"<<endl;
     
     if (  refitter()->getTotalChamberUsed() >= 2 && 
 	  ((refitter()->getDTChamberUsed() + refitter()->getCSCChamberUsed()) >0 ||
@@ -162,8 +162,8 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 	pair<bool,Trajectory> smoothingResult = smoother()->smooth(trajectoryFW);
 	if (smoothingResult.first){
 	  trajectoryContainer.push_back(new Trajectory(smoothingResult.second));
-	  LogDebug(metname) << "StandAloneMuonTrajectoryBuilder SMOOTHER OUTPUT " << endl ;
-	  LogDebug(metname) << debug.dumpTSOS(smoothingResult.second.lastMeasurement().updatedState());
+	  LogTrace(metname) << "StandAloneMuonTrajectoryBuilder SMOOTHER OUTPUT " << endl ;
+	  LogTrace(metname) << debug.dumpTSOS(smoothingResult.second.lastMeasurement().updatedState());
 	}
 	else
 	  trajectoryContainer.push_back(new Trajectory(trajectoryFW));
@@ -171,9 +171,9 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
       else
 	trajectoryContainer.push_back(new Trajectory(trajectoryFW));
       
-      LogDebug(metname)<< "Trajectory saved" << endl;
+      LogTrace(metname)<< "Trajectory saved" << endl;
     }
-    else LogDebug(metname)<< "Trajectory NOT saved. No enough number of tracking chamber used!" << endl;
+    else LogTrace(metname)<< "Trajectory NOT saved. No enough number of tracking chamber used!" << endl;
     
     return trajectoryContainer;
   }
@@ -221,10 +221,10 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // Get the last TSOS
   TrajectoryStateOnSurface tsosAfterBWRefit = bwfilter()->lastUpdatedTSOS();
 
-  LogDebug(metname) << "StandAloneMuonTrajectoryBuilder BW FILTER OUTPUT " << endl ;
-  LogDebug(metname) << debug.dumpTSOS(tsosAfterBWRefit);
+  LogTrace(metname) << "StandAloneMuonTrajectoryBuilder BW FILTER OUTPUT " << endl ;
+  LogTrace(metname) << debug.dumpTSOS(tsosAfterBWRefit);
 
-  LogDebug(metname) 
+  LogTrace(metname) 
     << "Number of RecHits: " << trajectoryBW.foundHits() << "\n"
     << "Number of DT/CSC/RPC chamber used (bw): " 
     << bwfilter()->getDTChamberUsed() << "/"
@@ -241,8 +241,8 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
       pair<bool,Trajectory> smoothingResult = smoother()->smooth(trajectoryBW);
       if (smoothingResult.first){
      	trajectoryContainer.push_back(new Trajectory(smoothingResult.second));
-	LogDebug(metname) << "StandAloneMuonTrajectoryBuilder SMOOTHER OUTPUT " << endl ;
-	LogDebug(metname) << debug.dumpTSOS(smoothingResult.second.lastMeasurement().updatedState());
+	LogTrace(metname) << "StandAloneMuonTrajectoryBuilder SMOOTHER OUTPUT " << endl ;
+	LogTrace(metname) << debug.dumpTSOS(smoothingResult.second.lastMeasurement().updatedState());
       }
       else
 	trajectoryContainer.push_back(new Trajectory(trajectoryBW));
@@ -250,14 +250,14 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     else
       trajectoryContainer.push_back(new Trajectory(trajectoryBW));
     
-    LogDebug(metname)<< "Trajectory saved" << endl;
+    LogTrace(metname)<< "Trajectory saved" << endl;
     
   }
   //if the trajectory is not saved, but at least two chamber are used in the
   //forward filtering, try to build a new trajectory starting from the old
   //trajectory w/o the latest measurement and a looser chi2 cut
   else if ( refitter()->getTotalChamberUsed() >= 2 ) {
-    LogDebug(metname)<< "Trajectory NOT saved. Second Attempt." << endl
+    LogTrace(metname)<< "Trajectory NOT saved. Second Attempt." << endl
 		     << "FIRST MEASUREMENT KILLED" << endl; // FIXME: why???
     // FIXME:
     // a better choice could be: identify the poorest one, exclude it, redo
@@ -270,7 +270,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
   }
   else
-    LogDebug(metname)<< "Trajectory NOT saved" << endl;
+    LogTrace(metname)<< "Trajectory NOT saved" << endl;
   return trajectoryContainer;
 }
 
@@ -285,7 +285,7 @@ StandAloneMuonTrajectoryBuilder::propagateTheSeedTSOS(const TrajectorySeed& seed
   PTrajectoryStateOnDet pTSOD = seed.startingState();
   
   // Transform it in a TrajectoryStateOnSurface
-  LogDebug(metname)<<"Transform PTrajectoryStateOnDet in a TrajectoryStateOnSurface"<<endl;
+  LogTrace(metname)<<"Transform PTrajectoryStateOnDet in a TrajectoryStateOnSurface"<<endl;
   TrajectoryStateTransform tsTransform;
 
   DetId seedDetId(pTSOD.detId());
@@ -295,19 +295,19 @@ StandAloneMuonTrajectoryBuilder::propagateTheSeedTSOS(const TrajectorySeed& seed
   TrajectoryStateOnSurface initialState = tsTransform.transientState(pTSOD, &(gdet->surface()), 
 								     &*theService->magneticField());
 
-  LogDebug(metname)<<"Seed's Pt: "<<initialState.freeState()->momentum().perp()<<endl;
+  LogTrace(metname)<<"Seed's Pt: "<<initialState.freeState()->momentum().perp()<<endl;
 
-  LogDebug(metname)<< "Seed's id: "<< endl ;
-  LogDebug(metname) << debug.dumpMuonId(seedDetId);
+  LogTrace(metname)<< "Seed's id: "<< endl ;
+  LogTrace(metname) << debug.dumpMuonId(seedDetId);
   
   // Get the layer on which the seed relies
   const DetLayer *initialLayer = theService->detLayerGeometry()->idToLayer( seedDetId );
 
-  LogDebug(metname)<< "Seed's detLayer: "<< endl ;
-  LogDebug(metname) << debug.dumpLayer(initialLayer);
+  LogTrace(metname)<< "Seed's detLayer: "<< endl ;
+  LogTrace(metname) << debug.dumpLayer(initialLayer);
 
-  LogDebug(metname)<< "TrajectoryStateOnSurface before propagation:" << endl;
-  LogDebug(metname) << debug.dumpTSOS(initialState);
+  LogTrace(metname)<< "TrajectoryStateOnSurface before propagation:" << endl;
+  LogTrace(metname) << debug.dumpTSOS(initialState);
 
 
   PropagationDirection detLayerOrder = (theSeedPosition == recoMuon::in) ? oppositeToMomentum : alongMomentum;
@@ -325,25 +325,25 @@ StandAloneMuonTrajectoryBuilder::propagateTheSeedTSOS(const TrajectorySeed& seed
     edm::LogError(metname) << "No Properly Navigation Selected!!"<<endl;
 
  
-  LogDebug(metname) << "There are "<< detLayers.size() <<" compatible layers"<<endl;
+  LogTrace(metname) << "There are "<< detLayers.size() <<" compatible layers"<<endl;
   
   DetLayerWithState result = DetLayerWithState(initialLayer,initialState);
 
   if(detLayers.size()){
 
-    LogDebug(metname) << "Compatible layers:"<<endl;
+    LogTrace(metname) << "Compatible layers:"<<endl;
     for( vector<const DetLayer*>::const_iterator layer = detLayers.begin(); 
 	 layer != detLayers.end(); layer++){
-      LogDebug(metname) << debug.dumpMuonId((*layer)->basicComponents().front()->geographicalId());
-      LogDebug(metname) << debug.dumpLayer(*layer);
+      LogTrace(metname) << debug.dumpMuonId((*layer)->basicComponents().front()->geographicalId());
+      LogTrace(metname) << debug.dumpLayer(*layer);
     }
 
     const DetLayer* finalLayer = detLayers.back();
 
-    if(theSeedPosition == recoMuon::in) LogDebug(metname) << "Most internal one:"<<endl;
-    else LogDebug(metname) << "Most external one:"<<endl;
+    if(theSeedPosition == recoMuon::in) LogTrace(metname) << "Most internal one:"<<endl;
+    else LogTrace(metname) << "Most external one:"<<endl;
     
-    LogDebug(metname) << debug.dumpLayer(finalLayer);
+    LogTrace(metname) << debug.dumpLayer(finalLayer);
     
     const TrajectoryStateOnSurface propagatedState = 
       theService->propagator(theSeedPropagatorName)->propagate(initialState,
@@ -352,15 +352,15 @@ StandAloneMuonTrajectoryBuilder::propagateTheSeedTSOS(const TrajectorySeed& seed
     if(propagatedState.isValid()){
       result = DetLayerWithState(finalLayer,propagatedState);
       
-      LogDebug(metname) << "Trajectory State on Surface after the extrapolation"<<endl;
-      LogDebug(metname) << debug.dumpTSOS(propagatedState);
-      LogDebug(metname) << debug.dumpLayer(finalLayer);
+      LogTrace(metname) << "Trajectory State on Surface after the extrapolation"<<endl;
+      LogTrace(metname) << debug.dumpTSOS(propagatedState);
+      LogTrace(metname) << debug.dumpLayer(finalLayer);
     }
     else 
-      LogDebug(metname)<< "Extrapolation failed. Keep the original seed state" <<endl;
+      LogTrace(metname)<< "Extrapolation failed. Keep the original seed state" <<endl;
   }
   else
-    LogDebug(metname)<< "No compatible layers. Keep the original seed state" <<endl;
+    LogTrace(metname)<< "No compatible layers. Keep the original seed state" <<endl;
   
   return result;
 }

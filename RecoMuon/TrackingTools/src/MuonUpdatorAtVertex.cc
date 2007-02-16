@@ -3,15 +3,14 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2007/02/02 16:10:29 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/02/15 20:40:19 $
+ *  $Revision: 1.18 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-#include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -66,7 +65,7 @@ void MuonUpdatorAtVertex::setPropagator(){
     thePropagator = dynamic_cast<SteppingHelixPropagator*>(propagator);  
     theFirstTime = false;
 
-    LogDebug(metname) << " MuonUpdatorAtVertex::setPropagator: propagator changed!";
+    LogTrace(metname) << " MuonUpdatorAtVertex::setPropagator: propagator changed!";
   }
   
 }
@@ -85,7 +84,7 @@ MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos,
   pair<FreeTrajectoryState,double> 
     result = thePropagator->propagateWithPath(*tsos.freeState(),vtxPosition);
 
-  LogDebug(metname) << "MuonUpdatorAtVertex::propagate, path: "
+  LogTrace(metname) << "MuonUpdatorAtVertex::propagate, path: "
 		    << result.second << " parameters: " << result.first.parameters();
 
   if( result.first.hasError()) 
