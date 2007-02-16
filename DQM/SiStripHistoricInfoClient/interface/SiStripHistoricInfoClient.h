@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:34 CEST 2006
-// $Id: SiStripHistoricInfoClient.h,v 1.5 2006/12/13 17:46:01 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.h,v 1.6 2007/02/16 14:22:19 dkcira Exp $
 //
 
 #include "DQMServices/Components/interface/DQMBaseClient.h"
@@ -57,6 +57,9 @@ public:
 
   // this obligatory method is called by the Updater component, whenever there is an update 
   void onUpdate() const;
+
+  // write to cond db
+  void writeToDB() const;
 
 private:
   //

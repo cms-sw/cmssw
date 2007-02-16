@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:49 CEST 2006
-// $Id: SiStripHistoricInfoClient.cc,v 1.12 2006/12/13 17:46:20 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.cc,v 1.13 2007/02/16 14:22:19 dkcira Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoClient.h"
@@ -39,6 +39,9 @@
 
 #include "xdaq/ApplicationDescriptor.h"
 #include "xdaq/ApplicationContext.h"
+
+#include "TSQLServer.h"
+#include "TSQLResult.h"
 
 using namespace std;
 using namespace cgicc;
@@ -226,3 +229,11 @@ void SiStripHistoricInfoClient::retrievePointersToModuleMEs() const{
   }
 }
 
+
+//-----------------------------------------------------------------------------------------------
+void SiStripHistoricInfoClient::writeToDB() const{
+   TSQLServer  *dbserver = TSQLServer::Connect("oracle://devb10","CMS_TRACKER_GBRUNO","client4histoplot");
+   TSQLResult* res = dbserver->Query( "SELECT * FROM PEDESTALS");
+   delete res;
+   delete dbserver;
+}
