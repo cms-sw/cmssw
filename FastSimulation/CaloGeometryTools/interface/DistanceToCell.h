@@ -1,6 +1,6 @@
 #ifndef FastSimulation_CalorimeterProperties_DistanceToCell_h
 #define FastSimulation_CalorimeterProperties_DistanceToCell_h
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 // used in GeometryHelper to sort the vector given by GetWindow

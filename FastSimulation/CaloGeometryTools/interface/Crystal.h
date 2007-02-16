@@ -7,7 +7,7 @@
 #include "CLHEP/Geometry/Plane3D.h"
 
 // Unfortunately, GlobalPoints are also needed
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 

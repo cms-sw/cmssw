@@ -3,6 +3,7 @@
 <use name=FastSimulation/ParticlePropagator>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/HcalDetId>
+<use name=DataFormats/GeometryVector>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/EcalBarrelAlgo>
 <use name=Geometry/EcalEndcapAlgo>
@@ -13,6 +14,7 @@
  <use name=FastSimulation/ParticlePropagator>
  <use name=DataFormats/EcalDetId>
  <use name=DataFormats/HcalDetId>
+ <use name=DataFormats/GeometryVector>
  <use name=Geometry/CaloTopology>
  <use name=Geometry/EcalBarrelAlgo>
  <use name=Geometry/EcalEndcapAlgo>
