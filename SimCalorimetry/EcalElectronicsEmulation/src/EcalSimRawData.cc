@@ -72,23 +72,14 @@ EcalSimRawData::EcalSimRawData(const edm::ParameterSet& params){
   } else{
     writeMode_ = ascii;
   }
-  //trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
-  //dumpFlags_ = params.getUntrackedParameter<int>("dumpFlags", 0);
-
-
-  //ttfFile.open("TTF.txt", ios::ate);
-  //if(!ttfFile) throw cms::Exception("Failed to create file TTF.txt");
-
-  //srfFile.open("SRF.txt", ios::ate);
-  //if(!srfFile) throw cms::Exception("Failed to create file SRF.txt");
 }
 
 void
 EcalSimRawData::analyze(const edm::Event& event,
-			const edm::EventSetup& es) 
-{
-  
-  static int iEvent = 1;
+			const edm::EventSetup& es){
+  //Event counter:
+  static int iEvent = 0;
+  ++iEvent; 
     
   edm::Handle<EBDigiCollection> hEbDigis;
   event.getByLabel(digiProducer_, ebDigiCollection_, hEbDigis);
@@ -112,9 +103,6 @@ EcalSimRawData::analyze(const edm::Event& event,
   getTp(event, tcpDigiCollection_, tcp);
   genTccIn("ecal", iEvent, tcp);
 
-  //TTF file:
-  //printTTFlags(ttf, iEvent, ttfFile);
-
   if(tcc2dcc_){
     int tp[nTtEta][nTtPhi];
     getTp(event, tpDigiCollection_, tp); 
@@ -125,14 +113,11 @@ EcalSimRawData::analyze(const edm::Event& event,
   int ebSrf[nTtEta][nTtPhi];
   int eeSrf[nEndcaps][nScX][nScY];
 
-  getSrfs(event, ebSrf, eeSrf);
-  //SRF file:
-  //printSRFlags(ebSrf, eeSrf, iEvent, srfFile);
   if(srp2dcc_){
+    getSrfs(event, ebSrf, eeSrf);
     genSrData("ecal", iEvent, ebSrf);
   }
   
-  ++iEvent; //event counter
 }
 
 void EcalSimRawData::elec2GeomNum(int ittEta0, int ittPhi0, int strip1,
@@ -384,8 +369,7 @@ void EcalSimRawData::genTccIn(string basename, int iEvent,
 	    + iTtPhiInSm0;
 	  if(iTtPhi0<0) iTtPhi0 += nTtPhi;
 
-	  uint16_t tp_fe2tcc = tcp[iTtEta0][iTtPhi0]&0xFF
-	    | (tcp[iTtEta0][iTtPhi0]&0x600)>>1 ;
+	  uint16_t tp_fe2tcc = tcp[iTtEta0][iTtPhi0];
 	  
 	  if(tpVerbose_){
 	    cout << dec
@@ -394,8 +378,9 @@ void EcalSimRawData::genTccIn(string basename, int iEvent,
 		 << "iTtPhi0 = " << iTtPhi0 << "\t"
 		 << "iCh1 = " << iCh1 << "\t"
 		 << "memPos = " << memPos << "\t" 
-		 << "tp = 0x" << hex << tcp[iTtEta0][iTtPhi0]
-		 << dec << "\n";
+		 << "tp = 0x" << setfill('0') << hex << setw(3)
+		 << tcp[iTtEta0][iTtPhi0]
+		 << dec << setfill(' ') << "\n";
 	  }
 	  fe2tcc << iCh1 << "\t"
 		 << memPos << "\t"
@@ -543,94 +528,6 @@ void EcalSimRawData::getSrfs(const edm::Event& event,
   }
 }
 
-
-// void EcalSimRawData::printTTFlags(const EcalSelectiveReadout::ttFlag_t
-// 				  ttf[nTtEta][nTtPhi],
-// 				  int iEvent, ostream& os) const{
-//   const char tccFlagMarker[] = { '?', '.', 'S', '?', 'C', 'E', 'E', 'E', 'E'};
-//   const int nEta = EcalSelectiveReadout::nTriggerTowersInEta;
-//   const int nPhi = EcalSelectiveReadout::nTriggerTowersInPhi;
-  
-//   if(iEvent==1){
-//     os << "# TCC flag map\n#\n"
-//       "# +-->Phi            " << tccFlagMarker[1] << ": 000 (low interest)\n"
-//       "# |                  " << tccFlagMarker[2] << ": 001 (mid interest)\n"
-//       "# |                  " << tccFlagMarker[3] << ": 010 (not valid)\n"
-//       "# V Eta              " << tccFlagMarker[5] << ": 011 (high interest)\n"
-//       "#                    " << tccFlagMarker[6] << ": 1xx forced readout (Hw error)\n";
-//   }
-
-//   os << "#\n#Event " << iEvent << "\n";
-  
-//   for(int iEta=0; iEta<nEta; ++iEta){
-//     for(int iPhi=0; iPhi<nPhi; ++iPhi){
-//       os << tccFlagMarker[ttf[iEta][iPhi]+1];
-//     }
-//     os << "\n";
-//   }
-// }
-  
-
-// void EcalSimRawData::printSRFlags(EcalSelectiveReadout::towerInterest_t
-// 				  ebSrf[nEbTtEta][nTtPhi],
-// 				  EcalSelectiveReadout::towerInterest_t
-// 				  eeSrf[nEndcaps][nScX][nScY],
-// 				  int iEvent, ostream& os) const{
-//   const char srpFlagMarker[] = {'.', 'S', 'N', 'C', '4','5','6','7'};
-//   if(iEvent==1){
-//     time_t t;
-//     time(&t);
-//     const char* date = ctime(&t);
-//     os << "#SRP flag map\n#\n"
-//       "# Generatied on: " << date << "\n#\n"
-//       "# Low TT Et Threshold:  " <<  thrs_[0] << " GeV\n"
-//       "# High TT Et Threshold: " << thrs_[1] << " GeV\n"
-//       "# Algorithm type: " << 2*dEta_+1 << "x" << 2*dPhi_+1 << "\n"
-//       "# +-->Phi/Y " << srpFlagMarker[0] << ": low interest\n"
-//       "# |         " << srpFlagMarker[1] << ": single\n"
-//       "# |         " << srpFlagMarker[2] << ": neighbour\n"
-//       "# V Eta/X   " << srpFlagMarker[3] << ": center\n"
-//       "#\n";    
-//   }
-
-//   //EE-,EB,EE+ map wil be written onto file in following format:
-//   //
-//   //      72
-//   // <-------------->
-//   //  20
-//   // <--->
-//   //  EEE                A             +-----> Y
-//   // EEEEE               |             |
-//   // EE EE               | 20   EE-    |
-//   // EEEEE               |             |
-//   //  EEE                V             V X
-//   // BBBBBBBBBBBBBBBBB   A
-//   // BBBBBBBBBBBBBBBBB   |             +-----> Phi
-//   // BBBBBBBBBBBBBBBBB   |             |
-//   // BBBBBBBBBBBBBBBBB   | 34  EB      |
-//   // BBBBBBBBBBBBBBBBB   |             |
-//   // BBBBBBBBBBBBBBBBB   |             V Eta
-//   // BBBBBBBBBBBBBBBBB   |
-//   // BBBBBBBBBBBBBBBBB   |
-//   // BBBBBBBBBBBBBBBBB   V
-//   //  EEE                A             +-----> Y
-//   // EEEEE               |             |
-//   // EE EE               | 20 EE+      |
-//   // EEEEE               |             |
-//   //  EEE                V             V X
-//   //
-//   //
-//   //
-//   //
-//   //event header:
-//   os << "# Event " << iEvent << "\n";
-
-//   esr_->print(os);
-  
-//   //event trailer:
-//   os << "\n";
-// }
-
 void EcalSimRawData::getEbDigi(const edm::Event& event,
 			       vector<uint16_t> adc[nEbEta][nEbPhi]) const{
 
@@ -707,7 +604,6 @@ void EcalSimRawData::getTp(const edm::Event& event,
   if(hTpDigis.isValid() && hTpDigis->size()>0){
     const EcalTrigPrimDigiCollection& tpDigis = *hTpDigis.product();
 
-    uint16_t tcp[nTtEta][nTtPhi];
     //    EcalSelectiveReadout::ttFlag_t ttf[nTtEta][nTtPhi];
     for(int iTtEta0=0; iTtEta0 < nTtEta; ++iTtEta0){
       for(int iTtPhi0=0; iTtPhi0 < nTtPhi; ++iTtPhi0){

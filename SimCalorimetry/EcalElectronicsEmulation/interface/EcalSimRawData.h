@@ -1,5 +1,5 @@
 /*  
- * $Id: EcalSimRawData.h,v 1.1 2007/01/31 10:00:51 pgras Exp $
+ * $Id: EcalSimRawData.h,v 1.2 2007/02/15 22:55:19 pgras Exp $
  */
 
 #include "FWCore/Framework/interface/Event.h"
@@ -22,18 +22,19 @@
  * <UL><LI>string digiProducer: digi label</LI>
  *    <LI>string EBDigiCollection: EB crystal digi product instance name</LI>
  *    <LI>string EEDigiCollection: EE crystal digi product instance name</LI>
- *    <LI>string trigPrimProducer: trigger primitive digi label"
- *    <LI>string tpdigiCollection:trigger primitive digi product instance name</LI>
+ *    <LI>string srProducer: sr flags digi label"</LI>
+ *    <LI>string EBSrFlagCollection: EB SR flags product instance name</LI>
+ *    <LI>string EESrFlagCollection: EE SR flags product instance name</LI>
+ *    <LI>string trigPrimProducer: trigger primitive digi label"</LI>
+ *    <LI>string trigPrimDigiCollection: trigger primitive digi product instance name</LI>
+ *    <LI>string tcpPrimDigiCollection: TCP FENIX output trigger primitive digi product instance name</LI>
  *    <LI>string writeMode: output format. "write", "littleEndian", "bigEndian"
  *    <LI>untracked bool tpVerbose: make verbose the trigger primitive processing</LI>
  *    <LI>untracked bool xtalVerbose: make verbose the crystal digi processing</LI>
  *    <LI>untracked int32 dccNum: Id of the dcc raw data must be produced for. -1 means every DCC</LI>
- *    <LI>untracked int32 tccNum: Id of the tcc raw data must be produced for. -1 means every TCC</LI></UL>
- * In current version, the module simulates the selective readout. In future version, the EcalSelectiveReadoutProducer will have to be used instead. The parameters linked to the selective readout are the following: 
- *    <UL><LI>int32 deltaEta: eta neighboring extension</LI>
- *    <LI>int32 deltaPhi: phi neighboring extension. The window is (2*deltaEta+1)x(2*deltaPhi+1)</LI>
- *    <LI>double srpLowTowerThreshold: lower trigger primitive threshold</LI> 
- *    <LI>double srpHighTowerThreshold: higher trigger primitive threshold</LI>
+ *    <LI>untracked int32 tccNum: Id of the tcc raw data must be produced for. -1 means every TCC</LI>
+ *    <LI>untracked bool tcc2dccData: switch for TCC->DCC data stream production</LI>
+ *    <LI>untracked bool srp2dccData: switch for SRP->DCC data stream production</LI>
  *    </UL>
  */
 class EcalSimRawData: public edm::EDAnalyzer{
@@ -360,25 +361,6 @@ private:
    */
   void genSrData(std::string basename, int iEvent,
 		 int ttf[nEbTtEta][nTtPhi]) const;
-
-//   /** Writes out TT flags
-//    * @param ttf the TT flags
-//    * @param iEvent event index
-//    * @param os stream to write to
-//    */
-//   void printTTFlags(const EcalSelectiveReadout::ttFlag_t
-// 		    ttf[nTtEta][nTtPhi],
-// 		    int iEvent, std::ostream& os) const;
-
-//   /** Writes out SR flags
-//    * @param ebSrf the TT flags of the barrel
-//    * @param eeSrf the TT flags of the endcaps
-//    * @param iEvent event index
-//    * @param os stream to write to
-//    */  
-//   void printSRFlags(EcalSelectiveReadout::towerInterest_t ebSrf[nEbTtEta][nTtPhi],
-// 		    EcalSelectiveReadout::towerInterest_t eeSrf[nEndcaps][nScX][nScY],
-// 		    int iEvent, std::ostream& os) const;
   
 private:
   /** Name of module/plugin/producer making digis
