@@ -11,8 +11,8 @@
 // Created:         Sun Jan 28 19:06:20 UTC 2007
 //
 // $Author: gutsche $
-// $Date: 2006/11/10 21:54:49 $
-// $Revision: 1.20 $
+// $Date: 2007/02/05 19:33:14 $
+// $Revision: 1.1 $
 //
 
 #include <string>
@@ -39,8 +39,6 @@ class RoadSearchDetIdHelper {
 
   static std::string Print(const DetId id);
 
-  static DetId ConvertToRPhi(const DetId id);
-
   static bool IsMatched(const DetId id);
   
   static bool IsGluedRPhi(const DetId id);
@@ -50,6 +48,8 @@ class RoadSearchDetIdHelper {
   static bool IsStereo(const DetId id);
 
   static DetId ReturnRPhiId(const DetId id);
+
+  static bool detIdsOnSameLayer(DetId id1, DetId id2);
 
 };
 

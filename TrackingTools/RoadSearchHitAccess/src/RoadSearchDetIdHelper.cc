@@ -8,8 +8,8 @@
 // Created:         Sun Jan 28 19:06:20 UTC 2007
 //
 // $Author: gutsche $
-// $Date: 2006/11/10 21:54:49 $
-// $Revision: 1.20 $
+// $Date: 2007/02/05 19:33:15 $
+// $Revision: 1.1 $
 //
 
 #include "TrackingTools/RoadSearchHitAccess/interface/RoadSearchDetIdHelper.h"
@@ -338,3 +338,71 @@ DetId RoadSearchDetIdHelper::ReturnRPhiId(const DetId id) {
   return id;
 }
 
+
+bool RoadSearchDetIdHelper::detIdsOnSameLayer(DetId id1, DetId id2) {
+  //
+  // check whether two detids are on the same layer
+  //
+
+  // return value
+  bool result = false;
+
+  // check if both rings belong to same subdetector
+  if ( (unsigned int)id1.subdetId() == StripSubdetector::TIB && 
+       (unsigned int)id2.subdetId() == StripSubdetector::TIB ) {
+    // make TIBDetId instance
+    TIBDetId id1TIB(id1.rawId());
+    TIBDetId id2TIB(id2.rawId());
+    // check whether both rings are on the same TIB layer
+    if ( id1TIB.layer() == id2TIB.layer() ) {
+      result = true;
+    }
+  } else if ( (unsigned int)id1.subdetId() == StripSubdetector::TOB &&
+	      (unsigned int)id2.subdetId() == StripSubdetector::TOB ) {
+    // make TOBDetId instance
+    TOBDetId id1TOB(id1.rawId());
+    TOBDetId id2TOB(id2.rawId());
+    // check whether both rings are on the same TOB layer
+    if ( id1TOB.layer() == id2TOB.layer() ) {
+      result = true;
+    }
+  } else if ( (unsigned int)id1.subdetId() == StripSubdetector::TID && 
+	      (unsigned int)id2.subdetId() == StripSubdetector::TID) {
+    // make TIDDetId instance
+    TIDDetId id1TID(id1.rawId());
+    TIDDetId id2TID(id2.rawId());
+    // check whether both rings are on the same TID wheel
+    if ( id1TID.wheel() == id2TID.wheel() ) {
+      result = true;
+    }
+  } else if ( (unsigned int)id1.subdetId() == StripSubdetector::TEC &&
+	      (unsigned int)id2.subdetId() == StripSubdetector::TEC ) {
+    // make TECDetId instance
+    TECDetId id1TEC(id1.rawId());
+    TECDetId id2TEC(id2.rawId());
+    // check whether both rings are on the same TEC wheel
+    if ( id1TEC.wheel() == id2TEC.wheel() ) {
+      result = true;
+    }
+  } else if ( (unsigned int)id1.subdetId() == PixelSubdetector::PixelBarrel && 
+	      (unsigned int)id2.subdetId() == PixelSubdetector::PixelBarrel) {
+    // make PXBDetId instance
+    PXBDetId id1PXB(id1.rawId());
+    PXBDetId id2PXB(id2.rawId());
+    // check whether both rings are on the same PXB layer
+    if ( id1PXB.layer() == id2PXB.layer() ) {
+      result = true;
+    }
+  } else if ( (unsigned int)id1.subdetId() == PixelSubdetector::PixelEndcap &&
+	      (unsigned int)id2.subdetId() == PixelSubdetector::PixelEndcap) {
+    // make PXFDetId instance
+    PXFDetId id1PXF(id1.rawId());
+    PXFDetId id2PXF(id2.rawId());
+    // check whether both rings are on the same PXF disk
+    if ( id1PXF.disk() == id2PXF.disk() ) {
+      result = true;
+    }
+  }
+  
+  return result;
+}
