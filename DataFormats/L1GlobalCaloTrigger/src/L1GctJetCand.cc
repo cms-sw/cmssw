@@ -6,6 +6,9 @@
 
 using std::ostream;
 using std::string;
+using std::hex;
+using std::dec;
+
 L1GctJetCand::L1GctJetCand() :
   m_data(0),
   m_isTau(false),
@@ -47,9 +50,9 @@ bool L1GctJetCand::empty() const {
 
 // pretty print
 ostream& operator<<(ostream& s, const L1GctJetCand& cand) {
-  s << "L1GctJetCand : ";
+  s << "L1GctJetCand : " << hex;
   s << "rank=" << cand.rank();
-  s << ", eta=" << cand.etaIndex() << ", phi=" << cand.phiIndex();
+  s << ", etaSign=" << cand.etaSign() << ", eta=" << (cand.etaIndex()&0x7) << ", phi=" << cand.phiIndex() << dec;
   s << " type=";
   if (cand.isTau()) { s << "tau"; }
   else if (cand.isForward()) { s << "forward"; }

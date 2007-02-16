@@ -6,6 +6,8 @@
 
 using std::ostream;
 using std::string;
+using std::hex;
+using std::dec;
 
 // default constructor
 L1GctEmCand::L1GctEmCand() :
@@ -54,9 +56,9 @@ bool L1GctEmCand::empty() const {
 // pretty print
 ostream& operator<<(ostream& s, const L1GctEmCand& cand) {
   s << "L1GctEmCand : ";
-  s << "rank=" << cand.rank();
-  s << ", eta=" << cand.etaIndex() << ", phi=" << cand.phiIndex();
-  s << ", iso=" << cand.isolated();
+  s << "rank=" << hex << cand.rank();
+  s << ", etaSign=" << cand.etaSign() << ", ieta=" << (cand.etaIndex()&0x7) << ", iphi=" << cand.phiIndex();
+  s << ", iso=" << cand.isolated() << dec;
   return s;
 }
 
