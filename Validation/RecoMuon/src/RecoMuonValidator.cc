@@ -45,6 +45,11 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   glbTrackLabel_ = pset.getParameter<InputTag>("GlbTrack");
   simTrackLabel_ = pset.getParameter<InputTag>("SimTrack");
 
+  // the services
+  // service parameters
+  ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
+  theService = new MuonServiceProxy(serviceParameters);
+
   //theDQM_ = edm::Service<DaqMonitorBEInterface>().operator->();
 }
 
@@ -145,6 +150,9 @@ TrackCollection::const_iterator RecoMuonValidator::matchTrack(SimTrackContainer:
 
 void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup)
 {
+  // Update the services
+  theService->update(eventSetup);
+  
   const static int muonPID = 13;
 
   // Grab all muon simTracks
@@ -178,6 +186,10 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     mapOfMuonSimHits[simHit->trackId()].push_back(&*simHit);
   }
 
+  // Take the seed collection
+  Handle<TrajectorySeedCollection> seeds; 
+  event.getByLabel(theSeedCollectionLabel,seeds);
+ 
   // Grab all standalone muon tracks
   Handle<TrackCollection> staTracks;
   event.getByLabel(staTrackLabel_, staTracks);
@@ -238,6 +250,13 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
       hGlbEtaVsDeltaPt_->Fill(simEta, (glbPt-simPt)/simPt);
       hGlbEtaVsResolPt_->Fill(simEta, (glbQ/glbPt-simQ/simPt)/(simQ/simPt));
     }
+    
+    
+    //  Loop over the seed
+    // call seedTSOS
+    // wite a matchTrack suitable for a TSOS
+    // fill the histos
+
   }
   if ( nSimMuon == 0 ) LogError("RecoMuonValidator") << "No SimMuonTrack found!!";
   if ( nSimMuon >  1 ) LogInfo("RecoMuonValidator") << "1 < nSimMuon = " << nSimMuon;
@@ -247,12 +266,6 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 
 
 //////////////////////////////////////////////////////////////////////
-
-// on how to use the service have a look at RecoMuon/StandAloneMuonProducer
-
-// Take the seed collection
-Handle<TrajectorySeedCollection> seeds; 
-event.getByLabel(theSeedCollectionLabel,seeds);
 
 //get the seed's TSOS:
 TrajectoryStateOnSurface
