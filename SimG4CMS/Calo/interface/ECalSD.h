@@ -40,7 +40,7 @@ private:
   bool                 useBirk;
   double               birk1, birk2;
   double               slopeLY;
-  map<G4String,double> lengthMap;
+  std::map<G4String,double> lengthMap;
 
 };
 

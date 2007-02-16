@@ -229,7 +229,7 @@ std::vector<double> HCalSD::getDDDArray(const std::string & str,
   DDValue value(str);
   if (DDfetch(&sv,value)) {
     LogDebug("HcalSim") << value;
-    const vector<double> & fvec = value.doubles();
+    const std::vector<double> & fvec = value.doubles();
     int nval = fvec.size();
     if (nval < 2) {
       edm::LogError("HcalSim") << "HCalSD : # of " << str << " bins " << nval

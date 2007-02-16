@@ -126,13 +126,13 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
 			<< paras[0];
     if (sol.shape() == ddtrap) {
       double dz = 2*paras[0];
-      lengthMap.insert(pair<G4String,double>(name,dz));
+      lengthMap.insert(std::pair<G4String,double>(name,dz));
     }
     dodet = fv.next();
   }
   LogDebug("EcalSim") << "ECalSD: Length Table for " << attribute << " = " 
 		      << sd << ":";   
-  map<G4String,double>::const_iterator it = lengthMap.begin();
+  std::map<G4String,double>::const_iterator it = lengthMap.begin();
   int i=0;
   for (; it != lengthMap.end(); it++, i++) {
     LogDebug("EcalSim") << " " << i << " " << it->first << " L = " 
@@ -168,7 +168,7 @@ double ECalSD::curve_LY(G4String& nameVolume, G4StepPoint* stepPoint) {
 double ECalSD::crystalLength(G4String name) {
 
   double length = 230.;
-  map<G4String,double>::const_iterator it = lengthMap.find(name);
+  std::map<G4String,double>::const_iterator it = lengthMap.find(name);
   if (it != lengthMap.end()) length = it->second;
   return length;
 }

@@ -278,7 +278,7 @@ G4bool CaloSD::checkHit() {
   //look in the HitContainer whether a hit with the same ID already exists:
   bool found = false;
   if (useMap) {
-    map<CaloHitID,CaloG4Hit*>::const_iterator it = hitMap.find(currentID);
+    std::map<CaloHitID,CaloG4Hit*>::const_iterator it = hitMap.find(currentID);
     if (it != hitMap.end()) {
       currentHit = it->second;
       found      = true;
@@ -327,7 +327,7 @@ double CaloSD::getAttenuation(G4Step* aStep, double birk1, double birk2) {
     double dedx    = aStep->GetTotalEnergyDeposit()/aStep->GetStepLength();
     double rkb     = birk1/density;
     double c       = birk2/(density*density);
-    if (abs(charge) >= 2.) rkb *= 7.2/12.6; // based on alpha particle data
+    if (std::abs(charge) >= 2.) rkb *= 7.2/12.6; // based on alpha particle data
     weight = 1./(1.+rkb*dedx+c*dedx*dedx);
     LogDebug("CaloSim") << "CaloSD::getAttenuation in " << mat->GetName() 
 			<< " Charge " << charge << " dE/dx " << dedx 
@@ -346,7 +346,7 @@ void CaloSD::storeHit(CaloG4Hit* hit) {
   }
 
   theHC->insert(hit);
-  if (useMap) hitMap.insert(pair<CaloHitID,CaloG4Hit*>(previousID,hit));
+  if (useMap) hitMap.insert(std::pair<CaloHitID,CaloG4Hit*>(previousID,hit));
 
 }
 

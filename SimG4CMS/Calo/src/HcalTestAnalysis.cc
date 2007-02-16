@@ -131,7 +131,7 @@ std::vector<int> HcalTestAnalysis::towersToAdd(int centre, int nadd) {
   for (int eta=etamin; eta<=etamax; eta++) {
     for (int phi=phimin; phi<=phimax; phi++) {
       temp[kount] = (eta*100 + phi);
-      temp[kount+nbuf] = max(abs(eta-etac),abs(phi-phic));
+      temp[kount+nbuf] = std::max(abs(eta-etac),abs(phi-phic));
       kount++;
     }
   }
@@ -140,7 +140,7 @@ std::vector<int> HcalTestAnalysis::towersToAdd(int centre, int nadd) {
 			  << " Central " << centre << " and " << nadd 
 			  << " on either side";
   for (int i=0; i<nbuf; i++)
-    edm::LogInfo("HcalSim") << "HcalTestAnalysis: Tower[" << setw(3) << i 
+    edm::LogInfo("HcalSim") << "HcalTestAnalysis: Tower[" << std::setw(3) << i 
 			    << "] " << temp[i] << " " << temp[nbuf+i];
   return temp;
 }
@@ -591,11 +591,11 @@ void HcalTestAnalysis::layerAnalysis(){
 
   int i = 0;
   LogDebug("HcalSim") << "\n ===>>> HcalTestAnalysis: Energy deposit in MeV " 
-		      << "\n at EB : " << setw(6) << edepEB/MeV 
-		      << "\n at EE : " << setw(6) << edepEE/MeV 
-		      << "\n at HB : " << setw(6) << edepHB/MeV
-		      << "\n at HE : " << setw(6) << edepHE/MeV
-		      << "\n at HO : " << setw(6) << edepHO/MeV
+		      << "\n at EB : " << std::setw(6) << edepEB/MeV 
+		      << "\n at EE : " << std::setw(6) << edepEE/MeV 
+		      << "\n at HB : " << std::setw(6) << edepHB/MeV
+		      << "\n at HE : " << std::setw(6) << edepHE/MeV
+		      << "\n at HO : " << std::setw(6) << edepHO/MeV
 		      << "\n ---- HcalTestAnalysis: Energy deposit in Layers"; 
   for (i = 0; i < 20; i++) 
     LogDebug("HcalSim") << " Layer " << std::setw(2) << i << " E " 

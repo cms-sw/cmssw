@@ -8,8 +8,6 @@
 #include <boost/cstdint.hpp>
 #include <iostream>
 
-using namespace std;
-
 class CaloHitID {
 
 public:
