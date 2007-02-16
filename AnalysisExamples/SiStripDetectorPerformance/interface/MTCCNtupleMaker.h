@@ -120,6 +120,8 @@ class MTCCNtupleMaker : public edm::EDAnalyzer
   std::string oSiStripDigisProdInstName_;
   std::string oSiStripClusterInfoLabel_;
   std::string oSiStripClusterInfoProdInstName_;
+  std::string oSeedsLabel_;
+  std::string oSeedsProdInstName_;
   std::string oTracksLabel_;
   std::string oTracksProdInstName_;
 
