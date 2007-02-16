@@ -29,17 +29,19 @@ public:
    vertexTrack(const RefCountedLinearizedTrackState lt, 
 	       const VertexState vs,
 	       const RefCountedRefittedTrackState & refittedState, 
-	       float weight = 1.0 ) const {
-    return RefCountedVertexTrack(new VertexTrack(lt, vs, weight, refittedState));
+	       float smoothedChi2, float weight = 1.0 ) const {
+    return RefCountedVertexTrack(new VertexTrack(lt, vs, weight, refittedState,
+     				 smoothedChi2));
   };
 
   RefCountedVertexTrack
   vertexTrack(const RefCountedLinearizedTrackState lt, 
 	      const VertexState vs,
 	      const RefCountedRefittedTrackState & refittedState,
+	      float smoothedChi2,
 	      const AlgebraicMatrix & tVCov, float weight = 1.0 ) const {
     return RefCountedVertexTrack(new VertexTrack(lt, vs, weight,
-                                 refittedState));
+                                 refittedState, smoothedChi2, tVCov));
   };
 };
 
