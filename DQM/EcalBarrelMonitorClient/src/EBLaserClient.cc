@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/02/06 19:40:05 $
- * $Revision: 1.138 $
+ * $Date: 2007/02/13 18:57:06 $
+ * $Revision: 1.139 $
  * \author G. Della Ricca
  *
 */
@@ -3448,7 +3448,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   const int csize = 250;
 
-  const double histMax = 1.e15;
+//  const double histMax = 1.e15;
 
   int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
 
@@ -3602,11 +3602,12 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cAmp->cd();
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
-        if ( obj1f->GetMaximum(histMax) > 0. ) {
-          gPad->SetLogy(1);
-        } else {
-          gPad->SetLogy(0);
-        }
+//        if ( obj1f->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
+        obj1f->SetMinimum(0.0);
         obj1f->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
@@ -3788,6 +3789,8 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 //        } else {
 //          gPad->SetLogy(0);
 //        }
+        obj1f->SetMinimum(0.0);
+        obj1f->SetMaximum(20.0);
         obj1f->Draw();
         cAmpoPN->Update();
         cAmpoPN->SaveAs(imgName.c_str());
@@ -3951,7 +3954,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.);
+        obj1d->SetMinimum(0.0);
         obj1d->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
@@ -4007,7 +4010,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.);
+        obj1d->SetMinimum(0.0);
         obj1d->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
@@ -4065,7 +4068,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.);
+        obj1d->SetMinimum(0.0);
         obj1d->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
@@ -4121,7 +4124,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.);
+        obj1d->SetMinimum(0.0);
         obj1d->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
