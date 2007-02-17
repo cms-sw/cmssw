@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/02/01 15:43:57 $
- * $Revision: 1.58 $
+ * $Date: 2007/02/17 12:33:37 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  *
 */
@@ -74,7 +74,7 @@ void EBCosmicTask::setup(void){
     dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT energy spectrum SM%02d", i+1);
-      meSpectrumMap_[i] = dbe->book1D(histo, histo, 100, 0., 250.);
+      meSpectrumMap_[i] = dbe->book1D(histo, histo, 100, 0., 100.);
     }
 
   }
