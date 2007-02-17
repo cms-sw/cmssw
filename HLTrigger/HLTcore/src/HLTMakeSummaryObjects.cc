@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/16 11:56:23 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/08/16 12:10:23 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
@@ -11,8 +11,8 @@
 
 #include "HLTrigger/HLTcore/interface/HLTMakeSummaryObjects.h"
 
-#include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/Framework/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "DataFormats/HLTReco/interface/HLTGlobalObject.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
