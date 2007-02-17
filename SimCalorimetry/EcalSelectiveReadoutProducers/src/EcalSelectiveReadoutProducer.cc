@@ -24,6 +24,7 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
    ebSrFlagCollection_ = params.getParameter<std::string>("EBSrFlagCollection");
    eeSrFlagCollection_ = params.getParameter<std::string>("EESrFlagCollection");
    trigPrimProducer_ = params.getParameter<string>("trigPrimProducer");
+   trigPrimCollection_ = params.getParameter<string>("trigPrimCollection");
    trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
    dumpFlags_ = params.getUntrackedParameter<int>("dumpFlags", 0);
    //instantiates the selective readout algorithm:
@@ -95,15 +96,14 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
   
   //puts the SR flags into the event:
   event.put(ebSrFlags, ebSrFlagCollection_);
-  event.put(eeSrFlags, eeSrFlagCollection_);
-  
+  event.put(eeSrFlags, eeSrFlagCollection_);  
 }
 
 const EBDigiCollection*
 EcalSelectiveReadoutProducer::getEBDigis(edm::Event& event) const
 {
   edm::Handle< EBDigiCollection > hEBDigis;
-  event.getByLabel(digiProducer_, hEBDigis);
+  event.getByLabel(digiProducer_, ebdigiCollection_, hEBDigis);
   static bool firstCall= true;
   if(firstCall){
     checkWeights(event, hEBDigis.id());
@@ -116,7 +116,7 @@ const EEDigiCollection*
 EcalSelectiveReadoutProducer::getEEDigis(edm::Event& event) const
 {
   edm::Handle< EEDigiCollection > hEEDigis;
-  event.getByLabel(digiProducer_, hEEDigis);
+  event.getByLabel(digiProducer_, eedigiCollection_, hEEDigis);
   static bool firstCall = true;
   if(firstCall){
     checkWeights(event, hEEDigis.id());
@@ -129,7 +129,7 @@ const EcalTrigPrimDigiCollection*
 EcalSelectiveReadoutProducer::getTrigPrims(edm::Event& event) const
 {
   edm::Handle<EcalTrigPrimDigiCollection> hTPDigis;
-  event.getByLabel(trigPrimProducer_, hTPDigis);
+  event.getByLabel(trigPrimProducer_, trigPrimCollection_, hTPDigis);
   return hTPDigis.product();
 }
 
@@ -380,9 +380,9 @@ EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
       ++iEta0){
     for(int iPhi0 = 0; iPhi0 < nTtPhi; ++iPhi0){
       int srFlag = ebSrf[iEta0][iPhi0];
-      assert(srFlag>=0
+      assert(srFlag>=-1
 	     && srFlag<(int)(sizeof(srpFlagMarker)/sizeof(srpFlagMarker[0]))); 
-      os << srpFlagMarker[srFlag];
+      os << (srFlag==-1?'?':srpFlagMarker[srFlag]);
     }
     os << "\n"; //one phi per line
   }

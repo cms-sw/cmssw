@@ -95,6 +95,7 @@ private:
   std::string ebSrFlagCollection_; // secondary name given to collection of SR flag digis
   std::string eeSrFlagCollection_; // secondary name given to collection of SR flag digis
   std::string trigPrimProducer_; // name of module/plugin/producer making triggere primitives
+  std::string trigPrimCollection_; // name of module/plugin/producer making triggere primitives
 
   // store the pointer, so we don't have to update it every event
   const CaloGeometry * theGeometry;
