@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: DataBlockImpl.cc,v 1.16 2007/02/14 21:17:07 paterno Exp $
+  $Id: DataBlockImpl.cc,v 1.17 2007/02/16 22:43:48 paterno Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -15,7 +15,7 @@
 #include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/DataBlockImpl.h"
-#include "FWCore/Framework/src/ReflexTools.h"
+#include "DataFormats/Common/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace std;
