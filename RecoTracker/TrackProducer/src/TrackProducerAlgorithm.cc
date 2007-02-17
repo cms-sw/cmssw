@@ -113,7 +113,8 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	
 	ndof = ndof - 5;
 
-	//SORT RECHITS ALONGMOMENTUM
+	// SORT RECHITS FROM INNERMOST TO OUTERMOST 
+	// (i.e. along momentum for tracks from LHC collision)
 	TransientTrackingRecHit::ConstRecHitPointer firstHit;
 	for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.begin(); it!=tmp.end();it++){
 	  if ((**it).isValid()) {
@@ -149,7 +150,12 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	
 	LogDebug("TrackProducer") << "Initial TSOS\n" << theTSOS << "\n";
 	
-	const TrajectorySeed * seed = new TrajectorySeed();//empty seed: not needed
+	// investigate how the hits are sorted: either alongMomentum or opposite.
+	GlobalVector delta = hits[1]->globalPosition() - hits[0]->globalPosition() ;
+	PropagationDirection seedDirection = (theTSOS.globalDirection()*delta>0)? alongMomentum : oppositeToMomentum;
+
+	// the seed has dummy state and hits.What matters for the fitting, is the seedDirection;
+	const TrajectorySeed * seed = new TrajectorySeed(PTrajectoryStateOnDet(),BasicTrajectorySeed::recHitContainer(), seedDirection);
 	//buildTrack
 	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theTSOS, *seed, ndof);
 	if(ok) cont++;
