@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/02/09 22:27:34 $
- * $Revision: 1.76 $
+ * $Date: 2007/02/17 13:57:45 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -600,7 +600,7 @@ void EBTimingClient::htmlOutput(int run, string htmlDir, string htmlName){
       imgName = htmlDir + imgNameAmp;
 
       cAmp->cd();
-      gStyle->SetOptStat("euomr");
+      gStyle->SetOptStat("euo");
       obj1f->SetStats(kTRUE);
 //      if ( obj1f->GetMaximum(histMax) > 0. ) {
 //        gPad->SetLogy(1);
