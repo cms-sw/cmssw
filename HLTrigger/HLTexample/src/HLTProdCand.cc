@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/01/16 08:05:27 $
- *  $Revision: 1.27 $
+ *  $Date: 2007/02/16 16:06:56 $
+ *  $Revision: 1.28 $
  *
  *  \author Martin Grunewald
  *
@@ -11,8 +11,8 @@
 
 #include "HLTrigger/HLTexample/interface/HLTProdCand.h"
 
-#include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 

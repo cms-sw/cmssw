@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/10/13 07:28:35 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/10/16 12:23:56 $
+ *  $Revision: 1.20 $
  *
  *  \author Martin Grunewald
  *
@@ -11,7 +11,7 @@
 
 #include "HLTrigger/HLTexample/interface/HLTAnalFilt.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 

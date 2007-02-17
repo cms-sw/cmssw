@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/23 19:02:34 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/10/04 16:02:42 $
+ *  $Revision: 1.17 $
  *
  *  \author Martin Grunewald
  *
@@ -12,7 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTexample/interface/HLTSinglet.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"

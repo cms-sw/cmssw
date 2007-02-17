@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/22 19:03:15 $
- *  $Revision: 1.22 $
+ *  $Date: 2006/10/04 16:02:42 $
+ *  $Revision: 1.23 $
  *
  *  \author Martin Grunewald
  *
@@ -11,7 +11,7 @@
 
 #include "HLTrigger/HLTexample/interface/HLTFiltCand.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"

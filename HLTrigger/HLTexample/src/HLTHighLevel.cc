@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/09/20 11:18:55 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/10/04 16:02:42 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -11,7 +11,7 @@
 
 #include "HLTrigger/HLTexample/interface/HLTHighLevel.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 
