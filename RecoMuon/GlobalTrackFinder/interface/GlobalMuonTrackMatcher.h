@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrackMatcher
  *  match standalone muon track with tracker track
  *
- *  $Date: 2007/02/01 18:06:28 $
- *  $Revision: 1.18 $
+ *  $Date: 2007/02/16 23:32:32 $
+ *  $Revision: 1.21 $
  *
  *  \author Chang Liu           Purdue University
  *  \author Adam Everett        Purdue University
@@ -88,6 +88,7 @@ class GlobalMuonTrackMatcher {
     GlobalMuonMonitorInterface* dataMonitor;
 
     const MuonServiceProxy *theService;
+    std::string theOutPropagatorName;
 };
 
 #endif

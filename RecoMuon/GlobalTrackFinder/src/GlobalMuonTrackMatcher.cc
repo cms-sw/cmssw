@@ -4,8 +4,8 @@
  *  Description:
  *    Match standalone muon track with tracker tracks
  *
- *  $Date: 2007/02/14 06:11:44 $
- *  $Revision: 1.37 $
+ *  $Date: 2007/02/16 23:41:47 $
+ *  $Revision: 1.40 $
  *
  *  Authors :
  *  \author Chang Liu  - Purdue University
@@ -59,6 +59,8 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(const edm::ParameterSet& par,
   theMinPt = par.getParameter<double>("MinPt");
   
   matchAtSurface_ = par.getUntrackedParameter<bool>("MatchAtSurface",true);
+
+  theOutPropagatorName = par.getParameter<string>("StateOnTrackerBoundOutPropagator");
 
   theMIMFlag = par.getUntrackedParameter<bool>("performMuonIntegrityMonitor",false);
   if (theMIMFlag) {
@@ -213,8 +215,9 @@ GlobalMuonTrackMatcher::convertToTSOS(const TrackCand& staCand,
   
   const string category = "GlobalMuonTrackMatcher";
 
-  TransientTrack innerMuTT(*staCand.second,&*theService->magneticField(),theService->trackingGeometry());
-  TrajectoryStateOnSurface innerMuTsos = innerMuTT.impactPointState();
+  TransientTrack muTT(*staCand.second,&*theService->magneticField(),theService->trackingGeometry());
+  TrajectoryStateOnSurface innerMuTSOS = muTT.impactPointState();
+  FreeTrajectoryState initMuFTS = muTT.initialFreeState();
 
   TrajectoryStateOnSurface outerTkTsos;
   if (tkCand.first == 0) {
@@ -232,15 +235,15 @@ GlobalMuonTrackMatcher::convertToTSOS(const TrackCand& staCand,
     }
   }
 
-  if ( !innerMuTsos.isValid() || !outerTkTsos.isValid() ) return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(innerMuTsos,outerTkTsos);
+  if ( !innerMuTSOS.isValid() || !outerTkTsos.isValid() ) return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(innerMuTSOS,outerTkTsos);
 
   // define StateOnTrackerBound objects  
-  StateOnTrackerBound fromInside(&*theService->propagator("SteppingHelixPropagatorAlong"));
+  StateOnTrackerBound fromInside(&*theService->propagator(theOutPropagatorName));
 
   // extrapolate to outer tracker surface
-  TrajectoryStateOnSurface tkTsosFromMu = fromInside(innerMuTsos);
+  TrajectoryStateOnSurface tkTsosFromMu = fromInside(initMuFTS);
   TrajectoryStateOnSurface tkTsosFromTk = fromInside(outerTkTsos);
-  
+
   return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(tkTsosFromMu, tkTsosFromTk);
 
 }
