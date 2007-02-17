@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/02/13 16:13:35 $
- * $Revision: 1.116 $
+ * $Date: 2007/02/14 14:21:23 $
+ * $Revision: 1.117 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -278,15 +278,18 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
+      if ( i != dccMap.end() ) continue;
+
       dccMap[dcch.id()] = dcch;
 
       meEBDCC_->Fill((dcch.id()+1)+0.5);
 
-      if ( dccMap[dcch.id()].getRunNumber() != 0 ) irun_ = dccMap[dcch.id()].getRunNumber();
+      if ( dcch.getRunNumber() != 0 ) irun_ = dcch.getRunNumber();
 
-      if ( dccMap[dcch.id()].getRunType() != -1 ) runType_ = dccMap[dcch.id()].getRunType();
+      if ( dcch.getRunType() != -1 ) runType_ = dcch.getRunType();
 
-      if ( dccMap[dcch.id()].getRunType() != -1 ) evtType_ = dccMap[dcch.id()].getRunType();
+      if ( dcch.getRunType() != -1 ) evtType_ = dcch.getRunType();
 
       // uncomment the following line to mix fake 'laser' events w/ cosmic & beam events
       // if ( ievt_ % 10 == 0 && ( runType_ == EcalDCCHeaderBlock::COSMIC || runType_ == EcalDCCHeaderBlock::BEAMH4 ) ) evtType_ = EcalDCCHeaderBlock::LASER_STD;
