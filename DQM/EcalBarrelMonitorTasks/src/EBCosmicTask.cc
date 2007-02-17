@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2006/09/22 06:01:40 $
- * $Revision: 1.57 $
+ * $Date: 2007/02/01 15:43:57 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  *
 */
@@ -175,6 +175,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
     LogDebug("EBCosmicTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
     float xval = hit.energy();
+    if ( xval <= 0. ) xval = 0.0;
 
     LogDebug("EBCosmicTask") << " hit energy " << xval;
 

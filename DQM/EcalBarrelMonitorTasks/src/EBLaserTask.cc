@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/02/13 18:57:06 $
- * $Revision: 1.66 $
+ * $Date: 2007/02/16 20:23:19 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  *
 */
@@ -116,7 +116,7 @@ void EBLaserTask::setup(void){
       meAmplMapL1A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe->tag(meAmplMapL1A_[i], i+1);
       sprintf(histo, "EBLT timing SM%02d L1A", i+1);
-      meTimeMapL1A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meTimeMapL1A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe->tag(meTimeMapL1A_[i], i+1);
       sprintf(histo, "EBLT amplitude over PN SM%02d L1A", i+1);
       meAmplPNMapL1A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -129,7 +129,7 @@ void EBLaserTask::setup(void){
       meAmplMapL1B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe->tag(meAmplMapL1B_[i], i+1);
       sprintf(histo, "EBLT timing SM%02d L1B", i+1);
-      meTimeMapL1B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meTimeMapL1B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe->tag(meTimeMapL1B_[i], i+1);
       sprintf(histo, "EBLT amplitude over PN SM%02d L1B", i+1);
       meAmplPNMapL1B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -145,7 +145,7 @@ void EBLaserTask::setup(void){
       meAmplMapL2A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe->tag(meAmplMapL2A_[i], i+1);
       sprintf(histo, "EBLT timing SM%02d L2A", i+1);
-      meTimeMapL2A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meTimeMapL2A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe->tag(meTimeMapL2A_[i], i+1);
       sprintf(histo, "EBLT amplitude over PN SM%02d L2A", i+1);
       meAmplPNMapL2A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -158,7 +158,7 @@ void EBLaserTask::setup(void){
       meAmplMapL2B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe->tag(meAmplMapL2B_[i], i+1);
       sprintf(histo, "EBLT timing SM%02d L2B", i+1);
-      meTimeMapL2B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meTimeMapL2B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe->tag(meTimeMapL2B_[i], i+1);
       sprintf(histo, "EBLT amplitude over PN SM%02d L2B", i+1);
       meAmplPNMapL2B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -174,7 +174,7 @@ void EBLaserTask::setup(void){
       meAmplMapL3A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe->tag(meAmplMapL3A_[i], i+1);
       sprintf(histo, "EBLT timing SM%02d L3A", i+1);
-      meTimeMapL3A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meTimeMapL3A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe->tag(meTimeMapL3A_[i], i+1);
       sprintf(histo, "EBLT amplitude over PN SM%02d L3A", i+1);
       meAmplPNMapL3A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -187,7 +187,7 @@ void EBLaserTask::setup(void){
       meAmplMapL3B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe->tag(meAmplMapL3B_[i], i+1);
       sprintf(histo, "EBLT timing SM%02d L3B", i+1);
-      meTimeMapL3B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meTimeMapL3B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe->tag(meTimeMapL3B_[i], i+1);
       sprintf(histo, "EBLT amplitude over PN SM%02d L3B", i+1);
       meAmplPNMapL3B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -203,7 +203,7 @@ void EBLaserTask::setup(void){
       meAmplMapL4A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe->tag(meAmplMapL4A_[i], i+1);
       sprintf(histo, "EBLT timing SM%02d L4A", i+1);
-      meTimeMapL4A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meTimeMapL4A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe->tag(meTimeMapL4A_[i], i+1);
       sprintf(histo, "EBLT amplitude over PN SM%02d L4A", i+1);
       meAmplPNMapL4A_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -216,7 +216,7 @@ void EBLaserTask::setup(void){
       meAmplMapL4B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe->tag(meAmplMapL4B_[i], i+1);
       sprintf(histo, "EBLT timing SM%02d L4B", i+1);
-      meTimeMapL4B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meTimeMapL4B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe->tag(meTimeMapL4B_[i], i+1);
       sprintf(histo, "EBLT amplitude over PN SM%02d L4B", i+1);
       meAmplPNMapL4B_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -761,7 +761,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
     }
 
     float xval = hit.amplitude();
-    if ( xval <= 0. ) xval = 0.5;
+    if ( xval <= 0. ) xval = 0.0;
     float yval = hit.jitter();
     float zval = hit.pedestal();
 
