@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/02/01 15:43:57 $
- * $Revision: 1.17 $
+ * $Date: 2007/02/17 12:25:53 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -162,7 +162,9 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
     float xval = hit.amplitude();
     if ( xval <= 0. ) xval = 0.0;
     float yval = hit.jitter();
+    if ( yval <= 0. ) yval = 0.0;
     float zval = hit.pedestal();
+    if ( zval <= 0. ) zval = 0.0;
 
     LogDebug("EBTimingTask") << " hit amplitude " << xval;
     LogDebug("EBTimingTask") << " hit jitter " << yval;
