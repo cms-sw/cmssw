@@ -4,8 +4,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/02/14 06:12:39 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/02/16 18:42:31 $
+ *  $Revision: 1.11 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -34,6 +34,7 @@ class RectangularEtaPhiTrackingRegion;
 class SeedGeneratorFromTrackingRegion;
 class MuonServiceProxy;
 class MuonUpdatorAtVertex;
+class Chi2MeasurementEstimator;
 
 class GlobalMuonMonitorInterface;
 
@@ -78,6 +79,8 @@ class TrackerSeedGenerator {
 		  const RectangularEtaPhiTrackingRegion&,
 		  float deltaEta, float deltaPhi);
 
+  std::vector<TrajectorySeed> rsSeeds(const reco::Track&);
+
   //Propagator* thePropagator;
   //Propagator* theStepPropagator;
   //SeedGeneratorFromTrackingRegion* theSeedGenerator;
@@ -93,7 +96,7 @@ class TrackerSeedGenerator {
   BTSeedCollection theSeeds;
   //edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   //edm::ESHandle<MagneticField> theField;
-  //GeometricSearchTracker* theGeoTracker;
+  edm::ESHandle<GeometricSearchTracker> theSearchTracker;
   //const LayerMeasurements* theLayerMeasurements;
   //const MeasurementTracker* theMeasurementTracker;
 
@@ -101,6 +104,7 @@ class TrackerSeedGenerator {
   edm::Handle<SiPixelRecHitCollection> pixelHits;
   std::string hitProducer;
   std::string theOutPropagator;
+  std::string theRSPropagator;
 
   const MuonServiceProxy *theService;
   GlobalPoint theVertexPos;
@@ -109,6 +113,8 @@ class TrackerSeedGenerator {
 
   bool theMIMFlag;
   GlobalMuonMonitorInterface* dataMonitor;
+
+  Chi2MeasurementEstimator * theRoadEstimator;
 
 };
 

@@ -3,8 +3,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/02/14 06:12:39 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/02/16 18:42:31 $
+ *  $Revision: 1.13 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -58,6 +58,13 @@
 #include "RecoMuon/GlobalMuonProducer/src/GlobalMuonMonitorInterface.h"
 #include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
 
+//#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+
 using namespace std;
 using namespace edm;
 
@@ -78,7 +85,10 @@ TrackerSeedGenerator::TrackerSeedGenerator(const edm::ParameterSet& par, const M
   hitProducer = par.getParameter<string>("HitProducer");
   theMaxSeeds = par.getParameter<int>("MaxSeeds");
 
+  double roadChi2 = par.getParameter<double>("maxRoadChi2");
+  theRoadEstimator = new Chi2MeasurementEstimator(roadChi2,sqrt(roadChi2));
   theOutPropagator = par.getParameter<string>("StateOnTrackerBoundOutPropagator");
+  theRSPropagator = par.getParameter<string>("RSPropagator");
 
   //ParameterSet pixelPSet = par.getParameter<ParameterSet>("PixelParameters");
   //combinatorialSeedGenerator = new CombinatorialSeedGeneratorFromPixel(par);
@@ -118,6 +128,7 @@ TrackerSeedGenerator::TrackerSeedGenerator(const edm::ParameterSet& par, const M
 
 TrackerSeedGenerator::~TrackerSeedGenerator() {
   if(theUpdator) delete theUpdator;
+  if(theRoadEstimator) delete theRoadEstimator;
   //if(combinatorialSeedGenerator) delete combinatorialSeedGenerator;
   /*
     delete theSeedGenerator;
@@ -131,6 +142,7 @@ TrackerSeedGenerator::~TrackerSeedGenerator() {
 void TrackerSeedGenerator::setEvent(const edm::Event &event)
 {
   event.getByLabel(hitProducer, pixelHits);
+  theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theSearchTracker);
 }
 
 //
@@ -177,18 +189,20 @@ void TrackerSeedGenerator::findSeeds(const TrackCand& muon, const RectangularEta
   // 2 = pixel seeds  
   // 3 = combined (0+1)
   // 4 = combined (2+1)
+  // 5 = roadSearch seed
 
   switch ( theOption ) {
-    case 0 : { primitiveSeeds(*muon.first,traj_trak); break; }
-    case 1 : { consecutiveHitsSeeds(*muon.first,traj_trak,theService->eventSetup(),rectRegion); break; }
-    case 2 : { pixelSeeds(*muon.first,traj_trak,rectRegion,deltaEta,deltaPhi); break; }
-    case 3 : { primitiveSeeds(*muon.first,traj_trak);
-               consecutiveHitsSeeds(*muon.first,traj_trak,theService->eventSetup(),rectRegion);
-               break; }
-    case 4 : { pixelSeeds(*muon.first,traj_trak,rectRegion,deltaEta,deltaPhi);
-               consecutiveHitsSeeds(*muon.first,traj_trak,theService->eventSetup(),rectRegion);
-               break; }
-      /*
+  case 0 : { primitiveSeeds(*muon.first,traj_trak); break; }
+  case 1 : { consecutiveHitsSeeds(*muon.first,traj_trak,theService->eventSetup(),rectRegion); break; }
+  case 2 : { pixelSeeds(*muon.first,traj_trak,rectRegion,deltaEta,deltaPhi); break; }
+  case 3 : { primitiveSeeds(*muon.first,traj_trak);
+  consecutiveHitsSeeds(*muon.first,traj_trak,theService->eventSetup(),rectRegion);
+  break; }
+  case 4 : { pixelSeeds(*muon.first,traj_trak,rectRegion,deltaEta,deltaPhi);
+  consecutiveHitsSeeds(*muon.first,traj_trak,theService->eventSetup(),rectRegion);
+  break; }
+  case 5 : { rsSeeds(*muon.second); break;}
+    /*
 	default : { if ( theDirection == outsideIn ) {
 	primitiveSeeds(muon,traj_trak);
 	if ( theSeeds.size() == 0 ) consecutiveHitsSeeds(muon,traj_trak,theService->eventSetup(),rectRegion);
@@ -527,4 +541,88 @@ void TrackerSeedGenerator::pixelSeeds(const Trajectory& muon,
     } 
     }  
   */
+}
+
+std::vector<TrajectorySeed> TrackerSeedGenerator::rsSeeds(const reco::Track& muon) {
+  const string category = "TrackerSeedGenerator";
+
+  //default result
+  std::vector<TrajectorySeed> result;
+  
+  //propagate it to the IP and combine
+  reco::TransientTrack muonTT(muon,&*theService->magneticField(),theService->trackingGeometry());
+  FreeTrajectoryState cIPFTS = muonTT.initialFreeState();
+
+  //take state at inner surface and check the first part reached
+  vector<BarrelDetLayer*> blc = theSearchTracker->tibLayers();
+  TrajectoryStateOnSurface inner = theService->propagator(theOutPropagator)->propagate(cIPFTS,blc[0]->surface());
+  if ( !inner.isValid() ) {
+    LogDebug(category) <<"inner state is not valid"; 
+    return result;
+  }
+  
+  double z = inner.globalPosition().z();
+
+
+  
+  vector<ForwardDetLayer*> ptidc = theSearchTracker->posTidLayers();
+  vector<ForwardDetLayer*> ptecc = theSearchTracker->posTecLayers();
+  vector<ForwardDetLayer*> ntidc = theSearchTracker->negTidLayers();
+  vector<ForwardDetLayer*> ntecc = theSearchTracker->negTecLayers();
+
+  const DetLayer *inLayer = NULL;
+  if( fabs(z) < ptidc[0]->surface().position().z()  ) {
+    inLayer = blc[0];
+  } else if ( fabs(z) < ptecc[0]->surface().position().z() ) {
+    inLayer = ( z < 0 ) ? ntidc[0] : ptidc[0] ;
+  } else {
+    inLayer = ( z < 0 ) ? ntecc[0] : ptecc[0] ;
+  }
+
+  //find out at least one compatible detector reached
+  std::vector< DetLayer::DetWithState > compatible = inLayer->compatibleDets(inner,*theService->propagator(theRSPropagator),*theRoadEstimator);
+  
+  //loop the parts until at least a compatible is found
+  while (compatible.size()==0) {
+    switch ( inLayer->subDetector() ) {
+    case PixelSubdetector::PixelBarrel:
+    case PixelSubdetector::PixelEndcap:
+    case StripSubdetector::TOB:
+    case StripSubdetector::TEC:
+      return result;
+      break;
+    case StripSubdetector::TIB:
+      inLayer = ( z < 0 ) ? ntidc[0] : ptidc[0] ;
+      break;
+    case StripSubdetector::TID:
+      inLayer = ( z < 0 ) ? ntecc[0] : ptecc[0] ;
+      break;
+    }
+    compatible = inLayer->compatibleDets(inner,*theService->propagator(theRSPropagator),*theRoadEstimator);
+  }
+
+  //transform it into a PTrajectoryStateOnDet
+  TrajectoryStateTransform tsTransform;
+  PTrajectoryStateOnDet & PTSOD = *tsTransform.persistentState(compatible[0].second,compatible[0].first->geographicalId().rawId());
+  
+  BasicTrajectorySeed::recHitContainer rhContainer;
+  //copy the muon rechit into the seed
+  for (trackingRecHit_iterator trit = muon.recHitsBegin(); trit!=muon.recHitsEnd();trit++) {
+    rhContainer.push_back( (*trit).get()->clone() );
+  }
+  
+  //add this seed to the list and return it
+  result.push_back(TrajectorySeed(PTSOD,rhContainer,alongMomentum));
+
+  int nseeds = theSeeds.size();
+  vector<TrajectorySeed>::const_iterator is;
+  for (is = result.begin(); is != result.end(); ++is) {
+    if ( nseeds < theMaxSeeds ) {
+      theSeeds.push_back(*is);
+      nseeds++;
+    }
+  }
+
+  return result;
+
 }
