@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/13 17:22:11 $
- * $Revision: 1.220 $
+ * $Date: 2007/02/15 10:03:04 $
+ * $Revision: 1.221 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -48,6 +48,7 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
 
 #include "TStyle.h"
 #include "TGaxis.h"
@@ -402,19 +403,28 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
+  clients_.push_back( new EBTriggerTowerClient(ps) );
+  clientNames_.push_back( "TriggerTower" );
   if ( enableTCC_ ) {
-    clients_.push_back( new EBTriggerTowerClient(ps) );
-    clientNames_.push_back( "TriggerTower" );
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
   }
 
-#if 0
   clients_.push_back(  new EBClusterClient(ps) );
   clientNames_.push_back( "Cluster" );
+#if 0
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 #endif
+
+  clients_.push_back(  new EBTimingClient(ps) );
+  clientNames_.push_back( "Timing" );
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
   cout << endl;
 
