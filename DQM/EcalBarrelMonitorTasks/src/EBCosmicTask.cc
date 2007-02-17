@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/02/17 12:33:37 $
- * $Revision: 1.59 $
+ * $Date: 2007/02/17 15:32:06 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  *
 */
@@ -135,10 +135,13 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
     EcalDCCHeaderBlock dcch = (*dcchItr);
 
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
+    if ( i != dccMap.end() ) continue;
+
     dccMap[dcch.id()] = dcch;
 
-    if ( dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::COSMIC ||
-         dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::MTCC ) enable = true;
+    if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
+         dcch.getRunType() == EcalDCCHeaderBlock::MTCC ) enable = true;
 
   }
 
@@ -167,6 +170,9 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
     float xie = ie - 0.5;
     float xip = ip - 0.5;
+
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism-1);
+    if ( i == dccMap.end() ) continue;
 
     if ( ! ( dccMap[ism-1].getRunType() == EcalDCCHeaderBlock::COSMIC ||
              dccMap[ism-1].getRunType() == EcalDCCHeaderBlock::MTCC ) ) continue;

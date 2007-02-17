@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/02/17 12:33:37 $
- * $Revision: 1.68 $
+ * $Date: 2007/02/17 14:33:38 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  *
 */
@@ -511,12 +511,15 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
     EcalDCCHeaderBlock dcch = (*dcchItr);
 
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
+    if ( i != dccMap.end() ) continue;
+
     dccMap[dcch.id()] = dcch;
 
-    if ( dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::LASER_STD ) enable = true;
+    if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ) enable = true;
 
     // uncomment the following line to mix fake 'laser' events w/ cosmic & beam events
-    // if ( dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::COSMIC ) enable = true;
+    // if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ) enable = true;
 
   }
 
@@ -542,6 +545,9 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
     int ip = (ic-1)%20 + 1;
 
     int ism = id.ism();
+
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism-1);
+    if ( i == dccMap.end() ) continue;
 
     if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::LASER_STD ) continue;
 
@@ -608,6 +614,9 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
     int ism = id.iDCCId();
 
     int num = id.iPnId();
+
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism-1);
+    if ( i == dccMap.end() ) continue;
 
     if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::LASER_STD ) continue;
 
@@ -702,6 +711,9 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
     float xie = ie - 0.5;
     float xip = ip - 0.5;
+
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism-1);
+    if ( i == dccMap.end() ) continue;
 
     if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::LASER_STD ) continue;
 

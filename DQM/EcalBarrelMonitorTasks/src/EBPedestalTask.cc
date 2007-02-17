@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/12/14 11:10:34 $
- * $Revision: 1.48 $
+ * $Date: 2007/02/01 15:43:57 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  *
 */
@@ -206,9 +206,12 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
     EcalDCCHeaderBlock dcch = (*dcchItr);
 
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
+    if ( i != dccMap.end() ) continue;
+
     dccMap[dcch.id()] = dcch;
 
-    if ( dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ) enable = true;
+    if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ) enable = true;
 
   }
 
@@ -253,6 +256,9 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
     float xie = ie - 0.5;
     float xip = ip - 0.5;
+
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism-1);
+    if ( i == dccMap.end() ) continue;
 
     if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::PEDESTAL_STD ) continue;
 
@@ -368,6 +374,9 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
     int ism = id.iDCCId();
 
     int num = id.iPnId();
+
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism-1);
+    if ( i == dccMap.end() ) continue;
 
     if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::PEDESTAL_STD ) continue;
 

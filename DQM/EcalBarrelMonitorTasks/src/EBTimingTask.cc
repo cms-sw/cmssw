@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/02/17 12:25:53 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/17 14:33:38 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -108,14 +108,17 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
     EcalDCCHeaderBlock dcch = (*dcchItr);
 
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
+    if ( i != dccMap.end() ) continue;
+
     dccMap[dcch.id()] = dcch;
 
-    if ( dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::COSMIC ||
-         dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-         dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-         dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
-         dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::BEAMH2 ||
-         dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::MTCC ) enable = true;
+    if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
+         dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ||
+         dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+         dcch.getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
+         dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2 ||
+         dcch.getRunType() == EcalDCCHeaderBlock::MTCC ) enable = true;
 
   }
 
@@ -144,6 +147,9 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
     float xie = ie - 0.5;
     float xip = ip - 0.5;
+
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism-1);
+    if ( i == dccMap.end() ) continue;
 
     if ( ! ( dccMap[ism-1].getRunType() == EcalDCCHeaderBlock::COSMIC ||
              dccMap[ism-1].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
