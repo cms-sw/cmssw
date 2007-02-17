@@ -1,9 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.16 2007/02/14 21:17:07 paterno Exp $
+$Id: Group.cc,v 1.17 2007/02/16 22:43:48 paterno Exp $
 ----------------------------------------------------------------------*/
 #include <string>
-#include "FWCore/Framework/src/Group.h"
-#include "FWCore/Framework/src/ReflexTools.h"
+#include "FWCore/Framework/interface/Group.h"
+#include "DataFormats/Common/interface/ReflexTools.h"
 
 using ROOT::Reflex::Type;
 using ROOT::Reflex::TypeTemplate;

@@ -74,7 +74,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.16 2007/02/07 23:01:43 paterno Exp $
+$Id: DataViewImpl.h,v 1.17 2007/02/14 14:20:29 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -97,7 +97,7 @@ $Id: DataViewImpl.h,v 1.16 2007/02/07 23:01:43 paterno Exp $
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
-#include "FWCore/Framework/src/Group.h"
+#include "FWCore/Framework/interface/Group.h"
 #include "FWCore/Framework/interface/TypeID.h"
 #include "FWCore/Framework/interface/View.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"

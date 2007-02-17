@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.9 2007/01/28 05:38:48 wmtan Exp $
+$Id: DataViewImpl.cc,v 1.10 2007/02/14 14:20:30 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -11,7 +11,7 @@ $Id: DataViewImpl.cc,v 1.9 2007/01/28 05:38:48 wmtan Exp $
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/DataBlockImpl.h"
 #include "DataFormats/Common/interface/BranchDescription.h"
-#include "FWCore/Framework/src/Group.h"
+#include "FWCore/Framework/interface/Group.h"
 
 using namespace std;
 
