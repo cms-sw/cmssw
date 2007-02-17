@@ -19,9 +19,11 @@
  <class name="edm::RefItem<std::pair<unsigned int,unsigned int> >">
    <field name="ptr_" transient="true"/>
  </class>
+ <class name="std::vector<edm::RefItem<int> >"/>
+ <class name="std::vector<edm::RefItem<std::pair<unsigned int,unsigned int> > >"/>
  <class name="edm::RefBase<unsigned int>"/>
  <class name="edm::RefBase<int>"/>
- <class name="edm::RefBase<std::pair<unsigned int,unsigned int> >" />
+ <class name="edm::RefBase<std::pair<unsigned int,unsigned int> >"/>
  <class name="edm::RefVectorBase<unsigned int>"/>
  <class name="edm::RefVectorBase<int>"/>
  <class name="std::vector<edm::RefItem<unsigned int> >"/>

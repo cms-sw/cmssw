@@ -115,6 +115,7 @@ namespace { namespace {
   edm::RefBase<int> dummyRefBase3;
   edm::RefVectorBase<std::vector<unsigned int>::size_type> dummyRefVectorBase;
   edm::RefVectorBase<int> dummyRefVectorBase2;
+  edm::RefVectorBase<std::pair<unsigned int, unsigned int> > dummyRefVectorBase3;
 
   std::pair<edm::BranchKey, edm::BranchDescription> dummyPairBranch;
   std::map<edm::Hash<0>, edm::ModuleDescription> dummyMapMod;
