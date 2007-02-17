@@ -9,6 +9,7 @@
 #include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Common/interface/BranchType.h"
 
+#include <memory>
 #include <iostream>
 #include <sstream>
 #include <assert.h>
@@ -63,9 +64,9 @@ int main(int argc, char* argv[]) {
 
    try {
       ROOT::Cintex::Cintex::Enable();
-      TFile f(argv[1]);
+     std::auto_ptr<TFile> f( TFile::Open(argv[1]));
 
-      TTree* meta = dynamic_cast<TTree*>(f.Get(edm::poolNames::metaDataTreeName().c_str()));
+      TTree* meta = dynamic_cast<TTree*>(f->Get(edm::poolNames::metaDataTreeName().c_str()));
       assert(0!=meta);
 
       edm::ProductRegistry reg;
