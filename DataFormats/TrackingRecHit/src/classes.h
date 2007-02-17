@@ -2,6 +2,7 @@
 #include "DataFormats/TrackingRecHit/interface/RecHit1D.h"
 #include "DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/RecSegment.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
