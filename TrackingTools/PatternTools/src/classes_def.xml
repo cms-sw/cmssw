@@ -1,6 +1,7 @@
 <lcgdict>
   <class name="Trajectory"/>
   <class name="std::vector<Trajectory>"  persistent = "false"  />
+  <class name="edm::RefProd<std::vector<Trajectory> >"/>
 
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>, std::vector<reco::Track>, unsigned short > >" >
     <field name="transientMap_" transient="true" />
