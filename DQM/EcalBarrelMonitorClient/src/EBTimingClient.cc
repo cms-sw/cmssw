@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/02/17 14:49:43 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/17 15:08:40 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -182,7 +182,7 @@ void EBTimingClient::setup(void) {
     meg01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( mea01_[ism-1] ) bei->removeElement( mea01_[ism-1]->getName() );
-    sprintf(histo, "EBTMT test pulse amplitude SM%02d", ism);
+    sprintf(histo, "EBTMT timing SM%02d", ism);
     mea01_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
 
     if ( mep01_[ism-1] ) bei->removeElement( mep01_[ism-1]->getName() );
@@ -529,10 +529,10 @@ void EBTimingClient::htmlOutput(int run, string htmlDir, string htmlName){
   dummy.SetMarkerSize(2);
   dummy.SetMinimum(0.1);
 
-  string imgNameQual, imgNameAmp, imgNameMean, imgNameRMS, imgName, meName;
+  string imgNameQual, imgNameTim, imgNameMean, imgNameRMS, imgName, meName;
 
   TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
-  TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
+  TCanvas* cTim = new TCanvas("cTim", "Temp", csize, csize);
   TCanvas* cMean = new TCanvas("cMean", "Temp", csize, csize);
   TCanvas* cRMS = new TCanvas("cRMS", "Temp", csize, csize);
 
@@ -580,9 +580,9 @@ void EBTimingClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     }
 
-    // Amplitude distributions
+    // Timing distributions
 
-      imgNameAmp = "";
+    imgNameTim = "";
 
     obj1f = 0;
     obj1f = EBMUtilsClient::getHisto<TH1F*>( mea01_[ism-1] );
@@ -596,10 +596,10 @@ void EBTimingClient::htmlOutput(int run, string htmlDir, string htmlName){
           meName.replace(i, 1 ,"_" );
         }
       }
-      imgNameAmp = meName + ".png";
-      imgName = htmlDir + imgNameAmp;
+      imgNameTim = meName + ".png";
+      imgName = htmlDir + imgNameTim;
 
-      cAmp->cd();
+      cTim->cd();
       gStyle->SetOptStat("euo");
       obj1f->SetStats(kTRUE);
 //      if ( obj1f->GetMaximum(histMax) > 0. ) {
@@ -610,8 +610,8 @@ void EBTimingClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f->SetMinimum(0.0);
       obj1f->SetMaximum(10.0);
       obj1f->Draw();
-      cAmp->Update();
-      cAmp->SaveAs(imgName.c_str());
+      cTim->Update();
+      cTim->SaveAs(imgName.c_str());
       gPad->SetLogy(0);
 
     }
@@ -697,8 +697,8 @@ void EBTimingClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "</tr>" << endl;
     htmlFile << "<tr>" << endl;
 
-    if ( imgNameAmp.size() != 0 )
-      htmlFile << "<td><img src=\"" << imgNameAmp << "\"></td>" << endl;
+    if ( imgNameTim.size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameTim << "\"></td>" << endl;
     else
       htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
@@ -720,7 +720,7 @@ void EBTimingClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
 
   delete cQual;
-  delete cAmp;
+  delete cTim;
   delete cMean;
   delete cRMS;
 
