@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/02/06 18:19:49 $
- * $Revision: 1.133 $
+ * $Date: 2007/02/08 15:23:59 $
+ * $Revision: 1.134 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1670,7 +1670,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f->GetYaxis()->SetNdivisions(4);
       cOcc->SetGridx();
       cOcc->SetGridy();
-      obj2f->SetMinimum(0.);
+      obj2f->SetMinimum(0.0);
       obj2f->Draw("colz");
       dummy1.Draw("text,same");
       cOcc->Update();
@@ -1727,7 +1727,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj2f->GetYaxis()->SetNdivisions(4);
         cMe->SetGridx();
         cMe->SetGridy();
-        obj2f->SetMinimum(0.);
+        obj2f->SetMinimum(0.0);
         obj2f->Draw("colz");
         if ( iCanvas < 5 )
           dummy1.Draw("text,same");
@@ -1800,7 +1800,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f->GetYaxis()->SetNdivisions(5);
       cMeMem->SetGridx();
       cMeMem->SetGridy(0);
-      obj2f->SetMinimum(0.);
+      obj2f->SetMinimum(0.0);
       obj2f->Draw("colz");
       dummy3.Draw("text,same");
       cMeMem->Update();
@@ -1847,7 +1847,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
         cMeMem->cd();
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(10, pCol4);
-        obj2f->SetMinimum(0.);
+        obj2f->SetMinimum(0.0);
         obj2f->Draw("colz");
         if ( iCanvas < 9 ){
           obj2f->GetXaxis()->SetNdivisions(10);

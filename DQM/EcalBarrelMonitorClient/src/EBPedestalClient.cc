@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/02/06 18:19:49 $
- * $Revision: 1.124 $
+ * $Date: 2007/02/08 15:23:59 $
+ * $Revision: 1.125 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1571,7 +1571,6 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         obj1f->Draw();
         cMean->Update();
-        gPad->SetLogy(0);
         cMean->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
@@ -1801,7 +1800,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        obj1d->SetMinimum(0.);
+        obj1d->SetMinimum(0.0);
         obj1d->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
