@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/02/17 17:18:01 $
- * $Revision: 1.4 $
+ * $Date: 2007/02/17 19:54:26 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -438,7 +438,7 @@ void EBTimingClient::analyze(void){
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ie, ip, val);
 
           if ( mea01_[ism-1] ) mea01_[ism-1]->setBinContent(ip+20*(ie-1), mean01);
-          if ( mea01_[ism-1] ) mea01_[ism-1]->setBinError( ip+20*(ie-1), rms01 );
+          if ( mea01_[ism-1] ) mea01_[ism-1]->setBinError(ip+20*(ie-1), rms01);
           if ( mep01_[ism-1] ) mep01_[ism-1]->Fill(mean01);
           if ( mer01_[ism-1] ) mer01_[ism-1]->Fill(rms01);
 
