@@ -51,7 +51,7 @@ StraightLineCylinderCrossing::pathLength (const Cylinder& cylinder) const
 
 std::pair<bool,double>
 StraightLineCylinderCrossing::chooseSolution (const double s1, 
-						    const double s2) const
+					      const double s2) const
 {
   //
   // follows the logic implemented in HelixBarrelCylinderCrossing
