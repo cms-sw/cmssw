@@ -24,7 +24,7 @@ BidIt r_begin, BidIt r_end)
 {
   
   bool boolmarked=false;
-  BidIt r_marked=0;
+  BidIt r_marked;
   
   BidIt n_it1=n_end;
   --n_it1;
@@ -53,7 +53,7 @@ BidIt r_begin, BidIt r_end)
       if(boolmarked==true)
       {
         //for loop to find which marked is in the first sequence
-        BidIt n_marked=0;//mark in first sequence
+        BidIt n_marked;//mark in first sequence
         for (BidIt n_it2=n_begin;n_it2!=n_end;++n_it2)
           if(*r_marked==*n_it2) {n_marked=n_it2;break;}
       

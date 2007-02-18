@@ -15,8 +15,6 @@
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <Math/VectorUtil.h>
 #include <TMath.h>
 
@@ -98,14 +96,14 @@ void GenJetRecoJetMatcher::produce( Event& evt, const EventSetup& es ) {
     }
   }
   
-  char ca[nMin]; 
-  char cb[nMax]; 
-  char bestCB[nMin];
+  vector<int> ca;
+  vector<int> cb;
+  vector<int> bestCB;
 
-  for(int i1=0; i1<nMax; i1++) sprintf(&ca[i1],"%d",i1); 
-  for(int i1=0; i1<nMin; i1++) sprintf(&cb[i1],"%d",i1);
-  for(int i1=0; i1<nMin; i1++) sprintf(&bestCB[i1],"%d",i1); 
-  
+  for(int i1=0; i1<nMax; i1++) ca.push_back(i1);
+  for(int i1=0; i1<nMin; i1++) cb.push_back(i1);
+//  for(int i1=0; i1<nMin; i1++) bestCB.push_back(i1);
+
   do
   {
     //do your processing on the new combination here
@@ -114,25 +112,27 @@ void GenJetRecoJetMatcher::produce( Event& evt, const EventSetup& es ) {
        totalDeltaR = lenght(cb);
        if ( totalDeltaR < BestTotalDeltaR ) {
          BestTotalDeltaR = totalDeltaR;
-         strcpy(bestCB,cb);
+         bestCB=cb;
        }
-       next_permutation(cb,cb+nMin);
+       next_permutation( cb.begin() , cb.end() );
     }
   }
-  while(next_combination(ca,ca+nMax,cb,cb+nMin ));
+  while(next_combination( ca.begin() , ca.end() , cb.begin() , cb.end() ));
   
-  if (printdebug_) cout << "[GenJetRecoJetMatcher] Best DeltaR=" << BestTotalDeltaR << " " << bestCB << endl;
+  if (printdebug_) {
+    cout << "[GenJetRecoJetMatcher] Best DeltaR=" << BestTotalDeltaR << " ";
+    for(vector<int>::iterator it=bestCB.begin(); it!=bestCB.end(); it++ ) cout << *it;
+    cout << endl;
+  }
 
   auto_ptr<CandMatchMap> matchMap( new CandMatchMap( CandMatchMap::ref_type( CandidateRefProd( source  ),
                                                                              CandidateRefProd( matched )  ) ) );
 
   for( int c = 0; c != nMin; c ++ ) {
-    const char temp = bestCB[c];
-    int col = atoi(&temp);
     if( source->size() <= matched->size() ) { 
-      matchMap->insert( CandidateRef( source, c   ), CandidateRef( matched, col ) ); 
+      matchMap->insert( CandidateRef( source, c   ), CandidateRef( matched, bestCB[c] ) ); 
     } else {
-      matchMap->insert( CandidateRef( source, col ), CandidateRef( matched, c   ) );
+      matchMap->insert( CandidateRef( source, bestCB[c] ), CandidateRef( matched, c   ) );
     }
   }
 
@@ -142,13 +142,12 @@ void GenJetRecoJetMatcher::produce( Event& evt, const EventSetup& es ) {
 }
 
 
-double GenJetRecoJetMatcher::lenght(char* my_str) {
+double GenJetRecoJetMatcher::lenght(vector<int> best) {
   double myLenght=0;
-  int colonna=0;
-  for(unsigned int i=0;i<strlen(my_str);i++) { 		
-    const char temp = my_str[i];
-    colonna = atoi(&temp);
-    myLenght+=AllDist[i][colonna];
+  int row=0;
+  for(vector<int>::iterator it=best.begin(); it!=best.end(); it++ ) { 		
+    myLenght+=AllDist[row][*it];
+    row++;
   }
   return myLenght;
 }

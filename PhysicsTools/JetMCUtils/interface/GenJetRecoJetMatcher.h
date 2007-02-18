@@ -15,6 +15,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include<vector>
+#include<iostream>
 
 class GenJetRecoJetMatcher : public edm::EDProducer {
  public:
@@ -22,7 +23,7 @@ class GenJetRecoJetMatcher : public edm::EDProducer {
   ~GenJetRecoJetMatcher();
  private:
   void produce( edm::Event&, const edm::EventSetup& );
-  double lenght(char* my_str);
+  double lenght( std::vector<int> );
   
   edm::InputTag source_;
   edm::InputTag matched_;
