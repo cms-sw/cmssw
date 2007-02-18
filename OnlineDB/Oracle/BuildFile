@@ -1,0 +1,7 @@
+<use name=oracle>
+<export>
+  <use name=oracle>
+  <lib name=OnlineDBOracle>
+</export>
+
+
