@@ -24,7 +24,8 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 {
   if (theVerboseLevel > 0) 
     LogDebug("PixelCPEGeneric") 
-      << " constructing a generic algorithm for ideal pixel detector.";
+      << " constructing a generic algorithm for ideal pixel detector.\n"
+      << " CPEGeneric:: VerboseLevel = " << theVerboseLevel;
 }
 
 
@@ -77,17 +78,33 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
   //--- These two now converted into the local
   LocalPoint local_URcorn_LLpix = theTopol->localPosition(meas_URcorn_LLpix);
   LocalPoint local_LLcorn_URpix = theTopol->localPosition(meas_LLcorn_URpix);
+  if (theVerboseLevel > 20) {
+    cout  
+      << "\n\t >>> cluster.x = " << cluster.x()
+      << "\n\t >>> cluster.y = " << cluster.y()
+      << "\n\t >>> cluster: minRow = " << cluster.minPixelRow()
+      << "  minCol = " << cluster.minPixelCol()
+      << "\n\t >>> cluster: maxRow = " << cluster.maxPixelRow()
+      << "  maxCol = " << cluster.maxPixelCol()
+      << "\n\t >>> meas: inner lower left  = " << meas_URcorn_LLpix.x() 
+      << "," << meas_URcorn_LLpix.y()
+      << "\n\t >>> meas: inner upper right = " << meas_LLcorn_URpix.x() 
+      << "," << meas_LLcorn_URpix.y() 
+      << endl;
+  }
 
   //--- &&& Note that the cuts below should not be hardcoded (like in Orca and
   //--- &&& CPEFromDetPosition/PixelCPEInitial), but rather be
   //--- &&& externally settable (but tracked) parameters.  
 
   //--- Position, including the half lorentz shift
+  if (theVerboseLevel > 20) 
+    cout << "\t >>> Generic:: processing X" << endl;
   float xPos = 
     generic_position_formula( cluster.sizeX(),
 			      Q_f_X, Q_l_X, 
 			      local_URcorn_LLpix.x(), local_LLcorn_URpix.x(),
-			      theLShiftX,   // 0.5 * lorentz shift
+			      theLShiftX*thePitchX,   // 0.5 * lorentz shift in cm
 			      alpha_,
 			      thePitchX,
 			      theTopol->isItBigPixelInX( cluster.minPixelRow() ),
@@ -96,11 +113,13 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 			      2.0,
 			      4.0 );   // cut for eff charge width &&&
 
+  if (theVerboseLevel > 20) 
+    cout << "\t >>> Generic:: processing Y" << endl;
   float yPos = 
     generic_position_formula( cluster.sizeY(),
 			      Q_f_Y, Q_l_Y, 
 			      local_URcorn_LLpix.y(), local_LLcorn_URpix.y(),
-			      theLShiftY, 
+			      theLShiftY*thePitchY,   // 0.5 * lorentz shift in cm
 			      beta_,
 			      thePitchY,   // 0.5 * lorentz shift (may be 0)
 			      theTopol->isItBigPixelInY( cluster.minPixelCol() ),
@@ -177,18 +196,44 @@ generic_position_formula( int size,                //!< Size of this projection.
   //--- it with an *average* effective charge width, which is the average
   //--- length of the edge pixels.
   //
-  if (( W_eff < eff_charge_cut_low ) ||
-      ( W_eff > eff_charge_cut_high ) || (size >= size_cut)) 
+  bool usedEdgeAlgo = false;
+  if (( W_eff/pitch < eff_charge_cut_low ) ||
+      ( W_eff/pitch > eff_charge_cut_high ) || (size >= size_cut)) 
     {
-      W_eff = 0.5 * sum_of_edge;  // average length of the edge pixels (first+last)
+      W_eff = pitch * 0.5 * sum_of_edge;  // ave. length of edge pixels (first+last)
+      usedEdgeAlgo = true;
     }
   
   //--- Finally, compute the position in this projection
   double Qdiff = Q_l - Q_f;
   double Qsum  = Q_l + Q_f;
-  double hit_pos = geom_center + 0.5*(Qdiff/Qsum) * W_eff;
+  double hit_pos = geom_center + 0.5*(Qdiff/Qsum) * W_eff + half_lorentz_shift;
   
-  return hit_pos + half_lorentz_shift;
+  
+  //--- Debugging output
+  if (theVerboseLevel > 20) {
+    cout 
+      << "\n\t >>> angle = " << angle << "  pitch = " << pitch << "  size = " << size
+      << "\n\t >>> upper_edge_first_pix = " << upper_edge_first_pix
+      << "\n\t >>> lower_edge_last_pix  = " << lower_edge_last_pix
+      << "\n\t >>> geom_center          = " << geom_center
+      << "\n\t >>> half_lorentz_shift   = " << half_lorentz_shift
+      << "\n\t >>> W_inner              = " << W_inner
+      << "\n\t >>> W_pred               = " << W_pred
+      << "\n\t >>> W_eff(orig)          = " << fabs( W_pred ) - W_inner
+      << "\n\t >>> W_eff(used)          = " << W_eff
+      << "\n\t >>> sum_of_edge          = " << sum_of_edge
+      << "\n\t >>> Qdiff = " << Qdiff << "  Qsum = " << Qsum 
+      << "\n\t >>> hit_pos              = " << hit_pos
+      << endl;
+    if (usedEdgeAlgo) 
+      cout << "\t >>> Used Edge algorithm" << endl;
+    else
+      cout << "\t >>> Used angle information" << endl;
+  }
+
+
+  return hit_pos;
 }
 
 
