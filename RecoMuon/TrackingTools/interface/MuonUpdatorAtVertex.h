@@ -10,8 +10,8 @@
  *  it is in its specific interface. Once the interface of the Propagator base class will be updated, 
  *  then propagator will become generic. 
  *
- *  $Date: 2007/02/01 17:57:59 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/02/15 20:40:18 $
+ *  $Revision: 1.12 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -22,8 +22,7 @@ class MuonServiceProxy;
 
 #include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include <string>
 

@@ -5,17 +5,17 @@
  *  Find the phi binning of a list of detector according to several 
  *  definitions.
  *
- *  $Date: 2007/01/20 19:34:48 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/01/22 18:16:12 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - INFN Torino
  */
 
 
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
-#include <Geometry/Vector/interface/Phi.h>
 #include <Geometry/Surface/interface/BoundingBox.h>
-#include <Utilities/General/interface/precomputed_value_sort.h>
 #include <Geometry/Surface/interface/GeometricSorting.h>
+#include <DataFormats/GeometryVector/interface/Pi.h>
+#include <Utilities/General/interface/precomputed_value_sort.h>
 #include <TrackingTools/DetLayers/interface/simple_stat.h>
 #include <FWCore/Utilities/interface/Exception.h>
 

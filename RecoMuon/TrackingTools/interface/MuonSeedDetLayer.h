@@ -7,17 +7,17 @@
  *   Helper class for seed generation
  *
  *
- *   $Date: 2006/05/26 00:22:24 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/06/03 21:08:46 $
+ *   $Revision: 1.2 $
  *
  *   \author  N. Neumeister          Purdue University
  */
 
 #include <functional>
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 //              ---------------------
 //              -- Class Interface --

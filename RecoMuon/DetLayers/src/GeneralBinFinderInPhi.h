@@ -4,14 +4,14 @@
 /** \class GeneralBinFinderInPhi
  * A phi bin finder for a non-periodic group of detectors.
  *
- *  $Date: 2007/01/20 18:43:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/01/22 18:17:37 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
 #include "Utilities/BinningTools/interface/BaseBinFinder.h"
 #include "PhiBorderFinder.h"
-#include "Geometry/Vector/interface/Pi.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
