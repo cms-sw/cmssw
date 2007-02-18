@@ -50,7 +50,8 @@ private:
 
   // internal communication - not very clean
   double   theActualDir;
-  
+  bool useStraightLine;
+
   void init();
   bool chooseSolution( const Vector2D& d1, const Vector2D& d2);
 
