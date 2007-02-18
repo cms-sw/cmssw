@@ -26,23 +26,27 @@ void HelixBarrelPlaneCrossingByCircle::init()
   theCosTheta = theStartingDir.z()/pabs;
   theSinTheta = pt / pabs;
 
-  // circle parameters
-  // position of center of curvature is on a line perpendicular
-  // to startingDir and at a distance 1/curvature.
-  theXCenter = theStartingPos.x() - theStartingDir.y() / (pt*theRho);
-  theYCenter = theStartingPos.y() + theStartingDir.x() / (pt*theRho);
+  // protect for zero curvature case
+  const double sraightLineCutoff = 1.e-7;
+  if (fabs(theRho) < sraightLineCutoff && 
+      fabs(theRho)*theStartingPos.perp()  < sraightLineCutoff) {
+    useStraightLine = true;
+  }else{
+    // circle parameters
+    // position of center of curvature is on a line perpendicular
+    // to startingDir and at a distance 1/curvature.
+    theXCenter = theStartingPos.x() - theStartingDir.y() / (pt*theRho);
+    theYCenter = theStartingPos.y() + theStartingDir.x() / (pt*theRho);
+    useStraightLine = false;
+  }
 }
 
 std::pair<bool,double>
 HelixBarrelPlaneCrossingByCircle::pathLength( const Plane& plane)
 {
   typedef std::pair<bool,double>     ResultType;
-
-
-  // protect for zero curvature case
-  const double sraightLineCutoff = 1.e-7;
-  if (fabs(theRho) < sraightLineCutoff && 
-      fabs(theRho)*theStartingPos.perp()  < sraightLineCutoff) {
+  
+  if(useStraightLine){
     // switch to straight line case
     StraightLinePlaneCrossing slc( theStartingPos, 
 				   theStartingDir, thePropDir);
@@ -152,41 +156,48 @@ HelixBarrelPlaneCrossingByCircle::chooseSolution( const Vector2D& d1,
 HelixPlaneCrossing::PositionType 
 HelixBarrelPlaneCrossingByCircle::position( double s) const
 {
-  if ( s==theS) {
-    return PositionType( theStartingPos.x() + theD.x(),
-			 theStartingPos.y() + theD.y(), 
-			 theStartingPos.z() + s*theCosTheta);
-  }
-  else {
-    double phi = s*theSinTheta*theRho;
-    double x1Shift = theStartingPos.x() - theXCenter;
-    double y1Shift = theStartingPos.y() - theYCenter;
-
-    return PositionType(x1Shift*cos(phi)-y1Shift*sin(phi) + theXCenter,
-			x1Shift*sin(phi)+y1Shift*cos(phi) + theYCenter,
-			theStartingPos.z() + s*theCosTheta);
+  if(useStraightLine){
+    return PositionType(theStartingPos+s*theStartingDir.unit());
+  }else{
+    if ( s==theS) {
+      return PositionType( theStartingPos.x() + theD.x(),
+			   theStartingPos.y() + theD.y(), 
+			   theStartingPos.z() + s*theCosTheta);
+    }
+    else {
+      double phi = s*theSinTheta*theRho;
+      double x1Shift = theStartingPos.x() - theXCenter;
+      double y1Shift = theStartingPos.y() - theYCenter;
+      
+      return PositionType(x1Shift*cos(phi)-y1Shift*sin(phi) + theXCenter,
+			  x1Shift*sin(phi)+y1Shift*cos(phi) + theYCenter,
+			  theStartingPos.z() + s*theCosTheta);
+    }
   }
 }
 
 HelixPlaneCrossing::DirectionType 
 HelixBarrelPlaneCrossingByCircle::direction( double s) const
 {
-  double sinPhi, cosPhi;
-  if ( s==theS) {
-    double tmp = 0.5*theDmag*theRho;
-    if (s < 0) tmp = -tmp;
-    // protect sqrt
-    sinPhi = 1.-tmp*tmp;
-    if ( sinPhi<0 )  sinPhi = 0.;
-    sinPhi = 2.*tmp*sqrt(sinPhi);
-    cosPhi = 1.-2.*tmp*tmp;
+  if(useStraightLine){return theStartingDir;}
+  else{
+    double sinPhi, cosPhi;
+    if ( s==theS) {
+      double tmp = 0.5*theDmag*theRho;
+      if (s < 0) tmp = -tmp;
+      // protect sqrt
+      sinPhi = 1.-tmp*tmp;
+      if ( sinPhi<0 )  sinPhi = 0.;
+      sinPhi = 2.*tmp*sqrt(sinPhi);
+      cosPhi = 1.-2.*tmp*tmp;
+    }
+    else {
+      double phi = s*theSinTheta*theRho;
+      sinPhi = sin(phi);
+      cosPhi = cos(phi);
+    }
+    return DirectionType(theStartingDir.x()*cosPhi-theStartingDir.y()*sinPhi,
+			 theStartingDir.x()*sinPhi+theStartingDir.y()*cosPhi,
+			 theStartingDir.z());
   }
-  else {
-    double phi = s*theSinTheta*theRho;
-    sinPhi = sin(phi);
-    cosPhi = cos(phi);
-  }
-  return DirectionType(theStartingDir.x()*cosPhi-theStartingDir.y()*sinPhi,
-		       theStartingDir.x()*sinPhi+theStartingDir.y()*cosPhi,
-		       theStartingDir.z());
 }
