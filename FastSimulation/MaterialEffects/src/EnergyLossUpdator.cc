@@ -1,4 +1,5 @@
 #include "FastSimulation/MaterialEffects/interface/EnergyLossUpdator.h"
+#include "FastSimulation/Utilities/interface/LandauFluctuationGenerator.h"
 
 //#include "FamosGeneric/FamosUtils/interface/FamosHistos.h"
 
@@ -10,8 +11,19 @@
 
 using namespace std;
 
-EnergyLossUpdator::EnergyLossUpdator() :
-    MaterialEffectsUpdator() {}
+EnergyLossUpdator::EnergyLossUpdator(const RandomEngine* engine) :
+    MaterialEffectsUpdator(engine) 
+{
+
+  theGenerator = new LandauFluctuationGenerator(engine);
+
+}
+
+EnergyLossUpdator::~EnergyLossUpdator() {
+
+  delete theGenerator;
+
+}
 
 void EnergyLossUpdator::compute(ParticlePropagator &Particle)
 {
@@ -48,7 +60,7 @@ void EnergyLossUpdator::compute(ParticlePropagator &Particle)
 		- beta2 + 1. - gamma_e );
   
   // Generate the energy loss with Landau fluctuations
-  double dedx = mostProbableLoss + eSpread * theGenerator.landau();
+  double dedx = mostProbableLoss + eSpread * theGenerator->landau();
 
   /*
   myHistos->fill("h100",log10(Particle.vect().mag()),

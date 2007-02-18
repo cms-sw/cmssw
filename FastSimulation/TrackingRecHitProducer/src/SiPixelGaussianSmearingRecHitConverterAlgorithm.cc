@@ -41,36 +41,50 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
   GeomDetType::SubDetector pixelPart,
   std::vector<TH1F*>& alphaMultiplicityCumulativeProbabilities,
   std::vector<TH1F*>& betaMultiplicityCumulativeProbabilities, 
-  TFile* pixelResolutionFile) :
+  TFile* pixelResolutionFile,
+  const RandomEngine* engine)
+:
   pset_(pset),
   thePixelPart(pixelPart),
   theAlphaMultiplicityCumulativeProbabilities(alphaMultiplicityCumulativeProbabilities),
   theBetaMultiplicityCumulativeProbabilities(betaMultiplicityCumulativeProbabilities),
-  thePixelResolutionFile(pixelResolutionFile)
+  thePixelResolutionFile(pixelResolutionFile),
+  random(engine)
 {
   
-  // The random engine
-  random = RandomEngine::instance();
   //
-  negativeErrorProtection = pset.getParameter<bool>("negativeErrorProtection" );
+  negativeErrorProtection = 
+    pset.getParameter<bool>("negativeErrorProtection" );
   //
   if( thePixelPart == GeomDetEnumerators::PixelBarrel ) {
     // Resolution Barrel    
-    resAlpha_binMin   = pset.getParameter<double>("AlphaBarrel_BinMin"  );
-    resAlpha_binWidth = pset.getParameter<double>("AlphaBarrel_BinWidth");
-    resAlpha_binN     = pset.getParameter<int>("AlphaBarrel_BinN"       );
-    resBeta_binMin    = pset.getParameter<double>("BetaBarrel_BinMin"   );
-    resBeta_binWidth  = pset.getParameter<double>("BetaBarrel_BinWidth" );
-    resBeta_binN      = pset.getParameter<int>(   "BetaBarrel_BinN"     );
+    resAlpha_binMin   = 
+      pset.getParameter<double>("AlphaBarrel_BinMin"  );
+    resAlpha_binWidth = 
+      pset.getParameter<double>("AlphaBarrel_BinWidth");
+    resAlpha_binN     = 
+      pset.getParameter<int>("AlphaBarrel_BinN"       );
+    resBeta_binMin    = 
+      pset.getParameter<double>("BetaBarrel_BinMin"   );
+    resBeta_binWidth  = 
+      pset.getParameter<double>("BetaBarrel_BinWidth" );
+    resBeta_binN      = 
+      pset.getParameter<int>(   "BetaBarrel_BinN"     );
     //
   } else if( thePixelPart == GeomDetEnumerators::PixelEndcap ) {
     // Resolution Forward
-    resAlpha_binMin   = pset.getParameter<double>("AlphaForward_BinMin"  );
-    resAlpha_binWidth = pset.getParameter<double>("AlphaForward_BinWidth");
-    resAlpha_binN     = pset.getParameter<int>("AlphaBarrel_BinN"        );
-    resBeta_binMin    = pset.getParameter<double>("BetaForward_BinMin"   );
-    resBeta_binWidth  = pset.getParameter<double>("BetaForward_BinWidth" );
-    resBeta_binN      = pset.getParameter<int>(   "BetaBarrel_BinN"      );
+    resAlpha_binMin   = 
+      pset.getParameter<double>("AlphaForward_BinMin"  );
+    resAlpha_binWidth = 
+      pset.getParameter<double>("AlphaForward_BinWidth");
+    resAlpha_binN     = 
+      pset.getParameter<int>("AlphaBarrel_BinN"        );
+    resBeta_binMin    = 
+      pset.getParameter<double>("BetaForward_BinMin"   );
+    resBeta_binWidth  = 
+      pset.getParameter<double>("BetaForward_BinWidth" );
+    resBeta_binN      = 
+      pset.getParameter<int>(   "BetaBarrel_BinN"      );
   }
   // Initialize PixelErrorParametrization (time consuming!)
   pixelError = new PixelErrorParametrization(pset_);
@@ -88,7 +102,8 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
 				 1110
 				 + alphaMultiplicity);    //
       theAlphaHistos[alphaHistN] = new HistogramGenerator(
-	(TH1F*) thePixelResolutionFile->Get(  Form( "h%u" , alphaHistN ) ) );
+	(TH1F*) thePixelResolutionFile->Get(  Form( "h%u" , alphaHistN ) ),
+	random);
     }
   }
 
@@ -104,7 +119,8 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
 				:
 				1100 + betaMultiplicity);    //
       theBetaHistos[betaHistN] = new HistogramGenerator(
-	(TH1F*) thePixelResolutionFile->Get(  Form( "h%u" , betaHistN  ) ) );
+	(TH1F*) thePixelResolutionFile->Get(  Form( "h%u" , betaHistN  ) ),
+	random);
     }
   }
 

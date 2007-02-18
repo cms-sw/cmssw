@@ -31,7 +31,8 @@
 using namespace std;
 using namespace edm;
 
-HDShower::HDShower(HDShowerParametrization* myParam, 
+HDShower::HDShower(const RandomEngine* engine,
+		   HDShowerParametrization* myParam, 
 		   EcalHitMaker* myGrid,
 		   HcalHitMaker* myHcalHitMaker,
 		   int onECAL,
@@ -40,13 +41,11 @@ HDShower::HDShower(HDShowerParametrization* myParam,
     theGrid(myGrid),
     theHcalHitMaker(myHcalHitMaker),
     onEcal(onECAL),
-    e(epart)
+    e(epart),
+    random(engine)
 { 
   // To get an access to constants read in FASTCalorimeter
   //  FASTCalorimeter * myCalorimeter= FASTCalorimeter::instance();
-
-  // The Famos random engine
-  random = RandomEngine::instance();
 
   // Values taken from FamosGeneric/FamosCalorimeter/src/FASTCalorimeter.cc
   lossesOpt      = myParam->hsParameters()->getHDlossesOpt();

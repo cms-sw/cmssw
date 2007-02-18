@@ -14,6 +14,8 @@
 #include "FastSimulation/CaloHitMakers/interface/PreshowerHitMaker.h"
 #include "FastSimulation/Utilities/interface/Histos.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
+#include "FastSimulation/Utilities/interface/LandauFluctuationGenerator.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
   
 // STL headers 
@@ -39,9 +41,18 @@ CalorimetryManager::CalorimetryManager() :
   random(0)
 {;}
 
-CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent, const edm::ParameterSet& fastCalo)
-  : mySimEvent(aSimEvent), random(RandomEngine::instance())
+CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent, 
+				       const edm::ParameterSet& fastCalo,
+				       const RandomEngine* engine)
+  : 
+  mySimEvent(aSimEvent), 
+  random(engine)
+
 {
+
+  aLandauGenerator = new LandauFluctuationGenerator(random);
+  aGammaGenerator = new GammaFunctionGenerator(random);
+
   readParameters(fastCalo);
 
   myHistos = 0; 
@@ -62,9 +73,13 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent, const edm::Paramet
   myHistos->book("h400",100,-10.,10.,100,0.,35.);
   myHistos->book("h410",720,-M_PI,M_PI);
 #endif
-  myCalorimeter_ = new CaloGeometryHelper(fastCalo);
-  myHDResponse_ = new HCALResponse(fastCalo.getParameter<edm::ParameterSet>("HCALResponse"));
-  myHSParameters_ = new HSParameters(fastCalo.getParameter<edm::ParameterSet>("HSParameters"));
+  myCalorimeter_ = 
+    new CaloGeometryHelper(fastCalo);
+  myHDResponse_ = 
+    new HCALResponse(fastCalo.getParameter<edm::ParameterSet>("HCALResponse"),
+		     random);
+  myHSParameters_ = 
+    new HSParameters(fastCalo.getParameter<edm::ParameterSet>("HSParameters"));
 }
 
 CalorimetryManager::~CalorimetryManager()
@@ -169,7 +184,12 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
 	}
       //      std::cout << " Layer1entrance " << layer1entrance << std::endl;
       //      std::cout << " Layer2entrance " << layer2entrance << std::endl;
-      myPreshower = new PreshowerHitMaker(myCalorimeter_,layer1entrance,dir1,layer2entrance,dir2);
+      myPreshower = new PreshowerHitMaker(myCalorimeter_,
+					  layer1entrance,
+					  dir1,
+					  layer2entrance,
+					  dir2,
+					  aLandauGenerator);
     }
 
   // The ECAL Properties
@@ -240,7 +260,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
 //  if ( maxEnergy < threshold3x3 ) size = 3;
 
 
-  EMShower theShower(&showerparam,&thePart);
+  EMShower theShower(random,aGammaGenerator,&showerparam,&thePart);
 
 
   double depth((X0depth+theShower.getMaximumOfShower())*myCalorimeter_->ecalProperties(onEcal)->radLenIncm());
@@ -253,7 +273,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
 
   //  std::cout << " After getClosestCell " << std::endl;
   
-  EcalHitMaker myGrid(myCalorimeter_,ecalentrance,pivot,onEcal,size,0);
+  EcalHitMaker myGrid(myCalorimeter_,ecalentrance,pivot,onEcal,size,0,random);
   //                                             ^^^^
   //                                         for EM showers
   myGrid.setPulledPadSurvivalProbability(pulledPadSurvivalProbability_);
@@ -590,7 +610,8 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 //	std::cout <<" Ecal entrance " << caloentrance << std::endl;
 //      }
     EcalHitMaker myGrid(myCalorimeter_,caloentrance,pivot,
-			pivot.null()? 0 : myTrack.onEcal(),hdGridSize_,1);
+			pivot.null()? 0 : myTrack.onEcal(),hdGridSize_,1,
+			random);
     // 1=HAD shower
 
     myGrid.setTrackParameters(direction,0,myTrack);
@@ -600,11 +621,21 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
     // Shower simulation
     bool status;
     if(hdSimMethod_ == 0) {
-      HDShower theShower(&theHDShowerparam,&myGrid,&myHcalHitMaker,onECAL,emeas);
+      HDShower theShower(random,
+			 &theHDShowerparam,
+			 &myGrid,
+			 &myHcalHitMaker,
+			 onECAL,
+			 emeas);
       status = theShower.compute();
     }
     else {
-      HDRShower theShower(&theHDShowerparam,&myGrid,&myHcalHitMaker,onECAL,emeas);
+      HDRShower theShower(random,
+			  &theHDShowerparam,
+			  &myGrid,
+			  &myHcalHitMaker,
+			  onECAL,
+			  emeas);
       status = theShower.computeShower();
     }
 

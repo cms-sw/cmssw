@@ -22,9 +22,13 @@ class RandomEngine;
 class HDRShower 
 {
  public:
-  HDRShower(HDShowerParametrization* myParam,
-	    EcalHitMaker* myGrid, HcalHitMaker* myHcalHitMaker,
-	    int onECAL, double epart);
+
+  HDRShower(const RandomEngine* engine,
+	    HDShowerParametrization* myParam,
+	    EcalHitMaker* myGrid, 
+	    HcalHitMaker* myHcalHitMaker,
+	    int onECAL, 
+	    double epart);
 
   virtual ~HDRShower() {;}
 
@@ -70,7 +74,8 @@ class HDRShower
   float ThetaLam21Sig[NEnergyScan];
 
   // The famos random engine
-  RandomEngine* random;
+  const RandomEngine* random;
+
 };
 
 #endif

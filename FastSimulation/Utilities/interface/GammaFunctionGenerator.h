@@ -22,32 +22,28 @@ class GammaFunctionGenerator
 {
  public:
 
-  static GammaFunctionGenerator* instance();
+  /// Constructor
+  GammaFunctionGenerator(const RandomEngine* engine);
 
   /// Destructor
   virtual ~GammaFunctionGenerator();
   
   /// shoot along a gamma distribution with shape parameter alpha and scale beta 
   /// values > xmin
-  double shoot();
+  double shoot() const;
   
   /// The parameters must be set before shooting
     void setParameters(double a,double b, double xm);
 
  private:
   /// values 0<a<1.
-  double gammaFrac();
+  double gammaFrac() const;
   /// integer values
-  double gammaInt();
+  double gammaInt() const;
 
-  // The constructor is hidden as we do not want to construct
-  // more than one instance.
-  GammaFunctionGenerator();
 
 
  private:
-  // The instance
-  static GammaFunctionGenerator* myself;
 
   // The integer numerical functions
   std::vector<GammaNumericalGenerator> theGammas;
@@ -80,6 +76,7 @@ class GammaFunctionGenerator
   // if xmin>xmax
   bool badRange;
 
-  RandomEngine* random;
+  const RandomEngine* random;
+
 };
 #endif

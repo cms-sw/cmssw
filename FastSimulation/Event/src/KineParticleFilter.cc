@@ -4,7 +4,6 @@ using namespace std;
 
 #include <iostream>
 
-
 KineParticleFilter::KineParticleFilter(const edm::ParameterSet& kine) 
   : BaseRawParticleFilter() 
 {

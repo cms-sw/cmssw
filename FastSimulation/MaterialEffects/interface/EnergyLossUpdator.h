@@ -2,7 +2,6 @@
 #define ENERGYLOSSUPDATOR_H
 
 #include "FastSimulation/MaterialEffects/interface/MaterialEffectsUpdator.h"
-#include "FastSimulation/MaterialEffects/interface/LandauFluctuationGenerator.h"
 
 /** 
  * This class computes the most probable energy loss by ionization,
@@ -22,20 +21,22 @@
 
 
 class ParticlePropagator;
+class RandomEngine;
+class LandauFluctuationGenerator;
 
 class EnergyLossUpdator : public MaterialEffectsUpdator
 {
  public:
 
   /// Constructor
-  EnergyLossUpdator();
+  EnergyLossUpdator(const RandomEngine* engine);
 
   /// Default Destructor
-  ~EnergyLossUpdator() {} ;
+  ~EnergyLossUpdator();
 
  private:
   /// The Landau Fluctuation generator
-  LandauFluctuationGenerator theGenerator;
+  LandauFluctuationGenerator* theGenerator;
 
   /// The real dE/dx generation and particle update
   void compute(ParticlePropagator &Particle);

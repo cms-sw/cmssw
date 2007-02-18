@@ -7,12 +7,11 @@
 #include "math.h"
 
 #include <iomanip>
-RadialInterval::RadialInterval(double RC,unsigned nSpots,double energy)
-  :theR(RC),theNumberOfSpots(nSpots),theSpotEnergy(energy)
+RadialInterval::RadialInterval(double RC,unsigned nSpots,double energy,
+			       const RandomEngine* engine)
+  :
+  theR(RC),theNumberOfSpots(nSpots),theSpotEnergy(energy),random(engine)
 {
-
-  // The Famos random engine
-  random = RandomEngine::instance();
 
   currentRad=0.;
   currentEnergyFraction=0.;

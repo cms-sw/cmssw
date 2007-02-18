@@ -28,6 +28,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -48,6 +51,7 @@
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloGeometryTools/interface/Crystal.h"
 #include "FastSimulation/Utilities/interface/Histos.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include <TCanvas.h>
 #include <TVirtualPad.h>
@@ -84,6 +88,9 @@ private:
 
   Histos * myHistos;
   CaloGeometryHelper myGeometry;
+
+  const RandomEngine* random;
+
 };
 
 //
@@ -120,6 +127,17 @@ testCaloGeometryTools::analyze( const edm::Event& iEvent, const edm::EventSetup&
 {
    using namespace edm;
    
+  // Initialize the random number generator service
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable() ) {
+    throw cms::Exception("Configuration")
+      << "FamosManager requires the RandomGeneratorService\n"
+         "which is not present in the configuration file.\n"
+         "You must add the service in the configuration file\n"
+         "or remove the module that requires it";
+  }
+  random = new RandomEngine(&(*rng));
+
    edm::ESHandle<CaloTopology> theCaloTopology;
    iSetup.get<CaloTopologyRecord>().get(theCaloTopology);     
 
@@ -195,7 +213,7 @@ void testCaloGeometryTools::checkSC()
 void testCaloGeometryTools::testpoint(const HepPoint3D& point, std::string name, bool barrel)
 {
    DetId myCell = myGeometry.getClosestCell(point,true,barrel);
-   EcalHitMaker myGrid(&myGeometry,point,myCell,1,7,0);
+   EcalHitMaker myGrid(&myGeometry,point,myCell,1,7,0,random);
    
    std::vector<Crystal> myCrystals=myGrid.getCrystals();
    

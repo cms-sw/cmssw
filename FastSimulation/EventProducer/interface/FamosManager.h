@@ -16,6 +16,7 @@ class TrajectoryManager;
 class PUProducer;
 class MagneticField;
 class CalorimetryManager;
+class RandomEngine;
 
 namespace CLHEP {
   class HepLorentzVector;
@@ -72,6 +73,10 @@ class FamosManager
   double weight_;    
   int m_pRunNumber;
   int m_pVerbose;
+
+ private:
+
+  const RandomEngine* random;
 
 };
                        

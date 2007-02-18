@@ -45,7 +45,8 @@ using namespace std;
 TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent, 
 				     const edm::ParameterSet& matEff,
 				     const edm::ParameterSet& simHits,
-				     bool activateDecays) : 
+				     bool activateDecays,
+				     const RandomEngine* engine) : 
   mySimEvent(aSimEvent), 
   _theGeometry(0), 
   theMaterialEffects(0), 
@@ -54,7 +55,8 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   theGeomSearchTracker(0),
   theLayerMap(56, static_cast<const DetLayer*>(0)), // reserve space for layers here
   theNegLayerOffset(27),
-  myHistos(0)
+  myHistos(0),
+  random(engine)
 
 {
   
@@ -66,7 +68,7 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
        matEff.getParameter<bool>("Bremsstrahlung") ||
        matEff.getParameter<bool>("EnergyLoss") || 
        matEff.getParameter<bool>("MultipleScattering") )
-       theMaterialEffects = new MaterialEffects(matEff);
+       theMaterialEffects = new MaterialEffects(matEff,random);
 
   // Save SimHits according to Optiom
   // Only the hits from first half loop is saved
@@ -151,7 +153,7 @@ TrajectoryManager::reconstruct()
     // Get the geometry elements 
     cyliter = _theGeometry->cylinderBegin();
     // Prepare the propagation  
-    ParticlePropagator PP(myTrack);
+    ParticlePropagator PP(myTrack,random);
 
     //The real work starts here
     int success = 1;

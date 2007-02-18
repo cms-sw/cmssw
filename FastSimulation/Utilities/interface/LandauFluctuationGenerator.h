@@ -1,5 +1,5 @@
-#ifndef LandauFluctuationGenerator_H
-#define LandauFluctuationGenerator_H
+#ifndef FastSimulation_Utilities_LandauFluctuationGenerator_H
+#define FastSimulation_Utilities_LandauFluctuationGenerator_H
 
 #include "FastSimulation/Utilities/interface/BaseNumericalRandomGenerator.h"
 
@@ -14,12 +14,15 @@
  * $Date 8-Jan-2004
  */
 
+class RandomEngine;
+
 class LandauFluctuationGenerator : public BaseNumericalRandomGenerator
 {
  public:
 
   /// Constructor : initialization of the Random Generator
-  LandauFluctuationGenerator() : BaseNumericalRandomGenerator(-3.5,25.) {
+  LandauFluctuationGenerator(const RandomEngine* engine) : 
+    BaseNumericalRandomGenerator(engine,-3.5,25.) {
     initialize();
   }
 

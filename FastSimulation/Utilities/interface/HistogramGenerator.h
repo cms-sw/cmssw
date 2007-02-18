@@ -10,12 +10,20 @@
  *  Copy of LandauFluctuations
  */
 
+class RandomEngine;
+
 class HistogramGenerator : public BaseNumericalRandomGenerator
 {
  public:
 
   /// Constructor : initialization of the Random Generator
-   HistogramGenerator(TH1 * histo) : BaseNumericalRandomGenerator(histo->GetXaxis()->GetXmin(),histo->GetXaxis()->GetXmax()),myHisto(histo),theXaxis(histo->GetXaxis()),nbins(histo->GetXaxis()->GetNbins())
+   HistogramGenerator(TH1 * histo, const RandomEngine* engine) : 
+     BaseNumericalRandomGenerator(engine,
+				  histo->GetXaxis()->GetXmin(),
+				  histo->GetXaxis()->GetXmax()),
+     myHisto(histo),
+     theXaxis(histo->GetXaxis()),
+     nbins(histo->GetXaxis()->GetNbins())
   {
 
     //    std::cout << "Old xmin/xmax = " << xmin << " " << xmax << std::endl;

@@ -23,12 +23,16 @@ class CaloGeometryHelper;
 class Histos;
 class HSParameters;
 class RandomEngine;
+class LandauFluctuationGenerator;
+class GammaFunctionGenerator;
 
 class CalorimetryManager{
 
  public:
   CalorimetryManager();
-  CalorimetryManager(FSimEvent* aSimEvent, const edm::ParameterSet& fastCalo);
+  CalorimetryManager(FSimEvent* aSimEvent, 
+		     const edm::ParameterSet& fastCalo,
+		     const RandomEngine* engine);
   ~CalorimetryManager();
 
   // Does the real job
@@ -102,6 +106,9 @@ class CalorimetryManager{
   //RF
 
   // Famos Random Engine
-  RandomEngine* random;
+  const RandomEngine* random;
+  const LandauFluctuationGenerator* aLandauGenerator;
+  GammaFunctionGenerator* aGammaGenerator;
+
 };
 #endif

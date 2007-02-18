@@ -6,8 +6,9 @@
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
   /// Default constructor
-FlatPrimaryVertexGenerator::FlatPrimaryVertexGenerator(const edm::ParameterSet& vtx) : 
-  PrimaryVertexGenerator(),
+FlatPrimaryVertexGenerator::FlatPrimaryVertexGenerator(
+  const edm::ParameterSet& vtx, const RandomEngine* engine) : 
+  PrimaryVertexGenerator(engine),
   minX(vtx.getParameter<double>("MinX")),
   minY(vtx.getParameter<double>("MinY")),
   minZ(vtx.getParameter<double>("MinZ")),

@@ -8,6 +8,7 @@
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include <iomanip>
 #include <iostream>
@@ -16,25 +17,33 @@
 
 
 
-ParticlePropagator::ParticlePropagator() : BaseParticlePropagator() {;}
+ParticlePropagator::ParticlePropagator() : 
+  BaseParticlePropagator(), random(0) {;}
 
 ParticlePropagator::ParticlePropagator(const RawParticle& myPart,
-				       double R, double Z, double B) :
-  BaseParticlePropagator(myPart,R,Z,B)
+				       double R, double Z, double B,
+				       const RandomEngine* engine) :
+  BaseParticlePropagator(myPart,R,Z,B),
+  random(engine)
 {
   setMagneticField(fieldMap(x(),y(),z()));
+  initProperDecayTime();
 }
 
-ParticlePropagator::ParticlePropagator( const RawParticle& myPart) : 
-  BaseParticlePropagator(myPart,0.,0.,0.)
+ParticlePropagator::ParticlePropagator( const RawParticle& myPart,
+					const RandomEngine* engine) : 
+  BaseParticlePropagator(myPart,0.,0.,0.),
+  random(engine)
  
 {
   setMagneticField(fieldMap(x(),y(),z()));
+  initProperDecayTime();
 }
 
 ParticlePropagator::ParticlePropagator(const HepLorentzVector& mom, 
 				       const HepLorentzVector& vert, float q) :
-  BaseParticlePropagator(RawParticle(mom,vert),0.,0.,0.)
+  BaseParticlePropagator(RawParticle(mom,vert),0.,0.,0.),
+  random(0)
 {
   setCharge(q);
   setMagneticField(fieldMap(x(),y(),z()));
@@ -42,18 +51,22 @@ ParticlePropagator::ParticlePropagator(const HepLorentzVector& mom,
 
 ParticlePropagator::ParticlePropagator(const HepLorentzVector& mom, 
 				       const Hep3Vector& vert, float q) :
-  BaseParticlePropagator(RawParticle(mom,HepLorentzVector(vert,0.0)),0.,0.,0.)
+  BaseParticlePropagator(RawParticle(mom,HepLorentzVector(vert,0.0)),0.,0.,0.),
+  random(0)
 {
   setCharge(q);
   setMagneticField(fieldMap(x(),y(),z()));
 }
 
-ParticlePropagator::ParticlePropagator(const FSimTrack& simTrack) : 
+ParticlePropagator::ParticlePropagator(const FSimTrack& simTrack,
+				       const RandomEngine* engine) : 
   BaseParticlePropagator(RawParticle(simTrack.type(),simTrack.momentum()),
-			 0.,0.,0.)
+			 0.,0.,0.),
+  random(engine)
 {
   setVertex(simTrack.vertex().position());
   setMagneticField(fieldMap(x(),y(),z()));
+  initProperDecayTime();
 }
 
 ParticlePropagator::ParticlePropagator(ParticlePropagator& myPropPart) :
@@ -61,6 +74,26 @@ ParticlePropagator::ParticlePropagator(ParticlePropagator& myPropPart) :
 {  
   //  setMagneticField(fieldMap(x(),y(),z()));
 }
+
+ParticlePropagator::ParticlePropagator(BaseParticlePropagator myPropPart) :
+  BaseParticlePropagator(myPropPart)
+{  
+  //  setMagneticField(fieldMap(x(),y(),z()));
+}
+
+void 
+ParticlePropagator::initProperDecayTime() {
+
+  // And this is the proper time at which the particle will decay
+  double properDecayTime = 
+    (pid()==0||pid()==22||abs(pid())==11||abs(pid())==2112||abs(pid())==2212||
+     !random) ?
+    1E99 : -PDGcTau() * log(random->flatShoot());
+
+  this->setProperDecayTime(properDecayTime);
+
+}
+
 
 bool
 ParticlePropagator::propagateToClosestApproach(bool first) {

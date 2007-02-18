@@ -13,6 +13,7 @@ class PrimaryVertexGenerator : public Hep3Vector {
 public:
   /// Default constructor
   PrimaryVertexGenerator();
+  PrimaryVertexGenerator(const RandomEngine* engine);
   
   /// Destructor
   virtual ~PrimaryVertexGenerator() {;}
@@ -22,7 +23,7 @@ public:
 
  protected:
 
-  RandomEngine* random;
+  const RandomEngine* random;
 
 };
 

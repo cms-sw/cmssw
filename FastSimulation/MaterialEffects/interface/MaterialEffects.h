@@ -41,6 +41,7 @@ class BremsstrahlungUpdator;
 class EnergyLossUpdator;
 class NuclearInteractionUpdator;
 class NuclearInteractionEDMUpdator;
+class RandomEngine;
 
 class MaterialEffects
 {
@@ -48,7 +49,8 @@ class MaterialEffects
  public:
 
   /// Constructor
-  MaterialEffects(const edm::ParameterSet& matEff);
+  MaterialEffects(const edm::ParameterSet& matEff,
+		  const RandomEngine* engine);
 
   /// Default destructor
   ~MaterialEffects();
@@ -82,6 +84,9 @@ class MaterialEffects
 
   // debugging
   double myEta;
+
+  // The random engine
+  const RandomEngine* random;
 
 };
 

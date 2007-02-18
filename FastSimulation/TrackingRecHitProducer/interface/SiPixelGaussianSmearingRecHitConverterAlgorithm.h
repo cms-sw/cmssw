@@ -36,12 +36,13 @@ class HistogramGenerator;
 class SiPixelGaussianSmearingRecHitConverterAlgorithm {
 public:
   //--- Constructor, virtual destructor (just in case)
-  explicit SiPixelGaussianSmearingRecHitConverterAlgorithm(						   
-   const edm::ParameterSet& pset,							   
+  explicit SiPixelGaussianSmearingRecHitConverterAlgorithm(		   
+   const edm::ParameterSet& pset,
    GeomDetType::SubDetector pixelPart,
    std::vector<TH1F*>& alphaMultiplicityCumulativeProbabilities,
    std::vector<TH1F*>& betaMultiplicityCumulativeProbabilities,
-   TFile* pixelResolutionFile);
+   TFile* pixelResolutionFile,
+   const RandomEngine* engine);
 
   // destructor
   virtual ~SiPixelGaussianSmearingRecHitConverterAlgorithm();
@@ -102,7 +103,7 @@ private:
   PixelErrorParametrization* pixelError;
 
   // The random engine
-  RandomEngine* random;
+  const RandomEngine* random;
   
 };
 

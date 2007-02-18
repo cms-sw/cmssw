@@ -4,12 +4,11 @@
 
 #include <iostream>
 
-GammaFunctionGenerator* GammaFunctionGenerator::myself = 0;
+// GammaFunctionGenerator* GammaFunctionGenerator::myself = 0;
 
-GammaFunctionGenerator::GammaFunctionGenerator() 
+GammaFunctionGenerator::GammaFunctionGenerator(const RandomEngine* engine) :
+  random(engine)
 {
-  //  std::cout << "Starting GammaFunctionGenerator " << std::endl;
-  random = RandomEngine::instance();
 
   xmax = 30.;
 
@@ -19,7 +18,8 @@ GammaFunctionGenerator::GammaFunctionGenerator()
       approxLimit.push_back(2*((double)i));
       myIncompleteGamma.a().setValue((double)i);
       integralToApproxLimit.push_back(myIncompleteGamma(approxLimit[i-1]));
-      theGammas.push_back(GammaNumericalGenerator((double)i,1.,0,approxLimit[i-1]+1.));
+      theGammas.push_back(
+       GammaNumericalGenerator(random,(double)i,1.,0,approxLimit[i-1]+1.));
     }
   coreCoeff.push_back(0.);  // alpha=1 not used
   coreCoeff.push_back(1./8.24659e-01);
@@ -34,15 +34,9 @@ GammaFunctionGenerator::GammaFunctionGenerator()
   coreCoeff.push_back(1./6.05057e-01);
 }
 
-GammaFunctionGenerator* GammaFunctionGenerator::instance() 
-{
-      if (!myself) myself = new GammaFunctionGenerator();
-      return myself;
-}
-
 GammaFunctionGenerator::~GammaFunctionGenerator() {}
 
-double GammaFunctionGenerator::shoot()
+double GammaFunctionGenerator::shoot() const
 {
   if(alpha<0.) return -1.;
   if(badRange) return xmin/beta;
@@ -71,7 +65,7 @@ double GammaFunctionGenerator::shoot()
     }
 }
 
-double GammaFunctionGenerator::gammaFrac ()
+double GammaFunctionGenerator::gammaFrac () const
 {
   /* This is exercise 16 from Knuth; see page 135, and the solution is
      on page 551.  */
@@ -99,7 +93,7 @@ double GammaFunctionGenerator::gammaFrac ()
   return x;
 }
 
-double GammaFunctionGenerator::gammaInt()
+double GammaFunctionGenerator::gammaInt() const
 {
   // Exponential distribution : no approximation
   if(na==1)

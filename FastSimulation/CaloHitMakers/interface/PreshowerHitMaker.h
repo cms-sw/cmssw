@@ -3,18 +3,25 @@
 
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/CaloHitMakers/interface/CaloHitMaker.h"
-#include "FastSimulation/MaterialEffects/interface/LandauFluctuationGenerator.h"
 
 //CLHEP headers
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Vector3D.h"
 
 class CaloGeometryHelper;
+class LandauFluctuationGenerator;
 
 class PreshowerHitMaker : public CaloHitMaker
 {
  public:
-  PreshowerHitMaker(CaloGeometryHelper * calo, const HepPoint3D & , const HepVector3D& ,const HepPoint3D& ,const HepVector3D& );
+
+  PreshowerHitMaker(CaloGeometryHelper * calo, 
+		    const HepPoint3D & , 
+		    const HepVector3D& ,
+		    const HepPoint3D& ,
+		    const HepVector3D&,
+		    const LandauFluctuationGenerator* aGenerator);
+
   ~PreshowerHitMaker() {;}
   
   inline void setSpotEnergy(double e) { spotEnergy=e;} 
@@ -22,9 +29,7 @@ class PreshowerHitMaker : public CaloHitMaker
   const std::map<unsigned,float>& getHits() { return hitMap_ ;} ;
 
 
-  private:
-  /// The Landau Fluctuation generator
-  static LandauFluctuationGenerator  theGenerator;
+ private:
 
   HepPoint3D psLayer1Entrance_;
   HepVector3D psLayer1Dir_;
@@ -36,6 +41,10 @@ class PreshowerHitMaker : public CaloHitMaker
   double invcostheta2y;
   double x1,y1,z1;
   double x2,y2,z2;
+
+  /// The Landau Fluctuation generator
+  const LandauFluctuationGenerator*  theGenerator;
+
 };
 
 #endif

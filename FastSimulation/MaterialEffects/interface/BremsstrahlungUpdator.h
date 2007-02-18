@@ -23,13 +23,16 @@
 
 
 class ParticlePropagator;
+class RandomEngine;
 
 class BremsstrahlungUpdator : public MaterialEffectsUpdator
 {
  public:
 
   /// Constructor
-  BremsstrahlungUpdator(double photonEnergyCut, double photonFractECut); 
+  BremsstrahlungUpdator(double photonEnergyCut, 
+			double photonFractECut,
+			const RandomEngine* engine); 
 
   /// Default destructor
   ~BremsstrahlungUpdator() {}

@@ -201,7 +201,7 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   //  std::map< DetId, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
 
   // The random engine
-  RandomEngine* random;
+  const RandomEngine* random;
 
 };
 

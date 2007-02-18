@@ -31,6 +31,7 @@ namespace edm {
 }
 
 class ParticlePropagator;
+class RandomEngine;
 
 class NuclearInteractionEDMUpdator : public MaterialEffectsUpdator
 {
@@ -40,7 +41,8 @@ class NuclearInteractionEDMUpdator : public MaterialEffectsUpdator
   NuclearInteractionEDMUpdator(const edm::ParameterSet& inputFiles,
 			       std::vector<double>& pionEnergies,
 			       double pionEnergy,
-			       double lengthRatio);
+			       double lengthRatio,
+			       const RandomEngine* engine);
 
   /// Default Destructor
   ~NuclearInteractionEDMUpdator();

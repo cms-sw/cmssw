@@ -31,7 +31,8 @@ class RandomEngine;
 class HCALResponse
 {
 public:
-  HCALResponse(const edm::ParameterSet& pset);
+  HCALResponse(const edm::ParameterSet& pset,
+	       const RandomEngine* engine);
   ~HCALResponse(){;} 
 
   // Get the response in the for of pair 
@@ -86,7 +87,7 @@ private:
   double meanEM[maxEMe][maxEMeta], sigmaEM[maxEMe][maxEMeta];
 
   // Famos random engine
-  RandomEngine* random;
+  const RandomEngine* random;
 
 };
 #endif

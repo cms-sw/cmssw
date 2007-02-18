@@ -23,10 +23,13 @@
 EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
 			   const HepPoint3D& ecalentrance, 
 			   const DetId& cell, int onEcal,
-			   unsigned size, unsigned showertype):
+			   unsigned size, unsigned showertype,
+			   const RandomEngine* engine):
   CaloHitMaker(theCalo,DetId::Ecal,((onEcal==1)?EcalBarrel:EcalEndcap),onEcal,showertype),
-  EcalEntrance_(ecalentrance),onEcal_(onEcal),myTrack_(NULL),
-  random(RandomEngine::instance())
+  EcalEntrance_(ecalentrance),
+  onEcal_(onEcal),
+  myTrack_(NULL),
+  random(engine)
 {
 #ifdef FAMOSDEBUG
   myHistos = Histos::instance();

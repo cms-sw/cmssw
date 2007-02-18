@@ -34,7 +34,6 @@ public :
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
-  edm::ParameterSet vertexGenerator_;
   edm::ParameterSet particleFilter_;
   std::vector<FSimEvent*> mySimEvent;
 
@@ -44,14 +43,12 @@ testEvent::testEvent(const edm::ParameterSet& p) :
   mySimEvent(2, static_cast<FSimEvent*>(0))
 {
   
-  vertexGenerator_ = p.getParameter<edm::ParameterSet>
-    ( "TestVertexGenerator" );   
   particleFilter_ = p.getParameter<edm::ParameterSet>
     ( "TestParticleFilter" );   
   // For the full sim
-  mySimEvent[0] = new FSimEvent(vertexGenerator_, particleFilter_);
+  mySimEvent[0] = new FSimEvent(particleFilter_);
   // For the fast sim
-  mySimEvent[1] = new FSimEvent(vertexGenerator_, particleFilter_);
+  mySimEvent[1] = new FSimEvent(particleFilter_);
   
 								
 }

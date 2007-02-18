@@ -26,7 +26,9 @@ class PUProducer
 
  public:
 
-  PUProducer(FSimEvent* aSimEvent, edm::ParameterSet const & p);
+  PUProducer(FSimEvent* aSimEvent, 
+	     edm::ParameterSet const & p,
+	     const RandomEngine* engine);
   virtual ~PUProducer();
   //  virtual void beginJob(const edm::EventSetup & c);
   //  virtual void endJob();
@@ -47,7 +49,7 @@ class PUProducer
   //  RandFlat flatDistribution_;
   edm::ModuleDescription md_;
   FSimEvent* mySimEvent;
-  RandomEngine* random;
+  const RandomEngine* random;
 
   //  std::vector<const HepMC::GenEvent*>* myPileUpEvents;
 

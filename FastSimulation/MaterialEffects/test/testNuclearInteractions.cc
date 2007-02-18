@@ -38,7 +38,6 @@ public :
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
-  edm::ParameterSet vertexGenerator_;
   edm::ParameterSet particleFilter_;
   bool saveNU;
   std::vector<FSimEvent*> mySimEvent;
@@ -110,8 +109,6 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   produces<edm::SimTrackContainer>();
 
   // Let's just initialize the SimEvent's
-  vertexGenerator_ = p.getParameter<edm::ParameterSet>
-    ( "TestVertexGenerator" );   
   particleFilter_ = p.getParameter<edm::ParameterSet>
     ( "TestParticleFilter" );   
 
@@ -119,9 +116,9 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   saveNU = p.getParameter<double>("SaveNuclearInteractions");
 
   // For the full sim
-  mySimEvent[0] = new FSimEvent(vertexGenerator_, particleFilter_);
+  mySimEvent[0] = new FSimEvent(particleFilter_);
   // For the fast sim
-  mySimEvent[1] = new FSimEvent(vertexGenerator_, particleFilter_);
+  mySimEvent[1] = new FSimEvent(particleFilter_);
 
   // Where the nuclear interactions are saved;
   if ( saveNU ) { 

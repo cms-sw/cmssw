@@ -5,10 +5,11 @@
 #include <iostream>
 
 BaseNumericalRandomGenerator::BaseNumericalRandomGenerator(
+			      const RandomEngine* engine,
 			      double xmin, double xmax, int n, int iter ) :
-                              xmin(xmin), xmax(xmax), n(n), iter(iter) 
+  random(engine),
+  xmin(xmin), xmax(xmax), n(n), iter(iter) 
 {
-  random = RandomEngine::instance();
   // Limit the array size to the hard-coded maximum 
   if ( n>1000) n=1000;
 }

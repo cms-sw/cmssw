@@ -34,7 +34,6 @@ public :
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
-  edm::ParameterSet vertexGenerator_;
   edm::ParameterSet particleFilter_;
   std::vector<FSimEvent*> mySimEvent;
   std::string simModuleLabel_;  
@@ -89,14 +88,12 @@ testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p) :
   tmpLength(2,static_cast<double>(0.))
 {
   
-  vertexGenerator_ = p.getParameter<edm::ParameterSet>
-    ( "TestVertexGenerator" );   
   particleFilter_ = p.getParameter<edm::ParameterSet>
     ( "TestParticleFilter" );   
   // For the full sim
-  mySimEvent[0] = new FSimEvent(vertexGenerator_, particleFilter_);
+  mySimEvent[0] = new FSimEvent(particleFilter_);
   // For the fast sim
-  mySimEvent[1] = new FSimEvent(vertexGenerator_, particleFilter_);
+  mySimEvent[1] = new FSimEvent(particleFilter_);
   
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   h0[0] = dbe->book2D("radioFull", "Full Tracker radiography", 1000, 0.,320.,1000,0., 150. );

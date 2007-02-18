@@ -22,11 +22,14 @@
 
 using namespace std;
 
-NuclearInteractionEDMUpdator::NuclearInteractionEDMUpdator(const edm::ParameterSet& inputFiles,
-							   std::vector<double>& pionEnergies,
-							   double pionEnergy,
-							   double lengthRatio) :
-  MaterialEffectsUpdator(),
+NuclearInteractionEDMUpdator::NuclearInteractionEDMUpdator(
+  const edm::ParameterSet& inputFiles,
+  std::vector<double>& pionEnergies,
+  double pionEnergy,
+  double lengthRatio,
+  const RandomEngine* engine) 
+  :
+  MaterialEffectsUpdator(engine),
   input(edm::VectorInputSourceFactory::get()->makeVectorInputSource(
 		inputFiles,edm::InputSourceDescription()).release()),
   md_(),

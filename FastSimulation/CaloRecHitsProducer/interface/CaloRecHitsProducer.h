@@ -47,7 +47,7 @@ class CaloRecHitsProducer : public edm::EDProducer
   std::string ESrechitCollection_;
 
    // The random engine
-  RandomEngine* random;
+  const RandomEngine* random;
   
   CaloGeometryHelper* myCaloGeometryHelper_ ;
 };

@@ -26,7 +26,8 @@ using namespace edm;
 
 using namespace std;
 
-HDRShower::HDRShower(HDShowerParametrization* myParam, 
+HDRShower::HDRShower(const RandomEngine* engine,
+		     HDShowerParametrization* myParam, 
 		     EcalHitMaker* myGrid,
 		     HcalHitMaker* myHcalHitMaker,
 		     int onECAL,
@@ -35,11 +36,9 @@ HDRShower::HDRShower(HDShowerParametrization* myParam,
     theGrid(myGrid),
     theHcalHitMaker(myHcalHitMaker),
     onEcal(onECAL),
-    e(epart)
+    e(epart),
+    random(engine)
 { 
-
-  // The Famos random engine
-  random = RandomEngine::instance();
 
   eHDspot = 0.2;
   EsCut = 0.050;

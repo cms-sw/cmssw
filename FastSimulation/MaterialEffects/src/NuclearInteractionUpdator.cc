@@ -16,11 +16,14 @@
 
 using namespace std;
 
-NuclearInteractionUpdator::NuclearInteractionUpdator(std::vector<std::string>& listOfFiles,
-						     std::vector<double>& pionEnergies,
-						     double pionEnergy,
-						     double lengthRatio) :
-  MaterialEffectsUpdator(),
+NuclearInteractionUpdator::NuclearInteractionUpdator(
+  std::vector<std::string>& listOfFiles,
+  std::vector<double>& pionEnergies,
+  double pionEnergy,
+  double lengthRatio,
+  const RandomEngine* engine) 
+  :
+  MaterialEffectsUpdator(engine),
   theFileNames(listOfFiles),
   thePionCM(pionEnergies),
   thePionEnergy(pionEnergy),

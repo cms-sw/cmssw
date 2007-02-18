@@ -28,8 +28,8 @@ class MaterialEffectsUpdator
 
   typedef std::list<const RawParticle*>::const_iterator RHEP_const_iter;
 
-  MaterialEffectsUpdator() { 
-    random = RandomEngine::instance();
+  MaterialEffectsUpdator(const RandomEngine* engine) { 
+    random = engine;
     _theUpdatedState.clear(); 
 }
 
@@ -89,7 +89,7 @@ class MaterialEffectsUpdator
 
   GlobalVector theNormalVector;
 
-  RandomEngine* random;
+  const RandomEngine* random;
 
 };
 

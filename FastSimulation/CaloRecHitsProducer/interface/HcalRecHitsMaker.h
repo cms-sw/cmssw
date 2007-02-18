@@ -56,8 +56,9 @@ class HcalRecHitsMaker
   unsigned nhocells_;
   unsigned nhfcells_;
 
-  GaussianTail myGaussianTailGenerator_;
   const RandomEngine* random_;
+  const GaussianTail* myGaussianTailGenerator_;
+
 };
 
 #endif

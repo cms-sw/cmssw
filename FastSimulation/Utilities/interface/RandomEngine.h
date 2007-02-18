@@ -17,8 +17,7 @@ public:
 
   edm::RandomNumberGenerator* theRandomNumberGenerator() const {return rng_;}
 
-  static RandomEngine* instance(edm::RandomNumberGenerator* rng);
-  static RandomEngine* instance();
+  RandomEngine(edm::RandomNumberGenerator* rng);
 
   ~RandomEngine();
 
@@ -28,8 +27,6 @@ public:
 
 private:
 
-  RandomEngine(edm::RandomNumberGenerator* rng);
-  static RandomEngine* myself;
   edm::RandomNumberGenerator* rng_;
 
   CLHEP::RandFlat* flatDistribution_;

@@ -18,7 +18,10 @@ class RandomEngine;
 class EcalPreshowerRecHitsMaker
 {
  public:
-  EcalPreshowerRecHitsMaker(edm::ParameterSet const & p, const RandomEngine* random);
+
+  EcalPreshowerRecHitsMaker(edm::ParameterSet const & p, 
+			    const RandomEngine* random);
+
   ~EcalPreshowerRecHitsMaker();
 
   void loadEcalPreshowerRecHits(edm::Event &iEvent, ESRecHitCollection& esRecHits);
@@ -27,6 +30,7 @@ class EcalPreshowerRecHitsMaker
 
 
  private:
+  
   void loadPCaloHits(const edm::Event & iEvent);
   
   void clean();
@@ -45,8 +49,8 @@ class EcalPreshowerRecHitsMaker
   unsigned ncells_;
   std::map<uint32_t,std::pair<float,bool> > ecalsRecHits_;
   std::vector<uint32_t> escells_;
-  GaussianTail myGaussianTailGenerator_;
   const RandomEngine* random_;
+  const GaussianTail* myGaussianTailGenerator_;
 };
 
 #endif

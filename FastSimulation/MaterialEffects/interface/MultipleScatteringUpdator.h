@@ -21,13 +21,14 @@
  */ 
 
 class ParticlePropagator;
+class RandomEngine;
 
 class MultipleScatteringUpdator : public MaterialEffectsUpdator
 {
  public:
 
   /// Default Constructor
-  MultipleScatteringUpdator();
+  MultipleScatteringUpdator(const RandomEngine* engine);
 
   /// Default Destructor
   ~MultipleScatteringUpdator() {} ;

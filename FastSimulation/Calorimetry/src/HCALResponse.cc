@@ -12,44 +12,67 @@
 using namespace std;
 using namespace edm;
 
-HCALResponse::HCALResponse(const edm::ParameterSet& pset) :
-  random(RandomEngine::instance())
+HCALResponse::HCALResponse(const edm::ParameterSet& pset,
+			   const RandomEngine* engine) :
+  random(engine)
 { 
   
-  RespPar[HCAL][0][0] =  pset.getParameter<double>("HadronBarrelResolution_Stochastic");
-  RespPar[HCAL][0][1] =  pset.getParameter<double>("HadronBarrelResolution_Constant");
-  RespPar[HCAL][0][2] =  pset.getParameter<double>("HadronBarrelResolution_Noise");
+  RespPar[HCAL][0][0] =  
+    pset.getParameter<double>("HadronBarrelResolution_Stochastic");
+  RespPar[HCAL][0][1] =  
+    pset.getParameter<double>("HadronBarrelResolution_Constant");
+  RespPar[HCAL][0][2] =  
+    pset.getParameter<double>("HadronBarrelResolution_Noise");
 
-  RespPar[HCAL][1][0] =  pset.getParameter<double>("HadronEndcapResolution_Stochastic");
-  RespPar[HCAL][1][1] =  pset.getParameter<double>("HadronEndcapResolution_Constant");
-  RespPar[HCAL][1][2] =  pset.getParameter<double>("HadronEndcapResolution_Noise");
+  RespPar[HCAL][1][0] =  
+    pset.getParameter<double>("HadronEndcapResolution_Stochastic");
+  RespPar[HCAL][1][1] =  
+    pset.getParameter<double>("HadronEndcapResolution_Constant");
+  RespPar[HCAL][1][2] =  
+    pset.getParameter<double>("HadronEndcapResolution_Noise");
 
-  RespPar[VFCAL][0][0] =  pset.getParameter<double>("HadronForwardResolution_Stochastic");
-  RespPar[VFCAL][0][1] =  pset.getParameter<double>("HadronForwardResolution_Constant");
-  RespPar[VFCAL][0][2] =  pset.getParameter<double>("HadronForwardResolution_Noise");
+  RespPar[VFCAL][0][0] =  
+    pset.getParameter<double>("HadronForwardResolution_Stochastic");
+  RespPar[VFCAL][0][1] =  
+    pset.getParameter<double>("HadronForwardResolution_Constant");
+  RespPar[VFCAL][0][2] =  
+    pset.getParameter<double>("HadronForwardResolution_Noise");
 
-  RespPar[VFCAL][1][0] =  pset.getParameter<double>("ElectronForwardResolution_Stochastic");
-  RespPar[VFCAL][1][1] =  pset.getParameter<double>("ElectronForwardResolution_Constant");
-  RespPar[VFCAL][1][2] =  pset.getParameter<double>("ElectronForwardResolution_Noise");
+  RespPar[VFCAL][1][0] =  
+    pset.getParameter<double>("ElectronForwardResolution_Stochastic");
+  RespPar[VFCAL][1][1] =  
+    pset.getParameter<double>("ElectronForwardResolution_Constant");
+  RespPar[VFCAL][1][2] =  
+    pset.getParameter<double>("ElectronForwardResolution_Noise");
 
-  eResponseScale[0] = pset.getParameter<double>("eResponseScaleHB");  
-  eResponseScale[1] = pset.getParameter<double>("eResponseScaleHE");
-  eResponseScale[2] = pset.getParameter<double>("eResponseScaleHF");
+  eResponseScale[0] = 
+    pset.getParameter<double>("eResponseScaleHB");  
+  eResponseScale[1] = 
+    pset.getParameter<double>("eResponseScaleHE");
+  eResponseScale[2] = 
+    pset.getParameter<double>("eResponseScaleHF");
 
-  eResponsePlateau[0] = pset.getParameter<double>("eResponsePlateauHB");
-  eResponsePlateau[1] = pset.getParameter<double>("eResponsePlateauHE");
-  eResponsePlateau[2] = pset.getParameter<double>("eResponsePlateauHF");
+  eResponsePlateau[0] = 
+    pset.getParameter<double>("eResponsePlateauHB");
+  eResponsePlateau[1] = 
+    pset.getParameter<double>("eResponsePlateauHE");
+  eResponsePlateau[2] = 
+    pset.getParameter<double>("eResponsePlateauHF");
 
-  eResponseExponent = pset.getParameter<double>("eResponseExponent");
+  eResponseExponent = 
+    pset.getParameter<double>("eResponseExponent");
 
-  eResponseCoefficient = pset.getParameter<double>("eResponseCoefficient");
+  eResponseCoefficient = 
+    pset.getParameter<double>("eResponseCoefficient");
 
-  eResponseCorrection = pset.getParameter<double>("eResponseCorrection");
+  eResponseCorrection = 
+    pset.getParameter<double>("eResponseCorrection");
 
   // If need - add a small energy to each hadron ...
-  eBias = pset.getParameter<double>("energyBias");
+  eBias = 
+    pset.getParameter<double>("energyBias");
   
-
+  
   etaStep = 0.1;
   muStep  = 0.25;
 

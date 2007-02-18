@@ -8,8 +8,9 @@
 
 using namespace std;
 
-PairProductionUpdator::PairProductionUpdator(double photonEnergyCut) :
-  MaterialEffectsUpdator() 
+PairProductionUpdator::PairProductionUpdator(double photonEnergyCut,
+					     const RandomEngine* engine) :
+  MaterialEffectsUpdator(engine) 
 {
 
   // Set the minimal photon energy for possible conversion 

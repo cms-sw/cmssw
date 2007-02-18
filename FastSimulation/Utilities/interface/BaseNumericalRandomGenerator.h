@@ -29,7 +29,8 @@ class BaseNumericalRandomGenerator
   /// Constructor that perform the necessary integration and inversion steps
   /// xmin and xmax are the generation bounds, n is the internal table size
   /// and iter is the number of iterations for the numerical part.
-  BaseNumericalRandomGenerator(double xmin=0., 
+  BaseNumericalRandomGenerator(const RandomEngine* engine,
+			       double xmin=0., 
 			       double xmax=1., 
 			       int n=1000, 
 			       int iter=6);
@@ -59,12 +60,13 @@ class BaseNumericalRandomGenerator
 
  protected:
 
+  const RandomEngine* random;
+
   double sampling[1000];
   double f[1000];
   double xmin, xmax;
   int n, iter;
   double rmin, deltar;
-  RandomEngine* random;
   
  private:
 

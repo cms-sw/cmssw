@@ -21,11 +21,12 @@
 
 using namespace std;
 
-MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
+MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
+				 const RandomEngine* engine)
   : PairProduction(0), Bremsstrahlung(0), 
     MultipleScattering(0), EnergyLoss(0), 
     NuclearInteraction(0), NuclearInteractionEDM(0), 
-    pTmin(999.)
+    pTmin(999.), random(engine)
 {
   // Set the minimal photon energy for a Brem from e+/-
 
@@ -41,7 +42,8 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
   if ( doPairProduction ) { 
 
     double photonEnergy = matEff.getParameter<double>("photonEnergy");
-    PairProduction = new PairProductionUpdator(photonEnergy);
+    PairProduction = new PairProductionUpdator(photonEnergy,
+					       random);
 
   }
 
@@ -49,20 +51,22 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
 
     double bremEnergy = matEff.getParameter<double>("bremEnergy");
     double bremEnergyFraction = matEff.getParameter<double>("bremEnergyFraction");
-    Bremsstrahlung = new BremsstrahlungUpdator(bremEnergy,bremEnergyFraction);
+    Bremsstrahlung = new BremsstrahlungUpdator(bremEnergy,
+					       bremEnergyFraction,
+					       random);
 
   }
 
   if ( doEnergyLoss ) { 
 
     pTmin = matEff.getParameter<double>("pTmin");
-    EnergyLoss = new EnergyLossUpdator();
+    EnergyLoss = new EnergyLossUpdator(random);
 
   }
 
   if ( doMultipleScattering ) { 
 
-    MultipleScattering = new MultipleScatteringUpdator();
+    MultipleScattering = new MultipleScatteringUpdator(random);
 
   }
 
@@ -76,7 +80,11 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
     double lengthRatio 
       = matEff.getParameter<double>("lengthRatio");
     NuclearInteraction = 
-      new NuclearInteractionUpdator(listOfFiles,pionEnergies,pionEnergy,lengthRatio);
+      new NuclearInteractionUpdator(listOfFiles,
+				    pionEnergies,
+				    pionEnergy,
+				    lengthRatio,
+				    random);
   }
 
   if ( doNuclearInteractionEDM ) { 
@@ -89,7 +97,11 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
     double lengthRatio 
       = matEff.getParameter<double>("lengthRatio");
     NuclearInteractionEDM = 
-      new NuclearInteractionEDMUpdator(listOfEDMFiles,pionEnergies,pionEnergy,lengthRatio);
+      new NuclearInteractionEDMUpdator(listOfEDMFiles,
+				       pionEnergies,
+				       pionEnergy,
+				       lengthRatio,
+				       random);
   }
 
 }

@@ -89,10 +89,13 @@ public:
   /// Default c'tor
   BaseParticlePropagator();
 
-  /** Constructor taking as arguments a RawParticle, as well as the radius,
+  /** Constructors taking as arguments a RawParticle, as well as the radius,
       half-height and magnetic field defining the cylinder for which 
-      propagation is to be performed */
-  BaseParticlePropagator(const RawParticle& myPart, double r, double z, double B);
+      propagation is to be performed, and optionally, the proper decay time */
+  BaseParticlePropagator(const RawParticle& myPart, 
+			 double r, double z, double B);
+  BaseParticlePropagator(const RawParticle& myPart, 
+			 double r, double z, double B, double t);
 
   /// Initialize internal switches and quantities
   void init();
@@ -153,12 +156,15 @@ public:
   /// Has propagation been performed and was barrel or endcap reached ?
   int           getSuccess() const { return success;  }
   /// Set the magnetic field
-  inline void setMagneticField(double b) {  bField=b; };
+  inline void setMagneticField(double b) {  bField=b; }
   /// Get the magnetic field 
-  inline double getMagneticField() const {  return bField; };
+  inline double getMagneticField() const {  return bField; }
     
   /// Set the propagation characteristics (rCyl, zCyl and first loop only)
   void setPropagationConditions(double r, double z, bool firstLoop=true);
+
+  /// Set the proper decay time
+  void setProperDecayTime(double t) { properDecayTime = t; }
 
   void increaseRCyl(double delta) {rCyl = rCyl + delta;}
 
@@ -171,12 +177,15 @@ private:
   double zCyl;
   /// Magnetic field in the cylinder, oriented along the Z axis
   double bField;
+  /// The proper decay time of the particle
+  double properDecayTime;
 
 protected:
   /// 0:propagation still be done, 1:reached 'barrel', 2:reached 'endcaps'
   int success;
   /// The particle traverses some real material
   bool fiducial;
+
 
 private:
   /// Do only the first half-loop
@@ -185,8 +194,6 @@ private:
   bool decayed;
   /// The proper time of the particle
   double properTime;
-  /// The proper decay time of the particle
-  double properDecayTime;
   /// The propagation direction 
   int propDir;
 

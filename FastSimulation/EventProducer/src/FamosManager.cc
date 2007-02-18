@@ -68,31 +68,35 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
          "You must add the service in the configuration file\n"
          "or remove the module that requires it";
   }
-  RandomEngine::instance(&(*rng));
+  random = new RandomEngine(&(*rng));
 
   // Initialize the FSimEvent
   mySimEvent = 
     new FSimEvent(p.getParameter<edm::ParameterSet>("VertexGenerator"),
-		  p.getParameter<edm::ParameterSet>("ParticleFilter"));
+		  p.getParameter<edm::ParameterSet>("ParticleFilter"),
+		  random);
 
   /// Initialize the TrajectoryManager
   myTrajectoryManager = 
     new TrajectoryManager(mySimEvent,
 			  p.getParameter<edm::ParameterSet>("MaterialEffects"),
 			  p.getParameter<edm::ParameterSet>("TrackerSimHits"),
-			  p.getParameter<bool>("ActivateDecays"));
+			  p.getParameter<bool>("ActivateDecays"),
+			  random);
 
   // Initialize PileUp Producer (if requested)
   if ( m_PileUp ) 
     myPileUpProducer = 
       new PUProducer(mySimEvent,
-                     p.getParameter<edm::ParameterSet>("PUProducer"));
+                     p.getParameter<edm::ParameterSet>("PUProducer"),
+		     random);
 
   // Initialize Calorimetry Fast Simulation (if requested)
   if ( m_Calorimetry) 
     myCalorimetry = 
       new CalorimetryManager(mySimEvent,
-			     p.getParameter<edm::ParameterSet>("Calorimetry"));
+			     p.getParameter<edm::ParameterSet>("Calorimetry"),
+			     random);
 
 }
 

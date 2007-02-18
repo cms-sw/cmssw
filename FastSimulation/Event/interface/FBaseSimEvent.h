@@ -29,6 +29,7 @@ class KineParticleFilter;
 class SimTrack;
 class SimVertex;
 class PrimaryVertexGenerator;
+class RandomEngine;
 //class Histos;
 
 namespace HepMC {
@@ -42,8 +43,11 @@ class FBaseSimEvent
 public:
 
   /// Default constructor
+  FBaseSimEvent(const edm::ParameterSet& kine);
+
   FBaseSimEvent(const edm::ParameterSet& vtx,
-		const edm::ParameterSet& kine);
+		const edm::ParameterSet& kine,
+		const RandomEngine* engine);
 
   ///  usual virtual destructor
   ~FBaseSimEvent();
@@ -138,6 +142,8 @@ public:
   const DefaultConfig::ParticleDataTable * pdt;
 
   PrimaryVertexGenerator* theVertexGenerator;
+
+  const RandomEngine* random;
 
   //  Histos* myHistos;
 

@@ -21,21 +21,21 @@
 #include <iostream>
 #include <memory>
 
-PUProducer::PUProducer(FSimEvent* aSimEvent, edm::ParameterSet const & p) :
+PUProducer::PUProducer(FSimEvent* aSimEvent, 
+		       edm::ParameterSet const & p,
+		       const RandomEngine* engine) :
   input(edm::VectorInputSourceFactory::get()->makeVectorInputSource(
-				       p.getParameter<edm::ParameterSet>("input"), 
-				       edm::InputSourceDescription()).release()),
+			 p.getParameter<edm::ParameterSet>("input"), 
+		         edm::InputSourceDescription()).release()),
   averageNumber_(p.getParameter<double>("averageNumber")),
   //  seed_(p.getParameter<int>("seed")),
   //  eng_(seed_),
   //  poissonDistribution_(eng_, averageNumber_),
   //  flatDistribution_(eng_,0.,1E8),
   md_(),
-  mySimEvent(aSimEvent)
-{
-  // Famos random engine
-  random = RandomEngine::instance();
-}
+  mySimEvent(aSimEvent),
+  random(engine)
+{}
 
 PUProducer::~PUProducer() {;}
 

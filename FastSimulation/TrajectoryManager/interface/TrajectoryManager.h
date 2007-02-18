@@ -42,6 +42,7 @@ class ParticlePropagator;
 class FSimEvent;
 class FSimTrack;
 class Histos;
+class RandomEngine;
 
 class TrajectoryStateOnSurface;
 class DetLayer;
@@ -63,7 +64,8 @@ class TrajectoryManager
   TrajectoryManager(FSimEvent* aSimEvent, 
 		    const edm::ParameterSet& matEff,
 		    const edm::ParameterSet& simHits,
-		    bool activateDecays);
+		    bool activateDecays,
+		    const RandomEngine* engine);
 
   /// Default Destructor
   ~TrajectoryManager();
@@ -142,6 +144,8 @@ class TrajectoryManager
   int                                         theNegLayerOffset;
 
   Histos* myHistos;
+
+  const RandomEngine* random;
 
 };
 #endif

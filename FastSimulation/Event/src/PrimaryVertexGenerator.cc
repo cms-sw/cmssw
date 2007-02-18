@@ -4,7 +4,13 @@
   /// Default constructor
 PrimaryVertexGenerator::PrimaryVertexGenerator() : 
   Hep3Vector(), 
-  random(RandomEngine::instance())  
+  random(0)  
+{
+}
+
+PrimaryVertexGenerator::PrimaryVertexGenerator(const RandomEngine* engine) : 
+  Hep3Vector(), 
+  random(engine)  
 {
 }
   

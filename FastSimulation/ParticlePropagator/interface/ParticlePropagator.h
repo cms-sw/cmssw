@@ -24,6 +24,7 @@
 
 class TrackerLayer;
 class FSimTrack;
+class RandomEngine;
 
 class ParticlePropagator : public BaseParticlePropagator {
   
@@ -34,11 +35,14 @@ public:
   /** Constructor taking as arguments a RawParticle, as well as the radius,
       half-height and magnetic field defining the cylinder for which 
       propagation is to be performed */
-  ParticlePropagator(const RawParticle& myPart, double R, double Z, double B);
+  ParticlePropagator(const RawParticle& myPart, 
+		     double R, double Z, double B,
+		     const RandomEngine* engine);
   
   /** Constructor with only a RawParticle as argument for subsequent 
       propagation to known surfaces (ECAL, HCAL ...) */
-  ParticlePropagator(const RawParticle& myPart);
+  ParticlePropagator(const RawParticle& myPart,
+		     const RandomEngine* engine);
 
   /** Constructor with two HepLorentzVector (momentum and vertex (in cm)) and 
       an electric charge propagation to known surfaces (ECAL, HCAL ...) */
@@ -51,10 +55,15 @@ public:
 		     const Hep3Vector& v, float q);
 
   /** Constructor with a FSimTrack from the FSimEvent*/
-  ParticlePropagator(const FSimTrack& simTrack);
+  ParticlePropagator(const FSimTrack& simTrack,
+		     const RandomEngine* engine);
 
-  /** Constructor with a BaseParticlePropagator*/
+  /** Constructora with a (Base)ParticlePropagator*/
   ParticlePropagator(ParticlePropagator& myPropPart);
+  ParticlePropagator(BaseParticlePropagator myPropPart);
+
+  /**Initialize the proper decay time of the particle*/
+  void initProperDecayTime();
 
   /** Return a new instance, corresponding to the particle propagated
       to the surface of the cylinder */
@@ -75,6 +84,10 @@ public:
   bool propagateToBoundSurface(const TrackerLayer&);
   void setPropagationConditions(const TrackerLayer&, 
 				bool firstLoop=true);
+
+private:
+
+  const RandomEngine* random;
 
 };
 

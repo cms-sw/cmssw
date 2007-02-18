@@ -28,7 +28,7 @@ class SiStripGaussianSmearingRecHitConverterAlgorithm {
 
 public:
   //--- Constructor, virtual destructor (just in case)
-  explicit SiStripGaussianSmearingRecHitConverterAlgorithm();
+  explicit SiStripGaussianSmearingRecHitConverterAlgorithm(const RandomEngine* engine);
   virtual ~SiStripGaussianSmearingRecHitConverterAlgorithm() {;}
   
   // return results
@@ -60,7 +60,7 @@ private:
   //
 
   // The random engine
-  RandomEngine* random;
+  const RandomEngine* random;
   
 };
 

@@ -19,7 +19,12 @@
 
 class RandomEngine;
 
-HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p,const RandomEngine * myrandom):initialized_(false),random_(myrandom)
+HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p,
+				   const RandomEngine * myrandom)
+  :
+  initialized_(false),
+  random_(myrandom),
+  myGaussianTailGenerator_(0)
 {
   edm::ParameterSet RecHitsParameters = p.getParameter<edm::ParameterSet>("HCAL");
   noise_ = RecHitsParameters.getParameter<double>("Noise");
@@ -27,16 +32,18 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p,const RandomEngin
 
   // Computes the fraction of HCAL above the threshold
   Genfun::Erf myErf;
-  if(noise_>0.)
+  if(noise_>0.) {
     hcalHotFraction_ = 0.5-0.5*myErf(threshold_/noise_/sqrt(2.));
-  else
+    myGaussianTailGenerator_ = new GaussianTail(random_,noise_,threshold_);
+  } else {
     hcalHotFraction_ =0.;
+  }
 
-  if(noise_>0.) myGaussianTailGenerator_.setParameters(noise_,threshold_);
 }
 
 HcalRecHitsMaker::~HcalRecHitsMaker()
-{;
+{
+  delete myGaussianTailGenerator_;
 }
 
 void HcalRecHitsMaker::init(const edm::EventSetup &es)
@@ -262,7 +269,7 @@ void HcalRecHitsMaker::noisifySubdet(std::map<uint32_t,std::pair<float,bool> >& 
       itcheck=theMap.find(cellnumber);
       if(itcheck==theMap.end()) // new cell
 	{
-	  std::pair <float,bool> noisehit(myGaussianTailGenerator_.shoot(),false);
+	  std::pair <float,bool> noisehit(myGaussianTailGenerator_->shoot(),false);
 	  theMap.insert(std::pair<uint32_t,std::pair<float,bool> >(cellnumber,noisehit));
 	  ++ncell;
 	}

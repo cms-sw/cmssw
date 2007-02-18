@@ -59,7 +59,8 @@
 
 //#define FAMOS_DEBUG
 
-SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConverter(edm::ParameterSet const& conf) 
+SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConverter(
+  edm::ParameterSet const& conf) 
   : conf_(conf)
 {
 #ifdef FAMOS_DEBUG
@@ -76,7 +77,7 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
          "or remove the module that requires it";
   }
 
-  random = RandomEngine::instance(&(*rng));
+  random = new RandomEngine(&(*rng));
 
   //--- Declare to the EDM what kind of collections we will be making.
   theRecHitsTag = conf.getParameter<std::string>( "RecHits" );
@@ -301,7 +302,8 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
 	GeomDetEnumerators::PixelBarrel,
 	theBarrelMultiplicityAlphaCumulativeProbabilities,
 	theBarrelMultiplicityBetaCumulativeProbabilities,
-	thePixelBarrelResolutionFile);
+	thePixelBarrelResolutionFile,
+	random);
   // Initialize and open relevant files for the pixel forward error parametrization 
   thePixelEndcapParametrization = 
     new SiPixelGaussianSmearingRecHitConverterAlgorithm(
@@ -309,10 +311,11 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
 	GeomDetEnumerators::PixelEndcap,
 	theForwardMultiplicityAlphaCumulativeProbabilities,
 	theForwardMultiplicityBetaCumulativeProbabilities,
-	thePixelForwardResolutionFile);
+	thePixelForwardResolutionFile,
+	random);
   // Initialize the si strip error parametrization
   theSiStripErrorParametrization = 
-    new SiStripGaussianSmearingRecHitConverterAlgorithm();
+    new SiStripGaussianSmearingRecHitConverterAlgorithm(random);
 
 }
 

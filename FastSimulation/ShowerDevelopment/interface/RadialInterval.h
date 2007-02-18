@@ -15,7 +15,8 @@ class RadialInterval
 {
  public:
   /// Standard constructor Rc: mean Radius
-  RadialInterval(double RC,unsigned nSpots, double energy);
+  RadialInterval(double RC,unsigned nSpots, double energy,
+		 const RandomEngine* engine);
   ~RadialInterval(){;}
   
   /// Add an interval : first argument is the radius, the second is the
@@ -67,7 +68,7 @@ class RadialInterval
   double energyFractionInRadius(double rm);
 
   // Famos Random Engine
-  RandomEngine* random;
+  const RandomEngine* random;
   
 };
 #endif

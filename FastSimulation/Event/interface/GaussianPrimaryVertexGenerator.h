@@ -6,11 +6,14 @@
 
 /** A class that generates a primary vertex with a Gaussian profile, in cm*/ 
 
+class RandomEngine;
+
 class GaussianPrimaryVertexGenerator : public PrimaryVertexGenerator {
 
 public:
   /// Default constructor
-  GaussianPrimaryVertexGenerator(const edm::ParameterSet& vtx);
+  GaussianPrimaryVertexGenerator(const edm::ParameterSet& vtx,
+				 const RandomEngine* engine);
 
   /// Destructor
   ~GaussianPrimaryVertexGenerator() {;}

@@ -28,9 +28,12 @@ class HDShower
 
  public:
 
-  HDShower(HDShowerParametrization* myParam,
-	      EcalHitMaker* myGrid, HcalHitMaker* myHcalHitMaker,
-              int onECAL, double epart);
+  HDShower(const RandomEngine* engine,
+	   HDShowerParametrization* myParam,
+	   EcalHitMaker* myGrid, 
+	   HcalHitMaker* myHcalHitMaker,
+	   int onECAL, 
+	   double epart);
 
   virtual ~HDShower() {;}
 
@@ -111,7 +114,7 @@ class HDShower
   double balanceEH;
 
   // Famos Random Engine
-  RandomEngine* random;
+  const RandomEngine* random;
   
 };
 

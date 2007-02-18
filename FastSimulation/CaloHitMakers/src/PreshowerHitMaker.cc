@@ -1,22 +1,26 @@
 #include "FastSimulation/CaloHitMakers/interface/PreshowerHitMaker.h"
 #
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
+#include "FastSimulation/Utilities/interface/LandauFluctuationGenerator.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "Geometry/EcalPreshowerAlgo/interface/EcalPreshowerGeometry.h"
 
-LandauFluctuationGenerator PreshowerHitMaker::theGenerator=LandauFluctuationGenerator();
+// LandauFluctuationGenerator PreshowerHitMaker::theGenerator=LandauFluctuationGenerator();
 
-PreshowerHitMaker::PreshowerHitMaker(CaloGeometryHelper * calo,
-			       const HepPoint3D& layer1entrance, 
-			       const HepVector3D& layer1dir, 
-			       const HepPoint3D& layer2entrance, 
-			       const HepVector3D& layer2dir):
+PreshowerHitMaker::PreshowerHitMaker(
+    CaloGeometryHelper * calo,
+    const HepPoint3D& layer1entrance, 
+    const HepVector3D& layer1dir, 
+    const HepPoint3D& layer2entrance, 
+    const HepVector3D& layer2dir,
+    const LandauFluctuationGenerator* aGenerator):
   CaloHitMaker(calo,DetId::Ecal,EcalPreshower,2),
   psLayer1Entrance_(layer1entrance),
   psLayer1Dir_(layer1dir),
   psLayer2Entrance_(layer2entrance),
-  psLayer2Dir_(layer2dir)
+  psLayer2Dir_(layer2dir),
+  theGenerator(aGenerator)
 {
    // Check if the entrance points are really on the wafers
   // Layer 1 
@@ -49,7 +53,7 @@ PreshowerHitMaker::PreshowerHitMaker(CaloGeometryHelper * calo,
   invcostheta2x = 1./fabs(dirx.dot(HepVector3D(0,0,1.)));
   invcostheta2y = 1./fabs(diry.dot(HepVector3D(0,0,1.)));
 
-  theGenerator=LandauFluctuationGenerator();
+  //  theGenerator=LandauFluctuationGenerator();
 }
 
 
@@ -61,7 +65,7 @@ bool PreshowerHitMaker::addHit(double r,double phi,unsigned layer)
   //  std::cout << " Layer " << layer << " " << point << std::endl;
   DetId strip = myCalorimeter->getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(point.x(),point.y(),point.z()),layer);
 
-  float spote=0.000095+0.000021*theGenerator.landau();
+  float spote=0.000095+0.000021*theGenerator->landau();
 
   if(!strip.null())
     {

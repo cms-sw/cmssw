@@ -5,20 +5,6 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
-RandomEngine*
-RandomEngine::myself=0; 
-
-RandomEngine* 
-RandomEngine::instance(edm::RandomNumberGenerator* rng) {
-  myself = new RandomEngine(rng);
-  return myself;
-}
-
-RandomEngine* 
-RandomEngine::instance() {
-  return myself;
-}
-
 RandomEngine::RandomEngine(edm::RandomNumberGenerator* rng) : rng_(rng) 
 {
   CLHEP::HepRandomEngine& engine = rng->getEngine(); 

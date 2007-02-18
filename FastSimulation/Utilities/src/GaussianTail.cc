@@ -2,11 +2,12 @@
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include "math.h"
-GaussianTail::GaussianTail(double sigma,double threshold) : 
+GaussianTail::GaussianTail(const RandomEngine* engine,
+			   double sigma,double threshold) : 
+  random(engine),
   sigma_(sigma),
   threshold_(threshold)
 {
-  random = RandomEngine::instance();
   s_=threshold_/sigma_;
   ssquare_ = s_ * s_;
 }
@@ -16,7 +17,7 @@ GaussianTail::~GaussianTail()
   ;
 }
 
-double GaussianTail::shoot()
+double GaussianTail::shoot() const
 {
   // in the zero suppresion case, s is usually >2 
   if(s_>1.)

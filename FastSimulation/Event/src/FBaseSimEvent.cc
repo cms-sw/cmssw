@@ -30,18 +30,42 @@ using namespace HepPDT;
 #include <iomanip>
 #include <map>
 
+FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine) 
+  : random(0)
+{
+
+  theVertexGenerator = new NoPrimaryVertexGenerator();
+
+  // Initialize the vectors of particles and vertices
+  theGenParticles = new vector<GenParticle*>(); 
+  theSimTracks = new vector<FSimTrack>;
+  theSimVertices = new vector<FSimVertex>;
+  theChargedTracks = new vector<unsigned>();
+
+  // Reserve some size to avoid mutiple copies
+  theSimTracks->reserve(20000);
+  theSimVertices->reserve(20000);
+  theGenParticles->reserve(20000);
+  theChargedTracks->reserve(20000);
+
+  // Initialize the Particle filter
+  myFilter = new KineParticleFilter(kine);
+
+}
+
 FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
-			     const edm::ParameterSet& kine) 
-  : theVertexGenerator(0) 
+			     const edm::ParameterSet& kine,
+			     const RandomEngine* engine) 
+  : theVertexGenerator(0), random(engine)
 {
 
 
   // Initialize the vertex generator
   string vtxType = vtx.getParameter<string>("type");
   if ( vtxType == "Gaussian" ) 
-    theVertexGenerator = new GaussianPrimaryVertexGenerator(vtx);
+    theVertexGenerator = new GaussianPrimaryVertexGenerator(vtx,random);
   else if ( vtxType == "Flat" ) 
-    theVertexGenerator = new FlatPrimaryVertexGenerator(vtx);
+    theVertexGenerator = new FlatPrimaryVertexGenerator(vtx,random);
   else
     theVertexGenerator = new NoPrimaryVertexGenerator();
 

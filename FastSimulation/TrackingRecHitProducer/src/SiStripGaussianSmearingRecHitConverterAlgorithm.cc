@@ -28,12 +28,8 @@
 
 //#define FAMOS_DEBUG
 
-SiStripGaussianSmearingRecHitConverterAlgorithm::SiStripGaussianSmearingRecHitConverterAlgorithm() 
-{
-
-  random = RandomEngine::instance();
-
-}
+SiStripGaussianSmearingRecHitConverterAlgorithm::SiStripGaussianSmearingRecHitConverterAlgorithm
+(const RandomEngine* engine) : random(engine) {}
 
 
 void 

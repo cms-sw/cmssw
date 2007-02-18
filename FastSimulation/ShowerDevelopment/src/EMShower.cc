@@ -6,6 +6,7 @@
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 #include "FastSimulation/Utilities/interface/Histos.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
 //Anaphe headers
 #include "CLHEP/Units/PhysicalConstants.h"
 #include <iostream>
@@ -14,7 +15,9 @@
 
 using std::vector;
 
-EMShower::EMShower(EMECALShowerParametrization* const myParam, 
+EMShower::EMShower(const RandomEngine* engine,
+		   GammaFunctionGenerator* gamma,
+		   EMECALShowerParametrization* const myParam, 
 		   vector<const RawParticle*>* const myPart, 
 		   EcalHitMaker * const myGrid,
 		   PreshowerHitMaker * const myPresh)
@@ -22,14 +25,14 @@ EMShower::EMShower(EMECALShowerParametrization* const myParam,
   : theParam(myParam), 
     thePart(myPart), 
     theGrid(myGrid),
-    thePreshower(myPresh)    
+    thePreshower(myPresh),
+    random(engine),
+    myGammaGenerator(gamma)
 { 
 
-  // The Famos random engine
-  random = RandomEngine::instance();
   // Get the Famos Histos pointer
   //  myHistos = Histos::instance();
-  myGammaGenerator = GammaFunctionGenerator::instance();
+  //  myGammaGenerator = GammaFunctionGenerator::instance();
   
   hasPreshower = myPresh!=NULL;
   theECAL = myParam->ecalProperties();
@@ -340,7 +343,7 @@ EMShower::compute() {
 	  double theR=(icomp==0) ? theRC : theRT ;    
 	  unsigned ncompspots=(icomp==0) ? nSpots_core : nSpots_tail;
 	  
-	  RadialInterval radInterval(theR,ncompspots,SpotEnergy);
+	  RadialInterval radInterval(theR,ncompspots,SpotEnergy,random);
 	  if(ecal)
 	    {
 	      if(icomp==0)

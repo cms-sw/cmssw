@@ -19,13 +19,15 @@
  */ 
 
 class ParticlePropagator;
+class RandomEngine;
 
 class PairProductionUpdator : public MaterialEffectsUpdator
 {
  public:
 
   /// Constructor
-  PairProductionUpdator(double photonEnergyCut);
+  PairProductionUpdator(double photonEnergyCut,
+			const RandomEngine* engine);
 
   /// Default Destructor
   ~PairProductionUpdator() {}

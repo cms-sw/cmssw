@@ -6,8 +6,9 @@
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
   /// Default constructor
-GaussianPrimaryVertexGenerator::GaussianPrimaryVertexGenerator(const edm::ParameterSet& vtx) : 
-  PrimaryVertexGenerator(),
+GaussianPrimaryVertexGenerator::GaussianPrimaryVertexGenerator(
+  const edm::ParameterSet& vtx, const RandomEngine* engine) : 
+  PrimaryVertexGenerator(engine),
   meanX(vtx.getParameter<double>("MeanX")),
   meanY(vtx.getParameter<double>("MeanY")),
   meanZ(vtx.getParameter<double>("MeanZ")),

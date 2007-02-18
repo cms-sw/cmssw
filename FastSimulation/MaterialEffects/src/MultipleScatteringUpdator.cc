@@ -12,8 +12,9 @@
 
 using namespace std;
 
-MultipleScatteringUpdator::MultipleScatteringUpdator() :
-    MaterialEffectsUpdator()
+MultipleScatteringUpdator::MultipleScatteringUpdator(
+  const RandomEngine* engine) :
+    MaterialEffectsUpdator(engine)
 {
   ;
 }

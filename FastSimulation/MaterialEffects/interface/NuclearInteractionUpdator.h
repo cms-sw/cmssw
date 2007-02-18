@@ -24,6 +24,7 @@ class TBranch;
 class NUEvent;
 
 class ParticlePropagator;
+class RandomEngine;
 
 class NuclearInteractionUpdator : public MaterialEffectsUpdator
 {
@@ -33,7 +34,8 @@ class NuclearInteractionUpdator : public MaterialEffectsUpdator
   NuclearInteractionUpdator(std::vector<std::string>& inputFiles,
 			    std::vector<double>& pionEnergies,
 			    double pionEnergy,
-			    double lengthRatio);
+			    double lengthRatio,
+			    const RandomEngine* engine);
 
   /// Default Destructor
   ~NuclearInteractionUpdator();

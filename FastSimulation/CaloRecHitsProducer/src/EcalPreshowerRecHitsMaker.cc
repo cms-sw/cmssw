@@ -15,25 +15,32 @@
 
 #include "CLHEP/GenericFunctions/Erf.hh"
 
-EcalPreshowerRecHitsMaker::EcalPreshowerRecHitsMaker(edm::ParameterSet const & p, const RandomEngine * myrandom):random_(myrandom)
+EcalPreshowerRecHitsMaker::EcalPreshowerRecHitsMaker(
+  edm::ParameterSet const & p, 
+  const RandomEngine * myrandom)
+  :
+  random_(myrandom),
+  myGaussianTailGenerator_(0)
 {
-  edm::ParameterSet RecHitsParameters = p.getParameter<edm::ParameterSet>("ECALPreshower");
+  edm::ParameterSet RecHitsParameters 
+    = p.getParameter<edm::ParameterSet>("ECALPreshower");
   noise_ = RecHitsParameters.getParameter<double>("Noise");
   threshold_ = RecHitsParameters.getParameter<double>("Threshold");
   initialized_=false;
 
   Genfun::Erf myErf;
-  if(noise_>0.)
+  if(  noise_>0. ) {
     preshowerHotFraction_ = 0.5-0.5*myErf(threshold_/noise_/sqrt(2.));
-  else
+    myGaussianTailGenerator_ = new GaussianTail(random_, noise_, threshold_);
+  } else {
     preshowerHotFraction_ =0.;
-
-  if(noise_>0.) myGaussianTailGenerator_.setParameters(noise_,threshold_);
+  }
 }
 
 EcalPreshowerRecHitsMaker::~EcalPreshowerRecHitsMaker()
 {
   initialized_=false;
+  delete myGaussianTailGenerator_;
 }
 
 void EcalPreshowerRecHitsMaker::clean()
@@ -47,10 +54,12 @@ void EcalPreshowerRecHitsMaker::loadEcalPreshowerRecHits(edm::Event &iEvent,ESRe
 {
 
   loadPCaloHits(iEvent);
-  if(noise_>0.) noisify();
+  if( myGaussianTailGenerator_ ) noisify();
 
-  std::map<uint32_t,std::pair<float,bool> >::const_iterator it=ecalsRecHits_.begin();
-  std::map<uint32_t,std::pair<float,bool> >::const_iterator itend=ecalsRecHits_.end();
+  std::map<uint32_t,std::pair<float,bool> >::const_iterator 
+    it=ecalsRecHits_.begin();
+  std::map<uint32_t,std::pair<float,bool> >::const_iterator 
+    itend=ecalsRecHits_.end();
 
   for(;it!=itend;++it)
     {
@@ -138,8 +147,10 @@ void EcalPreshowerRecHitsMaker::noisifySubdet(std::map<uint32_t,std::pair<float,
       itcheck=theMap.find(cellnumber);
       if(itcheck==theMap.end()) // inject only in empty cells
 	{
-	  std::pair <float,bool> noisehit(myGaussianTailGenerator_.shoot(),false);
-	  theMap.insert(std::pair<uint32_t,std::pair<float,bool> >(cellnumber,noisehit));
+	  std::pair <float,bool> noisehit(myGaussianTailGenerator_->shoot(),
+					  false);
+	  theMap.insert(std::pair<uint32_t,std::pair<float,bool> >
+			(cellnumber,noisehit));
 	  ++ncell;
 	}
     }

@@ -30,7 +30,7 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p):HcalRecHit
          "You must add the service in the configuration file\n"
          "or remove the module that requires it";
   }
-  random = RandomEngine::instance(&(*rng));
+  random = new RandomEngine(&(*rng));
 
   edm::ParameterSet RecHitsParameters = p.getParameter<edm::ParameterSet>("RecHitsFactory");
   EBrechitCollection_ = RecHitsParameters.getParameter<std::string>("EBrechitCollection");
@@ -45,10 +45,14 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p):HcalRecHit
   produces<ESRecHitCollection>(ESrechitCollection_);
   
 
-  HcalRecHitsMaker_ = new HcalRecHitsMaker(RecHitsParameters,random);
-  EcalBarrelRecHitsMaker_ = new EcalBarrelRecHitsMaker(RecHitsParameters,random);
-  EcalEndcapRecHitsMaker_ = new EcalEndcapRecHitsMaker(RecHitsParameters,random);
-  EcalPreshowerRecHitsMaker_ = new EcalPreshowerRecHitsMaker(RecHitsParameters,random);
+  HcalRecHitsMaker_ = 
+    new HcalRecHitsMaker(RecHitsParameters,random);
+  EcalBarrelRecHitsMaker_ = 
+    new EcalBarrelRecHitsMaker(RecHitsParameters,random);
+  EcalEndcapRecHitsMaker_ = 
+    new EcalEndcapRecHitsMaker(RecHitsParameters,random);
+  EcalPreshowerRecHitsMaker_ = 
+    new EcalPreshowerRecHitsMaker(RecHitsParameters,random);
 }
 
 CaloRecHitsProducer::~CaloRecHitsProducer() 

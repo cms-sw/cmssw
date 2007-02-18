@@ -1,6 +1,5 @@
 //FAMOS headers
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include <iomanip>
 //#include <fstream>
@@ -9,12 +8,19 @@
 using namespace std;
 
 BaseParticlePropagator::BaseParticlePropagator() :
-  RawParticle(), rCyl(0.), zCyl(0.), bField(0)
+  RawParticle(), rCyl(0.), zCyl(0.), bField(0), properDecayTime(1E99)
 {;}
 
 BaseParticlePropagator::BaseParticlePropagator( 
-         const RawParticle& myPart,double R, double Z, double B ) :
-  RawParticle(myPart), rCyl(R), zCyl(Z), bField(B) 
+         const RawParticle& myPart,double R, double Z, double B, double t ) :
+  RawParticle(myPart), rCyl(R), zCyl(Z), bField(B), properDecayTime(t) 
+{
+  init();
+}
+
+BaseParticlePropagator::BaseParticlePropagator( 
+         const RawParticle& myPart,double R, double Z, double B) :
+  RawParticle(myPart), rCyl(R), zCyl(Z), bField(B), properDecayTime(1E99) 
 {
   init();
 }
@@ -34,11 +40,6 @@ BaseParticlePropagator::init() {
   properTime = 0.;
   // The propagation direction is along the momentum
   propDir = 1;
-  // And this is the proper time at which the particle will decay
-  properDecayTime = 
-    (pid()==0||pid()==22||abs(pid())==11||abs(pid())==2112||abs(pid())==2212||
-     !RandomEngine::instance()) ?
-    1E99 : -PDGcTau() * log(RandomEngine::instance()->flatShoot());
 
 }
 

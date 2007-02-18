@@ -27,12 +27,15 @@ class RandomEngine;
 class EcalHitMaker: public CaloHitMaker
 {
  public:
+
   EcalHitMaker(CaloGeometryHelper * calo,
 	       const HepPoint3D& ecalentrance,
 	       const DetId& cell,
 	       int onEcal,
 	       unsigned size,
-	       unsigned showertype);
+	       unsigned showertype,
+	       const RandomEngine* engine);
+
   ~EcalHitMaker();
 
   // This is not part of the constructor but it has to be called very early
@@ -273,7 +276,7 @@ class EcalHitMaker: public CaloHitMaker
 
   bool hitmaphasbeencalculated_ ;
 
-  RandomEngine* random;
+  const RandomEngine* random;
 
 
 #ifdef FAMOSDEBUG

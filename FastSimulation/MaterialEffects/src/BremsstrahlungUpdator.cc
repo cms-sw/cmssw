@@ -12,8 +12,10 @@
 
 using namespace std;
 
-BremsstrahlungUpdator::BremsstrahlungUpdator(double photonEnergyCut, double photonFractECut) : 
-  MaterialEffectsUpdator() 
+BremsstrahlungUpdator::BremsstrahlungUpdator(double photonEnergyCut, 
+					     double photonFractECut,
+					     const RandomEngine* engine) : 
+  MaterialEffectsUpdator(engine) 
 {
 
   // Set the minimal photon energy for a Brem from e+/-

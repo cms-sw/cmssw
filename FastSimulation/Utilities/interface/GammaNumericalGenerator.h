@@ -7,13 +7,17 @@
  *  Copy of LandauFluctuations
  */
 
+class RandomEngine;
+
 class GammaNumericalGenerator : public BaseNumericalRandomGenerator
 {
  public:
 
   /// Constructor : initialization of the Random Generator
-   GammaNumericalGenerator(double a=0,double b=0,double x1=0,double x2=0) : BaseNumericalRandomGenerator(x1,x2,1000)
-    ,a_(a),b_(b),valid(false) {
+   GammaNumericalGenerator(const RandomEngine* engine, 
+			   double a=0,double b=0,double x1=0,double x2=0) : 
+     BaseNumericalRandomGenerator(engine,x1,x2,1000),
+     a_(a),b_(b),valid(false) {
 
     if(a>0&&b>0) 
       {

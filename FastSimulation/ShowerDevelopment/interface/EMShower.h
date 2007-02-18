@@ -6,7 +6,6 @@
 //Famos Headers
 #include "FastSimulation/ShowerDevelopment/interface/EMECALShowerParametrization.h"
 #include "FastSimulation/ShowerDevelopment/interface/RadialInterval.h"
-#include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
 #include "FastSimulation/Utilities/interface/Histos.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/GenericFunctions/IncompleteGamma.hh"
@@ -21,6 +20,7 @@ class PreshowerHitMaker;
 class HcalHitMaker;
 class GammaDistributionGenerator;
 class RandomEngine;
+class GammaFunctionGenerator;
 
 class EMShower 
 {
@@ -32,9 +32,12 @@ class EMShower
 
  public:
 
-  EMShower(EMECALShowerParametrization* const myParam,
+  EMShower(const RandomEngine* engine,
+	   GammaFunctionGenerator* gamma,
+	   EMECALShowerParametrization* const myParam,
 	   std::vector<const RawParticle*>* const myPart,
-	    EcalHitMaker  * const myGrid=NULL,PreshowerHitMaker * const myPreshower=NULL);
+	   EcalHitMaker  * const myGrid=NULL,
+	   PreshowerHitMaker * const myPreshower=NULL);
 
   virtual ~EMShower(){;}
 
@@ -121,13 +124,14 @@ class EMShower
   // Histos
   //  Histos* myHistos;
 
-  // integer gamma function generator
-  GammaFunctionGenerator * myGammaGenerator;
-
   Genfun::IncompleteGamma myIncompleteGamma;
 
   // Random engine
-  RandomEngine* random;
+  const RandomEngine* random;
+
+  // integer gamma function generator
+  GammaFunctionGenerator * myGammaGenerator;
+
   
   
 };
