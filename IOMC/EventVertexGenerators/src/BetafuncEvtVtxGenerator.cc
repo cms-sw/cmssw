@@ -1,5 +1,5 @@
 
-// $Id: BetafuncEvtVtxGenerator.cc,v 1.1 2006/11/09 00:24:04 yumiceva Exp $
+// $Id: BetafuncEvtVtxGenerator.cc,v 1.2 2006/11/28 18:52:17 yumiceva Exp $
 /*
 ________________________________________________________________________
 
@@ -43,7 +43,7 @@ BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet & p )
   fdxdz =      p.getParameter<double>("dxdz")*radian;
   fdydz =      p.getParameter<double>("dydz")*radian;
   fbetastar =  p.getParameter<double>("BetaStar")*cm;
-  femmitance = p.getParameter<double>("Emmitance")*cm;
+  femittance = p.getParameter<double>("Emittance")*cm; // this is not the normalized emittance
   
  
   if (fSigmaZ <= 0) {
@@ -81,7 +81,7 @@ Hep3Vector* BetafuncEvtVtxGenerator::newVertex() {
 
 double BetafuncEvtVtxGenerator::BetaFunction(double z, double z0)
 {
-	return sqrt(femmitance*(fbetastar+(((z-z0)*(z-z0))/fbetastar)));
+	return sqrt(femittance*(fbetastar+(((z-z0)*(z-z0))/fbetastar)));
 
 }
 
