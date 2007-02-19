@@ -6,7 +6,7 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidate.h,v 1.13 2007/01/17 10:23:29 llista Exp $
+ * \version $Id: GenParticleCandidate.h,v 1.14 2007/01/19 16:12:40 llista Exp $
  */
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 
@@ -35,6 +35,8 @@ namespace reco {
     int status() const { return status_; }
 
   private:
+    /// post-read fixup
+    virtual void fixup() const;
     /// checp overlap with another candidate
     bool overlap( const Candidate & ) const;
     /// PDG code

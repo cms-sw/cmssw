@@ -5,7 +5,7 @@
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" />
   </class>
   <class name="reco::Candidate">
-    <field name="mother_" transient="true"/>
+    <field name="mothers_" transient="true"/>
   </class>
   <class name="reco::LeafCandidate" />
   <class name="reco::CompositeCandidate"/>

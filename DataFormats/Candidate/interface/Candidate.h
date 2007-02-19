@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.18 2007/01/17 10:23:28 llista Exp $
+ * \version $Id: Candidate.h,v 1.19 2007/01/19 16:11:47 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -26,12 +26,12 @@ namespace reco {
     struct iterator;
 
     /// default constructor
-    Candidate() : Particle(), mother_( 0 ) { }
+    Candidate() : Particle() { }
     /// constructor from a Particle
-    explicit Candidate( const Particle & p ) : Particle( p ), mother_( 0 ) { }
+    explicit Candidate( const Particle & p ) : Particle( p ) { }
     /// constructor from values
     Candidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
-      Particle( q, p4, vtx ), mother_( 0 ) { }
+      Particle( q, p4, vtx ) { }
     /// destructor
     virtual ~Candidate();
     /// returns a clone of the Candidate object
@@ -50,8 +50,12 @@ namespace reco {
     virtual const Candidate * daughter( size_type i ) const = 0;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
     virtual Candidate * daughter( size_type i ) = 0;
+    /// number of mothers (zero or one in most of but not all the cases)
+    unsigned int numberOfMothers() const { return mothers_.size(); }
     /// return pointer to mother
-    const Candidate * mother() const { return mother_; }
+    const Candidate * mother( unsigned int i = 0 ) const { 
+      return numberOfMothers() > i ? mothers_[ i ] : 0; 
+    }
     /// returns true if this candidate has a reference to a master clone.
     /// This only happens if the concrete Candidate type is ShallowCloneCandidate
     virtual bool hasMasterClone() const;
@@ -90,8 +94,6 @@ namespace reco {
       if ( hasMasterClone() ) return masterClone()->numberOf<T, Tag>();
       else return reco::numberOf<T, Tag>( * this ); 
     }
-    /// post-read fixup
-    void fixup() const;
 
   protected:
     struct const_iterator_imp {
@@ -126,6 +128,9 @@ namespace reco {
       virtual Candidate & deref() const = 0;
       virtual difference_type difference( const iterator_imp * ) const = 0;
     };
+
+    /// set mother pointers from daughters
+    void addMothersFromDaughterLinks() const;
 
   public:
     /// const_iterator over daughters
@@ -208,12 +213,16 @@ namespace reco {
     template<typename, typename> friend struct component; 
     friend class OverlapChecker;
     friend class ShallowCloneCandidate;
-    /// set mother pointer
-    void setMother( const Candidate * mother ) const {
-      mother_ = mother;
-    }
     /// mother link
-    mutable const Candidate * mother_;
+    mutable std::vector<const Candidate *> mothers_;
+    /// set mother pointer
+    void addMother( const Candidate * mother ) const {
+      mothers_.push_back( mother );
+    }
+    /// post-read fixup
+    virtual void fixup() const = 0;
+    /// declare friend class
+    friend class edm::helpers::PostReadFixup;
   };
 
 }

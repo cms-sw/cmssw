@@ -40,3 +40,5 @@ const CandidateBaseRef & ShallowCloneCandidate::masterClone() const {
   return masterClone_;
 }
 
+void ShallowCloneCandidate::fixup() const {
+}

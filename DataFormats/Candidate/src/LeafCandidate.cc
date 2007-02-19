@@ -1,4 +1,4 @@
-// $Id: LeafCandidate.cc,v 1.4 2006/12/05 15:53:00 llista Exp $
+// $Id: LeafCandidate.cc,v 1.5 2006/12/07 18:06:41 llista Exp $
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 using namespace reco;
@@ -29,4 +29,7 @@ const Candidate * LeafCandidate::daughter( size_type ) const {
 
 Candidate * LeafCandidate::daughter( size_type ) {
   return 0;
+}
+
+void LeafCandidate::fixup() const {
 }

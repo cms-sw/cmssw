@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.8 2006/12/07 18:06:40 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.9 2007/01/19 16:11:47 llista Exp $
  *
  */
 
@@ -102,6 +102,8 @@ namespace reco {
     daughters dau;
     /// check overlap with another daughter
     virtual bool overlap( const Candidate & ) const;
+    /// post-read fixup
+    virtual void fixup() const;
   };
 
   inline void CompositeCandidate::addDaughter( const Candidate & cand ) { 

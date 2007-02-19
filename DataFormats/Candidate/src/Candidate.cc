@@ -1,4 +1,4 @@
-// $Id: Candidate.cc,v 1.6 2006/12/07 18:35:49 llista Exp $
+// $Id: Candidate.cc,v 1.7 2007/01/19 16:11:48 llista Exp $
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 using namespace reco;
@@ -15,8 +15,8 @@ bool Candidate::hasMasterClone() const {
   return false;
 }
 
-void Candidate::fixup() const {
+void Candidate::addMothersFromDaughterLinks() const {
   for( size_t i = 0; i < numberOfDaughters(); ++ i ) {
-    daughter( i )->setMother( this );
+    daughter( i )->addMother( this );
   }
 }

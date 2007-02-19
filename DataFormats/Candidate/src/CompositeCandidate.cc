@@ -1,4 +1,4 @@
-// $Id: CompositeCandidate.cc,v 1.2 2006/12/05 15:53:00 llista Exp $
+// $Id: CompositeCandidate.cc,v 1.3 2006/12/07 18:06:41 llista Exp $
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -28,4 +28,8 @@ size_t CompositeCandidate::numberOfDaughters() const { return dau.size(); }
 
 bool CompositeCandidate::overlap( const Candidate & c2 ) const {
   throw cms::Exception( "Error" ) << "can't check overlap internally for CompositeCanddate";
+}
+
+void CompositeCandidate::fixup() const {
+  addMothersFromDaughterLinks();
 }

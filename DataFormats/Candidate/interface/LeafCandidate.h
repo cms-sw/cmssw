@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: LeafCandidate.h,v 1.4 2006/12/05 15:52:59 llista Exp $
+ * \version $Id: LeafCandidate.h,v 1.5 2006/12/07 18:06:40 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -87,6 +87,8 @@ namespace reco {
   private:
     /// check overlap with another Candidate
     virtual bool overlap( const Candidate & c ) const;
+    /// post-read fixup operation
+    virtual void fixup() const;
   };
 
 }

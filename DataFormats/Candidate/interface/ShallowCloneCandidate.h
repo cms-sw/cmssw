@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ShallowCloneCandidate.h,v 1.3 2006/12/07 11:50:33 llista Exp $
+ * \version $Id: ShallowCloneCandidate.h,v 1.4 2006/12/07 18:06:40 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -96,6 +96,8 @@ namespace reco {
     virtual bool overlap( const Candidate & c ) const { return masterClone_->overlap( c ); }
     /// CandidateBaseReference to master clone
     CandidateBaseRef masterClone_;
+    /// post-read fixup operation
+    virtual void fixup() const;
   };
 
 }
