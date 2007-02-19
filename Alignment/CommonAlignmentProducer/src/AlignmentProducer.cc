@@ -75,9 +75,13 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   theParameterSet=iConfig;
 
   // Tell the framework what data is being produced
-  setWhatProduced(this, &AlignmentProducer::produceTracker);
-  setWhatProduced(this, &AlignmentProducer::produceDT);
-  setWhatProduced(this, &AlignmentProducer::produceCSC);
+  if (doTracker_) {
+     setWhatProduced(this, &AlignmentProducer::produceTracker);
+  }
+  if (doMuon_) {
+     setWhatProduced(this, &AlignmentProducer::produceDT);
+     setWhatProduced(this, &AlignmentProducer::produceCSC);
+  }
 
   // Create the alignment algorithm
   edm::ParameterSet algoConfig = iConfig.getParameter<edm::ParameterSet>( "algoConfig" );
@@ -488,21 +492,24 @@ void AlignmentProducer::simpleMisalignment_(const Alignables &alivec, const std:
 //__________________________________________________________________________________________________
 void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
 {
+   edm::ESHandle<DDCompactView> cpv;
+   iSetup.get<IdealGeometryRecord>().get( cpv );
 
-  edm::ESHandle<DDCompactView> cpv;
-  iSetup.get<IdealGeometryRecord>().get( cpv );
-  iSetup.get<IdealGeometryRecord>().get( theGeometricDet );
-  TrackerGeomBuilderFromGeometricDet trackerBuilder;
-  theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*cpv),
-                                                                        &(*theGeometricDet)) );
+   if (doTracker_) {
+      iSetup.get<IdealGeometryRecord>().get( theGeometricDet );
+      TrackerGeomBuilderFromGeometricDet trackerBuilder;
+      theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*cpv),
+									    &(*theGeometricDet)) );
+   }
 
-  edm::ESHandle<MuonDDDConstants> mdc;
-  iSetup.get<MuonNumberingRecord>().get(mdc);
-  DTGeometryBuilderFromDDD DTGeometryBuilder;
-  CSCGeometryBuilderFromDDD CSCGeometryBuilder;
-  theMuonDT = boost::shared_ptr<DTGeometry>(DTGeometryBuilder.build(&(*cpv), *mdc));
-  theMuonCSC = boost::shared_ptr<CSCGeometry>(CSCGeometryBuilder.build(&(*cpv), *mdc));
-
+   if (doMuon_) {
+      edm::ESHandle<MuonDDDConstants> mdc;
+      iSetup.get<MuonNumberingRecord>().get(mdc);
+      DTGeometryBuilderFromDDD DTGeometryBuilder;
+      CSCGeometryBuilderFromDDD CSCGeometryBuilder;
+      theMuonDT = boost::shared_ptr<DTGeometry>(DTGeometryBuilder.build(&(*cpv), *mdc));
+      theMuonCSC = boost::shared_ptr<CSCGeometry>(CSCGeometryBuilder.build(&(*cpv), *mdc));
+   }
 }
 
 
