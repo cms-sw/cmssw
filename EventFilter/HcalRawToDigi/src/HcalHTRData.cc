@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2006/04/04 19:23:58 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/02/19 04:05:40 $
+ *  $Revision: 1.4 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -246,7 +246,7 @@ void HcalHTRData::pack(unsigned char* daq_lengths, unsigned short* daq_samples,
 
 }
 
-void HcalHTRData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, int orbitn, int pipeline, int ndd, int firmwareRev) {
+void HcalHTRData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, int orbitn, int pipeline, int ndd, int nps, int firmwareRev) {
   m_ownData[0]=L1Anumber&0xFF;
   m_ownData[1]=(L1Anumber&0xFFFF00)>>8;
   if (m_formatVersion==-1) {
@@ -258,7 +258,7 @@ void HcalHTRData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, int o
     m_ownData[2]=0x8000; // Version is valid, no error bits
     m_ownData[3]=((orbitn&0x3F)<<10)|(submodule&0x3FF);
     m_ownData[4]=((m_formatVersion&0xF)<<12)|(bcn&0xFFF);
-    //m_ownData[5]
+    m_ownData[5]|=(nps&0x1F<<3)|0x1;
     m_ownData[6]=((firmwareRev&0x70000)>>3)|(firmwareRev&0x1FFF);
     m_ownData[7]=pipeline&0xFF;
     m_ownData[m_rawLength-4]&=0x7FF;

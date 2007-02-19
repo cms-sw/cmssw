@@ -170,6 +170,7 @@ void HcalPacker::pack(int fedid, int dccnumber,
 					orbitn,
 					pipeline,
 					samples,
+					presamples,
 					firmwareRev);
       
     }
