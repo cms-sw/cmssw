@@ -98,13 +98,6 @@ public:
 private:
   
   SequentialVertexFitter * theSequentialFitter;
-//   LinearizationPointFinder*  theLinP;
-//   GsfVertexUpdator  theUpdator;
-//   VertexSmoother * theSmoother;
-// 
-//   MultiPerigeeLTSFactory lTrackFactory;
-//   VertexTrackFactory vTrackFactory;
-//   DeepCopyPointerByClone<GsfVertexMerger> theMerger;
 };
 
 #endif
