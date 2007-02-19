@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <cstdlib>
 #include <stdexcept>
-#include <occi.h>
+#include <OnlineDB/Oracle/interface/Oracle.h>
 
 using namespace std;
 using namespace oracle::occi;

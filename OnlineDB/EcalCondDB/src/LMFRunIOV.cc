@@ -1,5 +1,5 @@
 #include <stdexcept>
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "OnlineDB/EcalCondDB/interface/LMFRunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/LMFRunTag.h"

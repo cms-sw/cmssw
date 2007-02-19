@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.4 2006/07/05 15:47:37 egeland Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.5 2007/01/17 16:45:12 egeland Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -14,7 +14,7 @@
 #include <vector>
 #include <map>
 #include <stdexcept>
-#include <occi.h>
+#include <OnlineDB/Oracle/interface/Oracle.h>
 
 #include "OnlineDB/EcalCondDB/interface/EcalDBConnection.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"

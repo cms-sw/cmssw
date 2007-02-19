@@ -1,4 +1,4 @@
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
 

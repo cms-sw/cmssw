@@ -8,7 +8,7 @@
 
 #include <stdexcept>
 #include <map>
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 
 /**
  *   Abstract interface for data in the conditions DB

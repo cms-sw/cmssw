@@ -2,7 +2,7 @@
 #define IDBOBJECT_H
 
 #include <stdexcept>
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 
 // XXX remove later
 #include <iostream>

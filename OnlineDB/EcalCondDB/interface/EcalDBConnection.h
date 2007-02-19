@@ -1,7 +1,7 @@
 #ifndef ECALDBCONNECTION_HH
 #define ECALDBCONNECTION_HH
 
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 #include <string>
 #include <stdexcept>
 

@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"

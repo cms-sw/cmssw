@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.2 2006/06/05 18:36:20 egeland Exp $
+// $Id: EcalCondDBInterface.cc,v 1.3 2006/07/05 15:47:38 egeland Exp $
 
 #include <iostream>
 #include <string>
@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include <time.h>
 #include <stdexcept>
-#include <occi.h>
+#include <OnlineDB/Oracle/interface/Oracle.h>
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/EcalDBConnection.h"

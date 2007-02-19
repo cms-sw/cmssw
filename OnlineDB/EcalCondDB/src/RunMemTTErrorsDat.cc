@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include "occi.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 #include <boost/lexical_cast.hpp>
 
 #include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
