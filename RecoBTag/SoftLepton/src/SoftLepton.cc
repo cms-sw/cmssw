@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.11 2007/02/15 16:14:26 demine Exp $
+// $Id: SoftLepton.cc,v 1.12 2007/02/15 20:09:14 fwyzard Exp $
 //
 
 
@@ -87,7 +87,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     Handle<reco::ElectronCollection> h_electrons;
     iEvent.getByLabel(m_leptonProducer, h_electrons);
     #ifdef DEBUG
-    cerr << "SoftLepton::produce : collection " << m_leptonProducer << "found, identified as ElectronCollection" << endl;
+    cerr << "SoftLepton::produce : collection " << m_leptonProducer << " found, identified as ElectronCollection" << endl;
     #endif
     for (reco::ElectronCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
       leptons.push_back(electron->track());
@@ -98,7 +98,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       Handle<reco::MuonCollection> h_muons;
       iEvent.getByLabel(m_leptonProducer, h_muons);
       #ifdef DEBUG
-      cerr << "SoftLepton::produce : collection " << m_leptonProducer << "found, identified as MuonCollection" << endl;
+      cerr << "SoftLepton::produce : collection " << m_leptonProducer << " found, identified as MuonCollection" << endl;
       #endif
       for (reco::MuonCollection::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon)
         leptons.push_back( muon->combinedMuon() );
@@ -108,7 +108,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       Handle<reco::TrackCollection> h_tracks;
       iEvent.getByLabel(m_leptonProducer, h_tracks);
       #ifdef DEBUG
-      cerr << "SoftLepton::produce : collection " << m_leptonProducer << "found, identified as TrackCollection" << endl;
+      cerr << "SoftLepton::produce : collection " << m_leptonProducer << " found, identified as TrackCollection" << endl;
       #endif
       for (unsigned int i = 0; i < h_tracks->size(); i++)
         leptons.push_back( TrackRef(h_tracks, i) );
