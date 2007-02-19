@@ -253,11 +253,12 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
     psm.disconnect();
 
     cond::RelationalStorageManager rsm(dbConnectString_, session);
-    coral::ISessionProxy* ts = rsm.connect( cond::ReadWriteCreate );
+    //    coral::ISessionProxy* ts = rsm.connect( cond::ReadWriteCreate );
+    rsm.connect( cond::ReadWriteCreate );
     rsm.startTransaction( false ); // true == readOnly
 //     cond::DBWriter pw(*session, "PIdealGeometry");
 //     cond::DBWriter iovw(*session, "IOV");
-    cond::IOV* initiov=new cond::IOV;
+//    cond::IOV* initiov=new cond::IOV;
     cond::MetaData metadata_svc(rsm); //dbConnectString_, *loader);
     //    metadata_svc.connect(cond::ReadWriteCreate);
     metadata_svc.addMapping(metaName_, tok);
