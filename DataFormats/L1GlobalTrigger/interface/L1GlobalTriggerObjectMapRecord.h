@@ -44,20 +44,20 @@ public:
     /// return all the combinations passing the requirements imposed in condition condNameVal
     /// from algorithm with name algoNameVal
     const CombinationsInCond* getCombinationsInCond(
-        std::string algoNameVal, std::string condNameVal);
+        std::string algoNameVal, std::string condNameVal) const;
 
     /// return all the combinations passing the requirements imposed in condition condNameVal
     /// from algorithm with bit number algoBitNumberVal
     const CombinationsInCond* getCombinationsInCond(
-        int algoBitNumberVal, std::string condNameVal);
+        int algoBitNumberVal, std::string condNameVal) const;
 
     /// return the result for the condition condNameVal
     /// from algorithm with name algoNameVal
-    bool getConditionResult(std::string algoNameVal, std::string condNameVal);
+    const bool getConditionResult(std::string algoNameVal, std::string condNameVal) const;
 
     /// return the result for the condition condNameVal
     /// from algorithm with bit number algoBitNumberVal
-    bool getConditionResult(int algoBitNumberVal, std::string condNameVal);
+    const bool getConditionResult(int algoBitNumberVal, std::string condNameVal) const;
 
 public:
 

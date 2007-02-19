@@ -47,7 +47,7 @@ L1GlobalTriggerObjectMapRecord::~L1GlobalTriggerObjectMapRecord()
 // return all the combinations passing the requirements imposed in condition condNameVal
 // from algorithm algoNameVal
 const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
-    std::string algoNameVal, std::string condNameVal)
+    std::string algoNameVal, std::string condNameVal) const
 {
 
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
@@ -64,12 +64,11 @@ const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
     }
 
     // no (algoName, condName) found, return zero pointer!
-
     edm::LogError("L1GlobalTriggerObjectMapRecord")
-    << "\n  ERROR: The requested (algorithm name, condition name) = ("
+    << "\n\n  ERROR: The requested \n    (algorithm name, condition name) = ("
     << algoNameVal << ", " << condNameVal
-    << ") does not exists in the trigger menu."
-    << "  Returning zero pointer for getCombinationsInCond"
+    << ") \n  does not exists in the trigger menu."
+    << "\n  Returning zero pointer for getCombinationsInCond\n\n"
     << std::endl;
 
     return 0;
@@ -79,7 +78,7 @@ const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
 // return all the combinations passing the requirements imposed in condition condNameVal
 // from algorithm with bit number algoBitNumberVal
 const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
-    int algoBitNumberVal, std::string condNameVal)
+    int algoBitNumberVal, std::string condNameVal) const
 {
 
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
@@ -96,10 +95,10 @@ const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
 
     // no (algoBitNumber, condName) found, return zero pointer!
     edm::LogError("L1GlobalTriggerObjectMapRecord")
-    << "\n  ERROR: The requested (algorithm bit number, condition name) = ("
+    << "\n\n  ERROR: The requested \n    (algorithm bit number, condition name) = ("
     << algoBitNumberVal << ", " << condNameVal
-    << ") does not exists in the trigger menu."
-    << "  Returning zero pointer for getCombinationsInCond"
+    << ") \n  does not exists in the trigger menu."
+    << "\n  Returning zero pointer for getCombinationsInCond\n\n"
     << std::endl;
 
     return 0;
@@ -108,8 +107,8 @@ const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
 
 // return the result for the condition condNameVal
 // from algorithm with name algoNameVal
-bool L1GlobalTriggerObjectMapRecord::getConditionResult(
-    std::string algoNameVal, std::string condNameVal)
+const bool L1GlobalTriggerObjectMapRecord::getConditionResult(
+    std::string algoNameVal, std::string condNameVal) const
 {
 
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
@@ -124,12 +123,11 @@ bool L1GlobalTriggerObjectMapRecord::getConditionResult(
     }
 
     // no (algoName, condName) found, return false!
-
     edm::LogError("L1GlobalTriggerObjectMapRecord")
-    << "\n  ERROR: The requested (algorithm name, condition name) = ("
+    << "\n\n  ERROR: The requested \n    (algorithm name, condition name) = ("
     << algoNameVal << ", " << condNameVal
-    << ") does not exists in the trigger menu."
-    << "  Returning false for condition result! Unknown result, in fact!"
+    << ") \n  does not exists in the trigger menu."
+    << "\n  Returning false for condition result! Unknown result, in fact!\n\n"
     << std::endl;
 
     return false;
@@ -138,8 +136,8 @@ bool L1GlobalTriggerObjectMapRecord::getConditionResult(
 
 // return the result for the condition condNameVal
 // from algorithm with bit number algoBitNumberVal
-bool L1GlobalTriggerObjectMapRecord::getConditionResult(
-    int algoBitNumberVal, std::string condNameVal)
+const bool L1GlobalTriggerObjectMapRecord::getConditionResult(
+    int algoBitNumberVal, std::string condNameVal) const
 {
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
             itObj != m_gtObjectMap.end(); ++itObj) {
@@ -154,10 +152,10 @@ bool L1GlobalTriggerObjectMapRecord::getConditionResult(
 
     // no (algoBitNumber, condName) found, return false!
     edm::LogError("L1GlobalTriggerObjectMapRecord")
-    << "\n  ERROR: The requested (algorithm bit number, condition name) = ("
+    << "\n\n  ERROR: The requested \n    (algorithm bit number, condition name) = ("
     << algoBitNumberVal << ", " << condNameVal
-    << ") does not exists in the trigger menu."
-    << "  Returning false for condition result! Unknown result, in fact!"
+    << ") \n  does not exists in the trigger menu."
+    << "\n  Returning false for condition result! Unknown result, in fact!\n\n"
     << std::endl;
 
     return false;
