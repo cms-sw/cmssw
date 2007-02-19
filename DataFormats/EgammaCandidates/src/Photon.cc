@@ -1,4 +1,4 @@
-// $Id: Photon.cc,v 1.3 2007/01/31 17:11:25 futyand Exp $
+// $Id: Photon.cc,v 1.4 2007/02/15 00:29:07 futyand Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
@@ -30,5 +30,9 @@ void Photon::setVertex(const Point & vertex) {
 }
 
 math::XYZPoint Photon::caloPosition() const {
+  if (r9_>0.93) {
+    return unconvPosition_;
+  } else {
     return superCluster()->position();
+  }
 }
