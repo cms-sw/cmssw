@@ -11,58 +11,57 @@
 
 class TrackDetMatchInfo {
  public:
+   enum TowerEnergyType { Total, Ecal, Hcal, HO };
+   
    TrackDetMatchInfo();
+   
    /// ECAL energy 
-   double ecalEnergy();
+   double ecalCrossedEnergy();
    double ecalConeEnergy();
    
    /// HCAL energy (HE+HB)
-   double hcalEnergy();
+   double hcalCrossedEnergy();
    double hcalConeEnergy();
    
    /// HO energy
-   double hoEnergy();
+   double hoCrossedEnergy();
    double hoConeEnergy();
 
-   /// Calo tower info
-   double ecalTowerEnergy();
-   double ecalTowerConeEnergy();
-   double hcalTowerEnergy();
-   double hcalTowerConeEnergy();
-   double hoTowerEnergy();
-   double hoTowerConeEnergy();
+   /// Calo tower energy
+   double towerCrossedEnergy( TowerEnergyType type = Total );
+   double towerConeEnergy( TowerEnergyType type = Total );
 
    /// Find detector elements with highest energy deposition
    DetId findEcalMaxDeposition();
    DetId findHcalMaxDeposition();
-   DetId findTowerMaxDeposition();
+   DetId findTowerMaxDeposition( TowerEnergyType type = Total );
    
    /// get energy of the NxN matrix around the maximal deposition
    /// N = 2*gridSize + 1
    double ecalNxNEnergy(const DetId&, int gridSize = 1);
    double hcalNxNEnergy(const DetId&, int gridSize = 1);
-   double towerNxNEnergy(const DetId&, int gridSize = 1);
+   double towerNxNEnergy(const DetId&, int gridSize = 1, TowerEnergyType type = Total);
 
-   int numberOfSegments() const;
-   int numberOfSegmentsInStation(int station) const;
-   int numberOfSegmentsInStation(int station, int detector) const;
-   int numberOfSegmentsInDetector(int detector) const;
-     
+   /// Track position at different parts of the calorimeter
    math::XYZPoint trkGlobPosAtEcal;
    math::XYZPoint trkGlobPosAtHcal;
    math::XYZPoint trkGlobPosAtHO;
-
-   std::vector<EcalRecHit> ecalRecHits;
-   std::vector<EcalRecHit> crossedEcalRecHits;
-
-   std::vector<HBHERecHit> hcalRecHits;
-   std::vector<HBHERecHit> crossedHcalRecHits;
    
-   std::vector<HORecHit> hoRecHits;
-   std::vector<HORecHit> crossedHORecHits;
+   std::vector<EcalRecHit> coneEcalRecHits;
+   std::vector<EcalRecHit> crossedEcalRecHits;
+   std::vector<DetId>      crossedEcalIds;
 
-   std::vector<CaloTower> towers;
+   std::vector<HBHERecHit> coneHcalRecHits;
+   std::vector<HBHERecHit> crossedHcalRecHits;
+   std::vector<DetId>      crossedHcalIds;
+   
+   std::vector<HORecHit> coneHORecHits;
+   std::vector<HORecHit> crossedHORecHits;
+   std::vector<DetId>    crossedHOIds;
+
+   std::vector<CaloTower> coneTowers;
    std::vector<CaloTower> crossedTowers;
+   std::vector<DetId>     crossedTowerIds;
    
    std::vector<MuonChamberMatch> chambers;
 
@@ -74,6 +73,31 @@ class TrackDetMatchInfo {
    bool isGoodCalo;
    bool isGoodHO;
    bool isGoodMuon;
+   
+   /// Obsolete methods and data members for backward compatibility.
+   /// Will be removed in future releases.
+   
+   double ecalTowerEnergy() { return towerCrossedEnergy(Ecal); }
+   double ecalTowerConeEnergy() { return towerConeEnergy(Ecal); }
+   double hcalTowerEnergy() { return towerCrossedEnergy(Hcal); }
+   double hcalTowerConeEnergy() { return towerConeEnergy(Hcal); }
+   double hoTowerEnergy() { return towerCrossedEnergy(HO); }
+   double hoTowerConeEnergy() { return towerConeEnergy(HO); }
+
+   double ecalEnergy() { return ecalCrossedEnergy(); }
+   double hcalEnergy() { return hcalCrossedEnergy(); }
+   double hoEnergy() { return hoCrossedEnergy(); }
+   
+   int numberOfSegments() const;
+   int numberOfSegmentsInStation(int station) const;
+   int numberOfSegmentsInStation(int station, int detector) const;
+   int numberOfSegmentsInDetector(int detector) const;
+
+   std::vector<EcalRecHit>& ecalRecHits;
+   std::vector<HBHERecHit>& hcalRecHits;
+   std::vector<HORecHit>& hoRecHits;
+   std::vector<CaloTower> towers;
+   
    
 };
 #endif

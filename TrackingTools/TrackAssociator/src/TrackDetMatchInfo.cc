@@ -36,7 +36,7 @@ int TrackDetMatchInfo::numberOfSegmentsInDetector(int detector) const {
 
 ///////////////////////////
 
-double TrackDetMatchInfo::ecalEnergy()
+double TrackDetMatchInfo::ecalCrossedEnergy()
 {
    double energy(0);
    for(std::vector<EcalRecHit>::const_iterator hit=crossedEcalRecHits.begin(); hit!=crossedEcalRecHits.end(); hit++)
@@ -44,7 +44,7 @@ double TrackDetMatchInfo::ecalEnergy()
    return energy;
 }
 
-double TrackDetMatchInfo::hcalEnergy()
+double TrackDetMatchInfo::hcalCrossedEnergy()
 {
    double energy(0);
    for(std::vector<HBHERecHit>::const_iterator hit = crossedHcalRecHits.begin(); hit != crossedHcalRecHits.end(); hit++)
@@ -52,7 +52,7 @@ double TrackDetMatchInfo::hcalEnergy()
    return energy;
 }
 
-double TrackDetMatchInfo::hoEnergy()
+double TrackDetMatchInfo::hoCrossedEnergy()
 {
    double energy(0);
    for(std::vector<HORecHit>::const_iterator hit = crossedHORecHits.begin(); hit != crossedHORecHits.end(); hit++)
@@ -84,61 +84,62 @@ double TrackDetMatchInfo::hoConeEnergy()
    return energy;
 }
 
-double TrackDetMatchInfo::ecalTowerConeEnergy()
+double TrackDetMatchInfo::towerConeEnergy( TowerEnergyType type )
 {
    double energy(0);
    for(std::vector<CaloTower>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++)
-     energy += hit->emEnergy();
+     {
+	switch (type) {
+	 case Total:
+	   energy += hit->energy();
+	   break;
+	 case Ecal:
+	   energy += hit->emEnergy();
+	   break;
+	 case Hcal:
+	   energy += hit->hadEnergy();
+	   break;
+	 case HO:
+	   energy += hit->energy();
+	   break;
+	 default:
+	   edm::LogWarning("TrackAssociator") << "Unknown calo tower energy type: " << type;
+	}
+     }
    return energy;
 }
 
-double TrackDetMatchInfo::hcalTowerConeEnergy()
+double TrackDetMatchInfo::towerCrossedEnergy( TowerEnergyType type )
 {
    double energy(0);
-   for(std::vector<CaloTower>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++)
-     energy += hit->hadEnergy();
+   for(std::vector<CaloTower>::const_iterator hit=crossedTowers.begin(); hit!=crossedTowers.end(); hit++)
+     {
+	switch (type) {
+	 case Total:
+	   energy += hit->energy();
+	   break;
+	 case Ecal:
+	   energy += hit->emEnergy();
+	   break;
+	 case Hcal:
+	   energy += hit->hadEnergy();
+	   break;
+	 case HO:
+	   energy += hit->energy();
+	   break;
+	 default:
+	   edm::LogWarning("TrackAssociator") << "Unknown calo tower energy type: " << type;
+	}
+     }
    return energy;
 }
-
-double TrackDetMatchInfo::hoTowerConeEnergy()
-{
-   double energy(0);
-   for(std::vector<CaloTower>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++)
-     energy += hit->outerEnergy();
-   return energy;
-}
-
-double TrackDetMatchInfo::ecalTowerEnergy()
-{
-   double energy(0);
-   for(std::vector<CaloTower>::const_iterator tower=crossedTowers.begin(); tower!=crossedTowers.end(); tower++)
-     energy += tower->emEnergy();
-   return energy;
-}
-
-double TrackDetMatchInfo::hcalTowerEnergy()
-{
-   double energy(0);
-   for(std::vector<CaloTower>::const_iterator tower=crossedTowers.begin(); tower!=crossedTowers.end(); tower++)
-     energy += tower->hadEnergy();
-   return energy;
-}
-
-double TrackDetMatchInfo::hoTowerEnergy()
-{
-   double energy(0);
-   for(std::vector<CaloTower>::const_iterator tower=crossedTowers.begin(); tower!=crossedTowers.end(); tower++)
-     energy += tower->outerEnergy();
-   return energy;
-}
-
-
 
 //////////////////////////////////////////////////
 
-double TrackDetMatchInfo::towerNxNEnergy(const DetId& id, int gridSize)
+double TrackDetMatchInfo::towerNxNEnergy(const DetId& id, int gridSize, TowerEnergyType type )
 {
-   if( id.det() != DetId::Calo ) {
+   if ( id.rawId() == 0 ) return -9999;
+   if ( id.det() != DetId::Calo ) {
       edm::LogWarning("TrackAssociator") << "Wrong DetId. Expected CaloTower, but found:\n" <<
 	DetIdInfo::info(id)<<"\n";
       return -99999;
@@ -151,13 +152,31 @@ double TrackDetMatchInfo::towerNxNEnergy(const DetId& id, int gridSize)
 		      -(neighborId.ieta()<0?neighborId.ieta()+1:neighborId.ieta() ) ) ;
       int dPhi = abs( centerId.iphi()-neighborId.iphi() );
       if ( abs(72-dPhi) < dPhi ) dPhi = 72-dPhi;
-      if(  dEta <= gridSize && dPhi <= gridSize ) energy += hit->energy();
+      if(  dEta <= gridSize && dPhi <= gridSize ) {
+	switch (type) {
+	 case Total:
+	   energy += hit->energy();
+	   break;
+	 case Ecal:
+	   energy += hit->emEnergy();
+	   break;
+	 case Hcal:
+	   energy += hit->hadEnergy();
+	   break;
+	 case HO:
+	   energy += hit->energy();
+	   break;
+	 default:
+	   edm::LogWarning("TrackAssociator") << "Unknown calo tower energy type: " << type;
+	}
+      }
    }
    return energy;
 }
 
 double TrackDetMatchInfo::hcalNxNEnergy(const DetId& id, int gridSize)
 {
+   if ( id.rawId() == 0 ) return -9999;
    if( id.det() != DetId::Hcal || (id.subdetId() != HcalBarrel && id.subdetId() != HcalEndcap) ) {
       edm::LogWarning("TrackAssociator") << "Wrong DetId. Expected HE or HB, but found:\n" <<
 	DetIdInfo::info(id)<<"\n";
@@ -178,6 +197,7 @@ double TrackDetMatchInfo::hcalNxNEnergy(const DetId& id, int gridSize)
 
 double TrackDetMatchInfo::ecalNxNEnergy(const DetId& id, int gridSize)
 {
+   if ( id.rawId() == 0 ) return -9999;
    if( id.det() != DetId::Ecal || (id.subdetId() != EcalBarrel && id.subdetId() != EcalEndcap) ) {
       edm::LogWarning("TrackAssociator") << "Wrong DetId. Expected EcalBarrel or EcalEndcap, but found:\n" <<
 	DetIdInfo::info(id)<<"\n";
@@ -224,7 +244,10 @@ TrackDetMatchInfo::TrackDetMatchInfo():
      , isGoodCalo(false)
      , isGoodHO(false)
      , isGoodMuon(false)
-
+     , ecalRecHits(coneEcalRecHits)
+     , hcalRecHits(coneHcalRecHits)
+     , hoRecHits(coneHORecHits)
+     , towers(coneTowers)
 {
 }
 
@@ -252,14 +275,33 @@ DetId TrackDetMatchInfo::findHcalMaxDeposition()
    return id;
 }
 
-DetId TrackDetMatchInfo::findTowerMaxDeposition()
+DetId TrackDetMatchInfo::findTowerMaxDeposition(TowerEnergyType type)
 {
    DetId id;
    float maxEnergy = -9999;
    for(std::vector<CaloTower>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++)
-     if ( hit->energy() > maxEnergy ) {
-	maxEnergy = hit->energy();
-	id = hit->id();
+     {
+	double energy = 0;
+	switch (type) {
+	 case Total:
+	   energy = hit->energy();
+	   break;
+	 case Ecal:
+	   energy = hit->emEnergy();
+	   break;
+	 case Hcal:
+	   energy = hit->hadEnergy();
+	   break;
+	 case HO:
+	   energy = hit->energy();
+	   break;
+	 default:
+	   edm::LogWarning("TrackAssociator") << "Unknown calo tower energy type: " << type;
+	}
+	if ( energy > maxEnergy ) {
+	   maxEnergy = energy;
+	   id = hit->id();
+	}
      }
    return id;
 }
