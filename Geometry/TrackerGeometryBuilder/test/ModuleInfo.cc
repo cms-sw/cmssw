@@ -232,9 +232,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	
 	Output << " PXB" << "\t" << "Layer " << theLayer << " Ladder " << theLadder
 	       << "\t" << " module " << theModule << " " << name << "\t"
-	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl
-	       << "\t" << "volume " << volume << " cm3 \t" << "density " << density << " g/cm3 \t" << "weight " << weight << " kg \t" << "thickness " << thickness
-	       << " um \t" << " active area " << activeSurface << " cm2" << std::endl;
+	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl;
 	break;
       }
       
@@ -260,9 +258,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	side = (module.side() == 1 ) ? "-" : "+";
 	Output << " PXF" << side << "\t" << "Disk " << theDisk << " Blade " << theBlade << " Panel " << thePanel
 	       << "\t" << " module " << theModule << "\t" << name << "\t"
-	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl
-	       << "\t" << "volume " << volume << " cm3 \t" << "density " << density << " g/cm3 \t" << "weight " << weight << " kg \t" << "thickness " << thickness
-	       << " um \t" << " active area " << activeSurface << " cm2" << std::endl;
+	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl;
 	break;
       }
       
@@ -289,10 +285,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " TIB" << side << "\t" << "Layer " << theLayer << " " << part
 	       << "\t" << "string " << theString[2] << "\t" << " module " << theModule << " " << name << "\t"
 	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << " "
-	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << std::endl
-	       << "\t" << "volume " << volume << " cm3 \t" << "density " << density << " g/cm3 \t" << "weight " << weight << " kg \t" << "thickness " << thickness
-	       << " um \t" << " active area " << activeSurface << " cm2" << std::endl;
-	
+	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << std::endl;
 	break;
       }
       
@@ -320,9 +313,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " TID" << side << "\t" << "Disk " << theDisk << " Ring " << theRing << " " << part
 	       << "\t" << " module " << theModule[1] << "\t" << name << "\t"
 	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << " "
-	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << std::endl
-	       << "\t" << "volume " << volume << " cm3 \t" << "density " << density << " g/cm3 \t" << "weight " << weight << " kg \t" << "thickness " << thickness
-	       << " um \t" << " active area " << activeSurface << " cm2" << std::endl;
+	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << std::endl;
 	break;
       }
       
@@ -349,9 +340,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " TOB" << side << "\t" << "Layer " << theLayer 
 	       << "\t" << "rod " << theRod[1] << " module " << theModule << "\t" << name << "\t" 
 	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << " "
-	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << std::endl
-	       << "\t" << "volume " << volume << " cm3 \t" << "density " << density << " g/cm3 \t" << "weight " << weight << " kg \t" << "thickness " << thickness
-	       << " um \t" << " active area " << activeSurface << " cm2" << std::endl;
+	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << std::endl;
 	break;
       }
       
@@ -385,9 +374,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " TEC" << side << "\t" << "Wheel " << theWheel << " Petal " << thePetal[1] << " " << petal << " Ring " << theRing << "\t"
 	       << "\t" << " module " << theModule << "\t" << name << "\t"
 	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << " "
-	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << std::endl
-	       << "\t" << "volume " << volume << " cm3 \t" << "density " << density << " g/cm3 \t" << "weight " << weight << " kg \t" << "thickness " << thickness
-	       << " um \t" << " active area " << activeSurface << " cm2" << std::endl;
+	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << std::endl;
 	
 	// TEC output as Martin Weber's
 	int out_side  = (module.side() == 1 ) ? -1 : 1;
@@ -437,6 +424,11 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     
     // Output: set as default 4 decimal digits (0.1 um or 0.1 deg/rad)
     // active area center
+    Output << "\t" << "volume " << std::fixed << std::setprecision(3) << volume << " cm3 \t"
+	   << "density "        << std::fixed << std::setprecision(3) << density << " g/cm3 \t"
+	   << "weight "         << std::fixed << std::setprecision(6) << weight << " kg \t"
+	   << "thickness "      << std::fixed << std::setprecision(0) << thickness << " um \t"
+	   << " active area "   << std::fixed << std::setprecision(2) << activeSurface << " cm2" << std::endl;
     Output << "\tActive Area Center" << std::endl;
     Output << "\t O = (" << std::fixed << std::setprecision(4) << modules[i]->translation()[0]
 	   << ","        << std::fixed << std::setprecision(4) << modules[i]->translation()[1]
