@@ -240,7 +240,7 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 	// as long as we dont have correct parameters for the endcap
 	std::vector<EcalTriggerPrimitiveSample> primitives[2];
 	for (unsigned int i=0;i<nrSamples;++i) {
-	  float ettemp=0, etmaxtemp=0; 
+	  float ettemp=0;
 
 	  for (int ii=0;ii<nrFrames;++ii) {
 	    int en=(mapEndcap_[thisTower][ii])[i].adc();
@@ -250,10 +250,8 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 	    et0 =(float) (et0*sin(theta));
 
 	    ettemp += et0;
-	    if (et0 > etmaxtemp) etmaxtemp=et0;
 	  }
 	  int et=int(ettemp);
-	  int etmax=int(etmaxtemp);
 
 	  //for the moment, there is no fgvb implemented...
 	  int fgvb=0;
@@ -330,15 +328,15 @@ void EcalTrigPrimFunctionalAlgo::fillEndcap(const EcalTrigTowerDetId & coarser, 
 //----------------------------------------------------------------------
 int EcalTrigPrimFunctionalAlgo::calculateTTF(const int en) {
   //temporary version of TTF calculation for Endcap
-  //  int high=83; // adc value corresponding to 5 GeV, factor 0.06
-  //  int low=42;  // adc value corresponding to 2.5 GeV, factor 0.06
+  //  int high=83; // adc value corresponding to 5 GeV
+  //  int low=42;  // adc value corresponding to 2.5 GeV
   // temporary for temporary Endcap version !!!
 
   double threshLow_ =2.5; //GeV
   double threshHigh_=5.;
   //  
-  int high=int(threshHigh_/0.06);
-  int low=int(threshLow_/0.06);
+  int high=int(threshHigh_/ebDccAdcToGeV_);
+  int low=int(threshLow_/ebDccAdcToGeV_);
   int ttf=0;
   if (en>high) ttf=3;
   else if (ttf<high && ttf >low ) ttf=2;
