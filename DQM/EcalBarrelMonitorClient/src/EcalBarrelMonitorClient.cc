@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/15 10:03:04 $
- * $Revision: 1.221 $
+ * $Date: 2007/02/17 13:49:49 $
+ * $Revision: 1.222 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1100,9 +1100,7 @@ void EcalBarrelMonitorClient::analyze(void){
   ievt_++;
   jevt_++;
 
-  if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
-  }
+  if ( verbose_ ) cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
   // # of full monitoring cycles processed
   int updates = mui_->getNumUpdates();
@@ -1177,32 +1175,36 @@ void EcalBarrelMonitorClient::analyze(void){
 
     if ( verbose_ ) cout << " updates = "  << updates << endl;
 
-    cout << " run = "      << run_      <<
-            " event = "    << evt_      <<
-            " status = "   << status_   << endl;
+    if ( ievt_<= 0 || ievt_ % 10 == 0 ) {
 
-    cout << " runtype = "  << ( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ) <<
-            " location = " << location_ << flush;
+      cout << " run = "      << run_      <<
+              " event = "    << evt_      <<
+              " status = "   << status_   << endl;
 
-    if ( h_ ) {
-      if ( h_->GetEntries() != 0 ) {
-        cout << "  ( " << flush;
-        for ( int i=0; i<int(runTypes_.size()); ++i ) {
-          if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(i+1) != 0 ) {
-            string s = runTypes_[i];
-            transform( s.begin(), s.end(), s.begin(), (int(*)(int))tolower );
-            cout << s << " ";
+      cout << " runtype = "  << ( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ) <<
+              " location = " << location_ << flush;
+
+      if ( h_ ) {
+        if ( h_->GetEntries() != 0 ) {
+          cout << "  ( " << flush;
+          for ( int i=0; i<int(runTypes_.size()); ++i ) {
+            if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(i+1) != 0 ) {
+              string s = runTypes_[i];
+              transform( s.begin(), s.end(), s.begin(), (int(*)(int))tolower );
+              cout << s << " ";
+            }
           }
+          cout << ")" << flush;
         }
-        cout << ")" << flush;
       }
+      cout << endl;
+
     }
-    cout << endl;
-    
+
     update = true;
-    
+
     last_update_ = updates;
-    
+
     last_jevt_ = jevt_;
 
   }
