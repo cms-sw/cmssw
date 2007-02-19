@@ -29,19 +29,5 @@ VertexTrack::VertexTrack(const RefCountedLinearizedTrackState lt,
 
 AlgebraicVector VertexTrack::refittedParamFromEquation() const 
 {
-  AlgebraicVector vertexPosition(3);
-  vertexPosition[0] = theRefittedState->position().x();
-  vertexPosition[1] = theRefittedState->position().y();
-  vertexPosition[2] = theRefittedState->position().z();
-  AlgebraicVector momentumAtVertex = theRefittedState->momentumVector();
-
-  AlgebraicMatrix thePositionJacobian = linearizedTrack()->positionJacobian();
-  AlgebraicMatrix theMomentumJacobian = linearizedTrack()->momentumJacobian();
-  AlgebraicVector theResidual = linearizedTrack()->constantTerm();
-  
-  AlgebraicVector rtp = ( theResidual + 
-			  thePositionJacobian * vertexPosition +
-			  theMomentumJacobian * momentumAtVertex);
-  
-  return rtp;
+  return linearizedTrack()->refittedParamFromEquation(theRefittedState);
 }
