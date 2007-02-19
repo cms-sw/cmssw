@@ -179,11 +179,11 @@ SequentialVertexFitter::reLinearizeTracks(
   finalTracks.reserve(tracks.size());
   for(vector<RefCountedVertexTrack>::const_iterator i = tracks.begin(); 
       i != tracks.end(); i++) {
-    //    RefCountedLinearizedTrackState lTrData = 
-    //    	(**i).linearizedTrack()->stateWithNewLinearizationPoint(linP);
     RefCountedLinearizedTrackState lTrData = 
-      theLTrackFactory->linearizedTrackState(linP, 
-					    (**i).linearizedTrack()->track());
+    	  (**i).linearizedTrack()->stateWithNewLinearizationPoint(linP);
+    //    RefCountedLinearizedTrackState lTrData = 
+    //      theLTrackFactory->linearizedTrackState(linP, 
+    // 				    (**i).linearizedTrack()->track());
     RefCountedVertexTrack vTrData =
       theVTrackFactory.vertexTrack(lTrData,state, (**i).weight() );
     finalTracks.push_back(vTrData);

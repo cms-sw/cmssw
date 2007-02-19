@@ -187,18 +187,14 @@ bool PerigeeLinearizedTrackState::operator ==(ReferenceCountingPointer<Linearize
   return (otherP->track() == theTrack);
 }
 
-// ERROR-PRONE; use LTFactory instead
-//
-//RefCountedLinearizedTrackState
-//PerigeeLinearizedTrackState::stateWithNewLinearizationPoint
-//			(const GlobalPoint & newLP) const
-//{
-//  edm::LogInfo("RecoVertex/PerigeeLTS") 
-//    << "statewithnewLP" << "\n";
-//  
-//  return RefCountedLinearizedTrackState(
-//  		new PerigeeLinearizedTrackState(newLP, track(), theTSOS));
-//}
+
+RefCountedLinearizedTrackState
+PerigeeLinearizedTrackState::stateWithNewLinearizationPoint
+      (const GlobalPoint & newLP) const
+{
+ return RefCountedLinearizedTrackState(
+ 		new PerigeeLinearizedTrackState(newLP, track(), theTSOS));
+}
 
 RefCountedRefittedTrackState
 PerigeeLinearizedTrackState::createRefittedTrackState(
