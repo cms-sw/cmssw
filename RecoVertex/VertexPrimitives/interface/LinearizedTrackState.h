@@ -42,9 +42,8 @@ public:
    * Returns a new linearized state with respect to a new linearization point.
    * A new object of the same type is returned, without change to the existing one.
    */
-  // ERROR-PRONE; use LTFactory instead
-  //  virtual  ReferenceCountingPointer<LinearizedTrackState> stateWithNewLinearizationPoint
-  //  	(const GlobalPoint & newLP) const = 0;
+  virtual  ReferenceCountingPointer<LinearizedTrackState> stateWithNewLinearizationPoint
+    (const GlobalPoint & newLP) const = 0;
 
   /** Access methods
    */
