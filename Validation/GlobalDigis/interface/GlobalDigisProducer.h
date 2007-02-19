@@ -21,6 +21,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 
 // event info
 #include "SimDataFormats/GlobalDigiValidation/interface/PGlobalDigi.h"
@@ -50,6 +51,9 @@ class GlobalDigisProducer : public edm::EDProducer
  public:
 
   typedef std::vector<float> FloatVector;
+  typedef std::vector<double> DoubleVector;
+  typedef std::vector<int> IntVector;
+  typedef std::map<uint32_t,float,std::less<uint32_t> > MapType;
 
   explicit GlobalDigisProducer(const edm::ParameterSet&);
   virtual ~GlobalDigisProducer();
@@ -77,18 +81,21 @@ class GlobalDigisProducer : public edm::EDProducer
 
   // Electromagnetic info
   // ECal info
-  FloatVector EECalADC; 
-  FloatVector EECalmaxPos; 
-  FloatVector EECalAEE; 
-  FloatVector EECalSHE;
-
-  FloatVector EBCalADC; 
-  FloatVector EBCalmaxPos; 
-  FloatVector EBCalAEE; 
+ 
+  IntVector EBCalmaxPos; 
+  DoubleVector EBCalAEE; 
   FloatVector EBCalSHE;
+
+  IntVector EECalmaxPos; 
+  DoubleVector EECalAEE; 
+  FloatVector EECalSHE;
 
   edm::InputTag ECalEBSrc_;
   edm::InputTag ECalEESrc_;
+
+  std::map<int, double, std::less<int> > ECalgainConv_;
+  double ECalbarrelADCtoGeV_;
+  double ECalendcapADCtoGeV_;
 
   // private statistics information
   unsigned int count;

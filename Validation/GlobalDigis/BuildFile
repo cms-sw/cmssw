@@ -5,6 +5,7 @@
 <use name=FWCore/MessageLogger>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
+<use name=CalibCalorimetry/EcalTrivialCondModules>
 <use name=SimDataFormats/GlobalDigiValidation>
 <use name=SimDataFormats/CrossingFrame>
 <use name=SimDataFormats/CaloHit>
@@ -21,6 +22,7 @@
  <use name=FWCore/MessageLogger>
  <use name=DataFormats/EcalDigi>
  <use name=DataFormats/EcalDetId>
+ <use name=CalibCalorimetry/EcalTrivialCondModules>
  <use name=SimDataFormats/GlobalDigiValidation>
  <use name=SimDataFormats/CrossingFrame>
  <use name=SimDataFormats/CaloHit>
