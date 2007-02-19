@@ -175,4 +175,14 @@ std::string DetIdInfo::info(const std::set<DetId>& idSet) {
    return text;
 }
 
+std::string DetIdInfo::info(const std::vector<DetId>& idSet) {
+   std::string text;
+   for(std::vector<DetId>::const_iterator id = idSet.begin(); id != idSet.end(); id++)
+     {
+	text += info(*id);
+	text += "\n";
+     }
+   return text;
+}
+
    
