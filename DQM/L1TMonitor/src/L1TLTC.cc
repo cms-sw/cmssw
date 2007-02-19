@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    LTCDQMSource
-// Class:      LTCDQMSource
+// Package:    L1TLTC
+// Class:      L1TLTC
 // 
-/**\class LTCDQMSource LTCDQMSource.cc DQMServices/LTCDQMSource/src/LTCDQMSource.cc
+/**\class L1TLTC L1TLTC.cc DQM/L1TMonitor/src/L1TLTC.cc
 
    Description: DQM Source for LTC data
 
@@ -13,77 +13,17 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed May 24 11:58:16 EDT 2006
-// $Id: LTCDQMSource.cc,v 1.5 2006/10/27 01:35:20 wmtan Exp $
+// $Id: LTCDQMSource.cc,v 1.6 2006/10/31 20:26:51 meschi Exp $
 //
 //
 
 
-// system include files
-#include <memory>
-#include <unistd.h>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DataFormats/LTCDigi/interface/LTCDigi.h"
-
-using namespace std ;
-
-//
-// class decleration
-//
-
-class LTCDQMSource : public edm::EDAnalyzer {
-public:
-  explicit LTCDQMSource(const edm::ParameterSet&);
-  ~LTCDQMSource();
-
-
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob(void);
-private:
-  // ----------member data ---------------------------
-  MonitorElement* h1;
-  MonitorElement* h2;
-  MonitorElement* h3;
-  //MonitorElement* h4;
-  MonitorElement* overlaps;
-  MonitorElement* n_inhibit;
-  MonitorElement* run;
-  MonitorElement* event;
-  MonitorElement* gps_time;
-  float XMIN; float XMAX;
-  // event counter
-  int counter;
-  // back-end interface
-  DaqMonitorBEInterface * dbe;
-  int nev_; // Number of events processed
-  bool saveMe_; // save histograms or no?
-  std::string rootFileName_;
-};
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
+#include "DQM/L1TMonitor/interface/L1TLTC.h"
 
 //
 // constructors and destructor
 //
-LTCDQMSource::LTCDQMSource(const edm::ParameterSet& iConfig):
+L1TLTC::L1TLTC(const edm::ParameterSet& iConfig):
   nev_(0)
 {
   // get hold of back-end interface
@@ -119,11 +59,11 @@ LTCDQMSource::LTCDQMSource(const edm::ParameterSet& iConfig):
   //    // contents of h5 & h6 will be reset at end of monitoring cycle
   //    h5->setResetMe(true);
   //    h6->setResetMe(true);
-  std::cout << "LTCDQMSource: configured histograms." << std::endl;
+  std::cout << "L1TLTC: configured histograms." << std::endl;
 }
 
 
-LTCDQMSource::~LTCDQMSource()
+L1TLTC::~L1TLTC()
 {
  
   // do anything here that needs to be done at desctruction time
@@ -135,14 +75,14 @@ LTCDQMSource::~LTCDQMSource()
 //
 // member functions
 //
-// void LTCDQMSource::beginRun()
+// void L1TLTC::beginRun()
 // {
 // }
 
 
-void LTCDQMSource::endJob(void)
+void L1TLTC::endJob(void)
 {
-  std::cout << "LTCDQMSource: saw " << nev_ << " events. " << std::endl;
+  std::cout << "L1TLTC: saw " << nev_ << " events. " << std::endl;
   if ( saveMe_ ) 
     dbe->save(rootFileName_);
   dbe->setCurrentFolder("L1Trigger/LTC");
@@ -151,7 +91,7 @@ void LTCDQMSource::endJob(void)
 
 // ------------ method called to produce the data  ------------
 void
-LTCDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+L1TLTC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 
@@ -201,5 +141,3 @@ LTCDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //usleep(10000);
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(LTCDQMSource);

@@ -2,10 +2,23 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DQMServices/CoreROOT>
+<use name=DataFormats/LTCDigi>
+<use name=DataFormats/CSCDigi>
+<use name=DataFormats/L1CSCTrackFinder>
+<use name=DataFormats/L1DTTrackFinder>
+<use name=DataFormats/L1GlobalMuonTrigger>
+<use name=DataFormats/L1GlobalTrigger>
 <flags SEAL_PLUGIN_NAME="DQML1TMonitor">
 <export>
    <lib name=DQML1TMonitor>
    <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
+   <use name=DataFormats/LTCDigi>
+   <use name=DataFormats/CSCDigi>
+   <use name=DataFormats/L1CSCTrackFinder>
+   <use name=DataFormats/L1DTTrackFinder>
+   <use name=DataFormats/L1GlobalMuonTrigger>
+   <use name=DataFormats/L1GlobalTrigger>
 </export>
