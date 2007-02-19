@@ -5,54 +5,21 @@
  * \file EBPedOffset.h
  * \class EBPedOffset
  * \brief calculate the best DAC value to obtain a pedestal = 200
- * $Date: 2007/02/08 14:47:31 $
- * $Revision: 1.5 $
+ * $Date: 2007/02/08 17:33:55 $
+ * $Revision: 1.6 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  *
 */
 
 #include <map>
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DataFormats/Common/interface/EDProduct.h" 
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedValues.h"
-#include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedResult.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-//#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-
-//#include "DQMServices/Core/interface/MonitorElement.h"
-//#include "DQMServices/UI/interface/MonitorUIRoot.h"
-
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunDat.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-
-//#include "CalibCalorimetry/EcalDBInterface/interface/MonPedestalsDat.h"
-
-//#include "CalibCalorimetry/EcalDBInterface/interface/MonPNPedDat.h"
-
-#include "TROOT.h"
-#include "TStyle.h"
-
-#include <memory>
-#include <iostream>
-#include <fstream>
-#include <vector>
 #include <string>
 
-using namespace cms ;
-using namespace edm ;
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedValues.h"
+#include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedResult.h"
 
 class EBPedOffset: public edm::EDAnalyzer
 {
@@ -60,16 +27,16 @@ class EBPedOffset: public edm::EDAnalyzer
   public:
     
     //! Constructor
-    EBPedOffset (const ParameterSet& ps) ;
+    EBPedOffset (const edm::ParameterSet& ps) ;
     
     //! Destructor
     virtual ~EBPedOffset () ;
    
     ///! Analyze
-    void analyze (Event const& event, EventSetup const& eventSetup) ;
+    void analyze (edm::Event const& event, edm::EventSetup const& eventSetup) ;
     
     //! BeginJob
-    void beginJob (EventSetup const& eventSetup) ;
+    void beginJob (edm::EventSetup const& eventSetup) ;
     
     //! EndJob
     void endJob (void) ;

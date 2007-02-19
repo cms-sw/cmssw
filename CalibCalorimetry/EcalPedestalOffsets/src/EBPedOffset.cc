@@ -1,29 +1,53 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2006/07/03 08:54:17 $
- * $Revision: 1.7 $
+ * $Date: 2007/02/08 17:33:55 $
+ * $Revision: 1.9 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
 */
+
+#include <memory>
+#include <iostream>
+#include <fstream>
+//#include <vector>
+
+#include "CalibCalorimetry/EcalPedestalOffsets/interface/EBPedOffset.h"
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Common/interface/EDProduct.h" 
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
+//#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+//#include "DQMServices/Core/interface/MonitorElement.h"
+//#include "DQMServices/UI/interface/MonitorUIRoot.h"
+
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "OnlineDB/EcalCondDB/interface/RunTag.h"
+#include "OnlineDB/EcalCondDB/interface/RunDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/all_monitoring_types.h"
+
+//#include "CalibCalorimetry/EcalDBInterface/interface/MonPedestalsDat.h"
+//#include "CalibCalorimetry/EcalDBInterface/interface/MonPNPedDat.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/all_monitoring_types.h"
+//#include "TROOT.h"
+//#include "TStyle.h"
+//#include "TFile.h"
 
-#include "CalibCalorimetry/EcalPedestalOffsets/interface/EBPedOffset.h"
-#include <fstream>
-#include <iostream>
-
-#include "TFile.h"
-
+using namespace cms ;
+using namespace edm ;
 
 //! ctor
 EBPedOffset::EBPedOffset (const ParameterSet& paramSet) :
@@ -41,8 +65,8 @@ EBPedOffset::EBPedOffset (const ParameterSet& paramSet) :
   m_dbUserName (paramSet.getUntrackedParameter<std::string> ("dbUserName")) ,
   m_dbPassword (paramSet.getUntrackedParameter<std::string> ("dbPassword")) ,
   m_dbHostPort (paramSet.getUntrackedParameter<int> ("dbHostPort",1521)) ,
-  m_location (paramSet.getUntrackedParameter<std::string>("location", "H4")) ,
   m_create_moniov (paramSet.getUntrackedParameter<bool>("createMonIOV", false)) ,
+  m_location (paramSet.getUntrackedParameter<std::string>("location", "H4")) ,
   m_run (paramSet.getParameter<int> ("run")) ,
   m_plotting (paramSet.getParameter<std::string> ("plotting"))    
 {
