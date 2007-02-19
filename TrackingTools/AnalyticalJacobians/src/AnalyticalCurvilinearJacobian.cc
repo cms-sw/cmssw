@@ -13,7 +13,7 @@ AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian
   //
   if ( s*s*fabs(globalParameters.transverseCurvature())>1.e-5 ) { 
     GlobalPoint xStart = globalParameters.position();
-    GlobalVector h  = globalParameters.megneticFieldInInverseGeV(xStart);
+    GlobalVector h  = globalParameters.magneticFieldInInverseGeV(xStart);
     computeFullJacobian(globalParameters,x,p,h,s);
   }
   //
@@ -59,7 +59,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   GlobalPoint xStart = globalParameters.position();
   GlobalVector dx = xStart - x;
   //GlobalVector h  = MagneticField::inInverseGeV(xStart);
-  // Martijn: field is now given as parameter.. GlobalVector h  = globalParameters.megneticFieldInInverseGeV(xStart);
+  // Martijn: field is now given as parameter.. GlobalVector h  = globalParameters.magneticFieldInInverseGeV(xStart);
 
   //double qbp = fts.signedInverseMomentum();
   double qbp = globalParameters.signedInverseMomentum();
