@@ -190,7 +190,8 @@ void TrackerHitProducer::fillG4MC(edm::Event& iEvent)
   // get MC information
   /////////////////////
   edm::Handle<edm::HepMCProduct> HepMCEvt;
-  iEvent.getByType(HepMCEvt);
+  //iEvent.getByType(HepMCEvt);
+  iEvent.getByLabel("VtxSmeared",HepMCEvt);
   if (!HepMCEvt.isValid()) {
     edm::LogError("TrackerHitProducer::fillG4MC")
       << "Unable to find HepMCProduct in event!";
