@@ -1,5 +1,5 @@
 /*  
- *  $Date: 2005/06/06 19:29:37 $
+ *  $Date: 2005/07/26 15:10:51 $
  *  $Revision: 1.1 $
  *  \author J. Mans -- UMD
  */
@@ -11,6 +11,7 @@
 #include "HcalDCCHeader.h"
 #endif
 #include <string.h>
+#include <stdint.h>
 
 const int HcalDCCHeader::SPIGOT_COUNT = 15;
 
@@ -44,6 +45,11 @@ void HcalDCCHeader::clear() {
     spigotInfo[i]=0;
 }
 
+void HcalDCCHeader::setHeader(int sourceid, int bcn, int l1aN, int orbN) {
+  commondataformat0=0x8|((sourceid&0xFFF)<<8)|((bcn&0xFFF)<<20);
+  commondataformat1=0x50000000u|(l1aN&0xFFFFFF);
+}
+
 void HcalDCCHeader::copySpigotData(unsigned int spigot_id, const HcalHTRData& data, bool valid, unsigned char LRB_error_word) {
   if (spigot_id>=(unsigned int)SPIGOT_COUNT) return;
   // construct the spigot info
@@ -57,6 +63,12 @@ void HcalDCCHeader::copySpigotData(unsigned int spigot_id, const HcalHTRData& da
   for (unsigned int i=0; i<spigot_id; i++) lenSoFar+=getSpigotDataLength(i);
   unsigned short* startingPoint=((unsigned short*)this)+sizeof(HcalDCCHeader)/sizeof(unsigned short)+lenSoFar*2;
   memcpy(startingPoint,data.getRawData(),sizeof(unsigned short)*data.getRawLength());
+  // update the trailer...
+  lenSoFar+=data.getRawLength()/2; // 32-bit words
+  uint32_t* trailer=((uint32_t*)this)+sizeof(HcalDCCHeader)/sizeof(uint32_t)+lenSoFar;
+  int len64=sizeof(HcalDCCHeader)/8+lenSoFar/2+1; 
+  trailer[0]=0;
+  trailer[1]=0xA0000000u|len64;
 }
 
 std::ostream& operator<<(std::ostream& s, const HcalDCCHeader& head) {

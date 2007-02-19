@@ -8,8 +8,8 @@
  *  Since this class requires external specification of the length of the data, it is implemented 
  *  as an interpreter, rather than a cast-able header class.
  *
- *  $Date: 2005/11/14 22:38:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/04 19:23:57 $
+ *  $Revision: 1.3 $
  *  \author J. Mans - UMD
  */
 
@@ -25,6 +25,7 @@ class HcalHTRData {
   HcalHTRData(const HcalHTRData&);
 
   HcalHTRData& operator=(const HcalHTRData&);
+  void allocate(int version_to_create=0);
   void adoptData(const unsigned short* data, int length);
 
   /** \brief Get the version number of this event */
@@ -78,7 +79,7 @@ class HcalHTRData {
   void pack(unsigned char* daq_lengths, unsigned short* daq_samples,
             unsigned char* tp_lengths, unsigned short* tp_samples, bool do_capid=false);
   /** \brief pack header and trailer (call _after_ pack)*/
-  void packHeaderTrailer(int L1Anumber, int bcn, int submodule, int orbitn, int pipeline, int firmwareRev=0);
+  void packHeaderTrailer(int L1Anumber, int bcn, int submodule, int orbitn, int pipeline, int ndd, int firmwareRev=0);
 
   /** \brief Get the HTR event number */
   inline unsigned int getL1ANumber() const { return (m_rawConst[0]&0xFF)+(m_rawConst[1]<<8); }

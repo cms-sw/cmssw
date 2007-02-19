@@ -10,7 +10,7 @@ class HcalHTRData;
  *  Interpretive class for an HcalDCCHeader
  *   
  *
- *  $Date: 2005/06/06 19:29:29 $
+ *  $Date: 2005/07/26 15:10:51 $
  *  $Revision: 1.1 $
  *  \author J. Mans - UMD
  */
@@ -52,6 +52,8 @@ class HcalDCCHeader {
 
   /** clear the contents of this header */
   void clear();
+  /** setup the header */
+  void setHeader(int sourceid, int bcn, int l1aN, int orbN);
 
   /** get the source id from the CDF header */
   inline int getSourceId() const { return (commondataformat0>>8)&0xFFF; }

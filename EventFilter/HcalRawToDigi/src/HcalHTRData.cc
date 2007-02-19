@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2005/11/14 22:41:39 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/04 19:23:58 $
+ *  $Revision: 1.3 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -22,7 +22,13 @@ HcalHTRData::HcalHTRData(const unsigned short* data, int length) {
   m_ownData=0;
 }
 HcalHTRData::HcalHTRData(const HcalHTRData& hd) : m_formatVersion(hd.m_formatVersion), m_rawLength(hd.m_rawLength), m_rawConst(hd.m_rawConst), m_ownData(0) { }
+
 HcalHTRData::HcalHTRData(int version_to_create) : m_formatVersion(version_to_create) {
+  allocate(version_to_create);
+}
+
+void HcalHTRData::allocate(int version_to_create) {
+  m_formatVersion=version_to_create;
   // the needed space is for the biggest possible event...
   const int needed=0x200;
   // create a buffer big enough...
@@ -97,7 +103,8 @@ void HcalHTRData::determineSectionLengths(int& tpWords, int& daqWords, int& head
     trailerWords=12;
   } else {
     tpWords=m_rawConst[5]>>8;
-    daqWords=m_rawConst[m_rawLength-4]&0x7FF; // zero suppression supported
+    if (m_rawLength>4) 
+      daqWords=m_rawConst[m_rawLength-4]&0x7FF; // zero suppression supported
     headerWords=8;
     trailerWords=4; // minimum, may be more...
   }
@@ -227,14 +234,19 @@ void HcalHTRData::pack(unsigned char* daq_lengths, unsigned short* daq_samples,
   } else {
     m_ownData[5]=(tp_words_total<<8)|0x1;
     unsigned short totalLen=headerLen+tp_words_total+daq_words_total+trailerLen;
+    if ((totalLen%2)==1) {
+      m_ownData[totalLen-4]=0xFFFF; // parity word
+      totalLen++; // round to even number of 16-bit words
+    }
     m_rawLength=totalLen;
+    m_ownData[totalLen-2]=totalLen/2; // 32-bit words
     m_ownData[totalLen-3]=totalLen;
-    m_ownData[totalLen-4]=0xf800|daq_words_total;
+    m_ownData[totalLen-4]=daq_words_total;
   }
 
 }
 
-void HcalHTRData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, int orbitn, int pipeline, int firmwareRev) {
+void HcalHTRData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, int orbitn, int pipeline, int ndd, int firmwareRev) {
   m_ownData[0]=L1Anumber&0xFF;
   m_ownData[1]=(L1Anumber&0xFFFF00)>>8;
   if (m_formatVersion==-1) {
@@ -249,8 +261,10 @@ void HcalHTRData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, int o
     //m_ownData[5]
     m_ownData[6]=((firmwareRev&0x70000)>>3)|(firmwareRev&0x1FFF);
     m_ownData[7]=pipeline&0xFF;
+    m_ownData[m_rawLength-4]&=0x7FF;
+    m_ownData[m_rawLength-4]|=(ndd&0x1F)<<11;
   }
-  m_ownData[m_rawLength-2]=0;
+  m_ownData[m_rawLength-2]=m_rawLength/2; // 32-bit words
   m_ownData[m_rawLength-1]=(L1Anumber&0xFF)<<8;
 }
 
