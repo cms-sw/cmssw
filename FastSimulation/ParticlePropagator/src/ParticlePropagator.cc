@@ -69,17 +69,18 @@ ParticlePropagator::ParticlePropagator(const FSimTrack& simTrack,
   initProperDecayTime();
 }
 
-ParticlePropagator::ParticlePropagator(ParticlePropagator& myPropPart) :
+ParticlePropagator::ParticlePropagator(const ParticlePropagator& myPropPart) :
   BaseParticlePropagator(myPropPart)
 {  
   //  setMagneticField(fieldMap(x(),y(),z()));
 }
 
-ParticlePropagator::ParticlePropagator(BaseParticlePropagator myPropPart) :
+ParticlePropagator::ParticlePropagator(const BaseParticlePropagator& myPropPart) :
   BaseParticlePropagator(myPropPart)
 {  
   //  setMagneticField(fieldMap(x(),y(),z()));
 }
+
 
 void 
 ParticlePropagator::initProperDecayTime() {

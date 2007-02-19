@@ -58,9 +58,10 @@ public:
   ParticlePropagator(const FSimTrack& simTrack,
 		     const RandomEngine* engine);
 
-  /** Constructora with a (Base)ParticlePropagator*/
-  ParticlePropagator(ParticlePropagator& myPropPart);
-  ParticlePropagator(BaseParticlePropagator myPropPart);
+  /** Constructor with a (Base)ParticlePropagator*/
+  ParticlePropagator(const ParticlePropagator& myPropPart);
+  //  ParticlePropagator(BaseParticlePropagator myPropPart);
+  ParticlePropagator(const BaseParticlePropagator &myPropPart);
 
   /**Initialize the proper decay time of the particle*/
   void initProperDecayTime();
