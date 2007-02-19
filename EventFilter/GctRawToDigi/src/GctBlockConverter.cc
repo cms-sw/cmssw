@@ -15,11 +15,14 @@ using std::endl;
 GctBlockConverter::GctBlockConverter() {
 
   // setup block length map
-  blockLength_[0x68] = 4;
-  blockLength_[0x69] = 16;
-  blockLength_[0x88] = 16;
-  blockLength_[0x89] = 12;
-  blockLength_[0x8B] = 4;
+  blockLength_[0x68] = 4;   // ConcElec: Output to Global Trigger
+  blockLength_[0x69] = 16;  // ConcElec: Sort Input
+  blockLength_[0x80] = 20;  // Leaf-U1, Elec, NegEta, Sort Input
+  blockLength_[0x81] = 15;  // Leaf-U1, Elec, NegEta, Raw Input
+  blockLength_[0x83] = 4;   // Leaf-U1, Elec, NegEta, Sort Output
+  blockLength_[0x88] = 16;  // Leaf-U2, Elec, NegEta, Sort Input
+  blockLength_[0x89] = 12;  // Leaf-U2, Elec, NegEta, Raw Input
+  blockLength_[0x8B] = 4;   // Leaf-U2, Elec, NegEta, Sort Output
 
   // setup converter fn map
   //  convertFn_[0x68] = &GctBlockConverter::wordToGctEmCand;
@@ -43,15 +46,26 @@ unsigned GctBlockConverter::blockLength(unsigned id) {
 void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id, unsigned nSamples) {
 
   switch (id) {
-  case (0x68) : 
-      blockToGctEmCand(data, id, nSamples);
-      break;
+  case (0x68) :
+    blockToGctEmCand(data, id, nSamples);
+    break;
   case (0x69) : 
-      blockToGctInterEmCand(data, id, nSamples);
-      break;
-  case (0x89) : 
-      blockToRctEmCand(data, id, nSamples);
-      break;
+    blockToGctInterEmCand(data, id, nSamples);
+    break;
+  case (0x80) :
+    break;
+  case (0x81) :
+    blockToRctEmCand(data, id, nSamples);
+    break;
+  case (0x83) :
+    break;
+  case (0x88) :
+    break;
+  case (0x89) :
+    blockToRctEmCand(data, id, nSamples);
+    break;
+  case (0x8B) :
+    break;
   default:
     std::cout << "Trying to unpack an identified block!" << std::endl;
     break;
