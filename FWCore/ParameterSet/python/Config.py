@@ -12,9 +12,12 @@ class SortedKeysDict(dict):
         dict.__init__(self,*args,**kw)
         self.list = list()
         if len(args) == 1:
-            if hasattr(args[0],'iterkeys'):
-                self.list=list(args[0].iterkeys())
-
+            if not hasattr(args[0],'iterkeys'):
+                self.list= [ x[0] for x in iter(args[0])]
+            else:
+                self.list = list(args[0].iterkeys())
+            return
+        self.list = list(super(SortedKeysDict,self).iterkeys())
     def __iter__(self):
         for key in self.list:
             yield key
@@ -1368,8 +1371,19 @@ if __name__=="__main__":
             for key in sd2.iterkeys():
                 self.assertEqual(count,sd2[key])
                 count +=1
-            
+            sd3 = SortedKeysDict([('a',1),('b',2),('c',3),('d',4)])
+            count =1
+            for key in sd3.iterkeys():
+                self.assertEqual(count,sd3[key])
+                count +=1
+            self.assertEqual(count-1,len(sd3))
+            sd3 = SortedKeysDict(a=1,b=2,c=3,d=4)
+            count =1
+            for key in sd3.iterkeys():
+                count +=1
+            self.assertEqual(count-1,len(sd3))
         
+
         def testSortedAndFixedKeysDict(self):
             import operator
             sd = SortedAndFixedKeysDict({'a':1, 'b':[3]})
