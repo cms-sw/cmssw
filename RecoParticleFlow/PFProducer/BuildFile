@@ -8,7 +8,7 @@
 <use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/TrackCandidate>
 <use name=DataFormats/TrajectorySeed>
-<use name=DataFormats/Candidate>
+<use name=DataFormats/ParticleFlowCandidate>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
 <use name=Geometry/TrackerGeometryBuilder>
@@ -36,7 +36,7 @@
    <use name=DataFormats/TrackingRecHit>
    <use name=DataFormats/TrackCandidate>
    <use name=DataFormats/TrajectorySeed>
-   <use name=DataFormats/Candidate>
+   <use name=DataFormats/ParticleFlowCandidate>
    <use name=MagneticField/Engine>
    <use name=MagneticField/Records>
    <use name=Geometry/TrackerGeometryBuilder>

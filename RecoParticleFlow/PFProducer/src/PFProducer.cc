@@ -20,8 +20,9 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
-// #include "DataFormats/Candidate/interface/CandidateFwd.h"
+// #include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -102,7 +103,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) :
   // register products
   produces<reco::PFSimParticleCollection>();
   produces<reco::PFRecTrackCollection>();
-  produces<reco::CandidateCollection>();
+  produces<reco::PFCandidateCollection>();
+  // produces<reco::CandidateCollection>();
   
 
   // initialize track reconstruction ------------------------------
@@ -263,8 +265,10 @@ void PFProducer::produce(Event& iEvent,
     pOutputPFRecTrackCollection(new reco::PFRecTrackCollection);
   auto_ptr< reco::PFSimParticleCollection > 
     pOutputPFSimParticleCollection(new reco::PFSimParticleCollection ); 
-  auto_ptr< reco::CandidateCollection > 
-    pOutputCandidateCollection(new reco::CandidateCollection ); 
+  auto_ptr< reco::PFCandidateCollection > 
+    pOutputCandidateCollection(new reco::PFCandidateCollection ); 
+//   auto_ptr< reco::CandidateCollection > 
+//     pOutputCandidateCollection(new reco::CandidateCollection ); 
   
 
   // deal with RecTracks
@@ -551,9 +555,30 @@ void PFProducer::produce(Event& iEvent,
 	char charge = static_cast<char> ( recparts[ip].charge() );
 	const math::XYZTLorentzVector& mom = recparts[ip].momentum();
 	
-	reco::LeafCandidate* candidate 
-	  = new reco::LeafCandidate( charge, mom );
-	pOutputCandidateCollection->push_back( candidate ); 
+	int type = recparts[ip].type();
+	
+	reco::PFCandidate::ParticleType id 
+	  = reco::PFCandidate::X;
+	switch( type ) {
+	case 211:
+	case 11:   // charged hadron
+	  id = reco::PFCandidate::h; 
+	  break; 
+	case 22:   // photon
+	  id = reco::PFCandidate::gamma; 
+	  break; 
+	case 130:  // neutral hadron
+	  id = reco::PFCandidate::h0; 
+	  break; 
+	}
+
+	reco::PFCandidate* candidate 
+	  = new reco::PFCandidate( charge, mom, id );
+	pOutputCandidateCollection->push_back( *candidate ); 
+
+// 	reco::PFCandidate* candidate 
+// 	  = new reco::PFCandidate( charge, mom, id );
+// 	pOutputCandidateCollection->push_back( candidate ); 
 
 	str<<recparts[ip]<<endl;
       } 
