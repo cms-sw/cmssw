@@ -21,16 +21,19 @@ class SingleTrackVertexConstraint {
 
 public:
 
+  typedef std::pair<reco::TransientTrack, float> TrackFloatPair;
   /** 
-   *  The method which does the constaint, from a TransientTrack
+   *  The method which does the constaint, from a TransientTrack.
+   *  The track must NOT have been used in the vertex fit.
    */
-  reco::TransientTrack constrain(const reco::TransientTrack & track, 
+  TrackFloatPair constrain(const reco::TransientTrack & track, 
 	const GlobalPoint& priorPos, const GlobalError& priorError) const;
 
   /** 
    *  The method which does the constaint, from a FreeTrajectoryState
+   *  The track must NOT have been used in the vertex fit.
    */
-  reco::TransientTrack constrain(const FreeTrajectoryState & fts, 
+  TrackFloatPair constrain(const FreeTrajectoryState & fts,
 	const GlobalPoint& priorPos, const GlobalError& priorError) const;
 
 

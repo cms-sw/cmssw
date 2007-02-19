@@ -5,7 +5,7 @@
 using namespace std;
 using namespace reco;
 
-TransientTrack SingleTrackVertexConstraint::constrain(
+SingleTrackVertexConstraint::TrackFloatPair SingleTrackVertexConstraint::constrain(
 	const TransientTrack & track, const GlobalPoint& priorPos,
 	const GlobalError & priorError) const
 { 
@@ -24,10 +24,10 @@ TransientTrack SingleTrackVertexConstraint::constrain(
   vertex = vertexUpdator.add(vertex, vertexTrack);
   RefCountedVertexTrack nTrack = theVertexTrackUpdator.update(vertex, vertexTrack);
 
-  return nTrack->refittedState()->transientTrack() ;
+  return TrackFloatPair(nTrack->refittedState()->transientTrack(), nTrack->smoothedChi2()) ;
 }
 
-TransientTrack SingleTrackVertexConstraint::constrain(
+SingleTrackVertexConstraint::TrackFloatPair SingleTrackVertexConstraint::constrain(
 	const FreeTrajectoryState & fts, const GlobalPoint& priorPos,
 	const GlobalError& priorError) const
 { 
