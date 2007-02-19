@@ -102,35 +102,5 @@ float KalmanVertexTrackCompatibilityEstimator::estimateDifference
 	(const CachingVertex & more, const CachingVertex & less, 
          const RefCountedVertexTrack track) const
 {
-//initial vertex position
- GlobalPoint iPos = more.position();
- AlgebraicVector iV(3);
- iV[0] = iPos.x();
- iV[1] = iPos.y();
- iV[2] = iPos.z();
-
-//position and covariance matrix after removing 
- GlobalPoint rPos = less.position();
- AlgebraicSymMatrix nWeight = less.weight().matrix();
- AlgebraicVector rV(3);
- rV[0] = rPos.x();
- rV[1] = rPos.y();
- rV[2] = rPos.z();
-
-//smoothed residuals
- AlgebraicVector parameterResiduals = 
-	  track->linearizedTrack()->predictedStateParameters() -
-//	  track->linearizedTrack()->predictedState().perigeeParameters().vector() - 
-	  track->refittedParamFromEquation();
-//position residuals
- AlgebraicVector posResiduals = iV - rV;	
-   
-//track parameters weight
-  AlgebraicSymMatrix w = track->linearizedTrack()->predictedStateWeight();
-  //track->linearizedTrack()->predictedState().perigeeError().weightMatrix();  
-   
-//chi2   
- return(nWeight.similarity(posResiduals) + w.similarity(parameterResiduals));
-
+  return helper.vertexChi2(less, more) + helper.trackParameterChi2(track);
 }
-

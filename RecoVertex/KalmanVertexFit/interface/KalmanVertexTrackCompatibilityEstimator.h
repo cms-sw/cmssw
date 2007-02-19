@@ -10,6 +10,7 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackUpdator.h"
 #include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
+#include "RecoVertex/KalmanVertexFit/interface/KVFHelper.h"
 
   /**
    * Calculates the compatiblity of a track with respect to a vertex 
@@ -62,6 +63,7 @@ private:
   KalmanVertexTrackUpdator trackUpdator;
   LinearizedTrackStateFactory lTrackFactory;
   VertexTrackFactory vTrackFactory;
+  KVFHelper helper;
 
 };
 

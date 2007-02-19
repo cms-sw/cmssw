@@ -2,7 +2,7 @@
 #define KalmanVertexUpdator_H
 
 #include "RecoVertex/VertexPrimitives/interface/VertexUpdator.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackUpdator.h"
+#include "RecoVertex/KalmanVertexFit/interface/KVFHelper.h"
 
 /**
  *  Vertex updator for the Kalman vertex filter.
@@ -39,22 +39,6 @@ public:
     return new KalmanVertexUpdator(* this);
    }
 
-
-private:
-
-    /**
-     * Calculates the chi**2 increment
-     */
-
-    float vertexPositionChi2(const VertexState& oldVertex,
-                             const GlobalPoint& newVertexPosition) const;
-
-    KalmanVertexTrackUpdator trackUpdator;
-
-public:
-
-  friend class KalmanVertexTrackCompatibilityEstimator;
-
     /**
      * The methode which actually does the vertex update.
      */
@@ -70,6 +54,16 @@ public:
 	 const VertexState & newVertexState,
 	 const RefCountedLinearizedTrackState linearizedTrack, 
 	 float weight) const; 
+
+private:
+
+    /**
+     * Calculates the chi**2 increment
+     */
+
+  float vertexPositionChi2(const VertexState& oldVertex,
+                           const GlobalPoint& newVertexPosition) const;
+  KVFHelper helper;
 
 };
 

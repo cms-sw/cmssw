@@ -177,7 +177,8 @@ double KalmanVertexUpdator::chi2Increment(const VertexState & oldVertex,
 
   double chi2 = weight * trackParametersWeight.similarity( parameterResiduals );
 
-  chi2 += vertexPositionChi2(oldVertex, newVertexPosition);
+//   chi2 += vertexPositionChi2(oldVertex, newVertexPosition);
+  chi2 += helper.vertexChi2(oldVertex, newVertexState);
 
   return chi2;
 }

@@ -3,6 +3,7 @@
 
 #include "RecoVertex/VertexPrimitives/interface/VertexSmoothedChiSquaredEstimator.h"
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
+#include "RecoVertex/KalmanVertexFit/interface/KVFHelper.h"
 
   /**
    * Class to calculate the smoothed chi**2 of the vertex using the Kalman 
@@ -27,26 +28,9 @@ public:
    return new KalmanSmoothedVertexChi2Estimator(* this);
   }
    
+private:
 
-  /**
-   *  Methode which calculates the chi**2 between the prior and the fitted vertex.
-   *  This method will not take into account multiple states, so in case one of
-   *  the VertexStates is a multi-state vertex, only the mean will be used.
-   *  \param priorVertex The prior vertex state
-   *  \param fittedVertex The fitted vertex state
-   */
-  double priorVertexChi2(const VertexState priorVertex, 
-	const VertexState fittedVertex) const;
-
-  /**
-   *  Methode which calculates the chi**2 between the prior and the fitted 
-   *   track parameters.
-   *  \param linTrack	The track as linearized
-   *  \param refittedTrackState The refitted track
-   */
-  float trackParameterChi2(const RefCountedLinearizedTrackState linTrack, 
-	const RefCountedRefittedTrackState refittedTrackState) const;
-   
+  KVFHelper helper;
 };
 
 #endif

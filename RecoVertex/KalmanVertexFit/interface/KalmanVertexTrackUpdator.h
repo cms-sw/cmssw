@@ -4,9 +4,9 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexTrackUpdator.h"
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexTrack.h"
-// #include "Utilities/GenUtil/interface/ReferenceCountingPointer.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
-//#include "CommonReco/PatternTools/interface/PerigeeConversions.h"
+#include "RecoVertex/KalmanVertexFit/interface/KVFHelper.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
 
 /** \class KalmanVertexTrackUpdator
  *  Performs the refit of the tracks with the vertex constraint, 
@@ -59,7 +59,8 @@ public:
 
 private:
   VertexTrackFactory theVTFactory;
-//  PerigeeConversions perigeeConversions;
+  KVFHelper helper;
+  KalmanVertexUpdator updator;
 };
 
 #endif
