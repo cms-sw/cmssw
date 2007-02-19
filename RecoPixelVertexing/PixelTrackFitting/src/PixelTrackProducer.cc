@@ -164,8 +164,8 @@ void PixelTrackProducer::store(edm::Event& ev, const TracksWithRecHits & cleaned
     reco::TrackExtra* theTrackExtra = new reco::TrackExtra();
 
     //fill the TrackExtra with TrackingRecHitRef
-    for(int i = 0; i < 3; i++)
-    {
+    unsigned int nHits = tracks->at(k).numberOfValidHits();
+    for(unsigned int i = 0; i < nHits; ++i) {
       theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
       cc++;
     }
