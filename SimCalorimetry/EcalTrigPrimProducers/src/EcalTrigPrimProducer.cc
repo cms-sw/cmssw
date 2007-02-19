@@ -125,19 +125,26 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
 
   edm::Handle<EBDigiCollection> ebDigis;
   edm::Handle<EEDigiCollection> eeDigis;
-  bool barrel=true, endcap=true;
+  bool barrel=true;
+  bool endcap=true;
+  if (barrelOnly_) endcap=false;
+
   try{e.getByLabel(label_,instanceNameEB_,ebDigis);}
   catch(cms::Exception &e) {
     barrel=false;
-    edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes";
+    edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes with producer "<<label_<<" and label "<<instanceNameEB_;
   }
-  try{e.getByLabel(label_,instanceNameEE_,eeDigis);}
-  catch(cms::Exception &e) {
-    endcap=false;
-    edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes";
+  if (!barrelOnly_) {
+    try{e.getByLabel(label_,instanceNameEE_,eeDigis);}
+    catch(cms::Exception &e) {
+      endcap=false;
+      edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes with producer "<<label_<<" and label "<<instanceNameEE_;
+    }
   }
 
-  LogDebug("EcalTPG") <<" =================> Treating event  "<<e.id()<<", Number of EBDataFrames "<<ebDigis.product()->size()<<", Number of EEDataFrames "<<eeDigis.product()->size() ;
+  if (!barrelOnly_)   LogDebug("EcalTPG") <<" =================> Treating event  "<<e.id()<<", Number of EBDataFrames "<<ebDigis.product()->size()<<", Number of EEDataFrames "<<eeDigis.product()->size() ;
+  else  LogDebug("EcalTPG") <<" =================> Treating event  "<<e.id()<<", Number of EBDataFrames "<<ebDigis.product()->size();
+
   std::auto_ptr<EcalTrigPrimDigiCollection> pOut(new  EcalTrigPrimDigiCollection);
   std::auto_ptr<EcalTrigPrimDigiCollection> pOutTcp(new  EcalTrigPrimDigiCollection);
  
@@ -158,8 +165,8 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
     if (print) LogDebug("EcalTPG") <<" For tower  "<<(((*pOut)[i])).id()<<", TP is "<<(*pOut)[i];
   }
 
-  edm::LogInfo("EcalTPG") <<"\n =================> For Barrel + Endcap, "<<pOut->size()<<" TP  Digis were produced (including zero ones)";
-    
+  if (barrelOnly_)  edm::LogInfo("EcalTPG") <<"\n =================> For Barrel , "<<pOut->size()<<" TP  Digis were produced (including zero ones)";
+  else      edm::LogInfo("EcalTPG") <<"\n =================> For Barrel + Endcap, "<<pOut->size()<<" TP  Digis were produced (including zero ones)";
   // put result into the Event
   e.put(pOut);
   if (tcpFormat_) e.put(pOutTcp,"formatTCP");
