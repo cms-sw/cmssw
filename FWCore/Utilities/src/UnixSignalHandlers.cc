@@ -89,7 +89,7 @@ namespace edm {
 
 //--------------------------------------------------------------
 
-    void enableSignal( sigset_t* newset, int signum )
+    void enableSignal( sigset_t* newset, const int signum )
     {
       // enable the specified signal
       MUST_BE_ZERO(sigaddset(newset, signum));
@@ -98,7 +98,7 @@ namespace edm {
 
 //--------------------------------------------------------------
 
-    void disableSignal( sigset_t* newset, int signum )
+    void disableSignal( sigset_t* newset, const int signum )
     {
       // disable the specified signal
       MUST_BE_ZERO(sigdelset(newset, signum));
@@ -106,7 +106,7 @@ namespace edm {
 
 //--------------------------------------------------------------
 
-    void installCustomHandler( int signum, CFUNC func )
+    void installCustomHandler( const int signum, CFUNC func )
     {
       sigset_t oldset;
       edm::disableAllSigs(&oldset);
@@ -119,7 +119,7 @@ namespace edm {
 
 //--------------------------------------------------------------
 
-    void installSig( int signum, CFUNC func )
+    void installSig( const int signum, CFUNC func )
     {
       // set up my RT signal now
       struct sigaction act;
@@ -129,6 +129,13 @@ namespace edm {
       
       // get my signal number
       int mysig = signum;
+      if( mysig == SIGKILL ) {
+	perror("Cannot install handler for KILL signal");
+	return;
+      } else if( mysig == SIGSTOP ) {
+	 perror("Cannot install handler for STOP signal");
+	return;
+      }
       
       if(sigaction(mysig,&act,NULL) != 0) {
 	  perror("sigaction failed");
