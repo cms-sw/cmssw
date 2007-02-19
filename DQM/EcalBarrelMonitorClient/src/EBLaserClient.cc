@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/02/13 18:57:06 $
- * $Revision: 1.139 $
+ * $Date: 2007/02/17 14:36:00 $
+ * $Revision: 1.140 $
  * \author G. Della Ricca
  *
 */
@@ -3005,13 +3005,25 @@ void EBLaserClient::analyze(void){
 
           if ( ie < 6 || ip > 10 ) {
 
-            if ( met01_[ism-1] ) met01_[ism-1]->setBinContent( ip+20*(ie-1), mean09 );
-            if ( met01_[ism-1] ) met01_[ism-1]->setBinError( ip+20*(ie-1), rms09 );
+            if ( met01_[ism-1] ) {
+              if ( mean09 > 0. ) {
+                met01_[ism-1]->setBinContent( ip+20*(ie-1), mean09 );
+                met01_[ism-1]->setBinError( ip+20*(ie-1), rms09 );
+              } else {
+                met01_[ism-1]->setEntries(1.+met01_[ism-1]->getEntries());
+              }
+            }
 
           } else {
 
-            if ( met05_[ism-1] ) met05_[ism-1]->setBinContent( ip+20*(ie-1), mean09 );
-            if ( met05_[ism-1] ) met05_[ism-1]->setBinError( ip+20*(ie-1), rms09 );
+            if ( met05_[ism-1] ) {
+              if ( mean09 > 0. ) {
+                met05_[ism-1]->setBinContent( ip+20*(ie-1), mean09 );
+                met05_[ism-1]->setBinError( ip+20*(ie-1), rms09 );
+              } else {
+                met05_[ism-1]->setEntries(1.+met05_[ism-1]->getEntries());
+              }
+            }
 
           }
 
@@ -3021,13 +3033,25 @@ void EBLaserClient::analyze(void){
 
           if ( ie < 6 || ip > 10 ) {
 
-            if ( met02_[ism-1] ) met02_[ism-1]->setBinContent( ip+20*(ie-1), mean10 );
-            if ( met02_[ism-1] ) met02_[ism-1]->setBinError( ip+20*(ie-1), rms10 );
+            if ( met02_[ism-1] ) {
+              if ( mean10 > 0. ) {
+                met02_[ism-1]->setBinContent( ip+20*(ie-1), mean10 );
+                met02_[ism-1]->setBinError( ip+20*(ie-1), rms10 );
+              } else {
+                met02_[ism-1]->setEntries(1.+met02_[ism-1]->getEntries());
+              }
+            }
 
           } else {
 
-            if ( met06_[ism-1] ) met06_[ism-1]->setBinContent( ip+20*(ie-1), mean10 );
-            if ( met06_[ism-1] ) met06_[ism-1]->setBinError( ip+20*(ie-1), rms10 );
+            if ( met06_[ism-1] ) {
+              if ( mean10 > 0. ) {
+                met06_[ism-1]->setBinContent( ip+20*(ie-1), mean10 );
+                met06_[ism-1]->setBinError( ip+20*(ie-1), rms10 );
+              } else {
+                met06_[ism-1]->setEntries(1.+met06_[ism-1]->getEntries());
+              }
+            }
 
           }
 
@@ -3037,13 +3061,25 @@ void EBLaserClient::analyze(void){
 
           if ( ie < 6 || ip > 10 ) {
 
-            if ( met03_[ism-1] ) met03_[ism-1]->setBinContent( ip+20*(ie-1), mean11 );
-            if ( met03_[ism-1] ) met03_[ism-1]->setBinError( ip+20*(ie-1), rms11 );
+            if ( met03_[ism-1] ) {
+              if ( mean11 > 0. ) {
+                met03_[ism-1]->setBinContent( ip+20*(ie-1), mean11 );
+                met03_[ism-1]->setBinError( ip+20*(ie-1), rms11 );
+              } else {
+                met03_[ism-1]->setEntries(1.+met03_[ism-1]->getEntries());
+              }
+            }
 
           } else {
 
-            if ( met07_[ism-1] ) met07_[ism-1]->setBinContent( ip+20*(ie-1), mean11 );
-            if ( met07_[ism-1] ) met07_[ism-1]->setBinError( ip+20*(ie-1), rms11 );
+            if ( met07_[ism-1] ) {
+              if ( mean11 > 0. ) {
+                met07_[ism-1]->setBinContent( ip+20*(ie-1), mean11 );
+                met07_[ism-1]->setBinError( ip+20*(ie-1), rms11 );
+              } else {
+                met07_[ism-1]->setEntries(1.+met07_[ism-1]->getEntries());
+              }
+            }
 
           }
 
@@ -3053,13 +3089,25 @@ void EBLaserClient::analyze(void){
 
           if ( ie < 6 || ip > 10 ) {
 
-            if ( met04_[ism-1] ) met04_[ism-1]->setBinContent( ip+20*(ie-1), mean12 );
-            if ( met04_[ism-1] ) met04_[ism-1]->setBinError( ip+20*(ie-1), rms12 );
+            if ( met04_[ism-1] ) {
+              if ( mean12 > 0. ) {
+                met04_[ism-1]->setBinContent( ip+20*(ie-1), mean12 );
+                met04_[ism-1]->setBinError( ip+20*(ie-1), rms12 );
+              } else {
+                met04_[ism-1]->setEntries(1.+met04_[ism-1]->getEntries());
+              }
+            }
 
           } else {
 
-            if ( met08_[ism-1] ) met08_[ism-1]->setBinContent( ip+20*(ie-1), mean12 );
-            if ( met08_[ism-1] ) met08_[ism-1]->setBinError( ip+20*(ie-1), rms12 );
+            if ( met08_[ism-1] ) {
+              if ( mean12 > 0. ) {
+                met08_[ism-1]->setBinContent( ip+20*(ie-1), mean12 );
+                met08_[ism-1]->setBinError( ip+20*(ie-1), rms12 );
+              } else {
+                met08_[ism-1]->setEntries(1.+met08_[ism-1]->getEntries());
+              }
+            }
 
           }
 
