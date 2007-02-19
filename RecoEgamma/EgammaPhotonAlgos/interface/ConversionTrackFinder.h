@@ -4,9 +4,9 @@
 /** \class ConversionTrackFinder
  **  
  **
- **  $Id: ConversionTrackFinder.h,v 1.3 2006/07/10 17:55:25 nancy Exp $ 
- **  $Date: 2006/07/10 17:55:25 $ 
- **  $Revision: 1.3 $
+ **  $Id: ConversionTrackFinder.h,v 1.4 2006/12/19 17:35:31 nancy Exp $ 
+ **  $Date: 2006/12/19 17:35:31 $ 
+ **  $Revision: 1.4 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -46,16 +46,9 @@ class ConversionTrackFinder {
     {
     }
 
-
-  //  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds, TrackCandidateCollection &candidates, reco::TrackCandidateSuperClusterAssociationCollection& outAssoc, int iSC ) const =0;
   
   virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds , TrackCandidateCollection &candidate) const =0;
   
-  //virtual std::vector<const Trajectory*> tracks(const TrajectorySeedCollection seeds ) const =0;
-  //virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds ) const =0;
-  //virtual  TrackCandidateCollection tracks(const TrajectorySeedCollection seeds ) const =0;
-  //  virtual std::auto_ptr<TrackCandidateCollection> tracks(const TrajectorySeedCollection seeds ) const =0;
-
 
  protected: 
   
