@@ -19,21 +19,27 @@
   * [LUT 1(127)] [LUT 2(127)] ...
   * </pre>
   *
-  * $Date: 2006/09/14 19:41:18 $
-  * $Revision: 1.2 $
+  * $Date: 2006/09/15 18:58:48 $
+  * $Revision: 1.3 $
   * \author M. Weinberger -- TAMU
   */
 class HcaluLUTTPGCoder : public HcalTPGCoder {
 public:
   HcaluLUTTPGCoder(const char* filename);
+  HcaluLUTTPGCoder(const char* ifilename, const char* ofilename);
   virtual ~HcaluLUTTPGCoder() {}
   virtual void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const ;
   virtual void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const;
+  virtual void compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const;  
 private:
-  void loadLUTs(const char* filename);
-  typedef std::vector<int> InputLUT;
-  std::vector<InputLUT> luts_;
-  const InputLUT* ietaLutMap_[41];
+  void loadILUTs(const char* filename);
+  void loadOLUTs(const char* filename);
+  typedef std::vector<int> LUTType;
+  std::vector<LUTType> inputluts_;
+  const LUTType* ietaILutMap_[41];
+  std::vector<LUTType> outputluts_;
+  const LUTType* ietaOLutMap_[32];
+  
 };
 
 #endif
