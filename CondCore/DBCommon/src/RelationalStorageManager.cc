@@ -42,17 +42,17 @@ coral::ISessionProxy* cond::RelationalStorageManager::connect(cond::ConnectMode 
 void cond::RelationalStorageManager::disconnect(){
   try{
     coral::ITransaction& transaction = m_proxy->transaction();
-    if ( transaction.isActive() && ( ! m_proxy->isConnectionShared() ) ) {
+    //if ( transaction.isActive() && ( ! m_proxy->isConnectionShared() ) ) {
+    if ( transaction.isActive() ) {
       if ( transaction.isReadOnly() ) {
-        if ( m_proxy->isConnectionShared() ) {
-          transaction.commit();
-        }
+	//if ( m_proxy->isConnectionShared() ) {
+	transaction.commit();
+	//}
       }else {
-        transaction.rollback();
+	transaction.rollback();
       }
     }
-  }catch(const coral::Exception&)
-  {
+  }catch(const coral::Exception&){
   }
   if ( m_proxy ) delete m_proxy;
   m_proxy = 0;
@@ -71,15 +71,17 @@ void cond::RelationalStorageManager::startTransaction(bool isReadOnly){
 }
 void cond::RelationalStorageManager::commit(){
   coral::ITransaction& transaction = m_proxy->transaction();
-  bool sharedConnection = m_proxy->isConnectionShared();
+  // bool sharedConnection = m_proxy->isConnectionShared();
   bool activeTransaction = transaction.isActive();
   try {
-    if(!activeTransaction && ! sharedConnection ) {
+    //if(!activeTransaction && ! sharedConnection ) {
+    if(!activeTransaction ) {
       if(m_proxy) delete m_proxy;
       m_proxy = 0;
       throw cond::Exception("RelationalStorageManager::commit cannot commit inactive transaction");
     }
-    if ( ! sharedConnection ) transaction.commit();
+    //if ( ! sharedConnection ) 
+    transaction.commit();
   }catch(const coral::Exception& e){
     if(m_proxy) delete m_proxy;
     m_proxy = 0;
@@ -88,10 +90,11 @@ void cond::RelationalStorageManager::commit(){
 }
 void cond::RelationalStorageManager::rollback(){
   coral::ITransaction& transaction = m_proxy->transaction();
-  bool sharedConnection = m_proxy->isConnectionShared();
+  //bool sharedConnection = m_proxy->isConnectionShared();
   bool activeTransaction = transaction.isActive();
   if ( activeTransaction ) {
-    if ( ! sharedConnection ) transaction.rollback();
+    //if ( ! sharedConnection ) 
+    transaction.rollback();
   }
 }
 std::string cond::RelationalStorageManager::connectionString() const{
