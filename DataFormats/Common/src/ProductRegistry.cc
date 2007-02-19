@@ -4,14 +4,15 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.12 2007/01/17 00:19:11 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.13 2007/01/19 04:29:40 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.12 2007/01/17 00:19:11 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.13 2007/01/19 04:29:40 wmtan Exp $";
 
 
 #include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <algorithm>
 #include <sstream>
@@ -22,6 +23,7 @@ namespace edm {
 			      bool fromListener) {
     throwIfFrozen();
     productDesc.init();
+    checkDictionaries(productDesc.fullClassName(), productDesc.transient());
     productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
     addCalled(productDesc,fromListener);
   }

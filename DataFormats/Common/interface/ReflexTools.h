@@ -7,7 +7,7 @@ ReflexTools provides a small number of Reflex-based tools, used in
 the CMS event model.  
 
 
-$Id: ReflexTools.h,v 1.3 2007/02/16 22:43:48 paterno Exp $
+$Id: ReflexTools.h,v 1.1 2007/02/17 23:24:56 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,6 +18,7 @@ namespace ROOT
   namespace Reflex
   {
     class Type;
+    class TypeTemplate;
     std::ostream& operator<< (std::ostream& os, Type const& t);  
     std::ostream& operator<< (std::ostream& os, TypeTemplate const& tt);
   }
@@ -52,6 +53,9 @@ namespace edm
   bool 
   is_sequence_wrapper(ROOT::Reflex::Type const& possible_sequence_wrapper,
 		      ROOT::Reflex::Type& found_sequence_value_type);
+
+
+  void checkDictionaries(std::string const& name, bool transient = false);
 
 }
 
