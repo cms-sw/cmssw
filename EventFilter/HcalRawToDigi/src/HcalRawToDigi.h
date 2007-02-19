@@ -33,7 +33,6 @@ public:
 private:
   HcalUnpacker unpacker_;
   HcalDataFrameFilter filter_;
-  std::string readoutMapSource_;
   std::vector<int> fedUnpackList_;
   int firstFED_;
   bool unpackCalib_, unpackZDC_;
