@@ -6,8 +6,8 @@
  *  Compute drift distance using constant drift velocity
  *  as defined in the "driftVelocity" parameter.
  *
- *  $Date: 2006/03/31 09:58:04 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/04/06 12:40:52 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -84,6 +84,8 @@ class DTLinearDriftAlgo : public DTRecHitBaseAlgo {
 
   // The Drift Velocity (cm/ns)
   static float vDrift;
+  // The Drift Velocity (cm/ns) for MB1 Wheel1 (non fluxed chamber) 21-Dec-2006 SL
+  static float vDriftMB1W1;
 
   // The resolution on the Hits (cm)
   static float hitResolution;

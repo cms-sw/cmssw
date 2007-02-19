@@ -1,13 +1,13 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/17 14:26:40 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/24 13:45:19 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "RecoLocalMuon/DTRecHit/src/DTParametrizedDriftAlgo.h"
-#include "RecoLocalMuon/DTRecHit/interface/DTTTrigBaseSync.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "RecoLocalMuon/DTRecHit/src/DTTime2DriftParametrization.h"
 
 #include "DataFormats/MuonDetId/interface/DTWireId.h"

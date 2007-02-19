@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/03 11:29:42 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/03/14 13:02:42 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane & G. Cerminara - INFN Torino
  */
 
@@ -11,7 +11,7 @@
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitBaseAlgo.h"
 
 #include "Geometry/DTGeometry/interface/DTLayer.h"
-#include "RecoLocalMuon/DTRecHit/interface/DTTTrigSyncFactory.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 using namespace std;

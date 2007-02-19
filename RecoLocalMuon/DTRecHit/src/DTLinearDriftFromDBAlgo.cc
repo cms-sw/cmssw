@@ -1,13 +1,13 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/09/06 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/09/13 09:40:17 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 
 #include "RecoLocalMuon/DTRecHit/src/DTLinearDriftFromDBAlgo.h"
-#include "RecoLocalMuon/DTRecHit/interface/DTTTrigBaseSync.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

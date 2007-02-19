@@ -1,13 +1,13 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/17 14:26:40 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/05/24 13:45:19 $
+ *  $Revision: 1.9 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "RecoLocalMuon/DTRecHit/src/DTLinearDriftAlgo.h"
-#include "RecoLocalMuon/DTRecHit/interface/DTTTrigBaseSync.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -21,6 +21,7 @@ DTLinearDriftAlgo::DTLinearDriftAlgo(const ParameterSet& config) :
   DTRecHitBaseAlgo(config) {
     // Get the Drift Velocity from parameter set. 
     vDrift = config.getParameter<double>("driftVelocity"); // FIXME: Default was 0.00543 cm/ns
+    vDriftMB1W1 = config.getParameter<double>("driftVelocityMB1W1"); // FIXME: Default was 0.00543 cm/ns
 
     minTime = config.getParameter<double>("minTime"); // FIXME: Default was -3 ns
 
@@ -113,7 +114,14 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
   if (driftTime<0.) driftTime=0;
 
   // Compute the drift distance
-  float drift = driftTime * vDrift;
+  // SL 21-Dec-2006: Use specific Drift for MB1W1 (non fluxed chamber)
+  float vd=vDrift;
+  if (wireId.wheel()==1 && wireId.station()==1) {
+    vd=vDriftMB1W1;
+    //cout << "Using Vd " << vd<< endl;
+  }
+
+  float drift = driftTime * vd;
 
   // Get Wire position
   LocalPoint locWirePos(layer->specificTopology().wirePosition(wireId.wire()), 0, 0);
@@ -183,6 +191,7 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
 
 
 float DTLinearDriftAlgo::vDrift;
+float DTLinearDriftAlgo::vDriftMB1W1;
 
   
 float DTLinearDriftAlgo::hitResolution;

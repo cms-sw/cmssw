@@ -9,10 +9,10 @@
 #include "RecoLocalMuon/DTRecHit/src/DTLinearDriftFromDBAlgo.h"
 #include "RecoLocalMuon/DTRecHit/src/DTParametrizedDriftAlgo.h"
 
-#include "RecoLocalMuon/DTRecHit/interface/DTTTrigSyncFactory.h"
-#include "RecoLocalMuon/DTRecHit/src/DTTTrigSyncTOFCorr.h"
-#include "RecoLocalMuon/DTRecHit/src/DTTTrigSyncT0Only.h"
-#include "RecoLocalMuon/DTRecHit/src/DTTTrigSyncFromDB.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
+#include "CalibMuon/DTDigiSync/src/DTTTrigSyncTOFCorr.h"
+#include "CalibMuon/DTDigiSync/src/DTTTrigSyncT0Only.h"
+#include "CalibMuon/DTDigiSync/src/DTTTrigSyncFromDB.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(DTRecHitProducer);
