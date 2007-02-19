@@ -11,6 +11,7 @@
 
 namespace {
   namespace {
+    L1GctInternEmCandCollection internEmCand;
     L1GctEmCandCollection emCand;
     L1GctJetCandCollection jetCand;
     L1GctEtTotal etTot;
@@ -18,6 +19,7 @@ namespace {
     L1GctEtMiss etMiss;
     L1GctJetCounts jetCounts;
 
+    edm::Wrapper<L1GctInternEmCandCollection> w_internEmCand;
     edm::Wrapper<L1GctEmCandCollection> w_emCand;
     edm::Wrapper<L1GctJetCandCollection> w_jetCand;
     edm::Wrapper<L1GctEtTotal> w_etTot;
@@ -25,6 +27,7 @@ namespace {
     edm::Wrapper<L1GctEtMiss> w_etMiss;
     edm::Wrapper<L1GctJetCounts> w_jetCounts;
 
+    edm::Ref<L1GctInternEmCandCollection> internEmRef ;
     edm::Ref<L1GctEmCandCollection> emRef ;
     edm::Ref<L1GctJetCandCollection> jetRef ;
     edm::RefProd<L1GctEtTotal> etTotRef ;
