@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2007/02/12 21:21:58 $
-$Revision: 1.15 $
+$Date: 2007/02/19 04:06:34 $
+$Revision: 1.16 $
 */
 
 #include <iostream>
@@ -20,7 +20,12 @@ HcalElectronicsMap::HcalElectronicsMap()
 namespace hcal_impl {
   static const int PartialEIdMask = 0x3fff;
     class LessById {public: bool operator () (const HcalElectronicsMap::Item* a, const HcalElectronicsMap::Item* b) {return a->mId < b->mId;}};
-    class LessByPartialEId {public: bool operator () (const HcalElectronicsMap::Item* a, const HcalElectronicsMap::Item* b) {return (a->mElId&PartialEIdMask) < (b->mId&PartialEIdMask);}};
+    class LessByPartialEId {
+    public: 
+      bool operator () (const HcalElectronicsMap::Item* a, const HcalElectronicsMap::Item* b) {
+	return (a->mElId&PartialEIdMask) < (b->mElId&PartialEIdMask);
+      }
+    };
     class LessByElId {public: 
       bool operator () (const HcalElectronicsMap::Item* a, const HcalElectronicsMap::Item* b) {return a->mElId < b->mElId;}
       bool operator () (const HcalElectronicsMap::Item& a, const HcalElectronicsMap::Item& b) {return a.mElId < b.mElId;}
@@ -225,7 +230,7 @@ void HcalElectronicsMap::sortByPartialEId () const {
       mItemsByPartialEId.push_back(&(*i));
     }
   }
-  std::sort (mItemsByPartialEId.begin(), mItemsByPartialEId.end(), hcal_impl::LessByPartialEId ());
+  std::sort (mItemsByPartialEId.begin(), mItemsByPartialEId.end(), hcal_impl::LessByPartialEId());
 }
 void HcalElectronicsMap::sortByElectronicsId () {
   std::sort (mItems.begin(), mItems.end(), hcal_impl::LessByElId ());
