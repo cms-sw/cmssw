@@ -36,7 +36,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder * incoder,
     }
 
   // and the HF digis
-  for(HFDigiCollection::const_iterator hfItr = hfDigis.begin();
+  for(HFDigiCollection::const_iterator hfItr = hfDigis.begin(); 
       hfItr != hfDigis.end(); ++hfItr)
     {
       addSignal(*hfItr);
@@ -125,8 +125,10 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples,
   int newprelength = ((samples.presamples()+1)-weights_.size())+latency_;
   std::vector<bool> finegrain(outlength,false);
   IntegerCaloSamples sum(samples.id(), outlength);
-
   
+  bool SOI_pegged =  false;
+  //Test is SOI input is pegged before summing
+  if(samples[samples.presamples()]> 0x3FF) SOI_pegged = true;
   bool highvalue = false;
   //slide algo window
   for(int ibin = 0; ibin < int(samples.size())- shrink; ++ibin)
@@ -171,6 +173,10 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples,
 	      output[ibin2-1]=sum[ibin2];//if peak found
 	    }
 	  else{output[ibin2-1]=0;}//if no peak
+	}
+      if(SOI_pegged == true)
+	{
+	  output[output.presamples()] = 0x3FF;
 	}
       outcoder_->compress(output, finegrain, result);//send to transcoder
       //      outcoder_->loadhcalUncompress();
