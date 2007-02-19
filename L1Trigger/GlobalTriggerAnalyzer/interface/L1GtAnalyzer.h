@@ -31,16 +31,40 @@
 
 // class declaration
 
-class L1GtAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit L1GtAnalyzer(const edm::ParameterSet&);
-      ~L1GtAnalyzer();
+class L1GtAnalyzer : public edm::EDAnalyzer
+{
+
+public:
+    explicit L1GtAnalyzer(const edm::ParameterSet&);
+    ~L1GtAnalyzer();
+
+private:
+
+    virtual void beginJob(const edm::EventSetup&) ;
+
+    /// analyze: decision and decision word
+    ///   bunch cross in event BxInEvent = 0 - L1Accept event
+    virtual void analyzeDecision(const edm::Event&, const edm::EventSetup&);
+
+    /// analyze: test setting decision
+    ///   bunch cross in event BxInEvent = 0 - L1Accept event
+    virtual void analyzeSetDecision(const edm::Event&, const edm::EventSetup&);
+
+    /// print/access L1 objects in bunch cross with L1A
+    virtual void analyzeL1Objects(const edm::Event&, const edm::EventSetup&);
+
+    /// test muon part in L1GlobalTriggerReadoutRecord
+    virtual void analyzeMuons(const edm::Event&, const edm::EventSetup&);
+
+    /// analyze: object map record
+    virtual void analyzeObjectMap(const edm::Event&, const edm::EventSetup&);
 
 
-   private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+    /// analyze each event: event loop over various code snippets
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+    /// end of job
+    virtual void endJob() ;
 
 };
 
