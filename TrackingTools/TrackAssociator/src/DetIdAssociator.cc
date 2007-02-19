@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.10 2007/01/22 08:23:09 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.11 2007/01/30 18:40:01 dmytro Exp $
 //
 //
 
@@ -69,6 +69,18 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direc
    }
    return set;
 }
+
+std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& point,
+							const double dR)
+{
+   int etaIdR = int(dR/etaBinSize_); 
+   int phiIdR = int(dR/(2*3.1416)*nPhi_);
+   if (etaIdR>phiIdR)
+     return getDetIdsCloseToAPoint(point, 1+etaIdR);
+   else
+     return getDetIdsCloseToAPoint(point, 1+phiIdR);
+}
+
 
 int DetIdAssociator::iEta (const GlobalPoint& point)
 {
@@ -185,6 +197,17 @@ std::set<DetId> DetIdAssociator::getCrossedDetIds(const std::set<DetId>& inset,
      for(std::vector<GlobalPoint>::const_iterator point_iter = trajectory.begin(); point_iter != trajectory.end(); point_iter++)
        if (insideElement(*point_iter, *id_iter))  outset.insert(*id_iter);
    return outset;
+}
+
+std::vector<DetId> DetIdAssociator::getCrossedDetIdsOrdered(const std::set<DetId>& inset,
+							    const std::vector<GlobalPoint>& trajectory)
+{
+   check_setup();
+   std::vector<DetId> output;
+   for(std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++) 
+     for(std::vector<GlobalPoint>::const_iterator point_iter = trajectory.begin(); point_iter != trajectory.end(); point_iter++)
+       if (insideElement(*point_iter, *id_iter))  output.push_back(*id_iter);
+   return output;
 }
 
 void DetIdAssociator::dumpMapContent(int ieta, int iphi)

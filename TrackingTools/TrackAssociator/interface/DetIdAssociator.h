@@ -19,7 +19,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.h,v 1.5 2007/01/20 17:29:47 dmytro Exp $
+// $Id: DetIdAssociator.h,v 1.6 2007/01/21 15:30:35 dmytro Exp $
 //
 //
 
@@ -47,34 +47,38 @@ class DetIdAssociator{
    
    virtual ~DetIdAssociator(){};
    
-   // find DetIds arround given direction
-   // idR is a number of the adjacent bins to retrieve 
+   /// Preselect DetIds in a given direction using look-up maps
+   /// idR is a number of the adjacent bins to retrieve 
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint&, 
 						  const int idR = 0);
-   // dR is a cone radius in eta-phi
+   /// dR is a cone radius in eta-phi
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint& point,
-						  const double dR = 0)
-     {
-	int etaIdR = int(dR/etaBinSize_); 
-	int phiIdR = int(dR/(2*3.1416)*nPhi_);
-	if (etaIdR>phiIdR)
-	  return getDetIdsCloseToAPoint(point, 1+etaIdR);
-	else
-	  return getDetIdsCloseToAPoint(point, 1+phiIdR);
-     }
-   
+						  const double dR = 0);
+   /// Find DetIds that satisfy given requirements
+   /// - cone radius
    virtual std::set<DetId> getDetIdsInACone(const std::set<DetId>&,
 					    const std::vector<GlobalPoint>& trajectory,
 					    const double );
+   /// - DetIds crossed by the track
    virtual std::set<DetId> getCrossedDetIds(const std::set<DetId>&,
 					    const std::vector<GlobalPoint>& trajectory);
-
+   /// - DetIds crossed by the track, ordered according to the order
+   ///   that they were crossed by the track flying outside the detector
+   virtual std::vector<DetId> getCrossedDetIdsOrdered(const std::set<DetId>&,
+						      const std::vector<GlobalPoint>& trajectory);
+   /// look-up map eta index
    virtual int iEta (const GlobalPoint&);
+   /// look-up map phi index
    virtual int iPhi (const GlobalPoint&);
+   /// set a specific track propagator to be used
    virtual void setPropagator(Propagator* ptr){	ivProp_ = ptr; };
-   int nPhiBins(){ return nPhi_;};
-   int nEtaBins(){ return nEta_;};
+   /// number of bins of the look-up map in phi dimension
+   int nPhiBins(){ return nPhi_;}
+   /// number of bins of the look-up map in eta dimension
+   int nEtaBins(){ return nEta_;}
+   /// look-up map bin size in eta dimension
    double etaBinSize(){ return etaBinSize_;};
+   /// make the look-up map
    virtual void buildMap();
    
  protected:
