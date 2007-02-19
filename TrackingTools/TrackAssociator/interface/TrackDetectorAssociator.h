@@ -8,15 +8,13 @@
 // 
 /*
 
- Description: <one line class summary>
+ Description: main class of tools to associate a track to calorimeter and muon detectors
 
- Implementation:
-     <Notes on implementation>
 */
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.h,v 1.2 2007/01/23 20:05:49 dmytro Exp $
+// $Id: TrackDetectorAssociator.h,v 1.3 2007/02/08 00:14:29 dmytro Exp $
 //
 //
 
@@ -54,6 +52,7 @@ class TrackDetectorAssociator {
    
    class AssociatorParameters {
     public:
+      ///track associator parameters
       AssociatorParameters() {
 	 // default parameters
 	 // define match cones, dR=sqrt(dEta^2+dPhi^2)
@@ -69,10 +68,9 @@ class TrackDetectorAssociator {
 	 useCalo = true;
 	 useHO = true;
 	 useMuon = true;
-	 useOldMuonMatching = true;
+	 useOldMuonMatching = false;
 	 muonMaxDistanceX = 5;
 	 muonMaxDistanceY = 5;
-	 
       }
       double dREcal;
       double dRHcal;
@@ -108,7 +106,7 @@ class TrackDetectorAssociator {
    ///     (the cone origin is at (0,0,0))
    TrackDetMatchInfo            associate( const edm::Event&,
 					   const edm::EventSetup&,
-					   const SteppingHelixStateInfo&,
+					   const FreeTrajectoryState&,
 					   const AssociatorParameters& );
 
    /// associate ECAL only and return RecHits
@@ -175,22 +173,10 @@ class TrackDetectorAssociator {
    void         fillHO( const edm::Event&,
 			TrackDetMatchInfo&,
 			const AssociatorParameters&);
-   
-   void fillDTSegments( const edm::Event&,
-			const edm::EventSetup&,
-			TrackDetMatchInfo&,
-			const FreeTrajectoryState&,
-			const AssociatorParameters&);
-
-   void fillCSCSegments( const edm::Event&,
-			const edm::EventSetup&,
-			TrackDetMatchInfo&,
-			const FreeTrajectoryState&,
-			const AssociatorParameters&);
   
-   void fillMuonSegments( const edm::Event&,
-			  TrackDetMatchInfo&,
-			  const AssociatorParameters&);
+   void fillMuon(       const edm::Event&,
+			TrackDetMatchInfo&,
+			const AssociatorParameters&);
    
    void addMuonSegmentMatch(MuonChamberMatch&,
 			    const RecSegment*,
