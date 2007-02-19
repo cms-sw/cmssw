@@ -42,10 +42,12 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 {
   if(hits.empty()) return std::vector<Trajectory>();
 
-  if (  aSeed.direction() == alongMomentum) {
+  if (aSeed.direction() == alongMomentum) {
     thePropagator->setPropagationDirection(alongMomentum);
-  }else {
+  } else if (aSeed.direction() == oppositeToMomentum){
     thePropagator->setPropagationDirection(oppositeToMomentum);
+  } else {
+    throw cms::Exception("KFTrajectoryFitter","TrajectorySeed::direction() requested but not set");
   }
 
 
