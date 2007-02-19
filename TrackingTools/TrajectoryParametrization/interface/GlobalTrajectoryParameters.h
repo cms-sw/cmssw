@@ -95,7 +95,7 @@ public:
     return v;
   }
 
-  GlobalVector megneticFieldInInverseGeV( const GlobalPoint& x) const; 
+  GlobalVector magneticFieldInInverseGeV( const GlobalPoint& x) const; 
   const MagneticField& magneticField() const {return *theField;}
 
 private:
