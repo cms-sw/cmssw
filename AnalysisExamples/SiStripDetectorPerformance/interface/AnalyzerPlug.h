@@ -13,11 +13,10 @@
 // Save Compile time by forwarding declarations
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-class AnalyzerPlug: public edm::Analyzer {
+class AnalyzerPlug: public edm::EDAnalyzer {
   public:
     // Constructor
-    inline AnalyzerPlug( const edm::ParameterSet &roCONFIG):
-      edm::Analyzer( roCONFIG) {}
+    inline AnalyzerPlug( const edm::ParameterSet &roCONFIG) {}
 
     // Destructor
     inline virtual ~AnalyzerPlug() {}
