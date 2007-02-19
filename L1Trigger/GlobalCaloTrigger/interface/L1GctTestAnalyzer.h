@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu May 18 16:45:23 CEST 2006
-// $Id$
+// $Id: L1GctTestAnalyzer.h,v 1.1 2006/05/18 16:52:34 jbrooke Exp $
 //
 //
 
@@ -36,8 +36,18 @@ class L1GctTestAnalyzer : public edm::EDAnalyzer {
 
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+  void doEM(const edm::Event&, std::string label);
+
    private:
       // ----------member data ---------------------------
+
+  std::string rawLabel;
+  std::string emuLabel;
+  std::string outFilename;
+
+  //  std::ostream outFile;
+
 };
 
 //

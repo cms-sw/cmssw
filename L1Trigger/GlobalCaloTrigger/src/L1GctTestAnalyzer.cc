@@ -23,9 +23,13 @@ using std::endl;
 //
 // constructors and destructor
 //
-L1GctTestAnalyzer::L1GctTestAnalyzer(const edm::ParameterSet& iConfig)
+L1GctTestAnalyzer::L1GctTestAnalyzer(const edm::ParameterSet& iConfig) :
+  rawLabel("L1GctRawDigis"),
+  emuLabel("L1GctEmuDigis")
 {
-   //now do what ever initialization is needed
+  //now do what ever initialization is needed
+
+  
 
 }
 
@@ -49,55 +53,70 @@ L1GctTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 {
    using namespace edm;
 
+   doEM(iEvent, rawLabel);
+   doEM(iEvent, emuLabel);
+
+
    // get some GCT digis
 
-   Handle<L1GctEmCandCollection> isoEm;
-   Handle<L1GctEmCandCollection> nonIsoEm;
-   Handle<L1GctJetCandCollection> cenJets;
-   Handle<L1GctJetCandCollection> forJets;
-   Handle<L1GctJetCandCollection> tauJets;
+//    Handle<L1GctJetCandCollection> cenJets;
+//    Handle<L1GctJetCandCollection> forJets;
+//    Handle<L1GctJetCandCollection> tauJets;
 
-   L1GctEmCandCollection::const_iterator ie;
-   L1GctEmCandCollection::const_iterator ne;
-   L1GctJetCandCollection::const_iterator cj;
-   L1GctJetCandCollection::const_iterator fj;
-   L1GctJetCandCollection::const_iterator tj;
+//    L1GctJetCandCollection::const_iterator cj;
+//    L1GctJetCandCollection::const_iterator fj;
+//    L1GctJetCandCollection::const_iterator tj;
 
-   iEvent.getByLabel("gct","isoEm",isoEm);
-   iEvent.getByLabel("gct","nonIsoEm",nonIsoEm);
-   iEvent.getByLabel("gct","cenJets",cenJets);
-   iEvent.getByLabel("gct","forJets",forJets);
-   iEvent.getByLabel("gct","tauJets",tauJets);
 
-   cout << "Isolated EM objects :" << endl;
-   for (ie=isoEm->begin(); ie!=isoEm->end(); ie++) {
-     cout << (*ie) << endl;
-   } 
-   cout << endl;
+//    iEvent.getByLabel(rawLabel,"cenJets",cenJets);
+//    iEvent.getByLabel(rawLabel,"forJets",forJets);
+//    iEvent.getByLabel(rawLabel,"tauJets",tauJets);
 
-   cout << "Non-isolated EM objects :" << endl;
-   for (ne=nonIsoEm->begin(); ne!=nonIsoEm->end(); ne++) {
-     cout << (*ne) << endl;
-   } 
-   cout << endl;
+//    cout << "Central jets :" << endl;
+//    for (cj=cenJets->begin(); cj!=cenJets->end(); cj++) {
+//      cout << (*cj) << endl;
+//    } 
+//    cout << endl;
 
-   cout << "Central jets :" << endl;
-   for (cj=cenJets->begin(); cj!=cenJets->end(); cj++) {
-     cout << (*cj) << endl;
-   } 
-   cout << endl;
+//    cout << "Forward jets : " << endl;
+//    for (fj=forJets->begin(); fj!=forJets->end(); fj++) {
+//      cout << (*fj) << endl;
+//    } 
+//    cout << endl;
 
-   cout << "Forward jets : " << endl;
-   for (fj=forJets->begin(); fj!=forJets->end(); fj++) {
-     cout << (*fj) << endl;
-   } 
-   cout << endl;
-
-   cout << "Tau jets :" << endl;
-   for (tj=tauJets->begin(); tj!=tauJets->end(); tj++) {
-     cout << (*tj) << endl;
-   } 
-   cout << endl;
+//    cout << "Tau jets :" << endl;
+//    for (tj=tauJets->begin(); tj!=tauJets->end(); tj++) {
+//      cout << (*tj) << endl;
+//    } 
+//    cout << endl;
 
 }
 
+void L1GctTestAnalyzer::doEM(const edm::Event& iEvent, std::string label) {
+
+  using namespace edm;
+
+  Handle<L1GctEmCandCollection> isoEm;
+  Handle<L1GctEmCandCollection> nonIsoEm;
+
+  L1GctEmCandCollection::const_iterator ie;
+  L1GctEmCandCollection::const_iterator ne;
+  
+  iEvent.getByLabel(label,"isoEm",isoEm);
+  iEvent.getByLabel(label,"nonIsoEm",nonIsoEm);
+
+  cout << "From : " << label << endl;
+
+  cout << "Iso EM :" << endl;
+  for (ie=isoEm->begin(); ie!=isoEm->end(); ie++) {
+    cout << (*ie) << endl;
+  } 
+  cout << endl;
+  
+  cout << "Non-iso EM :" << endl;
+  for (ne=nonIsoEm->begin(); ne!=nonIsoEm->end(); ne++) {
+    cout << (*ne) << endl;
+  } 
+  cout << endl;
+
+}
