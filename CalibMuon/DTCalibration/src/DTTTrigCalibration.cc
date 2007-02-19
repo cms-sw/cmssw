@@ -1,14 +1,14 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/09/12 07:53:26 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/01/22 11:08:05 $
+ *  $Revision: 1.18 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
 #include "CalibMuon/DTCalibration/interface/DTTimeBoxFitter.h"
-#include "RecoLocalMuon/DTRecHit/interface/DTTTrigSyncFactory.h"
-#include "RecoLocalMuon/DTRecHit/interface/DTTTrigBaseSync.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"

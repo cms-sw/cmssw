@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/08/07 10:23:34 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/11/16 08:37:21 $
+ *  $Revision: 1.3 $
  *  \author Marina Giunta
  */
 
@@ -10,7 +10,7 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
-#include "RecoLocalMuon/DTRecHit/interface/DTTTrigBaseSync.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 // Declare histograms for debugging purposes
 #include "CalibMuon/DTCalibration/src/Histogram.h"
 

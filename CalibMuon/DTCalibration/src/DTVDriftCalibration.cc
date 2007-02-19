@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/11/28 14:24:22 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/01/22 11:08:05 $
+ *  $Revision: 1.8 $
  *  \author M. Giunta
  */
 
@@ -17,8 +17,8 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-#include "RecoLocalMuon/DTRecHit/interface/DTTTrigSyncFactory.h"
-#include "RecoLocalMuon/DTRecHit/interface/DTTTrigBaseSync.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
