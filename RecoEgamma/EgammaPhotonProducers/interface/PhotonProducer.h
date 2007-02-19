@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.5 2007/01/31 17:15:02 futyand Exp $ 
- **  $Date: 2007/01/31 17:15:02 $ 
- **  $Revision: 1.5 $
+ **  $Id: PhotonProducer.h,v 1.6 2007/02/14 23:41:38 futyand Exp $ 
+ **  $Date: 2007/02/14 23:41:38 $ 
+ **  $Revision: 1.6 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -20,7 +20,8 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
-
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 
 // PhotonProducer inherits from EDProducer, so it can be a module:
 class PhotonProducer : public edm::EDProducer {
@@ -37,6 +38,10 @@ class PhotonProducer : public edm::EDProducer {
 
   void fillPhotonCollection(const edm::Handle<reco::SuperClusterCollection> & scHandle,
 			    const reco::BasicClusterShapeAssociationCollection& clshpMap,
+			    const CaloSubdetectorGeometry *geometry,
+			    const CaloSubdetectorGeometry *geometryES,
+			    const EcalRecHitCollection *hits,
+			    const reco::SeedSuperClusterAssociationCollection& pixelSeedAssoc,
 			    math::XYZPoint & vtx,
 			    reco::PhotonCollection & outputCollection,
 			    int iSC);
@@ -50,9 +55,15 @@ class PhotonProducer : public edm::EDProducer {
   std::string barrelClusterShapeMapCollection_;
   std::string endcapClusterShapeMapProducer_;
   std::string endcapClusterShapeMapCollection_;
+  std::string barrelHitProducer_;
+  std::string endcapHitProducer_;
+  std::string barrelHitCollection_;
+  std::string endcapHitCollection_;
+  std::string pixelSeedAssocProducer_;
   std::string vertexProducer_;
   edm::ParameterSet conf_;
 
+  PositionCalc posCalculator_;
 
 };
 #endif
