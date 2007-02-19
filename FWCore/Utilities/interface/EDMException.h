@@ -28,7 +28,7 @@ namespace edm {
     // If you add a new entry to the set of values, make sure to
     // update the translation map in EDMException.cc, the actions
     // table in FWCore/Framework/src/Actions.cc, and the configuration
-    // fragment FWCore/Framework/test/QQQ.cff.
+    // fragment FWCore/Framework/test/cmsExceptionsFatalOption.cff.
 
     enum ErrorCodes {
        Unknown=0,
