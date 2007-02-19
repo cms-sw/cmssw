@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2007/02/19 04:05:40 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/02/19 23:26:44 $
+ *  $Revision: 1.5 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -258,7 +258,7 @@ void HcalHTRData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, int o
     m_ownData[2]=0x8000; // Version is valid, no error bits
     m_ownData[3]=((orbitn&0x3F)<<10)|(submodule&0x3FF);
     m_ownData[4]=((m_formatVersion&0xF)<<12)|(bcn&0xFFF);
-    m_ownData[5]|=(nps&0x1F<<3)|0x1;
+    m_ownData[5]|=((nps&0x1F)<<3)|0x1;
     m_ownData[6]=((firmwareRev&0x70000)>>3)|(firmwareRev&0x1FFF);
     m_ownData[7]=pipeline&0xFF;
     m_ownData[m_rawLength-4]&=0x7FF;
