@@ -1,0 +1,11 @@
+<!===== ==========================================================
+ ! environment for TPG validation
+ !===============================================================>
+
+<config name="run tool" value="oval">
+
+<environment name=validateTPG>
+
+<executable name=validateTPG.csh>validation TPG</executable>
+
+</environment>

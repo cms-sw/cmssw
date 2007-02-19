@@ -1,0 +1,18 @@
+<flags SEAL_PLUGIN_NAME="ValidationEcalTriggerPrimitives">
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/EcalDigi>
+<use name=DataFormats/EcalDetId>
+<use name=SimCalorimetry/EcalTrigPrimProducers>
+<use name=root>
+<export>
+   <lib name=ValidationEcalTriggerPrimitives>
+   <use name=root>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/EcalDigi>   
+   <use name=DataFormats/EcalDetId>
+   <use name=SimCalorimetry/EcalTrigPrimProducers>
+</export>
