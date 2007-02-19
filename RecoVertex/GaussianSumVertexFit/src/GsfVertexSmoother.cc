@@ -74,10 +74,10 @@ GsfVertexSmoother::smooth(const CachingVertex & vertex) const
     if (limitComponents) meanedVertex = theMerger->merge(meanedVertex);
     // Add the vertex and smooth the track:
     TrackChi2Pair thePair = vertexAndTrackUpdate(meanedVertex, *i, vertex.position());
-    smoothedChi2 += thePair.second;
+    smoothedChi2 += thePair.second.second;
     newTracks.push_back( theVTFactory.vertexTrack((**i).linearizedTrack(),
-  	vertex.vertexState(), thePair.first, AlgebraicMatrix(), 
-	(**i).weight()) );
+  	vertex.vertexState(), thePair.first, thePair.second.second,
+	AlgebraicMatrix(), (**i).weight()) );
   }
 
   if  (vertex.hasPrior()) {
@@ -124,6 +124,10 @@ GsfVertexSmoother::vertexAndTrackUpdate(const VertexState & oldVertex,
   return assembleTrackComponents(newTrackComponents, referencePosition);
 }
 
+/**
+ * This method assembles all the components of the refitted track into one refitted track state,
+ * normalizing the components. Also, it adds the chi2 track-components increments.
+ */
 
 GsfVertexSmoother::TrackChi2Pair GsfVertexSmoother::assembleTrackComponents(
 	const vector<GsfVertexSmoother::RefittedTrackComponent> & trackComponents,
@@ -134,15 +138,17 @@ GsfVertexSmoother::TrackChi2Pair GsfVertexSmoother::assembleTrackComponents(
   //renormalize weights
 
   double totalWeight = 0.;
-  double totalChi2 = 0.;
+  double totalVtxChi2 = 0., totalTrkChi2 = 0.;
 
   for (vector<RefittedTrackComponent>::const_iterator iter = trackComponents.begin();
     iter != trackComponents.end(); ++iter ) {
-    totalWeight += iter->second.first;
-    totalChi2 += iter->second.second * iter->second.first ;
+    totalWeight += iter->first.second;
+    totalVtxChi2 += iter->second.first  * iter->first.second ;
+    totalTrkChi2 += iter->second.second * iter->first.second ;
   }
 
-  totalChi2 /= totalWeight;
+  totalVtxChi2 /= totalWeight ;
+  totalTrkChi2 /= totalWeight ;
 
   vector<RefCountedRefittedTrackState> reWeightedRTSC;
   reWeightedRTSC.reserve(trackComponents.size());
@@ -151,19 +157,24 @@ GsfVertexSmoother::TrackChi2Pair GsfVertexSmoother::assembleTrackComponents(
   for (vector<RefittedTrackComponent>::const_iterator iter = trackComponents.begin();
     iter != trackComponents.end(); ++iter ) {
     if (iter->second.first!=0) {
-      reWeightedRTSC.push_back(iter->first->stateWithNewWeight(iter->second.first/totalWeight));
+      reWeightedRTSC.push_back(iter->first.first->stateWithNewWeight(iter->second.first/totalWeight));
     }
   }
 
   RefCountedRefittedTrackState finalRTS = 
     RefCountedRefittedTrackState(new MultiRefittedTS(reWeightedRTSC, referencePosition));
-  return TrackChi2Pair(finalRTS, totalChi2);
+  return TrackChi2Pair(finalRTS, VtxTrkChi2Pair(totalVtxChi2, totalTrkChi2));
 }
 
 
+  /**
+   * This method does the smoothing of one track component with one vertex component.
+   * And the track-component-chi2 increment and weight of new component in mixture.
+   */
+
 GsfVertexSmoother::RefittedTrackComponent 
 GsfVertexSmoother::createNewComponent(const VertexState & oldVertex,
-	 const RefCountedLinearizedTrackState linTrack, float weight) const
+	 const RefCountedLinearizedTrackState linTrack, float trackWeight) const
 {
 
   int sign =+1;
@@ -173,16 +184,17 @@ GsfVertexSmoother::createNewComponent(const VertexState & oldVertex,
 
   // position estimate of the component
   VertexState newVertex = kalmanVertexUpdator.positionUpdate(oldVertex,
-	linTrack, weight, sign);
+	linTrack, trackWeight, sign);
 
   pair<RefCountedRefittedTrackState, AlgebraicMatrix> thePair = 
   	theVertexTrackUpdator.trackRefit(newVertex, linTrack);
 
   //Chi**2 contribution of the track component
-  float chi2 = smoothedChi2Estimator.trackParameterChi2(linTrack, thePair.first);
+  double vtxChi2 = helper.vertexChi2(oldVertex, newVertex);
+  double trkCi2 = helper.trackParameterChi2(linTrack, thePair.first);
 
-  return RefittedTrackComponent(thePair.first, 
-  			WeightChi2Pair(weightInMixture, chi2));
+  return RefittedTrackComponent(TrackWeightPair(thePair.first, weightInMixture), 
+  			VtxTrkChi2Pair(vtxChi2, trkCi2));
 }
 
 
@@ -229,7 +241,7 @@ double GsfVertexSmoother::priorVertexChi2(
     	fvI!= fittedVertexComp.end(); ++fvI)
     {
       vetexChi2 += (pvI->weightInMixture())*(fvI->weightInMixture())*
-      			smoothedChi2Estimator.priorVertexChi2(*pvI, *fvI);
+      			helper.vertexChi2(*pvI, *fvI);
     }
   }
   return vetexChi2;

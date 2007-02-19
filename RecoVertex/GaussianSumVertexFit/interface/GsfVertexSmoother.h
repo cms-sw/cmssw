@@ -11,7 +11,7 @@
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexWeightCalculator.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
 #include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
-
+#include "RecoVertex/KalmanVertexFit/interface/KVFHelper.h"
 
 
 /**
@@ -62,9 +62,10 @@ private:
 
   typedef std::vector<VertexState> VSC;
   typedef std::vector<RefCountedLinearizedTrackState> LTC;
-  typedef std::pair<double, double> WeightChi2Pair;
-  typedef std::pair<RefCountedRefittedTrackState, double> TrackChi2Pair;
-  typedef std::pair<RefCountedRefittedTrackState, WeightChi2Pair> RefittedTrackComponent;
+  typedef std::pair<double, double> VtxTrkChi2Pair;
+  typedef std::pair<RefCountedRefittedTrackState, double> TrackWeightPair;
+  typedef std::pair<RefCountedRefittedTrackState, VtxTrkChi2Pair> TrackChi2Pair;
+  typedef std::pair<TrackWeightPair, VtxTrkChi2Pair> RefittedTrackComponent;
 
   VertexState meanVertex(const VertexState & vertexA,
 			 const VertexState & vertexB) const;
@@ -97,6 +98,7 @@ private:
   KalmanVertexTrackUpdator theVertexTrackUpdator;       
   GsfVertexWeightCalculator theWeightCalculator;
   VertexTrackFactory theVTFactory;
+  KVFHelper helper;
 };
 
 #endif
