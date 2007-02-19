@@ -25,11 +25,12 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
     std::vector<TrajectoryMeasurement> measurements =traj_iterator->measurements();
     
     std::vector<TrajectoryMeasurement>::iterator traj_mes_iterator;
-    //    edm::LogInfo("TrackInfoProducer") << "Number of Measurements: "<<measurements.size();
+    //edm::LogInfo("TrackInfoProducer") << "Number of Measurements: "<<measurements.size();
     reco::TrackInfo::TrajectoryInfo fwdtrajinfo;
     reco::TrackInfo::TrajectoryInfo bwdtrajinfo;
     reco::TrackInfo::TrajectoryInfo updatedtrajinfo;
     reco::TrackInfo::TrajectoryInfo combinedtrajinfo;
+    int nhit=0;
     for(traj_mes_iterator=measurements.begin();traj_mes_iterator!=measurements.end();traj_mes_iterator++){//loop on measurements
       TrajectoryStateOnSurface  fwdtsos=traj_mes_iterator->forwardPredictedState();
       TrajectoryStateOnSurface  bwdtsos=traj_mes_iterator->backwardPredictedState();
@@ -39,6 +40,7 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
 
       ConstRecHitPointer ttrh=traj_mes_iterator->recHit();
       if (!ttrh->isValid()) continue;
+      nhit++;
       unsigned int detid=ttrh->hit()->geographicalId().rawId();
       
       LocalPoint pos=ttrh->hit()->localPosition();
@@ -47,16 +49,16 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
       int i=0,j=0;
       //edm::LogInfo("TrackInfoProducer") <<"Rechit size: "<<rechits->product()->size();
       for (thehit=rechits->product()->begin();thehit!=rechits->product()->end();thehit++){
+	i++;
 	if (!thehit->isValid()) continue;
 	if(thehit->geographicalId().rawId()==detid&&
 	   (thehit->localPosition() - pos).mag() < 1e-4)
 	  {
-	    thehitref=TrackingRecHitRef(*rechits,i);
+	    thehitref=TrackingRecHitRef(*rechits,i-1);
 	    //	  edm::LogInfo("TrackInfoProducer") << "Found a rechit ";
 	    j++;
 	    break;
 	  }
-	i++;
       }
       TrajectoryStateTransform tsostransform;
       const PTrajectoryStateOnDet* fwdptsod=tsostransform.persistentState( fwdtsos,detid);
@@ -69,16 +71,12 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
 	updatedtrajinfo.insert(make_pair(thehitref,*updatedptsod));
 	combinedtrajinfo.insert(make_pair(thehitref,*combinedptsod));
       }
+      //      else  edm::LogInfo("TrackInfoProducer") << "RecHit not associated ";
     }
-    //    if(fwdtrajinfo.size()>0){
+    //edm::LogInfo("TrackInfoProducer") << "Found "<<nhit<< " hits";
+    //if(fwdtrajinfo.size()!=nhit) edm::LogInfo("TrackInfoProducer") << "Number of trackinfos  "<<fwdtrajinfo.size()<< " doesn't match!";
     outputFwd=reco::TrackInfo((traj_iterator->seed()),fwdtrajinfo);
     outputBwd=reco::TrackInfo((traj_iterator->seed()),bwdtrajinfo);
     outputUpdated=reco::TrackInfo((traj_iterator->seed()),updatedtrajinfo);
     outputCombined=reco::TrackInfo((traj_iterator->seed()),combinedtrajinfo);
-    //      outputFwdColl.push_back(*fwdtracki);
-    //outputBwdColl.push_back(*bwdtracki);
-    //outputUpdatedColl.push_back(*updatedtracki);
-    //outputCombinedColl.push_back(*combinedtracki);
-    //    }
-    //  }
 }

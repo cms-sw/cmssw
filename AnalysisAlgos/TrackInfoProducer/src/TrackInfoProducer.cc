@@ -20,21 +20,21 @@ TrackInfoProducer::TrackInfoProducer(const edm::ParameterSet& iConfig):
     combinedStateTag_(iConfig.getParameter<std::string>( "combinedState" ))
 {
   // forward predicted state 
-  produces<reco::TrackInfoCollection>(forwardPredictedStateTag_);
-
+  if(forwardPredictedStateTag_!="")  produces<reco::TrackInfoCollection>(forwardPredictedStateTag_);
+  
   // backward predicted state 
-  produces<reco::TrackInfoCollection>(backwardPredictedStateTag_);
-
+  if(backwardPredictedStateTag_!="")  produces<reco::TrackInfoCollection>(backwardPredictedStateTag_);
+  
   // backward predicted + forward predicted + measured hit position 
-  produces<reco::TrackInfoCollection>(updatedStateTag_);
-
+  if(updatedStateTag_!="") produces<reco::TrackInfoCollection>(updatedStateTag_);
+  
   // backward predicted + forward predicted
-  produces<reco::TrackInfoCollection>(combinedStateTag_);
-
-  produces<reco::TrackInfoTrackAssociationCollection>(forwardPredictedStateTag_);
-  produces<reco::TrackInfoTrackAssociationCollection>(backwardPredictedStateTag_);
-  produces<reco::TrackInfoTrackAssociationCollection>(updatedStateTag_);
-  produces<reco::TrackInfoTrackAssociationCollection>(combinedStateTag_);
+  if(combinedStateTag_!="") produces<reco::TrackInfoCollection>(combinedStateTag_);
+  
+  if(forwardPredictedStateTag_!="") produces<reco::TrackInfoTrackAssociationCollection>(forwardPredictedStateTag_);
+  if(backwardPredictedStateTag_!="")produces<reco::TrackInfoTrackAssociationCollection>(backwardPredictedStateTag_);
+  if(updatedStateTag_!="") produces<reco::TrackInfoTrackAssociationCollection>(updatedStateTag_);
+  if(combinedStateTag_!="") produces<reco::TrackInfoTrackAssociationCollection>(combinedStateTag_);
 }
 
 
@@ -110,7 +110,7 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 	    trackid.push_back(idtk);
 	  }
 	  else {
-	    LogDebug("TrackInfoProducer")<<"Track not associated trying an other track"; 
+	    edm::LogInfo("TrackInfoProducer")<<"Track not associated trying an other track"; 
 	  }
 	  idtk++;
 	}
@@ -125,20 +125,21 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 
     }
     //put everything in the event
-    const edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfof = theEvent.put(outputFwdColl,forwardPredictedStateTag_ );
-    const edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfob =   theEvent.put(outputBwdColl,backwardPredictedStateTag_);
-    const edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfou =   theEvent.put(outputUpdatedColl,updatedStateTag_ );
-    const edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfoc =   theEvent.put(outputCombinedColl,combinedStateTag_ );
+    edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfof, rTrackInfob,rTrackInfou,rTrackInfoc;
+    if(forwardPredictedStateTag_!="") rTrackInfof = theEvent.put(outputFwdColl,forwardPredictedStateTag_ );
+    if(backwardPredictedStateTag_!="") rTrackInfob =   theEvent.put(outputBwdColl,backwardPredictedStateTag_);
+    if(updatedStateTag_!="") rTrackInfou =   theEvent.put(outputUpdatedColl,updatedStateTag_ );
+    if(combinedStateTag_!="") rTrackInfoc =   theEvent.put(outputCombinedColl,combinedStateTag_ );
     for(unsigned int i=0; i <trackid.size();++i){
-      TIassociationFwdColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, trackid[i]),edm::Ref<reco::TrackInfoCollection>(rTrackInfof, i));
-      TIassociationBwdColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, trackid[i]),edm::Ref<reco::TrackInfoCollection>(rTrackInfob, i));
-      TIassociationUpdatedColl->insert( edm::Ref<reco::TrackCollection>(trackCollection,trackid[i] ),edm::Ref<reco::TrackInfoCollection>(rTrackInfou, i));
-      TIassociationCombinedColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, trackid[i]),edm::Ref<reco::TrackInfoCollection>(rTrackInfoc, i)); 
+      if(forwardPredictedStateTag_!="") TIassociationFwdColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, trackid[i]),edm::Ref<reco::TrackInfoCollection>(rTrackInfof, i));
+      if(backwardPredictedStateTag_!="") TIassociationBwdColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, trackid[i]),edm::Ref<reco::TrackInfoCollection>(rTrackInfob, i));
+      if(updatedStateTag_!="") TIassociationUpdatedColl->insert( edm::Ref<reco::TrackCollection>(trackCollection,trackid[i] ),edm::Ref<reco::TrackInfoCollection>(rTrackInfou, i));
+      if(combinedStateTag_!="")TIassociationCombinedColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, trackid[i]),edm::Ref<reco::TrackInfoCollection>(rTrackInfoc, i)); 
     }
-    theEvent.put(TIassociationFwdColl,forwardPredictedStateTag_ );
-    theEvent.put(TIassociationBwdColl,backwardPredictedStateTag_);
-    theEvent.put(TIassociationUpdatedColl,updatedStateTag_ );
-    theEvent.put(TIassociationCombinedColl,combinedStateTag_ ); 
+    if(forwardPredictedStateTag_!="")theEvent.put(TIassociationFwdColl,forwardPredictedStateTag_ );
+    if(backwardPredictedStateTag_!="")theEvent.put(TIassociationBwdColl,backwardPredictedStateTag_);
+    if(updatedStateTag_!="")theEvent.put(TIassociationUpdatedColl,updatedStateTag_ );
+    if(combinedStateTag_!="")theEvent.put(TIassociationCombinedColl,combinedStateTag_ ); 
 }
 
 
