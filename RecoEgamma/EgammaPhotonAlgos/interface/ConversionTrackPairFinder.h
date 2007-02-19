@@ -17,9 +17,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Handle.h"
 //
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-
+#include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
+#include "DataFormats/EgammaTrackReco/interface/TrackSuperClusterAssociation.h"
 
 class ConversionTrackPairFinder {
 
@@ -30,7 +32,20 @@ public:
 
   ~ConversionTrackPairFinder();
 
- std::vector<std::vector<reco::TransientTrack> > run(std::vector<reco::TransientTrack> outIn,  std::vector<reco::TransientTrack> inOut  );
+
+  //   std::vector<std::vector<reco::TransientTrack> > run(std::vector<reco::TransientTrack> outIn,  
+  //					      const edm::Handle<reco::TrackCollection>&  outInTrkHandle,
+  //					      const edm::Handle<reco::TrackSuperClusterAssociationCollection>&  outInTrackSCAssH, 
+  //					      std::vector<reco::TransientTrack> inOut,  
+  //					      const edm::Handle<reco::TrackCollection>& inOutTrkHandle,
+  //					      const edm::Handle<reco::TrackSuperClusterAssociationCollection>& inOutTrackSCAssH  );
+
+  std::map<std::vector<reco::TransientTrack>, reco::SuperCluster>  run(std::vector<reco::TransientTrack> outIn,  
+  					      const edm::Handle<reco::TrackCollection>&  outInTrkHandle,
+  					      const edm::Handle<reco::TrackSuperClusterAssociationCollection>&  outInTrackSCAssH, 
+  					      std::vector<reco::TransientTrack> inOut,  
+  					      const edm::Handle<reco::TrackCollection>& inOutTrkHandle,
+  					      const edm::Handle<reco::TrackSuperClusterAssociationCollection>& inOutTrackSCAssH  );
 
 
  private:
