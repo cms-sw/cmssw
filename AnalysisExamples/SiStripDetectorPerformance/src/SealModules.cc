@@ -1,5 +1,6 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "AnalysisExamples/SiStripDetectorPerformance/interface/AnalyzerPlug.h"
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/AnalyzeTracksClusters.h"
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/ClusterAnalysis.h"
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/ClusterAnalysisFilter.h"
@@ -17,6 +18,7 @@ using cms::CosmicGenFilter;
 using cms::TrackerMuFilter;
 
 DEFINE_SEAL_MODULE();
+DEFINE_ANOTHER_FWK_MODULE(AnalyzerPlug);
 DEFINE_ANOTHER_FWK_MODULE(AnalyzeTracksClusters);
 DEFINE_ANOTHER_FWK_MODULE(ClusterAnalysis);
 DEFINE_ANOTHER_FWK_MODULE(ClusterAnalysisFilter);
