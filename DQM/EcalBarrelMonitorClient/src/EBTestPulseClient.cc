@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/02/13 18:57:06 $
- * $Revision: 1.124 $
+ * $Date: 2007/02/17 13:52:54 $
+ * $Revision: 1.125 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1127,8 +1127,14 @@ void EBTestPulseClient::analyze(void){
           }
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
 
-          if ( mea01_[ism-1] ) mea01_[ism-1]->setBinContent( ip+20*(ie-1), mean01 );
-          if ( mea01_[ism-1] ) mea01_[ism-1]->setBinError( ip+20*(ie-1), rms01 );
+          if ( mea01_[ism-1] ) {
+            if ( mean01 > 0. ) {
+              mea01_[ism-1]->setBinContent( ip+20*(ie-1), mean01 );
+              mea01_[ism-1]->setBinError( ip+20*(ie-1), rms01 );
+            } else {
+              mea01_[ism-1]->setEntries( 1.+mea01_[ism-1]->getEntries() );
+            }
+          }
 
         }
 
@@ -1147,8 +1153,14 @@ void EBTestPulseClient::analyze(void){
           }
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val );
 
-          if ( mea02_[ism-1] ) mea02_[ism-1]->setBinContent( ip+20*(ie-1), mean02 );
-          if ( mea02_[ism-1] ) mea02_[ism-1]->setBinError( ip+20*(ie-1), rms02 );
+          if ( mea02_[ism-1] ) {
+            if ( mean02 > 0. ) {
+              mea02_[ism-1]->setBinContent( ip+20*(ie-1), mean02 );
+              mea02_[ism-1]->setBinError( ip+20*(ie-1), rms02 );
+            } else {
+              mea02_[ism-1]->setEntries( 1.+mea02_[ism-1]->getEntries() );
+            }
+          }
 
         }
 
@@ -1167,8 +1179,14 @@ void EBTestPulseClient::analyze(void){
           }
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val );
 
-          if ( mea03_[ism-1] ) mea03_[ism-1]->setBinContent( ip+20*(ie-1), mean03 );
-          if ( mea03_[ism-1] ) mea03_[ism-1]->setBinError( ip+20*(ie-1), rms03 );
+          if ( mea03_[ism-1] ) {
+            if ( mean03 > 0. ) {
+              mea03_[ism-1]->setBinContent( ip+20*(ie-1), mean03 );
+              mea03_[ism-1]->setBinError( ip+20*(ie-1), rms03 );
+            } else {
+              mea03_[ism-1]->setEntries( 1.+mea03_[ism-1]->getEntries() );
+            }
+          }
 
         }
 
