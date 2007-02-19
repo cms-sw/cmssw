@@ -1,56 +1,117 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2007/02/02 06:01:40 $
- * $Revision: 1.00 $
+ * $Date: 2007/02/19 19:24:09 $
+ * $Revision: 1.1 $
  * \author J. Berryhill
+ *
+ *  Initial version largely stolen from GCTMonitor (wittich 2/07)
+ *
+ * $Log$
+ *
  *
  */
 
 #include "DQM/L1TMonitor/interface/L1TGCT.h"
 
-using namespace std;
+// using namespace std;
 using namespace edm;
+using namespace l1extra;
 
-L1TGCT::L1TGCT(const ParameterSet& ps)
+
+// Define statics for bins etc.
+const unsigned int ETABINS = 22;
+const float ETAMIN = -0.5;
+const float ETAMAX = 21.5;
+
+const unsigned int METPHIBINS = 72;
+const float METPHIMIN = -0.5;
+const float METPHIMAX = 71.5;
+
+const unsigned int PHIBINS = 18;
+const float PHIMIN = -0.5;
+const float PHIMAX = 17.5;
+
+const unsigned int TPPHIBINS = 72;
+const float TPPHIMIN = 0.5;
+const float TPPHIMAX = 72.5;
+
+const unsigned int TPETABINS = 65;
+const float TPETAMIN = -32.5;
+const float TPETAMAX = 32.5;
+
+const unsigned int L1EETABINS = 22;
+const float L1EETAMIN = -5;
+const float L1EETAMAX = 5;
+
+const unsigned int L1EPHIBINS = 18;
+const float L1EPHIMIN = -M_PI;
+const float L1EPHIMAX = M_PI;
+
+// Ranks 6, 10 and 12 bits
+const unsigned int R6BINS = 64;
+const float R6MIN = -0.5;
+const float R6MAX = 63.5;
+const unsigned int R10BINS = 1024;
+const float R10MIN = -0.5;
+const float R10MAX = 1023.5;
+const unsigned int R12BINS = 4096;
+const float R12MIN = -0.5;
+const float R12MAX = 4095.5;
+
+// Something for the trigger primitives
+const unsigned int RTPBINS = 101;
+const float RTPMIN = -0.5;
+const float RTPMAX = 100.5;
+
+// Physical bins 1 Gev - 1 TeV in 1 GeV steps
+const unsigned int TEVBINS = 1001;
+const float TEVMIN = -0.5;
+const float TEVMAX = 1000.5;
+
+
+L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
+  l1ExtraLabel_(ps.getParameter<edm::InputTag>("l1ExtraLabel"))
 {
 
   // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  verbose_ = ps.getUntrackedParameter < bool > ("verbose", false);
 
-  if(verbose_) cout << "L1TGCT: constructor...." << endl;
+  if (verbose_)
+    std::cout << "L1TGCT: constructor...." << std::endl;
 
   logFile_.open("L1TGCT.log");
 
   dbe = NULL;
-  if ( ps.getUntrackedParameter<bool>("DaqMonitorBEInterface", false) ) 
-  {
-    dbe = Service<DaqMonitorBEInterface>().operator->();
+  if (ps.getUntrackedParameter < bool > ("DaqMonitorBEInterface", false)) {
+    dbe = edm::Service < DaqMonitorBEInterface > ().operator->();
     dbe->setVerbose(0);
   }
 
   monitorDaemon_ = false;
-  if ( ps.getUntrackedParameter<bool>("MonitorDaemon", false) ) {
-    Service<MonitorDaemon> daemon;
+  if (ps.getUntrackedParameter < bool > ("MonitorDaemon", false)) {
+    edm::Service<MonitorDaemon> daemon;
     daemon.operator->();
     monitorDaemon_ = true;
   }
 
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
-  if ( outputFile_.size() != 0 ) {
-    cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
+  outputFile_ = ps.getUntrackedParameter < std::string > ("outputFile", "");
+  if (outputFile_.size() != 0) {
+    std::cout << "L1T Monitoring histograms will be saved to "
+	      << outputFile_ << std::endl;
   }
-  else{
+  else {
     outputFile_ = "L1TDQM.root";
   }
 
-  bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
-  if(disable){
-    outputFile_="";
+  bool disable =
+      ps.getUntrackedParameter < bool > ("disableROOToutput", false);
+  if (disable) {
+    outputFile_ = "";
   }
 
 
-  if ( dbe !=NULL ) {
+  if (dbe != NULL) {
     dbe->setCurrentFolder("L1TMonitor/L1TGCT");
   }
 
@@ -61,52 +122,193 @@ L1TGCT::~L1TGCT()
 {
 }
 
-void L1TGCT::beginJob(const EventSetup& c)
+void L1TGCT::beginJob(const edm::EventSetup & c)
 {
 
   nev_ = 0;
 
   // get hold of back-end interface
-  DaqMonitorBEInterface* dbe = 0;
-  dbe = Service<DaqMonitorBEInterface>().operator->();
+  DaqMonitorBEInterface *dbe = 0;
+  dbe = edm::Service < DaqMonitorBEInterface > ().operator->();
 
-  if ( dbe ) {
+  if (dbe) {
     dbe->setCurrentFolder("L1TMonitor/L1TGCT");
     dbe->rmdir("L1TMonitor/L1TGCT");
   }
 
 
-  if ( dbe ) 
-  {
+  if (dbe) {
     dbe->setCurrentFolder("L1TMonitor/L1TGCT");
-    
-    gcttest = dbe->book1D("GCT test", 
-       "GCT test", 128, -0.5, 127.5 ) ;
-  }  
+
+    // Book L1Extra histograms
+    dbe->setCurrentFolder("L1Extra");
+
+    l1ExtraCenJetsEtEtaPhi_ =
+	dbe->book2D("L1ExtraCenJetsEtEtaPhi", "CENTRAL JET E_{T}",
+		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
+		    L1EETAMIN, L1EETAMAX);
+    l1ExtraForJetsEtEtaPhi_ =
+	dbe->book2D("L1ExtraForJetsEtEtaPhi", "FORWARD JET E_{T}",
+		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
+		    L1EETAMIN, L1EETAMAX);
+    l1ExtraTauJetsEtEtaPhi_ =
+	dbe->book2D("L1ExtraTauJetsEtEtaPhi", "TAU JET E_{T}", L1EPHIBINS,
+		    L1EPHIMIN, L1EPHIMAX, L1EETABINS, L1EETAMIN,
+		    L1EETAMAX);
+    l1ExtraIsoEmEtEtaPhi_ =
+	dbe->book2D("L1ExtraIsoEmEtEtaPhi", "ISO EM E_{T}", L1EPHIBINS,
+		    L1EPHIMIN, L1EPHIMAX, L1EETABINS, L1EETAMIN,
+		    L1EETAMAX);
+    l1ExtraNonIsoEmEtEtaPhi_ =
+	dbe->book2D("L1ExtraNonIsoEmEtEtaPhi", "NON-ISO EM E_{T}",
+		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
+		    L1EETAMIN, L1EETAMAX);
+
+    l1ExtraCenJetsOccEtaPhi_ =
+	dbe->book2D("L1ExtraCenJetsOccEtaPhi", "CENTRAL JET OCCUPANCY",
+		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
+		    L1EETAMIN, L1EETAMAX);
+    l1ExtraForJetsOccEtaPhi_ =
+	dbe->book2D("L1ExtraForJetsOccEtaPhi", "FORWARD JET OCCUPANCY",
+		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
+		    L1EETAMIN, L1EETAMAX);
+    l1ExtraTauJetsOccEtaPhi_ =
+	dbe->book2D("L1ExtraTauJetsOccEtaPhi", "TAU JET OCCUPANCY",
+		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
+		    L1EETAMIN, L1EETAMAX);
+    l1ExtraIsoEmOccEtaPhi_ =
+	dbe->book2D("L1ExtraIsoEmOccEtaPhi", "ISO EM OCCUPANCY",
+		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
+		    L1EETAMIN, L1EETAMAX);
+    l1ExtraNonIsoEmOccEtaPhi_ =
+	dbe->book2D("L1ExtraNonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",
+		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
+		    L1EETAMIN, L1EETAMAX);
+
+    l1ExtraCenJetsRank_ =
+	dbe->book1D("L1ExtraCenJetsRank", "CENTRAL JET RANK", TEVBINS,
+		    TEVMIN, TEVMAX);
+    l1ExtraForJetsRank_ =
+	dbe->book1D("L1ExtraForJetsRank", "FORWARD JET RANK", TEVBINS,
+		    TEVMIN, TEVMAX);
+    l1ExtraTauJetsRank_ =
+	dbe->book1D("L1ExtraTauJetsRank", "TAU JET RANK", TEVBINS, TEVMIN,
+		    TEVMAX);
+    l1ExtraIsoEmRank_ =
+	dbe->book1D("L1ExtraIsoEmRank", "ISO EM RANK", TEVBINS, TEVMIN,
+		    TEVMAX);
+    l1ExtraNonIsoEmRank_ =
+	dbe->book1D("L1ExtraNonIsoEmRank", "NON-ISO EM RANK", TEVBINS,
+		    TEVMIN, TEVMAX);
+
+    l1ExtraEtMiss_ =
+	dbe->book1D("L1ExtraEtMiss", "MISSING E_{T}", TEVBINS, TEVMIN,
+		    TEVMAX);
+    l1ExtraEtMissPhi_ =
+	dbe->book1D("L1ExtraEtMissPhi", "MISSING E_{T} #phi", METPHIBINS,
+		    L1EPHIMIN, L1EPHIMAX);
+    l1ExtraEtTotal_ =
+	dbe->book1D("L1ExtraEtTotal", "TOTAL E_{T}", TEVBINS, TEVMIN,
+		    TEVMAX);
+    l1ExtraEtHad_ =
+	dbe->book1D("L1ExtraEtHad", "TOTAL HAD E_{T}", TEVBINS, TEVMIN,
+		    TEVMAX);
+  }
 }
 
 
 void L1TGCT::endJob(void)
 {
-  if(verbose_) cout << "L1TGCT: end job...." << endl;
-  LogInfo("L1TGCT") << "analyzed " << nev_ << " events"; 
+  if (verbose_)
+    std::cout << "L1TGCT: end job...." << std::endl;
+  edm::LogInfo("L1TGCT") << "analyzed " << nev_ << " events";
 
- if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
+  if (outputFile_.size() != 0 && dbe)
+    dbe->save(outputFile_);
 
- return;
+  return;
 }
 
-void L1TGCT::analyze(const Event& e, const EventSetup& c)
+void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 {
-  nev_++; 
-  if(verbose_) cout << "L1TGCT: analyze...." << endl;
+  nev_++;
+  if (verbose_) {
+    std::cout << "L1TGCT: analyze...." << std::endl;
+  }
 
-  int ntest = 5;
-      gcttest->Fill(ntest);
-      if (verbose_)
-	{     
-     std::cout << "\tGCT test " << ntest
-   	    << std::endl;
-	}
+  // L1 Extra information - these are in physics quantities
+  // get the L1Extra collections
+  edm::Handle < L1EmParticleCollection > l1eIsoEm;
+  edm::Handle < L1EmParticleCollection > l1eNonIsoEm;
+  edm::Handle < L1JetParticleCollection > l1eCenJets;
+  edm::Handle < L1JetParticleCollection > l1eForJets;
+  edm::Handle < L1JetParticleCollection > l1eTauJets;
+  edm::Handle < L1EtMissParticle > l1eEtMiss;
+
+  e.getByLabel(l1ExtraLabel_, l1eIsoEm);
+  e.getByLabel(l1ExtraLabel_, l1eNonIsoEm);
+  e.getByLabel(l1ExtraLabel_, l1eCenJets);
+  e.getByLabel(l1ExtraLabel_, l1eForJets);
+  e.getByLabel(l1ExtraLabel_, l1eTauJets);
+  e.getByLabel(l1ExtraLabel_, l1eEtMiss);
+
+//   e.getByLabel(l1ExtraLabel_, "Isolated", l1eIsoEm);
+//   e.getByLabel(l1ExtraLabel_, "NonIsolated", l1eNonIsoEm);
+//   e.getByLabel(l1ExtraLabel_, "Central", l1eCenJets);
+//   e.getByLabel(l1ExtraLabel_, "Forward", l1eForJets);
+//   e.getByLabel(l1ExtraLabel_, "Tau", l1eTauJets);
+
+  // Fill the L1Extra histograms
+
+  // Central jets
+  for (L1JetParticleCollection::const_iterator cj = l1eCenJets->begin();
+       cj != l1eCenJets->end(); cj++) {
+    l1ExtraCenJetsEtEtaPhi_->Fill(cj->phi(), cj->eta(), cj->et());
+    l1ExtraCenJetsOccEtaPhi_->Fill(cj->phi(), cj->eta());
+    l1ExtraCenJetsRank_->Fill(cj->et());
+  }
+
+  // Forward jets
+  for (L1JetParticleCollection::const_iterator fj = l1eForJets->begin();
+       fj != l1eForJets->end(); fj++) {
+    l1ExtraForJetsEtEtaPhi_->Fill(fj->phi(), fj->eta(), fj->et());
+    l1ExtraForJetsOccEtaPhi_->Fill(fj->phi(), fj->eta());
+    l1ExtraForJetsRank_->Fill(fj->et());
+  }
+
+  // Tau jets
+  for (L1JetParticleCollection::const_iterator tj = l1eTauJets->begin();
+       tj != l1eTauJets->end(); tj++) {
+    l1ExtraTauJetsEtEtaPhi_->Fill(tj->phi(), tj->eta(), tj->et());
+    l1ExtraTauJetsOccEtaPhi_->Fill(tj->phi(), tj->eta());
+    l1ExtraTauJetsRank_->Fill(tj->et());
+  }
+
+  // Isolated EM
+  for (L1EmParticleCollection::const_iterator ie = l1eIsoEm->begin();
+       ie != l1eIsoEm->end(); ie++) {
+    l1ExtraIsoEmEtEtaPhi_->Fill(ie->phi(), ie->eta(), ie->et());
+    l1ExtraIsoEmOccEtaPhi_->Fill(ie->phi(), ie->eta());
+    l1ExtraIsoEmRank_->Fill(ie->et());
+  }
+
+  // Non-isolated EM
+  for (L1EmParticleCollection::const_iterator ne = l1eNonIsoEm->begin();
+       ne != l1eNonIsoEm->end(); ne++) {
+    l1ExtraNonIsoEmEtEtaPhi_->Fill(ne->phi(), ne->eta(), ne->et());
+    l1ExtraNonIsoEmOccEtaPhi_->Fill(ne->phi(), ne->eta());
+    l1ExtraNonIsoEmRank_->Fill(ne->et());
+  }
+
+  // Energy sums
+  l1ExtraEtMiss_->Fill(l1eEtMiss->et());
+  l1ExtraEtMissPhi_->Fill(l1eEtMiss->phi());
+  l1ExtraEtTotal_->Fill(l1eEtMiss->etTotal());
+  l1ExtraEtHad_->Fill(l1eEtMiss->etHad());
+
+
+
+
+
+
 }
-
