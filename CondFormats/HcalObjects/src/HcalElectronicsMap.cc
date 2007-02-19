@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2007/01/09 22:49:20 $
-$Revision: 1.14 $
+$Date: 2007/02/12 21:21:58 $
+$Revision: 1.15 $
 */
 
 #include <iostream>
@@ -18,7 +18,9 @@ HcalElectronicsMap::HcalElectronicsMap()
 {}
 
 namespace hcal_impl {
+  static const int PartialEIdMask = 0x3fff;
     class LessById {public: bool operator () (const HcalElectronicsMap::Item* a, const HcalElectronicsMap::Item* b) {return a->mId < b->mId;}};
+    class LessByPartialEId {public: bool operator () (const HcalElectronicsMap::Item* a, const HcalElectronicsMap::Item* b) {return (a->mElId&PartialEIdMask) < (b->mId&PartialEIdMask);}};
     class LessByElId {public: 
       bool operator () (const HcalElectronicsMap::Item* a, const HcalElectronicsMap::Item* b) {return a->mElId < b->mElId;}
       bool operator () (const HcalElectronicsMap::Item& a, const HcalElectronicsMap::Item& b) {return a.mElId < b.mElId;}
@@ -36,6 +38,19 @@ const HcalElectronicsMap::Item* HcalElectronicsMap::findById (unsigned long fId)
   
   item = std::lower_bound (mItemsById.begin(), mItemsById.end(), &target, hcal_impl::LessById());
   if (item == mItemsById.end() || (*item)->mId != fId) 
+    //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
+    return 0;
+  return *item;
+}
+
+const HcalElectronicsMap::Item* HcalElectronicsMap::findByPartialEId (unsigned long fElId) const {
+  Item target (0, fElId, 0);
+  std::vector<const HcalElectronicsMap::Item*>::const_iterator item;
+
+  if (mItemsByPartialEId.size()!=mItems.size()) sortByPartialEId();
+  
+  item = std::lower_bound (mItemsByPartialEId.begin(), mItemsByPartialEId.end(), &target, hcal_impl::LessByPartialEId());
+  if (item == mItemsByPartialEId.end() || ((*item)->mElId&hcal_impl::PartialEIdMask) != (fElId&hcal_impl::PartialEIdMask))
     //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
     return 0;
   return *item;
@@ -59,7 +74,7 @@ const HcalElectronicsMap::Item* HcalElectronicsMap::findByTrigId (unsigned long 
   if (mItemsByTrigId.size()!=mItems.size()) sortByTriggerId();
   
   item = std::lower_bound (mItemsByTrigId.begin(), mItemsByTrigId.end(), &target, hcal_impl::LessByTrigId());
-  if (item == mItemsByTrigId.end() || (*item)->mId != fTrigId) 
+  if (item == mItemsByTrigId.end() || (*item)->mTrigId != fTrigId) 
     //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
     return 0;
   return *item;
@@ -83,6 +98,15 @@ const DetId HcalElectronicsMap::lookupTrigger(HcalElectronicsId fId) const {
 const HcalElectronicsId HcalElectronicsMap::lookupTrigger(DetId fId) const {
   const Item* item = findByTrigId (fId.rawId ());
   return HcalElectronicsId (item ? item->mElId : 0);
+}
+
+bool HcalElectronicsMap::lookup(const HcalElectronicsId pId, HcalElectronicsId& eid, DetId& did) const {
+  const Item* item = findByPartialEId (pId.rawId ());
+  if (item!=0) {
+    eid=HcalElectronicsId(item->mElId);
+    did=DetId(item->mId);
+  }
+  return (item!=0);
 }
 
 bool HcalElectronicsMap::setMapping (DetId fId, HcalElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId) {
@@ -191,6 +215,17 @@ void HcalElectronicsMap::sortById () const {
     }
   }
   std::sort (mItemsById.begin(), mItemsById.end(), hcal_impl::LessById ());
+}
+
+void HcalElectronicsMap::sortByPartialEId () const {
+  if (mItems.size()!=mItemsByPartialEId.size()) {
+    mItemsByPartialEId.clear();
+    mItemsByPartialEId.reserve(mItems.size());
+    for (std::vector<Item>::const_iterator i=mItems.begin(); i!=mItems.end(); ++i) {
+      mItemsByPartialEId.push_back(&(*i));
+    }
+  }
+  std::sort (mItemsByPartialEId.begin(), mItemsByPartialEId.end(), hcal_impl::LessByPartialEId ());
 }
 void HcalElectronicsMap::sortByElectronicsId () {
   std::sort (mItems.begin(), mItems.end(), hcal_impl::LessByElId ());

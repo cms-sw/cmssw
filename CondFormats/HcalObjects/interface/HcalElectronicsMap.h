@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store map between detector ID, electronics ID and trigger ID
 $Author: ratnikov
-$Date: 2007/01/09 22:49:20 $
-$Revision: 1.11 $
+$Date: 2007/02/12 21:21:58 $
+$Revision: 1.12 $
 */
 
 #include <vector>
@@ -42,6 +42,8 @@ class HcalElectronicsMap {
   //return Null item if no such mapping
   const HcalElectronicsId lookupTrigger(DetId fId) const;
 
+  /// brief lookup the DetId and full electronics id associated with this partial (dcc/spigot/fiber/fiberchan) id
+  bool lookup(const HcalElectronicsId pId, HcalElectronicsId& eid, DetId& did) const;
 
   std::vector <HcalElectronicsId> allElectronicsId () const;
   std::vector <DetId> allDetectorId () const;
@@ -68,13 +70,16 @@ class HcalElectronicsMap {
     uint32_t mTrigId;
   };
  protected:
+  void sortByPartialEId () const;
   const Item* findById (unsigned long fId) const;
   const Item* findByElId (unsigned long fElId) const;
   const Item* findByTrigId (unsigned long fTrigId) const;
+  const Item* findByPartialEId (unsigned long fTrigId) const;
   
   std::vector<Item> mItems;
   mutable std::vector<const Item*> mItemsById;
   mutable std::vector<const Item*> mItemsByTrigId;
+  mutable std::vector<const Item*> mItemsByPartialEId;
 };
 
 #endif
