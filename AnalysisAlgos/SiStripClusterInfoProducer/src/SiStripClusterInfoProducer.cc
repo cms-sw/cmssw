@@ -204,7 +204,7 @@ namespace cms
 	  if (edm::isDebugEnabled())
 	    sss << "\n " << idig++ << " \t digi strip " << digi_iter->strip() << " digi adc " << digi_iter->adc();
 	}
-	LogTrace("SiStripClusterInfoProducer") << "\n["<<__PRETTY_FUNCTION__<<"] detid " << output_iter->id  << sss.str();
+	LogTrace("SiStripClusterInfoProducer") << "\n["<<__PRETTY_FUNCTION__<<"]\n detid " << output_iter->id  << sss.str();
 
 	findNeigh("digi",output_iter,vadc,vstrip);
       }
@@ -231,7 +231,7 @@ namespace cms
 	      std::vector<int16_t>::const_iterator digi_iter=vssRd.begin();
 	      for(;digi_iter!=vssRd.end();digi_iter++)
 		sss << "\n digi strip " << idig++ << " digi adc " << *digi_iter;
-	      LogTrace("SiStripClusterInfoProducer") << "\n["<<__PRETTY_FUNCTION__<<"] detid " << output_iter->id  << " Pedestal subtracted digis \n" << sss.str();	
+	      LogTrace("SiStripClusterInfoProducer") << " detid " << output_iter->id  << " Pedestal subtracted digis \n" << sss.str();	
 	    }	    
 	  }
 	} else if ( rawdigiLabel == "VirginRaw" ) {
@@ -242,7 +242,7 @@ namespace cms
 	    edm::DetSet<SiStripRawDigi>::const_iterator digi_iter=detset_iter->data.begin();
 	    for(;digi_iter!=detset_iter->data.end();digi_iter++)
 	      sss << "\n digi strip " << idig++ << " digi adc " << digi_iter->adc();
-	    LogTrace("SiStripClusterInfoProducer") << "\n["<<__PRETTY_FUNCTION__<<"] detid " << output_iter->id  << " RawDigis \n" << sss.str();
+	    LogTrace("SiStripClusterInfoProducer") << " detid " << output_iter->id  << " RawDigis \n" << sss.str();
 	  }
 
 	  //Subtract Pedestals
@@ -254,7 +254,7 @@ namespace cms
 	    std::vector<int16_t>::const_iterator digi_iter=vssRd.begin();
 	    for(;digi_iter!=vssRd.end();digi_iter++)
 	      sss << "\n digi strip " << idig++ << " digi adc " << *digi_iter;
-	    LogTrace("SiStripClusterInfoProducer") << "\n["<<__PRETTY_FUNCTION__<<"] detid " << output_iter->id  << " Pedestal subtracted digis \n" << sss.str();	
+	    LogTrace("SiStripClusterInfoProducer") << " detid " << output_iter->id  << " Pedestal subtracted digis \n" << sss.str();	
 	  }
 
 	  //Subtract CMN
@@ -267,7 +267,7 @@ namespace cms
 	      std::vector<int16_t>::const_iterator digi_iter=vssRd.begin();
 	      for(;digi_iter!=vssRd.end();digi_iter++)
 		sss << "\n digi strip " << idig++ << " digi adc " << *digi_iter;
-	      LogTrace("SiStripClusterInfoProducer") << "\n["<<__PRETTY_FUNCTION__<<"] detid " << output_iter->id  << " CMN subtracted digis \n" << sss.str();	
+	      LogTrace("SiStripClusterInfoProducer") << " detid " << output_iter->id  << " CMN subtracted digis \n" << sss.str();	
 	    }
 	    
 	  }else{
@@ -308,33 +308,24 @@ namespace cms
       if (mode=="digi"){
 	ptr=std::find(vstrip.begin(),vstrip.end(),firstStrip); 
 	if (ptr==vstrip.end())
-	  throw cms::Exception("") << "[" <<__PRETTY_FUNCTION__<<"]\n Expected Digi not found in detid " << output_iter->id << " strip " << firstStrip << std::endl;
+	  throw cms::Exception("") << "\n Expected Digi not found in detid " << output_iter->id << " strip " << firstStrip << std::endl;
       }
       else{ 
 	ptr=vstrip.begin()+firstStrip; //For raw mode vstrip==vadc==vector of digis for all strips in the det
       }
       LogTrace("SiStripClusterInfoProducer") 
-	<< "["<<__PRETTY_FUNCTION__<<"] ptr at strip " << ptr-vstrip.begin() << " adc " << *ptr 
+	<< " ptr at strip " << ptr-vstrip.begin() << " adc " << *ptr 
 	<< "\nelements above " << ptr-vstrip.begin() << std::endl;
       
       //Looking at digis before firstStrip	  
       for (uint16_t istrip=1;istrip<_NEIGH_STRIP_+1;istrip++){
 	if (istrip>ptr-vstrip.begin()) //avoid underflow
-	  {
-	    LogTrace("SiStripClusterInfoProducer") << "Domenico esco per underfloa";
-	    break;
-	  }
+	  {break;}
 	if (mode=="digi")
 	  if (firstStrip-istrip!=*(ptr-istrip)) //avoid not contiguous digis
-	    {
-	      LogTrace("SiStripClusterInfoProducer") << "Domenico esco per strip non contigue";
-	      break;
-	    }
+	    {break;}
 	if (firstStrip-istrip==lastStrip_previousCluster) //avoid clusters overlapping 
-	  {
-	    LogTrace("SiStripClusterInfoProducer") << "Domenico esco per strip non nel cluster";
-	      break;
-	  }
+	  {break;}
 	RawDigiAmplitudesL.push_back(*(vadc.begin()+(ptr-vstrip.begin())-istrip));
       }
       if (RawDigiAmplitudesL.size())
@@ -342,27 +333,18 @@ namespace cms
       
       ptr+=lastStrip-firstStrip;
       LogTrace("SiStripClusterInfoProducer") 
-	<< "["<<__PRETTY_FUNCTION__<<"] ptr at strip " << ptr-vstrip.begin() << " adc " << *ptr 
+	<< " ptr at strip " << ptr-vstrip.begin() << " adc " << *ptr 
 	<< "\nelements below " << vstrip.end()-ptr-1 << std::endl;
       
       //Looking at digis after LastStrip
       for (uint16_t istrip=1;istrip<_NEIGH_STRIP_+1;istrip++){
 	if (istrip>vstrip.end()-ptr-1) //avoid overflow
-	  {
-	    LogTrace("SiStripClusterInfoProducer") << "Domenico esco per strip non contigue";
-	      break;
-	  }
+	  {break;}
 	if (mode=="digi")
 	  if (lastStrip+istrip!=*(ptr+istrip)) //avoid not contiguous digis
-	  {
-	    LogTrace("SiStripClusterInfoProducer") << "Domenico esco per strip non contigue";
-	      break;
-	  }
+	  {break;}
 	if (lastStrip+istrip==firstStrip_nextCluster) //avoid clusters overlapping 
-	  {
-	    LogTrace("SiStripClusterInfoProducer") << "Domenico esco per strip non nel cluster";
-	      break;
-	  }
+	  {break;}
 	
 	RawDigiAmplitudesR.push_back(*(vadc.begin()+(ptr-vstrip.begin())+istrip));
       }
@@ -372,7 +354,7 @@ namespace cms
       if (edm::isDebugEnabled()){
 	std::stringstream ss;
 	cluster_iter->print(ss);
-	LogTrace("SiStripClusterInfoProducer") << "["<<__PRETTY_FUNCTION__<<"] Cluster " << ss.str();
+	LogTrace("SiStripClusterInfoProducer") << "\n Cluster " << ss.str();
       }
     }
   }
