@@ -202,6 +202,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   Output << "************************ List of modules with positions ************************" << std::endl;
   for(unsigned int i=0; i<modules.size();i++){
     unsigned int rawid = modules[i]->geographicalID().rawId();
+    Output << std::fixed << std::setprecision(6); // set as default 6 decimal digits
     Output << " ******** raw Id = " << rawid << std::endl;
     int subdetid = modules[i]->geographicalID().subdetId();
     double volume = modules[i]->volume() / 1000; // mm3->cm3
@@ -434,25 +435,51 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     GlobalVector zGlobal = (geomdet->surface()).toGlobal(zLocal);
     //
     
+    // Output: set as default 4 decimal digits (0.1 um or 0.1 deg/rad)
     // active area center
     Output << "\tActive Area Center" << std::endl;
-    Output << "\t O = (" << modules[i]->translation()[0] << "," << modules[i]->translation()[1] << "," << modules[i]->translation()[2] << ")" << std::endl;
+    Output << "\t O = (" << std::fixed << std::setprecision(4) << modules[i]->translation()[0]
+	   << ","        << std::fixed << std::setprecision(4) << modules[i]->translation()[1]
+	   << ","        << std::fixed << std::setprecision(4) << modules[i]->translation()[2]
+	   << ")" << std::endl;
+    //
+    double polarRadius = std::sqrt(modules[i]->translation()[0]*modules[i]->translation()[0]+modules[i]->translation()[1]*modules[i]->translation()[1]);
+    double phiDeg = atan2(modules[i]->translation()[1],modules[i]->translation()[0]) * 360. / 6.283185307;
+    double phiRad = atan2(modules[i]->translation()[1],modules[i]->translation()[0]);
+    //
     Output << "\t\t polar radius " 
-	   << sqrt(modules[i]->translation()[0]*modules[i]->translation()[0]+modules[i]->translation()[1]*modules[i]->translation()[1])
+	   << std::fixed << std::setprecision(4) << polarRadius
 	   << "\t" << "phi [deg] " 
-	   << atan2(modules[i]->translation()[1],modules[i]->translation()[0]) * 360. / 6.283185307
+	   << std::fixed << std::setprecision(4) << phiDeg
 	   << "\t" << "phi [rad] "
-	   << atan2(modules[i]->translation()[1],modules[i]->translation()[0])
+	   << std::fixed << std::setprecision(4) << phiRad
 	   << std::endl;
     // active area versors (rotation matrix)
     Output << "\tActive Area Rotation Matrix" << std::endl;
-    Output << "\t z = n = (" << modules[i]->rotation().xz() << "," << modules[i]->rotation().yz() << "," << modules[i]->rotation().zz() << ")" << std::endl
-	   << "\t [Rec] = (" << zGlobal.x()                 << "," << zGlobal.y()                 << "," << zGlobal.z()                 << ")" << std::endl
-	   << "\t x = t = (" << modules[i]->rotation().xx() << "," << modules[i]->rotation().yx() << "," << modules[i]->rotation().zx() << ")" << std::endl
-	   << "\t [Rec] = (" << xGlobal.x()                 << "," << xGlobal.y()                 << "," << xGlobal.z()                 << ")" << std::endl
-	   << "\t y = k = (" << modules[i]->rotation().xy() << "," << modules[i]->rotation().yy() << "," << modules[i]->rotation().zy() << ")" << std::endl
-	   << "\t [Rec] = (" << yGlobal.x()                 << "," << yGlobal.y()                 << "," << yGlobal.z()                 << ")" << std::endl;
-    
+    Output << "\t z = n = (" << std::fixed << std::setprecision(4) << modules[i]->rotation().xz()
+	   << ","            << std::fixed << std::setprecision(4) << modules[i]->rotation().yz()
+	   << ","            << std::fixed << std::setprecision(4) << modules[i]->rotation().zz()
+	   << ")" << std::endl
+	   << "\t [Rec] = (" << std::fixed << std::setprecision(4) << zGlobal.x()
+	   << ","            << std::fixed << std::setprecision(4) << zGlobal.y()
+	   << ","            << std::fixed << std::setprecision(4) << zGlobal.z()
+	   << ")" << std::endl
+	   << "\t x = t = (" << std::fixed << std::setprecision(4) << modules[i]->rotation().xx()
+	   << ","            << std::fixed << std::setprecision(4) << modules[i]->rotation().yx()
+	   << ","            << std::fixed << std::setprecision(4) << modules[i]->rotation().zx()
+	   << ")" << std::endl
+	   << "\t [Rec] = (" << std::fixed << std::setprecision(4) << xGlobal.x()
+	   << ","            << std::fixed << std::setprecision(4) << xGlobal.y()
+	   << ","            << std::fixed << std::setprecision(4) << xGlobal.z()
+	   << ")" << std::endl
+	   << "\t y = k = (" << std::fixed << std::setprecision(4) << modules[i]->rotation().xy()
+	   << ","            << std::fixed << std::setprecision(4) << modules[i]->rotation().yy()
+	   << ","            << std::fixed << std::setprecision(4) << modules[i]->rotation().zy()
+	   << ")" << std::endl
+	   << "\t [Rec] = (" << std::fixed << std::setprecision(4) << yGlobal.x()
+	   << ","            << std::fixed << std::setprecision(4) << yGlobal.y()
+	   << ","            << std::fixed << std::setprecision(4) << yGlobal.z()
+	   << ")" << std::endl;
   }
   
   // params
