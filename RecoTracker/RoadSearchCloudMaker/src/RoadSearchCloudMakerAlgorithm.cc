@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/11/10 21:36:19 $
-// $Revision: 1.30 $
+// $Date: 2007/02/05 19:30:04 $
+// $Revision: 1.32 $
 //
 
 #include <vector>
@@ -94,6 +94,9 @@
 
 #include "RecoTracker/RoadMapRecord/interface/RoadMapRecord.h"
 
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+
 using namespace std;
 
 double RoadSearchCloudMakerAlgorithm::epsilon      =   0.000000001;
@@ -123,6 +126,7 @@ RoadSearchCloudMakerAlgorithm::RoadSearchCloudMakerAlgorithm(const edm::Paramete
 }
 
 RoadSearchCloudMakerAlgorithm::~RoadSearchCloudMakerAlgorithm() {
+
 }
 
 double RoadSearchCloudMakerAlgorithm::map_phi(double phi) {
@@ -175,6 +179,9 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
   // get tracker geometry
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
+
+  // get hit matcher
+  SiStripRecHitMatcher* theHitMatcher = new SiStripRecHitMatcher(3.0);
 
   // counter for seeds for edm::Ref size_type
   int seedCounter = -1;
@@ -347,18 +354,18 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 	      for ( Ring::const_iterator detid = (*ring)->lower_bound(lowerPhiRangeBorder); detid != (*ring)->upper_bound(upperPhiRangeBorder); ++detid) {
 		
 		usedHitsInThisLayer += FillRecHitsIntoCloudGeneral(detid->second,d0,phi0,k0,roadType,ringPhi,&(*seed),
-								   tracker.product(),cloud);
+								   tracker.product(),theHitMatcher,cloud);
 	      }
 
 	    } else {
 	      for ( Ring::const_iterator detid = (*ring)->lower_bound(lowerPhiRangeBorder); detid != (*ring)->end(); ++detid) {
 		usedHitsInThisLayer += FillRecHitsIntoCloudGeneral(detid->second,d0,phi0,k0,roadType,ringPhi,&(*seed),
-								   tracker.product(),cloud);
+								   tracker.product(),theHitMatcher,cloud);
 	      }
 
 	      for ( Ring::const_iterator detid = (*ring)->begin(); detid != (*ring)->upper_bound(upperPhiRangeBorder); ++detid) {
 		usedHitsInThisLayer += FillRecHitsIntoCloudGeneral(detid->second,d0,phi0,k0,roadType,ringPhi,&(*seed),
-								   tracker.product(),cloud);
+								   tracker.product(),theHitMatcher,cloud);
 
 	      }
 	    }
@@ -411,6 +418,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
   
 //   edm::LogInfo("RoadSearch") << output_.str();
 
+  delete theHitMatcher;
   edm::LogInfo("RoadSearch") << "Found " << output.size() << " clouds."; 
 
 }
@@ -419,7 +427,8 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 									const TrajectorySeed* seed, 
 // 									std::vector<bool> &usedLayersArray,
 // 									const std::vector<unsigned int> &numberOfLayersPerSubdetector,
-									const TrackerGeometry *tracker, RoadSearchCloud &cloud) {
+									const TrackerGeometry *tracker, const SiStripRecHitMatcher* theHitMatcher,
+									RoadSearchCloud &cloud) {
 
   unsigned int usedRecHits = 0;
 
@@ -442,15 +451,57 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	  //
 	  //  This is where the barrel stereoRecHits end up for Roads::RPhi
 	  //
-	  GlobalPoint ghit = tracker->idToDet(recHit->geographicalId())->surface().toGlobal(recHit->localPosition());
-	  double hitRadius = sqrt(ghit.x()*ghit.x()+ghit.y()*ghit.y());
-	  double hitphi = map_phi(ghit.phi());
-	  double phi = phiFromExtrapolation(d0,phi0,k0,hitRadius,roadType);
-	  if ( std::abs(hitphi-phi) < 6.0*phiMax(seed,roadType,phi0,k0) ) {
-	    if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
-	      cloud.addHit((TrackingRecHit*)recHit->clone());
-	      ++usedRecHits;
+
+	  // Adjust matched hit for track angle
+	  const SiStripMatchedRecHit2D *theRH = dynamic_cast<SiStripMatchedRecHit2D*>(*recHitIterator);
+	  //const GluedGeomDet *theGluedDet = dynamic_cast<const GluedGeomDet*>(tracker->idToDet(theRH->geographicalId()));
+	  const GeomDet *recHitGeomDet = tracker->idToDet(hitId);
+	  const GluedGeomDet *theGluedDet = dynamic_cast<const GluedGeomDet*>(recHitGeomDet);
+
+	  const GeomDetUnit* theMonoDet = theGluedDet->monoDet();
+	  const SiStripRecHit2D* theMonoHit   = theRH->monoHit(); 
+
+	  GlobalPoint gcenterofstrip=(theMonoDet->surface()).toGlobal(theMonoHit->localPosition());
+	  //GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
+	  //LocalVector ltrackdirection=(theMonoDet->surface()).toLocal(gtrackdirection);
+
+	  float gtrackangle_xy = map_phi2(phi0 + 2.0*asin(0.5*gcenterofstrip.perp()*k0));
+	  float rzangle = atan2(gcenterofstrip.perp(),gcenterofstrip.z());
+
+	  //GlobalVector gtrackangle(cos(gtrackangle_xy)*gcenterofstrip.perp(),
+	  //			   sin(gtrackangle_xy)*gcenterofstrip.perp(),
+	  //			   gcenterofstrip.z());
+	  //LocalVector trackdirection=((tracker->idToDet(hitId))->surface()).toLocal(gtrackangle);
+	  
+	  GlobalVector gtrackangle2(cos(gtrackangle_xy)*sin(rzangle),
+				   sin(gtrackangle_xy)*sin(rzangle),
+				   cos(rzangle));
+	  LocalVector trackdirection2=((tracker->idToDet(hitId))->surface()).toLocal(gtrackangle2);
+	  SiStripMatchedRecHit2D* theCorrectedHit = theHitMatcher->match(theRH,
+									theGluedDet,
+									trackdirection2);
+
+
+	  if (theCorrectedHit != 0){
+	    
+	    GlobalPoint ghit = tracker->idToDet(theCorrectedHit->geographicalId())->surface().toGlobal(theCorrectedHit->localPosition());	    
+	    double hitRadius = sqrt(ghit.x()*ghit.x()+ghit.y()*ghit.y());
+	    double hitphi = map_phi(ghit.phi());
+	    double phi = phiFromExtrapolation(d0,phi0,k0,hitRadius,roadType);
+
+	    float dp = (hitphi-phi);
+	    float dx = hitRadius*tan(dp);
+	    
+	    //if ( std::abs(hitphi-phi) < 6.0*phiMax(seed,roadType,phi0,k0) ) {
+	    // switch cut to dx instead of dphi
+	    if ( std::abs(dx) < phiMax(seed,roadType,phi0,k0) ) {
+	      if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
+		cloud.addHit((TrackingRecHit*)theCorrectedHit->clone());
+		//cloud.addHit((TrackingRecHit*)recHit->clone());
+		++usedRecHits;
+	      }
 	    }
+	    delete theCorrectedHit;
 	  }
 	} else { // Single layer hits here
 	  if ( isBarrelSensor(hitId) ) {
@@ -461,7 +512,13 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	    double hitRadius = sqrt(ghit.x()*ghit.x()+ghit.y()*ghit.y());
 	    double hitphi = map_phi(ghit.phi());
 	    double phi = phiFromExtrapolation(d0,phi0,k0,hitRadius,roadType);
-	    if ( std::abs(hitphi-phi) < phiMax(seed,roadType,phi0,k0) ) {
+
+	    float dp = (hitphi-phi);
+	    float dx = hitRadius*tan(dp);
+
+	    //if ( std::abs(hitphi-phi) < phiMax(seed,roadType,phi0,k0) ) {
+	    // switch cut to dx instead of dphi
+	    if ( std::abs(dx) < phiMax(seed,roadType,phi0,k0) ) {
 	      if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
 		cloud.addHit((TrackingRecHit*)recHit->clone());
 		++usedRecHits;
@@ -481,6 +538,10 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	    double lowerBoundaryPhi = phiFromExtrapolation(d0,phi0,k0,lowerBoundaryRadius,roadType);
 	    double hitPhi = map_phi(tracker->idToDetUnit(hitId)->surface().toGlobal(hit).phi());
 		
+	    //double midpointRadius = 0.5*(upperBoundaryRadius+lowerBoundaryRadius);
+	    //double midpointPhi = phiFromExtrapolation(d0,phi0,k0,midpointRadius,roadType);
+	    //float dx = midpointRadius*tan(hitPhi-midpointPhi);
+
 	    if ( lowerBoundaryPhi <= upperBoundaryPhi ) {
 	      //
 	      //  This is where the disk (???) rphiRecHits end up for Roads::RPhi
@@ -515,6 +576,10 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	  //double hitRadius = tracker->idToDetUnit(id)->surface().toGlobal(recHit->localPosition()).perp();
 	  double hitZ = tracker->idToDet(hitId)->surface().toGlobal(recHit->localPosition()).z();
 	  double phi = phiFromExtrapolation(d0,phi0,k0,hitZ,roadType);
+
+	  //float dp = hitphi-phi;
+	  //float dx = hitZ*tan(dp);
+
 	  //
 	  //  This is where the disk stereoRecHits end up for Roads::ZPhi
 	  //
@@ -536,6 +601,10 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	    double upperBoundaryPhi = phiFromExtrapolation(d0,phi0,k0,upperBoundaryZ,roadType);
 	    double lowerBoundaryPhi = phiFromExtrapolation(d0,phi0,k0,lowerBoundaryZ,roadType);
 	    double hitPhi = map_phi(tracker->idToDetUnit(hitId)->surface().toGlobal(recHit->localPosition()).phi());
+
+	    //double midpointZ = 0.5*(upperBoundaryZ+lowerBoundaryZ);
+	    //double midpointPhi = phiFromExtrapolation(d0,phi0,k0,midpointZ,roadType);
+	    //float dx = midpointZ*tan(hitPhi-midpointPhi);
 
 	    if ( lowerBoundaryPhi <= upperBoundaryPhi ) {
 	      //
@@ -572,6 +641,11 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	    double lowerBoundaryPhi = map_phi(tracker->idToDetUnit(hitId)->surface().toGlobal(lowerLocalBoundary).phi());
 	    double roadPhi =  phiFromExtrapolation(d0,phi0,k0,diskZ,roadType);
 		
+	    //double midpointPhi = 0.5*(upperBoundaryPhi+lowerBoundaryPhi);
+	    //if (fabs(lowerBoundaryPhi-upperBoundaryPhi) > 3.14159
+	    //  midpointPhi= 0.5*(upperBoundaryRadius-lowerBoundaryRadius);
+	    //float dp = midpointPhi-roadPhi;
+	    //float dx = diskZ*tan(dp);
 	    if ( lowerBoundaryPhi <= upperBoundaryPhi ) {
 	      //
 	      //  This is where the disk rphiRecHits end up for Roads::ZPhi
@@ -614,7 +688,12 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	  double hitphi = map_phi(ghit.phi());
 	  double phi = phiFromExtrapolation(d0,phi0,k0,hitRadius,roadType);
 	
-	  if ( std::abs(hitphi-phi) < phiMax(seed,roadType,phi0,k0) ) {
+	  float dp = hitphi-phi;
+	  float dx = hitRadius*tan(dp);
+
+	  //if ( std::abs(hitphi-phi) < phiMax(seed,roadType,phi0,k0) ) {
+	  // switch cut to dx instead of dphi
+	  if ( std::abs(dx) < phiMax(seed,roadType,phi0,k0) ) {
 	    cloud.addHit((TrackingRecHit*)recHit->clone());
 	    ++usedRecHits;
 	  }
@@ -648,6 +727,9 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
       
 	double  phi = phiFromExtrapolation(d0,phi0,k0,ghit.z(),roadType);
       
+	//double hitphi = map_phi(ghit.phi());
+	//float dx = ghit.z()*tan(hitphi-phi);
+
 	if ( (phi - phiMax(seed,roadType,phi0,k0)) < ringPhi && (phi + phiMax(seed,roadType,phi0,k0))>ringPhi ) {
 	  cloud.addHit((TrackingRecHit*)recHit->clone());
 	  ++usedRecHits;
@@ -831,7 +913,10 @@ double RoadSearchCloudMakerAlgorithm::phiMax(const TrajectorySeed *seed, Roads::
 
   double dphi;
   if ( roadType == Roads::RPhi ) {
-    dphi = theRPhiRoadSize + fabs(k0);
+    //dphi = theRPhiRoadSize + fabs(k0);
+    // switch cut to dx instead of dphi
+    // Still call this dphi, but will now be dx
+    dphi = theRPhiRoadSize + 0.15*82.0*fabs(k0);
   }
   else if ( roadType == Roads::ZPhi ) {
     dphi = theZPhiRoadSize;

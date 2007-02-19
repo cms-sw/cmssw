@@ -50,9 +50,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2006/10/13 16:20:21 $
-// $Revision: 1.15 $
+// $Author: gutsche $
+// $Date: 2007/02/05 19:30:04 $
+// $Revision: 1.17 $
 //
 
 #include <string>
@@ -77,6 +77,8 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
+ 
 class RoadSearchCloudMakerAlgorithm 
 {
  public:
@@ -94,9 +96,9 @@ class RoadSearchCloudMakerAlgorithm
 	   RoadSearchCloudCollection &output);
 
   unsigned int FillRecHitsIntoCloudGeneral(DetId id, double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
-				   const TrajectorySeed* seed, 
-				   const TrackerGeometry *tracker, RoadSearchCloud &cloud);
-
+                                   const TrajectorySeed* seed,
+                                   const TrackerGeometry *tracker, const SiStripRecHitMatcher* theHitMatcher, RoadSearchCloud &cloud);
+ 
   unsigned int FillRecHitsIntoCloud(DetId id, const SiStripRecHit2DCollection* inputRecHits, 
 				    double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
 				    const TrajectorySeed* seed, 

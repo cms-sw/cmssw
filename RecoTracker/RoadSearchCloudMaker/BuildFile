@@ -24,6 +24,8 @@
 
 <use name=TrackingTools/RoadSearchHitAccess>
 
+<use name=RecoLocalTracker/SiStripRecHitConverter>
+
 <export>
  <lib name=RecoTrackerRoadSearchCloudMaker>
  <use name=FWCore/Framework>
@@ -49,5 +51,7 @@
  <use name=RecoTracker/RingRecord>
 
  <use name=TrackingTools/RoadSearchHitAccess>
+
+ <use name=RecoLocalTracker/SiStripRecHitConverter>
 
 </export>
