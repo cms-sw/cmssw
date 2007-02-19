@@ -13,6 +13,7 @@
 </export>
 
 <use name=L1Trigger/CSCCommonTrigger>
+<use name=Utilities/Timing>
 <use name=Geometry/CSCGeometry>
 <use name=Geometry/Records>
 <use name=DataFormats/CSCDigi>
