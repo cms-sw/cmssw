@@ -77,7 +77,7 @@ public:
    */
   bool operator==(const VertexTrack & data) const
   {
-    return ((*data.linearizedTrack().get()) == (*linearizedTrack().get()));
+    return ((*data.linearizedTrack()) == (*linearizedTrack()));
   }
 
   /** Method helping Kalman vertex fit
