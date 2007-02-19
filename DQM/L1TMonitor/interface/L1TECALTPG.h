@@ -1,14 +1,16 @@
+// -*-C++-*- 
 #ifndef L1TECALTPG_H
 #define L1TECALTPG_H
 
 /*
  * \file L1TECALTPG.h
  *
- * $Date: 2007/02/02 20:56:20 $
- * $Revision: 1.00 $
+ * $Date: 2007/02/19 19:24:08 $
+ * $Revision: 1.1 $
  * \author J. Berryhill
  *
-*/
+ * $Log$
+ */
 
 // system include files
 #include <memory>
@@ -32,38 +34,42 @@
 #include <fstream>
 #include <vector>
 
+
 //
-// class decleration
+// class declaration
 //
 
-class L1TECALTPG : public edm::EDAnalyzer {
+class L1TECALTPG:public edm::EDAnalyzer {
 
 public:
 
-// Constructor
-L1TECALTPG(const edm::ParameterSet& ps);
+  // Constructor
+  L1TECALTPG(const edm::ParameterSet & ps);
 
-// Destructor
-virtual ~L1TECALTPG();
+  // Destructor
+  virtual ~ L1TECALTPG();
 
 protected:
-// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+  // Analyze
+  void analyze(const edm::Event & e, const edm::EventSetup & c);
 
-// BeginJob
-void beginJob(const edm::EventSetup& c);
+  // BeginJob
+  void beginJob(const edm::EventSetup & c);
 
-// EndJob
-void endJob(void);
+  // EndJob
+  void endJob(void);
 
 private:
   // ----------member data ---------------------------
   DaqMonitorBEInterface * dbe;
 
-  MonitorElement* ecaltpgtest;
+  // what we monitor
+  MonitorElement *ecalTpEtEtaPhi_;
+  MonitorElement *ecalTpOccEtaPhi_;
+  MonitorElement *ecalTpRank_;
 
-  int nev_; // Number of events processed
-  std::string outputFile_; //file name for ROOT ouput
+  int nev_;			// Number of events processed
+  std::string outputFile_;	//file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
   ofstream logFile_;

@@ -1,20 +1,24 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2007/02/19 19:24:09 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/19 21:11:23 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
  *  Initial version largely stolen from GCTMonitor (wittich 2/07)
  *
- * $Log$
+ * $Log: L1TGCT.cc,v $
+ * Revision 1.2  2007/02/19 21:11:23  wittich
+ * - Updates for integrating GCT monitor.
+ *   + Adapted right now only the L1E elements thereof.
+ *   + added DataFormats/L1Trigger to build file.
+ *
  *
  *
  */
 
 #include "DQM/L1TMonitor/interface/L1TGCT.h"
 
-// using namespace std;
 using namespace edm;
 using namespace l1extra;
 
@@ -32,13 +36,6 @@ const unsigned int PHIBINS = 18;
 const float PHIMIN = -0.5;
 const float PHIMAX = 17.5;
 
-const unsigned int TPPHIBINS = 72;
-const float TPPHIMIN = 0.5;
-const float TPPHIMAX = 72.5;
-
-const unsigned int TPETABINS = 65;
-const float TPETAMIN = -32.5;
-const float TPETAMAX = 32.5;
 
 const unsigned int L1EETABINS = 22;
 const float L1EETAMIN = -5;
@@ -58,11 +55,6 @@ const float R10MAX = 1023.5;
 const unsigned int R12BINS = 4096;
 const float R12MIN = -0.5;
 const float R12MAX = 4095.5;
-
-// Something for the trigger primitives
-const unsigned int RTPBINS = 101;
-const float RTPMIN = -0.5;
-const float RTPMAX = 100.5;
 
 // Physical bins 1 Gev - 1 TeV in 1 GeV steps
 const unsigned int TEVBINS = 1001;
@@ -141,7 +133,7 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
     dbe->setCurrentFolder("L1TMonitor/L1TGCT");
 
     // Book L1Extra histograms
-    dbe->setCurrentFolder("L1Extra");
+    //dbe->setCurrentFolder("L1Extra"); ?? Add subfolder
 
     l1ExtraCenJetsEtEtaPhi_ =
 	dbe->book2D("L1ExtraCenJetsEtEtaPhi", "CENTRAL JET E_{T}",
@@ -223,8 +215,9 @@ void L1TGCT::endJob(void)
     std::cout << "L1TGCT: end job...." << std::endl;
   edm::LogInfo("L1TGCT") << "analyzed " << nev_ << " events";
 
-  if (outputFile_.size() != 0 && dbe)
+  if (outputFile_.size() != 0 && dbe) {
     dbe->save(outputFile_);
+  }
 
   return;
 }

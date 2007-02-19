@@ -9,6 +9,7 @@
 <use name=DataFormats/L1DTTrackFinder>
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/L1GlobalTrigger>
+<use name=DataFormats/EcalDigi>
 <flags SEAL_PLUGIN_NAME="DQML1TMonitor">
 <export>
    <lib name=DQML1TMonitor>
@@ -23,4 +24,5 @@
    <use name=DataFormats/L1DTTrackFinder>
    <use name=DataFormats/L1GlobalMuonTrigger>
    <use name=DataFormats/L1GlobalTrigger>
+   <use name=DataFormats/EcalDigi>
 </export>
