@@ -1,13 +1,17 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2007/02/19 21:11:23 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/19 22:07:26 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
  *  Initial version largely stolen from GCTMonitor (wittich 2/07)
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.3  2007/02/19 22:07:26  wittich
+ * - Added three monitorables to the ECAL TPG monitoring (from GCTMonitor)
+ * - other minor tweaks in GCT, etc
+ *
  * Revision 1.2  2007/02/19 21:11:23  wittich
  * - Updates for integrating GCT monitor.
  *   + Adapted right now only the L1E elements thereof.
@@ -18,6 +22,19 @@
  */
 
 #include "DQM/L1TMonitor/interface/L1TGCT.h"
+
+// Trigger Headers
+
+// GCT and RCT data formats
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+
+// L1Extra
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+
 
 using namespace edm;
 using namespace l1extra;

@@ -5,11 +5,16 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2007/02/19 19:24:08 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/19 21:11:23 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
- * $Id$
- * $Log$
+ * $Id: L1TGCT.h,v 1.2 2007/02/19 21:11:23 wittich Exp $
+ * $Log: L1TGCT.h,v $
+ * Revision 1.2  2007/02/19 21:11:23  wittich
+ * - Updates for integrating GCT monitor.
+ *   + Adapted right now only the L1E elements thereof.
+ *   + added DataFormats/L1Trigger to build file.
+ *
  *
 */
 
@@ -40,17 +45,6 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 
-// Trigger Headers
-
-// GCT and RCT data formats
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
-#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
-
-// L1Extra
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 
 
 
