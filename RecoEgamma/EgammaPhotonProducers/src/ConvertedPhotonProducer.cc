@@ -12,6 +12,7 @@
 //
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaTrackReco/interface/TrackSuperClusterAssociation.h"
 #include "DataFormats/EgammaCandidates/interface/ConvertedPhoton.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -42,6 +43,7 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
 
   LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer CTOR " << "\n";
 
+ 
 
   // use onfiguration file to setup input collection names
  
@@ -57,6 +59,10 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   
   conversionOITrackProducer_ = conf_.getParameter<std::string>("conversionOITrackProducer");
   conversionIOTrackProducer_ = conf_.getParameter<std::string>("conversionIOTrackProducer");
+
+  outInTrackSCAssociationCollection_ = conf_.getParameter<std::string>("outInTrackSCAssociation");
+  inOutTrackSCAssociationCollection_ = conf_.getParameter<std::string>("inOutTrackSCAssociation");
+
 
 
   // use onfiguration file to setup output collection names
@@ -113,7 +119,7 @@ void  ConvertedPhotonProducer::beginJob (edm::EventSetup const & theEventSetup) 
 void  ConvertedPhotonProducer::endJob () {
 
   edm::LogInfo("ConvertedPhotonProducer") << " Analyzed " << nEvt_  << "\n";
-  LogDebug("ConvertedPhotonProducer") << "::endJob Analyzed " << nEvt_ << " events " << "\n";
+ LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer::endJob Analyzed " << nEvt_ << " events " << "\n";
  
 
 }
@@ -124,7 +130,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   nEvt_++;  
   LogInfo("ConvertedPhotonProducer") << "Analyzing event number: " << theEvent.id() << " Global counter " << nEvt_  << "\n";
   LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProduce::produce event number " <<   theEvent.id() << " Global counter " << nEvt_ << "\n";
-  
+ 
   
   //
   // create empty output collections
@@ -133,43 +139,55 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   // Converted photon candidates
   reco::ConvertedPhotonCollection outputConvPhotonCollection;
   std::auto_ptr< reco::ConvertedPhotonCollection > outputConvPhotonCollection_p(new reco::ConvertedPhotonCollection);
-  LogDebug("ConvertedPhotonProducer") << " Created empty ConvertedPhotonCollection size " <<   "\n";
+ LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Created empty ConvertedPhotonCollection size " <<   "\n";
 
 
   // Get the Super Cluster collection in the Barrel
   Handle<reco::SuperClusterCollection> scBarrelHandle;
   theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
-  LogDebug("ConvertedPhotonProducer") << " Trying to access " << scHybridBarrelCollection_.c_str() << "  from my Producer " << "\n";
+ LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Trying to access " << scHybridBarrelCollection_.c_str() << "  from my Producer " << "\n";
   
   reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
-  LogDebug("ConvertedPhotonProducer") << "barrel  SC collection size  " << scBarrelCollection.size() << "\n";
+ LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer barrel  SC collection size  " << scBarrelCollection.size() << "\n";
   
   // Get the Super Cluster collection in the Endcap
   Handle<reco::SuperClusterCollection> scEndcapHandle;
   theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
-  LogDebug("ConvertedPhotonProducer") << " Trying to access " <<scIslandEndcapCollection_.c_str() << "  from my Producer " << "\n";
+ LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Trying to access " <<scIslandEndcapCollection_.c_str() << "  from my Producer " << "\n";
   
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
-  LogDebug("ConvertedPhotonProducer") << "Endcap SC collection size  " << scEndcapCollection.size() << "\n";
+ LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap SC collection size  " << scEndcapCollection.size() << "\n";
 
   //// Get the Out In CKF tracks from conversions
   Handle<reco::TrackCollection> outInTrkHandle;
   theEvent.getByLabel(conversionOITrackProducer_,  outInTrkHandle);
-  LogDebug("ConvertedPhotonProducer") << " outInTrack collection size " << (*outInTrkHandle).size() << "\n";
+ LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer outInTrack collection size " << (*outInTrkHandle).size() << "\n";
 
  // Loop over Out In Tracks
   for( reco::TrackCollection::const_iterator  iTk =  (*outInTrkHandle).begin(); iTk !=  (*outInTrkHandle).end(); iTk++) {
-    LogDebug("ConvertedPhotonProducer") << " Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
+   LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
     
-    LogDebug("ConvertedPhotonProducer") << " Out In Track Extra inner momentum  " << iTk->extra()->outerMomentum() << "\n";  
+   LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Out In Track Extra inner momentum  " << iTk->extra()->outerMomentum() << "\n";  
    
   }
+  //// Get the association map between CKF out in tracks and the SC where they originated
+  Handle<reco::TrackSuperClusterAssociationCollection> outInTrkSCAssocHandle;
+  theEvent.getByLabel( conversionOITrackProducer_, outInTrackSCAssociationCollection_, outInTrkSCAssocHandle);
+  reco::TrackSuperClusterAssociationCollection outInTrackSCAss = *outInTrkSCAssocHandle;  
+  LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer outInTrackSCAssoc collection size " << (*outInTrkSCAssocHandle).size() <<"\n";
 
 
   //// Get the In Out  CKF tracks from conversions
   Handle<reco::TrackCollection> inOutTrkHandle;
   theEvent.getByLabel(conversionIOTrackProducer_, inOutTrkHandle);
-  LogDebug("ConvertedPhotonProducer") << " inOutTrack collection size " << (*inOutTrkHandle).size() << "\n";
+  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer inOutTrack collection size " << (*inOutTrkHandle).size() << "\n";
+  //// Get the association map between CKF in out tracks and the SC where they originated
+  Handle<reco::TrackSuperClusterAssociationCollection> inOutTrkSCAssocHandle;
+  theEvent.getByLabel( conversionIOTrackProducer_, inOutTrackSCAssociationCollection_, inOutTrkSCAssocHandle);
+  reco::TrackSuperClusterAssociationCollection inOutTrackSCAss = *inOutTrkSCAssocHandle;  
+  LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer inOutTrackSCAssoc collection size " << (*inOutTrkSCAssocHandle).size() <<"\n";
+
+
 
   // Transform Track into TransientTrack (needed by the Vertex fitter)
   edm::ESHandle<TransientTrackBuilder> theTransientTrackBuilder;
@@ -189,19 +207,15 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); aClus++) {
     
     //    if ( abs( aClus->eta() ) > 0.9 ) return; 
-    LogDebug("ConvertedPhotonProducer") << " SC energy " << aClus->energy() << " eta " <<  aClus->eta() << " phi " <<  aClus->phi() << "\n";
+   LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer SC energy " << aClus->energy() << " eta " <<  aClus->eta() << " phi " <<  aClus->phi() << "\n";
     
         
     ///// Find the +/- pairs
-    //std::vector<std::vector<reco::Track> > allPairs = theTrackPairFinder_->run(outInTrkHandle,  inOutTrkHandle );
-    std::vector<std::vector<reco::TransientTrack> > allPairs = theTrackPairFinder_->run(t_outInTrk,  t_inOutTrk );
-    
-    LogDebug("ConvertedPhotonProducer") << " Barrel  allPairs.size " << allPairs.size() << "\n";
-    //    edm::RefVector<reco::TrackCollection> trackPairRef; 
-    
+    std::map<std::vector<reco::TransientTrack>, reco::SuperCluster> allPairs = theTrackPairFinder_->run(t_outInTrk, outInTrkHandle, outInTrkSCAssocHandle, t_inOutTrk, inOutTrkHandle, inOutTrkSCAssocHandle  );
+
+
+    LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Barrel  allPairs.size " << allPairs.size() << "\n";
     std::vector<edm::Ref<reco::TrackCollection> > trackPairRef;
-
-
 
     //// Set here first quantities for the converted photon
     const reco::Particle::Point  vtx( 0, 0, 0 );
@@ -214,32 +228,32 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
     
     if ( allPairs.size() ) {
       
-      for ( std::vector<std::vector<reco::TransientTrack> >::const_iterator iPair= allPairs.begin(); iPair!= allPairs.end(); ++iPair ) {
-	LogDebug("ConvertedPhotonProducer") << " Barrel single pair size " << (*iPair).size() << "\n";  
-	//if (  (*iPair).size()  < 2) continue;
+      //      for ( std::vector<std::vector<reco::TransientTrack> >::const_iterator iPair= allPairs.begin(); iPair!= allPairs.end(); ++iPair ) {
+      for (  std::map<std::vector<reco::TransientTrack>, reco::SuperCluster>::const_iterator iPair= allPairs.begin(); iPair!= allPairs.end(); ++iPair ) {
+	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Barrel single pair size " << (iPair->first).size() << " SC Energy " << (iPair->second).energy() << " eta " << (iPair->second).eta() << " phi " <<  (iPair->second).phi() << "\n";  
 	
+	if ( (iPair->second).energy() != aClus->energy() ) continue;        
 
 	CachingVertex theConversionVertex;
-	if (  allPairs.size() > 1 ) theConversionVertex=theVertexFinder_->run(*iPair);
+	if (  allPairs.size() > 1 ) theConversionVertex=theVertexFinder_->run(iPair->first);
 
         if ( theConversionVertex.isValid() ) {	
 	  convVtx.SetXYZ( theConversionVertex.position().x(), theConversionVertex.position().y(),  theConversionVertex.position().z() );
-	  LogDebug("ConvertedPhotonProducer") << " conversion vertex position " << theConversionVertex.position() << "\n";
+	 LogDebug("ConvertedPhotonProducer") << "  ConvertedPhotonProducer conversion vertex position " << theConversionVertex.position() << "\n";
 	} else {
-	  LogDebug("ConvertedPhotonProducer") << " conversion vertex is not valid set the position to (0,0,0) " << "\n";
+	 LogDebug("ConvertedPhotonProducer") << "  ConvertedPhotonProducer conversion vertex is not valid set the position to (0,0,0) " << "\n";
 	}
 	 
 	  
 	//// loop over tracks in the pair for creating a reference
 	trackPairRef.clear();
-	for ( std::vector<reco::TransientTrack>::const_iterator iTk=(*iPair).begin(); iTk!=(*iPair).end(); ++iTk) {
-	  LogDebug("ConvertedPhotonProducer") << " Transient Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
+	for ( std::vector<reco::TransientTrack>::const_iterator iTk=(iPair->first).begin(); iTk!= (iPair->first).end(); ++iTk) {
+	 LogDebug("ConvertedPhotonProducer") << "  ConvertedPhotonProducer Transient Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
 	  
 	  const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
 	  reco::TrackRef myTkRef= ttt->persistentTrackRef(); 
 
-	  //reco::TrackRef myTkRef= iTk->persistentTrackRef(); 
-	  LogDebug("ConvertedPhotonProducer") << " Ref to Rec Tracks in the pair  charge " << myTkRef->charge() << " Num of RecHits " << myTkRef->recHitsSize() << " inner momentum " << myTkRef->innerMomentum() << "\n";  
+	 LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Ref to Rec Tracks in the pair  charge " << myTkRef->charge() << " Num of RecHits " << myTkRef->recHitsSize() << " inner momentum " << myTkRef->innerMomentum() << "\n";  
 	  
 	  
 	  trackPairRef.push_back(myTkRef);
@@ -247,12 +261,12 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	}
 	  
 	  
-	LogDebug("ConvertedPhotonProducer") << " trackPairRef  " << trackPairRef.size() <<  "\n";
-	LogDebug("ConvertedPhotonProducer") << " SC energy " <<  aClus->energy() << "\n";
-	LogDebug("ConvertedPhotonProducer") << " photon p4 " << p4  << "\n";
-	LogDebug("ConvertedPhotonProducer") << " vtx " << vtx.x() << " " << vtx.y() << " " << vtx.z() << "\n";
-	LogDebug("ConvertedPhotonProducer") << " convVtx " << convVtx.x() << " " << convVtx.y() << " " << convVtx.z() << "\n";
-	LogDebug("ConvertedPhotonProducer") << " trackPairRef  " << trackPairRef.size() <<  "\n";
+	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer trackPairRef  " << trackPairRef.size() <<  "\n";
+	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer SC energy " <<  aClus->energy() << "\n";
+	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer photon p4 " << p4  << "\n";
+	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer vtx " << vtx.x() << " " << vtx.y() << " " << vtx.z() << "\n";
+	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer convVtx " << convVtx.x() << " " << convVtx.y() << " " << convVtx.z() << "\n";
+	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer trackPairRef  " << trackPairRef.size() <<  "\n";
 	
 	reco::ConvertedPhoton  newCandidate(0, p4, vtx, convVtx);
 
@@ -267,18 +281,18 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	
 	iSC++;	
 	myCands++;
-	LogDebug("ConvertedPhotonProducer") << " Put the ConvertedPhotonCollection a candidate in the Barrel " << "\n";
+	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Put the ConvertedPhotonCollection a candidate in the Barrel " << "\n";
 	  
       }
       
     } else {
       
-      LogDebug("ConvertedPhotonProducer") << " GOLDEN PHOTON ?? Zero Tracks " <<  "\n";  
-      LogDebug("ConvertedPhotonProducer") << " SC energy " <<  aClus->energy() << "\n";
-      LogDebug("ConvertedPhotonProducer") << " photon p4 " << p4  << "\n";
-      LogDebug("ConvertedPhotonProducer") << " vtx " << vtx.x() << " " << vtx.y() << " " << vtx.z() << "\n";
-      LogDebug("ConvertedPhotonProducer") << " convVtx " << convVtx.x() << " " << convVtx.y() << " " << convVtx.z() << "\n";
-      LogDebug("ConvertedPhotonProducer") << " trackPairRef  " << trackPairRef.size() <<  "\n";
+      LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer GOLDEN PHOTON ?? Zero Tracks " <<  "\n";  
+      LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer SC energy " <<  aClus->energy() << "\n";
+      LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer photon p4 " << p4  << "\n";
+      LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer vtx " << vtx.x() << " " << vtx.y() << " " << vtx.z() << "\n";
+      LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer convVtx " << convVtx.x() << " " << convVtx.y() << " " << convVtx.z() << "\n";
+      LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer trackPairRef  " << trackPairRef.size() <<  "\n";
       reco::ConvertedPhoton  newCandidate(0, p4, vtx, convVtx);
      
       outputConvPhotonCollection.push_back(newCandidate);
@@ -287,7 +301,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
       
       iSC++;	
       myCands++;
-      LogDebug("ConvertedPhotonProducer") << " Put the ConvertedPhotonCollection a candidate in the Barrel " << "\n";
+     LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Put the ConvertedPhotonCollection a candidate in the Barrel " << "\n";
       
     }
           
@@ -303,56 +317,54 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   for(aClus = scEndcapCollection.begin(); aClus != scEndcapCollection.end(); aClus++) {
     
     //    if ( abs( aClus->eta() ) > 0.9 ) return; 
-    LogDebug("ConvertedPhotonProducer") << " SC energy " << aClus->energy() << " eta " <<  aClus->eta() << " phi " <<  aClus->phi() << "\n";
+    LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer SC energy " << aClus->energy() << " eta " <<  aClus->eta() << " phi " <<  aClus->phi() << "\n";
     
-        
+    
     ///// Find the +/- pairs
-    //std::vector<std::vector<reco::Track> > allPairs = theTrackPairFinder_->run(outInTrkHandle,  inOutTrkHandle );
-    std::vector<std::vector<reco::TransientTrack> > allPairs = theTrackPairFinder_->run(t_outInTrk,  t_inOutTrk );
+    std::map<std::vector<reco::TransientTrack>, reco::SuperCluster> allPairs = theTrackPairFinder_->run(t_outInTrk, outInTrkHandle, outInTrkSCAssocHandle, t_inOutTrk, inOutTrkHandle, inOutTrkSCAssocHandle  );
     
-    LogDebug("ConvertedPhotonProducer") << " Endcap  allPairs.size " << allPairs.size() << "\n";
-    //  edm::RefVector<reco::TrackCollection> trackPairRef; 
+    LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap  allPairs.size " << allPairs.size() << "\n";
+
     std::vector<edm::Ref<reco::TrackCollection> > trackPairRef;
     
     //// Set here first quantities for the converted photon
     const reco::Particle::Point  vtx( 0, 0, 0 );
     math::XYZPoint convVtx(0.,0.,0.);
-
+    
     math::XYZVector direction =aClus->position() - vtx;
     math::XYZVector momentum = direction.unit() * aClus->energy();
     const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy() );
-
+    
     
     if ( allPairs.size() ) {
-      
-      for ( std::vector<std::vector<reco::TransientTrack> >::const_iterator iPair= allPairs.begin(); iPair!= allPairs.end(); ++iPair ) {
-	LogDebug("ConvertedPhotonProducer") << " Endcap single pair size " << (*iPair).size() << "\n";  
-	//if (  (*iPair).size()  < 2) continue;
+      for (  std::map<std::vector<reco::TransientTrack>, reco::SuperCluster>::const_iterator iPair= allPairs.begin(); iPair!= allPairs.end(); ++iPair ) {
+	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Endcap single pair size " << (iPair->first).size() << " SC Energy " << (iPair->second).energy() << " eta " << (iPair->second).eta() << " phi " <<  (iPair->second).phi() << "\n";  
 	
-
+	if ( (iPair->second).energy() != aClus->energy() ) continue;
+	
 	CachingVertex theConversionVertex;
-	if (  allPairs.size() > 1 ) theConversionVertex=theVertexFinder_->run(*iPair);
+	if (  allPairs.size() > 1 ) theConversionVertex=theVertexFinder_->run(iPair->first);
 
         if ( theConversionVertex.isValid() ) {	
 	  convVtx.SetXYZ( theConversionVertex.position().x(), theConversionVertex.position().y(),  theConversionVertex.position().z() );
-	  LogDebug("ConvertedPhotonProducer") << " conversion vertex position " << theConversionVertex.position() << "\n";
+	 LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer conversion vertex position " << theConversionVertex.position() << "\n";
 	} else {
-	  LogDebug("ConvertedPhotonProducer") << " conversion vertex is not valid " << "\n";
+	 LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer conversion vertex is not valid " << "\n";
 	}
 	 
 	  
 	//// loop over tracks in the pair for creating a reference
 	trackPairRef.clear();
-	for ( std::vector<reco::TransientTrack>::const_iterator iTk=(*iPair).begin(); iTk!=(*iPair).end(); ++iTk) {
-	  LogDebug("ConvertedPhotonProducer") << " Transient Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
+	for ( std::vector<reco::TransientTrack>::const_iterator iTk=(iPair->first).begin(); iTk!=(iPair->first).end(); ++iTk) {
+	 LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Transient Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
 	  
 
 	  const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
 	  reco::TrackRef myTkRef= ttt->persistentTrackRef(); 
 
 
-	  //	  reco::TrackRef myTkRef= iTk->persistentTrackRef(); 
-	  LogDebug("ConvertedPhotonProducer") << " Ref to Rec Tracks in the pair  charge " << myTkRef->charge() << " Num of RecHits " << myTkRef->recHitsSize() << " inner momentum " << myTkRef->innerMomentum() << "\n";  
+
+	 LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Ref to Rec Tracks in the pair  charge " << myTkRef->charge() << " Num of RecHits " << myTkRef->recHitsSize() << " inner momentum " << myTkRef->innerMomentum() << "\n";  
 	  
 	  
 	  trackPairRef.push_back(myTkRef);
@@ -360,12 +372,12 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	}
 	  
 	  
-	LogDebug("ConvertedPhotonProducer") << " trackPairRef  " << trackPairRef.size() <<  "\n";
-	LogDebug("ConvertedPhotonProducer") << " SC energy " <<  aClus->energy() << "\n";
-	LogDebug("ConvertedPhotonProducer") << " photon p4 " << p4  << "\n";
-	LogDebug("ConvertedPhotonProducer") << " vtx " << vtx.x() << " " << vtx.y() << " " << vtx.z() << "\n";
-	LogDebug("ConvertedPhotonProducer") << " convVtx " << convVtx.x() << " " << convVtx.y() << " " << convVtx.z() << "\n";
-	LogDebug("ConvertedPhotonProducer") << " trackPairRef  " << trackPairRef.size() <<  "\n";
+	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer trackPairRef  " << trackPairRef.size() <<  "\n";
+	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer SC energy " <<  aClus->energy() << "\n";
+	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer photon p4 " << p4  << "\n";
+	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer vtx " << vtx.x() << " " << vtx.y() << " " << vtx.z() << "\n";
+	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer convVtx " << convVtx.x() << " " << convVtx.y() << " " << convVtx.z() << "\n";
+	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer trackPairRef  " << trackPairRef.size() <<  "\n";
 	
 	reco::ConvertedPhoton  newCandidate(0, p4, vtx, convVtx);
 	newCandidate.setP4(p4);
@@ -380,18 +392,18 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	
 	iSC++;	
 	myCands++;
-	LogDebug("ConvertedPhotonProducer") << " Put the ConvertedPhotonCollection a candidate in the Endcap " << "\n";
+	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Put the ConvertedPhotonCollection a candidate in the Endcap " << "\n";
 	  
       }
       
     } else {
       
-      LogDebug("ConvertedPhotonProducer") << " GOLDEN PHOTON ?? Zero Tracks " <<  "\n";  
-      LogDebug("ConvertedPhotonProducer") << " SC energy " <<  aClus->energy() << "\n";
-      LogDebug("ConvertedPhotonProducer") << " photon p4 " << p4  << "\n";
-      LogDebug("ConvertedPhotonProducer") << " vtx " << vtx.x() << " " << vtx.y() << " " << vtx.z() << "\n";
-      LogDebug("ConvertedPhotonProducer") << " convVtx " << convVtx.x() << " " << convVtx.y() << " " << convVtx.z() << "\n";
-      LogDebug("ConvertedPhotonProducer") << " trackPairRef  " << trackPairRef.size() <<  "\n";
+      LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer GOLDEN PHOTON ?? Zero Tracks " <<  "\n";  
+      LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer SC energy " <<  aClus->energy() << "\n";
+      LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer photon p4 " << p4  << "\n";
+      LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer vtx " << vtx.x() << " " << vtx.y() << " " << vtx.z() << "\n";
+      LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer convVtx " << convVtx.x() << " " << convVtx.y() << " " << convVtx.z() << "\n";
+      LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer trackPairRef  " << trackPairRef.size() <<  "\n";
       reco::ConvertedPhoton  newCandidate(0, p4, vtx, convVtx);
       newCandidate.setP4(p4);
       outputConvPhotonCollection.push_back(newCandidate);
@@ -400,7 +412,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
       
       iSC++;	
       myCands++;
-      LogDebug("ConvertedPhotonProducer") << " Put the ConvertedPhotonCollection a candidate in the Endcap " << "\n";
+     LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Put the ConvertedPhotonCollection a candidate in the Endcap " << "\n";
       
     }
           
@@ -415,9 +427,9 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   // put the product in the event
   
   outputConvPhotonCollection_p->assign(outputConvPhotonCollection.begin(),outputConvPhotonCollection.end());
-   LogDebug("ConvertedPhotonProducer") << " Putting in the event  " << myCands << "  converted photon candidates " << (*outputConvPhotonCollection_p).size() << "\n";  
+ LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Putting in the event  " << myCands << "  converted photon candidates " << (*outputConvPhotonCollection_p).size() << "\n";  
   theEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
-
+  
 
 
 
