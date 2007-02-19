@@ -12,8 +12,14 @@ RefCountedVertexTrack KalmanVertexTrackUpdator::update
 {
   pair<RefCountedRefittedTrackState, AlgebraicMatrix> thePair = 
   	trackRefit(vertex.vertexState(), track->linearizedTrack());
+
+  CachingVertex rVert = updator.remove(vertex, track);
+
+  float smoothedChi2 = helper.vertexChi2(rVert, vertex) +
+	helper.trackParameterChi2(track->linearizedTrack(), thePair.first);
+
   return theVTFactory.vertexTrack(track->linearizedTrack(),
-  	vertex.vertexState(), thePair.first, thePair.second, 
+  	vertex.vertexState(), thePair.first, smoothedChi2, thePair.second,
 	track->weight());
 }
 
