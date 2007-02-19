@@ -4,6 +4,8 @@
 <use name=DataFormats/TrajectorySeed>
 <use name=DataFormats/Common>
 <use name=DataFormats/TrackCandidate>
+<use name=DataFormats/TrackReco>	
+<use name=DataFormats/EgammaTrackReco>	
 <use name=DataFormats/Math>
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
@@ -24,11 +26,13 @@
   <lib name=RecoEgammaEgammaPhotonProducers>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
-  <use name=DataFormats/EgammaCandidates>
+  <use name=DataFormats/EgammaCandidates
   <use name=DataFormats/TrajectorySeed>
   <use name=DataFormats/Common>
   <use name=DataFormats/Math>
   <use name=DataFormats/TrackCandidate>
+  <use name=DataFormats/TrackReco>	
+  <use name=DataFormats/EgammaTrackReco>	
   <use name=Geometry/CaloEventSetup>
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloTopology>
