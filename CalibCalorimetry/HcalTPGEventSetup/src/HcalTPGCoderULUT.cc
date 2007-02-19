@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Fri Sep 15 11:49:44 CDT 2006
-// $Id: HcalTPGCoderULUT.cc,v 1.1 2006/09/15 18:59:13 mansj Exp $
+// $Id: HcalTPGCoderULUT.cc,v 1.2 2006/10/27 01:35:15 wmtan Exp $
 //
 //
 
@@ -55,7 +55,7 @@ public:
   }
 private:
   // ----------member data ---------------------------
-  edm::FileInPath filename_;
+  edm::FileInPath *ifilename_,*ofilename_;
 };
 
 //
@@ -69,9 +69,20 @@ private:
 //
 // constructors and destructor
 //
-HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) :
-  filename_(iConfig.getParameter<edm::FileInPath>("filename"))
+HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) 
 {
+  ifilename_=0;
+  try {
+    ofilename_=new edm::FileInPath(iConfig.getParameter<edm::FileInPath>("outputLUTs"));
+  } catch (...) {
+    ifilename_=new edm::FileInPath(iConfig.getParameter<edm::FileInPath>("filename"));
+    ofilename_=0;
+  }
+
+  if (ifilename_==0) {
+    ifilename_=new edm::FileInPath(iConfig.getParameter<edm::FileInPath>("inputLUTs"));
+  }
+  
    //the following line is needed to tell the framework what
    // data is being produced
    setWhatProduced(this);
@@ -87,6 +98,8 @@ HcalTPGCoderULUT::~HcalTPGCoderULUT()
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
+  if (ofilename_!=0) delete ofilename_;
+  if (ifilename_!=0) delete ifilename_;
 }
 
 
@@ -99,10 +112,15 @@ HcalTPGCoderULUT::ReturnType
 HcalTPGCoderULUT::produce(const HcalTPGRecord& iRecord)
 {
    using namespace edm::es;
-   edm::LogInfo("HCAL") << "Using " << filename_.fullPath() << " for HcalTPGCoderULUT initialization";
-   std::auto_ptr<HcalTPGCoder> pHcalTPGCoder(new HcaluLUTTPGCoder(filename_.fullPath().c_str()));
-
-   return pHcalTPGCoder ;
+   if (ofilename_!=0) {
+     edm::LogInfo("HCAL") << "Using " << ifilename_->fullPath() << " and " << ofilename_->fullPath() << " for HcalTPGCoderULUT initialization";
+     std::auto_ptr<HcalTPGCoder> pHcalTPGCoder(new HcaluLUTTPGCoder(ifilename_->fullPath().c_str(),ofilename_->fullPath().c_str()));
+     return pHcalTPGCoder ;
+   } else {
+     edm::LogInfo("HCAL") << "Using " << ifilename_->fullPath() << " for HcalTPGCoderULUT initialization";
+     std::auto_ptr<HcalTPGCoder> pHcalTPGCoder(new HcaluLUTTPGCoder(ifilename_->fullPath().c_str()));
+     return pHcalTPGCoder ;
+   }
 }
 
 //define this as a plug-in
