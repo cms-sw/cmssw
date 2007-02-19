@@ -17,6 +17,10 @@ TransientTrack TransientTrackBuilder::build (const GsfTrack * t) const {
   return TransientTrack(new GsfTransientTrack(*t, theField, theTrackingGeometry));
 }
 
+TransientTrack TransientTrackBuilder::build (const GsfTrack & t) const {
+  return TransientTrack(new GsfTransientTrack(t, theField, theTrackingGeometry));
+}
+
 TransientTrack TransientTrackBuilder::build (const TrackRef * t) const {
   return TransientTrack(*t, theField, theTrackingGeometry);
 }
@@ -28,6 +32,10 @@ TransientTrack TransientTrackBuilder::build (const TrackRef & t) const {
 
 TransientTrack TransientTrackBuilder::build (const GsfTrackRef * t) const {
   return TransientTrack(new GsfTransientTrack(*t, theField, theTrackingGeometry));
+}
+
+TransientTrack TransientTrackBuilder::build (const GsfTrackRef & t) const {
+  return TransientTrack(new GsfTransientTrack(t, theField, theTrackingGeometry));
 }
 
 vector<TransientTrack> 
