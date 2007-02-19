@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/11/20 11:47:39 $
-//   $Revision: 1.11 $
+//   $Date: 2006/12/21 13:25:23 $
+//   $Revision: 1.12 $
 //
 //   Modifications: 
 //
@@ -252,9 +252,6 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() :
 void CSCAnodeLCTProcessor::clear() {
   bestALCT.clear();
   secondALCT.clear();
-  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
-    theWireHits[i].clear();
-  }
 }
 
 void CSCAnodeLCTProcessor::clear(const int wire, const int pattern) {
@@ -271,47 +268,54 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
   // This is the main routine for normal running.  It gets wire times
   // from the wire digis and then passes them on to another run() function.
 
-  int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
-  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
-    for (int i_wire = 0; i_wire < CSCConstants::MAX_NUM_WIRES; i_wire++)
-      wire[i_layer][i_wire] = -999;
-
   // clear(); // redundant; called by L1MuCSCMotherboard.
 
-  // Get the number of wire groups for the given chamber.
-  CSCTriggerGeomManager* theGeom = CSCTriggerGeometry::get();
-  CSCChamber* theChamber = theGeom->chamber(theEndcap, theStation, theSector,
-					    theSubsector, theTrigChamber);
-  if (theChamber) {
-    numWireGroups = theChamber->layer(1)->geometry()->numberOfWireGroups();
-    if (numWireGroups > CSCConstants::MAX_NUM_WIRES) {
-      throw cms::Exception("CSCAnodeLCTProcessor")
-	<< "+++ Number of wire groups, " << numWireGroups
-	<< ", exceeds max expected, " << CSCConstants::MAX_NUM_WIRES
-	<< " +++" << std::endl;
+
+  // Get the number of wire groups for the given chamber.  Do it only once
+  // per chamber.
+  if (numWireGroups == 0) {
+    CSCTriggerGeomManager* theGeom = CSCTriggerGeometry::get();
+    CSCChamber* theChamber = theGeom->chamber(theEndcap, theStation, theSector,
+					      theSubsector, theTrigChamber);
+    if (theChamber) {
+      numWireGroups = theChamber->layer(1)->geometry()->numberOfWireGroups();
+      if (numWireGroups > CSCConstants::MAX_NUM_WIRES) {
+	throw cms::Exception("CSCAnodeLCTProcessor")
+	  << "+++ Number of wire groups, " << numWireGroups
+	  << ", exceeds max expected, " << CSCConstants::MAX_NUM_WIRES
+	  << " +++" << std::endl;
+      }
     }
-  }
-  else {
-    edm::LogWarning("CSCAnodeLCTProcessor")
-      << "+++ CSC chamber (endcap = " << theEndcap
-      << " station = " << theStation << " sector = " << theSector
-      << " subsector = " << theSubsector << " trig. id = " << theTrigChamber
-      << ") is not defined in current geometry!"
-      << " Set numWireGroups to zero +++" << "\n";
-    numWireGroups = 0;
+    else {
+      edm::LogWarning("CSCAnodeLCTProcessor")
+	<< "+++ CSC chamber (endcap = " << theEndcap
+	<< " station = " << theStation << " sector = " << theSector
+	<< " subsector = " << theSubsector << " trig. id = " << theTrigChamber
+	<< ") is not defined in current geometry!"
+	<< " Set numWireGroups to zero +++" << "\n";
+      numWireGroups = 0;
+    }
   }
 
   // Get wire digis in this chamber from wire digi collection.
-  getDigis(wiredc);
+  bool noDigis = getDigis(wiredc);
 
-  // First get wire times from the wire digis.
-  readWireDigis(wire);
+  if (!noDigis) {
+    // First get wire times from the wire digis.
+    int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
+    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
+      for (int i_wire = 0; i_wire < CSCConstants::MAX_NUM_WIRES; i_wire++)
+	wire[i_layer][i_wire] = -999;
 
-  // Save all hits into vectors if needed.
-  // saveAllHits(wire);
+    readWireDigis(wire);
 
-  // Then pass an array of wire times on to another run() doing the LCT search.
-  run(wire);
+    // Save all hits into vectors if needed.
+    // saveAllHits(wire);
+
+    // Then pass an array of wire times on to another run() doing the LCT
+    // search.
+    run(wire);
+  }
 
   // Return vector of ALCTs.
   std::vector<CSCALCTDigi> tmpV = getALCTs();
@@ -324,6 +328,8 @@ void CSCAnodeLCTProcessor::run(const int wire[CSCConstants::NUM_LAYERS][CSCConst
   // It gets wire times from an input array and then loops over the keywires.
   // All found LCT candidates are sorted and the best two are retained.
 
+  bool trigger = false;
+
   // Check if there are any in-time hits and do the pulse extension.
   bool chamber_empty = pulseExtension(wire);
 
@@ -332,31 +338,45 @@ void CSCAnodeLCTProcessor::run(const int wire[CSCConstants::NUM_LAYERS][CSCConst
     for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {
       if (preTrigger(i_wire)) {
   	if (infoV > 2) showPatterns(i_wire);
-	patternDetection(i_wire);
+	if (patternDetection(i_wire)) {
+	  trigger = true;
+	}
       }
     }
+  }
+
+  // Do the rest only if there is at least one trigger candidate.
+  if (trigger) {
     ghostCancellationLogic();
     lctSearch();
   }
 }
 
-void CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
+bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
   // Routine for getting digis and filling digiV vector.
-  int theRing    = CSCTriggerNumbering::ringFromTriggerLabels(theStation,
-							      theTrigChamber);
-  int theChamber = CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
-                                    theSubsector, theStation, theTrigChamber);
+  bool noDigis = true;
+  int  theRing    = CSCTriggerNumbering::ringFromTriggerLabels(theStation,
+							       theTrigChamber);
+  int  theChamber = CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
+                                     theSubsector, theStation, theTrigChamber);
 
   // Loop over layers and save wire digis on each one into digiV[layer].
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-    digiV[i_layer].clear();
-
     CSCDetId detid(theEndcap, theStation, theRing, theChamber, i_layer+1);
 
     const CSCWireDigiCollection::Range rwired = wiredc->get(detid);
 
     // Skip if no wire digis in this layer.
     if (rwired.second == rwired.first) continue;
+
+    // If this is the first layer with digis in this chamber, clear digiV
+    // array and set the empty flag to false.
+    if (noDigis) {
+      for (int lay = 0; lay < CSCConstants::NUM_LAYERS; lay++) {
+	digiV[lay].clear();
+      }
+      noDigis = false;
+    }
 
     if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
       << "found " << rwired.second - rwired.first
@@ -370,13 +390,8 @@ void CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
       if (infoV > 1) LogDebug("CSCAnodeLCTProcessor") << "   " << (*digiIt);
     }
   }
-}
 
-void CSCAnodeLCTProcessor::getDigis(const std::vector<std::vector<CSCWireDigi> > digis) {
-  // Routine for getting digis and filling digiV vector.
-  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++){
-    digiV[i_layer] = digis[i_layer];
-  }
+  return noDigis;
 }
 
 void CSCAnodeLCTProcessor::readWireDigis(int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
@@ -544,11 +559,12 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire) {
   return false;
 }
 
-void CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
+bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
   /* See if there is a pattern that satisfies nph_pattern number of
      layers hit for either the accelerator or collision patterns.  Use
      the pattern with the best quality. */
 
+  bool trigger = false;
   bool hit_layer[CSCConstants::NUM_LAYERS];
   unsigned int temp_quality;
   int this_layer, this_wire;
@@ -588,6 +604,7 @@ void CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
       }
     }
     if (temp_quality >= nph_pattern) {
+      trigger = true;
       // Quality reported by the pattern detector is defined as the number
       // of the layers hit in a pattern minus (nph_pattern-1) value
       temp_quality -= (nph_pattern-1);
@@ -618,6 +635,7 @@ void CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
       LogDebug("CSCAnodeLCTProcessor")
 	<< "Collision Pattern B is chosen" << "\n";
   }
+  return trigger;
 }
 
 void CSCAnodeLCTProcessor::ghostCancellationLogic() {
@@ -1045,6 +1063,10 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs() {
 void CSCAnodeLCTProcessor::saveAllHits(const int wires[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]){
   // Small routine which saves hits on all wires and stores for access to 
   // outside classes.
+  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
+    theWireHits[i].clear();
+  }
+
   for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
     for (int j = 0; j < CSCConstants::MAX_NUM_WIRES; j++) {
       theWireHits[i].push_back(wires[i][j]);

@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2006/11/30 03:30:49 $
- * $Revision: 1.9 $
+ * $Date: 2006/12/21 13:29:46 $
+ * $Revision: 1.10 $
  *
  */
 
@@ -58,9 +58,8 @@ class CSCCathodeLCTProcessor
 	   int time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS],
 	   int digiNum[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS]);
  
-  /** Access routines to comparator digis. */
-  void getDigis(const CSCComparatorDigiCollection* compdc);
-  void getDigis(const std::vector<std::vector<CSCComparatorDigi> > digis);
+  /** Access routine to comparator digis. */
+  bool getDigis(const CSCComparatorDigiCollection* compdc);
 
   /** Best LCT in this chamber, as found by the processor. */
   CSCCLCTDigi bestCLCT;
@@ -147,12 +146,12 @@ class CSCCathodeLCTProcessor
   std::vector<CSCCLCTDigi> findLCTs(const int halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 				    const int distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
   bool preTrigger(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
-		  unsigned long int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], 
+		  unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], 
 		  const int stripType, const int nStrips, int& first_bx);
-  bool preTrigLookUp(const unsigned long int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+  bool preTrigLookUp(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 		     const int stripType, const int nStrips,
 		     const unsigned int bx_time);
-  void latchLCTs(const unsigned long int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+  void latchLCTs(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 		 int keyStrip[MAX_CFEBS], unsigned int nhits[MAX_CFEBS],
 		 const int stripType, const int nStrips, const int bx_time);
   void priorityEncode(const int h_keyStrip[MAX_CFEBS],
@@ -160,8 +159,8 @@ class CSCCathodeLCTProcessor
 		      const int d_keyStrip[MAX_CFEBS],
 		      const unsigned int d_nhits[MAX_CFEBS],
 		      int keystrip_data[2][7]);
-  void getKeyStripData(const unsigned long int h_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
-		       const unsigned long int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+  void getKeyStripData(const unsigned int h_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+		       const unsigned int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 		       int keystrip_data[2][7], const int first_bx);
   void getPattern(unsigned int pattern_num,
 		  const int strip_value[NUM_PATTERN_STRIPS],

@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/12/21 13:29:46 $
-//   $Revision: 1.12 $
+//   $Date: 2007/01/26 17:44:08 $
+//   $Revision: 1.13 $
 //
 //   Modifications: 
 //
@@ -268,10 +268,6 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor() :
 void CSCCathodeLCTProcessor::clear() {
   bestCLCT.clear();
   secondCLCT.clear();
-  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++){
-    theDiStripHits[i].clear();
-    theHalfStripHits[i].clear();
-  }
 }
 
 std::vector<CSCCLCTDigi>
@@ -279,16 +275,6 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
   // This is the version of the run() function that is called when running
   // over the entire detector.  It gets the comparator & timing info from the
   // comparator digis and then passes them on to another run() function.
-  int time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS];
-  int triad[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS];
-  int digiNum[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS];
-  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++){
-    for (int j = 0; j < CSCConstants::MAX_NUM_STRIPS; j++) {
-      time[i][j]    = -999;
-      triad[i][j]   =    0;
-      digiNum[i][j] = -999;
-    }
-  }
 
   // clear(); // redundant; called by L1MuCSCMotherboard.
 
@@ -306,142 +292,158 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
 #endif
   /* End of obsolete */
 
-  // Get the number of wire groups for the given chamber.
-  CSCTriggerGeomManager* theGeom = CSCTriggerGeometry::get();
-  CSCChamber* theChamber = theGeom->chamber(theEndcap, theStation, theSector,
-					    theSubsector, theTrigChamber);
-  if (theChamber) {
-    numStrips = theChamber->layer(1)->geometry()->numberOfStrips();
-    // ME1/a is known to the readout hardware as strips 65-80 of ME1/1.
-    // Still need to decide whether we do any special adjustments to
-    // reconstruct LCTs in this region (3:1 ganged strips); for now, we
-    // simply allow for hits in ME1/a and apply standard reconstruction
-    // to them.
-    if (theStation == 1 &&
-	CSCTriggerNumbering::ringFromTriggerLabels(theStation,
-						   theTrigChamber) == 1) {
-      numStrips = 80;
-    }
+  // Get the number of strips and stagger of layers for the given chamber.
+  // Do it only once per chamber.
+  if (numStrips == 0) {
+    CSCTriggerGeomManager* theGeom = CSCTriggerGeometry::get();
+    CSCChamber* theChamber = theGeom->chamber(theEndcap, theStation, theSector,
+					      theSubsector, theTrigChamber);
+    if (theChamber) {
+      numStrips = theChamber->layer(1)->geometry()->numberOfStrips();
+      // ME1/a is known to the readout hardware as strips 65-80 of ME1/1.
+      // Still need to decide whether we do any special adjustments to
+      // reconstruct LCTs in this region (3:1 ganged strips); for now, we
+      // simply allow for hits in ME1/a and apply standard reconstruction
+      // to them.
+      if (theStation == 1 &&
+	  CSCTriggerNumbering::ringFromTriggerLabels(theStation,
+						     theTrigChamber) == 1) {
+	numStrips = 80;
+      }
 
-    if (numStrips > CSCConstants::MAX_NUM_STRIPS) {
-      throw cms::Exception("CSCCathodeLCTProcessor")
-	<< "+++ Number of strips, " << numStrips
-	<< ", exceeds max expected, " << CSCConstants::MAX_NUM_STRIPS
-	<< " +++" << std::endl;
+      if (numStrips > CSCConstants::MAX_NUM_STRIPS) {
+	throw cms::Exception("CSCCathodeLCTProcessor")
+	  << "+++ Number of strips, " << numStrips
+	  << ", exceeds max expected, " << CSCConstants::MAX_NUM_STRIPS
+	  << " +++" << std::endl;
+      }
+      // The strips for a given layer may be offset from the adjacent layers.
+      // This was done in order to improve resolution.  We need to find the
+      // 'staggering' for each layer and make necessary conversions in our
+      // arrays.  -JM
+      for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+	stagger[i_layer] =
+	  (theChamber->layer(i_layer+1)->geometry()->stagger() + 1) / 2;
+      }
     }
-    // The strips for a given layer may be offset from the adjacent layers.
-    // This was done in order to improve resolution.  We need to find the
-    // 'staggering' for each layer and make necessary conversions in our
-    // arrays.  -JM
-    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-      stagger[i_layer] =
-	(theChamber->layer(i_layer+1)->geometry()->stagger() + 1) / 2;
+    else {
+      edm::LogWarning("CSCCathodeLCTProcessor")
+	<< "+++ CSC chamber (endcap = " << theEndcap
+	<< " station = " << theStation << " sector = " << theSector
+	<< " subsector = " << theSubsector << " trig. id = " << theTrigChamber
+	<< ") is not defined in current geometry!"
+	<< " Set numStrips to zero +++" << "\n";
+      numStrips = 0;
     }
-  }
-  else {
-   edm::LogWarning("CSCCathodeLCTProcessor")
-      << "+++ CSC chamber (endcap = " << theEndcap
-      << " station = " << theStation << " sector = " << theSector
-      << " subsector = " << theSubsector << " trig. id = " << theTrigChamber
-      << ") is not defined in current geometry!"
-      << " Set numStrips to zero +++" << "\n";
-    numStrips = 0;
   }
 
   // Get comparator digis in this chamber.
-  getDigis(compdc);
+  bool noDigis = getDigis(compdc);
 
-  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
-    std::vector <CSCComparatorDigi> layerDigiV = digiV[i];
-    for (unsigned int j = 0; j < layerDigiV.size(); j++) {
-      // Get one digi at a time for the layer.  -Jm
-      CSCComparatorDigi thisDigi = layerDigiV[j];
-
-      // Dump raw digi info
-      if (infoV > 1) {
-	LogDebug("CSCCathodeLCTProcessor")
-	  << "Comparator digi: comparator = " << thisDigi.getComparator()
-	  << " strip #" << thisDigi.getStrip()
-	  << " time bin = " << thisDigi.getTimeBin();
+  if (!noDigis) {
+    int time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS];
+    int triad[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS];
+    int digiNum[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS];
+    for (int i = 0; i < CSCConstants::NUM_LAYERS; i++){
+      for (int j = 0; j < CSCConstants::MAX_NUM_STRIPS; j++) {
+	time[i][j]    = -999;
+	triad[i][j]   =    0;
+	digiNum[i][j] = -999;
       }
+    }
 
-      // Get comparator: 0/1 for left/right halfstrip for each comparator
-      // that fired.
-      int thisComparator = thisDigi.getComparator();
-      if (thisComparator != 0 && thisComparator != 1) {
-	throw cms::Exception("CSCCathodeLCTProcessor")
-	  << "+++ Comparator digi with wrong comparator value: digi #" << j
-	  << ", comparator = " << thisComparator << " +++" << std::endl;
-      }
+    for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
+      std::vector <CSCComparatorDigi> layerDigiV = digiV[i];
+      for (unsigned int j = 0; j < layerDigiV.size(); j++) {
+	// Get one digi at a time for the layer.  -Jm
+	CSCComparatorDigi thisDigi = layerDigiV[j];
 
-      // Get strip number.
-      int thisStrip = thisDigi.getStrip() - 1; // count from 0
-      if (thisStrip < 0 || thisStrip >= numStrips) {
-	throw cms::Exception("CSCCathodeLCTProcessor")
-	  << "+++ Comparator digi with wrong strip number: digi #" << j
-	  << ", strip = " << thisStrip
-	  << ", max strips = " << numStrips << " +++" << std::endl;
-      }
-      int diStrip = thisStrip/2; // [0-39]
+	// Dump raw digi info
+	if (infoV > 1) {
+	  LogDebug("CSCCathodeLCTProcessor")
+	    << "Comparator digi: comparator = " << thisDigi.getComparator()
+	    << " strip #" << thisDigi.getStrip()
+	    << " time bin = " << thisDigi.getTimeBin();
+	}
 
-      // Get Bx of this Digi and check that it is within the bounds
-      int thisDigiBx = thisDigi.getTimeBin();
+	// Get comparator: 0/1 for left/right halfstrip for each comparator
+	// that fired.
+	int thisComparator = thisDigi.getComparator();
+	if (thisComparator != 0 && thisComparator != 1) {
+	  throw cms::Exception("CSCCathodeLCTProcessor")
+	    << "+++ Comparator digi with wrong comparator value: digi #" << j
+	    << ", comparator = " << thisComparator << " +++" << std::endl;
+	}
 
-      /* Obsolete; should be removed for 1_4_0 */
+	// Get strip number.
+	int thisStrip = thisDigi.getStrip() - 1; // count from 0
+	if (thisStrip < 0 || thisStrip >= numStrips) {
+	  throw cms::Exception("CSCCathodeLCTProcessor")
+	    << "+++ Comparator digi with wrong strip number: digi #" << j
+	    << ", strip = " << thisStrip
+	    << ", max strips = " << numStrips << " +++" << std::endl;
+	}
+	int diStrip = thisStrip/2; // [0-39]
+
+	// Get Bx of this Digi and check that it is within the bounds
+	int thisDigiBx = thisDigi.getTimeBin();
+
+	/* Obsolete; should be removed for 1_4_0 */
 #ifndef TB
-      thisDigiBx -= 9; // temp hack for MC
+	thisDigiBx -= 9; // temp hack for MC
 #endif
-      //note: MIN_BUNCH = -6, MAX_BUNCH = 6, TOT_BUNCH = 13
-      if (thisDigiBx >= bxwin_min && thisDigiBx < bxwin_max) {
+	//note: MIN_BUNCH = -6, MAX_BUNCH = 6, TOT_BUNCH = 13
+	if (thisDigiBx >= bxwin_min && thisDigiBx < bxwin_max) {
 #ifndef TB
-	// Shift all times of interest by TIME_OFFSET, so that they will
-	// be non-negative, and fill the corresponding arrays
-	thisDigiBx += CSCConstants::TIME_OFFSET;
+	  // Shift all times of interest by TIME_OFFSET, so that they will
+	  // be non-negative, and fill the corresponding arrays
+	  thisDigiBx += CSCConstants::TIME_OFFSET;
 #endif
-	/* End of obsolete */
+	  /* End of obsolete */
 
-	/* New code; should be used in 1_4_0 */
-	// Total number of time bins in DAQ readout is given by fifo_tbins,
-	// which thus determines the maximum length of time interval.
-	//if (thisDigiBx >= 0 && thisDigiBx < static_cast<int>(fifo_tbins)) {
-	/* End of new code */
+	  /* New code; should be used in 1_4_0 */
+	  // Total number of time bins in DAQ readout is given by fifo_tbins,
+	  // which thus determines the maximum length of time interval.
+	  //if (thisDigiBx >= 0 && thisDigiBx < static_cast<int>(fifo_tbins)) {
+	  /* End of new code */
 
-	// If there is more than one hit in the same strip, pick one
-	// which occurred earlier.
-	if (time[i][thisStrip] == -999 || time[i][thisStrip] > thisDigiBx) {
-	  digiNum[i][thisStrip] = j;
-	  time[i][thisStrip]    = thisDigiBx;
-	  triad[i][thisStrip]   = thisComparator;
-	  if (infoV > 1) {
-	    LogDebug("CSCCathodeLCTProcessor")
-	      << "Comp digi: layer " << i+1
-	      << " digi #"           << j+1
-	      << " strip "           << thisStrip
-	      << " halfstrip "       << 2*thisStrip + triad[i][thisStrip] + stagger[i]
-	      << " distrip "         << diStrip + 
-	      ((thisStrip%2 == 1 && triad[i][thisStrip] == 1 && stagger[i] == 1) ? 1 : 0)
-	      << " time "            <<    time[i][thisStrip]
-	      << " comparator "      <<   triad[i][thisStrip]
-	      << " stagger "         << stagger[i];
+	  // If there is more than one hit in the same strip, pick one
+	  // which occurred earlier.
+	  if (time[i][thisStrip] == -999 || time[i][thisStrip] > thisDigiBx) {
+	    digiNum[i][thisStrip] = j;
+	    time[i][thisStrip]    = thisDigiBx;
+	    triad[i][thisStrip]   = thisComparator;
+	    if (infoV > 1) {
+	      LogDebug("CSCCathodeLCTProcessor")
+		<< "Comp digi: layer " << i+1
+		<< " digi #"           << j+1
+		<< " strip "           << thisStrip
+		<< " halfstrip "       << 2*thisStrip + triad[i][thisStrip] + stagger[i]
+		<< " distrip "         << diStrip + 
+		((thisStrip%2 == 1 && triad[i][thisStrip] == 1 && stagger[i] == 1) ? 1 : 0)
+		<< " time "            <<    time[i][thisStrip]
+		<< " comparator "      <<   triad[i][thisStrip]
+		<< " stagger "         << stagger[i];
+	    }
 	  }
 	}
-      }
-      else {
-	edm::LogWarning("CSCCathodeLCTProcessor")
-	  << "Unexpected BX time of strip digi: strip = " << thisStrip
-	  << ", layer = " << i << ", bx = " << thisDigiBx << " +++ \n";
+	else {
+	  edm::LogWarning("CSCCathodeLCTProcessor")
+	    << "Unexpected BX time of strip digi: strip = " << thisStrip
+	    << ", layer = " << i << ", bx = " << thisDigiBx << " +++ \n";
+	}
       }
     }
-  }
-  
-  // Find number of layers containing digis
-  int layersHit = 0;
-  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
-    for (int j = 0; j < CSCConstants::MAX_NUM_STRIPS; j++) {
-      if (time[i][j] >= 0) {layersHit++; break;}
+
+    // Find number of layers containing digis
+    int layersHit = 0;
+    for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
+      for (int j = 0; j < CSCConstants::MAX_NUM_STRIPS; j++) {
+    	if (time[i][j] >= 0) {layersHit++; break;}
+      }
     }
+    if (layersHit > 3) run(triad, time, digiNum);
   }
-  if (layersHit > 3) run(triad, time, digiNum);
 
   // Return vector of CLCTs.
   std::vector<CSCCLCTDigi> tmpV = getCLCTs();
@@ -583,22 +585,30 @@ void CSCCathodeLCTProcessor::run(int triad[CSCConstants::NUM_LAYERS][CSCConstant
   // ALCTs and then get sent to the MotherBoard.  -JM
 }
 
-void CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc) {
-  int theRing    = CSCTriggerNumbering::ringFromTriggerLabels(theStation,
-							      theTrigChamber);
-  int theChamber = CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
-                                    theSubsector, theStation, theTrigChamber);
+bool CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc) {
+  bool noDigis = true;
+  int  theRing    = CSCTriggerNumbering::ringFromTriggerLabels(theStation,
+							       theTrigChamber);
+  int  theChamber = CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
+                                     theSubsector, theStation, theTrigChamber);
 
   // Loop over layers and save comparator digis on each one into digiV[layer].
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-    digiV[i_layer].clear();
-
     CSCDetId detid(theEndcap, theStation, theRing, theChamber, i_layer+1);
 
     const CSCComparatorDigiCollection::Range rcompd = compdc->get(detid);
 
     // Skip if no comparator digis in this layer.
     if (rcompd.second == rcompd.first) continue;
+
+    // If this is the first layer with digis in this chamber, clear digiV
+    // array and set the empty flag to false.
+    if (noDigis) {
+      for (int lay = 0; lay < CSCConstants::NUM_LAYERS; lay++) {
+	digiV[lay].clear();
+      }
+      noDigis = false;
+    }
 
     if (infoV > 1) LogDebug("CSCCathodeLCTProcessor")
       << "found " << rcompd.second - rcompd.first
@@ -611,28 +621,8 @@ void CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc)
       digiV[i_layer].push_back(*digiIt);
     }
   }
-}
 
-void CSCCathodeLCTProcessor::getDigis(const std::vector<std::vector<CSCComparatorDigi> > digis) {
-  // Alternate filling routine used mainly for test beam mode.
-  // Stores digis into vector digiV.
-  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-    digiV[i_layer] = digis[i_layer];
-  }
-
-  if (infoV > 1) {
-    std::vector<CSCComparatorDigi>::const_iterator idigi;
-    std::ostringstream strstrm;
-    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-      for (idigi = digiV[i_layer].begin(); idigi < digiV[i_layer].end();
-	   idigi++) {
-	strstrm << idigi->getComparator();
-	strstrm << " ";
-      }
-      strstrm << "\n";
-    }
-    LogDebug("CSCCathodeLCTProcessor") << strstrm.str();
-  }
+  return noDigis;
 }
 
 void CSCCathodeLCTProcessor::distripStagger(int stag_triad[CSCConstants::NUM_DI_STRIPS],
@@ -805,7 +795,7 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
 					const int stripType, const int nStrips,
 					int& first_bx)
 {
-  unsigned long int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS];
+  unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS];
   int i_layer, i_strip, this_layer, this_strip;
   int hits, layers_hit;
   /* Next line is obsolete and should be removed for 1_4_0 */
@@ -1021,8 +1011,8 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[C
   int d_keyStrip[MAX_CFEBS];       // one key per CFEB
   unsigned int d_nhits[MAX_CFEBS]; // number of hits in envelope for each key
   int keystrip_data[2][7];    // 2 possible LCTs per CSC x 7 LCT quantities
-  unsigned long int h_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]; // simulate digital one-shot
-  unsigned long int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]; // simulate digital one-shot
+  unsigned int h_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]; // simulate digital one-shot
+  unsigned int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]; // simulate digital one-shot
   bool pre_trig[2] = {false, false};
 
   // All half-strip and di-strip pattern envelopes are evaluated
@@ -1123,7 +1113,7 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[C
 
 
 bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
-	   unsigned long int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+	   unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 	   const int stripType, const int nStrips, int& first_bx) {
 
   if (infoV > 1)
@@ -1174,7 +1164,7 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
 
 
 bool CSCCathodeLCTProcessor::preTrigLookUp(
-	   const unsigned long int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+	   const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 	   const int stripType, const int nStrips,
 	   const unsigned int bx_time) {
 
@@ -1231,7 +1221,7 @@ bool CSCCathodeLCTProcessor::preTrigLookUp(
 
 
 void CSCCathodeLCTProcessor::latchLCTs(
-	   const unsigned long int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+	   const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 	   int keyStrip[MAX_CFEBS], unsigned int nhits[MAX_CFEBS],
 	   const int stripType, const int nStrips, const int bx_time) {
 
@@ -1466,8 +1456,8 @@ void CSCCathodeLCTProcessor::priorityEncode(
 
 
 void CSCCathodeLCTProcessor::getKeyStripData(
-		const unsigned long int h_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
-		const unsigned long int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+		const unsigned int h_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
+		const unsigned int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 		int keystrip_data[2][7], const int first_bx) {
 
   int lct_pattern[NUM_PATTERN_STRIPS];
@@ -1693,6 +1683,11 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs() {
 void CSCCathodeLCTProcessor::saveAllHits(
  const int distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
  const int halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]){
+
+  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++){
+    theDiStripHits[i].clear();
+    theHalfStripHits[i].clear();
+  }
 
   // Routine which stores time hits on strips so that this information
   // can be accessed by routines outside of this class.

@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2006/11/30 03:30:49 $
- * $Revision: 1.6 $
+ * $Date: 2006/12/21 13:25:23 $
+ * $Revision: 1.7 $
  *
  */
 
@@ -46,9 +46,8 @@ class CSCAnodeLCTProcessor
       mode. */
   void run(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
 
-  /** Access routines to wire digis. */
-  void getDigis(const CSCWireDigiCollection* wiredc);
-  void getDigis(const std::vector<std::vector<CSCWireDigi> > digis);
+  /** Access routine to wire digis. */
+  bool getDigis(const CSCWireDigiCollection* wiredc);
 
   /** Best LCT in this chamber, as found by the processor. */
   CSCALCTDigi bestALCT;
@@ -90,7 +89,7 @@ class CSCAnodeLCTProcessor
   int first_bx[CSCConstants::MAX_NUM_WIRES];
   int quality[CSCConstants::MAX_NUM_WIRES][3];
   std::vector<CSCWireDigi> digiV[CSCConstants::NUM_LAYERS];
-  unsigned long int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
+  unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
 
   std::vector<int> theWireHits[CSCConstants::NUM_LAYERS];
 
@@ -106,7 +105,7 @@ class CSCAnodeLCTProcessor
   void readWireDigis(int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
   bool pulseExtension(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
   bool preTrigger(const int key_wire);
-  void patternDetection(const int key_wire);
+  bool patternDetection(const int key_wire);
   void ghostCancellationLogic();
   void lctSearch();
   void trigMode(const int key_wire);
