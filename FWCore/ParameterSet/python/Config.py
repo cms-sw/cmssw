@@ -124,6 +124,7 @@ class Process(object):
         self.__dict__['_Process__esprefers'] = {}
         self.__dict__['_Process__psets']={}
         self.__dict__['_Process__vpsets']={}
+        self.__dict__['_cloneToObjectDict'] = {}
     def filters_(self):
         """returns a dict of the filters which have been added to the Process"""
         return FixedKeysDict(self.__filters)
@@ -216,6 +217,7 @@ class Process(object):
         self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
             newValue.setLabel(name)
+            self._cloneToObjectDict[id(value)] = newValue
         #now put in proper bucket
         newValue._place(name,self)
         
@@ -895,7 +897,14 @@ class _Sequenceable(object):
         return _SequenceOpAids(self,rhs)
     def __add__(self,rhs):
         return _SequenceOpFollows(self,rhs)
-
+    def __invert__(self):
+        return _SequenceNegation(self)
+    def _sequenceclone(self, lookuptable):
+        try: 
+            return lookuptable[id(self)]
+        except:
+            raise KeyError
+        
 class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
     def __init__(self,type,*arg,**kargs):
         super(Service,self).__init__(type,*arg,**kargs)
@@ -991,6 +1000,8 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         returnValue =_ModuleSequenceType.__new__(type(self))
         returnValue.__init__(self._seq)
         return returnValue
+    def _clonesequence(self, lookuptable):
+        return type(self)(self._seq._sequenceclone(lookuptable))
     #def replace(self,old,new):
     #"""Find all instances of old and replace with new"""
     #def insertAfter(self,which,new):
@@ -1011,7 +1022,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
 
 class _SequenceOpAids(_Sequenceable):
     """Used in the expression tree for a sequence as a stand in for the ',' operator"""
-    def __init__(self,left,right):
+    def __init__(self, left, right):
         self.__left = left
         self.__right = right
     def __str__(self):
@@ -1022,10 +1033,24 @@ class _SequenceOpAids(_Sequenceable):
         #do left first and then right since right depends on left
         self.__left._findDependencies(knownDeps,presentDeps)
         self.__right._findDependencies(knownDeps,presentDeps)
+    def _sequenceclone(self, lookuptable):
+        return type(self)(self.__left._sequenceclone(lookuptable),self.__right._sequenceclone(lookuptable))
+
+
+class _SequenceNegation(_Sequenceable):
+    """Used in the expression tree for a sequence as a stand in for the '!' operator"""
+    def __init__(self, operand):
+        self.__operand = operand
+    def __str__(self):
+        return '!%s' %self.__operand
+    def dumpSequenceConfig(self):
+        return '!%s' %self.__operand.dumpSequenceConfig()
+    def _findDependencies(self,knownDeps, presentDeps):
+        self.__operand._findDependencies(knownDeps, presentDeps)
 
 class _SequenceOpFollows(_Sequenceable):
     """Used in the expression tree for a sequence as a stand in for the '&' operator"""
-    def __init__(self,left,right):
+    def __init__(self, left, right):
         self.__left = left
         self.__right = right
     def __str__(self):
@@ -1040,7 +1065,8 @@ class _SequenceOpFollows(_Sequenceable):
         end = len(presentDeps)
         presentDeps.update(oldDepsL)
         presentDeps.update(oldDepsR)
-
+    def _sequenceclone(self, lookuptable):
+        return type(self)(self.__left._sequenceclone(lookuptable),self.__right._sequenceclone(lookuptable))
 
 class Path(_ModuleSequenceType):
     def __init__(self,first):
@@ -1238,7 +1264,7 @@ if __name__=="__main__":
             self.assertEqual(p.s.label(),'s')
             path = Path(p.c+p.s)
             self.assertEqual(str(path),'(c+(a*b))')
-            
+
         def testPath(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
@@ -1256,6 +1282,24 @@ if __name__=="__main__":
             self.assertEqual(str(path),'(a+(b*c))')
             path = Path(p.a*(p.b+p.c))
             self.assertEqual(str(path),'(a*(b+c))')
+            path = Path(p.a*(p.b+~p.c)) 
+            self.assertEqual(str(path),'(a*(b+!c))')
+
+        def testCloneSequence(self):
+            p = Process("test")
+            a = EDAnalyzer("MyAnalyzer")
+            p.a = a 
+            a.setLabel("a")
+            b = EDAnalyzer("YOurAnalyzer")
+            p.b = b
+            b.setLabel("b")
+            path = Path(a * b)
+            p.path = Path(p.a*p.b) 
+            lookuptable = {id(a): p.a, id(b): p.b} 
+            self.assertEqual(str(path),str(path._clonesequence(lookuptable)))
+            lookuptable = p._cloneToObjectDict
+            self.assertEqual(str(path),str(path._clonesequence(lookuptable)))
+            
         def testSchedule(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
