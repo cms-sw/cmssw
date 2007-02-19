@@ -103,11 +103,12 @@ void HcalPacker::pack(int fedid, int dccnumber,
 	unsigned short chanid=(((fiber-1)&0x7)<<13)|((fiberchan&0x3)<<11);
 	preclen[linear]=0;
 
-	HcalElectronicsId partialEid(dccnumber,spigot,fiber,fiberchan);
+	HcalElectronicsId partialEid(fiberchan,fiber,spigot,dccnumber);
 	// does this partial id exist?
 	HcalElectronicsId fullEid;
 	DetId genId;
 	if (!emap.lookup(partialEid,fullEid,genId)) continue;
+
 	// next, see if there is a digi with this id
 	unsigned short* database=&(precdata[linear*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL]);
 	int mypresamples;
