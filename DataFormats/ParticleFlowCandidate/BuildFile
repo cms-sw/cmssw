@@ -1,0 +1,9 @@
+<use name=DataFormats/Candidate>
+<use name=DataFormats/Common>
+<use name=rootrflx>
+<export>
+  <use name=DataFormats/Candidate>
+  <use name=DataFormats/Common>
+  <lib name=DataFormatsParticleFlowCandidate>
+</export>
+

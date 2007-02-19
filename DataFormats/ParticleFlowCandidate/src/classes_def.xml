@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="reco::PFCandidate" />
+  <class name="std::vector<reco::PFCandidate>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFCandidate> >"/>
+</lcgdict>
+ 
