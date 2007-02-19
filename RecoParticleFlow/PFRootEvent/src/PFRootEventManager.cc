@@ -1610,7 +1610,7 @@ void PFRootEventManager::displayRecTracks(unsigned viewType, double phi0) {
 
     int    linestyle = itRecTrack->algoType(); 
     int    markerstyle = 8;
-    double markersize = 0.3;
+    double markersize = 0.8;
     int    color = 103;
     
     displayTrack( points, viewType, phi0, sign, false,
