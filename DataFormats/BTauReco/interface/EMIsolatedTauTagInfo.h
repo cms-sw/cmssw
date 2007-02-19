@@ -47,7 +47,7 @@ namespace reco {
   void setDiscriminator(double discriminator) {m_discriminator =discriminator;}  
 
     //Method to recompute the discriminator
-  double pIsol(float rMax, float rMin)
+  double pIsol(float rMax, float rMin) const
       {
 	  const  edm::RefVector<EMLorentzVectorCollection>  myRecHits = lorentzVectorRecHits();
 	  const Jet & myJet = jet(); 
@@ -70,7 +70,7 @@ namespace reco {
 	  return pIsol;
 
       }
-    float discriminator(float rMax, float rMin, float pIsolCut)
+    float discriminator(float rMax, float rMin, float pIsolCut) const
       {
 	double newDiscriminator_ =0;
 	double pIsol_ = pIsol(rMax, rMin);
