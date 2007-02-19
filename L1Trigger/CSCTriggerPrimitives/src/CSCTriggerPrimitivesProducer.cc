@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2006/06/27 14:38:48 $
-//   $Revision: 1.3 $
+//   $Date: 2006/06/29 10:50:30 $
+//   $Revision: 1.4 $
 //
 //   Modifications:
 //
@@ -17,6 +17,7 @@
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCTriggerPrimitivesProducer.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCTriggerPrimitivesBuilder.h>
 
+#include <Utilities/Timing/interface/TimingReport.h>
 #include <FWCore/Framework/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 
@@ -48,10 +49,15 @@ CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {
   LogDebug("L1CSCTrigger")
     << "deleting trigger primitives after " << iev << " events.";
   delete lctBuilder_;
+  //TimingReport::current()->dump(std::cout);
 }
 
 void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
 					   const edm::EventSetup& setup) {
+  //static TimingReport::Item & lctTimer =
+  //  (*TimingReport::current())["CSCTriggerPrimitivesProducer:produce"];
+  //TimeMe t(lctTimer, false);
+
   LogDebug("L1CSCTrigger") << "start producing LCTs for event " << ++iev;
 
   // Find the geometry (& conditions?) for this event & cache it in 

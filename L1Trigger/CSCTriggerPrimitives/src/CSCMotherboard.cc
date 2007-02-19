@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2006/06/27 14:34:32 $
-//   $Revision: 1.5 $
+//   $Date: 2006/10/09 13:49:24 $
+//   $Revision: 1.6 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -37,6 +37,7 @@
 //-----------------------------------------------------------------------------
 
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
+#include <Utilities/Timing/interface/TimingReport.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 CSCMotherboard::CSCMotherboard() :
@@ -105,8 +106,18 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
 		    const CSCComparatorDigiCollection* compdc) {
   clear();
   if (alct && clct) {
-    std::vector<CSCALCTDigi> alctV = alct->run(wiredc); // run anodeLCT
-    std::vector<CSCCLCTDigi> clctV = clct->run(compdc); // run cathodeLCT
+    {
+      //static TimingReport::Item & alctTimer =
+      //(*TimingReport::current())["CSCAnodeLCTProcessor:run"];
+      //TimeMe t(alctTimer, false);
+      std::vector<CSCALCTDigi> alctV = alct->run(wiredc); // run anodeLCT
+    }
+    {
+      //static TimingReport::Item & clctTimer =
+      //(*TimingReport::current())["CSCCathodeLCTProcessor:run"];
+      //TimeMe t(clctTimer, false);
+      std::vector<CSCCLCTDigi> clctV = clct->run(compdc); // run cathodeLCT
+    }
     // It may seem like the next function should be
     // 'if (alct->bestALCT.isValid() && clct->bestCLCT.isValid())'.
     // It is || instead of && because the decision to reject non-valid LCTs
