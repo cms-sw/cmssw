@@ -1,38 +1,31 @@
 <flags SEAL_PLUGIN_NAME="FastSimulationCaloRecHitsProducer">
-<use name=Utilities/Notification>
-<use name=Foundation/PluginManager>
-<use name=DataFormats/HcalRecHit>
-<use name=DataFormats/EcalRecHit>
-<use name=DataFormats/EcalDetId>
 <use name=DataFormats/Common>
-<use name=SimDataFormats/CaloHit>
-<use name=FWCore/ParameterSet>
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/EcalRecHit>
+<use name=DataFormats/HcalRecHit>
 <use name=FWCore/Framework>
-<use name=Geometry/CaloGeometry>
-<use name=Geometry/CaloEventSetup>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/Utilities>
 <use name=FastSimulation/Utilities>
-<use name=SimDataFormats/CrossingFrame>
+<use name=Foundation/PluginManager>
+<use name=Geometry/CaloGeometry>
 <use name=Geometry/EcalBarrelAlgo>
 <use name=Geometry/EcalEndcapAlgo>
-
-<export>
- <lib name=FastSimulationRecHitsProducer>
- <use name=Utilities/Notification>
- <use name=DataFormats/HcalRecHit>
- <use name=DataFormats/EcalRecHit>
- <use name=DataFormats/Common>
- <use name=DataFormats/EcalDetId>
- <use name=SimDataFormats/CaloHit>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/Framework>
- <use name=Geometry/CaloGeometry>
- <use name=Geometry/CaloEventSetup>
- <use name=FastSimulation/Utilities>
- <use name=SimDataFormats/CrossingFrame>
- <use name=Geometry/EcalBarrelAlgo>
- <use name=Geometry/EcalEndcapAlgo>
-</export>
-
-<use name=seal>
+<use name=Geometry/Records>
+<use name=SimDataFormats/CaloHit>
+<use name=SimDataFormats/CrossingFrame>
+<use name=boost>
 <use name=clhep>
-
+<export>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/EcalRecHit>
+  <use name=DataFormats/HcalRecHit>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=FastSimulation/Utilities>
+  <use name=Geometry/Records>
+  <use name=boost>
+  <lib name=FastSimulationCaloRecHitsProducer>
+</export>

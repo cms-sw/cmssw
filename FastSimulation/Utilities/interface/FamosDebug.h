@@ -1,3 +1,6 @@
+#ifndef FastSimulation_Utilities_FamosDebug_H
+#define FastSimulation_Utilities_FamosDebug_H
+
 // Uncomment the following line to include the debugging code in the 
 // library
 
@@ -24,3 +27,6 @@
 #ifdef FAMOSDEBUG
 #include "FastSimulation/Utilities/interface/Histos.h"
 #endif
+
+#endif
+

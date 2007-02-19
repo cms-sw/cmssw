@@ -1,25 +1,21 @@
-<use name=clhep>
-<use name=FastSimulation/Event>
-<use name=FastSimulation/CalorimeterProperties>
+<use name=DataFormats/DetId>
+<use name=DataFormats/HcalDetId>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
 <use name=FastSimulation/CaloGeometryTools>
+<use name=FastSimulation/CaloHitMakers>
+<use name=FastSimulation/Event>
+<use name=FastSimulation/Particle>
 <use name=FastSimulation/ShowerDevelopment>
 <use name=FastSimulation/Utilities>
-<use name=DataFormats/EcalDetId>
-<use name=DataFormats/HcalDetId>
 <use name=SimDataFormats/CaloHit>
-<use name=Geometry/CaloEventSetup>
-<use name=Geometry/CaloTopology>
-	
+<use name=boost>
+<use name=clhep>
 <export>
- <lib name=FastSimulationCalorimetry>
- <use name=FastSimulation/Event>
- <use name=FastSimulation/CalorimeterProperties>
- <use name=FastSimulation/CaloGeometryTools>
- <use name=FastSimulation/ShowerDevelopment>
- <use name=FastSimulation/Utilities>
- <use name=DataFormats/EcalDetId>
- <use name=DataFormats/HcalDetId>
- <use name=SimDataFormats/CaloHit>
- <use name=Geometry/CaloEventSetup>
- <use name=Geometry/CaloTopology>
+  <use name=FWCore/ParameterSet>
+  <use name=FastSimulation/Particle>
+  <use name=FastSimulation/Utilities>
+  <use name=SimDataFormats/CaloHit>
+  <use name=boost>
+  <lib name=FastSimulationCalorimetry>
 </export>

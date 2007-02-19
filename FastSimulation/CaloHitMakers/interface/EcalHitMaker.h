@@ -9,7 +9,7 @@
 #include "FastSimulation/CaloGeometryTools/interface/CaloSegment.h"
 #include "FastSimulation/CaloGeometryTools/interface/CrystalPad.h"
 #include "FastSimulation/CaloGeometryTools/interface/Crystal.h"
-#include "FastSimulation/Calorimetry/interface/FamosDebug.h"
+#include "FastSimulation/Utilities/interface/FamosDebug.h"
 
 // CLHEP headers
 #include "CLHEP/Geometry/Point3D.h"
