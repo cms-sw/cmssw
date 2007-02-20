@@ -162,9 +162,9 @@ void TrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_total){
 if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
   
   if(mod->count > 0)
-    *svgfile <<"<polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" Id "<<buffer<<" \" fill=\"rgb(255,"<<255-green<<",0)\" points=\"";
+    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" Id "<<mod->idex<<" \" fill=\"rgb(255,"<<255-green<<",0)\" points=\"";
   else
-    *svgfile <<"<polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\"  onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" Id "<<buffer<<" \" fill=\"white\" points=\"";
+    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\"  onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" Id "<<mod->idex<<" \" fill=\"white\" points=\"";
   for(int k=0;k<np;k++){
     *svgfile << xd[k] << "," << yd[k] << " " ;
   }
@@ -173,7 +173,7 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
   if(mod->red>255)mod->red=255;
   if(mod->green>255)mod->green=255;
   if(mod->blue>255)mod->blue=255;
-    *svgfile <<"<polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" Id "<<buffer<<" \" fill=\"rgb("<<mod->red<<","<<mod->green<<","<<mod->blue<<")\" points=\"";
+    *svgfile <<"<svg:polygon detid=\""<<mod->idex<<"\" count=\""<<mod->count <<"\" value=\""<<mod->value<<"\" id=\""<<key<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<mod->text<<"\" POS=\""<<mod->name<<" Id "<<mod->idex<<" \" fill=\"rgb("<<mod->red<<","<<mod->green<<","<<mod->blue<<")\" points=\"";
   for(int k=0;k<np;k++){
     *svgfile << xd[k] << "," << yd[k] << " " ;
   }
@@ -187,7 +187,7 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
 //print_total = false represent in color the average  
 void TrackerMap::print(bool print_total, float minval, float maxval){
   minvalue=minval; maxvalue=maxval;
-  svgfile = new ofstream("svgmap.svg",ios::out);
+  svgfile = new ofstream("svgmap.xml",ios::out);
   jsfile = new ifstream("trackermap.txt",ios::in);
 
   //copy javascript interface from trackermap.txt file
@@ -239,9 +239,10 @@ void TrackerMap::print(bool print_total, float minval, float maxval){
       }
     }
   }
-  *svgfile << "</g></svg>"<<endl;
-  *svgfile << " <text id=\"Title\" class=\"normalText\"  x=\"100\" y=\"0\">"<<title<<"</text>"<<endl;
-  *svgfile << "</svg>"<<endl;
+  *svgfile << "</svg:g></svg:svg>"<<endl;
+  *svgfile << " <svg:text id=\"Title\" class=\"normalText\"  x=\"100\" y=\"0\">"<<title<<"</svg:text>"<<endl;
+  *svgfile << "</svg:svg>"<<endl;
+  *svgfile << "</body></html>"<<endl;
 
 }
 
