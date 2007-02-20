@@ -2,9 +2,9 @@
 
 
 #include <iostream>
-using namespace xercesc;
 #include "DQMServices/ClientConfig/interface/ParserFunctions.h"
 
+using namespace xercesc;
 using namespace std;
 //
 // -- Constructor
