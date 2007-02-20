@@ -3,7 +3,7 @@
 // Class:      SiStripApvGainCalculator
 // Original Author:  Dorian Kcira, Pierre Rodeghiero
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id$
+// $Id: SiStripApvGainCalculator.cc,v 1.1 2006/12/07 18:18:19 dkcira Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -28,6 +28,13 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
+
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 
 //#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
@@ -124,6 +131,9 @@ void SiStripApvGainCalculator::beginJob(const edm::EventSetup& iSetup)
    //
    detModulesToBeExcluded.clear();
    detModulesToBeExcluded = conf_.getParameter< std::vector<unsigned> >("detModulesToBeExcluded");
+   MinNrEntries = conf_.getUntrackedParameter<unsigned>("minNrEntries", 20);
+   MaxChi2OverNDF = conf_.getUntrackedParameter<double>("maxChi2OverNDF", 5.);
+
    edm::LogInfo("SiStripApvGainCalculator")<<"Clusters from "<<detModulesToBeExcluded.size()<<" modules will be ignored in the calibration:";
    edm::LogInfo("SiStripApvGainCalculator")<<"The calibration for these DetIds will be set to a default value";
    for( std::vector<uint32_t>::const_iterator imod = detModulesToBeExcluded.begin(); imod != detModulesToBeExcluded.end(); imod++){
@@ -134,7 +144,11 @@ void SiStripApvGainCalculator::beginJob(const edm::EventSetup& iSetup)
    HlistOtherHistos = new TObjArray();
    //
    std::ostringstream oshistoid; TString histoid;
-   oshistoid.str(""); oshistoid << "APVPairCorrections";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,200,-1.,4.));
+   oshistoid.str(""); oshistoid << "APVPairCorrections";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
+   oshistoid.str(""); oshistoid << "APVPairCorrectionsTIB1";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
+   oshistoid.str(""); oshistoid << "APVPairCorrectionsTIB2";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
+   oshistoid.str(""); oshistoid << "APVPairCorrectionsTOB1";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
+   oshistoid.str(""); oshistoid << "APVPairCorrectionsTOB2";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
    oshistoid.str(""); oshistoid << "LocalAngle";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,70,-0.1,3.4));
    oshistoid.str(""); oshistoid << "LocalAngleAbsoluteCosine";   histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,48,-0.1,1.1));
    oshistoid.str(""); oshistoid << "LocalPosition_cm";     histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,100,-5.,5.));
@@ -222,12 +236,18 @@ SiStripApvGainCalculator::endJob() {
   while( MyHisto ){
     TString histo_title = MyHisto->GetTitle();
     if(histo_title.Contains("ChargeAPVPair_")){
-      double local_nrofadcs = getPeakOfLandau( MyHisto );
+      std::pair<double,double> two_values = getPeakOfLandau(MyHisto);
+      double local_nrofadcs = two_values.first;
+      double local_sigma = two_values.second;
       ChargeOfEachAPVPair->Fill(histo_title, local_nrofadcs);
+      int ichbin  = ChargeOfEachAPVPair->GetXaxis()->FindBin(histo_title.Data());
+      ChargeOfEachAPVPair->SetBinError(ichbin,local_sigma);
       EntriesApvPairs->Fill(histo_title, MyHisto->GetEntries());
       NrOfEntries->Fill(MyHisto->GetEntries());
-      MeanCharge += local_nrofadcs;
-      NrOfApvPairs += 1.; // count nr of apv pairs since do not know whether nr of bins of histogram is the same
+      if(local_nrofadcs > 0){ // if nr of adcs is negative, the fitting routine could not extract meaningfull numbers
+       MeanCharge += local_nrofadcs;
+       NrOfApvPairs += 1.; // count nr of apv pairs since do not know whether nr of bins of histogram is the same
+      }
     }
     MyHisto = (TH1F*)hiterator();
   }
@@ -239,59 +259,71 @@ SiStripApvGainCalculator::endJob() {
   // calculate correction
   TH1F* CorrectionOfEachAPVPair = (TH1F*) ChargeOfEachAPVPair->Clone("CorrectionOfEachAPVPair");
   TH1F *ChargeOfEachAPVPairControlView = new TH1F("ChargeOfEachAPVPairControlView","ChargeOfEachAPVPairControlView",1,0,1); ChargeOfEachAPVPairControlView->SetBit(TH1::kCanRebin);
+TH1F *CorrectionOfEachAPVPairControlView = new TH1F("CorrectionOfEachAPVPairControlView","CorrectionOfEachAPVPairControlView",1,0,1); CorrectionOfEachAPVPairControlView->SetBit(TH1::kCanRebin);
   std::ofstream APVPairTextOutput("apvpair_corrections.txt");
   APVPairTextOutput<<"# MeanCharge = "<<MeanCharge<<std::endl;
   APVPairTextOutput<<"# Nr. of APVPairs = "<<NrOfApvPairs<<std::endl;
   for(int ibin=1; ibin <= ChargeOfEachAPVPair->GetNbinsX(); ibin++){
      TString local_bin_label = ChargeOfEachAPVPair->GetXaxis()->GetBinLabel(ibin);
-     if(local_bin_label.Contains("ChargeAPVPair_")){
+     double local_charge_over_path = ChargeOfEachAPVPair->GetBinContent(ibin);
+     if(local_bin_label.Contains("ChargeAPVPair_") && local_charge_over_path > 0.0000001){ // calculate correction only for meaningful numbers
        uint32_t extracted_detid; std::istringstream read_label((local_bin_label(14,9)).Data()); read_label >> extracted_detid; 
        unsigned short extracted_apvpairid; std::istringstream read_apvpair((local_bin_label(24,1)).Data()); read_apvpair >> extracted_apvpairid; 
-       double local_charge_over_path = ChargeOfEachAPVPair->GetBinContent(ibin);
+       double local_error_of_charge = ChargeOfEachAPVPair->GetBinError(ibin);
        double local_correction = -0.5;
-       if(local_charge_over_path > 0.0000001){
-          local_correction = MeanCharge / local_charge_over_path; // later use ExpectedChargeDeposition instead of MeanCharge
+       double local_error_correction = 0.;
+       local_correction = MeanCharge / local_charge_over_path; // later use ExpectedChargeDeposition instead of MeanCharge
+       local_error_correction = local_correction * local_error_of_charge / local_charge_over_path;
+       if(local_error_correction>1.8){ // understand why error too large sometimes
+         std::cout<<"too large error "<<local_error_correction<<" for histogram "<<local_bin_label<<std::endl;
        }
        double nr_of_entries = EntriesApvPairs->GetBinContent(ibin);
        APVPairTextOutput<<local_bin_label<<" "<<local_correction<<" "<<local_charge_over_path<<" "<<nr_of_entries<<std::endl;
        CorrectionOfEachAPVPair->SetBinContent(ibin, local_correction);
+       CorrectionOfEachAPVPair->SetBinError(ibin, local_error_correction);
        ((TH1F*) HlistOtherHistos->FindObject("APVPairCorrections"))->Fill(local_correction);
+       DetId thedetId = DetId(extracted_detid);
+       uint generalized_layer = 0;
+       // calculate generalized_layer:  31,32 = TIB1, 33 = TIB2, 33 = TIB3, 51 = TOB1, 52 = TOB2, 60 = TEC
+       if(thedetId.subdetId()==StripSubdetector::TIB){
+          TIBDetId ptib = TIBDetId(thedetId.rawId());
+          generalized_layer = 10*thedetId.subdetId() + ptib.layer() + ptib.stereo();
+  	  if(ptib.layer()==2){
+  	    generalized_layer++;
+  	    if (ptib.glued()) edm::LogError("ClusterMTCCFilter")<<"WRONGGGG"<<endl;
+  	  }
+        }else{
+          generalized_layer = 10*thedetId.subdetId();
+  	  if(thedetId.subdetId()==StripSubdetector::TOB){
+  	    TOBDetId ptob = TOBDetId(thedetId.rawId());
+  	    generalized_layer += ptob.layer();
+  	  }
+        }
+       if(generalized_layer==31 || generalized_layer==32){
+         ((TH1F*) HlistOtherHistos->FindObject("APVPairCorrectionsTIB1"))->Fill(local_correction);
+       }
+       if(generalized_layer==33){
+        ((TH1F*) HlistOtherHistos->FindObject("APVPairCorrectionsTIB2"))->Fill(local_correction);
+       }
+       if(generalized_layer==51){
+        ((TH1F*) HlistOtherHistos->FindObject("APVPairCorrectionsTOB1"))->Fill(local_correction);
+       }
+       if(generalized_layer==52){
+        ((TH1F*) HlistOtherHistos->FindObject("APVPairCorrectionsTOB2"))->Fill(local_correction);
+       }
        // control view
        edm::ESHandle<SiStripDetCabling> siStripDetCabling; eventSetupCopy_->get<SiStripDetCablingRcd>().get(siStripDetCabling);
        const FedChannelConnection& fedchannelconnection = siStripDetCabling->getConnection( extracted_detid, extracted_apvpairid );
-
-/*
-      // this is the method to be used for newer CMSSW releases, at least from CMSSW_1_2_x on:w
-       uint32_t n_controlkey = SiStripFecKey::key(
-                               fedchannelconnection.fecCrate(),
-        		       fedchannelconnection.fecSlot(),
-        		       fedchannelconnection.fecRing(),
-        		       fedchannelconnection.ccuAddr(),
-        		       fedchannelconnection.ccuChan(),
-        		       fedchannelconnection.lldChannel()
-                               );
-*/
-
-/*
-      // this is the method to be used for CMSSW_1_0_4
-      uint32_t n_controlkey = SiStripGenerateKey::controlKey(
-                                fedchannelconnection.fecCrate(),
-                                fedchannelconnection.fecSlot(),
-                                fedchannelconnection.fecRing(),
-                                fedchannelconnection.ccuAddr(),
-                                fedchannelconnection.ccuChan(),
-        		       fedchannelconnection.lldChannel()
-                                );
-       std::ostringstream local_key;  local_key << n_controlkey; TString control_key= local_key.str();
-       std::cout<<"control_key="<<control_key<<"  detid="<<extracted_detid<<" apvpair="<<extracted_apvpairid<<std::endl;
-*/
-
-       std::cout<<"   fecCrate="<<fedchannelconnection.fecCrate()<<"  fecSlot="<<fedchannelconnection.fecSlot()<<" fecRing="<<fedchannelconnection.fecRing()<<" ccuAddr="<<fedchannelconnection.ccuAddr()<<" ccuChan="<<fedchannelconnection.ccuChan()<<" lldChannel="<<fedchannelconnection.lldChannel()<<std::endl;
        std::ostringstream local_key;
        // in S. Mersi's analysis the APVPair id seems to be used instead of the lldChannel, hence use the same here
        local_key<<"fecCrate"<<fedchannelconnection.fecCrate()<<"_fecSlot"<<fedchannelconnection.fecSlot()<<"_fecRing"<<fedchannelconnection.fecRing()<<"_ccuAddr"<<fedchannelconnection.ccuAddr()<<"_ccuChan"<<fedchannelconnection.ccuChan()<<"_apvPair"<<extracted_apvpairid;
        TString control_key = local_key.str();
        ChargeOfEachAPVPairControlView->Fill(control_key,local_charge_over_path);
+       int ibin1  = ChargeOfEachAPVPairControlView->GetXaxis()->FindBin(control_key);
+       ChargeOfEachAPVPairControlView->SetBinError(ibin1,local_error_of_charge);
+       CorrectionOfEachAPVPairControlView->Fill(control_key, local_correction);
+       int ibin2  = CorrectionOfEachAPVPairControlView->GetXaxis()->FindBin(control_key);
+       CorrectionOfEachAPVPairControlView->SetBinError(ibin2, local_error_correction);
        // thickness of each module
        double module_thickness = moduleThickness(extracted_detid, eventSetupCopy_);
        if( abs(module_thickness - 0.032)<0.001 ) ModuleThickness->Fill(1);
@@ -307,7 +339,9 @@ SiStripApvGainCalculator::endJob() {
   }
   HlistOtherHistos->Add(CorrectionOfEachAPVPair);
   ChargeOfEachAPVPairControlView->LabelsDeflate("X");
+  CorrectionOfEachAPVPairControlView->LabelsDeflate("X");
   HlistOtherHistos->Add(ChargeOfEachAPVPairControlView);
+  HlistOtherHistos->Add(CorrectionOfEachAPVPairControlView);
   // output histograms to file
   bool outputHistogramsInRootFile = conf_.getParameter<bool>("OutputHistogramsInRootFile");
   TString outputFileName = conf_.getParameter<std::string>("OutputFileName");
@@ -320,31 +354,46 @@ SiStripApvGainCalculator::endJob() {
 }
 
 //-------- automated fitting with finding of the appropriate nr. of ADCs
-double SiStripApvGainCalculator::getPeakOfLandau( TH1F * inputHisto ){
-  double adcs = 0.;
-  double nr_of_entries = inputHisto->GetEntries();
-  // set some default value and return if no entries
-  if(nr_of_entries == 0){
-    adcs = -0.5;  // default dummy value
-    return adcs;
+std::pair<double,double> SiStripApvGainCalculator::getPeakOfLandau( TH1F * inputHisto){
+  // set some default dummy value and return if no entries
+  double adcs = -0.5; double error = 0.; double nr_of_entries = inputHisto->GetEntries();
+  if(nr_of_entries < MinNrEntries){
+    return std::make_pair(adcs,error);
   }
-  double mean_of_histogram = inputHisto->GetMean();
-  if( nr_of_entries < 20.){ // get mean if less than 20 entries
-     adcs = mean_of_histogram;
-  } else {
-//    // fit with initial setting of  parameter values
-//    double rms_of_histogram = inputHisto->GetRMS();
-//    TF1 *landaufit = new TF1("landaufit","landau",0.,450.);
-//    landaufit->SetParameters(nr_of_entries,mean_of_histogram,rms_of_histogram);
-//    inputHisto->Fit("landaufit","0Q+");
-//    delete landaufit;
-    // perform fit with standard landau
-    inputHisto->Fit("landau","0Q+");
-    TF1 * fitfunction = (TF1*) inputHisto->GetListOfFunctions()->First();
-    adcs = fitfunction->GetParameter("MPV");
-    if(adcs< 2 ) adcs = mean_of_histogram;
-  }
-  return adcs;
+//
+//  // fit with initial setting of  parameter values
+//  double rms_of_histogram = inputHisto->GetRMS();
+//  TF1 *landaufit = new TF1("landaufit","landau",0.,450.);
+//  landaufit->SetParameters(nr_of_entries,mean_of_histogram,rms_of_histogram);
+//  inputHisto->Fit("landaufit","0Q+");
+//  delete landaufit;
+//
+  // perform fit with standard landau
+  inputHisto->Fit("landau","0Q");
+  TF1 * fitfunction = (TF1*) inputHisto->GetListOfFunctions()->First();
+  adcs = fitfunction->GetParameter("MPV");
+  error = fitfunction->GetParError(1); // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
+  double chi2 = fitfunction->GetChisquare();
+  double ndf = fitfunction->GetNDF();
+  double chi2overndf = chi2 / ndf;
+  // in case things went wrong, try to refit in smaller range
+  if(adcs< 2. || (error/adcs)>1.8 ){
+     inputHisto->Fit("landau","0Q",0,0.,400.);
+     TF1 * fitfunction2 = (TF1*) inputHisto->GetListOfFunctions()->First();
+     std::cout<<"refitting landau for histogram "<<inputHisto->GetTitle()<<std::endl;
+     std::cout<<"initial error/adcs ="<<error<<" / "<<adcs<<std::endl;
+     std::cout<<"new     error/adcs ="<<fitfunction2->GetParError(1)<<" / "<<fitfunction2->GetParameter("MPV")<<std::endl;
+     adcs = fitfunction2->GetParameter("MPV");
+     error = fitfunction2->GetParError(1); // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
+     chi2 = fitfunction2->GetChisquare();
+     ndf = fitfunction2->GetNDF();
+     chi2overndf = chi2 / ndf;
+   }
+   // if still wrong, give up
+   if(adcs<2. || chi2overndf>MaxChi2OverNDF){
+     adcs = -0.5; error = 0.;
+   }
+  return std::make_pair(adcs,error);
 }
 
 //-------- get width of the module detid

@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira, Pierre Rodeghiero
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id$
+// $Id: SiStripApvGainCalculator.h,v 1.1 2006/12/07 18:18:18 dkcira Exp $
 //
 //
 
@@ -49,7 +49,7 @@ class SiStripApvGainCalculator : public edm::EDAnalyzer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      double getPeakOfLandau( TH1F * inputHisto );
+      std::pair<double,double> getPeakOfLandau( TH1F * inputHisto );
       double moduleWidth(const uint32_t detid, const edm::EventSetup* iSetup);
       double moduleThickness(const uint32_t detid, const edm::EventSetup* iSetup);
 
@@ -67,5 +67,7 @@ class SiStripApvGainCalculator : public edm::EDAnalyzer {
       std::vector<uint32_t> SelectedDetIds;
       std::vector<uint32_t> detModulesToBeExcluded;
       const edm::EventSetup * eventSetupCopy_;
+      unsigned int MinNrEntries;
+      double MaxChi2OverNDF;
 
 };
