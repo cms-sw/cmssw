@@ -60,6 +60,8 @@ EcalSimRawData::EcalSimRawData(const edm::ParameterSet& params){
   tpVerbose_ = params.getUntrackedParameter<bool>("tpVerbose", false);
   tcc2dcc_ = params.getUntrackedParameter<bool>("tcc2dccData", true);
   srp2dcc_ = params.getUntrackedParameter<bool>("srp2dccData", true);
+  fe2dcc_ = params.getUntrackedParameter<bool>("fe2dccData", true);
+  fe2tcc_ = params.getUntrackedParameter<bool>("fe2tccData", true);
   dccNum_ = params.getUntrackedParameter<int>("dccNum", -1);
   tccNum_ = params.getUntrackedParameter<int>("tccNum", -1);
   tccInDefaultVal_ = params.getUntrackedParameter<int>("tccInDefaultVal", 0xffff) ;
@@ -82,28 +84,24 @@ EcalSimRawData::analyze(const edm::Event& event,
   static int iEvent = 0;
   ++iEvent; 
     
-  edm::Handle<EBDigiCollection> hEbDigis;
-  event.getByLabel(digiProducer_, ebDigiCollection_, hEbDigis);
-  assert(hEbDigis.isValid());
-  const EBDigiCollection& ebDigis = *hEbDigis.product();
-
   if(xtalVerbose_ | tpVerbose_){
     cout << "======================================================================\n"
       " Event " << iEvent << "\n"
 	 << "---------------------------------------------------------------------\n";
   }
+
+  if(fe2dcc_){
+    vector<uint16_t> adc[nEbEta][nEbPhi];
+    getEbDigi(event, adc);
+    genFeData("ecal", iEvent, adc);
+  }
+
+  if(fe2tcc_){
+    int tcp[nTtEta][nTtPhi];
+    getTp(event, tcpDigiCollection_, tcp);
+    genTccIn("ecal", iEvent, tcp);
+  }
   
-  if(ebDigis.size()==0) return;
-  
-  vector<uint16_t> adc[nEbEta][nEbPhi];
-  getEbDigi(event, adc);
-  genFeData("ecal", iEvent, adc);
-
-
-  int tcp[nTtEta][nTtPhi];
-  getTp(event, tcpDigiCollection_, tcp);
-  genTccIn("ecal", iEvent, tcp);
-
   if(tcc2dcc_){
     int tp[nTtEta][nTtPhi];
     getTp(event, tpDigiCollection_, tp); 

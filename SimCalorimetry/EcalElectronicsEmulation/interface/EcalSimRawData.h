@@ -1,5 +1,5 @@
 /*  
- * $Id: EcalSimRawData.h,v 1.3 2007/02/16 10:38:18 pgras Exp $
+ * $Id: EcalSimRawData.h,v 1.4 2007/02/20 15:07:47 paganini Exp $
  */
 
 #include "FWCore/Framework/interface/Event.h"
@@ -417,13 +417,21 @@ private:
    */
   bool tpVerbose_;
 
-  /** Verbosity switch for data of SRP->DCC link
+  /** Switch for data of SRP->DCC link
    */
   bool srp2dcc_;
 
-  /** Verbosity switch for data of TCC->DCC link
+  /** Switch for data of TCC->DCC link
    */
   bool tcc2dcc_;
+
+  /** Switch for data of FE->DCC link
+   */
+  bool fe2dcc_;
+
+  /** Switch for data of FE->TCC link
+   */
+  bool fe2tcc_;
 
   /** ECAL endcap trigger tower map
    */
