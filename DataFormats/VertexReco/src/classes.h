@@ -15,5 +15,7 @@ namespace {
     edm::Ref<std::vector<reco::Vertex> > r1;
     edm::RefProd<std::vector<reco::Vertex> > rp1;
     edm::RefVector<std::vector<reco::Vertex> > rvv1;
+
+    edm::AssociationMap<edm::OneToValue< std::vector<reco::Track>, float, unsigned int > > am2;
   }
 }
