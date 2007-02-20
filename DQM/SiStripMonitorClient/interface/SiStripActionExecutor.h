@@ -5,6 +5,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigWriter.h"
+#include "DQMServices/ClientConfig/interface/QTestHandle.h"
 #include <fstream>
 #include <map>
 #include <vector>
@@ -45,5 +46,7 @@ class SiStripActionExecutor {
   std::vector<std::string> summaryMENames;
   std::vector<std::string> tkMapMENames;
   bool collationDone;
+
+  QTestHandle* qtHandler_;
 };
 #endif

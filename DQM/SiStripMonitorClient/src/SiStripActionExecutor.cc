@@ -1,8 +1,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
-#include "DQM/SiStripMonitorClient/interface/SiStripQualityTester.h"
 #include "DQM/SiStripMonitorClient/interface/TrackerMapCreator.h"
-//#include "DQMServices/ClientConfig/interface/QTestHandle.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
@@ -18,6 +16,7 @@ SiStripActionExecutor::SiStripActionExecutor() {
     " Creating SiStripActionExecutor " << "\n" ;
   configParser_ = 0;
   configWriter_ = 0;
+  qtHandler_ = 0;
   collationDone = false;
 }
 //
@@ -27,6 +26,9 @@ SiStripActionExecutor::~SiStripActionExecutor() {
   edm::LogInfo("SiStripActionExecutor") << 
     " Deleting SiStripActionExecutor " << "\n" ;
   if (configParser_) delete configParser_;
+  if (configWriter_) delete configWriter_;
+  if (qtHandler_) delete qtHandler_;
+
 }
 //
 // -- Read Configurationn File
@@ -229,12 +231,19 @@ MonitorElement* SiStripActionExecutor::getSummaryME(MonitorUserInterface* mui,
 // -- Setup Quality Tests 
 //
 void SiStripActionExecutor::setupQTests(MonitorUserInterface * mui) {
-  SiStripQualityTester qtester;
   mui->cd();
   if (collationDone) mui->cd("Collector/Collated/SiStrip");
-  qtester.setupQTests(mui);
-  mui->cd();
-  cout << " Setting Up Quality Tests " << endl;
+  string localPath = string("DQM/SiStripMonitorClient/test/sistrip_qualitytest_config.xml");
+  if (!qtHandler_) {
+    qtHandler_ = new QTestHandle();
+  }
+  if(!qtHandler_->configureTests(edm::FileInPath(localPath).fullPath(),mui)){
+    cout << " Setting Up Quality Tests " << endl;
+    qtHandler_->attachTests(mui);			
+    mui->cd();
+  } else {
+    cout << " Problem to Set Up Quality Tests " << endl;
+  }
 }
 //
 // -- Check Status of Quality Tests
