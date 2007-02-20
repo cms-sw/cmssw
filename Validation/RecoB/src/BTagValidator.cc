@@ -6,7 +6,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.cc,v 1.3 2007/02/14 20:09:42 yumiceva Exp $
+ version $Id: BTagValidator.cc,v 1.4 2007/02/14 20:53:18 bazterra Exp $
 
 ________________________________________________________________**/
 
@@ -21,10 +21,14 @@ ________________________________________________________________**/
 #include "TH3.h"
 #include "TString.h"
 
-#include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
+#include "RecoBTag/Analysis/interface/BaseBTagPlotter.h"
 
+#include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
 #include "RecoBTag/Analysis/interface/TrackCountingTagPlotter.h"
+
 #include "RecoBTag/Analysis/interface/TrackProbabilityTagPlotter.h"
+
+#include "RecoBTag/Analysis/interface/SoftLeptonTagPlotter.h"
 
 #include "Validation/RecoB/interface/HistoCompare.h"
 
@@ -39,18 +43,20 @@ BTagValidator::BTagValidator(const edm::ParameterSet& iConfig) {
 	DQMFile_ = iConfig.getParameter<std::string>( "DQMFile" );
 	histogramList_ = iConfig.getParameter<vstring>( "histogramList" );
 	referenceFilename_ = iConfig.getParameter<std::string>( "ReferenceFilename" );
-	doCompare_ = iConfig.getParameter<bool>( "CompareHistograms" );
-	doAnalysis_ = iConfig.getParameter<bool>( "doAnalysis" );
+	doCompare_ = iConfig.getParameter<bool>( "CompareHistograms");
+	doAnalysis_ = iConfig.getParameter<bool>( "doAnalysis");
 				
 	// change assert to CMS catch exceptions
 	// throw edm::Exception(errors::Configuration, "no label") << "thelabel do no exist";
 	
-	if (doAnalysis_)
-	{	
+	if (doAnalysis_) {
+		
 		if (algorithm_ == "TrackCounting") 
 			petBase_ = new BTagPABase<reco::TrackCountingTagInfoCollection, TrackCountingTagPlotter>(iConfig);
 		else if (algorithm_ == "TrackProbability")
-			petBase_ = new BTagPABase<reco::TrackCountingTagInfoCollection, TrackProbabilityTagPlotter>(iConfig);
+			petBase_ = new BTagPABase<reco::TrackProbabilityTagInfoCollection, TrackProbabilityTagPlotter>(iConfig);
+		else if (algorithm_ == "SoftLepton")
+			petBase_ = new BTagPABase<reco::SoftLeptonTagInfoCollection, SoftLeptonTagPlotter>(iConfig);
 		else {
 			cout << "BTagPerformanceAnalyzer: Unknown algorithm "<< algorithm_ <<endl;
 			cout << " Choose between JetTag, TrackCounting, TrackProbability\n";
