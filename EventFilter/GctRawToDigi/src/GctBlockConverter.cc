@@ -103,8 +103,6 @@ void GctBlockConverter::blockToGctInternEmCand(const unsigned char * data, unsig
     unsigned offset = i*4*nSamples;
     uint16_t w0 = data[offset]   + (data[offset+1]<<8); 
     uint16_t w1 = data[offset+2] + (data[offset+3]<<8);
-    w0 = (w0 & 0x1ff) + ((w0 & 0xfc00)>>1);
-    w1 = (w1 & 0x1ff) + ((w1 & 0xfc00)>>1);
     gctInternEm_->push_back( L1GctInternEmCand(w0, i > 7, id, 2*i/nSamples) );
     gctInternEm_->push_back( L1GctInternEmCand(w1, i > 7, id, 2*(i/nSamples)+1) );
   }
@@ -116,21 +114,24 @@ void GctBlockConverter::blockToRctEmCand(const unsigned char * data, unsigned id
   
   uint16_t d[6]; // index = source card output * 2 + cycle
   
-  for (int iRct=0; iRct<blockLength(id)*nSamples; iRct=iRct+(nSamples*3)) {  // temporarily just take 0th time sample
-    unsigned offset = iRct*4*3*nSamples;  // 4 bytes per 32-bits, 3 SC outputs per RCT crate
+  for (int i=0; i<blockLength(id)*nSamples; i=i+(nSamples*3)) {  // temporarily just take 0th time sample
+    unsigned offset = i*4*3*nSamples;  // 4 bytes per 32-bits, 3 SC outputs per RCT crate
+    unsigned crate =0;
+    if (id==0x81) { crate = i/3 + 4; }
+    if (id==0x89) { crate = i/3; }
+
     for (int j=0; j<7; j++) {
       d[j] = data[offset+(j/2)] + (data[offset+(j/2)+1]<<8); 
     }
     
-    rctEm_->push_back( L1CaloEmCand( d[0] & 0x1ff, iRct, true) );
-    rctEm_->push_back( L1CaloEmCand( ((d[0] & 0x3800)>>10) + ((d[2] & 0x7800)>>7) + ((d[4] & 0x3800)>>3), iRct, true) );
-    rctEm_->push_back( L1CaloEmCand( d[1] & 0x1ff, iRct, true) );
-    rctEm_->push_back( L1CaloEmCand( ((d[1] & 0x3800)>>10) + ((d[3] & 0x7800)>>7) + ((d[5] & 0x3800)>>3), iRct, true) );
-    rctEm_->push_back( L1CaloEmCand( d[2] & 0x1ff, iRct, true) );
-    rctEm_->push_back( L1CaloEmCand( d[4] & 0x1ff, iRct, true) );
-    rctEm_->push_back( L1CaloEmCand( d[3] & 0x1ff, iRct, true) );
-    rctEm_->push_back( L1CaloEmCand( d[5] & 0x1ff, iRct, true) );
-
+    rctEm_->push_back( L1CaloEmCand( d[0] & 0x1ff, crate, true) );
+    rctEm_->push_back( L1CaloEmCand( ((d[0] & 0x3800)>>10) + ((d[2] & 0x7800)>>7) + ((d[4] & 0x3800)>>3), crate, true) );
+    rctEm_->push_back( L1CaloEmCand( d[1] & 0x1ff, crate, true) );
+    rctEm_->push_back( L1CaloEmCand( ((d[1] & 0x3800)>>10) + ((d[3] & 0x7800)>>7) + ((d[5] & 0x3800)>>3), crate, true) );
+    rctEm_->push_back( L1CaloEmCand( d[2] & 0x1ff, crate, true) );
+    rctEm_->push_back( L1CaloEmCand( d[4] & 0x1ff, crate, true) );
+    rctEm_->push_back( L1CaloEmCand( d[3] & 0x1ff, crate, true) );
+    rctEm_->push_back( L1CaloEmCand( d[5] & 0x1ff, crate, true) );
   }  
 
 }
