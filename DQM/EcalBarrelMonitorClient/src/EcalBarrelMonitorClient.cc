@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/17 13:49:49 $
- * $Revision: 1.222 $
+ * $Date: 2007/02/19 20:32:36 $
+ * $Revision: 1.223 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1173,9 +1173,9 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    if ( verbose_ ) cout << " updates = "  << updates << endl;
+    if ( verbose_ ) cout << " updates = " << updates << endl;
 
-    if ( ievt_<= 0 || ievt_ % 10 == 0 ) {
+    if ( status_ == "begin-of-run" || status_ == "end-of-run" || ievt_ < 10 || ievt_ % 10 == 0 ) {
 
       cout << " run = "      << run_      <<
               " event = "    << evt_      <<
