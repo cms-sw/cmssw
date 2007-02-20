@@ -277,12 +277,12 @@ class Process(object):
     def _placeService(self,typeName,mod):
         self.__services[typeName]=mod
         self.__dict__[typeName]=mod
-    def useFrom(self,other,items=()):
-        """Look in the __dict__ of other and find types which we can use"""
+    def extend(self,other,items=()):
+        """Look in other and find types which we can use"""
         seqs = dict()
         labelled = dict()
-        for name in other.__dict__.iterkeys():
-            item = other.__dict__[name]
+        for name in dir(other):
+            item = getattr(other,name)
             if isinstance(item,_ModuleSequenceType):
                 seqs[name]=item
                 continue
@@ -1220,7 +1220,7 @@ if __name__=="__main__":
             p.add_(ESSource("ConfigDB"))
             self.assert_('ConfigDB' in p.es_sources_())
 
-        def testProcessUseFrom(self):
+        def testProcessExtend(self):
             class FromArg(object):
                 def __init__(self,*arg,**args):
                     for name in args.iterkeys():
@@ -1233,7 +1233,7 @@ if __name__=="__main__":
                     c=Path(a)
                 )
             p = Process("Test")
-            p.useFrom(d)
+            p.extend(d)
             self.assertEqual(p.a.type_(),"MyAnalyzer")
             self.assertRaises(AttributeError,getattr,p,'b')
             self.assertEqual(p.Full.type_(),"Full")
