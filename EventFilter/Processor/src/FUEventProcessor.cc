@@ -18,6 +18,10 @@
 
 #include <typeinfo>
 
+#include "xoap/include/xoap/SOAPEnvelope.h"
+#include "xoap/include/xoap/SOAPBody.h"
+#include "xoap/include/xoap/domutils.h"
+
 #include <stdlib.h>
 
 
@@ -57,7 +61,8 @@ namespace evf{
 
   FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s) : xdaq::Application(s), 
 								 outPut_(true), inputPrescale_(1), outputPrescale_(1),  outprev_(true), 
-								 proc_(0), group_(0), fsm_(0), ah_(0), serviceToken_(), servicesDone_(false), rmt_p(0)
+								 proc_(0), group_(0), fsm_(0), ah_(0), serviceToken_(), servicesDone_(false), 
+								 rmt_p(0), ps_(0)
   {
     string xmlClass = getApplicationDescriptor()->getClassName();
     unsigned long instance = getApplicationDescriptor()->getInstance();
@@ -93,6 +98,9 @@ namespace evf{
     ispace->fireItemAvailable("collReconnSec",&rdel_);
     ispace->fireItemAvailable("monSourceName",&nam_);
 
+    ispace->fireItemAvailable("prescalerAsString",&prescalerAsString_);
+    ispace->fireItemAvailable("triggerReportAsString",&triggerReportAsString_);
+
     // Add infospace listeners for exporting data values
     getApplicationInfoSpace()->addItemChangedListener ("outputEnabled", this);
     getApplicationInfoSpace()->addItemChangedListener ("globalInputPrescale", this);
@@ -106,6 +114,9 @@ namespace evf{
 
 
     // Bind web interface
+    xoap::bind(this, &FUEventProcessor::getPsReport  , "GetPsReport", XDAQ_NS_URI);
+    xoap::bind(this, &FUEventProcessor::setPsUpdate  , "SetPsUpdate", XDAQ_NS_URI);
+    xoap::bind(this, &FUEventProcessor::putPrescaler , "PutPrescaler", XDAQ_NS_URI);
     xgi::bind(this, &FUEventProcessor::css           , "styles.css");
     xgi::bind(this, &FUEventProcessor::defaultWebPage, "Default"   );
     xgi::bind(this, &FUEventProcessor::moduleWeb     , "moduleWeb" );
@@ -187,6 +198,7 @@ namespace evf{
 	//      internal::addServiceMaybe(*pServiceSets, "MessageLogger");
 	internal::addServiceMaybe(*pServiceSets, "MLlog4cplus");
 	internal::addServiceMaybe(*pServiceSets, "MicroStateService");
+	internal::addServiceMaybe(*pServiceSets, "PrescaleService");
 	try{
 	  serviceToken_ = edm::ServiceRegistry::createSet(*pServiceSets);
 	}
@@ -297,6 +309,22 @@ namespace evf{
 	}
       if(mwr)
 	mwr->publish(getApplicationInfoSpace());
+
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"Checking for edm::service::PrescaleService!");
+      try{
+	  if(edm::Service<edm::service::PrescaleService>().isAvailable())
+	  {
+	      LOG4CPLUS_INFO(this->getApplicationLogger(),"edm::service::PrescaleService is available!");
+	      ps_ = edm::Service<edm::service::PrescaleService>().operator->();
+	      LOG4CPLUS_INFO(this->getApplicationLogger(),"Obtained pointer to PrescaleService");
+	      ps_->putHandle(proc_);
+	      LOG4CPLUS_INFO(this->getApplicationLogger(),"PrescaleService::putHandle called");
+	  }
+      }
+      catch(...)
+      {
+	  LOG4CPLUS_INFO(this->getApplicationLogger(),"exception when trying to get service edm::service::PrescaleService");
+      }
 
     }
     catch(seal::Error& e)
@@ -889,5 +917,345 @@ namespace evf{
 	micro2 = mss->getMicroState2();
       }
   }
-}
+
+  xoap::MessageReference FUEventProcessor::putPrescaler(xoap::MessageReference msg) throw (xoap::exception::Exception)
+  {
+  //The EPSM has an exported SOAP param 'nextPrescalerAsString_' this is always
+  //set first from the FM with the new prescaler value encoded as a string.
+  //Next this function is called to pick up the new string value and fill the 
+  //appropriate prescaler structure for addition to the prescaler cache...
+
+    LOG4CPLUS_INFO(this->getApplicationLogger(),
+		    "putPrescaler action invoked");
+
+    //  msg->writeTo(std::cout);
+    //  cout << endl;
+
+    string prescalerAsString = "INITIAL_VALUE";
+    string replyPs = "";
+
+    // decode 
+    xoap::SOAPPart part = msg->getSOAPPart();
+    xoap::SOAPEnvelope env = part.getEnvelope();
+    xoap::SOAPBody msgbody = env.getBody();
+    DOMNode* node = msgbody.getDOMNode();
+
+    DOMNodeList* bodyList = node->getChildNodes();
+    for (unsigned int i = 0; i < bodyList->getLength(); i++) 
+    {
+      DOMNode* command = bodyList->item(i);
+      if (command->getNodeType() == DOMNode::ELEMENT_NODE) 
+      {
+	std::string commandName = xoap::XMLCh2String (command->getLocalName());
+	if ( commandName == "PutPrescaler" ) 
+	{
+	  if ( command->hasAttributes() ) 
+          {
+	    DOMNamedNodeMap * map = command->getAttributes();
+	    for (int l=0 ; l< (int)map->getLength() ; l++) 
+            { // loop over attributes of node
+	      DOMNode * anode = map->item(l);
+	      string attributeName = XMLString::transcode(anode->getNodeName());
+	      if (attributeName == "prescalerAsString") prescalerAsString =  xoap::XMLCh2String(anode->getNodeValue());
+	    }
+	  }
+	}
+      }
+    }
+
+    //Get the prescaler string value. (Which was set by the FM)
+    LOG4CPLUS_INFO(this->getApplicationLogger(),
+		    "Using new prescaler string setting : " << prescalerAsString);
+
+
+    if ( prescalerAsString == "INITIAL_VALUE" ) {
+	// cout << "prescalerAsString not updated, is " << prescalerAsString << endl;
+    } else {
+      if(ps_ != 0)
+      {
+      //The prescale value associated with the LS# and module name.
+        int prescaleValue = ps_->getPrescale(1,"prescale2");
+	LOG4CPLUS_DEBUG(this->getApplicationLogger(), "ps_->getPrescale(1,prescale2): " << prescaleValue );
+
+	//The number of LS# to prescale module set associations in the prescale
+	//cache.
+	int storeSize = ps_->putPrescale(prescalerAsString);
+	LOG4CPLUS_DEBUG(this->getApplicationLogger(), "ps_->putPrescale(s): " << storeSize);
+	replyPs = ps_->getTriggerCounters();
+      }
+      else
+      {
+        LOG4CPLUS_DEBUG(this->getApplicationLogger(), "PrescaleService pointer == 0"); 
+      }
+    }
+
+    xoap::MessageReference reply = xoap::createMessage();
+    xoap::SOAPEnvelope envelope = reply->getSOAPPart().getEnvelope();
+    xoap::SOAPBody body = envelope.getBody();
+    xoap::SOAPName responseName = envelope.createName("PutPrescalerResponse", "xdaq", "XDAQ_NS_URI");
+    xoap::SOAPBodyElement responseElement = body.addBodyElement(responseName);
+    xoap::SOAPName stateName = envelope.createName("prescalerAsString", "xdaq", "XDAQ_NS_URI");
+    xoap::SOAPElement stateElement = responseElement.addChildElement(stateName);
+    xoap::SOAPName attributeName = envelope.createName("prescalerAsString", "xdaq", "XDAQ_NS_URI");
+    stateElement.addAttribute(attributeName, replyPs);
+    //  stateElement.addAttribute(attributeName, prescalerAsString);
+
+    return reply;
+  }
+
+  void FUEventProcessor::printTriggerReport(const edm::TriggerReport& tr)
+  {
+    ostringstream oss;
+
+    oss << "=================================" << "\n";
+    oss << "== BEGINNING OF TRIGGER REPORT ==" << "\n";
+    oss << "=================================" << "\n";
+    oss << "tr.eventSummary.totalEvents = " << tr.eventSummary.totalEvents << "\n" 
+	<< "tr.eventSummary.totalEventsPassed = " << tr.eventSummary.totalEventsPassed << "\n"
+	<< "tr.eventSummary.totalEventsFailed = " << tr.eventSummary.totalEventsFailed  << "\n";
+    
+    oss << "TriggerReport::trigPathSummaries" << "\n";
+    for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++)
+    {
+      oss << "tr.trigPathSummaries[" << i << "].bitPosition = " << tr.trigPathSummaries[i].bitPosition  << "\n" 
+	  << "tr.trigPathSummaries[" << i << "].timesRun = " << tr.trigPathSummaries[i].timesRun  << "\n"
+	  << "tr.trigPathSummaries[" << i << "].timesPassed = " << tr.trigPathSummaries[i].timesPassed  << "\n"
+	  << "tr.trigPathSummaries[" << i << "].timesFailed = " << tr.trigPathSummaries[i].timesFailed  << "\n"
+	  << "tr.trigPathSummaries[" << i << "].timesExcept = " << tr.trigPathSummaries[i].timesExcept  << "\n"
+	  << "tr.trigPathSummaries[" << i << "].name = " << tr.trigPathSummaries[i].name  << "\n";
+	
+      //TriggerReport::trigPathSummaries::moduleInPathSummaries
+      for(unsigned int j=0; j<tr.trigPathSummaries[i].moduleInPathSummaries.size(); j++)
+	{
+	  oss << "tr.trigPathSummaries[" << i << "].moduleInPathSummaries[" << j << "].timesVisited = " << tr.trigPathSummaries[i].moduleInPathSummaries[j].timesVisited  << "\n"
+	      << "tr.trigPathSummaries[" << i << "].moduleInPathSummaries[" << j << "].timesPassed = " << tr.trigPathSummaries[i].moduleInPathSummaries[j].timesPassed  << "\n"
+	      << "tr.trigPathSummaries[" << i << "].moduleInPathSummaries[" << j << "].timesFailed = " << tr.trigPathSummaries[i].moduleInPathSummaries[j].timesFailed  << "\n"
+	      << "tr.trigPathSummaries[" << i << "].moduleInPathSummaries[" << j << "].timesExcept = " << tr.trigPathSummaries[i].moduleInPathSummaries[j].timesExcept  << "\n"
+	      << "tr.trigPathSummaries[" << i << "].moduleInPathSummaries[" << j << "].moduleLabel = " << tr.trigPathSummaries[i].moduleInPathSummaries[j].moduleLabel  << "\n";
+	}
+    }
+
+    //TriggerReport::endPathSummaries
+    for(unsigned int i=0; i<tr.endPathSummaries.size(); i++)
+    {
+      oss << "tr.endPathSummaries[" << i << "].bitPosition = " << tr.endPathSummaries[i].bitPosition  << "\n" 
+	  << "tr.endPathSummaries[" << i << "].timesRun = " << tr.endPathSummaries[i].timesRun  << "\n"
+	  << "tr.endPathSummaries[" << i << "].timesPassed = " << tr.endPathSummaries[i].timesPassed  << "\n"
+	  << "tr.endPathSummaries[" << i << "].timesFailed = " << tr.endPathSummaries[i].timesFailed  << "\n"
+	  << "tr.endPathSummaries[" << i << "].timesExcept = " << tr.endPathSummaries[i].timesExcept  << "\n"
+	  << "tr.endPathSummaries[" << i << "].name = " << tr.endPathSummaries[i].name  << "\n";
+
+      //TriggerReport::endPathSummaries::moduleInPathSummaries
+      for(unsigned int j=0; j<tr.endPathSummaries[i].moduleInPathSummaries.size(); j++)
+      {
+        oss << "tr.endPathSummaries[" << i << "].moduleInPathSummaries[" << j << "].timesVisited = " << tr.endPathSummaries[i].moduleInPathSummaries[j].timesVisited  << "\n"
+	    << "tr.endPathSummaries[" << i << "].moduleInPathSummaries[" << j << "].timesPassed = " << tr.endPathSummaries[i].moduleInPathSummaries[j].timesPassed  << "\n"
+	    << "tr.endPathSummaries[" << i << "].moduleInPathSummaries[" << j << "].timesFailed = " << tr.endPathSummaries[i].moduleInPathSummaries[j].timesFailed  << "\n"
+	    << "tr.endPathSummaries[" << i << "].moduleInPathSummaries[" << j << "].timesExcept = " << tr.endPathSummaries[i].moduleInPathSummaries[j].timesExcept  << "\n"
+	    << "tr.endPathSummaries[" << i << "].moduleInPathSummaries[" << j << "].moduleLabel = " << tr.endPathSummaries[i].moduleInPathSummaries[j].moduleLabel  << "\n";
+      }
+    }
+
+    //TriggerReport::workerSummaries
+    for(unsigned int i=0; i<tr.workerSummaries.size(); i++)
+    {
+      oss << "tr.workerSummaries[" << i << "].timesVisited = " << tr.workerSummaries[i].timesVisited  << "\n" 
+	  << "tr.workerSummaries[" << i << "].timesRun = " << tr.workerSummaries[i].timesRun  << "\n"
+	  << "tr.workerSummaries[" << i << "].timesPassed = " << tr.workerSummaries[i].timesPassed  << "\n"
+	  << "tr.workerSummaries[" << i << "].timesFailed = " << tr.workerSummaries[i].timesFailed  << "\n"
+	  << "tr.workerSummaries[" << i << "].timesExcept = " << tr.workerSummaries[i].timesExcept  << "\n"
+	  << "tr.workerSummaries[" << i << "].moduleLabel = " << tr.workerSummaries[i].moduleLabel  << "\n";
+    }
+
+    oss << "===========================" << "\n";
+    oss << "== END OF TRIGGER REPORT ==" << "\n";
+    oss << "===========================" << "\n";
+    
+    LOG4CPLUS_DEBUG(this->getApplicationLogger(),
+		    oss.str());
+  }
+
+  string FUEventProcessor::triggerReportToString(const edm::TriggerReport& tr)
+  {
+  //Add an array length indicator so that the resulting string will have a 
+  //little more readability.
+    string ARRAY_LEN = "_";
+    string SEPARATOR = " ";
+
+    ostringstream oss;
+    
+    //TriggerReport::eventSummary
+    oss << tr.eventSummary.totalEvents << SEPARATOR 
+	<< tr.eventSummary.totalEventsPassed << SEPARATOR
+	<< tr.eventSummary.totalEventsFailed << SEPARATOR;
+    
+    //TriggerReport::trigPathSummaries
+    oss << ARRAY_LEN << tr.trigPathSummaries.size() << SEPARATOR;
+    for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++)
+    {
+      oss << tr.trigPathSummaries[i].bitPosition << SEPARATOR 
+	  << tr.trigPathSummaries[i].timesRun << SEPARATOR
+	  << tr.trigPathSummaries[i].timesPassed << SEPARATOR
+	  << tr.trigPathSummaries[i].timesFailed << SEPARATOR
+	  << tr.trigPathSummaries[i].timesExcept << SEPARATOR
+	  << tr.trigPathSummaries[i].name << SEPARATOR;
+
+      //TriggerReport::trigPathSummaries::moduleInPathSummaries
+      oss << ARRAY_LEN << tr.trigPathSummaries[i].moduleInPathSummaries.size() << SEPARATOR;
+      for(unsigned int j=0; j<tr.trigPathSummaries[i].moduleInPathSummaries.size(); j++)
+      {
+        oss << tr.trigPathSummaries[i].moduleInPathSummaries[j].timesVisited << SEPARATOR
+	    << tr.trigPathSummaries[i].moduleInPathSummaries[j].timesPassed << SEPARATOR
+	    << tr.trigPathSummaries[i].moduleInPathSummaries[j].timesFailed << SEPARATOR
+	    << tr.trigPathSummaries[i].moduleInPathSummaries[j].timesExcept << SEPARATOR
+	    << tr.trigPathSummaries[i].moduleInPathSummaries[j].moduleLabel << SEPARATOR;
+      }
+    }
+
+    //TriggerReport::endPathSummaries
+    oss << ARRAY_LEN << tr.endPathSummaries.size() << SEPARATOR;
+    for(unsigned int i=0; i<tr.endPathSummaries.size(); i++)
+    {
+      oss << tr.endPathSummaries[i].bitPosition << SEPARATOR 
+	  << tr.endPathSummaries[i].timesRun << SEPARATOR
+	  << tr.endPathSummaries[i].timesPassed << SEPARATOR
+	  << tr.endPathSummaries[i].timesFailed << SEPARATOR
+	  << tr.endPathSummaries[i].timesExcept << SEPARATOR
+	  << tr.endPathSummaries[i].name << SEPARATOR;
+
+      //TriggerReport::endPathSummaries::moduleInPathSummaries
+      oss << ARRAY_LEN << tr.endPathSummaries[i].moduleInPathSummaries.size() << SEPARATOR;
+      for(unsigned int j=0; j<tr.endPathSummaries[i].moduleInPathSummaries.size(); j++)
+      {
+	oss << tr.endPathSummaries[i].moduleInPathSummaries[j].timesVisited << SEPARATOR
+	    << tr.endPathSummaries[i].moduleInPathSummaries[j].timesPassed << SEPARATOR
+	    << tr.endPathSummaries[i].moduleInPathSummaries[j].timesFailed << SEPARATOR
+	    << tr.endPathSummaries[i].moduleInPathSummaries[j].timesExcept << SEPARATOR
+	    << tr.endPathSummaries[i].moduleInPathSummaries[j].moduleLabel << SEPARATOR;
+      }
+    }
+
+  //TriggerReport::workerSummaries
+    oss << ARRAY_LEN << tr.workerSummaries.size() << SEPARATOR;
+    for(unsigned int i=0; i<tr.workerSummaries.size(); i++)
+    {
+      oss << tr.workerSummaries[i].timesVisited << SEPARATOR 
+	  << tr.workerSummaries[i].timesRun     << SEPARATOR
+	  << tr.workerSummaries[i].timesPassed  << SEPARATOR
+	  << tr.workerSummaries[i].timesFailed  << SEPARATOR
+	  << tr.workerSummaries[i].timesExcept  << SEPARATOR
+	  << tr.workerSummaries[i].moduleLabel  << SEPARATOR;
+    }
+    
+    return oss.str();
+  }
+
+  void FUEventProcessor::getTriggerReport(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
+  {
+  //Calling this method results in calling 
+  //(EventProcessor)proc_->getTriggerReport, the value returned is encoded as
+  //a string. This value is used to set the exported SOAP param :
+  //'triggerReportAsString_'. The FM then picks up this value use getParam...
+    LOG4CPLUS_DEBUG(this->getApplicationLogger(),
+		    "getTriggerReport action invoked");
+
+    //Get the trigger report.
+    edm::TriggerReport tr; 
+    proc_->getTriggerReport(tr);
+
+    triggerReportAsString_ = triggerReportToString(tr);
+  
+    //Print the trigger report message in debug format.
+    printTriggerReport(tr);
+  }
+    
+  xoap::MessageReference FUEventProcessor::getPsReport (xoap::MessageReference msg) throw (xoap::exception::Exception)
+  {
+  // callback to return the trigger statistics as a string
+  // cout <<"getPsReport from cout " <<endl;
+    LOG4CPLUS_DEBUG(this->getApplicationLogger(), "getPsReport from log4");
+
+    // print request
+    //msg->writeTo(std::cout);
+
+    //Get the trigger report.
+    edm::TriggerReport tr; 
+    proc_->getTriggerReport(tr);
+
+    // xdata::String ReportAsString = triggerReportToString(tr);
+    string s = triggerReportToString(tr);
+
+    // reply message
+    try {
+      xoap::MessageReference reply = xoap::createMessage();
+      xoap::SOAPEnvelope envelope = reply->getSOAPPart().getEnvelope();
+      xoap::SOAPBody body = envelope.getBody();
+      xoap::SOAPName responseName = envelope.createName("getPsReportResponse", "xdaq", "XDAQ_NS_URI");
+      xoap::SOAPBodyElement responseElement = body.addBodyElement(responseName);
+      xoap::SOAPName stateName = envelope.createName("state", "xdaq", "XDAQ_NS_URI");
+      xoap::SOAPElement stateElement = responseElement.addChildElement(stateName);
+      xoap::SOAPName attributeName = envelope.createName("stateName", "xdaq", "XDAQ_NS_URI");
+      stateElement.addAttribute(attributeName, s);
+      //  stringElement.addTextNode(s);
+      return reply;
+
+    } catch (xcept::Exception &e) {
+      XCEPT_RETHROW(xoap::exception::Exception, "Failed to create getPsReport response message", e);
+    }
+
+  }
+
+  xoap::MessageReference FUEventProcessor::setPsUpdate (xoap::MessageReference msg) throw (xoap::exception::Exception)
+  {
+  // callback to return the trigger statistics as a string
+  // LOG4CPLUS_DEBUG(this->getApplicationLogger(), "setPsUpdate from log4");
+  // cout <<"setPsUpdate from cout " <<endl;
+  // msg->writeTo(std::cout);
+
+  // decode 
+    xoap::SOAPPart part = msg->getSOAPPart();
+    xoap::SOAPEnvelope env = part.getEnvelope();
+    xoap::SOAPBody msgbody = env.getBody();
+    DOMNode* node = msgbody.getDOMNode();
+    
+    string requestString;
+    DOMNodeList* bodyList = node->getChildNodes();
+    for (unsigned int i = 0; i < bodyList->getLength(); i++) {
+      DOMNode* command = bodyList->item(i);
+      if (command->getNodeType() == DOMNode::ELEMENT_NODE) {
+	std::string commandName = xoap::XMLCh2String (command->getLocalName());
+	if ( commandName == "state" ) {
+	  if ( command->hasAttributes() ) {
+	    DOMNamedNodeMap * map = command->getAttributes();
+	    for (int l=0 ; l< (int)map->getLength() ; l++) { // loop over attributes of node
+	      DOMNode * anode = map->item(l);
+	      string attributeName = XMLString::transcode(anode->getNodeName());
+	      if (attributeName == "xdaq:stateName") requestString =  xoap::XMLCh2String(anode->getNodeValue());
+	    }
+	  }
+	}
+      }
+    }
+
+    // reply message
+    try {
+      xoap::MessageReference reply = xoap::createMessage();
+      xoap::SOAPEnvelope envelope = reply->getSOAPPart().getEnvelope();
+      xoap::SOAPBody body = envelope.getBody();
+      xoap::SOAPName responseName = envelope.createName("setPsUpdateResponse", "xdaq", "XDAQ_NS_URI");
+      xoap::SOAPBodyElement responseElement = body.addBodyElement(responseName);
+      xoap::SOAPName stateName = envelope.createName("state", "xdaq", "XDAQ_NS_URI");
+      xoap::SOAPElement stateElement = responseElement.addChildElement(stateName);
+      xoap::SOAPName attributeName = envelope.createName("stateName", "xdaq", "XDAQ_NS_URI");
+      stateElement.addAttribute(attributeName, requestString);
+      //  stringElement.addTextNode(s);
+      return reply;
+
+    } catch (xcept::Exception &e) {
+      XCEPT_RETHROW(xoap::exception::Exception, "Failed to create setPsUpdate response message", e);
+    }
+  }
+
+}  // evf namespace
+
 XDAQ_INSTANTIATOR_IMPL(evf::FUEventProcessor)

@@ -17,6 +17,8 @@
 #include "EventFilter/Utilities/interface/RunBase.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "EventFilter/Utilities/interface/ShutDownNotifier.h"
+#include "FWCore/Services/src/PrescaleService.h"
+#include "FWCore/Framework/interface/TriggerReport.h"
 
 namespace edm{
   class EventProcessor;
@@ -40,6 +42,10 @@ namespace evf
       ~FUEventProcessor();
       
     private:
+      string triggerReportToString(const edm::TriggerReport& tr);
+      void printTriggerReport(const edm::TriggerReport& tr);
+      void modulePs(xgi::Input  *in, xgi::Output *out) throw (xgi::exception::Exception);
+
       void configureAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception);
       void enableAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception);
       void stopAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception);
@@ -47,8 +53,13 @@ namespace evf
       virtual void resumeAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception);
       virtual void haltAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception);
       virtual void nullAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception);
+
+      virtual void getTriggerReport(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception);
+      //      virtual void putPrescaler(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception);
+
       xoap::MessageReference fireEvent(xoap::MessageReference msg)
 	throw (xoap::exception::Exception);
+
 
       void actionPerformed (xdata::Event& e);
 
@@ -60,6 +71,10 @@ namespace evf
 	{css_.css(in,out);}
       void moduleWeb
 	(xgi::Input  *in, xgi::Output *out) throw (xgi::exception::Exception);
+      xoap::MessageReference getPsReport (xoap::MessageReference msg) throw (xoap::exception::Exception);
+      xoap::MessageReference setPsUpdate (xoap::MessageReference msg) throw (xoap::exception::Exception);
+      xoap::MessageReference putPrescaler(xoap::MessageReference msg) throw (xoap::exception::Exception);
+
       void microState(xgi::Input  *in,
 		      xgi::Output *out) throw (xgi::exception::Exception);
       void jsGen(xgi::Input  *in,
@@ -82,7 +97,8 @@ namespace evf
       xdata::Integer rdel_;
       xdata::String nam_;
 
-
+      xdata::String triggerReportAsString_;
+      xdata::String prescalerAsString_;
 
       edm::EventProcessor *proc_;
       TaskGroup *group_;
@@ -95,6 +111,7 @@ namespace evf
       bool servicesDone_;
       ShutDownNotifier sdn_;
       RootMonitorThread *rmt_p;
+      edm::service::PrescaleService* ps_;
     };
 }
 
