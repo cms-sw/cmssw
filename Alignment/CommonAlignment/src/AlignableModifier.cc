@@ -1,10 +1,13 @@
+#include "CLHEP/Random/DRand48Engine.h"
 #include "CLHEP/Random/Random.h"
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/Randomize.h"
 
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableModifier.h"
@@ -61,7 +64,7 @@ void AlignableModifier::init_( void )
 
 //__________________________________________________________________________________________________
 // Return true if given parameter name should be propagated down
-const bool AlignableModifier::isPropagated( const std::string parameterName ) const
+const bool AlignableModifier::isPropagated( const std::string& parameterName ) const
 {
 
   if ( parameterName == "distribution"    || 
@@ -204,7 +207,7 @@ bool AlignableModifier::modify( Alignable* alignable, const edm::ParameterSet& p
 
 
 //__________________________________________________________________________________________________
-void AlignableModifier::setDistribution( std::string distr )
+void AlignableModifier::setDistribution( const std::string& distr )
 {
 
   if ( distr == "fixed" ) random_ = false;

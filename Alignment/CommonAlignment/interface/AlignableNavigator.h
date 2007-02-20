@@ -4,10 +4,12 @@
 #include <map>
 #include <vector>
 
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+
 class Alignable;
 class AlignableDet;
 class GeomDet;
-class TransientTrackingRecHit;
+
 
 /// A class to navigate from a DetId to an Alignable
 /// A map is created at construction time from all

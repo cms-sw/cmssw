@@ -1,19 +1,17 @@
 #ifndef Alignment_TrackerAlignment_AlignableModifier_H
 #define Alignment_TrackerAlignment_AlignableModifier_H
 
-#include <iostream>
 #include <vector>
 #include <string>
-
-#include "CLHEP/Random/DRand48Engine.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "Alignment/CommonAlignment/interface/Alignable.h"
 
 /// AlignableModifier is a helper class to modify the Alignables.
 ///
 /// Configuration parameters are defined in this class.
+
+class Alignable;
+
+namespace CLHEP { class DRand48Engine; }
+namespace edm { class ParameterSet; }
 
 class AlignableModifier 
 {
@@ -33,7 +31,7 @@ public:
   bool modify( Alignable* alignable, const edm::ParameterSet& pSet );
 
   /// Check if given parameter should be propagated
-  const bool isPropagated( const std::string parameterName ) const;
+  const bool isPropagated( const std::string& parameterName ) const;
 
   /// Move alignable in global space according to parameters
   void moveAlignable( Alignable* alignable, bool random, bool gaussian,
@@ -76,7 +74,7 @@ public:
 												   RotationType& rotation ); 
 
   /// Decodes string and sets distribution accordingly ('fixed', 'flat' or 'gaussian').
-  void setDistribution( std::string distr );
+  void setDistribution( const std::string& distr );
 
   /// Resets the generator seed according to the argument.
   void setSeed( long seed );
@@ -84,7 +82,7 @@ public:
 private:
 
   /// Unique random number generator
-  DRand48Engine* theDRand48Engine;
+  CLHEP::DRand48Engine* theDRand48Engine;
 
   /// Initialisation of all parameters
   void init_(); 
@@ -110,17 +108,4 @@ private:
 
 };
 
-
 #endif //AlignableModifier_H
-
-
-
-
-
-
-
-
-
-
-
-
