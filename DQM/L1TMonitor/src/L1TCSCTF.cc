@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2007/02/02 06:01:40 $
- * $Revision: 1.00 $
+ * $Date: 2007/02/19 19:24:09 $
+ * $Revision: 1.1 $
  * \author J. Berryhill
  *
  */
@@ -118,17 +118,10 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 
   edm::Handle<std::vector<L1MuRegionalCand> > pCSCTFtracks;  
   e.getByLabel("csctfmuonsorter","CSC",pCSCTFtracks);
-  const std::vector<L1MuRegionalCand>* myCSCTFTracks = 
-    pCSCTFtracks.product();
-  std::auto_ptr<std::vector<L1MuRegionalCand> > L1CSCTFTracks(new std::vector<L1MuRegionalCand>);
-  L1CSCTFTracks->insert(L1CSCTFTracks->end(), myCSCTFTracks->begin(), myCSCTFTracks->end());
-  
-  std::cout << "CSC TF collection size: " << L1CSCTFTracks->size()
-   	    << std::endl;
   int ncsctftrack = 0;
-   for( vector<L1MuRegionalCand>::iterator 
-        CSCTFtrackItr =  L1CSCTFTracks->begin() ;
-        CSCTFtrackItr != L1CSCTFTracks->end() ;
+   for( vector<L1MuRegionalCand>::const_iterator 
+        CSCTFtrackItr =  pCSCTFtracks->begin() ;
+        CSCTFtrackItr != pCSCTFtracks->end() ;
         ++CSCTFtrackItr ) 
    {
 

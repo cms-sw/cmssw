@@ -4,8 +4,8 @@
 /*
  * \file L1TDTTPG.h
  *
- * $Date: 2007/02/02 20:56:20 $
- * $Revision: 1.00 $
+ * $Date: 2007/02/19 19:24:08 $
+ * $Revision: 1.1 $
  * \author J. Berryhill
  *
 */
@@ -65,7 +65,22 @@ private:
   // ----------member data ---------------------------
   DaqMonitorBEInterface * dbe;
 
-  MonitorElement* dttpgtest;
+  MonitorElement* dttpgphbx;  
+  MonitorElement* dttpgphwheel;  
+  MonitorElement* dttpgphsector;  
+  MonitorElement* dttpgphstation;  
+  MonitorElement* dttpgphphi;  
+  MonitorElement* dttpgphphiB;  
+  MonitorElement* dttpgphquality;  
+  MonitorElement* dttpgphts2tag;  
+  MonitorElement* dttpgphbxcnt;  
+
+  MonitorElement* dttpgthbx;  
+  MonitorElement* dttpgthwheel;  
+  MonitorElement* dttpgthsector;  
+  MonitorElement* dttpgthstation;  
+  MonitorElement* dttpgththeta;  
+  MonitorElement* dttpgthquality;    
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput

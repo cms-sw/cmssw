@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTPG.cc
  *
- * $Date: 2007/02/02 06:01:40 $
- * $Revision: 1.00 $
+ * $Date: 2007/02/19 19:24:09 $
+ * $Revision: 1.1 $
  * \author J. Berryhill
  *
  */
@@ -118,13 +118,11 @@ void L1TCSCTPG::analyze(const Event& e, const EventSetup& c)
 
   Handle<CSCCorrelatedLCTDigiCollection> pCSCTPGcorrlcts;
   e.getByLabel("lctproducer","MPCSORTED",pCSCTPGcorrlcts);
-  const CSCCorrelatedLCTDigiCollection* myCSCTPGcorrlcts =
-    pCSCTPGcorrlcts.product();
-  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator cscItr1 = myCSCTPGcorrlcts->begin();
-       cscItr1 != myCSCTPGcorrlcts->end();
+  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator cscItr1 = pCSCTPGcorrlcts->begin();
+       cscItr1 != pCSCTPGcorrlcts->end();
        cscItr1++)
     {
-     CSCCorrelatedLCTDigiCollection::Range range1 = myCSCTPGcorrlcts->get((*cscItr1).first);
+     CSCCorrelatedLCTDigiCollection::Range range1 = pCSCTPGcorrlcts->get((*cscItr1).first);
      for (CSCCorrelatedLCTDigiCollection::const_iterator lctItr1 = range1.first;
 	   lctItr1 != range1.second;
 	   lctItr1++) 

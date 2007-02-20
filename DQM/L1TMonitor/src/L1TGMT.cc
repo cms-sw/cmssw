@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2007/02/02 06:01:40 $
- * $Revision: 1.00 $
+ * $Date: 2007/02/19 19:24:09 $
+ * $Revision: 1.1 $
  * \author J. Berryhill
  *
  */
@@ -115,20 +115,11 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
 
 
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
-  e.getByType(pCollection);
-  const L1MuGMTReadoutCollection* myCollection = pCollection.product();
-  vector<L1MuGMTReadoutRecord> GMTRecordsVector;
-  GMTRecordsVector = myCollection->getRecords();  
-  if (verbose_)
-  {
-   std::cout << "GMT collection size: " << GMTRecordsVector.size()
-   	    << std::endl;
-  }
-
+  e.getByLabel("gmt",pCollection);
   int ngmttrack = 0;
-  for( vector<L1MuGMTReadoutRecord>::iterator 
-       RRItr = GMTRecordsVector.begin() ;
-       RRItr != GMTRecordsVector.end() ;
+  for( vector<L1MuGMTReadoutRecord>::const_iterator 
+       RRItr = pCollection->getRecords().begin() ;
+       RRItr != pCollection->getRecords().end() ;
        ++RRItr ) 
   {
 
@@ -146,7 +137,7 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
    	    << std::endl;
     }
 
-    for( vector<L1MuGMTExtendedCand>::iterator 
+    for( vector<L1MuGMTExtendedCand>::const_iterator 
          ECItr = GMTCands.begin() ;
          ECItr != GMTCands.end() ;
          ++ECItr ) 
