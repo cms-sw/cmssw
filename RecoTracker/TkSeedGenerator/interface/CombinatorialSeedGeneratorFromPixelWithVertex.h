@@ -30,7 +30,7 @@ class CombinatorialSeedGeneratorFromPixelWithVertex : public SeedGeneratorFromLa
   PixelSeedLayerPairs* pixelLayers;
   uint32_t numberOfVertices_;
   //float  vertexRadius_, vertexDeltaZ_, vertexZSigmas_, ptMin_;
-  float  vertexRadius_, vertexDeltaZ_, ptMin_;
+  float  vertexRadius_, vertexDeltaZ_, fallbackDeltaZ_, ptMin_;
   bool   mergeOverlaps_;
 };
 #endif
