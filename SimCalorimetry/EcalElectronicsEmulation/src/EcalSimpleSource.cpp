@@ -40,6 +40,8 @@ bool EcalSimpleSource::produce(edm::Event& evt){
       }
    }
     evt.put(digis);
+    //puts an empty digi collecion for endcap:
+    evt.put(auto_ptr<EEDigiCollection>(new EEDigiCollection()));
   }
   if(tpFormula_.get()!=0){
     auto_ptr<EcalTrigPrimDigiCollection> tps
@@ -103,6 +105,7 @@ EcalSimpleSource::EcalSimpleSource(const edm::ParameterSet& pset,
       throw cms::Exception("Error in EcalSimpleSource 'formula' config.");
     }
     produces<EBDigiCollection>();
+    produces<EEDigiCollection>();
   }
   if(tpFormula.size()!=0){
     tpFormula_ = auto_ptr<TFormula>(new TFormula("f", tpFormula.c_str()));
