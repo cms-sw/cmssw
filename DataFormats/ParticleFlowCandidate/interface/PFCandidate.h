@@ -12,23 +12,14 @@ namespace reco {
   class PFCandidate : public LeafCandidate {
   public:
 
-    /* ALEPH types : */
-    /* 0 = hadrons chargés */
-    /* 1 = electrons */
-    /* 2 = muons */
-    /* 3 = traces provenant de V0 */
-    /* 4 = photons */
-    /* 5 = hadrons neutres */
-    /* 6 = FW detector particles  */
-
     /// particle types
     enum ParticleType {
-      X=0,
-      h,
-      e,
-      mu,
-      gamma, 
-      h0
+      X=0,     // undefined
+      h,       // charged hadron
+      e,       // electron 
+      mu,      // muon 
+      gamma,   // photon
+      h0       // neutral hadron
     };
 
     /// default constructor
