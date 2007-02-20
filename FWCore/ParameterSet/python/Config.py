@@ -304,9 +304,19 @@ class Process(object):
         #now create a sequence which uses the newly made items
         for name in seqs.iterkeys():
             seq = seqs[name]
-            newSeq = seq.copy()
+            #newSeq = seq.copy()
             #
-            self.__setattr__(name,newSeq)
+            if id(seq) not in self._cloneToObjectDict:
+                print 'new ',name
+                self.__setattr__(name,seq)
+            else:
+                print 'pre made ',name
+                newSeq = self._cloneToObjectDict[id(seq)]
+                self.__dict__[name]=newSeq
+                newSeq.setLabel(name)
+                #now put in proper bucket
+                newSeq._place(name,self)
+                
     def _dumpConfigNamedList(self,items,typeName,indent):
         returnValue = ''
         for name,item in items:
@@ -620,6 +630,12 @@ class Sequence(_ModuleSequenceType,_Sequenceable):
     def _placeImpl(self,name,proc):
         proc._placeSequence(name,self)
     def _clonesequence(self, lookuptable):
+        if id(self) not in lookuptable:
+            #for sequences held by sequences we need to clone
+            # on the first reference
+            clone = type(self)(self._seq._clonesequence(lookuptable))
+            lookuptable[id(self)]=clone
+            lookuptable[id(clone)]=clone
         return lookuptable[id(self)]
 
 class Schedule(_ValidatingListBase,_ConfigureComponent,_Unlabelable):
@@ -764,11 +780,17 @@ if __name__=="__main__":
                         self.__dict__[name]=args[name]
             
             a=EDAnalyzer("MyAnalyzer")
+            s1 = Sequence(a)
+            s2 = Sequence(s1)
+            s3 = Sequence(s2)
             d = FromArg(
                     a=a,
                     b=Service("Full"),
                     c=Path(a),
-                    d=Sequence(a)
+                    d=s2,
+                    e=s1,
+                    f=s3,
+                    g=Sequence(s1+s2+s3)
                 )
             p = Process("Test")
             p.extend(d)
@@ -777,6 +799,7 @@ if __name__=="__main__":
             self.assertEqual(p.Full.type_(),"Full")
             self.assertEqual(str(p.c),'a')
             self.assertEqual(str(p.d),'a')
+            p.dumpConfig()
         def testProcessDumpConfig(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
@@ -925,6 +948,8 @@ if __name__=="__main__":
             for key in sd3.iterkeys():
                 count +=1
             self.assertEqual(count-1,len(sd3))
+            sd['d']=5
+            self.assertEqual(5,sd['d'])
         
 
         def testSortedAndFixedKeysDict(self):
