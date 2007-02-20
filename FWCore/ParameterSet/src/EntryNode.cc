@@ -150,7 +150,8 @@ namespace edm {
        if(*end != 0)
        {
          std::ostringstream os, os2;
-         os <<  "Cannot parse value from " << s;
+         os <<  "Cannot create a value of type " << type()
+            <<  " for parameter " << name() << " from input " << s;
          printTrace(os2);
          if(!os2.str().empty())
          {
