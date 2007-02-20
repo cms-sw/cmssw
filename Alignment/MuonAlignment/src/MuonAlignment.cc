@@ -25,10 +25,10 @@
 //____________________________________________________________________________________
 //
 MuonAlignment::MuonAlignment(const edm::EventSetup& setup  ):
-  theDTAlignRecordName( "DTAlignments" ),
-  theDTErrorRecordName( "DTAlignmentErrors" ),
-  theCSCAlignRecordName( "CSCAlignments" ),
-  theCSCErrorRecordName( "CSCAlignmentErrors" )
+  theDTAlignRecordName( "DTAlignmentRcd" ),
+  theDTErrorRecordName( "DTAlignmentErrorRcd" ),
+  theCSCAlignRecordName( "CSCAlignmentRcd" ),
+  theCSCErrorRecordName( "CSCAlignmentErrorRcd" )
 {
 
   // 1. Retrieve geometry from Event setup and create alignable muon
