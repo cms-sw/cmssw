@@ -10,7 +10,7 @@
 #include "FastSimulation/Particle/interface/RawParticle.h"
 #include "FastSimulation/Calorimetry/interface/HCALResponse.h"
 
-#include "FastSimulation/Calorimetry/interface/FamosDebug.h"
+#include "FastSimulation/Utilities/interface/FamosDebug.h"
 
 // For the uint32_t
 #include <boost/cstdint.hpp>
