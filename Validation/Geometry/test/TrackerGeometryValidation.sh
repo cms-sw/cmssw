@@ -145,15 +145,30 @@ echo "...done"
 
 # Compare the ModuleInfo.log file with the reference one
 echo "Compare the ModuleInfo.log (Tracker Module position/orientation) file with the reference one..."
-if [ -e diff.temp ]; then
-    rm -rf diff.temp
+if [ -e diff_info.temp ]; then
+    rm -rf diff_info.temp
 fi
 #
-diff ModuleInfo.log $referenceDir/ModuleInfo.log > diff.temp
-if [ -s diff.temp ]; then
-    echo "WARNING: the module position/orientation is changed, check diff.temp file for details"
+diff ModuleInfo.log $referenceDir/ModuleInfo.log > diff_info.temp
+if [ -s diff_info.temp ]; then
+    echo "WARNING: the module position/orientation is changed, check diff_info.temp file for details"
 else
     echo "Tracker Module position/orientation OK"
+fi
+echo "...done"
+#
+
+# Compare the ModuleNumbering.dat file with the reference one
+echo "Compare the ModuleNumbering.dat (Tracker Module position/orientation) file with the reference one..."
+if [ -e diff_num.temp ]; then
+    rm -rf diff_num.temp
+fi
+#
+diff ModuleNumbering.dat $referenceDir/ModuleNumbering.dat > diff_num.temp
+if [ -s diff_num.temp ]; then
+    echo "WARNING: the module numbering is changed, check diff_num.temp file for details"
+else
+    echo "Tracker Module numbering OK"
 fi
 echo "...done"
 #
