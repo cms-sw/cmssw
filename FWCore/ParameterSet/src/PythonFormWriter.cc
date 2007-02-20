@@ -58,15 +58,13 @@ namespace edm
       os << "'" << val << "'";
     }
 
-    // For some reason, if the 'tracked' parameter is true, this means
-    // the parameter is untracked.
     void
     write_trackedness(ostream& os, bool trackedval)
     {
       if (trackedval) 
-	os << "'untracked'";
-      else 
 	os << "'tracked'";
+      else 
+	os << "'untracked'";
     }
 
     // Cheesy heuristic for recognizing output modules from the class
