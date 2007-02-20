@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/02/06 18:19:49 $
- * $Revision: 1.26 $
+ * $Date: 2007/02/20 11:01:18 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -496,11 +496,18 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile[0] << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << std::endl;
   htmlFile[0] << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
   htmlFile[0] << " style=\"color: rgb(0, 0, 153);\">TRIGGER TOWER</span></h2> " << std::endl;
-  htmlFile[0] << "<hr>" << std::endl;
+  htmlFile[0] << "<br>" << std::endl;
   //htmlFile[0] << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << std::endl;
   //htmlFile[0] << "<td bgcolor=lime>channel has NO problems</td>" << std::endl;
   //htmlFile[0] << "<td bgcolor=yellow>channel is missing</td></table>" << std::endl;
-  //htmlFile[0] << "<hr>" << std::endl;
+  htmlFile[0] << "<hr>" << std::endl;
+  htmlFile[0] << "<table border=1>" << std::endl;
+  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
+    htmlFile[0] << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
+	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
+  } 
+  htmlFile[0] << std::endl << "</table>" << std::endl;
+
 
   // Produce the plots to be shown as .png files from existing histograms
 
@@ -524,13 +531,6 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   TCanvas* square    = new TCanvas("square small", "Temp", int(0.8*csize), int(0.8*csize));
 
   // Loop on barrel supermodules
-
-  htmlFile[0] << "<table border=1>" << std::endl;
-  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile[0] << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
-	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
-  } 
-  htmlFile[0] << std::endl << "</table>" << std::endl;
 
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 

@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/02/17 12:42:55 $
- * $Revision: 1.135 $
+ * $Date: 2007/02/20 11:01:18 $
+ * $Revision: 1.136 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1509,6 +1509,13 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
   htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
   htmlFile << "<br>" << endl;
+  htmlFile << "<table border=1>" << std::endl;
+  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
+    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
+	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
+  } 
+  htmlFile << std::endl << "</table>" << std::endl;
+  htmlFile << "<hr>" << std::endl;
 
   // Produce the plots to be shown as .png files from existing histograms
 
@@ -1607,13 +1614,6 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>" << endl;
 
   // Loop on barrel supermodules
-
-  htmlFile << "<table border=1>" << std::endl;
-  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
-	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
-  } 
-  htmlFile << std::endl << "</table>" << std::endl;
 
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 

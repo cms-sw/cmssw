@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/02/19 11:11:41 $
- * $Revision: 1.126 $
+ * $Date: 2007/02/20 11:01:18 $
+ * $Revision: 1.127 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1393,6 +1393,12 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
   htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
   htmlFile << "<br>" << endl;
+  htmlFile << "<table border=1>" << std::endl;
+  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
+    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
+	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
+  } 
+  htmlFile << std::endl << "</table>" << std::endl;
 
   // Produce the plots to be shown as .png files from existing histograms
 
@@ -1432,13 +1438,6 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH1D* obj1d;
 
   // Loop on barrel supermodules
-
-  htmlFile << "<table border=1>" << std::endl;
-  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
-	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
-  } 
-  htmlFile << std::endl << "</table>" << std::endl;
 
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 
