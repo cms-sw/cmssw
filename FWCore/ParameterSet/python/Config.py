@@ -1106,6 +1106,11 @@ class Schedule(_ValidatingListBase,_ConfigureComponent,_Unlabelable):
         return copy.copy(self)
     def _place(self,label,process):
         process.setSchedule_(self)
+        
+def include(fileName):
+    """Parse a configuration file language file and return a 'module like' object"""
+    from FWCore.ParameterSet.parseConfig import importConfig
+    return importConfig(fileName)
 
 if __name__=="__main__":
     import unittest
@@ -1235,7 +1240,8 @@ if __name__=="__main__":
             d = FromArg(
                     a=a,
                     b=Service("Full"),
-                    c=Path(a)
+                    c=Path(a),
+                    d=Sequence(a)
                 )
             p = Process("Test")
             p.extend(d)
@@ -1243,6 +1249,7 @@ if __name__=="__main__":
             self.assertRaises(AttributeError,getattr,p,'b')
             self.assertEqual(p.Full.type_(),"Full")
             self.assertEqual(str(p.c),'a')
+            self.assertEqual(str(p.d),'a')
         def testProcessDumpConfig(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
