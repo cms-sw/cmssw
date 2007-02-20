@@ -252,11 +252,11 @@ class Process(object):
     def _placeAnalyzer(self,name,mod):
         self.__analyzers[name]=mod
     def _placePath(self,name,mod):
-        self.__paths[name]=mod._clonesequence(self._cloneToObjectDict)
+        self.__paths[name]=mod._postProcessFixup(self._cloneToObjectDict)
     def _placeEndPath(self,name,mod):
-        self.__endpaths[name]=mod._clonesequence(self._cloneToObjectDict)
+        self.__endpaths[name]=mod._postProcessFixup(self._cloneToObjectDict)
     def _placeSequence(self,name,mod):
-        self.__sequences[name]=mod._clonesequence(self._cloneToObjectDict)
+        self.__sequences[name]=mod._postProcessFixup(self._cloneToObjectDict)
     def _placeESProducer(self,name,mod):
         self.__esproducers[name]=mod
     def _placeESPrefer(self,name,mod):
@@ -533,8 +533,9 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         returnValue =_ModuleSequenceType.__new__(type(self))
         returnValue.__init__(self._seq)
         return returnValue
-    def _clonesequence(self, lookuptable):
-        return type(self)(self._seq._clonesequence(lookuptable))
+    def _postProcessFixup(self,lookuptable):
+        self._seq = self._seq._clonesequence(lookuptable)
+        return self
     #def replace(self,old,new):
     #"""Find all instances of old and replace with new"""
     #def insertAfter(self,which,new):
@@ -618,6 +619,8 @@ class Sequence(_ModuleSequenceType,_Sequenceable):
         super(Sequence,self).__init__(first)
     def _placeImpl(self,name,proc):
         proc._placeSequence(name,self)
+    def _clonesequence(self, lookuptable):
+        return lookuptable[id(self)]
 
 class Schedule(_ValidatingListBase,_ConfigureComponent,_Unlabelable):
     def __init__(self,*arg,**argv):
@@ -778,6 +781,8 @@ if __name__=="__main__":
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
             p.paths = Path(p.a)
+            p.s = Sequence(p.a)
+            p.p2 = Path(p.s)
             p.dumpConfig()
         def testEDAnalyzer(self):
             empty = EDAnalyzer("Empty")
@@ -835,10 +840,10 @@ if __name__=="__main__":
             b.setLabel("b")
             path = Path(a * b)
             p.path = Path(p.a*p.b) 
-            lookuptable = {id(a): p.a, id(b): p.b} 
-            self.assertEqual(str(path),str(path._clonesequence(lookuptable)))
-            lookuptable = p._cloneToObjectDict
-            self.assertEqual(str(path),str(path._clonesequence(lookuptable)))
+            lookuptable = {id(a): p.a, id(b): p.b}
+            #self.assertEqual(str(path),str(path._postProcessFixup(lookuptable)))
+            #lookuptable = p._cloneToObjectDict
+            #self.assertEqual(str(path),str(path._postProcessFixup(lookuptable)))
             self.assertEqual(str(path),str(p.path))
             
         def testSchedule(self):
