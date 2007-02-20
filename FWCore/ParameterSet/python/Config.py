@@ -221,6 +221,7 @@ class Process(object):
         if isinstance(newValue,_Labelable):
             newValue.setLabel(name)
             self._cloneToObjectDict[id(value)] = newValue
+            self._cloneToObjectDict[id(newValue)] = newValue
         #now put in proper bucket
         newValue._place(name,self)
         
@@ -246,11 +247,11 @@ class Process(object):
     def _placeAnalyzer(self,name,mod):
         self.__analyzers[name]=mod
     def _placePath(self,name,mod):
-        self.__paths[name]=mod
+        self.__paths[name]=mod._clonesequence(self._cloneToObjectDict)
     def _placeEndPath(self,name,mod):
-        self.__endpaths[name]=mod
+        self.__endpaths[name]=mod._clonesequence(self._cloneToObjectDict)
     def _placeSequence(self,name,mod):
-        self.__sequences[name]=mod
+        self.__sequences[name]=mod._clonesequence(self._cloneToObjectDict)
     def _placeESProducer(self,name,mod):
         self.__esproducers[name]=mod
     def _placeESPrefer(self,name,mod):
@@ -902,7 +903,7 @@ class _Sequenceable(object):
         return _SequenceOpFollows(self,rhs)
     def __invert__(self):
         return _SequenceNegation(self)
-    def _sequenceclone(self, lookuptable):
+    def _clonesequence(self, lookuptable):
         try: 
             return lookuptable[id(self)]
         except:
@@ -1004,7 +1005,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         returnValue.__init__(self._seq)
         return returnValue
     def _clonesequence(self, lookuptable):
-        return type(self)(self._seq._sequenceclone(lookuptable))
+        return type(self)(self._seq._clonesequence(lookuptable))
     #def replace(self,old,new):
     #"""Find all instances of old and replace with new"""
     #def insertAfter(self,which,new):
@@ -1036,8 +1037,8 @@ class _SequenceOpAids(_Sequenceable):
         #do left first and then right since right depends on left
         self.__left._findDependencies(knownDeps,presentDeps)
         self.__right._findDependencies(knownDeps,presentDeps)
-    def _sequenceclone(self, lookuptable):
-        return type(self)(self.__left._sequenceclone(lookuptable),self.__right._sequenceclone(lookuptable))
+    def _clonesequence(self, lookuptable):
+        return type(self)(self.__left._clonesequence(lookuptable),self.__right._clonesequence(lookuptable))
 
 
 class _SequenceNegation(_Sequenceable):
@@ -1068,8 +1069,8 @@ class _SequenceOpFollows(_Sequenceable):
         end = len(presentDeps)
         presentDeps.update(oldDepsL)
         presentDeps.update(oldDepsR)
-    def _sequenceclone(self, lookuptable):
-        return type(self)(self.__left._sequenceclone(lookuptable),self.__right._sequenceclone(lookuptable))
+    def _clonesequence(self, lookuptable):
+        return type(self)(self.__left._clonesequence(lookuptable),self.__right._clonesequence(lookuptable))
 
 class Path(_ModuleSequenceType):
     def __init__(self,first):
@@ -1302,6 +1303,7 @@ if __name__=="__main__":
             self.assertEqual(str(path),str(path._clonesequence(lookuptable)))
             lookuptable = p._cloneToObjectDict
             self.assertEqual(str(path),str(path._clonesequence(lookuptable)))
+            self.assertEqual(str(path),str(p.path))
             
         def testSchedule(self):
             p = Process("test")
