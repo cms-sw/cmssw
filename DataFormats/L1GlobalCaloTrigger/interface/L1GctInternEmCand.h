@@ -46,7 +46,7 @@ public:
   /// get rank bits
   unsigned rank() const { return m_data & 0x3f; }
 
-  /// get eta index -6 to -0, +0 to +6 (bit 3 is sign, 1 for -ve Z, 0 for +ve Z)
+  /// get eta index -  Barrel 1:4, Endcap  5:7, HF  8:11
   unsigned etaIndex() const { return (m_data>>6) & 0xf; }
 
   /// get eta sign (1 for -ve Z, 0 for +ve Z)
@@ -75,7 +75,7 @@ public:
  private:
 
   // set internal data from rank and region ieta, iphi
-  void construct(unsigned rank, unsigned eta, unsigned phi);
+  void construct(unsigned rank, unsigned eta, unsigned etaSgn, unsigned phi);
 
  private:
 

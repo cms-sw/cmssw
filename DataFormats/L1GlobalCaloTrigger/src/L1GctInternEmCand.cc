@@ -59,5 +59,5 @@ L1CaloRegionDetId L1GctInternEmCand::regionId() const {
 
 // construct from rank, eta, phi
 void L1GctInternEmCand::construct(unsigned rank, unsigned eta, unsigned phi) {
-  m_data = (rank & 0x3f) + ((eta & 0xf)<<6) + ((phi & 0x1f)<<10);
+  m_data = (rank & 0x3f) + ((eta & 0xf)<<6) ((etaSgn & 0x1)<<9) + ((phi & 0x1f)<<10);
 }
