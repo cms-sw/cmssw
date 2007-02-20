@@ -120,6 +120,8 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   std::ofstream Output("ModuleInfo.log",std::ios::out);
   // TEC output as Martin Weber's
   std::ofstream TECOutput("TECLayout_CMSSW.dat",std::ios::out);
+  // Numbering Scheme
+  std::ofstream NumberingOutput("ModuleNumbering.dat",std::ios::out);
   //
   
   //
@@ -202,8 +204,9 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   Output << "************************ List of modules with positions ************************" << std::endl;
   for(unsigned int i=0; i<modules.size();i++){
     unsigned int rawid = modules[i]->geographicalID().rawId();
+    GeometricDet::nav_type detNavType = modules[i]->navType();
     Output << std::fixed << std::setprecision(6); // set as default 6 decimal digits
-    Output << " ******** raw Id = " << rawid << std::endl;
+    Output << " ******** raw Id = " << rawid << "\t nav type = " << detNavType << std::endl;
     int subdetid = modules[i]->geographicalID().subdetId();
     double volume = modules[i]->volume() / 1000; // mm3->cm3
     double density = modules[i]->density() / density_units;
@@ -472,6 +475,14 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	   << ","            << std::fixed << std::setprecision(4) << yGlobal.y()
 	   << ","            << std::fixed << std::setprecision(4) << yGlobal.z()
 	   << ")" << std::endl;
+    
+    // NumberingScheme
+    NumberingOutput << rawid << " " << detNavType << " "
+		    << std::fixed << std::setprecision(4) << modules[i]->translation()[0] << " "
+		    << std::fixed << std::setprecision(4) << modules[i]->translation()[1] << " "
+		    << std::fixed << std::setprecision(4) << modules[i]->translation()[2] << " "
+		    << std::endl;
+    //
   }
   
   // params
