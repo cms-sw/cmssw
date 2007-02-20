@@ -27,7 +27,8 @@ namespace edm {
       virtual void locate(const std::string & s, std::ostream& ost) const;
 
       virtual void accept(Visitor& v) const;
-      // keeps the orignal type and untracked-ness
+      virtual bool isReplaceable() const {return true;}
+      // keeps the orignal type and tracked-ness
       virtual void replaceWith(const ReplaceNode *);
       /// the components of ParameterSets
       virtual edm::Entry makeEntry() const;

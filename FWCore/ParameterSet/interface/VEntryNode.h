@@ -32,6 +32,7 @@ namespace edm {
       virtual void locate(const std::string & s, std::ostream& ost) const;
 
       virtual void accept(Visitor& v) const;
+      virtual bool isReplaceable() const {return true;}
       // keeps the orignal type and tracked-ness
       virtual void replaceWith(const ReplaceNode *);
       /// append a node into the vector

@@ -38,6 +38,7 @@ namespace edm {
       virtual void insertInto(edm::ParameterSet & pset) const;
       /// makes a ParameterSet Entry for this Node
       virtual edm::Entry makeEntry() const;
+      virtual bool isReplaceable() const {return true;}
       virtual void replaceWith(const ReplaceNode * replaceNode);
       void append(NodePtr p);
 

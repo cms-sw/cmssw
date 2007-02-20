@@ -24,6 +24,7 @@ namespace edm {
       virtual bool isModified() const;
 
       virtual void accept(Visitor& v) const;
+      virtual bool isReplaceable() const {return (type() != "process");}
       virtual void replaceWith(const ReplaceNode * replaceNode);
 
       /// makes an entry for a ParametersSet object

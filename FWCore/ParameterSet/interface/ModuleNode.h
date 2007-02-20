@@ -26,6 +26,7 @@ namespace edm {
       virtual void locate(const std::string & s, std::ostream & out) const;
 
       virtual void accept(Visitor& v) const;
+      virtual bool isReplaceable() const {return true;}
       virtual void replaceWith(const ReplaceNode * replaceNode);
 
       /// create an Entry for a ParameterSet representing this module
