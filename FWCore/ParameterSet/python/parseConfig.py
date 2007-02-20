@@ -856,6 +856,7 @@ def _finalizeProcessFragment(values,usingLabels):
     for label,item in values:
         if isinstance(item,_ReplaceNode):
             replaces.append(item)
+            #replace statements are allowed to have multiple identical labels
             if label in d:
                 del d[label]
             if label in dct:
@@ -933,6 +934,7 @@ def _makeProcess(s,loc,toks):
                 del d[label]
             elif isinstance(item,_ReplaceNode):
                 replaces.append(item)
+                #replace statements are allowed to have multiple identical labels
                 if label in d: del d[label]
             elif isinstance(item,_Schedule):
                 if schedule is None:
