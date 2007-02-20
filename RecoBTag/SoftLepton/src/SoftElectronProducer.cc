@@ -1,15 +1,18 @@
 
+#include <vector>
+#include <iostream>
+#include <boost/regex.hpp>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "RecoBTag/SoftLepton/interface/SoftElectronProducer.h"
-
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
@@ -17,20 +20,14 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-
-#include <vector>
-#include <iostream>
-#include <boost/regex.hpp>
-
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
-#include "ElectronIdMLP.h"
+#include "RecoBTag/SoftLepton/interface/SoftElectronProducer.h"
 
+#include "ElectronIdMLP.h"
 
 //------------------------------------------------------------------------------
 
