@@ -62,7 +62,8 @@ EcalSimRawData::EcalSimRawData(const edm::ParameterSet& params){
   srp2dcc_ = params.getUntrackedParameter<bool>("srp2dccData", true);
   dccNum_ = params.getUntrackedParameter<int>("dccNum", -1);
   tccNum_ = params.getUntrackedParameter<int>("tccNum", -1);
-		  
+  tccInDefaultVal_ = params.getUntrackedParameter<int>("tccInDefaultVal", 0xffff) ;
+
   string writeMode = params.getParameter<string>("writeMode");
 
   if(writeMode==string("littleEndian")){
@@ -369,8 +370,8 @@ void EcalSimRawData::genTccIn(string basename, int iEvent,
 	    + iTtPhiInSm0;
 	  if(iTtPhi0<0) iTtPhi0 += nTtPhi;
 
-	  uint16_t tp_fe2tcc = tcp[iTtEta0][iTtPhi0];
-	  
+	  uint16_t tp_fe2tcc = (tcp[iTtEta0][iTtPhi0] & 0x7ff) ; //keep only Et (9:0) and FineGrain (10)
+ 	  
 	  if(tpVerbose_){
 	    cout << dec
 		 << "iTcc1 = " << iTcc1 << "\t"
@@ -379,7 +380,7 @@ void EcalSimRawData::genTccIn(string basename, int iEvent,
 		 << "iCh1 = " << iCh1 << "\t"
 		 << "memPos = " << memPos << "\t" 
 		 << "tp = 0x" << setfill('0') << hex << setw(3)
-		 << tcp[iTtEta0][iTtPhi0]
+		 << tp_fe2tcc
 		 << dec << setfill(' ') << "\n";
 	  }
 	  fe2tcc << iCh1 << "\t"
@@ -607,7 +608,7 @@ void EcalSimRawData::getTp(const edm::Event& event,
     //    EcalSelectiveReadout::ttFlag_t ttf[nTtEta][nTtPhi];
     for(int iTtEta0=0; iTtEta0 < nTtEta; ++iTtEta0){
       for(int iTtPhi0=0; iTtPhi0 < nTtPhi; ++iTtPhi0){
-	tcp[iTtEta0][iTtPhi0] = 0xFFFF;
+	tcp[iTtEta0][iTtPhi0] = tccInDefaultVal_ ;
       }
     }
     if(tpVerbose_){

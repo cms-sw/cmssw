@@ -1,5 +1,5 @@
 /*  
- * $Id: EcalSimRawData.h,v 1.2 2007/02/15 22:55:19 pgras Exp $
+ * $Id: EcalSimRawData.h,v 1.3 2007/02/16 10:38:18 pgras Exp $
  */
 
 #include "FWCore/Framework/interface/Event.h"
@@ -35,6 +35,7 @@
  *    <LI>untracked int32 tccNum: Id of the tcc raw data must be produced for. -1 means every TCC</LI>
  *    <LI>untracked bool tcc2dccData: switch for TCC->DCC data stream production</LI>
  *    <LI>untracked bool srp2dccData: switch for SRP->DCC data stream production</LI>
+ *    <LI>untracked int32 tccInDefaultVal: default TriggerPrimitive values if the trigger tower is abscent</LI>
  *    </UL>
  */
 class EcalSimRawData: public edm::EDAnalyzer{
@@ -447,5 +448,11 @@ private:
   /** Index of the DCC, FE data must be produced for. -1 for all TTCs
    */
   int dccNum_;
+
+  /** default TriggerPrimitive values if the trigger tower is abscent
+   */
+  int tccInDefaultVal_;
+
+
 };
 
