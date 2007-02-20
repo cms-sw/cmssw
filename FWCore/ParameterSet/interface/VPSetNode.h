@@ -17,11 +17,11 @@ namespace edm {
       VPSetNode(const std::string& typ,
                 const std::string& name,
                 NodePtrListPtr value,
-                bool tracked,
+                bool untracked,
                 int line=-1);
       virtual Node * clone() const { return new VPSetNode(*this);}
       virtual std::string type() const;
-      bool isTracked() const {return tracked_;}
+      virtual bool isTracked() const {return tracked_;}
       virtual void print(std::ostream& ost, PrintOptions options) const;
 
       virtual void accept(Visitor& v) const;

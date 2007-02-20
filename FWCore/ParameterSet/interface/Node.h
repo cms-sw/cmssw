@@ -73,7 +73,9 @@ namespace edm {
       virtual void setCloned(bool value) {cloned_ = value;}
       virtual bool isCloned() const {return cloned_;}
 
-      /// throws an exception if they're not the same type
+      /// throws by default
+      virtual bool isTracked() const {return false;}
+      virtual bool isReplaceable() const {return false;}
       virtual void replaceWith(const ReplaceNode * replaceNode);
 
       typedef std::map<std::string, Ptr> NodeMap;

@@ -17,17 +17,17 @@ namespace edm {
     {
     public:
       EntryNode(const std::string& type, const std::string& name,
-                const std::string& values, bool tracked, int line=-1);
+                const std::string& values, bool untracked, int line=-1);
       virtual Node * clone() const { return new EntryNode(*this);}
       virtual std::string type() const;
       std::string value() const {return value_;}
-      bool isTracked() const {return tracked_;}
+      virtual bool isTracked() const {return tracked_;}
       virtual void print(std::ostream& ost, PrintOptions options) const;
       /// prints if a match in the name or the value  
       virtual void locate(const std::string & s, std::ostream& ost) const;
 
       virtual void accept(Visitor& v) const;
-      // keeps the orignal type and tracked-ness
+      // keeps the orignal type and untracked-ness
       virtual void replaceWith(const ReplaceNode *);
       /// the components of ParameterSets
       virtual edm::Entry makeEntry() const;

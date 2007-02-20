@@ -12,11 +12,11 @@ namespace edm {
       PSetNode(const std::string& typ,
                const std::string& name,
                NodePtrListPtr value,
-               bool tracked,
+               bool untracked,
                int line=-1);
       virtual Node * clone() const { return new PSetNode(*this);}
       virtual std::string type() const;
-      bool isTracked() const {return tracked_;}
+      virtual bool isTracked() const {return tracked_;}
 
       /// if it's the process, don't add your name to the path
       virtual void dotDelimitedPath(std::string & path) const;

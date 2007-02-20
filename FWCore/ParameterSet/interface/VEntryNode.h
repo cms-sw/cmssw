@@ -18,13 +18,13 @@ namespace edm {
     {
     public:
       VEntryNode(const std::string& typ, const std::string& name,
-                 StringListPtr values,bool tracked, int line=-1);
+                 StringListPtr values,bool untracked, int line=-1);
       /// deep copy
       VEntryNode(const VEntryNode & n);
       virtual Node * clone() const { return new VEntryNode(*this);}
 
       virtual std::string type() const;
-      bool isTracked() const {return tracked_;}
+      virtual bool isTracked() const {return tracked_;}
       StringListPtr value() const {return value_;}
       virtual void print(std::ostream& ost, PrintOptions options) const;
 

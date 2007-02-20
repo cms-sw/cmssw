@@ -18,11 +18,11 @@ namespace edm {
 
 
     VEntryNode::VEntryNode(const string& t, const string& n,
-                           StringListPtr v,bool tr, int line):
+                           StringListPtr v,bool untracked, int line):
       Node(n, line),
       type_(t),
       value_(v),
-      tracked_(tr)
+      tracked_(!untracked)
     { }
 
 
@@ -39,7 +39,7 @@ namespace edm {
 
     void VEntryNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
-      const char* t = !tracked_ ? "" : "untracked ";
+      const char* t = tracked_ ? "" : "untracked ";
       ost << t << type() << " " << name() << " = {\n  ";
 
       if(!value_->empty())
@@ -154,43 +154,43 @@ namespace edm {
        {
          vector<string> usethis;
          for(;ib!=ie;++ib) usethis.push_back(withoutQuotes(*ib));
-         return Entry(name(), usethis, !tracked_);
+         return Entry(name(), usethis, tracked_);
        }
      else if(type()=="vdouble")
        {
          vector<double> d ;
          for(ib=k;ib!=ie;++ib) d.push_back(strtod(ib->c_str(),0));
-         return Entry(name(), d, !tracked_);
+         return Entry(name(), d, tracked_);
        }
      else if(type()=="vint32")
        {
          vector<int> d ;
          for(ib=k;ib!=ie;++ib) d.push_back(atoi(ib->c_str()));
-         return Entry(name(), d, !tracked_);
+         return Entry(name(), d, tracked_);
        }
      else if(type()=="vuint32")
        {
          vector<unsigned int> d ;
          for(ib=k;ib!=ie;++ib) d.push_back(strtoul(ib->c_str(),0,10));
-         return Entry(name(), d, !tracked_);
+         return Entry(name(), d, tracked_);
        }
      else if(type()=="vint64")
        {
          vector<boost::int64_t> d ;
          for(ib=k;ib!=ie;++ib) d.push_back(atoi(ib->c_str()));
-         return Entry(name(), d, !tracked_);
+         return Entry(name(), d, tracked_);
        }
      else if(type()=="vuint64")
        {
          vector<boost::uint64_t> d ;
          for(ib=k;ib!=ie;++ib) d.push_back(strtoul(ib->c_str(),0,10));
-         return Entry(name(), d, !tracked_);
+         return Entry(name(), d, tracked_);
        }
      else if(type()=="VInputTag")
        {
          vector<InputTag> d ;
          for(ib=k;ib!=ie;++ib) d.push_back( InputTag(withoutQuotes(*ib)) );
-         return Entry(name(), d, !tracked_);
+         return Entry(name(), d, tracked_);
        }
      else if(type()=="VEventID")
        {
@@ -201,7 +201,7 @@ namespace edm {
            edm::decode(eventID, *ib);
            d.push_back( eventID );
          }
-         return Entry(name(), d, !tracked_);
+         return Entry(name(), d, tracked_);
        }
      else
        {

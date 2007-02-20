@@ -18,11 +18,11 @@ namespace edm {
     PSetNode::PSetNode(const string& t,
                        const string& n,
                        NodePtrListPtr v,
-                       bool tracked,
+                       bool untracked,
                        int line) :
       CompositeNode(n, v, line),
       type_(t),
-      tracked_(tracked)
+      tracked_(!untracked)
     {
       // processes shouldn't have minuses in their names
       if(type() == "process" && n.find("-",0) != std::string::npos)
@@ -49,7 +49,7 @@ namespace edm {
 
     void PSetNode::print(ostream& ost, Node::PrintOptions options) const
     {
-      const char* t = !tracked_ ? "" : "untracked ";
+      const char* t = tracked_ ? "" : "untracked ";
       ost << t << type() << " " << name() << " = ";
 
       CompositeNode::print(ost, options);
@@ -90,7 +90,7 @@ namespace edm {
       boost::shared_ptr<ParameterSet> psetPtr(new ParameterSet);
       // do the subnodes
       CompositeNode::insertInto(*psetPtr);
-      return Entry(name(), *psetPtr, !tracked_);
+      return Entry(name(), *psetPtr, tracked_);
     }
 
     void PSetNode::insertInto(edm::ParameterSet & pset) const

@@ -19,11 +19,11 @@ namespace edm {
     VPSetNode::VPSetNode(const string& typ,
                          const string& name,
                          NodePtrListPtr value,
-                         bool tracked,
+                         bool untracked,
                          int line) :
       CompositeNode(name,value, line),
       type_(typ),
-      tracked_(tracked)
+      tracked_(!untracked)
     { }
 
     string VPSetNode::type() const { return type_; }
@@ -110,7 +110,7 @@ namespace edm {
         sets.push_back(*pset);
       }
       
-      return Entry(name(), sets, !tracked_); 
+      return Entry(name(), sets, tracked_); 
     }
 
 
