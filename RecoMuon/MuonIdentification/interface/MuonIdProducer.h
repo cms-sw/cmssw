@@ -16,7 +16,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.5 2007/01/30 18:25:10 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.6 2007/02/20 00:35:15 dmytro Exp $
 //
 //
 
@@ -59,12 +59,10 @@ class MuonIdProducer : public edm::EDProducer {
    bool useEcal_;
    bool useMuon_;
    
-   bool useOldMuonMatching_;
-
    bool useHcalRecHits_;
    
    edm::InputTag inputCollectionLabel_;
-   std::string outputCollectionName_;   
+   std::string branchAlias_;
    InputMode mode_;
 
    double minPt_;

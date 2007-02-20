@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.7 2007/01/30 18:25:11 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.8 2007/02/20 00:35:16 dmytro Exp $
 //
 //
 
@@ -45,14 +45,11 @@
 
 MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
 {
-   outputCollectionName_ = iConfig.getParameter<std::string>("outputCollection");
-   produces<reco::MuonWithMatchInfoCollection>(outputCollectionName_);
-
+   branchAlias_ = iConfig.getParameter<std::string>("branchAlias");
+   produces<reco::MuonWithMatchInfoCollection>().setBranchAlias(branchAlias_);
    useEcal_ = true;
    useMuon_ = true;
    useHcalRecHits_ = iConfig.getParameter<bool>("useHcalRecHits");
-   
-   useOldMuonMatching_ = iConfig.getParameter<bool>("useOldMuonMatching");
    
    minPt_ = iConfig.getParameter<double>("minPt");
    minP_ = iConfig.getParameter<double>("minP");
@@ -168,34 +165,53 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	bool goodMuonCandidate = true;
 	
 	// Pt requirement
-	if (aMuon->track().get()->pt() < minPt_){ 
+	if (goodMuonCandidate && aMuon->track().get()->pt() < minPt_){ 
 	   LogTrace("MuonIdentification") << "Skipped low Pt track (Pt: " << aMuon->track().get()->pt() << " GeV)";
 	   goodMuonCandidate = false;
 	}
 	
 	// Absolute momentum requirement
-	if (aMuon->track().get()->p() < minP_){
+	if (goodMuonCandidate && aMuon->track().get()->p() < minP_){
 	   LogTrace("MuonIdentification") << "Skipped low P track (P: " << aMuon->track().get()->p() << " GeV)";
 	   goodMuonCandidate = false;
 	}
 	
 	// Eta requirement
-	if ( fabs(aMuon->track().get()->eta()) > maxAbsEta_ ){
+	if ( goodMuonCandidate && fabs(aMuon->track().get()->eta()) > maxAbsEta_ ){
 	   LogTrace("MuonIdentification") << "Skipped track with large pseudo rapidity (Eta: " << aMuon->track().get()->eta() << " )";
 	   goodMuonCandidate = false;
 	}
 	
-	if ( goodMuonCandidate ){
-	   fillMuonId(iEvent, iSetup, *aMuon);
+	// Fill muonID
+	if ( goodMuonCandidate ) fillMuonId(iEvent, iSetup, *aMuon);
 	   
-	   // loop over matches
-	   
+	// check number of matches
+	if ( goodMuonCandidate && minNumberOfMatches_>0) {
+	   int numberOfMatches = 0;
+	   const std::vector<reco::MuonWithMatchInfo::MuonChamberMatch>& chambers = aMuon->matches();
+	   for( std::vector<reco::MuonWithMatchInfo::MuonChamberMatch>::const_iterator chamber=chambers.begin(); 
+		chamber!=chambers.end(); ++chamber )
+	     {
+		bool matchedX = false;
+		bool matchedY = false;
+		for( std::vector<reco::MuonWithMatchInfo::MuonSegmentMatch>::const_iterator segment=chamber->segmentMatches.begin(); 
+		     segment!=chamber->segmentMatches.end(); ++segment )
+		  {
+		     if (fabs(segment->x - chamber->x) < maxAbsDx_) matchedX = true;
+		     if (fabs(segment->y - chamber->y) < maxAbsDy_) matchedY = true;
+		     if (segment->xErr>0 && chamber->xErr>0 && 
+			 fabs(segment->x - chamber->x)/sqrt(pow(segment->xErr,2) + pow(chamber->xErr,2)) < maxAbsPullX_) matchedX = true;
+		     if (segment->yErr>0 && chamber->yErr>0 && 
+			 fabs(segment->y - chamber->y)/sqrt(pow(segment->yErr,2) + pow(chamber->yErr,2)) < maxAbsPullY_) matchedY = true;
+		     if (matchedX && matchedY) break;
+		  }
+		if ( matchedX && matchedY ) numberOfMatches++;
+	     }
+	   if (numberOfMatches < minNumberOfMatches_) goodMuonCandidate = false;
 	}
 	
 	if ( goodMuonCandidate && debugWithTruthMatching_ ) {
-	   // add MC hits to a list of matched segments. The only
-	   // way to differentiate hits is the error on the local
-	   // hit position. It's -9999 for a MC hit.
+	   // add MC hits to a list of matched segments. 
 	   // Since it's debugging mode - code is slow
 	   MuonIdTruthInfo::truthMatchMuon(iEvent, iSetup, *aMuon);
 	}
@@ -204,7 +220,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
 	delete aMuon;
      }
-   iEvent.put(outputMuons,outputCollectionName_);
+   iEvent.put(outputMuons);
 }
 
 void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetup,
@@ -216,16 +232,15 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    parameters.useHO   = useHcalRecHits_ ;
    parameters.useCalo = ! useHcalRecHits_ ;
    parameters.useMuon = useMuon_ ;
-   parameters.useOldMuonMatching = useOldMuonMatching_ ;
    
    parameters.dREcalPreselection = ecalPreselectionCone_;
-   // parameters.dREcal = ecalSelectionCone_;  TEMPORARY
+   // parameters.dREcal = ecalSelectionCone_;  TEMPORARY (no cone selection is applied)
    parameters.dREcal = ecalPreselectionCone_;
    parameters.dRHcalPreselection = hcalPreselectionCone_;
    parameters.dRHcal = hcalSelectionCone_;
-   // parameters.dRHcal = hcalSelectionCone_;  TEMPORARY
+   // parameters.dRHcal = hcalSelectionCone_;  TEMPORARY (no cone selection is applied)
    parameters.dRMuonPreselection = muonPreselectionCone_;
-   // parameters.dRMuon = muonSelectionCone_;
+   // parameters.dRMuon = muonSelectionCone_;  TEMPORARY (no cone selection is applied)
    parameters.dRMuon = muonPreselectionCone_;
 
    TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, 

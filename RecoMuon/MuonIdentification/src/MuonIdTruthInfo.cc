@@ -80,7 +80,7 @@ void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent,
 	   }else LogTrace("MuonIdentification") <<"No CSC simulated hits are found";
 	}
 	if (distance < 9999) {
-	   chamberMatch->segmentMatches.push_back( bestSegmentMatch );
+	   chamberMatch->truthMatches.push_back( bestSegmentMatch );
 	   numberOfTruthMatchedChambers++;
 	   LogTrace("MuonIdentification") << "Best truth matched hit:" <<
 	      "\tDetId: " << chamberMatch->id.rawId() << "\n" <<
@@ -128,12 +128,12 @@ void MuonIdTruthInfo::checkSimHitForBestMatch(reco::MuonWithMatchInfo::MuonSegme
 	    // find a SimHit closer to the reference surface, update segmentMatch
 	    segmentMatch.x = projection.x();
 	    segmentMatch.y = projection.y();
-	    segmentMatch.xErr = -9999.;
-	    segmentMatch.yErr = -9999.;
+	    segmentMatch.xErr = 0;
+	    segmentMatch.yErr = 0;
 	    segmentMatch.dXdZ = direction.x()/direction.z();
 	    segmentMatch.dYdZ = direction.y()/direction.z();
-	    segmentMatch.dXdZErr = - 9999.;
-	    segmentMatch.dYdZErr = - 9999.;
+	    segmentMatch.dXdZErr = 0;
+	    segmentMatch.dYdZErr = 0;
 	    distance = new_distance;
 	    LogTrace("MuonIdentificationVerbose") << "Better truth matched segment found:\n" <<
 	      "\tDetId: " << chamberId.rawId() << "\n" <<
