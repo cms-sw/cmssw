@@ -16,7 +16,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.4 2007/01/24 09:20:32 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.5 2007/01/30 18:25:10 dmytro Exp $
 //
 //
 
@@ -82,7 +82,8 @@ class MuonIdProducer : public edm::EDProducer {
    double muonPreselectionCone_;
    double muonSelectionCone_;
    bool debugWithTruthMatching_;
-   
+   bool inputTypeIsTrack_;
+
    edm::Handle<reco::TrackCollection> trackCollectionHandle_;
    reco::TrackCollection::const_iterator trackCollectionIter_;
    edm::Handle<reco::MuonCollection> muonCollectionHandle_;

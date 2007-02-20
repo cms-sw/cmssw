@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.6 2007/01/26 02:15:35 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.7 2007/01/30 18:25:11 dmytro Exp $
 //
 //
 
@@ -79,6 +79,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
    trackAssociator_.theCSCSegmentCollectionLabel = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
 
    inputCollectionLabel_ = iConfig.getParameter<edm::InputTag>("inputCollectionLabel");
+   inputTypeIsTrack_ =  iConfig.getParameter<bool>("inputTypeIsTrack");
 
    debugWithTruthMatching_ = iConfig.getParameter<bool>("debugWithTruthMatching");
    if (debugWithTruthMatching_) edm::LogWarning("MuonIdentification") 
@@ -96,20 +97,19 @@ MuonIdProducer::~MuonIdProducer()
 
 void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   // figure out the type of input collection and initialize the iterator
-   iEvent.getByLabel(inputCollectionLabel_, trackCollectionHandle_);
-   if (! trackCollectionHandle_.isValid()) {
-      iEvent.getByLabel(inputCollectionLabel_, muonCollectionHandle_);
-      if (! muonCollectionHandle_.isValid()) throw cms::Exception("FatalError") <<
-	"Cannot find input list in Event: " << inputCollectionLabel_;
-      else {
-	 mode_ = MuonCollection;
-	 muonCollectionIter_ = muonCollectionHandle_->begin();
-      }
-   }else{
+   if ( inputTypeIsTrack_ ) {
+      iEvent.getByLabel(inputCollectionLabel_, trackCollectionHandle_);
+      if (! trackCollectionHandle_.isValid()) 
+	throw cms::Exception("FatalError") << "Cannot find input track collection with label: " << inputCollectionLabel_; 
       mode_ = TrackCollection;
       trackCollectionIter_ = trackCollectionHandle_->begin();
       index_ = 0;
+   }else{
+      iEvent.getByLabel(inputCollectionLabel_, muonCollectionHandle_);
+      if (! muonCollectionHandle_.isValid()) 
+	throw cms::Exception("FatalError") << "Cannot find input muon collection with label: " << inputCollectionLabel_; 
+      mode_ = MuonCollection;
+      muonCollectionIter_ = muonCollectionHandle_->begin();
    }
 }
 
@@ -130,8 +130,12 @@ reco::MuonWithMatchInfo* MuonIdProducer::getNewMuon(edm::Event& iEvent, const ed
     case MuonCollection:
       if( muonCollectionIter_ !=  muonCollectionHandle_->end())
 	{
+	   reco::MuonWithMatchInfo* aMuon = new reco::MuonWithMatchInfo; // here should be constructor based on reco::Muon
+	   aMuon->setTrack(muonCollectionIter_->track());
+	   aMuon->setStandAlone(muonCollectionIter_->standAloneMuon());
+	   aMuon->setCombined(muonCollectionIter_->combinedMuon());
 	   muonCollectionIter_++;
-	   // return new reco::MuonWithMatchInfo(*muonCollectionIter_);
+	   return aMuon;
 	}
       else return 0;
       break;
@@ -251,6 +255,8 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	aMatch.xErr = sqrt( localError.xx() );
 	aMatch.yErr = sqrt( localError.yy() );
 	                                                                                                                                                    
+	aMatch.dXdZ = chamber->tState.localDirection().x();
+	aMatch.dYdZ = chamber->tState.localDirection().y();
 	// DANGEROUS - compiler cannot guaranty parameters ordering
 	AlgebraicSymMatrix trajectoryCovMatrix = chamber->tState.localError().matrix();
 	aMatch.dXdZErr = trajectoryCovMatrix[1][1];
@@ -270,12 +276,10 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	     aSegment.y = segment->segmentLocalPosition.y();
 	     aSegment.dXdZ = segment->segmentLocalDirection.x()/segment->segmentLocalDirection.z();
 	     aSegment.dYdZ = segment->segmentLocalDirection.y()/segment->segmentLocalDirection.z();
-	     aSegment.xErr = 0;
-	     aSegment.yErr = 0;
-	     aSegment.dXdZErr = 0;
-	     aSegment.dYdZErr = 0;
-
-	     
+	     aSegment.xErr = segment->segmentLocalErrorXX>0?sqrt(segment->segmentLocalErrorXX):0;
+	     aSegment.yErr = segment->segmentLocalErrorYY>0?sqrt(segment->segmentLocalErrorYY):0;
+	     aSegment.dXdZErr = segment->segmentLocalErrorDxDz>0?sqrt(segment->segmentLocalErrorDxDz):0;
+	     aSegment.dYdZErr = segment->segmentLocalErrorDyDz>0?sqrt(segment->segmentLocalErrorDyDz):0;
 	     aMatch.segmentMatches.push_back(aSegment);
 	  }
 	muonChamberMatches.push_back(aMatch);
