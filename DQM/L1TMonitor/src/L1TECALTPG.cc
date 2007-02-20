@@ -1,13 +1,17 @@
 /*
  * \file L1TECALTPG.cc
  *
- * $Date: 2007/02/19 19:24:09 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/19 22:07:26 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
  * - initial version stolen from GCTMonnitor (thanks!) (wittich 02/07)
  *
- * $Log$
+ * $Log: L1TECALTPG.cc,v $
+ * Revision 1.2  2007/02/19 22:07:26  wittich
+ * - Added three monitorables to the ECAL TPG monitoring (from GCTMonitor)
+ * - other minor tweaks in GCT, etc
+ *
  */
 
 #include "DQM/L1TMonitor/interface/L1TECALTPG.h"
@@ -31,7 +35,8 @@ const float TPETAMIN = -32.5;
 const float TPETAMAX = 32.5;
 
 
-L1TECALTPG::L1TECALTPG(const ParameterSet & ps)
+L1TECALTPG::L1TECALTPG(const ParameterSet & ps):
+  ecalTpgLabel_(ps.getParameter<edm::InputTag>("ecalTpgLabel"))
 {
 
   // verbosity switch
@@ -128,12 +133,13 @@ void L1TECALTPG::endJob(void)
 void L1TECALTPG::analyze(const Event & e, const EventSetup & c)
 {
   nev_++;
-  if (verbose_)
+  if (verbose_) {
     std::cout << "L1TECALTPG: analyze...." << std::endl;
+  }
 
   // Get the ECAL TPGs
   edm::Handle < EcalTrigPrimDigiCollection > eTP;
-  e.getByType(eTP);
+  e.getByLabel(ecalTpgLabel_, eTP);
 
   // Fill the ECAL TPG histograms
   for (EcalTrigPrimDigiCollection::const_iterator ieTP = eTP->begin();

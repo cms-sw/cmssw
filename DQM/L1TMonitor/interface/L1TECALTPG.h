@@ -5,11 +5,15 @@
 /*
  * \file L1TECALTPG.h
  *
- * $Date: 2007/02/19 19:24:08 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/19 22:07:26 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
- * $Log$
+ * $Log: L1TECALTPG.h,v $
+ * Revision 1.2  2007/02/19 22:07:26  wittich
+ * - Added three monitorables to the ECAL TPG monitoring (from GCTMonitor)
+ * - other minor tweaks in GCT, etc
+ *
  */
 
 // system include files
@@ -73,6 +77,8 @@ private:
   bool verbose_;
   bool monitorDaemon_;
   ofstream logFile_;
+
+  edm::InputTag ecalTpgLabel_;
 
 };
 
