@@ -548,8 +548,8 @@ namespace edm {
         throw edm::Exception(errors::Configuration)
           << "Cannot replace a node that has already been modified: " << targetNode->name();
       }
-
       if( replaceNode->isEmbedded() && !(targetNode->isCloned()) 
+          && targetNode->isTracked()
           && targetNode->name() != "outputCommands")
       {
         // one last chance: see if the replace is in the same include file as the
