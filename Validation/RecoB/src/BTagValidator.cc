@@ -6,7 +6,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.cc,v 1.4 2007/02/14 20:53:18 bazterra Exp $
+ version $Id: BTagValidator.cc,v 1.5 2007/02/20 01:03:20 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -118,6 +118,11 @@ BTagValidator::endJob() {
 		
 		tObject = gDirectory->Get( TString( histogramList_[i] ) ) ;
 
+		if ( tObject == 0 ) {
+			std::cout << "Histogram " << histogramList_[i] << " DOES NOT exist." << std::endl;
+			continue;
+		}
+								
 		if ( tObject->IsA()->InheritsFrom( "TH1" ) ) {
 			
 			TH1 * histogram = (TH1*) tObject ;  
