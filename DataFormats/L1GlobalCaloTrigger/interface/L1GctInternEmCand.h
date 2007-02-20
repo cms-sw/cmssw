@@ -28,6 +28,9 @@ public:
   /// construct from raw data
   L1GctInternEmCand(uint16_t data, bool iso, unsigned block, unsigned index);
 
+  // construct from eta, phi etc
+  L1GctInternEmCand(unsigned rank, unsigned eta, unsigned etaSgn, unsigned phi, bool iso, unsigned block, unsigned index);
+
   /// destructor (virtual to prevent compiler warnings)
   virtual ~L1GctInternEmCand();
   

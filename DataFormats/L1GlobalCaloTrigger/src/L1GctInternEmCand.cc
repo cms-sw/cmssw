@@ -27,6 +27,14 @@ L1GctInternEmCand::L1GctInternEmCand(uint16_t data, bool iso, unsigned block, un
 
  }
 
+// construct from eta/phi etc
+L1GctInternEmCand::L1GctInternEmCand(unsigned rank, unsigned eta, unsigned etaSgn, unsigned phi, bool iso, unsigned block, unsigned index) :
+   m_iso(iso),
+   m_source( ((block&0x7f)<<9) + (index&0x1ff) )
+ {
+   construct(rank, eta, etaSgn, phi);
+ }
+
 // destructor
 L1GctInternEmCand::~L1GctInternEmCand() { } 
 
@@ -58,6 +66,6 @@ L1CaloRegionDetId L1GctInternEmCand::regionId() const {
 }
 
 // construct from rank, eta, phi
-void L1GctInternEmCand::construct(unsigned rank, unsigned eta, unsigned phi) {
-  m_data = (rank & 0x3f) + ((eta & 0xf)<<6) ((etaSgn & 0x1)<<9) + ((phi & 0x1f)<<10);
+void L1GctInternEmCand::construct(unsigned rank, unsigned eta, unsigned etaSgn, unsigned phi) {
+  m_data = (rank & 0x3f) + ((eta & 0xf)<<6) + ((etaSgn & 0x1)<<9) + ((phi & 0x1f)<<10);
 }
