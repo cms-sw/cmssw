@@ -4,6 +4,11 @@
 import codecs
 _string_escape_encoder = codecs.getencoder('string_escape')
 
+#command line options helper
+from  Options import Options
+options = Options()
+
+
 # helper classes for sorted and fixed dicts
 class SortedKeysDict(dict):
     """a dict preserving order of keys"""
