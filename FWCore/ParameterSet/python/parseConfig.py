@@ -1,6 +1,7 @@
 #import cmsconfigure as cms
 import FWCore.ParameterSet.parsecf.pyparsing as pp
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.DictTypes import SortedKeysDict
 
 # Questions
 #  If an include includes a parameter already defined is that an error?
@@ -847,7 +848,7 @@ def _finalizeProcessFragment(values,usingLabels):
     except Exception, e:
         raise RuntimeError("the configuration contains the error \n"+str(e))
     #now deal with series
-    d = cms.SortedKeysDict(values)
+    d = SortedKeysDict(values)
     dct = dict(d)
     replaces=[]
     sequences = {}
