@@ -182,7 +182,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) :
     = iConfig.getParameter<double>("pf_ECAL_calib_p1");  
   PFBlock::setEcalib(ecalibP0, ecalibP1);
   
-  mySimEvent =  new FSimEvent(vertexGenerator_, particleFilter_);
+  // mySimEvent =  new FSimEvent(vertexGenerator_, particleFilter_);
+  mySimEvent =  new FSimEvent( particleFilter_ );
 }
 
 
