@@ -987,7 +987,7 @@ onlyProcessBody = processBody|pp.empty+pp.StringEnd()
 onlyProcessBody.ignore(pp.cppStyleComment)
 onlyProcessBody.ignore(pp.pythonStyleComment)
 onlyParameters = parameters|pp.empty+pp.StringEnd()
-onlyFragment =plugin|processBody|parameters|pp.empty+pp.StringEnd()
+onlyFragment =processBody|parameters|plugin|pp.empty+pp.StringEnd()
 onlyFragment.ignore(pp.cppStyleComment)
 onlyFragment.ignore(pp.pythonStyleComment)
 #.cfg
@@ -1233,10 +1233,9 @@ PSet blah = {
             oldFactory = _fileFactory
             try:
                 _fileFactory = TestFactory('Sub/Pack/data/foo.cff',
-                                           """sequence s1 = {s}
-                                           sequence s = {a}
-                                           module a = AProducer {}
-                                           """)
+                                           """module a = AProducer {}
+                                           sequence s1 = {s}
+                                           sequence s = {a}""")
                 p=parseCffFile('Sub/Pack/data/foo.cff')
                 self.assertEqual(p.a.type_(),'AProducer')
                 self.assertEqual(type(p.s1),cms.Sequence)
