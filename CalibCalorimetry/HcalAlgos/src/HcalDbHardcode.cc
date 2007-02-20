@@ -1,5 +1,6 @@
 //
 // F.Ratnikov (UMd), Dec 14, 2005
+// $Id: HcalDbHardcode.cc,v 1.10 2006/09/11 20:29:08 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -10,8 +11,9 @@
 
 
 HcalPedestal HcalDbHardcode::makePedestal (HcalDetId fId, bool fSmear) {
+  HcalGain gain = HcalDbHardcode::makeGain (fId, fSmear);
   HcalPedestalWidth width = makePedestalWidth (fId);
-  float value0 = fId.subdet () == HcalForward ? 11. : 4.;  // fC
+  float value0 = 0.75;
   float value [4] = {value0, value0, value0, value0};
   if (fSmear) {
     for (int i = 0; i < 4; i++) {
@@ -20,19 +22,20 @@ HcalPedestal HcalDbHardcode::makePedestal (HcalDetId fId, bool fSmear) {
     }
   }
   HcalPedestal result (fId.rawId (), 
-		       value[0], value[1], value[2], value[3]
+		       value[0] / gain.getValue (0),
+		       value[1] / gain.getValue (1),
+		       value[2] / gain.getValue (2),
+		       value[3] / gain.getValue (3)
 		       );
   return result;
 }
 
 HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalDetId fId) {
-  float value = 0;
-  if (fId.subdet() == HcalBarrel || fId.subdet() == HcalOuter) value = 0.7;
-  else if (fId.subdet() == HcalEndcap) value = 0.9;
-  else if (fId.subdet() == HcalForward) value = 2.5;  // everything in fC
+  HcalGain gain = HcalDbHardcode::makeGain (fId);
+  float value = fId.subdet () == HcalForward ? 0.14 : 0.1;
   HcalPedestalWidth result (fId.rawId ());
   for (int i = 0; i < 4; i++) {
-    double width = value;
+    double width = value / gain.getValue (i);
     for (int j = 0; j <= i; j++) {
       result.setSigma (i, j, i == j ? width * width : 0);
     }
@@ -42,12 +45,7 @@ HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalDetId fId) {
 
 HcalGain HcalDbHardcode::makeGain (HcalDetId fId, bool fSmear) {
   HcalGainWidth width = makeGainWidth (fId);
-  float value0 = 0;
-  if (fId.subdet() != HcalForward) value0 = 0.177;  // GeV/fC
-  else {
-    if (fId.depth() == 1) value0 = 0.2146;
-    else if (fId.depth() == 2) value0 = 0.3375;
-  }
+  float value0 = fId.subdet () == HcalForward ? 0.48 : 0.177; // GeV/fC
   float value [4] = {value0, value0, value0, value0};
   if (fSmear) for (int i = 0; i < 4; i++) value [i] = RandGauss::shoot (value0, width.getValue (i)); 
   HcalGain result (fId.rawId (), value[0], value[1], value[2], value[3]);
@@ -63,7 +61,7 @@ HcalGainWidth HcalDbHardcode::makeGainWidth (HcalDetId fId) {
 HcalQIECoder HcalDbHardcode::makeQIECoder (HcalDetId fId) {
   HcalQIECoder result (fId.rawId ());
   float offset = 0;
-  float slope = fId.subdet () == HcalForward ? 0.36 : 0.92;  // ADC/fC
+  float slope = fId.subdet () == HcalForward ? 2.6 : 1.;
   for (unsigned range = 0; range < 4; range++) {
     for (unsigned capid = 0; capid < 4; capid++) {
       result.setOffset (capid, range, offset);
@@ -84,4 +82,5 @@ HcalCalibrationQIECoder HcalDbHardcode::makeCalibrationQIECoder (HcalDetId fId) 
 HcalQIEShape HcalDbHardcode::makeQIEShape () {
   return HcalQIEShape ();
 }
+
 
