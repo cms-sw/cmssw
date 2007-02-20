@@ -107,7 +107,7 @@ namespace edmtestp
           new (b.buffer()) stor::FragEntry((void*)eview->startAddress(),
                                            (void*)eview->eventData(),
                                            eview->size(),1,1,
-                                           eview->code(),1);
+                                           eview->code(),0,1,0);
         assert(msg);
         b.commit(sizeof(stor::FragEntry));
 
@@ -138,7 +138,7 @@ namespace edmtestp
 	if(!ist_ || ist_.eof()) cerr << "got end!!!!" << endl;
         //HEREHERE need a real event number here for id
 	stor::FragEntry* msg = 
-	  new (b.buffer()) stor::FragEntry(data.get(),data.get(),len,1,1,Header::EVENT,1);
+	  new (b.buffer()) stor::FragEntry(data.get(),data.get(),len,1,1,Header::EVENT,0,1,0);
         assert(msg); // Suppresses compiler warning about unused variable
 	//new (b.buffer()) stor::FragEntry(0,0,len);
 	//cout << "make entry for frag " << (void*)msg << " " << msg->buffer_address_ << endl;

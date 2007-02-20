@@ -32,9 +32,11 @@ namespace stor
   struct FragEntry
   {
     FragEntry():buffer_object_(),buffer_address_() { }
-    FragEntry(void* bo, void* ba,int sz, int segn, int totseg, uint8 msgcode, unsigned int id):
+    FragEntry(void* bo, void* ba,int sz, int segn, int totseg, uint8 msgcode, 
+              uint32 run, uint32 id, uint32 folderid):
       buffer_object_(bo),buffer_address_(ba),buffer_size_(sz),
-      segNumber_(segn), totalSegs_(totseg), code_(msgcode), id_(id) {}
+      segNumber_(segn), totalSegs_(totseg), code_(msgcode), 
+      run_(run), id_(id), folderid_(folderid) {}
     void* buffer_object_;
     void* buffer_address_;
     int   buffer_size_;
@@ -42,7 +44,26 @@ namespace stor
     int  segNumber_;
     int  totalSegs_;
     uint8 code_;
-    unsigned int id_;
+    uint32 run_;
+    uint32 id_;
+    uint32 folderid_;
+  };
+
+  struct FragKey
+  {
+    FragKey(uint8 msgcode, uint32 run, uint32 event, uint32 folderid):
+      code_(msgcode), run_(run), event_(event), folderid_(folderid) {}
+    bool operator<(FragKey const& b) const {
+      if(code_ != b.code_) return code_ < b.code_;
+      if(run_ != b.run_) return run_ < b.run_;
+      if(event_ != b.event_) return event_ < b.event_;
+      return folderid_ < b.folderid_;
+    }
+    // the data for the key
+    uint8 code_;
+    uint32 run_;
+    uint32 event_;
+    uint32 folderid_;
   };
 
   class HLTInfo
