@@ -1,5 +1,5 @@
 /*  
- * $Id: EcalSimRawData.h,v 1.4 2007/02/20 15:07:47 paganini Exp $
+ * $Id: EcalSimRawData.h,v 1.5 2007/02/20 18:15:25 pgras Exp $
  */
 
 #include "FWCore/Framework/interface/Event.h"
@@ -113,7 +113,7 @@ private:
 
   /** Number of TTs along ECAL eta
    */
-  static const int nTtEta = 2*(nEbTtEta+nEeTtEta);//56
+  static const int nTtEta = nEbTtEta+2*nEeTtEta;//56
 
   /** Number of barrel DCCs along Phi
    */
