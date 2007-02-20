@@ -3,6 +3,7 @@
 
 #include "G4LogicalVolumeStore.hh"
 #include "G4Material.hh"
+#include "G4UnitsTable.hh"
 
 // rr
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -87,6 +88,8 @@ void MaterialBudgetCategorizer::buildMaps()
   for( ii = 0; ii < matSize; ii++ ) {
     //    edm::LogInfo("MaterialBudgetCategorizer")
     cout << " material " << (*matTable)[ii]->GetName()
+	 << endl
+	 << "\t density = " << G4BestUnit((*matTable)[ii]->GetDensity(),"Volumic Mass")
 	 << endl
 	 << "\t X0 = "      << (*matTable)[ii]->GetRadlen()             << " mm"
 	 << endl
