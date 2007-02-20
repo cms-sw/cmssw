@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu May 18 16:45:23 CEST 2006
-// $Id: L1GctTestAnalyzer.h,v 1.1 2006/05/18 16:52:34 jbrooke Exp $
+// $Id: L1GctTestAnalyzer.h,v 1.2 2007/02/19 16:03:26 jbrooke Exp $
 //
 //
 
@@ -25,29 +25,35 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <iostream>
+#include <fstream>
+
 //
 // class decleration
 //
 
 class L1GctTestAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit L1GctTestAnalyzer(const edm::ParameterSet&);
-      ~L1GctTestAnalyzer();
-
-
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-
+public:
+  explicit L1GctTestAnalyzer(const edm::ParameterSet&);
+  ~L1GctTestAnalyzer();
+  
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  
   void doEM(const edm::Event&, std::string label);
+  void doInternEM(const edm::Event&, std::string label);
+  void doJets(const edm::Event&, std::string label);
+  
+private:
+  // ----------member data ---------------------------
+  
+  std::string rawLabel_;
+  std::string emuLabel_;
+  std::string outFilename_;
+  std::ofstream outFile_;
 
-   private:
-      // ----------member data ---------------------------
-
-  std::string rawLabel;
-  std::string emuLabel;
-  std::string outFilename;
-
-  //  std::ostream outFile;
-
+  unsigned doEM_;
+  unsigned doJets_;
+  
 };
 
 //
