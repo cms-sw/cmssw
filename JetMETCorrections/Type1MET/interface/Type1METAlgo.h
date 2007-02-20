@@ -11,32 +11,27 @@
  * \version   1st Version May 14, 2005
  ************************************************************/
 
-#include <vector>
-#include <string>
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Math/interface/Point3D.h"
+
+class JetCorrector;
 
 class Type1METAlgo 
 {
  public:
-  typedef math::XYZTLorentzVector LorentzVector;
-  typedef math::XYZPoint Point;
-  typedef std::vector<const CaloJet*> JetInputColl;
   Type1METAlgo();
   virtual ~Type1METAlgo();
-  virtual void run(const METCollection*, 
-		   const CaloJetCollection*, 
-		   const CaloJetCollection*, double, double, 
-		   METCollection &);
-  virtual void run(const CaloMETCollection*, 
-		   const CaloJetCollection*, 
-		   const CaloJetCollection*, double, double,
-		   CaloMETCollection &);
+  virtual void run(const reco::METCollection&, 
+		   const JetCorrector&,
+		   const reco::CaloJetCollection&, 
+		   double, double, 
+		   reco::METCollection *);
+  virtual void run(const reco::CaloMETCollection&, 
+		   const JetCorrector&,
+		   const reco::CaloJetCollection&, 
+		   double, double,
+		   reco::CaloMETCollection*);
 };
 
 #endif // Type1METAlgo_h

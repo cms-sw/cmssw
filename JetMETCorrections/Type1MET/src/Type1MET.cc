@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.8 2006/10/24 22:39:30 cavana Exp $
+// $Id: Type1MET.cc,v 1.9 2006/11/15 21:44:43 cavana Exp $
 //
 //
 
@@ -34,6 +34,9 @@
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+
+
 
 //using namespace std;
 
@@ -52,7 +55,7 @@ namespace cms
     std::string metType;
     std::string inputUncorMetLabel;
     std::string inputUncorJetsLabel;
-    std::string inputCorJetsLabel;
+    std::string correctorLabel;
     double jetPTthreshold;
     double jetEMfracLimit;
   };
@@ -64,7 +67,7 @@ namespace cms
     
     inputUncorMetLabel  = iConfig.getParameter<std::string>("inputUncorMetLabel");
     inputUncorJetsLabel = iConfig.getParameter<std::string>("inputUncorJetsLabel");
-    inputCorJetsLabel   = iConfig.getParameter<std::string>("inputCorJetsLabel");
+    correctorLabel   = iConfig.getParameter<std::string>("corrector");
     jetPTthreshold      = iConfig.getParameter<double>("jetPTthreshold");
     jetEMfracLimit      = iConfig.getParameter<double>("jetEMfracLimit");
     if( metType == "CaloMET" )
@@ -81,17 +84,16 @@ namespace cms
   {
     using namespace edm;
     Handle<CaloJetCollection> inputUncorJets;
-    Handle<CaloJetCollection> inputCorJets;
     iEvent.getByLabel( inputUncorJetsLabel, inputUncorJets );
-    iEvent.getByLabel( inputCorJetsLabel,   inputCorJets );
+    const JetCorrector* corrector = JetCorrector::getJetCorrector (correctorLabel, iSetup);
     if( metType == "CaloMET")
       {
 	Handle<CaloMETCollection> inputUncorMet;                     //Define Inputs
 	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
 	std::auto_ptr<CaloMETCollection> output( new CaloMETCollection() );  //Create empty output
-	alg_.run( inputUncorMet.product(), inputUncorJets.product(), 
-		  inputCorJets.product(), jetPTthreshold, jetEMfracLimit, 
-		  *output );                                         //Invoke the algorithm
+	alg_.run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()), 
+		  jetPTthreshold, jetEMfracLimit, 
+		  &*output );                                         //Invoke the algorithm
 	iEvent.put( output );                                        //Put output into Event
       }
     else
@@ -99,9 +101,9 @@ namespace cms
 	Handle<METCollection> inputUncorMet;                     //Define Inputs
 	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
 	std::auto_ptr<METCollection> output( new METCollection() );  //Create empty output
-	alg_.run( inputUncorMet.product(), inputUncorJets.product(), 
-		  inputCorJets.product(), jetPTthreshold, jetEMfracLimit,
-		  *output );                                         //Invoke the algorithm
+	alg_.run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()), 
+		  jetPTthreshold, jetEMfracLimit,
+		  &*output );                                         //Invoke the algorithm
 	iEvent.put( output );                                        //Put output into Event
       }
   }

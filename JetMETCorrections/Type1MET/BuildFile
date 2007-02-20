@@ -1,11 +1,12 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/METReco>
+<use name=DataFormats/JetReco>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=JetMETCorrections/Objects>
 <flags SEAL_PLUGIN_NAME="JetMETCorrectionsType1MET">
 <export>
    <lib name=JetMETCorrectionsType1MET>
-   <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
-   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/METReco>
+   <use name=DataFormats/JetReco>
 </export>
