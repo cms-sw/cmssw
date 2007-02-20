@@ -304,8 +304,6 @@ void EcalSimRawData::genSrData(string basename, int iEvent,
       int iFlag = 0;
       data = 0;
 
-      cout << "iDcc1: " << iDcc1 << "\n";
-      
       for(int iTtEtaInSm0 = 0; iTtEtaInSm0 < nTtSmEta; ++iTtEtaInSm0){
 	//	int iTtEbEta0 = iZ0*nTtSmEta + iTtEtaInSm0;
 	int iTtEta0 = nEeTtEta + iZ0*nTtSmEta + iTtEtaInSm0;
@@ -319,15 +317,13 @@ void EcalSimRawData::genSrData(string basename, int iEvent,
 	  //| P | 0 | X  X |  srf i+3| srf i+2| srf i+1| srf i  |
 	  //|   |   |      | field 3 |field 2 | field 1| field 0|
 	  const int field = iFlag%4;
-	  cout << "TtEta0: " << iTtEta0 << "\tTtPhi0: " << iTtPhi0 << "\n";
-	  cout << "#" << oct << (int)srf[iTtEta0][iTtPhi0] << "o ****> #" << oct << (srf[iTtEta0][iTtPhi0] << (field*3)) << "o\n" << dec;
+	  //cout << "TtEta0: " << iTtEta0 << "\tTtPhi0: " << iTtPhi0 << "\n";
+	  //cout << "#" << oct << (int)srf[iTtEta0][iTtPhi0] << "o ****> #" << oct << (srf[iTtEta0][iTtPhi0] << (field*3)) << "o\n" << dec;
 	  
 	  data |= srf[iTtEta0][iTtPhi0] << (field*3);
 
 	  if(field==3){
-
-	    cout <<  srf[iTtEta0][iTtPhi0] << "----> 0x" << hex << data << "\n";
-	    
+	    //cout <<  srf[iTtEta0][iTtPhi0] << "----> 0x" << hex << data << "\n";
 	    fwrite(f, data, iWord, true);
 	    data = 0;
 	  }
@@ -514,6 +510,7 @@ void EcalSimRawData::getSrfs(const edm::Event& event,
       int iEta0 = iEta + nTtEta/2 - (iEta>=0?1:0); //0->55 from eta=-3 to eta=3
       int iEbEta0 = iEta0 - nEeTtEta;//0->33 from eta=-1.48 to eta=1.48
       int iPhi0 = flag.id().iphi() - 1;
+
       assert(iEbEta0>=0 && iEbEta0<nEbTtEta);
       assert(iPhi0>=0 && iPhi0<nTtPhi);
       
