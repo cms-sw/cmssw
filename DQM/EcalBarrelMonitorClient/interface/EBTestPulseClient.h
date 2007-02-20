@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2007/01/27 11:03:02 $
- * $Revision: 1.42 $
+ * $Date: 2007/02/01 15:25:24 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,6 +34,8 @@ class EcalCondDBInterface;
 class MonRunIOV;
 
 class EBTestPulseClient : public EBClient {
+
+friend class EBSummaryClient;
 
 public:
 

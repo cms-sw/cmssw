@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2007/01/27 11:03:39 $
- * $Revision: 1.47 $
+ * $Date: 2007/02/01 15:25:24 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,6 +34,8 @@ class EcalCondDBInterface;
 class MonRunIOV;
 
 class EBPedestalClient : public EBClient {
+
+friend class EBSummaryClient;
 
 public:
 

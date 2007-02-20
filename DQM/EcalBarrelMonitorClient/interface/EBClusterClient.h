@@ -4,8 +4,8 @@
 /*
  * \file EBClusterClient.h
  *
- * $Date: 2006/12/15 09:44:49 $
- * $Revision: 1.5 $
+ * $Date: 2007/02/01 15:25:24 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,6 +34,8 @@ class EcalCondDBInterface;
 class MonRunIOV;
 
 class EBClusterClient : public EBClient {
+
+friend class EBSummaryClient;
 
 public:
 

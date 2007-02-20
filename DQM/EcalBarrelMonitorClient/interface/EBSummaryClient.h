@@ -1,13 +1,12 @@
-#ifndef EBTriggerTowerClient_H
-#define EBTriggerTowerClient_H
+#ifndef EBSummaryClient_H
+#define EBSummaryClient_H
 
 /*
- * \file EBTriggerTowerClient.h
+ * \file EBSummaryClient.h
  *
  * $Date: 2007/02/01 15:25:24 $
- * $Revision: 1.8 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
- * \author F. Cossutti
  *
 */
 
@@ -33,17 +32,15 @@ class MonitorUserInterface;
 class EcalCondDBInterface;
 class MonRunIOV;
 
-class EBTriggerTowerClient : public EBClient {
-
-friend class EBSummaryClient;
+class EBSummaryClient : public EBClient {
 
 public:
 
 /// Constructor
-EBTriggerTowerClient(const edm::ParameterSet& ps);
+EBSummaryClient(const edm::ParameterSet& ps);
 
 /// Destructor
-virtual ~EBTriggerTowerClient();
+virtual ~EBSummaryClient();
 
 /// Subscribe/Unsubscribe to Monitoring Elements
 void subscribe(void);
@@ -102,33 +99,6 @@ string prefixME_;
 vector<int> superModules_;
 
 MonitorUserInterface* mui_;
-
-CollateMonitorElement* me_h01_[36];
-
-MonitorElement* meh01_[36];
-
-TProfile2D* h01_[36];
-
-CollateMonitorElement* me_i01_[36];
-
-MonitorElement* mei01_[36];
-
-TH3F* i01_[36];
-
-CollateMonitorElement* me_j01_[36];
-
-MonitorElement* mej01_[36];
-
-TH3F* j01_[36];
-
-CollateMonitorElement* me_k01_[36][68];
-CollateMonitorElement* me_k02_[36][68];
-
-MonitorElement* mek01_[36][68];
-MonitorElement* mek02_[36][68];
-
-TH1F* k01_[36][68];
-TH1F* k02_[36][68];
 
 };
 
