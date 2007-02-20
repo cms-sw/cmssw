@@ -17,7 +17,6 @@ PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const Gs
 					     const double HoE) :
   LeafCandidate(),hadOverEm_(HoE), superCluster_(scl), track_(gsft)   
 {
-    energyScaleCorrected_=false;
   //
   // electron particle quantities
   //
@@ -30,6 +29,7 @@ PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const Gs
 			  superCluster_->energy());
   setCharge(track_->charge());
   setP4(momentum);
+  setVertex(Point(track_->vertex()));
 
   //  math::XYZPoint trackPos= track_->vertex();
   trackPositionAtVtx_=math::XYZVector(vtxPos.x(),vtxPos.y(),vtxPos.z());
@@ -92,6 +92,7 @@ PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const Gs
   //
   // other quantities
   //
+  energyScaleCorrected_=false;
   momentumFromEpCombination_=false;
   trackMomentumError_=0;
   
