@@ -1,26 +1,17 @@
 <lcgdict>
 
-  <class name="edm::RefProd<std::vector<TrackCandidate> >"/>
-
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<TrackCandidate>, std::vector<reco::SuperCluster>, unsigned int > >" >
     <field name="transientMap_" transient="true" />
   </class>
-  <class pattern="edm::KeyVal<*>" />
-  <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
-  <class pattern="edm::Ref<edm::AssociationMap<*>" />
-  <class pattern="edm::RefProd<edm::AssociationMap<*>" />
-  <class pattern="edm::RefVector<edm::AssociationMap<*>" />
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<TrackCandidate> >, edm::RefProd<std::vector<reco::SuperCluster> > >"/>
 
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::Track>, std::vector<reco::SuperCluster>, unsigned int > >" >
     <field name="transientMap_" transient="true" />
   </class>
-  <class pattern="edm::KeyVal<*>" />
-  <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
-  <class pattern="edm::Ref<edm::AssociationMap<*>" />
-  <class pattern="edm::RefProd<edm::AssociationMap<*>" />
-  <class pattern="edm::RefVector<edm::AssociationMap<*>" />
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >, edm::RefProd<std::vector<reco::SuperCluster> > >"/>
-
-
+  <class pattern="edm::KeyVal<*SuperCluster*>" />
+  <class pattern="edm::Wrapper<edm::AssociationMap<*SuperCluster*>" />
+  <class pattern="edm::Ref<edm::AssociationMap<*SuperCluster*>" />
+  <class pattern="edm::RefProd<edm::AssociationMap<*SuperCluster*>" />
+  <class pattern="edm::RefVector<edm::AssociationMap<*SuperCluster*>" />
 </lcgdict>                                                                                                                                                        
