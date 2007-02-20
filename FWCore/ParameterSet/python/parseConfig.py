@@ -856,8 +856,10 @@ def _finalizeProcessFragment(values,usingLabels):
     for label,item in values:
         if isinstance(item,_ReplaceNode):
             replaces.append(item)
-            del d[label]
-            del dct[label]
+            if label in d:
+                del d[label]
+            if label in dct:
+                del dct[label]
         elif isinstance(item,_Sequence):
             sequences[label]=item
             del dct[label]
