@@ -1,3 +1,5 @@
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "Alignment/TrackerAlignment/interface/AlignablePixelHalfBarrelLayer.h"
 
 //--------------------------------------------------------------------------------------------------
