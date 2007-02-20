@@ -1,14 +1,11 @@
 #ifndef Alignment_CommonAlignment_AlignableDet_h
 #define Alignment_CommonAlignment_AlignableDet_h
 
-#include <vector>
-
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
-#include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 /// An AlignableComposite that has AlignableDetUnits as direct component.
+
+class AlignableDetUnit;
 
 class AlignableDet: public AlignableComposite 
 {
@@ -19,7 +16,7 @@ public:
   AlignableDet( const GeomDet* geomDet );
   
   /// Destructor
-  ~AlignableDet();
+  virtual ~AlignableDet();
   
   /// Return vector of components
   virtual std::vector<Alignable*> components() const ;
@@ -55,8 +52,6 @@ private:
 
   /// Container of components
   std::vector<AlignableDetUnit*> theDetUnits ;
-
-  float theWidth, theLength;
 
   AlignmentPositionError* theAlignmentPositionError;
 

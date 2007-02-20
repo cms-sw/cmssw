@@ -1,6 +1,6 @@
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
 //__________________________________________________________________________________________________
 AlignableObjectId::AlignableObjectId( void )
@@ -48,7 +48,7 @@ AlignableObjectId::AlignableObjectId( void )
 
 //__________________________________________________________________________________________________
 const AlignableObjectId::AlignableObjectIdType
-AlignableObjectId::nameToType( const std::string name ) const
+AlignableObjectId::nameToType( const std::string& name ) const
 {
   if ( theReverseMap.find(name) != theReverseMap.end() ) 
  	return ( theReverseMap.find(name) )->second;
@@ -59,13 +59,14 @@ AlignableObjectId::nameToType( const std::string name ) const
 
 
 //__________________________________________________________________________________________________
-const std::string AlignableObjectId::typeToName( const int type ) const
+const std::string& AlignableObjectId::typeToName( const int type ) const
 {
-  AlignableObjectIdType m_IdType = AlignableObjectIdType( type );
+  static const std::string str_invalid = "INVALID";
+  AlignableObjectIdType m_IdType = static_cast<AlignableObjectIdType>( type );
 
   if ( theMap.find(m_IdType) != theMap.end() ) return ( theMap.find(m_IdType) )->second;
 
   edm::LogError("LogicError") << "Unknown alignableObjectId " << type;
-  return "INVALID";
+  return str_invalid;
 
 }

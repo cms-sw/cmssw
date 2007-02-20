@@ -1,3 +1,7 @@
+#include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
@@ -30,10 +34,6 @@ AlignableDet::AlignableDet( const GeomDet* geomDet ) :
 			theDetUnits.push_back( new AlignableDetUnit( tmpGeomDetUnit ) );
 		}
     }
-
-  // Also store width and length of geomdet surface
-  theWidth  = geomDet->surface().bounds().width();
-  theLength = geomDet->surface().bounds().length();
 
 }
 
@@ -107,7 +107,7 @@ void AlignableDet::addAlignmentPositionErrorFromRotation(const RotationType& rot
   // average error calculated by movement of a local point at
   // (xWidth/2,yLength/2,0) caused by the rotation rot
   const GlobalVector localPositionVector = this->globalPosition()
-    - this->surface().toGlobal( Local3DPoint(theWidth/2.0, theLength/2.0, 0.) );
+    - this->surface().toGlobal( Local3DPoint(.5 * surface().width(), .5 * surface().length(), 0.) );
 
   LocalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
   GlobalVector gv( rot.multiplyInverse(lpvgf) - lpvgf );

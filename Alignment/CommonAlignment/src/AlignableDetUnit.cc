@@ -1,11 +1,11 @@
-#include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
-
-#include <boost/cstdint.hpp>
-
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondFormats/Alignment/interface/AlignTransform.h"
-#include "CondFormats/Alignment/interface/AlignTransformError.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+
+#include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 
 //__________________________________________________________________________________________________
 AlignableDetUnit::AlignableDetUnit( const GeomDetUnit* geomDetUnit ) :
@@ -16,8 +16,8 @@ AlignableDetUnit::AlignableDetUnit( const GeomDetUnit* geomDetUnit ) :
 {
   
   // Also store width and length of geomdet surface
-  theWidth  = geomDetUnit->surface().bounds().width();
-  theLength = geomDetUnit->surface().bounds().length();
+  theSurface.setWidth( geomDetUnit->surface().bounds().width() );
+  theSurface.setLength( geomDetUnit->surface().bounds().length() );
 
   this->setDetId( geomDetUnit->geographicalId() );
 
@@ -73,6 +73,23 @@ void AlignableDetUnit::rotateInGlobalFrame( const RotationType& rotation)
 
 
 //__________________________________________________________________________________________________
+void AlignableDetUnit::rotateInLocalFrame( const RotationType& rotation)
+{
+
+  if ( misalignmentActive() ) 
+  {
+    theSurface = AlignableSurface( globalPosition(), rotation * globalRotation() );
+    theRotation = rotation * theRotation;
+  }
+  else 
+    edm::LogError("NoMisalignment") 
+      << "AlignableDetUnit: Misalignment currently deactivated"
+      << " - no rotation done";
+
+}
+
+
+//__________________________________________________________________________________________________
 void AlignableDetUnit::setAlignmentPositionError(const AlignmentPositionError& ape)
 {
 
@@ -104,7 +121,7 @@ void AlignableDetUnit::addAlignmentPositionErrorFromRotation(const RotationType&
   // average error calculated by movement of a local point at
   // (xWidth/2,yLength/2,0) caused by the rotation rot
   const GlobalVector localPositionVector = this->globalPosition()
-    - this->surface().toGlobal( Local3DPoint(theWidth/2.0, theLength/2.0, 0.) );
+    - this->surface().toGlobal( Local3DPoint(.5 * surface().width(), .5 * surface().length(), 0.) );
 
   LocalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
   GlobalVector gv( rot.multiplyInverse(lpvgf) - lpvgf );

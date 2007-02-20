@@ -52,10 +52,10 @@ public:
   typedef std::pair<std::string, AlignableObjectIdType> PairEnumReverseType;
 
   /// Convert name to type
-  const AlignableObjectIdType nameToType( const std::string name ) const;
+  const AlignableObjectIdType nameToType( const std::string& name ) const;
 
   /// Convert type to name
-  const std::string typeToName( const int type ) const;
+  const std::string& typeToName( const int type ) const;
 
 private:
   MapEnumType theMap;

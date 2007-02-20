@@ -2,22 +2,31 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/Alignment/interface/AlignTransform.h" 
-#include "CondFormats/Alignment/interface/AlignTransformError.h" 
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+
+// #include "CondFormats/Alignment/interface/AlignTransform.h" 
+// #include "CondFormats/Alignment/interface/AlignTransformError.h" 
 
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 
 
 
 //__________________________________________________________________________________________________
-AlignableComposite::AlignableComposite() : 
-  theSurface( PositionType(0,0,0), RotationType()) {}
+AlignableComposite::AlignableComposite()
+{
+}
 
 
 //__________________________________________________________________________________________________
 AlignableComposite::AlignableComposite( const GeomDet* geomDet ) : 
   theSurface( geomDet->surface().position(), geomDet->surface().rotation() ) 
 {
+
+  // Also store width and length of geomdet surface
+  theSurface.setWidth( geomDet->surface().bounds().width() );
+  theSurface.setLength( geomDet->surface().bounds().length() );
   
   this->setDetId( geomDet->geographicalId() );
 
@@ -126,6 +135,40 @@ void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
 
 }
 
+
+//__________________________________________________________________________________________________
+void AlignableComposite::rotateInLocalFrame( const RotationType& rotation )
+{
+
+  const PositionType& myPos = globalPosition();
+  const RotationType& myRot = globalRotation();
+
+  theSurface = AlignableSurface( myPos, rotation * myRot );
+  theRotation = rotation * theRotation;
+
+  RotationType globalRot = myRot.multiplyInverse( theSurface.rotation() );
+
+  std::vector<Alignable*> comp = components();
+
+  unsigned int nComp = comp.size();
+
+  for (unsigned int i = 0; i < nComp; ++i)
+  {
+    Alignable* ali = comp[i];
+
+    GlobalVector posVector = ali->globalPosition() - myPos;
+
+    const GlobalVector::BasicVectorType& pvgf = posVector.basicVector();
+
+    // apparently... you have to use the inverse of the rotation here
+    // (rotate the VECTOR rather than the frame)
+    GlobalVector moveVector( globalRot.multiplyInverse(pvgf) - pvgf );
+
+    ali->move( moveVector );
+    ali->rotateInLocalFrame( rotation );
+  }
+
+}
 
 
 //__________________________________________________________________________________________________
