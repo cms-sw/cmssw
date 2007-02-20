@@ -22,9 +22,11 @@ KalmanVertexTrackCompatibilityEstimator::estimate(const CachingVertex & vertex,
 			 const RefCountedVertexTrack tr) const
 {
 //checking if the track passed really belongs to the vertex
- vT_find finder;
- if(finder(vertex,tr)) {
-   return estimateFittedTrack(vertex,tr);
+  vector<RefCountedVertexTrack> tracks = vertex.tracks();
+  vector<RefCountedVertexTrack>::iterator pos 
+    = find_if(tracks.begin(), tracks.end(), VertexTrackEqual(tr));
+ if(pos != tracks.end()) {
+   return estimateFittedTrack(vertex,*pos);
  } else {
    return estimateNFittedTrack(vertex,tr);
  }
