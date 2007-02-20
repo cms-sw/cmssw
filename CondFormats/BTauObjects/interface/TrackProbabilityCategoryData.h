@@ -6,6 +6,7 @@ struct TrackProbabilityCategoryData {
   float pMin, pMax, etaMin, etaMax;
   int   nHitsMin, nHitsMax, nPixelHitsMin, nPixelHitsMax;
   float chiMin,chiMax;
+  float withFirstPixel;
 };
 
 

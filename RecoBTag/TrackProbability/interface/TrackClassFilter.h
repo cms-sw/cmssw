@@ -23,7 +23,7 @@ class TrackClassFilter : public TrackProbabilityCategoryData
 		 double  etamin,  double  etamax,
 		  int  nhitmin,  int  nhitmax, 
 		 int  npixelhitsmin, int  npixelhitsmax,
-                  double cmin, double cmax)
+                  double cmin, double cmax, int withFirst)
   { 
   pMin=pmin;
   pMax=pmax;
@@ -35,13 +35,14 @@ class TrackClassFilter : public TrackProbabilityCategoryData
   nPixelHitsMax=npixelhitsmax;
   chiMin=cmin;
   chiMax=cmax; 
+  withFirstPixel=withFirst;
  } 
 
   void set(const double & pmin, const double & pmax, 
 		 const double & etamin, const double & etamax,
 		 int nhitmin, int nhitmax, 
 		 int npixelhitsmin,int npixelhitsmax,
-		 double cmin, double cmax)
+		 double cmin, double cmax,int withFirst)
   {
   pMin=pmin;
   pMax=pmax;
@@ -53,6 +54,7 @@ class TrackClassFilter : public TrackProbabilityCategoryData
   nPixelHitsMax=npixelhitsmax;
   chiMin=cmin;
   chiMax=cmax;
+  withFirstPixel=withFirst;
   }
 
  virtual ~TrackClassFilter(){}

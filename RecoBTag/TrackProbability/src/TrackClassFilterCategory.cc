@@ -30,8 +30,9 @@ void TrackClassFilterCategory::readFromDOM( XERCES_CPP_NAMESPACE::DOMElement * d
    int npmax = CalibrationXML::readAttribute<int>(dom,"numpixelmax");
    float chimin = CalibrationXML::readAttribute<float>(dom,"chimin");
    float chimax = CalibrationXML::readAttribute<float>(dom,"chimax");
+   int withFirst = CalibrationXML::readAttribute<int>(dom,"withfirstpixelhit");
 
-   filter.set( pmin, pmax, etamin, etamax, nhmin, nhmax,npmin, npmax,chimin,chimax) ;
+   filter.set( pmin, pmax, etamin, etamax, nhmin, nhmax,npmin, npmax,chimin,chimax,withFirst) ;
 
  }
  
@@ -47,5 +48,6 @@ void TrackClassFilterCategory::saveToDOM( XERCES_CPP_NAMESPACE::DOMElement * dom
    CalibrationXML::writeAttribute(dom,"numpixelmax",filter.nPixelHitsMax);
    CalibrationXML::writeAttribute(dom,"chimin",filter.chiMin);
    CalibrationXML::writeAttribute(dom,"chimax",filter.chiMax);
+   CalibrationXML::writeAttribute(dom,"withfirstpixelhit",filter.withFirstPixel);
 }
 
