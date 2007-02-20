@@ -244,10 +244,6 @@ TrackDetMatchInfo::TrackDetMatchInfo():
      , isGoodCalo(false)
      , isGoodHO(false)
      , isGoodMuon(false)
-     , ecalRecHits(coneEcalRecHits)
-     , hcalRecHits(coneHcalRecHits)
-     , hoRecHits(coneHORecHits)
-     , towers(coneTowers)
 {
 }
 

@@ -47,21 +47,24 @@ class TrackDetMatchInfo {
    math::XYZPoint trkGlobPosAtHcal;
    math::XYZPoint trkGlobPosAtHO;
    
-   std::vector<EcalRecHit> coneEcalRecHits;
+   /// hits in the cone
+   std::vector<EcalRecHit> ecalRecHits;
+   std::vector<HBHERecHit> hcalRecHits;
+   std::vector<HORecHit>   hoRecHits;
+   std::vector<CaloTower>  towers;
+
+   /// hits in detector elements crossed by a track
    std::vector<EcalRecHit> crossedEcalRecHits;
-   std::vector<DetId>      crossedEcalIds;
-
-   std::vector<HBHERecHit> coneHcalRecHits;
    std::vector<HBHERecHit> crossedHcalRecHits;
-   std::vector<DetId>      crossedHcalIds;
-   
-   std::vector<HORecHit> coneHORecHits;
-   std::vector<HORecHit> crossedHORecHits;
-   std::vector<DetId>    crossedHOIds;
+   std::vector<HORecHit>   crossedHORecHits;
+   std::vector<CaloTower>  crossedTowers;
 
-   std::vector<CaloTower> coneTowers;
-   std::vector<CaloTower> crossedTowers;
-   std::vector<DetId>     crossedTowerIds;
+   /// detector elements crossed by a track 
+   /// (regardless of whether energy energy was deposited or not)
+   std::vector<DetId>      crossedEcalIds;
+   std::vector<DetId>      crossedHcalIds;
+   std::vector<DetId>      crossedHOIds;
+   std::vector<DetId>      crossedTowerIds;
    
    std::vector<MuonChamberMatch> chambers;
 
@@ -92,12 +95,5 @@ class TrackDetMatchInfo {
    int numberOfSegmentsInStation(int station) const;
    int numberOfSegmentsInStation(int station, int detector) const;
    int numberOfSegmentsInDetector(int detector) const;
-
-   std::vector<EcalRecHit>& ecalRecHits;
-   std::vector<HBHERecHit>& hcalRecHits;
-   std::vector<HORecHit>& hoRecHits;
-   std::vector<CaloTower> towers;
-   
-   
 };
 #endif
