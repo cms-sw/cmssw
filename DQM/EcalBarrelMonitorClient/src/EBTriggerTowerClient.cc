@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/02/01 15:25:25 $
- * $Revision: 1.25 $
+ * $Date: 2007/02/06 18:19:49 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 
 #include "TStyle.h"
 
@@ -488,7 +489,8 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile[0] << "</head>  " << std::endl;
   htmlFile[0] << "<style type=\"text/css\"> td { font-weight: bold } </style>" << std::endl;
   htmlFile[0] << "<body>  " << std::endl;
-  htmlFile[0] << "<br>  " << std::endl;
+  //htmlFile[0] << "<br>  " << std::endl;
+  htmlFile[0] << "<a name=""top""></a>" << endl;
   htmlFile[0] << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
   htmlFile[0] << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
   htmlFile[0] << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << std::endl;
@@ -523,11 +525,21 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   // Loop on barrel supermodules
 
+  htmlFile[0] << "<table border=1>" << std::endl;
+  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
+    htmlFile[0] << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
+	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
+  } 
+  htmlFile[0] << std::endl << "</table>" << std::endl;
+
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 
     int ism = superModules_[i];
 
-    htmlFile[0] << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << std::endl;
+    if( i>0 ) htmlFile[0] << "<a href=""#top"">Top</a>" << std::endl;
+    htmlFile[0] << "<hr>" << std::endl;
+    htmlFile[0] << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;" 
+	     << ism << "</strong></h3>" << endl;
 
 ////  --------> no quality plot yet... 
 //     // Quality plot

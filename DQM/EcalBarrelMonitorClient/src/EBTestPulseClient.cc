@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/02/17 13:52:54 $
- * $Revision: 1.125 $
+ * $Date: 2007/02/19 11:11:41 $
+ * $Revision: 1.126 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -11,6 +11,7 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 
 #include "TStyle.h"
 
@@ -1380,7 +1381,8 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</head>  " << endl;
   htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
   htmlFile << "<body>  " << endl;
-  htmlFile << "<br>  " << endl;
+  //htmlFile << "<br>  " << endl;
+  htmlFile << "<a name=""top""></a>" << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
@@ -1390,7 +1392,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
   htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
   htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
-  htmlFile << "<hr>" << endl;
+  htmlFile << "<br>" << endl;
 
   // Produce the plots to be shown as .png files from existing histograms
 
@@ -1430,6 +1432,13 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH1D* obj1d;
 
   // Loop on barrel supermodules
+
+  htmlFile << "<table border=1>" << std::endl;
+  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
+    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
+	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
+  } 
+  htmlFile << std::endl << "</table>" << std::endl;
 
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 
@@ -1724,7 +1733,10 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     }
 
-    htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
+    if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
+    htmlFile << "<hr>" << std::endl;
+    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;" 
+	     << ism << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
