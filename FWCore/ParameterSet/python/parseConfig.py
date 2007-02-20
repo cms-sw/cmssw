@@ -868,11 +868,11 @@ def _finalizeProcessFragment(values,usingLabels):
         # statement so we want their changes to be reflected
         class DictAdapter(object):
             def __init__(self,d):
-                self.d = d
+                self.__dict__['d'] = d
             def __getattr__(self,name):
                 return self.d[name]
-            #def __setattr__(self,name,value):
-            #    self.d[name]=value
+            def __setattr__(self,name,value):
+                self.d[name]=value
         adapted = DictAdapter(d)
         for replace in replaces:
             if replace.path[0] in usingLabels:
@@ -1232,11 +1232,18 @@ PSet blah = {
             oldFactory = _fileFactory
             try:
                 _fileFactory = TestFactory('Sub/Pack/data/foo.cff',
-                                           """module a = AProducer {}
+                                           """sequence s1 = {s}
                                            sequence s = {a}
+                                           module a = AProducer {}
                                            """)
                 p=parseCffFile('Sub/Pack/data/foo.cff')
-                self.assertEqual(p.a.type_(),'AProducer') 
+                self.assertEqual(p.a.type_(),'AProducer')
+                self.assertEqual(type(p.s1),cms.Sequence)
+                self.assertTrue(p.s1._seq is p.s)
+                pr=cms.Process('Test')
+                pr.extend(p)
+                self.assertEqual(str(pr.s),'a')
+                pr.dumpConfig()
             finally:
                 _fileFactory = oldFactory
             
