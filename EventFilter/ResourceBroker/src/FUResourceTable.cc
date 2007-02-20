@@ -43,8 +43,9 @@ FUResourceTable::FUResourceTable(UInt_t nbResources,UInt_t eventBufferSize,
 FUResourceTable::~FUResourceTable()
 {
   clear();
-  if (FUShmBuffer::releaseSharedMemory())
-    LOG4CPLUS_INFO(log_,"SHARED MEMORY SEGMENTS CLEANED UP SUCCESSFULLY.");
+  if (shmMode_)
+    if (FUShmBuffer::releaseSharedMemory())
+      LOG4CPLUS_INFO(log_,"SHARED MEMORY SEGMENTS CLEANED UP SUCCESSFULLY.");
 }
 
 
@@ -90,35 +91,23 @@ void FUResourceTable::sendAllocate()
 void FUResourceTable::shutDownClients()
 {
   if (!shmMode_) {
-    LOG4CPLUS_ERROR(log_,"FUResourceTable::shutDownClients() not implemented!");
+    waitWriterSem();
+    builtResourceIds_.push_back(freeResourceIds_.front());
+    postReaderSem();
     return;
   }
-
-  LOG4CPLUS_ERROR(log_,"FUResourceTable::shutDownClients(): "
-		  <<"nbFreeSlots = "<<nbFreeSlots()<<" "
-		  <<"nbPending   = "<<nbPending());
   
   unsigned int nbClients = nbShmClients();
   for (unsigned int i=0;i<nbClients;i++) {
     waitWriterSem();
-    shmBuffer_->lock();
     FUShmBufferCell* cell=shmBuffer_->currentWriterCell();
-    UInt_t fuResourceId=cell->fuResourceId();
-    if (!cell->isEmpty()) {
-      if (cell->isProcessed()) {
-	lock();
-	resources_[fuResourceId]->release();
-	unlock();
-      }
-      else if (cell->isDead()) {
-	LOG4CPLUS_ERROR(log_,"KILL EVENT: evtNumber="<<cell->evtNumber());
-      }
-      else {
-	LOG4CPLUS_ERROR(log_,"cell "<<cell->index()<<" is in unexpected state!");
-      }
+    if (cell->isDead()) {
+      LOG4CPLUS_ERROR(log_,"LOST EVENT: evtNumber="<<cell->evtNumber());
+    }
+    else if (!cell->isEmpty()) {
+      LOG4CPLUS_ERROR(log_,"cell "<<cell->index()<<" is in unexpected state!");
     }
     cell->setStateEmpty();
-    shmBuffer_->unlock();
     postReaderSem();
   }
   
@@ -216,15 +205,7 @@ void FUResourceTable::startWorkLoop() throw (evf::Exception)
   }
   
   // activate work loop
-  if (!workLoop_->isActive()) {
-    try {
-      workLoop_->activate();
-    }
-    catch (xcept::Exception& e) {
-      string msg = "Failed to activate work loop '" + workLoopName + "'.";
-      XCEPT_RETHROW(evf::Exception,msg,e);
-    }
-  }
+  if (!workLoop_->isActive()) workLoop_->activate();
   
   // submit work loop action to work loop
   string workLoopActionName = "shmWorkLoopAction";
@@ -245,14 +226,15 @@ void FUResourceTable::startWorkLoop() throw (evf::Exception)
 //______________________________________________________________________________
 bool FUResourceTable::workLoopAction(toolbox::task::WorkLoop* /* wl */)
 {
-  //UInt_t buResourceId=shmBuffer_->buIdToBeDiscarded();
   FUShmBufferCell* cell = shmBuffer_->cellToBeDiscarded();
-  shmBuffer_->lock();
-  assert(cell->isProcessed());
+  if (!cell->isProcessed()) {
+    LOG4CPLUS_WARN(log_,"Don't reschedule discard-workloop.");
+    return false;
+  }
   UInt_t buResourceId = cell->buResourceId();
   UInt_t fuResourceId = cell->fuResourceId();
   cell->setStateEmpty();
-  shmBuffer_->unlock();
+  shmBuffer_->postWriterSem();
   shmBuffer_->postDiscardSem();
   sendDiscard(buResourceId);
   lock();
@@ -273,7 +255,6 @@ UInt_t FUResourceTable::allocateResource()
   
   // shared memory mode: release resource
   if (shmMode_) {
-    shmBuffer_->lock();
     FUShmBufferCell* cell=shmBuffer_->currentWriterCell();
     fuResourceId=cell->fuResourceId();
     if (cell->isDead()) {
@@ -281,7 +262,6 @@ UInt_t FUResourceTable::allocateResource()
       //cell->dump(); //TODO
     }
     cell->setStateWriting();
-    shmBuffer_->unlock();
   }
   // standard mode: use queue to manage free resources
   else {
@@ -387,17 +367,19 @@ FEDRawDataCollection* FUResourceTable::requestResource(UInt_t& evtNumber,
   else {
     UInt_t      fuResourceId=builtResourceIds_.back();
     FUResource* resource    =resources_[fuResourceId];
-  
-    assert(resource->isComplete());
-    assert(!resource->fatalError());
-  
+    builtResourceIds_.pop_back();  
     result      =resource->fedData();
-    evtNumber   =resource->evtNumber();
-    buResourceId=resource->buResourceId();
+    
+    if (result!=0) {
+      assert(resource->isComplete());
+      assert(!resource->fatalError());
+      
+      evtNumber   =resource->evtNumber();
+      buResourceId=resource->buResourceId();
   
-    resource->release();
-    builtResourceIds_.pop_back();
-    freeResourceIds_.push(fuResourceId);
+      resource->release();
+      freeResourceIds_.push(fuResourceId);
+    }
   }
   
   unlock();
