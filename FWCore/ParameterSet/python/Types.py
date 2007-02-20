@@ -3,6 +3,29 @@ from Mixins import _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizabl
 import codecs
 _string_escape_encoder = codecs.getencoder('string_escape')
 
+class _Untracked(object):
+    """Class type for 'untracked' to allow nice syntax"""
+    __name__ = "untracked"
+    @staticmethod
+    def __call__(param):
+        """used to set a 'param' parameter to be 'untracked'"""
+        param.setIsTracked(False)
+        return param
+    def __getattr__(self,name):
+        """A factory which allows syntax untracked.name(value) to construct an
+        instance of 'name' class which is set to be untracked"""
+        if name == "__bases__": raise AttributeError  # isclass uses __bases__ to recognize class objects 
+        class Factory(object):
+            def __init__(self,name):
+                self.name = name
+            def __call__(self,*value,**params):
+                param = globals()[self.name](*value,**params)
+                return _Untracked.__call__(param)
+        return Factory(name)
+
+untracked = _Untracked()
+
+
 class int32(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
@@ -326,3 +349,63 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
         return copy.copy(self)
     def _place(self,name,proc):
         proc._placeVPSet(name,self)
+
+
+if __name__ == "__main__":
+
+    import unittest
+    class testTypes(unittest.TestCase):
+        def testint32(self):
+            i = int32(1)
+            self.assertEqual(i.value(),1)
+            self.assertRaises(ValueError,int32,"i")
+            i = int32._valueFromString("0xA")
+            self.assertEqual(i.value(),10)
+
+        def testuint32(self):
+            i = uint32(1)
+            self.assertEqual(i.value(),1)
+            i = uint32(0)
+            self.assertEqual(i.value(),0)
+            self.assertRaises(ValueError,uint32,"i")
+            self.assertRaises(ValueError,uint32,-1)
+            i = uint32._valueFromString("0xA")
+            self.assertEqual(i.value(),10)  
+
+        def testvint32(self):
+            v = vint32()
+            self.assertEqual(len(v),0)
+            v.append(1)
+            self.assertEqual(len(v),1)
+            self.assertEqual(v[0],1)
+            v.append(2)
+            v.insert(1,3)
+            self.assertEqual(v[1],3)
+            v[1]=4
+            self.assertEqual(v[1],4)
+            v[1:1]=[5]
+            self.assertEqual(len(v),4)
+            self.assertEqual([1,5,4,2],list(v))
+            self.assertRaises(TypeError,v.append,('blah'))
+
+        def testString(self):
+            s=string('this is a test')
+            self.assertEqual(s.value(),'this is a test')
+            s=string('\0')
+            self.assertEqual(s.value(),'\0')
+            self.assertEqual(s.configValue('',''),"'\\0'")
+        def testUntracked(self):
+            p=untracked(int32(1))
+            self.assertRaises(TypeError,untracked,(1),{})
+            self.failIf(p.isTracked())
+            p=untracked.int32(1)
+            self.assertRaises(TypeError,untracked,(1),{})
+            self.failIf(p.isTracked())
+            p=untracked.vint32(1,5,3)
+            self.assertRaises(TypeError,untracked,(1,5,3),{})
+            self.failIf(p.isTracked())
+            p = untracked.PSet(b=int32(1))
+            self.failIf(p.isTracked())
+            self.assertEqual(p.b.value(),1)
+
+    unittest.main()

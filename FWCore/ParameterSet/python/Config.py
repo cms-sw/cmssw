@@ -1,96 +1,20 @@
 #!/usr/bin/env python
 
-#command line options helper
+### command line options helper
 from  Options import Options
 options = Options()
 
+
+### imports
 from Mixins import _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable
 from Mixins import  _Labelable,  _Unlabelable 
 from Mixins import _ValidatingListBase
 from Types import * 
+from Modules import *
+from SequenceTypes import *
+from SequenceTypes import _ModuleSequenceType  #extend needs it
+import DictTypes
 
-# helper classes for sorted and fixed dicts
-class SortedKeysDict(dict):
-    """a dict preserving order of keys"""
-    # specialised __repr__ missing.
-    def __init__(self,*args,**kw):
-        dict.__init__(self,*args,**kw)
-        self.list = list()
-        if len(args) == 1:
-            if not hasattr(args[0],'iterkeys'):
-                self.list= [ x[0] for x in iter(args[0])]
-            else:
-                self.list = list(args[0].iterkeys())
-            return
-        self.list = list(super(SortedKeysDict,self).iterkeys())
-    def __iter__(self):
-        for key in self.list:
-            yield key
-
-    def __setitem__(self, key, value):
-        dict.__setitem__(self, key, value)
-        if not key in self.list:
-            self.list.append(key)
-
-    def __delitem__(self, key):
-        dict.__delitem__(self, key)
-        self.list.remove(key)
-
-    def items(self):
-        return [ dict.__getitem__(self, key) for key in self.list]
-
-    def iteritems(self):
-        for key in self.list:
-            yield key, dict.__getitem__(self, key)
-
-    def iterkeys(self):
-        for key in self.list:
-            yield key
-           
-    def itervalues(self):
-        for key in self.list:
-            yield dict.__getitem__(self,key)
-
-    def keys(self):
-        return self.list
-
-    def values(self):
-        return [ dict.__getitems__(self, key) for key in self.list]
-
-   
-class SortedAndFixedKeysDict(SortedKeysDict):
-    """a sorted dictionary with fixed/frozen keys"""
-    def _blocked_attribute(obj):
-        raise AttributeError, "A SortedAndFixedKeysDict cannot be modified."
-    _blocked_attribute = property(_blocked_attribute)
-    __delitem__ = __setitem__ = clear = _blocked_attribute
-    pop = popitem = setdefault = update = _blocked_attribute
-    def __new__(cls, *args, **kw):
-        new = SortedKeysDict.__new__(cls)
-        SortedKeysDict.__init__(new, *args, **kw)
-        return new
-    def __init__(self, *args, **kw):
-        pass
-    def __repr__(self):
-        return "SortedAndFixedKeysDict(%s)" % SortedKeysDict.__repr__(self)
-
-    
-#helper based on code from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/414283
-class FixedKeysDict(dict):
-    def _blocked_attribute(obj):
-        raise AttributeError, "A FixedKeysDict cannot be modified."
-    _blocked_attribute = property(_blocked_attribute)
-
-    __delitem__ = __setitem__ = clear = _blocked_attribute
-    pop = popitem = setdefault = update = _blocked_attribute
-    def __new__(cls, *args, **kw):
-        new = dict.__new__(cls)
-        dict.__init__(new, *args, **kw)
-        return new
-    def __init__(self, *args, **kw):
-        pass
-    def __repr__(self):
-        return "FixedKeysDict(%s)" % dict.__repr__(self)
 
 def findProcess(module):
     """Look inside the module and find the Processes it contains"""
@@ -123,8 +47,8 @@ class Process(object):
         self.__dict__['_Process__schedule'] = None
         self.__dict__['_Process__analyzers'] = {}
         self.__dict__['_Process__outputmodules'] = {}
-        self.__dict__['_Process__paths'] = SortedKeysDict()    # have to keep the order
-        self.__dict__['_Process__endpaths'] = SortedKeysDict() # of definition
+        self.__dict__['_Process__paths'] = DictTypes.SortedKeysDict()    # have to keep the order
+        self.__dict__['_Process__endpaths'] = DictTypes.SortedKeysDict() # of definition
         self.__dict__['_Process__sequences'] = {}
         self.__dict__['_Process__services'] = {}
         self.__dict__['_Process__essources'] = {}
@@ -135,7 +59,7 @@ class Process(object):
         self.__dict__['_cloneToObjectDict'] = {}
     def filters_(self):
         """returns a dict of the filters which have been added to the Process"""
-        return FixedKeysDict(self.__filters)
+        return DictTypes.FixedKeysDict(self.__filters)
     filters = property(filters_, doc="dictionary containing the filters for the process")
     def name_(self):
         return self.__name
@@ -144,7 +68,7 @@ class Process(object):
     process = property(name_,setName_, doc="name of the process")
     def producers_(self):
         """returns a dict of the producers which have been added to the Process"""
-        return FixedKeysDict(self.__producers)
+        return DictTypes.FixedKeysDict(self.__producers)
     producers = property(producers_,doc="dictionary containing the producers for the process")
     def source_(self):
         """returns the source which has been added to the Process or None if none have been added"""
@@ -160,23 +84,23 @@ class Process(object):
     looper = property(looper_,setLooper_,doc='the main looper or None if not set')
     def analyzers_(self):
         """returns a dict of the filters which have been added to the Process"""
-        return FixedKeysDict(self.__analyzers)
+        return DictTypes.FixedKeysDict(self.__analyzers)
     analyzers = property(analyzers_,doc="dictionary containing the analyzers for the process")
     def outputModules_(self):
         """returns a dict of the output modules which have been added to the Process"""
-        return FixedKeysDict(self.__outputmodules)
+        return DictTypes.FixedKeysDict(self.__outputmodules)
     outputModules = property(outputModules_,doc="dictionary containing the output_modules for the process")
     def paths_(self):
         """returns a dict of the paths which have been added to the Process"""
-        return SortedAndFixedKeysDict(self.__paths)
+        return DictTypes.SortedAndFixedKeysDict(self.__paths)
     paths = property(paths_,doc="dictionary containing the paths for the process")
     def endpaths_(self):
         """returns a dict of the endpaths which have been added to the Process"""
-        return SortedAndFixedKeysDict(self.__endpaths)
+        return DictTypes.SortedAndFixedKeysDict(self.__endpaths)
     endpaths = property(endpaths_,doc="dictionary containing the endpaths for the process")
     def sequences_(self):
         """returns a dict of the sequences which have been added to the Process"""
-        return FixedKeysDict(self.__sequences)
+        return DictTypes.FixedKeysDict(self.__sequences)
     sequences = property(sequences_,doc="dictionary containing the sequences for the process")
     def schedule_(self):
         """returns the schedule which has been added to the Process or None if none have been added"""
@@ -186,27 +110,27 @@ class Process(object):
     schedule = property(schedule_,setSchedule_,doc='the schedule or None if not set')
     def services_(self):
         """returns a dict of the services which have been added to the Process"""
-        return FixedKeysDict(self.__services)
+        return DictTypes.FixedKeysDict(self.__services)
     services = property(services_,doc="dictionary containing the services for the process")
     def es_producers_(self):
         """returns a dict of the esproducers which have been added to the Process"""
-        return FixedKeysDict(self.__esproducers)
+        return DictTypes.FixedKeysDict(self.__esproducers)
     es_producers = property(es_producers_,doc="dictionary containing the es_producers for the process")
     def es_sources_(self):
         """returns a the es_sources which have been added to the Process"""
-        return FixedKeysDict(self.__essources)
+        return DictTypes.FixedKeysDict(self.__essources)
     es_sources = property(es_sources_,doc="dictionary containing the es_sources for the process")
     def es_prefers_(self):
         """returns a dict of the es_prefers which have been added to the Process"""
-        return FixedKeysDict(self.__esprefers)
+        return DictTypes.FixedKeysDict(self.__esprefers)
     es_prefers = property(es_prefers_,doc="dictionary containing the es_prefers for the process")
     def psets_(self):
         """returns a dict of the PSets which have been added to the Process"""
-        return FixedKeysDict(self.__psets)
+        return DictTypes.FixedKeysDict(self.__psets)
     psets = property(psets_,doc="dictionary containing the PSets for the process")
     def vpsets_(self):
         """returns a dict of the VPSets which have been added to the Process"""
-        return FixedKeysDict(self.__vpsets)
+        return DictTypes.FixedKeysDict(self.__vpsets)
     vpsets = property(vpsets_,doc="dictionary containing the PSets for the process")
     def __setattr__(self,name,value):
         if not isinstance(value,_ConfigureComponent):
@@ -409,113 +333,6 @@ class FileInPath(_SimpleParameterTypeBase):
     def _valueFromString(value):
         return FileInPath(value)
 
-class _Untracked(object):
-    """Class type for 'untracked' to allow nice syntax"""
-    __name__ = "untracked"
-    @staticmethod
-    def __call__(param):
-        """used to set a 'param' parameter to be 'untracked'"""
-        param.setIsTracked(False)
-        return param
-    def __getattr__(self,name):
-        """A factory which allows syntax untracked.name(value) to construct an
-        instance of 'name' class which is set to be untracked"""
-        if name == "__bases__": raise AttributeError  # isclass uses __bases__ to recognize class objects 
-        class Factory(object):
-            def __init__(self,name):
-                self.name = name
-            def __call__(self,*value,**params):
-                param = globals()[self.name](*value,**params)
-                return _Untracked.__call__(param)
-        return Factory(name)
-#def untracked(param):
-#    """used to set a 'param' parameter to be 'untracked'"""
-#    param.setIsTracked(False)
-#    return param
-untracked = _Untracked()
-
-class _Sequenceable(object):
-    """Denotes an object which can be placed in a sequence"""
-    def __mul__(self,rhs):
-        return _SequenceOpAids(self,rhs)
-    def __add__(self,rhs):
-        return _SequenceOpFollows(self,rhs)
-    def __invert__(self):
-        return _SequenceNegation(self)
-    def _clonesequence(self, lookuptable):
-        try: 
-            return lookuptable[id(self)]
-        except:
-            raise KeyError
-        
-class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
-    def __init__(self,type,*arg,**kargs):
-        super(Service,self).__init__(type,*arg,**kargs)
-    def _placeImpl(self,name,proc):
-        proc._placeService(self.type_(),self)
-
-class ESSource(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
-    def __init__(self,type,*arg,**kargs):
-        super(ESSource,self).__init__(type,*arg,**kargs)
-    def _placeImpl(self,name,proc):
-        if name == '':
-            name=self.type_()
-        proc._placeESSource(name,self)
-
-class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
-    def __init__(self,type,*arg,**kargs):
-        super(ESProducer,self).__init__(type,*arg,**kargs)
-    def _placeImpl(self,name,proc):
-        if name == '':
-            name=self.type_()
-        proc._placeESProducer(name,self)
-
-class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
-    def __init__(self,type,*arg,**kargs):
-        super(ESPrefer,self).__init__(type,*arg,**kargs)
-    def _placeImpl(self,name,proc):
-        if name == '':
-            name=self.type_()
-        proc._placeESPrefer(name,self)
-
-class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable):
-    """base class for classes which denote framework event based 'modules'"""
-    def __init__(self,type,*arg,**kargs):
-        super(_Module,self).__init__(type,*arg,**kargs)
-
-class EDProducer(_Module):
-    def __init__(self,type,*arg,**kargs):
-        super(EDProducer,self).__init__(type,*arg,**kargs)
-    def _placeImpl(self,name,proc):
-        proc._placeProducer(name,self)
-    pass
-
-class EDFilter(_Module):
-    def __init__(self,type,*arg,**kargs):
-        super(EDFilter,self).__init__(type,*arg,**kargs)
-    def _placeImpl(self,name,proc):
-        proc._placeFilter(name,self)
-    pass
-
-class EDAnalyzer(_Module):
-    def __init__(self,type,*arg,**kargs):
-        super(EDAnalyzer,self).__init__(type,*arg,**kargs)
-    def _placeImpl(self,name,proc):
-        proc._placeAnalyzer(name,self)
-    pass
-
-class OutputModule(_Module):
-    def __init__(self,type,*arg,**kargs):
-        super(OutputModule,self).__init__(type,*arg,**kargs)
-    def _placeImpl(self,name,proc):
-        proc._placeOutputModule(name,self)
-    pass
-
-class Source(_ConfigureComponent,_TypedParameterizable):
-    def __init__(self,type,*arg,**kargs):
-        super(Source,self).__init__(type,*arg,**kargs)
-    def _placeImpl(self,name,proc):
-        proc._placeSource(name,self)
 
 class Looper(_ConfigureComponent,_TypedParameterizable):
     def __init__(self,type,*arg,**kargs):
@@ -523,6 +340,8 @@ class Looper(_ConfigureComponent,_TypedParameterizable):
     def _placeImpl(self,name,proc):
         proc._placeLooper(name,self)
 
+<<<<<<< Config.py
+=======
 class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     """Base class for classes which define a sequence of modules"""
     def __init__(self,first):
@@ -650,10 +469,12 @@ class Schedule(_ValidatingListBase,_ConfigureComponent,_Unlabelable):
     def _place(self,label,process):
         process.setSchedule_(self)
         
+>>>>>>> 1.24
 def include(fileName):
     """Parse a configuration file language file and return a 'module like' object"""
     from FWCore.ParameterSet.parseConfig import importConfig
     return importConfig(fileName)
+
 
 if __name__=="__main__":
     import unittest
@@ -700,55 +521,6 @@ if __name__=="__main__":
             other = p.copy()
             other.b = 2
             self.assertNotEqual(p.b,other.b)
-        def testint32(self):
-            i = int32(1)
-            self.assertEqual(i.value(),1)
-            self.assertRaises(ValueError,int32,"i")
-            i = int32._valueFromString("0xA")
-            self.assertEqual(i.value(),10)
-        def testuint32(self):
-            i = uint32(1)
-            self.assertEqual(i.value(),1)
-            i = uint32(0)
-            self.assertEqual(i.value(),0)
-            self.assertRaises(ValueError,uint32,"i")
-            self.assertRaises(ValueError,uint32,-1)
-            i = uint32._valueFromString("0xA")
-            self.assertEqual(i.value(),10)
-        def testvint32(self):
-            v = vint32()
-            self.assertEqual(len(v),0)
-            v.append(1)
-            self.assertEqual(len(v),1)
-            self.assertEqual(v[0],1)
-            v.append(2)
-            v.insert(1,3)
-            self.assertEqual(v[1],3)
-            v[1]=4
-            self.assertEqual(v[1],4)
-            v[1:1]=[5]
-            self.assertEqual(len(v),4)
-            self.assertEqual([1,5,4,2],list(v))
-            self.assertRaises(TypeError,v.append,('blah'))
-        def testString(self):
-            s=string('this is a test')
-            self.assertEqual(s.value(),'this is a test')
-            s=string('\0')
-            self.assertEqual(s.value(),'\0')
-            self.assertEqual(s.configValue('',''),"'\\0'")
-        def testUntracked(self):
-            p=untracked(int32(1))
-            self.assertRaises(TypeError,untracked,(1),{})
-            self.failIf(p.isTracked())
-            p=untracked.int32(1)
-            self.assertRaises(TypeError,untracked,(1),{})
-            self.failIf(p.isTracked())
-            p=untracked.vint32(1,5,3)
-            self.assertRaises(TypeError,untracked,(1,5,3),{})
-            self.failIf(p.isTracked())
-            p = untracked.PSet(b=int32(1))
-            self.failIf(p.isTracked())
-            self.assertEqual(p.b.value(),1)
 
         def testProcessInsertion(self):
             p = Process("test")
@@ -800,6 +572,7 @@ if __name__=="__main__":
             self.assertEqual(str(p.c),'a')
             self.assertEqual(str(p.d),'a')
             p.dumpConfig()
+
         def testProcessDumpConfig(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
@@ -807,20 +580,6 @@ if __name__=="__main__":
             p.s = Sequence(p.a)
             p.p2 = Path(p.s)
             p.dumpConfig()
-        def testEDAnalyzer(self):
-            empty = EDAnalyzer("Empty")
-            withParam = EDAnalyzer("Parameterized",foo=untracked(int32(1)), bar = untracked(string("it")))
-            self.assertEqual(withParam.foo.value(), 1)
-            self.assertEqual(withParam.bar.value(), "it")
-            aCopy = withParam.copy()
-            self.assertEqual(aCopy.foo.value(), 1)
-            self.assertEqual(aCopy.bar.value(), "it")
-            
-        def testService(self):
-            empty = Service("Empty")
-            withParam = Service("Parameterized",foo=untracked(int32(1)), bar = untracked(string("it")))
-            self.assertEqual(withParam.foo.value(), 1)
-            self.assertEqual(withParam.bar.value(), "it")
             
         def testSequence(self):
             p = Process('test')
@@ -914,49 +673,5 @@ if __name__=="__main__":
             self.assertEqual(deps['c'],set(['a']))
             #deps= path.moduleDependencies()
             #print deps['a']
-        def testFixedKeysDict(self):
-            import operator
-            d = FixedKeysDict({'a':1, 'b':[3]})
-            self.assertEqual(d['a'],1)
-            self.assertEqual(d['b'],[3])
-            self.assertRaises(AttributeError,operator.setitem,*(d,'a',2))
-            d['b'].append(2)
-            self.assertEqual(d['b'],[3,2])
-        def testSortedKeysDict(self):
-            sd = SortedKeysDict()
-            sd['a']=1
-            sd['b']=2
-            sd['c']=3
-            sd['d']=4
-            count =1
-            for key in sd.iterkeys():
-                self.assertEqual(count,sd[key])
-                count +=1
-            sd2 = SortedKeysDict(sd)
-            count =1
-            for key in sd2.iterkeys():
-                self.assertEqual(count,sd2[key])
-                count +=1
-            sd3 = SortedKeysDict([('a',1),('b',2),('c',3),('d',4)])
-            count =1
-            for key in sd3.iterkeys():
-                self.assertEqual(count,sd3[key])
-                count +=1
-            self.assertEqual(count-1,len(sd3))
-            sd3 = SortedKeysDict(a=1,b=2,c=3,d=4)
-            count =1
-            for key in sd3.iterkeys():
-                count +=1
-            self.assertEqual(count-1,len(sd3))
-            sd['d']=5
-            self.assertEqual(5,sd['d'])
-        
-
-        def testSortedAndFixedKeysDict(self):
-            import operator
-            sd = SortedAndFixedKeysDict({'a':1, 'b':[3]})
-            self.assertEqual(sd['a'],1)
-            self.assertEqual(sd['b'],[3])
-            self.assertRaises(AttributeError,operator.setitem,*(sd,'a',2))
                                
     unittest.main()
