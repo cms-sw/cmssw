@@ -822,43 +822,78 @@ replace = pp.Group(pp.Keyword('replace').suppress()+
                     _eqTo+_replaceValue))
                   ).setParseAction(_makeReplace) 
 
+class _ProcessAdapter(object):
+    def __init__(self,seqs,process):
+        self.__dict__['_seqs'] = seqs
+        self.__dict__['_process'] = process
+    def seqs(self):
+        return self.__dict__['_seqs']
+    def process(self):
+        return self.__dict__['_process']
+    def __getattr__(self,name):
+        if hasattr(self.process(), name):
+            return getattr(self.process(),name)
+        setattr(self.process(),name,self.seqs()[name].make(self))
+        return getattr(self.process(),name)
+    def __setattr__(self,name,value):
+        if hasattr(self.process(),name):
+            return
+        setattr(self.process(),name,value)
 def _finalizeProcessFragment(values,usingLabels):
     try:
         values = _validateLabelledList(values)
         values = _findAndHandleProcessBlockIncludes(values)
         values = _validateLabelledList(values)
     except Exception, e:
-        raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))
+        raise RuntimeError("the configuration contains the error \n"+str(e))
     #now deal with series
-    d = dict(values)
-    series=[] #order matters for a series
+    d = cms.SortedKeysDict(values)
+    dct = dict(d)
     replaces=[]
+    sequences = {}
+    series = []
     for label,item in values:
-        if isinstance(item,_ModuleSeries):
-            series.append((label,item))
-            del d[label]
-        elif isinstance(item,_ReplaceNode):
+        if isinstance(item,_ReplaceNode):
             replaces.append(item)
             del d[label]
+            del dct[label]
+        elif isinstance(item,_Sequence):
+            sequences[label]=item
+            del dct[label]
+        elif isinstance(item,_ModuleSeries):
+            series.append((label,item))
+            del dct[label]
     try:
         #pset replaces must be done first since PSets can be used in a 'using'
         # statement so we want their changes to be reflected
-        global _allUsingLabels
         class DictAdapter(object):
             def __init__(self,d):
                 self.d = d
             def __getattr__(self,name):
                 return self.d[name]
+            #def __setattr__(self,name,value):
+            #    self.d[name]=value
         adapted = DictAdapter(d)
         for replace in replaces:
-            if replace.path[0] in _allUsingLabels:
+            if replace.path[0] in usingLabels:
                 #print 'found '+replace.path[0]
                 replace.do(adapted)
         _findAndHandleProcessUsingBlock(values)
         for replace in replaces:
             replace.do(adapted)
     except Exception, e:
-        raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))    
+        raise RuntimeError("the configuration contains the error \n"+str(e))    
+    #FIX: now need to create Sequences, Paths, EndPaths from the available
+    # information
+    pa = _ProcessAdapter(sequences,DictAdapter(dct))
+    for label,obj in sequences.iteritems():
+        if label not in dct:
+            d[label]=obj.make(pa)
+            dct[label]=d[label]
+        else:
+            d[label] = dct[label]
+    for label,obj in series:
+        d[label]=obj.make(adapted)
     return d
 #==================================================================
 # Process
@@ -885,23 +920,6 @@ def _makeProcess(s,loc,toks):
 
     #sequences must be added before path or endpaths
     #sequences may contain other sequences so we need to do recursive construction
-    class ProcessAdapter(object):
-        def __init__(self,seqs,process):
-            self.__dict__['_seqs'] = seqs
-            self.__dict__['_process'] = process
-        def seqs(self):
-            return self.__dict__['_seqs']
-        def process(self):
-            return self.__dict__['_process']
-        def __getattr__(self,name):
-            if hasattr(self.process(), name):
-                return getattr(self.process(),name)
-            setattr(self.process(),name,self.seqs()[name].make(self))
-            return getattr(self.process(),name)
-        def __setattr__(self,name,value):
-            if hasattr(self.process(),name):
-                return
-            setattr(self.process(),name,value)
     try:
         for label,item in values:
             if isinstance(item,_Sequence):
@@ -937,7 +955,7 @@ def _makeProcess(s,loc,toks):
         
         for label,obj in d.iteritems():
             setattr(p,label,obj)
-        pa = ProcessAdapter(sequences,p)
+        pa = _ProcessAdapter(sequences,p)
         for label,obj in sequences.iteritems():
             setattr(pa,label,obj.make(pa))
         for label,obj in series:
@@ -968,22 +986,41 @@ onlyProcessBody = processBody|pp.empty+pp.StringEnd()
 onlyProcessBody.ignore(pp.cppStyleComment)
 onlyProcessBody.ignore(pp.pythonStyleComment)
 onlyParameters = parameters|pp.empty+pp.StringEnd()
+onlyFragment =plugin|processBody|parameters|pp.empty+pp.StringEnd()
+onlyFragment.ignore(pp.cppStyleComment)
+onlyFragment.ignore(pp.pythonStyleComment)
 #.cfg
-process = pp.Group(pp.Suppress('process')+label+_equalTo+_scopeBegin+pp.Group(processBody)+_scopeEnd).setParseAction(_makeProcess)+pp.StringEnd()
+process = pp.Group(pp.Suppress('process')+label+_equalTo+
+                   _scopeBegin+
+                     pp.Group(processBody)+
+                   _scopeEnd).setParseAction(_makeProcess)+pp.StringEnd()
 process.ignore(pp.cppStyleComment)
 process.ignore(pp.pythonStyleComment)
 
+class _ConfigReturn(object):
+    def __init__(self,d):
+        for key,value in d.iteritems():
+            setattr(self, key, value)
+
 def parseCfgFile(fileName):
     """Read a .cfg file and create a Process object"""
-    return process.parseFile(fileName)[0]
+    return process.parseFile(_fileFactory(fileName))[0]
 def parseCffFile(fileName):
     """Read a .cff file and return a dictionary"""
-    t=plugin.parseFile("source = PoolSource { }")
-    d=dict(iter(t))
+    t=onlyFragment.parseFile(_fileFactory(fileName))
+    global _allUsingLabels
+    d=_finalizeProcessFragment(t,_allUsingLabels)
+    return _ConfigReturn(d)
 
 def importConfig(fileName):
     """Use the file extension to decide how to parse the file"""
-
+    ext = fileName[fileName.rfind('.'):]
+    if ext == '.cfg':
+        return parseCfgFile(fileName)
+    if ext != '.cff' and ext != '.cfi':
+        raise RuntimeError("the file '"+fileName+"' has an unknown extension")
+    return parseCffFile(fileName)
+    
 if __name__=="__main__":
     import unittest
     import StringIO
@@ -1189,6 +1226,20 @@ PSet blah = {
                 self.assertEqual(type(d['blah']),cms.PSet)
             finally:
                 _fileFactory = oldFactory
+        def testParseCffFile(self):
+            import StringIO
+            global _fileFactory
+            oldFactory = _fileFactory
+            try:
+                _fileFactory = TestFactory('Sub/Pack/data/foo.cff',
+                                           """module a = AProducer {}
+                                           sequence s = {a}
+                                           """)
+                p=parseCffFile('Sub/Pack/data/foo.cff')
+                self.assertEqual(p.a.type_(),'AProducer') 
+            finally:
+                _fileFactory = oldFactory
+            
         def testPlugin(self):
             t=plugin.parseString("source = PoolSource { }")
             d=dict(iter(t))
@@ -1306,6 +1357,7 @@ process RECO = {
    sequence s = {foo,bar}
 }""")
             self.assertEqual(str(t[0].p),'((foo*bar)+fii)')
+            self.assertEqual(str(t[0].s),'(foo*bar)')
             t[0].dumpConfig()
             s="""
 process RECO = {
