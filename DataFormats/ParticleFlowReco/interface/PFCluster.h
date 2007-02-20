@@ -3,6 +3,8 @@
 
 #include "Math/GenVector/PositionVector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
+
+//C no more dependance to PFRecHit
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 
@@ -26,6 +28,7 @@ namespace reco {
       TYPE_PF = 2 
     };
 
+    //C move this to PFAlgo
     /// energy weighting for position calculation
     enum PosCalc {
       POSCALC_LIN,
@@ -53,9 +56,12 @@ namespace reco {
     /// resets clusters parameters
     void reset();
    
+    //C addRecHit(unsigned index, double fraction)
+    //C just a push_back to the vector of rechit fractions
     /// add a given fraction of the rechit
     void addRecHit( const reco::PFRecHit& rechit, double fraction);
-
+						
+    //C this function will be moved to PFClusterAlgo
     /// \brief updates cluster info from rechit
     /// 
     /// algo = POSCALC_LIN (POSCALC_LOG) for linear (logarithmic) weighting 
@@ -104,6 +110,7 @@ namespace reco {
       posrep_.SetCoordinates( posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi() ); 
     }
 
+    //C these should also be moved to PFClusterAlgo.
     /// set parameters for depth correction
     static void setDepthCorParameters( int    mode,
 				       double a, 
@@ -117,6 +124,7 @@ namespace reco {
       depthCorBp_ = bp;
     }
 
+    //C move to pfclusteralgo
     static double getDepthCorrection(double energy, bool isBelowPS = false,
 				     bool isHadron = false);
 
@@ -124,9 +132,10 @@ namespace reco {
 
     int          color() const {return color_;}
   
+    //C remove this
     PFCluster& operator+=(const PFCluster&);
-    PFCluster& operator=(const PFCluster&);
 
+    PFCluster& operator=(const PFCluster&);
 
     friend    std::ostream& operator<<(std::ostream& out, 
 				       const PFCluster& cluster);
@@ -156,12 +165,16 @@ namespace reco {
     /// cluster position: rho, eta, phi (transient)
     REPPoint            posrep_;
 
-    /// keep track of the mode (lin or log E weighting) for position calculation
+    //C remove this
+    /// keep track of the mode (lin or log E weighting) 
+    /// for position calculation
     int                 posCalcMode_;
   
+    //C remove this
     /// keep track of the parameter for position calculation
     double              posCalcP1_;
 
+    //C remove this
     /// keep track of whether depth correction was required or not
     bool                posCalcDepthCor_;
 
@@ -170,18 +183,23 @@ namespace reco {
 
     // the following parameters should maybe be moved to PFClusterAlgo
 
+    //C remove this
     /// mode for depth correction (e/gamma or hadron)
     static int          depthCorMode_;
 
+    //C remove this
     /// A parameter for depth correction
     static double       depthCorA_;
 
+    //C remove this
     /// B parameter for depth correction
     static double       depthCorB_;
 
+    //C remove this
     /// A parameter for depth correction (under preshower)
     static double       depthCorAp_;
 
+    //C remove this
     /// B parameter for depth correction (under preshower)
     static double       depthCorBp_;
 
