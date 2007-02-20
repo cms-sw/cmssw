@@ -129,6 +129,12 @@ class Sequence(_ModuleSequenceType,_Sequenceable):
     def _placeImpl(self,name,proc):
         proc._placeSequence(name,self)
     def _clonesequence(self, lookuptable):
+        if id(self) not in lookuptable:
+            #for sequences held by sequences we need to clone
+            # on the first reference
+            clone = type(self)(self._seq._clonesequence(lookuptable))
+            lookuptable[id(self)]=clone
+            lookuptable[id(clone)]=clone
         return lookuptable[id(self)]
 
 
