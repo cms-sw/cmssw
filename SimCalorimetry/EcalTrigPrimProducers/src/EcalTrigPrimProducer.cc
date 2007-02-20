@@ -132,14 +132,17 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
   try{e.getByLabel(label_,instanceNameEB_,ebDigis);}
   catch(cms::Exception &e) {
     barrel=false;
-    edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes with producer "<<label_<<" and label "<<instanceNameEB_;
+    edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes with producer "<<label_<<" and label "<<instanceNameEB_<<"!!!";
   }
   if (!barrelOnly_) {
     try{e.getByLabel(label_,instanceNameEE_,eeDigis);}
     catch(cms::Exception &e) {
       endcap=false;
-      edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes with producer "<<label_<<" and label "<<instanceNameEE_;
+      edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes with producer "<<label_<<" and label "<<instanceNameEE_<<"!!!";
     }
+  }
+  if (!barrel && !endcap) {
+   throw cms::Exception(" ProductNotFound") <<"No EBDataFrames(EEDataFrames) with producer "<<label_<<" and label "<<instanceNameEB_<< "found in input!!\n";
   }
 
   if (!barrelOnly_)   LogDebug("EcalTPG") <<" =================> Treating event  "<<e.id()<<", Number of EBDataFrames "<<ebDigis.product()->size()<<", Number of EEDataFrames "<<eeDigis.product()->size() ;
