@@ -284,11 +284,11 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
 	  }
 	}
 
-
-
-
-      //Put selected information in the event
-      if (npi0>0) iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
-  
     }
+
+  //Put selected information in the event
+  //if (npi0>0) iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
+  iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
+
+
 }
