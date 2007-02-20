@@ -1,10 +1,9 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/02/20 11:01:18 $
- * $Revision: 1.10 $
+ * $Date: 2007/02/20 13:27:16 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
- * \author F. Cossutti
  *
 */
 

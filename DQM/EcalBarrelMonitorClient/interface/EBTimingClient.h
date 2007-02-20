@@ -4,10 +4,9 @@
 /*
  * \file EBTimingClient.h
  *
- * $Date: 2007/02/01 15:25:24 $
- * $Revision: 1.24 $
+ * $Date: 2007/02/17 13:57:45 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
- * \author F. Cossutti
  *
 */
 
