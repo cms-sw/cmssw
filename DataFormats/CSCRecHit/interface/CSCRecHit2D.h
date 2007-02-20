@@ -12,6 +12,7 @@
 #include <DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <vector>
+#include <map>
 #include <iosfwd>
 
 class CSCRecHit2D : public RecHit2DLocalPos {
@@ -19,13 +20,18 @@ class CSCRecHit2D : public RecHit2DLocalPos {
 public:
 
   typedef std::vector<int> ChannelContainer;
+  typedef std::map<int, std::vector<float> > ADCContainer;
 
   CSCRecHit2D();
   //  CSCRecHit2D( const DetId& id, const GeomDet* det, 
   CSCRecHit2D( const CSCDetId& id, 
                const LocalPoint& pos, const LocalError& err, 
 	       const ChannelContainer& channels,
-               float chi2, float prob );
+	       const ADCContainer& adcs,
+	       const ChannelContainer& wgroups,
+               const float tpeak, 
+               float chi2, 
+               float prob );
   ~CSCRecHit2D();
 
   /// RecHit2DLocalPos base class interface
@@ -35,7 +41,6 @@ public:
 
   /// TrackingRecHit base class interface
   DetId geographicalId() const { return theDetId; }
-
   CSCDetId cscDetId() const { return theDetId; }
 
   /// Probability from fit during rechit build
@@ -44,11 +49,24 @@ public:
   /// Chi-squared from fit during rechit build
   float chi2() const { return theChi2; }
 
+  /// Fitted peaking time
+  float tpeak() const { return theTpeak; }
 
   /// Container of strip channel numbers comprising the rechit
   const ChannelContainer& channels() const {
     return theChaCo;
   }
+
+  /// Map of strip ADCs for strips comprising the rechit
+  const ADCContainer& adcs() const {
+    return theADCs;
+  }
+
+  /// Container of wire groups comprising the rechit
+  const ChannelContainer& wgroups() const {
+    return theWireGroups;
+  }
+
 
   // To handle global values must use DetId to identify Det, hence Surface, which can transform from local
   // GlobalPoint globalPosition() const;
@@ -63,9 +81,11 @@ private:
   LocalPoint theLocalPosition;
   LocalError theLocalError;
   ChannelContainer theChaCo;
+  ADCContainer theADCs;
+  ChannelContainer theWireGroups;
+  float theTpeak;
   float theChi2;
   float theProb;
-
 };
 
 /// Output operator for CSCRecHit2D
