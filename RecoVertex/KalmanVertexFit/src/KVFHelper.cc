@@ -5,7 +5,7 @@ double KVFHelper::vertexChi2(const CachingVertex vertexA,
 	const CachingVertex vertexB) const
 {
   return vertexChi2(vertexA.vertexState(), vertexB.vertexState());
-};
+}
 
 
 double KVFHelper::vertexChi2(const VertexState vertexA,
