@@ -145,7 +145,8 @@ void SiStripApvGainCalculator::beginJob(const edm::EventSetup& iSetup)
    //
    std::ostringstream oshistoid; TString histoid;
    oshistoid.str(""); oshistoid << "APVPairCorrections";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
-   oshistoid.str(""); oshistoid << "APVPairCorrectionsTIB1";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
+   oshistoid.str(""); oshistoid << "APVPairCorrectionsTIB1mono";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
+   oshistoid.str(""); oshistoid << "APVPairCorrectionsTIB1stereo";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
    oshistoid.str(""); oshistoid << "APVPairCorrectionsTIB2";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
    oshistoid.str(""); oshistoid << "APVPairCorrectionsTOB1";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
    oshistoid.str(""); oshistoid << "APVPairCorrectionsTOB2";        histoid=oshistoid.str(); HlistOtherHistos->Add(new TH1F(histoid,histoid,50,-1.,4.));
@@ -225,7 +226,7 @@ SiStripApvGainCalculator::endJob() {
   TH1F * ModuleWidth = new TH1F("ModuleWidth","ModuleWidth",5,0.5,5.5); HlistOtherHistos->Add(ModuleWidth);
   ModuleWidth->GetXaxis()->SetBinLabel(1,"6.144cm"); ModuleWidth->GetXaxis()->SetBinLabel(2,"7.14cm");
   ModuleWidth->GetXaxis()->SetBinLabel(3,"9.3696cm"); ModuleWidth->GetXaxis()->SetBinLabel(4,"10.49cm");
-  ModuleWidth->GetXaxis()->SetBinLabel(5,"12.03");
+  ModuleWidth->GetXaxis()->SetBinLabel(5,"12.03cm");
   ModuleWidth->SetYTitle("Nr APVPairs");
   // loop over single histograms and extract peak value of charge
   HlistAPVPairs->Sort(); // sort alfabetically
@@ -299,8 +300,11 @@ TH1F *CorrectionOfEachAPVPairControlView = new TH1F("CorrectionOfEachAPVPairCont
   	    generalized_layer += ptob.layer();
   	  }
         }
-       if(generalized_layer==31 || generalized_layer==32){
-         ((TH1F*) HlistOtherHistos->FindObject("APVPairCorrectionsTIB1"))->Fill(local_correction);
+       if(generalized_layer==31){
+         ((TH1F*) HlistOtherHistos->FindObject("APVPairCorrectionsTIB1mono"))->Fill(local_correction);
+       }
+       if(generalized_layer==32){
+         ((TH1F*) HlistOtherHistos->FindObject("APVPairCorrectionsTIB1stereo"))->Fill(local_correction);
        }
        if(generalized_layer==33){
         ((TH1F*) HlistOtherHistos->FindObject("APVPairCorrectionsTIB2"))->Fill(local_correction);
