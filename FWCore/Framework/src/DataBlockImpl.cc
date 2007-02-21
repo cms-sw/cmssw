@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: DataBlockImpl.cc,v 1.18 2007/02/17 23:30:46 wmtan Exp $
+  $Id: DataBlockImpl.cc,v 1.19 2007/02/21 16:23:11 paterno Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -7,7 +7,8 @@
 #include <sstream>
 #include <stdexcept>
 
-#include "boost/bind.hpp"
+#include "boost/lambda/lambda.hpp"
+#include "boost/lambda/bind.hpp"
 
 #include "Reflex/Type.h"
 #include "Reflex/Base.h" // (needed for Type::HasBase to work correctly)
@@ -17,9 +18,11 @@
 #include "FWCore/Framework/interface/DataBlockImpl.h"
 #include "DataFormats/Common/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/for_all.h"
 
 using namespace std;
 using ROOT::Reflex::Type;
+using boost::lambda::_1;
 
 namespace edm {
 
@@ -149,7 +152,7 @@ namespace edm {
   DataBlockImpl::put(auto_ptr<EDProduct> edp,
 		     auto_ptr<Provenance> prov) {
 
-    if (prov->productID() == ProductID()) {
+    if (! prov->productID().isValid()) {
       throw edm::Exception(edm::errors::InsertFailure,"Null Product ID")
 	<< "put: Cannot put product with null Product ID."
 	<< "\n";
@@ -276,7 +279,7 @@ namespace edm {
     if (found_count == 0) {
       throw edm::Exception(edm::errors::ProductNotFound,"TooFewProducts")
 	<< "getBySelector: too few products found (zero) for\n"
-	  << productType<<"\n";
+	<< productType<<"\n";
     }
 
     return result;
@@ -517,60 +520,55 @@ namespace edm {
     
     // Shortcut -- we only have to continue if there is something that
     // might match.
-    if (!matches.empty()) {
+    if (matches.empty())
+      throw edm::Exception(errors::ProductNotFound,"NoMatch")
+	<< "DataBlockImpl::getMatchingSequence could not find "
+	<< "any product\nwith module label '" 
+	<< moduleLabel
+	<< "'\nand product instance name '" 
+	<< productInstanceName
+	<< "'\n";
+
+    // We have found some products which have the correct labeling --
+    // now we have to check for something with the right type.
       
-      // Loop through all processes, in backwards time order.
-      ProcessHistory::const_reverse_iterator iproc = processHistory().rbegin();
-      ProcessHistory::const_reverse_iterator eproc = processHistory().rend();
-      while (iproc != eproc) {
-	MatchingGroupLookup::iterator candidatesForProcess = 
-	  matches.find(iproc->processName());
-
-	if (candidatesForProcess != matches.end()) {
-	  // We have found one or more groups for this process...
-	  MatchingGroups& candidateGroups = candidatesForProcess->second;
-	  assert(!candidateGroups.empty());
-
-
-	  // Resolve all candidates -- we can't look at the dynamic
-	  // types until we have the product instances in memory.
- 	  for (MatchingGroups::iterator
- 		 i = candidateGroups.begin(),
- 		 e = candidateGroups.end();
- 	       i != e;
- 	       ++i)
- 	    {
- 	      this->resolve_(**i);
- 	    }
-
-	  NeitherSameNorDerivedType removalPredicate(wantedElementType);
-	  candidateGroups.remove_if(removalPredicate);
-	  
-	  if (candidateGroups.size() == 1) {
-	    // We've found what we're looking for, and it is unique.
-	    // We can return the result.
-	    BasicHandle result(candidateGroups.front()->product(),
-			       &(candidateGroups.front()->provenance()));
-	    assert (result.isValid());
-	    return result;
-	  } else if (candidateGroups.size() > 1) {
-	    // We've found more than one match; this is an exceptional
-	    // condition.
-	    throw Exception(errors::ProductNotFound, "TooManyMatches")
-	      << "DataBlockImpl::getMatchingSequence has found "
-	      << candidateGroups.size()
-	      << " matches for\n"
-	      << "  module label: " << moduleLabel
-	      << "  productInstanceName: " << productInstanceName
-	      << "  processName: " << iproc->processName()
-	      << "  value type: " << wantedElementType.name()
-	      << '\n';
-	  }
-	  // If we're here, no candidate group survived the removal
-	  // predicate. Go to the previous process and try again.
+    // Loop through all processes, in backwards time order.
+    ProcessHistory::const_reverse_iterator iproc = processHistory().rbegin();
+    ProcessHistory::const_reverse_iterator eproc = processHistory().rend();
+    while (iproc != eproc) {
+      MatchingGroupLookup::iterator candidatesForProcess = 
+	matches.find(iproc->processName());
+      
+      if (candidatesForProcess != matches.end()) {
+	// We have found one or more groups for this process...
+	MatchingGroups& candidates = candidatesForProcess->second;
+	assert(!candidates.empty());
+	
+	
+	// Resolve all candidates -- we can't look at the dynamic
+	// types until we have the product instances in memory.
+	for_all(candidates, bind(&DataBlockImpl::resolve_, this, *_1, true));
+		
+	NeitherSameNorDerivedType removalPredicate(wantedElementType);
+	candidates.remove_if(removalPredicate);
+	
+	if (candidates.size() == 1) {
+	  return candidates.front()->makeBasicHandle();
+	} else if (candidates.size() > 1) {
+	  throw Exception(errors::ProductNotFound, "TooManyMatches")
+	    << "DataBlockImpl::getMatchingSequence has found "
+	    << candidates.size()
+	    << " matches for\n"
+	    << "  module label: " << moduleLabel
+	    << "  productInstanceName: " << productInstanceName
+	    << "  processName: " << iproc->processName()
+	    << "  value type: " << wantedElementType.name()
+	    << '\n';
 	}
-	++iproc;
+	// If we're here, no candidate group survived the removal
+	// predicate. Go to the previous process and try again.
       }
+      ++iproc;
     }
     // If we never find a match, throw an exception.
     throw edm::Exception(errors::ProductNotFound,"NoMatch")
