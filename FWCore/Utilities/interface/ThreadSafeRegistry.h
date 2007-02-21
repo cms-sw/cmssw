@@ -5,7 +5,7 @@
 #include "boost/thread.hpp"
 
 // ----------------------------------------------------------------------
-// $Id: ThreadSafeRegistry.h,v 1.3 2006/09/06 19:16:30 paterno Exp $
+// $Id: ThreadSafeRegistry.h,v 1.4 2006/09/06 19:27:36 paterno Exp $
 
 /// A ThreadSafeRegistry is used to keep track of the instances of
 /// some type 'mapped_typed'.  These objects are each associated with
@@ -61,6 +61,12 @@ namespace edm
       /// mapped_type object was already present.
 
       bool insertMapped(mapped_type const& v);
+
+      /// Return true if there are no contained mapped_type objects.
+      bool empty() const;
+
+      /// Return true if there are any contained mapped_type objects.
+      bool notEmpty() const;
 
       /// Return the number of contained mapped_type objects.
       size_type size() const;
@@ -173,6 +179,23 @@ namespace edm
     }
 
     template <class KEY, class T, class E>
+    inline
+    bool
+    ThreadSafeRegistry<KEY,T,E>::empty() const
+    {
+      return data_.empty();
+    }
+    
+    template <class KEY, class T, class E>
+    inline
+    bool
+    ThreadSafeRegistry<KEY,T,E>::notEmpty() const
+    {
+      return !empty();
+    }
+
+    template <class KEY, class T, class E>
+    inline
     typename ThreadSafeRegistry<KEY,T,E>::size_type
     ThreadSafeRegistry<KEY,T,E>::size() const
     {
@@ -180,6 +203,7 @@ namespace edm
     }
 
     template <class KEY, class T, class E>
+    inline
     typename ThreadSafeRegistry<KEY,T,E>::const_iterator
     ThreadSafeRegistry<KEY,T,E>::begin() const
     {
@@ -187,6 +211,7 @@ namespace edm
     }
 
     template <class KEY, class T, class E>
+    inline
     typename ThreadSafeRegistry<KEY,T,E>::const_iterator
     ThreadSafeRegistry<KEY,T,E>::end() const
     {
@@ -205,6 +230,7 @@ namespace edm
     }
 
     template <class KEY, class T, class E>
+    inline
     typename ThreadSafeRegistry<KEY,T,E>::collection_type&
     ThreadSafeRegistry<KEY,T,E>::data()
     {
@@ -212,6 +238,7 @@ namespace edm
     }
 
     template <class KEY, class T, class E>
+    inline
     typename ThreadSafeRegistry<KEY,T,E>::extra_type&
     ThreadSafeRegistry<KEY,T,E>::extra()
     {
@@ -219,6 +246,7 @@ namespace edm
     }
 
     template <class KEY, class T, class E>
+    inline
     typename ThreadSafeRegistry<KEY,T,E>::extra_type const&
     ThreadSafeRegistry<KEY,T,E>::extra() const
     {
@@ -226,6 +254,7 @@ namespace edm
     }
 
     template <class KEY, class T, class E>
+    inline
     typename ThreadSafeRegistry<KEY,T,E>::collection_type const&
     ThreadSafeRegistry<KEY,T,E>::data() const
     {
