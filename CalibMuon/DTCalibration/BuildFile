@@ -1,20 +1,19 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/DTDigi>
-<use name=CondFormats/DTObjects>
-<use name=RecoLocalMuon/DTRecHit>
-<use name=CondCore/DBOutputService>
 <use name=DataFormats/DTRecHit>
+<use name=Geometry/DTGeometry>
+<use name=Geometry/Records>
+<use name=CondFormats/DTObjects>
+<use name=CondFormats/DataRecord>
+<use name=CondCore/DBOutputService>
+<use name=CalibMuon/DTDigiSync>
 <use name=root>
 
 <flags SEAL_PLUGIN_NAME="CalibMuonDTCalibration"> 
 
 <export>
  <lib name=CalibMuonDTCalibration>
- <use name=FWCore/Framework>
- <use name=DataFormats/DTDigi>
- <use name=CondFormats/DTObjects>
- <use name=RecoLocalMuon/DTRecHit>
+ <use name=FWCore/ServiceRegistry>
  <use name=CondCore/DBOutputService>
- <use name=DataFormats/DTRecHit>
  <use name=root>
 </export>
