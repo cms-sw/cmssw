@@ -238,7 +238,11 @@ class Process(object):
                 newSeq.setLabel(name)
                 #now put in proper bucket
                 newSeq._place(name,self)
-                
+    def include(self,filename):
+        """include the content of a configuration language file into the process
+             this is identical to calling process.extend(include('filename'))
+        """
+        self.extend(include(filename))
     def _dumpConfigNamedList(self,items,typeName,indent):
         returnValue = ''
         for name,item in items:
