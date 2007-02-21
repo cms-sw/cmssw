@@ -35,7 +35,7 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
   std::ostringstream loggerOutput_;
   for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
     loggerOutput_ << fedUnpackList_[i] << " ";
-  edm::LogInfo("ECAL") << "EcalRawToDigi will unpack FEDs ( " << loggerOutput_.str() << ")";
+  edm::LogInfo("EcalRawToDigi") << "EcalRawToDigi will unpack FEDs ( " << loggerOutput_.str() << ")";
     
   //formatter = new EcalTBDaqFormatter();
  
