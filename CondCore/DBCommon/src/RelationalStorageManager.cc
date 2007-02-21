@@ -10,17 +10,17 @@
 #include "RelationalAccess/ITransaction.h"
 #include "CoralBase/Exception.h"
 #include <vector>
-cond::RelationalStorageManager::RelationalStorageManager(const std::string& con):m_con(con),m_proxy(0),m_started(false),m_sessionHandle(new cond::DBSession(false)),m_sessionShared(false){}
-cond::RelationalStorageManager::RelationalStorageManager(const std::string& con, cond::DBSession* session ):m_con(con),m_proxy(0),m_started(false),m_sessionHandle(session),m_sessionShared(true){}
+cond::RelationalStorageManager::RelationalStorageManager(const std::string& con):m_con(con),m_proxy(0),m_started(false),m_sessionHandle(new cond::DBSession(false)){}
+cond::RelationalStorageManager::RelationalStorageManager(const std::string& con, cond::DBSession* session ):m_con(con),m_proxy(0),m_started(false),m_sessionHandle(session){}
 cond::RelationalStorageManager::~RelationalStorageManager(){
-  if(!m_sessionShared) delete m_sessionHandle;
+  delete m_sessionHandle;
 }
 cond::DBSession& cond::RelationalStorageManager::session(){
   return *m_sessionHandle;
 }
-bool cond::RelationalStorageManager::isSessionShared() const{
-  return m_sessionShared;
-} 
+//bool cond::RelationalStorageManager::isSessionShared() const{
+//  return m_sessionShared;
+//} 
 coral::ISessionProxy* cond::RelationalStorageManager::connect(cond::ConnectMode mod){
   if(!m_started) init();
   if(mod==cond::ReadOnly){
