@@ -27,8 +27,12 @@ class StripCPE : public StripClusterParameterEstimator
  protected:  
   const TrackerGeometry * geom_;
   const MagneticField * magfield_ ;
-  float theTanLorentzAnglePerTesla_;
-  bool useMagneticField_;
+  double appliedVoltage_;
+  double chargeMobility_;
+  double temperature_;
+  double rhall_;
+  double holeBeta_;
+  double holeSaturationVelocity_;
 };
 
 #endif

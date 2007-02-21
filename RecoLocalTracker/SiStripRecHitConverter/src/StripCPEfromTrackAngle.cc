@@ -25,7 +25,7 @@ StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::localParamet
   position = topol.localPosition(cl.barycenter());
   
   
-  if(useMagneticField_) drift= driftDirection(stripdet);
+  drift= driftDirection(stripdet);
   float thickness=stripdet->surface().bounds().thickness();
 
   //  drift*=(thickness/2);
