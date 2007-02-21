@@ -141,6 +141,8 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   for (size_t t = 0; t < jets->size(); t++)
     {
       const std::vector<CaloTowerRef>  myTowers=(*jets)[t].getConstituents();
+      //      cout <<"Jet id "<<t<<endl;
+      //      cout <<"Tower size "<<myTowers.size()<<endl;
       for(int iTower = 0; iTower < myTowers.size();iTower++)
 	{
 	  CaloTowerRef theTower = myTowers[iTower];
@@ -166,7 +168,7 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 		  double theta = posi.theta();
 		  if(theta > 3.14159) theta = 2*3.14159 - theta;
 		  double et = energy * sin(theta);
-		  //		  cout <<"Et "<<et<<endl;
+		  //		    cout <<"Et "<<et<<endl;
 		  EMLorentzVector p(et, eta, phi, energy);
 		  myLorentzRecHits->push_back(p);
 		}
@@ -186,7 +188,7 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 		  double theta = posi.theta();
 		  if(theta > 3.14159) theta = 2*3.14159 - theta;
 		  double et = energy * sin(theta);
-		  //		  cout <<"Et "<<et<<endl;
+		  //		  		  cout <<"Et "<<et<<endl;
 		  EMLorentzVector p(et, eta, phi, energy);
 		  myLorentzRecHits->push_back(p);
 		}
