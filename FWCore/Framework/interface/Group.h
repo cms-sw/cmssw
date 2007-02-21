@@ -6,7 +6,7 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.18 2007/02/14 21:17:07 paterno Exp $
+$Id: Group.h,v 1.1 2007/02/17 23:27:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,6 +14,7 @@ $Id: Group.h,v 1.18 2007/02/14 21:17:07 paterno Exp $
 
 #include "Reflex/Type.h"
 
+#include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Provenance.h"
 
@@ -82,6 +83,10 @@ namespace edm {
     // either the same as the given type, or has the given type as a
     // public base type.
     bool isMatchingSequence(ROOT::Reflex::Type const& wanted) const;
+
+
+    // Return a BasicHandle to this Group.
+    BasicHandle makeBasicHandle() const;
 
   private:
     Group(const Group&);

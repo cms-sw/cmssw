@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.18 2007/02/17 23:31:10 wmtan Exp $
+$Id: Group.cc,v 1.19 2007/02/21 16:23:11 paterno Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "FWCore/Framework/interface/Group.h"
@@ -95,6 +95,12 @@ namespace edm
       ? (elementType==wantedElementType || 
 	 elementType.HasBase(wantedElementType))
       : false;      
+  }
+
+  BasicHandle
+  Group::makeBasicHandle() const
+  {
+    return BasicHandle(product_, provenance_);
   }
 
   void
