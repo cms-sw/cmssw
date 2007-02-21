@@ -68,6 +68,7 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
   
   float etLinear = ecalLinear + hcalLinear;
   unsigned long HE_FGBit = (calcHEBit(ecalLinear,hcalLinear) || fgbit);
+  if(ecal == 0xFF) HE_FGBit = 0; // For saturated towers ignore H/E & FG veto
   unsigned long etIn7Bits = convertToInteger(ecalLinear, eGammaLSB_, 7);
   unsigned long etIn9Bits = convertToInteger(etLinear, jetMETLSB_, 9);
   unsigned long activityBit = calcActivityBit(ecalLinear, hcalLinear);
