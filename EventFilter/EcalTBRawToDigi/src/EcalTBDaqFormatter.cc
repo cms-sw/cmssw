@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/02/21 13:34:54 $
- *  $Revision: 1.36 $
+ *  $Date: 2007/02/21 13:46:48 $
+ *  $Revision: 1.37 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -101,7 +101,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     // getting the fields of the DCC header
     EcalDCCHeaderBlock theDCCheader;
     theDCCheader.setId((*itEventBlock)->getDataField("FED/DCC ID"));      // at the moment used as fed id
-    int SMid(1);                                                                                                  // here forcing slot=1, as always in test beam
+    // int SMid(1);                                                                                                  // here forcing slot=1, as always in test beam
     // theDCCheader.setiEB(SMid);                                                                  //  iEB is physical slot in CMS ECAL barrael (1.. 36)
     theDCCheader.setRunNumber((*itEventBlock)->getDataField("RUN NUMBER"));
     short trigger_type = (*itEventBlock)->getDataField("TRIGGER TYPE");
@@ -427,7 +427,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    
 	    if (! gainIsOk) {
 	      
-	      LogWarning("EcalTBRawToDigiGain0") << "@SUB=EcalTBDaqFormatter::interpretRawData"
+	      LogWarning("EcalTBRawToDigiGainZero") << "@SUB=EcalTBDaqFormatter::interpretRawData"
 					    << " gain==0 for strip: "  << expStripInTower
 					    << "\t channel: " << expCryInStrip
 					    << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
@@ -734,7 +734,7 @@ void EcalTBDaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeDig
 	    EcalElectronicsId id(1, tower_id, strip*5 + channel + 1);
 	    memgaincollection.push_back(id);
 	    
-	    LogWarning("EcalTBRawToDigiGain0")  << "@SUB=EcalTBDaqFormatter:decodeMem"
+	    LogWarning("EcalTBRawToDigiGainZero")  << "@SUB=EcalTBDaqFormatter:decodeMem"
 					   << "in mem " <<  towerblock->towerID()
 					   << " :\t strip: "
 					   << (strip +1)  << " cry: " << (channel+1) 
