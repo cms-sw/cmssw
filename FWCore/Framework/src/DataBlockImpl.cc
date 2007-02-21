@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: DataBlockImpl.cc,v 1.17 2007/02/16 22:43:48 paterno Exp $
+  $Id: DataBlockImpl.cc,v 1.18 2007/02/17 23:30:46 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -45,8 +45,9 @@ namespace edm {
     unscheduled_(false)
   {
     if (processHistoryID_ != ProcessHistoryID()) {
-      assert(ProcessHistoryRegistry::instance()->size());
-      bool found = ProcessHistoryRegistry::instance()->getMapped(processHistoryID_, *processHistoryPtr_);
+      ProcessHistoryRegistry& history(*ProcessHistoryRegistry::instance());
+      assert(history.notEmpty());
+      bool found = history.getMapped(processHistoryID_, *processHistoryPtr_);
       assert(found);
     }
     groups_.reserve(reg.productList().size());
@@ -572,12 +573,11 @@ namespace edm {
       }
     }
     // If we never find a match, throw an exception.
-    //             TODO: Implement this function.
     throw edm::Exception(errors::ProductNotFound,"NoMatch")
       << "DataBlockImpl::getMatchingSequence could not find "
-      << "any product with module label '" 
+      << "any product\nwith module label '" 
       << moduleLabel
-      << "' and product instance name '" 
+      << "'\nand product instance name '" 
       << productInstanceName
       << "'\n";
 

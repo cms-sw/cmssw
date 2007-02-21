@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.17 2007/02/16 22:43:48 paterno Exp $
+$Id: Group.cc,v 1.18 2007/02/17 23:31:10 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "FWCore/Framework/interface/Group.h"
@@ -82,20 +82,13 @@ namespace edm
   {
     Type value_type;
     bool is_sequence = is_sequence_wrapper(productType(), value_type);
-
-
+        
     // If our product is not a sequence, we can't match...
     if (!is_sequence) return false;
 
     Type elementType = value_type; // this is not true for RefVector...
 
     TypeTemplate valueTypeTemplate = value_type.TemplateFamily();
-
-    // debugging start
-    std::cerr << "Group::isMatchingSequence\n"
-	      << "  value_type is: " << value_type << '\n'
-	      << "  valueTypeTemplate is: " << valueTypeTemplate << '\n';
-    // debugging end
 
     return 
       is_sequence 
