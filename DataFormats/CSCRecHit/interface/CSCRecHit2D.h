@@ -8,7 +8,7 @@
  * \author Tim Cox
  *
  */
-
+#include "DataFormats/Common/interface/RangeMap.h"
 #include <DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <vector>
@@ -20,7 +20,7 @@ class CSCRecHit2D : public RecHit2DLocalPos {
 public:
 
   typedef std::vector<int> ChannelContainer;
-  typedef std::map<int, std::vector<float> > ADCContainer;
+  typedef edm::RangeMap<int, std::vector<float> > ADCContainer;
 
   CSCRecHit2D();
   //  CSCRecHit2D( const DetId& id, const GeomDet* det, 
