@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/03 15:06:12 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/01/24 15:46:53 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -12,9 +12,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-using namespace std;
-using namespace edm;
-
 #include <iostream>
 #include <fstream>
 
@@ -22,7 +19,8 @@ using namespace edm;
 #include <algorithm>
 #include <iterator>
 
-
+using namespace std;
+using namespace edm;
 
 DTCalibrationMap::DTCalibrationMap(const ParameterSet& pset) {
   nFields =  pset.getUntrackedParameter<int>("nFields", 4);
