@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/02/20 13:27:16 $
- * $Revision: 1.78 $
+ * $Date: 2007/02/20 15:42:18 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -28,6 +28,18 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+
+#include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -58,11 +70,8 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-  }
+  meIntegrity_      = 0;
+  mePedestalOnline_ = 0;
 
 }
 
@@ -78,6 +87,10 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
 
   ievt_ = 0;
   jevt_ = 0;
+
+  if ( enableQT_ ) {
+
+  }
 
 }
 
@@ -117,27 +130,29 @@ void EBSummaryClient::setup(void) {
 
   Char_t histo[200];
 
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+  mui_->setCurrentFolder( "EcalBarrel/EBSummaryClient" );
+  DaqMonitorBEInterface* bei = mui_->getBEInterface();
 
-    int ism = superModules_[i];
+  if ( meIntegrity_ ) bei->removeElement( meIntegrity_->getName() );
+  sprintf(histo, "EBIT integrity quality summary");
+  meIntegrity_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
-  }
+  if ( mePedestalOnline_ ) bei->removeElement( mePedestalOnline_->getName() );
+  sprintf(histo, "EBPOT pedestal quality summary G12");
+  mePedestalOnline_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
 }
 
 void EBSummaryClient::cleanup(void) {
 
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+  mui_->setCurrentFolder( "EcalBarrel/EBSummaryClient" );
+  DaqMonitorBEInterface* bei = mui_->getBEInterface();
 
-    int ism = superModules_[i];
+  if ( meIntegrity_ ) bei->removeElement( meIntegrity_->getName() );
+  meIntegrity_ = 0;
 
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-  }
+  if ( mePedestalOnline_ ) bei->removeElement( mePedestalOnline_->getName() );
+  mePedestalOnline_ = 0;
 
 }
 
@@ -177,6 +192,99 @@ void EBSummaryClient::analyze(void){
     if ( verbose_ ) cout << "EBSummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
+  for ( int iex = 1; iex <= 170; iex++ ) {
+    for ( int ipx = 1; ipx <= 360; ipx++ ) {
+
+      meIntegrity_->setBinContent( ipx, iex, -1. );
+      mePedestalOnline_->setBinContent( ipx, iex, -1. );
+
+    }
+  }
+
+  MonitorElement* me;
+
+  for ( unsigned int i=0; i<clients_.size(); i++ ) {
+
+    EBIntegrityClient* ebit = dynamic_cast<EBIntegrityClient*>(clients_[i]);
+    if ( ebit ) {
+
+      for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+        int ism = superModules_[i];
+
+        me = ebit->meg01_[ism-1];
+
+        if ( me ) {
+
+          for ( int ie = 1; ie <= 85; ie++ ) {
+            for ( int ip = 1; ip <= 20; ip++ ) {
+
+              float xval = me->getBinContent( ie, ip );
+
+              int iex = 0;
+              int ipx = 0;
+
+              if ( ism >= 1 && ism <= 18 ) {
+                iex = 85+ie;
+                ipx = (20-ip)+20*(ism-1);
+              }
+              if ( ism >=19 && ism <= 36 ) {
+                iex = -ie;
+                ipx = ip+20*(ism-1);
+              }
+
+              meIntegrity_->setBinContent( ipx, iex, xval );
+
+            }
+          }
+
+        }
+
+      }
+
+    }
+
+    EBPedestalOnlineClient* ebpo = dynamic_cast<EBPedestalOnlineClient*>(clients_[i]);
+    if ( ebpo ) {
+
+      for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+        int ism = superModules_[i];
+
+        me = ebpo->meg03_[ism-1];
+
+        if ( me ) {
+
+          for ( int ie = 1; ie <= 85; ie++ ) {
+            for ( int ip = 1; ip <= 20; ip++ ) {
+
+              float xval = me->getBinContent( ie, ip );
+
+              int iex = 0;
+              int ipx = 0;
+
+              if ( ism >= 1 && ism <= 18 ) {
+                iex = 85+ie;
+                ipx = (20-ip)+20*(ism-1);
+              }
+              if ( ism >=19 && ism <= 36 ) {
+                iex = -ie;
+                ipx = ip+20*(ism-1);
+              }
+
+              mePedestalOnline_->setBinContent( ipx, iex, xval );
+
+            }
+          }
+
+        }
+
+      }
+
+    }
+
+  }
+
 }
 
 void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
@@ -209,50 +317,112 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
   htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
   htmlFile << "<br>" << endl;
-  htmlFile << "<table border=1>" << std::endl;
-  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
-	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
-  } 
-  htmlFile << std::endl << "</table>" << std::endl;
 
   // Produce the plots to be shown as .png files from existing histograms
 
-  const int csize = 250;
+  const int csize = 400;
 
-  const double histMax = 1.e15;
+//  const double histMax = 1.e15;
 
   int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
 
-  TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
-  for ( int i = 0; i < 68; i++ ) {
-    int a = 2 + ( i/4 ) * 5;
-    int b = 2 + ( i%4 ) * 5;
-    dummy.Fill( a, b, i+1 );
-  }
-  dummy.SetMarkerSize(2);
-  dummy.SetMinimum(0.1);
+  string imgNameMapI, imgNameMapPO, imgName, meName;
 
-  string imgNameQual, imgNameMean, imgNameRMS, imgName, meName;
-
-  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
-  TCanvas* cMean = new TCanvas("cMean", "Temp", csize, csize);
-  TCanvas* cRMS = new TCanvas("cRMS", "Temp", csize, csize);
+  TCanvas* cMap = new TCanvas("cMap", "Temp", 2*csize, csize);
 
   TH2F* obj2f;
-  TH1F* obj1f;
 
-  // Loop on barrel supermodules
+  imgNameMapI = "";
 
-  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
+  obj2f = 0;
+  obj2f = EBMUtilsClient::getHisto<TH2F*>( meIntegrity_ );
 
-    int ism = superModules_[i];
+  if ( obj2f ) {
+  
+    meName = obj2f->GetName();
+  
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapI = meName + ".png";
+    imgName = htmlDir + imgNameMapI;
+  
+    cMap->cd(); 
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2f->GetYaxis()->SetNdivisions(2);
+    cMap->SetGridx();  
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->Draw("col");
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
 
   }
 
-  delete cQual;
-  delete cMean;
-  delete cRMS;
+  imgNameMapPO = "";
+
+  obj2f = 0;
+  obj2f = EBMUtilsClient::getHisto<TH2F*>( mePedestalOnline_ );
+
+  if ( obj2f ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapPO = meName + ".png";
+    imgName = htmlDir + imgNameMapPO;
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2f->GetYaxis()->SetNdivisions(2);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->Draw("col");
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  if ( imgNameMapI.size() != 0 )
+    htmlFile << "<td><img src=\"" << imgNameMapI << "\"></td>" << endl;
+  else
+    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  if ( imgNameMapPO.size() != 0 )
+    htmlFile << "<td><img src=\"" << imgNameMapPO << "\"></td>" << endl;
+  else 
+    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+  delete cMap;
 
   // html page footer
   htmlFile << "</body> " << endl;

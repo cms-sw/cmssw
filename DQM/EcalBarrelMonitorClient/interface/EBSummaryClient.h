@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2007/02/01 15:25:24 $
- * $Revision: 1.24 $
+ * $Date: 2007/02/20 15:42:17 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -81,6 +81,9 @@ bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int 
  inline int getEvtPerJob() { return ievt_; }
  inline int getEvtPerRun() { return jevt_; }
 
+/// Set Clients
+  inline void setFriends(vector<EBClient*> clients) { clients_ = clients; }
+
 private:
 
 int ievt_;
@@ -98,7 +101,12 @@ string prefixME_;
 
 vector<int> superModules_;
 
+vector<EBClient*> clients_;
+
 MonitorUserInterface* mui_;
+
+MonitorElement* meIntegrity_;
+MonitorElement* mePedestalOnline_;
 
 };
 
