@@ -7,7 +7,12 @@ class SortedKeysDict(dict):
         self.list = list()
         if len(args) == 1:
             if not hasattr(args[0],'iterkeys'):
-                self.list= [ x[0] for x in iter(args[0])]
+                s = set()
+                #must protect against adding the same key multiple times
+                for x,y in iter(args[0]):
+                    if x not in s:
+                        self.list.append(x)
+                        s.add(x)
             else:
                 self.list = list(args[0].iterkeys())
             return
@@ -121,5 +126,6 @@ if __name__=="__main__":
             self.assertEqual(sd['a'],1)
             self.assertEqual(sd['b'],[3])
             self.assertRaises(AttributeError,operator.setitem,*(sd,'a',2))
-            
+            sd = SortedAndFixedKeysDict([('a',1), ('b',2),('a',3)])
+            self.assertEqual(['a','b'], [x for x in iter(sd)])
     unittest.main()
