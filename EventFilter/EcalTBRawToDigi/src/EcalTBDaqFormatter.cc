@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/02/05 19:00:28 $
- *  $Revision: 1.35 $
+ *  $Date: 2007/02/21 13:34:54 $
+ *  $Revision: 1.36 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -427,7 +427,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    
 	    if (! gainIsOk) {
 	      
-	      LogWarning("EcalTBRawToDigiGain") << "@SUB=EcalTBDaqFormatter::interpretRawData"
+	      LogWarning("EcalTBRawToDigiGain0") << "@SUB=EcalTBDaqFormatter::interpretRawData"
 					    << " gain==0 for strip: "  << expStripInTower
 					    << "\t channel: " << expCryInStrip
 					    << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
@@ -734,7 +734,7 @@ void EcalTBDaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeDig
 	    EcalElectronicsId id(1, tower_id, strip*5 + channel + 1);
 	    memgaincollection.push_back(id);
 	    
-	    LogWarning("EcalTBRawToDigiGain")  << "@SUB=EcalTBDaqFormatter:decodeMem"
+	    LogWarning("EcalTBRawToDigiGain0")  << "@SUB=EcalTBDaqFormatter:decodeMem"
 					   << "in mem " <<  towerblock->towerID()
 					   << " :\t strip: "
 					   << (strip +1)  << " cry: " << (channel+1) 
