@@ -1,31 +1,12 @@
 <use name=boost>
-<use name=DataFormats/CaloTowers>
-<use name=DataFormats/HcalRecHit>
-<use name=DataFormats/EcalDetId>
-<use name=DataFormats/DetId>
-<use name=DataFormats/RecoCandidate>
-<use name=DataFormats/JetReco>
-<use name=Geometry/CaloTopology>
-<use name=Geometry/CaloGeometry>
-<use name=Geometry/CaloEventSetup>
-<use name=DataFormats/TrackReco>
-<use name=DataFormats/EgammaReco>
-<use name=Geometry/TrackerGeometryBuilder>
-<use name=Geometry/Surface>
-<use name=Geometry/Records>
-<use name=MagneticField/Engine>
-<use name=MagneticField/VolumeBasedEngine>
-<use name=MagneticField/Records>
+<use name=JetMETCorrections/Objects>
+<use name=TrackingTools/TrackAssociator>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
-<use name=TrackingTools/TrackAssociator>
-<use name=TrackingTools/GeomPropagators>
-<use name=TrackPropagation/SteppingHelixPropagator>
-<use name=JetMETCorrections/Objects>
-<use name=clhep>
-<use name=root>
+<use name=DataFormats/VertexReco>
+<use name=TrackingTools/TrajectoryState>
 <export>
    <lib name=JetMETCorrectionsJetPlusTrack>
    <use name=JetMETCorrections/Objects>
+   <use name=TrackingTools/TrackAssociator>
 </export>
