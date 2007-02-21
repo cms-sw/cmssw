@@ -140,16 +140,11 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    //loop on jets and associate
   for (size_t t = 0; t < jets->size(); t++)
     {
-      const std::vector<CaloTowerDetId>&  detIDs=(*jets)[t].getTowerIndices();
-      int nConstituents= detIDs.size();
-      // access towers which belong to jet
-      for (int i = 0; i <nConstituents ; i++) {
-	//Find the tower from its CaloTowerDetID	
-	CaloTowerCollection::const_iterator theTower=caloTowers->find(detIDs[i]);
-	//	if(theTower != caloTowers->end()) continue;
-	int ietaTower = detIDs[i].ieta();
-	int iphiTower = detIDs[i].iphi();
-	size_t numRecHits = theTower->constituentsSize();
+      const std::vector<CaloTowerRef>  myTowers=(*jets)[t].getConstituents();
+      for(int iTower = 0; iTower < myTowers.size();iTower++)
+	{
+	  CaloTowerRef theTower = myTowers[iTower];
+	  size_t numRecHits = theTower->constituentsSize();
 	// access CaloRecHits
 	for(size_t j = 0; j <numRecHits ; j++) {
 	  DetId RecHitDetID=theTower->constituent(j);
