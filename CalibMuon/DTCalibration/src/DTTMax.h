@@ -5,8 +5,8 @@
  *  Class to calculate the different TMax values according to
  *  the track path
  *
- *  $Date: 2006/08/07 10:23:34 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/11/16 08:37:25 $
+ *  $Revision: 1.3 $
 
  *  \author Marina Giunta
  */
@@ -14,8 +14,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 #include <string>
 #include <vector>
