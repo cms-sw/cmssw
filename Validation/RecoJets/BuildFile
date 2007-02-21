@@ -1,3 +1,4 @@
+<flags SEAL_PLUGIN_NAME="ValidationRecoJets">
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
