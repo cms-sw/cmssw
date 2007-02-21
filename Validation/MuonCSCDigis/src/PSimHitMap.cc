@@ -12,6 +12,7 @@ PSimHitMap::PSimHitMap(const std::string & collectionName)
 
 void PSimHitMap::fill(const edm::Event & e)
 {
+  theMap.clear();
   edm::Handle<CrossingFrame> cf;
   e.getByType(cf);
   
