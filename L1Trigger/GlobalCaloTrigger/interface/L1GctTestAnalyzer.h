@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu May 18 16:45:23 CEST 2006
-// $Id: L1GctTestAnalyzer.h,v 1.2 2007/02/19 16:03:26 jbrooke Exp $
+// $Id: L1GctTestAnalyzer.h,v 1.3 2007/02/20 16:49:58 jbrooke Exp $
 //
 //
 
@@ -39,8 +39,9 @@ public:
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   
-  void doEM(const edm::Event&, std::string label);
+  void doRctEM(const edm::Event&, std::string label);
   void doInternEM(const edm::Event&, std::string label);
+  void doEM(const edm::Event&, std::string label);
   void doJets(const edm::Event&, std::string label);
   
 private:
@@ -51,6 +52,8 @@ private:
   std::string outFilename_;
   std::ofstream outFile_;
 
+  unsigned doRctEM_;
+  unsigned doInternEM_;
   unsigned doEM_;
   unsigned doJets_;
   

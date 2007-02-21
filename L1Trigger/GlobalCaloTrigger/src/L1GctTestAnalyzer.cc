@@ -12,6 +12,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 
@@ -28,7 +30,9 @@ L1GctTestAnalyzer::L1GctTestAnalyzer(const edm::ParameterSet& iConfig) :
   rawLabel_( iConfig.getUntrackedParameter<string>("rawLabel", "L1GctRawDigis") ),
   emuLabel_( iConfig.getUntrackedParameter<string>("emuLabel", "L1GctEmuDigis") ),
   outFilename_( iConfig.getUntrackedParameter<string>("outFile", "gctAnalyzer.txt") ),
-  doEM_( iConfig.getUntrackedParameter<unsigned>("doEM", 1) ),
+  doRctEM_( iConfig.getUntrackedParameter<unsigned>("doRctEm", 1) ),
+  doInternEM_( iConfig.getUntrackedParameter<unsigned>("doInternEm", 1) ),
+  doEM_( iConfig.getUntrackedParameter<unsigned>("doEm", 1) ),
   doJets_( iConfig.getUntrackedParameter<unsigned>("doJets", 0) )
 {
   //now do what ever initialization is needed
@@ -59,12 +63,17 @@ L1GctTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 {
    using namespace edm;
 
+   if (doRctEM_!=0) {
+     doRctEM(iEvent, rawLabel_);
+     //doRctEM(iEvent, emuLabel_);
+   }
+   if (doInternEM_!=0) {
+     doInternEM(iEvent, rawLabel_);
+     //doInternEM(iEvent, emuLabel_);
+   }
    if (doEM_!=0) {
      doEM(iEvent, rawLabel_);
      doEM(iEvent, emuLabel_);
-     outFile_ << endl << endl;
-     doInternEM(iEvent, rawLabel_);
-     //     doInternEM(iEvent, emuLabel_);
    }
 
    if (doJets_!=0) {
@@ -100,6 +109,26 @@ void L1GctTestAnalyzer::doEM(const edm::Event& iEvent, string label) {
   } 
   outFile_ << endl;
 
+}
+
+void L1GctTestAnalyzer::doRctEM(const edm::Event& iEvent, string label) {
+
+  using namespace edm;
+
+  Handle<L1CaloEmCollection> em;
+
+  L1CaloEmCollection::const_iterator e;
+ 
+  iEvent.getByLabel(label, "", em);
+
+  outFile_ << "From : " << label << endl;
+
+  outFile_ << "RCT EM :" << endl;
+  for (e=em->begin(); e!=em->end(); e++) {
+    outFile_ << (*e) << endl;
+  } 
+  outFile_ << endl;
+  
 }
 
 
