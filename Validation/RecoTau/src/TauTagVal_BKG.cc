@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TauTagVal_BKG.cc,v 1.5 2007/02/16 09:33:15 gennai Exp $
+// $Id: TauTagVal_BKG.cc,v 1.1 2007/02/21 09:48:16 gennai Exp $
 //
 //
 
@@ -191,12 +191,14 @@ void TauTagVal_BKG::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   TClonesArray* TauJets=new TClonesArray("TLorentzVector");
   TLorentzVector TauJetMC(0.0,0.0,0.0,0.0);
 
+  int jjj=0;
   GenJetCollection::const_iterator jetItr = genJets->begin();
   if(jetItr != genJets->end() )
     {
       math::XYZTLorentzVector p4 = jetItr->p4() ;
       TLorentzVector TauJetMC(p4.x(),p4.y(),p4.z(),p4.e());
-      new((*TauJets)[0])TLorentzVector(TauJetMC);
+      if(jjj<2) new((*TauJets)[jjj])TLorentzVector(TauJetMC);
+      jjj++;
     }
   
   for(int j=0;j<TauJets->GetEntriesFast();j++)
