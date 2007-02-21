@@ -53,7 +53,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
     IsolatedTauTagInfoCollection::const_iterator i = tauJets->begin();
     for(;i !=tauJets->end(); i++ ) {
       
-      JetTracksAssociationRef     jetTracks = i->jetRef()->jtaRef();
+      JetTracksAssociationRef     jetTracks = i->jtaRef();
       math::XYZVector jetDir(jetTracks->key->px(),jetTracks->key->py(),jetTracks->key->pz());   
       float discriminator = i->discriminator(jetDir, matching_cone, signal_cone, isolation_cone, pt_min_leadTrack, pt_min_isolation,  n_tracks_isolation_ring,dZ_vertex); 
       //      cout <<"Number of selected tracks "<<i->selectedTracks().size()<<endl;
@@ -85,7 +85,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	//Check leadingTrack_z_imp and PV list
 	if(deltaZLeadTrackVertex <dZ_vertex)
 	  {
-	    JetTracksAssociationRef     jetTracks = myIsolJet->jetRef()->jtaRef();
+	    JetTracksAssociationRef     jetTracks = myIsolJet->jtaRef();
 	    JetTag myTag(1.,jetTracks);
 	    taggedJets++;
 	    myCollection->push_back(myTag);
