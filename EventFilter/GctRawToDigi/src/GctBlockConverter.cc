@@ -114,24 +114,39 @@ void GctBlockConverter::blockToRctEmCand(const unsigned char * data, unsigned id
   
   uint16_t d[6]; // index = source card output * 2 + cycle
   
-  for (int i=0; i<blockLength(id)*nSamples; i=i+(nSamples*3)) {  // temporarily just take 0th time sample
-    unsigned offset = i*4*3*nSamples;  // 4 bytes per 32-bits, 3 SC outputs per RCT crate
-    unsigned crate =0;
-    if (id==0x81) { crate = i/3 + 4; }
-    if (id==0x89) { crate = i/3; }
+  unsigned first=0;
+  unsigned last=0;
+  if (id==0x81) { 
+    first = 4;
+    last = 8;
+  }
+  else if (id==0x89) { 
+    first = 0;
+    last = 3;
+  }
 
-    for (int j=0; j<7; j++) {
-      d[j] = data[offset+(j/2)] + (data[offset+(j/2)+1]<<8); 
-    }
+  // loop over crates
+  for (int crate=first; crate<=last; crate++) {
     
-    rctEm_->push_back( L1CaloEmCand( d[0] & 0x1ff, crate, true) );
-    rctEm_->push_back( L1CaloEmCand( ((d[0] & 0x3800)>>10) + ((d[2] & 0x7800)>>7) + ((d[4] & 0x3800)>>3), crate, true) );
-    rctEm_->push_back( L1CaloEmCand( d[1] & 0x1ff, crate, true) );
-    rctEm_->push_back( L1CaloEmCand( ((d[1] & 0x3800)>>10) + ((d[3] & 0x7800)>>7) + ((d[5] & 0x3800)>>3), crate, true) );
-    rctEm_->push_back( L1CaloEmCand( d[2] & 0x1ff, crate, true) );
-    rctEm_->push_back( L1CaloEmCand( d[4] & 0x1ff, crate, true) );
-    rctEm_->push_back( L1CaloEmCand( d[3] & 0x1ff, crate, true) );
-    rctEm_->push_back( L1CaloEmCand( d[5] & 0x1ff, crate, true) );
-  }  
+    unsigned offset = (crate-first)*12*nSamples; // just get 0th time sample for now
+    
+    // read 16 bit words
+    for (int j=0; j<6; j++) {
+      d[j] = data[offset+(2*nSamples*j)] + (data[offset+(2*nSamples*j)+1]<<8);
+      cout << std::hex << j << " " << d[j] << endl;
+    }
+
+    // create candidates and add to collections
+    rctEm_->push_back( L1CaloEmCand( d[0] & 0x3ff, crate, true) );
+    unsigned em = ((d[0] & 0x3800)>>10) + ((d[2] & 0x7800)>>7) + ((d[4] & 0x3800)>>3);
+    rctEm_->push_back( L1CaloEmCand(   em & 0x3ff, crate, true) );
+    rctEm_->push_back( L1CaloEmCand( d[1] & 0x3ff, crate, true) );
+    em = ((d[1] & 0x3800)>>10) + ((d[3] & 0x7800)>>7) + ((d[5] & 0x3800)>>3);
+    rctEm_->push_back( L1CaloEmCand(   em & 0x3ff, crate, true) );
+    rctEm_->push_back( L1CaloEmCand( d[2] & 0x3ff, crate, false) );
+    rctEm_->push_back( L1CaloEmCand( d[4] & 0x3ff, crate, false) );
+    rctEm_->push_back( L1CaloEmCand( d[3] & 0x3ff, crate, false) );
+    rctEm_->push_back( L1CaloEmCand( d[5] & 0x3ff, crate, false) );
+  }
 
 }
