@@ -35,13 +35,46 @@ const float etaLUT[] = {0.0000, 0.0435, 0.1305, 0.2175, 0.3045, 0.3915, 0.4785, 
 
 const float rctEtaLUT[] = {0.174, 0.522, 0.870, 1.218, 1.566, 1.930, 2.500, 3.325, 3.825, 4.325, 4.825};
 
+int crateNumber(float eta, float phi)
+{
+  float pi = 3.1415927;
+  float crate = ((-phi - pi / 2) / (2 * pi / 9)) + 4.5;
+  if(crate < 0) crate += 9;
+  int crtNo = (int) crate;
+  if(eta > 0) crtNo += 9;
+  return crtNo;
+}
+
+int cardNumber(float eta, float phi)
+{
+  float pi = 3.1415927;
+  float absEta = fabs(eta);
+  int crdNo;
+  if(absEta > 3)
+    crdNo = 999;
+  else if(absEta < 0.696)
+    crdNo = 0;
+  else if(absEta < 1.392)
+    crdNo = 2;
+  else if(absEta < 2.172)
+    crdNo = 4;
+  else
+    crdNo = 6;
+  if(crdNo < 6) 
+    {
+      int count = ((int) (((phi + pi) / (2 * pi / 9)))) % 2;
+      crdNo += count;
+    }
+  return crdNo;
+}
+
 checkRCT::checkRCT(const edm::ParameterSet& iConfig) : 
   outputFileName(iConfig.getParameter<std::string>("outputFileName"))
 {
   file = new TFile(outputFileName.c_str(), "RECREATE", "RCT Information");
   file->cd();
   nTuple = new TNtuple("RCTInfo", "RCT Information nTuple", 
-		       "iParticle:id:status:pt:eta:phi:towerEtSum:hcalTowerEtSum:regionEtSum:regionEta:regionPhi:regionTauVeto:regionMIPBit:regionQuietBit:emCandEt:emCandEta:emCandPhi:emCandIsolation");
+		       "iParticle:id:status:pt:eta:phi:crtNo:crdNo:towerEtSum:hcalTowerEtSum:regionEtSum:regionEta:regionPhi:regionTauVeto:regionMIPBit:regionQuietBit:regionCrt:regionCrd:regionRgn:emCandEt:emCandEta:emCandPhi:emCandIsolation:emCandCrt:emCandCrd:emCandRgn");
 }
 
 checkRCT::~checkRCT()
@@ -82,6 +115,8 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   float pt = 0;
   float phi = 0;
   float eta = 0;
+  int crtNo = -999;
+  int crdNo = -999;
   float towerEtSum = 0;
   float hcalTowerEtSum = 0.;
   float regionEtSum = 0;
@@ -90,10 +125,16 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool regionTauVeto = false;
   bool regionMIPBit = true;
   bool regionQuietBit = true;
+  unsigned regionCrt = 999;
+  unsigned regionCrd = 999;
+  unsigned regionRgn = 999;
   float emCandEt = 0;
   float emCandEta = 0;
   float emCandPhi = 0;
   bool emCandIsolation = false;
+  unsigned emCandCrt = 999;
+  unsigned emCandCrd = 999;
+  unsigned emCandRgn = 999;
   int iPart = 0;
   for(size_t i = 0; i < genParticles.size(); ++ i ) {
     const Candidate & p = genParticles[ i ];
@@ -106,6 +147,8 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	pt = p.pt();
 	eta = p.eta();
 	phi = p.phi();
+	crtNo = crateNumber(eta, phi);
+	crdNo = cardNumber(eta, phi);
 	towerEtSum = 0;
 	for (int i = 0; i < nEcalDigi; i++){
 	  unsigned short energy = ecalCollection[i].compressedEt();
@@ -114,13 +157,13 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  short ieta = (short) ecalCollection[i].id().ieta(); 
 	  unsigned short absIeta = (unsigned short) abs(ieta);
 	  float towerEta = (ieta / absIeta) * etaLUT[absIeta];
+	  float deltaEta = eta - towerEta;
 	  short cal_iphi = ecalCollection[i].id().iphi();
 	  float towerPhi = float(cal_iphi) * 3.1415927 / 36.;
 	  if(towerPhi > 3.1415927) towerPhi -= (2 * 3.1415927);
 	  float deltaPhi = phi - towerPhi;
 	  if(deltaPhi > (2 * 3.1415827)) deltaPhi -= (2 * 3.1415927);
-	  float deltaRSq = (eta - towerEta) * (eta - towerEta) + deltaPhi * deltaPhi;
-	  if(deltaRSq < 0.35 * 0.35)
+	  if(fabs(deltaEta)<0.35 && fabs(deltaPhi)<0.35)
 	    {
 	      towerEtSum += towerEt;
 	    }
@@ -132,13 +175,13 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  unsigned short absIeta = (unsigned short) abs(ieta);
 	  float towerEt = transcoder->hcaletValue(absIeta, energy);
 	  float towerEta = (ieta / absIeta) * etaLUT[absIeta];
+	  float deltaEta = eta - towerEta;
 	  short cal_iphi = hcalCollection[i].id().iphi();
 	  float towerPhi = float(cal_iphi) * 3.1415927 / 36.;
 	  if(towerPhi > 3.1415927) towerPhi -= (2 * 3.1415927);
 	  float deltaPhi = phi - towerPhi;
 	  if(deltaPhi > (2 * 3.1415827)) deltaPhi -= (2 * 3.1415927);
-	  float deltaRSq = (eta - towerEta) * (eta - towerEta) + deltaPhi * deltaPhi;
-	  if(deltaRSq < 0.35 * 0.35)
+	  if(fabs(deltaEta)<0.35 && fabs(deltaPhi)<0.35)
 	    {
 	      towerEtSum += towerEt;
 	      hcalTowerEtSum += towerEt;
@@ -155,12 +198,11 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  unsigned rctIPhi;
 	  if(rctCrate < 9) rctIPhi = rctCrate * 2 + region->rctPhi();
 	  else rctIPhi = (rctCrate - 9) * 2 + region->rctPhi();
-	  float regionPhi = (3.1415927 / 2.) - 2. * 0.87 - float(rctIPhi) * 2. * 3.1415927 / 18.;
+	  float regionPhi = 3.1415927 - 2. * 0.87 - float(rctIPhi) * 2. * 3.1415927 / 18.;
 	  if(regionPhi < -3.1415927) regionPhi += (2 * 3.1415927);
 	  float deltaPhi = phi - regionPhi;
 	  if(deltaPhi > (2 * 3.1415827)) deltaPhi -= (2 * 3.1415927);
-	  float deltaRSq = deltaEta * deltaEta + deltaPhi * deltaPhi;
-	  if(deltaRSq < 0.35 * 0.35) 
+	  if(fabs(deltaEta)<0.35 && fabs(deltaPhi)<0.35)
 	    {
 	      regionEtSum += float(regionEt)/2.;
 	      if(region->tauVeto()) regionTauVeto = true;
@@ -168,12 +210,19 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      if(!region->quiet()) regionQuietBit = false;
 	      regionEtaEtSum += regionEta * float(regionEt)/2.;
 	      regionPhiEtSum += regionPhi * float(regionEt)/2.;
+	      if(regionEt/(2. * regionEtSum) > 0.45)
+		{
+		  regionCrt = region->rctCrate();
+		  regionCrd = region->rctCard();
+		  regionRgn = region->rctRegionIndex();
+		}
 	    }
 	}
 	L1CaloEmCollection::const_iterator emCand;
 	for (emCand=rctEMCands->begin(); emCand!=rctEMCands->end(); emCand++){
 	  unsigned emCandRank = emCand->rank();
 	  unsigned rctCrate = emCand->rctCrate();
+	  unsigned rctCard = emCand->rctCard();
 	  float thisEMCandEta = 999.;
 	  if(rctCrate < 9) thisEMCandEta = -rctEtaLUT[emCand->regionId().rctEta()];
 	  else thisEMCandEta = rctEtaLUT[emCand->regionId().rctEta()];
@@ -186,13 +235,15 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  float deltaPhi = phi - thisEMCandPhi;
 	  if(deltaPhi > (2 * 3.1415827)) deltaPhi -= (2 * 3.1415927);
 	  if(deltaPhi < -(2 * 3.1415827)) deltaPhi += (2 * 3.1415927);
-	  float deltaRSq = deltaEta * deltaEta + deltaPhi * deltaPhi;
-	  if(deltaRSq < 0.35 * 0.35) 
+	  if(float(emCandRank) > emCandEt ) // crtNo == rctCrate && crdNo == rctCard)
 	    {
 	      emCandEt = float(emCandRank);
 	      emCandEta = thisEMCandEta;
 	      emCandPhi = thisEMCandPhi;
 	      if(emCand->isolated()) emCandIsolation = true;
+	      emCandCrt = emCand->rctCrate();
+	      emCandCrd = emCand->rctCard();
+	      emCandRgn = emCand->rctRegion();
 	    }
 	}
 	std::vector<float> result;
@@ -202,6 +253,8 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	result.push_back(pt);
 	result.push_back(eta);
 	result.push_back(phi);
+	result.push_back(crtNo);
+	result.push_back(crdNo);
 	result.push_back(towerEtSum);
 	result.push_back(hcalTowerEtSum);
 	result.push_back(regionEtSum);
@@ -210,10 +263,16 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	result.push_back(regionTauVeto);
 	result.push_back(regionMIPBit);
 	result.push_back(regionQuietBit);
+	result.push_back(regionCrt);
+	result.push_back(regionCrd);
+	result.push_back(regionRgn);
 	result.push_back(emCandEt);
 	result.push_back(emCandEta);
 	result.push_back(emCandPhi);
 	result.push_back(emCandIsolation);
+	result.push_back(emCandCrt);
+	result.push_back(emCandCrd);
+	result.push_back(emCandRgn);
 	nTuple->Fill(&result[0]);  // Assumes vector is implemented internally as an array
       }
   }
