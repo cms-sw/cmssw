@@ -74,19 +74,18 @@ bool FUShmReader::fillRawData(EventID& eID,
     assert(oldCell->isProcessing());
     oldCell->setStateProcessed();
     shmBuffer_->scheduleForDiscard(oldCell);
-    shmBuffer_->postWriterSem();
   }
 
   // wait for an event to become available, retrieve it
   shmBuffer_->waitReaderSem();
-  shmBuffer_->lock();
   FUShmBufferCell* newCell=shmBuffer_->currentReaderCell();
-  shmBuffer_->unlock();
   
   // if the event is 'empty', the reader is being told to shut down!
   if (newCell->isEmpty()) {
     edm::LogInfo("ShutDown")<<"Received empty event, shut down."<<endl;
     shmBuffer_->postWriterSem();
+    FUShmBuffer::shm_dettach((void*)shmBuffer_);
+    shmBuffer_=0;
     return false;
   }
   else assert(newCell->isWritten());
