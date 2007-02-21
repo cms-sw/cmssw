@@ -2,10 +2,9 @@
 #define Alignment_CommonAlignment_AlignableDet_h
 
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
+#include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 
 /// An AlignableComposite that has AlignableDetUnits as direct component.
-
-class AlignableDetUnit;
 
 class AlignableDet: public AlignableComposite 
 {

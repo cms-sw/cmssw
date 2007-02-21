@@ -1,11 +1,15 @@
 #ifndef Alignment_CommonAlignment_Alignable_H
 #define Alignment_CommonAlignment_Alignable_H
 
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "Geometry/Surface/interface/Surface.h"
 #include "Geometry/CommonDetUnit/interface/DetPositioner.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
 
 // Headers in the same package
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
 
@@ -17,13 +21,11 @@
  * The class derives from DetPositioner, a friend class of
  * GeomDet, which allows to move the GeomDet. 
  *
- *  $Date: 2007/02/16 16:55:36 $
- *  $Revision: 1.13 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2007/02/20 17:37:16 $
+ *  $Revision: 1.14 $
+ *  (last update by $Author: cklae $)
  */
 
-class Alignments;
-class AlignmentErrors;
 class AlignmentParameters;
 class DetId;
 class SurveyDet;
