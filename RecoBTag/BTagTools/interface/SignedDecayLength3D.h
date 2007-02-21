@@ -1,11 +1,10 @@
 #ifndef _SIGNEDDECAYLENGHT3D_H_
 #define _SIGNEDDECAYLENGHT3D_H_
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
 #include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include <utility>
 
 
