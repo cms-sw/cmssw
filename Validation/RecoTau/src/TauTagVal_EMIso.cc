@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TauTagVal_EMIso.cc,v 1.5 2007/02/16 09:33:15 gennai Exp $
+// $Id: TauTagVal_EMIso.cc,v 1.1 2007/02/21 09:48:16 gennai Exp $
 //
 //
 
@@ -112,10 +112,10 @@ DaqMonitorBEInterface* dbe = &*edm::Service<DaqMonitorBEInterface>();
   if(dbe) {
    
     dbe->setCurrentFolder("Efficiency"+jetTagSrc.label());
-    effVsRiso07=dbe->book1D("EffVsRisoRsig07_130Et150","EffVsRisoRsig07_130Et150",100,1.,14.);
-    effVsRiso107=dbe->book1D("EffVsRisoRsig07_80Et110","EffVsRisoRsig07_80Et110",100,1.,14.);
-    effVsRiso207=dbe->book1D("EffVsRisoRsig07_50Et70","EffVsRisoRsig07_50Et70",100,1.,14.);
-    effVsRiso307=dbe->book1D("EffVsRisoRsig07_30Et50","EffVsRisoRsig07_30Et50",100,1.,14.);    
+    effVsRiso07=dbe->book1D("EffVsRisoRsig07_130Et150","EffVsRisoRsig07_130Et150",50,0.,14.);
+    effVsRiso107=dbe->book1D("EffVsRisoRsig07_80Et110","EffVsRisoRsig07_80Et110",50,0.,14.);
+    effVsRiso207=dbe->book1D("EffVsRisoRsig07_50Et70","EffVsRisoRsig07_50Et70",50,0.,14.);
+    effVsRiso307=dbe->book1D("EffVsRisoRsig07_30Et50","EffVsRisoRsig07_30Et50",50,0.,14.);    
 }
 
     
@@ -200,8 +200,8 @@ void TauTagVal_EMIso::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     if(mtchdTauJet)
       {
 	
-	for(int ii=0;ii<100;ii++){
-	  double riso=1.0+ii*0.25;
+	for(int ii=0;ii<50;ii++){
+	  double riso=0.0+ii*0.25;
 	  if(mcTauJetMtchd->Et()>130.0&&mcTauJetMtchd->Et()<150.0)
 	    {
 	      nEventsUsed07[ii]++;
@@ -246,7 +246,7 @@ void TauTagVal_EMIso::endJob(){
   
   int ibin07=0,ibin107=0,ibin207=0,ibin307=0;
   
-  for(int ii=0; ii<100; ii++){
+  for(int ii=0; ii<50; ii++){
     
     if(nEventsUsed07[ii] > 0){ibin07= ii+1;}
     if(nEventsUsed107[ii] > 0){ibin107= ii+1;}
