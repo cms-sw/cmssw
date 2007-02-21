@@ -3,7 +3,7 @@
 
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
-// $Id$
+// $Id: CaloJetTester.h,v 1.1 2006/09/07 22:56:10 fedor Exp $
 
 #include <string>
 
@@ -34,6 +34,7 @@ public:
   MonitorElement* mP;
   MonitorElement* mPt;
   MonitorElement* mMass;
+  MonitorElement* mConstituents;
 
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;

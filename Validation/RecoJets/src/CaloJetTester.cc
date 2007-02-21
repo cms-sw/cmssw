@@ -1,6 +1,6 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
-// $Id$
+// $Id: CaloJetTester.cc,v 1.1 2006/09/07 22:56:11 fedor Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -24,7 +24,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
   : mInputCollection (iConfig.getParameter<edm::InputTag>( "src" )),
     mOutputFile (iConfig.getUntrackedParameter<string>("outputFile", ""))
 {
-    mEta = mPhi = mE = mP = mPt = mMass
+    mEta = mPhi = mE = mP = mPt = mMass = mConstituents
       = mEtaFirst = mPhiFirst = mEFirst = mPtFirst 
       = mMaxEInEmTowers = mMaxEInHadTowers 
       = mHadEnergyInHO = mHadEnergyInHB = mHadEnergyInHF = mHadEnergyInHE 
@@ -37,28 +37,29 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     dbe->setCurrentFolder("CaloJetTask_" + mInputCollection.label());
     mEta = dbe->book1D("Eta", "Eta", 100, -5, 5); 
     mPhi = dbe->book1D("Phi", "Phi", 70, -3.5, 3.5); 
-    mE = dbe->book1D("E", "E", 100, 0, 1000); 
-    mP = dbe->book1D("P", "P", 100, 0, 1000); 
-    mPt = dbe->book1D("Pt", "Pt", 100, 0, 100); 
-    mMass = dbe->book1D("Mass", "Mass", 100, 0, 50); 
+    mE = dbe->book1D("E", "E", 100, 0, 500); 
+    mP = dbe->book1D("P", "P", 100, 0, 500); 
+    mPt = dbe->book1D("Pt", "Pt", 100, 0, 50); 
+    mMass = dbe->book1D("Mass", "Mass", 100, 0, 25); 
+    mConstituents = dbe->book1D("Constituents", "# of Constituents", 100, 0, 100); 
     //
     mEtaFirst = dbe->book1D("EtaFirst", "EtaFirst", 100, -5, 5); 
     mPhiFirst = dbe->book1D("PhiFirst", "PhiFirst", 70, -3.5, 3.5); 
     mEFirst = dbe->book1D("EFirst", "EFirst", 100, 0, 1000); 
-    mPtFirst = dbe->book1D("PtFirst", "PtFirst", 100, 0, 100); 
+    mPtFirst = dbe->book1D("PtFirst", "PtFirst", 100, 0, 500); 
     //
-    mMaxEInEmTowers = dbe->book1D("MaxEInEmTowers", "MaxEInEmTowers", 100, 0, 1000); 
-    mMaxEInHadTowers = dbe->book1D("MaxEInHadTowers", "MaxEInHadTowers", 100, 0, 1000); 
-    mHadEnergyInHO = dbe->book1D("HadEnergyInHO", "HadEnergyInHO", 100, 0, 1000); 
-    mHadEnergyInHB = dbe->book1D("HadEnergyInHB", "HadEnergyInHB", 100, 0, 1000); 
-    mHadEnergyInHF = dbe->book1D("HadEnergyInHF", "HadEnergyInHF", 100, 0, 1000); 
-    mHadEnergyInHE = dbe->book1D("HadEnergyInHE", "HadEnergyInHE", 100, 0, 1000); 
-    mEmEnergyInEB = dbe->book1D("EmEnergyInEB", "EmEnergyInEB", 100, 0, 1000); 
-    mEmEnergyInEE = dbe->book1D("EmEnergyInEE", "EmEnergyInEE", 100, 0, 1000); 
-    mEmEnergyInHF = dbe->book1D("EmEnergyInHF", "EmEnergyInHF", 100, 0, 1000); 
-    mEnergyFractionHadronic = dbe->book1D("EnergyFractionHadronic", "EnergyFractionHadronic", 100, 0, 1); 
-    mEnergyFractionEm = dbe->book1D("EnergyFractionEm", "EnergyFractionEm", 100, 0, 1); 
-    mN90 = dbe->book1D("N90", "N90", 100, 0, 100); 
+    mMaxEInEmTowers = dbe->book1D("MaxEInEmTowers", "MaxEInEmTowers", 100, 0, 100); 
+    mMaxEInHadTowers = dbe->book1D("MaxEInHadTowers", "MaxEInHadTowers", 100, 0, 100); 
+    mHadEnergyInHO = dbe->book1D("HadEnergyInHO", "HadEnergyInHO", 100, 0, 10); 
+    mHadEnergyInHB = dbe->book1D("HadEnergyInHB", "HadEnergyInHB", 100, 0, 50); 
+    mHadEnergyInHF = dbe->book1D("HadEnergyInHF", "HadEnergyInHF", 100, 0, 50); 
+    mHadEnergyInHE = dbe->book1D("HadEnergyInHE", "HadEnergyInHE", 100, 0, 100); 
+    mEmEnergyInEB = dbe->book1D("EmEnergyInEB", "EmEnergyInEB", 100, 0, 50); 
+    mEmEnergyInEE = dbe->book1D("EmEnergyInEE", "EmEnergyInEE", 100, 0, 50); 
+    mEmEnergyInHF = dbe->book1D("EmEnergyInHF", "EmEnergyInHF", 120, -20, 100); 
+    mEnergyFractionHadronic = dbe->book1D("EnergyFractionHadronic", "EnergyFractionHadronic", 120, -0.1, 1.1); 
+    mEnergyFractionEm = dbe->book1D("EnergyFractionEm", "EnergyFractionEm", 120, -0.1, 1.1); 
+    mN90 = dbe->book1D("N90", "N90", 50, 0, 50); 
   }
 
   if (mOutputFile.empty ()) {
@@ -93,6 +94,7 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
     if (mP) mP->Fill (jet->p());
     if (mPt) mPt->Fill (jet->pt());
     if (mMass) mMass->Fill (jet->mass());
+    if (mConstituents) mConstituents->Fill (jet->nConstituents());
     if (jet == collection->begin ()) { // first jet
       if (mEtaFirst) mEtaFirst->Fill (jet->eta());
       if (mPhiFirst) mPhiFirst->Fill (jet->phi());

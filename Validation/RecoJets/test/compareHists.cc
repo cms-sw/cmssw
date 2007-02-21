@@ -9,8 +9,9 @@
 #include "TH2F.h"
 #include "TCanvas.h"
 #include "TPostScript.h"
-#include "TPaveLabel.h"
+#include "TPaveText.h"
 #include "TStyle.h"
+#include "TText.h"
 
 std::vector<std::string> getAllKeys (const TDirectory* fDir, const std::string& fClassName) {
   std::cout << "getAllKeys-> " << fDir->GetName() << ", " <<  fClassName << std::endl;
@@ -63,12 +64,17 @@ double makeGifHists (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::str
   double pv = fHist->KolmogorovTest (fRefHist, "OU");
   // set style
   TPad pad ("pad", "pad", 0, 0, 1, 0.9, 0);
+  pad.SetLogy ();
   pad.Draw();
 
   char buf [1024];
   sprintf (buf, "%s: Kolmogorov Test PV = %5.3f", fPrefix.c_str(), pv);
-  TPaveLabel title (0.25,0.94,0.75,0.98, buf);
+  TPaveText title (0.3,0.85,0.95, 0.99, buf);
   title.SetFillColor(pv > 0.1 ? 3 : 2);
+  TText* t1 = title.AddText (fPrefix.c_str());
+  sprintf (buf, "Kolmogorov Test PV = %5.3f", pv);
+  TText* t2 = title.AddText (buf);
+  // t2->SetTextSize(0.3);
   title.Draw();
 
   pad.cd();
