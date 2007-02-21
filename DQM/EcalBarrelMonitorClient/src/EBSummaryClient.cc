@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/02/20 15:42:18 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/21 15:06:32 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -226,7 +226,7 @@ void EBSummaryClient::analyze(void){
 
               if ( ism >= 1 && ism <= 18 ) {
                 iex = 85+ie;
-                ipx = (20-ip)+20*(ism-1);
+                ipx = (20-ip+1)+20*(ism-1);
               }
               if ( ism >=19 && ism <= 36 ) {
                 iex = -ie;
