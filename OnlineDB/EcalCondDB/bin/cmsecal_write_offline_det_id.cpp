@@ -9,10 +9,10 @@
  */
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "RelationalAccess/IAuthenticationService.h"
-#include "RelationalAccess/IRelationalService.h"
-#include "RelationalAccess/IRelationalDomain.h"
-#include "RelationalAccess/ISession.h"
+#include "RelationalAccess/IConnectionService.h"
+#include "RelationalAccess/IConnectionServiceConfiguration.h"
+#include "RelationalAccess/AccessMode.h"
+#include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
@@ -25,7 +25,6 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Exception.h"
-#include "SealKernel/Exception.h"
 #include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"
 #include "SealKernel/IMessageService.h"
@@ -35,7 +34,6 @@
 #include <string>
 #include <vector>
 #include <time.h>
-
 
 class CondDBApp {
 public:
@@ -49,11 +47,14 @@ public:
     std::cout << "Loading services..." << std::flush;
     seal::PluginManager::get()->initialise();
     seal::Handle<seal::ComponentLoader> loader = new seal::ComponentLoader( m_context.get() );
-    loader->load( "CORAL/Services/RelationalService" );
+    //loader->load( "CORAL/Services/RelationalService" );
 
-    loader->load( "CORAL/Services/EnvironmentAuthenticationService" );
+    //loader->load( "CORAL/Services/EnvironmentAuthenticationService" );
 
     loader->load( "SEAL/Services/MessageService" );
+    
+    loader->load("CORAL/Services/ConnectionService");
+
     std::vector< seal::Handle<seal::IMessageService> > v_msgSvc;
     m_context->query( v_msgSvc );
     seal::Handle<seal::IMessageService> msgSvc;
@@ -72,46 +73,38 @@ public:
     } else {
       msgSvc->setOutputLevel( seal::Msg::Debug );
     }
-    seal::IHandle<coral::IRelationalService> serviceHandle = m_context->query<coral::IRelationalService>( "CORAL/Services/RelationalService" );
-    if ( ! serviceHandle ) {
-      std::cerr << "[Error] Could not retrieve the relational service" << std::endl;
-      exit(-1);
+    
+    seal::IHandle<coral::IConnectionService> conHandle =
+      m_context->query<coral::IConnectionService>( "CORAL/Services/ConnectionService" );
+    
+    if ( ! conHandle ){ 
+      throw std::runtime_error( "Could not locate the connection service" );
     }
-
-    coral::IRelationalDomain& m_domain = serviceHandle->domainForConnection( connect );
-    std::cout << "m_domain is " << m_domain.flavorName() << std::endl;
-    m_session = std::auto_ptr<coral::ISession>(m_domain.newSession( connect ));
-    m_session->connect();
-    std::cout << "Done." << std::endl;
+    conHandle->configuration().setDefaultAuthenticationService("CORAL/Services/EnvironmentAuthenticationService");
+    m_proxy.reset(conHandle->connect(connect, coral::Update ));
   }
-
   /**
    *  App destructor
    */
-  ~CondDBApp() 
-  {
-    m_session->disconnect();
-  }
-
+  ~CondDBApp(){}
+    
   void writeMapping()
   {
-    std::cout << "Starting session..." << std::flush;
-    m_session->startUserSession();
     std::cout << "Starting transaction..." << std::flush;
-    m_session->transaction().start();
+    m_proxy->transaction().start();
 
     std::cout << "Setting query..." << std::flush;
-    coral::IQuery* cvQuery = m_session->nominalSchema().tableHandle("CHANNELVIEW").newQuery();
+    coral::IQuery* cvQuery = m_proxy->nominalSchema().tableHandle("CHANNELVIEW").newQuery();
     cvQuery->addToOutputList("ID1");
     cvQuery->addToOutputList("ID2");
     cvQuery->addToOutputList("LOGIC_ID");
     cvQuery->defineOutputType("ID1", "int");
     cvQuery->defineOutputType("ID2", "int");
     cvQuery->defineOutputType("LOGIC_ID", "int");
-
+    
     cvQuery->addToOrderList("ID1");
     cvQuery->addToOrderList("ID2");
-
+    
     std::string where = "NAME = :name AND MAPS_TO = :maps_to";
     coral::AttributeList whereData;
     whereData.extend<std::string>( "NAME" );
@@ -122,7 +115,7 @@ public:
     cvQuery->setRowCacheSize(61200); // number of crystals in barrel
 
     std::cout << "Getting editor for CHANNELVIEW..." << std::flush;
-    coral::ITableDataEditor& cvEditor = m_session->nominalSchema().tableHandle("CHANNELVIEW").dataEditor();
+    coral::ITableDataEditor& cvEditor = m_proxy->nominalSchema().tableHandle("CHANNELVIEW").dataEditor();
     
     std::cout << "Setting up buffers..." << std::flush;
     coral::AttributeList rowBuffer;
@@ -197,7 +190,7 @@ public:
     std::cout << "Done." << std::endl;
 
     std::cout << "Getting editor for VIEWDESCRIPTION..." << std::flush;
-    coral::ITableDataEditor& vdEditor = m_session->nominalSchema().tableHandle("VIEWDESCRIPTION").dataEditor();
+    coral::ITableDataEditor& vdEditor = m_proxy->nominalSchema().tableHandle("VIEWDESCRIPTION").dataEditor();
     
     std::cout << "Setting up buffers..." << std::flush;
     coral::AttributeList rowBuffer2;
@@ -232,15 +225,14 @@ public:
     
 
     std::cout << "Committing..." << std::flush;
-    m_session->transaction().commit();
+    m_proxy->transaction().commit();
     std::cout << "Done." << std::endl;    
 
   }
 
-
 private:
   seal::Handle< seal::Context > m_context;
-  std::auto_ptr<coral::ISession> m_session;
+  std::auto_ptr<coral::ISessionProxy> m_proxy;
 };
 
 
