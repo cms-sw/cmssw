@@ -265,7 +265,7 @@ void EBSummaryClient::analyze(void){
 
               if ( ism >= 1 && ism <= 18 ) {
                 iex = 85+ie;
-                ipx = (20-ip)+20*(ism-1);
+                ipx = (20-ip+1)+20*(ism-1);
               }
               if ( ism >=19 && ism <= 36 ) {
                 iex = -ie;
