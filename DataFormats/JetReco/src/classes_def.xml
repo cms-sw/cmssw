@@ -1,7 +1,6 @@
 <lcgdict>
   <class name="reco::Jet"/>
 
-  <class name="std::vector<CaloTowerDetId>"/>
   <class name="reco::CaloJet"/>
   <class name="reco::CaloJet::Specific"/>
   <class name="std::vector<reco::CaloJet>"/>

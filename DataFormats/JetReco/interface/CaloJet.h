@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.18 2006/12/06 22:43:24 fedor Exp $
+ * \version   $Id: CaloJet.h,v 1.19 2006/12/08 21:15:11 fedor Exp $
  ************************************************************/
 
 
@@ -120,7 +120,6 @@ class CaloJet : public Jet {
   
   // block accessors
   
-  const std::vector<CaloTowerDetId>& getTowerIndices() const {return m_towerIdxs;};
   const Specific& getSpecific () const {return m_specific;}
 
   /// Polymorphic clone
@@ -133,9 +132,6 @@ class CaloJet : public Jet {
   /// Polymorphic overlap
   virtual bool overlap( const Candidate & ) const;
   
-  // Data members
-  /** List of CaloTower IDs the Jet consists of*/
-  std::vector<CaloTowerDetId> m_towerIdxs;
   //Variables specific to to the CaloJet class
   Specific m_specific;
 };
