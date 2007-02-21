@@ -219,8 +219,8 @@ class hTMaxCell{
   }
 
   void Fill(float tmax123, float tmax124, float tmax134, float tmax234,
-	    SigmaFactor s124,// Give the factor relating the width of the TMax distribution
-	    SigmaFactor s134,// and the cell resolution (for tmax123 and tmax234 is always= sqrt(3/2)).
+	    dttmaxenums::SigmaFactor s124,// Give the factor relating the width of the TMax distribution
+	    dttmaxenums::SigmaFactor s134,// and the cell resolution (for tmax123 and tmax234 is always= sqrt(3/2)).
 	    unsigned t0_123, // Give the "quantity" of Delta(t0) included in the tmax 
 	    unsigned t0_124, // formula used for Tmax123 or Tma124 or Tma134 or Tma234
 	    unsigned t0_134,
@@ -254,7 +254,7 @@ class hTMaxCell{
       }
     }
     if(tmax124 > 0.) {
-      (s124==r72)? hTmax124s72->Fill(tmax124):hTmax124s78->Fill(tmax124);
+      (s124==dttmaxenums::r72)? hTmax124s72->Fill(tmax124):hTmax124s78->Fill(tmax124);
       if(t0_124==0)  
 	hTmax_0->Fill(tmax124);
       else if(t0_124==1) {
@@ -292,7 +292,7 @@ class hTMaxCell{
       }
     }
     if(tmax134 > 0.) {
-      (s134==r72)? hTmax134s72->Fill(tmax134):hTmax134s78->Fill(tmax134);
+      (s134==dttmaxenums::r72)? hTmax134s72->Fill(tmax134):hTmax134s78->Fill(tmax134);
       if(t0_134==0)  
 	hTmax_0->Fill(tmax134);
       else if(t0_134==1) {
