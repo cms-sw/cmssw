@@ -30,7 +30,7 @@ class CombinatorialSeedGeneratorForCosmics : public edm::EDProducer
 
   CombinatorialSeedGeneratorForCosmics(const edm::ParameterSet& conf);
 
-  virtual ~CombinatorialSeedGeneratorForCosmics(){};
+  virtual ~CombinatorialSeedGeneratorForCosmics();//{};
 
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
@@ -60,7 +60,7 @@ class CombinatorialSeedGeneratorForCosmics : public edm::EDProducer
   BoundPlane* lowerScintillator;
   bool checkDirection(const FreeTrajectoryState& state,
                       const MagneticField* magField);	
-  edm::OwnVector<TrajectorySeed> buildSeed(const TrackingRecHit* first,
+  const TrajectorySeed* buildSeed(const TrackingRecHit* first,
                  const TrackingRecHit* second,
                  const PropagationDirection& dir); //,
                  //edm::OwnVector<TrajectorySeed*>& outseed);	

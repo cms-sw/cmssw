@@ -16,6 +16,7 @@
 #include "Geometry/Surface/interface/BoundPlane.h"
 #include "Geometry/Surface/interface/GloballyPositioned.h"
 #include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
+#include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToCurvilinear.h"
 //#include "TrackingTools/GeomPropagators/interface/StraightLinePropagator.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 //#include "DataFormats/SiStripDetId/interface/TIBDetId.h"   //to remove 
@@ -59,6 +60,11 @@ CombinatorialSeedGeneratorForCosmics::CombinatorialSeedGeneratorForCosmics(edm::
   //cout << "lowerPosition" << lowerScintillator->toGlobal(LocalPoint(0,0,0)) << endl;	
   		
   produces<TrajectorySeedCollection>();
+}
+
+CombinatorialSeedGeneratorForCosmics::~CombinatorialSeedGeneratorForCosmics(){
+	if (upperScintillator) delete upperScintillator;
+	if (lowerScintillator) delete lowerScintillator;
 }
 
 void CombinatorialSeedGeneratorForCosmics::produce(edm::Event& e, const edm::EventSetup& es)
@@ -175,13 +181,13 @@ void CombinatorialSeedGeneratorForCosmics::seeds(TrajectorySeedCollection &outpu
 			edm::OwnVector<TrackingRecHit>::const_iterator iSecond;
 			for (iFirst = firstMatch.begin(); iFirst != firstMatch.end(); iFirst++){
 				for (iSecond = secondMatch.begin(); iSecond != secondMatch.end(); iSecond++){
-					edm::OwnVector<TrajectorySeed> tmp = buildSeed(&(*iFirst), &(*iSecond), dir);
-					if (tmp.size()>0){
-						edm::OwnVector<TrajectorySeed>::const_iterator iTmp;
-						for (iTmp = tmp.begin(); iTmp!= tmp.end(); iTmp++){
-							//cout << "SEED ----> " << iTmp->startingState().parameters().position() << endl;
-							output.push_back(*(iTmp->clone()));
-						}
+					//edm::OwnVector<TrajectorySeed> tmp = buildSeed(&(*iFirst), &(*iSecond), dir);
+					const TrajectorySeed* tmp = buildSeed(&(*iFirst), &(*iSecond), dir);
+					if (tmp){
+						//cout << "SEED ----> " << iTmp->startingState().parameters().position() << endl;
+						//output.push_back(*(iTmp->clone()));
+						output.push_back(*tmp);
+						delete tmp;
 					}
 				}
 			}
@@ -204,14 +210,14 @@ bool CombinatorialSeedGeneratorForCosmics::checkDirection(const FreeTrajectorySt
 	//std::pair<bool,double> pathLengthLower =  planeCrossingLower.pathLength(*lowerScintillator);
 	std::pair<bool,StraightLinePlaneCrossing::PositionType> positionUpper = planeCrossingUpper.position(*upperScintillator);
 	std::pair<bool,StraightLinePlaneCrossing::PositionType> positionLower = planeCrossingLower.position(*lowerScintillator);
-	LocalPoint positionUpperLocal = upperScintillator->toLocal((GlobalPoint)(positionUpper.second));
-	LocalPoint positionLowerLocal = lowerScintillator->toLocal((GlobalPoint)(positionLower.second));
 	//TSOS upperTSOS = prop.propagate(state, *upperScintillator); 	
 	//TSOS lowerTSOS = prop.propagate(state, *lowerScintillator); 	
 	if (!(positionUpper.first && positionLower.first)) {
 		edm::LogInfo("CombinatorialSeedGeneratorForCosmics") << "Scintillator plane not crossed";
 		return false;
 	}
+	LocalPoint positionUpperLocal = upperScintillator->toLocal((GlobalPoint)(positionUpper.second));
+        LocalPoint positionLowerLocal = lowerScintillator->toLocal((GlobalPoint)(positionLower.second));
 	if (upperScintillator->bounds().inside(positionUpperLocal) && lowerScintillator->bounds().inside(positionLowerLocal)) {
 		edm::LogInfo("CombinatorialSeedGeneratorForCosmics") << "position on Upper scintillator " << positionUpper.second;
 		edm::LogInfo("CombinatorialSeedGeneratorForCosmics") << "position on Lower scintillator " << positionLower.second;
@@ -254,69 +260,42 @@ edm::OwnVector<TrackingRecHit> CombinatorialSeedGeneratorForCosmics::match(const
 	return hits;
 }
 
-edm::OwnVector<TrajectorySeed> CombinatorialSeedGeneratorForCosmics::buildSeed(const TrackingRecHit* first, 
+const TrajectorySeed* CombinatorialSeedGeneratorForCosmics::buildSeed(const TrackingRecHit* first, 
 					             const TrackingRecHit* second,
 						     const PropagationDirection& dir){
-	edm::OwnVector<TrajectorySeed> outseed;
+	//edm::OwnVector<TrajectorySeed> outseed;
 	//calculates position and error for the two hits in global frame
 	std::pair<GlobalPoint, GlobalError> firstHitPosition = toGlobal(first);
 	//cout << "First hit position " << firstHitPosition.first << " with error " << firstHitPosition.second.matrix() << endl; 
 	std::pair<GlobalPoint, GlobalError> secondHitPosition = toGlobal(second);
 	//cout << "Second hit position " << secondHitPosition.first << " with error " << secondHitPosition.second.matrix() << endl; 
+
+
 	GlobalVector point_difference;
 	//FIXME the momentum direction is recovered from propagation direction. potentially dangerous
 	if (dir == alongMomentum) point_difference = GlobalVector(secondHitPosition.first-firstHitPosition.first);
 	else  point_difference = GlobalVector(firstHitPosition.first-secondHitPosition.first);
+
+
 	GlobalVector momentum = point_difference.unit()*p;
-	float modulus = point_difference.mag();
+	//float modulus = point_difference.mag();
 		
 	
 	GlobalTrajectoryParameters Gtp(firstHitPosition.first,
 				       momentum,
 				       -1,
 				       &(*magfield));
-	//cout << "GlobalTrajectoryParameters position " << Gtp.position() << endl;
-	//6x6 cartesian matrix for the starting state  
-	AlgebraicSymMatrix startingErrorMatrix(6,0);
-	//6x6 matrix for the errors on the 2 hits
-	AlgebraicSymMatrix startingErrorOnHits(6,0);
-	//matrix to be used in the error propagation formula
-	AlgebraicSymMatrix conversion(6,0);
-	conversion(1,1)=1;
-	conversion(2,2)=1;
-	conversion(3,3)=1;
-	/*conversion(4,4)=p;   //is p the right number to put here?
-	conversion(5,5)=p;
-	conversion(6,6)=p;
-	conversion(4,1)=-p;
-	conversion(5,2)=-p;
-	conversion(6,3)=-p;*/
-	conversion(4,4)=p*(point_difference.x()*point_difference.x()/modulus + modulus)/modulus*modulus;
-	conversion(5,5)=p*(point_difference.y()*point_difference.y()/modulus + modulus)/modulus*modulus;
-	conversion(6,6)=p*(point_difference.z()*point_difference.z()/modulus + modulus)/modulus*modulus;
-	conversion(4,1)=-p*(point_difference.x()*point_difference.x()/modulus + modulus)/modulus*modulus;
-	conversion(5,2)=-p*(point_difference.y()*point_difference.y()/modulus + modulus)/modulus*modulus;
-	conversion(6,3)=-p*(point_difference.z()*point_difference.z()/modulus + modulus)/modulus*modulus;
 
-	GlobalError errorFirstHit = firstHitPosition.second;
-	GlobalError errorSecondHit = secondHitPosition.second;
-	//cout << "about to build startingErrorOnHits" << endl;
-	for (int i = 1; i <= 3; i++){
-		for (int j = 1; j<=i; j++){
-			startingErrorOnHits(i,j) = (errorFirstHit.matrix())(i,j);
-			startingErrorOnHits(3+i,3+j) = (errorSecondHit.matrix())(i,j);
-		}
-	}
-	//cout << "Starting Error On Hits " << startingErrorOnHits << endl;
-	//perform error propagation startingErrorMatrix = conversion * startingErrorOnHits * T(conversion)
-	startingErrorMatrix = (startingErrorOnHits).similarity(conversion);
-	//cout << "Starting Error Matrix is " << startingErrorMatrix << endl;
-	
-	//build the initial free trajectory state
-	FreeTrajectoryState CosmicSeed(Gtp,CartesianTrajectoryError(startingErrorMatrix));
+
+
+	AlgebraicSymMatrix startingCurvilinearError(5,1);
+	startingCurvilinearError[0][0]=1/p;
+	startingCurvilinearError[3][3]=firstHitPosition.second.cxx();
+	startingCurvilinearError[4][4]=firstHitPosition.second.czz();
+	FreeTrajectoryState CosmicSeed(Gtp,CurvilinearTrajectoryError(startingCurvilinearError));
 
 	//check if direction is compatible with scintillators position
-	if (!checkDirection(CosmicSeed, &(*magfield))) {return outseed;}
+	if (!checkDirection(CosmicSeed, &(*magfield))) {return 0;}//outseed;}
 	
 	//dirty: the information about the kind of the hit if already available in match method
 	//do we have projected hit in the seeds?
@@ -332,19 +311,23 @@ edm::OwnVector<TrajectorySeed> CombinatorialSeedGeneratorForCosmics::buildSeed(c
 		const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tracker->idToDetUnit(hit->geographicalId());
 		plane = &(stripdet->surface());
 	}
-	if (!plane) {return outseed;}
+	if (!plane) {return 0;}//outseed;}
 
 	TSOS seedTSOS(CosmicSeed, *plane);
 	//rescale error for multiple scattering. how much?
-	//seedTSOS.rescaleError(3.0);
-	//cout << "Starting TSOS " << seedTSOS << endl;
+	//seedTSOS.rescaleError(5.0);
+	//cout << "Starting TSOS CTF " << seedTSOS << " with error " << seedTSOS.curvilinearError().matrix() <<  endl;
         PTrajectoryStateOnDet *PTraj=
         	transformer.persistentState(seedTSOS, first->geographicalId().rawId());
         edm::OwnVector<TrackingRecHit> seed_hits;
         seed_hits.push_back(first->clone());
-	outseed.push_back(new TrajectorySeed(*PTraj,seed_hits,dir));
+	//outseed.push_back(new TrajectorySeed(*PTraj,seed_hits,dir));
 	//cout << "SEED -----> "  << trSeed->startingState().parameters().position() << endl;
-	return outseed;
+	//return outseed;
+	TrajectorySeed* theSeed = new TrajectorySeed(*PTraj,seed_hits,dir);
+	if(PTraj) delete PTraj;
+	//return new TrajectorySeed(*PTraj,seed_hits,dir);
+	return theSeed;
 } 
 
 std::pair<GlobalPoint, GlobalError> CombinatorialSeedGeneratorForCosmics::toGlobal(const TrackingRecHit* rechit){
@@ -364,6 +347,7 @@ std::pair<GlobalPoint, GlobalError> CombinatorialSeedGeneratorForCosmics::toGlob
                                                     stripdet->surface());
 	  //cout << "MATCHED hit position " << hipos << " with error " << error.matrix() << endl; 
           //printPosition(hipos, layer);
+	  //error*=5.;	
         }
         else if(hit){
           LocalPoint position=hit->localPosition();
@@ -375,6 +359,7 @@ std::pair<GlobalPoint, GlobalError> CombinatorialSeedGeneratorForCosmics::toGlob
                                                     stripdet->surface());
 	  //cout << "MONO hit position " << hipos << " with error " << error.matrix() << endl; 
           //printPosition(hipos, layer);
+	  //error*=5.;
         }
 
         return make_pair(hipos, error);
