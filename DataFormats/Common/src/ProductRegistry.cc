@@ -4,11 +4,11 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.13 2007/01/19 04:29:40 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.14 2007/02/19 23:31:13 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.13 2007/01/19 04:29:40 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.14 2007/02/19 23:31:13 wmtan Exp $";
 
 
 #include "DataFormats/Common/interface/ProductRegistry.h"
@@ -40,6 +40,7 @@ namespace edm {
   
   void
   ProductRegistry::setProductIDs() {
+    checkAllDictionaries();
     throwIfFrozen();
     for (ProductList::iterator it = productList_.begin(), itEnd = productList_.end();
         it != itEnd; ++it) {

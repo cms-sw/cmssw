@@ -7,7 +7,7 @@ ReflexTools provides a small number of Reflex-based tools, used in
 the CMS event model.  
 
 
-$Id: ReflexTools.h,v 1.1 2007/02/17 23:24:56 wmtan Exp $
+$Id: ReflexTools.h,v 1.2 2007/02/19 23:31:14 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -56,6 +56,7 @@ namespace edm
 
 
   void checkDictionaries(std::string const& name, bool transient = false);
+  void checkAllDictionaries();
 
 }
 

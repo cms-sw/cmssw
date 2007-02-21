@@ -62,33 +62,8 @@ namespace edm
       value_type_of(possible_sequence, found_sequence_value_type);
   }
 
-  bool
-  checkDictionary(Type c) {
-    while (c.IsPointer() == true || c.IsArray() == true || c.IsTypedef() == true || c.IsReference() == true) {
-      c = c.ToType();
-    }
-    if (c.IsFundamental()) return false;
-    if (c.IsEnum()) return false;
-    std::string name = c.Name(SCOPED);
-    if (name.empty()) return false;
-    Type t = Type::ByName(name);
-    if (!bool(t)) {
-      throw edm::Exception(edm::errors::DictionaryNotFound)
-        << "No REFLEX data dictionary found for class '" << name << "'.\n"
-        << "Most likely this dictionary was never generated,\n"
-        << "but it may be that it was generated in the wrong package.\n"
-	<< "Please add (or move) the specification\n"
-	<< "<class name=\"" << name << "\"/>\n"
-	<< "to the appropriate classes_def.xml file.\n"
-	<< "If the class is a template instance, you may need\n"
-	<< "to define a dummy variable of this type in classes.h.\n"
-	<< "Also, if this class has any transient members,\n"
-	<< "you need to specify them in classes_def.xml.";
-    }
-    return true;
-  }
-
   namespace {
+
     int const oneParamArraySize = 6;
     std::string const oneParam[oneParamArraySize] = {
       "vector",
@@ -104,65 +79,114 @@ namespace edm
       "pair",
       "multimap"
     };
-  }
 
-  void
-  checkDictionaries(Type t) {
-    // The only purpose of this cache is to stop infinite recursion.
-    // Reflex maintains its own internal cache.
     typedef std::set<std::string> Set;
-    static boost::thread_specific_ptr<Set> s_types;
-    if(0 == s_types.get()){
-      s_types.reset(new Set);
-    }
 
-    while(t.IsPointer() == true || t.IsArray() == true || t.IsTypedef() == true || t.IsReference() == true) {
-      t = t.ToType();
-    }
-
-    std::string name = t.Name(SCOPED);
-
-    if(s_types->end() != s_types->find(name)) {
-	// Already been processed
-	return;
-    }
-    s_types->insert(name);
-
-    if (!checkDictionary(t)) return;
-
-    if(name.find("std::") == 0) {
-      if (t.IsTemplateInstance()) {
-	std::string::size_type n = name.find('<');
-	int cnt = 0;
-	if (std::find(oneParam, oneParam + oneParamArraySize, name.substr(5, n - 5)) != oneParam + oneParamArraySize) {
-	  cnt = 1;
-	} else if (std::find(twoParam, twoParam + twoParamArraySize, name.substr(5, n - 5)) != twoParam + twoParamArraySize) {
-	  cnt = 2;
-	} 
-        for(int i = 0; i < cnt; ++i) {
-          checkDictionaries(t.TemplateArgumentAt(i));
-        }
+    Set & missingTypes() {
+      static boost::thread_specific_ptr<Set> missingTypes_;
+      if (0 == missingTypes_.get()) {
+	missingTypes_.reset(new Set);
       }
-    } else {
-      int mcnt = t.DataMemberSize();
-      for(int i = 0; i < mcnt; ++i) {
-        Member m = t.DataMemberAt(i);
-        if(m.IsTransient() || m.IsStatic()) continue;
-        checkDictionaries(m.TypeOf());
+      return *missingTypes_.get();
+    }
+
+    bool
+    checkDictionary(Type c) {
+      while (c.IsPointer() == true || c.IsArray() == true || c.IsTypedef() == true || c.IsReference() == true) {
+	c = c.ToType();
       }
-      int cnt = t.BaseSize();
-      for(int i = 0; i < cnt; ++i) {
-        checkDictionaries(t.BaseAt(i).ToType());
+      if (c.IsFundamental()) return false;
+      if (c.IsEnum()) return false;
+      std::string name = c.Name(SCOPED);
+      if (name.empty()) return false;
+      Type t = Type::ByName(name);
+      if (!bool(t)) {
+	missingTypes().insert(name);
+	return false;
+      }
+      return true;
+    }
+
+    void
+    checkType(Type t) {
+
+      // The only purpose of this cache is to stop infinite recursion.
+      // Reflex maintains its own internal cache.
+      static boost::thread_specific_ptr<Set> s_types;
+      if (0 == s_types.get()) {
+	s_types.reset(new Set);
+      }
+  
+      while(t.IsPointer() == true || t.IsArray() == true || t.IsTypedef() == true || t.IsReference() == true) {
+	t = t.ToType();
+      }
+  
+      std::string name = t.Name(SCOPED);
+  
+      if (s_types->end() != s_types->find(name)) {
+	  // Already been processed
+	  return;
+      }
+      s_types->insert(name);
+  
+      if (!checkDictionary(t)) return;
+  
+      if (name.find("std::") == 0) {
+	if (t.IsTemplateInstance()) {
+	  std::string::size_type n = name.find('<');
+	  int cnt = 0;
+	  if (std::find(oneParam, oneParam + oneParamArraySize, name.substr(5, n - 5)) != oneParam + oneParamArraySize) {
+	    cnt = 1;
+	  } else if (std::find(twoParam, twoParam + twoParamArraySize, name.substr(5, n - 5)) != twoParam + twoParamArraySize) {
+	    cnt = 2;
+	  } 
+	  for(int i = 0; i < cnt; ++i) {
+	    checkType(t.TemplateArgumentAt(i));
+	  }
+	}
+      } else {
+	int mcnt = t.DataMemberSize();
+	for(int i = 0; i < mcnt; ++i) {
+	  Member m = t.DataMemberAt(i);
+	  if(m.IsTransient() || m.IsStatic()) continue;
+	  checkType(m.TypeOf());
+	}
+	int cnt = t.BaseSize();
+	for(int i = 0; i < cnt; ++i) {
+	  checkType(t.BaseAt(i).ToType());
+	}
       }
     }
-  }
+  } // end unnamed namespace
 
   void checkDictionaries(std::string const& name, bool transient) {
     if (transient) {
       checkDictionary(Type::ByName(name));
     } else {
       checkDictionary(Type::ByName(wrappedClassName(name)));
-      checkDictionaries(Type::ByName(name));
+      checkType(Type::ByName(name));
+    }
+  }
+
+  void checkAllDictionaries() {
+    if (!missingTypes().empty()) {
+      std::ostringstream ostr;
+      for (Set::const_iterator it = missingTypes().begin(), itEnd = missingTypes().end(); 
+	it != itEnd; ++it) {
+	  ostr << *it << "\n\n";
+      }
+      throw edm::Exception(edm::errors::DictionaryNotFound)
+	<< "No REFLEX data dictionary found for the following classes:\n\n"
+	<< ostr.str()
+	<< "Most likely each dictionary was never generated,\n"
+	<< "but it may be that it was generated in the wrong package.\n"
+	<< "Please add (or move) the specification\n"
+	<< "<class name=\"whatever\"/>\n"
+	<< "to the appropriate classes_def.xml file.\n"
+	<< "If the class is a template instance, you may need\n"
+	<< "to define a dummy variable of this type in classes.h.\n"
+	<< "Also, if this class has any transient members,\n"
+	<< "you need to specify them in classes_def.xml.";
     }
   }
 }
