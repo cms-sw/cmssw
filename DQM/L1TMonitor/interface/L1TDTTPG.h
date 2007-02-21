@@ -4,8 +4,8 @@
 /*
  * \file L1TDTTPG.h
  *
- * $Date: 2007/02/19 19:24:08 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/20 21:42:10 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
 */
@@ -74,6 +74,7 @@ private:
   MonitorElement* dttpgphquality;  
   MonitorElement* dttpgphts2tag;  
   MonitorElement* dttpgphbxcnt;  
+  MonitorElement* dttpgphntrack;  
 
   MonitorElement* dttpgthbx;  
   MonitorElement* dttpgthwheel;  
@@ -81,6 +82,7 @@ private:
   MonitorElement* dttpgthstation;  
   MonitorElement* dttpgththeta;  
   MonitorElement* dttpgthquality;    
+  MonitorElement* dttpgthntrack;  
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
