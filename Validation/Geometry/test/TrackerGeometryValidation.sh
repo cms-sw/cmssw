@@ -173,4 +173,15 @@ fi
 echo "...done"
 #
 
+# Compare the TrackerNumberingComparison.C, to compare the ModuleNumbering.dat file with the reference, element-by-element mapping both files 
+echo "Run the TrackerNumberingComparison.C macro"
+root -b -q 'TrackerNumberingComparison.C("ModuleNumbering.dat","$referenceDir/ModuleNumbering.dat","NumberingInfo.log")'
+if [ -s NumberingInfo.log ]; then
+    echo "ERROR: a failure in the numbering scheme, see NumberingInfo.log"
+else
+    echo "Tracker Numbering Scheme OK"
+fi
+echo "...done"
+#
+
 echo "TRACKER GEOMETRY VALIDATION ENDED... LOOK AT THE RESULTS"
