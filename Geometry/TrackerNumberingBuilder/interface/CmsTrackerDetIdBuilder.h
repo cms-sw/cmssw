@@ -17,6 +17,10 @@ class CmsTrackerDetIdBuilder {
  protected:
   void iterate(GeometricDet*,int,unsigned int );
   
+private:
+  // This is the map between detid and navtype to restore backward compatibility between 12* and 13* series
+  std::map< std::string , uint32_t > mapNavTypeToDetId;
+  //
 };
 
 #endif

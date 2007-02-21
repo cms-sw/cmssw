@@ -3,8 +3,39 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
 
 CmsTrackerDetIdBuilder::CmsTrackerDetIdBuilder(){
+  // Read the file with the map between detid and navtype to restore backward compatibility between 12* and 13* series
+  std::cout << " **************************************************************** " << std::endl;
+  std::cout << "       You are running Tracker numbering scheme with rr patch     " << std::endl;
+  std::cout << "          backward compatibility with CMSSW_1_2_0 restored        " << std::endl;
+  std::cout << " **************************************************************** " << std::endl;
+  const char* theNavTypeToDetIdMap_FileName = edm::FileInPath("Geometry/TrackerNumberingBuilder/data/ModuleNumbering_120.dat").fullPath().c_str();
+  std::ifstream theNavTypeToDetIdMap_File(theNavTypeToDetIdMap_FileName);
+  // fill the map
+  uint32_t detid;
+  detid = 0;
+  std::string navType;
+  float x,y,z;
+  x=y=z=0;
+  std::vector<unsigned int> navtype;
+  //
+  while(!theNavTypeToDetIdMap_File.eof()) {
+    //
+    theNavTypeToDetIdMap_File >> detid
+			      >> navType
+			      >> x >> y >> z;
+    //
+    //    std::cout << "load " << detid  << " " << navType << std::endl;
+    //
+    navtype.clear();
+    mapNavTypeToDetId[navType] = detid;
+  }
+  //
 }
 
 GeometricDet* CmsTrackerDetIdBuilder::buildId(GeometricDet* tracker){
@@ -130,6 +161,29 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet* in, int level, unsigned int I
 
   }
 
+  // Restore compatibility between 12* and 13* series using the map
+  std::vector<unsigned int> detNavTypeVector;
+  for (uint32_t i=0;i<(in)->components().size();i++){
+    GeometricDet::nav_type detNavType = ((in)->components())[i]->navType();
+    std::string stringNavType;
+    std::stringstream InputOutput(std::stringstream::in | std::stringstream::out);//"tmp.log",std::ios::out);
+    // stringstream
+    InputOutput << detNavType;
+    InputOutput >> stringNavType;
+    //
+    if( mapNavTypeToDetId[stringNavType] != 0 // to replace only the ones present in the map
+	&&
+	mapNavTypeToDetId[stringNavType] != ((in)->components())[i]->geographicalID().rawId() ) { // to replace only the ones with detid different wrt 120 map
+      std::cout << "\tnavtype " << stringNavType << " detid from map " << mapNavTypeToDetId[stringNavType]
+		<< " from det " << ((in)->components())[i]->geographicalID().rawId() << std::endl;
+      std::cout << "\t\t replacing " << ((in)->components())[i]->geographicalID().rawId()
+		<< " with " << mapNavTypeToDetId[stringNavType] << std::endl;
+      ((in)->components())[i]->setGeographicalID(DetId(mapNavTypeToDetId[stringNavType]));
+    }
+    //
+  }
+  //
+  
   return;
 
 }
