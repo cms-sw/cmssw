@@ -55,7 +55,11 @@ void testVertexAssociator::beginJob(const EventSetup & setup) {
   rMiss = new TH1F("rmiss","r Miss Distance (cm)",100,-0.02,0.02);
 
   zVert = new TH1F("zvert","z, Reconstructed Vertex (cm)", 200, -1.0,1.0);
-  zTrue = new TH1F("ztrue","z, Simulated Vertex (cm)", 200, -1.0,1.0);
+  zTrue = new TH1F("ztrue","z, Simulated Vertex (cm)",     200, -1.0,1.0);
+
+  nTrue = new TH1F("ntrue","# of tracks, Simulated",    51,-0.5,50.5);
+  nReco = new TH1F("nreco","# of tracks, Reconstructed",51,-0.5,50.5);
+
 }
 
 void testVertexAssociator::endJob() {
@@ -101,22 +105,28 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
   //RECOTOSIM
   cout << "                      ****************** Reco To Sim ****************** " << endl;
   cout << "-- Associator by hits --" << endl;
-  reco::RecoToSimCollection p =
-    associatorByHits->associateRecoToSim (trackCollectionH,TPCollectionH,&event );
+  reco::RecoToSimCollection p = associatorByHits->associateRecoToSim (trackCollectionH,TPCollectionH,&event );
+
+  reco::SimToRecoCollection s2rTracks = associatorByHits->associateSimToReco (trackCollectionH,TPCollectionH,&event );
 //    associatorByChi2->associateRecoToSim (trackCollectionH,TPCollectionH,&event );
   reco::VertexRecoToSimCollection vR2S = associatorByTracks ->
       associateRecoToSim(primaryVertexH,TVCollectionH,event,p);
+  reco::VertexSimToRecoCollection vS2R = associatorByTracks ->
+      associateSimToReco(primaryVertexH,TVCollectionH,event,s2rTracks);
 
   for (reco::VertexRecoToSimCollection::const_iterator iR2S = vR2S.begin();
        iR2S != vR2S.end(); ++iR2S) {
     math::XYZPoint recoPos = (iR2S -> key) -> position();
+    double nreco = (iR2S -> key)->tracksSize();
 //    cout << "Reco Position " << recoPos << endl;
     std::vector<std::pair<TrackingVertexRef, double> > vVR = iR2S -> val;
 //    cout << "Found Recovertex with " << vVR.size() << " associated TrackingVertex" << endl;
     for (std::vector<std::pair<TrackingVertexRef, double> >::const_iterator
         iMatch = vVR.begin(); iMatch != vVR.end(); ++iMatch) {
 //        cout << "Match found with quality " <<  iMatch -> second << endl;
+        TrackingVertexRef trueV = iMatch->first;
         HepLorentzVector simVec = (iMatch -> first) -> position();
+        double ntrue = trueV->daughterTracks().size();
         math::XYZPoint simPos = math::XYZPoint(simVec.x(),simVec.y(),simVec.z());
 
 //        cout << "Sim  Position " << simPos << " distance " << (simPos - recoPos).R()   << endl;
@@ -133,6 +143,9 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
 
         zVert->Fill(simPos.Z());
         zTrue->Fill(recoPos.Z());
+
+        nTrue->Fill(ntrue);
+        nReco->Fill(nreco);
     }
   }
 
