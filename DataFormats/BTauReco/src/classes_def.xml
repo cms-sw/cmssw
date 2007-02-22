@@ -1,5 +1,5 @@
 <lcgdict>
-  <!-- <class name="reco::JetTag" /> -->
+  <class name="reco::JetTag" />
   <class name="reco::JetTagCollection" />
   <class name="reco::JetTagRef" />
   <class name="reco::JetTagRefProd" />
@@ -30,7 +30,9 @@
   <class name="reco::JetTracksAssociationRefProd" />
   <class name="reco::JetTracksAssociationRefVector" />
   <class name="edm::Wrapper<reco::JetTracksAssociationCollection>" />
-
+  <class name="edm::helpers::KeyVal<reco::CaloJetRefProd,reco::TrackRefProd>" />
+  <class name="std::map<unsigned int, edm::helpers::KeyVal<reco::CaloJetRef,reco::TrackRefVector> >" />
+  
   <class name="reco::TrackCountingTagInfo" />
   <class name="std::vector<reco::TrackCountingTagInfo>" />
   <class name="edm::Wrapper<std::vector<reco::TrackCountingTagInfo> >" />

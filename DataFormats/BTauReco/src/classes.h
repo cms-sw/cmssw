@@ -24,7 +24,7 @@
 #include "DataFormats/BTauReco/interface/TrackTauImpactParameterAssociation.h"
 #include "DataFormats/BTauReco/interface/JetEisolAssociation.h"
 #include "DataFormats/BTauReco/interface/TrackIPData.h"
- 
+
 namespace {
   namespace {
     reco::JetTag jt;
@@ -59,13 +59,14 @@ namespace {
     edm::RefProd<reco::TrackProbabilityTagInfoCollection> rp2p;
     edm::RefVector<reco::TrackProbabilityTagInfoCollection> rv2p;
 
-
     reco::JetTracksAssociationCollection v3;
     edm::Wrapper<reco::JetTracksAssociationCollection> w3;
     reco::JetTracksAssociation ra3;
     reco::JetTracksAssociationRef r3;
     reco::JetTracksAssociationRefProd rp3;
     reco::JetTracksAssociationRefVector rv3;
+    edm::helpers::KeyVal<reco::CaloJetRefProd,reco::TrackRefProd> jta_key;
+    std::map<unsigned int, edm::helpers::KeyVal<reco::CaloJetRef,reco::TrackRefVector> > jta_map;
     
     edm::helpers::Key<reco::JetTracksAssociationRef> keyforjta;
     reco::TracksInJetData tijd; 
