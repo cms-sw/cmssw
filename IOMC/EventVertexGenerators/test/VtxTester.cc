@@ -11,6 +11,7 @@
 
 #include "TFile.h"
 #include "TH1.h"
+#include "TH2.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -20,7 +21,10 @@ using namespace std;
 VtxTester::VtxTester( const ParameterSet& )
 {
    fOutputFile = 0 ;
-   fVtxHist = 0 ;
+   fVtxHistz = 0 ;
+   fVtxHistx = 0 ;
+   fVtxHisty = 0 ;
+   fVtxHistxy =0;
    fPhiHistOrg = 0 ;
    fPhiHistSmr = 0 ;
    fEtaHistOrg = 0 ;
@@ -31,7 +35,11 @@ void VtxTester::beginJob( const EventSetup& )
 {
 
    fOutputFile   = new TFile( "VtxTest.root", "RECREATE" ) ;
-   fVtxHist      = new TH1D("VtxHist","Test Z-spread", 100, -250., 250. ) ;
+   fVtxHistz      = new TH1D("VtxHistz","Test Z-spread", 100, -250., 250. ) ;
+   fVtxHistx      = new TH1D("VtxHistx","Test X-spread", 500, -1., 1. ) ;
+   fVtxHisty      = new TH1D("VtxHisty","Test Y-spread", 500, -1., 1. ) ;
+   fVtxHistxy     = new TH2D("VtxHistxy","Test X-Y spread",700,-1.,1.,700,-1.,1.);
+
    fPhiHistOrg   = new TH1D("PhiHistOrg","Test Phi, org.", 80, -4., 4. ) ;
    fPhiHistSmr   = new TH1D("PhiHistSmr","Test Phi, smr.", 80, -4., 4. ) ;
    fEtaHistOrg   = new TH1D("EtaHistOrg","Test Eta, org.", 80, -4., 4. ) ;
@@ -66,18 +74,20 @@ void VtxTester::analyze( const Event& e, const EventSetup& )
             double Phi = Mom.phi() ;
             double Eta = -log(tan(Mom.theta()/2.));
 	 
-	 //if ( EvtHandles[i].provenance()->moduleLabel() == "VtxSmeared" )
-	 if ( EvtHandles[i]->isVtxGenApplied() )
-	    {	 
-               fVtxHist->Fill( (*Vtx)->position().z() ) ;
+			//if ( EvtHandles[i].provenance()->moduleLabel() == "VtxSmeared" )
+			//{	 
+               fVtxHistz->Fill( (*Vtx)->position().z() ) ;
+			   fVtxHistx->Fill( (*Vtx)->position().x() ) ;
+			   fVtxHisty->Fill( (*Vtx)->position().y() ) ;
+			   fVtxHistxy->Fill( (*Vtx)->position().x(),(*Vtx)->position().y() );
                fPhiHistSmr->Fill( Phi ) ;
                fEtaHistSmr->Fill( Eta ) ;
-            }
-	    else
-	    {
-	       fPhiHistOrg->Fill( Phi ) ;
-	       fEtaHistOrg->Fill( Eta ) ;
-	    }
+			   //}
+			   //else
+			   //{
+			   //fPhiHistOrg->Fill( Phi ) ;
+			   //fEtaHistOrg->Fill( Eta ) ;
+			   //}
 	 }
 
       }
