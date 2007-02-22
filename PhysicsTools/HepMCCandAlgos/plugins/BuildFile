@@ -26,6 +26,10 @@
   <use name=SimGeneral/HepPDTRecord>
 </library>
 
+<library file=ParticleDecayDrawer.cc>
+  <use name=SimGeneral/HepPDTRecord>
+</library>
+
 <library file=MCTruthDeltaRMatcher.cc>
   <use name=PhysicsTools/CandAlgos>
 </library>
