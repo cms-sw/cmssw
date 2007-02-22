@@ -1,16 +1,16 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/02/21 15:06:32 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/21 16:29:00 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
 
 #include <memory>
 #include <iostream>
-#include <fstream>
 #include <iomanip>
+#include <map>
 
 #include "TStyle.h"
 
@@ -401,8 +401,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapI.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapI << "\"></td>" << endl;
-  else
+    htmlFile << "<td><img src=\"" << imgNameMapI << "\" usemap=""#Int"" border=0></td>" << endl;
+  else 
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
   htmlFile << "</tr>" << endl;
@@ -414,7 +414,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapPO.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapPO << "\"></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapPO << "\" usemap=""#PeOnl"" border=0></td>" << endl;
   else 
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
@@ -424,6 +424,9 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   delete cMap;
 
+  this->writeMap( htmlFile, "Int" );
+  this->writeMap( htmlFile, "PeOnl" );
+
   // html page footer
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
@@ -432,3 +435,28 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
 }
 
+void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
+
+ std::map<std::string, std::string> refhtml;
+ refhtml["Int"] = "EBIntegrityClient.html";
+ refhtml["PeOnl"] = "EBPedestalOnlineClient.html";
+ 
+ const int A0 =  78;
+ const int A1 = 716;
+ const int B0 =  35;
+ const int B1 = 334;
+  
+ hf << "<map name=\"" << mapname << "\">" << std::endl;
+ for( int sm=0; sm<superModules_.size)_; sm ++ ) {
+  int i=(superModules_[k]-1)/18;
+  int j=(superModules_[k]-1)%18;
+  int x0 = A0 + (A1-A0)*j/18;
+  int x1 = A0 + (A1-A0)*(j+1)/18;
+  int y0 = B0 + (B1-B0)*i/2;
+  int y1 = B0 + (B1-B0)*(i+1)/2;
+  hf << "<area shape=\"rect\" href=\"" << refhtml[mapname] << "#" << 1+j+18*i << "\" coords=\"";
+  hf << x0+1 << ", " << y0+1 << ", " << x1 << ", " << y1 << "\">" << std::endl;
+ }
+ hf << "</map>" << std::endl;
+}
+     

@@ -4,14 +4,15 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2007/02/20 15:42:17 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/21 15:06:32 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
 
 #include <vector>
 #include <string>
+#include <fstream>
  
 #include "TROOT.h"
 #include "TProfile2D.h"
@@ -82,8 +83,8 @@ bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int 
  inline int getEvtPerRun() { return jevt_; }
 
 /// Set Clients
-  inline void setFriends(vector<EBClient*> clients) { clients_ = clients; }
-
+ inline void setFriends(vector<EBClient*> clients) { clients_ = clients; }
+  
 private:
 
 int ievt_;
@@ -108,6 +109,7 @@ MonitorUserInterface* mui_;
 MonitorElement* meIntegrity_;
 MonitorElement* mePedestalOnline_;
 
+ void writeMap( std::ofstream& hf, std::string mapname );
 };
 
 #endif
