@@ -1,14 +1,10 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/CombinatorialSeedGeneratorForCosmics.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/TkHitPairs/interface/CosmicLayerPairs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "Geometry/Surface/interface/BoundCylinder.h"
@@ -16,10 +12,7 @@
 #include "Geometry/Surface/interface/BoundPlane.h"
 #include "Geometry/Surface/interface/GloballyPositioned.h"
 #include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
-#include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToCurvilinear.h"
-//#include "TrackingTools/GeomPropagators/interface/StraightLinePropagator.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
-//#include "DataFormats/SiStripDetId/interface/TIBDetId.h"   //to remove 
 
 
 CombinatorialSeedGeneratorForCosmics::CombinatorialSeedGeneratorForCosmics(edm::ParameterSet const& conf): //SeedGeneratorFromTrackingRegion(conf),
@@ -41,17 +34,17 @@ CombinatorialSeedGeneratorForCosmics::CombinatorialSeedGeneratorForCosmics(edm::
 			     upperScintPar.getParameter<double>("GlobalY"),
 			     upperScintPar.getParameter<double>("GlobalZ"));
   //cout << "Upper position x, y, z " << upperPosition.x() << ", " << upperPosition.y() << ", " << upperPosition.z() << endl;
-  edm::LogVerbatim("CombinatorialSeedGeneratorForCosmics") << "Upper Scintillator position x, y, z " << upperPosition.x() << ", " << upperPosition.y() << ", " << upperPosition.z() << endl;
+  edm::LogVerbatim("CombinatorialSeedGeneratorForCosmics") << "Upper Scintillator position x, y, z " << upperPosition.x() << ", " << upperPosition.y() << ", " << upperPosition.z();
   //creates rectangular bounds for lower scintillator, arguments are half size
   RectangularPlaneBounds lowerBounds(lowerScintPar.getParameter<double>("WidthInX"),
                                      lowerScintPar.getParameter<double>("LenghtInZ"),
                                      1);
-  cout << "bound lenght " << lowerBounds.length() << endl;
+  //cout << "bound lenght " << lowerBounds.length() << endl;
   //places the lower scintillator according to position in cfg		
   GlobalPoint lowerPosition(lowerScintPar.getParameter<double>("GlobalX"),
                              lowerScintPar.getParameter<double>("GlobalY"),
                              lowerScintPar.getParameter<double>("GlobalZ"));
-  edm::LogVerbatim("CombinatorialSeedGeneratorForCosmics") << "Lower Scintillator position x, y, z " << lowerPosition.x() << ", " << lowerPosition.y() << ", " << lowerPosition.z() << endl;
+  edm::LogVerbatim("CombinatorialSeedGeneratorForCosmics") << "Lower Scintillator position x, y, z " << lowerPosition.x() << ", " << lowerPosition.y() << ", " << lowerPosition.z() ;
   TkRotation<float> rot(1,0,0,0,0,1,0,1,0);
   //cout << "matrix " << rot.xx() << rot.xy() << rot.xz() << rot.yx() << rot.yy() << rot.yz() << rot.zx() << rot.zy() << rot.zz()<< endl; 	
   upperScintillator = new BoundPlane(upperPosition, rot, &upperBounds);
@@ -111,8 +104,8 @@ CombinatorialSeedGeneratorForCosmics::init(const SiStripRecHit2DCollection &coll
   HitPairs.clear();
   meanRadius = 0;
   cosmiclayers.init(collstereo,collrphi,collmatched,geometry,iSetup);
-  vector<SeedLayerPairs::LayerPair> layerPairs = cosmiclayers();
-  vector<SeedLayerPairs::LayerPair>::const_iterator iLayerPairs;
+  std::vector<SeedLayerPairs::LayerPair> layerPairs = cosmiclayers();
+  std::vector<SeedLayerPairs::LayerPair>::const_iterator iLayerPairs;
   for(iLayerPairs = layerPairs.begin(); iLayerPairs != layerPairs.end(); iLayerPairs++){
 	const LayerWithHits* outer = (*iLayerPairs).second;
 	const LayerWithHits* inner = (*iLayerPairs).first;
@@ -362,5 +355,5 @@ std::pair<GlobalPoint, GlobalError> CombinatorialSeedGeneratorForCosmics::toGlob
 	  //error*=5.;
         }
 
-        return make_pair(hipos, error);
+        return std::make_pair(hipos, error);
 }

@@ -22,6 +22,8 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+#include <map>
+
 class CombinatorialSeedGeneratorForCosmics : public edm::EDProducer
 {
  public:
