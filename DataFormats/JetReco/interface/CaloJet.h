@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.19 2006/12/08 21:15:11 fedor Exp $
+ * \version   $Id: CaloJet.h,v 1.20 2007/02/21 19:07:55 fedor Exp $
  ************************************************************/
 
 
@@ -127,7 +127,10 @@ class CaloJet : public Jet {
 
   /// Print object
   virtual std::string print () const;
-  
+
+  /// Keep this for a while to avoid braking the third party code
+  std::vector<CaloTowerDetId> getTowerIndices() const;
+
  private:
   /// Polymorphic overlap
   virtual bool overlap( const Candidate & ) const;

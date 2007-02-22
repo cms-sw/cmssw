@@ -1,6 +1,6 @@
 // CaloJet.cc
 // Fedor Ratnikov UMd
-// $Id: CaloJet.cc,v 1.9 2006/06/27 23:15:06 fedor Exp $
+// $Id: CaloJet.cc,v 1.11 2006/12/08 21:15:11 fedor Exp $
 #include <sstream>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -84,4 +84,12 @@ std::string CaloJet::print () const {
     }
   }
   return out.str ();
+}
+
+std::vector<CaloTowerDetId> CaloJet::getTowerIndices() const {
+  std::cerr << "===============================================================================" << std::endl 
+	    << " OUT OF DATE! CaloJet::getTowerIndices() method is depricated and does nothing." << std::endl
+	    << " Please use CaloJet::getConstituents() method to access constituent towers. " << std::endl
+	    << "===============================================================================" << std::endl;
+  return std::vector<CaloTowerDetId> ();
 }
