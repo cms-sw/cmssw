@@ -3,8 +3,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/02/16 18:42:31 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/02/17 19:04:11 $
+ *  $Revision: 1.14 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -167,7 +167,7 @@ void TrackerSeedGenerator::findSeeds(const TrackCand& muon, const RectangularEta
 
   // Get the Tracker bounds, since the propagation goes from the vertex to the tracker
   // it is always along momentum
-  StateOnTrackerBound tracker( &*theService->propagator("SmartPropagator") );
+  StateOnTrackerBound tracker( &*theService->propagator(theOutPropagator) );
   
   // Get the state at the tracker bound
   TrajectoryStateOnSurface traj_trak = tracker(muFTS);

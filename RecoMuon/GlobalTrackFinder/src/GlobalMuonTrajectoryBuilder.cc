@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/02/16 13:33:34 $
- *  $Revision: 1.76 $
+ *  $Date: 2007/02/16 18:42:29 $
+ *  $Revision: 1.77 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -66,13 +66,13 @@
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonSeedCleaner.h"
 
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackReFitter.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 
-#include "RecoMuon/TrackingTools/interface/MuonTrackConverter.h"
 #include "RecoMuon/TrackerSeedGenerator/src/TrackerSeedGenerator.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
@@ -108,10 +108,9 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
 
   theMakeTkSeedFlag = par.getParameter<bool>("RegionalSeedFlag");
 
-
-  theTrackConverter = new MuonTrackConverter(par,theService);
-
   string stateOnTrackerOutProp = par.getParameter<string>("StateOnTrackerBoundOutPropagator");
+
+  trackerPropagatorName = par.getParameter<string>("TrackerPropagator");
 
   ParameterSet trackMatcherPSet = par.getParameter<ParameterSet>("GlobalMuonTrackMatcher");
   trackMatcherPSet.addParameter<string>("StateOnTrackerBoundOutPropagator",stateOnTrackerOutProp);
@@ -163,7 +162,6 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
   if (theRefitter) delete theRefitter;
   if (theTrackMatcher) delete theTrackMatcher;
   if (theLayerMeasurements) delete theLayerMeasurements;
-  if (theTrackConverter) delete theTrackConverter;
   if (theTrajectoryCleaner) delete theTrajectoryCleaner;
 }
 
@@ -321,7 +319,7 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
   //Get Track direction at vertex
   GlobalVector dirVector(staTrack->px(),staTrack->py(),staTrack->pz());
   //--
-  //-- dirVector = muFTS.momentum();
+  dirVector = muFTS.momentum();
   
   //Get track momentum
   const math::XYZVector& mo = staTrack->innerMomentum();
@@ -333,12 +331,15 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
   const math::XYZPoint& po = staTrack->innerPosition();
   GlobalPoint pos(po.x(),po.y(),po.z());
   
+  //Get innerMu position error
+  TrajectoryStateOnSurface muTSOS = tsTransform.innerStateOnSurface(*staTrack,*theService->trackingGeometry(),&*theService->magneticField());
+
+
   //Get dEta and dPhi: (direction at vertex) - (innerMuTsos position)
   float eta1 = dirVector.eta();
   float eta2 = pos.eta();
   float deta(fabs(eta1- eta2));
-  float dphi(fabs(Geom::Phi<float>(dirVector.phi())-Geom::Phi<float>(pos.phi()))
-	     );
+  float dphi(fabs(Geom::Phi<float>(dirVector.phi())-Geom::Phi<float>(pos.phi())));
   
   //deta = 1 * deta;
   //dphi = 1 * dphi;
@@ -349,8 +350,8 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
   GlobalPoint vertexPos = theVertexPos;
   GlobalError vertexErr = theVertexErr;
   //--  
-  //-- vertexPos = (muFTS.position());
-  //-- vertexErr = (muFTS.cartesianError().position());
+  vertexPos = (muFTS.position());
+  vertexErr = (muFTS.cartesianError().position());
   
   
   double minPt    = max(1.5,mom.perp()*0.6);
@@ -467,7 +468,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	//TrajectoryStateTransform tsTransform;	
 	TrajectoryStateOnSurface firstTsos2;
 	if(trackerRecHits.front()->geographicalId().det() == DetId::Tracker ) {
-	  firstTsos2 = theRefitter->propagator(oppositeToMomentum)->propagate(lastTsos,trackerRecHits.front()->det()->surface());
+	  firstTsos2 = theService->propagator(trackerPropagatorName)->propagate(lastTsos,trackerRecHits.front()->det()->surface());
 	}
 	
 	//if(firstTsos2.isValid()) cout << endl<< "Next TSOS Propagated " <<endl 
@@ -611,11 +612,18 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
 						std::vector<int>& hits) const {
 
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|checkMuonHits";
-
+  
   int dethits[4];
   for ( int i=0; i<4; i++ ) hits[i]=dethits[i]=0;
   
-  ConstMuonRecHitContainer muonRecHits = theTrackConverter->getTransientMuonRecHits(muon);
+  ConstMuonRecHitContainer muonRecHits;
+  for (trackingRecHit_iterator iter = muon.recHitsBegin(); iter != muon.recHitsEnd(); ++iter) {    
+    const TrackingRecHit* p = (*iter).get();
+    const GeomDet* gd = theService->trackingGeometry()->idToDet(p->geographicalId());    
+    MuonTransientTrackingRecHit::MuonRecHitPointer mp = MuonTransientTrackingRecHit::specificBuild(gd,p);    
+    muonRecHits.push_back(mp);    
+  }
+  
   
   // loop through all muon hits and calculate the maximum # of hits in each chamber      
   for (ConstMuonRecHitContainer::const_iterator imrh = muonRecHits.begin(); imrh != muonRecHits.end(); imrh++ ) { 
@@ -1067,6 +1075,8 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
 	if(tkSeeds.size() > 0) dataMonitor->fill1("cuts",3);
 	dataMonitor->book1D("seed_sta","Seeds per STA",101,-0.5,100.5);
 	dataMonitor->fill1("seed_sta",tkSeeds.size());
+	dataMonitor->book2D("seed_sta_pt","Seeds per STA",20,0.,200.,101,-0.5,100.5);
+	dataMonitor->fill2("seed_sta_pt",staCand.second->pt(),tkSeeds.size());
       }
       timerName = category + "::makeTrajsFromSeed";
       times.pop_and_push(timerName);
@@ -1137,7 +1147,8 @@ void GlobalMuonTrajectoryBuilder::addTraj(TrackCand& candIn) const {
     LogTrace(category) << "Making new trajectory from TrackRef " << (*candIn.second).pt();
 
     TC staTrajs = theTrackTransformer->transform(*(candIn.second));
-    if(staTrajs.empty()) LogTrace(category) << "Transformer: Add Traj failed!";    
+    if(staTrajs.empty()) LogTrace(category) << "Transformer: Add Traj failed!";
+
     candIn = ( !staTrajs.empty() ) ? TrackCand(new Trajectory(staTrajs.front()),candIn.second) : TrackCand(0,candIn.second);    
 
   }

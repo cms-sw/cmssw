@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/01/18 13:31:53 $
- *  $Revision: 1.47 $
+ *  $Date: 2007/02/05 19:07:38 $
+ *  $Revision: 1.48 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -145,6 +145,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     float theRPCChi2Cut;
     edm::InputTag theTkTrackLabel;
     std::string theCkfBuilderName;
+    std::string trackerPropagatorName;
 
     bool theTkTrajsAvailableFlag;
     bool theMakeTkSeedFlag;
