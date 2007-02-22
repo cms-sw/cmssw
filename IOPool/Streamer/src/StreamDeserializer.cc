@@ -139,7 +139,7 @@ namespace edm
     auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
                                                    sd->time_,
                                                    productRegistry,
-						   processConfiguration_));
+                                                   processConfiguration_));
     // Add processConfiguration_ to the process history.
     ep->addToProcessHistory();
     // no process name list handling
@@ -192,4 +192,52 @@ namespace edm
     return ep;     
   }
 
+  /**
+   * Deserializes the specified DQM event message into a map of
+   * subfolder names and lists of TObjects that can be turned into
+   * monitor elements.
+   */
+  std::auto_ptr<DQMEvent::TObjectTable>
+  StreamDeserializer::deserializeDQMEvent(DQMEventMsgView const& dqmEventView)
+  {
+    if (dqmEventView.code() != Header::DQM_EVENT)
+      throw cms::Exception("StreamTranslation",
+                           "DQM Event deserialization error")
+        << "received wrong message type: expected DQM_EVENT ("
+        << Header::DQM_EVENT << "), got " << dqmEventView.code() << "\n";
+    FDEBUG(9) << "Deserialing DQM event: "
+         << dqmEventView.eventNumberAtUpdate() << " "
+         << dqmEventView.runNumber() << " "
+         << dqmEventView.size() << " "
+         << dqmEventView.eventLength() << " "
+         << dqmEventView.eventAddress()
+         << endl;
+
+    // create the folder name to TObject map
+    auto_ptr<DQMEvent::TObjectTable> tablePtr(new DQMEvent::TObjectTable());
+
+    // fetch the subfolder names
+    boost::shared_ptr< std::vector<std::string> > folderNameList =
+      dqmEventView.subFolderNames();
+
+    // loop over the subfolders
+    for (uint32 fdx = 0; fdx < dqmEventView.subFolderCount(); fdx++) {
+      std::vector<TObject *> meList;
+
+      // loop over the monitor elements in the subfolder
+      int meCount = dqmEventView.meCount(fdx);
+      TBuffer meDataBuffer(TBuffer::kRead, dqmEventView.meDataSize(fdx),
+                           dqmEventView.meDataAddress(fdx), false);
+      for (int mdx = 0; mdx < meCount; mdx++) {
+        TObject *tmpPtr = meDataBuffer.ReadObject(TObject::Class());
+        meList.push_back(tmpPtr);
+      }
+
+      // store the list in the table
+      std::string folderName = (*folderNameList)[fdx];
+      (*tablePtr)[folderName] = meList;
+    }
+
+    return tablePtr;
+  }
 }
