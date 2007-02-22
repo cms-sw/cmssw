@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/02/22 13:32:27 $
- * $Revision: 1.7 $
+ * $Date: 2007/02/22 14:45:14 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -332,6 +332,11 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   TCanvas* cMap = new TCanvas("cMap", "Temp", 2*csize, csize);
 
+  float saveHeigth = gStyle->GetTitleH();
+  gStyle->SetTitleH(0.07);
+  float saveFontSize = gStyle->GetTitleFontSize();
+  gStyle->SetTitleFontSize(15);
+
   TH2F* obj2f;
 
   imgNameMapI = "";
@@ -360,6 +365,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
+    obj2f->SetTitleSize(0.5);
     obj2f->Draw("col");
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
@@ -435,6 +441,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   htmlFile.close();
 
+  gStyle->SetTitleH( saveHeigth );
+  gStyle->SetTitleFontSize( saveFontSize );
 }
 
 void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
