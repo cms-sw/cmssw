@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/02/17 14:33:38 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/17 17:04:43 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -148,7 +148,7 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
     float xie = ie - 0.5;
     float xip = ip - 0.5;
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism-1);
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
     if ( i == dccMap.end() ) continue;
 
     if ( ! ( dccMap[ism-1].getRunType() == EcalDCCHeaderBlock::COSMIC ||

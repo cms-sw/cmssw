@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2007/02/17 12:33:37 $
- * $Revision: 1.61 $
+ * $Date: 2007/02/17 17:04:43 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  *
 */
@@ -253,7 +253,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     int ism = id.ism();
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism-1);
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
     if ( i == dccMap.end() ) continue;
 
     if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
@@ -306,7 +306,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
     float xie = ie - 0.5;
     float xip = ip - 0.5;
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism-1);
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
     if ( i == dccMap.end() ) continue;
 
     if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
@@ -363,7 +363,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     int num = id.iPnId();
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism-1);
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
     if ( i == dccMap.end() ) continue;
 
     if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2007/02/01 15:43:57 $
- * $Revision: 1.49 $
+ * $Date: 2007/02/17 17:04:43 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  *
 */
@@ -257,7 +257,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
     float xie = ie - 0.5;
     float xip = ip - 0.5;
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism-1);
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
     if ( i == dccMap.end() ) continue;
 
     if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::PEDESTAL_STD ) continue;
@@ -375,7 +375,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
     int num = id.iPnId();
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism-1);
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
     if ( i == dccMap.end() ) continue;
 
     if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::PEDESTAL_STD ) continue;
