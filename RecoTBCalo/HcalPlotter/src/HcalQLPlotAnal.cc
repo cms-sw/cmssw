@@ -13,7 +13,7 @@
 //
 // Original Author:  Phillip R. Dudero
 //         Created:  Tue Jan 16 21:11:37 CST 2007
-// $Id$
+// $Id: HcalQLPlotAnal.cc,v 1.1 2007/02/12 05:38:42 dudero Exp $
 //
 //
 
@@ -143,4 +143,4 @@ HcalQLPlotAnal::endJob()
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(HcalQLPlotAnal)
+DEFINE_FWK_MODULE(HcalQLPlotAnal);
