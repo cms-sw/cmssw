@@ -43,5 +43,6 @@ mv Images/*.eps            $mbDir/Plots/eps/.
 mv Images/*.gif            $mbDir/Plots/gif/.
 
 # move geometry diff files
-mv diff_info.temp $nsDir/ModulePositioning.diff
-mv diff_num.temp  $nsDir/ModuleNumbering.diff
+mv diff_info.temp     $nsDir/ModulePositioning.diff
+mv diff_num.temp      $nsDir/ModuleNumbering.diff
+mv NumberingInfo.log  $nsDir/.
