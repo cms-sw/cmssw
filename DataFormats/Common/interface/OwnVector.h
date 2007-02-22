@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.21 2007/01/23 00:50:00 wmtan Exp $
+// $Id: OwnVector.h,v 1.22 2007/01/25 20:19:09 wdd Exp $
 
 #include <algorithm>
 #include <functional>
@@ -177,9 +177,6 @@ namespace edm {
     static Ordering<O> ordering(const O & comp) {
       return Ordering<O>(comp);
     }
-    struct deleter {
-      void operator()(T & t) { delete & t; }
-    };
     base data_;      
     typename helpers::PostReadFixupTrait<T>::type fixup_;
   };
@@ -301,6 +298,7 @@ namespace edm {
     // out of the vector...
     delete data_.back();
     data_.pop_back();
+    fixup_.touch();
   }
 
   template <typename T, typename P>
@@ -350,7 +348,9 @@ namespace edm {
   
   template<typename T, typename P>
   inline void OwnVector<T, P>::destroy() {
-    std::for_each(begin(), end(), deleter());
+    typename base::const_iterator b = data_.begin(), e = data_.end();
+    for( typename base::const_iterator i = b; i != e; ++ i )
+      delete * i;
   }
   
   template<typename T, typename P>
