@@ -15,9 +15,9 @@
 
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
-vector<SeedLayerPairs::LayerPair> LaserLayerPairs::operator()()
+std::vector<SeedLayerPairs::LayerPair> LaserLayerPairs::operator()()
 {
-  vector<LayerPair> result;
+  std::vector<LayerPair> result;
 
   // seeds from TEC+
   result.push_back( LayerPair(lh1pos, lh2pos) );
