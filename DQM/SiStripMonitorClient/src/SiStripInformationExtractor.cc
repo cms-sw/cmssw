@@ -2,6 +2,7 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
+#include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
@@ -13,6 +14,7 @@
 #include "TImage.h"
 #include "TPaveText.h"
 #include "TImageDump.h"
+#include "TAxis.h"
 
 #include <iostream>
 using namespace std;
@@ -263,6 +265,9 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
   if (hasItem(req_map,"height"))
               height = atoi(getItemValue(req_map, "height").c_str());
 
+  string dopt;
+  if (hasItem(req_map,"drawopt")) dopt = getItemValue(req_map, "drawopt");
+
   canvas.SetWindowSize(width,height);
   canvas.Divide(ncol, nrow);
   int i=0;
@@ -273,14 +278,34 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
     string tag;
     int icol;
     SiStripUtility::getStatusColor(istat, icol, tag);
+
+    TProfile* prof = ExtractTObject<TProfile>().extract((*it));
+    TH1F* hist1 = ExtractTObject<TH1F>().extract((*it));
+    TH2F* hist2 = ExtractTObject<TH2F>().extract((*it));
   
-    MonitorElementT<TNamed>* ob = 
-      dynamic_cast<MonitorElementT<TNamed>*>((*it));
-    if (ob) {
+    if (prof|| hist1 || hist2) {
       canvas.cd(i);
-      //      TAxis* xa = ob->operator->()->GetXaxis();
-      //      xa->SetRangeUser(xlow, xhigh);
-      ob->operator->()->Draw();
+
+      if (hist2) {
+        if (xlow != -1.0 && xhigh != -1.0) {
+          TAxis* xa = hist2->GetXaxis();
+          xa->SetRangeUser(xlow, xhigh);
+        }
+        hist2->SetFillColor(1);
+        hist2->Draw(dopt.c_str());
+      } else if (prof) {
+        if (xlow != -1 &&  xhigh != -1.0) {
+          TAxis* xa = prof->GetXaxis();
+          xa->SetRangeUser(xlow, xhigh);
+        }
+        prof->Draw(dopt.c_str());
+      } else {
+        if (xlow != -1 &&  xhigh != -1.0) {
+          TAxis* xa = hist1->GetXaxis();
+          xa->SetRangeUser(xlow, xhigh);
+        }
+        hist1->Draw(dopt.c_str());
+      }
       if (icol != 1) {
 	TText tt;
 	tt.SetTextSize(0.12);

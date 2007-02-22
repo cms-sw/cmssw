@@ -18,7 +18,7 @@
       <img id="drawingcanvas"
            src="images/blank.png" 
            width="100%"
-           height="433px"
+           height="600px"
            style="border: 1px solid #000;"
            name="canvas">
       </img>
@@ -152,23 +152,36 @@
                     Rows:
                   </label> 
                  <input type="text"
-                        style="width:5%;border:1px solid #000;" 
+                        style="width:5%;border:1px solid #000;margin-top:2%" 
                         value="1"
                         id="nrow" 
                         name="nRows">
                  </input>
                   <label id="cols"
-                        style="margin-left:2%">
+                        style="margin-left:2%;margin-top:2%">
                     Columns:
                   </label> 
                  <input type="text"
-                        style="width:5%;border:1px solid #000;" 
+                        style="width:5%;border:1px solid #000;margin-top:2%" 
                         value="1"
                         id="ncol" 
                         name="nColumns">
                  </input>
                  <br/>
-                 <input name="drawhisto" 
+                  <label id="drawing_option_label"
+                     style="margin-left:5%;margin-top:2%">
+                     DrawOption:
+	          </label>
+                  <select name="draw_opt" 
+                        id="drawing_options"
+                        style="width:15%;margin-top:2%"
+                       <option value=" " SELECTED>Normal</option>
+                       <option value="BOX">Box</option>
+                       <option value="LEGO1">Lego1</option>
+                       <option value="LEGO2">Lego2</option>
+                       <option value="LEGO3">Lego3</option>
+                  </select>
+                  <input name="drawhisto" 
                         id="draw_histos"
                         value="Draw Histogram(s)" 
                         style="width:35%;margin-left:60%;"
