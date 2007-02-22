@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/20 15:42:18 $
- * $Revision: 1.225 $
+ * $Date: 2007/02/21 15:06:32 $
+ * $Revision: 1.226 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1503,9 +1503,11 @@ void EcalBarrelMonitorClient::htmlOutput(void){
     }
   }
 
+#if 0
   htmlName = "EBSummaryClient.html";
   summaryClient_->htmlOutput(run_, htmlDir, htmlName);
   htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
+#endif
 
   htmlFile << "</ul>" << endl;
 

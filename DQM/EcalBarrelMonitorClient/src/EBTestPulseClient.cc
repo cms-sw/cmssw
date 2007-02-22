@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/02/20 11:01:18 $
- * $Revision: 1.127 $
+ * $Date: 2007/02/20 13:27:16 $
+ * $Revision: 1.128 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -122,8 +122,9 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
   RMSThreshold_ = 300.0;
   threshold_on_AmplitudeErrorsNumber_ = 0.02;
 
-  amplitudeThresholdPN_ = 200.;
-  meanThresholdPN_ = 200.;
+  amplitudeThresholdPnG01_ = 200./16.;
+  amplitudeThresholdPnG16_ = 200.;
+  pedestalThresholdPn_ = 200.;
 
 }
 
@@ -173,10 +174,10 @@ void EBTestPulseClient::beginJob(MonitorUserInterface* mui){
       qtha02_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0*12.);
       qtha03_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0*12.);
 
-      qtha04_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
-      qtha05_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
-      qtha06_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
-      qtha07_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
+      qtha04_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
+      qtha05_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
+      qtha06_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
+      qtha07_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
 
       qtha01_[ism-1]->setRMSRange(0.0, RMSThreshold_);
       qtha02_[ism-1]->setRMSRange(0.0, RMSThreshold_);
@@ -1252,9 +1253,9 @@ void EBTestPulseClient::analyze(void){
         float val;
 
         val = 1.;
-        if ( mean01 < amplitudeThresholdPN_ )
+        if ( mean01 < amplitudeThresholdPnG01_ )
           val = 0.;
-        if ( mean03 < meanThresholdPN_ )
+        if ( mean03 < pedestalThresholdPn_ )
           val = 0.;
         if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent(i, 1, val);
 
@@ -1265,9 +1266,9 @@ void EBTestPulseClient::analyze(void){
         float val;
 
         val = 1.;
-        if ( mean02 < amplitudeThresholdPN_ )
+        if ( mean02 < amplitudeThresholdPnG16_ )
           val = 0.;
-        if ( mean04 < meanThresholdPN_ )
+        if ( mean04 < pedestalThresholdPn_ )
           val = 0.;
         if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(i, 1, val);
 

@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2007/02/01 15:25:24 $
- * $Revision: 1.43 $
+ * $Date: 2007/02/20 15:42:17 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -167,8 +167,9 @@ float threshold_on_AmplitudeErrorsNumber_;
 
 // Quality check on PNs
 
-float meanThresholdPN_;
-float amplitudeThresholdPN_;
+float amplitudeThresholdPnG01_;
+float amplitudeThresholdPnG16_;
+float pedestalThresholdPn_;
 
 };
 

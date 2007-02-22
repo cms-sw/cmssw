@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/02/20 11:01:18 $
- * $Revision: 1.127 $
+ * $Date: 2007/02/20 13:27:16 $
+ * $Revision: 1.128 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -137,7 +137,7 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
   RMSThreshold_[1] = 1.2;
   RMSThreshold_[2] = 2.0;
 
-  meanThresholdPN_ = 200.;
+  pedestalThresholdPn_ = 200.;
 
 }
 
@@ -181,8 +181,8 @@ void EBPedestalClient::beginJob(MonitorUserInterface* mui){
       qth02_[ism-1]->setMeanRange(expectedMean_[1] - discrepancyMean_[1], expectedMean_[1] + discrepancyMean_[1]);
       qth03_[ism-1]->setMeanRange(expectedMean_[2] - discrepancyMean_[2], expectedMean_[2] + discrepancyMean_[2]);
 
-      qth04_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
-      qth05_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
+      qth04_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
+      qth05_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
 
       qth01_[ism-1]->setRMSRange(0.0, RMSThreshold_[0]);
       qth02_[ism-1]->setRMSRange(0.0, RMSThreshold_[1]);
@@ -1163,7 +1163,7 @@ void EBPedestalClient::analyze(void){
         float val;
 
         val = 1.;
-        if ( mean01 < meanThresholdPN_ )
+        if ( mean01 < pedestalThresholdPn_ )
           val = 0.;
         if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent(i, 1, val);
 
@@ -1174,7 +1174,7 @@ void EBPedestalClient::analyze(void){
         float val;
 
         val = 1.;
-        if ( mean02 < meanThresholdPN_ ) 
+        if ( mean02 < pedestalThresholdPn_ ) 
           val = 0.;
         if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(i, 1, val);
 

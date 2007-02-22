@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2007/02/01 15:25:24 $
- * $Revision: 1.50 $
+ * $Date: 2007/02/20 15:42:17 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  *
 */
@@ -285,8 +285,9 @@ float percentVariation_;
 
 // Quality check on PNs
 
-float meanThresholdPN_;
-float amplitudeThresholdPN_;
+float amplitudeThresholdPnG01_;
+float amplitudeThresholdPnG16_;
+float pedestalThresholdPn_;
 
 };
 

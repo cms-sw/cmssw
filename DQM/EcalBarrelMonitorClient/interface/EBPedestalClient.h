@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2007/02/01 15:25:24 $
- * $Revision: 1.48 $
+ * $Date: 2007/02/20 15:42:17 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -171,7 +171,7 @@ float RMSThreshold_[3];
 
 // Quality check on PNs
 
-float meanThresholdPN_;
+float pedestalThresholdPn_;
 
 };
 
