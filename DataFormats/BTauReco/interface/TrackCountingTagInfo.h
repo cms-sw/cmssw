@@ -72,7 +72,7 @@ class TrackCountingTagInfo : public BaseTagInfo
  */
   virtual float discriminator(size_t nth, int ipType) const { return significance(nth-1,ipType); }
  
-  virtual int selectedTracks(int ipType)
+  virtual int selectedTracks(int ipType) const
   {
    if(ipType == 0) return m_significance3d.size();
    else return m_significance2d.size();
