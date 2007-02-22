@@ -206,7 +206,8 @@ namespace edm
 
       if(messageStatus!=0)
       {
-        cerr << "curl perform failed for event" << endl;
+        cerr << "curl perform failed for event, messageStatus = "
+             << messageStatus << endl;
         // this will end cmsRun 
         return std::auto_ptr<edm::EventPrincipal>();
       }
