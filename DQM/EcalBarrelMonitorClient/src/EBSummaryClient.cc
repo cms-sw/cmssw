@@ -447,9 +447,9 @@ void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
  const int B1 = 334;
   
  hf << "<map name=\"" << mapname << "\">" << std::endl;
- for( int sm=0; sm<superModules_.size)_; sm ++ ) {
-  int i=(superModules_[k]-1)/18;
-  int j=(superModules_[k]-1)%18;
+ for( unsigned int sm=0; sm<superModules_.size(); sm ++ ) {
+  int i=(superModules_[sm]-1)/18;
+  int j=(superModules_[sm]-1)%18;
   int x0 = A0 + (A1-A0)*j/18;
   int x1 = A0 + (A1-A0)*(j+1)/18;
   int y0 = B0 + (B1-B0)*i/2;
