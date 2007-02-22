@@ -352,6 +352,8 @@ void createPlots(TString plot) {
     histo_old->SetLineWidth(1.0); // 
     //
     // Draw
+    histo_old->GetXaxis()->SetTitle(abscissaName);
+    histo_old->GetYaxis()->SetTitle(ordinateName);
     histo_old->Draw("HIST");
     histo_new->Draw("HIST P E1 SAME");
     //
@@ -373,7 +375,7 @@ void createPlots(TString plot) {
   // Store
   can_comparison.Update();
   can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
 }
