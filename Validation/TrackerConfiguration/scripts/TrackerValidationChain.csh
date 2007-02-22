@@ -8,10 +8,19 @@ cd ${DATADIR}
 
 project CMSSW
 
+cvs co Validation/Geometry
 cvs co Validation/TrackerHits
 cvs co Validation/TrackerDigis
 cvs co Validation/TrackerRecHits
-
+#
+# Geometry Validation
+#
+cd ${DATADIR}/Validation/Geometry/test
+./TrackerGeometryValidation.sh
+./copyWWWTrackerGeometry.sh
+#
+# Run validation chain
+#
 cd ${DATADIR}/Validation/TrackerConfiguration/test
 
 cp /afs/cern.ch/cms/data/CMSSW/Validation/TrackerHits/data/Muon.root .
