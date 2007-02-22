@@ -47,6 +47,8 @@ namespace reco {
       neutralEnergyRatio,     // ratio of neutral ECAL clus. energy sum in isolation band over neutral ECAL clus. energy sum
       neutralclusterNumber,   // number of neutral ECAL clus.
       neutralclusterRadius,   // mean DR between neutral ECAL clus. and lead.track
+      secondaryVtxWeightedEnergyRatio, // ratio of weighted energy at secondary vertex over total energy
+      jetNVertices, // number of vertices found in a jet
       
       lastTaggingVariable
     };
