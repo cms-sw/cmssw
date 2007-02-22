@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/02/21 13:46:48 $
- *  $Revision: 1.37 $
+ *  $Date: 2007/02/21 14:33:19 $
+ *  $Revision: 1.38 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -100,7 +100,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
       }
     // getting the fields of the DCC header
     EcalDCCHeaderBlock theDCCheader;
-    theDCCheader.setId((*itEventBlock)->getDataField("FED/DCC ID"));      // at the moment used as fed id
+    //    theDCCheader.setId((*itEventBlock)->getDataField("FED/DCC ID"));      // at the moment used as fed id
+    theDCCheader.setId(1);                                                                                    // forced to 1 since tb unpacker
     // int SMid(1);                                                                                                  // here forcing slot=1, as always in test beam
     // theDCCheader.setiEB(SMid);                                                                  //  iEB is physical slot in CMS ECAL barrael (1.. 36)
     theDCCheader.setRunNumber((*itEventBlock)->getDataField("RUN NUMBER"));
