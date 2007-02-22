@@ -143,10 +143,7 @@ void AlignableComposite::rotateInLocalFrame( const RotationType& rotation )
   const PositionType& myPos = globalPosition();
   const RotationType& myRot = globalRotation();
 
-  theSurface = AlignableSurface( myPos, rotation * myRot );
-  theRotation = rotation * theRotation;
-
-  RotationType globalRot = myRot.multiplyInverse( theSurface.rotation() );
+  RotationType globalRot = myRot.multiplyInverse(rotation * myRot);
 
   std::vector<Alignable*> comp = components();
 
@@ -167,6 +164,9 @@ void AlignableComposite::rotateInLocalFrame( const RotationType& rotation )
     ali->move( moveVector );
     ali->rotateInLocalFrame( rotation );
   }
+
+  theSurface = AlignableSurface( myPos, rotation * myRot );
+  theRotation = rotation * theRotation;
 
 }
 
