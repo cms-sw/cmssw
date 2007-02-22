@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/21 15:06:32 $
- * $Revision: 1.226 $
+ * $Date: 2007/02/22 09:35:44 $
+ * $Revision: 1.227 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -380,7 +380,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
 
   clients_.push_back(  new EBPedestalOnlineClient(ps) );
-  clientNames_.push_back( "PedestalOnLine" );
+  clientNames_.push_back( "PedestalOnline" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
@@ -1503,11 +1503,11 @@ void EcalBarrelMonitorClient::htmlOutput(void){
     }
   }
 
-#if 0
+//#if 0
   htmlName = "EBSummaryClient.html";
   summaryClient_->htmlOutput(run_, htmlDir, htmlName);
   htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
-#endif
+//#endif
 
   htmlFile << "</ul>" << endl;
 
