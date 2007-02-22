@@ -133,7 +133,6 @@ void GctBlockConverter::blockToRctEmCand(const unsigned char * data, unsigned id
     // read 16 bit words
     for (int j=0; j<6; j++) {
       d[j] = data[offset+(2*nSamples*j)] + (data[offset+(2*nSamples*j)+1]<<8);
-      cout << std::hex << j << " " << d[j] << endl;
     }
 
     // create candidates and add to collections
