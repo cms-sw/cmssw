@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: FastGenParticleCandidateProducer.h,v 1.2 2007/01/16 11:23:52 llista Exp $
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.1 2007/02/01 11:55:49 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -179,8 +179,14 @@ void FastGenParticleCandidateProducer::fillRefs( const std::vector<const GenPart
   for( size_t d = 0; d < candVector.size(); ++ d ) {
     const GenParticle * part = particles[ d ];
     if ( part->hasParents() ) {
-      size_t m = part->mother()->barcode() - 1;
+      const GenParticle * mother = part->mother();
+      size_t m = mother->barcode() - 1;
       candVector[ m ]->addDaughter( CandidateRef( ref, d ) );
+      const GenParticle * mother2 = part->secondMother();
+      if ( mother2 != 0 && mother2 != mother ) {
+	m = mother2->barcode() - 1;
+	candVector[ m ]->addDaughter( CandidateRef( ref, d ) );
+      }
     }
   }
 }
