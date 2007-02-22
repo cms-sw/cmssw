@@ -9,6 +9,7 @@
  */
 
 #include "FWCore/Framework/interface/OutputModule.h"
+#include "IOPool/Streamer/interface/DQMEventMsgBuilder.h"
 
 class EventMsgBuilder;
 class InitMsgBuilder;
@@ -27,6 +28,9 @@ namespace edm
     int serializeEvent(EventPrincipal const& eventPrincipal,
                        EventMsgBuilder& eventMessage,
                        bool use_compression, int compression_level);
+
+    static int serializeDQMEvent(DQMEvent::MonitorElementTable& meTable,
+                                 DQMEventMsgBuilder& dqmMsgBuilder);
 
   private:
 

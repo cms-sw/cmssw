@@ -11,6 +11,7 @@
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
+#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
 
 #include "zlib.h"
 
@@ -203,5 +204,50 @@ namespace edm
       // just return the original buffer
       return rootbuf.Length();
     }
+  }
+
+  /**
+   * Serializes the specified DQM Event into the specified DQM Event message.
+   */
+  int StreamSerializer::serializeDQMEvent(DQMEvent::MonitorElementTable& meTable,
+                                          DQMEventMsgBuilder& dqmMsgBuilder)
+  {
+    // loop over each subfolder
+    DQMEvent::MonitorElementTable::const_iterator sfIter;
+    for (sfIter = meTable.begin(); sfIter != meTable.end(); sfIter++) {
+      std::string folderName = sfIter->first;
+      std::vector<MonitorElement *> meList = sfIter->second;
+
+      // serialize the ME data
+      int meCount = 0;
+      TBuffer meDataBuffer(TBuffer::kWrite);
+      for (int idx = 0; idx < (int) meList.size(); idx++) {
+        MonitorElement *mePtr = meList[idx];
+
+        MonitorElementRootObject* rootObject = 
+          dynamic_cast<MonitorElementRootObject *>(mePtr);
+        if (rootObject) {
+          meDataBuffer.WriteObject(rootObject->operator->());
+          meCount++;
+        }
+        else {
+          FoldableMonitor *foldable =
+            dynamic_cast<FoldableMonitor *>(mePtr);
+          if (foldable) {
+            meDataBuffer.WriteObject(foldable->getTagObject());
+            meCount++;
+          }
+          else {
+            std::cerr << " *** Failed to extract and send object " 
+                      << mePtr->getName() << std::endl;
+          }
+        }
+      }
+
+      // add the subfolder to the DQM event message
+      dqmMsgBuilder.addMEData(folderName, meCount, meDataBuffer);
+    }
+
+    return dqmMsgBuilder.eventLength();
   }
 }
