@@ -12,6 +12,10 @@
 
 #include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
+#include "RecoParticleFlow/PFRootEvent/interface/JetAlgorithmEF.h" 
+#include "RecoParticleFlow/PFRootEvent/interface/IO.h" 
+#include "RecoParticleFlow/PFRootEvent/interface/Utils.h" 
+#include "RecoParticleFlow/PFRootEvent/interface/EventColin.h"
 
 #include <TObject.h>
 #include "TEllipse.h"
@@ -131,6 +135,8 @@ class PFRootEventManager {
   /// performs particle flow
   void particleFlow();
 
+  //performs the jets reconstructions
+  void makeJets();
 
   /// process and display one entry 
   void display(int ientry);
@@ -480,5 +486,18 @@ class PFRootEventManager {
   // particle flow ------------------------------------------
   bool   displayJetColors_;
   int    reconMethod_;
+
+  // jets parameters ----------------------------------------
+  bool   doJets_;
+  double coneAngle_;
+  double seedEt_;
+  double coneMerge_;
+  bool   jetsDebug_;
+
+ private:
+  EventColin      *event_;
+  TTree           *outTree_;
+  JetAlgorithmEF*  JetAlgo_;
+
 };
 #endif
