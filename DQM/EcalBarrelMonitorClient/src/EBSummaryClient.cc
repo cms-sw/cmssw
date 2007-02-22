@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/02/22 13:18:14 $
- * $Revision: 1.6 $
+ * $Date: 2007/02/22 13:32:27 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -25,6 +25,8 @@
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
@@ -201,8 +203,6 @@ void EBSummaryClient::analyze(void){
     }
   }
 
-  MonitorElement* me;
-
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
     EBIntegrityClient* ebit = dynamic_cast<EBIntegrityClient*>(clients_[i]);
@@ -212,7 +212,7 @@ void EBSummaryClient::analyze(void){
 
         int ism = superModules_[i];
 
-        me = ebit->meg01_[ism-1];
+        MonitorElement* me = ebit->meg01_[ism-1];
 
         if ( me ) {
 
@@ -221,16 +221,17 @@ void EBSummaryClient::analyze(void){
 
               float xval = me->getBinContent( ie, ip );
 
-              int iex = 0;
-              int ipx = 0;
+              int ic = (ip-1) + 20*(ie-1) + 1;
 
-              if ( ism >= 1 && ism <= 18 ) {
-                iex = 85+ie;
-                ipx = (20-ip+1)+20*(ism-1);
-              }
-              if ( ism >=19 && ism <= 36 ) {
-                iex = -ie;
-                ipx = ip+20*(ism-19);
+              EBDetId id(ism, ic, EBDetId::SMCRYSTALMODE);
+
+              int iex = id.ieta();
+              int ipx = id.iphi();
+
+              if ( ism <= 18 ) {
+                iex = iex + 85;
+              } else {
+                iex = iex + 85 + 1;
               }
 
               meIntegrity_->setBinContent( ipx, iex, xval );
@@ -251,7 +252,7 @@ void EBSummaryClient::analyze(void){
 
         int ism = superModules_[i];
 
-        me = ebpo->meg03_[ism-1];
+        MonitorElement* me = ebpo->meg03_[ism-1];
 
         if ( me ) {
 
@@ -260,16 +261,17 @@ void EBSummaryClient::analyze(void){
 
               float xval = me->getBinContent( ie, ip );
 
-              int iex = 0;
-              int ipx = 0;
+              int ic = (ip-1) + 20*(ie-1) + 1;
 
-              if ( ism >= 1 && ism <= 18 ) {
-                iex = 85+ie;
-                ipx = (20-ip+1)+20*(ism-1);
-              }
-              if ( ism >=19 && ism <= 36 ) {
-                iex = -ie;
-                ipx = ip+20*(ism-1);
+              EBDetId id(ism, ic, EBDetId::SMCRYSTALMODE);
+
+              int iex = id.ieta();
+              int ipx = id.iphi();
+
+              if ( ism <= 18 ) {
+                iex = iex + 85;
+              } else {
+                iex = iex + 85 + 1;
               }
 
               mePedestalOnline_->setBinContent( ipx, iex, xval );
