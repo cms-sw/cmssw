@@ -11,6 +11,7 @@
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
 <use name=IOPool/Common>
+<use name=DQMServices/NodeROOT>
 <export>
  <lib name=IOPoolStreamer>
  <use name=boost>
