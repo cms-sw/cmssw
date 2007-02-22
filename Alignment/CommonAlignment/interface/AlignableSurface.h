@@ -5,8 +5,8 @@
  *
  *  A class to hold a surface with width and length for alignment purposes.
  *
- *  $Date: 2007/01/28 $
- *  $Revision: 1 $
+ *  $Date: 2007/02/20 17:37:16 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 
@@ -34,11 +34,17 @@ class AlignableSurface:
   void setLength(float length) { theLength = length; }
 
   using GloballyPositioned<float>::toGlobal;
+  using GloballyPositioned<float>::toLocal;
 
   /// Return in global coord given a set of local points.
   std::vector<GlobalPoint> toGlobal(
 				    const std::vector<LocalPoint>&
 				    ) const;
+
+  /// Return in local frame a rotation given in global frame.
+  TkRotation<float> toLocal(
+			    const TkRotation<float>&
+			    ) const;
 
   private:
 

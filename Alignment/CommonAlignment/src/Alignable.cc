@@ -1,8 +1,8 @@
 /** \file Alignable.cc
  *
- *  $Date: 2007/02/16 16:55:36 $
- *  $Revision: 1.5 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2007/02/20 17:37:16 $
+ *  $Revision: 1.6 $
+ *  (last update by $Author: cklae $)
  */
 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
@@ -12,7 +12,7 @@
 
 //__________________________________________________________________________________________________
 Alignable::Alignable() : 
-  theMisalignmentActive(true), theDetId(0), theAlignmentParameters(0), theMother(0)
+  theMisalignmentActive(true), theDetId(0), theAlignmentParameters(0), theMother(0), theSurvey(0)
 {
 }
 
@@ -21,6 +21,23 @@ Alignable::Alignable() :
 Alignable::~Alignable()
 {
   delete theAlignmentParameters;
+}
+
+
+//__________________________________________________________________________________________________
+void Alignable::getTerminals( std::vector<const Alignable*>& terminals ) const
+{
+  const std::vector<Alignable*>& comp = components();
+
+  unsigned int nComp = comp.size();
+
+  if (nComp > 0)
+    for (unsigned int i = 0; i < nComp; ++i)
+    {
+      comp[i]->getTerminals(terminals);
+    }
+  else
+    terminals.push_back(this);
 }
 
 

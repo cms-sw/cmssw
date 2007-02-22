@@ -26,3 +26,8 @@ std::vector<AlignableSurface::GlobalPoint> AlignableSurface::toGlobal(const std:
 
   return globalPoints;
 }
+
+TkRotation<float> AlignableSurface::toLocal(const TkRotation<float>& rot) const
+{
+  return rotation().multiplyInverse( rot * rotation() );
+}

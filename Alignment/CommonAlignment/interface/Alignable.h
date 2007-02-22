@@ -21,8 +21,8 @@
  * The class derives from DetPositioner, a friend class of
  * GeomDet, which allows to move the GeomDet. 
  *
- *  $Date: 2007/02/20 17:37:16 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/02/21 04:40:45 $
+ *  $Revision: 1.15 $
  *  (last update by $Author: cklae $)
  */
 
@@ -47,20 +47,27 @@ public:
 
   /// Set the AlignmentParameters
   void setAlignmentParameters( AlignmentParameters* dap );
+
   /// Get the AlignmentParameters
   AlignmentParameters* alignmentParameters() const;
 
   /// Return vector of all direct components
   virtual std::vector<Alignable*> components() const = 0;
+
   /// Return number of direct components
   inline const int size() const { return components().size(); }
-  /// Provide all components, subcomponents, subsub... etc.of Alignable down to AlignableDetUnit,
-  /// except of 'single childs' like e.g. AlignableDetUnits of AlignableDets
-  /// representing single sided SiStrip modules.
-  /// (for performance reason by adding to argument) 
+
+  /// Get the terminals (lowest daughters that are not composites) of
+  /// Alignable. Add to existing result which is passed by reference.
+  void getTerminals( std::vector<const Alignable*>& terminals ) const;
+
+  /// Provide all components, subcomponents, subsub... etc. of Alignable
+  /// down to AlignableDetUnit, except for 'single childs' like e.g.
+  /// AlignableDetUnits of AlignableDets representing single sided SiStrip
+  /// modules. (for performance reason by adding to argument) 
   virtual void recursiveComponents(std::vector<Alignable*> &result) const = 0;
 
-  /// Steps down hierarchy until components with AlignmenParameters are found 
+  /// Steps down hierarchy until components with AlignmentParameters are found 
   /// and adds them to argument. True either if no such components are found
   /// or if all branches of components end with such components.
   virtual bool firstParamComponents(std::vector<Alignable*> &daughts) const;
