@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/02/22 10:36:24 $
- * $Revision: 1.63 $
+ * $Date: 2007/02/22 10:57:00 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  *
 */
@@ -74,7 +74,7 @@ void EBCosmicTask::setup(void){
     dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT energy spectrum SM%02d", i+1);
-      meSpectrumMap_[i] = dbe->book1D(histo, histo, 100, 0., 5.);
+      meSpectrumMap_[i] = dbe->book1D(histo, histo, 100, 0., 1.5);
     }
 
   }
@@ -185,8 +185,8 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
     LogDebug("EBCosmicTask") << " hit energy " << xval;
 
-    const float lowThreshold = 0.25;
-    const float highThreshold = 0.50;
+    const float lowThreshold  = 0.06125;
+    const float highThreshold = 0.12500;
 
     if ( xval >= lowThreshold ) {
       if ( meCutMap_[ism-1] ) meCutMap_[ism-1]->Fill(xie, xip, xval);
