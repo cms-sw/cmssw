@@ -1,13 +1,19 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2007/02/19 22:49:54 $
- * $Revision: 1.4 $
+ * $Date: 2007/02/20 22:49:00 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
  *  Initial version largely stolen from GCTMonitor (wittich 2/07)
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.5  2007/02/20 22:49:00  wittich
+ * - change from getByType to getByLabel in ECAL TPG,
+ *   and make it configurable.
+ * - fix problem in the GCT with incorrect labels. Not the ultimate
+ *   solution - will probably have to go to many labels.
+ *
  * Revision 1.4  2007/02/19 22:49:54  wittich
  * - Add RCT monitor
  *
@@ -83,7 +89,7 @@ const float TEVMAX = 1000.5;
 
 
 L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
-  l1ExtraLabel_(ps.getParameter<edm::InputTag>("l1ExtraLabel"))
+  gctSource_(ps.getParameter<edm::InputTag>("gctSource"))
 {
 
   // verbosity switch
@@ -260,13 +266,13 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 
   // should get rid of this try/catch?
   try {
-    e.getByLabel(l1ExtraLabel_.label(), "Isolated", l1eIsoEm);
-    e.getByLabel(l1ExtraLabel_.label(), "NonIsolated", l1eNonIsoEm);
-    e.getByLabel(l1ExtraLabel_.label(), "Central", l1eCenJets);
-    e.getByLabel(l1ExtraLabel_.label(), "Forward", l1eForJets);
-    e.getByLabel(l1ExtraLabel_.label(), "Tau", l1eTauJets);
+    e.getByLabel(gctSource_.label(), "Isolated", l1eIsoEm);
+    e.getByLabel(gctSource_.label(), "NonIsolated", l1eNonIsoEm);
+    e.getByLabel(gctSource_.label(), "Central", l1eCenJets);
+    e.getByLabel(gctSource_.label(), "Forward", l1eForJets);
+    e.getByLabel(gctSource_.label(), "Tau", l1eTauJets);
 
-    e.getByLabel(l1ExtraLabel_, l1eEtMiss);
+    e.getByLabel(gctSource_, l1eEtMiss);
   }
   catch (...) {
     std::cerr << "L1TGCT: could not find one of the classes?" << std::endl;

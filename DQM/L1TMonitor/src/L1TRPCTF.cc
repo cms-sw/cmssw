@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2007/02/19 19:24:09 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/20 21:42:10 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
  */
@@ -13,6 +13,8 @@ using namespace std;
 using namespace edm;
 
 L1TRPCTF::L1TRPCTF(const ParameterSet& ps)
+  : rpctfbSource_( ps.getParameter< InputTag >("rpctfbSource") ),
+  rpctffSource_( ps.getParameter< InputTag >("rpctffSource") )
 {
 
   // verbosity switch
@@ -131,7 +133,7 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
   int nrpctfbtrack = 0;
 
   edm::Handle<std::vector<L1MuRegionalCand> > pRPCTFbtracks;  
-  e.getByLabel("rpctrig","RPCb",pRPCTFbtracks);
+  e.getByLabel(rpctfbSource_,pRPCTFbtracks);
    for( vector<L1MuRegionalCand>::const_iterator 
         RPCTFItr =  pRPCTFbtracks->begin() ;
         RPCTFItr != pRPCTFbtracks->end() ;
@@ -190,7 +192,7 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
        }
 
   edm::Handle<std::vector<L1MuRegionalCand> > pRPCTFftracks;  
-  e.getByLabel("rpctrig","RPCf",pRPCTFftracks);
+  e.getByLabel(rpctffSource_,pRPCTFftracks);
 
   int nrpctfftrack = 0;
   for( vector<L1MuRegionalCand>::const_iterator 

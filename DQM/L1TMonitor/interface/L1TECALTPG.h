@@ -5,11 +5,17 @@
 /*
  * \file L1TECALTPG.h
  *
- * $Date: 2007/02/19 22:07:26 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/20 22:48:59 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
  * $Log: L1TECALTPG.h,v $
+ * Revision 1.3  2007/02/20 22:48:59  wittich
+ * - change from getByType to getByLabel in ECAL TPG,
+ *   and make it configurable.
+ * - fix problem in the GCT with incorrect labels. Not the ultimate
+ *   solution - will probably have to go to many labels.
+ *
  * Revision 1.2  2007/02/19 22:07:26  wittich
  * - Added three monitorables to the ECAL TPG monitoring (from GCTMonitor)
  * - other minor tweaks in GCT, etc
@@ -78,7 +84,7 @@ private:
   bool monitorDaemon_;
   ofstream logFile_;
 
-  edm::InputTag ecalTpgLabel_;
+  edm::InputTag ecaltpgSource_;
 
 };
 

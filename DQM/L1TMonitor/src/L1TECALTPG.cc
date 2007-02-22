@@ -1,13 +1,19 @@
 /*
  * \file L1TECALTPG.cc
  *
- * $Date: 2007/02/19 22:07:26 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/20 22:49:00 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
  * - initial version stolen from GCTMonnitor (thanks!) (wittich 02/07)
  *
  * $Log: L1TECALTPG.cc,v $
+ * Revision 1.3  2007/02/20 22:49:00  wittich
+ * - change from getByType to getByLabel in ECAL TPG,
+ *   and make it configurable.
+ * - fix problem in the GCT with incorrect labels. Not the ultimate
+ *   solution - will probably have to go to many labels.
+ *
  * Revision 1.2  2007/02/19 22:07:26  wittich
  * - Added three monitorables to the ECAL TPG monitoring (from GCTMonitor)
  * - other minor tweaks in GCT, etc
@@ -36,7 +42,7 @@ const float TPETAMAX = 32.5;
 
 
 L1TECALTPG::L1TECALTPG(const ParameterSet & ps):
-  ecalTpgLabel_(ps.getParameter<edm::InputTag>("ecalTpgLabel"))
+  ecaltpgSource_(ps.getParameter<edm::InputTag>("ecaltpgSource"))
 {
 
   // verbosity switch
@@ -139,7 +145,7 @@ void L1TECALTPG::analyze(const Event & e, const EventSetup & c)
 
   // Get the ECAL TPGs
   edm::Handle < EcalTrigPrimDigiCollection > eTP;
-  e.getByLabel(ecalTpgLabel_, eTP);
+  e.getByLabel(ecaltpgSource_, eTP);
 
   // Fill the ECAL TPG histograms
   for (EcalTrigPrimDigiCollection::const_iterator ieTP = eTP->begin();

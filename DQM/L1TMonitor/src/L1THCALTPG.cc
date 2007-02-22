@@ -1,8 +1,8 @@
 /*
  * \file L1THCALTPG.cc
  *
- * $Date: 2007/02/02 06:01:40 $
- * $Revision: 1.00 $
+ * $Date: 2007/02/19 19:24:09 $
+ * $Revision: 1.1 $
  * \author J. Berryhill
  *
  */
@@ -13,6 +13,7 @@ using namespace std;
 using namespace edm;
 
 L1THCALTPG::L1THCALTPG(const ParameterSet& ps)
+  : hcaltpgSource_( ps.getParameter< InputTag >("hcaltpgSource") )
 {
 
   // verbosity switch

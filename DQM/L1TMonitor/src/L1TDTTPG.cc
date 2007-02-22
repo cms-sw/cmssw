@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2007/02/20 21:42:10 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/21 22:10:31 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
  */
@@ -13,6 +13,7 @@ using namespace std;
 using namespace edm;
 
 L1TDTTPG::L1TDTTPG(const ParameterSet& ps)
+  : dttpgSource_( ps.getParameter< InputTag >("dttpgSource") )
 {
 
   // verbosity switch
@@ -135,9 +136,9 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
   if(verbose_) cout << "L1TDTTPG: analyze...." << endl;
 
   edm::Handle<L1MuDTChambPhContainer > myL1MuDTChambPhContainer;  
-  e.getByLabel("dttrigprod",myL1MuDTChambPhContainer);
+  e.getByLabel(dttpgSource_,myL1MuDTChambPhContainer);
   edm::Handle<L1MuDTChambThContainer > myL1MuDTChambThContainer;  
-  e.getByLabel("dttrigprod",myL1MuDTChambThContainer);
+  e.getByLabel(dttpgSource_,myL1MuDTChambThContainer);
   int ndttpgphtrack = 0;
   int ndttpgthtrack = 0; 
   for (int iwheel = -2; iwheel <=2; iwheel++)

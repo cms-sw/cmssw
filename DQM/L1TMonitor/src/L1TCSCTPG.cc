@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTPG.cc
  *
- * $Date: 2007/02/19 19:24:09 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/20 21:42:10 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
  */
@@ -13,6 +13,7 @@ using namespace std;
 using namespace edm;
 
 L1TCSCTPG::L1TCSCTPG(const ParameterSet& ps)
+  : csctpgSource_( ps.getParameter< InputTag >("csctpgSource") )
 {
 
   // verbosity switch
@@ -117,7 +118,7 @@ void L1TCSCTPG::analyze(const Event& e, const EventSetup& c)
 
 
   Handle<CSCCorrelatedLCTDigiCollection> pCSCTPGcorrlcts;
-  e.getByLabel("lctproducer","MPCSORTED",pCSCTPGcorrlcts);
+  e.getByLabel(csctpgSource_,pCSCTPGcorrlcts);
   for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator cscItr1 = pCSCTPGcorrlcts->begin();
        cscItr1 != pCSCTPGcorrlcts->end();
        cscItr1++)

@@ -4,8 +4,8 @@
 /*
  * \file L1TDTTPG.h
  *
- * $Date: 2007/02/20 21:42:10 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/21 22:10:30 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
 */
@@ -89,7 +89,7 @@ private:
   bool verbose_;
   bool monitorDaemon_;
   ofstream logFile_;
-
+  edm::InputTag dttpgSource_;
 };
 
 #endif

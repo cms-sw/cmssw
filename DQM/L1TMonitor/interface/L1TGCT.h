@@ -5,11 +5,14 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2007/02/19 21:11:23 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/19 22:49:53 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.2 2007/02/19 21:11:23 wittich Exp $
+ * $Id: L1TGCT.h,v 1.3 2007/02/19 22:49:53 wittich Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.3  2007/02/19 22:49:53  wittich
+ * - Add RCT monitor
+ *
  * Revision 1.2  2007/02/19 21:11:23  wittich
  * - Updates for integrating GCT monitor.
  *   + Adapted right now only the L1E elements thereof.
@@ -107,7 +110,7 @@ private:
   bool monitorDaemon_;
   ofstream logFile_;
 
-  edm::InputTag l1ExtraLabel_;
+  edm::InputTag gctSource_;
 
 
 };

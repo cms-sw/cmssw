@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2007/02/19 19:24:09 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/20 21:42:10 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
  */
@@ -13,6 +13,7 @@ using namespace std;
 using namespace edm;
 
 L1TCSCTF::L1TCSCTF(const ParameterSet& ps)
+  : csctfSource_( ps.getParameter< InputTag >("csctfSource") )
 {
 
   // verbosity switch
@@ -117,7 +118,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 
 
   edm::Handle<std::vector<L1MuRegionalCand> > pCSCTFtracks;  
-  e.getByLabel("csctfmuonsorter","CSC",pCSCTFtracks);
+  e.getByLabel(csctfSource_,pCSCTFtracks);
   int ncsctftrack = 0;
    for( vector<L1MuRegionalCand>::const_iterator 
         CSCTFtrackItr =  pCSCTFtracks->begin() ;
