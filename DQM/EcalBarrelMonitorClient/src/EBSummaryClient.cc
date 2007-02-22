@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/02/21 16:29:00 $
- * $Revision: 1.4 $
+ * $Date: 2007/02/22 13:18:14 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -230,7 +230,7 @@ void EBSummaryClient::analyze(void){
               }
               if ( ism >=19 && ism <= 36 ) {
                 iex = -ie;
-                ipx = ip+20*(ism-1);
+                ipx = ip+20*(ism-19);
               }
 
               meIntegrity_->setBinContent( ipx, iex, xval );
