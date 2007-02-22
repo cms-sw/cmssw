@@ -15,6 +15,7 @@
 //#include "RecoTracker/TkDetLayers/interface/PixelForwardLayer.h"
 #include "RecoTracker/TkDetLayers/interface/TOBLayer.h"
 #include "RecoTracker/TkDetLayers/interface/TIBLayer.h"
+#include <vector>
 class CosmicLayerPairs : public SeedLayerPairs{
 public:
   CosmicLayerPairs():isFirstCall(true){};
@@ -24,7 +25,7 @@ public:
 
 
   //  virtual vector<LayerPair> operator()() const;
-  vector<LayerPair> operator()() ;
+  std::vector<LayerPair> operator()() ;
 
 
 private:
@@ -50,11 +51,11 @@ private:
   
 
 
-   vector<BarrelDetLayer*> bl;
-   vector<ForwardDetLayer*> fpos;
-   vector<ForwardDetLayer*> fneg;
+   std::vector<BarrelDetLayer*> bl;
+   std::vector<ForwardDetLayer*> fpos;
+   std::vector<ForwardDetLayer*> fneg;
    //MP
-   vector<LayerWithHits*> allLayersWithHits;
+   std::vector<LayerWithHits*> allLayersWithHits;
    bool isFirstCall;
  public:
  

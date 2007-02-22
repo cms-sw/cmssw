@@ -7,6 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+using std::vector;
 
 PixelSeedLayerPairs::~PixelSeedLayerPairs()
 {

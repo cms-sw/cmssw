@@ -7,6 +7,8 @@
 #include "RecoPixelVertexing/PixelTriplets/src/PixelTripletHLTGenerator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+using std::vector;
+
 PixelHitTripletGenerator::PixelHitTripletGenerator(const edm::ParameterSet& cfg )
  : theConfig(cfg), thePixel(0) {}
 

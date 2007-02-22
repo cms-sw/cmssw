@@ -14,14 +14,17 @@
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
 #include "RecoTracker/TkDetLayers/interface/PixelForwardLayer.h"
 #include "RecoTracker/TkDetLayers/interface/PixelBarrelLayer.h"
+
+#include <vector>
+
 class PixelSeedLayerPairs : public SeedLayerPairs{
 public:
 
   PixelSeedLayerPairs():isFirstCall(true){}
   ~PixelSeedLayerPairs();
 
-  //  virtual vector<LayerPair> operator()() const;
-  vector<LayerPair> operator()() ;
+  //  virtual std::vector<LayerPair> operator()() const;
+  std::vector<LayerPair> operator()() ;
   void init(const SiPixelRecHitCollection &coll,
 	    const edm::EventSetup& iSetup);
 
@@ -51,11 +54,11 @@ private:
   LayerWithHits *neg2;
 
 
-  vector<BarrelDetLayer*> bl;
-  vector<ForwardDetLayer*> fpos;
-  vector<ForwardDetLayer*> fneg;
+  std::vector<BarrelDetLayer*> bl;
+  std::vector<ForwardDetLayer*> fpos;
+  std::vector<ForwardDetLayer*> fneg;
 
-  vector<LayerWithHits*> allLayersWithHits;
+  std::vector<LayerWithHits*> allLayersWithHits;
   bool isFirstCall;
 };
 

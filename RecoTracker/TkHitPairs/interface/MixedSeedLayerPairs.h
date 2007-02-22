@@ -27,7 +27,7 @@ public:
   ~MixedSeedLayerPairs();
 
   //  virtual vector<LayerPair> operator()() const;
-  vector<LayerPair> operator()() ;
+  std::vector<LayerPair> operator()() ;
   
   void init(const SiPixelRecHitCollection &collpxl,
 	    const SiStripMatchedRecHit2DCollection &collmatch,
@@ -40,31 +40,31 @@ private:
   
   bool isFirstCall;
 
-  vector<BarrelDetLayer*>   detLayersPxlBarrel;
-  vector<BarrelDetLayer*>   detLayersTIB;
-  vector<ForwardDetLayer*>  detLayersPosPxl;
-  vector<ForwardDetLayer*>  detLayersNegPxl;
-  vector<ForwardDetLayer*>  detLayersPosTID;
-  vector<ForwardDetLayer*>  detLayersNegTID;
-  vector<ForwardDetLayer*>  detLayersPosTEC;
-  vector<ForwardDetLayer*>  detLayersNegTEC;
+  std::vector<BarrelDetLayer*>   detLayersPxlBarrel;
+  std::vector<BarrelDetLayer*>   detLayersTIB;
+  std::vector<ForwardDetLayer*>  detLayersPosPxl;
+  std::vector<ForwardDetLayer*>  detLayersNegPxl;
+  std::vector<ForwardDetLayer*>  detLayersPosTID;
+  std::vector<ForwardDetLayer*>  detLayersNegTID;
+  std::vector<ForwardDetLayer*>  detLayersPosTEC;
+  std::vector<ForwardDetLayer*>  detLayersNegTEC;
 
 
  
-  vector<LayerWithHits*> barrelLayers;
-  vector<LayerWithHits*> fwdLayers;
-  vector<LayerWithHits*> bkwLayers;
-  vector<LayerWithHits*> allLayersWithHits;
+  std::vector<LayerWithHits*> barrelLayers;
+  std::vector<LayerWithHits*> fwdLayers;
+  std::vector<LayerWithHits*> bkwLayers;
+  std::vector<LayerWithHits*> allLayersWithHits;
 
  
   
  private:
-  vector<const TrackingRecHit*> selectHitTIB(const SiStripMatchedRecHit2DCollection &collmatch,
+  std::vector<const TrackingRecHit*> selectHitTIB(const SiStripMatchedRecHit2DCollection &collmatch,
 					     const SiStripRecHit2DCollection &collstereo, 
 					     const SiStripRecHit2DCollection &collrphi,
 					     int tibNumber);
   
-  vector<const TrackingRecHit*> selectHitTID(const SiStripMatchedRecHit2DCollection &collmatch,
+  std::vector<const TrackingRecHit*> selectHitTID(const SiStripMatchedRecHit2DCollection &collmatch,
 					     const SiStripRecHit2DCollection &collstereo, 
 					     const SiStripRecHit2DCollection &collrphi,
 					     int side,
@@ -72,7 +72,7 @@ private:
 					     int firstRing,
 					     int lastRing);
 
-  vector<const TrackingRecHit*> selectHitTEC(const SiStripMatchedRecHit2DCollection &collmatch,
+  std::vector<const TrackingRecHit*> selectHitTEC(const SiStripMatchedRecHit2DCollection &collmatch,
 					     const SiStripRecHit2DCollection &collstereo, 
 					     const SiStripRecHit2DCollection &collrphi,
 					     int side,

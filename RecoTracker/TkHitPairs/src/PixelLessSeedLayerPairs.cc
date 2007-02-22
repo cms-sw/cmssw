@@ -8,6 +8,8 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
+using std::vector;
+
 PixelLessSeedLayerPairs::~PixelLessSeedLayerPairs(){
   for(vector<LayerWithHits*>::const_iterator it=allLayersWithHits.begin(); it!=allLayersWithHits.end();it++){
     delete *it;

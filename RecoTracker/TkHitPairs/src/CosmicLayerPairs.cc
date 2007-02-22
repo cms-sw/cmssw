@@ -14,6 +14,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"  
+
+using std::vector;
+
 vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()() 
 {
   vector<LayerPair> result;
@@ -142,7 +145,7 @@ void CosmicLayerPairs::init(const SiStripRecHit2DCollection &collstereo,
 
   if (_geometry=="CRACK"){
 
-    LogDebug("CosmicSeedFinder") <<" Using CRack seeding "<< _geometry << endl;
+    LogDebug("CosmicSeedFinder") <<" Using CRack seeding "<< _geometry << std::endl;
     match_range1=collmatched.get(acc.stripTOBLayer(7));
     rphi_range2=collrphi.get(acc.stripTOBLayer(6));
     match_range3=collmatched.get(acc.stripTOBLayer(4));
