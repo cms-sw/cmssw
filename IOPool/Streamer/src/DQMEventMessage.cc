@@ -8,6 +8,8 @@
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#define MAX_STRING_SIZE 10000
+
 using namespace std;
 
 /**
@@ -27,15 +29,34 @@ DQMEventMsgView::DQMEventMsgView(void* buf):
         << "). Should be " << Header::DQM_EVENT << "\n";
     }
 
-  // set our buffer pointer to just beyond the header
+  // verify that the message has a protocol that we support
+  if (this->protocolVersion() != 1)
+    {
+      throw cms::Exception("MessageDecoding", "DQMEventMsgView")
+        << "Unsupport protocol version (" << this->protocolVersion() << ").\n";
+    }
+
+  // set our buffer pointer to just beyond the fixed header data
   bufPtr = buf_ + sizeof(DQMEventHeader);
 
-  // determine the folder name
+  // determine the release tag
   len = convert32(bufPtr);
   bufPtr += sizeof(uint32);
   if (len >= 0)
     {
-      if (len <= 10000) // prevent something totally crazy
+      if (len <= MAX_STRING_SIZE) // prevent something totally crazy
+        {
+          releaseTag_.append((char *) bufPtr, len);
+        }
+      bufPtr += len;
+    }
+
+  // determine the top-level folder name
+  len = convert32(bufPtr);
+  bufPtr += sizeof(uint32);
+  if (len >= 0)
+    {
+      if (len <= MAX_STRING_SIZE) // prevent something totally crazy
         {
           folderName_.append((char *) bufPtr, len);
         }
@@ -49,21 +70,227 @@ DQMEventMsgView::DQMEventMsgView(void* buf):
 
   // check that the event data doesn't extend beyond the reported
   // size of the message
-  if ((this->headerSize() + this->eventLength()) > this->size()) {
+  if ((this->headerSize() + this->eventLength()) > this->size())
+    {
       throw cms::Exception("MessageDecoding", "DQMEventMsgView")
         << "Inconsistent data sizes. The size of the header ("
         << this->headerSize() << ") and the data (" << this->eventLength()
         << ") exceed the size of the message (" << this->size() << ").\n";
-  }
+    }
+
+  // determine the number of subfolders
+  subFolderCount_ = convert32(bufPtr);
+  bufPtr += sizeof(uint32);
+
+  // loop over the subfolders to extract relevant quantities
+  nameListPtr_.reset(new std::vector<std::string>());
+  bufPtr = eventAddress() + sizeof(uint32);
+  for (int idx = 0; idx < (int) subFolderCount_; idx++)
+    {
+      // subfolder name
+      std::string subFolderName = "Subfolder " + idx;
+      uint32 nameLen = convert32(bufPtr);
+      bufPtr += sizeof(uint32);
+      if (nameLen >= 0)
+        {
+          if (nameLen <= MAX_STRING_SIZE) // prevent something totally crazy
+            {
+              subFolderName.clear();
+              subFolderName.append((char *) bufPtr, nameLen);
+            }
+          bufPtr += nameLen;
+        }
+      nameListPtr_->push_back(subFolderName);
+      subFolderIndexTable_[subFolderName] = idx;
+
+      // number of MEs in subfolder
+      uint32 meCount = convert32(bufPtr);
+      bufPtr += sizeof(uint32);
+      meCountList_.push_back(meCount);
+
+      // ME data size and address
+      uint32 dataLen = convert32(bufPtr);
+      bufPtr += sizeof(uint32);
+      meSizeList_.push_back(dataLen);
+      meAddressList_.push_back(bufPtr);
+      bufPtr += dataLen;
+
+      // check that we haven't run off the end of the event
+      if (((uint32) (bufPtr - buf_)) > this->size())
+        {
+          throw cms::Exception("MessageDecoding", "DQMEventMsgView")
+            << "The decoding the the subfolder data failed to find "
+            << "all of them before reaching the end of the event.\n";
+        }
+    }
+}
+
+/**
+ * Returns a shared pointer to the list of subfolder names.
+ */
+boost::shared_ptr< std::vector<std::string> >
+    DQMEventMsgView::subFolderNames() const
+{
+  return nameListPtr_;
+}
+
+/**
+ * Returns the number of monitor elements in the specified subfolder.
+ */
+uint32 DQMEventMsgView::meCount(string const& subFolderName) const
+{
+  // lookup the index of the specified subfolder
+  std::map<std::string, uint32>::const_iterator subFolderIter;
+  subFolderIter = subFolderIndexTable_.find(subFolderName);
+
+  // throw an exception if the name was not found
+  if (subFolderIter == subFolderIndexTable_.end())
+    {
+      throw cms::Exception("MessageDecoding", "DQMEventMsgView")
+        << "Unable to find the subfolder index for \""
+        << subFolderName << "\".\n";
+    }
+
+  // fetch the count by index
+  return this->meCount(subFolderIter->second);
+}
+
+/**
+ * Returns the number of monitor elements in the subfolder at the
+ * specified index.
+ */
+uint32 DQMEventMsgView::meCount(uint32 const subFolderIndex) const
+{
+  // catch attempts to access an invalid entry
+  if (subFolderIndex >= subFolderCount_)
+    {
+      throw cms::Exception("MessageDecoding", "DQMEventMsgView")
+        << "Invalid subfolder index (" << subFolderIndex << ") - "
+        << "the number of subfolders is " << subFolderCount_ << ".\n";
+    }
+
+  return meCountList_[subFolderIndex];
+}
+
+/**
+ * Returns the size of the monitor element data for the specified subfolder.
+ */
+uint32 DQMEventMsgView::meDataSize(string const& subFolderName) const
+{
+  // lookup the index of the specified subfolder
+  std::map<std::string, uint32>::const_iterator subFolderIter;
+  subFolderIter = subFolderIndexTable_.find(subFolderName);
+
+  // throw an exception if the name was not found
+  if (subFolderIter == subFolderIndexTable_.end())
+    {
+      throw cms::Exception("MessageDecoding", "DQMEventMsgView")
+        << "Unable to find the subfolder index for \""
+        << subFolderName << "\".\n";
+    }
+
+  // fetch the size by index
+  return this->meDataSize(subFolderIter->second);
+}
+
+/**
+ * Returns the size of the monitor element data for the subfolder at the
+ * specified index.
+ */
+uint32 DQMEventMsgView::meDataSize(uint32 const subFolderIndex) const
+{
+  // catch attempts to access an invalid entry
+  if (subFolderIndex >= subFolderCount_)
+    {
+      throw cms::Exception("MessageDecoding", "DQMEventMsgView")
+        << "Invalid subfolder index (" << subFolderIndex << ") - "
+        << "the number of subfolders is " << subFolderCount_ << ".\n";
+    }
+
+  return meSizeList_[subFolderIndex];
+}
+
+/**
+ * Returns the address of the monitor element data for the specified subfolder.
+ */
+uint8* DQMEventMsgView::meDataAddress(string const& subFolderName) const
+{
+  // lookup the index of the specified subfolder
+  std::map<std::string, uint32>::const_iterator subFolderIter;
+  subFolderIter = subFolderIndexTable_.find(subFolderName);
+
+  // throw an exception if the name was not found
+  if (subFolderIter == subFolderIndexTable_.end())
+    {
+      throw cms::Exception("MessageDecoding", "DQMEventMsgView")
+        << "Unable to find the subfolder index for \""
+        << subFolderName << "\".\n";
+    }
+
+  // fetch the address by index
+  return this->meDataAddress(subFolderIter->second);
+}
+
+/**
+ * Returns the address of the monitor element data for the subfolder at the
+ * specified index.
+ */
+uint8* DQMEventMsgView::meDataAddress(uint32 const subFolderIndex) const
+{
+  // catch attempts to access an invalid entry
+  if (subFolderIndex >= subFolderCount_)
+    {
+      throw cms::Exception("MessageDecoding", "DQMEventMsgView")
+        << "Invalid subfolder index (" << subFolderIndex << ") - "
+        << "the number of subfolders is " << subFolderCount_ << ".\n";
+    }
+
+  return meAddressList_[subFolderIndex];
+}
+
+/**
+ * Returns the protocol version of the DQM Event.
+ */
+uint32 DQMEventMsgView::protocolVersion() const
+{
+  DQMEventHeader* h = (DQMEventHeader*)buf_;
+  return convert32(h->protocolVersion_);
+}
+
+/**
+ * Returns the size of the DQM Event header.
+ */
+uint32 DQMEventMsgView::headerSize() const
+{
+  DQMEventHeader* h = (DQMEventHeader*)buf_;
+  return convert32(h->headerSize_);
 }
 
 /**
  * Returns the run number associated with the DQM Event.
  */
-uint32 DQMEventMsgView::run() const
+uint32 DQMEventMsgView::runNumber() const
 {
   DQMEventHeader* h = (DQMEventHeader*)buf_;
   return convert32(h->runNumber_);
+}
+
+/**
+ * Returns the event number associated with the DQM Event.
+ */
+uint32 DQMEventMsgView::eventNumberAtUpdate() const
+{
+  DQMEventHeader* h = (DQMEventHeader*)buf_;
+  return convert32(h->eventNumber_);
+}
+
+/**
+ * Returns the compression reserved word associated with the DQM Event.
+ */
+uint32 DQMEventMsgView::compressionFlag() const
+{
+  DQMEventHeader* h = (DQMEventHeader*)buf_;
+  return convert32(h->compressionFlag_);
 }
 
 /**
