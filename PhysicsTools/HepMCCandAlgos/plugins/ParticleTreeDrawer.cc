@@ -18,8 +18,15 @@ private:
   edm::ESHandle<DefaultConfig::ParticleDataTable> pdt_;
   /// print parameters
   bool printP4_, printPtEtaPhi_, printVertex_, printStatus_;
+  /// accepted status codes
+  typedef std::vector<int> vint;
+  vint status_;
   /// print 4 momenta
   void printP4( const reco::Candidate & ) const;
+  /// accept candidate
+  bool accept( const reco::Candidate & ) const;
+  /// has valid daughters in the chain
+  bool hasValidDaughters( const reco::Candidate & ) const;
 };
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,6 +37,7 @@ private:
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 using namespace std;
 using namespace edm;
 using namespace reco;
@@ -40,7 +48,21 @@ ParticleTreeDrawer::ParticleTreeDrawer( const ParameterSet & cfg ) :
   printP4_( cfg.getUntrackedParameter<bool>( "printP4", false ) ),
   printPtEtaPhi_( cfg.getUntrackedParameter<bool>( "printPtEtaPhi", false ) ),
   printVertex_( cfg.getUntrackedParameter<bool>( "printVertex", false ) ),
-  printStatus_( cfg.getUntrackedParameter<bool>( "printStatus", false ) ) {
+  printStatus_( cfg.getUntrackedParameter<bool>( "printStatus", false ) ),
+  status_( cfg.getUntrackedParameter<vint>( "status", vint() ) ) {
+}
+
+bool ParticleTreeDrawer::accept( const reco::Candidate & c ) const {
+  if ( status_.size() == 0 ) return true;
+  return find( status_.begin(), status_.end(), reco::status( c ) ) != status_.end();
+}
+
+bool ParticleTreeDrawer::hasValidDaughters( const reco::Candidate & c ) const {
+  size_t ndau = c.numberOfDaughters();
+  for( size_t i = 0; i < ndau; ++ i )
+    if ( accept( * c.daughter( i ) ) )
+      return true;
+  return false;
 }
 
 void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {  
@@ -49,23 +71,24 @@ void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {
   event.getByLabel( src_, particles );
   for( CandidateCollection::const_iterator p = particles->begin();
        p != particles->end(); ++ p ) {
-    if ( p->mother() == 0 ) {
-      cout << "-- decay: --" << endl;
-      printDecay( * p, "" );
+    if ( accept( * p ) ) {
+      if ( p->mother() == 0 ) {
+	cout << "-- decay: --" << endl;
+	printDecay( * p, "" );
+      }
     }
   }
 }
 
-void ParticleTreeDrawer::printP4( const reco::Candidate & c ) const {
+void ParticleTreeDrawer::printP4( const Candidate & c ) const {
   if ( printP4_ ) cout << " (" << c.px() << ", " << c.py() << ", " << c.pz() << "; " << c.energy() << ")"; 
   if ( printPtEtaPhi_ ) cout << " [" << c.pt() << ": " << c.eta() << ", " << c.phi() << "]";
   if ( printVertex_ ) cout << " {" << c.vx() << ", " << c.vy() << ", " << c.vz() << "}";
   if ( printStatus_ ) cout << "{status: " << status( c ) << "}";
 }
 
-void ParticleTreeDrawer::printDecay( const reco::Candidate & c, const std::string & pre ) const {
+void ParticleTreeDrawer::printDecay( const Candidate & c, const string & pre ) const {
   int id = c.pdgId();
-  unsigned int ndau = c.numberOfDaughters();
   const DefaultConfig::ParticleData * pd = pdt_->particle( id );  
   assert( pd != 0 );
 
@@ -73,40 +96,49 @@ void ParticleTreeDrawer::printDecay( const reco::Candidate & c, const std::strin
   printP4( c );
   cout << endl;
 
-  if ( ndau == 0 ) return;
-
-  bool lastLevel = true;
+  size_t ndau = c.numberOfDaughters(), validDau = 0;
   for( size_t i = 0; i < ndau; ++ i )
-    if ( c.daughter( i )->numberOfDaughters() != 0 ) {
+    if ( accept( * c.daughter( i ) ) )
+      ++ validDau;
+    if ( validDau == 0 ) return;
+  
+  bool lastLevel = true;
+  for( size_t i = 0; i < ndau; ++ i ) {
+    if ( hasValidDaughters( * c.daughter( i ) ) ) {
       lastLevel = false;
       break;
     }      
-
+  }
+  
   if ( lastLevel ) {
     cout << pre << "+-> ";
+    size_t vd = 0;
     for( size_t i = 0; i < ndau; ++ i ) {
-      const GenParticleCandidate * d = 
-	dynamic_cast<const GenParticleCandidate *>( c.daughter( i ) );
-      assert( d != 0 );
-      const DefaultConfig::ParticleData * pd = pdt_->particle( d->pdgId() );  
-      assert( pd != 0 );
-      cout << pd->name();
-      printP4( * d );
-      if ( i != ndau - 1 )
-	cout << " ";
+      const Candidate * d = c.daughter( i );
+      if ( accept( * d ) ) {
+	const DefaultConfig::ParticleData * pd = pdt_->particle( d->pdgId() );  
+	assert( pd != 0 );
+	cout << pd->name();
+	printP4( * d );
+	if ( vd != validDau - 1 )
+	  cout << " ";
+	vd ++;
+      }
     }
     cout << endl;
     return;
   }
 
   for( size_t i = 0; i < ndau; ++i ) {
-    const GenParticleCandidate * d =
-      dynamic_cast<const GenParticleCandidate *>( c.daughter( i ) );
-    cout << pre << "+-> ";
-    string prepre( pre );
-    if ( i == ndau - 1 ) prepre += "    ";
-    else prepre += "|   ";
-    printDecay( * d, prepre );
+    const Candidate * d = c.daughter( i );
+    assert( d != 0 );
+    if ( accept( * d ) ) {
+      cout << pre << "+-> ";
+      string prepre( pre );
+      if ( i == ndau - 1 ) prepre += "    ";
+      else prepre += "|   ";
+      printDecay( * d, prepre );
+    }
   }
 }
 
