@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2007/02/17 17:04:43 $
- * $Revision: 1.50 $
+ * $Date: 2007/02/22 10:36:24 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  *
 */
@@ -260,7 +260,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
     map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
     if ( i == dccMap.end() ) continue;
 
-    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::PEDESTAL_STD ) continue;
+    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::PEDESTAL_STD ) continue;
 
     LogDebug("EBPedestalTask") << " det id = " << id;
     LogDebug("EBPedestalTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
@@ -378,7 +378,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
     map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
     if ( i == dccMap.end() ) continue;
 
-    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::PEDESTAL_STD ) continue;
+    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::PEDESTAL_STD ) continue;
 
     LogDebug("EBPedestalTask") << " det id = " << id;
     LogDebug("EBPedestalTask") << " sm, num " << ism << " " << num;

@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/02/17 17:04:43 $
- * $Revision: 1.3 $
+ * $Date: 2007/02/22 10:36:24 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -151,12 +151,12 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
     map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
     if ( i == dccMap.end() ) continue;
 
-    if ( ! ( dccMap[ism-1].getRunType() == EcalDCCHeaderBlock::COSMIC ||
-             dccMap[ism-1].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-             dccMap[ism-1].getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-             dccMap[ism-1].getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
-             dccMap[ism-1].getRunType() == EcalDCCHeaderBlock::BEAMH2 ||
-             dccMap[ism-1].getRunType() == EcalDCCHeaderBlock::MTCC ) ) continue;
+    if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
+             dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
+             dccMap[ism].getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+             dccMap[ism].getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
+             dccMap[ism].getRunType() == EcalDCCHeaderBlock::BEAMH2 ||
+             dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ) ) continue;
 
     LogDebug("EBTimingTask") << " det id = " << id;
     LogDebug("EBTimingTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;

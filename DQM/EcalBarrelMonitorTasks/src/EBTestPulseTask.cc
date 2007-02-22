@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2007/02/17 17:04:43 $
- * $Revision: 1.62 $
+ * $Date: 2007/02/22 10:36:24 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  *
 */
@@ -256,7 +256,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
     map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
     if ( i == dccMap.end() ) continue;
 
-    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
+    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
 
     LogDebug("EBTestPulseTask") << " det id = " << id;
     LogDebug("EBTestPulseTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
@@ -273,9 +273,9 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
       if ( sample.gainId() == 2 ) gain = 1./ 6.;
       if ( sample.gainId() == 3 ) gain = 1./ 1.;
 
-      if ( dccMap[ism-1].getMgpaGain() == 3 ) meShapeMap = meShapeMapG01_[ism-1];
-      if ( dccMap[ism-1].getMgpaGain() == 2 ) meShapeMap = meShapeMapG06_[ism-1];
-      if ( dccMap[ism-1].getMgpaGain() == 1 ) meShapeMap = meShapeMapG12_[ism-1];
+      if ( dccMap[ism].getMgpaGain() == 3 ) meShapeMap = meShapeMapG01_[ism-1];
+      if ( dccMap[ism].getMgpaGain() == 2 ) meShapeMap = meShapeMapG06_[ism-1];
+      if ( dccMap[ism].getMgpaGain() == 1 ) meShapeMap = meShapeMapG12_[ism-1];
 
 //      float xval = float(adc) * gain;
       float xval = float(adc);
@@ -309,23 +309,23 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
     map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
     if ( i == dccMap.end() ) continue;
 
-    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
+    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
 
     LogDebug("EBTestPulseTask") << " det id = " << id;
     LogDebug("EBTestPulseTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
     MonitorElement* meAmplMap = 0;
 
-    if ( dccMap[ism-1].getMgpaGain() == 3 ) meAmplMap = meAmplMapG01_[ism-1];
-    if ( dccMap[ism-1].getMgpaGain() == 2 ) meAmplMap = meAmplMapG06_[ism-1];
-    if ( dccMap[ism-1].getMgpaGain() == 1 ) meAmplMap = meAmplMapG12_[ism-1];
+    if ( dccMap[ism].getMgpaGain() == 3 ) meAmplMap = meAmplMapG01_[ism-1];
+    if ( dccMap[ism].getMgpaGain() == 2 ) meAmplMap = meAmplMapG06_[ism-1];
+    if ( dccMap[ism].getMgpaGain() == 1 ) meAmplMap = meAmplMapG12_[ism-1];
 
     float xval = hit.amplitude();
     if ( xval <= 0. ) xval = 0.0;
 
-//    if ( dccMap[ism-1].getMgpaGain() == 3 ) xval = xval * 1./12.;
-//    if ( dccMap[ism-1].getMgpaGain() == 2 ) xval = xval * 1./ 2.;
-//    if ( dccMap[ism-1].getMgpaGain() == 1 ) xval = xval * 1./ 1.;
+//    if ( dccMap[ism].getMgpaGain() == 3 ) xval = xval * 1./12.;
+//    if ( dccMap[ism].getMgpaGain() == 2 ) xval = xval * 1./ 2.;
+//    if ( dccMap[ism].getMgpaGain() == 1 ) xval = xval * 1./ 1.;
 
     LogDebug("EBTestPulseTask") << " hit amplitude " << xval;
 
@@ -333,9 +333,9 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     MonitorElement* meAmplErrorMap = 0;
 
-    if ( dccMap[ism-1].getMgpaGain() == 3 ) meAmplErrorMap = meAmplErrorMapG01_[ism-1];
-    if ( dccMap[ism-1].getMgpaGain() == 2 ) meAmplErrorMap = meAmplErrorMapG06_[ism-1];
-    if ( dccMap[ism-1].getMgpaGain() == 1 ) meAmplErrorMap = meAmplErrorMapG12_[ism-1];
+    if ( dccMap[ism].getMgpaGain() == 3 ) meAmplErrorMap = meAmplErrorMapG01_[ism-1];
+    if ( dccMap[ism].getMgpaGain() == 2 ) meAmplErrorMap = meAmplErrorMapG06_[ism-1];
+    if ( dccMap[ism].getMgpaGain() == 1 ) meAmplErrorMap = meAmplErrorMapG12_[ism-1];
 
     LogDebug("EBTestPulseTask") << "Crystal " << ie << " " << ip << " Amplitude = " << xval;
 
@@ -366,7 +366,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
     map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
     if ( i == dccMap.end() ) continue;
 
-    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
+    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
 
     LogDebug("EBTestPulseTask") << " det id = " << id;
     LogDebug("EBTestPulseTask") << " sm, num " << ism << " " << num;
