@@ -36,11 +36,6 @@ namespace edm {
       /// some subclasses may wish to allow multiple includes
       virtual bool checkMultipleIncludes() const {return true;}
       
-      /// may not want to include every node
-      virtual bool okToInclude(NodePtr node) const {return true;}
-      /// applies okToInclude()
-      void filterNodes();
- 
       /// simply inserts all subnodes
       virtual void insertInto(edm::ProcessDesc & procDesc) const;
 

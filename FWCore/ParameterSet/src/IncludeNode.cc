@@ -125,21 +125,6 @@ namespace edm {
       }
     }
 
-
-    void IncludeNode::filterNodes()
-    {
-      NodePtrListPtr newNodes(new NodePtrList);
-      for(NodePtrList::iterator nodeItr = nodes_->begin(), nodeItrEnd = nodes_->end();
-          nodeItr != nodeItrEnd; ++nodeItr)
-      {
-        if(okToInclude(*nodeItr))
-        {
-          newNodes->push_back(*nodeItr);
-        }
-      }
-      nodes_ = newNodes;
-    }
-      
     void IncludeNode::insertInto(edm::ProcessDesc & procDesc) const
     {
       // maybe refactor this down to CompositeNode, if another
