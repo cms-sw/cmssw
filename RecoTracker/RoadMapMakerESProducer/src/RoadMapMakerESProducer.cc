@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
-// $Author: wmtan $
-// $Date: 2006/10/27 01:35:39 $
-// $Revision: 1.5 $
+// $Author: gutsche $
+// $Date: 2007/02/05 19:18:39 $
+// $Revision: 1.6 $
 //
 
 #include "RecoTracker/RoadMapMakerESProducer/interface/RoadMapMakerESProducer.h"
@@ -30,8 +30,16 @@ RoadMapMakerESProducer::RoadMapMakerESProducer(const edm::ParameterSet& iConfig)
 
   if ( tmp_string == "MTCC" ) {
     geometryStructure_ = RoadMaker::MTCC;
+  } else if ( tmp_string == "TIF" ) {
+    geometryStructure_ = RoadMaker::TIF;
   } else if ( tmp_string == "TIFTOB" ) {
     geometryStructure_ = RoadMaker::TIFTOB;
+  } else if ( tmp_string == "TIFTIB" ) {
+    geometryStructure_ = RoadMaker::TIFTIB;
+  }else if ( tmp_string == "TIFTIBTOB" ) {
+    geometryStructure_ = RoadMaker::TIFTIBTOB;
+  }else if ( tmp_string == "TIFTOBTEC" ) {
+    geometryStructure_ = RoadMaker::TIFTOBTEC;
   } else if ( tmp_string == "FullDetector" ) {
     geometryStructure_ = RoadMaker::FullDetector;
   } else {
