@@ -20,11 +20,11 @@ public:
    *  \param vertexA: The prior vertex state
    *  \param VertexB: The fitted vertex state
    */
-  double vertexChi2(const VertexState vertexA,
-	const VertexState VertexB) const;
+  double vertexChi2(const VertexState & vertexA,
+	const VertexState & VertexB) const;
 
-  double vertexChi2(const CachingVertex vertexA,
-	const CachingVertex vertexB) const;
+  double vertexChi2(const CachingVertex & vertexA,
+	const CachingVertex & vertexB) const;
 
   /**
    *  Methode which calculates the chi**2 between the prior and the fitted

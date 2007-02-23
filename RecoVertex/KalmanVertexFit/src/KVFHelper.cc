@@ -1,29 +1,36 @@
 #include "RecoVertex/KalmanVertexFit/interface/KVFHelper.h"
+using namespace std;
 
-
-double KVFHelper::vertexChi2(const CachingVertex vertexA, 
-	const CachingVertex vertexB) const
+double KVFHelper::vertexChi2(const CachingVertex & vertexA, 
+	const CachingVertex & vertexB) const
 {
   return vertexChi2(vertexA.vertexState(), vertexB.vertexState());
 }
 
 
-double KVFHelper::vertexChi2(const VertexState vertexA,
-	const VertexState vertexB) const
+double KVFHelper::vertexChi2(const VertexState & vertexA,
+	const VertexState & vertexB) const
 {
-  double vetexChi2;
+// cout <<"Start\n";
   GlobalPoint inPosition = vertexA.position();
   GlobalPoint fnPosition = vertexB.position();
-  GlobalError inError = vertexA.error();
-  AlgebraicVector pDiff(3);
-  pDiff[1] =  inPosition.x() - fnPosition.x();
-  pDiff[2] =  inPosition.y() - fnPosition.y();
-  pDiff[3] =  inPosition.z() - fnPosition.z();
-  int ifail;
-  vetexChi2 = inError.matrix().inverse(ifail).similarity(pDiff);
-  if (ifail!=0) vetexChi2 = 0;
-  return vetexChi2;
+//   cout << inPosition<< fnPosition<<endl;
+
+  AlgebraicVector oldVertexPositionV(3);
+  oldVertexPositionV[0] = inPosition.x();
+  oldVertexPositionV[1] = inPosition.y();
+  oldVertexPositionV[2] = inPosition.z();
+
+  AlgebraicVector newVertexPositionV(3);
+  newVertexPositionV[0] = fnPosition.x();
+  newVertexPositionV[1] = fnPosition.y();
+  newVertexPositionV[2] = fnPosition.z();
+
+  AlgebraicVector positionResidual = newVertexPositionV - oldVertexPositionV;
+
+  return vertexA.weight().matrix().similarity(positionResidual);
 }
+
 
 float KVFHelper::trackParameterChi2(const RefCountedVertexTrack track) const
 {
