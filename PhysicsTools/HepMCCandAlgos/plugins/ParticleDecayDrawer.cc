@@ -17,10 +17,7 @@ private:
   std::string decay( const reco::Candidate &, std::list<const reco::Candidate *> & ) const;
   edm::ESHandle<DefaultConfig::ParticleDataTable> pdt_;
   /// print parameters
-  bool printP4_, printPtEtaPhi_, printVertex_, printStatus_;
-  /// accepted status codes
-  typedef std::vector<int> vint;
-  vint status_;
+  bool printP4_, printPtEtaPhi_, printVertex_;
   /// print 4 momenta
   std::string printP4( const reco::Candidate & ) const;
   /// accept candidate
@@ -49,9 +46,7 @@ ParticleDecayDrawer::ParticleDecayDrawer( const ParameterSet & cfg ) :
   src_( cfg.getParameter<InputTag>( "src" ) ),
   printP4_( cfg.getUntrackedParameter<bool>( "printP4", false ) ),
   printPtEtaPhi_( cfg.getUntrackedParameter<bool>( "printPtEtaPhi", false ) ),
-  printVertex_( cfg.getUntrackedParameter<bool>( "printVertex", false ) ),
-  printStatus_( cfg.getUntrackedParameter<bool>( "printStatus", false ) ),
-  status_( cfg.getUntrackedParameter<vint>( "status", vint() ) ) {
+  printVertex_( cfg.getUntrackedParameter<bool>( "printVertex", false ) ) {
 }
 
 bool ParticleDecayDrawer::accept( const reco::Candidate & c, const list<const Candidate *> & skip ) const {
@@ -60,8 +55,7 @@ bool ParticleDecayDrawer::accept( const reco::Candidate & c, const list<const Ca
 }
 
 bool ParticleDecayDrawer::select( const reco::Candidate & c ) const {
-  if ( status_.size() == 0 ) return true;
-  return find( status_.begin(), status_.end(), reco::status( c ) ) != status_.end();
+  return reco::status( c ) == 3;
 }
 
 bool ParticleDecayDrawer::hasValidDaughters( const reco::Candidate & c ) const {
@@ -100,20 +94,24 @@ void ParticleDecayDrawer::analyze( const Event & event, const EventSetup & es ) 
   if( moms.size() > 0 ) {
     if ( moms.size() > 1 )
       for( size_t m = 0; m < moms.size(); ++ m ) {
-	cout << "{ " << decay( * moms[ m ], skip ) << " } ";
+	string dec = decay( * moms[ m ], skip );
+	if ( ! dec.empty() )
+	  cout << "{ " << dec << " } ";
       }
     else 
       cout << decay( * moms[ 0 ], skip );
   }
   if ( nodes.size() > 0 ) {
-    cout << "->";
+    cout << "-> ";
     if ( nodes.size() > 1 ) {
       for( size_t n = 0; n < nodes.size(); ++ n ) {    
 	skip.remove( nodes[ n ] );
-	if ( hasValidDaughters( * nodes[ n ] ) )
-	  cout << " ( " << decay( * nodes[ n ], skip ) << " )";
-	else 
-	  cout << " " << decay( * nodes[ n ], skip );
+	string dec = decay( * nodes[ n ], skip );
+	if ( ! dec.empty() ) 
+	  if ( dec.find( "->", 0 ) != string::npos )
+	    cout << " ( " << dec << " )";
+	  else 
+	    cout << " " << dec;
       }
     } else {
       skip.remove( nodes[ 0 ] );
@@ -128,7 +126,6 @@ string ParticleDecayDrawer::printP4( const Candidate & c ) const {
   if ( printP4_ ) cout << " (" << c.px() << ", " << c.py() << ", " << c.pz() << "; " << c.energy() << ")"; 
   if ( printPtEtaPhi_ ) cout << " [" << c.pt() << ": " << c.eta() << ", " << c.phi() << "]";
   if ( printVertex_ ) cout << " {" << c.vx() << ", " << c.vy() << ", " << c.vz() << "}";
-  if ( printStatus_ ) cout << "{status: " << status( c ) << "}";
   return cout.str();
 }
 
@@ -156,11 +153,11 @@ string ParticleDecayDrawer::decay( const Candidate & c,
   for( size_t i = 0; i < ndau; ++ i ) {
     const Candidate * d = c.daughter( i );
     if ( accept( * d, skip ) ) {
-      string dausOut = decay( * d, skip );
-      if( hasValidDaughters( * d ) )
-	out += ( " ( " + dausOut + " )" );
+      string dec = decay( * d, skip );
+      if ( dec.find( "->", 0 ) != string::npos )
+	out += ( " ( " + dec + " )" );
       else
-	out += ( " " + dausOut );
+	out += ( " " + dec );
     }
   }
   return out;
