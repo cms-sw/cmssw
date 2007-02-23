@@ -18,7 +18,6 @@ CmsTrackerDetIdBuilder::CmsTrackerDetIdBuilder(){
   std::cout << "          backward compatibility with CMSSW_1_2_0 restored        " << std::endl;
   std::cout << " **************************************************************** " << std::endl;
   std::string theNavTypeToDetIdMap_FileName = edm::FileInPath("Geometry/TrackerNumberingBuilder/data/ModuleNumbering_120.dat").fullPath();
-  std::cout <<" ECCO "<<theNavTypeToDetIdMap_FileName<<std::endl;
   std::ifstream theNavTypeToDetIdMap_File(theNavTypeToDetIdMap_FileName.c_str());
   if (!theNavTypeToDetIdMap_File) 
     cms::Exception("LogicError") <<" File not found "<<theNavTypeToDetIdMap_FileName;
@@ -28,7 +27,7 @@ CmsTrackerDetIdBuilder::CmsTrackerDetIdBuilder(){
   std::string navType;
   float x,y,z;
   x=y=z=0;
-  std::vector<unsigned int> navtype;
+  //  std::vector<unsigned int> navtype;
   //
   while(theNavTypeToDetIdMap_File) {
     //
