@@ -205,7 +205,7 @@ void SiPixelWebInterface::performAction() {
   case SiPixelWebInterface::Summary :
     {
 //      cout << " SiPixelWebInterface::Summary " << endl;
-//      actionExecutor_->createSummary((*mui_p));
+      actionExecutor_->createSummary((*mui_p));
       break;
     }
   case SiPixelWebInterface::setupQTest :

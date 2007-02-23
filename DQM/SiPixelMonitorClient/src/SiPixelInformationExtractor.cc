@@ -702,14 +702,14 @@ bool SiPixelInformationExtractor::goToDir(MonitorUserInterface* mui, string& sna
 //cout<<"entering SiPixelInformationExtractor::goToDir"<<endl;
   mui->cd();
   mui->cd("Collector");
-  cout << mui->pwd() << endl;
+//  cout << mui->pwd() << endl;
   vector<string> subdirs;
   subdirs = mui->getSubdirs();
   if (subdirs.size() == 0) return false;
   
   if (flg) mui->cd("Collated");
   else mui->cd(subdirs[0]);
-  cout << mui->pwd() << endl;
+//  cout << mui->pwd() << endl;
   subdirs.clear();
   subdirs = mui->getSubdirs();
   if (subdirs.size() == 0) return false;
