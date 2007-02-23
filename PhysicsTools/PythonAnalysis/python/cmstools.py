@@ -84,12 +84,16 @@ class EventTree(object):
               raise IndexError
           self._index = key
           self.__setBranchIndicies()
+          return self
       def __iter__(self):
           for entry in xrange(self._tree.GetEntries()):
               self._index = entry
               self.__setBranchIndicies()
-              yield entry
-
+              self._tree.GetEntry(self._index,0)
+              yield self
+      def __getattr__(self, name):
+          return self.branch(name)
+              
 
 class EventBranch(object):
     def __init__(self,parent,name):
