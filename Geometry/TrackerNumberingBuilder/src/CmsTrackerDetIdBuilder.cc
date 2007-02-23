@@ -1,11 +1,14 @@
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerDetIdBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <string>
 
 
 CmsTrackerDetIdBuilder::CmsTrackerDetIdBuilder(){
@@ -14,8 +17,11 @@ CmsTrackerDetIdBuilder::CmsTrackerDetIdBuilder(){
   std::cout << "       You are running Tracker numbering scheme with rr patch     " << std::endl;
   std::cout << "          backward compatibility with CMSSW_1_2_0 restored        " << std::endl;
   std::cout << " **************************************************************** " << std::endl;
-  const char* theNavTypeToDetIdMap_FileName = edm::FileInPath("Geometry/TrackerNumberingBuilder/data/ModuleNumbering_120.dat").fullPath().c_str();
-  std::ifstream theNavTypeToDetIdMap_File(theNavTypeToDetIdMap_FileName);
+  std::string theNavTypeToDetIdMap_FileName = edm::FileInPath("Geometry/TrackerNumberingBuilder/data/ModuleNumbering_120.dat").fullPath();
+  std::cout <<" ECCO "<<theNavTypeToDetIdMap_FileName<<std::endl;
+  std::ifstream theNavTypeToDetIdMap_File(theNavTypeToDetIdMap_FileName.c_str());
+  if (!theNavTypeToDetIdMap_File) 
+    cms::Exception("LogicError") <<" File not found "<<theNavTypeToDetIdMap_FileName;
   // fill the map
   uint32_t detid;
   detid = 0;
@@ -24,13 +30,11 @@ CmsTrackerDetIdBuilder::CmsTrackerDetIdBuilder(){
   x=y=z=0;
   std::vector<unsigned int> navtype;
   //
-  while(!theNavTypeToDetIdMap_File.eof()) {
+  while(theNavTypeToDetIdMap_File) {
     //
     theNavTypeToDetIdMap_File >> detid
 			      >> navType
-			      >> x >> y >> z;
-    //
-    //    std::cout << "load " << detid  << " " << navType << std::endl;
+			      >> x >> y >> z;    
     //
     navtype.clear();
     mapNavTypeToDetId[navType] = detid;
