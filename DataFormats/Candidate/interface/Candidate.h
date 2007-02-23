@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.19 2007/01/19 16:11:47 llista Exp $
+ * \version $Id: Candidate.h,v 1.20 2007/02/19 12:59:04 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -54,7 +54,7 @@ namespace reco {
     unsigned int numberOfMothers() const { return mothers_.size(); }
     /// return pointer to mother
     const Candidate * mother( unsigned int i = 0 ) const { 
-      return numberOfMothers() > i ? mothers_[ i ] : 0; 
+      return i < numberOfMothers() ? mothers_[ i ] : 0; 
     }
     /// returns true if this candidate has a reference to a master clone.
     /// This only happens if the concrete Candidate type is ShallowCloneCandidate

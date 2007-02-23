@@ -19,6 +19,7 @@ namespace {
     reco::CandidateRef r1;
     reco::CandidateBaseRef r2;
     reco::CandidateRefVector rv1;
+    edm::Wrapper<reco::CandidateRefVector> wrv1;
     reco::CandidateRefProd rp1;
     std::vector<edm::RefToBase<reco::Candidate> > vrb1;
     edm::reftobase::Holder<reco::Candidate, reco::CandidateRef> rhcr1;
