@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/02/22 10:36:24 $
- * $Revision: 1.4 $
+ * $Date: 2007/02/22 10:57:00 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -115,7 +115,6 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
     if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
          dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-         dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
          dcch.getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
          dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2 ||
          dcch.getRunType() == EcalDCCHeaderBlock::MTCC ) enable = true;
@@ -153,7 +152,6 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
     if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
              dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-             dccMap[ism].getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
              dccMap[ism].getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
              dccMap[ism].getRunType() == EcalDCCHeaderBlock::BEAMH2 ||
              dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ) ) continue;
