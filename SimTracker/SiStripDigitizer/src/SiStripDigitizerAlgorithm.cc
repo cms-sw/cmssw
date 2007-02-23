@@ -59,9 +59,15 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   int strip = int(numStrips/2.);
   float noiseRMS = SiStripNoiseService_->getNoise(idForNoise,strip);
 
+<<<<<<< SiStripDigitizerAlgorithm.cc
+  theSiNoiseAdder = new SiGaussianTailNoiseAdder(numStrips,noiseRMS*theElectronPerADC,theThreshold);
+  theSiZeroSuppress = new SiTrivialZeroSuppress(conf_,noiseRMS);
+  theSiHitDigitizer = new SiHitDigitizer(conf_,det);
+=======
   theSiNoiseAdder = new SiGaussianTailNoiseAdder(numStrips,noiseRMS,theThreshold);
   theSiZeroSuppress = new SiTrivialZeroSuppress(conf_,noiseRMS/theElectronPerADC);
   theSiHitDigitizer = new SiHitDigitizer(conf_,det,pdt_);
+>>>>>>> 1.21
   theSiPileUpSignals = new SiPileUpSignals();
   theSiDigitalConverter = new SiTrivialDigitalConverter(theElectronPerADC,theAdcFullScale);
 
