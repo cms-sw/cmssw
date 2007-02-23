@@ -13,7 +13,7 @@
 //
 // Original Author:  Artur Kalinowski
 //         Created:  Mon Sep 11 12:48:02 CEST 2006
-// $Id: EcalIsolation.cc,v 1.1 2006/11/06 13:49:18 akalinow Exp $
+// $Id: EcalIsolation.cc,v 1.2 2007/01/10 11:12:52 gennai Exp $
 //
 //
 #include <string>
@@ -72,21 +72,21 @@ EcalIsolation::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<JetCrystalsAssociationCollection> jets;
    JetCrystalsAssociationCollection::const_iterator CI;
    iEvent.getByLabel(mJetForFilter, jets);
-   CI = jets->begin();
+   CI = (jets.product())->begin();
    
    EMIsolatedTauTagInfoCollection* myColl = new EMIsolatedTauTagInfoCollection();
    
-   //  cout <<"jets->size = " << jets->size() << endl;
-   LogDebug("") <<"jets->size = " << jets->size() << endl;
-   int i=0;
+
+   
    for(;CI!=(jets.product())->end();CI++){
-     
+     int i = CI->key.index();
+     //     cout <<"Index "<<i<<endl;
      EMIsolatedTauTagInfo myTag(0,edm::Ref<JetCrystalsAssociationCollection>(jets,i));
      double discriminator = myTag.discriminator(mBigCone,mSmallCone,pIsolCut);
      //     cout <<"Discriminator "<<discriminator <<endl;
-     i++;
      myTag.setDiscriminator(discriminator);
      myColl->push_back(myTag);
+
    }
    auto_ptr<EMIsolatedTauTagInfoCollection> myEMIsolTaus(myColl);
    iEvent.put(myEMIsolTaus);
