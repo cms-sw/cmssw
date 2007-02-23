@@ -49,6 +49,9 @@ source copyWWWStrip.csh
 
 cd ${DATADIR}/Validation/TrackerRecHits/test
 
+cp ${DATADIR}/Validation/TrackerConfiguration/test/striprechitshisto.root .
+cp ${DATADIR}/Validation/TrackerConfiguration/test/pixelrechitshisto.root
+
 root -b -p -q SiPixelRecHitsCompare.C
 source copyWWWPixel.csh
 root -b -p -q SiStripRecHitsCompare.C
