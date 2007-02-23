@@ -27,6 +27,8 @@
 #include <vector>
 #include <memory>
 
+#include "TH1F.h"
+
 class TTree;
 class TBranch;
 class TFile;
@@ -495,6 +497,9 @@ class PFRootEventManager {
   bool   jetsDebug_;
 
  private:
+  TH1F *h_Diff_MCEHT_;
+  TH1F *h_Diff_MCPF_;
+
   EventColin      *event_;
   TTree           *outTree_;
   JetAlgorithmEF*  JetAlgo_;

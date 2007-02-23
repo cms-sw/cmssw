@@ -12,6 +12,7 @@
 #include <TCanvas.h>
 #include <TPad.h>
 #include <TMarker.h>
+#include <TH1F.h>
 #include <TH2F.h>
 #include <TCutG.h>
 #include <TPolyLine.h>
@@ -23,6 +24,7 @@
 #include "TVector3.h"
 
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -41,9 +43,10 @@ PFRootEventManager::PFRootEventManager(const char* file)
   options_ = 0;
   tree_ = 0;
   iEvent_=0;
+  h_Diff_MCEHT_ = new TH1F("h_Diff_MCEHT","h_Diff_MCEHT",500,-1,1);
+  h_Diff_MCPF_  = new TH1F("h_Diff_MCPF","h_Diff_MCPF",500,-1,1);
 
   readOptions(file);
-
 
   displayView_.resize(NViews);
   displayHist_.resize(NViews);
@@ -585,6 +588,8 @@ void PFRootEventManager::write() {
     cout<<"writing output to "<<outFile_->GetName()
 	<<": to be implemented"<<endl;
     // write histos here
+    h_Diff_MCEHT_->Write();
+    h_Diff_MCPF_->Write();
     outFile_->cd();
     outTree_->Write();
   }
@@ -631,6 +636,26 @@ bool PFRootEventManager::processEntry(int entry) {
     }
   }
 
+  //optional ----------------------
+  //REMOVE EVENTS LEPTONIC DECAY OF THE TAUS
+  vector<reco::PFSimParticle> vectPART;
+  for(unsigned i=0;  i < trueParticles_.size(); i++) {
+    const reco::PFSimParticle& ptc = trueParticles_[i];
+    vectPART.push_back(ptc);}//loop 
+  for(unsigned i=0;  i < trueParticles_.size(); i++) {
+    const reco::PFSimParticle& ptc = trueParticles_[i];
+    const std::vector<int>& ptcdaughters = ptc.daughterIds();
+    if(abs(ptc.pdgCode()) == 15){
+      for(unsigned int dapt=0; dapt < ptcdaughters.size(); ++dapt){
+	unsigned int pdgdaugter = abs(vectPART[ptcdaughters[dapt]].pdgCode());
+	//cout << "DAUGHTER=" << pdgdaugter << endl;
+	if(pdgdaugter == 11 || pdgdaugter == 13)
+	  { if(verbosity_ == VERBOSE ) cout << "REMOVED" << endl; 
+	    return false; }
+      }//loop daughter
+    }//tau
+  }//loop particles
+  //-------------------------------
 
   particleFlow();
   if(doJets_) makeJets(); 
@@ -1096,6 +1121,14 @@ void PFRootEventManager::makeJets() {
 		      tpatvtx.momentum().E());
 
     partTOTMC += partMC;
+    if(jetsDebug_){
+      //pdgcode
+      int pdgcode = ptc.pdgCode();
+      cout << pdgcode << endl;
+      cout << tpatvtx << endl;
+      cout << partMC.Px() << " " << partMC.Py() << " " << partMC.Pz() << " " << partMC.E() 
+	   << " PT=" << sqrt(partMC.Px()*partMC.Px()+partMC.Py()*partMC.Py()) << endl;
+    }
   }//loop true particles
   if(jetsDebug_) {
     cout << "ET Vector=" << partTOTMC.Et() << " " << partTOTMC.Eta() << " " << partTOTMC.Phi() << endl; cout << endl;}
@@ -1129,12 +1162,17 @@ void PFRootEventManager::makeJets() {
   const vector< JetAlgorithmEF::Jet >&  caloTjets = JetAlgo_->FindJets( &allcalotowers );
   
   //cout << caloTjets.size() << " CaloTower Jets found" << endl;
+  double JetEHTETmax = 0.0;
   for(unsigned i = 0; i < caloTjets.size(); i++) {
     TLorentzVector jetmom = caloTjets[i].GetMomentum();
+    double jetcalo_pt = sqrt(jetmom.Px()*jetmom.Px()+jetmom.Py()*jetmom.Py());
+    double jetcalo_et = jetmom.Et();
     if(jetsDebug_){
       cout << "ECAL+HCAL jet : " << caloTjets[i] << endl;
       cout << jetmom.Px() << " " << jetmom.Py() << " " << jetmom.Pz() << " " << jetmom.E() 
-	   << " PT=" << sqrt(jetmom.Px()*jetmom.Px()+jetmom.Py()*jetmom.Py()) << endl;}
+	   << " PT=" << jetcalo_pt << endl;}
+
+    if(jetcalo_et >= JetEHTETmax) JetEHTETmax = jetcalo_et;
 
     EventColin::Jets jets;
     jets.eta   = jetmom.Eta();
@@ -1175,15 +1213,19 @@ void PFRootEventManager::makeJets() {
   const vector< JetAlgorithmEF::Jet >&  PFjets = JetAlgo_->FindJets( &allrecparticles );
 
   if(jetsDebug_) cout << PFjets.size() << " PF Jets found" << endl;
+  double JetPFETmax = 0.0;
   for(unsigned i = 0; i < PFjets.size(); i++) {
     TLorentzVector jetmom = PFjets[i].GetMomentum();
+    double jetpf_pt = sqrt(jetmom.Px()*jetmom.Px()+jetmom.Py()*jetmom.Py());
+    double jetpf_et = jetmom.Et();
     if(jetsDebug_) {
       cout <<"Rec jet : "<< PFjets[i] <<endl;
       cout << jetmom.Px() << " " << jetmom.Py() << " " << jetmom.Pz() << " " << jetmom.E() 
-	   << " PT=" << sqrt(jetmom.Px()*jetmom.Px()+jetmom.Py()*jetmom.Py()) 
-	   << " eta="<< jetmom.Eta() << " Phi=" << jetmom.Phi() << endl;
+	   << " PT=" << jetpf_pt << " eta="<< jetmom.Eta() << " Phi=" << jetmom.Phi() << endl;
       cout << "-------------------------------------------------------" << endl;}
     
+    if(jetpf_et >= JetPFETmax)  JetPFETmax = jetpf_et;
+
     EventColin::Jets jets;
     jets.eta   = jetmom.Eta();
     jets.phi   = jetmom.Phi();
@@ -1192,6 +1234,9 @@ void PFRootEventManager::makeJets() {
     event_->addJetsPF(jets);
   }//loop PF jets
 
+  //fill histos
+  h_Diff_MCEHT_->Fill((JetEHTETmax - partTOTMC.Et())/partTOTMC.Et());
+  h_Diff_MCPF_->Fill((JetPFETmax - partTOTMC.Et())/partTOTMC.Et());
 }//Makejets
 
 void PFRootEventManager::display(int ientry) {
