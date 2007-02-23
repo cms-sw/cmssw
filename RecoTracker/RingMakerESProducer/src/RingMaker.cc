@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Tue Oct  3 23:51:34 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2006/08/12 00:23:51 $
-// $Revision: 1.6 $
+// $Author: gutsche $
+// $Date: 2007/02/05 19:09:04 $
+// $Revision: 1.1 $
 //
 
 #include <iostream>
@@ -65,9 +65,30 @@ void RingMaker::constructRings() {
 
   unsigned int index = 0;
 
-  if ( configuration_ == "TIFTOB") {
-    index = 101;
+  if ( configuration_ == "TIF") {
+    index = 52;
+    constructTIBRings(index);
+    constructTIDRings(index);
     constructTOBRings(index);
+    constructTECRings(index);
+  } else if ( configuration_ == "TIFTOB") {
+    index = 118;
+    constructTOBRings(index);
+  } else if ( configuration_ == "TIFTIB") {
+    index = 52;
+    constructTIBRings(index);
+    constructTIDRings(index);
+  } else if ( configuration_ == "TIFTIBTOB") {
+    index = 52;
+    constructTIBRings(index);
+    constructTIDRings(index);
+    index = 118;
+    constructTOBRings(index);
+ } else if ( configuration_ == "TIFTOBTEC") {
+    index = 118;
+    constructTOBRings(index);
+    index = 190;
+    constructTECRings(index);
   } else {
     constructPXBRings(index);
     constructPXFRings(index);
