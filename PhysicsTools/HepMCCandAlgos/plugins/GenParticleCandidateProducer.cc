@@ -221,9 +221,9 @@ void GenParticleCandidateProducer::fillVector( const GenEvent * mc,
   }
 }
 
-void GenParticleCandidateProducer::fillMothers( const std::vector<const HepMC::GenParticle *> & particles, 
-						std::vector<int> & mothers,
-						std::vector<int> & mothers2 ) const {
+void GenParticleCandidateProducer::fillMothers( const vector<const HepMC::GenParticle *> & particles, 
+						vector<int> & mothers,
+						vector<int> & mothers2 ) const {
   const size_t size = particles.size();
   for( size_t i = 0; i < size; ++ i ) {
     const GenParticle * part = particles[ i ];
@@ -243,9 +243,9 @@ void GenParticleCandidateProducer::fillMothers( const std::vector<const HepMC::G
   }
 }
 
-void  GenParticleCandidateProducer::fillDaughters( const std::vector<int> & mothers, 
-						   const std::vector<int> & mothers2, 
-						   std::vector<std::vector<int> > & daughters ) const {
+void  GenParticleCandidateProducer::fillDaughters( const vector<int> & mothers, 
+						   const vector<int> & mothers2, 
+						   vector<vector<int> > & daughters ) const {
   for( size_t i = 0; i < mothers.size(); ++ i ) {
     int mother = mothers[ i ];
     if ( mother != -1 )
@@ -301,8 +301,7 @@ size_t GenParticleCandidateProducer::fillSkip( const vector<const GenParticle *>
 }
 
 void GenParticleCandidateProducer::fix( const vector<const GenParticle *> & particles,
-					const vector<int> & mothers,
-					const vector<int> & mothers2,
+					const vector<int> & mothers, const vector<int> & mothers2,
 					const vector<vector<int> > & daughters,
 					vector<bool> & skip ) const {
   const size_t size = particles.size();
@@ -353,7 +352,7 @@ void GenParticleCandidateProducer::fix( const vector<const GenParticle *> & part
   }
 }
 
-void GenParticleCandidateProducer::fillOutput( const std::vector<const GenParticle *> & particles,
+void GenParticleCandidateProducer::fillOutput( const vector<const GenParticle *> & particles,
 					       const vector<bool> & skip,
 					       CandidateCollection & cands,
 					       vector<pair<GenParticleCandidate *, size_t> > & candidates,
@@ -388,8 +387,7 @@ void GenParticleCandidateProducer::fillOutput( const std::vector<const GenPartic
   assert( cands.size() == indices.size() );
 }
 
-void GenParticleCandidateProducer::fillRefs( const std::vector<int> & mothers,
-					     const std::vector<int> & mothers2,
+void GenParticleCandidateProducer::fillRefs( const vector<int> & mothers, const vector<int> & mothers2,
 					     const CandidateRefProd ref,
 					     const vector<size_t> & indices,
 					     const vector<pair<GenParticleCandidate *, size_t> > & candidates,
