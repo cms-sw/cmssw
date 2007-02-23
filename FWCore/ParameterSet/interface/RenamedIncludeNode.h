@@ -23,7 +23,7 @@ namespace edm {
       virtual bool checkMultipleIncludes() const {return false;}
 
       /// only accept the named node.  Will rename it to newName_;
-      virtual bool okToInclude(NodePtr node) const;
+      virtual bool checkTarget(NodePtr node);
 
       /// adds the filtering
       virtual void resolve(std::list<std::string> & openFiles,

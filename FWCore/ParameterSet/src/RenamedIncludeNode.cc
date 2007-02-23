@@ -17,11 +17,10 @@ namespace edm {
     }
 
 
-    bool RenamedIncludeNode::okToInclude(NodePtr node) const
+    bool RenamedIncludeNode::checkTarget(NodePtr node)
     {
-      // only take the node specified
-      bool result = (node->name() == targetName_);
-      if(result)
+      bool result = ( node->name() == targetName_ );
+      if( result )
       {
         // check that the type was specified correctly
         if(node->type() != targetType_)
@@ -31,10 +30,10 @@ namespace edm {
             << "is of type " << node->type()
             << ", not " <<  targetType_;
         }
-     
         node->setName(newName_);
         node->setCloned(true);
       }
+      // always true, but might have to rename a node
       return result;
     }
 
@@ -42,9 +41,15 @@ namespace edm {
     void RenamedIncludeNode::resolve(std::list<std::string> & openFiles,
                              std::list<std::string> & sameLevelIncludes)
     {
+      bool found = false;
       IncludeNode::resolve(openFiles, sameLevelIncludes);
-      filterNodes();
-      if(nodes_->size() != 1)
+      for(NodePtrList::iterator nodeItr = nodes_->begin(), nodeItrEnd = nodes_->end();
+          !found && nodeItr != nodeItrEnd; ++nodeItr)
+      {
+        found = checkTarget(*nodeItr); 
+      }
+
+      if(!found)
       {
         throw edm::Exception(errors::Configuration)
           << "Could not find node " << targetName_ 
