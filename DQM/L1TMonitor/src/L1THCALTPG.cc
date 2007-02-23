@@ -1,16 +1,33 @@
 /*
  * \file L1THCALTPG.cc
  *
- * $Date: 2007/02/19 19:24:09 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/22 19:43:53 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
+ *
+ * $Log$
  *
  */
 
 #include "DQM/L1TMonitor/interface/L1THCALTPG.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-using namespace std;
 using namespace edm;
+
+
+// Local definitions for the limits of the histograms
+const unsigned int RTPBINS = 101;
+const float RTPMIN = -0.5;
+const float RTPMAX = 100.5;
+
+const unsigned int TPPHIBINS = 72;
+const float TPPHIMIN = 0.5;
+const float TPPHIMAX = 72.5;
+
+const unsigned int TPETABINS = 65;
+const float TPETAMIN = -32.5;
+const float TPETAMAX = 32.5;
+
 
 L1THCALTPG::L1THCALTPG(const ParameterSet& ps)
   : hcaltpgSource_( ps.getParameter< InputTag >("hcaltpgSource") )
@@ -19,7 +36,7 @@ L1THCALTPG::L1THCALTPG(const ParameterSet& ps)
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
-  if(verbose_) cout << "L1THCALTPG: constructor...." << endl;
+  if(verbose_) std::cout << "L1THCALTPG: constructor...." << std::endl;
 
   logFile_.open("L1THCALTPG.log");
 
@@ -37,9 +54,9 @@ L1THCALTPG::L1THCALTPG(const ParameterSet& ps)
     monitorDaemon_ = true;
   }
 
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
+  outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
-    cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
+    std::cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << std::endl;
   }
   else{
     outputFile_ = "L1TDQM.root";
@@ -80,16 +97,22 @@ void L1THCALTPG::beginJob(const EventSetup& c)
   if ( dbe ) 
   {
     dbe->setCurrentFolder("L1TMonitor/L1THCALTPG");
+    hcalTpEtEtaPhi_ = 
+      dbe->book2D("HcalTpEtEtaPhi", "HCAL TP E_{T}", TPPHIBINS, TPPHIMIN,
+		  TPPHIMAX, TPETABINS, TPETAMIN, TPETAMAX);
+    hcalTpOccEtaPhi_ =
+	dbe->book2D("HcalTpOccEtaPhi", "HCAL TP OCCUPANCY", TPPHIBINS,
+		    TPPHIMIN, TPPHIMAX, TPETABINS, TPETAMIN, TPETAMAX);
+    hcalTpRank_ =
+      dbe->book1D("HcalTpRank", "HCAL TP RANK", RTPBINS, RTPMIN, RTPMAX);
     
-    hcaltpgtest = dbe->book1D("HCALTPG test", 
-       "HCALTPG test", 128, -0.5, 127.5 ) ;
   }  
 }
 
 
 void L1THCALTPG::endJob(void)
 {
-  if(verbose_) cout << "L1THCALTPG: end job...." << endl;
+  if(verbose_) std::cout << "L1THCALTPG: end job...." << std::endl;
   LogInfo("L1THCALTPG") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
@@ -100,14 +123,33 @@ void L1THCALTPG::endJob(void)
 void L1THCALTPG::analyze(const Event& e, const EventSetup& c)
 {
   nev_++; 
-  if(verbose_) cout << "L1THCALTPG: analyze...." << endl;
+  if(verbose_) std::cout << "L1THCALTPG: analyze...." << std::endl;
 
-  int ntest = 5;
-      hcaltpgtest->Fill(ntest);
-      if (verbose_)
-	{     
-     std::cout << "\tHCALTPG test " << ntest
-   	    << std::endl;
-	}
+  edm::Handle<HcalTrigPrimDigiCollection> hcalTpgs;
+
+  try {
+    e.getByLabel(hcaltpgSource_, hcalTpgs);
+  }
+  catch (...) {
+    edm::LogInfo("L1THCALTPG") << "can't find HCAL TPG's with label "
+			       << hcaltpgSource_.label() ;
+    return;
+  }
+//   std::cout << "--> event" << std::endl;
+//   int j = 0;
+  for ( HcalTrigPrimDigiCollection::const_iterator i = hcalTpgs->begin();
+	i != hcalTpgs->end(); ++i ) {
+    int e = i->SOI_compressedEt();
+    if ( e != 0 ) {
+      // occupancy maps (weighted and unweighted
+      hcalTpOccEtaPhi_->Fill(i->id().iphi(), i->id().ieta());
+      hcalTpEtEtaPhi_ ->Fill(i->id().iphi(), i->id().ieta(),
+			     i->SOI_compressedEt());
+      // et
+      hcalTpRank_->Fill(i->SOI_compressedEt());
+      //std::cout << j++ << " : " << i->SOI_compressedEt() << std::endl;
+    }
+  }
+
 }
 
