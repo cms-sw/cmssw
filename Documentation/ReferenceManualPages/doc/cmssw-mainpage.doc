@@ -24,11 +24,8 @@ This is main page of the CMSSW Reference Manual.
 \endhtmlonly
 
 \section config Configuration files
-
-<ul>
-<li> \ref Software_StandardSequences "Standard sequences for configuration files" 
-<li> \ref Configuration_Examples "Example configuration files" 
-<\ul>
+- \ref Software_StandardSequences "Standard sequences for configuration files" 
+- \ref Configuration_Examples "Example configuration files" 
 
 
 \section datav Data View
