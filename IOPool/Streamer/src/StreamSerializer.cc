@@ -11,7 +11,6 @@
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
-#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
 
 #include "zlib.h"
 
@@ -209,39 +208,21 @@ namespace edm
   /**
    * Serializes the specified DQM Event into the specified DQM Event message.
    */
-  int StreamSerializer::serializeDQMEvent(DQMEvent::MonitorElementTable& meTable,
+  int StreamSerializer::serializeDQMEvent(DQMEvent::TObjectTable& toTable,
                                           DQMEventMsgBuilder& dqmMsgBuilder)
   {
     // loop over each subfolder
-    DQMEvent::MonitorElementTable::const_iterator sfIter;
-    for (sfIter = meTable.begin(); sfIter != meTable.end(); sfIter++) {
+    DQMEvent::TObjectTable::const_iterator sfIter;
+    for (sfIter = toTable.begin(); sfIter != toTable.end(); sfIter++) {
       std::string folderName = sfIter->first;
-      std::vector<MonitorElement *> meList = sfIter->second;
+      std::vector<TObject *> toList = sfIter->second;
 
       // serialize the ME data
-      int meCount = 0;
+      uint32 meCount = toList.size();
       TBuffer meDataBuffer(TBuffer::kWrite);
-      for (int idx = 0; idx < (int) meList.size(); idx++) {
-        MonitorElement *mePtr = meList[idx];
-
-        MonitorElementRootObject* rootObject = 
-          dynamic_cast<MonitorElementRootObject *>(mePtr);
-        if (rootObject) {
-          meDataBuffer.WriteObject(rootObject->operator->());
-          meCount++;
-        }
-        else {
-          FoldableMonitor *foldable =
-            dynamic_cast<FoldableMonitor *>(mePtr);
-          if (foldable) {
-            meDataBuffer.WriteObject(foldable->getTagObject());
-            meCount++;
-          }
-          else {
-            std::cerr << " *** Failed to extract and send object " 
-                      << mePtr->getName() << std::endl;
-          }
-        }
+      for (int idx = 0; idx < (int) meCount; idx++) {
+        TObject *toPtr = toList[idx];
+        meDataBuffer.WriteObject(toPtr);
       }
 
       // add the subfolder to the DQM event message

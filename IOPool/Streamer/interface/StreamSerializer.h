@@ -29,7 +29,7 @@ namespace edm
                        EventMsgBuilder& eventMessage,
                        bool use_compression, int compression_level);
 
-    static int serializeDQMEvent(DQMEvent::MonitorElementTable& meTable,
+    static int serializeDQMEvent(DQMEvent::TObjectTable& toTable,
                                  DQMEventMsgBuilder& dqmMsgBuilder);
 
   private:
