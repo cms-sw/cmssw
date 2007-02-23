@@ -3,7 +3,7 @@
 
 TrackerHitProducer::TrackerHitProducer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), label(""), getAllProvenances(false),
-  printProvenanceInfo(false), nRawGenPart(0), count(0)
+  printProvenanceInfo(false), nRawGenPart(0), config_(iPSet), count(0)
 {
   // get information from parameter set
   fName = iPSet.getUntrackedParameter<std::string>("Name");
@@ -191,7 +191,9 @@ void TrackerHitProducer::fillG4MC(edm::Event& iEvent)
   /////////////////////
   edm::Handle<edm::HepMCProduct> HepMCEvt;
   //iEvent.getByType(HepMCEvt);
-  iEvent.getByLabel("VtxSmeared",HepMCEvt);
+  static std::string HepMClabel = config_.getUntrackedParameter<std::string>("HepMCProductLabel","source");
+  static std::string HepMCinstance = config_.getUntrackedParameter<std::string>("HepMCInputInstance","");
+  iEvent.getByLabel(HepMClabel, HepMCinstance ,HepMCEvt);
   if (!HepMCEvt.isValid()) {
     edm::LogError("TrackerHitProducer::fillG4MC")
       << "Unable to find HepMCProduct in event!";
