@@ -5,6 +5,7 @@
 <use name=PhysicsTools/CandAlgos>
 <library file=CandSelector.cc></library>
 <library file=PtMinCandSelector.cc></library>
+<library file=PdgIdCandSelector.cc></library>
 <library file=MassRangeAndChargeCandCombiner.cc></library>
 <library file=MassRangeAndChargeCandShallowCloneCombiner.cc></library>
 <library file=CandCombiner.cc></library>
@@ -13,3 +14,4 @@
 <library file=CandShallowCloneProducer.cc></library>
 <library file=CandReducer.cc></library>
 <library file=TrivialDeltaRMatcher.cc></library>
+
