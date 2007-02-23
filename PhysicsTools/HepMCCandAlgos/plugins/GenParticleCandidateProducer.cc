@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateProducer.h,v 1.12 2007/01/15 14:24:49 llista Exp $
+ * \version $Id: GenParticleCandidateProducer.cc,v 1.1 2007/02/01 11:55:49 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -46,22 +46,22 @@ class GenParticleCandidateProducer : public edm::EDProducer {
   /// internal functional decomposition
   void fillIndices( const HepMC::GenEvent *, 
 	     std::vector<const HepMC::GenParticle *> &, 
-	     std::vector<int> &, std::vector<std::vector<int> > & ) const;
+	     std::vector<int> &, std::vector<int> &, std::vector<std::vector<int> > & ) const;
   /// internal functional decomposition
   void fillVector( const HepMC::GenEvent *,
 		   std::vector<const HepMC::GenParticle *> &
 		   ) const;
   /// internal functional decomposition
   void fillMothers( const std::vector<const HepMC::GenParticle *> &,
-		    std::vector<int> & ) const;
+		    std::vector<int> &, std::vector<int> & ) const;
   /// internal functional decomposition
-  void fillDaughters( const std::vector<int> &, std::vector<std::vector<int> > & ) const;
+  void fillDaughters( const std::vector<int> &, const std::vector<int> &, std::vector<std::vector<int> > & ) const;
   /// internal functional decomposition
   size_t fillSkip( const std::vector<const HepMC::GenParticle *> &, 
-		   const std::vector<int> &, std::vector<bool> & ) const;
+		   const std::vector<int> &, const std::vector<int> &, std::vector<bool> & ) const;
   /// internal functional decomposition
   void fix( const std::vector<const HepMC::GenParticle *> &,
-	    const std::vector<int> &,
+	    const std::vector<int> &, const std::vector<int> &, 
 	    const std::vector<std::vector<int> > &,
 	    std::vector<bool> & ) const;
   /// internal functional decomposition
@@ -71,7 +71,7 @@ class GenParticleCandidateProducer : public edm::EDProducer {
 	     std::vector<std::pair<reco::GenParticleCandidate *, size_t> > &,
 	     std::vector<size_t> & ) const;
   /// internal functional decomposition
-  void fillRefs( const std::vector<int> &,
+  void fillRefs( const std::vector<int> &, const std::vector<int> &, 
 		 const reco::CandidateRefProd,
 		 const std::vector<size_t> &,
 		 const std::vector<std::pair<reco::GenParticleCandidate *, size_t> > &,
@@ -172,7 +172,7 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
   const size_t size = mc->particles_size();
 
   vector<const GenParticle *> particles( size );
-  vector<int> mothers( size );
+  vector<int> mothers( size ), mothers2( size );
   // need daughters vector since pointers in HepMC 
   // may be broken in some HepMC version
   vector<vector<int> > daughters( size );
@@ -183,28 +183,28 @@ void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
   vector<pair<GenParticleCandidate *, size_t> > candidates( size );
 
   /// fill indices
-  fillIndices( mc, particles, mothers, daughters );
+  fillIndices( mc, particles, mothers, mothers2, daughters );
   // fill skip vector
-  if( fillSkip( particles, mothers, skip ) > 0 )
-    fix( particles, mothers, daughters, skip );
+  if( fillSkip( particles, mothers, mothers2, skip ) > 0 )
+    fix( particles, mothers, mothers2, daughters, skip );
   // fill output collection and save association
   fillOutput( particles, skip, * cands, candidates, indices );
   // fill references to daughters
-  fillRefs( mothers, ref, indices, candidates, * cands );
+  fillRefs( mothers, mothers2, ref, indices, candidates, * cands );
 
   evt.put( cands );
 }
 
 void GenParticleCandidateProducer::fillIndices( const GenEvent * mc,
 						vector<const GenParticle *> & particles, 
-						vector<int> & mothers, 
+						vector<int> & mothers, vector<int> & mothers2, 
 						vector<vector<int> > & daughters ) const {
   // copy particle pointers
   fillVector( mc, particles );
   // fill mother indices
-  fillMothers( particles, mothers );
+  fillMothers( particles, mothers, mothers2 );
   // fill daughters indices
-  fillDaughters( mothers, daughters );
+  fillDaughters( mothers, mothers2, daughters );
 }
 
 void GenParticleCandidateProducer::fillVector( const GenEvent * mc,
@@ -222,31 +222,44 @@ void GenParticleCandidateProducer::fillVector( const GenEvent * mc,
 }
 
 void GenParticleCandidateProducer::fillMothers( const std::vector<const HepMC::GenParticle *> & particles, 
-						std::vector<int> & mothers ) const {
+						std::vector<int> & mothers,
+						std::vector<int> & mothers2 ) const {
   const size_t size = particles.size();
   for( size_t i = 0; i < size; ++ i ) {
     const GenParticle * part = particles[ i ];
     if ( part->hasParents() ) {
       const GenParticle * mother = part->mother();
       mothers[ i ] = mother->barcode() - 1;
+      const GenParticle * mother2 = part->secondMother();
+      if( mother2 != 0 && mother2 != mother ) {
+	mothers2[ i ] = mother2->barcode() - 1;
+      } else {
+	mothers2[ i ] = -1;
+      }
     } else {
       mothers[ i ] = -1;
+      mothers2[ i ] = -1;
     }
   }
 }
 
 void  GenParticleCandidateProducer::fillDaughters( const std::vector<int> & mothers, 
+						   const std::vector<int> & mothers2, 
 						   std::vector<std::vector<int> > & daughters ) const {
   for( size_t i = 0; i < mothers.size(); ++ i ) {
     int mother = mothers[ i ];
     if ( mother != -1 )
       daughters[ mother ].push_back( i );
+    int mother2 = mothers2[ i ];
+    if ( mother2 != -1 )
+      daughters[ mother2 ].push_back( i );
   } 
 }
 
 size_t GenParticleCandidateProducer::fillSkip( const vector<const GenParticle *> & particles, 
-					     const vector<int> & mothers, 
-					     vector<bool> & skip ) const {
+					       const vector<int> & mothers, 
+					       const vector<int> & mothers2, 
+					       vector<bool> & skip ) const {
   size_t tot = 0;
   const size_t size = particles.size();
   for( size_t i = 0; i < size; ++ i ) {
@@ -289,6 +302,7 @@ size_t GenParticleCandidateProducer::fillSkip( const vector<const GenParticle *>
 
 void GenParticleCandidateProducer::fix( const vector<const GenParticle *> & particles,
 					const vector<int> & mothers,
+					const vector<int> & mothers2,
 					const vector<vector<int> > & daughters,
 					vector<bool> & skip ) const {
   const size_t size = particles.size();
@@ -305,6 +319,12 @@ void GenParticleCandidateProducer::fix( const vector<const GenParticle *> & part
 	    const GenParticle * mother = particles[ m ];
 	    if ( mother->status() == 3 && mother->pdg_id() == pdgId )
 	      skip[ m ] = true;
+	  }
+	  int m2 = mothers2[ i ];
+	  if( m2 != -1 ) {
+	    const GenParticle * mother2 = particles[ m2 ];
+	    if ( mother2->status() == 3 && mother2->pdg_id() == pdgId )
+	      skip[ m2 ] = true;
 	  }
 	}
 	/// drop mothers if all daughters dropped, but keep complete decays
@@ -369,6 +389,7 @@ void GenParticleCandidateProducer::fillOutput( const std::vector<const GenPartic
 }
 
 void GenParticleCandidateProducer::fillRefs( const std::vector<int> & mothers,
+					     const std::vector<int> & mothers2,
 					     const CandidateRefProd ref,
 					     const vector<size_t> & indices,
 					     const vector<pair<GenParticleCandidate *, size_t> > & candidates,
@@ -382,6 +403,14 @@ void GenParticleCandidateProducer::fillRefs( const std::vector<int> & mothers,
 	m = ( m != -1 ) ? mothers[ m ] : -1;
     if ( mother.first != 0 ) 
       mother.first->addDaughter( CandidateRef( ref, i ) );
+
+    int m2 = mothers2[ indices[ i ] ];
+    pair<GenParticleCandidate *, size_t> mother2 = make_pair( null, 0 );
+    while ( mother2.first == 0 && m2 != -1 )
+      if ( ( mother2 = candidates[ m2 ] ).first == 0 )
+	m2 = ( m2 != -1 ) ? mothers2[ m2 ] : -1;
+    if ( mother2.first != 0 ) 
+      mother2.first->addDaughter( CandidateRef( ref, i ) );
   }
 }
 
