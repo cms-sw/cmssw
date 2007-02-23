@@ -14,8 +14,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/23 01:55:47 $
-// $Revision: 1.4 $
+// $Date: 2007/02/05 19:18:39 $
+// $Revision: 1.5 $
 //
 
 #include <vector>
@@ -33,7 +33,11 @@ class RoadMaker {
   enum GeometryStructure {
     FullDetector,
     MTCC,
-    TIFTOB
+    TIF,
+    TIFTOB,
+    TIFTIB,
+    TIFTIBTOB,
+    TIFTOBTEC
   };
 
   enum SeedingType {
@@ -68,10 +72,12 @@ class RoadMaker {
   void collectInnerTOBSeedRings2();
 
   void collectOuterSeedRings();
+  void collectOuterTIBSeedRings();
   void collectOuterTOBSeedRings();
   void collectOuterTECSeedRings();
 
   void collectOuterSeedRings1();
+  void collectOuterTIBSeedRings1();
   void collectOuterTOBSeedRings1();
   void collectOuterTECSeedRings1();
 
