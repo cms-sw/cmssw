@@ -11,7 +11,7 @@
 
 <use name=clhep>
 <use name=root>
-<use name=oracle>
+<use name=OnlineDB/Oracle>
 <lib name=occi>
 <lib name=Minuit2>
 <flags SEAL_PLUGIN_NAME="OnlineDBCSCCondDB">
