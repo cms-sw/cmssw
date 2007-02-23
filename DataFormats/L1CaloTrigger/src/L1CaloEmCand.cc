@@ -4,6 +4,8 @@
 
 using std::ostream;
 using std::endl;
+using std::hex;
+using std::dec;
 
 // default constructor
 L1CaloEmCand::L1CaloEmCand() :
@@ -35,9 +37,9 @@ L1CaloEmCand::~L1CaloEmCand() { }
 
 // pretty print
 ostream& operator<<(ostream& s, const L1CaloEmCand& cand) {
-  s << "L1CaloEmCand : ";
+  s << "L1CaloEmCand : " << hex;
   s << "rank=" << cand.rank();
   s << ", region=" << cand.rctRegion() << ", card=" << cand.rctCard() << ", crate=" << cand.rctCrate();
-  s << ", iso=" << cand.isolated();
+  s << ", iso=" << cand.isolated() << dec;
   return s;
 }
