@@ -88,6 +88,8 @@ namespace edm {
 
     void CompositeNode::setCloned(bool value)
     {
+      // set this node itself
+      Node::setCloned(value);
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
       for(; i != e; ++i)
       {
@@ -196,7 +198,8 @@ namespace edm {
       // the family tree.  If it's another CompositeNode, it gets its
       // own stack
       std::list<std::string> newList;
-      std::list<std::string> & thisLevelIncludes = (type() == "include")
+      std::list<std::string> & thisLevelIncludes = 
+                             (type().substr(0,7) == "include")
                              ? sameLevelIncludes
                              : newList; 
 
@@ -239,7 +242,10 @@ namespace edm {
           {
             // Using blocks get inserted at the beginning, just for convenience
             // Make a copy of the node, so it can be modified
-            nodes_->push_front( NodePtr((**paramItr).clone()) );
+            NodePtr newNode((**paramItr).clone());
+            // if this node is cloned, propagate that to the children
+            newNode->setCloned(isCloned());
+            nodes_->push_front( newNode );
           }
 
           // better start over, since list chnged,
