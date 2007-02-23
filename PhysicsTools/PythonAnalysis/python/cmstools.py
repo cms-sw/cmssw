@@ -24,7 +24,7 @@ def all(container):
       for entry in xrange(entries):
         yield entry
     except:
-      pass
+        raise cmserror("Looping of %s failed" %container) 
 
   # loop over std::vectors and similar
   elif hasattr(container, 'size'):
@@ -55,6 +55,7 @@ def createBranchBuffer(branch):
         branch.SetAddress(ROOT.AddressOf(buffer))
     return buffer
 
+
 class EventTree(object):
       def __init__(self,obj):
           if isinstance(obj, ROOT.TTree):
@@ -64,17 +65,10 @@ class EventTree(object):
           elif isinstance(obj, str):
               self._tree = ROOT.TFile.Open(obj).Get("Events")
           else:
-              raise cmserror, "EventTree accepts only TTrees, TFiles and filenames"
+              raise cmserror("EventTree accepts only TTrees, TFiles and filenames")
           self._usedBranches = dict()
           self._index = -1
           self._aliases = self._tree.GetListOfAliases()
-
-
-      def __init__(self,ttree):
-          self._tree = ttree
-          self._usedBranches = dict()
-          self._index = -1
-          self._aliases = ttree.GetListOfAliases()
       def branch(self,name):
           # support for aliases
           alias = self._tree.GetAlias(name)
@@ -86,13 +80,15 @@ class EventTree(object):
           return self._usedBranches[name]
       def getListOfAliases(self):
           return self._aliases
-      def tree(self):
-          return self._tree
       def index(self):
           return self._index
+      def tree(self):
+          return self._tree
       def __setBranchIndicies(self):
           for branch in self._usedBranches.itervalues():
               branch.setIndex(self._index)
+      def __getattr__(self, name):
+          return self.branch()
       def __getitem__(self,key):
           if key <0 or key > self._tree.GetEntries():
               raise IndexError
@@ -105,8 +101,6 @@ class EventTree(object):
               self.__setBranchIndicies()
               self._tree.GetEntry(self._index,0)
               yield self
-      def __getattr__(self, name):
-          return self.branch(name)
               
 
 class EventBranch(object):
@@ -130,8 +124,10 @@ class EventBranch(object):
             self.__readData()
         return self._buffer
 
+
 class cmserror(exceptions.StandardError):
     def __init__(self, message):
-          print "========================================"
+          length = len(message)+7   #7=len("ERROR: ")
+          print "="*length
           print "ERROR:", message
-          print "========================================"
+          print "="*length
