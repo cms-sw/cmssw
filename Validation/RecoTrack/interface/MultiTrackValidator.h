@@ -25,6 +25,7 @@
 #include <iostream>
 #include <string>
 #include <TH1F.h>
+#include <TH2F.h>
 
 class MultiTrackValidator : public edm::EDAnalyzer {
  public:
@@ -66,22 +67,33 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   double minpT, maxpT;
   int nintpT;
   
+  //sim
   std::vector<MonitorElement*> h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM;
-  std::vector<MonitorElement*> h_tracks, h_fakes, h_nchi2, h_nchi2_prob, h_hits,  h_ptrmsh, h_d0rmsh, h_charge;
+
+  //1D
+  std::vector<MonitorElement*> h_tracks, h_fakes, h_nchi2, h_nchi2_prob, h_hits, h_charge;
   std::vector<MonitorElement*> h_effic, h_fakerate, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta;
   std::vector<MonitorElement*> h_recopT, h_assocpT, h_assoc2pT, h_simulpT;
   std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi0,h_pullD0,h_pullDz,h_pullQoverp;
-  std::vector<MonitorElement*> chi2_vs_nhits, chi2_vs_eta, nhits_vs_eta, ptres_vs_eta, etares_vs_eta, nrec_vs_nsim;
-  std::vector<MonitorElement*> h_assochi2, h_assochi2_prob, h_hits_eta;
+
+  //2D  
+  std::vector<MonitorElement*> chi2_vs_nhits, etares_vs_eta, nrec_vs_nsim;
+
+  //assoc chi2
+  std::vector<MonitorElement*> h_assochi2, h_assochi2_prob;
+
+  //chi2 and #hit vs eta: to be used with doProfileX
+  std::vector<TH2F*> chi2_vs_eta, nhits_vs_eta;
+  std::vector<MonitorElement*>  h_chi2meanh, h_hits_eta;
+
+  //resolution of track params: to be used with fitslicesytool
+  std::vector<TH2F*> d0res_vs_eta, ptres_vs_eta, z0res_vs_eta, phires_vs_eta, cotThetares_vs_eta;
+  std::vector<MonitorElement*> h_d0rmsh, h_ptrmsh, h_z0rmsh, h_phirmsh, h_cotThetarmsh;
   
   std::vector< std::vector<double> > etaintervals;
   std::vector< std::vector<double> > pTintervals;
-  std::vector< std::vector<double> > hitseta;
   std::vector< std::vector<int> > totSIMeta,totRECeta,totASSeta,totASS2eta;
   std::vector< std::vector<int> > totSIMpT,totRECpT,totASSpT,totASS2pT;
-  
-  std::vector< std::vector<TH1F*> > ptdistrib;
-  std::vector< std::vector<TH1F*> > d0distrib;
 
   edm::ESHandle<MagneticField> theMF;
 
@@ -90,6 +102,18 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   RecoTrackSelector selectRecoTracks;
   TPEfficiencySelector selectTPs4Efficiency;
   TPFakeRateSelector selectTPs4FakeRate;
+  
+  void doProfileX(TH2 * th2, MonitorElement* me){
+    if (th2->GetNbinsX()==me->getNbinsX()){
+      TH1F * h1 = (TH1F*) th2->ProfileX();
+      for (int bin=0;bin!=h1->GetNbinsX();bin++){
+	me->setBinContent(bin+1,h1->GetBinContent(bin+1));
+      }
+    } else {
+      throw cms::Exception("MultiTrackValidator") << "Different number of bins!";
+    }    
+  }
+  
 };
 
 

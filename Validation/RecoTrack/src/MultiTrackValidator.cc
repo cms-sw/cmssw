@@ -1,4 +1,5 @@
 #include "Validation/RecoTrack/interface/MultiTrackValidator.h"
+#include "Validation/RecoTrack/interface/FitSlicesYTool.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -35,15 +36,10 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       string dirName = algo.erase(algo.size()-6,algo.size())+"_"+assoc.erase(0,5);
       dbe_->setCurrentFolder(dirName.c_str());
 
-      string subDirName = dirName + "/pt_d0_residues";
-      dbe_->setCurrentFolder(subDirName.c_str());
       vector<double> etaintervalsv;
       vector<double> pTintervalsv;
-      vector<double> hitsetav;
       vector<int>    totSIMveta,totASSveta,totASS2veta,totRECveta;
       vector<int>    totSIMvpT,totASSvpT,totASS2vpT,totRECvpT;
-      vector<TH1F*>  ptdistribv;
-      vector<TH1F*>  d0distribv;
   
       double step=(max-min)/nint;
       ostringstream title,name;
@@ -55,26 +51,12 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
 	totASSveta.push_back(0);
 	totASS2veta.push_back(0);
 	totRECveta.push_back(0);
-	hitsetav.push_back(0);
-	name.str("");
-	title.str("");
-	name <<"pt["<<d-step<<","<<d<<"]";
-	title <<"#deltap_{t}/p_{t} "<< d-step << "<#eta<"<<d;
-	ptdistribv.push_back(new TH1F(name.str().c_str(),title.str().c_str(), 200, -2, 2 ));
-	name.str("");
-	title.str("");
-	name <<"d0["<<d-step<<","<<d<<"]";
-	title <<"d0 residue "<< d-step << "<d0<"<<d;
-	d0distribv.push_back(new TH1F(name.str().c_str(),title.str().c_str(), 200, -0.2, 0.2 ));
       }
       etaintervals.push_back(etaintervalsv);
       totSIMeta.push_back(totSIMveta);
       totASSeta.push_back(totASSveta);
       totASS2eta.push_back(totASS2veta);
       totRECeta.push_back(totRECveta);
-      hitseta.push_back(hitsetav);
-      ptdistrib.push_back(ptdistribv);
-      d0distrib.push_back(d0distribv);
 
       double steppT = (maxpT-minpT)/nintpT;
       pTintervalsv.push_back(0);
@@ -93,7 +75,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       totRECpT.push_back(totRECvpT);
 
       dbe_->goUp();
-      subDirName = dirName + "/simulation";
+      string subDirName = dirName + "/simulation";
       dbe_->setCurrentFolder(subDirName.c_str());
       h_ptSIM.push_back( dbe_->book1D("ptSIM", "generated p_{t}", 5500, 0, 110 ) );
       h_etaSIM.push_back( dbe_->book1D("etaSIM", "generated pseudorapidity", 500, -2.5, 2.5 ) );
@@ -119,9 +101,6 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       h_assocpT.push_back( dbe_->book1D("num_assoc(simToReco)_pT","N of associated tracks (simToReco) vs pT",nintpT,minpT,maxpT) );
       h_assoc2pT.push_back( dbe_->book1D("num_assoc(recoToSim)_pT","N of associated (recoToSim) tracks vs pT",nintpT,minpT,maxpT) );
       h_simulpT.push_back( dbe_->book1D("num_simul_pT","N of simulated tracks vs pT",nintpT,minpT,maxpT) );
-      h_ptrmsh.push_back( dbe_->book1D("sigmaPt/Pt","#singmaPt/Pt vs #eta",nint,min,max) );
-      h_d0rmsh.push_back( dbe_->book1D("sigmad0","#sigmad0 vs #eta",nint,min,max) );
-      h_hits_eta.push_back( dbe_->book1D("hits_eta","hits_eta",nint,min,max) );
       
       h_eta.push_back( dbe_->book1D("eta", "pseudorapidity residue", 1000, -0.1, 0.1 ) );
       h_pt.push_back( dbe_->book1D("pullPt", "pull of p_{t}", 100, -10, 10 ) );
@@ -137,11 +116,31 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       }
 
       chi2_vs_nhits.push_back( dbe_->book2D("chi2_vs_nhits","chi2 vs nhits",25,0,25,100,0,10) );
-      chi2_vs_eta.push_back( dbe_->book2D("chi2_vs_eta","chi2 vs eta",nint,min,max,100,0,10) );
-      nhits_vs_eta.push_back( dbe_->book2D("nhits_vs_eta","nhits vs eta",nint,min,max,25,0,25) );
-      ptres_vs_eta.push_back( dbe_->book2D("ptres_vs_eta","ptresidue vs eta",nint,min,max,200,-2,2) );
       etares_vs_eta.push_back( dbe_->book2D("etares_vs_eta","etaresidue vs eta",nint,min,max,200,-0.1,0.1) );
       nrec_vs_nsim.push_back( dbe_->book2D("nrec_vs_nsim","nrec_vs_nsim",20,-0.5,19.5,20,-0.5,19.5) );
+
+      chi2_vs_eta.push_back(new TH2F("chi2_vs_eta","chi2_vs_eta",nint,min,max, 200, 0, 20 ));
+      h_chi2meanh.push_back( dbe_->book1D("chi2mean","mean #chi^{2} vs #eta",nint,min,max) );
+
+      nhits_vs_eta.push_back( new TH2F("nhits_vs_eta","nhits vs eta",nint,min,max,25,0,25) );
+      h_hits_eta.push_back( dbe_->book1D("hits_eta","hits_eta",nint,min,max) );
+
+      //resolution of track parameters
+      d0res_vs_eta.push_back(new TH2F("d0res_vs_eta","d0res_vs_eta",nint,min,max, 500, -0.015, 0.015 ));//GC:100,-0.1,0.1; NIC:500,-0.015,0.015
+      h_d0rmsh.push_back( dbe_->book1D("sigmad0","#sigmad0 vs #eta",nint,min,max) );
+
+      ptres_vs_eta.push_back(new TH2F("ptres_vs_eta","ptres_vs_eta",nint,min,max, 100, -0.4, 0.4));//GC:100,-0.4,0.4; NIC:500,-0.2,0.2
+      h_ptrmsh.push_back( dbe_->book1D("sigmapt","#sigmapt vs #eta",nint,min,max) );
+
+      z0res_vs_eta.push_back(new TH2F("z0res_vs_eta","z0res_vs_eta",nint,min,max, 500, -0.04, 0.04));//GC:100,-1,1; NIC:500,-0.04,0.04
+      h_z0rmsh.push_back( dbe_->book1D("sigmaz0","#sigmaz0 vs #eta",nint,min,max) );
+
+      phires_vs_eta.push_back(new TH2F("phires_vs_eta","phires_vs_eta",nint,min,max, 100, -0.02, 0.02));//GC:100,-0.02,0.02; NIC:500,-0.0015,0.0015
+      h_phirmsh.push_back( dbe_->book1D("sigmaphi","#sigmaphi vs #eta",nint,min,max) );
+
+      cotThetares_vs_eta.push_back(new TH2F("cotThetares_vs_eta","cotThetares_vs_eta",nint,min,max, 100, -0.02, 0.02));//GC:100,-0.02,0.02; NIC:500,-0.004,0.004
+      h_cotThetarmsh.push_back( dbe_->book1D("sigmacotTheta","#sigmacotTheta vs #eta",nint,min,max) );
+
       j++;
     }
   }
@@ -218,10 +217,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    }
 	    if (rt.size()!=0) {
 	      reco::TrackRef t = rt.begin()->first;
- 	      if ( !selectRecoTracks( *t ) ) continue;//FIXME TRY WITH SECOND
+ 	      if ( !selectRecoTracks( *t ) ) continue;//FIXME? TRY WITH SECOND?
 	      ats++;
 	      totASSeta[w][f]++;
-	      hitseta[w][f]+=t->numberOfValidHits();
 	      edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st << " with pt=" << t->pt() 
 					 << " associated with quality:" << rt.begin()->second <<"\n";
 	    }
@@ -238,7 +236,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
             } catch (cms::Exception e) { }
             if (rt.size()!=0) {
 	      reco::TrackRef t = rt.begin()->first;
-              if ( !selectRecoTracks( *t ) ) continue;//FIXME TRY WITH SECOND
+              if ( !selectRecoTracks( *t ) ) continue;//FIXME? TRY WITH SECOND?
               totASSpT[w][f]++;
             }
           }
@@ -273,7 +271,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	      edm::LogError("TrackValidator") << e.what() << "\n";
 	    }
 	    if (tp.size()!=0) {
-	      if (!selectTPs4FakeRate( *tp.begin()->first )) continue;//FIXME TRY WITH SECOND
+	      if (!selectTPs4FakeRate( *tp.begin()->first )) continue;//FIXME? TRY WITH SECOND?
 	      totASS2eta[w][f]++;
 	      edm::LogVerbatim("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt() 
 					 << " associated with quality:" << tp.begin()->second <<"\n";
@@ -289,7 +287,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
               tp = recSimColl[track];
             } catch (cms::Exception e) { }
             if (tp.size()!=0) {
-              if (!selectTPs4FakeRate( *tp.begin()->first )) continue;//FIXME TRY WITH SECOND
+              if (!selectTPs4FakeRate( *tp.begin()->first )) continue;//FIXME? TRY WITH SECOND?
 	      at++;
               totASS2pT[w][f]++;
             }
@@ -315,14 +313,12 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  h_nchi2_prob[w]->Fill(chisquared_prob(track->chi2(),track->ndof()));
 	  h_hits[w]->Fill(track->numberOfValidHits());
 	  chi2_vs_nhits[w]->Fill(track->numberOfValidHits(),track->normalizedChi2());
-	  chi2_vs_eta[w]->Fill(track->eta(),track->normalizedChi2());
-	  nhits_vs_eta[w]->Fill(track->eta(),track->numberOfValidHits());
 	  h_charge[w]->Fill( track->charge() );
 	
 
 	  // eta residue; pt, k, theta, phi0, d0, dz pulls
 	  Basic3DVector<double> momAtVtx(assocTrack->momentum().x(),assocTrack->momentum().y(),assocTrack->momentum().z());
-	  Basic3DVector<double> vert = (Basic3DVector<double>) tpr->parentVertex()->position();
+	  Basic3DVector<double> vert = (Basic3DVector<double>) tpr->vertex();
 
 	  reco::TrackBase::ParameterVector sParameters=
 	    associatorForParamAtPca->parametersAtClosestApproachGeom(vert, momAtVtx, track->charge());
@@ -333,11 +329,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  double d0Sim     = -sParameters[3];
 	  double dzSim     = sParameters[4]*momAtVtx.mag()/momAtVtx.perp();
 
-	  double qoverpres=(track->qoverp()-qoverpSim)/track->qoverpError();
-	  double thetares=(track->lambda()-lambdaSim)/track->thetaError();
-	  double phi0res=(track->phi()-phiSim)/track->phiError();
-	  double d0res=(track->d0()-d0Sim)/track->d0Error();
-	  double dzres=(track->dz()-dzSim)/track->dzError();
+	  double qoverpPull=(track->qoverp()-qoverpSim)/track->qoverpError();
+	  double thetaPull=(track->lambda()-lambdaSim)/track->thetaError();
+	  double phi0Pull=(track->phi()-phiSim)/track->phiError();
+	  double d0Pull=(track->d0()-d0Sim)/track->d0Error();
+	  double dzPull=(track->dz()-dzSim)/track->dzError();
 	  if (tp.begin()->second>100){
 	    double contrib_Qoverp = ((track->qoverp()-qoverpSim)/track->qoverpError())*
 	      ((track->qoverp()-qoverpSim)/track->qoverpError())/5;
@@ -380,40 +376,30 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 					   <<"chi2PULL="<<contrib_Qoverp+contrib_d0+contrib_dz+contrib_theta+contrib_phi<<"\n";
 	  }
 	  
-	  h_pullQoverp[w]->Fill(qoverpres);
-	  h_pullTheta[w]->Fill(thetares);
-	  h_pullPhi0[w]->Fill(phi0res);
-	  h_pullD0[w]->Fill(d0res);
-	  h_pullDz[w]->Fill(dzres);
+	  h_pullQoverp[w]->Fill(qoverpPull);
+	  h_pullTheta[w]->Fill(thetaPull);
+	  h_pullPhi0[w]->Fill(phi0Pull);
+	  h_pullD0[w]->Fill(d0Pull);
+	  h_pullDz[w]->Fill(dzPull);
 
 	  double ptres=track->pt()-assocTrack->momentum().perp(); 
 	  double etares=track->eta()-assocTrack->momentum().pseudoRapidity();
-
 	  double ptError = track->p()*track->p()*sin(track->theta())*track->qoverpError()/track->charge()+track->p()*cos(track->theta())*track->thetaError();
 	  h_pt[w]->Fill(ptres/ptError);
 	  h_eta[w]->Fill(etares);
-	  ptres_vs_eta[w]->Fill(track->eta(),ptres);
 	  etares_vs_eta[w]->Fill(track->eta(),etares);
-	
-	  //pt residue distribution per eta interval
-	  int i=0;
-	  for (vector<TH1F*>::iterator h=ptdistrib[w].begin(); h!=ptdistrib[w].end(); h++){
-	    if (fabs(assocTrack->momentum().pseudoRapidity())>etaintervals[w][i]&&
-		fabs(assocTrack->momentum().pseudoRapidity())<etaintervals[w][i+1]) {
-	      (*h)->Fill( (track->pt()-assocTrack->momentum().perp())/track->pt() );
-	    }
-	    i++;
-	  }
-	
-	  //d0 residue distribution per eta interval
-	  i=0;
-	  for (vector<TH1F*>::iterator h=d0distrib[w].begin(); h!=d0distrib[w].end(); h++){
-	    if (fabs(assocTrack->momentum().pseudoRapidity())>etaintervals[w][i]&&
-		fabs(assocTrack->momentum().pseudoRapidity())<etaintervals[w][i+1]) {
-	      (*h)->Fill(track->d0()-d0Sim);
-	    }
-	    i++;
-	  }
+
+	  //chi2 and #hit vs eta: fill 2D histos
+	  chi2_vs_eta[w]->Fill(track->eta(),track->normalizedChi2());
+	  nhits_vs_eta[w]->Fill(track->eta(),track->numberOfValidHits());
+
+	  //resolution of track params: fill 2D histos
+	  d0res_vs_eta[w]->Fill(track->eta(),track->d0()-d0Sim);
+	  ptres_vs_eta[w]->Fill(track->eta(),(track->pt()-assocTrack->momentum().perp())/track->pt());
+	  z0res_vs_eta[w]->Fill(track->eta(),track->dz()-dzSim);
+	  phires_vs_eta[w]->Fill(track->eta(),track->phi()-phiSim);
+	  cotThetares_vs_eta[w]->Fill(track->eta(),1/tan(1.570796326794896558-track->lambda())-1/tan(1.570796326794896558-lambdaSim));
+
 	} catch (cms::Exception e){
 	  edm::LogError("TrackValidator") << "exception found: " << e.what() << "\n";
 	}
@@ -432,31 +418,27 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 }
 
 void MultiTrackValidator::endJob() {
-
-  TF1 * fit;
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
-      //fill pt rms plot versus eta and write pt residue distribution per eta interval histo
-      int i=0;
-      for (vector<TH1F*>::iterator h=ptdistrib[w].begin(); h!=ptdistrib[w].end(); h++){
-	fit = new TF1("g","gaus");
-	(*h)->Fit("g");
-	h_ptrmsh[w]->setBinContent(i+1, fit->GetParameter(2));
-	delete fit;
-	i++;
-      }
-      
-      //fill d0 rms plot versus eta and write d0 residue distribution per eta interval histo
-      i=0;
-      for (vector<TH1F*>::iterator h=d0distrib[w].begin(); h!=d0distrib[w].end(); h++){
-	fit = new TF1("g","gaus");
-	(*h)->Fit("g");
-	h_d0rmsh[w]->setBinContent(i+1, fit->GetParameter(2));
-	delete fit;
-	i++;
-      }
-      
+
+      //resolution of track params: get sigma from 2D histos
+      FitSlicesYTool fsyt_d0(d0res_vs_eta[w]);
+      fsyt_d0.getFittedSigmaWithError(h_d0rmsh[w]);
+      FitSlicesYTool fsyt_pt(ptres_vs_eta[w]);
+      fsyt_pt.getFittedSigmaWithError(h_ptrmsh[w]);
+      FitSlicesYTool fsyt_z0(z0res_vs_eta[w]);
+      fsyt_z0.getFittedSigmaWithError(h_z0rmsh[w]);
+      FitSlicesYTool fsyt_phi(phires_vs_eta[w]);
+      fsyt_phi.getFittedSigmaWithError(h_phirmsh[w]);
+      FitSlicesYTool fsyt_cotTheta(cotThetares_vs_eta[w]);
+      fsyt_cotTheta.getFittedSigmaWithError(h_cotThetarmsh[w]);
+
+
+      //chi2 and #hit vs eta: get mean from 2D histos
+      doProfileX(chi2_vs_eta[w],h_chi2meanh[w]);
+      doProfileX(nhits_vs_eta[w],h_hits_eta[w]);    
+   
       //fill efficiency plot
       double eff,err;
       for (unsigned int j=0; j<totASSeta[w].size(); j++){
@@ -510,13 +492,7 @@ void MultiTrackValidator::endJob() {
       for (unsigned int j=0; j<totASS2pT[w].size(); j++){
         h_assoc2pT[w]->setBinContent(j+1, totASS2pT[w][j]);
       }   
-      
-      //fill hits vs eta plot
-      for (unsigned int rr=0; rr<hitseta[w].size(); rr++){
-	if (totASSeta[w][rr]!=0)
-	  h_hits_eta[w]->setBinContent(rr+1,((double)  hitseta[w][rr])/((double) totASSeta[w][rr]));
-	else h_hits_eta[w]->setBinContent(rr+1, 0);
-      }
+
       w++;
     }
   }

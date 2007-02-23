@@ -28,7 +28,7 @@ public:
 	    sqrt(tp.momentum().perp2()) >= ptMin_ && 
 	    tp.momentum().eta() >= minRapidity_ && tp.momentum().eta() <= maxRapidity_ && 
 	    sqrt(tp.vertex().perp2()) <= tip_ &&
-	    fabs(tp.vertex() .z()) <= lip_ 
+	    fabs(tp.vertex().z()) <= lip_ 
 	    );
   }
   
