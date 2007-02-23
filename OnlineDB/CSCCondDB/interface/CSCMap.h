@@ -2,7 +2,7 @@
 #define GUARD_cscmap_H
 
 #include <iostream>
-#include <occi.h>
+#include "OnlineDB/Oracle/interface/Oracle.h
 #include <string>
 
 class cscmap

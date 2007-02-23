@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
-#include <occi.h>
+#include "OnlineDB/Oracle/interface/Oracle.h
 #include <string>
 #include <time.h>
 #include <stdlib.h>
