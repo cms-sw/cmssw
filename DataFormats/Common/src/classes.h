@@ -1,6 +1,7 @@
 #include "DataFormats/Common/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/BranchEntryDescription.h"
 #include "DataFormats/Common/interface/BranchKey.h"
+#include "DataFormats/Common/interface/CopyPolicy.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/EventAux.h"
 #include "DataFormats/Common/interface/EventID.h"
@@ -23,6 +24,7 @@
 #include "DataFormats/Common/interface/ProcessConfigurationID.h"
 #include "DataFormats/Common/interface/ProductID.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/RefBase.h"
 #include "DataFormats/Common/interface/RefItem.h"
 #include "DataFormats/Common/interface/RunAux.h"
@@ -143,4 +145,5 @@ namespace { namespace {
   std::vector<std::string>::iterator itstring;
   std::vector<void *>::iterator itvp;
 
+  edm::RangeMap<int, std::vector<float>, edm::CopyPolicy<float> > dummyRangeMap1;
 }}
