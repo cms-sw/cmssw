@@ -10,6 +10,8 @@
 #include "xdaq/include/xdaq/Application.h"
 #include "xdaq/NamespaceURI.h"
 
+#include "xdaq2rc/RcmsStateNotifier.h"
+
 #include "toolbox/fsm/FiniteStateMachine.h"
 #include "toolbox/task/WorkLoopFactory.h"
 #include "toolbox/task/WaitingWorkLoop.h"
@@ -138,6 +140,9 @@ namespace evf {
     toolbox::task::ActionSignature* asStopping_;
     toolbox::task::ActionSignature* asHalting_;
     
+    // rcms state notifier
+    xdaq2rc::RcmsStateNotifier rcmsStateNotifier_;
+
     // application identifier
     std::string              sourceId_;
     

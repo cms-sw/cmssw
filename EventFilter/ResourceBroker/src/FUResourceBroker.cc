@@ -54,6 +54,9 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , asEnabling_(0)
   , asStopping_(0)
   , asHalting_(0)
+  , rcmsStateNotifier_(getApplicationLogger(),
+		       getApplicationDescriptor(),
+		       getApplicationContext())
   , lock_(BSem::FULL)
   , gui_(0)
   , log_(getApplicationLogger())
@@ -97,7 +100,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   //
   // setup the finite state machine
   //
-
+  
   // action signatures
   asConfiguring_ =
     toolbox::task::bind(this,&FUResourceBroker::configuring,"configuring");
@@ -110,19 +113,18 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   
   // work loops
   workLoopConfiguring_ =
-    toolbox::task::getWorkLoopFactory()->getWorkLoop("Configuring",
+    toolbox::task::getWorkLoopFactory()->getWorkLoop("RBConfiguring",
 						     "waiting");
   workLoopEnabling_ =
-    toolbox::task::getWorkLoopFactory()->getWorkLoop("Enabling",
+    toolbox::task::getWorkLoopFactory()->getWorkLoop("RBEnabling",
 						     "waiting");
   workLoopStopping_ =
-    toolbox::task::getWorkLoopFactory()->getWorkLoop("Stopping",
+    toolbox::task::getWorkLoopFactory()->getWorkLoop("RBStopping",
 						     "waiting");
   workLoopHalting_ =
-    toolbox::task::getWorkLoopFactory()->getWorkLoop("Halting",
+    toolbox::task::getWorkLoopFactory()->getWorkLoop("RBHalting",
 						     "waiting");
   
-
   // bind SOAP callbacks
   xoap::bind(this,&FUResourceBroker::fsmCallback,"Configure",XDAQ_NS_URI);
   xoap::bind(this,&FUResourceBroker::fsmCallback,"Enable",   XDAQ_NS_URI);
@@ -162,7 +164,6 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   if (!workLoopEnabling_->isActive())    workLoopEnabling_   ->activate();
   if (!workLoopStopping_->isActive())    workLoopStopping_   ->activate();
   if (!workLoopHalting_->isActive())     workLoopHalting_    ->activate();
-  
   
   // set source id in evf::RunBase
   url_     =
@@ -320,7 +321,17 @@ void FUResourceBroker::fsmStateChanged(toolbox::fsm::FiniteStateMachine & fsm)
       LOG4CPLUS_ERROR(log_,xcept::stdformat_exception_history(e));
     }
   }
-  
+  else if (state=="Halted"||state=="Ready"||state=="Enabled") {
+    try {
+      rcmsStateNotifier_.stateChanged(state,
+				      "ResourceBroker has reached target state " +
+				      state);
+    }
+    catch (xcept::Exception& e) {
+      LOG4CPLUS_ERROR(log_,"Failed to notify state change: "
+		      <<xcept::stdformat_exception_history(e));
+    }
+  }
 }
 
 //______________________________________________________________________________
@@ -345,6 +356,7 @@ void FUResourceBroker::resume(toolbox::Event::Reference e)
 bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
 {
   LOG4CPLUS_INFO(log_, "Start configuring ...");
+  rcmsStateNotifier_.findRcmsStateListener();
   connectToBUs();
   resourceTable_=new FUResourceTable(queueSize_,eventBufferSize_,shmMode_,
 				     bu_[buInstance_],log_);
@@ -654,7 +666,9 @@ void FUResourceBroker::exportParameters()
   gui_->addStandardParam("buClassName",       &buClassName_);
   gui_->addStandardParam("buInstance",        &buInstance_);
   gui_->addStandardParam("queueSize",         &queueSize_);
-  
+  //gui_->addStandardParam("rcmsStateListener", rcmsStateNotifier_.getRcmsStateListenerParameter());
+  gui_->addStandardParam("foundRcmsStateListener", rcmsStateNotifier_.getFoundRcmsStateListenerParameter());
+
   gui_->addDebugCounter("nbAllocateSent",     &nbAllocateSent_);
   gui_->addDebugCounter("nbTakeReceived",     &nbTakeReceived_);
 
