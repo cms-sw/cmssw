@@ -27,6 +27,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
+
 class MonitorUserInterface;
 
 class SiStripOfflineDQM: public edm::EDAnalyzer {
@@ -34,8 +36,8 @@ class SiStripOfflineDQM: public edm::EDAnalyzer {
     explicit SiStripOfflineDQM( const edm::ParameterSet &roPARAMETER_SET);
     virtual ~SiStripOfflineDQM();
 
-    virtual void analyze( const edm::Event	&roEVENT, 
-			  const edm::EventSetup &roEVENT_SETUP);
+    virtual void analyze( const edm::Event	    &roEVENT, 
+			                    const edm::EventSetup &roEVENT_SETUP);
     virtual void beginJob( const edm::EventSetup &roEVENT);
     virtual void endJob();
 
@@ -43,8 +45,11 @@ class SiStripOfflineDQM: public edm::EDAnalyzer {
     bool bVerbose;
     bool bSaveInFile;
     const std::string oFILE_NAME;
+    const int         nQTEST_EVENTS_DELAY_;
+    int               nQTestEventsPassed_;
 
     MonitorUserInterface *poMui;
+    SiStripActionExecutor oActionExecutor_;
 };
 
 #endif
