@@ -79,6 +79,12 @@ private:
   int intfull;
   int intfast;
 
+  std::string NUEventFileName;
+  std::string outputFileName;
+
+  int totalNEvt;
+  int totalNU;
+
 };
 
 testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
@@ -102,7 +108,9 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   h12(2,static_cast<MonitorElement*>(0)),
  */
   intfull(0),
-  intfast(0)
+  intfast(0),
+  totalNEvt(0),
+  totalNU(0)
 {
   
   // This producer produce a vector of SimTracks
@@ -113,7 +121,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
     ( "TestParticleFilter" );   
 
   // Do we save the nuclear interactions?
-  saveNU = p.getParameter<double>("SaveNuclearInteractions");
+  saveNU = p.getParameter<bool>("SaveNuclearInteractions");
+  std::cout << "Nuclear Interactions will be saved ! " << std::endl;
 
   // For the full sim
   mySimEvent[0] = new FSimEvent(particleFilter_);
@@ -121,12 +130,15 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   mySimEvent[1] = new FSimEvent(particleFilter_);
 
   // Where the nuclear interactions are saved;
+  NUEventFileName = "none";
   if ( saveNU ) { 
 
     nuEvent = new NUEvent();
   
-    std::string outFileName = "NuclearInteractionsTest.root";
-    outFile = new TFile(outFileName.c_str(),"recreate");
+    NUEventFileName = 
+      p.getUntrackedParameter<std::string>("NUEventFile","NuclearInteractionsTest.root");
+    //    std::string outFileName = "NuclearInteractionsTest.root";
+    outFile = new TFile(NUEventFileName.c_str(),"recreate");
 
     // Open the tree
     nuTree = new TTree("NuclearInteractions","");
@@ -134,6 +146,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
 
   }
 
+  outputFileName = 
+    p.getUntrackedParameter<std::string>("OutputFile","testNuclearInteractions.root");
   // ObjectNumber
   ObjectNumber = -1;
     
@@ -640,7 +654,7 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
 
 testNuclearInteractions::~testNuclearInteractions()
 {
-  dbe->save("testNuclearInteractions.root");
+  dbe->save(outputFileName);
 
   if ( saveNU ) {
  
@@ -676,6 +690,11 @@ void testNuclearInteractions::beginJob(const edm::EventSetup & es)
 void
 testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
+
+  ++totalNEvt;
+  if ( totalNEvt/1000*1000 == totalNEvt ) 
+    std::cout << "Number of event analysed/NU "
+	      << totalNEvt << " / " << totalNU << std::endl; 
 
   std::auto_ptr<edm::SimTrackContainer> nuclSimTracks(new edm::SimTrackContainer);
 
@@ -767,6 +786,7 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	interaction.first = nuEvent->nParticles();
 	interaction.last = interaction.first + lastDaughter - firstDaughter;
 	nuEvent->addNUInteraction(interaction);
+	++totalNU;
       }
 
       for(int idaugh=firstDaughter;idaugh<=lastDaughter;++idaugh) {
@@ -831,8 +851,8 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     
     // Save the fully simulated tracks from the nuclear interaction
     if ( ievt == 0 && saveNU ) {
-      std::cout << "Saved " << nuclSimTracks->size() 
-		<< " simTracks in the Event" << std::endl;
+      //      std::cout << "Saved " << nuclSimTracks->size() 
+      //		<< " simTracks in the Event" << std::endl;
       iEvent.put(nuclSimTracks);
 
       //      std::cout << "Number of interactions in nuEvent = "
@@ -844,9 +864,9 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	std::cout << "Saved " << nuEvent->nInteractions() 
 		  << " Interaction(s) with " << nuEvent->nParticles()
 		  << " Particles in the NUEvent " << std::endl;
-	outFile->cd(); 
+       	outFile->cd(); 
 	nuTree->Fill();
-	nuTree->Print();
+	//	nuTree->Print();
 
       }
 
