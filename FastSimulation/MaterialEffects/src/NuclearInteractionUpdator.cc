@@ -21,6 +21,7 @@ NuclearInteractionUpdator::NuclearInteractionUpdator(
   std::vector<double>& pionEnergies,
   double pionEnergy,
   double lengthRatio,
+  std::vector<double> ratioRatio,
   const RandomEngine* engine) 
   :
   MaterialEffectsUpdator(engine),
@@ -28,6 +29,7 @@ NuclearInteractionUpdator::NuclearInteractionUpdator(
   thePionCM(pionEnergies),
   thePionEnergy(pionEnergy),
   theLengthRatio(lengthRatio),
+  theRatios(ratioRatio),
   theFiles(theFileNames.size(),static_cast<TFile*>(0)),
   theTrees(theFileNames.size(),static_cast<TTree*>(0)),
   theBranches(theFileNames.size(),static_cast<TBranch*>(0)),
@@ -120,106 +122,160 @@ void NuclearInteractionUpdator::compute(ParticlePropagator& Particle)
   // Read a Nuclear Interaction in a random manner
   using namespace edm; 
 
-  double eHadron = Particle.momentum().vect().mag(); 
+  double pHadron = Particle.momentum().vect().mag(); 
 
-  // The hadron has enough energy to create some relevant final state
-  if ( eHadron > thePionEnergy ) { 
+  // The hadron has enough momentum to create some relevant final state
+  if ( pHadron > thePionEnergy ) { 
 
-    // Probability to interact is dl/L0
-    if ( -log(random->flatShoot()) <= radLengths * theLengthRatio ) {
+    // Probability to interact is dl/L0 (maximum for 4 GeV pion)
+    double aNuclInteraction 
+      = -log(random->flatShoot()) / (radLengths * theLengthRatio);
+    if ( aNuclInteraction <= 1.0 ) {
 
+      // Find the file with the closest c.m energy
       HepLorentzVector Proton(0.,0.,0.,0.986);
       HepLorentzVector Hadron(Particle.momentum());
       double ecm = (Proton+Hadron).mag();
-      // Get the file of interest (closest c.m. energy)
-      unsigned file = 0;
-      double dmin = 1E8;
-      for ( ; file<thePionCM.size(); ++file ) {
-	double dist = fabs ( ecm/thePionCM[file] - 1. );
-	//	std::cout << "file/dist = " << file << " " << dist << std::endl;
-	if ( dist < dmin )  
-	  dmin = dist;
-	else 
-	  break;
-      }
-      --file;
-
-      // The boost characteristics
-      HepLorentzVector theBoost = Proton + Hadron;
-      theBoost /= theBoost.e();
-
-      // Some rotation arount the boost axis, for more randomness
-      Hep3Vector theAxis = theBoost.vect().unit();
-      double theAngle = random->flatShoot() * 2. * 3.14159265358979323;
-      HepRotation theRotation(theAxis,theAngle);
-      //      std::cerr << "File chosen : " << file 
-      //		<< " Current interaction = " << theCurrentInteraction[file] 
-      //		<< " Total interactions = " << theNumberOfInteractions[file] << std::endl;
-      //      theFiles[file]->cd();
-      //      gDirectory->ls();
-      // Check we are not either at the end of an interaction bunch or at the end of a file
-      if ( theCurrentInteraction[file] == theNumberOfInteractions[file] ) {
-	//	std::cerr << "End of interaction bunch ! ";
-	++theCurrentEntry[file];
-	//	std::cerr << "Read the next entry " << theCurrentEntry[file] << std::endl;
-	theCurrentInteraction[file] = 0;
-	if ( theCurrentEntry[file] == theNumberOfEntries[file] ) { 
-	  theCurrentEntry[file] = 0;
-	  //	  std::cerr << "End of file - Rewind! " << std::endl;
+      // Get the files of interest (closest c.m. energies)
+      unsigned file1;
+      unsigned file2;
+      double ecm1; 
+      double ecm2; 
+      double ratio1;
+      double ratio2;
+      if ( ecm < thePionCM[0] ) {
+	ecm1  = 1.63;
+	ecm2 = thePionCM[0];
+	file1 = 0;
+	file2 = 0;
+	ratio1 = 0;
+	ratio2 = theRatios[0];
+      } else if ( ecm < thePionCM[thePionCM.size()-1] ) {
+	for ( unsigned file=1; 
+	      file<thePionCM.size()&&ecm>thePionCM[file-1]; 
+	      ++file ) {
+	  if ( ecm<thePionCM[file] ) { 
+	    file2 = file;
+	    file1 = file2-1;
+	    ecm1 = thePionCM[file1];
+	    ecm2 = thePionCM[file2];
+	    ratio1 = theRatios[file1];
+	    ratio2 = theRatios[file2];
+	  } 
 	}
-	//	std::cerr << "The NUEvent is reset ... "; 
-	//	theNUEvents[file]->reset();
-	unsigned myEntry = theCurrentEntry[file];
-	//	std::cerr << "The new entry " << myEntry << " is read ... in TTree " << theTrees[file] << " "; 
-	theTrees[file]->GetEntry(myEntry);
-	//	std::cerr << "The number of interactions in the new entry is ... "; 	
-	theNumberOfInteractions[file] = theNUEvents[file]->nInteractions();
-	//	std::cerr << theNumberOfInteractions[file] << std::endl;
+      } else { 
+	file1 = thePionCM.size()-1;
+	file2 = thePionCM.size()-2;
+	ecm1 = thePionCM[file1];
+	ecm2 = thePionCM[file2];
+	ratio1 = theRatios[file2];
+	ratio2 = theRatios[file2];
+      } 
+      
+      // The inelastic part of the cross section
+      double slope = (log10(ecm)-log10(ecm1)) / (log10(ecm2)-log10(ecm1));
+      double inelastic = ratio1 + (ratio2-ratio1) * slope;
+      //      std::cout << "Energy/Inelastic : " 
+      //		<< Hadron.e() << " " << inelastic << std::endl;
+      
+      // Simulate an inelastic interaction
+      if ( aNuclInteraction < inelastic ) { 
+	
+	// Choice of the file to read according the the log10(ecm) distance
+	unsigned file;
+	if ( random->flatShoot() < slope )  
+	  file = file2;
+	else
+	  file = file1;
+	
+	//	std::cout << "Pion energy = " << Hadron.e() 
+	//		  << "File chosen " << theFileNames[file]
+	//		  << std::endl;
+	
+	// The boost characteristics
+	HepLorentzVector theBoost = Proton + Hadron;
+	theBoost /= theBoost.e();
+	
+	// Some rotation arount the boost axis, for more randomness
+	Hep3Vector theAxis = theBoost.vect().unit();
+	double theAngle = random->flatShoot() * 2. * 3.14159265358979323;
+	HepRotation theRotation(theAxis,theAngle);
+	//      std::cerr << "File chosen : " << file 
+	//		<< " Current interaction = " << theCurrentInteraction[file] 
+	//		<< " Total interactions = " << theNumberOfInteractions[file] << std::endl;
+	//      theFiles[file]->cd();
+	//      gDirectory->ls();
+	// Check we are not either at the end of an interaction bunch 
+	// or at the end of a file
+	if ( theCurrentInteraction[file] == theNumberOfInteractions[file] ) {
+	  //	std::cerr << "End of interaction bunch ! ";
+	  ++theCurrentEntry[file];
+	  //	std::cerr << "Read the next entry " << theCurrentEntry[file] << std::endl;
+	  theCurrentInteraction[file] = 0;
+	  if ( theCurrentEntry[file] == theNumberOfEntries[file] ) { 
+	    theCurrentEntry[file] = 0;
+	    //	  std::cerr << "End of file - Rewind! " << std::endl;
+	  }
+	  //	std::cerr << "The NUEvent is reset ... "; 
+	  //	theNUEvents[file]->reset();
+	  unsigned myEntry = theCurrentEntry[file];
+	  //	std::cerr << "The new entry " << myEntry << " is read ... in TTree " << theTrees[file] << " "; 
+	  theTrees[file]->GetEntry(myEntry);
+	  //	std::cerr << "The number of interactions in the new entry is ... "; 	
+	  theNumberOfInteractions[file] = theNUEvents[file]->nInteractions();
+	  //	std::cerr << theNumberOfInteractions[file] << std::endl;
+	}
+	
+	// Read the interaction
+	NUEvent::NUInteraction anInteraction 
+	  = theNUEvents[file]->theNUInteractions()[theCurrentInteraction[file]];
+	unsigned firstTrack = anInteraction.first; 
+	unsigned lastTrack = anInteraction.last;
+	//      std::cerr << "First and last tracks are " << firstTrack << " " << lastTrack << std::endl;
+	
+	for ( unsigned iTrack=firstTrack; iTrack<=lastTrack; ++iTrack ) {
+	  
+	  NUEvent::NUParticle aParticle = theNUEvents[file]->theNUParticles()[iTrack];
+	  //	std::cerr << "Track " << iTrack 
+	  //		  << " id/px/py/pz/mass "
+	  //		  << aParticle.id << " " 
+	  //		  << aParticle.px << " " 
+	  //		  << aParticle.py << " " 
+	  //		  << aParticle.pz << " " 
+	  //		  << aParticle.mass << " " << endl; 
+	  
+	  // Create a RawParticle with the proper energy in the c.m frame of 
+	  // the nuclear interaction
+	  double energy = sqrt( aParticle.px*aParticle.px
+				+ aParticle.py*aParticle.py
+				+ aParticle.pz*aParticle.pz
+				+ aParticle.mass*aParticle.mass/(ecm*ecm) );
+	  RawParticle * myPart 
+	    = new  RawParticle (aParticle.id,
+				HepLorentzVector(aParticle.px,aParticle.py,
+						 aParticle.pz,energy)*ecm);
+	  
+	  // Rotate around the boost axis
+	  (*myPart) *= theRotation;
+	  
+	  // Boost it in the lab frame
+	  myPart->boost(theBoost.x(),theBoost.y(),theBoost.z());
+	  
+	  // Update the daughter list
+	  _theUpdatedState.push_back(myPart);
+	  
+	}
+	
+	// Increment for next time
+	++theCurrentInteraction[file];
+	
+      } else if ( ecm < 3.3 ) {
+	
+	// Some code is needed here !
+	//	std::cout << "Elastic scattering !" << std::endl;
+	
       }
-
-      // Read the interaction
-      NUEvent::NUInteraction anInteraction 
-	= theNUEvents[file]->theNUInteractions()[theCurrentInteraction[file]];
-      unsigned firstTrack = anInteraction.first; // A changer ! pas de -1
-      unsigned lastTrack = anInteraction.last; // A changer ! pas de -1
-      //      std::cerr << "First and last tracks are " << firstTrack << " " << lastTrack << std::endl;
-
-      for ( unsigned iTrack=firstTrack; iTrack<=lastTrack; ++iTrack ) {
-	
-	NUEvent::NUParticle aParticle = theNUEvents[file]->theNUParticles()[iTrack];
-	//	std::cerr << "Track " << iTrack 
-	//		  << " id/px/py/pz/mass "
-	//		  << aParticle.id << " " 
-	//		  << aParticle.px << " " 
-	//		  << aParticle.py << " " 
-	//		  << aParticle.pz << " " 
-	//		  << aParticle.mass << " " << endl; 
-
-	// Create a RawParticle with the proper energy in the c.m frame of 
-	// the nuclear interaction
-	double energy = sqrt( aParticle.px*aParticle.px
-			    + aParticle.py*aParticle.py
-			    + aParticle.pz*aParticle.pz
-			    + aParticle.mass*aParticle.mass/(ecm*ecm) );
-	RawParticle * myPart 
-	  = new  RawParticle (aParticle.id,
-			      HepLorentzVector(aParticle.px,aParticle.py,
-					       aParticle.pz,energy)*ecm);
-
-	// Rotate around the boost axis
-	(*myPart) *= theRotation;
-	
-	// Boost it in the lab frame
-	myPart->boost(theBoost.x(),theBoost.y(),theBoost.z());
-
-	// Update the daughter list
-	_theUpdatedState.push_back(myPart);
-	
-      }
-
-      // Increment for next time
-      ++theCurrentInteraction[file];
-
+      
     }
 
   }

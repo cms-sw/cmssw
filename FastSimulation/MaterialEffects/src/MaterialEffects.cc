@@ -75,6 +75,8 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
       = matEff.getUntrackedParameter<std::vector<std::string> >("fileNames");
     vector<double> pionEnergies 
       = matEff.getUntrackedParameter<std::vector<double> >("pionEnergies");
+    vector<double> ratioRatio 
+      = matEff.getUntrackedParameter<std::vector<double> >("ratioRatio");
     double pionEnergy 
       = matEff.getParameter<double>("pionEnergy");
     double lengthRatio 
@@ -84,6 +86,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
 				    pionEnergies,
 				    pionEnergy,
 				    lengthRatio,
+				    ratioRatio,
 				    random);
   }
 

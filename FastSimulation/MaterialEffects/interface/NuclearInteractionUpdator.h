@@ -35,6 +35,7 @@ class NuclearInteractionUpdator : public MaterialEffectsUpdator
 			    std::vector<double>& pionEnergies,
 			    double pionEnergy,
 			    double lengthRatio,
+			    std::vector<double> ratioRatio,
 			    const RandomEngine* engine);
 
   /// Default Destructor
@@ -49,6 +50,7 @@ class NuclearInteractionUpdator : public MaterialEffectsUpdator
   std::vector<double> thePionCM;
   double thePionEnergy;
   double theLengthRatio;
+  std::vector<double> theRatios;
 
   std::vector<TFile*> theFiles;
   std::vector<TTree*> theTrees;
