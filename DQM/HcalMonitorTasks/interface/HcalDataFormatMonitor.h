@@ -4,7 +4,6 @@
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDataFrameFilter.h"
-#include "EventFilter/HcalRawToDigi/interface/HcalRawToDigi.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
@@ -16,8 +15,8 @@
 
 /** \class Hcaldataformatmonitor
   *  
-  * $Date: 2006/08/24 23:44:59 $
-  * $Revision: 1.7 $
+  * $Date: 2006/12/12 19:10:27 $
+  * $Revision: 1.8 $
   * \author W. Fisher - FNAL
   */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
