@@ -68,6 +68,7 @@ namespace { namespace {
   edm::Wrapper<std::pair<int, int> > dymmywp4;
   edm::Wrapper<std::pair<unsigned int, bool> > dymmywp5;
   edm::Wrapper<std::pair<unsigned int, float> > dymmywp6;
+  edm::Wrapper<std::pair<unsigned int, double> > dymmywp6d;
   edm::Wrapper<std::pair<double, double> > dymmywp7;
   edm::Wrapper<std::pair<unsigned long long, std::basic_string<char> > > dymmywp8;
   edm::Wrapper<std::pair<std::basic_string<char>,int> > dummywp9;
