@@ -292,19 +292,42 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
           xa->SetRangeUser(xlow, xhigh);
         }
         hist2->SetFillColor(1);
-        hist2->Draw(dopt.c_str());
+        if (dopt.find("projection") != string::npos) {
+          TH1F thproj(hist2->GetName(),hist2->GetTitle(),hist2->GetNbinsY(), 
+	      hist2->GetYaxis()->GetXmin(),hist2->GetYaxis()->GetXmax());
+	  for (int j = 1; j < hist2->GetNbinsY()+1; j++) {
+	    for (int i = 1; i < hist2->GetNbinsX()+1; i++) {
+	      thproj.SetBinContent(j, hist2->GetBinContent(i,j));
+            }
+	  }
+          thproj.DrawCopy();
+	} else hist2->Draw(dopt.c_str());
       } else if (prof) {
         if (xlow != -1 &&  xhigh != -1.0) {
           TAxis* xa = prof->GetXaxis();
           xa->SetRangeUser(xlow, xhigh);
         }
-        prof->Draw(dopt.c_str());
+        if (dopt.find("projection") != string::npos) {
+          TH1F thproj(prof->GetName(),prof->GetTitle(),prof->GetNbinsX(), 
+		      0.0,prof->GetMaximum()*1.2);
+          for (int i = 1; i < prof->GetNbinsX()+1; i++) {
+	    thproj.Fill(prof->GetBinContent(i));
+	  }
+	  thproj.DrawCopy();
+        } else prof->Draw(dopt.c_str());
       } else {
         if (xlow != -1 &&  xhigh != -1.0) {
           TAxis* xa = hist1->GetXaxis();
           xa->SetRangeUser(xlow, xhigh);
         }
-        hist1->Draw(dopt.c_str());
+        if (dopt.find("projection") != string::npos) {
+          TH1F thproj(hist1->GetName(),hist1->GetTitle(),hist1->GetNbinsX(), 
+		      0.0,hist1->GetMaximum()*1.2);
+          for (int i = 1; i < hist1->GetNbinsX()+1; i++) {
+	    thproj.Fill(hist1->GetBinContent(i));
+	  }
+          thproj.Draw();
+        } else hist1->DrawCopy(dopt.c_str());
       }
       if (icol != 1) {
 	TText tt;
