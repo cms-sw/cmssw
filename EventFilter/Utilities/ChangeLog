@@ -1,3 +1,9 @@
+2007-02-24  Daq production account  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-11-09
+	* WebGUI: protect against xdata types which don't have toString()
+	conversion supported.
+
 2007-02-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-11-08
