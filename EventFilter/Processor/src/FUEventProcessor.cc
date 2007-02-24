@@ -90,6 +90,9 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , asEnabling_(0)
   , asStopping_(0)
   , asHalting_(0)
+  , rcmsStateNotifier_(getApplicationLogger(),
+		       getApplicationDescriptor(),
+		       getApplicationContext())
   , evtProcessor_(0)
   , serviceToken_()
   , servicesDone_(false)
@@ -193,7 +196,10 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("outputEnabled",        &outPut_);
   ispace->fireItemAvailable("globalInputPrescale",  &inputPrescale_);
   ispace->fireItemAvailable("globalOutputPrescale", &outputPrescale_);
-
+  
+  ispace->fireItemAvailable("rcmsStateListener",     rcmsStateNotifier_.getRcmsStateListenerParameter());
+  ispace->fireItemAvailable("foundRcmsStateListener",rcmsStateNotifier_.getFoundRcmsStateListenerParameter());
+  
   ispace->fireItemAvailable("collectorAddr",        &dqmCollectorAddr_);
   ispace->fireItemAvailable("collectorPort",        &dqmCollectorPort_);
   ispace->fireItemAvailable("collSendUs",           &dqmCollectorDelay_);
@@ -332,7 +338,17 @@ void FUEventProcessor::fsmStateChanged(toolbox::fsm::FiniteStateMachine & fsm)
       LOG4CPLUS_ERROR(getApplicationLogger(),xcept::stdformat_exception_history(e));
     }
   }
-  
+  else if (state=="Halted"||state=="Ready"||state=="Enabled") {
+    try {
+      rcmsStateNotifier_.stateChanged(state,
+				      "EventProcessor has reached target state " +
+				      state);
+    }
+    catch (xcept::Exception& e) {
+      LOG4CPLUS_ERROR(getApplicationLogger(),"Failed to notify state change: "
+		      <<xcept::stdformat_exception_history(e));
+    }
+  }
 }
 
 
@@ -377,20 +393,16 @@ xoap::MessageReference FUEventProcessor::getPsReport(xoap::MessageReference msg)
   
   // reply message
   try {
-    xoap::MessageReference reply = xoap::createMessage();
-    xoap::SOAPEnvelope envelope = reply->getSOAPPart().getEnvelope();
-    xoap::SOAPBody body = envelope.getBody();
-    xoap::SOAPName responseName = envelope.createName("getPsReportResponse",
-						      "xdaq","XDAQ_NS_URI");
-    xoap::SOAPBodyElement responseElement = body.addBodyElement(responseName);
-    xoap::SOAPName stateName = envelope.createName("state", "xdaq", "XDAQ_NS_URI");
-    xoap::SOAPElement stateElement = responseElement.addChildElement(stateName);
-    xoap::SOAPName attributeName = envelope.createName("stateName",
-						       "xdaq","XDAQ_NS_URI");
-    stateElement.addAttribute(attributeName, s);
-    //  stringElement.addTextNode(s);
-    return reply;
-    
+      xoap::MessageReference reply = xoap::createMessage();
+      xoap::SOAPEnvelope envelope = reply->getSOAPPart().getEnvelope();
+      xoap::SOAPBody body = envelope.getBody();
+      xoap::SOAPName responseName = envelope.createName("getPsReportResponse", "xdaq", "XDAQ_NS_URI");
+      xoap::SOAPBodyElement responseElement = body.addBodyElement(responseName);
+      xoap::SOAPName attributeName = envelope.createName("state", "xdaq", "XDAQ_NS_URI");
+      xoap::SOAPElement keyElement = responseElement.addChildElement(attributeName);
+      keyElement.addTextNode(s);
+      return reply;
+
   }
   catch (xcept::Exception &e) {
     XCEPT_RETHROW(xoap::exception::Exception,
@@ -437,19 +449,15 @@ xoap::MessageReference FUEventProcessor::setPsUpdate(xoap::MessageReference msg)
   
   // reply message
   try {
-    xoap::MessageReference reply = xoap::createMessage();
-    xoap::SOAPEnvelope envelope = reply->getSOAPPart().getEnvelope();
-    xoap::SOAPBody body = envelope.getBody();
-    xoap::SOAPName responseName = envelope.createName("setPsUpdateResponse",
-						      "xdaq","XDAQ_NS_URI");
-    xoap::SOAPBodyElement responseElement = body.addBodyElement(responseName);
-    xoap::SOAPName stateName = envelope.createName("state", "xdaq", "XDAQ_NS_URI");
-    xoap::SOAPElement stateElement = responseElement.addChildElement(stateName);
-    xoap::SOAPName attributeName = envelope.createName("stateName",
-						       "xdaq","XDAQ_NS_URI");
-    stateElement.addAttribute(attributeName, requestString);
-    //  stringElement.addTextNode(s);
-    return reply;
+      xoap::MessageReference reply = xoap::createMessage();
+      xoap::SOAPEnvelope envelope = reply->getSOAPPart().getEnvelope();
+      xoap::SOAPBody body = envelope.getBody();
+      xoap::SOAPName responseName = envelope.createName("getPsReportResponse", "xdaq", "XDAQ_NS_URI");
+      xoap::SOAPBodyElement responseElement = body.addBodyElement(responseName);
+      xoap::SOAPName attributeName = envelope.createName("state", "xdaq", "XDAQ_NS_URI");
+      xoap::SOAPElement keyElement = responseElement.addChildElement(attributeName);
+      keyElement.addTextNode(requestString);
+      return reply;
     
   }
   catch (xcept::Exception &e) {
@@ -528,21 +536,16 @@ xoap::MessageReference FUEventProcessor::putPrescaler(xoap::MessageReference msg
       LOG4CPLUS_DEBUG(getApplicationLogger(),"PrescaleService pointer == 0"); 
     }
   }
-  
-  xoap::MessageReference reply = xoap::createMessage();
-  xoap::SOAPEnvelope envelope = reply->getSOAPPart().getEnvelope();
-  xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName responseName = envelope.createName("PutPrescalerResponse",
-						    "xdaq", "XDAQ_NS_URI");
-  xoap::SOAPBodyElement responseElement = body.addBodyElement(responseName);
-  xoap::SOAPName stateName = envelope.createName("prescalerAsString",
-						 "xdaq", "XDAQ_NS_URI");
-  xoap::SOAPElement stateElement = responseElement.addChildElement(stateName);
-  xoap::SOAPName attributeName = envelope.createName("prescalerAsString",
-						     "xdaq", "XDAQ_NS_URI");
-  stateElement.addAttribute(attributeName, replyPs);
-  //  stateElement.addAttribute(attributeName, prescalerAsString);
-  
+
+    xoap::MessageReference reply = xoap::createMessage();
+    xoap::SOAPEnvelope envelope = reply->getSOAPPart().getEnvelope();
+    xoap::SOAPBody body = envelope.getBody();
+    xoap::SOAPName responseName = envelope.createName("PutPrescalerResponse", "xdaq", "XDAQ_NS_URI");
+    xoap::SOAPBodyElement responseElement = body.addBodyElement(responseName);
+    xoap::SOAPName attributeName = envelope.createName("prescalerAsString", "xdaq", "XDAQ_NS_URI");
+    xoap::SOAPElement keyElement = responseElement.addChildElement(attributeName);
+    keyElement.addTextNode(replyPs);
+
   return reply;
 }
 
@@ -551,6 +554,7 @@ xoap::MessageReference FUEventProcessor::putPrescaler(xoap::MessageReference msg
 bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 {
   LOG4CPLUS_INFO(getApplicationLogger(), "Start configuring ...");
+  rcmsStateNotifier_.findRcmsStateListener();
   initEventProcessor();
   LOG4CPLUS_INFO(getApplicationLogger(), "Finished configuring!");
   
