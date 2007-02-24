@@ -1,13 +1,8 @@
 <lcgdict>
-  <class name="std::pair<unsigned int,double>" />
   <class name="reco::Vertex" />
   <class name="std::vector<reco::Vertex>" />
   <class name="edm::Wrapper<std::vector<reco::Vertex> >" />
   <class name="edm::Ref<std::vector<reco::Vertex>, reco::Vertex, edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>, reco::Vertex> >" />
   <class name="edm::RefProd<std::vector<reco::Vertex> >" />
   <class name="edm::RefVector<std::vector<reco::Vertex>, reco::Vertex, edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>, reco::Vertex> >" />
-
-  <class name="edm::AssociationMap<edm::OneToValue< std::vector<reco::Track>, float, unsigned int > >">
-    <field name="transientMap_" transient="true" /> 
-  </class>
 </lcgdict>
