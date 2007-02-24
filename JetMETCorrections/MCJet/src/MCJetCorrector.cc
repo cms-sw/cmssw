@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: MCJetCorrector.cc,v 1.1 2006/12/29 00:48:39 fedor Exp $
+// $Id: MCJetCorrector.cc,v 1.2 2007/01/18 01:35:12 fedor Exp $
 //
 // MC Jet Corrector
 //
@@ -19,6 +19,7 @@
 using namespace std;
 
 namespace {
+  bool debug = false;
   /// Parametrization itself
   class ParametrizationMCJet {
   public:
@@ -101,7 +102,7 @@ namespace {
     std::ifstream in( (f1.fullPath()).c_str() );
     
     //  if ( f1.isLocal() ){
-    cout << " Start to read file "<<file<<endl;
+    if (debug) cout << " Start to read file "<<file<<endl;
     string line;
     while( std::getline( in, line)){
       if(!line.size() || line[0]=='#') continue;
@@ -110,7 +111,7 @@ namespace {
       int type;
       linestream>>par>>type;
       
-      cout<<" Parameter eta = "<<par<<" Type= "<<type<<endl;
+      if (debug) cout<<" Parameter eta = "<<par<<" Type= "<<type<<endl;
       
       etavector.push_back(par);
       typevector.push_back(type);
@@ -139,7 +140,7 @@ double MCJetCorrector::correction (const LorentzVector& fJet) const {
   double eta=fabs(fJet.Eta());
   
   
-  cout<<" Et and eta of jet "<<et<<" "<<eta<<endl;
+  if (debug) cout<<" Et and eta of jet "<<et<<" "<<eta<<endl;
 
   double etnew;
   ParametersMap::const_iterator ip=mParametrization.upper_bound(eta);
@@ -154,7 +155,7 @@ double MCJetCorrector::correction (const LorentzVector& fJet) const {
     etnew=et2;
   }
 	 
-  cout<<" The new energy found "<<etnew<<" "<<et<<endl;
+  if (debug) cout<<" The new energy found "<<etnew<<" "<<et<<endl;
   
   return etnew/et;
 }
