@@ -40,6 +40,10 @@ CSCSegAlgoDF::CSCSegAlgoDF(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
 
 std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, ChamberHitContainer rechits) {
 
+  std::vector<CSCSegment> segmentInChamber;
+  segmentInChamber.clear();
+  if (rechits.size() < 3) return segmentInChamber;
+
   // Store chamber info in temp memory
   theChamber = aChamber; 
   const CSCLayer* layer1 = aChamber->layer(1);
@@ -49,7 +53,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, ChamberHit
   GlobalPoint gp = layer1->toGlobal(lp);
 
   // This is the maximum muon entrance angle which would be pointing to the IP
-  // For the MEX2 and ME13 chambers though, the B-field bends the track in y...
+  // For the ME22 and ME13 chambers though, the B-field bends the track in y...
   maxTheta = gp.theta();
 
   return buildSegments(rechits); 
@@ -62,24 +66,23 @@ std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, ChamberHit
  * to a segment, we don't consider it again, THAT IS, FOR THE FIRST PASS ONLY !
  * In fact, this is one of the possible flaw with the SK algorithms as it sometimes manages
  * to build segments with the wrong starting points.  In the DF algorithm, the endpoints
- * are tested as the best starting points in a 2nd and 3rd loop.
+ * are tested as the best starting points in a 2nd loop.
  *
- * Also, only a certain muonsPerChamberMax maximum number of segments can be produced in the chamber
+ * Also, only a certain maximum number of segments can be produced in the chamber  == 5
  */
 std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits) {
 
+  if (debug) std::cout << "[CSCSegAlgoDF::buildSegments] starting" << std::endl;
   // Clear buffer for segment vector
   std::vector<CSCSegment> segmentInChamber;
   segmentInChamber.clear();
-
-  if (rechits.size() < 3) return segmentInChamber;
-
+  int nSegmentFound = 0;
+  
   LayerIndex layerIndex( rechits.size() );
   
-  for ( unsigned int i = 0; i < rechits.size(); i++ ) {
-    
+  for ( unsigned int i = 0; i < rechits.size(); i++ )    
     layerIndex[i] = rechits[i]->cscDetId().layer();
-  }
+
   
   double z1 = theChamber->layer(1)->position().z();
   double z6 = theChamber->layer(6)->position().z();
@@ -104,6 +107,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
   ChamberHitContainerCIt ib = rechits.begin();
   ChamberHitContainerCIt ie = rechits.end();
 
+  if (debug) std::cout << " Number of rechits in chamber is " << ie - ib << std::endl;
     
   // Now Loop over hits within the chamber to find 1st seed for segment building
   for ( ChamberHitContainerCIt i1 = ib; i1 < ie; ++i1 ) {
@@ -119,6 +123,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
 
       // Clear proto segment so it can be (re)-filled 
       protoSegment.clear();
+      protoChi2 = 0.;
 
       if ( usedHits[i2-ib] ) continue;   // Hit has been used already
 
@@ -151,11 +156,27 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
               
         segmentInChamber.push_back(temp); 
         protoSegment.clear();
+        nSegmentFound++;
         if ( debug ) std::cout << "Found a segment in chamber ME" 
                                << theChamber->id().station() << "/" 
                                << theChamber->id().ring() << std::endl;
-      } 
+        if (nSegmentFound > 4) {
+          if (debug) {
+            std::cout << "Have found more segments in chamber than limit: " << nSegmentFound << std::endl;
+            std::cout << "Exiting this chamber " << std::endl;
+          }
+          return segmentInChamber;
+        }
+      } else {
+        // Clear proto segment so it can be (re)-filled 
+        protoSegment.clear();
+        protoChi2 = 0.;
+      }
     } 
+  }
+  if (debug) { 
+    std::cout << "[CSCSegAlgoDF::buildSegments] done " << std::endl;
+    std::cout << "# of segments found: " << nSegmentFound << std::endl;
   }
   return segmentInChamber;
 }
@@ -183,15 +204,14 @@ void CSCSegAlgoDF::tryAddingHitsToSegment( const ChamberHitContainer& rechits,
  *      then replace the original segment with the new one 
  *    - if not, copy the segment, add the hit if it's within a certain range. 
  */  
-  
+  if (debug) std::cout << "[CSCSegAlgoDF::tryAddingHitsToSegment] start " << std::endl;  
   ChamberHitContainerCIt ib = rechits.begin();
   ChamberHitContainerCIt ie = rechits.end();
-
   int nHitsLeft = 0;
   
   for ( int pass = 0; pass < 2; pass++) {
     
-    if ( pass > 0 && nHitsLeft < 4) return;
+    if ( pass > 0 && nHitsLeft < 5) return;
 
     for ( ChamberHitContainerCIt i = ib; i != ie; ++i ) {
       
@@ -202,19 +222,33 @@ void CSCSegAlgoDF::tryAddingHitsToSegment( const ChamberHitContainer& rechits,
 
       const CSCRecHit2D* h = *i;      
       int layer = (*i)->cscDetId().layer();
-      
+
       if ( isHitNearSegment( h ) ) {
 	if ( hasHitOnLayer(layer) ) {
 	  // If segment > 2 hits, try changing endpoints
 	  if ( protoSegment.size() > 2 ) {
-	    compareProtoSegment(h, layer); 
-	  } 
+            if (debug && pass == 0) {
+              std::cout << "Hit characteristics (x,y,z): (" << h->localPosition().x() << ", " 
+                                                            << h->localPosition().y() << ", " 
+                                                            << h->localPosition().z() << ")" << std::endl; 
+              std::cout << "Hit errors (dx^2,dy^2,dxdy): (" << h->localPositionError().xx() << ", " 
+                                                            << h->localPositionError().yy() << ", " 
+                                                            << h->localPositionError().xy() << ")" << std::endl; 
+              std::cout << "Proto segment characteristics:" << std::endl;
+	      std::cout << "proto slopes (dx/dz, dy,dz): (" << protoSlope_u << ", "
+                                                            << protoSlope_v << ")" << std::endl;
+	      std::cout << "# of hits on segment: " << protoSegment.size() << std::endl;
+	      std::cout << "chi-squared: " << protoChi2 << std::endl;
+            }
+            compareProtoSegment(h, layer);
+          } 
 	} else {
 	  increaseProtoSegment(h, layer);
 	}
       } 
     }
   } 
+  if (debug) std::cout << "[CSCSegAlgoDF::tryAddingHitsToSegment] done " << std::endl;  
 }
 
 
@@ -228,7 +262,7 @@ bool CSCSegAlgoDF::addHit(const CSCRecHit2D* aHit, int layer) {
   // Return true if hit was added successfully and then parameters are updated.
   // Return false if there is already a hit on the same layer, or insert failed.
   
-  bool ok;
+  bool ok = true;
   
   // Test that we are not trying to add the same hit again
   for ( ChamberHitContainer::const_iterator it = protoSegment.begin(); it != protoSegment.end(); it++ ) 
@@ -261,7 +295,6 @@ bool CSCSegAlgoDF::updateParameters() {
   //  no. of wire hits in the proto segment
   //  By construction this is the no. of layers with hits
   //  since we allow just one hit per layer in a segment.
-  
   int nh = protoSegment.size();
   
   // First hit added to a segment must always fail here
@@ -295,9 +328,9 @@ bool CSCSegAlgoDF::updateParameters() {
     LocalPoint h2pos = theChamber->toLocal(h2glopos);  
     
     float dz = h2pos.z()-h1pos.z();
+    if (dz == 0) dz = 0.001;
     protoSlope_u = (h2pos.x() - h1pos.x())/dz ;
     protoSlope_v = (h2pos.y() - h1pos.y())/dz ;    
-    protoChi2 = 0.;
 
     // Test if entrance angle is less than maximum value pointing to IP
     if (fabs(protoSlope_v) > tan(maxTheta)*thetaScaleMax) return false;
@@ -308,9 +341,7 @@ bool CSCSegAlgoDF::updateParameters() {
     // When we have more than two hits then we can fit projections to straight lines
     fitSlopes();  
     fillChiSquared();
-
   }
-
   fillLocalDirection();
   return true;
 }
@@ -396,7 +427,7 @@ void CSCSegAlgoDF::fitSlopes() {
  *
  */
 void CSCSegAlgoDF::fillChiSquared() {
-  
+
   double chsq = 0.;
   
   ChamberHitContainer::const_iterator ih;
@@ -424,13 +455,10 @@ void CSCSegAlgoDF::fillChiSquared() {
     int ierr = 0;
     IC.invert(ierr);
     if (ierr != 0) {
-      LogDebug("CSC") << "CSCSegment::fillChiSquared: failed to invert covariance matrix=\n" << IC << "\n";
-      
-    }
-    
+      LogDebug("CSC") << "CSCSegment::fillChiSquared: failed to invert covariance matrix=\n" << IC << "\n"; 
+    } 
     chsq += du*du*IC(1,1) + 2.*du*dv*IC(1,2) + dv*dv*IC(2,2);
   }
-
   protoChi2 = chsq;
 }
 
@@ -439,6 +467,7 @@ void CSCSegAlgoDF::fillChiSquared() {
  *
  */
 void CSCSegAlgoDF::fillLocalDirection() {
+
   // Always enforce direction of segment to point from IP outwards
   // (Incorrect for particles not coming from IP, of course.)
   
@@ -546,7 +575,7 @@ void CSCSegAlgoDF::compareProtoSegment(const CSCRecHit2D* h, int layer) {
  
   bool ok = replaceHit(h, layer);
   
-  if ( (protoChi2 > old_protoChi2) || ( !ok ) ) {
+  if ( protoChi2 > old_protoChi2 || !ok ) {
     protoChi2       = old_protoChi2;
     protoIntercept  = old_protoIntercept;
     protoSlope_u    = old_protoSlope_u;
@@ -612,16 +641,12 @@ void CSCSegAlgoDF::increaseProtoSegment(const CSCRecHit2D* h, int layer) {
  * Look at how many wire hit we have in chamber
  * If the chamber has 20 hits or fewer, require at least 3 hits on segment
  * If the chamber has >20 hits require at least 4 hits
- *
  */
 bool CSCSegAlgoDF::isSegmentGood(const ChamberHitContainer& RecHitsInChamber) const {
 
   unsigned int iadd = ( RecHitsInChamber.size() > 20 )? iadd = 1 : 0;  
 
   if (protoSegment.size() < minHitsPerSegment+iadd) return false;
-
-//  if ((protoSegment.size() >= minHitsPerSegment+iadd) &&
-//      (protoChi2/(2*protoSegment.size()-4) < chi2Max )) return true;
 
   return true;
 }
@@ -675,7 +700,7 @@ AlgebraicSymMatrix CSCSegAlgoDF::weightMatrix() const {
  *
  */
 HepMatrix CSCSegAlgoDF::derivativeMatrix() const {
-  
+
   ChamberHitContainer::const_iterator it;
   int nhits = protoSegment.size();
   HepMatrix matrix(2*nhits, 4);
@@ -703,7 +728,7 @@ HepMatrix CSCSegAlgoDF::derivativeMatrix() const {
  *
  */
 AlgebraicSymMatrix CSCSegAlgoDF::calculateError() const {
-  
+
   AlgebraicSymMatrix weights = weightMatrix();
   AlgebraicMatrix A = derivativeMatrix();
   
@@ -719,7 +744,7 @@ AlgebraicSymMatrix CSCSegAlgoDF::calculateError() const {
 
 
 void CSCSegAlgoDF::flipErrors( AlgebraicSymMatrix& a ) const { 
-    
+  
   // The CSCSegment needs the error matrix re-arranged 
     
   AlgebraicSymMatrix hold( a ); 
