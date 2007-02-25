@@ -122,6 +122,16 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   mutable float cotbeta_;
   //---------------------------
 
+  // Petar, 2/23/07 -- since the sign of the Lorentz shift appears to
+  // be computed *incorrectly* (i.e. there's a bug) we add new variables
+  // so that we can study the effect of the bug.
+  mutable LocalVector driftDirection_;  // drift direction cached // &&&
+  mutable double lorentzShiftX_;   // a FULL shift, not 1/2 like theLShiftX!
+  mutable double lorentzShiftY_;   // a FULL shift, not 1/2 like theLShiftY!
+  mutable double lorentzShiftInCmX_;   // a FULL shift, in cm
+  mutable double lorentzShiftInCmY_;   // a FULL shift, in cm
+
+
   //--- Global quantities
   mutable float theTanLorentzAnglePerTesla;   // tan(Lorentz angle)/Tesla
   int     theVerboseLevel;                    // algorithm's verbosity
@@ -152,7 +162,9 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   void computeAnglesFromTrajectory (const SiPixelCluster & cl,
 				    const GeomDetUnit    & det, 
 				    const LocalTrajectoryParameters & ltp) const;
-  LocalVector driftDirection( GlobalVector bfield ) const ;
+  LocalVector driftDirection       ( GlobalVector bfield ) const ; //wrong sign
+  LocalVector driftDirectionCorrect( GlobalVector bfield ) const ;
+  void computeLorentzShifts( GlobalVector bfield ) const ;
 
   bool isFlipped() const;              // is the det flipped or not?
 
