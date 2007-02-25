@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Jan 18 10:34:18 CET 2007
-// $Id$
+// $Id: CallgrindAnalyzer.cc,v 1.1 2007/01/24 15:33:40 innocent Exp $
 //
 //
 
@@ -38,17 +38,17 @@
 #include <iostream>
 using namespace std;
 class Profiler : public edm::EDAnalyzer {
-   public:
-      explicit Profiler(const edm::ParameterSet&);
-      ~Profiler();
+public:
+  explicit Profiler(const edm::ParameterSet&);
+  ~Profiler();
 
 
-   private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-      // ----------member data ---------------------------
+private:
+  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
+  
+  // ----------member data ---------------------------
       int m_firstEvent;
       int m_lastEvent;
       int m_action;

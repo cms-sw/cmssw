@@ -22,13 +22,14 @@ using namespace boost::assign;
 
 class TestProfilerService : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestProfilerService);
-  CPPUNIT_TEST_SUITE(check_constr);
-  CPPUNIT_TEST_SUITE(check_config);
-  CPPUNIT_TEST_SUITE(check_Instrumentation);
-  CPPUNIT_TEST_SUITE(check_Event);
-  CPPUNIT_TEST_SUITE(check_Path);
-  CPPUNIT_TEST_SUITE(check_Nesting);
-
+  CPPUNIT_TEST(check_constr);
+  CPPUNIT_TEST(check_config);
+  CPPUNIT_TEST(check_Instrumentation);
+  CPPUNIT_TEST(check_Event);
+  CPPUNIT_TEST(check_Path);
+  CPPUNIT_TEST(check_Nesting);
+  CPPUNIT_TEST_SUITE_END();
+  
 public:
   TestProfilerService();
   void setUp();
@@ -88,21 +89,21 @@ void TestProfilerService::check_Instrumentation() {
   CPPUNIT_ASSERT(!ps.startInstrumentation());
   CPPUNIT_ASSERT(!ps.stopInstrumentation());
   CPPUNIT_ASSERT(!ps.forceStopInstrumentation());
-
+  
   ps.beginEvent();
   CPPUNIT_ASSERT(m_active==0);
   CPPUNIT_ASSERT(ps.doEvent());
   CPPUNIT_ASSERT(ps.startInstrumentation());
   CPPUNIT_ASSERT(ps.stopInstrumentation());
   CPPUNIT_ASSERT(!ps.forceStopInstrumentation());
-
+  
   CPPUNIT_ASSERT(ps.startInstrumentation());
   CPPUNIT_ASSERT(!ps.startInstrumentation());
   CPPUNIT_ASSERT(!ps.stopInstrumentation());
   CPPUNIT_ASSERT(ps.stopInstrumentation());
   CPPUNIT_ASSERT(!ps.stopInstrumentation());
-
-
+  
+  
   for(int i=2;i<10;i++) ps.beginEvent();
   CPPUNIT_ASSERT(ps.m_evtCount==10);
   CPPUNIT_ASSERT(ps.doEvent());
@@ -113,17 +114,18 @@ void TestProfilerService::check_Instrumentation() {
   CPPUNIT_ASSERT(!ps.doEvent());
   CPPUNIT_ASSERT(!ps.startInstrumentation());
   CPPUNIT_ASSERT(!ps.stopInstrumentation());
-
+  
 }
 
 void TestProfilerService::check_Event() {
-
+  
 }
 
 void TestProfilerService::check_Path() {
-
+  
 }
-void TestProfilerService::check_Nesting() {
 
+void TestProfilerService::check_Nesting() {
+  
 }
 
