@@ -5,15 +5,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
+include <limits>
 
 #include "valgrind/callgrind.h"
 
 ProfilerService::ProfilerService(edm::ParameterSet const& pset, 
 				 edm::ActivityRegistry  & activity) :
   
-  m_firstEvent(pset.getUntrackedParameter<int>("FirstEvent",0 )),
-  m_lastEvent(pset.getUntrackedParameter<int>("LastEvent",-1)),
-  m_paths(pset.getUntrackedParameter<std::vector<std::string> >("Paths",std::vector<std::string>() )),
+  m_firstEvent(pset.getUntrackedParameter<int>("firstEvent",0 )),
+  m_lastEvent(pset.getUntrackedParameter<int>("lastEvent",std::numeric_limits<int>::max())),
+  m_paths(pset.getUntrackedParameter<std::vector<std::string> >("paths",std::vector<std::string>() )),
   m_evtCount(0),
   m_doEvent(false),
   m_active(0){
