@@ -314,6 +314,9 @@ TrajectoryManager::reconstruct()
 
   }
 
+  // Save the information from Nuclear Interaction Generation
+  if ( theMaterialEffects ) theMaterialEffects->save();
+
 }
 
 void 
