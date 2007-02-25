@@ -24,7 +24,7 @@ public:
   bool startInstrumentation();
   bool stopInstrumentation();
   bool forceStopInstrumentation();
-  bool dumpStat();
+  void dumpStat();
 
   void beginEvent(const edm::EventID&, const edm::Timestamp&);
   void endEvent(const edm::Event&, const edm::EventSetup&);
