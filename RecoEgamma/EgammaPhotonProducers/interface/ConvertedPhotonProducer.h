@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.5 2007/01/23 18:02:04 nancy Exp $ 
- **  $Date: 2007/01/23 18:02:04 $ 
- **  $Revision: 1.5 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.6 2007/02/19 20:58:07 nancy Exp $ 
+ **  $Date: 2007/02/19 20:58:07 $ 
+ **  $Revision: 1.6 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -43,15 +43,22 @@ class ConvertedPhotonProducer : public edm::EDProducer {
  private:
 
   
-  std::string conversionOITrackProducer_;
-  std::string conversionIOTrackProducer_;
+  std::string conversionOITrackProducerBarrel_;
+  std::string conversionIOTrackProducerBarrel_;
 
-  std::string outInTrackSCAssociationCollection_;
-  std::string inOutTrackSCAssociationCollection_;
+  std::string conversionOITrackProducerEndcap_;
+  std::string conversionIOTrackProducerEndcap_;
 
-  std::string OutInTrackCandidateCollection_;
-  std::string InOutTrackCandidateCollection_;
+  std::string outInTrackSCBarrelAssociationCollection_;
+  std::string inOutTrackSCBarrelAssociationCollection_;
+
+  std::string outInTrackSCEndcapAssociationCollection_;
+  std::string inOutTrackSCEndcapAssociationCollection_;
+
+  //std::string OutInTrackCandidateCollection_;
+  //std::string InOutTrackCandidateCollection_;
   std::string ConvertedPhotonCollection_;
+
   
   std::string bcProducer_;
   std::string bcBarrelCollection_;

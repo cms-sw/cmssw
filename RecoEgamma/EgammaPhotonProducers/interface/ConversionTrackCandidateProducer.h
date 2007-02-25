@@ -3,9 +3,9 @@
 /** \class ConversionTrackCandidateProducer
  **  
  **
- **  $Id: ConversionTrackCandidateProducer.h,v 1.3 2006/07/26 13:11:38 nancy Exp $ 
- **  $Date: 2006/07/26 13:11:38 $ 
- **  $Revision: 1.3 $
+ **  $Id: ConversionTrackCandidateProducer.h,v 1.1 2006/12/19 17:57:52 nancy Exp $ 
+ **  $Date: 2006/12/19 17:57:52 $ 
+ **  $Revision: 1.1 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -48,10 +48,19 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
 
   
 
-  std::string OutInTrackCandidateCollection_;
-  std::string InOutTrackCandidateCollection_;
-  std::string OutInTrackSuperClusterAssociationCollection_;
-  std::string InOutTrackSuperClusterAssociationCollection_;
+  std::string OutInTrackCandidateBarrelCollection_;
+  std::string InOutTrackCandidateBarrelCollection_;
+
+  std::string OutInTrackCandidateEndcapCollection_;
+  std::string InOutTrackCandidateEndcapCollection_;
+
+
+  std::string OutInTrackSuperClusterBarrelAssociationCollection_;
+  std::string InOutTrackSuperClusterBarrelAssociationCollection_;
+  std::string OutInTrackSuperClusterEndcapAssociationCollection_;
+  std::string InOutTrackSuperClusterEndcapAssociationCollection_;
+
+
   
   std::string bcProducer_;
   std::string bcBarrelCollection_;
