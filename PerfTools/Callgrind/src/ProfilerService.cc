@@ -50,6 +50,7 @@ bool ProfilerService::stopInstrumentation() {
 
 bool ProfilerService::forceStopInstrumentation() {
   if (m_active==0) return false;
+  // FIXME report something if appens;
   CALLGRIND_STOP_INSTRUMENTATION;
   m_active=0;
   return true;
@@ -63,9 +64,13 @@ bool ProfilerService::dumpStat() {
 void  ProfilerService::beginEvent(const edm::EventID&, const edm::Timestamp&) {
   ++m_evtCount;
   m_doEvent = m_evtCount >= m_firstEvent && m_evtCount <= m_lastEvent;
+  static std::string const allPaths("ALL");
+  if (std::find(m_paths.begin(),m_paths.end(),allPaths) != m_paths.end())
+    startInstrumentation();
 }
 
 void  ProfilerService::endEvent(const edm::Event&, const edm::EventSetup&) {
+  stopInstrumentation();
   // force, a nested instrumentation may fail to close in presence of filters
   forceStopInstrumentation();
 }
@@ -78,8 +83,11 @@ void  ProfilerService::beginPath(std::string const & path) {
     startInstrumentation();
 }
 
-void  ProfilerService::endPath(std::string const & /* path */,  const edm::HLTPathStatus&) {
-  // force, a nested instrumentation may fail to close in presence of filters
-  forceStopInstrumentation();
-  m_activePath.clear();
+void  ProfilerService::endPath(std::string const & path,  const edm::HLTPathStatus&) {
+  if ( m_activePath==path) {
+    stopInstrumentation();
+    m_activePath.clear();
+  }
+  // do to force, a nested instrumentation may fail to close in presence of filters  
+  // forceStopInstrumentation();
 }
