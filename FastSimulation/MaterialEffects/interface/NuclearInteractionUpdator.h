@@ -17,6 +17,7 @@
 
 #include <vector>
 #include <string>
+#include <fstream>
 
 class TFile;
 class TTree;
@@ -36,10 +37,17 @@ class NuclearInteractionUpdator : public MaterialEffectsUpdator
 			    double pionEnergy,
 			    double lengthRatio,
 			    std::vector<double> ratioRatio,
+			    std::string inputFile,
 			    const RandomEngine* engine);
 
   /// Default Destructor
   ~NuclearInteractionUpdator();
+
+  /// Save current nuclear interaction (for later use)
+  void save();
+
+  /// Read former nuclear interaction (from previous run)
+  void read(std::string inputFile);
 
  private:
 
@@ -60,6 +68,9 @@ class NuclearInteractionUpdator : public MaterialEffectsUpdator
   std::vector<unsigned> theCurrentInteraction;
   std::vector<unsigned> theNumberOfEntries;
   std::vector<unsigned> theNumberOfInteractions;
+
+  std::ofstream myOutputFile;
+  unsigned myOutputBuffer;
 
 };
 #endif

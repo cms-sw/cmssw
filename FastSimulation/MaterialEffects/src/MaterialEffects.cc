@@ -81,12 +81,15 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
       = matEff.getParameter<double>("pionEnergy");
     double lengthRatio 
       = matEff.getParameter<double>("lengthRatio");
+    string inputFile 
+      = matEff.getUntrackedParameter<std::string>("inputFile");
     NuclearInteraction = 
       new NuclearInteractionUpdator(listOfFiles,
 				    pionEnergies,
 				    pionEnergy,
 				    lengthRatio,
 				    ratioRatio,
+				    inputFile,
 				    random);
   }
 
@@ -389,4 +392,12 @@ MaterialEffects::normalVector(const TrackerLayer& layer,
     GlobalVector(myTrack.x(),myTrack.y(),0.)/myTrack.vertex().perp();
   //		 myTrack.y()/myTrack.vertex().perp(),
   //		 0.0);
+}
+
+void 
+MaterialEffects::save() { 
+
+  // Save current nuclear interactions in the event libraries.
+  if ( NuclearInteraction ) NuclearInteraction->save();
+
 }

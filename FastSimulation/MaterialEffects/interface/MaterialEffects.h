@@ -70,6 +70,9 @@ class MaterialEffects
   GlobalVector normalVector(const TrackerLayer& layer,
 			    ParticlePropagator& myTrack ) const;
 
+  /// Save nuclear interaction information
+  void save();
+
  private:
 
   PairProductionUpdator* PairProduction;
