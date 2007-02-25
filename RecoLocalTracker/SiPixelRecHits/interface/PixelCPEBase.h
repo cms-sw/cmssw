@@ -49,6 +49,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   inline LocalValues localParameters( const SiPixelCluster & cl, 
 				      const GeomDetUnit    & det ) const 
   {
+    nRecHitsTotal_++ ;
     setTheDet( det );
     computeAnglesFromDetPosition(cl, det);
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
@@ -61,6 +62,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
 				      const GeomDetUnit    & det, 
 				      const LocalTrajectoryParameters & ltp) const 
   {
+    nRecHitsTotal_++ ;
     setTheDet( det );
     computeAnglesFromTrajectory(cl, det, ltp);
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
@@ -73,8 +75,11 @@ class PixelCPEBase : public PixelClusterParameterEstimator
 				      const GeomDetUnit    & det, 
 				      float alpha, float beta) const 
   {
+    nRecHitsTotal_++ ;
     alpha_ = alpha;
     beta_  = beta;
+    cotalpha_ = 1.0/tan(alpha_);
+    cotbeta_  = 1.0/tan(beta_ );
     setTheDet( det );
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
   } 
@@ -130,6 +135,10 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   mutable double lorentzShiftY_;   // a FULL shift, not 1/2 like theLShiftY!
   mutable double lorentzShiftInCmX_;   // a FULL shift, in cm
   mutable double lorentzShiftInCmY_;   // a FULL shift, in cm
+
+  //--- Counters
+  mutable int    nRecHitsTotal_ ;
+  mutable int    nRecHitsUsedEdge_ ;
 
 
   //--- Global quantities

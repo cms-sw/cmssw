@@ -36,6 +36,7 @@ const float degsPerRad = 57.29578;
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
 PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag) 
+  : nRecHitsTotal_(0), nRecHitsUsedEdge_(0)
 {
   //--- Lorentz angle tangent per Tesla
   theTanLorentzAnglePerTesla =
@@ -208,11 +209,11 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
   beta_  = atan2( gv_dot_gvz, gv_dot_gvy );
 
   // calculate cotalpha and cotbeta
-  cotalpha_ = 1.0/tan(alpha_);
-  cotbeta_  = 1.0/tan(beta_ );
+  //   cotalpha_ = 1.0/tan(alpha_);
+  //   cotbeta_  = 1.0/tan(beta_ );
   // or like this
-  //cotalpha_ = gv_dot_gvx / gv_dot_gvz;
-  //cotbeta_  = gv_dot_gvy / gv_dot_gvz;
+  cotalpha_ = gv_dot_gvx / gv_dot_gvz;
+  cotbeta_  = gv_dot_gvy / gv_dot_gvz;
 
 }
 
@@ -240,6 +241,8 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
     alpha_ = PI - alpha_ ;
   
   beta_ = acos(locy/sqrt(locy*locy+locz*locz));
+
+  // &&& In the above, why not use atan2() ?
   
   cotalpha_ = localDir.x()/localDir.z();
   cotbeta_  = localDir.y()/localDir.z();
@@ -559,15 +562,13 @@ PixelCPEBase::computeLorentzShifts( GlobalVector bfield ) const
   Frame detFrame(theDet->surface().position(), theDet->surface().rotation());
   LocalVector Bfield = detFrame.toLocal(bfield);
   
-  float alpha2;
-  if ( alpha2Order) 
-    {
-      alpha2 = theTanLorentzAnglePerTesla*theTanLorentzAnglePerTesla;
-    }
-  else 
-    {
-      alpha2 = 0.0;
-    }
+  double alpha2;
+  if ( alpha2Order) {
+    alpha2 = theTanLorentzAnglePerTesla * theTanLorentzAnglePerTesla;
+  }
+  else  {
+    alpha2 = 0.0;
+  }
 
   // **********************************************************************
   // Our convention is the following:
