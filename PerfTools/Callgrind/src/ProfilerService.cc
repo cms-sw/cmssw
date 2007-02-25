@@ -18,10 +18,10 @@ ProfilerService::ProfilerService(edm::ParameterSet const& pset,
   m_evtCount(0),
   m_doEvent(false),
   m_active(0){
-    activity.watchPreProcessEvent(this,&ProfilerService::beginEvent);
-    activity.watchPostProcessEvent(this,&ProfilerService::endEvent);
-    activity.watchPreProcessPath(this,&ProfilerService::beginPath);
-    activity.watchPostProcessPath(this,&ProfilerService::endPath);
+    activity.watchPreProcessEvent(this,&ProfilerService::beginEventI);
+    activity.watchPostProcessEvent(this,&ProfilerService::endEventI);
+    activity.watchPreProcessPath(this,&ProfilerService::beginPathI);
+    activity.watchPostProcessPath(this,&ProfilerService::endPathI);
 
 }
 
@@ -62,7 +62,7 @@ void ProfilerService::dumpStat() {
      CALLGRIND_DUMP_STATS;
 }
 
-void  ProfilerService::beginEvent(const edm::EventID&, const edm::Timestamp&) {
+void  ProfilerService::beginEvent() {
   ++m_evtCount;
   m_doEvent = m_evtCount >= m_firstEvent && m_evtCount <= m_lastEvent;
   static std::string const allPaths("ALL");
@@ -70,7 +70,7 @@ void  ProfilerService::beginEvent(const edm::EventID&, const edm::Timestamp&) {
     startInstrumentation();
 }
 
-void  ProfilerService::endEvent(const edm::Event&, const edm::EventSetup&) {
+void  ProfilerService::endEvent() {
   stopInstrumentation();
   // force, a nested instrumentation may fail to close in presence of filters
   forceStopInstrumentation();
@@ -84,7 +84,7 @@ void  ProfilerService::beginPath(std::string const & path) {
     startInstrumentation();
 }
 
-void  ProfilerService::endPath(std::string const & path,  const edm::HLTPathStatus&) {
+void  ProfilerService::endPath(std::string const & path) {
   if ( m_activePath==path) {
     stopInstrumentation();
     m_activePath.clear();

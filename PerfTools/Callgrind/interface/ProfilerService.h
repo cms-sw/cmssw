@@ -26,16 +26,30 @@ public:
   bool forceStopInstrumentation();
   void dumpStat();
 
-  void beginEvent(const edm::EventID&, const edm::Timestamp&);
-  void endEvent(const edm::Event&, const edm::EventSetup&);
-  
-  void beginPath(std::string const & path);
-  void endPath(std::string const & path,  const edm::HLTPathStatus&);
+  void beginEventI(const edm::EventID&, const edm::Timestamp&) {
+    beginEvent();
+  }
+  void endEventI(const edm::Event&, const edm::EventSetup&) {
+    endEvent();
+  }
+  void beginPathI(std::string const & path) {
+    beginPath(path);
+  }
+  void endPathI(std::string const & path,  const edm::HLTPathStatus&) {
+    endPath(path);
+  }
 
   bool doEvent() const { return m_doEvent;}
   bool active() const { return m_active>0;}
 
 private:
+
+  void beginEvent();
+  void endEvent();
+  
+  void beginPath(std::string const & path);
+  void endPath(std::string const & path);
+
 
   // configurable
   int m_firstEvent; 
