@@ -44,6 +44,11 @@ TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::Parame
 void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 {
   edm::LogInfo("TrackProducerWithSCAssociation") << "Analyzing event number: " << theEvent.id() << "\n";
+
+  //LogDebug("TrackProducerWithSCAssociation") << "Analyzing event number: " << theEvent.id() << "\n";
+  LogDebug("TrackProducerWithSCAssociation") << "Analyzing event number: " << theEvent.id() << "\n";
+
+
   //
   // create empty output collections
   //
@@ -74,7 +79,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
 
   theEvent.getByLabel(conversionTrackCandidateProducer_, trackCSuperClusterAssociationCollection_ , trkCandidateSCAssocHandle);
   reco::TrackCandidateSuperClusterAssociationCollection scTrkCandAssCollection = *trkCandidateSCAssocHandle;  
-   LogDebug("TrackProducerWithSCAssociation")  << "TrackProducerWithSCAssociation  TrkCandidateSCAssoc collection size " << (*trkCandidateSCAssocHandle).size() <<"\n";
+  LogDebug("TrackProducerWithSCAssociation")  << "TrackProducerWithSCAssociation  TrkCandidateSCAssoc collection size " << (*trkCandidateSCAssocHandle).size() <<"\n";
 
   std::vector<int> tccLocations;
   AlgoProductCollection algoResults;
@@ -110,7 +115,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
 								       &(theG.product()->idToDet(detId)->surface()), 
 								       theMF.product());
 	
-	LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation  Initial TSOS\n" << theTSOS << "\n";
+	//	LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation  Initial TSOS\n" << theTSOS << "\n";
 	
 	//convert the TrackingRecHit vector to a TransientTrackingRecHit vector
 	//meanwhile computes the number of degrees of freedom
@@ -139,6 +144,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
 	tcc++;
       }
     edm::LogInfo("TrackProducerWithSCAssociation") << "Number of Tracks found: " << cont << "\n";
+    LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation Number of Tracks found: " << cont << "\n";
     // end of copied code ======================================================
     
   } catch (cms::Exception &e){ edm::LogInfo("TrackProducerWithSCAssociation") << "cms::Exception caught!!!" << "\n" << e << "\n";}
@@ -147,9 +153,11 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   // we copy putInEvt to get OrphanHandle filled...
   putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
   
-  // now construct associationmap and put it into event
+  // now construct associationmap and put it in the  event
   int itrack=0;
+
   std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRef; 
+
   for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
     edm::Ref<reco::TrackCollection> trackRef(rTracks_,itrack);
     edm::Ref<TrackCandidateCollection> trackCRef(theTCCollection,tccLocations[itrack]);
