@@ -19,21 +19,6 @@
   <class name="std::vector<reco::MuonWithMatchInfo::MuonChamberMatch>"/>
   <class name="std::vector<reco::MuonWithMatchInfo::MuonSegmentMatch>"/>
 
-  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, bool, unsigned int > >">
-      <field name="transientMap_" transient="true" />
-  </class>
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, bool, unsigned int > > >" />
-
-  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, int, unsigned int > >">
-      <field name="transientMap_" transient="true" />
-  </class>
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, int, unsigned int > > >" />
-
-  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, float, unsigned int > >">
-      <field name="transientMap_" transient="true" />
-  </class>
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, float, unsigned int > > >" />
-
   <class name="reco::MuIsoDeposit"/>
   <class name="std::vector<reco::MuIsoDeposit>"/>
   <class name="edm::Wrapper<std::vector<reco::MuIsoDeposit> >"/>
