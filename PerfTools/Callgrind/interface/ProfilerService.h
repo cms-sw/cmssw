@@ -32,7 +32,8 @@ public:
   void beginPath(std::string const & path);
   void endPath(std::string const & path,  const edm::HLTPathStatus&);
 
-  
+  bool doEvent() const { return m_doEvent;}
+  bool active() const { return m_active>0;}
 
 private:
 

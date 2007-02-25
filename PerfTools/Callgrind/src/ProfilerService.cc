@@ -15,7 +15,7 @@ ProfilerService::ProfilerService(edm::ParameterSet const& pset,
   m_lastEvent(pset.getUntrackedParameter<int>("LastEvent",-1)),
   m_paths(pset.getUntrackedParameter<std::vector<std::string> >("Paths",std::vector<std::string>() )),
   m_evtCount(0),
-  m_doEvent(false);
+  m_doEvent(false),
   m_active(0){
     activity.watchPreProcessEvent)(this,&ProfilerService::beginEvent);
     activity.watchPostProcessEvent)(this,&ProfilerService::endEvent);
@@ -27,6 +27,10 @@ ProfilerService::ProfilerService(edm::ParameterSet const& pset,
 ProfilerService::~ProfilerService(){}
 
 bool ProfilerService::startInstrumentation(){
+  // FIXME here or in client?
+  if (!doEvent()) return;
+
+
   if (m_active==0) {
     CALLGRIND_START_INSTRUMENTATION;
     CALLGRIND_DUMP_STATS;
@@ -38,8 +42,9 @@ bool ProfilerService::startInstrumentation(){
 
 bool ProfilerService::stopInstrumentation() {
   if (m_active==0) return false;
-  CALLGRIND_STOP_INSTRUMENTATION;
-  --m_active();
+  --m_active;
+  if (m_active==0)
+    CALLGRIND_STOP_INSTRUMENTATION;
   return m_active==0;
 }
 
@@ -57,7 +62,7 @@ bool ProfilerService::dumpStat() {
 
 void  ProfilerService::beginEvent(const edm::EventID&, const edm::Timestamp&) {
   ++m_evtCount;
-  doEvent = m_evtCount >= m_firstEvent && m_evtCount <= m_lastEvent;
+  m_doEvent = m_evtCount >= m_firstEvent && m_evtCount <= m_lastEvent;
 }
 
 void  ProfilerService::endEvent(const edm::Event&, const edm::EventSetup&) {
@@ -66,8 +71,9 @@ void  ProfilerService::endEvent(const edm::Event&, const edm::EventSetup&) {
 }
 
 void  ProfilerService::beginPath(std::string const & path) {
+  if (!doEvent()) return;
   // assume less than 5-6 path to instrument ....
-  if (std::find(m_path.begin(),m_path.end(),path) == m_path.end()) return; 
+  if (std::find(m_paths.begin(),m_paths.end(),path) == m_paths.end()) return; 
     m_activePath=path;
     startInstrumentation();
 }
