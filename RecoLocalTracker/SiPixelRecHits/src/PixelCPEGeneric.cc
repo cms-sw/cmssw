@@ -104,7 +104,7 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
     generic_position_formula( cluster.sizeX(),
 			      Q_f_X, Q_l_X, 
 			      local_URcorn_LLpix.x(), local_LLcorn_URpix.x(),
-			      theLShiftX*thePitchX,   // 0.5 * lorentz shift in cm
+			      0.5*lorentzShiftXInCmX_,   // 0.5 * lorentz shift in cm
 			      alpha_,
 			      thePitchX,
 			      theTopol->isItBigPixelInX( cluster.minPixelRow() ),
@@ -119,7 +119,7 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
     generic_position_formula( cluster.sizeY(),
 			      Q_f_Y, Q_l_Y, 
 			      local_URcorn_LLpix.y(), local_LLcorn_URpix.y(),
-			      theLShiftY*thePitchY,   // 0.5 * lorentz shift in cm
+			      0.5*lorentzShiftXInCmY_,   // 0.5 * lorentz shift in cm
 			      beta_,
 			      thePitchY,   // 0.5 * lorentz shift (may be 0)
 			      theTopol->isItBigPixelInY( cluster.minPixelCol() ),
