@@ -557,10 +557,11 @@ PixelCPEBase::driftDirection( GlobalVector bfield ) const
 //  One-shot computation of the driftDirection and both lorentz shifts
 //-----------------------------------------------------------------------------
 void
-PixelCPEBase::computeLorentzShifts( GlobalVector bfield ) const 
+PixelCPEBase::computeLorentzShifts() const 
 {
   Frame detFrame(theDet->surface().position(), theDet->surface().rotation());
-  LocalVector Bfield = detFrame.toLocal(bfield);
+  GlobalVector global_Bfield = magfield_->inTesla( theDet->surface().position() );
+  LocalVector  Bfield        = detFrame.toLocal(global_Bfield);
   
   double alpha2;
   if ( alpha2Order) {

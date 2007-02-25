@@ -48,7 +48,8 @@ LocalPoint
 PixelCPEGeneric::localPosition(const SiPixelCluster& cluster, 
 			       const GeomDetUnit & det) const 
 {
-  setTheDet( det );  // Initialize the det
+  setTheDet( det );  //!< Initialize this det unit
+  computeLorentzShifts();  //!< correctly compute lorentz shifts in X and Y
 
   float Q_f_X = 0.0;        //!< Q of the first  pixel  in X 
   float Q_l_X = 0.0;        //!< Q of the last   pixel  in X

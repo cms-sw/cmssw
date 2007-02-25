@@ -173,7 +173,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
 				    const LocalTrajectoryParameters & ltp) const;
   LocalVector driftDirection       ( GlobalVector bfield ) const ; //wrong sign
   LocalVector driftDirectionCorrect( GlobalVector bfield ) const ;
-  void computeLorentzShifts( GlobalVector bfield ) const ;
+  void computeLorentzShifts() const ;
 
   bool isFlipped() const;              // is the det flipped or not?
 
