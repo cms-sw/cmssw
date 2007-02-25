@@ -14,7 +14,6 @@
 
 
 void ElectronEnergyCorrector::correct(reco::PixelMatchGsfElectron &electron) {
-
   if (!electron.isEnergyScaleCorrected()) {
     setNewEnergy(electron);
     //    electron.correctElectronEnergyScale(this);
@@ -52,20 +51,11 @@ void ElectronEnergyCorrector::setNewEnergy(const reco::PixelMatchGsfElectron &el
   } else {
     // endcap, if in crack do nothing, otherwise just correct for eta effect
 
-    //    const EgammaEndcapCluster *ec = dynamic_cast<const EgammaEndcapCluster*>(electron.getSuperCluster());
-    //    double ePreshower = ec->energyUncorrected() - ec->energyUncorrected_E();
-    //FIXME!!!!!
-    // here we apply the correction to the corrected scEnergy and add no preshower energy
-    //what should be done once we can get the preshower enregy from the supercluster is
-    //subtract the preshower energy from scenergy, apply the correction and add preshower enrgy afterwards
-    //the error should be small
+    double ePreshower = electron.superCluster()->preshowerEnergy();
     if (int(elClass/10) != 13) {
-      //      newEnergy_ = scEnergy/fEtaEndcapGood(scEta)+ePreshower;
-      newEnergy_ = scEnergy/fEtaEndcapGood(scEta);
-
+      newEnergy_ = (scEnergy-ePreshower)/fEtaEndcapGood(scEta)+ePreshower;
     } else { 
-      //      newEnergy_ = scEnergy/fEtaEndcapBad(scEta)+ePreshower;
-      newEnergy_ = scEnergy/fEtaEndcapBad(scEta);
+      newEnergy_ = (scEnergy-ePreshower)/fEtaEndcapBad(scEta)+ePreshower;
     }
 
   }
