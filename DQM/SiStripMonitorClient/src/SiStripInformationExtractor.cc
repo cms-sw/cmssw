@@ -207,8 +207,55 @@ void SiStripInformationExtractor::plotSingleHistogram(MonitorUserInterface * mui
   MonitorElement* me = mui->get(path_name);
   vector<MonitorElement*> me_list;
   if (me) {
-    me_list.push_back(me);
-    plotHistos(req_map,me_list);
+    TProfile* prof = ExtractTObject<TProfile>().extract(me);
+    TH1F* hist1 = ExtractTObject<TH1F>().extract(me);
+    TH2F* hist2 = ExtractTObject<TH2F>().extract(me);
+  
+    TCanvas canvas("TestCanvas", "Test Canvas");
+    canvas.Clear();
+    canvas.Divide(1,2);
+    if (prof|| hist1 || hist2) {
+      if (hist2) {
+        canvas.cd(1);
+        hist2->Draw();
+	TH1F thproj(hist2->GetName(),hist2->GetTitle(),hist2->GetNbinsY(), 
+		    hist2->GetYaxis()->GetXmin(),hist2->GetYaxis()->GetXmax());
+	for (int j = 1; j < hist2->GetNbinsY()+1; j++) {
+	  for (int i = 1; i < hist2->GetNbinsX()+1; i++) {
+	    thproj.SetBinContent(j, hist2->GetBinContent(i,j));
+	  }
+	}
+        canvas.cd(2);
+	gPad->SetLogy(1);
+	thproj.DrawCopy();
+      } else if (prof) {
+        canvas.cd(1);
+        prof->Draw(); 
+	TH1F thproj(prof->GetName(),prof->GetTitle(),prof->GetNbinsX(), 
+		    0.0,prof->GetMaximum()*1.2);
+	for (int i = 1; i < prof->GetNbinsX()+1; i++) {
+	  thproj.Fill(prof->GetBinContent(i));
+	}
+        canvas.cd(2);
+	gPad->SetLogy(1);
+	thproj.DrawCopy();
+
+      } else { 
+        canvas.cd(1);
+        hist1->Draw();
+	TH1F thproj(hist1->GetName(),hist1->GetTitle(),100, 
+		    0.0,hist1->GetMaximum()*1.2);
+	for (int i = 1; i < hist1->GetNbinsX()+1; i++) {
+	  thproj.Fill(hist1->GetBinContent(i));
+	}
+        canvas.cd(2);        
+	gPad->SetLogy(1);
+	thproj.DrawCopy();
+      }
+    }
+    canvas.Update();
+    fillImageBuffer(canvas);
+    canvas.Clear();
   }
 }
 //
@@ -326,8 +373,8 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
           for (int i = 1; i < hist1->GetNbinsX()+1; i++) {
 	    thproj.Fill(hist1->GetBinContent(i));
 	  }
-          thproj.Draw();
-        } else hist1->DrawCopy(dopt.c_str());
+          thproj.DrawCopy();
+        } else hist1->Draw();
       }
       if (icol != 1) {
 	TText tt;
