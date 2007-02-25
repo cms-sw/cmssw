@@ -41,6 +41,7 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
 {
 
 
+  //  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer CTOR " << "\n";
   LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer CTOR " << "\n";
 
  
@@ -57,11 +58,17 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   scHybridBarrelCollection_     = conf_.getParameter<std::string>("scHybridBarrelCollection");
   scIslandEndcapCollection_     = conf_.getParameter<std::string>("scIslandEndcapCollection");
   
-  conversionOITrackProducer_ = conf_.getParameter<std::string>("conversionOITrackProducer");
-  conversionIOTrackProducer_ = conf_.getParameter<std::string>("conversionIOTrackProducer");
+  conversionOITrackProducerBarrel_ = conf_.getParameter<std::string>("conversionOITrackProducerBarrel");
+  conversionIOTrackProducerBarrel_ = conf_.getParameter<std::string>("conversionIOTrackProducerBarrel");
 
-  outInTrackSCAssociationCollection_ = conf_.getParameter<std::string>("outInTrackSCAssociation");
-  inOutTrackSCAssociationCollection_ = conf_.getParameter<std::string>("inOutTrackSCAssociation");
+  conversionOITrackProducerEndcap_ = conf_.getParameter<std::string>("conversionOITrackProducerEndcap");
+  conversionIOTrackProducerEndcap_ = conf_.getParameter<std::string>("conversionIOTrackProducerEndcap");
+
+  outInTrackSCBarrelAssociationCollection_ = conf_.getParameter<std::string>("outInTrackSCBarrelAssociation");
+  inOutTrackSCBarrelAssociationCollection_ = conf_.getParameter<std::string>("inOutTrackSCBarrelAssociation");
+
+  outInTrackSCEndcapAssociationCollection_ = conf_.getParameter<std::string>("outInTrackSCEndcapAssociation");
+  inOutTrackSCEndcapAssociationCollection_ = conf_.getParameter<std::string>("inOutTrackSCEndcapAssociation");
 
 
 
@@ -155,37 +162,79 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Trying to access " <<scIslandEndcapCollection_.c_str() << "  from my Producer " << "\n";
   
-  reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
+ reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
  LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap SC collection size  " << scEndcapCollection.size() << "\n";
+ 
+ //// Get the Out In CKF tracks from conversions in the Barrel
+ Handle<reco::TrackCollection> outInTrkBarrelHandle;
+ theEvent.getByLabel(conversionOITrackProducerBarrel_,  outInTrkBarrelHandle);
+ LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Barrel outInTrack collection size " << (*outInTrkBarrelHandle).size() << "\n";
+ //// Get the Out In CKF tracks from conversions in the Endcap
+ Handle<reco::TrackCollection> outInTrkEndcapHandle;
+ theEvent.getByLabel(conversionOITrackProducerEndcap_,  outInTrkEndcapHandle);
+ LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap outInTrack collection size " << (*outInTrkEndcapHandle).size() << "\n";
 
-  //// Get the Out In CKF tracks from conversions
-  Handle<reco::TrackCollection> outInTrkHandle;
-  theEvent.getByLabel(conversionOITrackProducer_,  outInTrkHandle);
- LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer outInTrack collection size " << (*outInTrkHandle).size() << "\n";
-
- // Loop over Out In Tracks
-  for( reco::TrackCollection::const_iterator  iTk =  (*outInTrkHandle).begin(); iTk !=  (*outInTrkHandle).end(); iTk++) {
-   LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
-    
-   LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Out In Track Extra inner momentum  " << iTk->extra()->outerMomentum() << "\n";  
+ // Loop over Out In Tracks in the Barrel
+ for( reco::TrackCollection::const_iterator  iTk =  (*outInTrkBarrelHandle).begin(); iTk !=  (*outInTrkBarrelHandle).end(); iTk++) {
+   LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Barrel Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
+   
+   LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Barrel Out In Track Extra inner momentum  " << iTk->extra()->innerMomentum() << "\n";  
    
   }
-  //// Get the association map between CKF out in tracks and the SC where they originated
-  Handle<reco::TrackSuperClusterAssociationCollection> outInTrkSCAssocHandle;
-  theEvent.getByLabel( conversionOITrackProducer_, outInTrackSCAssociationCollection_, outInTrkSCAssocHandle);
-  reco::TrackSuperClusterAssociationCollection outInTrackSCAss = *outInTrkSCAssocHandle;  
-  LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer outInTrackSCAssoc collection size " << (*outInTrkSCAssocHandle).size() <<"\n";
+ // Loop over Out In Tracks in the Endcap
+ for( reco::TrackCollection::const_iterator  iTk =  (*outInTrkEndcapHandle).begin(); iTk !=  (*outInTrkEndcapHandle).end(); iTk++) {
+   LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
+   
+   LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap Out In Track Extra inner momentum  " << iTk->extra()->innerMomentum() << "\n";  
+   
+  }
+
+  //// Get the association map between CKF Out In tracks and the SC Barrel where they originated
+  Handle<reco::TrackSuperClusterAssociationCollection> outInTrkSCBarrelAssocHandle;
+  theEvent.getByLabel( conversionOITrackProducerBarrel_, outInTrackSCBarrelAssociationCollection_, outInTrkSCBarrelAssocHandle);
+  reco::TrackSuperClusterAssociationCollection outInTrackSCBarrelAss = *outInTrkSCBarrelAssocHandle;  
+  LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer outInTrackBarrelSCAssoc collection size " << (*outInTrkSCBarrelAssocHandle).size() <<"\n";
+  //// Get the association map between CKF Out In tracks and the SC Endcap  where they originated
+  Handle<reco::TrackSuperClusterAssociationCollection> outInTrkSCEndcapAssocHandle;
+  theEvent.getByLabel( conversionOITrackProducerEndcap_, outInTrackSCEndcapAssociationCollection_, outInTrkSCEndcapAssocHandle);
+  reco::TrackSuperClusterAssociationCollection outInTrackSCEndcapAss = *outInTrkSCEndcapAssocHandle;  
+  LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer outInTrackEndcapSCAssoc collection size " << (*outInTrkSCEndcapAssocHandle).size() <<"\n";
 
 
-  //// Get the In Out  CKF tracks from conversions
-  Handle<reco::TrackCollection> inOutTrkHandle;
-  theEvent.getByLabel(conversionIOTrackProducer_, inOutTrkHandle);
-  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer inOutTrack collection size " << (*inOutTrkHandle).size() << "\n";
-  //// Get the association map between CKF in out tracks and the SC where they originated
-  Handle<reco::TrackSuperClusterAssociationCollection> inOutTrkSCAssocHandle;
-  theEvent.getByLabel( conversionIOTrackProducer_, inOutTrackSCAssociationCollection_, inOutTrkSCAssocHandle);
-  reco::TrackSuperClusterAssociationCollection inOutTrackSCAss = *inOutTrkSCAssocHandle;  
-  LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer inOutTrackSCAssoc collection size " << (*inOutTrkSCAssocHandle).size() <<"\n";
+  //// Get the In Out  CKF tracks from conversions in the Barrel
+  Handle<reco::TrackCollection> inOutTrkBarrelHandle;
+  theEvent.getByLabel(conversionIOTrackProducerBarrel_, inOutTrkBarrelHandle);
+  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Barre; inOutTrack collection size " << (*inOutTrkBarrelHandle).size() << "\n";
+  //// Get the In Out  CKF tracks from conversions in the Endcap
+  Handle<reco::TrackCollection> inOutTrkEndcapHandle;
+  theEvent.getByLabel(conversionIOTrackProducerEndcap_, inOutTrkEndcapHandle);
+  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Endcap inOutTrack collection size " << (*inOutTrkEndcapHandle).size() << "\n";
+  // Loop over In Out  Tracks in the Barrel
+  for( reco::TrackCollection::const_iterator  iTk =  (*inOutTrkBarrelHandle).begin(); iTk !=  (*inOutTrkBarrelHandle).end(); iTk++) {
+    LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Barrel In Out  Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
+    
+    LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Barrel In Out  Track Extra inner momentum  " << iTk->extra()->innerMomentum() << "\n";  
+    
+  }
+  // Loop over In Out  Tracks in the Endcap
+  for( reco::TrackCollection::const_iterator  iTk =  (*inOutTrkEndcapHandle).begin(); iTk !=  (*inOutTrkEndcapHandle).end(); iTk++) {
+    LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap In Out  Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
+    
+    LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap In Out  Track Extra inner momentum  " << iTk->extra()->innerMomentum() << "\n";  
+    
+  }
+
+
+  //// Get the association map between CKF in out tracks and the SC Barrel where they originated
+  Handle<reco::TrackSuperClusterAssociationCollection> inOutTrkSCBarrelAssocHandle;
+  theEvent.getByLabel( conversionIOTrackProducerBarrel_, inOutTrackSCBarrelAssociationCollection_, inOutTrkSCBarrelAssocHandle);
+  reco::TrackSuperClusterAssociationCollection inOutTrackSCBarrelAss = *inOutTrkSCBarrelAssocHandle;  
+  LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer inOutTrackSCBarrelAssoc collection size " << (*inOutTrkSCBarrelAssocHandle).size() <<"\n";
+  //// Get the association map between CKF in out tracks and the SC Endcap where they originated
+  Handle<reco::TrackSuperClusterAssociationCollection> inOutTrkSCEndcapAssocHandle;
+  theEvent.getByLabel( conversionIOTrackProducerEndcap_, inOutTrackSCEndcapAssociationCollection_, inOutTrkSCEndcapAssocHandle);
+  reco::TrackSuperClusterAssociationCollection inOutTrackSCEndcapAss = *inOutTrkSCEndcapAssocHandle;  
+  LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer inOutTrackSCBarrelAssoc collection size " << (*inOutTrkSCEndcapAssocHandle).size() <<"\n";
 
 
 
@@ -193,9 +242,12 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   edm::ESHandle<TransientTrackBuilder> theTransientTrackBuilder;
   theEventSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTransientTrackBuilder);
   //do the conversion:
-  std::vector<reco::TransientTrack> t_outInTrk = ( *theTransientTrackBuilder ).build(outInTrkHandle );
-  std::vector<reco::TransientTrack> t_inOutTrk = ( *theTransientTrackBuilder ).build(inOutTrkHandle );
+  std::vector<reco::TransientTrack> t_outInTrkBarrel = ( *theTransientTrackBuilder ).build(outInTrkBarrelHandle );
+  std::vector<reco::TransientTrack> t_inOutTrkBarrel = ( *theTransientTrackBuilder ).build(inOutTrkBarrelHandle );
+  std::vector<reco::TransientTrack> t_outInTrkEndcap = ( *theTransientTrackBuilder ).build(outInTrkEndcapHandle );
+  std::vector<reco::TransientTrack> t_inOutTrkEndcap = ( *theTransientTrackBuilder ).build(inOutTrkEndcapHandle );
   
+
 
   reco::ConvertedPhotonCollection myConvPhotons;
 
@@ -211,7 +263,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
     
         
     ///// Find the +/- pairs
-    std::map<std::vector<reco::TransientTrack>, reco::SuperCluster> allPairs = theTrackPairFinder_->run(t_outInTrk, outInTrkHandle, outInTrkSCAssocHandle, t_inOutTrk, inOutTrkHandle, inOutTrkSCAssocHandle  );
+    std::map<std::vector<reco::TransientTrack>, reco::SuperCluster> allPairs = theTrackPairFinder_->run(t_outInTrkBarrel, outInTrkBarrelHandle, outInTrkSCBarrelAssocHandle, t_inOutTrkBarrel, inOutTrkBarrelHandle, inOutTrkSCBarrelAssocHandle  );
 
 
     LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Barrel  allPairs.size " << allPairs.size() << "\n";
@@ -235,7 +287,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	if ( (iPair->second).energy() != aClus->energy() ) continue;        
 
 	CachingVertex theConversionVertex;
-	if (  allPairs.size() > 1 ) theConversionVertex=theVertexFinder_->run(iPair->first);
+	if ( (iPair->first).size()  > 1 ) theConversionVertex=theVertexFinder_->run(iPair->first);
 
         if ( theConversionVertex.isValid() ) {	
 	  convVtx.SetXYZ( theConversionVertex.position().x(), theConversionVertex.position().y(),  theConversionVertex.position().z() );
@@ -261,7 +313,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	}
 	  
 	  
-	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer trackPairRef  " << trackPairRef.size() <<  "\n";
+
 	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer SC energy " <<  aClus->energy() << "\n";
 	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer photon p4 " << p4  << "\n";
 	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer vtx " << vtx.x() << " " << vtx.y() << " " << vtx.z() << "\n";
@@ -321,7 +373,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
     
     
     ///// Find the +/- pairs
-    std::map<std::vector<reco::TransientTrack>, reco::SuperCluster> allPairs = theTrackPairFinder_->run(t_outInTrk, outInTrkHandle, outInTrkSCAssocHandle, t_inOutTrk, inOutTrkHandle, inOutTrkSCAssocHandle  );
+    std::map<std::vector<reco::TransientTrack>, reco::SuperCluster> allPairs = theTrackPairFinder_->run(t_outInTrkEndcap, outInTrkEndcapHandle, outInTrkSCEndcapAssocHandle, t_inOutTrkEndcap, inOutTrkEndcapHandle, inOutTrkSCEndcapAssocHandle  );
     
     LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap  allPairs.size " << allPairs.size() << "\n";
 
@@ -343,7 +395,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	if ( (iPair->second).energy() != aClus->energy() ) continue;
 	
 	CachingVertex theConversionVertex;
-	if (  allPairs.size() > 1 ) theConversionVertex=theVertexFinder_->run(iPair->first);
+	if ( (iPair->first).size()  > 1 ) theConversionVertex=theVertexFinder_->run(iPair->first);
 
         if ( theConversionVertex.isValid() ) {	
 	  convVtx.SetXYZ( theConversionVertex.position().x(), theConversionVertex.position().y(),  theConversionVertex.position().z() );
@@ -372,7 +424,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	}
 	  
 	  
-	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer trackPairRef  " << trackPairRef.size() <<  "\n";
+
 	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer SC energy " <<  aClus->energy() << "\n";
 	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer photon p4 " << p4  << "\n";
 	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer vtx " << vtx.x() << " " << vtx.y() << " " << vtx.z() << "\n";
@@ -427,7 +479,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   // put the product in the event
   
   outputConvPhotonCollection_p->assign(outputConvPhotonCollection.begin(),outputConvPhotonCollection.end());
- LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Putting in the event  " << myCands << "  converted photon candidates " << (*outputConvPhotonCollection_p).size() << "\n";  
+  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Putting in the event  " << myCands << "  converted photon candidates " << (*outputConvPhotonCollection_p).size() << "\n";  
   theEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
   
 
