@@ -17,10 +17,10 @@ ProfilerService::ProfilerService(edm::ParameterSet const& pset,
   m_evtCount(0),
   m_doEvent(false),
   m_active(0){
-    activity.watchPreProcessEvent)(this,&ProfilerService::beginEvent);
-    activity.watchPostProcessEvent)(this,&ProfilerService::endEvent);
-    activity.watchPreProcessPath)(this,&ProfilerService::beginPath);
-    activity.watchPostProcessPath)(this,&ProfilerService::endPath);
+    activity.watchPreProcessEvent(this,&ProfilerService::beginEvent);
+    activity.watchPostProcessEvent(this,&ProfilerService::endEvent);
+    activity.watchPreProcessPath(this,&ProfilerService::beginPath);
+    activity.watchPostProcessPath(this,&ProfilerService::endPath);
 
 }
 
