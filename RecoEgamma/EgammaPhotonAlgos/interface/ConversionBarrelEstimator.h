@@ -4,8 +4,8 @@
  * \class ConversionBarrelEstimator
  *  Defines the search area in the barrel 
  *
- *   $Date: 2006/06/09 15:50:06 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/11/14 11:54:10 $
+ *   $Revision: 1.2 $
  *   \author Nancy Marinelli, U. of Notre Dame, US
  */
 
@@ -26,7 +26,7 @@ public:
                                  float zRangeMin, float zRangeMax, double nSigma = 3. ) : 
                            thePhiRangeMin( phiRangeMin), thePhiRangeMax( phiRangeMax),
                            theZRangeMin( zRangeMin), theZRangeMax( zRangeMax), theNSigma(nSigma) {
-    std::cout << " ConversionBarrelEstimator CTOR " << std::endl;
+    //    std::cout << " ConversionBarrelEstimator CTOR " << std::endl;
 }
 
   // zero value indicates incompatible ts - hit pair

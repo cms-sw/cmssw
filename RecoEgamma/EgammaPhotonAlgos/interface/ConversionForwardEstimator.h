@@ -5,8 +5,8 @@
  * \class ConversionForwardEstimator
  *  Defines the search area in the  forward 
  *
- *   $Date$ 
- *   $Revision:$
+ *   $Date: 2006/10/05 16:43:42 $ 
+ *   $Revision: 1.1 $
  *  \author Nancy Marinelli, U. of Notre Dame, US
  */
 
@@ -24,7 +24,7 @@ public:
   ConversionForwardEstimator() {};
   ConversionForwardEstimator( float phiRangeMin, float phiRangeMax, float dr) :
                            thePhiRangeMin( phiRangeMin), thePhiRangeMax( phiRangeMax), dr_(dr) {
-    std::cout << " ConversionForwardEstimator CTOR " << std::endl;
+    //std::cout << " ConversionForwardEstimator CTOR " << std::endl;
 }
 
   // zero value indicates incompatible ts - hit pair

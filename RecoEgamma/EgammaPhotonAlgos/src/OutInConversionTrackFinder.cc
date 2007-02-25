@@ -68,6 +68,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 
   
   LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder::tracks getting " <<  outInSeeds.size() << " Out-In seeds " << "\n";;
+ 
 
 
 
@@ -95,7 +96,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 
     theTmpTrajectories = theCkfTrajectoryBuilder_->trajectories(*iSeed);
     
-    std::cout << "OutInConversionTrackFinder::track returned " << theTmpTrajectories.size() << " trajectories" << "\n";
+    LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder::track returned " << theTmpTrajectories.size() << " trajectories" << "\n";
     
     theTrajectoryCleaner_->clean(theTmpTrajectories);
     
@@ -132,7 +133,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   
   precomputed_value_sort( tmpO.begin(), tmpO.end(), ExtractNumOfHits()  ); 
 
-
+  
   
 
   
@@ -140,7 +141,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   for (std::vector<Trajectory>::const_iterator it =tmpO.begin(); it != tmpO.end(); it++) {
     LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  tmpO  num of hits " << (*it).foundHits() << "\n"; 
 
-
+    
   }
 
   for (int i=tmpO.size()-1; i>=0; i--) {
