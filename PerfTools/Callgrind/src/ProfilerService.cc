@@ -28,7 +28,7 @@ ProfilerService::~ProfilerService(){}
 
 bool ProfilerService::startInstrumentation(){
   // FIXME here or in client?
-  if (!doEvent()) return;
+  if (!doEvent()) return false;
 
 
   if (m_active==0) {
@@ -48,7 +48,7 @@ bool ProfilerService::stopInstrumentation() {
   return m_active==0;
 }
 
-bool forceStopInstrumentation() {
+bool ProfilerService::forceStopInstrumentation() {
   if (m_active==0) return false;
   CALLGRIND_STOP_INSTRUMENTATION;
   m_active=0;
