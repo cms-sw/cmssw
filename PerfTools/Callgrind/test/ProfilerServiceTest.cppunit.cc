@@ -65,9 +65,9 @@ void TestProfilerService::check_config() {
   std::vector<std::string> paths; 
   paths += "p1","p2","p3";
   edm::ParameterSet pset;
-  pset.setUntrackedParameter<int>("firstEvent",fe);
-  pset.setUntrackedParameter<int>("lastEvent",le);
-  pset.setUntrackedParameter<std::vector<std::string> >("paths",paths);
+  pset.addUntrackedParameter<int>("firstEvent",fe);
+  pset.addUntrackedParameter<int>("lastEvent",le);
+  pset.addUntrackedParameter<std::vector<std::string> >("paths",paths);
   edm::ActivityRegistry activity;
   ProfilerService ps(pset,activity);
   CPPUNIT_ASSERT(ps.m_firstEvent==fe);
@@ -79,19 +79,19 @@ void TestProfilerService::check_Instrumentation() {
   int fe=2;
   int le=10;
   edm::ParameterSet pset;
-  pset.setUntrackedParameter<int>("firstEvent",fe);
-  pset.setUntrackedParameter<int>("lastEvent",le);
+  pset.addUntrackedParameter<int>("firstEvent",fe);
+  pset.addUntrackedParameter<int>("lastEvent",le);
   edm::ActivityRegistry activity;
   ProfilerService ps(pset,activity);
   ps.beginEvent();
-  CPPUNIT_ASSERT(m_active==0);
+  CPPUNIT_ASSERT(ps.m_active==0);
   CPPUNIT_ASSERT(!ps.doEvent());
   CPPUNIT_ASSERT(!ps.startInstrumentation());
   CPPUNIT_ASSERT(!ps.stopInstrumentation());
   CPPUNIT_ASSERT(!ps.forceStopInstrumentation());
   
   ps.beginEvent();
-  CPPUNIT_ASSERT(m_active==0);
+  CPPUNIT_ASSERT(ps.m_active==0);
   CPPUNIT_ASSERT(ps.doEvent());
   CPPUNIT_ASSERT(ps.startInstrumentation());
   CPPUNIT_ASSERT(ps.stopInstrumentation());
