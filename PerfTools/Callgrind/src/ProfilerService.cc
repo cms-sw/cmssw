@@ -58,7 +58,7 @@ bool ProfilerService::forceStopInstrumentation() {
 }
 
 
-bool ProfilerService::dumpStat() {
+void ProfilerService::dumpStat() {
      CALLGRIND_DUMP_STATS;
 }
 
