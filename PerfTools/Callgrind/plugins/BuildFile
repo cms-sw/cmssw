@@ -7,6 +7,6 @@
 
 
 <library name="PerfToolsCallgrindService" file=ProfilerServicePlugin.cc>
-<use name=PerfToolsCallgrind>
-<use name=FWCoreServiceRegistry>
+<use name=PerfTools/Callgrind>
+<use name=FWCore/ServiceRegistry>
 </library>
