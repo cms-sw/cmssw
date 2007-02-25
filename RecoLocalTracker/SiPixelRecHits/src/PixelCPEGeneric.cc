@@ -104,8 +104,8 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
     generic_position_formula( cluster.sizeX(),
 			      Q_f_X, Q_l_X, 
 			      local_URcorn_LLpix.x(), local_LLcorn_URpix.x(),
-			      0.5*lorentzShiftXInCmX_,   // 0.5 * lorentz shift in cm
-			      alpha_,
+			      0.5*lorentzShiftInCmX_,   // 0.5 * lorentz shift in 
+			      cotalpha_,
 			      thePitchX,
 			      theTopol->isItBigPixelInX( cluster.minPixelRow() ),
 			      theTopol->isItBigPixelInX( cluster.maxPixelRow() ),
@@ -119,8 +119,8 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
     generic_position_formula( cluster.sizeY(),
 			      Q_f_Y, Q_l_Y, 
 			      local_URcorn_LLpix.y(), local_LLcorn_URpix.y(),
-			      0.5*lorentzShiftXInCmY_,   // 0.5 * lorentz shift in cm
-			      beta_,
+			      0.5*lorentzShiftInCmY_,   // 0.5 * lorentz shift in cm
+			      cotbeta_,
 			      thePitchY,   // 0.5 * lorentz shift (may be 0)
 			      theTopol->isItBigPixelInY( cluster.minPixelCol() ),
 			      theTopol->isItBigPixelInY( cluster.maxPixelCol() ),
@@ -148,7 +148,7 @@ generic_position_formula( int size,                //!< Size of this projection.
 			  double upper_edge_first_pix, //!< As the name says.
 			  double lower_edge_last_pix,  //!< As the name says.
 			  double half_lorentz_shift,   //!< L-shift at half thickness
-			  double angle,            //!< alpha_ or beta_
+			  double cot_angle,        //!< cot of alpha_ or beta_
 			  double pitch,            //!< thePitchX or thePitchY
 			  bool first_is_big,       //!< true if the first is big
 			  bool last_is_big,        //!< true if the last is big
@@ -169,13 +169,13 @@ generic_position_formula( int size,                //!< Size of this projection.
 
   //--- Width of the clusters minus the edge (first and last) pixels.
   //--- In the note, they are denoted x_F and x_L (and y_F and y_L)
-  double W_inner      = lower_edge_last_pix - upper_edge_first_pix;
+  double W_inner      = lower_edge_last_pix - upper_edge_first_pix;  // in cm
 
 
   //--- Predicted charge width from geometry
   double W_pred = 
-    theThickness * tan(HALF_PI - angle)/pitch    // geometric 
-    + 2 * half_lorentz_shift;                    // &&& check for fabs(), fpix!
+    theThickness * cot_angle                     // geometric correction (in cm)
+    + 2 * half_lorentz_shift;                    // (in cm) &&& check fpix!  
   
 
   //--- Total length of the two edge pixels (first+last)
@@ -200,8 +200,9 @@ generic_position_formula( int size,                //!< Size of this projection.
   if (( W_eff/pitch < eff_charge_cut_low ) ||
       ( W_eff/pitch > eff_charge_cut_high ) || (size >= size_cut)) 
     {
-      W_eff = pitch * 0.5 * sum_of_edge;  // ave. length of edge pixels (first+last)
+      W_eff = pitch * 0.5 * sum_of_edge;  // ave. length of edge pixels (first+last) (cm)
       usedEdgeAlgo = true;
+      nRecHitsUsedEdge_++;
     }
   
   //--- Finally, compute the position in this projection
@@ -212,8 +213,13 @@ generic_position_formula( int size,                //!< Size of this projection.
   
   //--- Debugging output
   if (theVerboseLevel > 20) {
+    if ( thePart == GeomDetEnumerators::PixelBarrel ) {
+      cout << "\t >>> We are in the Barrel." ;
+    } else {
+      cout << "\t >>> We are in the Forward." ;
+    }
     cout 
-      << "\n\t >>> angle = " << angle << "  pitch = " << pitch << "  size = " << size
+      << "\n\t >>> cot(angle) = " << cot_angle << "  pitch = " << pitch << "  size = " << size
       << "\n\t >>> upper_edge_first_pix = " << upper_edge_first_pix
       << "\n\t >>> lower_edge_last_pix  = " << lower_edge_last_pix
       << "\n\t >>> geom_center          = " << geom_center
@@ -224,12 +230,15 @@ generic_position_formula( int size,                //!< Size of this projection.
       << "\n\t >>> W_eff(used)          = " << W_eff
       << "\n\t >>> sum_of_edge          = " << sum_of_edge
       << "\n\t >>> Qdiff = " << Qdiff << "  Qsum = " << Qsum 
-      << "\n\t >>> hit_pos              = " << hit_pos
+      << "\n\t >>> hit_pos              = " << hit_pos 
+      << "\n\t >>> RecHits: total = " << nRecHitsTotal_ 
+      << "  used edge = " << nRecHitsUsedEdge_
       << endl;
     if (usedEdgeAlgo) 
-      cout << "\t >>> Used Edge algorithm" << endl;
+      cout << "\n\t >>> Used Edge algorithm." ;
     else
-      cout << "\t >>> Used angle information" << endl;
+      cout << "\n\t >>> Used angle information." ;
+    cout << endl;
   }
 
 

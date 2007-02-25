@@ -90,12 +90,12 @@ class PixelCPEGeneric : public PixelCPEBase
 			      double upper_edge_first_pix, //!< As the name says.
 			      double lower_edge_last_pix,  //!< As the name says.
 			      double half_lorentz_shift,   //!< L-shift at half thickness
-			      double angle,            //!< alpha_ or beta_
+			      double cot_angle,            //!< cot of alpha_ or beta_
 			      double pitch,            //!< thePitchX or thePitchY
 			      bool first_is_big,       //!< true if the first is big
 			      bool last_is_big,        //!< true if the last is big
-			      double eff_charge_cut_low, //!< Use edge if > W_eff  &&&
-			      double eff_charge_cut_high,//!< Use edge if < W_eff  &&&
+			      double eff_charge_cut_low, //!< Use edge if > W_eff (in pix) &&&
+			      double eff_charge_cut_high,//!< Use edge if < W_eff (in pix) &&&
 			      double size_cut            //!< Use edge when size == cuts
 			      ) const;
 
