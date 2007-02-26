@@ -599,7 +599,10 @@ void PFRootEventManager::write() {
 bool PFRootEventManager::processEntry(int entry) {
 
   reset();
-
+  
+  //reset event Colin
+  event_->reset();
+  
   if(verbosity_ == VERBOSE  || 
      entry%10 == 0) 
     cout<<"process entry "<< entry << endl;
@@ -1133,12 +1136,12 @@ void PFRootEventManager::makeJets() {
   if(jetsDebug_) {
     cout << "ET Vector=" << partTOTMC.Et() << " " << partTOTMC.Eta() << " " << partTOTMC.Phi() << endl; cout << endl;}
 
-  EventColin::Jets jets;
-  jets.eta   = partTOTMC.Eta();
-  jets.phi   = partTOTMC.Phi();
-  jets.et    = partTOTMC.Et();
-  jets.e     = partTOTMC.E();
-  event_->addJetsMC(jets);
+  EventColin::Jets jetsmc;
+  jetsmc.eta   = partTOTMC.Eta();
+  jetsmc.phi   = partTOTMC.Phi();
+  jetsmc.et    = partTOTMC.Et();
+  jetsmc.e     = partTOTMC.E();
+  event_->addJetsMC(jetsmc);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
   //CALO TOWER JETS (ECAL+HCAL Towers)
@@ -1174,12 +1177,12 @@ void PFRootEventManager::makeJets() {
 
     if(jetcalo_et >= JetEHTETmax) JetEHTETmax = jetcalo_et;
 
-    EventColin::Jets jets;
-    jets.eta   = jetmom.Eta();
-    jets.phi   = jetmom.Phi();
-    jets.et    = jetmom.Et();
-    jets.e     = jetmom.E();
-    event_->addJetsEHT(jets);
+    EventColin::Jets jetseht;
+    jetseht.eta   = jetmom.Eta();
+    jetseht.phi   = jetmom.Phi();
+    jetseht.et    = jetmom.Et();
+    jetseht.e     = jetmom.E();
+    event_->addJetsEHT(jetseht);
   }//loop MCjets
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1226,12 +1229,12 @@ void PFRootEventManager::makeJets() {
     
     if(jetpf_et >= JetPFETmax)  JetPFETmax = jetpf_et;
 
-    EventColin::Jets jets;
-    jets.eta   = jetmom.Eta();
-    jets.phi   = jetmom.Phi();
-    jets.et    = jetmom.Et();
-    jets.e     = jetmom.E();
-    event_->addJetsPF(jets);
+    EventColin::Jets jetspf;
+    jetspf.eta   = jetmom.Eta();
+    jetspf.phi   = jetmom.Phi();
+    jetspf.et    = jetmom.Et();
+    jetspf.e     = jetmom.E();
+    event_->addJetsPF(jetspf);
   }//loop PF jets
 
   //fill histos
