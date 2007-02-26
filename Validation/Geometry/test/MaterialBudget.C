@@ -94,6 +94,9 @@ MaterialBudget(TString detector) {
   create2DPlots("x_vs_eta_vs_phi");
   create2DPlots("l_vs_eta_vs_phi");
   //
+  createRatioPlots("x_over_l_vs_eta");
+  createRatioPlots("x_over_l_vs_phi");
+  //
 }
 
 // Plots
@@ -377,6 +380,113 @@ void create2DPlots(TString plot) {
   hist2d_x0_total->Draw("COLZ");
   //
   
+  
+  // Store
+  can.Update();
+  can.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //
+  
+}
+
+void createRatioPlots(TString plot) {
+  unsigned int plotNumber = 0;
+  TString abscissaName = "dummy";
+  TString ordinateName = "dummy";
+  ordinateName = TString("(x/X_{0})/(#lambda/#lambda_{0})");
+  if(plot.CompareTo("x_over_l_vs_eta") == 0) {
+    plotNumber = 10;
+    abscissaName = TString("#eta");
+  } else if(plot.CompareTo("x_over_l_vs_phi") == 0) {
+    plotNumber = 20;
+    abscissaName = TString("#varphi [rad]");
+  } else {
+    cout << " error: chosen plot name not known " << plot << endl;
+    return;
+  }
+  
+  // get TProfiles
+  prof_x0_det_total = (TProfile*)theDetectorFile->Get(Form("%u", plotNumber));
+  prof_l0_det_total = (TProfile*)theDetectorFile->Get(Form("%u", 1000+plotNumber));
+  
+  // histos
+  TH1D* hist_x0_total = (TH1D*)prof_x0_det_total->ProjectionX();
+  TH1D* hist_l0_total = (TH1D*)prof_l0_det_total->ProjectionX();
+  //
+  if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip") {
+    TString subDetector = "TIB";
+    for(unsigned int i_detector=iFirst; i_detector<=iLast; i_detector++) {
+      switch(i_detector) {
+      case 1: {
+	subDetector = "TIDF";
+	break;
+      }
+      case 2: {
+	subDetector = "TIDB";
+	break;
+      }
+      case 3: {
+	subDetector = "TOB";
+	break;
+      }
+      case 4: {
+	subDetector = "TEC";
+	break;
+      }
+      case 5: {
+	subDetector = "TkStrct";
+	break;
+      }
+      case 6: {
+	subDetector = "PixBar";
+	break;
+      }
+      case 7: {
+	subDetector = "PixFwdPlus";
+	break;
+      }
+      case 8: {
+	subDetector = "PixFwdMinus";
+	break;
+      }
+      default: cout << " something wrong" << endl;
+      }
+      // file name
+      TString subDetectorFileName = "matbdg_" + subDetector + ".root";
+      // open file
+      TFile* subDetectorFile = new TFile(subDetectorFileName);
+      cout << "*** Open file... " << endl;
+      cout << subDetectorFileName << endl;
+      cout << "***" << endl;
+      // subdetector profiles
+      prof_x0_det_total = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
+      prof_l0_det_total = (TProfile*)subDetectorFile->Get(Form("%u", 1000+plotNumber));
+      // add to summary histogram
+      hist_x0_total->Add( (TH1D*)prof_x0_det_total->ProjectionX("B"), +1.000 );
+      hist_l0_total->Add( (TH1D*)prof_l0_det_total->ProjectionX("B"), +1.000 );
+    }
+  }
+  //
+  TH1D* hist_x0_over_l0_total = new TH1D(*hist_x0_total);
+  hist_x0_over_l0_total->Divide(hist_l0_total);
+  TString histTitle = Form( "Material Budget %s;%s;%s", theDetector.Data() ,abscissaName.Data(),ordinateName.Data() );
+  hist_x0_over_l0_total->SetTitle(histTitle);
+  // properties
+  hist_x0_over_l0_total->SetMarkerStyle(1);
+  hist_x0_over_l0_total->SetMarkerSize(3);
+  hist_x0_over_l0_total->SetMarkerColor(kBlue);
+  //
+  
+  // canvas
+  TCanvas can("can","can",800,800);
+  can.Range(0,0,25,25);
+  can.SetFillColor(kWhite);
+  gStyle->SetOptStat(0);
+  //
+  
+  // Draw
+  hist_x0_over_l0_total->Draw("E1");
+  //
   
   // Store
   can.Update();
