@@ -200,12 +200,12 @@ void TestProfilerService::check_Path() {
   ProfilerService ps(pset,activity);
 
   std::vector<std::string> allPaths; 
-  AllPaths += "p1","p21","p22","p3";
+  allPaths += "p1","p21","p22","p3";
   CheckPaths cp(ps,paths);
-  CPPUNIT_ASSERT(std::find(paths.begin(),paths.end(),allPaths[0]) != selpaths.end());
-  CPPUNIT_ASSERT(std::find(paths.begin(),paths.end(),allPaths[1]) == selpaths.end());
-  CPPUNIT_ASSERT(std::find(paths.begin(),paths.end(),allPaths[2]) == selpaths.end());
-  CPPUNIT_ASSERT(std::find(paths.begin(),paths.end(),allPaths[3]) != selpaths.end());
+  CPPUNIT_ASSERT(std::find(paths.begin(),paths.end(),allPaths[0]) != paths.end());
+  CPPUNIT_ASSERT(std::find(paths.begin(),paths.end(),allPaths[1]) == paths.end());
+  CPPUNIT_ASSERT(std::find(paths.begin(),paths.end(),allPaths[2]) == paths.end());
+  CPPUNIT_ASSERT(std::find(paths.begin(),paths.end(),allPaths[3]) != paths.end());
 
   ps.beginEvent();
   CPPUNIT_ASSERT(ps.m_active==0);
