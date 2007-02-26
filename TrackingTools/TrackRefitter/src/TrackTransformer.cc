@@ -143,8 +143,21 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack) cons
     LogDebug(metname)<<"Propagation error!"<<endl;
     return vector<Trajectory>();
   }
-  
-  TrajectorySeed seed;
+
+  // This is the only way to get a TrajectorySeed with settable propagation direction
+  PTrajectoryStateOnDet garbage1;
+  edm::OwnVector<TrackingRecHit> garbage2;
+  PropagationDirection propDir = 
+    (firstTSOS.globalPosition().basicVector().dot(firstTSOS.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
+
+  //  if(propDir == alongMomentum && theRefitDirection == insideOut)  OK;
+  if(propDir == alongMomentum && theRefitDirection == outsideIn)  propDir=oppositeToMomentum;
+  if(propDir == oppositeToMomentum && theRefitDirection == insideOut) propDir=alongMomentum;
+  // if(propDir == oppositeToMomentum && theRefitDirection == outsideIn) OK;
+
+  TrajectorySeed seed(garbage1,garbage2,propDir);
+
+  LogDebug(metname) << "Seed direction: " <<seed.direction()<<endl;
   vector<Trajectory> trajectories = theFitter->fit(seed,recHitsForReFit,firstTSOS);
   
   
