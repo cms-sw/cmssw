@@ -44,6 +44,7 @@ class TestProfilerService : public CppUnit::TestFixture {
   CPPUNIT_TEST(check_Instrumentation);
   CPPUNIT_TEST(check_Event);
   CPPUNIT_TEST(check_Path);
+  CPPUNIT_TEST(check_AllPaths);
   CPPUNIT_TEST(check_Nesting);
   CPPUNIT_TEST_SUITE_END();
   
@@ -56,6 +57,7 @@ public:
   void check_Instrumentation();
   void check_Event();
   void check_Path();
+  void check_AllPaths();
   void check_Nesting();
 };
 
@@ -86,10 +88,20 @@ void TestProfilerService::check_config() {
   pset.addUntrackedParameter<int>("lastEvent",le);
   pset.addUntrackedParameter<std::vector<std::string> >("paths",paths);
   edm::ActivityRegistry activity;
-  ProfilerService ps(pset,activity);
-  CPPUNIT_ASSERT(ps.m_firstEvent==fe);
-  CPPUNIT_ASSERT(ps.m_lastEvent==le);
-  CPPUNIT_ASSERT(ps.m_paths==paths);
+  {
+    ProfilerService ps(pset,activity);
+    CPPUNIT_ASSERT(ps.m_firstEvent==fe);
+    CPPUNIT_ASSERT(ps.m_lastEvent==le);
+    CPPUNIT_ASSERT(ps.m_paths==paths);
+    CPPUNIT_ASSERT(!ps.allPaths);
+  }
+  paths += "ALL";
+  pset.addUntrackedParameter<std::vector<std::string> >("paths",paths);
+  {
+    ProfilerService ps(pset,activity);
+    CPPUNIT_ASSERT(ps.allPaths);
+  }
+  
 }
 
 void TestProfilerService::check_Instrumentation() {
@@ -146,7 +158,7 @@ void TestProfilerService::check_Event() {
    int fe=2;
   int le=10;
   std::vector<std::string> paths; 
-  paths += "ALL";
+  paths += "FullEvent";
   edm::ParameterSet pset;
   pset.addUntrackedParameter<int>("firstEvent",fe);
   pset.addUntrackedParameter<int>("lastEvent",le);
@@ -251,12 +263,41 @@ void TestProfilerService::check_Path() {
   ps.endEvent();
 
 }
+void TestProfilerService::check_AllPaths() {
+  int fe=2;
+  int le=10;
+  std::vector<std::string> paths; 
+  paths += "ALL","p2","p3";
+  edm::ParameterSet pset;
+  pset.addUntrackedParameter<int>("firstEvent",fe);
+  pset.addUntrackedParameter<int>("lastEvent",le);
+  pset.addUntrackedParameter<std::vector<std::string> >("paths",paths);
+  edm::ActivityRegistry activity;
+  ProfilerService ps(pset,activity);
+
+  std::vector<std::string> allPaths; 
+  allPaths += "p1","p21","p22","p3";
+  CheckPaths cp(ps,paths);
+
+  ps.beginEvent();
+  CPPUNIT_ASSERT(ps.m_active==0);
+  CPPUNIT_ASSERT(!ps.doEvent());  
+  CPPUNIT_ASSERT(std::for_each(allPaths.begin(),allPaths.end(),cp).done==0);
+  ps.endEvent();
+
+  ps.beginEvent();
+  CPPUNIT_ASSERT(ps.m_active==0);
+  CPPUNIT_ASSERT(ps.doEvent());
+  CPPUNIT_ASSERT(std::for_each(allPaths.begin(),allPaths.end(),cp).done==4);
+  ps.endEvent();
+
+}
 
 void TestProfilerService::check_Nesting() {
   int fe=2;
   int le=10;
   std::vector<std::string> paths; 
-  paths += "ALL", "p1","p2","p3";
+  paths += "FullEvent", "p1","p2","p3";
   edm::ParameterSet pset;
   pset.addUntrackedParameter<int>("firstEvent",fe);
   pset.addUntrackedParameter<int>("lastEvent",le);

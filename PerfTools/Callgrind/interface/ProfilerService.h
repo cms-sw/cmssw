@@ -55,6 +55,7 @@ private:
   int m_firstEvent; 
   int m_lastEvent;
   std::vector<std::string> m_paths; 
+  bool m_allPaths;
 
   // internal state
   int m_evtCount;

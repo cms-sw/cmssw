@@ -15,9 +15,14 @@ ProfilerService::ProfilerService(edm::ParameterSet const& pset,
   m_firstEvent(pset.getUntrackedParameter<int>("firstEvent",0 )),
   m_lastEvent(pset.getUntrackedParameter<int>("lastEvent",std::numeric_limits<int>::max())),
   m_paths(pset.getUntrackedParameter<std::vector<std::string> >("paths",std::vector<std::string>() )),
+  m_allPaths(false),
   m_evtCount(0),
   m_doEvent(false),
   m_active(0){
+  static std::string const allPaths("ALL");
+  m_allPaths = std::find(m_paths.begin(),m_paths.end(),allPaths) != m_paths.end();
+ 
+
     activity.watchPreProcessEvent(this,&ProfilerService::beginEventI);
     activity.watchPostProcessEvent(this,&ProfilerService::endEventI);
     activity.watchPreProcessPath(this,&ProfilerService::beginPathI);
@@ -57,7 +62,6 @@ bool ProfilerService::forceStopInstrumentation() {
   return true;
 }
 
-
 void ProfilerService::dumpStat() {
      CALLGRIND_DUMP_STATS;
 }
@@ -65,8 +69,8 @@ void ProfilerService::dumpStat() {
 void  ProfilerService::beginEvent() {
   ++m_evtCount;
   m_doEvent = m_evtCount >= m_firstEvent && m_evtCount <= m_lastEvent;
-  static std::string const allPaths("ALL");
-  if (std::find(m_paths.begin(),m_paths.end(),allPaths) != m_paths.end())
+  static std::string const fullEvent("FullEvent");
+  if (std::find(m_paths.begin(),m_paths.end(),fullEvent) != m_paths.end())
     startInstrumentation();
 }
 
@@ -79,13 +83,13 @@ void  ProfilerService::endEvent() {
 void  ProfilerService::beginPath(std::string const & path) {
   if (!doEvent()) return;
   // assume less than 5-6 path to instrument ....
-  if (std::find(m_paths.begin(),m_paths.end(),path) == m_paths.end()) return; 
-    m_activePath=path;
-    startInstrumentation();
+  if ( (!m_allPaths) && std::find(m_paths.begin(),m_paths.end(),path) == m_paths.end()) return; 
+  m_activePath=path;
+  startInstrumentation();
 }
 
 void  ProfilerService::endPath(std::string const & path) {
-  if ( m_activePath==path) {
+  if ( m_allPaths || m_activePath==path) {
     stopInstrumentation();
     m_activePath.clear();
   }
