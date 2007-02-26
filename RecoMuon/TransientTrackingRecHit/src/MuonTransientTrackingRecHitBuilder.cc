@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2006/09/01 15:48:56 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/11/23 11:54:19 $
+ *  $Revision: 1.5 $
  *
  *  Authors :
  *  A. Everett               Purdue University
@@ -33,9 +33,20 @@ MuonTransientTrackingRecHitBuilder::build (const TrackingRecHit* p,
 }
 
 MuonTransientTrackingRecHitBuilder::RecHitPointer
-MuonTransientTrackingRecHitBuilder::build(const TrackingRecHit * p) const{
+MuonTransientTrackingRecHitBuilder::build(const TrackingRecHit * p) const {
   if(theTrackingGeometry.isValid()) return build(p,theTrackingGeometry);
   else
     throw cms::Exception("Muon|RecoMuon|MuonTransientTrackingRecHitBuilder")
       <<"ERROR! You are trying to build a MuonTransientTrackingRecHit with a non valid GlobalTrackingGeometry";
 }
+
+MuonTransientTrackingRecHitBuilder::ConstRecHitContainer 
+MuonTransientTrackingRecHitBuilder::build(const trackingRecHit_iterator start, const trackingRecHit_iterator stop) const {
+ 
+  ConstRecHitContainer result;
+  for(trackingRecHit_iterator hit = start; hit != stop; ++hit )
+    result.push_back(build(&**hit));
+  
+  return result;
+}
+  
