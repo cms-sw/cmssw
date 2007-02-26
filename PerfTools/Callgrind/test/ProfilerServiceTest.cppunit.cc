@@ -93,13 +93,13 @@ void TestProfilerService::check_config() {
     CPPUNIT_ASSERT(ps.m_firstEvent==fe);
     CPPUNIT_ASSERT(ps.m_lastEvent==le);
     CPPUNIT_ASSERT(ps.m_paths==paths);
-    CPPUNIT_ASSERT(!ps.allPaths);
+    CPPUNIT_ASSERT(!ps.m_allPaths);
   }
   paths += "ALL";
   pset.addUntrackedParameter<std::vector<std::string> >("paths",paths);
   {
     ProfilerService ps(pset,activity);
-    CPPUNIT_ASSERT(ps.allPaths);
+    CPPUNIT_ASSERT(ps.m_allPaths);
   }
   
 }
