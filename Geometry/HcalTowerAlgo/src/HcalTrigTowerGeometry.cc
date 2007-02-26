@@ -27,7 +27,7 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
       int hfRing = cellId.ietaAbs();
       int ieta = firstHFTower(); 
       // find the tower that contains this ring
-      while(hfRing > firstHFRingInTower(ieta+1)) {
+      while(hfRing >= firstHFRingInTower(ieta+1)) {
         ++ieta;
       }
 
