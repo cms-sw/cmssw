@@ -25,7 +25,7 @@ class  MaterialBudgetCategorizer {
   // rr
  private:
   void buildMaps();
-  void buildCategoryMap(const char* theMaterialFileName, std::map<std::string,std::vector<float> >& theMap);
+  void buildCategoryMap(std::string theMaterialFileName, std::map<std::string,std::vector<float> >& theMap);
   std::map<std::string,int> theVolumeMap, theMaterialMap;
   // rr
   std::map<std::string,std::vector<float> > theX0Map;

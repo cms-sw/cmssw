@@ -10,7 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // rr
 
-#include<fstream.h>
+#include <fstream>
 #include <vector>
 
 using namespace std;
@@ -77,11 +77,11 @@ void MaterialBudgetCategorizer::buildMaps()
   
   //----- Build map material name - X0 contributes
   cout << endl << endl << "MaterialBudgetCategorizer::Fill X0 Map" << endl;
-  const char* theMaterialX0FileName = edm::FileInPath("Validation/Geometry/data/trackerMaterials.x0").fullPath().c_str();
+  std::string theMaterialX0FileName = edm::FileInPath("Validation/Geometry/data/trackerMaterials.x0").fullPath();
   buildCategoryMap(theMaterialX0FileName, theX0Map);
   //----- Build map material name - L0 contributes
   cout << endl << endl << "MaterialBudgetCategorizer::Fill L0 Map" << endl;
-  const char* theMaterialL0FileName = edm::FileInPath("Validation/Geometry/data/trackerMaterials.l0").fullPath().c_str();
+  std::string theMaterialL0FileName = edm::FileInPath("Validation/Geometry/data/trackerMaterials.l0").fullPath();
   buildCategoryMap(theMaterialL0FileName, theL0Map);
   // summary of all the materials loaded
   cout << endl << endl << "MaterialBudgetCategorizer::Material Summary --------" << endl;
@@ -117,11 +117,13 @@ void MaterialBudgetCategorizer::buildMaps()
   
 }
 
-void MaterialBudgetCategorizer::buildCategoryMap(const char* theMaterialFileName, std::map<std::string,std::vector<float> >& theMap) {
+void MaterialBudgetCategorizer::buildCategoryMap(std::string theMaterialFileName, std::map<std::string,std::vector<float> >& theMap) {
   const G4MaterialTable* matTable = G4Material::GetMaterialTable();
   G4int matSize = matTable->size();
   
-  ifstream theMaterialFile(theMaterialFileName);
+  std::ifstream theMaterialFile(theMaterialFileName.c_str());
+  if (!theMaterialFile) 
+    cms::Exception("LogicError") <<" File not found " << theMaterialFile;
   
   // fill everything as "other"
   float sup,sen,cab,col,ele,oth,air;
@@ -131,7 +133,7 @@ void MaterialBudgetCategorizer::buildCategoryMap(const char* theMaterialFileName
   
   //
   std::string materialName;
-  while(!theMaterialFile.eof()) {
+  while(theMaterialFile) {
     theMaterialFile >> materialName;
     theMaterialFile >> sup >> sen >> cab >> col >> ele;
     oth = 0.000;
