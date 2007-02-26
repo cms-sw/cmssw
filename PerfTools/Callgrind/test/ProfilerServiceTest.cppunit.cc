@@ -25,15 +25,15 @@ namespace {
   double gD;
   void doSomething(std::string const & name) {
     static std::string const local("p1");
-    if (name==local) gs=name;
+    if (name==local) gS=name;
     if (!name.empty())
-      gD += std::sqrt( double(sname[0]));
+      gD += std::sqrt( double(name[0]));
   }
   void doSomethingElse(std::string const & name) {
     static std::string const local("p1");
-    if (name==local) gs=name;
+    if (name==local) gS=name;
     if (!name.empty())
-      gD += std::sqrt( double(sname[0]));
+      gD += std::sqrt( double(name[0]));
   }
 }
 
