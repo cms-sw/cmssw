@@ -162,7 +162,7 @@ struct CheckPaths {
   std::vector<std::string> const & selpaths;
   int base;
 
-  int done;
+  mutable int done;
   
   void operator()(std::string const & path) const {
     bool ok = ps.doEvent() && std::find(selpaths.begin(),selpaths.end(),path) != selpaths.end();
