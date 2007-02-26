@@ -14,6 +14,10 @@ except:
   print 'WARNING: Could not load tab completion'
 
 
+# for adding iterators at runtime
+import iterators
+
+
 ### workaround iterator generators for ROOT classes
 def all(container):
 
@@ -100,8 +104,19 @@ class EventTree(object):
               self._index = entry
               self.__setBranchIndicies()
               self._tree.GetEntry(self._index,0)
-              yield self
+              yield Event(self)    # TODO: don't return a new object but update the old one 
               
+
+class Event(object):
+    def __init__(self, eventTree):
+        self._eventTree = eventTree
+
+    def getProduct(name):
+        return iterators.addIterator(self._eventTree.branch(name)())
+
+    def __getattr__(self, name):
+        return iterators.addIterator(self._eventTree.branch(name)())
+
 
 class EventBranch(object):
     def __init__(self,parent,name):
