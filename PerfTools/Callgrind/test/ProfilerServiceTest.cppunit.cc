@@ -165,11 +165,11 @@ struct CheckPaths {
     bool ok = ps.doEvent() && std::find(selpaths.begin(),selpaths.end(),path) != selpaths.end();
     noselPath();
     ps.beginPath(path);
-    if (ok) selPath();
+    if (ok) selPath(path);
     else noselPath();
     ps.endPath(path);
     noselPath();
-}
+  }
 
   void selPath(const std::string & path) const {
     CPPUNIT_ASSERT(ps.m_active==1);
@@ -197,7 +197,7 @@ void TestProfilerService::check_Path() {
 
   std::vector<std::string> allPaths; 
   paths += "p1","p21","p22","p3";
-  CheckPath cp(ps,paths);
+  CheckPaths cp(ps,paths);
 
   ps.beginEvent();
   CPPUNIT_ASSERT(ps.m_active==0);
