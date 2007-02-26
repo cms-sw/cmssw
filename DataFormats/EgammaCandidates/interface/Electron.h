@@ -20,7 +20,7 @@ namespace reco {
     Electron() : RecoCandidate() { }
     /// constructor from values
     Electron( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
-      RecoCandidate( q, p4, vtx, -11 * q ) { }
+      RecoCandidate( q, p4, vtx ) { }
     /// destructor
     virtual ~Electron();
     /// returns a clone of the candidate
@@ -33,6 +33,8 @@ namespace reco {
     void setSuperCluster( const reco::SuperClusterRef & r ) { superCluster_ = r; }
     /// set refrence to Track component
     void setTrack( const reco::TrackRef & r ) { track_ = r; }
+    /// PDG identifier
+    virtual int pdgId() const { return - 11 * charge(); }
   private:
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;

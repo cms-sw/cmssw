@@ -68,7 +68,7 @@ class PixelMatchElectron : public LeafCandidate {
 /*   PixelMatchElectron(const SuperClusterRef scl, const TrackRef t, */
 /* 			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom); */
   PixelMatchElectron(const SuperClusterRef scl, const TrackRef t,
-		     const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom, double HoE);
+			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom, double HoE);
 
   virtual ~PixelMatchElectron(){};
 
@@ -145,6 +145,8 @@ class PixelMatchElectron : public LeafCandidate {
   //  BasicClusterRefVector getBremClusters() const;
   basicCluster_iterator basicClustersBegin() const { return superCluster_->clustersBegin(); }
   basicCluster_iterator basicClustersEnd() const { return superCluster_->clustersEnd(); }
+  /// PDG identifier
+  virtual int pdgId() const { return - 11 * charge(); }
 
  private:
 

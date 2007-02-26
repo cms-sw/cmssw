@@ -170,6 +170,9 @@ class PixelMatchGsfElectron : public LeafCandidate {
   basicCluster_iterator basicClustersBegin() const { return superCluster_->clustersBegin(); }
   basicCluster_iterator basicClustersEnd() const { return superCluster_->clustersEnd(); }
 
+  /// PDG identifier
+  virtual int pdgId() const { return - 11 * charge(); }
+  
  private:
 
   // temporary
