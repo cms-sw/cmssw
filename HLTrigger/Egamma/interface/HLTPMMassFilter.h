@@ -24,10 +24,9 @@ class HLTPMMassFilter : public HLTFilter {
 
    private:
       edm::InputTag candTag_;     // input tag identifying product contains filtered egammas
-      edm::InputTag elecTag_;
       double lowerMassCut_;
       double upperMassCut_;
-      int    ncandcut_;           // number of electrons required
+      int    nZcandcut_;           // number of Z candidates required
 
 };
 

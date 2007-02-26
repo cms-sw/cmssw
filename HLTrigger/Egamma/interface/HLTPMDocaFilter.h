@@ -25,10 +25,9 @@ class HLTPMDocaFilter : public HLTFilter {
 
    private:
       edm::InputTag candTag_;     // input tag identifying product contains filtered egammas
-      edm::InputTag elecTag_;
       double docaDiffPerpCutHigh_;
       double docaDiffPerpCutLow_;
-      int    ncandcut_;           // number of electrons required
+      int    nZcandcut_;           // number of electrons required
 
 };
 

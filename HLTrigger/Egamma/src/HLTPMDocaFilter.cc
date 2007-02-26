@@ -1,7 +1,7 @@
 /** \class HLTPMDocaFilter
  * 
  *  Original Author: Jeremy Werner                          
- *  Institution: Princeton University, USA                                                                                                               *  Contact: Jeremy.Werner@cern.ch 
+ *  Institution: Princeton University, USA                                                                 *  Contact: Jeremy.Werner@cern.ch 
  *  Date: February 21, 2007     
  * 
  *
@@ -27,7 +27,7 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
+//#include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 //
@@ -36,10 +36,9 @@
 HLTPMDocaFilter::HLTPMDocaFilter(const edm::ParameterSet& iConfig)
 {
   candTag_            = iConfig.getParameter< edm::InputTag > ("candTag");
-  elecTag_     = iConfig.getParameter< edm::InputTag > ("elecTag");
   docaDiffPerpCutHigh_     = iConfig.getParameter<double> ("docaDiffPerpCutHigh");
   docaDiffPerpCutLow_     = iConfig.getParameter<double> ("docaDiffPerpCutLow");
-  ncandcut_           = iConfig.getParameter<int> ("ncandcut");
+  nZcandcut_           = iConfig.getParameter<int> ("nZcandcut");
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
@@ -61,59 +60,52 @@ HLTPMDocaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // The filter object
   std::auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs(path(),module()));
   // Ref to Candidate object to be recorded in filter object
-  edm::RefToBase<reco::Candidate> candref;
+  edm::RefToBase<reco::Candidate> ref;
   
   // get hold of filtered candidates
 
   edm::Handle<reco::HLTFilterObjectWithRefs> recoecalcands;
   iEvent.getByLabel (candTag_,recoecalcands);
   
-  //get hold of electron candidates
-  Handle<ElectronCollection> electrons;
-  iEvent.getByLabel(elecTag_,electrons);
-
   int n = 0;
 
-  double vx[6];
-  double vy[6];
-  double vz[6];
+  double vx[66];
+  double vy[66];
+  double vz[66];
 
-  unsigned int numdone=0;
+  unsigned int size = recoecalcands->size();
+  if(size>66) size=66;
 
-  ElectronCollection::const_iterator aelec(electrons->begin());
-  ElectronCollection::const_iterator oelec(electrons->end());
-  ElectronCollection::const_iterator ielec;
-  for (ielec=aelec; ielec!=oelec; ielec++) {
+  for (unsigned int i=0; i< size; i++) {
+    
+    ref = recoecalcands->getParticleRef(i);
 
-    if(numdone<electrons->size()){
-
-      reco::TrackRef trackref = ielec->track();
-
-
-      vx[numdone]=(*trackref).vx();
-      vy[numdone]=(*trackref).vy();
-      vz[numdone]=(*trackref).vz();
-
-      numdone++;
-    }
+    vx[i]=ref.get()->vx();
+    vy[i]=ref.get()->vy();
+    vz[i]=ref.get()->vz();
+    
   }
 
-  int evtPassed=0;
-  for(unsigned int jj=0;jj<numdone;jj++){
-     for(unsigned int ii=0;ii<numdone;ii++){
+  for(unsigned int jj=0;jj<size;jj++){
+     for(unsigned int ii=0;ii<size;ii++){
        if(jj <ii){
 
 	 double docaDiffPerp = sqrt( (vx[jj]-vx[ii])*(vx[jj]-vx[ii])+(vy[jj]-vy[ii])*(vy[jj]-vy[ii]));
+	 std::cout<<"docaDiffPerp= "<<docaDiffPerp<<std::endl;
 	 if((docaDiffPerp>=docaDiffPerpCutLow_) && (docaDiffPerp<= docaDiffPerpCutHigh_)){
 	   n++;
-	   evtPassed++;
+	   ref = recoecalcands->getParticleRef(ii);
+	   filterproduct->putParticle(ref);
+	   ref = recoecalcands->getParticleRef(jj);
+	   filterproduct->putParticle(ref);
+
 	 }
        }
      }
   }
 
   // filter decision
-  bool accept(n>=ncandcut_);
+  bool accept(n>=nZcandcut_);
   
   // put filter object into the Event
   iEvent.put(filterproduct);
