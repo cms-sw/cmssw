@@ -64,8 +64,10 @@ namespace edm
 		      Type& found_sequence_value_type)
   {
     Type possible_sequence;
+    if (!wrapper_type_of(possible_sequence_wrapper, possible_sequence))
+      return false;
+
     return 
-      wrapper_type_of(possible_sequence_wrapper, possible_sequence) &&
       value_type_of(possible_sequence, found_sequence_value_type);
   }
 
