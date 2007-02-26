@@ -16,7 +16,6 @@
 #include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/PdgIdSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 
 typedef ObjectSelector<
           SingleElementCollectionSelector<
