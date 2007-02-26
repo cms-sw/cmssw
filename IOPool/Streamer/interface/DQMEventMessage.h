@@ -36,7 +36,6 @@
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "boost/shared_ptr.hpp"
 #include <TObject.h>
 #include <map>
@@ -45,9 +44,6 @@
 
 namespace DQMEvent
 {
-  typedef std::map< std::string, std::vector<MonitorElement *> >
-      MonitorElementTable;
-
   typedef std::map< std::string, std::vector<TObject *> >
       TObjectTable;
 }
