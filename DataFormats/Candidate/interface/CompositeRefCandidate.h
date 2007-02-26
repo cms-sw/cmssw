@@ -22,9 +22,8 @@ namespace reco {
     /// default constructor
     CompositeRefCandidate() : Candidate() { }
     /// constructor from values
-    CompositeRefCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-			   int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
+    CompositeRefCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) :
+      Candidate( q, p4, vtx ) { }
     /// destructor
     virtual ~CompositeRefCandidate();
     /// returns a clone of the candidate

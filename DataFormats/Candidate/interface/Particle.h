@@ -15,11 +15,11 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
  
 namespace reco {
-  
+
   class Particle {
   public:
     /// electric charge type
-    typedef int Charge;
+    typedef char Charge;
     /// Lorentz vector
     typedef math::XYZTLorentzVector LorentzVector;
     /// point in the space
@@ -29,21 +29,14 @@ namespace reco {
     /// default constructor
     Particle() { }
     /// constructor from values
-    Particle( Charge q, const LorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
-	      int pdgId = 0, int status = 0, bool integerCharge = true ) : 
-      qx3_( q ), p4_( p4 ), vertex_( vertex ), pdgId_( pdgId ), status_( status ) { 
-      if ( integerCharge ) qx3_ *= 3;
-    }
+    Particle( Charge q, const LorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ) ) : 
+       q_( q ), p4_( p4 ), vertex_( vertex ) { }
     /// destructor
     virtual ~Particle() { }
     /// electric charge
-    int charge() const { return qx3_ / 3; }
+    int charge() const { return q_; }
     /// set electric charge
-    void setCharge( Charge q ) { qx3_ = q * 3; }
-    /// electric charge
-    int threeCharge() const { return qx3_; }
-    /// set electric charge
-    void setThreeCharge( Charge qx3 ) { qx3_ = qx3; }
+    void setCharge( Charge q ) { q_ = q; }
     /// four-momentum Lorentz vector
     const LorentzVector & p4() const { return p4_; }
     /// spatial momentum vector
@@ -95,26 +88,13 @@ namespace reco {
     double vz() const { return vertex_.Z(); }
     /// set vertex
     void setVertex( const Point & vertex ) { vertex_ = vertex; }
-    /// PDG identifier
-    int pdgId() const { return pdgId_; }
-    // set PDG identifier
-    void setPdgId( int pdgId ) { pdgId_ = pdgId; }
-    /// status word
-    int status() const { return status_; }
-    /// set status word
-    void setStatus( int status ) { status_ = status; }
-
   protected:
     /// electric charge
-    Charge qx3_;   
+    Charge q_;   
     /// four-momentum Lorentz vector
     LorentzVector p4_;
     /// vertex position
     Point vertex_;
-    /// PDG identifier
-    int pdgId_;
-    /// status word
-    int status_;
   };
 
 }

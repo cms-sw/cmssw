@@ -30,9 +30,8 @@ namespace reco {
     /// constructor from a Particle
     explicit Candidate( const Particle & p ) : Particle( p ) { }
     /// constructor from values
-    Candidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-	       int pdgId = 0, int status = 0, bool integerCharge = true ) : 
-      Particle( q, p4, vtx, pdgId, status, integerCharge ) { }
+    Candidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
+      Particle( q, p4, vtx ) { }
     /// destructor
     virtual ~Candidate();
     /// returns a clone of the Candidate object
@@ -63,6 +62,8 @@ namespace reco {
     /// returns reference to master clone, if existing.
     /// Throws an exception unless the concrete Candidate type is ShallowCloneCandidate
     virtual const CandidateBaseRef & masterClone() const;
+    /// PDG identifier
+    virtual int pdgId() const { return 0; }
     /// get a component
     template<typename T> T get() const { 
       if ( hasMasterClone() ) return masterClone()->get<T>();

@@ -23,9 +23,8 @@ namespace reco {
     /// constructor from Particle
     explicit LeafCandidate( const Particle & p ) : Candidate( p ) { }
     /// constructor from values
-    LeafCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-		   int pdgId = 0, int status = 0, bool integerCharge = true ) : 
-      Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
+    LeafCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
+      Candidate( q, p4, vtx ) { }
     /// destructor
     virtual ~LeafCandidate();
     /// returns a clone of the Candidate object
