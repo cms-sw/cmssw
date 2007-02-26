@@ -1,25 +1,21 @@
+<use name=DataFormats/BTauReco>
+<use name=DataFormats/CaloTowers>
+<use name=DataFormats/Common>
+<use name=DataFormats/DetId>
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/EcalRecHit>
+<use name=DataFormats/EgammaReco>
+<use name=DataFormats/GeometryVector>
+<use name=DataFormats/JetReco>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
-<use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
-<use name=rootrflx>
-<use name=DataFormats/Math>
+<use name=FWCore/ParameterSet>
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/Records>
-<use name=DataFormats/CaloTowers>
-<use name=DataFormats/EcalDetId>
-<use name=DataFormats/DetId>
-<use name=DataFormats/BTauReco>
-<use name=DataFormats/Common>
-
-<flags SEAL_PLUGIN_NAME="RecoBTauJetCrystalsAssociator">
+<use name=rootmath>
+<flags SEALPLUGIN=1>
 <export>
-   <lib name=RecoBTagJetCrystalsAssociator>
-   <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=rootrflx>
-   <use name=DataFormats/Math>
-
+  <lib name=RecoBTauJetCrystalsAssociator>
 </export>
+
