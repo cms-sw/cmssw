@@ -69,7 +69,11 @@ int cardNumber(float eta, float phi)
 }
 
 checkRCT::checkRCT(const edm::ParameterSet& iConfig) : 
-  outputFileName(iConfig.getParameter<std::string>("outputFileName"))
+  outputFileName(iConfig.getParameter<std::string>("outputFileName")),
+  triggerParticleType(iConfig.getParameter<int>("triggerParticleType")),
+  triggerParticlePtCut(iConfig.getParameter<double>("triggerParticlePtCut")),
+  triggerParticleEtaLow(iConfig.getParameter<double>("triggerParticleEtaLow")),
+  triggerParticleEtaHigh(iConfig.getParameter<double>("triggerParticleEtaHigh"))
 {
   file = new TFile(outputFileName.c_str(), "RECREATE", "RCT Information");
   file->cd();
@@ -138,8 +142,12 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   int iPart = 0;
   for(size_t i = 0; i < genParticles.size(); ++ i ) {
     const Candidate & p = genParticles[ i ];
-    // Store informatin for stable particles with PT>10 GeV within acceptance
-    if((status(p) == 1) && (p.pt() > 10.) && (p.eta() > -5) && (p.eta() < 5))
+    // Store information for selected trigger particle within acceptance
+    if((status(p) == 1) && 
+       (pdgId(p) == triggerParticleType) &&
+       (p.pt() > triggerParticlePtCut) && 
+       (p.eta() > triggerParticleEtaLow) && 
+       (p.eta() < triggerParticleEtaHigh))
       {
 	iPart++;
 	id = pdgId( p );

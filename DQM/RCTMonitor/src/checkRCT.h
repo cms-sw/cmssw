@@ -22,6 +22,10 @@ private:
   TFile *file;
   TNtuple *nTuple;
   std::string outputFileName;
+  int triggerParticleType;
+  double triggerParticlePtCut;
+  double triggerParticleEtaLow;
+  double triggerParticleEtaHigh;
 };
 
 #endif
