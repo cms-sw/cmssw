@@ -156,10 +156,13 @@ void TestProfilerService::check_Event() {
 }
 
 struct CheckPaths {
-  CheckPaths(ProfilerService & ips, std::vector<std::string> const & iselpaths ) : 
-    ps(ips), selpaths(iselpaths){}
+  CheckPaths(ProfilerService & ips, std::vector<std::string> const & iselpaths, int ibase=0 ) : 
+    ps(ips), selpaths(iselpaths),base(ibase), done(0){}
   ProfilerService & ps;
   std::vector<std::string> const & selpaths;
+  int base;
+
+  int done;
   
   void operator()(std::string const & path) const {
     bool ok = ps.doEvent() && std::find(selpaths.begin(),selpaths.end(),path) != selpaths.end();
@@ -172,12 +175,13 @@ struct CheckPaths {
   }
 
   void selPath(const std::string & path) const {
-    CPPUNIT_ASSERT(ps.m_active==1);
+    CPPUNIT_ASSERT(ps.m_active==base+1);
     CPPUNIT_ASSERT(ps.m_activePath==path);
+    ++done;
   }
 
   void noselPath() const {
-   CPPUNIT_ASSERT(ps.m_active==0);
+   CPPUNIT_ASSERT(ps.m_active==base);
    CPPUNIT_ASSERT(ps.m_activePath.empty());
   }
 
@@ -203,17 +207,49 @@ void TestProfilerService::check_Path() {
   CPPUNIT_ASSERT(ps.m_active==0);
   CPPUNIT_ASSERT(!ps.doEvent());
   std::for_each(allPaths.begin(),allPaths.end(),cp);
+  CPPUNIT_ASSERT(cp.done==0);
   ps.endEvent();
 
   ps.beginEvent();
-  CPPUNIT_ASSERT(ps.m_active==1);
+  CPPUNIT_ASSERT(ps.m_active==0);
   CPPUNIT_ASSERT(ps.doEvent());
   std::for_each(allPaths.begin(),allPaths.end(),cp);
+  CPPUNIT_ASSERT(cp.done==2);
   ps.endEvent();
 
 }
 
 void TestProfilerService::check_Nesting() {
-  
+  int fe=2;
+  int le=10;
+  std::vector<std::string> paths; 
+  paths += "ALL", "p1","p2","p3";
+  edm::ParameterSet pset;
+  pset.addUntrackedParameter<int>("firstEvent",fe);
+  pset.addUntrackedParameter<int>("lastEvent",le);
+  pset.addUntrackedParameter<std::vector<std::string> >("paths",paths);
+  edm::ActivityRegistry activity;
+  ProfilerService ps(pset,activity);
+
+  std::vector<std::string> allPaths; 
+  paths += "p1","p21","p22","p3";
+  CheckPaths cp(ps,paths,1);
+
+  ps.beginEvent();
+  CPPUNIT_ASSERT(ps.m_active==0);
+  CPPUNIT_ASSERT(!ps.doEvent());
+  std::for_each(allPaths.begin(),allPaths.end(),cp);
+  CPPUNIT_ASSERT(cp.done==0);
+  ps.endEvent();
+  CPPUNIT_ASSERT(ps.m_active==0);
+
+  ps.beginEvent();
+  CPPUNIT_ASSERT(ps.m_active==1);
+  CPPUNIT_ASSERT(ps.doEvent());
+  std::for_each(allPaths.begin(),allPaths.end(),cp);
+  CPPUNIT_ASSERT(cp.done==2);
+  ps.endEvent();
+  CPPUNIT_ASSERT(ps.m_active==0);
+ 
 }
 
