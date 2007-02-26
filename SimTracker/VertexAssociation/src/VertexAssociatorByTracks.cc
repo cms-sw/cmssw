@@ -125,20 +125,23 @@ VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
   for (TrackingVertexCollection::const_iterator tV = tVC.begin();
        tV != tVC.end(); ++tV, ++iTV) {
     vCount.clear();
-    TrackingVertexRef tVertexR = TrackingVertexRef(vertexCollectionH,iTV);
+    TrackingVertexRef tVertexR = TrackingVertexRef(TVCollectionH,iTV);
     double nSimTracks = (tV->daughterTracks()).size();
 
     // Loop over daughter tracks of TrackingVertex
-
     for (TrackingVertex::tp_iterator simDaughter = tV->daughterTracks_begin();
-         simDaughter != tV->daughterTracks_end(); ++tV) {
-      if (trackAssocResult[*simDaughter].size() > 0) {
-        std::vector<std::pair<TrackRef, double> > recoTracks = trackAssocResult[*simDaughter];
-        // Loop over reco::Tracks associated with TrackingParticle
+         simDaughter != tV->daughterTracks_end(); ++simDaughter) {
+      TrackingParticleRef tp = *simDaughter;
 
+      SimToRecoCollection::const_iterator daughterPosition = trackAssocResult.find(*simDaughter);
+      if (daughterPosition != trackAssocResult.end()) {
+        std::vector<std::pair<TrackRef, double> > recoTracks = trackAssocResult[*simDaughter];
+
+       // Loop over reco::Tracks associated with TrackingParticle
         for (std::vector<std::pair<TrackRef, double> >::const_iterator match = recoTracks.begin();
              match != recoTracks.end(); ++match) {
           // ... and keep count of it's parent vertex
+
           TrackRef        track = match->first;
           double   trackQuality = match->second;
 
@@ -157,10 +160,9 @@ VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
         }
       }
     }
-    // Loop over map, set score, add to outputCollection
 
-    for (std::map<VertexRef,int>::const_iterator match = vCount.begin();
-         match != vCount.end(); ++match) {
+    // Loop over map, set score, add to outputCollection
+    for (std::map<VertexRef,int>::const_iterator match = vCount.begin(); match != vCount.end(); ++match) {
       VertexRef v = match->first;
       double nMatches      = match->second;
       outputCollection.insert(tVertexR,std::make_pair(v,nMatches/nSimTracks));

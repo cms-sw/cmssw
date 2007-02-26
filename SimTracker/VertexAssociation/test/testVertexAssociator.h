@@ -41,6 +41,16 @@ class testVertexAssociator : public edm::EDAnalyzer {
   TH1F*  zTrue;
   TH1F*  nReco;
   TH1F*  nTrue;
+
+  TH1F*  sr_xMiss;
+  TH1F*  sr_yMiss;
+  TH1F*  sr_zMiss;
+  TH1F*  sr_rMiss;
+
+  TH1F*  sr_zVert;
+  TH1F*  sr_zTrue;
+  TH1F*  sr_nReco;
+  TH1F*  sr_nTrue;
 };
 
 #endif

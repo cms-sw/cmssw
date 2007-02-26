@@ -46,19 +46,30 @@ void testVertexAssociator::beginJob(const EventSetup & setup) {
   setup.get<VertexAssociatorRecord>().get("VertexAssociatorByTracks",theTracksAssociator);
   associatorByTracks = (VertexAssociatorBase *) theTracksAssociator.product();
 
-  rootFile = new TFile("MyHistograms.root","RECREATE");
+  rootFile = new TFile("testVertexAssociator.root","RECREATE");
   rootFile->cd();
 
-  xMiss = new TH1F("xmiss","x Miss Distance (cm)",100,-0.02,0.02);
-  yMiss = new TH1F("ymiss","y Miss Distance (cm)",100,-0.02,0.02);
-  zMiss = new TH1F("zmiss","z Miss Distance (cm)",100,-0.02,0.02);
-  rMiss = new TH1F("rmiss","r Miss Distance (cm)",100,-0.02,0.02);
+  xMiss = new TH1F("rs_xmiss","x Miss Distance (cm)",100,-0.02,0.02);
+  yMiss = new TH1F("rs_ymiss","y Miss Distance (cm)",100,-0.02,0.02);
+  zMiss = new TH1F("rs_zmiss","z Miss Distance (cm)",100,-0.02,0.02);
+  rMiss = new TH1F("rs_rmiss","r Miss Distance (cm)",100,-0.02,0.02);
 
-  zVert = new TH1F("zvert","z, Reconstructed Vertex (cm)", 200, -1.0,1.0);
-  zTrue = new TH1F("ztrue","z, Simulated Vertex (cm)",     200, -1.0,1.0);
+  zVert = new TH1F("rs_zvert","z, Reconstructed Vertex (cm)", 200, -1.0,1.0);
+  zTrue = new TH1F("rs_ztrue","z, Simulated Vertex (cm)",     200, -1.0,1.0);
 
-  nTrue = new TH1F("ntrue","# of tracks, Simulated",    51,-0.5,50.5);
-  nReco = new TH1F("nreco","# of tracks, Reconstructed",51,-0.5,50.5);
+  nTrue = new TH1F("rs_ntrue","# of tracks, Simulated",    51,-0.5,50.5);
+  nReco = new TH1F("rs_nreco","# of tracks, Reconstructed",51,-0.5,50.5);
+
+  sr_xMiss = new TH1F("sr_xmiss","x Miss Distance (cm)",100,-0.02,0.02);
+  sr_yMiss = new TH1F("sr_ymiss","y Miss Distance (cm)",100,-0.02,0.02);
+  sr_zMiss = new TH1F("sr_zmiss","z Miss Distance (cm)",100,-0.02,0.02);
+  sr_rMiss = new TH1F("sr_rmiss","r Miss Distance (cm)",100,-0.02,0.02);
+
+  sr_zVert = new TH1F("sr_zvert","z, Reconstructed Vertex (cm)", 200, -1.0,1.0);
+  sr_zTrue = new TH1F("sr_ztrue","z, Simulated Vertex (cm)",     200, -1.0,1.0);
+
+  sr_nTrue = new TH1F("sr_ntrue","# of tracks, Simulated",    51,-0.5,50.5);
+  sr_nReco = new TH1F("sr_nreco","# of tracks, Reconstructed",51,-0.5,50.5);
 
 }
 
@@ -99,9 +110,6 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
   event.getByLabel("offlinePrimaryVerticesFromCTFTracks","",primaryVertexH);
   const reco::VertexCollection primaryVertexCollection   = *(primaryVertexH.product());
 
-  cout << "\nEvent ID = "<< event.id() << endl ;
-
-
   //RECOTOSIM
   cout << "                      ****************** Reco To Sim ****************** " << endl;
   cout << "-- Associator by hits --" << endl;
@@ -109,27 +117,26 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
 
   reco::SimToRecoCollection s2rTracks = associatorByHits->associateSimToReco (trackCollectionH,TPCollectionH,&event );
 //    associatorByChi2->associateRecoToSim (trackCollectionH,TPCollectionH,&event );
+  cout << " Running Reco To Sim" << endl;
   reco::VertexRecoToSimCollection vR2S = associatorByTracks ->
       associateRecoToSim(primaryVertexH,TVCollectionH,event,p);
+  cout << " Running Sim To Reco" << endl;
   reco::VertexSimToRecoCollection vS2R = associatorByTracks ->
       associateSimToReco(primaryVertexH,TVCollectionH,event,s2rTracks);
+
+  cout << " Analyzing Reco To Sim" << endl;
 
   for (reco::VertexRecoToSimCollection::const_iterator iR2S = vR2S.begin();
        iR2S != vR2S.end(); ++iR2S) {
     math::XYZPoint recoPos = (iR2S -> key) -> position();
     double nreco = (iR2S -> key)->tracksSize();
-//    cout << "Reco Position " << recoPos << endl;
     std::vector<std::pair<TrackingVertexRef, double> > vVR = iR2S -> val;
-//    cout << "Found Recovertex with " << vVR.size() << " associated TrackingVertex" << endl;
     for (std::vector<std::pair<TrackingVertexRef, double> >::const_iterator
         iMatch = vVR.begin(); iMatch != vVR.end(); ++iMatch) {
-//        cout << "Match found with quality " <<  iMatch -> second << endl;
-        TrackingVertexRef trueV = iMatch->first;
-        HepLorentzVector simVec = (iMatch -> first) -> position();
+        TrackingVertexRef trueV =  iMatch->first;
+        HepLorentzVector simVec = (iMatch->first)->position();
         double ntrue = trueV->daughterTracks().size();
         math::XYZPoint simPos = math::XYZPoint(simVec.x(),simVec.y(),simVec.z());
-
-//        cout << "Sim  Position " << simPos << " distance " << (simPos - recoPos).R()   << endl;
 
         double xmiss = simPos.X() - recoPos.X();
         double ymiss = simPos.Y() - recoPos.Y();
@@ -149,16 +156,41 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
     }
   }
 
+  cout << " Analyzing Sim To Reco" << endl;
 
-//      //SIMTORECO
-//  cout << "                      ****************** Sim To Reco ****************** " << endl;
-//  cout << "-- Associator by hits --" << endl;
-//  reco::SimToRecoCollection q =
-//    associatorByHits->associateSimToReco(trackCollectionH,TPCollectionH,&event );
+  for (reco::VertexSimToRecoCollection::const_iterator iS2R = vS2R.begin();
+       iS2R != vS2R.end(); ++iS2R) {
 
+    TrackingVertexRef simVertex = (iS2R -> key);
+    HepLorentzVector simVec = simVertex->position();
+    math::XYZPoint   simPos = math::XYZPoint(simVec.x(),simVec.y(),simVec.z());
+        double ntrue = simVertex->daughterTracks().size();
+//    double ntrue = simVertex->nDaughterTracks();
+    std::vector<std::pair<VertexRef, double> > recoVertices = iS2R->val;
+    for (std::vector<std::pair<VertexRef, double> >::const_iterator iMatch = recoVertices.begin();
+         iMatch != recoVertices.end(); ++iMatch) {
+      VertexRef recoV = iMatch->first;
+      math::XYZPoint recoPos = (iMatch -> first) -> position();
+      double nreco = (iMatch->first)->tracksSize();
+
+      double xmiss = simPos.X() - recoPos.X();
+      double ymiss = simPos.Y() - recoPos.Y();
+      double zmiss = simPos.Z() - recoPos.Z();
+      double rmiss = sqrt(xmiss*xmiss+ymiss*ymiss+zmiss*zmiss);
+
+      sr_xMiss->Fill(simPos.X() - recoPos.X());
+      sr_yMiss->Fill(simPos.Y() - recoPos.Y());
+      sr_zMiss->Fill(simPos.Z() - recoPos.Z());
+      sr_rMiss->Fill(rmiss);
+
+      sr_zVert->Fill(simPos.Z());
+      sr_zTrue->Fill(recoPos.Z());
+
+      sr_nTrue->Fill(ntrue);
+      sr_nReco->Fill(nreco);
+    }
+  }
 }
-
-
 
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
