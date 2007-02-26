@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: MCJetCorrector.cc,v 1.2 2007/01/18 01:35:12 fedor Exp $
+// $Id: MCJetCorrector.cc,v 1.3 2007/02/24 00:53:36 fedor Exp $
 //
 // MC Jet Corrector
 //
@@ -36,15 +36,16 @@ namespace {
 	  double koef = 1.;
 	  double JetCalibrEt = e;
 	  double x=e;
+	  double etConstantResponse=5.;//Beneath this corrected Et response is held constant
+	
+	  if ( e<etConstantResponse ) JetCalibrEt=etConstantResponse;  
 	  
-	  if ( e<10. ) JetCalibrEt=10.;
-	  
-	  for (int ie=0; ie<10; ie++) {
+	  for (int ie=0; ie<10; ie++) { //10 iterations garantees convergence
 	    
-	    if ( JetCalibrEt<10. ) JetCalibrEt=10.; 
+	    if ( JetCalibrEt<etConstantResponse ) JetCalibrEt=etConstantResponse; 
 	    
 	    if (JetCalibrEt < p[1]) {
-	      koef = p[3]*sqrt(JetCalibrEt +p[4]) + p[5];
+	      koef = p[3]*sqrt(fabs(JetCalibrEt +p[4])) + p[5];
 	    }
 	    
 	    else if (JetCalibrEt < p[2]) {
@@ -55,6 +56,7 @@ namespace {
 	      koef = p[6]/(sqrt(fabs(p[7]*JetCalibrEt + p[8]))) + p[9];
 	    }
 	    
+	    if(koef<0.1)koef=0.1;
 	    JetCalibrEt = x / koef;
 	    
 	  }
@@ -63,7 +65,6 @@ namespace {
 	  
 	  break;
 	}
-	
       default:
 	edm::LogError ("Unknown Jet Correction Parametrization") << "JetCalibratorMCJet: Error: unknown parametrization type '"
 							      <<type<<"' in JetCalibratorMCJet. No correction applied"<<endl;
