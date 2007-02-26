@@ -5,7 +5,6 @@
 #include "RecoVertex/TertiaryTracksVertexFinder/interface/V0SvFilter.h"
 #include "RecoVertex/TertiaryTracksVertexFinder/interface/Flight2DSvFilter.h"
 #include "RecoVertex/TertiaryTracksVertexFinder/interface/PvSvFilter.h"
-#include "RecoVertex/TertiaryTracksVertexFinder/interface/AddTvTrack.h"
 #include "RecoVertex/TertiaryTracksVertexFinder/interface/TransientTrackInVertices.h"
 
 using namespace reco;
@@ -22,7 +21,9 @@ ConfigurableTertiaryTracksVertexFinder::ConfigurableTertiaryTracksVertexFinder(
 
   theMinTrackPt = 1.0;
   theMaxVtxMass = 6.5;
-  theMaxSigOnDistTrackToB = 3.0;
+  theMaxSigOnDistTrackToB = 3.0; // this is being overwritten to 10 in AddTvTtrack (why?)
+
+  theMaxInPvFrac = 0.65;
 
   // set up V0SvFilter
   theK0sMassWindow = 0.05; // mass window around K0s
@@ -39,6 +40,8 @@ ConfigurableTertiaryTracksVertexFinder::ConfigurableTertiaryTracksVertexFinder(
   //  thePrimaryVertex = new TransientVertex;
   // FIXME this is incomplete!? -> get real primary vertex!
 
+  //theNewTrackInfoVector = new NewTrackInfoVector;
+
 }
 
 //-----------------------------------------------------------------------------
@@ -54,7 +57,7 @@ ConfigurableTertiaryTracksVertexFinder::~ConfigurableTertiaryTracksVertexFinder(
 //-----------------------------------------------------------------------------
 
 std::vector<TransientVertex> ConfigurableTertiaryTracksVertexFinder::vertices(
-									      const std::vector<reco::TransientTrack> & tracks, const TransientVertex& pv) const 
+									      const std::vector<reco::TransientTrack> & tracks, const TransientVertex& pv) const
 {
   // there is a PV
   if (pv.isValid()) {
@@ -82,7 +85,7 @@ std::vector<TransientVertex> ConfigurableTertiaryTracksVertexFinder::vertices(
 //-----------------------------------------------------------------------------
 
 std::vector<TransientVertex> ConfigurableTertiaryTracksVertexFinder::reconstruct(
-										 const std::vector<reco::TransientTrack> & tracks, const TransientVertex& pv) const 
+										 const std::vector<reco::TransientTrack> & tracks, const TransientVertex& pv) const
 {
   // get  primary vertices;
   std::vector<TransientVertex> primaryVertices;
@@ -106,7 +109,7 @@ std::vector<TransientVertex> ConfigurableTertiaryTracksVertexFinder::reconstruct
   if (filteredTracks.size()>1) vertices = theTKVF->vertices(filteredTracks);
 
   if (debug) cout <<"[TTVF] found secondary vertices with TKVF: "<<vertices.size()<<endl;
-  
+
   std::vector<TransientVertex> secondaryVertices;
 
   for(std::vector<TransientVertex>::const_iterator ivx=vertices.begin();
@@ -116,15 +119,13 @@ std::vector<TransientVertex> ConfigurableTertiaryTracksVertexFinder::reconstruct
     double mass=theVertexMass(vtx);
     if (debug) cout <<"[TTVF] new svx: mass: "<<mass<<endl;
 
-
     if ((*theV0SvFilter)(vtx)) {
       if (debug) cout <<"[TTVF] survived V0SvFilter\n";
       if((*theFlight2DSvFilter)(vtx)) {
 	if (debug) cout <<"[TTVF] survived 2DSvFilter\n";
 	if (mass<theMaxVtxMass) {
 	  if (!primaryVertices.empty()) {
-	    PvSvFilter thePvSvFilter(0.65,primaryVertices[0]);
-	    //secondaryVertices.push_back(vtx); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	    PvSvFilter thePvSvFilter(theMaxInPvFrac,primaryVertices[0]);
 	    if (thePvSvFilter(vtx)) secondaryVertices.push_back(vtx);
 	    else { if (debug) cout <<"[TTVF] failed PvSvFilter\n";}
 	  }
@@ -157,6 +158,17 @@ std::vector<TransientVertex> ConfigurableTertiaryTracksVertexFinder::reconstruct
 			   theMaxSigOnDistTrackToB);  
   vector<TransientVertex> newVertices =
     MyAddTVTrack.getSecondaryVertices(unusedTracks); 
+
+  // for tdr studies
+  theTrackInfoVector = MyAddTVTrack.getTrackInfo();
+
+  //std::vector<pair<reco::TransientTrack,double> > theTrackInfo;
+  //std::vector<pair<reco::TransientTrack,double* > > theTrackInfo2;
+  //theTrackInfo = MyAddTVTrack.getTrackInfo();
+  //theTrackInfo2= MyAddTVTrack.getTrackInfo2();
+
+  //TrackInfo = theTrackInfo;
+  //TrackInfo2= theTrackInfo2;
 
   if (debug) cout <<"[TTVF] vertices found: "<<newVertices.size()<<endl;
   return newVertices;

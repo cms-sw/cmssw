@@ -2,6 +2,7 @@
 #define _TertiaryTracksVertexFinder_H_
 
 #include "RecoVertex/TertiaryTracksVertexFinder/interface/ConfigurableTertiaryTracksVertexFinder.h"
+#include "RecoVertex/TertiaryTracksVertexFinder/interface/AddTvTrack.h"
 
 class TertiaryTracksVertexFinder : public VertexReconstructor {
 
@@ -24,6 +25,9 @@ class TertiaryTracksVertexFinder : public VertexReconstructor {
   virtual TertiaryTracksVertexFinder * clone() const {
     return new TertiaryTracksVertexFinder(*this);
   }
+
+  
+  AddTvTrack::TrackInfoVector getTrackInfo() { return theFinder->getTrackInfo(); }
 
   private:
 

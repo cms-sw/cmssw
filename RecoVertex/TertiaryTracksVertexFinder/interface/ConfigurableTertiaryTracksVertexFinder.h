@@ -13,6 +13,8 @@
 
 #include "RecoVertex/TrimmedKalmanVertexFinder/interface/ConfigurableTrimmedVertexFinder.h"
 
+#include "RecoVertex/TertiaryTracksVertexFinder/interface/AddTvTrack.h"
+
 class V0SvFilter;
 class Flight2DSvFilter;
 
@@ -40,6 +42,16 @@ class ConfigurableTertiaryTracksVertexFinder : public VertexReconstructor {
   //  thePrimaryVertex = & ThePrimaryVertex; 
   //}
 
+  // for TDR studies
+  //std::vector<pair<reco::TransientTrack,double> > getTrackInfo()  {
+  //  return TrackInfo;
+  //}
+  //std::vector<pair<reco::TransientTrack,double*> > getTrackInfo2() {
+  //  return TrackInfo2;
+  //}
+
+  AddTvTrack::TrackInfoVector getTrackInfo() { return theTrackInfoVector; }
+
   private:
 
   std::vector<TransientVertex> reconstruct(
@@ -55,12 +67,20 @@ class ConfigurableTertiaryTracksVertexFinder : public VertexReconstructor {
   double theMinTrackPt,theMaxVtxMass;
   double theK0sMassWindow;
   double theMaxSigOnDistTrackToB;
+  double theMaxInPvFrac;
 
   // parameters for Flight2DSvFilter
   double theMaxDist2D,theMinDist2D,theMinSign2D;
   int theMinTracks;
 
   //  TransientVertex* thePrimaryVertex;
+
+  // TDR Studies
+  //static std::vector<pair<reco::TransientTrack,double> > TrackInfo;
+  //static std::vector<pair<reco::TransientTrack,double* > > TrackInfo2;
+  //std::vector<pair<reco::TransientTrack,double> > TrackInfo;
+  //std::vector<pair<reco::TransientTrack,double* > > TrackInfo2;
+  mutable AddTvTrack::TrackInfoVector theTrackInfoVector;
 
 };
 
