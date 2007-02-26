@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/02/16 18:42:29 $
- *  $Revision: 1.77 $
+ *  $Date: 2007/02/22 05:07:36 $
+ *  $Revision: 1.78 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -616,17 +616,11 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
   int dethits[4];
   for ( int i=0; i<4; i++ ) hits[i]=dethits[i]=0;
   
-  ConstMuonRecHitContainer muonRecHits;
-  for (trackingRecHit_iterator iter = muon.recHitsBegin(); iter != muon.recHitsEnd(); ++iter) {    
-    const TrackingRecHit* p = (*iter).get();
-    const GeomDet* gd = theService->trackingGeometry()->idToDet(p->geographicalId());    
-    MuonTransientTrackingRecHit::MuonRecHitPointer mp = MuonTransientTrackingRecHit::specificBuild(gd,p);    
-    muonRecHits.push_back(mp);    
-  }
-  
+  MuonTransientTrackingRecHitBuilder muonRecHitBuilder(theService->trackingGeometry());
+  ConstRecHitContainer muonRecHits = muonRecHitBuilder.build(muon.recHitsBegin(),muon.recHitsEnd());
   
   // loop through all muon hits and calculate the maximum # of hits in each chamber      
-  for (ConstMuonRecHitContainer::const_iterator imrh = muonRecHits.begin(); imrh != muonRecHits.end(); imrh++ ) { 
+  for (ConstRecHitContainer::const_iterator imrh = muonRecHits.begin(); imrh != muonRecHits.end(); imrh++ ) {
     if ( !(*imrh)->isValid() ) continue;
     
     if ( theMuonHitsOption == 3 || theMuonHitsOption == 4 ) {
@@ -640,7 +634,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
       MuonRecHitContainer dRecHits = theLayerMeasurements->recHits(layer);
       
       // get station of hit if it is in DT
-      if ( (**imrh).isDT() ) {
+      if ( id.subdetId() == MuonSubdetId::DT ) {
         DTChamberId did(id.rawId());
         station = did.station();
         float coneSize = 10.0;
@@ -679,7 +673,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
 	}// end of for all2dRecHits
       }// end of if DT
       // get station of hit if it is in CSC
-      else if ( (**imrh).isCSC() ) {
+      else if ( id.subdetId() == MuonSubdetId::CSC ) {
 	CSCDetId did(id.rawId());
 	station = did.station();
 	
@@ -693,7 +687,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
 	}
       }
       // get station of hit if it is in RPC
-      else if ( (**imrh).isRPC() ) {
+      else if ( id.subdetId() == MuonSubdetId::RPC ) {
 	RPCDetId rpcid(id.rawId());
 	station = rpcid.station();
 	float coneSize = 100.0;
