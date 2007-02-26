@@ -89,7 +89,7 @@ void  ProfilerService::beginPath(std::string const & path) {
 }
 
 void  ProfilerService::endPath(std::string const & path) {
-  if ( m_allPaths || m_activePath==path) {
+  if (m_activePath==path) {
     stopInstrumentation();
     m_activePath.clear();
   }
