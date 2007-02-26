@@ -264,6 +264,14 @@
 <LogicalPartSection label="mb2.xml">
 <!-- ####  MB2 Unit -->
 <!-- ####  MB2: DTBX -->
+ <LogicalPart name="MB2P" category="unspecified">
+  <rSolid name="MB2P"/>
+  <rMaterial name="materials:M_B_Air"/>
+ </LogicalPart>
+ <LogicalPart name="MB2N" category="unspecified">
+  <rSolid name="MB2N"/>
+  <rMaterial name="materials:M_B_Air"/>
+ </LogicalPart>
 <!-- # There are several combinations of DT and RPC chambers for this station: mixing DT positive and negative and RPC positive with 3 gas volumes inner and 2 outer, positive with 2 gas volumes inner and 2 outer, negative with 3 gas volumes inner and 2 outer, negative with 2 gas volumes inner and 2 outer
 Wheel_0:  DT pos, RPC pos 3/2  -  MB2P32P
 Wheel_0:  DT neg, RPC pos 3/2  -  MB2N32P
