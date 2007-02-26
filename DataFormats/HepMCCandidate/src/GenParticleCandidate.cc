@@ -1,4 +1,4 @@
-// $Id: GenParticleCandidate.cc,v 1.7 2007/01/19 16:12:40 llista Exp $
+// $Id: GenParticleCandidate.cc,v 1.8 2007/02/19 12:59:05 llista Exp $
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include <CLHEP/HepMC/GenParticle.h>
 #include <CLHEP/HepMC/GenVertex.h>
@@ -9,7 +9,7 @@ GenParticleCandidate::GenParticleCandidate( const HepMC::GenParticle * p ) :
   CompositeRefCandidate(), 
   pdgId_( p->pdg_id() ), 
   status_( p->status() ) {
-  q_ = p->particleID().threeCharge() / 3;
+  qx3_ = p->particleID().threeCharge();
   CLHEP::HepLorentzVector p4 =p->momentum();
   p4_ = LorentzVector( p4.x(), p4.y(), p4.z(), p4.t() );
   const HepMC::GenVertex * v = p->production_vertex();
@@ -23,8 +23,9 @@ GenParticleCandidate::GenParticleCandidate( const HepMC::GenParticle * p ) :
 }
 
 GenParticleCandidate::GenParticleCandidate( Charge q, const LorentzVector & p4, 
-					    const Point & vtx, int pdgId, int status ) : 
-  CompositeRefCandidate( q, p4, vtx ), 
+					    const Point & vtx, int pdgId, int status, 
+					    bool integerCharge ) : 
+  CompositeRefCandidate( q, p4, vtx, integerCharge ), 
   pdgId_( pdgId ), 
   status_( status ) {
 }

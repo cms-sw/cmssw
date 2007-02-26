@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id: PixelMatchGsfElectron.h,v 1.10 2007/01/26 13:06:02 uberthon Exp $
+ * \version $Id: PixelMatchGsfElectron.h,v 1.11 2007/01/31 15:11:48 uberthon Exp $
  *
  */
 
@@ -25,6 +25,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchGsfElectron.h,v $
+// Revision 1.11  2007/01/31 15:11:48  uberthon
+// adapt to changes in GsfTrack class
+//
 // Revision 1.10  2007/01/26 13:06:02  uberthon
 // add doxygen header
 //
@@ -167,9 +170,6 @@ class PixelMatchGsfElectron : public LeafCandidate {
   basicCluster_iterator basicClustersBegin() const { return superCluster_->clustersBegin(); }
   basicCluster_iterator basicClustersEnd() const { return superCluster_->clustersEnd(); }
 
-  /// PDG identifier
-  virtual int pdgId() const { return - 11 * charge(); }
-  
  private:
 
   // temporary

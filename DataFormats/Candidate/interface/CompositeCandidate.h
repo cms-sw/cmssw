@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.9 2007/01/19 16:11:47 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.10 2007/02/19 12:59:04 llista Exp $
  *
  */
 
@@ -21,8 +21,9 @@ namespace reco {
     /// default constructor
     CompositeCandidate() : Candidate() { }
     /// constructor from values
-    CompositeCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) :
-      Candidate( q, p4, vtx ) { }
+    CompositeCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
+			int pdgId = 0, int status = 0, bool integerCharge = true ) :
+      Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
     /// destructor
     virtual ~CompositeCandidate();
     /// returns a clone of the candidate

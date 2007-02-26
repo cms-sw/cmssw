@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 15:43:14 EDT 2006
-// $Id: SiStripElectron.h,v 1.5 2006/12/25 23:41:40 wmtan Exp $
+// $Id: SiStripElectron.h,v 1.6 2007/01/17 10:23:29 llista Exp $
 //
 
 // system include files
@@ -54,7 +54,7 @@ namespace reco {
 			 unsigned int numberOfStereoHits,
 			 unsigned int numberOfBarrelRphiHits,
 			 unsigned int numberOfEndcapZphiHits)
-	    : RecoCandidate(q, LorentzVector(pt*cos(phiAtOrigin), pt*sin(phiAtOrigin), pz, sqrt(pt*pt+pz*pz+0.000510*0.000510)), Point(0,0,0))
+	    : RecoCandidate(q, LorentzVector(pt*cos(phiAtOrigin), pt*sin(phiAtOrigin), pz, sqrt(pt*pt+pz*pz+0.000510*0.000510)), Point(0,0,0), -11 * q )
 	    , superCluster_(superCluster)
 	    , rphiRecHits_(rphiRecHits)
 	    , stereoRecHits_(stereoRecHits)
@@ -128,8 +128,6 @@ namespace reco {
 	 unsigned int numberOfBarrelRphiHits() const { return numberOfBarrelRphiHits_; }
 	 /// returns number of endcap zphi hits in phi band
 	 unsigned int numberOfEndcapZphiHits() const { return numberOfEndcapZphiHits_; }
-         /// PDG identifier
-         virtual int pdgId() const { return - 11 * charge(); }
 
       private:
 	 /// check overlap with another candidate

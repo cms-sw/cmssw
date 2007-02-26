@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.17 2007/01/11 14:01:58 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.18 2007/02/01 11:23:23 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -23,8 +23,9 @@ namespace reco {
     /// default constructor
     RecoCandidate() : LeafCandidate() { }
     /// constructor from values
-    RecoCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
-      LeafCandidate( q, p4, vtx ) { }
+    RecoCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
+		   int pdgId = 0, int status = 0 ) : 
+      LeafCandidate( q, p4, vtx, pdgId, status ) { }
     /// destructor
     virtual ~RecoCandidate();
     /// check overlap with another candidate

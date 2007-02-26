@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Muon.h,v 1.19 2007/01/17 10:23:30 llista Exp $
+ * \version $Id: Muon.h,v 1.20 2007/02/19 18:49:17 bellan Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -34,8 +34,6 @@ namespace reco {
     void setStandAlone( const TrackRef & t ) { standAloneMuon_ = t; }
     /// set reference to Track
     void setCombined( const TrackRef & t ) { combinedMuon_ = t; }
-    /// PDG identifier
-    virtual int pdgId() const { return - 13 * charge(); }
 
   private:
     /// check overlap with another candidate
