@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a L2 reonstructed muon.
  *
- *   $Date: 2007/02/16 13:32:53 $
- *   $Revision: 1.5 $
+ *   $Date: 2007/02/16 18:42:30 $
+ *   $Revision: 1.6 $
  *   \author  A. Everett - Purdue University
  */
 
@@ -107,7 +107,7 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   theService->update(eventSetup);
 
   // Take the L2 muon container(s)
-  LogTrace(metname)<<"Taking the L2 Muons "<<theL2CollectionLabel.label()<<endl;
+  LogTrace(metname)<<"Taking the L2 Muons "<<theL2CollectionLabel<<endl;
 
   Handle<reco::TrackCollection> L2Muons;
   event.getByLabel(theL2CollectionLabel,L2Muons);

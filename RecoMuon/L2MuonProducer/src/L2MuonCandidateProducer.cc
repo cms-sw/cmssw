@@ -57,7 +57,7 @@ void L2MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
   const string metname = "Muon|RecoMuon|L2MuonCandidateProducer";
   
   // Take the SA container
-  LogTrace(metname)<<" Taking the StandAlone muons: "<<theSACollectionLabel.label();
+  LogTrace(metname)<<" Taking the StandAlone muons: "<<theSACollectionLabel;
   Handle<TrackCollection> tracks; 
   event.getByLabel(theSACollectionLabel,tracks);
 
