@@ -10,8 +10,8 @@
  *  pointers to the services, therefore EACH event the setServices(const edm::EventSetup&)
  *  method MUST be called in the code in which the TrackTransformer is used.
  *
- *  $Date: 2006/11/24 16:36:32 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/02/07 15:15:27 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -29,7 +29,6 @@ class TrajectoryFitter;
 class TrajectorySmoother;
 class TransientTrackingRecHitBuilder;
 class Trajectory;
-//class Propagator;
 
 class TrackTransformer{
 
@@ -93,9 +92,6 @@ public:
   
   std::string theMuonRecHitBuilderName;
   edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
-  
-  // std::string thePropagatorName;
-  // edm::ESHandle<Propagator> thePropagator;
 };
 #endif
 
