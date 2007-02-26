@@ -210,16 +210,14 @@ void TestProfilerService::check_Path() {
 
   ps.beginEvent();
   CPPUNIT_ASSERT(ps.m_active==0);
-  CPPUNIT_ASSERT(!ps.doEvent());
-  std::for_each(allPaths.begin(),allPaths.end(),boost::ref(cp));
-  CPPUNIT_ASSERT(cp.done==0);
+  CPPUNIT_ASSERT(!ps.doEvent());  
+  CPPUNIT_ASSERT(std::for_each(allPaths.begin(),allPaths.end(),cp).done==0);
   ps.endEvent();
 
   ps.beginEvent();
   CPPUNIT_ASSERT(ps.m_active==0);
   CPPUNIT_ASSERT(ps.doEvent());
-  std::for_each(allPaths.begin(),allPaths.end(),boost::ref(cp));
-  CPPUNIT_ASSERT(cp.done==2);
+  CPPUNIT_ASSERT(std::for_each(allPaths.begin(),allPaths.end(),cp).done==2);
   ps.endEvent();
 
 }
@@ -246,16 +244,14 @@ void TestProfilerService::check_Nesting() {
   ps.beginEvent();
   CPPUNIT_ASSERT(ps.m_active==0);
   CPPUNIT_ASSERT(!ps.doEvent());
-  std::for_each(allPaths.begin(),allPaths.end(),boost::ref(cp0));
-  CPPUNIT_ASSERT(cp0.done==0);
+  CPPUNIT_ASSERT(std::for_each(allPaths.begin(),allPaths.end(),cp0).done==0);
   ps.endEvent();
   CPPUNIT_ASSERT(ps.m_active==0);
 
   ps.beginEvent();
   CPPUNIT_ASSERT(ps.m_active==1);
   CPPUNIT_ASSERT(ps.doEvent());
-  std::for_each(allPaths.begin(),allPaths.end(),boost::ref(cp1));
-  CPPUNIT_ASSERT(cp1.done==2);
+  CPPUNIT_ASSERT(std::for_each(allPaths.begin(),allPaths.end(),cp1).done==2);
   ps.endEvent();
   CPPUNIT_ASSERT(ps.m_active==0);
  
