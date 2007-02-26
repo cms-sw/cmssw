@@ -28,6 +28,7 @@
  <class name="edm::RefVectorBase<int>"/>
  <class name="edm::Ref<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> >"/>
  <class name="edm::RefVector<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> >"/>
+ <class name="edm::Wrapper<edm::RefVector<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> > >"/>
  <class name="std::vector<edm::RefItem<unsigned int> >"/>
  <class name="std::basic_string<char>"/>
  <class name="std::vector<std::basic_string<char> >"/>
