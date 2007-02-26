@@ -15,11 +15,27 @@ using namespace boost::assign;
 #include <limits>
 #include<vector>
 #include<string>
-
+#include<cmath>
 
 
 #include <cppunit/extensions/HelperMacros.h>
 
+namespace {
+  std::string gS;
+  double gD;
+  void doSomething(std::string const & name) {
+    static std::string const local("p1");
+    if (name==local) gs=name;
+    if (!name.empty())
+      gD += std::sqrt( double(sname[0]));
+  }
+  void doSomethingElse(std::string const & name) {
+    static std::string const local("p1");
+    if (name==local) gs=name;
+    if (!name.empty())
+      gD += std::sqrt( double(sname[0]));
+  }
+}
 
 class TestProfilerService : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestProfilerService);
@@ -88,6 +104,7 @@ void TestProfilerService::check_Instrumentation() {
   CPPUNIT_ASSERT(ps.m_active==0);
   CPPUNIT_ASSERT(!ps.doEvent());
   CPPUNIT_ASSERT(!ps.startInstrumentation());
+  doSomethingElse("bha");
   CPPUNIT_ASSERT(!ps.stopInstrumentation());
   CPPUNIT_ASSERT(!ps.forceStopInstrumentation());
   
@@ -95,25 +112,32 @@ void TestProfilerService::check_Instrumentation() {
   CPPUNIT_ASSERT(ps.m_active==0);
   CPPUNIT_ASSERT(ps.doEvent());
   CPPUNIT_ASSERT(ps.startInstrumentation());
+  doSomething("bha");
   CPPUNIT_ASSERT(ps.stopInstrumentation());
   CPPUNIT_ASSERT(!ps.forceStopInstrumentation());
   
   CPPUNIT_ASSERT(ps.startInstrumentation());
   CPPUNIT_ASSERT(!ps.startInstrumentation());
+  doSomething("bha");
   CPPUNIT_ASSERT(!ps.stopInstrumentation());
   CPPUNIT_ASSERT(ps.stopInstrumentation());
   CPPUNIT_ASSERT(!ps.stopInstrumentation());
   
   
-  for(int i=2;i<10;i++) ps.beginEvent();
+  for(int i=2;i<10;i++) {
+    ps.beginEvent();
+    doSomething("bha");
+  }
   CPPUNIT_ASSERT(ps.m_evtCount==10);
   CPPUNIT_ASSERT(ps.doEvent());
   CPPUNIT_ASSERT(ps.startInstrumentation());
+  doSomething("bha");
   CPPUNIT_ASSERT(ps.stopInstrumentation());
   ps.beginEvent();
   CPPUNIT_ASSERT(ps.m_evtCount==11);
   CPPUNIT_ASSERT(!ps.doEvent());
   CPPUNIT_ASSERT(!ps.startInstrumentation());
+  doSomethingElse("bha");
   CPPUNIT_ASSERT(!ps.stopInstrumentation());
   
 }
@@ -133,15 +157,18 @@ void TestProfilerService::check_Event() {
   ps.beginEvent();
   CPPUNIT_ASSERT(ps.m_active==0);
   CPPUNIT_ASSERT(!ps.doEvent());
+  doSomethingElse("bha");
   ps.endEvent();
 
   ps.beginEvent();
   CPPUNIT_ASSERT(ps.m_active==1);
   CPPUNIT_ASSERT(ps.doEvent());
+  doSomething("bha");
   ps.endEvent();
   CPPUNIT_ASSERT(ps.m_active==0);
   for(int i=2;i<10;i++) {
     ps.beginEvent();
+    doSomething("bha");
     ps.endEvent();
   }
   CPPUNIT_ASSERT(ps.m_evtCount==10);
@@ -150,6 +177,7 @@ void TestProfilerService::check_Event() {
   ps.beginEvent();
   CPPUNIT_ASSERT(ps.m_active==0);
   CPPUNIT_ASSERT(!ps.doEvent());
+  doSomethingElse("bha");
   ps.endEvent();
   CPPUNIT_ASSERT(ps.m_active==0);
  
@@ -179,11 +207,13 @@ struct CheckPaths {
     CPPUNIT_ASSERT(ps.m_active==base+1);
     CPPUNIT_ASSERT(ps.m_activePath==path);
     ++done;
+    doSomething(path);
   }
 
   void noselPath() const {
    CPPUNIT_ASSERT(ps.m_active==base);
    CPPUNIT_ASSERT(ps.m_activePath.empty());
+    doSomethingElse("else");
   }
 
 };
