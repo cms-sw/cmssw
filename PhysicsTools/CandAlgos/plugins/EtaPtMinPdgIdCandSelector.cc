@@ -27,10 +27,8 @@ typedef ObjectSelector<
           SingleElementCollectionSelector<
             reco::CandidateCollection,
             AndSelector<
-              AndSelector<
-                PtMinSelector<reco::Candidate>,
-                EtaRangeSelector<reco::Candidate>
-              >,
+              PtMinSelector<reco::Candidate>,
+              EtaRangeSelector<reco::Candidate>,
               PdgIdSelector<reco::Candidate>
             >
           >
