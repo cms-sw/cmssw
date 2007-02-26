@@ -26,10 +26,17 @@ using ROOT::Reflex::Type;
 using ROOT::Reflex::Type_Iterator;
 using ROOT::Reflex::Member;
 using ROOT::Reflex::SCOPED;
+using ROOT::Reflex::FINAL;
 
 
 namespace edm
 {
+
+  Type get_final_type(Type t)
+  {
+    while (t.IsTypedef()) t = t.ToType();
+    return t;
+  }
   
   bool 
   find_nested_type_named(std::string const& nested_type,
@@ -45,7 +52,7 @@ namespace edm
       {
 	if (i->Name() == nested_type)
 	  {
-	    found_type = i->ToType();
+	    found_type = get_final_type(*i);
 	    return true;
 	  }
       }

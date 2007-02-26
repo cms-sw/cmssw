@@ -29,6 +29,7 @@
 #include "DataFormats/Common/interface/RefItem.h"
 #include "DataFormats/Common/interface/RunAux.h"
 #include "DataFormats/Common/interface/RefVectorBase.h"
+#include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/Timestamp.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -110,6 +111,8 @@ namespace { namespace {
   edm::Wrapper<std::vector<edm::HLTPathStatus> > dummyx17;
   edm::Wrapper<edm::HLTGlobalStatus> dummyx18;
   edm::Wrapper<edm::TriggerResults> dummyx19;
+
+  edm::Wrapper<edm::RefVector<std::vector<int> > > dummyx20;
 
   edm::RefItem<unsigned int> dummyRefItem1;
   edm::RefItem<int> dummyRefItem3;
