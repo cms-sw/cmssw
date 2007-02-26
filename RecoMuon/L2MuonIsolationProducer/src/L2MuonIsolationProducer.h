@@ -34,7 +34,7 @@ class L2MuonIsolationProducer : public edm::EDProducer {
  private:
   
   // Muon track Collection Label
-  std::string theSACollectionLabel;
+  edm::InputTag theSACollectionLabel;
 
   // Isolation cuts
   muonisolation::Cuts theCuts;

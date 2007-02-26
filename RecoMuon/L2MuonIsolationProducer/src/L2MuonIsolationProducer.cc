@@ -27,7 +27,7 @@ using namespace muonisolation;
 
 /// constructor with config
 L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
-  theSACollectionLabel(par.getUntrackedParameter<string>("StandAloneCollectionLabel")), 
+  theSACollectionLabel(par.getUntrackedParameter<InputTag>("StandAloneCollectionLabel")), 
   theCuts(par.getParameter<std::vector<double> > ("EtaBounds"),
           par.getParameter<std::vector<double> > ("ConeSizes"),
           par.getParameter<std::vector<double> > ("Thresholds")),
