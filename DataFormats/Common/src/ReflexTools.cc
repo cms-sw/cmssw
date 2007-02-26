@@ -59,16 +59,31 @@ namespace edm
     return false;
   }
 
+  void
+  if_edm_ref_get_value_type(Type const& possible_ref,
+			    Type & result)
+  {
+    // To do: if possible_ref is a type instantiated from the template
+    // edm::Ref, then return that thing's value_type as result. If
+    // not, return possible_ref as result.
+    result = possible_ref;
+  }
+
   bool
   is_sequence_wrapper(Type const& possible_sequence_wrapper,
 		      Type& found_sequence_value_type)
   {
     Type possible_sequence;
-    if (!wrapper_type_of(possible_sequence_wrapper, possible_sequence))
+    if (!edm::wrapper_type_of(possible_sequence_wrapper, possible_sequence))
       return false;
 
-    return 
-      value_type_of(possible_sequence, found_sequence_value_type);
+    Type outer_value_type;
+    if (!edm::value_type_of(possible_sequence, outer_value_type))
+      return false;
+
+    if_edm_ref_get_value_type(outer_value_type,
+			      found_sequence_value_type);
+    return true;
   }
 
   namespace {
@@ -133,8 +148,8 @@ namespace edm
       std::string name = t.Name(SCOPED);
   
       if (s_types->end() != s_types->find(name)) {
-	  // Already been processed
-	  return;
+	// Already been processed
+	return;
       }
       s_types->insert(name);
   
@@ -181,8 +196,8 @@ namespace edm
     if (!missingTypes().empty()) {
       std::ostringstream ostr;
       for (Set::const_iterator it = missingTypes().begin(), itEnd = missingTypes().end(); 
-	it != itEnd; ++it) {
-	  ostr << *it << "\n\n";
+	   it != itEnd; ++it) {
+	ostr << *it << "\n\n";
       }
       throw edm::Exception(edm::errors::DictionaryNotFound)
 	<< "No REFLEX data dictionary found for the following classes:\n\n"
