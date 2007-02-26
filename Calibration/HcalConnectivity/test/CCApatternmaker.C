@@ -51,7 +51,7 @@ void CCAmap::map(int rbx, int rm, int card, int cca, int ccaq,
     
   
   std::vector<DataMap>::const_iterator i;
-  
+  int sad;
 
 for (i=vm.begin();i!=vm.end();i++){
   
@@ -60,7 +60,7 @@ for (i=vm.begin();i!=vm.end();i++){
     }
   }//end of i loop
  if (i!=vm.end()){
-   
+   sad=i->m_rbx;
    ieta=i->m_eta*i->m_side;
    iphi=i->m_phi;
    depth=i->m_depth;
@@ -72,6 +72,7 @@ for (i=vm.begin();i!=vm.end();i++){
    G_Dcc=i->m_dcc;
    H_slot=i->m_htr;
    TB=i->m_fpga;
+   
 
  }
 
@@ -97,7 +98,8 @@ CCAmap::DataMap CCAmap::DataMapMaker(std::vector<std::string>& Words){
   std::string k_det= Words[4];
   std::string k_rbx= Words[5];
   std::string k_fpga= Words[15];
-
+  
+   
   DataMap dM;
 
   dM.m_side=k_side;
@@ -107,18 +109,19 @@ CCAmap::DataMap CCAmap::DataMapMaker(std::vector<std::string>& Words){
   dM.m_depth=k_depth;
   if(k_det=="HB"){dM.m_det=1;}
   else if(k_det=="HE"){dM.m_det=2;}
-  else if(k_det=="HO"){dM.m_det=3;}
-  else if(k_det=="HF"){dM.m_det=4;}
+  else if(k_det=="HF"){dM.m_det=3;}
+  else if(k_det=="HO"){dM.m_det=4;}
 
   
   int rbxsign;  
   if(k_side==1){ rbxsign=1;}
   else if(k_side==-1){ rbxsign=0;}
+  else if(k_side==0){ rbxsign=1;}
   std::string rbxnum;  
   if (k_rbx[4]!=0){rbxnum = k_rbx[3]+k_rbx[4];}
   else {rbxnum= k_rbx[3];}
   dM.m_rbx=(dM.m_det-1)*18+rbxsign*90+(atoi (rbxnum.c_str()));
-
+  //dM.m_rbx=1;
  
   dM.m_rm=k_rm;
   dM.m_qie=k_qie;//RM_card
@@ -158,20 +161,21 @@ CCAmap::CCAmap(const char* fname){
 
   
   FILE* fp;
-  char instr[1024];
+  char instr[3024];
   fp=fopen(fname,"r");
   std::vector<std::string> WordChunks;
 
 
-  if(fp==NULL){printf("file not found,%s/n",fname);}
-  while (!feof(fp)&&(fgets(instr,1024,fp)!=NULL)){
+  if(fp==NULL){printf("file not found,%s\n",fname);exit(1);}
+  while (!feof(fp) ){
+    fgets(instr,3024,fp);
     if (instr[0]=='#')continue;
    
     convert(instr,WordChunks);    
-   
-     v=DataMapMaker(WordChunks);
-
-    vm.push_back(v);
+    if (WordChunks.size()>20) {
+      v=DataMapMaker(WordChunks);
+      vm.push_back(v);
+    }
     
     
   }
@@ -205,13 +209,14 @@ int CCApatternmaker::rmCode(int rbx, int rm) {
 }
 
 void CCApatternmaker::makePattern(int rbx,const char* fname){
+  theMap=new CCAmap(fname);
   for (int rm=1; rm<=4; rm++) {
     std::cout << "; rm " << rm << std::endl;
     for (int card=1; card<=3; card++) {
       for (int cca=0; cca<3; cca++) {
 	std::vector<unsigned char> ccadata=packCCA(rbx,rm,card,cca);
 	
-	
+		
 	std::cout << "w 0 " << rmCode(rbx,rm) << " 10 ";
 	int dev=cca;
 	if (card==2) dev+=16;
@@ -290,7 +295,7 @@ std::vector<unsigned char> cc;
   cc.push_back(((rbx&0x7F)<<0));
   cc.push_back((((rm-1)&0x3)<<0)|((card&0x3)<<2)|(((cca*2+ccaq)&0x7)<<4));
   
-
+  
   
   return cc;
 }
