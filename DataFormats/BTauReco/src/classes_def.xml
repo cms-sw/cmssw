@@ -41,10 +41,14 @@
   <class name="reco::IsolatedTauTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::IsolatedTauTagInfoCollection>"/>
 
+  <class name="reco::SoftLeptonProperties>"/>
   <class name="std::pair<reco::TrackRef, reco::SoftLeptonProperties>"/>
   <class name="reco::SoftLeptonTagInfo::LeptonMap"/>
+
   <class name="reco::SoftLeptonTagInfo"/>
-  <class name="reco::SoftLeptonTagInfoCollection"/>
+  <class name="reco::SoftLeptonTagInfoCollection">
+    <field name="transientMap_" transient="true"/>
+  </class>
   <class name="reco::SoftLeptonTagInfoRef"/>
   <class name="reco::SoftLeptonTagInfoRefProd"/>
   <class name="reco::SoftLeptonTagInfoRefVector"/>
