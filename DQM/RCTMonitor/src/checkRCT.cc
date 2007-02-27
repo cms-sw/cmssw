@@ -243,7 +243,9 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  float deltaPhi = phi - thisEMCandPhi;
 	  if(deltaPhi > (2 * 3.1415827)) deltaPhi -= (2 * 3.1415927);
 	  if(deltaPhi < -(2 * 3.1415827)) deltaPhi += (2 * 3.1415927);
-	  if(float(emCandRank) > emCandEt ) // crtNo == rctCrate && crdNo == rctCard)
+	  if(float(emCandRank) > emCandEt && 
+	     abs(crtNo - rctCrate) < 2 && 
+	     abs(crdNo - rctCard) < 2)
 	    {
 	      emCandEt = float(emCandRank);
 	      emCandEta = thisEMCandEta;
