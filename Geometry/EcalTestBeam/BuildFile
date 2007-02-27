@@ -1,3 +1,6 @@
+
+<use name=DetectorDescription/Parser>
+<use name=DetectorDescription/Core>
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/MessageLogger>
@@ -8,4 +11,4 @@
   <use name=Foundation/PluginManager>
   <use name=FWCore/MessageLogger>
 </export>
-
+<Flags SEAL_PLUGIN_NAME="GeometryEcalTestBeam">
