@@ -8,6 +8,9 @@
   <class name="L1GtFdlWord"/>
   <class name="edm::Wrapper<L1GtFdlWord>"/>
   
+  <class name="std::vector<L1GtFdlWord>"/>
+  <class name="edm::Wrapper<std::vector<L1GtFdlWord> >"/>
+  
   <class name="L1GlobalTriggerReadoutSetup"/>
   <class name="edm::Wrapper<L1GlobalTriggerReadoutSetup>"/>
 
@@ -20,6 +23,13 @@
   <class name="L1GlobalTriggerObjectMap"/>
   <class name="edm::Wrapper<L1GlobalTriggerObjectMap>"/>
 
+  <class name="std::vector<L1GlobalTriggerObjectMap>"/>
+  <class name="edm::Wrapper<std::vector<L1GlobalTriggerObjectMap> >"/>
+
   <class name="L1GlobalTriggerObjectMapRecord"/>
   <class name="edm::Wrapper<L1GlobalTriggerObjectMapRecord>"/>
+
+  <class name="std::vector<std::vector<int> >"/>
+  <class name="std::vector<std::vector<std::vector<int> > >"/>
+  
 </lcgdict>

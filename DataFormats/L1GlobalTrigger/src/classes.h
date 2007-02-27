@@ -24,6 +24,9 @@ namespace { namespace {
     // dictionary for L1GtFdlWord
     L1GtFdlWord dummy40;
     edm::Wrapper<L1GtFdlWord> dummy41;
+    
+    std::vector<L1GtFdlWord> dummy42;
+    edm::Wrapper<std::vector<L1GtFdlWord> > dummy43;
 
     // dictionary for L1 Global Trigger Readout Setup
     L1GlobalTriggerReadoutSetup dummy50;
@@ -40,6 +43,9 @@ namespace { namespace {
     // dictionary for L1 Global Trigger Object Map
     L1GlobalTriggerObjectMap dummy70;
     edm::Wrapper<L1GlobalTriggerObjectMap> dummy71;
+
+    std::vector<L1GlobalTriggerObjectMap> dummy78;
+    edm::Wrapper<std::vector<L1GlobalTriggerObjectMap> > dummy79;
 
     // dictionary for L1 Global Trigger Object Map Record
     L1GlobalTriggerObjectMapRecord dummy72;
