@@ -50,8 +50,7 @@ TrackTransformer::TrackTransformer(const ParameterSet& parameterSet){
 }
 
 /// Destructor
-TrackTransformer::~TrackTransformer(){
-}
+TrackTransformer::~TrackTransformer(){}
 
 
 void TrackTransformer::setServices(const EventSetup& setup){
@@ -116,6 +115,25 @@ TrackTransformer::getTransientRecHits(const reco::TransientTrack& track) const {
   return result;
 }
 
+// FIXME: check this method!
+TrackTransformer::RefitDirection 
+TrackTransformer::checkRecHitsOrdering(TransientTrackingRecHit::ConstRecHitContainer& recHits) const {
+ 
+ if (!recHits.empty()){
+    double rFirst = recHits.front()->globalPosition().mag();
+    double rLast  = recHits.back()->globalPosition().mag();
+    if(rFirst < rLast) return insideOut;
+    else if(rFirst > rLast) return outsideIn;
+    else{
+      LogError("Reco|TrackingTools|TrackTransformer") << "Impossible determine the rechits order" <<endl;
+      return undetermined;
+    }
+  }
+  else{
+    LogError("Reco|TrackingTools|TrackTransformer") << "Impossible determine the rechits order" <<endl;
+    return undetermined;
+    }
+}
 
 /// Convert Tracks into Trajectories
 vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack) const {
@@ -124,20 +142,22 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack) cons
   
   reco::TransientTrack track(newTrack,magneticField(),trackingGeometry());   
   
+  // Build the transient Rechits
   TransientTrackingRecHit::ConstRecHitContainer recHitsForReFit = getTransientRecHits(track);
-  
-  
-  TrajectoryStateOnSurface firstTSOS;
-
-  if(theRefitDirection == insideOut)
-    firstTSOS = track.innermostMeasurementState();
-  else{
-    firstTSOS = track.outermostMeasurementState();
-    reverse(recHitsForReFit.begin(),recHitsForReFit.end());
-  }
-
   if(recHitsForReFit.size() < 2) return vector<Trajectory>();
   
+  // Check the order of the rechits
+  RefitDirection recHitsOrder = checkRecHitsOrdering(recHitsForReFit);
+
+  // Reverse the order in the case of inconsistency between the fit direction and the rechit order
+  if(theRefitDirection != recHitsOrder) reverse(recHitsForReFit.begin(),recHitsForReFit.end());
+
+  // Fill the starting state
+  TrajectoryStateOnSurface firstTSOS;
+  if(theRefitDirection == insideOut)
+    firstTSOS = track.innermostMeasurementState();
+  else
+    firstTSOS = track.outermostMeasurementState();
   
   if(!firstTSOS.isValid()){
     LogDebug(metname)<<"Propagation error!"<<endl;
@@ -157,9 +177,20 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack) cons
 
   TrajectorySeed seed(garbage1,garbage2,propDir);
 
-  LogDebug(metname) << "Seed direction: " <<seed.direction()<<endl;
+  LogDebug(metname) << "Seed direction: " <<seed.direction() << endl;
+  LogDebug(metname) << "recHitsForReFit: " <<recHitsForReFit.size() << endl;
+  for(TransientTrackingRecHit::ConstRecHitContainer::const_iterator recHit = recHitsForReFit.begin(); 
+      recHit != recHitsForReFit.end(); ++recHit)
+    if((*recHit)->isValid()){
+      const GeomDet* geomDet = theTrackingGeometry->idToDet((*recHit)->geographicalId());
+      double r = geomDet->surface().position().perp();
+      double z = geomDet->toGlobal((*recHit)->localPosition()).z();
+      LogDebug(metname) <<"r: "<< r <<" z: "<<z <<" "<<geomDet->toGlobal((*recHit)->localPosition())
+			<<endl;
+    }
+  LogDebug(metname) << "firstTSOS: " << firstTSOS << endl;
+
   vector<Trajectory> trajectories = theFitter->fit(seed,recHitsForReFit,firstTSOS);
-  
   
   if(trajectories.empty()){
     LogDebug(metname)<<"No Track refitted!"<<endl;
