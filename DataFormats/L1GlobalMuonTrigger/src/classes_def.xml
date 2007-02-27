@@ -8,6 +8,7 @@
  <class name="edm::Wrapper<std::vector<L1MuGMTCand> >"/>
  <class name="L1MuGMTExtendedCand"/>
  <class name="L1MuGMTReadoutRecord"/>
+ <class name="std::vector<L1MuGMTReadoutRecord>"/>
  <class name="L1MuGMTReadoutCollection"/>
  <class name="edm::Wrapper<L1MuGMTReadoutCollection>"/>
  <class name="edm::RefProd<L1MuGMTReadoutCollection>"/>
