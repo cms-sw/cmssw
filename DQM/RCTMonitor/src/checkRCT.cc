@@ -226,6 +226,12 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		}
 	    }
 	}
+	emCandEt = 0;
+	emCandEta = 999;
+	emCandPhi = 999;
+	emCandCrt = 999;
+	emCandCrd = 999;
+	emCandRgn = 999;
 	L1CaloEmCollection::const_iterator emCand;
 	for (emCand=rctEMCands->begin(); emCand!=rctEMCands->end(); emCand++){
 	  unsigned emCandRank = emCand->rank();
@@ -243,9 +249,7 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  float deltaPhi = phi - thisEMCandPhi;
 	  if(deltaPhi > (2 * 3.1415827)) deltaPhi -= (2 * 3.1415927);
 	  if(deltaPhi < -(2 * 3.1415827)) deltaPhi += (2 * 3.1415927);
-	  if(float(emCandRank) > emCandEt && 
-	     abs(crtNo - rctCrate) < 2 && 
-	     abs(crdNo - rctCard) < 2)
+	  if(fabs(deltaEta)<0.35 && fabs(deltaPhi)<0.35 && float(emCandRank) > emCandEt)
 	    {
 	      emCandEt = float(emCandRank);
 	      emCandEta = thisEMCandEta;
