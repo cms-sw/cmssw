@@ -8,7 +8,7 @@ for input in $*
 done
 echo input_file: $input_file
 
-for flavor in midPointCone5CaloJet midPointCone7CaloJet iterativeCone5CaloJet Fastjet10CaloJet Fastjet6CaloJet 
+for flavor in midPointCone5CaloJets midPointCone7CaloJets iterativeCone5CaloJets iterativeCone7CaloJets Fastjet10CaloJets Fastjet6CaloJets 
   do
     echo Processing flavor $flavor ...
     cfg_file=$flavor.cfg
