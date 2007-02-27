@@ -174,21 +174,8 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack) cons
   if(propDir == alongMomentum && theRefitDirection == outsideIn)  propDir=oppositeToMomentum;
   if(propDir == oppositeToMomentum && theRefitDirection == insideOut) propDir=alongMomentum;
   // if(propDir == oppositeToMomentum && theRefitDirection == outsideIn) OK;
-
+  
   TrajectorySeed seed(garbage1,garbage2,propDir);
-
-  LogDebug(metname) << "Seed direction: " <<seed.direction() << endl;
-  LogDebug(metname) << "recHitsForReFit: " <<recHitsForReFit.size() << endl;
-  for(TransientTrackingRecHit::ConstRecHitContainer::const_iterator recHit = recHitsForReFit.begin(); 
-      recHit != recHitsForReFit.end(); ++recHit)
-    if((*recHit)->isValid()){
-      const GeomDet* geomDet = theTrackingGeometry->idToDet((*recHit)->geographicalId());
-      double r = geomDet->surface().position().perp();
-      double z = geomDet->toGlobal((*recHit)->localPosition()).z();
-      LogDebug(metname) <<"r: "<< r <<" z: "<<z <<" "<<geomDet->toGlobal((*recHit)->localPosition())
-			<<endl;
-    }
-  LogDebug(metname) << "firstTSOS: " << firstTSOS << endl;
 
   vector<Trajectory> trajectories = theFitter->fit(seed,recHitsForReFit,firstTSOS);
   
