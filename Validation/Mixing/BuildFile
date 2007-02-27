@@ -1,8 +1,11 @@
 <flags SEAL_PLUGIN_NAME="ValidationMixing">
+<use name=Foundation/PluginManager>
+<use name=DQMServices/CoreROOT>
 <use name=SimGeneral/MixingModule>
-<use name=Foundation/PluginManager>
+<use name=SimDataFormats/CrossingFrame>
 <export>
-<use name=root>
-<lib name=ValidationMixing>
-<use name=Foundation/PluginManager>
+  <lib name=ValidationMixing>
+  <use name=DQMServices/CoreROOT>
+  <use name=SimGeneral/MixingModule>
+  <use name=SimDataFormats/CrossingFrame>
 </export>

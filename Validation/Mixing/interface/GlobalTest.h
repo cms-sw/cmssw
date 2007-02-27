@@ -1,8 +1,8 @@
 // -*- C++ -*-
 //
-// Class:      TestSuite
+// Class:      GlobalTest
 // 
-/**\class TestSuite
+/**\class GlobalTest
 
  Description: test suite for Mixing Module
 
@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.h,v 1.1 2006/03/14 14:23:26 uberthon Exp $
+// $Id: GlobalTest.h,v 1.1 2006/03/14 14:23:26 uberthon Exp $
 //
 //
 
@@ -23,32 +23,33 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-//DQM services for histogram
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
 class TFile;
+class TH1I;
+class  TH1F;
 
 //
 // class declaration
 //
 
-class TestSuite : public edm::EDAnalyzer {
+class GlobalTest : public edm::EDAnalyzer {
    public:
-      explicit TestSuite(const edm::ParameterSet&);
-      ~TestSuite();
+      explicit GlobalTest(const edm::ParameterSet&);
+      ~GlobalTest();
 
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(edm::EventSetup const&iSetup);
-      virtual void endJob();
-     
    private:
       std::string filename_;
-      int bunchcr_;
       int minbunch_;
       int maxbunch_;
-      DaqMonitorBEInterface* dbe_;
+      TFile *histfile_;
+
+      const static int nMaxH=10;
+      TH1I * nrPileupsH_[nMaxH];
+      TH1I * nrVerticesH_[nMaxH];
+      TH1I * nrTracksH_[nMaxH];
+      TH1I * trackPartIdH_[nMaxH];
+      TH1F * caloEnergyEBH_[nMaxH];
+      TH1F * caloEnergyEEH_[nMaxH];
 };
+
