@@ -47,7 +47,7 @@ class L1RCTLookupTables {
 
   float convertEcal(unsigned short ecal);
   unsigned short calcActivityBit(float ecal, float hcal);
-  unsigned short calcHEBit(float ecal,float hcal);
+  unsigned short calcHEBit(float ecal,float hcal, bool fgbit);
   unsigned long convertToInteger(float et, float lsb, int precision);
 
   bool useTranscoder_;
@@ -60,6 +60,7 @@ class L1RCTLookupTables {
   void loadLUTConstants(const std::string& filename);
   static float eActivityCut_;
   static float hActivityCut_;
+  static float eMaxForFGCut_;
   static float hOeCut_;
   static float eGammaLSB_;
   static float jetMETLSB_;

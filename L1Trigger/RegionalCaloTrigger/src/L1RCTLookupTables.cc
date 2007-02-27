@@ -15,6 +15,7 @@ using std::endl;
 
 float L1RCTLookupTables::eActivityCut_ = 3.0;
 float L1RCTLookupTables::hActivityCut_ = 3.0;
+float L1RCTLookupTables::eMaxForFGCut_ = 50.;
 float L1RCTLookupTables::hOeCut_ = 0.05;
 float L1RCTLookupTables::eGammaLSB_ = 0.5;
 float L1RCTLookupTables::jetMETLSB_ = 0.5;
@@ -67,7 +68,7 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
   else hcalLinear = hcal;
   
   float etLinear = ecalLinear + hcalLinear;
-  unsigned long HE_FGBit = (calcHEBit(ecalLinear,hcalLinear) || fgbit);
+  unsigned long HE_FGBit = calcHEBit(ecalLinear,hcalLinear, fgbit);
   if(ecal == 0xFF) HE_FGBit = 0; // For saturated towers ignore H/E & FG veto
   unsigned long etIn7Bits = convertToInteger(ecalLinear, eGammaLSB_, 7);
   unsigned long etIn9Bits = convertToInteger(etLinear, jetMETLSB_, 9);
@@ -90,11 +91,10 @@ unsigned short L1RCTLookupTables::calcActivityBit(float ecal, float hcal){
 }
 
 // calculates h-over-e veto bit (true if hcal/ecal energy > 5%)
-unsigned short L1RCTLookupTables::calcHEBit(float ecal, float hcal){
-  if((ecal > eActivityCut_) && (hcal/ecal)>hOeCut_)
-    return true;
-  else
-    return false;
+unsigned short L1RCTLookupTables::calcHEBit(float ecal, float hcal, bool fgbit){
+  if((ecal > eActivityCut_) && (hcal/ecal)>hOeCut_) return fgbit;
+  if((ecal > eMaxForFGCut_) && (hcal/ecal)>hOeCut_) return true;
+  return false;
 }
 
 // integerize given an LSB and set maximum value of 2^precision
@@ -120,6 +120,9 @@ void L1RCTLookupTables::loadLUTConstants(const std::string& filename)
       userfile >> junk >> hActivityCut_;
       std::cout << "L1RCTLookupTables: Using hActivityCut = " 
 		<< hActivityCut_ << std::endl;
+      userfile >> junk >> eMaxForFGCut_;
+      std::cout << "L1RCTLookupTables: Using eMaxForFGCut = " 
+		<< eMaxForFGCut_ << std::endl;
       userfile >> junk >> hOeCut_;
       std::cout << "L1RCTLookupTables: Using hOeCut = " 
 		<< hOeCut_ << std::endl;
