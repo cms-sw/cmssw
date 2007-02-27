@@ -25,6 +25,8 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
 // forward declarations
 
 // class declaration
@@ -61,6 +63,29 @@ public:
 
 public:
 
+    /// get /set the input tag for the GMT record used to produce this record
+    inline const edm::InputTag muGmtInputTag() const
+    {
+        return m_muGmtInputTag;
+    }
+
+    void setMuGmtInputTag(const edm::InputTag muGmtInputTagValue)
+    {
+        m_muGmtInputTag = muGmtInputTagValue;
+    }
+
+    /// get /set the input tag for the GCT record used to produce this record
+    inline const edm::InputTag caloGctInputTag() const
+    {
+        return m_caloGctInputTag;
+    }
+
+    void setCaloGctInputTag(const edm::InputTag caloGctInputTagValue)
+    {
+        m_caloGctInputTag = caloGctInputTagValue;
+    }
+
+
     /// get / set the vector of object maps
     inline const std::vector<L1GlobalTriggerObjectMap>& gtObjectMap() const
     {
@@ -75,6 +100,13 @@ public:
 private:
 
     std::vector<L1GlobalTriggerObjectMap> m_gtObjectMap;
+
+    /// input tag for the GMT record used to produce this record
+    edm::InputTag m_muGmtInputTag;
+
+    /// input tag for the GCT record used to produce this record
+    edm::InputTag m_caloGctInputTag;
+
 
 };
 
