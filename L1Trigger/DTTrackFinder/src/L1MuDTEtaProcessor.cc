@@ -17,7 +17,6 @@
 //   J. Troconiz              UAM Madrid
 //
 //--------------------------------------------------
-using namespace std;
 
 //-----------------------
 // This Class's Header --
@@ -50,6 +49,8 @@ using namespace std;
 #include "L1Trigger/DTTrackFinder/src/L1MuDTQualPatternLut.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+
+using namespace std;
 
 // --------------------------------
 //       class L1MuDTEtaProcessor

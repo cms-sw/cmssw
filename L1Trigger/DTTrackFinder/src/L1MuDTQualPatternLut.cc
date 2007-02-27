@@ -7,15 +7,14 @@
 //                coarse eta values 
 //
 //
-//   $Date: 2006/06/26 16:11:13 $
-//   $Revision: 1.1 $
+//   $Date: 2007/01/30 16:13:06 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
 //   J. Troconiz              UAM Madrid
 //
 //--------------------------------------------------
-using namespace std;
 
 //-----------------------
 // This Class's Header --
@@ -38,6 +37,8 @@ using namespace std;
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1TriggerLutFile.h"
+
+using namespace std;
 
 // --------------------------------
 //       class L1MuDTQualPatternLut

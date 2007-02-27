@@ -46,6 +46,8 @@ class L1MuDTChambThContainer {
 
   void setContainer(The_Container inputSegments);
 
+  The_Container* getContainer() const;
+
   L1MuDTChambThDigi* chThetaSegm(int wheel, int stat, int sect, int bx) const;
 
  private:

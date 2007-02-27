@@ -5,14 +5,13 @@
 //   Description: Extrapolator
 //
 //
-//   $Date: 2006/06/01 00:00:00 $
+//   $Date: 2006/06/26 16:11:13 $
 //   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
 //
 //--------------------------------------------------
-using namespace std;
 
 //-----------------------
 // This Class's Header --
@@ -35,6 +34,8 @@ using namespace std;
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSEU.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTExtLut.h"
+
+using namespace std;
 
 // --------------------------------
 //       class L1MuDTEUX

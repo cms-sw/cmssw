@@ -5,7 +5,7 @@
  *   L1 DT Track Finder EDProducer
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:11 $
  *   $Revision: 1.1 $
  *
  *   J. Troconiz              UAM Madrid
@@ -14,15 +14,6 @@
 //--------------------------------------------------
 #ifndef DTTrackFinder_h
 #define DTTrackFinder_h
-
-/** \class DTTrackFinder
- * 
- *
- *  $Date: 2006/06/01 00:00:00 $
- *  $Revision: 1.1 $
- *
- *          Jorge Troconiz  UAM Madrid
- */
 
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>

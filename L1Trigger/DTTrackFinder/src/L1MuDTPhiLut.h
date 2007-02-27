@@ -5,7 +5,7 @@
  *   Look-up tables for phi-assignment
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -60,7 +60,7 @@ class L1MuDTPhiLut {
     int getDeltaPhi(int idx, int address) const;
 
     /// get precision for look-up tables
-    pair<unsigned short, unsigned short> getPrecision();
+    std::pair<unsigned short, unsigned short> getPrecision();
 
   private:
 
@@ -69,9 +69,9 @@ class L1MuDTPhiLut {
       
   private:
 
-    typedef map<int, int, less<int> > LUT;
+    typedef std::map<int, int, std::less<int> > LUT;
 
-    vector<LUT*> phi_lut;
+    std::vector<LUT*> phi_lut;
     
     unsigned short int nbit_phi;
     unsigned short int nbit_phib;

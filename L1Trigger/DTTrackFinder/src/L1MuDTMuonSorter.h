@@ -10,7 +10,7 @@
  *   4 best (highest pt, highest quality) muons
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -70,20 +70,20 @@ class L1MuDTMuonSorter : public L1AbstractProcessor {
     inline const L1MuDTTrack* track(int id) const { return m_TrackCands[id]; }
     
     /// return vector of muon candidates
-    inline const vector<const L1MuDTTrack*>& tracks() const { return m_TrackCands; }
+    inline const std::vector<const L1MuDTTrack*>& tracks() const { return m_TrackCands; }
 
   private:
 
     /// run the Cancel Out Logic of the muon sorter
-    void runCOL(vector<L1MuDTTrack*>&) const; 
+    void runCOL(std::vector<L1MuDTTrack*>&) const; 
 
     /// find out if two Sector Processors are neighbours
     static int neighbour(const L1MuDTSecProcId& spid1, const L1MuDTSecProcId& spid2);
 
   private:
 
-    const L1MuDTTrackFinder&   m_tf;
-    vector<const L1MuDTTrack*> m_TrackCands;
+    const L1MuDTTrackFinder&        m_tf;
+    std::vector<const L1MuDTTrack*> m_TrackCands;
 
 };
 

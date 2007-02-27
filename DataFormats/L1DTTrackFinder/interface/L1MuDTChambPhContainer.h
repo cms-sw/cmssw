@@ -46,6 +46,8 @@ class L1MuDTChambPhContainer {
 
   void setContainer(Phi_Container inputSegments);
 
+  Phi_Container* getContainer() const;
+
   L1MuDTChambPhDigi* chPhiSegm1(int wheel, int stat, int sect, int bx) const;
 
   L1MuDTChambPhDigi* chPhiSegm2(int wheel, int stat, int sect, int bx) const;

@@ -5,7 +5,7 @@
  *   Auxiliary class to handle Look-up table files
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 15:52:12 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -39,7 +39,7 @@ class L1TriggerLutFile {
   public:
  
     /// constructor
-    L1TriggerLutFile(const string name = "" );
+    L1TriggerLutFile(const std::string name = "" );
     
     /// copy constructor
     L1TriggerLutFile(const L1TriggerLutFile& ); 
@@ -51,7 +51,7 @@ class L1TriggerLutFile {
     L1TriggerLutFile& operator=(const L1TriggerLutFile&);
 
     /// return filename
-    inline string getName() const { return m_file; }
+    inline std::string getName() const { return m_file; }
     
     /// open file
     int open();
@@ -75,12 +75,12 @@ class L1TriggerLutFile {
     int readHex();
 
     /// read one string from file
-    string readString();
+    std::string readString();
 
   private:
 
-    ifstream m_fin;	  // input file stream
-    string   m_file;      // file name
+    std::ifstream m_fin;       // input file stream
+    std::string   m_file;      // file name
 
 }; 
 

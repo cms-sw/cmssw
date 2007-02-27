@@ -6,7 +6,7 @@
  *   map which contains all sector processors
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -41,7 +41,7 @@ class L1MuDTSecProcMap {
 
   public:
 
-    typedef map<L1MuDTSecProcId, L1MuDTSectorProcessor*, less<L1MuDTSecProcId> >  SPmap;
+    typedef std::map<L1MuDTSecProcId, L1MuDTSectorProcessor*, std::less<L1MuDTSecProcId> >  SPmap;
     typedef SPmap::iterator                                   SPmap_iter;
 
     /// constructor

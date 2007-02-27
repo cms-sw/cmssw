@@ -7,7 +7,7 @@
  *   coarse eta values 
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -42,9 +42,9 @@ class L1MuDTQualPatternLut {
 
   public:
 
-    typedef pair< int, int > LUTID;
-    typedef pair< int, vector<int> > LUTCONT;
-    typedef map< LUTID, LUTCONT > LUT;
+    typedef std::pair< int, int > LUTID;
+    typedef std::pair< int, std::vector<int> > LUTCONT;
+    typedef std::map< LUTID, LUTCONT > LUT;
     typedef LUT::iterator EMULut_iter;
     
     /// constructor
@@ -66,7 +66,7 @@ class L1MuDTQualPatternLut {
     int getCoarseEta(int sp, int adr) const;
  
     /// get list of qualified patterns for a given sector processor [1-6] and address [1-22]
-    const vector<int>& getQualifiedPatterns(int sp, int adr) const;
+    const std::vector<int>& getQualifiedPatterns(int sp, int adr) const;
 
     /// return number of entries in the LUT
     inline int size() const { return m_lut.size(); }

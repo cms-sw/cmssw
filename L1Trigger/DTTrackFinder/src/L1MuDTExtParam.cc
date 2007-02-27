@@ -3,17 +3,18 @@
 //   Description: Parameters for Extrapolation
 //
 //
-//   $Date: 2006/06/01 00:00:00 $
+//   $Date: 2006/06/26 16:11:13 $
 //   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
 //
 //--------------------------------------------------
-using namespace std;
 
 #include "L1Trigger/DTTrackFinder/src/L1MuDTExtParam.h"
 #include <iostream>
+
+using namespace std;
 
 //
 // output stream operator for Extrapolation

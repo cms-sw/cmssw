@@ -10,7 +10,7 @@
  *   candidates per wedge to the DT Muon Sorter
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -67,12 +67,12 @@ class L1MuDTWedgeSorter : public L1AbstractProcessor {
     void print() const;
 
     /// return vector of muon candidates
-    inline const vector<const L1MuDTTrack*>& tracks() const { return m_TrackCands; }
+    inline const std::vector<const L1MuDTTrack*>& tracks() const { return m_TrackCands; }
   
   private:
 
     /// run the Cancel Out Logic of the wedge sorter
-    void runCOL(vector<L1MuDTTrack*>&) const; 
+    void runCOL(std::vector<L1MuDTTrack*>&) const; 
     
     /// are there any non-empty muon candidates in the Wedge Sorter?
     bool anyTrack() const;
@@ -82,10 +82,10 @@ class L1MuDTWedgeSorter : public L1AbstractProcessor {
 
   private:
 
-    const L1MuDTTrackFinder&   m_tf;
-    int                        m_wsid;
+    const L1MuDTTrackFinder&        m_tf;
+    int                             m_wsid;
 
-    vector<const L1MuDTTrack*> m_TrackCands;
+    std::vector<const L1MuDTTrack*> m_TrackCands;
 
 };
 

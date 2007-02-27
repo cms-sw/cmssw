@@ -11,7 +11,7 @@
  *      -  1 DT Muon Sorter (MS)
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:11 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -57,8 +57,8 @@ class L1MuDTTrackFinder {
   public:
 
     /// container for muon candidates
-    typedef vector<L1MuRegionalCand>::const_iterator TFtracks_const_iter;
-    typedef vector<L1MuRegionalCand>::iterator       TFtracks_iter;
+    typedef std::vector<L1MuRegionalCand>::const_iterator TFtracks_const_iter;
+    typedef std::vector<L1MuRegionalCand>::iterator       TFtracks_iter;
 
     /// constructor
     L1MuDTTrackFinder();
@@ -102,7 +102,7 @@ class L1MuDTTrackFinder {
     /// return configuration
     static L1MuDTTFConfig* config() { return m_config; }
 
-    vector<L1MuRegionalCand>& getcache() { return _cache; }
+    std::vector<L1MuRegionalCand>& getcache() { return _cache; }
 
   private:
   
@@ -111,13 +111,13 @@ class L1MuDTTrackFinder {
 
   private:
 
-    vector<L1MuRegionalCand>    _cache;
-    L1MuDTSecProcMap*           m_spmap;        ///< Sector Processors
-    vector<L1MuDTEtaProcessor*> m_epvec;        ///< Eta Processors
-    vector<L1MuDTWedgeSorter*>  m_wsvec;        ///< Wedge Sorters
-    L1MuDTMuonSorter*           m_ms;           ///< DT Muon Sorter
+    std::vector<L1MuRegionalCand>    _cache;
+    L1MuDTSecProcMap*                m_spmap;        ///< Sector Processors
+    std::vector<L1MuDTEtaProcessor*> m_epvec;        ///< Eta Processors
+    std::vector<L1MuDTWedgeSorter*>  m_wsvec;        ///< Wedge Sorters
+    L1MuDTMuonSorter*                m_ms;           ///< DT Muon Sorter
 
-    static L1MuDTTFConfig*      m_config;       ///< Track Finder configuration
+    static L1MuDTTFConfig*           m_config;       ///< Track Finder configuration
 
 };
 

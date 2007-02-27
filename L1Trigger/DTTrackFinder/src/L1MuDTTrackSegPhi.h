@@ -5,7 +5,7 @@
  *   PHI Track Segment
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP 
@@ -118,10 +118,10 @@ class L1MuDTTrackSegPhi {
     bool operator!=(const L1MuDTTrackSegPhi&) const;
 
     /// overload output stream operator for phi track segment quality
-    friend ostream& operator<<(ostream&, const TSQuality&);
+    friend std::ostream& operator<<(std::ostream&, const TSQuality&);
   
     /// overload output stream operator for phi track segments
-    friend ostream& operator<<(ostream&, const L1MuDTTrackSegPhi&);
+    friend std::ostream& operator<<(std::ostream&, const L1MuDTTrackSegPhi&);
 
   private:
  

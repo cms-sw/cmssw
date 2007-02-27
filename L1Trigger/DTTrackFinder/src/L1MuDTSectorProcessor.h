@@ -11,7 +11,7 @@
  *    - two Assignment Units (AU)
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -108,16 +108,16 @@ class L1MuDTSectorProcessor {
 
   private:
 
-    const L1MuDTTrackFinder&       m_tf;
-    L1MuDTSecProcId                m_spid;
+    const L1MuDTTrackFinder&            m_tf;
+    L1MuDTSecProcId                     m_spid;
 
-    L1MuDTSectorReceiver*          m_SectorReceiver;
-    L1MuDTDataBuffer*              m_DataBuffer;
-    L1MuDTExtrapolationUnit*       m_EU;
-    L1MuDTTrackAssembler*          m_TA;
-    vector<L1MuDTAssignmentUnit*>  m_AUs;
+    L1MuDTSectorReceiver*               m_SectorReceiver;
+    L1MuDTDataBuffer*                   m_DataBuffer;
+    L1MuDTExtrapolationUnit*            m_EU;
+    L1MuDTTrackAssembler*               m_TA;
+    std::vector<L1MuDTAssignmentUnit*>  m_AUs;
 
-    vector<L1MuDTTrack*>           m_TrackCands;
+    std::vector<L1MuDTTrack*>           m_TrackCands;
  
 };
 

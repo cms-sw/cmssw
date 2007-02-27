@@ -3,7 +3,7 @@
 //   Description: Parameters for Track Assembler
 //
 //
-//   $Date: 2006/06/01 00:00:00 $
+//   $Date: 2006/06/26 16:11:13 $
 //   $Revision: 1.1 $
 //
 //   Author :
@@ -24,12 +24,12 @@ enum TrackClass { T1234, T123, T124, T134, T234,
                   T12,   T14,  T13,  T24,  T23,  T34, UNDEF };
 
 // overload output stream operator for TrackClass
-ostream& operator<<( ostream& s, TrackClass tc);
+std::ostream& operator<<( std::ostream& s, TrackClass tc);
 
 // convert TrackClass to bitmap
 const unsigned int tc2bitmap(const TrackClass tc);
 
 // convert TrackClass to graphical format
-const string tc2string(const TrackClass tc);
+const std::string tc2string(const TrackClass tc);
 
 #endif

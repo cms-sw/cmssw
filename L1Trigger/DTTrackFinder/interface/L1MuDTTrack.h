@@ -5,8 +5,8 @@
  *   L1 Muon Track Candidate
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/11/20 15:41:03 $
+ *   $Revision: 1.3 $
  *
  *   N. Neumeister            CERN EP
  *   J. Troconiz              UAM Madrid
@@ -66,7 +66,7 @@ class L1MuDTTrack : public L1MuRegionalCand {
     void reset();
 
     /// get name of object
-    inline string name() const { return m_name; }
+    inline std::string name() const { return m_name; }
 
     /// get pt-code (5 bits)
     inline unsigned int pt() const { return pt_packed(); }
@@ -105,7 +105,7 @@ class L1MuDTTrack : public L1MuRegionalCand {
     inline int numberOfTSeta() const { return m_tsetaList.size(); }
     
     /// return all phi track segments of the muon candidate
-    const vector<L1MuDTTrackSegPhi>& getTSphi() const { return m_tsphiList; }
+    const std::vector<L1MuDTTrackSegPhi>& getTSphi() const { return m_tsphiList; }
 
     /// return start phi track segment of muon candidate
     const L1MuDTTrackSegPhi& getStartTSphi() const;
@@ -114,7 +114,7 @@ class L1MuDTTrack : public L1MuRegionalCand {
     const L1MuDTTrackSegPhi& getEndTSphi() const;
 
     /// return all eta track segments of the muon candidate
-    const vector<L1MuDTTrackSegEta>& getTSeta() const { return m_tsetaList; }
+    const std::vector<L1MuDTTrackSegEta>& getTSeta() const { return m_tsetaList; }
     
     /// return start eta track segment of muon candidate
     const L1MuDTTrackSegEta& getStartTSeta() const;
@@ -129,7 +129,7 @@ class L1MuDTTrack : public L1MuRegionalCand {
     inline void disable() { m_empty = true; }
        
     /// set name of object
-    inline void setName(string name) { m_name = name; }
+    inline void setName(std::string name) { m_name = name; }
         
     /// set track-class of muon candidate
     inline void setTC(TrackClass tc) { m_tc = tc; }
@@ -156,10 +156,10 @@ class L1MuDTTrack : public L1MuRegionalCand {
     inline void setAddresses(const L1MuDTAddressArray& addr) { m_addArray = addr; }
     
     /// set phi track segments used to form the muon candidate
-    void setTSphi(const vector<const L1MuDTTrackSegPhi*>& tsList);
+    void setTSphi(const std::vector<const L1MuDTTrackSegPhi*>& tsList);
 
     /// set eta track segments used to form the muon candidate 
-    void setTSeta(const vector<const L1MuDTTrackSegEta*>& tsList);
+    void setTSeta(const std::vector<const L1MuDTTrackSegEta*>& tsList);
  
     /// convert  pt value in GeV to pt code
     unsigned int triggerScale(float value) const;
@@ -177,10 +177,10 @@ class L1MuDTTrack : public L1MuRegionalCand {
     void print() const;
   
     /// output stream operator
-    friend ostream& operator<<(ostream&, const L1MuDTTrack&);
+    friend std::ostream& operator<<(std::ostream&, const L1MuDTTrack&);
 
     /// define a rank for muon candidates
-    class Rank : binary_function< const L1MuDTTrack*, const L1MuDTTrack*, bool> {
+    class Rank : std::binary_function< const L1MuDTTrack*, const L1MuDTTrack*, bool> {
       public :
         bool operator()( const L1MuDTTrack* first, const L1MuDTTrack* second ) const {
          unsigned short int rank_f = 0;  // rank of first
@@ -195,13 +195,13 @@ class L1MuDTTrack : public L1MuRegionalCand {
   private:
 
     L1MuDTSecProcId  m_spid;      // which SP found the track 
-    string           m_name;
+    std::string      m_name;
     bool             m_empty;      
     TrackClass       m_tc;
 
     L1MuDTAddressArray         m_addArray;
-    vector<L1MuDTTrackSegPhi>  m_tsphiList;
-    vector<L1MuDTTrackSegEta>  m_tsetaList;
+    std::vector<L1MuDTTrackSegPhi>  m_tsphiList;
+    std::vector<L1MuDTTrackSegEta>  m_tsetaList;
 
 };
   

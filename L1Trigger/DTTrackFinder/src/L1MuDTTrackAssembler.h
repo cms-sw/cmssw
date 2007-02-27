@@ -14,7 +14,7 @@
  *   model b_sts_7 version 7 )
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -71,7 +71,7 @@ class L1MuDTTrackAssembler : public L1AbstractProcessor {
     inline TrackClass trackClass(int id) const { return m_theTCs[id]; }
     
     /// return bitmap of found track
-    inline const bitset<4>& trackBitMap(int id) const { return m_theBitMaps[id]; }
+    inline const std::bitset<4>& trackBitMap(int id) const { return m_theBitMaps[id]; }
    
     /// is it a valid Track Class?
     inline bool isEmpty(int id) const { return (m_theTCs[id] == UNDEF); }
@@ -97,43 +97,43 @@ class L1MuDTTrackAssembler : public L1AbstractProcessor {
     void runAddressAssignment2(int global, int group);    
     
     /// 12 bit priority encoder
-    static unsigned int priorityEncoder12(const bitset<12>& input);
+    static unsigned int priorityEncoder12(const std::bitset<12>& input);
 
     /// 4 bit priority encoder
-    static unsigned int priorityEncoder4(const bitset<4>& input); 
+    static unsigned int priorityEncoder4(const std::bitset<4>& input); 
     
     /// 22 bit priority encoder
-    static unsigned int priorityEncoder22(const bitset<22>& input);    
+    static unsigned int priorityEncoder22(const std::bitset<22>& input);    
 
     /// 21 bit priority encoder
-    static unsigned int priorityEncoder21(const bitset<21>& input);
+    static unsigned int priorityEncoder21(const std::bitset<21>& input);
 
     /// 12 bit address encoder
-    static unsigned int addressEncoder12(const bitset<12>& input);
+    static unsigned int addressEncoder12(const std::bitset<12>& input);
     
     /// special 12 bit address encoder
-    static unsigned int addressEncoder12s(const bitset<12>& input);    
+    static unsigned int addressEncoder12s(const std::bitset<12>& input);    
 
     /// get sub-bitmap of a 68-bit word
-    static unsigned long subBitset68(const bitset<68>& input, int pos, int length);
+    static unsigned long subBitset68(const std::bitset<68>& input, int pos, int length);
  
     /// get sub-bitmap of a 56-bit word
-    static unsigned long subBitset56(const bitset<56>& input, int pos, int length);            
+    static unsigned long subBitset56(const std::bitset<56>& input, int pos, int length);            
 
     /// cancel Out Table
-    static bitset<56> getCancelationTable(unsigned int);
+    static std::bitset<56> getCancelationTable(unsigned int);
       
   private:
 
     const L1MuDTSectorProcessor& m_sp;
 
-    bitset<68>                   m_thePriorityTable1;
-    bitset<56>                   m_thePriorityTable2;
+    std::bitset<68>              m_thePriorityTable1;
+    std::bitset<56>              m_thePriorityTable2;
     unsigned int                 m_theLastAddress[68];
     unsigned int                 m_theLastAddressI[12];
     
     TrackClass                   m_theTCs[2];        // Track Classes of the 2 candidates
-    bitset<4>                    m_theBitMaps[2];    // bitmaps of Track Class
+    std::bitset<4>               m_theBitMaps[2];    // bitmaps of Track Class
     L1MuDTAddressArray           m_theAddresses[2];  // relative addresses of the 2 candidates
                                         
 };

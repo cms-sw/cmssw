@@ -5,15 +5,14 @@
 //   Description: DT Muon Sorter
 //
 //
-//   $Date: 2006/06/01 00:00:00 $
-//   $Revision: 1.1 $
+//   $Date: 2006/07/26 10:31:00 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
 //   J. Troconiz              UAM Madrid
 //
 //--------------------------------------------------
-using namespace std;
 
 //-----------------------
 // This Class's Header --
@@ -37,6 +36,8 @@ using namespace std;
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackFinder.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrack.h"
+
+using namespace std;
 
 // --------------------------------
 //       class L1MuDTMuonSorter

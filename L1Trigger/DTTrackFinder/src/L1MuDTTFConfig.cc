@@ -5,15 +5,14 @@
 //   Description: DTTrackFinder parameters for L1MuDTTrackFinder
 //
 //
-//   $Date: 2006/10/10 15:24:20 $
-//   $Revision: 1.2 $
+//   $Date: 2007/01/18 17:45:10 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
 //   J. Troconiz              UAM Madrid
 //
 //--------------------------------------------------
-using namespace std;
 
 //-----------------------
 // This Class's Header --
@@ -32,6 +31,7 @@ using namespace std;
 // Collaborating Class Headers --
 //-------------------------------
 
+using namespace std;
 
 // --------------------------------
 //       class L1MuDTTFConfig

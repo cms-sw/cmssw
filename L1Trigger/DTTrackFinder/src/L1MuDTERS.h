@@ -9,7 +9,7 @@
  *   performed per start track segment
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -65,7 +65,7 @@ class L1MuDTERS : public L1AbstractProcessor {
     inline unsigned short int address(int id) const { return m_address[id]; }
    
     /// return pointer to start and target track segment
-    pair<const L1MuDTTrackSegPhi*, const L1MuDTTrackSegPhi*> ts(int id) const;
+    std::pair<const L1MuDTTrackSegPhi*, const L1MuDTTrackSegPhi*> ts(int id) const;
 
   private:
 

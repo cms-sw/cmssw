@@ -10,7 +10,7 @@
  *    - one Eta Matching Unit (EMU)
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -104,18 +104,18 @@ class L1MuDTEtaProcessor {
 
   private:
 
-    const L1MuDTTrackFinder&             m_tf;
-    int                                  m_epid;
+    const L1MuDTTrackFinder&                  m_tf;
+    int                                       m_epid;
 
-    int                                  m_eta[12];
-    bool                                 m_fine[12];
+    int                                       m_eta[12];
+    bool                                      m_fine[12];
     
-    vector<int>                          m_foundPattern;    
-    int                                  m_pattern[12];
+    std::vector<int>                          m_foundPattern;    
+    int                                       m_pattern[12];
 
-    int                                  m_address[12];
-    L1MuDTTrack*                         m_TrackCand[12];    
-    vector<const L1MuDTTrackSegEta*>     m_tseta;
+    int                                       m_address[12];
+    L1MuDTTrack*                              m_TrackCand[12];    
+    std::vector<const L1MuDTTrackSegEta*>     m_tseta;
     
     static L1MuDTEtaPatternLut*    theEtaPatternLUT;  // ETF look-up table
     static L1MuDTQualPatternLut*   theQualPatternLUT; // EMU look-up tables

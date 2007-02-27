@@ -5,14 +5,13 @@
 //   Description: Array of relative Addresses
 //
 //
-//   $Date: 2006/06/01 00:00:00 $
+//   $Date: 2006/06/26 16:11:13 $
 //   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
 //
 //--------------------------------------------------
-using namespace std;
 
 //-----------------------
 // This Class's Header --
@@ -33,6 +32,7 @@ using namespace std;
 // Collaborating Class Headers --
 //-------------------------------
 
+using namespace std;
 
 // --------------------------------
 //       class L1MuDTAddressArray

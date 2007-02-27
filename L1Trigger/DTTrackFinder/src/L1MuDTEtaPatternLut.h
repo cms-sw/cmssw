@@ -5,7 +5,7 @@
  *   Look-up table for eta track finder
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -40,7 +40,7 @@ class L1MuDTEtaPatternLut {
 
   public:
 
-    typedef map<int, L1MuDTEtaPattern*, less<int> > LUT;
+    typedef std::map<int, L1MuDTEtaPattern*, std::less<int> > LUT;
     typedef LUT::iterator ETFLut_iter;
     
     /// constructor

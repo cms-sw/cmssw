@@ -10,7 +10,7 @@
  *   This is necessary because wheel 0 needs two sector processors
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -81,7 +81,7 @@ class L1MuDTSecProcId {
     bool operator<(const L1MuDTSecProcId&) const;
 
     /// output stream operator
-    friend ostream& operator<<(ostream&, const L1MuDTSecProcId&);
+    friend std::ostream& operator<<(std::ostream&, const L1MuDTSecProcId&);
 
   private:
 

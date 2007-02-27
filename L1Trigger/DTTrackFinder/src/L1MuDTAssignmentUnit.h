@@ -9,7 +9,7 @@
  *   found by the Track Assembler
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -114,16 +114,16 @@ class L1MuDTAssignmentUnit : public L1AbstractProcessor {
     void readPtaLuts();
 
     /// overload output stream operator for pt-assignment methods
-    friend ostream& operator<<(ostream& s, PtAssMethod method);
+    friend std::ostream& operator<<(std::ostream& s, PtAssMethod method);
 
   private:
 
     L1MuDTSectorProcessor& m_sp;
     int                    m_id;
 
-    L1MuDTAddressArray               m_addArray;
-    vector<const L1MuDTTrackSegPhi*> m_TSphi;
-    PtAssMethod                      m_ptAssMethod;
+    L1MuDTAddressArray                    m_addArray;
+    std::vector<const L1MuDTTrackSegPhi*> m_TSphi;
+    PtAssMethod                           m_ptAssMethod;
 
     static L1MuDTPhiLut*       thePhiLUTs;  ///< phi-assignment look-up tables
     static L1MuDTPtaLut*       thePtaLUTs;  ///< pt-assignment look-up tables

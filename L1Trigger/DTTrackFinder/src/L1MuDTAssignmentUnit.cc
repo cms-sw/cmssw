@@ -5,7 +5,7 @@
 //   Description: Assignment Unit
 //
 //
-//   $Date: 2006/06/01 00:00:00 $
+//   $Date: 2006/06/26 16:11:13 $
 //   $Revision: 1.1 $
 //
 //   Author :
@@ -13,7 +13,6 @@
 //   J. Troconiz              UAM Madrid
 //
 //--------------------------------------------------
-using namespace std;
 
 //-----------------------
 // This Class's Header --
@@ -43,6 +42,8 @@ using namespace std;
 #include "L1Trigger/DTTrackFinder/src/L1MuDTPhiLut.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTPtaLut.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrack.h"
+
+using namespace std;
 
 // --------------------------------
 //       class L1MuDTAssignmentUnit

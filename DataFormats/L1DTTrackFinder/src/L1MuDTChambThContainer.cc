@@ -48,6 +48,15 @@ void L1MuDTChambThContainer::setContainer(The_Container inputSegments) {
   theSegments = inputSegments;
 }
 
+L1MuDTChambThContainer::The_Container* L1MuDTChambThContainer::getContainer() const {
+
+  The_Container* rT=0;
+
+  rT = const_cast<The_Container*>(&theSegments);
+
+  return(rT);
+}
+
 L1MuDTChambThDigi* L1MuDTChambThContainer::chThetaSegm(int wheel, int stat, int sect, int step) const {
 
   L1MuDTChambThDigi* rT=0;

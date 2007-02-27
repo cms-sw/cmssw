@@ -5,7 +5,7 @@
  *   ETA Track Segment
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -93,7 +93,7 @@ class L1MuDTTrackSegEta {
     bool operator!=(const L1MuDTTrackSegEta&) const;
   
     /// output stream operator
-    friend ostream& operator<<(ostream&, const L1MuDTTrackSegEta&);
+    friend std::ostream& operator<<(std::ostream&, const L1MuDTTrackSegEta&);
 
   private:
 

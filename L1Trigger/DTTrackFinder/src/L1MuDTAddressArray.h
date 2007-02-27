@@ -21,7 +21,7 @@
  *   \endverbatim
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -90,7 +90,7 @@ class L1MuDTAddressArray {
     L1MuDTAddressArray converted() const;
 
     /// output stream operator for address array
-    friend ostream& operator<<(ostream&, const L1MuDTAddressArray&);
+    friend std::ostream& operator<<(std::ostream&, const L1MuDTAddressArray&);
 
     /// convert address to corresponding VHDL addresse
     static unsigned short int convert(unsigned short int adr);

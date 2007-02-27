@@ -13,7 +13,6 @@
 //   J. Troconiz              UAM Madrid
 //
 //--------------------------------------------------
-using namespace std;
 
 //-----------------------
 // This Class's Header --
@@ -44,6 +43,8 @@ using namespace std;
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
 #include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
+
+using namespace std;
 
 // --------------------------------
 //       class L1MuDTSectorReceiver

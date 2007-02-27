@@ -9,7 +9,7 @@
  *   execution of the track assembler
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -45,7 +45,7 @@ class L1MuDTDataBuffer {
   public:
 
     /// container to store phi track segments 
-    typedef vector<L1MuDTTrackSegPhi*> TSPhivector;
+    typedef std::vector<L1MuDTTrackSegPhi*> TSPhivector;
 
     /// constructor
     L1MuDTDataBuffer(const L1MuDTSectorProcessor& );

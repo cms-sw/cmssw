@@ -12,7 +12,7 @@
  *       (wheel: -2, -1, 0, +1, +2, position : [1,7])
  * 
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -53,7 +53,7 @@ class L1MuDTEtaPattern {
     L1MuDTEtaPattern(int id, int w1, int w2, int w3, int p1, int p2, int p3, 
                      int eta, int qual); 
 
-    L1MuDTEtaPattern(int id, string pat, int eta, int qual);
+    L1MuDTEtaPattern(int id, std::string pat, int eta, int qual);
                        
     /// copy constructor
     L1MuDTEtaPattern(const L1MuDTEtaPattern&);
@@ -86,10 +86,10 @@ class L1MuDTEtaPattern {
     bool operator!=(const L1MuDTEtaPattern&) const;
   
     /// output stream operator
-    friend ostream& operator<<(ostream&, const L1MuDTEtaPattern&);
+    friend std::ostream& operator<<(std::ostream&, const L1MuDTEtaPattern&);
 
     /// input stream operator
-    friend istream& operator>>(istream&, L1MuDTEtaPattern&);
+    friend std::istream& operator>>(std::istream&, L1MuDTEtaPattern&);
     
   private:
  

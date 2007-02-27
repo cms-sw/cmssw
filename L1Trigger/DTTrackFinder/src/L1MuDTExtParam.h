@@ -3,7 +3,7 @@
 //   Description: Parameters for Extrapolation
 //
 //
-//   $Date: 2006/06/01 00:00:00 $
+//   $Date: 2006/06/26 16:11:13 $
 //   $Revision: 1.1 $
 //
 //   Author :
@@ -24,6 +24,6 @@ enum Extrapolation { EX12, EX13, EX14, EX21, EX23, EX24, EX34,
 
 
 // overload output stream operator for Extrapolation
-ostream& operator<<( ostream& s, Extrapolation ext);
+std::ostream& operator<<( std::ostream& s, Extrapolation ext);
 
 #endif

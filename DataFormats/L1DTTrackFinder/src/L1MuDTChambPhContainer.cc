@@ -48,6 +48,15 @@ void L1MuDTChambPhContainer::setContainer(Phi_Container inputSegments) {
   phiSegments = inputSegments;
 }
 
+L1MuDTChambPhContainer::Phi_Container* L1MuDTChambPhContainer::getContainer() const {
+
+  Phi_Container* rT=0;
+
+  rT = const_cast<Phi_Container*>(&phiSegments);
+
+  return(rT);
+}
+
 L1MuDTChambPhDigi* L1MuDTChambPhContainer::chPhiSegm1(int wheel, int stat, int sect, int step) const {
 
   L1MuDTChambPhDigi* rT=0;

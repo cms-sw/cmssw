@@ -5,15 +5,14 @@
 //   Description: L1 barrel Muon Trigger Track Finder
 //
 //
-//   $Date: 2006/06/01 00:00:00 $
-//   $Revision: 1.1 $
+//   $Date: 2006/11/20 15:41:03 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
 //   J. Troconiz              UAM Madrid
 //
 //--------------------------------------------------
-using namespace std;
 
 //-----------------------
 // This Class's Header --
@@ -41,6 +40,8 @@ using namespace std;
 #include "L1Trigger/DTTrackFinder/src/L1MuDTMuonSorter.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrack.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
+
+using namespace std;
 
 //---------------------------------
 //       class L1MuDTTrackFinder

@@ -9,7 +9,7 @@
  *   actual extrapolation
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -67,13 +67,13 @@ class L1MuDTEUX : public L1AbstractProcessor {
     void load(const L1MuDTTrackSegPhi* start_ts, const L1MuDTTrackSegPhi* target_ts);
 
     /// return pointer to start and target track segment
-    pair<const L1MuDTTrackSegPhi*, const L1MuDTTrackSegPhi*> ts() const;
+    std::pair<const L1MuDTTrackSegPhi*, const L1MuDTTrackSegPhi*> ts() const;
 
     /// set precision of phi and phib
     static void setPrecision();
     
     /// helper class for finding the best and second best extrapolation
-    class EUX_Comp : binary_function< L1MuDTEUX*, L1MuDTEUX*, bool> {
+    class EUX_Comp : std::binary_function< L1MuDTEUX*, L1MuDTEUX*, bool> {
       public :
         EUX_Comp( const L1MuDTEUX* k = 0 ) : _not(k) {}
         bool operator()( const L1MuDTEUX* first, const L1MuDTEUX* second ) const {
