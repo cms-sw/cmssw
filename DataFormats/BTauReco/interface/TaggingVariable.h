@@ -15,40 +15,40 @@ namespace reco {
 
   namespace btau {
 
-    // define the nuem in a namespace to avoid polluting reco with all the enum values
+    // define the enum in a namespace to avoid polluting reco with all the enum values
     enum TaggingVariableName {
-      jetEnergy = 0,    // jet energy
-      jetPt,            // jet transverse momentum
-      jetEta,           // jet pseudorapidity
-      jetPhi,           // jet polar angle
-      trackMomemtum,    // track momentum
-      trackEta,         // track pseudorapidity
-      trackPhi,         // track polar angle
-      trackSip2d,       // track 2D signed impact parameter significance
-      trackSip3d,       // track 3D signed impact parameter significance
-      trackPtRel,       // track transverse momentum, relative to the jet axis
-      trackPpar,        // track parallel momentum, along the jet axis
-      trackEtaRel,      // track pseudorapidity, relative to the jet axis
-      trackDeltaR,      // track pseudoangular distance from the jet axis
-      trackPtRatio,     // track transverse momentum, relative to the jet axis, normalized to its energy
-      trackPparRatio,   // track parallel momentum, along the jet axis, normalized to its energy
-      vertexCategory,   // category of secondary vertex (Reco, Pseudo, No)
-      vertexMass,       // mass of secondary vertex
-      vertexMultiplicity, // track multiplicity at secondary vertex
-      flightDistance2DSignificance, // significance in 2d of distance between primary and secondary vtx
-      flightDistance3DSignificance, // significance in 3d of distance between primary and secondary vtx
-      secondaryVtxEnergyRatio,// ratio of energy at secondary vertex over total energy
-      piontracksEtjetEtRatio, // ratio of pion tracks transverse energy over jet energy
-      trackSip2dAbCharm,      // track 2D signed impact parameter significance above charm mass
-      neutralEnergy,          // neutral ECAL clus. energy sum
-      neutralEnergyOverCombinedEnergy, // neutral ECAL clus. energy sum/(neutral ECAL clus. energy sum + pion tracks energy)
-      neutralIsolEnergy,      // neutral ECAL clus. energy sum in isolation band
-      neutralIsolEnergyOverCombinedEnergy, // neutral ECAL clus. energy sum in isolation band/(neutral ECAL clus. energy sum + pion tracks energy)
-      neutralEnergyRatio,     // ratio of neutral ECAL clus. energy sum in isolation band over neutral ECAL clus. energy sum
-      neutralclusterNumber,   // number of neutral ECAL clus.
-      neutralclusterRadius,   // mean DR between neutral ECAL clus. and lead.track
-      secondaryVtxWeightedEnergyRatio, // ratio of weighted energy at secondary vertex over total energy
-      jetNVertices, // number of vertices found in a jet
+      jetEnergy = 0,                            // jet energy
+      jetPt,                                    // jet transverse momentum
+      jetEta,                                   // jet pseudorapidity
+      jetPhi,                                   // jet polar angle
+      trackMomemtum,                            // track momentum
+      trackEta,                                 // track pseudorapidity
+      trackPhi,                                 // track polar angle
+      trackSip2d,                               // track 2D signed impact parameter significance
+      trackSip3d,                               // track 3D signed impact parameter significance
+      trackPtRel,                               // track transverse momentum, relative to the jet axis
+      trackPpar,                                // track parallel momentum, along the jet axis
+      trackEtaRel,                              // track pseudorapidity, relative to the jet axis
+      trackDeltaR,                              // track pseudoangular distance from the jet axis
+      trackPtRatio,                             // track transverse momentum, relative to the jet axis, normalized to its energy
+      trackPparRatio,                           // track parallel momentum, along the jet axis, normalized to its energy
+      vertexCategory,                           // category of secondary vertex (Reco, Pseudo, No)
+      vertexMass,                               // mass of secondary vertex
+      vertexMultiplicity,                       // track multiplicity at secondary vertex
+      flightDistance2DSignificance,             // significance in 2d of distance between primary and secondary vtx
+      flightDistance3DSignificance,             // significance in 3d of distance between primary and secondary vtx
+      secondaryVtxEnergyRatio,                  // ratio of energy at secondary vertex over total energy
+      piontracksEtjetEtRatio,                   // ratio of pion tracks transverse energy over jet energy
+      trackSip2dAbCharm,                        // track 2D signed impact parameter significance above charm mass
+      neutralEnergy,                            // neutral ECAL clus. energy sum
+      neutralEnergyOverCombinedEnergy,          // neutral ECAL clus. energy sum/(neutral ECAL clus. energy sum + pion tracks energy)
+      neutralIsolEnergy,                        // neutral ECAL clus. energy sum in isolation band
+      neutralIsolEnergyOverCombinedEnergy,      // neutral ECAL clus. energy sum in isolation band/(neutral ECAL clus. energy sum + pion tracks energy)
+      neutralEnergyRatio,                       // ratio of neutral ECAL clus. energy sum in isolation band over neutral ECAL clus. energy sum
+      neutralclusterNumber,                     // number of neutral ECAL clus.
+      neutralclusterRadius,                     // mean DR between neutral ECAL clus. and lead.track
+      secondaryVtxWeightedEnergyRatio,          // ratio of weighted energy at secondary vertex over total energy
+      jetNVertices,                             // number of vertices found in a jet
       
       lastTaggingVariable
     };
