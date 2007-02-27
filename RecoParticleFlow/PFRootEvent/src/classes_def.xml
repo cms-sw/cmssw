@@ -7,7 +7,8 @@
   <class name="std::vector<EventColin::Particle>"/>
   <class name="EventColin::Cluster"/>
   <class name="std::vector<EventColin::Cluster>"/>
-  <class name="EventColin::Jets"/>
+  <class name="EventColin::Jet"/>
+  <class name="std::vector<EventColin::Jet>"/>
   <class name="ResidualFitter"/>
 </lcgdict>
 
