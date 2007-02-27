@@ -1,4 +1,7 @@
 <lcgdict>
+  <!-- this should *NOT* be here at all -->
+  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> >,edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > > >"/>
+
   <class name="reco::JetTag"/>
   <class name="reco::JetTagCollection"/>
   <class name="reco::JetTagRef"/>
@@ -41,14 +44,12 @@
   <class name="reco::IsolatedTauTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::IsolatedTauTagInfoCollection>"/>
 
-  <class name="reco::SoftLeptonProperties>"/>
+  <class name="reco::SoftLeptonProperties"/>
   <class name="std::pair<reco::TrackRef, reco::SoftLeptonProperties>"/>
   <class name="reco::SoftLeptonTagInfo::LeptonMap"/>
 
   <class name="reco::SoftLeptonTagInfo"/>
-  <class name="reco::SoftLeptonTagInfoCollection">
-    <field name="transientMap_" transient="true"/>
-  </class>
+  <class name="reco::SoftLeptonTagInfoCollection"/>
   <class name="reco::SoftLeptonTagInfoRef"/>
   <class name="reco::SoftLeptonTagInfoRefProd"/>
   <class name="reco::SoftLeptonTagInfoRefVector"/>
@@ -62,7 +63,7 @@
   <class name="edm::Wrapper<reco::TaggingVariableListCollection>"/>
 
   <class name="reco::TrackTauImpactParameterAssociation"/>
-  <class name="reco::TrackTauImpactParameterAssociationCollection">
+  <class name="edm::AssociationMap<edm::OneToValue<reco::TrackCollection, reco::TauImpactParameterTrackData, unsigned int> >">
     <field name="transientMap_" transient="true"/>
   </class>
   <class name="reco::TrackTauImpactParameterAssociationMapType"/>
@@ -76,7 +77,7 @@
   <class name="edm::Wrapper<reco::TauImpactParameterInfoCollection>"/>
 
   <class name="reco::TauMassTagInfo_ClusterTrackAssociation"/>
-  <class name="reco::TauMassTagInfo_ClusterTrackAssociationCollection">
+  <class name="edm::AssociationMap<edm::OneToValue<reco::BasicClusterCollection, float, unsigned short> >">
     <field name="transientMap_" transient="true"/>
   </class>
   <class name="reco::TauMassTagInfo_ClusterTrackAssociationMapType"/>
@@ -103,7 +104,7 @@
   <class name="edm::Wrapper<reco::TrackProbabilityTagInfoCollection>"/>
 
   <class name="reco::JetTracksAssociation"/>
-  <class name="reco::JetTracksAssociationCollection">
+  <class name="edm::AssociationMap<edm::OneToMany<reco::CaloJetCollection, reco::TrackCollection, unsigned int> >">
     <field name="transientMap_" transient="true"/>
   </class>
   <class name="reco::JetTracksAssociationMapType"/>
@@ -114,7 +115,7 @@
   <class name="edm::Wrapper<reco::JetTracksAssociationCollection>"/>
 
   <class name="reco::JetCrystalsAssociation"/>
-  <class name="reco::JetCrystalsAssociationCollection">
+  <class name="edm::AssociationMap<edm::OneToMany<reco::CaloJetCollection, reco::EMLorentzVectorCollection, unsigned int> >">
     <field name="transientMap_" transient="true"/>
   </class>
   <class name="reco::JetCrystalsAssociationMapType"/>
@@ -125,7 +126,7 @@
   <class name="edm::Wrapper<reco::JetCrystalsAssociationCollection>"/>
 
   <class name="reco::JetEisolAssociation"/>
-  <class name="reco::JetEisolAssociationCollection">
+  <class name="edm::AssociationMap<edm::OneToValue<reco::CaloJetCollection, float, unsigned int> >">
     <field name="transientMap_" transient="true"/>
   </class>
   <class name="reco::JetEisolAssociationMapType"/>
@@ -136,7 +137,7 @@
   <class name="edm::Wrapper<reco::JetEisolAssociationCollection>"/>
 
   <class name="reco::JetTracksIPDataAssociation"/>
-  <class name="reco::JetTracksIPDataAssociationCollection">
+  <class name="edm::AssociationMap<edm::OneToValue<reco::JetTracksAssociationCollection, reco::TracksInJetData, unsigned int> >">
     <field name="transientMap_" transient="true"/>
   </class>
   <class name="reco::JetTracksIPDataAssociationMapType"/>

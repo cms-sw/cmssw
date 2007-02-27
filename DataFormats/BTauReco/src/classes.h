@@ -90,6 +90,7 @@ namespace {
     reco::SoftLeptonProperties                                          slp;
     std::pair<reco::TrackRef, reco::SoftLeptonProperties>               slp_p;
     reco::SoftLeptonTagInfo::LeptonMap                                  slp_m;
+
     reco::SoftLeptonTagInfo                                             sl;
     reco::SoftLeptonTagInfoCollection                                   sl_c;
     reco::SoftLeptonTagInfoRef                                          sl_r;
@@ -179,4 +180,3 @@ namespace {
 
   }
 }
-
