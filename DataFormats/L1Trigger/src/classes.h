@@ -39,5 +39,7 @@ namespace {
      edm::reftobase::Holder<reco::Candidate, l1extra::L1EtMissParticleRef> rtbm1;
      edm::reftobase::Holder<reco::Candidate, l1extra::L1EtMissParticleRefProd> rtbm2;
 
+     std::vector<l1extra::L1ParticleMap::L1ObjectType> dummy1 ;
+     std::vector<std::vector<unsigned int> > dummy2 ;
   }
 }

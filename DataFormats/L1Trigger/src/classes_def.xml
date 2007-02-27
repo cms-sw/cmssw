@@ -38,4 +38,7 @@
 
   <class name="edm::reftobase::Holder<reco::Candidate, edm::RefProd<l1extra::L1EtMissParticle> > "/>
 
+  <class name="std::vector<l1extra::L1ParticleMap::L1ObjectType>"/>
+  <class name="std::vector<std::vector<unsigned int> >"/>
+
 </lcgdict>
