@@ -19,7 +19,7 @@ TauJetMCFilter::TauJetMCFilter(const edm::ParameterSet& iConfig)
   mEtaMax = iConfig.getParameter<double>("EtaTauMax");
   mEtaMin = iConfig.getParameter<double>("EtaTauMin");
   mEtTau = iConfig.getParameter<double>("EtTau");
-  tauParticles = iConfig.getParameter<InputTag>("TauParticles");
+  //  tauParticles = iConfig.getParameter<InputTag>("TauParticles");
 
 }
 
@@ -37,9 +37,9 @@ HepMC::GenParticle * TauJetMCFilter::findParticle(const GenPartVect genPartVect,
 bool TauJetMCFilter::filter(edm::Event& iEvent, const edm::EventSetup& iES)
 {
   //
-  Handle< L1JetParticleCollection > tauColl ; 
-  iEvent.getByLabel( tauParticles, tauColl );
-  const L1JetParticleCollection & myL1Tau  = *(tauColl.product());
+  //  Handle< L1JetParticleCollection > tauColl ; 
+  //  iEvent.getByLabel( tauParticles, tauColl );
+  //  const L1JetParticleCollection & myL1Tau  = *(tauColl.product());
   //
   
   edm::Handle<HepMCProduct> evt;
