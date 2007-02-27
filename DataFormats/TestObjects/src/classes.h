@@ -37,8 +37,6 @@ struct dictionary {
   edm::Wrapper<edmtestprod::StreamTestThing> dummy26;
   edm::Wrapper<edmtestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901> dummy27;
 
-  edm::Wrapper<edm::RefVector<std::vector<int> > > dummyw28;
-
   edm::DetSet<edmtest::Sortable> x1;
   edm::DetSet<edmtest::Unsortable> x2;
   std::vector<edmtest::Sortable> x3;
