@@ -10,8 +10,8 @@
  *  pointers to the services, therefore EACH event the setServices(const edm::EventSetup&)
  *  method MUST be called in the code in which the TrackTransformer is used.
  *
- *  $Date: 2007/02/07 15:15:27 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/02/26 11:23:29 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -66,7 +66,7 @@ public:
  protected:
   
  private:
-  enum RefitDirection{insideOut,outsideIn};
+  enum RefitDirection{insideOut,outsideIn,undetermined};
   
   unsigned long long theCacheId_TC;
   unsigned long long theCacheId_GTG;
@@ -87,6 +87,9 @@ public:
   TransientTrackingRecHit::ConstRecHitContainer
     getTransientRecHits(const reco::TransientTrack& track) const;
   
+  RefitDirection
+    checkRecHitsOrdering(TransientTrackingRecHit::ConstRecHitContainer&) const;
+
   std::string theTrackerRecHitBuilderName;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
   
