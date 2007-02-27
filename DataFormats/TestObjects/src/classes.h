@@ -11,7 +11,8 @@
 #include "DataFormats/TestObjects/interface/StreamTestThing.h"
 #include "DataFormats/TestObjects/interface/StreamTestTmpl.h"
 
-namespace { namespace {
+namespace {
+struct dictionary {
   edm::Wrapper<edmtest::DummyProduct> dummyw12;
   edm::Wrapper<edmtest::IntProduct> dummyw13;
   edm::Wrapper<edmtest::DoubleProduct> dummyw14;
@@ -37,4 +38,10 @@ namespace { namespace {
   edm::Wrapper<edmtestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901> dummy27;
 
   edm::Wrapper<edm::RefVector<std::vector<int> > > dummyw28;
-}}
+
+  edm::DetSet<edmtest::Sortable> x1;
+  edm::DetSet<edmtest::Unsortable> x2;
+  std::vector<edmtest::Sortable> x3;
+  std::vector<edmtest::Unsortable> x4;
+};
+}

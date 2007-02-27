@@ -39,7 +39,8 @@
 #include <deque>
 #include <set>
 
-namespace { namespace {
+namespace {
+  struct dictionary {
   edm::Wrapper<std::vector<unsigned long> > dummy1;
   edm::Wrapper<std::vector<unsigned int> > dummy2;
   edm::Wrapper<std::vector<long> > dummy3;
@@ -149,5 +150,11 @@ namespace { namespace {
   std::vector<std::string>::iterator itstring;
   std::vector<void *>::iterator itvp;
 
+  std::allocator<char> achar;
+  std::allocator<short> ashort;
+  std::allocator<int> aint;
+  std::allocator<double> adouble;
+
   edm::RangeMap<int, std::vector<float>, edm::CopyPolicy<float> > dummyRangeMap1;
-}}
+};
+}
