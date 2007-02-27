@@ -137,6 +137,8 @@ void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
 
 
 //__________________________________________________________________________________________________
+// An attempt to have rotations in local frame. Unfortunately, when rotating
+// components one has to go back to the global frame. 
 void AlignableComposite::rotateInLocalFrame( const RotationType& rotation )
 {
 
@@ -162,7 +164,7 @@ void AlignableComposite::rotateInLocalFrame( const RotationType& rotation )
     GlobalVector moveVector( globalRot.multiplyInverse(pvgf) - pvgf );
 
     ali->move( moveVector );
-    ali->rotateInLocalFrame( rotation );
+    ali->rotateInGlobalFrame( globalRot );
   }
 
   theSurface = AlignableSurface( myPos, rotation * myRot );
