@@ -5,7 +5,6 @@
 
 class EventColin {
   
-  
  public:
   EventColin() {}
   virtual ~EventColin() {}
@@ -38,10 +37,10 @@ class EventColin {
     int type;
   };   
 
-  class Jets {
+  class Jet {
   public:
-    Jets() : eta(0),phi(0),et(0),e(0) {}
-    virtual ~Jets() {}
+    Jet() : eta(0),phi(0),et(0),e(0) {}
+    virtual ~Jet() {}
     double eta;
     double phi;
     double et;
@@ -60,34 +59,39 @@ class EventColin {
     clustersIsland_.push_back(ptc);
   }
 
-  void addJetsMC( const Jets & jets ) {
+  void addJetMC( const Jet & jets ) {
     jetsMC_.push_back(jets);
   }
 
-  void addJetsEHT( const Jets & jets ) {
+  void addJetEHT( const Jet & jets ) {
     jetsEHT_.push_back(jets);
   }
 
-  void addJetsPF( const Jets & jets ) {
+  void addJetPF( const Jet & jets ) {
     jetsPF_.push_back(jets);
   }
 
   const std::vector<EventColin::Particle>& particles() 
     {return particles_;}
-  const std::vector<EventColin::Cluster>& clusters() 
+  const std::vector<EventColin::Cluster>&  clusters() 
     {return clusters_;}
-  const std::vector<EventColin::Cluster>& clustersIsland() 
+  const std::vector<EventColin::Cluster>&  clustersIsland() 
     {return clustersIsland_;}
+  const std::vector<EventColin::Jet>&      jetsMC()
+    {return jetsMC_;}
+  const std::vector<EventColin::Jet>&      jetsEHT()
+    {return jetsEHT_;}
+  const std::vector<EventColin::Jet>&      jetsPF()
+    {return jetsPF_;}
 
  private:
-
 
   std::vector<EventColin::Particle> particles_;
   std::vector<EventColin::Cluster>  clusters_;
   std::vector<EventColin::Cluster>  clustersIsland_;
-  std::vector<EventColin::Jets>     jetsMC_;
-  std::vector<EventColin::Jets>     jetsEHT_;
-  std::vector<EventColin::Jets>     jetsPF_;
+  std::vector<EventColin::Jet>      jetsMC_;
+  std::vector<EventColin::Jet>      jetsEHT_;
+  std::vector<EventColin::Jet>      jetsPF_;
   
 };
 
