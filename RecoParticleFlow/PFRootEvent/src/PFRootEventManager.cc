@@ -1093,31 +1093,38 @@ void PFRootEventManager::makeJets() {
   TLorentzVector partTOTMC;
   partTOTMC.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
 
+  //MAKING JETS WITH TAU DAUGHTERS
+  vector<reco::PFSimParticle> vectPART;
+  for(unsigned i=0;  i < trueParticles_.size(); i++) {
+    const reco::PFSimParticle& ptc = trueParticles_[i];
+    vectPART.push_back(ptc);}//loop
+
   for(unsigned i=0;  i < trueParticles_.size(); i++) {
     const reco::PFSimParticle& ptc = trueParticles_[i];
     const std::vector<int>& ptcdaughters = ptc.daughterIds();
-    
-    //PARTICULE NOT DISINTEGRATING BEFORE ECAL
-    if(ptcdaughters.size() != 0) continue;
 
-    //TAKE INFO AT VERTEX /////////////////////////////////////////////////////////////////////////////
-    const reco::PFTrajectoryPoint& tpatvtx = ptc.trajectoryPoint(0);
-    TLorentzVector partMC;
-    partMC.SetPxPyPzE(tpatvtx.momentum().Px(),
-		      tpatvtx.momentum().Py(),
-		      tpatvtx.momentum().Pz(),
-		      tpatvtx.momentum().E());
+    if(abs(ptc.pdgCode()) == 15){
+      for(unsigned int dapt=0; dapt < ptcdaughters.size(); ++dapt){
+        //unsigned int pdgdaugter = abs(vectPART[ptcdaughters[dapt]].pdgCode());
 
-    partTOTMC += partMC;
-    if(jetsDebug_){
-      //pdgcode
-      int pdgcode = ptc.pdgCode();
-      cout << pdgcode << endl;
-      cout << tpatvtx << endl;
-      cout << partMC.Px() << " " << partMC.Py() << " " << partMC.Pz() << " " << partMC.E() 
-	   << " PT=" << sqrt(partMC.Px()*partMC.Px()+partMC.Py()*partMC.Py()) << endl;
-    }
-  }//loop true particles
+	const reco::PFTrajectoryPoint& tpatvtx = vectPART[ptcdaughters[dapt]].trajectoryPoint(0);
+	TLorentzVector partMC;
+	partMC.SetPxPyPzE(tpatvtx.momentum().Px(),
+			  tpatvtx.momentum().Py(),
+			  tpatvtx.momentum().Pz(),
+			  tpatvtx.momentum().E());
+
+	partTOTMC += partMC;
+	if(jetsDebug_){
+	  //pdgcode
+	  int pdgcode = vectPART[ptcdaughters[dapt]].pdgCode();
+	  cout << pdgcode << endl;
+	  cout << tpatvtx << endl;
+	  cout << partMC.Px() << " " << partMC.Py() << " " << partMC.Pz() << " " << partMC.E()
+	       << " PT=" << sqrt(partMC.Px()*partMC.Px()+partMC.Py()*partMC.Py()) << endl;}
+      }//loop daughter
+    }//tau
+  }//loop particles
   if(jetsDebug_) {
     cout << "ET Vector=" << partTOTMC.Et() << " " << partTOTMC.Eta() << " " << partTOTMC.Phi() << endl; cout << endl;}
 
