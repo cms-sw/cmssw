@@ -6,6 +6,8 @@
 #include "RecoParticleFlow/PFAlgo/interface/PFGeometry.h"
 #include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"
 #include "RecoParticleFlow/PFRootEvent/interface/IO.h"
+#include "RecoParticleFlow/PFRootEvent/interface/PFJetAlgorithm.h" 
+#include "RecoParticleFlow/PFRootEvent/interface/Utils.h" 
 
 #include <TFile.h>
 #include <TTree.h>
@@ -28,11 +30,7 @@
 
 using namespace std;
 
-
-
 PFRootEventManager::PFRootEventManager() {}
-
-
 
 PFRootEventManager::PFRootEventManager(const char* file)
   : clusters_(new vector<reco::PFCluster>),
@@ -43,8 +41,8 @@ PFRootEventManager::PFRootEventManager(const char* file)
   options_ = 0;
   tree_ = 0;
   iEvent_=0;
-  h_Diff_MCEHT_ = new TH1F("h_Diff_MCEHT","h_Diff_MCEHT",500,-1,1);
-  h_Diff_MCPF_  = new TH1F("h_Diff_MCPF","h_Diff_MCPF",500,-1,1);
+  h_deltaETvisible_MCEHT_ = new TH1F("h_deltaETvisible_MCEHT","Jet Et difference MC/calotowers",500,-50,50);
+  h_deltaETvisible_MCPF_  = new TH1F("h_deltaETvisible_MCPF" ,"Jet Et difference MC/ParticleFlow",500,-50,50);
 
   readOptions(file);
 
@@ -55,17 +53,10 @@ PFRootEventManager::PFRootEventManager(const char* file)
     displayHist_[iView] = 0;
   }
 
-
   maxERecHitEcal_ = -1;
   maxERecHitHcal_ = -1;
 
-  // book histos here
-  event_   = new EventColin();  
-  outTree_ = new TTree("Eff","");
-  outTree_->Branch("event","EventColin", &event_,32000,2);
-
 }
-
 
 void PFRootEventManager::reset() { 
   maxERecHitEcal_ = -1;
@@ -80,7 +71,6 @@ void PFRootEventManager::reset() {
   clustersIslandBarrel_.clear();
   trueParticles_.clear();
 }
-
 
 void PFRootEventManager::readOptions(const char* file, bool refresh) {
   PFGeometry pfGeometry; // initialize geometry
@@ -557,7 +547,7 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   if(doJets_){
     cout << "JET OPTIONS" << endl;
     cout << "Angle=" << coneAngle_ << " seedEt=" << seedEt_ << " Merge=" << coneMerge_ << endl;
-    JetAlgo_ = new JetAlgorithmEF(coneAngle_, seedEt_, coneMerge_);
+    JetAlgo_ = new PFJetAlgorithm(coneAngle_, seedEt_, coneMerge_);
   }
 
 }
@@ -588,10 +578,9 @@ void PFRootEventManager::write() {
     cout<<"writing output to "<<outFile_->GetName()
 	<<": to be implemented"<<endl;
     // write histos here
-    h_Diff_MCEHT_->Write();
-    h_Diff_MCPF_->Write();
-    outFile_->cd();
-    outTree_->Write();
+    h_deltaETvisible_MCEHT_->Write();
+    h_deltaETvisible_MCPF_->Write();
+    outFile_->cd(); 
   }
 }
 
@@ -599,9 +588,6 @@ void PFRootEventManager::write() {
 bool PFRootEventManager::processEntry(int entry) {
 
   reset();
-  
-  //reset event Colin
-  event_->reset();
   
   if(verbosity_ == VERBOSE  || 
      entry%10 == 0) 
@@ -663,7 +649,6 @@ bool PFRootEventManager::processEntry(int entry) {
   particleFlow();
   if(doJets_) makeJets(); 
 
-  outTree_->Fill(); 
   return true;
   //  if(trueParticles_.size() != 1 ) return false;
 
@@ -1136,13 +1121,6 @@ void PFRootEventManager::makeJets() {
   if(jetsDebug_) {
     cout << "ET Vector=" << partTOTMC.Et() << " " << partTOTMC.Eta() << " " << partTOTMC.Phi() << endl; cout << endl;}
 
-  EventColin::Jets jetsmc;
-  jetsmc.eta   = partTOTMC.Eta();
-  jetsmc.phi   = partTOTMC.Phi();
-  jetsmc.et    = partTOTMC.Et();
-  jetsmc.e     = partTOTMC.E();
-  event_->addJetsMC(jetsmc);
-
   ///////////////////////////////////////////////////////////////////////////////////////////////////
   //CALO TOWER JETS (ECAL+HCAL Towers)
   //cout << endl;  
@@ -1162,7 +1140,7 @@ void PFRootEventManager::makeJets() {
   
   //ECAL+HCAL tower jets computation
   JetAlgo_->Clear();
-  const vector< JetAlgorithmEF::Jet >&  caloTjets = JetAlgo_->FindJets( &allcalotowers );
+  const vector< PFJetAlgorithm::Jet >&  caloTjets = JetAlgo_->FindJets( &allcalotowers );
   
   //cout << caloTjets.size() << " CaloTower Jets found" << endl;
   double JetEHTETmax = 0.0;
@@ -1176,13 +1154,6 @@ void PFRootEventManager::makeJets() {
 	   << " PT=" << jetcalo_pt << endl;}
 
     if(jetcalo_et >= JetEHTETmax) JetEHTETmax = jetcalo_et;
-
-    EventColin::Jets jetseht;
-    jetseht.eta   = jetmom.Eta();
-    jetseht.phi   = jetmom.Phi();
-    jetseht.et    = jetmom.Et();
-    jetseht.e     = jetmom.E();
-    event_->addJetsEHT(jetseht);
   }//loop MCjets
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1213,7 +1184,7 @@ void PFRootEventManager::makeJets() {
 
   if(jetsDebug_) cout << "THERE ARE " << allrecparticles.size() << " RECONSTRUCTED 4-VECTORS" << endl;
   JetAlgo_->Clear();
-  const vector< JetAlgorithmEF::Jet >&  PFjets = JetAlgo_->FindJets( &allrecparticles );
+  const vector< PFJetAlgorithm::Jet >&  PFjets = JetAlgo_->FindJets( &allrecparticles );
 
   if(jetsDebug_) cout << PFjets.size() << " PF Jets found" << endl;
   double JetPFETmax = 0.0;
@@ -1228,18 +1199,11 @@ void PFRootEventManager::makeJets() {
       cout << "-------------------------------------------------------" << endl;}
     
     if(jetpf_et >= JetPFETmax)  JetPFETmax = jetpf_et;
-
-    EventColin::Jets jetspf;
-    jetspf.eta   = jetmom.Eta();
-    jetspf.phi   = jetmom.Phi();
-    jetspf.et    = jetmom.Et();
-    jetspf.e     = jetmom.E();
-    event_->addJetsPF(jetspf);
   }//loop PF jets
 
   //fill histos
-  h_Diff_MCEHT_->Fill((JetEHTETmax - partTOTMC.Et())/partTOTMC.Et());
-  h_Diff_MCPF_->Fill((JetPFETmax - partTOTMC.Et())/partTOTMC.Et());
+  h_deltaETvisible_MCEHT_->Fill(JetEHTETmax - partTOTMC.Et());
+  h_deltaETvisible_MCPF_ ->Fill(JetPFETmax - partTOTMC.Et());
 }//Makejets
 
 void PFRootEventManager::display(int ientry) {

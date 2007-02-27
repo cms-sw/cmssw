@@ -9,13 +9,8 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
-
 #include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
-#include "RecoParticleFlow/PFRootEvent/interface/JetAlgorithmEF.h" 
-#include "RecoParticleFlow/PFRootEvent/interface/IO.h" 
-#include "RecoParticleFlow/PFRootEvent/interface/Utils.h" 
-#include "RecoParticleFlow/PFRootEvent/interface/EventColin.h"
 
 #include <TObject.h>
 #include "TEllipse.h"
@@ -27,8 +22,6 @@
 #include <vector>
 #include <memory>
 
-#include "TH1F.h"
-
 class TTree;
 class TBranch;
 class TFile;
@@ -36,6 +29,9 @@ class TCanvas;
 class TH2F;
 class TGraph;
 class IO;
+class TH1F;
+class PFJetAlgorithm;
+class Utils;
 
 class PFBlockElement;
 
@@ -497,12 +493,10 @@ class PFRootEventManager {
   bool   jetsDebug_;
 
  private:
-  TH1F *h_Diff_MCEHT_;
-  TH1F *h_Diff_MCPF_;
 
-  EventColin      *event_;
-  TTree           *outTree_;
-  JetAlgorithmEF*  JetAlgo_;
+  TH1F *h_deltaETvisible_MCEHT_;
+  TH1F *h_deltaETvisible_MCPF_;
+  PFJetAlgorithm*  JetAlgo_;
 
 };
 #endif
