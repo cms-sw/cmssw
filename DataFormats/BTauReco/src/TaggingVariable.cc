@@ -82,15 +82,11 @@ const char* TaggingVariableTokens[] = {
   /* [lastTaggingVariable]                      = */ "lastTaggingVariable"
 };
 
-btau::TaggingVariableName getTaggingVariableName ( const std::string & name )
+btau::TaggingVariableName getTaggingVariableName( const std::string & name )
 {
-  for ( int i=0; i<= reco::btau::lastTaggingVariable ; i++ )
-  {
-    if ( name == TaggingVariableTokens[i] ) 
-    {
+  for (int i = 0; i <= reco::btau::lastTaggingVariable; i++)
+    if (name == TaggingVariableTokens[i])
       return (reco::btau::TaggingVariableName) (i);
-    }
-  }
   return btau::lastTaggingVariable;
 }
 
