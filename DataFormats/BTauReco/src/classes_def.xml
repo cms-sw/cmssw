@@ -1,7 +1,4 @@
 <lcgdict>
-  <!-- this should *NOT* be here at all -->
-  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> >,edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > > >"/>
-
   <class name="reco::JetTag"/>
   <class name="reco::JetTagCollection"/>
   <class name="reco::JetTagRef"/>
