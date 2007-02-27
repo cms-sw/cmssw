@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.14 2007/02/12 17:18:17 biery Exp $
+$Id: ConfigurableInputSource.cc,v 1.15 2007/02/12 17:53:37 biery Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -40,9 +40,31 @@ namespace edm {
   }
 
   void
+  ConfigurableInputSource::startRun() {
+    runPrincipal_ = boost::shared_ptr<RunPrincipal>(
+	new RunPrincipal(eventID_.run(), productRegistry(), processConfiguration()));
+    RunPrincipal & rp =
+       const_cast<RunPrincipal &>(*runPrincipal_);
+    Run run(rp, moduleDescription());
+    beginRun(run);
+    run.commit_();
+  }
+
+  void
+  ConfigurableInputSource::startLumi() {
+    luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal>(
+        new LuminosityBlockPrincipal(luminosityBlockID_, productRegistry(), runPrincipal_, processConfiguration()));
+    LuminosityBlockPrincipal & lbp =
+       const_cast<LuminosityBlockPrincipal &>(*luminosityBlockPrincipal_);
+    LuminosityBlock lb(lbp, moduleDescription());
+    beginLuminosityBlock(lb);
+    lb.commit_();
+  }
+
+  void
   ConfigurableInputSource::finishRun() {
     RunPrincipal & rp =
-        const_cast<RunPrincipal &>(luminosityBlockPrincipal_->runPrincipal());
+        const_cast<RunPrincipal &>(*runPrincipal_);
     Run run(rp, moduleDescription());
     endRun(run);
     run.commit_();
@@ -59,6 +81,12 @@ namespace edm {
 
   void
   ConfigurableInputSource::endLumiAndRun() {
+    if (luminosityBlockPrincipal_.get() == 0) {
+      if (runPrincipal_.get() == 0) {
+        startRun();
+      }
+      startLumi();
+    }
     finishLumi();
     finishRun();
   }
@@ -69,10 +97,7 @@ namespace edm {
     LuminosityBlockID oldLumi = luminosityBlockID_;
     setRunAndEventInfo();
     if (eventID_ == EventID()) {
-      if (!justBegun_) {
-        finishLumi();
-	finishRun();
-      }
+      endLumiAndRun();
       return std::auto_ptr<EventPrincipal>(0); 
     }
     bool isNewRun = justBegun_ || oldRun != eventID_.run();
@@ -86,23 +111,9 @@ namespace edm {
     justBegun_ = false;
     if (isNewLumi) {
       if (isNewRun) {
-        boost::shared_ptr<RunPrincipal> runPrincipal(
-	    new RunPrincipal(eventID_.run(), productRegistry(), processConfiguration()));
-        Run run(*runPrincipal, moduleDescription());
-	beginRun(run);
-	run.commit_();
-        luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal>(
-	    new LuminosityBlockPrincipal(luminosityBlockID_, productRegistry(), runPrincipal, processConfiguration()));
-      } else {
-        boost::shared_ptr<RunPrincipal const> runPrincipal = luminosityBlockPrincipal_->runPrincipalConstSharedPtr();
-        luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal>(
-	    new LuminosityBlockPrincipal(luminosityBlockID_, productRegistry(), runPrincipal, processConfiguration()));
+        startRun();
       }
-      LuminosityBlockPrincipal & lbp =
-         const_cast<LuminosityBlockPrincipal &>(*luminosityBlockPrincipal_);
-      LuminosityBlock lb(lbp, moduleDescription());
-      beginLuminosityBlock(lb);
-      lb.commit_();
+      startLumi();
     }
     std::auto_ptr<EventPrincipal> result = 
       std::auto_ptr<EventPrincipal>(

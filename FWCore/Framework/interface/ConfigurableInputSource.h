@@ -2,7 +2,7 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.15 2007/02/12 17:17:58 biery Exp $
+$Id: ConfigurableInputSource.h,v 1.16 2007/02/12 17:53:05 biery Exp $
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
@@ -41,6 +41,8 @@ namespace edm {
     void setTime(TimeValue_t t) {presentTime_ = t;}
 
   private:
+    void startRun();
+    void startLumi();
     void finishRun();
     void finishLumi();
     virtual void setRunAndEventInfo();
@@ -74,6 +76,7 @@ namespace edm {
     bool justBegun_;
 
     boost::shared_ptr<LuminosityBlockPrincipal const> luminosityBlockPrincipal_;
+    boost::shared_ptr<RunPrincipal const> runPrincipal_;
   };
 }
 #endif
