@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/02/22 05:07:36 $
- *  $Revision: 1.78 $
+ *  $Date: 2007/02/26 18:57:12 $
+ *  $Revision: 1.79 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -285,7 +285,6 @@ GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const TrackCand& staCan
   //Get region's etaRange and phiMargin
   Range etaRange = regionOfInterest.etaRange();
   Margin phiMargin = regionOfInterest.phiMargin();
-  //Range phiRange(Geom::Phi<float>(regionOfInterest.direction().phi()) - fabs(Geom::Phi<float>(phiMargin.left())),Geom::Phi<float>(regionOfInterest.direction().phi()) + fabs(Geom::Phi<float>(phiMargin.right())));
 
   vector<TrackCand> result;
 
@@ -428,9 +427,9 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
   // add muon hits and refit/smooth trajectories
   //
   CandidateContainer refittedResult;
-
+  
   if ( theMuonHitsOption > 0 ) {
-
+    
     for ( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); it++ ) {
       if(theMIMFlag) dataMonitor->fill1("build",2);
       // cut on tracks with low momenta
@@ -439,41 +438,25 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
       ConstRecHitContainer trackerRecHits = (*it)->trajectory()->recHits();
       if(theMIMFlag) dataMonitor->fill1("build",3);
 
-      if ( theMakeTkSeedFlag && theDirection == insideOut ) {
-	reverse(trackerRecHits.begin(),trackerRecHits.end());
-	//sort(trackerRecHits.begin(),trackerRecHits.end(),RecHitLessByDet(alongMomentum));
-      }
+      RefitDirection recHitDir = checkRecHitsOrdering(trackerRecHits);
+      if( recHitDir == outToIn ) reverse(trackerRecHits.begin(),trackerRecHits.end());
 
-      if ( theDirection == insideOut ) {
-	reverse(trackerRecHits.begin(),trackerRecHits.end());
-      }
-      
-      TrajectoryMeasurement firstTM = ( theDirection == outsideIn || theMakeTkSeedFlag ) ? (*it)->trajectory()->firstMeasurement() : (*it)->trajectory()->lastMeasurement();
-            
-      TrajectoryStateOnSurface firstTsos = firstTM.updatedState();
-      firstTsos.rescaleError(100.);
-      
-      //cout << "FirstTSOS Updated " <<endl 
-      //     << firstTsos << endl;
-      //<< firstTsos1.globalDirection() <<endl;
+      TrajectoryMeasurement innerTM = ( (*it)->trajectory()->direction() == alongMomentum ) ? (*it)->trajectory()->firstMeasurement() : (*it)->trajectory()->lastMeasurement();
+
+      TrajectoryStateOnSurface innerTsos = innerTM.updatedState();
+      innerTsos.rescaleError(100.);
       
       if ( theMakeTkSeedFlag ) {
-	TrajectoryMeasurement lastTM = ((*it)->trajectory()->direction() == alongMomentum) ? (*it)->trajectory()->lastMeasurement() : (*it)->trajectory()->firstMeasurement();
-	TrajectoryStateOnSurface lastTsos = lastTM.updatedState();
-	lastTsos.rescaleError(100.);
+	TrajectoryMeasurement outerTM = ((*it)->trajectory()->direction() == alongMomentum) ? (*it)->trajectory()->lastMeasurement() : (*it)->trajectory()->firstMeasurement();
+	TrajectoryStateOnSurface outerTsos = outerTM.updatedState();
+	outerTsos.rescaleError(100.);
 	
-	//cout << "LastTSOS" << lastTsos << endl;
-	//printHits(trackerRecHits);
-	
-	//TrajectoryStateTransform tsTransform;	
-	TrajectoryStateOnSurface firstTsos2;
+	TrajectoryStateOnSurface innerTsos2;
 	if(trackerRecHits.front()->geographicalId().det() == DetId::Tracker ) {
-	  firstTsos2 = theService->propagator(trackerPropagatorName)->propagate(lastTsos,trackerRecHits.front()->det()->surface());
+	  innerTsos2 = theService->propagator(trackerPropagatorName)->propagate(outerTsos,trackerRecHits.front()->det()->surface());
 	}
 	
-	//if(firstTsos2.isValid()) cout << endl<< "Next TSOS Propagated " <<endl 
-	//		      << firstTsos2 << endl;	
-	firstTsos = firstTsos2;
+	innerTsos = innerTsos2;
       }      
       
       TC refitted1,refitted2,refitted3;
@@ -489,7 +472,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	rechits.insert(rechits.end(), muonRecHits1.begin(), muonRecHits1.end());
 	if(theMIMFlag) dataMonitor->fill1("build",4);//should equal 3
 	LogTrace(category) << "Number of hits: " << rechits.size();
-	refitted1 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,firstTsos);
+	refitted1 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,innerTsos);
 
 	if ( refitted1.size() == 1 ) {
 	  if(theMIMFlag) dataMonitor->fill1("build",5);
@@ -510,7 +493,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	if(theMIMFlag) dataMonitor->fill1("build",6);
 	LogTrace(category) << "Number of hits: " << rechits.size();
 	
-	refitted2 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,firstTsos);
+	refitted2 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,innerTsos);
 	if ( refitted2.size() == 1 ) {
 	  if(theMIMFlag) dataMonitor->fill1("build",7);
 	  refit[2] = &(*refitted2.begin());
@@ -532,7 +515,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	
 	LogTrace(category) << "Number of hits: " << rechits.size();
 	if(theMIMFlag) dataMonitor->fill1("build",8);
-	refitted3 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,firstTsos);
+	refitted3 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,innerTsos);
 	if ( refitted3.size() == 1 ) {
 	  if(theMIMFlag) dataMonitor->fill1("build",9);
 	  refit[3] = &(*refitted3.begin());
@@ -719,6 +702,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
   //
   // check order of muon measurements
   //
+  LogTrace(category) << "CheckMuonHits";
   if ((*all.begin())->globalPosition().mag() >
       (*(all.end()-1))->globalPosition().mag() ) {
     LogTrace(category)<< "reverse order: ";
@@ -794,7 +778,6 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
   }
   // if none of the above is satisfied, return blank vector.
   first.clear();
-  
 }
 
 
@@ -1148,4 +1131,32 @@ void GlobalMuonTrajectoryBuilder::addTraj(TrackCand& candIn) const {
   }
   times.clean_stack(); 
 
+}
+
+
+GlobalMuonTrajectoryBuilder::RefitDirection
+GlobalMuonTrajectoryBuilder::checkRecHitsOrdering(const TransientTrackingRecHit::ConstRecHitContainer& recHits) const {
+  const std::string category = "Reco|RecoMuon|GlobalMuonTrajectoryBuilder";
+
+  if (!recHits.empty()){
+    LogDebug(category);
+    ConstRecHitContainer::const_iterator frontHit = recHits.begin();
+    ConstRecHitContainer::const_iterator backHit  = recHits.end() - 1;
+    while( !(*frontHit)->isValid() && frontHit != backHit) {frontHit++;}
+    while( !(*backHit)->isValid() && backHit != frontHit)  {backHit--;}
+
+    double rFirst = (*frontHit)->globalPosition().mag();
+    double rLast  = (*backHit) ->globalPosition().mag();
+
+    if(rFirst < rLast) return inToOut;
+    else if(rFirst > rLast) return outToIn;
+    else{
+      LogError(category) << "Impossible determine the rechits order" <<endl;
+      return undetermined;
+    }
+  }
+  else{
+    LogError(category) << "Impossible determine the rechits order" <<endl;
+    return undetermined;
+  }
 }

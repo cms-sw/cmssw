@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/02/05 19:07:38 $
- *  $Revision: 1.48 $
+ *  $Date: 2007/02/22 05:07:36 $
+ *  $Revision: 1.49 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -84,6 +84,8 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     virtual void setEvent(const edm::Event&);
 
   private:
+
+    enum RefitDirection{inToOut,outToIn,undetermined};
     
     /// choose tracker tracks within region of interest
     std::vector<TrackCand> chooseRegionalTrackerTracks(const TrackCand&, 
@@ -123,7 +125,11 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     /// if TrackCand has only a TrackRef, attempt to add Trajectory*
     void addTraj(TrackCand&) const;
 
+    RefitDirection checkRecHitsOrdering(const ConstRecHitContainer&) const;
+
   private:
+
+
 
     GlobalPoint theVertexPos;
     GlobalError theVertexErr;
