@@ -15,7 +15,7 @@ MAPFILE=RecoTBCalo/HcalPlotter/data/emap_hcal_generic.txt
 FEDS=20
 
 # First FED
-FIRSTFED=
+#FIRSTFED=
 
 # Mode of operation [MTCC|TB06|TESTSTAND]
 MODE=TESTSTAND
