@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.31 2006/10/25 21:57:55 wmtan Exp $
+// $Id: ParameterSet.h,v 1.32 2006/12/05 22:02:46 rpw Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -314,14 +314,14 @@ private:
   
   template<>
   inline 
-  ParameterSet::ParameterSet
+  edm::ParameterSet
   ParameterSet::getParameter<edm::ParameterSet>(std::string const& name) const {
     return retrieve(name).getPSet();
   }
   
   template<>
   inline 
-  std::vector<ParameterSet::ParameterSet>
+  std::vector<edm::ParameterSet>
   ParameterSet::getParameter<std::vector<edm::ParameterSet> >(std::string const& name) const {
     return retrieve(name).getVPSet();
   }
