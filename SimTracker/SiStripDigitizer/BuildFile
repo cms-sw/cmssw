@@ -2,6 +2,7 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/Common>
+<use name=SimGeneral/HepPDTRecord>
 <use name=SimDataFormats/TrackingHit>
 <use name=DataFormats/SiStripDigi>
 <use name=DataFormats/Common>
@@ -25,6 +26,7 @@
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/Common>
+   <use name=SimGeneral/HepPDTRecord>
    <use name=SimDataFormats/TrackingHit>
    <use name=DataFormats/SiStripDigi>
    <use name=SimDataFormats/TrackerDigiSimLink>
