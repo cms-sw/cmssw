@@ -42,10 +42,10 @@ PFRootEventManager::PFRootEventManager(const char* file)
   tree_ = 0;
   iEvent_=0;
   h_deltaETvisible_MCEHT_ 
-    = new TH1F("h_deltaETvisible_MCEHT","Jet Et difference MC/calotowers"
+    = new TH1F("h_deltaETvisible_MCEHT","Jet Et difference CaloTowers-MC"
 	       ,500,-50,50);
   h_deltaETvisible_MCPF_  
-    = new TH1F("h_deltaETvisible_MCPF" ,"Jet Et difference MC/ParticleFlow"
+    = new TH1F("h_deltaETvisible_MCPF" ,"Jet Et difference ParticleFlow-MC"
 	       ,500,-50,50);
 
   readOptions(file);
@@ -582,12 +582,11 @@ PFRootEventManager::~PFRootEventManager() {
 void PFRootEventManager::write() {
   if(!outFile_) return;
   else {
-    cout<<"writing output to "<<outFile_->GetName()
-	<<": to be implemented"<<endl;
+    outFile_->cd(); 
     // write histos here
+    cout<<"writing output to "<<outFile_->GetName()<<endl;
     h_deltaETvisible_MCEHT_->Write();
     h_deltaETvisible_MCPF_->Write();
-    outFile_->cd(); 
   }
 }
 
