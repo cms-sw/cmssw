@@ -1,8 +1,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2007/01/31 10:23:42 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/02/09 11:45:34 $
+ *  $Revision: 1.7 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -23,8 +23,6 @@
 
 #include "Histograms.h"
 
-
-
 #include "TFile.h"
 #include "TFolder.h"
 
@@ -38,58 +36,12 @@ using namespace edm;
 RPCRecHitQuality::RPCRecHitQuality(const ParameterSet& pset){
   cout << "--- [RPCRecHitQuality] Constructor called" << endl;
   rootFileName = pset.getUntrackedParameter<string>("rootFileName");
-  simHitLabel = pset.getUntrackedParameter<string>("simHitLabel", "SimG4Object");
-  recHitLabel = pset.getUntrackedParameter<string>("recHitLabel", "RPCRecHitProducer");
+  //simHitLabel = pset.getUntrackedParameter<string>("g4SimHits", "MuonRPCHits");
+  //recHitLabel = pset.getUntrackedParameter<string>("recHitLabel", "RPCRecHitProducer");
   
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
 
-  // Tree Structure Definition
-  char *sectname = new char[15];
-  char *wheelname = new char[15];
-  char *staname = new char[15];
-  char *occ = new char[15];
-  char *clu = new char[15];
-  int wn, sn, st, prog;
-  prog = 0;
-  for (int i = 0; i < 5; i++) { 
-    wn = i - 2;
-    sprintf(wheelname,"Wheel %d",wn);	
-    whe[i] = new TFolder (wheelname, wheelname);
-    
-    for (int j = 0; j < 12; j++) {
-      sn = j + 1;
-      sprintf(sectname,"Sector %d",sn);
-      sec[i][j] = whe[i]->AddFolder(sectname, sectname);
-      
-      for (int l = 0; l < 4; l++) {
-	st = l + 1;
-	sprintf(staname,"Station %d",st);
-	sta[i][j][l] = sec[i][j]->AddFolder(staname, staname);
-	prog = prog + 1;
-	if (st == 1 || st == 2) {
-	  lay[i][j][l][0] = sta[i][j][l]->AddFolder("IN", "IN");
-	  lay[i][j][l][1] = sta[i][j][l]->AddFolder("OUT", "OUT");
-	  sprintf(occ,"Occupancy %d",prog);
-	  sprintf(clu,"Cluster Size %d",prog);
-	  ochamb[i][j][l][1] = new TH1F (occ, "Occupancy", 90, 0 ,90);
-	  clchamb[i][j][l][1] = new TH1F (clu, "Cluster Size", 10, 0 ,10);
-
-	  prog = prog + 1;
-	  sprintf(occ,"Occupancy %d",prog);
-	  sprintf(clu,"Cluster Size %d",prog);
-	  ochamb[i][j][l][2] = new TH1F (occ, "Occupancy", 90, 0 ,90);
-	  clchamb[i][j][l][2] = new TH1F (clu, "Cluster Size", 10, 0 ,10);
-	}
-	else {
-	  sprintf(occ, "Occupancy %d", prog); 
-	  sprintf(clu,"Cluster Size %d",prog);
-	  ochamb[i][j][l][0] = new TH1F (occ, "Occupancy", 90, 0 ,90);
-	  clchamb[i][j][l][0] = new TH1F (clu, "Cluster Size", 10, 0 ,10);
-	}
-      }
-    }
-  }
 }
 
   
@@ -101,51 +53,35 @@ RPCRecHitQuality::~RPCRecHitQuality(){
 
 
 void RPCRecHitQuality::endJob() {
-  
+
+    
   theFile->cd();
   
-   
+  Rechisto->GetXaxis()->SetTitle("x (cm)");
+  Simhisto->GetXaxis()->SetTitle("x (cm)");
+  Res->GetXaxis()->SetTitle("x distance (cm)");
 
-  Res->GetXaxis()->SetTitle("Distance (cm)");
-  // Pulls->GetXaxis()->SetTitle("residual/error");
-
-
-
-  for (int i = 0; i < 5; i++) { 
-    for (int j = 0; j < 12; j++) {
-      for (int l = 0; l < 4; l++) {
-	if (l == 0 || l == 1) {
-	  lay[i][j][l][0]->Add(ochamb[i][j][l][1]);
-	  lay[i][j][l][1]->Add(ochamb[i][j][l][2]);
-	  lay[i][j][l][0]->Add(clchamb[i][j][l][1]);
-	  lay[i][j][l][1]->Add(clchamb[i][j][l][2]);
-	}
-	else {
-	  sta[i][j][l]->Add(ochamb[i][j][l][0]);
-	  sta[i][j][l]->Add(clchamb[i][j][l][0]);
-	}
-      }
-    }  
-    whe[i]->Write();
-  } 
-  
-  
   fres->Add(ResWmin2);
   fres->Add(ResWmin1);
   fres->Add(ResWzer0);
   fres->Add(ResWplu1);
   fres->Add(ResWplu2);  
-  
+  fres->Add(ResS1);
+  fres->Add(ResS3);
+
+  focc->Add(occRB1IN);
+  focc->Add(occRB1OUT);  
+
+
   fres->Write();
   focc->Write();
 
   Rechisto->Write();
+  Simhisto->Write();
   Res->Write();
-  Simhisto->Write(); 
   Pulls->Write();
-  ClSize->Write();
-  Occupancy->Write(); 
-  
+  ClSize->Write(); 
+  res1cl->Write();  
   theFile->Close();
   
 }
@@ -169,11 +105,15 @@ void RPCRecHitQuality::analyze(const Event & event, const EventSetup& eventSetup
   std::map<double, int> simWzer0;
   std::map<double, int> simWplu1;
   std::map<double, int> simWplu2;
+  std::map<double, int> simS1;
+  std::map<double, int> simS3;
   std::map<int, double> nsimWmin2;
   std::map<int, double> nsimWmin1;
   std::map<int, double> nsimWzer0;
   std::map<int, double> nsimWplu1;
   std::map<int, double> nsimWplu2;
+  std::map<int, double> nsimS1;
+  std::map<int, double> nsimS3;
 
   Handle<RPCRecHitCollection> recHit;
   event.getByLabel("rpcRecHits", recHit);
@@ -181,35 +121,42 @@ void RPCRecHitQuality::analyze(const Event & event, const EventSetup& eventSetup
   std::map<int, double> nmaprec;
   std::map<double, double> nmaperr;
   std::map<int, double> nmapres;
-  
+    
+  std::map<double, int> maprecCL1;
+  std::map<int, double> nmaprecCL1;
+
   std::map<double, int> recWmin2;
   std::map<double, int> recWmin1;
   std::map<double, int> recWzer0;
   std::map<double, int> recWplu1;
   std::map<double, int> recWplu2;
+  std::map<double, int> recS1;
+  std::map<double, int> recS3;
   std::map<int, double> nrecWmin2;
   std::map<int, double> nrecWmin1;
   std::map<int, double> nrecWzer0;
   std::map<int, double> nrecWplu1;
   std::map<int, double> nrecWplu2;
+  std::map<int, double> nrecS1;
+  std::map<int, double> nrecS3;
   std::map<double, double> errWmin2;
   std::map<double, double> errWmin1;
   std::map<double, double> errWzer0;
   std::map<double, double> errWplu1;
   std::map<double, double> errWplu2;
   
-  
 
-
-  
   // Loop on rechits
   RPCRecHitCollection::const_iterator recIt;
   int nrec = 0; 
+  int nrecCL1 = 0;
   int nrecmin2 = 0;
   int nrecmin1 = 0;
   int nreczer0 = 0;
   int nrecplu1 = 0;
   int nrecplu2 = 0;
+  int nrecS1c = 0;
+  int nrecS3c = 0;
   
   for (recIt = recHit->begin(); recIt != recHit->end(); recIt++) {
     RPCDetId Rid = (RPCDetId)(*recIt).rpcId();
@@ -222,43 +169,49 @@ void RPCRecHitQuality::analyze(const Event & event, const EventSetup& eventSetup
     LocalPoint rhitlocal = (*recIt).localPosition();
     LocalError locerr = (*recIt).localPositionError(); 
     double rhitlocalx = rhitlocal.x();
-    double rhiterrx =locerr.xx();
+    double rhiterrx = locerr.xx();
+    Rechisto->Fill(rhitlocalx);
     int wheel = roll->id().ring();
     int sector = roll->id().sector(); 
     int station = roll->id().station();
     int k = roll->id().layer();
     //    int s = roll->id().subsector();
 
-    int i = wheel + 2;
-    int j = sector - 1;
-    int l = station - 1;
-    
-
-    // cluster size
-    ClSize->Fill(clsize); //Global Cluster Size
-    if (l == 0 || l == 1) {
-      clchamb[i][j][l][k]->Fill(clsize);
-    } else {
-      clchamb[i][j][l][0]->Fill(clsize);
+    //-----CLSIZE = 1------------
+    if (clsize == 1) {
+      maprecCL1[rhitlocalx] = nrec;
+      nrecCL1 = nrecCL1 + 1;
     }
+    //-----------------------------
+
+    ClSize->Fill(clsize); //Global Cluster Size
     
     
     // occupancy
     for (int occ = 0; occ < clsize; occ++) {
       int occup = fstrip + occ;
-      Occupancy->Fill(occup);
-      if (l == 0 || l == 1) {
-	ochamb[i][j][l][k]->Fill(occup);
-      } else {
-	ochamb[i][j][l][0]->Fill(occup);
+      if (station == 1 && k == 1) {
+	occRB1IN->Fill(occup);
+      }
+      if (station == 1 && k == 2) {
+	occRB1OUT->Fill(occup);
       }
     }      
     
 
-    Rechisto->Fill(rhitlocalx);
     maprec[rhitlocalx] = nrec;
     nmaperr[rhitlocalx] = rhiterrx;
     
+    //-------PHI-------------------
+    if(sector == 1) {
+      recS1[rhitlocalx] = nrec;
+      nrecS1c = nrecS1c + 1;
+    }
+    if(sector == 3) {
+      recS3[rhitlocalx] = nrec;
+      nrecS3c = nrecS3c + 1;
+    }
+    //----------------------------
        
     if(wheel == -2) {
       recWmin2[rhitlocalx] = nrec;
@@ -285,8 +238,6 @@ void RPCRecHitQuality::analyze(const Event & event, const EventSetup& eventSetup
       errWplu2[rhitlocalx] = rhiterrx;
       nrecplu2 = nrecplu2 + 1;
     }
-    
-   
   }
   cout << " --> Found " << nrec << " rechit in event " << event.id().event() << endl;
    
@@ -295,6 +246,12 @@ void RPCRecHitQuality::analyze(const Event & event, const EventSetup& eventSetup
   for (map<double, int>::iterator iter = maprec.begin(); iter != maprec.end(); iter++) {
     i = i + 1;
     nmaprec[i] = (*iter).first;
+  }
+  // CL = 1 rechit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = maprecCL1.begin(); iter != maprecCL1.end(); iter++) {
+    i = i + 1;
+    nmaprecCL1[i] = (*iter).first;
   }
   // Wheel -2 rechit mapping
   i = 0;
@@ -326,8 +283,18 @@ void RPCRecHitQuality::analyze(const Event & event, const EventSetup& eventSetup
     i = i + 1;
     nrecWplu2[i] = (*iter).first;
   }
-
-
+  // Sector 1 rechit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = recS1.begin(); iter != recS1.end(); iter++) {
+    i = i + 1;
+    nrecS1[i] = (*iter).first;
+  }
+  // Sector 3 rechit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = recS3.begin(); iter != recS3.end(); iter++) {
+    i = i + 1;
+    nrecS3[i] = (*iter).first;
+  }
 
   
   // Loop on simhits
@@ -338,22 +305,37 @@ void RPCRecHitQuality::analyze(const Event & event, const EventSetup& eventSetup
   int nsimzer0 = 0;
   int nsimplu1 = 0;
   int nsimplu2 = 0;
+  int nsimS1c = 0;
+  int nsimS3c = 0;
 
   for (simIt = simHit->begin(); simIt != simHit->end(); simIt++) {
     int ptype = (*simIt).particleType();
     RPCDetId Rsid = (RPCDetId)(*simIt).detUnitId();
     const RPCRoll* roll = dynamic_cast<const RPCRoll* >( rpcGeom->roll(Rsid));
     int Swheel = roll->id().ring();
-    
+    int Ssector = roll->id().sector();
         
     // selection of muon hits 
-    if (ptype == 13) {
+    if (ptype == 13 || ptype == -13) {
       nsim = nsim + 1;
       LocalPoint shitlocal = (*simIt).localPosition();
       double shitlocalx = shitlocal.x();
-      Simhisto->Fill(shitlocalx);
+      Simhisto->Fill(shitlocalx);      
+
       mapsim[shitlocalx] = nsim;
-      
+
+      //----PHI------------------------
+      if(Ssector == 1) {
+	simS1[shitlocalx] = nsim;
+	nsimS1c = nsimS1c + 1;
+      }
+      if(Ssector == 3) {
+	simS3[shitlocalx] = nsim;
+	nsimS3c = nsimS3c + 1;
+      }
+      //--------------------------------
+
+
       if(Swheel == -2) {
 	simWmin2[shitlocalx] = nsim;
 	nsimmin2 = nsimmin2 + 1;
@@ -415,15 +397,21 @@ void RPCRecHitQuality::analyze(const Event & event, const EventSetup& eventSetup
     i = i + 1;
     nsimWplu2[i] = (*iter).first;
   }
-  
+  // Sector 1 simhit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = simS1.begin(); iter != simS1.end(); iter++) {
+    i = i + 1;
+    nsimS1[i] = (*iter).first;
+  }
+  // Sector 3 simhit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = simS3.begin(); iter != simS3.end(); iter++) {
+    i = i + 1;
+    nsimS3[i] = (*iter).first;
+  }
 
   // Compute residuals 
-  double res;
-  double resmin2;
-  double resmin1;
-  double reszer0;
-  double resplu1;
-  double resplu2;
+  double res,resmin2,resmin1,reszer0,resplu1,resplu2,resS1,resS3;
   if (nsim == nrec) {
     for (int r=0; r<nsim; r++) {
       res = nmapsim[r+1] - nmaprec[r+1];
@@ -431,49 +419,64 @@ void RPCRecHitQuality::analyze(const Event & event, const EventSetup& eventSetup
       Res->Fill(res);
     }
   }
+  if (nsim == nrecCL1) {
+   for (int r=0; r<nsim; r++) {
+     res = nmapsim[r+1] - nmaprecCL1[r+1];
+     //cout << nmapsim[r+1] << " " << nmaprecCL1[r+1] << endl;
+     if (abs(res) < 3) {
+       res1cl->Fill(res);
+     }
+   }
+ }
   if (nsimmin2 == nrecmin2) {
     for (int r=0; r<nsimmin2; r++) {
       resmin2 = nsimWmin2[r+1] - nrecWmin2[r+1];
-      // nresWmin2[r+1] = resmin2;
       ResWmin2->Fill(resmin2);
     }
   }
   if (nsimmin1 == nrecmin1) {
     for (int r=0; r<nsimmin1; r++) {
       resmin1 = nsimWmin1[r+1] - nrecWmin1[r+1];
-      // nresWmin2[r+1] = resmin1;
       ResWmin1->Fill(resmin1);
     }
   }
   if (nsimzer0 == nreczer0) {
     for (int r=0; r<nsimzer0; r++) {
       reszer0 = nsimWzer0[r+1] - nrecWzer0[r+1];
-      // nresWmin2[r+1] = resmin2;
       ResWzer0->Fill(reszer0);
     }
   }
   if (nsimplu1 == nrecplu1) {
     for (int r=0; r<nsimplu1; r++) {
       resplu1 = nsimWplu1[r+1] - nrecWplu1[r+1];
-      // nresWplu1[r+1] = resplu1;
       ResWplu1->Fill(resplu1);
     }
   }
   if (nsimplu2 == nrecplu2) {
     for (int r=0; r<nsimplu2; r++) {
       resplu2 = nsimWplu2[r+1] - nrecWplu2[r+1];
-      // nresWplu2[r+1] = resplu2;
       ResWplu2->Fill(resplu2);
     }
   }
-  
-  
+  if (nsimS1c == nrecS1c) {
+    for (int r=0; r<nsimS1c; r++) {
+      resS1 = nsimS1[r+1] - nrecS1[r+1];
+      ResS1->Fill(resS1);
+    }
+  }
+  if (nsimS3c == nrecS3c) {
+    for (int r=0; r<nsimS3c; r++) {
+      resS3 = nsimS3[r+1] - nrecS3[r+1];
+      ResS3->Fill(resS3);
+    }
+  }
+
+
   // compute Pulls 
   double pull;
   if (nsim == nrec) {
     for (int r=0; r<nsim; r++) {
       pull = nmapres[r+1] / nmaperr[nmaprec[r+1]];
-      //ut << r+1 << " " << pull << endl;
       Pulls->Fill(pull);
     }
   }
