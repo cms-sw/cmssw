@@ -60,8 +60,8 @@ void BremsstrahlungUpdator::compute(ParticlePropagator &Particle)
     HepLorentzVector PartP = brem(Particle);
     
     //Rotate to the lab frame
-    double chi = Particle.momentum().theta();
-    double psi = Particle.momentum().phi();
+    double chi = Particle.theta();
+    double psi = Particle.phi();
     
     PartP = PartP.rotateY(chi);
     PartP = PartP.rotateZ(psi);

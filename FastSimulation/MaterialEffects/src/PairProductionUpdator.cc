@@ -22,7 +22,7 @@ PairProductionUpdator::PairProductionUpdator(double photonEnergyCut,
 void PairProductionUpdator::compute(ParticlePropagator& Particle)
 {
 
-  double eGamma = Particle.momentum().vect().mag(); 
+  double eGamma = Particle.vect().mag(); 
 
   // The photon has enough energy to create a pair
   if ( eGamma>=photonEnergy ) { 
@@ -74,8 +74,8 @@ void PairProductionUpdator::compute(ParticlePropagator& Particle)
       }
       
       
-      double chi = Particle.momentum().theta();
-      double psi = Particle.momentum().phi();
+      double chi = Particle.theta();
+      double psi = Particle.phi();
       
       HepLorentzVector PartP(pElectron*stheta1*cphi,
 			     pElectron*stheta1*sphi,
