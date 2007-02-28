@@ -26,6 +26,8 @@ class NUEvent;
 
 class ParticlePropagator;
 class RandomEngine;
+//class DaqMonitorBEInterface;
+//class MonitorElement;
 
 class NuclearInteractionUpdator : public MaterialEffectsUpdator
 {
@@ -71,6 +73,13 @@ class NuclearInteractionUpdator : public MaterialEffectsUpdator
 
   std::ofstream myOutputFile;
   unsigned myOutputBuffer;
+
+  //  DaqMonitorBEInterface * dbe;
+  //  MonitorElement* htot;
+  //  MonitorElement* helas;
+  //  MonitorElement* hinel;
+  //  MonitorElement* hscatter;
+  //  MonitorElement* hscatter2;
 
 };
 #endif
