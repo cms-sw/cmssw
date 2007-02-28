@@ -27,13 +27,18 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
    trigPrimCollection_ = params.getParameter<string>("trigPrimCollection");
    trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
    dumpFlags_ = params.getUntrackedParameter<int>("dumpFlags", 0);
+   writeSrFlags_ = params.getUntrackedParameter<bool>("writeSrFlags",false);
    //instantiates the selective readout algorithm:
    suppressor_ = auto_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params));
    //declares the products made by this producer:
    produces<EBDigiCollection>(ebSRPdigiCollection_);
    produces<EEDigiCollection>(eeSRPdigiCollection_);
-   produces<EBSrFlagCollection>(ebSrFlagCollection_);
-   produces<EESrFlagCollection>(eeSrFlagCollection_);
+
+   if ( writeSrFlags_ ) {
+     produces<EBSrFlagCollection>(ebSrFlagCollection_);
+     produces<EESrFlagCollection>(eeSrFlagCollection_);
+   }
+   
 }
 
 
@@ -95,8 +100,10 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
   event.put(selectedEEDigis, eeSRPdigiCollection_);
   
   //puts the SR flags into the event:
-  event.put(ebSrFlags, ebSrFlagCollection_);
-  event.put(eeSrFlags, eeSrFlagCollection_);  
+  if ( writeSrFlags_ ) {
+    event.put(ebSrFlags, ebSrFlagCollection_);
+    event.put(eeSrFlags, eeSrFlagCollection_);  
+  }
 }
 
 const EBDigiCollection*
@@ -166,7 +173,7 @@ void EcalSelectiveReadoutProducer::checkTriggerMap(const edm::EventSetup & event
 
 
 void EcalSelectiveReadoutProducer::printTTFlags(const EcalTrigPrimDigiCollection& tp, ostream& os) const{
-  const char tccFlagMarker[] = { '?', '.', 'S', '?', 'C', 'E', 'E', 'E', 'E'};
+  const char tccFlagMarker[] = { 'x', '.', 'S', '?', 'C', 'E', 'E', 'E', 'E'};
   const int nEta = EcalSelectiveReadout::nTriggerTowersInEta;
   const int nPhi = EcalSelectiveReadout::nTriggerTowersInPhi;
 
@@ -174,11 +181,11 @@ void EcalSelectiveReadoutProducer::printTTFlags(const EcalTrigPrimDigiCollection
   //  if(firstCall){
   //  firstCall=false;
   os << "# TCC flag map\n#\n"
-    "# +-->Phi            " << tccFlagMarker[1] << ": 000 (low interest)\n"
-    "# |                  " << tccFlagMarker[2] << ": 001 (mid interest)\n"
-    "# |                  " << tccFlagMarker[3] << ": 010 (not valid)\n"
-    "# V Eta              " << tccFlagMarker[5] << ": 011 (high interest)\n"
-    "#                    " << tccFlagMarker[6] << ": 1xx forced readout (Hw error)\n"
+    "# +-->Phi            " << tccFlagMarker[0+1] << ": 000 (low interest)\n"
+    "# |                  " << tccFlagMarker[1+1] << ": 001 (mid interest)\n"
+    "# |                  " << tccFlagMarker[2+1] << ": 010 (not valid)\n"
+    "# V Eta              " << tccFlagMarker[3+1] << ": 011 (high interest)\n"
+    "#                    " << tccFlagMarker[4+1] << ": 1xx forced readout (Hw error)\n"
     "#\n";
   //}
   

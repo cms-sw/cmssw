@@ -779,7 +779,7 @@
 [OVAL] # +-->Phi            .: 000 (low interest)
 [OVAL] # |                  S: 001 (mid interest)
 [OVAL] # |                  ?: 010 (not valid)
-[OVAL] # V Eta              E: 011 (high interest)
+[OVAL] # V Eta              C: 011 (high interest)
 [OVAL] #                    E: 1xx forced readout (Hw error)
 [OVAL] #
 [OVAL] #Event 1
@@ -1363,7 +1363,7 @@
 [OVAL] ........................................................................
 [OVAL] #SRP flag map
 [OVAL] #
-[OVAL] # Generatied on: Wed Feb 14 20:18:53 2007
+[OVAL] # Generatied on: Wed Feb 28 18:20:01 2007
 [OVAL] 
 [OVAL] #
 [OVAL] # +-->Phi/Y .: suppressed
@@ -2135,4 +2135,21 @@
 [oval run] ==========================================
 [oval run] result: OK
 [oval run] ==========================================
+
+[oval diff] ================================================
+[oval diff] diff line: /^\[OVAL\](.*)$/
+[oval diff] ================================================
+
+=== olog #782 != oref #782
+olog: [OVAL] # V Eta              C: 011 (high interest)
+---
+oref: [OVAL] # V Eta              E: 011 (high interest)
+=== olog #1366 != oref #1366
+olog: [OVAL] # Generatied on: Wed Feb 28 18:20:01 2007
+---
+oref: [OVAL] # Generatied on: Wed Feb 14 20:18:53 2007
+
+[oval diff] =========================================
+[oval diff] result: DIFFS
+[oval diff] =========================================
 

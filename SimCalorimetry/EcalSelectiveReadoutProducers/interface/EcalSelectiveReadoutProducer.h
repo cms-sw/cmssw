@@ -108,6 +108,9 @@ private:
    */
   int dumpFlags_;
 
+  // switch to write out the SrFlags collections in the event
+  bool writeSrFlags_;
+
 };
 
 #endif 
