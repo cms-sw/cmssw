@@ -83,6 +83,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
       = matEff.getParameter<double>("lengthRatio");
     string inputFile 
       = matEff.getUntrackedParameter<std::string>("inputFile");
+    // Construction
     NuclearInteraction = 
       new NuclearInteractionUpdator(listOfFiles,
 				    pionEnergies,
@@ -142,8 +143,8 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
       itrack < 2 ) ? 
     true : false;
 
-  double radius = myTrack.position().perp()*0.1;
-  double zed = fabs(myTrack.position().z())*0.1;
+  double radius = myTrack.position().perp();
+  double zed = fabs(myTrack.position().z());
 
   if ( plot && radius < 2.6 ) { 
     myEta = myTrack.eta();
@@ -166,7 +167,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
     if ( PairProduction->nDaughters() ) {	
       //add a vertex to the mother particle
       int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack);
-      //Fill("h200",myTrack.vertex().z()*0.1,myTrack.vertex().perp()*0.1);
+      //Fill("h200",myTrack.vertex().z(),myTrack.vertex().perp());
       
       // This was a photon that converted
       for ( DaughterIter = PairProduction->beginDaughters();
@@ -247,6 +248,8 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 
     // Simulate a nuclear interaction
     NuclearInteractionEDM->updateState(myTrack,radlen*factor);
+
+    // Add a new vertex and daughters if inelastic scattering
     if ( NuclearInteractionEDM->nDaughters() ) { 
 
       //add a end vertex to the mother particle
@@ -293,7 +296,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
       // Add a vertex, but do not attach it to the electron, because it 
       // continues its way...
       int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack);
-       //myHistos->fill("h200",myTrack.vertex().z()*0.1,myTrack.vertex().perp()*0.1);
+       //myHistos->fill("h200",myTrack.vertex().z(),myTrack.vertex().perp());
 
       for ( DaughterIter = Bremsstrahlung->beginDaughters();
 	    DaughterIter != Bremsstrahlung->endDaughters(); 
