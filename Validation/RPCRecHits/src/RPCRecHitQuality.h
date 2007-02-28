@@ -5,10 +5,10 @@
 /*
  * \class RPCRecHitQuality
  *  Basic analyzer class which accesses 1D RPCRecHits
- *  and plot resolution comparing reconstructed and simulated quantities
+ *  and plots residuals and pulls as function of some parameters
  *
- *  $Date: 2007/01/30 14:54:42 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/02/09 11:45:30 $
+ *  $Revision: 1.6 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
