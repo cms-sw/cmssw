@@ -64,6 +64,8 @@ private:
                       , String const &  filename
 		      );
   void  configure_external_dests( );
+
+#ifdef OLDSTYLE
   template <class T>
   T  getAparameter ( PSet * p, std::string const & id, T const & def ) 
   {
@@ -80,6 +82,15 @@ private:
     }
     return t;
   }
+#else
+  template <class T>
+  T  getAparameter ( PSet * p, std::string const & id, T const & def ) 
+  {
+    T t;
+    t = p->template getUntrackedParameter<T>(id, def);
+    return t;
+  }
+#endif
 
   // --- other helpers
   void parseCategories (std::string const & s, std::vector<std::string> & cats);
