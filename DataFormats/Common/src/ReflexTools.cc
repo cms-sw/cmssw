@@ -116,7 +116,12 @@ namespace edm
 
     bool
     checkDictionary(Type c) {
-      while (c.IsPointer() == true || c.IsArray() == true || c.IsTypedef() == true || c.IsReference() == true) {
+      while (c.IsPointer() == true ||
+	     c.IsArray() == true ||
+	     c.IsTypedef() == true ||
+	     c.IsConst() == true ||
+	     c.IsVolatile() == true ||
+	     c.IsReference() == true) {
 	c = c.ToType();
       }
       if (c.IsFundamental()) return false;
