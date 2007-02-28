@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.6 2007/02/14 23:41:38 futyand Exp $ 
- **  $Date: 2007/02/14 23:41:38 $ 
- **  $Revision: 1.6 $
+ **  $Id: PhotonProducer.h,v 1.7 2007/02/19 21:40:34 futyand Exp $ 
+ **  $Date: 2007/02/19 21:40:34 $ 
+ **  $Revision: 1.7 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -44,7 +44,7 @@ class PhotonProducer : public edm::EDProducer {
 			    const reco::SeedSuperClusterAssociationCollection& pixelSeedAssoc,
 			    math::XYZPoint & vtx,
 			    reco::PhotonCollection & outputCollection,
-			    int iSC);
+			    int& iSC);
 
   std::string PhotonCollection_;
   std::string scHybridBarrelProducer_;

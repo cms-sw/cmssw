@@ -153,7 +153,7 @@ void PhotonProducer::fillPhotonCollection(
 		   const EcalRecHitCollection *hits,
 		   const reco::SeedSuperClusterAssociationCollection& pixelSeedAssoc,
 		   math::XYZPoint & vtx,
-		   reco::PhotonCollection & outputPhotonCollection, int iSC) {
+		   reco::PhotonCollection & outputPhotonCollection, int& iSC) {
 
   reco::SuperClusterCollection scCollection = *(scHandle.product());
   reco::SuperClusterCollection::iterator aClus;
