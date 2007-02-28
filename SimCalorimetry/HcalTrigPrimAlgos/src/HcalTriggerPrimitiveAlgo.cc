@@ -83,8 +83,8 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
 
 void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
 
-  // HF short fibers off
-  if(frame.id().depth() == 1) {
+ 
+  if(frame.id().depth() == 1 || frame.id().depth() == 2) {
     std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry.towerIds(frame.id());
     assert(ids.size() == 1);
     IntegerCaloSamples samples(ids[0], frame.size());
@@ -199,7 +199,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples,
 					 HcalTriggerPrimitiveDigi & result)
 {
   std::vector<bool> finegrain(samples.size(),false);
-  IntegerCaloSamples sum(samples.id(), samples.size());
+  // IntegerCaloSamples sum(samples.id(), samples.size());
   
   
   IntegerCaloSamples output(samples.id(),samples.size());
