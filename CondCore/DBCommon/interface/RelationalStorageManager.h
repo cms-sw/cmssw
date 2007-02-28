@@ -19,7 +19,7 @@ namespace cond{
 			     cond::DBSession* session);
     ~RelationalStorageManager();
     DBSession& session();
-    //bool isSessionShared() const;
+    bool isSessionShared() const;
     coral::ISessionProxy* connect(cond::ConnectMode mod);
     void disconnect();
     void startTransaction(bool isReadOnly=true);
@@ -33,7 +33,7 @@ namespace cond{
     bool m_readOnlyMode;
     bool m_started;
     DBSession* m_sessionHandle;
-    //bool m_sessionShared;
+    bool m_sessionShared;
     //seal::IHandle<coral::IConnectionService> m_connectionService;
   private:
     void init();
