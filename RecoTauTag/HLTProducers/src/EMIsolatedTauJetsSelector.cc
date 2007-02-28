@@ -36,18 +36,14 @@ void EMIsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetu
   
   int l1Deco = -1000;
    l1Deco = *(l1Decision->begin());
-   //   cout <<"Crasha qui?"<<endl;
   if(l1Deco == 1 || l1Deco == 2) {
-    cout <<"Crasha qui?1"<<endl;
     //SingleTau fired but NOT DoubleTau So SingleTau Jet should be isolated
     edm::Handle<EMIsolatedTauTagInfoCollection> singleTauJets;
     iEvent.getByLabel( singleTau, singleTauJets );
     EMIsolatedTauTagInfoCollection::const_iterator i = singleTauJets->begin();
     for(;i !=singleTauJets->end(); i++ ) {
       double discriminator = (*i).discriminator();
-      cout <<"Crasha qui?1.5"<<endl;
       if(discriminator > 0) {
-	cout <<"Crasha qui?2"<<endl;
 	const CaloJet* pippo = dynamic_cast<const CaloJet*>(&(i->jet()));
 	jetIsolatedCollection->push_back(*pippo );
       }else{
@@ -59,7 +55,6 @@ void EMIsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetu
     //All DoubleTau jets are put into the non isolated collection
     edm::Handle<EMIsolatedTauTagInfoCollection> doubleTauJets;
     iEvent.getByLabel( doubleTau, doubleTauJets );
-    cout <<"Crasha qui?2.5"<<endl;
     EMIsolatedTauTagInfoCollection::const_iterator ii = doubleTauJets->begin();
     for(;ii !=doubleTauJets->end(); ii++ ) {
       const CaloJet* notPippo = dynamic_cast<const CaloJet*>(&(ii->jet()));
@@ -97,12 +92,9 @@ void EMIsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetu
     }
     
   }
-  cout <<"Crasha qui?3"<<endl;
   auto_ptr<reco::CaloJetCollection> isolatedTaus(jetIsolatedCollection);
   auto_ptr<reco::CaloJetCollection> notIsolatedTaus(jetNotIsolatedCollection);
-  cout <<"Crasha qui?3.5"<<endl;
   iEvent.put(isolatedTaus, "Isolated");
-  cout <<"Crasha qui?4"<<endl;
   iEvent.put(notIsolatedTaus,"NotIsolated");
   
 }
