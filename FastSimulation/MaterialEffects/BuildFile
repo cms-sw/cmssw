@@ -12,6 +12,7 @@
 <use name=clhep>
 <use name=rootcore>
 <use name=rootrflx>
+#<use name=DQMServices/CoreROOT>
 <export>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
