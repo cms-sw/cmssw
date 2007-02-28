@@ -11,12 +11,15 @@ namespace{
     L1MuDTChambPhDigi ph_S;
     L1MuDTChambThDigi th_S;
 
-    L1MuDTChambPhContainer        ph_K;
-    L1MuDTChambThContainer        th_K;
-    L1MuDTTrackContainer          tr_K;
+    std::vector<L1MuDTChambPhDigi> ph_V;
+    std::vector<L1MuDTChambThDigi> th_V;
 
-    edm::Wrapper<L1MuDTChambPhContainer>         ph_W;
-    edm::Wrapper<L1MuDTChambThContainer>         th_W;
-    edm::Wrapper<L1MuDTTrackContainer>           tr_W;
+    L1MuDTChambPhContainer ph_K;
+    L1MuDTChambThContainer th_K;
+    L1MuDTTrackContainer   tr_K;
+
+    edm::Wrapper<L1MuDTChambPhContainer> ph_W;
+    edm::Wrapper<L1MuDTChambThContainer> th_W;
+    edm::Wrapper<L1MuDTTrackContainer>   tr_W;
   }
 }
