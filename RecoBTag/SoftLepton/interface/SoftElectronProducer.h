@@ -3,9 +3,9 @@
 /** \class SoftElectronProducer
  *
  *
- *  $Id: SoftElectronProducer.h,v 1.2 2007/02/15 17:26:05 demine Exp $
- *  $Date: 2007/02/15 17:26:05 $
- *  $Revision: 1.2 $
+ *  $Id: SoftElectronProducer.h,v 1.3 2007/02/15 20:09:13 fwyzard Exp $
+ *  $Date: 2007/02/15 20:09:13 $
+ *  $Revision: 1.3 $
  *
  *  \author P. Demin - UCL, Louvain-la-Neuve - Belgium
  *
@@ -36,6 +36,7 @@ class SoftElectronProducer : public edm::EDProducer
   edm::ParameterSet theConf;
 
   edm::InputTag theTrackTag;
+  edm::InputTag theHBHERecHitTag;
   edm::InputTag theBasicClusterTag, theBasicClusterShapeTag;
   edm::InputTag thePrimaryVertexTag;
 

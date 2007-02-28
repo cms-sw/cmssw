@@ -39,9 +39,10 @@ using namespace edm;
 SoftElectronProducer::SoftElectronProducer(const edm::ParameterSet &iConf) :
   theConf(iConf), theTrackAssociator(0), theElecNN(0)
 {
-  theTrackTag = theConf.getParameter<InputTag>("TrackTag");
+  theTrackTag             = theConf.getParameter<InputTag>("TrackTag");
 
-  theBasicClusterTag = theConf.getParameter<InputTag>("BasicClusterTag");
+  theHBHERecHitTag        = theConf.getParameter<InputTag>("HBHERecHitTag");
+  theBasicClusterTag      = theConf.getParameter<InputTag>("BasicClusterTag");
   theBasicClusterShapeTag = theConf.getParameter<InputTag>("BasicClusterShapeTag");
 
   theHOverEConeSize = theConf.getParameter<double>("HOverEConeSize");
@@ -115,7 +116,7 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
   iEvent.getByLabel(theBasicClusterShapeTag, handleShape);
 
   // get rec. hits
-  iEvent.getByType(handleRecHit);
+  iEvent.getByLabel(theHBHERecHitTag, handleRecHit);
   HBHERecHitMetaCollection metaRecHit(*handleRecHit);
 
   // get calorimeter geometry
