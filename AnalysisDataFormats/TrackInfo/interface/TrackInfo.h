@@ -8,7 +8,7 @@
  *
  * \author Chiara Genta
  *
- * \version $Id: TrackInfo.h,v 1.1 2007/01/17 17:43:23 genta Exp $
+ * \version $Id: TrackInfo.h,v 1.2 2007/02/07 12:35:30 genta Exp $
  *
  */
 
@@ -23,7 +23,7 @@ namespace reco {
    class TrackInfo{
   public:
     /// default constructor
-    typedef std::map<TrackingRecHitRef , const PTrajectoryStateOnDet >  TrajectoryInfo;
+    typedef std::map<TrackingRecHitRef , PTrajectoryStateOnDet >  TrajectoryInfo;
     TrackInfo() {}
 
     TrackInfo( const TrajectorySeed & seed_, const TrajectoryInfo & trajstate);
