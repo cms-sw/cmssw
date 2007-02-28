@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: GlobalTest.h,v 1.1 2006/03/14 14:23:26 uberthon Exp $
+// $Id: GlobalTest.h,v 1.1 2007/02/27 17:05:08 uberthon Exp $
 //
 //
 
@@ -23,33 +23,42 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+//DQM services for histogram
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 class TFile;
-class TH1I;
-class  TH1F;
+class MonitorElement;
 
 //
 // class declaration
 //
 
 class GlobalTest : public edm::EDAnalyzer {
-   public:
-      explicit GlobalTest(const edm::ParameterSet&);
-      ~GlobalTest();
+public:
+  explicit GlobalTest(const edm::ParameterSet&);
+  ~GlobalTest();
 
+  void beginJob(edm::EventSetup const&iSetup);
+  void endJob();
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-   private:
-      std::string filename_;
-      int minbunch_;
-      int maxbunch_;
-      TFile *histfile_;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-      const static int nMaxH=10;
-      TH1I * nrPileupsH_[nMaxH];
-      TH1I * nrVerticesH_[nMaxH];
-      TH1I * nrTracksH_[nMaxH];
-      TH1I * trackPartIdH_[nMaxH];
-      TH1F * caloEnergyEBH_[nMaxH];
-      TH1F * caloEnergyEEH_[nMaxH];
+private:
+  std::string filename_;
+  int minbunch_;
+  int maxbunch_;
+  TFile *histfile_;
+
+  const static int nMaxH=10;
+  MonitorElement * nrPileupsH_[nMaxH];
+  MonitorElement * nrVerticesH_[nMaxH];
+  MonitorElement * nrTracksH_[nMaxH];
+  MonitorElement * trackPartIdH_[nMaxH];
+  MonitorElement * caloEnergyEBH_[nMaxH];
+  MonitorElement * caloEnergyEEH_[nMaxH];
+
+  DaqMonitorBEInterface* dbe_;
 };
 

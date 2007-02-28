@@ -27,7 +27,7 @@ while ( $i <= $bcrend )
     /bin/rm /tmp/testsuite2_$i.cfg  > &/dev/null
     sed "s/xxx/$i/" testsuite2.cfg | sed "s/bcrs/$bcrstart/" | sed "s/bcre/$bcrend/" >/tmp/testsuite2_$i.cfg
     cmsRun --parameter-set /tmp/testsuite2_$i.cfg
-#####    cp  histos.root ../data/MMValHistos_$i.root  # for test preparation only!
+####    cp  histos.root ../data/MMValHistos_$i.root  # for test preparation only!
     echo "===================> Step2a: histogram comparison"
     root -b -p -q DoCompare.C\(\"histos\",\"../data/MMValHistos_$i\"\)
     @ i++
