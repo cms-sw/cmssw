@@ -47,9 +47,12 @@ namespace {
   edm::Wrapper<std::vector<int> > dummy4;
   edm::Wrapper<std::vector<std::string> > dummy5;
   edm::Wrapper<std::vector<char> > dummy6;
+  edm::Wrapper<std::vector<char*> > dummy6p;
   edm::Wrapper<std::vector<unsigned char> > dummy7;
+  edm::Wrapper<std::vector<unsigned char*> > dummy7p;
   edm::Wrapper<std::vector<short> > dummy8;
   edm::Wrapper<std::vector<unsigned short> > dummy9;
+  edm::Wrapper<std::vector<std::vector<unsigned short> > > dummy9v;
   edm::Wrapper<std::vector<double> > dummy10;
   edm::Wrapper<std::vector<long double> > dummy11;
   edm::Wrapper<std::vector<float> > dummy12;
