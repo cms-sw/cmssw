@@ -70,7 +70,7 @@ namespace perftools {
     if( ! (*file).IsOpen() )
       throw Error( "unable to open data file " + fileName, 7002);
     
-    TObject * o = file.Get( "Events" );
+    TObject * o = file->Get( "Events" );
     if ( o == 0 )
       throw Error("no object \"Events\" found in file: " + fileName, 7003);
     

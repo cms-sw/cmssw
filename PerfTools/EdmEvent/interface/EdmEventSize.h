@@ -20,6 +20,9 @@ namespace perftools {
       BranchRecord() : 
 	compr_size(0),  
 	uncompr_size(0) {}
+      BranchRecord(std::string const & iname,
+		   size_t compr,  size_t uncompr) : 
+	name(iname), compr_size(compr), uncompr_size(uncompr){}
       std::string name;
       size_t compr_size;
       size_t uncompr_size;
