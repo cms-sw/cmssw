@@ -5,13 +5,9 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 
 #include <vector>
-#include <bitset>
 #include <fstream>
 #include <string>
 #include <iostream>
-
-typedef unsigned long int ULong;
-typedef unsigned short int UShort;
 
 // Original Author:  Jim Brooke, Rob Frazier
 //         Created:  April, 2006
@@ -51,6 +47,9 @@ typedef unsigned short int UShort;
 class L1GctSourceCard
 {
  public:
+  typedef unsigned long int ULong;
+  typedef unsigned short int UShort;
+
   /// cardType1 reads cables 1&2, cardType2 reads cables 3&4, cardType3 reads cables 5&6
   enum SourceCardType{cardType1 =1, cardType2, cardType3};
 
