@@ -11,9 +11,11 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/02/05 19:26:15 $
-// $Revision: 1.3 $
+// $Date: 2007/02/05 23:52:47 $
+// $Revision: 1.1 $
 //
+
+#include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -35,6 +37,8 @@ class RoadSearchHitDumper : public edm::EDAnalyzer {
   edm::InputTag rphiStripRecHitsInputTag_;
   edm::InputTag stereoStripRecHitsInputTag_;
   edm::InputTag pixelRecHitsInputTag_;
+
+  std::string ringsLabel_;
 };
 
 #endif

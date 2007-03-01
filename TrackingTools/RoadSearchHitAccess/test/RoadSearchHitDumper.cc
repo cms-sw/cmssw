@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/02/05 19:26:15 $
-// $Revision: 1.3 $
+// $Date: 2007/02/05 23:52:47 $
+// $Revision: 1.1 $
 //
 
 #include <sstream>
@@ -36,6 +36,8 @@ RoadSearchHitDumper::RoadSearchHitDumper(const edm::ParameterSet& conf) {
   rphiStripRecHitsInputTag_    = conf.getParameter<edm::InputTag>("rphiStripRecHits");
   stereoStripRecHitsInputTag_  = conf.getParameter<edm::InputTag>("stereoStripRecHits");
   pixelRecHitsInputTag_        = conf.getParameter<edm::InputTag>("pixelRecHits");
+
+  ringsLabel_                  = conf.getParameter<std::string>("RingsLabel");
 
 }
 
@@ -83,7 +85,7 @@ void RoadSearchHitDumper::analyze(const edm::Event& e, const edm::EventSetup& es
 
   // get rings
   edm::ESHandle<Rings> ringsHandle;
-  es.get<RingRecord>().get(ringsHandle);
+  es.get<RingRecord>().get(ringsLabel_, ringsHandle);
   const Rings *rings = ringsHandle.product();
 
   std::ostringstream output;
