@@ -1,8 +1,5 @@
 /** measure branch sizes
  *
- * \author Luca Lista, INFN
- *
- * \version $Revision: 2.0 $
  *
  */
 
@@ -73,7 +70,6 @@ int main( int argc, char * argv[] ) {
   }
 
   if( ! vm.count( kDataFileOpt ) ) {
-    string shortDesc("ConfigFileNotFound");
     cerr << programName << ": no data file given" << endl;
     return 7001;
   }
@@ -94,7 +90,7 @@ int main( int argc, char * argv[] ) {
   
   try {
     me.parseFile(fileName);
-  } catch(perftools::EdmEventSize::error const & error) {
+  } catch(perftools::EdmEventSize::Error const & error) {
     std::err <<  programName << ":" << error.descr << std::endl;
     return error.code;
   } 
