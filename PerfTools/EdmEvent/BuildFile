@@ -1,0 +1,9 @@
+ <use name=FWCore/FWLite>
+ <use name=root>
+ 
+<export>
+   <lib name=PerfToolsEdmEvent>
+   <use name=FWCore/FWLite>
+   <use name=root>
+ </export>
+ 
