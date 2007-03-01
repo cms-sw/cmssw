@@ -200,7 +200,7 @@ namespace perftools {
       c.SaveAs( plot.c_str() );
     }
     if ( !file.empty() ) {
-      TFile f( fileName.c_str(), "RECREATE" );
+      TFile f( file.c_str(), "RECREATE" );
       h.compressed.Write();
       h.uncompressed.Write();
       f.Close();
