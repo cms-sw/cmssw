@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 #include<ostream>
+#include<limits>
 
 #include <TROOT.h>
 #include <TFile.h>
@@ -147,6 +148,7 @@ namespace perftools {
       }
 
       void finalize() {
+	double mn = std::numeric_limits<double>::max();
 	for( int i = 1; i <= top; ++i ) {
 	  double cm = compressed.GetMinimum( i ), um = uncompressed.GetMinimum( i );
 	  if ( cm > 0 && cm < mn ) mn = cm;
