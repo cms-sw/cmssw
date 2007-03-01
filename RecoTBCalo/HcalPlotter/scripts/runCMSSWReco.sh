@@ -77,7 +77,7 @@ then
     STREAMS=${STREAMS//,/\',\'HCAL_DCC}
     STREAMS="'HCAL_Trigger"${STREAMS}\'
 
-    if [[ "$MODE" == "TESTSTAND" && "$FIRSTFED"=="" ]]
+    if [[ "$MODE" == "TESTSTAND" && "$FIRSTFED" == "" ]]
     then
 	FIRSTFED=20
     fi
