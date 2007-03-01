@@ -27,8 +27,9 @@ using namespace edm;
 
 MeasurementTrackerESProducer::MeasurementTrackerESProducer(const edm::ParameterSet & p) 
 {  
+  std::string myname = p.getParameter<std::string>("ComponentName");
   pset_ = p;
-  setWhatProduced(this);
+  setWhatProduced(this,myname);
 }
 
 MeasurementTrackerESProducer::~MeasurementTrackerESProducer() {}
