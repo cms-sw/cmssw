@@ -122,18 +122,17 @@ namespace perftools {
 	// check if a label is present
 	// if not add the type name
 	if (*br.name.rbegin()=='_') {
-	  br.name.erase(br.name.rbegin())];
+	  br.name.erase(br.name.rbegin());
 	  br.name.append(br.fullName.substr(0,b));
+	}
       }
     }
-
 
   }
   
   void EdmEventSize::shortNames() {
     std::for_each(m_branches.begin(),m_branches.end(),
 		  &detail::shorterName);
-
   }
 
 
