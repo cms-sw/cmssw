@@ -90,7 +90,7 @@ namespace perftools {
       std::string const name( b->GetName() );
       if ( name == "EventAux" ) continue;
       size_type s = getTotalSize(b);
-      m_branches.push_back( {name, s[0], s[1]} );
+      m_branches.push_back( BranchRecord(name, s[0], s[1]) );
     }
     std::sort(m_branches.begin(),m_branches.end(), boost::bind(std::less<size_t>,
 							       boost::bind(&BranchRecord::compr_size,_1),
