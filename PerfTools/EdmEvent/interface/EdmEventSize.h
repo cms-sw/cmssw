@@ -11,7 +11,7 @@ namespace perftools {
   public:
     struct Error {
       Error(std::string const & idescr, int icode) :
-	descr(idesrc), code(icode){}
+	descr(idescr), code(icode){}
       std::string descr;
       int code;
     };
@@ -25,7 +25,7 @@ namespace perftools {
       size_t uncompr_size;
     };
 
-    typedef std::vector<BranchRecords> Branches;
+    typedef std::vector<BranchRecord> Branches;
 
     EdmEventSize();
     explicit EdmEventSize(std::string const & fileName);

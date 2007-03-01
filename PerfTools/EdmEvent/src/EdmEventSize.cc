@@ -60,11 +60,11 @@ namespace perftools {
 
   EdmEventSize::EdmEventSize() {}
   
-  EdmEventSize::EdmEventSize(std::string const & filename) {
-    parseFile(filename());
+  EdmEventSize::EdmEventSize(std::string const & fileName) {
+    parseFile(fileName);
   }
   
-  void EdmEventSize::parseFile(std::string const & filename) {
+  void EdmEventSize::parseFile(std::string const & fileName) {
 
     TFile * file = TFile::Open( fileName.c_str() );
     if( ! (*file).IsOpen() )
@@ -110,7 +110,7 @@ namespace perftools {
   namespace detail {
 
     void dump(ostream& co, EdmEventSize::BranchRecord const & br) {
-      co << br.name << " " <<  compr_size <<  " " << uncompr_size << "\n"; 
+      co << br.name << " " <<  br.compr_size <<  " " << br.uncompr_size << "\n"; 
     }
   }
 
@@ -140,6 +140,7 @@ namespace perftools {
 	  uncompressed.Fill( x, br.uncompr_size );
 	  x++;
 	}
+
 	void finalize() {
 	  for( int i = 1; i <= top; ++i ) {
 	    double cm = compressed.GetMinimum( i ), um = uncompressed.GetMinimum( i );
