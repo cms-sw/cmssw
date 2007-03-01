@@ -121,9 +121,9 @@ namespace perftools {
 	br.name = br.fullName.substr(b+1,e-b-1);
 	// check if a label is present
 	// if not add the type name
-	if (*br.rbegin()=='_') {
-	  br.erase(br.rbegin())];
-	  br.append(fullName.substr(0,b));
+	if (*br.name.rbegin()=='_') {
+	  br.name.erase(br.name.rbegin())];
+	  br.name.append(br.fullName.substr(0,b));
       }
     }
 
