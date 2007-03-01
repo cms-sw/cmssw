@@ -28,9 +28,9 @@ namespace perftools {
     typedef std::vector<BranchRecords> Branches;
 
     EdmEventSize();
-    explicit EdmEventSize(std::string const & filename);
+    explicit EdmEventSize(std::string const & fileName);
     
-    void parseFile(std::string const & filename);
+    void parseFile(std::string const & fileName);
 
     void sortAlpha();
 
@@ -39,7 +39,7 @@ namespace perftools {
     void produceHistos(std::string const & plot, std::string const & file) const; 
 
   private:
-    Branches branches;
+    Branches m_branches;
 
   };
 
