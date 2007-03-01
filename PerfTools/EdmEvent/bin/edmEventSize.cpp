@@ -31,8 +31,8 @@ static const char * const kVerboseOpt = "verbose";
 static const char * const kVerboseCommandOpt = "verbose,v";
 static const char * const kAlphabeticOrderOpt ="alphabetic-order";
 static const char * const kAlphabeticOrderCommandOpt ="alphabetic-order,A";
-static const char * const kShortNameOpt ="short-names";
-static const char * const kShortNameCommandOpt ="short-names,S";
+static const char * const kShortNamesOpt ="short-names";
+static const char * const kShortNamesCommandOpt ="short-names,S";
 
 int main( int argc, char * argv[] ) {
   using namespace boost::program_options;
@@ -49,7 +49,7 @@ int main( int argc, char * argv[] ) {
     ( kAutoLoadCommandOpt, "automatic library loading (avoid root warnings)" )
     ( kDataFileCommandOpt, value<string>(), "data file" )
     ( kAlphabeticOrderCommandOpt, "sort by alphabetic order (default: sort by size)" )
-    ( kShortNameCommandOpt, "use short product name (default: use full branch name)" )
+    ( kShortNamesCommandOpt, "use short product name (default: use full branch name)" )
     ( kPlotCommandOpt, value<string>(), "produce a summary plot" )
     ( kPlotTopCommandOpt, value<int>(), "plot only the <arg> top size branches" )
     ( kSavePlotCommandOpt, value<string>(), "save plot into root file <arg>" )
@@ -98,8 +98,8 @@ int main( int argc, char * argv[] ) {
     return error.code;
   } 
 
-  if ( vm.count( kShortNameOpt) )
-    me.shortName();
+  if ( vm.count( kShortNamesOpt) )
+    me.shortNames();
 
   if ( vm.count( kAlphabeticOrderOpt ) )
     me.sortAlpha();
