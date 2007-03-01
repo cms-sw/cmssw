@@ -91,7 +91,7 @@ int main( int argc, char * argv[] ) {
   try {
     me.parseFile(fileName);
   } catch(perftools::EdmEventSize::Error const & error) {
-    std::err <<  programName << ":" << error.descr << std::endl;
+    std::cerr <<  programName << ":" << error.descr << std::endl;
     return error.code;
   } 
 
