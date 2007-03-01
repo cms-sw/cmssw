@@ -8,8 +8,8 @@
 // Created:         Mon Feb  5 21:24:36 UTC 2007
 //
 // $Author: gutsche $
-// $Date: 2007/02/05 19:26:15 $
-// $Revision: 1.3 $
+// $Date: 2007/02/05 23:50:43 $
+// $Revision: 1.1 $
 //
 
 
@@ -36,6 +36,8 @@ RoadSearchSeedDumper::RoadSearchSeedDumper(const edm::ParameterSet& conf) {
   // retrieve InputTags for rechits
   roadSearchSeedsInputTag_ = conf.getParameter<edm::InputTag>("RoadSearchSeedInputTag");
 
+  ringsLabel_ = conf.getParameter<std::string>("RingsLabel");
+
 }
 
 RoadSearchSeedDumper::~RoadSearchSeedDumper(){
@@ -56,7 +58,7 @@ void RoadSearchSeedDumper::analyze(const edm::Event& e, const edm::EventSetup& e
 
   // get rings
   edm::ESHandle<Rings> ringsHandle;
-  es.get<RingRecord>().get(ringsHandle);
+  es.get<RingRecord>().get(ringsLabel_, ringsHandle);
   const Rings *rings = ringsHandle.product();
 
   std::ostringstream output;

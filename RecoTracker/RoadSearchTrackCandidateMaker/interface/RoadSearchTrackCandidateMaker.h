@@ -13,8 +13,8 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/02/22 01:16:14 $
+// $Author: gutsche $
+// $Date: 2006/03/28 23:15:44 $
 // $Revision: 1.1 $
 //
 
@@ -26,6 +26,7 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "RecoTracker/RoadSearchTrackCandidateMaker/interface/RoadSearchTrackCandidateMakerAlgorithm.h"
 
@@ -44,6 +45,7 @@ namespace cms
   private:
     RoadSearchTrackCandidateMakerAlgorithm roadSearchTrackCandidateMakerAlgorithm_;
     edm::ParameterSet conf_;
+    edm::InputTag     cloudProducer_;
 
   };
 }

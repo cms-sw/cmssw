@@ -10,9 +10,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/03/28 23:15:44 $
-// $Revision: 1.1 $
+// $Author: burkett $
+// $Date: 2006/11/07 16:09:03 $
+// $Revision: 1.2 $
 //
 
 #include <memory>
@@ -36,6 +36,9 @@ namespace cms
     conf_(conf)
   {
     produces<TrackCandidateCollection>();
+
+    cloudProducer_ = conf_.getParameter<edm::InputTag>("CloudProducer");
+
   }
 
 
@@ -49,15 +52,15 @@ namespace cms
 
 
     // retrieve producer name of raw CloudCollection
-    std::string cleanCloudProducer = conf_.getParameter<std::string>("CleanCloudProducer");
-    edm::Handle<RoadSearchCloudCollection> cleanClouds;
-    e.getByLabel(cleanCloudProducer, cleanClouds);
+    edm::Handle<RoadSearchCloudCollection> cloudHandle;
+    e.getByLabel(cloudProducer_, cloudHandle);
+    const RoadSearchCloudCollection *clouds = cloudHandle.product();
 
     // Step B: create empty output collection
     std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);
 
     // Step C: Invoke the cloud cleaning algorithm
-    roadSearchTrackCandidateMakerAlgorithm_.run(cleanClouds.product(),e,es,*output);
+    roadSearchTrackCandidateMakerAlgorithm_.run(clouds,e,es,*output);
 
     // Step D: write output to file
     e.put(output);

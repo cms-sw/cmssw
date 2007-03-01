@@ -15,8 +15,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/02/05 19:26:14 $
-// $Revision: 1.12 $
+// $Date: 2007/02/06 22:44:34 $
+// $Revision: 1.13 $
 //
 
 #include <string>
@@ -136,6 +136,8 @@ class RoadSearchSeedFinderAlgorithm
   std::vector<unsigned int> usedSeedRingCombinations_;
 
   std::string mode_;
+
+  std::string roadsLabel_;
 
 };
 

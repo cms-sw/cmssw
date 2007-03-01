@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/02/04 17:59:46 $
-// $Revision: 1.26 $
+// $Date: 2007/02/06 16:41:27 $
+// $Revision: 1.27 $
 //
 
 #include <vector>
@@ -82,6 +82,8 @@ RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(c
   MinChunkLength_ = conf_.getParameter<int>("MinimumChunkLength");
   nFoundMin_      = conf_.getParameter<int>("nFoundMin");
   
+  measurementTrackerName_ = conf_.getParameter<std::string>("MeasurementTrackerName");
+
   debug_ = false;
 
 }
@@ -112,9 +114,9 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
   es.get<TransientRecHitRecord>().get(builderName,theBuilder);
   ttrhBuilder = theBuilder.product();
 
-    edm::ESHandle<MeasurementTracker>    measurementTrackerHandle;
-    es.get<CkfComponentsRecord>().get(measurementTrackerHandle);
-    theMeasurementTracker = measurementTrackerHandle.product();
+  edm::ESHandle<MeasurementTracker>    measurementTrackerHandle;
+  es.get<CkfComponentsRecord>().get(measurementTrackerName_, measurementTrackerHandle);
+  theMeasurementTracker = measurementTrackerHandle.product();
 
   // Create the trajectory cleaner 
   TrajectoryCleanerBySharedHits theTrajectoryCleaner;

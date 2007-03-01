@@ -12,9 +12,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2007/01/10 19:09:08 $
-// $Revision: 1.5 $
+// $Author: burkett $
+// $Date: 2007/01/17 23:17:37 $
+// $Revision: 1.6 $
 //
 
 #include <string>
@@ -81,6 +81,8 @@ class RoadSearchTrackCandidateMakerAlgorithm
   bool NoFieldCosmic_;
   int MinChunkLength_;
   int nFoundMin_;
+
+  std::string measurementTrackerName_;
   
   bool debug_;
   

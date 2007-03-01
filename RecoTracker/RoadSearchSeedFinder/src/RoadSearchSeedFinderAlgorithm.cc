@@ -12,8 +12,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/02/05 19:26:14 $
-// $Revision: 1.22 $
+// $Date: 2007/02/06 22:44:35 $
+// $Revision: 1.23 $
 //
 
 #include <vector>
@@ -110,6 +110,8 @@ RoadSearchSeedFinderAlgorithm::RoadSearchSeedFinderAlgorithm(const edm::Paramete
   outerSeedHitVector_.use_rphiRecHits(outerSeedHitAccessUseRPhi_);
   outerSeedHitVector_.use_stereoRecHits(outerSeedHitAccessUseStereo_);
 
+  roadsLabel_ = conf.getParameter<std::string>("RoadsLabel");
+
 }
 
 RoadSearchSeedFinderAlgorithm::~RoadSearchSeedFinderAlgorithm() {
@@ -130,7 +132,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 
   // get roads
   edm::ESHandle<Roads> roads;
-  es.get<RoadMapRecord>().get(roads);
+  es.get<RoadMapRecord>().get(roadsLabel_,roads);
   roads_ = roads.product();
 
   // get tracker geometry
