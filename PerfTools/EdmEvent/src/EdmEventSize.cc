@@ -22,7 +22,7 @@ namespace {
   size_type getBasketSize( TBranch *);
   
   size_type getBasketSize( TObjArray * branches) {
-    size_type result(0,2);
+    size_type result(size_t(0),2);
     size_t n = branches->GetEntries();
     for( size_t i = 0; i < n; ++ i ) {
       TBranch * b = dynamic_cast<TBranch*>( branches->At( i ) );
@@ -33,15 +33,15 @@ namespace {
   }
   
   size_type getBasketSize( TBranch * b) {
-    size_type result(0,2)
-      if ( b != 0 ) {
-	if ( b->GetZipBytes() > 0 ) {
-	  result[0]  = b->GetTotBytes();  result[1] = b->GetZipBytes();
-	} else {
-	  result[0] = b->GetTotalSize(); result[1] = b->GetTotalSize();
-	}
-	result += getBasketSize( b->GetListOfBranches() );
+    size_type result(size_t(0),2);
+    if ( b != 0 ) {
+      if ( b->GetZipBytes() > 0 ) {
+	result[0]  = b->GetTotBytes();  result[1] = b->GetZipBytes();
+      } else {
+	result[0] = b->GetTotalSize(); result[1] = b->GetTotalSize();
       }
+      result += getBasketSize( b->GetListOfBranches() );
+    }
     return result;
   }
 
