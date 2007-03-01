@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/02/05 19:18:39 $
-// $Revision: 1.6 $
+// $Author: noeding $
+// $Date: 2007/02/23 00:48:52 $
+// $Revision: 1.7 $
 //
 
 #include "RecoTracker/RoadMapMakerESProducer/interface/RoadMapMakerESProducer.h"
@@ -21,12 +21,15 @@
 RoadMapMakerESProducer::RoadMapMakerESProducer(const edm::ParameterSet& iConfig)
 {
 
-  setWhatProduced(this);
+  std::string componentName = iConfig.getParameter<std::string>("ComponentName");
+  setWhatProduced(this, componentName);
+
+  ringsLabel_                = iConfig.getParameter<std::string>("RingsLabel");
 
   writeOut_                  = iConfig.getUntrackedParameter<bool>("WriteOutRoadMapToAsciiFile",false);
   fileName_                  = iConfig.getUntrackedParameter<std::string>("RoadMapAsciiFile","");
 
-  std::string tmp_string         = iConfig.getUntrackedParameter<std::string>("GeometryStructure","FullDetector");
+  std::string tmp_string         = iConfig.getParameter<std::string>("GeometryStructure");
 
   if ( tmp_string == "MTCC" ) {
     geometryStructure_ = RoadMaker::MTCC;
@@ -46,7 +49,7 @@ RoadMapMakerESProducer::RoadMapMakerESProducer(const edm::ParameterSet& iConfig)
     geometryStructure_ = RoadMaker::FullDetector;
   }
 
-  tmp_string         = iConfig.getUntrackedParameter<std::string>("SeedingType","FourRingSeeds");
+  tmp_string         = iConfig.getParameter<std::string>("SeedingType");
 
   if ( tmp_string == "TwoRingSeeds" ) {
     seedingType_ = RoadMaker::TwoRingSeeds;
@@ -71,7 +74,7 @@ RoadMapMakerESProducer::produce(const RoadMapRecord& iRecord)
 
   // get rings
   edm::ESHandle<Rings> ringHandle;
-  iRecord.getRecord<RingRecord>().get(ringHandle);
+  iRecord.getRecord<RingRecord>().get(ringsLabel_, ringHandle);
   const Rings *rings = ringHandle.product();
 
   RoadMaker maker(rings,

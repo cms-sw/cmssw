@@ -12,8 +12,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/03 22:23:12 $
-// $Revision: 1.3 $
+// $Date: 2007/02/05 19:18:39 $
+// $Revision: 1.4 $
 //
 
 // system include files
@@ -48,6 +48,8 @@ class RoadMapMakerESProducer : public edm::ESProducer {
 
   RoadMaker::GeometryStructure geometryStructure_;
   RoadMaker::SeedingType       seedingType_;
+
+  std::string ringsLabel_;
 
 };
 
