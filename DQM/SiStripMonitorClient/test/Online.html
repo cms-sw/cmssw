@@ -87,21 +87,32 @@
 	    <div class="bloc" id="bloc2_2" style="background:#A9FF84"> 
       	      <div class="bloc" id="bloc2_2_1" style="background:#A9FF84">
 	        <fieldset>
-                  <input name="listhisto" 
-                        id="list_histos"
-                        value="Get Histo List" 
-                        style="width:30%;margin-left:2%;margin-top:2%"
-                        onClick="RequestModuleHistoList()" 
-                        type="submit">
-                    </input>
-                  <label id="modules"
-                     style="margin-left:5%">
-                     Modules:
-	          </label>
+	          <input type="radio" 
+	                 class="radio" 
+                         style="margin-right:2%"
+                         id="track_histos" 
+                         name="HistoTypeSelection">
+                         Tracks
+                  </input>
+	          <input type="radio" 
+	                 class="radio" 
+                         style="margin-right:2%"
+                         id="module_histos" 
+                         name="HistoTypeSelection"
+                         checked>
+                         Modules
+                  </input>
                   <select name="mod_num" 
                         id="module_numbers"
                         style="width:30%;"
                   </select>
+                  <input name="listhisto" 
+                        id="list_histos"
+                        value="Get Histo List" 
+                        style="margin-left:2%;margin-top:2%"
+                        onClick="RequestHistoList()" 
+                        type="submit">
+                    </input>
 	        </fieldset>
               </div>
               <div class="bloc" id="bloc2_2_2">

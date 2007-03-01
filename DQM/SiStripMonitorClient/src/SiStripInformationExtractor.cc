@@ -420,6 +420,25 @@ void SiStripInformationExtractor::readModuleAndHistoList(MonitorUserInterface* m
    if (coll_flag)  mui->cd();
 }
 //
+// read the Module And HistoList
+//
+void SiStripInformationExtractor::readTrackHistoList(MonitorUserInterface* mui, xgi::Output * out, bool coll_flag) {
+   if (coll_flag)  mui->cd("Collector/Collated");
+   out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
+  *out << "<?xml version=\"1.0\" ?>" << std::endl;
+  string currDir = mui->pwd();
+  if (currDir.find("Track") != string::npos)  {
+    *out << "<TrackHistoList>" << endl;
+    vector<string> contents = mui->getMEs();    
+    for (vector<string>::const_iterator it = contents.begin();
+	 it != contents.end(); it++) {
+      *out << "<THisto>" << *it << "</THisto>" << endl;       
+    }
+   *out << "</TrackHistoList>" << endl;
+  }
+  if (coll_flag)  mui->cd();
+}
+//
 // read the Structure And SummaryHistogram List
 //
 void SiStripInformationExtractor::readSummaryHistoTree(MonitorUserInterface* mui, string& str_name, xgi::Output * out, bool coll_flag) {
@@ -578,11 +597,17 @@ void SiStripInformationExtractor::readStatusMessage(MonitorUserInterface* mui, s
     for (dqm::qtests::QR_map::const_iterator it = test_map.begin(); it != test_map.end();
 	 it++) {
       int status = it->second->getStatus();
-      if (status == dqm::qstatus::WARNING) test_status << " Warning : ";
-      else if (status == dqm::qstatus::ERROR) test_status << " Error : ";
-      else if (status == dqm::qstatus::STATUS_OK) test_status << " Ok : ";
-      else if (status == dqm::qstatus::OTHER) test_status << " Other(" << status << ") : ";
-      test_status << it->second->getMessage();
+      test_status << " QTest Status : ";
+      if (status == dqm::qstatus::WARNING) test_status << " Warning ";
+      else if (status == dqm::qstatus::ERROR) test_status << " Error  ";
+      else if (status == dqm::qstatus::STATUS_OK) test_status << " Ok  ";
+      else if (status == dqm::qstatus::OTHER) test_status << " Other(" << status << ") ";
+      string mess_str = it->second->getMessage();
+      test_status << "<br/>";
+      mess_str = mess_str.substr(mess_str.find(" Test")+5);
+      test_status <<  " QTest Name  : " << mess_str.substr(0, mess_str.find(")")+1) << endl;
+      test_status << "<br/>";
+      test_status <<  " QTest Detail  : " << mess_str.substr(mess_str.find(")")+2) << endl;      
     }      
   }
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");

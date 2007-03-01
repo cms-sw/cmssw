@@ -1,8 +1,12 @@
-function RequestModuleHistoList() {
+function RequestHistoList() {
   var queryString;
   var url = getApplicationURL2();
   url += "/Request?";
-  queryString = "RequestID=SingleModuleHistoList";
+  if (document.getElementById("module_histos").checked) {
+    queryString = "RequestID=SingleModuleHistoList";
+  } else if (document.getElementById("track_histos").checked) {
+    queryString = "RequestID=TrackHistoList";    
+  }
   url += queryString; 
   makeRequest(url, FillModuleHistoList);     
 }

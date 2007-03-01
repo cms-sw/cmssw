@@ -34,7 +34,7 @@ class SiStripInformationExtractor {
                 xgi::Output * out, bool coll_flag);
   void plotSingleHistogram(MonitorUserInterface * mui,std::multimap<std::string, std::string>& req_map);
   void readStatusMessage(MonitorUserInterface* mui, std::string& path,xgi::Output * out);
-
+  void readTrackHistoList(MonitorUserInterface* mui, xgi::Output * out, bool coll_flag);
  private:
 
   void fillModuleAndHistoList(MonitorUserInterface * mui,

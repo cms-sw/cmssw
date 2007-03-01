@@ -45,11 +45,9 @@ class SiStripOfflineDQM: public edm::EDAnalyzer {
     bool bVerbose;
     bool bSaveInFile;
     const std::string oFILE_NAME;
-    //    const int         nQTEST_EVENTS_DELAY_;
-    //    int               nQTestEventsPassed_;
-
     MonitorUserInterface *poMui;
     SiStripActionExecutor oActionExecutor_;
+    bool _qTestSetupDone;
 };
 
 #endif

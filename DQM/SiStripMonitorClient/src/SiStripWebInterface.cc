@@ -103,6 +103,12 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
     infoExtractor_->readModuleAndHistoList((*mui_p), out,
                           actionExecutor_->getCollationFlag() );    
   } 
+  else if (requestID == "TrackHistoList") {
+    theActionFlag = NoAction;
+    
+    infoExtractor_->readTrackHistoList((*mui_p), out,
+                          actionExecutor_->getCollationFlag() );    
+  } 
   else if (requestID == "SummaryHistoList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
