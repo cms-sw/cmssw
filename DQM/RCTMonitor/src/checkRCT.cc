@@ -20,6 +20,7 @@ using namespace reco;
 using std::cerr;
 using std::cout;
 using std::endl;
+#include <iomanip>
 
 #include <vector>
 
@@ -68,6 +69,8 @@ int cardNumber(float eta, float phi)
   return crdNo;
 }
 
+int regionNumber(float eta, float phi) {return 0;}
+
 checkRCT::checkRCT(const edm::ParameterSet& iConfig) : 
   outputFileName(iConfig.getParameter<std::string>("outputFileName")),
   triggerParticleType(iConfig.getParameter<int>("triggerParticleType")),
@@ -78,7 +81,7 @@ checkRCT::checkRCT(const edm::ParameterSet& iConfig) :
   file = new TFile(outputFileName.c_str(), "RECREATE", "RCT Information");
   file->cd();
   nTuple = new TNtuple("RCTInfo", "RCT Information nTuple", 
-		       "iParticle:id:status:pt:eta:phi:crtNo:crdNo:towerEtSum:hcalTowerEtSum:regionEtSum:regionEta:regionPhi:regionTauVeto:regionMIPBit:regionQuietBit:regionCrt:regionCrd:regionRgn:emCandEt:emCandEta:emCandPhi:emCandIsolation:emCandCrt:emCandCrd:emCandRgn");
+		       "iParticle:id:status:pt:eta:phi:crtNo:crdNo:rgnNo:towerEtSum:hcalTowerEtSum:regionEtSum:regionEta:regionPhi:regionTauVeto:regionMIPBit:regionQuietBit:regionCrt:regionCrd:regionRgn:emCandEt:emCandEta:emCandPhi:emCandIsolation:emCandCrt:emCandCrd:emCandRgn");
 }
 
 checkRCT::~checkRCT()
@@ -121,6 +124,7 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   float eta = 0;
   int crtNo = -999;
   int crdNo = -999;
+  int rgnNo = -999;
   float towerEtSum = 0;
   float hcalTowerEtSum = 0.;
   float regionEtSum = 0;
@@ -157,6 +161,17 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	phi = p.phi();
 	crtNo = crateNumber(eta, phi);
 	crdNo = cardNumber(eta, phi);
+	rgnNo = regionNumber(eta, phi);
+	cout << "Gen:"
+	     << std::setw(6)
+	     << pt << "\t" 
+	     << 1 << "\t"
+	     << crtNo << "\t"
+	     << crdNo << "\t"
+	     << rgnNo << "\t"
+	     << eta << "\t"
+	     << phi 
+	     << endl;
 	towerEtSum = 0;
 	for (int i = 0; i < nEcalDigi; i++){
 	  unsigned short energy = ecalCollection[i].compressedEt();
@@ -174,6 +189,12 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if(fabs(deltaEta)<0.35 && fabs(deltaPhi)<0.35)
 	    {
 	      towerEtSum += towerEt;
+	      cout << "ETP:"
+		   << std::setw(6)
+		   << towerEt << "\t" 
+		   << towerEta << "\t"
+		   << towerPhi << "\t"
+		   << endl;
 	    }
 	}
 	hcalTowerEtSum = 0.;
@@ -193,6 +214,12 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    {
 	      towerEtSum += towerEt;
 	      hcalTowerEtSum += towerEt;
+	      cout << "HTP:"
+		   << std::setw(6)
+		   << towerEt << "\t" 
+		   << towerEta << "\t"
+		   << towerPhi << "\t"
+		   << endl;
 	    }
 	}
 	L1CaloRegionCollection::const_iterator region;
@@ -269,6 +296,7 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	result.push_back(phi);
 	result.push_back(crtNo);
 	result.push_back(crdNo);
+	result.push_back(rgnNo);
 	result.push_back(towerEtSum);
 	result.push_back(hcalTowerEtSum);
 	result.push_back(regionEtSum);
@@ -289,5 +317,28 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	result.push_back(emCandRgn);
 	nTuple->Fill(&result[0]);  // Assumes vector is implemented internally as an array
       }
+  }
+  L1CaloEmCollection::const_iterator emCand;
+  for (emCand=rctEMCands->begin(); emCand!=rctEMCands->end(); emCand++){
+    float thisEMCandEta = 999.;
+    unsigned int rctCrate = emCand->rctCrate();
+    if(rctCrate < 9) thisEMCandEta = -rctEtaLUT[emCand->regionId().rctEta()];
+    else thisEMCandEta = rctEtaLUT[emCand->regionId().rctEta()];
+    unsigned rctIPhi;
+    if(rctCrate < 9) rctIPhi = rctCrate * 2 + emCand->regionId().rctPhi();
+    else rctIPhi = (rctCrate - 9) * 2 + emCand->regionId().rctPhi();
+    float thisEMCandPhi = (3.1415927 / 2.) - 2 * 0.087 - float(rctIPhi) * 2. * 3.1415927 / 18.;
+    if(thisEMCandPhi < -3.1415927) thisEMCandPhi += (2 * 3.1415927);
+    float emCandEt = float(emCand->rank());
+    cout << "L1E:"
+	 << std::setw(6)
+	 << emCandEt << "\t"
+	 << emCand->isolated() << "\t"
+	 << emCand->rctCrate() << "\t"
+	 << emCand->rctCard() << "\t"
+	 << emCand->rctRegion() << "\t"
+	 << thisEMCandEta << "\t"
+	 << thisEMCandPhi 
+	 << endl;
   }
 }
