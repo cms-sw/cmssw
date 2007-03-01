@@ -56,7 +56,7 @@ ParticleTreeDrawer::ParticleTreeDrawer( const ParameterSet & cfg ) :
 
 bool ParticleTreeDrawer::accept( const reco::Candidate & c ) const {
   if ( status_.size() == 0 ) return true;
-  return find( status_.begin(), status_.end(), reco::status( c ) ) != status_.end();
+  return find( status_.begin(), status_.end(), c.status() ) != status_.end();
 }
 
 bool ParticleTreeDrawer::hasValidDaughters( const reco::Candidate & c ) const {
@@ -91,7 +91,7 @@ void ParticleTreeDrawer::printInfo( const Candidate & c ) const {
   if ( printP4_ ) cout << " (" << c.px() << ", " << c.py() << ", " << c.pz() << "; " << c.energy() << ")"; 
   if ( printPtEtaPhi_ ) cout << " [" << c.pt() << ": " << c.eta() << ", " << c.phi() << "]";
   if ( printVertex_ ) cout << " {" << c.vx() << ", " << c.vy() << ", " << c.vz() << "}";
-  if ( printStatus_ ) cout << "{status: " << status( c ) << "}";
+  if ( printStatus_ ) cout << "{status: " << c.status() << "}";
   if ( printIndex_ ) {
     int idx = -1;
     vector<const Candidate *>::const_iterator found = find( cands_.begin(), cands_.end(), & c );

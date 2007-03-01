@@ -19,10 +19,10 @@ namespace helpers {
 	matchIds_.insert( abs( * i ) );
     }
     bool operator()( const reco::Candidate & c, const reco::Candidate & mc ) const {
-      if ( reco::status( mc ) != 1 ) return false;
+      if ( mc.status() != 1 ) return false;
       if ( c.charge() != mc.charge() ) return false;
       if ( matchIds_.size() == 0 ) return true;
-      return matchIds_.find( abs( reco::pdgId( mc ) ) ) != matchIds_.end();
+      return matchIds_.find( mc.pdgId() ) != matchIds_.end();
     }
   private:
     std::set<int> matchIds_;

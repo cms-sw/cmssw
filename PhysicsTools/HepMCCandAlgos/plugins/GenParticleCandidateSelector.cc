@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateSelector.h,v 1.2 2007/01/25 15:28:55 hegner Exp $
+ * \version $Id: GenParticleCandidateSelector.cc,v 1.1 2007/02/01 11:55:49 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -128,9 +128,9 @@ void GenParticleCandidateSelector::produce( Event& evt, const EventSetup& ) {
   size_t idx = 0;
   for( CandidateCollection::const_iterator p = particles->begin(); 
        p != particles->end(); ++ p, ++ idx ) {
-    int status = reco::status( * p );
+    int status = p->status();
     if ( ! stableOnly_ || status == 1 ) {
-      int id = abs( reco::pdgId( * p ) );
+      int id = abs( p->pdgId() );
       // id not in list + exclude= keep, in list + include = keep, otherwise drop
       // -> XOR operation: end XOR bInclude; 
       if ( pIds_.find( id ) == pIds_.end() ^ bInclude_) { 
