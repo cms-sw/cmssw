@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2007/02/16 13:32:12 $
- *  $Revision: 1.19 $
+ *  $Date: 2007/02/19 19:38:17 $
+ *  $Revision: 1.20 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -19,7 +19,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
 
@@ -101,6 +101,8 @@ MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos,
 pair<bool,FreeTrajectoryState>
 MuonUpdatorAtVertex::update(const reco::TransientTrack & track){
 
+  const std::string metname = "Muon|RecoMuon|MuonUpdatorAtVertex";
+    
   // FIXME
   setPropagator();
 
@@ -118,14 +120,23 @@ MuonUpdatorAtVertex::update(const reco::TransientTrack & track){
   mat[2][2] = (5.3)*(5.3);
   GlobalError glbErrPos(mat);
 
-  SingleTrackVertexConstraint::TrackFloatPair constrainedTransientTrack = theConstrictor.constrain(track,glbPos, glbErrPos);
-    
+  SingleTrackVertexConstraint::TrackFloatPair constrainedTransientTrack;
+
+  try{
+    constrainedTransientTrack = theConstrictor.constrain(track,glbPos, glbErrPos);
+  }
+  catch ( cms::Exception& e ) {
+    edm::LogWarning(metname) << "cms::Exception caught in MuonUpdatorAtVertex::update\n"
+			     << e.explainSelf();
+    return result;
+  }
+
   if(constrainedTransientTrack.second <= theChi2Cut) {
     result.first = true;
     result.second = *constrainedTransientTrack.first.impactPointState().freeState();
   }
   else
-    edm::LogWarning("Muon|RecoMuon|MuonUpdatorAtVertex") << "Constraint at vertex failed"; 
+    edm::LogWarning(metname) << "Constraint at vertex failed"; 
     
   return result;
 }
