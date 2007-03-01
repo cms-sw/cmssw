@@ -1,3 +1,17 @@
+// -*- C++ -*-
+//
+// Package:     Services
+// Class  :     PrescaleServices
+//
+// Implementation:
+//     Cache and make prescale factors available online.
+//
+// Current revision: $Revision$
+// On branch: $Name$
+// Latest change by $Author$ at $Date$
+//
+
+
 #ifndef Services_PrescaleService_h
 #define Services_PrescaleService_h
 
