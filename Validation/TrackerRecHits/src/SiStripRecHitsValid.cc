@@ -63,6 +63,10 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     meErrxRphiTIB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.01); //<error>~20micron  
     sprintf(histo,"Res_rphi_layer%dtib",i+1);
     meResRphiTIB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
+    sprintf(histo,"Pull_LF_rphi_layer%dtib",i+1);
+    mePullLFRphiTIB[i] = dbe_->book1D(histo,"Pull",100,-5.,5.);  
+    sprintf(histo,"Pull_MF_rphi_layer%dtib",i+1);
+    mePullMFRphiTIB[i] = dbe_->book1D(histo,"Pull",100,-5.,5.);  
     sprintf(histo,"Chi2_rphi_layer%dtib",i+1);
     meChi2RphiTIB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
   }
@@ -80,6 +84,10 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     meErrxSasTIB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.01);  
     sprintf(histo,"Res_sas_layer%dtib",i+1);
     meResSasTIB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
+    sprintf(histo,"Pull_LF_sas_layer%dtib",i+1);
+    mePullLFSasTIB[i] = dbe_->book1D(histo,"Pull",100,-4.,4.);  
+    sprintf(histo,"Pull_MF_sas_layer%dtib",i+1);
+    mePullMFSasTIB[i] = dbe_->book1D(histo,"Pull",100,-4.,4.);  
     sprintf(histo,"Chi2_sas_layer%dtib",i+1);
     meChi2SasTIB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
 
@@ -116,6 +124,10 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     meErrxRphiTOB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.01);  
     sprintf(histo,"Res_rphi_layer%dtob",i+1);
     meResRphiTOB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
+    sprintf(histo,"Pull_LF_rphi_layer%dtob",i+1);
+    mePullLFRphiTOB[i] = dbe_->book1D(histo,"Pull",100,-5.,5.);  
+    sprintf(histo,"Pull_MF_rphi_layer%dtob",i+1);
+    mePullMFRphiTOB[i] = dbe_->book1D(histo,"Pull",100,-5.,5.);  
     sprintf(histo,"Chi2_rphi_layer%dtob",i+1);
     meChi2RphiTOB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
   }
@@ -133,6 +145,10 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     meErrxSasTOB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.01);  
     sprintf(histo,"Res_sas_layer%dtob",i+1);
     meResSasTOB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
+    sprintf(histo,"Pull_LF_sas_layer%dtob",i+1);
+    mePullLFSasTOB[i] = dbe_->book1D(histo,"Pull",100,-5.,5.);  
+    sprintf(histo,"Pull_MF_sas_layer%dtob",i+1);
+    mePullMFSasTOB[i] = dbe_->book1D(histo,"Pull",100,-5.,5.);  
     sprintf(histo,"Chi2_sas_layer%dtob",i+1);
     meChi2SasTOB[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
 
@@ -170,6 +186,10 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     meErrxRphiTID[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.5);  
     sprintf(histo,"Res_rphi_layer%dtid",i+1);
     meResRphiTID[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
+    sprintf(histo,"Pull_LF_rphi_layer%dtid",i+1);
+    mePullLFRphiTID[i] = dbe_->book1D(histo,"Pull",100,-5.,5.);  
+    sprintf(histo,"Pull_MF_rphi_layer%dtid",i+1);
+    mePullMFRphiTID[i] = dbe_->book1D(histo,"Pull",100,-5.,5.);  
     sprintf(histo,"Chi2_rphi_layer%dtid",i+1);
     meChi2RphiTID[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
   }
@@ -187,6 +207,10 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     meErrxSasTID[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.5);  
     sprintf(histo,"Res_sas_layer%dtid",i+1);
     meResSasTID[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
+    sprintf(histo,"Pull_LF_sas_layer%dtid",i+1);
+    mePullLFSasTID[i] = dbe_->book1D(histo,"Pull",100,-5.,5.);  
+    sprintf(histo,"Pull_MF_sas_layer%dtid",i+1);
+    mePullMFSasTID[i] = dbe_->book1D(histo,"Pull",100,-5.,5.);  
     sprintf(histo,"Chi2_sas_layer%dtid",i+1);
     meChi2SasTID[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
 
@@ -224,6 +248,10 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
     meErrxRphiTEC[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.5);  
     sprintf(histo,"Res_rphi_layer%dtec",i+1);
     meResRphiTEC[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
+    sprintf(histo,"Pull_LF_rphi_layer%dtec",i+1);
+    mePullLFRphiTEC[i] = dbe_->book1D(histo,"Pull",100,-5.,5.);  
+    sprintf(histo,"Pull_MF_rphi_layer%dtec",i+1);
+    mePullMFRphiTEC[i] = dbe_->book1D(histo,"Pull",100,-5.,5.);  
     sprintf(histo,"Chi2_rphi_layer%dtec",i+1);
     meChi2RphiTEC[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
   }
@@ -242,6 +270,10 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
       meErrxSasTEC[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.5);  
       sprintf(histo,"Res_sas_layer%dtec",i+1);
       meResSasTEC[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
+      sprintf(histo,"Pull_LF_sas_layer%dtec",i+1);
+      mePullLFSasTEC[i] = dbe_->book1D(histo,"Pull",100,-5.,5.);
+      sprintf(histo,"Pull_MF_sas_layer%dtec",i+1);
+      mePullMFSasTEC[i] = dbe_->book1D(histo,"Pull",100,-5.,5.);
       sprintf(histo,"Chi2_sas_layer%dtec",i+1);
       meChi2SasTEC[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
       
@@ -341,6 +373,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
       cluchgsas[i] =0;
       rechitrphires[i]=-999.;
       rechitsasres[i]=-999.;
+      rechitrphipullMF[i]=-999.;
+      rechitsaspullMF[i]=-999.;
       chi2rphi[i] =0;
       chi2sas[i]=0;
       rechitmatchedx[i] =0;
@@ -370,9 +404,16 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     if(numrechitrphi > 0 ){
       totrechitrphi+=numrechitrphi;
       for(iterrphi=rechitrphiRangeIteratorBegin; iterrphi!=rechitrphiRangeIteratorEnd;++iterrphi){
+	const GeomDetUnit *  det = tracker.idToDetUnit(detid);
+	const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
+	const StripTopology &topol=(StripTopology&)stripdet->topology();
 	SiStripRecHit2D const rechit=*iterrphi;
 	LocalPoint position=rechit.localPosition();
 	LocalError error=rechit.localPositionError();
+	MeasurementPoint Mposition;
+	MeasurementError Merror;
+	Mposition = topol.measurementPosition(position);
+	Merror = topol.measurementError(position,error);
 	const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clust=rechit.cluster();
 	int clusiz=0;
 	int totcharge=0;
@@ -402,6 +443,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	    }
 	    rechitrphires[i] = rechitrphix[i] - closest.localPosition().x();
 	  }  
+	  rechitrphipullMF[i] = (Mposition.x() - (topol.measurementPosition(closest.localPosition())).x())/sqrt(Merror.uu());
+
 	  //chi2test compare rechit errors with the simhit position ( using null matrix for the simhit). 
 	  //Can spot problems in the geometry better than a simple residual. (thanks to BorisM)
 	  AlgebraicVector rhparameters = rechit.parameters();
@@ -438,9 +481,16 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     if(numrechitsas > 0){
       totrechitsas+=numrechitsas;
       for(itersas=rechitsasRangeIteratorBegin; itersas!=rechitsasRangeIteratorEnd;++itersas){
+	const GeomDetUnit *  det = tracker.idToDetUnit(detid);
+	const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
+	const StripTopology &topol=(StripTopology&)stripdet->topology();
 	SiStripRecHit2D const rechit=*itersas;
 	LocalPoint position=rechit.localPosition();
 	LocalError error=rechit.localPositionError();
+	MeasurementPoint Mposition;
+	MeasurementError Merror;
+	Mposition = topol.measurementPosition(position);
+	Merror = topol.measurementError(position,error);
 	const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clust=rechit.cluster();	int clusiz=0;
 	int totcharge=0;
 	clusiz = clust->amplitudes().size();
@@ -470,6 +520,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	    }
 	    rechitsasres[j] = rechitsasx[j] - closest.localPosition().x();
 	  }  
+	  rechitsaspullMF[j] = (Mposition.x() - (topol.measurementPosition(closest.localPosition())).x())/sqrt(Merror.uu());
 	  //chi2test compare rechit errors with the simhit position ( using null matrix for the simhit). 
 	  //Can spot problems in the geometry better than a simple residual. (thanks to BorisM)
 	  AlgebraicVector rhparameters = rechit.parameters();
@@ -607,26 +658,31 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	int ilay = tibid.layer() - 1; //for histogram filling
 	
 	if(tibid.stereo()==0){
-	  for(int l = 0; l<Tibnumrechitrphi; l++){
-	    meNstpRphiTIB[ilay]->Fill(clusizrphi[l]);
-	    meAdcRphiTIB[ilay]->Fill(cluchgrphi[l]);
-	    mePosxRphiTIB[ilay]->Fill(rechitrphix[l]);
-	    meErrxRphiTIB[ilay]->Fill(sqrt(rechitrphierrx[l]));
-	    meResRphiTIB[ilay]->Fill(rechitrphires[l]);
+	  for(int k = 0; k<Tibnumrechitrphi; k++){
+	    meNstpRphiTIB[ilay]->Fill(clusizrphi[k]);
+	    meAdcRphiTIB[ilay]->Fill(cluchgrphi[k]);
+	    mePosxRphiTIB[ilay]->Fill(rechitrphix[k]);
+	    meErrxRphiTIB[ilay]->Fill(sqrt(rechitrphierrx[k]));
+	    meResRphiTIB[ilay]->Fill(rechitrphires[k]);
+	    mePullLFRphiTIB[ilay]->Fill(rechitrphires[k]/sqrt(rechitrphierrx[k]));
+	    mePullMFRphiTIB[ilay]->Fill(rechitrphipullMF[k]);
+
 	  }
 
-	  for(int l = 0; l<Tibnumrechitrphi2; l++){
-	    meChi2RphiTIB[ilay]->Fill(chi2rphi[l]);
+	  for(int k = 0; k<Tibnumrechitrphi2; k++){
+	    meChi2RphiTIB[ilay]->Fill(chi2rphi[k]);
 	  }
 
 	} else  if(tibid.stereo()==1){
-	  for(int ll = 0; ll < Tibnumrechitsas; ll++)	    
+	  for(int kk = 0; kk < Tibnumrechitsas; kk++)	    
 	    {
-	      meNstpSasTIB[ilay]->Fill(clusizsas[ll]);
-	      meAdcSasTIB[ilay]->Fill(cluchgsas[ll]);
-	      mePosxSasTIB[ilay]->Fill(rechitsasx[ll]);
-	      meErrxSasTIB[ilay]->Fill(sqrt(rechitsaserrx[ll]));
-	      meResSasTIB[ilay]->Fill(rechitsasres[ll]);
+	      meNstpSasTIB[ilay]->Fill(clusizsas[kk]);
+	      meAdcSasTIB[ilay]->Fill(cluchgsas[kk]);
+	      mePosxSasTIB[ilay]->Fill(rechitsasx[kk]);
+	      meErrxSasTIB[ilay]->Fill(sqrt(rechitsaserrx[kk]));
+	      meResSasTIB[ilay]->Fill(rechitsasres[kk]);
+	      mePullLFSasTIB[ilay]->Fill(rechitsasres[kk]/sqrt(rechitsaserrx[kk]));
+	      mePullMFSasTIB[ilay]->Fill(rechitsaspullMF[kk]);
 	    }	  
 	  for(int l = 0; l<Tibnumrechitsas2; l++){
 	    meChi2SasTIB[ilay]->Fill(chi2sas[l]);
@@ -634,14 +690,14 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 
 	}
 	if(Tibnumrechitmatched>0){
-	  for(int lll = 0; lll<Tibnumrechitmatched; lll++)
+	  for(int kkk = 0; kkk<Tibnumrechitmatched; kkk++)
 	    {
-	      mePosxMatchedTIB[ilay]->Fill(rechitmatchedx[lll]);
-	      mePosyMatchedTIB[ilay]->Fill(rechitmatchedy[lll]);
-	      meErrxMatchedTIB[ilay]->Fill(sqrt(rechitmatchederrxx[lll]));
-	      meErryMatchedTIB[ilay]->Fill(sqrt(rechitmatchederryy[lll]));
-	      meResxMatchedTIB[ilay]->Fill(rechitmatchedresx[lll]);
-	      meResyMatchedTIB[ilay]->Fill(rechitmatchedresy[lll]);
+	      mePosxMatchedTIB[ilay]->Fill(rechitmatchedx[kkk]);
+	      mePosyMatchedTIB[ilay]->Fill(rechitmatchedy[kkk]);
+	      meErrxMatchedTIB[ilay]->Fill(sqrt(rechitmatchederrxx[kkk]));
+	      meErryMatchedTIB[ilay]->Fill(sqrt(rechitmatchederryy[kkk]));
+	      meResxMatchedTIB[ilay]->Fill(rechitmatchedresx[kkk]);
+	      meResyMatchedTIB[ilay]->Fill(rechitmatchedresy[kkk]);
 	    }	  
 	  for(int l = 0; l<Tibnumrechitmatched2; l++){
 	    meChi2MatchedTIB[ilay]->Fill(chi2matched[l]);
@@ -673,6 +729,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	    mePosxRphiTOB[ilay]->Fill(rechitrphix[k]);
 	    meErrxRphiTOB[ilay]->Fill(sqrt(rechitrphierrx[k]));
 	    meResRphiTOB[ilay]->Fill(rechitrphires[k]);
+	    mePullLFRphiTOB[ilay]->Fill(rechitrphires[k]/sqrt(rechitrphierrx[k]));
+	    mePullMFRphiTOB[ilay]->Fill(rechitrphipullMF[k]);
 	  }
 	  for(int l = 0; l<Tobnumrechitrphi2; l++){
 	    meChi2RphiTOB[ilay]->Fill(chi2rphi[l]);
@@ -685,6 +743,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	      mePosxSasTOB[ilay]->Fill(rechitsasx[kk]);
 	      meErrxSasTOB[ilay]->Fill(sqrt(rechitsaserrx[kk]));
 	      meResSasTOB[ilay]->Fill(rechitsasres[kk]);
+	      mePullLFSasTOB[ilay]->Fill(rechitsasres[kk]/sqrt(rechitsaserrx[kk]));
+	      mePullMFSasTOB[ilay]->Fill(rechitsaspullMF[kk]);
 	    }
 	  for(int l = 0; l<Tobnumrechitsas2; l++){
 	    meChi2SasTOB[ilay]->Fill(chi2sas[l]);
@@ -729,6 +789,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	    mePosxRphiTID[ilay]->Fill(rechitrphix[k]);
 	    meErrxRphiTID[ilay]->Fill(sqrt(rechitrphierrx[k]));
 	    meResRphiTID[ilay]->Fill(rechitrphires[k]);
+	    mePullLFRphiTID[ilay]->Fill(rechitrphires[k]/sqrt(rechitrphierrx[k]));
+	    mePullMFRphiTID[ilay]->Fill(rechitrphipullMF[k]);
 	  }
 	  for(int l = 0; l<Tidnumrechitrphi2; l++){
 	    meChi2RphiTID[ilay]->Fill(chi2rphi[l]);
@@ -742,6 +804,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	      mePosxSasTID[ilay]->Fill(rechitsasx[kk]);
 	      meErrxSasTID[ilay]->Fill(sqrt(rechitsaserrx[kk]));
 	      meResSasTID[ilay]->Fill(rechitsasres[kk]);
+	      mePullLFSasTID[ilay]->Fill(rechitsasres[kk]/sqrt(rechitsaserrx[kk]));
+	      mePullMFSasTID[ilay]->Fill(rechitsaspullMF[kk]);
 	    }	  
 	  for(int l = 0; l<Tidnumrechitsas2; l++){
 	    meChi2SasTID[ilay]->Fill(chi2sas[l]);
@@ -786,6 +850,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	    mePosxRphiTEC[ilay]->Fill(rechitrphix[k]);
 	    meErrxRphiTEC[ilay]->Fill(sqrt(rechitrphierrx[k]));
 	    meResRphiTEC[ilay]->Fill(rechitrphires[k]);
+	    mePullLFRphiTEC[ilay]->Fill(rechitrphires[k]/sqrt(rechitrphierrx[k]));
+	    mePullMFRphiTEC[ilay]->Fill(rechitrphipullMF[k]);
 	  }
 	  for(int l = 0; l<Tecnumrechitrphi2; l++){
 	    meChi2RphiTEC[ilay]->Fill(chi2rphi[l]);
@@ -799,6 +865,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	      mePosxSasTEC[ilay]->Fill(rechitsasx[kk]);
 	      meErrxSasTEC[ilay]->Fill(sqrt(rechitsaserrx[kk]));
 	      meResSasTEC[ilay]->Fill(rechitsasres[kk]);
+	      mePullLFSasTEC[ilay]->Fill(rechitsasres[kk]/sqrt(rechitsaserrx[kk]));
+	      mePullMFSasTEC[ilay]->Fill(rechitsaspullMF[kk]);
 	    }	  
 	  for(int l = 0; l<Tecnumrechitsas2; l++){
 	    meChi2SasTEC[ilay]->Fill(chi2sas[l]);

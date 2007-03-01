@@ -113,6 +113,39 @@ void SiStripRecHitsPlots()
  SiStrip->Print("ResOfTIB.eps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(2,3);
+ SiStrip->cd(1);
+ Pull_LF_rphi_layer1tib->Draw();
+ SiStrip->cd(2);
+ Pull_LF_rphi_layer2tib->Draw();
+ SiStrip->cd(3);
+ Pull_LF_rphi_layer3tib->Draw();
+ SiStrip->cd(4);
+ Pull_LF_rphi_layer4tib->Draw();
+ SiStrip->cd(5);
+ Pull_LF_sas_layer1tib->Draw();
+ SiStrip->cd(6);
+ Pull_LF_sas_layer2tib->Draw();
+
+ SiStrip->Print("PullLFOfTIB.eps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(2,3);
+ SiStrip->cd(1);
+ Pull_MF_rphi_layer1tib->Draw();
+ SiStrip->cd(2);
+ Pull_MF_rphi_layer2tib->Draw();
+ SiStrip->cd(3);
+ Pull_MF_rphi_layer3tib->Draw();
+ SiStrip->cd(4);
+ Pull_MF_rphi_layer4tib->Draw();
+ SiStrip->cd(5);
+ Pull_MF_sas_layer1tib->Draw();
+ SiStrip->cd(6);
+ Pull_MF_sas_layer2tib->Draw();
+ SiStrip->Print("PullMFOfTIB.eps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
 
  SiStrip->Divide(2,3);
  SiStrip->cd(1);
@@ -285,6 +318,45 @@ void SiStripRecHitsPlots()
  SiStrip->Print("ResOfTOB.eps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,3);
+ SiStrip->cd(1);
+ Pull_LF_rphi_layer1tob->Draw();
+ SiStrip->cd(2);
+ Pull_LF_rphi_layer2tob->Draw();
+ SiStrip->cd(3);
+ Pull_LF_rphi_layer3tob->Draw();
+ SiStrip->cd(4);
+ Pull_LF_rphi_layer4tob->Draw();
+ SiStrip->cd(5);
+ Pull_LF_rphi_layer5tob->Draw();
+ SiStrip->cd(6);
+ Pull_LF_rphi_layer6tob->Draw();
+ SiStrip->cd(7);
+ Pull_LF_sas_layer1tob->Draw();
+ SiStrip->cd(8);
+ Pull_LF_sas_layer2tob->Draw();
+ SiStrip->Print("PullLFOfTOB.eps");
+
+TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,3);
+ SiStrip->cd(1);
+ Pull_MF_rphi_layer1tob->Draw();
+ SiStrip->cd(2);
+ Pull_MF_rphi_layer2tob->Draw();
+ SiStrip->cd(3);
+ Pull_MF_rphi_layer3tob->Draw();
+ SiStrip->cd(4);
+ Pull_MF_rphi_layer4tob->Draw();
+ SiStrip->cd(5);
+ Pull_MF_rphi_layer5tob->Draw();
+ SiStrip->cd(6);
+ Pull_MF_rphi_layer6tob->Draw();
+ SiStrip->cd(7);
+ Pull_MF_sas_layer1tob->Draw();
+ SiStrip->cd(8);
+ Pull_MF_sas_layer2tob->Draw();
+ SiStrip->Print("PullMFOfTOB.eps");
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
 
  SiStrip->Divide(3,3);
  SiStrip->cd(1);
@@ -426,6 +498,34 @@ void SiStripRecHitsPlots()
  Res_sas_layer2tid->Draw();
  
  SiStrip->Print("ResOfTID.eps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,2);
+ SiStrip->cd(1);
+ Pull_LF_rphi_layer1tid->Draw();
+ SiStrip->cd(2);
+ Pull_LF_rphi_layer2tid->Draw();
+ SiStrip->cd(3);
+ Pull_LF_rphi_layer3tid->Draw();
+ SiStrip->cd(4);
+ Pull_LF_sas_layer1tid->Draw();
+ SiStrip->cd(5);
+ Pull_LF_sas_layer2tid->Draw();
+ SiStrip->Print("PullLFOfTID.eps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,2);
+ SiStrip->cd(1);
+ Pull_MF_rphi_layer1tid->Draw();
+ SiStrip->cd(2);
+ Pull_MF_rphi_layer2tid->Draw();
+ SiStrip->cd(3);
+ Pull_MF_rphi_layer3tid->Draw();
+ SiStrip->cd(4);
+ Pull_MF_sas_layer1tid->Draw();
+ SiStrip->cd(5);
+ Pull_MF_sas_layer2tid->Draw();
+ SiStrip->Print("PullMFOfTID.eps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
 
@@ -613,6 +713,54 @@ void SiStripRecHitsPlots()
  Res_sas_layer5tec->Draw();
  
  SiStrip->Print("ResOfTEC.eps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,4);
+ SiStrip->cd(1);
+ Pull_LF_rphi_layer1tec->Draw();
+ SiStrip->cd(2);
+ Pull_LF_rphi_layer2tec->Draw();
+ SiStrip->cd(3);
+ Pull_LF_rphi_layer3tec->Draw();
+ SiStrip->cd(4);
+ Pull_LF_rphi_layer4tec->Draw();
+ SiStrip->cd(5);
+ Pull_LF_rphi_layer5tec->Draw();
+ SiStrip->cd(6);
+ Pull_LF_rphi_layer6tec->Draw();
+ SiStrip->cd(7);
+ Pull_LF_rphi_layer7tec->Draw();
+ SiStrip->cd(8);
+ Pull_LF_sas_layer1tec->Draw();
+ SiStrip->cd(9);
+ Pull_LF_sas_layer2tec->Draw();
+ SiStrip->cd(10);
+ Pull_LF_sas_layer5tec->Draw();
+ SiStrip->Print("PullLFOfTEC.eps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,4);
+ SiStrip->cd(1);
+ Pull_MF_rphi_layer1tec->Draw();
+ SiStrip->cd(2);
+ Pull_MF_rphi_layer2tec->Draw();
+ SiStrip->cd(3);
+ Pull_MF_rphi_layer3tec->Draw();
+ SiStrip->cd(4);
+ Pull_MF_rphi_layer4tec->Draw();
+ SiStrip->cd(5);
+ Pull_MF_rphi_layer5tec->Draw();
+ SiStrip->cd(6);
+ Pull_MF_rphi_layer6tec->Draw();
+ SiStrip->cd(7);
+ Pull_MF_rphi_layer7tec->Draw();
+ SiStrip->cd(8);
+ Pull_MF_sas_layer1tec->Draw();
+ SiStrip->cd(9);
+ Pull_MF_sas_layer2tec->Draw();
+ SiStrip->cd(10);
+ Pull_MF_sas_layer5tec->Draw();
+ SiStrip->Print("PullMFOfTEC.eps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,4);

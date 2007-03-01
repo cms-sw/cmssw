@@ -87,12 +87,16 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   MonitorElement* mePosxRphiTIB[4];
   MonitorElement* meErrxRphiTIB[4];
   MonitorElement* meResRphiTIB[4];
+  MonitorElement* mePullLFRphiTIB[4];
+  MonitorElement* mePullMFRphiTIB[4];
   MonitorElement* meChi2RphiTIB[4];
   MonitorElement* meNstpSasTIB[4];
   MonitorElement* meAdcSasTIB[4];
   MonitorElement* mePosxSasTIB[4];
   MonitorElement* meErrxSasTIB[4];
   MonitorElement* meResSasTIB[4];
+  MonitorElement* mePullLFSasTIB[4];
+  MonitorElement* mePullMFSasTIB[4];
   MonitorElement* meChi2SasTIB[4];
   MonitorElement* mePosxMatchedTIB[2];
   MonitorElement* mePosyMatchedTIB[2];
@@ -107,12 +111,16 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   MonitorElement* mePosxRphiTOB[6];
   MonitorElement* meErrxRphiTOB[6];
   MonitorElement* meResRphiTOB[6];
+  MonitorElement* mePullLFRphiTOB[6];
+  MonitorElement* mePullMFRphiTOB[6];
   MonitorElement* meChi2RphiTOB[6];
   MonitorElement* meNstpSasTOB[2];
   MonitorElement* meAdcSasTOB[2];
   MonitorElement* mePosxSasTOB[2];
   MonitorElement* meErrxSasTOB[2];
   MonitorElement* meResSasTOB[2];
+  MonitorElement* mePullLFSasTOB[2];
+  MonitorElement* mePullMFSasTOB[2];
   MonitorElement* meChi2SasTOB[2];
   MonitorElement* mePosxMatchedTOB[2];
   MonitorElement* mePosyMatchedTOB[2];
@@ -127,12 +135,16 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   MonitorElement* mePosxRphiTID[3];
   MonitorElement* meErrxRphiTID[3];
   MonitorElement* meResRphiTID[3];
+  MonitorElement* mePullLFRphiTID[3];
+  MonitorElement* mePullMFRphiTID[3];
   MonitorElement* meChi2RphiTID[3];
   MonitorElement* meNstpSasTID[2];
   MonitorElement* meAdcSasTID[2];
   MonitorElement* mePosxSasTID[2];
   MonitorElement* meErrxSasTID[2];
   MonitorElement* meResSasTID[2];
+  MonitorElement* mePullLFSasTID[2];
+  MonitorElement* mePullMFSasTID[2];
   MonitorElement* meChi2SasTID[2];
 
   MonitorElement* mePosxMatchedTID[2];
@@ -148,12 +160,16 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   MonitorElement* mePosxRphiTEC[7];
   MonitorElement* meErrxRphiTEC[7];
   MonitorElement* meResRphiTEC[7];
+  MonitorElement* mePullLFRphiTEC[7];
+  MonitorElement* mePullMFRphiTEC[7];
   MonitorElement* meChi2RphiTEC[7];
   MonitorElement* meNstpSasTEC[5];
   MonitorElement* meAdcSasTEC[5];
   MonitorElement* mePosxSasTEC[5];
   MonitorElement* meErrxSasTEC[5];
   MonitorElement* meResSasTEC[5];
+  MonitorElement* mePullLFSasTEC[5];
+  MonitorElement* mePullMFSasTEC[5];
   MonitorElement* meChi2SasTEC[5];
   MonitorElement* mePosxMatchedTEC[5];
   MonitorElement* mePosyMatchedTEC[5];
@@ -167,7 +183,7 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,
 							const BoundPlane& plane);
   edm::ParameterSet conf_;
-  const StripTopology* topol;
+  //const StripTopology* topol;
 
   static const int MAXHIT = 100;
   float rechitrphix[MAXHIT];
@@ -176,6 +192,7 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   float rechitrphiz[MAXHIT];
   float rechitrphiphi[MAXHIT];
   float rechitrphires[MAXHIT];
+  float rechitrphipullMF[MAXHIT];
   int   clusizrphi[MAXHIT];
   float cluchgrphi[MAXHIT];
   float rechitsasx[MAXHIT];
@@ -184,6 +201,7 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   float rechitsasz[MAXHIT];
   float rechitsasphi[MAXHIT];
   float rechitsasres[MAXHIT];
+  float rechitsaspullMF[MAXHIT];
   int   clusizsas[MAXHIT];
   float cluchgsas[MAXHIT];
   float chi2rphi[MAXHIT];
