@@ -21,36 +21,39 @@ CombinatorialSeedGeneratorForCosmics::CombinatorialSeedGeneratorForCosmics(edm::
   edm::LogVerbatim("CombinatorialSeedGeneratorForCosmics") << "Constructing CombinatorialSeedGeneratorForCosmics";
   geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
   p = conf_.getParameter<double>("SeedMomentum");
-  edm::ParameterSet upperScintPar = conf_.getParameter<edm::ParameterSet>("UpperScintillatorParameters");
-  edm::ParameterSet lowerScintPar = conf_.getParameter<edm::ParameterSet>("LowerScintillatorParameters");
-  //cout << "WidthInX" << upperScintPar.getParameter<double>("WidthInX") << endl;
-  //creates rectangular bounds for upper scintillator, arguments are half size 
-  RectangularPlaneBounds upperBounds(upperScintPar.getParameter<double>("WidthInX"),
-				     upperScintPar.getParameter<double>("LenghtInZ"),
-				     1);
-  //cout << "GlobalX" << upperScintPar.getParameter<double>("GlobalX") << endl;
-  //places the upper scintillator according to position in cfg
-  GlobalPoint upperPosition(upperScintPar.getParameter<double>("GlobalX"),
-			     upperScintPar.getParameter<double>("GlobalY"),
+  useScintillatorsConstraint = conf_.getParameter<bool>("UseScintillatorsConstraint");
+  if (useScintillatorsConstraint){	
+	  edm::ParameterSet upperScintPar = conf_.getParameter<edm::ParameterSet>("UpperScintillatorParameters");
+	  edm::ParameterSet lowerScintPar = conf_.getParameter<edm::ParameterSet>("LowerScintillatorParameters");
+	  //cout << "WidthInX" << upperScintPar.getParameter<double>("WidthInX") << endl;
+	  //creates rectangular bounds for upper scintillator, arguments are half size 
+	  RectangularPlaneBounds upperBounds(upperScintPar.getParameter<double>("WidthInX"),
+					     upperScintPar.getParameter<double>("LenghtInZ"),
+					     1);
+	  //cout << "GlobalX" << upperScintPar.getParameter<double>("GlobalX") << endl;
+	  //places the upper scintillator according to position in cfg
+	  GlobalPoint upperPosition(upperScintPar.getParameter<double>("GlobalX"),
+				     upperScintPar.getParameter<double>("GlobalY"),
 			     upperScintPar.getParameter<double>("GlobalZ"));
-  //cout << "Upper position x, y, z " << upperPosition.x() << ", " << upperPosition.y() << ", " << upperPosition.z() << endl;
-  edm::LogVerbatim("CombinatorialSeedGeneratorForCosmics") << "Upper Scintillator position x, y, z " << upperPosition.x() << ", " << upperPosition.y() << ", " << upperPosition.z();
-  //creates rectangular bounds for lower scintillator, arguments are half size
-  RectangularPlaneBounds lowerBounds(lowerScintPar.getParameter<double>("WidthInX"),
-                                     lowerScintPar.getParameter<double>("LenghtInZ"),
-                                     1);
-  //cout << "bound lenght " << lowerBounds.length() << endl;
-  //places the lower scintillator according to position in cfg		
-  GlobalPoint lowerPosition(lowerScintPar.getParameter<double>("GlobalX"),
-                             lowerScintPar.getParameter<double>("GlobalY"),
-                             lowerScintPar.getParameter<double>("GlobalZ"));
-  edm::LogVerbatim("CombinatorialSeedGeneratorForCosmics") << "Lower Scintillator position x, y, z " << lowerPosition.x() << ", " << lowerPosition.y() << ", " << lowerPosition.z() ;
-  TkRotation<float> rot(1,0,0,0,0,1,0,1,0);
-  //cout << "matrix " << rot.xx() << rot.xy() << rot.xz() << rot.yx() << rot.yy() << rot.yz() << rot.zx() << rot.zy() << rot.zz()<< endl; 	
-  upperScintillator = new BoundPlane(upperPosition, rot, &upperBounds);
-  //cout << "upperPosition" << upperScintillator->toGlobal(LocalPoint(0,0,0)) << endl;	
-  lowerScintillator = new BoundPlane(lowerPosition, rot, &lowerBounds);	
-  //cout << "lowerPosition" << lowerScintillator->toGlobal(LocalPoint(0,0,0)) << endl;	
+	  //cout << "Upper position x, y, z " << upperPosition.x() << ", " << upperPosition.y() << ", " << upperPosition.z() << endl;
+	  edm::LogVerbatim("CombinatorialSeedGeneratorForCosmics") << "Upper Scintillator position x, y, z " << upperPosition.x() << ", " << upperPosition.y() << ", " << upperPosition.z();
+	  //creates rectangular bounds for lower scintillator, arguments are half size
+	  RectangularPlaneBounds lowerBounds(lowerScintPar.getParameter<double>("WidthInX"),
+					     lowerScintPar.getParameter<double>("LenghtInZ"),
+					     1);
+	  //cout << "bound lenght " << lowerBounds.length() << endl;
+	  //places the lower scintillator according to position in cfg		
+	  GlobalPoint lowerPosition(lowerScintPar.getParameter<double>("GlobalX"),
+				     lowerScintPar.getParameter<double>("GlobalY"),
+				     lowerScintPar.getParameter<double>("GlobalZ"));
+  	edm::LogVerbatim("CombinatorialSeedGeneratorForCosmics") << "Lower Scintillator position x, y, z " << lowerPosition.x() << ", " << lowerPosition.y() << ", " << lowerPosition.z() ;
+  	TkRotation<float> rot(1,0,0,0,0,1,0,1,0);
+  	//cout << "matrix " << rot.xx() << rot.xy() << rot.xz() << rot.yx() << rot.yy() << rot.yz() << rot.zx() << rot.zy() << rot.zz()<< endl; 	
+  	upperScintillator = new BoundPlane(upperPosition, rot, &upperBounds);
+  	//cout << "upperPosition" << upperScintillator->toGlobal(LocalPoint(0,0,0)) << endl;	
+  	lowerScintillator = new BoundPlane(lowerPosition, rot, &lowerBounds);	
+  	//cout << "lowerPosition" << lowerScintillator->toGlobal(LocalPoint(0,0,0)) << endl;	
+  } 
   		
   produces<TrajectorySeedCollection>();
 }
@@ -192,6 +195,7 @@ void CombinatorialSeedGeneratorForCosmics::seeds(TrajectorySeedCollection &outpu
 
 bool CombinatorialSeedGeneratorForCosmics::checkDirection(const FreeTrajectoryState& state, 
 							  const MagneticField* magField){
+	if (!useScintillatorsConstraint) return true;
 	//StraightLinePropagator prop(magField);
 	StraightLinePlaneCrossing planeCrossingLower( Basic3DVector<float>(state.position()), 
 						 Basic3DVector<float>(state.momentum()),

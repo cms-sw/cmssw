@@ -58,6 +58,7 @@ class CombinatorialSeedGeneratorForCosmics : public edm::EDProducer
   const SiStripRecHit2DCollection* stereocollection;
   float p;
   float meanRadius;
+  bool useScintillatorsConstraint;
   BoundPlane* upperScintillator;
   BoundPlane* lowerScintillator;
   bool checkDirection(const FreeTrajectoryState& state,
