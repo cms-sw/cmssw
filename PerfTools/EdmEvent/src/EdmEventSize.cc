@@ -113,7 +113,7 @@ namespace perftools {
   }
 
   namespace detail {
-    void EdmEventSize::shorterName(BranchRecord & br) {
+    void shorterName(BranchRecord & br) {
       size_t b = br.fullName.find('_');
       size_t e = br.fullName.rfind('_');
       if (b==e) br.name=br.fullName;
@@ -122,8 +122,7 @@ namespace perftools {
 	// check if a label is present
 	// if not add the type name
 	if (*br.name.rbegin()=='_') {
-	  br.name.erase(br.name.rbegin());
-	  br.name.append(br.fullName.substr(0,b));
+	  br.name.replace(br.name.size()-1,1,br.fullName.substr(0,b));
 	}
       }
     }
