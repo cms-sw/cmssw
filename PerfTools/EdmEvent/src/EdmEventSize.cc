@@ -96,7 +96,7 @@ namespace perftools {
       m_branches.push_back( BranchRecord(name, s[0], s[1]) );
     }
     std::sort(m_branches.begin(),m_branches.end(), 
-	      boost::bind(std::less<size_t>(),
+	      boost::bind(std::greater<size_t>(),
 			  boost::bind(&BranchRecord::compr_size,_1),
 			  boost::bind(&BranchRecord::compr_size,_2))
 	      );
