@@ -1,3 +1,14 @@
+2007-03-01  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* add boolean flag epInitialized_ which indicates to the
+	initEventProcessor() method if any initalization is
+	necessary. Each time the 'parameterSet' parameter is reset via
+	XDAQ, the flag will be set to 'false', indicating
+	(re-)initialization is necessary.
+	* use evf::FsmFailedEvent (EventFilter/Utilities V00-11-11) to
+	force the FUEP into 'Failed' state whenever an exception is raised
+	in any of the transitional state actions.
+
 2007-02-24  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* prescale relevant changes by Chris

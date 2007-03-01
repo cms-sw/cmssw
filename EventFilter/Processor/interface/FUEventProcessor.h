@@ -17,6 +17,7 @@
 #include "xdaq2rc/RcmsStateNotifier.h"
 
 #include "toolbox/fsm/FiniteStateMachine.h"
+#include "toolbox/fsm/FailedEvent.h"
 #include "toolbox/task/WorkLoopFactory.h"
 #include "toolbox/task/WaitingWorkLoop.h"
 #include "toolbox/task/Action.h"
@@ -87,8 +88,11 @@ namespace evf
     bool stopping(toolbox::task::WorkLoop* wl);
     bool halting(toolbox::task::WorkLoop* wl);
     
+    void failed(toolbox::Event::Reference e)throw(toolbox::fsm::exception::Exception);
+
     // initialize the cmssw event processor
     void initEventProcessor();
+    void stopEventProcessor();
     
     // xdata:ActionListener interface
     void actionPerformed(xdata::Event& e);
@@ -145,6 +149,7 @@ namespace evf
     
     // parameters published to XDAQ info space(s)
     xdata::String                    stateName_;
+    xdata::Boolean                   epInitialized_; 
     xdata::String                    configString_;
     xdata::String                    sealPluginPath_;
     xdata::Boolean                   outPut_;

@@ -9,8 +9,9 @@
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
 #include "EventFilter/Utilities/interface/Exception.h"
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
-#include "EventFilter/Message2log4cplus/interface/MLlog4cplus.h"
 #include "EventFilter/Utilities/interface/MicroStateService.h"
+#include "EventFilter/Utilities/interface/FsmFailedEvent.h"
+#include "EventFilter/Message2log4cplus/interface/MLlog4cplus.h"
 
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
@@ -97,6 +98,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , serviceToken_()
   , servicesDone_(false)
   , prescaleSvc_(0)
+  , epInitialized_(false)
   , outPut_(true)
   , inputPrescale_(1)
   , outputPrescale_(1)
@@ -136,8 +138,6 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   xoap::bind(this,&FUEventProcessor::fsmCallback,"Enable",   XDAQ_NS_URI);
   xoap::bind(this,&FUEventProcessor::fsmCallback,"Stop",     XDAQ_NS_URI);
   xoap::bind(this,&FUEventProcessor::fsmCallback,"Halt",     XDAQ_NS_URI);
-  xoap::bind(this,&FUEventProcessor::fsmCallback,"Suspend",  XDAQ_NS_URI);
-  xoap::bind(this,&FUEventProcessor::fsmCallback,"Resume",   XDAQ_NS_URI);
   
   // define finite state machine, states&transitions
   fsm_.addState('h', "halting"    ,this,&FUEventProcessor::fsmStateChanged);
@@ -148,16 +148,25 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   fsm_.addState('E', "Enabled"    ,this,&FUEventProcessor::fsmStateChanged);
   fsm_.addState('s', "stopping"   ,this,&FUEventProcessor::fsmStateChanged);
   
-  fsm_.addStateTransition('H', 'c', "Configure");
-  fsm_.addStateTransition('c', 'R', "ConfigureDone");
-  fsm_.addStateTransition('R', 'e', "Enable");
-  fsm_.addStateTransition('e', 'E', "EnableDone");
-  fsm_.addStateTransition('E', 's', "Stop");
-  fsm_.addStateTransition('s', 'R', "StopDone");
-  fsm_.addStateTransition('E', 'h', "Halt");
-  fsm_.addStateTransition('R', 'h', "Halt");
-  fsm_.addStateTransition('h', 'H', "HaltDone");
+  fsm_.addStateTransition('H','c',"Configure");
+  fsm_.addStateTransition('c','R',"ConfigureDone");
+  fsm_.addStateTransition('R','e',"Enable");
+  fsm_.addStateTransition('e','E',"EnableDone");
+  fsm_.addStateTransition('E','s',"Stop");
+  fsm_.addStateTransition('s','R',"StopDone");
+  fsm_.addStateTransition('E','h',"Halt");
+  fsm_.addStateTransition('R','h',"Halt");
+  fsm_.addStateTransition('h','H',"HaltDone");
   
+  fsm_.addStateTransition('c','F',"Fail",this,&FUEventProcessor::failed);
+  fsm_.addStateTransition('e','F',"Fail",this,&FUEventProcessor::failed);
+  fsm_.addStateTransition('s','F',"Fail",this,&FUEventProcessor::failed);
+  fsm_.addStateTransition('h','F',"Fail",this,&FUEventProcessor::failed);
+
+  fsm_.setFailedStateTransitionAction(this,&FUEventProcessor::failed);
+  fsm_.setFailedStateTransitionChanged(this,&FUEventProcessor::fsmStateChanged);
+  fsm_.setStateName('F',"Failed");
+
   fsm_.setInitialState('H');
   fsm_.reset();
   stateName_ = fsm_.getStateName(fsm_.getCurrentState());
@@ -174,7 +183,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ostringstream sourcename;
   sourcename<<xmlClass<<"_"<<instance;
   sourceId_=sourcename.str();
-  LOG4CPLUS_INFO(getApplicationLogger(),xmlClass<<instance<<" constructor");
+  LOG4CPLUS_INFO(getApplicationLogger(),sourceId_<<" constructor");
   cout<<"FUEventProcessor constructor"<<endl;
   LOG4CPLUS_INFO(getApplicationLogger(),"plugin path:"<<getenv("SEAL_PLUGINS"));
   
@@ -191,6 +200,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   // default configuration
   ispace->fireItemAvailable("parameterSet",         &configString_);
   ispace->fireItemAvailable("pluginPath",           &sealPluginPath_);
+  ispace->fireItemAvailable("epInitialized",        &epInitialized_);
   ispace->fireItemAvailable("stateName",            &stateName_);
   ispace->fireItemAvailable("runNumber",            &runNumber_);
   ispace->fireItemAvailable("outputEnabled",        &outPut_);
@@ -210,6 +220,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("triggerReportAsString",&triggerReportAsString_);
   
   // Add infospace listeners for exporting data values
+  getApplicationInfoSpace()->addItemChangedListener("parameterSet",        this);
   getApplicationInfoSpace()->addItemChangedListener("outputEnabled",       this);
   getApplicationInfoSpace()->addItemChangedListener("globalInputPrescale", this);
   getApplicationInfoSpace()->addItemChangedListener("globalOutputPrescale",this);
@@ -234,7 +245,6 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
 FUEventProcessor::~FUEventProcessor()
 {
   if (evtProcessor_) delete evtProcessor_;
-  //if (ah_)   delete ah_;
 }
 
 
@@ -569,28 +579,38 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 {
   LOG4CPLUS_INFO(getApplicationLogger(),"Start enabling ...");
+
+  // if the ep is intialized already, the initialization will be skipped
+  initEventProcessor();
+  
   int sc = 0;
+  evtProcessor_->setRunNumber(runNumber_.value_);
   try {
     evtProcessor_->runAsync();
     sc = evtProcessor_->statusAsync();
   }
   catch(seal::Error& e) {
-    XCEPT_RAISE(toolbox::fsm::exception::Exception,e.explainSelf());
+    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.explainSelf(),this));
+    fsm_.fireEvent(e);
   }
   catch(cms::Exception &e) {
-    XCEPT_RAISE(toolbox::fsm::exception::Exception,e.explainSelf());
+    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.explainSelf(),this));
+    fsm_.fireEvent(e);
   }    
   catch(std::exception &e) {
-    XCEPT_RAISE(toolbox::fsm::exception::Exception,e.what());
+    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.what(),this));
+    fsm_.fireEvent(e);
   }
   catch(...) {
-    XCEPT_RAISE (toolbox::fsm::exception::Exception,"Unknown Exception");
+    toolbox::Event::Reference e(new evf::FsmFailedEvent("Unknown Expection",this));
+    fsm_.fireEvent(e);
   }
   
   if(sc != 0) {
     ostringstream errorString;
     errorString<<"EventProcessor::runAsync returned status code" << sc;
-    XCEPT_RAISE(toolbox::fsm::exception::Exception,errorString.str());
+    toolbox::Event::Reference e(new evf::FsmFailedEvent(errorString.str(),this));
+    fsm_.fireEvent(e);
   }
   LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
   
@@ -605,7 +625,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
 {
   LOG4CPLUS_INFO(getApplicationLogger(),"Start stopping :) ...");
-  // TODO
+  stopEventProcessor();
   LOG4CPLUS_INFO(getApplicationLogger(),"Finished stopping!");
   
   toolbox::Event::Reference e(new toolbox::Event("StopDone",this));
@@ -619,64 +639,11 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
 bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
 {
   LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
-  int trycount=0;
-  try  {
-    // wait until event processor reaches state 'sStopping'
-    while(evtProcessor_->getState()!=edm::event_processor::sStopping && trycount<10) {
-      trycount++;
-      ::sleep(1);
-    }
-  
-    // wait until even processor reaches state 'sDone'
-    trycount=0;
-    if(evtProcessor_->getState()==edm::event_processor::sStopping) {
-      evtProcessor_->shutdownAsync();
-      while(evtProcessor_->getState()!=edm::event_processor::sDone && trycount<10) {
-	trycount++;
-	::sleep(1);
-      }
-    }
-    
-    if(evtProcessor_->getState()!=edm::event_processor::sDone) {
-      LOG4CPLUS_WARN(getApplicationLogger(),
-		     "Halting with triggers still to be processed. "
-		     <<"EventProcessor state"
-		     <<evtProcessor_->stateName(evtProcessor_->getState()));
-
-      int retval = evtProcessor_->shutdownAsync();
-      
-      if (retval!=0) {
-	LOG4CPLUS_WARN(getApplicationLogger(),
-		       "Failed to shut down EventProcessor. Return code "<<retval);
-      }	  
-      else {
-	LOG4CPLUS_INFO(getApplicationLogger(),
-		       "EventProcessor successfully shut down. Return code "<<retval);
-      }
-    }
-    else {
-      LOG4CPLUS_INFO(getApplicationLogger(),
-		     "EventProcessor halted. State "
-		     <<evtProcessor_->stateName(evtProcessor_->getState()));  
-    }
-    
-    evtProcessor_->endJob();
-    delete evtProcessor_;
-  }
-  catch(seal::Error& e) {
-    XCEPT_RAISE(toolbox::fsm::exception::Exception,e.explainSelf());
-  }
-  catch(cms::Exception &e) {
-    XCEPT_RAISE(toolbox::fsm::exception::Exception,e.explainSelf());
-  }    
-  catch(std::exception &e) {
-    XCEPT_RAISE(toolbox::fsm::exception::Exception,e.what());
-  }
-  catch(...) {
-    XCEPT_RAISE(toolbox::fsm::exception::Exception,"Unknown Exception");
-  }
-
+  stopEventProcessor();
+  evtProcessor_->endJob();
+  delete evtProcessor_;
   evtProcessor_ = 0;
+  epInitialized_ = false;
   LOG4CPLUS_INFO(getApplicationLogger(),"Finished halting!");
   
   toolbox::Event::Reference e(new toolbox::Event("HaltDone",this));
@@ -686,10 +653,36 @@ bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
 }
 
 
+//______________________________________________________________________________
+void FUEventProcessor::failed(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception)
+{
+  if (typeid(*e) == typeid(toolbox::fsm::FailedEvent)) {
+    toolbox::fsm::FailedEvent &fe=dynamic_cast<toolbox::fsm::FailedEvent&>(*e);
+    LOG4CPLUS_FATAL(getApplicationLogger(),
+		    "Failure occurred in transition from '"
+		    <<fe.getFromState()<<"' to '"<<fe.getToState()
+		    <<"', exception history: "
+		    <<xcept::stdformat_exception_history(fe.getException()));
+  }
+  else if (typeid(*e) == typeid(evf::FsmFailedEvent)) {
+    evf::FsmFailedEvent &fe=dynamic_cast<evf::FsmFailedEvent&>(*e);
+    LOG4CPLUS_FATAL(getApplicationLogger(),
+		    "fsm failure occured: "<<fe.errorMessage());
+  }
+}
+
 
 //______________________________________________________________________________
 void FUEventProcessor::initEventProcessor()
 {
+  if (epInitialized_) {
+    LOG4CPLUS_INFO(getApplicationLogger(),"CMSSW EventProcessor already initialized: skip!");
+    return;
+  }
+  
+  LOG4CPLUS_INFO(getApplicationLogger(),"Initialize CMSSW EventProcessor.");
+  
   if (0!=setenv("SEAL_PLUGINS",sealPluginPath_.value_.c_str(),0)) {
     LOG4CPLUS_ERROR(getApplicationLogger(),"Failed to set SEAL_PLUGINS search path");
   }
@@ -713,9 +706,9 @@ void FUEventProcessor::initEventProcessor()
     internal::addServiceMaybe(*pServiceSets,"MonitorDaemon");
     internal::addServiceMaybe(*pServiceSets,"MLlog4cplus");
     internal::addServiceMaybe(*pServiceSets,"MicroStateService");
-
+    
     try{
-	serviceToken_ = edm::ServiceRegistry::createSet(*pServiceSets);
+      serviceToken_ = edm::ServiceRegistry::createSet(*pServiceSets);
     }
     catch(seal::Error& e) {
       LOG4CPLUS_ERROR(getApplicationLogger(),e.explainSelf());
@@ -790,12 +783,14 @@ void FUEventProcessor::initEventProcessor()
     defaultServices.push_back("InitRootHandlers");
     defaultServices.push_back("LoadAllDictionaries");
     defaultServices.push_back("JobReportService");
-
+    
+    if (0!=evtProcessor_) delete evtProcessor_;
+    
     evtProcessor_ = new edm::EventProcessor(configString,
 					    serviceToken_,
 					    edm::serviceregistry::kTokenOverrides,
 					    defaultServices);
-    evtProcessor_->setRunNumber(runNumber_.value_);
+    //    evtProcessor_->setRunNumber(runNumber_.value_);
 
     if(!outPut_)
       //evtProcessor_->toggleOutput();
@@ -841,22 +836,98 @@ void FUEventProcessor::initEventProcessor()
     }
   }
   catch(seal::Error& e) {
-    XCEPT_RAISE (toolbox::fsm::exception::Exception,e.explainSelf());
+    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.explainSelf(),this));
+    fsm_.fireEvent(e);
   }
   catch(cms::Exception &e) {
-    XCEPT_RAISE (toolbox::fsm::exception::Exception,e.explainSelf());
+    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.explainSelf(),this));
+    fsm_.fireEvent(e);
   }    
   catch(std::exception &e) {
-    XCEPT_RAISE (toolbox::fsm::exception::Exception,e.what());
+    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.what(),this));
+    fsm_.fireEvent(e);
   }
   catch(...) {
-    XCEPT_RAISE(toolbox::fsm::exception::Exception,"Unknown Exception");
+    toolbox::Event::Reference e(new evf::FsmFailedEvent("Unknown Exception",this));
+    fsm_.fireEvent(e);
   }
-
   
   LOG4CPLUS_INFO(getApplicationLogger(),"FUEventProcessor configuration finished.");
+  
+  epInitialized_ = true;
 
   return;
+}
+
+
+//______________________________________________________________________________
+void FUEventProcessor::stopEventProcessor()
+{
+  int trycount=0;
+  try  {
+    // wait until event processor reaches state 'sStopping'
+    while(evtProcessor_->getState()!=edm::event_processor::sStopping && trycount<10) {
+      trycount++;
+      ::sleep(1);
+    }
+    
+    // wait until even processor reaches state 'sDone'
+    trycount=0;
+    if(evtProcessor_->getState()==edm::event_processor::sStopping) {
+      LOG4CPLUS_WARN(getApplicationLogger(),
+		     "about to call stopAsync, state "
+		     <<(evtProcessor_->getState()));
+
+      evtProcessor_->stopAsync();
+      LOG4CPLUS_WARN(getApplicationLogger(),
+		     "called stopAsync, state "
+		     <<(evtProcessor_->getState()));
+
+      while(evtProcessor_->getState()!=edm::event_processor::sJobReady && trycount<10) {
+	trycount++;
+	::sleep(1);
+      }
+    }
+    
+    if(evtProcessor_->getState()!=edm::event_processor::sJobReady) {
+      LOG4CPLUS_WARN(getApplicationLogger(),
+		     "Halting with triggers still to be processed. "
+		     <<"EventProcessor state"
+		     <<evtProcessor_->stateName(evtProcessor_->getState()));
+      
+      int retval = evtProcessor_->shutdownAsync();
+      
+      if (retval!=0) {
+	LOG4CPLUS_WARN(getApplicationLogger(),
+		       "Failed to shut down EventProcessor. Return code "<<retval);
+      }	  
+      else {
+	LOG4CPLUS_INFO(getApplicationLogger(),
+		       "EventProcessor successfully shut down. Return code "<<retval);
+      }
+    }
+    else {
+      LOG4CPLUS_INFO(getApplicationLogger(),
+		     "EventProcessor stopped. State "
+		     <<evtProcessor_->stateName(evtProcessor_->getState()));  
+    }
+  }
+  catch(seal::Error& e) {
+    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.explainSelf(),this));
+    fsm_.fireEvent(e);
+  }
+  catch(cms::Exception &e) {
+    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.explainSelf(),this));
+    fsm_.fireEvent(e);
+  }    
+  catch(std::exception &e) {
+    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.what(),this));
+    fsm_.fireEvent(e);
+  }
+  catch(...) {
+    toolbox::Event::Reference e(new evf::FsmFailedEvent("Unknown Exception",this));
+    fsm_.fireEvent(e);
+  }
 }
 
 
@@ -865,6 +936,10 @@ void FUEventProcessor::actionPerformed(xdata::Event& e)
 {
   if (e.type()=="ItemChangedEvent" && !(stateName_=="Halted")) {
     string item = dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
+    
+    if ( item == "parameterSet") {
+      epInitialized_ = false;
+    }
     
     if ( item == "outputEnabled") {
       if(outprev_ != outPut_) {
@@ -1205,6 +1280,14 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,const string
   *out << "</td>" << endl;
   *out << "<td>" << endl;
   *out << evtProcessor_->getState() << endl;
+  *out << "</td>" << endl;
+  *out << "</tr>"                                            << endl;
+  *out << "<tr>" << endl;
+  *out << "<td>" << endl;
+  *out << "edm::EP initialized" << endl;
+  *out << "</td>" << endl;
+  *out << "<td>" << endl;
+  *out << epInitialized_ << endl;
   *out << "</td>" << endl;
   *out << "  </tr>"                                            << endl;
   *out << "<tr>" << endl;
