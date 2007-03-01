@@ -8,8 +8,8 @@
 // Created:         Sun Feb  4 19:15:56 UTC 2007
 //
 // $Author: gutsche $
-// $Date: 2006/03/03 22:23:12 $
-// $Revision: 1.3 $
+// $Date: 2007/02/05 19:22:46 $
+// $Revision: 1.4 $
 //
 
 #include "RecoTracker/RoadMapRecord/test/RoadMapTest.h"
@@ -24,7 +24,7 @@ RoadMapTest::RoadMapTest( const edm::ParameterSet& iConfig )
 
    dumpRoads_ = iConfig.getUntrackedParameter<bool>("DumpRoads");
    fileName_  = iConfig.getUntrackedParameter<std::string>("FileName");
-
+   roadLabel_  = iConfig.getUntrackedParameter<std::string>("RoadLabel");
 }
 
 
@@ -39,7 +39,7 @@ RoadMapTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
 
   edm::ESHandle<Roads> roads;
-  iSetup.get<RoadMapRecord>().get(roads);
+  iSetup.get<RoadMapRecord>().get(roadLabel_,roads);
   if ( dumpRoads_ ) {
     roads->dump(fileName_);
   }
