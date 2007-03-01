@@ -127,6 +127,9 @@ namespace perftools {
       }
     }
 
+
+  }
+  
   void EdmEventSize::shortNames() {
     std::for_each(m_branches.begin(),m_branches.end(),
 		  &detail::shorterName);
