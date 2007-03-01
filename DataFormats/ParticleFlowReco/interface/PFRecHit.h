@@ -8,8 +8,15 @@
 
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/DetId/interface/DetId.h"
+// #include "DataFormats/DetId/interface/DetId.h"
 #include "Math/GenVector/PositionVector3D.h"
+
+
+//C decide what is the default rechit index. 
+//C maybe 0 ? -> compression 
+//C then the position is index-1. 
+//C provide a helper class to access the rechit. 
+
 
 namespace reco {
 
@@ -22,6 +29,11 @@ namespace reco {
   class PFRecHit {
 
   public:
+    
+    enum {
+      NONE=0
+    };
+
     typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
 
     /// default constructor. Sets energy and position to zero
@@ -50,19 +62,20 @@ namespace reco {
     /// calculates rho eta phi position once and for all
     void calculatePositionREP();
 
-    void setNeighbours( const std::vector<PFRecHit*>& neighbours );
+    //C neighbours must be initialized correctly !!
+/*     void setNeighbours( const std::vector< unsigned >& neighbours ); */
+    void add4Neighbour( unsigned index );
+    void add8Neighbour( unsigned index );
+    
+    
 
-    //C this function will not be necessary anymore.
-    //C neighbours4 and neighbours8 will directly contain
-    //C the index of the neighbours, allowing to find them
-    //C in the global rechit vector
     /// \brief search for pointers to neighbours, using neighbours' DetId.
     /// 
     /// pointers to neighbours are not persistent, in contrary to the DetId's 
     /// of the neighbours. This function searches a map of rechits 
     /// for the DetId's stored in neighboursIds4_ and  neighboursIds8_. 
     /// The corresponding pointers are stored in neighbours4_ and neighbours8_.
-    void      findPtrsToNeighbours( const std::map<unsigned,  reco::PFRecHit* >& allhits );
+    // void      findPtrsToNeighbours( const std::map<unsigned,  reco::PFRecHit* >& allhits );
 
     void      setNWCorner( double posx, double posy, double posz );
     void      setSWCorner( double posx, double posy, double posz );
@@ -78,14 +91,15 @@ namespace reco {
     /// rechit energy
     double energy() const { return energy_; }
 
+    //C remove cause I want to be able to run on const rechits
     /// \return seed state (-1:unknown, 0:no, 1 yes)
-    int  seedState() const { return seedState_; }
+    // int  seedState() const { return seedState_; }
     
     /// is seed ? 
-    bool isSeed() const { return (seedState_>0) ? true : false; }
+    // bool isSeed() const { return (seedState_>0) ? true : false; }
 
     /// set seed status
-    void youAreSeed(int seedstate=1) {seedState_ = seedstate;} 
+    // void youAreSeed(int seedstate=1) {seedState_ = seedstate;} 
 
     /// rechit cell centre x, y, z
     const math::XYZPoint& positionXYZ() const { return posxyz_; }
@@ -100,24 +114,24 @@ namespace reco {
     const std::vector< math::XYZPoint >& getCornersXYZ() const 
       { return cornersxyz_; }    
 
-    //C replace PFRecHit* by unsigned
-    const std::vector< PFRecHit* >& getNeighbours4() const 
+    const std::vector< unsigned >& neighbours4() const 
       {return neighbours4_;}  
 
-    const std::vector< PFRecHit* >& getNeighbours8() const 
+    const std::vector< unsigned >& neighbours8() const 
       {return neighbours8_;}  
 
-    //C remove these
-    const std::vector< unsigned >& getNeighboursIds4() const 
-      {return neighboursIds4_;}  
+/*     const std::vector< unsigned >& getNeighboursIds4() const  */
+/*       {return neighboursIds4_;}   */
 
-    const std::vector< unsigned >& getNeighboursIds8() const 
-      {return neighboursIds8_;}  
+/*     const std::vector< unsigned >& getNeighboursIds8() const  */
+/*       {return neighboursIds8_;}   */
 
     /// is rechit 'id' a direct neighbour of this ? 
+    /// id is the rechit index ! not the detId
     bool  isNeighbour4(unsigned id) const;
 
     /// is rechit 'id' a neighbour of this ? 
+    /// id is the rechit index ! not the detId
     bool  isNeighbour8(unsigned id) const;
     
 
@@ -140,7 +154,7 @@ namespace reco {
 
   private:
 
-    /// cell detid
+    ///C cell detid - should be detid or index in collection ?
     unsigned            detId_;             
 
     /// rechit layer
@@ -150,7 +164,7 @@ namespace reco {
     double              energy_;
 
     /// is this a seed ? (-1:unknown, 0:no, 1 yes) (transient)
-    int                 seedState_;
+    // int                 seedState_;
  
     /// rechit cell centre: x, y, z
     math::XYZPoint      posxyz_;
@@ -164,22 +178,12 @@ namespace reco {
     /// rechit cell corners
     std::vector< math::XYZPoint > cornersxyz_;
 
-    //C remove these
-    /// id's of neighbours - replace by a set 
-    std::vector<unsigned>    neighboursIds4_;
-
-    /// id's of neighbours - replace by a set 
-    std::vector<unsigned>    neighboursIds8_;
-
-    /// pointers to neighbours (if null: no neighbour here) (transient)
-/*     std::vector<PFRecHit*>   neighbours_; */
   
-    //C change PFRecHit* to unsigned
-    /// pointers to existing neighbours (1 common side) (transient)
-    std::vector<PFRecHit*>   neighbours4_;
+    /// indices to existing neighbours (1 common side)
+    std::vector< unsigned >   neighbours4_;
 
-    /// pointers to existing neighbours (1 common side or diagonal) (transient)
-    std::vector<PFRecHit*>   neighbours8_;
+    /// indices to existing neighbours (1 common side or diagonal) 
+    std::vector< unsigned >   neighbours8_;
 
     /// number of neighbours
     static const unsigned    nNeighbours_;

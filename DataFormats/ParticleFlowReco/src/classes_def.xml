@@ -1,21 +1,15 @@
 <lcgdict>
   <class name="reco::PFCluster">
-    <field name="rechits_" transient="true"/>
     <field name="posrep_" transient="true"/>
     <field name="color_" transient="true"/>
-    <field name="depthCorMode_" transient="true"/>
-    <field name="depthCorA_" transient="true"/>
-    <field name="depthCorB_" transient="true"/>
-    <field name="depthCorAp_" transient="true"/>
-    <field name="depthCorBp_" transient="true"/>
   </class>
   <class name="std::vector<reco::PFCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::PFCluster> >"/>
+  <class name="reco::PFRecHitFraction"/>
+  <class name="std::vector<reco::PFRecHitFraction>"/>
   <class name="reco::PFRecHit">
     <field name="posrep_" transient="true"/>
     <field name="seedState_" transient="true"/>
-    <field name="neighbours4_" transient="true"/>
-    <field name="neighbours8_" transient="true"/>
     <field name="nNeighbours_" transient="true"/>
     <field name="nCorners_" transient="true"/>
   </class>

@@ -10,8 +10,9 @@ ostream& reco::operator<<(std::ostream& out,
 
   if(!out) return out;
 
-  const reco::PFRecHit* rechit = hit.getRecHit();
-  out<<hit.energy()<<"\t"<<(*rechit);
+//   const reco::PFRecHit* rechit = hit.getRecHit();
+
+  out<<hit.fraction()<<"x["<<hit.recHitIndex()<<"]";
 
   return out;
 }

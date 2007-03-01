@@ -1,19 +1,9 @@
 #ifndef DataFormats_ParticleFlowReco_PFRecHitFraction_h
 #define DataFormats_ParticleFlowReco_PFRecHitFraction_h
 
-//C these can probably be removed
-#include "Math/GenVector/PositionVector3D.h"
-#include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/Math/interface/Vector3D.h"
 
 #include <iostream>
 #include <vector>
-
-//C no more dependance to rechit
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-
-//C replace rechit pointer by an unsigned
-//C remove DistToCluster stuff
 
 namespace reco {
   
@@ -29,53 +19,33 @@ namespace reco {
   public:
     
     /// default constructor
-    PFRecHitFraction() : recHit_(0), fraction_(-1), distance_(0) {}
+    PFRecHitFraction() : recHitIndex_(0), fraction_(-1) {}
     
     /// constructor
-    PFRecHitFraction(const reco::PFRecHit* rechit, double fraction, double dist) 
-      : recHit_(rechit), fraction_(fraction), distance_(dist) {}
-    
-    /// constructor
-    PFRecHitFraction(const reco::PFRecHit* rechit, double fraction) 
-      : recHit_(rechit), fraction_(fraction), distance_(0) {}
+    PFRecHitFraction(unsigned rechitIndex, double fraction ) 
+      : recHitIndex_(rechitIndex), fraction_(fraction) {}
     
     /// copy
     PFRecHitFraction(const PFRecHitFraction& other) 
-      : recHit_(other.recHit_), fraction_(other.fraction_), distance_(other.distance_) {}
+      : recHitIndex_(other.recHitIndex_), fraction_(other.fraction_) {}
     
-    /// \return pointer to rechit
-    const reco::PFRecHit* getRecHit() const {return recHit_;} 
+    /// \return index to rechit
+    unsigned recHitIndex() const {return recHitIndex_;} 
 						
-    /// sets distance to cluster
-    void   setDistToCluster(double dist) { distance_ = dist;}
-    
     /// \return energy fraction
-    double getFraction() const {return fraction_;}
+    double fraction() const {return fraction_;}
     
-    //C remove this function. 
-    /// \return recHit_->energy() * fraction_
-    double energy() const 
-      { return recHit_->energy() * fraction_;}
-    
-    //C remove this 
-    /// \return distance to cluster
-    double getDistToCluster() const {return distance_;}
-    
-    //C change the implementation. 
     friend    std::ostream& operator<<(std::ostream& out,
 				       const PFRecHitFraction& hit);
     
   private:
     
-    /// corresponding rechit (not owner)
-    const reco::PFRecHit* recHit_;
+    /// corresponding rechit 
+    unsigned  recHitIndex_;
     
     /// fraction of the rechit energy owned by the cluster
     double    fraction_;
-    
-    /// distance to the cluster
-    double    distance_;
-    
+        
   };
 }
 

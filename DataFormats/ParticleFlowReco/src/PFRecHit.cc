@@ -11,7 +11,7 @@ PFRecHit::PFRecHit() :
   detId_(0),
   layer_(0),
   energy_(0.), 
-  seedState_(-1), 
+  // seedState_(-1), 
   posxyz_(math::XYZPoint(0.,0.,0.)),
   posrep_(REPPoint(0.,0.,0.)) {
 
@@ -31,7 +31,7 @@ PFRecHit::PFRecHit(unsigned detId,
   detId_(detId),
   layer_(layer),
   energy_(energy), 
-  seedState_(-1), 
+  // seedState_(-1), 
   posxyz_(position),
   posrep_( position.Rho(), position.Eta(), position.Phi() ),
   axisxyz_(axisxyz),
@@ -47,7 +47,7 @@ PFRecHit::PFRecHit(unsigned detId,
   detId_(detId),
   layer_(layer),
   energy_(energy), 
-  seedState_(-1), 
+  // seedState_(-1), 
   posxyz_(posx, posy, posz),
   posrep_( posxyz_.Rho(), 
 	   posxyz_.Eta(), 
@@ -66,13 +66,13 @@ PFRecHit::PFRecHit(const PFRecHit& other) :
   detId_(other.detId_), 
   layer_(other.layer_), 
   energy_(other.energy_), 
-  seedState_(other.seedState_),
+  // seedState_(other.seedState_),
   posxyz_(other.posxyz_), 
   posrep_(other.posrep_),
   axisxyz_(other.axisxyz_),
   cornersxyz_(other.cornersxyz_),
-  neighboursIds4_(other.neighboursIds4_),
-  neighboursIds8_(other.neighboursIds8_),
+//   neighboursIds4_(other.neighboursIds4_),
+//   neighboursIds8_(other.neighboursIds8_),
 //   neighbours_(other.neighbours_),
   neighbours4_(other.neighbours4_),
   neighbours8_(other.neighbours8_) 
@@ -96,68 +96,82 @@ void PFRecHit::calculatePositionREP() {
 }
 
 
-void PFRecHit::setNeighbours( const vector<PFRecHit*>& neighbours ) {
-  if( neighbours.size() != nNeighbours_ ) 
-    throw cms::Exception("CellNeighbourVector") 
-      << "number of neighbours must be nNeighbours_";
+// void PFRecHit::setNeighbours( const vector< unsigned >& neighbours ) {
+//   if( neighbours.size() != nNeighbours_ ) 
+//     throw cms::Exception("CellNeighbourVector") 
+//       << "number of neighbours must be nNeighbours_";
   
-//   neighbours_.clear(); 
-  neighboursIds4_.clear(); 
-  neighboursIds8_.clear(); 
-  neighbours4_.clear(); 
-  neighbours8_.clear(); 
+// //   neighbours_.clear(); 
+// //   neighboursIds4_.clear(); 
+// //   neighboursIds8_.clear(); 
+//   neighbours4_.clear(); 
+//   neighbours8_.clear(); 
   
-  neighboursIds4_.reserve( PFRecHit::nNeighbours_ ); 
-  neighboursIds8_.reserve( PFRecHit::nNeighbours_ ); 
-  neighbours4_.reserve( PFRecHit::nNeighbours_ ); 
-  neighbours8_.reserve( PFRecHit::nNeighbours_ ); 
+// //   neighboursIds4_.reserve( PFRecHit::nNeighbours_ ); 
+// //   neighboursIds8_.reserve( PFRecHit::nNeighbours_ ); 
 
-
+//   // space is reserved, but this vectors will not always have size 4 or 8.
+//   // they contain the indices to the neighbours that are present in the rechit
+//   // collection 
+//   neighbours4_.reserve( PFRecHit::nNeighbours_ ); 
+//   neighbours8_.reserve( PFRecHit::nNeighbours_ ); 
    
-//   neighboursIds_.reserve(nNeighbours_); 
-//   neighbours_.reserve(nNeighbours_); 
+// //   neighboursIds_.reserve(nNeighbours_); 
+// //   neighbours_.reserve(nNeighbours_); 
 
-//   neighbours_ = neighbours;
+// //   neighbours_ = neighbours;
 
-  for(unsigned i=0; i<neighbours.size(); i++) {
-    if( neighbours[i] ) {
-      neighbours8_.push_back( neighbours[i] );      
-      neighboursIds8_.push_back( neighbours[i]->detId() );  
-      if( !(i%2) ) {
-	neighbours4_.push_back( neighbours[i] );
-	neighboursIds4_.push_back( neighbours[i]->detId() );  
-      }
-    }
-  }
-}
+//   for(unsigned i=0; i<neighbours.size(); i++) {
+//     if( neighbours[i] ) {
+//       neighbours8_.push_back( neighbours[i] );      
+// //       neighboursIds8_.push_back( neighbours[i]->detId() );  
+//       if( !(i%2) ) {
+// 	neighbours4_.push_back( neighbours[i] );
+// // 	neighboursIds4_.push_back( neighbours[i]->detId() );  
+//       }
+//     }
+//   }
+// }
 
 
-void PFRecHit::findPtrsToNeighbours( const std::map<unsigned,  
-				     reco::PFRecHit* >& allhits ) {
+void PFRecHit::add4Neighbour(unsigned index) {
+  neighbours4_.push_back( index );
+  neighbours8_.push_back( index );
+} 
 
-  neighbours4_.clear();
-  neighbours8_.clear();
+void PFRecHit::add8Neighbour(unsigned index) {
+  neighbours8_.push_back( index );
+} 
+
+
+
+
+// void PFRecHit::findPtrsToNeighbours( const std::map<unsigned,  
+// 				     reco::PFRecHit* >& allhits ) {
+
+//   neighbours4_.clear();
+//   neighbours8_.clear();
   
-  typedef std::map<unsigned, reco::PFRecHit* >::const_iterator IDH;
+//   typedef std::map<unsigned, reco::PFRecHit* >::const_iterator IDH;
 
-  for(unsigned inid = 0; inid<neighboursIds8_.size(); inid++) {
+//   for(unsigned inid = 0; inid<neighboursIds8_.size(); inid++) {
     
-    IDH ineighbour = allhits.find( neighboursIds8_[inid] );
-    if( ineighbour != allhits.end() ) {
-      neighbours8_.push_back( ineighbour->second );
-    }
-  }
+//     IDH ineighbour = allhits.find( neighboursIds8_[inid] );
+//     if( ineighbour != allhits.end() ) {
+//       neighbours8_.push_back( ineighbour->second );
+//     }
+//   }
 
 
-  for(unsigned inid = 0; inid<neighboursIds4_.size(); inid++) {
+//   for(unsigned inid = 0; inid<neighboursIds4_.size(); inid++) {
     
-    IDH ineighbour = allhits.find( neighboursIds4_[inid] );
-    if( ineighbour != allhits.end() ) {
-      neighbours4_.push_back( ineighbour->second );
-    }
-  }
+//     IDH ineighbour = allhits.find( neighboursIds4_[inid] );
+//     if( ineighbour != allhits.end() ) {
+//       neighbours4_.push_back( ineighbour->second );
+//     }
+//   }
 
-}
+// }
 
 
 void PFRecHit::setNWCorner( double posx, double posy, double posz ) {
@@ -191,7 +205,7 @@ void PFRecHit::setCorner( unsigned i, double posx, double posy, double posz ) {
 bool PFRecHit::isNeighbour4(unsigned id) const {
 
   for(unsigned i=0; i<neighbours4_.size(); i++ )
-    if( id == neighboursIds4_[i] ) return true;
+    if( id == neighbours4_[i] ) return true;
 
   return false;		  
 }
@@ -200,7 +214,7 @@ bool PFRecHit::isNeighbour4(unsigned id) const {
 bool PFRecHit::isNeighbour8(unsigned id) const {
   
   for(unsigned i=0; i<neighbours8_.size(); i++ )
-    if( id == neighboursIds8_[i] ) return true;
+    if( id == neighbours8_[i] ) return true;
 
   return false;		  
 }
@@ -237,13 +251,15 @@ ostream& reco::operator<<(ostream& out, const reco::PFRecHit& hit) {
   const  math::XYZPoint& posxyz = hit.positionXYZ();
 
   out<<"hit id:"<<hit.detId()
-     <<" layer:"<<hit.layer()
-     <<" energy:"<<hit.energy()
-     <<" position: "
-     <<" / "<<posxyz.Rho()<<","<<posxyz.Eta()<<","<<posxyz.Phi()
-     <<" / "<<posxyz.X()<<","<<posxyz.Y()<<","<<posxyz.Z()
-     <<" SEED: "<<hit.seedState_;
+     <<" l:"<<hit.layer()
+     <<" E:"<<hit.energy()
+     <<" rep:"<<posxyz.Rho()<<","<<posxyz.Eta()<<","<<posxyz.Phi()<<"| N:";
+    //     <<" SEED: "<<hit.seedState_;
+  for(unsigned i=0; i<hit.neighbours8_.size(); i++ ) {
+    out<<hit.neighbours8_[i]<<" ";
+  }
   
+
 //   out<<endl;
 //   out<<"neighbours "<<endl;
 //   for(unsigned i=0; i<hit.neighbours8_.size(); i++ ) {
@@ -254,16 +270,16 @@ ostream& reco::operator<<(ostream& out, const reco::PFRecHit& hit) {
 //     out<<"\t"<< (hit.neighboursIds8_[i])<<endl;
 //   }
   
-  bool printcorners = false;
+//   bool printcorners = false;
 
-  if(printcorners) {
+//   if(printcorners) {
     
-    out<<endl<<"corners : "<<endl;
-    const std::vector< math::XYZPoint >& corners = hit.getCornersXYZ();
-    for(unsigned i=0; i<corners.size(); i++) {
-      out<<"\t"<<corners[i].X()<<","<<corners[i].Y()<<","<<corners[i].Z()<<endl;
-    }
-  }  
+//     out<<endl<<"corners : "<<endl;
+//     const std::vector< math::XYZPoint >& corners = hit.getCornersXYZ();
+//     for(unsigned i=0; i<corners.size(); i++) {
+//       out<<"\t"<<corners[i].X()<<","<<corners[i].Y()<<","<<corners[i].Z()<<endl;
+//     }
+//   }  
 
   return out;
 }
