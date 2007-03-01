@@ -12,6 +12,7 @@
 <use name=RecoEcal/EgammaClusterAlgos>
 <use name=Geometry/EcalPreshowerAlgo>
 <use name=DataFormats/Math>
+<use name=TrackingTools/TrackAssociator>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=clhep>
 <use name=Foundation/PluginManager>
@@ -27,6 +28,7 @@
   <use name=CondFormats/EcalObjects>
   <use name=CondFormats/DataRecord>
   <use name=RecoLocalCalo/EcalRecAlgos>
+<use name=TrackingTools/TrackAssociator>
   <use name=Geometry/CaloEventSetup>
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloTopology>

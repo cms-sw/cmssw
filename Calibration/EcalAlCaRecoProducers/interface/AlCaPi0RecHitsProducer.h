@@ -23,6 +23,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+#include "TrackingTools/TrackAssociator/interface/TimerStack.h"
+
 //
 // class declaration
 //
