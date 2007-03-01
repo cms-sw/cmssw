@@ -129,6 +129,9 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   else if (requestID == "PlotAsModule") {
     theActionFlag = PlotSingleModuleHistos;    
   }
+  else if (requestID == "PlotTrackHisto") {
+    theActionFlag = PlotTrackHistos;    
+  }
   else if (requestID == "PlotSingleHistogram") {
    theActionFlag = PlotSingleHistogram;
   } 
@@ -213,6 +216,11 @@ void SiStripWebInterface::performAction() {
   case SiStripWebInterface::PlotSingleModuleHistos :
     {
       infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);
+      break;
+    }
+  case SiStripWebInterface::PlotTrackHistos :
+    {
+      infoExtractor_->plotTrackHistos((*mui_p), requestMap_);
       break;
     }
   case SiStripWebInterface::PlotTkMapHistogram :

@@ -4,11 +4,13 @@ function RequestHistoList() {
   url += "/Request?";
   if (document.getElementById("module_histos").checked) {
     queryString = "RequestID=SingleModuleHistoList";
+    url += queryString; 
+    makeRequest(url, FillModuleHistoList);     
   } else if (document.getElementById("track_histos").checked) {
     queryString = "RequestID=TrackHistoList";    
+    url += queryString;
+    makeRequest(url, FillTrackHistoList);     
   }
-  url += queryString; 
-  makeRequest(url, FillModuleHistoList);     
 }
 function RequestSummaryHistoList() {
   var queryString;
@@ -81,6 +83,39 @@ function FillModuleHistoList() {
     }
   }
 }
+function FillTrackHistoList() {
+  if (http_request.readyState == 4) {
+    if (http_request.status == 200) {
+      try {
+
+
+        var doc = http_request.responseXML;
+        var root = doc.documentElement;
+        
+        // Histogram  select box
+        var bobj = document.getElementById("histolistarea");
+        bobj.options.length = 0;
+
+        var hrows = root.getElementsByTagName('THisto');
+//        alert(" rows = " + hrows.length);
+        for (var j = 0; j < hrows.length; j++) {
+          var name  = hrows[j].childNodes[0].nodeValue;
+          var boption = new Option(name, name);
+          try {
+            bobj.add(boption, null);
+          }
+          catch (e) {
+            bobj.add(boption, -1);
+          }
+        }
+      }
+      catch (err) {
+        alert ("Error detail: " + err.message); 
+      }
+    }
+  }
+}
+
 /*function FillSummaryHistoList() {
   if (http_request.readyState == 4) {
     if (http_request.status == 200) {

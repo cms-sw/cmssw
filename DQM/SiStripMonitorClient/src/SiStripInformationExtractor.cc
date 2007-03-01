@@ -15,6 +15,7 @@
 #include "TPaveText.h"
 #include "TImageDump.h"
 #include "TAxis.h"
+#include "TStyle.h"
 
 #include <iostream>
 using namespace std;
@@ -144,6 +145,28 @@ void SiStripInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
   str_val << "</li> "<< endl;  
 }
 //
+// --  Fill Histo and Module List
+// 
+void SiStripInformationExtractor::fillTrackHistoList(MonitorUserInterface * mui, vector<string>& histos) {
+  string currDir = mui->pwd();
+  if (currDir.find("GlobalParameters") != string::npos)  {
+    vector<string> contents = mui->getMEs();    
+    for (vector<string>::const_iterator it = contents.begin();
+	 it != contents.end(); it++) {
+      histos.push_back((*it));
+    }
+    return;
+  } else {  
+    vector<string> subdirs = mui->getSubdirs();
+    for (vector<string>::const_iterator it = subdirs.begin();
+	 it != subdirs.end(); it++) {
+      mui->cd(*it);
+      fillTrackHistoList(mui,histos);
+      mui->goUp();
+    }
+  }
+}
+//
 // --  Get Selected Monitor Elements
 // 
 void SiStripInformationExtractor::selectSingleModuleHistos(MonitorUserInterface * mui, string mid, vector<string>& names, vector<MonitorElement*>& mes) {
@@ -176,6 +199,35 @@ void SiStripInformationExtractor::selectSingleModuleHistos(MonitorUserInterface 
   }
 }
 //
+// --  Get Selected Monitor Elements
+// 
+void SiStripInformationExtractor::selectTrackHistos(MonitorUserInterface * mui, vector<string>& names, vector<MonitorElement*>& mes) {
+  string currDir = mui->pwd();
+  if (currDir.find("GlobalParameters") != string::npos)  {
+    vector<string> contents = mui->getMEs();    
+    for (vector<string>::const_iterator it = contents.begin();
+	 it != contents.end(); it++) {
+      for (vector<string>::const_iterator ih = names.begin();
+	   ih != names.end(); ih++) {
+	if ((*it) == (*ih)) {
+	  string full_path = currDir + "/" + (*it);
+	  MonitorElement * me = mui->get(full_path.c_str());
+	  if (me) mes.push_back(me);
+        }
+      }
+    }
+    return;
+  } else {  
+    vector<string> subdirs = mui->getSubdirs();
+    for (vector<string>::const_iterator it = subdirs.begin();
+	 it != subdirs.end(); it++) {
+      mui->cd(*it);
+      selectTrackHistos(mui,names, mes);
+      mui->goUp();
+    }
+  }
+}
+//
 // --  Plot Selected Monitor Elements
 // 
 void SiStripInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* mui, multimap<string, string>& req_map) {
@@ -190,6 +242,23 @@ void SiStripInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* m
 
   mui->cd();
   selectSingleModuleHistos(mui, mod_id, item_list, me_list);
+  mui->cd();
+
+  plotHistos(req_map,me_list);
+}
+//
+// --  Plot Selected Monitor Elements
+// 
+void SiStripInformationExtractor::plotTrackHistos(MonitorUserInterface* mui, multimap<string, string>& req_map) {
+ 
+  vector<string> item_list;  
+
+  item_list.clear();     
+  getItemList(req_map,"histo", item_list);
+  vector<MonitorElement*> me_list;
+
+  mui->cd();
+  selectTrackHistos(mui, item_list, me_list);
   mui->cd();
 
   plotHistos(req_map,me_list);
@@ -317,6 +386,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 
   canvas.SetWindowSize(width,height);
   canvas.Divide(ncol, nrow);
+  gStyle->SetOptTitle(0);
   int i=0;
   for (vector<MonitorElement*>::const_iterator it = me_list.begin();
        it != me_list.end(); it++) {
@@ -332,7 +402,8 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
   
     if (prof|| hist1 || hist2) {
       canvas.cd(i);
-
+      TText tTitle;
+      tTitle.SetTextSize(0.08);
       if (hist2) {
         if (xlow != -1.0 && xhigh != -1.0) {
           TAxis* xa = hist2->GetXaxis();
@@ -349,6 +420,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 	  }
           thproj.DrawCopy();
 	} else hist2->Draw(dopt.c_str());
+        tTitle.DrawTextNDC(0.1, 0.91, hist2->GetTitle());
       } else if (prof) {
         if (xlow != -1 &&  xhigh != -1.0) {
           TAxis* xa = prof->GetXaxis();
@@ -362,6 +434,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 	  }
 	  thproj.DrawCopy();
         } else prof->Draw(dopt.c_str());
+        tTitle.DrawTextNDC(0.1, 0.91, prof->GetTitle());
       } else {
         if (xlow != -1 &&  xhigh != -1.0) {
           TAxis* xa = hist1->GetXaxis();
@@ -375,7 +448,9 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 	  }
           thproj.DrawCopy();
         } else hist1->Draw();
+        tTitle.DrawTextNDC(0.1, 0.91, hist1->GetTitle());
       }
+
       if (icol != 1) {
 	TText tt;
 	tt.SetTextSize(0.12);
@@ -424,19 +499,19 @@ void SiStripInformationExtractor::readModuleAndHistoList(MonitorUserInterface* m
 //
 void SiStripInformationExtractor::readTrackHistoList(MonitorUserInterface* mui, xgi::Output * out, bool coll_flag) {
    if (coll_flag)  mui->cd("Collector/Collated");
+   std::vector<std::string> hnames;
+
+   fillTrackHistoList(mui, hnames);
+   
    out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
-  *out << "<?xml version=\"1.0\" ?>" << std::endl;
-  string currDir = mui->pwd();
-  if (currDir.find("Track") != string::npos)  {
-    *out << "<TrackHistoList>" << endl;
-    vector<string> contents = mui->getMEs();    
-    for (vector<string>::const_iterator it = contents.begin();
-	 it != contents.end(); it++) {
-      *out << "<THisto>" << *it << "</THisto>" << endl;       
-    }
+   *out << "<?xml version=\"1.0\" ?>" << std::endl;
+   *out << "<TrackHistoList>" << endl;
+   for (vector<string>::const_iterator it = hnames.begin();
+	it != hnames.end(); it++) {
+     *out << "<THisto>" << *it << "</THisto>" << endl;      
+   }
    *out << "</TrackHistoList>" << endl;
-  }
-  if (coll_flag)  mui->cd();
+   if (coll_flag)  mui->cd();
 }
 //
 // read the Structure And SummaryHistogram List

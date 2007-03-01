@@ -27,6 +27,8 @@ class SiStripInformationExtractor {
   void readModuleAndHistoList(MonitorUserInterface* mui,xgi::Output * out, bool coll_flag);
   void plotSingleModuleHistos(MonitorUserInterface * mui,
                       std::multimap<std::string, std::string>& req_map);
+  void plotTrackHistos(MonitorUserInterface * mui,
+                      std::multimap<std::string, std::string>& req_map);
   const std::ostringstream& getImage() const;
   void readSummaryHistoTree(MonitorUserInterface* mui, std::string& str_name, 
                 xgi::Output * out, bool coll_flag);
@@ -39,6 +41,7 @@ class SiStripInformationExtractor {
 
   void fillModuleAndHistoList(MonitorUserInterface * mui,
         std::vector<std::string>& modules, std::vector<std::string>& histos);
+  void fillTrackHistoList(MonitorUserInterface * mui, std::vector<std::string>& histos);
   void selectSingleModuleHistos(MonitorUserInterface * mui,  std::string mid, 
           std::vector<std::string>& names, std::vector<MonitorElement*>& mes);
   void getItemList(std::multimap<std::string, std::string>& req_map,
@@ -55,6 +58,7 @@ class SiStripInformationExtractor {
   void printAlarmList(MonitorUserInterface * mui, std::ostringstream& str_val);
   void selectImage(std::string& name, int status);
   void selectImage(std::string& name, dqm::qtests::QR_map& test_map);
+  void selectTrackHistos(MonitorUserInterface * mui, std::vector<std::string>& names, std::vector<MonitorElement*>& mes);
 
   std::ostringstream pictureBuffer_;
 };
