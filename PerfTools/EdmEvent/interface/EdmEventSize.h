@@ -18,16 +18,16 @@ namespace perftools {
 
     struct BranchRecord {
       BranchRecord() : 
-	compr_size(0),  
-	uncompr_size(0) {}
+	compr_size(0.),  
+	uncompr_size(0.) {}
       BranchRecord(std::string const & iname,
-		   size_t compr,  size_t uncompr) : 
+		   double compr,  double uncompr) : 
 	fullName(iname), name(iname), 
 	compr_size(compr), uncompr_size(uncompr){}
       std::string fullName;
       std::string name;
-      size_t compr_size;
-      size_t uncompr_size;
+      double compr_size;
+      double uncompr_size;
     };
 
     typedef std::vector<BranchRecord> Branches;

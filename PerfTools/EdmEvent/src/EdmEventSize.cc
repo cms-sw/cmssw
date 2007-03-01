@@ -81,9 +81,14 @@ namespace perftools {
     if ( events == 0 )
       throw Error("object \"Events\" is not a TTree in file: " + fileName, 7004);
     
+    int nEvents = events->GetEntries();
+    if ( nEvents == 0 )
+      throw Error("tree \"Events\" in file " + fileName + " contains no Events", 7005);
+
+
     TObjArray * branches = events->GetListOfBranches();
     if ( branches == 0 )
-      throw Error("tree \"Events\" in file " + fileName + " contains no branches", 7005);
+      throw Error("tree \"Events\" in file " + fileName + " contains no branches", 7006);
     
     const size_t n =  branches->GetEntries();
     m_branches.reserve(n);
@@ -93,7 +98,7 @@ namespace perftools {
       std::string const name( b->GetName() );
       if ( name == "EventAux" ) continue;
       size_type s = getTotalSize(b);
-      m_branches.push_back( BranchRecord(name, s[0], s[1]) );
+      m_branches.push_back( BranchRecord(name, double(s[0])/double(nEvents), double(s[1])/double(nEvents)) );
     }
     std::sort(m_branches.begin(),m_branches.end(), 
 	      boost::bind(std::greater<size_t>(),
