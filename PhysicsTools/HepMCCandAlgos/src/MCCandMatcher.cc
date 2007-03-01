@@ -16,8 +16,8 @@ vector<const Candidate *> MCCandMatcher::getDaughters( const Candidate * c ) con
   v.push_back( c );
   const Candidate * dau;
   if( c->numberOfDaughters() == 1 && 
-      status( * c ) == 3 && 
-      pdgId( * c ) == pdgId( * ( dau = c->daughter( 0 ) ) ) )
+      c->status() == 3 && 
+      c->pdgId() == ( dau = c->daughter( 0 ) )->pdgId() )
     v.push_back( dau );
   return v;
 }
