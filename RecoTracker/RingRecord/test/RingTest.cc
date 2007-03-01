@@ -7,9 +7,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Fri Dec  8 10:15:02 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2006/08/12 00:23:51 $
-// $Revision: 1.6 $
+// $Author: gutsche $
+// $Date: 2007/02/05 19:10:04 $
+// $Revision: 1.1 $
 //
 
 #include "RecoTracker/RingRecord/test/RingTest.h"
@@ -24,7 +24,7 @@ RingTest::RingTest( const edm::ParameterSet& iConfig )
 
    dumpRings_ = iConfig.getUntrackedParameter<bool>("DumpRings");
    fileName_  = iConfig.getUntrackedParameter<std::string>("FileName");
-
+   ringLabel_  = iConfig.getUntrackedParameter<std::string>("RingLabel");
 }
 
 RingTest::~RingTest()
@@ -37,7 +37,7 @@ RingTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
 
   edm::ESHandle<Rings> rings;
-  iSetup.get<RingRecord>().get(rings);
+  iSetup.get<RingRecord>().get(ringLabel_,rings);
   if ( dumpRings_ ) {
     rings->dump(fileName_);
   }

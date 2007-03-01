@@ -10,9 +10,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Fri Dec  8 10:15:02 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2006/08/12 00:23:51 $
-// $Revision: 1.6 $
+// $Author: gutsche $
+// $Date: 2007/02/05 19:10:04 $
+// $Revision: 1.1 $
 //
 
 #include <string>
@@ -33,7 +33,8 @@ class RingTest : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   bool dumpRings_;
   std::string fileName_;
-  
+  std::string ringLabel_;
+
 };
 
 #endif

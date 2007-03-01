@@ -9,8 +9,8 @@
 // Created:         Thu Dec  7 08:52:54 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/02/05 19:01:46 $
-// $Revision: 1.1 $
+// $Date: 2007/02/15 23:58:36 $
+// $Revision: 1.2 $
 //
 
 #include <memory>
@@ -31,6 +31,9 @@ namespace cms
     ringPainterAlgorithm_(conf) ,
     conf_(conf)
   {
+
+    ringLabel_ = conf.getUntrackedParameter<std::string>("RingLabel");
+
   }
 
   // Virtual destructor needed.
@@ -41,7 +44,7 @@ namespace cms
   {
 
     edm::ESHandle<Rings> rings;
-    es.get<RingRecord>().get(rings);
+    es.get<RingRecord>().get(ringLabel_,rings);
 
     ringPainterAlgorithm_.run(rings.product());
 

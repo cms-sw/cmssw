@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
-// $Author: wmtan $
-// $Date: 2006/10/27 01:35:39 $
-// $Revision: 1.3 $
+// $Author: gutsche $
+// $Date: 2007/02/05 19:15:00 $
+// $Revision: 1.4 $
 //
 
 #include "RecoTracker/RoadMapESSource/interface/RoadMapESSource.h"
@@ -26,7 +26,10 @@ RoadMapESSource::RoadMapESSource(const edm::ParameterSet& iConfig) :
   fileName_((iConfig.getParameter<edm::FileInPath>("InputFileName")).fullPath())
 {
 
-  setWhatProduced(this);
+  std::string componentName = iConfig.getParameter<std::string>("ComponentName");
+  setWhatProduced(this, componentName);
+
+  ringsLabel_ = iConfig.getParameter<std::string>("RingsLabel");
 
   findingRecord<RoadMapRecord>();
 }
@@ -43,7 +46,7 @@ RoadMapESSource::produce(const RoadMapRecord& iRecord)
 
   // get rings
   edm::ESHandle<Rings> ringHandle;
-  iRecord.getRecord<RingRecord>().get(ringHandle);
+  iRecord.getRecord<RingRecord>().get(ringsLabel_, ringHandle);
   const Rings *rings = ringHandle.product();
 
   std::auto_ptr<Roads> roads(new Roads(fileName_,rings));

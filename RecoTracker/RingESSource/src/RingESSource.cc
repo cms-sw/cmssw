@@ -9,18 +9,18 @@
 // Created:         Thu Oct  5 01:35:14 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/15 00:59:13 $
-// $Revision: 1.2 $
+// $Date: 2007/02/05 19:01:46 $
+// $Revision: 1.1 $
 //
 
 #include "RecoTracker/RingESSource/interface/RingESSource.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-RingESSource::RingESSource(const edm::ParameterSet& iConfig) : 
-  fileName_((iConfig.getParameter<edm::FileInPath>("InputFileName")).fullPath()) {
-
-  setWhatProduced(this);
-
+RingESSource::RingESSource(const edm::ParameterSet& iConfig) : fileName_((iConfig.getParameter<edm::FileInPath>("InputFileName")).fullPath()) {
+  
+  std::string componentName = iConfig.getParameter<std::string>("ComponentName");
+  setWhatProduced(this, componentName);
+    
   findingRecord<RingRecord>();
 }
 

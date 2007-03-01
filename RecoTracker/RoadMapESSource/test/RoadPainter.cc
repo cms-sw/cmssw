@@ -9,7 +9,7 @@
 // Created:         Thu Dec  7 08:52:54 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/06/20 09:09:19 $
+// $Date: 2007/02/05 19:15:01 $
 // $Revision: 1.1 $
 //
 
@@ -33,6 +33,10 @@ namespace cms
     roadPainterAlgorithm_(conf) ,
     conf_(conf)
   {
+
+    ringLabel_ = conf.getUntrackedParameter<std::string>("RingLabel");
+    roadLabel_ = conf.getUntrackedParameter<std::string>("RoadLabel");
+
   }
 
   // Virtual destructor needed.
@@ -43,10 +47,10 @@ namespace cms
   {
 
     edm::ESHandle<Rings> rings;
-    es.get<RingRecord>().get(rings);
+    es.get<RingRecord>().get(ringLabel_,rings);
 
     edm::ESHandle<Roads> roads;
-    es.get<RoadMapRecord>().get(roads);
+    es.get<RoadMapRecord>().get(roadLabel_,roads);
 
     roadPainterAlgorithm_.run(rings.product(),roads.product());
 

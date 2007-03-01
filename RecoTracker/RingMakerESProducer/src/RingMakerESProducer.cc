@@ -9,8 +9,8 @@
 // Created:         Tue Oct  3 23:51:34 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/03 22:23:12 $
-// $Revision: 1.3 $
+// $Date: 2007/02/05 19:09:04 $
+// $Revision: 1.1 $
 //
 
 #include "RecoTracker/RingMakerESProducer/interface/RingMakerESProducer.h"
@@ -23,7 +23,8 @@
 
 RingMakerESProducer::RingMakerESProducer(const edm::ParameterSet& iConfig)
 {
-  setWhatProduced(this);
+  std::string componentName = iConfig.getParameter<std::string>("ComponentName");
+  setWhatProduced(this, componentName);
 
   writeOut_                  = iConfig.getUntrackedParameter<bool>("WriteOutRingsToAsciiFile",false);
   fileName_                  = iConfig.getUntrackedParameter<std::string>("RingAsciiFileName","");

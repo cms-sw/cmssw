@@ -9,12 +9,14 @@
 // Created:         Thu Dec  7 08:52:54 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/06/20 09:09:19 $
+// $Date: 2007/02/05 19:01:46 $
 // $Revision: 1.1 $
 //
 
 #ifndef RingPainter_h
 #define RingPainter_h
+
+#include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -38,6 +40,7 @@ namespace cms
   private:
     RingPainterAlgorithm ringPainterAlgorithm_;
     edm::ParameterSet    conf_;
+    std::string ringLabel_;
 
   };
 }

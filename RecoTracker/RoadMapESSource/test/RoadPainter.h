@@ -9,12 +9,14 @@
 // Created:         Thu Dec  7 08:52:54 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/06/20 09:09:19 $
+// $Date: 2007/02/05 19:15:01 $
 // $Revision: 1.1 $
 //
 
 #ifndef RoadPainter_h
 #define RoadPainter_h
+
+#include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -38,6 +40,8 @@ namespace cms
   private:
     RoadPainterAlgorithm roadPainterAlgorithm_;
     edm::ParameterSet    conf_;
+    std::string          roadLabel_;
+    std::string          ringLabel_;
 
   };
 }
