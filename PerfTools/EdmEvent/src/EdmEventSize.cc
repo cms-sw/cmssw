@@ -1,5 +1,7 @@
 #include "PerfTools/EdmEvent/interface/EdmEventSize.h"
 #include <valarray>
+#include <functional>
+#include <algorithm>
 #include <boost/bind.hpp>
 #include<ostream>
 
@@ -92,9 +94,10 @@ namespace perftools {
       size_type s = getTotalSize(b);
       m_branches.push_back( BranchRecord(name, s[0], s[1]) );
     }
-    std::sort(m_branches.begin(),m_branches.end(), boost::bind(std::less<size_t>,
-							       boost::bind(&BranchRecord::compr_size,_1),
-							       boost::bind(&BranchRecord::compr_size,_2))
+    std::sort(m_branches.begin(),m_branches.end(), 
+	      boost::bind(std::less<size_t>,
+			  boost::bind(&BranchRecord::compr_size,_1),
+			  boost::bind(&BranchRecord::compr_size,_2))
 	      );
 
   }
