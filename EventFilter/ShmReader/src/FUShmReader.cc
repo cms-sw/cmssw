@@ -67,13 +67,14 @@ bool FUShmReader::fillRawData(EventID& eID,
       throw cms::Exception("NullPointer")<<"Failed to retrieve shm segment."<<endl;
     }
   }
-
+  
   // discard old event
   if(0!=event_) {
     FUShmBufferCell* oldCell=shmBuffer_->cell(fuResourceId_);
     assert(oldCell->isProcessing());
     oldCell->setStateProcessed();
     shmBuffer_->scheduleForDiscard(oldCell);
+    event_ = 0;
   }
 
   // wait for an event to become available, retrieve it

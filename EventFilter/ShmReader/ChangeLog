@@ -1,3 +1,9 @@
+2007-03-01  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-01-03
+	* set event_ pointer to 0 before exiting event loop, needed for
+	stop/start of FUEP.
+
 2007-02-21  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-01-02
