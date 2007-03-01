@@ -95,7 +95,7 @@ namespace perftools {
       m_branches.push_back( BranchRecord(name, s[0], s[1]) );
     }
     std::sort(m_branches.begin(),m_branches.end(), 
-	      boost::bind(std::less<size_t>,
+	      boost::bind(std::less<size_t>(),
 			  boost::bind(&BranchRecord::compr_size,_1),
 			  boost::bind(&BranchRecord::compr_size,_2))
 	      );
@@ -103,9 +103,10 @@ namespace perftools {
   }
   
   void EdmEventSize::sortAlpha() {
-    std::sort(m_branches.begin(),m_branches.end(), boost::bind(std::less<std::string>,
-							       boost::bind(&BranchRecord::name,_1),
-							       boost::bind(&BranchRecord::name,_2))
+    std::sort(m_branches.begin(),m_branches.end(), 
+	      boost::bind(std::less<std::string>(),
+			  boost::bind(&BranchRecord::name,_1),
+			  boost::bind(&BranchRecord::name,_2))
 	      );
 
   }
@@ -143,36 +144,36 @@ namespace perftools {
 	  uncompressed.Fill( x, br.uncompr_size );
 	  x++;
 	}
-
-	void finalize() {
-	  for( int i = 1; i <= top; ++i ) {
-	    double cm = compressed.GetMinimum( i ), um = uncompressed.GetMinimum( i );
-	    if ( cm > 0 && cm < mn ) mn = cm;
-	    if ( um > 0 && um < mn ) mn = um;
-	  }
-	  mn *= 0.8;
-	  double mx = max( compressed.GetMaximum(), uncompressed.GetMaximum() );
-	  mx *= 1.2;
-	  uncompressed.SetMinimum( mn );
-	  uncompressed.SetMaximum( mx );
-	  compressed.SetMinimum( mn );
-	  //  compressed.SetMaximum( mx );
-	  cxAxis->SetLabelOffset( -0.32 );
-	  cxAxis->LabelsOption( "v" );
-	  cxAxis->SetLabelSize( 0.03 );
-	  uxAxis->SetLabelOffset( -0.32 );
-	  uxAxis->LabelsOption( "v" );
-	  uxAxis->SetLabelSize( 0.03 );
-	  compressed.GetYaxis()->SetTitle( "Bytes" );
-	  compressed.SetFillColor( kBlue );
-	  compressed.SetLineWidth( 2 );
-	  uncompressed.GetYaxis()->SetTitle( "Bytes" );
-	  uncompressed.SetFillColor( kRed );
-	  uncompressed.SetLineWidth( 2 );
-	  
-	}
       }
 
+      void finalize() {
+	for( int i = 1; i <= top; ++i ) {
+	  double cm = compressed.GetMinimum( i ), um = uncompressed.GetMinimum( i );
+	  if ( cm > 0 && cm < mn ) mn = cm;
+	  if ( um > 0 && um < mn ) mn = um;
+	}
+	mn *= 0.8;
+	double mx = max( compressed.GetMaximum(), uncompressed.GetMaximum() );
+	mx *= 1.2;
+	uncompressed.SetMinimum( mn );
+	uncompressed.SetMaximum( mx );
+	compressed.SetMinimum( mn );
+	//  compressed.SetMaximum( mx );
+	cxAxis->SetLabelOffset( -0.32 );
+	cxAxis->LabelsOption( "v" );
+	cxAxis->SetLabelSize( 0.03 );
+	uxAxis->SetLabelOffset( -0.32 );
+	uxAxis->LabelsOption( "v" );
+	uxAxis->SetLabelSize( 0.03 );
+	compressed.GetYaxis()->SetTitle( "Bytes" );
+	compressed.SetFillColor( kBlue );
+	compressed.SetLineWidth( 2 );
+	uncompressed.GetYaxis()->SetTitle( "Bytes" );
+	uncompressed.SetFillColor( kRed );
+	uncompressed.SetLineWidth( 2 );
+	
+      }
+      
       int top;
       TH1F uncompressed;
       TH1F compressed;

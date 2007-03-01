@@ -39,7 +39,7 @@ namespace perftools {
 
     void dump(std::ostream & co) const;
 
-    void produceHistos(std::string const & plot, std::string const & file) const; 
+    void produceHistos(std::string const & plot, std::string const & file, int top=0) const; 
 
   private:
     Branches m_branches;
