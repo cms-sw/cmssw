@@ -1,16 +1,16 @@
+<use name=herwig6_510>
 <use name=boost>
 <use name=FWCore/Framework>
 <use name=SimDataFormats/HepMCProduct>
 <use name=clhep>
-<use name=herwig6_510>
 <flags SEAL_PLUGIN_NAME="GeneratorInterfaceMCatNLOInterface">
 <export>
  <lib name=GeneratorInterfaceMCatNLOInterface>
+ <use name=herwig6_510>	
  <use name=boost>
  <use name=FWCore/Framework>
  <use name=SimDataFormats/HepMCProduct>
  <use name=clhep>
- <use name=herwig6_510>
 </export>
 
 <lib name=g2c></lib>

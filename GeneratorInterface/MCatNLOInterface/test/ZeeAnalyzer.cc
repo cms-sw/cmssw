@@ -7,7 +7,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: ZeeAnalyzer.cc,v 1.1 2006/11/14 15:15:14 fabstoec Exp $
+// $Id: ZeeAnalyzer.cc,v 1.2 2007/02/16 18:02:14 fabstoec Exp $
 //
 //
 
@@ -41,7 +41,7 @@ ZeeAnalyzer::ZeeAnalyzer(const edm::ParameterSet& iConfig)
 {
   outputFilename=iConfig.getUntrackedParameter<std::string>("OutputFilename","dummy.root");
   weight_histo  = new TH1D("weight_histo","weight_histo",20,-10,10);
-  invmass_histo = new TH1D("invmass_histo","invmass_histo",20,70,110);
+  invmass_histo = new TH1D("invmass_histo","invmass_histo",40,70,110);
 }
 
 

@@ -47,7 +47,7 @@ namespace edm
     bool doHardEvents_;
     
     // Verbosity parameters
-    bool mcatnloVerbosity_;
+    int mcatnloVerbosity_;
     int herwigVerbosity_;
     bool herwigHepMCVerbosity_;
     int maxEventsToPrint_;
@@ -62,6 +62,8 @@ namespace edm
     char directory[70];
     char prefix_bases[10];
     char prefix_events[10];
+
+    std::string lhapdfSetPath_;
 
   };
 } 
