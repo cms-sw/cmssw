@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2006/03/15 16:07:16 $
-// $Revision: 1.2 $
+// $Author: llista $
+// $Date: 2006/08/01 14:19:03 $
+// $Revision: 1.3 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -24,6 +24,7 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "RecoTracker/RoadSearchCloudMaker/interface/RoadSearchCloudMakerAlgorithm.h"
 
@@ -42,6 +43,12 @@ namespace cms
   private:
     RoadSearchCloudMakerAlgorithm roadSearchCloudMakerAlgorithm_;
     edm::ParameterSet conf_;
+    edm::InputTag     seedProducer_;
+    edm::InputTag     matchedStripRecHitsInputTag_;
+    edm::InputTag     rphiStripRecHitsInputTag_;
+    edm::InputTag     stereoStripRecHitsInputTag_;
+    edm::InputTag     pixelRecHitsInputTag_;
+
   };
 }
 

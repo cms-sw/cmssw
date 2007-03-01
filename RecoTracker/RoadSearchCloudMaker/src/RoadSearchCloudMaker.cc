@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/12/11 23:17:16 $
-// $Revision: 1.13 $
+// $Author: noeding $
+// $Date: 2007/01/10 19:02:49 $
+// $Revision: 1.14 $
 //
 
 #include <memory>
@@ -20,11 +20,12 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 
 namespace cms
 {
@@ -34,6 +35,16 @@ namespace cms
     conf_(conf)
   {
     produces<RoadSearchCloudCollection>();
+
+    // retrieve InputTags for rechits
+    matchedStripRecHitsInputTag_ = conf_.getParameter<edm::InputTag>("matchedStripRecHits");
+    rphiStripRecHitsInputTag_    = conf_.getParameter<edm::InputTag>("rphiStripRecHits");
+    stereoStripRecHitsInputTag_  = conf_.getParameter<edm::InputTag>("stereoStripRecHits");
+    pixelRecHitsInputTag_        = conf_.getParameter<edm::InputTag>("pixelRecHits");
+    
+    // retrieve InputTags of input SeedCollection
+    seedProducer_                = conf_.getParameter<edm::InputTag>("SeedProducer");
+
   }
 
 
@@ -43,61 +54,53 @@ namespace cms
   // Functions that gets called by framework every event
   void RoadSearchCloudMaker::produce(edm::Event& e, const edm::EventSetup& es)
   {
-    // retrieve producer name of input SeedCollection
-    std::string seedProducer = conf_.getParameter<std::string>("SeedProducer");
 
     // Step A: Get Inputs 
-    edm::Handle<TrajectorySeedCollection> seeds;
-    e.getByLabel(seedProducer, seeds);
-    
-    // retrieve InputTags for strip rechits
-    edm::InputTag matchedStripRecHitsInputTag = conf_.getParameter<edm::InputTag>("matchedStripRecHits");
-    edm::InputTag rphiStripRecHitsInputTag    = conf_.getParameter<edm::InputTag>("rphiStripRecHits");
-    edm::InputTag stereoStripRecHitsInputTag  = conf_.getParameter<edm::InputTag>("stereoStripRecHits");
+    edm::Handle<TrajectorySeedCollection> seedHandle;
+    e.getByLabel(seedProducer_, seedHandle);
     
     // get Inputs
-    edm::Handle<SiStripRecHit2DCollection> rphiRecHits;
-    e.getByLabel(rphiStripRecHitsInputTag ,rphiRecHits);
-    edm::Handle<SiStripRecHit2DCollection> stereoRecHits;
-    e.getByLabel(stereoStripRecHitsInputTag ,stereoRecHits);
+    edm::Handle<SiStripRecHit2DCollection> rphirecHitHandle;
+    e.getByLabel(rphiStripRecHitsInputTag_ ,rphirecHitHandle);
+    const SiStripRecHit2DCollection *rphiRecHitCollection = rphirecHitHandle.product();
+    edm::Handle<SiStripRecHit2DCollection> stereorecHitHandle;
+    e.getByLabel(stereoStripRecHitsInputTag_ ,stereorecHitHandle);
+    const SiStripRecHit2DCollection *stereoRecHitCollection = stereorecHitHandle.product();
 
     // special treatment for getting matched RecHit collection
     // if collection exists in file, use collection from file
     // if collection does not exist in file, create empty collection
     const SiStripMatchedRecHit2DCollection *matchedRecHitCollection = 0;
     try {
-      edm::Handle<SiStripMatchedRecHit2DCollection> matchedRecHits;
-      e.getByLabel(matchedStripRecHitsInputTag, matchedRecHits);
-      matchedRecHitCollection = matchedRecHits.product();
+      edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHitHandle;
+      e.getByLabel(matchedStripRecHitsInputTag_, matchedrecHitHandle);
+      matchedRecHitCollection = matchedrecHitHandle.product();
     }
     catch (edm::Exception const& x) {
       if ( x.categoryCode() == edm::errors::ProductNotFound ) {
 	if ( x.history().size() == 1 ) {
 	  static const SiStripMatchedRecHit2DCollection s_empty;
 	  matchedRecHitCollection = &s_empty;
-	  edm::LogWarning("RoadSearch") << "Collection SiStripMatchedRecHit2DCollection with InputTag " << matchedStripRecHitsInputTag << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without matched RecHits.";
+	  edm::LogWarning("RoadSearch") << "Collection SiStripMatchedRecHit2DCollection with InputTag " << matchedStripRecHitsInputTag_ << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without matched RecHits.";
 	}
       }
     }
-  
-    // retrieve InputTag for pixel rechits
-    edm::InputTag pixelRecHitsInputTag  = conf_.getParameter<edm::InputTag>("pixelRecHits");
-    
+      
     // special treatment for getting pixel collection
     // if collection exists in file, use collection from file
     // if collection does not exist in file, create empty collection
     const SiPixelRecHitCollection *pixelRecHitCollection = 0;
     try {
-      edm::Handle<SiPixelRecHitCollection> pixelRecHits;
-      e.getByLabel(pixelRecHitsInputTag, pixelRecHits);
-      pixelRecHitCollection = pixelRecHits.product();
+      edm::Handle<SiPixelRecHitCollection> pixelrecHitHandle;
+      e.getByLabel(pixelRecHitsInputTag_, pixelrecHitHandle);
+      pixelRecHitCollection = pixelrecHitHandle.product();
     }
     catch (edm::Exception const& x) {
       if ( x.categoryCode() == edm::errors::ProductNotFound ) {
 	if ( x.history().size() == 1 ) {
 	  static const SiPixelRecHitCollection s_empty;
 	  pixelRecHitCollection = &s_empty;
-	  edm::LogWarning("RoadSearch") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsInputTag << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without Pixel RecHits.";
+	  edm::LogWarning("RoadSearch") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsInputTag_ << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without Pixel RecHits.";
 	}
       }
     }
@@ -106,9 +109,9 @@ namespace cms
     std::auto_ptr<RoadSearchCloudCollection> output(new RoadSearchCloudCollection);
 
     // Step C: Invoke the seed finding algorithm
-    roadSearchCloudMakerAlgorithm_.run(seeds,
-				       rphiRecHits.product(),  
-				       stereoRecHits.product(),
+    roadSearchCloudMakerAlgorithm_.run(seedHandle,
+				       rphiRecHitCollection,  
+				       stereoRecHitCollection,
 				       matchedRecHitCollection,
 				       pixelRecHitCollection,
 				       es,

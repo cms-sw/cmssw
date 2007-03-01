@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/02/05 19:30:04 $
-// $Revision: 1.32 $
+// $Author: burkett $
+// $Date: 2007/02/19 23:48:54 $
+// $Revision: 1.33 $
 //
 
 #include <vector>
@@ -123,6 +123,8 @@ RoadSearchCloudMakerAlgorithm::RoadSearchCloudMakerAlgorithm(const edm::Paramete
   maxRecHitsInCloud_ = (unsigned int)conf.getParameter<int>("MaxRecHitsInCloud");
   scalefactorRoadSeedWindow_ = conf.getParameter<double>("scalefactorRoadSeedWindow");
 
+  roadsLabel_ = conf.getParameter<std::string>("RoadsLabel");
+
 }
 
 RoadSearchCloudMakerAlgorithm::~RoadSearchCloudMakerAlgorithm() {
@@ -162,7 +164,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 
   // get roads
   edm::ESHandle<Roads> roads;
-  es.get<RoadMapRecord>().get(roads);
+  es.get<RoadMapRecord>().get(roadsLabel_, roads);
 
   // get trajectoryseed collection
   const TrajectorySeedCollection* inputSeeds = input.product();

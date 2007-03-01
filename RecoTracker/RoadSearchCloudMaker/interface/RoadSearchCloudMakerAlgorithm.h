@@ -50,9 +50,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/02/05 19:30:04 $
-// $Revision: 1.17 $
+// $Author: burkett $
+// $Date: 2007/02/19 23:48:53 $
+// $Revision: 1.18 $
 //
 
 #include <string>
@@ -153,6 +153,8 @@ class RoadSearchCloudMakerAlgorithm
 
   std::ostringstream output_;
   double scalefactorRoadSeedWindow_;
+
+  std::string roadsLabel_;
 
 };
 

@@ -11,9 +11,11 @@
 // Created:         Mon Feb  5 21:24:36 UTC 2007
 //
 // $Author: gutsche $
-// $Date: 2007/02/05 19:26:15 $
-// $Revision: 1.3 $
+// $Date: 2007/02/05 23:51:33 $
+// $Revision: 1.1 $
 //
+
+#include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -32,6 +34,8 @@ class RoadSearchCloudDumper : public edm::EDAnalyzer {
 
  private:
   edm::InputTag roadSearchCloudsInputTag_;
+
+  std::string ringsLabel_;
 };
 
 #endif
