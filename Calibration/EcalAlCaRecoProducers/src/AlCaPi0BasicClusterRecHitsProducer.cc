@@ -33,6 +33,7 @@ AlCaPi0BasicClusterRecHitsProducer::AlCaPi0BasicClusterRecHitsProducer(const edm
 AlCaPi0BasicClusterRecHitsProducer::~AlCaPi0BasicClusterRecHitsProducer()
 {
  
+  TimingReport::current()->dump(std::cout);
 
 }
 
@@ -43,6 +44,14 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
 {
   using namespace edm;
   using namespace std;
+
+  // Timer
+  const std::string category = "AlCaPi0BasicClusterRecHitsProducer";
+  TimerStack timers;
+  string timerName = category + "::Total";
+  timers.push(timerName);
+
+
 
   Handle<EBRecHitCollection> barrelRecHitsHandle;
 
@@ -67,6 +76,10 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
     recHitsEB_map->insert(map_entry);
 
   }
+
+  timerName = category + "::readEBRecHitsCollection";
+  timers.push(timerName);
+
 
 
   // Get ECAL Barrel Island Basic Clusters collection
@@ -102,9 +115,9 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
   for(reco::BasicClusterCollection::const_iterator aClus = islandBarrelBasicClusters->begin();
       aClus != islandBarrelBasicClusters->end(); aClus++) {
 
-    cout << " island Basic Cluster E, #xtals: "<<  aClus->energy()<<" "<< aClus->getHitsByDetId().size() <<endl;
-    cout << " island Basic Cluster Position (x,y,z): "<<aClus->position().X()<<" "<<aClus->position().Y()<<" "<<aClus->position().Z()<<" "<<endl;
-    cout << " island Basic Cluster Position (eta,phi): "<<aClus->position().eta()<<" "<<aClus->position().phi()<<endl;
+    //cout << " island Basic Cluster E, #xtals: "<<  aClus->energy()<<" "<< aClus->getHitsByDetId().size() <<endl;
+    //cout << " island Basic Cluster Position (x,y,z): "<<aClus->position().X()<<" "<<aClus->position().Y()<<" "<<aClus->position().Z()<<" "<<endl;
+    //cout << " island Basic Cluster Position (eta,phi): "<<aClus->position().eta()<<" "<<aClus->position().phi()<<endl;
 
     float theta = 2. * atan(exp(-aClus->position().eta()));
     float p0x = aClus->energy() * sin(theta) * cos(aClus->position().phi());
@@ -112,7 +125,7 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
     float p0z = aClus->energy() * cos(theta);
     float et = sqrt( p0x*p0x + p0y*p0y);
 
-    cout << " island Basic Cluster E,Et,px,py,pz: "<<aClus->energy()<<" "<<et<<" "<<p0x<<" "<<p0y<<" "<<p0z<<endl; 
+    //cout << " island Basic Cluster E,Et,px,py,pz: "<<aClus->energy()<<" "<<et<<" "<<p0x<<" "<<p0y<<" "<<p0z<<endl; 
 
     eIslandBCEB[nIslandBCEB] = aClus->energy();
     etIslandBCEB[nIslandBCEB] = et;
@@ -121,6 +134,11 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
      
     nIslandBCEB++;
   }
+
+  timerName = category + "::readIslandBasicClustersCollection";
+  timers.push(timerName);
+
+
 
   // Selection, based on ECAL Barrel Basic Clusters
 
@@ -169,18 +187,24 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
 
       cout<<" "<<endl;
       cout<<"  Pi0 candidates #: "<<npi0<<endl;
+
+      timerName = category + "::makePi0Cand";
+      timers.pop_and_push(timerName);
+
+
+
       vector<EBDetId> scXtals;
       scXtals.clear();
       for(Int_t i=0 ; i<npi0 ; i++)
 	{
-	  cout<<"     Pi0 i,Bc1, Bc2 "<<i<<" "<<BC1[i]<<" "<<BC2[i]<<endl; 
+	  // cout<<"     Pi0 i,Bc1, Bc2 "<<i<<" "<<BC1[i]<<" "<<BC2[i]<<endl; 
 
 	  int intbc=0;
 
 	  for(reco::BasicClusterCollection::const_iterator aClus = islandBarrelBasicClusters->begin();
 	      aClus != islandBarrelBasicClusters->end(); aClus++) {
 
-	    cout << " intbc, BC1[i], BC2[i] "<<intbc<<" "<<BC1[i]<<" "<<BC2[i]<<endl; 
+	    //   cout << " intbc, BC1[i], BC2[i] "<<intbc<<" "<<BC1[i]<<" "<<BC2[i]<<endl; 
 	    if((intbc==BC1[i]) || (intbc==BC2[i]))
 	      {
 
@@ -205,10 +229,10 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
 		  pi0EBRecHitCollection->push_back(aHit->second);
 		  scXtals.push_back(*idsIt);
 
-		  EBDetId sel_rh_bc = aHit->second.detid();
-		  cout << "       RecHit Ok, belongs to cluster # "<< intbc<<" : z,ieta,iphi "<<sel_rh_bc.zside()<<" "<<sel_rh_bc.ieta()<<" "<<sel_rh_bc.iphi()<<endl;    
-		  cout << "       RecHit Ok, belongs to cluster # "<< intbc<<" : tower_ieta,tower_iphi "<<sel_rh_bc.tower_ieta()<<" "<<sel_rh_bc.tower_iphi()<<endl;   
-		  cout << "       RecHit Ok, belongs to  cluster # "<<intbc <<" : iSM, ic "<<sel_rh_bc.ism()<<" "<<sel_rh_bc.ic()<<endl;
+		  //EBDetId sel_rh_bc = aHit->second.detid();
+		  // cout << "       RecHit Ok, belongs to cluster # "<< intbc<<" : z,ieta,iphi "<<sel_rh_bc.zside()<<" "<<sel_rh_bc.ieta()<<" "<<sel_rh_bc.iphi()<<endl;    
+		  //cout << "       RecHit Ok, belongs to cluster # "<< intbc<<" : tower_ieta,tower_iphi "<<sel_rh_bc.tower_ieta()<<" "<<sel_rh_bc.tower_iphi()<<endl;   
+		  //cout << "       RecHit Ok, belongs to  cluster # "<<intbc <<" : iSM, ic "<<sel_rh_bc.ism()<<" "<<sel_rh_bc.ic()<<endl;
 
 		}
 
@@ -245,10 +269,10 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
 				pi0EBRecHitCollection->push_back(aHit->second);
 				scXtals.push_back(det);
 
-				EBDetId sel_rh = aHit->second.detid();
-				cout << "       RecHit Ok 20x20 matrix outside cluster # "<<intbc<<" : z,ieta,iphi "<<sel_rh.zside()<<" "<<sel_rh.ieta()<<" "<<sel_rh.iphi()<<endl;    
-				cout << "       RecHit Ok 20x20 matrix outside cluster # "<<intbc<<" : tower_ieta,tower_iphi "<<sel_rh.tower_ieta()<<" "<<sel_rh.tower_iphi()<<endl;   
-				cout << "       RecHit Ok 20x20 matrix outside cluster # "<<intbc<<" : iSM, ic "<<sel_rh.ism()<<" "<<sel_rh.ic()<<endl;
+				//EBDetId sel_rh = aHit->second.detid();
+				//cout << "       RecHit Ok 20x20 matrix outside cluster # "<<intbc<<" : z,ieta,iphi "<<sel_rh.zside()<<" "<<sel_rh.ieta()<<" "<<sel_rh.iphi()<<endl;    
+				//cout << "       RecHit Ok 20x20 matrix outside cluster # "<<intbc<<" : tower_ieta,tower_iphi "<<sel_rh.tower_ieta()<<" "<<sel_rh.tower_iphi()<<endl;   
+				//cout << "       RecHit Ok 20x20 matrix outside cluster # "<<intbc<<" : iSM, ic "<<sel_rh.ism()<<" "<<sel_rh.ic()<<endl;
 
 			      }
 			}
@@ -257,38 +281,27 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
 			}
 		    }
 
-
-
-
-
-		/*	  
-		int irhcount=0;
-		for(hit = hits.begin(); hit != hits.end(); hit++)
-		  {
-
-		    // need to get hit by DetID in order to get energy
-		    aHit = recHitsEB_map->find(*hit);
-		    pi0EBRecHitCollection->push_back(aHit->second);
-		    cout << "       RecHit #: "<<irhcount<<" from Basic Cluster with Energy: "<<aHit->second.energy()<<endl; 
-		    EBDetId sel_rh = aHit->second.detid();
-		    
-		    cout << "       RecHit: z,ieta,iphi "<<sel_rh.zside()<<" "<<sel_rh.ieta()<<" "<<sel_rh.iphi()<<endl;
-		    cout << "       RecHit: tower_ieta,tower_iphi "<<sel_rh.tower_ieta()<<" "<<sel_rh.tower_iphi()<<endl;
-		    cout << "       RecHit: iSM, ic "<<sel_rh.ism()<<" "<<sel_rh.ic()<<endl;
-		    irhcount++;
-		  }
-		*/
 	      }
 	    intbc++;
 		
 	  }
 	}
-
     }
 
-  //Put selected information in the event
-  //if (npi0>0) iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
+  timerName = category + "::preparePi0RecHitsCollection";
+  timers.pop_and_push(timerName);
+
+
+      //Put selected information in the event
+      //if (npi0>0) iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
+
+  cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
   iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
 
-
+  timerName = category + "::storePi0RecHitsCollection";
+  timers.pop_and_push(timerName);
+  
+  timers.clean_stack();
+  
+  
 }

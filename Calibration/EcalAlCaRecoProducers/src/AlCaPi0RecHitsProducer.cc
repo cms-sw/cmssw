@@ -50,6 +50,7 @@ AlCaPi0RecHitsProducer::AlCaPi0RecHitsProducer(const edm::ParameterSet& iConfig)
 AlCaPi0RecHitsProducer::~AlCaPi0RecHitsProducer()
 {
  
+  TimingReport::current()->dump(std::cout);
 
 }
 
@@ -60,6 +61,13 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 {
   using namespace edm;
   using namespace std;
+
+  // Timer
+  const std::string category = "AlCaPi0RecHitsProducer";
+  TimerStack timers;
+  string timerName = category + "::Total";
+  timers.push(timerName);
+
 
   Handle<EBRecHitCollection> barrelRecHitsHandle;
 
@@ -92,6 +100,11 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     double energy = itb->energy();
     if (energy > clusSeedThr_) seeds.push_back(*itb);
   }
+
+  timerName = category + "::readEBRecHitsCollection";
+  timers.push(timerName);
+
+
   // Initialize the Position Calc
   const CaloSubdetectorGeometry *geometry_p;    
   const CaloSubdetectorTopology *topology_p;
@@ -138,14 +151,14 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     EBDetId seed_id = itseed->id();
     std::vector<EBDetId>::const_iterator usedIds;
     
-    cout<< " Start: Seed with energy "<<itseed->energy()<<endl;
-    cout<< " Start: Seed with z,ieta,iphi : "<<seed_id.zside()<<" "<<seed_id.ieta()<<" " <<seed_id.iphi()<<endl;
+    //cout<< " Start: Seed with energy "<<itseed->energy()<<endl;
+    //cout<< " Start: Seed with z,ieta,iphi : "<<seed_id.zside()<<" "<<seed_id.ieta()<<" " <<seed_id.iphi()<<endl;
     bool seedAlreadyUsed=false;
     for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++)
       if(*usedIds==seed_id)
 	{
 	  seedAlreadyUsed=true;
-	  cout<< " Seed with energy "<<itseed->energy()<<" was used !"<<endl;
+	  //cout<< " Seed with energy "<<itseed->energy()<<" was used !"<<endl;
 	  break;
 	}
     if(!seedAlreadyUsed)	    
@@ -188,10 +201,10 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 		  simple_energy = simple_energy + aHit->second.energy();
 		  
-		  EBDetId sel_rh = aHit->second.detid();
-		  cout << "       Simple Clustering: RecHit Ok 3x3 matrix inside cluster : z,ieta,iphi "<<sel_rh.zside()<<" "<<sel_rh.ieta()<<" "<<sel_rh.iphi()<<endl;    
-		  cout << "       Simple Clustering: RecHit Ok 3x3 matrix inside cluster : tower_ieta,tower_iphi "<<sel_rh.tower_ieta()<<" "<<sel_rh.tower_iphi()<<endl;   
-		  cout << "       Simple Clustering: RecHit Ok 3x3 matrix inside cluster : iSM, ic "<<sel_rh.ism()<<" "<<sel_rh.ic()<<endl;
+		  //EBDetId sel_rh = aHit->second.detid();
+		  //cout << "       Simple Clustering: RecHit Ok 3x3 matrix inside cluster : z,ieta,iphi "<<sel_rh.zside()<<" "<<sel_rh.ieta()<<" "<<sel_rh.iphi()<<endl;    
+		  //cout << "       Simple Clustering: RecHit Ok 3x3 matrix inside cluster : tower_ieta,tower_iphi "<<sel_rh.tower_ieta()<<" "<<sel_rh.tower_iphi()<<endl;   
+		  //cout << "       Simple Clustering: RecHit Ok 3x3 matrix inside cluster : iSM, ic "<<sel_rh.ism()<<" "<<sel_rh.ic()<<endl;
 		  
 		}
 	  }
@@ -200,9 +213,9 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  }
       }
     math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_v,hitCollection_p,geometry_p,geometryES_p);
-    cout<< "       Simple Clustering: Total energy for this simple cluster : "<<simple_energy<<endl; 
-    cout<< "       Simple Clustering: eta phi : "<<clus_pos.eta()<<" "<<clus_pos.phi()<<endl; 
-    cout<< "       Simple Clustering: x y z : "<<clus_pos.x()<<" "<<clus_pos.y()<<" "<<clus_pos.z()<<endl; 
+    //cout<< "       Simple Clustering: Total energy for this simple cluster : "<<simple_energy<<endl; 
+    //cout<< "       Simple Clustering: eta phi : "<<clus_pos.eta()<<" "<<clus_pos.phi()<<endl; 
+    //cout<< "       Simple Clustering: x y z : "<<clus_pos.x()<<" "<<clus_pos.y()<<" "<<clus_pos.z()<<endl; 
 
 	    float theta_s = 2. * atan(exp(-clus_pos.eta()));
 	    float p0x_s = simple_energy * sin(theta_s) * cos(clus_pos.phi());
@@ -210,7 +223,7 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	    float p0z_s = simple_energy * cos(theta_s);
 	    float et_s = sqrt( p0x_s*p0x_s + p0y_s*p0y_s);
 
-	    cout << "       Simple Clustering: E,Et,px,py,pz: "<<simple_energy<<" "<<et_s<<" "<<p0x_s<<" "<<p0y_s<<" "<<p0z_s<<endl;
+	    //cout << "       Simple Clustering: E,Et,px,py,pz: "<<simple_energy<<" "<<et_s<<" "<<p0x_s<<" "<<p0y_s<<" "<<p0z_s<<endl;
     
 	    eClus[nClus] = simple_energy;
 	    etClus[nClus] = et_s;
@@ -222,6 +235,8 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       }
   }
   
+  timerName = category + "::makeSimpleClusters";
+  timers.pop_and_push(timerName);
 
 
   // Selection, based on Simple clustering
@@ -277,6 +292,9 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     }
 
+  timerName = category + "::makePi0Cand";
+  timers.pop_and_push(timerName);
+
 
       cout<<" "<<endl;
       cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
@@ -284,14 +302,14 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       for(Int_t jj=0;jj<nClus;jj++)
 	{
 	  EBDetId maxHit = max_hit[jj];
-	  cout << "        Simple Clustering: maxHit jj eta phi : "<<jj<<" "<<maxHit.ieta()<<" "<<maxHit.iphi()<<endl;
+	  //cout << "        Simple Clustering: maxHit jj eta phi : "<<jj<<" "<<maxHit.ieta()<<" "<<maxHit.iphi()<<endl;
 	}
 
       vector<EBDetId> scXtals;
       scXtals.clear();
       for(Int_t i=0 ; i<npi0_s ; i++)
 	{
-	  cout<<"     Pi0: i, Bc1, Bc2 "<<i<<" "<<sClus_1[i]<<" "<<sClus_2[i]<<endl; 
+	  //cout<<"     Pi0: i, Bc1, Bc2 "<<i<<" "<<sClus_1[i]<<" "<<sClus_2[i]<<endl; 
 
 	  for(Int_t j=0; j<nClus;j++)
 	    {
@@ -333,10 +351,10 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 				pi0EBRecHitCollection->push_back(aHit->second);
 				scXtals.push_back(det);
 
-				EBDetId sel_rh = aHit->second.detid();
-				cout << "       RecHit Ok 20x20 matrix outside cluster : z,ieta,iphi "<<sel_rh.zside()<<" "<<sel_rh.ieta()<<" "<<sel_rh.iphi()<<endl;    
-				cout << "       RecHit Ok 20x20 matrix outside cluster : tower_ieta,tower_iphi "<<sel_rh.tower_ieta()<<" "<<sel_rh.tower_iphi()<<endl;   
-				cout << "       RecHit Ok 20x20 matrix outside cluster : iSM, ic "<<sel_rh.ism()<<" "<<sel_rh.ic()<<endl;
+				//EBDetId sel_rh = aHit->second.detid();
+				//cout << "       RecHit Ok 20x20 matrix outside cluster : z,ieta,iphi "<<sel_rh.zside()<<" "<<sel_rh.ieta()<<" "<<sel_rh.iphi()<<endl;    
+				//cout << "       RecHit Ok 20x20 matrix outside cluster : tower_ieta,tower_iphi "<<sel_rh.tower_ieta()<<" "<<sel_rh.tower_iphi()<<endl;   
+				//cout << "       RecHit Ok 20x20 matrix outside cluster : iSM, ic "<<sel_rh.ism()<<" "<<sel_rh.ic()<<endl;
 				
 			      }
 			}
@@ -354,11 +372,18 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 
+      timerName = category + "::preparePi0RecHitsCollection";
+      timers.pop_and_push(timerName);
 
 
       //Put selected information in the event
       //      if (npi0>0) iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
+      cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
       iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
   
+      timerName = category + "::storePi0RecHitsCollection";
+      timers.pop_and_push(timerName);
+
+      timers.clean_stack();
 
 }
