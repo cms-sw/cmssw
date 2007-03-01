@@ -57,6 +57,7 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
     for (int i = nR-1; i > 0; i--)
       if (hR < rTable[i]) etaR = etaMin[2] + nR - i - 1;
     fibin   = phibin[nEta+etaR-etaMin[2]-1];
+
   } else { // Barrel or Endcap
     etaR  = 1;
     for (int i = 0; i < nEta-1; i++)
@@ -81,11 +82,30 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
   //Then the phi index
   int nphi  = int((twopi+0.1*fibin)/fibin);
   int zside = hz>0 ? 1: 0;
-  int iphi  = int(hphi/fibin) + 1;
+  int iphi;
+  if (det == 5 && etaR > etaMax[2]-2 ) {   // HF double-phi  
+                                           // dirty trick to set the offset
+    iphi = int((hphi + 0.5*fibin)/fibin) + 1;
+  }
+  else {                                  // All the rest 
+    iphi  = int(hphi/fibin) + 1;
+  }
+  
   if (iphi > nphi) iphi = 1;
 
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD: fibin=" <<  fibin
+		       << " iphi= " << iphi; 
+
+
   HcalNumberingFromDDD::HcalID tmp = unitID(hsubdet,zside,depth,etaR,iphi,lay);
+
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD: det = " << det << " " 
+		       << tmp.subdet << " zside = " << tmp.zside << " depth = "
+		       << tmp.depth << " eta/R = " << tmp.etaR << " phi = " 
+		       << tmp.phi << " layer = " << tmp.lay;
+
   return tmp;
+
 }
 
 HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(double eta,double fi,
@@ -133,7 +153,7 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, int zside,
 							  int depth, int etaR,
 							  int phi, int lay) const {
 
-  //Mpdify the depth index
+  //Modify the depth index
   if (det == static_cast<int>(HcalForward)) { // Forward HCal
   } else {
     if (lay >= 0) {
@@ -169,6 +189,9 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, int zside,
 
   if (units==2) iphi_skip=(phi-1)*2+1;
   else if (units==4) iphi_skip=(phi-1)*4+1;
+
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD: phi units=" <<  units  
+                       <<  "  iphi_skip=" << iphi_skip; 
 
   HcalNumberingFromDDD::HcalID tmp(det,zside,depth,etaR,phi,iphi_skip,lay);
 
