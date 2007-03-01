@@ -113,7 +113,7 @@ namespace perftools {
   }
 
   namespace detail {
-    void shorterName(BranchRecord & br) {
+    void shorterName(EdmEventSize::BranchRecord & br) {
       size_t b = br.fullName.find('_');
       size_t e = br.fullName.rfind('_');
       if (b==e) br.name=br.fullName;
