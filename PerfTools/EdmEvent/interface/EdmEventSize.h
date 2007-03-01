@@ -8,19 +8,18 @@
 namespace perftools {
 
   class EdmEventSize {
+  public:
     struct Error {
       Error(std::string const & idescr, int icode) :
 	descr(idesrc), code(icode){}
       std::string descr;
       int code;
-    }
+    };
 
-  public:
     struct BranchRecord {
       BranchRecord() : 
 	compr_size(0),  
 	uncompr_size(0) {}
-      BranchRecord() : 
       std::string name;
       size_t compr_size;
       size_t uncompr_size;
