@@ -113,6 +113,29 @@ namespace perftools {
   }
 
   namespace detail {
+    void EdmEventSize::shorterName(BranchRecord & br) {
+      size_t b = br.fullName.find('_');
+      size_t e = br.fullName.rfind('_');
+      if (b==e) br.name=br.fullName;
+      else {
+	br.name = br.fullName.substr(b+1,e-b-1);
+	// check if a label is present
+	// if not add the type name
+	if (*br.rbegin()=='_') {
+	  br.erase(br.rbegin())];
+	  br.append(fullName.substr(0,b));
+      }
+    }
+
+  void EdmEventSize::shortNames() {
+    std::for_each(m_branches.begin(),m_branches.end(),
+		  &detail::shorterName);
+
+  }
+
+
+
+  namespace detail {
 
     void dump(ostream& co, EdmEventSize::BranchRecord const & br) {
       co << br.name << " " <<  br.compr_size <<  " " << br.uncompr_size << "\n"; 

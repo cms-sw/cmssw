@@ -22,7 +22,9 @@ namespace perftools {
 	uncompr_size(0) {}
       BranchRecord(std::string const & iname,
 		   size_t compr,  size_t uncompr) : 
-	name(iname), compr_size(compr), uncompr_size(uncompr){}
+	fullName(iname), name(iname), 
+	compr_size(compr), uncompr_size(uncompr){}
+      std::string fullName;
       std::string name;
       size_t compr_size;
       size_t uncompr_size;
@@ -36,6 +38,8 @@ namespace perftools {
     void parseFile(std::string const & fileName);
 
     void sortAlpha();
+
+    void shortNames();
 
     void dump(std::ostream & co) const;
 
