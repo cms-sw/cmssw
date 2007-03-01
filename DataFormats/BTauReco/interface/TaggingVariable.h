@@ -62,7 +62,7 @@ namespace reco {
 
   TaggingVariableName getTaggingVariableName ( const std::string & name );
 
-  typedef double TaggingValue;
+  typedef float TaggingValue;
   
   // cannot use a const member since the STL containers relie on the default assignment operator
   // typedef std::pair< const TaggingVariableName, TaggingValue > TaggingVariable;

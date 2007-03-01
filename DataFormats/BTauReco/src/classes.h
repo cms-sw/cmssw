@@ -98,6 +98,7 @@ namespace {
     reco::SoftLeptonTagInfoRefVector                                    sl_rv;
     edm::Wrapper<reco::SoftLeptonTagInfoCollection>                     sl_wc;
   
+    std::pair< reco::TaggingVariableName, reco::TaggingValue >          ptt1;
     reco::TaggingVariableList                                           tvl;
     reco::TaggingVariableListCollection                                 tvl_c;
     reco::TaggingVariableListRef                                        tvl_r;
