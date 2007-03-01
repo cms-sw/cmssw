@@ -1,3 +1,10 @@
+2007-03-01  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-11-11
+	* add FsmFailedEvent: this event can be fired to force the xdaq
+	finite state machine into failed state, with the appropriate error
+	message attached
+
 2007-02-24  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-11-10
