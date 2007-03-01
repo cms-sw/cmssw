@@ -1,4 +1,15 @@
-
+// -*- C++ -*-
+//
+// Package:     Services
+// Class  :     PrescaleServices
+// 
+// Implementation:
+//     Cache and make prescale factors available online.
+//
+// Current revision: $Revision$
+// On branch: $Name$
+// Latest change by $Author$ on $Date$ 
+//
 
 #include "FWCore/Services/src/PrescaleService.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
