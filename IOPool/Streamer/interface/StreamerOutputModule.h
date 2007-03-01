@@ -1,7 +1,7 @@
 #ifndef StreamerOutputModule_h_
 #define StreamerOutputModule_h_
 
-// $Id: StreamerOutputModule.h,v 1.20 2007/01/22 21:54:09 wmtan Exp $
+// $Id: StreamerOutputModule.h,v 1.21 2007/02/04 19:18:15 hcheung Exp $
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -42,6 +42,7 @@
 #include <vector>
 #include <utility>
 #include <iostream>
+#include <algorithm>
 #include <sys/time.h> // test luminosity sections
 
 namespace 
@@ -320,16 +321,36 @@ std::auto_ptr<EventMsgBuilder> StreamerOutputModule<Consumer>::serializeEvent(
     //End of dummy data
 
     setHltMask(e);
-
     setLumiSection();
 
-    std::auto_ptr<EventMsgBuilder> msg( 
-                           new EventMsgBuilder(&bufs_[0], bufs_.size(),
-                           e.id().run(), e.id().event(), lumi_,
-                           l1bit_, (uint8*)&hltbits_[0], hltsize_) );
+    serializer_.serializeEvent(e, useCompression_, compressionLevel_);
+
+    // resize bufs_ to reflect space used in serializer_ + header
+    // I just added an overhead for header of 50000 for now
+    unsigned int src_size = serializer_.currentSpaceUsed();
+    unsigned int new_size = src_size + 50000;
+    if(bufs_.size() < new_size) bufs_.resize(new_size);
+
+    std::auto_ptr<EventMsgBuilder> 
+      msg( new EventMsgBuilder(&bufs_[0], bufs_.size(),
+			       e.id().run(), e.id().event(), lumi_,
+			       l1bit_, (uint8*)&hltbits_[0], hltsize_) );
+    
     msg->setReserved(reserved_); // we need this set to zero
 
-    serializer_.serializeEvent(e, *msg, useCompression_, compressionLevel_);
+    // copy data into the destination message
+    // an alternative is to have serializer only to the serialization
+    // in serializeEvent, and then call a new member "getEventData" that
+    // takes the compression arguments and a place to put the data.
+    // This will require one less copy.  The only catch is that the
+    // space provided in bufs_ should be at least the uncompressed 
+    // size + overhead for header because we will not know the actual
+    // compressed size.
+
+    unsigned char* src = serializer_.bufferPointer();
+    std::copy(src,src + src_size, msg->eventAddr());
+    msg->setEventLength(src_size);
+    if(useCompression_) msg->setReserved(serializer_.currentEventSize());
 
     l1bit_.clear();  //Clear up for the next event to come.
     return msg;

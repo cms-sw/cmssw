@@ -10,6 +10,9 @@
 
 #include "DataFormats/Common/interface/ProcessConfiguration.h"
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
+#include "TBuffer.h"
+#include "TClass.h"
+#include <vector>
 
 class InitMsgView;
 class EventMsgView;
@@ -39,6 +42,9 @@ namespace edm {
 
   private:
     ProcessConfiguration processConfiguration_;
+    TClass* tc_;
+    std::vector<unsigned char> dest_;
+    TBuffer xbuf_;
   };
 
 }

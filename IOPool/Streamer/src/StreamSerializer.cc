@@ -13,17 +13,30 @@
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 
 #include "zlib.h"
+#include <cstdlib>
 
 using namespace std;
 
 namespace edm
 {
 
+  StreamSerializer::Arr::Arr(int sz):ptr_((char*)malloc(sz)) { }
+  StreamSerializer::Arr::~Arr() { free(ptr_); }
+
+  const int init_size = 1024*1024;
+
   /**
    * Creates a translator instance for the specified product registry.
    */
   StreamSerializer::StreamSerializer(OutputModule::Selections const* selections):
-    selections_(selections)
+    selections_(selections),
+    //data_(init_size),
+    comp_buf_(init_size),
+    curr_event_size_(),
+    curr_space_used_(),
+    rootbuf_(TBuffer::kWrite,init_size), // ,data_.ptr_,kFALSE),
+    ptr_((unsigned char*)rootbuf_.Buffer()),
+    tc_(getTClass(typeid(SendEvent)))
   { }
 
   /**
@@ -86,10 +99,27 @@ namespace edm
 
   /**
    * Serializes the specified event into the specified event message.
+
+
+   make a char* as a data member, tell ROOT to not adapt it, but still use it.
+   initialize it to 1M, let ROOT resize if it wants, then delete it in the
+   dtor.
+
+   change the call to not take an eventMessage, add a member function to 
+   return the address of the place that ROOT wrote the serialized data.
+
+   return the length of the serialized object and the actual length if
+   compression has been done (may want to cache these lengths in this
+   object instead.
+
+   the caller will need to copy the data from this object to its final
+   destination in the EventMsgBuilder.
+
+
    */
   int StreamSerializer::serializeEvent(EventPrincipal const& eventPrincipal,
-                                       EventMsgBuilder& eventMessage,
-                                       bool use_compression, int compression_level)
+                                       bool use_compression, 
+				       int compression_level)
   {
     SendEvent se(eventPrincipal.id(),eventPrincipal.time());
 
@@ -124,13 +154,14 @@ namespace edm
       }
      }
 
+    //TBuffer rootbuf(TBuffer::kWrite,eventMessage.bufferSize(),
+    //                eventMessage.eventAddr(),kFALSE);
 
-    TBuffer rootbuf(TBuffer::kWrite,eventMessage.bufferSize(),
-                    eventMessage.eventAddr(),kFALSE);
+    rootbuf_.Reset();
     RootDebug tracer(10,10);
 
-    TClass* tc = getTClass(typeid(SendEvent));
-    int bres = rootbuf.WriteObjectAny(&se,tc);
+    //TClass* tc = getTClass(typeid(SendEvent));
+    int bres = rootbuf_.WriteObjectAny(&se,tc_);
    switch(bres)
       {
       case 0: // failure
@@ -159,50 +190,63 @@ namespace edm
           break;
         }
       }
-     
-    eventMessage.setEventLength(rootbuf.Length()); 
+   
+   curr_event_size_ = rootbuf_.Length();
+   curr_space_used_ = curr_event_size_;
+   ptr_ = (unsigned char*)rootbuf_.Buffer();
+#if 0
+   if(ptr_ != data_.ptr_)
+	{
+	cerr << "ROOT reset the buffer!!!!\n";
+	data_.ptr_ = ptr_; // ROOT may have reset our data pointer!!!!
+	}
+#endif
+   // copy(rootbuf_.Buffer(),rootbuf_.Buffer()+rootbuf_.Length(),
+   //	eventMessage.eventAddr());
+   // eventMessage.setEventLength(rootbuf.Length()); 
+
     // compress before return if we need to
     // should test if compressed already - should never be?
     //   as double compression can have problems
     if(use_compression)
     {
-      std::vector<unsigned char> dest;
-      //unsigned long dest_size = 7008*1000; //(should be > rootbuf.Length()*1.001 + 12)
-      unsigned long dest_size = (unsigned long)(double(rootbuf.Length())*1.002 + 1.0) + 12;
-      FDEBUG(10) << "rootbuf size = " << rootbuf.Length() << " dest_size = "
-           << dest_size << endl;
-      dest.resize(dest_size);
+      // old comments:
+      //   unsigned long dest_size = 7008*1000;
+      //   (should be > rootbuf.Length()*1.001 + 12)
+
+      // what are these magic numbers? (jbk)
+      unsigned long dest_size = (unsigned long)(double(curr_event_size_)*
+						1.002 + 1.0) + 12;
+      if(comp_buf_.size() < dest_size) comp_buf_.resize(dest_size);
+
       // compression 1-9, 6 is zlib default, 0 none
-      int ret = compress2(&dest[0], &dest_size, (unsigned char*)eventMessage.eventAddr(),
-                          rootbuf.Length(), compression_level); 
+      int ret = compress2(&comp_buf_[0], &dest_size, ptr_,
+                          curr_event_size_, compression_level); 
+
       if(ret == Z_OK) {
-        // copy compressed data back into buffer and resize
-        unsigned char* pos = (unsigned char*) eventMessage.eventAddr();
-        unsigned char* from = (unsigned char*) &dest[0];
-        unsigned int oldsize = rootbuf.Length();
-        copy(from,from+dest_size,pos);
-        eventMessage.setEventLength(dest_size);
-        // and set reserved to original size for test and needed for buffer size
-        eventMessage.setReserved(oldsize);
+	ptr_ = &comp_buf_[0]; // reset to point at compressed area
+        curr_space_used_ = dest_size;
+
+        // set reserved to original size for test and needed for buffer size
+        // eventMessage.setReserved(oldsize);
+
         // return the correct length
-        FDEBUG(10) << " original size = " << oldsize << " final size = " << dest_size
-             << " ratio = " << double(dest_size)/double(oldsize) << endl;
-        return dest_size;
+        FDEBUG(1) << " original size = " << curr_event_size_
+		   << " final size = " << dest_size
+		   << " ratio = " << double(dest_size)/double(curr_event_size_)
+		   << endl;
       }
       else
       {
         // compression failed, just return the original buffer
-        FDEBUG(9) <<"Compression Return value: "<<ret<< " Okay = " << Z_OK << endl;
+        FDEBUG(9) <<"Compression Return value: "<<ret
+		  << " Okay = " << Z_OK << endl;
         // do we throw an exception here?
         cerr <<"Compression Return value: "<<ret<< " Okay = " << Z_OK << endl;
-        return rootbuf.Length();
       }
     }
-    else
-    {
-      // just return the original buffer
-      return rootbuf.Length();
-    }
+
+    return curr_space_used_;
   }
 
   /**

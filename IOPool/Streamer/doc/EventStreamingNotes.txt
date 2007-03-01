@@ -176,3 +176,12 @@ size of the message is also a problem - is the msgcode included in the
 payload size or is it part of the header?  It is currently not reported
 as part of the payload if only the MsgCode class is used.
 
+01-03-07 jbk:
+
+Let ROOT manage the lifetime of the buffers it uses for input and output.
+Changed the compression buffers to data members instead of stack-related
+variables.  Moved the TBuffers to member data.
+Tested using NewStreamIn/Out.cfg with sizes bigger than than the default
+buffer sizes. Also added comments to the code about percular things: 
+assumed max overheads and such.
+

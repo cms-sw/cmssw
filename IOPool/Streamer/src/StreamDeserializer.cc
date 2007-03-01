@@ -20,12 +20,18 @@ using namespace std;
 
 namespace edm
 {
+  namespace {
+    const int init_size = 1024*1024;
+  }
 
   /**
    * Creates a translator instance for the specified product registry.
    */
   StreamDeserializer::StreamDeserializer():
-    processConfiguration_()
+    processConfiguration_(),
+    tc_(getTClass(typeid(SendEvent))),
+    dest_(init_size),
+    xbuf_(TBuffer::kRead, init_size)
   { }
 
   /**
@@ -78,15 +84,19 @@ namespace edm
     // 78 was a dummy value (for no uncompressed) - should be 0 for uncompressed
     // need to get rid of this when 090 MTCC streamers are gotten rid of
     unsigned long origsize = eventView.reserved();
-    ///unsigned char dest[7008*1000];
-    std::vector<unsigned char> dest;
-    unsigned long dest_size = 7008*1000; //(should be >= eventView.reserved() )
+    unsigned long dest_size; //(should be >= eventView.reserved() )
+
     if(eventView.reserved() != 78 && eventView.reserved() != 0)
     {
-      dest_size = eventView.reserved();
-      dest.resize(dest_size);
-      int ret = uncompress(&dest[0], &dest_size, (unsigned char*)eventView.eventData(),
-                          eventView.eventLength()); // do not need compression level
+      // compressed
+      dest_size = eventView.reserved(); // size of uncompressed event
+      FDEBUG(1) << "DESER: reserved = " << dest_size
+		<< " eventlength = " << eventView.eventLength()
+		<< endl;
+      dest_.resize(dest_size);
+      int ret = uncompress(&dest_[0], &dest_size,
+			   (unsigned char*)eventView.eventData(),
+			   eventView.eventLength()); // do not need compression level
       //cout<<"unCompress Return value: "<<ret<< " Okay = " << Z_OK << endl;
       if(ret == Z_OK) {
         // check the length against original uncompressed length
@@ -118,18 +128,21 @@ namespace edm
     {
       // we need to copy anyway the buffer as we are using dest in xbuf
       dest_size = eventView.eventLength();
-      dest.resize(dest_size);
-      unsigned char* pos = (unsigned char*) &dest[0];
+      dest_.resize(dest_size);
+      unsigned char* pos = (unsigned char*) &dest_[0];
       unsigned char* from = (unsigned char*) eventView.eventData();
       copy(from,from+dest_size,pos);
     }
-    TBuffer xbuf(TBuffer::kRead, dest_size,
-                 (char*) &dest[0],kFALSE);
+    //TBuffer xbuf(TBuffer::kRead, dest_size,
+    //             (char*) &dest[0],kFALSE);
     //TBuffer xbuf(TBuffer::kRead, eventView.eventLength(),
     //             (char*) eventView.eventData(),kFALSE);
+    xbuf_.Reset();
+    xbuf_.SetBuffer(&dest_[0],dest_size,kFALSE);
     RootDebug tracer(10,10);
-    TClass* tc = getTClass(typeid(SendEvent));
-    auto_ptr<SendEvent> sd((SendEvent*)xbuf.ReadObjectAny(tc));
+
+    auto_ptr<SendEvent> sd((SendEvent*)xbuf_.ReadObjectAny(tc_));
+
     if(sd.get()==0) {
         throw cms::Exception("StreamTranslation","Event deserialization error")
           << "got a null event from input stream\n";
